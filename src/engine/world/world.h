@@ -1,6 +1,7 @@
 #pragma once
 
 #include "animation.h"
+#include "atlastile.h"
 #include "audio/soundengine.h"
 #include "box.h"
 #include "engine/floordata/floordata.h"
@@ -9,6 +10,7 @@
 #include "loader/file/item.h"
 #include "mesh.h"
 #include "skeletalmodeltype.h"
+#include "sprite.h"
 #include "staticmesh.h"
 #include "transition.h"
 #include "ui/pickupwidget.h"
@@ -168,7 +170,7 @@ public:
   std::vector<loader::file::Room>& getRooms();
   [[nodiscard]] const StaticMesh* findStaticMeshById(core::StaticMeshId meshId) const;
   [[nodiscard]] std::shared_ptr<render::scene::Mesh> findStaticRenderMeshById(core::StaticMeshId meshId) const;
-  [[nodiscard]] const std::unique_ptr<loader::file::SpriteSequence>& findSpriteSequenceForType(core::TypeId type) const;
+  [[nodiscard]] const std::unique_ptr<SpriteSequence>& findSpriteSequenceForType(core::TypeId type) const;
   [[nodiscard]] const Animation& getAnimation(loader::file::AnimationId id) const;
   [[nodiscard]] const std::vector<loader::file::CinematicFrame>& getCinematicFrames() const;
   [[nodiscard]] const std::vector<loader::file::Camera>& getCameras() const;
@@ -206,7 +208,7 @@ public:
   [[nodiscard]] const loader::file::Palette& getRawPalette() const;
   void handleCommandSequence(const floordata::FloorDataValue* floorData, bool fromHeavy);
   core::TypeId find(const SkeletalModelType* model) const;
-  core::TypeId find(const loader::file::Sprite* sprite) const;
+  core::TypeId find(const Sprite* sprite) const;
   void serialize(const serialization::Serializer<World>& ser);
   void gameLoop(bool godMode);
   bool cinematicLoop();
@@ -272,7 +274,7 @@ public:
     return *m_textureAnimator;
   }
 
-  void addPickupWidget(loader::file::Sprite sprite)
+  void addPickupWidget(Sprite sprite)
   {
     m_pickupWidgets.emplace_back(75_frame, std::move(sprite));
   }
@@ -294,6 +296,16 @@ public:
   const auto& getPlayerPtr() const
   {
     return m_player;
+  }
+
+  const auto& getAtlasTiles() const
+  {
+    return m_atlasTiles;
+  }
+
+  const auto& getSprites() const
+  {
+    return m_sprites;
   }
 
 private:
@@ -358,6 +370,9 @@ private:
   std::unordered_map<core::StaticMeshId, StaticMesh> m_staticMeshes;
   std::vector<Mesh> m_meshes;
   std::map<core::TypeId, std::unique_ptr<SkeletalModelType>> m_animatedModels;
+  std::vector<Sprite> m_sprites;
+  std::map<core::TypeId, std::unique_ptr<SpriteSequence>> m_spriteSequences;
+  std::vector<AtlasTile> m_atlasTiles;
 
   std::vector<gsl::not_null<const Mesh*>> initFromLevel();
   void connectSectors();

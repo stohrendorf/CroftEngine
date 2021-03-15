@@ -106,7 +106,7 @@ struct SpriteFactory : public ObjectFactory
     Expects(spriteSequence != nullptr);
     Expects(!spriteSequence->sprites.empty());
 
-    const loader::file::Sprite& sprite = spriteSequence->sprites[0];
+    const world::Sprite& sprite = spriteSequence->sprites[0];
     return std::make_shared<T>(&world,
                                std::string("sprite(type:") + toString(item.type.get_as<TR1ItemId>()) + ")",
                                room,
@@ -340,7 +340,7 @@ std::shared_ptr<Object> createObject(world::World& world, loader::file::Item& it
   {
     BOOST_ASSERT(!spriteSequence->sprites.empty());
 
-    const loader::file::Sprite& sprite = spriteSequence->sprites[0];
+    const world::Sprite& sprite = spriteSequence->sprites[0];
     std::shared_ptr<Object> object;
 
     BOOST_LOG_TRIVIAL(warning) << "Unimplemented object type " << toString(item.type.get_as<TR1ItemId>());

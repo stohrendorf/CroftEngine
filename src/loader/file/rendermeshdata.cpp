@@ -1,6 +1,7 @@
 #include "rendermeshdata.h"
 
 #include "datatypes.h"
+#include "engine/world/atlastile.h"
 #include "render/scene/materialmanager.h"
 #include "render/scene/mesh.h"
 #include "render/scene/rendermode.h"
@@ -11,11 +12,13 @@
 
 namespace loader::file
 {
-RenderMeshData::RenderMeshData(const Mesh& mesh, const std::vector<TextureTile>& textureTiles, const Palette& palette)
+RenderMeshData::RenderMeshData(const Mesh& mesh,
+                               const std::vector<engine::world::AtlasTile>& atlasTiles,
+                               const Palette& palette)
 {
   for(const QuadFace& quad : mesh.textured_rectangles)
   {
-    const TextureTile& tile = textureTiles.at(quad.tileId.get());
+    const auto& tile = atlasTiles.at(quad.tileId.get());
 
     const auto firstVertex = m_vertices.size();
     for(int i = 0; i < 4; ++i)
@@ -50,7 +53,7 @@ RenderMeshData::RenderMeshData(const Mesh& mesh, const std::vector<TextureTile>&
       }
 
       iv.position = quad.vertices[i].from(mesh.vertices).toRenderSystem();
-      iv.uv = tile.uvCoordinates[i].toGl();
+      iv.uv = tile.uvCoordinates[i];
       m_vertices.emplace_back(iv);
     }
 
@@ -107,14 +110,14 @@ RenderMeshData::RenderMeshData(const Mesh& mesh, const std::vector<TextureTile>&
 
   for(const Triangle& tri : mesh.textured_triangles)
   {
-    const TextureTile& tile = textureTiles.at(tri.tileId.get());
+    const auto& tile = atlasTiles.at(tri.tileId.get());
 
     for(int i = 0; i < 3; ++i)
     {
       RenderVertex iv{};
       iv.position = tri.vertices[i].from(mesh.vertices).toRenderSystem();
       iv.textureIndex = tile.textureKey.tileAndFlag & TextureIndexMask;
-      iv.uv = tile.uvCoordinates[i].toGl();
+      iv.uv = tile.uvCoordinates[i];
       if(mesh.normals.empty())
         iv.color = glm::vec4{glm::vec3{toBrightness(tri.vertices[i].from(mesh.vertex_shades)).get()}, 1.0f};
 

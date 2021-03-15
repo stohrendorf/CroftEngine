@@ -18,7 +18,7 @@ SpriteObject::SpriteObject(const gsl::not_null<world::World*>& world,
                            const gsl::not_null<const loader::file::Room*>& room,
                            const loader::file::Item& item,
                            const bool hasUpdateFunction,
-                           const gsl::not_null<const loader::file::Sprite*>& sprite,
+                           const gsl::not_null<const world::Sprite*>& sprite,
                            gsl::not_null<std::shared_ptr<render::scene::Material>> material)
     : Object{world, room, item, hasUpdateFunction}
     , m_node{std::make_shared<render::scene::Node>(std::move(name))}
@@ -52,8 +52,8 @@ void SpriteObject::createModel()
                                                     static_cast<float>(-m_sprite->render0.y),
                                                     static_cast<float>(m_sprite->render1.x),
                                                     static_cast<float>(-m_sprite->render1.y),
-                                                    m_sprite->uv0.toGl(),
-                                                    m_sprite->uv1.toGl(),
+                                                    m_sprite->uv0,
+                                                    m_sprite->uv1,
                                                     m_material,
                                                     m_sprite->texture_id.get_as<int32_t>());
 
@@ -69,8 +69,7 @@ void SpriteObject::serialize(const serialization::Serializer<world::World>& ser)
 {
   Object::serialize(ser);
   auto tmp = getNode()->getName();
-  ser(
-    S_NV("@name", tmp), S_NVVE("sprite", ser.context.getLevel().m_sprites, m_sprite), S_NV("brightness", m_brightness));
+  ser(S_NV("@name", tmp), S_NVVE("sprite", ser.context.getSprites(), m_sprite), S_NV("brightness", m_brightness));
   if(ser.loading)
   {
     createModel();

@@ -178,16 +178,6 @@ Game Level::probeVersion(io::SDLReader& reader, const std::filesystem::path& fil
   return ret;
 }
 
-const std::unique_ptr<SpriteSequence>& Level::findSpriteSequenceForType(const core::TypeId type) const
-{
-  const auto it = m_spriteSequences.find(type);
-  if(it != m_spriteSequences.end())
-    return it->second;
-
-  static const std::unique_ptr<SpriteSequence> none;
-  return none;
-}
-
 void Level::convertTexture(ByteTexture& tex, Palette& pal, DWordTexture& dst)
 {
   for(int y = 0; y < 256; y++)

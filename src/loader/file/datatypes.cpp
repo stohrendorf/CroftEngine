@@ -153,7 +153,7 @@ void Room::createSceneNode(const size_t roomId,
       }
     }
 
-    const TextureTile& tile = world.getLevel().m_textureTiles.at(quad.tileId.get());
+    const auto& tile = world.getAtlasTiles().at(quad.tileId.get());
 
     const auto firstVertex = vbufData.size();
     for(int i = 0; i < 4; ++i)
@@ -161,7 +161,7 @@ void Room::createSceneNode(const size_t roomId,
       RenderVertex iv;
       iv.position = quad.vertices[i].from(vertices).position.toRenderSystem();
       iv.color = quad.vertices[i].from(vertices).color;
-      uvCoordsData.emplace_back(tile.textureKey.tileAndFlag & texMask, tile.uvCoordinates[i].toGl());
+      uvCoordsData.emplace_back(tile.textureKey.tileAndFlag & texMask, tile.uvCoordinates[i]);
 
       if(i <= 2)
       {
@@ -205,7 +205,7 @@ void Room::createSceneNode(const size_t roomId,
       }
     }
 
-    const TextureTile& tile = world.getLevel().m_textureTiles.at(tri.tileId.get());
+    const auto& tile = world.getAtlasTiles().at(tri.tileId.get());
 
     const auto firstVertex = vbufData.size();
     for(int i = 0; i < 3; ++i)
@@ -213,7 +213,7 @@ void Room::createSceneNode(const size_t roomId,
       RenderVertex iv;
       iv.position = tri.vertices[i].from(vertices).position.toRenderSystem();
       iv.color = tri.vertices[i].from(vertices).color;
-      uvCoordsData.emplace_back(tile.textureKey.tileAndFlag & texMask, tile.uvCoordinates[i].toGl());
+      uvCoordsData.emplace_back(tile.textureKey.tileAndFlag & texMask, tile.uvCoordinates[i]);
 
       static const std::array<int, 3> indices{0, 1, 2};
       iv.normal = generateNormal(tri.vertices[indices[(i + 0) % 3]].from(vertices).position,
@@ -275,14 +275,14 @@ void Room::createSceneNode(const size_t roomId,
   {
     BOOST_ASSERT(spriteInstance.vertex.get() < vertices.size());
 
-    const Sprite& sprite = world.getLevel().m_sprites.at(spriteInstance.id.get());
+    const auto& sprite = world.getSprites().at(spriteInstance.id.get());
 
     const auto mesh = render::scene::createSpriteMesh(static_cast<float>(sprite.render0.x),
                                                       static_cast<float>(-sprite.render0.y),
                                                       static_cast<float>(sprite.render1.x),
                                                       static_cast<float>(-sprite.render1.y),
-                                                      sprite.uv0.toGl(),
-                                                      sprite.uv1.toGl(),
+                                                      sprite.uv0,
+                                                      sprite.uv1,
                                                       materialManager.getSprite(),
                                                       sprite.texture_id.get_as<int32_t>());
 

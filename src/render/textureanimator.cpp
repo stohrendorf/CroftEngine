@@ -1,5 +1,6 @@
 #include "textureanimator.h"
 
+#include "engine/world/atlastile.h"
 #include "loader/file/datatypes.h"
 #include "textureatlas.h"
 
@@ -30,7 +31,7 @@ TextureAnimator::TextureAnimator(const std::vector<uint16_t>& data)
   }
 }
 
-void TextureAnimator::Sequence::updateCoordinates(const std::vector<loader::file::TextureTile>& tiles)
+void TextureAnimator::Sequence::updateCoordinates(const std::vector<engine::world::AtlasTile>& tiles)
 {
   BOOST_ASSERT(!tileIds.empty());
 
@@ -42,9 +43,9 @@ void TextureAnimator::Sequence::updateCoordinates(const std::vector<loader::file
     {
       BOOST_ASSERT(buffer->size() > 0 && vref.bufferIndex < static_cast<size_t>(buffer->size()));
       BOOST_ASSERT(vref.queueOffset < tileIds.size());
-      const loader::file::TextureTile& tile = tiles[tileIds[vref.queueOffset].get()];
+      const engine::world::AtlasTile& tile = tiles[tileIds[vref.queueOffset].get()];
 
-      uvArray[vref.bufferIndex].uv = tile.uvCoordinates[vref.sourceIndex].toGl();
+      uvArray[vref.bufferIndex].uv = tile.uvCoordinates[vref.sourceIndex];
       uvArray[vref.bufferIndex].index = tile.textureKey.tileAndFlag & loader::file::TextureIndexMask;
     }
 

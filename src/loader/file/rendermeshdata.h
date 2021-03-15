@@ -13,6 +13,11 @@ class MaterialManager;
 class Mesh;
 } // namespace render::scene
 
+namespace engine::world
+{
+struct AtlasTile;
+}
+
 namespace loader::file
 {
 class RenderMeshData final
@@ -42,7 +47,9 @@ public:
     }
   };
 
-  explicit RenderMeshData(const Mesh& mesh, const std::vector<TextureTile>& textureTiles, const Palette& palette);
+  explicit RenderMeshData(const Mesh& mesh,
+                          const std::vector<engine::world::AtlasTile>& atlasTiles,
+                          const Palette& palette);
 
   [[nodiscard]] const auto& getVertices() const
   {

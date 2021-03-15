@@ -103,8 +103,6 @@ public:
 
   [[nodiscard]] const std::unique_ptr<SkeletalModelType>& findAnimatedModelForType(core::TypeId type) const;
 
-  [[nodiscard]] const std::unique_ptr<SpriteSequence>& findSpriteSequenceForType(core::TypeId type) const;
-
   const auto& getFilename() const
   {
     return m_filename;

@@ -28,14 +28,14 @@ void Particle::initRenderables(world::World& world, const float scale)
   {
     shade = core::Shade{core::Shade::type{4096}};
 
-    for(const loader::file::Sprite& spr : spriteSequence->sprites)
+    for(const world::Sprite& spr : spriteSequence->sprites)
     {
       auto mesh = render::scene::createSpriteMesh(static_cast<float>(spr.render0.x) * scale,
                                                   static_cast<float>(-spr.render0.y) * scale,
                                                   static_cast<float>(spr.render1.x) * scale,
                                                   static_cast<float>(-spr.render1.y) * scale,
-                                                  spr.uv0.toGl(),
-                                                  spr.uv1.toGl(),
+                                                  spr.uv0,
+                                                  spr.uv1,
                                                   world.getPresenter().getMaterialManager()->getSprite(),
                                                   spr.texture_id.get_as<int32_t>());
       m_renderables.emplace_back(std::move(mesh));
@@ -117,7 +117,7 @@ bool BloodSplatterParticle::update(world::World& world)
 
   timePerSpriteFrame = 0;
   nextFrame();
-  if(negSpriteFrameId <= world.findSpriteSequenceForType(object_number)->length)
+  if(gsl::narrow<size_t>(-negSpriteFrameId) >= world.findSpriteSequenceForType(object_number)->sprites.size())
     return false;
 
   applyTransform();
@@ -128,7 +128,7 @@ bool SplashParticle::update(world::World& world)
 {
   nextFrame();
 
-  if(negSpriteFrameId <= world.findSpriteSequenceForType(object_number)->length)
+  if(gsl::narrow<size_t>(-negSpriteFrameId) >= world.findSpriteSequenceForType(object_number)->sprites.size())
   {
     return false;
   }
@@ -178,7 +178,7 @@ FlameParticle::FlameParticle(const core::RoomBoundPosition& pos, world::World& w
 bool FlameParticle::update(world::World& world)
 {
   nextFrame();
-  if(negSpriteFrameId <= world.findSpriteSequenceForType(object_number)->length)
+  if(gsl::narrow<size_t>(-negSpriteFrameId) >= world.findSpriteSequenceForType(object_number)->sprites.size())
     negSpriteFrameId = 0;
 
   if(timePerSpriteFrame >= 0)

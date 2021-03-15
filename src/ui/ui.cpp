@@ -1,7 +1,7 @@
 #include "ui.h"
 
 #include "boxgouraud.h"
-#include "loader/file/datatypes.h"
+#include "engine/world/sprite.h"
 #include "render/scene/material.h"
 #include "render/scene/mesh.h"
 #include "render/scene/names.h"
@@ -170,7 +170,7 @@ void Ui::render(const glm::vec2& screenSize)
   m_meshes.clear();
 }
 
-void Ui::draw(const loader::file::Sprite& sprite, const glm::ivec2& xy)
+void Ui::draw(const engine::world::Sprite& sprite, const glm::ivec2& xy)
 {
   struct TextureQuadVertex
   {
@@ -186,8 +186,8 @@ void Ui::draw(const loader::file::Sprite& sprite, const glm::ivec2& xy)
 
   const auto a = sprite.render0 + xy;
   const auto b = sprite.render1 + xy;
-  const auto ta = sprite.uv0.toGl();
-  const auto tb = sprite.uv1.toGl();
+  const auto ta = sprite.uv0;
+  const auto tb = sprite.uv1;
   const std::array<TextureQuadVertex, 4> vertices{TextureQuadVertex{{a.x, a.y}, {ta.x, ta.y}, sprite.texture_id.get()},
                                                   TextureQuadVertex{{a.x, b.y}, {ta.x, tb.y}, sprite.texture_id.get()},
                                                   TextureQuadVertex{{b.x, b.y}, {tb.x, tb.y}, sprite.texture_id.get()},

@@ -1,10 +1,11 @@
 #pragma once
 
 #include "boxgouraud.h"
+#include "engine/world/sprite.h"
 #include "loader/file/color.h"
-#include "loader/file/datatypes.h"
 
 #include <cstdint>
+#include <optional>
 #include <string>
 
 namespace loader::file
@@ -22,11 +23,11 @@ constexpr int FontBaseScale = 0x10000;
 
 class TRFont
 {
-  gsl::span<const loader::file::Sprite> m_sprites;
+  gsl::span<const engine::world::Sprite> m_sprites;
   const int m_scale;
 
 public:
-  explicit TRFont(const loader::file::SpriteSequence& sequence, const int scale = FontBaseScale)
+  explicit TRFont(const engine::world::SpriteSequence& sequence, const int scale = FontBaseScale)
       : m_sprites{sequence.sprites}
       , m_scale{scale}
   {

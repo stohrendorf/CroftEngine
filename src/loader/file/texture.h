@@ -61,7 +61,7 @@ enum class BlendingMode : uint16_t
 struct UVCoordinates
 {
   QS_DECLARE_QUANTITY(Component, uint16_t, "uv");
-  static constexpr float ComponentScale = static_cast<float>(std::numeric_limits<uint16_t>::max() + 1);
+  static constexpr float ComponentScale = static_cast<float>(std::numeric_limits<uint16_t>::max()) + 1;
 
   Component x{};
   Component y{};
@@ -83,26 +83,6 @@ struct UVCoordinates
   [[nodiscard]] glm::vec2 toGl() const
   {
     return glm::vec2{x.get<float>() / ComponentScale, y.get<float>() / ComponentScale};
-  }
-
-  [[nodiscard]] glm::ivec2 toPx(int w, int h) const
-  {
-    return glm::ivec2{toGl() * glm::vec2{w, h}};
-  }
-
-  [[nodiscard]] glm::ivec2 toPx(int wh) const
-  {
-    return toPx(wh, wh);
-  }
-
-  [[nodiscard]] glm::ivec2 toNearestPx(int size) const
-  {
-    return glm::round(toGl() * gsl::narrow_cast<float>(size));
-  }
-
-  [[nodiscard]] glm::vec2 toNearestGl(int size) const
-  {
-    return glm::vec2{toNearestPx(size)} / gsl::narrow_cast<float>(size);
   }
 
   void set(const glm::vec2& uv)
@@ -170,65 +150,11 @@ struct TextureTile
   uint32_t x_size{};                            // TR4
   uint32_t y_size{};                            // TR4
 
-  bool operator==(const TextureTile& rhs) const
-  {
-    return textureKey == rhs.textureKey && uvCoordinates == rhs.uvCoordinates && unknown1 == rhs.unknown1
-           && unknown2 == rhs.unknown2 && x_size == rhs.x_size && y_size == rhs.y_size;
-  }
-
-  bool operator<(const TextureTile& rhs) const
-  {
-    if(!(textureKey == rhs.textureKey))
-      return textureKey < rhs.textureKey;
-
-    if(unknown1 != rhs.unknown1)
-      return unknown1 < rhs.unknown1;
-
-    if(unknown2 != rhs.unknown2)
-      return unknown2 < rhs.unknown2;
-
-    if(x_size != rhs.x_size)
-      return x_size < rhs.x_size;
-
-    return y_size < rhs.y_size;
-  }
-
   static std::unique_ptr<TextureTile> readTr1(io::SDLReader& reader);
 
   static std::unique_ptr<TextureTile> readTr4(io::SDLReader& reader);
 
   static std::unique_ptr<TextureTile> readTr5(io::SDLReader& reader);
-
-  [[nodiscard]] std::pair<glm::ivec2, glm::ivec2> getMinMaxPx(int size) const
-  {
-    glm::ivec2 xy0{std::numeric_limits<glm::int32>::max()};
-    glm::ivec2 xy1{std::numeric_limits<glm::int32>::min()};
-    for(const auto& uvComponent : uvCoordinates)
-    {
-      if(uvComponent.x.get() == 0 && uvComponent.y.get() == 0)
-        continue;
-
-      const auto px = uvComponent.toPx(size);
-      xy0 = glm::min(px, xy0);
-      xy1 = glm::max(px, xy1);
-    }
-    return {xy0, xy1};
-  }
-
-  [[nodiscard]] std::pair<glm::vec2, glm::vec2> getMinMaxUv() const
-  {
-    glm::vec2 xy0{std::numeric_limits<glm::float32>::max()};
-    glm::vec2 xy1{std::numeric_limits<glm::float32>::min()};
-    for(const auto& uvComponent : uvCoordinates)
-    {
-      if(uvComponent.x.get() == 0 && uvComponent.y.get() == 0)
-        continue;
-
-      xy0 = glm::min(uvComponent.toGl(), xy0);
-      xy1 = glm::max(uvComponent.toGl(), xy1);
-    }
-    return {xy0, xy1};
-  }
 };
 } // namespace file
 } // namespace loader

@@ -13,7 +13,7 @@ class Mesh;
 class Material;
 } // namespace render::scene
 
-namespace loader::file
+namespace engine::world
 {
 struct Sprite;
 }
@@ -39,7 +39,7 @@ public:
   void drawBox(const glm::ivec2& xy, const glm::ivec2& size, const gl::SRGBA8& color);
   void drawHLine(const glm::ivec2& xy, int length, const gl::SRGBA8& color);
   void drawVLine(const glm::ivec2& xy, int length, const gl::SRGBA8& color);
-  void draw(const loader::file::Sprite& sprite, const glm::ivec2& xy);
+  void draw(const engine::world::Sprite& sprite, const glm::ivec2& xy);
 
   void render(const glm::vec2& screenSize);
 

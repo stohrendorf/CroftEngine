@@ -5,7 +5,8 @@
 namespace engine::world
 {
 class World;
-}
+struct Sprite;
+} // namespace engine::world
 
 namespace engine::objects
 {
@@ -13,7 +14,7 @@ class SpriteObject : public Object
 {
 private:
   std::shared_ptr<render::scene::Node> m_node;
-  const loader::file::Sprite* m_sprite = nullptr;
+  const world::Sprite* m_sprite = nullptr;
   core::Brightness m_brightness{0.5f};
   gsl::not_null<std::shared_ptr<render::scene::Material>> m_material;
 
@@ -31,7 +32,7 @@ public:
                const gsl::not_null<const loader::file::Room*>& room,
                const loader::file::Item& item,
                bool hasUpdateFunction,
-               const gsl::not_null<const loader::file::Sprite*>& sprite,
+               const gsl::not_null<const world::Sprite*>& sprite,
                gsl::not_null<std::shared_ptr<render::scene::Material>> material);
 
   SpriteObject(const SpriteObject&) = delete;
@@ -61,7 +62,7 @@ public:
   {
   }
 
-  const loader::file::Sprite& getSprite() const
+  const world::Sprite& getSprite() const
   {
     Expects(m_sprite != nullptr);
     return *m_sprite;

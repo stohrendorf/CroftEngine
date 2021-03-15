@@ -9,9 +9,9 @@
 #include <set>
 #include <vector>
 
-namespace loader::file
+namespace engine::world
 {
-struct TextureTile;
+struct AtlasTile;
 }
 
 namespace render
@@ -47,7 +47,7 @@ public:
     m_sequences.at(sequenceId).registerVertex(buffer, Sequence::VertexReference(bufferIndex, sourceIndex), tileId);
   }
 
-  void updateCoordinates(const std::vector<loader::file::TextureTile>& tiles)
+  void updateCoordinates(const std::vector<engine::world::AtlasTile>& tiles)
   {
     for(Sequence& sequence : m_sequences)
     {
@@ -105,7 +105,7 @@ private:
       affectedVertices[buffer].insert(vertex);
     }
 
-    void updateCoordinates(const std::vector<loader::file::TextureTile>& tiles);
+    void updateCoordinates(const std::vector<engine::world::AtlasTile>& tiles);
   };
 
   std::vector<Sequence> m_sequences;

@@ -9,7 +9,7 @@ namespace ui
 class PickupWidget
 {
 public:
-  explicit PickupWidget(const core::Frame& duration, loader::file::Sprite sprite)
+  explicit PickupWidget(const core::Frame& duration, engine::world::Sprite sprite)
       : m_duration{duration}
       , m_sprite{std::move(sprite)}
   {
@@ -32,6 +32,6 @@ public:
 
 private:
   core::Frame m_duration;
-  mutable loader::file::Sprite m_sprite;
+  mutable engine::world::Sprite m_sprite;
 };
 } // namespace ui

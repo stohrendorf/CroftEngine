@@ -48,13 +48,13 @@ namespace
 {
 struct UVRect
 {
-  explicit UVRect(const std::array<loader::file::UVCoordinates, 4>& cos)
+  explicit UVRect(const std::array<glm::vec2, 4>& cos)
   {
-    xy0.x = xy0.y = loader::file::UVCoordinates::Component{std::numeric_limits<uint16_t>::max()};
-    xy1.x = xy1.y = loader::file::UVCoordinates::Component{std::numeric_limits<uint16_t>::min()};
+    xy0.x = xy0.y = 1;
+    xy1.x = xy1.y = 0;
     for(const auto& co : cos)
     {
-      if(co.x.get() == 0 && co.y.get() == 0)
+      if(co.x == 0 && co.y == 0)
         continue;
 
       xy0.x = std::min(xy0.x, co.x);
@@ -64,7 +64,7 @@ struct UVRect
     }
   }
 
-  UVRect(const loader::file::UVCoordinates& t0, const loader::file::UVCoordinates& t1)
+  UVRect(const glm::vec2& t0, const glm::vec2& t1)
   {
     xy0.x = std::min(t0.x, t1.x);
     xy0.y = std::min(t0.y, t1.y);
@@ -88,8 +88,8 @@ struct UVRect
     return xy1.y < rhs.xy1.y;
   }
 
-  loader::file::UVCoordinates xy0{};
-  loader::file::UVCoordinates xy1{};
+  glm::vec2 xy0{};
+  glm::vec2 xy1{};
 };
 
 void activateCommand(objects::Object& object,
@@ -256,9 +256,14 @@ bool World::isValid(const loader::file::AnimFrame* frame) const
          && reinterpret_cast<const short*>(frame) < m_level->m_poseFrames.data() + m_level->m_poseFrames.size();
 }
 
-const std::unique_ptr<loader::file::SpriteSequence>& World::findSpriteSequenceForType(core::TypeId type) const
+const std::unique_ptr<SpriteSequence>& World::findSpriteSequenceForType(core::TypeId type) const
 {
-  return m_level->findSpriteSequenceForType(type);
+  const auto it = m_spriteSequences.find(type);
+  if(it != m_spriteSequences.end())
+    return it->second;
+
+  static const std::unique_ptr<SpriteSequence> none;
+  return none;
 }
 
 const StaticMesh* World::findStaticMeshById(core::StaticMeshId meshId) const
@@ -647,7 +652,7 @@ std::shared_ptr<objects::PickupObject> World::createPickup(const core::TypeId ty
 
   const auto& spriteSequence = findSpriteSequenceForType(type);
   Expects(spriteSequence != nullptr && !spriteSequence->sprites.empty());
-  const loader::file::Sprite& sprite = spriteSequence->sprites[0];
+  const Sprite& sprite = spriteSequence->sprites[0];
 
   auto object = std::make_shared<objects::PickupObject>(
     this, "pickup", room, item, &sprite, getPresenter().getMaterialManager()->getSprite());
@@ -695,7 +700,7 @@ void World::update(const bool godMode)
   m_uvAnimTime += 1_frame;
   if(m_uvAnimTime >= UVAnimTime)
   {
-    m_textureAnimator->updateCoordinates(m_level->m_textureTiles);
+    m_textureAnimator->updateCoordinates(m_atlasTiles);
     m_uvAnimTime -= UVAnimTime;
   }
 
@@ -941,13 +946,12 @@ core::TypeId World::find(const SkeletalModelType* model) const
   BOOST_THROW_EXCEPTION(std::runtime_error("Cannot find model"));
 }
 
-core::TypeId World::find(const loader::file::Sprite* sprite) const
+core::TypeId World::find(const Sprite* sprite) const
 {
-  auto it = std::find_if(
-    m_level->m_spriteSequences.begin(), m_level->m_spriteSequences.end(), [&sprite](const auto& sequence) {
-      return !sequence.second->sprites.empty() && &sequence.second->sprites[0] == sprite;
-    });
-  if(it != m_level->m_spriteSequences.end())
+  auto it = std::find_if(m_spriteSequences.begin(), m_spriteSequences.end(), [&sprite](const auto& sequence) {
+    return !sequence.second->sprites.empty() && &sequence.second->sprites[0] == sprite;
+  });
+  if(it != m_spriteSequences.end())
     return it->first;
 
   BOOST_THROW_EXCEPTION(std::runtime_error("Cannot find sprite"));
@@ -1126,26 +1130,21 @@ bool World::hasSavedGames() const
 
 namespace
 {
-void remapRange(loader::file::UVCoordinates& co,
+void remapRange(glm::vec2& co,
                 const glm::vec2& rangeAMin,
                 const glm::vec2& rangeAMax,
                 const glm::vec2& rangeBMin,
                 const glm::vec2& rangeBMax)
 {
-  auto value = co.toGl();
-  value -= rangeAMin;
-  value /= rangeAMax - rangeAMin;
-  value *= rangeBMax - rangeBMin;
-  value += rangeBMin;
-  BOOST_ASSERT(value.x >= 0 && value.x <= 1);
-  BOOST_ASSERT(value.y >= 0 && value.y <= 1);
-  co.set(value);
+  co -= rangeAMin;
+  co /= rangeAMax - rangeAMin;
+  co *= rangeBMax - rangeBMin;
+  co += rangeBMin;
+  BOOST_ASSERT(co.x >= 0 && co.x <= 1);
+  BOOST_ASSERT(co.y >= 0 && co.y <= 1);
 }
 
-void remap(loader::file::TextureTile& tile,
-           size_t atlas,
-           const glm::vec2& replacementUvPos,
-           const glm::vec2& replacementUvMax)
+void remap(AtlasTile& tile, size_t atlas, const glm::vec2& replacementUvPos, const glm::vec2& replacementUvMax)
 {
   tile.textureKey.tileAndFlag &= ~loader::file::TextureIndexMask;
   tile.textureKey.tileAndFlag |= atlas;
@@ -1157,22 +1156,19 @@ void remap(loader::file::TextureTile& tile,
 
   for(auto& uvComponent : tile.uvCoordinates)
   {
-    if(uvComponent.x.get() == 0 && uvComponent.y.get() == 0)
+    if(uvComponent.x == 0 && uvComponent.y == 0)
       continue;
 
     remapRange(uvComponent, tileUvMin, tileUvMax, replacementUvPos, replacementUvMax);
   }
 }
-void remap(loader::file::Sprite& sprite,
-           size_t atlas,
-           const glm::vec2& replacementUvPos,
-           const glm::vec2& replacementUvMax)
+void remap(world::Sprite& sprite, size_t atlas, const glm::vec2& replacementUvPos, const glm::vec2& replacementUvMax)
 {
   sprite.texture_id = core::TextureId{atlas};
 
   // re-map uv coordinates
-  const auto a = sprite.uv0.toNearestGl(256);
-  const auto b = sprite.uv1.toNearestGl(256);
+  const auto a = glm::round(sprite.uv0 * 256.0f) / 256.0f;
+  const auto b = glm::round(sprite.uv1 * 256.0f) / 256.0f;
 
   remapRange(sprite.uv0, a, b, replacementUvPos, replacementUvMax);
   remapRange(sprite.uv1, a, b, replacementUvPos, replacementUvMax);
@@ -1198,6 +1194,38 @@ World::World(Engine& engine,
 {
   {
     getPresenter().drawLoadingScreen(_("Building textures"));
+
+    std::transform(m_level->m_textureTiles.begin(),
+                   m_level->m_textureTiles.end(),
+                   std::back_inserter(m_atlasTiles),
+                   [](const loader::file::TextureTile& tile) {
+                     return AtlasTile{tile.textureKey,
+                                      {tile.uvCoordinates[0].toGl(),
+                                       tile.uvCoordinates[1].toGl(),
+                                       tile.uvCoordinates[2].toGl(),
+                                       tile.uvCoordinates[3].toGl()}};
+                   });
+
+    std::transform(
+      m_level->m_sprites.begin(),
+      m_level->m_sprites.end(),
+      std::back_inserter(m_sprites),
+      [](const loader::file::Sprite& sprite) {
+        return Sprite{sprite.texture_id, sprite.uv0.toGl(), sprite.uv1.toGl(), sprite.render0, sprite.render1};
+      });
+
+    for(const auto& [sequenceId, sequence] : m_level->m_spriteSequences)
+    {
+      Expects(sequence != nullptr);
+      Expects(sequence->length <= 0);
+      Expects(gsl::narrow<size_t>(sequence->offset - sequence->length) <= m_sprites.size());
+
+      auto seq = std::make_unique<SpriteSequence>();
+      *seq = SpriteSequence{sequence->type, gsl::make_span(&m_sprites.at(sequence->offset), -sequence->length)};
+      const bool distinct = m_spriteSequences.emplace(sequenceId, std::move(seq)).second;
+      Expects(distinct);
+    }
+
     for(auto& texture : m_level->m_textures)
     {
       texture.toImage();
@@ -1205,8 +1233,8 @@ World::World(Engine& engine,
 
     BOOST_LOG_TRIVIAL(info) << "Building texture atlases";
 
-    std::unordered_set<loader::file::TextureTile*> doneTiles;
-    std::unordered_set<loader::file::Sprite*> doneSprites;
+    std::unordered_set<AtlasTile*> doneTiles;
+    std::unordered_set<Sprite*> doneSprites;
 
     render::MultiTextureAtlas atlases{2048};
     const auto atlasUvScale = 256.0f / gsl::narrow_cast<float>(atlases.getSize());
@@ -1242,7 +1270,7 @@ World::World(Engine& engine,
                                             / gsl::narrow_cast<float>(atlases.getSize());
 
           bool remapped = false;
-          for(auto& srcTile : m_level->m_textureTiles)
+          for(auto& srcTile : m_atlasTiles)
           {
             if(doneTiles.count(&srcTile) != 0)
               continue;
@@ -1250,8 +1278,10 @@ World::World(Engine& engine,
             if((srcTile.textureKey.tileAndFlag & loader::file::TextureIndexMask) != texIdx)
               continue;
 
-            const auto [min, max] = srcTile.getMinMaxPx(256);
-            if(!tile.contains(min.x, min.y) || !tile.contains(max.x, max.y))
+            const auto [minUv, maxUv] = srcTile.getMinMaxUv();
+            const auto minPx = glm::ivec2{minUv * 256.0f};
+            const auto maxPx = glm::ivec2{maxUv * 256.0f};
+            if(!tile.contains(minPx.x, minPx.y) || !tile.contains(maxPx.x, maxPx.y))
               continue;
 
             doneTiles.emplace(&srcTile);
@@ -1259,7 +1289,7 @@ World::World(Engine& engine,
             remap(srcTile, page, replacementUvPos, replacementUvMax);
           }
 
-          for(auto& sprite : m_level->m_sprites)
+          for(auto& sprite : m_sprites)
           {
             if(doneSprites.count(&sprite) != 0)
               continue;
@@ -1267,8 +1297,8 @@ World::World(Engine& engine,
             if(sprite.texture_id.get() != texIdx)
               continue;
 
-            const auto a = sprite.uv0.toPx(256);
-            const auto b = sprite.uv1.toPx(256);
+            const auto a = glm::ivec2{sprite.uv0 * 256.0f};
+            const auto b = glm::ivec2{sprite.uv1 * 256.0f};
             if(!tile.contains(a.x, a.y) || !tile.contains(b.x, b.y))
               continue;
 
@@ -1314,29 +1344,29 @@ World::World(Engine& engine,
 
     std::map<SourceTile, std::pair<size_t, glm::ivec2>> replaced;
 
-    std::vector<loader::file::TextureTile*> tilesOrderedBySize;
-    for(auto& tile : m_level->m_textureTiles)
+    std::vector<AtlasTile*> tilesOrderedBySize;
+    for(auto& tile : m_atlasTiles)
       tilesOrderedBySize.emplace_back(&tile);
 
-    std::sort(tilesOrderedBySize.begin(),
-              tilesOrderedBySize.end(),
-              [](loader::file::TextureTile* a, loader::file::TextureTile* b) {
-                const auto aDims = a->getMinMaxUv();
-                const auto aSize = aDims.second - aDims.first;
-                const auto aArea = glm::abs(aSize.x * aSize.y);
-                const auto bDims = b->getMinMaxUv();
-                const auto bSize = bDims.second - bDims.first;
-                const auto bArea = glm::abs(bSize.x * bSize.y);
-                return aArea > bArea;
-              });
+    std::sort(tilesOrderedBySize.begin(), tilesOrderedBySize.end(), [](AtlasTile* a, AtlasTile* b) {
+      const auto aDims = a->getMinMaxUv();
+      const auto aSize = aDims.second - aDims.first;
+      const auto aArea = glm::abs(aSize.x * aSize.y);
+      const auto bDims = b->getMinMaxUv();
+      const auto bSize = bDims.second - bDims.first;
+      const auto bArea = glm::abs(bSize.x * bSize.y);
+      return aArea > bArea;
+    });
 
     for(auto* tile : tilesOrderedBySize)
     {
       if(!doneTiles.emplace(tile).second)
         continue;
       auto textureId = tile->textureKey.tileAndFlag & loader::file::TextureIndexMask;
-      const auto srcPxDims = tile->getMinMaxPx(256);
-      const SourceTile srcTile{textureId, srcPxDims};
+      const auto [srcMinUv, srcMaxUv] = tile->getMinMaxUv();
+      const auto srcMinPx = glm::ivec2{srcMinUv * 256.0f};
+      const auto srcMaxPx = glm::ivec2{srcMaxUv * 256.0f};
+      const SourceTile srcTile{textureId, {srcMinPx, srcMaxPx}};
       auto it = replaced.find(srcTile);
       std::pair<size_t, glm::ivec2> replacementPos;
       if(it == replaced.end())
@@ -1348,7 +1378,7 @@ World::World(Engine& engine,
           256,
           256,
           true);
-        replacementImg->crop(srcPxDims.first.x, srcPxDims.first.y, srcPxDims.second.x, srcPxDims.second.y);
+        replacementImg->crop(srcMinPx.x, srcMinPx.y, srcMaxPx.x, srcMaxPx.y);
 
         replacementPos = atlases.put(*replacementImg);
         replaced[srcTile] = replacementPos;
@@ -1366,25 +1396,24 @@ World::World(Engine& engine,
             replacementUvPos + (srcUvDims.second - srcUvDims.first) * atlasUvScale);
     }
 
-    std::vector<loader::file::Sprite*> spritesOrderedBySize;
-    for(auto& sprite : m_level->m_sprites)
+    std::vector<world::Sprite*> spritesOrderedBySize;
+    for(auto& sprite : m_sprites)
       spritesOrderedBySize.emplace_back(&sprite);
 
-    std::sort(
-      spritesOrderedBySize.begin(), spritesOrderedBySize.end(), [](loader::file::Sprite* a, loader::file::Sprite* b) {
-        const auto aSize = a->uv1.toGl() - a->uv1.toGl();
-        const auto aArea = glm::abs(aSize.x * aSize.y);
-        const auto bSize = b->uv1.toGl() - b->uv1.toGl();
-        const auto bArea = glm::abs(bSize.x * bSize.y);
-        return aArea > bArea;
-      });
+    std::sort(spritesOrderedBySize.begin(), spritesOrderedBySize.end(), [](world::Sprite* a, world::Sprite* b) {
+      const auto aSize = a->uv1 - a->uv0;
+      const auto aArea = glm::abs(aSize.x * aSize.y);
+      const auto bSize = b->uv1 - b->uv0;
+      const auto bArea = glm::abs(bSize.x * bSize.y);
+      return aArea > bArea;
+    });
 
     for(auto* sprite : spritesOrderedBySize)
     {
       if(!doneSprites.emplace(sprite).second)
         continue;
 
-      std::pair minMaxPx{sprite->uv0.toPx(256), sprite->uv1.toPx(256)};
+      std::pair minMaxPx{glm::ivec2{sprite->uv0 * 256.0f}, glm::ivec2{sprite->uv1 * 256.0f}};
 
       const SourceTile srcTile{sprite->texture_id.get(), minMaxPx};
       auto it = replaced.find(srcTile);
@@ -1409,7 +1438,7 @@ World::World(Engine& engine,
         replacementPos = it->second;
       }
       const auto replacementUvPos = glm::vec2{replacementPos.second} / gsl::narrow_cast<float>(atlases.getSize());
-      std::pair minMaxUv{sprite->uv0.toGl(), sprite->uv1.toGl()};
+      std::pair minMaxUv{sprite->uv0, sprite->uv1};
       remap(*sprite,
             replacementPos.first,
             replacementUvPos,
@@ -1417,8 +1446,8 @@ World::World(Engine& engine,
       sprite->texture_id = replacementPos.first;
     }
 
-    Expects(doneTiles.size() == m_level->m_textureTiles.size());
-    Expects(doneSprites.size() == m_level->m_sprites.size());
+    Expects(doneTiles.size() == m_atlasTiles.size());
+    Expects(doneSprites.size() == m_sprites.size());
 
     const int textureLevels = static_cast<int>(std::log2(atlases.getSize()) + 1) / 2;
     auto images = atlases.takeImages();
@@ -1460,7 +1489,7 @@ World::World(Engine& engine,
   }
 
   getPresenter().getSoundEngine()->setListener(m_cameraController.get());
-  getPresenter().setTrFont(std::make_unique<ui::TRFont>(*m_level->m_spriteSequences.at(TR1ItemId::FontGraphics)));
+  getPresenter().setTrFont(std::make_unique<ui::TRFont>(*m_spriteSequences.at(TR1ItemId::FontGraphics)));
   if(track.has_value())
     m_audioEngine->playStopCdTrack(track.value(), false);
 }
@@ -1470,12 +1499,12 @@ World::~World() = default;
 void World::createMipmaps(const std::vector<std::shared_ptr<gl::CImgWrapper>>& images, size_t nMips)
 {
   std::map<int, std::set<UVRect>> tilesByTexture;
-  BOOST_LOG_TRIVIAL(debug) << m_level->m_textureTiles.size() << " total texture tiles";
-  for(const auto& tile : m_level->m_textureTiles)
+  BOOST_LOG_TRIVIAL(debug) << m_atlasTiles.size() << " total atlas tiles";
+  for(const auto& tile : m_atlasTiles)
   {
     tilesByTexture[tile.textureKey.tileAndFlag & loader::file::TextureIndexMask].emplace(tile.uvCoordinates);
   }
-  for(const auto& sprite : m_level->m_sprites)
+  for(const auto& sprite : m_sprites)
   {
     tilesByTexture[sprite.texture_id.get()].emplace(sprite.uv0, sprite.uv1);
   }
@@ -1612,15 +1641,14 @@ std::vector<gsl::not_null<const Mesh*>> World::initFromLevel()
                   std::move(transitions)};
   }
 
-  std::transform(
-    m_level->m_meshes.begin(),
-    m_level->m_meshes.end(),
-    std::back_inserter(m_meshes),
-    [this](const loader::file::Mesh& mesh) {
-      return Mesh{mesh.collision_center,
-                  mesh.collision_radius,
-                  std::make_shared<loader::file::RenderMeshData>(mesh, m_level->m_textureTiles, *m_level->m_palette)};
-    });
+  std::transform(m_level->m_meshes.begin(),
+                 m_level->m_meshes.end(),
+                 std::back_inserter(m_meshes),
+                 [this](const loader::file::Mesh& mesh) {
+                   return Mesh{mesh.collision_center,
+                               mesh.collision_radius,
+                               std::make_shared<loader::file::RenderMeshData>(mesh, m_atlasTiles, *m_level->m_palette)};
+                 });
 
   std::vector<gsl::not_null<const Mesh*>> meshesDirect;
   for(auto idx : m_level->m_meshIndices)
@@ -1698,14 +1726,6 @@ std::vector<gsl::not_null<const Mesh*>> World::initFromLevel()
           gsl::span{&transitions.firstTransitionCase.from(m_transitionCases), transitions.transitionCaseCount}};
       return Transitions{};
     });
-
-  for(const auto& sequence : m_level->m_spriteSequences | boost::adaptors::map_values)
-  {
-    Expects(sequence != nullptr);
-    Expects(sequence->length <= 0);
-    Expects(gsl::narrow<size_t>(sequence->offset - sequence->length) <= m_level->m_sprites.size());
-    sequence->sprites = gsl::make_span(&m_level->m_sprites[sequence->offset], -sequence->length);
-  }
 
   m_boxes.resize(m_level->m_boxes.size());
   auto getOverlaps = [this](const uint16_t idx) {

@@ -12,14 +12,14 @@ namespace core
 {
 void RoomBoundPosition::serialize(const serialization::Serializer<engine::world::World>& ser)
 {
-  ser(S_NVVENN("room", ser.context.getLevel().m_rooms, room), S_NV("position", position));
+  ser(S_NVVENN("room", ser.context.getRooms(), room), S_NV("position", position));
 }
 
 RoomBoundPosition RoomBoundPosition::create(const serialization::Serializer<engine::world::World>& ser)
 {
   const loader::file::Room* room = nullptr;
   TRVec position{};
-  ser(S_NVVE("room", ser.context.getLevel().m_rooms, room), S_NV("position", position));
+  ser(S_NVVE("room", ser.context.getRooms(), room), S_NV("position", position));
   return RoomBoundPosition{room, position};
 }
 
