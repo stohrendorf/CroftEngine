@@ -196,9 +196,6 @@ private:
   static std::unique_ptr<Animation> read(io::SDLReader& reader, bool withLateral);
 };
 
-struct Mesh;
-class RenderMeshData;
-
 #pragma pack(push, 1)
 
 struct BoneTreeEntry

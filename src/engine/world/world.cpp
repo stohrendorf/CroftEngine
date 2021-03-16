@@ -14,7 +14,6 @@
 #include "engine/presenter.h"
 #include "engine/tracks_tr1.h"
 #include "loader/file/level/level.h"
-#include "loader/file/rendermeshdata.h"
 #include "loader/trx/trx.h"
 #include "render/scene/camera.h"
 #include "render/scene/materialmanager.h"
@@ -22,6 +21,7 @@
 #include "render/scene/screenoverlay.h"
 #include "render/textureanimator.h"
 #include "render/textureatlas.h"
+#include "rendermeshdata.h"
 #include "sector.h"
 #include "serialization/array.h"
 #include "serialization/bitset.h"
@@ -303,7 +303,7 @@ void World::loadSceneData(const std::vector<gsl::not_null<const Mesh*>>& meshesD
 {
   for(const auto& staticMesh : m_level->m_staticMeshes)
   {
-    loader::file::RenderMeshDataCompositor compositor;
+    RenderMeshDataCompositor compositor;
     compositor.append(*meshesDirect.at(staticMesh.mesh)->meshData);
     const bool distinct = m_staticMeshes
                             .emplace(staticMesh.id,
@@ -762,7 +762,7 @@ const std::unique_ptr<SkeletalModelType>& World::findAnimatedModelForType(core::
   return none;
 }
 
-gsl::not_null<std::shared_ptr<loader::file::RenderMeshData>> World::getRenderMesh(const size_t idx) const
+gsl::not_null<std::shared_ptr<RenderMeshData>> World::getRenderMesh(const size_t idx) const
 {
   return m_meshes.at(idx).meshData;
 }
@@ -1396,11 +1396,11 @@ World::World(Engine& engine,
             replacementUvPos + (srcUvDims.second - srcUvDims.first) * atlasUvScale);
     }
 
-    std::vector<world::Sprite*> spritesOrderedBySize;
+    std::vector<Sprite*> spritesOrderedBySize;
     for(auto& sprite : m_sprites)
       spritesOrderedBySize.emplace_back(&sprite);
 
-    std::sort(spritesOrderedBySize.begin(), spritesOrderedBySize.end(), [](world::Sprite* a, world::Sprite* b) {
+    std::sort(spritesOrderedBySize.begin(), spritesOrderedBySize.end(), [](Sprite* a, Sprite* b) {
       const auto aSize = a->uv1 - a->uv0;
       const auto aArea = glm::abs(aSize.x * aSize.y);
       const auto bSize = b->uv1 - b->uv0;
@@ -1647,7 +1647,7 @@ std::vector<gsl::not_null<const Mesh*>> World::initFromLevel()
                  [this](const loader::file::Mesh& mesh) {
                    return Mesh{mesh.collision_center,
                                mesh.collision_radius,
-                               std::make_shared<loader::file::RenderMeshData>(mesh, m_atlasTiles, *m_level->m_palette)};
+                               std::make_shared<RenderMeshData>(mesh, m_atlasTiles, *m_level->m_palette)};
                  });
 
   std::vector<gsl::not_null<const Mesh*>> meshesDirect;

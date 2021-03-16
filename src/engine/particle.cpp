@@ -1,12 +1,12 @@
 #include "particle.h"
 
 #include "audioengine.h"
-#include "loader/file/rendermeshdata.h"
 #include "objects/laraobject.h"
 #include "presenter.h"
 #include "render/scene/materialmanager.h"
 #include "render/scene/mesh.h"
 #include "render/scene/sprite.h"
+#include "world/rendermeshdata.h"
 #include "world/world.h"
 
 #include <utility>
@@ -19,7 +19,7 @@ void Particle::initRenderables(world::World& world, const float scale)
   {
     for(const auto& bone : modelType->bones)
     {
-      loader::file::RenderMeshDataCompositor compositor;
+      world::RenderMeshDataCompositor compositor;
       compositor.append(*bone.mesh);
       m_renderables.emplace_back(compositor.toMesh(*world.getPresenter().getMaterialManager(), false, {}));
     }

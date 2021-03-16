@@ -1,8 +1,9 @@
 #include "rendermeshdata.h"
 
-#include "datatypes.h"
 #include "engine/world/atlastile.h"
 #include "engine/world/util.h"
+#include "loader/file/datatypes.h"
+#include "loader/file/mesh.h"
 #include "render/scene/materialmanager.h"
 #include "render/scene/mesh.h"
 #include "render/scene/rendermode.h"
@@ -10,13 +11,13 @@
 #include <gl/vertexarray.h>
 #include <render/renderpipeline.h>
 
-namespace loader::file
+namespace engine::world
 {
-RenderMeshData::RenderMeshData(const Mesh& mesh,
+RenderMeshData::RenderMeshData(const loader::file::Mesh& mesh,
                                const std::vector<engine::world::AtlasTile>& atlasTiles,
-                               const Palette& palette)
+                               const loader::file::Palette& palette)
 {
-  for(const QuadFace& quad : mesh.textured_rectangles)
+  for(const auto& quad : mesh.textured_rectangles)
   {
     const auto& tile = atlasTiles.at(quad.tileId.get());
 
@@ -24,7 +25,7 @@ RenderMeshData::RenderMeshData(const Mesh& mesh,
     for(int i = 0; i < 4; ++i)
     {
       RenderVertex iv{};
-      iv.textureIndex = tile.textureKey.tileAndFlag & TextureIndexMask;
+      iv.textureIndex = tile.textureKey.tileAndFlag & loader::file::TextureIndexMask;
 
       if(mesh.normals.empty())
         iv.color = glm::vec4(glm::vec3{toBrightness(quad.vertices[i].from(mesh.vertex_shades)).get()}, 1.0f);
@@ -63,7 +64,7 @@ RenderMeshData::RenderMeshData(const Mesh& mesh,
       m_indices.emplace_back(gsl::narrow<IndexType>(firstVertex + i));
     }
   }
-  for(const QuadFace& quad : mesh.colored_rectangles)
+  for(const auto& quad : mesh.colored_rectangles)
   {
     const auto color = glm::vec4{gsl::at(palette.colors, quad.tileId.get() & 0xffu).toGLColor3(), 1.0f};
 
@@ -108,7 +109,7 @@ RenderMeshData::RenderMeshData(const Mesh& mesh,
     }
   }
 
-  for(const Triangle& tri : mesh.textured_triangles)
+  for(const auto& tri : mesh.textured_triangles)
   {
     const auto& tile = atlasTiles.at(tri.tileId.get());
 
@@ -116,7 +117,7 @@ RenderMeshData::RenderMeshData(const Mesh& mesh,
     {
       RenderVertex iv{};
       iv.position = tri.vertices[i].from(mesh.vertices).toRenderSystem();
-      iv.textureIndex = tile.textureKey.tileAndFlag & TextureIndexMask;
+      iv.textureIndex = tile.textureKey.tileAndFlag & loader::file::TextureIndexMask;
       iv.uv = tile.uvCoordinates[i];
       if(mesh.normals.empty())
         iv.color = glm::vec4{glm::vec3{toBrightness(tri.vertices[i].from(mesh.vertex_shades)).get()}, 1.0f};
@@ -138,7 +139,7 @@ RenderMeshData::RenderMeshData(const Mesh& mesh,
     }
   }
 
-  for(const Triangle& tri : mesh.colored_triangles)
+  for(const auto& tri : mesh.colored_triangles)
   {
     const auto color = glm::vec4{gsl::at(palette.colors, tri.tileId.get() & 0xffu).toGLColor3(), 1.0f};
 
@@ -208,4 +209,4 @@ gsl::not_null<std::shared_ptr<render::scene::Mesh>> RenderMeshDataCompositor::to
 
   return mesh;
 }
-} // namespace loader::file
+} // namespace engine::world

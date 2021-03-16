@@ -8,7 +8,7 @@
 namespace serialization
 {
 // cppcheck-suppress constParameter
-void save(const std::shared_ptr<loader::file::RenderMeshData>& mesh, const Serializer<engine::world::World>& ser)
+void save(const std::shared_ptr<engine::world::RenderMeshData>& mesh, const Serializer<engine::world::World>& ser)
 {
   if(mesh == nullptr)
   {
@@ -30,7 +30,7 @@ void save(const std::shared_ptr<loader::file::RenderMeshData>& mesh, const Seria
   Expects(false);
 }
 
-void load(std::shared_ptr<loader::file::RenderMeshData>& data, const Serializer<engine::world::World>& ser)
+void load(std::shared_ptr<engine::world::RenderMeshData>& data, const Serializer<engine::world::World>& ser)
 {
   if(ser.isNull())
   {
@@ -44,11 +44,11 @@ void load(std::shared_ptr<loader::file::RenderMeshData>& data, const Serializer<
   data = ser.context.getRenderMesh(tmp);
 }
 
-std::shared_ptr<loader::file::RenderMeshData> create(const TypeId<std::shared_ptr<loader::file::RenderMeshData>>&,
-                                                     const Serializer<engine::world::World>& ser)
+std::shared_ptr<engine::world::RenderMeshData> create(const TypeId<std::shared_ptr<engine::world::RenderMeshData>>&,
+                                                      const Serializer<engine::world::World>& ser)
 {
   Expects(ser.loading);
-  std::shared_ptr<loader::file::RenderMeshData> tmp;
+  std::shared_ptr<engine::world::RenderMeshData> tmp;
   load(tmp, ser);
   return tmp;
 }

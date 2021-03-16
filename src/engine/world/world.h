@@ -26,7 +26,6 @@ class CImgWrapper;
 namespace loader::file
 {
 enum class AnimationId : uint16_t;
-class RenderMeshData;
 struct AnimFrame;
 struct Mesh;
 struct SkeletalModelType;
@@ -62,6 +61,7 @@ enum class TR1TrackId : int32_t;
 namespace engine::world
 {
 struct Animation;
+class RenderMeshData;
 
 extern std::tuple<int8_t, int8_t> getFloorSlantInfo(gsl::not_null<const Sector*> sector, const core::TRVec& position);
 
@@ -201,7 +201,7 @@ public:
   [[nodiscard]] const std::unique_ptr<SkeletalModelType>& findAnimatedModelForType(core::TypeId type) const;
   [[nodiscard]] const std::vector<Animation>& getAnimations() const;
   [[nodiscard]] const std::vector<int16_t>& getPoseFrames() const;
-  [[nodiscard]] gsl::not_null<std::shared_ptr<loader::file::RenderMeshData>> getRenderMesh(size_t idx) const;
+  [[nodiscard]] gsl::not_null<std::shared_ptr<RenderMeshData>> getRenderMesh(size_t idx) const;
   [[nodiscard]] const std::vector<Mesh>& getMeshes() const;
   void turn180Effect(objects::Object& object);
   void unholsterRightGunEffect(const objects::ModelObject& object);

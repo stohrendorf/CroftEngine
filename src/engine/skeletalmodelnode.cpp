@@ -4,7 +4,6 @@
 #include "engine/presenter.h"
 #include "loader/file/animation.h"
 #include "loader/file/mesh.h"
-#include "loader/file/rendermeshdata.h"
 #include "render/scene/mesh.h"
 #include "serialization/glm.h"
 #include "serialization/not_null.h"
@@ -15,6 +14,7 @@
 #include "serialization/vector.h"
 #include "serialization/vector_element.h"
 #include "world/animation.h"
+#include "world/rendermeshdata.h"
 #include "world/transition.h"
 
 #include <stack>
@@ -319,7 +319,7 @@ void SkeletalModelNode::rebuildMesh()
     return;
   m_needsMeshRebuild = false;
 
-  loader::file::RenderMeshDataCompositor compositor;
+  world::RenderMeshDataCompositor compositor;
   for(const auto& mesh : m_meshParts)
   {
     if(mesh.mesh == nullptr || !mesh.visible)

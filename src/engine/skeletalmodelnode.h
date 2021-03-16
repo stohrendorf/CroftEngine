@@ -9,20 +9,17 @@
 namespace engine::world
 {
 struct SkeletalModelType;
-}
-
-namespace engine::world
-{
 class World;
-}
+class RenderMeshData;
+} // namespace engine::world
 
-namespace engine
-{
-namespace objects
+namespace engine::objects
 {
 struct ObjectState;
 }
 
+namespace engine
+{
 class SkeletalModelNode : public render::scene::Node
 {
 public:
@@ -97,7 +94,7 @@ public:
 
   bool canBeCulled(const glm::mat4& viewProjection) const override;
 
-  void setMeshPart(size_t idx, const std::shared_ptr<loader::file::RenderMeshData>& mesh)
+  void setMeshPart(size_t idx, const std::shared_ptr<world::RenderMeshData>& mesh)
   {
     m_needsMeshRebuild |= std::exchange(m_meshParts.at(idx).mesh, mesh) != mesh;
   }
@@ -173,14 +170,14 @@ protected:
 private:
   struct MeshPart
   {
-    explicit MeshPart(std::shared_ptr<loader::file::RenderMeshData> mesh = nullptr)
+    explicit MeshPart(std::shared_ptr<world::RenderMeshData> mesh = nullptr)
         : mesh{std::move(mesh)}
     {
     }
 
     glm::mat4 patch{1.0f};
     glm::mat4 matrix{1.0f};
-    std::shared_ptr<loader::file::RenderMeshData> mesh{nullptr};
+    std::shared_ptr<world::RenderMeshData> mesh{nullptr};
     bool visible = true;
 
     void serialize(const serialization::Serializer<world::World>& ser);

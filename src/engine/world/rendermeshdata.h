@@ -1,8 +1,9 @@
 #pragma once
 
+#include "loader/file/color.h"
+#include "loader/file/texture.h"
 #include "mesh.h"
 #include "render/scene/names.h"
-#include "texture.h"
 
 #include <gl/vertexbuffer.h>
 #include <glm/common.hpp>
@@ -13,13 +14,15 @@ class MaterialManager;
 class Mesh;
 } // namespace render::scene
 
+namespace loader::file
+{
+struct Mesh;
+}
+
 namespace engine::world
 {
 struct AtlasTile;
-}
 
-namespace loader::file
-{
 class RenderMeshData final
 {
 public:
@@ -47,9 +50,9 @@ public:
     }
   };
 
-  explicit RenderMeshData(const Mesh& mesh,
+  explicit RenderMeshData(const loader::file::Mesh& mesh,
                           const std::vector<engine::world::AtlasTile>& atlasTiles,
-                          const Palette& palette);
+                          const loader::file::Palette& palette);
 
   [[nodiscard]] const auto& getVertices() const
   {
@@ -95,7 +98,7 @@ public:
   gsl::not_null<std::shared_ptr<render::scene::Mesh>>
     toMesh(render::scene::MaterialManager& materialManager, bool skeletal, const std::string& label);
 
-  bool empty() const
+  [[nodiscard]] bool empty() const
   {
     return m_vertices.empty() || m_indices.empty();
   }
@@ -105,4 +108,4 @@ private:
   std::vector<RenderMeshData::IndexType> m_indices{};
   glm::int32_t m_boneIndex = 0;
 };
-} // namespace loader::file
+} // namespace engine::world

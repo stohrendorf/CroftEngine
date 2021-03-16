@@ -4,8 +4,6 @@
 #include "datatypes.h"
 #include "io/sdlreader.h"
 #include "io/util.h"
-#include "render/scene/mesh.h"
-#include "rendermeshdata.h"
 
 #include <gl/vertexarray.h>
 #include <utility>

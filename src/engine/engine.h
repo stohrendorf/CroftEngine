@@ -32,12 +32,12 @@ struct SpriteSequence;
 struct AnimFrame;
 struct Animation;
 struct CinematicFrame;
-class RenderMeshData;
 } // namespace loader::file
 
 namespace engine::world
 {
 class World;
+class RenderMeshData;
 }
 
 namespace engine

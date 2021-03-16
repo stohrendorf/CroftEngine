@@ -2,8 +2,8 @@
 
 #include "engine/particle.h"
 #include "engine/presenter.h"
+#include "engine/world/rendermeshdata.h"
 #include "laraobject.h"
-#include "loader/file/rendermeshdata.h"
 #include "mutant.h"
 #include "render/scene/mesh.h"
 #include "serialization/objectreference.h"
@@ -36,7 +36,7 @@ bool shatterModel(ModelObject& object, const std::bitset<32>& meshMask, const co
 
     object.getSkeleton()->setVisible(i, false);
     object.getSkeleton()->rebuildMesh();
-    loader::file::RenderMeshDataCompositor compositor;
+    world::RenderMeshDataCompositor compositor;
     compositor.append(*modelType->bones[i].mesh);
     auto particle = std::make_shared<MeshShrapnelParticle>(
       core::RoomBoundPosition{object.m_state.position.room,

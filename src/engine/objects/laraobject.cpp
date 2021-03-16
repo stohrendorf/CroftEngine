@@ -11,8 +11,8 @@
 #include "engine/raycast.h"
 #include "engine/tracks_tr1.h"
 #include "engine/world/animation.h"
+#include "engine/world/rendermeshdata.h"
 #include "hid/inputhandler.h"
-#include "loader/file/rendermeshdata.h"
 #include "render/scene/mesh.h"
 #include "render/textureanimator.h"
 #include "serialization/objectreference.h"
@@ -2352,7 +2352,7 @@ void LaraObject::initGunflares()
   if(gunFlareModel == nullptr)
     return;
 
-  loader::file::RenderMeshDataCompositor compositor;
+  world::RenderMeshDataCompositor compositor;
   compositor.append(*gunFlareModel->bones[0].mesh);
   auto mdl = compositor.toMesh(*getWorld().getPresenter().getMaterialManager(), false, {});
 

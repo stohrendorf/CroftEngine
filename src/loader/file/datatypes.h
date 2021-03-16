@@ -33,6 +33,11 @@ namespace render
 class TextureAnimator;
 }
 
+namespace render::world
+{
+class RenderMeshData;
+}
+
 namespace render::scene
 {
 class Material;
@@ -42,8 +47,6 @@ class Mesh;
 
 namespace loader::file
 {
-class RenderMeshData;
-
 namespace level
 {
 class Level;

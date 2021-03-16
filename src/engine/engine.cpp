@@ -8,7 +8,6 @@
 #include "floordata/floordata.h"
 #include "hid/inputhandler.h"
 #include "loader/file/level/level.h"
-#include "loader/file/rendermeshdata.h"
 #include "loader/trx/trx.h"
 #include "menu/menudisplay.h"
 #include "objects/aiagent.h"
@@ -34,6 +33,7 @@
 #include "ui/label.h"
 #include "ui/levelstats.h"
 #include "ui/ui.h"
+#include "world/rendermeshdata.h"
 #include "world/world.h"
 
 #include <boost/locale/generator.hpp>

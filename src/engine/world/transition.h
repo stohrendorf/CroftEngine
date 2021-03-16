@@ -5,13 +5,15 @@
 
 namespace engine::world
 {
+struct Animation;
+
 struct TransitionCase
 {
   const core::Frame firstFrame;
   const core::Frame lastFrame;
   const core::Frame targetFrame;
 
-  const engine::world::Animation* targetAnimation = nullptr;
+  const Animation* targetAnimation = nullptr;
 };
 
 struct Transitions

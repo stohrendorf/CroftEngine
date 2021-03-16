@@ -13,11 +13,6 @@ class World;
 struct Room;
 } // namespace engine::world
 
-namespace loader::file
-{
-struct Room;
-} // namespace loader::file
-
 namespace core
 {
 struct TRVec final
