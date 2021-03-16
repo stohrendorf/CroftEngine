@@ -27,9 +27,13 @@ namespace loader::file
 {
 enum class AnimationId : uint16_t;
 struct AnimFrame;
-struct Mesh;
 struct SkeletalModelType;
 } // namespace loader::file
+
+namespace loader::trx
+{
+class Glidos;
+}
 
 namespace loader::file::level
 {
@@ -39,7 +43,8 @@ class Level;
 namespace render
 {
 class TextureAnimator;
-}
+class MultiTextureAtlas;
+} // namespace render
 
 namespace engine::objects
 {
@@ -193,7 +198,6 @@ public:
   void chainBlockEffect();
   void flickerEffect();
   void doGlobalEffect();
-  void loadSceneData(const std::vector<gsl::not_null<const Mesh*>>& meshesDirect);
   std::shared_ptr<objects::PickupObject>
     createPickup(core::TypeId type, const gsl::not_null<const Room*>& room, const core::TRVec& position);
   void useAlternativeLaraAppearance(bool withHead = false);
@@ -376,7 +380,18 @@ private:
   std::vector<AtlasTile> m_atlasTiles;
   std::vector<Room> m_rooms;
 
-  std::vector<gsl::not_null<const Mesh*>> initFromLevel();
+  void initTextureDependentDataFromLevel(const loader::file::level::Level& level);
+  void processGlidosPack(const loader::file::level::Level& level,
+                         const loader::trx::Glidos& glidos,
+                         render::MultiTextureAtlas& atlases,
+                         std::unordered_set<AtlasTile*>& doneTiles,
+                         std::unordered_set<Sprite*>& doneSprites);
+  void remapTextures(const loader::file::level::Level& level,
+                     render::MultiTextureAtlas& atlases,
+                     std::unordered_set<AtlasTile*>& doneTiles,
+                     std::unordered_set<Sprite*>& doneSprites);
+  void initTextures(const loader::file::level::Level& level);
+  void initFromLevel();
   void connectSectors();
 };
 } // namespace engine::world
