@@ -2,7 +2,6 @@
 
 #include "engine/cameracontroller.h"
 #include "engine/world/world.h"
-#include "loader/file/datatypes.h"
 #include "scene/camera.h"
 
 #include <boost/range/adaptor/transformed.hpp>
@@ -143,13 +142,13 @@ bool PortalTracer::traceRoom(const engine::world::Room& room,
   {
     if(const auto narrowedCullBox = narrowCullBox(roomCullBox, portal, world.getCameraController()))
     {
-      const auto& childRoom = world.getRooms().at(portal.adjoining_room.get());
-      const bool waterChanged = inWater == startFromWater && childRoom.isWaterRoom != startFromWater;
-      if(traceRoom(childRoom,
+      const auto& childRoom = portal.adjoiningRoom;
+      const bool waterChanged = inWater == startFromWater && childRoom->isWaterRoom != startFromWater;
+      if(traceRoom(*childRoom,
                    *narrowedCullBox,
                    world,
                    seenRooms,
-                   inWater || childRoom.isWaterRoom,
+                   inWater || childRoom->isWaterRoom,
                    waterSurfacePortals,
                    startFromWater)
          && waterChanged)

@@ -112,7 +112,7 @@ void Block::collide(CollisionInfo& /*collisionInfo*/)
 
   // start moving the block, remove it from the floordata
   activate();
-  world::Room::patchHeightsForBlock(*this, core::SectorSize);
+  world::patchHeightsForBlock(*this, core::SectorSize);
   m_state.triggerState = TriggerState::Active;
 
   ModelObject::update();
@@ -123,7 +123,7 @@ void Block::update()
 {
   if(m_state.activationState.isOneshot())
   {
-    world::Room::patchHeightsForBlock(*this, core::SectorSize);
+    world::patchHeightsForBlock(*this, core::SectorSize);
     kill();
     return;
   }
@@ -157,7 +157,7 @@ void Block::update()
 
   m_state.triggerState = TriggerState::Inactive;
   deactivate();
-  world::Room::patchHeightsForBlock(*this, -core::SectorSize);
+  world::patchHeightsForBlock(*this, -core::SectorSize);
   pos = m_state.position;
   sector = world::findRealFloorSector(pos);
   getWorld().handleCommandSequence(

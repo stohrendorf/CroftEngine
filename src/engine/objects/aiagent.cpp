@@ -471,7 +471,7 @@ bool AIAgent::tryShootAtLara(ModelObject& object,
     pos.position.X += util::rand15s(core::SectorSize / 2);
     pos.position.Y = getWorld().getObjectManager().getLara().m_state.floor;
     pos.position.Z += util::rand15s(core::SectorSize / 2);
-    getWorld().getObjectManager().getLara().playShotMissed(pos);
+    getWorld().getObjectManager().getLara().emitRicochet(pos);
   }
 
   auto p = object.emitParticle(bonePos, boneIndex, &createGunFlare);

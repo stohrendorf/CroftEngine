@@ -115,7 +115,7 @@ void ThorHammerHandle::update()
     }
     if(!getWorld().getObjectManager().getLara().isDead())
     {
-      world::Room::patchHeightsForBlock(*this, -2 * core::SectorSize);
+      world::patchHeightsForBlock(*this, -2 * core::SectorSize);
     }
     m_state.position.position.X = oldPosX;
     m_state.position.position.Z = oldPosZ;

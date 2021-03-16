@@ -31,13 +31,13 @@ struct WordTexture
 struct DWordTexture final
 {
   std::array<std::array<gl::SRGBA8, 256>, 256> pixels;
-  std::shared_ptr<gl::Image<gl::SRGBA8>> image;
+  mutable std::shared_ptr<gl::Image<gl::SRGBA8>> image;
 
   std::string md5;
 
   static std::unique_ptr<DWordTexture> read(io::SDLReader& reader);
 
-  void toImage();
+  void toImage() const;
 };
 
 enum class BlendingMode : uint16_t

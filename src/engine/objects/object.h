@@ -183,7 +183,7 @@ public:
 
   virtual void serialize(const serialization::Serializer<world::World>& ser);
 
-  void playShotMissed(const core::RoomBoundPosition& pos);
+  void emitRicochet(const core::RoomBoundPosition& pos);
 
   std::optional<core::Length> getWaterSurfaceHeight() const;
 

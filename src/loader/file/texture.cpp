@@ -8,7 +8,7 @@
 
 namespace loader::file
 {
-void DWordTexture::toImage()
+void DWordTexture::toImage() const
 {
   image = std::make_shared<gl::Image<gl::SRGBA8>>(glm::ivec2{256, 256}, &pixels[0][0]);
 }

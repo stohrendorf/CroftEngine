@@ -525,7 +525,7 @@ void LaraObject::testInteractions(CollisionInfo& collisionInfo)
   std::set<gsl::not_null<const world::Room*>> rooms;
   rooms.insert(m_state.position.room);
   for(const world::Portal& p : m_state.position.room->portals)
-    rooms.insert(&getWorld().getRooms().at(p.adjoining_room.get()));
+    rooms.insert(p.adjoiningRoom);
 
   for(const auto& object : getWorld().getObjectManager().getObjects() | boost::adaptors::map_values)
   {
@@ -1683,7 +1683,7 @@ bool LaraObject::fireWeapon(const WeaponId weaponId,
                                               gunPosition + core::TRVec{-bulletDir * VeryLargeDistanceProbablyClipping},
                                               getWorld().getObjectManager())
                              .second;
-    playShotMissed(aimHitPos);
+    emitRicochet(aimHitPos);
   }
   else
   {

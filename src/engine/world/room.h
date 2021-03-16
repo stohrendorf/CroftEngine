@@ -27,9 +27,11 @@ class Object;
 
 namespace engine::world
 {
+struct Room;
+
 struct Portal
 {
-  core::RoomId16 adjoining_room{uint16_t(0)};
+  gsl::not_null<Room*> adjoiningRoom;
   glm::vec3 normal;
   std::array<glm::vec3, 4> vertices;
   std::shared_ptr<render::scene::Mesh> mesh;
@@ -57,7 +59,7 @@ struct Room
 
   void createSceneNode(const loader::file::Room& srcRoom,
                        size_t roomId,
-                       const World&,
+                       World&,
                        render::TextureAnimator& animator,
                        render::scene::MaterialManager& materialManager);
 
@@ -113,10 +115,6 @@ struct Room
     return getSectorByIndex(dx, dz);
   }
 
-  static void patchHeightsForBlock(const engine::objects::Object& object, const core::Length& height);
-
-  [[nodiscard]] static std::optional<core::Length> getWaterSurfaceHeight(const core::RoomBoundPosition& pos);
-
   void resetScenery();
 
   void serialize(const serialization::Serializer<World>& ser);
@@ -134,4 +132,8 @@ inline gsl::not_null<const Sector*> findRealFloorSector(core::RoomBoundPosition&
 {
   return findRealFloorSector(rbs.position, &rbs.room);
 }
+
+extern void patchHeightsForBlock(const engine::objects::Object& object, const core::Length& height);
+
+[[nodiscard]] extern std::optional<core::Length> getWaterSurfaceHeight(const core::RoomBoundPosition& pos);
 } // namespace engine::world

@@ -18,7 +18,7 @@ public:
             const gsl::not_null<const world::SkeletalModelType*>& animatedModel)
       : ModelObject{world, room, item, true, animatedModel}
   {
-    world::Room::patchHeightsForBlock(*this, -2 * core::SectorSize);
+    world::patchHeightsForBlock(*this, -2 * core::SectorSize);
   }
 
   void update() override;

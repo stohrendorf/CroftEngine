@@ -146,7 +146,7 @@ bool InteractionLimits::canInteract(const ObjectState& objectState, const Object
   return distance.contains(core::TRVec{glm::vec3{dist}});
 }
 
-void Object::playShotMissed(const core::RoomBoundPosition& pos)
+void Object::emitRicochet(const core::RoomBoundPosition& pos)
 {
   const auto particle = std::make_shared<RicochetParticle>(pos, getWorld());
   setParent(particle, m_state.position.room->node);
@@ -156,14 +156,14 @@ void Object::playShotMissed(const core::RoomBoundPosition& pos)
 
 std::optional<core::Length> Object::getWaterSurfaceHeight() const
 {
-  return world::Room::getWaterSurfaceHeight(m_state.position);
+  return world::getWaterSurfaceHeight(m_state.position);
 }
 
 void Object::updateLighting()
 {
   auto tmp = m_state.position;
   tmp.position += getBoundingBox().getCenter();
-  m_lighting.updateDynamic(m_state.shade, tmp, m_world->getRooms());
+  m_lighting.updateDynamic(m_state.shade, tmp);
 }
 
 bool Object::alignTransformClamped(const core::TRVec& targetPos,

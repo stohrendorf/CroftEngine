@@ -36,8 +36,7 @@ struct Lighting
 
   gl::ShaderStorageBuffer<Light> m_buffer{"lights-buffer"};
 
-  void
-    updateDynamic(const core::Shade& shade, const core::RoomBoundPosition& pos, const std::vector<world::Room>& rooms)
+  void updateDynamic(const core::Shade& shade, const core::RoomBoundPosition& pos)
   {
     if(shade.get() >= 0)
     {
@@ -56,19 +55,19 @@ struct Lighting
 
     std::set<gsl::not_null<const world::Room*>> testRooms;
     testRooms.emplace(pos.room);
-    std::transform(pos.room->portals.begin(),
-                   pos.room->portals.end(),
-                   std::inserter(testRooms, testRooms.end()),
-                   [&rooms](const auto& portal) { return &rooms.at(portal.adjoining_room.get()); });
+    for(const auto& portal : pos.room->portals)
+    {
+      testRooms.emplace(portal.adjoiningRoom);
+    }
 
     std::set<gsl::not_null<const world::Room*>> testRooms2;
     for(const auto& room : testRooms)
     {
       testRooms2.emplace(room);
-      std::transform(room->portals.begin(),
-                     room->portals.end(),
-                     std::inserter(testRooms2, testRooms2.end()),
-                     [&rooms](const auto& portal) { return &rooms.at(portal.adjoining_room.get()); });
+      for(const auto& portal : room->portals)
+      {
+        testRooms2.emplace(portal.adjoiningRoom);
+      }
     }
 
     for(const auto& room : testRooms2)

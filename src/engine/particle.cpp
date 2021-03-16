@@ -233,7 +233,7 @@ bool FlameParticle::update(world::World& world)
     pos.position
       = core::TRVec{glm::vec3{translate(itemSpheres.at(-timePerSpriteFrame - 1).m, pos.position.toRenderSystem())[3]}};
 
-    if(const auto waterHeight = world::Room::getWaterSurfaceHeight(pos);
+    if(const auto waterHeight = world::getWaterSurfaceHeight(pos);
        !waterHeight.has_value() || waterHeight.value() >= pos.position.Y)
     {
       world.getAudioEngine().playSoundEffect(TR1SoundEffect::Burning, this);

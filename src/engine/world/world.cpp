@@ -530,11 +530,11 @@ void World::swapWithAlternate(Room& orig, Room& alternate)
 
     if(const auto tmp = std::dynamic_pointer_cast<objects::Block>(object.get()))
     {
-      Room::patchHeightsForBlock(*tmp, core::SectorSize);
+      patchHeightsForBlock(*tmp, core::SectorSize);
     }
     else if(const auto tmp2 = std::dynamic_pointer_cast<objects::TallBlock>(object.get()))
     {
-      Room::patchHeightsForBlock(*tmp2, core::SectorSize * 2);
+      patchHeightsForBlock(*tmp2, core::SectorSize * 2);
     }
   }
 
@@ -564,11 +564,11 @@ void World::swapWithAlternate(Room& orig, Room& alternate)
 
     if(const auto tmp = std::dynamic_pointer_cast<objects::Block>(object.get()))
     {
-      Room::patchHeightsForBlock(*tmp, -core::SectorSize);
+      patchHeightsForBlock(*tmp, -core::SectorSize);
     }
     else if(const auto tmp2 = std::dynamic_pointer_cast<objects::TallBlock>(object.get()))
     {
-      Room::patchHeightsForBlock(*tmp2, -core::SectorSize * 2);
+      patchHeightsForBlock(*tmp2, -core::SectorSize * 2);
     }
   }
 
@@ -1787,7 +1787,7 @@ void World::initTextures(const loader::file::level::Level& level)
 {
   getPresenter().drawLoadingScreen(_("Building textures"));
 
-  for(auto& texture : m_level->m_textures)
+  for(auto& texture : level.m_textures)
   {
     texture.toImage();
   }
@@ -1800,10 +1800,10 @@ void World::initTextures(const loader::file::level::Level& level)
   render::MultiTextureAtlas atlases{2048};
   if(const auto& glidos = m_engine.getGlidos())
   {
-    processGlidosPack(*m_level, *glidos, atlases, doneTiles, doneSprites);
+    processGlidosPack(level, *glidos, atlases, doneTiles, doneSprites);
   }
 
-  remapTextures(*m_level, atlases, doneTiles, doneSprites);
+  remapTextures(level, atlases, doneTiles, doneSprites);
 
   const int textureLevels = static_cast<int>(std::log2(atlases.getSize()) + 1) / 2;
   auto images = atlases.takeImages();

@@ -129,7 +129,7 @@ void Portal::buildMesh(const loader::file::Portal& srcPortal,
 
 void Room::createSceneNode(const loader::file::Room& srcRoom,
                            const size_t roomId,
-                           const World& world,
+                           World& world,
                            render::TextureAnimator& animator,
                            render::scene::MaterialManager& materialManager)
 {
@@ -330,8 +330,8 @@ void Room::createSceneNode(const loader::file::Room& srcRoom,
   std::transform(srcRoom.portals.begin(),
                  srcRoom.portals.end(),
                  std::back_inserter(portals),
-                 [material = materialManager.getPortal()](const loader::file::Portal& portal) {
-                   Portal p{portal.adjoining_room,
+                 [material = materialManager.getPortal(), &world](const loader::file::Portal& portal) {
+                   Portal p{&world.getRooms().at(portal.adjoining_room.get()),
                             portal.normal.toRenderSystem(),
                             {portal.vertices[0].toRenderSystem(),
                              portal.vertices[1].toRenderSystem(),
@@ -345,7 +345,7 @@ void Room::createSceneNode(const loader::file::Room& srcRoom,
   resetScenery();
 }
 
-void Room::patchHeightsForBlock(const engine::objects::Object& object, const core::Length& height)
+void patchHeightsForBlock(const engine::objects::Object& object, const core::Length& height)
 {
   auto room = object.m_state.position.room;
   // TODO Ugly const_cast
@@ -370,7 +370,7 @@ void Room::patchHeightsForBlock(const engine::objects::Object& object, const cor
     groundSector->box->blocked = (height < 0_len);
 }
 
-std::optional<core::Length> Room::getWaterSurfaceHeight(const core::RoomBoundPosition& pos)
+std::optional<core::Length> getWaterSurfaceHeight(const core::RoomBoundPosition& pos)
 {
   auto sector = pos.room->getSectorByAbsolutePosition(pos.position);
 

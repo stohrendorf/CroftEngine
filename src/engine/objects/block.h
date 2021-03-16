@@ -20,7 +20,7 @@ public:
   {
     if(m_state.triggerState != TriggerState::Invisible)
     {
-      world::Room::patchHeightsForBlock(*this, -core::SectorSize);
+      world::patchHeightsForBlock(*this, -core::SectorSize);
     }
   }
 

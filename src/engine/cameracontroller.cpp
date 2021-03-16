@@ -376,7 +376,7 @@ std::unordered_set<const world::Portal*> CameraController::tracePortals()
   auto result = render::PortalTracer::trace(*m_position.room, *m_world);
 
   for(const auto& portal : m_position.room->portals)
-    m_world->getRooms().at(portal.adjoining_room.get()).node->setVisible(true);
+    portal.adjoiningRoom->node->setVisible(true);
 
   return result;
 }
@@ -764,7 +764,7 @@ std::unordered_set<const world::Portal*> CameraController::updateCinematic(const
 
     for(const auto& portal : room.portals)
     {
-      if(getWorld()->getRooms().at(portal.adjoining_room.get()).isWaterRoom)
+      if(portal.adjoiningRoom->isWaterRoom)
         result.emplace(&portal);
     }
   }
