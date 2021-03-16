@@ -30,7 +30,7 @@ struct Mesh
   std::vector<QuadFace> colored_rectangles; //[NumColoredRectangles]; // list of colored rectangles
   std::vector<Triangle> colored_triangles;  //[NumColoredTriangles]; // list of colored triangles
 
-  bool isFlatShaded() const noexcept
+  [[nodiscard]] bool isFlatShaded() const noexcept
   {
     return (flags & FlatShaded) != 0;
   }

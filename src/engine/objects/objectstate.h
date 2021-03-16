@@ -14,7 +14,8 @@ class dict;
 namespace engine::world
 {
 class World;
-}
+struct Sector;
+} // namespace engine::world
 
 namespace engine
 {

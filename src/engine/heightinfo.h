@@ -2,6 +2,16 @@
 
 #include "loader/file/datatypes.h"
 
+namespace engine::world
+{
+struct Sector;
+}
+
+namespace engine::objects
+{
+class Object;
+}
+
 namespace engine
 {
 class CameraController;

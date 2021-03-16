@@ -5,14 +5,6 @@
 #include "core/boundingbox.h"
 #include "core/id.h"
 
-namespace render
-{
-namespace scene
-{
-class Mesh;
-}
-} // namespace render
-
 namespace loader::file
 {
 namespace io

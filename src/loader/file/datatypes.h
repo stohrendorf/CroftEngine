@@ -6,7 +6,6 @@
 #include "core/magic.h"
 #include "core/vec.h"
 #include "engine/floordata/types.h"
-#include "engine/world/sector.h"
 #include "meshes.h"
 #include "primitives.h"
 #include "render/scene/node.h"
@@ -22,28 +21,6 @@
  * Contains structs and constants directly interfacing the native
  * TR level data or engine internals.
  */
-
-namespace engine::objects
-{
-class Object;
-}
-
-namespace render
-{
-class TextureAnimator;
-}
-
-namespace render::world
-{
-class RenderMeshData;
-}
-
-namespace render::scene
-{
-class Material;
-class MaterialManager;
-class Mesh;
-} // namespace render::scene
 
 namespace loader::file
 {

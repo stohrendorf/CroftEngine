@@ -7,9 +7,7 @@
 #include <gl/pixel.h>
 #include <gl/soglb_fwd.h>
 
-namespace loader
-{
-namespace file
+namespace loader::file
 {
 namespace io
 {
@@ -156,5 +154,4 @@ struct TextureTile
 
   static std::unique_ptr<TextureTile> readTr5(io::SDLReader& reader);
 };
-} // namespace file
 } // namespace loader

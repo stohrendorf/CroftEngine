@@ -1,9 +1,9 @@
 #include "texture.h"
 
-#include "engine/objects/object.h"
 #include "io/sdlreader.h"
 #include "loader/trx/trx.h"
 
+#include <boost/log/trivial.hpp>
 #include <gl/image.h>
 
 namespace loader::file
