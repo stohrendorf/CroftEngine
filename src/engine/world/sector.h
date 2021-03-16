@@ -10,7 +10,6 @@
 
 namespace loader::file
 {
-struct Room;
 struct Sector;
 } // namespace loader::file
 

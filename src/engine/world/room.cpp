@@ -311,7 +311,7 @@ void Room::createSceneNode(const loader::file::Room& srcRoom,
                                                       sprite.uv0,
                                                       sprite.uv1,
                                                       materialManager.getSprite(),
-                                                      sprite.texture_id.get_as<int32_t>());
+                                                      sprite.textureId.get_as<int32_t>());
 
     auto spriteNode = std::make_shared<render::scene::Node>("sprite");
     spriteNode->setRenderable(mesh);

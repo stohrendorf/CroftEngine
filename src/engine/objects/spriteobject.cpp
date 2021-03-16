@@ -55,7 +55,7 @@ void SpriteObject::createModel()
                                                     m_sprite->uv0,
                                                     m_sprite->uv1,
                                                     m_material,
-                                                    m_sprite->texture_id.get_as<int32_t>());
+                                                    m_sprite->textureId.get_as<int32_t>());
 
   m_node->setRenderable(mesh);
   m_node->addUniformSetter("u_lightAmbient",

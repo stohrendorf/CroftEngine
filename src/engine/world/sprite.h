@@ -9,7 +9,7 @@ namespace engine::world
 {
 struct Sprite
 {
-  core::TextureId texture_id{uint16_t(0)};
+  core::TextureId textureId{uint16_t(0)};
 
   glm::vec2 uv0;
   glm::vec2 uv1;
@@ -21,7 +21,6 @@ struct Sprite
 struct SpriteSequence
 {
   core::TypeId type{uint16_t(0)};
-
   gsl::span<const Sprite> sprites{};
 };
 } // namespace engine::world

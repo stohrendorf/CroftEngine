@@ -37,7 +37,7 @@ void Particle::initRenderables(world::World& world, const float scale)
                                                   spr.uv0,
                                                   spr.uv1,
                                                   world.getPresenter().getMaterialManager()->getSprite(),
-                                                  spr.texture_id.get_as<int32_t>());
+                                                  spr.textureId.get_as<int32_t>());
       m_renderables.emplace_back(std::move(mesh));
     }
 

@@ -188,10 +188,10 @@ void Ui::draw(const engine::world::Sprite& sprite, const glm::ivec2& xy)
   const auto b = sprite.render1 + xy;
   const auto ta = sprite.uv0;
   const auto tb = sprite.uv1;
-  const std::array<TextureQuadVertex, 4> vertices{TextureQuadVertex{{a.x, a.y}, {ta.x, ta.y}, sprite.texture_id.get()},
-                                                  TextureQuadVertex{{a.x, b.y}, {ta.x, tb.y}, sprite.texture_id.get()},
-                                                  TextureQuadVertex{{b.x, b.y}, {tb.x, tb.y}, sprite.texture_id.get()},
-                                                  TextureQuadVertex{{b.x, a.y}, {tb.x, ta.y}, sprite.texture_id.get()}};
+  const std::array<TextureQuadVertex, 4> vertices{TextureQuadVertex{{a.x, a.y}, {ta.x, ta.y}, sprite.textureId.get()},
+                                                  TextureQuadVertex{{a.x, b.y}, {ta.x, tb.y}, sprite.textureId.get()},
+                                                  TextureQuadVertex{{b.x, b.y}, {tb.x, tb.y}, sprite.textureId.get()},
+                                                  TextureQuadVertex{{b.x, a.y}, {tb.x, ta.y}, sprite.textureId.get()}};
 
   auto vertexBuffer = std::make_shared<gl::VertexBuffer<TextureQuadVertex>>(format);
   vertexBuffer->setData(&vertices[0], 4, gl::api::BufferUsageARB::StaticDraw);

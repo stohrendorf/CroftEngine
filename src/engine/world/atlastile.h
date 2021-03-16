@@ -7,7 +7,7 @@ namespace engine::world
 struct AtlasTile
 {
   loader::file::TextureKey textureKey;
-  std::array<glm::vec2, 4> uvCoordinates;
+  std::array<glm::vec2, 4> uvCoordinates{};
 
   bool operator==(const AtlasTile& rhs) const
   {

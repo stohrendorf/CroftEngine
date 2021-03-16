@@ -1108,9 +1108,9 @@ void remap(AtlasTile& tile, size_t atlas, const glm::vec2& replacementUvPos, con
     remapRange(uvComponent, tileUvMin, tileUvMax, replacementUvPos, replacementUvMax);
   }
 }
-void remap(world::Sprite& sprite, size_t atlas, const glm::vec2& replacementUvPos, const glm::vec2& replacementUvMax)
+void remap(Sprite& sprite, size_t atlas, const glm::vec2& replacementUvPos, const glm::vec2& replacementUvMax)
 {
-  sprite.texture_id = core::TextureId{atlas};
+  sprite.textureId = core::TextureId{atlas};
 
   // re-map uv coordinates
   const auto a = glm::round(sprite.uv0 * 256.0f) / 256.0f;
@@ -1181,7 +1181,7 @@ void World::createMipmaps(const std::vector<std::shared_ptr<gl::CImgWrapper>>& i
   }
   for(const auto& sprite : m_sprites)
   {
-    tilesByTexture[sprite.texture_id.get()].emplace(sprite.uv0, sprite.uv1);
+    tilesByTexture[sprite.textureId.get()].emplace(sprite.uv0, sprite.uv1);
   }
 
   size_t totalTiles = std::accumulate(
@@ -1626,7 +1626,7 @@ void World::processGlidosPack(const loader::file::level::Level& level,
         if(doneSprites.count(&sprite) != 0)
           continue;
 
-        if(sprite.texture_id.get() != texIdx)
+        if(sprite.textureId.get() != texIdx)
           continue;
 
         const auto a = glm::ivec2{sprite.uv0 * 256.0f};
@@ -1748,13 +1748,13 @@ void World::remapTextures(const loader::file::level::Level& level,
 
     std::pair minMaxPx{glm::ivec2{sprite->uv0 * 256.0f}, glm::ivec2{sprite->uv1 * 256.0f}};
 
-    const SourceTile srcTile{sprite->texture_id.get(), minMaxPx};
+    const SourceTile srcTile{sprite->textureId.get(), minMaxPx};
     auto it = replaced.find(srcTile);
     std::pair<size_t, glm::ivec2> replacementPos;
 
     if(it == replaced.end())
     {
-      const auto& texture = level.m_textures.at(sprite->texture_id.get());
+      const auto& texture = level.m_textures.at(sprite->textureId.get());
       auto replacementImg = std::make_unique<gl::CImgWrapper>(
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
         reinterpret_cast<const uint8_t*>(texture.image->getRawData()),
@@ -1776,7 +1776,7 @@ void World::remapTextures(const loader::file::level::Level& level,
           replacementPos.first,
           replacementUvPos,
           replacementUvPos + (minMaxUv.second - minMaxUv.first) * atlasUvScale);
-    sprite->texture_id = replacementPos.first;
+    sprite->textureId = replacementPos.first;
   }
 
   Expects(doneTiles.size() == m_atlasTiles.size());
