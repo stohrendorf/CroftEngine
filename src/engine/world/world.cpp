@@ -232,9 +232,8 @@ std::tuple<int8_t, int8_t> getFloorSlantInfo(gsl::not_null<const Sector*> sector
 void World::swapAllRooms()
 {
   BOOST_LOG_TRIVIAL(info) << "Swapping rooms";
-  for(size_t i = 0; i < m_level->m_rooms.size(); ++i)
+  for(auto& room : m_rooms)
   {
-    auto& room = m_rooms[i];
     if(room.alternateRoom == nullptr)
       continue;
 
@@ -248,9 +247,9 @@ void World::swapAllRooms()
 bool World::isValid(const loader::file::AnimFrame* frame) const
 {
   // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-  return reinterpret_cast<const short*>(frame) >= m_level->m_poseFrames.data()
+  return reinterpret_cast<const short*>(frame) >= m_poseFrames.data()
          // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-         && reinterpret_cast<const short*>(frame) < m_level->m_poseFrames.data() + m_level->m_poseFrames.size();
+         && reinterpret_cast<const short*>(frame) < m_poseFrames.data() + m_poseFrames.size();
 }
 
 const std::unique_ptr<SpriteSequence>& World::findSpriteSequenceForType(core::TypeId type) const
@@ -268,15 +267,6 @@ const StaticMesh* World::findStaticMeshById(core::StaticMeshId meshId) const
   auto it = m_staticMeshes.find(meshId);
   if(it != m_staticMeshes.end())
     return &it->second;
-
-  return nullptr;
-}
-
-std::shared_ptr<render::scene::Mesh> World::findStaticRenderMeshById(const core::StaticMeshId meshId) const
-{
-  auto it = m_staticMeshes.find(meshId);
-  if(it != m_staticMeshes.end() && it->second.isVisible)
-    return it->second.renderMesh;
 
   return nullptr;
 }
@@ -631,7 +621,7 @@ const std::vector<loader::file::Camera>& World::getCameras() const
 
 const std::vector<int16_t>& World::getAnimCommands() const
 {
-  return m_level->m_animCommands;
+  return m_animCommands;
 }
 
 void World::update(const bool godMode)
@@ -687,7 +677,7 @@ void World::runEffect(const size_t id, objects::Object* object)
 
 const std::vector<int16_t>& World::getPoseFrames() const
 {
-  return m_level->m_poseFrames;
+  return m_poseFrames;
 }
 
 const std::vector<Animation>& World::getAnimations() const
@@ -715,17 +705,9 @@ const std::vector<Mesh>& World::getMeshes() const
   return m_meshes;
 }
 
-std::array<gl::SRGBA8, 256> World::getPalette() const
+const std::array<gl::SRGBA8, 256>& World::getPalette() const
 {
-  std::array<gl::SRGBA8, 256> result;
-  for(size_t i = 0; i < 256; ++i)
-    result[i] = m_level->m_palette->colors[i].toTextureColor();
-  return result;
-}
-
-const loader::file::Palette& World::getRawPalette() const
-{
-  return *m_level->m_palette;
+  return m_palette;
 }
 
 // NOLINTNEXTLINE(readability-convert-member-functions-to-static)
@@ -958,7 +940,7 @@ void World::gameLoop(bool godMode)
 
   const auto waterEntryPortals = m_cameraController->update();
   doGlobalEffect();
-  getPresenter().drawBars(ui, *m_level->m_palette, getObjectManager());
+  getPresenter().drawBars(ui, m_palette, getObjectManager());
   if(getObjectManager().getLara().getHandStatus() == engine::objects::HandStatus::Combat
      && m_player->gunType != WeaponId::Pistols)
   {
@@ -1152,7 +1134,7 @@ World::World(Engine& engine,
 
   getPresenter().drawLoadingScreen(util::unescape(m_title));
 
-  initFromLevel();
+  initFromLevel(*m_level);
 
   if(useAlternativeLara)
   {
@@ -1265,86 +1247,89 @@ void World::save(size_t slot)
   save(makeSavegameFilename(slot));
 }
 
-void World::initFromLevel()
+void World::initFromLevel(loader::file::level::Level& level)
 {
   BOOST_LOG_TRIVIAL(info) << "Post-processing data structures";
 
-  m_animations.resize(m_level->m_animations.size());
-  m_transitions.resize(m_level->m_transitions.size());
+  m_poseFrames = std::move(level.m_poseFrames);
+  m_animCommands = std::move(level.m_animCommands);
+  m_boneTrees = std::move(level.m_boneTrees);
+  m_floorData = std::move(level.m_floorData);
+  std::transform(level.m_palette->colors.begin(),
+                 level.m_palette->colors.end(),
+                 m_palette.begin(),
+                 [](const loader::file::ByteColor& color) { return color.toTextureColor(); });
+
+  m_animations.resize(level.m_animations.size());
+  m_transitions.resize(level.m_transitions.size());
   for(size_t i = 0; i < m_animations.size(); ++i)
   {
-    const auto& anim = m_level->m_animations[i];
+    const auto& anim = level.m_animations[i];
     const loader::file::AnimFrame* frames = nullptr;
 
-    if(anim.poseDataOffset.index<decltype(m_level->m_poseFrames[0])>() >= m_level->m_poseFrames.size())
+    if(anim.poseDataOffset.index<decltype(m_poseFrames[0])>() >= m_poseFrames.size())
     {
-      BOOST_LOG_TRIVIAL(warning) << "Pose frame data index "
-                                 << anim.poseDataOffset.index<decltype(m_level->m_poseFrames[0])>()
-                                 << " out of range 0.." << m_level->m_poseFrames.size() - 1;
+      BOOST_LOG_TRIVIAL(warning) << "Pose frame data index " << anim.poseDataOffset.index<decltype(m_poseFrames[0])>()
+                                 << " out of range 0.." << m_poseFrames.size() - 1;
     }
     else
     {
       // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-      frames = reinterpret_cast<const loader::file::AnimFrame*>(&anim.poseDataOffset.from(m_level->m_poseFrames));
+      frames = reinterpret_cast<const loader::file::AnimFrame*>(&anim.poseDataOffset.from(m_poseFrames));
     }
 
     Expects(anim.nextAnimationIndex < m_animations.size());
     auto nextAnimation = &m_animations[anim.nextAnimationIndex];
 
-    Expects((anim.animCommandIndex + anim.animCommandCount).exclusiveIn(m_level->m_animCommands));
+    Expects((anim.animCommandIndex + anim.animCommandCount).exclusiveIn(m_animCommands));
     Expects((anim.transitionsIndex + anim.transitionsCount).exclusiveIn(m_transitions));
     gsl::span<const Transitions> transitions;
     if(anim.transitionsCount > 0)
       transitions = gsl::span{&anim.transitionsIndex.from(m_transitions), anim.transitionsCount};
 
-    m_animations[i]
-      = Animation{frames,
-                  anim.segmentLength,
-                  anim.state_id,
-                  anim.speed,
-                  anim.acceleration,
-                  anim.firstFrame,
-                  anim.lastFrame,
-                  anim.nextFrame,
-                  anim.animCommandCount,
-                  anim.animCommandCount == 0 ? nullptr : &anim.animCommandIndex.from(m_level->m_animCommands),
-                  nextAnimation,
-                  std::move(transitions)};
+    m_animations[i] = Animation{frames,
+                                anim.segmentLength,
+                                anim.state_id,
+                                anim.speed,
+                                anim.acceleration,
+                                anim.firstFrame,
+                                anim.lastFrame,
+                                anim.nextFrame,
+                                anim.animCommandCount,
+                                anim.animCommandCount == 0 ? nullptr : &anim.animCommandIndex.from(m_animCommands),
+                                nextAnimation,
+                                std::move(transitions)};
   }
 
-  std::transform(m_level->m_meshes.begin(),
-                 m_level->m_meshes.end(),
-                 std::back_inserter(m_meshes),
-                 [this](const loader::file::Mesh& mesh) {
-                   return Mesh{mesh.collision_center,
-                               mesh.collision_radius,
-                               std::make_shared<RenderMeshData>(mesh, m_atlasTiles, *m_level->m_palette)};
-                 });
+  std::transform(
+    level.m_meshes.begin(), level.m_meshes.end(), std::back_inserter(m_meshes), [this](const loader::file::Mesh& mesh) {
+      return Mesh{mesh.collision_center,
+                  mesh.collision_radius,
+                  std::make_shared<RenderMeshData>(mesh, m_atlasTiles, *m_level->m_palette)};
+    });
 
   std::vector<gsl::not_null<const Mesh*>> meshesDirect;
-  for(auto idx : m_level->m_meshIndices)
+  for(auto idx : level.m_meshIndices)
   {
     meshesDirect.emplace_back(&m_meshes.at(idx));
   }
 
-  for(const auto& [modelId, model] : m_level->m_animatedModels)
+  for(const auto& [modelId, model] : level.m_animatedModels)
   {
-    if(model->pose_data_offset.index<decltype(m_level->m_poseFrames[0])>() >= m_level->m_poseFrames.size())
+    if(model->pose_data_offset.index<decltype(m_poseFrames[0])>() >= m_poseFrames.size())
     {
       BOOST_LOG_TRIVIAL(warning) << "Pose frame data index "
-                                 << model->pose_data_offset.index<decltype(m_level->m_poseFrames[0])>()
-                                 << " out of range 0.." << m_level->m_poseFrames.size() - 1;
+                                 << model->pose_data_offset.index<decltype(m_poseFrames[0])>() << " out of range 0.."
+                                 << m_poseFrames.size() - 1;
       continue;
     }
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-    const auto frames
-      = reinterpret_cast<const loader::file::AnimFrame*>(&model->pose_data_offset.from(m_level->m_poseFrames));
+    const auto frames = reinterpret_cast<const loader::file::AnimFrame*>(&model->pose_data_offset.from(m_poseFrames));
     if(model->nMeshes > 1)
     {
       // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
       model->boneTree = gsl::make_span(
-        reinterpret_cast<const loader::file::BoneTreeEntry*>(&model->bone_index.from(m_level->m_boneTrees)),
-        model->nMeshes - 1);
+        reinterpret_cast<const loader::file::BoneTreeEntry*>(&model->bone_index.from(m_boneTrees)), model->nMeshes - 1);
     }
 
     Animation* animations = nullptr;
@@ -1371,7 +1356,7 @@ void World::initFromLevel()
                                model->type, model->mesh_base_index, std::move(bones), frames, animations}));
   }
 
-  for(const auto& transitionCase : m_level->m_transitionCases)
+  for(const auto& transitionCase : level.m_transitionCases)
   {
     const Animation* anim = nullptr;
     if(transitionCase.targetAnimationIndex.index < m_animations.size())
@@ -1386,8 +1371,8 @@ void World::initFromLevel()
 
   Expects(m_transitions.size() == m_transitions.size());
   std::transform(
-    m_level->m_transitions.begin(),
-    m_level->m_transitions.end(),
+    level.m_transitions.begin(),
+    level.m_transitions.end(),
     m_transitions.begin(),
     [this](const loader::file::Transitions& transitions) {
       Expects((transitions.firstTransitionCase + transitions.transitionCaseCount).exclusiveIn(m_transitionCases));
@@ -1398,12 +1383,12 @@ void World::initFromLevel()
       return Transitions{};
     });
 
-  m_boxes.resize(m_level->m_boxes.size());
-  auto getOverlaps = [this](const uint16_t idx) {
+  m_boxes.resize(level.m_boxes.size());
+  auto getOverlaps = [this, &level](const uint16_t idx) {
     std::vector<gsl::not_null<Box*>> result;
-    const auto first = &m_level->m_overlaps.at(idx);
+    const auto first = &level.m_overlaps.at(idx);
     auto current = first;
-    const auto endOfUniverse = &m_level->m_overlaps.back() + 1;
+    const auto endOfUniverse = &level.m_overlaps.back() + 1;
 
     while(current < endOfUniverse && (*current & 0x8000u) == 0)
     {
@@ -1416,28 +1401,28 @@ void World::initFromLevel()
   };
 
   std::transform(
-    m_level->m_boxes.begin(), m_level->m_boxes.end(), m_boxes.begin(), [&getOverlaps](const loader::file::Box& box) {
+    level.m_boxes.begin(), level.m_boxes.end(), m_boxes.begin(), [&getOverlaps](const loader::file::Box& box) {
       return Box{
         box.zmin, box.zmax, box.xmin, box.xmax, box.floor, box.blocked, box.blockable, getOverlaps(box.overlap_index)};
     });
 
-  Expects(m_level->m_baseZones.flyZone.size() == m_boxes.size());
-  Expects(m_level->m_baseZones.groundZone1.size() == m_boxes.size());
-  Expects(m_level->m_baseZones.groundZone2.size() == m_boxes.size());
-  Expects(m_level->m_alternateZones.flyZone.size() == m_boxes.size());
-  Expects(m_level->m_alternateZones.groundZone1.size() == m_boxes.size());
-  Expects(m_level->m_alternateZones.groundZone2.size() == m_boxes.size());
+  Expects(level.m_baseZones.flyZone.size() == m_boxes.size());
+  Expects(level.m_baseZones.groundZone1.size() == m_boxes.size());
+  Expects(level.m_baseZones.groundZone2.size() == m_boxes.size());
+  Expects(level.m_alternateZones.flyZone.size() == m_boxes.size());
+  Expects(level.m_alternateZones.groundZone1.size() == m_boxes.size());
+  Expects(level.m_alternateZones.groundZone2.size() == m_boxes.size());
   for(size_t i = 0; i < m_boxes.size(); ++i)
   {
-    m_boxes[i].zoneFly = m_level->m_baseZones.flyZone[i];
-    m_boxes[i].zoneGround1 = m_level->m_baseZones.groundZone1[i];
-    m_boxes[i].zoneGround2 = m_level->m_baseZones.groundZone2[i];
-    m_boxes[i].zoneFlySwapped = m_level->m_alternateZones.flyZone[i];
-    m_boxes[i].zoneGround1Swapped = m_level->m_alternateZones.groundZone1[i];
-    m_boxes[i].zoneGround2Swapped = m_level->m_alternateZones.groundZone2[i];
+    m_boxes[i].zoneFly = level.m_baseZones.flyZone[i];
+    m_boxes[i].zoneGround1 = level.m_baseZones.groundZone1[i];
+    m_boxes[i].zoneGround2 = level.m_baseZones.groundZone2[i];
+    m_boxes[i].zoneFlySwapped = level.m_alternateZones.flyZone[i];
+    m_boxes[i].zoneGround1Swapped = level.m_alternateZones.groundZone1[i];
+    m_boxes[i].zoneGround2Swapped = level.m_alternateZones.groundZone2[i];
   }
 
-  for(const auto& staticMesh : m_level->m_staticMeshes)
+  for(const auto& staticMesh : level.m_staticMeshes)
   {
     RenderMeshDataCompositor compositor;
     compositor.append(*meshesDirect.at(staticMesh.mesh)->meshData);
@@ -1452,26 +1437,26 @@ void World::initFromLevel()
     Expects(distinct);
   }
 
-  for(size_t i = 0; i < m_level->m_rooms.size(); ++i)
+  for(size_t i = 0; i < level.m_rooms.size(); ++i)
   {
-    auto& srcRoom = m_level->m_rooms[i];
+    auto& srcRoom = level.m_rooms[i];
     Room room{
       i, srcRoom.isWaterRoom(), srcRoom.position, srcRoom.sectorCountZ, srcRoom.sectorCountX, srcRoom.ambientShade};
     m_rooms.emplace_back(std::move(room));
   }
   for(size_t i = 0; i < m_rooms.size(); ++i)
   {
-    const auto& srcRoom = m_level->m_rooms.at(i);
+    const auto& srcRoom = level.m_rooms.at(i);
     std::transform(srcRoom.sectors.begin(),
                    srcRoom.sectors.end(),
                    std::back_inserter(m_rooms[i].sectors),
                    [this](const loader::file::Sector& sector) {
-                     return Sector{sector, m_rooms, m_boxes, m_level->m_floorData};
+                     return Sector{sector, m_rooms, m_boxes, m_floorData};
                    });
     std::transform(srcRoom.lights.begin(),
                    srcRoom.lights.end(),
                    std::back_inserter(m_rooms[i].lights),
-                   [this](const loader::file::Light& light) {
+                   [](const loader::file::Light& light) {
                      return Light{light.position, light.intensity, light.fadeDistance};
                    });
     std::transform(srcRoom.staticMeshes.begin(),
@@ -1492,17 +1477,16 @@ void World::initFromLevel()
 
   for(size_t i = 0; i < m_rooms.size(); ++i)
   {
-    m_rooms[i].createSceneNode(
-      m_level->m_rooms.at(i), i, *this, *m_textureAnimator, *getPresenter().getMaterialManager());
+    m_rooms[i].createSceneNode(level.m_rooms.at(i), i, *this, *m_textureAnimator, *getPresenter().getMaterialManager());
     setParent(m_rooms[i].node, getPresenter().getRenderer().getRootNode());
   }
 
-  m_objectManager.createObjects(*this, m_level->m_items);
+  m_objectManager.createObjects(*this, level.m_items);
   if(m_objectManager.getLaraPtr() == nullptr)
   {
     m_cameraController = std::make_unique<CameraController>(this, getPresenter().getRenderer().getCamera(), true);
 
-    for(const auto& item : m_level->m_items)
+    for(const auto& item : level.m_items)
     {
       if(item.type == TR1ItemId::CutsceneActor1)
       {
@@ -1516,8 +1500,8 @@ void World::initFromLevel()
   }
 
   m_positionalEmitters.clear();
-  m_positionalEmitters.reserve(m_level->m_soundSources.size());
-  for(loader::file::SoundSource& src : m_level->m_soundSources)
+  m_positionalEmitters.reserve(level.m_soundSources.size());
+  for(loader::file::SoundSource& src : level.m_soundSources)
   {
     m_positionalEmitters.emplace_back(src.position.toRenderSystem(), getPresenter().getSoundEngine().get());
     auto voice = m_audioEngine->playSoundEffect(src.sound_effect_id, &m_positionalEmitters.back());

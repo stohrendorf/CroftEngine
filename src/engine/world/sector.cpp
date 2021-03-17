@@ -63,7 +63,7 @@ void Sector::serialize(const serialization::Serializer<World>& ser)
       S_NV("roomIndexBelow", m_roomIndexBelow),
       S_NV("roomIndexAbove", m_roomIndexAbove),
       S_NVVE("portalTarget", ser.context.getRooms(), portalTarget),
-      S_NVVE("floorData", ser.context.getLevel().m_floorData, floorData));
+      S_NVVE("floorData", ser.context.getFloorData(), floorData));
 
   if(ser.loading)
   {

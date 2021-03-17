@@ -10,17 +10,6 @@
 #include <gl/window.h>
 #include <unordered_set>
 
-namespace loader::file
-{
-struct Palette;
-struct TextureTile;
-
-namespace level
-{
-class Level;
-}
-} // namespace loader::file
-
 namespace audio
 {
 class SoundEngine;
@@ -107,7 +96,7 @@ public:
     return *m_inputHandler;
   }
 
-  void drawBars(ui::Ui& ui, const loader::file::Palette& palette, const ObjectManager& objectManager);
+  void drawBars(ui::Ui& ui, const std::array<gl::SRGBA8, 256>& palette, const ObjectManager& objectManager);
 
   [[nodiscard]] const ui::TRFont& getTrFont() const
   {

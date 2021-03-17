@@ -175,7 +175,6 @@ public:
   [[nodiscard]] const std::vector<Room>& getRooms() const;
   std::vector<Room>& getRooms();
   [[nodiscard]] const StaticMesh* findStaticMeshById(core::StaticMeshId meshId) const;
-  [[nodiscard]] std::shared_ptr<render::scene::Mesh> findStaticRenderMeshById(core::StaticMeshId meshId) const;
   [[nodiscard]] const std::unique_ptr<SpriteSequence>& findSpriteSequenceForType(core::TypeId type) const;
   [[nodiscard]] const Animation& getAnimation(loader::file::AnimationId id) const;
   [[nodiscard]] const std::vector<loader::file::CinematicFrame>& getCinematicFrames() const;
@@ -209,8 +208,7 @@ public:
   [[nodiscard]] const std::vector<Mesh>& getMeshes() const;
   void turn180Effect(objects::Object& object);
   void unholsterRightGunEffect(const objects::ModelObject& object);
-  [[nodiscard]] std::array<gl::SRGBA8, 256> getPalette() const;
-  [[nodiscard]] const loader::file::Palette& getRawPalette() const;
+  [[nodiscard]] const std::array<gl::SRGBA8, 256>& getPalette() const;
   void handleCommandSequence(const floordata::FloorDataValue* floorData, bool fromHeavy);
   core::TypeId find(const SkeletalModelType* model) const;
   core::TypeId find(const Sprite* sprite) const;
@@ -313,6 +311,11 @@ public:
     return m_sprites;
   }
 
+  const auto& getFloorData() const
+  {
+    return m_floorData;
+  }
+
 private:
   void createMipmaps(const std::vector<std::shared_ptr<gl::CImgWrapper>>& images, size_t nMips);
 
@@ -367,6 +370,12 @@ private:
   std::vector<ui::PickupWidget> m_pickupWidgets{};
   const std::shared_ptr<Player> m_player;
 
+  std::vector<int16_t> m_poseFrames;
+  std::vector<int16_t> m_animCommands;
+  std::vector<int32_t> m_boneTrees;
+  engine::floordata::FloorData m_floorData;
+  std::array<gl::SRGBA8, 256> m_palette;
+
   std::vector<Animation> m_animations;
   std::vector<Transitions> m_transitions;
   std::vector<TransitionCase> m_transitionCases;
@@ -390,7 +399,7 @@ private:
                      std::unordered_set<AtlasTile*>& doneTiles,
                      std::unordered_set<Sprite*>& doneSprites);
   void initTextures(const loader::file::level::Level& level);
-  void initFromLevel();
+  void initFromLevel(loader::file::level::Level& level);
   void connectSectors();
 };
 } // namespace engine::world

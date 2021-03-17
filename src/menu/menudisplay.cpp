@@ -117,7 +117,7 @@ void MenuDisplay::updateMenuObjectDescription(ui::Ui& ui, engine::world::World& 
   case engine::TR1ItemId::SmallMedipack:
   case engine::TR1ItemId::LargeMedipack:
     world.getPresenter().setHealthBarTimeout(40_frame);
-    world.getPresenter().drawBars(ui, world.getRawPalette(), world.getObjectManager());
+    world.getPresenter().drawBars(ui, world.getPalette(), world.getObjectManager());
     break;
   default: break;
   }

@@ -243,22 +243,22 @@ void drawBar(ui::Ui& ui,
 };
 } // namespace
 
-void Presenter::drawBars(ui::Ui& ui, const loader::file::Palette& palette, const ObjectManager& objectManager)
+void Presenter::drawBars(ui::Ui& ui, const std::array<gl::SRGBA8, 256>& palette, const ObjectManager& objectManager)
 {
   if(objectManager.getLara().isInWater())
   {
     drawBar(ui,
             {m_window->getViewport().x - BarWidth - 10, 8},
             std::clamp(objectManager.getLara().getAir() * BarWidth / core::LaraAir, 0, BarWidth),
-            palette.colors[0].toTextureColor(),
-            palette.colors[17].toTextureColor(),
-            palette.colors[19].toTextureColor(),
+            palette[0],
+            palette[17],
+            palette[19],
             {
-              palette.colors[32].toTextureColor(),
-              palette.colors[41].toTextureColor(),
-              palette.colors[32].toTextureColor(),
-              palette.colors[19].toTextureColor(),
-              palette.colors[21].toTextureColor(),
+              palette[32],
+              palette[41],
+              palette[32],
+              palette[19],
+              palette[21],
             });
   }
 
@@ -278,18 +278,23 @@ void Presenter::drawBars(ui::Ui& ui, const loader::file::Palette& palette, const
     alpha = gsl::narrow_cast<uint8_t>(std::clamp(255 - std::abs(255 * m_healthBarTimeout / 40_frame), 0, 255));
   }
 
+  static const auto withAlpha = [](gl::SRGBA8 color, uint8_t alpha) {
+    color.channels.a = alpha;
+    return color;
+  };
+
   drawBar(ui,
           {8, 8},
           std::clamp(objectManager.getLara().m_state.health * BarWidth / core::LaraHealth, 0, BarWidth),
-          palette.colors[0].toTextureColor(alpha),
-          palette.colors[17].toTextureColor(alpha),
-          palette.colors[19].toTextureColor(alpha),
+          withAlpha(palette[0], alpha),
+          withAlpha(palette[17], alpha),
+          withAlpha(palette[19], alpha),
           {
-            palette.colors[8].toTextureColor(alpha),
-            palette.colors[11].toTextureColor(alpha),
-            palette.colors[8].toTextureColor(alpha),
-            palette.colors[6].toTextureColor(alpha),
-            palette.colors[24].toTextureColor(alpha),
+            withAlpha(palette[8], alpha),
+            withAlpha(palette[11], alpha),
+            withAlpha(palette[8], alpha),
+            withAlpha(palette[6], alpha),
+            withAlpha(palette[24], alpha),
           });
 }
 
