@@ -1,9 +1,11 @@
 #pragma once
 
 #include "core/vec.h"
+#include "render/scene/node.h"
 #include "util/helpers.h"
 #include "world/room.h"
 
+#include <gl/buffer.h>
 #include <set>
 
 namespace engine

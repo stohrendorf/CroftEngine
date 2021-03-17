@@ -1437,38 +1437,6 @@ void World::initFromLevel()
     m_boxes[i].zoneGround2Swapped = m_level->m_alternateZones.groundZone2[i];
   }
 
-  for(size_t i = 0; i < m_level->m_rooms.size(); ++i)
-  {
-    auto& srcRoom = m_level->m_rooms[i];
-    Room room{i,
-              srcRoom.isWaterRoom(),
-              srcRoom.position,
-              srcRoom.sectorCountZ,
-              srcRoom.sectorCountX,
-              srcRoom.ambientShade,
-              srcRoom.lights,
-              srcRoom.staticMeshes};
-    m_rooms.emplace_back(std::move(room));
-  }
-  for(size_t i = 0; i < m_rooms.size(); ++i)
-  {
-    const auto& srcRoom = m_level->m_rooms.at(i);
-    std::transform(srcRoom.sectors.begin(),
-                   srcRoom.sectors.end(),
-                   std::back_inserter(m_rooms[i].sectors),
-                   [this](const loader::file::Sector& sector) {
-                     return Sector{sector, m_rooms, m_boxes, m_level->m_floorData};
-                   });
-    m_rooms[i].alternateRoom = srcRoom.alternateRoom.get() >= 0 ? &m_rooms.at(srcRoom.alternateRoom.get()) : nullptr;
-  }
-
-  Ensures(m_animations.size() == m_animations.size());
-  Ensures(m_transitionCases.size() == m_transitionCases.size());
-  Ensures(m_transitions.size() == m_transitions.size());
-  Ensures(m_boxes.size() == m_boxes.size());
-
-  connectSectors();
-
   for(const auto& staticMesh : m_level->m_staticMeshes)
   {
     RenderMeshDataCompositor compositor;
@@ -1483,6 +1451,44 @@ void World::initFromLevel()
 
     Expects(distinct);
   }
+
+  for(size_t i = 0; i < m_level->m_rooms.size(); ++i)
+  {
+    auto& srcRoom = m_level->m_rooms[i];
+    Room room{
+      i, srcRoom.isWaterRoom(), srcRoom.position, srcRoom.sectorCountZ, srcRoom.sectorCountX, srcRoom.ambientShade};
+    m_rooms.emplace_back(std::move(room));
+  }
+  for(size_t i = 0; i < m_rooms.size(); ++i)
+  {
+    const auto& srcRoom = m_level->m_rooms.at(i);
+    std::transform(srcRoom.sectors.begin(),
+                   srcRoom.sectors.end(),
+                   std::back_inserter(m_rooms[i].sectors),
+                   [this](const loader::file::Sector& sector) {
+                     return Sector{sector, m_rooms, m_boxes, m_level->m_floorData};
+                   });
+    std::transform(srcRoom.lights.begin(),
+                   srcRoom.lights.end(),
+                   std::back_inserter(m_rooms[i].lights),
+                   [this](const loader::file::Light& light) {
+                     return Light{light.position, light.intensity, light.fadeDistance};
+                   });
+    std::transform(srcRoom.staticMeshes.begin(),
+                   srcRoom.staticMeshes.end(),
+                   std::back_inserter(m_rooms[i].staticMeshes),
+                   [this](const loader::file::RoomStaticMesh& rsm) {
+                     return RoomStaticMesh{rsm.position, rsm.rotation, rsm.shade, findStaticMeshById(rsm.meshId)};
+                   });
+    m_rooms[i].alternateRoom = srcRoom.alternateRoom.get() >= 0 ? &m_rooms.at(srcRoom.alternateRoom.get()) : nullptr;
+  }
+
+  Ensures(m_animations.size() == m_animations.size());
+  Ensures(m_transitionCases.size() == m_transitionCases.size());
+  Ensures(m_transitions.size() == m_transitions.size());
+  Ensures(m_boxes.size() == m_boxes.size());
+
+  connectSectors();
 
   for(size_t i = 0; i < m_rooms.size(); ++i)
   {

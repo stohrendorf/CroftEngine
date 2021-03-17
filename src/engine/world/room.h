@@ -1,10 +1,9 @@
 #pragma once
 
+#include "core/angle.h"
 #include "core/id.h"
 #include "core/units.h"
 #include "core/vec.h"
-#include "loader/file/datatypes.h"
-#include "loader/file/meshes.h"
 #include "sector.h"
 
 namespace render
@@ -25,9 +24,16 @@ namespace engine::objects
 class Object;
 }
 
+namespace loader::file
+{
+struct Portal;
+struct Room;
+} // namespace loader::file
+
 namespace engine::world
 {
 struct Room;
+struct StaticMesh;
 
 struct Portal
 {
@@ -40,6 +46,21 @@ struct Portal
                  const gsl::not_null<std::shared_ptr<render::scene::Material>>& material);
 };
 
+struct Light
+{
+  core::TRVec position;
+  core::Intensity intensity;
+  core::Length fadeDistance;
+};
+
+struct RoomStaticMesh
+{
+  core::TRVec position;
+  core::Angle rotation;
+  core::Shade shade;
+  gsl::not_null<const StaticMesh*> staticMesh;
+};
+
 struct Room
 {
   size_t index;
@@ -49,11 +70,12 @@ struct Room
   int sectorCountZ{};
   int sectorCountX{};
   core::Shade ambientShade{};
-  std::vector<loader::file::Light> lights{};
-  std::vector<loader::file::RoomStaticMesh> staticMeshes{};
 
+  std::vector<Light> lights{};
   std::vector<Portal> portals{};
   std::vector<Sector> sectors{};
+  std::vector<RoomStaticMesh> staticMeshes{};
+
   Room* alternateRoom{nullptr};
 
   std::shared_ptr<render::scene::Node> node = nullptr;
