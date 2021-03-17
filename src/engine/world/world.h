@@ -330,7 +330,6 @@ private:
   std::shared_ptr<audio::Voice> m_globalSoundEffect{};
 
   bool m_roomsAreSwapped = false;
-  std::vector<size_t> m_roomOrder;
 
   ObjectManager m_objectManager;
 

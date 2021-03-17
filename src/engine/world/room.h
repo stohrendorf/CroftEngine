@@ -42,17 +42,19 @@ struct Portal
 
 struct Room
 {
+  size_t index;
+
   bool isWaterRoom;
   core::TRVec position{};
   int sectorCountZ{};
   int sectorCountX{};
   core::Shade ambientShade{};
   std::vector<loader::file::Light> lights{};
-  core::RoomIdI16 alternateRoom{int16_t(-1)};
   std::vector<loader::file::RoomStaticMesh> staticMeshes{};
 
   std::vector<Portal> portals{};
   std::vector<Sector> sectors{};
+  Room* alternateRoom{nullptr};
 
   std::shared_ptr<render::scene::Node> node = nullptr;
   std::vector<std::shared_ptr<render::scene::Node>> sceneryNodes{};
@@ -87,7 +89,7 @@ struct Room
     return sx > 0 && sx < sectorCountX - 1 && sz > 0 && sz < sectorCountZ - 1;
   }
 
-  [[nodiscard]] const Sector* getSectorByIndex(const int dx, const int dz) const;
+  [[nodiscard]] const Sector* getSectorByIndex(int dx, int dz) const;
 
   [[nodiscard]] gsl::not_null<const Sector*> getInnerSectorByIndex(int dx, int dz) const
   {

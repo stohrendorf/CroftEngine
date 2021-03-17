@@ -11,7 +11,6 @@ struct Mesh
 {
   core::TRVec collisionCenter;
   core::Length collisionRadius;
-
-  std::shared_ptr<RenderMeshData> meshData{nullptr};
+  std::shared_ptr<RenderMeshData> meshData;
 };
 } // namespace engine::world

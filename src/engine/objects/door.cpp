@@ -29,9 +29,9 @@ Door::Door(const gsl::not_null<world::World*>& world,
   m_wingsPosition = m_state.position.position + core::TRVec{dx, 0_len, dz};
 
   m_info.init(*m_state.position.room, m_wingsPosition);
-  if(m_state.position.room->alternateRoom.get() >= 0)
+  if(m_state.position.room->alternateRoom != nullptr)
   {
-    m_alternateInfo.init(getWorld().getRooms().at(m_state.position.room->alternateRoom.get()), m_wingsPosition);
+    m_alternateInfo.init(*m_state.position.room->alternateRoom, m_wingsPosition);
   }
 
   m_info.close();
@@ -40,7 +40,7 @@ Door::Door(const gsl::not_null<world::World*>& world,
   if(m_info.originalSector.portalTarget != nullptr)
   {
     m_target.init(*m_info.originalSector.portalTarget, m_state.position.position);
-    if(m_state.position.room->alternateRoom.get() >= 0)
+    if(m_state.position.room->alternateRoom != nullptr)
     {
       Expects(m_alternateInfo.originalSector.portalTarget != nullptr);
       m_alternateTarget.init(*m_alternateInfo.originalSector.portalTarget, m_state.position.position);
@@ -125,7 +125,7 @@ void Door::serialize(const serialization::Serializer<world::World>& ser)
 
   if(ser.loading)
   {
-    ser.lazy([this](const serialization::Serializer<world::World>& ser) {
+    ser.lazy([this](const serialization::Serializer<world::World>& /*ser*/) {
       m_info.wingsSector
         = const_cast<world::Sector*>(m_state.position.room->getSectorByAbsolutePosition(m_wingsPosition));
       if(m_info.originalSector.portalTarget != nullptr)
@@ -134,11 +134,10 @@ void Door::serialize(const serialization::Serializer<world::World>& ser)
           m_info.originalSector.portalTarget->getSectorByAbsolutePosition(m_state.position.position));
       }
 
-      if(m_state.position.room->alternateRoom.get() >= 0)
+      if(m_state.position.room->alternateRoom != nullptr)
       {
-        m_alternateInfo.wingsSector = const_cast<world::Sector*>(ser.context.getRooms()
-                                                                   .at(m_state.position.room->alternateRoom.get())
-                                                                   .getSectorByAbsolutePosition(m_wingsPosition));
+        m_alternateInfo.wingsSector = const_cast<world::Sector*>(
+          m_state.position.room->alternateRoom->getSectorByAbsolutePosition(m_wingsPosition));
         if(m_alternateInfo.originalSector.portalTarget != nullptr)
         {
           m_alternateTarget.wingsSector = const_cast<world::Sector*>(

@@ -165,8 +165,8 @@ void Room::createSceneNode(const loader::file::Room& srcRoom,
         const bool planarWithPortal = center.Y + position.Y == sector->ceilingHeight;
         if(planarWithPortal && sector->roomAbove->isWaterRoom != isWaterRoom)
           continue;
-        if(planarWithPortal && sector->roomAbove->alternateRoom.get() >= 0
-           && world.getRooms().at(sector->roomAbove->alternateRoom.get()).isWaterRoom != isWaterRoom)
+        if(planarWithPortal && sector->roomAbove->alternateRoom != nullptr
+           && sector->roomAbove->alternateRoom->isWaterRoom != isWaterRoom)
           continue;
       }
       if(sector->roomBelow != nullptr)
@@ -174,8 +174,8 @@ void Room::createSceneNode(const loader::file::Room& srcRoom,
         const bool planarWithPortal = center.Y + position.Y == sector->floorHeight;
         if(planarWithPortal && sector->roomBelow->isWaterRoom != isWaterRoom)
           continue;
-        if(planarWithPortal && sector->roomBelow->alternateRoom.get() >= 0
-           && world.getRooms().at(sector->roomBelow->alternateRoom.get()).isWaterRoom != isWaterRoom)
+        if(planarWithPortal && sector->roomBelow->alternateRoom != nullptr
+           && sector->roomBelow->alternateRoom->isWaterRoom != isWaterRoom)
           continue;
       }
     }

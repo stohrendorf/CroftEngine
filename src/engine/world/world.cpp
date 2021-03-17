@@ -232,16 +232,13 @@ std::tuple<int8_t, int8_t> getFloorSlantInfo(gsl::not_null<const Sector*> sector
 void World::swapAllRooms()
 {
   BOOST_LOG_TRIVIAL(info) << "Swapping rooms";
-  Expects(m_level->m_rooms.size() == m_roomOrder.size());
   for(size_t i = 0; i < m_level->m_rooms.size(); ++i)
   {
     auto& room = m_rooms[i];
-    if(room.alternateRoom.get() < 0)
+    if(room.alternateRoom == nullptr)
       continue;
 
-    BOOST_ASSERT(static_cast<size_t>(room.alternateRoom.get()) < m_level->m_rooms.size());
-    std::swap(m_roomOrder[i], m_roomOrder.at(room.alternateRoom.get()));
-    swapWithAlternate(room, m_rooms.at(room.alternateRoom.get()));
+    swapWithAlternate(room, *room.alternateRoom);
   }
 
   m_roomsAreSwapped = !m_roomsAreSwapped;
@@ -540,7 +537,7 @@ void World::swapWithAlternate(Room& orig, Room& alternate)
 
   // now swap the rooms and patch the alternate room ids
   std::swap(orig, alternate);
-  orig.alternateRoom = std::exchange(alternate.alternateRoom, -1);
+  orig.alternateRoom = std::exchange(alternate.alternateRoom, nullptr);
 
   // patch heights in the new room, and swap object ownerships.
   // note that this is exactly the same code as above,
@@ -905,6 +902,10 @@ core::TypeId World::find(const Sprite* sprite) const
 
 void World::serialize(const serialization::Serializer<World>& ser)
 {
+  std::vector<size_t> roomOrder;
+  std::transform(
+    m_rooms.begin(), m_rooms.end(), std::back_inserter(roomOrder), [](const Room& room) { return room.index; });
+
   if(ser.loading)
   {
     getPresenter().getRenderer().getRootNode()->clear();
@@ -914,23 +915,20 @@ void World::serialize(const serialization::Serializer<World>& ser)
       setParent(room.node, getPresenter().getRenderer().getRootNode());
     }
 
-    auto currentRoomOrder = m_roomOrder;
-    ser(S_NV("roomOrder", m_roomOrder));
-    Ensures(m_roomOrder.size() == currentRoomOrder.size());
-    for(size_t i = 0; i < m_roomOrder.size(); ++i)
+    auto currentRoomOrder = roomOrder;
+    ser(S_NV("roomOrder", serialization::FrozenVector{roomOrder}));
+    for(size_t i = 0; i < roomOrder.size(); ++i)
     {
       const auto currentIdx = currentRoomOrder[i];
-      Expects(currentIdx < m_level->m_rooms.size());
-      Expects(m_roomOrder[i] < m_level->m_rooms.size());
-      if(currentIdx == m_roomOrder[i])
+      if(currentIdx == roomOrder[i])
         continue;
 
-      const auto otherIdx
-        = std::distance(m_roomOrder.begin(), std::find(m_roomOrder.begin(), m_roomOrder.end(), currentIdx));
+      const auto otherIdx = std::distance(roomOrder.begin(), std::find(roomOrder.begin(), roomOrder.end(), currentIdx));
+      Expects(gsl::narrow<size_t>(otherIdx) < roomOrder.size());
 
-      std::swap(m_roomOrder[i], m_roomOrder[otherIdx]);
-      swapWithAlternate(m_rooms[currentIdx], m_rooms[otherIdx]);
-      Ensures(currentIdx == m_roomOrder[i]);
+      std::swap(roomOrder[i], roomOrder[otherIdx]);
+      swapWithAlternate(m_rooms[i], m_rooms[otherIdx]);
+      Ensures(currentIdx == roomOrder[i]);
     }
   }
 
@@ -943,7 +941,7 @@ void World::serialize(const serialization::Serializer<World>& ser)
       S_NV("cameraController", *m_cameraController),
       S_NV("secretsFound", m_secretsFoundBitmask),
       S_NV("roomsAreSwapped", m_roomsAreSwapped),
-      S_NV("roomOrder", m_roomOrder),
+      S_NV("roomOrder", roomOrder),
       S_NV("rooms", serialization::FrozenVector{m_rooms}),
       S_NV("boxes", serialization::FrozenVector{m_boxes}),
       S_NV("audioEngine", *m_audioEngine));
@@ -1143,8 +1141,6 @@ World::World(Engine& engine,
   m_textureAnimator = std::make_unique<render::TextureAnimator>(m_level->m_animatedTextures);
 
   m_audioEngine->init(m_level->m_soundEffectProperties, m_level->m_soundEffects);
-  while(m_roomOrder.size() < m_level->m_rooms.size())
-    m_roomOrder.emplace_back(m_roomOrder.size());
 
   BOOST_LOG_TRIVIAL(info) << "Loading samples...";
 
@@ -1441,15 +1437,16 @@ void World::initFromLevel()
     m_boxes[i].zoneGround2Swapped = m_level->m_alternateZones.groundZone2[i];
   }
 
-  for(auto& srcRoom : m_level->m_rooms)
+  for(size_t i = 0; i < m_level->m_rooms.size(); ++i)
   {
-    Room room{srcRoom.isWaterRoom(),
+    auto& srcRoom = m_level->m_rooms[i];
+    Room room{i,
+              srcRoom.isWaterRoom(),
               srcRoom.position,
               srcRoom.sectorCountZ,
               srcRoom.sectorCountX,
               srcRoom.ambientShade,
               srcRoom.lights,
-              srcRoom.alternateRoom,
               srcRoom.staticMeshes};
     m_rooms.emplace_back(std::move(room));
   }
@@ -1462,6 +1459,7 @@ void World::initFromLevel()
                    [this](const loader::file::Sector& sector) {
                      return Sector{sector, m_rooms, m_boxes, m_level->m_floorData};
                    });
+    m_rooms[i].alternateRoom = srcRoom.alternateRoom.get() >= 0 ? &m_rooms.at(srcRoom.alternateRoom.get()) : nullptr;
   }
 
   Ensures(m_animations.size() == m_animations.size());
