@@ -4,6 +4,7 @@
 #include "atlastile.h"
 #include "audio/soundengine.h"
 #include "box.h"
+#include "cinematicframe.h"
 #include "engine/floordata/floordata.h"
 #include "engine/objectmanager.h"
 #include "loader/file/datatypes.h"
@@ -177,7 +178,7 @@ public:
   [[nodiscard]] const StaticMesh* findStaticMeshById(core::StaticMeshId meshId) const;
   [[nodiscard]] const std::unique_ptr<SpriteSequence>& findSpriteSequenceForType(core::TypeId type) const;
   [[nodiscard]] const Animation& getAnimation(loader::file::AnimationId id) const;
-  [[nodiscard]] const std::vector<loader::file::CinematicFrame>& getCinematicFrames() const;
+  [[nodiscard]] const std::vector<CinematicFrame>& getCinematicFrames() const;
   [[nodiscard]] const std::vector<loader::file::Camera>& getCameras() const;
   [[nodiscard]] const std::vector<int16_t>& getAnimCommands() const;
   void update(bool godMode);
@@ -375,6 +376,7 @@ private:
   std::vector<int32_t> m_boneTrees;
   engine::floordata::FloorData m_floorData;
   std::array<gl::SRGBA8, 256> m_palette;
+  std::vector<uint8_t> m_samplesData;
 
   std::vector<Animation> m_animations;
   std::vector<Transitions> m_transitions;
@@ -387,6 +389,7 @@ private:
   std::map<core::TypeId, std::unique_ptr<SpriteSequence>> m_spriteSequences;
   std::vector<AtlasTile> m_atlasTiles;
   std::vector<Room> m_rooms;
+  std::vector<CinematicFrame> m_cinematicFrames;
 
   void initTextureDependentDataFromLevel(const loader::file::level::Level& level);
   void processGlidosPack(const loader::file::level::Level& level,

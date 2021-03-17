@@ -375,3 +375,4 @@ level_sequence = [
     ),
     Video("END.RPL"),
 ]
+level_sequence = level_sequence[10:]

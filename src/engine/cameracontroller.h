@@ -10,15 +10,11 @@ namespace render::scene
 class Camera;
 }
 
-namespace loader::file
-{
-struct CinematicFrame;
-}
-
 namespace engine::world
 {
 class World;
 struct Portal;
+struct CinematicFrame;
 } // namespace engine::world
 
 namespace engine
@@ -201,7 +197,7 @@ public:
     return m_camera;
   }
 
-  std::unordered_set<const world::Portal*> updateCinematic(const loader::file::CinematicFrame& frame, bool ingame);
+  std::unordered_set<const world::Portal*> updateCinematic(const world::CinematicFrame& frame, bool ingame);
 
   void serialize(const serialization::Serializer<world::World>& ser);
 

@@ -15,7 +15,7 @@ namespace engine::world
 {
 RenderMeshData::RenderMeshData(const loader::file::Mesh& mesh,
                                const std::vector<engine::world::AtlasTile>& atlasTiles,
-                               const loader::file::Palette& palette)
+                               const std::array<gl::SRGBA8, 256>& palette)
 {
   for(const auto& quad : mesh.textured_rectangles)
   {
@@ -66,7 +66,7 @@ RenderMeshData::RenderMeshData(const loader::file::Mesh& mesh,
   }
   for(const auto& quad : mesh.colored_rectangles)
   {
-    const auto color = glm::vec4{gsl::at(palette.colors, quad.tileId.get() & 0xffu).toGLColor3(), 1.0f};
+    const auto color = glm::vec4{palette.at(quad.tileId.get() & 0xffu).channels} / 255.0f;
 
     const auto firstVertex = m_vertices.size();
     for(int i = 0; i < 4; ++i)
@@ -141,7 +141,7 @@ RenderMeshData::RenderMeshData(const loader::file::Mesh& mesh,
 
   for(const auto& tri : mesh.colored_triangles)
   {
-    const auto color = glm::vec4{gsl::at(palette.colors, tri.tileId.get() & 0xffu).toGLColor3(), 1.0f};
+    const auto color = glm::vec4{palette.at(tri.tileId.get() & 0xffu).channels} / 255.0f;
 
     for(int i = 0; i < 3; ++i)
     {

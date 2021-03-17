@@ -3,6 +3,7 @@
 #include "mesh.h"
 #include "render/scene/names.h"
 
+#include <gl/pixel.h>
 #include <gl/vertexbuffer.h>
 #include <glm/common.hpp>
 
@@ -51,7 +52,7 @@ public:
 
   explicit RenderMeshData(const loader::file::Mesh& mesh,
                           const std::vector<engine::world::AtlasTile>& atlasTiles,
-                          const loader::file::Palette& palette);
+                          const std::array<gl::SRGBA8, 256>& palette);
 
   [[nodiscard]] const auto& getVertices() const
   {

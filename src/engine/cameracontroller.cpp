@@ -735,7 +735,7 @@ void CameraController::handleEnemy(objects::Object& object)
   updatePosition(eye, m_smoothness);
 }
 
-std::unordered_set<const world::Portal*> CameraController::updateCinematic(const loader::file::CinematicFrame& frame,
+std::unordered_set<const world::Portal*> CameraController::updateCinematic(const world::CinematicFrame& frame,
                                                                            const bool ingame)
 {
   const core::TRVec basePos = ingame ? m_cinematicPos : m_position.position;
@@ -750,9 +750,9 @@ std::unordered_set<const world::Portal*> CameraController::updateCinematic(const
   }
 
   auto m = lookAt(newPos.toRenderSystem(), newLookAt.toRenderSystem(), {0, 1, 0});
-  m = rotate(m, toRad(frame.rotZ), -glm::vec3{m[2]});
+  m = rotate(m, frame.rotZ, -glm::vec3{m[2]});
   m_camera->setViewMatrix(m);
-  m_camera->setFieldOfView(toRad(frame.fov));
+  m_camera->setFieldOfView(frame.fov);
 
   // portal tracing doesn't work here because we always render each room.
   // assuming "sane" room layout here without overlapping rooms.

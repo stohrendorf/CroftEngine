@@ -609,9 +609,9 @@ const Animation& World::getAnimation(loader::file::AnimationId id) const
   return m_animations.at(static_cast<int>(id));
 }
 
-const std::vector<loader::file::CinematicFrame>& World::getCinematicFrames() const
+const std::vector<CinematicFrame>& World::getCinematicFrames() const
 {
-  return m_level->m_cinematicFrames;
+  return m_cinematicFrames;
 }
 
 const std::vector<loader::file::Camera>& World::getCameras() const
@@ -979,7 +979,7 @@ bool World::cinematicLoop()
   update(false);
 
   const auto waterEntryPortals
-    = m_cameraController->updateCinematic(m_level->m_cinematicFrames[m_cameraController->m_cinematicFrame], false);
+    = m_cameraController->updateCinematic(m_cinematicFrames.at(m_cameraController->m_cinematicFrame), false);
   doGlobalEffect();
 
   ui::Ui ui{getPresenter().getMaterialManager()->getScreenSpriteTextured(),
@@ -989,7 +989,7 @@ bool World::cinematicLoop()
   getPresenter().renderScreenOverlay();
   getPresenter().renderUi(ui, 1);
   getPresenter().swapBuffers();
-  if(++m_cameraController->m_cinematicFrame >= m_level->m_cinematicFrames.size())
+  if(++m_cameraController->m_cinematicFrame >= m_cinematicFrames.size())
     return false;
   return true;
 }
@@ -1126,10 +1126,11 @@ World::World(Engine& engine,
 
   BOOST_LOG_TRIVIAL(info) << "Loading samples...";
 
+  m_samplesData = std::move(m_level->m_samplesData);
   for(const auto offset : m_level->m_sampleIndices)
   {
-    Expects(offset < m_level->m_samplesData.size());
-    m_audioEngine->addWav(&m_level->m_samplesData[offset]);
+    Expects(offset < m_samplesData.size());
+    m_audioEngine->addWav(&m_samplesData[offset]);
   }
 
   getPresenter().drawLoadingScreen(util::unescape(m_title));
@@ -1303,9 +1304,8 @@ void World::initFromLevel(loader::file::level::Level& level)
 
   std::transform(
     level.m_meshes.begin(), level.m_meshes.end(), std::back_inserter(m_meshes), [this](const loader::file::Mesh& mesh) {
-      return Mesh{mesh.collision_center,
-                  mesh.collision_radius,
-                  std::make_shared<RenderMeshData>(mesh, m_atlasTiles, *m_level->m_palette)};
+      return Mesh{
+        mesh.collision_center, mesh.collision_radius, std::make_shared<RenderMeshData>(mesh, m_atlasTiles, m_palette)};
     });
 
   std::vector<gsl::not_null<const Mesh*>> meshesDirect;
@@ -1384,7 +1384,10 @@ void World::initFromLevel(loader::file::level::Level& level)
     });
 
   m_boxes.resize(level.m_boxes.size());
-  auto getOverlaps = [this, &level](const uint16_t idx) {
+  auto getOverlaps = [this, &level](const uint16_t idx) -> std::vector<gsl::not_null<Box*>> {
+    if(idx >= level.m_overlaps.size())
+      return {};
+
     std::vector<gsl::not_null<Box*>> result;
     const auto first = &level.m_overlaps.at(idx);
     auto current = first;
@@ -1474,6 +1477,13 @@ void World::initFromLevel(loader::file::level::Level& level)
   Ensures(m_boxes.size() == m_boxes.size());
 
   connectSectors();
+
+  std::transform(level.m_cinematicFrames.begin(),
+                 level.m_cinematicFrames.end(),
+                 std::back_inserter(m_cinematicFrames),
+                 [](const loader::file::CinematicFrame& frame) {
+                   return CinematicFrame{frame.lookAt, frame.position, toRad(frame.fov), toRad(frame.rotZ)};
+                 });
 
   for(size_t i = 0; i < m_rooms.size(); ++i)
   {
