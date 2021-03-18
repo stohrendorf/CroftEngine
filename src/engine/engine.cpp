@@ -175,8 +175,8 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
             continue;
           }
 
-          ui::Ui ui{world.getPresenter().getMaterialManager()->getScreenSpriteTextured(),
-                    world.getPresenter().getMaterialManager()->getScreenSpriteColorRect(),
+          ui::Ui ui{m_presenter->getMaterialManager()->getScreenSpriteTextured(),
+                    m_presenter->getMaterialManager()->getScreenSpriteColorRect(),
                     world.getPalette()};
           ui::LevelStats stats{world.getTitle(), world.getTotalSecrets(), world.getPlayerPtr(), m_presenter};
           stats.draw(ui);
@@ -212,13 +212,18 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
     {
       updateTimeSpent();
 
-      ui::Ui ui{world.getPresenter().getMaterialManager()->getScreenSpriteTextured(),
-                world.getPresenter().getMaterialManager()->getScreenSpriteColorRect(),
-                world.getPalette()};
-      menu->display(ui, world);
       render::scene::RenderContext context{render::scene::RenderMode::Full, std::nullopt};
+      m_presenter->renderWorld(
+        world.getObjectManager(), world.getRooms(), world.getCameraController(), world.getCameraController().update());
+      m_presenter->renderScreenOverlay();
       m_presenter->getScreenOverlay().setAlphaMultiplier(1.0f);
       m_presenter->getScreenOverlay().render(context);
+      ui::Ui ui{m_presenter->getMaterialManager()->getScreenSpriteTextured(),
+                m_presenter->getMaterialManager()->getScreenSpriteColorRect(),
+                world.getPalette()};
+      ui.drawBox({0, 0}, m_presenter->getViewport(), gl::SRGBA8{0, 0, 0, 224});
+      m_presenter->renderUi(ui, 1);
+      menu->display(ui, world);
       m_presenter->renderUi(ui, 1);
       m_presenter->swapBuffers();
       switch(menu->result)
@@ -333,8 +338,8 @@ std::pair<RunResult, std::optional<size_t>> Engine::runTitleMenu(world::World& w
     if(!m_presenter->preFrame())
       continue;
 
-    ui::Ui ui{world.getPresenter().getMaterialManager()->getScreenSpriteTextured(),
-              world.getPresenter().getMaterialManager()->getScreenSpriteColorRect(),
+    ui::Ui ui{m_presenter->getMaterialManager()->getScreenSpriteTextured(),
+              m_presenter->getMaterialManager()->getScreenSpriteColorRect(),
               world.getPalette()};
     menu->display(ui, world);
     render::scene::RenderContext context{render::scene::RenderMode::Full, std::nullopt};
