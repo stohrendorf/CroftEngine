@@ -502,11 +502,6 @@ std::unique_ptr<Room> Room::readTr5(io::SDLReader& reader)
   return room;
 }
 
-void Camera::serialize(const serialization::Serializer<engine::world::World>& ser)
-{
-  ser(S_NV("flags", flags));
-}
-
 std::unique_ptr<Camera> Camera::read(io::SDLReader& reader)
 {
   auto camera = std::make_unique<Camera>();

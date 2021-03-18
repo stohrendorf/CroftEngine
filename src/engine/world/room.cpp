@@ -133,10 +133,6 @@ void Room::createSceneNode(const loader::file::Room& srcRoom,
                            render::TextureAnimator& animator,
                            render::scene::MaterialManager& materialManager)
 {
-  const auto texMask = gameToEngine(world.getLevel().m_gameVersion) == loader::file::level::Engine::TR4
-                         ? loader::file::TextureIndexMaskTr4
-                         : loader::file::TextureIndexMask;
-
   RenderMesh renderMesh;
   renderMesh.m_materialDepthOnly = materialManager.getDepthOnly(false);
   renderMesh.m_materialCSMDepthOnly = nullptr;
@@ -188,7 +184,7 @@ void Room::createSceneNode(const loader::file::Room& srcRoom,
       RenderVertex iv;
       iv.position = quad.vertices[i].from(srcRoom.vertices).position.toRenderSystem();
       iv.color = quad.vertices[i].from(srcRoom.vertices).color;
-      uvCoordsData.emplace_back(tile.textureKey.tileAndFlag & texMask, tile.uvCoordinates[i]);
+      uvCoordsData.emplace_back(tile.textureKey.tileAndFlag & loader::file::TextureIndexMask, tile.uvCoordinates[i]);
 
       if(i <= 2)
       {
@@ -240,7 +236,7 @@ void Room::createSceneNode(const loader::file::Room& srcRoom,
       RenderVertex iv;
       iv.position = tri.vertices[i].from(srcRoom.vertices).position.toRenderSystem();
       iv.color = tri.vertices[i].from(srcRoom.vertices).color;
-      uvCoordsData.emplace_back(tile.textureKey.tileAndFlag & texMask, tile.uvCoordinates[i]);
+      uvCoordsData.emplace_back(tile.textureKey.tileAndFlag & loader::file::TextureIndexMask, tile.uvCoordinates[i]);
 
       static const std::array<int, 3> indices{0, 1, 2};
       iv.normal = generateNormal(tri.vertices[indices[(i + 0) % 3]].from(srcRoom.vertices).position,

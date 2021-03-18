@@ -160,6 +160,8 @@ set( EDISONENGINE_SRCS
 
         engine/world/box.h
         engine/world/box.cpp
+        engine/world/camerasink.h
+        engine/world/camerasink.cpp
         engine/world/rendermeshdata.h
         engine/world/rendermeshdata.cpp
         engine/world/room.h

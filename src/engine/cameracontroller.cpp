@@ -280,7 +280,7 @@ void CameraController::setCamOverride(const floordata::CameraParameters& camPara
                                       const core::Frame& timeout,
                                       const bool switchIsOn)
 {
-  if(m_world->getCameras().at(camId).isActive())
+  if(m_world->getCameraSinks().at(camId).isActive())
     return;
 
   m_fixedCameraId = camId;
@@ -298,7 +298,7 @@ void CameraController::setCamOverride(const floordata::CameraParameters& camPara
     m_camOverrideTimeout = camParams.timeout * core::FrameRate;
 
   if(camParams.oneshot)
-    m_world->getCameras()[camId].setActive(true);
+    m_world->getCameraSinks()[camId].setActive(true);
 
   m_smoothness = 1 + (camParams.smoothness * 4);
   if(fromHeavy)
@@ -523,7 +523,7 @@ void CameraController::handleFixedCamera()
 {
   Expects(m_fixedCameraId >= 0);
 
-  const loader::file::Camera& camera = m_world->getCameras().at(m_fixedCameraId);
+  const auto& camera = m_world->getCameraSinks().at(m_fixedCameraId);
   auto [success, goal] = raycastLineOfSight(m_lookAt, camera.position, m_world->getObjectManager());
   if(!success)
   {

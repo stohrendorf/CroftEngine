@@ -4,6 +4,7 @@
 #include "atlastile.h"
 #include "audio/soundengine.h"
 #include "box.h"
+#include "camerasink.h"
 #include "cinematicframe.h"
 #include "engine/floordata/floordata.h"
 #include "engine/objectmanager.h"
@@ -84,12 +85,6 @@ public:
                  std::shared_ptr<Player> player);
 
   ~World();
-
-  [[nodiscard]] const auto& getLevel() const
-  {
-    BOOST_ASSERT(m_level != nullptr);
-    return *m_level;
-  }
 
   [[nodiscard]] bool roomsAreSwapped() const
   {
@@ -179,7 +174,6 @@ public:
   [[nodiscard]] const std::unique_ptr<SpriteSequence>& findSpriteSequenceForType(core::TypeId type) const;
   [[nodiscard]] const Animation& getAnimation(loader::file::AnimationId id) const;
   [[nodiscard]] const std::vector<CinematicFrame>& getCinematicFrames() const;
-  [[nodiscard]] const std::vector<loader::file::Camera>& getCameras() const;
   [[nodiscard]] const std::vector<int16_t>& getAnimCommands() const;
   void update(bool godMode);
   void dinoStompEffect(objects::Object& object);
@@ -317,16 +311,21 @@ public:
     return m_floorData;
   }
 
+  const auto& getCameraSinks() const
+  {
+    return m_cameraSinks;
+  }
+
 private:
   void createMipmaps(const std::vector<std::shared_ptr<gl::CImgWrapper>>& images, size_t nMips);
 
   void drawPickupWidgets(ui::Ui& ui);
 
   Engine& m_engine;
+  const std::filesystem::path m_levelFilename;
 
   std::unique_ptr<AudioEngine> m_audioEngine;
 
-  gsl::not_null<std::unique_ptr<loader::file::level::Level>> m_level;
   std::unique_ptr<CameraController> m_cameraController;
 
   core::Frame m_effectTimer = 0_frame;
@@ -390,6 +389,7 @@ private:
   std::vector<AtlasTile> m_atlasTiles;
   std::vector<Room> m_rooms;
   std::vector<CinematicFrame> m_cinematicFrames;
+  std::vector<CameraSink> m_cameraSinks;
 
   void initTextureDependentDataFromLevel(const loader::file::level::Level& level);
   void processGlidosPack(const loader::file::level::Level& level,

@@ -614,11 +614,6 @@ const std::vector<CinematicFrame>& World::getCinematicFrames() const
   return m_cinematicFrames;
 }
 
-const std::vector<loader::file::Camera>& World::getCameras() const
-{
-  return m_level->m_cameras;
-}
-
 const std::vector<int16_t>& World::getAnimCommands() const
 {
   return m_animCommands;
@@ -803,7 +798,7 @@ void World::handleCommandSequence(const floordata::FloorDataValue* floorData, co
       break;
     case floordata::CommandOpcode::UnderwaterCurrent:
     {
-      const auto& sink = m_level->m_cameras.at(command.parameter);
+      const auto& sink = m_cameraSinks.at(command.parameter);
       if(m_objectManager.getLara().m_underwaterRoute.required_box != &m_boxes[sink.box_index])
       {
         m_objectManager.getLara().m_underwaterRoute.required_box = &m_boxes[sink.box_index];
@@ -917,7 +912,7 @@ void World::serialize(const serialization::Serializer<World>& ser)
   ser(S_NV("objectManager", m_objectManager),
       S_NV("player", *m_player),
       S_NV("mapFlipActivationStates", m_mapFlipActivationStates),
-      S_NV("cameras", serialization::FrozenVector{m_level->m_cameras}),
+      S_NV("cameras", serialization::FrozenVector{m_cameraSinks}),
       S_NV("activeEffect", m_activeEffect),
       S_NV("effectTimer", m_effectTimer),
       S_NV("cameraController", *m_cameraController),
@@ -1001,10 +996,10 @@ void World::load(const std::filesystem::path& filename)
   serialization::YAMLDocument<true> doc{m_engine.getSavegamePath() / filename};
   SavegameMeta meta{};
   doc.load("meta", meta, meta);
-  if(meta.filename != std::filesystem::relative(m_level->getFilename(), m_engine.getRootPath()))
+  if(meta.filename != std::filesystem::relative(m_levelFilename, m_engine.getRootPath()))
   {
     BOOST_LOG_TRIVIAL(error) << "Savegame mismatch. File is for " << meta.filename << ", but current level is "
-                             << m_level->getFilename();
+                             << m_levelFilename;
     return;
   }
   doc.load("data", *this, *this);
@@ -1018,7 +1013,7 @@ void World::save(const std::filesystem::path& filename)
   getPresenter().drawLoadingScreen(_("Saving..."));
   BOOST_LOG_TRIVIAL(info) << "Save";
   serialization::YAMLDocument<false> doc{m_engine.getSavegamePath() / filename};
-  SavegameMeta meta{std::filesystem::relative(m_level->getFilename(), m_engine.getRootPath()).string(), m_title};
+  SavegameMeta meta{std::filesystem::relative(m_levelFilename, m_engine.getRootPath()).string(), m_title};
   doc.save("meta", meta, meta);
   doc.save("data", *this, *this);
   doc.write();
@@ -1110,24 +1105,24 @@ World::World(Engine& engine,
              std::unordered_map<std::string, std::unordered_map<TR1ItemId, std::string>> itemTitles,
              std::shared_ptr<Player> player)
     : m_engine{engine}
+    , m_levelFilename{level->getFilename()}
     , m_audioEngine{std::make_unique<AudioEngine>(
         *this, engine.getRootPath() / "data" / "tr1" / "AUDIO", engine.getPresenter().getSoundEngine())}
-    , m_level{std::move(level)}
     , m_title{std::move(title)}
     , m_totalSecrets{totalSecrets}
     , m_itemTitles{std::move(itemTitles)}
+    , m_textureAnimator{std::make_unique<render::TextureAnimator>(level->m_animatedTextures)}
     , m_player{std::move(player)}
+    , m_samplesData{std::move(level->m_samplesData)}
 {
-  initTextureDependentDataFromLevel(*m_level);
-  initTextures(*m_level);
-  m_textureAnimator = std::make_unique<render::TextureAnimator>(m_level->m_animatedTextures);
+  initTextureDependentDataFromLevel(*level);
+  initTextures(*level);
 
-  m_audioEngine->init(m_level->m_soundEffectProperties, m_level->m_soundEffects);
+  m_audioEngine->init(level->m_soundEffectProperties, level->m_soundEffects);
 
   BOOST_LOG_TRIVIAL(info) << "Loading samples...";
 
-  m_samplesData = std::move(m_level->m_samplesData);
-  for(const auto offset : m_level->m_sampleIndices)
+  for(const auto offset : level->m_sampleIndices)
   {
     Expects(offset < m_samplesData.size());
     m_audioEngine->addWav(&m_samplesData[offset]);
@@ -1135,7 +1130,7 @@ World::World(Engine& engine,
 
   getPresenter().drawLoadingScreen(util::unescape(m_title));
 
-  initFromLevel(*m_level);
+  initFromLevel(*level);
 
   if(useAlternativeLara)
   {
@@ -1490,6 +1485,13 @@ void World::initFromLevel(loader::file::level::Level& level)
     m_rooms[i].createSceneNode(level.m_rooms.at(i), i, *this, *m_textureAnimator, *getPresenter().getMaterialManager());
     setParent(m_rooms[i].node, getPresenter().getRenderer().getRootNode());
   }
+
+  std::transform(level.m_cameras.begin(),
+                 level.m_cameras.end(),
+                 std::back_inserter(m_cameraSinks),
+                 [](const loader::file::Camera& camera) {
+                   return CameraSink{camera.position, {camera.room}, {camera.flags}};
+                 });
 
   m_objectManager.createObjects(*this, level.m_items);
   if(m_objectManager.getLaraPtr() == nullptr)
