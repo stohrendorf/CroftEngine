@@ -54,31 +54,73 @@ CompositionPass::CompositionPass(scene::MaterialManager& materialManager,
     .set(gl::api::TextureMinFilter::Linear)
     .set(gl::api::TextureMagFilter::Linear);
 
-  m_compositionMaterial->getUniform("u_portalDepth")->set(portalPass.getDepthBuffer());
+  m_mesh->bind("u_portalDepth",
+               [buffer = portalPass.getDepthBuffer()](const render::scene::Node& /*node*/,
+                                                      const render::scene::Mesh& /*mesh*/,
+                                                      gl::Uniform& uniform) { uniform.set(buffer); });
   if(renderSettings.waterDenoise)
-    m_compositionMaterial->getUniform("u_portalPerturb")->set(portalPass.getBlurredTexture());
+    m_mesh->bind("u_portalPerturb",
+                 [texture = portalPass.getBlurredTexture()](const render::scene::Node& /*node*/,
+                                                            const render::scene::Mesh& /*mesh*/,
+                                                            gl::Uniform& uniform) { uniform.set(texture); });
   else
-    m_compositionMaterial->getUniform("u_portalPerturb")->set(portalPass.getNoisyTexture());
-  m_compositionMaterial->getUniform("u_depth")->set(geometryPass.getDepthBuffer());
-  m_compositionMaterial->getUniform("u_ao")->set(ssaoPass.getBlurredTexture());
-  m_compositionMaterial->getUniform("u_texture")->set(fxaaPass.getColorBuffer());
+    m_mesh->bind("u_portalPerturb",
+                 [texture = portalPass.getNoisyTexture()](const render::scene::Node& /*node*/,
+                                                          const render::scene::Mesh& /*mesh*/,
+                                                          gl::Uniform& uniform) { uniform.set(texture); });
+  m_mesh->bind("u_depth",
+               [buffer = geometryPass.getDepthBuffer()](const render::scene::Node& /*node*/,
+                                                        const render::scene::Mesh& /*mesh*/,
+                                                        gl::Uniform& uniform) { uniform.set(buffer); });
+  m_mesh->bind("u_ao",
+               [texture = ssaoPass.getBlurredTexture()](const render::scene::Node& /*node*/,
+                                                        const render::scene::Mesh& /*mesh*/,
+                                                        gl::Uniform& uniform) { uniform.set(texture); });
+  m_mesh->bind("u_texture",
+               [buffer = fxaaPass.getColorBuffer()](const render::scene::Node& /*node*/,
+                                                    const render::scene::Mesh& /*mesh*/,
+                                                    gl::Uniform& uniform) { uniform.set(buffer); });
 
-  m_waterCompositionMaterial->getUniform("u_portalDepth")->set(portalPass.getDepthBuffer());
+  m_waterMesh->bind("u_portalDepth",
+                    [buffer = portalPass.getDepthBuffer()](const render::scene::Node& /*node*/,
+                                                           const render::scene::Mesh& /*mesh*/,
+                                                           gl::Uniform& uniform) { uniform.set(buffer); });
   if(renderSettings.waterDenoise)
-    m_waterCompositionMaterial->getUniform("u_portalPerturb")->set(portalPass.getBlurredTexture());
+    m_waterMesh->bind("u_portalPerturb",
+                      [texture = portalPass.getBlurredTexture()](const render::scene::Node& /*node*/,
+                                                                 const render::scene::Mesh& /*mesh*/,
+                                                                 gl::Uniform& uniform) { uniform.set(texture); });
   else
-    m_waterCompositionMaterial->getUniform("u_portalPerturb")->set(portalPass.getNoisyTexture());
-  m_waterCompositionMaterial->getUniform("u_depth")->set(geometryPass.getDepthBuffer());
-  m_waterCompositionMaterial->getUniform("u_ao")->set(ssaoPass.getBlurredTexture());
-  m_waterCompositionMaterial->getUniform("u_texture")->set(fxaaPass.getColorBuffer());
+    m_waterMesh->bind("u_portalPerturb",
+                      [texture = portalPass.getNoisyTexture()](const render::scene::Node& /*node*/,
+                                                               const render::scene::Mesh& /*mesh*/,
+                                                               gl::Uniform& uniform) { uniform.set(texture); });
+  m_waterMesh->bind("u_depth",
+                    [buffer = geometryPass.getDepthBuffer()](const render::scene::Node& /*node*/,
+                                                             const render::scene::Mesh& /*mesh*/,
+                                                             gl::Uniform& uniform) { uniform.set(buffer); });
+  m_waterMesh->bind("u_ao",
+                    [texture = ssaoPass.getBlurredTexture()](const render::scene::Node& /*node*/,
+                                                             const render::scene::Mesh& /*mesh*/,
+                                                             gl::Uniform& uniform) { uniform.set(texture); });
+  m_waterMesh->bind("u_texture",
+                    [buffer = fxaaPass.getColorBuffer()](const render::scene::Node& /*node*/,
+                                                         const render::scene::Mesh& /*mesh*/,
+                                                         gl::Uniform& uniform) { uniform.set(buffer); });
 
   m_colorBuffer->set(gl::api::TextureParameterName::TextureWrapS, gl::api::TextureWrapMode::Repeat)
     .set(gl::api::TextureParameterName::TextureWrapT, gl::api::TextureWrapMode::Repeat)
     .set(gl::api::TextureMinFilter::Linear)
     .set(gl::api::TextureMagFilter::Linear);
 
-  m_crtMaterial->getUniform("u_input")->set(m_colorBuffer);
-  m_crtMaterial->getUniform("u_noise")->set(m_noise);
+  m_crtMesh->bind(
+    "u_input", [this](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform) {
+      uniform.set(m_colorBuffer);
+    });
+  m_crtMesh->bind(
+    "u_noise", [this](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform) {
+      uniform.set(m_noise);
+    });
 
   m_fb = gl::FrameBufferBuilder()
            .texture(gl::api::FramebufferAttachment::ColorAttachment0, m_colorBuffer)

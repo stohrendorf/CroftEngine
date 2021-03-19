@@ -112,13 +112,15 @@ struct Lighting
 
   void bind(render::scene::Node& node) const
   {
-    node.addUniformSetter("u_lightAmbient", [this](const render::scene::Node& /*node*/, gl::Uniform& uniform) {
-      uniform.set(ambient.get());
-    });
+    node.bind("u_lightAmbient",
+              [this](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform) {
+                uniform.set(ambient.get());
+              });
 
-    node.addBufferBinder("b_lights", [this](const render::scene::Node&, gl::ShaderStorageBlock& shaderStorageBlock) {
-      shaderStorageBlock.bind(m_buffer);
-    });
+    node.bind("b_lights",
+              [this](const render::scene::Node&,
+                     const render::scene::Mesh& /*mesh*/,
+                     gl::ShaderStorageBlock& shaderStorageBlock) { shaderStorageBlock.bind(m_buffer); });
   }
 };
 } // namespace engine

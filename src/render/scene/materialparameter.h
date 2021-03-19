@@ -4,6 +4,7 @@
 
 namespace render::scene
 {
+class Mesh;
 class Node;
 class ShaderProgram;
 
@@ -17,7 +18,9 @@ public:
 
   virtual ~MaterialParameter() = default;
 
-  virtual bool bind(const Node& node, const gsl::not_null<std::shared_ptr<ShaderProgram>>& shaderProgram) = 0;
+  virtual bool
+    bind(const Node& node, const Mesh& mesh, const gsl::not_null<std::shared_ptr<ShaderProgram>>& shaderProgram)
+    = 0;
 
   [[nodiscard]] const std::string& getName() const
   {

@@ -42,7 +42,10 @@ SSAOPass::SSAOPass(scene::ShaderManager& shaderManager, const glm::ivec2& viewpo
     ssaoSamples.emplace_back(sample);
 #endif
   }
-  m_material->getUniform("u_samples[0]")->set(ssaoSamples);
+  m_renderMesh->bind("u_samples[0]",
+                     [ssaoSamples](const render::scene::Node& /*node*/,
+                                   const render::scene::Mesh& /*mesh*/,
+                                   gl::Uniform& uniform) { uniform.set(ssaoSamples); });
 
   // generate noise texture
   std::vector<gl::RGB32F> ssaoNoise;
@@ -58,15 +61,24 @@ SSAOPass::SSAOPass(scene::ShaderManager& shaderManager, const glm::ivec2& viewpo
     .set(gl::api::TextureParameterName::TextureWrapT, gl::api::TextureWrapMode::Repeat)
     .set(gl::api::TextureMinFilter::Nearest)
     .set(gl::api::TextureMagFilter::Nearest);
-  m_material->getUniform("u_texNoise")->set(m_noiseTexture);
+  m_renderMesh->bind("u_texNoise",
+                     [this](const render::scene::Node& /*node*/,
+                            const render::scene::Mesh& /*mesh*/,
+                            gl::Uniform& uniform) { uniform.set(m_noiseTexture); });
 
   m_aoBuffer->set(gl::api::TextureParameterName::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge)
     .set(gl::api::TextureParameterName::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge)
     .set(gl::api::TextureMinFilter::Linear)
     .set(gl::api::TextureMagFilter::Linear);
 
-  m_material->getUniform("u_normals")->set(geometryPass.getNormalBuffer());
-  m_material->getUniform("u_position")->set(geometryPass.getPositionBuffer());
+  m_renderMesh->bind("u_normals",
+                     [buffer = geometryPass.getNormalBuffer()](const render::scene::Node& /*node*/,
+                                                               const render::scene::Mesh& /*mesh*/,
+                                                               gl::Uniform& uniform) { uniform.set(buffer); });
+  m_renderMesh->bind("u_position",
+                     [buffer = geometryPass.getPositionBuffer()](const render::scene::Node& /*node*/,
+                                                                 const render::scene::Mesh& /*mesh*/,
+                                                                 gl::Uniform& uniform) { uniform.set(buffer); });
 
   m_renderMesh->getMaterialGroup().set(scene::RenderMode::Full, m_material);
 

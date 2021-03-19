@@ -27,11 +27,11 @@ Material::Material(gsl::not_null<std::shared_ptr<ShaderProgram>> shaderProgram)
 
 Material::~Material() = default;
 
-void Material::bind(const Node& node) const
+void Material::bind(const Node& node, const Mesh& mesh) const
 {
   for(const auto& param : m_uniforms)
   {
-    const auto success = param->bind(node, m_shaderProgram);
+    const auto success = param->bind(node, mesh, m_shaderProgram);
 #ifndef NDEBUG
     if(!success)
     {
@@ -42,7 +42,7 @@ void Material::bind(const Node& node) const
 
   for(const auto& param : m_uniformBlocks)
   {
-    const auto success = param->bind(node, m_shaderProgram);
+    const auto success = param->bind(node, mesh, m_shaderProgram);
 #ifndef NDEBUG
     if(!success)
     {
@@ -53,7 +53,7 @@ void Material::bind(const Node& node) const
 
   for(const auto& param : m_buffers)
   {
-    const auto success = param->bind(node, m_shaderProgram);
+    const auto success = param->bind(node, mesh, m_shaderProgram);
 #ifndef NDEBUG
     if(!success)
     {

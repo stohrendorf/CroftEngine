@@ -1,17 +1,24 @@
 #include "uniformparameter.h"
 
 #include "camera.h"
+#include "mesh.h"
 #include "node.h"
 
 namespace render::scene
 {
-bool UniformParameter::bind(const Node& node, const gsl::not_null<std::shared_ptr<ShaderProgram>>& shaderProgram)
+bool UniformParameter::bind(const Node& node,
+                            const Mesh& mesh,
+                            const gsl::not_null<std::shared_ptr<ShaderProgram>>& shaderProgram)
 {
-  const auto setter = node.findUniformSetter(getName());
+  auto setter = mesh.findUniformSetter(getName());
   if(!m_valueSetter && setter == nullptr)
   {
-    // don't have an explicit setter present on material or node level, assuming it's set on shader level
-    return true;
+    setter = node.findUniformSetter(getName());
+    if(!m_valueSetter && setter == nullptr)
+    {
+      // don't have an explicit setter present on material, node or mesh level, assuming it's set on shader level
+      return true;
+    }
   }
 
   const auto uniform = findUniform(shaderProgram);
@@ -19,20 +26,26 @@ bool UniformParameter::bind(const Node& node, const gsl::not_null<std::shared_pt
     return false;
 
   if(setter != nullptr)
-    (*setter)(node, *uniform);
+    (*setter)(node, mesh, *uniform);
   else
-    m_valueSetter(node, *uniform);
+    m_valueSetter(node, mesh, *uniform);
 
   return true;
 }
 
-bool UniformBlockParameter::bind(const Node& node, const gsl::not_null<std::shared_ptr<ShaderProgram>>& shaderProgram)
+bool UniformBlockParameter::bind(const Node& node,
+                                 const Mesh& mesh,
+                                 const gsl::not_null<std::shared_ptr<ShaderProgram>>& shaderProgram)
 {
-  const auto binder = node.findUniformBlockBinder(getName());
+  auto binder = mesh.findUniformBlockBinder(getName());
   if(!m_bufferBinder && binder == nullptr)
   {
-    // don't have an explicit binder present on material or node level, assuming it's set on shader level
-    return true;
+    binder = node.findUniformBlockBinder(getName());
+    if(!m_bufferBinder && binder == nullptr)
+    {
+      // don't have an explicit binder present on material, node or mesh level, assuming it's set on shader level
+      return true;
+    }
   }
 
   const auto block = findUniformBlock(shaderProgram);
@@ -40,20 +53,23 @@ bool UniformBlockParameter::bind(const Node& node, const gsl::not_null<std::shar
     return false;
 
   if(binder != nullptr)
-    (*binder)(node, *block);
+    (*binder)(node, mesh, *block);
   else
-    m_bufferBinder(node, *block);
+    m_bufferBinder(node, mesh, *block);
 
   return true;
 }
 
 void UniformBlockParameter::bindTransformBuffer()
 {
-  m_bufferBinder = [](const Node& node, gl::UniformBlock& ub) { ub.bind(node.getTransformBuffer()); };
+  m_bufferBinder
+    = [](const Node& node, const Mesh& /*mesh*/, gl::UniformBlock& ub) { ub.bind(node.getTransformBuffer()); };
 }
 
 void UniformBlockParameter::bindCameraBuffer(const gsl::not_null<std::shared_ptr<Camera>>& camera)
 {
-  m_bufferBinder = [camera](const Node& /*node*/, gl::UniformBlock& ub) { ub.bind(camera->getMatricesBuffer()); };
+  m_bufferBinder = [camera](const Node& /*node*/, const Mesh& /*mesh*/, gl::UniformBlock& ub) {
+    ub.bind(camera->getMatricesBuffer());
+  };
 }
 } // namespace render::scene

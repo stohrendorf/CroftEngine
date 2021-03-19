@@ -1,10 +1,7 @@
 #pragma once
 
-#include "bufferparameter.h"
-#include "uniformparameter.h"
+#include "materialparameteroverrider.h"
 #include "visitor.h"
-
-#include <boost/container/flat_map.hpp>
 
 namespace render::scene
 {
@@ -15,7 +12,7 @@ struct Transform
   glm::mat4 modelMatrix{1.0f};
 };
 
-class Node
+class Node : public MaterialParameterOverrider
 {
 public:
   Node(const Node&) = delete;
@@ -124,72 +121,6 @@ public:
 
   void accept(Visitor& visitor);
 
-  void addUniformSetter(const std::string& name, const std::function<UniformParameter::UniformValueSetter>& setter)
-  {
-    m_uniformSetters[name] = setter;
-  }
-
-  void addUniformSetter(const std::string& name, std::function<UniformParameter::UniformValueSetter>&& setter)
-  {
-    m_uniformSetters[name] = std::move(setter);
-  }
-
-  void addBufferBinder(const std::string& name, const std::function<BufferParameter::BufferBinder>& binder)
-  {
-    m_bufferBinders[name] = binder;
-  }
-
-  void addBufferBinder(const std::string& name, std::function<BufferParameter::BufferBinder>&& binder)
-  {
-    m_bufferBinders[name] = std::move(binder);
-  }
-
-  void addUniformBlockBinder(const std::string& name, const std::function<UniformBlockParameter::BufferBinder>& binder)
-  {
-    m_uniformBlockBinders[name] = binder;
-  }
-
-  void addUniformBlockBinder(const std::string& name, std::function<UniformBlockParameter::BufferBinder>&& binder)
-  {
-    m_uniformBlockBinders[name] = std::move(binder);
-  }
-
-  const std::function<UniformParameter::UniformValueSetter>* findUniformSetter(const std::string& name) const
-  {
-    const auto it = m_uniformSetters.find(name);
-    if(it != m_uniformSetters.end())
-      return &it->second;
-
-    if(const auto p = getParent().lock())
-      return p->findUniformSetter(name);
-
-    return nullptr;
-  }
-
-  const std::function<UniformBlockParameter::BufferBinder>* findUniformBlockBinder(const std::string& name) const
-  {
-    const auto it = m_uniformBlockBinders.find(name);
-    if(it != m_uniformBlockBinders.end())
-      return &it->second;
-
-    if(const auto p = getParent().lock())
-      return p->findUniformBlockBinder(name);
-
-    return nullptr;
-  }
-
-  const std::function<BufferParameter::BufferBinder>* findShaderStorageBlockBinder(const std::string& name) const
-  {
-    const auto it = m_bufferBinders.find(name);
-    if(it != m_bufferBinders.end())
-      return &it->second;
-
-    if(const auto p = getParent().lock())
-      return p->findShaderStorageBlockBinder(name);
-
-    return nullptr;
-  }
-
   std::shared_ptr<Node> findChild(const Node* node) const
   {
     const auto it
@@ -240,10 +171,6 @@ private:
   mutable bool m_bufferDirty = true;
   mutable Transform m_transform{};
   mutable gl::UniformBuffer<Transform> m_transformBuffer;
-
-  boost::container::flat_map<std::string, std::function<UniformParameter::UniformValueSetter>> m_uniformSetters;
-  boost::container::flat_map<std::string, std::function<UniformBlockParameter::BufferBinder>> m_uniformBlockBinders;
-  boost::container::flat_map<std::string, std::function<BufferParameter::BufferBinder>> m_bufferBinders;
 
   friend void setParent(gsl::not_null<std::shared_ptr<Node>> node, const std::shared_ptr<Node>& newParent);
   friend void setParent(Node* node, const std::shared_ptr<Node>& newParent);

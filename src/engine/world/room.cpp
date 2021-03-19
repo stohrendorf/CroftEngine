@@ -263,15 +263,16 @@ void Room::createSceneNode(const loader::file::Room& srcRoom,
 
   node = std::make_shared<render::scene::Node>("Room:" + std::to_string(roomId));
   node->setRenderable(resMesh);
-  node->addUniformSetter("u_lightAmbient",
-                         [](const render::scene::Node& /*node*/, gl::Uniform& uniform) { uniform.set(1.0f); });
+  node->bind("u_lightAmbient",
+             [](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform) {
+               uniform.set(1.0f);
+             });
 
-  node->addBufferBinder(
-    "b_lights",
-    [emptyBuffer = std::make_shared<gl::ShaderStorageBuffer<engine::Lighting::Light>>("lights-buffer-empty")](
-      const render::scene::Node&, gl::ShaderStorageBlock& shaderStorageBlock) {
-      shaderStorageBlock.bind(*emptyBuffer);
-    });
+  node->bind("b_lights",
+             [emptyBuffer = std::make_shared<gl::ShaderStorageBuffer<engine::Lighting::Light>>("lights-buffer-empty")](
+               const render::scene::Node&,
+               const render::scene::Mesh& /*mesh*/,
+               gl::ShaderStorageBlock& shaderStorageBlock) { shaderStorageBlock.bind(*emptyBuffer); });
 
   for(const RoomStaticMesh& sm : staticMeshes)
   {
@@ -283,11 +284,10 @@ void Room::createSceneNode(const loader::file::Room& srcRoom,
     subNode->setLocalMatrix(translate(glm::mat4{1.0f}, (sm.position - position).toRenderSystem())
                             * rotate(glm::mat4{1.0f}, toRad(sm.rotation), glm::vec3{0, -1, 0}));
 
-    subNode->addUniformSetter(
-      "u_lightAmbient",
-      [brightness = toBrightness(sm.shade)](const render::scene::Node& /*node*/, gl::Uniform& uniform) {
-        uniform.set(brightness.get());
-      });
+    subNode->bind("u_lightAmbient",
+                  [brightness = toBrightness(sm.shade)](const render::scene::Node& /*node*/,
+                                                        const render::scene::Mesh& /*mesh*/,
+                                                        gl::Uniform& uniform) { uniform.set(brightness.get()); });
 
     sceneryNodes.emplace_back(std::move(subNode));
   }
@@ -312,11 +312,10 @@ void Room::createSceneNode(const loader::file::Room& srcRoom,
     spriteNode->setRenderable(mesh);
     const auto& v = srcRoom.vertices.at(spriteInstance.vertex.get());
     spriteNode->setLocalMatrix(translate(glm::mat4{1.0f}, v.position.toRenderSystem()));
-    spriteNode->addUniformSetter(
-      "u_lightAmbient",
-      [brightness = toBrightness(v.shade)](const render::scene::Node& /*node*/, gl::Uniform& uniform) {
-        uniform.set(brightness.get());
-      });
+    spriteNode->bind("u_lightAmbient",
+                     [brightness = toBrightness(v.shade)](const render::scene::Node& /*node*/,
+                                                          const render::scene::Mesh& /*mesh*/,
+                                                          gl::Uniform& uniform) { uniform.set(brightness.get()); });
     bindSpritePole(*spriteNode, render::scene::SpritePole::Y);
 
     sceneryNodes.emplace_back(std::move(spriteNode));

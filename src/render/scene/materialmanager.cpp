@@ -30,7 +30,9 @@ const std::shared_ptr<Material>& MaterialManager::getCSMDepthOnly(bool skeletal)
 
   m_csmDepthOnly[skeletal] = std::make_shared<Material>(m_shaderManager->getCSMDepthOnly(skeletal));
   m_csmDepthOnly[skeletal]->getUniform("u_mvp")->bind(
-    [this](const Node& node, gl::Uniform& uniform) { uniform.set(m_csm->getActiveMatrix(node.getModelMatrix())); });
+    [this](const Node& node, const Mesh& /*mesh*/, gl::Uniform& uniform) {
+      uniform.set(m_csm->getActiveMatrix(node.getModelMatrix()));
+    });
   m_csmDepthOnly[skeletal]->getRenderState().setDepthTest(true);
   m_csmDepthOnly[skeletal]->getRenderState().setDepthWrite(true);
   if(skeletal)
@@ -70,14 +72,15 @@ std::shared_ptr<Material> MaterialManager::getGeometry(bool water, bool skeletal
   if(skeletal)
     m->getBuffer("BoneTransform")->bindBoneTransformBuffer();
   m->getUniformBlock("Camera")->bindCameraBuffer(m_renderer->getCamera());
-  m->getUniformBlock("CSM")->bind(
-    [this](const Node& node, gl::UniformBlock& ub) { ub.bind(m_csm->getBuffer(node.getModelMatrix())); });
+  m->getUniformBlock("CSM")->bind([this](const Node& node, const Mesh& /*mesh*/, gl::UniformBlock& ub) {
+    ub.bind(m_csm->getBuffer(node.getModelMatrix()));
+  });
 
   m->getUniform("u_csmVsm[0]")->set(m_csm->getTextures());
 
   if(water)
   {
-    m->getUniform("u_time")->bind([renderer = m_renderer](const Node&, gl::Uniform& uniform) {
+    m->getUniform("u_time")->bind([renderer = m_renderer](const Node&, const Mesh& /*mesh*/, gl::Uniform& uniform) {
       const auto now = std::chrono::time_point_cast<std::chrono::milliseconds>(renderer->getGameTime());
       uniform.set(gsl::narrow_cast<float>(now.time_since_epoch().count()));
     });
@@ -96,10 +99,11 @@ const std::shared_ptr<Material>& MaterialManager::getPortal()
   m_portal->getRenderState().setCullFace(false);
 
   m_portal->getUniformBlock("Camera")->bindCameraBuffer(m_renderer->getCamera());
-  m_portal->getUniform("u_time")->bind([renderer = m_renderer](const Node&, gl::Uniform& uniform) {
-    const auto now = std::chrono::time_point_cast<std::chrono::milliseconds>(renderer->getGameTime());
-    uniform.set(gsl::narrow_cast<float>(now.time_since_epoch().count()));
-  });
+  m_portal->getUniform("u_time")->bind(
+    [renderer = m_renderer](const Node&, const Mesh& /*mesh*/, gl::Uniform& uniform) {
+      const auto now = std::chrono::time_point_cast<std::chrono::milliseconds>(renderer->getGameTime());
+      uniform.set(gsl::narrow_cast<float>(now.time_since_epoch().count()));
+    });
 
   return m_portal;
 }
@@ -132,7 +136,7 @@ std::shared_ptr<Material> MaterialManager::getComposition(bool water, bool lensD
   auto m = std::make_shared<Material>(m_shaderManager->getComposition(water, lensDistortion, dof, filmGrain));
 
   if(m->getShaderProgram()->findUniform("u_time") != nullptr)
-    m->getUniform("u_time")->bind([renderer = m_renderer](const Node&, gl::Uniform& uniform) {
+    m->getUniform("u_time")->bind([renderer = m_renderer](const Node&, const Mesh& /*mesh*/, gl::Uniform& uniform) {
       const auto now = std::chrono::time_point_cast<std::chrono::milliseconds>(renderer->getGameTime());
       uniform.set(gsl::narrow_cast<float>(now.time_since_epoch().count()));
     });
@@ -150,7 +154,7 @@ const std::shared_ptr<Material>& MaterialManager::getCrt()
     return m_crt;
 
   auto m = std::make_shared<Material>(m_shaderManager->getCrt());
-  m->getUniform("u_time")->bind([renderer = m_renderer](const Node&, gl::Uniform& uniform) {
+  m->getUniform("u_time")->bind([renderer = m_renderer](const Node&, const Mesh& /*mesh*/, gl::Uniform& uniform) {
     const auto now = std::chrono::time_point_cast<std::chrono::milliseconds>(renderer->getGameTime());
     uniform.set(gsl::narrow_cast<float>(now.time_since_epoch().count()));
   });

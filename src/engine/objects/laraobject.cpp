@@ -2169,10 +2169,10 @@ void LaraObject::renderGunFlare(const WeaponId weaponId,
   setParent(flareNode, getNode()->getParent().lock());
   flareNode->setLocalMatrix(getNode()->getLocalMatrix() * m);
 
-  flareNode->addUniformSetter(
-    "u_lightAmbient", [brightness = toBrightness(shade)](const render::scene::Node& /*node*/, gl::Uniform& uniform) {
-      uniform.set(brightness.get());
-    });
+  flareNode->bind("u_lightAmbient",
+                  [brightness = toBrightness(shade)](const render::scene::Node& /*node*/,
+                                                     const render::scene::Mesh& /*mesh*/,
+                                                     gl::Uniform& uniform) { uniform.set(brightness.get()); });
 }
 
 void LaraObject::burnIfAlive()

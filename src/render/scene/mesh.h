@@ -1,6 +1,7 @@
 #pragma once
 
 #include "materialgroup.h"
+#include "materialparameteroverrider.h"
 #include "renderable.h"
 
 #include <gl/api/gl.hpp>
@@ -10,7 +11,9 @@ namespace render::scene
 {
 class RenderContext;
 
-class Mesh : public Renderable
+class Mesh
+    : public Renderable
+    , public MaterialParameterOverrider
 {
 public:
   explicit Mesh(gl::api::PrimitiveType primitiveType = gl::api::PrimitiveType::Triangles)

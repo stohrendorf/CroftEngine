@@ -58,10 +58,10 @@ void SpriteObject::createModel()
                                                     m_sprite->textureId.get_as<int32_t>());
 
   m_node->setRenderable(mesh);
-  m_node->addUniformSetter("u_lightAmbient",
-                           [brightness = m_brightness](const render::scene::Node& /*node*/, gl::Uniform& uniform) {
-                             uniform.set(brightness.get());
-                           });
+  m_node->bind("u_lightAmbient",
+               [brightness = m_brightness](const render::scene::Node& /*node*/,
+                                           const render::scene::Mesh& /*mesh*/,
+                                           gl::Uniform& uniform) { uniform.set(brightness.get()); });
   bindSpritePole(*m_node, render::scene::SpritePole::Y);
 }
 

@@ -59,7 +59,7 @@ gsl::not_null<std::shared_ptr<Mesh>> createSpriteMesh(const float x0,
 
 void bindSpritePole(Node& node, const SpritePole pole)
 {
-  node.addUniformSetter("u_spritePole",
-                        [pole](const Node& /*node*/, gl::Uniform& u) { u.set(static_cast<int32_t>(pole)); });
+  node.bind("u_spritePole",
+            [pole](const Node& /*node*/, const Mesh& /*mesh*/, gl::Uniform& u) { u.set(static_cast<int32_t>(pole)); });
 }
 } // namespace render::scene

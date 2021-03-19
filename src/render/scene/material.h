@@ -7,6 +7,7 @@
 namespace render::scene
 {
 class BufferParameter;
+class Mesh;
 class Node;
 class ShaderProgram;
 class UniformBlockParameter;
@@ -17,22 +18,19 @@ class Material final
 public:
   explicit Material(gsl::not_null<std::shared_ptr<ShaderProgram>> shaderProgram);
 
-  Material(const Material&) = delete;
-
-  Material(Material&&) = delete;
-
-  Material& operator=(const Material&) = delete;
-
-  Material& operator=(Material&&) = delete;
-
   ~Material();
+
+  Material(const Material&) = delete;
+  Material(Material&&) = delete;
+  Material& operator=(const Material&) = delete;
+  Material& operator=(Material&&) = delete;
 
   const gsl::not_null<std::shared_ptr<ShaderProgram>>& getShaderProgram() const
   {
     return m_shaderProgram;
   }
 
-  void bind(const Node& node) const;
+  void bind(const Node& node, const Mesh& mesh) const;
 
   gsl::not_null<std::shared_ptr<UniformParameter>> getUniform(const std::string& name) const;
   gsl::not_null<std::shared_ptr<UniformBlockParameter>> getUniformBlock(const std::string& name) const;

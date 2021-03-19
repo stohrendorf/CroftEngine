@@ -164,7 +164,10 @@ void Ui::render(const glm::vec2& screenSize)
   render::scene::RenderContext ctx{render::scene::RenderMode::Full, std::nullopt};
   for(const auto& mesh : m_meshes)
   {
-    mesh->getMaterialGroup().get(render::scene::RenderMode::Full)->getUniform("u_screenSize")->set(screenSize);
+    mesh->bind("u_screenSize",
+               [screenSize](const render::scene::Node& /*node*/,
+                            const render::scene::Mesh& /*mesh*/,
+                            gl::Uniform& uniform) { uniform.set(screenSize); });
     mesh->render(ctx);
   }
   m_meshes.clear();

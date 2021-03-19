@@ -52,7 +52,7 @@ bool Mesh::render(RenderContext& context)
   context.pushState(material->getRenderState());
   context.bindState();
 
-  material->bind(*context.getCurrentNode());
+  material->bind(*context.getCurrentNode(), *this);
 
   drawIndexBuffer(m_primitiveType);
 

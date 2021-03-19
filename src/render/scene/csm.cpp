@@ -41,13 +41,15 @@ void CSM::Split::init(int32_t resolution, size_t idx, ShaderManager& shaderManag
 
   squareShader = shaderManager.getVSMSquare();
   squareMaterial = std::make_shared<Material>(squareShader);
-  squareMaterial->getUniform("u_shadow")->set(depthTexture);
 
   squareMesh
     = createQuadFullscreen(gsl::narrow<float>(resolution), gsl::narrow<float>(resolution), squareShader->getHandle());
   squareMesh->getRenderState().setCullFace(false);
   squareMesh->getRenderState().setDepthTest(false);
   squareMesh->getRenderState().setDepthWrite(false);
+  squareMesh->bind("u_shadow", [this](const Node& /*node*/, const Mesh& /*mesh*/, gl::Uniform& uniform) {
+    uniform.set(depthTexture);
+  });
   squareMesh->getMaterialGroup().set(RenderMode::Full, squareMaterial);
 
   squareBlur = std::make_shared<SeparableBlur<gl::RG16F>>(
