@@ -52,7 +52,7 @@ gsl::not_null<std::shared_ptr<Mesh>> createSpriteMesh(const float x0,
   auto vao = std::make_shared<gl::VertexArray<uint16_t, SpriteVertex>>(
     indexBuffer, vb, std::vector{&materialFull->getShaderProgram()->getHandle()});
   auto mesh = std::make_shared<MeshImpl<uint16_t, SpriteVertex>>(vao);
-  mesh->getMaterial().set(RenderMode::Full, materialFull);
+  mesh->getMaterialGroup().set(RenderMode::Full, materialFull);
 
   return mesh;
 }

@@ -26,7 +26,7 @@ FXAAPass::FXAAPass(scene::ShaderManager& shaderManager, const glm::ivec2& viewpo
     .set(gl::api::TextureMagFilter::Linear);
 
   m_material->getUniform("u_input")->set(geometryPass.getColorBuffer());
-  m_mesh->getMaterial().set(scene::RenderMode::Full, m_material);
+  m_mesh->getMaterialGroup().set(scene::RenderMode::Full, m_material);
 
   m_fb = gl::FrameBufferBuilder()
            .texture(gl::api::FramebufferAttachment::ColorAttachment0, m_colorBuffer)

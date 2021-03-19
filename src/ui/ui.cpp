@@ -48,7 +48,7 @@ gsl::not_null<std::shared_ptr<render::scene::Mesh>> createQuad(const std::shared
   auto mesh = std::make_shared<render::scene::MeshImpl<uint16_t, ColorQuadVertex>>(
     std::make_shared<gl::VertexArray<uint16_t, ColorQuadVertex>>(
       indexBuffer, vertexBuffer, std::vector{&material->getShaderProgram()->getHandle()}));
-  mesh->getMaterial().set(render::scene::RenderMode::Full, material);
+  mesh->getMaterialGroup().set(render::scene::RenderMode::Full, material);
   return mesh;
 }
 
@@ -164,7 +164,7 @@ void Ui::render(const glm::vec2& screenSize)
   render::scene::RenderContext ctx{render::scene::RenderMode::Full, std::nullopt};
   for(const auto& mesh : m_meshes)
   {
-    mesh->getMaterial().get(render::scene::RenderMode::Full)->getUniform("u_screenSize")->set(screenSize);
+    mesh->getMaterialGroup().get(render::scene::RenderMode::Full)->getUniform("u_screenSize")->set(screenSize);
     mesh->render(ctx);
   }
   m_meshes.clear();
@@ -204,7 +204,7 @@ void Ui::draw(const engine::world::Sprite& sprite, const glm::ivec2& xy)
   auto mesh = std::make_shared<render::scene::MeshImpl<uint16_t, TextureQuadVertex>>(
     std::make_shared<gl::VertexArray<uint16_t, TextureQuadVertex>>(
       indexBuffer, vertexBuffer, std::vector{&m_texture->getShaderProgram()->getHandle()}));
-  mesh->getMaterial().set(render::scene::RenderMode::Full, m_texture);
+  mesh->getMaterialGroup().set(render::scene::RenderMode::Full, m_texture);
 
   m_meshes.emplace_back(std::move(mesh));
 }

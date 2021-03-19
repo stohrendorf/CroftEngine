@@ -84,9 +84,9 @@ CompositionPass::CompositionPass(scene::MaterialManager& materialManager,
            .texture(gl::api::FramebufferAttachment::ColorAttachment0, m_colorBuffer)
            .build("composition-fb");
 
-  m_mesh->getMaterial().set(scene::RenderMode::Full, m_compositionMaterial);
-  m_waterMesh->getMaterial().set(scene::RenderMode::Full, m_waterCompositionMaterial);
-  m_crtMesh->getMaterial().set(scene::RenderMode::Full, m_crtMaterial);
+  m_mesh->getMaterialGroup().set(scene::RenderMode::Full, m_compositionMaterial);
+  m_waterMesh->getMaterialGroup().set(scene::RenderMode::Full, m_waterCompositionMaterial);
+  m_crtMesh->getMaterialGroup().set(scene::RenderMode::Full, m_crtMaterial);
 }
 
 // NOLINTNEXTLINE(readability-make-member-function-const)

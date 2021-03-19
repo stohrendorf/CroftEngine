@@ -10,10 +10,10 @@ namespace render::scene
 {
 class Material;
 
-class MultiPassMaterial final
+class MaterialGroup final
 {
 public:
-  MultiPassMaterial() = default;
+  MaterialGroup() = default;
 
   [[nodiscard]] const auto& get(const RenderMode mode) const
   {
@@ -26,7 +26,7 @@ public:
     }
   }
 
-  MultiPassMaterial& set(const RenderMode& mode, const std::shared_ptr<Material>& material)
+  MaterialGroup& set(const RenderMode& mode, const std::shared_ptr<Material>& material)
   {
     switch(mode)
     {

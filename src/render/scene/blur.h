@@ -44,7 +44,7 @@ public:
     m_mesh->getRenderState().setCullFace(false);
     m_mesh->getRenderState().setDepthTest(false);
     m_mesh->getRenderState().setDepthWrite(false);
-    m_mesh->getMaterial().set(RenderMode::Full, m_material);
+    m_mesh->getMaterialGroup().set(RenderMode::Full, m_material);
 
     m_framebuffer = gl::FrameBufferBuilder()
                       .textureNoBlend(gl::api::FramebufferAttachment::ColorAttachment0, m_blurredTexture)

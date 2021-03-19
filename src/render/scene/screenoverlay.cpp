@@ -26,7 +26,7 @@ bool ScreenOverlay::render(RenderContext& context)
 
   context.pushState(getRenderState());
   m_texture->assign(m_image->getRawData());
-  m_mesh->getMaterial().get(RenderMode::Full)->getUniform("u_alphaMultiplier")->set(m_alphaMultiplier);
+  m_mesh->getMaterialGroup().get(RenderMode::Full)->getUniform("u_alphaMultiplier")->set(m_alphaMultiplier);
   m_mesh->render(context);
   context.popState();
   return true;
@@ -51,8 +51,8 @@ void ScreenOverlay::init(ShaderManager& shaderManager, const glm::ivec2& viewpor
 
   m_mesh = createQuadFullscreen(
     gsl::narrow<float>(viewport.x), gsl::narrow<float>(viewport.y), screenOverlayProgram->getHandle());
-  m_mesh->getMaterial().set(RenderMode::Full, std::make_shared<Material>(screenOverlayProgram));
-  m_mesh->getMaterial().get(RenderMode::Full)->getUniform("u_input")->set(m_texture);
+  m_mesh->getMaterialGroup().set(RenderMode::Full, std::make_shared<Material>(screenOverlayProgram));
+  m_mesh->getMaterialGroup().get(RenderMode::Full)->getUniform("u_input")->set(m_texture);
 
   m_mesh->getRenderState().setCullFace(false);
   m_mesh->getRenderState().setDepthWrite(false);

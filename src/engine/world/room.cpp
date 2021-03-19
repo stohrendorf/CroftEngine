@@ -74,7 +74,7 @@ struct RenderMesh
                     m_materialDepthOnly == nullptr ? nullptr : &m_materialDepthOnly->getShaderProgram()->getHandle(),
                     m_materialCSMDepthOnly == nullptr ? nullptr
                                                       : &m_materialCSMDepthOnly->getShaderProgram()->getHandle()}));
-    mesh->getMaterial()
+    mesh->getMaterialGroup()
       .set(render::scene::RenderMode::Full, m_materialFull)
       .set(render::scene::RenderMode::CSMDepthOnly, m_materialCSMDepthOnly)
       .set(render::scene::RenderMode::DepthOnly, m_materialDepthOnly);
@@ -124,7 +124,7 @@ void Portal::buildMesh(const loader::file::Portal& srcPortal,
   auto vao = std::make_shared<gl::VertexArray<uint16_t, Vertex>>(
     indexBuffer, vb, std::vector{&material->getShaderProgram()->getHandle()});
   mesh = std::make_shared<render::scene::MeshImpl<uint16_t, Vertex>>(vao);
-  mesh->getMaterial().set(render::scene::RenderMode::DepthOnly, material);
+  mesh->getMaterialGroup().set(render::scene::RenderMode::DepthOnly, material);
 }
 
 void Room::createSceneNode(const loader::file::Room& srcRoom,

@@ -33,7 +33,7 @@ UIPass::UIPass(scene::ShaderManager& shaderManager, const glm::ivec2& viewport)
     .set(gl::api::TextureMagFilter::Nearest);
 
   m_material->getUniform("u_input")->set(m_colorBuffer);
-  m_mesh->getMaterial().set(scene::RenderMode::Full, m_material);
+  m_mesh->getMaterialGroup().set(scene::RenderMode::Full, m_material);
 
   m_fb
     = gl::FrameBufferBuilder().texture(gl::api::FramebufferAttachment::ColorAttachment0, m_colorBuffer).build("ui-fb");
@@ -49,7 +49,7 @@ void UIPass::render(float alpha)
   state.setBlend(true);
   state.apply(true);
   scene::RenderContext context{scene::RenderMode::Full, std::nullopt};
-  m_mesh->getMaterial().get(scene::RenderMode::Full)->getUniform("u_alphaMultiplier")->set(alpha);
+  m_mesh->getMaterialGroup().get(scene::RenderMode::Full)->getUniform("u_alphaMultiplier")->set(alpha);
   m_mesh->render(context);
 
   if constexpr(FlushPasses)

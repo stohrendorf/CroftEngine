@@ -199,7 +199,7 @@ gsl::not_null<std::shared_ptr<render::scene::Mesh>> RenderMeshDataCompositor::to
     label);
   auto mesh = std::make_shared<render::scene::MeshImpl<RenderMeshData::IndexType, RenderMeshData::RenderVertex>>(
     va, gl::api::PrimitiveType::Triangles);
-  mesh->getMaterial()
+  mesh->getMaterialGroup()
     .set(render::scene::RenderMode::Full, material)
     .set(render::scene::RenderMode::DepthOnly, materialDepthOnly)
     .set(render::scene::RenderMode::CSMDepthOnly, materialCSMDepthOnly);

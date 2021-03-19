@@ -47,7 +47,7 @@ gsl::not_null<std::shared_ptr<render::scene::Mesh>>
   mesh->getRenderState().setLineSmooth(true);
   mesh->getRenderState().setLineWidth(lineWidth);
 
-  mesh->getMaterial().set(render::scene::RenderMode::Full, material);
+  mesh->getMaterialGroup().set(render::scene::RenderMode::Full, material);
 
   return mesh;
 }

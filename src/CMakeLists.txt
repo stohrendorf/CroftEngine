@@ -371,12 +371,12 @@ set( EDISONENGINE_SRCS
         render/scene/csm.cpp
         render/scene/material.h
         render/scene/material.cpp
+        render/scene/materialgroup.h
         render/scene/materialmanager.h
         render/scene/materialmanager.cpp
         render/scene/materialparameter.h
         render/scene/mesh.h
         render/scene/mesh.cpp
-        render/scene/multipassmaterial.h
         render/scene/names.h
         render/scene/node.h
         render/scene/node.cpp

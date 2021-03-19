@@ -42,7 +42,7 @@ Mesh::~Mesh() = default;
 
 bool Mesh::render(RenderContext& context)
 {
-  std::shared_ptr<Material> material = m_material.get(context.getRenderMode());
+  std::shared_ptr<Material> material = m_materialGroup.get(context.getRenderMode());
   if(material == nullptr)
     return false;
 

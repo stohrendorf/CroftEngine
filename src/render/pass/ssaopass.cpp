@@ -68,7 +68,7 @@ SSAOPass::SSAOPass(scene::ShaderManager& shaderManager, const glm::ivec2& viewpo
   m_material->getUniform("u_normals")->set(geometryPass.getNormalBuffer());
   m_material->getUniform("u_position")->set(geometryPass.getPositionBuffer());
 
-  m_renderMesh->getMaterial().set(scene::RenderMode::Full, m_material);
+  m_renderMesh->getMaterialGroup().set(scene::RenderMode::Full, m_material);
 
   m_blur.setInput(m_aoBuffer);
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "multipassmaterial.h"
+#include "materialgroup.h"
 #include "renderable.h"
 
 #include <gl/api/gl.hpp>
@@ -25,20 +25,20 @@ public:
   Mesh& operator=(Mesh&&) = delete;
   Mesh& operator=(const Mesh&) = delete;
 
-  [[nodiscard]] const auto& getMaterial() const
+  [[nodiscard]] const auto& getMaterialGroup() const
   {
-    return m_material;
+    return m_materialGroup;
   }
 
-  [[nodiscard]] auto& getMaterial()
+  [[nodiscard]] auto& getMaterialGroup()
   {
-    return m_material;
+    return m_materialGroup;
   }
 
   bool render(RenderContext& context) final;
 
 private:
-  MultiPassMaterial m_material{};
+  MaterialGroup m_materialGroup{};
   const gl::api::PrimitiveType m_primitiveType{};
 
   virtual void drawIndexBuffer(gl::api::PrimitiveType primitiveType) = 0;
@@ -61,11 +61,6 @@ public:
   MeshImpl(MeshImpl&&) = delete;
   MeshImpl& operator=(MeshImpl&&) = delete;
   MeshImpl& operator=(const MeshImpl&) = delete;
-
-  [[nodiscard]] const auto& getVAO() const
-  {
-    return m_vao;
-  }
 
 private:
   gsl::not_null<std::shared_ptr<gl::VertexArray<IndexT, VertexTs...>>> m_vao;
