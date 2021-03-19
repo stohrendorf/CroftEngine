@@ -39,8 +39,6 @@ void ScreenOverlay::init(ShaderManager& shaderManager, const glm::ivec2& viewpor
     BOOST_THROW_EXCEPTION(std::runtime_error("Cannot create screen overlay because the viewport is empty"));
   }
 
-  const auto screenOverlayProgram = shaderManager.getFlat(true);
-
   m_texture = std::make_shared<gl::Texture2D<gl::SRGBA8>>(m_image->getSize());
   m_texture->assign(m_image->getRawData())
     .set(gl::api::TextureMinFilter::Nearest)
@@ -48,7 +46,7 @@ void ScreenOverlay::init(ShaderManager& shaderManager, const glm::ivec2& viewpor
     .set(gl::api::TextureParameterName::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge)
     .set(gl::api::TextureParameterName::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge);
 
-  m_mesh = createScreenQuad(viewport, screenOverlayProgram->getHandle());
+  m_mesh = createScreenQuad(viewport, std::make_shared<Material>(shaderManager.getFlat(true)));
   m_mesh->bind("u_input",
                [this](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform) {
                  uniform.set(m_texture);
@@ -57,7 +55,6 @@ void ScreenOverlay::init(ShaderManager& shaderManager, const glm::ivec2& viewpor
                [this](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform) {
                  uniform.set(m_alphaMultiplier);
                });
-  m_mesh->getMaterialGroup().set(RenderMode::Full, std::make_shared<Material>(screenOverlayProgram));
 
   m_mesh->getRenderState().setBlend(true);
 }

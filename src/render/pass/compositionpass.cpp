@@ -29,9 +29,9 @@ CompositionPass::CompositionPass(scene::MaterialManager& materialManager,
     , m_waterCompositionMaterial{materialManager.getComposition(
         true, renderSettings.lensDistortion, renderSettings.dof, renderSettings.filmGrain)}
     , m_crtMaterial{materialManager.getCrt()}
-    , m_mesh{scene::createScreenQuad(viewport, m_compositionMaterial->getShaderProgram()->getHandle())}
-    , m_waterMesh{scene::createScreenQuad(viewport, m_waterCompositionMaterial->getShaderProgram()->getHandle())}
-    , m_crtMesh{scene::createScreenQuad(viewport, m_crtMaterial->getShaderProgram()->getHandle())}
+    , m_mesh{scene::createScreenQuad(viewport, m_compositionMaterial)}
+    , m_waterMesh{scene::createScreenQuad(viewport, m_waterCompositionMaterial)}
+    , m_crtMesh{scene::createScreenQuad(viewport, m_crtMaterial)}
     , m_colorBuffer{std::make_shared<gl::Texture2D<gl::SRGBA8>>(viewport, "composition-color")}
 {
   const glm::ivec2 resolution{256, 256};
@@ -124,10 +124,6 @@ CompositionPass::CompositionPass(scene::MaterialManager& materialManager,
   m_fb = gl::FrameBufferBuilder()
            .texture(gl::api::FramebufferAttachment::ColorAttachment0, m_colorBuffer)
            .build("composition-fb");
-
-  m_mesh->getMaterialGroup().set(scene::RenderMode::Full, m_compositionMaterial);
-  m_waterMesh->getMaterialGroup().set(scene::RenderMode::Full, m_waterCompositionMaterial);
-  m_crtMesh->getMaterialGroup().set(scene::RenderMode::Full, m_crtMaterial);
 }
 
 // NOLINTNEXTLINE(readability-make-member-function-const)

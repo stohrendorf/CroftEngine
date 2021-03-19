@@ -9,9 +9,8 @@
 namespace render::pass
 {
 SSAOPass::SSAOPass(scene::ShaderManager& shaderManager, const glm::ivec2& viewport, const GeometryPass& geometryPass)
-    : m_shader{shaderManager.getSSAO()}
-    , m_material{std::make_shared<scene::Material>(m_shader)}
-    , m_renderMesh{scene::createScreenQuad(viewport, m_shader->getHandle())}
+    : m_material{std::make_shared<scene::Material>(shaderManager.getSSAO())}
+    , m_renderMesh{scene::createScreenQuad(viewport, m_material)}
     , m_noiseTexture{std::make_shared<gl::Texture2D<gl::RGB32F>>(glm::ivec2{4, 4}, "ssao-noise")}
     , m_aoBuffer{std::make_shared<gl::Texture2D<gl::Scalar16F>>(viewport, "ssao-ao")}
     , m_blur{"ssao", shaderManager, 4, true, false}
@@ -78,8 +77,6 @@ SSAOPass::SSAOPass(scene::ShaderManager& shaderManager, const glm::ivec2& viewpo
                      [buffer = geometryPass.getPositionBuffer()](const render::scene::Node& /*node*/,
                                                                  const render::scene::Mesh& /*mesh*/,
                                                                  gl::Uniform& uniform) { uniform.set(buffer); });
-
-  m_renderMesh->getMaterialGroup().set(scene::RenderMode::Full, m_material);
 
   m_blur.setInput(m_aoBuffer);
 

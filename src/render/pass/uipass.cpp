@@ -21,9 +21,8 @@ void UIPass::bind()
 }
 
 UIPass::UIPass(scene::ShaderManager& shaderManager, const glm::ivec2& viewport)
-    : m_shader{shaderManager.getFlat(true, false)}
-    , m_material{std::make_shared<scene::Material>(m_shader)}
-    , m_mesh{scene::createScreenQuad(viewport, m_shader->getHandle())}
+    : m_material{std::make_shared<scene::Material>(shaderManager.getFlat(true, false))}
+    , m_mesh{scene::createScreenQuad(viewport, m_material)}
     , m_colorBuffer{std::make_shared<gl::Texture2D<gl::SRGBA8>>(viewport, "ui-color")}
 {
   m_colorBuffer->set(gl::api::TextureParameterName::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge)
@@ -35,7 +34,6 @@ UIPass::UIPass(scene::ShaderManager& shaderManager, const glm::ivec2& viewport)
                [this](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform) {
                  uniform.set(m_colorBuffer);
                });
-  m_mesh->getMaterialGroup().set(scene::RenderMode::Full, m_material);
 
   m_fb
     = gl::FrameBufferBuilder().texture(gl::api::FramebufferAttachment::ColorAttachment0, m_colorBuffer).build("ui-fb");

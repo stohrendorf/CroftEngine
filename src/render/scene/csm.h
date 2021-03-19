@@ -38,7 +38,6 @@ public:
     std::shared_ptr<gl::Framebuffer> depthFramebuffer{};
     std::shared_ptr<gl::Texture2D<gl::RG16F>> squaredTexture;
     std::shared_ptr<gl::Framebuffer> squareFramebuffer{};
-    std::shared_ptr<ShaderProgram> squareShader{};
     std::shared_ptr<Material> squareMaterial{};
     std::shared_ptr<Mesh> squareMesh{};
     std::shared_ptr<SeparableBlur<gl::RG16F>> squareBlur;

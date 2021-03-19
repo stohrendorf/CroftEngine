@@ -22,8 +22,7 @@ public:
   explicit SingleBlur(
     std::string name, ShaderManager& shaderManager, uint8_t dir, uint8_t extent, bool gauss, bool fillGaps)
       : m_name{std::move(name)}
-      , m_shader{shaderManager.getBlur(extent, dir, PixelT::Channels, gauss, fillGaps)}
-      , m_material{std::make_shared<Material>(m_shader)}
+      , m_material{std::make_shared<Material>(shaderManager.getBlur(extent, dir, PixelT::Channels, gauss, fillGaps))}
   {
     Expects(dir == 1 || dir == 2);
     Expects(extent > 0);
@@ -37,8 +36,7 @@ public:
       .set(gl::api::TextureMinFilter::Linear)
       .set(gl::api::TextureMagFilter::Linear);
 
-    m_mesh = createScreenQuad(src->size(), m_shader->getHandle());
-    m_mesh->getMaterialGroup().set(RenderMode::Full, m_material);
+    m_mesh = createScreenQuad(src->size(), m_material);
     m_mesh->bind("u_input",
                  [src](const Node& /*node*/, const Mesh& /*mesh*/, gl::Uniform& uniform) { uniform.set(src); });
 
@@ -70,7 +68,6 @@ private:
   const std::string m_name;
   std::shared_ptr<Texture> m_blurredTexture;
   std::shared_ptr<Mesh> m_mesh;
-  const std::shared_ptr<ShaderProgram> m_shader;
   const std::shared_ptr<Material> m_material;
   std::shared_ptr<gl::Framebuffer> m_framebuffer;
 };

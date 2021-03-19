@@ -39,10 +39,9 @@ void CSM::Split::init(int32_t resolution, size_t idx, ShaderManager& shaderManag
                         .textureNoBlend(gl::api::FramebufferAttachment::ColorAttachment0, squaredTexture)
                         .build("csm-split-fb/" + std::to_string(idx) + "/square");
 
-  squareShader = shaderManager.getVSMSquare();
-  squareMaterial = std::make_shared<Material>(squareShader);
+  squareMaterial = std::make_shared<Material>(shaderManager.getVSMSquare());
 
-  squareMesh = createScreenQuad({resolution, resolution}, squareShader->getHandle());
+  squareMesh = createScreenQuad({resolution, resolution}, squareMaterial);
   squareMesh->bind("u_shadow", [this](const Node& /*node*/, const Mesh& /*mesh*/, gl::Uniform& uniform) {
     uniform.set(depthTexture);
   });

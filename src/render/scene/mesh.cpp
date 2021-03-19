@@ -9,8 +9,10 @@
 
 namespace render::scene
 {
-gsl::not_null<std::shared_ptr<Mesh>>
-  createScreenQuad(const glm::vec2& size, const gl::Program& program, const bool invertY)
+gsl::not_null<std::shared_ptr<Mesh>> createScreenQuad(const glm::vec2& xy,
+                                                      const glm::vec2& size,
+                                                      const std::shared_ptr<Material>& material,
+                                                      const bool invertY)
 {
   struct Vertex
   {
@@ -18,10 +20,12 @@ gsl::not_null<std::shared_ptr<Mesh>>
     glm::vec2 uv;
   };
 
-  const std::array<Vertex, 4> vertices{Vertex{{0.0f, 0.0f}, {0.0f, invertY ? 1.0f : 0.0f}},
-                                       Vertex{{size.x, 0.0f}, {1.0f, invertY ? 1.0f : 0.0f}},
-                                       Vertex{{size.x, size.y}, {1.0f, invertY ? 0.0f : 1.0f}},
-                                       Vertex{{0.0f, size.y}, {0.0f, invertY ? 0.0f : 1.0f}}};
+  const auto tl = xy;
+  const auto br = xy + size;
+  const std::array<Vertex, 4> vertices{Vertex{{tl.x, tl.y}, {0.0f, invertY ? 1.0f : 0.0f}},
+                                       Vertex{{br.x, 0.0f}, {1.0f, invertY ? 1.0f : 0.0f}},
+                                       Vertex{{br.x, br.y}, {1.0f, invertY ? 0.0f : 1.0f}},
+                                       Vertex{{tl.x, br.y}, {0.0f, invertY ? 0.0f : 1.0f}}};
 
   static const gl::VertexFormat<Vertex> format{{VERTEX_ATTRIBUTE_POSITION_NAME, &Vertex::pos},
                                                {VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, &Vertex::uv}};
@@ -34,11 +38,12 @@ gsl::not_null<std::shared_ptr<Mesh>>
   auto indexBuffer = std::make_shared<gl::ElementArrayBuffer<uint16_t>>();
   indexBuffer->setData(&indices[0], 6, gl::api::BufferUsageARB::StaticDraw);
 
-  auto mesh = std::make_shared<MeshImpl<uint16_t, Vertex>>(
-    std::make_shared<gl::VertexArray<uint16_t, Vertex>>(indexBuffer, vertexBuffer, std::vector{&program}));
+  auto mesh = std::make_shared<MeshImpl<uint16_t, Vertex>>(std::make_shared<gl::VertexArray<uint16_t, Vertex>>(
+    indexBuffer, vertexBuffer, std::vector{&material->getShaderProgram()->getHandle()}));
   mesh->getRenderState().setCullFace(false);
   mesh->getRenderState().setDepthWrite(false);
   mesh->getRenderState().setDepthTest(false);
+  mesh->getMaterialGroup().set(RenderMode::Full, material);
   return mesh;
 }
 

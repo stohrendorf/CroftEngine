@@ -28,7 +28,6 @@ public:
   void render(float alpha);
 
 private:
-  const std::shared_ptr<scene::ShaderProgram> m_shader;
   const std::shared_ptr<scene::Material> m_material;
   std::shared_ptr<scene::Mesh> m_mesh;
   std::shared_ptr<gl::Texture2D<gl::SRGBA8>> m_colorBuffer;
