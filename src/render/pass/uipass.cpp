@@ -5,7 +5,6 @@
 #include "render/scene/mesh.h"
 #include "render/scene/rendercontext.h"
 #include "render/scene/shadermanager.h"
-#include "util.h"
 
 #include <gl/debuggroup.h>
 #include <gl/framebuffer.h>
@@ -24,7 +23,7 @@ void UIPass::bind()
 UIPass::UIPass(scene::ShaderManager& shaderManager, const glm::ivec2& viewport)
     : m_shader{shaderManager.getFlat(true, false)}
     , m_material{std::make_shared<scene::Material>(m_shader)}
-    , m_mesh{createFbMesh(viewport, m_shader->getHandle())}
+    , m_mesh{scene::createScreenQuad(viewport, m_shader->getHandle())}
     , m_colorBuffer{std::make_shared<gl::Texture2D<gl::SRGBA8>>(viewport, "ui-color")}
 {
   m_colorBuffer->set(gl::api::TextureParameterName::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge)

@@ -363,7 +363,7 @@ void Presenter::drawLoadingScreen(const std::string& state)
   if(m_window->isMinimized())
     return;
 
-  m_screenOverlay->getImage()->assign(m_splashImageScaled.pixels<gl::SRGBA8>().data(),
+  m_screenOverlay->getImage()->assign(m_splashImageScaled.pixels().data(),
                                       m_window->getViewport().x * m_window->getViewport().y);
   m_trTTFFont->drawText(*m_screenOverlay->getImage(),
                         state.c_str(),

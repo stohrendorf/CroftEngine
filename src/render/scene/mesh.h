@@ -75,5 +75,5 @@ private:
 };
 
 extern gsl::not_null<std::shared_ptr<Mesh>>
-  createQuadFullscreen(float width, float height, const gl::Program& program, bool invertY = false);
+  createScreenQuad(const glm::vec2& size, const gl::Program& program, bool invertY = false);
 } // namespace render::scene

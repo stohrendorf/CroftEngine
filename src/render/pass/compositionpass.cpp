@@ -9,7 +9,6 @@
 #include "render/scene/materialmanager.h"
 #include "render/scene/mesh.h"
 #include "ssaopass.h"
-#include "util.h"
 
 #include <gl/framebuffer.h>
 #include <gl/texture2d.h>
@@ -30,9 +29,9 @@ CompositionPass::CompositionPass(scene::MaterialManager& materialManager,
     , m_waterCompositionMaterial{materialManager.getComposition(
         true, renderSettings.lensDistortion, renderSettings.dof, renderSettings.filmGrain)}
     , m_crtMaterial{materialManager.getCrt()}
-    , m_mesh{createFbMesh(viewport, m_compositionMaterial->getShaderProgram()->getHandle())}
-    , m_waterMesh{createFbMesh(viewport, m_waterCompositionMaterial->getShaderProgram()->getHandle())}
-    , m_crtMesh{createFbMesh(viewport, m_crtMaterial->getShaderProgram()->getHandle())}
+    , m_mesh{scene::createScreenQuad(viewport, m_compositionMaterial->getShaderProgram()->getHandle())}
+    , m_waterMesh{scene::createScreenQuad(viewport, m_waterCompositionMaterial->getShaderProgram()->getHandle())}
+    , m_crtMesh{scene::createScreenQuad(viewport, m_crtMaterial->getShaderProgram()->getHandle())}
     , m_colorBuffer{std::make_shared<gl::Texture2D<gl::SRGBA8>>(viewport, "composition-color")}
 {
   const glm::ivec2 resolution{256, 256};

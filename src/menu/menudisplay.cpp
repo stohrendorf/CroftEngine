@@ -520,7 +520,7 @@ MenuDisplay::MenuDisplay(InventoryMode mode, engine::world::World& world)
 
   m_currentState->begin(world);
 
-  world.getCameraController().getCamera()->setFieldOfView(core::toRad(80_deg));
+  world.getCameraController().getCamera()->setFieldOfView(engine::Presenter::DefaultFov);
   // TODO fadeInInventory(mode != InventoryMode::TitleMode);
   if(mode != InventoryMode::TitleMode)
   {

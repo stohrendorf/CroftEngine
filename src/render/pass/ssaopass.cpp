@@ -3,7 +3,6 @@
 #include "config.h"
 #include "geometrypass.h"
 #include "render/scene/shadermanager.h"
-#include "util.h"
 
 #include <random>
 
@@ -12,7 +11,7 @@ namespace render::pass
 SSAOPass::SSAOPass(scene::ShaderManager& shaderManager, const glm::ivec2& viewport, const GeometryPass& geometryPass)
     : m_shader{shaderManager.getSSAO()}
     , m_material{std::make_shared<scene::Material>(m_shader)}
-    , m_renderMesh{createFbMesh(viewport, m_shader->getHandle())}
+    , m_renderMesh{scene::createScreenQuad(viewport, m_shader->getHandle())}
     , m_noiseTexture{std::make_shared<gl::Texture2D<gl::RGB32F>>(glm::ivec2{4, 4}, "ssao-noise")}
     , m_aoBuffer{std::make_shared<gl::Texture2D<gl::Scalar16F>>(viewport, "ssao-ao")}
     , m_blur{"ssao", shaderManager, 4, true, false}

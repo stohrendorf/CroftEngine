@@ -362,7 +362,6 @@ set( EDISONENGINE_SRCS
         render/pass/ssaopass.cpp
         render/pass/uipass.h
         render/pass/uipass.cpp
-        render/pass/util.h
 
         render/scene/bufferparameter.h
         render/scene/bufferparameter.cpp

@@ -10,7 +10,7 @@
 namespace render::scene
 {
 gsl::not_null<std::shared_ptr<Mesh>>
-  createQuadFullscreen(const float width, const float height, const gl::Program& program, const bool invertY)
+  createScreenQuad(const glm::vec2& size, const gl::Program& program, const bool invertY)
 {
   struct Vertex
   {
@@ -19,9 +19,9 @@ gsl::not_null<std::shared_ptr<Mesh>>
   };
 
   const std::array<Vertex, 4> vertices{Vertex{{0.0f, 0.0f}, {0.0f, invertY ? 1.0f : 0.0f}},
-                                       Vertex{{width, 0.0f}, {1.0f, invertY ? 1.0f : 0.0f}},
-                                       Vertex{{width, height}, {1.0f, invertY ? 0.0f : 1.0f}},
-                                       Vertex{{0.0f, height}, {0.0f, invertY ? 0.0f : 1.0f}}};
+                                       Vertex{{size.x, 0.0f}, {1.0f, invertY ? 1.0f : 0.0f}},
+                                       Vertex{{size.x, size.y}, {1.0f, invertY ? 0.0f : 1.0f}},
+                                       Vertex{{0.0f, size.y}, {0.0f, invertY ? 0.0f : 1.0f}}};
 
   static const gl::VertexFormat<Vertex> format{{VERTEX_ATTRIBUTE_POSITION_NAME, &Vertex::pos},
                                                {VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, &Vertex::uv}};
@@ -34,8 +34,12 @@ gsl::not_null<std::shared_ptr<Mesh>>
   auto indexBuffer = std::make_shared<gl::ElementArrayBuffer<uint16_t>>();
   indexBuffer->setData(&indices[0], 6, gl::api::BufferUsageARB::StaticDraw);
 
-  return std::make_shared<MeshImpl<uint16_t, Vertex>>(
+  auto mesh = std::make_shared<MeshImpl<uint16_t, Vertex>>(
     std::make_shared<gl::VertexArray<uint16_t, Vertex>>(indexBuffer, vertexBuffer, std::vector{&program}));
+  mesh->getRenderState().setCullFace(false);
+  mesh->getRenderState().setDepthWrite(false);
+  mesh->getRenderState().setDepthTest(false);
+  return mesh;
 }
 
 Mesh::~Mesh() = default;

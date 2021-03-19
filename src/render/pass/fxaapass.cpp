@@ -6,7 +6,6 @@
 #include "render/scene/mesh.h"
 #include "render/scene/rendercontext.h"
 #include "render/scene/shadermanager.h"
-#include "util.h"
 
 #include <gl/debuggroup.h>
 #include <gl/framebuffer.h>
@@ -17,7 +16,7 @@ namespace render::pass
 FXAAPass::FXAAPass(scene::ShaderManager& shaderManager, const glm::ivec2& viewport, const GeometryPass& geometryPass)
     : m_shader{shaderManager.getFXAA()}
     , m_material{std::make_shared<scene::Material>(m_shader)}
-    , m_mesh{createFbMesh(viewport, m_shader->getHandle())}
+    , m_mesh{scene::createScreenQuad(viewport, m_shader->getHandle())}
     , m_colorBuffer{std::make_shared<gl::Texture2D<gl::SRGBA8>>(viewport, "fxaa-color")}
 {
   m_colorBuffer->set(gl::api::TextureParameterName::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge)

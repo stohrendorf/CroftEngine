@@ -82,13 +82,12 @@ public:
 
   [[nodiscard]] const uint8_t* data() const;
 
-  template<typename T>
-  [[nodiscard]] gsl::span<const T> pixels()
+  [[nodiscard]] gsl::span<const gl::SRGBA8> pixels()
   {
-    static_assert(sizeof(T) == 4, "Pixel type must be 4-byte RGBA");
+    static_assert(sizeof(gl::SRGBA8) == 4);
     interleave();
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-    return gsl::make_span(reinterpret_cast<const T*>(data()), width() * height());
+    return gsl::make_span(reinterpret_cast<const gl::SRGBA8*>(data()), width() * height());
   }
 
   void savePng(const std::string& filename);

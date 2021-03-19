@@ -48,8 +48,7 @@ void ScreenOverlay::init(ShaderManager& shaderManager, const glm::ivec2& viewpor
     .set(gl::api::TextureParameterName::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge)
     .set(gl::api::TextureParameterName::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge);
 
-  m_mesh = createQuadFullscreen(
-    gsl::narrow<float>(viewport.x), gsl::narrow<float>(viewport.y), screenOverlayProgram->getHandle());
+  m_mesh = createScreenQuad(viewport, screenOverlayProgram->getHandle());
   m_mesh->bind("u_input",
                [this](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform) {
                  uniform.set(m_texture);
@@ -60,9 +59,6 @@ void ScreenOverlay::init(ShaderManager& shaderManager, const glm::ivec2& viewpor
                });
   m_mesh->getMaterialGroup().set(RenderMode::Full, std::make_shared<Material>(screenOverlayProgram));
 
-  m_mesh->getRenderState().setCullFace(false);
-  m_mesh->getRenderState().setDepthWrite(false);
-  m_mesh->getRenderState().setDepthTest(false);
   m_mesh->getRenderState().setBlend(true);
 }
 } // namespace render::scene

@@ -323,7 +323,7 @@ void World::laraNormalEffect()
   m_objectManager.getLara().getSkeleton()->setAnim(
     &m_animations[static_cast<int>(loader::file::AnimationId::STAY_SOLID)], 185_frame);
   m_cameraController->setMode(CameraMode::Chase);
-  getPresenter().getRenderer().getCamera()->setFieldOfView(glm::radians(80.0f));
+  getPresenter().getRenderer().getCamera()->setFieldOfView(Presenter::DefaultFov);
 }
 
 void World::laraBubblesEffect(objects::Object& object)
@@ -1183,7 +1183,7 @@ void World::createMipmaps(const std::vector<std::shared_ptr<gl::CImgWrapper>>& i
       BOOST_LOG_TRIVIAL(debug) << "Mipmap level " << mipmapLevel << " (size " << dstSize << ", " << tiles.size()
                                << " tiles)";
       src.resizePow2Mipmap(1);
-      m_allTextures->assign(src.pixels<gl::SRGBA8>().data(), texture, mipmapLevel);
+      m_allTextures->assign(src.pixels().data(), texture, mipmapLevel);
     }
   }
 }
@@ -1816,7 +1816,7 @@ void World::initTextures(const loader::file::level::Level& level)
   getPresenter().getMaterialManager()->setGeometryTextures(m_allTextures);
 
   for(size_t i = 0; i < images.size(); ++i)
-    m_allTextures->assign(images[i]->pixels<gl::SRGBA8>().data(), gsl::narrow_cast<int>(i), 0);
+    m_allTextures->assign(images[i]->pixels().data(), gsl::narrow_cast<int>(i), 0);
   createMipmaps(images, textureLevels);
 }
 } // namespace engine::world

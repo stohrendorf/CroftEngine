@@ -37,11 +37,7 @@ public:
       .set(gl::api::TextureMinFilter::Linear)
       .set(gl::api::TextureMagFilter::Linear);
 
-    m_mesh = createQuadFullscreen(
-      gsl::narrow<float>(src->size().x), gsl::narrow<float>(src->size().y), m_shader->getHandle());
-    m_mesh->getRenderState().setCullFace(false);
-    m_mesh->getRenderState().setDepthTest(false);
-    m_mesh->getRenderState().setDepthWrite(false);
+    m_mesh = createScreenQuad(src->size(), m_shader->getHandle());
     m_mesh->getMaterialGroup().set(RenderMode::Full, m_material);
     m_mesh->bind("u_input",
                  [src](const Node& /*node*/, const Mesh& /*mesh*/, gl::Uniform& uniform) { uniform.set(src); });
