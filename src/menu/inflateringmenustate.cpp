@@ -55,6 +55,6 @@ void InflateRingMenuState::begin(engine::world::World& /*world*/)
 {
   m_initialCameraRotX = m_ringTransform->cameraRotX;
   m_radiusSpeed = (688_len - m_ringTransform->radius) / Duration * 1_frame;
-  m_cameraSpeedY = (-256_len - m_ringTransform->cameraPos.Y) / Duration * 1_frame;
+  m_cameraSpeedY = (-200_len - m_ringTransform->cameraPos.Y) / Duration * 1_frame;
 }
 } // namespace menu

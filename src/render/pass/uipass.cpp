@@ -34,6 +34,7 @@ UIPass::UIPass(scene::ShaderManager& shaderManager, const glm::ivec2& viewport)
                [this](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform) {
                  uniform.set(m_colorBuffer);
                });
+  m_mesh->getRenderState().setBlend(true);
 
   m_fb
     = gl::FrameBufferBuilder().texture(gl::api::FramebufferAttachment::ColorAttachment0, m_colorBuffer).build("ui-fb");
@@ -45,9 +46,6 @@ void UIPass::render(float alpha)
   SOGLB_DEBUGGROUP("ui-pass");
   gl::Framebuffer::unbindAll();
 
-  gl::RenderState state;
-  state.setBlend(true);
-  state.apply(true);
   scene::RenderContext context{scene::RenderMode::Full, std::nullopt};
   m_mesh->bind("u_alphaMultiplier",
                [alpha](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform) {
