@@ -63,7 +63,7 @@ void RenderPipeline::resize(scene::MaterialManager& materialManager, const glm::
   m_fxaaPass = std::make_shared<pass::FXAAPass>(*materialManager.getShaderManager(), viewport, *m_geometryPass);
   m_compositionPass = std::make_shared<pass::CompositionPass>(
     materialManager, m_renderSettings, viewport, *m_geometryPass, *m_portalPass, *m_ssaoPass, *m_fxaaPass);
-  m_uiPass = std::make_shared<pass::UIPass>(*materialManager.getShaderManager(), viewport);
+  m_uiPass = std::make_shared<pass::UIPass>(materialManager, viewport);
 }
 
 void RenderPipeline::bindPortalFrameBuffer()

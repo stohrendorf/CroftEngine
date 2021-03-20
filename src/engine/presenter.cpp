@@ -44,7 +44,7 @@ void Presenter::playVideo(const std::filesystem::path& path)
     m_renderer->getCamera()->setAspectRatio(m_window->getAspectRatio());
     if(m_screenOverlay->getImage()->getSize() != m_window->getViewport())
     {
-      m_screenOverlay->init(*m_shaderManager, m_window->getViewport());
+      m_screenOverlay->init(*m_materialManager, m_window->getViewport());
     }
 
     if(m_window->isMinimized())
@@ -311,11 +311,9 @@ Presenter::Presenter(const std::filesystem::path& rootPath, bool fullscreen, con
     , m_csm{std::make_shared<render::scene::CSM>(CSMResolution, *m_shaderManager)}
     , m_materialManager{std::make_unique<render::scene::MaterialManager>(m_shaderManager, m_csm, m_renderer)}
     , m_renderPipeline{std::make_unique<render::RenderPipeline>(*m_materialManager, m_window->getViewport())}
-    , m_screenOverlay{std::make_unique<render::scene::ScreenOverlay>(*m_shaderManager, m_window->getViewport())}
+    , m_screenOverlay{std::make_unique<render::scene::ScreenOverlay>(*m_materialManager, m_window->getViewport())}
 {
   scaleSplashImage();
-
-  m_screenOverlay->init(*m_shaderManager, m_window->getViewport());
   drawLoadingScreen("Booting");
 }
 
@@ -330,12 +328,15 @@ void Presenter::scaleSplashImage()
 
   auto scaledSourceSize = sourceSize * splashScale;
   auto sourceOffset = (targetSize - scaledSourceSize) / 2.0f;
-  m_splashImageMesh = render::scene::createScreenQuad(
-    sourceOffset, scaledSourceSize, std::make_shared<render::scene::Material>(m_shaderManager->getFlat(false)));
+  m_splashImageMesh = render::scene::createScreenQuad(sourceOffset, scaledSourceSize, m_materialManager->getBackdrop());
   m_splashImageMesh->bind(
     "u_input", [this](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform) {
       uniform.set(m_splashImage);
     });
+  m_splashImageMesh->bind("u_screenSize",
+                          [targetSize](const render::scene::Node& /*node*/,
+                                       const render::scene::Mesh& /*mesh*/,
+                                       gl::Uniform& uniform) { uniform.set(targetSize); });
 }
 
 void Presenter::drawLoadingScreen(const std::string& state)
@@ -347,7 +348,7 @@ void Presenter::drawLoadingScreen(const std::string& state)
   if(m_window->getViewport() != m_screenOverlay->getImage()->getSize())
   {
     m_renderer->getCamera()->setAspectRatio(m_window->getAspectRatio());
-    m_screenOverlay->init(*m_shaderManager, m_window->getViewport());
+    m_screenOverlay->init(*m_materialManager, m_window->getViewport());
     scaleSplashImage();
   }
 
@@ -382,7 +383,7 @@ bool Presenter::preFrame()
   m_renderPipeline->resize(*m_materialManager, m_window->getViewport());
   if(m_screenOverlay->getImage()->getSize() != m_window->getViewport())
   {
-    m_screenOverlay->init(*m_shaderManager, m_window->getViewport());
+    m_screenOverlay->init(*m_materialManager, m_window->getViewport());
   }
 
   m_screenOverlay->getImage()->fill({0, 0, 0, 0});

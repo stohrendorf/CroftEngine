@@ -9,7 +9,7 @@ namespace render::scene
 class Mesh;
 class ShaderProgram;
 class Material;
-class ShaderManager;
+class MaterialManager;
 } // namespace render::scene
 
 namespace render::pass
@@ -17,7 +17,7 @@ namespace render::pass
 class UIPass
 {
 public:
-  explicit UIPass(scene::ShaderManager& shaderManager, const glm::ivec2& viewport);
+  explicit UIPass(scene::MaterialManager& materialManager, const glm::ivec2& viewport);
   void bind();
 
   [[nodiscard]] const auto& getColorBuffer() const

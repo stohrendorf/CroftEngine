@@ -10,7 +10,7 @@ namespace render::pass
 {
 SSAOPass::SSAOPass(scene::ShaderManager& shaderManager, const glm::ivec2& viewport, const GeometryPass& geometryPass)
     : m_material{std::make_shared<scene::Material>(shaderManager.getSSAO())}
-    , m_renderMesh{scene::createScreenQuad(viewport, m_material)}
+    , m_renderMesh{scene::createScreenQuad(m_material)}
     , m_noiseTexture{std::make_shared<gl::Texture2D<gl::RGB32F>>(glm::ivec2{4, 4}, "ssao-noise")}
     , m_aoBuffer{std::make_shared<gl::Texture2D<gl::Scalar16F>>(viewport, "ssao-ao")}
     , m_blur{"ssao", shaderManager, 4, true, false}

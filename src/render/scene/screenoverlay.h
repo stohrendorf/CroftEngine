@@ -10,7 +10,7 @@
 namespace render::scene
 {
 class Mesh;
-class ShaderManager;
+class MaterialManager;
 
 class ScreenOverlay : public Renderable
 {
@@ -20,9 +20,9 @@ public:
   ScreenOverlay& operator=(ScreenOverlay&&) = delete;
   ScreenOverlay& operator=(const ScreenOverlay&) = delete;
 
-  explicit ScreenOverlay(ShaderManager& shaderManager, const glm::ivec2& viewport);
+  explicit ScreenOverlay(MaterialManager& materialManager, const glm::ivec2& viewport);
 
-  void init(ShaderManager& shaderManager, const glm::ivec2& viewport);
+  void init(MaterialManager& materialManager, const glm::ivec2& viewport);
 
   ~ScreenOverlay() override;
 

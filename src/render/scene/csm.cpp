@@ -41,7 +41,7 @@ void CSM::Split::init(int32_t resolution, size_t idx, ShaderManager& shaderManag
 
   squareMaterial = std::make_shared<Material>(shaderManager.getVSMSquare());
 
-  squareMesh = createScreenQuad({resolution, resolution}, squareMaterial);
+  squareMesh = createScreenQuad(squareMaterial);
   squareMesh->bind("u_shadow", [this](const Node& /*node*/, const Mesh& /*mesh*/, gl::Uniform& uniform) {
     uniform.set(depthTexture);
   });

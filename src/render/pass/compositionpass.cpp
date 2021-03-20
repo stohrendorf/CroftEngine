@@ -29,9 +29,9 @@ CompositionPass::CompositionPass(scene::MaterialManager& materialManager,
     , m_waterCompositionMaterial{materialManager.getComposition(
         true, renderSettings.lensDistortion, renderSettings.dof, renderSettings.filmGrain)}
     , m_crtMaterial{materialManager.getCrt()}
-    , m_mesh{scene::createScreenQuad(viewport, m_compositionMaterial)}
-    , m_waterMesh{scene::createScreenQuad(viewport, m_waterCompositionMaterial)}
-    , m_crtMesh{scene::createScreenQuad(viewport, m_crtMaterial)}
+    , m_mesh{scene::createScreenQuad(m_compositionMaterial)}
+    , m_waterMesh{scene::createScreenQuad(m_waterCompositionMaterial)}
+    , m_crtMesh{scene::createScreenQuad(m_crtMaterial)}
     , m_colorBuffer{std::make_shared<gl::Texture2D<gl::SRGBA8>>(viewport, "composition-color")}
 {
   const glm::ivec2 resolution{256, 256};

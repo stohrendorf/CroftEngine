@@ -7,13 +7,43 @@
 #include "texture2d.h"
 
 #include <CImg.h>
+#include <boost/algorithm/string/case_conv.hpp>
 #include <boost/assert.hpp>
+#include <fstream>
 #include <gsl-lite.hpp>
 
 namespace gl
 {
+namespace
+{
+struct PcxHeader
+{
+  uint8_t zsoft;
+  uint8_t version;
+  uint8_t encoding;
+  uint8_t bpp;
+  uint16_t minX;
+  uint16_t minY;
+  uint16_t maxX;
+  uint16_t maxY;
+  uint16_t dpiX;
+  uint16_t dpiY;
+  RGB8 colorMap[16];
+  uint8_t _reserved;
+  uint8_t planes;
+  uint16_t bytesPerLine;
+  uint16_t paletteType;
+  uint16_t width;
+  uint16_t height;
+  uint8_t _pad[54];
+};
+static_assert(sizeof(PcxHeader) == 128);
+} // namespace
+
 CImgWrapper::CImgWrapper(const std::string& filename)
-    : m_image{std::make_unique<cimg_library::CImg<uint8_t>>(filename.c_str())}
+    : m_image{boost::algorithm::to_lower_copy(std::filesystem::path{filename}.extension().string()) == ".pcx"
+                ? loadPcx(filename)
+                : std::make_unique<cimg_library::CImg<uint8_t>>(filename.c_str())}
 {
   if(m_image->spectrum() == 3)
   {
@@ -256,5 +286,73 @@ std::shared_ptr<gl::Texture2D<gl::SRGBA8>> CImgWrapper::toTexture()
   auto p = pixels();
   result->assign(p.data());
   return result;
+}
+
+std::unique_ptr<cimg_library::CImg<uint8_t>> CImgWrapper::loadPcx(const std::filesystem::path& filename)
+{
+  std::ifstream stream{filename, std::ios::in | std::ios::binary};
+  Expects(stream.is_open());
+
+  stream.seekg(0, std::ios::end);
+  const auto size = stream.tellg();
+  stream.seekg(0, std::ios::beg);
+
+  PcxHeader header;
+  stream.read(reinterpret_cast<char*>(&header), sizeof(PcxHeader));
+
+  Expects(header.zsoft == 10 && header.version >= 5 && header.bpp == 8 && header.encoding == 1 && header.planes == 1);
+  Expects(header.maxX >= header.minX);
+  Expects(header.maxY >= header.minY);
+
+  auto img
+    = std::make_unique<cimg_library::CImg<uint8_t>>(header.maxX + 1 - header.minX, header.maxY + 1 - header.minY, 1, 4);
+  auto remainingPixels = img->width() * img->height();
+  img->permute_axes("cxyz");
+  auto px = reinterpret_cast<SRGBA8*>(img->data());
+  Expects(px != nullptr);
+
+  using Color = uint8_t[3];
+  using Palette = Color[256];
+  static_assert(sizeof(Palette) == 3 * 256);
+  Palette palette;
+  stream.seekg(-sizeof(Palette), std::ios::end);
+  Expects(stream.good());
+  stream.read(reinterpret_cast<char*>(&palette[0][0]), sizeof(Palette));
+  Expects(stream.good());
+
+  auto readByte = [&stream]() {
+    uint8_t tmp;
+    stream.read(reinterpret_cast<char*>(&tmp), 1);
+    Expects(stream.good());
+    return tmp;
+  };
+
+  stream.seekg(sizeof(PcxHeader), std::ios::beg);
+  while(remainingPixels > 1)
+  {
+    uint8_t repeat = readByte();
+    Color* c;
+    if((repeat & 0xc0u) == 0xc0u)
+    {
+      c = &palette[readByte()];
+      repeat &= ~0xc0u;
+    }
+    else
+    {
+      c = &palette[repeat];
+      repeat = 1;
+    }
+
+    Expects(repeat <= remainingPixels);
+    while(repeat > 0)
+    {
+      *px++ = gl::SRGBA8{(*c)[0], (*c)[1], (*c)[2], 255};
+      --remainingPixels;
+      --repeat;
+    }
+  }
+
+  img->permute_axes("yzcx");
+  return img;
 }
 } // namespace gl

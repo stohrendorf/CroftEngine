@@ -23,7 +23,7 @@ gsl::not_null<std::shared_ptr<Mesh>> createScreenQuad(const glm::vec2& xy,
   const auto tl = xy;
   const auto br = xy + size;
   const std::array<Vertex, 4> vertices{Vertex{{tl.x, tl.y}, {0.0f, invertY ? 1.0f : 0.0f}},
-                                       Vertex{{br.x, 0.0f}, {1.0f, invertY ? 1.0f : 0.0f}},
+                                       Vertex{{br.x, tl.y}, {1.0f, invertY ? 1.0f : 0.0f}},
                                        Vertex{{br.x, br.y}, {1.0f, invertY ? 0.0f : 1.0f}},
                                        Vertex{{tl.x, br.y}, {0.0f, invertY ? 0.0f : 1.0f}}};
 

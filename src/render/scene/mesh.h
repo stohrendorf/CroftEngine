@@ -84,4 +84,10 @@ inline gsl::not_null<std::shared_ptr<Mesh>>
 {
   return createScreenQuad({0, 0}, size, material, invertY);
 }
+
+inline gsl::not_null<std::shared_ptr<Mesh>> createScreenQuad(const std::shared_ptr<Material>& material,
+                                                             bool invertY = false)
+{
+  return createScreenQuad({0, 0}, {0, 0}, material, invertY);
+}
 } // namespace render::scene

@@ -1,20 +1,18 @@
 #include "screenoverlay.h"
 
 #include "material.h"
+#include "materialmanager.h"
 #include "mesh.h"
 #include "rendercontext.h"
 #include "renderer.h"
-#include "shadermanager.h"
-#include "uniformparameter.h"
 
-#include <gl/image.h>
 #include <gl/texture2d.h>
 
 namespace render::scene
 {
-ScreenOverlay::ScreenOverlay(ShaderManager& shaderManager, const glm::ivec2& viewport)
+ScreenOverlay::ScreenOverlay(MaterialManager& materialManager, const glm::ivec2& viewport)
 {
-  init(shaderManager, viewport);
+  init(materialManager, viewport);
 }
 
 ScreenOverlay::~ScreenOverlay() = default;
@@ -31,7 +29,7 @@ bool ScreenOverlay::render(RenderContext& context)
   return true;
 }
 
-void ScreenOverlay::init(ShaderManager& shaderManager, const glm::ivec2& viewport)
+void ScreenOverlay::init(MaterialManager& materialManager, const glm::ivec2& viewport)
 {
   *m_image = gl::Image<gl::SRGBA8>(viewport);
   if(viewport.x == 0 || viewport.y == 0)
@@ -46,7 +44,7 @@ void ScreenOverlay::init(ShaderManager& shaderManager, const glm::ivec2& viewpor
     .set(gl::api::TextureParameterName::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge)
     .set(gl::api::TextureParameterName::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge);
 
-  m_mesh = createScreenQuad(viewport, std::make_shared<Material>(shaderManager.getFlat(true)));
+  m_mesh = createScreenQuad(materialManager.getFlat(true, true));
   m_mesh->bind("u_input",
                [this](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform) {
                  uniform.set(m_texture);

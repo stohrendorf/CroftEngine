@@ -38,6 +38,11 @@ public:
     return get("flat.vert", "flat.frag", defines);
   }
 
+  auto getBackdrop()
+  {
+    return get("backdrop.vert", "flat.frag");
+  }
+
   auto getGeometry(bool water, bool skeletal, bool roomShadowing)
   {
     std::vector<std::string> defines;

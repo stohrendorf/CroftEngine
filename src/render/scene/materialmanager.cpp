@@ -193,6 +193,33 @@ const std::shared_ptr<Material>& MaterialManager::getScreenSpriteColorRect()
   return m_screenSpriteColorRect;
 }
 
+const std::shared_ptr<Material>& MaterialManager::getFlat(bool withAlpha, bool invertY)
+{
+  if(m_flat[withAlpha][invertY] != nullptr)
+    return m_flat[withAlpha][invertY];
+
+  auto m = std::make_shared<Material>(m_shaderManager->getFlat(withAlpha, invertY));
+  m->getRenderState().setBlend(withAlpha);
+  m->getRenderState().setBlendSrc(gl::api::BlendingFactor::SrcAlpha);
+  m->getRenderState().setBlendDst(gl::api::BlendingFactor::OneMinusSrcAlpha);
+  m->getRenderState().setDepthTest(false);
+  m->getRenderState().setDepthWrite(false);
+  m_flat[withAlpha][invertY] = m;
+  return m_flat[withAlpha][invertY];
+}
+
+const std::shared_ptr<Material>& MaterialManager::getBackdrop()
+{
+  if(m_backdrop != nullptr)
+    return m_backdrop;
+
+  auto m = std::make_shared<Material>(m_shaderManager->getBackdrop());
+  m->getRenderState().setDepthTest(false);
+  m->getRenderState().setDepthWrite(false);
+  m_backdrop = m;
+  return m_backdrop;
+}
+
 void MaterialManager::setGeometryTextures(std::shared_ptr<gl::Texture2DArray<gl::SRGBA8>> geometryTextures)
 {
   m_geometryTextures = std::move(geometryTextures);

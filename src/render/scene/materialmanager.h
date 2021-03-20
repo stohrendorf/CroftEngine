@@ -42,6 +42,9 @@ public:
   [[nodiscard]] const std::shared_ptr<Material>& getScreenSpriteTextured();
   [[nodiscard]] const std::shared_ptr<Material>& getScreenSpriteColorRect();
 
+  [[nodiscard]] const std::shared_ptr<Material>& getFlat(bool withAlpha, bool invertY = false);
+  [[nodiscard]] const std::shared_ptr<Material>& getBackdrop();
+
   void setGeometryTextures(std::shared_ptr<gl::Texture2DArray<gl::SRGBA8>> geometryTextures);
 
   void setBilinearFiltering(bool enabled);
@@ -59,6 +62,8 @@ private:
   std::shared_ptr<Material> m_crt{nullptr};
   std::shared_ptr<Material> m_screenSpriteTextured{nullptr};
   std::shared_ptr<Material> m_screenSpriteColorRect{nullptr};
+  std::array<std::array<std::shared_ptr<Material>, 2>, 2> m_flat{};
+  std::shared_ptr<Material> m_backdrop{nullptr};
 
   const gsl::not_null<std::shared_ptr<CSM>> m_csm;
   const gsl::not_null<std::shared_ptr<Renderer>> m_renderer;

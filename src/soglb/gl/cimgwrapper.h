@@ -108,5 +108,6 @@ public:
 
 private:
   void unshare();
+  static std::unique_ptr<cimg_library::CImg<uint8_t>> loadPcx(const std::filesystem::path& filename);
 };
 } // namespace gl

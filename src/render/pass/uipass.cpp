@@ -2,9 +2,9 @@
 
 #include "config.h"
 #include "render/scene/material.h"
+#include "render/scene/materialmanager.h"
 #include "render/scene/mesh.h"
 #include "render/scene/rendercontext.h"
-#include "render/scene/shadermanager.h"
 
 #include <gl/debuggroup.h>
 #include <gl/framebuffer.h>
@@ -20,9 +20,9 @@ void UIPass::bind()
   m_fb->bindWithAttachments();
 }
 
-UIPass::UIPass(scene::ShaderManager& shaderManager, const glm::ivec2& viewport)
-    : m_material{std::make_shared<scene::Material>(shaderManager.getFlat(true, false))}
-    , m_mesh{scene::createScreenQuad(viewport, m_material)}
+UIPass::UIPass(scene::MaterialManager& materialManager, const glm::ivec2& viewport)
+    : m_material{materialManager.getFlat(true, false)}
+    , m_mesh{scene::createScreenQuad(m_material)}
     , m_colorBuffer{std::make_shared<gl::Texture2D<gl::SRGBA8>>(viewport, "ui-color")}
 {
   m_colorBuffer->set(gl::api::TextureParameterName::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge)

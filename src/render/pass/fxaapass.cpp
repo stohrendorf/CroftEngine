@@ -15,7 +15,7 @@ namespace render::pass
 {
 FXAAPass::FXAAPass(scene::ShaderManager& shaderManager, const glm::ivec2& viewport, const GeometryPass& geometryPass)
     : m_material{std::make_shared<scene::Material>(shaderManager.getFXAA())}
-    , m_mesh{scene::createScreenQuad(viewport, m_material)}
+    , m_mesh{scene::createScreenQuad(m_material)}
     , m_colorBuffer{std::make_shared<gl::Texture2D<gl::SRGBA8>>(viewport, "fxaa-color")}
 {
   m_colorBuffer->set(gl::api::TextureParameterName::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge)

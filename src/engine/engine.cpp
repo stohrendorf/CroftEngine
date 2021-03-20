@@ -317,6 +317,7 @@ std::pair<RunResult, std::optional<size_t>> Engine::runTitleMenu(world::World& w
 
   m_presenter->apply(m_engineConfig.renderSettings);
 
+  const auto backdrop = gl::CImgWrapper{m_rootPath / "data" / "tr1" / "DATA" / "TITLEH.PCX"}.toTexture();
   const auto menu = std::make_shared<menu::MenuDisplay>(menu::InventoryMode::TitleMode, world);
   Throttler throttler;
   while(true)
@@ -334,8 +335,38 @@ std::pair<RunResult, std::optional<size_t>> Engine::runTitleMenu(world::World& w
     ui::Ui ui{m_presenter->getMaterialManager()->getScreenSpriteTextured(),
               m_presenter->getMaterialManager()->getScreenSpriteColorRect(),
               world.getPalette()};
-    menu->display(ui, world);
     render::scene::RenderContext context{render::scene::RenderMode::Full, std::nullopt};
+
+    std::shared_ptr<render::scene::Mesh> backdropMesh;
+    {
+      const auto targetSize = glm::vec2{m_presenter->getViewport()};
+      const auto sourceSize = glm::vec2{backdrop->size()};
+      const float splashScale = std::min(targetSize.x / sourceSize.x, targetSize.y / sourceSize.y);
+
+      auto scaledSourceSize = sourceSize * splashScale;
+      auto sourceOffset = (targetSize - scaledSourceSize) / 2.0f;
+      backdropMesh = render::scene::createScreenQuad(
+        sourceOffset, scaledSourceSize, m_presenter->getMaterialManager()->getBackdrop());
+      backdropMesh->bind("u_input",
+                         [backdrop](const render::scene::Node& /*node*/,
+                                    const render::scene::Mesh& /*mesh*/,
+                                    gl::Uniform& uniform) { uniform.set(backdrop); });
+      backdropMesh->bind("u_screenSize",
+                         [targetSize](const render::scene::Node& /*node*/,
+                                      const render::scene::Mesh& /*mesh*/,
+                                      gl::Uniform& uniform) { uniform.set(targetSize); });
+    }
+
+    backdropMesh->bind("u_input",
+                       [backdrop](const render::scene::Node& /*node*/,
+                                  const render::scene::Mesh& /*mesh*/,
+                                  gl::Uniform& uniform) { uniform.set(backdrop); });
+    backdropMesh->bind("u_screenSize",
+                       [this](const render::scene::Node& /*node*/,
+                              const render::scene::Mesh& /*mesh*/,
+                              gl::Uniform& uniform) { uniform.set(glm::vec2{m_presenter->getViewport()}); });
+    backdropMesh->render(context);
+    menu->display(ui, world);
     m_presenter->getScreenOverlay().setAlphaMultiplier(1.0f);
     m_presenter->getScreenOverlay().render(context);
     m_presenter->renderUi(ui, 1);
