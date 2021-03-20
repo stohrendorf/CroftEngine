@@ -303,7 +303,7 @@ Presenter::Presenter(const std::filesystem::path& rootPath, bool fullscreen, con
     , m_soundEngine{std::make_shared<audio::SoundEngine>()}
     , m_renderer{std::make_shared<render::scene::Renderer>(std::make_shared<render::scene::Camera>(
         DefaultFov, m_window->getAspectRatio(), DefaultNearPlane, DefaultFarPlane))}
-    , m_splashImage{rootPath / "splash.png"}
+    , m_splashImage{gl::CImgWrapper{rootPath / "splash.png"}.toTexture()}
     , m_trTTFFont{std::make_unique<gl::Font>(rootPath / "trfont.ttf")}
     , m_debugFont{std::make_unique<gl::Font>(rootPath / "DroidSansMono.ttf")}
     , m_inputHandler{std::make_unique<hid::InputHandler>(m_window->getWindow())}
@@ -324,26 +324,18 @@ Presenter::~Presenter() = default;
 void Presenter::scaleSplashImage()
 {
   // scale splash image so that its aspect ratio is preserved, but the boundaries match
-  const float splashScale
-    = std::max(gsl::narrow<float>(m_window->getViewport().x) / gsl::narrow<float>(m_splashImage.width()),
-               gsl::narrow<float>(m_window->getViewport().y) / gsl::narrow<float>(m_splashImage.height()));
+  const auto targetSize = glm::vec2{m_window->getViewport()};
+  const auto sourceSize = glm::vec2{m_splashImage->size()};
+  const float splashScale = std::max(targetSize.x / sourceSize.x, targetSize.y / sourceSize.y);
 
-  m_splashImageScaled = m_splashImage;
-  m_splashImageScaled.resize(static_cast<int>(gsl::narrow<float>(m_splashImageScaled.width()) * splashScale),
-                             static_cast<int>(gsl::narrow<float>(m_splashImageScaled.height()) * splashScale));
-
-  // crop to boundaries
-  const auto centerX = m_splashImageScaled.width() / 2;
-  const auto centerY = m_splashImageScaled.height() / 2;
-  m_splashImageScaled.crop(gsl::narrow<int>(centerX - m_window->getViewport().x / 2),
-                           gsl::narrow<int>(centerY - m_window->getViewport().y / 2),
-                           gsl::narrow<int>(centerX - m_window->getViewport().x / 2 + m_window->getViewport().x - 1),
-                           gsl::narrow<int>(centerY - m_window->getViewport().y / 2 + m_window->getViewport().y - 1));
-
-  Expects(m_splashImageScaled.width() == m_window->getViewport().x);
-  Expects(m_splashImageScaled.height() == m_window->getViewport().y);
-
-  m_splashImageScaled.interleave();
+  auto scaledSourceSize = sourceSize * splashScale;
+  auto sourceOffset = (targetSize - scaledSourceSize) / 2.0f;
+  m_splashImageMesh = render::scene::createScreenQuad(
+    sourceOffset, scaledSourceSize, std::make_shared<render::scene::Material>(m_shaderManager->getFlat(false)));
+  m_splashImageMesh->bind(
+    "u_input", [this](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform) {
+      uniform.set(m_splashImage);
+    });
 }
 
 void Presenter::drawLoadingScreen(const std::string& state)
@@ -352,8 +344,7 @@ void Presenter::drawLoadingScreen(const std::string& state)
   m_window->updateWindowSize();
   if(m_window->isMinimized())
     return;
-  if(m_splashImageScaled.width() != m_window->getViewport().x
-     || m_splashImageScaled.height() != m_window->getViewport().y)
+  if(m_window->getViewport() != m_screenOverlay->getImage()->getSize())
   {
     m_renderer->getCamera()->setAspectRatio(m_window->getAspectRatio());
     m_screenOverlay->init(*m_shaderManager, m_window->getViewport());
@@ -363,12 +354,11 @@ void Presenter::drawLoadingScreen(const std::string& state)
   if(m_window->isMinimized())
     return;
 
-  m_screenOverlay->getImage()->assign(m_splashImageScaled.pixels().data(),
-                                      m_window->getViewport().x * m_window->getViewport().y);
+  m_screenOverlay->getImage()->fill(gl::SRGBA8{0, 0, 0, 0});
   m_trTTFFont->drawText(*m_screenOverlay->getImage(),
                         state.c_str(),
                         glm::ivec2{40, m_screenOverlay->getImage()->getSize().y - 100},
-                        gl::SRGBA8{255, 255, 255, 192},
+                        gl::SRGBA8{255, 255, 255, 255},
                         StatusLineFontSize);
 
   gl::Framebuffer::unbindAll();
@@ -376,7 +366,8 @@ void Presenter::drawLoadingScreen(const std::string& state)
   m_renderer->clear(
     gl::api::ClearBufferMask::ColorBufferBit | gl::api::ClearBufferMask::DepthBufferBit, {0, 0, 0, 0}, 1);
   render::scene::RenderContext context{render::scene::RenderMode::Full, std::nullopt};
-  m_screenOverlay->setAlphaMultiplier(1.0f);
+  m_splashImageMesh->render(context);
+  m_screenOverlay->setAlphaMultiplier(0.8f);
   m_screenOverlay->render(context);
   swapBuffers();
 }

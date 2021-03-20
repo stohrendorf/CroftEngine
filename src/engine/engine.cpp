@@ -317,13 +317,6 @@ std::pair<RunResult, std::optional<size_t>> Engine::runTitleMenu(world::World& w
 
   m_presenter->apply(m_engineConfig.renderSettings);
 
-  m_language = std::use_facet<boost::locale::info>(boost::locale::generator()("")).language();
-  BOOST_LOG_TRIVIAL(info) << "Detected user's language is " << m_language;
-  if(const std::optional overrideLanguage = core::get<std::string>(pybind11::globals(), "language_override"))
-  {
-    m_language = overrideLanguage.value();
-    BOOST_LOG_TRIVIAL(info) << "Language override is " << m_language;
-  }
   const auto menu = std::make_shared<menu::MenuDisplay>(menu::InventoryMode::TitleMode, world);
   Throttler throttler;
   while(true)

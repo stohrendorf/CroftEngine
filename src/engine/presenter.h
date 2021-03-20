@@ -28,11 +28,12 @@ struct RenderSettings;
 
 namespace scene
 {
-class ScreenOverlay;
 class CSM;
 class MaterialManager;
-class ShaderManager;
+class Mesh;
 class Renderer;
+class ScreenOverlay;
+class ShaderManager;
 } // namespace scene
 } // namespace render
 
@@ -164,8 +165,8 @@ private:
 
   std::shared_ptr<audio::SoundEngine> m_soundEngine;
   const std::shared_ptr<render::scene::Renderer> m_renderer;
-  const gl::CImgWrapper m_splashImage;
-  gl::CImgWrapper m_splashImageScaled;
+  const std::shared_ptr<gl::Texture2D<gl::SRGBA8>> m_splashImage;
+  std::shared_ptr<render::scene::Mesh> m_splashImageMesh;
   const std::unique_ptr<gl::Font> m_trTTFFont;
   const std::unique_ptr<gl::Font> m_debugFont;
   core::Health m_drawnHealth = core::LaraHealth;

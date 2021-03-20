@@ -1,6 +1,7 @@
 #pragma once
 
 #include "pixel.h"
+#include "soglb_fwd.h"
 
 #include <filesystem>
 #include <glm/common.hpp>
@@ -102,6 +103,8 @@ public:
   void extendBorder(int margin);
 
   void fromScreenshot();
+
+  std::shared_ptr<gl::Texture2D<gl::SRGBA8>> toTexture();
 
 private:
   void unshare();

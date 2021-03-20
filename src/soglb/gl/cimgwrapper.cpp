@@ -4,6 +4,8 @@
 #  undef _X
 #endif
 
+#include "texture2d.h"
+
 #include <CImg.h>
 #include <boost/assert.hpp>
 #include <gsl-lite.hpp>
@@ -246,5 +248,13 @@ void CImgWrapper::fromScreenshot()
   m_image->get_shared_channel(3).fill(255);
   m_image->mirror('y');
   interleave();
+}
+
+std::shared_ptr<gl::Texture2D<gl::SRGBA8>> CImgWrapper::toTexture()
+{
+  auto result = std::make_shared<gl::Texture2D<gl::SRGBA8>>(glm::ivec2{width(), height()});
+  auto p = pixels();
+  result->assign(p.data());
+  return result;
 }
 } // namespace gl
