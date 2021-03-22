@@ -205,6 +205,7 @@ HeightInfo HeightInfo::fromCeiling(gsl::not_null<const world::Sector*> roomSecto
         if(command.isLast)
           break;
       }
+      break;
     default: break;
     }
     if(chunkHeader.isLast)

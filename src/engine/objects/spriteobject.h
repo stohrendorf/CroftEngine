@@ -70,11 +70,7 @@ public:
 
   loader::file::BoundingBox getBoundingBox() const override
   {
-    loader::file::BoundingBox bb;
-    bb.minX = bb.maxX = m_state.position.position.X;
-    bb.minY = bb.maxY = m_state.position.position.Y;
-    bb.minZ = bb.maxZ = m_state.position.position.Z;
-    return bb;
+    return loader::file::BoundingBox{};
   }
 
   void serialize(const serialization::Serializer<world::World>& ser) override;
