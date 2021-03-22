@@ -229,7 +229,10 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
       switch(menu->result)
       {
       case menu::MenuResult::None: break;
-      case menu::MenuResult::Closed: menu.reset(); break;
+      case menu::MenuResult::Closed:
+        menu.reset();
+        throttler.reset();
+        break;
       case menu::MenuResult::ExitToTitle: return {RunResult::TitleLevel, std::nullopt};
       case menu::MenuResult::ExitGame: return {RunResult::ExitApp, std::nullopt};
       case menu::MenuResult::NewGame: return {RunResult::NextLevel, std::nullopt};
@@ -251,6 +254,7 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
         {
           menu = std::make_shared<menu::MenuDisplay>(menu::InventoryMode::DeathMode, world);
           menu->allowSave = false;
+          throttler.reset();
           continue;
         }
       }
@@ -260,6 +264,7 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
         updateTimeSpent();
         menu = std::make_shared<menu::MenuDisplay>(menu::InventoryMode::GameMode, world);
         menu->allowSave = allowSave;
+        throttler.reset();
         continue;
       }
 
@@ -293,6 +298,7 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
     {
       updateTimeSpent();
       makeScreenshot();
+      throttler.reset();
     }
   }
 }
