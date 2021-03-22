@@ -1,10 +1,10 @@
 #ifdef WATER
-float dof_start = 32.0/far_plane;
-float dof_dist = 4*1024.0/far_plane;
-float dof_focal_depth = 1536.0/far_plane;
+float dof_start = 32.0/u_farPlane;
+float dof_dist = 4*1024.0/u_farPlane;
+float dof_focal_depth = 1536.0/u_farPlane;
 #else
-float dof_start = 128.0/far_plane;
-float dof_dist = 20*1024.0/far_plane;
+float dof_start = 128.0/u_farPlane;
+float dof_dist = 20*1024.0/u_farPlane;
 // autofocus
 float dof_focal_depth = depth_at(vec2(0.5, 0.5));
 #endif

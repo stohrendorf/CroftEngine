@@ -13,7 +13,7 @@ vec2 anti_fisheye(in vec2 polar, in float stationary_radius) {
 
 void do_lens_distortion(inout vec2 uv)
 {
-    float stationary_radius = max(0.5, 0.5 / aspect_ratio);
+    float stationary_radius = max(0.5, 0.5 / u_aspectRatio);
 
     if (distortion_power > 0.0)
         uv = vec2(0.5, 0.5) + fisheye(uv - vec2(0.5, 0.5), stationary_radius);

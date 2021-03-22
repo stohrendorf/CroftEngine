@@ -1,5 +1,6 @@
 #define VTX_INPUT_NORMAL
 #define VTX_INPUT_TEXCOORD
+#define VTX_INPUT_TEXCOORD_QUAD
 #ifdef SKELETAL
 #define VTX_INPUT_BONE_INDEX
 #endif
@@ -45,50 +46,15 @@ void main()
     gpi.vertexPos = tmp.xyz;
     float dist = 16 * clamp(1.0 - dot(normalize(u_csmLightDir), gpi.normal), 0.0, 1.0);
     vec4 pos = vec4(a_position + dist * gpi.normal, 1);
+    for (int i=0; i<CSMSplits; ++i)
     {
         #ifdef SKELETAL
-        mat4 lmvp = u_lightMVP1 * u_bones[int(a_boneIndex)];
+        mat4 lmvp = u_lightMVP[i] * u_bones[int(a_boneIndex)];
         #else
-        mat4 lmvp = u_lightMVP1;
+        mat4 lmvp = u_lightMVP[i];
         #endif
         vec4 tmp = lmvp * pos;
-        gpi.vertexPosLight1 = tmp.xyz / tmp.w * 0.5 + 0.5;
-    }
-    {
-        #ifdef SKELETAL
-        mat4 lmvp = u_lightMVP2 * u_bones[int(a_boneIndex)];
-        #else
-        mat4 lmvp = u_lightMVP2;
-        #endif
-        vec4 tmp = lmvp * pos;
-        gpi.vertexPosLight2 = tmp.xyz / tmp.w * 0.5 + 0.5;
-    }
-    {
-        #ifdef SKELETAL
-        mat4 lmvp = u_lightMVP3 * u_bones[int(a_boneIndex)];
-        #else
-        mat4 lmvp = u_lightMVP3;
-        #endif
-        vec4 tmp = lmvp * pos;
-        gpi.vertexPosLight3 = tmp.xyz / tmp.w * 0.5 + 0.5;
-    }
-    {
-        #ifdef SKELETAL
-        mat4 lmvp = u_lightMVP4 * u_bones[int(a_boneIndex)];
-        #else
-        mat4 lmvp = u_lightMVP4;
-        #endif
-        vec4 tmp = lmvp * pos;
-        gpi.vertexPosLight4 = tmp.xyz / tmp.w * 0.5 + 0.5;
-    }
-    {
-        #ifdef SKELETAL
-        mat4 lmvp = u_lightMVP5 * u_bones[int(a_boneIndex)];
-        #else
-        mat4 lmvp = u_lightMVP5;
-        #endif
-        vec4 tmp = lmvp * pos;
-        gpi.vertexPosLight5 = tmp.xyz / tmp.w * 0.5 + 0.5;
+        gpi.vertexPosLight[i] = tmp.xyz / tmp.w * 0.5 + 0.5;
     }
 
     gpi.isQuad = a_isQuad;
@@ -97,17 +63,17 @@ void main()
         mat4 mvp = u_projection * mv;
 
         vec4 tmp = mvp * vec4(a_quadVert1, 1);
-        gpi.quadV1 = vec3(tmp.xy / tmp.w, tmp.w);
+        gpi.quadVerts[0] = vec3(tmp.xy / tmp.w, tmp.w);
         tmp = mvp * vec4(a_quadVert2, 1);
-        gpi.quadV2 = vec3(tmp.xy / tmp.w, tmp.w);
+        gpi.quadVerts[1] = vec3(tmp.xy / tmp.w, tmp.w);
         tmp = mvp * vec4(a_quadVert3, 1);
-        gpi.quadV3 = vec3(tmp.xy / tmp.w, tmp.w);
+        gpi.quadVerts[2] = vec3(tmp.xy / tmp.w, tmp.w);
         tmp = mvp * vec4(a_quadVert4, 1);
-        gpi.quadV4 = vec3(tmp.xy / tmp.w, tmp.w);
+        gpi.quadVerts[3] = vec3(tmp.xy / tmp.w, tmp.w);
 
-        gpi.quadUv1 = a_quadUv1;
-        gpi.quadUv2 = a_quadUv2;
-        gpi.quadUv3 = a_quadUv3;
-        gpi.quadUv4 = a_quadUv4;
+        gpi.quadUvs[0] = a_quadUv1;
+        gpi.quadUvs[1] = a_quadUv2;
+        gpi.quadUvs[2] = a_quadUv3;
+        gpi.quadUvs[3] = a_quadUv4;
     }
 }

@@ -1,4 +1,4 @@
-layout(location=14) IN_OUT ScreenPipelineInterface {
+IN_OUT ScreenPipelineInterface {
     vec2 texCoord;
     #ifdef SCREENSPRITE_TEXTURE
     flat float texIndex;

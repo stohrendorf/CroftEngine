@@ -10,7 +10,7 @@ float depth_at(in sampler2D tex, in vec2 uv)
     clipSpaceLocation.w = 1;
     vec4 camSpaceLocation = u_inverseProjection * clipSpaceLocation;
     float d = length(camSpaceLocation.xyz / camSpaceLocation.w);
-    d /= far_plane;
+    d /= u_farPlane;
     return clamp(d, 0.0, 1.0);
 }
 

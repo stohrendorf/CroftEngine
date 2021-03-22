@@ -23,8 +23,7 @@ struct CSMBuffer
 
   std::array<glm::mat4, NSplits> lightMVP{};
   glm::vec4 lightDir{};
-  std::array<float, NSplits> csmSplits{};
-  float _pad[3]{};
+  std::array<glm::vec4, NSplits> csmSplits{};
 };
 static_assert(sizeof(CSMBuffer) % 16 == 0);
 
@@ -73,7 +72,10 @@ public:
 
   auto& getBuffer(const glm::mat4& modelMatrix)
   {
-    m_bufferData.csmSplits = getSplitEnds();
+    const auto splitEnds = getSplitEnds();
+    std::transform(splitEnds.begin(), splitEnds.end(), m_bufferData.csmSplits.begin(), [](float v) {
+      return glm::vec4{v, 0, 0, 0};
+    });
     m_bufferData.lightMVP = getMatrices(modelMatrix);
     m_bufferData.lightDir = glm::vec4{m_lightDir, 0.0f};
     m_buffer.setData(m_bufferData, gl::api::BufferUsageARB::DynamicDraw);

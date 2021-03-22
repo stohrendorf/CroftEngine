@@ -23,28 +23,15 @@ float shadow_map_multiplier(in vec3 normal, in float shadow)
     }
         #endif
 
-    vec3 projCoords;
-    vec2 moments;
+    vec3 projCoords = gpi.vertexPosLight[0];
+    vec2 moments = texture(u_csmVsm[0], projCoords.xy).xy;
 
-    if (-gpi.vertexPos.z > -u_csmSplits5) {
-        projCoords = gpi.vertexPosLight5;
-        moments = texture(u_csmVsm[4], projCoords.xy).xy;
-    }
-    else if (-gpi.vertexPos.z > -u_csmSplits4) {
-        projCoords = gpi.vertexPosLight4;
-        moments = texture(u_csmVsm[3], projCoords.xy).xy;
-    }
-    else if (-gpi.vertexPos.z > -u_csmSplits3) {
-        projCoords = gpi.vertexPosLight3;
-        moments = texture(u_csmVsm[2], projCoords.xy).xy;
-    }
-    else if (-gpi.vertexPos.z > -u_csmSplits2) {
-        projCoords = gpi.vertexPosLight2;
-        moments = texture(u_csmVsm[1], projCoords.xy).xy;
-    }
-    else {
-        projCoords = gpi.vertexPosLight1;
-        moments = texture(u_csmVsm[0], projCoords.xy).xy;
+    for (int i=CSMSplits-1; i>1; --i) {
+        if (-gpi.vertexPos.z > -u_csmSplits[i]) {
+            projCoords = gpi.vertexPosLight[i];
+            moments = texture(u_csmVsm[i], projCoords.xy).xy;
+            break;
+        }
     }
 
     float currentDepth = projCoords.z;

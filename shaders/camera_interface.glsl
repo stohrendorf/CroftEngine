@@ -6,7 +6,7 @@ layout(std140, binding=1) uniform Camera {
     mat4 u_viewProjection;
     mat4 u_inverseViewProjection;
     vec4 u_screenSize;
-    float aspect_ratio;
-    float near_plane;
-    float far_plane;
+    float u_aspectRatio;
+    float u_nearPlane;
+    float u_farPlane;
 };
