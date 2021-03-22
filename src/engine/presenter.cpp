@@ -41,7 +41,7 @@ void Presenter::playVideo(const std::filesystem::path& path)
     if(m_window->isMinimized())
       return true;
 
-    m_renderer->getCamera()->setAspectRatio(m_window->getAspectRatio());
+    m_renderer->getCamera()->setScreenSize(m_window->getViewport());
     if(m_screenOverlay->getImage()->getSize() != m_window->getViewport())
     {
       m_screenOverlay->init(*m_materialManager, m_window->getViewport());
@@ -148,9 +148,6 @@ void Presenter::renderWorld(const ObjectManager& objectManager,
     if constexpr(render::pass::FlushPasses)
       GL_ASSERT(gl::api::finish());
   }
-
-  render::scene::RenderContext context{render::scene::RenderMode::Full,
-                                       cameraController.getCamera()->getViewProjectionMatrix()};
 
   m_renderPipeline->compositionPass(cameraController.getCurrentRoom()->isWaterRoom);
 
@@ -302,7 +299,7 @@ Presenter::Presenter(const std::filesystem::path& rootPath, bool fullscreen, con
     : m_window{std::make_unique<gl::Window>(fullscreen, resolution)}
     , m_soundEngine{std::make_shared<audio::SoundEngine>()}
     , m_renderer{std::make_shared<render::scene::Renderer>(std::make_shared<render::scene::Camera>(
-        DefaultFov, m_window->getAspectRatio(), DefaultNearPlane, DefaultFarPlane))}
+        DefaultFov, m_window->getViewport(), DefaultNearPlane, DefaultFarPlane))}
     , m_splashImage{gl::CImgWrapper{rootPath / "splash.png"}.toTexture()}
     , m_trTTFFont{std::make_unique<gl::Font>(rootPath / "trfont.ttf")}
     , m_debugFont{std::make_unique<gl::Font>(rootPath / "DroidSansMono.ttf")}
@@ -347,7 +344,7 @@ void Presenter::drawLoadingScreen(const std::string& state)
     return;
   if(m_window->getViewport() != m_screenOverlay->getImage()->getSize())
   {
-    m_renderer->getCamera()->setAspectRatio(m_window->getAspectRatio());
+    m_renderer->getCamera()->setScreenSize(m_window->getViewport());
     m_screenOverlay->init(*m_materialManager, m_window->getViewport());
     scaleSplashImage();
   }
@@ -379,7 +376,7 @@ bool Presenter::preFrame()
   if(m_window->isMinimized())
     return false;
 
-  m_renderer->getCamera()->setAspectRatio(m_window->getAspectRatio());
+  m_renderer->getCamera()->setScreenSize(m_window->getViewport());
   m_renderPipeline->resize(*m_materialManager, m_window->getViewport());
   if(m_screenOverlay->getImage()->getSize() != m_window->getViewport())
   {

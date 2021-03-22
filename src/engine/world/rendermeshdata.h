@@ -34,8 +34,17 @@ public:
     glm::vec3 normal;
     glm::vec4 color{1.0f};
     glm::vec2 uv;
-    glm::int32_t textureIndex{-1};
-    glm::int32_t boneIndex{-1};
+    glm::int32 textureIndex{-1};
+    glm::int32 boneIndex{-1};
+    glm::int32 isQuad{0};
+    glm::vec3 quadVert1;
+    glm::vec3 quadVert2;
+    glm::vec3 quadVert3;
+    glm::vec3 quadVert4;
+    glm::vec2 quadUv1;
+    glm::vec2 quadUv2;
+    glm::vec2 quadUv3;
+    glm::vec2 quadUv4;
 
     static const gl::VertexFormat<RenderVertex>& getFormat()
     {
@@ -44,7 +53,16 @@ public:
                                                          {VERTEX_ATTRIBUTE_COLOR_NAME, &RenderVertex::color},
                                                          {VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, &RenderVertex::uv},
                                                          {VERTEX_ATTRIBUTE_TEXINDEX_NAME, &RenderVertex::textureIndex},
-                                                         {VERTEX_ATTRIBUTE_BONE_INDEX_NAME, &RenderVertex::boneIndex}};
+                                                         {VERTEX_ATTRIBUTE_BONE_INDEX_NAME, &RenderVertex::boneIndex},
+                                                         {VERTEX_ATTRIBUTE_IS_QUAD, &RenderVertex::isQuad},
+                                                         {VERTEX_ATTRIBUTE_QUAD_VERT1, &RenderVertex::quadVert1},
+                                                         {VERTEX_ATTRIBUTE_QUAD_VERT2, &RenderVertex::quadVert2},
+                                                         {VERTEX_ATTRIBUTE_QUAD_VERT3, &RenderVertex::quadVert3},
+                                                         {VERTEX_ATTRIBUTE_QUAD_VERT4, &RenderVertex::quadVert4},
+                                                         {VERTEX_ATTRIBUTE_QUAD_UV1, &RenderVertex::quadUv1},
+                                                         {VERTEX_ATTRIBUTE_QUAD_UV2, &RenderVertex::quadUv2},
+                                                         {VERTEX_ATTRIBUTE_QUAD_UV3, &RenderVertex::quadUv3},
+                                                         {VERTEX_ATTRIBUTE_QUAD_UV4, &RenderVertex::quadUv4}};
 
       return format;
     }

@@ -29,12 +29,30 @@ struct RenderVertex
   glm::vec3 position{};
   glm::vec4 color{1.0f};
   glm::vec3 normal{0.0f};
+  glm::int32 isQuad{0};
+  glm::vec3 quadVert1{};
+  glm::vec3 quadVert2{};
+  glm::vec3 quadVert3{};
+  glm::vec3 quadVert4{};
+  glm::vec2 quadUv1{};
+  glm::vec2 quadUv2{};
+  glm::vec2 quadUv3{};
+  glm::vec2 quadUv4{};
 
   static const gl::VertexFormat<RenderVertex>& getFormat()
   {
     static const gl::VertexFormat<RenderVertex> format{{VERTEX_ATTRIBUTE_POSITION_NAME, &RenderVertex::position},
                                                        {VERTEX_ATTRIBUTE_NORMAL_NAME, &RenderVertex::normal},
-                                                       {VERTEX_ATTRIBUTE_COLOR_NAME, &RenderVertex::color}};
+                                                       {VERTEX_ATTRIBUTE_COLOR_NAME, &RenderVertex::color},
+                                                       {VERTEX_ATTRIBUTE_IS_QUAD, &RenderVertex::isQuad},
+                                                       {VERTEX_ATTRIBUTE_QUAD_VERT1, &RenderVertex::quadVert1},
+                                                       {VERTEX_ATTRIBUTE_QUAD_VERT2, &RenderVertex::quadVert2},
+                                                       {VERTEX_ATTRIBUTE_QUAD_VERT3, &RenderVertex::quadVert3},
+                                                       {VERTEX_ATTRIBUTE_QUAD_VERT4, &RenderVertex::quadVert4},
+                                                       {VERTEX_ATTRIBUTE_QUAD_UV1, &RenderVertex::quadUv1},
+                                                       {VERTEX_ATTRIBUTE_QUAD_UV2, &RenderVertex::quadUv2},
+                                                       {VERTEX_ATTRIBUTE_QUAD_UV3, &RenderVertex::quadUv3},
+                                                       {VERTEX_ATTRIBUTE_QUAD_UV4, &RenderVertex::quadUv4}};
 
     return format;
   }
@@ -178,6 +196,11 @@ void Room::createSceneNode(const loader::file::Room& srcRoom,
 
     const auto& tile = world.getAtlasTiles().at(quad.tileId.get());
 
+    bool useQuadHandling = isDistortedQuad(quad.vertices[0].from(srcRoom.vertices).position.toRenderSystem(),
+                                           quad.vertices[1].from(srcRoom.vertices).position.toRenderSystem(),
+                                           quad.vertices[2].from(srcRoom.vertices).position.toRenderSystem(),
+                                           quad.vertices[3].from(srcRoom.vertices).position.toRenderSystem());
+
     const auto firstVertex = vbufData.size();
     for(int i = 0; i < 4; ++i)
     {
@@ -185,6 +208,19 @@ void Room::createSceneNode(const loader::file::Room& srcRoom,
       iv.position = quad.vertices[i].from(srcRoom.vertices).position.toRenderSystem();
       iv.color = quad.vertices[i].from(srcRoom.vertices).color;
       uvCoordsData.emplace_back(tile.textureKey.tileAndFlag & loader::file::TextureIndexMask, tile.uvCoordinates[i]);
+
+      if(useQuadHandling)
+      {
+        iv.isQuad = 1;
+        iv.quadVert1 = quad.vertices[0].from(srcRoom.vertices).position.toRenderSystem();
+        iv.quadVert2 = quad.vertices[1].from(srcRoom.vertices).position.toRenderSystem();
+        iv.quadVert3 = quad.vertices[2].from(srcRoom.vertices).position.toRenderSystem();
+        iv.quadVert4 = quad.vertices[3].from(srcRoom.vertices).position.toRenderSystem();
+        iv.quadUv1 = tile.uvCoordinates[0];
+        iv.quadUv2 = tile.uvCoordinates[1];
+        iv.quadUv3 = tile.uvCoordinates[2];
+        iv.quadUv4 = tile.uvCoordinates[3];
+      }
 
       if(i <= 2)
       {

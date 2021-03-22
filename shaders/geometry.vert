@@ -90,4 +90,24 @@ void main()
         vec4 tmp = lmvp * pos;
         gpi.vertexPosLight5 = tmp.xyz / tmp.w * 0.5 + 0.5;
     }
+
+    gpi.isQuad = a_isQuad;
+    if (a_isQuad != 0)
+    {
+        mat4 mvp = u_projection * mv;
+
+        vec4 tmp = mvp * vec4(a_quadVert1, 1);
+        gpi.quadV1 = vec3(tmp.xy / tmp.w, tmp.w);
+        tmp = mvp * vec4(a_quadVert2, 1);
+        gpi.quadV2 = vec3(tmp.xy / tmp.w, tmp.w);
+        tmp = mvp * vec4(a_quadVert3, 1);
+        gpi.quadV3 = vec3(tmp.xy / tmp.w, tmp.w);
+        tmp = mvp * vec4(a_quadVert4, 1);
+        gpi.quadV4 = vec3(tmp.xy / tmp.w, tmp.w);
+
+        gpi.quadUv1 = a_quadUv1;
+        gpi.quadUv2 = a_quadUv2;
+        gpi.quadUv3 = a_quadUv3;
+        gpi.quadUv4 = a_quadUv4;
+    }
 }

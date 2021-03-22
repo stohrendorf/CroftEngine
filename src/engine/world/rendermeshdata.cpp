@@ -22,10 +22,28 @@ RenderMeshData::RenderMeshData(const loader::file::Mesh& mesh,
     const auto& tile = atlasTiles.at(quad.tileId.get());
 
     const auto firstVertex = m_vertices.size();
+
+    bool useQuadHandling = isDistortedQuad(quad.vertices[0].from(mesh.vertices).toRenderSystem(),
+                                           quad.vertices[1].from(mesh.vertices).toRenderSystem(),
+                                           quad.vertices[2].from(mesh.vertices).toRenderSystem(),
+                                           quad.vertices[3].from(mesh.vertices).toRenderSystem());
+
     for(int i = 0; i < 4; ++i)
     {
       RenderVertex iv{};
       iv.textureIndex = tile.textureKey.tileAndFlag & loader::file::TextureIndexMask;
+      if(useQuadHandling)
+      {
+        iv.isQuad = 1;
+        iv.quadVert1 = quad.vertices[0].from(mesh.vertices).toRenderSystem();
+        iv.quadVert2 = quad.vertices[1].from(mesh.vertices).toRenderSystem();
+        iv.quadVert3 = quad.vertices[2].from(mesh.vertices).toRenderSystem();
+        iv.quadVert4 = quad.vertices[3].from(mesh.vertices).toRenderSystem();
+        iv.quadUv1 = tile.uvCoordinates[0];
+        iv.quadUv2 = tile.uvCoordinates[1];
+        iv.quadUv3 = tile.uvCoordinates[2];
+        iv.quadUv4 = tile.uvCoordinates[3];
+      }
 
       if(mesh.normals.empty())
         iv.color = glm::vec4(glm::vec3{toBrightness(quad.vertices[i].from(mesh.vertex_shades)).get()}, 1.0f);

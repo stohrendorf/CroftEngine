@@ -25,6 +25,7 @@ struct CameraMatrices
   glm::mat4 inverseView{1.0f};
   glm::mat4 viewProjection{1.0f};
   glm::mat4 inverseViewProjection{1.0f};
+  glm::vec4 screenSize{0};
   float aspectRatio = 1;
   float nearPlane = 0;
   float farPlane = 1;
@@ -37,11 +38,12 @@ class Camera final
   friend class Node;
 
 public:
-  Camera(float fieldOfView, float aspectRatio, float nearPlane, float farPlane)
+  Camera(float fieldOfView, const glm::vec2& screenSize, float nearPlane, float farPlane)
       : m_fieldOfView{fieldOfView}
   {
     m_dirty.set_all();
-    m_matrices.aspectRatio = aspectRatio;
+    m_matrices.aspectRatio = screenSize.x / screenSize.y;
+    m_matrices.screenSize = glm::vec4{screenSize, 0, 0};
     m_matrices.nearPlane = nearPlane;
     m_matrices.farPlane = farPlane;
   }
@@ -69,12 +71,13 @@ public:
     return m_matrices.aspectRatio;
   }
 
-  void setAspectRatio(float aspectRatio)
+  void setScreenSize(const glm::vec2& screenSize)
   {
-    if(m_matrices.aspectRatio == aspectRatio)
+    if(glm::vec2{m_matrices.screenSize} == screenSize)
       return;
 
-    m_matrices.aspectRatio = aspectRatio;
+    m_matrices.aspectRatio = screenSize.x / screenSize.y;
+    m_matrices.screenSize = glm::vec4{screenSize, 0, 0};
     m_dirty.set(CameraMatrices::DirtyFlag::Projection);
     m_dirty.set(CameraMatrices::DirtyFlag::ViewProjection);
     m_dirty.set(CameraMatrices::DirtyFlag::InvViewProjection);
