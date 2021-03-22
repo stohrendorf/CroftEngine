@@ -924,7 +924,7 @@ void World::serialize(const serialization::Serializer<World>& ser)
       S_NV("audioEngine", *m_audioEngine));
 }
 
-void World::gameLoop(bool godMode)
+void World::gameLoop(bool godMode, float delayRatio)
 {
   ui::Ui ui{getPresenter().getMaterialManager()->getScreenSpriteTextured(),
             getPresenter().getMaterialManager()->getScreenSpriteColorRect(),
@@ -963,7 +963,7 @@ void World::gameLoop(bool godMode)
   }
 
   drawPickupWidgets(ui);
-  getPresenter().renderWorld(getObjectManager(), getRooms(), getCameraController(), waterEntryPortals);
+  getPresenter().renderWorld(getObjectManager(), getRooms(), getCameraController(), waterEntryPortals, delayRatio);
   getPresenter().renderScreenOverlay();
   getPresenter().renderUi(ui, 1);
   getPresenter().swapBuffers();
@@ -980,7 +980,7 @@ bool World::cinematicLoop()
   ui::Ui ui{getPresenter().getMaterialManager()->getScreenSpriteTextured(),
             getPresenter().getMaterialManager()->getScreenSpriteColorRect(),
             getPalette()};
-  getPresenter().renderWorld(getObjectManager(), getRooms(), getCameraController(), waterEntryPortals);
+  getPresenter().renderWorld(getObjectManager(), getRooms(), getCameraController(), waterEntryPortals, 0);
   getPresenter().renderScreenOverlay();
   getPresenter().renderUi(ui, 1);
   getPresenter().swapBuffers();

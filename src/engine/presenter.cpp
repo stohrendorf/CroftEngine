@@ -61,7 +61,8 @@ void Presenter::playVideo(const std::filesystem::path& path)
 void Presenter::renderWorld(const ObjectManager& objectManager,
                             const std::vector<world::Room>& rooms,
                             const CameraController& cameraController,
-                            const std::unordered_set<const world::Portal*>& waterEntryPortals)
+                            const std::unordered_set<const world::Portal*>& waterEntryPortals,
+                            float delayRatio)
 {
   m_renderPipeline->updateCamera(m_renderer->getCamera());
 
@@ -156,7 +157,13 @@ void Presenter::renderWorld(const ObjectManager& objectManager,
     m_debugFont->drawText(
       *m_screenOverlay->getImage(),
       std::to_string(m_renderer->getFrameRate()).c_str(),
-      glm::ivec2{m_screenOverlay->getImage()->getSize().x - 40, m_screenOverlay->getImage()->getSize().y - 20},
+      glm::ivec2{m_screenOverlay->getImage()->getSize().x - 80, m_screenOverlay->getImage()->getSize().y - 20},
+      gl::SRGBA8{255},
+      DebugTextFontSize);
+    m_debugFont->drawText(
+      *m_screenOverlay->getImage(),
+      std::to_string(delayRatio).c_str(),
+      glm::ivec2{m_screenOverlay->getImage()->getSize().x - 80, m_screenOverlay->getImage()->getSize().y - 40},
       gl::SRGBA8{255},
       DebugTextFontSize);
 

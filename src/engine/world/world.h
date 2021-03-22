@@ -208,7 +208,7 @@ public:
   core::TypeId find(const SkeletalModelType* model) const;
   core::TypeId find(const Sprite* sprite) const;
   void serialize(const serialization::Serializer<World>& ser);
-  void gameLoop(bool godMode);
+  void gameLoop(bool godMode, float delayRatio);
   bool cinematicLoop();
   void load(const std::filesystem::path& filename);
   void load(size_t slot);

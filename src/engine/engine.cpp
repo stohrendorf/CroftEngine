@@ -184,7 +184,8 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
           m_presenter->renderWorld(world.getObjectManager(),
                                    world.getRooms(),
                                    world.getCameraController(),
-                                   world.getCameraController().update());
+                                   world.getCameraController().update(),
+                                   throttler.getAverageDelayRatio());
           m_presenter->renderScreenOverlay();
 
           if(currentBlendDuration < BlendDuration)
@@ -213,8 +214,11 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
       updateTimeSpent();
 
       render::scene::RenderContext context{render::scene::RenderMode::Full, std::nullopt};
-      m_presenter->renderWorld(
-        world.getObjectManager(), world.getRooms(), world.getCameraController(), world.getCameraController().update());
+      m_presenter->renderWorld(world.getObjectManager(),
+                               world.getRooms(),
+                               world.getCameraController(),
+                               world.getCameraController().update(),
+                               throttler.getAverageDelayRatio());
       m_presenter->renderScreenOverlay();
       m_presenter->getScreenOverlay().setAlphaMultiplier(1.0f);
       m_presenter->getScreenOverlay().render(context);
@@ -286,7 +290,7 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
       if(!gameSessionStart.has_value())
         gameSessionStart = std::chrono::high_resolution_clock::now();
 
-      world.gameLoop(godMode);
+      world.gameLoop(godMode, throttler.getAverageDelayRatio());
     }
     else
     {

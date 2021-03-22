@@ -65,7 +65,8 @@ public:
   void renderWorld(const ObjectManager& objectManager,
                    const std::vector<world::Room>& rooms,
                    const CameraController& cameraController,
-                   const std::unordered_set<const world::Portal*>& waterEntryPortals);
+                   const std::unordered_set<const world::Portal*>& waterEntryPortals,
+                   float delayRatio);
 
   [[nodiscard]] const auto& getSoundEngine() const
   {
