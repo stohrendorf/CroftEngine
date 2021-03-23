@@ -4,7 +4,7 @@
 
 layout(binding=4) uniform sampler2DArray u_diffuseTextures;
 #ifdef WATER
-#include "water.glsl"
+#include "water_caustics.glsl"
 #endif
 
 layout(location=0) out vec4 out_color;

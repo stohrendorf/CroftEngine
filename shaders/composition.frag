@@ -13,7 +13,7 @@ layout(location=0) out vec4 out_color;
 #include "util.glsl"
 #include "constants.glsl"
 
-#include "water.glsl"
+#include "water_deform.glsl"
 
 #ifdef DOF
 #include "dof.glsl"
