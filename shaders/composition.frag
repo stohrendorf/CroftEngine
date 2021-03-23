@@ -23,22 +23,6 @@ layout(location=0) out vec4 out_color;
 #include "lens.glsl"
 #endif
 
-float fbm(in vec2 uv) {
-    // Initial values
-    float value = 0.0;
-    float amplitude = .5;
-    float frequency = 0.;
-    //
-    // Loop of octaves
-    const int octaves = 4;
-    for (int i = 0; i < octaves; i++) {
-        value += amplitude * rand1(uv);
-        uv *= 2.;
-        amplitude *= .5;
-    }
-    return value;
-}
-
 void main()
 {
 #ifdef WATER
