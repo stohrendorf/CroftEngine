@@ -24,6 +24,7 @@ class GeometryPass;
 class PortalPass;
 class SSAOPass;
 class FXAAPass;
+class LinearizeDepthPass;
 
 class CompositionPass
 {
@@ -31,10 +32,11 @@ public:
   explicit CompositionPass(scene::MaterialManager& materialManager,
                            const RenderSettings& renderSettings,
                            const glm::ivec2& viewport,
-                           const GeometryPass& geometryPass,
                            const PortalPass& portalPass,
                            const SSAOPass& ssaoPass,
-                           const FXAAPass& fxaaPass);
+                           const FXAAPass& fxaaPass,
+                           const LinearizeDepthPass& linearizeDepthPass,
+                           const LinearizeDepthPass& linearizePortalDepthPass);
 
   void updateCamera(const gsl::not_null<std::shared_ptr<scene::Camera>>& camera);
 
@@ -43,7 +45,6 @@ public:
 private:
   std::shared_ptr<scene::Material> m_compositionMaterial;
   std::shared_ptr<scene::Material> m_waterCompositionMaterial;
-  const std::shared_ptr<scene::Material> m_crtMaterial;
 
   std::shared_ptr<scene::Mesh> m_mesh;
   std::shared_ptr<scene::Mesh> m_waterMesh;

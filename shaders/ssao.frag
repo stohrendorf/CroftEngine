@@ -24,18 +24,18 @@ void main()
     // create TBN change-of-basis matrix: from tangent-space to view-space
     vec3 tangent = normalize(randomVec - normal * dot(randomVec, normal));
     vec3 bitangent = cross(normal, tangent);
-    mat3 TBN = mat3(tangent, bitangent, normal);
+    mat3 TBN = mat3(tangent, bitangent, normal) * radius;
     // iterate over the sample kernel and calculate occlusion factor
     float occlusion = 0.0;
     for (int i = 0; i < u_samples.length(); ++i)
     {
         // get sample position
-        vec3 smp = fragPos + TBN * u_samples[i] * radius;// from tangent to view-space
+        vec3 smp = TBN * u_samples[i] + fragPos;// from tangent to view-space
 
         // project sample position (to sample texture) (to get position on screen/texture)
         vec4 offset = u_projection * vec4(smp, 1.0);// from view to clip-space
         offset /= offset.w;// perspective divide
-        offset = offset * 0.5 + 0.5;// transform to range 0.0 - 1.0
+        offset = offset * vec4(0.5) + vec4(0.5);// transform to range 0.0 - 1.0
 
         // get sample depth
         float sampleDepth = texture(u_position, offset.xy).z;// get depth value of kernel sample
@@ -43,7 +43,7 @@ void main()
         // range check & accumulate
         if (sampleDepth >= smp.z + bias)
         {
-            occlusion += smoothstep(0.0, 1.0, radius / abs(fragPos.z - sampleDepth));
+            occlusion += smoothstep(0.0, 1.0, 1.0 / abs(fragPos.z - sampleDepth));
         }
     }
     out_ao = 1.0 - (occlusion / u_samples.length());

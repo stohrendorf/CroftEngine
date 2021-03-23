@@ -3,6 +3,7 @@
 #include "config.h"
 #include "fxaapass.h"
 #include "geometrypass.h"
+#include "linearizedepthpass.h"
 #include "portalpass.h"
 #include "render/rendersettings.h"
 #include "render/scene/material.h"
@@ -20,18 +21,18 @@ namespace render::pass
 CompositionPass::CompositionPass(scene::MaterialManager& materialManager,
                                  const RenderSettings& renderSettings,
                                  const glm::ivec2& viewport,
-                                 const GeometryPass& geometryPass,
                                  const PortalPass& portalPass,
                                  const SSAOPass& ssaoPass,
-                                 const FXAAPass& fxaaPass)
+                                 const FXAAPass& fxaaPass,
+                                 const LinearizeDepthPass& linearizeDepthPass,
+                                 const LinearizeDepthPass& linearizePortalDepthPass)
     : m_compositionMaterial{materialManager.getComposition(
       false, renderSettings.lensDistortion, renderSettings.dof, renderSettings.filmGrain)}
     , m_waterCompositionMaterial{materialManager.getComposition(
         true, renderSettings.lensDistortion, renderSettings.dof, renderSettings.filmGrain)}
-    , m_crtMaterial{materialManager.getCrt()}
     , m_mesh{scene::createScreenQuad(m_compositionMaterial)}
     , m_waterMesh{scene::createScreenQuad(m_waterCompositionMaterial)}
-    , m_crtMesh{scene::createScreenQuad(m_crtMaterial)}
+    , m_crtMesh{scene::createScreenQuad(materialManager.getCrt())}
     , m_colorBuffer{std::make_shared<gl::Texture2D<gl::SRGBA8>>(viewport, "composition-color")}
 {
   const glm::ivec2 resolution{256, 256};
@@ -53,10 +54,10 @@ CompositionPass::CompositionPass(scene::MaterialManager& materialManager,
     .set(gl::api::TextureMinFilter::Linear)
     .set(gl::api::TextureMagFilter::Linear);
 
-  m_mesh->bind("u_portalDepth",
-               [buffer = portalPass.getDepthBuffer()](const render::scene::Node& /*node*/,
-                                                      const render::scene::Mesh& /*mesh*/,
-                                                      gl::Uniform& uniform) { uniform.set(buffer); });
+  m_mesh->bind("u_linearPortalDepth",
+               [buffer = linearizePortalDepthPass.getTexture()](const render::scene::Node& /*node*/,
+                                                                const render::scene::Mesh& /*mesh*/,
+                                                                gl::Uniform& uniform) { uniform.set(buffer); });
   if(renderSettings.waterDenoise)
     m_mesh->bind("u_portalPerturb",
                  [texture = portalPass.getBlurredTexture()](const render::scene::Node& /*node*/,
@@ -67,10 +68,10 @@ CompositionPass::CompositionPass(scene::MaterialManager& materialManager,
                  [texture = portalPass.getNoisyTexture()](const render::scene::Node& /*node*/,
                                                           const render::scene::Mesh& /*mesh*/,
                                                           gl::Uniform& uniform) { uniform.set(texture); });
-  m_mesh->bind("u_depth",
-               [buffer = geometryPass.getDepthBuffer()](const render::scene::Node& /*node*/,
-                                                        const render::scene::Mesh& /*mesh*/,
-                                                        gl::Uniform& uniform) { uniform.set(buffer); });
+  m_mesh->bind("u_linearDepth",
+               [buffer = linearizeDepthPass.getTexture()](const render::scene::Node& /*node*/,
+                                                          const render::scene::Mesh& /*mesh*/,
+                                                          gl::Uniform& uniform) { uniform.set(buffer); });
   m_mesh->bind("u_ao",
                [texture = ssaoPass.getBlurredTexture()](const render::scene::Node& /*node*/,
                                                         const render::scene::Mesh& /*mesh*/,
@@ -80,10 +81,10 @@ CompositionPass::CompositionPass(scene::MaterialManager& materialManager,
                                                     const render::scene::Mesh& /*mesh*/,
                                                     gl::Uniform& uniform) { uniform.set(buffer); });
 
-  m_waterMesh->bind("u_portalDepth",
-                    [buffer = portalPass.getDepthBuffer()](const render::scene::Node& /*node*/,
-                                                           const render::scene::Mesh& /*mesh*/,
-                                                           gl::Uniform& uniform) { uniform.set(buffer); });
+  m_waterMesh->bind("u_linearPortalDepth",
+                    [buffer = linearizePortalDepthPass.getTexture()](const render::scene::Node& /*node*/,
+                                                                     const render::scene::Mesh& /*mesh*/,
+                                                                     gl::Uniform& uniform) { uniform.set(buffer); });
   if(renderSettings.waterDenoise)
     m_waterMesh->bind("u_portalPerturb",
                       [texture = portalPass.getBlurredTexture()](const render::scene::Node& /*node*/,
@@ -94,10 +95,10 @@ CompositionPass::CompositionPass(scene::MaterialManager& materialManager,
                       [texture = portalPass.getNoisyTexture()](const render::scene::Node& /*node*/,
                                                                const render::scene::Mesh& /*mesh*/,
                                                                gl::Uniform& uniform) { uniform.set(texture); });
-  m_waterMesh->bind("u_depth",
-                    [buffer = geometryPass.getDepthBuffer()](const render::scene::Node& /*node*/,
-                                                             const render::scene::Mesh& /*mesh*/,
-                                                             gl::Uniform& uniform) { uniform.set(buffer); });
+  m_waterMesh->bind("u_linearDepth",
+                    [buffer = linearizeDepthPass.getTexture()](const render::scene::Node& /*node*/,
+                                                               const render::scene::Mesh& /*mesh*/,
+                                                               gl::Uniform& uniform) { uniform.set(buffer); });
   m_waterMesh->bind("u_ao",
                     [texture = ssaoPass.getBlurredTexture()](const render::scene::Node& /*node*/,
                                                              const render::scene::Mesh& /*mesh*/,

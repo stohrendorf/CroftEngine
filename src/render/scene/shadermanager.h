@@ -131,6 +131,11 @@ public:
     return get("flat.vert", "crt.frag");
   }
 
+  auto getLinearDepth()
+  {
+    return get("flat.vert", "linearize_depth.frag");
+  }
+
   auto getScreenSpriteTextured()
   {
     return get("screensprite.vert", "screensprite.frag", {"SCREENSPRITE_TEXTURE"});

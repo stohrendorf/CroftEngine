@@ -1,7 +1,8 @@
 uniform sampler2D u_texture;
-uniform sampler2D u_portalDepth;
+uniform sampler2D u_linearPortalDepth;
 uniform sampler2D u_portalPerturb;
 uniform sampler2D u_ao;
+uniform sampler2D u_linearDepth;
 
 #include "flat_pipeline_interface.glsl"
 #include "camera_interface.glsl"
@@ -14,7 +15,6 @@ layout(location=0) out vec4 out_color;
 
 #include "water.glsl"
 
-#include "depth.glsl"
 #ifdef DOF
 #include "dof.glsl"
 #endif
@@ -43,25 +43,30 @@ void main()
     do_water_distortion(uv);
     #endif
 
-    float d = depth_at(uv) - depth_at(u_portalDepth, uv);
+    float pDepth = texture(u_linearPortalDepth, uv).r;
+    float geomDepth = texture(u_linearDepth, uv).r;
+    float d = geomDepth - pDepth;
     d = clamp(d*4, 0, 1);
     if (d > 0)
     {
         // camera ray goes through water surface; apply perturb
-        uv += texture(u_portalPerturb, uv).xy * 512;
+        vec2 pUv = uv + texture(u_portalPerturb, uv).xy * 512;
+        if (geomDepth - 1e-2 <= texture(u_linearDepth, pUv).r) {
+            uv = pUv;
+        }
     }
 
     vec3 finalColor;
 
     #ifndef DOF
-    finalColor = shaded_texel(u_texture, uv, depth_at(u_portalDepth, uv));
+    finalColor = shaded_texel(u_texture, uv, texture(u_linearPortalDepth, uv).r);
     #else
     finalColor = do_dof(uv);
     #endif
 
     const vec3 WaterColor = vec3(149.0f / 255.0f, 229.0f / 255.0f, 229.0f / 255.0f);
     #ifdef WATER
-    d = clamp(depth_at(u_portalDepth, uv)*4, 0, 1);
+    d = clamp(pDepth*4, 0, 1);
     // light absorbtion
     finalColor *= mix(vec3(1), WaterColor, d);
     // light scatter

@@ -27,6 +27,7 @@ class SSAOPass;
 class FXAAPass;
 class CompositionPass;
 class UIPass;
+class LinearizeDepthPass;
 } // namespace pass
 
 class RenderPipeline
@@ -36,6 +37,8 @@ private:
   glm::ivec2 m_size{-1};
   std::shared_ptr<pass::PortalPass> m_portalPass;
   std::shared_ptr<pass::GeometryPass> m_geometryPass;
+  std::shared_ptr<pass::LinearizeDepthPass> m_linearizeDepthPass;
+  std::shared_ptr<pass::LinearizeDepthPass> m_linearizePortalDepthPass;
   std::shared_ptr<pass::SSAOPass> m_ssaoPass;
   std::shared_ptr<pass::FXAAPass> m_fxaaPass;
   std::shared_ptr<pass::CompositionPass> m_compositionPass;

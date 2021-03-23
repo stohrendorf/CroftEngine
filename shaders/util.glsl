@@ -17,14 +17,9 @@ vec2 rand2(in vec2 uv)
     return vec2(noise_x, noise_y);
 }
 
-float brightness(in float depth)
-{
-    return 1.0 - depth;
-}
-
 vec3 shade_texel(in vec3 rgb, in float depth)
 {
-    return rgb * brightness(depth);
+    return rgb * (1.0 - depth);
 }
 
 vec3 shaded_texel(in sampler2D tex, in vec2 uv, in float depth)

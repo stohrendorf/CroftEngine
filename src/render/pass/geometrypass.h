@@ -2,6 +2,7 @@
 
 #include <gl/pixel.h>
 #include <gl/soglb_fwd.h>
+#include <gl/texturedepth.h>
 #include <glm/fwd.hpp>
 
 namespace render::pass

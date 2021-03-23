@@ -3,6 +3,7 @@
 #include "pass/compositionpass.h"
 #include "pass/fxaapass.h"
 #include "pass/geometrypass.h"
+#include "pass/linearizedepthpass.h"
 #include "pass/portalpass.h"
 #include "pass/ssaopass.h"
 #include "pass/uipass.h"
@@ -30,6 +31,10 @@ void RenderPipeline::compositionPass(const bool water)
   m_ssaoPass->render(m_size / 2);
   BOOST_ASSERT(m_fxaaPass != nullptr);
   m_fxaaPass->render(m_size);
+  BOOST_ASSERT(m_linearizeDepthPass != nullptr);
+  m_linearizeDepthPass->render();
+  BOOST_ASSERT(m_linearizePortalDepthPass != nullptr);
+  m_linearizePortalDepthPass->render();
   BOOST_ASSERT(m_compositionPass != nullptr);
   m_compositionPass->render(water, m_renderSettings);
 }
@@ -58,11 +63,21 @@ void RenderPipeline::resize(scene::MaterialManager& materialManager, const glm::
   m_size = viewport;
 
   m_geometryPass = std::make_shared<pass::GeometryPass>(viewport);
+  m_linearizeDepthPass = std::make_shared<pass::LinearizeDepthPass>(
+    *materialManager.getShaderManager(), viewport, m_geometryPass->getDepthBuffer());
   m_portalPass = std::make_shared<pass::PortalPass>(*materialManager.getShaderManager(), viewport);
+  m_linearizePortalDepthPass = std::make_shared<pass::LinearizeDepthPass>(
+    *materialManager.getShaderManager(), viewport, m_portalPass->getDepthBuffer());
   m_ssaoPass = std::make_shared<pass::SSAOPass>(*materialManager.getShaderManager(), viewport / 2, *m_geometryPass);
   m_fxaaPass = std::make_shared<pass::FXAAPass>(*materialManager.getShaderManager(), viewport, *m_geometryPass);
-  m_compositionPass = std::make_shared<pass::CompositionPass>(
-    materialManager, m_renderSettings, viewport, *m_geometryPass, *m_portalPass, *m_ssaoPass, *m_fxaaPass);
+  m_compositionPass = std::make_shared<pass::CompositionPass>(materialManager,
+                                                              m_renderSettings,
+                                                              viewport,
+                                                              *m_portalPass,
+                                                              *m_ssaoPass,
+                                                              *m_fxaaPass,
+                                                              *m_linearizeDepthPass,
+                                                              *m_linearizePortalDepthPass);
   m_uiPass = std::make_shared<pass::UIPass>(materialManager, viewport);
 }
 
