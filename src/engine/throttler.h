@@ -21,7 +21,7 @@ public:
   {
     // frame rate throttling
     // TODO this assumes that the frame rate capacity (the processing power so to speak)
-    // is faster than 30 FPS.
+    //      is faster than 30 FPS.
     const auto delay
       = std::chrono::duration_cast<TimeType>(m_nextFrameTime - std::chrono::high_resolution_clock::now()).count();
     m_delayRatios[m_delayRatioIdx] = static_cast<float>(delay) / static_cast<float>(FrameDuration.count());

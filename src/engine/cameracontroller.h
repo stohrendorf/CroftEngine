@@ -136,10 +136,9 @@ public:
                       const core::Frame& timeout,
                       bool switchIsOn);
 
-  void setLookAtObject(const std::shared_ptr<objects::Object>& object)
+  void setLookAtObject(const gsl::not_null<std::shared_ptr<objects::Object>>& object)
   {
-    if(object != nullptr && (m_mode == CameraMode::FixedPosition || m_mode == CameraMode::HeavyFixedPosition))
-      m_lookAtObject = object;
+    m_lookAtObject = object;
   }
 
   void handleCommandSequence(const floordata::FloorDataValue* cmdSequence);

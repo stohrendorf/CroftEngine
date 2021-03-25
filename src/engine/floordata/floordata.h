@@ -58,8 +58,12 @@ public:
       , m_inverted{(fd.get() & InvertedActivation) != 0}
       , m_locked{(fd.get() & Locked) != 0}
       , m_activationSet{extractActivationSet(fd)}
-      , m_timeout{core::Seconds{static_cast<core::Seconds::type>(fd.get() & TimeoutMask)} * core::FrameRate}
   {
+    auto timeout = core::Seconds{static_cast<core::Seconds::type>(fd.get() & TimeoutMask)};
+    if(timeout.get() == 1)
+      m_timeout = 1_frame;
+    else
+      m_timeout = timeout * core::FrameRate;
   }
 
   [[nodiscard]] bool isOneshot() const noexcept

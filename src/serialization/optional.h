@@ -31,7 +31,7 @@ inline void load(std::optional<T>& optional, const Serializer<TContext>& ser)
     if(optional.has_value())
       access<T>::callSerializeOrLoad(*optional, ser);
     else
-      *optional = access<T>::callCreate(ser);
+      optional = access<T>::callCreate(ser);
   }
 }
 

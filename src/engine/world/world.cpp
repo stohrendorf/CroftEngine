@@ -160,11 +160,11 @@ bool flipMapCommand(floordata::ActivationState& state,
   return false;
 }
 
-std::optional<bool> evaluateCondition(floordata::SequenceCondition condition,
-                                      const floordata::ActivationState& request,
-                                      const ObjectManager& objectManager,
-                                      const floordata::FloorDataValue*& floorData,
-                                      bool& switchIsOn)
+bool evaluateCondition(floordata::SequenceCondition condition,
+                       const floordata::ActivationState& request,
+                       const ObjectManager& objectManager,
+                       const floordata::FloorDataValue*& floorData,
+                       bool& switchIsOn)
 {
   switch(condition)
   {
@@ -177,7 +177,7 @@ std::optional<bool> evaluateCondition(floordata::SequenceCondition condition,
     auto swtch = objectManager.getObject(floordata::Command{*floorData++}.parameter);
     Expects(swtch != nullptr);
     if(!swtch->triggerSwitch(request.getTimeout()))
-      return std::nullopt;
+      return false;
 
     switchIsOn = (swtch->m_state.current_anim_state == 1_as);
     return true;
@@ -186,24 +186,18 @@ std::optional<bool> evaluateCondition(floordata::SequenceCondition condition,
   {
     auto key = objectManager.getObject(floordata::Command{*floorData++}.parameter);
     Expects(key != nullptr);
-    if(key->triggerKey())
-      return true;
-    else
-      return std::nullopt;
+    return key->triggerKey();
   }
   case floordata::SequenceCondition::ItemPickedUp:
   {
     auto item = objectManager.getObject(floordata::Command{*floorData++}.parameter);
     Expects(item != nullptr);
-    if(item->triggerPickUp())
-      return true;
-    else
-      return std::nullopt;
+    return item->triggerPickUp();
   }
   case floordata::SequenceCondition::LaraInCombatMode:
     return objectManager.getLara().getHandStatus() == objects::HandStatus::Combat;
   case floordata::SequenceCondition::ItemIsHere:
-  case floordata::SequenceCondition::Dummy: return std::nullopt;
+  case floordata::SequenceCondition::Dummy: return false;
   default: return true;
   }
 }
@@ -749,23 +743,17 @@ void World::handleCommandSequence(const floordata::FloorDataValue* floorData, co
 
   m_cameraController->handleCommandSequence(floorData);
 
-  bool conditionFulfilled, switchIsOn = false;
+  bool switchIsOn = false;
   if(fromHeavy)
   {
-    conditionFulfilled = chunkHeader.sequenceCondition == floordata::SequenceCondition::ItemIsHere;
+    if(chunkHeader.sequenceCondition != floordata::SequenceCondition::ItemIsHere)
+      return;
   }
   else
   {
-    auto evalResult
-      = evaluateCondition(chunkHeader.sequenceCondition, activationRequest, m_objectManager, floorData, switchIsOn);
-    if(!evalResult.has_value())
+    if(!evaluateCondition(chunkHeader.sequenceCondition, activationRequest, m_objectManager, floorData, switchIsOn))
       return;
-
-    conditionFulfilled = evalResult.value();
   }
-
-  if(!conditionFulfilled)
-    return;
 
   bool swapRooms = false;
   std::optional<size_t> flipEffect;

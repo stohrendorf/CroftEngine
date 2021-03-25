@@ -296,6 +296,8 @@ void CameraController::setCamOverride(const floordata::CameraParameters& camPara
 
   if(camParams.timeout != 1_sec)
     m_camOverrideTimeout = camParams.timeout * core::FrameRate;
+  else
+    m_camOverrideTimeout = 1_frame;
 
   if(camParams.oneshot)
     m_world->getCameraSinks()[camId].setActive(true);
