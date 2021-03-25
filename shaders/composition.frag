@@ -57,7 +57,8 @@ void main()
     {
         // camera ray goes through water surface; apply perturb
         vec2 pUv = uv + texture(u_portalPerturb, uv).xy * 512;
-        if (geomDepth >= texture(u_linearPortalDepth, pUv).r) {
+        if (texture(u_linearDepth, pUv).r >= pDepth) {
+            // ...but only apply it if the source pixel's geometry is below the water surface.
             uv = pUv;
             #ifdef WATER
             finalColor = vec3(1.0);
@@ -67,7 +68,7 @@ void main()
         }
     }
 
-    #ifndef DOF
+        #ifndef DOF
     finalColor *= shaded_texel(u_texture, uv, texture(u_linearPortalDepth, uv).r);
     #else
     finalColor *= do_dof(uv);
