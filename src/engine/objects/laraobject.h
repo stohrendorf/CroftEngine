@@ -274,10 +274,6 @@ public:
   core::TRRotation m_headRotation;
   core::TRRotation m_torsoRotation;
 
-#ifndef NDEBUG
-  CollisionInfo lastUsedCollisionInfo;
-#endif
-
   core::Length m_underwaterCurrentStrength = 0_len;
   ai::PathFinder m_underwaterRoute;
 

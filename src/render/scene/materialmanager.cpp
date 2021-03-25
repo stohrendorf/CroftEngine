@@ -5,6 +5,7 @@
 #include "renderer.h"
 
 #include <gl/texture2darray.h>
+#include <random>
 #include <utility>
 
 namespace render::scene
@@ -104,6 +105,26 @@ const std::shared_ptr<Material>& MaterialManager::getPortal()
       const auto now = std::chrono::time_point_cast<std::chrono::milliseconds>(renderer->getGameTime());
       uniform.set(gsl::narrow_cast<float>(now.time_since_epoch().count()));
     });
+
+  std::uniform_real_distribution<float> randomFloats(0, 1);
+  std::default_random_engine generator{}; // NOLINT(cert-msc32-c, cert-msc51-cpp)
+
+  static constexpr int NoiseTextureSize = 1024;
+  std::vector<gl::ScalarByte> noiseData;
+  noiseData.resize(NoiseTextureSize * NoiseTextureSize);
+  for(auto& i : noiseData)
+  {
+    const auto value = randomFloats(generator);
+    i = gl::ScalarByte{static_cast<uint8_t>(value * 255)};
+  }
+  auto noise = std::make_shared<gl::Texture2D<gl::ScalarByte>>(glm::ivec2{NoiseTextureSize}, "portal-noise");
+  noise->assign(noiseData.data())
+    .set(gl::api::TextureParameterName::TextureWrapS, gl::api::TextureWrapMode::Repeat)
+    .set(gl::api::TextureParameterName::TextureWrapT, gl::api::TextureWrapMode::Repeat)
+    .set(gl::api::TextureMinFilter::Linear)
+    .set(gl::api::TextureMagFilter::Linear);
+
+  m_portal->getUniform("u_noise")->set(noise);
 
   return m_portal;
 }

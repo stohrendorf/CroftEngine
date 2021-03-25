@@ -122,10 +122,6 @@ void LaraObject::handleLaraStateOnLand()
   getWorld().handleCommandSequence(collisionInfo.mid.floorSpace.lastCommandSequenceOrDeath, false);
 
   applyTransform();
-
-#ifndef NDEBUG
-  lastUsedCollisionInfo = collisionInfo;
-#endif
 }
 
 void LaraObject::handleLaraStateDiving()
@@ -177,9 +173,6 @@ void LaraObject::handleLaraStateDiving()
   updateFloorHeight(0_len);
   updateLarasWeaponsStatus();
   getWorld().handleCommandSequence(collisionInfo.mid.floorSpace.lastCommandSequenceOrDeath, false);
-#ifndef NDEBUG
-  lastUsedCollisionInfo = collisionInfo;
-#endif
 }
 
 void LaraObject::handleLaraStateSwimming()
@@ -234,9 +227,6 @@ void LaraObject::handleLaraStateSwimming()
   updateFloorHeight(core::DefaultCollisionRadius);
   updateLarasWeaponsStatus();
   getWorld().handleCommandSequence(collisionInfo.mid.floorSpace.lastCommandSequenceOrDeath, false);
-#ifndef NDEBUG
-  lastUsedCollisionInfo = collisionInfo;
-#endif
 }
 
 void LaraObject::placeOnFloor(const CollisionInfo& collisionInfo)

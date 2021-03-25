@@ -2,9 +2,8 @@
 #include "camera_interface.glsl"
 #include "time_uniform.glsl"
 
-#include "snoise.glsl"
+#include "noise.glsl"
 
-uniform sampler2D u_noise;
 layout(location=0) out vec2 out_perturb;
 
 mat2 rotate2d(in float a){
@@ -16,14 +15,15 @@ mat2 rotate2d(in float a){
 float fbm(in vec2 st) {
     float value = 0.0;
     float amplitude = .5;
+    st *= 0.0004;
     for (int i = 0; i < 6; i++) {
-        value += amplitude * snoise(st*.4);
+        value += amplitude * noise(st);
         st *= 1.4;
         amplitude *= .5;
     }
     return value * .5 + .5;
 }
-const float TimeMult = 0.0005;
+const float TimeMult = 0.0002;
 const float TexScale = 2048;
 
 float bumpTex(in vec2 uv) {
@@ -49,7 +49,7 @@ vec2 bumpMap(in vec2 st){
     bumpFunc(st-vec2(0, eps))
     );
 
-    return (ff-vec2(bumpFunc(st)))/eps*0.001;
+    return (ff-vec2(bumpFunc(st)))/eps*0.002;
 }
 
 void main()
