@@ -146,6 +146,8 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
     }
   };
 
+  core::Frame runtime = 0_frame;
+  static constexpr core::Frame BlendInDuration = 60_frame;
   while(true)
   {
     if(m_presenter->shouldClose())
@@ -290,7 +292,13 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
       if(!gameSessionStart.has_value())
         gameSessionStart = std::chrono::high_resolution_clock::now();
 
-      world.gameLoop(godMode, throttler.getAverageDelayRatio());
+      float blackAlpha = 0;
+      if(runtime < BlendInDuration)
+      {
+        runtime += 1_frame;
+        blackAlpha = 1 - runtime.cast<float>() / BlendInDuration.cast<float>();
+      }
+      world.gameLoop(godMode, throttler.getAverageDelayRatio(), blackAlpha);
     }
     else
     {

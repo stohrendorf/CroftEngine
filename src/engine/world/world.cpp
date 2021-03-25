@@ -912,7 +912,7 @@ void World::serialize(const serialization::Serializer<World>& ser)
       S_NV("audioEngine", *m_audioEngine));
 }
 
-void World::gameLoop(bool godMode, float delayRatio)
+void World::gameLoop(bool godMode, float delayRatio, float blackAlpha)
 {
   ui::Ui ui{getPresenter().getMaterialManager()->getScreenSpriteTextured(),
             getPresenter().getMaterialManager()->getScreenSpriteColorRect(),
@@ -953,6 +953,10 @@ void World::gameLoop(bool godMode, float delayRatio)
   drawPickupWidgets(ui);
   getPresenter().renderWorld(getObjectManager(), getRooms(), getCameraController(), waterEntryPortals, delayRatio);
   getPresenter().renderScreenOverlay();
+  if(blackAlpha > 0)
+  {
+    ui.drawBox({0, 0}, getPresenter().getViewport(), gl::SRGBA8{0, 0, 0, gsl::narrow_cast<uint8_t>(255 * blackAlpha)});
+  }
   getPresenter().renderUi(ui, 1);
   getPresenter().swapBuffers();
 }
