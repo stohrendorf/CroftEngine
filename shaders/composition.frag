@@ -43,6 +43,12 @@ void main()
     do_water_distortion(uv);
     #endif
 
+    const vec3 WaterColor = vec3(149.0f / 255.0f, 229.0f / 255.0f, 229.0f / 255.0f);
+    #ifdef WATER
+    vec3 finalColor = WaterColor;
+    #else
+    vec3 finalColor = vec3(1.0);
+    #endif
     float pDepth = texture(u_linearPortalDepth, uv).r;
     float geomDepth = texture(u_linearDepth, uv).r;
     float d = geomDepth - pDepth;
@@ -53,18 +59,20 @@ void main()
         vec2 pUv = uv + texture(u_portalPerturb, uv).xy * 512;
         if (geomDepth - 1e-2 <= texture(u_linearDepth, pUv).r) {
             uv = pUv;
+            #ifdef WATER
+            finalColor = vec3(1.0);
+            #else
+            finalColor = WaterColor;
+            #endif
         }
     }
 
-    vec3 finalColor;
-
     #ifndef DOF
-    finalColor = shaded_texel(u_texture, uv, texture(u_linearPortalDepth, uv).r);
+    finalColor *= shaded_texel(u_texture, uv, texture(u_linearPortalDepth, uv).r);
     #else
-    finalColor = do_dof(uv);
+    finalColor *= do_dof(uv);
     #endif
 
-    const vec3 WaterColor = vec3(149.0f / 255.0f, 229.0f / 255.0f, 229.0f / 255.0f);
     #ifdef WATER
     d = clamp(pDepth*4, 0, 1);
     // light absorbtion
