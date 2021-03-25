@@ -57,7 +57,7 @@ void main()
     {
         // camera ray goes through water surface; apply perturb
         vec2 pUv = uv + texture(u_portalPerturb, uv).xy * 512;
-        if (geomDepth - 1e-2 <= texture(u_linearDepth, pUv).r) {
+        if (geomDepth >= texture(u_linearPortalDepth, pUv).r) {
             uv = pUv;
             #ifdef WATER
             finalColor = vec3(1.0);
