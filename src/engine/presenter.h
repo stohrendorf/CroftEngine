@@ -34,7 +34,7 @@ class MaterialManager;
 class Mesh;
 class Renderer;
 class ScreenOverlay;
-class ShaderManager;
+class ShaderCache;
 } // namespace render::scene
 
 namespace engine::world
@@ -175,7 +175,7 @@ private:
   const std::unique_ptr<hid::InputHandler> m_inputHandler;
   std::unique_ptr<ui::TRFont> m_trFont;
 
-  const std::shared_ptr<render::scene::ShaderManager> m_shaderManager{};
+  const std::shared_ptr<render::scene::ShaderCache> m_shaderCache{};
   const std::unique_ptr<render::scene::MaterialManager> m_materialManager;
   const std::shared_ptr<render::scene::CSM> m_csm{};
 

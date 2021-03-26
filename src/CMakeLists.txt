@@ -388,8 +388,8 @@ set( EDISONENGINE_SRCS
         render/scene/rendermode.h
         render/scene/screenoverlay.h
         render/scene/screenoverlay.cpp
-        render/scene/shadermanager.h
-        render/scene/shadermanager.cpp
+        render/scene/shadercache.h
+        render/scene/shadercache.cpp
         render/scene/shaderprogram.h
         render/scene/shaderprogram.cpp
         render/scene/sprite.h

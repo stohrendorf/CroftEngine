@@ -1,4 +1,4 @@
-#include "shadermanager.h"
+#include "shadercache.h"
 
 #include "shaderprogram.h"
 
@@ -6,9 +6,9 @@
 
 namespace render::scene
 {
-std::string ShaderManager::makeId(const std::filesystem::path& vshPath,
-                                  const std::filesystem::path& fshPath,
-                                  const std::vector<std::string>& defines)
+std::string ShaderCache::makeId(const std::filesystem::path& vshPath,
+                                const std::filesystem::path& fshPath,
+                                const std::vector<std::string>& defines)
 {
   std::string id = vshPath.string();
   id += ';';
@@ -18,9 +18,9 @@ std::string ShaderManager::makeId(const std::filesystem::path& vshPath,
   return id;
 }
 
-gsl::not_null<std::shared_ptr<ShaderProgram>> ShaderManager::get(const std::filesystem::path& vshPath,
-                                                                 const std::filesystem::path& fshPath,
-                                                                 const std::vector<std::string>& defines)
+gsl::not_null<std::shared_ptr<ShaderProgram>> ShaderCache::get(const std::filesystem::path& vshPath,
+                                                               const std::filesystem::path& fshPath,
+                                                               const std::vector<std::string>& defines)
 {
   const auto id = makeId(m_root / vshPath, m_root / fshPath, defines);
   const auto it = m_programs.find(id);

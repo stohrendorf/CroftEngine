@@ -15,7 +15,7 @@
 #include "render/scene/rendercontext.h"
 #include "render/scene/renderer.h"
 #include "render/scene/screenoverlay.h"
-#include "render/scene/shadermanager.h"
+#include "render/scene/shadercache.h"
 #include "render/textureanimator.h"
 #include "ui/label.h"
 #include "ui/ui.h"
@@ -313,8 +313,8 @@ Presenter::Presenter(const std::filesystem::path& rootPath, bool fullscreen, con
     , m_trTTFFont{std::make_unique<gl::Font>(rootPath / "trfont.ttf")}
     , m_debugFont{std::make_unique<gl::Font>(rootPath / "DroidSansMono.ttf")}
     , m_inputHandler{std::make_unique<hid::InputHandler>(m_window->getWindow())}
-    , m_shaderManager{std::make_shared<render::scene::ShaderManager>(rootPath / "shaders")}
-    , m_materialManager{std::make_unique<render::scene::MaterialManager>(m_shaderManager, m_renderer)}
+    , m_shaderCache{std::make_shared<render::scene::ShaderCache>(rootPath / "shaders")}
+    , m_materialManager{std::make_unique<render::scene::MaterialManager>(m_shaderCache, m_renderer)}
     , m_csm{std::make_shared<render::scene::CSM>(CSMResolution, *m_materialManager)}
     , m_renderPipeline{std::make_unique<render::RenderPipeline>(*m_materialManager, m_window->getViewport())}
     , m_screenOverlay{std::make_unique<render::scene::ScreenOverlay>(*m_materialManager, m_window->getViewport())}

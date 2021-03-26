@@ -11,18 +11,13 @@ class CSM;
 class Camera;
 class Material;
 class Renderer;
-class ShaderManager;
+class ShaderCache;
 
 class MaterialManager final
 {
 public:
-  explicit MaterialManager(gsl::not_null<std::shared_ptr<ShaderManager>> shaderManager,
+  explicit MaterialManager(gsl::not_null<std::shared_ptr<ShaderCache>> shaderCache,
                            gsl::not_null<std::shared_ptr<Renderer>> renderer);
-
-  [[nodiscard]] const auto& getShaderManager() const
-  {
-    return m_shaderManager;
-  }
 
   [[nodiscard]] const std::shared_ptr<Material>& getSprite();
 
@@ -60,7 +55,7 @@ public:
   }
 
 private:
-  const gsl::not_null<std::shared_ptr<ShaderManager>> m_shaderManager;
+  const gsl::not_null<std::shared_ptr<ShaderCache>> m_shaderCache;
 
   std::shared_ptr<Material> m_sprite{nullptr};
   std::map<bool, std::shared_ptr<Material>> m_csmDepthOnly{};

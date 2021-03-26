@@ -9,7 +9,7 @@
 #include "pass/uipass.h"
 #include "scene/materialmanager.h"
 #include "scene/mesh.h"
-#include "scene/shadermanager.h"
+#include "scene/shadercache.h"
 
 #include <gl/texturedepth.h>
 

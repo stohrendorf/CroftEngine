@@ -8,14 +8,14 @@ namespace render::scene
 {
 class ShaderProgram;
 
-class ShaderManager final
+class ShaderCache final
 {
   std::unordered_map<std::string, gsl::not_null<std::shared_ptr<ShaderProgram>>> m_programs{};
 
   const std::filesystem::path m_root;
 
 public:
-  explicit ShaderManager(std::filesystem::path root)
+  explicit ShaderCache(std::filesystem::path root)
       : m_root{std::move(root)}
   {
   }
