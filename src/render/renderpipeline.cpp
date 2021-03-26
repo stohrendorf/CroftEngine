@@ -63,13 +63,13 @@ void RenderPipeline::resize(scene::MaterialManager& materialManager, const glm::
   m_size = viewport;
 
   m_geometryPass = std::make_shared<pass::GeometryPass>(viewport);
-  m_linearizeDepthPass = std::make_shared<pass::LinearizeDepthPass>(
-    *materialManager.getShaderManager(), viewport, m_geometryPass->getDepthBuffer());
-  m_portalPass = std::make_shared<pass::PortalPass>(*materialManager.getShaderManager(), viewport);
-  m_linearizePortalDepthPass = std::make_shared<pass::LinearizeDepthPass>(
-    *materialManager.getShaderManager(), viewport, m_portalPass->getDepthBuffer());
-  m_ssaoPass = std::make_shared<pass::SSAOPass>(*materialManager.getShaderManager(), viewport / 2, *m_geometryPass);
-  m_fxaaPass = std::make_shared<pass::FXAAPass>(*materialManager.getShaderManager(), viewport, *m_geometryPass);
+  m_linearizeDepthPass
+    = std::make_shared<pass::LinearizeDepthPass>(materialManager, viewport, m_geometryPass->getDepthBuffer());
+  m_portalPass = std::make_shared<pass::PortalPass>(materialManager, viewport);
+  m_linearizePortalDepthPass
+    = std::make_shared<pass::LinearizeDepthPass>(materialManager, viewport, m_portalPass->getDepthBuffer());
+  m_ssaoPass = std::make_shared<pass::SSAOPass>(materialManager, viewport / 2, *m_geometryPass);
+  m_fxaaPass = std::make_shared<pass::FXAAPass>(materialManager, viewport, *m_geometryPass);
   m_compositionPass = std::make_shared<pass::CompositionPass>(materialManager,
                                                               m_renderSettings,
                                                               viewport,

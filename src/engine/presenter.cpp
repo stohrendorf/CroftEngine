@@ -1,6 +1,7 @@
 #include "presenter.h"
 
 #include "audioengine.h"
+#include "core/i18n.h"
 #include "engine.h"
 #include "engine/objects/laraobject.h"
 #include "loader/file/level/level.h"
@@ -14,6 +15,7 @@
 #include "render/scene/rendercontext.h"
 #include "render/scene/renderer.h"
 #include "render/scene/screenoverlay.h"
+#include "render/scene/shadermanager.h"
 #include "render/textureanimator.h"
 #include "ui/label.h"
 #include "ui/ui.h"
@@ -312,11 +314,12 @@ Presenter::Presenter(const std::filesystem::path& rootPath, bool fullscreen, con
     , m_debugFont{std::make_unique<gl::Font>(rootPath / "DroidSansMono.ttf")}
     , m_inputHandler{std::make_unique<hid::InputHandler>(m_window->getWindow())}
     , m_shaderManager{std::make_shared<render::scene::ShaderManager>(rootPath / "shaders")}
-    , m_csm{std::make_shared<render::scene::CSM>(CSMResolution, *m_shaderManager)}
-    , m_materialManager{std::make_unique<render::scene::MaterialManager>(m_shaderManager, m_csm, m_renderer)}
+    , m_materialManager{std::make_unique<render::scene::MaterialManager>(m_shaderManager, m_renderer)}
+    , m_csm{std::make_shared<render::scene::CSM>(CSMResolution, *m_materialManager)}
     , m_renderPipeline{std::make_unique<render::RenderPipeline>(*m_materialManager, m_window->getViewport())}
     , m_screenOverlay{std::make_unique<render::scene::ScreenOverlay>(*m_materialManager, m_window->getViewport())}
 {
+  m_materialManager->setCSM(m_csm);
   scaleSplashImage();
   drawLoadingScreen(_("Booting"));
 }

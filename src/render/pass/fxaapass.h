@@ -6,7 +6,7 @@
 
 namespace render::scene
 {
-class ShaderManager;
+class MaterialManager;
 class ShaderProgram;
 class Material;
 class Mesh;
@@ -19,7 +19,9 @@ class GeometryPass;
 class FXAAPass
 {
 public:
-  explicit FXAAPass(scene::ShaderManager& shaderManager, const glm::ivec2& viewport, const GeometryPass& geometryPass);
+  explicit FXAAPass(scene::MaterialManager& materialManager,
+                    const glm::ivec2& viewport,
+                    const GeometryPass& geometryPass);
 
   void bind();
 

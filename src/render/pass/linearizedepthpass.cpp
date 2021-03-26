@@ -2,9 +2,9 @@
 
 #include "config.h"
 #include "render/scene/material.h"
+#include "render/scene/materialmanager.h"
 #include "render/scene/mesh.h"
 #include "render/scene/rendercontext.h"
-#include "render/scene/shadermanager.h"
 
 #include <gl/debuggroup.h>
 #include <gl/framebuffer.h>
@@ -12,10 +12,10 @@
 
 namespace render::pass
 {
-LinearizeDepthPass::LinearizeDepthPass(scene::ShaderManager& shaderManager,
+LinearizeDepthPass::LinearizeDepthPass(scene::MaterialManager& materialManager,
                                        const glm::ivec2& viewport,
                                        const std::shared_ptr<gl::TextureDepth<float>>& depth)
-    : m_material{std::make_shared<scene::Material>(shaderManager.getLinearDepth())}
+    : m_material{materialManager.getLinearDepth()}
     , m_renderMesh{scene::createScreenQuad(m_material)}
     , m_linearDepth{std::make_shared<gl::Texture2D<gl::Scalar32F>>(viewport, "linearize-depth")}
 {

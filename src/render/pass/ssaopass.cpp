@@ -2,18 +2,20 @@
 
 #include "config.h"
 #include "geometrypass.h"
-#include "render/scene/shadermanager.h"
+#include "render/scene/materialmanager.h"
 
 #include <random>
 
 namespace render::pass
 {
-SSAOPass::SSAOPass(scene::ShaderManager& shaderManager, const glm::ivec2& viewport, const GeometryPass& geometryPass)
-    : m_material{std::make_shared<scene::Material>(shaderManager.getSSAO())}
+SSAOPass::SSAOPass(scene::MaterialManager& materialManager,
+                   const glm::ivec2& viewport,
+                   const GeometryPass& geometryPass)
+    : m_material{materialManager.getSSAO()}
     , m_renderMesh{scene::createScreenQuad(m_material)}
     , m_noiseTexture{std::make_shared<gl::Texture2D<gl::RGB32F>>(glm::ivec2{4, 4}, "ssao-noise")}
     , m_aoBuffer{std::make_shared<gl::Texture2D<gl::Scalar16F>>(viewport, "ssao-ao")}
-    , m_blur{"ssao", shaderManager, 4, true, false}
+    , m_blur{"ssao", materialManager, 4, true, false}
 {
   // generate sample kernel
   std::uniform_real_distribution<float> randomFloats(0, 1);

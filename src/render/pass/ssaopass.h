@@ -9,7 +9,7 @@
 
 namespace render::scene
 {
-class ShaderManager;
+class MaterialManager;
 class Camera;
 class ShaderProgram;
 class Material;
@@ -23,7 +23,9 @@ class GeometryPass;
 class SSAOPass
 {
 public:
-  explicit SSAOPass(scene::ShaderManager& shaderManager, const glm::ivec2& viewport, const GeometryPass& geometryPass);
+  explicit SSAOPass(scene::MaterialManager& materialManager,
+                    const glm::ivec2& viewport,
+                    const GeometryPass& geometryPass);
   void updateCamera(const gsl::not_null<std::shared_ptr<scene::Camera>>& camera);
 
   void render(const glm::ivec2& size);

@@ -1,10 +1,10 @@
 #include "csm.h"
 
 #include "camera.h"
+#include "materialmanager.h"
 #include "mesh.h"
 #include "node.h"
 #include "rendercontext.h"
-#include "shadermanager.h"
 
 #include <gl/debuggroup.h>
 #include <gl/texturedepth.h>
@@ -12,7 +12,7 @@
 
 namespace render::scene
 {
-void CSM::Split::init(int32_t resolution, size_t idx, ShaderManager& shaderManager)
+void CSM::Split::init(int32_t resolution, size_t idx, MaterialManager& materialManager)
 {
   depthTexture = std::make_shared<gl::TextureDepth<float>>(glm::ivec2{resolution, resolution},
                                                            "csm-texture/" + std::to_string(idx));
@@ -39,7 +39,7 @@ void CSM::Split::init(int32_t resolution, size_t idx, ShaderManager& shaderManag
                         .textureNoBlend(gl::api::FramebufferAttachment::ColorAttachment0, squaredTexture)
                         .build("csm-split-fb/" + std::to_string(idx) + "/square");
 
-  squareMaterial = std::make_shared<Material>(shaderManager.getVSMSquare());
+  squareMaterial = materialManager.getVSMSquare();
 
   squareMesh = createScreenQuad(squareMaterial);
   squareMesh->bind("u_shadow", [this](const Node& /*node*/, const Mesh& /*mesh*/, gl::Uniform& uniform) {
@@ -48,7 +48,7 @@ void CSM::Split::init(int32_t resolution, size_t idx, ShaderManager& shaderManag
   squareMesh->getMaterialGroup().set(RenderMode::Full, squareMaterial);
 
   squareBlur = std::make_shared<SeparableBlur<gl::RG16F>>(
-    "squareBlur-" + std::to_string(idx), shaderManager, uint8_t{10}, true, true);
+    "squareBlur-" + std::to_string(idx), materialManager, uint8_t{10}, true, true);
   squareBlur->setInput(squaredTexture);
 }
 
@@ -70,7 +70,7 @@ void CSM::Split::renderSquare()
   squareBlur->render();
 }
 
-CSM::CSM(int32_t resolution, ShaderManager& shaderManager)
+CSM::CSM(int32_t resolution, MaterialManager& materialManager)
     : m_resolution{resolution}
 {
   static_assert(CSMBuffer::NSplits > 0);
@@ -78,7 +78,7 @@ CSM::CSM(int32_t resolution, ShaderManager& shaderManager)
 
   for(size_t i = 0; i < CSMBuffer::NSplits; ++i)
   {
-    m_splits[i].init(resolution, i, shaderManager);
+    m_splits[i].init(resolution, i, materialManager);
   }
 }
 

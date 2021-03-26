@@ -3,6 +3,7 @@
 #include "csm.h"
 #include "node.h"
 #include "renderer.h"
+#include "shadermanager.h"
 
 #include <gl/texture2darray.h>
 #include <random>
@@ -32,6 +33,7 @@ const std::shared_ptr<Material>& MaterialManager::getCSMDepthOnly(bool skeletal)
   m_csmDepthOnly[skeletal] = std::make_shared<Material>(m_shaderManager->getCSMDepthOnly(skeletal));
   m_csmDepthOnly[skeletal]->getUniform("u_mvp")->bind(
     [this](const Node& node, const Mesh& /*mesh*/, gl::Uniform& uniform) {
+      BOOST_ASSERT(m_csm != nullptr);
       uniform.set(m_csm->getActiveMatrix(node.getModelMatrix()));
     });
   m_csmDepthOnly[skeletal]->getRenderState().setDepthTest(true);
@@ -75,9 +77,11 @@ std::shared_ptr<Material> MaterialManager::getGeometry(bool water, bool skeletal
     m->getBuffer("BoneTransform")->bindBoneTransformBuffer();
   m->getUniformBlock("Camera")->bindCameraBuffer(m_renderer->getCamera());
   m->getUniformBlock("CSM")->bind([this](const Node& node, const Mesh& /*mesh*/, gl::UniformBlock& ub) {
+    BOOST_ASSERT(m_csm != nullptr);
     ub.bind(m_csm->getBuffer(node.getModelMatrix()));
   });
 
+  BOOST_ASSERT(m_csm != nullptr);
   m->getUniform("u_csmVsm[0]")->set(m_csm->getTextures());
 
   if(water)
@@ -143,10 +147,8 @@ const std::shared_ptr<Material>& MaterialManager::getLightning()
 }
 
 MaterialManager::MaterialManager(gsl::not_null<std::shared_ptr<ShaderManager>> shaderManager,
-                                 gsl::not_null<std::shared_ptr<CSM>> csm,
                                  gsl::not_null<std::shared_ptr<Renderer>> renderer)
     : m_shaderManager{std::move(shaderManager)}
-    , m_csm{std::move(csm)}
     , m_renderer{std::move(renderer)}
 {
 }
@@ -244,6 +246,54 @@ const std::shared_ptr<Material>& MaterialManager::getBackdrop()
   return m_backdrop;
 }
 
+const std::shared_ptr<Material>& MaterialManager::getFXAA()
+{
+  if(m_fxaa != nullptr)
+    return m_fxaa;
+
+  auto m = std::make_shared<Material>(m_shaderManager->getFXAA());
+  m->getRenderState().setDepthTest(false);
+  m->getRenderState().setDepthWrite(false);
+  m_fxaa = m;
+  return m_fxaa;
+}
+
+const std::shared_ptr<Material>& MaterialManager::getSSAO()
+{
+  if(m_ssao != nullptr)
+    return m_ssao;
+
+  auto m = std::make_shared<Material>(m_shaderManager->getSSAO());
+  m->getRenderState().setDepthTest(false);
+  m->getRenderState().setDepthWrite(false);
+  m_ssao = m;
+  return m_ssao;
+}
+
+const std::shared_ptr<Material>& MaterialManager::getLinearDepth()
+{
+  if(m_linearDepth != nullptr)
+    return m_linearDepth;
+
+  auto m = std::make_shared<Material>(m_shaderManager->getLinearDepth());
+  m->getRenderState().setDepthTest(false);
+  m->getRenderState().setDepthWrite(false);
+  m_linearDepth = m;
+  return m_linearDepth;
+}
+
+const std::shared_ptr<Material>& MaterialManager::getVSMSquare()
+{
+  if(m_vsmSquare != nullptr)
+    return m_vsmSquare;
+
+  auto m = std::make_shared<Material>(m_shaderManager->getVSMSquare());
+  m->getRenderState().setDepthTest(false);
+  m->getRenderState().setDepthWrite(false);
+  m_vsmSquare = m;
+  return m_vsmSquare;
+}
+
 void MaterialManager::setGeometryTextures(std::shared_ptr<gl::Texture2DArray<gl::SRGBA8>> geometryTextures)
 {
   m_geometryTextures = std::move(geometryTextures);
@@ -273,5 +323,19 @@ void MaterialManager::setBilinearFiltering(bool enabled)
     m_geometryTextures->set(gl::api::TextureMinFilter::NearestMipmapLinear);
     m_geometryTextures->set(gl::api::TextureMagFilter::Nearest);
   }
+}
+
+std::shared_ptr<Material>
+  MaterialManager::getBlur(uint8_t extent, uint8_t blurDir, uint8_t blurDim, bool gauss, bool fillGaps)
+{
+  const std::tuple key{extent, blurDir, blurDim, gauss, fillGaps};
+  if(auto it = m_blur.find(key); it != m_blur.end())
+    return it->second;
+
+  auto m = std::make_shared<Material>(m_shaderManager->getBlur(extent, blurDir, blurDim, gauss, fillGaps));
+  m->getRenderState().setDepthTest(false);
+  m->getRenderState().setDepthWrite(false);
+  m_blur[key] = m;
+  return m;
 }
 } // namespace render::scene

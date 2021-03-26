@@ -17,7 +17,6 @@ class MaterialManager final
 {
 public:
   explicit MaterialManager(gsl::not_null<std::shared_ptr<ShaderManager>> shaderManager,
-                           gsl::not_null<std::shared_ptr<CSM>> csm,
                            gsl::not_null<std::shared_ptr<Renderer>> renderer);
 
   [[nodiscard]] const auto& getShaderManager() const
@@ -45,10 +44,20 @@ public:
 
   [[nodiscard]] std::shared_ptr<Material> getFlat(bool withAlpha, bool invertY = false);
   [[nodiscard]] const std::shared_ptr<Material>& getBackdrop();
+  [[nodiscard]] const std::shared_ptr<Material>& getFXAA();
+  [[nodiscard]] const std::shared_ptr<Material>& getSSAO();
+  [[nodiscard]] const std::shared_ptr<Material>& getLinearDepth();
+  [[nodiscard]] const std::shared_ptr<Material>& getVSMSquare();
+  [[nodiscard]] std::shared_ptr<Material>
+    getBlur(uint8_t extent, uint8_t blurDir, uint8_t blurDim, bool gauss, bool fillGaps);
 
   void setGeometryTextures(std::shared_ptr<gl::Texture2DArray<gl::SRGBA8>> geometryTextures);
-
   void setBilinearFiltering(bool enabled);
+
+  void setCSM(const gsl::not_null<std::shared_ptr<CSM>>& csm)
+  {
+    m_csm = csm;
+  }
 
 private:
   const gsl::not_null<std::shared_ptr<ShaderManager>> m_shaderManager;
@@ -64,9 +73,14 @@ private:
   std::shared_ptr<Material> m_screenSpriteTextured{nullptr};
   std::shared_ptr<Material> m_screenSpriteColorRect{nullptr};
   std::map<std::tuple<bool, bool>, std::shared_ptr<Material>> m_flat{};
+  std::map<std::tuple<uint8_t, uint8_t, uint8_t, bool, bool>, std::shared_ptr<Material>> m_blur{};
   std::shared_ptr<Material> m_backdrop{nullptr};
+  std::shared_ptr<Material> m_fxaa{nullptr};
+  std::shared_ptr<Material> m_ssao{nullptr};
+  std::shared_ptr<Material> m_linearDepth{nullptr};
+  std::shared_ptr<Material> m_vsmSquare{nullptr};
 
-  const gsl::not_null<std::shared_ptr<CSM>> m_csm;
+  std::shared_ptr<CSM> m_csm;
   const gsl::not_null<std::shared_ptr<Renderer>> m_renderer;
   std::shared_ptr<gl::Texture2DArray<gl::SRGBA8>> m_geometryTextures;
 };

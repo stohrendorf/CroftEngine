@@ -25,8 +25,9 @@ namespace render
 {
 class RenderPipeline;
 struct RenderSettings;
+} // namespace render
 
-namespace scene
+namespace render::scene
 {
 class CSM;
 class MaterialManager;
@@ -34,8 +35,7 @@ class Mesh;
 class Renderer;
 class ScreenOverlay;
 class ShaderManager;
-} // namespace scene
-} // namespace render
+} // namespace render::scene
 
 namespace engine::world
 {
@@ -176,8 +176,8 @@ private:
   std::unique_ptr<ui::TRFont> m_trFont;
 
   const std::shared_ptr<render::scene::ShaderManager> m_shaderManager{};
-  const std::shared_ptr<render::scene::CSM> m_csm{};
   const std::unique_ptr<render::scene::MaterialManager> m_materialManager;
+  const std::shared_ptr<render::scene::CSM> m_csm{};
 
   const std::unique_ptr<render::RenderPipeline> m_renderPipeline;
   const std::unique_ptr<render::scene::ScreenOverlay> m_screenOverlay;

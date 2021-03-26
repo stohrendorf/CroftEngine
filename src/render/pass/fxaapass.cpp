@@ -3,9 +3,9 @@
 #include "config.h"
 #include "geometrypass.h"
 #include "render/scene/material.h"
+#include "render/scene/materialmanager.h"
 #include "render/scene/mesh.h"
 #include "render/scene/rendercontext.h"
-#include "render/scene/shadermanager.h"
 
 #include <gl/debuggroup.h>
 #include <gl/framebuffer.h>
@@ -13,8 +13,10 @@
 
 namespace render::pass
 {
-FXAAPass::FXAAPass(scene::ShaderManager& shaderManager, const glm::ivec2& viewport, const GeometryPass& geometryPass)
-    : m_material{std::make_shared<scene::Material>(shaderManager.getFXAA())}
+FXAAPass::FXAAPass(scene::MaterialManager& materialManager,
+                   const glm::ivec2& viewport,
+                   const GeometryPass& geometryPass)
+    : m_material{materialManager.getFXAA()}
     , m_mesh{scene::createScreenQuad(m_material)}
     , m_colorBuffer{std::make_shared<gl::Texture2D<gl::SRGBA8>>(viewport, "fxaa-color")}
 {

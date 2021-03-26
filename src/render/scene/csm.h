@@ -15,7 +15,7 @@ namespace render::scene
 class Camera;
 class Material;
 class Mesh;
-class ShaderManager;
+class MaterialManager;
 
 struct CSMBuffer
 {
@@ -42,11 +42,11 @@ public:
     std::shared_ptr<SeparableBlur<gl::RG16F>> squareBlur;
     float end = 0;
 
-    void init(int32_t resolution, size_t idx, ShaderManager& shaderManager);
+    void init(int32_t resolution, size_t idx, MaterialManager& materialManager);
     void renderSquare();
   };
 
-  explicit CSM(int32_t resolution, ShaderManager& shaderManager);
+  explicit CSM(int32_t resolution, MaterialManager& materialManager);
 
   [[nodiscard]] std::array<std::shared_ptr<gl::Texture2D<gl::RG16F>>, CSMBuffer::NSplits> getTextures() const;
   [[nodiscard]] std::array<glm::mat4, CSMBuffer::NSplits> getMatrices(const glm::mat4& modelMatrix) const;

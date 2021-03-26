@@ -1,9 +1,9 @@
 #pragma once
 
 #include "material.h"
+#include "materialmanager.h"
 #include "mesh.h"
 #include "rendercontext.h"
-#include "shadermanager.h"
 #include "shaderprogram.h"
 #include "uniformparameter.h"
 
@@ -20,9 +20,9 @@ public:
   using Texture = gl::Texture2D<PixelT>;
 
   explicit SingleBlur(
-    std::string name, ShaderManager& shaderManager, uint8_t dir, uint8_t extent, bool gauss, bool fillGaps)
+    std::string name, MaterialManager& materialManager, uint8_t dir, uint8_t extent, bool gauss, bool fillGaps)
       : m_name{std::move(name)}
-      , m_material{std::make_shared<Material>(shaderManager.getBlur(extent, dir, PixelT::Channels, gauss, fillGaps))}
+      , m_material{materialManager.getBlur(extent, dir, PixelT::Channels, gauss, fillGaps)}
   {
     Expects(dir == 1 || dir == 2);
     Expects(extent > 0);
@@ -79,9 +79,9 @@ public:
   using Texture = gl::Texture2D<PixelT>;
 
   explicit SeparableBlur(
-    const std::string& name, ShaderManager& shaderManager, uint8_t extent, bool gauss, bool fillGaps)
-      : m_blur1{name + "/blur-1", shaderManager, 1, extent, gauss, fillGaps}
-      , m_blur2{name + "/blur-2", shaderManager, 2, extent, gauss, fillGaps}
+    const std::string& name, MaterialManager& materialManager, uint8_t extent, bool gauss, bool fillGaps)
+      : m_blur1{name + "/blur-1", materialManager, 1, extent, gauss, fillGaps}
+      , m_blur2{name + "/blur-2", materialManager, 2, extent, gauss, fillGaps}
   {
   }
 

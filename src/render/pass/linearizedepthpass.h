@@ -9,7 +9,7 @@
 namespace render::scene
 {
 class Camera;
-class ShaderManager;
+class MaterialManager;
 class ShaderProgram;
 class Material;
 class Mesh;
@@ -20,7 +20,7 @@ namespace render::pass
 class LinearizeDepthPass
 {
 public:
-  explicit LinearizeDepthPass(scene::ShaderManager& shaderManager,
+  explicit LinearizeDepthPass(scene::MaterialManager& materialManager,
                               const glm::ivec2& viewport,
                               const std::shared_ptr<gl::TextureDepth<float>>& depth);
 

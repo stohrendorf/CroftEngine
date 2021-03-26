@@ -15,7 +15,6 @@ namespace render
 {
 namespace scene
 {
-class ShaderManager;
 class MaterialManager;
 } // namespace scene
 

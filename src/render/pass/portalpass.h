@@ -7,7 +7,7 @@
 
 namespace render::scene
 {
-class ShaderManager;
+class MaterialManager;
 }
 
 namespace render::pass
@@ -15,7 +15,7 @@ namespace render::pass
 class PortalPass
 {
 public:
-  explicit PortalPass(scene::ShaderManager& shaderManager, const glm::vec2& viewport);
+  explicit PortalPass(scene::MaterialManager& materialManager, const glm::vec2& viewport);
 
   void bind(const gl::TextureDepth<float>& depth);
 
