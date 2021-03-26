@@ -31,7 +31,7 @@ endif()
 
 if( CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU" )
     message( STATUS "GCC or Clang detected" )
-    set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -fvisibility=hidden" )
+    set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wdouble-promotion -Wstrict-overflow=2 -Wsuggest-attribute=cold -Wsuggest-attribute=noreturn -Wduplicated-cond -Wtrampolines -Wunsafe-loop-optimizations -Wcast-align=strict -Wparentheses -Wlogical-op -fvisibility=hidden" )
     if( MINGW )
         set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wa,-mbig-obj" )
     endif()

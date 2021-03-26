@@ -88,7 +88,7 @@ struct BoundingBoxIO
   }
 };
 
-struct AnimFrame
+struct alignas(4) AnimFrame
 {
   struct Vec
   {

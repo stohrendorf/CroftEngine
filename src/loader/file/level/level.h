@@ -71,7 +71,6 @@ public:
   std::vector<uint8_t> m_demoData;
   std::vector<int16_t> m_soundEffects;
   std::vector<SoundEffectProperties> m_soundEffectProperties;
-  size_t m_samplesCount = 0;
   std::vector<uint8_t> m_samplesData;
   std::vector<uint32_t> m_sampleIndices;
   std::vector<int16_t> m_poseFrames;

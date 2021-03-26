@@ -210,9 +210,8 @@ void TR5Level::loadFileData()
   m_reader.skip(6); // In TR5, sample indices are followed by 6 0xCD bytes. - correct - really 0xCDCDCDCDCDCD
 
   // LOAD SAMPLES
-  if(const auto i = m_reader.readU32())
+  if(m_reader.readU32() > 0)
   {
-    m_samplesCount = i;
     // Since sample data is the last part, we simply load whole last
     // block of file as single array.
     m_reader.readVector(m_samplesData, static_cast<size_t>(m_reader.size() - m_reader.tell()));

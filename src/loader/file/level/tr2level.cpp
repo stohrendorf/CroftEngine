@@ -127,17 +127,7 @@ void TR2Level::loadFileData()
   }
   else
   {
-    m_samplesCount = 0;
-    m_samplesData.resize(static_cast<size_t>(newsrc.size()));
-    for(size_t i = 0; i < m_samplesData.size(); i++)
-    {
-      m_samplesData[i] = newsrc.readU8();
-      // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-      if(i >= 4 && *reinterpret_cast<uint32_t*>(m_samplesData.data() + i - 4) == 0x46464952) /// RIFF
-      {
-        m_samplesCount++;
-      }
-    }
+    m_reader.readVector(m_samplesData, newsrc.size());
   }
 
   m_textures.resize(texture16.size());

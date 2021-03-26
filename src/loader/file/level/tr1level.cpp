@@ -153,7 +153,6 @@ void TR1Level::loadFileData()
   m_reader.readVector(m_samplesData, m_reader.readU32());
   BOOST_LOG_TRIVIAL(debug) << "Reading sample indices";
   m_reader.readVector(m_sampleIndices, m_reader.readU32());
-  m_samplesCount = m_sampleIndices.size();
 
   BOOST_LOG_TRIVIAL(debug) << "Converting textures";
   m_textures.resize(texture8.size());

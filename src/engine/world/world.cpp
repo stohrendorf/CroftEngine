@@ -1314,9 +1314,10 @@ void World::initFromLevel(loader::file::level::Level& level)
     const auto frames = reinterpret_cast<const loader::file::AnimFrame*>(&model->pose_data_offset.from(m_poseFrames));
     if(model->nMeshes > 1)
     {
-      // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
       model->boneTree = gsl::make_span(
-        reinterpret_cast<const loader::file::BoneTreeEntry*>(&model->bone_index.from(m_boneTrees)), model->nMeshes - 1);
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+        reinterpret_cast<const loader::file::BoneTreeEntry*>(&model->bone_index.from(m_boneTrees)),
+        model->nMeshes - 1);
     }
 
     Animation* animations = nullptr;
