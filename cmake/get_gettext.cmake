@@ -151,7 +151,6 @@ function( configure_gettext )
             "--language=C++"
             "--from-code=UTF-8"
             "--sort-output"
-            DEPENDS ${GETTEXT_SOURCES}
             WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
             COMMENT "Generating ${_pot}" )
 
