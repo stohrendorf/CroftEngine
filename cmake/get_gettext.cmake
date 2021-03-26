@@ -128,21 +128,8 @@ function( configure_gettext )
     # Generate the .pot file from the program sources
     # sources ---{xgettext}---> .pot
     set( _pot "${GETTEXT_POTFILE_DESTINATION}/${GETTEXT_DOMAIN}.pot" )
-    if( NOT EXISTS "${_pot}" )
-        message( STATUS "Creating initial .pot file" )
-        execute_process(
-                COMMAND "${GETTEXT_XGETTEXT_EXECUTABLE}" ${GETTEXT_XGETTEXT_ARGS}
-                ${GETTEXT_SOURCES}
-                "--output=${_pot}"
-                "--boost"
-                "--add-comment=translators:"
-                "--language=C++"
-                "--from-code=UTF-8"
-                "--sort-output"
-                WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}" )
-    endif()
     add_custom_command(
-            OUTPUT "${_pot}"
+            TARGET "${GETTEXT_TARGET_NAME}"
             COMMAND "${GETTEXT_XGETTEXT_EXECUTABLE}" ${GETTEXT_XGETTEXT_ARGS}
             ${GETTEXT_SOURCES}
             "--output=${_pot}"
@@ -152,7 +139,8 @@ function( configure_gettext )
             "--from-code=UTF-8"
             "--sort-output"
             WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
-            COMMENT "Generating ${_pot}" )
+            COMMENT "Generating ${_pot}"
+    )
 
     foreach( lang IN LISTS GETTEXT_LANGUAGES )
         # Create needed directories
@@ -193,8 +181,10 @@ function( configure_gettext )
                 WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
                 COMMENT "Creating the ${lang} .gmo file from the .po file" )
 
-        add_custom_target( "${GETTEXT_TARGET_NAME}-${lang}"
-                DEPENDS "${_gmo}" )
+        add_custom_target(
+                "${GETTEXT_TARGET_NAME}-${lang}"
+                DEPENDS "${_gmo}"
+        )
         add_dependencies( "${GETTEXT_TARGET_NAME}" "${GETTEXT_TARGET_NAME}-${lang}" )
     endforeach()
 endfunction()

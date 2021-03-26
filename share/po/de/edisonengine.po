@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EdisonEngine \n"
 "Report-Msgid-Bugs-To: https://github.com/stohrendorf/EdisonEngine/issues\n"
-"POT-Creation-Date: 2021-03-09 00:54+0100\n"
+"POT-Creation-Date: 2021-03-26 15:53+0100\n"
 "Last-Translator: Steffen Ohrendorf\n"
 "Language-Team: none\n"
 "Language: de\n"
@@ -26,7 +26,11 @@ msgstr "- LEERER SLOT %1%"
 msgid "Bilinear Filtering"
 msgstr "Bilineare Filterung"
 
-#: engine/world.cpp:1211
+#: engine/presenter.cpp:321
+msgid "Booting"
+msgstr "Starte"
+
+#: engine/world/world.cpp:1781
 msgid "Building textures"
 msgstr "Erstelle Texturen"
 
@@ -45,7 +49,7 @@ msgstr "Kompa="
 msgid "Controls"
 msgstr "Kontrollen"
 
-#: engine/world.cpp:1511
+#: engine/world/world.cpp:1172
 #, boost-format
 msgid "Creating mipmaps (%1%%%)"
 msgstr "Erstelle Mipmaps (%1%%%)"
@@ -61,12 +65,12 @@ msgid "Detail Levels"
 msgstr "Grafik"
 
 #. translators: TR charmap encoding
-#: menu/passportmenustate.cpp:81
+#: menu/passportmenustate.cpp:84
 msgid "Exit Game"
 msgstr "Spiel beenden"
 
 #. translators: TR charmap encoding
-#: menu/passportmenustate.cpp:82
+#: menu/passportmenustate.cpp:85
 msgid "Exit to Title"
 msgstr "Zur~uck zum Hauptmen~u"
 
@@ -134,7 +138,7 @@ msgid "ITEMS"
 msgstr "Gegen~ande"
 
 #. translators: TR charmap encoding
-#: ui/levelstats.cpp:59
+#: ui/levelstats.cpp:62
 #, boost-format
 msgid "KILLS %1%"
 msgstr "Besiegte Gegner %1%"
@@ -149,7 +153,7 @@ msgstr "Gro=es Medi-Pack"
 msgid "Lens Distortion"
 msgstr "Linsenverzerrung"
 
-#: menu/passportmenustate.cpp:31
+#: menu/passportmenustate.cpp:34
 msgid "Load Game"
 msgstr "Spiel laden"
 
@@ -158,11 +162,11 @@ msgstr "Spiel laden"
 msgid "Loading %1%"
 msgstr "Lade %1%"
 
-#: engine/engine.cpp:385
+#: engine/engine.cpp:447
 msgid "Loading Glidos texture pack"
 msgstr "Lade Glidos Textur Paket"
 
-#: engine/world.cpp:1080
+#: engine/world/world.cpp:986
 msgid "Loading..."
 msgstr "Lade..."
 
@@ -177,7 +181,7 @@ msgid "Magnums"
 msgstr "Magnums"
 
 #. translators: TR charmap encoding
-#: menu/passportmenustate.cpp:54
+#: menu/passportmenustate.cpp:57
 msgid "New Game"
 msgstr "Spiel starten"
 
@@ -187,7 +191,7 @@ msgid "OPTION"
 msgstr "Optionen"
 
 #. translators: TR charmap encoding
-#: ui/levelstats.cpp:52
+#: ui/levelstats.cpp:55
 #, boost-format
 msgid "PICKUPS %1%"
 msgstr "Gegenst~ande %1%"
@@ -198,17 +202,17 @@ msgid "Pistols"
 msgstr "Pistolen"
 
 #. translators: TR charmap encoding
-#: ui/levelstats.cpp:45
+#: ui/levelstats.cpp:48
 #, boost-format
 msgid "SECRETS %1% of %2%"
 msgstr "Geheimnisse %1% von %2%"
 
 #. translators: TR charmap encoding
-#: menu/passportmenustate.cpp:53
+#: menu/passportmenustate.cpp:56
 msgid "Save Game"
 msgstr "Spiel sichern"
 
-#: engine/world.cpp:1099
+#: engine/world/world.cpp:1005
 msgid "Saving..."
 msgstr "Speichere..."
 
@@ -233,13 +237,13 @@ msgid "Sound"
 msgstr "Audio"
 
 #. translators: TR charmap encoding
-#: ui/levelstats.cpp:37
+#: ui/levelstats.cpp:40
 #, c-format, boost-format
 msgid "TIME TAKEN %1$02d:%2$02d"
 msgstr "Ben~otigte Zeit %1$02d:%2$02d"
 
 #. translators: TR charmap encoding
-#: ui/levelstats.cpp:25
+#: ui/levelstats.cpp:28
 #, boost-format
 msgid "TIME TAKEN %1%:%2$02d:%3$02d"
 msgstr "Ben~otigte Zeit %1%:%2$02d:%3$02d"

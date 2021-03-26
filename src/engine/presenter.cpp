@@ -318,7 +318,7 @@ Presenter::Presenter(const std::filesystem::path& rootPath, bool fullscreen, con
     , m_screenOverlay{std::make_unique<render::scene::ScreenOverlay>(*m_materialManager, m_window->getViewport())}
 {
   scaleSplashImage();
-  drawLoadingScreen("Booting");
+  drawLoadingScreen(_("Booting"));
 }
 
 Presenter::~Presenter() = default;
