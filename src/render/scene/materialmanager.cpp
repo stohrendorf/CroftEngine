@@ -62,8 +62,9 @@ const std::shared_ptr<Material>& MaterialManager::getDepthOnly(bool skeletal)
 std::shared_ptr<Material> MaterialManager::getGeometry(bool water, bool skeletal, bool roomShadowing)
 {
   Expects(m_geometryTextures != nullptr);
-  if(auto tmp = m_geometry[water][skeletal][roomShadowing])
-    return tmp;
+  const std::tuple key{water, skeletal, roomShadowing};
+  if(auto it = m_geometry.find(key); it != m_geometry.end())
+    return it->second;
 
   auto m = std::make_shared<Material>(m_shaderManager->getGeometry(water, skeletal, roomShadowing));
   m->getUniform("u_diffuseTextures")->set(m_geometryTextures);
@@ -87,7 +88,7 @@ std::shared_ptr<Material> MaterialManager::getGeometry(bool water, bool skeletal
     });
   }
 
-  m_geometry[water][skeletal][roomShadowing] = m;
+  m_geometry.emplace(key, m);
   return m;
 }
 
@@ -152,8 +153,9 @@ MaterialManager::MaterialManager(gsl::not_null<std::shared_ptr<ShaderManager>> s
 
 std::shared_ptr<Material> MaterialManager::getComposition(bool water, bool lensDistortion, bool dof, bool filmGrain)
 {
-  if(auto tmp = m_composition[water][lensDistortion][dof][filmGrain])
-    return tmp;
+  const std::tuple key{water, lensDistortion, dof, filmGrain};
+  if(auto it = m_composition.find(key); it != m_composition.end())
+    return it->second;
   auto m = std::make_shared<Material>(m_shaderManager->getComposition(water, lensDistortion, dof, filmGrain));
 
   if(m->getShaderProgram()->findUniform("u_time") != nullptr)
@@ -165,7 +167,7 @@ std::shared_ptr<Material> MaterialManager::getComposition(bool water, bool lensD
   if(lensDistortion)
     m->getUniform("distortion_power")->set(water ? -2.0f : -1.0f);
 
-  m_composition[water][lensDistortion][dof][filmGrain] = m;
+  m_composition.emplace(key, m);
   return m;
 }
 
@@ -214,10 +216,11 @@ const std::shared_ptr<Material>& MaterialManager::getScreenSpriteColorRect()
   return m_screenSpriteColorRect;
 }
 
-const std::shared_ptr<Material>& MaterialManager::getFlat(bool withAlpha, bool invertY)
+std::shared_ptr<Material> MaterialManager::getFlat(bool withAlpha, bool invertY)
 {
-  if(m_flat[withAlpha][invertY] != nullptr)
-    return m_flat[withAlpha][invertY];
+  const std::tuple key{withAlpha, invertY};
+  if(auto it = m_flat.find(key); it != m_flat.end())
+    return it->second;
 
   auto m = std::make_shared<Material>(m_shaderManager->getFlat(withAlpha, invertY));
   m->getRenderState().setBlend(withAlpha);
@@ -225,8 +228,8 @@ const std::shared_ptr<Material>& MaterialManager::getFlat(bool withAlpha, bool i
   m->getRenderState().setBlendDst(gl::api::BlendingFactor::OneMinusSrcAlpha);
   m->getRenderState().setDepthTest(false);
   m->getRenderState().setDepthWrite(false);
-  m_flat[withAlpha][invertY] = m;
-  return m_flat[withAlpha][invertY];
+  m_flat.emplace(key, m);
+  return m;
 }
 
 const std::shared_ptr<Material>& MaterialManager::getBackdrop()
@@ -244,17 +247,15 @@ const std::shared_ptr<Material>& MaterialManager::getBackdrop()
 void MaterialManager::setGeometryTextures(std::shared_ptr<gl::Texture2DArray<gl::SRGBA8>> geometryTextures)
 {
   m_geometryTextures = std::move(geometryTextures);
-  for(const auto& a : m_geometry)
-    for(const auto& b : a)
-      for(const auto& c : b)
-        if(c != nullptr)
-          c->getUniform("u_diffuseTextures")->set(m_geometryTextures);
+  for(const auto& [_, mtl] : m_geometry)
+    if(mtl != nullptr)
+      mtl->getUniform("u_diffuseTextures")->set(m_geometryTextures);
   if(m_screenSpriteTextured != nullptr)
     m_screenSpriteTextured->getUniform("u_input")->set(m_geometryTextures);
 
-  for(const auto& m : m_depthOnly)
-    if(m != nullptr)
-      m->getUniform("u_diffuseTextures")->set(m_geometryTextures);
+  for(const auto& [_, mtl] : m_depthOnly)
+    if(mtl != nullptr)
+      mtl->getUniform("u_diffuseTextures")->set(m_geometryTextures);
 }
 
 void MaterialManager::setBilinearFiltering(bool enabled)

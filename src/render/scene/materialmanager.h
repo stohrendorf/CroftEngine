@@ -2,6 +2,7 @@
 
 #include <gl/pixel.h>
 #include <gl/soglb_fwd.h>
+#include <map>
 #include <utility>
 
 namespace render::scene
@@ -42,7 +43,7 @@ public:
   [[nodiscard]] const std::shared_ptr<Material>& getScreenSpriteTextured();
   [[nodiscard]] const std::shared_ptr<Material>& getScreenSpriteColorRect();
 
-  [[nodiscard]] const std::shared_ptr<Material>& getFlat(bool withAlpha, bool invertY = false);
+  [[nodiscard]] std::shared_ptr<Material> getFlat(bool withAlpha, bool invertY = false);
   [[nodiscard]] const std::shared_ptr<Material>& getBackdrop();
 
   void setGeometryTextures(std::shared_ptr<gl::Texture2DArray<gl::SRGBA8>> geometryTextures);
@@ -53,16 +54,16 @@ private:
   const gsl::not_null<std::shared_ptr<ShaderManager>> m_shaderManager;
 
   std::shared_ptr<Material> m_sprite{nullptr};
-  std::array<std::shared_ptr<Material>, 2> m_csmDepthOnly{};
-  std::array<std::shared_ptr<Material>, 2> m_depthOnly{};
-  std::array<std::array<std::array<std::shared_ptr<Material>, 2>, 2>, 2> m_geometry{};
+  std::map<bool, std::shared_ptr<Material>> m_csmDepthOnly{};
+  std::map<bool, std::shared_ptr<Material>> m_depthOnly{};
+  std::map<std::tuple<bool, bool, bool>, std::shared_ptr<Material>> m_geometry{};
   std::shared_ptr<Material> m_portal{nullptr};
   std::shared_ptr<Material> m_lightning{nullptr};
-  std::array<std::array<std::array<std::array<std::shared_ptr<Material>, 2>, 2>, 2>, 2> m_composition{};
+  std::map<std::tuple<bool, bool, bool, bool>, std::shared_ptr<Material>> m_composition{};
   std::shared_ptr<Material> m_crt{nullptr};
   std::shared_ptr<Material> m_screenSpriteTextured{nullptr};
   std::shared_ptr<Material> m_screenSpriteColorRect{nullptr};
-  std::array<std::array<std::shared_ptr<Material>, 2>, 2> m_flat{};
+  std::map<std::tuple<bool, bool>, std::shared_ptr<Material>> m_flat{};
   std::shared_ptr<Material> m_backdrop{nullptr};
 
   const gsl::not_null<std::shared_ptr<CSM>> m_csm;
