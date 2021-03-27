@@ -14,21 +14,8 @@ readonly layout(std430, binding=3) buffer b_lights {
     Light lights[];
 };
 
-float shadow_map_multiplier(in vec3 normal, in float shadow)
+float calc_vsm_value(in int splitIdx, in vec3 normal, in float shadow, in float d)
 {
-    #ifdef ROOM_SHADOWING
-    float d = dot(normalize(normal), normalize(u_csmLightDir));
-    if (d > 0) {
-        return 1.0;
-    }
-        #endif
-
-    int splitIdx;
-    for (splitIdx=CSMSplits-1; splitIdx>0; --splitIdx) {
-        if (-gpi.vertexPos.z > -u_csmSplits[splitIdx]) {
-            break;
-        }
-    }
     vec3 projCoords = gpi.vertexPosLight[splitIdx];
     vec2 moments = texture(u_csmVsm[splitIdx], projCoords.xy).xy;
 
@@ -37,7 +24,7 @@ float shadow_map_multiplier(in vec3 normal, in float shadow)
         return 1.0;
     }
 
-    const float ShadowBias = 0.0001;
+    const float ShadowBias = 0.001;
     float variance = max(-moments.x * moments.x + moments.y, ShadowBias);
     float mD = moments.x - currentDepth;
     float pMax = variance / (mD * mD + variance);
@@ -53,6 +40,25 @@ float shadow_map_multiplier(in vec3 normal, in float shadow)
     result = mix(1.0, result, -d);
     #endif
     return result;
+}
+
+float shadow_map_multiplier(in vec3 normal, in float shadow)
+{
+    #ifdef ROOM_SHADOWING
+    float d = dot(normalize(normal), normalize(u_csmLightDir));
+    if (d > 0) {
+        return 1.0;
+    }
+        #else
+    const float d = 0;
+    #endif
+
+    int splitIdx = int(trunc(gpi.splitIdx));
+    return mix(
+    calc_vsm_value(splitIdx, normal, shadow, d),
+    calc_vsm_value(min(CSMSplits, splitIdx+1), normal, shadow, d),
+    fract(gpi.splitIdx)
+    );
 }
 
 float shadow_map_multiplier(in vec3 normal) {

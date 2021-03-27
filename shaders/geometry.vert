@@ -7,7 +7,6 @@
 
 #include "vtx_input.glsl"
 #include "transform_interface.glsl"
-#include "csm_interface.glsl"
 #include "geometry_pipeline_interface.glsl"
 #include "camera_interface.glsl"
 
@@ -55,6 +54,14 @@ void main()
         #endif
         vec4 tmp = lmvp * pos;
         gpi.vertexPosLight[i] = tmp.xyz / tmp.w * 0.5 + 0.5;
+    }
+
+    gpi.splitIdx = 0;
+    for (int splitIdx = 0; splitIdx<CSMSplits; ++splitIdx) {
+        if (-gpi.vertexPos.z < -u_csmSplits[splitIdx]) {
+            gpi.splitIdx = splitIdx;
+            break;
+        }
     }
 
     gpi.isQuad = a_isQuad;
