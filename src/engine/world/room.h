@@ -120,7 +120,7 @@ struct Room
     return &sectors[sectorCountZ * dx + dz];
   }
 
-  [[nodiscard]] gsl::not_null<const Sector*> findFloorSectorWithClampedIndex(int dx, int dz) const
+  [[nodiscard]] gsl::not_null<const Sector*> getBoundarySectorByIndex(int dx, int dz) const
   {
     if(dz <= 0)
     {

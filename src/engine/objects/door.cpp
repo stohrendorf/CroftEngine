@@ -37,13 +37,13 @@ Door::Door(const gsl::not_null<world::World*>& world,
   m_info.close();
   m_alternateInfo.close();
 
-  if(m_info.originalSector.portalTarget != nullptr)
+  if(m_info.originalSector.boundaryRoom != nullptr)
   {
-    m_target.init(*m_info.originalSector.portalTarget, m_state.position.position);
+    m_target.init(*m_info.originalSector.boundaryRoom, m_state.position.position);
     if(m_state.position.room->alternateRoom != nullptr)
     {
-      Expects(m_alternateInfo.originalSector.portalTarget != nullptr);
-      m_alternateTarget.init(*m_alternateInfo.originalSector.portalTarget, m_state.position.position);
+      Expects(m_alternateInfo.originalSector.boundaryRoom != nullptr);
+      m_alternateTarget.init(*m_alternateInfo.originalSector.boundaryRoom, m_state.position.position);
     }
 
     m_target.close();
@@ -128,20 +128,20 @@ void Door::serialize(const serialization::Serializer<world::World>& ser)
     ser.lazy([this](const serialization::Serializer<world::World>& /*ser*/) {
       m_info.wingsSector
         = const_cast<world::Sector*>(m_state.position.room->getSectorByAbsolutePosition(m_wingsPosition));
-      if(m_info.originalSector.portalTarget != nullptr)
+      if(m_info.originalSector.boundaryRoom != nullptr)
       {
         m_target.wingsSector = const_cast<world::Sector*>(
-          m_info.originalSector.portalTarget->getSectorByAbsolutePosition(m_state.position.position));
+          m_info.originalSector.boundaryRoom->getSectorByAbsolutePosition(m_state.position.position));
       }
 
       if(m_state.position.room->alternateRoom != nullptr)
       {
         m_alternateInfo.wingsSector = const_cast<world::Sector*>(
           m_state.position.room->alternateRoom->getSectorByAbsolutePosition(m_wingsPosition));
-        if(m_alternateInfo.originalSector.portalTarget != nullptr)
+        if(m_alternateInfo.originalSector.boundaryRoom != nullptr)
         {
           m_alternateTarget.wingsSector = const_cast<world::Sector*>(
-            m_alternateInfo.originalSector.portalTarget->getSectorByAbsolutePosition(m_state.position.position));
+            m_alternateInfo.originalSector.boundaryRoom->getSectorByAbsolutePosition(m_state.position.position));
         }
       }
     });
@@ -174,13 +174,13 @@ void Door::Info::init(const world::Room& room, const core::TRVec& wingsPosition)
   Expects(wingsSector != nullptr);
   originalSector = *wingsSector;
 
-  if(wingsSector->portalTarget == nullptr)
+  if(wingsSector->boundaryRoom == nullptr)
   {
     wingsBox = const_cast<world::Box*>(wingsSector->box);
   }
   else
   {
-    wingsBox = const_cast<world::Box*>(wingsSector->portalTarget->getSectorByAbsolutePosition(wingsPosition)->box);
+    wingsBox = const_cast<world::Box*>(wingsSector->boundaryRoom->getSectorByAbsolutePosition(wingsPosition)->box);
   }
   if(wingsBox != nullptr && !wingsBox->blockable)
   {

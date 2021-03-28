@@ -210,7 +210,7 @@ private:
   }
 };
 
-inline std::optional<uint8_t> getPortalTarget(const FloorDataValue* fdData)
+inline std::optional<uint8_t> getBoundaryRoom(const FloorDataValue* fdData)
 {
   if(fdData == nullptr)
     return {};
@@ -230,7 +230,7 @@ inline std::optional<uint8_t> getPortalTarget(const FloorDataValue* fdData)
     fdData += 2;
     chunk = FloorDataChunk{fdData[0]};
   }
-  if(chunk.type == FloorDataChunkType::PortalSector)
+  if(chunk.type == FloorDataChunkType::BoundaryRoom)
   {
     return gsl::narrow_cast<uint8_t>(fdData[1].get());
   }

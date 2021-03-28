@@ -21,19 +21,14 @@ struct Room;
 
 struct Sector
 {
-  /**
-     * @brief Index into FloorData[]
-     *
-     * @note If this is 0, no floor data is attached to this sector.
-     */
   const engine::floordata::FloorDataValue* floorData = nullptr;
-  Room* portalTarget = nullptr;
+  Room* boundaryRoom = nullptr;
 
   const Box* box = nullptr;
   Room* roomBelow = nullptr;
-  core::Length floorHeight = -core::HeightLimit;
+  core::Length floorHeight = -core::HeightLimit; // value is sometimes considered exclusive, sometimes not
   Room* roomAbove = nullptr;
-  core::Length ceilingHeight = -core::HeightLimit;
+  core::Length ceilingHeight = -core::HeightLimit; // value is sometimes considered exclusive, sometimes not
 
   Sector() = default;
   Sector(const loader::file::Sector& src,

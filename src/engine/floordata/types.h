@@ -13,7 +13,7 @@ using FloorData = std::vector<FloorDataValue>;
 //! @ingroup native
 enum class FloorDataChunkType : uint8_t
 {
-  PortalSector = 0x01,
+  BoundaryRoom = 0x01,
   FloorSlant = 0x02,
   CeilingSlant = 0x03,
   CommandSequence = 0x04,

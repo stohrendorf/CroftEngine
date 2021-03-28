@@ -27,9 +27,9 @@ Sector::Sector(const loader::file::Sector& src,
   {
     floorData = &src.floorDataIndex.from(newFloorData);
 
-    if(const auto newPortalTarget = engine::floordata::getPortalTarget(floorData); newPortalTarget.has_value())
+    if(const auto boundaryRoomIndex = engine::floordata::getBoundaryRoom(floorData); boundaryRoomIndex.has_value())
     {
-      portalTarget = &rooms.at(*newPortalTarget);
+      boundaryRoom = &rooms.at(boundaryRoomIndex.value());
     }
   }
 }
@@ -62,7 +62,7 @@ void Sector::serialize(const serialization::Serializer<World>& ser)
       S_NV("ceilingHeight", ceilingHeight),
       S_NV("roomIndexBelow", m_roomIndexBelow),
       S_NV("roomIndexAbove", m_roomIndexAbove),
-      S_NVVE("portalTarget", ser.context.getRooms(), portalTarget),
+      S_NVVE("boundaryRoom", ser.context.getRooms(), boundaryRoom),
       S_NVVE("floorData", ser.context.getFloorData(), floorData));
 
   if(ser.loading)

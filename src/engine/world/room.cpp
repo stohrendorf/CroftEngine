@@ -463,27 +463,24 @@ gsl::not_null<const Sector*> findRealFloorSector(const core::TRVec& position,
                                                  const gsl::not_null<gsl::not_null<const Room*>*>& room)
 {
   const Sector* sector;
-  // follow portals
   while(true)
   {
-    sector = (*room)->findFloorSectorWithClampedIndex((position.X - (*room)->position.X) / core::SectorSize,
-                                                      (position.Z - (*room)->position.Z) / core::SectorSize);
-    if(sector->portalTarget == nullptr)
+    sector = (*room)->getBoundarySectorByIndex((position.X - (*room)->position.X) / core::SectorSize,
+                                               (position.Z - (*room)->position.Z) / core::SectorSize);
+    if(sector->boundaryRoom == nullptr)
     {
       break;
     }
 
-    *room = sector->portalTarget;
+    *room = sector->boundaryRoom;
   }
 
   // go up/down until we are in the room that contains our coordinates
   Expects(sector != nullptr);
   if(position.Y >= sector->floorHeight)
   {
-    while(position.Y >= sector->floorHeight)
+    while(position.Y >= sector->floorHeight && sector->roomBelow != nullptr)
     {
-      if(sector->roomBelow == nullptr)
-        break;
       *room = sector->roomBelow;
       sector = (*room)->getSectorByAbsolutePosition(position);
       Expects(sector != nullptr);
@@ -493,8 +490,6 @@ gsl::not_null<const Sector*> findRealFloorSector(const core::TRVec& position,
   {
     while(position.Y < sector->ceilingHeight && sector->roomAbove != nullptr)
     {
-      if(sector->roomAbove == nullptr)
-        break;
       *room = sector->roomAbove;
       sector = (*room)->getSectorByAbsolutePosition(position);
       Expects(sector != nullptr);

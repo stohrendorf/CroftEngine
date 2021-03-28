@@ -44,7 +44,7 @@ bool clampY(const core::TRVec& start,
 
 enum class CollisionType
 {
-  Vertical, // resulting position is vertically outside, so invalid
+  Vertical, // resulting position collides with ceiling or floor
   Wall,     // resulting position is valid but did not reach the goal
   None      // resulting position is valid and needs no further adjustment
 };
@@ -105,10 +105,10 @@ std::pair<CollisionType, core::RoomBoundPosition> clampSteps(const core::RoomBou
     auto nextSector = current;
     nextSector.*stepAxis += dir * 1_len;
     BOOST_ASSERT(current.*stepAxis / core::SectorSize != nextSector.*stepAxis / core::SectorSize);
+    const auto oldResult = result;
     if(testVerticalHit(nextSector))
     {
-      result.position = current;
-      return {CollisionType::Wall, result};
+      return {CollisionType::Wall, oldResult};
     }
 
     current += step;
