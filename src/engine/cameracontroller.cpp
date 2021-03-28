@@ -681,7 +681,7 @@ void CameraController::handleFreeLook(const objects::Object& object)
   m_distance = core::DefaultCameraLaraDistance;
   m_lookAt.position += util::pitch(-util::sin(core::SectorSize / 2, m_rotationAroundLara.X), object.m_state.rotation.Y);
 
-  if(isVerticallyOutsideRoom(m_lookAt.position, m_position.room, m_world->getObjectManager()))
+  if(isVerticallyOutsideRoom(m_lookAt.position, m_lookAt.room, m_world->getObjectManager()))
   {
     m_lookAt.position.X = object.m_state.position.position.X;
     m_lookAt.position.Z = object.m_state.position.position.Z;
