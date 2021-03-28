@@ -142,7 +142,8 @@ void CSM::updateCamera(const Camera& camera)
   for(size_t cascadeIterator = 0; cascadeIterator < m_splits.size(); ++cascadeIterator)
   {
     const auto nc = position + forward * cascadeSplits[cascadeIterator];
-    const auto fc = position + forward * cascadeSplits[cascadeIterator + 1];
+    // add some overlapping for blending in the shader
+    const auto fc = position + forward * (cascadeSplits[cascadeIterator + 1] + 1024);
 
     const auto Hnear = glm::tan(camera.getFieldOfViewY() / 2) * cascadeSplits[cascadeIterator];
     const auto Wnear = Hnear * camera.getAspectRatio();
@@ -174,7 +175,7 @@ void CSM::updateCamera(const Camera& camera)
     }
 
     // extend the bboxes and snap to a grid to avoid shadow jumping
-    static constexpr float SnapSize = 256.0f;
+    static constexpr float SnapSize = 1024.0f;
     bboxMin = glm::floor(bboxMin / SnapSize) * SnapSize;
     bboxMax = glm::ceil(bboxMax / SnapSize) * SnapSize;
 
