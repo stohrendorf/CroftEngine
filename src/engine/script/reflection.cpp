@@ -89,8 +89,9 @@ std::unique_ptr<world::World> Level::loadWorld(Engine& engine, const std::shared
   auto titleIt = m_titles.find(engine.getLanguage());
   if(titleIt == m_titles.end())
   {
-    BOOST_LOG_TRIVIAL(warning) << "Missing level title translation, falling back to language en";
-    titleIt = m_titles.find("en");
+    BOOST_LOG_TRIVIAL(warning) << "Missing level title translation for language " << engine.getLanguage()
+                               << ", falling back to language en_GB";
+    titleIt = m_titles.find("en_GB");
   }
   if(titleIt == m_titles.end())
     BOOST_LOG_TRIVIAL(error) << "Missing level title";

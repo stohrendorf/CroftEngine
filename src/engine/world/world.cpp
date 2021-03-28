@@ -1214,7 +1214,7 @@ std::optional<std::string> World::getItemTitle(TR1ItemId id) const
       return itemIt->second;
     }
   }
-  if(auto langIt = m_itemTitles.find("en"); langIt != m_itemTitles.end())
+  if(auto langIt = m_itemTitles.find("en_GB"); langIt != m_itemTitles.end())
   {
     if(auto itemIt = langIt->second.find(id); itemIt != langIt->second.end())
     {

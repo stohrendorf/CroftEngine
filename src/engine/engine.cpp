@@ -83,6 +83,8 @@ Engine::Engine(const std::filesystem::path& rootPath, const glm::ivec2& resoluti
   }
 
   m_language = std::use_facet<boost::locale::info>(boost::locale::generator()("")).name();
+  if(auto idx = m_language.find('.'); idx != std::string::npos)
+    m_language = m_language.substr(0, idx);
   BOOST_LOG_TRIVIAL(info) << "Detected user's language is " << m_language;
   if(const std::optional overrideLanguage = core::get<std::string>(pybind11::globals(), "language_override"))
   {
