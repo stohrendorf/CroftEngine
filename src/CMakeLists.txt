@@ -485,7 +485,7 @@ configure_gettext(
         DOMAIN edisonengine
         SOURCES ${ALL_SRCS}
         POTFILE_DESTINATION "${CMAKE_SOURCE_DIR}/share"
-        LANGUAGES de
+        LANGUAGES de_DE
         XGETTEXT_ARGS
         "--keyword=_"
         "--keyword=N_"

@@ -86,10 +86,10 @@ std::unique_ptr<world::World> Level::loadWorld(Engine& engine, const std::shared
 {
   engine.getPresenter().debounceInput();
 
-  auto titleIt = m_titles.find(engine.getLanguage());
+  auto titleIt = m_titles.find(engine.getLanguageWithoutEncoding());
   if(titleIt == m_titles.end())
   {
-    BOOST_LOG_TRIVIAL(warning) << "Missing level title translation for language " << engine.getLanguage()
+    BOOST_LOG_TRIVIAL(warning) << "Missing level title translation for language " << engine.getLanguageWithoutEncoding()
                                << ", falling back to language en_GB";
     titleIt = m_titles.find("en_GB");
   }

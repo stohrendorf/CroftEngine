@@ -70,8 +70,6 @@ Engine::Engine(const std::filesystem::path& rootPath, const glm::ivec2& resoluti
     doc.load("config", m_engineConfig, m_engineConfig);
   }
 
-  m_presenter = std::make_shared<Presenter>(m_rootPath, m_engineConfig.renderSettings.fullscreen, resolution);
-
   try
   {
     pybind11::eval_file((m_rootPath / "scripts" / "main.py").string());
@@ -83,8 +81,6 @@ Engine::Engine(const std::filesystem::path& rootPath, const glm::ivec2& resoluti
   }
 
   m_language = std::use_facet<boost::locale::info>(boost::locale::generator()("")).name();
-  if(auto idx = m_language.find('.'); idx != std::string::npos)
-    m_language = m_language.substr(0, idx);
   BOOST_LOG_TRIVIAL(info) << "Detected user's language is " << m_language;
   if(const std::optional overrideLanguage = core::get<std::string>(pybind11::globals(), "language_override"))
   {
@@ -104,6 +100,7 @@ Engine::Engine(const std::filesystem::path& rootPath, const glm::ivec2& resoluti
   setlocale(LC_ALL, m_language.c_str());
   textdomain("edisonengine");
 
+  m_presenter = std::make_shared<Presenter>(m_rootPath, m_engineConfig.renderSettings.fullscreen, resolution);
   m_presenter->getInputHandler().setMapping(core::get<hid::InputMapping>(pybind11::globals(), "input_mapping").value());
   m_glidos = loadGlidosPack();
 }

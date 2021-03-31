@@ -38,7 +38,7 @@ namespace engine::world
 {
 class World;
 class RenderMeshData;
-}
+} // namespace engine::world
 
 namespace engine
 {
@@ -118,6 +118,13 @@ public:
 
   [[nodiscard]] const std::string& getLanguage() const
   {
+    return m_language;
+  }
+
+  [[nodiscard]] std::string getLanguageWithoutEncoding() const
+  {
+    if(auto idx = m_language.find('.'); idx != std::string::npos)
+      return m_language.substr(0, idx);
     return m_language;
   }
 

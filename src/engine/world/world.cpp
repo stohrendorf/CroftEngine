@@ -1207,7 +1207,7 @@ Presenter& World::getPresenter()
 
 std::optional<std::string> World::getItemTitle(TR1ItemId id) const
 {
-  if(auto langIt = m_itemTitles.find(m_engine.getLanguage()); langIt != m_itemTitles.end())
+  if(auto langIt = m_itemTitles.find(m_engine.getLanguageWithoutEncoding()); langIt != m_itemTitles.end())
   {
     if(auto itemIt = langIt->second.find(id); itemIt != langIt->second.end())
     {
