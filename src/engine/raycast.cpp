@@ -49,69 +49,69 @@ enum class CollisionType
   None      // resulting position is valid and needs no further adjustment
 };
 
-std::pair<CollisionType, core::RoomBoundPosition> clampSteps(const core::RoomBoundPosition& from,
+std::pair<CollisionType, core::RoomBoundPosition> clampSteps(const core::RoomBoundPosition& start,
                                                              const core::TRVec& goal,
                                                              const ObjectManager& objectManager,
                                                              core::Length(core::TRVec::*stepAxis),
                                                              core::Length(core::TRVec::*secondaryAxis))
 {
-  core::RoomBoundPosition result{from.room, goal};
-  if(goal.*stepAxis == from.position.*stepAxis)
+  const auto delta = goal - start.position;
+  if(delta.*stepAxis == 0_len)
   {
-    return {CollisionType::None, result};
+    return {CollisionType::None, core::RoomBoundPosition{start.room, goal}};
   }
 
-  const auto delta = goal - from.position;
   const auto dir = delta.*stepAxis < 0_len ? -1 : 1;
 
-  core::TRVec current;
-  current.*stepAxis = (from.position.*stepAxis / core::SectorSize) * core::SectorSize;
+  auto result = start;
+  // align the result to the sector boundary, adjust other axes as necessary
+  result.position.*stepAxis = (result.position.*stepAxis / core::SectorSize) * core::SectorSize;
   if(dir > 0)
-    current.*stepAxis += core::SectorSize - 1_len;
+    result.position.*stepAxis += core::SectorSize - 1_len;
 
-  current.*secondaryAxis = from.position.*secondaryAxis
-                           + (current.*stepAxis - from.position.*stepAxis) * delta.*secondaryAxis / delta.*stepAxis;
-  current.Y = from.position.Y + (current.*stepAxis - from.position.*stepAxis) * delta.Y / delta.*stepAxis;
+  core::TRVec sectorStep;
+  sectorStep.*stepAxis = dir * core::SectorSize;
+  sectorStep.*secondaryAxis = delta.*secondaryAxis * sectorStep.*stepAxis / delta.*stepAxis;
+  sectorStep.Y = delta.Y * sectorStep.*stepAxis / delta.*stepAxis;
 
-  core::TRVec step;
-  step.*stepAxis = dir * core::SectorSize;
-  step.*secondaryAxis = step.*stepAxis * delta.*secondaryAxis / delta.*stepAxis;
-  step.Y = step.*stepAxis * delta.Y / delta.*stepAxis;
+  const auto deltaStep = result.position.*stepAxis - start.position.*stepAxis;
+  result.position.*secondaryAxis += sectorStep.*secondaryAxis * deltaStep / delta.*stepAxis;
+  result.position.Y += sectorStep.Y * deltaStep / delta.*stepAxis;
 
-  auto testVerticalHit = [&result, &objectManager](const core::TRVec& pos) {
-    const auto sector = findRealFloorSector(pos, &result.room);
-    const auto floor = HeightInfo::fromFloor(sector, pos, objectManager.getObjects()).y;
-    const auto ceiling = HeightInfo::fromCeiling(sector, pos, objectManager.getObjects()).y;
-    return pos.Y > floor || pos.Y < ceiling;
+  auto testVerticalHit = [&objectManager](core::RoomBoundPosition& pos) {
+    const auto sector = world::findRealFloorSector(pos);
+    const auto floor = HeightInfo::fromFloor(sector, pos.position, objectManager.getObjects()).y;
+    const auto ceiling = HeightInfo::fromCeiling(sector, pos.position, objectManager.getObjects()).y;
+    return pos.position.Y > floor || pos.position.Y < ceiling;
   };
 
   while(true)
   {
-    if(dir > 0 && current.*stepAxis >= result.position.*stepAxis)
+    if(dir > 0 && result.position.*stepAxis >= goal.*stepAxis)
     {
-      return {CollisionType::None, result};
+      return {CollisionType::None, core::RoomBoundPosition{result.room, goal}};
     }
-    if(dir < 0 && current.*stepAxis <= result.position.*stepAxis)
+    if(dir < 0 && result.position.*stepAxis <= goal.*stepAxis)
     {
-      return {CollisionType::None, result};
+      return {CollisionType::None, core::RoomBoundPosition{result.room, goal}};
     }
 
-    if(testVerticalHit(current))
+    if(testVerticalHit(result))
     {
-      result.position = current;
       return {CollisionType::Vertical, result};
     }
 
-    auto nextSector = current;
-    nextSector.*stepAxis += dir * 1_len;
-    BOOST_ASSERT(current.*stepAxis / core::SectorSize != nextSector.*stepAxis / core::SectorSize);
+    auto nextSector = result;
+    nextSector.position.*stepAxis += dir * 1_len;
+    BOOST_ASSERT(result.position.*stepAxis / core::SectorSize != nextSector.position.*stepAxis / core::SectorSize);
     const auto oldResult = result;
     if(testVerticalHit(nextSector))
     {
       return {CollisionType::Wall, oldResult};
     }
 
-    current += step;
+    result.room = nextSector.room;
+    result.position += sectorStep;
   }
 }
 
@@ -126,6 +126,7 @@ std::pair<bool, core::RoomBoundPosition>
       core::Length(core::TRVec::*secondStepAxis)) -> std::tuple<CollisionType, CollisionType, core::RoomBoundPosition> {
     auto [firstType, firstPos] = clampSteps(start, goal, objectManager, firstStepAxis, secondStepAxis);
     auto [secondType, secondPos] = clampSteps(start, firstPos.position, objectManager, secondStepAxis, firstStepAxis);
+    BOOST_ASSERT(secondPos.room->getSectorByAbsolutePosition(secondPos.position) != nullptr);
     return {firstType, secondType, secondPos};
   };
 
