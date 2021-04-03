@@ -20,17 +20,21 @@ float calc_vsm_value(in int splitIdx, in vec3 normal, in float shadow, in float 
     vec2 moments = texture(u_csmVsm[splitIdx], projCoords.xy).xy;
 
     float currentDepth = projCoords.z;
-    if (currentDepth > 1.0 || currentDepth < moments.x) {
+    const float ShadowSlopeBias = 0.005;
+    const float MaxShadowSlopeBias = 2*ShadowSlopeBias;
+    float bias = ShadowSlopeBias * tan(acos(clamp(d, 0.0, 1.0)));
+    bias = clamp(bias, 0.0, MaxShadowSlopeBias);
+    if (currentDepth > 1.0 || currentDepth < moments.x + bias) {
         return 1.0;
     }
 
-    const float ShadowBias = 0.001;
+    const float ShadowBias = 1e-3;
     float variance = max(-moments.x * moments.x + moments.y, ShadowBias);
     float mD = moments.x - currentDepth;
     float pMax = variance / (mD * mD + variance);
 
     // light bleeding
-    const float BleedBias = 0.05;
+    const float BleedBias = 0.005;
     const float BleedBiasRange = 1.0 / (1.0 - BleedBias);
     const float BleedBiasOffset = -BleedBias * BleedBiasRange;
     pMax = clamp(pMax * BleedBiasRange + BleedBiasOffset, 0.0, 1.0);
@@ -44,21 +48,15 @@ float calc_vsm_value(in int splitIdx, in vec3 normal, in float shadow, in float 
 
 float shadow_map_multiplier(in vec3 normal, in float shadow)
 {
-    #ifdef ROOM_SHADOWING
     float d = dot(normalize(normal), normalize(u_csmLightDir));
+    #ifdef ROOM_SHADOWING
     if (d > 0) {
         return 1.0;
     }
-        #else
-    const float d = 0;
     #endif
 
     int splitIdx = int(trunc(gpi.splitIdx));
-    return mix(
-    calc_vsm_value(splitIdx, normal, shadow, d),
-    calc_vsm_value(min(CSMSplits, splitIdx+1), normal, shadow, d),
-    fract(gpi.splitIdx)
-    );
+    return calc_vsm_value(splitIdx, normal, shadow, d);
 }
 
 float shadow_map_multiplier(in vec3 normal) {

@@ -326,14 +326,13 @@ void MaterialManager::setBilinearFiltering(bool enabled)
   }
 }
 
-std::shared_ptr<Material>
-  MaterialManager::getBlur(uint8_t extent, uint8_t blurDir, uint8_t blurDim, bool gauss, bool fillGaps)
+std::shared_ptr<Material> MaterialManager::getBlur(uint8_t extent, uint8_t blurDir, uint8_t blurDim, bool gauss)
 {
-  const std::tuple key{extent, blurDir, blurDim, gauss, fillGaps};
+  const std::tuple key{extent, blurDir, blurDim, gauss};
   if(auto it = m_blur.find(key); it != m_blur.end())
     return it->second;
 
-  auto m = std::make_shared<Material>(m_shaderCache->getBlur(extent, blurDir, blurDim, gauss, fillGaps));
+  auto m = std::make_shared<Material>(m_shaderCache->getBlur(extent, blurDir, blurDim, gauss));
   configureForScreenSpaceEffect(*m);
   m_blur[key] = m;
   return m;

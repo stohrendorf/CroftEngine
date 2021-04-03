@@ -15,7 +15,7 @@ SSAOPass::SSAOPass(scene::MaterialManager& materialManager,
     , m_renderMesh{scene::createScreenQuad(m_material)}
     , m_noiseTexture{std::make_shared<gl::Texture2D<gl::RGB32F>>(glm::ivec2{4, 4}, "ssao-noise")}
     , m_aoBuffer{std::make_shared<gl::Texture2D<gl::Scalar16F>>(viewport, "ssao-ao")}
-    , m_blur{"ssao", materialManager, 4, true, false}
+    , m_blur{"ssao", materialManager, 4, true}
 {
   // generate sample kernel
   std::uniform_real_distribution<float> randomFloats(0, 1);

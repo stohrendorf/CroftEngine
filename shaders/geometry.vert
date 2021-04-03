@@ -53,7 +53,7 @@ void main()
         mat4 lmvp = u_lightMVP[i];
         #endif
         vec4 tmp = lmvp * pos;
-        gpi.vertexPosLight[i] = tmp.xyz / tmp.w * 0.5 + 0.5;
+        gpi.vertexPosLight[i] = (tmp.xyz / tmp.w) * 0.5 + 0.5;
     }
 
     gpi.splitIdx = 0;

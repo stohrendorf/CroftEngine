@@ -7,7 +7,7 @@ namespace render::pass
 PortalPass::PortalPass(scene::MaterialManager& materialManager, const glm::vec2& viewport)
     : m_depthBuffer{std::make_shared<gl::TextureDepth<float>>(viewport, "portal-depth")}
     , m_perturbBuffer{std::make_shared<gl::Texture2D<gl::RG32F>>(viewport, "portal-perturb")}
-    , m_blur{"perturb", materialManager, 4, true, false}
+    , m_blur{"perturb", materialManager, 4, true}
 {
   m_depthBuffer->set(gl::api::TextureMinFilter::Linear).set(gl::api::TextureMagFilter::Linear);
   m_perturbBuffer->set(gl::api::TextureMinFilter::Linear).set(gl::api::TextureMagFilter::Linear);

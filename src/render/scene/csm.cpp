@@ -48,7 +48,7 @@ void CSM::Split::init(int32_t resolution, size_t idx, MaterialManager& materialM
   squareMesh->getMaterialGroup().set(RenderMode::Full, squareMaterial);
 
   squareBlur = std::make_shared<SeparableBlur<gl::RG16F>>(
-    "squareBlur-" + std::to_string(idx), materialManager, uint8_t{10}, true, true);
+    "squareBlur-" + std::to_string(idx), materialManager, uint8_t{4}, true);
   squareBlur->setInput(squaredTexture);
 }
 
@@ -142,8 +142,7 @@ void CSM::updateCamera(const Camera& camera)
   for(size_t cascadeIterator = 0; cascadeIterator < m_splits.size(); ++cascadeIterator)
   {
     const auto nc = position + forward * cascadeSplits[cascadeIterator];
-    // add some overlapping for blending in the shader
-    const auto fc = position + forward * (cascadeSplits[cascadeIterator + 1] + 1024);
+    const auto fc = position + forward * cascadeSplits[cascadeIterator + 1];
 
     const auto Hnear = glm::tan(camera.getFieldOfViewY() / 2) * cascadeSplits[cascadeIterator];
     const auto Wnear = Hnear * camera.getAspectRatio();
@@ -175,7 +174,7 @@ void CSM::updateCamera(const Camera& camera)
     }
 
     // extend the bboxes and snap to a grid to avoid shadow jumping
-    static constexpr float SnapSize = 1024.0f;
+    static constexpr float SnapSize = 512.0f;
     bboxMin = glm::floor(bboxMin / SnapSize) * SnapSize;
     bboxMax = glm::ceil(bboxMax / SnapSize) * SnapSize;
 

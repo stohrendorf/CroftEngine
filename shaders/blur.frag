@@ -39,34 +39,19 @@ void main()
 {
     vec2 texelSize = 1.0 / vec2(textureSize(u_input, 0));
     BLUR_TYPE result = BLUR_TYPE(0.0);
-    BLUR_TYPE center = BLUR_TYPE(texture(u_input, fpi.texCoord));
-    BLUR_TYPE l, r;
-#if BLUR_DIR == 1
+
     for (int x = -BLUR_EXTENT; x <= BLUR_EXTENT; ++x)
     {
+        #if BLUR_DIR == 1
         vec2 offset = vec2(float(x), 0) * texelSize;
+        #elif BLUR_DIR == 2
+        vec2 offset = vec2(0, float(x)) * texelSize;
+        #else
+        #error "Invalid Blur Dir"
+        #endif
         BLUR_TYPE texel = BLUR_TYPE(texture(u_input, fpi.texCoord + offset));
-        if(x == -1) l = texel;
-        else if(x == 1) r = texel;
         result += texel * BLUR_MULTIPLIER(x);
     }
-#elif BLUR_DIR == 2
-    for (int y = -BLUR_EXTENT; y <= BLUR_EXTENT; ++y)
-    {
-        vec2 offset = vec2(0, float(y)) * texelSize;
-        BLUR_TYPE texel = BLUR_TYPE(texture(u_input, fpi.texCoord + offset));
-        if(y == -1) l = texel;
-        else if(y == 1) r = texel;
-        result += texel * BLUR_MULTIPLIER(y);
-    }
-#else
-#error "Invalid Blur Dir"
-#endif
-#ifdef FILL_GAPS
-    BLUR_TYPE clamped = center.x > result.x ? result : mix(center, result, 0.01);;
-    clamped = min(center, max(l, r));
-    out_tex = clamped;
-    #else
+
     out_tex = result;
-#endif
 }

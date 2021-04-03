@@ -86,7 +86,7 @@ public:
     return get("flat.vert", "ssao.frag");
   }
 
-  auto getBlur(const uint8_t extent, uint8_t blurDir, uint8_t blurDim, bool gauss, bool fillGaps)
+  auto getBlur(const uint8_t extent, uint8_t blurDir, uint8_t blurDim, bool gauss)
   {
     Expects(extent > 0);
     Expects(blurDir < 3);
@@ -97,8 +97,6 @@ public:
                                      "BLUR_DIM " + std::to_string(blurDim)};
     if(gauss)
       defines.emplace_back("BLUR_GAUSS");
-    if(fillGaps)
-      defines.emplace_back("FILL_GAPS");
     return get("flat.vert", "blur.frag", defines);
   }
 
