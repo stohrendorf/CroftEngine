@@ -75,7 +75,7 @@ std::pair<CollisionType, core::RoomBoundPosition> clampSteps(const core::RoomBou
 
   const auto deltaStep = result.position.*stepAxis - start.position.*stepAxis;
   result.position.*secondaryAxis += sectorStep.*secondaryAxis * deltaStep / sectorStep.*stepAxis;
-  result.position.Y += sectorStep.Y * deltaStep / delta.*stepAxis;
+  result.position.Y += sectorStep.Y * deltaStep / sectorStep.*stepAxis;
 
   auto testVerticalHit = [&objectManager](core::RoomBoundPosition& pos) {
     const auto sector = world::findRealFloorSector(pos);
