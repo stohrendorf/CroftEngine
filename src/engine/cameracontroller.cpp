@@ -139,7 +139,7 @@ core::RoomBoundPosition clampBox(const core::RoomBoundPosition& start,
   if(const gsl::not_null goalSector = result.room->getSectorByAbsolutePosition(result.position);
      const auto goalBox = goalSector->box)
   {
-    if(box == nullptr || !box->contains(result.position.X, result.position.Z))
+    if(!box->contains(result.position.X, result.position.Z))
       box = goalBox;
   }
 

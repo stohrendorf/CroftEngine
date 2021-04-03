@@ -62,6 +62,10 @@ std::pair<CollisionType, core::RoomBoundPosition> clampSteps(const core::RoomBou
   }
 
   const auto dir = delta.*stepAxis < 0_len ? -1 : 1;
+  core::TRVec sectorStep;
+  sectorStep.*stepAxis = dir * core::SectorSize;
+  sectorStep.*secondaryAxis = delta.*secondaryAxis * sectorStep.*stepAxis / delta.*stepAxis;
+  sectorStep.Y = delta.Y * sectorStep.*stepAxis / delta.*stepAxis;
 
   auto result = start;
   // align the result to the sector boundary, adjust other axes as necessary
@@ -69,13 +73,8 @@ std::pair<CollisionType, core::RoomBoundPosition> clampSteps(const core::RoomBou
   if(dir > 0)
     result.position.*stepAxis += core::SectorSize - 1_len;
 
-  core::TRVec sectorStep;
-  sectorStep.*stepAxis = dir * core::SectorSize;
-  sectorStep.*secondaryAxis = delta.*secondaryAxis * sectorStep.*stepAxis / delta.*stepAxis;
-  sectorStep.Y = delta.Y * sectorStep.*stepAxis / delta.*stepAxis;
-
   const auto deltaStep = result.position.*stepAxis - start.position.*stepAxis;
-  result.position.*secondaryAxis += sectorStep.*secondaryAxis * deltaStep / delta.*stepAxis;
+  result.position.*secondaryAxis += sectorStep.*secondaryAxis * deltaStep / sectorStep.*stepAxis;
   result.position.Y += sectorStep.Y * deltaStep / delta.*stepAxis;
 
   auto testVerticalHit = [&objectManager](core::RoomBoundPosition& pos) {
