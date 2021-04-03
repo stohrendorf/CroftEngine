@@ -72,7 +72,7 @@ struct UVRect
     xy1.y = std::max(t0.y, t1.y);
   }
 
-  constexpr bool operator==(const UVRect& rhs) const noexcept
+  bool operator==(const UVRect& rhs) const noexcept
   {
     return xy0 == rhs.xy0 && xy1 == rhs.xy1;
   }

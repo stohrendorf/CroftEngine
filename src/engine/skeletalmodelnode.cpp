@@ -17,6 +17,7 @@
 #include "world/rendermeshdata.h"
 #include "world/transition.h"
 
+#include <glm/gtc/matrix_transform.hpp>
 #include <stack>
 #include <utility>
 
@@ -102,7 +103,7 @@ void SkeletalModelNode::updatePose(const InterpolationInfo& framePair)
 
   const auto angleDataFirst = framePair.firstFrame->getAngleData();
   std::stack<glm::mat4> transformsFirst;
-  transformsFirst.push(translate(glm::mat4{1.0f}, framePair.firstFrame->pos.toGl())
+  transformsFirst.push(glm::translate(glm::mat4{1.0f}, framePair.firstFrame->pos.toGl())
                        * core::fromPackedAngles(angleDataFirst[0]) * m_meshParts[0].patch);
 
   const auto angleDataSecond = framePair.secondFrame->getAngleData();
@@ -232,11 +233,11 @@ std::vector<SkeletalModelNode::Sphere> SkeletalModelNode::getBoneCollisionSphere
   }
 
   transforms.top()
-    = translate(transforms.top(), frame.pos.toGl()) * core::fromPackedAngles(angleData[0]) * m_meshParts[0].patch;
+    = glm::translate(transforms.top(), frame.pos.toGl()) * core::fromPackedAngles(angleData[0]) * m_meshParts[0].patch;
 
   std::vector<Sphere> result;
-  result.emplace_back(translate(glm::mat4{1.0f}, pos.toRenderSystem())
-                        + translate(transforms.top(), m_model->bones[0].center.toRenderSystem()),
+  result.emplace_back(glm::translate(glm::mat4{1.0f}, pos.toRenderSystem())
+                        + glm::translate(transforms.top(), m_model->bones[0].center.toRenderSystem()),
                       m_model->bones[0].collisionSize);
 
   for(gsl::index i = 1; i < m_model->bones.size(); ++i)
@@ -251,12 +252,12 @@ std::vector<SkeletalModelNode::Sphere> SkeletalModelNode::getBoneCollisionSphere
     }
 
     if(frame.numValues < i)
-      transforms.top() *= translate(glm::mat4{1.0f}, m_model->bones[i].position) * m_meshParts[i].patch;
+      transforms.top() *= glm::translate(glm::mat4{1.0f}, m_model->bones[i].position) * m_meshParts[i].patch;
     else
-      transforms.top() *= translate(glm::mat4{1.0f}, m_model->bones[i].position) * core::fromPackedAngles(angleData[i])
-                          * m_meshParts[i].patch;
+      transforms.top() *= glm::translate(glm::mat4{1.0f}, m_model->bones[i].position)
+                          * core::fromPackedAngles(angleData[i]) * m_meshParts[i].patch;
 
-    auto m = translate(transforms.top(), m_model->bones[i].center.toRenderSystem());
+    auto m = glm::translate(transforms.top(), m_model->bones[i].center.toRenderSystem());
     m[3] += glm::vec4(pos.toRenderSystem(), 0);
     result.emplace_back(m, m_model->bones[i].collisionSize);
   }

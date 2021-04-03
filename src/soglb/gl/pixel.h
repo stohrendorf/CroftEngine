@@ -2,6 +2,7 @@
 
 #include "typetraits.h"
 
+#include <algorithm>
 #include <glm/glm.hpp>
 
 namespace gl

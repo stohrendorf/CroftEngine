@@ -158,7 +158,9 @@ struct FilterGraph
              stream.stream->time_base.den,
              stream.stream->codecpar->sample_aspect_ratio.num,
              stream.stream->codecpar->sample_aspect_ratio.den);
-    gsl::ensure_z(filterGraphArgs.data(), filterGraphArgs.size());
+    {
+      [[maybe_unused]] const auto check = gsl::ensure_z(filterGraphArgs.data(), filterGraphArgs.size());
+    }
 
     if(avfilter_graph_create_filter(
          &input, avfilter_get_by_name("buffer"), "in", filterGraphArgs.data(), nullptr, graph)

@@ -3,6 +3,7 @@
 #include <filesystem>
 #include <gsl/gsl-lite.hpp>
 #include <unordered_map>
+#include <vector>
 
 namespace render::scene
 {
