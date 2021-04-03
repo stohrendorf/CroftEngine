@@ -3,7 +3,7 @@
 #include "api/gl.hpp"
 #include "glassert.h"
 
-#include <gsl-lite.hpp>
+#include <gsl/gsl-lite.hpp>
 
 namespace gl
 {

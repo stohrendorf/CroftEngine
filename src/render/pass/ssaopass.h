@@ -5,7 +5,7 @@
 #include <gl/pixel.h>
 #include <gl/soglb_fwd.h>
 #include <glm/fwd.hpp>
-#include <gsl-lite.hpp>
+#include <gsl/gsl-lite.hpp>
 
 namespace render::scene
 {

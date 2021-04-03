@@ -2,7 +2,7 @@
 
 #include <boost/algorithm/string.hpp>
 #include <filesystem>
-#include <gsl-lite.hpp>
+#include <gsl/gsl-lite.hpp>
 #include <map>
 #include <optional>
 #include <regex>

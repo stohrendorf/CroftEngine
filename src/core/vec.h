@@ -4,7 +4,7 @@
 #include "units.h"
 
 #include <glm/glm.hpp>
-#include <gsl-lite.hpp>
+#include <gsl/gsl-lite.hpp>
 #include <utility>
 
 namespace engine::world

@@ -3,7 +3,7 @@
 #include "image.h"
 
 #include <boost/log/trivial.hpp>
-#include <gsl-lite.hpp>
+#include <gsl/gsl-lite.hpp>
 #include <utf8.h>
 #include <utility>
 

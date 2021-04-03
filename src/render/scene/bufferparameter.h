@@ -4,7 +4,7 @@
 
 #include <gl/buffer.h>
 #include <gl/program.h>
-#include <gsl-lite.hpp>
+#include <gsl/gsl-lite.hpp>
 
 namespace render::scene
 {

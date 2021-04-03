@@ -1,7 +1,7 @@
 #pragma once
 
 #include <glm/glm.hpp>
-#include <gsl-lite.hpp>
+#include <gsl/gsl-lite.hpp>
 #include <optional>
 #include <unordered_set>
 #include <vector>

@@ -6,7 +6,7 @@
 #include <boost/throw_exception.hpp>
 #include <filesystem>
 #include <fstream>
-#include <gsl-lite.hpp>
+#include <gsl/gsl-lite.hpp>
 #include <sndfile.h>
 #include <soloud_audiosource.h>
 

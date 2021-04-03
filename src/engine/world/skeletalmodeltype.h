@@ -4,7 +4,7 @@
 #include "core/id.h"
 #include "loader/file/animation.h"
 
-#include <gsl-lite.hpp>
+#include <gsl/gsl-lite.hpp>
 
 namespace engine::world
 {

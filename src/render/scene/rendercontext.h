@@ -5,7 +5,7 @@
 
 #include <gl/renderstate.h>
 #include <glm/glm.hpp>
-#include <gsl-lite.hpp>
+#include <gsl/gsl-lite.hpp>
 #include <optional>
 #include <stack>
 

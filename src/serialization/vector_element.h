@@ -2,7 +2,7 @@
 
 #include "serialization.h"
 
-#include <gsl-lite.hpp>
+#include <gsl/gsl-lite.hpp>
 #include <vector>
 
 namespace serialization

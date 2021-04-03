@@ -3,6 +3,7 @@
 /pybind*
 /soloud*
 /gettext
+/gsl-lite-*
 
 *.zip
 *.tar.gz

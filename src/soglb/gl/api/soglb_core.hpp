@@ -1,7 +1,7 @@
 #pragma once
 
 #include <cstdint>
-#include <gsl-lite.hpp>
+#include <gsl/gsl-lite.hpp>
 #include <type_traits>
 
 struct __GLsync; // NOLINT(bugprone-reserved-identifier)

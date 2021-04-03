@@ -6,7 +6,7 @@
 #include "util/helpers.h"
 
 #include <bitset>
-#include <gsl-lite.hpp>
+#include <gsl/gsl-lite.hpp>
 #include <optional>
 
 namespace engine::floordata

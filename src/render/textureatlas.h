@@ -2,7 +2,7 @@
 
 #include <cstdint>
 #include <gl/cimgwrapper.h>
-#include <gsl-lite.hpp>
+#include <gsl/gsl-lite.hpp>
 #include <memory>
 #include <optional>
 

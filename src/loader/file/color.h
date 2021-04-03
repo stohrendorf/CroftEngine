@@ -3,7 +3,7 @@
 #include <boost/assert.hpp>
 #include <gl/pixel.h>
 #include <glm/common.hpp>
-#include <gsl-lite.hpp>
+#include <gsl/gsl-lite.hpp>
 
 namespace loader::file
 {

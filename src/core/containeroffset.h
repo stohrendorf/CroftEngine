@@ -4,7 +4,7 @@
 #include "tpl_helper.h"
 
 #include <boost/throw_exception.hpp>
-#include <gsl-lite.hpp>
+#include <gsl/gsl-lite.hpp>
 #include <stdexcept>
 #include <vector>
 

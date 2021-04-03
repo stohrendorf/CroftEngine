@@ -3,7 +3,7 @@
 #include "loader/file/animation.h"
 #include "render/scene/node.h"
 
-#include <gsl-lite.hpp>
+#include <gsl/gsl-lite.hpp>
 #include <utility>
 
 namespace engine::world

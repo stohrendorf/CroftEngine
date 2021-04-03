@@ -6,7 +6,7 @@
 #include <boost/assert.hpp>
 #include <cmath>
 #include <glm/gtx/euler_angles.hpp>
-#include <gsl-lite.hpp>
+#include <gsl/gsl-lite.hpp>
 #include <optional>
 
 namespace engine::world

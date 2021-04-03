@@ -4,7 +4,7 @@
 #include "core/units.h"
 #include "serialization/serialization_fwd.h"
 
-#include <gsl-lite.hpp>
+#include <gsl/gsl-lite.hpp>
 #include <vector>
 
 namespace engine::world

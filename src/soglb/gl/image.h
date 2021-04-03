@@ -4,7 +4,7 @@
 
 #include <boost/throw_exception.hpp>
 #include <glm/gtc/type_ptr.hpp>
-#include <gsl-lite.hpp>
+#include <gsl/gsl-lite.hpp>
 #include <vector>
 
 namespace gl

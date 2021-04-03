@@ -2,7 +2,7 @@
 #include "items_tr1.h"
 
 #include <boost/throw_exception.hpp>
-#include <gsl-lite.hpp>
+#include <gsl/gsl-lite.hpp>
 #include <map>
 #include <set>
 #include <vector>

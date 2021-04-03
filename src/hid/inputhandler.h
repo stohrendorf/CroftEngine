@@ -3,7 +3,8 @@
 #include "inputstate.h"
 
 #include <GLFW/glfw3.h>
-#include <gsl-lite.hpp>
+#include <algorithm>
+#include <gsl/gsl-lite.hpp>
 #include <variant>
 
 namespace hid

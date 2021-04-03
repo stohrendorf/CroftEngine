@@ -5,7 +5,7 @@
 
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
-#include <gsl-lite.hpp>
+#include <gsl/gsl-lite.hpp>
 
 namespace util
 {

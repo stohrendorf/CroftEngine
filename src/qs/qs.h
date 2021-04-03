@@ -4,7 +4,7 @@
 #include "quantity.h"
 #include "stream.h"
 
-#include <gsl-lite.hpp>
+#include <gsl/gsl-lite.hpp>
 
 // NOLINTNEXTLINE(bugprone-reserved-identifier)
 #define _QS_PAREN_WRAPPER(value) value

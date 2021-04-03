@@ -5,7 +5,7 @@
 #include "glew_init.h"
 
 #include <boost/log/trivial.hpp>
-#include <gsl-lite.hpp>
+#include <gsl/gsl-lite.hpp>
 
 namespace gl
 {

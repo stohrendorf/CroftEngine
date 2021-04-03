@@ -2,7 +2,7 @@
 
 #include "serialization/serialization_fwd.h"
 
-#include <gsl-lite.hpp>
+#include <gsl/gsl-lite.hpp>
 #include <memory>
 
 namespace loader::file

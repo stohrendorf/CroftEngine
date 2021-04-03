@@ -6,6 +6,8 @@
 #include "core/vec.h"
 #include "sector.h"
 
+#include <algorithm>
+
 namespace render
 {
 class TextureAnimator;

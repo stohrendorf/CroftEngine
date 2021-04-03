@@ -2,7 +2,7 @@
 
 #include <array>
 #include <gl/pixel.h>
-#include <gsl-lite.hpp>
+#include <gsl/gsl-lite.hpp>
 #include <memory>
 #include <utility>
 #include <vector>

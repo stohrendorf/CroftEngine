@@ -1,6 +1,6 @@
 #pragma once
 
-#include <gsl-lite.hpp>
+#include <gsl/gsl-lite.hpp>
 
 // #define NO_GL_ASSERT
 

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <filesystem>
-#include <gsl-lite.hpp>
+#include <gsl/gsl-lite.hpp>
 #include <unordered_map>
 
 namespace render::scene

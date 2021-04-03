@@ -10,7 +10,7 @@
 #include <boost/algorithm/string/case_conv.hpp>
 #include <boost/assert.hpp>
 #include <fstream>
-#include <gsl-lite.hpp>
+#include <gsl/gsl-lite.hpp>
 
 namespace gl
 {
@@ -315,7 +315,7 @@ std::unique_ptr<cimg_library::CImg<uint8_t>> CImgWrapper::loadPcx(const std::fil
   using Palette = Color[256];
   static_assert(sizeof(Palette) == 3 * 256);
   Palette palette;
-  stream.seekg(-sizeof(Palette), std::ios::end);
+  stream.seekg(-static_cast<std::ifstream::pos_type>(sizeof(Palette)), std::ios::end);
   Expects(stream.good());
   stream.read(reinterpret_cast<char*>(&palette[0][0]), sizeof(Palette));
   Expects(stream.good());

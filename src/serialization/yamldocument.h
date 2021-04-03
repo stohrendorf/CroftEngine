@@ -4,7 +4,7 @@
 
 #include <filesystem>
 #include <fstream>
-#include <gsl-lite.hpp>
+#include <gsl/gsl-lite.hpp>
 #include <ryml.hpp>
 #include <type_traits>
 

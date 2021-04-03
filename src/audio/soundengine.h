@@ -4,7 +4,7 @@
 #include "voice.h"
 
 #include <glm/glm.hpp>
-#include <gsl-lite.hpp>
+#include <gsl/gsl-lite.hpp>
 #include <soloud_biquadresonantfilter.h>
 #include <unordered_map>
 #include <unordered_set>

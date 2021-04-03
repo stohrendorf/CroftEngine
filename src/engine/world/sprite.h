@@ -3,7 +3,7 @@
 #include "core/id.h"
 
 #include <glm/glm.hpp>
-#include <gsl-lite.hpp>
+#include <gsl/gsl-lite.hpp>
 
 namespace engine::world
 {

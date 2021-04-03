@@ -7,7 +7,7 @@
 #include <boost/log/trivial.hpp>
 #include <boost/throw_exception.hpp>
 #include <exception>
-#include <gsl-lite.hpp>
+#include <gsl/gsl-lite.hpp>
 #include <optional>
 #include <queue>
 #include <ryml.hpp>
