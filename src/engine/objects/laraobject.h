@@ -318,7 +318,7 @@ public:
   AimInfo leftArm;
   AimInfo rightArm;
 
-  std::shared_ptr<ModelObject> target{nullptr};
+  std::shared_ptr<ModelObject> aimAt{nullptr};
 
   struct Range
   {

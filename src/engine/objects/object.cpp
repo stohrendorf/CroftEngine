@@ -113,9 +113,9 @@ bool Object::triggerKey()
 
 void Object::kill()
 {
-  if(this == getWorld().getObjectManager().getLara().target.get())
+  if(this == getWorld().getObjectManager().getLara().aimAt.get())
   {
-    getWorld().getObjectManager().getLara().target.reset();
+    getWorld().getObjectManager().getLara().aimAt.reset();
   }
   getWorld().getObjectManager().scheduleDeletion(this);
   m_state.activationState.setLocked(true);

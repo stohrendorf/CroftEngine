@@ -809,9 +809,9 @@ void LaraObject::updateShotgun()
   }
   else
   {
-    target = nullptr;
+    aimAt = nullptr;
   }
-  if(target == nullptr)
+  if(aimAt == nullptr)
   {
     findTarget(weapons[WeaponId::Shotgun]);
   }
@@ -835,9 +835,9 @@ void LaraObject::updateGuns(const WeaponId weaponId)
   }
   else
   {
-    target = nullptr;
+    aimAt = nullptr;
   }
-  if(target == nullptr)
+  if(aimAt == nullptr)
   {
     findTarget(weapon);
   }
@@ -864,7 +864,7 @@ void LaraObject::updateGuns(const WeaponId weaponId)
 
 void LaraObject::updateAimingState(const Weapon& weapon)
 {
-  if(target == nullptr)
+  if(aimAt == nullptr)
   {
     rightArm.aiming = false;
     leftArm.aiming = false;
@@ -875,7 +875,7 @@ void LaraObject::updateAimingState(const Weapon& weapon)
 
   core::RoomBoundPosition gunPosition{m_state.position};
   gunPosition.position.Y -= weapon.gunHeight;
-  const auto enemyChestPos = getUpperThirdBBoxCtr(*target);
+  const auto enemyChestPos = getUpperThirdBBoxCtr(*aimAt);
   auto targetVector = getVectorAngles(enemyChestPos.position - gunPosition.position);
   targetVector.X -= m_state.rotation.X;
   targetVector.Y -= m_state.rotation.Y;
@@ -924,7 +924,7 @@ void LaraObject::initWeaponAnimData()
   leftArm.aiming = false;
   rightArm.flashTimeout = 0_frame;
   leftArm.flashTimeout = 0_frame;
-  target = nullptr;
+  aimAt = nullptr;
   if(getWorld().getPlayer().gunType == WeaponId::None)
   {
     const auto* positionData = getWorld().findAnimatedModelForType(TR1ItemId::Lara)->frames;
@@ -1006,7 +1006,7 @@ void LaraObject::findTarget(const Weapon& weapon)
 {
   core::RoomBoundPosition gunPosition{m_state.position};
   gunPosition.position.Y -= weapons[WeaponId::Shotgun].gunHeight;
-  std::shared_ptr<ModelObject> bestEnemy = nullptr;
+  aimAt.reset();
   core::Angle bestYAngle{std::numeric_limits<core::Angle::type>::max()};
   for(const auto& currentEnemy : getWorld().getObjectManager().getObjects() | boost::adaptors::map_values)
   {
@@ -1020,7 +1020,7 @@ void LaraObject::findTarget(const Weapon& weapon)
       continue;
     }
 
-    if(!modelEnemy->getNode()->isVisible())
+    if(!modelEnemy->getNode()->isVisible() || !modelEnemy->m_isActive)
       continue;
 
     const auto d = currentEnemy->m_state.position.position - gunPosition.position;
@@ -1053,9 +1053,8 @@ void LaraObject::findTarget(const Weapon& weapon)
       continue;
 
     bestYAngle = absY;
-    bestEnemy = modelEnemy;
+    aimAt = modelEnemy;
   }
-  target = bestEnemy;
   updateAimingState(weapon);
 }
 
@@ -1074,7 +1073,7 @@ void LaraObject::initAimInfoPistol()
   m_torsoRotation.X = 0_deg;
   m_headRotation.Y = 0_deg;
   m_headRotation.X = 0_deg;
-  target = nullptr;
+  aimAt = nullptr;
 
   rightArm.weaponAnimData = getWorld().findAnimatedModelForType(TR1ItemId::LaraPistolsAnim)->frames;
   leftArm.weaponAnimData = rightArm.weaponAnimData;
@@ -1095,7 +1094,7 @@ void LaraObject::initAimInfoShotgun()
   m_torsoRotation.X = 0_deg;
   m_headRotation.Y = 0_deg;
   m_headRotation.X = 0_deg;
-  target = nullptr;
+  aimAt = nullptr;
 
   rightArm.weaponAnimData = getWorld().findAnimatedModelForType(TR1ItemId::LaraShotgunAnim)->frames;
   leftArm.weaponAnimData = rightArm.weaponAnimData;
@@ -1351,7 +1350,7 @@ void LaraObject::tryShootShotgun()
     core::TRRotationXY aimAngle;
     aimAngle.Y = util::rand15s(+20_deg) + m_state.rotation.Y + leftArm.aimRotation.Y;
     aimAngle.X = util::rand15s(+20_deg) + leftArm.aimRotation.X;
-    if(fireWeapon(WeaponId::Shotgun, target, *this, aimAngle))
+    if(fireWeapon(WeaponId::Shotgun, aimAt, *this, aimAngle))
     {
       fireShotgun = true;
     }
@@ -1421,7 +1420,7 @@ void LaraObject::holsterShotgun()
     {
       aimFrame = 0_frame;
       m_handStatus = HandStatus::None;
-      target = nullptr;
+      aimAt = nullptr;
       rightArm.aiming = false;
       leftArm.aiming = false;
     }
@@ -1529,7 +1528,7 @@ void LaraObject::holsterGuns(const WeaponId weaponId)
     m_handStatus = HandStatus::None;
     leftArm.frame = 0_frame;
     rightArm.frame = 0_frame;
-    target = nullptr;
+    aimAt = nullptr;
     rightArm.aiming = false;
     leftArm.aiming = false;
   }
@@ -1545,7 +1544,7 @@ void LaraObject::updateAnimNotShotgun(const WeaponId weaponId)
   const auto& weapon = weapons[weaponId];
 
   if(!rightArm.aiming
-     && (!getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action) || target != nullptr))
+     && (!getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action) || aimAt != nullptr))
   {
     if(rightArm.frame >= 24_frame)
     {
@@ -1565,7 +1564,7 @@ void LaraObject::updateAnimNotShotgun(const WeaponId weaponId)
     core::TRRotationXY aimAngle;
     aimAngle.X = rightArm.aimRotation.X;
     aimAngle.Y = m_state.rotation.Y + rightArm.aimRotation.Y;
-    if(fireWeapon(weaponId, target, *this, aimAngle))
+    if(fireWeapon(weaponId, aimAt, *this, aimAngle))
     {
       rightArm.flashTimeout = weapon.flashTime;
       playSoundEffect(weapon.shotSound);
@@ -1582,7 +1581,7 @@ void LaraObject::updateAnimNotShotgun(const WeaponId weaponId)
   }
 
   if(!leftArm.aiming
-     && (!getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action) || target != nullptr))
+     && (!getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action) || aimAt != nullptr))
   {
     if(leftArm.frame >= 24_frame)
     {
@@ -1602,7 +1601,7 @@ void LaraObject::updateAnimNotShotgun(const WeaponId weaponId)
     core::TRRotationXY aimAngle;
     aimAngle.Y = m_state.rotation.Y + leftArm.aimRotation.Y;
     aimAngle.X = leftArm.aimRotation.X;
-    if(fireWeapon(weaponId, target, *this, aimAngle))
+    if(fireWeapon(weaponId, aimAt, *this, aimAngle))
     {
       leftArm.flashTimeout = weapon.flashTime;
       playSoundEffect(weapon.shotSound);
@@ -2214,7 +2213,7 @@ void LaraObject::serialize(const serialization::Serializer<world::World>& ser)
       S_NV("weapons", weapons));
 
   ser.lazy([this](const serialization::Serializer<world::World>& ser) {
-    ser(S_NV("target", serialization::ObjectReference{target}));
+    ser(S_NV("aimAt", serialization::ObjectReference{aimAt}));
   });
 
   if(ser.loading)
