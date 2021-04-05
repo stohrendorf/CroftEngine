@@ -13,6 +13,4 @@ IN_OUT GeometryPipelineInterface {
     flat float isQuad;
     flat vec3 quadVerts[4];
     flat vec2 quadUvs[4];
-
-    float splitIdx;
 } gpi;

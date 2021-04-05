@@ -56,14 +56,6 @@ void main()
         gpi.vertexPosLight[i] = (tmp.xyz / tmp.w) * 0.5 + 0.5;
     }
 
-    gpi.splitIdx = 0;
-    for (int splitIdx = 0; splitIdx<CSMSplits; ++splitIdx) {
-        if (-gpi.vertexPos.z < -u_csmSplits[splitIdx]) {
-            gpi.splitIdx = splitIdx;
-            break;
-        }
-    }
-
     gpi.isQuad = a_isQuad;
     if (a_isQuad != 0)
     {

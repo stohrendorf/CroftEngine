@@ -17,7 +17,17 @@ readonly layout(std430, binding=3) buffer b_lights {
 float calc_vsm_value(in int splitIdx, in vec3 normal, in float shadow, in float d)
 {
     vec3 projCoords = gpi.vertexPosLight[splitIdx];
-    vec2 moments = texture(u_csmVsm[splitIdx], projCoords.xy).xy;
+    vec2 moments;
+    // https://stackoverflow.com/a/32273875
+    #define FETCH_CSM(idx) case idx: moments = texture(u_csmVsm[idx], projCoords.xy).xy; break
+    switch (splitIdx) {
+        FETCH_CSM(0);
+        FETCH_CSM(1);
+        FETCH_CSM(2);
+        FETCH_CSM(3);
+        FETCH_CSM(4);
+    }
+        #undef FETCH_CSM
 
     float currentDepth = projCoords.z;
     const float ShadowSlopeBias = 0.005;
@@ -53,9 +63,16 @@ float shadow_map_multiplier(in vec3 normal, in float shadow)
     if (d > 0) {
         return 1.0;
     }
-    #endif
+        #endif
 
-    int splitIdx = int(trunc(gpi.splitIdx));
+    int splitIdx;
+    for (splitIdx = 0; splitIdx<CSMSplits; ++splitIdx) {
+        vec2 p = gpi.vertexPosLight[splitIdx].xy;
+        if (all(greaterThanEqual(p, vec2(0))) && all(lessThanEqual(p, vec2(1)))) {
+            break;
+        }
+    }
+    if (splitIdx == CSMSplits) return 1.0;
     return calc_vsm_value(splitIdx, normal, shadow, d);
 }
 
