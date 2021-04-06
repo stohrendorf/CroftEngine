@@ -1,5 +1,6 @@
 #pragma once
 
+#include "core/angle.h"
 #include "core/units.h"
 #include "menustate.h"
 
@@ -12,12 +13,20 @@ private:
   core::Frame m_duration{Duration};
   std::unique_ptr<MenuState> m_next;
   core::Length m_initialRadius{};
+  core::Angle m_initialCameraRotX{};
   core::Length m_cameraSpeedY{};
   const core::Length m_target;
 
 public:
+  enum class Direction
+  {
+    Up,
+    Down,
+    Backpack
+  };
+
   explicit DeflateRingMenuState(const std::shared_ptr<MenuRingTransform>& ringTransform,
-                                bool down,
+                                Direction direction,
                                 std::unique_ptr<MenuState> next);
 
   void begin(engine::world::World& world) override;

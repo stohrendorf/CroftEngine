@@ -11,9 +11,9 @@ namespace menu
 struct MenuRingTransform
 {
   core::Length radius{0_len};
-  core::Angle cameraRotX{};
+  core::Angle cameraRotX{90_deg};
   core::Angle ringRotation{180_deg};
-  core::TRVec cameraPos{0_len, -1536_len, 896_len};
+  core::TRVec cameraPos{0_len, 0_len, 896_len};
 
   [[nodiscard]] glm::mat4 getModelMatrix() const
   {
