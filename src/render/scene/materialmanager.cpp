@@ -155,11 +155,11 @@ MaterialManager::MaterialManager(gsl::not_null<std::shared_ptr<ShaderCache>> sha
   std::vector<gl::ScalarByte> noiseData;
   noiseData.resize(NoiseTextureSize * NoiseTextureSize);
   std::default_random_engine generator{}; // NOLINT(cert-msc32-c, cert-msc51-cpp)
-  std::uniform_int_distribution<uint8_t> randomInts(0, 255);
+  std::uniform_int_distribution<uint16_t> randomInts(0, 255);
   for(auto& i : noiseData)
   {
     const auto value = randomInts(generator);
-    i = gl::ScalarByte{value};
+    i = gl::ScalarByte{gsl::narrow_cast<uint8_t>(value)};
   }
 
   m_noiseTexture = std::make_shared<gl::Texture2D<gl::ScalarByte>>(glm::ivec2{NoiseTextureSize}, "noise");
