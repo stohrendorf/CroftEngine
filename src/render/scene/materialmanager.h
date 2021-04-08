@@ -55,6 +55,7 @@ public:
 
 private:
   const gsl::not_null<std::shared_ptr<ShaderCache>> m_shaderCache;
+  std::shared_ptr<gl::Texture2D<gl::ScalarByte>> m_noiseTexture;
 
   std::shared_ptr<Material> m_sprite{nullptr};
   std::map<bool, std::shared_ptr<Material>> m_csmDepthOnly{};

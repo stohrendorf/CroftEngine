@@ -1,16 +1,12 @@
 #include "time_uniform.glsl"
+#include "noise.glsl"
 
-float cellnoise(in vec3 p)
-{
-    return fract(sin(dot(p, vec3(12.9898, 78.233, 54.849))) * 43758.5453) * 2 - 1;
-}
-
-vec3 cellnoise3(vec3 p)
+vec3 snoise3(vec3 p)
 {
     return vec3(
-    cellnoise(p.xyz),
-    cellnoise(p.zxy),
-    cellnoise(p.yzx)
+    snoise(p.xy),
+    snoise(p.zx),
+    snoise(p.yz)
     );
 }
 
@@ -22,30 +18,32 @@ float voronoi(in vec3 p)
     float m_dist = 1.;// minimum distance
 
     for (int y= -1; y <= 1; y++) {
+        float fy = float(y);
         for (int x= -1; x <= 1; x++) {
+            float fx = float(x);
             for (int z= -1; z <= 1; z++) {
                 // Neighbor place in the grid
-                vec3 neighbor = vec3(float(x), float(y), float(z));
+                vec3 neighbor = vec3(fx, fy, float(z));
 
                 // Random position from current + neighbor place in the grid
-                vec3 point = cellnoise3(i_st + neighbor);
+                vec3 point = snoise3(i_st + neighbor);
 
                 // Animate the point
-                point = 0.5 + 0.5*sin(u_time*0.005 + 6.2831*point);
+                point = sin(vec3(u_time*0.005) + 6.2831*point) * .5 + .5;
 
-                // Vector between the pixel and the point
+                // Vector between the sample and the point
                 vec3 diff = neighbor + point - f_st;
 
                 // Distance to the point
-                float dist = length(diff);
+                float dist2 = dot(diff, diff);
 
                 // Keep the closer distance
-                m_dist = min(m_dist, dist);
+                m_dist = min(m_dist, dist2);
             }
         }
     }
 
-    return pow(m_dist, 2);
+    return m_dist;
 }
 
 float water_multiplier(in vec3 vpos)

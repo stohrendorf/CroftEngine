@@ -48,7 +48,7 @@ void CSM::Split::init(int32_t resolution, size_t idx, MaterialManager& materialM
   squareMesh->getMaterialGroup().set(RenderMode::Full, squareMaterial);
 
   squareBlur = std::make_shared<SeparableBlur<gl::RG16F>>(
-    "squareBlur-" + std::to_string(idx), materialManager, uint8_t{4}, true);
+    "squareBlur-" + std::to_string(idx), materialManager, uint8_t{2}, true);
   squareBlur->setInput(squaredTexture);
 }
 
