@@ -135,7 +135,7 @@ msgstr "Inventar"
 #. translators: TR charmap encoding
 #: menu/menudisplay.cpp:499
 msgid "ITEMS"
-msgstr "Gegen~ande"
+msgstr "Gegenst~ande"
 
 #. translators: TR charmap encoding
 #: ui/levelstats.cpp:62
