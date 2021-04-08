@@ -13,6 +13,7 @@ const float DofBlurRange = 3;
 vec2 dof_texel = 1.0 / vec2(textureSize(u_texture, 0));
 
 #include "util.glsl"
+#include "noise.glsl"
 
 vec3 dof_color(in vec2 uv, in float blur_amount)//processing the sample
 {
@@ -34,7 +35,7 @@ vec3 do_dof(in vec2 uv)
     float blur_amount = clamp((abs(depth-dof_focal_depth) - dof_start) / dof_dist, -DofBlurRange, DofBlurRange);
 
     const float NAmount = 0.0001;//dither amount
-    vec2 noise = rand2(uv) * NAmount * blur_amount;
+    vec2 noise = noise2(uv) * NAmount * blur_amount;
 
     const int Samples = 3;//samples on the first ring
     const float BokehBias = 0.5;//bokeh edge bias

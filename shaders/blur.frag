@@ -43,9 +43,9 @@ void main()
     for (int x = -BLUR_EXTENT; x <= BLUR_EXTENT; ++x)
     {
         #if BLUR_DIR == 1
-        vec2 offset = vec2(float(x), 0) * texelSize;
+        vec2 offset = vec2(x * texelSize.x, 0);
         #elif BLUR_DIR == 2
-        vec2 offset = vec2(0, float(x)) * texelSize;
+        vec2 offset = vec2(0, x * texelSize.y);
         #else
         #error "Invalid Blur Dir"
         #endif

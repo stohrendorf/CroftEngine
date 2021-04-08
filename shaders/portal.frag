@@ -16,7 +16,7 @@ float fbm(in vec2 st) {
     float value = 0.0;
     float amplitude = .5;
     st *= 0.0004;
-    for (int i = 0; i < 6; i++) {
+    for (int i = 0; i < 3; i++) {
         value += amplitude * noise(st);
         st *= 1.4;
         amplitude *= .5;

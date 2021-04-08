@@ -56,7 +56,7 @@ void main()
     if (d > 0)
     {
         // camera ray goes through water surface; apply perturb
-        vec2 pUv = uv + texture(u_portalPerturb, uv).xy * 512;
+        vec2 pUv = uv + texture(u_portalPerturb, uv).xy * 256;
         if (texture(u_linearDepth, pUv).r >= pDepth) {
             // ...but only apply it if the source pixel's geometry is below the water surface.
             uv = pUv;

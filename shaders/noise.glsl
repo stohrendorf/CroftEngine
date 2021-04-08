@@ -8,3 +8,11 @@ float noise(vec2 p)
     float d = texture(u_noise, p*9.87 + vec2(.6, .2)*p.yx).r;
     return (a+b+c+d) * 0.5 - 1.0;
 }
+
+vec2 noise2(vec2 p)
+{
+    return vec2(
+    noise(p.xy),
+    noise(p.yx + vec2(1.0))
+    );
+}

@@ -85,6 +85,11 @@ CompositionPass::CompositionPass(scene::MaterialManager& materialManager,
                     [buffer = linearizePortalDepthPass.getTexture()](const render::scene::Node& /*node*/,
                                                                      const render::scene::Mesh& /*mesh*/,
                                                                      gl::Uniform& uniform) { uniform.set(buffer); });
+  m_mesh->bind("u_noise",
+               [this](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform) {
+                 uniform.set(m_noise);
+               });
+
   if(renderSettings.waterDenoise)
     m_waterMesh->bind("u_portalPerturb",
                       [texture = portalPass.getBlurredTexture()](const render::scene::Node& /*node*/,
@@ -107,6 +112,10 @@ CompositionPass::CompositionPass(scene::MaterialManager& materialManager,
                     [buffer = fxaaPass.getColorBuffer()](const render::scene::Node& /*node*/,
                                                          const render::scene::Mesh& /*mesh*/,
                                                          gl::Uniform& uniform) { uniform.set(buffer); });
+  m_waterMesh->bind(
+    "u_noise", [this](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform) {
+      uniform.set(m_noise);
+    });
 
   m_colorBuffer->set(gl::api::TextureParameterName::TextureWrapS, gl::api::TextureWrapMode::Repeat)
     .set(gl::api::TextureParameterName::TextureWrapT, gl::api::TextureWrapMode::Repeat)
