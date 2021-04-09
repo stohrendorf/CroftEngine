@@ -1,7 +1,7 @@
-layout(binding=1) uniform sampler2D u_csmVsm[5];
-layout(location=10) uniform float u_lightAmbient;
-
 #include "csm_interface.glsl"
+
+layout(binding=1) uniform sampler2D u_csmVsm[CSMSplits];
+layout(location=10) uniform float u_lightAmbient;
 
 struct Light {
     vec4 position;

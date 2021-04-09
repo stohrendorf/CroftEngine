@@ -32,5 +32,5 @@ vec2 noise2(vec2 p)
 
 vec3 snoise3(vec3 p)
 {
-    return basic_noise(p.xy + p.zx + p.yz).xyz;
+    return basic_noise(p.xy + p.zx*vec2(2.3145, 9.452) + p.yz*vec2(0.3252, 6.3254829)).xyz;
 }
