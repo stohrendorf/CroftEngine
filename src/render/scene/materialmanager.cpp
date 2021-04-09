@@ -114,24 +114,24 @@ std::shared_ptr<Material> MaterialManager::getGeometry(bool water, bool skeletal
   return m;
 }
 
-const std::shared_ptr<Material>& MaterialManager::getPortal()
+const std::shared_ptr<Material>& MaterialManager::getWaterSurface()
 {
-  if(m_portal != nullptr)
-    return m_portal;
+  if(m_waterSurface != nullptr)
+    return m_waterSurface;
 
-  m_portal = std::make_shared<Material>(m_shaderCache->getPortal());
-  m_portal->getRenderState().setCullFace(false);
+  m_waterSurface = std::make_shared<Material>(m_shaderCache->getWaterSurface());
+  m_waterSurface->getRenderState().setCullFace(false);
 
-  m_portal->getUniformBlock("Camera")->bindCameraBuffer(m_renderer->getCamera());
-  m_portal->getUniform("u_time")->bind(
+  m_waterSurface->getUniformBlock("Camera")->bindCameraBuffer(m_renderer->getCamera());
+  m_waterSurface->getUniform("u_time")->bind(
     [renderer = m_renderer](const Node&, const Mesh& /*mesh*/, gl::Uniform& uniform) {
       const auto now = std::chrono::time_point_cast<std::chrono::milliseconds>(renderer->getGameTime());
       uniform.set(gsl::narrow_cast<float>(now.time_since_epoch().count()));
     });
 
-  m_portal->getUniform("u_noise")->set(m_noiseTexture);
+  m_waterSurface->getUniform("u_noise")->set(m_noiseTexture);
 
-  return m_portal;
+  return m_waterSurface;
 }
 
 const std::shared_ptr<Material>& MaterialManager::getLightning()

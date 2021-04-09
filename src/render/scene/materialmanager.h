@@ -26,7 +26,7 @@ public:
 
   [[nodiscard]] std::shared_ptr<Material> getGeometry(bool water, bool skeletal, bool roomShadowing);
 
-  [[nodiscard]] const std::shared_ptr<Material>& getPortal();
+  [[nodiscard]] const std::shared_ptr<Material>& getWaterSurface();
 
   [[nodiscard]] const std::shared_ptr<Material>& getLightning();
 
@@ -62,7 +62,7 @@ private:
   std::map<bool, std::shared_ptr<Material>> m_csmDepthOnly{};
   std::map<bool, std::shared_ptr<Material>> m_depthOnly{};
   std::map<std::tuple<bool, bool, bool>, std::shared_ptr<Material>> m_geometry{};
-  std::shared_ptr<Material> m_portal{nullptr};
+  std::shared_ptr<Material> m_waterSurface{nullptr};
   std::shared_ptr<Material> m_lightning{nullptr};
   std::map<std::tuple<bool, bool, bool, bool>, std::shared_ptr<Material>> m_composition{};
   std::shared_ptr<Material> m_crt{nullptr};

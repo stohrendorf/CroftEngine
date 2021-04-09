@@ -360,7 +360,7 @@ void Room::createSceneNode(const loader::file::Room& srcRoom,
   std::transform(srcRoom.portals.begin(),
                  srcRoom.portals.end(),
                  std::back_inserter(portals),
-                 [material = materialManager.getPortal(), &world](const loader::file::Portal& portal) {
+                 [material = materialManager.getWaterSurface(), &world](const loader::file::Portal& portal) {
                    Portal p{&world.getRooms().at(portal.adjoining_room.get()),
                             portal.normal.toRenderSystem(),
                             {portal.vertices[0].toRenderSystem(),

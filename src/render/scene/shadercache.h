@@ -72,9 +72,9 @@ public:
     return get("depth_only.vert", "depth_only.frag", defines);
   }
 
-  auto getPortal()
+  auto getWaterSurface()
   {
-    return get("portal.vert", "portal.frag");
+    return get("water_surface.vert", "water_surface.frag");
   }
 
   auto getFXAA()
