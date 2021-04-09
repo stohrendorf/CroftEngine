@@ -87,18 +87,24 @@ public:
     return get("flat.vert", "ssao.frag");
   }
 
-  auto getBlur(const uint8_t extent, uint8_t blurDir, uint8_t blurDim, bool gauss)
+  auto getFastGaussBlur(const uint8_t extent, uint8_t blurDir, uint8_t blurDim)
   {
     Expects(extent > 0);
     Expects(blurDir < 3);
     Expects(blurDim > 0);
     Expects(blurDim < 3);
-    std::vector<std::string> defines{"BLUR_EXTENT " + std::to_string(extent),
-                                     "BLUR_DIR " + std::to_string(blurDir),
-                                     "BLUR_DIM " + std::to_string(blurDim)};
-    if(gauss)
-      defines.emplace_back("BLUR_GAUSS");
-    return get("flat.vert", "blur.frag", defines);
+    std::vector<std::string> defines{"BLUR_DIR " + std::to_string(blurDir), "BLUR_DIM " + std::to_string(blurDim)};
+    return get("flat.vert", "blur_fast_gauss_" + std::to_string(extent * 2 + 1) + ".frag", defines);
+  }
+
+  auto getFastBoxBlur(const uint8_t extent, uint8_t blurDir, uint8_t blurDim)
+  {
+    Expects(extent > 0);
+    Expects(blurDir < 3);
+    Expects(blurDim > 0);
+    Expects(blurDim < 3);
+    std::vector<std::string> defines{"BLUR_DIR " + std::to_string(blurDir), "BLUR_DIM " + std::to_string(blurDim)};
+    return get("flat.vert", "blur_fast_box_" + std::to_string(extent * 2 + 1) + ".frag", defines);
   }
 
   auto getVSMSquare()

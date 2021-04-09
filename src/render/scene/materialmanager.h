@@ -43,7 +43,8 @@ public:
   [[nodiscard]] const std::shared_ptr<Material>& getSSAO();
   [[nodiscard]] const std::shared_ptr<Material>& getLinearDepth();
   [[nodiscard]] const std::shared_ptr<Material>& getVSMSquare();
-  [[nodiscard]] std::shared_ptr<Material> getBlur(uint8_t extent, uint8_t blurDir, uint8_t blurDim, bool gauss);
+  [[nodiscard]] std::shared_ptr<Material> getFastGaussBlur(uint8_t extent, uint8_t blurDir, uint8_t blurDim);
+  [[nodiscard]] std::shared_ptr<Material> getFastBoxBlur(uint8_t extent, uint8_t blurDir, uint8_t blurDim);
 
   void setGeometryTextures(std::shared_ptr<gl::Texture2DArray<gl::SRGBA8>> geometryTextures);
   void setBilinearFiltering(bool enabled);
@@ -68,7 +69,8 @@ private:
   std::shared_ptr<Material> m_screenSpriteTextured{nullptr};
   std::shared_ptr<Material> m_screenSpriteColorRect{nullptr};
   std::map<std::tuple<bool, bool>, std::shared_ptr<Material>> m_flat{};
-  std::map<std::tuple<uint8_t, uint8_t, uint8_t, bool>, std::shared_ptr<Material>> m_blur{};
+  std::map<std::tuple<uint8_t, uint8_t, uint8_t>, std::shared_ptr<Material>> m_fastGaussBlur{};
+  std::map<std::tuple<uint8_t, uint8_t, uint8_t>, std::shared_ptr<Material>> m_fastBoxBlur{};
   std::shared_ptr<Material> m_backdrop{nullptr};
   std::shared_ptr<Material> m_fxaa{nullptr};
   std::shared_ptr<Material> m_ssao{nullptr};

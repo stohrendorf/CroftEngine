@@ -332,15 +332,27 @@ void MaterialManager::setBilinearFiltering(bool enabled)
   }
 }
 
-std::shared_ptr<Material> MaterialManager::getBlur(uint8_t extent, uint8_t blurDir, uint8_t blurDim, bool gauss)
+std::shared_ptr<Material> MaterialManager::getFastGaussBlur(uint8_t extent, uint8_t blurDir, uint8_t blurDim)
 {
-  const std::tuple key{extent, blurDir, blurDim, gauss};
-  if(auto it = m_blur.find(key); it != m_blur.end())
+  const std::tuple key{extent, blurDir, blurDim};
+  if(auto it = m_fastGaussBlur.find(key); it != m_fastGaussBlur.end())
     return it->second;
 
-  auto m = std::make_shared<Material>(m_shaderCache->getBlur(extent, blurDir, blurDim, gauss));
+  auto m = std::make_shared<Material>(m_shaderCache->getFastGaussBlur(extent, blurDir, blurDim));
   configureForScreenSpaceEffect(*m);
-  m_blur[key] = m;
+  m_fastGaussBlur[key] = m;
+  return m;
+}
+
+std::shared_ptr<Material> MaterialManager::getFastBoxBlur(uint8_t extent, uint8_t blurDir, uint8_t blurDim)
+{
+  const std::tuple key{extent, blurDir, blurDim};
+  if(auto it = m_fastBoxBlur.find(key); it != m_fastBoxBlur.end())
+    return it->second;
+
+  auto m = std::make_shared<Material>(m_shaderCache->getFastBoxBlur(extent, blurDir, blurDim));
+  configureForScreenSpaceEffect(*m);
+  m_fastBoxBlur[key] = m;
   return m;
 }
 } // namespace render::scene

@@ -21,7 +21,8 @@ public:
 
   explicit SingleBlur(std::string name, MaterialManager& materialManager, uint8_t dir, uint8_t extent, bool gauss)
       : m_name{std::move(name)}
-      , m_material{materialManager.getBlur(extent, dir, PixelT::Channels, gauss)}
+      , m_material{gauss ? materialManager.getFastGaussBlur(extent, dir, PixelT::Channels)
+                         : materialManager.getFastBoxBlur(extent, dir, PixelT::Channels)}
   {
     Expects(dir == 1 || dir == 2);
     Expects(extent > 0);
