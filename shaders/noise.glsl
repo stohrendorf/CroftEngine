@@ -22,3 +22,12 @@ vec2 noise2(vec2 p)
     noise(p.yx + vec2(1.0))
     );
 }
+
+vec3 snoise3(vec3 p)
+{
+    return vec3(
+    snoise(p.xy),
+    snoise(p.zx),
+    snoise(p.yz)
+    );
+}

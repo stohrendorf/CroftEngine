@@ -270,6 +270,7 @@ const std::shared_ptr<Material>& MaterialManager::getSSAO()
     return m_ssao;
 
   auto m = std::make_shared<Material>(m_shaderCache->getSSAO());
+  m->getUniform("u_noise")->set(m_noiseTexture);
   configureForScreenSpaceEffect(*m);
   m_ssao = m;
   return m_ssao;

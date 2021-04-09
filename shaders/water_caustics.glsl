@@ -1,15 +1,6 @@
 #include "time_uniform.glsl"
 #include "noise.glsl"
 
-vec3 snoise3(vec3 p)
-{
-    return vec3(
-    snoise(p.xy),
-    snoise(p.zx),
-    snoise(p.yz)
-    );
-}
-
 float voronoi(in vec3 p)
 {
     vec3 i_st = floor(p);

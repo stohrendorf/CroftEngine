@@ -13,16 +13,15 @@ SSAOPass::SSAOPass(scene::MaterialManager& materialManager,
                    const GeometryPass& geometryPass)
     : m_material{materialManager.getSSAO()}
     , m_renderMesh{scene::createScreenQuad(m_material)}
-    , m_noiseTexture{std::make_shared<gl::Texture2D<gl::RGB32F>>(glm::ivec2{4, 4}, "ssao-noise")}
     , m_aoBuffer{std::make_shared<gl::Texture2D<gl::Scalar16F>>(viewport, "ssao-ao")}
-    , m_blur{"ssao", materialManager, 4, true}
+    , m_blur{"ssao", materialManager, 4, false}
 {
   // generate sample kernel
   std::uniform_real_distribution<float> randomFloats(0, 1);
   // NOLINTNEXTLINE(cert-msc32-c, cert-msc51-cpp)
   std::default_random_engine generator{};
   std::vector<glm::vec3> ssaoSamples;
-  while(ssaoSamples.size() < 16)
+  while(ssaoSamples.size() < 64)
   {
 #define SSAO_UNIFORM_VOLUME_SAMPLING
 #ifdef SSAO_SAMPLE_CONTRACTION
@@ -46,26 +45,6 @@ SSAOPass::SSAOPass(scene::MaterialManager& materialManager,
                      [ssaoSamples](const render::scene::Node& /*node*/,
                                    const render::scene::Mesh& /*mesh*/,
                                    gl::Uniform& uniform) { uniform.set(ssaoSamples); });
-
-  // generate noise texture
-  std::vector<gl::RGB32F> ssaoNoise;
-  ssaoNoise.reserve(16);
-  for(int i = 0; i < 16; ++i)
-  {
-    // rotate around z-axis (in tangent space)
-    ssaoNoise.emplace_back(randomFloats(generator) * 2 - 1, randomFloats(generator) * 2 - 1, 0.0f);
-  }
-
-  m_noiseTexture->assign(ssaoNoise.data())
-    .set(gl::api::TextureParameterName::TextureWrapS, gl::api::TextureWrapMode::Repeat)
-    .set(gl::api::TextureParameterName::TextureWrapT, gl::api::TextureWrapMode::Repeat)
-    .set(gl::api::TextureMinFilter::Nearest)
-    .set(gl::api::TextureMagFilter::Nearest);
-  m_renderMesh->bind("u_texNoise",
-                     [this](const render::scene::Node& /*node*/,
-                            const render::scene::Mesh& /*mesh*/,
-                            gl::Uniform& uniform) { uniform.set(m_noiseTexture); });
-
   m_aoBuffer->set(gl::api::TextureParameterName::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge)
     .set(gl::api::TextureParameterName::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge)
     .set(gl::api::TextureMinFilter::Linear)

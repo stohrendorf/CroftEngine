@@ -1,26 +1,24 @@
 uniform sampler2D u_position;
 uniform sampler2D u_normals;
-uniform sampler2D u_texNoise;
 
 uniform vec3 u_samples[16];
-
-vec2 screenSize = textureSize(u_position, 0);
 
 layout(location=0) out float out_ao;
 
 #include "flat_pipeline_interface.glsl"
 #include "camera_interface.glsl"
+#include "noise.glsl"
 
 void main()
 {
-    const float radius = 64;
-    const float bias = 0.025;
+    const float radius = 32;
+    const float bias = 16;
 
     // get input for SSAO algorithm
     vec3 fragPos = texture(u_position, fpi.texCoord).xyz;
     vec3 normal = normalize(texture(u_normals, fpi.texCoord).xyz);
     // tile noise texture over screen based on screen dimensions divided by noise size
-    vec3 randomVec = normalize(texture(u_texNoise, fpi.texCoord * screenSize/4).xyz);
+    vec3 randomVec = normalize(snoise3(vec3(fpi.texCoord, normal.x)));
     // create TBN change-of-basis matrix: from tangent-space to view-space
     vec3 tangent = normalize(randomVec - normal * dot(randomVec, normal));
     vec3 bitangent = cross(normal, tangent);
@@ -38,13 +36,13 @@ void main()
         offset = offset * vec4(0.5) + vec4(0.5);// transform to range 0.0 - 1.0
 
         // get sample depth
-        float sampleDepth = texture(u_position, offset.xy).z;// get depth value of kernel sample
+        float sampleDepth = dot(textureGather(u_position, offset.xy, 2), vec4(.25));
 
         // range check & accumulate
         if (sampleDepth >= smp.z + bias)
         {
-            occlusion += smoothstep(0.0, 1.0, 1.0 / abs(fragPos.z - sampleDepth));
+            occlusion += 1.0 / abs(fragPos.z - sampleDepth);
         }
     }
-    out_ao = 1.0 - (occlusion / u_samples.length());
+    out_ao = pow(1.0 - clamp(occlusion / u_samples.length(), 0, 1), 64);
 }

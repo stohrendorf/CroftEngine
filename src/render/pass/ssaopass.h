@@ -40,7 +40,6 @@ private:
 
   std::shared_ptr<scene::Mesh> m_renderMesh;
 
-  std::shared_ptr<gl::Texture2D<gl::RGB32F>> m_noiseTexture;
   std::shared_ptr<gl::Texture2D<gl::Scalar16F>> m_aoBuffer;
   std::shared_ptr<gl::Framebuffer> m_fb;
 
