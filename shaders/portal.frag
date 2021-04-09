@@ -15,7 +15,7 @@ mat2 rotate2d(in float a){
 float fbm(in vec2 st) {
     float value = 0.0;
     float amplitude = .5;
-    st *= 0.0032;
+    st *= 0.0064;
     for (int i = 0; i < 3; i++) {
         value += amplitude * noise(st);
         st *= 1.4;
@@ -34,7 +34,7 @@ float bumpTex(in vec2 uv) {
     float wave1 = fbm(coords1*vec2(30.0, 20.0));
     float wave2 = fbm(coords2*vec2(30.0, 20.0));
 
-    return pow((wave1 + wave2) / 2.0, 2.0);
+    return pow((wave1 + wave2) * 0.5, 2.0);
 }
 
 

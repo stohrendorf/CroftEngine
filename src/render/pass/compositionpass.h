@@ -50,7 +50,6 @@ private:
   std::shared_ptr<scene::Mesh> m_waterMesh;
   std::shared_ptr<scene::Mesh> m_crtMesh;
   std::shared_ptr<gl::Texture2D<gl::SRGBA8>> m_colorBuffer;
-  std::shared_ptr<gl::Texture2D<gl::ScalarByte>> m_noise;
   std::shared_ptr<gl::Framebuffer> m_fb;
 };
 } // namespace render::pass

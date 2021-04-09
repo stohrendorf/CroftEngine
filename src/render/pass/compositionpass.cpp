@@ -14,7 +14,6 @@
 #include <gl/framebuffer.h>
 #include <gl/texture2d.h>
 #include <gl/texturedepth.h>
-#include <random>
 
 namespace render::pass
 {
@@ -35,25 +34,6 @@ CompositionPass::CompositionPass(scene::MaterialManager& materialManager,
     , m_crtMesh{scene::createScreenQuad(materialManager.getCrt())}
     , m_colorBuffer{std::make_shared<gl::Texture2D<gl::SRGBA8>>(viewport, "composition-color")}
 {
-  const glm::ivec2 resolution{256, 256};
-
-  std::uniform_real_distribution<float> randomFloats(0, 1);
-  std::default_random_engine generator{}; // NOLINT(cert-msc32-c, cert-msc51-cpp)
-
-  std::vector<gl::ScalarByte> noiseData;
-  noiseData.resize(resolution.x * resolution.y);
-  for(auto& i : noiseData)
-  {
-    const auto value = randomFloats(generator);
-    i = gl::ScalarByte{static_cast<uint8_t>(value * value * 255)};
-  }
-  m_noise = std::make_shared<gl::Texture2D<gl::ScalarByte>>(resolution, "composition-noise");
-  m_noise->assign(noiseData.data())
-    .set(gl::api::TextureParameterName::TextureWrapS, gl::api::TextureWrapMode::Repeat)
-    .set(gl::api::TextureParameterName::TextureWrapT, gl::api::TextureWrapMode::Repeat)
-    .set(gl::api::TextureMinFilter::Linear)
-    .set(gl::api::TextureMagFilter::Linear);
-
   m_mesh->bind("u_linearPortalDepth",
                [buffer = linearizePortalDepthPass.getTexture()](const render::scene::Node& /*node*/,
                                                                 const render::scene::Mesh& /*mesh*/,
@@ -85,10 +65,6 @@ CompositionPass::CompositionPass(scene::MaterialManager& materialManager,
                     [buffer = linearizePortalDepthPass.getTexture()](const render::scene::Node& /*node*/,
                                                                      const render::scene::Mesh& /*mesh*/,
                                                                      gl::Uniform& uniform) { uniform.set(buffer); });
-  m_mesh->bind("u_noise",
-               [this](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform) {
-                 uniform.set(m_noise);
-               });
 
   if(renderSettings.waterDenoise)
     m_waterMesh->bind("u_portalPerturb",
@@ -112,10 +88,6 @@ CompositionPass::CompositionPass(scene::MaterialManager& materialManager,
                     [buffer = fxaaPass.getColorBuffer()](const render::scene::Node& /*node*/,
                                                          const render::scene::Mesh& /*mesh*/,
                                                          gl::Uniform& uniform) { uniform.set(buffer); });
-  m_waterMesh->bind(
-    "u_noise", [this](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform) {
-      uniform.set(m_noise);
-    });
 
   m_colorBuffer->set(gl::api::TextureParameterName::TextureWrapS, gl::api::TextureWrapMode::Repeat)
     .set(gl::api::TextureParameterName::TextureWrapT, gl::api::TextureWrapMode::Repeat)
@@ -125,10 +97,6 @@ CompositionPass::CompositionPass(scene::MaterialManager& materialManager,
   m_crtMesh->bind(
     "u_input", [this](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform) {
       uniform.set(m_colorBuffer);
-    });
-  m_crtMesh->bind(
-    "u_noise", [this](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform) {
-      uniform.set(m_noise);
     });
 
   m_fb = gl::FrameBufferBuilder()

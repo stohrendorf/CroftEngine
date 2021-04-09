@@ -152,17 +152,17 @@ MaterialManager::MaterialManager(gsl::not_null<std::shared_ptr<ShaderCache>> sha
     , m_renderer{std::move(renderer)}
 {
   static constexpr int NoiseTextureSize = 128;
-  std::vector<gl::ScalarByte> noiseData;
+  std::vector<gl::RGB8> noiseData;
   noiseData.resize(NoiseTextureSize * NoiseTextureSize);
   std::default_random_engine generator{}; // NOLINT(cert-msc32-c, cert-msc51-cpp)
   std::uniform_int_distribution<uint16_t> randomInts(0, 255);
   for(auto& i : noiseData)
   {
     const auto value = randomInts(generator);
-    i = gl::ScalarByte{gsl::narrow_cast<uint8_t>(value)};
+    i = gl::RGB8{gsl::narrow_cast<uint8_t>(value), gsl::narrow_cast<uint8_t>(value), gsl::narrow_cast<uint8_t>(value)};
   }
 
-  m_noiseTexture = std::make_shared<gl::Texture2D<gl::ScalarByte>>(glm::ivec2{NoiseTextureSize}, "noise");
+  m_noiseTexture = std::make_shared<gl::Texture2D<gl::RGB8>>(glm::ivec2{NoiseTextureSize}, "noise");
   m_noiseTexture->assign(noiseData.data())
     .set(gl::api::TextureParameterName::TextureWrapS, gl::api::TextureWrapMode::MirroredRepeat)
     .set(gl::api::TextureParameterName::TextureWrapT, gl::api::TextureWrapMode::MirroredRepeat)
@@ -186,6 +186,8 @@ std::shared_ptr<Material> MaterialManager::getComposition(bool water, bool lensD
   if(lensDistortion)
     m->getUniform("distortion_power")->set(water ? -2.0f : -1.0f);
 
+  m->getUniform("u_noise")->set(m_noiseTexture);
+
   m_composition.emplace(key, m);
   return m;
 }
@@ -200,6 +202,7 @@ const std::shared_ptr<Material>& MaterialManager::getCrt()
     const auto now = std::chrono::time_point_cast<std::chrono::milliseconds>(renderer->getGameTime());
     uniform.set(gsl::narrow_cast<float>(now.time_since_epoch().count()));
   });
+  m->getUniform("u_noise")->set(m_noiseTexture);
   m_crt = m;
   return m_crt;
 }
