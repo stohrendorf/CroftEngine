@@ -1275,6 +1275,8 @@ void World::initFromLevel(loader::file::level::Level& level)
     if(anim.transitionsCount > 0)
       transitions = gsl::span{&anim.transitionsIndex.from(m_transitions), anim.transitionsCount};
 
+    Expects(anim.segmentLength > 0_frame);
+    Expects(anim.firstFrame <= anim.lastFrame);
     m_animations[i] = Animation{frames,
                                 anim.segmentLength,
                                 anim.state_id,

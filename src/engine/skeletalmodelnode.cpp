@@ -40,48 +40,27 @@ core::Speed SkeletalModelNode::calculateFloorSpeed(const core::Frame& frameOffse
 
 SkeletalModelNode::InterpolationInfo SkeletalModelNode::getInterpolationInfo() const
 {
-  /*
-     * == Animation Layout ==
-     *
-     * Each character in the timeline depicts a single frame.
-     *
-     * First frame                Last frame/end of animation
-     * v                          v
-     * |-----|-----|-----|-----|--x..|
-     *       ^           <----->     ^
-     *       Keyframe    Segment     Last keyframe
-     */
   Expects(m_anim != nullptr);
-  Expects(m_anim->segmentLength > 0_frame);
 
   Expects(m_frame >= m_anim->firstFrame && m_frame <= m_anim->lastFrame);
-  const auto firstKeyframeIndex = (m_frame - m_anim->firstFrame) / m_anim->segmentLength;
+  const auto firstLocalKeyframeIndex = getLocalFrame() / m_anim->segmentLength;
 
-  auto firstFrame = m_anim->frames->next(firstKeyframeIndex);
-  Expects(m_world->isValid(firstFrame));
-
-  if(m_frame >= m_anim->lastFrame)
-  {
-    return InterpolationInfo{firstFrame, firstFrame, 0.0f};
-  }
-
-  const auto secondFrame = firstFrame->next();
-  Expects(m_world->isValid(secondFrame));
+  auto firstKeyframe = m_anim->frames->next(firstLocalKeyframeIndex);
+  Expects(m_world->isValid(firstKeyframe));
 
   auto segmentDuration = m_anim->segmentLength;
-  const auto segmentFrame = (m_frame - m_anim->firstFrame) % m_anim->segmentLength;
-
-  if((firstKeyframeIndex + 1) * m_anim->segmentLength >= m_anim->getFrameCount())
+  const auto segmentFrame = getLocalFrame() % m_anim->segmentLength;
+  if(segmentFrame == 0_frame)
   {
-    // second keyframe beyond end
-    if(const auto tmp = m_anim->getFrameCount() % m_anim->segmentLength; tmp != 0_frame)
-      segmentDuration = tmp + 1_frame;
+    return InterpolationInfo{firstKeyframe, firstKeyframe, 0.0f};
   }
 
   const auto bias = segmentFrame.cast<float>() / segmentDuration.cast<float>();
   BOOST_ASSERT(bias >= 0 && bias <= 1);
 
-  return InterpolationInfo{firstFrame, secondFrame, bias};
+  const auto secondKeyframe = firstKeyframe->next();
+  Expects(m_world->isValid(secondKeyframe));
+  return InterpolationInfo{firstKeyframe, secondKeyframe, bias};
 }
 
 void SkeletalModelNode::updatePose()
@@ -110,8 +89,6 @@ void SkeletalModelNode::updatePose(const InterpolationInfo& framePair)
   std::stack<glm::mat4> transformsSecond;
   transformsSecond.push(translate(glm::mat4{1.0f}, framePair.secondFrame->pos.toGl())
                         * core::fromPackedAngles(angleDataSecond[0]) * m_meshParts[0].patch);
-
-  BOOST_ASSERT(framePair.bias >= 0 && framePair.bias <= 2);
 
   m_meshParts[0].matrix = util::mix(transformsFirst.top(), transformsSecond.top(), framePair.bias);
 
