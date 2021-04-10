@@ -412,7 +412,10 @@ std::optional<core::Length> getWaterSurfaceHeight(const core::RoomBoundPosition&
         return sector->ceilingHeight;
 
       sector = sector->roomAbove->getSectorByAbsolutePosition(pos.position);
+      Expects(sector != nullptr);
     }
+
+    return sector->ceilingHeight;
   }
   else
   {
