@@ -14,13 +14,13 @@ void main()
     vec2 texelSize = 1.0 / vec2(textureSize(u_input, 0));
 
     #if BLUR_DIR == 1
-    const vec2 Direction = vec2(1, 0) * texelSize;
+    vec2 direction = vec2(1, 0) * texelSize;
     #elif BLUR_DIR == 2
-    const vec2 Direction = vec2(0, 1) * texelSize;
+    vec2 direction = vec2(0, 1) * texelSize;
     #else
     #error "Invalid Blur Dir"
     #endif
-    vec2 off1 = vec2(1 + 1.0/3.0) * Direction;
+    vec2 off1 = vec2(1 + 1.0/3.0) * direction;
     out_tex = (
     BLUR_TYPE(texture(u_input, fpi.texCoord)) * 0.29411764705882354
     + BLUR_TYPE(texture(u_input, fpi.texCoord + off1)) * 0.35294117647058826
