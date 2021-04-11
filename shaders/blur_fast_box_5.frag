@@ -22,7 +22,7 @@ void main()
     #endif
     vec2 off1 = vec2(1.5) * Direction;
     out_tex = (
-    BLUR_TYPE(texture2D(u_input, fpi.texCoord))
+    BLUR_TYPE(texture(u_input, fpi.texCoord))
     + BLUR_TYPE(texture(u_input, fpi.texCoord + off1))
     + BLUR_TYPE(texture(u_input, fpi.texCoord - off1))
     ) * (1.0 / 3.0);
