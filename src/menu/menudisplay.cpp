@@ -81,8 +81,7 @@ void MenuDisplay::updateMenuObjectDescription(ui::Ui& ui, engine::world::World& 
     objectTexts[0]->alignY = ui::Label::Alignment::Bottom;
   }
 
-  const size_t itemCount = world.getPlayer().getInventory().count(object.type);
-  size_t totalItemCount = itemCount;
+  size_t totalItemCount = world.getPlayer().getInventory().count(object.type);
   std::string suffix;
 
   switch(object.type)
@@ -122,7 +121,7 @@ void MenuDisplay::updateMenuObjectDescription(ui::Ui& ui, engine::world::World& 
   default: break;
   }
 
-  if(itemCount > 1)
+  if(totalItemCount > 1)
   {
     if(objectTexts[1] == nullptr)
       objectTexts[1]
@@ -176,26 +175,26 @@ bool MenuDisplay::doOptions(engine::world::World& world, MenuObject& object)
   switch(object.type)
   {
   case engine::TR1ItemId::Puzzle4: break;
-  case engine::TR1ItemId::Key1:
-  case engine::TR1ItemId::Key2:
-  case engine::TR1ItemId::Key3:
-  case engine::TR1ItemId::Key4:
-  case engine::TR1ItemId::Item148:
-  case engine::TR1ItemId::Item149:
-  case engine::TR1ItemId::ScionPiece5:
-  case engine::TR1ItemId::SmallMedipack:
-  case engine::TR1ItemId::Explosive:
-  case engine::TR1ItemId::LargeMedipack:
-  case engine::TR1ItemId::Puzzle1:
-  case engine::TR1ItemId::Pistols:
-  case engine::TR1ItemId::Shotgun:
-  case engine::TR1ItemId::Magnums:
+  case engine::TR1ItemId::Key1: [[fallthrough]];
+  case engine::TR1ItemId::Key2: [[fallthrough]];
+  case engine::TR1ItemId::Key3: [[fallthrough]];
+  case engine::TR1ItemId::Key4: [[fallthrough]];
+  case engine::TR1ItemId::Item148: [[fallthrough]];
+  case engine::TR1ItemId::Item149: [[fallthrough]];
+  case engine::TR1ItemId::ScionPiece5: [[fallthrough]];
+  case engine::TR1ItemId::SmallMedipack: [[fallthrough]];
+  case engine::TR1ItemId::Explosive: [[fallthrough]];
+  case engine::TR1ItemId::LargeMedipack: [[fallthrough]];
+  case engine::TR1ItemId::Puzzle1: [[fallthrough]];
+  case engine::TR1ItemId::Pistols: [[fallthrough]];
+  case engine::TR1ItemId::Shotgun: [[fallthrough]];
+  case engine::TR1ItemId::Magnums: [[fallthrough]];
   case engine::TR1ItemId::Uzis: return true;
-  case engine::TR1ItemId::PistolAmmo:
-  case engine::TR1ItemId::ShotgunAmmo:
-  case engine::TR1ItemId::MagnumAmmo:
-  case engine::TR1ItemId::UziAmmo: break;
-  case engine::TR1ItemId::Sunglasses: /* TODO doGraphicsOptions(); */ break;
+  case engine::TR1ItemId::PistolAmmo: [[fallthrough]];
+  case engine::TR1ItemId::ShotgunAmmo: [[fallthrough]];
+  case engine::TR1ItemId::MagnumAmmo: [[fallthrough]];
+  case engine::TR1ItemId::UziAmmo: [[fallthrough]];
+  case engine::TR1ItemId::Sunglasses: break;
   case engine::TR1ItemId::CassettePlayer: /* TODO doSoundOptions(); */ break;
   case engine::TR1ItemId::DirectionKeys: /* TODO doControlOptions(); */ break;
   case engine::TR1ItemId::Flashlight: /* TODO doGammaOptions(); */ break;
@@ -269,11 +268,11 @@ std::vector<MenuObject> MenuDisplay::getOptionRingObjects(const engine::world::W
                                     384_len});
   }
 
-  objects.erase(
-    std::remove_if(objects.begin(),
-                   objects.end(),
-                   [&world](const MenuObject& obj) { return world.findAnimatedModelForType(obj.type) == nullptr; }),
-    objects.end());
+  objects.erase(std::remove_if(objects.begin(),
+                               objects.end(),
+                               [&world](const MenuObject& obj)
+                               { return world.findAnimatedModelForType(obj.type) == nullptr; }),
+                objects.end());
   for(auto& object : objects)
     object.initModel(world);
 
@@ -404,11 +403,11 @@ std::vector<MenuObject> MenuDisplay::getMainRingObjects(const engine::world::Wor
                                     216_len});
   }
 
-  objects.erase(
-    std::remove_if(objects.begin(),
-                   objects.end(),
-                   [&world](const MenuObject& obj) { return world.findAnimatedModelForType(obj.type) == nullptr; }),
-    objects.end());
+  objects.erase(std::remove_if(objects.begin(),
+                               objects.end(),
+                               [&world](const MenuObject& obj)
+                               { return world.findAnimatedModelForType(obj.type) == nullptr; }),
+                objects.end());
   for(auto& object : objects)
     object.initModel(world);
 
@@ -476,11 +475,11 @@ std::vector<MenuObject> MenuDisplay::getKeysRingObjects(const engine::world::Wor
       MenuObject{"Scion", engine::TR1ItemId::ScionPiece5, 1_frame, 0_frame, 40_deg, -24_deg, 0_deg, 256_len});
   }
 
-  objects.erase(
-    std::remove_if(objects.begin(),
-                   objects.end(),
-                   [&world](const MenuObject& obj) { return world.findAnimatedModelForType(obj.type) == nullptr; }),
-    objects.end());
+  objects.erase(std::remove_if(objects.begin(),
+                               objects.end(),
+                               [&world](const MenuObject& obj)
+                               { return world.findAnimatedModelForType(obj.type) == nullptr; }),
+                objects.end());
   for(auto& object : objects)
     object.initModel(world);
 
