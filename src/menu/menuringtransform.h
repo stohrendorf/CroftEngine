@@ -10,10 +10,18 @@ namespace menu
 {
 struct MenuRingTransform
 {
+  static const constexpr core::Length CameraZPosOffset = 598_len;
+  static const constexpr core::Length IdleCameraYPosOffset = -240_len;
+  static const constexpr core::Length IdleCameraZPosOffset = 688_len;
+  static const constexpr core::Length CameraBackpackZPos = 3000_len; // original: 896_len;
+  static const constexpr core::Angle CameraBackpackXRot = 90_deg;
+  static const constexpr core::Angle CameraSwitchRingXRot = 45_deg;
+  static const constexpr core::Length RingOffScreenCameraPosY = 1536_len;
+
   core::Length radius{0_len};
-  core::Angle cameraRotX{90_deg};
+  core::Angle cameraRotX{CameraBackpackXRot};
   core::Angle ringRotation{180_deg};
-  core::TRVec cameraPos{0_len, 0_len, 896_len};
+  core::TRVec cameraPos{0_len, 0_len, CameraBackpackZPos};
 
   [[nodiscard]] glm::mat4 getModelMatrix() const
   {

@@ -32,8 +32,10 @@ std::unique_ptr<MenuState>
   m_ringTransform->ringRotation -= 180_deg / Duration * 1_frame;
   m_ringTransform->radius = exactScale(m_initialRadius, m_duration, Duration);
   m_ringTransform->cameraPos.Y += m_cameraSpeedY;
+  m_ringTransform->cameraPos.Z = exactScale(m_targetPosZ, Duration - m_duration, Duration)
+                                 + MenuRingTransform::CameraZPosOffset + m_ringTransform->radius;
   m_ringTransform->cameraRotX
-    = m_initialCameraRotX + exactScale(90_deg - m_initialCameraRotX, Duration - m_duration - 1_frame, Duration);
+    = m_initialCameraRotX + exactScale(m_targetRotX - m_initialCameraRotX, Duration - m_duration - 1_frame, Duration);
   return nullptr;
 }
 
@@ -42,9 +44,11 @@ DeflateRingMenuState::DeflateRingMenuState(const std::shared_ptr<MenuRingTransfo
                                            std::unique_ptr<MenuState> next)
     : MenuState{ringTransform}
     , m_next{std::move(next)}
-    , m_target{direction == Direction::Down ? -1536_len
-               : direction == Direction::Up ? 1536_len
-                                            : 0_len}
+    , m_targetPosY{direction == Direction::Down ? -MenuRingTransform::RingOffScreenCameraPosY
+                   : direction == Direction::Up ? MenuRingTransform::RingOffScreenCameraPosY
+                                                : 0_len}
+    , m_targetPosZ{direction == Direction::Backpack ? MenuRingTransform::CameraBackpackZPos : 0_len}
+    , m_targetRotX{direction == Direction::Backpack ? MenuRingTransform::CameraBackpackXRot : 0_deg}
 {
 }
 
@@ -53,6 +57,6 @@ void DeflateRingMenuState::begin(engine::world::World& /*world*/)
   // TODO fadeOutInventory(mode != InventoryMode::TitleMode);
   m_initialRadius = m_ringTransform->radius;
   m_initialCameraRotX = m_ringTransform->cameraRotX;
-  m_cameraSpeedY = (m_target - m_ringTransform->cameraPos.Y) / Duration * 1_frame;
+  m_cameraSpeedY = (m_targetPosY - m_ringTransform->cameraPos.Y) / Duration * 1_frame;
 }
 } // namespace menu

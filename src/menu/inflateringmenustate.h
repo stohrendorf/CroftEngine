@@ -14,9 +14,10 @@ private:
   core::Angle m_initialCameraRotX{};
   core::Length m_radiusSpeed{};
   core::Length m_cameraSpeedY{};
+  const core::Length m_targetPosZ;
 
 public:
-  explicit InflateRingMenuState(const std::shared_ptr<MenuRingTransform>& ringTransform);
+  explicit InflateRingMenuState(const std::shared_ptr<MenuRingTransform>& ringTransform, bool fromBackpack);
 
   void begin(engine::world::World& world) override;
   void handleObject(ui::Ui& ui, engine::world::World& world, MenuDisplay& display, MenuObject& object) override;

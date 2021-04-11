@@ -27,6 +27,8 @@ std::unique_ptr<MenuState>
   m_ringTransform->cameraRotX = exactScale(m_initialCameraRotX, m_duration, Duration);
   m_ringTransform->radius += m_radiusSpeed;
   m_ringTransform->cameraPos.Y += m_cameraSpeedY;
+  m_ringTransform->cameraPos.Z
+    = exactScale(m_targetPosZ, m_duration, Duration) + MenuRingTransform::CameraZPosOffset + m_ringTransform->radius;
   return nullptr;
 }
 
@@ -46,15 +48,17 @@ void InflateRingMenuState::handleObject(ui::Ui& /*ui*/,
   }
 }
 
-InflateRingMenuState::InflateRingMenuState(const std::shared_ptr<MenuRingTransform>& ringTransform)
+InflateRingMenuState::InflateRingMenuState(const std::shared_ptr<MenuRingTransform>& ringTransform, bool fromBackpack)
     : MenuState{ringTransform}
+    , m_targetPosZ{fromBackpack ? MenuRingTransform::CameraBackpackZPos : 0_len}
 {
 }
 
 void InflateRingMenuState::begin(engine::world::World& /*world*/)
 {
   m_initialCameraRotX = m_ringTransform->cameraRotX;
-  m_radiusSpeed = (688_len - m_ringTransform->radius) / Duration * 1_frame;
-  m_cameraSpeedY = (-200_len - m_ringTransform->cameraPos.Y) / Duration * 1_frame;
+  m_radiusSpeed = (MenuRingTransform::IdleCameraZPosOffset - m_ringTransform->radius) / Duration * 1_frame;
+  m_cameraSpeedY = (MenuRingTransform::IdleCameraYPosOffset - m_ringTransform->cameraPos.Y) / Duration * 1_frame;
+  m_ringTransform->cameraPos.Z = m_targetPosZ + MenuRingTransform::CameraZPosOffset + m_ringTransform->radius;
 }
 } // namespace menu

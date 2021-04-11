@@ -15,6 +15,7 @@ std::unique_ptr<MenuState>
   {
     m_duration += 1_frame;
     m_ringTransform->radius -= m_radiusSpeed;
+    m_ringTransform->cameraPos.Z = MenuRingTransform::CameraZPosOffset + m_ringTransform->radius;
     m_ringTransform->ringRotation -= 180_deg / Duration * 1_frame;
     m_ringTransform->cameraRotX = exactScale(m_targetCameraRotX, m_duration, Duration);
     return nullptr;
@@ -24,7 +25,7 @@ std::unique_ptr<MenuState>
   m_ringTransform->cameraRotX = m_targetCameraRotX;
   m_ringTransform->cameraPos.Y *= -1;
 
-  return create<InflateRingMenuState>();
+  return create<InflateRingMenuState>(false);
 }
 
 void SwitchRingMenuState::handleObject(ui::Ui& ui,
@@ -55,6 +56,6 @@ SwitchRingMenuState::SwitchRingMenuState(const std::shared_ptr<MenuRingTransform
 void SwitchRingMenuState::begin(engine::world::World& /*world*/)
 {
   m_radiusSpeed = m_ringTransform->radius / Duration * 1_frame;
-  m_targetCameraRotX = m_down ? -45_deg : 45_deg;
+  m_targetCameraRotX = m_down ? -MenuRingTransform::CameraSwitchRingXRot : MenuRingTransform::CameraSwitchRingXRot;
 }
 } // namespace menu

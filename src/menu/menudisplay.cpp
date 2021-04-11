@@ -137,8 +137,6 @@ void MenuDisplay::updateMenuObjectDescription(ui::Ui& ui, engine::world::World& 
 
 void MenuDisplay::display(ui::Ui& ui, engine::world::World& world)
 {
-  ringTransform->cameraPos.Z = 598_len + ringTransform->radius;
-
   core::Angle itemAngle{0_deg};
   world.getCameraController().getCamera()->setViewMatrix(ringTransform->getView());
   for(auto& menuObject : getCurrentRing().list)
@@ -490,7 +488,7 @@ MenuDisplay::MenuDisplay(InventoryMode mode, engine::world::World& world)
     : mode{mode}
     , streamVolume{world.getPresenter().getSoundEngine()->getSoLoud().getGlobalVolume()}
     , allowMenuClose{mode != InventoryMode::TitleMode && mode != InventoryMode::DeathMode}
-    , m_currentState{std::make_unique<InflateRingMenuState>(ringTransform)}
+    , m_currentState{std::make_unique<InflateRingMenuState>(ringTransform, true)}
 {
   if(mode == InventoryMode::GameMode)
   {
