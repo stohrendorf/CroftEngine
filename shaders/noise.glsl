@@ -11,7 +11,7 @@ vec3 gauss_noise(vec2 p)
 
 vec3 basic_noise(vec2 p)
 {
-    vec3 a = texture(u_noise, p*3.17 + vec2(.3, .9)*p.yx).xyz;
+    vec3 a = texture(u_noise, p + vec2(.3, .9)*p.yx).xyz;
     return a * 2.0 - vec3(1.0);
 }
 
