@@ -1,55 +1,77 @@
 #include "swordofdamocles.h"
 
+#include "engine/particle.h"
 #include "engine/world/world.h"
 #include "laraobject.h"
+#include "serialization/quantity.h"
+#include "serialization/serialization.h"
 
 namespace engine::objects
 {
 void SwordOfDamocles::update()
 {
-  if(m_state.current_anim_state == 0_as)
+  if(m_state.falling)
   {
-    m_state.goal_anim_state = 1_as;
-    m_state.falling = true;
+    m_state.rotation.Y += m_rotateSpeed * 1_frame;
+    if(m_state.fallspeed >= 128_spd)
+    {
+      m_state.fallspeed += 1_spd;
+    }
+    else
+    {
+      m_state.fallspeed += 6_spd;
+    }
+    m_state.position.position.Y += m_state.fallspeed * 1_frame;
+    m_state.position.position.X += m_dropSpeedX * 1_frame;
+    m_state.position.position.Z += m_dropSpeedZ * 1_frame;
+    if(m_state.position.position.Y > m_state.floor)
+    {
+      playSoundEffect(TR1SoundEffect::Clatter);
+      m_state.position.position.Y = m_state.floor + 10_len;
+      m_state.triggerState = TriggerState::Deactivated;
+      deactivate();
+      m_state.falling = false;
+    }
   }
-  else if(m_state.current_anim_state == 1_as && m_state.touch_bits != 0)
+  else if(m_state.position.position.Y != m_state.floor)
   {
-    getWorld().getObjectManager().getLara().m_state.is_hit = true;
-    getWorld().getObjectManager().getLara().m_state.health -= 300_hp;
+    m_state.rotation.Y += m_rotateSpeed * 1_frame;
+    const auto d = getWorld().getObjectManager().getLara().m_state.position.position - m_state.position.position;
+    if(abs(d.X) <= 1536_len && abs(d.Z) <= 1536_len && d.Y > 0_len && d.Y < 3 * core::SectorSize)
+    {
+      m_dropSpeedX = d.X / 32_frame;
+      m_dropSpeedZ = d.Z / 32_frame;
+      m_state.falling = true;
+    }
   }
 
-  ModelObject::update();
-
-  if(m_state.triggerState == TriggerState::Deactivated)
-  {
-    deactivate();
-  }
-  else if(m_state.current_anim_state == 1_as && m_state.position.position.Y >= m_state.floor)
-  {
-    m_state.goal_anim_state = 2_as;
-    m_state.position.position.Y = m_state.floor;
-    m_state.fallspeed = 0_spd;
-    m_state.falling = false;
-  }
+  applyTransform();
 }
 
 void SwordOfDamocles::collide(CollisionInfo& collisionInfo)
 {
-  if(m_state.triggerState == TriggerState::Active)
-  {
-    if(isNear(getWorld().getObjectManager().getLara(), collisionInfo.collisionRadius))
-    {
-      testBoneCollision(getWorld().getObjectManager().getLara());
-    }
-  }
-  else if(m_state.triggerState != TriggerState::Invisible
-          && isNear(getWorld().getObjectManager().getLara(), collisionInfo.collisionRadius)
-          && testBoneCollision(getWorld().getObjectManager().getLara()))
-  {
-    if(collisionInfo.policies.is_set(CollisionInfo::PolicyFlags::EnableBaddiePush))
-    {
-      enemyPush(collisionInfo, false, true);
-    }
-  }
+  if(!testBoneCollision(getWorld().getObjectManager().getLara()))
+    return;
+
+  if(collisionInfo.policies.is_set(CollisionInfo::PolicyFlags::EnableBaddiePush))
+    enemyPush(collisionInfo, false, true);
+
+  if(!m_state.falling)
+    return;
+
+  getWorld().getObjectManager().getLara().m_state.health -= 100_hp;
+  const auto tmp = getWorld().getObjectManager().getLara().m_state.position.position
+                   + core::TRVec{util::rand15s(128_len), -util::rand15(745_len), util::rand15s(128_len)};
+  auto fx = createBloodSplat(getWorld(),
+                             core::RoomBoundPosition{m_state.position.room, tmp},
+                             getWorld().getObjectManager().getLara().m_state.speed,
+                             util::rand15s(22.5_deg) + m_state.rotation.Y);
+  getWorld().getObjectManager().registerParticle(fx);
+}
+
+void SwordOfDamocles::serialize(const serialization::Serializer<world::World>& ser)
+{
+  ModelObject::serialize(ser);
+  ser(S_NV("rotateSpeed", m_rotateSpeed), S_NV("dropSpeedX", m_dropSpeedX), S_NV("dropSpeedZ", m_dropSpeedZ));
 }
 } // namespace engine::objects

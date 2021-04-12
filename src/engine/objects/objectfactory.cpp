@@ -19,6 +19,7 @@
 #include "engine/items_tr1.h"
 #include "engine/presenter.h"
 #include "engine/world/world.h"
+#include "fallingceiling.h"
 #include "flameemitter.h"
 #include "gorilla.h"
 #include "keyhole.h"
@@ -237,7 +238,7 @@ const auto& getFactories()
     MODEL_FACTORY(TeethSpikes, TeethSpikes),
     MODEL_FACTORY(Raptor, Raptor),
     MODEL_FACTORY(SwordOfDamocles, SwordOfDamocles),
-    MODEL_FACTORY(FallingCeiling, SwordOfDamocles),
+    MODEL_FACTORY(FallingCeiling, FallingCeiling),
     MODEL_FACTORY(CutsceneActor1, CutsceneActor1),
     MODEL_FACTORY(CutsceneActor2, CutsceneActor2),
     MODEL_FACTORY(CutsceneActor3, CutsceneActor3),
