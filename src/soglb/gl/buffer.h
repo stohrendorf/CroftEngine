@@ -113,10 +113,8 @@ class ElementArrayBuffer final : public Buffer<T, api::BufferTargetARB::ElementA
 public:
   void drawElements(api::PrimitiveType primitiveType) const
   {
-    GL_ASSERT(api::drawElements(primitiveType,
-                                Buffer<T, api::BufferTargetARB::ElementArrayBuffer>::size(),
-                                TypeTraits<T>::DrawElementsType,
-                                nullptr));
+    GL_ASSERT(api::drawElements(
+      primitiveType, Buffer<T, api::BufferTargetARB::ElementArrayBuffer>::size(), DrawElementsType<T>, nullptr));
   }
 };
 } // namespace gl

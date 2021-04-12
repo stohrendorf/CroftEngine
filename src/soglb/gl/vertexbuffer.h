@@ -24,11 +24,11 @@ public:
   // cppcheck-suppress noExplicitConstructor
   // NOLINTNEXTLINE(google-explicit-constructor)
   VertexAttribute(const U T::*member, const bool normalized = false)
-      : m_type{TypeTraits<U>::VertexAttribType}
+      : m_type{VertexAttribType<U>}
       , m_relativeOffset{static_cast<uint32_t>(
           reinterpret_cast<uintptr_t>( // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
             &(static_cast<T*>(nullptr)->*member)))}
-      , m_size{TypeTraits<U>::ElementCount}
+      , m_size{ElementCount<U>}
       , m_normalized{normalized}
   {
   }
@@ -36,9 +36,9 @@ public:
   // cppcheck-suppress noExplicitConstructor
   // NOLINTNEXTLINE(google-explicit-constructor)
   VertexAttribute(const Trivial&, const bool normalized = false)
-      : m_type{TypeTraits<T>::VertexAttribType}
+      : m_type{VertexAttribType<T>}
       , m_relativeOffset{0}
-      , m_size{TypeTraits<T>::ElementCount}
+      , m_size{ElementCount<T>}
       , m_normalized{normalized}
   {
   }

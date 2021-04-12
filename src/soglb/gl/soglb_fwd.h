@@ -6,8 +6,6 @@
 
 namespace gl
 {
-template<typename T>
-struct TypeTraits;
 class BindableResource;
 // NOLINTNEXTLINE(bugprone-reserved-identifier)
 template<typename T, api::BufferTargetARB _Target>

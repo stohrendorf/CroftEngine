@@ -19,12 +19,11 @@ struct Pixel
   using Self = Pixel<T, _Channels, _PixelFormat, _InternalFormat>;
 
   using Type = T;
-  using Traits = TypeTraits<T>;
 
   static constexpr auto Channels = _Channels;
   static constexpr api::PixelFormat PixelFormat = _PixelFormat;
   static constexpr api::InternalFormat InternalFormat = _InternalFormat;
-  static constexpr api::PixelType PixelType = Traits::PixelType;
+  static constexpr api::PixelType PixelType = ::gl::PixelType<T>;
   using Vec = glm::vec<Channels, Type, glm::qualifier::defaultp>;
 
   Vec channels;
@@ -108,30 +107,30 @@ Pixel<T, 4, _PixelFormat, _InternalFormat> mixAlpha(const Pixel<T, 4, _PixelForm
 }
 
 template<typename T>
-using SRGBA = Pixel<T, 4, api::PixelFormat::Rgba, TypeTraits<T>::SrgbaSizedInternalFormat>;
+using SRGBA = Pixel<T, 4, api::PixelFormat::Rgba, SrgbaSizedInternalFormat<T>>;
 using SRGBA8 = SRGBA<uint8_t>;
 
 template<typename T>
-using SRGB = Pixel<T, 3, api::PixelFormat::Rgb, TypeTraits<T>::SrgbSizedInternalFormat>;
+using SRGB = Pixel<T, 3, api::PixelFormat::Rgb, SrgbSizedInternalFormat<T>>;
 using SRGB8 = SRGB<uint8_t>;
 // using SRGB16F = SRGB<api::core::Half>;
 // using SRGB32F = SRGB<float>;
 
 template<typename T>
-using RGB = Pixel<T, 3, api::PixelFormat::Rgb, TypeTraits<T>::RgbSizedInternalFormat>;
+using RGB = Pixel<T, 3, api::PixelFormat::Rgb, RgbSizedInternalFormat<T>>;
 using RGB8 = RGB<uint8_t>;
 using RGB16F = RGB<api::core::Half>;
 using RGB32 = RGB<int32_t>;
 using RGB32F = RGB<float>;
 
 template<typename T>
-using RG = Pixel<T, 2, api::PixelFormat::Rg, TypeTraits<T>::RgSizedInternalFormat>;
+using RG = Pixel<T, 2, api::PixelFormat::Rg, RgSizedInternalFormat<T>>;
 using RG8 = RG<uint8_t>;
 using RG16F = RG<api::core::Half>;
 using RG32F = RG<float>;
 
 template<typename T>
-using Scalar = Pixel<T, 1, api::PixelFormat::Red, TypeTraits<T>::RSizedInternalFormat>;
+using Scalar = Pixel<T, 1, api::PixelFormat::Red, RSizedInternalFormat<T>>;
 using ScalarByte = Scalar<uint8_t>;
 using Scalar32F = Scalar<float>;
 using Scalar16F = Scalar<api::core::Half>;
@@ -143,11 +142,10 @@ struct ScalarDepth final
                 "Pixel may only have channels of integral types");
 
   using Type = T;
-  using Traits = TypeTraits<T>;
 
   static constexpr api::PixelFormat PixelFormat = api::PixelFormat::DepthComponent;
-  static constexpr api::PixelType PixelType = Traits::PixelType;
-  static constexpr auto InternalFormat = Traits::DepthInternalFormat;
+  static constexpr api::PixelType PixelType = ::gl::PixelType<T>;
+  static constexpr auto InternalFormat = DepthInternalFormat<T>;
 
   explicit ScalarDepth()
       : ScalarDepth{0}
