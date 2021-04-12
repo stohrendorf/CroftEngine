@@ -91,15 +91,16 @@ void Inventory::put(const core::TypeId id, const size_t quantity)
 
 bool Inventory::tryUse(objects::LaraObject& lara, const TR1ItemId id)
 {
-  auto tryUseWeapon = [this, &lara](TR1ItemId weapon, WeaponId weaponId) -> bool {
+  auto tryUseWeapon = [this, &lara](TR1ItemId weapon, WeaponType weaponType) -> bool
+  {
     if(count(weapon) == 0)
       return false;
 
-    lara.getWorld().getPlayer().requestedGunType = weaponId;
+    lara.getWorld().getPlayer().requestedWeaponType = weaponType;
     if(lara.getHandStatus() == objects::HandStatus::None
-       && lara.getWorld().getPlayer().gunType == lara.getWorld().getPlayer().requestedGunType)
+       && lara.getWorld().getPlayer().weaponType == lara.getWorld().getPlayer().requestedWeaponType)
     {
-      lara.getWorld().getPlayer().gunType = WeaponId::None;
+      lara.getWorld().getPlayer().weaponType = WeaponType::None;
     }
 
     return true;
@@ -122,19 +123,19 @@ bool Inventory::tryUse(objects::LaraObject& lara, const TR1ItemId id)
 
   if(id == TR1ItemId::Shotgun || id == TR1ItemId::ShotgunSprite)
   {
-    return tryUseWeapon(TR1ItemId::Shotgun, WeaponId::Shotgun);
+    return tryUseWeapon(TR1ItemId::Shotgun, WeaponType::Shotgun);
   }
   else if(id == TR1ItemId::Pistols || id == TR1ItemId::PistolsSprite)
   {
-    return tryUseWeapon(TR1ItemId::Pistols, WeaponId::Pistols);
+    return tryUseWeapon(TR1ItemId::Pistols, WeaponType::Pistols);
   }
   else if(id == TR1ItemId::Magnums || id == TR1ItemId::MagnumsSprite)
   {
-    return tryUseWeapon(TR1ItemId::Magnums, WeaponId::Magnums);
+    return tryUseWeapon(TR1ItemId::Magnums, WeaponType::Magnums);
   }
   else if(id == TR1ItemId::Uzis || id == TR1ItemId::UzisSprite)
   {
-    return tryUseWeapon(TR1ItemId::Uzis, WeaponId::Uzis);
+    return tryUseWeapon(TR1ItemId::Uzis, WeaponType::Uzis);
   }
   else if(id == TR1ItemId::LargeMedipack || id == TR1ItemId::LargeMedipackSprite)
   {

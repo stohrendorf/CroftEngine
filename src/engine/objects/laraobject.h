@@ -4,7 +4,7 @@
 #include "engine/cameracontroller.h"
 #include "engine/collisioninfo.h"
 #include "engine/soundeffects_tr1.h"
-#include "engine/weaponid.h"
+#include "engine/weapontype.h"
 #include "loader/file/animationid.h"
 #include "loader/file/larastateid.h"
 #include "modelobject.h"
@@ -26,7 +26,7 @@ enum class HandStatus
 {
   None,
   Grabbing,
-  Unholster,
+  DrawWeapon,
   Holster,
   Combat
 };
@@ -59,7 +59,7 @@ public:
       : ModelObject{world, position}
       , m_underwaterRoute{*world}
   {
-    initGunflares();
+    initMuzzleFlashes();
   }
 
   LaraObject(const gsl::not_null<world::World*>& world,
@@ -343,7 +343,7 @@ public:
     RangeXY rightAngles{};
     core::Angle aimSpeed = 0_deg;
     core::Angle shotInaccuracy = 0_deg;
-    core::Length gunHeight = 0_len;
+    core::Length weaponHeight = 0_len;
     core::Health damage = 0_hp;
     core::Length targetDist = 0_len;
     core::Frame recoilFrame = 0_frame;
@@ -360,18 +360,18 @@ public:
     }
   };
 
-  std::unordered_map<WeaponId, Weapon> weapons;
+  std::unordered_map<WeaponType, Weapon> weapons;
   core::TRRotationXY m_weaponTargetVector;
-  gsl::not_null<std::shared_ptr<render::scene::Node>> m_gunFlareLeft{
-    std::make_shared<render::scene::Node>("gun flare left")};
-  gsl::not_null<std::shared_ptr<render::scene::Node>> m_gunFlareRight{
-    std::make_shared<render::scene::Node>("gun flare right")};
+  gsl::not_null<std::shared_ptr<render::scene::Node>> m_muzzleFlashLeft{
+    std::make_shared<render::scene::Node>("muzzle flash left")};
+  gsl::not_null<std::shared_ptr<render::scene::Node>> m_muzzleFlashRight{
+    std::make_shared<render::scene::Node>("muzzle flash right")};
 
   void updateLarasWeaponsStatus();
 
   void updateShotgun();
 
-  void updateGuns(WeaponId weaponId);
+  void updateWeapons(WeaponType weaponType);
 
   void updateAimingState(const Weapon& weapon);
 
@@ -379,7 +379,7 @@ public:
 
   static core::RoomBoundPosition getUpperThirdBBoxCtr(const ModelObject& object);
 
-  void unholsterGuns(WeaponId weaponId);
+  void drawWeapons(WeaponType weaponType);
 
   void findTarget(const Weapon& weapon);
 
@@ -387,11 +387,11 @@ public:
 
   void initAimInfoShotgun();
 
-  void overrideLaraMeshesUnholsterGuns(WeaponId weaponId);
+  void overrideLaraMeshesDrawWeapons(WeaponType weaponType);
 
-  void overrideLaraMeshesUnholsterShotgun();
+  void overrideLaraMeshesDrawShotgun();
 
-  void unholsterShotgun();
+  void drawShotgun();
 
   void updateAimAngles(const Weapon& weapon, AimInfo& aimInfo) const;
 
@@ -401,21 +401,21 @@ public:
 
   void holsterShotgun();
 
-  void holsterGuns(WeaponId weaponId);
+  void holsterWeapons(WeaponType weaponType);
 
-  void updateAnimNotShotgun(WeaponId weaponId);
+  void updateAnimNotShotgun(WeaponType weaponType);
 
-  bool fireWeapon(WeaponId weaponId,
+  bool fireWeapon(WeaponType weaponType,
                   const std::shared_ptr<ModelObject>& targetObject,
-                  const ModelObject& gunHolder,
+                  const ModelObject& weaponHolder,
                   const core::TRRotationXY& aimAngle);
 
   void hitTarget(ModelObject& object, const core::TRVec& hitPos, const core::Health& damage);
 
-  void renderGunFlare(WeaponId weaponId,
-                      glm::mat4 m,
-                      const gsl::not_null<std::shared_ptr<render::scene::Node>>& flareNode,
-                      bool visible) const;
+  void renderMuzzleFlash(const WeaponType weaponType,
+                         glm::mat4 m,
+                         const gsl::not_null<std::shared_ptr<render::scene::Node>>& muzzleFlashNode,
+                         const bool visible) const;
 
   void drawRoutine();
 
@@ -439,7 +439,7 @@ public:
   }
 
 private:
-  void initGunflares();
+  void initMuzzleFlashes();
 };
 } // namespace objects
 } // namespace engine

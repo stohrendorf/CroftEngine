@@ -40,14 +40,14 @@ PYBIND11_EMBEDDED_MODULE(engine, m)
          py::arg("name"),
          py::arg("track"),
          py::arg("flip_rooms") = false,
-         py::arg("gun_swap") = false,
+         py::arg("weapon_swap") = false,
          py::arg("camera_rot"))
     .def(py::init<std::string, engine::TR1TrackId, bool, bool, float, int, int>(),
          py::kw_only{},
          py::arg("name"),
          py::arg("track"),
          py::arg("flip_rooms") = false,
-         py::arg("gun_swap") = false,
+         py::arg("weapon_swap") = false,
          py::arg("camera_rot"),
          py::arg("camera_pos_x"),
          py::arg("camera_pos_z"));

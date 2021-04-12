@@ -73,7 +73,7 @@ class Cutscene(LevelSequenceItem):
             name: str,
             track: TR1TrackId,
             camera_rot: float,
-            gun_swap: bool = False,
+            weapon_swap: bool = False,
             flip_rooms: bool=False,
             camera_pos_x: Optional[int] = None,
             camera_pos_z: Optional[int] = None,

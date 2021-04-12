@@ -60,11 +60,6 @@ public:
     return m_dynamicObjects;
   }
 
-  [[nodiscard]] const auto& getParticles() const
-  {
-    return m_particles;
-  }
-
   objects::LaraObject& getLara()
   {
     Expects(m_lara != nullptr);

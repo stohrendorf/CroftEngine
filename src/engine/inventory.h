@@ -2,7 +2,7 @@
 
 #include "core/id.h"
 #include "items_tr1.h"
-#include "weaponid.h"
+#include "weapontype.h"
 
 #include <boost/throw_exception.hpp>
 #include <gsl/gsl-lite.hpp>
@@ -82,19 +82,19 @@ public:
     m_inventory.erase(id);
   }
 
-  bool tryUse(objects::LaraObject& lara, TR1ItemId id);
+  bool tryUse(objects::LaraObject& lara, TR1ItemId weaponType);
 
-  gsl::not_null<Ammo*> getAmmo(WeaponId weaponId)
+  gsl::not_null<Ammo*> getAmmo(WeaponType weaponType)
   {
     m_pistolsAmmo.ammo = 1000;
 
-    switch(weaponId)
+    switch(weaponType)
     {
-    case WeaponId::Pistols: return &m_pistolsAmmo; break;
-    case WeaponId::Magnums: return &m_magnumsAmmo; break;
-    case WeaponId::Uzis: return &m_uzisAmmo; break;
-    case WeaponId::Shotgun: return &m_shotgunAmmo; break;
-    default: BOOST_THROW_EXCEPTION(std::domain_error("weaponId"));
+    case WeaponType::Pistols: return &m_pistolsAmmo;
+    case WeaponType::Magnums: return &m_magnumsAmmo;
+    case WeaponType::Uzis: return &m_uzisAmmo;
+    case WeaponType::Shotgun: return &m_shotgunAmmo;
+    default: BOOST_THROW_EXCEPTION(std::domain_error("weaponType"));
     }
   }
 

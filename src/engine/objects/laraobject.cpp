@@ -635,7 +635,7 @@ void LaraObject::updateLarasWeaponsStatus()
         doHolsterUpdate = true;
       }
     }
-    else if(getWorld().getPlayer().requestedGunType == getWorld().getPlayer().gunType)
+    else if(getWorld().getPlayer().requestedWeaponType == getWorld().getPlayer().weaponType)
     {
       if(getWorld().getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Holster))
       {
@@ -648,19 +648,19 @@ void LaraObject::updateLarasWeaponsStatus()
     }
     else if(m_handStatus == HandStatus::None)
     {
-      getWorld().getPlayer().gunType = getWorld().getPlayer().requestedGunType;
+      getWorld().getPlayer().weaponType = getWorld().getPlayer().requestedWeaponType;
       initWeaponAnimData();
       doHolsterUpdate = true;
     }
   }
 
-  if(doHolsterUpdate && getWorld().getPlayer().gunType != WeaponId::None)
+  if(doHolsterUpdate && getWorld().getPlayer().weaponType != WeaponType::None)
   {
     if(m_handStatus == HandStatus::None)
     {
       rightArm.frame = 0_frame;
       leftArm.frame = 0_frame;
-      m_handStatus = HandStatus::Unholster;
+      m_handStatus = HandStatus::DrawWeapon;
     }
     else if(m_handStatus == HandStatus::Combat)
     {
@@ -668,27 +668,27 @@ void LaraObject::updateLarasWeaponsStatus()
     }
   }
 
-  if(m_handStatus == HandStatus::Unholster)
+  if(m_handStatus == HandStatus::DrawWeapon)
   {
-    if(getWorld().getPlayer().gunType >= WeaponId::Pistols)
+    if(getWorld().getPlayer().weaponType >= WeaponType::Pistols)
     {
-      if(getWorld().getPlayer().gunType <= WeaponId::Uzis)
+      if(getWorld().getPlayer().weaponType <= WeaponType::Uzis)
       {
         if(getWorld().getCameraController().getMode() != CameraMode::Cinematic
            && getWorld().getCameraController().getMode() != CameraMode::FreeLook)
         {
           getWorld().getCameraController().setMode(CameraMode::Combat);
         }
-        unholsterGuns(getWorld().getPlayer().gunType);
+        drawWeapons(getWorld().getPlayer().weaponType);
       }
-      else if(getWorld().getPlayer().gunType == WeaponId::Shotgun)
+      else if(getWorld().getPlayer().weaponType == WeaponType::Shotgun)
       {
         if(getWorld().getCameraController().getMode() != CameraMode::Cinematic
            && getWorld().getCameraController().getMode() != CameraMode::FreeLook)
         {
           getWorld().getCameraController().setMode(CameraMode::Combat);
         }
-        unholsterShotgun();
+        drawShotgun();
       }
     }
   }
@@ -701,13 +701,13 @@ void LaraObject::updateLarasWeaponsStatus()
       getSkeleton()->rebuildMesh();
     }
 
-    if(getWorld().getPlayer().gunType >= WeaponId::Pistols)
+    if(getWorld().getPlayer().weaponType >= WeaponType::Pistols)
     {
-      if(getWorld().getPlayer().gunType <= WeaponId::Uzis)
+      if(getWorld().getPlayer().weaponType <= WeaponType::Uzis)
       {
-        holsterGuns(getWorld().getPlayer().gunType);
+        holsterWeapons(getWorld().getPlayer().weaponType);
       }
-      else if(getWorld().getPlayer().gunType == WeaponId::Shotgun)
+      else if(getWorld().getPlayer().weaponType == WeaponType::Shotgun)
       {
         holsterShotgun();
       }
@@ -722,10 +722,10 @@ void LaraObject::updateLarasWeaponsStatus()
       getSkeleton()->rebuildMesh();
     }
 
-    switch(getWorld().getPlayer().gunType)
+    switch(getWorld().getPlayer().weaponType)
     {
-    case WeaponId::Pistols:
-      if(getWorld().getPlayer().getInventory().getAmmo(WeaponId::Pistols)->ammo != 0)
+    case WeaponType::Pistols:
+      if(getWorld().getPlayer().getInventory().getAmmo(WeaponType::Pistols)->ammo != 0)
       {
         if(getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action))
         {
@@ -740,10 +740,10 @@ void LaraObject::updateLarasWeaponsStatus()
       {
         getWorld().getCameraController().setMode(CameraMode::Combat);
       }
-      updateGuns(getWorld().getPlayer().gunType);
+      updateWeapons(getWorld().getPlayer().weaponType);
       break;
-    case WeaponId::Magnums:
-      if(getWorld().getPlayer().getInventory().getAmmo(WeaponId::Magnums)->ammo != 0)
+    case WeaponType::Magnums:
+      if(getWorld().getPlayer().getInventory().getAmmo(WeaponType::Magnums)->ammo != 0)
       {
         if(getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action))
         {
@@ -758,10 +758,10 @@ void LaraObject::updateLarasWeaponsStatus()
       {
         getWorld().getCameraController().setMode(CameraMode::Combat);
       }
-      updateGuns(getWorld().getPlayer().gunType);
+      updateWeapons(getWorld().getPlayer().weaponType);
       break;
-    case WeaponId::Uzis:
-      if(getWorld().getPlayer().getInventory().getAmmo(WeaponId::Uzis)->ammo != 0)
+    case WeaponType::Uzis:
+      if(getWorld().getPlayer().getInventory().getAmmo(WeaponType::Uzis)->ammo != 0)
       {
         if(getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action))
         {
@@ -776,10 +776,10 @@ void LaraObject::updateLarasWeaponsStatus()
       {
         getWorld().getCameraController().setMode(CameraMode::Combat);
       }
-      updateGuns(getWorld().getPlayer().gunType);
+      updateWeapons(getWorld().getPlayer().weaponType);
       break;
-    case WeaponId::Shotgun:
-      if(getWorld().getPlayer().getInventory().getAmmo(WeaponId::Shotgun)->ammo != 0)
+    case WeaponType::Shotgun:
+      if(getWorld().getPlayer().getInventory().getAmmo(WeaponType::Shotgun)->ammo != 0)
       {
         if(getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action))
         {
@@ -805,7 +805,7 @@ void LaraObject::updateShotgun()
 {
   if(getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action))
   {
-    updateAimingState(weapons[WeaponId::Shotgun]);
+    updateAimingState(weapons[WeaponType::Shotgun]);
   }
   else
   {
@@ -813,9 +813,9 @@ void LaraObject::updateShotgun()
   }
   if(aimAt == nullptr)
   {
-    findTarget(weapons[WeaponId::Shotgun]);
+    findTarget(weapons[WeaponType::Shotgun]);
   }
-  updateAimAngles(weapons[WeaponId::Shotgun], leftArm);
+  updateAimAngles(weapons[WeaponType::Shotgun], leftArm);
   if(leftArm.aiming)
   {
     m_torsoRotation.X = leftArm.aimRotation.X / 2;
@@ -826,9 +826,9 @@ void LaraObject::updateShotgun()
   updateAnimShotgun();
 }
 
-void LaraObject::updateGuns(const WeaponId weaponId)
+void LaraObject::updateWeapons(WeaponType weaponType)
 {
-  const auto& weapon = weapons.at(weaponId);
+  const auto& weapon = weapons.at(weaponType);
   if(getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action))
   {
     updateAimingState(weapon);
@@ -859,7 +859,7 @@ void LaraObject::updateGuns(const WeaponId weaponId)
     m_headRotation.X = m_torsoRotation.X = (leftArm.aimRotation.X + rightArm.aimRotation.X) / 4;
   }
 
-  updateAnimNotShotgun(weaponId);
+  updateAnimNotShotgun(weaponType);
 }
 
 void LaraObject::updateAimingState(const Weapon& weapon)
@@ -873,13 +873,13 @@ void LaraObject::updateAimingState(const Weapon& weapon)
     return;
   }
 
-  core::RoomBoundPosition gunPosition{m_state.position};
-  gunPosition.position.Y -= weapon.gunHeight;
+  core::RoomBoundPosition weaponPosition{m_state.position};
+  weaponPosition.position.Y -= weapon.weaponHeight;
   const auto enemyChestPos = getUpperThirdBBoxCtr(*aimAt);
-  auto targetVector = getVectorAngles(enemyChestPos.position - gunPosition.position);
+  auto targetVector = getVectorAngles(enemyChestPos.position - weaponPosition.position);
   targetVector.X -= m_state.rotation.X;
   targetVector.Y -= m_state.rotation.Y;
-  if(!raycastLineOfSight(gunPosition, enemyChestPos.position, getWorld().getObjectManager()).first)
+  if(!raycastLineOfSight(weaponPosition, enemyChestPos.position, getWorld().getObjectManager()).first)
   {
     rightArm.aiming = false;
     leftArm.aiming = false;
@@ -925,15 +925,16 @@ void LaraObject::initWeaponAnimData()
   rightArm.flashTimeout = 0_frame;
   leftArm.flashTimeout = 0_frame;
   aimAt = nullptr;
-  if(getWorld().getPlayer().gunType == WeaponId::None)
+  if(getWorld().getPlayer().weaponType == WeaponType::None)
   {
     const auto* positionData = getWorld().findAnimatedModelForType(TR1ItemId::Lara)->frames;
 
     rightArm.weaponAnimData = positionData;
     leftArm.weaponAnimData = positionData;
   }
-  else if(getWorld().getPlayer().gunType == WeaponId::Pistols || getWorld().getPlayer().gunType == WeaponId::Magnums
-          || getWorld().getPlayer().gunType == WeaponId::Uzis)
+  else if(getWorld().getPlayer().weaponType == WeaponType::Pistols
+          || getWorld().getPlayer().weaponType == WeaponType::Magnums
+          || getWorld().getPlayer().weaponType == WeaponType::Uzis)
   {
     const auto* positionData = getWorld().findAnimatedModelForType(TR1ItemId::LaraPistolsAnim)->frames;
 
@@ -942,10 +943,10 @@ void LaraObject::initWeaponAnimData()
 
     if(m_handStatus != HandStatus::None)
     {
-      overrideLaraMeshesUnholsterGuns(getWorld().getPlayer().gunType);
+      overrideLaraMeshesDrawWeapons(getWorld().getPlayer().weaponType);
     }
   }
-  else if(getWorld().getPlayer().gunType == WeaponId::Shotgun)
+  else if(getWorld().getPlayer().weaponType == WeaponType::Shotgun)
   {
     const auto* positionData = getWorld().findAnimatedModelForType(TR1ItemId::LaraShotgunAnim)->frames;
 
@@ -954,7 +955,7 @@ void LaraObject::initWeaponAnimData()
 
     if(m_handStatus != HandStatus::None)
     {
-      overrideLaraMeshesUnholsterShotgun();
+      overrideLaraMeshesDrawShotgun();
     }
   }
   else
@@ -980,7 +981,7 @@ core::RoomBoundPosition LaraObject::getUpperThirdBBoxCtr(const ModelObject& obje
   return result;
 }
 
-void LaraObject::unholsterGuns(const WeaponId weaponId)
+void LaraObject::drawWeapons(WeaponType weaponType)
 {
   auto nextFrame = leftArm.frame + 1_frame;
   if(nextFrame < 5_frame || nextFrame > 23_frame)
@@ -989,8 +990,8 @@ void LaraObject::unholsterGuns(const WeaponId weaponId)
   }
   else if(nextFrame == 13_frame)
   {
-    overrideLaraMeshesUnholsterGuns(weaponId);
-    playSoundEffect(TR1SoundEffect::LaraUnholster);
+    overrideLaraMeshesDrawWeapons(weaponType);
+    playSoundEffect(TR1SoundEffect::LaraDrawWeapon);
   }
   else if(nextFrame == 23_frame)
   {
@@ -1004,8 +1005,8 @@ void LaraObject::unholsterGuns(const WeaponId weaponId)
 
 void LaraObject::findTarget(const Weapon& weapon)
 {
-  core::RoomBoundPosition gunPosition{m_state.position};
-  gunPosition.position.Y -= weapons[WeaponId::Shotgun].gunHeight;
+  core::RoomBoundPosition weaponPosition{m_state.position};
+  weaponPosition.position.Y -= weapons[WeaponType::Shotgun].weaponHeight;
   aimAt.reset();
   core::Angle bestYAngle{std::numeric_limits<core::Angle::type>::max()};
   for(const auto& currentEnemy : getWorld().getObjectManager().getObjects() | boost::adaptors::map_values)
@@ -1023,7 +1024,7 @@ void LaraObject::findTarget(const Weapon& weapon)
     if(!modelEnemy->getNode()->isVisible() || !modelEnemy->m_isActive)
       continue;
 
-    const auto d = currentEnemy->m_state.position.position - gunPosition.position;
+    const auto d = currentEnemy->m_state.position.position - weaponPosition.position;
     if(abs(d.X) > weapon.targetDist)
       continue;
 
@@ -1037,11 +1038,11 @@ void LaraObject::findTarget(const Weapon& weapon)
       continue;
 
     auto enemyPos = getUpperThirdBBoxCtr(*std::dynamic_pointer_cast<const ModelObject>(currentEnemy.get()));
-    const auto canShoot = raycastLineOfSight(gunPosition, enemyPos.position, getWorld().getObjectManager()).first;
+    const auto canShoot = raycastLineOfSight(weaponPosition, enemyPos.position, getWorld().getObjectManager()).first;
     if(!canShoot)
       continue;
 
-    auto aimAngle = getVectorAngles(enemyPos.position - gunPosition.position);
+    auto aimAngle = getVectorAngles(enemyPos.position - weaponPosition.position);
     aimAngle.X -= m_torsoRotation.X + m_state.rotation.X;
     aimAngle.Y -= m_torsoRotation.Y + m_state.rotation.Y;
     if(aimAngle.Y < weapon.lockAngles.y.min || aimAngle.Y > weapon.lockAngles.y.max
@@ -1100,14 +1101,14 @@ void LaraObject::initAimInfoShotgun()
   leftArm.weaponAnimData = rightArm.weaponAnimData;
 }
 
-void LaraObject::overrideLaraMeshesUnholsterGuns(const WeaponId weaponId)
+void LaraObject::overrideLaraMeshesDrawWeapons(WeaponType weaponType)
 {
   TR1ItemId id;
-  if(weaponId == WeaponId::Magnums)
+  if(weaponType == WeaponType::Magnums)
   {
     id = TR1ItemId::LaraMagnumsAnim;
   }
-  else if(weaponId == WeaponId::Uzis)
+  else if(weaponType == WeaponType::Uzis)
   {
     id = TR1ItemId::LaraUzisAnim;
   }
@@ -1128,7 +1129,7 @@ void LaraObject::overrideLaraMeshesUnholsterGuns(const WeaponId weaponId)
   getSkeleton()->rebuildMesh();
 }
 
-void LaraObject::overrideLaraMeshesUnholsterShotgun()
+void LaraObject::overrideLaraMeshesDrawShotgun()
 {
   const auto& src = *getWorld().findAnimatedModelForType(TR1ItemId::LaraShotgunAnim);
   BOOST_ASSERT(src.bones.size() == getSkeleton()->getBoneCount());
@@ -1140,7 +1141,7 @@ void LaraObject::overrideLaraMeshesUnholsterShotgun()
   getSkeleton()->rebuildMesh();
 }
 
-void LaraObject::unholsterShotgun()
+void LaraObject::drawShotgun()
 {
   auto nextFrame = leftArm.frame + 1_frame;
   if(nextFrame < 5_frame || nextFrame > 47_frame)
@@ -1149,9 +1150,9 @@ void LaraObject::unholsterShotgun()
   }
   else if(nextFrame == 23_frame)
   {
-    overrideLaraMeshesUnholsterShotgun();
+    overrideLaraMeshesDrawShotgun();
 
-    playSoundEffect(TR1SoundEffect::LaraUnholster);
+    playSoundEffect(TR1SoundEffect::LaraDrawWeapon);
   }
   else if(nextFrame == 47_frame)
   {
@@ -1240,7 +1241,7 @@ void LaraObject::updateAnimShotgun()
         }
         if(nextFrame == 57_frame)
         {
-          playSoundEffect(TR1SoundEffect::LaraPistolsCocking);
+          playSoundEffect(TR1SoundEffect::LaraHolsterWeapons);
           rightArm.frame = aimingFrame;
           leftArm.frame = aimingFrame;
           return;
@@ -1313,7 +1314,7 @@ void LaraObject::updateAnimShotgun()
       }
       if(nextFrame == 57_frame)
       {
-        playSoundEffect(TR1SoundEffect::LaraPistolsCocking);
+        playSoundEffect(TR1SoundEffect::LaraHolsterWeapons);
         rightArm.frame = aimingFrame;
         leftArm.frame = aimingFrame;
         return;
@@ -1350,14 +1351,14 @@ void LaraObject::tryShootShotgun()
     core::TRRotationXY aimAngle;
     aimAngle.Y = util::rand15s(+20_deg) + m_state.rotation.Y + leftArm.aimRotation.Y;
     aimAngle.X = util::rand15s(+20_deg) + leftArm.aimRotation.X;
-    if(fireWeapon(WeaponId::Shotgun, aimAt, *this, aimAngle))
+    if(fireWeapon(WeaponType::Shotgun, aimAt, *this, aimAngle))
     {
       fireShotgun = true;
     }
   }
   if(fireShotgun)
   {
-    playSoundEffect(weapons[WeaponId::Shotgun].shotSound);
+    playSoundEffect(weapons[WeaponType::Shotgun].shotSound);
   }
 }
 
@@ -1414,7 +1415,7 @@ void LaraObject::holsterShotgun()
       getSkeleton()->setMeshPart(13, normalLara.bones[13].mesh);
       getSkeleton()->rebuildMesh();
 
-      playSoundEffect(TR1SoundEffect::LaraUnholster);
+      playSoundEffect(TR1SoundEffect::LaraDrawWeapon);
     }
     else if(leftArm.frame == 113_frame)
     {
@@ -1435,7 +1436,7 @@ void LaraObject::holsterShotgun()
   m_headRotation.Y = 0_deg;
 }
 
-void LaraObject::holsterGuns(const WeaponId weaponId)
+void LaraObject::holsterWeapons(WeaponType weaponType)
 {
   if(leftArm.frame >= 24_frame)
   {
@@ -1459,11 +1460,11 @@ void LaraObject::holsterGuns(const WeaponId weaponId)
     if(leftArm.frame == 12_frame)
     {
       TR1ItemId srcId = TR1ItemId::LaraPistolsAnim;
-      if(weaponId == WeaponId::Magnums)
+      if(weaponType == WeaponType::Magnums)
       {
         srcId = TR1ItemId::LaraMagnumsAnim;
       }
-      else if(weaponId == WeaponId::Uzis)
+      else if(weaponType == WeaponType::Uzis)
       {
         srcId = TR1ItemId::LaraUzisAnim;
       }
@@ -1502,11 +1503,11 @@ void LaraObject::holsterGuns(const WeaponId weaponId)
     if(rightArm.frame == 12_frame)
     {
       TR1ItemId srcId = TR1ItemId::LaraPistolsAnim;
-      if(weaponId == WeaponId::Magnums)
+      if(weaponType == WeaponType::Magnums)
       {
         srcId = TR1ItemId::LaraMagnumsAnim;
       }
-      else if(weaponId == WeaponId::Uzis)
+      else if(weaponType == WeaponType::Uzis)
       {
         srcId = TR1ItemId::LaraUzisAnim;
       }
@@ -1539,9 +1540,9 @@ void LaraObject::holsterGuns(const WeaponId weaponId)
   m_torsoRotation.Y = rightArm.aimRotation.Y / 4;
 }
 
-void LaraObject::updateAnimNotShotgun(const WeaponId weaponId)
+void LaraObject::updateAnimNotShotgun(const WeaponType weaponType)
 {
-  const auto& weapon = weapons[weaponId];
+  const auto& weapon = weapons[weaponType];
 
   if(!rightArm.aiming
      && (!getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action) || aimAt != nullptr))
@@ -1564,7 +1565,7 @@ void LaraObject::updateAnimNotShotgun(const WeaponId weaponId)
     core::TRRotationXY aimAngle;
     aimAngle.X = rightArm.aimRotation.X;
     aimAngle.Y = m_state.rotation.Y + rightArm.aimRotation.Y;
-    if(fireWeapon(weaponId, aimAt, *this, aimAngle))
+    if(fireWeapon(weaponType, aimAt, *this, aimAngle))
     {
       rightArm.flashTimeout = weapon.flashTime;
       playSoundEffect(weapon.shotSound);
@@ -1601,7 +1602,7 @@ void LaraObject::updateAnimNotShotgun(const WeaponId weaponId)
     core::TRRotationXY aimAngle;
     aimAngle.Y = m_state.rotation.Y + leftArm.aimRotation.Y;
     aimAngle.X = leftArm.aimRotation.X;
-    if(fireWeapon(weaponId, aimAt, *this, aimAngle))
+    if(fireWeapon(weaponType, aimAt, *this, aimAngle))
     {
       leftArm.flashTimeout = weapon.flashTime;
       playSoundEffect(weapon.shotSound);
@@ -1618,26 +1619,26 @@ void LaraObject::updateAnimNotShotgun(const WeaponId weaponId)
   }
 }
 
-bool LaraObject::fireWeapon(const WeaponId weaponId,
+bool LaraObject::fireWeapon(const WeaponType weaponType,
                             const std::shared_ptr<ModelObject>& targetObject,
-                            const ModelObject& gunHolder,
+                            const ModelObject& weaponHolder,
                             const core::TRRotationXY& aimAngle)
 {
-  Expects(weaponId != WeaponId::None);
+  Expects(weaponType != WeaponType::None);
 
-  const auto ammoPtr = getWorld().getPlayer().getInventory().getAmmo(weaponId);
+  const auto ammoPtr = getWorld().getPlayer().getInventory().getAmmo(weaponType);
 
   if(ammoPtr->ammo == 0)
   {
     playSoundEffect(TR1SoundEffect::EmptyAmmo);
-    getWorld().getPlayer().requestedGunType = WeaponId::Pistols;
+    getWorld().getPlayer().requestedWeaponType = WeaponType::Pistols;
     return false;
   }
 
   --ammoPtr->ammo;
-  const auto weapon = &weapons[weaponId];
-  core::TRVec gunPosition = gunHolder.m_state.position.position;
-  gunPosition.Y -= weapon->gunHeight;
+  const auto weapon = &weapons[weaponType];
+  core::TRVec weaponPosition = weaponHolder.m_state.position.position;
+  weaponPosition.Y -= weapon->weaponHeight;
   const core::TRRotation shootVector{
     util::rand15s(weapon->shotInaccuracy) + aimAngle.X, util::rand15s(weapon->shotInaccuracy) + aimAngle.Y, +0_deg};
 
@@ -1652,8 +1653,8 @@ bool LaraObject::fireWeapon(const WeaponId weaponId,
   const auto bulletDir = normalize(glm::vec3(shootVector.toMatrix()[2])); // +Z is our shooting direction
   for(const auto& sphere : spheres)
   {
-    hitPos
-      = gunPosition.toRenderSystem() + bulletDir * dot(sphere.getPosition() - gunPosition.toRenderSystem(), bulletDir);
+    hitPos = weaponPosition.toRenderSystem()
+             + bulletDir * dot(sphere.getPosition() - weaponPosition.toRenderSystem(), bulletDir);
 
     if(core::Length{static_cast<core::Length::type>(length(hitPos - sphere.getPosition()))} <= sphere.radius)
     {
@@ -1668,10 +1669,11 @@ bool LaraObject::fireWeapon(const WeaponId weaponId,
 
     static constexpr float VeryLargeDistanceProbablyClipping = 1u << 14u;
 
-    const auto aimHitPos = raycastLineOfSight(core::RoomBoundPosition{gunHolder.m_state.position.room, gunPosition},
-                                              gunPosition + core::TRVec{-bulletDir * VeryLargeDistanceProbablyClipping},
-                                              getWorld().getObjectManager())
-                             .second;
+    const auto aimHitPos
+      = raycastLineOfSight(core::RoomBoundPosition{weaponHolder.m_state.position.room, weaponPosition},
+                           weaponPosition + core::TRVec{-bulletDir * VeryLargeDistanceProbablyClipping},
+                           getWorld().getObjectManager())
+          .second;
     emitRicochet(aimHitPos);
   }
   else
@@ -1962,17 +1964,18 @@ void LaraObject::drawRoutine()
   matrixStack.rotate(m_headRotation);
   matrixStack.apply(getSkeleton(), 14);
 
-  WeaponId activeGunType = WeaponId::None;
-  if(m_handStatus == HandStatus::Combat || m_handStatus == HandStatus::Unholster || m_handStatus == HandStatus::Holster)
+  WeaponType activeWeaponType = WeaponType::None;
+  if(m_handStatus == HandStatus::Combat || m_handStatus == HandStatus::DrawWeapon
+     || m_handStatus == HandStatus::Holster)
   {
-    activeGunType = getWorld().getPlayer().gunType;
+    activeWeaponType = getWorld().getPlayer().weaponType;
   }
 
   matrixStack.pop();
   gsl::span<const uint32_t> armAngleData;
-  switch(activeGunType)
+  switch(activeWeaponType)
   {
-  case WeaponId::None:
+  case WeaponType::None:
     matrixStack.push();
     matrixStack.transform({8, 9, 10}, objInfo.bones, angleData, getSkeleton());
 
@@ -1980,9 +1983,9 @@ void LaraObject::drawRoutine()
     matrixStack.push();
     matrixStack.transform({11, 12, 13}, objInfo.bones, angleData, getSkeleton());
     break;
-  case WeaponId::Pistols:
-  case WeaponId::Magnums:
-  case WeaponId::Uzis:
+  case WeaponType::Pistols:
+  case WeaponType::Magnums:
+  case WeaponType::Uzis:
     matrixStack.push();
     matrixStack.translate(objInfo.bones[8].position);
     matrixStack.resetRotation();
@@ -1995,7 +1998,7 @@ void LaraObject::drawRoutine()
     matrixStack.transform(9, objInfo.bones, armAngleData, getSkeleton());
     matrixStack.transform(10, objInfo.bones, armAngleData, getSkeleton());
 
-    renderGunFlare(activeGunType, matrixStack.top(), m_gunFlareRight, rightArm.flashTimeout != 0_frame);
+    renderMuzzleFlash(activeWeaponType, matrixStack.top(), m_muzzleFlashRight, rightArm.flashTimeout != 0_frame);
     matrixStack.pop();
     matrixStack.push();
     matrixStack.translate(objInfo.bones[11].position);
@@ -2007,9 +2010,9 @@ void LaraObject::drawRoutine()
 
     matrixStack.transform({12, 13}, objInfo.bones, armAngleData, getSkeleton());
 
-    renderGunFlare(activeGunType, matrixStack.top(), m_gunFlareLeft, leftArm.flashTimeout != 0_frame);
+    renderMuzzleFlash(activeWeaponType, matrixStack.top(), m_muzzleFlashLeft, leftArm.flashTimeout != 0_frame);
     break;
-  case WeaponId::Shotgun:
+  case WeaponType::Shotgun:
     matrixStack.push();
     armAngleData = rightArm.weaponAnimData->next(rightArm.frame.get())->getAngleData();
     matrixStack.transform({8, 9, 10}, objInfo.bones, armAngleData, getSkeleton());
@@ -2055,17 +2058,18 @@ void LaraObject::drawRoutineInterpolated(const SkeletalModelNode::InterpolationI
   matrixStack.rotate(m_headRotation);
   matrixStack.apply(getSkeleton(), 14);
 
-  WeaponId activeGunType = WeaponId::None;
-  if(m_handStatus == HandStatus::Combat || m_handStatus == HandStatus::Unholster || m_handStatus == HandStatus::Holster)
+  WeaponType activeWeaponType = WeaponType::None;
+  if(m_handStatus == HandStatus::Combat || m_handStatus == HandStatus::DrawWeapon
+     || m_handStatus == HandStatus::Holster)
   {
-    activeGunType = getWorld().getPlayer().gunType;
+    activeWeaponType = getWorld().getPlayer().weaponType;
   }
 
   matrixStack.pop();
   gsl::span<const uint32_t> armAngleData;
-  switch(activeGunType)
+  switch(activeWeaponType)
   {
-  case WeaponId::None:
+  case WeaponType::None:
     matrixStack.push();
     matrixStack.transform({8, 9, 10}, objInfo.bones, angleDataA, angleDataB, getSkeleton());
 
@@ -2073,9 +2077,9 @@ void LaraObject::drawRoutineInterpolated(const SkeletalModelNode::InterpolationI
     matrixStack.push();
     matrixStack.transform({11, 12, 13}, objInfo.bones, angleDataA, angleDataB, getSkeleton());
     break;
-  case WeaponId::Pistols:
-  case WeaponId::Magnums:
-  case WeaponId::Uzis:
+  case WeaponType::Pistols:
+  case WeaponType::Magnums:
+  case WeaponType::Uzis:
     matrixStack.push();
     matrixStack.translate(objInfo.bones[8].position);
     matrixStack.resetRotation();
@@ -2088,7 +2092,7 @@ void LaraObject::drawRoutineInterpolated(const SkeletalModelNode::InterpolationI
     matrixStack.transform(9, objInfo.bones, armAngleData, armAngleData, getSkeleton());
     matrixStack.transform(10, objInfo.bones, armAngleData, armAngleData, getSkeleton());
 
-    renderGunFlare(activeGunType, matrixStack.itop(), m_gunFlareRight, rightArm.flashTimeout != 0_frame);
+    renderMuzzleFlash(activeWeaponType, matrixStack.itop(), m_muzzleFlashRight, rightArm.flashTimeout != 0_frame);
     matrixStack.pop();
     matrixStack.push();
     matrixStack.translate(objInfo.bones[11].position);
@@ -2100,9 +2104,9 @@ void LaraObject::drawRoutineInterpolated(const SkeletalModelNode::InterpolationI
 
     matrixStack.transform({12, 13}, objInfo.bones, armAngleData, armAngleData, getSkeleton());
 
-    renderGunFlare(activeGunType, matrixStack.itop(), m_gunFlareLeft, leftArm.flashTimeout != 0_frame);
+    renderMuzzleFlash(activeWeaponType, matrixStack.itop(), m_muzzleFlashLeft, leftArm.flashTimeout != 0_frame);
     break;
-  case WeaponId::Shotgun:
+  case WeaponType::Shotgun:
     matrixStack.push();
     armAngleData = rightArm.weaponAnimData->next(rightArm.frame.get())->getAngleData();
     matrixStack.transform({8, 9, 10}, objInfo.bones, armAngleData, armAngleData, getSkeleton());
@@ -2116,52 +2120,52 @@ void LaraObject::drawRoutineInterpolated(const SkeletalModelNode::InterpolationI
   }
 }
 
-void LaraObject::renderGunFlare(const WeaponId weaponId,
-                                glm::mat4 m,
-                                const gsl::not_null<std::shared_ptr<render::scene::Node>>& flareNode,
-                                const bool visible) const
+void LaraObject::renderMuzzleFlash(const WeaponType weaponType,
+                                   glm::mat4 m,
+                                   const gsl::not_null<std::shared_ptr<render::scene::Node>>& muzzleFlashNode,
+                                   const bool visible) const
 {
   if(!visible)
   {
-    flareNode->setVisible(false);
+    muzzleFlashNode->setVisible(false);
     return;
   }
 
   core::Shade shade{core::Shade::type{0}};
   core::Length dy = 0_len;
-  switch(weaponId)
+  switch(weaponType)
   {
-  case WeaponId::None:
-  case WeaponId::Pistols:
+  case WeaponType::None:
+  case WeaponType::Pistols:
     shade = core::Shade{core::Shade::type{5120}};
     dy = 155_len;
     break;
-  case WeaponId::Magnums:
+  case WeaponType::Magnums:
     shade = core::Shade{core::Shade::type{4096}};
     dy = 155_len;
     break;
-  case WeaponId::Uzis:
+  case WeaponType::Uzis:
     shade = core::Shade{core::Shade::type{2560}};
     dy = 180_len;
     break;
-  case WeaponId::Shotgun:
+  case WeaponType::Shotgun:
     shade = core::Shade{core::Shade::type{5120}};
     dy = 155_len;
     break;
-  default: BOOST_THROW_EXCEPTION(std::domain_error("WeaponId"));
+  default: BOOST_THROW_EXCEPTION(std::domain_error("WeaponType"));
   }
 
   m = translate(m, core::TRVec{0_len, dy, 55_len}.toRenderSystem());
   m *= core::TRRotation(-90_deg, 0_deg, util::rand15s(180_deg) * 2).toMatrix();
 
-  flareNode->setVisible(true);
-  setParent(flareNode, getNode()->getParent().lock());
-  flareNode->setLocalMatrix(getNode()->getLocalMatrix() * m);
+  muzzleFlashNode->setVisible(true);
+  setParent(muzzleFlashNode, getNode()->getParent().lock());
+  muzzleFlashNode->setLocalMatrix(getNode()->getLocalMatrix() * m);
 
-  flareNode->bind("u_lightAmbient",
-                  [brightness = toBrightness(shade)](const render::scene::Node& /*node*/,
-                                                     const render::scene::Mesh& /*mesh*/,
-                                                     gl::Uniform& uniform) { uniform.set(brightness.get()); });
+  muzzleFlashNode->bind("u_lightAmbient",
+                        [brightness = toBrightness(shade)](const render::scene::Node& /*node*/,
+                                                           const render::scene::Mesh& /*mesh*/,
+                                                           gl::Uniform& uniform) { uniform.set(brightness.get()); });
 }
 
 void LaraObject::burnIfAlive()
@@ -2237,7 +2241,7 @@ LaraObject::LaraObject(const gsl::not_null<world::World*>& world,
   m_underwaterRoute.fly = core::QuarterSectorSize;
 
   Weapon w{};
-  weapons[WeaponId::None] = w;
+  weapons[WeaponType::None] = w;
 
   w.lockAngles.y.min = -60_deg;
   w.lockAngles.y.max = +60_deg;
@@ -2253,13 +2257,13 @@ LaraObject::LaraObject(const gsl::not_null<world::World*>& world,
   w.rightAngles.x.max = +80_deg;
   w.aimSpeed = +10_deg;
   w.shotInaccuracy = +8_deg;
-  w.gunHeight = 650_len;
+  w.weaponHeight = 650_len;
   w.damage = 1_hp;
   w.targetDist = core::SectorSize * 8;
   w.recoilFrame = 9_frame;
   w.flashTime = 3_frame;
   w.shotSound = TR1SoundEffect::LaraShootPistols;
-  weapons[WeaponId::Pistols] = w;
+  weapons[WeaponType::Pistols] = w;
 
   w.lockAngles.y.min = -60_deg;
   w.lockAngles.y.max = +60_deg;
@@ -2275,13 +2279,13 @@ LaraObject::LaraObject(const gsl::not_null<world::World*>& world,
   w.rightAngles.x.max = +80_deg;
   w.aimSpeed = +10_deg;
   w.shotInaccuracy = +8_deg;
-  w.gunHeight = 650_len;
+  w.weaponHeight = 650_len;
   w.damage = 2_hp;
   w.targetDist = core::SectorSize * 8;
   w.recoilFrame = 9_frame;
   w.flashTime = 3_frame;
   w.shotSound = TR1SoundEffect::CowboyShoot;
-  weapons[WeaponId::Magnums] = w;
+  weapons[WeaponType::Magnums] = w;
 
   w.lockAngles.y.min = -60_deg;
   w.lockAngles.y.max = +60_deg;
@@ -2297,13 +2301,13 @@ LaraObject::LaraObject(const gsl::not_null<world::World*>& world,
   w.rightAngles.x.max = +80_deg;
   w.aimSpeed = +10_deg;
   w.shotInaccuracy = +8_deg;
-  w.gunHeight = 650_len;
+  w.weaponHeight = 650_len;
   w.damage = 1_hp;
   w.targetDist = core::SectorSize * 8;
   w.recoilFrame = 3_frame;
   w.flashTime = 2_frame;
   w.shotSound = TR1SoundEffect::LaraShootUzis;
-  weapons[WeaponId::Uzis] = w;
+  weapons[WeaponType::Uzis] = w;
 
   w.lockAngles.y.min = -60_deg;
   w.lockAngles.y.max = +60_deg;
@@ -2319,37 +2323,37 @@ LaraObject::LaraObject(const gsl::not_null<world::World*>& world,
   w.rightAngles.x.max = +65_deg;
   w.aimSpeed = +10_deg;
   w.shotInaccuracy = 0_deg;
-  w.gunHeight = 500_len;
+  w.weaponHeight = 500_len;
   w.damage = 4_hp;
   w.targetDist = core::SectorSize * 8;
   w.recoilFrame = 9_frame;
   w.flashTime = 3_frame;
   w.shotSound = TR1SoundEffect::LaraShootShotgun;
-  weapons[WeaponId::Shotgun] = w;
+  weapons[WeaponType::Shotgun] = w;
 
   m_state.health = core::LaraHealth;
   m_state.collidable = true;
   m_state.is_hit = true;
   m_state.falling = true;
 
-  initGunflares();
+  initMuzzleFlashes();
 }
 
-void LaraObject::initGunflares()
+void LaraObject::initMuzzleFlashes()
 {
-  const auto& gunFlareModel = getWorld().findAnimatedModelForType(TR1ItemId::Gunflare);
-  if(gunFlareModel == nullptr)
+  const auto& muzzleFlashModel = getWorld().findAnimatedModelForType(TR1ItemId::MuzzleFlash);
+  if(muzzleFlashModel == nullptr)
     return;
 
   world::RenderMeshDataCompositor compositor;
-  compositor.append(*gunFlareModel->bones[0].mesh);
+  compositor.append(*muzzleFlashModel->bones[0].mesh);
   auto mdl = compositor.toMesh(*getWorld().getPresenter().getMaterialManager(), false, {});
 
-  m_gunFlareLeft->setRenderable(mdl);
-  m_gunFlareLeft->setVisible(false);
+  m_muzzleFlashLeft->setRenderable(mdl);
+  m_muzzleFlashLeft->setVisible(false);
 
-  m_gunFlareRight->setRenderable(mdl);
-  m_gunFlareRight->setVisible(false);
+  m_muzzleFlashRight->setRenderable(mdl);
+  m_muzzleFlashRight->setVisible(false);
 }
 
 void LaraObject::AimInfo::serialize(const serialization::Serializer<world::World>& ser)
@@ -2370,7 +2374,7 @@ void LaraObject::Weapon::serialize(const serialization::Serializer<world::World>
       S_NV("rightAngles", rightAngles),
       S_NV("aimSpeed", aimSpeed),
       S_NV("shotInaccuracy", shotInaccuracy),
-      S_NV("gunHeight", gunHeight),
+      S_NV("weaponHeight", weaponHeight),
       S_NV("damage", damage),
       S_NV("targetDist", targetDist),
       S_NV("recoilFrame", recoilFrame),

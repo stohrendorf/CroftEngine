@@ -172,11 +172,11 @@ public:
   bool update(world::World& /*world*/) override;
 };
 
-class GunflareParticle final : public Particle
+class MuzzleFlashParticle final : public Particle
 {
 public:
-  explicit GunflareParticle(const core::RoomBoundPosition& pos, world::World& world, const core::Angle& yAngle)
-      : Particle{"gunflare", TR1ItemId::Gunflare, pos, world}
+  explicit MuzzleFlashParticle(const core::RoomBoundPosition& pos, world::World& world, const core::Angle& yAngle)
+      : Particle{"muzzleflash", TR1ItemId::MuzzleFlash, pos, world}
   {
     angle.Y = yAngle;
     timePerSpriteFrame = 3;

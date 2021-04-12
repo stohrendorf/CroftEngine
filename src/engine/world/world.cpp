@@ -656,7 +656,7 @@ void World::runEffect(const size_t id, objects::Object* object)
   case 14:
     Expects(object != nullptr);
     if(const auto m = dynamic_cast<objects::ModelObject*>(object))
-      return unholsterRightGunEffect(*m);
+      return drawRightWeaponEffect(*m);
     break;
   case 15: return chainBlockEffect();
   case 16: return flickerEffect();
@@ -706,7 +706,7 @@ void World::turn180Effect(objects::Object& object)
 }
 
 // NOLINTNEXTLINE(readability-make-member-function-const)
-void World::unholsterRightGunEffect(const objects::ModelObject& object)
+void World::drawRightWeaponEffect(const objects::ModelObject& object)
 {
   const auto& src = *findAnimatedModelForType(TR1ItemId::LaraPistolsAnim);
   BOOST_ASSERT(src.bones.size() == object.getSkeleton()->getBoneCount());
@@ -845,9 +845,9 @@ void World::handleCommandSequence(const floordata::FloorDataValue* floorData, co
 
 core::TypeId World::find(const SkeletalModelType* model) const
 {
-  auto it = std::find_if(m_animatedModels.begin(), m_animatedModels.end(), [&model](const auto& item) {
-    return item.second.get() == model;
-  });
+  auto it = std::find_if(m_animatedModels.begin(),
+                         m_animatedModels.end(),
+                         [&model](const auto& item) { return item.second.get() == model; });
   if(it != m_animatedModels.end())
     return it->first;
 
@@ -856,9 +856,10 @@ core::TypeId World::find(const SkeletalModelType* model) const
 
 core::TypeId World::find(const Sprite* sprite) const
 {
-  auto it = std::find_if(m_spriteSequences.begin(), m_spriteSequences.end(), [&sprite](const auto& sequence) {
-    return !sequence.second->sprites.empty() && &sequence.second->sprites[0] == sprite;
-  });
+  auto it = std::find_if(m_spriteSequences.begin(),
+                         m_spriteSequences.end(),
+                         [&sprite](const auto& sequence)
+                         { return !sequence.second->sprites.empty() && &sequence.second->sprites[0] == sprite; });
   if(it != m_spriteSequences.end())
     return it->first;
 
@@ -925,22 +926,22 @@ void World::gameLoop(bool godMode, float delayRatio, float blackAlpha)
   doGlobalEffect();
   getPresenter().drawBars(ui, m_palette, getObjectManager());
   if(getObjectManager().getLara().getHandStatus() == engine::objects::HandStatus::Combat
-     && m_player->gunType != WeaponId::Pistols)
+     && m_player->weaponType != WeaponType::Pistols)
   {
     size_t n = 0;
     std::string suffix;
-    switch(m_player->gunType)
+    switch(m_player->weaponType)
     {
-    case WeaponId::Shotgun:
-      n = m_player->getInventory().getAmmo(WeaponId::Shotgun)->ammo / 6;
+    case WeaponType::Shotgun:
+      n = m_player->getInventory().getAmmo(WeaponType::Shotgun)->ammo / 6;
       suffix = " A";
       break;
-    case WeaponId::Magnums:
-      n = m_player->getInventory().getAmmo(WeaponId::Magnums)->ammo;
+    case WeaponType::Magnums:
+      n = m_player->getInventory().getAmmo(WeaponType::Magnums)->ammo;
       suffix = " B";
       break;
-    case WeaponId::Uzis:
-      n = m_player->getInventory().getAmmo(WeaponId::Uzis)->ammo;
+    case WeaponType::Uzis:
+      n = m_player->getInventory().getAmmo(WeaponType::Uzis)->ammo;
       suffix = " C";
       break;
     default: Expects(false); break;
@@ -1150,10 +1151,11 @@ void World::createMipmaps(const std::vector<std::shared_ptr<gl::CImgWrapper>>& i
     tilesByTexture[sprite.textureId.get()].emplace(sprite.uv0, sprite.uv1);
   }
 
-  size_t totalTiles = std::accumulate(
-    tilesByTexture.begin(), tilesByTexture.end(), std::size_t{0}, [](size_t n, const auto& textureAndTiles) {
-      return n + textureAndTiles.second.size();
-    });
+  size_t totalTiles
+    = std::accumulate(tilesByTexture.begin(),
+                      tilesByTexture.end(),
+                      std::size_t{0},
+                      [](size_t n, const auto& textureAndTiles) { return n + textureAndTiles.second.size(); });
   BOOST_LOG_TRIVIAL(debug) << totalTiles << " unique texture tiles";
 
   size_t processedTiles = 0;
@@ -1291,11 +1293,15 @@ void World::initFromLevel(loader::file::level::Level& level)
                                 std::move(transitions)};
   }
 
-  std::transform(
-    level.m_meshes.begin(), level.m_meshes.end(), std::back_inserter(m_meshes), [this](const loader::file::Mesh& mesh) {
-      return Mesh{
-        mesh.collision_center, mesh.collision_radius, std::make_shared<RenderMeshData>(mesh, m_atlasTiles, m_palette)};
-    });
+  std::transform(level.m_meshes.begin(),
+                 level.m_meshes.end(),
+                 std::back_inserter(m_meshes),
+                 [this](const loader::file::Mesh& mesh)
+                 {
+                   return Mesh{mesh.collision_center,
+                               mesh.collision_radius,
+                               std::make_shared<RenderMeshData>(mesh, m_atlasTiles, m_palette)};
+                 });
 
   std::vector<gsl::not_null<const Mesh*>> meshesDirect;
   for(auto idx : level.m_meshIndices)
@@ -1364,7 +1370,8 @@ void World::initFromLevel(loader::file::level::Level& level)
     level.m_transitions.begin(),
     level.m_transitions.end(),
     m_transitions.begin(),
-    [this](const loader::file::Transitions& transitions) {
+    [this](const loader::file::Transitions& transitions)
+    {
       Expects((transitions.firstTransitionCase + transitions.transitionCaseCount).exclusiveIn(m_transitionCases));
       if(transitions.transitionCaseCount > 0)
         return Transitions{
@@ -1374,7 +1381,8 @@ void World::initFromLevel(loader::file::level::Level& level)
     });
 
   m_boxes.resize(level.m_boxes.size());
-  auto getOverlaps = [this, &level](const uint16_t idx) -> std::vector<gsl::not_null<Box*>> {
+  auto getOverlaps = [this, &level](const uint16_t idx) -> std::vector<gsl::not_null<Box*>>
+  {
     if(idx >= level.m_overlaps.size())
       return {};
 
@@ -1394,7 +1402,11 @@ void World::initFromLevel(loader::file::level::Level& level)
   };
 
   std::transform(
-    level.m_boxes.begin(), level.m_boxes.end(), m_boxes.begin(), [&getOverlaps](const loader::file::Box& box) {
+    level.m_boxes.begin(),
+    level.m_boxes.end(),
+    m_boxes.begin(),
+    [&getOverlaps](const loader::file::Box& box)
+    {
       return Box{
         box.zmin, box.zmax, box.xmin, box.xmax, box.floor, box.blocked, box.blockable, getOverlaps(box.overlap_index)};
     });
@@ -1532,7 +1544,8 @@ void World::initTextureDependentDataFromLevel(const loader::file::level::Level& 
   std::transform(level.m_textureTiles.begin(),
                  level.m_textureTiles.end(),
                  std::back_inserter(m_atlasTiles),
-                 [](const loader::file::TextureTile& tile) {
+                 [](const loader::file::TextureTile& tile)
+                 {
                    return AtlasTile{tile.textureKey,
                                     {tile.uvCoordinates[0].toGl(),
                                      tile.uvCoordinates[1].toGl(),
@@ -1682,9 +1695,9 @@ void World::remapTextures(const loader::file::level::Level& level,
   for(auto& tile : m_atlasTiles)
     tilesOrderedBySize.emplace_back(&tile);
 
-  std::sort(tilesOrderedBySize.begin(), tilesOrderedBySize.end(), [](AtlasTile* a, AtlasTile* b) {
-    return a->getArea() > b->getArea();
-  });
+  std::sort(tilesOrderedBySize.begin(),
+            tilesOrderedBySize.end(),
+            [](AtlasTile* a, AtlasTile* b) { return a->getArea() > b->getArea(); });
 
   for(auto* tile : tilesOrderedBySize)
   {
@@ -1728,13 +1741,16 @@ void World::remapTextures(const loader::file::level::Level& level,
   for(auto& sprite : m_sprites)
     spritesOrderedBySize.emplace_back(&sprite);
 
-  std::sort(spritesOrderedBySize.begin(), spritesOrderedBySize.end(), [](Sprite* a, Sprite* b) {
-    const auto aSize = a->uv1 - a->uv0;
-    const auto aArea = glm::abs(aSize.x * aSize.y);
-    const auto bSize = b->uv1 - b->uv0;
-    const auto bArea = glm::abs(bSize.x * bSize.y);
-    return aArea > bArea;
-  });
+  std::sort(spritesOrderedBySize.begin(),
+            spritesOrderedBySize.end(),
+            [](Sprite* a, Sprite* b)
+            {
+              const auto aSize = a->uv1 - a->uv0;
+              const auto aArea = glm::abs(aSize.x * aSize.y);
+              const auto bSize = b->uv1 - b->uv0;
+              const auto bArea = glm::abs(bSize.x * bSize.y);
+              return aArea > bArea;
+            });
 
   for(auto* sprite : spritesOrderedBySize)
   {

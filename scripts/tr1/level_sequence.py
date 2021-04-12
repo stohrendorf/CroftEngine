@@ -195,7 +195,7 @@ level_sequence = [
         camera_pos_x=51962,
         camera_pos_z=53760,
         camera_rot=90.0,
-        gun_swap=True,
+        weapon_swap=True,
     ),
     Level(
         name="LEVEL7B",
@@ -339,7 +339,7 @@ level_sequence = [
         name="CUT4",
         track=TR1TrackId.Cutscene1,
         camera_rot=90.0,
-        gun_swap=True,
+        weapon_swap=True,
     ),
     Video("PYRAMID.RPL"),
     Level(

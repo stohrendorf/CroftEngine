@@ -163,8 +163,8 @@ bool AIAgent::animateCreature(const core::Angle& angle, const core::Angle& tilt)
   const auto minZMove = boundedMin - inSectorZ;
   const auto maxZMove = boundedMax - inSectorZ;
 
-  const auto cannotMoveTo = [this, floor = sector->box->floor, nextFloor = nextFloor, &lotInfo](
-                              const core::TRVec& pos) { return isPositionOutOfReach(pos, floor, nextFloor, lotInfo); };
+  const auto cannotMoveTo = [this, floor = sector->box->floor, nextFloor = nextFloor, &lotInfo](const core::TRVec& pos)
+  { return isPositionOutOfReach(pos, floor, nextFloor, lotInfo); };
 
   if(inSectorZ < boundedMin)
   {
@@ -431,12 +431,12 @@ bool AIAgent::canShootAtLara(const ai::AiInfo& aiInfo) const
 
 namespace
 {
-gsl::not_null<std::shared_ptr<Particle>> createGunFlare(world::World& world,
-                                                        const core::RoomBoundPosition& pos,
-                                                        const core::Speed& /*speed*/,
-                                                        const core::Angle& angle)
+gsl::not_null<std::shared_ptr<Particle>> createMuzzleFlash(world::World& world,
+                                                           const core::RoomBoundPosition& pos,
+                                                           const core::Speed& /*speed*/,
+                                                           const core::Angle& angle)
 {
-  auto particle = std::make_shared<GunflareParticle>(pos, world, angle);
+  auto particle = std::make_shared<MuzzleFlashParticle>(pos, world, angle);
   setParent(particle, pos.room->node);
   return particle;
 }
@@ -474,7 +474,7 @@ bool AIAgent::tryShootAtLara(ModelObject& object,
     getWorld().getObjectManager().getLara().emitRicochet(pos);
   }
 
-  auto p = object.emitParticle(bonePos, boneIndex, &createGunFlare);
+  auto p = object.emitParticle(bonePos, boneIndex, &createMuzzleFlash);
   p->angle.Y += angle;
 
   return isHit;

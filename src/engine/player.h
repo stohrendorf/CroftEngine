@@ -26,8 +26,8 @@ public:
   void serialize(const serialization::Serializer<world::World>& ser);
 
   core::Health laraHealth{core::LaraHealth};
-  WeaponId gunType = WeaponId::None;
-  WeaponId requestedGunType = WeaponId::None;
+  WeaponType weaponType = WeaponType::None;
+  WeaponType requestedWeaponType = WeaponType::None;
   size_t pickups = 0;
   size_t kills = 0;
   size_t secrets = 0;

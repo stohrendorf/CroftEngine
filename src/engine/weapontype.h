@@ -2,7 +2,7 @@
 
 namespace engine
 {
-enum class WeaponId
+enum class WeaponType
 {
   None,
   Pistols,

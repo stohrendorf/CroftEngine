@@ -62,7 +62,7 @@ std::pair<RunResult, std::optional<size_t>> Cutscene::run(Engine& engine, const 
   if(m_flipRooms)
     world->swapAllRooms();
 
-  if(m_gunSwap)
+  if(m_weaponSwap)
   {
     const auto& laraPistol = world->findAnimatedModelForType(TR1ItemId::LaraPistolsAnim);
     Expects(laraPistol != nullptr);

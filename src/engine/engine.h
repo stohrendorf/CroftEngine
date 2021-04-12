@@ -152,8 +152,8 @@ public:
     return m_glidos;
   }
 
-  SavegameMeta getSavegameMeta(const std::filesystem::path& filename) const;
-  SavegameMeta getSavegameMeta(size_t slot) const
+  [[nodiscard]] SavegameMeta getSavegameMeta(const std::filesystem::path& filename) const;
+  [[nodiscard]] SavegameMeta getSavegameMeta(size_t slot) const
   {
     return getSavegameMeta(makeSavegameFilename(slot));
   }
@@ -163,7 +163,7 @@ public:
     return m_engineConfig;
   }
 
-  const auto& getEngineConfig() const
+  [[nodiscard]] const auto& getEngineConfig() const
   {
     return m_engineConfig;
   }

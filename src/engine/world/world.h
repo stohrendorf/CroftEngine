@@ -202,7 +202,7 @@ public:
   [[nodiscard]] gsl::not_null<std::shared_ptr<RenderMeshData>> getRenderMesh(size_t idx) const;
   [[nodiscard]] const std::vector<Mesh>& getMeshes() const;
   void turn180Effect(objects::Object& object);
-  void unholsterRightGunEffect(const objects::ModelObject& object);
+  void drawRightWeaponEffect(const objects::ModelObject& object);
   [[nodiscard]] const std::array<gl::SRGBA8, 256>& getPalette() const;
   void handleCommandSequence(const floordata::FloorDataValue* floorData, bool fromHeavy);
   core::TypeId find(const SkeletalModelType* model) const;

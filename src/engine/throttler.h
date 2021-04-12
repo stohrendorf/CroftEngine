@@ -39,7 +39,8 @@ public:
   // the higher the value, the better. should never exceed 1 (best performance). can be negative if the machine is too slow.
   [[nodiscard]] auto getAverageDelayRatio() const
   {
-    return std::accumulate(m_delayRatios.begin(), m_delayRatios.end(), 0.0f, std::plus<>()) / m_delayRatios.size();
+    return std::accumulate(m_delayRatios.begin(), m_delayRatios.end(), 0.0f, std::plus<>())
+           / gsl::narrow_cast<float>(m_delayRatios.size());
   }
 
 private:

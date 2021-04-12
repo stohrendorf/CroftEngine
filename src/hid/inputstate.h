@@ -52,11 +52,6 @@ struct InputState
     {
       return justChanged() && current == value;
     }
-
-    [[nodiscard]] bool justChangedFrom(const T& value) const
-    {
-      return justChanged() && current != value;
-    }
   };
 
   using Button = DebouncedValue<bool>;

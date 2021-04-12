@@ -435,7 +435,7 @@ bool SparkleParticle::update(world::World&)
   return gsl::narrow<size_t>(-negSpriteFrameId) < getLength();
 }
 
-bool GunflareParticle::update(world::World&)
+bool MuzzleFlashParticle::update(world::World&)
 {
   --timePerSpriteFrame;
   if(timePerSpriteFrame == 0)

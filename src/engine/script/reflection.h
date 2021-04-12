@@ -147,29 +147,34 @@ private:
   const std::string m_name;
   const TR1TrackId m_track;
   const bool m_flipRooms;
-  const bool m_gunSwap;
+  const bool m_weaponSwap;
   const core::Angle m_cameraRot;
   const std::optional<core::Length> m_cameraPosX;
   const std::optional<core::Length> m_cameraPosZ;
 
 public:
-  explicit Cutscene(
-    std::string name, TR1TrackId track, bool flipRooms, bool gunSwap, float cameraRot, int cameraPosX, int cameraPosZ)
+  explicit Cutscene(std::string name,
+                    TR1TrackId track,
+                    bool flipRooms,
+                    bool weaponSwap,
+                    float cameraRot,
+                    int cameraPosX,
+                    int cameraPosZ)
       : m_name{std::move(name)}
       , m_track{track}
       , m_flipRooms{flipRooms}
-      , m_gunSwap{gunSwap}
+      , m_weaponSwap{weaponSwap}
       , m_cameraRot{core::angleFromDegrees(cameraRot)}
       , m_cameraPosX{cameraPosX}
       , m_cameraPosZ{cameraPosZ}
   {
   }
 
-  explicit Cutscene(std::string name, TR1TrackId track, bool flipRooms, bool gunSwap, float cameraRot)
+  explicit Cutscene(std::string name, TR1TrackId track, bool flipRooms, bool weaponSwap, float cameraRot)
       : m_name{std::move(name)}
       , m_track{track}
       , m_flipRooms{flipRooms}
-      , m_gunSwap{gunSwap}
+      , m_weaponSwap{weaponSwap}
       , m_cameraRot{core::angleFromDegrees(cameraRot)}
       , m_cameraPosX{std::nullopt}
       , m_cameraPosZ{std::nullopt}

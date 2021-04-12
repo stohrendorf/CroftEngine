@@ -102,15 +102,15 @@ void MenuDisplay::updateMenuObjectDescription(ui::Ui& ui, engine::world::World& 
   case engine::TR1ItemId::UziAmmo:
   case engine::TR1ItemId::ShotgunAmmo: totalItemCount *= 2; break;
   case engine::TR1ItemId::Shotgun:
-    totalItemCount = world.getPlayer().getInventory().getAmmo(engine::WeaponId::Shotgun)->ammo / 6;
+    totalItemCount = world.getPlayer().getInventory().getAmmo(engine::WeaponType::Shotgun)->ammo / 6;
     suffix = " A";
     break;
   case engine::TR1ItemId::Magnums:
-    totalItemCount = world.getPlayer().getInventory().getAmmo(engine::WeaponId::Magnums)->ammo;
+    totalItemCount = world.getPlayer().getInventory().getAmmo(engine::WeaponType::Magnums)->ammo;
     suffix = " B";
     break;
   case engine::TR1ItemId::Uzis:
-    totalItemCount = world.getPlayer().getInventory().getAmmo(engine::WeaponId::Uzis)->ammo;
+    totalItemCount = world.getPlayer().getInventory().getAmmo(engine::WeaponType::Uzis)->ammo;
     suffix = " C";
     break;
   case engine::TR1ItemId::SmallMedipack:

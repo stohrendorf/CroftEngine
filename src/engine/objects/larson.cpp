@@ -26,7 +26,7 @@ void Larson::update()
     creatureTurn = rotateTowardsTarget(m_state.creatureInfo->maximum_turn);
     switch(m_state.current_anim_state.get())
     {
-    case 1: // standing holding gun
+    case 1: // standing holding weapon
       if(m_state.required_anim_state != 0_as)
       {
         goal(m_state.required_anim_state);
@@ -78,7 +78,7 @@ void Larson::update()
       break;
     case 6: // standing
       if(!isBored())
-        goal(1_as); // standing/holding gun
+        goal(1_as); // standing/holding weapon
       else if(util::rand15() < 96)
         goal(1_as, 2_as);
       break;
