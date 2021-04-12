@@ -7,15 +7,12 @@ float voronoi(in vec3 p)
     vec3 f_st = fract(p);
 
     float m_dist = 1.;// minimum distance
+    const float Epsilon = 1.0/255.0;
 
-    for (int y= -1; y <= 1; y++) {
-        float fy = float(y);
-        for (int x= -1; x <= 1; x++) {
-            float fx = float(x);
-            for (int z= -1; z <= 1; z++) {
-                // Neighbor place in the grid
-                vec3 neighbor = vec3(fx, fy, float(z));
-
+    for (float fy = -1; fy <= 1; fy += 1.0) {
+        for (float fx = -1; fx <= 1; fx += 1.0) {
+            for (float fz = -1; fz <= 1; fz += 1.0) {
+                vec3 neighbor = vec3(fx, fy, fz);
                 // Random position from current + neighbor place in the grid
                 vec3 point = snoise3(i_st + neighbor);
 
@@ -24,12 +21,10 @@ float voronoi(in vec3 p)
 
                 // Vector between the sample and the point
                 vec3 diff = neighbor + point - f_st;
-
-                // Distance to the point
-                float dist2 = dot(diff, diff);
-
-                // Keep the closer distance
-                m_dist = min(m_dist, dist2);
+                m_dist = min(m_dist, dot(diff, diff));
+                if (m_dist < Epsilon) {
+                    return 0.0;
+                }
             }
         }
     }
