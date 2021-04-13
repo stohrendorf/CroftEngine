@@ -13,13 +13,13 @@ void SwordOfDamocles::update()
   if(m_state.falling)
   {
     m_state.rotation.Y += m_rotateSpeed * 1_frame;
-    if(m_state.fallspeed >= 128_spd)
+    if(m_state.fallspeed >= core::AirResistanceSpeed * 1_frame)
     {
-      m_state.fallspeed += 1_spd;
+      m_state.fallspeed += core::HighSpeedGravity * 1_frame;
     }
     else
     {
-      m_state.fallspeed += 6_spd;
+      m_state.fallspeed += core::Gravity * 1_frame;
     }
     m_state.position.position.Y += m_state.fallspeed * 1_frame;
     m_state.position.position.X += m_dropSpeedX * 1_frame;

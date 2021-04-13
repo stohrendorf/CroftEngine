@@ -40,7 +40,7 @@ constexpr auto MaxGrabbableGradient = 60_len;
 
 constexpr auto FrameRate = 30_frame / 1_sec;
 
-constexpr auto LaraAir = 1800_frame;
+constexpr auto LaraAir = FrameRate * 60_sec;
 constexpr auto LaraHealth = 1000_hp;
 constexpr auto DeadHealth = -16384_hp;
 
@@ -52,4 +52,6 @@ constexpr auto DefaultCameraLaraDistance = SectorSize * 3 / 2;
 constexpr auto CombatCameraLaraDistance = SectorSize + DefaultCameraLaraDistance;
 
 constexpr auto Gravity = 6_spd / 1_frame;
+constexpr auto HighSpeedGravity = 1_spd / 1_frame;
+constexpr auto AirResistanceSpeed = 128_spd / 1_frame;
 } // namespace core

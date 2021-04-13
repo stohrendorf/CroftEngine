@@ -28,6 +28,7 @@
 #include "lavaparticleemitter.h"
 #include "lightningball.h"
 #include "lion.h"
+#include "midasgoldtouch.h"
 #include "mummy.h"
 #include "mutant.h"
 #include "mutantegg.h"
@@ -275,6 +276,7 @@ const auto& getFactories()
     MODEL_FACTORY(Earthquake, Earthquake),
     MODEL_FACTORY(Doppelganger, Doppelganger),
     MODEL_FACTORY(LarasHomePolaroid, StubObject),
+    MODEL_FACTORY(MidasGoldTouch, MidasGoldTouch),
     {TR1ItemId::WalkingMutant1, std::make_unique<WalkingMutantFactory>()},
     {TR1ItemId::WalkingMutant2, std::make_unique<WalkingMutantFactory>()},
     {TR1ItemId::CameraTarget, std::make_unique<HiddenModelFactory>()},

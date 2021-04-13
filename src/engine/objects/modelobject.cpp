@@ -105,9 +105,9 @@ void ModelObject::applyMovement(const bool forLara)
 {
   if(m_state.falling)
   {
-    if(m_state.fallspeed >= 128_spd)
+    if(m_state.fallspeed >= core::AirResistanceSpeed * 1_frame)
     {
-      m_state.fallspeed += 1_spd;
+      m_state.fallspeed += core::HighSpeedGravity * 1_frame;
     }
     else
     {

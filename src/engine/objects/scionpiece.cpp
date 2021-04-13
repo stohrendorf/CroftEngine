@@ -36,8 +36,8 @@ void ScionPiece::collide(CollisionInfo& /*collisionInfo*/)
         getWorld().findAnimatedModelForType(TR1ItemId::AlternativeLara)->animations);
       getWorld().getObjectManager().getLara().setCurrentAnimState(loader::file::LaraStateId::PickUp);
       getWorld().getObjectManager().getLara().setGoalAnimState(loader::file::LaraStateId::PickUp);
-      getWorld().getCameraController().setMode(CameraMode::Cinematic);
       getWorld().getObjectManager().getLara().setHandStatus(HandStatus::Grabbing);
+      getWorld().getCameraController().setMode(CameraMode::Cinematic);
       getWorld().getCameraController().m_cinematicFrame = 0;
       getWorld().getCameraController().m_cinematicPos
         = getWorld().getObjectManager().getLara().m_state.position.position;

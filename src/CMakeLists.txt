@@ -280,6 +280,8 @@ set( EDISONENGINE_SRCS
         engine/objects/lightningball.cpp
         engine/objects/lion.h
         engine/objects/lion.cpp
+        engine/objects/midasgoldtouch.h
+        engine/objects/midasgoldtouch.cpp
         engine/objects/modelobject.h
         engine/objects/modelobject.cpp
         engine/objects/mummy.h
