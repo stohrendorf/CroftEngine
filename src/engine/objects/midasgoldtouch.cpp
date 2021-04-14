@@ -8,7 +8,7 @@
 
 namespace engine::objects
 {
-void MidasGoldTouch::collide(CollisionInfo& info)
+void MidasGoldTouch::collide(CollisionInfo& /*info*/)
 {
   auto& lara = getWorld().getObjectManager().getLara();
   if(!lara.m_state.falling && lara.getCurrentAnimState() == loader::file::LaraStateId::Stop

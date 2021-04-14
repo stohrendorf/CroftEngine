@@ -30,13 +30,12 @@ public:
   core::Speed fall_speed = 0_spd;
   int16_t negSpriteFrameId = 0;
   int16_t timePerSpriteFrame = 0;
-  core::Shade shade{core::Shade::type{4096}};
 
 private:
   std::deque<gsl::not_null<std::shared_ptr<render::scene::Renderable>>> m_renderables{};
   Lighting m_lighting;
 
-  void initRenderables(world::World& world, float scale = 1);
+  void initRenderables(world::World& world);
 
 protected:
   void nextFrame()
@@ -72,17 +71,15 @@ public:
                     core::TypeId objectNumber,
                     const gsl::not_null<const world::Room*>& room,
                     world::World& world,
-                    const std::shared_ptr<render::scene::Renderable>& renderable = nullptr,
-                    float scale = 1);
+                    const std::shared_ptr<render::scene::Renderable>& renderable = nullptr);
 
   explicit Particle(const std::string& id,
                     core::TypeId objectNumber,
                     core::RoomBoundPosition pos,
                     world::World& world,
-                    const std::shared_ptr<render::scene::Renderable>& renderable = nullptr,
-                    float scale = 1);
+                    const std::shared_ptr<render::scene::Renderable>& renderable = nullptr);
 
-  void updateLight()
+  void setShade(const core::Shade& shade)
   {
     m_lighting.updateStatic(shade);
   }
@@ -149,7 +146,7 @@ class BubbleParticle final : public Particle
 {
 public:
   explicit BubbleParticle(const core::RoomBoundPosition& pos, world::World& world)
-      : Particle{"bubble", TR1ItemId::Bubbles, pos, world, nullptr, 0.7f}
+      : Particle{"bubble", TR1ItemId::Bubbles, pos, world, nullptr}
   {
     speed = 10_spd + util::rand15(6_spd);
 
@@ -180,7 +177,7 @@ public:
   {
     angle.Y = yAngle;
     timePerSpriteFrame = 3;
-    shade = core::Shade{core::Shade::type{4096}};
+    setShade(core::Shade{core::Shade::type{4096}});
   }
 
   bool update(world::World& /*world*/) override;
@@ -257,7 +254,7 @@ public:
       : MutantAmmoParticle{pos, world, TR1ItemId::MutantBullet}
   {
     speed = 250_spd;
-    shade = core::Shade{core::Shade::type{3584}};
+    setShade(core::Shade{core::Shade::type{3584}});
     angle.Y = yAngle;
     aimLaraChest(world);
   }

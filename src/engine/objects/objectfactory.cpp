@@ -109,12 +109,8 @@ struct SpriteFactory : public ObjectFactory
     Expects(!spriteSequence->sprites.empty());
 
     const world::Sprite& sprite = spriteSequence->sprites[0];
-    return std::make_shared<T>(&world,
-                               std::string("sprite(type:") + toString(item.type.get_as<TR1ItemId>()) + ")",
-                               room,
-                               item,
-                               &sprite,
-                               world.getPresenter().getMaterialManager()->getSprite());
+    return std::make_shared<T>(
+      &world, std::string("sprite(type:") + toString(item.type.get_as<TR1ItemId>()) + ")", room, item, &sprite);
   }
 
   [[nodiscard]] std::shared_ptr<Object>
@@ -123,8 +119,7 @@ struct SpriteFactory : public ObjectFactory
   {
     std::string spriteName;
     ser(S_NV("@name", spriteName));
-    auto object = std::make_shared<T>(
-      &ser.context, position, std::move(spriteName), ser.context.getPresenter().getMaterialManager()->getSprite());
+    auto object = std::make_shared<T>(&ser.context, position, std::move(spriteName));
     object->serialize(ser);
     return object;
   }
@@ -347,13 +342,8 @@ std::shared_ptr<Object> createObject(world::World& world, loader::file::Item& it
     std::shared_ptr<Object> object;
 
     BOOST_LOG_TRIVIAL(warning) << "Unimplemented object type " << toString(item.type.get_as<TR1ItemId>());
-    return std::make_shared<SpriteObject>(&world,
-                                          std::string("sprite(type:") + toString(item.type.get_as<TR1ItemId>()) + ")",
-                                          room,
-                                          item,
-                                          true,
-                                          &sprite,
-                                          world.getPresenter().getMaterialManager()->getSprite());
+    return std::make_shared<SpriteObject>(
+      &world, std::string("sprite(type:") + toString(item.type.get_as<TR1ItemId>()) + ")", room, item, true, &sprite);
   }
 
   BOOST_LOG_TRIVIAL(error) << "Failed to find an appropriate animated model for object type " << int(item.type.get());

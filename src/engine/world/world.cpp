@@ -19,6 +19,7 @@
 #include "render/scene/materialmanager.h"
 #include "render/scene/renderer.h"
 #include "render/scene/screenoverlay.h"
+#include "render/scene/sprite.h"
 #include "render/textureanimator.h"
 #include "render/textureatlas.h"
 #include "rendermeshdata.h"
@@ -581,8 +582,7 @@ std::shared_ptr<objects::PickupObject>
   Expects(spriteSequence != nullptr && !spriteSequence->sprites.empty());
   const Sprite& sprite = spriteSequence->sprites[0];
 
-  auto object = std::make_shared<objects::PickupObject>(
-    this, "pickup", room, item, &sprite, getPresenter().getMaterialManager()->getSprite());
+  auto object = std::make_shared<objects::PickupObject>(this, "pickup", room, item, &sprite);
 
   m_objectManager.registerDynamicObject(object);
   addChild(room->node, object->getNode());
@@ -1110,6 +1110,17 @@ World::World(Engine& engine,
 {
   initTextureDependentDataFromLevel(*level);
   initTextures(*level);
+  for(auto& sprite : m_sprites)
+  {
+    sprite.mesh = render::scene::createSpriteMesh(static_cast<float>(sprite.render0.x),
+                                                  static_cast<float>(-sprite.render0.y),
+                                                  static_cast<float>(sprite.render1.x),
+                                                  static_cast<float>(-sprite.render1.y),
+                                                  sprite.uv0,
+                                                  sprite.uv1,
+                                                  getPresenter().getMaterialManager()->getSprite(),
+                                                  sprite.textureId.get_as<int32_t>());
+  }
 
   m_audioEngine->init(level->m_soundEffectProperties, level->m_soundEffects);
 
@@ -1558,7 +1569,7 @@ void World::initTextureDependentDataFromLevel(const loader::file::level::Level& 
     level.m_sprites.end(),
     std::back_inserter(m_sprites),
     [](const loader::file::Sprite& sprite) {
-      return Sprite{sprite.texture_id, sprite.uv0.toGl(), sprite.uv1.toGl(), sprite.render0, sprite.render1};
+      return Sprite{sprite.texture_id, sprite.uv0.toGl(), sprite.uv1.toGl(), sprite.render0, sprite.render1, nullptr};
     });
 
   for(const auto& [sequenceId, sequence] : level.m_spriteSequences)

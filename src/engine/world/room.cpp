@@ -8,7 +8,6 @@
 #include "render/scene/mesh.h"
 #include "render/scene/names.h"
 #include "render/scene/shaderprogram.h"
-#include "render/scene/sprite.h"
 #include "render/textureanimator.h"
 #include "serialization/serialization.h"
 #include "serialization/vector.h"
@@ -300,15 +299,14 @@ void Room::createSceneNode(const loader::file::Room& srcRoom,
   node = std::make_shared<render::scene::Node>("Room:" + std::to_string(roomId));
   node->setRenderable(resMesh);
   node->bind("u_lightAmbient",
-             [](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform) {
-               uniform.set(1.0f);
-             });
+             [](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
+             { uniform.set(1.0f); });
 
-  node->bind("b_lights",
-             [emptyBuffer = std::make_shared<gl::ShaderStorageBuffer<engine::Lighting::Light>>("lights-buffer-empty")](
-               const render::scene::Node&,
-               const render::scene::Mesh& /*mesh*/,
-               gl::ShaderStorageBlock& shaderStorageBlock) { shaderStorageBlock.bind(*emptyBuffer); });
+  node->bind(
+    "b_lights",
+    [emptyBuffer = std::make_shared<gl::ShaderStorageBuffer<engine::Lighting::Light>>("lights-buffer-empty")](
+      const render::scene::Node&, const render::scene::Mesh& /*mesh*/, gl::ShaderStorageBlock& shaderStorageBlock)
+    { shaderStorageBlock.bind(*emptyBuffer); });
 
   for(const RoomStaticMesh& sm : staticMeshes)
   {
@@ -321,9 +319,9 @@ void Room::createSceneNode(const loader::file::Room& srcRoom,
                             * rotate(glm::mat4{1.0f}, toRad(sm.rotation), glm::vec3{0, -1, 0}));
 
     subNode->bind("u_lightAmbient",
-                  [brightness = toBrightness(sm.shade)](const render::scene::Node& /*node*/,
-                                                        const render::scene::Mesh& /*mesh*/,
-                                                        gl::Uniform& uniform) { uniform.set(brightness.get()); });
+                  [brightness = toBrightness(sm.shade)](
+                    const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
+                  { uniform.set(brightness.get()); });
 
     sceneryNodes.emplace_back(std::move(subNode));
   }
@@ -335,24 +333,14 @@ void Room::createSceneNode(const loader::file::Room& srcRoom,
 
     const auto& sprite = world.getSprites().at(spriteInstance.id.get());
 
-    const auto mesh = render::scene::createSpriteMesh(static_cast<float>(sprite.render0.x),
-                                                      static_cast<float>(-sprite.render0.y),
-                                                      static_cast<float>(sprite.render1.x),
-                                                      static_cast<float>(-sprite.render1.y),
-                                                      sprite.uv0,
-                                                      sprite.uv1,
-                                                      materialManager.getSprite(),
-                                                      sprite.textureId.get_as<int32_t>());
-
     auto spriteNode = std::make_shared<render::scene::Node>("sprite");
-    spriteNode->setRenderable(mesh);
+    spriteNode->setRenderable(sprite.mesh);
     const auto& v = srcRoom.vertices.at(spriteInstance.vertex.get());
     spriteNode->setLocalMatrix(translate(glm::mat4{1.0f}, v.position.toRenderSystem()));
     spriteNode->bind("u_lightAmbient",
-                     [brightness = toBrightness(v.shade)](const render::scene::Node& /*node*/,
-                                                          const render::scene::Mesh& /*mesh*/,
-                                                          gl::Uniform& uniform) { uniform.set(brightness.get()); });
-    bindSpritePole(*spriteNode, render::scene::SpritePole::Y);
+                     [brightness = toBrightness(v.shade)](
+                       const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
+                     { uniform.set(brightness.get()); });
 
     sceneryNodes.emplace_back(std::move(spriteNode));
   }
@@ -360,7 +348,8 @@ void Room::createSceneNode(const loader::file::Room& srcRoom,
   std::transform(srcRoom.portals.begin(),
                  srcRoom.portals.end(),
                  std::back_inserter(portals),
-                 [material = materialManager.getWaterSurface(), &world](const loader::file::Portal& portal) {
+                 [material = materialManager.getWaterSurface(), &world](const loader::file::Portal& portal)
+                 {
                    Portal p{&world.getRooms().at(portal.adjoining_room.get()),
                             portal.normal.toRenderSystem(),
                             {portal.vertices[0].toRenderSystem(),

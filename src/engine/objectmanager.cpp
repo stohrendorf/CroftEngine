@@ -129,7 +129,6 @@ void ObjectManager::update(world::World& world, bool godMode)
     if(particle->update(world))
     {
       setParent(particle, particle->pos.room->node);
-      particle->updateLight();
       m_particles.emplace_back(particle);
     }
     else

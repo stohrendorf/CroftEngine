@@ -8,11 +8,8 @@ namespace engine::objects
 class ScionPiece final : public SpriteObject
 {
 public:
-  ScionPiece(const gsl::not_null<world::World*>& world,
-             const core::RoomBoundPosition& position,
-             std::string name,
-             const gsl::not_null<std::shared_ptr<render::scene::Material>>& material)
-      : SpriteObject{world, position, std::move(name), material}
+  ScionPiece(const gsl::not_null<world::World*>& world, const core::RoomBoundPosition& position, std::string name)
+      : SpriteObject{world, position, std::move(name)}
   {
   }
 
@@ -20,9 +17,8 @@ public:
              const std::string& name,
              const gsl::not_null<const world::Room*>& room,
              const loader::file::Item& item,
-             const gsl::not_null<const world::Sprite*>& sprite,
-             const gsl::not_null<std::shared_ptr<render::scene::Material>>& material)
-      : SpriteObject{world, name, room, item, true, sprite, material}
+             const gsl::not_null<const world::Sprite*>& sprite)
+      : SpriteObject{world, name, room, item, true, sprite}
   {
   }
 

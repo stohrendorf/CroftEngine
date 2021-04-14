@@ -10,7 +10,7 @@
 #include "geometry_pipeline_interface.glsl"
 #include "camera_interface.glsl"
 
-uniform int u_spritePole = -1;
+uniform int u_isSprite = 0;
 
 void main()
 {
@@ -21,16 +21,9 @@ void main()
     #endif
     mat4 mv = u_view * mm;
 
-    if (u_spritePole >= 0) {
-        if (u_spritePole != 0) {
-            mv[0].xyz = vec3(1, 0, 0);
-        }
-        if (u_spritePole != 1) {
-            mv[1].xyz = vec3(0, 1, 0);
-        }
-        if (u_spritePole != 2) {
-            mv[2].xyz = vec3(0, 0, 1);
-        }
+    if (u_isSprite != 0) {
+        mv[0].xyz = vec3(1, 0, 0);
+        mv[2].xyz = vec3(0, 0, 1);
     }
 
     vec4 tmp = mv * vec4(a_position, 1);

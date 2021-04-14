@@ -116,5 +116,11 @@ public:
     GL_ASSERT(api::drawElements(
       primitiveType, Buffer<T, api::BufferTargetARB::ElementArrayBuffer>::size(), DrawElementsType<T>, nullptr));
   }
+
+  void drawElements(api::PrimitiveType primitiveType, api::core::SizeType instances) const
+  {
+    GL_ASSERT(api::drawElementsInstance(
+      primitiveType, Buffer<T, api::BufferTargetARB::ElementArrayBuffer>::size(), DrawElementsType<T>, instances));
+  }
 };
 } // namespace gl

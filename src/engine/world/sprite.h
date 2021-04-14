@@ -5,6 +5,11 @@
 #include <glm/glm.hpp>
 #include <gsl/gsl-lite.hpp>
 
+namespace render::scene
+{
+class Mesh;
+}
+
 namespace engine::world
 {
 struct Sprite
@@ -16,6 +21,8 @@ struct Sprite
 
   glm::ivec2 render0;
   glm::ivec2 render1;
+
+  std::shared_ptr<render::scene::Mesh> mesh;
 };
 
 struct SpriteSequence

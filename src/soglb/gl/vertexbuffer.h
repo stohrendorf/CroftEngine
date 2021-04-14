@@ -43,7 +43,10 @@ public:
   {
   }
 
-  void bindVertexAttribute(api::core::Handle vertexArray, const ProgramInput& input, uint32_t bindingIndex) const;
+  void bindVertexAttribute(api::core::Handle vertexArray,
+                           const ProgramInput& input,
+                           uint32_t bindingIndex,
+                           uint32_t divisor) const;
 
 private:
   const api::VertexAttribType m_type;
@@ -66,8 +69,10 @@ public:
     BOOST_ASSERT(!m_format.empty());
   }
 
-  void
-    bindVertexAttributes(const api::core::Handle vertexArray, const Program& program, const uint32_t bindingIndex) const
+  void bindVertexAttributes(const api::core::Handle vertexArray,
+                            const Program& program,
+                            const uint32_t bindingIndex,
+                            const uint32_t divisor) const
   {
     for(const auto& input : program.getInputs())
     {
@@ -75,7 +80,7 @@ public:
       if(it == m_format.end())
         continue;
 
-      it->second.bindVertexAttribute(vertexArray, input, bindingIndex);
+      it->second.bindVertexAttribute(vertexArray, input, bindingIndex, divisor);
     }
   }
 
@@ -96,11 +101,13 @@ private:
 template<typename T>
 void VertexAttribute<T>::bindVertexAttribute(const api::core::Handle vertexArray,
                                              const ProgramInput& input,
-                                             const uint32_t bindingIndex) const
+                                             const uint32_t bindingIndex,
+                                             const uint32_t divisor) const
 {
   GL_ASSERT(api::enableVertexArrayAttrib(vertexArray, input.getLocation()));
   GL_ASSERT(
     api::vertexArrayAttribFormat(vertexArray, input.getLocation(), m_size, m_type, m_normalized, m_relativeOffset));
   GL_ASSERT(api::vertexArrayAttribBinding(vertexArray, input.getLocation(), bindingIndex));
+  GL_ASSERT(api::vertexArrayBindingDivisor(vertexArray, bindingIndex, divisor));
 }
 } // namespace gl

@@ -16,15 +16,11 @@ private:
   std::shared_ptr<render::scene::Node> m_node;
   const world::Sprite* m_sprite = nullptr;
   core::Brightness m_brightness{0.5f};
-  gsl::not_null<std::shared_ptr<render::scene::Material>> m_material;
 
   void createModel();
 
 protected:
-  SpriteObject(const gsl::not_null<world::World*>& world,
-               const core::RoomBoundPosition& position,
-               std::string name,
-               gsl::not_null<std::shared_ptr<render::scene::Material>> material);
+  SpriteObject(const gsl::not_null<world::World*>& world, const core::RoomBoundPosition& position, std::string name);
 
 public:
   SpriteObject(const gsl::not_null<world::World*>& world,
@@ -32,8 +28,7 @@ public:
                const gsl::not_null<const world::Room*>& room,
                const loader::file::Item& item,
                bool hasUpdateFunction,
-               const gsl::not_null<const world::Sprite*>& sprite,
-               gsl::not_null<std::shared_ptr<render::scene::Material>> material);
+               const gsl::not_null<const world::Sprite*>& sprite);
 
   SpriteObject(const SpriteObject&) = delete;
   SpriteObject(SpriteObject&&) = delete;

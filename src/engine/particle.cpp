@@ -5,7 +5,6 @@
 #include "presenter.h"
 #include "render/scene/materialmanager.h"
 #include "render/scene/mesh.h"
-#include "render/scene/sprite.h"
 #include "world/rendermeshdata.h"
 #include "world/world.h"
 
@@ -13,8 +12,10 @@
 
 namespace engine
 {
-void Particle::initRenderables(world::World& world, const float scale)
+void Particle::initRenderables(world::World& world)
 {
+  setShade(core::Shade{core::Shade::type{4096}});
+
   if(const auto& modelType = world.findAnimatedModelForType(object_number))
   {
     for(const auto& bone : modelType->bones)
@@ -26,22 +27,10 @@ void Particle::initRenderables(world::World& world, const float scale)
   }
   else if(const auto& spriteSequence = world.findSpriteSequenceForType(object_number))
   {
-    shade = core::Shade{core::Shade::type{4096}};
-
     for(const world::Sprite& spr : spriteSequence->sprites)
     {
-      auto mesh = render::scene::createSpriteMesh(static_cast<float>(spr.render0.x) * scale,
-                                                  static_cast<float>(-spr.render0.y) * scale,
-                                                  static_cast<float>(spr.render1.x) * scale,
-                                                  static_cast<float>(-spr.render1.y) * scale,
-                                                  spr.uv0,
-                                                  spr.uv1,
-                                                  world.getPresenter().getMaterialManager()->getSprite(),
-                                                  spr.textureId.get_as<int32_t>());
-      m_renderables.emplace_back(std::move(mesh));
+      m_renderables.emplace_back(spr.mesh);
     }
-
-    bindSpritePole(*this, render::scene::SpritePole::Y);
   }
   else
   {
@@ -66,8 +55,7 @@ Particle::Particle(const std::string& id,
                    const core::TypeId objectNumber,
                    const gsl::not_null<const world::Room*>& room,
                    world::World& world,
-                   const std::shared_ptr<render::scene::Renderable>& renderable,
-                   float scale)
+                   const std::shared_ptr<render::scene::Renderable>& renderable)
     : Node{id}
     , Emitter{world.getPresenter().getSoundEngine().get()}
     , pos{room}
@@ -75,7 +63,7 @@ Particle::Particle(const std::string& id,
 {
   if(renderable == nullptr)
   {
-    initRenderables(world, scale);
+    initRenderables(world);
   }
   else
   {
@@ -89,8 +77,7 @@ Particle::Particle(const std::string& id,
                    const core::TypeId objectNumber,
                    core::RoomBoundPosition pos,
                    world::World& world,
-                   const std::shared_ptr<render::scene::Renderable>& renderable,
-                   float scale)
+                   const std::shared_ptr<render::scene::Renderable>& renderable)
     : Node{id}
     , Emitter{world.getPresenter().getSoundEngine().get()}
     , pos{std::move(pos)}
@@ -98,7 +85,7 @@ Particle::Particle(const std::string& id,
 {
   if(renderable == nullptr)
   {
-    initRenderables(world, scale);
+    initRenderables(world);
   }
   else
   {
@@ -165,7 +152,7 @@ FlameParticle::FlameParticle(const core::RoomBoundPosition& pos, world::World& w
 {
   timePerSpriteFrame = 0;
   negSpriteFrameId = 0;
-  shade = core::Shade{core::Shade::type{4096}};
+  setShade(core::Shade{core::Shade::type{4096}});
 
   if(randomize)
   {

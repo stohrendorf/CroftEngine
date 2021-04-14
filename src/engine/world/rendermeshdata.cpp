@@ -214,6 +214,7 @@ gsl::not_null<std::shared_ptr<render::scene::Mesh>> RenderMeshDataCompositor::to
     std::vector<const gl::Program*>{&material->getShaderProgram()->getHandle(),
                                     &materialDepthOnly->getShaderProgram()->getHandle(),
                                     &materialCSMDepthOnly->getShaderProgram()->getHandle()},
+    0,
     label);
   auto mesh = std::make_shared<render::scene::MeshImpl<RenderMeshData::IndexType, RenderMeshData::RenderVertex>>(
     va, gl::api::PrimitiveType::Triangles);
