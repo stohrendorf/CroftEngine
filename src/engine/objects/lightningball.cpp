@@ -37,7 +37,7 @@ gsl::not_null<std::shared_ptr<render::scene::Mesh>>
   auto indexBuffer = std::make_shared<gl::ElementArrayBuffer<uint16_t>>();
   indexBuffer->setData(indices, gl::api::BufferUsageARB::StaticDraw);
 
-  vb = std::make_shared<gl::VertexBuffer<glm::vec3>>(layout);
+  vb = std::make_shared<gl::VertexBuffer<glm::vec3>>(layout, 0, "bolt");
   vb->setData(&vertices[0], points, gl::api::BufferUsageARB::DynamicDraw);
 
   auto vao = std::make_shared<gl::VertexArray<uint16_t, glm::vec3>>(

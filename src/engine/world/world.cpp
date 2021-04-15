@@ -1110,8 +1110,9 @@ World::World(Engine& engine,
 {
   initTextureDependentDataFromLevel(*level);
   initTextures(*level);
-  for(auto& sprite : m_sprites)
+  for(size_t i = 0; i < m_sprites.size(); ++i)
   {
+    auto& sprite = m_sprites[i];
     sprite.mesh = render::scene::createSpriteMesh(static_cast<float>(sprite.render0.x),
                                                   static_cast<float>(-sprite.render0.y),
                                                   static_cast<float>(sprite.render1.x),
@@ -1119,7 +1120,8 @@ World::World(Engine& engine,
                                                   sprite.uv0,
                                                   sprite.uv1,
                                                   getPresenter().getMaterialManager()->getSprite(),
-                                                  sprite.textureId.get_as<int32_t>());
+                                                  sprite.textureId.get_as<int32_t>(),
+                                                  "sprite-" + std::to_string(i));
   }
 
   m_audioEngine->init(level->m_soundEffectProperties, level->m_soundEffects);

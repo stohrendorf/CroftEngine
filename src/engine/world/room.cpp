@@ -130,7 +130,7 @@ void Portal::buildMesh(const loader::file::Portal& srcPortal,
     glVertices[i].pos = srcPortal.vertices[i].toRenderSystem();
 
   gl::VertexLayout<Vertex> layout{{VERTEX_ATTRIBUTE_POSITION_NAME, &Vertex::pos}};
-  auto vb = std::make_shared<gl::VertexBuffer<Vertex>>(layout);
+  auto vb = std::make_shared<gl::VertexBuffer<Vertex>>(layout, 0, "portal");
   vb->setData(&glVertices[0], 4, gl::api::BufferUsageARB::StaticDraw);
 
   static const std::array<uint16_t, 6> indices{0, 1, 2, 0, 2, 3};
