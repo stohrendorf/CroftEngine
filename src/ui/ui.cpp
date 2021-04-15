@@ -146,15 +146,11 @@ void Ui::drawOutlineBox(const glm::ivec2& xy, const glm::ivec2& size)
 
 void Ui::drawBox(const glm::ivec2& xy, const glm::ivec2& size, const BoxGouraud& gouraud)
 {
-  Expects(size.x >= 0 && size.y >= 0);
-
   m_meshes.emplace_back(createQuad(xy, xy + size, gouraud, m_color));
 }
 
 void Ui::drawBox(const glm::ivec2& xy, const glm::ivec2& size, const gl::SRGBA8& color)
 {
-  Expects(size.x >= 0 && size.y >= 0);
-
   m_meshes.emplace_back(createQuad(xy, size, color, m_color));
 }
 

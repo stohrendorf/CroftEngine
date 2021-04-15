@@ -53,6 +53,10 @@ RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingT
     /* translators: TR charmap encoding */ _("Water Denoise"),
     [&engine]() { return engine.getEngineConfig().renderSettings.waterDenoise; },
     [&engine]() { toggle(engine, engine.getEngineConfig().renderSettings.waterDenoise); });
+  addSetting(
+    /* translators: TR charmap encoding */ _("Performance Meter"),
+    [&engine]() { return engine.getEngineConfig().renderSettings.performanceMeter; },
+    [&engine]() { toggle(engine, engine.getEngineConfig().renderSettings.performanceMeter); });
 }
 
 std::unique_ptr<MenuState>
