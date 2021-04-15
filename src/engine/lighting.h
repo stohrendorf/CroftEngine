@@ -35,6 +35,17 @@ struct ShaderLight
   {
     return !(*this == rhs);
   }
+
+  static gsl::not_null<std::shared_ptr<gl::ShaderStorageBuffer<ShaderLight>>> getEmptyBuffer()
+  {
+    static std::weak_ptr<gl::ShaderStorageBuffer<ShaderLight>> instance;
+    if(auto tmp = instance.lock())
+      return tmp;
+
+    auto tmp = std::make_shared<gl::ShaderStorageBuffer<ShaderLight>>("empty-lights-buffer");
+    instance = tmp;
+    return tmp;
+  }
 };
 static_assert(sizeof(ShaderLight) == 32, "Invalid Light struct size");
 
@@ -43,10 +54,7 @@ struct Lighting
   core::Brightness ambient{-1.0f};
   core::Brightness targetAmbient{};
 
-  Lighting()
-      : m_buffer{&m_emptyBuffer}
-  {
-  }
+  Lighting() = default;
 
   void update(const core::Shade& shade, const world::Room& baseRoom);
 
@@ -62,7 +70,6 @@ private:
       ambient += (targetAmbient - ambient) / 50.0f;
   }
 
-  gsl::not_null<const gl::ShaderStorageBuffer<ShaderLight>*> m_buffer;
-  gl::ShaderStorageBuffer<ShaderLight> m_emptyBuffer{"empty-lights-buffer"};
+  gsl::not_null<std::shared_ptr<gl::ShaderStorageBuffer<ShaderLight>>> m_buffer{ShaderLight::getEmptyBuffer()};
 };
 } // namespace engine

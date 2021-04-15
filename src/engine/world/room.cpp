@@ -302,11 +302,11 @@ void Room::createSceneNode(const loader::file::Room& srcRoom,
              [](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
              { uniform.set(1.0f); });
 
-  node->bind(
-    "b_lights",
-    [emptyBuffer = std::make_shared<gl::ShaderStorageBuffer<ShaderLight>>("lights-buffer-empty")](
-      const render::scene::Node&, const render::scene::Mesh& /*mesh*/, gl::ShaderStorageBlock& shaderStorageBlock)
-    { shaderStorageBlock.bind(*emptyBuffer); });
+  node->bind("b_lights",
+             [emptyBuffer = ShaderLight::getEmptyBuffer()](const render::scene::Node&,
+                                                           const render::scene::Mesh& /*mesh*/,
+                                                           gl::ShaderStorageBlock& shaderStorageBlock)
+             { shaderStorageBlock.bind(*emptyBuffer); });
 
   for(const RoomStaticMesh& sm : staticMeshes)
   {
@@ -326,13 +326,12 @@ void Room::createSceneNode(const loader::file::Room& srcRoom,
     subNode->bind("b_lights",
                   [this](const render::scene::Node&,
                          const render::scene::Mesh& /*mesh*/,
-                         gl::ShaderStorageBlock& shaderStorageBlock) { shaderStorageBlock.bind(lightsBuffer); });
+                         gl::ShaderStorageBlock& shaderStorageBlock) { shaderStorageBlock.bind(*lightsBuffer); });
 
     sceneryNodes.emplace_back(std::move(subNode));
   }
   node->setLocalMatrix(translate(glm::mat4{1.0f}, position.toRenderSystem()));
 
-  auto emptyLightsBuffer = std::make_shared<gl::ShaderStorageBuffer<ShaderLight>>("empty-lights-buffer");
   for(const loader::file::SpriteInstance& spriteInstance : srcRoom.sprites)
   {
     BOOST_ASSERT(spriteInstance.vertex.get() < srcRoom.vertices.size());
@@ -348,9 +347,9 @@ void Room::createSceneNode(const loader::file::Room& srcRoom,
                        const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
                      { uniform.set(brightness.get()); });
     spriteNode->bind("b_lights",
-                     [emptyLightsBuffer](const render::scene::Node&,
-                                         const render::scene::Mesh& /*mesh*/,
-                                         gl::ShaderStorageBlock& shaderStorageBlock)
+                     [emptyLightsBuffer = ShaderLight::getEmptyBuffer()](const render::scene::Node&,
+                                                                         const render::scene::Mesh& /*mesh*/,
+                                                                         gl::ShaderStorageBlock& shaderStorageBlock)
                      { shaderStorageBlock.bind(*emptyLightsBuffer); });
 
     sceneryNodes.emplace_back(std::move(spriteNode));
@@ -467,7 +466,7 @@ void Room::collectShaderLights()
   bufferLights.clear();
   if(lights.empty())
   {
-    lightsBuffer.setData(bufferLights, gl::api::BufferUsageARB::StreamDraw);
+    lightsBuffer->setData(bufferLights, gl::api::BufferUsageARB::StreamDraw);
     return;
   }
 
@@ -505,7 +504,7 @@ void Room::collectShaderLights()
     }
   }
 
-  lightsBuffer.setData(bufferLights, gl::api::BufferUsageARB::DynamicDraw);
+  lightsBuffer->setData(bufferLights, gl::api::BufferUsageARB::DynamicDraw);
 }
 
 gsl::not_null<const Sector*> findRealFloorSector(const core::TRVec& position,

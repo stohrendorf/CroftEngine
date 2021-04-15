@@ -10,11 +10,11 @@ void Lighting::update(const core::Shade& shade, const world::Room& baseRoom)
   if(shade.get() >= 0)
   {
     fadeAmbient(shade);
-    m_buffer = &m_emptyBuffer;
+    m_buffer = ShaderLight::getEmptyBuffer();
     return;
   }
 
-  m_buffer = &baseRoom.lightsBuffer;
+  m_buffer = baseRoom.lightsBuffer;
   fadeAmbient(baseRoom.ambientShade);
 }
 
