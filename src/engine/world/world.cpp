@@ -763,12 +763,9 @@ void World::handleCommandSequence(const floordata::FloorDataValue* floorData, co
     switch(command.opcode)
     {
     case floordata::CommandOpcode::Activate:
-    {
-      auto object = m_objectManager.getObject(command.parameter);
-      Expects(object != nullptr);
-      activateCommand(*object, activationRequest, chunkHeader.sequenceCondition);
-    }
-    break;
+      if(auto object = m_objectManager.getObject(command.parameter))
+        activateCommand(*object, activationRequest, chunkHeader.sequenceCondition);
+      break;
     case floordata::CommandOpcode::SwitchCamera:
     {
       const floordata::CameraParameters camParams{*floorData++};
