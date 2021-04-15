@@ -17,7 +17,7 @@ public:
   {
     getLara().m_state.falling = false;
     collisionInfo.policies &= ~CollisionInfo::SpazPushPolicy;
-    const auto& alternateLara = getWorld().findAnimatedModelForType(TR1ItemId::LaraShotgunAnim);
+    const auto& alternateLara = getWorld().findAnimatedModelForType(TR1ItemId::AlternativeLara);
     if(alternateLara == nullptr)
       return;
 
@@ -41,7 +41,10 @@ public:
     case 186: getLara().getSkeleton()->setMeshPart(8, alternateLara->bones[8].mesh); break;
     case 195: getLara().getSkeleton()->setMeshPart(9, alternateLara->bones[9].mesh); break;
     case 218: getLara().getSkeleton()->setMeshPart(10, alternateLara->bones[10].mesh); break;
-    case 225: getLara().getSkeleton()->setMeshPart(14, alternateLara->bones[14].mesh); break;
+    case 225:
+      getLara().getSkeleton()->setMeshPart(14, alternateLara->bones[14].mesh);
+      getLara().m_state.health = core::DeadHealth;
+      break;
     default:
       // silence compiler
       break;

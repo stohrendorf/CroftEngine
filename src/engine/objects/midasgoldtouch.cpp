@@ -18,11 +18,10 @@ void MidasGoldTouch::collide(CollisionInfo& /*info*/)
      && m_state.position.position.Z + core::SectorSize / 2 > lara.m_state.position.position.Z)
   {
     lara.getSkeleton()->setAnim(&getWorld().findAnimatedModelForType(TR1ItemId::AlternativeLara)->animations[1]);
-    lara.setHandStatus(HandStatus::Grabbing);
-    getWorld().getPlayer().weaponType = WeaponType::None;
     lara.setCurrentAnimState(loader::file::LaraStateId::MidasDeath);
     lara.setGoalAnimState(loader::file::LaraStateId::MidasDeath);
-    lara.m_state.health = core::DeadHealth;
+    lara.setHandStatus(HandStatus::Grabbing);
+    getWorld().getPlayer().weaponType = WeaponType::None;
     lara.setAir(-1_frame);
     lara.m_state.falling = false;
     getWorld().getCameraController().setMode(CameraMode::Cinematic);
