@@ -87,7 +87,8 @@ HeightInfo HeightInfo::fromFloor(gsl::not_null<const world::Sector*> roomSector,
 
         if(command.opcode == floordata::CommandOpcode::Activate)
         {
-          objects.at(command.parameter)->patchFloor(pos, hi.y);
+          if(auto it = objects.find(command.parameter); it != objects.end())
+            it->second->patchFloor(pos, hi.y);
         }
         else if(command.opcode == floordata::CommandOpcode::SwitchCamera)
         {
@@ -196,7 +197,8 @@ HeightInfo HeightInfo::fromCeiling(gsl::not_null<const world::Sector*> roomSecto
 
         if(command.opcode == floordata::CommandOpcode::Activate)
         {
-          objects.at(command.parameter)->patchCeiling(pos, hi.y);
+          if(auto it = objects.find(command.parameter); it != objects.end())
+            it->second->patchCeiling(pos, hi.y);
         }
         else if(command.opcode == floordata::CommandOpcode::SwitchCamera)
         {
