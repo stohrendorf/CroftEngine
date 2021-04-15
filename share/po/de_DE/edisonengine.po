@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EdisonEngine \n"
 "Report-Msgid-Bugs-To: https://github.com/stohrendorf/EdisonEngine/issues\n"
-"POT-Creation-Date: 2021-03-26 15:53+0100\n"
+"POT-Creation-Date: 2021-04-15 09:54+0200\n"
 "Last-Translator: Steffen Ohrendorf\n"
 "Language-Team: none\n"
 "Language: de_DE\n"
@@ -26,11 +26,11 @@ msgstr "- LEERER SLOT %1%"
 msgid "Bilinear Filtering"
 msgstr "Bilineare Filterung"
 
-#: engine/presenter.cpp:321
+#: engine/presenter.cpp:324
 msgid "Booting"
 msgstr "Starte"
 
-#: engine/world/world.cpp:1781
+#: engine/world/world.cpp:1829
 msgid "Building textures"
 msgstr "Erstelle Texturen"
 
@@ -40,16 +40,16 @@ msgid "CRT"
 msgstr "CRT"
 
 #. translators: TR charmap encoding
-#: menu/menudisplay.cpp:285
+#: menu/menudisplay.cpp:282
 msgid "Compass"
 msgstr "Kompa="
 
 #. translators: TR charmap encoding
-#: menu/menudisplay.cpp:236
+#: menu/menudisplay.cpp:233
 msgid "Controls"
 msgstr "Kontrollen"
 
-#: engine/world/world.cpp:1172
+#: engine/world/world.cpp:1203
 #, boost-format
 msgid "Creating mipmaps (%1%%%)"
 msgstr "Erstelle Mipmaps (%1%%%)"
@@ -60,7 +60,7 @@ msgid "Depth-of-Field"
 msgstr "Tiefensch~arfe"
 
 #. translators: TR charmap encoding
-#: menu/menudisplay.cpp:252
+#: menu/menudisplay.cpp:249
 msgid "Detail Levels"
 msgstr "Grafik"
 
@@ -85,12 +85,12 @@ msgid "Fullscreen"
 msgstr "Vollbild"
 
 #. translators: TR charmap encoding
-#: menu/menudisplay.cpp:517
+#: menu/menudisplay.cpp:514
 msgid "GAME OVER"
 msgstr "Ende des Spiels"
 
 #. translators: TR charmap encoding
-#: menu/menudisplay.cpp:226
+#: menu/menudisplay.cpp:223
 msgid "Game"
 msgstr "Spiel"
 
@@ -118,22 +118,22 @@ msgid "Graphics"
 msgstr "Grafik"
 
 #. translators: TR charmap encoding
-#: menu/menudisplay.cpp:375
+#: menu/menudisplay.cpp:372
 msgid "Grenade"
 msgstr "Granaten"
 
 #. translators: TR charmap encoding
-#: menu/menudisplay.cpp:262
+#: menu/menudisplay.cpp:259
 msgid "Gym"
 msgstr "Training"
 
 #. translators: TR charmap encoding
-#: menu/menudisplay.cpp:512
+#: menu/menudisplay.cpp:509
 msgid "INVENTORY"
 msgstr "Inventar"
 
 #. translators: TR charmap encoding
-#: menu/menudisplay.cpp:499
+#: menu/menudisplay.cpp:496
 msgid "ITEMS"
 msgstr "Gegenst~ande"
 
@@ -144,7 +144,7 @@ msgid "KILLS %1%"
 msgstr "Besiegte Gegner %1%"
 
 #. translators: TR charmap encoding
-#: menu/menudisplay.cpp:386
+#: menu/menudisplay.cpp:383
 msgid "Large Medi Pack"
 msgstr "Gro=es Medi-Pack"
 
@@ -162,21 +162,21 @@ msgstr "Spiel laden"
 msgid "Loading %1%"
 msgstr "Lade %1%"
 
-#: engine/engine.cpp:447
+#: engine/engine.cpp:446
 msgid "Loading Glidos texture pack"
 msgstr "Lade Glidos Textur Paket"
 
-#: engine/world/world.cpp:986
+#: engine/world/world.cpp:1003
 msgid "Loading..."
 msgstr "Lade..."
 
 #. translators: TR charmap encoding
-#: menu/menudisplay.cpp:353
+#: menu/menudisplay.cpp:350
 msgid "Magnum Clips"
 msgstr "Magnum-Munition"
 
 #. translators: TR charmap encoding
-#: menu/menudisplay.cpp:320
+#: menu/menudisplay.cpp:317
 msgid "Magnums"
 msgstr "Magnums"
 
@@ -186,7 +186,7 @@ msgid "New Game"
 msgstr "Spiel starten"
 
 #. translators: TR charmap encoding
-#: menu/menudisplay.cpp:518
+#: menu/menudisplay.cpp:515
 msgid "OPTION"
 msgstr "Optionen"
 
@@ -197,7 +197,12 @@ msgid "PICKUPS %1%"
 msgstr "Gegenst~ande %1%"
 
 #. translators: TR charmap encoding
-#: menu/menudisplay.cpp:298
+#: menu/rendersettingsmenustate.cpp:57
+msgid "Leistungsanzeige"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/menudisplay.cpp:295
 msgid "Pistols"
 msgstr "Pistolen"
 
@@ -212,27 +217,27 @@ msgstr "Geheimnisse %1% von %2%"
 msgid "Save Game"
 msgstr "Spiel sichern"
 
-#: engine/world/world.cpp:1005
+#: engine/world/world.cpp:1022
 msgid "Saving..."
 msgstr "Speichere..."
 
 #. translators: TR charmap encoding
-#: menu/menudisplay.cpp:309
+#: menu/menudisplay.cpp:306
 msgid "Shotgun"
 msgstr "Schrotflinte"
 
 #. translators: TR charmap encoding
-#: menu/menudisplay.cpp:342
+#: menu/menudisplay.cpp:339
 msgid "Shotgun Cells"
 msgstr "Schrot-Munition"
 
 #. translators: TR charmap encoding
-#: menu/menudisplay.cpp:397
+#: menu/menudisplay.cpp:394
 msgid "Small Medi Pack"
 msgstr "Kleines Medi-Pack"
 
 #. translators: TR charmap encoding
-#: menu/menudisplay.cpp:244
+#: menu/menudisplay.cpp:241
 msgid "Sound"
 msgstr "Audio"
 
@@ -249,12 +254,12 @@ msgid "TIME TAKEN %1%:%2$02d:%3$02d"
 msgstr "Ben~otigte Zeit %1%:%2$02d:%3$02d"
 
 #. translators: TR charmap encoding
-#: menu/menudisplay.cpp:364
+#: menu/menudisplay.cpp:361
 msgid "Uzi Clips"
 msgstr "Uzi-Munition"
 
 #. translators: TR charmap encoding
-#: menu/menudisplay.cpp:331
+#: menu/menudisplay.cpp:328
 msgid "Uzis"
 msgstr "Uzis"
 
