@@ -5,7 +5,6 @@
 #include "core/units.h"
 #include "engine/collisioninfo.h"
 #include "engine/floordata/floordata.h"
-#include "engine/lighting.h"
 #include "engine/skeletalmodelnode.h"
 #include "objectstate.h"
 
@@ -60,12 +59,8 @@ protected:
 
 public:
   ObjectState m_state;
-
   bool m_isActive = false;
-
   bool m_hasUpdateFunction;
-
-  Lighting m_lighting;
 
   enum class AnimCommandOpcode : uint16_t
   {
@@ -171,7 +166,7 @@ public:
     return alignTransformClamped(core::TRVec{targetPos}, target.m_state.rotation, 16_len, 364_au);
   }
 
-  void updateLighting();
+  virtual void updateLighting() = 0;
 
   virtual loader::file::BoundingBox getBoundingBox() const = 0;
 

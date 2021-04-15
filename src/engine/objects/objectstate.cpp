@@ -143,7 +143,6 @@ void ObjectState::serialize(const serialization::Serializer<world::World>& ser)
       S_NV("floor", floor),
       S_NV("touchBits", touch_bits),
       S_NVVE("box", ser.context.getBoxes(), box),
-      S_NV("shade", shade),
       S_NV("falling", falling),
       S_NV("isHit", is_hit),
       S_NV("collidable", collidable),

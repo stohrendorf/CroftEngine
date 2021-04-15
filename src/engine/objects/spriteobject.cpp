@@ -23,8 +23,6 @@ SpriteObject::SpriteObject(const gsl::not_null<world::World*>& world,
     , m_sprite{sprite}
     , m_brightness{toBrightness(item.shade)}
 {
-  m_lighting.bind(*m_node);
-
   createModel();
   addChild(room->node, m_node);
   applyTransform();
@@ -36,7 +34,6 @@ SpriteObject::SpriteObject(const gsl::not_null<world::World*>& world,
     : Object{world, position}
     , m_node{std::make_shared<render::scene::Node>(std::move(name))}
 {
-  m_lighting.bind(*m_node);
 }
 
 void SpriteObject::createModel()
@@ -48,6 +45,11 @@ void SpriteObject::createModel()
                [brightness = m_brightness](
                  const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
                { uniform.set(brightness.get()); });
+  m_node->bind(
+    "b_lights",
+    [emptyBuffer = std::make_shared<gl::ShaderStorageBuffer<engine::Lighting::Light>>("lights-buffer-empty")](
+      const render::scene::Node&, const render::scene::Mesh& /*mesh*/, gl::ShaderStorageBlock& shaderStorageBlock)
+    { shaderStorageBlock.bind(*emptyBuffer); });
 }
 
 void SpriteObject::serialize(const serialization::Serializer<world::World>& ser)

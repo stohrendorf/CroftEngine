@@ -84,7 +84,6 @@ public:
   core::Length floor = 0_len;
   std::bitset<32> touch_bits;
   const world::Box* box = nullptr;
-  core::Shade shade{core::Shade::type{-1}};
 
   bool falling = false;
   bool is_hit = false;

@@ -68,6 +68,10 @@ public:
     return loader::file::BoundingBox{};
   }
 
+  void updateLighting() override
+  {
+  }
+
   void serialize(const serialization::Serializer<world::World>& ser) override;
 };
 } // namespace engine::objects

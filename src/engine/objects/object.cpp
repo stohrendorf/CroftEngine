@@ -40,7 +40,6 @@ Object::Object(const gsl::not_null<world::World*>& world,
   m_state.loadObjectInfo();
 
   m_state.rotation.Y = item.rotation;
-  m_state.shade = item.shade;
   m_state.activationState = floordata::ActivationState(item.activationState);
   m_state.timer = m_state.activationState.getTimeout();
 
@@ -157,11 +156,6 @@ void Object::emitRicochet(const core::RoomBoundPosition& pos)
 std::optional<core::Length> Object::getWaterSurfaceHeight() const
 {
   return world::getWaterSurfaceHeight(m_state.position);
-}
-
-void Object::updateLighting()
-{
-  m_lighting.update(m_state.shade, *m_state.position.room);
 }
 
 bool Object::alignTransformClamped(const core::TRVec& targetPos,

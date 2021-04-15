@@ -1,5 +1,6 @@
 #pragma once
 
+#include "engine/lighting.h"
 #include "object.h"
 
 namespace engine::objects
@@ -8,6 +9,7 @@ class ModelObject : public Object
 {
 protected:
   std::shared_ptr<SkeletalModelNode> m_skeleton;
+  Lighting m_lighting;
 
 public:
   ModelObject(const gsl::not_null<world::World*>& world, const core::RoomBoundPosition& position)
@@ -22,9 +24,7 @@ public:
               const gsl::not_null<const world::SkeletalModelType*>& model);
 
   ModelObject(const ModelObject&) = delete;
-
   ModelObject& operator=(const ModelObject&) = delete;
-
   ModelObject& operator=(ModelObject&&) = delete;
 
   ~ModelObject() override
@@ -88,6 +88,8 @@ public:
                                                                       const core::RoomBoundPosition& pos,
                                                                       const core::Speed& speed,
                                                                       const core::Angle& angle));
+
+  void updateLighting() override;
 
   void serialize(const serialization::Serializer<world::World>& ser) override;
 

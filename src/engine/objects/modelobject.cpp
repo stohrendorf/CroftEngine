@@ -306,6 +306,11 @@ gsl::not_null<std::shared_ptr<Particle>>
   return particle;
 }
 
+void ModelObject::updateLighting()
+{
+  m_lighting.update(core::Shade{core::Shade::type{-1}}, *m_state.position.room);
+}
+
 void ModelObject::serialize(const serialization::Serializer<world::World>& ser)
 {
   Object::serialize(ser);
