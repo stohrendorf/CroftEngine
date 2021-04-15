@@ -388,7 +388,7 @@ void patchHeightsForBlock(const engine::objects::Object& object, const core::Len
   }
   else
   {
-    groundSector->floorHeight = topSector->floorHeight + height;
+    groundSector->floorHeight += height;
     if(groundSector->floorHeight == topSector->ceilingHeight)
       groundSector->floorHeight = -core::HeightLimit;
   }
