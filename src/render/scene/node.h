@@ -28,7 +28,7 @@ public:
   {
   }
 
-  virtual ~Node();
+  ~Node() override;
 
   const std::string& getName() const
   {
@@ -50,6 +50,7 @@ public:
     return m_visible;
   }
 
+  // NOLINTNEXTLINE(misc-no-recursion)
   const glm::mat4& getModelMatrix() const
   {
     if(!m_dirty)
@@ -100,12 +101,6 @@ public:
     for(auto& child : m_children)
       child->m_parent.reset();
     m_children.clear();
-  }
-
-  const gsl::not_null<std::shared_ptr<Node>>& getChild(const size_t idx) const
-  {
-    BOOST_ASSERT(idx < m_children.size());
-    return m_children[idx];
   }
 
   const glm::mat4& getLocalMatrix() const

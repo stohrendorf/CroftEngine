@@ -98,7 +98,6 @@ public:
     return m_matrices.view;
   }
 
-  // ReSharper disable once CppMemberFunctionMayBeConst
   void setViewMatrix(const glm::mat4& m)
   {
     m_matrices.view = m;
@@ -140,17 +139,6 @@ public:
     }
 
     return m_matrices.viewProjection;
-  }
-
-  [[nodiscard]] const glm::mat4& getInverseViewProjectionMatrix() const
-  {
-    if(m_dirty.is_set(CameraMatrices::DirtyFlag::InvViewProjection))
-    {
-      m_matrices.inverseViewProjection = inverse(getViewProjectionMatrix());
-      m_dirty.reset(CameraMatrices::DirtyFlag::InvViewProjection);
-    }
-
-    return m_matrices.inverseViewProjection;
   }
 
   [[nodiscard]] glm::vec3 getPosition() const
