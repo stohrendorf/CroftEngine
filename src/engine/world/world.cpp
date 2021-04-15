@@ -959,7 +959,7 @@ void World::gameLoop(bool godMode, float delayRatio, float blackAlpha)
     ui.drawBox({0, 0}, getPresenter().getViewport(), gl::SRGBA8{0, 0, 0, gsl::narrow_cast<uint8_t>(255 * blackAlpha)});
   }
 
-  if(getEngine().getEngineConfig().renderSettings.performanceMeter)
+  if(getEngine().getEngineConfig().displaySettings.performanceMeter)
   {
     const auto vp = getPresenter().getViewport();
     ui.drawBox({0, vp.y}, {vp.x, -20}, gl::SRGBA8{0, 0, 0, 224});

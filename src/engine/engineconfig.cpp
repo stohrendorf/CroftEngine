@@ -7,6 +7,7 @@ namespace engine
 {
 void EngineConfig::serialize(const serialization::Serializer<EngineConfig>& ser)
 {
-  ser(S_NVD("renderSettings", renderSettings, render::RenderSettings{}));
+  ser(S_NVD("renderSettings", renderSettings, render::RenderSettings{}),
+      S_NVD("displaySettings", displaySettings, DisplaySettings{}));
 }
 } // namespace engine

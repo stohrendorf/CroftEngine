@@ -13,7 +13,6 @@ void RenderSettings::serialize(const serialization::Serializer<engine::EngineCon
       S_NVD("filmGrain", filmGrain, true),
       S_NVD("fullscreen", fullscreen, false),
       S_NVD("bilinearFiltering", bilinearFiltering, false),
-      S_NVD("waterDenoise", waterDenoise, true),
-      S_NVD("performanceMeter", performanceMeter, false));
+      S_NVD("waterDenoise", waterDenoise, true));
 }
 } // namespace render

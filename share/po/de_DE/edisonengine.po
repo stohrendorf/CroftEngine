@@ -198,8 +198,8 @@ msgstr "Gegenst~ande %1%"
 
 #. translators: TR charmap encoding
 #: menu/rendersettingsmenustate.cpp:57
-msgid "Leistungsanzeige"
-msgstr ""
+msgid "Performance Meter"
+msgstr "Leistungsanzeige"
 
 #. translators: TR charmap encoding
 #: menu/menudisplay.cpp:295

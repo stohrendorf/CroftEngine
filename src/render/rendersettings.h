@@ -18,7 +18,6 @@ struct RenderSettings
   bool fullscreen = false;
   bool bilinearFiltering = false;
   bool waterDenoise = true;
-  bool performanceMeter = false;
 
   void serialize(const serialization::Serializer<engine::EngineConfig>& ser);
 };

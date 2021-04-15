@@ -135,6 +135,8 @@ set( EDISONENGINE_SRCS
         engine/cameracontroller.cpp
         engine/collisioninfo.h
         engine/collisioninfo.cpp
+        engine/displaysettings.h
+        engine/displaysettings.cpp
         engine/engine.h
         engine/engine.cpp
         engine/engineconfig.h

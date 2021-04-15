@@ -15,12 +15,14 @@ RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingT
     : ListDisplayMenuState{ringTransform, /* translators: TR charmap encoding */ _("Graphics")}
     , m_previous{std::move(previous)}
 {
-  auto addSetting = [this](const std::string& name, std::function<bool()>&& getter, std::function<void()>&& toggler) {
+  auto addSetting = [this](const std::string& name, std::function<bool()>&& getter, std::function<void()>&& toggler)
+  {
     setActive(addEntry(name), getter());
     m_handlers.emplace_back(std::move(getter), std::move(toggler));
   };
 
-  static const auto toggle = [](engine::Engine& engine, bool& value) {
+  static const auto toggle = [](engine::Engine& engine, bool& value)
+  {
     value = !value;
     engine.getPresenter().apply(engine.getEngineConfig().renderSettings);
   };
@@ -55,8 +57,12 @@ RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingT
     [&engine]() { toggle(engine, engine.getEngineConfig().renderSettings.waterDenoise); });
   addSetting(
     /* translators: TR charmap encoding */ _("Performance Meter"),
-    [&engine]() { return engine.getEngineConfig().renderSettings.performanceMeter; },
-    [&engine]() { toggle(engine, engine.getEngineConfig().renderSettings.performanceMeter); });
+    [&engine]() { return engine.getEngineConfig().displaySettings.performanceMeter; },
+    [&engine]()
+    {
+      auto& b = engine.getEngineConfig().displaySettings.performanceMeter;
+      b = !b;
+    });
 }
 
 std::unique_ptr<MenuState>
