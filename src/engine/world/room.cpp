@@ -38,9 +38,9 @@ struct RenderVertex
   glm::vec2 quadUv3{};
   glm::vec2 quadUv4{};
 
-  static const gl::VertexFormat<RenderVertex>& getFormat()
+  static const gl::VertexLayout<RenderVertex>& getLayout()
   {
-    static const gl::VertexFormat<RenderVertex> format{{VERTEX_ATTRIBUTE_POSITION_NAME, &RenderVertex::position},
+    static const gl::VertexLayout<RenderVertex> layout{{VERTEX_ATTRIBUTE_POSITION_NAME, &RenderVertex::position},
                                                        {VERTEX_ATTRIBUTE_NORMAL_NAME, &RenderVertex::normal},
                                                        {VERTEX_ATTRIBUTE_COLOR_NAME, &RenderVertex::color},
                                                        {VERTEX_ATTRIBUTE_IS_QUAD, &RenderVertex::isQuad},
@@ -53,7 +53,7 @@ struct RenderVertex
                                                        {VERTEX_ATTRIBUTE_QUAD_UV3, &RenderVertex::quadUv3},
                                                        {VERTEX_ATTRIBUTE_QUAD_UV4, &RenderVertex::quadUv4}};
 
-    return format;
+    return layout;
   }
 };
 
@@ -129,8 +129,8 @@ void Portal::buildMesh(const loader::file::Portal& srcPortal,
   for(size_t i = 0; i < 4; ++i)
     glVertices[i].pos = srcPortal.vertices[i].toRenderSystem();
 
-  gl::VertexFormat<Vertex> format{{VERTEX_ATTRIBUTE_POSITION_NAME, &Vertex::pos}};
-  auto vb = std::make_shared<gl::VertexBuffer<Vertex>>(format);
+  gl::VertexLayout<Vertex> layout{{VERTEX_ATTRIBUTE_POSITION_NAME, &Vertex::pos}};
+  auto vb = std::make_shared<gl::VertexBuffer<Vertex>>(layout);
   vb->setData(&glVertices[0], 4, gl::api::BufferUsageARB::StaticDraw);
 
   static const std::array<uint16_t, 6> indices{0, 1, 2, 0, 2, 3};
@@ -159,13 +159,13 @@ void Room::createSceneNode(const loader::file::Room& srcRoom,
   std::vector<render::TextureAnimator::AnimatedUV> uvCoordsData;
 
   const auto label = "Room:" + std::to_string(roomId);
-  auto vbuf = std::make_shared<gl::VertexBuffer<RenderVertex>>(RenderVertex::getFormat(), label);
+  auto vbuf = std::make_shared<gl::VertexBuffer<RenderVertex>>(RenderVertex::getLayout(), 0, label);
 
-  static const gl::VertexFormat<render::TextureAnimator::AnimatedUV> uvAttribs{
+  static const gl::VertexLayout<render::TextureAnimator::AnimatedUV> uvAttribs{
     {VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, gl::VertexAttribute{&render::TextureAnimator::AnimatedUV::uv}},
     {VERTEX_ATTRIBUTE_TEXINDEX_NAME, gl::VertexAttribute{&render::TextureAnimator::AnimatedUV::index}},
   };
-  auto uvCoords = std::make_shared<gl::VertexBuffer<render::TextureAnimator::AnimatedUV>>(uvAttribs, label + "-uv");
+  auto uvCoords = std::make_shared<gl::VertexBuffer<render::TextureAnimator::AnimatedUV>>(uvAttribs, 0, label + "-uv");
 
   for(const loader::file::QuadFace& quad : srcRoom.rectangles)
   {

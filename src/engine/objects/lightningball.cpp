@@ -27,7 +27,7 @@ gsl::not_null<std::shared_ptr<render::scene::Mesh>>
 {
   std::vector<glm::vec3> vertices(points);
 
-  static const gl::VertexFormat<glm::vec3> format{
+  static const gl::VertexLayout<glm::vec3> layout{
     {VERTEX_ATTRIBUTE_POSITION_NAME, gl::VertexAttribute<glm::vec3>::Trivial{}}};
 
   std::vector<uint16_t> indices;
@@ -37,7 +37,7 @@ gsl::not_null<std::shared_ptr<render::scene::Mesh>>
   auto indexBuffer = std::make_shared<gl::ElementArrayBuffer<uint16_t>>();
   indexBuffer->setData(indices, gl::api::BufferUsageARB::StaticDraw);
 
-  vb = std::make_shared<gl::VertexBuffer<glm::vec3>>(format);
+  vb = std::make_shared<gl::VertexBuffer<glm::vec3>>(layout);
   vb->setData(&vertices[0], points, gl::api::BufferUsageARB::DynamicDraw);
 
   auto vao = std::make_shared<gl::VertexArray<uint16_t, glm::vec3>>(

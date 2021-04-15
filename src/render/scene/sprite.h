@@ -18,7 +18,7 @@ struct SpriteVertex
   glm::vec4 color{1.0f};
   glm::vec3 normal{0, 0, 1};
 
-  [[nodiscard]] static gl::VertexFormat<SpriteVertex> getFormat();
+  [[nodiscard]] static gl::VertexLayout<SpriteVertex> getLayout();
 };
 
 extern std::array<SpriteVertex, 4> createSpriteVertices(

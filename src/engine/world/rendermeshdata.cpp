@@ -191,8 +191,8 @@ RenderMeshData::RenderMeshData(const loader::file::Mesh& mesh,
 gsl::not_null<std::shared_ptr<render::scene::Mesh>> RenderMeshDataCompositor::toMesh(
   render::scene::MaterialManager& materialManager, bool skeletal, const std::string& label)
 {
-  auto vb = std::make_shared<gl::VertexBuffer<RenderMeshData::RenderVertex>>(RenderMeshData::RenderVertex::getFormat(),
-                                                                             label);
+  auto vb = std::make_shared<gl::VertexBuffer<RenderMeshData::RenderVertex>>(
+    RenderMeshData::RenderVertex::getLayout(), 0, label);
   vb->setData(m_vertices, gl::api::BufferUsageARB::StaticDraw);
 
 #ifndef NDEBUG
@@ -214,7 +214,6 @@ gsl::not_null<std::shared_ptr<render::scene::Mesh>> RenderMeshDataCompositor::to
     std::vector<const gl::Program*>{&material->getShaderProgram()->getHandle(),
                                     &materialDepthOnly->getShaderProgram()->getHandle(),
                                     &materialCSMDepthOnly->getShaderProgram()->getHandle()},
-    0,
     label);
   auto mesh = std::make_shared<render::scene::MeshImpl<RenderMeshData::IndexType, RenderMeshData::RenderVertex>>(
     va, gl::api::PrimitiveType::Triangles);

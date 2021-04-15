@@ -27,10 +27,10 @@ gsl::not_null<std::shared_ptr<Mesh>> createScreenQuad(const glm::vec2& xy,
                                        Vertex{{br.x, br.y}, {1.0f, invertY ? 0.0f : 1.0f}},
                                        Vertex{{tl.x, br.y}, {0.0f, invertY ? 0.0f : 1.0f}}};
 
-  static const gl::VertexFormat<Vertex> format{{VERTEX_ATTRIBUTE_POSITION_NAME, &Vertex::pos},
+  static const gl::VertexLayout<Vertex> layout{{VERTEX_ATTRIBUTE_POSITION_NAME, &Vertex::pos},
                                                {VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, &Vertex::uv}};
 
-  auto vertexBuffer = std::make_shared<gl::VertexBuffer<Vertex>>(format);
+  auto vertexBuffer = std::make_shared<gl::VertexBuffer<Vertex>>(layout);
   vertexBuffer->setData(&vertices[0], 4, gl::api::BufferUsageARB::StaticDraw);
 
   static const std::array<uint16_t, 6> indices{0, 1, 2, 0, 2, 3};

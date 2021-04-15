@@ -46,9 +46,9 @@ public:
     glm::vec2 quadUv3;
     glm::vec2 quadUv4;
 
-    static const gl::VertexFormat<RenderVertex>& getFormat()
+    static const gl::VertexLayout<RenderVertex>& getLayout()
     {
-      static const gl::VertexFormat<RenderVertex> format{{VERTEX_ATTRIBUTE_POSITION_NAME, &RenderVertex::position},
+      static const gl::VertexLayout<RenderVertex> layout{{VERTEX_ATTRIBUTE_POSITION_NAME, &RenderVertex::position},
                                                          {VERTEX_ATTRIBUTE_NORMAL_NAME, &RenderVertex::normal},
                                                          {VERTEX_ATTRIBUTE_COLOR_NAME, &RenderVertex::color},
                                                          {VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, &RenderVertex::uv},
@@ -64,7 +64,7 @@ public:
                                                          {VERTEX_ATTRIBUTE_QUAD_UV3, &RenderVertex::quadUv3},
                                                          {VERTEX_ATTRIBUTE_QUAD_UV4, &RenderVertex::quadUv4}};
 
-      return format;
+      return layout;
     }
   };
 

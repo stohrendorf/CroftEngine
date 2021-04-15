@@ -56,37 +56,31 @@ private:
 };
 
 template<typename T>
-using VertexFormat = std::map<std::string, VertexAttribute<T>>;
+using VertexLayout = std::map<std::string, VertexAttribute<T>>;
 
 template<typename T>
 class VertexBuffer final : public ArrayBuffer<T>
 {
 public:
-  explicit VertexBuffer(VertexFormat<T> format, const std::string& label = {})
+  explicit VertexBuffer(VertexLayout<T> layout, uint32_t divisor = 0, const std::string& label = {})
       : ArrayBuffer<T>{label}
-      , m_format{std::move(format)}
+      , m_layout{std::move(layout)}
+      , m_divisor{divisor}
   {
-    BOOST_ASSERT(!m_format.empty());
+    BOOST_ASSERT(!m_layout.empty());
   }
 
-  void bindVertexAttributes(const api::core::Handle vertexArray,
-                            const Program& program,
-                            const uint32_t bindingIndex,
-                            const uint32_t divisor) const
+  void
+    bindVertexAttributes(const api::core::Handle vertexArray, const Program& program, const uint32_t bindingIndex) const
   {
     for(const auto& input : program.getInputs())
     {
-      auto it = m_format.find(input.getName());
-      if(it == m_format.end())
+      auto it = m_layout.find(input.getName());
+      if(it == m_layout.end())
         continue;
 
-      it->second.bindVertexAttribute(vertexArray, input, bindingIndex, divisor);
+      it->second.bindVertexAttribute(vertexArray, input, bindingIndex, m_divisor);
     }
-  }
-
-  [[nodiscard]] const VertexFormat<T>& getFormat() const
-  {
-    return m_format;
   }
 
   [[nodiscard]] static constexpr int getStride()
@@ -95,7 +89,8 @@ public:
   }
 
 private:
-  const VertexFormat<T> m_format;
+  const VertexLayout<T> m_layout;
+  const uint32_t m_divisor;
 };
 
 template<typename T>

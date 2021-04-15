@@ -30,7 +30,7 @@ std::shared_ptr<gl::VertexBuffer<SpriteVertex>> createSpriteVertexBuffer(
   float x0, float y0, float x1, float y1, const glm::vec2& t0, const glm::vec2& t1, int textureIdx)
 {
   const auto vertices = createSpriteVertices(x0, y0, x1, y1, t0, t1, textureIdx);
-  auto vb = std::make_shared<gl::VertexBuffer<SpriteVertex>>(SpriteVertex::getFormat());
+  auto vb = std::make_shared<gl::VertexBuffer<SpriteVertex>>(SpriteVertex::getLayout());
   vb->setData(&vertices[0], 4, gl::api::BufferUsageARB::StaticDraw);
   return vb;
 }
@@ -58,7 +58,7 @@ gsl::not_null<std::shared_ptr<Mesh>> createSpriteMesh(const float x0,
   return mesh;
 }
 
-gl::VertexFormat<SpriteVertex> SpriteVertex::getFormat()
+gl::VertexLayout<SpriteVertex> SpriteVertex::getLayout()
 {
   return {{VERTEX_ATTRIBUTE_POSITION_NAME, &SpriteVertex::pos},
           {VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, &SpriteVertex::uv},

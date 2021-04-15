@@ -14,17 +14,14 @@ class VertexArray final : public BindableResource
 {
 private:
   template<typename... Ts, size_t... Is>
-  void bindVertexAttributes(const std::tuple<Ts...>& t,
-                            const Program& p,
-                            const std::index_sequence<Is...>&,
-                            const uint32_t divisor)
+  void bindVertexAttributes(const std::tuple<Ts...>& t, const Program& p, const std::index_sequence<Is...>&)
   {
-    (..., std::get<Is>(t)->bindVertexAttributes(getHandle(), p, Is, divisor));
+    (..., std::get<Is>(t)->bindVertexAttributes(getHandle(), p, Is));
   }
 
-  void bindVertexAttributes(const Program& p, const uint32_t divisor)
+  void bindVertexAttributes(const Program& p)
   {
-    bindVertexAttributes(m_vertexBuffers, p, std::make_index_sequence<1 + sizeof...(VertexTs)>(), divisor);
+    bindVertexAttributes(m_vertexBuffers, p, std::make_index_sequence<1 + sizeof...(VertexTs)>());
   }
 
   template<typename... Ts, size_t... Is>
@@ -52,7 +49,6 @@ public:
   explicit VertexArray(IndexBufferPtr indexBuffer,
                        VertexBuffers vertexBuffers,
                        const std::vector<const Program*>& programs,
-                       const uint32_t divisor = 0,
                        const std::string& label = {})
       : BindableResource{api::createVertexArrays,
                          api::bindVertexArray,
@@ -76,7 +72,7 @@ public:
     for(const auto& program : programs)
     {
       if(program != nullptr)
-        bindVertexAttributes(*program, divisor);
+        bindVertexAttributes(*program);
     }
   }
 

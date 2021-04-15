@@ -29,7 +29,7 @@ struct ColorQuadVertex
 gsl::not_null<std::shared_ptr<render::scene::Mesh>> createQuad(const std::shared_ptr<render::scene::Material>& material,
                                                                const std::array<ColorQuadVertex, 4>& vertices)
 {
-  static const gl::VertexFormat<ColorQuadVertex> format{
+  static const gl::VertexLayout<ColorQuadVertex> layout{
     {VERTEX_ATTRIBUTE_POSITION_NAME, &ColorQuadVertex::pos},
     {VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, &ColorQuadVertex::uv},
     {VERTEX_ATTRIBUTE_COLOR_TOP_LEFT_NAME, &ColorQuadVertex::topLeft},
@@ -37,7 +37,7 @@ gsl::not_null<std::shared_ptr<render::scene::Mesh>> createQuad(const std::shared
     {VERTEX_ATTRIBUTE_COLOR_BOTTOM_LEFT_NAME, &ColorQuadVertex::bottomLeft},
     {VERTEX_ATTRIBUTE_COLOR_BOTTOM_RIGHT_NAME, &ColorQuadVertex::bottomRight}};
 
-  auto vertexBuffer = std::make_shared<gl::VertexBuffer<ColorQuadVertex>>(format);
+  auto vertexBuffer = std::make_shared<gl::VertexBuffer<ColorQuadVertex>>(layout);
   vertexBuffer->setData(&vertices[0], 4, gl::api::BufferUsageARB::StaticDraw);
 
   static const std::array<uint16_t, 6> indices{0, 1, 2, 0, 2, 3};
@@ -182,7 +182,7 @@ void Ui::draw(const engine::world::Sprite& sprite, const glm::ivec2& xy)
     glm::int32_t texIndex;
   };
 
-  static const gl::VertexFormat<TextureQuadVertex> format{
+  static const gl::VertexLayout<TextureQuadVertex> layout{
     {VERTEX_ATTRIBUTE_POSITION_NAME, &TextureQuadVertex::pos},
     {VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, &TextureQuadVertex::uv},
     {VERTEX_ATTRIBUTE_TEXINDEX_NAME, &TextureQuadVertex::texIndex}};
@@ -196,7 +196,7 @@ void Ui::draw(const engine::world::Sprite& sprite, const glm::ivec2& xy)
                                                   TextureQuadVertex{{b.x, b.y}, {tb.x, tb.y}, sprite.textureId.get()},
                                                   TextureQuadVertex{{b.x, a.y}, {tb.x, ta.y}, sprite.textureId.get()}};
 
-  auto vertexBuffer = std::make_shared<gl::VertexBuffer<TextureQuadVertex>>(format);
+  auto vertexBuffer = std::make_shared<gl::VertexBuffer<TextureQuadVertex>>(layout);
   vertexBuffer->setData(&vertices[0], 4, gl::api::BufferUsageARB::StaticDraw);
 
   static const std::array<uint16_t, 6> indices{0, 1, 2, 0, 2, 3};
