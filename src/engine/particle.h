@@ -81,7 +81,7 @@ public:
 
   void setShade(const core::Shade& shade)
   {
-    m_lighting.updateStatic(shade);
+    m_lighting.update(shade, *pos.room);
   }
 
   virtual bool update(world::World& world) = 0;

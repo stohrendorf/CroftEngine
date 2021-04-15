@@ -161,9 +161,7 @@ std::optional<core::Length> Object::getWaterSurfaceHeight() const
 
 void Object::updateLighting()
 {
-  auto tmp = m_state.position;
-  tmp.position += getBoundingBox().getCenter();
-  m_lighting.updateDynamic(m_state.shade, tmp);
+  m_lighting.update(m_state.shade, *m_state.position.room);
 }
 
 bool Object::alignTransformClamped(const core::TRVec& targetPos,

@@ -17,7 +17,8 @@ struct Lighting
     glm::vec4 position{std::numeric_limits<float>::quiet_NaN()};
     float brightness = 0;
     float fadeDistance = 0;
-    float _pad[2]{0.0f, 0.0f};
+    // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, modernize-avoid-c-arrays)
+    [[maybe_unused]] float _pad[2]{0.0f, 0.0f};
 
     bool operator==(const Light& rhs) const
     {
@@ -38,26 +39,29 @@ struct Lighting
 
   gl::ShaderStorageBuffer<Light> m_buffer{"lights-buffer"};
 
-  void updateDynamic(const core::Shade& shade, const core::RoomBoundPosition& pos)
+  void update(const core::Shade& shade, const world::Room& baseRoom)
   {
     if(shade.get() >= 0)
     {
-      updateStatic(shade);
+      fadeAmbient(shade);
+      lights.clear();
+      bufferLights.clear();
+      m_buffer.setData(lights, gl::api::BufferUsageARB::StaticDraw);
       return;
     }
 
-    setAmbient(pos.room->ambientShade);
+    fadeAmbient(baseRoom.ambientShade);
 
     lights.clear();
-    if(pos.room->lights.empty())
+    if(baseRoom.lights.empty())
     {
       m_buffer.setData(lights, gl::api::BufferUsageARB::StreamDraw);
       return;
     }
 
     std::set<gsl::not_null<const world::Room*>> testRooms;
-    testRooms.emplace(pos.room);
-    for(const auto& portal : pos.room->portals)
+    testRooms.emplace(&baseRoom);
+    for(const auto& portal : baseRoom.portals)
     {
       testRooms.emplace(portal.adjoiningRoom);
     }
@@ -94,33 +98,26 @@ struct Lighting
     bufferLights = lights;
   }
 
-  void updateStatic(const core::Shade& shade)
+  void bind(render::scene::Node& node) const
   {
-    lights.clear();
-    setAmbient(shade);
-    m_buffer.setData(lights, gl::api::BufferUsageARB::StaticDraw);
+    node.bind("u_lightAmbient",
+              [this](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
+              { uniform.set(ambient.get()); });
+
+    node.bind("b_lights",
+              [this](const render::scene::Node&,
+                     const render::scene::Mesh& /*mesh*/,
+                     gl::ShaderStorageBlock& shaderStorageBlock) { shaderStorageBlock.bind(m_buffer); });
   }
 
-  void setAmbient(const core::Shade& shade)
+private:
+  void fadeAmbient(const core::Shade& shade)
   {
     targetAmbient = toBrightness(shade);
     if(ambient.get() < 0)
       ambient = targetAmbient;
     else
       ambient += (targetAmbient - ambient) / 50.0f;
-  }
-
-  void bind(render::scene::Node& node) const
-  {
-    node.bind("u_lightAmbient",
-              [this](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform) {
-                uniform.set(ambient.get());
-              });
-
-    node.bind("b_lights",
-              [this](const render::scene::Node&,
-                     const render::scene::Mesh& /*mesh*/,
-                     gl::ShaderStorageBlock& shaderStorageBlock) { shaderStorageBlock.bind(m_buffer); });
   }
 };
 } // namespace engine
