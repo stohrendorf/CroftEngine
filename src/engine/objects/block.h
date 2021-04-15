@@ -1,5 +1,6 @@
 #pragma once
 
+#include "engine/world/room.h"
 #include "modelobject.h"
 
 namespace engine::objects

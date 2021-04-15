@@ -2,10 +2,13 @@
 
 #include "audio/soundengine.h"
 #include "core/angle.h"
+#include "core/id.h"
 #include "core/vec.h"
 #include "engine/lighting.h"
+#include "engine/world/room.h"
 #include "items_tr1.h"
 #include "render/scene/node.h"
+#include "util/helpers.h"
 
 #include <deque>
 #include <glm/gtc/matrix_transform.hpp>

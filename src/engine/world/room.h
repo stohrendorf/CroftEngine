@@ -4,6 +4,7 @@
 #include "core/id.h"
 #include "core/units.h"
 #include "core/vec.h"
+#include "engine/lighting.h"
 #include "sector.h"
 
 #include <algorithm>
@@ -144,6 +145,11 @@ struct Room
   void resetScenery();
 
   void serialize(const serialization::Serializer<World>& ser);
+
+  std::vector<engine::ShaderLight> bufferLights;
+  gl::ShaderStorageBuffer<engine::ShaderLight> lightsBuffer{"lights-buffer"};
+
+  void collectShaderLights();
 };
 
 extern gsl::not_null<const Sector*> findRealFloorSector(const core::TRVec& position,

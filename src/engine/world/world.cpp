@@ -1547,6 +1547,7 @@ void World::connectSectors()
 {
   for(auto& room : m_rooms)
   {
+    room.collectShaderLights();
     for(auto& sector : room.sectors)
       sector.connect(m_rooms);
   }

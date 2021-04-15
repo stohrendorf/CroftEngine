@@ -304,7 +304,7 @@ void Room::createSceneNode(const loader::file::Room& srcRoom,
 
   node->bind(
     "b_lights",
-    [emptyBuffer = std::make_shared<gl::ShaderStorageBuffer<engine::Lighting::Light>>("lights-buffer-empty")](
+    [emptyBuffer = std::make_shared<gl::ShaderStorageBuffer<ShaderLight>>("lights-buffer-empty")](
       const render::scene::Node&, const render::scene::Mesh& /*mesh*/, gl::ShaderStorageBlock& shaderStorageBlock)
     { shaderStorageBlock.bind(*emptyBuffer); });
 
@@ -449,6 +449,52 @@ const Sector* Room::getSectorByIndex(const int dx, const int dz) const
     return nullptr;
   }
   return &sectors[sectorCountZ * dx + dz];
+}
+
+void Room::collectShaderLights()
+{
+  bufferLights.clear();
+  if(lights.empty())
+  {
+    lightsBuffer.setData(bufferLights, gl::api::BufferUsageARB::StreamDraw);
+    return;
+  }
+
+  std::set<gsl::not_null<const Room*>> testRooms;
+  testRooms.emplace(this);
+  for(const auto& portal : portals)
+  {
+    testRooms.emplace(portal.adjoiningRoom);
+  }
+
+  std::set<gsl::not_null<const Room*>> testRooms2;
+  for(const auto& room : testRooms)
+  {
+    testRooms2.emplace(room);
+    for(const auto& portal : room->portals)
+    {
+      testRooms2.emplace(portal.adjoiningRoom);
+    }
+  }
+
+  for(const auto& room : testRooms2)
+  {
+    // http://www-f9.ijs.si/~matevz/docs/PovRay/pov274.htm
+    // 1 / ( 1 + (d/fade_distance) ^ fade_power );
+    // assuming fade_power = 1, multiply numerator and denominator with fade_distance (identity transform):
+    // fade_distance / ( fade_distance + d )
+
+    for(const auto& light : room->lights)
+    {
+      if(light.intensity.get() <= 0)
+        continue;
+      bufferLights.emplace_back(ShaderLight{glm::vec4{light.position.toRenderSystem(), 0.0f},
+                                            toBrightness(light.intensity).get(),
+                                            light.fadeDistance.get<float>()});
+    }
+  }
+
+  lightsBuffer.setData(bufferLights, gl::api::BufferUsageARB::DynamicDraw);
 }
 
 gsl::not_null<const Sector*> findRealFloorSector(const core::TRVec& position,

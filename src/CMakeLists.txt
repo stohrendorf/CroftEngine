@@ -144,6 +144,7 @@ set( EDISONENGINE_SRCS
         engine/inventory.h
         engine/inventory.cpp
         engine/lighting.h
+        engine/lighting.cpp
         engine/objectmanager.h
         engine/objectmanager.cpp
         engine/particle.h

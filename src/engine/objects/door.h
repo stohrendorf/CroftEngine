@@ -1,5 +1,6 @@
 #pragma once
 
+#include "engine/world/sector.h"
 #include "modelobject.h"
 
 namespace engine::objects

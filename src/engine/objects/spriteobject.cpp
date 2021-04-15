@@ -1,5 +1,6 @@
 #include "spriteobject.h"
 
+#include "engine/lighting.h"
 #include "engine/world/world.h"
 #include "loader/file/item.h"
 #include "loader/file/level/level.h"
@@ -47,7 +48,7 @@ void SpriteObject::createModel()
                { uniform.set(brightness.get()); });
   m_node->bind(
     "b_lights",
-    [emptyBuffer = std::make_shared<gl::ShaderStorageBuffer<engine::Lighting::Light>>("lights-buffer-empty")](
+    [emptyBuffer = std::make_shared<gl::ShaderStorageBuffer<engine::ShaderLight>>("lights-buffer-empty")](
       const render::scene::Node&, const render::scene::Mesh& /*mesh*/, gl::ShaderStorageBlock& shaderStorageBlock)
     { shaderStorageBlock.bind(*emptyBuffer); });
 }
