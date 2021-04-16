@@ -12,7 +12,7 @@ SSAOPass::SSAOPass(scene::MaterialManager& materialManager,
                    const glm::ivec2& viewport,
                    const GeometryPass& geometryPass)
     : m_material{materialManager.getSSAO()}
-    , m_renderMesh{scene::createScreenQuad(m_material)}
+    , m_renderMesh{scene::createScreenQuad(m_material, "ssao")}
     , m_aoBuffer{std::make_shared<gl::Texture2D<gl::Scalar16F>>(viewport, "ssao-ao")}
     , m_blur{"ssao", materialManager, 4, false}
 {

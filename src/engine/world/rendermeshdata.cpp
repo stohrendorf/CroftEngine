@@ -201,7 +201,7 @@ gsl::not_null<std::shared_ptr<render::scene::Mesh>> RenderMeshDataCompositor::to
     BOOST_ASSERT(idx < m_vertices.size());
   }
 #endif
-  auto indexBuffer = std::make_shared<gl::ElementArrayBuffer<RenderMeshData::IndexType>>();
+  auto indexBuffer = std::make_shared<gl::ElementArrayBuffer<RenderMeshData::IndexType>>(label);
   indexBuffer->setData(m_indices, gl::api::BufferUsageARB::DynamicDraw);
 
   const auto material = materialManager.getGeometry(false, skeletal, false);

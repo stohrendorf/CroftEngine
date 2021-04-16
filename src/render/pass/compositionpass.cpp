@@ -29,9 +29,9 @@ CompositionPass::CompositionPass(scene::MaterialManager& materialManager,
       false, renderSettings.lensDistortion, renderSettings.dof, renderSettings.filmGrain)}
     , m_waterCompositionMaterial{materialManager.getComposition(
         true, renderSettings.lensDistortion, renderSettings.dof, renderSettings.filmGrain)}
-    , m_mesh{scene::createScreenQuad(m_compositionMaterial)}
-    , m_waterMesh{scene::createScreenQuad(m_waterCompositionMaterial)}
-    , m_crtMesh{scene::createScreenQuad(materialManager.getCrt())}
+    , m_mesh{scene::createScreenQuad(m_compositionMaterial, "composition")}
+    , m_waterMesh{scene::createScreenQuad(m_waterCompositionMaterial, "composition-water")}
+    , m_crtMesh{scene::createScreenQuad(materialManager.getCrt(), "composition-crt")}
     , m_colorBuffer{std::make_shared<gl::Texture2D<gl::SRGBA8>>(viewport, "composition-color")}
 {
   m_mesh->bind("u_linearPortalDepth",

@@ -187,7 +187,7 @@ private:
   const gsl::not_null<const world::World*> m_world;
   gsl::not_null<const world::SkeletalModelType*> m_model;
   std::vector<MeshPart> m_meshParts{};
-  mutable gl::ShaderStorageBuffer<glm::mat4> m_meshMatricesBuffer;
+  mutable gl::ShaderStorageBuffer<glm::mat4> m_meshMatricesBuffer{"mesh-matrices-ssb"};
   bool m_needsMeshRebuild = false;
 
   const world::Animation* m_anim = nullptr;

@@ -16,7 +16,7 @@ LinearizeDepthPass::LinearizeDepthPass(scene::MaterialManager& materialManager,
                                        const glm::ivec2& viewport,
                                        const std::shared_ptr<gl::TextureDepth<float>>& depth)
     : m_material{materialManager.getLinearDepth()}
-    , m_renderMesh{scene::createScreenQuad(m_material)}
+    , m_renderMesh{scene::createScreenQuad(m_material, "linearize-depth")}
     , m_linearDepth{std::make_shared<gl::Texture2D<gl::Scalar32F>>(viewport, "linearize-depth")}
 {
   m_renderMesh->bind(

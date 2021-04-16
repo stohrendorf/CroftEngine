@@ -37,27 +37,31 @@ void Presenter::playVideo(const std::filesystem::path& path)
 {
   render::scene::RenderContext context{render::scene::RenderMode::Full, std::nullopt};
   m_soundEngine->getSoLoud().setGlobalVolume(1.0f);
-  video::play(path, m_soundEngine->getSoLoud(), m_screenOverlay->getImage(), [&]() {
-    glfwPollEvents();
-    m_window->updateWindowSize();
-    if(m_window->isMinimized())
-      return true;
+  video::play(path,
+              m_soundEngine->getSoLoud(),
+              m_screenOverlay->getImage(),
+              [&]()
+              {
+                glfwPollEvents();
+                m_window->updateWindowSize();
+                if(m_window->isMinimized())
+                  return true;
 
-    m_renderer->getCamera()->setScreenSize(m_window->getViewport());
-    if(m_screenOverlay->getImage()->getSize() != m_window->getViewport())
-    {
-      m_screenOverlay->init(*m_materialManager, m_window->getViewport());
-    }
+                m_renderer->getCamera()->setScreenSize(m_window->getViewport());
+                if(m_screenOverlay->getImage()->getSize() != m_window->getViewport())
+                {
+                  m_screenOverlay->init(*m_materialManager, m_window->getViewport());
+                }
 
-    if(m_window->isMinimized())
-      return true;
+                if(m_window->isMinimized())
+                  return true;
 
-    m_screenOverlay->setAlphaMultiplier(0.9f);
-    m_screenOverlay->render(context);
-    swapBuffers();
-    m_inputHandler->update();
-    return !m_window->windowShouldClose() && !m_inputHandler->hasDebouncedAction(hid::Action::Menu);
-  });
+                m_screenOverlay->setAlphaMultiplier(0.9f);
+                m_screenOverlay->render(context);
+                swapBuffers();
+                m_inputHandler->update();
+                return !m_window->windowShouldClose() && !m_inputHandler->hasDebouncedAction(hid::Action::Menu);
+              });
 }
 
 void Presenter::renderWorld(const ObjectManager& objectManager,
@@ -169,7 +173,8 @@ void Presenter::renderWorld(const ObjectManager& objectManager,
       gl::SRGBA8{255},
       DebugTextFontSize);
 
-    const auto drawObjectName = [this](const std::shared_ptr<objects::Object>& object, const gl::SRGBA8& color) {
+    const auto drawObjectName = [this](const std::shared_ptr<objects::Object>& object, const gl::SRGBA8& color)
+    {
       const auto vertex
         = glm::vec3{m_renderer->getCamera()->getViewMatrix() * glm::vec4(object->getNode()->getTranslationWorld(), 1)};
 
@@ -284,7 +289,8 @@ void Presenter::drawBars(ui::Ui& ui, const std::array<gl::SRGBA8, 256>& palette,
     alpha = gsl::narrow_cast<uint8_t>(std::clamp(255 - std::abs(255 * m_healthBarTimeout / 40_frame), 0, 255));
   }
 
-  static const auto withAlpha = [](gl::SRGBA8 color, uint8_t alpha) {
+  static const auto withAlpha = [](gl::SRGBA8 color, uint8_t alpha)
+  {
     color.channels.a = alpha;
     return color;
   };
@@ -335,15 +341,16 @@ void Presenter::scaleSplashImage()
 
   auto scaledSourceSize = sourceSize * splashScale;
   auto sourceOffset = (targetSize - scaledSourceSize) / 2.0f;
-  m_splashImageMesh = render::scene::createScreenQuad(sourceOffset, scaledSourceSize, m_materialManager->getBackdrop());
+  m_splashImageMesh
+    = render::scene::createScreenQuad(sourceOffset, scaledSourceSize, m_materialManager->getBackdrop(), "backdrop");
   m_splashImageMesh->bind(
-    "u_input", [this](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform) {
-      uniform.set(m_splashImage);
-    });
-  m_splashImageMesh->bind("u_screenSize",
-                          [targetSize](const render::scene::Node& /*node*/,
-                                       const render::scene::Mesh& /*mesh*/,
-                                       gl::Uniform& uniform) { uniform.set(targetSize); });
+    "u_input",
+    [this](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
+    { uniform.set(m_splashImage); });
+  m_splashImageMesh->bind(
+    "u_screenSize",
+    [targetSize](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
+    { uniform.set(targetSize); });
 }
 
 void Presenter::drawLoadingScreen(const std::string& state)

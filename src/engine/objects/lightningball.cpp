@@ -34,14 +34,14 @@ gsl::not_null<std::shared_ptr<render::scene::Mesh>>
   for(uint16_t i = 0; i < points; ++i)
     indices.emplace_back(i);
 
-  auto indexBuffer = std::make_shared<gl::ElementArrayBuffer<uint16_t>>();
+  auto indexBuffer = std::make_shared<gl::ElementArrayBuffer<uint16_t>>("bolt");
   indexBuffer->setData(indices, gl::api::BufferUsageARB::StaticDraw);
 
   vb = std::make_shared<gl::VertexBuffer<glm::vec3>>(layout, 0, "bolt");
   vb->setData(&vertices[0], points, gl::api::BufferUsageARB::DynamicDraw);
 
   auto vao = std::make_shared<gl::VertexArray<uint16_t, glm::vec3>>(
-    indexBuffer, vb, std::vector{&material->getShaderProgram()->getHandle()});
+    indexBuffer, vb, std::vector{&material->getShaderProgram()->getHandle()}, "bolt");
   auto mesh = std::make_shared<render::scene::MeshImpl<uint16_t, glm::vec3>>(vao, gl::api::PrimitiveType::LineStrip);
 
   mesh->getRenderState().setLineSmooth(true);

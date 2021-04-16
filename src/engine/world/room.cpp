@@ -69,7 +69,8 @@ struct RenderMesh
 
   std::shared_ptr<render::scene::Mesh>
     toMesh(const gsl::not_null<std::shared_ptr<gl::VertexBuffer<RenderVertex>>>& vbuf,
-           const gsl::not_null<std::shared_ptr<gl::VertexBuffer<render::TextureAnimator::AnimatedUV>>>& uvBuf)
+           const gsl::not_null<std::shared_ptr<gl::VertexBuffer<render::TextureAnimator::AnimatedUV>>>& uvBuf,
+           const std::string& label)
   {
 #ifndef NDEBUG
     for(auto idx : m_indices)
@@ -78,7 +79,7 @@ struct RenderMesh
     }
 #endif
 
-    auto indexBuffer = std::make_shared<gl::ElementArrayBuffer<IndexType>>();
+    auto indexBuffer = std::make_shared<gl::ElementArrayBuffer<IndexType>>(label);
     indexBuffer->setData(m_indices, gl::api::BufferUsageARB::StaticDraw);
 
     auto vBufs = std::make_tuple(vbuf, uvBuf);
@@ -90,7 +91,8 @@ struct RenderMesh
         std::vector{&m_materialFull->getShaderProgram()->getHandle(),
                     m_materialDepthOnly == nullptr ? nullptr : &m_materialDepthOnly->getShaderProgram()->getHandle(),
                     m_materialCSMDepthOnly == nullptr ? nullptr
-                                                      : &m_materialCSMDepthOnly->getShaderProgram()->getHandle()}));
+                                                      : &m_materialCSMDepthOnly->getShaderProgram()->getHandle()},
+        label));
     mesh->getMaterialGroup()
       .set(render::scene::RenderMode::Full, m_materialFull)
       .set(render::scene::RenderMode::CSMDepthOnly, m_materialCSMDepthOnly)
@@ -135,11 +137,11 @@ void Portal::buildMesh(const loader::file::Portal& srcPortal,
 
   static const std::array<uint16_t, 6> indices{0, 1, 2, 0, 2, 3};
 
-  auto indexBuffer = std::make_shared<gl::ElementArrayBuffer<uint16_t>>();
+  auto indexBuffer = std::make_shared<gl::ElementArrayBuffer<uint16_t>>("portal");
   indexBuffer->setData(&indices[0], 6, gl::api::BufferUsageARB::StaticDraw);
 
   auto vao = std::make_shared<gl::VertexArray<uint16_t, Vertex>>(
-    indexBuffer, vb, std::vector{&material->getShaderProgram()->getHandle()});
+    indexBuffer, vb, std::vector{&material->getShaderProgram()->getHandle()}, "portal");
   mesh = std::make_shared<render::scene::MeshImpl<uint16_t, Vertex>>(vao);
   mesh->getMaterialGroup().set(render::scene::RenderMode::DepthOnly, material);
 }
@@ -291,7 +293,7 @@ void Room::createSceneNode(const loader::file::Room& srcRoom,
   vbuf->setData(vbufData, gl::api::BufferUsageARB::StaticDraw);
   uvCoords->setData(uvCoordsData, gl::api::BufferUsageARB::DynamicDraw);
 
-  auto resMesh = renderMesh.toMesh(vbuf, uvCoords);
+  auto resMesh = renderMesh.toMesh(vbuf, uvCoords, label);
   resMesh->getRenderState().setCullFace(true);
   resMesh->getRenderState().setCullFaceSide(gl::api::CullFaceMode::Back);
   resMesh->getRenderState().setBlend(false);

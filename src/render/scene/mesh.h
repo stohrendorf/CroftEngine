@@ -77,17 +77,17 @@ private:
 extern gsl::not_null<std::shared_ptr<Mesh>> createScreenQuad(const glm::vec2& xy,
                                                              const glm::vec2& size,
                                                              const std::shared_ptr<Material>& material,
-                                                             bool invertY = false);
+                                                             const std::string& label = {});
 
 inline gsl::not_null<std::shared_ptr<Mesh>>
-  createScreenQuad(const glm::vec2& size, const std::shared_ptr<Material>& material, bool invertY = false)
+  createScreenQuad(const glm::vec2& size, const std::shared_ptr<Material>& material, const std::string& label = {})
 {
-  return createScreenQuad({0, 0}, size, material, invertY);
+  return createScreenQuad({0, 0}, size, material, label);
 }
 
 inline gsl::not_null<std::shared_ptr<Mesh>> createScreenQuad(const std::shared_ptr<Material>& material,
-                                                             bool invertY = false)
+                                                             const std::string& label = {})
 {
-  return createScreenQuad({0, 0}, {0, 0}, material, invertY);
+  return createScreenQuad({0, 0}, {0, 0}, material, label);
 }
 } // namespace render::scene

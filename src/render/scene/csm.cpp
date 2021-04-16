@@ -41,10 +41,10 @@ void CSM::Split::init(int32_t resolution, size_t idx, MaterialManager& materialM
 
   squareMaterial = materialManager.getVSMSquare();
 
-  squareMesh = createScreenQuad(squareMaterial);
-  squareMesh->bind("u_shadow", [this](const Node& /*node*/, const Mesh& /*mesh*/, gl::Uniform& uniform) {
-    uniform.set(depthTexture);
-  });
+  squareMesh = createScreenQuad(squareMaterial, "csm/" + std::to_string(idx));
+  squareMesh->bind("u_shadow",
+                   [this](const Node& /*node*/, const Mesh& /*mesh*/, gl::Uniform& uniform)
+                   { uniform.set(depthTexture); });
   squareMesh->getMaterialGroup().set(RenderMode::Full, squareMaterial);
 
   squareBlur = std::make_shared<SeparableBlur<gl::RG16F>>(

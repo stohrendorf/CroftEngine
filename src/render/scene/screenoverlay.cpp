@@ -44,15 +44,13 @@ void ScreenOverlay::init(MaterialManager& materialManager, const glm::ivec2& vie
     .set(gl::api::TextureParameterName::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge)
     .set(gl::api::TextureParameterName::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge);
 
-  m_mesh = createScreenQuad(materialManager.getFlat(true, true));
+  m_mesh = createScreenQuad(materialManager.getFlat(true, true), "screenoverlay");
   m_mesh->bind("u_input",
-               [this](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform) {
-                 uniform.set(m_texture);
-               });
+               [this](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
+               { uniform.set(m_texture); });
   m_mesh->bind("u_alphaMultiplier",
-               [this](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform) {
-                 uniform.set(m_alphaMultiplier);
-               });
+               [this](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
+               { uniform.set(m_alphaMultiplier); });
 
   m_mesh->getRenderState().setBlend(true);
 }

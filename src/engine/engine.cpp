@@ -363,11 +363,11 @@ std::pair<RunResult, std::optional<size_t>> Engine::runTitleMenu(world::World& w
       auto scaledSourceSize = sourceSize * splashScale;
       auto sourceOffset = (targetSize - scaledSourceSize) / 2.0f;
       backdropMesh = render::scene::createScreenQuad(
-        sourceOffset, scaledSourceSize, m_presenter->getMaterialManager()->getBackdrop());
-      backdropMesh->bind("u_input",
-                         [backdrop](const render::scene::Node& /*node*/,
-                                    const render::scene::Mesh& /*mesh*/,
-                                    gl::Uniform& uniform) { uniform.set(backdrop); });
+        sourceOffset, scaledSourceSize, m_presenter->getMaterialManager()->getBackdrop(), "backdrop");
+      backdropMesh->bind(
+        "u_input",
+        [backdrop](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
+        { uniform.set(backdrop); });
       backdropMesh->bind("u_screenSize",
                          [targetSize](const render::scene::Node& /*node*/,
                                       const render::scene::Mesh& /*mesh*/,

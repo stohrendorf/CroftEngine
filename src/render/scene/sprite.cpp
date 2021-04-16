@@ -54,7 +54,7 @@ gsl::not_null<std::shared_ptr<Mesh>> createSpriteMesh(const float x0,
   auto vb = createSpriteVertexBuffer(x0, y0, x1, y1, t0, t1, textureIdx, label);
   static const std::array<uint16_t, 6> indices{0, 1, 2, 0, 2, 3};
 
-  auto indexBuffer = std::make_shared<gl::ElementArrayBuffer<uint16_t>>();
+  auto indexBuffer = std::make_shared<gl::ElementArrayBuffer<uint16_t>>(label);
   indexBuffer->setData(gsl::not_null(&indices[0]), 6, gl::api::BufferUsageARB::StaticDraw);
 
   auto vao = std::make_shared<gl::VertexArray<uint16_t, SpriteVertex>>(

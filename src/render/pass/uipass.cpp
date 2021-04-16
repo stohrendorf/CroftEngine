@@ -22,7 +22,7 @@ void UIPass::bind()
 
 UIPass::UIPass(scene::MaterialManager& materialManager, const glm::ivec2& viewport)
     : m_material{materialManager.getFlat(true, false)}
-    , m_mesh{scene::createScreenQuad(m_material)}
+    , m_mesh{scene::createScreenQuad(m_material, "ui")}
     , m_colorBuffer{std::make_shared<gl::Texture2D<gl::SRGBA8>>(viewport, "ui-color")}
 {
   m_colorBuffer->set(gl::api::TextureParameterName::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge)

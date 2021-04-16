@@ -111,6 +111,11 @@ template<typename T>
 class ElementArrayBuffer final : public Buffer<T, api::BufferTargetARB::ElementArrayBuffer>
 {
 public:
+  explicit ElementArrayBuffer(const std::string& label = {})
+      : Buffer<T, api::BufferTargetARB::ElementArrayBuffer>{label}
+  {
+  }
+
   void drawElements(api::PrimitiveType primitiveType) const
   {
     GL_ASSERT(api::drawElements(

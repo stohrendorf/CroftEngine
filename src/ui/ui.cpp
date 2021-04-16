@@ -27,7 +27,8 @@ struct ColorQuadVertex
 };
 
 gsl::not_null<std::shared_ptr<render::scene::Mesh>> createQuad(const std::shared_ptr<render::scene::Material>& material,
-                                                               const std::array<ColorQuadVertex, 4>& vertices)
+                                                               const std::array<ColorQuadVertex, 4>& vertices,
+                                                               const std::string& label)
 {
   static const gl::VertexLayout<ColorQuadVertex> layout{
     {VERTEX_ATTRIBUTE_POSITION_NAME, &ColorQuadVertex::pos},
@@ -37,17 +38,17 @@ gsl::not_null<std::shared_ptr<render::scene::Mesh>> createQuad(const std::shared
     {VERTEX_ATTRIBUTE_COLOR_BOTTOM_LEFT_NAME, &ColorQuadVertex::bottomLeft},
     {VERTEX_ATTRIBUTE_COLOR_BOTTOM_RIGHT_NAME, &ColorQuadVertex::bottomRight}};
 
-  auto vertexBuffer = std::make_shared<gl::VertexBuffer<ColorQuadVertex>>(layout);
+  auto vertexBuffer = std::make_shared<gl::VertexBuffer<ColorQuadVertex>>(layout, 0, label);
   vertexBuffer->setData(&vertices[0], 4, gl::api::BufferUsageARB::StaticDraw);
 
   static const std::array<uint16_t, 6> indices{0, 1, 2, 0, 2, 3};
 
-  auto indexBuffer = std::make_shared<gl::ElementArrayBuffer<uint16_t>>();
+  auto indexBuffer = std::make_shared<gl::ElementArrayBuffer<uint16_t>>(label);
   indexBuffer->setData(&indices[0], 6, gl::api::BufferUsageARB::StaticDraw);
 
   auto mesh = std::make_shared<render::scene::MeshImpl<uint16_t, ColorQuadVertex>>(
     std::make_shared<gl::VertexArray<uint16_t, ColorQuadVertex>>(
-      indexBuffer, vertexBuffer, std::vector{&material->getShaderProgram()->getHandle()}));
+      indexBuffer, vertexBuffer, std::vector{&material->getShaderProgram()->getHandle()}, label));
   mesh->getMaterialGroup().set(render::scene::RenderMode::Full, material);
   return mesh;
 }
@@ -55,7 +56,8 @@ gsl::not_null<std::shared_ptr<render::scene::Mesh>> createQuad(const std::shared
 gsl::not_null<std::shared_ptr<render::scene::Mesh>> createQuad(const glm::vec2& topLeft,
                                                                const glm::vec2& bottomRight,
                                                                const BoxGouraud& colors,
-                                                               const std::shared_ptr<render::scene::Material>& material)
+                                                               const std::shared_ptr<render::scene::Material>& material,
+                                                               const std::string& label)
 {
   static const auto toColor = [](const gl::SRGBA8& c) { return glm::vec4{c.channels} / 255.0f; };
 
@@ -83,13 +85,15 @@ gsl::not_null<std::shared_ptr<render::scene::Mesh>> createQuad(const glm::vec2& 
                                      toColor(colors.topLeft),
                                      toColor(colors.topRight),
                                      toColor(colors.bottomLeft),
-                                     toColor(colors.bottomRight)}});
+                                     toColor(colors.bottomRight)}},
+                    label);
 }
 
 gsl::not_null<std::shared_ptr<render::scene::Mesh>> createQuad(const glm::vec2& a,
                                                                const glm::vec2& dxy,
                                                                const gl::SRGBA8& color,
-                                                               const std::shared_ptr<render::scene::Material>& material)
+                                                               const std::shared_ptr<render::scene::Material>& material,
+                                                               const std::string& label)
 {
   const auto glColor = glm::vec4{color.channels} / 255.0f;
 
@@ -99,19 +103,20 @@ gsl::not_null<std::shared_ptr<render::scene::Mesh>> createQuad(const glm::vec2& 
                     {ColorQuadVertex{{a.x, a.y}, {0, 0}, glColor, glColor, glColor, glColor},
                      ColorQuadVertex{{a.x, b.y}, {0, 1}, glColor, glColor, glColor, glColor},
                      ColorQuadVertex{{b.x, b.y}, {1, 1}, glColor, glColor, glColor, glColor},
-                     ColorQuadVertex{{b.x, a.y}, {1, 0}, glColor, glColor, glColor, glColor}});
+                     ColorQuadVertex{{b.x, a.y}, {1, 0}, glColor, glColor, glColor, glColor}},
+                    label);
 };
 
 gsl::not_null<std::shared_ptr<render::scene::Mesh>> createHLine(
   const glm::vec2& a, int length, const gl::SRGBA8& color, const std::shared_ptr<render::scene::Material>& material)
 {
-  return createQuad(a, glm::vec2{length, 1}, color, material);
+  return createQuad(a, glm::vec2{length, 1}, color, material, "ui-hline");
 };
 
 gsl::not_null<std::shared_ptr<render::scene::Mesh>> createVLine(
   const glm::vec2& a, int length, const gl::SRGBA8& color, const std::shared_ptr<render::scene::Material>& material)
 {
-  return createQuad(a, glm::vec2{1, length}, color, material);
+  return createQuad(a, glm::vec2{1, length}, color, material, "ui-vline");
 };
 } // namespace
 
@@ -146,12 +151,12 @@ void Ui::drawOutlineBox(const glm::ivec2& xy, const glm::ivec2& size)
 
 void Ui::drawBox(const glm::ivec2& xy, const glm::ivec2& size, const BoxGouraud& gouraud)
 {
-  m_meshes.emplace_back(createQuad(xy, xy + size, gouraud, m_color));
+  m_meshes.emplace_back(createQuad(xy, xy + size, gouraud, m_color, "ui-box-gouraud"));
 }
 
 void Ui::drawBox(const glm::ivec2& xy, const glm::ivec2& size, const gl::SRGBA8& color)
 {
-  m_meshes.emplace_back(createQuad(xy, size, color, m_color));
+  m_meshes.emplace_back(createQuad(xy, size, color, m_color, "ui-box"));
 }
 
 void Ui::render(const glm::vec2& screenSize)
@@ -160,10 +165,10 @@ void Ui::render(const glm::vec2& screenSize)
   render::scene::RenderContext ctx{render::scene::RenderMode::Full, std::nullopt};
   for(const auto& mesh : m_meshes)
   {
-    mesh->bind("u_screenSize",
-               [screenSize](const render::scene::Node& /*node*/,
-                            const render::scene::Mesh& /*mesh*/,
-                            gl::Uniform& uniform) { uniform.set(screenSize); });
+    mesh->bind(
+      "u_screenSize",
+      [screenSize](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
+      { uniform.set(screenSize); });
     mesh->render(ctx);
   }
   m_meshes.clear();
@@ -192,17 +197,17 @@ void Ui::draw(const engine::world::Sprite& sprite, const glm::ivec2& xy)
                                                   TextureQuadVertex{{b.x, b.y}, {tb.x, tb.y}, sprite.textureId.get()},
                                                   TextureQuadVertex{{b.x, a.y}, {tb.x, ta.y}, sprite.textureId.get()}};
 
-  auto vertexBuffer = std::make_shared<gl::VertexBuffer<TextureQuadVertex>>(layout);
+  auto vertexBuffer = std::make_shared<gl::VertexBuffer<TextureQuadVertex>>(layout, 0, "ui-sprite");
   vertexBuffer->setData(&vertices[0], 4, gl::api::BufferUsageARB::StaticDraw);
 
   static const std::array<uint16_t, 6> indices{0, 1, 2, 0, 2, 3};
 
-  auto indexBuffer = std::make_shared<gl::ElementArrayBuffer<uint16_t>>();
+  auto indexBuffer = std::make_shared<gl::ElementArrayBuffer<uint16_t>>("ui-sprite");
   indexBuffer->setData(&indices[0], 6, gl::api::BufferUsageARB::StaticDraw);
 
   auto mesh = std::make_shared<render::scene::MeshImpl<uint16_t, TextureQuadVertex>>(
     std::make_shared<gl::VertexArray<uint16_t, TextureQuadVertex>>(
-      indexBuffer, vertexBuffer, std::vector{&m_texture->getShaderProgram()->getHandle()}));
+      indexBuffer, vertexBuffer, std::vector{&m_texture->getShaderProgram()->getHandle()}, "ui-sprite"));
   mesh->getMaterialGroup().set(render::scene::RenderMode::Full, m_texture);
 
   m_meshes.emplace_back(std::move(mesh));
