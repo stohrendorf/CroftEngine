@@ -52,7 +52,6 @@ static_assert(sizeof(ShaderLight) == 32, "Invalid Light struct size");
 struct Lighting
 {
   core::Brightness ambient{-1.0f};
-  core::Brightness targetAmbient{};
 
   Lighting() = default;
 
@@ -63,7 +62,7 @@ struct Lighting
 private:
   void fadeAmbient(const core::Shade& shade)
   {
-    targetAmbient = toBrightness(shade);
+    const auto targetAmbient = toBrightness(shade);
     if(ambient.get() < 0)
       ambient = targetAmbient;
     else
