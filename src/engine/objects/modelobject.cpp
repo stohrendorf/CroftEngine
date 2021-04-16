@@ -142,19 +142,17 @@ loader::file::BoundingBox ModelObject::getBoundingBox() const
 
 bool ModelObject::isNear(const ModelObject& other, const core::Length& radius) const
 {
-  const auto aFrame = getSkeleton()->getInterpolationInfo().getNearestFrame();
-  const auto aBBox = aFrame->bbox.toBBox();
-  const auto bFrame = other.getSkeleton()->getInterpolationInfo().getNearestFrame();
-  const auto bBBox = bFrame->bbox.toBBox();
-  if(other.m_state.position.position.Y + bBBox.minY >= m_state.position.position.Y + aBBox.maxY
-     || m_state.position.position.Y + aBBox.minY >= other.m_state.position.position.Y + bBBox.maxY)
+  const auto bbox = getSkeleton()->getInterpolationInfo().getNearestFrame()->bbox.toBBox();
+  const auto otherBBox = other.getSkeleton()->getInterpolationInfo().getNearestFrame()->bbox.toBBox();
+  if(other.m_state.position.position.Y + otherBBox.minY >= m_state.position.position.Y + bbox.maxY
+     || m_state.position.position.Y + bbox.minY >= other.m_state.position.position.Y + otherBBox.maxY)
   {
     return false;
   }
 
   const auto xz = util::pitch(other.m_state.position.position - m_state.position.position, -m_state.rotation.Y);
-  return xz.X >= aBBox.minX - radius && xz.X <= aBBox.maxX + radius && xz.Z >= aBBox.minZ - radius
-         && xz.Z <= aBBox.maxZ + radius;
+  return xz.X >= bbox.minX - radius && xz.X <= bbox.maxX + radius && xz.Z >= bbox.minZ - radius
+         && xz.Z <= bbox.maxZ + radius;
 }
 
 bool ModelObject::isNear(const Particle& other, const core::Length& radius) const
@@ -174,84 +172,81 @@ bool ModelObject::isNear(const Particle& other, const core::Length& radius) cons
 
 void ModelObject::enemyPush(CollisionInfo& collisionInfo, const bool enableSpaz, const bool withXZCollRadius)
 {
-  const auto laraPosWorld
-    = getWorld().getObjectManager().getLara().m_state.position.position - m_state.position.position;
-  auto laraPosLocal = util::pitch(laraPosWorld, -m_state.rotation.Y);
-  const auto keyFrame = m_skeleton->getInterpolationInfo().getNearestFrame();
-  auto objectBBox = keyFrame->bbox.toBBox();
+  auto& lara = getWorld().getObjectManager().getLara();
+
+  const auto enemyToLara = lara.m_state.position.position - m_state.position.position;
+  auto bbox = m_skeleton->getInterpolationInfo().getNearestFrame()->bbox.toBBox();
   if(withXZCollRadius)
   {
     const auto r = collisionInfo.collisionRadius;
-    objectBBox.minX -= r;
-    objectBBox.maxX += r;
-    objectBBox.minZ -= r;
-    objectBBox.maxZ += r;
+    bbox.minX -= r;
+    bbox.maxX += r;
+    bbox.minZ -= r;
+    bbox.maxZ += r;
   }
-  if(laraPosLocal.X < objectBBox.minX || laraPosLocal.X > objectBBox.maxX || laraPosLocal.Z < objectBBox.minZ
-     || laraPosLocal.Z > objectBBox.maxZ)
+
+  auto laraInBBox = util::pitch(enemyToLara, -m_state.rotation.Y);
+  if(laraInBBox.X < bbox.minX || laraInBBox.X > bbox.maxX || laraInBBox.Z < bbox.minZ || laraInBBox.Z > bbox.maxZ)
     return;
 
-  const auto left = laraPosLocal.X - objectBBox.minX;
-  const auto right = objectBBox.maxX - laraPosLocal.X;
-  const auto back = laraPosLocal.Z - objectBBox.minZ;
-  const auto front = objectBBox.maxZ - laraPosLocal.Z;
+  const auto distMinX = laraInBBox.X - bbox.minX;
+  const auto distMaxX = bbox.maxX - laraInBBox.X;
+  const auto distMinZ = laraInBBox.Z - bbox.minZ;
+  const auto distMaxZ = bbox.maxZ - laraInBBox.Z;
+  const auto closestEdge = std::min(std::min(distMinX, distMaxX), std::min(distMinZ, distMaxZ));
 
-  if(left <= right && left <= front && left <= back)
+  if(distMinX == closestEdge)
   {
-    laraPosLocal.X = objectBBox.minX;
+    laraInBBox.X = bbox.minX;
   }
-  else if(right <= left && right <= front && right <= back)
+  else if(distMaxX == closestEdge)
   {
-    laraPosLocal.X = objectBBox.maxX;
+    laraInBBox.X = bbox.maxX;
   }
-  else if(front <= left && front <= right && front <= back)
+  else if(distMaxZ == closestEdge)
   {
-    laraPosLocal.Z = objectBBox.maxZ;
+    laraInBBox.Z = bbox.maxZ;
   }
   else
   {
-    laraPosLocal.Z = objectBBox.minZ;
+    laraInBBox.Z = bbox.minZ;
   }
   // update lara's position to where she was pushed
-  getWorld().getObjectManager().getLara().m_state.position.position
-    = m_state.position.position + util::pitch(laraPosLocal, m_state.rotation.Y);
+  lara.m_state.position.position = m_state.position.position + util::pitch(laraInBBox, m_state.rotation.Y);
   if(enableSpaz)
   {
-    const auto midX = (keyFrame->bbox.toBBox().minX + keyFrame->bbox.toBBox().maxX) / 2;
-    const auto midZ = (keyFrame->bbox.toBBox().minZ + keyFrame->bbox.toBBox().maxZ) / 2;
-    const auto tmp = laraPosWorld - util::pitch(core::TRVec{midX, 0_len, midZ}, m_state.rotation.Y);
+    const auto midX = (bbox.minX + bbox.maxX) / 2;
+    const auto midZ = (bbox.minZ + bbox.maxZ) / 2;
+    const auto tmp = enemyToLara - util::pitch(core::TRVec{midX, 0_len, midZ}, m_state.rotation.Y);
     const auto a = angleFromAtan(tmp.X, tmp.Z) - 180_deg;
-    getWorld().getObjectManager().getLara().hit_direction
-      = axisFromAngle(getWorld().getObjectManager().getLara().m_state.rotation.Y - a);
-    if(getWorld().getObjectManager().getLara().hit_frame == 0_frame)
+    lara.hit_direction = axisFromAngle(lara.m_state.rotation.Y - a);
+    if(lara.hit_frame == 0_frame)
     {
-      getWorld().getObjectManager().getLara().playSoundEffect(TR1SoundEffect::LaraOof);
+      lara.playSoundEffect(TR1SoundEffect::LaraOof);
     }
-    getWorld().getObjectManager().getLara().hit_frame += 1_frame;
-    if(getWorld().getObjectManager().getLara().hit_frame > 34_frame)
+    lara.hit_frame += 1_frame;
+    if(lara.hit_frame > 34_frame)
     {
-      getWorld().getObjectManager().getLara().hit_frame = 34_frame;
+      lara.hit_frame = 34_frame;
     }
   }
   collisionInfo.badPositiveDistance = core::HeightLimit;
   collisionInfo.badNegativeDistance = -384_len;
   collisionInfo.badCeilingDistance = 0_len;
   const auto facingAngle = collisionInfo.facingAngle;
-  collisionInfo.facingAngle = angleFromAtan(
-    getWorld().getObjectManager().getLara().m_state.position.position.X - collisionInfo.initialPosition.X,
-    getWorld().getObjectManager().getLara().m_state.position.position.Z - collisionInfo.initialPosition.Z);
-  collisionInfo.initHeightInfo(
-    getWorld().getObjectManager().getLara().m_state.position.position, getWorld(), core::LaraWalkHeight);
+  collisionInfo.facingAngle = angleFromAtan(lara.m_state.position.position.X - collisionInfo.initialPosition.X,
+                                            lara.m_state.position.position.Z - collisionInfo.initialPosition.Z);
+  collisionInfo.initHeightInfo(lara.m_state.position.position, getWorld(), core::LaraWalkHeight);
   collisionInfo.facingAngle = facingAngle;
   if(collisionInfo.collisionType != CollisionInfo::AxisColl::None)
   {
-    getWorld().getObjectManager().getLara().m_state.position.position.X = collisionInfo.initialPosition.X;
-    getWorld().getObjectManager().getLara().m_state.position.position.Z = collisionInfo.initialPosition.Z;
+    lara.m_state.position.position.X = collisionInfo.initialPosition.X;
+    lara.m_state.position.position.Z = collisionInfo.initialPosition.Z;
   }
   else
   {
-    collisionInfo.initialPosition = getWorld().getObjectManager().getLara().m_state.position.position;
-    getWorld().getObjectManager().getLara().updateFloorHeight(-10_len);
+    collisionInfo.initialPosition = lara.m_state.position.position;
+    lara.updateFloorHeight(-10_len);
   }
 }
 
