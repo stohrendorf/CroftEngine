@@ -363,6 +363,8 @@ set( EDISONENGINE_SRCS
         render/pass/fxaapass.cpp
         render/pass/geometrypass.h
         render/pass/geometrypass.cpp
+        render/pass/hbaopass.h
+        render/pass/hbaopass.cpp
         render/pass/linearizedepthpass.h
         render/pass/linearizedepthpass.cpp
         render/pass/portalpass.h

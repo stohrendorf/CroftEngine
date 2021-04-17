@@ -82,6 +82,11 @@ public:
     return get("flat.vert", "fxaa.frag");
   }
 
+  auto getHBAO()
+  {
+    return get("flat.vert", "hbao.frag");
+  }
+
   auto getFastGaussBlur(const uint8_t extent, uint8_t blurDir, uint8_t blurDim)
   {
     Expects(extent > 0);

@@ -26,13 +26,16 @@ void main()
         mv[2].xyz = vec3(0, 0, 1);
     }
 
+    vec4 tmp = mv * vec4(a_position, 1);
     gpi.vertexPosWorld = vec3(mm * vec4(a_position, 1));
-    gl_Position = u_projection * mv * vec4(a_position, 1);
+    gl_Position = u_projection * tmp;
     gpi.texCoord = a_texCoord;
     gpi.texIndex = a_texIndex;
     gpi.color = a_color;
 
     gpi.normal = normalize(mat3(mm) * a_normal);
+    gpi.hbaoNormal = normalize(mat3(mv) * a_normal);
+    gpi.vertexPos = tmp.xyz;
     float dist = 16 * clamp(1.0 - dot(normalize(u_csmLightDir), gpi.normal), 0.0, 1.0);
     vec4 pos = vec4(a_position + dist * gpi.normal, 1);
     for (int i=0; i<CSMSplits; ++i)

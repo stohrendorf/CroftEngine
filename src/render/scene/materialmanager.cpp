@@ -278,6 +278,18 @@ const std::shared_ptr<Material>& MaterialManager::getFXAA()
   return m_fxaa;
 }
 
+const std::shared_ptr<Material>& MaterialManager::getHBAO()
+{
+  if(m_hbao != nullptr)
+    return m_hbao;
+
+  auto m = std::make_shared<Material>(m_shaderCache->getHBAO());
+  m->getUniform("u_noise")->set(m_noiseTexture);
+  configureForScreenSpaceEffect(*m);
+  m_hbao = m;
+  return m_hbao;
+}
+
 const std::shared_ptr<Material>& MaterialManager::getLinearDepth()
 {
   if(m_linearDepth != nullptr)

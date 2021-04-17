@@ -3,6 +3,7 @@
 #include "pass/compositionpass.h"
 #include "pass/fxaapass.h"
 #include "pass/geometrypass.h"
+#include "pass/hbaopass.h"
 #include "pass/linearizedepthpass.h"
 #include "pass/portalpass.h"
 #include "pass/uipass.h"
@@ -26,6 +27,8 @@ void RenderPipeline::compositionPass(const bool water)
     BOOST_ASSERT(m_portalPass != nullptr);
     m_portalPass->renderBlur();
   }
+  BOOST_ASSERT(m_hbaoPass != nullptr);
+  m_hbaoPass->render(m_size);
   BOOST_ASSERT(m_fxaaPass != nullptr);
   m_fxaaPass->render(m_size);
   BOOST_ASSERT(m_linearizeDepthPass != nullptr);
@@ -40,6 +43,8 @@ void RenderPipeline::updateCamera(const gsl::not_null<std::shared_ptr<scene::Cam
 {
   BOOST_ASSERT(m_compositionPass != nullptr);
   m_compositionPass->updateCamera(camera);
+  BOOST_ASSERT(m_hbaoPass != nullptr);
+  m_hbaoPass->updateCamera(camera);
 }
 
 void RenderPipeline::apply(const RenderSettings& renderSettings, scene::MaterialManager& materialManager)
@@ -63,11 +68,13 @@ void RenderPipeline::resize(scene::MaterialManager& materialManager, const glm::
   m_portalPass = std::make_shared<pass::PortalPass>(materialManager, viewport);
   m_linearizePortalDepthPass
     = std::make_shared<pass::LinearizeDepthPass>(materialManager, viewport, m_portalPass->getDepthBuffer());
+  m_hbaoPass = std::make_shared<pass::HBAOPass>(materialManager, viewport, *m_geometryPass);
   m_fxaaPass = std::make_shared<pass::FXAAPass>(materialManager, viewport, *m_geometryPass);
   m_compositionPass = std::make_shared<pass::CompositionPass>(materialManager,
                                                               m_renderSettings,
                                                               viewport,
                                                               *m_portalPass,
+                                                              *m_hbaoPass,
                                                               *m_fxaaPass,
                                                               *m_linearizeDepthPass,
                                                               *m_linearizePortalDepthPass);

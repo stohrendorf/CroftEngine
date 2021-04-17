@@ -90,7 +90,7 @@ void main()
     }
         #endif
 
-    finalColor *= texture(u_ao, uv).r*0.8 + 0.2;
+    finalColor *= texture(u_ao, uv).r;
     #ifdef FILM_GRAIN
     finalColor *= grain*0.3 + 0.7;
     #endif

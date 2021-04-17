@@ -22,6 +22,7 @@ namespace pass
 {
 class PortalPass;
 class GeometryPass;
+class HBAOPass;
 class FXAAPass;
 class CompositionPass;
 class UIPass;
@@ -37,6 +38,7 @@ private:
   std::shared_ptr<pass::GeometryPass> m_geometryPass;
   std::shared_ptr<pass::LinearizeDepthPass> m_linearizeDepthPass;
   std::shared_ptr<pass::LinearizeDepthPass> m_linearizePortalDepthPass;
+  std::shared_ptr<pass::HBAOPass> m_hbaoPass;
   std::shared_ptr<pass::FXAAPass> m_fxaaPass;
   std::shared_ptr<pass::CompositionPass> m_compositionPass;
   std::shared_ptr<pass::UIPass> m_uiPass;

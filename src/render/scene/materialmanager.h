@@ -40,6 +40,7 @@ public:
   [[nodiscard]] std::shared_ptr<Material> getFlat(bool withAlpha, bool invertY = false);
   [[nodiscard]] const std::shared_ptr<Material>& getBackdrop();
   [[nodiscard]] const std::shared_ptr<Material>& getFXAA();
+  [[nodiscard]] const std::shared_ptr<Material>& getHBAO();
   [[nodiscard]] const std::shared_ptr<Material>& getLinearDepth();
   [[nodiscard]] const std::shared_ptr<Material>& getVSMSquare();
   [[nodiscard]] std::shared_ptr<Material> getFastGaussBlur(uint8_t extent, uint8_t blurDir, uint8_t blurDim);
@@ -72,6 +73,7 @@ private:
   std::map<std::tuple<uint8_t, uint8_t, uint8_t>, std::shared_ptr<Material>> m_fastBoxBlur{};
   std::shared_ptr<Material> m_backdrop{nullptr};
   std::shared_ptr<Material> m_fxaa{nullptr};
+  std::shared_ptr<Material> m_hbao{nullptr};
   std::shared_ptr<Material> m_linearDepth{nullptr};
   std::shared_ptr<Material> m_vsmSquare{nullptr};
 

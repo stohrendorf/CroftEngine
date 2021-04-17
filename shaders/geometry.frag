@@ -8,6 +8,8 @@ layout(binding=4) uniform sampler2DArray u_diffuseTextures;
 #endif
 
 layout(location=0) out vec4 out_color;
+layout(location=1) out vec3 out_normal;
+layout(location=2) out vec3 out_position;
 
 #include "lighting.glsl"
 
@@ -84,4 +86,6 @@ void main()
     #endif
 
     out_color.rgba = vec4(finalColor * calc_positional_lighting(gpi.normal, gpi.vertexPosWorld) * shadow_map_multiplier(gpi.normal), 1.0);
+    out_normal = gpi.hbaoNormal;
+    out_position = gpi.vertexPos;
 }

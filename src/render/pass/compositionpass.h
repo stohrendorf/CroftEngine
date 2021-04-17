@@ -22,6 +22,7 @@ namespace render::pass
 {
 class GeometryPass;
 class PortalPass;
+class HBAOPass;
 class FXAAPass;
 class LinearizeDepthPass;
 
@@ -32,6 +33,7 @@ public:
                            const RenderSettings& renderSettings,
                            const glm::ivec2& viewport,
                            const PortalPass& portalPass,
+                           const HBAOPass& hbaoPass,
                            const FXAAPass& fxaaPass,
                            const LinearizeDepthPass& linearizeDepthPass,
                            const LinearizeDepthPass& linearizePortalDepthPass);

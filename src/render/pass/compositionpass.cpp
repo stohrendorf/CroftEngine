@@ -3,6 +3,7 @@
 #include "config.h"
 #include "fxaapass.h"
 #include "geometrypass.h"
+#include "hbaopass.h"
 #include "linearizedepthpass.h"
 #include "portalpass.h"
 #include "render/rendersettings.h"
@@ -20,6 +21,7 @@ CompositionPass::CompositionPass(scene::MaterialManager& materialManager,
                                  const RenderSettings& renderSettings,
                                  const glm::ivec2& viewport,
                                  const PortalPass& portalPass,
+                                 const HBAOPass& hbaoPass,
                                  const FXAAPass& fxaaPass,
                                  const LinearizeDepthPass& linearizeDepthPass,
                                  const LinearizeDepthPass& linearizePortalDepthPass)
@@ -38,46 +40,54 @@ CompositionPass::CompositionPass(scene::MaterialManager& materialManager,
                                                                 gl::Uniform& uniform) { uniform.set(buffer); });
   if(renderSettings.waterDenoise)
     m_mesh->bind("u_portalPerturb",
-                 [texture = portalPass.getBlurredTexture()](const render::scene::Node& /*node*/,
-                                                            const render::scene::Mesh& /*mesh*/,
-                                                            gl::Uniform& uniform) { uniform.set(texture); });
+                 [texture = portalPass.getBlurredTexture()](
+                   const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
+                 { uniform.set(texture); });
   else
     m_mesh->bind("u_portalPerturb",
-                 [texture = portalPass.getNoisyTexture()](const render::scene::Node& /*node*/,
-                                                          const render::scene::Mesh& /*mesh*/,
-                                                          gl::Uniform& uniform) { uniform.set(texture); });
+                 [texture = portalPass.getNoisyTexture()](
+                   const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
+                 { uniform.set(texture); });
   m_mesh->bind("u_linearDepth",
-               [buffer = linearizeDepthPass.getTexture()](const render::scene::Node& /*node*/,
-                                                          const render::scene::Mesh& /*mesh*/,
-                                                          gl::Uniform& uniform) { uniform.set(buffer); });
+               [buffer = linearizeDepthPass.getTexture()](
+                 const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
+               { uniform.set(buffer); });
+  m_mesh->bind("u_ao",
+               [texture = hbaoPass.getBlurredTexture()](
+                 const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
+               { uniform.set(texture); });
   m_mesh->bind("u_texture",
-               [buffer = fxaaPass.getColorBuffer()](const render::scene::Node& /*node*/,
-                                                    const render::scene::Mesh& /*mesh*/,
-                                                    gl::Uniform& uniform) { uniform.set(buffer); });
+               [buffer = fxaaPass.getColorBuffer()](
+                 const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
+               { uniform.set(buffer); });
 
   m_waterMesh->bind("u_linearPortalDepth",
-                    [buffer = linearizePortalDepthPass.getTexture()](const render::scene::Node& /*node*/,
-                                                                     const render::scene::Mesh& /*mesh*/,
-                                                                     gl::Uniform& uniform) { uniform.set(buffer); });
+                    [buffer = linearizePortalDepthPass.getTexture()](
+                      const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
+                    { uniform.set(buffer); });
 
   if(renderSettings.waterDenoise)
     m_waterMesh->bind("u_portalPerturb",
-                      [texture = portalPass.getBlurredTexture()](const render::scene::Node& /*node*/,
-                                                                 const render::scene::Mesh& /*mesh*/,
-                                                                 gl::Uniform& uniform) { uniform.set(texture); });
+                      [texture = portalPass.getBlurredTexture()](
+                        const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
+                      { uniform.set(texture); });
   else
     m_waterMesh->bind("u_portalPerturb",
-                      [texture = portalPass.getNoisyTexture()](const render::scene::Node& /*node*/,
-                                                               const render::scene::Mesh& /*mesh*/,
-                                                               gl::Uniform& uniform) { uniform.set(texture); });
+                      [texture = portalPass.getNoisyTexture()](
+                        const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
+                      { uniform.set(texture); });
   m_waterMesh->bind("u_linearDepth",
-                    [buffer = linearizeDepthPass.getTexture()](const render::scene::Node& /*node*/,
-                                                               const render::scene::Mesh& /*mesh*/,
-                                                               gl::Uniform& uniform) { uniform.set(buffer); });
+                    [buffer = linearizeDepthPass.getTexture()](
+                      const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
+                    { uniform.set(buffer); });
+  m_waterMesh->bind("u_ao",
+                    [texture = hbaoPass.getBlurredTexture()](
+                      const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
+                    { uniform.set(texture); });
   m_waterMesh->bind("u_texture",
-                    [buffer = fxaaPass.getColorBuffer()](const render::scene::Node& /*node*/,
-                                                         const render::scene::Mesh& /*mesh*/,
-                                                         gl::Uniform& uniform) { uniform.set(buffer); });
+                    [buffer = fxaaPass.getColorBuffer()](
+                      const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
+                    { uniform.set(buffer); });
 
   m_colorBuffer->set(gl::api::TextureParameterName::TextureWrapS, gl::api::TextureWrapMode::Repeat)
     .set(gl::api::TextureParameterName::TextureWrapT, gl::api::TextureWrapMode::Repeat)
