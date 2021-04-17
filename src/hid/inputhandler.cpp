@@ -89,28 +89,27 @@ void InputHandler::setMapping(const InputMapping& inputMapping)
   m_inputGamepadMap.clear();
   m_inputKeyMap.clear();
 
-  for(const auto& [action, inputs] : inputMapping)
+  for(const auto& [input, action] : inputMapping)
   {
-    for(const auto& input : inputs)
+    if(std::holds_alternative<GlfwGamepadButton>(input))
     {
-      if(std::holds_alternative<GlfwGamepadButton>(input))
+      if(auto it = m_inputGamepadMap.find(action); it != m_inputGamepadMap.end())
       {
-        if(auto it = m_inputGamepadMap.find(action); it != m_inputGamepadMap.end())
-        {
-          BOOST_LOG_TRIVIAL(warning) << "Multiple gamepad mappings present for action " << toString(action);
-        }
-        m_inputGamepadMap[action] = std::get<GlfwGamepadButton>(input);
+        BOOST_LOG_TRIVIAL(warning) << "Multiple gamepad mappings present for action " << toString(action);
       }
-      else if(std::holds_alternative<GlfwKey>(input))
+      m_inputGamepadMap[action] = std::get<GlfwGamepadButton>(input);
+    }
+    else if(std::holds_alternative<GlfwKey>(input))
+    {
+      if(auto it = m_inputKeyMap.find(action); it != m_inputKeyMap.end())
       {
-        if(auto it = m_inputKeyMap.find(action); it != m_inputKeyMap.end())
-        {
-          BOOST_LOG_TRIVIAL(warning) << "Multiple gamepad mappings present for action " << toString(action);
-        }
-        m_inputKeyMap[action] = std::get<GlfwKey>(input);
+        BOOST_LOG_TRIVIAL(warning) << "Multiple gamepad mappings present for action " << toString(action);
       }
-      else
-        BOOST_THROW_EXCEPTION(std::runtime_error("Invalid input type"));
+      m_inputKeyMap[action] = std::get<GlfwKey>(input);
+    }
+    else
+    {
+      BOOST_THROW_EXCEPTION(std::runtime_error("Invalid input type"));
     }
   }
 }

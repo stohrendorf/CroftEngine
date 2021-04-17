@@ -12,7 +12,7 @@ namespace hid
 enum class GlfwKey;
 enum class GlfwGamepadButton;
 
-using InputMapping = std::map<Action, std::vector<std::variant<GlfwGamepadButton, GlfwKey>>>;
+using InputMapping = std::map<std::variant<GlfwGamepadButton, GlfwKey>, Action>;
 
 class InputHandler final
 {

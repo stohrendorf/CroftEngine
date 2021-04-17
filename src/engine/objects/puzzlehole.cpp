@@ -101,22 +101,19 @@ void PuzzleHole::initMesh()
 
 void PuzzleHole::swapPuzzleState()
 {
-  TR1ItemId completeId;
-
   switch(m_state.type.get_as<TR1ItemId>())
   {
-  case TR1ItemId::PuzzleHole1: completeId = TR1ItemId::PuzzleDone1; break;
-  case TR1ItemId::PuzzleHole2: completeId = TR1ItemId::PuzzleDone2; break;
-  case TR1ItemId::PuzzleHole3: completeId = TR1ItemId::PuzzleDone3; break;
-  case TR1ItemId::PuzzleHole4: completeId = TR1ItemId::PuzzleDone4; break;
-  case TR1ItemId::PuzzleDone1: completeId = TR1ItemId::PuzzleHole1; break;
-  case TR1ItemId::PuzzleDone2: completeId = TR1ItemId::PuzzleHole2; break;
-  case TR1ItemId::PuzzleDone3: completeId = TR1ItemId::PuzzleHole3; break;
-  case TR1ItemId::PuzzleDone4: completeId = TR1ItemId::PuzzleHole4; break;
-  default: BOOST_THROW_EXCEPTION(std::runtime_error("Invalid puzzle ID"));
+  case TR1ItemId::PuzzleHole1: m_state.type = TR1ItemId::PuzzleDone1; break;
+  case TR1ItemId::PuzzleHole2: m_state.type = TR1ItemId::PuzzleDone2; break;
+  case TR1ItemId::PuzzleHole3: m_state.type = TR1ItemId::PuzzleDone3; break;
+  case TR1ItemId::PuzzleHole4: m_state.type = TR1ItemId::PuzzleDone4; break;
+  case TR1ItemId::PuzzleDone1: m_state.type = TR1ItemId::PuzzleHole1; break;
+  case TR1ItemId::PuzzleDone2: m_state.type = TR1ItemId::PuzzleHole2; break;
+  case TR1ItemId::PuzzleDone3: m_state.type = TR1ItemId::PuzzleHole3; break;
+  case TR1ItemId::PuzzleDone4: m_state.type = TR1ItemId::PuzzleHole4; break;
+  default: BOOST_THROW_EXCEPTION(std::domain_error("Invalid puzzle ID"));
   }
 
-  m_state.type = completeId;
   initMesh();
 }
 
