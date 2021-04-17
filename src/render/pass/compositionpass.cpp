@@ -9,7 +9,6 @@
 #include "render/scene/material.h"
 #include "render/scene/materialmanager.h"
 #include "render/scene/mesh.h"
-#include "ssaopass.h"
 
 #include <gl/framebuffer.h>
 #include <gl/texture2d.h>
@@ -21,7 +20,6 @@ CompositionPass::CompositionPass(scene::MaterialManager& materialManager,
                                  const RenderSettings& renderSettings,
                                  const glm::ivec2& viewport,
                                  const PortalPass& portalPass,
-                                 const SSAOPass& ssaoPass,
                                  const FXAAPass& fxaaPass,
                                  const LinearizeDepthPass& linearizeDepthPass,
                                  const LinearizeDepthPass& linearizePortalDepthPass)
@@ -52,10 +50,6 @@ CompositionPass::CompositionPass(scene::MaterialManager& materialManager,
                [buffer = linearizeDepthPass.getTexture()](const render::scene::Node& /*node*/,
                                                           const render::scene::Mesh& /*mesh*/,
                                                           gl::Uniform& uniform) { uniform.set(buffer); });
-  m_mesh->bind("u_ao",
-               [texture = ssaoPass.getBlurredTexture()](const render::scene::Node& /*node*/,
-                                                        const render::scene::Mesh& /*mesh*/,
-                                                        gl::Uniform& uniform) { uniform.set(texture); });
   m_mesh->bind("u_texture",
                [buffer = fxaaPass.getColorBuffer()](const render::scene::Node& /*node*/,
                                                     const render::scene::Mesh& /*mesh*/,
@@ -80,10 +74,6 @@ CompositionPass::CompositionPass(scene::MaterialManager& materialManager,
                     [buffer = linearizeDepthPass.getTexture()](const render::scene::Node& /*node*/,
                                                                const render::scene::Mesh& /*mesh*/,
                                                                gl::Uniform& uniform) { uniform.set(buffer); });
-  m_waterMesh->bind("u_ao",
-                    [texture = ssaoPass.getBlurredTexture()](const render::scene::Node& /*node*/,
-                                                             const render::scene::Mesh& /*mesh*/,
-                                                             gl::Uniform& uniform) { uniform.set(texture); });
   m_waterMesh->bind("u_texture",
                     [buffer = fxaaPass.getColorBuffer()](const render::scene::Node& /*node*/,
                                                          const render::scene::Mesh& /*mesh*/,

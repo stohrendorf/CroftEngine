@@ -367,8 +367,6 @@ set( EDISONENGINE_SRCS
         render/pass/linearizedepthpass.cpp
         render/pass/portalpass.h
         render/pass/portalpass.cpp
-        render/pass/ssaopass.h
-        render/pass/ssaopass.cpp
         render/pass/uipass.h
         render/pass/uipass.cpp
 

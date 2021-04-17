@@ -1504,8 +1504,6 @@ void World::initFromLevel(loader::file::level::Level& level)
   Ensures(m_transitions.size() == m_transitions.size());
   Ensures(m_boxes.size() == m_boxes.size());
 
-  connectSectors();
-
   std::transform(level.m_cinematicFrames.begin(),
                  level.m_cinematicFrames.end(),
                  std::back_inserter(m_cinematicFrames),
@@ -1518,6 +1516,8 @@ void World::initFromLevel(loader::file::level::Level& level)
     m_rooms[i].createSceneNode(level.m_rooms.at(i), i, *this, *m_textureAnimator, *getPresenter().getMaterialManager());
     setParent(m_rooms[i].node, getPresenter().getRenderer().getRootNode());
   }
+
+  connectSectors();
 
   std::transform(level.m_cameras.begin(),
                  level.m_cameras.end(),
