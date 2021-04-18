@@ -56,6 +56,10 @@ RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingT
     [&engine]() { return engine.getEngineConfig().renderSettings.waterDenoise; },
     [&engine]() { toggle(engine, engine.getEngineConfig().renderSettings.waterDenoise); });
   addSetting(
+    /* translators: TR charmap encoding */ _("HBAO"),
+    [&engine]() { return engine.getEngineConfig().renderSettings.hbao; },
+    [&engine]() { toggle(engine, engine.getEngineConfig().renderSettings.hbao); });
+  addSetting(
     /* translators: TR charmap encoding */ _("Performance Meter"),
     [&engine]() { return engine.getEngineConfig().displaySettings.performanceMeter; },
     [&engine]()

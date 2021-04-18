@@ -112,7 +112,7 @@ public:
     return get("flat.vert", "vsm_square.frag");
   }
 
-  auto getComposition(bool water, bool lensDistortion, bool dof, bool filmGrain)
+  auto getComposition(bool water, bool lensDistortion, bool dof, bool filmGrain, bool hbao)
   {
     std::vector<std::string> defines;
     if(water)
@@ -123,6 +123,8 @@ public:
       defines.emplace_back("DOF");
     if(filmGrain)
       defines.emplace_back("GILM_GRAIN");
+    if(hbao)
+      defines.emplace_back("HBAO");
     return get("flat.vert", "composition.frag", defines);
   }
 

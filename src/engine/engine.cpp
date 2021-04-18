@@ -227,6 +227,7 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
                 m_presenter->getMaterialManager()->getScreenSpriteColorRect(),
                 world.getPalette()};
       ui.drawBox({0, 0}, m_presenter->getViewport(), gl::SRGBA8{0, 0, 0, 224});
+      world.drawPerformanceBar(ui, throttler.getAverageDelayRatio());
       m_presenter->renderUi(ui, 1);
       menu->display(ui, world);
       m_presenter->renderUi(ui, 1);

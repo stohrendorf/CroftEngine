@@ -30,7 +30,8 @@ public:
 
   [[nodiscard]] const std::shared_ptr<Material>& getLightning();
 
-  [[nodiscard]] std::shared_ptr<Material> getComposition(bool water, bool lensDistortion, bool dof, bool filmGrain);
+  [[nodiscard]] std::shared_ptr<Material>
+    getComposition(bool water, bool lensDistortion, bool dof, bool filmGrain, bool hbao);
 
   [[nodiscard]] const std::shared_ptr<Material>& getCrt();
 
@@ -64,7 +65,7 @@ private:
   std::map<std::tuple<bool, bool, bool>, std::shared_ptr<Material>> m_geometry{};
   std::shared_ptr<Material> m_waterSurface{nullptr};
   std::shared_ptr<Material> m_lightning{nullptr};
-  std::map<std::tuple<bool, bool, bool, bool>, std::shared_ptr<Material>> m_composition{};
+  std::map<std::tuple<bool, bool, bool, bool, bool>, std::shared_ptr<Material>> m_composition{};
   std::shared_ptr<Material> m_crt{nullptr};
   std::shared_ptr<Material> m_screenSpriteTextured{nullptr};
   std::shared_ptr<Material> m_screenSpriteColorRect{nullptr};

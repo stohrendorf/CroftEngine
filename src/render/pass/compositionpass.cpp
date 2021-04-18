@@ -26,18 +26,18 @@ CompositionPass::CompositionPass(scene::MaterialManager& materialManager,
                                  const LinearizeDepthPass& linearizeDepthPass,
                                  const LinearizeDepthPass& linearizePortalDepthPass)
     : m_compositionMaterial{materialManager.getComposition(
-      false, renderSettings.lensDistortion, renderSettings.dof, renderSettings.filmGrain)}
+      false, renderSettings.lensDistortion, renderSettings.dof, renderSettings.filmGrain, renderSettings.hbao)}
     , m_waterCompositionMaterial{materialManager.getComposition(
-        true, renderSettings.lensDistortion, renderSettings.dof, renderSettings.filmGrain)}
+        true, renderSettings.lensDistortion, renderSettings.dof, renderSettings.filmGrain, renderSettings.hbao)}
     , m_mesh{scene::createScreenQuad(m_compositionMaterial, "composition")}
     , m_waterMesh{scene::createScreenQuad(m_waterCompositionMaterial, "composition-water")}
     , m_crtMesh{scene::createScreenQuad(materialManager.getCrt(), "composition-crt")}
     , m_colorBuffer{std::make_shared<gl::Texture2D<gl::SRGBA8>>(viewport, "composition-color")}
 {
   m_mesh->bind("u_linearPortalDepth",
-               [buffer = linearizePortalDepthPass.getTexture()](const render::scene::Node& /*node*/,
-                                                                const render::scene::Mesh& /*mesh*/,
-                                                                gl::Uniform& uniform) { uniform.set(buffer); });
+               [buffer = linearizePortalDepthPass.getTexture()](
+                 const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
+               { uniform.set(buffer); });
   if(renderSettings.waterDenoise)
     m_mesh->bind("u_portalPerturb",
                  [texture = portalPass.getBlurredTexture()](
@@ -52,10 +52,11 @@ CompositionPass::CompositionPass(scene::MaterialManager& materialManager,
                [buffer = linearizeDepthPass.getTexture()](
                  const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
                { uniform.set(buffer); });
-  m_mesh->bind("u_ao",
-               [texture = hbaoPass.getBlurredTexture()](
-                 const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
-               { uniform.set(texture); });
+  if(renderSettings.hbao)
+    m_mesh->bind("u_ao",
+                 [texture = hbaoPass.getBlurredTexture()](
+                   const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
+                 { uniform.set(texture); });
   m_mesh->bind("u_texture",
                [buffer = fxaaPass.getColorBuffer()](
                  const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
@@ -80,10 +81,11 @@ CompositionPass::CompositionPass(scene::MaterialManager& materialManager,
                     [buffer = linearizeDepthPass.getTexture()](
                       const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
                     { uniform.set(buffer); });
-  m_waterMesh->bind("u_ao",
-                    [texture = hbaoPass.getBlurredTexture()](
-                      const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
-                    { uniform.set(texture); });
+  if(renderSettings.hbao)
+    m_waterMesh->bind("u_ao",
+                      [texture = hbaoPass.getBlurredTexture()](
+                        const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
+                      { uniform.set(texture); });
   m_waterMesh->bind("u_texture",
                     [buffer = fxaaPass.getColorBuffer()](
                       const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
@@ -94,10 +96,9 @@ CompositionPass::CompositionPass(scene::MaterialManager& materialManager,
     .set(gl::api::TextureMinFilter::Linear)
     .set(gl::api::TextureMagFilter::Linear);
 
-  m_crtMesh->bind(
-    "u_input", [this](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform) {
-      uniform.set(m_colorBuffer);
-    });
+  m_crtMesh->bind("u_input",
+                  [this](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
+                  { uniform.set(m_colorBuffer); });
 
   m_fb = gl::FrameBufferBuilder()
            .texture(gl::api::FramebufferAttachment::ColorAttachment0, m_colorBuffer)

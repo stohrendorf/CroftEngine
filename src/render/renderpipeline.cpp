@@ -22,13 +22,12 @@ RenderPipeline::RenderPipeline(scene::MaterialManager& materialManager, const gl
 
 void RenderPipeline::compositionPass(const bool water)
 {
+  BOOST_ASSERT(m_portalPass != nullptr);
   if(m_renderSettings.waterDenoise)
-  {
-    BOOST_ASSERT(m_portalPass != nullptr);
     m_portalPass->renderBlur();
-  }
   BOOST_ASSERT(m_hbaoPass != nullptr);
-  m_hbaoPass->render(m_size);
+  if(m_renderSettings.hbao)
+    m_hbaoPass->render(m_size);
   BOOST_ASSERT(m_fxaaPass != nullptr);
   m_fxaaPass->render(m_size);
   BOOST_ASSERT(m_linearizeDepthPass != nullptr);
@@ -44,7 +43,8 @@ void RenderPipeline::updateCamera(const gsl::not_null<std::shared_ptr<scene::Cam
   BOOST_ASSERT(m_compositionPass != nullptr);
   m_compositionPass->updateCamera(camera);
   BOOST_ASSERT(m_hbaoPass != nullptr);
-  m_hbaoPass->updateCamera(camera);
+  if(m_renderSettings.hbao)
+    m_hbaoPass->updateCamera(camera);
 }
 
 void RenderPipeline::apply(const RenderSettings& renderSettings, scene::MaterialManager& materialManager)

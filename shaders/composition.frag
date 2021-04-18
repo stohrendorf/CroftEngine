@@ -1,7 +1,9 @@
 uniform sampler2D u_texture;
 uniform sampler2D u_linearPortalDepth;
 uniform sampler2D u_portalPerturb;
+#ifdef HBAO
 uniform sampler2D u_ao;
+#endif
 uniform sampler2D u_linearDepth;
 
 #include "flat_pipeline_interface.glsl"
@@ -90,7 +92,9 @@ void main()
     }
         #endif
 
+        #ifdef HBAO
     finalColor *= texture(u_ao, uv).r;
+    #endif
     #ifdef FILM_GRAIN
     finalColor *= grain*0.3 + 0.7;
     #endif

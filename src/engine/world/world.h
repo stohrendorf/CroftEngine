@@ -116,7 +116,7 @@ public:
     m_levelFinished = true;
   }
 
-  bool levelFinished() const
+  [[nodiscard]] bool levelFinished() const
   {
     return m_levelFinished;
   }
@@ -220,7 +220,7 @@ public:
   [[nodiscard]] const Presenter& getPresenter() const;
   [[nodiscard]] Presenter& getPresenter();
 
-  auto getPierre() const
+  [[nodiscard]] auto getPierre() const
   {
     return m_pierre;
   }
@@ -230,7 +230,7 @@ public:
     m_pierre = pierre;
   }
 
-  const Engine& getEngine() const
+  [[nodiscard]] const Engine& getEngine() const
   {
     return m_engine;
   }
@@ -240,7 +240,7 @@ public:
     return m_engine;
   }
 
-  const AudioEngine& getAudioEngine() const
+  [[nodiscard]] const AudioEngine& getAudioEngine() const
   {
     return *m_audioEngine;
   }
@@ -250,12 +250,12 @@ public:
     return *m_audioEngine;
   }
 
-  const std::string& getTitle() const
+  [[nodiscard]] const std::string& getTitle() const
   {
     return m_title;
   }
 
-  auto getTotalSecrets() const
+  [[nodiscard]] auto getTotalSecrets() const
   {
     return m_totalSecrets;
   }
@@ -277,7 +277,7 @@ public:
     m_pickupWidgets.emplace_back(75_frame, std::move(sprite));
   }
 
-  std::optional<std::string> getItemTitle(TR1ItemId id) const;
+  [[nodiscard]] std::optional<std::string> getItemTitle(TR1ItemId id) const;
 
   auto& getPlayer()
   {
@@ -285,36 +285,38 @@ public:
     return *m_player;
   }
 
-  const auto& getPlayer() const
+  [[nodiscard]] const auto& getPlayer() const
   {
     Expects(m_player != nullptr);
     return *m_player;
   }
 
-  const auto& getPlayerPtr() const
+  [[nodiscard]] const auto& getPlayerPtr() const
   {
     return m_player;
   }
 
-  const auto& getAtlasTiles() const
+  [[nodiscard]] const auto& getAtlasTiles() const
   {
     return m_atlasTiles;
   }
 
-  const auto& getSprites() const
+  [[nodiscard]] const auto& getSprites() const
   {
     return m_sprites;
   }
 
-  const auto& getFloorData() const
+  [[nodiscard]] const auto& getFloorData() const
   {
     return m_floorData;
   }
 
-  const auto& getCameraSinks() const
+  [[nodiscard]] const auto& getCameraSinks() const
   {
     return m_cameraSinks;
   }
+
+  void drawPerformanceBar(ui::Ui& ui, float delayRatio) const;
 
 private:
   void createMipmaps(const std::vector<std::shared_ptr<gl::CImgWrapper>>& images, size_t nMips);
