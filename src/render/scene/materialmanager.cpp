@@ -196,7 +196,8 @@ std::shared_ptr<Material>
   if(lensDistortion)
     m->getUniform("distortion_power")->set(water ? -2.0f : -1.0f);
 
-  m->getUniform("u_noise")->set(m_noiseTexture);
+  if(dof)
+    m->getUniform("u_noise")->set(m_noiseTexture);
 
   m_composition.emplace(key, m);
   return m;
