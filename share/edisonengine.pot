@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EdisonEngine \n"
 "Report-Msgid-Bugs-To: https://github.com/stohrendorf/EdisonEngine/issues\n"
-"POT-Creation-Date: 2021-04-15 09:54+0200\n"
+"POT-Creation-Date: 2021-04-18 05:53+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -23,20 +23,20 @@ msgid "- EMPTY SLOT %1%"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:49
+#: menu/rendersettingsmenustate.cpp:51
 msgid "Bilinear Filtering"
 msgstr ""
 
-#: engine/presenter.cpp:324
+#: engine/presenter.cpp:330
 msgid "Booting"
 msgstr ""
 
-#: engine/world/world.cpp:1829
+#: engine/world/world.cpp:1813
 msgid "Building textures"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:29
+#: menu/rendersettingsmenustate.cpp:31
 msgid "CRT"
 msgstr ""
 
@@ -50,13 +50,13 @@ msgstr ""
 msgid "Controls"
 msgstr ""
 
-#: engine/world/world.cpp:1203
+#: engine/world/world.cpp:1187
 #, boost-format
 msgid "Creating mipmaps (%1%%%)"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:33
+#: menu/rendersettingsmenustate.cpp:35
 msgid "Depth-of-Field"
 msgstr ""
 
@@ -76,12 +76,12 @@ msgid "Exit to Title"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:41
+#: menu/rendersettingsmenustate.cpp:43
 msgid "Film Grain"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:45
+#: menu/rendersettingsmenustate.cpp:47
 msgid "Fullscreen"
 msgstr ""
 
@@ -129,6 +129,11 @@ msgid "Gym"
 msgstr ""
 
 #. translators: TR charmap encoding
+#: menu/rendersettingsmenustate.cpp:59
+msgid "HBAO"
+msgstr ""
+
+#. translators: TR charmap encoding
 #: menu/menudisplay.cpp:509
 msgid "INVENTORY"
 msgstr ""
@@ -150,7 +155,7 @@ msgid "Large Medi Pack"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:37
+#: menu/rendersettingsmenustate.cpp:39
 msgid "Lens Distortion"
 msgstr ""
 
@@ -163,11 +168,11 @@ msgstr ""
 msgid "Loading %1%"
 msgstr ""
 
-#: engine/engine.cpp:446
+#: engine/engine.cpp:447
 msgid "Loading Glidos texture pack"
 msgstr ""
 
-#: engine/world/world.cpp:1003
+#: engine/world/world.cpp:987
 msgid "Loading..."
 msgstr ""
 
@@ -198,7 +203,7 @@ msgid "PICKUPS %1%"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:57
+#: menu/rendersettingsmenustate.cpp:63
 msgid "Performance Meter"
 msgstr ""
 
@@ -218,7 +223,7 @@ msgstr ""
 msgid "Save Game"
 msgstr ""
 
-#: engine/world/world.cpp:1022
+#: engine/world/world.cpp:1006
 msgid "Saving..."
 msgstr ""
 
@@ -265,6 +270,6 @@ msgid "Uzis"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:53
+#: menu/rendersettingsmenustate.cpp:55
 msgid "Water Denoise"
 msgstr ""
