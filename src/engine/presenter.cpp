@@ -37,6 +37,7 @@ void Presenter::playVideo(const std::filesystem::path& path)
 {
   render::scene::RenderContext context{render::scene::RenderMode::Full, std::nullopt};
   m_soundEngine->getSoLoud().setGlobalVolume(1.0f);
+  m_screenOverlay = std::make_unique<render::scene::ScreenOverlay>(*m_materialManager, m_window->getViewport());
   video::play(path,
               m_soundEngine->getSoLoud(),
               m_screenOverlay->getImage(),
@@ -62,6 +63,7 @@ void Presenter::playVideo(const std::filesystem::path& path)
                 m_inputHandler->update();
                 return !m_window->windowShouldClose() && !m_inputHandler->hasDebouncedAction(hid::Action::Menu);
               });
+  m_screenOverlay.reset();
 }
 
 void Presenter::renderWorld(const ObjectManager& objectManager,
@@ -160,6 +162,8 @@ void Presenter::renderWorld(const ObjectManager& objectManager,
 
   if(m_showDebugInfo)
   {
+    if(m_screenOverlay == nullptr)
+      m_screenOverlay = std::make_unique<render::scene::ScreenOverlay>(*m_materialManager, m_window->getViewport());
     m_debugFont->drawText(
       *m_screenOverlay->getImage(),
       std::to_string(m_renderer->getFrameRate()).c_str(),
@@ -208,6 +212,10 @@ void Presenter::renderWorld(const ObjectManager& objectManager,
     {
       drawObjectName(object, gl::SRGBA8{0, 255, 0, 255});
     }
+  }
+  else
+  {
+    m_screenOverlay.reset();
   }
 }
 
@@ -323,7 +331,6 @@ Presenter::Presenter(const std::filesystem::path& rootPath, bool fullscreen, con
     , m_materialManager{std::make_unique<render::scene::MaterialManager>(m_shaderCache, m_renderer)}
     , m_csm{std::make_shared<render::scene::CSM>(CSMResolution, *m_materialManager)}
     , m_renderPipeline{std::make_unique<render::RenderPipeline>(*m_materialManager, m_window->getViewport())}
-    , m_screenOverlay{std::make_unique<render::scene::ScreenOverlay>(*m_materialManager, m_window->getViewport())}
 {
   m_materialManager->setCSM(m_csm);
   scaleSplashImage();
@@ -359,15 +366,16 @@ void Presenter::drawLoadingScreen(const std::string& state)
   m_window->updateWindowSize();
   if(m_window->isMinimized())
     return;
+
+  if(m_screenOverlay == nullptr)
+    m_screenOverlay = std::make_unique<render::scene::ScreenOverlay>(*m_materialManager, m_window->getViewport());
+
   if(m_window->getViewport() != m_screenOverlay->getImage()->getSize())
   {
     m_renderer->getCamera()->setScreenSize(m_window->getViewport());
     m_screenOverlay->init(*m_materialManager, m_window->getViewport());
     scaleSplashImage();
   }
-
-  if(m_window->isMinimized())
-    return;
 
   m_screenOverlay->getImage()->fill(gl::SRGBA8{0, 0, 0, 0});
   m_trTTFFont->drawText(*m_screenOverlay->getImage(),
@@ -395,12 +403,15 @@ bool Presenter::preFrame()
 
   m_renderer->getCamera()->setScreenSize(m_window->getViewport());
   m_renderPipeline->resize(*m_materialManager, m_window->getViewport());
-  if(m_screenOverlay->getImage()->getSize() != m_window->getViewport())
+  if(m_screenOverlay != nullptr)
   {
-    m_screenOverlay->init(*m_materialManager, m_window->getViewport());
-  }
+    if(m_screenOverlay->getImage()->getSize() != m_window->getViewport())
+    {
+      m_screenOverlay->init(*m_materialManager, m_window->getViewport());
+    }
 
-  m_screenOverlay->getImage()->fill({0, 0, 0, 0});
+    m_screenOverlay->getImage()->fill({0, 0, 0, 0});
+  }
 
   m_inputHandler->update();
 
@@ -466,6 +477,9 @@ gl::CImgWrapper Presenter::takeScreenshot() const
 
 void Presenter::renderScreenOverlay()
 {
+  if(m_screenOverlay == nullptr)
+    return;
+
   render::scene::RenderContext context{render::scene::RenderMode::Full, std::nullopt};
 
   SOGLB_DEBUGGROUP("screen-overlay-pass");
@@ -479,5 +493,10 @@ void Presenter::renderUi(ui::Ui& ui, float alpha)
   m_renderer->clear(gl::api::ClearBufferMask::ColorBufferBit, {0, 0, 0, 0}, 0);
   ui.render(getViewport());
   m_renderPipeline->renderUiFrameBuffer(alpha);
+}
+
+void Presenter::disableScreenOverlay()
+{
+  m_screenOverlay.reset();
 }
 } // namespace engine

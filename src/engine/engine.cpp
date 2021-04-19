@@ -221,8 +221,6 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
                                world.getCameraController().update(),
                                throttler.getAverageDelayRatio());
       m_presenter->renderScreenOverlay();
-      m_presenter->getScreenOverlay().setAlphaMultiplier(1.0f);
-      m_presenter->getScreenOverlay().render(context);
       ui::Ui ui{m_presenter->getMaterialManager()->getScreenSpriteTextured(),
                 m_presenter->getMaterialManager()->getScreenSpriteColorRect(),
                 world.getPalette()};
@@ -385,8 +383,6 @@ std::pair<RunResult, std::optional<size_t>> Engine::runTitleMenu(world::World& w
                               gl::Uniform& uniform) { uniform.set(glm::vec2{m_presenter->getViewport()}); });
     backdropMesh->render(context);
     menu->display(ui, world);
-    m_presenter->getScreenOverlay().setAlphaMultiplier(1.0f);
-    m_presenter->getScreenOverlay().render(context);
     m_presenter->renderUi(ui, 1);
     m_presenter->swapBuffers();
     switch(menu->result)

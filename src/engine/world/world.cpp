@@ -999,6 +999,7 @@ void World::load(const std::filesystem::path& filename)
   m_objectManager.getLara().m_state.health = m_player->laraHealth;
   m_objectManager.getLara().initWeaponAnimData();
   connectSectors();
+  getPresenter().disableScreenOverlay();
 }
 
 void World::save(const std::filesystem::path& filename)
@@ -1010,6 +1011,7 @@ void World::save(const std::filesystem::path& filename)
   doc.save("meta", meta, meta);
   doc.save("data", *this, *this);
   doc.write();
+  getPresenter().disableScreenOverlay();
 }
 
 std::map<size_t, SavegameMeta> World::getSavedGames() const
@@ -1147,6 +1149,7 @@ World::World(Engine& engine,
   getPresenter().setTrFont(std::make_unique<ui::TRFont>(*m_spriteSequences.at(TR1ItemId::FontGraphics)));
   if(track.has_value())
     m_audioEngine->playStopCdTrack(track.value(), false);
+  getPresenter().disableScreenOverlay();
 }
 
 World::~World() = default;

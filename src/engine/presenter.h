@@ -118,18 +118,6 @@ public:
     return *m_renderer;
   }
 
-  [[nodiscard]] const auto& getScreenOverlay() const
-  {
-    BOOST_ASSERT(m_screenOverlay != nullptr);
-    return *m_screenOverlay;
-  }
-
-  [[nodiscard]] auto& getScreenOverlay()
-  {
-    BOOST_ASSERT(m_screenOverlay != nullptr);
-    return *m_screenOverlay;
-  }
-
   void renderScreenOverlay();
   void renderUi(ui::Ui& ui, float alpha);
 
@@ -159,6 +147,8 @@ public:
 
   [[nodiscard]] gl::CImgWrapper takeScreenshot() const;
 
+  void disableScreenOverlay();
+
 private:
   static constexpr int32_t CSMResolution = 2048;
 
@@ -180,7 +170,7 @@ private:
   const std::shared_ptr<render::scene::CSM> m_csm{};
 
   const std::unique_ptr<render::RenderPipeline> m_renderPipeline;
-  const std::unique_ptr<render::scene::ScreenOverlay> m_screenOverlay;
+  std::unique_ptr<render::scene::ScreenOverlay> m_screenOverlay;
 
   bool m_showDebugInfo = false;
 
