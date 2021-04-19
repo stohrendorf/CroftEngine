@@ -96,7 +96,7 @@ public:
 
   void setMeshPart(size_t idx, const std::shared_ptr<world::RenderMeshData>& mesh)
   {
-    m_needsMeshRebuild |= std::exchange(m_meshParts.at(idx).mesh, mesh) != mesh;
+    m_meshParts.at(idx).mesh = mesh;
   }
 
   const auto& getMeshPart(size_t idx) const
@@ -122,7 +122,7 @@ public:
 
   void setVisible(size_t idx, bool visible)
   {
-    m_needsMeshRebuild |= std::exchange(m_meshParts.at(idx).visible, visible) != visible;
+    m_meshParts.at(idx).visible = visible;
   }
 
   bool isVisible(size_t idx) const
@@ -133,9 +133,10 @@ public:
   const auto& getMeshMatricesBuffer() const
   {
     std::vector<glm::mat4> matrices;
-    std::transform(m_meshParts.begin(), m_meshParts.end(), std::back_inserter(matrices), [](const auto& part) {
-      return part.matrix;
-    });
+    std::transform(m_meshParts.begin(),
+                   m_meshParts.end(),
+                   std::back_inserter(matrices),
+                   [](const auto& part) { return part.matrix; });
     m_meshMatricesBuffer.setData(matrices, gl::api::BufferUsageARB::DynamicDraw);
     return m_meshMatricesBuffer;
   }
@@ -143,7 +144,7 @@ public:
   void clearParts()
   {
     m_meshParts.clear();
-    m_needsMeshRebuild = true;
+    m_forceMeshRebuild = true;
     rebuildMesh();
   }
 
@@ -178,7 +179,14 @@ private:
     glm::mat4 patch{1.0f};
     glm::mat4 matrix{1.0f};
     std::shared_ptr<world::RenderMeshData> mesh{nullptr};
+    std::shared_ptr<world::RenderMeshData> currentMesh{nullptr};
     bool visible = true;
+    bool currentVisible = true;
+
+    [[nodiscard]] bool meshChanged() const
+    {
+      return visible != currentVisible || mesh != currentMesh;
+    }
 
     void serialize(const serialization::Serializer<world::World>& ser);
     static MeshPart create(const serialization::Serializer<world::World>& ser);
@@ -188,7 +196,7 @@ private:
   gsl::not_null<const world::SkeletalModelType*> m_model;
   std::vector<MeshPart> m_meshParts{};
   mutable gl::ShaderStorageBuffer<glm::mat4> m_meshMatricesBuffer{"mesh-matrices-ssb"};
-  bool m_needsMeshRebuild = false;
+  bool m_forceMeshRebuild = false;
 
   const world::Animation* m_anim = nullptr;
   core::Frame m_frame = 0_frame;

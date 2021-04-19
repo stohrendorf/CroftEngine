@@ -143,10 +143,10 @@ bool SkeletalModelNode::handleStateTransitions(core::AnimStateId& animState, con
     if(tr.stateId != goal)
       continue;
 
-    const auto it
-      = std::find_if(tr.transitionCases.cbegin(), tr.transitionCases.cend(), [this](const world::TransitionCase& trc) {
-          return m_frame >= trc.firstFrame && m_frame <= trc.lastFrame;
-        });
+    const auto it = std::find_if(tr.transitionCases.cbegin(),
+                                 tr.transitionCases.cend(),
+                                 [this](const world::TransitionCase& trc)
+                                 { return m_frame >= trc.firstFrame && m_frame <= trc.lastFrame; });
 
     if(it != tr.transitionCases.cend())
     {
@@ -252,11 +252,13 @@ void SkeletalModelNode::serialize(const serialization::Serializer<world::World>&
       S_NV("frame", m_frame));
 
   if(ser.loading)
-    ser.lazy([this](const serialization::Serializer<world::World>&) {
-      m_needsMeshRebuild = true;
-      rebuildMesh();
-      updatePose();
-    });
+    ser.lazy(
+      [this](const serialization::Serializer<world::World>&)
+      {
+        m_forceMeshRebuild = true;
+        rebuildMesh();
+        updatePose();
+      });
 }
 
 void serialize(std::shared_ptr<SkeletalModelNode>& data, const serialization::Serializer<world::World>& ser)
@@ -286,24 +288,31 @@ void SkeletalModelNode::buildMesh(const std::shared_ptr<SkeletalModelNode>& skel
     skeleton->m_meshParts.emplace_back(bone.mesh.get());
   }
 
-  skeleton->m_needsMeshRebuild = true;
+  skeleton->m_forceMeshRebuild = true;
   skeleton->rebuildMesh();
   skeleton->updatePose();
 }
 
 void SkeletalModelNode::rebuildMesh()
 {
-  if(!m_needsMeshRebuild)
+  if(!m_forceMeshRebuild
+     && !std::any_of(m_meshParts.begin(), m_meshParts.end(), [](const auto& part) { return part.meshChanged(); }))
+  {
     return;
-  m_needsMeshRebuild = false;
+  }
+
+  m_forceMeshRebuild = false;
 
   world::RenderMeshDataCompositor compositor;
-  for(const auto& mesh : m_meshParts)
+  for(auto& part : m_meshParts)
   {
-    if(mesh.mesh == nullptr || !mesh.visible)
+    if(part.mesh == nullptr || !part.visible)
       compositor.appendEmpty();
     else
-      compositor.append(*mesh.mesh);
+      compositor.append(*part.mesh);
+
+    part.currentVisible = part.visible;
+    part.currentMesh = part.mesh;
   }
 
   if(compositor.empty())

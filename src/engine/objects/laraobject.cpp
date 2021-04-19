@@ -719,7 +719,6 @@ void LaraObject::updateLarasWeaponsStatus()
       const auto& normalLara = *getWorld().findAnimatedModelForType(TR1ItemId::Lara);
       BOOST_ASSERT(normalLara.bones.size() == getSkeleton()->getBoneCount());
       getSkeleton()->setMeshPart(14, normalLara.bones[14].mesh);
-      getSkeleton()->rebuildMesh();
     }
 
     switch(getWorld().getPlayer().weaponType)
@@ -732,7 +731,6 @@ void LaraObject::updateLarasWeaponsStatus()
           const auto& uziLara = *getWorld().findAnimatedModelForType(TR1ItemId::LaraUzisAnim);
           BOOST_ASSERT(uziLara.bones.size() == getSkeleton()->getBoneCount());
           getSkeleton()->setMeshPart(14, uziLara.bones[14].mesh);
-          getSkeleton()->rebuildMesh();
         }
       }
       if(getWorld().getCameraController().getMode() != CameraMode::Cinematic
@@ -750,7 +748,6 @@ void LaraObject::updateLarasWeaponsStatus()
           const auto& uziLara = *getWorld().findAnimatedModelForType(TR1ItemId::LaraUzisAnim);
           BOOST_ASSERT(uziLara.bones.size() == getSkeleton()->getBoneCount());
           getSkeleton()->setMeshPart(14, uziLara.bones[14].mesh);
-          getSkeleton()->rebuildMesh();
         }
       }
       if(getWorld().getCameraController().getMode() != CameraMode::Cinematic
@@ -768,7 +765,6 @@ void LaraObject::updateLarasWeaponsStatus()
           const auto& uziLara = *getWorld().findAnimatedModelForType(TR1ItemId::LaraUzisAnim);
           BOOST_ASSERT(uziLara.bones.size() == getSkeleton()->getBoneCount());
           getSkeleton()->setMeshPart(14, uziLara.bones[14].mesh);
-          getSkeleton()->rebuildMesh();
         }
       }
       if(getWorld().getCameraController().getMode() != CameraMode::Cinematic
@@ -786,7 +782,6 @@ void LaraObject::updateLarasWeaponsStatus()
           const auto& uziLara = *getWorld().findAnimatedModelForType(TR1ItemId::LaraUzisAnim);
           BOOST_ASSERT(uziLara.bones.size() == getSkeleton()->getBoneCount());
           getSkeleton()->setMeshPart(14, uziLara.bones[14].mesh);
-          getSkeleton()->rebuildMesh();
         }
       }
       if(getWorld().getCameraController().getMode() != CameraMode::Cinematic
@@ -796,8 +791,9 @@ void LaraObject::updateLarasWeaponsStatus()
       }
       updateShotgun();
       break;
-    default: return;
+    default: break;
     }
+    getSkeleton()->rebuildMesh();
   }
 }
 
