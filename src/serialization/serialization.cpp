@@ -8,7 +8,9 @@ namespace serialization
 Exception::Exception(const gsl::czstring msg)
     : std::runtime_error{msg}
 {
+#ifndef NDEBUG
   BOOST_LOG_TRIVIAL(fatal) << "Serialization exception: " << msg;
   BOOST_LOG_TRIVIAL(fatal) << "Stacktrace:\n" << boost::stacktrace::stacktrace();
+#endif
 }
 } // namespace serialization

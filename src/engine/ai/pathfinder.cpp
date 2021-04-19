@@ -313,14 +313,14 @@ void PathFinder::serialize(const serialization::Serializer<world::World>& ser)
       S_NV("step", step),
       S_NV("drop", drop),
       S_NV("fly", fly),
-      S_NVVE("targetBox", ser.context.getBoxes(), target_box),
-      S_NVVE("requiredBox", ser.context.getBoxes(), required_box),
+      S_NV_VECTOR_ELEMENT("targetBox", ser.context.getBoxes(), target_box),
+      S_NV_VECTOR_ELEMENT("requiredBox", ser.context.getBoxes(), required_box),
       S_NV("target", target));
 }
 
 void PathFinderNode::serialize(const serialization::Serializer<world::World>& ser)
 {
-  ser(S_NVVE("exitBox", ser.context.getBoxes(), exit_box), S_NV("traversable", traversable));
+  ser(S_NV_VECTOR_ELEMENT("exitBox", ser.context.getBoxes(), exit_box), S_NV("traversable", traversable));
 }
 
 PathFinderNode PathFinderNode::create(const serialization::Serializer<world::World>& ser)

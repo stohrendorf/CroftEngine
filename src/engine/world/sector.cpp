@@ -57,13 +57,13 @@ void Sector::connect(std::vector<Room>& rooms)
 
 void Sector::serialize(const serialization::Serializer<World>& ser)
 {
-  ser(S_NVVE("box", ser.context.getBoxes(), box),
+  ser(S_NV_VECTOR_ELEMENT("box", ser.context.getBoxes(), box),
       S_NV("floorHeight", floorHeight),
       S_NV("ceilingHeight", ceilingHeight),
       S_NV("roomIndexBelow", m_roomIndexBelow),
       S_NV("roomIndexAbove", m_roomIndexAbove),
-      S_NVVE("boundaryRoom", ser.context.getRooms(), boundaryRoom),
-      S_NVVE("floorData", ser.context.getFloorData(), floorData));
+      S_NV_VECTOR_ELEMENT("boundaryRoom", ser.context.getRooms(), boundaryRoom),
+      S_NV_VECTOR_ELEMENT("floorData", ser.context.getFloorData(), floorData));
 
   if(ser.loading)
   {

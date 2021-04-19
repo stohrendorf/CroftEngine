@@ -149,6 +149,12 @@ function( wrap_enum )
     file( APPEND "${WRAP_ENUM_DEST}" "        };\n" )
     file( APPEND "${WRAP_ENUM_DEST}" "    }\n" )
 
+    # name()
+    file( APPEND "${WRAP_ENUM_DEST}" "    static const char* name()\n" )
+    file( APPEND "${WRAP_ENUM_DEST}" "    {\n" )
+    file( APPEND "${WRAP_ENUM_DEST}" "        return \"${WRAP_ENUM_NAME}\";\n" )
+    file( APPEND "${WRAP_ENUM_DEST}" "    }\n" )
+
     file( APPEND "${WRAP_ENUM_DEST}" "};\n" )
     file( APPEND "${WRAP_ENUM_DEST}" "} // namespace ${WRAP_ENUM_NAMESPACE}\n" )
 endfunction()

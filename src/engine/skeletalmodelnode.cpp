@@ -248,7 +248,7 @@ void SkeletalModelNode::serialize(const serialization::Serializer<world::World>&
   ser(S_NV("id", id),
       S_NV("model", m_model),
       S_NV("parts", m_meshParts),
-      S_NVVE("anim", ser.context.getAnimations(), m_anim),
+      S_NV_VECTOR_ELEMENT("anim", ser.context.getAnimations(), m_anim),
       S_NV("frame", m_frame));
 
   if(ser.loading)

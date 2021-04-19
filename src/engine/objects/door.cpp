@@ -190,7 +190,7 @@ void Door::Info::init(const world::Room& room, const core::TRVec& wingsPosition)
 
 void Door::Info::serialize(const serialization::Serializer<world::World>& ser)
 {
-  ser(S_NV("originalSector", originalSector), S_NVVE("box", ser.context.getBoxes(), wingsBox));
+  ser(S_NV("originalSector", originalSector), S_NV_VECTOR_ELEMENT("box", ser.context.getBoxes(), wingsBox));
   if(ser.loading)
   {
     wingsSector = nullptr;

@@ -79,14 +79,14 @@ struct NotNullVectorElement
 };
 } // namespace serialization
 
-#define S_NVVE(name, vec, obj)         \
-  name, ::serialization::VectorElement \
-  {                                    \
-    vec, obj                           \
+#define S_NV_VECTOR_ELEMENT(name, vec, obj) \
+  name, ::serialization::VectorElement      \
+  {                                         \
+    vec, obj                                \
   }
 
-#define S_NVVENN(name, vec, obj)              \
-  name, ::serialization::NotNullVectorElement \
-  {                                           \
-    vec, obj                                  \
+#define S_NV_VECTOR_ELEMENT_NOT_NULL(name, vec, obj) \
+  name, ::serialization::NotNullVectorElement        \
+  {                                                  \
+    vec, obj                                         \
   }

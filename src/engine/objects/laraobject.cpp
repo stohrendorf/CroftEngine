@@ -2355,7 +2355,7 @@ void LaraObject::initMuzzleFlashes()
 void LaraObject::AimInfo::serialize(const serialization::Serializer<world::World>& ser)
 {
   auto ptr = reinterpret_cast<const int16_t*>(weaponAnimData);
-  ser(S_NVVE("weaponAnimData", ser.context.getPoseFrames(), ptr),
+  ser(S_NV_VECTOR_ELEMENT("weaponAnimData", ser.context.getPoseFrames(), ptr),
       S_NV("frame", frame),
       S_NV("aiming", aiming),
       S_NV("aimRotation", aimRotation),
