@@ -474,22 +474,21 @@ void Room::collectShaderLights()
 
   std::set<gsl::not_null<const Room*>> testRooms;
   testRooms.emplace(this);
-  for(const auto& portal : portals)
+  for(size_t i = 0; i < 4; ++i)
   {
-    testRooms.emplace(portal.adjoiningRoom);
-  }
-
-  std::set<gsl::not_null<const Room*>> testRooms2;
-  for(const auto& room : testRooms)
-  {
-    testRooms2.emplace(room);
-    for(const auto& portal : room->portals)
+    std::set<gsl::not_null<const Room*>> newTestRooms;
+    for(const auto& room : testRooms)
     {
-      testRooms2.emplace(portal.adjoiningRoom);
+      newTestRooms.emplace(room);
+      for(const auto& portal : room->portals)
+      {
+        newTestRooms.emplace(portal.adjoiningRoom);
+      }
     }
+    testRooms = std::move(newTestRooms);
   }
 
-  for(const auto& room : testRooms2)
+  for(const auto& room : testRooms)
   {
     // http://www-f9.ijs.si/~matevz/docs/PovRay/pov274.htm
     // 1 / ( 1 + (d/fade_distance) ^ fade_power );
