@@ -31,6 +31,8 @@ enum class HandStatus
   Combat
 };
 
+struct Weapon;
+
 class LaraObject final : public ModelObject
 {
   using LaraStateId = loader::file::LaraStateId;
@@ -109,11 +111,8 @@ public:
 
 private:
   void handleLaraStateOnLand();
-
   void handleLaraStateDiving();
-
   void handleLaraStateSwimming();
-
   void testInteractions(CollisionInfo& collisionInfo);
 
   core::Frame m_swimToDiveKeypressDuration = 0_frame;
@@ -312,6 +311,8 @@ public:
     core::TRRotationXY aimRotation{};
     core::Frame flashTimeout = 0_frame;
 
+    void update(LaraObject& lara, const Weapon& weapon);
+
     void serialize(const serialization::Serializer<world::World>& ser);
   };
 
@@ -320,47 +321,6 @@ public:
 
   std::shared_ptr<ModelObject> aimAt{nullptr};
 
-  struct Range
-  {
-    core::Angle min = 0_deg;
-    core::Angle max = 0_deg;
-
-    void serialize(const serialization::Serializer<world::World>& ser);
-  };
-
-  struct RangeXY
-  {
-    Range x{};
-    Range y{};
-
-    void serialize(const serialization::Serializer<world::World>& ser);
-  };
-
-  struct Weapon
-  {
-    RangeXY lockAngles{};
-    RangeXY leftAngles{};
-    RangeXY rightAngles{};
-    core::Angle aimSpeed = 0_deg;
-    core::Angle shotInaccuracy = 0_deg;
-    core::Length weaponHeight = 0_len;
-    core::Health damage = 0_hp;
-    core::Length targetDist = 0_len;
-    core::Frame recoilFrame = 0_frame;
-    core::Frame flashTime = 0_frame;
-    TR1SoundEffect shotSound = TR1SoundEffect::LaraFootstep;
-
-    void serialize(const serialization::Serializer<world::World>& ser);
-
-    static Weapon create(const serialization::Serializer<world::World>& ser)
-    {
-      Weapon tmp;
-      tmp.serialize(ser);
-      return tmp;
-    }
-  };
-
-  std::unordered_map<WeaponType, Weapon> weapons;
   core::TRRotationXY m_weaponTargetVector;
   gsl::not_null<std::shared_ptr<render::scene::Node>> m_muzzleFlashLeft{
     std::make_shared<render::scene::Node>("muzzle flash left")};
@@ -412,10 +372,10 @@ public:
 
   void hitTarget(ModelObject& object, const core::TRVec& hitPos, const core::Health& damage);
 
-  void renderMuzzleFlash(const WeaponType weaponType,
+  void renderMuzzleFlash(WeaponType weaponType,
                          glm::mat4 m,
                          const gsl::not_null<std::shared_ptr<render::scene::Node>>& muzzleFlashNode,
-                         const bool visible) const;
+                         bool visible) const;
 
   void drawRoutine();
 

@@ -36,6 +36,91 @@ core::TRRotationXY getVectorAngles(const core::TRVec& co)
 
 namespace engine::objects
 {
+struct Range
+{
+  core::Angle min = 0_deg;
+  core::Angle max = 0_deg;
+};
+
+struct RangeXY
+{
+  Range y{};
+  Range x{};
+};
+
+struct Weapon
+{
+  WeaponType type = WeaponType::None;
+  RangeXY lockAngles{};
+  RangeXY leftAngles{};
+  RangeXY rightAngles{};
+  core::Angle aimSpeed = 0_deg;
+  core::Angle shotInaccuracy = 0_deg;
+  core::Length weaponHeight = 0_len;
+  core::Health damage = 0_hp;
+  core::Length targetDist = 0_len;
+  core::Frame recoilFrame = 0_frame;
+  core::Frame flashTime = 0_frame;
+  TR1SoundEffect shotSound = TR1SoundEffect::LaraFootstep;
+};
+
+namespace
+{
+const std::unordered_map<WeaponType, Weapon> weapons{{WeaponType::None, Weapon{}},
+                                                     {WeaponType::Pistols,
+                                                      Weapon{WeaponType::Pistols,
+                                                             {{-60_deg, +60_deg}, {-60_deg, +60_deg}},
+                                                             {{-170_deg, +60_deg}, {-80_deg, +80_deg}},
+                                                             {{-60_deg, +170_deg}, {-80_deg, +80_deg}},
+                                                             +10_deg,
+                                                             +8_deg,
+                                                             650_len,
+                                                             1_hp,
+                                                             core::SectorSize * 8,
+                                                             9_frame,
+                                                             3_frame,
+                                                             TR1SoundEffect::LaraShootPistols}},
+                                                     {WeaponType::Magnums,
+                                                      Weapon{WeaponType::Magnums,
+                                                             {{-60_deg, +60_deg}, {-60_deg, +60_deg}},
+                                                             {{-170_deg, +60_deg}, {-80_deg, +80_deg}},
+                                                             {{-60_deg, +170_deg}, {-80_deg, +80_deg}},
+                                                             +10_deg,
+                                                             +8_deg,
+                                                             650_len,
+                                                             2_hp,
+                                                             core::SectorSize * 8,
+                                                             9_frame,
+                                                             3_frame,
+                                                             TR1SoundEffect::CowboyShoot}},
+                                                     {WeaponType::Uzis,
+                                                      Weapon{WeaponType::Uzis,
+                                                             {{-60_deg, +60_deg}, {-60_deg, +60_deg}},
+                                                             {{-170_deg, +60_deg}, {-80_deg, +80_deg}},
+                                                             {{-60_deg, +170_deg}, {-80_deg, +80_deg}},
+                                                             +10_deg,
+                                                             +8_deg,
+                                                             650_len,
+                                                             1_hp,
+                                                             core::SectorSize * 8,
+                                                             3_frame,
+                                                             2_frame,
+                                                             TR1SoundEffect::LaraShootUzis}},
+                                                     {WeaponType::Shotgun,
+                                                      Weapon{WeaponType::Shotgun,
+                                                             {{-60_deg, +60_deg}, {-55_deg, +55_deg}},
+                                                             {{-80_deg, +80_deg}, {-65_deg, +65_deg}},
+                                                             {{-80_deg, +80_deg}, {-65_deg, +65_deg}},
+                                                             +10_deg,
+                                                             0_deg,
+                                                             500_len,
+                                                             4_hp,
+                                                             core::SectorSize * 8,
+                                                             9_frame,
+                                                             3_frame,
+                                                             TR1SoundEffect::LaraShootShotgun}}};
+} // namespace
+
 void LaraObject::setAnimation(AnimationId anim, const std::optional<core::Frame>& firstFrame)
 {
   getSkeleton()->setAnimation(m_state.current_anim_state, &getWorld().getAnimation(anim), firstFrame.value_or(0_frame));
@@ -797,7 +882,7 @@ void LaraObject::updateShotgun()
 {
   if(getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action))
   {
-    updateAimingState(weapons[WeaponType::Shotgun]);
+    updateAimingState(weapons.at(WeaponType::Shotgun));
   }
   else
   {
@@ -805,9 +890,9 @@ void LaraObject::updateShotgun()
   }
   if(aimAt == nullptr)
   {
-    findTarget(weapons[WeaponType::Shotgun]);
+    findTarget(weapons.at(WeaponType::Shotgun));
   }
-  updateAimAngles(weapons[WeaponType::Shotgun], leftArm);
+  updateAimAngles(weapons.at(WeaponType::Shotgun), leftArm);
   if(leftArm.aiming)
   {
     m_torsoRotation.X = leftArm.aimRotation.X / 2;
@@ -998,7 +1083,7 @@ void LaraObject::drawWeapons(WeaponType weaponType)
 void LaraObject::findTarget(const Weapon& weapon)
 {
   core::RoomBoundPosition weaponPosition{m_state.position};
-  weaponPosition.position.Y -= weapons[WeaponType::Shotgun].weaponHeight;
+  weaponPosition.position.Y -= weapons.at(WeaponType::Shotgun).weaponHeight;
   aimAt.reset();
   core::Angle bestYAngle{std::numeric_limits<core::Angle::type>::max()};
   for(const auto& currentEnemy : getWorld().getObjectManager().getObjects() | boost::adaptors::map_values)
@@ -1350,7 +1435,7 @@ void LaraObject::tryShootShotgun()
   }
   if(fireShotgun)
   {
-    playSoundEffect(weapons[WeaponType::Shotgun].shotSound);
+    playSoundEffect(weapons.at(WeaponType::Shotgun).shotSound);
   }
 }
 
@@ -1534,81 +1619,10 @@ void LaraObject::holsterWeapons(WeaponType weaponType)
 
 void LaraObject::updateAnimNotShotgun(const WeaponType weaponType)
 {
-  const auto& weapon = weapons[weaponType];
+  const auto& weapon = weapons.at(weaponType);
 
-  if(!rightArm.aiming
-     && (!getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action) || aimAt != nullptr))
-  {
-    if(rightArm.frame >= 24_frame)
-    {
-      rightArm.frame = 4_frame;
-    }
-    else if(rightArm.frame > 0_frame && rightArm.frame <= 4_frame)
-    {
-      rightArm.frame -= 1_frame;
-    }
-  }
-  else if(rightArm.frame >= 0_frame && rightArm.frame < 4_frame)
-  {
-    rightArm.frame += 1_frame;
-  }
-  else if(getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action) && rightArm.frame == 4_frame)
-  {
-    core::TRRotationXY aimAngle;
-    aimAngle.X = rightArm.aimRotation.X;
-    aimAngle.Y = m_state.rotation.Y + rightArm.aimRotation.Y;
-    if(fireWeapon(weaponType, aimAt, *this, aimAngle))
-    {
-      rightArm.flashTimeout = weapon.flashTime;
-      playSoundEffect(weapon.shotSound);
-    }
-    rightArm.frame = 24_frame;
-  }
-  else if(rightArm.frame >= 24_frame)
-  {
-    rightArm.frame += 1_frame;
-    if(rightArm.frame == weapon.recoilFrame + 24_frame)
-    {
-      rightArm.frame = 4_frame;
-    }
-  }
-
-  if(!leftArm.aiming
-     && (!getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action) || aimAt != nullptr))
-  {
-    if(leftArm.frame >= 24_frame)
-    {
-      leftArm.frame = 4_frame;
-    }
-    else if(leftArm.frame > 0_frame && leftArm.frame <= 4_frame)
-    {
-      leftArm.frame -= 1_frame;
-    }
-  }
-  else if(leftArm.frame >= 0_frame && leftArm.frame < 4_frame)
-  {
-    leftArm.frame += 1_frame;
-  }
-  else if(getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action) && leftArm.frame == 4_frame)
-  {
-    core::TRRotationXY aimAngle;
-    aimAngle.Y = m_state.rotation.Y + leftArm.aimRotation.Y;
-    aimAngle.X = leftArm.aimRotation.X;
-    if(fireWeapon(weaponType, aimAt, *this, aimAngle))
-    {
-      leftArm.flashTimeout = weapon.flashTime;
-      playSoundEffect(weapon.shotSound);
-    }
-    leftArm.frame = 24_frame;
-  }
-  else if(leftArm.frame >= 24_frame)
-  {
-    leftArm.frame += 1_frame;
-    if(leftArm.frame == weapon.recoilFrame + 24_frame)
-    {
-      leftArm.frame = 4_frame;
-    }
-  }
+  rightArm.update(*this, weapon);
+  leftArm.update(*this, weapon);
 }
 
 bool LaraObject::fireWeapon(const WeaponType weaponType,
@@ -1628,7 +1642,7 @@ bool LaraObject::fireWeapon(const WeaponType weaponType,
   }
 
   --ammoPtr->ammo;
-  const auto weapon = &weapons[weaponType];
+  const auto weapon = &weapons.at(weaponType);
   core::TRVec weaponPosition = weaponHolder.m_state.position.position;
   weaponPosition.Y -= weapon->weaponHeight;
   const core::TRRotation shootVector{
@@ -2205,8 +2219,7 @@ void LaraObject::serialize(const serialization::Serializer<world::World>& ser)
       // FIXME S_NVP(forceSourcePosition),
       S_NV("leftArm", leftArm),
       S_NV("rightArm", rightArm),
-      S_NV("weaponTargetVector", m_weaponTargetVector),
-      S_NV("weapons", weapons));
+      S_NV("weaponTargetVector", m_weaponTargetVector));
 
   ser.lazy([this](const serialization::Serializer<world::World>& ser)
            { ser(S_NV("aimAt", serialization::ObjectReference{aimAt})); });
@@ -2230,97 +2243,6 @@ LaraObject::LaraObject(const gsl::not_null<world::World*>& world,
   m_underwaterRoute.step = core::SectorSize * 20;
   m_underwaterRoute.drop = -core::SectorSize * 20;
   m_underwaterRoute.fly = core::QuarterSectorSize;
-
-  Weapon w{};
-  weapons[WeaponType::None] = w;
-
-  w.lockAngles.y.min = -60_deg;
-  w.lockAngles.y.max = +60_deg;
-  w.lockAngles.x.min = -60_deg;
-  w.lockAngles.x.max = +60_deg;
-  w.leftAngles.y.min = -170_deg;
-  w.leftAngles.y.max = +60_deg;
-  w.leftAngles.x.min = -80_deg;
-  w.leftAngles.x.max = +80_deg;
-  w.rightAngles.y.min = -60_deg;
-  w.rightAngles.y.max = +170_deg;
-  w.rightAngles.x.min = -80_deg;
-  w.rightAngles.x.max = +80_deg;
-  w.aimSpeed = +10_deg;
-  w.shotInaccuracy = +8_deg;
-  w.weaponHeight = 650_len;
-  w.damage = 1_hp;
-  w.targetDist = core::SectorSize * 8;
-  w.recoilFrame = 9_frame;
-  w.flashTime = 3_frame;
-  w.shotSound = TR1SoundEffect::LaraShootPistols;
-  weapons[WeaponType::Pistols] = w;
-
-  w.lockAngles.y.min = -60_deg;
-  w.lockAngles.y.max = +60_deg;
-  w.lockAngles.x.min = -60_deg;
-  w.lockAngles.x.max = +60_deg;
-  w.leftAngles.y.min = -170_deg;
-  w.leftAngles.y.max = +60_deg;
-  w.leftAngles.x.min = -80_deg;
-  w.leftAngles.x.max = +80_deg;
-  w.rightAngles.y.min = -60_deg;
-  w.rightAngles.y.max = +170_deg;
-  w.rightAngles.x.min = -80_deg;
-  w.rightAngles.x.max = +80_deg;
-  w.aimSpeed = +10_deg;
-  w.shotInaccuracy = +8_deg;
-  w.weaponHeight = 650_len;
-  w.damage = 2_hp;
-  w.targetDist = core::SectorSize * 8;
-  w.recoilFrame = 9_frame;
-  w.flashTime = 3_frame;
-  w.shotSound = TR1SoundEffect::CowboyShoot;
-  weapons[WeaponType::Magnums] = w;
-
-  w.lockAngles.y.min = -60_deg;
-  w.lockAngles.y.max = +60_deg;
-  w.lockAngles.x.min = -60_deg;
-  w.lockAngles.x.max = +60_deg;
-  w.leftAngles.y.min = -170_deg;
-  w.leftAngles.y.max = +60_deg;
-  w.leftAngles.x.min = -80_deg;
-  w.leftAngles.x.max = +80_deg;
-  w.rightAngles.y.min = -60_deg;
-  w.rightAngles.y.max = +170_deg;
-  w.rightAngles.x.min = -80_deg;
-  w.rightAngles.x.max = +80_deg;
-  w.aimSpeed = +10_deg;
-  w.shotInaccuracy = +8_deg;
-  w.weaponHeight = 650_len;
-  w.damage = 1_hp;
-  w.targetDist = core::SectorSize * 8;
-  w.recoilFrame = 3_frame;
-  w.flashTime = 2_frame;
-  w.shotSound = TR1SoundEffect::LaraShootUzis;
-  weapons[WeaponType::Uzis] = w;
-
-  w.lockAngles.y.min = -60_deg;
-  w.lockAngles.y.max = +60_deg;
-  w.lockAngles.x.min = -55_deg;
-  w.lockAngles.x.max = +55_deg;
-  w.leftAngles.y.min = -80_deg;
-  w.leftAngles.y.max = +80_deg;
-  w.leftAngles.x.min = -65_deg;
-  w.leftAngles.x.max = +65_deg;
-  w.rightAngles.y.min = -80_deg;
-  w.rightAngles.y.max = +80_deg;
-  w.rightAngles.x.min = -65_deg;
-  w.rightAngles.x.max = +65_deg;
-  w.aimSpeed = +10_deg;
-  w.shotInaccuracy = 0_deg;
-  w.weaponHeight = 500_len;
-  w.damage = 4_hp;
-  w.targetDist = core::SectorSize * 8;
-  w.recoilFrame = 9_frame;
-  w.flashTime = 3_frame;
-  w.shotSound = TR1SoundEffect::LaraShootShotgun;
-  weapons[WeaponType::Shotgun] = w;
 
   m_state.health = core::LaraHealth;
   m_state.collidable = true;
@@ -2358,28 +2280,43 @@ void LaraObject::AimInfo::serialize(const serialization::Serializer<world::World
   weaponAnimData = reinterpret_cast<const loader::file::AnimFrame*>(ptr);
 }
 
-void LaraObject::Weapon::serialize(const serialization::Serializer<world::World>& ser)
+void LaraObject::AimInfo::update(LaraObject& lara, const Weapon& weapon)
 {
-  ser(S_NV("lockAngles", lockAngles),
-      S_NV("leftAngles", leftAngles),
-      S_NV("rightAngles", rightAngles),
-      S_NV("aimSpeed", aimSpeed),
-      S_NV("shotInaccuracy", shotInaccuracy),
-      S_NV("weaponHeight", weaponHeight),
-      S_NV("damage", damage),
-      S_NV("targetDist", targetDist),
-      S_NV("recoilFrame", recoilFrame),
-      S_NV("flashTime", flashTime),
-      S_NV("shotSound", shotSound));
-}
-
-void LaraObject::Range::serialize(const serialization::Serializer<world::World>& ser)
-{
-  ser(S_NV("min", min), S_NV("max", max));
-}
-
-void LaraObject::RangeXY::serialize(const serialization::Serializer<world::World>& ser)
-{
-  ser(S_NV("x", x), S_NV("y", y));
+  if(!aiming
+     && (lara.aimAt != nullptr || !lara.getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action)))
+  {
+    if(frame >= 24_frame)
+    {
+      frame = 4_frame;
+    }
+    else if(frame > 0_frame && frame <= 4_frame)
+    {
+      frame -= 1_frame;
+    }
+  }
+  else if(frame >= 0_frame && frame < 4_frame)
+  {
+    frame += 1_frame;
+  }
+  else if(frame == 4_frame && lara.getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action))
+  {
+    core::TRRotationXY aimAngle;
+    aimAngle.X = aimRotation.X;
+    aimAngle.Y = lara.m_state.rotation.Y + aimRotation.Y;
+    if(lara.fireWeapon(weapon.type, lara.aimAt, lara, aimAngle))
+    {
+      flashTimeout = weapon.flashTime;
+      lara.playSoundEffect(weapon.shotSound);
+    }
+    frame = 24_frame;
+  }
+  else if(frame >= 24_frame)
+  {
+    frame += 1_frame;
+    if(frame == weapon.recoilFrame + 24_frame)
+    {
+      frame = 4_frame;
+    }
+  }
 }
 } // namespace engine::objects
