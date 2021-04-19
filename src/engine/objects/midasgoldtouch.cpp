@@ -21,7 +21,7 @@ void MidasGoldTouch::collide(CollisionInfo& /*info*/)
     lara.setCurrentAnimState(loader::file::LaraStateId::MidasDeath);
     lara.setGoalAnimState(loader::file::LaraStateId::MidasDeath);
     lara.setHandStatus(HandStatus::Grabbing);
-    getWorld().getPlayer().weaponType = WeaponType::None;
+    getWorld().getPlayer().selectedWeaponType = WeaponType::None;
     lara.setAir(-1_frame);
     lara.m_state.falling = false;
     getWorld().getCameraController().setMode(CameraMode::Cinematic);

@@ -97,10 +97,17 @@ bool Inventory::tryUse(objects::LaraObject& lara, const TR1ItemId id)
       return false;
 
     lara.getWorld().getPlayer().requestedWeaponType = weaponType;
-    if(lara.getHandStatus() == objects::HandStatus::None
-       && lara.getWorld().getPlayer().weaponType == lara.getWorld().getPlayer().requestedWeaponType)
+    if(lara.getWorld().getPlayer().selectedWeaponType == lara.getWorld().getPlayer().requestedWeaponType)
     {
-      lara.getWorld().getPlayer().weaponType = WeaponType::None;
+      if(lara.getHandStatus() == objects::HandStatus::None)
+      {
+        lara.getWorld().getPlayer().selectedWeaponType = WeaponType::None;
+      }
+      else if(lara.getHandStatus() == objects::HandStatus::Combat)
+      {
+        lara.setHandStatus(engine::objects::HandStatus::Holster);
+        lara.updateLarasWeaponsStatus();
+      }
     }
 
     return true;

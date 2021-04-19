@@ -12,7 +12,7 @@ void Player::serialize(const serialization::Serializer<world::World>& ser)
 {
   ser(S_NV("inventory", m_inventory),
       S_NV("laraHealth", laraHealth),
-      S_NV("weaponType", weaponType),
+      S_NV("selectedWeaponType", selectedWeaponType),
       S_NV("requestedWeaponType", requestedWeaponType),
       S_NV("pickups", pickups),
       S_NV("kills", kills),

@@ -13,12 +13,12 @@ class Player
 public:
   explicit Player() = default;
 
-  auto& getInventory()
+  [[nodiscard]] auto& getInventory()
   {
     return m_inventory;
   }
 
-  const auto& getInventory() const
+  [[nodiscard]] const auto& getInventory() const
   {
     return m_inventory;
   }
@@ -26,7 +26,7 @@ public:
   void serialize(const serialization::Serializer<world::World>& ser);
 
   core::Health laraHealth{core::LaraHealth};
-  WeaponType weaponType = WeaponType::None;
+  WeaponType selectedWeaponType = WeaponType::None;
   WeaponType requestedWeaponType = WeaponType::None;
   size_t pickups = 0;
   size_t kills = 0;

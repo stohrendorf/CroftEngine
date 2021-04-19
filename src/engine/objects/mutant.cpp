@@ -507,7 +507,7 @@ void TorsoBoss::update()
         lara.m_state.rotation = {0_deg, m_state.rotation.Y, 0_deg};
         lara.m_state.health = core::DeadHealth;
         lara.setAir(-1_frame);
-        getWorld().getPlayer().weaponType = WeaponType::None;
+        getWorld().getPlayer().selectedWeaponType = WeaponType::None;
         lara.setHandStatus(HandStatus::Grabbing);
         lara.m_state.falling = false;
         getWorld().getCameraController().setMode(CameraMode::FixedPosition);
