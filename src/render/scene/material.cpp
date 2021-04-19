@@ -65,41 +65,45 @@ void Material::bind(const Node& node, const Mesh& mesh) const
   m_shaderProgram->bind();
 }
 
-gsl::not_null<std::shared_ptr<UniformParameter>> Material::getUniform(const std::string& name) const
+std::shared_ptr<UniformParameter> Material::tryGetUniform(const std::string& name) const
 {
   auto it = std::find_if(
     m_uniforms.begin(), m_uniforms.end(), [&name](const auto& param) { return param->getName() == name; });
   if(it != m_uniforms.end())
     return *it;
 
-  Expects(m_shaderProgram->findUniform(name.c_str()) != nullptr);
-  auto param = std::make_shared<UniformParameter>(std::string{name.begin(), name.end()});
+  if(m_shaderProgram->findUniform(name.c_str()) == nullptr)
+    return nullptr;
+
+  auto param = std::make_shared<UniformParameter>(name);
   m_uniforms.emplace_back(param);
   return param;
 }
 
-gsl::not_null<std::shared_ptr<UniformBlockParameter>> Material::getUniformBlock(const std::string& name) const
+std::shared_ptr<UniformBlockParameter> Material::tryGetUniformBlock(const std::string& name) const
 {
   auto it = std::find_if(
     m_uniformBlocks.begin(), m_uniformBlocks.end(), [&name](const auto& param) { return param->getName() == name; });
   if(it != m_uniformBlocks.end())
     return *it;
 
-  Expects(m_shaderProgram->findUniformBlock(name.c_str()) != nullptr);
-  auto param = std::make_shared<UniformBlockParameter>(std::string{name.begin(), name.end()});
+  if(m_shaderProgram->findUniformBlock(name.c_str()) == nullptr)
+    return nullptr;
+  auto param = std::make_shared<UniformBlockParameter>(name);
   m_uniformBlocks.emplace_back(param);
   return param;
 }
 
-gsl::not_null<std::shared_ptr<BufferParameter>> Material::getBuffer(const std::string& name) const
+std::shared_ptr<BufferParameter> Material::tryGetBuffer(const std::string& name) const
 {
   auto it
     = std::find_if(m_buffers.begin(), m_buffers.end(), [&name](const auto& param) { return param->getName() == name; });
   if(it != m_buffers.end())
     return *it;
 
-  Expects(m_shaderProgram->findShaderStorageBlock(name.c_str()) != nullptr);
-  auto param = std::make_shared<BufferParameter>(std::string{name.begin(), name.end()});
+  if(m_shaderProgram->findShaderStorageBlock(name.c_str()) == nullptr)
+    return nullptr;
+  auto param = std::make_shared<BufferParameter>(name);
   m_buffers.emplace_back(param);
   return param;
 }

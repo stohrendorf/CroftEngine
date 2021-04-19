@@ -32,9 +32,29 @@ public:
 
   void bind(const Node& node, const Mesh& mesh) const;
 
-  gsl::not_null<std::shared_ptr<UniformParameter>> getUniform(const std::string& name) const;
-  gsl::not_null<std::shared_ptr<UniformBlockParameter>> getUniformBlock(const std::string& name) const;
-  gsl::not_null<std::shared_ptr<BufferParameter>> getBuffer(const std::string& name) const;
+  std::shared_ptr<UniformParameter> tryGetUniform(const std::string& name) const;
+  gsl::not_null<std::shared_ptr<UniformParameter>> getUniform(const std::string& name) const
+  {
+    auto result = tryGetUniform(name);
+    Expects(result != nullptr);
+    return result;
+  }
+
+  std::shared_ptr<UniformBlockParameter> tryGetUniformBlock(const std::string& name) const;
+  gsl::not_null<std::shared_ptr<UniformBlockParameter>> getUniformBlock(const std::string& name) const
+  {
+    auto result = tryGetUniformBlock(name);
+    Expects(result != nullptr);
+    return result;
+  }
+
+  std::shared_ptr<BufferParameter> tryGetBuffer(const std::string& name) const;
+  gsl::not_null<std::shared_ptr<BufferParameter>> getBuffer(const std::string& name) const
+  {
+    auto result = tryGetBuffer(name);
+    Expects(result != nullptr);
+    return result;
+  }
 
   gl::RenderState& getRenderState()
   {

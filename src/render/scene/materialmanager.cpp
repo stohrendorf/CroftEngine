@@ -55,8 +55,8 @@ const std::shared_ptr<Material>& MaterialManager::getCSMDepthOnly(bool skeletal)
     });
   m_csmDepthOnly[skeletal]->getRenderState().setDepthTest(true);
   m_csmDepthOnly[skeletal]->getRenderState().setDepthWrite(true);
-  if(skeletal)
-    m_csmDepthOnly[skeletal]->getBuffer("BoneTransform")->bindBoneTransformBuffer();
+  if(auto buffer = m_csmDepthOnly[skeletal]->tryGetBuffer("BoneTransform"))
+    buffer->bindBoneTransformBuffer();
 
   return m_csmDepthOnly[skeletal];
 }
@@ -71,8 +71,8 @@ const std::shared_ptr<Material>& MaterialManager::getDepthOnly(bool skeletal)
   m_depthOnly[skeletal]->getRenderState().setDepthWrite(true);
   m_depthOnly[skeletal]->getUniformBlock("Transform")->bindTransformBuffer();
   m_depthOnly[skeletal]->getUniformBlock("Camera")->bindCameraBuffer(m_renderer->getCamera());
-  if(skeletal)
-    m_depthOnly[skeletal]->getBuffer("BoneTransform")->bindBoneTransformBuffer();
+  if(auto buffer = m_depthOnly[skeletal]->tryGetBuffer("BoneTransform"))
+    buffer->bindBoneTransformBuffer();
   m_depthOnly[skeletal]->getUniform("u_diffuseTextures")->set(m_geometryTextures);
 
   return m_depthOnly[skeletal];
@@ -90,8 +90,8 @@ std::shared_ptr<Material> MaterialManager::getGeometry(bool water, bool skeletal
   m->getUniform("u_isSprite")->set(0);
 
   m->getUniformBlock("Transform")->bindTransformBuffer();
-  if(skeletal)
-    m->getBuffer("BoneTransform")->bindBoneTransformBuffer();
+  if(auto buffer = m->tryGetBuffer("BoneTransform"))
+    buffer->bindBoneTransformBuffer();
   m->getUniformBlock("Camera")->bindCameraBuffer(m_renderer->getCamera());
   m->getUniformBlock("CSM")->bind(
     [this](const Node& node, const Mesh& /*mesh*/, gl::UniformBlock& ub)
@@ -103,12 +103,12 @@ std::shared_ptr<Material> MaterialManager::getGeometry(bool water, bool skeletal
   BOOST_ASSERT(m_csm != nullptr);
   m->getUniform("u_csmVsm[0]")->set(m_csm->getTextures());
 
-  if(water)
-    m->getUniform("u_noise")->set(m_noiseTexture);
+  if(auto uniform = m->tryGetUniform("u_noise"))
+    uniform->set(m_noiseTexture);
 
-  if(water)
+  if(auto uniform = m->tryGetUniform("u_time"))
   {
-    m->getUniform("u_time")->bind(
+    uniform->bind(
       [renderer = m_renderer](const Node&, const Mesh& /*mesh*/, gl::Uniform& uniform)
       {
         const auto now = std::chrono::time_point_cast<std::chrono::milliseconds>(renderer->getGameTime());
@@ -185,19 +185,21 @@ std::shared_ptr<Material>
     return it->second;
   auto m = std::make_shared<Material>(m_shaderCache->getComposition(water, lensDistortion, dof, filmGrain, hbao));
 
-  if(m->getShaderProgram()->findUniform("u_time") != nullptr)
-    m->getUniform("u_time")->bind(
+  if(auto uniform = m->tryGetUniform("u_time"))
+  {
+    uniform->bind(
       [renderer = m_renderer](const Node&, const Mesh& /*mesh*/, gl::Uniform& uniform)
       {
         const auto now = std::chrono::time_point_cast<std::chrono::milliseconds>(renderer->getGameTime());
         uniform.set(gsl::narrow_cast<float>(now.time_since_epoch().count()));
       });
+  }
 
-  if(lensDistortion)
-    m->getUniform("distortion_power")->set(water ? -2.0f : -1.0f);
+  if(auto uniform = m->tryGetUniform("distortion_power"))
+    uniform->set(water ? -2.0f : -1.0f);
 
-  if(dof)
-    m->getUniform("u_noise")->set(m_noiseTexture);
+  if(auto uniform = m->tryGetUniform("u_noise"))
+    uniform->set(m_noiseTexture);
 
   m_composition.emplace(key, m);
   return m;
