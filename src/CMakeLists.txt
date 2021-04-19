@@ -180,7 +180,6 @@ set( EDISONENGINE_SRCS
         hid/inputstate.h
         hid/inputhandler.h
         hid/inputhandler.cpp
-        hid/py_module.cpp
 
         loader/file/level/game.h
         loader/file/level/level.h

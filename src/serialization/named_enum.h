@@ -9,6 +9,7 @@ struct NamedEnum
 {
   T value;
 
+  // NOLINTNEXTLINE(google-explicit-constructor)
   NamedEnum(T value = T{})
       : value{value}
   {
@@ -38,6 +39,7 @@ struct NamedEnum
     ser.node << toString(value);
   }
 
+  // NOLINTNEXTLINE(google-explicit-constructor)
   operator T() const noexcept
   {
     return value;

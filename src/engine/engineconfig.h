@@ -12,14 +12,17 @@
 
 namespace engine
 {
+using NamedGlfwKey = serialization::NamedEnum<hid::GlfwKey, hid::EnumUtil<hid::GlfwKey>>;
+using NamedGlfwGamepadButton = serialization::NamedEnum<hid::GlfwGamepadButton, hid::EnumUtil<hid::GlfwGamepadButton>>;
+using NamedAction = serialization::NamedEnum<hid::Action, hid::EnumUtil<hid::Action>>;
+
+using InputMappingConfig = std::map<std::variant<NamedGlfwKey, NamedGlfwGamepadButton>, NamedAction>;
+
 struct EngineConfig
 {
   render::RenderSettings renderSettings{};
   DisplaySettings displaySettings{};
-  std::map<std::variant<serialization::NamedEnum<hid::GlfwKey, hid::EnumUtil<hid::GlfwKey>>,
-                        serialization::NamedEnum<hid::GlfwGamepadButton, hid::EnumUtil<hid::GlfwGamepadButton>>>,
-           serialization::NamedEnum<hid::Action, hid::EnumUtil<hid::Action>>>
-    inputMapping;
+  InputMappingConfig inputMapping;
 
   explicit EngineConfig();
 

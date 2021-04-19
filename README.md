@@ -57,12 +57,12 @@ Now, if you're still here, here's how to set up EdisonEngine and get it running.
    using F5 and F6, but these saves cannot be loaded in the menu yet and must be loaded while in-game. You can make make
    screenshots by pressing F12, and toggling some debug output by pressing F11. The menu can be opened using Esc, and
    videos can be skipped using Esc.
-9. You may customize all these controls by editing `scripts\\main.py`; within there, there's a line `input_mapping = {`;
-   if you don't understand how this works (because you're not inclined enough with technical details), head over to the
-   discord server mentioned above. Otherwise, you can find the values you need to enter there
+9. You may customize all these controls by editing `config.yaml`; within there, there's a line `inputMapping:`; if you
+   don't understand how this works (because you're not inclined enough with technical details), head over to the discord
+   server mentioned above. Otherwise, you can find the values you need to enter there
    [here](https://github.com/stohrendorf/EdisonEngine/blob/master/src/glfw_gamepad_buttons.txt) and
-   [here](https://github.com/stohrendorf/EdisonEngine/blob/master/src/glfw_keys.txt). Make sure you back up this file
-   when you install the next release, because it will be replaced with the default settings.
+   [here](https://github.com/stohrendorf/EdisonEngine/blob/master/src/glfw_keys.txt). This file will appear with default
+   settings when you have started and closed the engine once.
 
 ## Credits
 

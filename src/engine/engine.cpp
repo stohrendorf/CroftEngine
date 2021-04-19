@@ -101,7 +101,7 @@ Engine::Engine(const std::filesystem::path& rootPath, const glm::ivec2& resoluti
   textdomain("edisonengine");
 
   m_presenter = std::make_shared<Presenter>(m_rootPath, m_engineConfig.renderSettings.fullscreen, resolution);
-  m_presenter->getInputHandler().setMapping(core::get<hid::InputMapping>(pybind11::globals(), "input_mapping").value());
+  m_presenter->getInputHandler().setMapping(m_engineConfig.inputMapping);
   m_glidos = loadGlidosPack();
 }
 

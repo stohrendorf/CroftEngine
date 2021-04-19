@@ -1,5 +1,6 @@
 #pragma once
 
+#include "engine/engineconfig.h"
 #include "inputstate.h"
 
 #include <GLFW/glfw3.h>
@@ -12,13 +13,11 @@ namespace hid
 enum class GlfwKey;
 enum class GlfwGamepadButton;
 
-using InputMapping = std::map<std::variant<GlfwGamepadButton, GlfwKey>, Action>;
-
 class InputHandler final
 {
 public:
   explicit InputHandler(gsl::not_null<GLFWwindow*> window);
-  void setMapping(const InputMapping& inputMapping);
+  void setMapping(const engine::InputMappingConfig& inputMapping);
 
   void update();
 
