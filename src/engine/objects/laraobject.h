@@ -305,6 +305,9 @@ public:
 
   struct AimInfo
   {
+    const size_t handBoneId;
+    const size_t thighBoneId;
+
     const loader::file::AnimFrame* weaponAnimData = nullptr;
     core::Frame frame = 0_frame;
     bool aiming = false;
@@ -312,12 +315,13 @@ public:
     core::Frame flashTimeout = 0_frame;
 
     void update(LaraObject& lara, const Weapon& weapon);
+    void holsterWeapons(LaraObject& lara, WeaponType weaponType);
 
     void serialize(const serialization::Serializer<world::World>& ser);
   };
 
-  AimInfo leftArm;
-  AimInfo rightArm;
+  AimInfo leftArm{13, 1};
+  AimInfo rightArm{10, 4};
 
   std::shared_ptr<ModelObject> aimAt{nullptr};
 
