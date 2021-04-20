@@ -964,6 +964,9 @@ void World::gameLoop(bool godMode, float delayRatio, float blackAlpha)
 
 bool World::cinematicLoop()
 {
+  if(++m_cameraController->m_cinematicFrame >= m_cinematicFrames.size())
+    return false;
+
   update(false);
 
   const auto waterEntryPortals
@@ -977,8 +980,6 @@ bool World::cinematicLoop()
   getPresenter().renderScreenOverlay();
   getPresenter().renderUi(ui, 1);
   getPresenter().swapBuffers();
-  if(++m_cameraController->m_cinematicFrame >= m_cinematicFrames.size())
-    return false;
   return true;
 }
 
