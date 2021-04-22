@@ -119,6 +119,22 @@ const std::unordered_map<WeaponType, Weapon> weapons{{WeaponType::None, Weapon{}
                                                              9_frame,
                                                              3_frame,
                                                              TR1SoundEffect::LaraShootShotgun}}};
+
+constexpr size_t BoneHips = 0;
+constexpr size_t BoneThighR = 1;
+constexpr size_t BoneCalfR = 2;
+constexpr size_t BoneFootR = 3;
+constexpr size_t BoneThighL = 4;
+constexpr size_t BoneCalfL = 5;
+constexpr size_t BoneFootL = 6;
+constexpr size_t BoneTorso = 7;
+constexpr size_t BoneArmL = 8;
+constexpr size_t BoneForeArmL = 9;
+constexpr size_t BoneHandL = 10;
+constexpr size_t BoneArmR = 11;
+constexpr size_t BoneForeArmR = 12;
+constexpr size_t BoneHandR = 13;
+constexpr size_t BoneHead = 14;
 } // namespace
 
 void LaraObject::setAnimation(AnimationId anim, const std::optional<core::Frame>& firstFrame)
@@ -782,7 +798,7 @@ void LaraObject::updateLarasWeaponsStatus()
     {
       const auto& normalLara = *getWorld().findAnimatedModelForType(TR1ItemId::Lara);
       BOOST_ASSERT(normalLara.bones.size() == getSkeleton()->getBoneCount());
-      getSkeleton()->setMeshPart(14, normalLara.bones[14].mesh);
+      getSkeleton()->setMeshPart(BoneHead, normalLara.bones[BoneHead].mesh);
       getSkeleton()->rebuildMesh();
     }
 
@@ -799,7 +815,7 @@ void LaraObject::updateLarasWeaponsStatus()
     {
       const auto& normalLara = *getWorld().findAnimatedModelForType(TR1ItemId::Lara);
       BOOST_ASSERT(normalLara.bones.size() == getSkeleton()->getBoneCount());
-      getSkeleton()->setMeshPart(14, normalLara.bones[14].mesh);
+      getSkeleton()->setMeshPart(BoneHead, normalLara.bones[BoneHead].mesh);
     }
 
     switch(getWorld().getPlayer().selectedWeaponType)
@@ -811,7 +827,7 @@ void LaraObject::updateLarasWeaponsStatus()
         {
           const auto& uziLara = *getWorld().findAnimatedModelForType(TR1ItemId::LaraUzisAnim);
           BOOST_ASSERT(uziLara.bones.size() == getSkeleton()->getBoneCount());
-          getSkeleton()->setMeshPart(14, uziLara.bones[14].mesh);
+          getSkeleton()->setMeshPart(BoneHead, uziLara.bones[BoneHead].mesh);
         }
       }
       if(getWorld().getCameraController().getMode() != CameraMode::Cinematic
@@ -828,7 +844,7 @@ void LaraObject::updateLarasWeaponsStatus()
         {
           const auto& uziLara = *getWorld().findAnimatedModelForType(TR1ItemId::LaraUzisAnim);
           BOOST_ASSERT(uziLara.bones.size() == getSkeleton()->getBoneCount());
-          getSkeleton()->setMeshPart(14, uziLara.bones[14].mesh);
+          getSkeleton()->setMeshPart(BoneHead, uziLara.bones[BoneHead].mesh);
         }
       }
       if(getWorld().getCameraController().getMode() != CameraMode::Cinematic
@@ -845,7 +861,7 @@ void LaraObject::updateLarasWeaponsStatus()
         {
           const auto& uziLara = *getWorld().findAnimatedModelForType(TR1ItemId::LaraUzisAnim);
           BOOST_ASSERT(uziLara.bones.size() == getSkeleton()->getBoneCount());
-          getSkeleton()->setMeshPart(14, uziLara.bones[14].mesh);
+          getSkeleton()->setMeshPart(BoneHead, uziLara.bones[BoneHead].mesh);
         }
       }
       if(getWorld().getCameraController().getMode() != CameraMode::Cinematic
@@ -862,7 +878,7 @@ void LaraObject::updateLarasWeaponsStatus()
         {
           const auto& uziLara = *getWorld().findAnimatedModelForType(TR1ItemId::LaraUzisAnim);
           BOOST_ASSERT(uziLara.bones.size() == getSkeleton()->getBoneCount());
-          getSkeleton()->setMeshPart(14, uziLara.bones[14].mesh);
+          getSkeleton()->setMeshPart(BoneHead, uziLara.bones[BoneHead].mesh);
         }
       }
       if(getWorld().getCameraController().getMode() != CameraMode::Cinematic
@@ -1191,9 +1207,9 @@ void LaraObject::overrideLaraMeshesDrawShotgun()
   BOOST_ASSERT(src.bones.size() == getSkeleton()->getBoneCount());
   const auto& normalLara = *getWorld().findAnimatedModelForType(TR1ItemId::Lara);
   BOOST_ASSERT(normalLara.bones.size() == getSkeleton()->getBoneCount());
-  getSkeleton()->setMeshPart(7, normalLara.bones[7].mesh);
-  getSkeleton()->setMeshPart(10, src.bones[10].mesh);
-  getSkeleton()->setMeshPart(13, src.bones[13].mesh);
+  getSkeleton()->setMeshPart(BoneTorso, normalLara.bones[BoneTorso].mesh);
+  getSkeleton()->setMeshPart(BoneHandL, src.bones[BoneHandL].mesh);
+  getSkeleton()->setMeshPart(BoneHandR, src.bones[BoneHandR].mesh);
   getSkeleton()->rebuildMesh();
 }
 
@@ -1466,9 +1482,9 @@ void LaraObject::holsterShotgun()
       BOOST_ASSERT(src.bones.size() == getSkeleton()->getBoneCount());
       const auto& normalLara = *getWorld().findAnimatedModelForType(TR1ItemId::Lara);
       BOOST_ASSERT(normalLara.bones.size() == getSkeleton()->getBoneCount());
-      getSkeleton()->setMeshPart(7, src.bones[7].mesh);
-      getSkeleton()->setMeshPart(10, normalLara.bones[10].mesh);
-      getSkeleton()->setMeshPart(13, normalLara.bones[13].mesh);
+      getSkeleton()->setMeshPart(BoneTorso, src.bones[BoneTorso].mesh);
+      getSkeleton()->setMeshPart(BoneHandL, normalLara.bones[BoneHandL].mesh);
+      getSkeleton()->setMeshPart(BoneHandR, normalLara.bones[BoneHandR].mesh);
       getSkeleton()->rebuildMesh();
 
       playSoundEffect(TR1SoundEffect::LaraDrawWeapon);
@@ -1844,27 +1860,27 @@ void LaraObject::drawRoutine()
   matrixStack.push();
   matrixStack.translate(frame->pos.toGl());
   const auto angleData = frame->getAngleData();
-  matrixStack.rotate(angleData[0]);
-  matrixStack.apply(getSkeleton(), 0);
+  matrixStack.rotate(angleData[BoneHips]);
+  matrixStack.apply(getSkeleton(), BoneHips);
 
   matrixStack.push();
-  matrixStack.transform({1, 2, 3}, objInfo.bones, angleData, getSkeleton());
+  matrixStack.transform({BoneThighR, BoneCalfR, BoneFootR}, objInfo.bones, angleData, getSkeleton());
 
   matrixStack.pop();
   matrixStack.push();
-  matrixStack.transform({4, 5, 6}, objInfo.bones, angleData, getSkeleton());
+  matrixStack.transform({BoneThighL, BoneCalfL, BoneFootL}, objInfo.bones, angleData, getSkeleton());
 
   matrixStack.pop();
-  matrixStack.translate(objInfo.bones[7].position);
-  matrixStack.rotate(angleData[7]);
+  matrixStack.translate(objInfo.bones[BoneTorso].position);
+  matrixStack.rotate(angleData[BoneTorso]);
   matrixStack.rotate(m_torsoRotation);
-  matrixStack.apply(getSkeleton(), 7);
+  matrixStack.apply(getSkeleton(), BoneTorso);
 
   matrixStack.push();
-  matrixStack.translate(objInfo.bones[14].position);
-  matrixStack.rotate(angleData[14]);
+  matrixStack.translate(objInfo.bones[BoneHead].position);
+  matrixStack.rotate(angleData[BoneHead]);
   matrixStack.rotate(m_headRotation);
-  matrixStack.apply(getSkeleton(), 14);
+  matrixStack.apply(getSkeleton(), BoneHead);
 
   WeaponType activeWeaponType = WeaponType::None;
   if(m_handStatus == HandStatus::Combat || m_handStatus == HandStatus::DrawWeapon
@@ -1879,50 +1895,50 @@ void LaraObject::drawRoutine()
   {
   case WeaponType::None:
     matrixStack.push();
-    matrixStack.transform({8, 9, 10}, objInfo.bones, angleData, getSkeleton());
+    matrixStack.transform({BoneArmL, BoneForeArmL, BoneHandL}, objInfo.bones, angleData, getSkeleton());
 
     matrixStack.pop();
     matrixStack.push();
-    matrixStack.transform({11, 12, 13}, objInfo.bones, angleData, getSkeleton());
+    matrixStack.transform({BoneArmR, BoneForeArmR, BoneHandR}, objInfo.bones, angleData, getSkeleton());
     break;
   case WeaponType::Pistols:
   case WeaponType::Magnums:
   case WeaponType::Uzis:
     matrixStack.push();
-    matrixStack.translate(objInfo.bones[8].position);
+    matrixStack.translate(objInfo.bones[BoneArmL].position);
     matrixStack.resetRotation();
     matrixStack.rotate(rightArm.aimRotation);
 
     armAngleData = rightArm.weaponAnimData->next(rightArm.frame.get())->getAngleData();
-    matrixStack.rotate(armAngleData[8]);
-    matrixStack.apply(getSkeleton(), 8);
+    matrixStack.rotate(armAngleData[BoneArmL]);
+    matrixStack.apply(getSkeleton(), BoneArmL);
 
-    matrixStack.transform(9, objInfo.bones, armAngleData, getSkeleton());
-    matrixStack.transform(10, objInfo.bones, armAngleData, getSkeleton());
+    matrixStack.transform(BoneForeArmL, objInfo.bones, armAngleData, getSkeleton());
+    matrixStack.transform(BoneHandL, objInfo.bones, armAngleData, getSkeleton());
 
     renderMuzzleFlash(activeWeaponType, matrixStack.top(), m_muzzleFlashRight, rightArm.flashTimeout != 0_frame);
     matrixStack.pop();
     matrixStack.push();
-    matrixStack.translate(objInfo.bones[11].position);
+    matrixStack.translate(objInfo.bones[BoneArmR].position);
     matrixStack.resetRotation();
     matrixStack.rotate(leftArm.aimRotation);
     armAngleData = leftArm.weaponAnimData->next(leftArm.frame.get())->getAngleData();
-    matrixStack.rotate(armAngleData[11]);
-    matrixStack.apply(getSkeleton(), 11);
+    matrixStack.rotate(armAngleData[BoneArmR]);
+    matrixStack.apply(getSkeleton(), BoneArmR);
 
-    matrixStack.transform({12, 13}, objInfo.bones, armAngleData, getSkeleton());
+    matrixStack.transform({BoneForeArmR, BoneHandR}, objInfo.bones, armAngleData, getSkeleton());
 
     renderMuzzleFlash(activeWeaponType, matrixStack.top(), m_muzzleFlashLeft, leftArm.flashTimeout != 0_frame);
     break;
   case WeaponType::Shotgun:
     matrixStack.push();
     armAngleData = rightArm.weaponAnimData->next(rightArm.frame.get())->getAngleData();
-    matrixStack.transform({8, 9, 10}, objInfo.bones, armAngleData, getSkeleton());
+    matrixStack.transform({BoneArmL, BoneForeArmL, BoneHandL}, objInfo.bones, armAngleData, getSkeleton());
 
     matrixStack.pop();
     matrixStack.push();
     armAngleData = leftArm.weaponAnimData->next(leftArm.frame.get())->getAngleData();
-    matrixStack.transform({11, 12, 13}, objInfo.bones, armAngleData, getSkeleton());
+    matrixStack.transform({BoneArmR, BoneForeArmR, BoneHandR}, objInfo.bones, armAngleData, getSkeleton());
     break;
   default: break;
   }
@@ -1938,27 +1954,27 @@ void LaraObject::drawRoutineInterpolated(const SkeletalModelNode::InterpolationI
   matrixStack.translate(interpolationInfo.firstFrame->pos.toGl(), interpolationInfo.secondFrame->pos.toGl());
   const auto angleDataA = interpolationInfo.firstFrame->getAngleData();
   const auto angleDataB = interpolationInfo.secondFrame->getAngleData();
-  matrixStack.rotate(angleDataA[0], angleDataB[0]);
+  matrixStack.rotate(angleDataA[BoneHips], angleDataB[BoneHips]);
   matrixStack.apply(getSkeleton(), 0);
 
   matrixStack.push();
-  matrixStack.transform({1, 2, 3}, objInfo.bones, angleDataA, angleDataB, getSkeleton());
+  matrixStack.transform({BoneThighR, BoneCalfR, BoneFootR}, objInfo.bones, angleDataA, angleDataB, getSkeleton());
 
   matrixStack.pop();
   matrixStack.push();
-  matrixStack.transform({4, 5, 6}, objInfo.bones, angleDataA, angleDataB, getSkeleton());
+  matrixStack.transform({BoneThighL, BoneCalfL, BoneFootL}, objInfo.bones, angleDataA, angleDataB, getSkeleton());
 
   matrixStack.pop();
-  matrixStack.translate(objInfo.bones[7].position);
-  matrixStack.rotate(angleDataA[7], angleDataB[7]);
+  matrixStack.translate(objInfo.bones[BoneTorso].position);
+  matrixStack.rotate(angleDataA[BoneTorso], angleDataB[BoneTorso]);
   matrixStack.rotate(m_torsoRotation);
-  matrixStack.apply(getSkeleton(), 7);
+  matrixStack.apply(getSkeleton(), BoneTorso);
 
   matrixStack.push();
   matrixStack.translate(objInfo.bones[14].position);
-  matrixStack.rotate(angleDataA[14], angleDataB[14]);
+  matrixStack.rotate(angleDataA[BoneHead], angleDataB[BoneHead]);
   matrixStack.rotate(m_headRotation);
-  matrixStack.apply(getSkeleton(), 14);
+  matrixStack.apply(getSkeleton(), BoneHead);
 
   WeaponType activeWeaponType = WeaponType::None;
   if(m_handStatus == HandStatus::Combat || m_handStatus == HandStatus::DrawWeapon
@@ -1973,11 +1989,11 @@ void LaraObject::drawRoutineInterpolated(const SkeletalModelNode::InterpolationI
   {
   case WeaponType::None:
     matrixStack.push();
-    matrixStack.transform({8, 9, 10}, objInfo.bones, angleDataA, angleDataB, getSkeleton());
+    matrixStack.transform({BoneArmL, BoneForeArmL, BoneHandL}, objInfo.bones, angleDataA, angleDataB, getSkeleton());
 
     matrixStack.pop();
     matrixStack.push();
-    matrixStack.transform({11, 12, 13}, objInfo.bones, angleDataA, angleDataB, getSkeleton());
+    matrixStack.transform({BoneArmR, BoneForeArmR, BoneHandR}, objInfo.bones, angleDataA, angleDataB, getSkeleton());
     break;
   case WeaponType::Pistols:
   case WeaponType::Magnums:
@@ -1988,11 +2004,11 @@ void LaraObject::drawRoutineInterpolated(const SkeletalModelNode::InterpolationI
     matrixStack.rotate(rightArm.aimRotation);
 
     armAngleData = rightArm.weaponAnimData->next(rightArm.frame.get())->getAngleData();
-    matrixStack.rotate(armAngleData[8], armAngleData[8]);
-    matrixStack.apply(getSkeleton(), 8);
+    matrixStack.rotate(armAngleData[BoneArmL], armAngleData[8]);
+    matrixStack.apply(getSkeleton(), BoneArmL);
 
-    matrixStack.transform(9, objInfo.bones, armAngleData, armAngleData, getSkeleton());
-    matrixStack.transform(10, objInfo.bones, armAngleData, armAngleData, getSkeleton());
+    matrixStack.transform(BoneForeArmL, objInfo.bones, armAngleData, armAngleData, getSkeleton());
+    matrixStack.transform(BoneHandL, objInfo.bones, armAngleData, armAngleData, getSkeleton());
 
     renderMuzzleFlash(activeWeaponType, matrixStack.itop(), m_muzzleFlashRight, rightArm.flashTimeout != 0_frame);
     matrixStack.pop();
@@ -2001,22 +2017,24 @@ void LaraObject::drawRoutineInterpolated(const SkeletalModelNode::InterpolationI
     matrixStack.resetRotation();
     matrixStack.rotate(leftArm.aimRotation);
     armAngleData = leftArm.weaponAnimData->next(leftArm.frame.get())->getAngleData();
-    matrixStack.rotate(armAngleData[11], armAngleData[11]);
-    matrixStack.apply(getSkeleton(), 11);
+    matrixStack.rotate(armAngleData[BoneArmR], armAngleData[BoneArmR]);
+    matrixStack.apply(getSkeleton(), BoneArmR);
 
-    matrixStack.transform({12, 13}, objInfo.bones, armAngleData, armAngleData, getSkeleton());
+    matrixStack.transform({BoneForeArmR, BoneHandR}, objInfo.bones, armAngleData, armAngleData, getSkeleton());
 
     renderMuzzleFlash(activeWeaponType, matrixStack.itop(), m_muzzleFlashLeft, leftArm.flashTimeout != 0_frame);
     break;
   case WeaponType::Shotgun:
     matrixStack.push();
     armAngleData = rightArm.weaponAnimData->next(rightArm.frame.get())->getAngleData();
-    matrixStack.transform({8, 9, 10}, objInfo.bones, armAngleData, armAngleData, getSkeleton());
+    matrixStack.transform(
+      {BoneArmL, BoneForeArmL, BoneHandL}, objInfo.bones, armAngleData, armAngleData, getSkeleton());
 
     matrixStack.pop();
     matrixStack.push();
     armAngleData = leftArm.weaponAnimData->next(leftArm.frame.get())->getAngleData();
-    matrixStack.transform({11, 12, 13}, objInfo.bones, armAngleData, armAngleData, getSkeleton());
+    matrixStack.transform(
+      {BoneArmR, BoneForeArmR, BoneHandR}, objInfo.bones, armAngleData, armAngleData, getSkeleton());
     break;
   default: break;
   }
@@ -2117,8 +2135,18 @@ void LaraObject::serialize(const serialization::Serializer<world::World>& ser)
       S_NV("rightArm", rightArm),
       S_NV("weaponTargetVector", m_weaponTargetVector));
 
-  ser.lazy([this](const serialization::Serializer<world::World>& ser)
-           { ser(S_NV("aimAt", serialization::ObjectReference{aimAt})); });
+  ser.lazy(
+    [this](const serialization::Serializer<world::World>& ser)
+    {
+      ser(S_NV("aimAt", serialization::ObjectReference{aimAt}));
+      if(ser.loading && getWorld().getPlayer().getInventory().count(TR1ItemId::Shotgun) > 0)
+      {
+        const auto& src = *getWorld().findAnimatedModelForType(TR1ItemId::LaraShotgunAnim);
+        BOOST_ASSERT(src.bones.size() == getSkeleton()->getBoneCount());
+        getSkeleton()->setMeshPart(BoneTorso, src.bones[BoneTorso].mesh);
+        getSkeleton()->rebuildMesh();
+      }
+    });
 
   if(ser.loading)
     forceSourcePosition = nullptr;
@@ -2131,11 +2159,6 @@ LaraObject::LaraObject(const gsl::not_null<world::World*>& world,
     : ModelObject(world, room, item, false, animatedModel)
     , m_underwaterRoute{*world}
 {
-  setAnimation(AnimationId::STAY_IDLE);
-  setGoalAnimState(LaraStateId::Stop);
-  setCurrentAnimState(LaraStateId::Stop);
-  setMovementAngle(m_state.rotation.Y);
-
   m_underwaterRoute.step = core::SectorSize * 20;
   m_underwaterRoute.drop = -core::SectorSize * 20;
   m_underwaterRoute.fly = core::QuarterSectorSize;
@@ -2145,7 +2168,30 @@ LaraObject::LaraObject(const gsl::not_null<world::World*>& world,
   m_state.is_hit = true;
   m_state.falling = true;
 
+  if(m_state.position.room->isWaterRoom)
+  {
+    m_underwaterState = UnderwaterState::Diving;
+    setAnimation(AnimationId::UNDERWATER_IDLE, 1736_frame);
+    setCurrentAnimState(LaraStateId::UnderwaterStop);
+    setGoalAnimState(LaraStateId::UnderwaterStop);
+  }
+  else
+  {
+    m_underwaterState = UnderwaterState::OnLand;
+    setAnimation(AnimationId::STAY_SOLID, 185_frame);
+    setCurrentAnimState(LaraStateId::Stop);
+    setGoalAnimState(LaraStateId::Stop);
+  }
+
   initMuzzleFlashes();
+
+  if(world->getPlayer().getInventory().count(TR1ItemId::Shotgun) > 0)
+  {
+    const auto& src = *getWorld().findAnimatedModelForType(TR1ItemId::LaraShotgunAnim);
+    BOOST_ASSERT(src.bones.size() == getSkeleton()->getBoneCount());
+    getSkeleton()->setMeshPart(BoneTorso, src.bones[BoneTorso].mesh);
+    getSkeleton()->rebuildMesh();
+  }
 }
 
 void LaraObject::initMuzzleFlashes()
