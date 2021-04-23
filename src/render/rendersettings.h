@@ -23,7 +23,7 @@ struct RenderSettings
 
   [[nodiscard]] size_t getLightCollectionDepth() const
   {
-    return moreLights ? 4 : 2;
+    return moreLights ? 2 : 1;
   }
 
   void serialize(const serialization::Serializer<engine::EngineConfig>& ser);
