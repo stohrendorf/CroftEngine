@@ -13,7 +13,7 @@ HBAOPass::HBAOPass(scene::MaterialManager& materialManager,
                    const GeometryPass& geometryPass)
     : m_material{materialManager.getHBAO()}
     , m_renderMesh{scene::createScreenQuad(m_material, "hbao")}
-    , m_aoBuffer{std::make_shared<gl::Texture2D<gl::Scalar16F>>(viewport, "hbao-ao")}
+    , m_aoBuffer{std::make_shared<gl::Texture2D<gl::ScalarByte>>(viewport, "hbao-ao")}
     , m_blur{"hbao", materialManager, 2, false}
 {
   m_aoBuffer->set(gl::api::TextureParameterName::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge)

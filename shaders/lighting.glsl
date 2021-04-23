@@ -93,11 +93,12 @@ float calc_positional_lighting(in vec3 normal, in vec3 pos)
 
     normal = normalize(normal);
     float sum = u_lightAmbient;
+    float exposure = sqrt(lights.length() + 1);
     for (int i=0; i<lights.length(); ++i)
     {
         vec3 d = pos - lights[i].position.xyz;
         float ld = length(d);
-        float r = ld / lights[i].fadeDistance;
+        float r = ld / lights[i].fadeDistance * exposure;
         float intensity = lights[i].brightness / (r*r + 1.0);
         sum += intensity * clamp(-dot(d/ld, normal), 0, 1);
     }

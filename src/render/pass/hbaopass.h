@@ -40,9 +40,9 @@ private:
 
   std::shared_ptr<scene::Mesh> m_renderMesh;
 
-  std::shared_ptr<gl::Texture2D<gl::Scalar16F>> m_aoBuffer;
+  std::shared_ptr<gl::Texture2D<gl::ScalarByte>> m_aoBuffer;
   std::shared_ptr<gl::Framebuffer> m_fb;
 
-  scene::SeparableBlur<gl::Scalar16F> m_blur;
+  scene::SeparableBlur<gl::ScalarByte> m_blur;
 };
 } // namespace render::pass

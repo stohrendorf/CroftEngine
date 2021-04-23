@@ -373,6 +373,7 @@ void Room::createSceneNode(const loader::file::Room& srcRoom,
                    return p;
                  });
 
+  collectShaderLights();
   resetScenery();
 }
 
@@ -468,7 +469,7 @@ void Room::collectShaderLights()
   bufferLights.clear();
   if(lights.empty())
   {
-    lightsBuffer->setData(bufferLights, gl::api::BufferUsageARB::StreamDraw);
+    lightsBuffer->setData(bufferLights, gl::api::BufferUsageARB::StaticDraw);
     return;
   }
 
@@ -505,7 +506,7 @@ void Room::collectShaderLights()
     }
   }
 
-  lightsBuffer->setData(bufferLights, gl::api::BufferUsageARB::DynamicDraw);
+  lightsBuffer->setData(bufferLights, gl::api::BufferUsageARB::StaticDraw);
 }
 
 gsl::not_null<const Sector*> findRealFloorSector(const core::TRVec& position,
