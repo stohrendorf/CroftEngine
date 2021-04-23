@@ -25,6 +25,10 @@ layout(location=0) out vec4 out_color;
 #include "lens.glsl"
 #endif
 
+#ifdef FILM_GRAIN
+#include "noise.glsl"
+#endif
+
 void main()
 {
 #ifdef WATER
@@ -34,7 +38,7 @@ void main()
     #endif
 
     #ifdef FILM_GRAIN
-    float grain = rand1(uv);
+    float grain = noise(uv * u_time);
     #endif
 
     #ifdef LENS_DISTORTION
@@ -96,7 +100,7 @@ void main()
     finalColor *= texture(u_ao, uv).r;
     #endif
     #ifdef FILM_GRAIN
-    finalColor *= grain*0.3 + 0.7;
+    finalColor *= grain*0.5 + 1.0;
     #endif
 
     const float velviaAmount = 0.03;

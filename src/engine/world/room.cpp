@@ -1,5 +1,6 @@
 #include "room.h"
 
+#include "engine/engine.h"
 #include "engine/lighting.h"
 #include "engine/objects/object.h"
 #include "loader/file/level/level.h"
@@ -373,7 +374,7 @@ void Room::createSceneNode(const loader::file::Room& srcRoom,
                    return p;
                  });
 
-  collectShaderLights();
+  collectShaderLights(world.getEngine().getEngineConfig().renderSettings.getLightCollectionDepth());
   resetScenery();
 }
 
@@ -464,7 +465,7 @@ const Sector* Room::getSectorByIndex(const int dx, const int dz) const
   return &sectors[sectorCountZ * dx + dz];
 }
 
-void Room::collectShaderLights()
+void Room::collectShaderLights(size_t depth)
 {
   bufferLights.clear();
   if(lights.empty())
@@ -475,7 +476,7 @@ void Room::collectShaderLights()
 
   std::set<gsl::not_null<const Room*>> testRooms;
   testRooms.emplace(this);
-  for(size_t i = 0; i < 4; ++i)
+  for(size_t i = 0; i < depth; ++i)
   {
     std::set<gsl::not_null<const Room*>> newTestRooms;
     for(const auto& room : testRooms)

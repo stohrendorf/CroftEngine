@@ -1111,6 +1111,8 @@ World::World(Engine& engine,
     , m_player{std::move(player)}
     , m_samplesData{std::move(level->m_samplesData)}
 {
+  m_engine.registerWorld(this);
+
   initTextureDependentDataFromLevel(*level);
   initTextures(*level);
   for(size_t i = 0; i < m_sprites.size(); ++i)
@@ -1153,7 +1155,10 @@ World::World(Engine& engine,
   getPresenter().disableScreenOverlay();
 }
 
-World::~World() = default;
+World::~World()
+{
+  m_engine.unregisterWorld(this);
+}
 
 void World::createMipmaps(const std::vector<std::shared_ptr<gl::CImgWrapper>>& images, size_t nMips)
 {
@@ -1551,7 +1556,7 @@ void World::connectSectors()
 {
   for(auto& room : m_rooms)
   {
-    room.collectShaderLights();
+    room.collectShaderLights(m_engine.getEngineConfig().renderSettings.getLightCollectionDepth());
     for(auto& sector : room.sectors)
       sector.connect(m_rooms);
   }

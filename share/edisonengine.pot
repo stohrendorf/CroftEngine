@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EdisonEngine \n"
 "Report-Msgid-Bugs-To: https://github.com/stohrendorf/EdisonEngine/issues\n"
-"POT-Creation-Date: 2021-04-18 05:53+0200\n"
+"POT-Creation-Date: 2021-04-23 08:36+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -27,11 +27,11 @@ msgstr ""
 msgid "Bilinear Filtering"
 msgstr ""
 
-#: engine/presenter.cpp:330
+#: engine/presenter.cpp:337
 msgid "Booting"
 msgstr ""
 
-#: engine/world/world.cpp:1813
+#: engine/world/world.cpp:1822
 msgid "Building textures"
 msgstr ""
 
@@ -50,7 +50,7 @@ msgstr ""
 msgid "Controls"
 msgstr ""
 
-#: engine/world/world.cpp:1187
+#: engine/world/world.cpp:1196
 #, boost-format
 msgid "Creating mipmaps (%1%%%)"
 msgstr ""
@@ -168,11 +168,11 @@ msgstr ""
 msgid "Loading %1%"
 msgstr ""
 
-#: engine/engine.cpp:447
+#: engine/engine.cpp:444
 msgid "Loading Glidos texture pack"
 msgstr ""
 
-#: engine/world/world.cpp:987
+#: engine/world/world.cpp:988
 msgid "Loading..."
 msgstr ""
 
@@ -184,6 +184,11 @@ msgstr ""
 #. translators: TR charmap encoding
 #: menu/menudisplay.cpp:317
 msgid "Magnums"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/rendersettingsmenustate.cpp:63
+msgid "More Lights"
 msgstr ""
 
 #. translators: TR charmap encoding
@@ -203,7 +208,7 @@ msgid "PICKUPS %1%"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:63
+#: menu/rendersettingsmenustate.cpp:67
 msgid "Performance Meter"
 msgstr ""
 
@@ -223,7 +228,7 @@ msgstr ""
 msgid "Save Game"
 msgstr ""
 
-#: engine/world/world.cpp:1006
+#: engine/world/world.cpp:1008
 msgid "Saving..."
 msgstr ""
 

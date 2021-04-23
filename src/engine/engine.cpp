@@ -136,7 +136,8 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
   core::Frame laraDeadTime = 0_frame;
 
   std::optional<std::chrono::high_resolution_clock::time_point> gameSessionStart;
-  auto updateTimeSpent = [&gameSessionStart, &world]() {
+  auto updateTimeSpent = [&gameSessionStart, &world]()
+  {
     if(gameSessionStart.has_value())
     {
       world.getPlayer().timeSpent += std::chrono::duration_cast<std::chrono::milliseconds>(
@@ -367,20 +368,20 @@ std::pair<RunResult, std::optional<size_t>> Engine::runTitleMenu(world::World& w
         "u_input",
         [backdrop](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
         { uniform.set(backdrop); });
-      backdropMesh->bind("u_screenSize",
-                         [targetSize](const render::scene::Node& /*node*/,
-                                      const render::scene::Mesh& /*mesh*/,
-                                      gl::Uniform& uniform) { uniform.set(targetSize); });
+      backdropMesh->bind(
+        "u_screenSize",
+        [targetSize](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
+        { uniform.set(targetSize); });
     }
 
-    backdropMesh->bind("u_input",
-                       [backdrop](const render::scene::Node& /*node*/,
-                                  const render::scene::Mesh& /*mesh*/,
-                                  gl::Uniform& uniform) { uniform.set(backdrop); });
-    backdropMesh->bind("u_screenSize",
-                       [this](const render::scene::Node& /*node*/,
-                              const render::scene::Mesh& /*mesh*/,
-                              gl::Uniform& uniform) { uniform.set(glm::vec2{m_presenter->getViewport()}); });
+    backdropMesh->bind(
+      "u_input",
+      [backdrop](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
+      { uniform.set(backdrop); });
+    backdropMesh->bind(
+      "u_screenSize",
+      [this](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
+      { uniform.set(glm::vec2{m_presenter->getViewport()}); });
     backdropMesh->render(context);
     menu->display(ui, world);
     m_presenter->renderUi(ui, 1);
@@ -454,6 +455,14 @@ SavegameMeta Engine::getSavegameMeta(const std::filesystem::path& filename) cons
   SavegameMeta meta{};
   doc.load("meta", meta, meta);
   return meta;
+}
+
+void Engine::applyRenderSettings()
+{
+  m_presenter->apply(m_engineConfig.renderSettings);
+  for(const auto& world : m_worlds)
+    for(auto& room : world->getRooms())
+      room.collectShaderLights(m_engineConfig.renderSettings.getLightCollectionDepth());
 }
 
 void SavegameMeta::serialize(const serialization::Serializer<SavegameMeta>& ser)

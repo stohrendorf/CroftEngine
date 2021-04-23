@@ -150,7 +150,7 @@ struct Room
   std::shared_ptr<gl::ShaderStorageBuffer<engine::ShaderLight>> lightsBuffer{
     std::make_shared<gl::ShaderStorageBuffer<engine::ShaderLight>>("lights-buffer")};
 
-  void collectShaderLights();
+  void collectShaderLights(size_t depth);
 };
 
 extern gsl::not_null<const Sector*> findRealFloorSector(const core::TRVec& position,

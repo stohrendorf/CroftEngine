@@ -19,6 +19,12 @@ struct RenderSettings
   bool bilinearFiltering = false;
   bool waterDenoise = true;
   bool hbao = true;
+  bool moreLights = true;
+
+  [[nodiscard]] size_t getLightCollectionDepth() const
+  {
+    return moreLights ? 4 : 2;
+  }
 
   void serialize(const serialization::Serializer<engine::EngineConfig>& ser);
 };

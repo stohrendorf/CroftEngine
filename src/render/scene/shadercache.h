@@ -122,7 +122,7 @@ public:
     if(dof)
       defines.emplace_back("DOF");
     if(filmGrain)
-      defines.emplace_back("GILM_GRAIN");
+      defines.emplace_back("FILM_GRAIN");
     if(hbao)
       defines.emplace_back("HBAO");
     return get("flat.vert", "composition.frag", defines);

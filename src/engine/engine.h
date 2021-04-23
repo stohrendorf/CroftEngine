@@ -9,6 +9,7 @@
 #include <memory>
 #include <optional>
 #include <pybind11/embed.h>
+#include <set>
 
 namespace loader::trx
 {
@@ -86,6 +87,7 @@ private:
   const std::filesystem::path m_rootPath;
   EngineConfig m_engineConfig;
   std::shared_ptr<Presenter> m_presenter;
+  std::set<gsl::not_null<world::World*>> m_worlds;
 
   std::shared_ptr<pybind11::scoped_interpreter> m_scriptEngine;
 
@@ -167,5 +169,17 @@ public:
   {
     return m_engineConfig;
   }
+
+  void registerWorld(world::World* world)
+  {
+    m_worlds.emplace(world);
+  }
+
+  void unregisterWorld(world::World* world)
+  {
+    m_worlds.erase(world);
+  }
+
+  void applyRenderSettings();
 };
 } // namespace engine

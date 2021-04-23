@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EdisonEngine \n"
 "Report-Msgid-Bugs-To: https://github.com/stohrendorf/EdisonEngine/issues\n"
-"POT-Creation-Date: 2021-04-18 05:53+0200\n"
+"POT-Creation-Date: 2021-04-23 08:36+0200\n"
 "Last-Translator: Steffen Ohrendorf\n"
 "Language-Team: none\n"
 "Language: de_DE\n"
@@ -26,11 +26,11 @@ msgstr "- LEERER SLOT %1%"
 msgid "Bilinear Filtering"
 msgstr "Bilineare Filterung"
 
-#: engine/presenter.cpp:330
+#: engine/presenter.cpp:337
 msgid "Booting"
 msgstr "Starte"
 
-#: engine/world/world.cpp:1813
+#: engine/world/world.cpp:1822
 msgid "Building textures"
 msgstr "Erstelle Texturen"
 
@@ -49,7 +49,7 @@ msgstr "Kompa="
 msgid "Controls"
 msgstr "Kontrollen"
 
-#: engine/world/world.cpp:1187
+#: engine/world/world.cpp:1196
 #, boost-format
 msgid "Creating mipmaps (%1%%%)"
 msgstr "Erstelle Mipmaps (%1%%%)"
@@ -167,11 +167,11 @@ msgstr "Spiel laden"
 msgid "Loading %1%"
 msgstr "Lade %1%"
 
-#: engine/engine.cpp:447
+#: engine/engine.cpp:444
 msgid "Loading Glidos texture pack"
 msgstr "Lade Glidos Textur Paket"
 
-#: engine/world/world.cpp:987
+#: engine/world/world.cpp:988
 msgid "Loading..."
 msgstr "Lade..."
 
@@ -184,6 +184,11 @@ msgstr "Magnum-Munition"
 #: menu/menudisplay.cpp:317
 msgid "Magnums"
 msgstr "Magnums"
+
+#. translators: TR charmap encoding
+#: menu/rendersettingsmenustate.cpp:63
+msgid "More Lights"
+msgstr "Mehr Lichter"
 
 #. translators: TR charmap encoding
 #: menu/passportmenustate.cpp:57
@@ -202,7 +207,7 @@ msgid "PICKUPS %1%"
 msgstr "Gegenst~ande %1%"
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:63
+#: menu/rendersettingsmenustate.cpp:67
 msgid "Performance Meter"
 msgstr "Leistungsanzeige"
 
@@ -222,7 +227,7 @@ msgstr "Geheimnisse %1% von %2%"
 msgid "Save Game"
 msgstr "Spiel sichern"
 
-#: engine/world/world.cpp:1006
+#: engine/world/world.cpp:1008
 msgid "Saving..."
 msgstr "Speichere..."
 
@@ -272,6 +277,3 @@ msgstr "Uzis"
 #: menu/rendersettingsmenustate.cpp:55
 msgid "Water Denoise"
 msgstr "Wassergl~attung"
-
-#~ msgid "Spiel sichern"
-#~ msgstr "Spiel laden"

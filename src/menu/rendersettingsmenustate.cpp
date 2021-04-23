@@ -24,7 +24,7 @@ RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingT
   static const auto toggle = [](engine::Engine& engine, bool& value)
   {
     value = !value;
-    engine.getPresenter().apply(engine.getEngineConfig().renderSettings);
+    engine.applyRenderSettings();
   };
 
   addSetting(
@@ -59,6 +59,10 @@ RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingT
     /* translators: TR charmap encoding */ _("HBAO"),
     [&engine]() { return engine.getEngineConfig().renderSettings.hbao; },
     [&engine]() { toggle(engine, engine.getEngineConfig().renderSettings.hbao); });
+  addSetting(
+    /* translators: TR charmap encoding */ _("More Lights"),
+    [&engine]() { return engine.getEngineConfig().renderSettings.moreLights; },
+    [&engine]() { toggle(engine, engine.getEngineConfig().renderSettings.moreLights); });
   addSetting(
     /* translators: TR charmap encoding */ _("Performance Meter"),
     [&engine]() { return engine.getEngineConfig().displaySettings.performanceMeter; },
