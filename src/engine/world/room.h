@@ -146,7 +146,7 @@ struct Room
 
   void serialize(const serialization::Serializer<World>& ser);
 
-  std::vector<engine::ShaderLight> bufferLights;
+  std::vector<engine::ShaderLight> bufferLights{};
   std::shared_ptr<gl::ShaderStorageBuffer<engine::ShaderLight>> lightsBuffer{
     std::make_shared<gl::ShaderStorageBuffer<engine::ShaderLight>>("lights-buffer")};
 

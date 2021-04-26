@@ -24,7 +24,7 @@ struct ShaderLight
   float brightness = 0;
   float fadeDistance = 0;
   // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, modernize-avoid-c-arrays)
-  [[maybe_unused]] float _pad[2]{0.0f, 0.0f};
+  float _pad[2]{0.0f, 0.0f};
 
   bool operator==(const ShaderLight& rhs) const
   {
