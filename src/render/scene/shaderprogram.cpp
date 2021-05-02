@@ -196,19 +196,7 @@ std::shared_ptr<ShaderProgram> ShaderProgram::createFromSource(const std::filesy
 
   std::string definesStr = replaceDefines(defines, false);
   shaderSource[1] = definesStr.c_str();
-  gl::VertexShader vertexShader{vshPath.string() + ";" + boost::algorithm::join(defines, ";")};
-  vertexShader.setSource(shaderSource);
-  vertexShader.compile();
-  if(!vertexShader.getCompileStatus())
-  {
-    if(!vshPath.empty())
-      writeShaderToFile(vshPath, ".err", shaderSource);
-
-    BOOST_LOG_TRIVIAL(error) << "Compile failed for vertex shader '" << (vshPath.empty() ? "<none>" : vshPath)
-                             << "' with error '" << vertexShader.getInfoLog() << "'.";
-
-    return nullptr;
-  }
+  gl::VertexShader vertexShader{shaderSource, vshPath.string() + ";" + boost::algorithm::join(defines, ";")};
 
 #ifndef NDEBUG
   writeShaderToFile(vshPath, ".full.glsl", shaderSource);
@@ -226,20 +214,7 @@ std::shared_ptr<ShaderProgram> ShaderProgram::createFromSource(const std::filesy
 
   definesStr = replaceDefines(defines, true);
   shaderSource[1] = definesStr.c_str();
-  gl::FragmentShader fragmentShader{fshPath.string() + ";" + boost::algorithm::join(defines, ";")};
-  fragmentShader.setSource(shaderSource);
-  fragmentShader.compile();
-  if(!fragmentShader.getCompileStatus())
-  {
-    // Write out the expanded shader file.
-    if(!fshPath.empty())
-      writeShaderToFile(fshPath, ".err", shaderSource);
-
-    BOOST_LOG_TRIVIAL(error) << "Compile failed for fragment shader '" << (fshPath.empty() ? "<none>" : fshPath)
-                             << "' with error '" << fragmentShader.getInfoLog() << "'.";
-
-    return nullptr;
-  }
+  gl::FragmentShader fragmentShader{shaderSource, fshPath.string() + ";" + boost::algorithm::join(defines, ";")};
 
 #ifndef NDEBUG
   writeShaderToFile(fshPath, ".full.glsl", shaderSource);

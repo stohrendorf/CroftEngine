@@ -375,7 +375,6 @@ public:
   template<api::ShaderType _Type> // NOLINT(bugprone-reserved-identifier)
   void attach(const Shader<_Type>& shader)
   {
-    BOOST_ASSERT(shader.getCompileStatus());
     GL_ASSERT(api::attachShader(getHandle(), shader.getHandle()));
   }
 
