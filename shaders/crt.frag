@@ -18,7 +18,7 @@ vec3 crt(in sampler2D tex, in vec2 uv)
 
     col *= vec3(0.95, 1.05, 0.95)*1.5;
 
-    col *= 1.0 - 0.65 * vec3(clamp((mod(fpi.texCoord.x * textureSize(u_input, 0).x, 2.0)-1.0)*2.0, 0.0, 1.0));
+    col *= 1.0 - 0.65 * vec3(clamp((mod(fpi.texCoord.x * textureSize(tex, 0).x, 2.0)-1.0)*2.0, 0.0, 1.0));
 
     return col;
 }

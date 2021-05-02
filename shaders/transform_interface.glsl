@@ -3,7 +3,7 @@ layout(std140, binding=0) uniform Transform {
 };
 
 #ifdef VTX_INPUT_BONE_INDEX
-layout(std140) readonly buffer BoneTransform {
+layout(std140) readonly restrict buffer BoneTransform {
     mat4 u_bones[];
 };
 #endif

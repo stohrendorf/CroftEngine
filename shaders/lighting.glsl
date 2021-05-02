@@ -10,7 +10,7 @@ struct Light {
     float _pad[2];
 };
 
-readonly layout(std430, binding=3) buffer b_lights {
+layout(std430, binding=3) readonly restrict buffer b_lights {
     Light lights[];
 };
 
