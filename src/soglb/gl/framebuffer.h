@@ -53,7 +53,8 @@ private:
 public:
   explicit Framebuffer(Attachments attachments, const std::string& label = {})
       : BindableResource{api::createFramebuffers,
-                         [](const uint32_t handle) { bindFramebuffer(api::FramebufferTarget::Framebuffer, handle); },
+                         [](const uint32_t handle)
+                         { bindFramebuffer(api::FramebufferTarget::DrawFramebuffer, handle); },
                          api::deleteFramebuffers,
                          api::ObjectIdentifier::Framebuffer,
                          label}
@@ -149,9 +150,10 @@ public:
   {
     std::vector<api::FramebufferAttachment> attachments;
     attachments.reserve(m_attachments.size());
-    std::transform(m_attachments.begin(), m_attachments.end(), std::back_inserter(attachments), [](const auto& src) {
-      return src.second;
-    });
+    std::transform(m_attachments.begin(),
+                   m_attachments.end(),
+                   std::back_inserter(attachments),
+                   [](const auto& src) { return src.second; });
     invalidateNamedFramebufferData(
       getHandle(), gsl::narrow<api::core::SizeType>(attachments.size()), attachments.data());
   }
