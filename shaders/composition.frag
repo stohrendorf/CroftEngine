@@ -17,16 +17,16 @@ layout(location=0) out vec4 out_color;
 
 #include "water_deform.glsl"
 
+#if defined(DOF) || defined(FILM_GRAIN)
+#include "noise.glsl"
+#endif
+
 #ifdef DOF
 #include "dof.glsl"
 #endif
 
 #ifdef LENS_DISTORTION
 #include "lens.glsl"
-#endif
-
-#ifdef FILM_GRAIN
-#include "noise.glsl"
 #endif
 
 void main()
