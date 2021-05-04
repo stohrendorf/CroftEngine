@@ -80,13 +80,13 @@ void Presenter::renderWorld(const ObjectManager& objectManager,
     m_csm->updateCamera(*m_renderer->getCamera());
     m_csm->applyViewport();
 
+    gl::RenderState renderState;
+    renderState.setDepthClamp(true);
+    renderState.apply();
+
     for(size_t i = 0; i < render::scene::CSMBuffer::NSplits; ++i)
     {
       SOGLB_DEBUGGROUP("csm-pass/" + std::to_string(i));
-      m_renderer->resetRenderState();
-      gl::RenderState renderState;
-      renderState.setDepthClamp(true);
-      renderState.apply();
 
       m_csm->setActiveSplit(i);
       m_csm->getActiveFramebuffer()->bind();
@@ -113,6 +113,7 @@ void Presenter::renderWorld(const ObjectManager& objectManager,
 
   {
     SOGLB_DEBUGGROUP("geometry-pass");
+    m_renderer->resetRenderState();
     m_renderPipeline->bindGeometryFrameBuffer(m_window->getViewport());
     m_renderer->clear(
       gl::api::ClearBufferMask::ColorBufferBit | gl::api::ClearBufferMask::DepthBufferBit, {0, 0, 0, 0}, 1);

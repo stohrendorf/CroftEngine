@@ -11,7 +11,7 @@ layout(location=0) out BLUR_TYPE out_tex;
 
 void main()
 {
-    vec2 texelSize = 1.0 / vec2(textureSize(u_input, 0));
+    const vec2 texelSize = 1.0 / vec2(textureSize(u_input, 0));
 
     #if BLUR_DIR == 1
     vec2 direction = vec2(1, 0) * texelSize;
