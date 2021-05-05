@@ -202,7 +202,7 @@ gsl::not_null<std::shared_ptr<render::scene::Mesh>> RenderMeshDataCompositor::to
   }
 #endif
   auto indexBuffer = std::make_shared<gl::ElementArrayBuffer<RenderMeshData::IndexType>>(label);
-  indexBuffer->setData(m_indices, gl::api::BufferUsageARB::DynamicDraw);
+  indexBuffer->setData(m_indices, gl::api::BufferUsageARB::StaticDraw);
 
   const auto material = materialManager.getGeometry(false, skeletal, false);
   const auto materialCSMDepthOnly = materialManager.getCSMDepthOnly(skeletal);

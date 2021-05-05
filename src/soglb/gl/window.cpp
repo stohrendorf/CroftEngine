@@ -3,6 +3,7 @@
 #include "cimgwrapper.h"
 #include "glassert.h"
 #include "glew_init.h"
+#include "renderstate.h"
 
 #include <boost/log/trivial.hpp>
 #include <gsl/gsl-lite.hpp>
@@ -98,7 +99,7 @@ void Window::updateWindowSize()
     return;
 
   m_viewport = tmpSize;
-  GL_ASSERT(::gl::api::viewport(0, 0, m_viewport.x, m_viewport.y));
+  RenderState::getWantedState().setViewport(m_viewport);
 }
 
 void Window::swapBuffers() const

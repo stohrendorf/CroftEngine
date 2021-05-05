@@ -1,6 +1,7 @@
 #pragma once
 
 #include "bindableresource.h"
+#include "renderstate.h"
 #include "soglb_fwd.h"
 
 #include <tuple>
@@ -88,6 +89,7 @@ public:
 
   void drawIndexBuffer(api::PrimitiveType primitiveType)
   {
+    RenderState::applyWantedState();
     bind();
     m_indexBuffer->drawElements(primitiveType);
     unbind();
@@ -95,6 +97,7 @@ public:
 
   void drawIndexBuffer(api::PrimitiveType primitiveType, api::core::SizeType instances)
   {
+    RenderState::applyWantedState();
     bind();
     m_indexBuffer->drawElements(primitiveType, instances);
     unbind();

@@ -44,6 +44,7 @@ public:
 
     void init(int32_t resolution, size_t idx, MaterialManager& materialManager);
     void renderSquare();
+    void renderBlur();
   };
 
   explicit CSM(int32_t resolution, MaterialManager& materialManager);
@@ -73,9 +74,12 @@ public:
   auto& getBuffer(const glm::mat4& modelMatrix)
   {
     const auto splitEnds = getSplitEnds();
-    std::transform(splitEnds.begin(), splitEnds.end(), m_bufferData.csmSplits.begin(), [](float v) {
-      return glm::vec4{v, 0, 0, 0};
-    });
+    std::transform(splitEnds.begin(),
+                   splitEnds.end(),
+                   m_bufferData.csmSplits.begin(),
+                   [](float v) {
+                     return glm::vec4{v, 0, 0, 0};
+                   });
     m_bufferData.lightMVP = getMatrices(modelMatrix);
     m_bufferData.lightDir = glm::vec4{m_lightDir, 0.0f};
     m_buffer.setData(m_bufferData, gl::api::BufferUsageARB::DynamicDraw);
@@ -85,12 +89,17 @@ public:
   // NOLINTNEXTLINE(readability-make-member-function-const)
   void applyViewport()
   {
-    GL_ASSERT(gl::api::viewport(0, 0, m_resolution, m_resolution));
+    gl::RenderState::getWantedState().setViewport(glm::ivec2{m_resolution, m_resolution});
   }
 
-  void finishSplitRender()
+  void renderSquare()
   {
     m_splits.at(m_activeSplit).renderSquare();
+  }
+
+  void renderBlur()
+  {
+    m_splits.at(m_activeSplit).renderBlur();
   }
 
 private:

@@ -48,11 +48,9 @@ public:
   void render() const
   {
     SOGLB_DEBUGGROUP(m_name + "/blur-pass");
-    GL_ASSERT(gl::api::viewport(0, 0, m_blurredTexture->size().x, m_blurredTexture->size().y));
-
-    gl::RenderState state;
-    state.setBlend(false);
-    state.apply(true);
+    gl::RenderState::resetWantedState();
+    gl::RenderState::getWantedState().setBlend(false);
+    gl::RenderState::getWantedState().setViewport(m_blurredTexture->size());
     RenderContext context{RenderMode::Full, std::nullopt};
 
     m_framebuffer->bindWithAttachments();

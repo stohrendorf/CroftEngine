@@ -98,10 +98,9 @@ void Renderer::clear(const gl::api::core::Bitfield<gl::api::ClearBufferMask>& fl
     }
     bits |= gl::api::ClearBufferMask::DepthBufferBit;
 
-    // We need to explicitly call the static enableDepthWrite() method on StateBlock
-    // to ensure depth writing is enabled before clearing the depth buffer (and to
-    // update the global StateBlock render state to reflect this).
-    gl::RenderState::enableDepthWrite();
+    gl::RenderState::getWantedState().setDepthWrite(true);
+    gl::RenderState::getWantedState().setDepthTest(true);
+    gl::RenderState::applyWantedState();
   }
 
   GL_ASSERT(gl::api::clear(bits));

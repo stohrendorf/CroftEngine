@@ -56,16 +56,28 @@ void CSM::Split::init(int32_t resolution, size_t idx, MaterialManager& materialM
 void CSM::Split::renderSquare()
 {
   SOGLB_DEBUGGROUP("square-pass");
-  GL_ASSERT(gl::api::viewport(0, 0, depthTexture->size().x, depthTexture->size().y));
   squareFramebuffer->bindWithAttachments();
 
-  gl::RenderState state;
-  state.setBlend(false);
-  state.apply(true);
+  gl::RenderState::resetWantedState();
+  gl::RenderState::getWantedState().setBlend(false);
+  gl::RenderState::getWantedState().setViewport(depthTexture->size());
   RenderContext context{RenderMode::Full, std::nullopt};
 
   depthTexture->set(gl::api::TextureCompareMode::None);
   squareMesh->render(context);
+}
+
+// NOLINTNEXTLINE(readability-make-member-function-const)
+void CSM::Split::renderBlur()
+{
+  SOGLB_DEBUGGROUP("square-pass");
+  squareFramebuffer->bindWithAttachments();
+
+  gl::RenderState::resetWantedState();
+  gl::RenderState::getWantedState().setBlend(false);
+  gl::RenderState::getWantedState().setViewport(depthTexture->size());
+  RenderContext context{RenderMode::Full, std::nullopt};
+
   depthTexture->set(gl::api::TextureCompareMode::CompareRefToTexture);
   squareBlur->render();
 }

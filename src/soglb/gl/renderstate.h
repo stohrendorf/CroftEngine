@@ -3,6 +3,7 @@
 #include "api/gl.hpp"
 
 #include <boost/assert.hpp>
+#include <glm/glm.hpp>
 #include <optional>
 
 namespace gl
@@ -16,8 +17,6 @@ public:
   RenderState& operator=(RenderState&&) noexcept = default;
   explicit RenderState() noexcept = default;
   ~RenderState() noexcept = default;
-
-  void apply(bool force = false) const;
 
   void setBlend(const bool enabled)
   {
@@ -79,127 +78,44 @@ public:
     m_lineSmooth = enabled;
   }
 
-  static void initDefaults();
+  void setViewport(const glm::ivec2& viewport)
+  {
+    m_viewport = viewport;
+  }
 
-  static void enableDepthWrite();
+  void setProgram(const uint32_t program)
+  {
+    m_program = program;
+  }
+
+  static RenderState getDefaults();
+
+  static RenderState& getWantedState();
+  static void applyWantedState();
+  static void resetWantedState()
+  {
+    getWantedState() = getDefaults();
+  }
 
   void merge(const RenderState& other);
 
 private:
-  template<typename T, const T DefaultValue>
-  struct DefaultedOptional final
-  {
-    std::optional<T> value{};
-
-    [[nodiscard]] T get() const noexcept
-    {
-      return value.value_or(DefaultValue);
-    }
-
-    void reset() noexcept
-    {
-      value.reset();
-    }
-
-    void setDefault() noexcept
-    {
-      value = DefaultValue;
-    }
-
-    [[nodiscard]] bool isInitialized() const noexcept
-    {
-      return value.has_value();
-    }
-
-    bool operator!=(const DefaultedOptional<T, DefaultValue>& rhs) const noexcept
-    {
-      return value != rhs.value;
-    }
-
-    DefaultedOptional<T, DefaultValue>& operator=(T rhs) noexcept
-    {
-      value = rhs;
-      return *this;
-    }
-
-    void merge(const DefaultedOptional<T, DefaultValue>& other) noexcept
-    {
-      if(other.isInitialized())
-        *this = other;
-    }
-  };
-
-  struct DefaultedOptionalF final
-  {
-    const float DefaultValue;
-
-    explicit DefaultedOptionalF(const float defaultValue) noexcept
-        : DefaultValue{defaultValue}
-    {
-    }
-
-    DefaultedOptionalF& operator=(const DefaultedOptionalF& rhs)
-    {
-      BOOST_ASSERT(DefaultValue == rhs.DefaultValue);
-
-      value = rhs.value;
-      return *this;
-    }
-
-    std::optional<float> value{};
-
-    [[nodiscard]] float get() const noexcept
-    {
-      return value.value_or(DefaultValue);
-    }
-
-    void reset() noexcept
-    {
-      value.reset();
-    }
-
-    void setDefault() noexcept
-    {
-      value = DefaultValue;
-    }
-
-    [[nodiscard]] bool isInitialized() const noexcept
-    {
-      return value.has_value();
-    }
-
-    bool operator!=(const DefaultedOptionalF& rhs) const noexcept
-    {
-      return value != rhs.value;
-    }
-
-    DefaultedOptionalF& operator=(float rhs) noexcept
-    {
-      value = rhs;
-      return *this;
-    }
-
-    void merge(const DefaultedOptionalF& other) noexcept
-    {
-      if(other.isInitialized())
-        *this = other;
-    }
-  };
+  void apply(bool force = false) const;
 
   // States
-  DefaultedOptional<bool, true> m_cullFaceEnabled;
-  DefaultedOptional<bool, true> m_depthTestEnabled;
-  DefaultedOptional<bool, true> m_depthWriteEnabled;
-  DefaultedOptional<bool, false> m_depthClampEnabled;
-  DefaultedOptional<api::DepthFunction, api::DepthFunction::Less> m_depthFunction;
-  DefaultedOptional<bool, true> m_blendEnabled;
-  DefaultedOptional<api::BlendingFactor, api::BlendingFactor::SrcAlpha> m_blendSrc;
-  DefaultedOptional<api::BlendingFactor, api::BlendingFactor::OneMinusSrcAlpha> m_blendDst;
-  DefaultedOptional<api::CullFaceMode, api::CullFaceMode::Back> m_cullFaceSide;
-  DefaultedOptional<api::FrontFaceDirection, api::FrontFaceDirection::Cw> m_frontFace;
-  DefaultedOptionalF m_lineWidth{1.0f};
-  DefaultedOptional<bool, true> m_lineSmooth;
-
-  static inline RenderState& getCurrentState();
+  std::optional<glm::ivec2> m_viewport{};
+  std::optional<uint32_t> m_program{};
+  std::optional<bool> m_cullFaceEnabled{};
+  std::optional<bool> m_depthTestEnabled{};
+  std::optional<bool> m_depthWriteEnabled{};
+  std::optional<bool> m_depthClampEnabled{};
+  std::optional<api::DepthFunction> m_depthFunction{};
+  std::optional<bool> m_blendEnabled{};
+  std::optional<api::BlendingFactor> m_blendSrc{};
+  std::optional<api::BlendingFactor> m_blendDst{};
+  std::optional<api::CullFaceMode> m_cullFaceSide{};
+  std::optional<api::FrontFaceDirection> m_frontFace{};
+  std::optional<float> m_lineWidth{};
+  std::optional<bool> m_lineSmooth{};
 };
 } // namespace gl

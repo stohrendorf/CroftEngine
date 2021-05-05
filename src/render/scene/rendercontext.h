@@ -19,7 +19,7 @@ public:
       , m_renderMode{renderMode}
       , m_viewProjection{viewProjection}
   {
-    m_renderStates.push(gl::RenderState());
+    m_renderStates.push(gl::RenderState::getWantedState());
   }
 
   [[nodiscard]] Node* getCurrentNode() const noexcept
@@ -42,7 +42,7 @@ public:
   void bindState()
   {
     Expects(!m_renderStates.empty());
-    m_renderStates.top().apply();
+    gl::RenderState::getWantedState() = m_renderStates.top();
   }
 
   void popState()

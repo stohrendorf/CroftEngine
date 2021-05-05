@@ -3,6 +3,7 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/log/trivial.hpp>
 #include <fstream>
+#include <gl/renderstate.h>
 #include <gl/shader.h>
 #include <set>
 
@@ -280,4 +281,8 @@ std::shared_ptr<ShaderProgram> ShaderProgram::createFromSource(const std::filesy
   return shaderProgram;
 }
 
+void ShaderProgram::bind() const
+{
+  gl::RenderState::getWantedState().setProgram(m_handle.getHandle());
+}
 } // namespace render::scene

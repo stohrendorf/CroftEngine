@@ -76,20 +76,17 @@ void Presenter::renderWorld(const ObjectManager& objectManager,
 
   {
     SOGLB_DEBUGGROUP("csm-pass");
-    m_renderer->resetRenderState();
+    gl::RenderState::resetWantedState();
+    gl::RenderState::getWantedState().setDepthClamp(true);
     m_csm->updateCamera(*m_renderer->getCamera());
     m_csm->applyViewport();
-
-    gl::RenderState renderState;
-    renderState.setDepthClamp(true);
-    renderState.apply();
 
     for(size_t i = 0; i < render::scene::CSMBuffer::NSplits; ++i)
     {
       SOGLB_DEBUGGROUP("csm-pass/" + std::to_string(i));
 
       m_csm->setActiveSplit(i);
-      m_csm->getActiveFramebuffer()->bind();
+      m_csm->getActiveFramebuffer()->bindWithAttachments();
       m_renderer->clear(gl::api::ClearBufferMask::DepthBufferBit, {0, 0, 0, 0}, 1);
 
       render::scene::RenderContext context{render::scene::RenderMode::CSMDepthOnly,
@@ -106,21 +103,31 @@ void Presenter::renderWorld(const ObjectManager& objectManager,
           visitor.visit(*child);
         }
       }
+    }
 
-      m_csm->finishSplitRender();
+    for(size_t i = 0; i < render::scene::CSMBuffer::NSplits; ++i)
+    {
+      SOGLB_DEBUGGROUP("csm-pass-square/" + std::to_string(i));
+      m_csm->setActiveSplit(i);
+      m_csm->renderSquare();
+    }
+    for(size_t i = 0; i < render::scene::CSMBuffer::NSplits; ++i)
+    {
+      SOGLB_DEBUGGROUP("csm-pass-blur/" + std::to_string(i));
+      m_csm->setActiveSplit(i);
+      m_csm->renderBlur();
     }
   }
 
   {
     SOGLB_DEBUGGROUP("geometry-pass");
-    m_renderer->resetRenderState();
     m_renderPipeline->bindGeometryFrameBuffer(m_window->getViewport());
     m_renderer->clear(
       gl::api::ClearBufferMask::ColorBufferBit | gl::api::ClearBufferMask::DepthBufferBit, {0, 0, 0, 0}, 1);
 
     {
       SOGLB_DEBUGGROUP("depth-prefill-pass");
-      m_renderer->resetRenderState();
+      gl::RenderState::resetWantedState();
       render::scene::RenderContext context{render::scene::RenderMode::DepthOnly,
                                            cameraController.getCamera()->getViewProjectionMatrix()};
       for(const auto& room : rooms)
@@ -136,7 +143,7 @@ void Presenter::renderWorld(const ObjectManager& objectManager,
         GL_ASSERT(gl::api::finish());
     }
 
-    m_renderer->resetRenderState();
+    gl::RenderState::resetWantedState();
     m_renderer->render();
 
     if constexpr(render::pass::FlushPasses)
@@ -145,7 +152,7 @@ void Presenter::renderWorld(const ObjectManager& objectManager,
 
   {
     SOGLB_DEBUGGROUP("portal-depth-pass");
-    m_renderer->resetRenderState();
+    gl::RenderState::resetWantedState();
 
     render::scene::RenderContext context{render::scene::RenderMode::DepthOnly,
                                          cameraController.getCamera()->getViewProjectionMatrix()};
@@ -484,7 +491,7 @@ void Presenter::renderScreenOverlay()
   render::scene::RenderContext context{render::scene::RenderMode::Full, std::nullopt};
 
   SOGLB_DEBUGGROUP("screen-overlay-pass");
-  m_renderer->resetRenderState();
+  gl::RenderState::resetWantedState();
   m_screenOverlay->render(context);
 }
 

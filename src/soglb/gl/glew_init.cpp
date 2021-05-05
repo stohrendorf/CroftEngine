@@ -106,7 +106,5 @@ void gl::initializeGl()
   GL_ASSERT(::api::debugMessageCallback(&debugCallback, nullptr));
 #endif
 
-  RenderState::initDefaults();
-
   GL_ASSERT(::api::enable(::api::EnableCap::FramebufferSrgb));
 }

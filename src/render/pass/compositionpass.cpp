@@ -121,9 +121,8 @@ void CompositionPass::render(bool water, const RenderSettings& renderSettings)
   else
     gl::Framebuffer::unbindAll();
 
-  gl::RenderState state;
-  state.setBlend(false);
-  state.apply(true);
+  gl::RenderState::resetWantedState();
+  gl::RenderState::getWantedState().setBlend(false);
   scene::RenderContext context{scene::RenderMode::Full, std::nullopt};
   if(water)
     m_waterMesh->render(context);

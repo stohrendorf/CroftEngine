@@ -31,40 +31,37 @@ public:
     return m_id;
   }
 
-  [[nodiscard]] const gl::Uniform* findUniform(const gsl::not_null<gsl::czstring>& name) const
+  [[nodiscard]] const gl::Uniform* findUniform(const std::string& name) const
   {
     return find(m_uniforms, name);
   }
 
-  gl::Uniform* findUniform(const gsl::not_null<gsl::czstring>& name)
+  gl::Uniform* findUniform(const std::string& name)
   {
     return find(m_uniforms, name);
   }
 
-  [[nodiscard]] const gl::ShaderStorageBlock* findShaderStorageBlock(const gsl::not_null<gsl::czstring>& name) const
+  [[nodiscard]] const gl::ShaderStorageBlock* findShaderStorageBlock(const std::string& name) const
   {
     return find(m_shaderStorageBlocks, name);
   }
 
-  gl::ShaderStorageBlock* findShaderStorageBlock(const gsl::not_null<gsl::czstring>& name)
+  gl::ShaderStorageBlock* findShaderStorageBlock(const std::string& name)
   {
     return find(m_shaderStorageBlocks, name);
   }
 
-  [[nodiscard]] const gl::UniformBlock* findUniformBlock(const gsl::not_null<gsl::czstring>& name) const
+  [[nodiscard]] const gl::UniformBlock* findUniformBlock(const std::string& name) const
   {
     return find(m_uniformBlocks, name);
   }
 
-  gl::UniformBlock* findUniformBlock(const gsl::not_null<gsl::czstring>& name)
+  gl::UniformBlock* findUniformBlock(const std::string& name)
   {
     return find(m_uniformBlocks, name);
   }
 
-  void bind() const
-  {
-    m_handle.bind();
-  }
+  void bind() const;
 
   [[nodiscard]] const gl::Program& getHandle() const
   {
@@ -87,17 +84,16 @@ private:
   boost::container::flat_map<std::string, gl::UniformBlock> m_uniformBlocks;
 
   template<typename T>
-  static const T* find(const boost::container::flat_map<std::string, T>& map,
-                       const gsl::not_null<gsl::czstring>& needle)
+  static const T* find(const boost::container::flat_map<std::string, T>& map, const std::string& needle)
   {
-    auto it = map.find(needle.get());
+    auto it = map.find(needle);
     return it == map.end() ? nullptr : &it->second;
   }
 
   template<typename T>
-  static T* find(boost::container::flat_map<std::string, T>& map, const gsl::not_null<gsl::czstring>& needle)
+  static T* find(boost::container::flat_map<std::string, T>& map, const std::string& needle)
   {
-    auto it = map.find(needle.get());
+    auto it = map.find(needle);
     return it == map.end() ? nullptr : &it->second;
   }
 };

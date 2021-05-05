@@ -45,12 +45,11 @@ void HBAOPass::updateCamera(const gsl::not_null<std::shared_ptr<scene::Camera>>&
 void HBAOPass::render(const glm::ivec2& size)
 {
   SOGLB_DEBUGGROUP("hbao-pass");
-  GL_ASSERT(gl::api::viewport(0, 0, size.x, size.y));
   m_fb->bindWithAttachments();
 
-  gl::RenderState state;
-  state.setBlend(false);
-  state.apply(true);
+  gl::RenderState::resetWantedState();
+  gl::RenderState::getWantedState().setBlend(false);
+  gl::RenderState::getWantedState().setViewport(size);
   scene::RenderContext context{scene::RenderMode::Full, std::nullopt};
 
   m_renderMesh->render(context);

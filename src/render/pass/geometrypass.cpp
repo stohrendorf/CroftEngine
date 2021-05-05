@@ -1,6 +1,7 @@
 #include "geometrypass.h"
 
 #include <gl/framebuffer.h>
+#include <gl/renderstate.h>
 #include <gl/texture2d.h>
 #include <gl/texturedepth.h>
 
@@ -10,7 +11,7 @@ namespace render::pass
 void GeometryPass::bind(const glm::ivec2& size)
 {
   gl::Framebuffer::unbindAll();
-  GL_ASSERT(::gl::api::viewport(0, 0, size.x, size.y));
+  gl::RenderState::getWantedState().setViewport(size);
   m_fb->bindWithAttachments();
 }
 

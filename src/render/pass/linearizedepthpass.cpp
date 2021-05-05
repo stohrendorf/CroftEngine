@@ -36,9 +36,8 @@ void LinearizeDepthPass::render()
   SOGLB_DEBUGGROUP("linearize-depth-pass");
   m_fb->bindWithAttachments();
 
-  gl::RenderState state;
-  state.setBlend(false);
-  state.apply(true);
+  gl::RenderState::resetWantedState();
+  gl::RenderState::getWantedState().setBlend(false);
   scene::RenderContext context{scene::RenderMode::Full, std::nullopt};
 
   m_renderMesh->render(context);

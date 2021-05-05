@@ -4,11 +4,22 @@
 
 namespace gl
 {
-RenderState& RenderState::getCurrentState()
+namespace
 {
-  static RenderState currentState;
+inline RenderState& getCurrentState()
+{
+  static RenderState currentState{};
+  static bool initialized = false;
+
+  if(!initialized)
+  {
+    RenderState::resetWantedState();
+    initialized = true;
+    RenderState::applyWantedState();
+  }
   return currentState;
 }
+} // namespace
 
 void RenderState::apply(const bool force) const
 {
@@ -16,10 +27,20 @@ void RenderState::apply(const bool force) const
   //   - it is forced
   //   - or it is explicitly set and different than the current state
   // NOLINTNEXTLINE(bugprone-macro-parentheses)
-#define RS_CHANGED(m) (force || (m.isInitialized() && m != getCurrentState().m))
+#define RS_CHANGED(m) (force || (m.has_value() && m != getCurrentState().m))
+  if(RS_CHANGED(m_viewport))
+  {
+    GL_ASSERT(api::viewport(0, 0, m_viewport->x, m_viewport->y));
+    getCurrentState().m_viewport = m_viewport;
+  }
+  if(RS_CHANGED(m_program))
+  {
+    GL_ASSERT(api::useProgram(m_program.value()));
+    getCurrentState().m_program = m_program;
+  }
   if(RS_CHANGED(m_blendEnabled))
   {
-    if(m_blendEnabled.get())
+    if(m_blendEnabled.value())
     {
       GL_ASSERT(api::enable(api::EnableCap::Blend));
     }
@@ -31,13 +52,13 @@ void RenderState::apply(const bool force) const
   }
   if(RS_CHANGED(m_blendSrc) || RS_CHANGED(m_blendDst))
   {
-    GL_ASSERT(api::blendFunc(m_blendSrc.get(), m_blendDst.get()));
+    GL_ASSERT(api::blendFunc(m_blendSrc.value(), m_blendDst.value()));
     getCurrentState().m_blendSrc = m_blendSrc;
     getCurrentState().m_blendDst = m_blendDst;
   }
   if(RS_CHANGED(m_cullFaceEnabled))
   {
-    if(m_cullFaceEnabled.get())
+    if(m_cullFaceEnabled.value())
     {
       GL_ASSERT(api::enable(api::EnableCap::CullFace));
     }
@@ -49,22 +70,22 @@ void RenderState::apply(const bool force) const
   }
   if(RS_CHANGED(m_cullFaceSide))
   {
-    GL_ASSERT(api::cullFace(m_cullFaceSide.get()));
+    GL_ASSERT(api::cullFace(m_cullFaceSide.value()));
     getCurrentState().m_cullFaceSide = m_cullFaceSide;
   }
   if(RS_CHANGED(m_frontFace))
   {
-    GL_ASSERT(api::frontFace(m_frontFace.get()));
+    GL_ASSERT(api::frontFace(m_frontFace.value()));
     getCurrentState().m_frontFace = m_frontFace;
   }
   if(RS_CHANGED(m_lineWidth))
   {
-    GL_ASSERT(api::lineWidth(m_lineWidth.get()));
+    GL_ASSERT(api::lineWidth(m_lineWidth.value()));
     getCurrentState().m_lineWidth = m_lineWidth;
   }
   if(RS_CHANGED(m_lineSmooth))
   {
-    if(m_lineSmooth.get())
+    if(m_lineSmooth.value())
     {
       GL_ASSERT(api::enable(api::EnableCap::LineSmooth));
     }
@@ -76,7 +97,7 @@ void RenderState::apply(const bool force) const
   }
   if(RS_CHANGED(m_depthTestEnabled))
   {
-    if(m_depthTestEnabled.get())
+    if(m_depthTestEnabled.value())
     {
       GL_ASSERT(api::enable(api::EnableCap::DepthTest));
     }
@@ -88,12 +109,12 @@ void RenderState::apply(const bool force) const
   }
   if(RS_CHANGED(m_depthWriteEnabled))
   {
-    GL_ASSERT(api::depthMask(m_depthWriteEnabled.get()));
+    GL_ASSERT(api::depthMask(m_depthWriteEnabled.value()));
     getCurrentState().m_depthWriteEnabled = m_depthWriteEnabled;
   }
   if(RS_CHANGED(m_depthClampEnabled))
   {
-    if(m_depthClampEnabled.get())
+    if(m_depthClampEnabled.value())
     {
       GL_ASSERT(api::enable(api::EnableCap::DepthClamp));
     }
@@ -105,43 +126,17 @@ void RenderState::apply(const bool force) const
   }
   if(RS_CHANGED(m_depthFunction))
   {
-    GL_ASSERT(api::depthFunc(m_depthFunction.get()));
+    GL_ASSERT(api::depthFunc(m_depthFunction.value()));
     getCurrentState().m_depthFunction = m_depthFunction;
   }
 #undef RS_CHANGED
 }
 
-void RenderState::enableDepthWrite()
-{
-  // Internal method used by Renderer::clear() to restore depth writing before a
-  // clear operation. This is necessary if the last code to draw before the
-  // next frame leaves depth writing disabled.
-  GL_ASSERT(api::depthMask(true));
-  getCurrentState().m_depthWriteEnabled = true;
-  GL_ASSERT(api::enable(api::EnableCap::DepthTest));
-  getCurrentState().m_depthTestEnabled = true;
-}
-
-void RenderState::initDefaults()
-{
-  getCurrentState().m_cullFaceEnabled.setDefault();
-  getCurrentState().m_depthTestEnabled.setDefault();
-  getCurrentState().m_depthWriteEnabled.setDefault();
-  getCurrentState().m_depthClampEnabled.setDefault();
-  getCurrentState().m_depthFunction.setDefault();
-  getCurrentState().m_blendEnabled.setDefault();
-  getCurrentState().m_blendSrc.setDefault();
-  getCurrentState().m_blendDst.setDefault();
-  getCurrentState().m_cullFaceSide.setDefault();
-  getCurrentState().m_frontFace.setDefault();
-  getCurrentState().m_lineWidth.setDefault();
-  getCurrentState().m_lineSmooth.setDefault();
-  getCurrentState().apply(true);
-}
-
 void RenderState::merge(const RenderState& other)
 {
-#define MERGE_OPT(n) n.merge(other.n)
+#define MERGE_OPT(n)                                               \
+  if(other.n.has_value()) /* NOLINT(bugprone-macro-parentheses) */ \
+  n = other.n             /* NOLINT(bugprone-macro-parentheses) */
   MERGE_OPT(m_cullFaceEnabled);
   MERGE_OPT(m_depthTestEnabled);
   MERGE_OPT(m_depthWriteEnabled);
@@ -155,5 +150,34 @@ void RenderState::merge(const RenderState& other)
   MERGE_OPT(m_lineWidth);
   MERGE_OPT(m_lineSmooth);
 #undef MERGE_OPT
+}
+
+RenderState& RenderState::getWantedState()
+{
+  static RenderState wantedState;
+  return wantedState;
+}
+
+void RenderState::applyWantedState()
+{
+  getWantedState().apply();
+}
+
+RenderState RenderState::getDefaults()
+{
+  RenderState defaults;
+  defaults.setCullFace(true);
+  defaults.setDepthTest(true);
+  defaults.setDepthWrite(true);
+  defaults.setDepthClamp(false);
+  defaults.setDepthFunction(api::DepthFunction::Less);
+  defaults.setBlend(true);
+  defaults.setBlendSrc(api::BlendingFactor::SrcAlpha);
+  defaults.setBlendDst(api::BlendingFactor::OneMinusSrcAlpha);
+  defaults.setCullFaceSide(api::CullFaceMode::Back);
+  defaults.setFrontFace(api::FrontFaceDirection::Cw);
+  defaults.setLineWidth(1.0f);
+  defaults.setLineSmooth(true);
+  return defaults;
 }
 } // namespace gl

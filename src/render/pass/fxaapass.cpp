@@ -44,12 +44,11 @@ void FXAAPass::bind()
 void FXAAPass::render(const glm::ivec2& size)
 {
   SOGLB_DEBUGGROUP("fxaa-pass");
-  GL_ASSERT(gl::api::viewport(0, 0, size.x, size.y));
   bind();
 
-  gl::RenderState state;
-  state.setBlend(false);
-  state.apply(true);
+  gl::RenderState::resetWantedState();
+  gl::RenderState::getWantedState().setBlend(false);
+  gl::RenderState::getWantedState().setViewport(size);
   scene::RenderContext context{scene::RenderMode::Full, std::nullopt};
 
   m_mesh->render(context);

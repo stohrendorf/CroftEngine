@@ -72,7 +72,7 @@ std::shared_ptr<UniformParameter> Material::tryGetUniform(const std::string& nam
   if(it != m_uniforms.end())
     return *it;
 
-  if(m_shaderProgram->findUniform(name.c_str()) == nullptr)
+  if(m_shaderProgram->findUniform(name) == nullptr)
     return nullptr;
 
   auto param = std::make_shared<UniformParameter>(name);
@@ -87,7 +87,7 @@ std::shared_ptr<UniformBlockParameter> Material::tryGetUniformBlock(const std::s
   if(it != m_uniformBlocks.end())
     return *it;
 
-  if(m_shaderProgram->findUniformBlock(name.c_str()) == nullptr)
+  if(m_shaderProgram->findUniformBlock(name) == nullptr)
     return nullptr;
   auto param = std::make_shared<UniformBlockParameter>(name);
   m_uniformBlocks.emplace_back(param);
@@ -101,7 +101,7 @@ std::shared_ptr<BufferParameter> Material::tryGetBuffer(const std::string& name)
   if(it != m_buffers.end())
     return *it;
 
-  if(m_shaderProgram->findShaderStorageBlock(name.c_str()) == nullptr)
+  if(m_shaderProgram->findShaderStorageBlock(name) == nullptr)
     return nullptr;
   auto param = std::make_shared<BufferParameter>(name);
   m_buffers.emplace_back(param);
