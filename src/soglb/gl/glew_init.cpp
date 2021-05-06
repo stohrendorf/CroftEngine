@@ -10,6 +10,7 @@ using namespace gl;
 
 namespace
 {
+#ifndef NDEBUG
 gsl::czstring glDebugSourceToString(const api::DebugSource src)
 {
   switch(src)
@@ -56,7 +57,6 @@ gsl::czstring glDebugSeverityToString(const api::DebugSeverity severity)
   return "<unknown>";
 }
 
-#ifndef NDEBUG
 void SOGLB_API debugCallback(const api::DebugSource source,
                              const api::DebugType type,
                              const uint32_t id,

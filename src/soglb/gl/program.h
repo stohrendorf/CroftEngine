@@ -1,6 +1,7 @@
 #pragma once
 
 #include "buffer.h"
+#include "renderstate.h"
 #include "shader.h"
 #include "texture.h"
 
@@ -141,11 +142,10 @@ using UniformBlock = ProgramBlock<api::ProgramInterface::UniformBlock, api::Buff
 class Uniform final : public LocatableProgramInterface<api::ProgramInterface::Uniform>
 {
 public:
-  explicit Uniform(const Program& program, uint32_t index, int32_t& samplerIndex);
+  explicit Uniform(const Program& program, uint32_t index);
 
   Uniform(Uniform&& rhs) noexcept
       : LocatableProgramInterface{std::move(rhs)}
-      , m_samplerIndex{std::exchange(rhs.m_samplerIndex, -1)}
       , m_size{std::exchange(rhs.m_size, -1)}
       , m_program{std::exchange(rhs.m_program, InvalidProgram)}
   {
@@ -153,7 +153,6 @@ public:
 
   Uniform& operator=(Uniform&& rhs) noexcept
   {
-    m_samplerIndex = std::exchange(rhs.m_samplerIndex, -1);
     m_size = std::exchange(rhs.m_size, -1);
     m_program = std::exchange(rhs.m_program, InvalidProgram);
     LocatableProgramInterface::operator=(std::move(rhs));
@@ -277,35 +276,27 @@ public:
   }
 
   // ReSharper disable once CppMemberFunctionMayBeConst
-  void set(const Texture& texture)
-  {
-    Expects(m_program != InvalidProgram);
-    Expects(m_samplerIndex >= 0);
-    GL_ASSERT(api::bindTextureUnit(m_samplerIndex, texture.getHandle()));
-    GL_ASSERT(api::programUniform1(m_program, getLocation(), m_samplerIndex));
-  }
-
   void set(const gsl::not_null<std::shared_ptr<Texture>>& texture)
   {
-    set(*texture);
+    Expects(m_program != InvalidProgram);
+    GL_ASSERT(
+      api::programUniform1(m_program, getLocation(), RenderState::getWantedState().allocateTextureUnit(texture)));
   }
 
   template<typename _It> // NOLINT(bugprone-reserved-identifier)
   void setTextures(const _It& begin, const _It& end)
   {
-    Expects(m_program != InvalidProgram && m_samplerIndex >= 0 && m_size >= 0);
+    Expects(m_program != InvalidProgram && m_size >= 0);
 
-    std::vector<int32_t> indices;
+    std::vector<int32_t> units;
     for(auto it = begin; it != end; ++it)
     {
-      const auto idx = m_samplerIndex + gsl::narrow_cast<int32_t>(indices.size());
-      GL_ASSERT(api::bindTextureUnit(idx, (*it)->getHandle()));
-      indices.emplace_back(idx);
+      units.emplace_back(RenderState::getWantedState().allocateTextureUnit(*it));
     }
 
-    Expects(indices.size() == static_cast<size_t>(m_size));
+    Expects(units.size() == static_cast<size_t>(m_size));
     GL_ASSERT(api::programUniform1(
-      m_program, getLocation(), gsl::narrow_cast<api::core::SizeType>(indices.size()), indices.data()));
+      m_program, getLocation(), gsl::narrow_cast<api::core::SizeType>(units.size()), units.data()));
   }
 
   template<typename T>
@@ -320,35 +311,15 @@ public:
     setTextures(textures.begin(), textures.end());
   }
 
-  template<typename T>
-  void set(const std::shared_ptr<T>& value)
-  {
-    set(*value);
-  }
-
   // ReSharper disable once CppMemberFunctionMayBeConst
   void set(const std::vector<std::shared_ptr<Texture>>& textures)
   {
-    Expects(m_samplerIndex >= 0 && m_size >= 0 && textures.size() == static_cast<size_t>(m_size)
-            && textures.size() <= api::TextureUnitCount);
-
-    // Set samplers as active and load texture unit array
-    std::vector<int32_t> units;
-    for(size_t i = 0; i < textures.size(); ++i)
-    {
-      GL_ASSERT(api::bindTextureUnit(gsl::narrow_cast<uint32_t>(i), textures[i]->getHandle()));
-      units.emplace_back(gsl::narrow<int32_t>(m_samplerIndex + i));
-    }
-
-    // Pass texture unit array to GL
-    GL_ASSERT(
-      api::programUniform1(m_program, getLocation(), static_cast<api::core::SizeType>(textures.size()), units.data()));
+    setTextures(textures.begin(), textures.end());
   }
 
 private:
   static constexpr uint32_t InvalidProgram = std::numeric_limits<uint32_t>::max();
 
-  int32_t m_samplerIndex = -1;
   int32_t m_size = -1;
   uint32_t m_program;
 };
@@ -357,12 +328,14 @@ class Program final : public BindableResource
 {
 public:
   explicit Program(const std::string& label = {})
-      : BindableResource{[]([[maybe_unused]] const api::core::SizeType n, uint32_t* handle) {
+      : BindableResource{[]([[maybe_unused]] const api::core::SizeType n, uint32_t* handle)
+                         {
                            BOOST_ASSERT(n == 1 && handle != nullptr);
                            *handle = api::createProgram();
                          },
                          api::useProgram,
-                         []([[maybe_unused]] const api::core::SizeType n, const uint32_t* handle) {
+                         []([[maybe_unused]] const api::core::SizeType n, const uint32_t* handle)
+                         {
                            BOOST_ASSERT(n == 1 && handle != nullptr);
                            api::deleteProgram(*handle);
                          },
@@ -431,9 +404,9 @@ public:
     return getInputs<ProgramOutput>();
   }
 
-  [[nodiscard]] std::vector<Uniform> getUniforms(int32_t& samplerIndex) const
+  [[nodiscard]] std::vector<Uniform> getUniforms() const
   {
-    return getInputs<Uniform>(samplerIndex);
+    return getInputs<Uniform>();
   }
 
   [[nodiscard]] std::vector<ShaderStorageBlock> getShaderStorageBlocks() const
@@ -441,21 +414,21 @@ public:
     return getInputs<ShaderStorageBlock>();
   }
 
-  [[nodiscard]] std::vector<UniformBlock> getUniformBlocks(int32_t& /*samplerIndex*/) const
+  [[nodiscard]] std::vector<UniformBlock> getUniformBlocks() const
   {
     return getInputs<UniformBlock>();
   }
 
 private:
-  template<typename T, typename... Args>
-  [[nodiscard]] std::vector<T> getInputs(Args&&... args) const
+  template<typename T>
+  [[nodiscard]] std::vector<T> getInputs() const
   {
     const auto n = getActiveResourceCount(T::Type);
     std::vector<T> inputs;
     inputs.reserve(n);
     for(uint32_t i = 0; i < n; ++i)
     {
-      inputs.emplace_back(*this, i, std::forward<Args>(args)...);
+      inputs.emplace_back(*this, i);
     }
     return inputs;
   }
@@ -510,7 +483,7 @@ std::vector<int32_t> ProgramInterface<_Type>::getProperty(const Program& program
   return values;
 }
 
-inline Uniform::Uniform(const Program& program, const uint32_t index, int32_t& samplerIndex)
+inline Uniform::Uniform(const Program& program, const uint32_t index)
     : LocatableProgramInterface{program, index}
     , m_program{program.getHandle()}
 {
@@ -518,31 +491,5 @@ inline Uniform::Uniform(const Program& program, const uint32_t index, int32_t& s
   GL_ASSERT(api::getActiveUniforms(program.getHandle(), 1, &index, api::UniformPName::UniformType, &type));
   GL_ASSERT(api::getActiveUniforms(program.getHandle(), 1, &index, api::UniformPName::UniformSize, &m_size));
   Expects(m_size >= 0);
-
-  switch(static_cast<api::UniformType>(type))
-  {
-    // NOLINTNEXTLINE(bugprone-branch-clone)
-  case api::UniformType::Sampler1d: [[fallthrough]];
-  case api::UniformType::Sampler1dShadow: [[fallthrough]];
-  case api::UniformType::Sampler1dArray: [[fallthrough]];
-  case api::UniformType::Sampler1dArrayShadow: [[fallthrough]];
-  case api::UniformType::Sampler2d: [[fallthrough]];
-  case api::UniformType::Sampler2dShadow: [[fallthrough]];
-  case api::UniformType::Sampler2dArray: [[fallthrough]];
-  case api::UniformType::Sampler2dArrayShadow: [[fallthrough]];
-  case api::UniformType::Sampler2dRect: [[fallthrough]];
-  case api::UniformType::Sampler2dRectShadow: [[fallthrough]];
-  case api::UniformType::Sampler2dMultisample: [[fallthrough]];
-  case api::UniformType::Sampler2dMultisampleArray: [[fallthrough]];
-  case api::UniformType::Sampler3d: [[fallthrough]];
-  case api::UniformType::SamplerCube: [[fallthrough]];
-  case api::UniformType::SamplerCubeShadow: [[fallthrough]];
-  case api::UniformType::SamplerCubeMapArray: [[fallthrough]];
-  case api::UniformType::SamplerCubeMapArrayShadow:
-    m_samplerIndex = samplerIndex;
-    samplerIndex += m_size;
-    break;
-  default: break;
-  }
 }
 } // namespace gl

@@ -1,6 +1,9 @@
 #include "renderstate.h"
 
 #include "glassert.h"
+#include "texture.h"
+
+#include <boost/log/trivial.hpp>
 
 namespace gl
 {
@@ -129,6 +132,30 @@ void RenderState::apply(const bool force) const
     GL_ASSERT(api::depthFunc(m_depthFunction.value()));
     getCurrentState().m_depthFunction = m_depthFunction;
   }
+
+  Expects(m_textureUnits.size() == getCurrentState().m_textureUnits.size());
+  bool textureUnitsChanged = false;
+  for(size_t i = 0; i < m_textureUnits.size(); ++i)
+  {
+    if(m_textureUnits[i].first != nullptr && m_textureUnits[i].first != getCurrentState().m_textureUnits[i].first)
+    {
+      textureUnitsChanged = true;
+      break;
+    }
+  }
+
+  if(textureUnitsChanged)
+  {
+    for(size_t i = 0; i < m_textureUnits.size(); ++i)
+    {
+      const auto& texture = m_textureUnits[i].first;
+      if(texture != nullptr && texture != getCurrentState().m_textureUnits[i].first)
+      {
+        GL_ASSERT(api::bindTextureUnit(static_cast<uint32_t>(i), texture->getHandle()));
+        getCurrentState().m_textureUnits[i] = {texture, 0};
+      }
+    }
+  }
 #undef RS_CHANGED
 }
 
@@ -150,6 +177,15 @@ void RenderState::merge(const RenderState& other)
   MERGE_OPT(m_lineWidth);
   MERGE_OPT(m_lineSmooth);
 #undef MERGE_OPT
+
+  Expects(m_textureUnits.size() == other.m_textureUnits.size());
+  for(size_t i = 0; i < m_textureUnits.size(); ++i)
+  {
+    if(other.m_textureUnits[i].first != nullptr)
+    {
+      m_textureUnits[i] = {other.m_textureUnits[i].first, 0};
+    }
+  }
 }
 
 RenderState& RenderState::getWantedState()
@@ -165,19 +201,69 @@ void RenderState::applyWantedState()
 
 RenderState RenderState::getDefaults()
 {
+  static bool initialized = false;
+
   RenderState defaults;
-  defaults.setCullFace(true);
-  defaults.setDepthTest(true);
-  defaults.setDepthWrite(true);
-  defaults.setDepthClamp(false);
-  defaults.setDepthFunction(api::DepthFunction::Less);
-  defaults.setBlend(true);
-  defaults.setBlendSrc(api::BlendingFactor::SrcAlpha);
-  defaults.setBlendDst(api::BlendingFactor::OneMinusSrcAlpha);
-  defaults.setCullFaceSide(api::CullFaceMode::Back);
-  defaults.setFrontFace(api::FrontFaceDirection::Cw);
-  defaults.setLineWidth(1.0f);
-  defaults.setLineSmooth(true);
+  if(!initialized)
+  {
+    initialized = true;
+    defaults.setCullFace(true);
+    defaults.setDepthTest(true);
+    defaults.setDepthWrite(true);
+    defaults.setDepthClamp(false);
+    defaults.setDepthFunction(api::DepthFunction::Less);
+    defaults.setBlend(true);
+    defaults.setBlendSrc(api::BlendingFactor::SrcAlpha);
+    defaults.setBlendDst(api::BlendingFactor::OneMinusSrcAlpha);
+    defaults.setCullFaceSide(api::CullFaceMode::Back);
+    defaults.setFrontFace(api::FrontFaceDirection::Cw);
+    defaults.setLineWidth(1.0f);
+    defaults.setLineSmooth(true);
+  }
   return defaults;
+}
+
+int32_t RenderState::allocateTextureUnit(const std::shared_ptr<Texture>& texture)
+{
+  auto youngestAge = std::numeric_limits<size_t>::max();
+  size_t oldestAge = 0;
+  size_t oldestIndex = 0;
+  // increase age of all units
+  for(size_t i = 0; i < m_textureUnits.size(); ++i)
+  {
+    youngestAge = std::min(youngestAge, m_textureUnits[i].second);
+    ++m_textureUnits[i].second;
+
+    if(auto currentAge = m_textureUnits[i].second; currentAge > oldestAge)
+    {
+      oldestIndex = i;
+      oldestAge = currentAge;
+    }
+  }
+  // normalize ages to avoid overflow
+  for(size_t i = 0; i < m_textureUnits.size(); ++i)
+  {
+    m_textureUnits[i].second -= youngestAge;
+    BOOST_ASSERT(m_textureUnits[i].second >= 1);
+  }
+  for(size_t i = 0; i < m_textureUnits.size(); ++i)
+  {
+    if(m_textureUnits[i].first == texture)
+    {
+      m_textureUnits[i].second = 0;
+      return gsl::narrow_cast<int32_t>(i);
+    }
+  }
+  // we haven't found a free unit, evict the oldest one
+  m_textureUnits[oldestIndex] = {texture, 0};
+  return gsl::narrow_cast<int32_t>(oldestIndex);
+}
+
+RenderState::RenderState()
+{
+  int32_t maxUnits = 0;
+  GL_ASSERT(api::getIntegerv(api::GetPName::MaxTextureImageUnits, &maxUnits));
+  Expects(maxUnits > 0);
+  m_textureUnits.resize(maxUnits, std::pair{nullptr, 0});
 }
 } // namespace gl

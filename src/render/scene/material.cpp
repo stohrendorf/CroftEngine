@@ -13,11 +13,10 @@ namespace render::scene
 Material::Material(gsl::not_null<std::shared_ptr<ShaderProgram>> shaderProgram)
     : m_shaderProgram{std::move(shaderProgram)}
 {
-  int32_t samplerIndex = 0;
-  for(const auto& u : m_shaderProgram->getHandle().getUniforms(samplerIndex))
+  for(const auto& u : m_shaderProgram->getHandle().getUniforms())
     // cppcheck-suppress useStlAlgorithm
     m_uniforms.emplace_back(std::make_shared<UniformParameter>(u.getName()));
-  for(const auto& u : m_shaderProgram->getHandle().getUniformBlocks(samplerIndex))
+  for(const auto& u : m_shaderProgram->getHandle().getUniformBlocks())
     // cppcheck-suppress useStlAlgorithm
     m_uniformBlocks.emplace_back(std::make_shared<UniformBlockParameter>(u.getName()));
   for(const auto& u : m_shaderProgram->getHandle().getShaderStorageBlocks())

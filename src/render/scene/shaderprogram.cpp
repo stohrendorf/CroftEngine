@@ -220,7 +220,6 @@ std::shared_ptr<ShaderProgram> ShaderProgram::createFromSource(const std::filesy
   BOOST_LOG_TRIVIAL(debug) << "Program vertex=" << vshPath << " fragment=" << fshPath
                            << " defines=" << boost::algorithm::join(defines, ";");
 
-  int32_t samplerIndex = 0;
   for(auto&& input : shaderProgram->m_handle.getInputs())
   {
     if(input.getLocation() < 0)
@@ -231,7 +230,7 @@ std::shared_ptr<ShaderProgram> ShaderProgram::createFromSource(const std::filesy
     shaderProgram->m_vertexAttributes.emplace(input.getName(), std::move(input));
   }
 
-  for(auto&& uniform : shaderProgram->m_handle.getUniforms(samplerIndex))
+  for(auto&& uniform : shaderProgram->m_handle.getUniforms())
   {
     if(uniform.getLocation() < 0)
       continue; // only accept directly accessible uniforms
@@ -242,7 +241,7 @@ std::shared_ptr<ShaderProgram> ShaderProgram::createFromSource(const std::filesy
     shaderProgram->m_uniforms.emplace(uniform.getName(), std::move(uniform));
   }
 
-  for(auto&& ub : shaderProgram->m_handle.getUniformBlocks(samplerIndex))
+  for(auto&& ub : shaderProgram->m_handle.getUniformBlocks())
   {
     BOOST_LOG_TRIVIAL(debug) << "  uniform block " << ub.getName() << ", index=" << ub.getIndex()
                              << ", binding=" << ub.getBinding();
