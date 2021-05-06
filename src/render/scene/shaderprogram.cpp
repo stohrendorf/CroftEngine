@@ -131,15 +131,6 @@ void replaceIncludes(const std::filesystem::path& filepath,
     }
   }
 }
-
-void writeShaderToFile(const std::filesystem::path& filePath,
-                       const std::string& ext,
-                       const gsl::span<gsl::czstring>& strings)
-{
-  std::ofstream stream{filePath.string() + ext, std::ios::trunc | std::ios::binary};
-  for(const auto& str : strings)
-    stream << str;
-}
 } // namespace
 
 ShaderProgram::ShaderProgram() = default;
@@ -199,10 +190,6 @@ std::shared_ptr<ShaderProgram> ShaderProgram::createFromSource(const std::filesy
   shaderSource[1] = definesStr.c_str();
   gl::VertexShader vertexShader{shaderSource, vshPath.string() + ";" + boost::algorithm::join(defines, ";")};
 
-#ifndef NDEBUG
-  writeShaderToFile(vshPath, ".full.glsl", shaderSource);
-#endif
-
   // Compile the fragment shader.
   std::string fshSourceStr;
   if(!fshPath.empty())
@@ -216,10 +203,6 @@ std::shared_ptr<ShaderProgram> ShaderProgram::createFromSource(const std::filesy
   definesStr = replaceDefines(defines, true);
   shaderSource[1] = definesStr.c_str();
   gl::FragmentShader fragmentShader{shaderSource, fshPath.string() + ";" + boost::algorithm::join(defines, ";")};
-
-#ifndef NDEBUG
-  writeShaderToFile(fshPath, ".full.glsl", shaderSource);
-#endif
 
   auto shaderProgram = std::make_shared<ShaderProgram>();
   shaderProgram->m_handle.attach(vertexShader);

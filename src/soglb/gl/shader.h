@@ -26,6 +26,8 @@ public:
     GL_ASSERT(api::getShader(m_handle, api::ShaderParameterName::CompileStatus, &success));
     if(success != static_cast<int>(api::Boolean::True))
     {
+      BOOST_LOG_TRIVIAL(error) << "Failed to compile shader program " << label;
+
       int32_t length = 0;
       GL_ASSERT(api::getShader(m_handle, api::ShaderParameterName::InfoLogLength, &length));
       if(length == 0)
@@ -38,10 +40,10 @@ public:
         GL_ASSERT(api::getShaderInfoLog(m_handle, length, nullptr, infoLog.data()));
         infoLog.back() = '\0';
         std::string result = infoLog.data();
-        BOOST_LOG_TRIVIAL(error) << "Failed to compile shader program";
         BOOST_LOG_TRIVIAL(error) << infoLog.data();
-        BOOST_THROW_EXCEPTION(std::runtime_error("Failed to compile shader program"));
       }
+
+      BOOST_THROW_EXCEPTION(std::runtime_error("Failed to compile shader program"));
     }
 
     if(!label.empty())
