@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EdisonEngine \n"
 "Report-Msgid-Bugs-To: https://github.com/stohrendorf/EdisonEngine/issues\n"
-"POT-Creation-Date: 2021-04-23 08:36+0200\n"
+"POT-Creation-Date: 2021-05-07 22:38+0200\n"
 "Last-Translator: Steffen Ohrendorf\n"
 "Language-Team: none\n"
 "Language: de_DE\n"
@@ -26,7 +26,7 @@ msgstr "- LEERER SLOT %1%"
 msgid "Bilinear Filtering"
 msgstr "Bilineare Filterung"
 
-#: engine/presenter.cpp:337
+#: engine/presenter.cpp:345
 msgid "Booting"
 msgstr "Starte"
 
@@ -133,6 +133,11 @@ msgid "HBAO"
 msgstr "HBAO"
 
 #. translators: TR charmap encoding
+#: menu/rendersettingsmenustate.cpp:63
+msgid "High Quality Shadows"
+msgstr "Schatten mit hoher Qualit~at"
+
+#. translators: TR charmap encoding
 #: menu/menudisplay.cpp:509
 msgid "INVENTORY"
 msgstr "Inventar"
@@ -186,7 +191,7 @@ msgid "Magnums"
 msgstr "Magnums"
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:63
+#: menu/rendersettingsmenustate.cpp:67
 msgid "More Lights"
 msgstr "Mehr Lichter"
 
@@ -207,7 +212,7 @@ msgid "PICKUPS %1%"
 msgstr "Gegenst~ande %1%"
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:67
+#: menu/rendersettingsmenustate.cpp:71
 msgid "Performance Meter"
 msgstr "Leistungsanzeige"
 

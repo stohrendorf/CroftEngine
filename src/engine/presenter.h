@@ -150,8 +150,6 @@ public:
   void disableScreenOverlay();
 
 private:
-  static constexpr int32_t CSMResolution = 2048;
-
   const std::unique_ptr<gl::Window> m_window;
 
   std::shared_ptr<audio::SoundEngine> m_soundEngine;
@@ -167,7 +165,7 @@ private:
 
   const std::shared_ptr<render::scene::ShaderCache> m_shaderCache{};
   const std::unique_ptr<render::scene::MaterialManager> m_materialManager;
-  const std::shared_ptr<render::scene::CSM> m_csm{};
+  std::shared_ptr<render::scene::CSM> m_csm{};
 
   const std::unique_ptr<render::RenderPipeline> m_renderPipeline;
   std::unique_ptr<render::scene::ScreenOverlay> m_screenOverlay;

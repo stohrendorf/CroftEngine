@@ -1,6 +1,6 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR Steffen Ohrendorf
-# This file is distributed under the same license as the PACKAGE package.
+# This file is distributed under the same license as the EdisonEngine package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
 #, fuzzy
@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EdisonEngine \n"
 "Report-Msgid-Bugs-To: https://github.com/stohrendorf/EdisonEngine/issues\n"
-"POT-Creation-Date: 2021-04-23 08:36+0200\n"
+"POT-Creation-Date: 2021-05-07 22:38+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -27,7 +27,7 @@ msgstr ""
 msgid "Bilinear Filtering"
 msgstr ""
 
-#: engine/presenter.cpp:337
+#: engine/presenter.cpp:345
 msgid "Booting"
 msgstr ""
 
@@ -134,6 +134,11 @@ msgid "HBAO"
 msgstr ""
 
 #. translators: TR charmap encoding
+#: menu/rendersettingsmenustate.cpp:63
+msgid "High Quality Shadows"
+msgstr ""
+
+#. translators: TR charmap encoding
 #: menu/menudisplay.cpp:509
 msgid "INVENTORY"
 msgstr ""
@@ -187,7 +192,7 @@ msgid "Magnums"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:63
+#: menu/rendersettingsmenustate.cpp:67
 msgid "More Lights"
 msgstr ""
 
@@ -208,7 +213,7 @@ msgid "PICKUPS %1%"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:67
+#: menu/rendersettingsmenustate.cpp:71
 msgid "Performance Meter"
 msgstr ""
 

@@ -15,6 +15,7 @@ void RenderSettings::serialize(const serialization::Serializer<engine::EngineCon
       S_NVD("bilinearFiltering", bilinearFiltering, false),
       S_NVD("waterDenoise", waterDenoise, true),
       S_NVD("hbao", hbao, true),
-      S_NVD("moreLights", moreLights, true));
+      S_NVD("moreLights", moreLights, true),
+      S_NVD("highQualityShadows", highQualityShadows, true));
 }
 } // namespace render

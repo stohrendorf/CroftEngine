@@ -100,8 +100,13 @@ std::shared_ptr<Material> MaterialManager::getGeometry(bool water, bool skeletal
       ub.bind(m_csm->getBuffer(node.getModelMatrix()));
     });
 
-  BOOST_ASSERT(m_csm != nullptr);
-  m->getUniform("u_csmVsm[0]")->set(m_csm->getTextures());
+  m->getUniform("u_csmVsm[0]")
+    ->bind(
+      [this](const Node& /*node*/, const Mesh& /*mesh*/, gl::Uniform& uniform)
+      {
+        BOOST_ASSERT(m_csm != nullptr);
+        uniform.set(m_csm->getTextures());
+      });
 
   if(auto uniform = m->tryGetUniform("u_noise"))
     uniform->set(m_noiseTexture);

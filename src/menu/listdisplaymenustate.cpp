@@ -39,7 +39,8 @@ std::unique_ptr<MenuState> ListDisplayMenuState::onFrame(ui::Ui& ui, engine::wor
   {
     const auto& [lbl, active] = m_labels.at(i);
 
-    auto markActive = [&lbl = *lbl]() {
+    auto markActive = [&lbl = *lbl]()
+    {
       lbl.addBackground(glm::ivec2{ListDisplayMenuState::PixelWidth - 12, 16}, {0, 0});
       lbl.backgroundGouraud = ui::Label::makeBackgroundCircle(gl::SRGB8{32, 255, 112}, 96, 0);
     };
@@ -84,7 +85,7 @@ std::unique_ptr<MenuState> ListDisplayMenuState::onFrame(ui::Ui& ui, engine::wor
   {
     m_selected -= PerPage;
   }
-  else if(m_selected + PerPage < m_labels.size() - 1
+  else if(m_selected + PerPage < m_labels.size()
           && world.getPresenter().getInputHandler().getInputState().xMovement.justChangedTo(hid::AxisMovement::Right))
   {
     m_selected += PerPage;

@@ -60,6 +60,10 @@ RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingT
     [&engine]() { return engine.getEngineConfig().renderSettings.hbao; },
     [&engine]() { toggle(engine, engine.getEngineConfig().renderSettings.hbao); });
   addSetting(
+    /* translators: TR charmap encoding */ _("High Quality Shadows"),
+    [&engine]() { return engine.getEngineConfig().renderSettings.highQualityShadows; },
+    [&engine]() { toggle(engine, engine.getEngineConfig().renderSettings.highQualityShadows); });
+  addSetting(
     /* translators: TR charmap encoding */ _("More Lights"),
     [&engine]() { return engine.getEngineConfig().renderSettings.moreLights; },
     [&engine]() { toggle(engine, engine.getEngineConfig().renderSettings.moreLights); });

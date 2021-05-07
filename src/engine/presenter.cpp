@@ -337,7 +337,7 @@ Presenter::Presenter(const std::filesystem::path& rootPath, bool fullscreen, con
     , m_inputHandler{std::make_unique<hid::InputHandler>(m_window->getWindow())}
     , m_shaderCache{std::make_shared<render::scene::ShaderCache>(rootPath / "shaders")}
     , m_materialManager{std::make_unique<render::scene::MaterialManager>(m_shaderCache, m_renderer)}
-    , m_csm{std::make_shared<render::scene::CSM>(CSMResolution, *m_materialManager)}
+    , m_csm{std::make_shared<render::scene::CSM>(1024, *m_materialManager)}
     , m_renderPipeline{std::make_unique<render::RenderPipeline>(*m_materialManager, m_window->getViewport())}
 {
   m_materialManager->setCSM(m_csm);
@@ -465,6 +465,11 @@ void Presenter::debounceInput()
 void Presenter::apply(const render::RenderSettings& renderSettings)
 {
   setFullscreen(renderSettings.fullscreen);
+  if(m_csm->getResolution() != renderSettings.getCSMResolution())
+  {
+    m_csm = std::make_shared<render::scene::CSM>(renderSettings.getCSMResolution(), *m_materialManager);
+    m_materialManager->setCSM(m_csm);
+  }
   m_renderPipeline->apply(renderSettings, *m_materialManager);
   m_materialManager->setBilinearFiltering(renderSettings.bilinearFiltering);
 }

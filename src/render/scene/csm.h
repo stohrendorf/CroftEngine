@@ -102,6 +102,11 @@ public:
     m_splits.at(m_activeSplit).renderBlur();
   }
 
+  [[nodiscard]] auto getResolution() const
+  {
+    return m_resolution;
+  }
+
 private:
   const int32_t m_resolution;
   const glm::vec3 m_lightDir{core::TRVec{0_len, 1_len, 0_len}.toRenderSystem()};
