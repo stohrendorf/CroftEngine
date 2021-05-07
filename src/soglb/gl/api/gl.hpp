@@ -986,26 +986,9 @@ enum class ColorMaterialParameter : core::EnumType
 enum class ColorPointerType : core::EnumType
 {
   Byte = 0x1400,
-  Float = 0x1406,
-  Int = 0x1404,
-  Short = 0x1402,
   UnsignedByte = 0x1401,
   UnsignedInt = 0x1405,
   UnsignedShort = 0x1403,
-#if defined(API_LEVEL_GL_VERSION_1_1) || defined(API_LEVEL_GL_VERSION_1_2) || defined(API_LEVEL_GL_VERSION_1_3)  \
-  || defined(API_LEVEL_GL_VERSION_1_4) || defined(API_LEVEL_GL_VERSION_1_5) || defined(API_LEVEL_GL_VERSION_2_0) \
-  || defined(API_LEVEL_GL_VERSION_2_1) || defined(API_LEVEL_GL_VERSION_3_0) || defined(API_LEVEL_GL_VERSION_3_1) \
-  || defined(API_LEVEL_GL_VERSION_3_2_core) || defined(API_LEVEL_GL_VERSION_3_3_compatibility)                   \
-  || defined(API_LEVEL_GL_VERSION_3_3_core) || defined(API_LEVEL_GL_VERSION_4_0_compatibility)                   \
-  || defined(API_LEVEL_GL_VERSION_4_0_core) || defined(API_LEVEL_GL_VERSION_4_1_compatibility)                   \
-  || defined(API_LEVEL_GL_VERSION_4_1_core) || defined(API_LEVEL_GL_VERSION_4_2_compatibility)                   \
-  || defined(API_LEVEL_GL_VERSION_4_2_core) || defined(API_LEVEL_GL_VERSION_4_3_compatibility)                   \
-  || defined(API_LEVEL_GL_VERSION_4_3_core) || defined(API_LEVEL_GL_VERSION_4_4_compatibility)                   \
-  || defined(API_LEVEL_GL_VERSION_4_4_core) || defined(API_LEVEL_GL_VERSION_4_5_compatibility)                   \
-  || defined(API_LEVEL_GL_VERSION_4_5_core) || defined(API_LEVEL_GL_VERSION_4_6_compatibility)                   \
-  || defined(API_LEVEL_GL_VERSION_4_6_core)
-  Double = 0x140A,
-#endif
 };
 
 #if defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_compatibility)
@@ -1014,6 +997,9 @@ enum class ColorTableTarget : core::EnumType
   ColorTable = 0x80D0,
   PostColorMatrixColorTable = 0x80D2,
   PostConvolutionColorTable = 0x80D1,
+  ProxyColorTable = 0x80D3,
+  ProxyPostColorMatrixColorTable = 0x80D5,
+  ProxyPostConvolutionColorTable = 0x80D4,
 };
 #endif
 
@@ -1642,6 +1628,11 @@ enum class EnableCap : core::EnumType
   DebugOutputSynchronous = 0x8242,
   PrimitiveRestartFixedIndex = 0x8D69,
 #endif
+#if defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_compatibility)
+  ColorTable = 0x80D0,
+  PostColorMatrixColorTable = 0x80D2,
+  PostConvolutionColorTable = 0x80D1,
+#endif
 };
 
 enum class ErrorCode : core::EnumType
@@ -1901,7 +1892,6 @@ enum class FramebufferAttachment : core::EnumType
   ColorAttachment8 = 0x8CE8,
   ColorAttachment9 = 0x8CE9,
   DepthAttachment = 0x8D00,
-  DepthStencilAttachment = 0x821A,
   StencilAttachment = 0x8D20,
 };
 #endif
@@ -2563,6 +2553,7 @@ enum class GetPName : core::EnumType
   || defined(API_LEVEL_GL_VERSION_4_4_core) || defined(API_LEVEL_GL_VERSION_4_5_compatibility) \
   || defined(API_LEVEL_GL_VERSION_4_5_core) || defined(API_LEVEL_GL_VERSION_4_6_compatibility) \
   || defined(API_LEVEL_GL_VERSION_4_6_core)
+  ContextProfileMask = 0x9126,
   MaxColorTextureSamples = 0x910E,
   MaxDepthTextureSamples = 0x910F,
   MaxFragmentInputComponents = 0x9125,
@@ -2591,6 +2582,16 @@ enum class GetPName : core::EnumType
   SamplerBinding = 0x8919,
   Timestamp = 0x8E28,
 #endif
+#if defined(API_LEVEL_GL_VERSION_4_0_compatibility) || defined(API_LEVEL_GL_VERSION_4_0_core)  \
+  || defined(API_LEVEL_GL_VERSION_4_1_compatibility) || defined(API_LEVEL_GL_VERSION_4_1_core) \
+  || defined(API_LEVEL_GL_VERSION_4_2_compatibility) || defined(API_LEVEL_GL_VERSION_4_2_core) \
+  || defined(API_LEVEL_GL_VERSION_4_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_3_core) \
+  || defined(API_LEVEL_GL_VERSION_4_4_compatibility) || defined(API_LEVEL_GL_VERSION_4_4_core) \
+  || defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_5_core) \
+  || defined(API_LEVEL_GL_VERSION_4_6_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_core)
+  MaxTessControlUniformBlocks = 0x8E89,
+  MaxTessEvaluationUniformBlocks = 0x8E8A,
+#endif
 #if defined(API_LEVEL_GL_VERSION_4_1_compatibility) || defined(API_LEVEL_GL_VERSION_4_1_core)  \
   || defined(API_LEVEL_GL_VERSION_4_2_compatibility) || defined(API_LEVEL_GL_VERSION_4_2_core) \
   || defined(API_LEVEL_GL_VERSION_4_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_3_core) \
@@ -2608,6 +2609,7 @@ enum class GetPName : core::EnumType
   NumShaderBinaryFormats = 0x8DF9,
   ProgramBinaryFormats = 0x87FF,
   ProgramPipelineBinding = 0x825A,
+  ShaderBinaryFormats = 0x8DF8,
   ShaderCompiler = 0x8DFA,
   ViewportBoundsRange = 0x825D,
   ViewportIndexProvokingVertex = 0x825F,
@@ -3039,6 +3041,14 @@ enum class HintTarget : core::EnumType
 };
 
 #if defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_compatibility)
+enum class HistogramTarget : core::EnumType
+{
+  Histogram = 0x8024,
+  ProxyHistogram = 0x8025,
+};
+#endif
+
+#if defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_compatibility)
 enum class HistogramTargetEXT : core::EnumType
 {
   Histogram = 0x8024,
@@ -3152,6 +3162,7 @@ enum class InternalFormat : core::EnumType
   Rgb8 = 0x8051,
   Rgba12 = 0x805A,
   Rgba16 = 0x805B,
+  Rgba2 = 0x8055,
   Rgba4 = 0x8056,
   Rgba8 = 0x8058,
 #endif
@@ -3208,6 +3219,8 @@ enum class InternalFormat : core::EnumType
   || defined(API_LEVEL_GL_VERSION_4_5_core) || defined(API_LEVEL_GL_VERSION_4_6_compatibility)                   \
   || defined(API_LEVEL_GL_VERSION_4_6_core)
   DepthComponent16 = 0x81A5,
+  DepthComponent24 = 0x81A6,
+  DepthComponent32 = 0x81A7,
 #endif
 #if defined(API_LEVEL_GL_VERSION_2_1) || defined(API_LEVEL_GL_VERSION_3_0) || defined(API_LEVEL_GL_VERSION_3_1) \
   || defined(API_LEVEL_GL_VERSION_3_2_core) || defined(API_LEVEL_GL_VERSION_3_3_compatibility)                  \
@@ -3304,6 +3317,7 @@ enum class InternalFormat : core::EnumType
   Rg8Snorm = 0x8F95,
   Rgb16Snorm = 0x8F9A,
   Rgb8Snorm = 0x8F96,
+  Rgba16Snorm = 0x8F9B,
   Rgba8Snorm = 0x8F97,
 #endif
 #if defined(API_LEVEL_GL_VERSION_3_3_compatibility) || defined(API_LEVEL_GL_VERSION_3_3_core)  \
@@ -3589,13 +3603,10 @@ enum class LightName : core::EnumType
   || defined(API_LEVEL_GL_VERSION_4_6_compatibility)
 enum class LightParameter : core::EnumType
 {
-  Ambient = 0x1200,
   ConstantAttenuation = 0x1207,
-  Diffuse = 0x1201,
   LinearAttenuation = 0x1208,
   Position = 0x1203,
   QuadraticAttenuation = 0x1209,
-  Specular = 0x1202,
   SpotCutoff = 0x1206,
   SpotDirection = 0x1204,
   SpotExponent = 0x1205,
@@ -3857,6 +3868,13 @@ enum class MeshMode2 : core::EnumType
   Line = 0x1B01,
   Point = 0x1B00,
 };
+
+#if defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_compatibility)
+enum class MinmaxTarget : core::EnumType
+{
+  Minmax = 0x802E,
+};
+#endif
 
 #if defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_compatibility)
 enum class MinmaxTargetEXT : core::EnumType
@@ -4864,6 +4882,19 @@ enum class SamplerParameterF : core::EnumType
   TextureMaxLod = 0x813B,
   TextureMinLod = 0x813A,
 #endif
+#if defined(API_LEVEL_GL_VERSION_1_4) || defined(API_LEVEL_GL_VERSION_1_5) || defined(API_LEVEL_GL_VERSION_2_0)  \
+  || defined(API_LEVEL_GL_VERSION_2_1) || defined(API_LEVEL_GL_VERSION_3_0) || defined(API_LEVEL_GL_VERSION_3_1) \
+  || defined(API_LEVEL_GL_VERSION_3_2_core) || defined(API_LEVEL_GL_VERSION_3_3_compatibility)                   \
+  || defined(API_LEVEL_GL_VERSION_3_3_core) || defined(API_LEVEL_GL_VERSION_4_0_compatibility)                   \
+  || defined(API_LEVEL_GL_VERSION_4_0_core) || defined(API_LEVEL_GL_VERSION_4_1_compatibility)                   \
+  || defined(API_LEVEL_GL_VERSION_4_1_core) || defined(API_LEVEL_GL_VERSION_4_2_compatibility)                   \
+  || defined(API_LEVEL_GL_VERSION_4_2_core) || defined(API_LEVEL_GL_VERSION_4_3_compatibility)                   \
+  || defined(API_LEVEL_GL_VERSION_4_3_core) || defined(API_LEVEL_GL_VERSION_4_4_compatibility)                   \
+  || defined(API_LEVEL_GL_VERSION_4_4_core) || defined(API_LEVEL_GL_VERSION_4_5_compatibility)                   \
+  || defined(API_LEVEL_GL_VERSION_4_5_core) || defined(API_LEVEL_GL_VERSION_4_6_compatibility)                   \
+  || defined(API_LEVEL_GL_VERSION_4_6_core)
+  TextureLodBias = 0x8501,
+#endif
 #if defined(API_LEVEL_GL_VERSION_4_6_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_core)
   TextureMaxAnisotropy = 0x84FE,
 #endif
@@ -4933,9 +4964,23 @@ enum class SecondaryColorPointerTypeIBM : core::EnumType
 };
 
 #if defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_compatibility)
+enum class SeparableTarget : core::EnumType
+{
+  Separable2d = 0x8012,
+};
+#endif
+
+#if defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_compatibility)
 enum class SeparableTargetEXT : core::EnumType
 {
   Separable2d = 0x8012,
+};
+#endif
+
+#if defined(API_LEVEL_GL_VERSION_4_6_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_core)
+enum class ShaderBinaryFormat : core::EnumType
+{
+  ShaderBinaryFormatSpirV = 0x9551,
 };
 #endif
 
@@ -5017,6 +5062,206 @@ enum class ShadingModel : core::EnumType
   Smooth = 0x1D01,
 };
 #endif
+
+enum class SizedInternalFormat : core::EnumType
+{
+  DepthComponent16Arb = 0x81A5,
+  DepthComponent24Arb = 0x81A6,
+  DepthComponent32Arb = 0x81A7,
+#if defined(API_LEVEL_GL_VERSION_1_1) || defined(API_LEVEL_GL_VERSION_1_2) || defined(API_LEVEL_GL_VERSION_1_3)  \
+  || defined(API_LEVEL_GL_VERSION_1_4) || defined(API_LEVEL_GL_VERSION_1_5) || defined(API_LEVEL_GL_VERSION_2_0) \
+  || defined(API_LEVEL_GL_VERSION_2_1) || defined(API_LEVEL_GL_VERSION_3_0) || defined(API_LEVEL_GL_VERSION_3_1) \
+  || defined(API_LEVEL_GL_VERSION_3_2_core) || defined(API_LEVEL_GL_VERSION_3_3_compatibility)                   \
+  || defined(API_LEVEL_GL_VERSION_3_3_core) || defined(API_LEVEL_GL_VERSION_4_0_compatibility)                   \
+  || defined(API_LEVEL_GL_VERSION_4_0_core) || defined(API_LEVEL_GL_VERSION_4_1_compatibility)                   \
+  || defined(API_LEVEL_GL_VERSION_4_1_core) || defined(API_LEVEL_GL_VERSION_4_2_compatibility)                   \
+  || defined(API_LEVEL_GL_VERSION_4_2_core) || defined(API_LEVEL_GL_VERSION_4_3_compatibility)                   \
+  || defined(API_LEVEL_GL_VERSION_4_3_core) || defined(API_LEVEL_GL_VERSION_4_4_compatibility)                   \
+  || defined(API_LEVEL_GL_VERSION_4_4_core) || defined(API_LEVEL_GL_VERSION_4_5_compatibility)                   \
+  || defined(API_LEVEL_GL_VERSION_4_5_core) || defined(API_LEVEL_GL_VERSION_4_6_compatibility)                   \
+  || defined(API_LEVEL_GL_VERSION_4_6_core)
+  R3G3B2 = 0x2A10,
+  Rgb10 = 0x8052,
+  Rgb10A2 = 0x8059,
+  Rgb12 = 0x8053,
+  Rgb16 = 0x8054,
+  Rgb4 = 0x804F,
+  Rgb5 = 0x8050,
+  Rgb5A1 = 0x8057,
+  Rgb8 = 0x8051,
+  Rgba12 = 0x805A,
+  Rgba16 = 0x805B,
+  Rgba2 = 0x8055,
+  Rgba4 = 0x8056,
+  Rgba8 = 0x8058,
+#endif
+#if defined(API_LEVEL_GL_VERSION_1_1) || defined(API_LEVEL_GL_VERSION_1_2) || defined(API_LEVEL_GL_VERSION_1_3)  \
+  || defined(API_LEVEL_GL_VERSION_1_4) || defined(API_LEVEL_GL_VERSION_1_5) || defined(API_LEVEL_GL_VERSION_2_0) \
+  || defined(API_LEVEL_GL_VERSION_2_1) || defined(API_LEVEL_GL_VERSION_3_0) || defined(API_LEVEL_GL_VERSION_3_1) \
+  || defined(API_LEVEL_GL_VERSION_3_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_0_compatibility)          \
+  || defined(API_LEVEL_GL_VERSION_4_1_compatibility) || defined(API_LEVEL_GL_VERSION_4_2_compatibility)          \
+  || defined(API_LEVEL_GL_VERSION_4_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_4_compatibility)          \
+  || defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_compatibility)
+  Alpha12 = 0x803D,
+  Alpha16 = 0x803E,
+  Alpha4 = 0x803B,
+  Alpha8 = 0x803C,
+  Intensity12 = 0x804C,
+  Intensity16 = 0x804D,
+  Intensity4 = 0x804A,
+  Intensity8 = 0x804B,
+  Luminance12 = 0x8041,
+  Luminance12Alpha12 = 0x8047,
+  Luminance12Alpha4 = 0x8046,
+  Luminance16 = 0x8042,
+  Luminance16Alpha16 = 0x8048,
+  Luminance4 = 0x803F,
+  Luminance4Alpha4 = 0x8043,
+  Luminance6Alpha2 = 0x8044,
+  Luminance8 = 0x8040,
+  Luminance8Alpha8 = 0x8045,
+#endif
+#if defined(API_LEVEL_GL_VERSION_1_4) || defined(API_LEVEL_GL_VERSION_1_5) || defined(API_LEVEL_GL_VERSION_2_0)  \
+  || defined(API_LEVEL_GL_VERSION_2_1) || defined(API_LEVEL_GL_VERSION_3_0) || defined(API_LEVEL_GL_VERSION_3_1) \
+  || defined(API_LEVEL_GL_VERSION_3_2_core) || defined(API_LEVEL_GL_VERSION_3_3_compatibility)                   \
+  || defined(API_LEVEL_GL_VERSION_3_3_core) || defined(API_LEVEL_GL_VERSION_4_0_compatibility)                   \
+  || defined(API_LEVEL_GL_VERSION_4_0_core) || defined(API_LEVEL_GL_VERSION_4_1_compatibility)                   \
+  || defined(API_LEVEL_GL_VERSION_4_1_core) || defined(API_LEVEL_GL_VERSION_4_2_compatibility)                   \
+  || defined(API_LEVEL_GL_VERSION_4_2_core) || defined(API_LEVEL_GL_VERSION_4_3_compatibility)                   \
+  || defined(API_LEVEL_GL_VERSION_4_3_core) || defined(API_LEVEL_GL_VERSION_4_4_compatibility)                   \
+  || defined(API_LEVEL_GL_VERSION_4_4_core) || defined(API_LEVEL_GL_VERSION_4_5_compatibility)                   \
+  || defined(API_LEVEL_GL_VERSION_4_5_core) || defined(API_LEVEL_GL_VERSION_4_6_compatibility)                   \
+  || defined(API_LEVEL_GL_VERSION_4_6_core)
+  DepthComponent16 = 0x81A5,
+  DepthComponent24 = 0x81A6,
+  DepthComponent32 = 0x81A7,
+#endif
+#if defined(API_LEVEL_GL_VERSION_2_1) || defined(API_LEVEL_GL_VERSION_3_0) || defined(API_LEVEL_GL_VERSION_3_1) \
+  || defined(API_LEVEL_GL_VERSION_3_2_core) || defined(API_LEVEL_GL_VERSION_3_3_compatibility)                  \
+  || defined(API_LEVEL_GL_VERSION_3_3_core) || defined(API_LEVEL_GL_VERSION_4_0_compatibility)                  \
+  || defined(API_LEVEL_GL_VERSION_4_0_core) || defined(API_LEVEL_GL_VERSION_4_1_compatibility)                  \
+  || defined(API_LEVEL_GL_VERSION_4_1_core) || defined(API_LEVEL_GL_VERSION_4_2_compatibility)                  \
+  || defined(API_LEVEL_GL_VERSION_4_2_core) || defined(API_LEVEL_GL_VERSION_4_3_compatibility)                  \
+  || defined(API_LEVEL_GL_VERSION_4_3_core) || defined(API_LEVEL_GL_VERSION_4_4_compatibility)                  \
+  || defined(API_LEVEL_GL_VERSION_4_4_core) || defined(API_LEVEL_GL_VERSION_4_5_compatibility)                  \
+  || defined(API_LEVEL_GL_VERSION_4_5_core) || defined(API_LEVEL_GL_VERSION_4_6_compatibility)                  \
+  || defined(API_LEVEL_GL_VERSION_4_6_core)
+  Srgb8 = 0x8C41,
+  Srgb8Alpha8 = 0x8C43,
+#endif
+#if defined(API_LEVEL_GL_VERSION_3_0) || defined(API_LEVEL_GL_VERSION_3_1) || defined(API_LEVEL_GL_VERSION_3_2_core) \
+  || defined(API_LEVEL_GL_VERSION_3_3_compatibility) || defined(API_LEVEL_GL_VERSION_3_3_core)                       \
+  || defined(API_LEVEL_GL_VERSION_4_0_compatibility) || defined(API_LEVEL_GL_VERSION_4_0_core)                       \
+  || defined(API_LEVEL_GL_VERSION_4_1_compatibility) || defined(API_LEVEL_GL_VERSION_4_1_core)                       \
+  || defined(API_LEVEL_GL_VERSION_4_2_compatibility) || defined(API_LEVEL_GL_VERSION_4_2_core)                       \
+  || defined(API_LEVEL_GL_VERSION_4_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_3_core)                       \
+  || defined(API_LEVEL_GL_VERSION_4_4_compatibility) || defined(API_LEVEL_GL_VERSION_4_4_core)                       \
+  || defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_5_core)                       \
+  || defined(API_LEVEL_GL_VERSION_4_6_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_core)
+  CompressedRedRgtc1 = 0x8DBB,
+  CompressedRgRgtc2 = 0x8DBD,
+  CompressedSignedRedRgtc1 = 0x8DBC,
+  CompressedSignedRgRgtc2 = 0x8DBE,
+  Depth24Stencil8 = 0x88F0,
+  Depth32fStencil8 = 0x8CAD,
+  DepthComponent32f = 0x8CAC,
+  R11fG11fB10f = 0x8C3A,
+  R16 = 0x822A,
+  R16f = 0x822D,
+  R16i = 0x8233,
+  R16ui = 0x8234,
+  R32f = 0x822E,
+  R32i = 0x8235,
+  R32ui = 0x8236,
+  R8 = 0x8229,
+  R8i = 0x8231,
+  R8ui = 0x8232,
+  Rg16 = 0x822C,
+  Rg16f = 0x822F,
+  Rg16i = 0x8239,
+  Rg16ui = 0x823A,
+  Rg32f = 0x8230,
+  Rg32i = 0x823B,
+  Rg32ui = 0x823C,
+  Rg8 = 0x822B,
+  Rg8i = 0x8237,
+  Rg8ui = 0x8238,
+  Rgb16f = 0x881B,
+  Rgb16i = 0x8D89,
+  Rgb16ui = 0x8D77,
+  Rgb32f = 0x8815,
+  Rgb32i = 0x8D83,
+  Rgb32ui = 0x8D71,
+  Rgb8i = 0x8D8F,
+  Rgb8ui = 0x8D7D,
+  Rgb9E5 = 0x8C3D,
+  Rgba16f = 0x881A,
+  Rgba16i = 0x8D88,
+  Rgba16ui = 0x8D76,
+  Rgba32f = 0x8814,
+  Rgba32i = 0x8D82,
+  Rgba32ui = 0x8D70,
+  Rgba8i = 0x8D8E,
+  Rgba8ui = 0x8D7C,
+  StencilIndex1 = 0x8D46,
+  StencilIndex16 = 0x8D49,
+  StencilIndex4 = 0x8D47,
+  StencilIndex8 = 0x8D48,
+#endif
+#if defined(API_LEVEL_GL_VERSION_3_1) || defined(API_LEVEL_GL_VERSION_3_2_core)                \
+  || defined(API_LEVEL_GL_VERSION_3_3_compatibility) || defined(API_LEVEL_GL_VERSION_3_3_core) \
+  || defined(API_LEVEL_GL_VERSION_4_0_compatibility) || defined(API_LEVEL_GL_VERSION_4_0_core) \
+  || defined(API_LEVEL_GL_VERSION_4_1_compatibility) || defined(API_LEVEL_GL_VERSION_4_1_core) \
+  || defined(API_LEVEL_GL_VERSION_4_2_compatibility) || defined(API_LEVEL_GL_VERSION_4_2_core) \
+  || defined(API_LEVEL_GL_VERSION_4_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_3_core) \
+  || defined(API_LEVEL_GL_VERSION_4_4_compatibility) || defined(API_LEVEL_GL_VERSION_4_4_core) \
+  || defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_5_core) \
+  || defined(API_LEVEL_GL_VERSION_4_6_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_core)
+  R16Snorm = 0x8F98,
+  R8Snorm = 0x8F94,
+  Rg16Snorm = 0x8F99,
+  Rg8Snorm = 0x8F95,
+  Rgb16Snorm = 0x8F9A,
+  Rgb8Snorm = 0x8F96,
+  Rgba16Snorm = 0x8F9B,
+  Rgba8Snorm = 0x8F97,
+#endif
+#if defined(API_LEVEL_GL_VERSION_3_3_compatibility) || defined(API_LEVEL_GL_VERSION_3_3_core)  \
+  || defined(API_LEVEL_GL_VERSION_4_0_compatibility) || defined(API_LEVEL_GL_VERSION_4_0_core) \
+  || defined(API_LEVEL_GL_VERSION_4_1_compatibility) || defined(API_LEVEL_GL_VERSION_4_1_core) \
+  || defined(API_LEVEL_GL_VERSION_4_2_compatibility) || defined(API_LEVEL_GL_VERSION_4_2_core) \
+  || defined(API_LEVEL_GL_VERSION_4_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_3_core) \
+  || defined(API_LEVEL_GL_VERSION_4_4_compatibility) || defined(API_LEVEL_GL_VERSION_4_4_core) \
+  || defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_5_core) \
+  || defined(API_LEVEL_GL_VERSION_4_6_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_core)
+  Rgb10A2ui = 0x906F,
+#endif
+#if defined(API_LEVEL_GL_VERSION_4_2_compatibility) || defined(API_LEVEL_GL_VERSION_4_2_core)  \
+  || defined(API_LEVEL_GL_VERSION_4_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_3_core) \
+  || defined(API_LEVEL_GL_VERSION_4_4_compatibility) || defined(API_LEVEL_GL_VERSION_4_4_core) \
+  || defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_5_core) \
+  || defined(API_LEVEL_GL_VERSION_4_6_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_core)
+  CompressedRgbaBptcUnorm = 0x8E8C,
+  CompressedRgbBptcSignedFloat = 0x8E8E,
+  CompressedRgbBptcUnsignedFloat = 0x8E8F,
+  CompressedSrgbAlphaBptcUnorm = 0x8E8D,
+#endif
+#if defined(API_LEVEL_GL_VERSION_4_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_3_core)  \
+  || defined(API_LEVEL_GL_VERSION_4_4_compatibility) || defined(API_LEVEL_GL_VERSION_4_4_core) \
+  || defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_5_core) \
+  || defined(API_LEVEL_GL_VERSION_4_6_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_core)
+  CompressedR11Eac = 0x9270,
+  CompressedRg11Eac = 0x9272,
+  CompressedRgb8Etc2 = 0x9274,
+  CompressedRgb8PunchthroughAlpha1Etc2 = 0x9276,
+  CompressedRgba8Etc2Eac = 0x9278,
+  CompressedSignedR11Eac = 0x9271,
+  CompressedSignedRg11Eac = 0x9273,
+  CompressedSrgb8Alpha8Etc2Eac = 0x9279,
+  CompressedSrgb8Etc2 = 0x9275,
+  CompressedSrgb8PunchthroughAlpha1Etc2 = 0x9277,
+#endif
+};
 
 enum class StencilFaceDirection : core::EnumType
 {
@@ -5105,6 +5350,11 @@ enum class SubroutineParameterName : core::EnumType
   CompatibleSubroutines = 0x8E4B,
   NumCompatibleSubroutines = 0x8E4A,
 #endif
+};
+
+enum class SyncBehaviorFlags : core::EnumType
+{
+  None = 0,
 };
 
 #if defined(API_LEVEL_GL_VERSION_3_2_core) || defined(API_LEVEL_GL_VERSION_3_3_compatibility)  \
@@ -5554,6 +5804,7 @@ enum class TextureTarget : core::EnumType
   || defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_5_core) \
   || defined(API_LEVEL_GL_VERSION_4_6_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_core)
   ProxyTextureRectangle = 0x84F7,
+  TextureBuffer = 0x8C2A,
   TextureRectangle = 0x84F5,
 #endif
 #if defined(API_LEVEL_GL_VERSION_3_2_core) || defined(API_LEVEL_GL_VERSION_3_3_compatibility)  \
@@ -7488,7 +7739,7 @@ extern void getUniformIndice(uint32_t program,
                              const char* const* uniformNames,
                              uint32_t* uniformIndices);
 extern void primitiveRestartIndex(uint32_t index);
-extern void texBuffer(TextureTarget target, InternalFormat internalformat, uint32_t buffer);
+extern void texBuffer(TextureTarget target, SizedInternalFormat internalformat, uint32_t buffer);
 extern void uniformBlockBinding(uint32_t program, uint32_t uniformBlockIndex, uint32_t uniformBlockBinding);
 #endif
 #if defined(API_LEVEL_GL_VERSION_3_2_core) || defined(API_LEVEL_GL_VERSION_3_3_compatibility)  \
@@ -7832,15 +8083,15 @@ extern void getInternalformat(TextureTarget target,
                               int32_t* params);
 extern void memoryBarrier(core::Bitfield<MemoryBarrierMask> barriers);
 extern void
-  texStorage1D(TextureTarget target, core::SizeType levels, InternalFormat internalformat, core::SizeType width);
+  texStorage1D(TextureTarget target, core::SizeType levels, SizedInternalFormat internalformat, core::SizeType width);
 extern void texStorage2D(TextureTarget target,
                          core::SizeType levels,
-                         InternalFormat internalformat,
+                         SizedInternalFormat internalformat,
                          core::SizeType width,
                          core::SizeType height);
 extern void texStorage3D(TextureTarget target,
                          core::SizeType levels,
-                         InternalFormat internalformat,
+                         SizedInternalFormat internalformat,
                          core::SizeType width,
                          core::SizeType height,
                          core::SizeType depth);
@@ -7851,9 +8102,9 @@ extern void texStorage3D(TextureTarget target,
   || defined(API_LEVEL_GL_VERSION_4_6_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_core)
 extern void bindVertexBuffer(uint32_t bindingindex, uint32_t buffer, std::intptr_t offset, core::SizeType stride);
 extern void clearBufferData(
-  BufferStorageTarget target, InternalFormat internalformat, PixelFormat format, PixelType type, const void* data);
+  BufferStorageTarget target, SizedInternalFormat internalformat, PixelFormat format, PixelType type, const void* data);
 extern void clearBufferSubData(BufferTargetARB target,
-                               InternalFormat internalformat,
+                               SizedInternalFormat internalformat,
                                std::intptr_t offset,
                                std::size_t size,
                                PixelFormat format,
@@ -7952,16 +8203,16 @@ extern void popDebugGroup();
 extern void pushDebugGroup(DebugSource source, uint32_t id, core::SizeType length, const char* message);
 extern void shaderStorageBlockBinding(uint32_t program, uint32_t storageBlockIndex, uint32_t storageBlockBinding);
 extern void texBufferRange(
-  TextureTarget target, InternalFormat internalformat, uint32_t buffer, std::intptr_t offset, std::size_t size);
+  TextureTarget target, SizedInternalFormat internalformat, uint32_t buffer, std::intptr_t offset, std::size_t size);
 extern void texStorage2DMultisample(TextureTarget target,
                                     core::SizeType samples,
-                                    InternalFormat internalformat,
+                                    SizedInternalFormat internalformat,
                                     core::SizeType width,
                                     core::SizeType height,
                                     bool fixedsamplelocations);
 extern void texStorage3DMultisample(TextureTarget target,
                                     core::SizeType samples,
-                                    InternalFormat internalformat,
+                                    SizedInternalFormat internalformat,
                                     core::SizeType width,
                                     core::SizeType height,
                                     core::SizeType depth,
@@ -7969,7 +8220,7 @@ extern void texStorage3DMultisample(TextureTarget target,
 extern void textureView(uint32_t texture,
                         TextureTarget target,
                         uint32_t origtexture,
-                        InternalFormat internalformat,
+                        SizedInternalFormat internalformat,
                         uint32_t minlevel,
                         uint32_t numlevels,
                         uint32_t minlayer,
@@ -8033,9 +8284,9 @@ extern void blitNamedFramebuffer(uint32_t readFramebuffer,
                                  BlitFramebufferFilter filter);
 extern FramebufferStatus checkNamedFramebufferStatus(uint32_t framebuffer, FramebufferTarget target);
 extern void clearNamedBufferData(
-  uint32_t buffer, InternalFormat internalformat, PixelFormat format, PixelType type, const void* data);
+  uint32_t buffer, SizedInternalFormat internalformat, PixelFormat format, PixelType type, const void* data);
 extern void clearNamedBufferSubData(uint32_t buffer,
-                                    InternalFormat internalformat,
+                                    SizedInternalFormat internalformat,
                                     std::intptr_t offset,
                                     std::size_t size,
                                     PixelFormat format,
@@ -8219,9 +8470,9 @@ extern void readnPixel(int32_t x,
                        core::SizeType bufSize,
                        void* data);
 extern void textureBarrier();
-extern void textureBuffer(uint32_t texture, InternalFormat internalformat, uint32_t buffer);
+extern void textureBuffer(uint32_t texture, SizedInternalFormat internalformat, uint32_t buffer);
 extern void textureBufferRange(
-  uint32_t texture, InternalFormat internalformat, uint32_t buffer, std::intptr_t offset, std::size_t size);
+  uint32_t texture, SizedInternalFormat internalformat, uint32_t buffer, std::intptr_t offset, std::size_t size);
 extern void textureParameterI(uint32_t texture, TextureParameterName pname, const int32_t* params);
 extern void textureParameterI(uint32_t texture, TextureParameterName pname, const uint32_t* params);
 extern void textureParameter(uint32_t texture, TextureParameterName pname, float param);
@@ -8229,24 +8480,27 @@ extern void textureParameter(uint32_t texture, TextureParameterName pname, const
 extern void textureParameter(uint32_t texture, TextureParameterName pname, int32_t param);
 extern void textureParameter(uint32_t texture, TextureParameterName pname, const int32_t* param);
 extern void
-  textureStorage1D(uint32_t texture, core::SizeType levels, InternalFormat internalformat, core::SizeType width);
-extern void textureStorage2D(
-  uint32_t texture, core::SizeType levels, InternalFormat internalformat, core::SizeType width, core::SizeType height);
+  textureStorage1D(uint32_t texture, core::SizeType levels, SizedInternalFormat internalformat, core::SizeType width);
+extern void textureStorage2D(uint32_t texture,
+                             core::SizeType levels,
+                             SizedInternalFormat internalformat,
+                             core::SizeType width,
+                             core::SizeType height);
 extern void textureStorage2DMultisample(uint32_t texture,
                                         core::SizeType samples,
-                                        InternalFormat internalformat,
+                                        SizedInternalFormat internalformat,
                                         core::SizeType width,
                                         core::SizeType height,
                                         bool fixedsamplelocations);
 extern void textureStorage3D(uint32_t texture,
                              core::SizeType levels,
-                             InternalFormat internalformat,
+                             SizedInternalFormat internalformat,
                              core::SizeType width,
                              core::SizeType height,
                              core::SizeType depth);
 extern void textureStorage3DMultisample(uint32_t texture,
                                         core::SizeType samples,
-                                        InternalFormat internalformat,
+                                        SizedInternalFormat internalformat,
                                         core::SizeType width,
                                         core::SizeType height,
                                         core::SizeType depth,

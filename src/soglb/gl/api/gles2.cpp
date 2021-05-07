@@ -1342,7 +1342,7 @@ void texImage3D(TextureTarget target,
 }
 void texStorage2D(TextureTarget target,
                   core::SizeType levels,
-                  InternalFormat internalformat,
+                  SizedInternalFormat internalformat,
                   core::SizeType width,
                   core::SizeType height)
 {
@@ -1354,7 +1354,7 @@ void texStorage2D(TextureTarget target,
 }
 void texStorage3D(TextureTarget target,
                   core::SizeType levels,
-                  InternalFormat internalformat,
+                  SizedInternalFormat internalformat,
                   core::SizeType width,
                   core::SizeType height,
                   core::SizeType depth)
@@ -1956,7 +1956,7 @@ void sampleMask(uint32_t maskNumber, uint32_t mask)
 }
 void texStorage2DMultisample(TextureTarget target,
                              core::SizeType samples,
-                             InternalFormat internalformat,
+                             SizedInternalFormat internalformat,
                              core::SizeType width,
                              core::SizeType height,
                              bool fixedsamplelocations)
@@ -2305,12 +2305,12 @@ void samplerParameterI(uint32_t sampler, SamplerParameterI pname, const uint32_t
                                 static_cast<GLenum>(pname),
                                 detail::constAway(reinterpret_cast<const GLuint*>(param)));
 }
-void texBuffer(TextureTarget target, InternalFormat internalformat, uint32_t buffer)
+void texBuffer(TextureTarget target, SizedInternalFormat internalformat, uint32_t buffer)
 {
   return glTexBuffer(static_cast<GLenum>(target), static_cast<GLenum>(internalformat), static_cast<GLuint>(buffer));
 }
 void texBufferRange(
-  TextureTarget target, InternalFormat internalformat, uint32_t buffer, std::intptr_t offset, std::size_t size)
+  TextureTarget target, SizedInternalFormat internalformat, uint32_t buffer, std::intptr_t offset, std::size_t size)
 {
   return glTexBufferRange(static_cast<GLenum>(target),
                           static_cast<GLenum>(internalformat),
@@ -2331,7 +2331,7 @@ void texParameterI(TextureTarget target, TextureParameterName pname, const uint3
 }
 void texStorage3DMultisample(TextureTarget target,
                              core::SizeType samples,
-                             InternalFormat internalformat,
+                             SizedInternalFormat internalformat,
                              core::SizeType width,
                              core::SizeType height,
                              core::SizeType depth,

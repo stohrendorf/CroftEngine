@@ -150,9 +150,6 @@ enum class ColorMaterialFace : core::EnumType
 enum class ColorPointerType : core::EnumType
 {
   Byte = 0x1400,
-  Float = 0x1406,
-  Int = 0x1404,
-  Short = 0x1402,
   UnsignedByte = 0x1401,
   UnsignedInt = 0x1405,
   UnsignedShort = 0x1403,
@@ -703,6 +700,18 @@ enum class SecondaryColorPointerTypeIBM : core::EnumType
   Short = 0x1402,
 };
 
+enum class SizedInternalFormat : core::EnumType
+{
+  DepthComponent16 = 0x81A5,
+  R8 = 0x8229,
+  Rg8 = 0x822B,
+  Rgb5A1 = 0x8057,
+  Rgb8 = 0x8051,
+  Rgba4 = 0x8056,
+  Rgba8 = 0x8058,
+  StencilIndex8 = 0x8D48,
+};
+
 enum class StencilFaceDirection : core::EnumType
 {
   Back = 0x0405,
@@ -741,6 +750,11 @@ enum class StringName : core::EnumType
   ShadingLanguageVersion = 0x8B8C,
   Vendor = 0x1F00,
   Version = 0x1F02,
+};
+
+enum class SyncBehaviorFlags : core::EnumType
+{
+  None = 0,
 };
 
 enum class TangentPointerTypeEXT : core::EnumType
@@ -1077,7 +1091,7 @@ extern void texParameter(TextureTarget target, TextureParameterName pname, int32
 extern void texParameter(TextureTarget target, TextureParameterName pname, const int32_t* params);
 extern void texStorage2D(TextureTarget target,
                          core::SizeType levels,
-                         InternalFormat internalformat,
+                         SizedInternalFormat internalformat,
                          core::SizeType width,
                          core::SizeType height);
 extern void texSubImage2D(TextureTarget target,

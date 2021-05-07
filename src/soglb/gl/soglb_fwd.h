@@ -17,8 +17,13 @@ class Framebuffer;
 class FrameBufferBuilder;
 template<typename TStorage>
 class Image;
-// NOLINTNEXTLINE(bugprone-reserved-identifier)
-template<typename T, glm::length_t _Channels, api::PixelFormat _PixelFormat, api::InternalFormat _InternalFormat>
+template<typename T,
+         // NOLINTNEXTLINE(bugprone-reserved-identifier)
+         glm::length_t _Channels,
+         // NOLINTNEXTLINE(bugprone-reserved-identifier)
+         api::PixelFormat _PixelFormat,
+         // NOLINTNEXTLINE(bugprone-reserved-identifier)
+         api::SizedInternalFormat _SizedInternalFormat>
 struct Pixel;
 // NOLINTNEXTLINE(bugprone-reserved-identifier)
 template<api::ProgramInterface _Type>

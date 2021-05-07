@@ -191,10 +191,9 @@ class ConstantsCommands:
 
 
 class Enum:
-    def __init__(self, xml: Element):
-        assert xml.tag == 'group'
-        self.name: str = xml.attrib['name']
-        self.constants: Set[str] = set([x.attrib['name'] for x in xml.iterfind('./enum')])
+    def __init__(self, name: str):
+        self.name: str = name
+        self.constants: Set[str] = set()
         self.is_bitmask = False
 
 
@@ -261,7 +260,7 @@ def load_xml():
     # api, api_version, profile, (enums,commands)
     logging.info('Loading APIs')
     apis_versions_profiles: Dict[str, Dict[str, Dict[Optional[str], ConstantsCommands]]] = defaultdict(dict)
-    for api_name in set([e.attrib['api'] for e in xml.iterfind('./feature[@api]')]):
+    for api_name in {e.attrib['api'] for e in xml.iterfind('./feature[@api]')}:
         logging.info("Loading API {}".format(api_name))
         profile_data: Dict[Optional[str], ConstantsCommands] = {None: ConstantsCommands()}
 
@@ -346,13 +345,16 @@ def load_xml():
 
     for xml_extension in xml.iterfind('./extensions/extension'):
         extension_name = xml_extension.attrib['name']
-        extension_support = xml_extension.attrib['supported'].split('|')
+        extension_support = {*xml_extension.attrib['supported'].split('|')}
+
         for xml_require in xml_extension.iterfind('./require'):
             require_api = xml_require.attrib.get('api', None)
             if require_api is not None:
                 api_targets = {require_api}
             else:
                 api_targets = extension_support
+            if "glcore" in api_targets:
+                api_targets.remove("glcore")
             require_profiles = {xml_require.attrib.get('profile', None)} | {None}
 
             extension_data = extensions_apis_profiles[extension_name]
@@ -372,7 +374,7 @@ def load_xml():
                 else:
                     raise KeyError('Unexpected tag {}'.format(xml_ref.tag))
 
-    enabled_extensions = ('GL_ARB_depth_texture',)
+    enabled_extensions = ('GL_ARB_depth_texture',)  # 'GL_ARB_bindless_texture')
 
     logging.info('Extensions summary')
     for extension_name, ext_apis_profiles in extensions_apis_profiles.items():
@@ -392,14 +394,42 @@ def load_xml():
                             for ext_command in ext_profile_data.commands:
                                 profile.commands.add(ext_command)
 
-    enums: Dict[str, Enum] = {e.name: e for e in map(Enum, xml.iterfind('./groups/group'))}
+    disabled_constants = {
+                             enum.attrib['name']
+                             for extension in xml.iterfind('./extensions/extension[@name]')
+                             if extension.attrib['name'] not in enabled_extensions
+                             for enum in extension.iterfind('./require/enum')
+                         } - {
+                             enum.attrib['name']
+                             for enum in xml.iterfind('./feature/require/enum')
+                         }
+
+    constants = {
+        e.attrib['name']: e.attrib['value']
+        for e in xml.iterfind('./enums/enum')
+        if e.attrib['name'] not in disabled_constants
+    }
+
+    enums: Dict[str, Enum] = {}
+    for e in xml.iterfind('./enums/enum[@group]'):
+        for enum_name in e.attrib["group"].split(","):
+            if e.attrib["name"] not in constants:
+                continue
+
+            if enum_name in enums:
+                enum = enums[enum_name]
+            else:
+                enum = enums[enum_name] = Enum(enum_name)
+
+            enum.constants.add(e.attrib["name"])
+            enum.bitmask = any(g for g in xml.iterfind('./enums[@bitmask]') if g.attrib["group"] == enum.name)
 
     for bm in xml.iterfind('./enums[@type="bitmask"]'):
-        enum = enums.get(bm.attrib['group'])
-        if enum is not None:
-            enum.is_bitmask = True
+        for enum_name in bm.attrib['group'].split(","):
+            enum = enums.get(enum_name)
+            if enum is not None:
+                enum.is_bitmask = True
 
-    constants = {e.attrib['name']: e.attrib['value'] for e in xml.iterfind('./enums/enum')}
     commands: Dict[str, Command] = {}
     for cmd in map(lambda x: Command(xml_command=x), xml.findall('./commands/command')):
         assert cmd.raw_name not in commands

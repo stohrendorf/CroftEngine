@@ -3538,7 +3538,7 @@ void primitiveRestartIndex(uint32_t index)
 {
   return glPrimitiveRestartIndex(static_cast<GLuint>(index));
 }
-void texBuffer(TextureTarget target, InternalFormat internalformat, uint32_t buffer)
+void texBuffer(TextureTarget target, SizedInternalFormat internalformat, uint32_t buffer)
 {
   return glTexBuffer(static_cast<GLenum>(target), static_cast<GLenum>(internalformat), static_cast<GLuint>(buffer));
 }
@@ -4928,7 +4928,7 @@ void memoryBarrier(core::Bitfield<MemoryBarrierMask> barriers)
 {
   return glMemoryBarrier(barriers.value());
 }
-void texStorage1D(TextureTarget target, core::SizeType levels, InternalFormat internalformat, core::SizeType width)
+void texStorage1D(TextureTarget target, core::SizeType levels, SizedInternalFormat internalformat, core::SizeType width)
 {
   return glTexStorage1D(static_cast<GLenum>(target),
                         static_cast<GLsizei>(levels),
@@ -4937,7 +4937,7 @@ void texStorage1D(TextureTarget target, core::SizeType levels, InternalFormat in
 }
 void texStorage2D(TextureTarget target,
                   core::SizeType levels,
-                  InternalFormat internalformat,
+                  SizedInternalFormat internalformat,
                   core::SizeType width,
                   core::SizeType height)
 {
@@ -4949,7 +4949,7 @@ void texStorage2D(TextureTarget target,
 }
 void texStorage3D(TextureTarget target,
                   core::SizeType levels,
-                  InternalFormat internalformat,
+                  SizedInternalFormat internalformat,
                   core::SizeType width,
                   core::SizeType height,
                   core::SizeType depth)
@@ -4974,7 +4974,7 @@ void bindVertexBuffer(uint32_t bindingindex, uint32_t buffer, std::intptr_t offs
                             static_cast<GLsizei>(stride));
 }
 void clearBufferData(
-  BufferStorageTarget target, InternalFormat internalformat, PixelFormat format, PixelType type, const void* data)
+  BufferStorageTarget target, SizedInternalFormat internalformat, PixelFormat format, PixelType type, const void* data)
 {
   return glClearBufferData(static_cast<GLenum>(target),
                            static_cast<GLenum>(internalformat),
@@ -4983,7 +4983,7 @@ void clearBufferData(
                            detail::constAway(data));
 }
 void clearBufferSubData(BufferTargetARB target,
-                        InternalFormat internalformat,
+                        SizedInternalFormat internalformat,
                         std::intptr_t offset,
                         std::size_t size,
                         PixelFormat format,
@@ -5276,7 +5276,7 @@ void shaderStorageBlockBinding(uint32_t program, uint32_t storageBlockIndex, uin
     static_cast<GLuint>(program), static_cast<GLuint>(storageBlockIndex), static_cast<GLuint>(storageBlockBinding));
 }
 void texBufferRange(
-  TextureTarget target, InternalFormat internalformat, uint32_t buffer, std::intptr_t offset, std::size_t size)
+  TextureTarget target, SizedInternalFormat internalformat, uint32_t buffer, std::intptr_t offset, std::size_t size)
 {
   return glTexBufferRange(static_cast<GLenum>(target),
                           static_cast<GLenum>(internalformat),
@@ -5286,7 +5286,7 @@ void texBufferRange(
 }
 void texStorage2DMultisample(TextureTarget target,
                              core::SizeType samples,
-                             InternalFormat internalformat,
+                             SizedInternalFormat internalformat,
                              core::SizeType width,
                              core::SizeType height,
                              bool fixedsamplelocations)
@@ -5300,7 +5300,7 @@ void texStorage2DMultisample(TextureTarget target,
 }
 void texStorage3DMultisample(TextureTarget target,
                              core::SizeType samples,
-                             InternalFormat internalformat,
+                             SizedInternalFormat internalformat,
                              core::SizeType width,
                              core::SizeType height,
                              core::SizeType depth,
@@ -5317,7 +5317,7 @@ void texStorage3DMultisample(TextureTarget target,
 void textureView(uint32_t texture,
                  TextureTarget target,
                  uint32_t origtexture,
-                 InternalFormat internalformat,
+                 SizedInternalFormat internalformat,
                  uint32_t minlevel,
                  uint32_t numlevels,
                  uint32_t minlayer,
@@ -5497,7 +5497,7 @@ FramebufferStatus checkNamedFramebufferStatus(uint32_t framebuffer, FramebufferT
     glCheckNamedFramebufferStatus(static_cast<GLuint>(framebuffer), static_cast<GLenum>(target)));
 }
 void clearNamedBufferData(
-  uint32_t buffer, InternalFormat internalformat, PixelFormat format, PixelType type, const void* data)
+  uint32_t buffer, SizedInternalFormat internalformat, PixelFormat format, PixelType type, const void* data)
 {
   return glClearNamedBufferData(static_cast<GLuint>(buffer),
                                 static_cast<GLenum>(internalformat),
@@ -5506,7 +5506,7 @@ void clearNamedBufferData(
                                 detail::constAway(data));
 }
 void clearNamedBufferSubData(uint32_t buffer,
-                             InternalFormat internalformat,
+                             SizedInternalFormat internalformat,
                              std::intptr_t offset,
                              std::size_t size,
                              PixelFormat format,
@@ -6110,13 +6110,13 @@ void textureBarrier()
 {
   return glTextureBarrier();
 }
-void textureBuffer(uint32_t texture, InternalFormat internalformat, uint32_t buffer)
+void textureBuffer(uint32_t texture, SizedInternalFormat internalformat, uint32_t buffer)
 {
   return glTextureBuffer(
     static_cast<GLuint>(texture), static_cast<GLenum>(internalformat), static_cast<GLuint>(buffer));
 }
 void textureBufferRange(
-  uint32_t texture, InternalFormat internalformat, uint32_t buffer, std::intptr_t offset, std::size_t size)
+  uint32_t texture, SizedInternalFormat internalformat, uint32_t buffer, std::intptr_t offset, std::size_t size)
 {
   return glTextureBufferRange(static_cast<GLuint>(texture),
                               static_cast<GLenum>(internalformat),
@@ -6155,15 +6155,18 @@ void textureParameter(uint32_t texture, TextureParameterName pname, const int32_
   return glTextureParameteriv(
     static_cast<GLuint>(texture), static_cast<GLenum>(pname), detail::constAway(reinterpret_cast<const GLint*>(param)));
 }
-void textureStorage1D(uint32_t texture, core::SizeType levels, InternalFormat internalformat, core::SizeType width)
+void textureStorage1D(uint32_t texture, core::SizeType levels, SizedInternalFormat internalformat, core::SizeType width)
 {
   return glTextureStorage1D(static_cast<GLuint>(texture),
                             static_cast<GLsizei>(levels),
                             static_cast<GLenum>(internalformat),
                             static_cast<GLsizei>(width));
 }
-void textureStorage2D(
-  uint32_t texture, core::SizeType levels, InternalFormat internalformat, core::SizeType width, core::SizeType height)
+void textureStorage2D(uint32_t texture,
+                      core::SizeType levels,
+                      SizedInternalFormat internalformat,
+                      core::SizeType width,
+                      core::SizeType height)
 {
   return glTextureStorage2D(static_cast<GLuint>(texture),
                             static_cast<GLsizei>(levels),
@@ -6173,7 +6176,7 @@ void textureStorage2D(
 }
 void textureStorage2DMultisample(uint32_t texture,
                                  core::SizeType samples,
-                                 InternalFormat internalformat,
+                                 SizedInternalFormat internalformat,
                                  core::SizeType width,
                                  core::SizeType height,
                                  bool fixedsamplelocations)
@@ -6187,7 +6190,7 @@ void textureStorage2DMultisample(uint32_t texture,
 }
 void textureStorage3D(uint32_t texture,
                       core::SizeType levels,
-                      InternalFormat internalformat,
+                      SizedInternalFormat internalformat,
                       core::SizeType width,
                       core::SizeType height,
                       core::SizeType depth)
@@ -6201,7 +6204,7 @@ void textureStorage3D(uint32_t texture,
 }
 void textureStorage3DMultisample(uint32_t texture,
                                  core::SizeType samples,
-                                 InternalFormat internalformat,
+                                 SizedInternalFormat internalformat,
                                  core::SizeType width,
                                  core::SizeType height,
                                  core::SizeType depth,

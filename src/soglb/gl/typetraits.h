@@ -104,87 +104,87 @@ template<typename>
 constexpr auto RSizedInternalFormat = detail::InvalidValue{};
 
 template<>
-constexpr api::InternalFormat SrgbaSizedInternalFormat<uint8_t> = api::InternalFormat::Srgb8Alpha8;
+constexpr api::SizedInternalFormat SrgbaSizedInternalFormat<uint8_t> = api::SizedInternalFormat::Srgb8Alpha8;
 template<>
-constexpr api::InternalFormat SrgbSizedInternalFormat<uint8_t> = api::InternalFormat::Srgb8;
+constexpr api::SizedInternalFormat SrgbSizedInternalFormat<uint8_t> = api::SizedInternalFormat::Srgb8;
 template<>
-constexpr api::InternalFormat RgbaSizedInternalFormat<uint8_t> = api::InternalFormat::Rgba8;
+constexpr api::SizedInternalFormat RgbaSizedInternalFormat<uint8_t> = api::SizedInternalFormat::Rgba8;
 template<>
-constexpr api::InternalFormat RgbSizedInternalFormat<uint8_t> = api::InternalFormat::Rgb8;
+constexpr api::SizedInternalFormat RgbSizedInternalFormat<uint8_t> = api::SizedInternalFormat::Rgb8;
 template<>
-constexpr api::InternalFormat RgSizedInternalFormat<uint8_t> = api::InternalFormat::Rg8;
+constexpr api::SizedInternalFormat RgSizedInternalFormat<uint8_t> = api::SizedInternalFormat::Rg8;
 template<>
-constexpr api::InternalFormat RSizedInternalFormat<uint8_t> = api::InternalFormat::R8;
+constexpr api::SizedInternalFormat RSizedInternalFormat<uint8_t> = api::SizedInternalFormat::R8;
 
 template<>
-constexpr api::InternalFormat RgbaSizedInternalFormat<uint16_t> = api::InternalFormat::Rgba16ui;
+constexpr api::SizedInternalFormat RgbaSizedInternalFormat<uint16_t> = api::SizedInternalFormat::Rgba16ui;
 template<>
-constexpr api::InternalFormat RgbSizedInternalFormat<uint16_t> = api::InternalFormat::Rgb16ui;
+constexpr api::SizedInternalFormat RgbSizedInternalFormat<uint16_t> = api::SizedInternalFormat::Rgb16ui;
 template<>
-constexpr api::InternalFormat RgSizedInternalFormat<uint16_t> = api::InternalFormat::Rg16ui;
+constexpr api::SizedInternalFormat RgSizedInternalFormat<uint16_t> = api::SizedInternalFormat::Rg16ui;
 template<>
-constexpr api::InternalFormat RSizedInternalFormat<uint16_t> = api::InternalFormat::R16ui;
+constexpr api::SizedInternalFormat RSizedInternalFormat<uint16_t> = api::SizedInternalFormat::R16ui;
 
 template<>
-constexpr api::InternalFormat RgbaSizedInternalFormat<uint32_t> = api::InternalFormat::Rgba32ui;
+constexpr api::SizedInternalFormat RgbaSizedInternalFormat<uint32_t> = api::SizedInternalFormat::Rgba32ui;
 template<>
-constexpr api::InternalFormat RgbSizedInternalFormat<uint32_t> = api::InternalFormat::Rgb32ui;
+constexpr api::SizedInternalFormat RgbSizedInternalFormat<uint32_t> = api::SizedInternalFormat::Rgb32ui;
 template<>
-constexpr api::InternalFormat RgSizedInternalFormat<uint32_t> = api::InternalFormat::Rg32ui;
+constexpr api::SizedInternalFormat RgSizedInternalFormat<uint32_t> = api::SizedInternalFormat::Rg32ui;
 template<>
-constexpr api::InternalFormat RSizedInternalFormat<uint32_t> = api::InternalFormat::R32ui;
+constexpr api::SizedInternalFormat RSizedInternalFormat<uint32_t> = api::SizedInternalFormat::R32ui;
 
 template<>
-constexpr api::InternalFormat RgbaSizedInternalFormat<int8_t> = api::InternalFormat::Rgba8i;
+constexpr api::SizedInternalFormat RgbaSizedInternalFormat<int8_t> = api::SizedInternalFormat::Rgba8i;
 template<>
-constexpr api::InternalFormat RgbSizedInternalFormat<int8_t> = api::InternalFormat::Rgb8i;
+constexpr api::SizedInternalFormat RgbSizedInternalFormat<int8_t> = api::SizedInternalFormat::Rgb8i;
 template<>
-constexpr api::InternalFormat RgSizedInternalFormat<int8_t> = api::InternalFormat::Rg8i;
+constexpr api::SizedInternalFormat RgSizedInternalFormat<int8_t> = api::SizedInternalFormat::Rg8i;
 template<>
-constexpr api::InternalFormat RSizedInternalFormat<int8_t> = api::InternalFormat::R8i;
+constexpr api::SizedInternalFormat RSizedInternalFormat<int8_t> = api::SizedInternalFormat::R8i;
 
 template<>
-constexpr api::InternalFormat RgbaSizedInternalFormat<int16_t> = api::InternalFormat::Rgba16i;
+constexpr api::SizedInternalFormat RgbaSizedInternalFormat<int16_t> = api::SizedInternalFormat::Rgba16i;
 template<>
-constexpr api::InternalFormat RgbSizedInternalFormat<int16_t> = api::InternalFormat::Rgb16i;
+constexpr api::SizedInternalFormat RgbSizedInternalFormat<int16_t> = api::SizedInternalFormat::Rgb16i;
 template<>
-constexpr api::InternalFormat RgSizedInternalFormat<int16_t> = api::InternalFormat::Rg16i;
+constexpr api::SizedInternalFormat RgSizedInternalFormat<int16_t> = api::SizedInternalFormat::Rg16i;
 template<>
-constexpr api::InternalFormat RSizedInternalFormat<int16_t> = api::InternalFormat::R16i;
+constexpr api::SizedInternalFormat RSizedInternalFormat<int16_t> = api::SizedInternalFormat::R16i;
 
 template<>
-constexpr api::InternalFormat RgbaSizedInternalFormat<int32_t> = api::InternalFormat::Rgba32i;
+constexpr api::SizedInternalFormat RgbaSizedInternalFormat<int32_t> = api::SizedInternalFormat::Rgba32i;
 template<>
-constexpr api::InternalFormat RgbSizedInternalFormat<int32_t> = api::InternalFormat::Rgb32i;
+constexpr api::SizedInternalFormat RgbSizedInternalFormat<int32_t> = api::SizedInternalFormat::Rgb32i;
 template<>
-constexpr api::InternalFormat RgSizedInternalFormat<int32_t> = api::InternalFormat::Rg32i;
+constexpr api::SizedInternalFormat RgSizedInternalFormat<int32_t> = api::SizedInternalFormat::Rg32i;
 template<>
-constexpr api::InternalFormat RSizedInternalFormat<int32_t> = api::InternalFormat::R32i;
+constexpr api::SizedInternalFormat RSizedInternalFormat<int32_t> = api::SizedInternalFormat::R32i;
 
 template<>
-constexpr api::InternalFormat RgbaSizedInternalFormat<float> = api::InternalFormat::Rgba32f;
+constexpr api::SizedInternalFormat RgbaSizedInternalFormat<float> = api::SizedInternalFormat::Rgba32f;
 template<>
-constexpr api::InternalFormat RgbSizedInternalFormat<float> = api::InternalFormat::Rgb32f;
+constexpr api::SizedInternalFormat RgbSizedInternalFormat<float> = api::SizedInternalFormat::Rgb32f;
 template<>
-constexpr api::InternalFormat RgSizedInternalFormat<float> = api::InternalFormat::Rg32f;
+constexpr api::SizedInternalFormat RgSizedInternalFormat<float> = api::SizedInternalFormat::Rg32f;
 template<>
-constexpr api::InternalFormat RSizedInternalFormat<float> = api::InternalFormat::R32f;
+constexpr api::SizedInternalFormat RSizedInternalFormat<float> = api::SizedInternalFormat::R32f;
 
 template<>
-constexpr api::InternalFormat RgbaSizedInternalFormat<api::core::Half> = api::InternalFormat::Rgba16f;
+constexpr api::SizedInternalFormat RgbaSizedInternalFormat<api::core::Half> = api::SizedInternalFormat::Rgba16f;
 template<>
-constexpr api::InternalFormat RgbSizedInternalFormat<api::core::Half> = api::InternalFormat::Rgb16f;
+constexpr api::SizedInternalFormat RgbSizedInternalFormat<api::core::Half> = api::SizedInternalFormat::Rgb16f;
 template<>
-constexpr api::InternalFormat RgSizedInternalFormat<api::core::Half> = api::InternalFormat::Rg16f;
+constexpr api::SizedInternalFormat RgSizedInternalFormat<api::core::Half> = api::SizedInternalFormat::Rg16f;
 template<>
-constexpr api::InternalFormat RSizedInternalFormat<api::core::Half> = api::InternalFormat::R16f;
+constexpr api::SizedInternalFormat RSizedInternalFormat<api::core::Half> = api::SizedInternalFormat::R16f;
 
 template<typename>
 constexpr auto DepthInternalFormat = detail::InvalidValue{};
 template<>
-constexpr api::InternalFormat DepthInternalFormat<int16_t> = api::InternalFormat::DepthComponent16Arb;
+constexpr api::SizedInternalFormat DepthInternalFormat<int16_t> = api::SizedInternalFormat::DepthComponent16Arb;
 template<>
-constexpr api::InternalFormat DepthInternalFormat<int32_t> = api::InternalFormat::DepthComponent32Arb;
+constexpr api::SizedInternalFormat DepthInternalFormat<int32_t> = api::SizedInternalFormat::DepthComponent32Arb;
 template<>
-constexpr api::InternalFormat DepthInternalFormat<float> = api::InternalFormat::DepthComponent32f;
+constexpr api::SizedInternalFormat DepthInternalFormat<float> = api::SizedInternalFormat::DepthComponent32f;
 } // namespace gl

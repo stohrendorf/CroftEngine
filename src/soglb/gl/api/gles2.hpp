@@ -365,9 +365,6 @@ enum class ColorMaterialFace : core::EnumType
 enum class ColorPointerType : core::EnumType
 {
   Byte = 0x1400,
-  Float = 0x1406,
-  Int = 0x1404,
-  Short = 0x1402,
   UnsignedByte = 0x1401,
   UnsignedInt = 0x1405,
   UnsignedShort = 0x1403,
@@ -664,7 +661,6 @@ enum class FramebufferAttachment : core::EnumType
   ColorAttachment7 = 0x8CE7,
   ColorAttachment8 = 0x8CE8,
   ColorAttachment9 = 0x8CE9,
-  DepthStencilAttachment = 0x821A,
 #endif
 };
 
@@ -817,6 +813,7 @@ enum class GetPName : core::EnumType
   SampleCoverageValue = 0x80AA,
   ScissorBox = 0x0C10,
   ScissorTest = 0x0C11,
+  ShaderBinaryFormats = 0x8DF8,
   ShaderCompiler = 0x8DFA,
   StencilBackFail = 0x8801,
   StencilBackFunc = 0x8800,
@@ -951,8 +948,10 @@ enum class GetPName : core::EnumType
   MaxLabelLength = 0x82E8,
   MaxTessControlAtomicCounters = 0x92D3,
   MaxTessControlShaderStorageBlocks = 0x90D8,
+  MaxTessControlUniformBlocks = 0x8E89,
   MaxTessEvaluationAtomicCounters = 0x92D4,
   MaxTessEvaluationShaderStorageBlocks = 0x90D9,
+  MaxTessEvaluationUniformBlocks = 0x8E8A,
   MaxTextureBufferSize = 0x8C2B,
   TextureBinding2dMultisampleArray = 0x9105,
   TextureBindingBuffer = 0x8C2C,
@@ -1138,6 +1137,7 @@ enum class InternalFormat : core::EnumType
   CompressedSrgb8PunchthroughAlpha1Etc2 = 0x9277,
   Depth24Stencil8 = 0x88F0,
   Depth32fStencil8 = 0x8CAD,
+  DepthComponent24 = 0x81A6,
   DepthComponent32f = 0x8CAC,
   DepthStencil = 0x84F9,
   R11fG11fB10f = 0x8C3A,
@@ -1784,6 +1784,106 @@ enum class ShaderType : core::EnumType
 #endif
 };
 
+enum class SizedInternalFormat : core::EnumType
+{
+  DepthComponent16 = 0x81A5,
+  Rgb5A1 = 0x8057,
+  Rgba4 = 0x8056,
+  StencilIndex8 = 0x8D48,
+#if defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
+  CompressedR11Eac = 0x9270,
+  CompressedRg11Eac = 0x9272,
+  CompressedRgb8Etc2 = 0x9274,
+  CompressedRgb8PunchthroughAlpha1Etc2 = 0x9276,
+  CompressedRgba8Etc2Eac = 0x9278,
+  CompressedSignedR11Eac = 0x9271,
+  CompressedSignedRg11Eac = 0x9273,
+  CompressedSrgb8Alpha8Etc2Eac = 0x9279,
+  CompressedSrgb8Etc2 = 0x9275,
+  CompressedSrgb8PunchthroughAlpha1Etc2 = 0x9277,
+  Depth24Stencil8 = 0x88F0,
+  Depth32fStencil8 = 0x8CAD,
+  DepthComponent24 = 0x81A6,
+  DepthComponent32f = 0x8CAC,
+  R11fG11fB10f = 0x8C3A,
+  R16f = 0x822D,
+  R16i = 0x8233,
+  R16ui = 0x8234,
+  R32f = 0x822E,
+  R32i = 0x8235,
+  R32ui = 0x8236,
+  R8 = 0x8229,
+  R8i = 0x8231,
+  R8ui = 0x8232,
+  R8Snorm = 0x8F94,
+  Rg16f = 0x822F,
+  Rg16i = 0x8239,
+  Rg16ui = 0x823A,
+  Rg32f = 0x8230,
+  Rg32i = 0x823B,
+  Rg32ui = 0x823C,
+  Rg8 = 0x822B,
+  Rg8i = 0x8237,
+  Rg8ui = 0x8238,
+  Rg8Snorm = 0x8F95,
+  Rgb10A2 = 0x8059,
+  Rgb10A2ui = 0x906F,
+  Rgb16f = 0x881B,
+  Rgb16i = 0x8D89,
+  Rgb16ui = 0x8D77,
+  Rgb32f = 0x8815,
+  Rgb32i = 0x8D83,
+  Rgb32ui = 0x8D71,
+  Rgb8 = 0x8051,
+  Rgb8i = 0x8D8F,
+  Rgb8ui = 0x8D7D,
+  Rgb8Snorm = 0x8F96,
+  Rgb9E5 = 0x8C3D,
+  Rgba16f = 0x881A,
+  Rgba16i = 0x8D88,
+  Rgba16ui = 0x8D76,
+  Rgba32f = 0x8814,
+  Rgba32i = 0x8D82,
+  Rgba32ui = 0x8D70,
+  Rgba8 = 0x8058,
+  Rgba8i = 0x8D8E,
+  Rgba8ui = 0x8D7C,
+  Rgba8Snorm = 0x8F97,
+  Srgb8 = 0x8C41,
+  Srgb8Alpha8 = 0x8C43,
+#endif
+#if defined(API_LEVEL_GL_ES_VERSION_3_2)
+  CompressedRgbaAstc10x10 = 0x93BB,
+  CompressedRgbaAstc10x5 = 0x93B8,
+  CompressedRgbaAstc10x6 = 0x93B9,
+  CompressedRgbaAstc10x8 = 0x93BA,
+  CompressedRgbaAstc12x10 = 0x93BC,
+  CompressedRgbaAstc12x12 = 0x93BD,
+  CompressedRgbaAstc4x4 = 0x93B0,
+  CompressedRgbaAstc5x4 = 0x93B1,
+  CompressedRgbaAstc5x5 = 0x93B2,
+  CompressedRgbaAstc6x5 = 0x93B3,
+  CompressedRgbaAstc6x6 = 0x93B4,
+  CompressedRgbaAstc8x5 = 0x93B5,
+  CompressedRgbaAstc8x6 = 0x93B6,
+  CompressedRgbaAstc8x8 = 0x93B7,
+  CompressedSrgb8Alpha8Astc10x10 = 0x93DB,
+  CompressedSrgb8Alpha8Astc10x5 = 0x93D8,
+  CompressedSrgb8Alpha8Astc10x6 = 0x93D9,
+  CompressedSrgb8Alpha8Astc10x8 = 0x93DA,
+  CompressedSrgb8Alpha8Astc12x10 = 0x93DC,
+  CompressedSrgb8Alpha8Astc12x12 = 0x93DD,
+  CompressedSrgb8Alpha8Astc4x4 = 0x93D0,
+  CompressedSrgb8Alpha8Astc5x4 = 0x93D1,
+  CompressedSrgb8Alpha8Astc5x5 = 0x93D2,
+  CompressedSrgb8Alpha8Astc6x5 = 0x93D3,
+  CompressedSrgb8Alpha8Astc6x6 = 0x93D4,
+  CompressedSrgb8Alpha8Astc8x5 = 0x93D5,
+  CompressedSrgb8Alpha8Astc8x6 = 0x93D6,
+  CompressedSrgb8Alpha8Astc8x8 = 0x93D7,
+#endif
+};
+
 enum class StencilFaceDirection : core::EnumType
 {
   Back = 0x0405,
@@ -1831,6 +1931,11 @@ enum class SubroutineParameterName : core::EnumType
   UniformSize = 0x8A38,
 };
 #endif
+
+enum class SyncBehaviorFlags : core::EnumType
+{
+  None = 0,
+};
 
 #if defined(API_LEVEL_GL_ES_VERSION_3_0) || defined(API_LEVEL_GL_ES_VERSION_3_1) || defined(API_LEVEL_GL_ES_VERSION_3_2)
 enum class SyncCondition : core::EnumType
@@ -1979,6 +2084,7 @@ enum class TextureTarget : core::EnumType
 #endif
 #if defined(API_LEVEL_GL_ES_VERSION_3_2)
   Texture2dMultisampleArray = 0x9102,
+  TextureBuffer = 0x8C2A,
   TextureCubeMapArray = 0x9009,
 #endif
 };
@@ -2706,12 +2812,12 @@ extern void texImage3D(TextureTarget target,
                        const void* pixels);
 extern void texStorage2D(TextureTarget target,
                          core::SizeType levels,
-                         InternalFormat internalformat,
+                         SizedInternalFormat internalformat,
                          core::SizeType width,
                          core::SizeType height);
 extern void texStorage3D(TextureTarget target,
                          core::SizeType levels,
-                         InternalFormat internalformat,
+                         SizedInternalFormat internalformat,
                          core::SizeType width,
                          core::SizeType height,
                          core::SizeType depth);
@@ -2849,7 +2955,7 @@ extern void
 extern void sampleMask(uint32_t maskNumber, uint32_t mask);
 extern void texStorage2DMultisample(TextureTarget target,
                                     core::SizeType samples,
-                                    InternalFormat internalformat,
+                                    SizedInternalFormat internalformat,
                                     core::SizeType width,
                                     core::SizeType height,
                                     bool fixedsamplelocations);
@@ -2947,14 +3053,14 @@ extern void readnPixel(int32_t x,
                        void* data);
 extern void samplerParameterI(uint32_t sampler, SamplerParameterI pname, const int32_t* param);
 extern void samplerParameterI(uint32_t sampler, SamplerParameterI pname, const uint32_t* param);
-extern void texBuffer(TextureTarget target, InternalFormat internalformat, uint32_t buffer);
+extern void texBuffer(TextureTarget target, SizedInternalFormat internalformat, uint32_t buffer);
 extern void texBufferRange(
-  TextureTarget target, InternalFormat internalformat, uint32_t buffer, std::intptr_t offset, std::size_t size);
+  TextureTarget target, SizedInternalFormat internalformat, uint32_t buffer, std::intptr_t offset, std::size_t size);
 extern void texParameterI(TextureTarget target, TextureParameterName pname, const int32_t* params);
 extern void texParameterI(TextureTarget target, TextureParameterName pname, const uint32_t* params);
 extern void texStorage3DMultisample(TextureTarget target,
                                     core::SizeType samples,
-                                    InternalFormat internalformat,
+                                    SizedInternalFormat internalformat,
                                     core::SizeType width,
                                     core::SizeType height,
                                     core::SizeType depth,

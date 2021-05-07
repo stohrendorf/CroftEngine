@@ -416,7 +416,7 @@ void texParameter(TextureTarget target, TextureParameterName pname, const int32_
 }
 void texStorage2D(TextureTarget target,
                   core::SizeType levels,
-                  InternalFormat internalformat,
+                  SizedInternalFormat internalformat,
                   core::SizeType width,
                   core::SizeType height)
 {

@@ -152,8 +152,6 @@ enum class ColorMaterialParameter : core::EnumType
 enum class ColorPointerType : core::EnumType
 {
   Byte = 0x1400,
-  Float = 0x1406,
-  Short = 0x1402,
   UnsignedByte = 0x1401,
   UnsignedShort = 0x1403,
 };
@@ -581,13 +579,10 @@ enum class LightName : core::EnumType
 
 enum class LightParameter : core::EnumType
 {
-  Ambient = 0x1200,
   ConstantAttenuation = 0x1207,
-  Diffuse = 0x1201,
   LinearAttenuation = 0x1208,
   Position = 0x1203,
   QuadraticAttenuation = 0x1209,
-  Specular = 0x1202,
   SpotCutoff = 0x1206,
   SpotDirection = 0x1204,
   SpotExponent = 0x1205,

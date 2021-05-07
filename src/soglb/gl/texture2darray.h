@@ -21,7 +21,7 @@ public:
     BOOST_ASSERT(size.y > 0);
     BOOST_ASSERT(size.z > 0);
 
-    GL_ASSERT(api::textureStorage3D(getHandle(), levels, Pixel::InternalFormat, size.x, size.y, size.z));
+    GL_ASSERT(api::textureStorage3D(getHandle(), levels, Pixel::SizedInternalFormat, size.x, size.y, size.z));
   }
 
   Texture2DArray<_PixelT>& assign(const gsl::not_null<const _PixelT*>& data, int z, int level = 0)

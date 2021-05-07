@@ -8,7 +8,10 @@
 namespace gl
 {
 // NOLINTNEXTLINE(bugprone-reserved-identifier)
-template<typename T, glm::length_t _Channels, api::PixelFormat _PixelFormat, api::InternalFormat _InternalFormat>
+template<typename T,
+         glm::length_t _Channels,
+         api::PixelFormat _PixelFormat,
+         api::SizedInternalFormat _SizedInternalFormat>
 struct Pixel
 {
   static_assert(std::is_integral_v<T> || std::is_floating_point_v<T> || std::is_same_v<T, api::core::Half>,
@@ -16,13 +19,13 @@ struct Pixel
 
   static_assert(_Channels > 0, "Pixel must contain at least one channel");
 
-  using Self = Pixel<T, _Channels, _PixelFormat, _InternalFormat>;
+  using Self = Pixel<T, _Channels, _PixelFormat, _SizedInternalFormat>;
 
   using Type = T;
 
   static constexpr auto Channels = _Channels;
   static constexpr api::PixelFormat PixelFormat = _PixelFormat;
-  static constexpr api::InternalFormat InternalFormat = _InternalFormat;
+  static constexpr api::SizedInternalFormat SizedInternalFormat = _SizedInternalFormat;
   static constexpr api::PixelType PixelType = ::gl::PixelType<T>;
   using Vec = glm::vec<Channels, Type, glm::qualifier::defaultp>;
 
@@ -76,13 +79,13 @@ template<typename T,
          // NOLINTNEXTLINE(bugprone-reserved-identifier)
          api::PixelFormat _PixelFormat,
          // NOLINTNEXTLINE(bugprone-reserved-identifier)
-         api::InternalFormat _InternalFormat>
-auto imix(const Pixel<T, _Channels, _PixelFormat, _InternalFormat>& lhs,
-          const Pixel<T, _Channels, _PixelFormat, _InternalFormat>& rhs,
+         api::SizedInternalFormat _SizedInternalFormat>
+auto imix(const Pixel<T, _Channels, _PixelFormat, _SizedInternalFormat>& lhs,
+          const Pixel<T, _Channels, _PixelFormat, _SizedInternalFormat>& rhs,
           U bias,
           U biasMax = std::numeric_limits<U>::max())
   -> std::enable_if_t<std::is_unsigned_v<T> == std::is_unsigned_v<U>,
-                      Pixel<T, _Channels, _PixelFormat, _InternalFormat>>
+                      Pixel<T, _Channels, _PixelFormat, _SizedInternalFormat>>
 {
   if(bias >= biasMax)
     return rhs;
@@ -99,9 +102,9 @@ auto imix(const Pixel<T, _Channels, _PixelFormat, _InternalFormat>& lhs,
 }
 
 // NOLINTNEXTLINE(bugprone-reserved-identifier)
-template<typename T, api::PixelFormat _PixelFormat, api::InternalFormat _InternalFormat>
-Pixel<T, 4, _PixelFormat, _InternalFormat> mixAlpha(const Pixel<T, 4, _PixelFormat, _InternalFormat>& lhs,
-                                                    const Pixel<T, 4, _PixelFormat, _InternalFormat>& rhs)
+template<typename T, api::PixelFormat _PixelFormat, api::SizedInternalFormat _SizedInternalFormat>
+Pixel<T, 4, _PixelFormat, _SizedInternalFormat> mixAlpha(const Pixel<T, 4, _PixelFormat, _SizedInternalFormat>& lhs,
+                                                         const Pixel<T, 4, _PixelFormat, _SizedInternalFormat>& rhs)
 {
   return imix(lhs, rhs, rhs.channels[3]);
 }
