@@ -24,6 +24,7 @@
 #include <boost/range/adaptors.hpp>
 #include <gl/debuggroup.h>
 #include <gl/font.h>
+#include <gl/texture2d.h>
 
 namespace
 {
@@ -331,7 +332,8 @@ Presenter::Presenter(const std::filesystem::path& rootPath, bool fullscreen, con
     , m_soundEngine{std::make_shared<audio::SoundEngine>()}
     , m_renderer{std::make_shared<render::scene::Renderer>(std::make_shared<render::scene::Camera>(
         DefaultFov, m_window->getViewport(), DefaultNearPlane, DefaultFarPlane))}
-    , m_splashImage{gl::CImgWrapper{rootPath / "splash.png"}.toTexture()}
+    , m_splashImage{std::make_shared<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>>(
+        gl::CImgWrapper{rootPath / "splash.png"}.toTexture())}
     , m_trTTFFont{std::make_unique<gl::Font>(rootPath / "trfont.ttf")}
     , m_debugFont{std::make_unique<gl::Font>(rootPath / "DroidSansMono.ttf")}
     , m_inputHandler{std::make_unique<hid::InputHandler>(m_window->getWindow())}
@@ -351,7 +353,7 @@ void Presenter::scaleSplashImage()
 {
   // scale splash image so that its aspect ratio is preserved, but the boundaries match
   const auto targetSize = glm::vec2{m_window->getViewport()};
-  const auto sourceSize = glm::vec2{m_splashImage->size()};
+  const auto sourceSize = glm::vec2{m_splashImage->getTexture()->size()};
   const float splashScale = std::max(targetSize.x / sourceSize.x, targetSize.y / sourceSize.y);
 
   auto scaledSourceSize = sourceSize * splashScale;

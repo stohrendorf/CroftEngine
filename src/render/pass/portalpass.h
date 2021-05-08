@@ -4,6 +4,8 @@
 
 #include <gl/pixel.h>
 #include <gl/soglb_fwd.h>
+#include <gl/texture2d.h>
+#include <gl/texturedepth.h>
 
 namespace render::scene
 {
@@ -17,7 +19,7 @@ class PortalPass
 public:
   explicit PortalPass(scene::MaterialManager& materialManager, const glm::vec2& viewport);
 
-  void bind(const gl::TextureDepth<float>& depth);
+  void bind(const gl::TextureHandle<gl::TextureDepth<float>>& depth);
 
   void renderBlur()
   {
@@ -26,12 +28,12 @@ public:
 
   [[nodiscard]] const auto& getDepthBuffer() const
   {
-    return m_depthBuffer;
+    return m_depthBufferHandle;
   }
 
   [[nodiscard]] const auto& getNoisyTexture() const
   {
-    return m_perturbBuffer;
+    return m_perturbBufferHandle;
   }
 
   [[nodiscard]] const auto& getBlurredTexture() const
@@ -41,7 +43,9 @@ public:
 
 private:
   std::shared_ptr<gl::TextureDepth<float>> m_depthBuffer;
+  std::shared_ptr<gl::TextureHandle<gl::TextureDepth<float>>> m_depthBufferHandle;
   std::shared_ptr<gl::Texture2D<gl::RG32F>> m_perturbBuffer;
+  std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::RG32F>>> m_perturbBufferHandle;
   scene::SeparableBlur<gl::RG32F> m_blur;
   std::shared_ptr<gl::Framebuffer> m_fb;
 };

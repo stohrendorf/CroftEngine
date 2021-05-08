@@ -23,7 +23,7 @@ bool ScreenOverlay::render(RenderContext& context)
     return false;
 
   context.pushState(getRenderState());
-  m_texture->assign(m_image->getRawData());
+  m_texture->getTexture()->assign(m_image->getRawData());
   m_mesh->render(context);
   context.popState();
   return true;
@@ -37,12 +37,14 @@ void ScreenOverlay::init(MaterialManager& materialManager, const glm::ivec2& vie
     BOOST_THROW_EXCEPTION(std::runtime_error("Cannot create screen overlay because the viewport is empty"));
   }
 
-  m_texture = std::make_shared<gl::Texture2D<gl::SRGBA8>>(m_image->getSize());
-  m_texture->assign(m_image->getRawData())
-    .set(gl::api::TextureMinFilter::Nearest)
+  auto texture = std::make_shared<gl::Texture2D<gl::SRGBA8>>(m_image->getSize());
+  texture->assign(m_image->getRawData());
+  auto sampler = std::make_unique<gl::Sampler>();
+  sampler->set(gl::api::TextureMinFilter::Nearest)
     .set(gl::api::TextureMagFilter::Nearest)
-    .set(gl::api::TextureParameterName::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge)
-    .set(gl::api::TextureParameterName::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge);
+    .set(gl::api::SamplerParameterI::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge)
+    .set(gl::api::SamplerParameterI::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge);
+  m_texture = std::make_shared<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>>(texture, std::move(sampler));
 
   m_mesh = createScreenQuad(materialManager.getFlat(true, true), "screenoverlay");
   m_mesh->bind("u_input",

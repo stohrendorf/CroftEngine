@@ -17,7 +17,7 @@ logging.basicConfig(level=logging.INFO)
 API_VERSION_PREFIX = 'API_LEVEL'
 VENDOR_PREFIX = 'WITH_GL_API_VENDOR'
 EXTENSION_PREFIX = 'WITH_API_EXTENSION'
-ENABLED_EXTENSIONS = ('GL_ARB_depth_texture',)  # 'GL_ARB_bindless_texture')
+ENABLED_EXTENSIONS = ('GL_ARB_depth_texture', 'GL_ARB_bindless_texture')
 ENABLED_APIS = ('gl',)
 
 XML_NAME = os.path.join("api", "gl.xml")

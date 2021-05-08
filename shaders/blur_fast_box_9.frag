@@ -6,7 +6,7 @@
 #define BLUR_TYPE vec2
 #endif
 
-uniform sampler2D u_input;
+layout(bindless_sampler) uniform sampler2D u_input;
 layout(location=0) out BLUR_TYPE out_tex;
 
 void main()

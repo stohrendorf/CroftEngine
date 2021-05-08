@@ -47,7 +47,7 @@ public:
   [[nodiscard]] std::shared_ptr<Material> getFastGaussBlur(uint8_t extent, uint8_t blurDir, uint8_t blurDim);
   [[nodiscard]] std::shared_ptr<Material> getFastBoxBlur(uint8_t extent, uint8_t blurDir, uint8_t blurDim);
 
-  void setGeometryTextures(std::shared_ptr<gl::Texture2DArray<gl::SRGBA8>> geometryTextures);
+  void setGeometryTextures(std::shared_ptr<gl::TextureHandle<gl::Texture2DArray<gl::SRGBA8>>> geometryTextures);
   void setBilinearFiltering(bool enabled);
 
   void setCSM(const gsl::not_null<std::shared_ptr<CSM>>& csm)
@@ -57,7 +57,7 @@ public:
 
 private:
   const gsl::not_null<std::shared_ptr<ShaderCache>> m_shaderCache;
-  std::shared_ptr<gl::Texture2D<gl::RGB8>> m_noiseTexture;
+  std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::RGB8>>> m_noiseTexture;
 
   std::shared_ptr<Material> m_sprite{nullptr};
   std::map<bool, std::shared_ptr<Material>> m_csmDepthOnly{};
@@ -80,6 +80,6 @@ private:
 
   std::shared_ptr<CSM> m_csm;
   const gsl::not_null<std::shared_ptr<Renderer>> m_renderer;
-  std::shared_ptr<gl::Texture2DArray<gl::SRGBA8>> m_geometryTextures;
+  std::shared_ptr<gl::TextureHandle<gl::Texture2DArray<gl::SRGBA8>>> m_geometryTextures;
 };
 } // namespace render::scene

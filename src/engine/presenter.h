@@ -154,7 +154,7 @@ private:
 
   std::shared_ptr<audio::SoundEngine> m_soundEngine;
   const std::shared_ptr<render::scene::Renderer> m_renderer;
-  const std::shared_ptr<gl::Texture2D<gl::SRGBA8>> m_splashImage;
+  const std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>> m_splashImage;
   std::shared_ptr<render::scene::Mesh> m_splashImageMesh;
   const std::unique_ptr<gl::Font> m_trTTFFont;
   const std::unique_ptr<gl::Font> m_debugFont;

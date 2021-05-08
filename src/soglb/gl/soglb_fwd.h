@@ -37,10 +37,14 @@ class ProgramBlock;
 class Uniform;
 class Program;
 class RenderState;
+class Sampler;
 // NOLINTNEXTLINE(bugprone-reserved-identifier)
 template<api::ShaderType _Type>
 class Shader;
 class Texture;
+// NOLINTNEXTLINE(bugprone-reserved-identifier)
+template<typename _Texture>
+class TextureHandle;
 // NOLINTNEXTLINE(bugprone-reserved-identifier)
 template<api::TextureTarget _Target, typename PixelT>
 class TextureImpl;

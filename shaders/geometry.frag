@@ -2,7 +2,7 @@
 #include "camera_interface.glsl"
 #include "time_uniform.glsl"
 
-layout(binding=4) uniform sampler2DArray u_diffuseTextures;
+layout(bindless_sampler) uniform sampler2DArray u_diffuseTextures;
 #ifdef WATER
 #include "water_caustics.glsl"
 #endif

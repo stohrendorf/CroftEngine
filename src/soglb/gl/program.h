@@ -1,9 +1,8 @@
 #pragma once
 
 #include "buffer.h"
-#include "renderstate.h"
 #include "shader.h"
-#include "texture.h"
+#include "texturehandle.h"
 
 #include <type_traits>
 
@@ -269,18 +268,12 @@ public:
     GL_ASSERT(api::programUniform4(m_program, getLocation(), value.x, value.y, value.z, value.w));
   }
 
-  static api::TextureUnit textureUnit(const size_t n)
-  {
-    Expects(n < api::TextureUnitCount);
-    return static_cast<api::TextureUnit>(static_cast<api::core::EnumType>(api::TextureUnit::Texture0) + n);
-  }
-
-  // ReSharper disable once CppMemberFunctionMayBeConst
-  void set(const gsl::not_null<std::shared_ptr<Texture>>& texture)
+  // NOLINTNEXTLINE(bugprone-reserved-identifier)
+  template<typename _Texture>
+  void set(const std::shared_ptr<TextureHandle<_Texture>>& textureHandle)
   {
     Expects(m_program != InvalidProgram);
-    GL_ASSERT(
-      api::programUniform1(m_program, getLocation(), RenderState::getWantedState().allocateTextureUnit(texture)));
+    GL_ASSERT(api::programUniformHandle(m_program, getLocation(), textureHandle->getHandle()));
   }
 
   template<typename _It> // NOLINT(bugprone-reserved-identifier)
@@ -288,33 +281,29 @@ public:
   {
     Expects(m_program != InvalidProgram && m_size >= 0);
 
-    std::vector<int32_t> units;
+    std::vector<uint64_t> handles;
     for(auto it = begin; it != end; ++it)
     {
-      units.emplace_back(RenderState::getWantedState().allocateTextureUnit(*it));
+      handles.emplace_back((*it)->getHandle());
     }
 
-    Expects(units.size() == static_cast<size_t>(m_size));
-    GL_ASSERT(api::programUniform1(
-      m_program, getLocation(), gsl::narrow_cast<api::core::SizeType>(units.size()), units.data()));
+    Expects(handles.size() == static_cast<size_t>(m_size));
+    GL_ASSERT(api::programUniformHandle(
+      m_program, getLocation(), gsl::narrow_cast<api::core::SizeType>(handles.size()), handles.data()));
   }
 
-  template<typename T>
-  std::enable_if_t<std::is_base_of_v<Texture, T>, void> set(const std::vector<std::shared_ptr<T>>& textures)
+  // NOLINTNEXTLINE(bugprone-reserved-identifier)
+  template<typename _Texture>
+  void set(const std::vector<std::shared_ptr<TextureHandle<_Texture>>>& textureHandles)
   {
-    setTextures(textures.begin(), textures.end());
+    setTextures(textureHandles.begin(), textureHandles.end());
   }
 
-  template<typename T, size_t N>
-  std::enable_if_t<std::is_base_of_v<Texture, T>, void> set(const std::array<std::shared_ptr<T>, N>& textures)
+  // NOLINTNEXTLINE(bugprone-reserved-identifier)
+  template<typename _Texture, size_t N>
+  void set(const std::array<std::shared_ptr<TextureHandle<_Texture>>, N>& textureHandles)
   {
-    setTextures(textures.begin(), textures.end());
-  }
-
-  // ReSharper disable once CppMemberFunctionMayBeConst
-  void set(const std::vector<std::shared_ptr<Texture>>& textures)
-  {
-    setTextures(textures.begin(), textures.end());
+    setTextures(textureHandles.begin(), textureHandles.end());
   }
 
 private:

@@ -20,15 +20,18 @@ FXAAPass::FXAAPass(scene::MaterialManager& materialManager,
     , m_mesh{scene::createScreenQuad(m_material, "fxaa")}
     , m_colorBuffer{std::make_shared<gl::Texture2D<gl::SRGBA8>>(viewport, "fxaa-color")}
 {
-  m_colorBuffer->set(gl::api::TextureParameterName::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge)
-    .set(gl::api::TextureParameterName::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge)
+  auto sampler = std::make_unique<gl::Sampler>("fxaa-color");
+  sampler->set(gl::api::SamplerParameterI::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge)
+    .set(gl::api::SamplerParameterI::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge)
     .set(gl::api::TextureMinFilter::Linear)
     .set(gl::api::TextureMagFilter::Linear);
+  m_colorBufferHandle
+    = std::make_shared<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>>(m_colorBuffer, std::move(sampler));
 
   m_mesh->bind("u_input",
-               [buffer = geometryPass.getColorBuffer()](const render::scene::Node& /*node*/,
-                                                        const render::scene::Mesh& /*mesh*/,
-                                                        gl::Uniform& uniform) { uniform.set(buffer); });
+               [buffer = geometryPass.getColorBuffer()](
+                 const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
+               { uniform.set(buffer); });
 
   m_fb = gl::FrameBufferBuilder()
            .texture(gl::api::FramebufferAttachment::ColorAttachment0, m_colorBuffer)

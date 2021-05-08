@@ -1,5 +1,5 @@
-uniform sampler2D u_position;
-uniform sampler2D u_normals;
+layout(bindless_sampler) uniform sampler2D u_position;
+layout(bindless_sampler) uniform sampler2D u_normals;
 
 uniform vec3 u_samples[16];
 

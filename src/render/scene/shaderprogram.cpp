@@ -175,7 +175,7 @@ std::shared_ptr<ShaderProgram> ShaderProgram::createFromSource(const std::filesy
 {
   static constexpr size_t SHADER_SOURCE_LENGTH = 3;
   std::array<gsl::czstring, SHADER_SOURCE_LENGTH> shaderSource{nullptr};
-  shaderSource[0] = "#version 450\n";
+  shaderSource[0] = "#version 450\n#extension GL_ARB_bindless_texture : require\n";
 
   std::string vshSourceStr;
   if(!vshPath.empty())

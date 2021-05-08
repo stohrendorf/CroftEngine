@@ -91,14 +91,17 @@ CompositionPass::CompositionPass(scene::MaterialManager& materialManager,
                       const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
                     { uniform.set(buffer); });
 
-  m_colorBuffer->set(gl::api::TextureParameterName::TextureWrapS, gl::api::TextureWrapMode::Repeat)
-    .set(gl::api::TextureParameterName::TextureWrapT, gl::api::TextureWrapMode::Repeat)
+  auto sampler = std::make_unique<gl::Sampler>("composition-color");
+  sampler->set(gl::api::SamplerParameterI::TextureWrapS, gl::api::TextureWrapMode::Repeat)
+    .set(gl::api::SamplerParameterI::TextureWrapT, gl::api::TextureWrapMode::Repeat)
     .set(gl::api::TextureMinFilter::Linear)
     .set(gl::api::TextureMagFilter::Linear);
+  m_colorBufferHandle
+    = std::make_shared<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>>(m_colorBuffer, std::move(sampler));
 
   m_crtMesh->bind("u_input",
                   [this](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
-                  { uniform.set(m_colorBuffer); });
+                  { uniform.set(m_colorBufferHandle); });
 
   m_fb = gl::FrameBufferBuilder()
            .texture(gl::api::FramebufferAttachment::ColorAttachment0, m_colorBuffer)

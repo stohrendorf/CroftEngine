@@ -1,7 +1,7 @@
 #include "camera_interface.glsl"
 #include "flat_pipeline_interface.glsl"
 
-uniform sampler2D u_depth;
+layout(bindless_sampler) uniform sampler2D u_depth;
 
 layout(location=0) out float out_depth;
 

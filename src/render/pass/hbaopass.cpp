@@ -4,6 +4,8 @@
 #include "geometrypass.h"
 #include "render/scene/materialmanager.h"
 
+#include <gl/texture2d.h>
+#include <gl/texturehandle.h>
 #include <random>
 
 namespace render::pass
@@ -16,10 +18,12 @@ HBAOPass::HBAOPass(scene::MaterialManager& materialManager,
     , m_aoBuffer{std::make_shared<gl::Texture2D<gl::ScalarByte>>(viewport, "hbao-ao")}
     , m_blur{"hbao", materialManager, 2, false}
 {
-  m_aoBuffer->set(gl::api::TextureParameterName::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge)
-    .set(gl::api::TextureParameterName::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge)
+  auto sampler = std::make_unique<gl::Sampler>("hbao-ao");
+  sampler->set(gl::api::SamplerParameterI::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge)
+    .set(gl::api::SamplerParameterI::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge)
     .set(gl::api::TextureMinFilter::Linear)
     .set(gl::api::TextureMagFilter::Linear);
+  m_aoBufferHandle = std::make_shared<gl::TextureHandle<gl::Texture2D<gl::ScalarByte>>>(m_aoBuffer, std::move(sampler));
 
   m_renderMesh->bind("u_normals",
                      [buffer = geometryPass.getNormalBuffer()](
@@ -30,7 +34,7 @@ HBAOPass::HBAOPass(scene::MaterialManager& materialManager,
                        const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
                      { uniform.set(buffer); });
 
-  m_blur.setInput(m_aoBuffer);
+  m_blur.setInput(m_aoBufferHandle);
 
   m_fb = gl::FrameBufferBuilder()
            .textureNoBlend(gl::api::FramebufferAttachment::ColorAttachment0, m_aoBuffer)

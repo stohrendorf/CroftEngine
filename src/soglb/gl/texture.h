@@ -38,60 +38,6 @@ public:
   static constexpr auto Target = _Target;
   using Pixel = PixelT;
 
-  TextureImpl<_Target, PixelT>& set(const api::TextureMinFilter value)
-  {
-    GL_ASSERT(
-      api::textureParameter(getHandle(), api::TextureParameterName::TextureMinFilter, static_cast<int32_t>(value)));
-    return *this;
-  }
-
-  TextureImpl<_Target, PixelT>& set(const api::TextureMagFilter value)
-  {
-    GL_ASSERT(
-      api::textureParameter(getHandle(), api::TextureParameterName::TextureMagFilter, static_cast<int32_t>(value)));
-    return *this;
-  }
-
-  TextureImpl<_Target, PixelT>& set(const api::TextureCompareMode value)
-  {
-    GL_ASSERT(
-      api::textureParameter(getHandle(), api::TextureParameterName::TextureCompareMode, static_cast<int32_t>(value)));
-    return *this;
-  }
-
-  TextureImpl<_Target, PixelT>& set(const api::DepthFunction value)
-  {
-    GL_ASSERT(
-      api::textureParameter(getHandle(), api::TextureParameterName::TextureCompareFunc, static_cast<int32_t>(value)));
-    return *this;
-  }
-
-  TextureImpl<_Target, PixelT>& set(const api::TextureParameterName param, const api::TextureWrapMode value)
-  {
-    GL_ASSERT(api::textureParameter(getHandle(), param, static_cast<int32_t>(value)));
-    return *this;
-  }
-
-  TextureImpl<_Target, PixelT>& setBorderColor(const glm::vec4& value)
-  {
-    GL_ASSERT(api::textureParameter(getHandle(), api::TextureParameterName::TextureBorderColor, glm::value_ptr(value)));
-    return *this;
-  }
-
-  [[nodiscard]] auto getWidth() const
-  {
-    int32_t w;
-    GL_ASSERT(api::getTextureParameter(getHandle(), api::GetTextureParameter::TextureWidth, &w));
-    return w;
-  }
-
-  [[nodiscard]] auto getHeight() const
-  {
-    int32_t h;
-    GL_ASSERT(api::getTextureParameter(getHandle(), api::GetTextureParameter::TextureHeight, &h));
-    return h;
-  }
-
   [[nodiscard]] static api::CopyImageSubDataTarget getSubDataTarget()
   {
 #define SOGLB_CONVERT_TYPE(x)                    \

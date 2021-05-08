@@ -33,9 +33,9 @@ public:
   struct Split final
   {
     glm::mat4 vpMatrix{1.0f};
-    std::shared_ptr<gl::TextureDepth<float>> depthTexture;
+    std::shared_ptr<gl::TextureHandle<gl::TextureDepth<float>>> depthTextureHandle;
     std::shared_ptr<gl::Framebuffer> depthFramebuffer{};
-    std::shared_ptr<gl::Texture2D<gl::RG16F>> squaredTexture;
+    std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::RG16F>>> squaredTextureHandle;
     std::shared_ptr<gl::Framebuffer> squareFramebuffer{};
     std::shared_ptr<Material> squareMaterial{};
     std::shared_ptr<Mesh> squareMesh{};
@@ -49,7 +49,8 @@ public:
 
   explicit CSM(int32_t resolution, MaterialManager& materialManager);
 
-  [[nodiscard]] std::array<std::shared_ptr<gl::Texture2D<gl::RG16F>>, CSMBuffer::NSplits> getTextures() const;
+  [[nodiscard]] std::array<std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::RG16F>>>, CSMBuffer::NSplits>
+    getTextures() const;
   [[nodiscard]] std::array<glm::mat4, CSMBuffer::NSplits> getMatrices(const glm::mat4& modelMatrix) const;
   [[nodiscard]] std::array<float, CSMBuffer::NSplits> getSplitEnds() const;
 

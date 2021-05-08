@@ -14,13 +14,13 @@ class Texture;
 class RenderState final
 {
 public:
-  RenderState(const RenderState&) = default;
-  RenderState(RenderState&&) = default;
-  RenderState& operator=(const RenderState&) = default;
-  RenderState& operator=(RenderState&&) = default;
+  RenderState(const RenderState&) noexcept = default;
+  RenderState(RenderState&&) noexcept = default;
+  RenderState& operator=(const RenderState&) noexcept = default;
+  RenderState& operator=(RenderState&&) noexcept = default;
 
-  explicit RenderState();
-  ~RenderState() = default;
+  explicit RenderState() noexcept = default;
+  ~RenderState() noexcept = default;
 
   void setBlend(const bool enabled)
   {
@@ -103,8 +103,6 @@ public:
 
   void merge(const RenderState& other);
 
-  [[nodiscard]] int32_t allocateTextureUnit(const std::shared_ptr<Texture>& texture);
-
 private:
   void apply(bool force = false) const;
 
@@ -123,6 +121,5 @@ private:
   std::optional<api::FrontFaceDirection> m_frontFace{};
   std::optional<float> m_lineWidth{};
   std::optional<bool> m_lineSmooth{};
-  std::vector<std::pair<std::weak_ptr<Texture>, size_t>> m_textureUnits{};
 };
 } // namespace gl

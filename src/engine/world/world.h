@@ -366,6 +366,7 @@ private:
   size_t m_totalSecrets = 0;
   std::unordered_map<std::string, std::unordered_map<TR1ItemId, std::string>> m_itemTitles{};
   std::shared_ptr<gl::Texture2DArray<gl::SRGBA8>> m_allTextures;
+  std::shared_ptr<gl::TextureHandle<gl::Texture2DArray<gl::SRGBA8>>> m_allTexturesHandle;
   core::Frame m_uvAnimTime = 0_frame;
   std::unique_ptr<render::TextureAnimator> m_textureAnimator;
 

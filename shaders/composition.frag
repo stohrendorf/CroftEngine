@@ -1,10 +1,10 @@
-uniform sampler2D u_texture;
-uniform sampler2D u_linearPortalDepth;
-uniform sampler2D u_portalPerturb;
+layout(bindless_sampler) uniform sampler2D u_texture;
+layout(bindless_sampler) uniform sampler2D u_linearPortalDepth;
+layout(bindless_sampler) uniform sampler2D u_portalPerturb;
 #ifdef HBAO
-uniform sampler2D u_ao;
+layout(bindless_sampler) uniform sampler2D u_ao;
 #endif
-uniform sampler2D u_linearDepth;
+layout(bindless_sampler) uniform sampler2D u_linearDepth;
 
 #include "flat_pipeline_interface.glsl"
 #include "camera_interface.glsl"

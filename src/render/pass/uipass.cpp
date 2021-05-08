@@ -25,15 +25,17 @@ UIPass::UIPass(scene::MaterialManager& materialManager, const glm::ivec2& viewpo
     , m_mesh{scene::createScreenQuad(m_material, "ui")}
     , m_colorBuffer{std::make_shared<gl::Texture2D<gl::SRGBA8>>(viewport, "ui-color")}
 {
-  m_colorBuffer->set(gl::api::TextureParameterName::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge)
-    .set(gl::api::TextureParameterName::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge)
+  auto sampler = std::make_unique<gl::Sampler>("ui-color");
+  sampler->set(gl::api::SamplerParameterI::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge)
+    .set(gl::api::SamplerParameterI::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge)
     .set(gl::api::TextureMinFilter::Nearest)
     .set(gl::api::TextureMagFilter::Nearest);
+  m_colorBufferHandle
+    = std::make_shared<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>>(m_colorBuffer, std::move(sampler));
 
   m_mesh->bind("u_input",
-               [this](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform) {
-                 uniform.set(m_colorBuffer);
-               });
+               [this](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
+               { uniform.set(m_colorBufferHandle); });
   m_mesh->getRenderState().setBlend(true);
 
   m_fb
@@ -48,9 +50,8 @@ void UIPass::render(float alpha)
 
   scene::RenderContext context{scene::RenderMode::Full, std::nullopt};
   m_mesh->bind("u_alphaMultiplier",
-               [alpha](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform) {
-                 uniform.set(alpha);
-               });
+               [alpha](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
+               { uniform.set(alpha); });
   m_mesh->render(context);
 
   if constexpr(FlushPasses)

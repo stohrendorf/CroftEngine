@@ -1,4 +1,5 @@
 #include "gl.hpp"
+
 #include "gl_api_provider.hpp"
 namespace gl::api
 {
@@ -86,6 +87,14 @@ void getFloatv(GetPName pname, float* data)
 {
   return glGetFloatv(static_cast<GLenum>(pname), detail::constAway(reinterpret_cast<GLfloat*>(data)));
 }
+uint64_t getImageHandle(uint32_t texture, int32_t level, bool layered, int32_t layer, PixelFormat format)
+{
+  return static_cast<uint64_t>(glGetImageHandleARB(static_cast<GLuint>(texture),
+                                                   static_cast<GLint>(level),
+                                                   static_cast<GLboolean>(layered),
+                                                   static_cast<GLint>(layer),
+                                                   static_cast<GLenum>(format)));
+}
 void getIntegerv(GetPName pname, int32_t* data)
 {
   return glGetIntegerv(static_cast<GLenum>(pname), detail::constAway(reinterpret_cast<GLint*>(data)));
@@ -126,6 +135,20 @@ void getTexParameter(TextureTarget target, GetTextureParameter pname, int32_t* p
   return glGetTexParameteriv(
     static_cast<GLenum>(target), static_cast<GLenum>(pname), detail::constAway(reinterpret_cast<GLint*>(params)));
 }
+uint64_t getTextureHandle(uint32_t texture)
+{
+  return static_cast<uint64_t>(glGetTextureHandleARB(static_cast<GLuint>(texture)));
+}
+uint64_t getTextureSamplerHandle(uint32_t texture, uint32_t sampler)
+{
+  return static_cast<uint64_t>(
+    glGetTextureSamplerHandleARB(static_cast<GLuint>(texture), static_cast<GLuint>(sampler)));
+}
+void getVertexAttribL(uint32_t index, VertexAttribEnum pname, uint64_t* params)
+{
+  return glGetVertexAttribLui64vARB(
+    static_cast<GLuint>(index), static_cast<GLenum>(pname), detail::constAway(reinterpret_cast<GLuint64EXT*>(params)));
+}
 void hint(HintTarget target, HintMode mode)
 {
   return glHint(static_cast<GLenum>(target), static_cast<GLenum>(mode));
@@ -134,6 +157,14 @@ bool isEnable(EnableCap cap)
 {
   return static_cast<bool>(glIsEnabled(static_cast<GLenum>(cap)));
 }
+bool isImageHandleResident(uint64_t handle)
+{
+  return static_cast<bool>(glIsImageHandleResidentARB(static_cast<GLuint64>(handle)));
+}
+bool isTextureHandleResident(uint64_t handle)
+{
+  return static_cast<bool>(glIsTextureHandleResidentARB(static_cast<GLuint64>(handle)));
+}
 void lineWidth(float width)
 {
   return glLineWidth(static_cast<GLfloat>(width));
@@ -141,6 +172,22 @@ void lineWidth(float width)
 void logicOp(LogicOp opcode)
 {
   return glLogicOp(static_cast<GLenum>(opcode));
+}
+void makeImageHandleNonResident(uint64_t handle)
+{
+  return glMakeImageHandleNonResidentARB(static_cast<GLuint64>(handle));
+}
+void makeImageHandleResident(uint64_t handle, core::EnumType access)
+{
+  return glMakeImageHandleResidentARB(static_cast<GLuint64>(handle), static_cast<GLenum>(access));
+}
+void makeTextureHandleNonResident(uint64_t handle)
+{
+  return glMakeTextureHandleNonResidentARB(static_cast<GLuint64>(handle));
+}
+void makeTextureHandleResident(uint64_t handle)
+{
+  return glMakeTextureHandleResidentARB(static_cast<GLuint64>(handle));
 }
 void pixelStore(PixelStoreParameter pname, float param)
 {
@@ -157,6 +204,18 @@ void pointSize(float size)
 void polygonMode(MaterialFace face, PolygonMode mode)
 {
   return glPolygonMode(static_cast<GLenum>(face), static_cast<GLenum>(mode));
+}
+void programUniformHandle(uint32_t program, int32_t location, uint64_t value)
+{
+  return glProgramUniformHandleui64ARB(
+    static_cast<GLuint>(program), static_cast<GLint>(location), static_cast<GLuint64>(value));
+}
+void programUniformHandle(uint32_t program, int32_t location, core::SizeType count, const uint64_t* values)
+{
+  return glProgramUniformHandleui64vARB(static_cast<GLuint>(program),
+                                        static_cast<GLint>(location),
+                                        static_cast<GLsizei>(count),
+                                        detail::constAway(reinterpret_cast<const GLuint64*>(values)));
 }
 void readBuffer(ReadBufferMode src)
 {
@@ -246,6 +305,25 @@ void texParameter(TextureTarget target, TextureParameterName pname, const int32_
 {
   return glTexParameteriv(
     static_cast<GLenum>(target), static_cast<GLenum>(pname), detail::constAway(reinterpret_cast<const GLint*>(params)));
+}
+void uniformHandle(int32_t location, uint64_t value)
+{
+  return glUniformHandleui64ARB(static_cast<GLint>(location), static_cast<GLuint64>(value));
+}
+void uniformHandle(int32_t location, core::SizeType count, const uint64_t* value)
+{
+  return glUniformHandleui64vARB(static_cast<GLint>(location),
+                                 static_cast<GLsizei>(count),
+                                 detail::constAway(reinterpret_cast<const GLuint64*>(value)));
+}
+void vertexAttribL1(uint32_t index, uint64_t x)
+{
+  return glVertexAttribL1ui64ARB(static_cast<GLuint>(index), static_cast<GLuint64EXT>(x));
+}
+void vertexAttribL1(uint32_t index, const uint64_t* v)
+{
+  return glVertexAttribL1ui64vARB(static_cast<GLuint>(index),
+                                  detail::constAway(reinterpret_cast<const GLuint64EXT*>(v)));
 }
 void viewport(int32_t x, int32_t y, core::SizeType width, core::SizeType height)
 {

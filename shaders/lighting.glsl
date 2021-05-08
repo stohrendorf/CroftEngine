@@ -1,6 +1,6 @@
 #include "csm_interface.glsl"
 
-layout(binding=1) uniform sampler2D u_csmVsm[CSMSplits];
+layout(bindless_sampler) uniform sampler2D u_csmVsm[CSMSplits];
 layout(location=10) uniform float u_lightAmbient;
 
 struct Light {

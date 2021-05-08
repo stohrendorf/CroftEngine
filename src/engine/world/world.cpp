@@ -1843,11 +1843,16 @@ void World::initTextures(const loader::file::level::Level& level)
   auto images = atlases.takeImages();
   m_allTextures = std::make_unique<gl::Texture2DArray<gl::SRGBA8>>(
     glm::ivec3{atlases.getSize(), atlases.getSize(), gsl::narrow<int>(images.size())}, textureLevels, "all-textures");
-  m_allTextures->set(gl::api::TextureMinFilter::NearestMipmapLinear);
-  m_allTextures->set(gl::api::TextureMagFilter::Nearest);
-  m_allTextures->set(gl::api::TextureParameterName::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge);
-  m_allTextures->set(gl::api::TextureParameterName::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge);
-  getPresenter().getMaterialManager()->setGeometryTextures(m_allTextures);
+
+  auto sampler = std::make_unique<gl::Sampler>("all-textures");
+  sampler->set(gl::api::TextureMinFilter::NearestMipmapLinear);
+  sampler->set(gl::api::TextureMagFilter::Nearest);
+  sampler->set(gl::api::SamplerParameterI::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge);
+  sampler->set(gl::api::SamplerParameterI::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge);
+
+  m_allTexturesHandle
+    = std::make_shared<gl::TextureHandle<gl::Texture2DArray<gl::SRGBA8>>>(m_allTextures, std::move(sampler));
+  getPresenter().getMaterialManager()->setGeometryTextures(m_allTexturesHandle);
 
   for(size_t i = 0; i < images.size(); ++i)
     m_allTextures->assign(images[i]->pixels().data(), gsl::narrow_cast<int>(i), 0);

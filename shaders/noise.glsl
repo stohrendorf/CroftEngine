@@ -1,4 +1,4 @@
-uniform sampler2D u_noise;
+layout(bindless_sampler) uniform sampler2D u_noise;
 
 vec3 gauss_noise(vec2 p)
 {

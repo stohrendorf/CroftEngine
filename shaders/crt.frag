@@ -2,8 +2,8 @@
 #include "time_uniform.glsl"
 #include "flat_pipeline_interface.glsl"
 
-layout(binding=0) uniform sampler2D u_input;
-layout(binding=1) uniform sampler2D u_noise;
+layout(bindless_sampler) uniform sampler2D u_input;
+layout(bindless_sampler) uniform sampler2D u_noise;
 layout(location=0) out vec4 out_color;
 
 vec3 crt(in sampler2D tex, in vec2 uv)

@@ -12,8 +12,7 @@ class BindableResource
 {
 public:
   BindableResource(const BindableResource&) = delete;
-
-  BindableResource& operator=(const BindableResource&) = delete;
+  void operator=(const BindableResource&) = delete;
 
   void bind() const
   {

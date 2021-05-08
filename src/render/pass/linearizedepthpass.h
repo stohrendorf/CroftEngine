@@ -22,7 +22,7 @@ class LinearizeDepthPass
 public:
   explicit LinearizeDepthPass(scene::MaterialManager& materialManager,
                               const glm::ivec2& viewport,
-                              const std::shared_ptr<gl::TextureDepth<float>>& depth);
+                              const std::shared_ptr<gl::TextureHandle<gl::TextureDepth<float>>>& depth);
 
   void render();
 
@@ -36,7 +36,7 @@ public:
 private:
   const std::shared_ptr<scene::Material> m_material;
   std::shared_ptr<scene::Mesh> m_renderMesh;
-  std::shared_ptr<gl::Texture2D<gl::Scalar32F>> m_linearDepth;
+  std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::Scalar32F>>> m_linearDepth;
   std::shared_ptr<gl::Framebuffer> m_fb;
 };
 } // namespace render::pass

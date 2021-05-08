@@ -5,6 +5,7 @@
 #include "renderer.h"
 #include "shadercache.h"
 
+#include <gl/texture2d.h>
 #include <gl/texture2darray.h>
 #include <random>
 #include <utility>
@@ -73,7 +74,10 @@ const std::shared_ptr<Material>& MaterialManager::getDepthOnly(bool skeletal)
   m_depthOnly[skeletal]->getUniformBlock("Camera")->bindCameraBuffer(m_renderer->getCamera());
   if(auto buffer = m_depthOnly[skeletal]->tryGetBuffer("BoneTransform"))
     buffer->bindBoneTransformBuffer();
-  m_depthOnly[skeletal]->getUniform("u_diffuseTextures")->set(m_geometryTextures);
+  m_depthOnly[skeletal]
+    ->getUniform("u_diffuseTextures")
+    ->bind([this](const Node& /*node*/, const Mesh& /*mesh*/, gl::Uniform& uniform)
+           { uniform.set(m_geometryTextures); });
 
   return m_depthOnly[skeletal];
 }
@@ -86,7 +90,9 @@ std::shared_ptr<Material> MaterialManager::getGeometry(bool water, bool skeletal
     return it->second;
 
   auto m = std::make_shared<Material>(m_shaderCache->getGeometry(water, skeletal, roomShadowing));
-  m->getUniform("u_diffuseTextures")->set(m_geometryTextures);
+  m->getUniform("u_diffuseTextures")
+    ->bind([this](const Node& /*node*/, const Mesh& /*mesh*/, gl::Uniform& uniform)
+           { uniform.set(m_geometryTextures); });
   m->getUniform("u_isSprite")->set(0);
 
   m->getUniformBlock("Transform")->bindTransformBuffer();
@@ -174,12 +180,14 @@ MaterialManager::MaterialManager(gsl::not_null<std::shared_ptr<ShaderCache>> sha
     i = gl::RGB8{gsl::narrow_cast<uint8_t>(value), gsl::narrow_cast<uint8_t>(value), gsl::narrow_cast<uint8_t>(value)};
   }
 
-  m_noiseTexture = std::make_shared<gl::Texture2D<gl::RGB8>>(glm::ivec2{NoiseTextureSize}, "noise");
-  m_noiseTexture->assign(noiseData.data())
-    .set(gl::api::TextureParameterName::TextureWrapS, gl::api::TextureWrapMode::MirroredRepeat)
-    .set(gl::api::TextureParameterName::TextureWrapT, gl::api::TextureWrapMode::MirroredRepeat)
+  auto noiseTexture = std::make_shared<gl::Texture2D<gl::RGB8>>(glm::ivec2{NoiseTextureSize}, "noise");
+  noiseTexture->assign(noiseData.data());
+  auto sampler = std::make_unique<gl::Sampler>("noise");
+  sampler->set(gl::api::SamplerParameterI::TextureWrapS, gl::api::TextureWrapMode::MirroredRepeat)
+    .set(gl::api::SamplerParameterI::TextureWrapT, gl::api::TextureWrapMode::MirroredRepeat)
     .set(gl::api::TextureMinFilter::Linear)
     .set(gl::api::TextureMagFilter::Linear);
+  m_noiseTexture = std::make_shared<gl::TextureHandle<gl::Texture2D<gl::RGB8>>>(noiseTexture, std::move(sampler));
 }
 
 std::shared_ptr<Material>
@@ -233,7 +241,8 @@ const std::shared_ptr<Material>& MaterialManager::getScreenSpriteTextured()
     return m_screenSpriteTextured;
 
   auto m = std::make_shared<Material>(m_shaderCache->getScreenSpriteTextured());
-  m->getUniform("u_input")->set(m_geometryTextures);
+  m->getUniform("u_input")->bind([this](const Node& /*node*/, const Mesh& /*mesh*/, gl::Uniform& uniform)
+                                 { uniform.set(m_geometryTextures); });
   configureForScreenSpaceEffect(*m, true);
   m_screenSpriteTextured = m;
   return m_screenSpriteTextured;
@@ -321,18 +330,10 @@ const std::shared_ptr<Material>& MaterialManager::getVSMSquare()
   return m_vsmSquare;
 }
 
-void MaterialManager::setGeometryTextures(std::shared_ptr<gl::Texture2DArray<gl::SRGBA8>> geometryTextures)
+void MaterialManager::setGeometryTextures(
+  std::shared_ptr<gl::TextureHandle<gl::Texture2DArray<gl::SRGBA8>>> geometryTextures)
 {
   m_geometryTextures = std::move(geometryTextures);
-  for(const auto& [_, mtl] : m_geometry)
-    if(mtl != nullptr)
-      mtl->getUniform("u_diffuseTextures")->set(m_geometryTextures);
-  if(m_screenSpriteTextured != nullptr)
-    m_screenSpriteTextured->getUniform("u_input")->set(m_geometryTextures);
-
-  for(const auto& [_, mtl] : m_depthOnly)
-    if(mtl != nullptr)
-      mtl->getUniform("u_diffuseTextures")->set(m_geometryTextures);
 }
 
 void MaterialManager::setBilinearFiltering(bool enabled)
@@ -340,16 +341,20 @@ void MaterialManager::setBilinearFiltering(bool enabled)
   if(m_geometryTextures == nullptr)
     return;
 
+  auto sampler = std::make_unique<gl::Sampler>("geometry-sampler");
   if(enabled)
   {
-    m_geometryTextures->set(gl::api::TextureMinFilter::LinearMipmapLinear);
-    m_geometryTextures->set(gl::api::TextureMagFilter::Linear);
+    sampler->set(gl::api::TextureMinFilter::LinearMipmapLinear);
+    sampler->set(gl::api::TextureMagFilter::Linear);
   }
   else
   {
-    m_geometryTextures->set(gl::api::TextureMinFilter::NearestMipmapLinear);
-    m_geometryTextures->set(gl::api::TextureMagFilter::Nearest);
+    sampler->set(gl::api::TextureMinFilter::NearestMipmapLinear);
+    sampler->set(gl::api::TextureMagFilter::Nearest);
   }
+
+  m_geometryTextures = std::make_shared<gl::TextureHandle<gl::Texture2DArray<gl::SRGBA8>>>(
+    m_geometryTextures->getTexture(), std::move(sampler));
 }
 
 std::shared_ptr<Material> MaterialManager::getFastGaussBlur(uint8_t extent, uint8_t blurDir, uint8_t blurDim)

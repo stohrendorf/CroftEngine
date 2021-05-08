@@ -7,6 +7,7 @@
 #include "rendercontext.h"
 
 #include <gl/debuggroup.h>
+#include <gl/texture2d.h>
 #include <gl/texturedepth.h>
 #include <numeric>
 
@@ -14,27 +15,31 @@ namespace render::scene
 {
 void CSM::Split::init(int32_t resolution, size_t idx, MaterialManager& materialManager)
 {
-  depthTexture = std::make_shared<gl::TextureDepth<float>>(glm::ivec2{resolution, resolution},
-                                                           "csm-texture/" + std::to_string(idx));
-  depthTexture->set(gl::api::TextureMinFilter::Linear)
+  const auto depthTexture = std::make_shared<gl::TextureDepth<float>>(glm::ivec2{resolution, resolution},
+                                                                      "csm-texture/" + std::to_string(idx));
+  auto sampler = std::make_unique<gl::Sampler>("csm-texture/" + std::to_string(idx));
+  sampler->set(gl::api::TextureMinFilter::Linear)
     .set(gl::api::TextureMagFilter::Linear)
-    .set(gl::api::TextureCompareMode::CompareRefToTexture)
-    .set(gl::api::DepthFunction::Gequal)
-    .set(gl::api::TextureParameterName::TextureWrapS, gl::api::TextureWrapMode::ClampToBorder)
-    .set(gl::api::TextureParameterName::TextureWrapT, gl::api::TextureWrapMode::ClampToBorder)
+    .set(gl::api::SamplerParameterI::TextureWrapS, gl::api::TextureWrapMode::ClampToBorder)
+    .set(gl::api::SamplerParameterI::TextureWrapT, gl::api::TextureWrapMode::ClampToBorder)
     .setBorderColor(glm::vec4{1.0f});
+
+  depthTextureHandle = std::make_shared<gl::TextureHandle<gl::TextureDepth<float>>>(depthTexture, std::move(sampler));
 
   depthFramebuffer = gl::FrameBufferBuilder()
                        .textureNoBlend(gl::api::FramebufferAttachment::DepthAttachment, depthTexture)
                        .build("csm-split-fb/" + std::to_string(idx));
 
-  squaredTexture = std::make_shared<gl::Texture2D<gl::RG16F>>(glm::ivec2{resolution, resolution},
-                                                              "csm-texture/" + std::to_string(idx) + "/squared");
-  squaredTexture->set(gl::api::TextureMinFilter::Linear)
+  const auto squaredTexture = std::make_shared<gl::Texture2D<gl::RG16F>>(
+    glm::ivec2{resolution, resolution}, "csm-texture/" + std::to_string(idx) + "/squared");
+  auto squaredSampler = std::make_unique<gl::Sampler>("csm-texture/" + std::to_string(idx) + "/squared");
+  squaredSampler->set(gl::api::TextureMinFilter::Linear)
     .set(gl::api::TextureMagFilter::Linear)
-    .set(gl::api::TextureParameterName::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge)
-    .set(gl::api::TextureParameterName::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge);
+    .set(gl::api::SamplerParameterI::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge)
+    .set(gl::api::SamplerParameterI::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge);
 
+  squaredTextureHandle
+    = std::make_shared<gl::TextureHandle<gl::Texture2D<gl::RG16F>>>(squaredTexture, std::move(squaredSampler));
   squareFramebuffer = gl::FrameBufferBuilder()
                         .textureNoBlend(gl::api::FramebufferAttachment::ColorAttachment0, squaredTexture)
                         .build("csm-split-fb/" + std::to_string(idx) + "/square");
@@ -44,12 +49,12 @@ void CSM::Split::init(int32_t resolution, size_t idx, MaterialManager& materialM
   squareMesh = createScreenQuad(squareMaterial, "csm/" + std::to_string(idx));
   squareMesh->bind("u_shadow",
                    [this](const Node& /*node*/, const Mesh& /*mesh*/, gl::Uniform& uniform)
-                   { uniform.set(depthTexture); });
+                   { uniform.set(depthTextureHandle); });
   squareMesh->getMaterialGroup().set(RenderMode::Full, squareMaterial);
 
   squareBlur = std::make_shared<SeparableBlur<gl::RG16F>>(
     "squareBlur-" + std::to_string(idx), materialManager, uint8_t{2}, true);
-  squareBlur->setInput(squaredTexture);
+  squareBlur->setInput(squaredTextureHandle);
 }
 
 // NOLINTNEXTLINE(readability-make-member-function-const)
@@ -60,10 +65,9 @@ void CSM::Split::renderSquare()
 
   gl::RenderState::resetWantedState();
   gl::RenderState::getWantedState().setBlend(false);
-  gl::RenderState::getWantedState().setViewport(depthTexture->size());
+  gl::RenderState::getWantedState().setViewport(depthTextureHandle->getTexture()->size());
   RenderContext context{RenderMode::Full, std::nullopt};
 
-  depthTexture->set(gl::api::TextureCompareMode::None);
   squareMesh->render(context);
 }
 
@@ -75,10 +79,9 @@ void CSM::Split::renderBlur()
 
   gl::RenderState::resetWantedState();
   gl::RenderState::getWantedState().setBlend(false);
-  gl::RenderState::getWantedState().setViewport(depthTexture->size());
+  gl::RenderState::getWantedState().setViewport(depthTextureHandle->getTexture()->size());
   RenderContext context{RenderMode::Full, std::nullopt};
 
-  depthTexture->set(gl::api::TextureCompareMode::CompareRefToTexture);
   squareBlur->render();
 }
 
@@ -94,9 +97,9 @@ CSM::CSM(int32_t resolution, MaterialManager& materialManager)
   }
 }
 
-std::array<std::shared_ptr<gl::Texture2D<gl::RG16F>>, CSMBuffer::NSplits> CSM::getTextures() const
+std::array<std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::RG16F>>>, CSMBuffer::NSplits> CSM::getTextures() const
 {
-  std::array<std::shared_ptr<gl::Texture2D<gl::RG16F>>, CSMBuffer::NSplits> result;
+  std::array<std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::RG16F>>>, CSMBuffer::NSplits> result;
   for(size_t i = 0; i < CSMBuffer::NSplits; ++i)
     result[i] = m_splits.at(i).squareBlur->getBlurredTexture();
   return result;
@@ -105,9 +108,10 @@ std::array<std::shared_ptr<gl::Texture2D<gl::RG16F>>, CSMBuffer::NSplits> CSM::g
 std::array<glm::mat4, CSMBuffer::NSplits> CSM::getMatrices(const glm::mat4& modelMatrix) const
 {
   std::array<glm::mat4, CSMBuffer::NSplits> result{};
-  std::transform(m_splits.begin(), m_splits.end(), result.begin(), [modelMatrix](const Split& split) {
-    return split.vpMatrix * modelMatrix;
-  });
+  std::transform(m_splits.begin(),
+                 m_splits.end(),
+                 result.begin(),
+                 [modelMatrix](const Split& split) { return split.vpMatrix * modelMatrix; });
   return result;
 }
 

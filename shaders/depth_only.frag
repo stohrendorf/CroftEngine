@@ -1,6 +1,6 @@
 #include "geometry_pipeline_interface.glsl"
 
-layout(binding=4) uniform sampler2DArray u_diffuseTextures;
+layout(bindless_sampler) uniform sampler2DArray u_diffuseTextures;
 
 void main()
 {

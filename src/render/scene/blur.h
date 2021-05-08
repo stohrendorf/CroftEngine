@@ -9,7 +9,8 @@
 
 #include <gl/debuggroup.h>
 #include <gl/framebuffer.h>
-#include <gl/texture2d.h>
+#include <gl/sampler.h>
+#include <gl/texturehandle.h>
 
 namespace render::scene
 {
@@ -17,7 +18,7 @@ template<typename PixelT>
 class SingleBlur
 {
 public:
-  using Texture = gl::Texture2D<PixelT>;
+  using TextureHandle = gl::TextureHandle<gl::Texture2D<PixelT>>;
 
   explicit SingleBlur(std::string name, MaterialManager& materialManager, uint8_t dir, uint8_t extent, bool gauss)
       : m_name{std::move(name)}
@@ -28,20 +29,22 @@ public:
     Expects(extent > 0);
   }
 
-  void setInput(const std::shared_ptr<Texture>& src)
+  void setInput(const std::shared_ptr<TextureHandle>& src)
   {
-    m_blurredTexture = std::make_shared<Texture>(src->size(), m_name + "/blurred");
-    m_blurredTexture->set(gl::api::TextureParameterName::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge)
-      .set(gl::api::TextureParameterName::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge)
+    auto texture = std::make_shared<gl::Texture2D<PixelT>>(src->getTexture()->size(), m_name + "/blurred");
+    auto sampler = std::make_unique<gl::Sampler>(m_name + "/blurred");
+    sampler->set(gl::api::SamplerParameterI::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge)
+      .set(gl::api::SamplerParameterI::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge)
       .set(gl::api::TextureMinFilter::Linear)
       .set(gl::api::TextureMagFilter::Linear);
 
+    m_blurredTexture = std::make_shared<TextureHandle>(std::move(texture), std::move(sampler));
     m_mesh = createScreenQuad(m_material, m_name + "/blur");
     m_mesh->bind("u_input",
                  [src](const Node& /*node*/, const Mesh& /*mesh*/, gl::Uniform& uniform) { uniform.set(src); });
 
     m_framebuffer = gl::FrameBufferBuilder()
-                      .textureNoBlend(gl::api::FramebufferAttachment::ColorAttachment0, m_blurredTexture)
+                      .textureNoBlend(gl::api::FramebufferAttachment::ColorAttachment0, m_blurredTexture->getTexture())
                       .build(m_name + "/framebuffer");
   }
 
@@ -50,21 +53,21 @@ public:
     SOGLB_DEBUGGROUP(m_name + "/blur-pass");
     gl::RenderState::resetWantedState();
     gl::RenderState::getWantedState().setBlend(false);
-    gl::RenderState::getWantedState().setViewport(m_blurredTexture->size());
+    gl::RenderState::getWantedState().setViewport(m_blurredTexture->getTexture()->size());
     RenderContext context{RenderMode::Full, std::nullopt};
 
     m_framebuffer->bindWithAttachments();
     m_mesh->render(context);
   }
 
-  [[nodiscard]] const std::shared_ptr<Texture>& getBlurredTexture() const
+  [[nodiscard]] const std::shared_ptr<TextureHandle>& getBlurredTexture() const
   {
     return m_blurredTexture;
   }
 
 private:
   const std::string m_name;
-  std::shared_ptr<Texture> m_blurredTexture;
+  std::shared_ptr<TextureHandle> m_blurredTexture;
   std::shared_ptr<Mesh> m_mesh;
   const std::shared_ptr<Material> m_material;
   std::shared_ptr<gl::Framebuffer> m_framebuffer;
@@ -74,7 +77,7 @@ template<typename PixelT>
 class SeparableBlur
 {
 public:
-  using Texture = gl::Texture2D<PixelT>;
+  using TextureHandle = gl::TextureHandle<gl::Texture2D<PixelT>>;
 
   explicit SeparableBlur(const std::string& name, MaterialManager& materialManager, uint8_t extent, bool gauss)
       : m_blur1{name + "/blur-1", materialManager, 1, extent, gauss}
@@ -82,7 +85,7 @@ public:
   {
   }
 
-  void setInput(const std::shared_ptr<Texture>& src)
+  void setInput(const std::shared_ptr<TextureHandle>& src)
   {
     m_blur1.setInput(src);
     m_blur2.setInput(m_blur1.getBlurredTexture());
@@ -94,7 +97,7 @@ public:
     m_blur2.render();
   }
 
-  [[nodiscard]] const std::shared_ptr<Texture>& getBlurredTexture() const
+  [[nodiscard]] const std::shared_ptr<TextureHandle>& getBlurredTexture() const
   {
     return m_blur2.getBlurredTexture();
   }

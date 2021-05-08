@@ -6735,6 +6735,7 @@ extern void getBooleanv(GetPName pname, bool* data);
 extern void getDoublev(GetPName pname, double* data);
 extern ErrorCode getError();
 extern void getFloatv(GetPName pname, float* data);
+extern uint64_t getImageHandle(uint32_t texture, int32_t level, bool layered, int32_t layer, PixelFormat format);
 extern void getIntegerv(GetPName pname, int32_t* data);
 extern const uint8_t* getString(StringName name);
 extern void getTexImage(TextureTarget target, int32_t level, PixelFormat format, PixelType type, void* pixels);
@@ -6742,14 +6743,25 @@ extern void getTexLevelParameter(TextureTarget target, int32_t level, GetTexture
 extern void getTexLevelParameter(TextureTarget target, int32_t level, GetTextureParameter pname, int32_t* params);
 extern void getTexParameter(TextureTarget target, GetTextureParameter pname, float* params);
 extern void getTexParameter(TextureTarget target, GetTextureParameter pname, int32_t* params);
+extern uint64_t getTextureHandle(uint32_t texture);
+extern uint64_t getTextureSamplerHandle(uint32_t texture, uint32_t sampler);
+extern void getVertexAttribL(uint32_t index, VertexAttribEnum pname, uint64_t* params);
 extern void hint(HintTarget target, HintMode mode);
 extern bool isEnable(EnableCap cap);
+extern bool isImageHandleResident(uint64_t handle);
+extern bool isTextureHandleResident(uint64_t handle);
 extern void lineWidth(float width);
 extern void logicOp(LogicOp opcode);
+extern void makeImageHandleNonResident(uint64_t handle);
+extern void makeImageHandleResident(uint64_t handle, core::EnumType access);
+extern void makeTextureHandleNonResident(uint64_t handle);
+extern void makeTextureHandleResident(uint64_t handle);
 extern void pixelStore(PixelStoreParameter pname, float param);
 extern void pixelStore(PixelStoreParameter pname, int32_t param);
 extern void pointSize(float size);
 extern void polygonMode(MaterialFace face, PolygonMode mode);
+extern void programUniformHandle(uint32_t program, int32_t location, uint64_t value);
+extern void programUniformHandle(uint32_t program, int32_t location, core::SizeType count, const uint64_t* values);
 extern void readBuffer(ReadBufferMode src);
 extern void readPixel(
   int32_t x, int32_t y, core::SizeType width, core::SizeType height, PixelFormat format, PixelType type, void* pixels);
@@ -6778,6 +6790,10 @@ extern void texParameter(TextureTarget target, TextureParameterName pname, float
 extern void texParameter(TextureTarget target, TextureParameterName pname, const float* params);
 extern void texParameter(TextureTarget target, TextureParameterName pname, int32_t param);
 extern void texParameter(TextureTarget target, TextureParameterName pname, const int32_t* params);
+extern void uniformHandle(int32_t location, uint64_t value);
+extern void uniformHandle(int32_t location, core::SizeType count, const uint64_t* value);
+extern void vertexAttribL1(uint32_t index, uint64_t x);
+extern void vertexAttribL1(uint32_t index, const uint64_t* v);
 extern void viewport(int32_t x, int32_t y, core::SizeType width, core::SizeType height);
 #if defined(API_LEVEL_GL_VERSION_1_0) || defined(API_LEVEL_GL_VERSION_1_1) || defined(API_LEVEL_GL_VERSION_1_2)  \
   || defined(API_LEVEL_GL_VERSION_1_3) || defined(API_LEVEL_GL_VERSION_1_4) || defined(API_LEVEL_GL_VERSION_1_5) \

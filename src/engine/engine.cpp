@@ -41,6 +41,7 @@
 #include <boost/range/adaptor/map.hpp>
 #include <filesystem>
 #include <gl/font.h>
+#include <gl/texture2d.h>
 #include <glm/gtx/norm.hpp>
 #include <locale>
 #include <numeric>
@@ -334,7 +335,8 @@ std::pair<RunResult, std::optional<size_t>> Engine::runTitleMenu(world::World& w
 
   m_presenter->apply(m_engineConfig.renderSettings);
 
-  const auto backdrop = gl::CImgWrapper{m_rootPath / "data" / "tr1" / "DATA" / "TITLEH.PCX"}.toTexture();
+  const auto backdrop = std::make_shared<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>>(
+    gl::CImgWrapper{m_rootPath / "data" / "tr1" / "DATA" / "TITLEH.PCX"}.toTexture());
   const auto menu = std::make_shared<menu::MenuDisplay>(menu::InventoryMode::TitleMode, world);
   Throttler throttler;
   while(true)
@@ -357,7 +359,7 @@ std::pair<RunResult, std::optional<size_t>> Engine::runTitleMenu(world::World& w
     std::shared_ptr<render::scene::Mesh> backdropMesh;
     {
       const auto targetSize = glm::vec2{m_presenter->getViewport()};
-      const auto sourceSize = glm::vec2{backdrop->size()};
+      const auto sourceSize = glm::vec2{backdrop->getTexture()->size()};
       const float splashScale = std::min(targetSize.x / sourceSize.x, targetSize.y / sourceSize.y);
 
       auto scaledSourceSize = sourceSize * splashScale;
