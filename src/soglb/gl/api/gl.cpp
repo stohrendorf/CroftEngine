@@ -1,5 +1,4 @@
 #include "gl.hpp"
-
 #include "gl_api_provider.hpp"
 namespace gl::api
 {
@@ -2128,19 +2127,19 @@ void multiDrawElements(PrimitiveType mode,
                              detail::constAway(indices),
                              static_cast<GLsizei>(drawcount));
 }
-void pointParameter(PointParameterNameARB pname, float param)
+void pointParameter(PointParameterName pname, float param)
 {
   return glPointParameterf(static_cast<GLenum>(pname), static_cast<GLfloat>(param));
 }
-void pointParameter(PointParameterNameARB pname, const float* params)
+void pointParameter(PointParameterName pname, const float* params)
 {
   return glPointParameterfv(static_cast<GLenum>(pname), detail::constAway(reinterpret_cast<const GLfloat*>(params)));
 }
-void pointParameter(PointParameterNameARB pname, int32_t param)
+void pointParameter(PointParameterName pname, int32_t param)
 {
   return glPointParameteri(static_cast<GLenum>(pname), static_cast<GLint>(param));
 }
-void pointParameter(PointParameterNameARB pname, const int32_t* params)
+void pointParameter(PointParameterName pname, const int32_t* params)
 {
   return glPointParameteriv(static_cast<GLenum>(pname), detail::constAway(reinterpret_cast<const GLint*>(params)));
 }
@@ -2319,16 +2318,16 @@ void beginQuery(QueryTarget target, uint32_t id)
 {
   return glBeginQuery(static_cast<GLenum>(target), static_cast<GLuint>(id));
 }
-void bindBuffer(BufferTargetARB target, uint32_t buffer)
+void bindBuffer(BufferTarget target, uint32_t buffer)
 {
   return glBindBuffer(static_cast<GLenum>(target), static_cast<GLuint>(buffer));
 }
-void bufferData(BufferTargetARB target, std::size_t size, const void* data, BufferUsageARB usage)
+void bufferData(BufferTarget target, std::size_t size, const void* data, BufferUsage usage)
 {
   return glBufferData(
     static_cast<GLenum>(target), static_cast<GLsizeiptr>(size), detail::constAway(data), static_cast<GLenum>(usage));
 }
-void bufferSubData(BufferTargetARB target, std::intptr_t offset, std::size_t size, const void* data)
+void bufferSubData(BufferTarget target, std::intptr_t offset, std::size_t size, const void* data)
 {
   return glBufferSubData(
     static_cast<GLenum>(target), static_cast<GLintptr>(offset), static_cast<GLsizeiptr>(size), detail::constAway(data));
@@ -2353,16 +2352,16 @@ void genQuerie(core::SizeType n, uint32_t* ids)
 {
   return glGenQueries(static_cast<GLsizei>(n), detail::constAway(reinterpret_cast<GLuint*>(ids)));
 }
-void getBufferParameter(BufferTargetARB target, BufferPNameARB pname, int32_t* params)
+void getBufferParameter(BufferTarget target, BufferPName pname, int32_t* params)
 {
   return glGetBufferParameteriv(
     static_cast<GLenum>(target), static_cast<GLenum>(pname), detail::constAway(reinterpret_cast<GLint*>(params)));
 }
-void getBufferPointerv(BufferTargetARB target, BufferPointerNameARB pname, void** params)
+void getBufferPointerv(BufferTarget target, BufferPointerName pname, void** params)
 {
   return glGetBufferPointerv(static_cast<GLenum>(target), static_cast<GLenum>(pname), detail::constAway(params));
 }
-void getBufferSubData(BufferTargetARB target, std::intptr_t offset, std::size_t size, void* data)
+void getBufferSubData(BufferTarget target, std::intptr_t offset, std::size_t size, void* data)
 {
   return glGetBufferSubData(
     static_cast<GLenum>(target), static_cast<GLintptr>(offset), static_cast<GLsizeiptr>(size), detail::constAway(data));
@@ -2390,11 +2389,11 @@ bool isQuery(uint32_t id)
 {
   return static_cast<bool>(glIsQuery(static_cast<GLuint>(id)));
 }
-void* mapBuffer(BufferTargetARB target, BufferAccessARB access)
+void* mapBuffer(BufferTarget target, BufferAccess access)
 {
   return glMapBuffer(static_cast<GLenum>(target), static_cast<GLenum>(access));
 }
-bool unmapBuffer(BufferTargetARB target)
+bool unmapBuffer(BufferTarget target)
 {
   return static_cast<bool>(glUnmapBuffer(static_cast<GLenum>(target)));
 }
@@ -2509,7 +2508,7 @@ void getProgramInfoLog(uint32_t program, core::SizeType bufSize, core::SizeType*
                              detail::constAway(reinterpret_cast<GLsizei*>(length)),
                              detail::constAway(reinterpret_cast<GLchar*>(infoLog)));
 }
-void getProgram(uint32_t program, ProgramPropertyARB pname, int32_t* params)
+void getProgram(uint32_t program, ProgramProperty pname, int32_t* params)
 {
   return glGetProgramiv(
     static_cast<GLuint>(program), static_cast<GLenum>(pname), detail::constAway(reinterpret_cast<GLint*>(params)));
@@ -2548,21 +2547,21 @@ void getUniform(uint32_t program, int32_t location, int32_t* params)
   return glGetUniformiv(
     static_cast<GLuint>(program), static_cast<GLint>(location), detail::constAway(reinterpret_cast<GLint*>(params)));
 }
-void getVertexAttribPointerv(uint32_t index, VertexAttribPointerPropertyARB pname, void** pointer)
+void getVertexAttribPointerv(uint32_t index, VertexAttribPointerProperty pname, void** pointer)
 {
   return glGetVertexAttribPointerv(static_cast<GLuint>(index), static_cast<GLenum>(pname), detail::constAway(pointer));
 }
-void getVertexAttrib(uint32_t index, VertexAttribPropertyARB pname, double* params)
+void getVertexAttrib(uint32_t index, VertexAttribProperty pname, double* params)
 {
   return glGetVertexAttribdv(
     static_cast<GLuint>(index), static_cast<GLenum>(pname), detail::constAway(reinterpret_cast<GLdouble*>(params)));
 }
-void getVertexAttrib(uint32_t index, VertexAttribPropertyARB pname, float* params)
+void getVertexAttrib(uint32_t index, VertexAttribProperty pname, float* params)
 {
   return glGetVertexAttribfv(
     static_cast<GLuint>(index), static_cast<GLenum>(pname), detail::constAway(reinterpret_cast<GLfloat*>(params)));
 }
-void getVertexAttrib(uint32_t index, VertexAttribPropertyARB pname, int32_t* params)
+void getVertexAttrib(uint32_t index, VertexAttribProperty pname, int32_t* params)
 {
   return glGetVertexAttribiv(
     static_cast<GLuint>(index), static_cast<GLenum>(pname), detail::constAway(reinterpret_cast<GLint*>(params)));
@@ -2967,11 +2966,11 @@ void beginTransformFeedback(PrimitiveType primitiveMode)
 {
   return glBeginTransformFeedback(static_cast<GLenum>(primitiveMode));
 }
-void bindBufferBase(BufferTargetARB target, uint32_t index, uint32_t buffer)
+void bindBufferBase(BufferTarget target, uint32_t index, uint32_t buffer)
 {
   return glBindBufferBase(static_cast<GLenum>(target), static_cast<GLuint>(index), static_cast<GLuint>(buffer));
 }
-void bindBufferRange(BufferTargetARB target, uint32_t index, uint32_t buffer, std::intptr_t offset, std::size_t size)
+void bindBufferRange(BufferTarget target, uint32_t index, uint32_t buffer, std::intptr_t offset, std::size_t size)
 {
   return glBindBufferRange(static_cast<GLenum>(target),
                            static_cast<GLuint>(index),
@@ -3022,7 +3021,7 @@ FramebufferStatus checkFramebufferStatus(FramebufferTarget target)
 {
   return static_cast<FramebufferStatus>(glCheckFramebufferStatus(static_cast<GLenum>(target)));
 }
-void clampColor(ClampColorTargetARB target, ClampColorModeARB clamp)
+void clampColor(ClampColorTarget target, ClampColorMode clamp)
 {
   return glClampColor(static_cast<GLenum>(target), static_cast<GLenum>(clamp));
 }
@@ -3089,7 +3088,7 @@ void endTransformFeedback()
 {
   return glEndTransformFeedback();
 }
-void flushMappedBufferRange(BufferTargetARB target, std::intptr_t offset, std::size_t length)
+void flushMappedBufferRange(BufferTarget target, std::intptr_t offset, std::size_t length)
 {
   return glFlushMappedBufferRange(
     static_cast<GLenum>(target), static_cast<GLintptr>(offset), static_cast<GLsizeiptr>(length));
@@ -3161,7 +3160,7 @@ void generateMipmap(TextureTarget target)
 {
   return glGenerateMipmap(static_cast<GLenum>(target));
 }
-void getBooleani_v(BufferTargetARB target, uint32_t index, bool* data)
+void getBooleani_v(BufferTarget target, uint32_t index, bool* data)
 {
   return glGetBooleani_v(
     static_cast<GLenum>(target), static_cast<GLuint>(index), detail::constAway(reinterpret_cast<GLboolean*>(data)));
@@ -3252,7 +3251,7 @@ bool isVertexArray(uint32_t array)
 {
   return static_cast<bool>(glIsVertexArray(static_cast<GLuint>(array)));
 }
-void* mapBufferRange(BufferTargetARB target,
+void* mapBufferRange(BufferTarget target,
                      std::intptr_t offset,
                      std::size_t length,
                      core::Bitfield<MapBufferAccessMask> access)
@@ -3612,7 +3611,7 @@ void framebufferTexture(FramebufferTarget target, FramebufferAttachment attachme
                               static_cast<GLuint>(texture),
                               static_cast<GLint>(level));
 }
-void getBufferParameter(BufferTargetARB target, BufferPNameARB pname, int64_t* params)
+void getBufferParameter(BufferTarget target, BufferPName pname, int64_t* params)
 {
   return glGetBufferParameteri64v(
     static_cast<GLenum>(target), static_cast<GLenum>(pname), detail::constAway(reinterpret_cast<GLint64*>(params)));
@@ -4843,7 +4842,7 @@ void bindImageTexture(uint32_t unit,
                       int32_t level,
                       bool layered,
                       int32_t layer,
-                      BufferAccessARB access,
+                      BufferAccess access,
                       InternalFormat format)
 {
   return glBindImageTexture(static_cast<GLuint>(unit),
@@ -4982,7 +4981,7 @@ void clearBufferData(
                            static_cast<GLenum>(type),
                            detail::constAway(data));
 }
-void clearBufferSubData(BufferTargetARB target,
+void clearBufferSubData(BufferTarget target,
                         SizedInternalFormat internalformat,
                         std::intptr_t offset,
                         std::size_t size,
@@ -5367,14 +5366,14 @@ void vertexBindingDivisor(uint32_t bindingindex, uint32_t divisor)
 #if defined(API_LEVEL_GL_VERSION_4_4_compatibility) || defined(API_LEVEL_GL_VERSION_4_4_core)  \
   || defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_5_core) \
   || defined(API_LEVEL_GL_VERSION_4_6_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_core)
-void bindBuffersBase(BufferTargetARB target, uint32_t first, core::SizeType count, const uint32_t* buffers)
+void bindBuffersBase(BufferTarget target, uint32_t first, core::SizeType count, const uint32_t* buffers)
 {
   return glBindBuffersBase(static_cast<GLenum>(target),
                            static_cast<GLuint>(first),
                            static_cast<GLsizei>(count),
                            detail::constAway(reinterpret_cast<const GLuint*>(buffers)));
 }
-void bindBuffersRange(BufferTargetARB target,
+void bindBuffersRange(BufferTarget target,
                       uint32_t first,
                       core::SizeType count,
                       const uint32_t* buffers,
@@ -5756,17 +5755,17 @@ GraphicsResetStatus getGraphicsResetStatus()
 {
   return static_cast<GraphicsResetStatus>(glGetGraphicsResetStatus());
 }
-void getNamedBufferParameter(uint32_t buffer, BufferPNameARB pname, int64_t* params)
+void getNamedBufferParameter(uint32_t buffer, BufferPName pname, int64_t* params)
 {
   return glGetNamedBufferParameteri64v(
     static_cast<GLuint>(buffer), static_cast<GLenum>(pname), detail::constAway(reinterpret_cast<GLint64*>(params)));
 }
-void getNamedBufferParameter(uint32_t buffer, BufferPNameARB pname, int32_t* params)
+void getNamedBufferParameter(uint32_t buffer, BufferPName pname, int32_t* params)
 {
   return glGetNamedBufferParameteriv(
     static_cast<GLuint>(buffer), static_cast<GLenum>(pname), detail::constAway(reinterpret_cast<GLint*>(params)));
 }
-void getNamedBufferPointerv(uint32_t buffer, BufferPointerNameARB pname, void** params)
+void getNamedBufferPointerv(uint32_t buffer, BufferPointerName pname, void** params)
 {
   return glGetNamedBufferPointerv(static_cast<GLuint>(buffer), static_cast<GLenum>(pname), detail::constAway(params));
 }
@@ -5990,7 +5989,7 @@ void invalidateNamedFramebufferSubData(uint32_t framebuffer,
                                              static_cast<GLsizei>(width),
                                              static_cast<GLsizei>(height));
 }
-void* mapNamedBuffer(uint32_t buffer, BufferAccessARB access)
+void* mapNamedBuffer(uint32_t buffer, BufferAccess access)
 {
   return glMapNamedBuffer(static_cast<GLuint>(buffer), static_cast<GLenum>(access));
 }
@@ -6006,7 +6005,7 @@ void memoryBarrierByRegion(core::Bitfield<MemoryBarrierMask> barriers)
 {
   return glMemoryBarrierByRegion(barriers.value());
 }
-void namedBufferData(uint32_t buffer, std::size_t size, const void* data, BufferUsageARB usage)
+void namedBufferData(uint32_t buffer, std::size_t size, const void* data, BufferUsage usage)
 {
   return glNamedBufferData(
     static_cast<GLuint>(buffer), static_cast<GLsizeiptr>(size), detail::constAway(data), static_cast<GLenum>(usage));

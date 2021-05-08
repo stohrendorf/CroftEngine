@@ -136,7 +136,7 @@ public:
       return m_transformBuffer;
 
     m_bufferDirty = false;
-    m_transformBuffer.setData(m_transform, ::gl::api::BufferUsageARB::StreamDraw);
+    m_transformBuffer.setData(m_transform, ::gl::api::BufferUsage::StreamDraw);
     return m_transformBuffer;
   }
 

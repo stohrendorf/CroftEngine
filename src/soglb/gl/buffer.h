@@ -6,11 +6,11 @@
 namespace gl
 {
 // NOLINTNEXTLINE(bugprone-reserved-identifier)
-template<typename T, api::BufferTargetARB _Target>
+template<typename T, api::BufferTarget _Target>
 class Buffer : public BindableResource
 {
 public:
-  static constexpr api::BufferTargetARB Target = _Target;
+  static constexpr api::BufferTarget Target = _Target;
 
   explicit Buffer(const std::string& label = {})
       : BindableResource{api::createBuffers,
@@ -21,7 +21,7 @@ public:
   {
   }
 
-  [[nodiscard]] T* map(const api::BufferAccessARB access = api::BufferAccessARB::ReadOnly)
+  [[nodiscard]] T* map(const api::BufferAccess access = api::BufferAccess::ReadOnly)
   {
     const void* data = GL_ASSERT_FN(api::mapNamedBuffer(getHandle(), access));
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
@@ -34,12 +34,12 @@ public:
     GL_ASSERT(api::unmapNamedBuffer(getHandle()));
   }
 
-  void setData(const T& data, const api::BufferUsageARB usage)
+  void setData(const T& data, const api::BufferUsage usage)
   {
     setData(&data, 1, usage);
   }
 
-  void setData(const std::vector<T>& data, const api::BufferUsageARB usage)
+  void setData(const std::vector<T>& data, const api::BufferUsage usage)
   {
     if(data.empty())
     {
@@ -54,7 +54,7 @@ public:
     setData(gsl::not_null{data.data()}, gsl::narrow<api::core::SizeType>(data.size()), usage);
   }
 
-  void setData(const gsl::not_null<const T*>& data, const api::core::SizeType size, const api::BufferUsageARB usage)
+  void setData(const gsl::not_null<const T*>& data, const api::core::SizeType size, const api::BufferUsage usage)
   {
     Expects(size >= 0);
 
@@ -95,37 +95,37 @@ public:
 
 private:
   api::core::SizeType m_size = 0;
-  api::BufferUsageARB m_usage{static_cast<api::BufferUsageARB>(0)};
+  api::BufferUsage m_usage{static_cast<api::BufferUsage>(0)};
 };
 
 template<typename T>
-using ShaderStorageBuffer = Buffer<T, api::BufferTargetARB::ShaderStorageBuffer>;
+using ShaderStorageBuffer = Buffer<T, api::BufferTarget::ShaderStorageBuffer>;
 
 template<typename T>
-using UniformBuffer = Buffer<T, api::BufferTargetARB::UniformBuffer>;
+using UniformBuffer = Buffer<T, api::BufferTarget::UniformBuffer>;
 
 template<typename T>
-using ArrayBuffer = Buffer<T, api::BufferTargetARB::ArrayBuffer>;
+using ArrayBuffer = Buffer<T, api::BufferTarget::ArrayBuffer>;
 
 template<typename T>
-class ElementArrayBuffer final : public Buffer<T, api::BufferTargetARB::ElementArrayBuffer>
+class ElementArrayBuffer final : public Buffer<T, api::BufferTarget::ElementArrayBuffer>
 {
 public:
   explicit ElementArrayBuffer(const std::string& label = {})
-      : Buffer<T, api::BufferTargetARB::ElementArrayBuffer>{label}
+      : Buffer<T, api::BufferTarget::ElementArrayBuffer>{label}
   {
   }
 
   void drawElements(api::PrimitiveType primitiveType) const
   {
     GL_ASSERT(api::drawElements(
-      primitiveType, Buffer<T, api::BufferTargetARB::ElementArrayBuffer>::size(), DrawElementsType<T>, nullptr));
+      primitiveType, Buffer<T, api::BufferTarget::ElementArrayBuffer>::size(), DrawElementsType<T>, nullptr));
   }
 
   void drawElements(api::PrimitiveType primitiveType, api::core::SizeType instances) const
   {
     GL_ASSERT(api::drawElementsInstance(
-      primitiveType, Buffer<T, api::BufferTargetARB::ElementArrayBuffer>::size(), DrawElementsType<T>, instances));
+      primitiveType, Buffer<T, api::BufferTarget::ElementArrayBuffer>::size(), DrawElementsType<T>, instances));
   }
 };
 } // namespace gl

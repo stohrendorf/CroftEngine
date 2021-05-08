@@ -7,8 +7,6 @@
 
 namespace gl
 {
-namespace
-{
 inline RenderState& getCurrentState()
 {
   static RenderState currentState{};
@@ -22,7 +20,6 @@ inline RenderState& getCurrentState()
   }
   return currentState;
 }
-} // namespace
 
 void RenderState::apply(const bool force) const
 {
@@ -137,7 +134,9 @@ void RenderState::apply(const bool force) const
   bool textureUnitsChanged = false;
   for(size_t i = 0; i < m_textureUnits.size(); ++i)
   {
-    if(m_textureUnits[i].first != nullptr && m_textureUnits[i].first != getCurrentState().m_textureUnits[i].first)
+    const auto& wanted = m_textureUnits[i].first;
+    const auto& current = getCurrentState().m_textureUnits[i].first;
+    if(!wanted.expired() && (current.expired() || wanted.lock() != current.lock()))
     {
       textureUnitsChanged = true;
       break;
@@ -148,11 +147,12 @@ void RenderState::apply(const bool force) const
   {
     for(size_t i = 0; i < m_textureUnits.size(); ++i)
     {
-      const auto& texture = m_textureUnits[i].first;
-      if(texture != nullptr && texture != getCurrentState().m_textureUnits[i].first)
+      const auto& wanted = m_textureUnits[i].first;
+      const auto& current = getCurrentState().m_textureUnits[i].first;
+      if(!wanted.expired() && (current.expired() || wanted.lock() != current.lock()))
       {
-        GL_ASSERT(api::bindTextureUnit(static_cast<uint32_t>(i), texture->getHandle()));
-        getCurrentState().m_textureUnits[i] = {texture, 0};
+        GL_ASSERT(api::bindTextureUnit(static_cast<uint32_t>(i), wanted.lock()->getHandle()));
+        getCurrentState().m_textureUnits[i] = {wanted, 0};
       }
     }
   }
@@ -181,7 +181,7 @@ void RenderState::merge(const RenderState& other)
   Expects(m_textureUnits.size() == other.m_textureUnits.size());
   for(size_t i = 0; i < m_textureUnits.size(); ++i)
   {
-    if(other.m_textureUnits[i].first != nullptr)
+    if(!other.m_textureUnits[i].first.expired())
     {
       m_textureUnits[i] = {other.m_textureUnits[i].first, 0};
     }
@@ -241,14 +241,14 @@ int32_t RenderState::allocateTextureUnit(const std::shared_ptr<Texture>& texture
     }
   }
   // normalize ages to avoid overflow
-  for(size_t i = 0; i < m_textureUnits.size(); ++i)
+  for(auto& textureUnit : m_textureUnits)
   {
-    m_textureUnits[i].second -= youngestAge;
-    BOOST_ASSERT(m_textureUnits[i].second >= 1);
+    textureUnit.second -= youngestAge;
+    BOOST_ASSERT(textureUnit.second >= 1);
   }
   for(size_t i = 0; i < m_textureUnits.size(); ++i)
   {
-    if(m_textureUnits[i].first == texture)
+    if(auto& wanted = m_textureUnits[i].first; !wanted.expired() && wanted.lock() == texture)
     {
       m_textureUnits[i].second = 0;
       return gsl::narrow_cast<int32_t>(i);
@@ -264,6 +264,6 @@ RenderState::RenderState()
   int32_t maxUnits = 0;
   GL_ASSERT(api::getIntegerv(api::GetPName::MaxTextureImageUnits, &maxUnits));
   Expects(maxUnits > 0);
-  m_textureUnits.resize(maxUnits, std::pair{nullptr, 0});
+  m_textureUnits.resize(maxUnits, std::pair{std::weak_ptr<gl::Texture>{}, 0});
 }
 } // namespace gl

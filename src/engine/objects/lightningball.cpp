@@ -35,10 +35,10 @@ gsl::not_null<std::shared_ptr<render::scene::Mesh>>
     indices.emplace_back(i);
 
   auto indexBuffer = std::make_shared<gl::ElementArrayBuffer<uint16_t>>("bolt");
-  indexBuffer->setData(indices, gl::api::BufferUsageARB::StaticDraw);
+  indexBuffer->setData(indices, gl::api::BufferUsage::StaticDraw);
 
   vb = std::make_shared<gl::VertexBuffer<glm::vec3>>(layout, 0, "bolt");
-  vb->setData(&vertices[0], points, gl::api::BufferUsageARB::DynamicDraw);
+  vb->setData(&vertices[0], points, gl::api::BufferUsage::DynamicDraw);
 
   auto vao = std::make_shared<gl::VertexArray<uint16_t, glm::vec3>>(
     indexBuffer, vb, std::vector{&material->getShaderProgram()->getHandle()}, "bolt");
@@ -61,7 +61,7 @@ Bolt updateBolt(core::TRVec start, const core::TRVec& end, const std::shared_ptr
   Bolt bolt;
 
   BOOST_ASSERT(vb->size() == LightningBall::SegmentPoints);
-  const auto boltData = vb->map(gl::api::BufferAccessARB::WriteOnly);
+  const auto boltData = vb->map(gl::api::BufferAccess::WriteOnly);
   for(size_t j = 0; j < LightningBall::SegmentPoints; j++)
   {
     core::TRVec buckling{util::rand15s(core::QuarterSectorSize),

@@ -81,7 +81,7 @@ struct RenderMesh
 #endif
 
     auto indexBuffer = std::make_shared<gl::ElementArrayBuffer<IndexType>>(label);
-    indexBuffer->setData(m_indices, gl::api::BufferUsageARB::StaticDraw);
+    indexBuffer->setData(m_indices, gl::api::BufferUsage::StaticDraw);
 
     auto vBufs = std::make_tuple(vbuf, uvBuf);
 
@@ -134,12 +134,12 @@ void Portal::buildMesh(const loader::file::Portal& srcPortal,
 
   gl::VertexLayout<Vertex> layout{{VERTEX_ATTRIBUTE_POSITION_NAME, &Vertex::pos}};
   auto vb = std::make_shared<gl::VertexBuffer<Vertex>>(layout, 0, "portal");
-  vb->setData(&glVertices[0], 4, gl::api::BufferUsageARB::StaticDraw);
+  vb->setData(&glVertices[0], 4, gl::api::BufferUsage::StaticDraw);
 
   static const std::array<uint16_t, 6> indices{0, 1, 2, 0, 2, 3};
 
   auto indexBuffer = std::make_shared<gl::ElementArrayBuffer<uint16_t>>("portal");
-  indexBuffer->setData(&indices[0], 6, gl::api::BufferUsageARB::StaticDraw);
+  indexBuffer->setData(&indices[0], 6, gl::api::BufferUsage::StaticDraw);
 
   auto vao = std::make_shared<gl::VertexArray<uint16_t, Vertex>>(
     indexBuffer, vb, std::vector{&material->getShaderProgram()->getHandle()}, "portal");
@@ -291,8 +291,8 @@ void Room::createSceneNode(const loader::file::Room& srcRoom,
     }
   }
 
-  vbuf->setData(vbufData, gl::api::BufferUsageARB::StaticDraw);
-  uvCoords->setData(uvCoordsData, gl::api::BufferUsageARB::DynamicDraw);
+  vbuf->setData(vbufData, gl::api::BufferUsage::StaticDraw);
+  uvCoords->setData(uvCoordsData, gl::api::BufferUsage::DynamicDraw);
 
   auto resMesh = renderMesh.toMesh(vbuf, uvCoords, label);
   resMesh->getRenderState().setCullFace(true);
@@ -470,7 +470,7 @@ void Room::collectShaderLights(size_t depth)
   bufferLights.clear();
   if(lights.empty())
   {
-    lightsBuffer->setData(bufferLights, gl::api::BufferUsageARB::StaticDraw);
+    lightsBuffer->setData(bufferLights, gl::api::BufferUsage::StaticDraw);
     return;
   }
 
@@ -507,7 +507,7 @@ void Room::collectShaderLights(size_t depth)
     }
   }
 
-  lightsBuffer->setData(bufferLights, gl::api::BufferUsageARB::StaticDraw);
+  lightsBuffer->setData(bufferLights, gl::api::BufferUsage::StaticDraw);
 }
 
 gsl::not_null<const Sector*> findRealFloorSector(const core::TRVec& position,

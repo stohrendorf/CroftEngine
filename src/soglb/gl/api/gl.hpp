@@ -467,7 +467,7 @@ enum class Buffer : core::EnumType
   || defined(API_LEVEL_GL_VERSION_4_4_compatibility) || defined(API_LEVEL_GL_VERSION_4_4_core)                        \
   || defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_5_core)                        \
   || defined(API_LEVEL_GL_VERSION_4_6_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_core)
-enum class BufferAccessARB : core::EnumType
+enum class BufferAccess : core::EnumType
 {
   ReadOnly = 0x88B8,
   ReadWrite = 0x88BA,
@@ -475,7 +475,7 @@ enum class BufferAccessARB : core::EnumType
 };
 #endif
 
-enum class BufferPNameARB : core::EnumType
+enum class BufferPName : core::EnumType
 {
 #if defined(API_LEVEL_GL_VERSION_1_5) || defined(API_LEVEL_GL_VERSION_2_0) || defined(API_LEVEL_GL_VERSION_2_1)       \
   || defined(API_LEVEL_GL_VERSION_3_0) || defined(API_LEVEL_GL_VERSION_3_1) || defined(API_LEVEL_GL_VERSION_3_2_core) \
@@ -523,7 +523,7 @@ enum class BufferPNameARB : core::EnumType
   || defined(API_LEVEL_GL_VERSION_4_4_compatibility) || defined(API_LEVEL_GL_VERSION_4_4_core)                        \
   || defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_5_core)                        \
   || defined(API_LEVEL_GL_VERSION_4_6_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_core)
-enum class BufferPointerNameARB : core::EnumType
+enum class BufferPointerName : core::EnumType
 {
   BufferMapPointer = 0x88BD,
 };
@@ -640,7 +640,7 @@ enum class BufferStorageTarget : core::EnumType
 #endif
 };
 
-enum class BufferTargetARB : core::EnumType
+enum class BufferTarget : core::EnumType
 {
 #if defined(API_LEVEL_GL_VERSION_1_5) || defined(API_LEVEL_GL_VERSION_2_0) || defined(API_LEVEL_GL_VERSION_2_1)       \
   || defined(API_LEVEL_GL_VERSION_3_0) || defined(API_LEVEL_GL_VERSION_3_1) || defined(API_LEVEL_GL_VERSION_3_2_core) \
@@ -736,7 +736,7 @@ enum class BufferTargetARB : core::EnumType
   || defined(API_LEVEL_GL_VERSION_4_4_compatibility) || defined(API_LEVEL_GL_VERSION_4_4_core)                        \
   || defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_5_core)                        \
   || defined(API_LEVEL_GL_VERSION_4_6_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_core)
-enum class BufferUsageARB : core::EnumType
+enum class BufferUsage : core::EnumType
 {
   DynamicCopy = 0x88EA,
   DynamicDraw = 0x88E8,
@@ -767,7 +767,7 @@ enum class CheckFramebufferStatusTarget : core::EnumType
 };
 #endif
 
-enum class ClampColorModeARB : core::EnumType
+enum class ClampColorMode : core::EnumType
 {
   False = 0,
   True = 1,
@@ -793,7 +793,7 @@ enum class ClampColorModeARB : core::EnumType
   || defined(API_LEVEL_GL_VERSION_4_4_compatibility) || defined(API_LEVEL_GL_VERSION_4_4_core)                       \
   || defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_5_core)                       \
   || defined(API_LEVEL_GL_VERSION_4_6_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_core)
-enum class ClampColorTargetARB : core::EnumType
+enum class ClampColorTarget : core::EnumType
 {
   ClampReadColor = 0x891C,
 };
@@ -3132,9 +3132,9 @@ enum class InterleavedArrayFormat : core::EnumType
 enum class InternalFormat : core::EnumType
 {
   DepthComponent = 0x1902,
-  DepthComponent16Arb = 0x81A5,
-  DepthComponent24Arb = 0x81A6,
-  DepthComponent32Arb = 0x81A7,
+  DepthComponent16 = 0x81A5,
+  DepthComponent24 = 0x81A6,
+  DepthComponent32 = 0x81A7,
   Red = 0x1903,
   Rgb = 0x1907,
   Rgba = 0x1908,
@@ -3218,9 +3218,6 @@ enum class InternalFormat : core::EnumType
   || defined(API_LEVEL_GL_VERSION_4_4_core) || defined(API_LEVEL_GL_VERSION_4_5_compatibility)                   \
   || defined(API_LEVEL_GL_VERSION_4_5_core) || defined(API_LEVEL_GL_VERSION_4_6_compatibility)                   \
   || defined(API_LEVEL_GL_VERSION_4_6_core)
-  DepthComponent16 = 0x81A5,
-  DepthComponent24 = 0x81A6,
-  DepthComponent32 = 0x81A7,
 #endif
 #if defined(API_LEVEL_GL_VERSION_2_1) || defined(API_LEVEL_GL_VERSION_3_0) || defined(API_LEVEL_GL_VERSION_3_1) \
   || defined(API_LEVEL_GL_VERSION_3_2_core) || defined(API_LEVEL_GL_VERSION_3_3_compatibility)                  \
@@ -3794,7 +3791,7 @@ enum class MaterialParameter : core::EnumType
 };
 #endif
 
-enum class MatrixIndexPointerTypeARB : core::EnumType
+enum class MatrixIndexPointerType : core::EnumType
 {
   UnsignedByte = 0x1401,
   UnsignedInt = 0x1405,
@@ -4312,7 +4309,7 @@ enum class PixelType : core::EnumType
   || defined(API_LEVEL_GL_VERSION_4_4_core) || defined(API_LEVEL_GL_VERSION_4_5_compatibility)                   \
   || defined(API_LEVEL_GL_VERSION_4_5_core) || defined(API_LEVEL_GL_VERSION_4_6_compatibility)                   \
   || defined(API_LEVEL_GL_VERSION_4_6_core)
-enum class PointParameterNameARB : core::EnumType
+enum class PointParameterName : core::EnumType
 {
   PointFadeThresholdSize = 0x8128,
 };
@@ -4492,7 +4489,7 @@ enum class ProgramParameterPName : core::EnumType
 };
 #endif
 
-enum class ProgramPropertyARB : core::EnumType
+enum class ProgramProperty : core::EnumType
 {
 #if defined(API_LEVEL_GL_VERSION_2_0) || defined(API_LEVEL_GL_VERSION_2_1) || defined(API_LEVEL_GL_VERSION_3_0) \
   || defined(API_LEVEL_GL_VERSION_3_1) || defined(API_LEVEL_GL_VERSION_3_2_core)                                \
@@ -5065,9 +5062,9 @@ enum class ShadingModel : core::EnumType
 
 enum class SizedInternalFormat : core::EnumType
 {
-  DepthComponent16Arb = 0x81A5,
-  DepthComponent24Arb = 0x81A6,
-  DepthComponent32Arb = 0x81A7,
+  DepthComponent16 = 0x81A5,
+  DepthComponent24 = 0x81A6,
+  DepthComponent32 = 0x81A7,
 #if defined(API_LEVEL_GL_VERSION_1_1) || defined(API_LEVEL_GL_VERSION_1_2) || defined(API_LEVEL_GL_VERSION_1_3)  \
   || defined(API_LEVEL_GL_VERSION_1_4) || defined(API_LEVEL_GL_VERSION_1_5) || defined(API_LEVEL_GL_VERSION_2_0) \
   || defined(API_LEVEL_GL_VERSION_2_1) || defined(API_LEVEL_GL_VERSION_3_0) || defined(API_LEVEL_GL_VERSION_3_1) \
@@ -5132,9 +5129,6 @@ enum class SizedInternalFormat : core::EnumType
   || defined(API_LEVEL_GL_VERSION_4_4_core) || defined(API_LEVEL_GL_VERSION_4_5_compatibility)                   \
   || defined(API_LEVEL_GL_VERSION_4_5_core) || defined(API_LEVEL_GL_VERSION_4_6_compatibility)                   \
   || defined(API_LEVEL_GL_VERSION_4_6_core)
-  DepthComponent16 = 0x81A5,
-  DepthComponent24 = 0x81A6,
-  DepthComponent32 = 0x81A7,
 #endif
 #if defined(API_LEVEL_GL_VERSION_2_1) || defined(API_LEVEL_GL_VERSION_3_0) || defined(API_LEVEL_GL_VERSION_3_1) \
   || defined(API_LEVEL_GL_VERSION_3_2_core) || defined(API_LEVEL_GL_VERSION_3_3_compatibility)                  \
@@ -6366,7 +6360,7 @@ enum class VertexAttribLType : core::EnumType
   || defined(API_LEVEL_GL_VERSION_4_4_compatibility) || defined(API_LEVEL_GL_VERSION_4_4_core)                  \
   || defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_5_core)                  \
   || defined(API_LEVEL_GL_VERSION_4_6_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_core)
-enum class VertexAttribPointerPropertyARB : core::EnumType
+enum class VertexAttribPointerProperty : core::EnumType
 {
   VertexAttribArrayPointer = 0x8645,
 };
@@ -6440,7 +6434,7 @@ enum class VertexAttribPointerType : core::EnumType
 #endif
 };
 
-enum class VertexAttribPropertyARB : core::EnumType
+enum class VertexAttribProperty : core::EnumType
 {
 #if defined(API_LEVEL_GL_VERSION_1_5) || defined(API_LEVEL_GL_VERSION_2_0) || defined(API_LEVEL_GL_VERSION_2_1)       \
   || defined(API_LEVEL_GL_VERSION_3_0) || defined(API_LEVEL_GL_VERSION_3_1) || defined(API_LEVEL_GL_VERSION_3_2_core) \
@@ -6695,7 +6689,7 @@ enum class VertexWeightPointerTypeEXT : core::EnumType
   Float = 0x1406,
 };
 
-enum class WeightPointerTypeARB : core::EnumType
+enum class WeightPointerType : core::EnumType
 {
   Byte = 0x1400,
   Float = 0x1406,
@@ -7352,10 +7346,10 @@ extern void multiDrawElements(PrimitiveType mode,
                               DrawElementsType type,
                               const void* const* indices,
                               core::SizeType drawcount);
-extern void pointParameter(PointParameterNameARB pname, float param);
-extern void pointParameter(PointParameterNameARB pname, const float* params);
-extern void pointParameter(PointParameterNameARB pname, int32_t param);
-extern void pointParameter(PointParameterNameARB pname, const int32_t* params);
+extern void pointParameter(PointParameterName pname, float param);
+extern void pointParameter(PointParameterName pname, const float* params);
+extern void pointParameter(PointParameterName pname, int32_t param);
+extern void pointParameter(PointParameterName pname, const int32_t* params);
 #endif
 #if defined(API_LEVEL_GL_VERSION_1_4) || defined(API_LEVEL_GL_VERSION_1_5) || defined(API_LEVEL_GL_VERSION_2_0)  \
   || defined(API_LEVEL_GL_VERSION_2_1) || defined(API_LEVEL_GL_VERSION_3_0) || defined(API_LEVEL_GL_VERSION_3_1) \
@@ -7413,24 +7407,24 @@ extern void windowPos3(const int16_t* v);
   || defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_5_core)                        \
   || defined(API_LEVEL_GL_VERSION_4_6_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_core)
 extern void beginQuery(QueryTarget target, uint32_t id);
-extern void bindBuffer(BufferTargetARB target, uint32_t buffer);
-extern void bufferData(BufferTargetARB target, std::size_t size, const void* data, BufferUsageARB usage);
-extern void bufferSubData(BufferTargetARB target, std::intptr_t offset, std::size_t size, const void* data);
+extern void bindBuffer(BufferTarget target, uint32_t buffer);
+extern void bufferData(BufferTarget target, std::size_t size, const void* data, BufferUsage usage);
+extern void bufferSubData(BufferTarget target, std::intptr_t offset, std::size_t size, const void* data);
 extern void deleteBuffers(core::SizeType n, const uint32_t* buffers);
 extern void deleteQuerie(core::SizeType n, const uint32_t* ids);
 extern void endQuery(QueryTarget target);
 extern void genBuffers(core::SizeType n, uint32_t* buffers);
 extern void genQuerie(core::SizeType n, uint32_t* ids);
-extern void getBufferParameter(BufferTargetARB target, BufferPNameARB pname, int32_t* params);
-extern void getBufferPointerv(BufferTargetARB target, BufferPointerNameARB pname, void** params);
-extern void getBufferSubData(BufferTargetARB target, std::intptr_t offset, std::size_t size, void* data);
+extern void getBufferParameter(BufferTarget target, BufferPName pname, int32_t* params);
+extern void getBufferPointerv(BufferTarget target, BufferPointerName pname, void** params);
+extern void getBufferSubData(BufferTarget target, std::intptr_t offset, std::size_t size, void* data);
 extern void getQueryObject(uint32_t id, QueryObjectParameterName pname, int32_t* params);
 extern void getQueryObject(uint32_t id, QueryObjectParameterName pname, uint32_t* params);
 extern void getQuery(QueryTarget target, QueryParameterName pname, int32_t* params);
 extern bool isBuffer(uint32_t buffer);
 extern bool isQuery(uint32_t id);
-extern void* mapBuffer(BufferTargetARB target, BufferAccessARB access);
-extern bool unmapBuffer(BufferTargetARB target);
+extern void* mapBuffer(BufferTarget target, BufferAccess access);
+extern bool unmapBuffer(BufferTarget target);
 #endif
 #if defined(API_LEVEL_GL_VERSION_2_0) || defined(API_LEVEL_GL_VERSION_2_1) || defined(API_LEVEL_GL_VERSION_3_0) \
   || defined(API_LEVEL_GL_VERSION_3_1) || defined(API_LEVEL_GL_VERSION_3_2_core)                                \
@@ -7471,17 +7465,17 @@ extern void getActiveUniform(uint32_t program,
 extern void getAttachedShaders(uint32_t program, core::SizeType maxCount, core::SizeType* count, uint32_t* shaders);
 extern int32_t getAttribLocation(uint32_t program, const char* name);
 extern void getProgramInfoLog(uint32_t program, core::SizeType bufSize, core::SizeType* length, char* infoLog);
-extern void getProgram(uint32_t program, ProgramPropertyARB pname, int32_t* params);
+extern void getProgram(uint32_t program, ProgramProperty pname, int32_t* params);
 extern void getShaderInfoLog(uint32_t shader, core::SizeType bufSize, core::SizeType* length, char* infoLog);
 extern void getShaderSource(uint32_t shader, core::SizeType bufSize, core::SizeType* length, char* source);
 extern void getShader(uint32_t shader, ShaderParameterName pname, int32_t* params);
 extern int32_t getUniformLocation(uint32_t program, const char* name);
 extern void getUniform(uint32_t program, int32_t location, float* params);
 extern void getUniform(uint32_t program, int32_t location, int32_t* params);
-extern void getVertexAttribPointerv(uint32_t index, VertexAttribPointerPropertyARB pname, void** pointer);
-extern void getVertexAttrib(uint32_t index, VertexAttribPropertyARB pname, double* params);
-extern void getVertexAttrib(uint32_t index, VertexAttribPropertyARB pname, float* params);
-extern void getVertexAttrib(uint32_t index, VertexAttribPropertyARB pname, int32_t* params);
+extern void getVertexAttribPointerv(uint32_t index, VertexAttribPointerProperty pname, void** pointer);
+extern void getVertexAttrib(uint32_t index, VertexAttribProperty pname, double* params);
+extern void getVertexAttrib(uint32_t index, VertexAttribProperty pname, float* params);
+extern void getVertexAttrib(uint32_t index, VertexAttribProperty pname, int32_t* params);
 extern bool isProgram(uint32_t program);
 extern bool isShader(uint32_t shader);
 extern void linkProgram(uint32_t program);
@@ -7581,9 +7575,9 @@ extern void uniformMatrix4x3(int32_t location, core::SizeType count, bool transp
   || defined(API_LEVEL_GL_VERSION_4_6_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_core)
 extern void beginConditionalRender(uint32_t id, ConditionalRenderMode mode);
 extern void beginTransformFeedback(PrimitiveType primitiveMode);
-extern void bindBufferBase(BufferTargetARB target, uint32_t index, uint32_t buffer);
+extern void bindBufferBase(BufferTarget target, uint32_t index, uint32_t buffer);
 extern void
-  bindBufferRange(BufferTargetARB target, uint32_t index, uint32_t buffer, std::intptr_t offset, std::size_t size);
+  bindBufferRange(BufferTarget target, uint32_t index, uint32_t buffer, std::intptr_t offset, std::size_t size);
 extern void bindFragDataLocation(uint32_t program, uint32_t color, const char* name);
 extern void bindFramebuffer(FramebufferTarget target, uint32_t framebuffer);
 extern void bindRenderbuffer(RenderbufferTarget target, uint32_t renderbuffer);
@@ -7599,7 +7593,7 @@ extern void blitFramebuffer(int32_t srcX0,
                             core::Bitfield<ClearBufferMask> mask,
                             BlitFramebufferFilter filter);
 extern FramebufferStatus checkFramebufferStatus(FramebufferTarget target);
-extern void clampColor(ClampColorTargetARB target, ClampColorModeARB clamp);
+extern void clampColor(ClampColorTarget target, ClampColorMode clamp);
 extern void clearBufferf(Buffer buffer, int32_t drawbuffer, float depth, int32_t stencil);
 extern void clearBuffer(Buffer buffer, int32_t drawbuffer, const float* value);
 extern void clearBuffer(Buffer buffer, int32_t drawbuffer, const int32_t* value);
@@ -7612,7 +7606,7 @@ extern void disable(EnableCap target, uint32_t index);
 extern void enable(EnableCap target, uint32_t index);
 extern void endConditionalRender();
 extern void endTransformFeedback();
-extern void flushMappedBufferRange(BufferTargetARB target, std::intptr_t offset, std::size_t length);
+extern void flushMappedBufferRange(BufferTarget target, std::intptr_t offset, std::size_t length);
 extern void framebufferRenderbuffer(FramebufferTarget target,
                                     FramebufferAttachment attachment,
                                     RenderbufferTarget renderbuffertarget,
@@ -7633,7 +7627,7 @@ extern void genFramebuffers(core::SizeType n, uint32_t* framebuffers);
 extern void genRenderbuffers(core::SizeType n, uint32_t* renderbuffers);
 extern void genVertexArrays(core::SizeType n, uint32_t* arrays);
 extern void generateMipmap(TextureTarget target);
-extern void getBooleani_v(BufferTargetARB target, uint32_t index, bool* data);
+extern void getBooleani_v(BufferTarget target, uint32_t index, bool* data);
 extern int32_t getFragDataLocation(uint32_t program, const char* name);
 extern void getFramebufferAttachmentParameter(FramebufferTarget target,
                                               FramebufferAttachment attachment,
@@ -7658,7 +7652,7 @@ extern bool isEnabled(EnableCap target, uint32_t index);
 extern bool isFramebuffer(uint32_t framebuffer);
 extern bool isRenderbuffer(uint32_t renderbuffer);
 extern bool isVertexArray(uint32_t array);
-extern void* mapBufferRange(BufferTargetARB target,
+extern void* mapBufferRange(BufferTarget target,
                             std::intptr_t offset,
                             std::size_t length,
                             core::Bitfield<MapBufferAccessMask> access);
@@ -7770,7 +7764,7 @@ extern void drawRangeElementsBaseVertex(PrimitiveType mode,
                                         int32_t basevertex);
 extern void
   framebufferTexture(FramebufferTarget target, FramebufferAttachment attachment, uint32_t texture, int32_t level);
-extern void getBufferParameter(BufferTargetARB target, BufferPNameARB pname, int64_t* params);
+extern void getBufferParameter(BufferTarget target, BufferPName pname, int64_t* params);
 extern void getInteger64i_v(GetPName target, uint32_t index, int64_t* data);
 extern void getInteger64v(GetPName pname, int64_t* data);
 extern void getMultisample(GetMultisamplePNameNV pname, uint32_t index, float* val);
@@ -8054,7 +8048,7 @@ extern void bindImageTexture(uint32_t unit,
                              int32_t level,
                              bool layered,
                              int32_t layer,
-                             BufferAccessARB access,
+                             BufferAccess access,
                              InternalFormat format);
 extern void drawArraysInstancedBaseInstance(
   PrimitiveType mode, int32_t first, core::SizeType count, core::SizeType instancecount, uint32_t baseinstance);
@@ -8103,7 +8097,7 @@ extern void texStorage3D(TextureTarget target,
 extern void bindVertexBuffer(uint32_t bindingindex, uint32_t buffer, std::intptr_t offset, core::SizeType stride);
 extern void clearBufferData(
   BufferStorageTarget target, SizedInternalFormat internalformat, PixelFormat format, PixelType type, const void* data);
-extern void clearBufferSubData(BufferTargetARB target,
+extern void clearBufferSubData(BufferTarget target,
                                SizedInternalFormat internalformat,
                                std::intptr_t offset,
                                std::size_t size,
@@ -8235,8 +8229,8 @@ extern void vertexBindingDivisor(uint32_t bindingindex, uint32_t divisor);
 #if defined(API_LEVEL_GL_VERSION_4_4_compatibility) || defined(API_LEVEL_GL_VERSION_4_4_core)  \
   || defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_5_core) \
   || defined(API_LEVEL_GL_VERSION_4_6_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_core)
-extern void bindBuffersBase(BufferTargetARB target, uint32_t first, core::SizeType count, const uint32_t* buffers);
-extern void bindBuffersRange(BufferTargetARB target,
+extern void bindBuffersBase(BufferTarget target, uint32_t first, core::SizeType count, const uint32_t* buffers);
+extern void bindBuffersRange(BufferTarget target,
                              uint32_t first,
                              core::SizeType count,
                              const uint32_t* buffers,
@@ -8371,9 +8365,9 @@ extern void getCompressedTextureSubImage(uint32_t texture,
                                          core::SizeType bufSize,
                                          void* pixels);
 extern GraphicsResetStatus getGraphicsResetStatus();
-extern void getNamedBufferParameter(uint32_t buffer, BufferPNameARB pname, int64_t* params);
-extern void getNamedBufferParameter(uint32_t buffer, BufferPNameARB pname, int32_t* params);
-extern void getNamedBufferPointerv(uint32_t buffer, BufferPointerNameARB pname, void** params);
+extern void getNamedBufferParameter(uint32_t buffer, BufferPName pname, int64_t* params);
+extern void getNamedBufferParameter(uint32_t buffer, BufferPName pname, int32_t* params);
+extern void getNamedBufferPointerv(uint32_t buffer, BufferPointerName pname, void** params);
 extern void getNamedBufferSubData(uint32_t buffer, std::intptr_t offset, std::size_t size, void* data);
 extern void getNamedFramebufferAttachmentParameter(uint32_t framebuffer,
                                                    FramebufferAttachment attachment,
@@ -8430,13 +8424,13 @@ extern void invalidateNamedFramebufferSubData(uint32_t framebuffer,
                                               int32_t y,
                                               core::SizeType width,
                                               core::SizeType height);
-extern void* mapNamedBuffer(uint32_t buffer, BufferAccessARB access);
+extern void* mapNamedBuffer(uint32_t buffer, BufferAccess access);
 extern void* mapNamedBufferRange(uint32_t buffer,
                                  std::intptr_t offset,
                                  std::size_t length,
                                  core::Bitfield<MapBufferAccessMask> access);
 extern void memoryBarrierByRegion(core::Bitfield<MemoryBarrierMask> barriers);
-extern void namedBufferData(uint32_t buffer, std::size_t size, const void* data, BufferUsageARB usage);
+extern void namedBufferData(uint32_t buffer, std::size_t size, const void* data, BufferUsage usage);
 extern void
   namedBufferStorage(uint32_t buffer, std::size_t size, const void* data, core::Bitfield<BufferStorageMask> flags);
 extern void namedBufferSubData(uint32_t buffer, std::intptr_t offset, std::size_t size, const void* data);

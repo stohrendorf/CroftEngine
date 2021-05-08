@@ -137,7 +137,7 @@ public:
                    m_meshParts.end(),
                    std::back_inserter(matrices),
                    [](const auto& part) { return part.matrix; });
-    m_meshMatricesBuffer.setData(matrices, gl::api::BufferUsageARB::DynamicDraw);
+    m_meshMatricesBuffer.setData(matrices, gl::api::BufferUsage::DynamicDraw);
     return m_meshMatricesBuffer;
   }
 

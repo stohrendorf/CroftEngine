@@ -182,9 +182,9 @@ constexpr api::SizedInternalFormat RSizedInternalFormat<api::core::Half> = api::
 template<typename>
 constexpr auto DepthInternalFormat = detail::InvalidValue{};
 template<>
-constexpr api::SizedInternalFormat DepthInternalFormat<int16_t> = api::SizedInternalFormat::DepthComponent16Arb;
+constexpr api::SizedInternalFormat DepthInternalFormat<int16_t> = api::SizedInternalFormat::DepthComponent16;
 template<>
-constexpr api::SizedInternalFormat DepthInternalFormat<int32_t> = api::SizedInternalFormat::DepthComponent32Arb;
+constexpr api::SizedInternalFormat DepthInternalFormat<int32_t> = api::SizedInternalFormat::DepthComponent32;
 template<>
 constexpr api::SizedInternalFormat DepthInternalFormat<float> = api::SizedInternalFormat::DepthComponent32f;
 } // namespace gl

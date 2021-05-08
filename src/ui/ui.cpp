@@ -39,12 +39,12 @@ gsl::not_null<std::shared_ptr<render::scene::Mesh>> createQuad(const std::shared
     {VERTEX_ATTRIBUTE_COLOR_BOTTOM_RIGHT_NAME, &ColorQuadVertex::bottomRight}};
 
   auto vertexBuffer = std::make_shared<gl::VertexBuffer<ColorQuadVertex>>(layout, 0, label);
-  vertexBuffer->setData(&vertices[0], 4, gl::api::BufferUsageARB::StaticDraw);
+  vertexBuffer->setData(&vertices[0], 4, gl::api::BufferUsage::StaticDraw);
 
   static const std::array<uint16_t, 6> indices{0, 1, 2, 0, 2, 3};
 
   auto indexBuffer = std::make_shared<gl::ElementArrayBuffer<uint16_t>>(label);
-  indexBuffer->setData(&indices[0], 6, gl::api::BufferUsageARB::StaticDraw);
+  indexBuffer->setData(&indices[0], 6, gl::api::BufferUsage::StaticDraw);
 
   auto mesh = std::make_shared<render::scene::MeshImpl<uint16_t, ColorQuadVertex>>(
     std::make_shared<gl::VertexArray<uint16_t, ColorQuadVertex>>(
@@ -198,12 +198,12 @@ void Ui::draw(const engine::world::Sprite& sprite, const glm::ivec2& xy)
                                                   TextureQuadVertex{{b.x, a.y}, {tb.x, ta.y}, sprite.textureId.get()}};
 
   auto vertexBuffer = std::make_shared<gl::VertexBuffer<TextureQuadVertex>>(layout, 0, "ui-sprite");
-  vertexBuffer->setData(&vertices[0], 4, gl::api::BufferUsageARB::StaticDraw);
+  vertexBuffer->setData(&vertices[0], 4, gl::api::BufferUsage::StaticDraw);
 
   static const std::array<uint16_t, 6> indices{0, 1, 2, 0, 2, 3};
 
   auto indexBuffer = std::make_shared<gl::ElementArrayBuffer<uint16_t>>("ui-sprite");
-  indexBuffer->setData(&indices[0], 6, gl::api::BufferUsageARB::StaticDraw);
+  indexBuffer->setData(&indices[0], 6, gl::api::BufferUsage::StaticDraw);
 
   auto mesh = std::make_shared<render::scene::MeshImpl<uint16_t, TextureQuadVertex>>(
     std::make_shared<gl::VertexArray<uint16_t, TextureQuadVertex>>(

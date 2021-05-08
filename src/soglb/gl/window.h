@@ -48,7 +48,7 @@ public:
       setWindowed();
   }
 
-  bool isMinimized() const noexcept
+  [[nodiscard]] bool isMinimized() const noexcept
   {
     return m_viewport.x <= 0 || m_viewport.y <= 0;
   }

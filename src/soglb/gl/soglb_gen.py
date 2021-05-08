@@ -4,6 +4,7 @@ import re
 import urllib.request
 from collections import defaultdict
 from copy import deepcopy
+from dataclasses import dataclass, field
 from typing import Dict, Set, Iterable
 from typing import Optional
 from typing import TextIO
@@ -13,10 +14,27 @@ from xml.etree.ElementTree import Element
 
 logging.basicConfig(level=logging.INFO)
 
+API_VERSION_PREFIX = 'API_LEVEL'
+VENDOR_PREFIX = 'WITH_GL_API_VENDOR'
+EXTENSION_PREFIX = 'WITH_API_EXTENSION'
+ENABLED_EXTENSIONS = ('GL_ARB_depth_texture',)  # 'GL_ARB_bindless_texture')
+ENABLED_APIS = ('gl',)
+
+XML_NAME = os.path.join("api", "gl.xml")
+
+
+def strip_ext_suffix(name: str) -> str:
+    strip_suffixes = ("ARB",)
+    for suffix in strip_suffixes:
+        if name.endswith(suffix):
+            return name[:-len(suffix)]
+    return name
+
 
 def normalize_constant_name(name: str) -> str:
     if name.startswith('GL_'):
         name = name[3:]
+    name = strip_ext_suffix(name).rstrip("_")
     name = ''.join([x[:1].upper() + x[1:].lower() for x in name.split('_')])
     if name[:1].isnumeric():
         name = '_' + name
@@ -26,10 +44,10 @@ def normalize_constant_name(name: str) -> str:
 def normalize_fn_name(name: str) -> str:
     if name.startswith('gl'):
         name = name[2:]
-    name = name[:1].lower() + name[1:]
+    name = strip_ext_suffix(name[:1].lower() + name[1:])
 
-    if not any([name.lower().endswith(x) for x in
-                ('buffers', 'elements', 'shaders', 'textures', 'status', 'arrays', 'attrib')]):
+    if not any(name.lower().endswith(x)
+               for x in ('buffers', 'elements', 'shaders', 'textures', 'status', 'arrays', 'attrib')):
         # remove type specs
         if not name.startswith('getQueryBufferObject'):
             name = re.sub(r'([1-9]?)(u?(b|s|i|i64)|f|d)(v?)$', r'\1', name)
@@ -38,20 +56,13 @@ def normalize_fn_name(name: str) -> str:
     return name
 
 
-API_VERSION_PREFIX = 'API_LEVEL'
-VENDOR_PREFIX = 'WITH_GL_API_VENDOR'
-EXTENSION_PREFIX = 'WITH_API_EXTENSION'
-
-XML_NAME = os.path.join("api", "gl.xml")
-
-
 def _patch_integral_types(*, xml_ptype: Element, enum_name: Optional[str]) -> Optional[str]:
     if xml_ptype is None:
         return None
     orig = xml_ptype.text.strip()
     if orig == 'GLbitfield':
         if enum_name is not None:
-            xml_ptype.text = 'core::Bitfield<{}>'.format(enum_name)
+            xml_ptype.text = 'core::Bitfield<{}>'.format(strip_ext_suffix(enum_name))
         else:
             xml_ptype.text = 'uint32_t'
             orig = 'uint32_t'
@@ -86,7 +97,7 @@ def _patch_integral_types(*, xml_ptype: Element, enum_name: Optional[str]) -> Op
     elif orig in ('GLchar', 'GLcharARB'):
         xml_ptype.text = 'char'
     elif orig == 'GLenum':
-        xml_ptype.text = enum_name or 'core::EnumType'
+        xml_ptype.text = strip_ext_suffix(enum_name) if enum_name else 'core::EnumType'
     elif orig == 'GLsizei':
         xml_ptype.text = 'core::SizeType'
     elif orig in 'GLfixed':
@@ -128,13 +139,13 @@ class Command:
                 param.attrib['group'] = 'BufferUsageARB'
 
         self.orig_return_type = _patch_integral_types(xml_ptype=self.proto.find('ptype'),
-                                                      enum_name=self.proto.attrib.get('group', None))
+                                                      enum_name=self.proto.attrib.get('group'))
         self.params = []
         self.call_params = []
         for param in map(deepcopy, xml_command.findall('param')):  # type: Element
             name = param.findtext('name')
             param_copy = deepcopy(param)
-            orig_type = _patch_integral_types(xml_ptype=param.find('ptype'), enum_name=param.attrib.get('group', None))
+            orig_type = _patch_integral_types(xml_ptype=param.find('ptype'), enum_name=param.attrib.get('group'))
 
             param_copy.remove(param_copy.find('name'))
             cast_target = ''.join(param_copy.itertext()).strip()
@@ -184,17 +195,17 @@ class Command:
             file.write('}\n')
 
 
+@dataclass
 class ConstantsCommands:
-    def __init__(self):
-        self.constants: Set[str] = set()
-        self.commands: Set[str] = set()
+    constants: Set[str] = field(default_factory=set)
+    commands: Set[str] = field(default_factory=set)
 
 
+@dataclass
 class Enum:
-    def __init__(self, name: str):
-        self.name: str = name
-        self.constants: Set[str] = set()
-        self.is_bitmask = False
+    name: str
+    constants: Set[str] = field(default_factory=set)
+    is_bitmask: bool = False
 
 
 def _make_version_macro(version: str, profile_name: Optional[str]) -> str:
@@ -208,8 +219,8 @@ def _make_guard(defines: Iterable[str]) -> str:
     return ' || '.join(['defined({})'.format(x) for x in sorted(defines)])
 
 
-def build_guarded_commands(versions_profiles: Dict[str, Dict[Optional[str], ConstantsCommands]]) -> Dict[
-    Tuple[str, ...], Set[str]]:
+def build_guarded_commands(
+        versions_profiles: Dict[str, Dict[Optional[str], ConstantsCommands]]) -> Dict[Tuple[str, ...], Set[str]]:
     command_guards: Dict[str, Set[str]] = defaultdict(set)
 
     for version, profiles in versions_profiles.items():
@@ -348,13 +359,14 @@ def load_xml():
         extension_support = {*xml_extension.attrib['supported'].split('|')}
 
         for xml_require in xml_extension.iterfind('./require'):
-            require_api = xml_require.attrib.get('api', None)
+            require_api = xml_require.attrib.get('api')
             if require_api is not None:
                 api_targets = {require_api}
             else:
                 api_targets = extension_support
             if "glcore" in api_targets:
                 api_targets.remove("glcore")
+
             require_profiles = {xml_require.attrib.get('profile', None)} | {None}
 
             extension_data = extensions_apis_profiles[extension_name]
@@ -374,8 +386,6 @@ def load_xml():
                 else:
                     raise KeyError('Unexpected tag {}'.format(xml_ref.tag))
 
-    enabled_extensions = ('GL_ARB_depth_texture',)  # 'GL_ARB_bindless_texture')
-
     logging.info('Extensions summary')
     for extension_name, ext_apis_profiles in extensions_apis_profiles.items():
         logging.info('  Extension {}'.format(extension_name))
@@ -385,7 +395,7 @@ def load_xml():
                 logging.info('      profile {}: {} constants, {} commands'.format(ext_profile_name or "*",
                                                                                   len(ext_profile_data.constants),
                                                                                   len(ext_profile_data.commands)))
-                if extension_name in enabled_extensions:
+                if extension_name in ENABLED_EXTENSIONS:
                     for profile_data in apis_versions_profiles[ext_api_name].values():
                         profiles = (profile_data[ext_profile_name],) if ext_profile_name else profile_data.values()
                         for profile in profiles:
@@ -397,7 +407,7 @@ def load_xml():
     disabled_constants = {
                              enum.attrib['name']
                              for extension in xml.iterfind('./extensions/extension[@name]')
-                             if extension.attrib['name'] not in enabled_extensions
+                             if extension.attrib['name'] not in ENABLED_EXTENSIONS
                              for enum in extension.iterfind('./require/enum')
                          } - {
                              enum.attrib['name']
@@ -443,6 +453,9 @@ def load_xml():
         commands[cmd.raw_name] = cmd
 
     for api_name, versions_profiles in apis_versions_profiles.items():
+        if api_name not in ENABLED_APIS:
+            continue
+
         logging.info('Writing header for API {}...'.format(api_name))
         with open('api/{}.hpp'.format(api_name), 'w') as f:
             f.write('#pragma once\n')
@@ -470,6 +483,7 @@ def load_xml():
 
             f.write('// enums\n')
             for enum_name, enum_data in sorted(enums.items()):
+                enum_name = strip_ext_suffix(enum_name)
                 logging.info('enum {}'.format(enum_name))
 
                 guards_constants = build_guarded_constants(versions_profiles, enum_data, constants)
@@ -484,9 +498,17 @@ def load_xml():
                         f.write('#if {}\n'.format(_make_guard(guards)))
                     f.write('enum class {} : core::EnumType\n'.format(enum_name))
                     f.write('{\n')
+                    written_enumerator = []
                     for constant_name in sorted(constant_names):
                         constant_value = constants[constant_name]
-                        f.write('    {} = {},\n'.format(normalize_constant_name(constant_name), constant_value))
+                        enumerator_name = normalize_constant_name(constant_name)
+                        if (enumerator_name, constant_value) in written_enumerator:
+                            continue
+                        if any(name == enumerator_name for name, value in written_enumerator if
+                               value != constant_value):
+                            logging.error("Conflicting value for enumerator {}".format(enumerator_name))
+                        written_enumerator.append((enumerator_name, constant_value))
+                        f.write('    {} = {},\n'.format(enumerator_name, constant_value))
                     f.write('};\n')
 
                     if enum_data.is_bitmask:
@@ -499,12 +521,20 @@ def load_xml():
                 else:
                     f.write('enum class {} : core::EnumType\n'.format(enum_name))
                     f.write('{\n')
+                    written_enumerator = []
                     for guards, constant_names in sorted(guards_constants.items()):
                         if len(guards) != total_guards:
                             f.write('#if {}\n'.format(_make_guard(guards)))
                         for constant_name in sorted(constant_names):
                             constant_value = constants[constant_name]
-                            f.write('    {} = {},\n'.format(normalize_constant_name(constant_name), constant_value))
+                            enumerator_name = normalize_constant_name(constant_name)
+                            if (enumerator_name, constant_value) in written_enumerator:
+                                continue
+                            if any(name == enumerator_name for name, value in written_enumerator if
+                                   value != constant_value):
+                                logging.error("Conflicting value for enumerator {}".format(enumerator_name))
+                            written_enumerator.append((enumerator_name, constant_value))
+                            f.write('    {} = {},\n'.format(enumerator_name, constant_value))
                         if len(guards) != total_guards:
                             f.write('#endif\n')
                     f.write('};\n')

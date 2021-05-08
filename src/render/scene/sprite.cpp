@@ -37,7 +37,7 @@ std::shared_ptr<gl::VertexBuffer<SpriteVertex>> createSpriteVertexBuffer(float x
 {
   const auto vertices = createSpriteVertices(x0, y0, x1, y1, t0, t1, textureIdx);
   auto vb = std::make_shared<gl::VertexBuffer<SpriteVertex>>(SpriteVertex::getLayout(), 0, label);
-  vb->setData(&vertices[0], 4, gl::api::BufferUsageARB::StaticDraw);
+  vb->setData(&vertices[0], 4, gl::api::BufferUsage::StaticDraw);
   return vb;
 }
 
@@ -55,7 +55,7 @@ gsl::not_null<std::shared_ptr<Mesh>> createSpriteMesh(const float x0,
   static const std::array<uint16_t, 6> indices{0, 1, 2, 0, 2, 3};
 
   auto indexBuffer = std::make_shared<gl::ElementArrayBuffer<uint16_t>>(label);
-  indexBuffer->setData(gsl::not_null(&indices[0]), 6, gl::api::BufferUsageARB::StaticDraw);
+  indexBuffer->setData(gsl::not_null(&indices[0]), 6, gl::api::BufferUsage::StaticDraw);
 
   auto vao = std::make_shared<gl::VertexArray<uint16_t, SpriteVertex>>(
     indexBuffer, vb, std::vector{&materialFull->getShaderProgram()->getHandle()}, label);

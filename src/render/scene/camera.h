@@ -203,7 +203,7 @@ public:
         m_dirty.reset(CameraMatrices::DirtyFlag::InvViewProjection);
       }
 
-      m_matricesBuffer.setData(m_matrices, gl::api::BufferUsageARB::DynamicDraw);
+      m_matricesBuffer.setData(m_matrices, gl::api::BufferUsage::DynamicDraw);
     }
 
     BOOST_ASSERT(m_dirty.none());

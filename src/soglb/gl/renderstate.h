@@ -123,6 +123,6 @@ private:
   std::optional<api::FrontFaceDirection> m_frontFace{};
   std::optional<float> m_lineWidth{};
   std::optional<bool> m_lineSmooth{};
-  std::vector<std::pair<std::shared_ptr<Texture>, size_t>> m_textureUnits{};
+  std::vector<std::pair<std::weak_ptr<Texture>, size_t>> m_textureUnits{};
 };
 } // namespace gl

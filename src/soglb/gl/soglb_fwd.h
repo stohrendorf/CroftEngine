@@ -8,7 +8,7 @@ namespace gl
 {
 class BindableResource;
 // NOLINTNEXTLINE(bugprone-reserved-identifier)
-template<typename T, api::BufferTargetARB _Target>
+template<typename T, api::BufferTarget _Target>
 class Buffer;
 class CImgWrapper;
 class Font;
@@ -32,7 +32,7 @@ class ProgramInterface;
 template<api::ProgramInterface _Type>
 class LocatableProgramInterface;
 // NOLINTNEXTLINE(bugprone-reserved-identifier)
-template<api::ProgramInterface _Type, api::BufferTargetARB _Target>
+template<api::ProgramInterface _Type, api::BufferTarget _Target>
 class ProgramBlock;
 class Uniform;
 class Program;

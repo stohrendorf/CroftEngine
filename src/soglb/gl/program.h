@@ -93,7 +93,7 @@ using ProgramInput = LocatableProgramInterface<api::ProgramInterface::ProgramInp
 using ProgramOutput = LocatableProgramInterface<api::ProgramInterface::ProgramOutput>;
 
 // NOLINTNEXTLINE(bugprone-reserved-identifier)
-template<api::ProgramInterface _Type, api::BufferTargetARB _Target>
+template<api::ProgramInterface _Type, api::BufferTarget _Target>
 class ProgramBlock final : public ProgramInterface<_Type>
 {
 public:
@@ -136,8 +136,8 @@ private:
 };
 
 using ShaderStorageBlock
-  = ProgramBlock<api::ProgramInterface::ShaderStorageBlock, api::BufferTargetARB::ShaderStorageBuffer>;
-using UniformBlock = ProgramBlock<api::ProgramInterface::UniformBlock, api::BufferTargetARB::UniformBuffer>;
+  = ProgramBlock<api::ProgramInterface::ShaderStorageBlock, api::BufferTarget::ShaderStorageBuffer>;
+using UniformBlock = ProgramBlock<api::ProgramInterface::UniformBlock, api::BufferTarget::UniformBuffer>;
 
 class Uniform final : public LocatableProgramInterface<api::ProgramInterface::Uniform>
 {
@@ -362,14 +362,14 @@ public:
   [[nodiscard]] bool getLinkStatus() const
   {
     auto success = static_cast<int32_t>(api::Boolean::False);
-    GL_ASSERT(api::getProgram(getHandle(), api::ProgramPropertyARB::LinkStatus, &success));
+    GL_ASSERT(api::getProgram(getHandle(), api::ProgramProperty::LinkStatus, &success));
     return success == static_cast<int32_t>(api::Boolean::True);
   }
 
   [[nodiscard]] std::string getInfoLog() const
   {
     int32_t length = 0;
-    GL_ASSERT(api::getProgram(getHandle(), api::ProgramPropertyARB::InfoLogLength, &length));
+    GL_ASSERT(api::getProgram(getHandle(), api::ProgramProperty::InfoLogLength, &length));
     if(length == 0)
     {
       length = 4096;

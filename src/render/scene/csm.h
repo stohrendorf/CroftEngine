@@ -82,7 +82,7 @@ public:
                    });
     m_bufferData.lightMVP = getMatrices(modelMatrix);
     m_bufferData.lightDir = glm::vec4{m_lightDir, 0.0f};
-    m_buffer.setData(m_bufferData, gl::api::BufferUsageARB::DynamicDraw);
+    m_buffer.setData(m_bufferData, gl::api::BufferUsage::DynamicDraw);
     return m_buffer;
   }
 
