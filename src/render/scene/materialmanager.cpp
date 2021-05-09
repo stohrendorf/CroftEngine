@@ -363,8 +363,9 @@ std::shared_ptr<Material> MaterialManager::getFastGaussBlur(uint8_t extent, uint
   if(auto it = m_fastGaussBlur.find(key); it != m_fastGaussBlur.end())
     return it->second;
 
-  auto m = std::make_shared<Material>(m_shaderCache->getFastGaussBlur(extent, blurDir, blurDim));
+  auto m = std::make_shared<Material>(m_shaderCache->getFastGaussBlur(extent, blurDim));
   configureForScreenSpaceEffect(*m);
+  m->getUniform("u_blurDir")->set(int(blurDir));
   m_fastGaussBlur[key] = m;
   return m;
 }
@@ -375,8 +376,9 @@ std::shared_ptr<Material> MaterialManager::getFastBoxBlur(uint8_t extent, uint8_
   if(auto it = m_fastBoxBlur.find(key); it != m_fastBoxBlur.end())
     return it->second;
 
-  auto m = std::make_shared<Material>(m_shaderCache->getFastBoxBlur(extent, blurDir, blurDim));
+  auto m = std::make_shared<Material>(m_shaderCache->getFastBoxBlur(extent, blurDim));
   configureForScreenSpaceEffect(*m);
+  m->getUniform("u_blurDir")->set(int(blurDir));
   m_fastBoxBlur[key] = m;
   return m;
 }
