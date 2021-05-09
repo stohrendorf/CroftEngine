@@ -52,6 +52,8 @@ namespace engine
 {
 namespace
 {
+const gsl::czstring QuicksaveFilename = "quicksave.yaml";
+
 std::shared_ptr<pybind11::scoped_interpreter> createScriptEngine(const std::filesystem::path& rootPath)
 {
   auto interpreter = std::make_shared<pybind11::scoped_interpreter>();
@@ -245,7 +247,10 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
       case menu::MenuResult::LaraHome: return {RunResult::LaraHomeLevel, std::nullopt};
       case menu::MenuResult::RequestLoad:
         Expects(menu->requestLoad.has_value());
-        return {RunResult::RequestLoad, menu->requestLoad};
+        if(getSavegameMeta(menu->requestLoad).has_value())
+        {
+          return {RunResult::RequestLoad, menu->requestLoad};
+        }
       }
       continue;
     }
@@ -277,13 +282,16 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
       if(allowSave && m_presenter->getInputHandler().hasDebouncedAction(hid::Action::Save))
       {
         updateTimeSpent();
-        world.save("quicksave.yaml");
+        world.save(std::nullopt);
         throttler.reset();
       }
       else if(m_presenter->getInputHandler().hasDebouncedAction(hid::Action::Load))
       {
-        updateTimeSpent();
-        return {RunResult::RequestLoad, std::nullopt};
+        if(getSavegameMeta(std::nullopt).has_value())
+        {
+          updateTimeSpent();
+          return {RunResult::RequestLoad, std::nullopt};
+        }
       }
 
       if(allAmmoCheat)
@@ -398,7 +406,10 @@ std::pair<RunResult, std::optional<size_t>> Engine::runTitleMenu(world::World& w
     case menu::MenuResult::LaraHome: return {RunResult::LaraHomeLevel, std::nullopt};
     case menu::MenuResult::RequestLoad:
       Expects(menu->requestLoad.has_value());
-      return {RunResult::RequestLoad, menu->requestLoad};
+      if(getSavegameMeta(menu->requestLoad).has_value())
+      {
+        return {RunResult::RequestLoad, menu->requestLoad};
+      }
     }
 
     if(m_presenter->getInputHandler().hasDebouncedAction(hid::Action::Screenshot))
@@ -407,7 +418,8 @@ std::pair<RunResult, std::optional<size_t>> Engine::runTitleMenu(world::World& w
     }
     else if(m_presenter->getInputHandler().hasDebouncedAction(hid::Action::Load))
     {
-      return {RunResult::RequestLoad, std::nullopt};
+      if(getSavegameMeta(std::nullopt).has_value())
+        return {RunResult::RequestLoad, std::nullopt};
     }
   }
 }
@@ -451,12 +463,21 @@ std::unique_ptr<loader::trx::Glidos> Engine::loadGlidosPack() const
   return nullptr;
 }
 
-SavegameMeta Engine::getSavegameMeta(const std::filesystem::path& filename) const
+std::optional<SavegameMeta> Engine::getSavegameMeta(const std::filesystem::path& filename) const
 {
-  serialization::YAMLDocument<true> doc{getSavegamePath() / filename};
+  std::filesystem::path filepath{getSavegameRootPath() / filename};
+  if(!std::filesystem::is_regular_file(filepath))
+    return std::nullopt;
+
+  serialization::YAMLDocument<true> doc{filepath};
   SavegameMeta meta{};
   doc.load("meta", meta, meta);
   return meta;
+}
+
+std::optional<SavegameMeta> Engine::getSavegameMeta(const std::optional<size_t>& slot) const
+{
+  return getSavegameMeta(getSavegamePath(slot));
 }
 
 void Engine::applyRenderSettings()
@@ -465,6 +486,23 @@ void Engine::applyRenderSettings()
   for(const auto& world : m_worlds)
     for(auto& room : world->getRooms())
       room.collectShaderLights(m_engineConfig.renderSettings.getLightCollectionDepth());
+}
+
+std::filesystem::path Engine::getSavegameRootPath() const
+{
+  auto p = m_rootPath / "saves";
+  if(!std::filesystem::is_directory(p))
+    std::filesystem::create_directory(p);
+  return p;
+}
+
+std::filesystem::path Engine::getSavegamePath(const std::optional<size_t>& slot) const
+{
+  const auto root = getSavegameRootPath();
+  if(slot.has_value())
+    return root / makeSavegameFilename(slot.value());
+  else
+    return root / QuicksaveFilename;
 }
 
 void SavegameMeta::serialize(const serialization::Serializer<SavegameMeta>& ser)

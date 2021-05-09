@@ -210,10 +210,8 @@ public:
   void serialize(const serialization::Serializer<World>& ser);
   void gameLoop(bool godMode, float delayRatio, float blackAlpha);
   bool cinematicLoop();
-  void load(const std::filesystem::path& filename);
-  void load(size_t slot);
-  void save(const std::filesystem::path& filename);
-  void save(size_t slot);
+  void load(const std::optional<size_t>& slot);
+  void save(const std::optional<size_t>& slot);
   [[nodiscard]] std::map<size_t, SavegameMeta> getSavedGames() const;
   [[nodiscard]] bool hasSavedGames() const;
 

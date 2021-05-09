@@ -146,10 +146,7 @@ std::pair<RunResult, std::optional<size_t>>
   Expects(m_allowSave);
   player->getInventory().clear();
   auto world = loadWorld(engine, player);
-  if(slot.has_value())
-    world->load(slot.value());
-  else
-    world->load("quicksave.yaml");
+  world->load(slot);
   return engine.run(*world, false, m_allowSave);
 }
 

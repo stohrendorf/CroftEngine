@@ -53,22 +53,16 @@ int main()
   bool doLoad = false;
 
   auto processLoadRequest = [&engine, &levelSequenceIndex, &levelSequenceLength, &mode, &loadSlot, &doLoad](
-                              const std::optional<size_t>& slot) -> void {
-    std::string filename;
-    if(!slot.has_value())
-    {
-      filename = engine.getSavegameMeta("quicksave.yaml").filename;
-    }
-    else
-    {
-      filename = engine.getSavegameMeta(slot.value()).filename;
-    }
+                              const std::optional<size_t>& slot) -> void
+  {
+    const auto meta = engine.getSavegameMeta(slot);
+    Expects(meta.has_value());
     for(levelSequenceIndex = 0; levelSequenceIndex < levelSequenceLength; ++levelSequenceIndex)
     {
       if(gsl::not_null {
            pybind11::globals()["level_sequence"][pybind11::cast(levelSequenceIndex)]
              .cast<engine::script::LevelSequenceItem*>()
-         }->isLevel(filename))
+         } -> isLevel(meta->filename))
         break;
     }
     Expects(levelSequenceIndex < levelSequenceLength);

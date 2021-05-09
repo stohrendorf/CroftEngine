@@ -130,13 +130,8 @@ public:
     return m_language;
   }
 
-  [[nodiscard]] std::filesystem::path getSavegamePath() const
-  {
-    auto p = m_rootPath / "saves";
-    if(!std::filesystem::is_directory(p))
-      std::filesystem::create_directory(p);
-    return p;
-  }
+  [[nodiscard]] std::filesystem::path getSavegameRootPath() const;
+  [[nodiscard]] std::filesystem::path getSavegamePath(const std::optional<size_t>& slot) const;
 
   [[nodiscard]] const std::filesystem::path& getRootPath() const
   {
@@ -154,11 +149,8 @@ public:
     return m_glidos;
   }
 
-  [[nodiscard]] SavegameMeta getSavegameMeta(const std::filesystem::path& filename) const;
-  [[nodiscard]] SavegameMeta getSavegameMeta(size_t slot) const
-  {
-    return getSavegameMeta(makeSavegameFilename(slot));
-  }
+  [[nodiscard]] std::optional<SavegameMeta> getSavegameMeta(const std::filesystem::path& filename) const;
+  [[nodiscard]] std::optional<SavegameMeta> getSavegameMeta(const std::optional<size_t>& slot) const;
 
   auto& getEngineConfig()
   {

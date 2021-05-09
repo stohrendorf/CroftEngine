@@ -983,11 +983,12 @@ bool World::cinematicLoop()
   return true;
 }
 
-void World::load(const std::filesystem::path& filename)
+void World::load(const std::optional<size_t>& slot)
 {
   getPresenter().drawLoadingScreen(_("Loading..."));
-  BOOST_LOG_TRIVIAL(info) << "Load";
-  serialization::YAMLDocument<true> doc{m_engine.getSavegamePath() / filename};
+  const auto filename = m_engine.getSavegamePath(slot);
+  BOOST_LOG_TRIVIAL(info) << "Load " << filename;
+  serialization::YAMLDocument<true> doc{filename};
   SavegameMeta meta{};
   doc.load("meta", meta, meta);
   if(meta.filename != std::filesystem::relative(m_levelFilename, m_engine.getRootPath()))
@@ -1003,11 +1004,12 @@ void World::load(const std::filesystem::path& filename)
   getPresenter().disableScreenOverlay();
 }
 
-void World::save(const std::filesystem::path& filename)
+void World::save(const std::optional<size_t>& slot)
 {
   getPresenter().drawLoadingScreen(_("Saving..."));
-  BOOST_LOG_TRIVIAL(info) << "Save";
-  serialization::YAMLDocument<false> doc{m_engine.getSavegamePath() / filename};
+  const auto filename = m_engine.getSavegamePath(slot);
+  BOOST_LOG_TRIVIAL(info) << "Save " << filename;
+  serialization::YAMLDocument<false> doc{filename};
   SavegameMeta meta{std::filesystem::relative(m_levelFilename, m_engine.getRootPath()).string(), m_title};
   doc.save("meta", meta, meta);
   doc.save("data", *this, *this);
@@ -1020,7 +1022,7 @@ std::map<size_t, SavegameMeta> World::getSavedGames() const
   std::map<size_t, SavegameMeta> result;
   for(size_t i = 0; i < 100; ++i)
   {
-    const auto path = m_engine.getSavegamePath() / makeSavegameFilename(i);
+    const auto path = m_engine.getSavegamePath(i);
     if(!std::filesystem::is_regular_file(path))
       continue;
 
@@ -1036,7 +1038,7 @@ bool World::hasSavedGames() const
 {
   for(size_t i = 0; i < 100; ++i)
   {
-    const auto path = m_engine.getSavegamePath() / makeSavegameFilename(i);
+    const auto path = m_engine.getSavegamePath(i);
     if(!std::filesystem::is_regular_file(path))
       continue;
 
@@ -1247,16 +1249,6 @@ std::optional<std::string> World::getItemTitle(TR1ItemId id) const
   }
 
   return std::nullopt;
-}
-
-void World::load(size_t slot)
-{
-  load(makeSavegameFilename(slot));
-}
-
-void World::save(size_t slot)
-{
-  save(makeSavegameFilename(slot));
 }
 
 void World::initFromLevel(loader::file::level::Level& level)
