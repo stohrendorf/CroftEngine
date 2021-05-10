@@ -37,6 +37,4 @@ if( UNIX )
                 dl
         )
     endif()
-else()
-    target_link_libraries( Boost::stacktrace INTERFACE Boost::stacktrace_basic )
 endif()

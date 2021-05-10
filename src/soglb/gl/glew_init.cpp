@@ -10,7 +10,7 @@ using namespace gl;
 
 namespace
 {
-#ifndef NDEBUG
+#ifdef SOGLB_DEBUGGING
 gsl::czstring glDebugSourceToString(const api::DebugSource src)
 {
   switch(src)
@@ -99,7 +99,10 @@ void gl::initializeGl()
                           << reinterpret_cast<const char*>(api::getString(api::StringName::Renderer));
   glGetError(); // clear the error flag
 
-#ifndef NDEBUG
+  Expects(GLEW_ARB_bindless_texture);
+  Expects(GLEW_ARB_depth_texture);
+
+#ifdef SOGLB_DEBUGGING
   GL_ASSERT(::api::enable(::api::EnableCap::DebugOutput));
   GL_ASSERT(::api::enable(::api::EnableCap::DebugOutputSynchronous));
 
@@ -111,5 +114,5 @@ void gl::initializeGl()
 
 bool gl::hasAnisotropicFilteringExtension()
 {
-  return GLEW_ARB_texture_filter_anisotropic == GL_TRUE;
+  return GLEW_ARB_texture_filter_anisotropic == GL_TRUE || GLEW_EXT_texture_filter_anisotropic == GL_TRUE;
 }

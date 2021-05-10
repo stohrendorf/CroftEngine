@@ -235,23 +235,20 @@ std::shared_ptr<ShaderProgram> ShaderProgram::createFromSource(const std::filesy
     if(uniform.getLocation() < 0)
       continue; // only accept directly accessible uniforms
 
-    BOOST_LOG_TRIVIAL(debug) << "  uniform " << uniform.getName() << ", location=" << uniform.getLocation()
-                             << ", index=" << uniform.getIndex();
+    BOOST_LOG_TRIVIAL(debug) << "  uniform " << uniform.getName() << ", location=" << uniform.getLocation();
 
     shaderProgram->m_uniforms.emplace(uniform.getName(), std::move(uniform));
   }
 
   for(auto&& ub : shaderProgram->m_handle.getUniformBlocks())
   {
-    BOOST_LOG_TRIVIAL(debug) << "  uniform block " << ub.getName() << ", index=" << ub.getIndex()
-                             << ", binding=" << ub.getBinding();
+    BOOST_LOG_TRIVIAL(debug) << "  uniform block " << ub.getName() << ", binding=" << ub.getBinding();
     shaderProgram->m_uniformBlocks.emplace(ub.getName(), std::move(ub));
   }
 
   for(auto&& ssb : shaderProgram->m_handle.getShaderStorageBlocks())
   {
-    BOOST_LOG_TRIVIAL(debug) << "  shader storage block " << ssb.getName() << ", index=" << ssb.getIndex()
-                             << ", binding=" << ssb.getBinding();
+    BOOST_LOG_TRIVIAL(debug) << "  shader storage block " << ssb.getName() << ", binding=" << ssb.getBinding();
     shaderProgram->m_shaderStorageBlocks.emplace(ssb.getName(), std::move(ssb));
   }
 

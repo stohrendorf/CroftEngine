@@ -33,18 +33,18 @@ Window::Window(const bool fullscreen, const glm::ivec2& resolution)
   atexit(&glfwTerminate);
 
   glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_TRUE);
-  glfwWindowHint(GLFW_DEPTH_BITS, 24);
-  // glfwWindowHint( GLFW_SAMPLES, m_multiSampling );
+  glfwWindowHint(GLFW_DEPTH_BITS, 32);
   glfwWindowHint(GLFW_RED_BITS, 8);
   glfwWindowHint(GLFW_GREEN_BITS, 8);
   glfwWindowHint(GLFW_BLUE_BITS, 8);
   glfwWindowHint(GLFW_ALPHA_BITS, 8);
-  glfwWindowHint(GLFW_DECORATED, fullscreen ? GLFW_FALSE : GLFW_TRUE);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
-#ifndef NDEBUG
+#ifdef SOGLB_DEBUGGING
   glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
+#else
+  glfwWindowHint(GLFW_CONTEXT_NO_ERROR, GLFW_TRUE);
 #endif
 
   m_window = glfwCreateWindow(resolution.x, resolution.y, "EdisonEngine", nullptr, nullptr);
@@ -71,6 +71,11 @@ Window::Window(const bool fullscreen, const glm::ivec2& resolution)
   glfwMakeContextCurrent(m_window);
 
   initializeGl();
+
+  if(!gl::hasAnisotropicFilteringExtension())
+    BOOST_LOG_TRIVIAL(info) << "Anisotropic filtering is not supported on this platform";
+  else
+    BOOST_LOG_TRIVIAL(info) << "Anisotropic filtering is supported on this platform";
 
   updateWindowSize();
 

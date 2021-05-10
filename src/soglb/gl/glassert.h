@@ -2,11 +2,13 @@
 
 #include <gsl/gsl-lite.hpp>
 
-// #define NO_GL_ASSERT
+#ifndef NDEBUG
+#  define SOGLB_DEBUGGING
+#endif
 
 namespace gl
 {
-#if !defined(NDEBUG) && !defined(NO_GL_ASSERT)
+#ifdef SOGLB_DEBUGGING
 extern void checkGlError(gsl::czstring code);
 #else
 inline void checkGlError(gsl::czstring /*code*/)

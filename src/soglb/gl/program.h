@@ -22,25 +22,18 @@ public:
 
   ProgramInterface(ProgramInterface<_Type>&& rhs) noexcept
       : m_name{std::move(rhs.m_name)}
-      , m_index{std::exchange(rhs.m_index, InvalidIndex)}
   {
   }
 
   ProgramInterface<_Type>& operator=(ProgramInterface<_Type>&& rhs) noexcept
   {
     m_name = std::move(rhs.m_name);
-    m_index = std::exchange(rhs.m_index, InvalidIndex);
     return *this;
   }
 
   [[nodiscard]] const std::string& getName() const noexcept
   {
     return m_name;
-  }
-
-  [[nodiscard]] auto getIndex() const
-  {
-    return m_index;
   }
 
 protected:
@@ -51,8 +44,6 @@ protected:
 
 private:
   std::string m_name{};
-  uint32_t m_index;
-  static constexpr uint32_t InvalidIndex = std::numeric_limits<uint32_t>::max();
 };
 
 // NOLINTNEXTLINE(bugprone-reserved-identifier)
@@ -426,7 +417,6 @@ private:
 // NOLINTNEXTLINE(bugprone-reserved-identifier)
 template<api::ProgramInterface _Type>
 ProgramInterface<_Type>::ProgramInterface(const Program& program, const uint32_t index)
-    : m_index{index}
 {
   const auto nameLength = getProperty(program, index, api::ProgramResourceProperty::NameLength);
   Expects(nameLength > 0);

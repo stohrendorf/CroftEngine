@@ -2,7 +2,7 @@
 
 #include "api/gl.hpp"
 
-#if !defined(NDEBUG) && !defined(NO_GL_ASSERT)
+#ifdef SOGLB_DEBUGGING
 #  include "api/gl_api_provider.hpp"
 
 #  include <boost/assert.hpp>
