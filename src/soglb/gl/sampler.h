@@ -74,6 +74,12 @@ public:
     return *this;
   }
 
+  Sampler& set(const api::SamplerParameterF param, const float value)
+  {
+    GL_ASSERT(api::samplerParameter(getHandle(), param, value));
+    return *this;
+  }
+
   Sampler& setBorderColor(const glm::vec4& value)
   {
     GL_ASSERT(api::samplerParameter(getHandle(), api::SamplerParameterF::TextureBorderColor, glm::value_ptr(value)));

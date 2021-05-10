@@ -38,16 +38,9 @@ public:
     return *this;
   }
 
-  Texture2D<_PixelT>& fill(const _PixelT& pixel, int level = 0)
+  Texture2D<_PixelT>& clear(const _PixelT& pixel, int level = 0)
   {
-    const int levelDiv = 1 << level;
-    const auto sizeX = glm::max(1, m_size.x / levelDiv);
-    const auto sizeY = glm::max(1, m_size.y / levelDiv);
-    std::vector<_PixelT> pixels;
-    pixels.resize(sizeX * sizeY, pixel);
-
-    GL_ASSERT(api::textureSubImage2D(
-      getHandle(), level, 0, 0, sizeX, sizeY, Pixel::PixelFormat, Pixel::PixelType, pixels.data()));
+    GL_ASSERT(api::clearTexImage(getHandle(), level, Pixel::PixelFormat, Pixel::PixelType, &pixel));
     return *this;
   }
 

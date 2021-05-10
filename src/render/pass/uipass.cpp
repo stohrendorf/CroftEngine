@@ -17,6 +17,7 @@ namespace render::pass
 void UIPass::bind()
 {
   gl::Framebuffer::unbindAll();
+  m_colorBuffer->clear({0, 0, 0, 0});
   m_fb->bindWithAttachments();
 }
 

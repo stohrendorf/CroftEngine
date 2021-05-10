@@ -473,7 +473,7 @@ void Presenter::apply(const render::RenderSettings& renderSettings)
     m_materialManager->setCSM(m_csm);
   }
   m_renderPipeline->apply(renderSettings, *m_materialManager);
-  m_materialManager->setBilinearFiltering(renderSettings.bilinearFiltering);
+  m_materialManager->setFiltering(renderSettings.bilinearFiltering, renderSettings.anisotropicFiltering);
 }
 
 gl::CImgWrapper Presenter::takeScreenshot() const
@@ -505,7 +505,6 @@ void Presenter::renderScreenOverlay()
 void Presenter::renderUi(ui::Ui& ui, float alpha)
 {
   m_renderPipeline->bindUiFrameBuffer();
-  m_renderer->clear(gl::api::ClearBufferMask::ColorBufferBit, {0, 0, 0, 0}, 0);
   ui.render(getViewport());
   m_renderPipeline->renderUiFrameBuffer(alpha);
 }

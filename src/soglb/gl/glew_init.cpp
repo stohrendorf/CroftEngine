@@ -108,3 +108,8 @@ void gl::initializeGl()
 
   GL_ASSERT(::api::enable(::api::EnableCap::FramebufferSrgb));
 }
+
+bool gl::hasAnisotropicFilteringExtension()
+{
+  return GLEW_ARB_texture_filter_anisotropic == GL_TRUE;
+}

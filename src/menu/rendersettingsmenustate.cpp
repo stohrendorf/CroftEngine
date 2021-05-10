@@ -7,6 +7,8 @@
 #include "menudisplay.h"
 #include "render/renderpipeline.h"
 
+#include <gl/glew_init.h>
+
 namespace menu
 {
 RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingTransform>& ringTransform,
@@ -51,6 +53,11 @@ RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingT
     /* translators: TR charmap encoding */ _("Bilinear Filtering"),
     [&engine]() { return engine.getEngineConfig().renderSettings.bilinearFiltering; },
     [&engine]() { toggle(engine, engine.getEngineConfig().renderSettings.bilinearFiltering); });
+  if(gl::hasAnisotropicFilteringExtension())
+    addSetting(
+      /* translators: TR charmap encoding */ _("Anisotropic Filtering"),
+      [&engine]() { return engine.getEngineConfig().renderSettings.anisotropicFiltering; },
+      [&engine]() { toggle(engine, engine.getEngineConfig().renderSettings.anisotropicFiltering); });
   addSetting(
     /* translators: TR charmap encoding */ _("Water Denoise"),
     [&engine]() { return engine.getEngineConfig().renderSettings.waterDenoise; },

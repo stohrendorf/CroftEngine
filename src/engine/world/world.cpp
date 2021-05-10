@@ -38,6 +38,7 @@
 #include "ui/ui.h"
 
 #include <boost/format.hpp>
+#include <gl/glew_init.h>
 #include <gl/texture2darray.h>
 #include <glm/gtx/norm.hpp>
 #include <numeric>
@@ -1841,6 +1842,8 @@ void World::initTextures(const loader::file::level::Level& level)
   sampler->set(gl::api::TextureMagFilter::Nearest);
   sampler->set(gl::api::SamplerParameterI::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge);
   sampler->set(gl::api::SamplerParameterI::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge);
+  if(getEngine().getEngineConfig().renderSettings.anisotropicFiltering && gl::hasAnisotropicFilteringExtension())
+    sampler->set(gl::api::SamplerParameterF::TextureMaxAnisotropy, 10.0f);
 
   m_allTexturesHandle
     = std::make_shared<gl::TextureHandle<gl::Texture2DArray<gl::SRGBA8>>>(m_allTextures, std::move(sampler));

@@ -4865,6 +4865,7 @@ enum class ReplacementCodeTypeSUN : core::EnumType
 enum class SamplerParameterF : core::EnumType
 {
   TextureBorderColor = 0x1004,
+  TextureMaxAnisotropy = 0x84FE,
 #if defined(API_LEVEL_GL_VERSION_1_2) || defined(API_LEVEL_GL_VERSION_1_3) || defined(API_LEVEL_GL_VERSION_1_4)       \
   || defined(API_LEVEL_GL_VERSION_1_5) || defined(API_LEVEL_GL_VERSION_2_0) || defined(API_LEVEL_GL_VERSION_2_1)      \
   || defined(API_LEVEL_GL_VERSION_3_0) || defined(API_LEVEL_GL_VERSION_3_1) || defined(API_LEVEL_GL_VERSION_3_2_core) \
@@ -4891,9 +4892,6 @@ enum class SamplerParameterF : core::EnumType
   || defined(API_LEVEL_GL_VERSION_4_5_core) || defined(API_LEVEL_GL_VERSION_4_6_compatibility)                   \
   || defined(API_LEVEL_GL_VERSION_4_6_core)
   TextureLodBias = 0x8501,
-#endif
-#if defined(API_LEVEL_GL_VERSION_4_6_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_core)
-  TextureMaxAnisotropy = 0x84FE,
 #endif
 };
 

@@ -61,7 +61,7 @@ if( WIN32 )
     add_soloud_backend( wasapi WASAPI )
     add_soloud_backend( winmm WINMM )
     add_soloud_backend( xaudio2 XAUDIO2 )
-elseif( LINUX OR UNIX )
+elseif( UNIX )
     add_soloud_backend( alsa ALSA )
     add_soloud_backend( oss OSS )
 

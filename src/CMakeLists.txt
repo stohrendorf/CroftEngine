@@ -520,6 +520,7 @@ target_link_libraries(
         Boost::log
         Boost::disable_autolinking
         Boost::headers
+        Boost::stacktrace
         soloud
         SndFile::sndfile
         ryml

@@ -17,6 +17,7 @@ struct RenderSettings
   bool filmGrain = true;
   bool fullscreen = false;
   bool bilinearFiltering = false;
+  bool anisotropicFiltering = true;
   bool waterDenoise = true;
   bool hbao = true;
   bool moreLights = true;

@@ -5,6 +5,7 @@
 #include "renderer.h"
 #include "shadercache.h"
 
+#include <gl/glew_init.h>
 #include <gl/texture2d.h>
 #include <gl/texture2darray.h>
 #include <random>
@@ -336,13 +337,13 @@ void MaterialManager::setGeometryTextures(
   m_geometryTextures = std::move(geometryTextures);
 }
 
-void MaterialManager::setBilinearFiltering(bool enabled)
+void MaterialManager::setFiltering(bool bilinear, bool anisotropic)
 {
   if(m_geometryTextures == nullptr)
     return;
 
   auto sampler = std::make_unique<gl::Sampler>("geometry-sampler");
-  if(enabled)
+  if(bilinear)
   {
     sampler->set(gl::api::TextureMinFilter::LinearMipmapLinear);
     sampler->set(gl::api::TextureMagFilter::Linear);
@@ -352,6 +353,9 @@ void MaterialManager::setBilinearFiltering(bool enabled)
     sampler->set(gl::api::TextureMinFilter::NearestMipmapLinear);
     sampler->set(gl::api::TextureMagFilter::Nearest);
   }
+
+  if(anisotropic && gl::hasAnisotropicFilteringExtension())
+    sampler->set(gl::api::SamplerParameterF::TextureMaxAnisotropy, 10.0f);
 
   m_geometryTextures = std::make_shared<gl::TextureHandle<gl::Texture2DArray<gl::SRGBA8>>>(
     m_geometryTextures->getTexture(), std::move(sampler));
