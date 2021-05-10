@@ -5,6 +5,7 @@
 #include "texturehandle.h"
 
 #include <type_traits>
+#include <variant>
 
 namespace gl
 {
@@ -138,6 +139,7 @@ public:
       : LocatableProgramInterface{std::move(rhs)}
       , m_size{std::exchange(rhs.m_size, -1)}
       , m_program{std::exchange(rhs.m_program, InvalidProgram)}
+      , m_value{std::exchange(rhs.m_value, {})}
   {
   }
 
@@ -145,6 +147,7 @@ public:
   {
     m_size = std::exchange(rhs.m_size, -1);
     m_program = std::exchange(rhs.m_program, InvalidProgram);
+    m_value = std::exchange(rhs.m_value, {});
     LocatableProgramInterface::operator=(std::move(rhs));
     return *this;
   }
@@ -154,7 +157,8 @@ public:
   std::enable_if_t<std::is_trivial_v<T>, void> set(const T& value)
   {
     Expects(m_program != InvalidProgram);
-    GL_ASSERT(api::programUniform1(m_program, getLocation(), value));
+    if(changeValue(value))
+      GL_ASSERT(api::programUniform1(m_program, getLocation(), value));
   }
 
   // ReSharper disable once CppMemberFunctionMayBeConst
@@ -162,8 +166,9 @@ public:
   void set(const std::vector<T>& values)
   {
     Expects(m_program != InvalidProgram);
-    GL_ASSERT(
-      api::programUniform1(m_program, getLocation(), gsl::narrow<api::core::SizeType>(values.size()), values.data()));
+    if(changeValue(values))
+      GL_ASSERT(
+        api::programUniform1(m_program, getLocation(), gsl::narrow<api::core::SizeType>(values.size()), values.data()));
   }
 
   // ReSharper disable once CppMemberFunctionMayBeConst
@@ -171,92 +176,102 @@ public:
   void set(const std::array<T, N>& values)
   {
     Expects(m_program != InvalidProgram);
-    GL_ASSERT(
-      api::programUniform1(m_program, getLocation(), gsl::narrow<api::core::SizeType>(values.size()), values.data()));
+    if(changeValue(std::vector{values.begin(), values.end()}))
+      GL_ASSERT(
+        api::programUniform1(m_program, getLocation(), gsl::narrow<api::core::SizeType>(values.size()), values.data()));
   }
 
   // ReSharper disable once CppMemberFunctionMayBeConst
   void set(const glm::mat3& value)
   {
     Expects(m_program != InvalidProgram);
-    GL_ASSERT(api::programUniformMatrix3(m_program, getLocation(), 1, false, value_ptr(value)));
+    if(changeValue(value))
+      GL_ASSERT(api::programUniformMatrix3(m_program, getLocation(), 1, false, value_ptr(value)));
   }
 
   // ReSharper disable once CppMemberFunctionMayBeConst
   void set(const glm::mat4& value)
   {
     Expects(m_program != InvalidProgram);
-    GL_ASSERT(api::programUniformMatrix4(m_program, getLocation(), 1, false, value_ptr(value)));
+    if(changeValue(value))
+      GL_ASSERT(api::programUniformMatrix4(m_program, getLocation(), 1, false, value_ptr(value)));
   }
 
   // ReSharper disable once CppMemberFunctionMayBeConst
   void set(const std::vector<glm::mat4>& values)
   {
     Expects(m_program != InvalidProgram);
-    GL_ASSERT(api::programUniformMatrix4(
-      m_program,
-      getLocation(),
-      gsl::narrow<api::core::SizeType>(values.size()),
-      false,
-      reinterpret_cast<const float*>(values.data()) // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
-      ));
+    if(changeValue(values))
+      GL_ASSERT(api::programUniformMatrix4(
+        m_program,
+        getLocation(),
+        gsl::narrow<api::core::SizeType>(values.size()),
+        false,
+        reinterpret_cast<const float*>(values.data()) // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
+        ));
   }
 
   // ReSharper disable once CppMemberFunctionMayBeConst
   void set(const glm::vec2& value)
   {
     Expects(m_program != InvalidProgram);
-    GL_ASSERT(api::programUniform2(m_program, getLocation(), value.x, value.y));
+    if(changeValue(value))
+      GL_ASSERT(api::programUniform2(m_program, getLocation(), value.x, value.y));
   }
 
   // ReSharper disable once CppMemberFunctionMayBeConst
   void set(const std::vector<glm::vec2>& values)
   {
     Expects(m_program != InvalidProgram);
-    GL_ASSERT(api::programUniform2(
-      m_program,
-      getLocation(),
-      gsl::narrow<api::core::SizeType>(values.size()),
-      reinterpret_cast<const float*>(values.data()) // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
-      ));
+    if(changeValue(values))
+      GL_ASSERT(api::programUniform2(
+        m_program,
+        getLocation(),
+        gsl::narrow<api::core::SizeType>(values.size()),
+        reinterpret_cast<const float*>(values.data()) // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
+        ));
   }
 
   // ReSharper disable once CppMemberFunctionMayBeConst
   void set(const std::vector<glm::vec3>& values)
   {
     Expects(m_program != InvalidProgram);
-    GL_ASSERT(api::programUniform3(
-      m_program,
-      getLocation(),
-      gsl::narrow<api::core::SizeType>(values.size()),
-      reinterpret_cast<const float*>(values.data()) // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
-      ));
+    if(changeValue(values))
+      GL_ASSERT(api::programUniform3(
+        m_program,
+        getLocation(),
+        gsl::narrow<api::core::SizeType>(values.size()),
+        reinterpret_cast<const float*>(values.data()) // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
+        ));
   }
 
   // ReSharper disable once CppMemberFunctionMayBeConst
   void set(const std::vector<glm::vec4>& values)
   {
     Expects(m_program != InvalidProgram);
-    GL_ASSERT(api::programUniform4(
-      m_program,
-      getLocation(),
-      gsl::narrow<api::core::SizeType>(values.size()),
-      reinterpret_cast<const float*>(values.data()) // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
-      ));
+    if(changeValue(values))
+      GL_ASSERT(api::programUniform4(
+        m_program,
+        getLocation(),
+        gsl::narrow<api::core::SizeType>(values.size()),
+        reinterpret_cast<const float*>(values.data()) // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
+        ));
   }
 
   // ReSharper disable once CppMemberFunctionMayBeConst
   void set(const glm::vec3& value)
   {
     Expects(m_program != InvalidProgram);
-    GL_ASSERT(api::programUniform3(m_program, getLocation(), value.x, value.y, value.z));
+    if(changeValue(value))
+      GL_ASSERT(api::programUniform3(m_program, getLocation(), value.x, value.y, value.z));
   }
 
   // ReSharper disable once CppMemberFunctionMayBeConst
   void set(const glm::vec4& value)
   {
     Expects(m_program != InvalidProgram);
-    GL_ASSERT(api::programUniform4(m_program, getLocation(), value.x, value.y, value.z, value.w));
+    if(changeValue(value))
+      GL_ASSERT(api::programUniform4(m_program, getLocation(), value.x, value.y, value.z, value.w));
   }
 
   // NOLINTNEXTLINE(bugprone-reserved-identifier)
@@ -264,7 +279,8 @@ public:
   void set(const std::shared_ptr<TextureHandle<_Texture>>& textureHandle)
   {
     Expects(m_program != InvalidProgram);
-    GL_ASSERT(api::programUniformHandle(m_program, getLocation(), textureHandle->getHandle()));
+    if(changeValue(textureHandle->getHandle()))
+      GL_ASSERT(api::programUniformHandle(m_program, getLocation(), textureHandle->getHandle()));
   }
 
   template<typename _It> // NOLINT(bugprone-reserved-identifier)
@@ -279,8 +295,9 @@ public:
     }
 
     Expects(handles.size() == static_cast<size_t>(m_size));
-    GL_ASSERT(api::programUniformHandle(
-      m_program, getLocation(), gsl::narrow_cast<api::core::SizeType>(handles.size()), handles.data()));
+    if(changeValue(handles))
+      GL_ASSERT(api::programUniformHandle(
+        m_program, getLocation(), gsl::narrow_cast<api::core::SizeType>(handles.size()), handles.data()));
   }
 
   // NOLINTNEXTLINE(bugprone-reserved-identifier)
@@ -302,6 +319,32 @@ private:
 
   int32_t m_size = -1;
   uint32_t m_program;
+
+  std::variant<std::vector<glm::int32_t>,
+               std::vector<glm::float32_t>,
+               std::vector<glm::mat3>,
+               std::vector<glm::mat4>,
+               std::vector<glm::vec2>,
+               std::vector<glm::vec3>,
+               std::vector<glm::vec4>,
+               std::vector<glm::uint64_t>>
+    m_value;
+
+  template<typename T>
+  bool changeValue(const T& value)
+  {
+    return changeValue(std::vector{value});
+  }
+
+  template<typename T>
+  bool changeValue(const std::vector<T>& values)
+  {
+    if(std::holds_alternative<std::vector<T>>(m_value) && std::get<std::vector<T>>(m_value) == values)
+      return false;
+
+    m_value = values;
+    return true;
+  }
 };
 
 class Program final : public BindableResource
@@ -466,8 +509,6 @@ inline Uniform::Uniform(const Program& program, const uint32_t index)
     : LocatableProgramInterface{program, index}
     , m_program{program.getHandle()}
 {
-  int32_t type;
-  GL_ASSERT(api::getActiveUniforms(program.getHandle(), 1, &index, api::UniformPName::UniformType, &type));
   GL_ASSERT(api::getActiveUniforms(program.getHandle(), 1, &index, api::UniformPName::UniformSize, &m_size));
   Expects(m_size >= 0);
 }
