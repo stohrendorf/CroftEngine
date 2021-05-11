@@ -18,7 +18,6 @@ API_VERSION_PREFIX = 'API_LEVEL'
 VENDOR_PREFIX = 'WITH_GL_API_VENDOR'
 EXTENSION_PREFIX = 'WITH_API_EXTENSION'
 ENABLED_EXTENSIONS = (
-    'GL_ARB_depth_texture',
     'GL_ARB_bindless_texture',
     'GL_ARB_texture_filter_anisotropic',
     'GL_EXT_texture_filter_anisotropic',

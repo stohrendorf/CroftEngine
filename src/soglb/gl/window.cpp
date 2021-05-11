@@ -72,11 +72,6 @@ Window::Window(const bool fullscreen, const glm::ivec2& resolution)
 
   initializeGl();
 
-  if(!gl::hasAnisotropicFilteringExtension())
-    BOOST_LOG_TRIVIAL(info) << "Anisotropic filtering is not supported on this platform";
-  else
-    BOOST_LOG_TRIVIAL(info) << "Anisotropic filtering is supported on this platform";
-
   updateWindowSize();
 
 #ifdef NDEBUG

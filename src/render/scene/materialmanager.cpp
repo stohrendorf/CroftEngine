@@ -355,7 +355,7 @@ void MaterialManager::setFiltering(bool bilinear, bool anisotropic)
   }
 
   if(anisotropic && gl::hasAnisotropicFilteringExtension())
-    sampler->set(gl::api::SamplerParameterF::TextureMaxAnisotropy, 10.0f);
+    sampler->set(gl::api::SamplerParameterF::TextureMaxAnisotropy, gl::getMaxAnisotropyLevel());
 
   m_geometryTextures = std::make_shared<gl::TextureHandle<gl::Texture2DArray<gl::SRGBA8>>>(
     m_geometryTextures->getTexture(), std::move(sampler));

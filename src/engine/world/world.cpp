@@ -1843,7 +1843,7 @@ void World::initTextures(const loader::file::level::Level& level)
   sampler->set(gl::api::SamplerParameterI::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge);
   sampler->set(gl::api::SamplerParameterI::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge);
   if(getEngine().getEngineConfig().renderSettings.anisotropicFiltering && gl::hasAnisotropicFilteringExtension())
-    sampler->set(gl::api::SamplerParameterF::TextureMaxAnisotropy, 10.0f);
+    sampler->set(gl::api::SamplerParameterF::TextureMaxAnisotropy, gl::getMaxAnisotropyLevel());
 
   m_allTexturesHandle
     = std::make_shared<gl::TextureHandle<gl::Texture2DArray<gl::SRGBA8>>>(m_allTextures, std::move(sampler));

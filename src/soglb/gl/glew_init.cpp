@@ -100,19 +100,32 @@ void gl::initializeGl()
   glGetError(); // clear the error flag
 
   Expects(GLEW_ARB_bindless_texture);
-  Expects(GLEW_ARB_depth_texture);
 
 #ifdef SOGLB_DEBUGGING
-  GL_ASSERT(::api::enable(::api::EnableCap::DebugOutput));
-  GL_ASSERT(::api::enable(::api::EnableCap::DebugOutputSynchronous));
+  GL_ASSERT(api::enable(api::EnableCap::DebugOutput));
+  GL_ASSERT(api::enable(api::EnableCap::DebugOutputSynchronous));
 
-  GL_ASSERT(::api::debugMessageCallback(&debugCallback, nullptr));
+  GL_ASSERT(api::debugMessageCallback(&debugCallback, nullptr));
 #endif
 
-  GL_ASSERT(::api::enable(::api::EnableCap::FramebufferSrgb));
+  GL_ASSERT(api::enable(api::EnableCap::FramebufferSrgb));
+
+  if(!hasAnisotropicFilteringExtension())
+    BOOST_LOG_TRIVIAL(info) << "Anisotropic filtering is not supported on this platform";
+  else
+    BOOST_LOG_TRIVIAL(info) << "Anisotropic filtering is supported on this platform, max level "
+                            << getMaxAnisotropyLevel();
 }
 
 bool gl::hasAnisotropicFilteringExtension()
 {
   return GLEW_ARB_texture_filter_anisotropic == GL_TRUE || GLEW_EXT_texture_filter_anisotropic == GL_TRUE;
+}
+
+float gl::getMaxAnisotropyLevel()
+{
+  Expects(hasAnisotropicFilteringExtension());
+  float value = 0;
+  GL_ASSERT(glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY, &value));
+  return value;
 }

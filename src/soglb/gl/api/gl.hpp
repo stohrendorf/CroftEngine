@@ -3132,9 +3132,6 @@ enum class InterleavedArrayFormat : core::EnumType
 enum class InternalFormat : core::EnumType
 {
   DepthComponent = 0x1902,
-  DepthComponent16 = 0x81A5,
-  DepthComponent24 = 0x81A6,
-  DepthComponent32 = 0x81A7,
   Red = 0x1903,
   Rgb = 0x1907,
   Rgba = 0x1908,
@@ -3218,6 +3215,9 @@ enum class InternalFormat : core::EnumType
   || defined(API_LEVEL_GL_VERSION_4_4_core) || defined(API_LEVEL_GL_VERSION_4_5_compatibility)                   \
   || defined(API_LEVEL_GL_VERSION_4_5_core) || defined(API_LEVEL_GL_VERSION_4_6_compatibility)                   \
   || defined(API_LEVEL_GL_VERSION_4_6_core)
+  DepthComponent16 = 0x81A5,
+  DepthComponent24 = 0x81A6,
+  DepthComponent32 = 0x81A7,
 #endif
 #if defined(API_LEVEL_GL_VERSION_2_1) || defined(API_LEVEL_GL_VERSION_3_0) || defined(API_LEVEL_GL_VERSION_3_1) \
   || defined(API_LEVEL_GL_VERSION_3_2_core) || defined(API_LEVEL_GL_VERSION_3_3_compatibility)                  \
@@ -5060,9 +5060,6 @@ enum class ShadingModel : core::EnumType
 
 enum class SizedInternalFormat : core::EnumType
 {
-  DepthComponent16 = 0x81A5,
-  DepthComponent24 = 0x81A6,
-  DepthComponent32 = 0x81A7,
 #if defined(API_LEVEL_GL_VERSION_1_1) || defined(API_LEVEL_GL_VERSION_1_2) || defined(API_LEVEL_GL_VERSION_1_3)  \
   || defined(API_LEVEL_GL_VERSION_1_4) || defined(API_LEVEL_GL_VERSION_1_5) || defined(API_LEVEL_GL_VERSION_2_0) \
   || defined(API_LEVEL_GL_VERSION_2_1) || defined(API_LEVEL_GL_VERSION_3_0) || defined(API_LEVEL_GL_VERSION_3_1) \
@@ -5127,6 +5124,9 @@ enum class SizedInternalFormat : core::EnumType
   || defined(API_LEVEL_GL_VERSION_4_4_core) || defined(API_LEVEL_GL_VERSION_4_5_compatibility)                   \
   || defined(API_LEVEL_GL_VERSION_4_5_core) || defined(API_LEVEL_GL_VERSION_4_6_compatibility)                   \
   || defined(API_LEVEL_GL_VERSION_4_6_core)
+  DepthComponent16 = 0x81A5,
+  DepthComponent24 = 0x81A6,
+  DepthComponent32 = 0x81A7,
 #endif
 #if defined(API_LEVEL_GL_VERSION_2_1) || defined(API_LEVEL_GL_VERSION_3_0) || defined(API_LEVEL_GL_VERSION_3_1) \
   || defined(API_LEVEL_GL_VERSION_3_2_core) || defined(API_LEVEL_GL_VERSION_3_3_compatibility)                  \
