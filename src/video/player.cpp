@@ -2,6 +2,8 @@
 
 #include "audio/soundengine.h"
 
+#include <gl/texture2d.h>
+#include <gl/texturehandle.h>
 #include <optional>
 #include <soloud.h>
 
@@ -147,7 +149,7 @@ struct FilterGraph
 
   void init(const Stream& stream)
   {
-    std::array<char, 512> filterGraphArgs;
+    std::array<char, 512> filterGraphArgs{};
     snprintf(filterGraphArgs.data(),
              filterGraphArgs.size(),
              "video_size=%dx%d:pix_fmt=%d:time_base=%d/%d:pixel_aspect=%d/%d",
@@ -522,50 +524,32 @@ struct AVDecoder final : public SoLoud::AudioSource
   }
 };
 
-struct Scaler
+struct Converter
 {
   static constexpr auto OutputPixFmt = AV_PIX_FMT_RGBA;
 
-  int currentSwsWidth = -1;
-  int currentSwsHeight = -1;
-  int scaledWidth = -1;
-  int scaledHeight = -1;
   SwsContext* context = nullptr;
   AVFilterLink* filter;
   std::array<uint8_t*, 4> dstVideoData{nullptr};
   std::array<int, 4> dstVideoLinesize{0};
+  std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>> textureHandle{nullptr};
 
-  explicit Scaler(AVFilterLink* filter)
+  explicit Converter(AVFilterLink* filter)
       : filter{filter}
   {
-  }
+    auto texture = std::make_shared<gl::Texture2D<gl::SRGBA8>>(glm::ivec2{filter->w, filter->h}, "video");
+    auto sampler = std::make_unique<gl::Sampler>("video");
+    sampler->set(gl::api::TextureMagFilter::Linear);
+    textureHandle
+      = std::make_shared<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>>(std::move(texture), std::move(sampler));
 
-  ~Scaler()
-  {
-    sws_freeContext(context);
-    av_freep(dstVideoData.data());
-  }
-
-  void resize(int targetWidth, int targetHeight)
-  {
-    if(currentSwsWidth == targetWidth && currentSwsHeight == targetHeight)
-      return;
-
-    currentSwsWidth = targetWidth;
-    currentSwsHeight = targetHeight;
-
-    const auto imgScale = std::min(float(targetWidth) / filter->w, float(targetHeight) / filter->h);
-    scaledWidth = static_cast<int>(gsl::narrow<float>(filter->w) * imgScale);
-    scaledHeight = static_cast<int>(gsl::narrow<float>(filter->h) * imgScale);
-
-    sws_freeContext(context);
     context = sws_getContext(filter->w,
                              filter->h,
                              static_cast<AVPixelFormat>(filter->format),
-                             scaledWidth,
-                             scaledHeight,
+                             filter->w,
+                             filter->h,
                              OutputPixFmt,
-                             SWS_LANCZOS,
+                             SWS_FAST_BILINEAR,
                              nullptr,
                              nullptr,
                              nullptr);
@@ -573,16 +557,22 @@ struct Scaler
     {
       BOOST_THROW_EXCEPTION(std::runtime_error("Failed to create SWS context"));
     }
+  }
 
+  ~Converter()
+  {
+    sws_freeContext(context);
     av_freep(dstVideoData.data());
-    if(av_image_alloc(dstVideoData.data(), dstVideoLinesize.data(), targetWidth, targetHeight, OutputPixFmt, 1) < 0)
+  }
+
+  void update(const AVFramePtr& videoFrame)
+  {
+    Expects(videoFrame.frame->width == filter->w && videoFrame.frame->height == filter->h);
+    av_freep(dstVideoData.data());
+    if(av_image_alloc(dstVideoData.data(), dstVideoLinesize.data(), filter->w, filter->h, OutputPixFmt, 1) < 0)
     {
       BOOST_THROW_EXCEPTION(std::runtime_error("Could not allocate raw video buffer"));
     }
-  };
-
-  void scale(const AVFramePtr& videoFrame, gl::Image<gl::SRGBA8>& img)
-  {
     sws_scale(context,
               static_cast<const uint8_t* const*>(videoFrame.frame->data),
               videoFrame.frame->linesize,
@@ -591,34 +581,21 @@ struct Scaler
               dstVideoData.data(),
               dstVideoLinesize.data());
 
-    auto srcLineRaw = dstVideoData[0];
-    auto dst = img.getRawData();
+    std::vector<gl::SRGBA8> dstData;
+    dstData.resize(filter->w * filter->h, {0, 0, 0, 255});
 
-    Expects(img.getSize().x <= dstVideoLinesize[0] / int(sizeof(gl::SRGBA8)));
+    std::copy_n(reinterpret_cast<gl::SRGBA8*>(dstVideoData[0]), // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
+                filter->w * filter->h,
+                dstData.data());
 
-    img.fill({0, 0, 0, 255});
-
-    Expects(img.getSize().x >= scaledWidth);
-    Expects(img.getSize().y >= scaledHeight);
-    const auto xOffset = static_cast<int32_t>((img.getSize().x - scaledWidth) / 2);
-    const auto yOffset = static_cast<int32_t>((img.getSize().y - scaledHeight) / 2);
-    dst += img.getSize().x * yOffset;
-    dst += xOffset;
-    for(int32_t y = 0; y < scaledHeight; ++y)
-    {
-      std::copy_n(reinterpret_cast<gl::SRGBA8*>(srcLineRaw), // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
-                  scaledWidth,
-                  dst);
-      dst += img.getSize().x;
-      srcLineRaw += dstVideoLinesize[0];
-    }
+    textureHandle->getTexture()->assign(dstData.data());
   }
 };
 
 void play(const std::filesystem::path& filename,
           SoLoud::Soloud& soLoud,
-          const std::shared_ptr<gl::Image<gl::SRGBA8>>& img,
-          const std::function<bool()>& onFrame)
+          const std::function<bool(const std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>>& textureHandle)>&
+            onFrame)
 {
   if(!is_regular_file(filename))
     BOOST_THROW_EXCEPTION(std::runtime_error("Video file not found"));
@@ -626,7 +603,7 @@ void play(const std::filesystem::path& filename,
   auto decoderPtr = std::make_unique<AVDecoder>(filename.string());
   const auto decoder = decoderPtr.get();
   Expects(decoder->filterGraph.graph->sink_links_count == 1);
-  Scaler sws{decoder->filterGraph.graph->sink_links[0]};
+  Converter converter{decoder->filterGraph.graph->sink_links[0]};
 
   const auto handle = soLoud.play(*decoderPtr);
 
@@ -636,11 +613,9 @@ void play(const std::filesystem::path& filename,
   {
     if(const auto f = decoder->takeFrame())
     {
-      sws.resize(img->getSize().x, img->getSize().y);
-      sws.scale(*f, *img);
+      converter.update(*f);
+      decoder->stopped |= !onFrame(converter.textureHandle);
     }
-
-    decoder->stopped |= !onFrame();
   }
 }
 } // namespace video

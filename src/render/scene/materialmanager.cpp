@@ -260,13 +260,13 @@ const std::shared_ptr<Material>& MaterialManager::getScreenSpriteColorRect()
   return m_screenSpriteColorRect;
 }
 
-std::shared_ptr<Material> MaterialManager::getFlat(bool withAlpha, bool invertY)
+std::shared_ptr<Material> MaterialManager::getFlat(bool withAlpha, bool invertY, bool withAspectRatio)
 {
-  const std::tuple key{withAlpha, invertY};
+  const std::tuple key{withAlpha, invertY, withAspectRatio};
   if(auto it = m_flat.find(key); it != m_flat.end())
     return it->second;
 
-  auto m = std::make_shared<Material>(m_shaderCache->getFlat(withAlpha, invertY));
+  auto m = std::make_shared<Material>(m_shaderCache->getFlat(withAlpha, invertY, withAspectRatio));
   m->getRenderState().setBlend(withAlpha);
   m->getRenderState().setBlendSrc(gl::api::BlendingFactor::SrcAlpha);
   m->getRenderState().setBlendDst(gl::api::BlendingFactor::OneMinusSrcAlpha);

@@ -38,33 +38,46 @@ void Presenter::playVideo(const std::filesystem::path& path)
 {
   render::scene::RenderContext context{render::scene::RenderMode::Full, std::nullopt};
   m_soundEngine->getSoLoud().setGlobalVolume(1.0f);
-  m_screenOverlay = std::make_unique<render::scene::ScreenOverlay>(*m_materialManager, m_window->getViewport());
-  video::play(path,
-              m_soundEngine->getSoLoud(),
-              m_screenOverlay->getImage(),
-              [&]()
-              {
-                glfwPollEvents();
-                m_window->updateWindowSize();
-                if(m_window->isMinimized())
-                  return true;
 
-                m_renderer->getCamera()->setScreenSize(m_window->getViewport());
-                if(m_screenOverlay->getImage()->getSize() != m_window->getViewport())
-                {
-                  m_screenOverlay->init(*m_materialManager, m_window->getViewport());
-                }
+  auto mesh = createScreenQuad(m_materialManager->getFlat(true, true, true), "video");
+  mesh->bind("u_alphaMultiplier",
+             [this](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
+             { uniform.set(0.95f); });
 
-                if(m_window->isMinimized())
-                  return true;
+  mesh->getRenderState().setBlend(true);
 
-                m_screenOverlay->setAlphaMultiplier(0.9f);
-                m_screenOverlay->render(context);
-                swapBuffers();
-                m_inputHandler->update();
-                return !m_window->windowShouldClose() && !m_inputHandler->hasDebouncedAction(hid::Action::Menu);
-              });
-  m_screenOverlay.reset();
+  m_renderer->clear(gl::api::ClearBufferMask::ColorBufferBit, {0, 0, 0, 255}, 1);
+
+  video::play(
+    path,
+    m_soundEngine->getSoLoud(),
+    [&](const std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>>& textureHandle)
+    {
+      glfwPollEvents();
+      m_window->updateWindowSize();
+      if(m_window->isMinimized())
+        return true;
+
+      m_renderer->getCamera()->setScreenSize(m_window->getViewport());
+      mesh->bind(
+        "u_input",
+        [&textureHandle](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
+        { uniform.set(textureHandle); });
+      mesh->bind("u_aspectRatio",
+                 [this](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
+                 {
+                   const auto vp = m_window->getViewport();
+                   uniform.set(static_cast<float>(vp.x) / static_cast<float>(vp.y));
+                 });
+
+      if(m_window->isMinimized())
+        return true;
+
+      mesh->render(context);
+      swapBuffers();
+      m_inputHandler->update();
+      return !m_window->windowShouldClose() && !m_inputHandler->hasDebouncedAction(hid::Action::Menu);
+    });
 }
 
 void Presenter::renderWorld(const ObjectManager& objectManager,

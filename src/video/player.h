@@ -12,8 +12,9 @@ class Soloud;
 
 namespace video
 {
-extern void play(const std::filesystem::path& filename,
-                 SoLoud::Soloud& soLoud,
-                 const std::shared_ptr<gl::Image<gl::SRGBA8>>& img,
-                 const std::function<bool()>& onFrame);
+extern void
+  play(const std::filesystem::path& filename,
+       SoLoud::Soloud& soLoud,
+       const std::function<bool(const std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>>& textureHandle)>&
+         onFrame);
 }

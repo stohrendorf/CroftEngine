@@ -38,7 +38,7 @@ public:
   [[nodiscard]] const std::shared_ptr<Material>& getScreenSpriteTextured();
   [[nodiscard]] const std::shared_ptr<Material>& getScreenSpriteColorRect();
 
-  [[nodiscard]] std::shared_ptr<Material> getFlat(bool withAlpha, bool invertY = false);
+  [[nodiscard]] std::shared_ptr<Material> getFlat(bool withAlpha, bool invertY = false, bool withAspectRatio = false);
   [[nodiscard]] const std::shared_ptr<Material>& getBackdrop();
   [[nodiscard]] const std::shared_ptr<Material>& getFXAA();
   [[nodiscard]] const std::shared_ptr<Material>& getHBAO();
@@ -69,7 +69,7 @@ private:
   std::shared_ptr<Material> m_crt{nullptr};
   std::shared_ptr<Material> m_screenSpriteTextured{nullptr};
   std::shared_ptr<Material> m_screenSpriteColorRect{nullptr};
-  std::map<std::tuple<bool, bool>, std::shared_ptr<Material>> m_flat{};
+  std::map<std::tuple<bool, bool, bool>, std::shared_ptr<Material>> m_flat{};
   std::map<std::tuple<uint8_t, uint8_t, uint8_t>, std::shared_ptr<Material>> m_fastGaussBlur{};
   std::map<std::tuple<uint8_t, uint8_t, uint8_t>, std::shared_ptr<Material>> m_fastBoxBlur{};
   std::shared_ptr<Material> m_backdrop{nullptr};

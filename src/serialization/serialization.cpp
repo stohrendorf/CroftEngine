@@ -10,7 +10,7 @@ Exception::Exception(const gsl::czstring msg)
 {
 #ifndef NDEBUG
   BOOST_LOG_TRIVIAL(fatal) << "Serialization exception: " << msg;
-  BOOST_LOG_TRIVIAL(fatal) << "Stacktrace:\n" << boost::stacktrace::stacktrace();
+  //BOOST_LOG_TRIVIAL(fatal) << "Stacktrace:\n" << boost::stacktrace::stacktrace();
 #endif
 }
 } // namespace serialization
