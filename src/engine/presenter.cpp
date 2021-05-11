@@ -327,8 +327,8 @@ void Presenter::drawBars(ui::Ui& ui, const std::array<gl::SRGBA8, 256>& palette,
           });
 }
 
-Presenter::Presenter(const std::filesystem::path& rootPath, bool fullscreen, const glm::ivec2& resolution)
-    : m_window{std::make_unique<gl::Window>(fullscreen, resolution)}
+Presenter::Presenter(const std::filesystem::path& rootPath, const glm::ivec2& resolution)
+    : m_window{std::make_unique<gl::Window>(resolution)}
     , m_soundEngine{std::make_shared<audio::SoundEngine>()}
     , m_renderer{std::make_shared<render::scene::Renderer>(std::make_shared<render::scene::Camera>(
         DefaultFov, m_window->getViewport(), DefaultNearPlane, DefaultFarPlane))}

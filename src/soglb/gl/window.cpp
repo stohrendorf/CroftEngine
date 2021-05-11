@@ -18,7 +18,7 @@ void glErrorCallback(const int err, const gsl::czstring msg)
 }
 } // namespace
 
-Window::Window(const bool fullscreen, const glm::ivec2& resolution)
+Window::Window(const glm::ivec2& resolution)
     : m_windowPos{0, 0}
     , m_windowSize{resolution}
 {
@@ -56,9 +56,6 @@ Window::Window(const bool fullscreen, const glm::ivec2& resolution)
     BOOST_LOG_TRIVIAL(fatal) << "Failed to create window: " << message;
     BOOST_THROW_EXCEPTION(std::runtime_error("Failed to create window"));
   }
-
-  if(fullscreen)
-    setFullscreen();
 
   CImgWrapper imgWrapper{std::filesystem::path{"logo.png"}};
   imgWrapper.interleave();
