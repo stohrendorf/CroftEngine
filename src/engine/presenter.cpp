@@ -36,17 +36,10 @@ namespace engine
 {
 void Presenter::playVideo(const std::filesystem::path& path)
 {
-  render::scene::RenderContext context{render::scene::RenderMode::Full, std::nullopt};
   m_soundEngine->getSoLoud().setGlobalVolume(1.0f);
 
-  auto mesh = createScreenQuad(m_materialManager->getFlat(true, true, true), "video");
-  mesh->bind("u_alphaMultiplier",
-             [this](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
-             { uniform.set(0.95f); });
-
-  mesh->getRenderState().setBlend(true);
-
-  m_renderer->clear(gl::api::ClearBufferMask::ColorBufferBit, {0, 0, 0, 255}, 1);
+  auto mesh = createScreenQuad(m_materialManager->getFlat(false, true, true), "video");
+  mesh->getRenderState().setBlend(false);
 
   video::play(
     path,
@@ -73,6 +66,8 @@ void Presenter::playVideo(const std::filesystem::path& path)
       if(m_window->isMinimized())
         return true;
 
+      m_renderer->clear(gl::api::ClearBufferMask::ColorBufferBit, {0, 0, 0, 255}, 1);
+      render::scene::RenderContext context{render::scene::RenderMode::Full, std::nullopt};
       mesh->render(context);
       swapBuffers();
       m_inputHandler->update();

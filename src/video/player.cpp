@@ -568,6 +568,7 @@ struct Converter
   void update(const AVFramePtr& videoFrame)
   {
     Expects(videoFrame.frame->width == filter->w && videoFrame.frame->height == filter->h);
+    Expects((textureHandle->getTexture()->size() == glm::ivec2{filter->w, filter->h}));
     av_freep(dstVideoData.data());
     if(av_image_alloc(dstVideoData.data(), dstVideoLinesize.data(), filter->w, filter->h, OutputPixFmt, 1) < 0)
     {
