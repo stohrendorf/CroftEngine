@@ -5,6 +5,7 @@
 #include "engine/world/world.h"
 #include "menudisplay.h"
 #include "ui/label.h"
+#include "util.h"
 
 namespace menu
 {
@@ -37,31 +38,14 @@ std::unique_ptr<MenuState> ListDisplayMenuState::onFrame(ui::Ui& ui, engine::wor
   Expects(first < last);
   for(size_t i = first; i < last; ++i)
   {
-    const auto& [lbl, active] = m_labels.at(i);
-
-    auto markActive = [&lbl = *lbl]()
-    {
-      lbl.addBackground(glm::ivec2{ListDisplayMenuState::PixelWidth - 12, 16}, {0, 0});
-      lbl.backgroundGouraud = ui::Label::makeBackgroundCircle(gl::SRGB8{32, 255, 112}, 96, 0);
-    };
+    const auto& [lbl, checked] = m_labels.at(i);
+    resetMarks(*lbl);
 
     if(m_selected == i)
-    {
-      if(!active)
-        lbl->addBackground(glm::ivec2{PixelWidth - 12, 16}, {0, 0});
-      lbl->outline = true;
-    }
-    else
-    {
-      if(!active)
-        lbl->removeBackground();
-      lbl->outline = false;
-    }
+      markSelected(*lbl);
 
-    if(!active)
-      lbl->backgroundGouraud.reset();
-    else
-      markActive();
+    if(checked)
+      markChecked(*lbl);
 
     lbl->draw(ui, world.getPresenter().getTrFont(), world.getPresenter().getViewport());
   }
@@ -108,6 +92,7 @@ size_t ListDisplayMenuState::addEntry(const std::string& label)
   auto lbl = std::make_unique<ui::Label>(glm::ivec2{0, YOffset + line * LineHeight}, label);
   lbl->alignX = ui::Label::Alignment::Center;
   lbl->alignY = ui::Label::Alignment::Bottom;
+  lbl->bgndSize = {PixelWidth - 12, 16};
   m_labels.emplace_back(std::move(lbl), false);
   return m_labels.size() - 1;
 }

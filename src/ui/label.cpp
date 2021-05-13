@@ -114,41 +114,39 @@ void Label::draw(Ui& ui, const TRFont& font, const glm::ivec2& screenSize) const
 
   auto bgnd = bgndOff + xy - glm::ivec2{2, 15};
   glm::ivec2 effectiveBgndSize{0};
-  if(fillBackground || outline)
+  if(bgndSize.x != 0)
   {
-    if(bgndSize.x != 0)
-    {
-      effectiveBgndSize.x = bgndSize.x + 4;
-      bgnd.x += (textWidth - bgndSize.x) / 2;
-    }
-    else
-    {
-      effectiveBgndSize.x = textWidth + 4;
-    }
+    effectiveBgndSize.x = bgndSize.x + 4;
+    bgnd.x += (textWidth - bgndSize.x) / 2;
+  }
+  else
+  {
+    effectiveBgndSize.x = textWidth + 4;
+  }
 
-    if(bgndSize.y != 0)
-    {
-      effectiveBgndSize.y = bgndSize.y;
-    }
-    else
-    {
-      effectiveBgndSize.y = 16;
-    }
+  if(bgndSize.y != 0)
+  {
+    effectiveBgndSize.y = bgndSize.y;
+  }
+  else
+  {
+    effectiveBgndSize.y = 16;
   }
 
   if(fillBackground)
   {
     ui.drawBox(bgnd, effectiveBgndSize, {0, 0, 0, 192});
-    if(backgroundGouraud.has_value())
-    {
-      const auto half = effectiveBgndSize / 2;
-      const auto half2 = effectiveBgndSize - half;
-      const auto& g = backgroundGouraud.value();
-      ui.drawBox(bgnd, half, g.topLeft);
-      ui.drawBox(bgnd + glm::ivec2{half.x, 0}, {half2.x, half.y}, g.topRight);
-      ui.drawBox(bgnd + half, {half.x, half2.y}, g.bottomRight);
-      ui.drawBox(bgnd + glm::ivec2{0, half.y}, {half2.x, half2.y}, g.bottomLeft);
-    }
+  }
+
+  if(backgroundGouraud.has_value())
+  {
+    const auto half = effectiveBgndSize / 2;
+    const auto half2 = effectiveBgndSize - half;
+    const auto& g = backgroundGouraud.value();
+    ui.drawBox(bgnd, half, g.topLeft);
+    ui.drawBox(bgnd + glm::ivec2{half.x, 0}, {half2.x, half.y}, g.topRight);
+    ui.drawBox(bgnd + half, {half.x, half2.y}, g.bottomRight);
+    ui.drawBox(bgnd + glm::ivec2{0, half.y}, {half2.x, half2.y}, g.bottomLeft);
   }
 
   for(uint8_t chr : text)

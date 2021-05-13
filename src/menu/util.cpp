@@ -3,6 +3,7 @@
 #include "engine/presenter.h"
 #include "engine/world/world.h"
 #include "menuobject.h"
+#include "ui/label.h"
 
 namespace menu
 {
@@ -46,5 +47,23 @@ void zeroRotation(MenuObject& object, const core::Angle& speed)
     if(object.rotationY < 0_deg)
       object.rotationY = 0_deg;
   }
+}
+
+void resetMarks(ui::Label& label)
+{
+  label.fillBackground = false;
+  label.outline = false;
+  label.backgroundGouraud.reset();
+}
+
+void markChecked(ui::Label& label)
+{
+  label.backgroundGouraud = ui::Label::makeBackgroundCircle(gl::SRGB8{32, 255, 112}, 96, 0);
+}
+
+void markSelected(ui::Label& label)
+{
+  label.fillBackground = true;
+  label.outline = true;
 }
 } // namespace menu
