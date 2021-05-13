@@ -37,6 +37,11 @@ public:
   void drawOutlineBox(const glm::ivec2& xy, const glm::ivec2& size);
   void drawBox(const glm::ivec2& xy, const glm::ivec2& size, const BoxGouraud& gouraud);
   void drawBox(const glm::ivec2& xy, const glm::ivec2& size, const gl::SRGBA8& color);
+  void drawBox(const glm::ivec2& xy, const glm::ivec2& size, const size_t color)
+  {
+    drawBox(xy, size, m_palette.at(color));
+  }
+
   void drawHLine(const glm::ivec2& xy, int length, const gl::SRGBA8& color);
   void drawVLine(const glm::ivec2& xy, int length, const gl::SRGBA8& color);
   void draw(const engine::world::Sprite& sprite, const glm::ivec2& xy);

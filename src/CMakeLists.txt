@@ -473,6 +473,7 @@ set( EDISONENGINE_SRCS
         menu/setitemtypemenustate.cpp
         menu/switchringmenustate.cpp
         menu/util.cpp
+        menu/widgets/listbox.cpp
         )
 
 if( MSVC )

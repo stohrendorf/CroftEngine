@@ -12,71 +12,46 @@ namespace menu
 ListDisplayMenuState::ListDisplayMenuState(const std::shared_ptr<MenuRingTransform>& ringTransform,
                                            const std::string& heading)
     : SelectedMenuState{ringTransform}
-    , m_heading{std::make_unique<ui::Label>(glm::ivec2{0, YOffset - LineHeight - 10}, heading)}
-    , m_background{std::make_unique<ui::Label>(glm::ivec2{0, YOffset - LineHeight - 12}, " ")}
+    , m_listBox{10, 272}
+    , m_heading{createHeading(
+        heading, glm::ivec2{0, m_listBox.getTop() - widgets::ListBox::EntryHeight - 10}, {m_listBox.getWidth() - 4, 0})}
+    , m_background{createFrame({0, m_listBox.getTop() - widgets::ListBox::EntryHeight - 12},
+                               {m_listBox.getWidth(), widgets::ListBox::EntryHeight + m_listBox.getHeight() + 12})}
 {
   m_heading->alignX = ui::Label::Alignment::Center;
   m_heading->alignY = ui::Label::Alignment::Bottom;
-  m_heading->addBackground({PixelWidth - 4, 0}, {0, 0});
-  m_heading->backgroundGouraud = ui::Label::makeBackgroundCircle(gl::SRGB8{32, 255, 112}, 96, 0);
-  m_heading->outline = true;
 
   m_background->alignX = ui::Label::Alignment::Center;
   m_background->alignY = ui::Label::Alignment::Bottom;
-  m_background->addBackground({PixelWidth, LineHeight + TotalHeight + 12}, {0, 0});
-  m_background->backgroundGouraud = ui::Label::makeBackgroundCircle(gl::SRGB8{0, 255, 0}, 32, 0);
-  m_background->outline = true;
 }
 
 std::unique_ptr<MenuState> ListDisplayMenuState::onFrame(ui::Ui& ui, engine::world::World& world, MenuDisplay& display)
 {
   m_background->draw(ui, world.getPresenter().getTrFont(), world.getPresenter().getViewport());
-
-  const auto page = m_selected / PerPage;
-  const auto first = page * PerPage;
-  const auto last = std::min(first + PerPage, m_labels.size());
-  Expects(first < last);
-  for(size_t i = first; i < last; ++i)
-  {
-    const auto& [lbl, checked] = m_labels.at(i);
-    resetMarks(*lbl);
-
-    if(m_selected == i)
-      markSelected(*lbl);
-
-    if(checked)
-      markChecked(*lbl);
-
-    lbl->draw(ui, world.getPresenter().getTrFont(), world.getPresenter().getViewport());
-  }
+  m_listBox.draw(ui, world.getPresenter());
 
   if(!m_heading->text.empty())
     m_heading->draw(ui, world.getPresenter().getTrFont(), world.getPresenter().getViewport());
 
-  if(m_selected > 0
-     && world.getPresenter().getInputHandler().getInputState().zMovement.justChangedTo(hid::AxisMovement::Forward))
+  if(world.getPresenter().getInputHandler().getInputState().zMovement.justChangedTo(hid::AxisMovement::Forward))
   {
-    --m_selected;
+    m_listBox.prevEntry();
   }
-  else if(m_selected < m_labels.size() - 1
-          && world.getPresenter().getInputHandler().getInputState().zMovement.justChangedTo(
-            hid::AxisMovement::Backward))
+  else if(world.getPresenter().getInputHandler().getInputState().zMovement.justChangedTo(hid::AxisMovement::Backward))
   {
-    ++m_selected;
+    m_listBox.nextEntry();
   }
-  if(m_selected >= PerPage
-     && world.getPresenter().getInputHandler().getInputState().xMovement.justChangedTo(hid::AxisMovement::Left))
+  if(world.getPresenter().getInputHandler().getInputState().xMovement.justChangedTo(hid::AxisMovement::Left))
   {
-    m_selected -= PerPage;
+    m_listBox.prevPage();
   }
-  else if(m_selected + PerPage < m_labels.size()
-          && world.getPresenter().getInputHandler().getInputState().xMovement.justChangedTo(hid::AxisMovement::Right))
+  else if(world.getPresenter().getInputHandler().getInputState().xMovement.justChangedTo(hid::AxisMovement::Right))
   {
-    m_selected += PerPage;
+    m_listBox.nextPage();
   }
   else if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Action))
   {
-    return onSelected(m_selected, world, display);
+    return onSelected(m_listBox.getSelected(), world, display);
   }
   else if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Menu))
   {
@@ -84,21 +59,5 @@ std::unique_ptr<MenuState> ListDisplayMenuState::onFrame(ui::Ui& ui, engine::wor
   }
 
   return nullptr;
-}
-
-size_t ListDisplayMenuState::addEntry(const std::string& label)
-{
-  const auto line = m_labels.size() % PerPage;
-  auto lbl = std::make_unique<ui::Label>(glm::ivec2{0, YOffset + line * LineHeight}, label);
-  lbl->alignX = ui::Label::Alignment::Center;
-  lbl->alignY = ui::Label::Alignment::Bottom;
-  lbl->bgndSize = {PixelWidth - 12, 16};
-  m_labels.emplace_back(std::move(lbl), false);
-  return m_labels.size() - 1;
-}
-
-void ListDisplayMenuState::setActive(size_t idx, bool active)
-{
-  std::get<1>(m_labels.at(idx)) = active;
 }
 } // namespace menu

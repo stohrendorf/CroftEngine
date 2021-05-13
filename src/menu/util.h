@@ -3,6 +3,9 @@
 #include "core/angle.h"
 #include "core/units.h"
 
+#include <glm/fwd.hpp>
+#include <memory>
+
 namespace engine::world
 {
 class World;
@@ -10,7 +13,7 @@ class World;
 
 namespace ui
 {
-class Label;
+struct Label;
 }
 
 namespace menu
@@ -31,4 +34,7 @@ auto exactScale(const qs::quantity<Unit, Type>& value, const core::Frame& x, con
 extern void resetMarks(ui::Label& label);
 extern void markChecked(ui::Label& label);
 extern void markSelected(ui::Label& label);
+extern std::unique_ptr<ui::Label> createFrame(const glm::ivec2& position, const glm::ivec2& size);
+extern std::unique_ptr<ui::Label>
+  createHeading(const std::string& heading, const glm::ivec2& position, const glm::ivec2& size);
 } // namespace menu

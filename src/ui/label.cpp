@@ -182,6 +182,37 @@ void Label::draw(Ui& ui, const TRFont& font, const glm::ivec2& screenSize) const
   }
 }
 
+glm::ivec2 Label::getOrigin(const glm::ivec2& screenSize) const
+{
+  auto xy = pos;
+  const auto textWidth = calcWidth();
+
+  if(alignX == Alignment::Center)
+  {
+    xy.x += (screenSize.x - textWidth) / 2;
+  }
+  else if(alignX == Alignment::Right)
+  {
+    xy.x += screenSize.x - textWidth;
+  }
+
+  if(alignY == Alignment::Center)
+  {
+    xy.y += screenSize.y / 2;
+  }
+  else if(alignY == Alignment::Bottom)
+  {
+    xy.y += screenSize.y;
+  }
+
+  xy -= glm::ivec2{2, 15};
+  if(bgndSize.x != 0)
+  {
+    xy.x += (textWidth - bgndSize.x) / 2;
+  }
+  return xy;
+}
+
 void TRFont::draw(ui::Ui& ui, size_t n, const glm::ivec2& xy) const
 {
   ui.draw(m_sprites[n], xy);

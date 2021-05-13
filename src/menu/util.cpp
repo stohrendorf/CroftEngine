@@ -66,4 +66,22 @@ void markSelected(ui::Label& label)
   label.fillBackground = true;
   label.outline = true;
 }
+
+std::unique_ptr<ui::Label> createFrame(const glm::ivec2& position, const glm::ivec2& size)
+{
+  auto result = std::make_unique<ui::Label>(position, " ");
+  result->addBackground(size, {0, 0});
+  result->backgroundGouraud = ui::Label::makeBackgroundCircle(gl::SRGB8{0, 255, 0}, 32, 0);
+  result->outline = true;
+  return result;
+}
+
+std::unique_ptr<ui::Label> createHeading(const std::string& heading, const glm::ivec2& position, const glm::ivec2& size)
+{
+  auto result = std::make_unique<ui::Label>(position, heading);
+  result->addBackground(size, {0, 0});
+  result->backgroundGouraud = ui::Label::makeBackgroundCircle(gl::SRGB8{32, 255, 112}, 96, 0);
+  result->outline = true;
+  return result;
+}
 } // namespace menu
