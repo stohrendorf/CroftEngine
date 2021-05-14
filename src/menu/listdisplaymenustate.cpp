@@ -10,9 +10,12 @@
 namespace menu
 {
 ListDisplayMenuState::ListDisplayMenuState(const std::shared_ptr<MenuRingTransform>& ringTransform,
-                                           const std::string& heading)
+                                           const std::string& heading,
+                                           size_t pageSize,
+                                           int pixelWidth,
+                                           int bottomMargin)
     : SelectedMenuState{ringTransform}
-    , m_listBox{10, 260, 90}
+    , m_listBox{pageSize, pixelWidth, bottomMargin}
     , m_heading{createHeading(heading,
                               glm::ivec2{0, m_listBox.getTop() - widgets::ListBox::EntryHeight - Padding},
                               {m_listBox.getWidth(), 0})}

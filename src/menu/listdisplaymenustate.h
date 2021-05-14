@@ -23,7 +23,11 @@ private:
   std::unique_ptr<ui::Label> m_background;
 
 public:
-  explicit ListDisplayMenuState(const std::shared_ptr<MenuRingTransform>& ringTransform, const std::string& heading);
+  explicit ListDisplayMenuState(const std::shared_ptr<MenuRingTransform>& ringTransform,
+                                const std::string& heading,
+                                size_t pageSize,
+                                int pixelWidth,
+                                int bottomMargin);
   std::unique_ptr<MenuState> onFrame(ui::Ui& ui, engine::world::World& world, MenuDisplay& display) final;
   virtual std::unique_ptr<MenuState> onSelected(size_t idx, engine::world::World& world, MenuDisplay& display) = 0;
   virtual std::unique_ptr<MenuState> onAborted() = 0;
