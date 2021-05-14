@@ -12,11 +12,14 @@ namespace menu
 ListDisplayMenuState::ListDisplayMenuState(const std::shared_ptr<MenuRingTransform>& ringTransform,
                                            const std::string& heading)
     : SelectedMenuState{ringTransform}
-    , m_listBox{10, 272}
-    , m_heading{createHeading(
-        heading, glm::ivec2{0, m_listBox.getTop() - widgets::ListBox::EntryHeight - 10}, {m_listBox.getWidth() - 4, 0})}
-    , m_background{createFrame({0, m_listBox.getTop() - widgets::ListBox::EntryHeight - 12},
-                               {m_listBox.getWidth(), widgets::ListBox::EntryHeight + m_listBox.getHeight() + 12})}
+    , m_listBox{10, 260, 90}
+    , m_heading{createHeading(heading,
+                              glm::ivec2{0, m_listBox.getTop() - widgets::ListBox::EntryHeight - Padding},
+                              {m_listBox.getWidth(), 0})}
+    , m_background{
+        createFrame({0, m_listBox.getTop() - widgets::ListBox::EntryHeight - Padding - ui::Ui::OutlineBorderWidth},
+                    {m_listBox.getWidth() + 2 * ui::Ui::OutlineBorderWidth,
+                     widgets::ListBox::EntryHeight + m_listBox.getHeight() + 2 * Padding + ui::Ui::OutlineBorderWidth})}
 {
   m_heading->alignX = ui::Label::Alignment::Center;
   m_heading->alignY = ui::Label::Alignment::Bottom;

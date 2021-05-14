@@ -17,18 +17,20 @@ struct Label;
 
 namespace menu::widgets
 {
+class Checkbox;
+
 class ListBox
 {
 public:
   static constexpr int EntryHeight = 18;
-  static constexpr int BottomMargin = 80;
 
-  explicit ListBox(size_t pageSize = 10, int pixelWidth = 272);
+  explicit ListBox(size_t pageSize = 10, int pixelWidth = 272, int bottomMargin = 80);
+  ~ListBox();
   void draw(ui::Ui& ui, const engine::Presenter& presenter);
 
   size_t addEntry(const std::string& label);
 
-  void setActive(size_t idx, bool active);
+  void setChecked(size_t idx, bool checked);
   [[nodiscard]] size_t getSelected() const
   {
     return m_selected;
@@ -36,7 +38,7 @@ public:
 
   void nextEntry()
   {
-    if(m_selected < m_labels.size() - 1)
+    if(m_selected < m_checkboxes.size() - 1)
       ++m_selected;
   }
 
@@ -48,7 +50,7 @@ public:
 
   void nextPage()
   {
-    if(m_selected + m_pageSize < m_labels.size())
+    if(m_selected + m_pageSize < m_checkboxes.size())
       m_selected += m_pageSize;
   }
 
@@ -70,18 +72,19 @@ public:
 
   [[nodiscard]] auto getHeight() const
   {
-    return m_pageSize * EntryHeight + 10;
+    return m_pageSize * EntryHeight;
   }
 
   [[nodiscard]] auto getTop() const
   {
-    return -BottomMargin - getHeight();
+    return -m_bottomMargin - getHeight();
   }
 
 private:
   const size_t m_pageSize;
   const int m_pixelWidth;
+  const int m_bottomMargin;
   size_t m_selected = 0;
-  std::vector<std::tuple<std::unique_ptr<ui::Label>, bool>> m_labels;
+  std::vector<std::unique_ptr<widgets::Checkbox>> m_checkboxes;
 };
 } // namespace menu::widgets

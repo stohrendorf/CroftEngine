@@ -16,6 +16,8 @@ namespace menu
 class ListDisplayMenuState : public SelectedMenuState
 {
 private:
+  static constexpr int Padding = 10;
+
   widgets::ListBox m_listBox;
   std::unique_ptr<ui::Label> m_heading;
   std::unique_ptr<ui::Label> m_background;
@@ -33,7 +35,7 @@ public:
 
   void setActive(size_t idx, bool active)
   {
-    m_listBox.setActive(idx, active);
+    m_listBox.setChecked(idx, active);
   }
 };
 } // namespace menu
