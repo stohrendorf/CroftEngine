@@ -59,6 +59,12 @@ struct Label
     BoxGouraud topRight;
     BoxGouraud bottomRight;
     BoxGouraud bottomLeft;
+
+    [[nodiscard]] auto withAlpha(uint8_t alpha) const
+    {
+      return BackgroundGouraud{
+        topLeft.withAlpha(alpha), topRight.withAlpha(alpha), bottomRight.withAlpha(alpha), bottomLeft.withAlpha(alpha)};
+    }
   };
 
   static BackgroundGouraud makeBackgroundCircle(const gl::SRGB8& color, uint8_t innerAlpha, uint8_t outerAlpha)
@@ -78,9 +84,10 @@ struct Label
   bool blink = false;
   Alignment alignX = Alignment::Left;
   Alignment alignY = Alignment::Top;
-  bool fillBackground = false;
+  uint8_t backgroundAlpha = 0;
   std::optional<BackgroundGouraud> backgroundGouraud;
-  bool outline = false;
+  uint8_t backgroundGouraudAlpha = 0;
+  uint8_t outlineAlpha = 0;
   glm::ivec2 pos{0};
   int16_t letterSpacing = 1;
   int16_t wordSpacing = 6;
@@ -105,12 +112,7 @@ struct Label
   {
     bgndSize = size;
     bgndOff = off;
-    fillBackground = true;
-  }
-
-  void removeBackground()
-  {
-    fillBackground = false;
+    backgroundAlpha = 255;
   }
 
   void flashText(bool newBlink, int16_t newBlinkTime)

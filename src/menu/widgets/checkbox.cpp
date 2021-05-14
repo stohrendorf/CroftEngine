@@ -17,13 +17,8 @@ Checkbox::Checkbox(const glm::ivec2& pos, const std::string& label, const glm::i
 
 Checkbox::~Checkbox() = default;
 
-void Checkbox::draw(ui::Ui& ui, const engine::Presenter& presenter, bool selected)
+void Checkbox::draw(ui::Ui& ui, const engine::Presenter& presenter)
 {
-  resetMarks(*m_label);
-
-  if(selected)
-    markSelected(*m_label);
-
   m_label->draw(ui, presenter.getTrFont(), presenter.getViewport());
 
   if(m_checked)
@@ -31,5 +26,13 @@ void Checkbox::draw(ui::Ui& ui, const engine::Presenter& presenter, bool selecte
     ui.drawBox(m_label->getOrigin(presenter.getViewport()) + glm::ivec2{2, 2}, {6, 13}, 31);
     ui.drawBox(m_label->getOrigin(presenter.getViewport()) + glm::ivec2{3, 3}, {4, 11}, 15);
   }
+}
+
+void Checkbox::update(bool selected)
+{
+  if(selected)
+    markSelected(*m_label);
+  else
+    resetMarks(*m_label);
 }
 } // namespace menu::widgets

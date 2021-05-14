@@ -23,10 +23,11 @@ void ListBox::draw(ui::Ui& ui, const engine::Presenter& presenter)
   const auto first = page * m_pageSize;
   const auto last = std::min(first + m_pageSize, m_checkboxes.size());
   Expects(first < last);
+
+  for(size_t i = 0; i < m_checkboxes.size(); ++i)
+    m_checkboxes.at(i)->update(m_selected == i);
   for(size_t i = first; i < last; ++i)
-  {
-    m_checkboxes.at(i)->draw(ui, presenter, m_selected == i);
-  }
+    m_checkboxes.at(i)->draw(ui, presenter);
 }
 
 size_t ListBox::addEntry(const std::string& label)

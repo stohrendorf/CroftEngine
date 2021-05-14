@@ -24,7 +24,7 @@ class ListBox
 public:
   static constexpr int EntryHeight = 18;
 
-  explicit ListBox(size_t pageSize = 10, int pixelWidth = 272, int bottomMargin = 80);
+  explicit ListBox(size_t pageSize, int pixelWidth, int bottomMargin);
   ~ListBox();
   void draw(ui::Ui& ui, const engine::Presenter& presenter);
 
@@ -63,11 +63,6 @@ public:
   [[nodiscard]] auto getWidth() const
   {
     return m_pixelWidth;
-  }
-
-  [[nodiscard]] auto getPageSize() const
-  {
-    return m_pageSize;
   }
 
   [[nodiscard]] auto getHeight() const

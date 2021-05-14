@@ -32,7 +32,6 @@ auto exactScale(const qs::quantity<Unit, Type>& value, const core::Frame& x, con
 }
 
 extern void resetMarks(ui::Label& label);
-extern void markChecked(ui::Label& label);
 extern void markSelected(ui::Label& label);
 extern std::unique_ptr<ui::Label> createFrame(const glm::ivec2& position, const glm::ivec2& size);
 extern std::unique_ptr<ui::Label>

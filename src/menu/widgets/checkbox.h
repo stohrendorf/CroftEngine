@@ -22,7 +22,8 @@ class Checkbox
 public:
   explicit Checkbox(const glm::ivec2& pos, const std::string& label, const glm::ivec2& size = glm::ivec2{0, 0});
   ~Checkbox();
-  void draw(ui::Ui& ui, const engine::Presenter& presenter, bool selected);
+  void update(bool selected);
+  void draw(ui::Ui& ui, const engine::Presenter& presenter);
 
   void setChecked(bool checked)
   {

@@ -133,16 +133,16 @@ void Label::draw(Ui& ui, const TRFont& font, const glm::ivec2& screenSize) const
     effectiveBgndSize.y = 16;
   }
 
-  if(fillBackground)
+  if(backgroundAlpha != 0)
   {
-    ui.drawBox(bgnd, effectiveBgndSize, {0, 0, 0, 192});
+    ui.drawBox(bgnd, effectiveBgndSize, {0, 0, 0, 192 * backgroundAlpha / 255});
   }
 
-  if(backgroundGouraud.has_value())
+  if(backgroundGouraudAlpha != 0 && backgroundGouraud.has_value())
   {
     const auto half = effectiveBgndSize / 2;
     const auto half2 = effectiveBgndSize - half;
-    const auto& g = backgroundGouraud.value();
+    const auto& g = backgroundGouraud.value().withAlpha(backgroundGouraudAlpha);
     ui.drawBox(bgnd, half, g.topLeft);
     ui.drawBox(bgnd + glm::ivec2{half.x, 0}, {half2.x, half.y}, g.topRight);
     ui.drawBox(bgnd + half, {half.x, half2.y}, g.bottomRight);
@@ -176,9 +176,9 @@ void Label::draw(Ui& ui, const TRFont& font, const glm::ivec2& screenSize) const
     xy.x += (charWidths[chr] + letterSpacing) * scale / FontBaseScale;
   }
 
-  if(outline)
+  if(outlineAlpha != 0)
   {
-    ui.drawOutlineBox(bgnd, effectiveBgndSize);
+    ui.drawOutlineBox(bgnd, effectiveBgndSize, outlineAlpha);
   }
 }
 

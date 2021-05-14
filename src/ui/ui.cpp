@@ -130,10 +130,12 @@ void Ui::drawVLine(const glm::ivec2& xy, int length, const gl::SRGBA8& color)
   m_meshes.emplace_back(createVLine(xy, length + glm::sign(length), color, m_color));
 }
 
-void Ui::drawOutlineBox(const glm::ivec2& xy, const glm::ivec2& size)
+void Ui::drawOutlineBox(const glm::ivec2& xy, const glm::ivec2& size, uint8_t alpha)
 {
-  const auto color1 = m_palette[15];
-  const auto color2 = m_palette[31];
+  auto color1 = m_palette[15];
+  color1.channels[3] = alpha;
+  auto color2 = m_palette[31];
+  color2.channels[3] = alpha;
 
   // top
   drawHLine(xy - glm::ivec2{0, 1}, size.x, color1);

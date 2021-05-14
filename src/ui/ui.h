@@ -36,7 +36,7 @@ public:
   {
   }
 
-  void drawOutlineBox(const glm::ivec2& xy, const glm::ivec2& size);
+  void drawOutlineBox(const glm::ivec2& xy, const glm::ivec2& size, uint8_t alpha = 255);
   void drawBox(const glm::ivec2& xy, const glm::ivec2& size, const BoxGouraud& gouraud);
   void drawBox(const glm::ivec2& xy, const glm::ivec2& size, const gl::SRGBA8& color);
   void drawBox(const glm::ivec2& xy, const glm::ivec2& size, const size_t color)
