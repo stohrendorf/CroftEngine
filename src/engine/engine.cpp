@@ -75,7 +75,7 @@ Engine::Engine(const std::filesystem::path& rootPath, const glm::ivec2& resoluti
 
   try
   {
-    pybind11::eval_file((m_rootPath / "scripts" / "main.py").string());
+    pybind11::eval_file(util::ensureFileExists(m_rootPath / "scripts" / "main.py").string());
   }
   catch(std::exception& e)
   {
@@ -345,7 +345,7 @@ std::pair<RunResult, std::optional<size_t>> Engine::runTitleMenu(world::World& w
   m_presenter->apply(m_engineConfig.renderSettings);
 
   const auto backdrop = std::make_shared<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>>(
-    gl::CImgWrapper{m_rootPath / "data" / "tr1" / "DATA" / "TITLEH.PCX"}.toTexture());
+    gl::CImgWrapper{util::ensureFileExists(m_rootPath / "data" / "tr1" / "DATA" / "TITLEH.PCX")}.toTexture());
   const auto menu = std::make_shared<menu::MenuDisplay>(menu::InventoryMode::TitleMode, world);
   Throttler throttler;
   while(true)

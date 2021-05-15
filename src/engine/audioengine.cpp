@@ -210,7 +210,7 @@ gsl::not_null<std::shared_ptr<audio::Voice>> AudioEngine::playStream(size_t trac
   else
   {
     auto wav = std::make_shared<SoLoud::WavStream>();
-    wav->load((m_rootPath / (boost::format("%03d.ogg") % trackId).str()).string().c_str());
+    wav->load(util::ensureFileExists(m_rootPath / (boost::format("%03d.ogg") % trackId).str()).string().c_str());
     auto voice = m_soundEngine->playBackground(wav, m_streamVolume);
     voice->setProtect(true);
     return voice;

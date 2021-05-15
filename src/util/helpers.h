@@ -3,6 +3,7 @@
 #include "core/angle.h"
 #include "core/vec.h"
 
+#include <filesystem>
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <gsl/gsl-lite.hpp>
@@ -101,4 +102,6 @@ auto bits(T value, uint8_t shr, uint8_t n) -> std::enable_if_t<std::is_unsigned_
 }
 
 extern std::string unescape(const std::string& escaped);
+
+extern std::filesystem::path ensureFileExists(const std::filesystem::path& path);
 } // namespace util

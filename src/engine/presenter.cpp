@@ -36,6 +36,8 @@ namespace engine
 {
 void Presenter::playVideo(const std::filesystem::path& path)
 {
+  util::ensureFileExists(path);
+
   m_soundEngine->getSoLoud().setGlobalVolume(1.0f);
 
   auto mesh = createScreenQuad(m_materialManager->getFlat(false, true, true), "video");
@@ -341,9 +343,9 @@ Presenter::Presenter(const std::filesystem::path& rootPath, const glm::ivec2& re
     , m_renderer{std::make_shared<render::scene::Renderer>(std::make_shared<render::scene::Camera>(
         DefaultFov, m_window->getViewport(), DefaultNearPlane, DefaultFarPlane))}
     , m_splashImage{std::make_shared<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>>(
-        gl::CImgWrapper{rootPath / "splash.png"}.toTexture())}
-    , m_trTTFFont{std::make_unique<gl::Font>(rootPath / "trfont.ttf")}
-    , m_debugFont{std::make_unique<gl::Font>(rootPath / "DroidSansMono.ttf")}
+        gl::CImgWrapper{util::ensureFileExists(rootPath / "splash.png")}.toTexture())}
+    , m_trTTFFont{std::make_unique<gl::Font>(util::ensureFileExists(rootPath / "trfont.ttf"))}
+    , m_debugFont{std::make_unique<gl::Font>(util::ensureFileExists(rootPath / "DroidSansMono.ttf"))}
     , m_inputHandler{std::make_unique<hid::InputHandler>(m_window->getWindow())}
     , m_shaderCache{std::make_shared<render::scene::ShaderCache>(rootPath / "shaders")}
     , m_materialManager{std::make_unique<render::scene::MaterialManager>(m_shaderCache, m_renderer)}

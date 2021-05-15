@@ -1,6 +1,7 @@
 #include "trx.h"
 
 #include "core/i18n.h"
+#include "util/helpers.h"
 
 #include <boost/lexical_cast.hpp>
 #include <boost/log/trivial.hpp>
@@ -17,12 +18,7 @@ std::filesystem::path readSymlink(const std::filesystem::path& root,
   if(ref.extension() != ".txt")
     return root / ref;
 
-  std::ifstream txt{(root / ref).string()};
-  if(!txt.is_open())
-  {
-    BOOST_THROW_EXCEPTION(std::runtime_error("Failed to open Glidos text file"));
-  }
-
+  std::ifstream txt{util::ensureFileExists(root / ref)};
   std::string head;
   std::getline(txt, head);
   boost::algorithm::trim(head);
@@ -173,16 +169,9 @@ void Equiv::resolve(const std::filesystem::path& root,
       auto& ts = timestamps[part.getId()];
       ts = std::max(ts, rootTimestamp);
       const auto linked = readSymlink(root, relative(partFile, root), ts).lexically_normal();
-      if(linked.empty())
-      {
-        BOOST_LOG_TRIVIAL(error) << "Invalid TLNK in " << root / partFile;
-        continue;
-      }
-
       auto& existing = filesByPart[part];
       if(!existing.empty() && existing != linked)
       {
-        //BOOST_THROW_EXCEPTION( std::runtime_error( "Equiv set references already mapped texture part" ) );
         BOOST_LOG_TRIVIAL(error) << "Equiv set references already mapped texture part: " << linked << " vs. "
                                  << existing;
       }
@@ -204,12 +193,7 @@ PathMap::PathMap(const std::filesystem::path& baseTxtName,
                  const std::filesystem::file_time_type& rootTimestamp,
                  std::map<TexturePart, std::filesystem::path>& filesByPart)
 {
-  std::ifstream txt{baseTxtName.string()};
-  if(!txt.is_open())
-  {
-    BOOST_THROW_EXCEPTION(std::runtime_error("Failed to open Glidos base file"));
-  }
-
+  std::ifstream txt{util::ensureFileExists(baseTxtName)};
   const auto baseTxtDir = baseTxtName.parent_path();
 
   std::string head;
@@ -316,7 +300,7 @@ Glidos::Glidos(std::filesystem::path baseDir, const std::function<void(const std
 
   BOOST_LOG_TRIVIAL(debug) << "Loading Glidos texture pack from " << m_baseDir;
 
-  m_rootTimestamp = last_write_time(m_baseDir / "equiv.txt");
+  m_rootTimestamp = last_write_time(util::ensureFileExists(m_baseDir / "equiv.txt"));
 
   statusCallback(_("Glidos - Loading equiv.txt"));
 

@@ -1,5 +1,7 @@
 #include "shaderprogram.h"
 
+#include "util/helpers.h"
+
 #include <boost/algorithm/string.hpp>
 #include <boost/log/trivial.hpp>
 #include <fstream>
@@ -142,6 +144,9 @@ gsl::not_null<std::shared_ptr<ShaderProgram>> ShaderProgram::createFromFile(cons
                                                                             const std::filesystem::path& fshPath,
                                                                             const std::vector<std::string>& defines)
 {
+  util::ensureFileExists(vshPath);
+  util::ensureFileExists(fshPath);
+
   const std::string vshSource = readAll(vshPath);
   if(vshSource.empty())
   {

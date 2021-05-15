@@ -55,6 +55,8 @@ void Level::readMeshData(io::SDLReader& reader)
 
 std::unique_ptr<Level> Level::createLoader(const std::filesystem::path& filename, Game gameVersion)
 {
+  util::ensureFileExists(filename);
+
   std::filesystem::path sfxPath = filename;
   sfxPath.replace_filename("MAIN.SFX");
 
