@@ -20,25 +20,25 @@ namespace engine::objects
 namespace
 {
 gsl::not_null<std::shared_ptr<render::scene::Mesh>>
-  createBolt(uint16_t points,
-             const gsl::not_null<std::shared_ptr<render::scene::Material>>& material,
+  createBolt(const gsl::not_null<std::shared_ptr<render::scene::Material>>& material,
              float lineWidth,
              std::shared_ptr<gl::VertexBuffer<glm::vec3>>& vb)
 {
-  std::vector<glm::vec3> vertices(points);
+  std::vector<glm::vec3> vertices(LightningBall::ControlPoints);
 
   static const gl::VertexLayout<glm::vec3> layout{
     {VERTEX_ATTRIBUTE_POSITION_NAME, gl::VertexAttribute<glm::vec3>::Trivial{}}};
 
   std::vector<uint16_t> indices;
-  for(uint16_t i = 0; i < points; ++i)
+  for(uint16_t i = 0; i < LightningBall::ControlPoints; ++i)
     indices.emplace_back(i);
 
   auto indexBuffer = std::make_shared<gl::ElementArrayBuffer<uint16_t>>("bolt");
   indexBuffer->setData(indices, gl::api::BufferUsage::StaticDraw);
 
   vb = std::make_shared<gl::VertexBuffer<glm::vec3>>(layout, 0, "bolt");
-  vb->setData(&vertices[0], points, gl::api::BufferUsage::DynamicDraw);
+  vb->setData(
+    &vertices[0], gsl::narrow_cast<gl::api::core::SizeType>(vertices.size()), gl::api::BufferUsage::DynamicDraw);
 
   auto vao = std::make_shared<gl::VertexArray<uint16_t, glm::vec3>>(
     indexBuffer, vb, std::vector{&material->getShaderProgram()->getHandle()}, "bolt");
@@ -52,29 +52,48 @@ gsl::not_null<std::shared_ptr<render::scene::Mesh>>
   return mesh;
 }
 
-using Bolt = std::array<core::TRVec, LightningBall::SegmentPoints>;
+using Bolt = std::array<glm::vec3, LightningBall::ControlPoints>;
 
-Bolt updateBolt(core::TRVec start, const core::TRVec& end, const std::shared_ptr<gl::VertexBuffer<glm::vec3>>& vb)
+Bolt updateBolt(const glm::vec3& start, const core::TRVec& end, const std::shared_ptr<gl::VertexBuffer<glm::vec3>>& vb)
 {
-  const auto segmentSize = (end - start) / LightningBall::SegmentPoints;
+  std::vector<glm::vec3> data{start, end.toRenderSystem()};
+  float radius = core::QuarterSectorSize.get();
+  for(size_t i = 0; i < LightningBall::SegmentSplits; ++i)
+  {
+    std::vector<glm::vec3> splitData;
+    splitData.reserve(data.size() * 2);
+    for(size_t j = 0; j < data.size() - 1; ++j)
+    {
+      const auto& a = data[j];
+      const auto& b = data[j + 1];
+      splitData.emplace_back(a);
+
+      const auto d = glm::normalize(b - a);
+      while(true)
+      {
+        auto randomVec = glm::normalize(glm::vec3{util::rand15s(), util::rand15s(), util::rand15s()});
+        if(glm::abs(glm::dot(randomVec, d)) > 0.999f)
+        {
+          continue;
+        }
+
+        const auto randomNormal = glm::normalize(randomVec - glm::dot(randomVec, d) * d);
+        BOOST_ASSERT(glm::abs(glm::dot(randomNormal, d)) < 0.001f);
+        splitData.emplace_back((a + b) / 2.0f + randomNormal * radius);
+        break;
+      }
+    }
+    splitData.emplace_back(data.back());
+    data = std::move(splitData);
+    radius /= 2;
+  }
+
+  Expects(gsl::narrow<size_t>(vb->size()) == data.size());
 
   Bolt bolt;
-
-  BOOST_ASSERT(vb->size() == LightningBall::SegmentPoints);
   const auto boltData = vb->map(gl::api::BufferAccess::WriteOnly);
-  for(size_t j = 0; j < LightningBall::SegmentPoints; j++)
-  {
-    core::TRVec buckling{util::rand15s(core::QuarterSectorSize),
-                         util::rand15s(core::QuarterSectorSize),
-                         util::rand15s(core::QuarterSectorSize)};
-
-    if(j == LightningBall::SegmentPoints - 1)
-      buckling.Y = 0_len;
-
-    bolt[j] = start + buckling;
-    boltData[j] = bolt[j].toRenderSystem();
-    start += segmentSize;
-  }
+  std::copy(data.begin(), data.end(), boltData);
+  std::copy(data.begin(), data.end(), bolt.begin());
   vb->unmap();
 
   return bolt;
@@ -166,10 +185,9 @@ void LightningBall::update()
 
   for(auto& childBolt : m_childBolts)
   {
-    childBolt.startIndex = util::rand15(SegmentPoints - 1);
     childBolt.end
       = m_mainBoltEnd
-        + core::TRVec{util::rand15s(core::QuarterSectorSize), 0_len, util::rand15s(core::QuarterSectorSize)};
+        + core::TRVec{util::rand15s(core::QuarterSectorSize / 2), 0_len, util::rand15s(core::QuarterSectorSize / 2)};
   }
 
   if(!getWorld().roomsAreSwapped())
@@ -203,20 +221,20 @@ void LightningBall::prepareRender()
     return;
 
   const auto nearestFrame = getSkeleton()->getInterpolationInfo().getNearestFrame();
-  const auto segmentStart = core::TRVec{
-    glm::vec3(core::fromPackedAngles(nearestFrame->getAngleData()[0]) * glm::vec4(nearestFrame->pos.toGl(), 1.0f))};
+  const auto segmentStart
+    = glm::vec3(core::fromPackedAngles(nearestFrame->getAngleData()[0]) * glm::vec4(nearestFrame->pos.toGl(), 1.0f));
 
   const Bolt mainBolt = updateBolt(segmentStart, m_mainBoltEnd, m_mainVb);
 
   for(const auto& childBolt : m_childBolts)
   {
-    updateBolt(mainBolt[childBolt.startIndex], childBolt.end, childBolt.vb);
+    updateBolt(mainBolt[util::rand15(ControlPoints - 1)], childBolt.end, childBolt.vb);
   }
 }
 
 void LightningBall::init(world::World& world)
 {
-  m_mainBoltMesh = createBolt(SegmentPoints, world.getPresenter().getMaterialManager()->getLightning(), 10, m_mainVb);
+  m_mainBoltMesh = createBolt(world.getPresenter().getMaterialManager()->getLightning(), 10, m_mainVb);
   m_mainBoltNode = std::make_shared<render::scene::Node>("lightning-bolt-main");
   m_mainBoltNode->setRenderable(m_mainBoltMesh);
   m_mainBoltNode->setVisible(false);
@@ -224,8 +242,7 @@ void LightningBall::init(world::World& world)
 
   for(auto& childBolt : m_childBolts)
   {
-    childBolt.mesh
-      = createBolt(SegmentPoints, world.getPresenter().getMaterialManager()->getLightning(), 3, childBolt.vb);
+    childBolt.mesh = createBolt(world.getPresenter().getMaterialManager()->getLightning(), 3, childBolt.vb);
 
     childBolt.node = std::make_shared<render::scene::Node>("lightning-bolt-child");
     childBolt.node->setRenderable(childBolt.mesh);
@@ -252,6 +269,6 @@ void LightningBall::serialize(const serialization::Serializer<world::World>& ser
 
 void LightningBall::ChildBolt::serialize(const serialization::Serializer<world::World>& ser)
 {
-  ser(S_NV("startIndex", startIndex), S_NV("end", end));
+  ser(S_NV("end", end));
 }
 } // namespace engine::objects

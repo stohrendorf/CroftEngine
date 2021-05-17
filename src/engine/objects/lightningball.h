@@ -21,7 +21,8 @@ public:
 
   void collide(CollisionInfo& info) override;
 
-  static constexpr size_t SegmentPoints = 16;
+  static constexpr size_t SegmentSplits = 8;
+  static constexpr size_t ControlPoints = (1u << SegmentSplits) + 1;
 
   void serialize(const serialization::Serializer<world::World>& ser) override;
 
@@ -38,7 +39,6 @@ private:
 
   struct ChildBolt
   {
-    size_t startIndex = 0;
     core::TRVec end{};
     std::shared_ptr<render::scene::Mesh> mesh;
     std::shared_ptr<render::scene::Node> node;
