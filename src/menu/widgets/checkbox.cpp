@@ -21,10 +21,10 @@ void Checkbox::draw(ui::Ui& ui, const engine::Presenter& presenter)
 {
   m_label->draw(ui, presenter.getTrFont(), presenter.getViewport());
 
+  ui.drawOutlineBox(m_label->getOrigin(presenter.getViewport()) + glm::ivec2{2, 2}, {12, 12});
   if(m_checked)
   {
-    ui.drawBox(m_label->getOrigin(presenter.getViewport()) + glm::ivec2{2, 2}, {6, 13}, 31);
-    ui.drawBox(m_label->getOrigin(presenter.getViewport()) + glm::ivec2{3, 3}, {4, 11}, 15);
+    ui.drawBox(m_label->getOrigin(presenter.getViewport()) + glm::ivec2{5, 5}, {7, 7}, 15);
   }
 }
 
