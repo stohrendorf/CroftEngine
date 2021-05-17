@@ -68,9 +68,8 @@ CImgWrapper::CImgWrapper(const uint8_t* data, int width, int height, bool shared
 }
 
 CImgWrapper::CImgWrapper(const int size)
-    : m_image{std::make_unique<cimg_library::CImg<uint8_t>>(size, size, 1, 4)}
+    : CImgWrapper{size, size}
 {
-  m_image->fill(0);
 }
 
 CImgWrapper::CImgWrapper(const int w, const int h)
@@ -125,20 +124,6 @@ int CImgWrapper::height() const
   return m_interleaved ? m_image->depth() : m_image->height();
 }
 
-void CImgWrapper::resize(const int width, const int height)
-{
-  unshare();
-  if(!m_interleaved)
-    m_image->resize(width, height, 1, 4, 6);
-  else
-    m_image->resize(4, width, height, 1, 6);
-}
-
-void CImgWrapper::resizeHalfMipmap()
-{
-  resizePow2Mipmap(1);
-}
-
 void CImgWrapper::resizePow2Mipmap(const uint8_t n)
 {
   unshare();
@@ -149,16 +134,6 @@ void CImgWrapper::resizePow2Mipmap(const uint8_t n)
     m_image->resize(4, width() / d, height() / d, 1, 6, 1);
 }
 
-void CImgWrapper::scale(const float f)
-{
-  Expects(f > 0);
-  unshare();
-  if(!m_interleaved)
-    m_image->resize(static_cast<int>(width() * f), static_cast<int>(height() * f), 1, 4, 6);
-  else
-    m_image->resize(4, static_cast<int>(width() * f), static_cast<int>(height() * f), 1, 6);
-}
-
 void CImgWrapper::crop(const int x0, const int y0, const int x1, const int y1)
 {
   unshare();
@@ -166,18 +141,6 @@ void CImgWrapper::crop(const int x0, const int y0, const int x1, const int y1)
     m_image->crop(x0, y0, 0, 0, x1, y1, 0, 3);
   else
     m_image->crop(0, x0, y0, 0, 3, x1, y1, 0);
-}
-
-CImgWrapper CImgWrapper::cropped(const int x0, const int y0, const int x1, const int y1) const
-{
-  CImgWrapper result{};
-  result.m_interleaved = m_interleaved;
-  if(!m_interleaved)
-    result.m_image = std::make_unique<cimg_library::CImg<uint8_t>>(m_image->get_crop(x0, y0, 0, 0, x1, y1, 0, 3));
-  else
-    result.m_image = std::make_unique<cimg_library::CImg<uint8_t>>(m_image->get_crop(0, x0, y0, 0, 3, x1, y1, 0));
-  result.unshare();
-  return result;
 }
 
 uint8_t& CImgWrapper::operator()(const int x, const int y, const int c)
@@ -235,17 +198,6 @@ void CImgWrapper::replace(const int x, const int y, const CImgWrapper& other)
     m_image->draw_image(x, y, 0, 0, *other.m_image);
   else
     m_image->draw_image(0, x, y, 0, *other.m_image);
-}
-
-void CImgWrapper::crop(const glm::vec2& uv0, const glm::vec2& uv1)
-{
-  const auto w = float(width());
-  const auto h = float(height());
-  const auto x0 = static_cast<int>(uv0.x * w);
-  const auto y0 = static_cast<int>(uv0.y * h);
-  const auto x1 = static_cast<int>(uv1.x * w);
-  const auto y1 = static_cast<int>(uv1.y * h);
-  crop(x0, y0, x1 + 1, y1 + 1);
 }
 
 CImgWrapper::CImgWrapper(CImgWrapper&& other) noexcept

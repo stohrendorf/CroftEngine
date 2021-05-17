@@ -56,24 +56,9 @@ public:
 
   [[nodiscard]] int height() const;
 
-  void resize(int width, int height);
-
-  void resizeHalfMipmap();
-
   void resizePow2Mipmap(uint8_t n);
 
-  void scale(float f);
-
   void crop(int x0, int y0, int x1, int y1);
-
-  [[nodiscard]] CImgWrapper cropped(int x0, int y0, int x1, int y1) const;
-
-  void crop(const glm::vec2& uv0, const glm::vec2& uv1);
-
-  void crop(const glm::ivec2& uv0, const glm::ivec2& uv1)
-  {
-    crop(uv0.x, uv0.y, uv1.x, uv1.y);
-  }
 
   uint8_t& operator()(int x, int y, int c);
 
