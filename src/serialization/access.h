@@ -2,6 +2,7 @@
 
 #include "serialization_fwd.h"
 
+#include <gsl/gsl-lite.hpp>
 #include <string>
 #include <type_traits>
 

@@ -59,6 +59,8 @@ class YAMLDocument;
 
 template<typename T>
 struct Default;
+template<typename T>
+struct OptionalValue;
 
 template<typename TContext>
 class Serializer final
@@ -82,7 +84,8 @@ class Serializer final
       nullptr,
       [](size_t length, void* /*hint*/, void* /*user_data*/) -> gsl::owner<void*> { return new char[length]; },
       [](gsl::owner<void*> mem, size_t /*length*/, void* /*user_data*/) { delete[] static_cast<char*>(mem); },
-      [](const char* msg, size_t msg_len, ryml::Location /*location*/, void* /*user_data*/) {
+      [](const char* msg, size_t msg_len, ryml::Location /*location*/, void* /*user_data*/)
+      {
         const std::string msgStr{msg, msg_len};
         SERIALIZER_EXCEPTION(msgStr);
       }});
@@ -265,6 +268,33 @@ public:
       if(!ser.has_value())
       {
         data.value = data.defaultValue;
+        return *this;
+      }
+      doSerialize(name, data.value, *ser);
+    }
+    else
+    {
+      auto ser = createMapMemberSerializer(name, true);
+      doSerialize(name, data.value, *ser);
+    }
+    return *this;
+  }
+
+  template<typename T>
+  const Serializer<TContext>& operator()(const gsl::not_null<gsl::czstring>& name, OptionalValue<T>&& data) const
+  {
+    ensureIsMap();
+    BOOST_ASSERT(node.valid());
+    BOOST_ASSERT(!node.is_seed());
+#ifdef SERIALIZATION_TRACE
+    BOOST_LOG_TRIVIAL(trace) << "Serializing node " << getQualifiedKey() << "::" << name.get();
+#endif
+
+    if(loading)
+    {
+      auto ser = createMapMemberSerializer(name, false);
+      if(!ser.has_value())
+      {
         return *this;
       }
       doSerialize(name, data.value, *ser);

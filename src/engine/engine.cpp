@@ -446,18 +446,13 @@ std::pair<RunResult, std::optional<size_t>> Engine::runLevelSequenceItemFromSave
 
 std::unique_ptr<loader::trx::Glidos> Engine::loadGlidosPack() const
 {
-  if(const auto getGlidosPack = core::get<pybind11::handle>(pybind11::globals(), "getGlidosPack"))
+  if(m_engineConfig.renderSettings.glidosPack.has_value())
   {
-    const auto pack = getGlidosPack.value()();
-    if(pack.is_none())
-      return nullptr;
-
-    auto glidosPack = pack.cast<std::string>();
-    if(!std::filesystem::is_directory(glidosPack))
+    if(!std::filesystem::is_directory(m_engineConfig.renderSettings.glidosPack.value()))
       return nullptr;
 
     m_presenter->drawLoadingScreen(_("Loading Glidos texture pack"));
-    return std::make_unique<loader::trx::Glidos>(m_rootPath / glidosPack,
+    return std::make_unique<loader::trx::Glidos>(m_rootPath / m_engineConfig.renderSettings.glidosPack.value(),
                                                  [this](const std::string& s) { m_presenter->drawLoadingScreen(s); });
   }
 

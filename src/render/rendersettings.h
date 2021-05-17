@@ -2,6 +2,9 @@
 
 #include "serialization/serialization_fwd.h"
 
+#include <optional>
+#include <string>
+
 namespace engine
 {
 struct EngineConfig;
@@ -22,6 +25,7 @@ struct RenderSettings
   bool hbao = true;
   bool moreLights = true;
   bool highQualityShadows = true;
+  std::optional<std::string> glidosPack = std::nullopt;
 
   [[nodiscard]] size_t getLightCollectionDepth() const
   {

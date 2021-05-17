@@ -24,13 +24,6 @@ else:
     cheats = {}
 
 
-def getGlidosPack():
-    return None
-    # return "assets/trx/1SilverlokAllVers/silverlok/"
-    # return "assets/trx/JC levels 1-12/Textures/JC/"
-    # return "assets/trx/JC levels 13-15/Textures/JC/"
-
-
 def getObjectInfo(id):
     return object_infos[TR1ItemId(id)]
 
