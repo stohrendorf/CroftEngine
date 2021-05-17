@@ -12,6 +12,9 @@ Mummy::Mummy(const gsl::not_null<world::World*>& world,
              const gsl::not_null<const world::SkeletalModelType*>& animatedModel)
     : ModelObject{world, room, item, true, animatedModel}
 {
+  for(size_t idx : {11, 12, 13, 14})
+    getSkeleton()->setVisible(idx, false);
+  getSkeleton()->rebuildMesh();
 }
 
 void Mummy::update()
