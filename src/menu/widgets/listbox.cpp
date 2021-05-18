@@ -8,10 +8,10 @@
 
 namespace menu::widgets
 {
-ListBox::ListBox(size_t pageSize, int pixelWidth, int bottomMargin)
+ListBox::ListBox(size_t pageSize, int width, const glm::ivec2& position)
     : m_pageSize{pageSize}
-    , m_pixelWidth{pixelWidth}
-    , m_bottomMargin{bottomMargin}
+    , m_width{width}
+    , m_position{position}
 {
 }
 
@@ -32,11 +32,7 @@ void ListBox::draw(ui::Ui& ui, const engine::Presenter& presenter)
 
 size_t ListBox::addEntry(const std::string& label)
 {
-  const auto line = m_checkboxes.size() % m_pageSize;
-  auto checkbox
-    = std::make_unique<Checkbox>(glm::ivec2{0, line * EntryHeight - (m_pageSize * EntryHeight + m_bottomMargin)},
-                                 label,
-                                 glm::ivec2{m_pixelWidth, 16});
+  auto checkbox = std::make_unique<Checkbox>(m_position, label, m_width);
   m_checkboxes.emplace_back(std::move(checkbox));
   return m_checkboxes.size() - 1;
 }
@@ -44,5 +40,15 @@ size_t ListBox::addEntry(const std::string& label)
 void ListBox::setChecked(size_t idx, bool checked)
 {
   m_checkboxes.at(idx)->setChecked(checked);
+}
+
+void ListBox::setPosition(const glm::ivec2& position)
+{
+  m_position = position;
+  for(size_t i = 0; i < m_checkboxes.size(); ++i)
+  {
+    const auto inPage = i % m_pageSize;
+    m_checkboxes[i]->setPosition({m_position.x, m_position.y + inPage * EntryHeight});
+  }
 }
 } // namespace menu::widgets

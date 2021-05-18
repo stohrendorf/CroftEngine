@@ -1,5 +1,6 @@
 #include "label.h"
 
+#include "core.h"
 #include "render/scene/material.h"
 #include "ui.h"
 
@@ -113,24 +114,17 @@ void Label::draw(Ui& ui, const TRFont& font, const glm::ivec2& screenSize) const
   }
 
   auto bgnd = bgndOff + xy - glm::ivec2{2, 15};
-  glm::ivec2 effectiveBgndSize{0};
+  glm::ivec2 effectiveBgndSize{textWidth + 4, FontHeight};
   if(bgndSize.x != 0)
   {
     effectiveBgndSize.x = bgndSize.x + 4;
-    bgnd.x += (textWidth - bgndSize.x) / 2;
-  }
-  else
-  {
-    effectiveBgndSize.x = textWidth + 4;
+    if(alignX != Alignment::Left)
+      bgnd.x += (textWidth - bgndSize.x) / 2;
   }
 
   if(bgndSize.y != 0)
   {
     effectiveBgndSize.y = bgndSize.y;
-  }
-  else
-  {
-    effectiveBgndSize.y = 16;
   }
 
   if(backgroundAlpha != 0)
@@ -180,37 +174,6 @@ void Label::draw(Ui& ui, const TRFont& font, const glm::ivec2& screenSize) const
   {
     ui.drawOutlineBox(bgnd, effectiveBgndSize, outlineAlpha);
   }
-}
-
-glm::ivec2 Label::getOrigin(const glm::ivec2& screenSize) const
-{
-  auto xy = pos;
-  const auto textWidth = calcWidth();
-
-  if(alignX == Alignment::Center)
-  {
-    xy.x += (screenSize.x - textWidth) / 2;
-  }
-  else if(alignX == Alignment::Right)
-  {
-    xy.x += screenSize.x - textWidth;
-  }
-
-  if(alignY == Alignment::Center)
-  {
-    xy.y += screenSize.y / 2;
-  }
-  else if(alignY == Alignment::Bottom)
-  {
-    xy.y += screenSize.y;
-  }
-
-  xy -= glm::ivec2{2, 15};
-  if(bgndSize.x != 0)
-  {
-    xy.x += (textWidth - bgndSize.x) / 2;
-  }
-  return xy;
 }
 
 void TRFont::draw(ui::Ui& ui, size_t n, const glm::ivec2& xy) const

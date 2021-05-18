@@ -20,7 +20,7 @@ namespace menu::widgets
 class Checkbox
 {
 public:
-  explicit Checkbox(const glm::ivec2& pos, const std::string& label, const glm::ivec2& size = glm::ivec2{0, 0});
+  explicit Checkbox(const glm::ivec2& position, const std::string& label, int width = 0);
   ~Checkbox();
   void update(bool selected);
   void draw(ui::Ui& ui, const engine::Presenter& presenter);
@@ -29,6 +29,8 @@ public:
   {
     m_checked = checked;
   }
+
+  void setPosition(const glm::ivec2& position);
 
 private:
   std::unique_ptr<ui::Label> m_label;

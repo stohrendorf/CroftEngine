@@ -1,5 +1,8 @@
 #pragma once
 
+#include "ui/core.h"
+
+#include <glm/glm.hpp>
 #include <memory>
 #include <string>
 #include <vector>
@@ -12,7 +15,6 @@ class Presenter;
 namespace ui
 {
 class Ui;
-struct Label;
 } // namespace ui
 
 namespace menu::widgets
@@ -22,9 +24,9 @@ class Checkbox;
 class ListBox
 {
 public:
-  static constexpr int EntryHeight = 18;
+  static constexpr int EntryHeight = ui::FontHeight + ui::OutlineBorderWidth;
 
-  explicit ListBox(size_t pageSize, int pixelWidth, int bottomMargin);
+  explicit ListBox(size_t pageSize, int width, const glm::ivec2& position);
   ~ListBox();
   void draw(ui::Ui& ui, const engine::Presenter& presenter);
 
@@ -60,25 +62,22 @@ public:
       m_selected -= m_pageSize;
   }
 
-  [[nodiscard]] auto getWidth() const
+  [[nodiscard]] auto getSize() const
   {
-    return m_pixelWidth;
+    return glm::ivec2{m_width, m_pageSize * EntryHeight};
   }
 
-  [[nodiscard]] auto getHeight() const
+  [[nodiscard]] const auto& getPosition() const
   {
-    return m_pageSize * EntryHeight;
+    return m_position;
   }
 
-  [[nodiscard]] auto getTop() const
-  {
-    return -m_bottomMargin - getHeight();
-  }
+  void setPosition(const glm::ivec2& position);
 
 private:
   const size_t m_pageSize;
-  const int m_pixelWidth;
-  const int m_bottomMargin;
+  const int m_width;
+  glm::ivec2 m_position;
   size_t m_selected = 0;
   std::vector<std::unique_ptr<widgets::Checkbox>> m_checkboxes;
 };

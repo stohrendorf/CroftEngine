@@ -124,7 +124,5 @@ struct Label
       timeout = newBlinkTime;
     }
   }
-
-  [[nodiscard]] glm::ivec2 getOrigin(const glm::ivec2& screenSize) const;
 };
 } // namespace ui

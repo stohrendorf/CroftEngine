@@ -25,8 +25,6 @@ struct BoxGouraud;
 class Ui final
 {
 public:
-  static constexpr int OutlineBorderWidth = 2;
-
   explicit Ui(std::shared_ptr<render::scene::Material> texture,
               std::shared_ptr<render::scene::Material> color,
               const std::array<gl::SRGBA8, 256>& palette)

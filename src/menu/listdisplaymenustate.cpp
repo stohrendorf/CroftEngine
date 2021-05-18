@@ -4,7 +4,7 @@
 #include "engine/presenter.h"
 #include "engine/world/world.h"
 #include "menudisplay.h"
-#include "ui/label.h"
+#include "ui/core.h"
 #include "util.h"
 
 namespace menu
@@ -12,27 +12,27 @@ namespace menu
 ListDisplayMenuState::ListDisplayMenuState(const std::shared_ptr<MenuRingTransform>& ringTransform,
                                            const std::string& heading,
                                            size_t pageSize,
-                                           int pixelWidth,
-                                           int bottomMargin)
+                                           int width,
+                                           const glm::ivec2& position)
     : SelectedMenuState{ringTransform}
-    , m_listBox{pageSize, pixelWidth, bottomMargin}
-    , m_heading{createHeading(heading,
-                              glm::ivec2{0, m_listBox.getTop() - widgets::ListBox::EntryHeight - Padding},
-                              {m_listBox.getWidth(), 0})}
+    , m_position{position}
+    , m_listBox{pageSize, width, {0, 0}}
+    , m_heading{createHeading(heading, {0, 0}, {m_listBox.getSize().x, 0})}
     , m_background{
-        createFrame({0, m_listBox.getTop() - widgets::ListBox::EntryHeight - Padding - ui::Ui::OutlineBorderWidth},
-                    {m_listBox.getWidth() + 2 * ui::Ui::OutlineBorderWidth,
-                     widgets::ListBox::EntryHeight + m_listBox.getHeight() + 2 * Padding + ui::Ui::OutlineBorderWidth})}
+        createFrame({0, 0},
+                    {m_listBox.getSize().x + 2 * ui::OutlineBorderWidth,
+                     widgets::ListBox::EntryHeight + m_listBox.getSize().y + 2 * (Padding + ui::OutlineBorderWidth)})}
 {
-  m_heading->alignX = ui::Label::Alignment::Center;
-  m_heading->alignY = ui::Label::Alignment::Bottom;
-
-  m_background->alignX = ui::Label::Alignment::Center;
-  m_background->alignY = ui::Label::Alignment::Bottom;
+  setPosition(m_position);
 }
 
 std::unique_ptr<MenuState> ListDisplayMenuState::onFrame(ui::Ui& ui, engine::world::World& world, MenuDisplay& display)
 {
+  {
+    const auto vp = world.getPresenter().getViewport();
+    setPosition({(vp.x - m_listBox.getSize().x) / 2, vp.y - m_listBox.getSize().y - 90});
+  }
+
   m_background->draw(ui, world.getPresenter().getTrFont(), world.getPresenter().getViewport());
   m_listBox.draw(ui, world.getPresenter());
 
@@ -65,5 +65,14 @@ std::unique_ptr<MenuState> ListDisplayMenuState::onFrame(ui::Ui& ui, engine::wor
   }
 
   return nullptr;
+}
+
+void ListDisplayMenuState::setPosition(const glm::ivec2& position)
+{
+  m_position = position;
+  m_background->pos = m_position;
+  m_heading->pos = m_position + glm::ivec2{ui::OutlineBorderWidth, ui::OutlineBorderWidth};
+  m_listBox.setPosition(
+    m_position + glm::ivec2{ui::OutlineBorderWidth, widgets::ListBox::EntryHeight + Padding + ui::OutlineBorderWidth});
 }
 } // namespace menu

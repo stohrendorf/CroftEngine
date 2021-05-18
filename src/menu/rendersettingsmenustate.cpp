@@ -14,7 +14,7 @@ namespace menu
 RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingTransform>& ringTransform,
                                                  std::unique_ptr<MenuState> previous,
                                                  engine::Engine& engine)
-    : ListDisplayMenuState{ringTransform, /* translators: TR charmap encoding */ _("Graphics"), 20, 300, 90}
+    : ListDisplayMenuState{ringTransform, /* translators: TR charmap encoding */ _("Graphics"), 20, 300, {0, 270}}
     , m_previous{std::move(previous)}
 {
   auto addSetting = [this](const std::string& name, std::function<bool()>&& getter, std::function<void()>&& toggler)
