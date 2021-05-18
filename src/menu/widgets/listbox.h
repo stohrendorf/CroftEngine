@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ui/core.h"
+#include "widget.h"
 
 #include <glm/glm.hpp>
 #include <memory>
@@ -19,20 +20,15 @@ class Ui;
 
 namespace menu::widgets
 {
-class Checkbox;
-
-class ListBox
+class ListBox : public Widget
 {
 public:
-  static constexpr int EntryHeight = ui::FontHeight + ui::OutlineBorderWidth;
-
   explicit ListBox(size_t pageSize, int width, const glm::ivec2& position);
-  ~ListBox();
-  void draw(ui::Ui& ui, const engine::Presenter& presenter);
+  ~ListBox() override;
+  void draw(ui::Ui& ui, const engine::Presenter& presenter) const override;
 
-  size_t addEntry(const std::string& label);
+  size_t addEntry(const std::shared_ptr<Widget>& widget);
 
-  void setChecked(size_t idx, bool checked);
   [[nodiscard]] size_t getSelected() const
   {
     return m_selected;
@@ -40,7 +36,7 @@ public:
 
   void nextEntry()
   {
-    if(m_selected < m_checkboxes.size() - 1)
+    if(m_selected < m_widgets.size() - 1)
       ++m_selected;
   }
 
@@ -52,7 +48,7 @@ public:
 
   void nextPage()
   {
-    if(m_selected + m_pageSize < m_checkboxes.size())
+    if(m_selected + m_pageSize < m_widgets.size())
       m_selected += m_pageSize;
   }
 
@@ -62,23 +58,22 @@ public:
       m_selected -= m_pageSize;
   }
 
-  [[nodiscard]] auto getSize() const
-  {
-    return glm::ivec2{m_width, m_pageSize * EntryHeight};
-  }
+  [[nodiscard]] glm::ivec2 getSize() const override;
 
-  [[nodiscard]] const auto& getPosition() const
+  [[nodiscard]] glm::ivec2 getPosition() const override
   {
     return m_position;
   }
 
-  void setPosition(const glm::ivec2& position);
+  void setPosition(const glm::ivec2& position) override;
+
+  void update(bool hasFocus) override;
 
 private:
   const size_t m_pageSize;
   const int m_width;
   glm::ivec2 m_position;
   size_t m_selected = 0;
-  std::vector<std::unique_ptr<widgets::Checkbox>> m_checkboxes;
+  std::vector<std::shared_ptr<Widget>> m_widgets;
 };
 } // namespace menu::widgets

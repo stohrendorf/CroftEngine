@@ -14,13 +14,19 @@ namespace engine
 class Engine;
 }
 
+namespace menu::widgets
+{
+class Checkbox;
+}
+
 namespace menu
 {
 class RenderSettingsMenuState : public ListDisplayMenuState
 {
 private:
   std::unique_ptr<MenuState> m_previous;
-  std::vector<std::tuple<std::function<bool()>, std::function<void()>>> m_handlers;
+  std::vector<std::tuple<std::function<bool()>, std::function<void()>, std::shared_ptr<widgets::Checkbox>>>
+    m_checkboxes;
 
 public:
   explicit RenderSettingsMenuState(const std::shared_ptr<MenuRingTransform>& ringTransform,

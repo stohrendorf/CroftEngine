@@ -6,6 +6,7 @@
 #include "engine/world/world.h"
 #include "menudisplay.h"
 #include "render/renderpipeline.h"
+#include "widgets/checkbox.h"
 
 #include <gl/glew_init.h>
 
@@ -19,8 +20,10 @@ RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingT
 {
   auto addSetting = [this](const std::string& name, std::function<bool()>&& getter, std::function<void()>&& toggler)
   {
-    setActive(addEntry(name), getter());
-    m_handlers.emplace_back(std::move(getter), std::move(toggler));
+    auto checkbox = std::make_shared<widgets::Checkbox>(getListBox().getPosition(), name, getListBox().getSize().x);
+    checkbox->setChecked(getter());
+    addEntry(checkbox);
+    m_checkboxes.emplace_back(std::move(getter), std::move(toggler), std::move(checkbox));
   };
 
   static const auto toggle = [](engine::Engine& engine, bool& value)
@@ -87,9 +90,9 @@ RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingT
 std::unique_ptr<MenuState>
   RenderSettingsMenuState::onSelected(size_t idx, engine::world::World& /*world*/, MenuDisplay& /*display*/)
 {
-  const auto& [getter, toggler] = m_handlers.at(idx);
+  const auto& [getter, toggler, checkbox] = m_checkboxes.at(idx);
   toggler();
-  setActive(idx, getter());
+  checkbox->setChecked(getter());
   return nullptr;
 }
 

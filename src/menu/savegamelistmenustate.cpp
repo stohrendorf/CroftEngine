@@ -10,6 +10,7 @@
 #include "menudisplay.h"
 #include "menuring.h"
 #include "requestloadmenustate.h"
+#include "widgets/label.h"
 
 namespace menu
 {
@@ -37,7 +38,8 @@ SavegameListMenuState::SavegameListMenuState(const std::shared_ptr<MenuRingTrans
       name = _("- EMPTY SLOT %1%", i + 1);
       m_hasSavegame.emplace_back(false);
     }
-    addEntry(name);
+    auto label = std::make_shared<widgets::Label>(getListBox().getPosition(), name, getListBox().getSize().x);
+    addEntry(label);
   }
 }
 

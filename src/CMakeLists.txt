@@ -475,6 +475,7 @@ set( EDISONENGINE_SRCS
         menu/util.cpp
         menu/widgets/checkbox.cpp
         menu/widgets/listbox.cpp
+        menu/widgets/label.cpp
         )
 
 if( MSVC )

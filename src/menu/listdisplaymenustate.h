@@ -33,16 +33,12 @@ public:
   virtual std::unique_ptr<MenuState> onSelected(size_t idx, engine::world::World& world, MenuDisplay& display) = 0;
   virtual std::unique_ptr<MenuState> onAborted() = 0;
 
-  auto addEntry(const std::string& label)
-  {
-    return m_listBox.addEntry(label);
-  }
-
-  void setActive(size_t idx, bool active)
-  {
-    m_listBox.setChecked(idx, active);
-  }
-
+  size_t addEntry(const std::shared_ptr<widgets::Widget>& widget);
   void setPosition(const glm::ivec2& position);
+
+  const auto& getListBox() const
+  {
+    return m_listBox;
+  }
 };
 } // namespace menu

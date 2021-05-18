@@ -18,7 +18,7 @@ Checkbox::Checkbox(const glm::ivec2& position, const std::string& label, int wid
 
 Checkbox::~Checkbox() = default;
 
-void Checkbox::draw(ui::Ui& ui, const engine::Presenter& presenter)
+void Checkbox::draw(ui::Ui& ui, const engine::Presenter& presenter) const
 {
   m_label->draw(ui, presenter.getTrFont(), presenter.getViewport());
 
@@ -36,9 +36,9 @@ void Checkbox::draw(ui::Ui& ui, const engine::Presenter& presenter)
   }
 }
 
-void Checkbox::update(bool selected)
+void Checkbox::update(bool hasFocus)
 {
-  if(selected)
+  if(hasFocus)
     markSelected(*m_label);
   else
     resetMarks(*m_label);
@@ -47,5 +47,15 @@ void Checkbox::update(bool selected)
 void Checkbox::setPosition(const glm::ivec2& position)
 {
   m_label->pos = position + glm::ivec2{TextOffset, 0};
+}
+
+glm::ivec2 Checkbox::getPosition() const
+{
+  return m_label->pos - glm::ivec2{TextOffset, 0};
+}
+
+glm::ivec2 Checkbox::getSize() const
+{
+  return glm::ivec2{m_label->bgndSize.x + TextOffset, ui::FontHeight};
 }
 } // namespace menu::widgets

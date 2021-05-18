@@ -18,10 +18,7 @@ ListDisplayMenuState::ListDisplayMenuState(const std::shared_ptr<MenuRingTransfo
     , m_position{position}
     , m_listBox{pageSize, width, {0, 0}}
     , m_heading{createHeading(heading, {0, 0}, {m_listBox.getSize().x, 0})}
-    , m_background{
-        createFrame({0, 0},
-                    {m_listBox.getSize().x + 2 * ui::OutlineBorderWidth,
-                     widgets::ListBox::EntryHeight + m_listBox.getSize().y + 2 * (Padding + ui::OutlineBorderWidth)})}
+    , m_background{createFrame({0, 0}, {0, 0})}
 {
   setPosition(m_position);
 }
@@ -33,7 +30,10 @@ std::unique_ptr<MenuState> ListDisplayMenuState::onFrame(ui::Ui& ui, engine::wor
     setPosition({(vp.x - m_listBox.getSize().x) / 2, vp.y - m_listBox.getSize().y - 90});
   }
 
+  m_background->bgndSize = {m_listBox.getSize().x + 2 * ui::OutlineBorderWidth,
+                            ui::FontHeight + m_listBox.getSize().y + 2 * (Padding + ui::OutlineBorderWidth)};
   m_background->draw(ui, world.getPresenter().getTrFont(), world.getPresenter().getViewport());
+  m_listBox.update(true);
   m_listBox.draw(ui, world.getPresenter());
 
   if(!m_heading->text.empty())
@@ -72,7 +72,12 @@ void ListDisplayMenuState::setPosition(const glm::ivec2& position)
   m_position = position;
   m_background->pos = m_position;
   m_heading->pos = m_position + glm::ivec2{ui::OutlineBorderWidth, ui::OutlineBorderWidth};
-  m_listBox.setPosition(
-    m_position + glm::ivec2{ui::OutlineBorderWidth, widgets::ListBox::EntryHeight + Padding + ui::OutlineBorderWidth});
+  m_listBox.setPosition(m_position
+                        + glm::ivec2{ui::OutlineBorderWidth, ui::FontHeight + Padding + ui::OutlineBorderWidth});
+}
+
+size_t ListDisplayMenuState::addEntry(const std::shared_ptr<widgets::Widget>& widget)
+{
+  return m_listBox.addEntry(widget);
 }
 } // namespace menu
