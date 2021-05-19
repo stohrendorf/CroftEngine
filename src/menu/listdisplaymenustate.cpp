@@ -6,6 +6,7 @@
 #include "menudisplay.h"
 #include "ui/core.h"
 #include "ui/util.h"
+#include "ui/widgets/listbox.h"
 
 namespace menu
 {
@@ -16,9 +17,9 @@ ListDisplayMenuState::ListDisplayMenuState(const std::shared_ptr<MenuRingTransfo
                                            const glm::ivec2& position)
     : SelectedMenuState{ringTransform}
     , m_position{position}
-    , m_listBox{{0, 0}, {width, pageSize * 18}, pageSize}
-    , m_heading{ui::createHeading(heading, {0, 0}, {width, 0})}
-    , m_background{ui::createFrame({0, 0}, {0, 0})}
+    , m_listBox{std::make_shared<ui::widgets::ListBox>(
+        glm::ivec2{0, 0}, glm::ivec2{width, pageSize * 18 + 28}, pageSize)}
+    , m_groupBox{{0, 0}, m_listBox->getSize(), heading, m_listBox}
 {
   setPosition(m_position);
 }
@@ -27,37 +28,31 @@ std::unique_ptr<MenuState> ListDisplayMenuState::onFrame(ui::Ui& ui, engine::wor
 {
   {
     const auto vp = world.getPresenter().getViewport();
-    setPosition({(vp.x - m_listBox.getSize().x) / 2, vp.y - m_listBox.getSize().y - 90});
+    setPosition({(vp.x - m_groupBox.getSize().x) / 2, vp.y - m_groupBox.getSize().y - 90});
   }
 
-  m_background->bgndSize = {m_listBox.getSize().x + 2 * ui::OutlineBorderWidth,
-                            ui::FontHeight + m_listBox.getSize().y + 2 * (Padding + ui::OutlineBorderWidth)};
-  m_background->draw(ui, world.getPresenter().getTrFont(), world.getPresenter().getViewport());
-  m_listBox.update(true);
-  m_listBox.draw(ui, world.getPresenter());
-
-  if(!m_heading->text.empty())
-    m_heading->draw(ui, world.getPresenter().getTrFont(), world.getPresenter().getViewport());
+  m_groupBox.update(true);
+  m_groupBox.draw(ui, world.getPresenter());
 
   if(world.getPresenter().getInputHandler().getInputState().zMovement.justChangedTo(hid::AxisMovement::Forward))
   {
-    m_listBox.prevEntry();
+    m_listBox->prevEntry();
   }
   else if(world.getPresenter().getInputHandler().getInputState().zMovement.justChangedTo(hid::AxisMovement::Backward))
   {
-    m_listBox.nextEntry();
+    m_listBox->nextEntry();
   }
   if(world.getPresenter().getInputHandler().getInputState().xMovement.justChangedTo(hid::AxisMovement::Left))
   {
-    m_listBox.prevPage();
+    m_listBox->prevPage();
   }
   else if(world.getPresenter().getInputHandler().getInputState().xMovement.justChangedTo(hid::AxisMovement::Right))
   {
-    m_listBox.nextPage();
+    m_listBox->nextPage();
   }
   else if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Action))
   {
-    return onSelected(m_listBox.getSelected(), world, display);
+    return onSelected(m_listBox->getSelected(), world, display);
   }
   else if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Menu))
   {
@@ -70,14 +65,11 @@ std::unique_ptr<MenuState> ListDisplayMenuState::onFrame(ui::Ui& ui, engine::wor
 void ListDisplayMenuState::setPosition(const glm::ivec2& position)
 {
   m_position = position;
-  m_background->pos = m_position;
-  m_heading->pos = m_position + glm::ivec2{ui::OutlineBorderWidth, ui::OutlineBorderWidth};
-  m_listBox.setPosition(m_position
-                        + glm::ivec2{ui::OutlineBorderWidth, ui::FontHeight + Padding + ui::OutlineBorderWidth});
+  m_groupBox.setPosition(m_position);
 }
 
 size_t ListDisplayMenuState::addEntry(const std::shared_ptr<ui::widgets::Widget>& widget)
 {
-  return m_listBox.addEntry(widget);
+  return m_listBox->addEntry(widget);
 }
 } // namespace menu

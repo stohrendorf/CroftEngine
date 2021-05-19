@@ -11,15 +11,16 @@ namespace ui::widgets
 constexpr int TextOffset = 20;
 
 Checkbox::Checkbox(const glm::ivec2& position, const std::string& label, int width)
-    : m_label{std::make_unique<Label>(position, label)}
+    : m_size{width, ui::FontHeight}
+    , m_label{std::make_unique<Label>(position, label)}
 {
-  m_label->setSize({width - TextOffset, 0});
 }
 
 Checkbox::~Checkbox() = default;
 
 void Checkbox::draw(ui::Ui& ui, const engine::Presenter& presenter) const
 {
+  m_label->setSize({m_size.x - TextOffset, m_size.y});
   m_label->draw(ui, presenter);
 
   static constexpr int BoxSize = ui::FontHeight - 2 * ui::OutlineBorderWidth;
@@ -53,6 +54,11 @@ glm::ivec2 Checkbox::getPosition() const
 
 glm::ivec2 Checkbox::getSize() const
 {
-  return glm::ivec2{m_label->getSize().x + TextOffset, ui::FontHeight};
+  return m_size;
+}
+
+void Checkbox::setSize(const glm::ivec2& size)
+{
+  m_size = size;
 }
 } // namespace ui::widgets

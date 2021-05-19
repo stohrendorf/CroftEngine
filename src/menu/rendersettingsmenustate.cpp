@@ -7,6 +7,7 @@
 #include "menudisplay.h"
 #include "render/renderpipeline.h"
 #include "ui/widgets/checkbox.h"
+#include "ui/widgets/listbox.h"
 
 #include <gl/glew_init.h>
 
@@ -20,7 +21,7 @@ RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingT
 {
   auto addSetting = [this](const std::string& name, std::function<bool()>&& getter, std::function<void()>&& toggler)
   {
-    auto checkbox = std::make_shared<ui::widgets::Checkbox>(getListBox().getPosition(), name, getListBox().getSize().x);
+    auto checkbox = std::make_shared<ui::widgets::Checkbox>(glm::ivec2{0, 0}, name, 0);
     checkbox->setChecked(getter());
     addEntry(checkbox);
     m_checkboxes.emplace_back(std::move(getter), std::move(toggler), std::move(checkbox));

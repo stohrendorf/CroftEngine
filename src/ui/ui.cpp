@@ -173,9 +173,13 @@ void Ui::render(const glm::vec2& screenSize)
     "u_screenSize",
     [screenSize](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
     { uniform.set(screenSize); });
-
-  gl::RenderState::getWantedState().setDepthTest(false);
-  gl::RenderState::getWantedState().setDepthWrite(false);
+  mesh->getRenderState().setBlend(true);
+  mesh->getRenderState().setBlendFactors(gl::api::BlendingFactor::SrcAlpha,
+                                         gl::api::BlendingFactor::One,
+                                         gl::api::BlendingFactor::OneMinusSrcAlpha,
+                                         gl::api::BlendingFactor::One);
+  mesh->getRenderState().setDepthTest(false);
+  mesh->getRenderState().setDepthWrite(false);
 
   render::scene::RenderContext ctx{render::scene::RenderMode::Full, std::nullopt};
   mesh->render(ctx);

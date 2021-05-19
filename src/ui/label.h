@@ -19,26 +19,17 @@ class Ui;
 
 extern std::string makeAmmoString(const std::string& str);
 
-constexpr int FontBaseScale = 0x10000;
-
 class TRFont
 {
   gsl::span<const engine::world::Sprite> m_sprites;
-  const int m_scale;
 
 public:
-  explicit TRFont(const engine::world::SpriteSequence& sequence, const int scale = FontBaseScale)
+  explicit TRFont(const engine::world::SpriteSequence& sequence)
       : m_sprites{sequence.sprites}
-      , m_scale{scale}
   {
   }
 
   void draw(ui::Ui& ui, size_t n, const glm::ivec2& xy) const;
-
-  [[nodiscard]] int getScale() const noexcept
-  {
-    return m_scale;
-  }
 };
 
 struct Label
@@ -81,7 +72,6 @@ struct Label
             ui::BoxGouraud{outer, center, outer, outer}};
   }
 
-  bool blink = false;
   Alignment alignX = Alignment::Left;
   Alignment alignY = Alignment::Top;
   uint8_t backgroundAlpha = 0;
@@ -91,11 +81,8 @@ struct Label
   glm::ivec2 pos{0};
   int16_t letterSpacing = 1;
   int16_t wordSpacing = 6;
-  int16_t blinkTime = 0;
-  mutable int16_t timeout = 0;
   glm::ivec2 bgndSize{0};
   glm::ivec2 bgndOff{0};
-  int scale = FontBaseScale;
   std::string text;
 
   explicit Label(const glm::ivec2& pos, const std::string& string)
@@ -106,23 +93,6 @@ struct Label
 
   void draw(Ui& ui, const TRFont& font, const glm::ivec2& screenSize) const;
 
-  int calcWidth() const;
-
-  void addBackground(const glm::ivec2& size, const glm::ivec2& off)
-  {
-    bgndSize = size;
-    bgndOff = off;
-    backgroundAlpha = 255;
-  }
-
-  void flashText(bool newBlink, int16_t newBlinkTime)
-  {
-    blink = newBlink;
-    if(newBlink)
-    {
-      blinkTime = newBlinkTime;
-      timeout = newBlinkTime;
-    }
-  }
+  [[nodiscard]] int calcWidth() const;
 };
 } // namespace ui

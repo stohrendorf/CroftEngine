@@ -22,8 +22,7 @@ void configureForScreenSpaceEffect(Material& m, bool enableBlend = false)
   if(enableBlend)
   {
     m.getRenderState().setBlend(true);
-    m.getRenderState().setBlendSrc(gl::api::BlendingFactor::SrcAlpha);
-    m.getRenderState().setBlendDst(gl::api::BlendingFactor::OneMinusSrcAlpha);
+    m.getRenderState().setBlendFactors(gl::api::BlendingFactor::SrcAlpha, gl::api::BlendingFactor::OneMinusSrcAlpha);
   }
 }
 } // namespace
@@ -257,8 +256,7 @@ std::shared_ptr<Material> MaterialManager::getFlat(bool withAlpha, bool invertY,
 
   auto m = std::make_shared<Material>(m_shaderCache->getFlat(withAlpha, invertY, withAspectRatio));
   m->getRenderState().setBlend(withAlpha);
-  m->getRenderState().setBlendSrc(gl::api::BlendingFactor::SrcAlpha);
-  m->getRenderState().setBlendDst(gl::api::BlendingFactor::OneMinusSrcAlpha);
+  m->getRenderState().setBlendFactors(gl::api::BlendingFactor::SrcAlpha, gl::api::BlendingFactor::OneMinusSrcAlpha);
   configureForScreenSpaceEffect(*m);
   m_flat.emplace(key, m);
   return m;

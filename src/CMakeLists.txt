@@ -416,6 +416,7 @@ set( EDISONENGINE_SRCS
         ui/widgets/checkbox.cpp
         ui/widgets/listbox.cpp
         ui/widgets/label.cpp
+        ui/widgets/groupbox.cpp
 
         video/player.h
         video/player.cpp

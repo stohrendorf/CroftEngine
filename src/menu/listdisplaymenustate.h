@@ -1,7 +1,7 @@
 #pragma once
 
 #include "selectedmenustate.h"
-#include "ui/widgets/listbox.h"
+#include "ui/widgets/groupbox.h"
 
 #include <string>
 #include <vector>
@@ -9,6 +9,11 @@
 namespace ui
 {
 struct Label;
+}
+
+namespace ui::widgets
+{
+class ListBox;
 }
 
 namespace menu
@@ -19,9 +24,8 @@ private:
   static constexpr int Padding = 10;
 
   glm::ivec2 m_position;
-  ui::widgets::ListBox m_listBox;
-  std::unique_ptr<ui::Label> m_heading;
-  std::unique_ptr<ui::Label> m_background;
+  std::shared_ptr<ui::widgets::ListBox> m_listBox;
+  ui::widgets::GroupBox m_groupBox;
 
 public:
   explicit ListDisplayMenuState(const std::shared_ptr<MenuRingTransform>& ringTransform,

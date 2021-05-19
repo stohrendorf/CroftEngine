@@ -16,8 +16,8 @@ class RenderState final
 public:
   RenderState(const RenderState&) noexcept = default;
   RenderState(RenderState&&) noexcept = default;
-  RenderState& operator=(const RenderState&) noexcept = default;
-  RenderState& operator=(RenderState&&) noexcept = default;
+  RenderState& operator=(const RenderState&) = default;
+  RenderState& operator=(RenderState&&) = default;
 
   explicit RenderState() noexcept = default;
   ~RenderState() noexcept = default;
@@ -27,14 +27,17 @@ public:
     m_blendEnabled = enabled;
   }
 
-  void setBlendSrc(const api::BlendingFactor blend)
+  void setBlendFactors(const api::BlendingFactor src, const api::BlendingFactor dst)
   {
-    m_blendSrc = blend;
+    setBlendFactors(src, src, dst, dst);
   }
 
-  void setBlendDst(const api::BlendingFactor blend)
+  void setBlendFactors(const api::BlendingFactor srcRgb,
+                       const api::BlendingFactor srcAlpha,
+                       const api::BlendingFactor dstRgb,
+                       const api::BlendingFactor dstAlpha)
   {
-    m_blendDst = blend;
+    m_blendFactors = {srcRgb, srcAlpha, dstRgb, dstAlpha};
   }
 
   void setCullFace(const bool enabled)
@@ -115,8 +118,8 @@ private:
   std::optional<bool> m_depthClampEnabled{};
   std::optional<api::DepthFunction> m_depthFunction{};
   std::optional<bool> m_blendEnabled{};
-  std::optional<api::BlendingFactor> m_blendSrc{};
-  std::optional<api::BlendingFactor> m_blendDst{};
+  std::optional<std::tuple<api::BlendingFactor, api::BlendingFactor, api::BlendingFactor, api::BlendingFactor>>
+    m_blendFactors{};
   std::optional<api::CullFaceMode> m_cullFaceSide{};
   std::optional<api::FrontFaceDirection> m_frontFace{};
   std::optional<float> m_lineWidth{};

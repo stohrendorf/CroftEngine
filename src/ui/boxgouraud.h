@@ -14,10 +14,10 @@ struct BoxGouraud
   [[nodiscard]] auto withAlpha(uint8_t alpha) const
   {
     auto result = *this;
-    result.topLeft.channels[3] = result.topLeft.channels[3] * alpha / 255;
-    result.topRight.channels[3] = result.topRight.channels[3] * alpha / 255;
-    result.bottomRight.channels[3] = result.bottomRight.channels[3] * alpha / 255;
-    result.bottomLeft.channels[3] = result.bottomLeft.channels[3] * alpha / 255;
+    result.topLeft.channels[3] = alpha;
+    result.topRight.channels[3] = alpha;
+    result.bottomRight.channels[3] = alpha;
+    result.bottomLeft.channels[3] = alpha;
     return result;
   }
 };

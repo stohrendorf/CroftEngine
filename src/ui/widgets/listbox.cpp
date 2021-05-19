@@ -21,8 +21,16 @@ void ListBox::draw(ui::Ui& ui, const engine::Presenter& presenter) const
   const auto last = std::min(first + m_pageSize, m_widgets.size());
   Expects(first < last);
 
+  int y = m_position.y;
   for(size_t i = first; i < last; ++i)
-    m_widgets.at(i)->draw(ui, presenter);
+  {
+    const auto& widget = m_widgets.at(i);
+    widget->setPosition({m_position.x, y});
+    widget->setSize({m_size.x, widget->getSize().y});
+    widget->draw(ui, presenter);
+
+    y += widget->getSize().y + ui::OutlineBorderWidth;
+  }
 }
 
 size_t ListBox::addEntry(const std::shared_ptr<Widget>& widget)
@@ -34,16 +42,6 @@ size_t ListBox::addEntry(const std::shared_ptr<Widget>& widget)
 void ListBox::setPosition(const glm::ivec2& position)
 {
   m_position = position;
-  int y = 0;
-  for(size_t i = 0; i < m_widgets.size(); ++i)
-  {
-    const auto inPage = i % m_pageSize;
-    if(inPage == 0)
-      y = m_position.y;
-
-    m_widgets[i]->setPosition({m_position.x, y});
-    y += m_widgets[i]->getSize().y + ui::OutlineBorderWidth;
-  }
 }
 
 void ListBox::update(bool hasFocus)
@@ -55,5 +53,10 @@ void ListBox::update(bool hasFocus)
 glm::ivec2 ListBox::getSize() const
 {
   return m_size;
+}
+
+void ListBox::setSize(const glm::ivec2& size)
+{
+  m_size = size;
 }
 } // namespace ui::widgets

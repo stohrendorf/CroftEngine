@@ -47,11 +47,11 @@ void RenderState::apply(const bool force) const
     }
     getCurrentState().m_blendEnabled = m_blendEnabled;
   }
-  if(RS_CHANGED(m_blendSrc) || RS_CHANGED(m_blendDst))
+  if(RS_CHANGED(m_blendFactors))
   {
-    GL_ASSERT(api::blendFunc(m_blendSrc.value(), m_blendDst.value()));
-    getCurrentState().m_blendSrc = m_blendSrc;
-    getCurrentState().m_blendDst = m_blendDst;
+    const auto [srcRgb, srcAlpha, dstRgb, dstAlpha] = m_blendFactors.value();
+    GL_ASSERT(api::blendFuncSeparate(srcRgb, dstRgb, srcAlpha, dstAlpha));
+    getCurrentState().m_blendFactors = m_blendFactors;
   }
   if(RS_CHANGED(m_cullFaceEnabled))
   {
@@ -140,8 +140,7 @@ void RenderState::merge(const RenderState& other)
   MERGE_OPT(m_depthClampEnabled);
   MERGE_OPT(m_depthFunction);
   MERGE_OPT(m_blendEnabled);
-  MERGE_OPT(m_blendSrc);
-  MERGE_OPT(m_blendDst);
+  MERGE_OPT(m_blendFactors);
   MERGE_OPT(m_cullFaceSide);
   MERGE_OPT(m_frontFace);
   MERGE_OPT(m_lineWidth);
@@ -174,8 +173,7 @@ RenderState RenderState::getDefaults()
     defaults.setDepthClamp(false);
     defaults.setDepthFunction(api::DepthFunction::Less);
     defaults.setBlend(true);
-    defaults.setBlendSrc(api::BlendingFactor::SrcAlpha);
-    defaults.setBlendDst(api::BlendingFactor::OneMinusSrcAlpha);
+    defaults.setBlendFactors(api::BlendingFactor::SrcAlpha, api::BlendingFactor::OneMinusSrcAlpha);
     defaults.setCullFaceSide(api::CullFaceMode::Back);
     defaults.setFrontFace(api::FrontFaceDirection::Cw);
     defaults.setLineWidth(1.0f);

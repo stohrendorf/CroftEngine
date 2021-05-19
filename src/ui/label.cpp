@@ -57,7 +57,7 @@ int Label::calcWidth() const
 
     if(chr == ' ')
     {
-      width += (wordSpacing * scale) / FontBaseScale;
+      width += wordSpacing;
       continue;
     }
 
@@ -68,7 +68,7 @@ int Label::calcWidth() const
     else
       chr = charToSprite[chr - ' '];
 
-    width += (charWidths[chr] + letterSpacing) * scale / FontBaseScale;
+    width += charWidths[chr] + letterSpacing;
   }
 
   width -= letterSpacing;
@@ -77,21 +77,6 @@ int Label::calcWidth() const
 
 void Label::draw(Ui& ui, const TRFont& font, const glm::ivec2& screenSize) const
 {
-  Expects(font.getScale() == scale);
-
-  if(blink)
-  {
-    --timeout;
-    if(timeout <= -blinkTime)
-    {
-      timeout = blinkTime;
-    }
-    else if(timeout < 0)
-    {
-      return;
-    }
-  }
-
   auto xy = pos;
   const auto textWidth = calcWidth();
 
@@ -129,7 +114,7 @@ void Label::draw(Ui& ui, const TRFont& font, const glm::ivec2& screenSize) const
 
   if(backgroundAlpha != 0)
   {
-    ui.drawBox(bgnd, effectiveBgndSize, {0, 0, 0, 192 * backgroundAlpha / 255});
+    ui.drawBox(bgnd, effectiveBgndSize, {0, 0, 0, backgroundAlpha});
   }
 
   if(backgroundGouraudAlpha != 0 && backgroundGouraud.has_value())
@@ -151,7 +136,7 @@ void Label::draw(Ui& ui, const TRFont& font, const glm::ivec2& screenSize) const
 
     if(chr == ' ')
     {
-      xy.x += (wordSpacing * scale) / FontBaseScale;
+      xy.x += wordSpacing;
       continue;
     }
 
@@ -167,7 +152,7 @@ void Label::draw(Ui& ui, const TRFont& font, const glm::ivec2& screenSize) const
     if(origChar == '(' || origChar == ')' || origChar == '$' || origChar == '~')
       continue;
 
-    xy.x += (charWidths[chr] + letterSpacing) * scale / FontBaseScale;
+    xy.x += charWidths[chr] + letterSpacing;
   }
 
   if(outlineAlpha != 0)

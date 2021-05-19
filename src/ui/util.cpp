@@ -8,9 +8,9 @@ std::unique_ptr<Label> createFrame(const glm::ivec2& position, const glm::ivec2&
 {
   auto result = std::make_unique<Label>(position, " ");
   result->bgndSize = size;
-  result->backgroundAlpha = 255;
-  result->backgroundGouraud = Label::makeBackgroundCircle(gl::SRGB8{0, 255, 0}, 32, 0);
-  result->backgroundGouraudAlpha = 255;
+  result->backgroundAlpha = 240;
+  result->backgroundGouraud = Label::makeBackgroundCircle(gl::SRGBA8{0, 128, 0, 255}, gl::SRGBA8{0, 0, 0, 255});
+  result->backgroundGouraudAlpha = 192;
   result->outlineAlpha = 255;
   return result;
 }
@@ -20,7 +20,7 @@ std::unique_ptr<Label> createHeading(const std::string& heading, const glm::ivec
   auto result = std::make_unique<Label>(position, heading);
   result->bgndSize = size;
   result->backgroundAlpha = 255;
-  result->backgroundGouraud = Label::makeBackgroundCircle(gl::SRGB8{32, 255, 112}, 96, 0);
+  result->backgroundGouraud = Label::makeBackgroundCircle(gl::SRGB8{0, 0, 0}, 255, 255);
   result->backgroundGouraudAlpha = 255;
   result->outlineAlpha = 255;
   return result;
