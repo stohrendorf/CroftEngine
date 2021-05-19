@@ -30,8 +30,8 @@ Now, if you're still here, here's how to set up EdisonEngine and get it running.
    ```
    edisonengine.exe
    (... and other files from the release archive ...)
-   tr1\
-     data\
+   data\
+     tr1\
        AUDIO\
          002.ogg
          003.ogg
