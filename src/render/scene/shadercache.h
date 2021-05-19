@@ -143,14 +143,9 @@ public:
     return get("flat.vert", "linearize_depth.frag");
   }
 
-  auto getScreenSpriteTextured()
+  auto getUi()
   {
-    return get("screensprite.vert", "screensprite.frag", {"SCREENSPRITE_TEXTURE"});
-  }
-
-  auto getScreenSpriteColorRect()
-  {
-    return get("screensprite.vert", "screensprite.frag");
+    return get("ui.vert", "ui.frag");
   }
 };
 } // namespace render::scene

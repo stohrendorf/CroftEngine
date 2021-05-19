@@ -2,6 +2,7 @@
 
 #include <array>
 #include <gl/pixel.h>
+#include <gl/soglb_fwd.h>
 #include <gsl/gsl-lite.hpp>
 #include <memory>
 #include <utility>
@@ -25,14 +26,21 @@ struct BoxGouraud;
 class Ui final
 {
 public:
-  explicit Ui(std::shared_ptr<render::scene::Material> texture,
-              std::shared_ptr<render::scene::Material> color,
-              const std::array<gl::SRGBA8, 256>& palette)
-      : m_texture{std::move(texture)}
-      , m_color{std::move(color)}
-      , m_palette{palette}
+  struct UiVertex
   {
-  }
+    glm::vec2 pos;
+    glm::vec2 uv;
+    glm::int32_t texIndex;
+    glm::vec4 topLeft{0};
+    glm::vec4 topRight{0};
+    glm::vec4 bottomLeft{0};
+    glm::vec4 bottomRight{0};
+
+    static std::shared_ptr<gl::VertexBuffer<Ui::UiVertex>> createVertexBuffer();
+    static std::shared_ptr<gl::ElementArrayBuffer<uint16_t>> createIndexBuffer();
+  };
+
+  explicit Ui(std::shared_ptr<render::scene::Material> material, const std::array<gl::SRGBA8, 256>& palette);
 
   void drawOutlineBox(const glm::ivec2& xy, const glm::ivec2& size, uint8_t alpha = 255);
   void drawBox(const glm::ivec2& xy, const glm::ivec2& size, const BoxGouraud& gouraud);
@@ -49,9 +57,8 @@ public:
   void render(const glm::vec2& screenSize);
 
 private:
-  const std::shared_ptr<render::scene::Material> m_texture;
-  const std::shared_ptr<render::scene::Material> m_color;
+  const std::shared_ptr<render::scene::Material> m_material;
   const std::array<gl::SRGBA8, 256> m_palette;
-  std::vector<gsl::not_null<std::shared_ptr<render::scene::Mesh>>> m_meshes{};
+  std::vector<UiVertex> m_vertices{};
 };
 } // namespace ui

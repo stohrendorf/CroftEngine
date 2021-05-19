@@ -35,8 +35,7 @@ public:
 
   [[nodiscard]] const std::shared_ptr<Material>& getCrt();
 
-  [[nodiscard]] const std::shared_ptr<Material>& getScreenSpriteTextured();
-  [[nodiscard]] const std::shared_ptr<Material>& getScreenSpriteColorRect();
+  [[nodiscard]] const std::shared_ptr<Material>& getUi();
 
   [[nodiscard]] std::shared_ptr<Material> getFlat(bool withAlpha, bool invertY = false, bool withAspectRatio = false);
   [[nodiscard]] const std::shared_ptr<Material>& getBackdrop();
@@ -67,8 +66,7 @@ private:
   std::shared_ptr<Material> m_lightning{nullptr};
   std::map<std::tuple<bool, bool, bool, bool, bool>, std::shared_ptr<Material>> m_composition{};
   std::shared_ptr<Material> m_crt{nullptr};
-  std::shared_ptr<Material> m_screenSpriteTextured{nullptr};
-  std::shared_ptr<Material> m_screenSpriteColorRect{nullptr};
+  std::shared_ptr<Material> m_ui{nullptr};
   std::map<std::tuple<bool, bool, bool>, std::shared_ptr<Material>> m_flat{};
   std::map<std::tuple<uint8_t, uint8_t, uint8_t>, std::shared_ptr<Material>> m_fastGaussBlur{};
   std::map<std::tuple<uint8_t, uint8_t, uint8_t>, std::shared_ptr<Material>> m_fastBoxBlur{};

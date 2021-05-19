@@ -181,9 +181,7 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
             continue;
           }
 
-          ui::Ui ui{m_presenter->getMaterialManager()->getScreenSpriteTextured(),
-                    m_presenter->getMaterialManager()->getScreenSpriteColorRect(),
-                    world.getPalette()};
+          ui::Ui ui{m_presenter->getMaterialManager()->getUi(), world.getPalette()};
           ui::LevelStats stats{world.getTitle(), world.getTotalSecrets(), world.getPlayerPtr(), m_presenter};
           stats.draw(ui);
 
@@ -226,9 +224,7 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
                                world.getCameraController().update(),
                                throttler.getAverageDelayRatio());
       m_presenter->renderScreenOverlay();
-      ui::Ui ui{m_presenter->getMaterialManager()->getScreenSpriteTextured(),
-                m_presenter->getMaterialManager()->getScreenSpriteColorRect(),
-                world.getPalette()};
+      ui::Ui ui{m_presenter->getMaterialManager()->getUi(), world.getPalette()};
       ui.drawBox({0, 0}, m_presenter->getViewport(), gl::SRGBA8{0, 0, 0, 224});
       world.drawPerformanceBar(ui, throttler.getAverageDelayRatio());
       m_presenter->renderUi(ui, 1);
@@ -360,9 +356,7 @@ std::pair<RunResult, std::optional<size_t>> Engine::runTitleMenu(world::World& w
     if(!m_presenter->preFrame())
       continue;
 
-    ui::Ui ui{m_presenter->getMaterialManager()->getScreenSpriteTextured(),
-              m_presenter->getMaterialManager()->getScreenSpriteColorRect(),
-              world.getPalette()};
+    ui::Ui ui{m_presenter->getMaterialManager()->getUi(), world.getPalette()};
     render::scene::RenderContext context{render::scene::RenderMode::Full, std::nullopt};
 
     std::shared_ptr<render::scene::Mesh> backdropMesh;

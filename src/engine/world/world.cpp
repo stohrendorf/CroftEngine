@@ -913,9 +913,7 @@ void World::serialize(const serialization::Serializer<World>& ser)
 
 void World::gameLoop(bool godMode, float delayRatio, float blackAlpha)
 {
-  ui::Ui ui{getPresenter().getMaterialManager()->getScreenSpriteTextured(),
-            getPresenter().getMaterialManager()->getScreenSpriteColorRect(),
-            getPalette()};
+  ui::Ui ui{getPresenter().getMaterialManager()->getUi(), getPalette()};
 
   update(godMode);
   m_player->laraHealth = m_objectManager.getLara().m_state.health;
@@ -974,9 +972,7 @@ bool World::cinematicLoop()
     = m_cameraController->updateCinematic(m_cinematicFrames.at(m_cameraController->m_cinematicFrame), false);
   doGlobalEffect();
 
-  ui::Ui ui{getPresenter().getMaterialManager()->getScreenSpriteTextured(),
-            getPresenter().getMaterialManager()->getScreenSpriteColorRect(),
-            getPalette()};
+  ui::Ui ui{getPresenter().getMaterialManager()->getUi(), getPalette()};
   getPresenter().renderWorld(getObjectManager(), getRooms(), getCameraController(), waterEntryPortals, 0);
   getPresenter().renderScreenOverlay();
   getPresenter().renderUi(ui, 1);

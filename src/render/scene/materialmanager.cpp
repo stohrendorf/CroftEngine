@@ -236,28 +236,17 @@ const std::shared_ptr<Material>& MaterialManager::getCrt()
   return m_crt;
 }
 
-const std::shared_ptr<Material>& MaterialManager::getScreenSpriteTextured()
+const std::shared_ptr<Material>& MaterialManager::getUi()
 {
-  if(m_screenSpriteTextured != nullptr)
-    return m_screenSpriteTextured;
+  if(m_ui != nullptr)
+    return m_ui;
 
-  auto m = std::make_shared<Material>(m_shaderCache->getScreenSpriteTextured());
+  auto m = std::make_shared<Material>(m_shaderCache->getUi());
   m->getUniform("u_input")->bind([this](const Node& /*node*/, const Mesh& /*mesh*/, gl::Uniform& uniform)
                                  { uniform.set(m_geometryTextures); });
   configureForScreenSpaceEffect(*m, true);
-  m_screenSpriteTextured = m;
-  return m_screenSpriteTextured;
-}
-
-const std::shared_ptr<Material>& MaterialManager::getScreenSpriteColorRect()
-{
-  if(m_screenSpriteColorRect != nullptr)
-    return m_screenSpriteColorRect;
-
-  auto m = std::make_shared<Material>(m_shaderCache->getScreenSpriteColorRect());
-  configureForScreenSpaceEffect(*m, true);
-  m_screenSpriteColorRect = m;
-  return m_screenSpriteColorRect;
+  m_ui = m;
+  return m_ui;
 }
 
 std::shared_ptr<Material> MaterialManager::getFlat(bool withAlpha, bool invertY, bool withAspectRatio)
