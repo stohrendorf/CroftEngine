@@ -79,10 +79,7 @@ struct Label
   uint8_t backgroundGouraudAlpha = 0;
   uint8_t outlineAlpha = 0;
   glm::ivec2 pos{0};
-  int16_t letterSpacing = 1;
-  int16_t wordSpacing = 6;
   glm::ivec2 bgndSize{0};
-  glm::ivec2 bgndOff{0};
   std::string text;
 
   explicit Label(const glm::ivec2& pos, const std::string& string)

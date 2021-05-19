@@ -8,6 +8,9 @@ namespace ui
 {
 namespace
 {
+constexpr int LetterSpacing = 1;
+constexpr int WordSpacing = 6;
+
 const std::array<const int, 110> charWidths{
   14, 11, 11, 11, 11, 11, 11, 13, 8,  11, 12, 11, 13, 13, 12, 11, 12, 12, 11, 12, 13, 13, 13, 12, 12, 11, 9,  9,
   9,  9,  9,  9,  9,  9,  5,  9,  9,  5,  12, 10, 9,  9,  9,  8,  9,  8,  9,  9,  11, 9,  9,  9,  12, 8,  10, 10,
@@ -57,7 +60,7 @@ int Label::calcWidth() const
 
     if(chr == ' ')
     {
-      width += wordSpacing;
+      width += WordSpacing;
       continue;
     }
 
@@ -68,10 +71,10 @@ int Label::calcWidth() const
     else
       chr = charToSprite[chr - ' '];
 
-    width += charWidths[chr] + letterSpacing;
+    width += charWidths[chr] + LetterSpacing;
   }
 
-  width -= letterSpacing;
+  width -= LetterSpacing;
   return width;
 }
 
@@ -98,7 +101,7 @@ void Label::draw(Ui& ui, const TRFont& font, const glm::ivec2& screenSize) const
     xy.y += screenSize.y;
   }
 
-  auto bgnd = bgndOff + xy - glm::ivec2{2, 15};
+  auto bgnd = xy - glm::ivec2{2, 15};
   glm::ivec2 effectiveBgndSize{textWidth + 4, FontHeight};
   if(bgndSize.x != 0)
   {
@@ -136,7 +139,7 @@ void Label::draw(Ui& ui, const TRFont& font, const glm::ivec2& screenSize) const
 
     if(chr == ' ')
     {
-      xy.x += wordSpacing;
+      xy.x += WordSpacing;
       continue;
     }
 
@@ -152,7 +155,7 @@ void Label::draw(Ui& ui, const TRFont& font, const glm::ivec2& screenSize) const
     if(origChar == '(' || origChar == ')' || origChar == '$' || origChar == '~')
       continue;
 
-    xy.x += charWidths[chr] + letterSpacing;
+    xy.x += charWidths[chr] + LetterSpacing;
   }
 
   if(outlineAlpha != 0)
