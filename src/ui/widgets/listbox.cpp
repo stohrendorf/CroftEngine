@@ -1,14 +1,14 @@
 #include "listbox.h"
 
 #include "engine/presenter.h"
-#include "menu/util.h"
+#include "ui/util.h"
 
-namespace menu::widgets
+namespace ui::widgets
 {
-ListBox::ListBox(size_t pageSize, int width, const glm::ivec2& position)
-    : m_pageSize{pageSize}
-    , m_width{width}
-    , m_position{position}
+ListBox::ListBox(const glm::ivec2& position, const glm::ivec2& size, size_t pageSize)
+    : m_position{position}
+    , m_size{size}
+    , m_pageSize{pageSize}
 {
 }
 
@@ -54,21 +54,6 @@ void ListBox::update(bool hasFocus)
 
 glm::ivec2 ListBox::getSize() const
 {
-  int maxY = 0;
-  int y = 0;
-  for(size_t i = 0; i < m_widgets.size(); ++i)
-  {
-    const auto inPage = i % m_pageSize;
-    if(inPage == 0)
-    {
-      maxY = std::max(maxY, y);
-      y = 0;
-    }
-
-    y += m_widgets[i]->getSize().y + ui::OutlineBorderWidth;
-  }
-  maxY = std::max(maxY, y);
-
-  return glm::ivec2{m_width, std::max(0, maxY - ui::OutlineBorderWidth)};
+  return m_size;
 }
-} // namespace menu::widgets
+} // namespace ui::widgets

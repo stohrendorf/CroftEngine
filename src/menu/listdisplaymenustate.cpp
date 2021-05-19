@@ -5,7 +5,7 @@
 #include "engine/world/world.h"
 #include "menudisplay.h"
 #include "ui/core.h"
-#include "util.h"
+#include "ui/util.h"
 
 namespace menu
 {
@@ -16,9 +16,9 @@ ListDisplayMenuState::ListDisplayMenuState(const std::shared_ptr<MenuRingTransfo
                                            const glm::ivec2& position)
     : SelectedMenuState{ringTransform}
     , m_position{position}
-    , m_listBox{pageSize, width, {0, 0}}
-    , m_heading{createHeading(heading, {0, 0}, {m_listBox.getSize().x, 0})}
-    , m_background{createFrame({0, 0}, {0, 0})}
+    , m_listBox{{0, 0}, {width, pageSize * 18}, pageSize}
+    , m_heading{ui::createHeading(heading, {0, 0}, {width, 0})}
+    , m_background{ui::createFrame({0, 0}, {0, 0})}
 {
   setPosition(m_position);
 }
@@ -76,7 +76,7 @@ void ListDisplayMenuState::setPosition(const glm::ivec2& position)
                         + glm::ivec2{ui::OutlineBorderWidth, ui::FontHeight + Padding + ui::OutlineBorderWidth});
 }
 
-size_t ListDisplayMenuState::addEntry(const std::shared_ptr<widgets::Widget>& widget)
+size_t ListDisplayMenuState::addEntry(const std::shared_ptr<ui::widgets::Widget>& widget)
 {
   return m_listBox.addEntry(widget);
 }

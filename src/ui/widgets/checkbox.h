@@ -8,7 +8,6 @@
 
 namespace ui
 {
-struct Label;
 class Ui;
 } // namespace ui
 
@@ -17,8 +16,10 @@ namespace engine
 class Presenter;
 }
 
-namespace menu::widgets
+namespace ui::widgets
 {
+class Label;
+
 class Checkbox : public Widget
 {
 public:
@@ -38,7 +39,7 @@ public:
   [[nodiscard]] glm::ivec2 getSize() const override;
 
 private:
-  std::unique_ptr<ui::Label> m_label;
+  std::unique_ptr<Label> m_label;
   bool m_checked = false;
 };
-} // namespace menu::widgets
+} // namespace ui::widgets

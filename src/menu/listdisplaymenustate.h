@@ -1,7 +1,7 @@
 #pragma once
 
 #include "selectedmenustate.h"
-#include "widgets/listbox.h"
+#include "ui/widgets/listbox.h"
 
 #include <string>
 #include <vector>
@@ -19,7 +19,7 @@ private:
   static constexpr int Padding = 10;
 
   glm::ivec2 m_position;
-  widgets::ListBox m_listBox;
+  ui::widgets::ListBox m_listBox;
   std::unique_ptr<ui::Label> m_heading;
   std::unique_ptr<ui::Label> m_background;
 
@@ -33,10 +33,10 @@ public:
   virtual std::unique_ptr<MenuState> onSelected(size_t idx, engine::world::World& world, MenuDisplay& display) = 0;
   virtual std::unique_ptr<MenuState> onAborted() = 0;
 
-  size_t addEntry(const std::shared_ptr<widgets::Widget>& widget);
+  size_t addEntry(const std::shared_ptr<ui::widgets::Widget>& widget);
   void setPosition(const glm::ivec2& position);
 
-  const auto& getListBox() const
+  [[nodiscard]] const auto& getListBox() const
   {
     return m_listBox;
   }

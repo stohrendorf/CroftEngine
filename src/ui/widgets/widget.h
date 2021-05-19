@@ -12,7 +12,7 @@ namespace engine
 class Presenter;
 }
 
-namespace menu::widgets
+namespace ui::widgets
 {
 class Widget
 {
@@ -26,4 +26,4 @@ public:
 
   virtual void draw(ui::Ui& ui, const engine::Presenter& presenter) const = 0;
 };
-} // namespace menu::widgets
+} // namespace ui::widgets

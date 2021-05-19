@@ -18,12 +18,12 @@ namespace ui
 class Ui;
 } // namespace ui
 
-namespace menu::widgets
+namespace ui::widgets
 {
 class ListBox : public Widget
 {
 public:
-  explicit ListBox(size_t pageSize, int width, const glm::ivec2& position);
+  explicit ListBox(const glm::ivec2& position, const glm::ivec2& size, size_t pageSize);
   ~ListBox() override;
   void draw(ui::Ui& ui, const engine::Presenter& presenter) const override;
 
@@ -70,10 +70,10 @@ public:
   void update(bool hasFocus) override;
 
 private:
-  const size_t m_pageSize;
-  const int m_width;
   glm::ivec2 m_position;
+  glm::ivec2 m_size;
+  const size_t m_pageSize;
   size_t m_selected = 0;
   std::vector<std::shared_ptr<Widget>> m_widgets;
 };
-} // namespace menu::widgets
+} // namespace ui::widgets

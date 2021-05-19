@@ -411,6 +411,11 @@ set( EDISONENGINE_SRCS
         ui/levelstats.cpp
         ui/ui.h
         ui/ui.cpp
+        ui/util.cpp
+
+        ui/widgets/checkbox.cpp
+        ui/widgets/listbox.cpp
+        ui/widgets/label.cpp
 
         video/player.h
         video/player.cpp
@@ -473,9 +478,6 @@ set( EDISONENGINE_SRCS
         menu/setitemtypemenustate.cpp
         menu/switchringmenustate.cpp
         menu/util.cpp
-        menu/widgets/checkbox.cpp
-        menu/widgets/listbox.cpp
-        menu/widgets/label.cpp
         )
 
 if( MSVC )

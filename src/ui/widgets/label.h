@@ -11,7 +11,7 @@ namespace ui
 class Label;
 }
 
-namespace menu::widgets
+namespace ui::widgets
 {
 class Label : public Widget
 {
@@ -22,10 +22,11 @@ public:
   [[nodiscard]] glm::ivec2 getPosition() const override;
   [[nodiscard]] glm::ivec2 getSize() const override;
   void setPosition(const glm::ivec2& position) override;
+  void setSize(const glm::ivec2& size);
   void update(bool hasFocus) override;
   void draw(ui::Ui& ui, const engine::Presenter& presenter) const override;
 
 private:
   std::unique_ptr<ui::Label> m_label;
 };
-} // namespace menu::widgets
+} // namespace ui::widgets

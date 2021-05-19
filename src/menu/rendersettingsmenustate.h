@@ -14,7 +14,7 @@ namespace engine
 class Engine;
 }
 
-namespace menu::widgets
+namespace ui::widgets
 {
 class Checkbox;
 }
@@ -25,7 +25,7 @@ class RenderSettingsMenuState : public ListDisplayMenuState
 {
 private:
   std::unique_ptr<MenuState> m_previous;
-  std::vector<std::tuple<std::function<bool()>, std::function<void()>, std::shared_ptr<widgets::Checkbox>>>
+  std::vector<std::tuple<std::function<bool()>, std::function<void()>, std::shared_ptr<ui::widgets::Checkbox>>>
     m_checkboxes;
 
 public:

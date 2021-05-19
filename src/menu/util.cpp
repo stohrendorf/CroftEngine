@@ -48,40 +48,4 @@ void zeroRotation(MenuObject& object, const core::Angle& speed)
       object.rotationY = 0_deg;
   }
 }
-
-constexpr int FadeSpeed = 30;
-
-void resetMarks(ui::Label& label)
-{
-  label.backgroundAlpha = std::max(0, label.backgroundAlpha - FadeSpeed);
-  label.outlineAlpha = std::max(0, label.outlineAlpha - FadeSpeed);
-  label.backgroundGouraudAlpha = std::max(0, label.backgroundGouraudAlpha - FadeSpeed);
-}
-
-void markSelected(ui::Label& label)
-{
-  label.backgroundAlpha = std::min(255, label.backgroundAlpha + FadeSpeed);
-  label.outlineAlpha = std::min(255, label.outlineAlpha + FadeSpeed);
-  label.backgroundGouraudAlpha = std::min(0, label.backgroundGouraudAlpha + FadeSpeed);
-}
-
-std::unique_ptr<ui::Label> createFrame(const glm::ivec2& position, const glm::ivec2& size)
-{
-  auto result = std::make_unique<ui::Label>(position, " ");
-  result->addBackground(size, {0, 0});
-  result->backgroundGouraud = ui::Label::makeBackgroundCircle(gl::SRGB8{0, 255, 0}, 32, 0);
-  result->backgroundGouraudAlpha = 255;
-  result->outlineAlpha = 255;
-  return result;
-}
-
-std::unique_ptr<ui::Label> createHeading(const std::string& heading, const glm::ivec2& position, const glm::ivec2& size)
-{
-  auto result = std::make_unique<ui::Label>(position, heading);
-  result->addBackground(size, {0, 0});
-  result->backgroundGouraud = ui::Label::makeBackgroundCircle(gl::SRGB8{32, 255, 112}, 96, 0);
-  result->backgroundGouraudAlpha = 255;
-  result->outlineAlpha = 255;
-  return result;
-}
 } // namespace menu
