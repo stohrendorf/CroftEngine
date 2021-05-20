@@ -8,7 +8,6 @@
 #include "render/scene/materialmanager.h"
 #include "render/scene/mesh.h"
 #include "render/scene/names.h"
-#include "serialization/array.h"
 #include "serialization/serialization.h"
 
 #include <gl/buffer.h>
@@ -183,13 +182,6 @@ void LightningBall::update()
       = core::TRVec{glm::vec3((-m_state.rotation).toMatrix() * glm::vec4(m_mainBoltEnd.toRenderSystem(), 1.0f))};
   }
 
-  for(auto& childBolt : m_childBolts)
-  {
-    childBolt.end
-      = m_mainBoltEnd
-        + core::TRVec{util::rand15s(core::QuarterSectorSize / 2), 0_len, util::rand15s(core::QuarterSectorSize / 2)};
-  }
-
   if(!getWorld().roomsAreSwapped())
     getWorld().swapAllRooms();
 
@@ -228,7 +220,10 @@ void LightningBall::prepareRender()
 
   for(const auto& childBolt : m_childBolts)
   {
-    updateBolt(mainBolt[util::rand15(ControlPoints - 1)], childBolt.end, childBolt.vb);
+    const auto end
+      = m_mainBoltEnd
+        + core::TRVec{util::rand15s(core::QuarterSectorSize / 2), 0_len, util::rand15s(core::QuarterSectorSize / 2)};
+    updateBolt(mainBolt[util::rand15(ControlPoints - 1)], end, childBolt.vb);
   }
 }
 
@@ -258,17 +253,11 @@ void LightningBall::serialize(const serialization::Serializer<world::World>& ser
       S_NV("laraHit", m_laraHit),
       S_NV("chargeTimeout", m_chargeTimeout),
       S_NV("shooting", m_shooting),
-      S_NV("mainBoltEnd", m_mainBoltEnd),
-      S_NV("childBolts", m_childBolts));
+      S_NV("mainBoltEnd", m_mainBoltEnd));
 
   if(ser.loading)
   {
     init(ser.context);
   }
-}
-
-void LightningBall::ChildBolt::serialize(const serialization::Serializer<world::World>& ser)
-{
-  ser(S_NV("end", end));
 }
 } // namespace engine::objects

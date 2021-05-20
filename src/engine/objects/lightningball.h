@@ -39,12 +39,9 @@ private:
 
   struct ChildBolt
   {
-    core::TRVec end{};
     std::shared_ptr<render::scene::Mesh> mesh;
     std::shared_ptr<render::scene::Node> node;
     std::shared_ptr<gl::VertexBuffer<glm::vec3>> vb;
-
-    void serialize(const serialization::Serializer<world::World>& ser);
   };
 
   std::array<ChildBolt, ChildBolts> m_childBolts;
