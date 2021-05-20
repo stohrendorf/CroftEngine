@@ -34,6 +34,24 @@ public:
 
 struct Label
 {
+  static constexpr char NumberSign = '@';
+  static constexpr char SzLig = '=';
+  static constexpr char SquareBracketLeft = '<';
+  static constexpr char SquareBracketRight = '>';
+  static constexpr char SmallNumber0 = '\x01';
+
+  static constexpr char Note = '|';
+  static constexpr char Speaker = '}';
+  static constexpr char ShotgunAmmo = '\x0c';
+  static constexpr char MagnumsAmmo = '\x0d';
+  static constexpr char UzisAmmo = '\x0e';
+  static constexpr char ArrowUp = '[';
+  static constexpr char ArrowDown = ']';
+
+  static constexpr char UmlautDots = '~';
+  static constexpr char Acute1 = '(';
+  static constexpr char Acute2 = ')';
+
   enum class Alignment
   {
     None,

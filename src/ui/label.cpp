@@ -65,9 +65,9 @@ int Label::calcWidth() const
     }
 
     if(chr <= 10)
-      chr += 81;
+      chr += 81; // small numbers
     else if(chr < 16)
-      chr += 91;
+      chr += 91; // ammo icons
     else
       chr = charToSprite[chr - ' '];
 

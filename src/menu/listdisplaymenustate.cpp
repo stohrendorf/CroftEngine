@@ -12,16 +12,17 @@ namespace menu
 {
 ListDisplayMenuState::ListDisplayMenuState(const std::shared_ptr<MenuRingTransform>& ringTransform,
                                            const std::string& heading,
-                                           size_t pageSize,
-                                           int width)
+                                           size_t pageSize)
     : SelectedMenuState{ringTransform}
-    , m_listBox{std::make_shared<ui::widgets::ListBox>(glm::ivec2{0, 0}, glm::ivec2{width, 0}, pageSize)}
-    , m_groupBox{{0, 0}, glm::ivec2{width, pageSize * 18 + 28}, heading, m_listBox}
+    , m_listBox{std::make_shared<ui::widgets::ListBox>(glm::ivec2{0, 0}, glm::ivec2{0, 0}, pageSize)}
+    , m_groupBox{{0, 0}, glm::ivec2{0, 0}, heading, m_listBox}
 {
 }
 
 std::unique_ptr<MenuState> ListDisplayMenuState::onFrame(ui::Ui& ui, engine::world::World& world, MenuDisplay& display)
 {
+  m_groupBox.fitToContent();
+
   {
     const auto vp = world.getPresenter().getViewport();
     m_groupBox.setPosition({(vp.x - m_groupBox.getSize().x) / 2, vp.y - m_groupBox.getSize().y - 90});

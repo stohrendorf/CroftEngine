@@ -69,8 +69,8 @@ void ListBox::setSize(const glm::ivec2& size)
 void ListBox::fitToContent()
 {
   int y = 0;
-  int maxY = 0;
-  int maxX = 0;
+  int maxHeight = 0;
+  int maxWidth = 0;
   for(size_t i = 0; i < m_widgets.size(); ++i)
   {
     if(m_pageSize != 0 && i % m_pageSize == 0)
@@ -80,12 +80,12 @@ void ListBox::fitToContent()
     widget->fitToContent();
 
     y += widget->getSize().y;
-    maxY = std::max(maxY, y);
-    maxX = std::max(maxX, widget->getSize().x);
+    maxHeight = std::max(maxHeight, y);
+    maxWidth = std::max(maxWidth, widget->getSize().x);
 
     y += ui::OutlineBorderWidth;
   }
 
-  m_size = {maxX, maxY};
+  m_size = {maxWidth, maxHeight};
 }
 } // namespace ui::widgets
