@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EdisonEngine \n"
 "Report-Msgid-Bugs-To: https://github.com/stohrendorf/EdisonEngine/issues\n"
-"POT-Creation-Date: 2021-05-10 13:11+0200\n"
+"POT-Creation-Date: 2021-05-20 13:59+0200\n"
 "Last-Translator: Steffen Ohrendorf\n"
 "Language-Team: none\n"
 "Language: de_DE\n"
@@ -16,31 +16,32 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: menu/savegamelistmenustate.cpp:37
+#. translators: TR charmap encoding
+#: menu/rendersettingsmenustate.cpp:129
+#, boost-format
+msgid "%1%x Anisotropic Filtering"
+msgstr "%1%x Anisotropische Filterung"
+
+#: menu/savegamelistmenustate.cpp:39
 #, boost-format
 msgid "- EMPTY SLOT %1%"
 msgstr "- LEERER SLOT %1%"
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:58
-msgid "Anisotropic Filtering"
-msgstr "Anisotropische Filterung"
-
-#. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:53
+#: menu/rendersettingsmenustate.cpp:123
 msgid "Bilinear Filtering"
 msgstr "Bilineare Filterung"
 
-#: engine/presenter.cpp:347
+#: engine/presenter.cpp:357
 msgid "Booting"
 msgstr "Starte"
 
-#: engine/world/world.cpp:1815
+#: engine/world/world.cpp:1811
 msgid "Building textures"
 msgstr "Erstelle Texturen"
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:33
+#: menu/rendersettingsmenustate.cpp:104
 msgid "CRT"
 msgstr "CRT"
 
@@ -54,13 +55,13 @@ msgstr "Kompa="
 msgid "Controls"
 msgstr "Kontrollen"
 
-#: engine/world/world.cpp:1199
+#: engine/world/world.cpp:1195
 #, boost-format
 msgid "Creating mipmaps (%1%%%)"
 msgstr "Erstelle Mipmaps (%1%%%)"
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:37
+#: menu/rendersettingsmenustate.cpp:108
 msgid "Depth-of-Field"
 msgstr "Tiefensch~arfe"
 
@@ -68,6 +69,11 @@ msgstr "Tiefensch~arfe"
 #: menu/menudisplay.cpp:249
 msgid "Detail Levels"
 msgstr "Grafik"
+
+#. translators: TR charmap encoding
+#: menu/rendersettingsmenustate.cpp:101
+msgid "Effects"
+msgstr "Effekte"
 
 #. translators: TR charmap encoding
 #: menu/passportmenustate.cpp:84
@@ -80,12 +86,12 @@ msgid "Exit to Title"
 msgstr "Zur~uck zum Hauptmen~u"
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:45
+#: menu/rendersettingsmenustate.cpp:116
 msgid "Film Grain"
 msgstr "Filmrauschen"
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:49
+#: menu/rendersettingsmenustate.cpp:149
 msgid "Fullscreen"
 msgstr "Vollbild"
 
@@ -99,28 +105,23 @@ msgstr "Ende des Spiels"
 msgid "Game"
 msgstr "Spiel"
 
-#: loader/trx/trx.cpp:337
+#: loader/trx/trx.cpp:321
 #, boost-format
 msgid "Glidos - Loading %1%"
 msgstr "Glidos - Lade %1%"
 
-#: loader/trx/trx.cpp:321
+#: loader/trx/trx.cpp:305
 msgid "Glidos - Loading equiv.txt"
 msgstr "Glidos - Lade equiv.txt"
 
-#: loader/trx/trx.cpp:140 loader/trx/trx.cpp:197
+#: loader/trx/trx.cpp:136 loader/trx/trx.cpp:186
 #, boost-format
 msgid "Glidos - Resolving maps (%1%%%)"
 msgstr "Glidos - Löse Zuordnungen auf (%1%%%)"
 
-#: loader/trx/trx.cpp:347
+#: loader/trx/trx.cpp:331
 msgid "Glidos - Resolving maps (100%)"
 msgstr "Glidos - Löse Zuordnungen auf (100%)"
-
-#. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:17
-msgid "Graphics"
-msgstr "Grafik"
 
 #. translators: TR charmap encoding
 #: menu/menudisplay.cpp:372
@@ -133,12 +134,12 @@ msgid "Gym"
 msgstr "Training"
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:66
+#: menu/rendersettingsmenustate.cpp:138
 msgid "HBAO"
 msgstr "HBAO"
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:70
+#: menu/rendersettingsmenustate.cpp:142
 msgid "High Quality Shadows"
 msgstr "Schatten mit hoher Qualit~at"
 
@@ -164,7 +165,7 @@ msgid "Large Medi Pack"
 msgstr "Gro=es Medi-Pack"
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:41
+#: menu/rendersettingsmenustate.cpp:112
 msgid "Lens Distortion"
 msgstr "Linsenverzerrung"
 
@@ -177,11 +178,11 @@ msgstr "Spiel laden"
 msgid "Loading %1%"
 msgstr "Lade %1%"
 
-#: engine/engine.cpp:458
+#: engine/engine.cpp:448
 msgid "Loading Glidos texture pack"
 msgstr "Lade Glidos Textur Paket"
 
-#: engine/world/world.cpp:989
+#: engine/world/world.cpp:985
 msgid "Loading..."
 msgstr "Lade..."
 
@@ -196,7 +197,7 @@ msgid "Magnums"
 msgstr "Magnums"
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:74
+#: menu/rendersettingsmenustate.cpp:153
 msgid "More Lights"
 msgstr "Mehr Lichter"
 
@@ -211,13 +212,18 @@ msgid "OPTION"
 msgstr "Optionen"
 
 #. translators: TR charmap encoding
+#: menu/rendersettingsmenustate.cpp:146
+msgid "Other"
+msgstr "Anderes"
+
+#. translators: TR charmap encoding
 #: ui/levelstats.cpp:55
 #, boost-format
 msgid "PICKUPS %1%"
 msgstr "Gegenst~ande %1%"
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:78
+#: menu/rendersettingsmenustate.cpp:157
 msgid "Performance Meter"
 msgstr "Leistungsanzeige"
 
@@ -225,6 +231,11 @@ msgstr "Leistungsanzeige"
 #: menu/menudisplay.cpp:295
 msgid "Pistols"
 msgstr "Pistolen"
+
+#. translators: TR charmap encoding
+#: menu/rendersettingsmenustate.cpp:120
+msgid "Quality"
+msgstr "Qualit~at"
 
 #. translators: TR charmap encoding
 #: ui/levelstats.cpp:48
@@ -237,7 +248,7 @@ msgstr "Geheimnisse %1% von %2%"
 msgid "Save Game"
 msgstr "Spiel sichern"
 
-#: engine/world/world.cpp:1010
+#: engine/world/world.cpp:1006
 msgid "Saving..."
 msgstr "Speichere..."
 
@@ -284,6 +295,6 @@ msgid "Uzis"
 msgstr "Uzis"
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:62
+#: menu/rendersettingsmenustate.cpp:134
 msgid "Water Denoise"
 msgstr "Wassergl~attung"

@@ -124,10 +124,12 @@ RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingT
     [&engine]() { return engine.getEngineConfig().renderSettings.bilinearFiltering; },
     [&engine]() { toggle(engine, engine.getEngineConfig().renderSettings.bilinearFiltering); });
   if(gl::hasAnisotropicFilteringExtension())
+  {
     listBox->addSetting(
-      /* translators: TR charmap encoding */ _("Anisotropic Filtering"),
+      /* translators: TR charmap encoding */ _("%1%x Anisotropic Filtering", std::lround(gl::getMaxAnisotropyLevel())),
       [&engine]() { return engine.getEngineConfig().renderSettings.anisotropicFiltering; },
       [&engine]() { toggle(engine, engine.getEngineConfig().renderSettings.anisotropicFiltering); });
+  }
   listBox->addSetting(
     /* translators: TR charmap encoding */ _("Water Denoise"),
     [&engine]() { return engine.getEngineConfig().renderSettings.waterDenoise; },
