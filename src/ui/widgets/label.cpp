@@ -49,4 +49,10 @@ void Label::draw(ui::Ui& ui, const engine::Presenter& presenter) const
 {
   m_label->draw(ui, presenter.getTrFont(), presenter.getViewport());
 }
+
+void Label::fitToContent()
+{
+  m_label->bgndSize.x = m_label->calcWidth();
+  m_label->bgndSize.y = ui::FontHeight;
+}
 } // namespace ui::widgets

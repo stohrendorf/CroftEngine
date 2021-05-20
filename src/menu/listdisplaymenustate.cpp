@@ -13,22 +13,18 @@ namespace menu
 ListDisplayMenuState::ListDisplayMenuState(const std::shared_ptr<MenuRingTransform>& ringTransform,
                                            const std::string& heading,
                                            size_t pageSize,
-                                           int width,
-                                           const glm::ivec2& position)
+                                           int width)
     : SelectedMenuState{ringTransform}
-    , m_position{position}
-    , m_listBox{std::make_shared<ui::widgets::ListBox>(
-        glm::ivec2{0, 0}, glm::ivec2{width, pageSize * 18 + 28}, pageSize)}
-    , m_groupBox{{0, 0}, m_listBox->getSize(), heading, m_listBox}
+    , m_listBox{std::make_shared<ui::widgets::ListBox>(glm::ivec2{0, 0}, glm::ivec2{width, 0}, pageSize)}
+    , m_groupBox{{0, 0}, glm::ivec2{width, pageSize * 18 + 28}, heading, m_listBox}
 {
-  setPosition(m_position);
 }
 
 std::unique_ptr<MenuState> ListDisplayMenuState::onFrame(ui::Ui& ui, engine::world::World& world, MenuDisplay& display)
 {
   {
     const auto vp = world.getPresenter().getViewport();
-    setPosition({(vp.x - m_groupBox.getSize().x) / 2, vp.y - m_groupBox.getSize().y - 90});
+    m_groupBox.setPosition({(vp.x - m_groupBox.getSize().x) / 2, vp.y - m_groupBox.getSize().y - 90});
   }
 
   m_groupBox.update(true);
@@ -60,12 +56,6 @@ std::unique_ptr<MenuState> ListDisplayMenuState::onFrame(ui::Ui& ui, engine::wor
   }
 
   return nullptr;
-}
-
-void ListDisplayMenuState::setPosition(const glm::ivec2& position)
-{
-  m_position = position;
-  m_groupBox.setPosition(m_position);
 }
 
 size_t ListDisplayMenuState::addEntry(const std::shared_ptr<ui::widgets::Widget>& widget)

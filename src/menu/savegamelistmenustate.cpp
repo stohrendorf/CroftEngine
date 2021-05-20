@@ -20,7 +20,7 @@ SavegameListMenuState::SavegameListMenuState(const std::shared_ptr<MenuRingTrans
                                              const std::string& heading,
                                              const engine::world::World& world,
                                              bool loading)
-    : ListDisplayMenuState{ringTransform, heading, 10, 260, {0, 270}}
+    : ListDisplayMenuState{ringTransform, heading, 10, 260}
     , m_previous{std::move(previous)}
     , m_loading{loading}
 {

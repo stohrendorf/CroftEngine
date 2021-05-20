@@ -37,8 +37,8 @@ public:
 
   [[nodiscard]] glm::ivec2 getPosition() const override;
   [[nodiscard]] glm::ivec2 getSize() const override;
-
   void setSize(const glm::ivec2& size) override;
+  void fitToContent() override;
 
 private:
   glm::ivec2 m_size;

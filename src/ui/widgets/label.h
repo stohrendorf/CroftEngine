@@ -25,6 +25,7 @@ public:
   void setSize(const glm::ivec2& size) override;
   void update(bool hasFocus) override;
   void draw(ui::Ui& ui, const engine::Presenter& presenter) const override;
+  void fitToContent() override;
 
 private:
   std::unique_ptr<ui::Label> m_label;

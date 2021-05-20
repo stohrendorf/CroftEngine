@@ -23,7 +23,7 @@ namespace ui::widgets
 class ListBox : public Widget
 {
 public:
-  explicit ListBox(const glm::ivec2& position, const glm::ivec2& size, size_t pageSize);
+  explicit ListBox(const glm::ivec2& position, const glm::ivec2& size, size_t pageSize = 0);
   ~ListBox() override;
   void draw(ui::Ui& ui, const engine::Presenter& presenter) const override;
 
@@ -34,28 +34,44 @@ public:
     return m_selected;
   }
 
-  void nextEntry()
+  bool nextEntry()
   {
     if(m_selected < m_widgets.size() - 1)
+    {
       ++m_selected;
+      return true;
+    }
+    return false;
   }
 
-  void prevEntry()
+  bool prevEntry()
   {
     if(m_selected > 0)
+    {
       --m_selected;
+      return true;
+    }
+    return false;
   }
 
-  void nextPage()
+  bool nextPage()
   {
     if(m_selected + m_pageSize < m_widgets.size())
+    {
       m_selected += m_pageSize;
+      return true;
+    }
+    return false;
   }
 
-  void prevPage()
+  bool prevPage()
   {
     if(m_selected >= m_pageSize)
+    {
       m_selected -= m_pageSize;
+      return true;
+    }
+    return false;
   }
 
   [[nodiscard]] glm::ivec2 getSize() const override;
@@ -66,10 +82,9 @@ public:
   }
 
   void setPosition(const glm::ivec2& position) override;
-
   void setSize(const glm::ivec2& size) override;
-
   void update(bool hasFocus) override;
+  void fitToContent() override;
 
 private:
   glm::ivec2 m_position;

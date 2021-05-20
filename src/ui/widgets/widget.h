@@ -24,6 +24,7 @@ public:
   virtual void setPosition(const glm::ivec2& position) = 0;
   virtual void setSize(const glm::ivec2& size) = 0;
   virtual void update(bool hasFocus) = 0;
+  virtual void fitToContent() = 0;
 
   virtual void draw(ui::Ui& ui, const engine::Presenter& presenter) const = 0;
 };

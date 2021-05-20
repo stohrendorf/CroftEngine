@@ -16,9 +16,15 @@ ListBox::~ListBox() = default;
 
 void ListBox::draw(ui::Ui& ui, const engine::Presenter& presenter) const
 {
-  const auto page = m_selected / m_pageSize;
-  const auto first = page * m_pageSize;
-  const auto last = std::min(first + m_pageSize, m_widgets.size());
+  size_t first = 0;
+  size_t last = m_widgets.size();
+
+  if(m_pageSize != 0)
+  {
+    const auto page = m_selected / m_pageSize;
+    first = page * m_pageSize;
+    last = std::min(first + m_pageSize, m_widgets.size());
+  }
   Expects(first < last);
 
   int y = m_position.y;
@@ -58,5 +64,28 @@ glm::ivec2 ListBox::getSize() const
 void ListBox::setSize(const glm::ivec2& size)
 {
   m_size = size;
+}
+
+void ListBox::fitToContent()
+{
+  int y = 0;
+  int maxY = 0;
+  int maxX = 0;
+  for(size_t i = 0; i < m_widgets.size(); ++i)
+  {
+    if(m_pageSize != 0 && i % m_pageSize == 0)
+      y = 0;
+
+    const auto& widget = m_widgets[i];
+    widget->fitToContent();
+
+    y += widget->getSize().y;
+    maxY = std::max(maxY, y);
+    maxX = std::max(maxX, widget->getSize().x);
+
+    y += ui::OutlineBorderWidth;
+  }
+
+  m_size = {maxX, maxY};
 }
 } // namespace ui::widgets
