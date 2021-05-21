@@ -34,6 +34,7 @@ private:
   std::vector<std::shared_ptr<CheckListBox>> m_listBoxes{};
   size_t m_currentListBox = 0;
   std::unique_ptr<MenuState> m_previous;
+  std::shared_ptr<ui::widgets::Checkbox> m_anisotropyCheckbox;
 
 public:
   explicit RenderSettingsMenuState(const std::shared_ptr<MenuRingTransform>& ringTransform,

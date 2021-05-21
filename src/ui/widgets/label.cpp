@@ -56,4 +56,9 @@ void Label::fitToContent()
   m_label->bgndSize.x = m_label->calcWidth();
   m_label->bgndSize.y = ui::FontHeight;
 }
+
+void Label::setText(const std::string& text)
+{
+  m_label->text = text;
+}
 } // namespace ui::widgets

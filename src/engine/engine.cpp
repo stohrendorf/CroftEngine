@@ -41,6 +41,7 @@
 #include <boost/range/adaptor/map.hpp>
 #include <filesystem>
 #include <gl/font.h>
+#include <gl/glew_init.h>
 #include <gl/texture2d.h>
 #include <glm/gtx/norm.hpp>
 #include <locale>
@@ -104,6 +105,9 @@ Engine::Engine(const std::filesystem::path& rootPath, const glm::ivec2& resoluti
   textdomain("edisonengine");
 
   m_presenter = std::make_shared<Presenter>(m_rootPath, resolution);
+  if(gl::hasAnisotropicFilteringExtension()
+     && m_engineConfig.renderSettings.anisotropyLevel > gl::getMaxAnisotropyLevel())
+    m_engineConfig.renderSettings.anisotropyLevel = gsl::narrow<uint32_t>(std::llround(gl::getMaxAnisotropyLevel()));
   m_presenter->apply(m_engineConfig.renderSettings);
   m_presenter->getInputHandler().setMapping(m_engineConfig.inputMapping);
   m_glidos = loadGlidosPack();

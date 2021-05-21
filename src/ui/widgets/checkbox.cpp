@@ -67,4 +67,9 @@ void Checkbox::fitToContent()
   m_label->fitToContent();
   m_size = m_label->getSize() + glm::ivec2{TextOffset, 0};
 }
+
+void Checkbox::setLabel(const std::string& label)
+{
+  m_label->setText(label);
+}
 } // namespace ui::widgets

@@ -19,7 +19,7 @@ void RenderSettings::serialize(const serialization::Serializer<engine::EngineCon
       S_NVO("velvia", velvia),
       S_NVO("moreLights", moreLights),
       S_NVO("highQualityShadows", highQualityShadows),
-      S_NVO("anisotropicFiltering", anisotropicFiltering),
+      S_NVO("anisotropyLevel", anisotropyLevel),
       S_NVO("glidosPack", glidosPack));
 }
 } // namespace render

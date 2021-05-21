@@ -325,7 +325,7 @@ void MaterialManager::setGeometryTextures(
   m_geometryTextures = std::move(geometryTextures);
 }
 
-void MaterialManager::setFiltering(bool bilinear, bool anisotropic)
+void MaterialManager::setFiltering(bool bilinear, float anisotropyLevel)
 {
   if(m_geometryTextures == nullptr)
     return;
@@ -342,8 +342,8 @@ void MaterialManager::setFiltering(bool bilinear, bool anisotropic)
     sampler->set(gl::api::TextureMagFilter::Nearest);
   }
 
-  if(anisotropic && gl::hasAnisotropicFilteringExtension())
-    sampler->set(gl::api::SamplerParameterF::TextureMaxAnisotropy, gl::getMaxAnisotropyLevel());
+  if(anisotropyLevel != 0 && gl::hasAnisotropicFilteringExtension())
+    sampler->set(gl::api::SamplerParameterF::TextureMaxAnisotropy, anisotropyLevel);
 
   m_geometryTextures = std::make_shared<gl::TextureHandle<gl::Texture2DArray<gl::SRGBA8>>>(
     m_geometryTextures->getTexture(), std::move(sampler));

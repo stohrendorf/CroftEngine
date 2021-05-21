@@ -62,12 +62,13 @@ public:
     m_groupBox.draw(ui, presenter);
   }
 
-  void addSetting(const std::string& name, std::function<bool()>&& getter, std::function<void()>&& toggler)
+  auto addSetting(const std::string& name, std::function<bool()>&& getter, std::function<void()>&& toggler)
   {
     auto checkbox = std::make_shared<ui::widgets::Checkbox>(glm::ivec2{0, 0}, name, 0);
     checkbox->setChecked(getter());
     m_listBox->addEntry(checkbox);
-    m_checkboxes.emplace_back(std::move(getter), std::move(toggler), std::move(checkbox));
+    m_checkboxes.emplace_back(std::move(getter), std::move(toggler), checkbox);
+    return checkbox;
   }
 
   [[nodiscard]] const auto& getSelected() const
@@ -129,10 +130,20 @@ RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingT
     [&engine]() { toggle(engine, engine.getEngineConfig().renderSettings.bilinearFiltering); });
   if(gl::hasAnisotropicFilteringExtension())
   {
-    listBox->addSetting(
-      /* translators: TR charmap encoding */ _("%1%x Anisotropic Filtering", std::lround(gl::getMaxAnisotropyLevel())),
-      [&engine]() { return engine.getEngineConfig().renderSettings.anisotropicFiltering; },
-      [&engine]() { toggle(engine, engine.getEngineConfig().renderSettings.anisotropicFiltering); });
+    m_anisotropyCheckbox = listBox->addSetting(
+      "",
+      [&engine]() { return engine.getEngineConfig().renderSettings.anisotropyLevel != 0; },
+      [&engine, maxLevel = std::lround(gl::getMaxAnisotropyLevel())]()
+      {
+        auto& level = engine.getEngineConfig().renderSettings.anisotropyLevel;
+        if(level == 0)
+          level = 2;
+        else
+          level *= 2;
+        if(level > maxLevel)
+          level = 0;
+        engine.applyRenderSettings();
+      });
   }
   listBox->addSetting(
     /* translators: TR charmap encoding */ _("Water Denoise"),
@@ -170,6 +181,12 @@ RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingT
 std::unique_ptr<MenuState>
   RenderSettingsMenuState::onFrame(ui::Ui& ui, engine::world::World& world, MenuDisplay& /*display*/)
 {
+  if(m_anisotropyCheckbox != nullptr)
+  {
+    m_anisotropyCheckbox->setLabel(/* translators: TR charmap encoding */ _(
+      "%1%x Anisotropic Filtering", world.getEngine().getEngineConfig().renderSettings.anisotropyLevel));
+  }
+
   {
     const auto vp = world.getPresenter().getViewport();
     int maxW = 0;

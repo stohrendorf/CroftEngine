@@ -27,6 +27,8 @@ public:
   void draw(ui::Ui& ui, const engine::Presenter& presenter) const override;
   void fitToContent() override;
 
+  void setText(const std::string& text);
+
 private:
   std::unique_ptr<ui::Label> m_label;
 };

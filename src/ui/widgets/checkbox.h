@@ -40,6 +40,8 @@ public:
   void setSize(const glm::ivec2& size) override;
   void fitToContent() override;
 
+  void setLabel(const std::string& label);
+
 private:
   glm::ivec2 m_size;
   std::unique_ptr<Label> m_label;

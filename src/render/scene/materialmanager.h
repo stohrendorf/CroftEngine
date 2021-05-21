@@ -47,7 +47,7 @@ public:
   [[nodiscard]] std::shared_ptr<Material> getFastBoxBlur(uint8_t extent, uint8_t blurDir, uint8_t blurDim);
 
   void setGeometryTextures(std::shared_ptr<gl::TextureHandle<gl::Texture2DArray<gl::SRGBA8>>> geometryTextures);
-  void setFiltering(bool bilinear, bool anisotropic);
+  void setFiltering(bool bilinear, float anisotropyLevel);
 
   void setCSM(const gsl::not_null<std::shared_ptr<CSM>>& csm)
   {

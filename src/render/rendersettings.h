@@ -2,6 +2,7 @@
 
 #include "serialization/serialization_fwd.h"
 
+#include <limits>
 #include <optional>
 #include <string>
 
@@ -20,7 +21,7 @@ struct RenderSettings
   bool filmGrain = true;
   bool fullscreen = false;
   bool bilinearFiltering = false;
-  bool anisotropicFiltering = true;
+  uint32_t anisotropyLevel = std::numeric_limits<uint32_t>::max();
   bool waterDenoise = true;
   bool hbao = true;
   bool velvia = true;
