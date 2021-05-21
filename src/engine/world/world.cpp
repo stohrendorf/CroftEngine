@@ -238,6 +238,7 @@ void World::swapAllRooms()
 
   m_roomsAreSwapped = !m_roomsAreSwapped;
   connectSectors();
+  updateStaticSoundEffects();
 }
 
 bool World::isValid(const loader::file::AnimFrame* frame) const
@@ -909,6 +910,11 @@ void World::serialize(const serialization::Serializer<World>& ser)
       S_NV("rooms", serialization::FrozenVector{m_rooms}),
       S_NV("boxes", serialization::FrozenVector{m_boxes}),
       S_NV("audioEngine", *m_audioEngine));
+
+  if(ser.loading)
+  {
+    updateStaticSoundEffects();
+  }
 }
 
 void World::gameLoop(bool godMode, float delayRatio, float blackAlpha)
@@ -1536,9 +1542,14 @@ void World::initFromLevel(loader::file::level::Level& level)
     m_positionalEmitters.emplace_back(src.position.toRenderSystem(), getPresenter().getSoundEngine().get());
     auto voice = m_audioEngine->playSoundEffect(src.sound_effect_id, &m_positionalEmitters.back());
     Expects(voice != nullptr);
-    voice->setLooping(true);
+    voice->pause();
+    m_staticSoundEffects.emplace_back(
+      StaticSoundEffect{std::move(voice),
+                        (src.flags & loader::file::SoundSource::PlayIfRoomsSwapped) != 0,
+                        (src.flags & loader::file::SoundSource::PlayIfRoomsNotSwapped) != 0});
   }
   m_audioEngine->fadeGlobalVolume(1.0f);
+  updateStaticSoundEffects();
 }
 
 void World::connectSectors()
@@ -1866,6 +1877,27 @@ void World::drawPerformanceBar(ui::Ui& ui, float delayRatio) const
   else
   {
     ui.drawBox({vp.x, vp.y}, {w, -20}, gl::SRGBA8{255, 0, 0, 128});
+  }
+}
+
+void World::updateStaticSoundEffects()
+{
+  for(const auto& soundEffect : m_staticSoundEffects)
+  {
+    if(m_roomsAreSwapped && soundEffect.playIfSwapped)
+    {
+      soundEffect.voice->play();
+      soundEffect.voice->setLooping(true);
+    }
+    else if(!m_roomsAreSwapped && soundEffect.playIfNotSwapped)
+    {
+      soundEffect.voice->play();
+      soundEffect.voice->setLooping(true);
+    }
+    else
+    {
+      soundEffect.voice->setLooping(false);
+    }
   }
 }
 } // namespace engine::world

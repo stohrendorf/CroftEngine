@@ -15,6 +15,7 @@
 #include "skeletalmodeltype.h"
 #include "sprite.h"
 #include "staticmesh.h"
+#include "staticsoundeffect.h"
 #include "transition.h"
 #include "ui/pickupwidget.h"
 
@@ -391,6 +392,7 @@ private:
   std::vector<Room> m_rooms;
   std::vector<CinematicFrame> m_cinematicFrames;
   std::vector<CameraSink> m_cameraSinks;
+  std::vector<StaticSoundEffect> m_staticSoundEffects;
 
   void initTextureDependentDataFromLevel(const loader::file::level::Level& level);
   void processGlidosPack(const loader::file::level::Level& level,
@@ -405,5 +407,6 @@ private:
   void initTextures(const loader::file::level::Level& level);
   void initFromLevel(loader::file::level::Level& level);
   void connectSectors();
+  void updateStaticSoundEffects();
 };
 } // namespace engine::world
