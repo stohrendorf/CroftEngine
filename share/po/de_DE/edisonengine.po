@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EdisonEngine \n"
 "Report-Msgid-Bugs-To: https://github.com/stohrendorf/EdisonEngine/issues\n"
-"POT-Creation-Date: 2021-05-20 13:59+0200\n"
+"POT-Creation-Date: 2021-05-21 07:45+0200\n"
 "Last-Translator: Steffen Ohrendorf\n"
 "Language-Team: none\n"
 "Language: de_DE\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:129
+#: menu/rendersettingsmenustate.cpp:133
 #, boost-format
 msgid "%1%x Anisotropic Filtering"
 msgstr "%1%x Anisotropische Filterung"
@@ -28,7 +28,7 @@ msgid "- EMPTY SLOT %1%"
 msgstr "- LEERER SLOT %1%"
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:123
+#: menu/rendersettingsmenustate.cpp:127
 msgid "Bilinear Filtering"
 msgstr "Bilineare Filterung"
 
@@ -91,7 +91,7 @@ msgid "Film Grain"
 msgstr "Filmrauschen"
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:149
+#: menu/rendersettingsmenustate.cpp:153
 msgid "Fullscreen"
 msgstr "Vollbild"
 
@@ -134,12 +134,12 @@ msgid "Gym"
 msgstr "Training"
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:138
+#: menu/rendersettingsmenustate.cpp:142
 msgid "HBAO"
 msgstr "HBAO"
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:142
+#: menu/rendersettingsmenustate.cpp:146
 msgid "High Quality Shadows"
 msgstr "Schatten mit hoher Qualit~at"
 
@@ -197,7 +197,7 @@ msgid "Magnums"
 msgstr "Magnums"
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:153
+#: menu/rendersettingsmenustate.cpp:157
 msgid "More Lights"
 msgstr "Mehr Lichter"
 
@@ -212,7 +212,7 @@ msgid "OPTION"
 msgstr "Optionen"
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:146
+#: menu/rendersettingsmenustate.cpp:150
 msgid "Other"
 msgstr "Anderes"
 
@@ -223,7 +223,7 @@ msgid "PICKUPS %1%"
 msgstr "Gegenst~ande %1%"
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:157
+#: menu/rendersettingsmenustate.cpp:161
 msgid "Performance Meter"
 msgstr "Leistungsanzeige"
 
@@ -233,7 +233,7 @@ msgid "Pistols"
 msgstr "Pistolen"
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:120
+#: menu/rendersettingsmenustate.cpp:124
 msgid "Quality"
 msgstr "Qualit~at"
 
@@ -295,6 +295,11 @@ msgid "Uzis"
 msgstr "Uzis"
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:134
+#: menu/rendersettingsmenustate.cpp:120
+msgid "Velvia"
+msgstr "Velvia"
+
+#. translators: TR charmap encoding
+#: menu/rendersettingsmenustate.cpp:138
 msgid "Water Denoise"
 msgstr "Wassergl~attung"

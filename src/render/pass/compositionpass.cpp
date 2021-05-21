@@ -25,10 +25,18 @@ CompositionPass::CompositionPass(scene::MaterialManager& materialManager,
                                  const FXAAPass& fxaaPass,
                                  const LinearizeDepthPass& linearizeDepthPass,
                                  const LinearizeDepthPass& linearizePortalDepthPass)
-    : m_compositionMaterial{materialManager.getComposition(
-      false, renderSettings.lensDistortion, renderSettings.dof, renderSettings.filmGrain, renderSettings.hbao)}
-    , m_waterCompositionMaterial{materialManager.getComposition(
-        true, renderSettings.lensDistortion, renderSettings.dof, renderSettings.filmGrain, renderSettings.hbao)}
+    : m_compositionMaterial{materialManager.getComposition(false,
+                                                           renderSettings.lensDistortion,
+                                                           renderSettings.dof,
+                                                           renderSettings.filmGrain,
+                                                           renderSettings.hbao,
+                                                           renderSettings.velvia)}
+    , m_waterCompositionMaterial{materialManager.getComposition(true,
+                                                                renderSettings.lensDistortion,
+                                                                renderSettings.dof,
+                                                                renderSettings.filmGrain,
+                                                                renderSettings.hbao,
+                                                                renderSettings.velvia)}
     , m_mesh{scene::createScreenQuad(m_compositionMaterial, "composition")}
     , m_waterMesh{scene::createScreenQuad(m_waterCompositionMaterial, "composition-water")}
     , m_crtMesh{scene::createScreenQuad(materialManager.getCrt(), "composition-crt")}

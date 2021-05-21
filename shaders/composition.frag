@@ -103,12 +103,12 @@ void main()
     finalColor *= grain*0.5 + 1.0;
     #endif
 
+#ifdef VELVIA
     const float velviaAmount = 0.03;
-
     const vec2 velviaFac = vec2(1.0 + 2*velviaAmount, -velviaAmount);
-
     vec3 velviaColor = vec3(dot(finalColor, velviaFac.xyy), dot(finalColor, velviaFac.yxy), dot(finalColor, velviaFac.yyx));
     finalColor = vec3(1.0) - clamp((vec3(1.0) - velviaColor*1.01)*1.01, vec3(0.0), vec3(1.0));
+    #endif
 
     out_color = vec4(finalColor, 1.0);
 }

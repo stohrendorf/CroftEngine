@@ -116,6 +116,10 @@ RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingT
     /* translators: TR charmap encoding */ _("Film Grain"),
     [&engine]() { return engine.getEngineConfig().renderSettings.filmGrain; },
     [&engine]() { toggle(engine, engine.getEngineConfig().renderSettings.filmGrain); });
+  listBox->addSetting(
+    /* translators: TR charmap encoding */ _("Velvia"),
+    [&engine]() { return engine.getEngineConfig().renderSettings.velvia; },
+    [&engine]() { toggle(engine, engine.getEngineConfig().renderSettings.velvia); });
 
   listBox = std::make_shared<CheckListBox>(/* translators: TR charmap encoding */ _("Quality"));
   m_listBoxes.emplace_back(listBox);

@@ -191,12 +191,13 @@ MaterialManager::MaterialManager(gsl::not_null<std::shared_ptr<ShaderCache>> sha
 }
 
 std::shared_ptr<Material>
-  MaterialManager::getComposition(bool water, bool lensDistortion, bool dof, bool filmGrain, bool hbao)
+  MaterialManager::getComposition(bool water, bool lensDistortion, bool dof, bool filmGrain, bool hbao, bool velvia)
 {
-  const std::tuple key{water, lensDistortion, dof, filmGrain, hbao};
+  const std::tuple key{water, lensDistortion, dof, filmGrain, hbao, velvia};
   if(auto it = m_composition.find(key); it != m_composition.end())
     return it->second;
-  auto m = std::make_shared<Material>(m_shaderCache->getComposition(water, lensDistortion, dof, filmGrain, hbao));
+  auto m
+    = std::make_shared<Material>(m_shaderCache->getComposition(water, lensDistortion, dof, filmGrain, hbao, velvia));
 
   if(auto uniform = m->tryGetUniform("u_time"))
   {

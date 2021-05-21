@@ -23,6 +23,7 @@ struct RenderSettings
   bool anisotropicFiltering = true;
   bool waterDenoise = true;
   bool hbao = true;
+  bool velvia = true;
   bool moreLights = true;
   bool highQualityShadows = true;
   std::optional<std::string> glidosPack = std::nullopt;
