@@ -1,5 +1,7 @@
 #include "helpers.h"
 
+#include "ui/util.h"
+
 #include <boost/log/trivial.hpp>
 
 namespace util
@@ -10,7 +12,7 @@ std::string unescape(const std::string& escaped)
   bool addUmlautDots = false;
   for(const char c : escaped)
   {
-    if(c == '~')
+    if(c == ui::UmlautDots)
     {
       addUmlautDots = true;
       continue;
@@ -35,7 +37,7 @@ std::string unescape(const std::string& escaped)
       continue;
     }
 
-    if(c == '=')
+    if(c == ui::SzLig)
     {
       result += u8"ß";
       continue;

@@ -3,6 +3,7 @@
 #include "core.h"
 #include "render/scene/material.h"
 #include "ui.h"
+#include "util.h"
 
 namespace ui
 {
@@ -50,28 +51,44 @@ std::string makeAmmoString(const std::string& str)
 int Label::calcWidth() const
 {
   int width = 0;
-
-  for(uint8_t chr : text)
+  bool isSpriteSelector = false;
+  for(const uint8_t chr : text)
   {
-    if(chr > 129 || (chr > 10 && chr < 32))
-      continue;
-    if(chr == '(' || chr == ')' || chr == '$' || chr == '~')
-      continue;
-
-    if(chr == ' ')
+    uint8_t sprite = chr;
+    if(chr == SpriteSelector)
     {
-      width += WordSpacing;
+      isSpriteSelector = true;
       continue;
     }
 
-    if(chr <= 10)
-      chr += 81; // small numbers
-    else if(chr < 16)
-      chr += 91; // ammo icons
+    if(isSpriteSelector)
+    {
+      isSpriteSelector = false;
+      sprite = chr;
+    }
     else
-      chr = charToSprite[chr - ' '];
+    {
+      if(chr > 15 && chr < 32)
+        continue;
 
-    width += charWidths[chr] + LetterSpacing;
+      if(chr == ' ')
+      {
+        width += WordSpacing;
+        continue;
+      }
+
+      if(chr <= 10)
+        sprite = chr + 81;
+      else if(chr <= 15)
+        sprite = chr + 91;
+      else
+        sprite = charToSprite.at(chr - 32);
+
+      if(chr == Acute1 || chr == Acute2 || chr == Gravis || chr == UmlautDots)
+        continue;
+    }
+
+    width += charWidths[sprite] + LetterSpacing;
   }
 
   width -= LetterSpacing;
@@ -131,31 +148,47 @@ void Label::draw(Ui& ui, const TRFont& font, const glm::ivec2& screenSize) const
     ui.drawBox(bgnd + glm::ivec2{0, half.y}, {half2.x, half2.y}, g.bottomLeft);
   }
 
-  for(uint8_t chr : text)
+  bool isSpriteSelector = false;
+  for(const uint8_t chr : text)
   {
-    const auto origChar = chr;
-    if(chr > 15 && chr < 32)
-      continue;
-
-    if(chr == ' ')
+    uint8_t sprite = chr;
+    if(chr == SpriteSelector)
     {
-      xy.x += WordSpacing;
+      isSpriteSelector = true;
       continue;
     }
 
-    if(chr <= 10)
-      chr += 81;
-    else if(chr <= 15)
-      chr += 91;
+    if(isSpriteSelector)
+    {
+      isSpriteSelector = false;
+      sprite = chr;
+      font.draw(ui, sprite, xy);
+    }
     else
-      chr = charToSprite.at(chr - 32);
+    {
+      if(chr > 15 && chr < 32)
+        continue;
 
-    font.draw(ui, chr, xy);
+      if(chr == ' ')
+      {
+        xy.x += WordSpacing;
+        continue;
+      }
 
-    if(origChar == '(' || origChar == ')' || origChar == '$' || origChar == '~')
-      continue;
+      if(chr <= 10)
+        sprite = chr + 81;
+      else if(chr <= 15)
+        sprite = chr + 91;
+      else
+        sprite = charToSprite.at(chr - 32);
 
-    xy.x += charWidths[chr] + LetterSpacing;
+      font.draw(ui, sprite, xy);
+
+      if(chr == Acute1 || chr == Acute2 || chr == Gravis || chr == UmlautDots)
+        continue;
+    }
+
+    xy.x += charWidths[sprite] + LetterSpacing;
   }
 
   if(outlineAlpha != 0)
