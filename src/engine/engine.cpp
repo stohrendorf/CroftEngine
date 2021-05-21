@@ -340,6 +340,9 @@ std::pair<RunResult, std::optional<size_t>> Engine::runTitleMenu(world::World& w
 
   m_presenter->apply(m_engineConfig.renderSettings);
 
+  Expects(world.getAudioEngine().getInterceptStream() != nullptr);
+  world.getAudioEngine().getInterceptStream()->setLooping(true);
+
   const auto backdrop = std::make_shared<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>>(
     gl::CImgWrapper{util::ensureFileExists(m_rootPath / "data" / "tr1" / "DATA" / "TITLEH.PCX")}.toTexture());
   const auto menu = std::make_shared<menu::MenuDisplay>(menu::InventoryMode::TitleMode, world);

@@ -106,6 +106,11 @@ public:
     m_soundEngine->getSoLoud().fadeGlobalVolume(volume, time);
   }
 
+  [[nodiscard]] const auto& getInterceptStream() const
+  {
+    return m_interceptStream;
+  }
+
   void serialize(const serialization::Serializer<world::World>& ser);
 };
 } // namespace engine
