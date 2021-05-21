@@ -40,9 +40,10 @@ void Label::update(bool hasFocus)
   constexpr int FadeSpeed = 30;
   const auto delta = hasFocus ? FadeSpeed : -FadeSpeed;
 
-  m_label->backgroundAlpha = std::clamp(m_label->backgroundAlpha + delta, 0, 224);
-  m_label->outlineAlpha = std::clamp(m_label->outlineAlpha + delta, 0, 255);
-  m_label->backgroundGouraudAlpha = std::clamp(m_label->backgroundGouraudAlpha + delta, 0, 255);
+  m_label->backgroundAlpha = gsl::narrow_cast<uint8_t>(std::clamp(m_label->backgroundAlpha + delta, 0, 224));
+  m_label->outlineAlpha = gsl::narrow_cast<uint8_t>(std::clamp(m_label->outlineAlpha + delta, 0, 255));
+  m_label->backgroundGouraudAlpha
+    = gsl::narrow_cast<uint8_t>(std::clamp(m_label->backgroundGouraudAlpha + delta, 0, 255));
 }
 
 void Label::draw(ui::Ui& ui, const engine::Presenter& presenter) const

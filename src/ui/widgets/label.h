@@ -8,7 +8,7 @@
 
 namespace ui
 {
-class Label;
+struct Label;
 }
 
 namespace ui::widgets

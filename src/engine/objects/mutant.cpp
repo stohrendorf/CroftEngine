@@ -367,7 +367,7 @@ void CentaurMutant::update()
   if(m_state.triggerState == TriggerState::Deactivated)
   {
     playSoundEffect(TR1SoundEffect::Mummy);
-    shatterModel(*this, -1, 100_len);
+    shatterModel(*this, ~std::bitset<32>{0}, 100_len);
     kill();
     m_state.triggerState = TriggerState::Deactivated;
   }

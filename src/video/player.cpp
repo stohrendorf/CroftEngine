@@ -261,7 +261,7 @@ struct AVDecoder final : public SoLoud::AudioSource
         m_decoder->frameReadyCondition.notify_one();
       }
 
-      return written;
+      return gsl::narrow<unsigned int>(written);
     }
   };
 
@@ -359,7 +359,7 @@ struct AVDecoder final : public SoLoud::AudioSource
         break;
       }
     }
-    if(err != 0)
+    if(err != 0 && err != AVERROR_EOF)
     {
       BOOST_LOG_TRIVIAL(warning) << "fillQueues done: " << getAvError(err) << "; audio=" << audioQueue.size()
                                  << ", video=" << imgQueue.size();

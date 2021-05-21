@@ -56,7 +56,7 @@ using Bolt = std::array<glm::vec3, LightningBall::ControlPoints>;
 Bolt updateBolt(const glm::vec3& start, const core::TRVec& end, const std::shared_ptr<gl::VertexBuffer<glm::vec3>>& vb)
 {
   std::vector<glm::vec3> data{start, end.toRenderSystem()};
-  float radius = core::QuarterSectorSize.get();
+  auto radius = static_cast<float>(core::QuarterSectorSize.get());
   for(size_t i = 0; i < LightningBall::SegmentSplits; ++i)
   {
     std::vector<glm::vec3> splitData;

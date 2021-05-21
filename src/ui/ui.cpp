@@ -158,7 +158,7 @@ void Ui::render(const glm::vec2& screenSize)
     for(size_t i = 0; i < m_vertices.size(); i += 4)
     {
       for(auto localIndex : localIndices)
-        indices.emplace_back(i + localIndex);
+        indices.emplace_back(gsl::narrow_cast<uint16_t>(i + localIndex));
     }
 
     indexBuffer->setData(indices, gl::api::BufferUsage::StaticDraw);
