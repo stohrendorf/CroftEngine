@@ -34,11 +34,11 @@ void GroupBox::draw(ui::Ui& ui, const engine::Presenter& presenter) const
   createFrame(m_position + glm::ivec2{0, ui::FontHeight / 2},
               m_size - glm::ivec2{0, ui::FontHeight / 2 + 2 * ui::OutlineBorderWidth})
     ->draw(ui, presenter.getTrFont(), presenter.getViewport());
-  m_title->pos = m_position + glm::ivec2{TitleOffset, 0};
-  m_title->draw(ui, presenter.getTrFont(), presenter.getViewport());
   m_widget->setPosition(m_position + glm::ivec2{InnerMargin, WidgetOffsetTop});
   m_widget->setSize({m_size.x - 2 * InnerMargin, m_size.y - TotalVerticalMargin});
   m_widget->draw(ui, presenter);
+  m_title->pos = m_position + glm::ivec2{TitleOffset, 0};
+  m_title->draw(ui, presenter.getTrFont(), presenter.getViewport());
 }
 
 void GroupBox::setPosition(const glm::ivec2& position)

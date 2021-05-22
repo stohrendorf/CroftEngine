@@ -1,7 +1,7 @@
 #include "listbox.h"
 
 #include "engine/presenter.h"
-#include "ui/util.h"
+#include "ui/label.h"
 
 namespace ui::widgets
 {
@@ -26,6 +26,54 @@ void ListBox::draw(ui::Ui& ui, const engine::Presenter& presenter) const
     last = std::min(first + m_pageSize, m_widgets.size());
   }
   Expects(first < last);
+
+  static const auto outerCorner = gl::SRGBA8{0, 0, 0, 0};
+  static const auto center = gl::SRGBA8{128, 64, 64, 128};
+  static const auto innerCorner = gl::SRGBA8{128, 64, 0, 128};
+  static const auto innerCenter = gl::SRGBA8{255, 255, 255, 255};
+  static const auto scrollIndicatorBottom = ui::Label::BackgroundGouraud{
+    ui::BoxGouraud{
+      outerCorner,
+      outerCorner,
+      center,
+      outerCorner,
+    },
+    ui::BoxGouraud{
+      outerCorner,
+      outerCorner,
+      outerCorner,
+      center,
+    },
+    ui::BoxGouraud{
+      center,
+      outerCorner,
+      innerCorner,
+      innerCenter,
+    },
+    ui::BoxGouraud{
+      outerCorner,
+      center,
+      innerCenter,
+      innerCorner,
+    },
+  };
+
+  if(first != 0)
+  {
+    ui::Label indicator{m_position, ""};
+    indicator.bgndSize = {m_size.x, 0};
+    indicator.backgroundGouraudAlpha = 255;
+    indicator.backgroundGouraud = scrollIndicatorBottom.mirroredY();
+    indicator.draw(ui, presenter.getTrFont(), presenter.getViewport());
+  }
+  if(last != m_widgets.size())
+  {
+    ui::Label indicator{m_position + glm::ivec2{0, m_size.y - ui::FontHeight}, ""};
+    indicator.bgndSize = {m_size.x, 0};
+    indicator.backgroundGouraudAlpha = 255;
+    indicator.backgroundGouraud = scrollIndicatorBottom;
+    indicator.draw(ui, presenter.getTrFont(), presenter.getViewport());
+  }
 
   int y = m_position.y;
   for(size_t i = first; i < last; ++i)

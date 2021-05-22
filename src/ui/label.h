@@ -54,7 +54,21 @@ struct Label
     [[nodiscard]] auto withAlpha(uint8_t alpha) const
     {
       return BackgroundGouraud{
-        topLeft.withAlpha(alpha), topRight.withAlpha(alpha), bottomRight.withAlpha(alpha), bottomLeft.withAlpha(alpha)};
+        topLeft.withAlpha(alpha),
+        topRight.withAlpha(alpha),
+        bottomRight.withAlpha(alpha),
+        bottomLeft.withAlpha(alpha),
+      };
+    }
+
+    [[nodiscard]] auto mirroredY() const
+    {
+      return BackgroundGouraud{
+        bottomLeft.mirroredY(),
+        bottomRight.mirroredY(),
+        topRight.mirroredY(),
+        topLeft.mirroredY(),
+      };
     }
   };
 
