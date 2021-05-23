@@ -47,6 +47,16 @@ public:
     return false;
   }
 
+  [[nodiscard]] const auto& getKeyMap() const
+  {
+    return m_inputKeyMap;
+  }
+
+  [[nodiscard]] const auto& getGamepadMap() const
+  {
+    return m_inputGamepadMap;
+  }
+
 private:
   InputState m_inputState{};
   const gsl::not_null<GLFWwindow*> m_window;

@@ -180,6 +180,8 @@ set( EDISONENGINE_SRCS
         hid/inputstate.h
         hid/inputhandler.h
         hid/inputhandler.cpp
+        hid/names.h
+        hid/names.cpp
 
         loader/file/level/game.h
         loader/file/level/level.h
@@ -462,6 +464,7 @@ set( EDISONENGINE_SRCS
         menu/menuobject.cpp
         menu/applyitemtransformmenustate.cpp
         menu/closepassportmenustate.cpp
+        menu/controlsmenustate.cpp
         menu/deflateringmenustate.cpp
         menu/deselectingmenustate.cpp
         menu/donemenustate.cpp

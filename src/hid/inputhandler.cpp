@@ -11,13 +11,22 @@ namespace hid
 {
 namespace
 {
+#define PRINT_KEY_INPUT
+
 boost::container::flat_set<GlfwKey> pressedKeys;
 void keyCallback(GLFWwindow* /*window*/, int key, int /*scancode*/, int action, int /*mods*/)
 {
   auto typed = static_cast<GlfwKey>(key);
   switch(action)
   {
-  case GLFW_PRESS: pressedKeys.emplace(typed); break;
+  case GLFW_PRESS: pressedKeys.emplace(typed);
+#ifdef PRINT_KEY_INPUT
+    if(const auto name = toString(typed))
+      BOOST_LOG_TRIVIAL(debug) << "Key pressed: " << name;
+    else
+      BOOST_LOG_TRIVIAL(debug) << "Key pressed: Code " << key;
+#endif
+    break;
   case GLFW_RELEASE: pressedKeys.erase(typed); break;
   case GLFW_REPEAT: break;
   default: Expects(false);

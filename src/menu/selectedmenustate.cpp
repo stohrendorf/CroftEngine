@@ -1,5 +1,6 @@
 #include "selectedmenustate.h"
 
+#include "controlsmenustate.h"
 #include "deflateringmenustate.h"
 #include "deselectingmenustate.h"
 #include "donemenustate.h"
@@ -23,6 +24,10 @@ std::unique_ptr<MenuState> SelectedMenuState::onFrame(ui::Ui& /*ui*/, engine::wo
     return create<PassportMenuState>(display.mode, display.allowSave);
   else if(currentObject.type == engine::TR1ItemId::Sunglasses)
     return create<RenderSettingsMenuState>(
+      create<FinishItemAnimationMenuState>(create<ResetItemTransformMenuState>(create<DeselectingMenuState>())),
+      world.getEngine());
+  else if(currentObject.type == engine::TR1ItemId::DirectionKeys)
+    return create<ControlsMenuState>(
       create<FinishItemAnimationMenuState>(create<ResetItemTransformMenuState>(create<DeselectingMenuState>())),
       world.getEngine());
 

@@ -45,10 +45,10 @@ static constexpr char SmallNumber0 = '\x01';
 static constexpr char ArrowUp = '[';
 static constexpr char ArrowDown = ']';
 
-static constexpr char UmlautDots = '~';
-static constexpr char Acute1 = '(';
-static constexpr char Acute2 = ')';
-static constexpr char Gravis = '$';
+static constexpr char UmlautDots = '~'; // does not consume space
+static constexpr char Acute1 = '(';     // does not consume space
+static constexpr char Acute2 = ')';     // does not consume space
+static constexpr char Gravis = '$';     // does not consume space
 
 extern std::unique_ptr<Label> createFrame(const glm::ivec2& position, const glm::ivec2& size);
 extern std::unique_ptr<Label>

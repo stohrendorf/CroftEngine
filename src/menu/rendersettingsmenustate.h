@@ -13,16 +13,12 @@ struct Label;
 namespace ui::widgets
 {
 class ListBox;
-}
+class Checkbox;
+} // namespace ui::widgets
 
 namespace engine
 {
 class Engine;
-}
-
-namespace ui::widgets
-{
-class Checkbox;
 }
 
 namespace menu
