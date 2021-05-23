@@ -1,6 +1,7 @@
 #pragma once
 
 #include <boost/format.hpp>
+#include <cstring>
 
 #ifdef _MSC_VER
 #  define fprintf

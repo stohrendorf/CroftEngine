@@ -6,6 +6,8 @@
 #include "glfw_keys.h"
 #include "ui/util.h"
 
+#include <boost/throw_exception.hpp>
+
 namespace hid
 {
 std::string getName(GlfwKey key)
@@ -133,6 +135,7 @@ std::string getName(GlfwKey key)
   case GlfwKey::RightSuper: return /* translators: TR charcmap encoding */ pgettext("Keyboard|Key", "RSuper");
   case GlfwKey::Menu: return /* translators: TR charcmap encoding */ pgettext("Keyboard|Key", "Menu");
   }
+  BOOST_THROW_EXCEPTION(std::domain_error("key"));
 }
 
 std::string getName(GlfwGamepadButton button)
@@ -165,6 +168,7 @@ std::string getName(GlfwGamepadButton button)
     return ui::getSpriteSelector(ui::GamepadEmptyButtonSprite)
            + /* translators: TR charcmap encoding, gamepad */ pgettext("Gamepad|Button", "RThumb");
   }
+  BOOST_THROW_EXCEPTION(std::domain_error("button"));
 }
 
 std::string getName(Action action)
@@ -198,5 +202,6 @@ std::string getName(Action action)
   case Action::CheatDive: return /* translators: TR charcmap encoding */ pgettext("Action", "Cheat Dive");
   case Action::Screenshot: return /* translators: TR charcmap encoding */ pgettext("Action", "Screenshot");
   }
+  BOOST_THROW_EXCEPTION(std::domain_error("action"));
 }
 } // namespace hid
