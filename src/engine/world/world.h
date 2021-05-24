@@ -6,6 +6,7 @@
 #include "box.h"
 #include "camerasink.h"
 #include "cinematicframe.h"
+#include "engine/controllerbuttons.h"
 #include "engine/floordata/floordata.h"
 #include "engine/objectmanager.h"
 #include "loader/file/datatypes.h"
@@ -317,6 +318,11 @@ public:
 
   void drawPerformanceBar(ui::Ui& ui, float delayRatio) const;
 
+  [[nodiscard]] const auto& getControllerLayouts() const
+  {
+    return m_controllerLayouts;
+  }
+
 private:
   void createMipmaps(const std::vector<std::shared_ptr<gl::CImgWrapper>>& images, size_t nMips);
 
@@ -393,6 +399,8 @@ private:
   std::vector<CinematicFrame> m_cinematicFrames;
   std::vector<CameraSink> m_cameraSinks;
   std::vector<StaticSoundEffect> m_staticSoundEffects;
+
+  ControllerLayouts m_controllerLayouts;
 
   void initTextureDependentDataFromLevel(const loader::file::level::Level& level);
   void processGlidosPack(const loader::file::level::Level& level,

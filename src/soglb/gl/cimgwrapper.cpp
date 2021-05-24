@@ -134,6 +134,15 @@ void CImgWrapper::resizePow2Mipmap(const uint8_t n)
     m_image->resize(4, width() / d, height() / d, 1, 6, 1);
 }
 
+void CImgWrapper::resize(const glm::ivec2& size)
+{
+  unshare();
+  if(!m_interleaved)
+    m_image->resize(size.x, size.y, 1, 4, 6, 1);
+  else
+    m_image->resize(4, size.x, size.y, 1, 6, 1);
+}
+
 void CImgWrapper::crop(const int x0, const int y0, const int x1, const int y1)
 {
   unshare();
@@ -272,7 +281,8 @@ std::unique_ptr<cimg_library::CImg<uint8_t>> CImgWrapper::loadPcx(const std::fil
   stream.read(reinterpret_cast<char*>(&palette[0][0]), sizeof(Palette));
   Expects(stream.good());
 
-  auto readByte = [&stream]() {
+  auto readByte = [&stream]()
+  {
     uint8_t tmp;
     stream.read(reinterpret_cast<char*>(&tmp), 1);
     Expects(stream.good());

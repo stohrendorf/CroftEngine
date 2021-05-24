@@ -7,7 +7,7 @@
 #include "menudisplay.h"
 #include "render/renderpipeline.h"
 #include "ui/widgets/checkbox.h"
-#include "ui/widgets/listbox.h"
+#include "ui/widgets/vbox.h"
 
 #include <gl/glew_init.h>
 
@@ -16,14 +16,14 @@ namespace menu
 class RenderSettingsMenuState::CheckListBox : public ui::widgets::Widget
 {
 private:
-  std::shared_ptr<ui::widgets::ListBox> m_listBox;
+  std::shared_ptr<ui::widgets::VBox> m_listBox;
   ui::widgets::GroupBox m_groupBox;
   std::vector<std::tuple<std::function<bool()>, std::function<void()>, std::shared_ptr<ui::widgets::Checkbox>>>
     m_checkboxes;
 
 public:
   explicit CheckListBox(const std::string& title)
-      : m_listBox{std::make_shared<ui::widgets::ListBox>(glm::ivec2{0, 0}, glm::ivec2{0, 0})}
+      : m_listBox{std::make_shared<ui::widgets::VBox>(glm::ivec2{0, 0}, glm::ivec2{0, 0})}
       , m_groupBox{{0, 0}, glm::ivec2{0, 0}, title, m_listBox}
   {
   }
@@ -66,7 +66,7 @@ public:
   {
     auto checkbox = std::make_shared<ui::widgets::Checkbox>(glm::ivec2{0, 0}, name, 0);
     checkbox->setChecked(getter());
-    m_listBox->addEntry(checkbox);
+    m_listBox->append(checkbox);
     m_checkboxes.emplace_back(std::move(getter), std::move(toggler), checkbox);
     return checkbox;
   }

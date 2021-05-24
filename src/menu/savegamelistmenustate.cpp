@@ -11,7 +11,7 @@
 #include "menuring.h"
 #include "requestloadmenustate.h"
 #include "ui/widgets/label.h"
-#include "ui/widgets/listbox.h"
+#include "ui/widgets/vbox.h"
 
 namespace menu
 {
@@ -40,7 +40,7 @@ SavegameListMenuState::SavegameListMenuState(const std::shared_ptr<MenuRingTrans
       m_hasSavegame.emplace_back(false);
     }
     auto label = std::make_shared<ui::widgets::Label>(glm::ivec2{0, 0}, name, 0);
-    addEntry(label);
+    append(label);
   }
 }
 

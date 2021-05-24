@@ -1,0 +1,65 @@
+layouts:
+  - name: PS
+    icons:
+      - key: !<GlfwGamepadButton> A
+        value: ps4/cross.png
+      - key: !<GlfwGamepadButton> B
+        value: ps4/circle.png
+      - key: !<GlfwGamepadButton> X
+        value: ps4/square.png
+      - key: !<GlfwGamepadButton> Y
+        value: ps4/triangle.png
+      - key: !<GlfwGamepadButton> LeftBumper
+        value: ps4/l1.png
+      - key: !<GlfwGamepadButton> RightBumper
+        value: ps4/r1.png
+      - key: !<GlfwGamepadButton> Back
+        value: ps4/share.png
+      - key: !<GlfwGamepadButton> Start
+        value: ps4/options.png
+      - key: !<GlfwGamepadButton> Guide
+        value: ps4/options.png  # TODO
+      - key: !<GlfwGamepadButton> LeftThumb
+        value: ps4/left_stick_click.png
+      - key: !<GlfwGamepadButton> RightThumb
+        value: ps4/right_stick_click.png
+      - key: !<GlfwGamepadButton> DPadUp
+        value: ps4/dpad_up.png
+      - key: !<GlfwGamepadButton> DPadRight
+        value: ps4/dpad_right.png
+      - key: !<GlfwGamepadButton> DPadDown
+        value: ps4/dpad_down.png
+      - key: !<GlfwGamepadButton> DPadLeft
+        value: ps4/dpad_left.png
+  - name: XBox
+    icons:
+      - key: !<GlfwGamepadButton> A
+        value: xbox360/a.png
+      - key: !<GlfwGamepadButton> B
+        value: xbox360/b.png
+      - key: !<GlfwGamepadButton> X
+        value: xbox360/x.png
+      - key: !<GlfwGamepadButton> Y
+        value: xbox360/y.png
+      - key: !<GlfwGamepadButton> LeftBumper
+        value: xbox360/lb.png
+      - key: !<GlfwGamepadButton> RightBumper
+        value: xbox360/rb.png
+      - key: !<GlfwGamepadButton> Back
+        value: xbox360/back.png
+      - key: !<GlfwGamepadButton> Start
+        value: xbox360/start.png
+      - key: !<GlfwGamepadButton> Guide
+        value: xbox360/start.png  # TODO
+      - key: !<GlfwGamepadButton> LeftThumb
+        value: xbox360/left_stick_click.png
+      - key: !<GlfwGamepadButton> RightThumb
+        value: xbox360/right_stick_click.png
+      - key: !<GlfwGamepadButton> DPadUp
+        value: xbox360/dpad_up.png
+      - key: !<GlfwGamepadButton> DPadRight
+        value: xbox360/dpad_right.png
+      - key: !<GlfwGamepadButton> DPadDown
+        value: xbox360/dpad_down.png
+      - key: !<GlfwGamepadButton> DPadLeft
+        value: xbox360/dpad_left.png

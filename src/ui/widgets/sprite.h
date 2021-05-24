@@ -1,11 +1,10 @@
 #pragma once
 
+#include "engine/world/sprite.h"
 #include "widget.h"
 
 #include <glm/glm.hpp>
-#include <gsl/gsl-lite.hpp>
 #include <memory>
-#include <string>
 
 namespace ui
 {
@@ -21,18 +20,13 @@ namespace ui::widgets
 {
 class Label;
 
-class Checkbox : public Widget
+class Sprite : public Widget
 {
 public:
-  explicit Checkbox(const glm::ivec2& position, const std::string& label, int width = 0);
-  ~Checkbox() override;
+  explicit Sprite(const glm::ivec2& position, engine::world::Sprite sprite);
+  ~Sprite() override;
   void update(bool hasFocus) override;
   void draw(ui::Ui& ui, const engine::Presenter& presenter) const override;
-
-  void setChecked(bool checked)
-  {
-    m_checked = checked;
-  }
 
   void setPosition(const glm::ivec2& position) override;
 
@@ -41,11 +35,8 @@ public:
   void setSize(const glm::ivec2& size) override;
   void fitToContent() override;
 
-  void setLabel(const std::string& label);
-
 private:
-  glm::ivec2 m_size;
-  gsl::not_null<std::unique_ptr<Label>> m_label;
-  bool m_checked = false;
+  glm::ivec2 m_position;
+  engine::world::Sprite m_sprite;
 };
 } // namespace ui::widgets

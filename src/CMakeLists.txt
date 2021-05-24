@@ -133,6 +133,8 @@ set( EDISONENGINE_SRCS
         engine/audioengine.cpp
         engine/cameracontroller.h
         engine/cameracontroller.cpp
+        engine/controllerbuttons.h
+        engine/controllerbuttons.cpp
         engine/collisioninfo.h
         engine/collisioninfo.cpp
         engine/displaysettings.h
@@ -416,9 +418,11 @@ set( EDISONENGINE_SRCS
         ui/util.cpp
 
         ui/widgets/checkbox.cpp
-        ui/widgets/listbox.cpp
+        ui/widgets/hbox.cpp
+        ui/widgets/vbox.cpp
         ui/widgets/label.cpp
         ui/widgets/groupbox.cpp
+        ui/widgets/sprite.cpp
 
         video/player.h
         video/player.cpp
@@ -600,6 +604,17 @@ if( WIN32 )
     list( FILTER _shaders EXCLUDE REGEX "\\.full\\." )
 
     foreach( _file ${_shaders} )
+        get_filename_component( _dirname ${_file} DIRECTORY )
+        copy_runtime_dep_file( ${CMAKE_SOURCE_DIR} ${_bin_dir}/${_dirname} ${_file} )
+    endforeach()
+
+    file(
+            GLOB_RECURSE _buttons
+            RELATIVE ${CMAKE_SOURCE_DIR}
+            ${CMAKE_SOURCE_DIR}/share/button-icons/*.*
+    )
+
+    foreach( _file ${_buttons} )
         get_filename_component( _dirname ${_file} DIRECTORY )
         copy_runtime_dep_file( ${CMAKE_SOURCE_DIR} ${_bin_dir}/${_dirname} ${_file} )
     endforeach()

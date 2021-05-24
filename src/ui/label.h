@@ -7,6 +7,7 @@
 #include <cstdint>
 #include <optional>
 #include <string>
+#include <utility>
 
 namespace loader::file
 {
@@ -96,9 +97,9 @@ struct Label
   glm::ivec2 bgndSize{0};
   std::string text;
 
-  explicit Label(const glm::ivec2& pos, const std::string& string)
+  explicit Label(const glm::ivec2& pos, std::string string)
       : pos{pos}
-      , text{string, 0, std::min(std::string::size_type(64), string.size())}
+      , text{std::move(string)}
   {
   }
 

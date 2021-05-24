@@ -15,9 +15,9 @@ namespace ui::widgets
 class GroupBox;
 }
 
-namespace engine
+namespace engine::world
 {
-class Engine;
+class World;
 }
 
 namespace menu
@@ -32,7 +32,7 @@ private:
 public:
   explicit ControlsMenuState(const std::shared_ptr<MenuRingTransform>& ringTransform,
                              std::unique_ptr<MenuState> previous,
-                             engine::Engine& engine);
+                             const engine::world::World& world);
 
   std::unique_ptr<MenuState> onFrame(ui::Ui& ui, engine::world::World& world, MenuDisplay& display) override;
 };

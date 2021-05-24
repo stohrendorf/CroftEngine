@@ -6,7 +6,7 @@
 #include "menudisplay.h"
 #include "ui/core.h"
 #include "ui/util.h"
-#include "ui/widgets/listbox.h"
+#include "ui/widgets/vbox.h"
 
 namespace menu
 {
@@ -14,7 +14,7 @@ ListDisplayMenuState::ListDisplayMenuState(const std::shared_ptr<MenuRingTransfo
                                            const std::string& heading,
                                            size_t pageSize)
     : SelectedMenuState{ringTransform}
-    , m_listBox{std::make_shared<ui::widgets::ListBox>(glm::ivec2{0, 0}, glm::ivec2{0, 0}, pageSize)}
+    , m_listBox{std::make_shared<ui::widgets::VBox>(glm::ivec2{0, 0}, glm::ivec2{0, 0}, pageSize)}
     , m_groupBox{{0, 0}, glm::ivec2{0, 0}, heading, m_listBox}
 {
 }
@@ -59,8 +59,8 @@ std::unique_ptr<MenuState> ListDisplayMenuState::onFrame(ui::Ui& ui, engine::wor
   return nullptr;
 }
 
-size_t ListDisplayMenuState::addEntry(const std::shared_ptr<ui::widgets::Widget>& widget)
+size_t ListDisplayMenuState::append(const std::shared_ptr<ui::widgets::Widget>& widget)
 {
-  return m_listBox->addEntry(widget);
+  return m_listBox->append(widget);
 }
 } // namespace menu

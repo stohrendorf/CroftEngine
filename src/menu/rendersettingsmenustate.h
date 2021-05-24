@@ -12,7 +12,7 @@ struct Label;
 
 namespace ui::widgets
 {
-class ListBox;
+class VBox;
 class Checkbox;
 } // namespace ui::widgets
 

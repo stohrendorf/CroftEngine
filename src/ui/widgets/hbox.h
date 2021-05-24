@@ -4,6 +4,7 @@
 #include "widget.h"
 
 #include <glm/glm.hpp>
+#include <gsl/gsl-lite.hpp>
 #include <memory>
 #include <string>
 #include <vector>
@@ -20,14 +21,14 @@ class Ui;
 
 namespace ui::widgets
 {
-class ListBox : public Widget
+class HBox : public Widget
 {
 public:
-  explicit ListBox(const glm::ivec2& position, const glm::ivec2& size, size_t pageSize = 0);
-  ~ListBox() override;
+  explicit HBox(const glm::ivec2& position, const glm::ivec2& size);
+  ~HBox() override;
   void draw(ui::Ui& ui, const engine::Presenter& presenter) const override;
 
-  size_t addEntry(const std::shared_ptr<Widget>& widget);
+  size_t append(const gsl::not_null<std::shared_ptr<Widget>>& widget);
 
   [[nodiscard]] size_t getSelected() const
   {
@@ -54,26 +55,6 @@ public:
     return false;
   }
 
-  bool nextPage()
-  {
-    if(m_selected + m_pageSize < m_widgets.size())
-    {
-      m_selected += m_pageSize;
-      return true;
-    }
-    return false;
-  }
-
-  bool prevPage()
-  {
-    if(m_selected >= m_pageSize)
-    {
-      m_selected -= m_pageSize;
-      return true;
-    }
-    return false;
-  }
-
   [[nodiscard]] glm::ivec2 getSize() const override;
 
   [[nodiscard]] glm::ivec2 getPosition() const override
@@ -89,8 +70,7 @@ public:
 private:
   glm::ivec2 m_position;
   glm::ivec2 m_size;
-  const size_t m_pageSize;
   size_t m_selected = 0;
-  std::vector<std::shared_ptr<Widget>> m_widgets;
+  std::vector<gsl::not_null<std::shared_ptr<Widget>>> m_widgets;
 };
 } // namespace ui::widgets

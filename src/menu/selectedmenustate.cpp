@@ -28,8 +28,7 @@ std::unique_ptr<MenuState> SelectedMenuState::onFrame(ui::Ui& /*ui*/, engine::wo
       world.getEngine());
   else if(currentObject.type == engine::TR1ItemId::DirectionKeys)
     return create<ControlsMenuState>(
-      create<FinishItemAnimationMenuState>(create<ResetItemTransformMenuState>(create<DeselectingMenuState>())),
-      world.getEngine());
+      create<FinishItemAnimationMenuState>(create<ResetItemTransformMenuState>(create<DeselectingMenuState>())), world);
 
   if(currentObject.selectedRotationY == currentObject.rotationY && currentObject.animate())
     return nullptr;

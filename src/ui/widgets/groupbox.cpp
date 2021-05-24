@@ -17,7 +17,7 @@ constexpr int TotalVerticalMargin = WidgetOffsetTop + InnerMargin + 2 * ui::Outl
 GroupBox::GroupBox(const glm::ivec2& position,
                    const glm::ivec2& size,
                    const std::string& title,
-                   std::shared_ptr<Widget> widget)
+                   gsl::not_null<std::shared_ptr<Widget>> widget)
     : m_position{position}
     , m_size{size}
     , m_title{createHeading(title, {0, 0}, {0, 0})}

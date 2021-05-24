@@ -34,10 +34,10 @@
 #include "serialization/serialization.h"
 #include "serialization/vector.h"
 #include "serialization/yamldocument.h"
+#include "ui/core.h"
 #include "ui/label.h"
 #include "ui/ui.h"
 
-#include <boost/format.hpp>
 #include <gl/glew_init.h>
 #include <gl/texture2darray.h>
 #include <glm/gtx/norm.hpp>
@@ -1832,6 +1832,12 @@ void World::initTextures(const loader::file::level::Level& level)
   std::unordered_set<Sprite*> doneSprites;
 
   render::MultiTextureAtlas atlases{2048};
+
+  m_controllerLayouts = loadControllerButtonIcons(
+    atlases,
+    util::ensureFileExists(m_engine.getRootPath() / "share" / "button-icons" / "buttons.yaml"),
+    getPresenter().getMaterialManager()->getSprite());
+
   if(const auto& glidos = m_engine.getGlidos())
   {
     processGlidosPack(level, *glidos, atlases, doneTiles, doneSprites);
@@ -1849,9 +1855,9 @@ void World::initTextures(const loader::file::level::Level& level)
   sampler->set(gl::api::TextureMagFilter::Nearest);
   sampler->set(gl::api::SamplerParameterI::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge);
   sampler->set(gl::api::SamplerParameterI::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge);
-  if(const auto level = getEngine().getEngineConfig().renderSettings.anisotropyLevel;
-     level != 0 && gl::hasAnisotropicFilteringExtension())
-    sampler->set(gl::api::SamplerParameterF::TextureMaxAnisotropy, gsl::narrow<float>(level));
+  if(const auto anisotropyLevel = getEngine().getEngineConfig().renderSettings.anisotropyLevel;
+     anisotropyLevel != 0 && gl::hasAnisotropicFilteringExtension())
+    sampler->set(gl::api::SamplerParameterF::TextureMaxAnisotropy, gsl::narrow<float>(anisotropyLevel));
 
   m_allTexturesHandle
     = std::make_shared<gl::TextureHandle<gl::Texture2DArray<gl::SRGBA8>>>(m_allTextures, std::move(sampler));

@@ -57,6 +57,7 @@ public:
   [[nodiscard]] int height() const;
 
   void resizePow2Mipmap(uint8_t n);
+  void resize(const glm::ivec2& size);
 
   void crop(int x0, int y0, int x1, int y1);
 

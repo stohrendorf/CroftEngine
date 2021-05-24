@@ -1,20 +1,20 @@
-#include "listbox.h"
+#include "vbox.h"
 
 #include "engine/presenter.h"
 #include "ui/label.h"
 
 namespace ui::widgets
 {
-ListBox::ListBox(const glm::ivec2& position, const glm::ivec2& size, size_t pageSize)
+VBox::VBox(const glm::ivec2& position, const glm::ivec2& size, size_t pageSize)
     : m_position{position}
     , m_size{size}
     , m_pageSize{pageSize}
 {
 }
 
-ListBox::~ListBox() = default;
+VBox::~VBox() = default;
 
-void ListBox::draw(ui::Ui& ui, const engine::Presenter& presenter) const
+void VBox::draw(ui::Ui& ui, const engine::Presenter& presenter) const
 {
   size_t first = 0;
   size_t last = m_widgets.size();
@@ -87,34 +87,34 @@ void ListBox::draw(ui::Ui& ui, const engine::Presenter& presenter) const
   }
 }
 
-size_t ListBox::addEntry(const std::shared_ptr<Widget>& widget)
+size_t VBox::append(const gsl::not_null<std::shared_ptr<Widget>>& widget)
 {
   m_widgets.emplace_back(widget);
   return m_widgets.size() - 1;
 }
 
-void ListBox::setPosition(const glm::ivec2& position)
+void VBox::setPosition(const glm::ivec2& position)
 {
   m_position = position;
 }
 
-void ListBox::update(bool hasFocus)
+void VBox::update(bool hasFocus)
 {
   for(size_t i = 0; i < m_widgets.size(); ++i)
-    m_widgets.at(i)->update(hasFocus && m_selected == i);
+    m_widgets[i]->update(hasFocus && m_selected == i);
 }
 
-glm::ivec2 ListBox::getSize() const
+glm::ivec2 VBox::getSize() const
 {
   return m_size;
 }
 
-void ListBox::setSize(const glm::ivec2& size)
+void VBox::setSize(const glm::ivec2& size)
 {
   m_size = size;
 }
 
-void ListBox::fitToContent()
+void VBox::fitToContent()
 {
   int y = 0;
   int maxHeight = 0;
