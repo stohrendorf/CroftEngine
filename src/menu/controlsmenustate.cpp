@@ -6,8 +6,8 @@
 #include "engine/world/world.h"
 #include "hid/names.h"
 #include "menudisplay.h"
+#include "ui/widgets/gridbox.h"
 #include "ui/widgets/groupbox.h"
-#include "ui/widgets/hbox.h"
 #include "ui/widgets/label.h"
 #include "ui/widgets/sprite.h"
 #include "ui/widgets/vbox.h"
@@ -20,30 +20,35 @@ ControlsMenuState::ControlsMenuState(const std::shared_ptr<MenuRingTransform>& r
     : SelectedMenuState{ringTransform}
     , m_previous{std::move(previous)}
 {
-  auto listBox = std::make_shared<ui::widgets::VBox>(glm::ivec2{0, 0}, glm::ivec2{0, 0});
+  auto gridBox = std::make_shared<ui::widgets::GridBox>(
+    glm::ivec2{0, 0}, glm::ivec2{0, 0}, glm::ivec2{10, ui::OutlineBorderWidth});
+  gridBox->setExtents(2, world.getEngine().getPresenter().getInputHandler().getKeyMap().size());
+  size_t i = 0;
   for(const auto& [action, key] : world.getEngine().getPresenter().getInputHandler().getKeyMap())
   {
-    auto label
-      = std::make_shared<ui::widgets::Label>(glm::ivec2{0, 0}, hid::getName(key) + " :: " + hid::getName(action));
-    listBox->append(label);
+    gridBox->set(0, i, std::make_shared<ui::widgets::Label>(glm::ivec2{0, 0}, hid::getName(key)));
+    gridBox->set(1, i, std::make_shared<ui::widgets::Label>(glm::ivec2{0, 0}, hid::getName(action)));
+    ++i;
   }
   m_keyboardControls = std::make_shared<ui::widgets::GroupBox>(
-    glm::ivec2{0, 0}, glm::ivec2{0, 0}, /* translators: TR charmap encoding */ _("Keyboard Controls"), listBox);
+    glm::ivec2{0, 0}, glm::ivec2{0, 0}, /* translators: TR charmap encoding */ _("Keyboard Controls"), gridBox);
   m_keyboardControls->fitToContent();
 
-  listBox = std::make_shared<ui::widgets::VBox>(glm::ivec2{0, 0}, glm::ivec2{0, 0});
+  gridBox = std::make_shared<ui::widgets::GridBox>(
+    glm::ivec2{0, 0}, glm::ivec2{0, 0}, glm::ivec2{10, ui::OutlineBorderWidth});
+  gridBox->setExtents(2, world.getEngine().getPresenter().getInputHandler().getGamepadMap().size());
+  i = 0;
   const auto& layout = world.getControllerLayouts().at("PS");
   for(const auto& [action, button] : world.getEngine().getPresenter().getInputHandler().getGamepadMap())
   {
-    auto hbox = std::make_shared<ui::widgets::HBox>(glm::ivec2{0, 0}, glm::ivec2{0, 0});
     auto sprite = std::make_shared<ui::widgets::Sprite>(glm::ivec2{0, 0}, layout.at(button));
-    hbox->append(sprite);
+    gridBox->set(0, i, sprite);
     auto label = std::make_shared<ui::widgets::Label>(glm::ivec2{0, 0}, hid::getName(action));
-    hbox->append(label);
-    listBox->append(hbox);
+    gridBox->set(1, i, label);
+    ++i;
   }
   m_gamepadControls = std::make_shared<ui::widgets::GroupBox>(
-    glm::ivec2{0, 0}, glm::ivec2{0, 0}, /* translators: TR charmap encoding */ _("Gamepad Controls"), listBox);
+    glm::ivec2{0, 0}, glm::ivec2{0, 0}, /* translators: TR charmap encoding */ _("Gamepad Controls"), gridBox);
   m_gamepadControls->fitToContent();
 }
 

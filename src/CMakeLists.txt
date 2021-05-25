@@ -418,7 +418,7 @@ set( EDISONENGINE_SRCS
         ui/util.cpp
 
         ui/widgets/checkbox.cpp
-        ui/widgets/hbox.cpp
+        ui/widgets/gridbox.cpp
         ui/widgets/vbox.cpp
         ui/widgets/label.cpp
         ui/widgets/groupbox.cpp
