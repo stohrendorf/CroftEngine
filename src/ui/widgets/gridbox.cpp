@@ -30,7 +30,7 @@ void GridBox::draw(ui::Ui& ui, const engine::Presenter& presenter) const
       widget->setSize({m_columnSizes[x], m_rowSizes[y]});
       widget->draw(ui, presenter);
 
-      yPos += m_rowSizes[x] + m_separation.y;
+      yPos += m_rowSizes[y] + m_separation.y;
     }
     xPos += m_columnSizes[x] + m_separation.x;
   }
