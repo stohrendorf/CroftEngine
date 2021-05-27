@@ -7,23 +7,55 @@
 #include "hid/names.h"
 #include "menudisplay.h"
 #include "ui/widgets/gridbox.h"
-#include "ui/widgets/groupbox.h"
 #include "ui/widgets/label.h"
 #include "ui/widgets/sprite.h"
-#include "ui/widgets/vbox.h"
+
+#include <functional>
 
 namespace menu
 {
+namespace
+{
+std::shared_ptr<ui::widgets::GridBox>
+  createButtonGridBox(const std::function<std::shared_ptr<ui::widgets::Widget>(hid::Action)>& factory)
+{
+  auto gridBox = std::make_shared<ui::widgets::GridBox>(
+    glm::ivec2{0, 0}, glm::ivec2{0, 0}, glm::ivec2{10, ui::OutlineBorderWidth});
+
+  auto add = [&gridBox, &factory](size_t x0, size_t y, hid::Action action)
+  {
+    gridBox->set(x0, y, std::make_shared<ui::widgets::Label>(glm::ivec2{0, 0}, hid::getName(action)));
+    gridBox->set(x0 + 1, y, factory(action));
+  };
+
+  gridBox->setExtents(8, 4);
+
+  add(0, 0, hid::Action::Forward);
+  add(0, 1, hid::Action::Backward);
+  add(0, 2, hid::Action::Left);
+  add(0, 3, hid::Action::Right);
+
+  add(3, 0, hid::Action::StepLeft);
+  add(3, 1, hid::Action::StepRight);
+  add(3, 2, hid::Action::MoveSlow);
+  add(3, 3, hid::Action::Roll);
+
+  add(6, 0, hid::Action::Action);
+  add(6, 1, hid::Action::Holster);
+  add(6, 2, hid::Action::Menu);
+  add(6, 3, hid::Action::FreeLook);
+
+  return gridBox;
+}
+} // namespace
+
 ControlsMenuState::ControlsMenuState(const std::shared_ptr<MenuRingTransform>& ringTransform,
                                      std::unique_ptr<MenuState> previous,
                                      const engine::world::World& world)
     : SelectedMenuState{ringTransform}
     , m_previous{std::move(previous)}
 {
-  auto gridBox = std::make_shared<ui::widgets::GridBox>(
-    glm::ivec2{0, 0}, glm::ivec2{0, 0}, glm::ivec2{10, ui::OutlineBorderWidth});
-  gridBox->setExtents(8, 4);
-  const auto createKeyLabel = [&world](hid::Action action)
+  const auto createKeyLabel = [&world](hid::Action action) -> std::shared_ptr<ui::widgets::Widget>
   {
     const auto& keyMap = world.getEngine().getPresenter().getInputHandler().getKeyMap();
     auto it = keyMap.find(action);
@@ -32,43 +64,13 @@ ControlsMenuState::ControlsMenuState(const std::shared_ptr<MenuRingTransform>& r
         glm::ivec2{0, 0}, /* translators: TR charcmap encoding */ pgettext("ButtonAssignment", "N/A"));
     return std::make_shared<ui::widgets::Label>(glm::ivec2{0, 0}, hid::getName(it->second));
   };
-  gridBox->set(0, 0, std::make_shared<ui::widgets::Label>(glm::ivec2{0, 0}, hid::getName(hid::Action::Forward)));
-  gridBox->set(1, 0, createKeyLabel(hid::Action::Forward));
-  gridBox->set(0, 1, std::make_shared<ui::widgets::Label>(glm::ivec2{0, 0}, hid::getName(hid::Action::Backward)));
-  gridBox->set(1, 1, createKeyLabel(hid::Action::Backward));
-  gridBox->set(0, 2, std::make_shared<ui::widgets::Label>(glm::ivec2{0, 0}, hid::getName(hid::Action::Left)));
-  gridBox->set(1, 2, createKeyLabel(hid::Action::Left));
-  gridBox->set(0, 3, std::make_shared<ui::widgets::Label>(glm::ivec2{0, 0}, hid::getName(hid::Action::Right)));
-  gridBox->set(1, 3, createKeyLabel(hid::Action::Right));
-
-  gridBox->set(3, 0, std::make_shared<ui::widgets::Label>(glm::ivec2{0, 0}, hid::getName(hid::Action::StepLeft)));
-  gridBox->set(4, 0, createKeyLabel(hid::Action::StepLeft));
-  gridBox->set(3, 1, std::make_shared<ui::widgets::Label>(glm::ivec2{0, 0}, hid::getName(hid::Action::StepRight)));
-  gridBox->set(4, 1, createKeyLabel(hid::Action::StepRight));
-  gridBox->set(3, 2, std::make_shared<ui::widgets::Label>(glm::ivec2{0, 0}, hid::getName(hid::Action::MoveSlow)));
-  gridBox->set(4, 2, createKeyLabel(hid::Action::MoveSlow));
-  gridBox->set(3, 3, std::make_shared<ui::widgets::Label>(glm::ivec2{0, 0}, hid::getName(hid::Action::Roll)));
-  gridBox->set(4, 3, createKeyLabel(hid::Action::Roll));
-
-  gridBox->set(6, 0, std::make_shared<ui::widgets::Label>(glm::ivec2{0, 0}, hid::getName(hid::Action::Action)));
-  gridBox->set(7, 0, createKeyLabel(hid::Action::Action));
-  gridBox->set(6, 1, std::make_shared<ui::widgets::Label>(glm::ivec2{0, 0}, hid::getName(hid::Action::Holster)));
-  gridBox->set(7, 1, createKeyLabel(hid::Action::Holster));
-  gridBox->set(6, 2, std::make_shared<ui::widgets::Label>(glm::ivec2{0, 0}, hid::getName(hid::Action::Menu)));
-  gridBox->set(7, 2, createKeyLabel(hid::Action::Menu));
-  gridBox->set(6, 3, std::make_shared<ui::widgets::Label>(glm::ivec2{0, 0}, hid::getName(hid::Action::FreeLook)));
-  gridBox->set(7, 3, createKeyLabel(hid::Action::FreeLook));
-
+  auto gridBox = createButtonGridBox(createKeyLabel);
   m_keyboardControls = std::make_shared<ui::widgets::GroupBox>(
     glm::ivec2{0, 0}, glm::ivec2{0, 0}, /* translators: TR charmap encoding */ _("Keyboard Controls"), gridBox);
   m_keyboardControls->fitToContent();
 
-  gridBox = std::make_shared<ui::widgets::GridBox>(
-    glm::ivec2{0, 0}, glm::ivec2{0, 0}, glm::ivec2{10, ui::OutlineBorderWidth});
-  gridBox->setExtents(8, 4);
-
-  const auto createButtonLabel
-    = [&world](const engine::ControllerLayout& layout, hid::Action action) -> std::shared_ptr<ui::widgets::Widget>
+  const auto& layout = world.getControllerLayouts().at("PS");
+  const auto createButtonLabel = [&world, &layout](hid::Action action) -> std::shared_ptr<ui::widgets::Widget>
   {
     const auto& buttonMap = world.getEngine().getPresenter().getInputHandler().getGamepadMap();
     auto it = buttonMap.find(action);
@@ -77,33 +79,7 @@ ControlsMenuState::ControlsMenuState(const std::shared_ptr<MenuRingTransform>& r
         glm::ivec2{0, 0}, /* translators: TR charcmap encoding */ pgettext("ButtonAssignment", "N/A"));
     return std::make_shared<ui::widgets::Sprite>(glm::ivec2{0, 0}, layout.at(it->second));
   };
-  const auto& layout = world.getControllerLayouts().at("PS");
-  gridBox->set(0, 0, std::make_shared<ui::widgets::Label>(glm::ivec2{0, 0}, hid::getName(hid::Action::Forward)));
-  gridBox->set(1, 0, createButtonLabel(layout, hid::Action::Forward));
-  gridBox->set(0, 1, std::make_shared<ui::widgets::Label>(glm::ivec2{0, 0}, hid::getName(hid::Action::Backward)));
-  gridBox->set(1, 1, createButtonLabel(layout, hid::Action::Backward));
-  gridBox->set(0, 2, std::make_shared<ui::widgets::Label>(glm::ivec2{0, 0}, hid::getName(hid::Action::Left)));
-  gridBox->set(1, 2, createButtonLabel(layout, hid::Action::Left));
-  gridBox->set(0, 3, std::make_shared<ui::widgets::Label>(glm::ivec2{0, 0}, hid::getName(hid::Action::Right)));
-  gridBox->set(1, 3, createButtonLabel(layout, hid::Action::Right));
-
-  gridBox->set(3, 0, std::make_shared<ui::widgets::Label>(glm::ivec2{0, 0}, hid::getName(hid::Action::StepLeft)));
-  gridBox->set(4, 0, createButtonLabel(layout, hid::Action::StepLeft));
-  gridBox->set(3, 1, std::make_shared<ui::widgets::Label>(glm::ivec2{0, 0}, hid::getName(hid::Action::StepRight)));
-  gridBox->set(4, 1, createButtonLabel(layout, hid::Action::StepRight));
-  gridBox->set(3, 2, std::make_shared<ui::widgets::Label>(glm::ivec2{0, 0}, hid::getName(hid::Action::MoveSlow)));
-  gridBox->set(4, 2, createButtonLabel(layout, hid::Action::MoveSlow));
-  gridBox->set(3, 3, std::make_shared<ui::widgets::Label>(glm::ivec2{0, 0}, hid::getName(hid::Action::Roll)));
-  gridBox->set(4, 3, createButtonLabel(layout, hid::Action::Roll));
-
-  gridBox->set(6, 0, std::make_shared<ui::widgets::Label>(glm::ivec2{0, 0}, hid::getName(hid::Action::Action)));
-  gridBox->set(7, 0, createButtonLabel(layout, hid::Action::Action));
-  gridBox->set(6, 1, std::make_shared<ui::widgets::Label>(glm::ivec2{0, 0}, hid::getName(hid::Action::Holster)));
-  gridBox->set(7, 1, createButtonLabel(layout, hid::Action::Holster));
-  gridBox->set(6, 2, std::make_shared<ui::widgets::Label>(glm::ivec2{0, 0}, hid::getName(hid::Action::Menu)));
-  gridBox->set(7, 2, createButtonLabel(layout, hid::Action::Menu));
-  gridBox->set(6, 3, std::make_shared<ui::widgets::Label>(glm::ivec2{0, 0}, hid::getName(hid::Action::FreeLook)));
-  gridBox->set(7, 3, createButtonLabel(layout, hid::Action::FreeLook));
+  gridBox = createButtonGridBox(createButtonLabel);
 
   m_gamepadControls = std::make_shared<ui::widgets::GroupBox>(
     glm::ivec2{0, 0}, glm::ivec2{0, 0}, /* translators: TR charmap encoding */ _("Gamepad Controls"), gridBox);
