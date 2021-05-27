@@ -12,7 +12,7 @@ struct Label;
 
 namespace ui::widgets
 {
-class GroupBox;
+class GridBox;
 }
 
 namespace engine::world
@@ -25,9 +25,8 @@ namespace menu
 class ControlsMenuState : public SelectedMenuState
 {
 private:
-  std::shared_ptr<ui::widgets::GroupBox> m_keyboardControls{};
-  std::shared_ptr<ui::widgets::GroupBox> m_gamepadControls{};
   std::unique_ptr<MenuState> m_previous;
+  std::shared_ptr<ui::widgets::GridBox> m_controls{};
 
 public:
   explicit ControlsMenuState(const std::shared_ptr<MenuRingTransform>& ringTransform,

@@ -23,12 +23,12 @@ void GridBox::draw(ui::Ui& ui, const engine::Presenter& presenter) const
     for(size_t y = 0; y < m_widgets.shape()[1]; ++y)
     {
       const auto& widget = m_widgets[x][y];
-      if(widget == nullptr)
-        continue;
-
-      widget->setPosition({xPos, yPos});
-      widget->setSize({m_columnSizes[x], m_rowSizes[y]});
-      widget->draw(ui, presenter);
+      if(widget != nullptr)
+      {
+        widget->setPosition({xPos, yPos});
+        widget->setSize({m_columnSizes[x], m_rowSizes[y]});
+        widget->draw(ui, presenter);
+      }
 
       yPos += m_rowSizes[y] + m_separation.y;
     }

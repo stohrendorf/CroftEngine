@@ -45,6 +45,9 @@ std::shared_ptr<ui::widgets::GridBox>
   add(6, 2, hid::Action::Menu);
   add(6, 3, hid::Action::FreeLook);
 
+  // TODO: just for spacing, should be done by explicitly setting the size after auto-fitting
+  gridBox->set(0, 4, std::make_shared<ui::widgets::Label>(glm::ivec2{0, 0}, ""));
+
   add(0, 5, hid::Action::DrawPistols);
   add(0, 6, hid::Action::DrawShotgun);
   add(0, 7, hid::Action::DrawUzis);
@@ -66,7 +69,10 @@ ControlsMenuState::ControlsMenuState(const std::shared_ptr<MenuRingTransform>& r
                                      const engine::world::World& world)
     : SelectedMenuState{ringTransform}
     , m_previous{std::move(previous)}
+    , m_controls{std::make_shared<ui::widgets::GridBox>(glm::ivec2{0, 0}, glm::ivec2{0, 0})}
 {
+  m_controls->setExtents(1, 2);
+
   const auto createKeyLabel = [&world](hid::Action action) -> std::shared_ptr<ui::widgets::Widget>
   {
     const auto& keyMap = world.getEngine().getPresenter().getInputHandler().getKeyMap();
@@ -77,9 +83,10 @@ ControlsMenuState::ControlsMenuState(const std::shared_ptr<MenuRingTransform>& r
     return std::make_shared<ui::widgets::Label>(glm::ivec2{0, 0}, hid::getName(it->second));
   };
   auto gridBox = createButtonGridBox(createKeyLabel);
-  m_keyboardControls = std::make_shared<ui::widgets::GroupBox>(
-    glm::ivec2{0, 0}, glm::ivec2{0, 0}, /* translators: TR charmap encoding */ _("Keyboard Controls"), gridBox);
-  m_keyboardControls->fitToContent();
+  m_controls->set(0,
+                  0,
+                  std::make_shared<ui::widgets::GroupBox>(
+                    glm::ivec2{0, 0}, glm::ivec2{0, 0}, /* translators: TR charmap encoding */ _("Keyboard"), gridBox));
 
   const auto& layout = world.getControllerLayouts().at("PS");
   const auto createButtonLabel = [&world, &layout](hid::Action action) -> std::shared_ptr<ui::widgets::Widget>
@@ -93,23 +100,19 @@ ControlsMenuState::ControlsMenuState(const std::shared_ptr<MenuRingTransform>& r
   };
   gridBox = createButtonGridBox(createButtonLabel);
 
-  m_gamepadControls = std::make_shared<ui::widgets::GroupBox>(
-    glm::ivec2{0, 0}, glm::ivec2{0, 0}, /* translators: TR charmap encoding */ _("Gamepad Controls"), gridBox);
-  m_gamepadControls->fitToContent();
+  m_controls->set(0,
+                  1,
+                  std::make_shared<ui::widgets::GroupBox>(
+                    glm::ivec2{0, 0}, glm::ivec2{0, 0}, /* translators: TR charmap encoding */ _("Gamepad"), gridBox));
+
+  m_controls->fitToContent();
 }
 
 std::unique_ptr<MenuState> ControlsMenuState::onFrame(ui::Ui& ui, engine::world::World& world, MenuDisplay& /*display*/)
 {
   const auto vp = world.getPresenter().getViewport();
-  {
-    m_keyboardControls->setPosition(
-      {vp.x / 2 - m_keyboardControls->getSize().x - 10, vp.y - 90 - m_keyboardControls->getSize().y});
-    m_keyboardControls->draw(ui, world.getPresenter());
-  }
-  {
-    m_gamepadControls->setPosition({vp.x / 2 + 10, vp.y - 90 - m_gamepadControls->getSize().y});
-    m_gamepadControls->draw(ui, world.getPresenter());
-  }
+  m_controls->setPosition({(vp.x - m_controls->getSize().x) / 2, vp.y - 90 - m_controls->getSize().y});
+  m_controls->draw(ui, world.getPresenter());
 
   if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Menu))
   {
