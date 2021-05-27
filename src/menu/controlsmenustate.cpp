@@ -28,7 +28,7 @@ std::shared_ptr<ui::widgets::GridBox>
     gridBox->set(x0 + 1, y, factory(action));
   };
 
-  gridBox->setExtents(8, 4);
+  gridBox->setExtents(8, 9);
 
   add(0, 0, hid::Action::Forward);
   add(0, 1, hid::Action::Backward);
@@ -44,6 +44,18 @@ std::shared_ptr<ui::widgets::GridBox>
   add(6, 1, hid::Action::Holster);
   add(6, 2, hid::Action::Menu);
   add(6, 3, hid::Action::FreeLook);
+
+  add(0, 5, hid::Action::DrawPistols);
+  add(0, 6, hid::Action::DrawShotgun);
+  add(0, 7, hid::Action::DrawUzis);
+  add(0, 8, hid::Action::DrawMagnums);
+
+  add(3, 5, hid::Action::ConsumeSmallMedipack);
+  add(3, 6, hid::Action::ConsumeLargeMedipack);
+
+  add(6, 5, hid::Action::Save);
+  add(6, 6, hid::Action::Load);
+  add(6, 7, hid::Action::Screenshot);
 
   return gridBox;
 }
