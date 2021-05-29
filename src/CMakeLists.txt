@@ -175,6 +175,8 @@ set( EDISONENGINE_SRCS
         engine/world/sector.cpp
         engine/world/world.h
         engine/world/world.cpp
+        engine/world/texturing.h
+        engine/world/texturing.cpp
 
         engine/script/reflection.h
         engine/script/reflection.cpp

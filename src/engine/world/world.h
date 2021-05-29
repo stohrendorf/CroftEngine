@@ -72,8 +72,6 @@ namespace engine::world
 struct Animation;
 class RenderMeshData;
 
-extern std::tuple<int8_t, int8_t> getFloorSlantInfo(gsl::not_null<const Sector*> sector, const core::TRVec& position);
-
 class World final
 {
 public:
@@ -324,8 +322,6 @@ public:
   }
 
 private:
-  void createMipmaps(const std::vector<std::shared_ptr<gl::CImgWrapper>>& images, size_t nMips);
-
   void drawPickupWidgets(ui::Ui& ui);
 
   Engine& m_engine;
@@ -403,16 +399,6 @@ private:
   ControllerLayouts m_controllerLayouts;
 
   void initTextureDependentDataFromLevel(const loader::file::level::Level& level);
-  void processGlidosPack(const loader::file::level::Level& level,
-                         const loader::trx::Glidos& glidos,
-                         render::MultiTextureAtlas& atlases,
-                         std::unordered_set<AtlasTile*>& doneTiles,
-                         std::unordered_set<Sprite*>& doneSprites);
-  void remapTextures(const loader::file::level::Level& level,
-                     render::MultiTextureAtlas& atlases,
-                     std::unordered_set<AtlasTile*>& doneTiles,
-                     std::unordered_set<Sprite*>& doneSprites);
-  void initTextures(const loader::file::level::Level& level);
   void initFromLevel(loader::file::level::Level& level);
   void connectSectors();
   void updateStaticSoundEffects();

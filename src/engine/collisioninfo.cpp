@@ -61,6 +61,26 @@ namespace
 {
   return abs(a) < abs(b) ? a : b;
 }
+
+std::tuple<int8_t, int8_t> getFloorSlantInfo(gsl::not_null<const world::Sector*> sector, const core::TRVec& position)
+{
+  while(sector->roomBelow != nullptr)
+  {
+    sector = sector->roomBelow->getSectorByAbsolutePosition(position);
+  }
+
+  static const auto zero = std::make_tuple(int8_t{0}, int8_t{0});
+
+  if(position.Y + core::QuarterSectorSize * 2 < sector->floorHeight)
+    return zero;
+  if(sector->floorData == nullptr)
+    return zero;
+  if(floordata::FloorDataChunk{*sector->floorData}.type != floordata::FloorDataChunkType::FloorSlant)
+    return zero;
+
+  const auto fd = sector->floorData[1];
+  return std::make_tuple(gsl::narrow_cast<int8_t>(fd.get() & 0xffu), gsl::narrow_cast<int8_t>(fd.get() >> 8u));
+}
 } // namespace
 
 void CollisionInfo::initHeightInfo(const core::TRVec& laraPos, const world::World& world, const core::Length& height)
@@ -75,7 +95,7 @@ void CollisionInfo::initHeightInfo(const core::TRVec& laraPos, const world::Worl
 
   mid.init(currentSector, refTestPos, world.getObjectManager().getObjects(), laraPos.Y, height);
 
-  std::tie(floorSlantX, floorSlantZ) = world::getFloorSlantInfo(
+  std::tie(floorSlantX, floorSlantZ) = getFloorSlantInfo(
     currentSector, core::TRVec{laraPos.X, world.getObjectManager().getLara().m_state.position.position.Y, laraPos.Z});
 
   core::Length frontX = 0_len, frontZ = 0_len;
