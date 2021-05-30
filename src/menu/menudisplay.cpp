@@ -12,10 +12,11 @@
 #include "inflateringmenustate.h"
 #include "menuring.h"
 #include "render/scene/camera.h"
+#include "ui/util.h"
 
 namespace menu
 {
-void MenuDisplay::updateRingTitle()
+void MenuDisplay::updateRingTitle(const glm::ivec2& viewport)
 {
   if(rings.size() == 1)
     return;
@@ -34,9 +35,9 @@ void MenuDisplay::updateRingTitle()
   {
     if(objectTexts[3] == nullptr)
     {
-      objectTexts[3] = std::make_unique<ui::Label>(glm::ivec2{20, 28}, "[");
+      objectTexts[3] = std::make_unique<ui::Label>(glm::ivec2{20, 28}, ui::getSpriteSelector(ui::ArrowUpSprite));
       objectTexts[3]->anchorX = ui::Label::Anchor::Left;
-      objectTexts[4] = std::make_unique<ui::Label>(glm::ivec2{-20, 28}, "[");
+      objectTexts[4] = std::make_unique<ui::Label>(glm::ivec2{-20, 28}, ui::getSpriteSelector(ui::ArrowUpSprite));
       objectTexts[4]->anchorX = ui::Label::Anchor::Right;
     }
   }
@@ -50,13 +51,13 @@ void MenuDisplay::updateRingTitle()
   {
     if(objectTexts[5] == nullptr)
     {
-      objectTexts[5] = std::make_unique<ui::Label>(glm::ivec2{20, -15}, "]");
+      objectTexts[5] = std::make_unique<ui::Label>(glm::ivec2{20, 0}, ui::getSpriteSelector(ui::ArrowDownSprite));
       objectTexts[5]->anchorX = ui::Label::Anchor::Left;
-      objectTexts[5]->anchorY = ui::Label::Anchor::Bottom;
-      objectTexts[6] = std::make_unique<ui::Label>(glm::ivec2{-20, -15}, "]");
+      objectTexts[6] = std::make_unique<ui::Label>(glm::ivec2{-20, 0}, ui::getSpriteSelector(ui::ArrowDownSprite));
       objectTexts[6]->anchorX = ui::Label::Anchor::Right;
-      objectTexts[6]->anchorY = ui::Label::Anchor::Bottom;
     }
+    objectTexts[5]->pos.y = viewport.y - 15;
+    objectTexts[6]->pos.y = viewport.y - 15;
   }
   else
   {
@@ -71,15 +72,15 @@ void MenuDisplay::updateMenuObjectDescription(ui::Ui& ui, engine::world::World& 
   {
     if(const auto objectName = world.getItemTitle(object.type))
     {
-      objectTexts[0] = std::make_unique<ui::Label>(glm::ivec2{0, -16}, objectName.value());
+      objectTexts[0] = std::make_unique<ui::Label>(glm::ivec2{0, 0}, objectName.value());
     }
 
     if(objectTexts[0] == nullptr)
-      objectTexts[0] = std::make_unique<ui::Label>(glm::ivec2{0, -16}, object.name);
+      objectTexts[0] = std::make_unique<ui::Label>(glm::ivec2{0, 0}, object.name);
 
     objectTexts[0]->anchorX = ui::Label::Anchor::Center;
-    objectTexts[0]->anchorY = ui::Label::Anchor::Bottom;
   }
+  objectTexts[0]->pos.y = world.getPresenter().getViewport().y - 16;
 
   size_t totalItemCount = world.getPlayer().getInventory().count(object.type);
   std::string suffix;
@@ -125,9 +126,9 @@ void MenuDisplay::updateMenuObjectDescription(ui::Ui& ui, engine::world::World& 
   {
     if(objectTexts[1] == nullptr)
       objectTexts[1]
-        = std::make_unique<ui::Label>(glm::ivec2{64, -56}, ui::makeAmmoString(std::to_string(totalItemCount) + suffix));
+        = std::make_unique<ui::Label>(glm::ivec2{64, 0}, ui::makeAmmoString(std::to_string(totalItemCount) + suffix));
     objectTexts[1]->anchorX = ui::Label::Anchor::Center;
-    objectTexts[1]->anchorY = ui::Label::Anchor::Bottom;
+    objectTexts[1]->pos.y = world.getPresenter().getViewport().y - 56;
   }
   else
   {

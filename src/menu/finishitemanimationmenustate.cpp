@@ -1,6 +1,8 @@
 #include "finishitemanimationmenustate.h"
 
 #include "engine/items_tr1.h"
+#include "engine/presenter.h"
+#include "engine/world/world.h"
 #include "menudisplay.h"
 #include "menuring.h"
 #include "util.h"
@@ -10,7 +12,7 @@ namespace menu
 std::unique_ptr<MenuState>
   FinishItemAnimationMenuState::onFrame(ui::Ui& /*ui*/, engine::world::World& world, MenuDisplay& display)
 {
-  display.updateRingTitle();
+  display.updateRingTitle(world.getPresenter().getViewport());
 
   auto& object = display.getCurrentRing().getSelectedObject();
   if(object.animate())

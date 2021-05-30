@@ -59,7 +59,7 @@ struct MenuDisplay
   bool doOptions(engine::world::World& world, MenuObject& object);
   void updateMenuObjectDescription(ui::Ui& ui, engine::world::World& world, const MenuObject& object);
   void clearMenuObjectDescription();
-  void updateRingTitle();
+  void updateRingTitle(const glm::ivec2& viewport);
 
   [[nodiscard]] MenuRing& getCurrentRing()
   {

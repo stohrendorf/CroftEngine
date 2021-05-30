@@ -1,5 +1,7 @@
 #include "applyitemtransformmenustate.h"
 
+#include "engine/presenter.h"
+#include "engine/world/world.h"
 #include "menudisplay.h"
 #include "menuring.h"
 #include "selectedmenustate.h"
@@ -38,9 +40,9 @@ void ApplyItemTransformMenuState::handleObject(ui::Ui& ui,
 }
 
 std::unique_ptr<MenuState>
-  ApplyItemTransformMenuState::onFrame(ui::Ui& /*ui*/, engine::world::World& /*world*/, MenuDisplay& display)
+  ApplyItemTransformMenuState::onFrame(ui::Ui& /*ui*/, engine::world::World& world, MenuDisplay& display)
 {
-  display.updateRingTitle();
+  display.updateRingTitle(world.getPresenter().getViewport());
 
   if(m_duration != Duration)
   {

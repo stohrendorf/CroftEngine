@@ -31,10 +31,11 @@ std::optional<std::unique_ptr<MenuState>> PassportMenuState::showLoadGamePage(en
 {
   if(m_passportText == nullptr)
   {
-    m_passportText = std::make_unique<ui::Label>(glm::ivec2{0, -16}, _("Load Game"));
+    m_passportText = std::make_unique<ui::Label>(glm::ivec2{0, 0}, _("Load Game"));
     m_passportText->anchorX = ui::Label::Anchor::Center;
-    m_passportText->anchorY = ui::Label::Anchor::Bottom;
   }
+  m_passportText->pos.y = world.getPresenter().getViewport().y - 16;
+
   if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Action)
      || display.mode == InventoryMode::LoadMode)
   {
@@ -52,12 +53,13 @@ std::optional<std::unique_ptr<MenuState>>
   if(m_passportText == nullptr)
   {
     m_passportText
-      = std::make_unique<ui::Label>(glm::ivec2{0, -16},
+      = std::make_unique<ui::Label>(glm::ivec2{0, 0},
                                     m_allowSave && isInGame ? /* translators: TR charmap encoding */ _("Save Game")
                                                             : /* translators: TR charmap encoding */ _("New Game"));
     m_passportText->anchorX = ui::Label::Anchor::Center;
-    m_passportText->anchorY = ui::Label::Anchor::Bottom;
   }
+  m_passportText->pos.y = world.getPresenter().getViewport().y - 16;
+
   if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Action))
   {
     if(display.mode == InventoryMode::SaveMode || (m_allowSave && isInGame))
@@ -80,12 +82,13 @@ void PassportMenuState::showExitGamePage(engine::world::World& world, MenuDispla
   if(m_passportText == nullptr)
   {
     m_passportText
-      = std::make_unique<ui::Label>(glm::ivec2{0, -16},
+      = std::make_unique<ui::Label>(glm::ivec2{0, 0},
                                     !returnToTitle ? /* translators: TR charmap encoding */ _("Exit Game")
                                                    : /* translators: TR charmap encoding */ _("Exit to Title"));
     m_passportText->anchorX = ui::Label::Anchor::Center;
-    m_passportText->anchorY = ui::Label::Anchor::Bottom;
   }
+  m_passportText->pos.y = world.getPresenter().getViewport().y - 16;
+
   if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Action))
   {
     display.result = !returnToTitle ? MenuResult::ExitGame : MenuResult::ExitToTitle;

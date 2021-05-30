@@ -126,13 +126,6 @@ void Label::draw(Ui& ui, const TRFont& font, const glm::ivec2& screenSize) const
   case Anchor::Right: baseXY.x += screenSize.x - textWidth; break;
   }
 
-  switch(anchorY)
-  {
-  case Anchor::Top: break;
-  case Anchor::Center: baseXY.y += screenSize.y / 2; break;
-  case Anchor::Bottom: baseXY.y += screenSize.y; break;
-  }
-
   auto backgroundPos = baseXY - glm::ivec2{OutlineBorderWidth, FontHeight - 1};
   glm::ivec2 effectiveBackgroundSize{textWidth + 4, FontHeight};
   if(bgndSize.x != 0)

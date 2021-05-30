@@ -38,11 +38,9 @@ struct Label
   enum class Anchor
   {
     None,
-    Top = None,
     Left = None,
     Center,
     Right,
-    Bottom = Right
   };
 
   struct BackgroundGouraud
@@ -88,7 +86,6 @@ struct Label
   }
 
   Anchor anchorX = Anchor::Left;
-  Anchor anchorY = Anchor::Top;
   uint8_t backgroundAlpha = 0;
   std::optional<BackgroundGouraud> backgroundGouraud;
   uint8_t backgroundGouraudAlpha = 0;

@@ -16,7 +16,7 @@ namespace menu
 {
 std::unique_ptr<MenuState> IdleRingMenuState::onFrame(ui::Ui& /*ui*/, engine::world::World& world, MenuDisplay& display)
 {
-  display.updateRingTitle();
+  display.updateRingTitle(world.getPresenter().getViewport());
 
   if(world.getPresenter().getInputHandler().getInputState().xMovement.justChangedTo(hid::AxisMovement::Right)
      && display.getCurrentRing().list.size() > 1)
