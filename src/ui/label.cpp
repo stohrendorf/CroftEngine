@@ -23,6 +23,64 @@ const std::array<const uint8_t, 98> charToSprite{
   61, 73, 73, 66, 74, 75, 65, 0,  0,  1,  2,  3,  4,  5,  6,  7,  8,   9,   10,  11, 12, 13, 14, 15, 16,
   17, 18, 19, 20, 21, 22, 23, 24, 25, 80, 76, 81, 97, 98, 77, 26, 27,  28,  29,  30, 31, 32, 33, 34, 35,
   36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 100, 101, 102, 67, 0,  0,  0};
+
+std::vector<std::tuple<glm::ivec2, uint8_t>> doLayout(const std::string& text, int* width = nullptr)
+{
+  std::vector<std::tuple<glm::ivec2, uint8_t>> layout;
+
+  glm::ivec2 xy{0, 0};
+  bool isSpriteSelector = false;
+  for(const uint8_t chr : text)
+  {
+    uint8_t sprite = chr;
+    if(chr == SpriteSelector)
+    {
+      isSpriteSelector = true;
+      continue;
+    }
+
+    if(isSpriteSelector)
+    {
+      isSpriteSelector = false;
+      sprite = chr;
+      layout.emplace_back(xy, sprite);
+    }
+    else
+    {
+      if(chr > 15 && chr < 32)
+        continue;
+
+      if(chr == ' ')
+      {
+        xy.x += WordSpacing;
+        if(width != nullptr)
+          *width = xy.x;
+        continue;
+      }
+
+      if(chr <= 10)
+        sprite = chr + 81;
+      else if(chr <= 15)
+        sprite = chr + 91;
+      else
+        sprite = charToSprite.at(chr - 32);
+
+      layout.emplace_back(xy, sprite);
+
+      if(chr == Acute1 || chr == Acute2 || chr == Gravis || chr == UmlautDots)
+        continue;
+    }
+
+    xy.x += charWidths[sprite] + LetterSpacing;
+    if(width != nullptr)
+      *width = xy.x;
+  }
+
+  if(width != nullptr)
+    *width -= LetterSpacing;
+
+  return layout;
+}
 } // namespace
 
 std::string makeAmmoString(const std::string& str)
@@ -51,74 +109,35 @@ std::string makeAmmoString(const std::string& str)
 int Label::calcWidth() const
 {
   int width = 0;
-  bool isSpriteSelector = false;
-  for(const uint8_t chr : text)
-  {
-    uint8_t sprite = chr;
-    if(chr == SpriteSelector)
-    {
-      isSpriteSelector = true;
-      continue;
-    }
-
-    if(isSpriteSelector)
-    {
-      isSpriteSelector = false;
-      sprite = chr;
-    }
-    else
-    {
-      if(chr > 15 && chr < 32)
-        continue;
-
-      if(chr == ' ')
-      {
-        width += WordSpacing;
-        continue;
-      }
-
-      if(chr <= 10)
-        sprite = chr + 81;
-      else if(chr <= 15)
-        sprite = chr + 91;
-      else
-        sprite = charToSprite.at(chr - 32);
-
-      if(chr == Acute1 || chr == Acute2 || chr == Gravis || chr == UmlautDots)
-        continue;
-    }
-
-    width += charWidths[sprite] + LetterSpacing;
-  }
-
-  width -= LetterSpacing;
+  doLayout(text, &width);
   return width;
 }
 
 void Label::draw(Ui& ui, const TRFont& font, const glm::ivec2& screenSize) const
 {
-  auto xy = pos;
-  const auto textWidth = calcWidth();
+  auto baseXY = pos;
+  int textWidth = 0;
+  const auto layout = doLayout(text, &textWidth);
 
   if(alignX == Alignment::Center)
   {
-    xy.x += (screenSize.x - textWidth) / 2;
+    baseXY.x += (screenSize.x - textWidth) / 2;
   }
   else if(alignX == Alignment::Right)
   {
-    xy.x += screenSize.x - textWidth;
+    baseXY.x += screenSize.x - textWidth;
   }
 
   if(alignY == Alignment::Center)
   {
-    xy.y += screenSize.y / 2;
+    baseXY.y += screenSize.y / 2;
   }
   else if(alignY == Alignment::Bottom)
   {
-    xy.y += screenSize.y;
+    baseXY.y += screenSize.y;
   }
 
-  auto bgnd = xy - glm::ivec2{2, 15};
+  auto bgnd = baseXY - glm::ivec2{2, 15};
   glm::ivec2 effectiveBgndSize{textWidth + 4, FontHeight};
   if(bgndSize.x != 0)
   {
@@ -148,47 +167,9 @@ void Label::draw(Ui& ui, const TRFont& font, const glm::ivec2& screenSize) const
     ui.drawBox(bgnd + glm::ivec2{0, half.y}, {half2.x, half2.y}, g.bottomLeft);
   }
 
-  bool isSpriteSelector = false;
-  for(const uint8_t chr : text)
+  for(const auto& [xy, sprite] : layout)
   {
-    uint8_t sprite = chr;
-    if(chr == SpriteSelector)
-    {
-      isSpriteSelector = true;
-      continue;
-    }
-
-    if(isSpriteSelector)
-    {
-      isSpriteSelector = false;
-      sprite = chr;
-      font.draw(ui, sprite, xy);
-    }
-    else
-    {
-      if(chr > 15 && chr < 32)
-        continue;
-
-      if(chr == ' ')
-      {
-        xy.x += WordSpacing;
-        continue;
-      }
-
-      if(chr <= 10)
-        sprite = chr + 81;
-      else if(chr <= 15)
-        sprite = chr + 91;
-      else
-        sprite = charToSprite.at(chr - 32);
-
-      font.draw(ui, sprite, xy);
-
-      if(chr == Acute1 || chr == Acute2 || chr == Gravis || chr == UmlautDots)
-        continue;
-    }
-
-    xy.x += charWidths[sprite] + LetterSpacing;
+    font.draw(ui, sprite, xy + baseXY);
   }
 
   if(outlineAlpha != 0)
