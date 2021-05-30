@@ -14,8 +14,8 @@ void LevelStats::draw(Ui& ui) const
 
   {
     Label lbl{{0, -50}, m_title};
-    lbl.alignX = Label::Alignment::Center;
-    lbl.alignY = Label::Alignment::Center;
+    lbl.anchorX = Label::Anchor::Center;
+    lbl.anchorY = Label::Anchor::Center;
     lbl.draw(ui, m_presenter->getTrFont(), m_presenter->getViewport());
   }
 
@@ -29,8 +29,8 @@ void LevelStats::draw(Ui& ui) const
                                                        seconds.count() / Hour.count(),
                                                        (seconds.count() / Minute.count()) % Hour.count(),
                                                        seconds.count() % Minute.count())};
-    lbl.alignX = Label::Alignment::Center;
-    lbl.alignY = Label::Alignment::Center;
+    lbl.anchorX = Label::Anchor::Center;
+    lbl.anchorY = Label::Anchor::Center;
     lbl.draw(ui, m_presenter->getTrFont(), m_presenter->getViewport());
   }
   else
@@ -38,30 +38,30 @@ void LevelStats::draw(Ui& ui) const
     Label lbl{{0, 70},
               /* translators: TR charmap encoding */ _(
                 "TIME TAKEN %1$02d:%2$02d", seconds.count() / Minute.count(), seconds.count() % Minute.count())};
-    lbl.alignX = Label::Alignment::Center;
-    lbl.alignY = Label::Alignment::Center;
+    lbl.anchorX = Label::Anchor::Center;
+    lbl.anchorY = Label::Anchor::Center;
     lbl.draw(ui, m_presenter->getTrFont(), m_presenter->getViewport());
   }
 
   {
     Label lbl{{0, 40},
               /* translators: TR charmap encoding */ _("SECRETS %1% of %2%", m_player->secrets, m_totalSecrets)};
-    lbl.alignX = Label::Alignment::Center;
-    lbl.alignY = Label::Alignment::Center;
+    lbl.anchorX = Label::Anchor::Center;
+    lbl.anchorY = Label::Anchor::Center;
     lbl.draw(ui, m_presenter->getTrFont(), m_presenter->getViewport());
   }
 
   {
     Label lbl{{0, 10}, /* translators: TR charmap encoding */ _("PICKUPS %1%", m_player->pickups)};
-    lbl.alignX = Label::Alignment::Center;
-    lbl.alignY = Label::Alignment::Center;
+    lbl.anchorX = Label::Anchor::Center;
+    lbl.anchorY = Label::Anchor::Center;
     lbl.draw(ui, m_presenter->getTrFont(), m_presenter->getViewport());
   }
 
   {
     Label lbl{{0, -20}, /* translators: TR charmap encoding */ _("KILLS %1%", m_player->kills)};
-    lbl.alignX = Label::Alignment::Center;
-    lbl.alignY = Label::Alignment::Center;
+    lbl.anchorX = Label::Anchor::Center;
+    lbl.anchorY = Label::Anchor::Center;
     lbl.draw(ui, m_presenter->getTrFont(), m_presenter->getViewport());
   }
 }

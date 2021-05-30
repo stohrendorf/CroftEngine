@@ -23,7 +23,7 @@ void MenuDisplay::updateRingTitle()
   if(objectTexts[2] == nullptr)
   {
     objectTexts[2] = std::make_unique<ui::Label>(glm::ivec2{0, 26}, getCurrentRing().title);
-    objectTexts[2]->alignX = ui::Label::Alignment::Center;
+    objectTexts[2]->anchorX = ui::Label::Anchor::Center;
   }
   else
   {
@@ -35,9 +35,9 @@ void MenuDisplay::updateRingTitle()
     if(objectTexts[3] == nullptr)
     {
       objectTexts[3] = std::make_unique<ui::Label>(glm::ivec2{20, 28}, "[");
-      objectTexts[3]->alignX = ui::Label::Alignment::Left;
+      objectTexts[3]->anchorX = ui::Label::Anchor::Left;
       objectTexts[4] = std::make_unique<ui::Label>(glm::ivec2{-20, 28}, "[");
-      objectTexts[4]->alignX = ui::Label::Alignment::Right;
+      objectTexts[4]->anchorX = ui::Label::Anchor::Right;
     }
   }
   else
@@ -51,11 +51,11 @@ void MenuDisplay::updateRingTitle()
     if(objectTexts[5] == nullptr)
     {
       objectTexts[5] = std::make_unique<ui::Label>(glm::ivec2{20, -15}, "]");
-      objectTexts[5]->alignX = ui::Label::Alignment::Left;
-      objectTexts[5]->alignY = ui::Label::Alignment::Bottom;
+      objectTexts[5]->anchorX = ui::Label::Anchor::Left;
+      objectTexts[5]->anchorY = ui::Label::Anchor::Bottom;
       objectTexts[6] = std::make_unique<ui::Label>(glm::ivec2{-20, -15}, "]");
-      objectTexts[6]->alignX = ui::Label::Alignment::Right;
-      objectTexts[6]->alignY = ui::Label::Alignment::Bottom;
+      objectTexts[6]->anchorX = ui::Label::Anchor::Right;
+      objectTexts[6]->anchorY = ui::Label::Anchor::Bottom;
     }
   }
   else
@@ -77,8 +77,8 @@ void MenuDisplay::updateMenuObjectDescription(ui::Ui& ui, engine::world::World& 
     if(objectTexts[0] == nullptr)
       objectTexts[0] = std::make_unique<ui::Label>(glm::ivec2{0, -16}, object.name);
 
-    objectTexts[0]->alignX = ui::Label::Alignment::Center;
-    objectTexts[0]->alignY = ui::Label::Alignment::Bottom;
+    objectTexts[0]->anchorX = ui::Label::Anchor::Center;
+    objectTexts[0]->anchorY = ui::Label::Anchor::Bottom;
   }
 
   size_t totalItemCount = world.getPlayer().getInventory().count(object.type);
@@ -126,8 +126,8 @@ void MenuDisplay::updateMenuObjectDescription(ui::Ui& ui, engine::world::World& 
     if(objectTexts[1] == nullptr)
       objectTexts[1]
         = std::make_unique<ui::Label>(glm::ivec2{64, -56}, ui::makeAmmoString(std::to_string(totalItemCount) + suffix));
-    objectTexts[1]->alignX = ui::Label::Alignment::Center;
-    objectTexts[1]->alignY = ui::Label::Alignment::Bottom;
+    objectTexts[1]->anchorX = ui::Label::Anchor::Center;
+    objectTexts[1]->anchorY = ui::Label::Anchor::Bottom;
   }
   else
   {

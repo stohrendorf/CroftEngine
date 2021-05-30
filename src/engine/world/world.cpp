@@ -884,7 +884,7 @@ void World::gameLoop(bool godMode, float delayRatio, float blackAlpha)
     default: Expects(false); break;
     }
     auto text = ui::Label{{-17, 22}, ui::makeAmmoString(std::to_string(n) + suffix)};
-    text.alignX = ui::Label::Alignment::Right;
+    text.anchorX = ui::Label::Anchor::Right;
     text.draw(ui, getPresenter().getTrFont(), getPresenter().getViewport());
   }
 

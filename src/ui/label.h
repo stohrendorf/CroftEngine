@@ -35,7 +35,7 @@ public:
 
 struct Label
 {
-  enum class Alignment
+  enum class Anchor
   {
     None,
     Top = None,
@@ -87,8 +87,8 @@ struct Label
             ui::BoxGouraud{outer, center, outer, outer}};
   }
 
-  Alignment alignX = Alignment::Left;
-  Alignment alignY = Alignment::Top;
+  Anchor anchorX = Anchor::Left;
+  Anchor anchorY = Anchor::Top;
   uint8_t backgroundAlpha = 0;
   std::optional<BackgroundGouraud> backgroundGouraud;
   uint8_t backgroundGouraudAlpha = 0;

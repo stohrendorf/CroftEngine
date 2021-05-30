@@ -115,56 +115,52 @@ int Label::calcWidth() const
 
 void Label::draw(Ui& ui, const TRFont& font, const glm::ivec2& screenSize) const
 {
-  auto baseXY = pos;
   int textWidth = 0;
   const auto layout = doLayout(text, &textWidth);
 
-  if(alignX == Alignment::Center)
+  auto baseXY = pos;
+  switch(anchorX)
   {
-    baseXY.x += (screenSize.x - textWidth) / 2;
-  }
-  else if(alignX == Alignment::Right)
-  {
-    baseXY.x += screenSize.x - textWidth;
-  }
-
-  if(alignY == Alignment::Center)
-  {
-    baseXY.y += screenSize.y / 2;
-  }
-  else if(alignY == Alignment::Bottom)
-  {
-    baseXY.y += screenSize.y;
+  case Anchor::Left: break;
+  case Anchor::Center: baseXY.x += (screenSize.x - textWidth) / 2; break;
+  case Anchor::Right: baseXY.x += screenSize.x - textWidth; break;
   }
 
-  auto bgnd = baseXY - glm::ivec2{2, 15};
-  glm::ivec2 effectiveBgndSize{textWidth + 4, FontHeight};
+  switch(anchorY)
+  {
+  case Anchor::Top: break;
+  case Anchor::Center: baseXY.y += screenSize.y / 2; break;
+  case Anchor::Bottom: baseXY.y += screenSize.y; break;
+  }
+
+  auto backgroundPos = baseXY - glm::ivec2{OutlineBorderWidth, FontHeight - 1};
+  glm::ivec2 effectiveBackgroundSize{textWidth + 4, FontHeight};
   if(bgndSize.x != 0)
   {
-    effectiveBgndSize.x = bgndSize.x + 4;
-    if(alignX != Alignment::Left)
-      bgnd.x += (textWidth - bgndSize.x) / 2;
+    effectiveBackgroundSize.x = bgndSize.x + 2 * OutlineBorderWidth;
+    if(anchorX != Anchor::Left)
+      backgroundPos.x += (textWidth - bgndSize.x) / 2;
   }
 
   if(bgndSize.y != 0)
   {
-    effectiveBgndSize.y = bgndSize.y;
+    effectiveBackgroundSize.y = bgndSize.y;
   }
 
   if(backgroundAlpha != 0)
   {
-    ui.drawBox(bgnd, effectiveBgndSize, {0, 0, 0, backgroundAlpha});
+    ui.drawBox(backgroundPos, effectiveBackgroundSize, {0, 0, 0, backgroundAlpha});
   }
 
   if(backgroundGouraudAlpha != 0 && backgroundGouraud.has_value())
   {
-    const auto half = effectiveBgndSize / 2;
-    const auto half2 = effectiveBgndSize - half;
+    const auto half = effectiveBackgroundSize / 2;
+    const auto half2 = effectiveBackgroundSize - half;
     const auto& g = backgroundGouraud.value().withAlpha(backgroundGouraudAlpha);
-    ui.drawBox(bgnd, half, g.topLeft);
-    ui.drawBox(bgnd + glm::ivec2{half.x, 0}, {half2.x, half.y}, g.topRight);
-    ui.drawBox(bgnd + half, {half.x, half2.y}, g.bottomRight);
-    ui.drawBox(bgnd + glm::ivec2{0, half.y}, {half2.x, half2.y}, g.bottomLeft);
+    ui.drawBox(backgroundPos, half, g.topLeft);
+    ui.drawBox(backgroundPos + glm::ivec2{half.x, 0}, {half2.x, half.y}, g.topRight);
+    ui.drawBox(backgroundPos + half, {half.x, half2.y}, g.bottomRight);
+    ui.drawBox(backgroundPos + glm::ivec2{0, half.y}, {half2.x, half2.y}, g.bottomLeft);
   }
 
   for(const auto& [xy, sprite] : layout)
@@ -174,7 +170,7 @@ void Label::draw(Ui& ui, const TRFont& font, const glm::ivec2& screenSize) const
 
   if(outlineAlpha != 0)
   {
-    ui.drawOutlineBox(bgnd, effectiveBgndSize, outlineAlpha);
+    ui.drawOutlineBox(backgroundPos, effectiveBackgroundSize, outlineAlpha);
   }
 }
 
