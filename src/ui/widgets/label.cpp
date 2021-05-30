@@ -53,12 +53,12 @@ void Label::draw(ui::Ui& ui, const engine::Presenter& presenter) const
 
 void Label::fitToContent()
 {
-  m_label->bgndSize.x = m_label->calcWidth();
+  m_label->bgndSize.x = m_label->text.getWidth();
   m_label->bgndSize.y = ui::FontHeight;
 }
 
 void Label::setText(const std::string& text)
 {
-  m_label->text = text;
+  m_label->text = ui::Text{text};
 }
 } // namespace ui::widgets

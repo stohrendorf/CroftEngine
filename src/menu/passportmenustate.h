@@ -7,7 +7,7 @@
 
 namespace ui
 {
-struct Label;
+struct Text;
 }
 
 namespace menu
@@ -20,7 +20,7 @@ private:
   const bool m_allowExit;
   const bool m_allowSave;
   std::optional<int> m_forcePage;
-  std::unique_ptr<ui::Label> m_passportText;
+  std::unique_ptr<ui::Text> m_passportText;
 
   std::optional<std::unique_ptr<MenuState>> showLoadGamePage(engine::world::World& world, MenuDisplay& display);
   std::optional<std::unique_ptr<MenuState>>

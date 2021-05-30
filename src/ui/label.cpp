@@ -26,6 +26,13 @@ const std::array<const uint8_t, 98> charToSprite{
 
 std::vector<std::tuple<glm::ivec2, uint8_t>> doLayout(const std::string& text, int* width = nullptr)
 {
+  if(text.empty())
+  {
+    if(width != nullptr)
+      *width = 0;
+    return {};
+  }
+
   std::vector<std::tuple<glm::ivec2, uint8_t>> layout;
 
   glm::ivec2 xy{0, 0};
@@ -106,33 +113,23 @@ std::string makeAmmoString(const std::string& str)
   return result;
 }
 
-int Label::calcWidth() const
-{
-  int width = 0;
-  doLayout(text, &width);
-  return width;
-}
-
 void Label::draw(Ui& ui, const TRFont& font, const glm::ivec2& screenSize) const
 {
-  int textWidth = 0;
-  const auto layout = doLayout(text, &textWidth);
-
   auto baseXY = pos;
   switch(anchorX)
   {
   case Anchor::Left: break;
-  case Anchor::Center: baseXY.x += (screenSize.x - textWidth) / 2; break;
-  case Anchor::Right: baseXY.x += screenSize.x - textWidth; break;
+  case Anchor::Center: baseXY.x += (screenSize.x - text.getWidth()) / 2; break;
+  case Anchor::Right: baseXY.x += screenSize.x - text.getWidth(); break;
   }
 
   auto backgroundPos = baseXY - glm::ivec2{OutlineBorderWidth, FontHeight - 1};
-  glm::ivec2 effectiveBackgroundSize{textWidth + 4, FontHeight};
+  glm::ivec2 effectiveBackgroundSize{text.getWidth() + 4, FontHeight};
   if(bgndSize.x != 0)
   {
     effectiveBackgroundSize.x = bgndSize.x + 2 * OutlineBorderWidth;
     if(anchorX != Anchor::Left)
-      backgroundPos.x += (textWidth - bgndSize.x) / 2;
+      backgroundPos.x += (text.getWidth() - bgndSize.x) / 2;
   }
 
   if(bgndSize.y != 0)
@@ -156,10 +153,7 @@ void Label::draw(Ui& ui, const TRFont& font, const glm::ivec2& screenSize) const
     ui.drawBox(backgroundPos + glm::ivec2{0, half.y}, {half2.x, half2.y}, g.bottomLeft);
   }
 
-  for(const auto& [xy, sprite] : layout)
-  {
-    font.draw(ui, sprite, xy + baseXY);
-  }
+  text.draw(ui, font, baseXY);
 
   if(outlineAlpha != 0)
   {
@@ -167,8 +161,22 @@ void Label::draw(Ui& ui, const TRFont& font, const glm::ivec2& screenSize) const
   }
 }
 
-void TRFont::draw(ui::Ui& ui, size_t n, const glm::ivec2& xy) const
+void TRFont::draw(ui::Ui& ui, size_t sprite, const glm::ivec2& xy) const
 {
-  ui.draw(m_sprites[n], xy);
+  ui.draw(m_sprites[sprite], xy);
+}
+
+Text::Text(const std::string& text)
+    : m_layout{doLayout(text, &m_width)}
+{
+  Ensures(m_width >= 0);
+}
+
+void Text::draw(Ui& ui, const TRFont& font, const glm::ivec2& position) const
+{
+  for(const auto& [xy, sprite] : m_layout)
+  {
+    font.draw(ui, sprite, xy + position);
+  }
 }
 } // namespace ui

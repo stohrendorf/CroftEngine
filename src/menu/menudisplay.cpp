@@ -21,15 +21,8 @@ void MenuDisplay::updateRingTitle(const glm::ivec2& viewport)
   if(rings.size() == 1)
     return;
 
-  if(objectTexts[2] == nullptr)
-  {
-    objectTexts[2] = std::make_unique<ui::Label>(glm::ivec2{0, 26}, getCurrentRing().title);
-    objectTexts[2]->anchorX = ui::Label::Anchor::Center;
-  }
-  else
-  {
-    objectTexts[2]->text = getCurrentRing().title;
-  }
+  objectTexts[2] = std::make_unique<ui::Label>(glm::ivec2{0, 26}, getCurrentRing().title);
+  objectTexts[2]->anchorX = ui::Label::Anchor::Center;
 
   if(currentRingIndex > 0)
   {
@@ -70,14 +63,8 @@ void MenuDisplay::updateMenuObjectDescription(ui::Ui& ui, engine::world::World& 
 {
   if(objectTexts[0] == nullptr)
   {
-    if(const auto objectName = world.getItemTitle(object.type))
-    {
-      objectTexts[0] = std::make_unique<ui::Label>(glm::ivec2{0, 0}, objectName.value());
-    }
-
-    if(objectTexts[0] == nullptr)
-      objectTexts[0] = std::make_unique<ui::Label>(glm::ivec2{0, 0}, object.name);
-
+    objectTexts[0]
+      = std::make_unique<ui::Label>(glm::ivec2{0, 0}, world.getItemTitle(object.type).value_or(object.name));
     objectTexts[0]->anchorX = ui::Label::Anchor::Center;
   }
   objectTexts[0]->pos.y = world.getPresenter().getViewport().y - 16;
@@ -193,11 +180,12 @@ bool MenuDisplay::doOptions(engine::world::World& world, MenuObject& object)
   case engine::TR1ItemId::ShotgunAmmo: [[fallthrough]];
   case engine::TR1ItemId::MagnumAmmo: [[fallthrough]];
   case engine::TR1ItemId::UziAmmo: [[fallthrough]];
-  case engine::TR1ItemId::Sunglasses: break;
-  case engine::TR1ItemId::CassettePlayer: /* TODO doSoundOptions(); */ break;
-  case engine::TR1ItemId::DirectionKeys: /* TODO doControlOptions(); */ break;
-  case engine::TR1ItemId::Flashlight: /* TODO doGammaOptions(); */ break;
-  case engine::TR1ItemId::PassportOpening: /* TODO doPassportOptions(); */ break;
+  case engine::TR1ItemId::Sunglasses: [[fallthrough]];
+  case engine::TR1ItemId::CassettePlayer: [[fallthrough]];
+  case engine::TR1ItemId::DirectionKeys: [[fallthrough]];
+  case engine::TR1ItemId::PassportOpening: break;
+  case engine::TR1ItemId::Flashlight:
+    BOOST_THROW_EXCEPTION(std::runtime_error("Gamma options are not implemented")) break;
   case engine::TR1ItemId::Compass:
     if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Menu)
        || world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Action))

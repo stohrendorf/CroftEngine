@@ -24,7 +24,7 @@ GroupBox::GroupBox(const glm::ivec2& position,
     , m_widget{std::move(widget)}
 {
   m_widget->setPosition(m_position + glm::ivec2{InnerMargin, WidgetOffsetTop});
-  m_title->bgndSize.x = m_title->calcWidth();
+  m_title->bgndSize.x = m_title->text.getWidth();
 }
 
 GroupBox::~GroupBox() = default;
