@@ -40,7 +40,6 @@ struct MenuDisplay
   ~MenuDisplay();
 
   const InventoryMode mode;
-  std::array<std::unique_ptr<ui::Label>, 7> objectTexts;
   std::optional<engine::TR1ItemId> inventoryChosen{};
   float streamVolume;
   bool allowMenuClose = true;
@@ -58,8 +57,6 @@ struct MenuDisplay
   bool passOpen = false;
   bool doOptions(engine::world::World& world, MenuObject& object);
   void updateMenuObjectDescription(ui::Ui& ui, engine::world::World& world, const MenuObject& object);
-  void clearMenuObjectDescription();
-  void updateRingTitle(const glm::ivec2& viewport);
 
   [[nodiscard]] MenuRing& getCurrentRing()
   {
@@ -76,5 +73,8 @@ private:
                                                                     bool withHomePolaroid);
   [[nodiscard]] static std::vector<MenuObject> getMainRingObjects(const engine::world::World& world);
   [[nodiscard]] static std::vector<MenuObject> getKeysRingObjects(const engine::world::World& world);
+
+  ui::Text m_upArrow;
+  ui::Text m_downArrow;
 };
 } // namespace menu

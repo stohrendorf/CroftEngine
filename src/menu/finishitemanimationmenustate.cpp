@@ -12,8 +12,6 @@ namespace menu
 std::unique_ptr<MenuState>
   FinishItemAnimationMenuState::onFrame(ui::Ui& /*ui*/, engine::world::World& world, MenuDisplay& display)
 {
-  display.updateRingTitle(world.getPresenter().getViewport());
-
   auto& object = display.getCurrentRing().getSelectedObject();
   if(object.animate())
     return nullptr; // play full animation until its end

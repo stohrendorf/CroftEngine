@@ -15,6 +15,8 @@ namespace menu
 {
 struct MenuObject;
 
+constexpr int RingInfoYMargin = 28;
+
 extern void rotateForSelection(MenuObject& object);
 extern void idleRotation(engine::world::World& world, MenuObject& object);
 extern void zeroRotation(MenuObject& object, const core::Angle& speed);

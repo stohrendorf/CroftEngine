@@ -12,63 +12,15 @@
 #include "inflateringmenustate.h"
 #include "menuring.h"
 #include "render/scene/camera.h"
+#include "ui/core.h"
+#include "ui/label.h"
 #include "ui/util.h"
+#include "util.h"
 
 namespace menu
 {
-void MenuDisplay::updateRingTitle(const glm::ivec2& viewport)
-{
-  if(rings.size() == 1)
-    return;
-
-  objectTexts[2] = std::make_unique<ui::Label>(glm::ivec2{0, 26}, getCurrentRing().title);
-  objectTexts[2]->anchorX = ui::Label::Anchor::Center;
-
-  if(currentRingIndex > 0)
-  {
-    if(objectTexts[3] == nullptr)
-    {
-      objectTexts[3] = std::make_unique<ui::Label>(glm::ivec2{20, 28}, ui::getSpriteSelector(ui::ArrowUpSprite));
-      objectTexts[3]->anchorX = ui::Label::Anchor::Left;
-      objectTexts[4] = std::make_unique<ui::Label>(glm::ivec2{-20, 28}, ui::getSpriteSelector(ui::ArrowUpSprite));
-      objectTexts[4]->anchorX = ui::Label::Anchor::Right;
-    }
-  }
-  else
-  {
-    objectTexts[3].reset();
-    objectTexts[4].reset();
-  }
-
-  if(currentRingIndex + 1 < rings.size())
-  {
-    if(objectTexts[5] == nullptr)
-    {
-      objectTexts[5] = std::make_unique<ui::Label>(glm::ivec2{20, 0}, ui::getSpriteSelector(ui::ArrowDownSprite));
-      objectTexts[5]->anchorX = ui::Label::Anchor::Left;
-      objectTexts[6] = std::make_unique<ui::Label>(glm::ivec2{-20, 0}, ui::getSpriteSelector(ui::ArrowDownSprite));
-      objectTexts[6]->anchorX = ui::Label::Anchor::Right;
-    }
-    objectTexts[5]->pos.y = viewport.y - 15;
-    objectTexts[6]->pos.y = viewport.y - 15;
-  }
-  else
-  {
-    objectTexts[5].reset();
-    objectTexts[6].reset();
-  }
-}
-
 void MenuDisplay::updateMenuObjectDescription(ui::Ui& ui, engine::world::World& world, const MenuObject& object)
 {
-  if(objectTexts[0] == nullptr)
-  {
-    objectTexts[0]
-      = std::make_unique<ui::Label>(glm::ivec2{0, 0}, world.getItemTitle(object.type).value_or(object.name));
-    objectTexts[0]->anchorX = ui::Label::Anchor::Center;
-  }
-  objectTexts[0]->pos.y = world.getPresenter().getViewport().y - 16;
-
   size_t totalItemCount = world.getPlayer().getInventory().count(object.type);
   std::string suffix;
 
@@ -111,15 +63,10 @@ void MenuDisplay::updateMenuObjectDescription(ui::Ui& ui, engine::world::World& 
 
   if(totalItemCount > 1)
   {
-    if(objectTexts[1] == nullptr)
-      objectTexts[1]
-        = std::make_unique<ui::Label>(glm::ivec2{64, 0}, ui::makeAmmoString(std::to_string(totalItemCount) + suffix));
-    objectTexts[1]->anchorX = ui::Label::Anchor::Center;
-    objectTexts[1]->pos.y = world.getPresenter().getViewport().y - 56;
-  }
-  else
-  {
-    objectTexts[1].reset();
+    ui::Text text{ui::makeAmmoString(std::to_string(totalItemCount) + suffix)};
+    text.draw(ui,
+              world.getPresenter().getTrFont(),
+              {world.getPresenter().getViewport().x - text.getWidth() - 64, world.getPresenter().getViewport().y - 56});
   }
 }
 
@@ -142,18 +89,31 @@ void MenuDisplay::display(ui::Ui& ui, engine::world::World& world)
     m_currentState->begin(world);
   }
 
-  for(const auto& txt : objectTexts)
-    if(txt != nullptr)
-      txt->draw(ui, world.getPresenter().getTrFont(), world.getPresenter().getViewport());
+  const auto& vp = world.getPresenter().getViewport();
+  static constexpr int RingInfoXMargin = 20;
+  if(currentRingIndex > 0)
+  {
+    m_upArrow.draw(ui, world.getPresenter().getTrFont(), {RingInfoXMargin, RingInfoYMargin});
+    m_upArrow.draw(
+      ui, world.getPresenter().getTrFont(), {vp.x - m_upArrow.getWidth() - RingInfoXMargin, RingInfoYMargin});
+  }
+
+  if(currentRingIndex + 1 < rings.size())
+  {
+    m_downArrow.draw(ui, world.getPresenter().getTrFont(), {RingInfoXMargin, vp.y - RingInfoYMargin + ui::FontHeight});
+    m_downArrow.draw(ui,
+                     world.getPresenter().getTrFont(),
+                     {vp.x - m_downArrow.getWidth() - RingInfoXMargin, vp.y - RingInfoYMargin + ui::FontHeight});
+  }
+
+  if(rings.size() > 1)
+  {
+    ui::Text title{getCurrentRing().title};
+    title.draw(ui, world.getPresenter().getTrFont(), {(vp.x - title.getWidth()) / 2, RingInfoYMargin});
+  }
 
   if(result != MenuResult::None)
     world.getAudioEngine().fadeStreamVolume(streamVolume);
-}
-
-void MenuDisplay::clearMenuObjectDescription()
-{
-  objectTexts[0].reset();
-  objectTexts[1].reset();
 }
 
 bool MenuDisplay::doOptions(engine::world::World& world, MenuObject& object)
@@ -185,7 +145,8 @@ bool MenuDisplay::doOptions(engine::world::World& world, MenuObject& object)
   case engine::TR1ItemId::DirectionKeys: [[fallthrough]];
   case engine::TR1ItemId::PassportOpening: break;
   case engine::TR1ItemId::Flashlight:
-    BOOST_THROW_EXCEPTION(std::runtime_error("Gamma options are not implemented")) break;
+    BOOST_THROW_EXCEPTION(std::runtime_error("Gamma options are not implemented"));
+    break;
   case engine::TR1ItemId::Compass:
     if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Menu)
        || world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Action))
@@ -478,6 +439,8 @@ MenuDisplay::MenuDisplay(InventoryMode mode, engine::world::World& world)
     , streamVolume{world.getPresenter().getSoundEngine()->getSoLoud().getGlobalVolume()}
     , allowMenuClose{mode != InventoryMode::TitleMode && mode != InventoryMode::DeathMode}
     , m_currentState{std::make_unique<InflateRingMenuState>(ringTransform, true)}
+    , m_upArrow{ui::getSpriteSelector(ui::ArrowUpSprite)}
+    , m_downArrow{ui::getSpriteSelector(ui::ArrowDownSprite)}
 {
   if(mode == InventoryMode::GameMode)
   {

@@ -10,13 +10,21 @@
 #include "menuring.h"
 #include "rotateleftrightmenustate.h"
 #include "switchringmenustate.h"
+#include "ui/core.h"
 #include "util.h"
 
 namespace menu
 {
-std::unique_ptr<MenuState> IdleRingMenuState::onFrame(ui::Ui& /*ui*/, engine::world::World& world, MenuDisplay& display)
+std::unique_ptr<MenuState> IdleRingMenuState::onFrame(ui::Ui& ui, engine::world::World& world, MenuDisplay& display)
 {
-  display.updateRingTitle(world.getPresenter().getViewport());
+  {
+    const auto& currentObject = display.getCurrentRing().getSelectedObject();
+    ui::Text text{world.getItemTitle(currentObject.type).value_or(currentObject.name)};
+    text.draw(ui,
+              world.getPresenter().getTrFont(),
+              {(world.getPresenter().getViewport().x - text.getWidth()) / 2,
+               world.getPresenter().getViewport().y - RingInfoYMargin - ui::FontHeight});
+  }
 
   if(world.getPresenter().getInputHandler().getInputState().xMovement.justChangedTo(hid::AxisMovement::Right)
      && display.getCurrentRing().list.size() > 1)

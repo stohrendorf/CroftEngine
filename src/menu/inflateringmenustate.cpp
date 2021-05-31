@@ -37,7 +37,6 @@ void InflateRingMenuState::handleObject(ui::Ui& /*ui*/,
                                         MenuDisplay& display,
                                         MenuObject& object)
 {
-  display.clearMenuObjectDescription();
   if(&object == &display.getCurrentRing().getSelectedObject())
   {
     idleRotation(world, object);

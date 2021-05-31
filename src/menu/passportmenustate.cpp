@@ -39,8 +39,6 @@ std::optional<std::unique_ptr<MenuState>> PassportMenuState::showLoadGamePage(en
   if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Action)
      || display.mode == InventoryMode::LoadMode)
   {
-    display.objectTexts[0].reset();
-    display.objectTexts[2].reset();
     return create<SavegameListMenuState>(std::move(display.m_currentState), title, world, true);
   }
 
@@ -62,8 +60,6 @@ std::optional<std::unique_ptr<MenuState>>
   {
     if(display.mode == InventoryMode::SaveMode || (m_allowSave && isInGame))
     {
-      display.objectTexts[0].reset();
-      display.objectTexts[2].reset();
       return create<SavegameListMenuState>(std::move(display.m_currentState), title, world, false);
     }
     else
@@ -131,7 +127,6 @@ std::unique_ptr<MenuState> PassportMenuState::onFrame(ui::Ui& ui, engine::world:
 
   const bool hasSavedGames = world.hasSavedGames();
 
-  display.objectTexts[0].reset();
   const auto localFrame = passport.goalFrame - passport.openFrame;
   auto page = localFrame / FramesPerPage;
   hid::AxisMovement forcePageTurn = hid::AxisMovement::Null;

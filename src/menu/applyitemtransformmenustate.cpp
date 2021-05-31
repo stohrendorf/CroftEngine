@@ -40,10 +40,8 @@ void ApplyItemTransformMenuState::handleObject(ui::Ui& ui,
 }
 
 std::unique_ptr<MenuState>
-  ApplyItemTransformMenuState::onFrame(ui::Ui& /*ui*/, engine::world::World& world, MenuDisplay& display)
+  ApplyItemTransformMenuState::onFrame(ui::Ui& /*ui*/, engine::world::World& /*world*/, MenuDisplay& /*display*/)
 {
-  display.updateRingTitle(world.getPresenter().getViewport());
-
   if(m_duration != Duration)
   {
     m_duration += 1_frame;
