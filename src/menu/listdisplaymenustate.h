@@ -6,11 +6,6 @@
 #include <string>
 #include <vector>
 
-namespace ui
-{
-struct Label;
-}
-
 namespace ui::widgets
 {
 class VBox;

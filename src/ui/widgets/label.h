@@ -2,13 +2,13 @@
 
 #include "widget.h"
 
-#include <glm/fwd.hpp>
+#include <glm/glm.hpp>
 #include <memory>
 #include <string>
 
 namespace ui
 {
-struct Label;
+struct Text;
 }
 
 namespace ui::widgets
@@ -16,7 +16,7 @@ namespace ui::widgets
 class Label : public Widget
 {
 public:
-  explicit Label(const glm::ivec2& position, const std::string& label, int width = 0);
+  explicit Label(const glm::ivec2& position, const std::string& text, int width = 0);
   ~Label() override;
 
   [[nodiscard]] glm::ivec2 getPosition() const override;
@@ -30,6 +30,9 @@ public:
   void setText(const std::string& text);
 
 private:
-  std::unique_ptr<ui::Label> m_label;
+  std::unique_ptr<ui::Text> m_text;
+  glm::ivec2 m_position;
+  glm::ivec2 m_size;
+  uint8_t m_alpha = 0;
 };
 } // namespace ui::widgets

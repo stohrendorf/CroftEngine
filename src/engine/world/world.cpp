@@ -883,9 +883,8 @@ void World::gameLoop(bool godMode, float delayRatio, float blackAlpha)
       break;
     default: Expects(false); break;
     }
-    auto text = ui::Label{{-17, 22}, ui::makeAmmoString(std::to_string(n) + suffix)};
-    text.anchorX = ui::Label::Anchor::Right;
-    text.draw(ui, getPresenter().getTrFont(), getPresenter().getViewport());
+    auto text = ui::Text{ui::makeAmmoString(std::to_string(n) + suffix)};
+    text.draw(ui, getPresenter().getTrFont(), glm::ivec2{getPresenter().getViewport().x - 17 - text.getWidth(), 22});
   }
 
   drawPickupWidgets(ui);

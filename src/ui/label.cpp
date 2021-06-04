@@ -1,6 +1,5 @@
 #include "label.h"
 
-#include "core.h"
 #include "render/scene/material.h"
 #include "ui.h"
 #include "util.h"
@@ -111,54 +110,6 @@ std::string makeAmmoString(const std::string& str)
     }
   }
   return result;
-}
-
-void Label::draw(Ui& ui, const TRFont& font, const glm::ivec2& screenSize) const
-{
-  auto baseXY = pos;
-  switch(anchorX)
-  {
-  case Anchor::Left: break;
-  case Anchor::Center: baseXY.x += (screenSize.x - text.getWidth()) / 2; break;
-  case Anchor::Right: baseXY.x += screenSize.x - text.getWidth(); break;
-  }
-
-  auto backgroundPos = baseXY - glm::ivec2{OutlineBorderWidth, FontHeight - 1};
-  glm::ivec2 effectiveBackgroundSize{text.getWidth() + 4, FontHeight};
-  if(bgndSize.x != 0)
-  {
-    effectiveBackgroundSize.x = bgndSize.x + 2 * OutlineBorderWidth;
-    if(anchorX != Anchor::Left)
-      backgroundPos.x += (text.getWidth() - bgndSize.x) / 2;
-  }
-
-  if(bgndSize.y != 0)
-  {
-    effectiveBackgroundSize.y = bgndSize.y;
-  }
-
-  if(backgroundAlpha != 0)
-  {
-    ui.drawBox(backgroundPos, effectiveBackgroundSize, {0, 0, 0, backgroundAlpha});
-  }
-
-  if(backgroundGouraudAlpha != 0 && backgroundGouraud.has_value())
-  {
-    const auto half = effectiveBackgroundSize / 2;
-    const auto half2 = effectiveBackgroundSize - half;
-    const auto& g = backgroundGouraud.value().withAlpha(backgroundGouraudAlpha);
-    ui.drawBox(backgroundPos, half, g.topLeft);
-    ui.drawBox(backgroundPos + glm::ivec2{half.x, 0}, {half2.x, half.y}, g.topRight);
-    ui.drawBox(backgroundPos + half, {half.x, half2.y}, g.bottomRight);
-    ui.drawBox(backgroundPos + glm::ivec2{0, half.y}, {half2.x, half2.y}, g.bottomLeft);
-  }
-
-  text.draw(ui, font, baseXY);
-
-  if(outlineAlpha != 0)
-  {
-    ui.drawOutlineBox(backgroundPos, effectiveBackgroundSize, outlineAlpha);
-  }
 }
 
 void TRFont::draw(ui::Ui& ui, size_t sprite, const glm::ivec2& xy) const

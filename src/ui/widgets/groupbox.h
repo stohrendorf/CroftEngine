@@ -17,7 +17,7 @@ class Presenter;
 namespace ui
 {
 class Ui;
-struct Label;
+struct Text;
 } // namespace ui
 
 namespace ui::widgets
@@ -47,7 +47,7 @@ public:
 private:
   glm::ivec2 m_position;
   glm::ivec2 m_size;
-  gsl::not_null<std::unique_ptr<ui::Label>> m_title;
+  gsl::not_null<std::unique_ptr<ui::Text>> m_title;
   gsl::not_null<std::shared_ptr<Widget>> m_widget;
 };
 } // namespace ui::widgets

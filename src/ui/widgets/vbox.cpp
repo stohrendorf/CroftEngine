@@ -31,7 +31,7 @@ void VBox::draw(ui::Ui& ui, const engine::Presenter& presenter) const
   static const auto center = gl::SRGBA8{128, 64, 64, 128};
   static const auto innerCorner = gl::SRGBA8{128, 64, 0, 128};
   static const auto innerCenter = gl::SRGBA8{255, 255, 255, 255};
-  static const auto scrollIndicatorBottom = ui::Label::BackgroundGouraud{
+  static const auto scrollIndicatorBottom = ui::BackgroundGouraud{
     ui::BoxGouraud{
       outerCorner,
       outerCorner,
@@ -60,19 +60,14 @@ void VBox::draw(ui::Ui& ui, const engine::Presenter& presenter) const
 
   if(first != 0)
   {
-    ui::Label indicator{m_position, ""};
-    indicator.bgndSize = {m_size.x, 0};
-    indicator.backgroundGouraudAlpha = 255;
-    indicator.backgroundGouraud = scrollIndicatorBottom.mirroredY();
-    indicator.draw(ui, presenter.getTrFont(), presenter.getViewport());
+    scrollIndicatorBottom.mirroredY().draw(
+      ui, m_position - glm::ivec2{0, ui::FontHeight}, glm::ivec2{m_size.x, FontHeight});
   }
   if(last != m_widgets.size())
   {
-    ui::Label indicator{m_position + glm::ivec2{0, m_size.y - ui::FontHeight}, ""};
-    indicator.bgndSize = {m_size.x, 0};
-    indicator.backgroundGouraudAlpha = 255;
-    indicator.backgroundGouraud = scrollIndicatorBottom;
-    indicator.draw(ui, presenter.getTrFont(), presenter.getViewport());
+    scrollIndicatorBottom.draw(ui,
+                               m_position + glm::ivec2{0, m_size.y - ui::FontHeight - 2 * ui::OutlineBorderWidth},
+                               glm::ivec2{m_size.x, FontHeight});
   }
 
   int y = m_position.y;

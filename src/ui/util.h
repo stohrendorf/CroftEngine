@@ -6,8 +6,6 @@
 
 namespace ui
 {
-struct Label;
-
 static constexpr char SpriteSelector = '\x1f';
 static constexpr char SzLigSprite = '\x4a';
 static constexpr char ArrowUpSprite = '\x50';
@@ -49,8 +47,4 @@ static constexpr char UmlautDots = '~'; // does not consume space
 static constexpr char Acute1 = '(';     // does not consume space
 static constexpr char Acute2 = ')';     // does not consume space
 static constexpr char Gravis = '$';     // does not consume space
-
-extern std::unique_ptr<Label> createFrame(const glm::ivec2& position, const glm::ivec2& size);
-extern std::unique_ptr<Label>
-  createHeading(const std::string& heading, const glm::ivec2& position, const glm::ivec2& size);
 } // namespace ui

@@ -417,7 +417,6 @@ set( EDISONENGINE_SRCS
         ui/levelstats.cpp
         ui/ui.h
         ui/ui.cpp
-        ui/util.cpp
 
         ui/widgets/checkbox.cpp
         ui/widgets/gridbox.cpp

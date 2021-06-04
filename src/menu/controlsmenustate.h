@@ -5,11 +5,6 @@
 
 #include <functional>
 
-namespace ui
-{
-struct Label;
-}
-
 namespace ui::widgets
 {
 class GridBox;

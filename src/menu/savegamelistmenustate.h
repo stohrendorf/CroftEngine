@@ -5,11 +5,6 @@
 #include <string>
 #include <vector>
 
-namespace ui
-{
-struct Label;
-}
-
 namespace menu
 {
 class SavegameListMenuState : public ListDisplayMenuState

@@ -20,25 +20,35 @@ GroupBox::GroupBox(const glm::ivec2& position,
                    gsl::not_null<std::shared_ptr<Widget>> widget)
     : m_position{position}
     , m_size{size}
-    , m_title{createHeading(title, {0, 0}, {0, 0})}
+    , m_title{std::make_unique<ui::Text>(title)}
     , m_widget{std::move(widget)}
 {
   m_widget->setPosition(m_position + glm::ivec2{InnerMargin, WidgetOffsetTop});
-  m_title->bgndSize.x = m_title->text.getWidth();
 }
 
 GroupBox::~GroupBox() = default;
 
 void GroupBox::draw(ui::Ui& ui, const engine::Presenter& presenter) const
 {
-  createFrame(m_position + glm::ivec2{0, ui::FontHeight / 2},
-              m_size - glm::ivec2{0, ui::FontHeight / 2 + 2 * ui::OutlineBorderWidth})
-    ->draw(ui, presenter.getTrFont(), presenter.getViewport());
+  {
+    const auto bgPos = m_position - glm::ivec2{OutlineBorderWidth, FontHeight / 2 - 1};
+    const auto bgSize = m_size - glm::ivec2{-2 * OutlineBorderWidth, ui::FontHeight / 2 + 2 * ui::OutlineBorderWidth};
+
+    const auto g = makeBackgroundCircle(gl::SRGBA8{0, 128, 0, 192}, gl::SRGBA8{0, 0, 0, 192});
+    g.draw(ui, bgPos, bgSize);
+
+    ui.drawOutlineBox(bgPos, bgSize);
+  }
+
   m_widget->setPosition(m_position + glm::ivec2{InnerMargin, WidgetOffsetTop});
   m_widget->setSize({m_size.x - 2 * InnerMargin, m_size.y - TotalVerticalMargin});
   m_widget->draw(ui, presenter);
-  m_title->pos = m_position + glm::ivec2{TitleOffset, 0};
-  m_title->draw(ui, presenter.getTrFont(), presenter.getViewport());
+
+  const auto bgPos = m_position - glm::ivec2{OutlineBorderWidth - TitleOffset, FontHeight - 1};
+  const auto bgSize = glm::ivec2{m_title->getWidth() + 2 * OutlineBorderWidth, ui::FontHeight};
+  ui.drawBox(bgPos, bgSize, gl::SRGBA8{0, 0, 0, 255});
+  ui.drawOutlineBox(bgPos, bgSize);
+  m_title->draw(ui, presenter.getTrFont(), m_position + glm::ivec2{TitleOffset, 0});
 }
 
 void GroupBox::setPosition(const glm::ivec2& position)
