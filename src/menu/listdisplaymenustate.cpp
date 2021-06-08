@@ -21,6 +21,7 @@ ListDisplayMenuState::ListDisplayMenuState(const std::shared_ptr<MenuRingTransfo
 
 std::unique_ptr<MenuState> ListDisplayMenuState::onFrame(ui::Ui& ui, engine::world::World& world, MenuDisplay& display)
 {
+  m_listBox->fitToContent();
   m_groupBox.fitToContent();
 
   {

@@ -16,6 +16,9 @@ GridBox::~GridBox() = default;
 
 void GridBox::draw(ui::Ui& ui, const engine::Presenter& presenter) const
 {
+  Expects(m_columnSizes.size() == m_widgets.shape()[0]);
+  Expects(m_rowSizes.size() == m_widgets.shape()[1]);
+
   int xPos = m_position.x;
   for(size_t x = 0; x < m_widgets.shape()[0]; ++x)
   {
@@ -26,7 +29,6 @@ void GridBox::draw(ui::Ui& ui, const engine::Presenter& presenter) const
       if(widget != nullptr)
       {
         widget->setPosition({xPos, yPos});
-        widget->setSize({m_columnSizes[x], m_rowSizes[y]});
         widget->draw(ui, presenter);
       }
 
@@ -75,7 +77,9 @@ void GridBox::setSize(const glm::ivec2& size)
 
 void GridBox::fitToContent()
 {
-  int totalWidth = 0;
+  Expects(m_columnSizes.size() == m_widgets.shape()[0]);
+  Expects(m_rowSizes.size() == m_widgets.shape()[1]);
+
   for(size_t x = 0; x < m_widgets.shape()[0]; ++x)
   {
     int maxWidth = 0;
@@ -85,16 +89,11 @@ void GridBox::fitToContent()
       if(widget == nullptr)
         continue;
 
-      widget->fitToContent();
       maxWidth = std::max(widget->getSize().x, maxWidth);
     }
     m_columnSizes[x] = maxWidth;
-    totalWidth += maxWidth + m_separation.x;
   }
-  if(totalWidth > 0)
-    totalWidth -= m_separation.x;
 
-  int totalHeight = 0;
   for(size_t y = 0; y < m_widgets.shape()[1]; ++y)
   {
     int maxHeight = 0;
@@ -107,10 +106,20 @@ void GridBox::fitToContent()
       maxHeight = std::max(widget->getSize().y, maxHeight);
     }
     m_rowSizes[y] = maxHeight;
-    totalHeight += maxHeight + m_separation.y;
   }
-  if(totalHeight > 0)
-    totalHeight -= m_separation.y;
+
+  recalculateTotalSize();
+}
+
+void GridBox::recalculateTotalSize()
+{
+  auto totalWidth = std::accumulate(m_columnSizes.begin(), m_columnSizes.end(), 0, std::plus<>{});
+  if(!m_columnSizes.empty())
+    totalWidth += (m_columnSizes.size() - 1) * m_separation.x;
+
+  auto totalHeight = std::accumulate(m_rowSizes.begin(), m_rowSizes.end(), 0, std::plus<>{});
+  if(!m_rowSizes.empty())
+    totalHeight += (m_rowSizes.size() - 1) * m_separation.y;
 
   m_size = {totalWidth, totalHeight};
 }

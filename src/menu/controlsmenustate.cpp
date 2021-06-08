@@ -24,11 +24,16 @@ std::shared_ptr<ui::widgets::GridBox>
 
   auto add = [&gridBox, &factory](size_t x0, size_t y, hid::Action action)
   {
-    gridBox->set(x0, y, std::make_shared<ui::widgets::Label>(glm::ivec2{0, 0}, hid::getName(action)));
-    gridBox->set(x0 + 1, y, factory(action));
+    auto label = std::make_shared<ui::widgets::Label>(glm::ivec2{0, 0}, hid::getName(action));
+    label->fitToContent();
+    gridBox->set(x0, y, label);
+
+    auto widget = factory(action);
+    widget->fitToContent();
+    gridBox->set(x0 + 1, y, widget);
   };
 
-  gridBox->setExtents(8, 9);
+  gridBox->setExtents(8, 8);
 
   add(0, 0, hid::Action::Forward);
   add(0, 1, hid::Action::Backward);
@@ -45,21 +50,20 @@ std::shared_ptr<ui::widgets::GridBox>
   add(6, 2, hid::Action::Menu);
   add(6, 3, hid::Action::FreeLook);
 
-  // TODO: just for spacing, should be done by explicitly setting the size after auto-fitting
-  gridBox->set(0, 4, std::make_shared<ui::widgets::Label>(glm::ivec2{0, 0}, ""));
+  add(0, 4, hid::Action::DrawPistols);
+  add(0, 5, hid::Action::DrawShotgun);
+  add(0, 6, hid::Action::DrawUzis);
+  add(0, 7, hid::Action::DrawMagnums);
 
-  add(0, 5, hid::Action::DrawPistols);
-  add(0, 6, hid::Action::DrawShotgun);
-  add(0, 7, hid::Action::DrawUzis);
-  add(0, 8, hid::Action::DrawMagnums);
+  add(3, 4, hid::Action::ConsumeSmallMedipack);
+  add(3, 5, hid::Action::ConsumeLargeMedipack);
 
-  add(3, 5, hid::Action::ConsumeSmallMedipack);
-  add(3, 6, hid::Action::ConsumeLargeMedipack);
+  add(6, 4, hid::Action::Save);
+  add(6, 5, hid::Action::Load);
+  add(6, 6, hid::Action::Screenshot);
 
-  add(6, 5, hid::Action::Save);
-  add(6, 6, hid::Action::Load);
-  add(6, 7, hid::Action::Screenshot);
-
+  gridBox->fitToContent();
+  gridBox->setRowSize(4, 2 * ui::FontHeight);
   return gridBox;
 }
 } // namespace
@@ -82,11 +86,7 @@ ControlsMenuState::ControlsMenuState(const std::shared_ptr<MenuRingTransform>& r
         glm::ivec2{0, 0}, /* translators: TR charcmap encoding */ pgettext("ButtonAssignment", "N/A"));
     return std::make_shared<ui::widgets::Label>(glm::ivec2{0, 0}, hid::getName(it->second));
   };
-  auto gridBox = createButtonGridBox(createKeyLabel);
-  m_controls->set(0,
-                  0,
-                  std::make_shared<ui::widgets::GroupBox>(
-                    glm::ivec2{0, 0}, glm::ivec2{0, 0}, /* translators: TR charmap encoding */ _("Keyboard"), gridBox));
+  auto gridBox1 = createButtonGridBox(createKeyLabel);
 
   const auto& layout = world.getControllerLayouts().at("PS");
   const auto createButtonLabel = [&world, &layout](hid::Action action) -> std::shared_ptr<ui::widgets::Widget>
@@ -96,14 +96,28 @@ ControlsMenuState::ControlsMenuState(const std::shared_ptr<MenuRingTransform>& r
     if(it == buttonMap.end())
       return std::make_shared<ui::widgets::Label>(
         glm::ivec2{0, 0}, /* translators: TR charcmap encoding */ pgettext("ButtonAssignment", "N/A"));
-    return std::make_shared<ui::widgets::Sprite>(glm::ivec2{0, 0}, layout.at(it->second));
+    return std::make_shared<ui::widgets::Sprite>(glm::ivec2{0, 0}, glm::ivec2{0, 0}, layout.at(it->second));
   };
-  gridBox = createButtonGridBox(createButtonLabel);
+  auto gridBox2 = createButtonGridBox(createButtonLabel);
 
-  m_controls->set(0,
-                  1,
-                  std::make_shared<ui::widgets::GroupBox>(
-                    glm::ivec2{0, 0}, glm::ivec2{0, 0}, /* translators: TR charmap encoding */ _("Gamepad"), gridBox));
+  // align columns
+  Expects(gridBox1->getExtents().first == gridBox2->getExtents().first);
+  for(size_t x = 0; x < gridBox1->getExtents().first; ++x)
+  {
+    auto w = std::max(gridBox1->getColumnSizes()[x], gridBox2->getColumnSizes()[x]);
+    gridBox1->setColumnSize(x, w);
+    gridBox2->setColumnSize(x, w);
+  }
+
+  auto groupBox = std::make_shared<ui::widgets::GroupBox>(
+    glm::ivec2{0, 0}, glm::ivec2{0, 0}, /* translators: TR charmap encoding */ _("Keyboard"), gridBox1);
+  groupBox->fitToContent();
+  m_controls->set(0, 0, groupBox);
+
+  groupBox = std::make_shared<ui::widgets::GroupBox>(
+    glm::ivec2{0, 0}, glm::ivec2{0, 0}, /* translators: TR charmap encoding */ _("Gamepad"), gridBox2);
+  groupBox->fitToContent();
+  m_controls->set(0, 1, groupBox);
 
   m_controls->fitToContent();
 }

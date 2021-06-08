@@ -8,8 +8,9 @@
 
 namespace ui::widgets
 {
-Sprite::Sprite(const glm::ivec2& position, engine::world::Sprite sprite)
+Sprite::Sprite(const glm::ivec2& position, const glm::ivec2& size, engine::world::Sprite sprite)
     : m_position{position}
+    , m_size{size}
     , m_sprite{std::move(sprite)}
 {
 }
@@ -37,14 +38,16 @@ glm::ivec2 Sprite::getPosition() const
 
 glm::ivec2 Sprite::getSize() const
 {
-  return glm::abs(m_sprite.render1 - m_sprite.render0) + glm::ivec2{1, 1};
+  return m_size;
 }
 
-void Sprite::setSize(const glm::ivec2& /*size*/)
+void Sprite::setSize(const glm::ivec2& size)
 {
+  m_size = size;
 }
 
 void Sprite::fitToContent()
 {
+  m_size = glm::max(m_sprite.render0, m_sprite.render1);
 }
 } // namespace ui::widgets

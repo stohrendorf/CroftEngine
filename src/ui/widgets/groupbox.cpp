@@ -73,7 +73,6 @@ void GroupBox::setSize(const glm::ivec2& size)
 
 void GroupBox::fitToContent()
 {
-  m_widget->fitToContent();
   m_size = m_widget->getSize() + glm::ivec2{2 * InnerMargin, TotalVerticalMargin};
 }
 } // namespace ui::widgets

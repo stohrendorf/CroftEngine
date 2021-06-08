@@ -94,24 +94,42 @@ public:
   void update(bool hasFocus) override;
   void fitToContent() override;
 
-  void addColumn()
-  {
-    m_widgets.resize(boost::extents[m_widgets.shape()[0] + 1][m_widgets.shape()[1]]);
-  }
-
-  void addRow()
-  {
-    m_widgets.resize(boost::extents[m_widgets.shape()[0]][m_widgets.shape()[1] + 1]);
-  }
-
   void setExtents(size_t x, size_t y)
   {
     m_widgets.resize(boost::extents[x][y]);
     m_columnSizes.resize(x, 0);
     m_rowSizes.resize(y, 0);
+    recalculateTotalSize();
+  }
+
+  [[nodiscard]] std::pair<size_t, size_t> getExtents() const
+  {
+    return {
+      m_widgets.shape()[0],
+      m_widgets.shape()[1],
+    };
+  }
+
+  void setRowSize(size_t row, int height)
+  {
+    m_rowSizes.at(row) = height;
+    recalculateTotalSize();
+  }
+
+  void setColumnSize(size_t column, int width)
+  {
+    m_columnSizes.at(column) = width;
+    recalculateTotalSize();
+  }
+
+  [[nodiscard]] const auto& getColumnSizes() const
+  {
+    return m_columnSizes;
   }
 
 private:
+  void recalculateTotalSize();
+
   glm::ivec2 m_position;
   glm::ivec2 m_size;
   using WidgetArray = boost::multi_array<std::shared_ptr<Widget>, 2>;

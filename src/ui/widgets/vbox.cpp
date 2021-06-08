@@ -120,7 +120,6 @@ void VBox::fitToContent()
       y = 0;
 
     const auto& widget = m_widgets[i];
-    widget->fitToContent();
 
     y += widget->getSize().y;
     maxHeight = std::max(maxHeight, y);

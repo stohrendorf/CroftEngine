@@ -54,6 +54,10 @@ public:
 
   void fitToContent() override
   {
+    for(const auto& [getter, toggler, checkbox] : m_checkboxes)
+      checkbox->fitToContent();
+
+    m_listBox->fitToContent();
     m_groupBox.fitToContent();
   }
 
@@ -66,6 +70,7 @@ public:
   {
     auto checkbox = std::make_shared<ui::widgets::Checkbox>(glm::ivec2{0, 0}, name, 0);
     checkbox->setChecked(getter());
+    checkbox->fitToContent();
     m_listBox->append(checkbox);
     m_checkboxes.emplace_back(std::move(getter), std::move(toggler), checkbox);
     return checkbox;

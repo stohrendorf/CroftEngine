@@ -40,6 +40,7 @@ SavegameListMenuState::SavegameListMenuState(const std::shared_ptr<MenuRingTrans
       m_hasSavegame.emplace_back(false);
     }
     auto label = std::make_shared<ui::widgets::Label>(glm::ivec2{0, 0}, name, 0);
+    label->fitToContent();
     append(label);
   }
 }
