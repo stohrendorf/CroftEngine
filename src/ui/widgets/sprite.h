@@ -39,5 +39,6 @@ private:
   glm::ivec2 m_position;
   glm::ivec2 m_size;
   engine::world::Sprite m_sprite;
+  uint8_t m_selectionAlpha = 0;
 };
 } // namespace ui::widgets

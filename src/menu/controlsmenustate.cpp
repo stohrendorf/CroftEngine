@@ -73,9 +73,9 @@ ControlsMenuState::ControlsMenuState(const std::shared_ptr<MenuRingTransform>& r
                                      const engine::world::World& world)
     : SelectedMenuState{ringTransform}
     , m_previous{std::move(previous)}
-    , m_controls{std::make_shared<ui::widgets::GridBox>(glm::ivec2{0, 0}, glm::ivec2{0, 0})}
+    , m_allControls{std::make_shared<ui::widgets::GridBox>(glm::ivec2{0, 0}, glm::ivec2{0, 0})}
 {
-  m_controls->setExtents(1, 2);
+  m_allControls->setExtents(1, 2);
 
   const auto createKeyLabel = [&world](hid::Action action) -> std::shared_ptr<ui::widgets::Widget>
   {
@@ -86,7 +86,7 @@ ControlsMenuState::ControlsMenuState(const std::shared_ptr<MenuRingTransform>& r
         glm::ivec2{0, 0}, /* translators: TR charcmap encoding */ pgettext("ButtonAssignment", "N/A"));
     return std::make_shared<ui::widgets::Label>(glm::ivec2{0, 0}, hid::getName(it->second));
   };
-  auto gridBox1 = createButtonGridBox(createKeyLabel);
+  m_controls.emplace_back(createButtonGridBox(createKeyLabel));
 
   const auto& layout = world.getControllerLayouts().at("PS");
   const auto createButtonLabel = [&world, &layout](hid::Action action) -> std::shared_ptr<ui::widgets::Widget>
@@ -98,35 +98,78 @@ ControlsMenuState::ControlsMenuState(const std::shared_ptr<MenuRingTransform>& r
         glm::ivec2{0, 0}, /* translators: TR charcmap encoding */ pgettext("ButtonAssignment", "N/A"));
     return std::make_shared<ui::widgets::Sprite>(glm::ivec2{0, 0}, glm::ivec2{0, 0}, layout.at(it->second));
   };
-  auto gridBox2 = createButtonGridBox(createButtonLabel);
+  m_controls.emplace_back(createButtonGridBox(createButtonLabel));
 
   // align columns
-  Expects(gridBox1->getExtents().first == gridBox2->getExtents().first);
-  for(size_t x = 0; x < gridBox1->getExtents().first; ++x)
+  for(size_t x = 0; x < std::get<0>(m_controls[0]->getExtents()); ++x)
   {
-    auto w = std::max(gridBox1->getColumnSizes()[x], gridBox2->getColumnSizes()[x]);
-    gridBox1->setColumnSize(x, w);
-    gridBox2->setColumnSize(x, w);
+    int maxColumnWidth = 0;
+    for(const auto& controlBox : m_controls)
+    {
+      maxColumnWidth = std::max(maxColumnWidth, controlBox->getColumnSizes()[x]);
+    }
+    for(const auto& controlBox : m_controls)
+    {
+      controlBox->setColumnSize(x, maxColumnWidth);
+    }
   }
 
   auto groupBox = std::make_shared<ui::widgets::GroupBox>(
-    glm::ivec2{0, 0}, glm::ivec2{0, 0}, /* translators: TR charmap encoding */ _("Keyboard"), gridBox1);
+    glm::ivec2{0, 0}, glm::ivec2{0, 0}, /* translators: TR charmap encoding */ _("Keyboard"), m_controls[0]);
   groupBox->fitToContent();
-  m_controls->set(0, 0, groupBox);
+  m_allControls->set(0, 0, groupBox);
 
   groupBox = std::make_shared<ui::widgets::GroupBox>(
-    glm::ivec2{0, 0}, glm::ivec2{0, 0}, /* translators: TR charmap encoding */ _("Gamepad"), gridBox2);
+    glm::ivec2{0, 0}, glm::ivec2{0, 0}, /* translators: TR charmap encoding */ _("Gamepad"), m_controls[1]);
   groupBox->fitToContent();
-  m_controls->set(0, 1, groupBox);
+  m_allControls->set(0, 1, groupBox);
 
-  m_controls->fitToContent();
+  m_allControls->fitToContent();
+  m_controls[0]->setSelected({1, 0});
+  m_controls[1]->setSelected({1, 0});
 }
 
 std::unique_ptr<MenuState> ControlsMenuState::onFrame(ui::Ui& ui, engine::world::World& world, MenuDisplay& /*display*/)
 {
+  {
+    const auto& currentControls = m_controls.at(std::get<1>(m_allControls->getSelected()));
+
+    if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Backward))
+    {
+      if(!currentControls->nextRow())
+      {
+        if(!m_allControls->nextRow())
+        {
+          // wrap around
+          m_allControls->setSelected({std::get<0>(m_allControls->getSelected()), 0});
+        }
+
+        const auto& nextControls = m_controls.at(std::get<1>(m_allControls->getSelected()));
+        nextControls->setSelected({std::get<0>(currentControls->getSelected()), 0});
+      }
+    }
+    if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Forward))
+    {
+      if(!currentControls->prevRow())
+      {
+        if(!m_allControls->prevRow())
+        {
+          // wrap around
+          m_allControls->setSelected(
+            {std::get<0>(m_allControls->getSelected()), std::get<1>(m_allControls->getExtents()) - 1});
+        }
+
+        const auto& nextControls = m_controls.at(std::get<1>(m_allControls->getSelected()));
+        nextControls->setSelected(
+          {std::get<0>(currentControls->getSelected()), std::get<1>(nextControls->getExtents()) - 1});
+      }
+    }
+  }
+
   const auto vp = world.getPresenter().getViewport();
-  m_controls->setPosition({(vp.x - m_controls->getSize().x) / 2, vp.y - 90 - m_controls->getSize().y});
-  m_controls->draw(ui, world.getPresenter());
+  m_allControls->setPosition({(vp.x - m_allControls->getSize().x) / 2, vp.y - 90 - m_allControls->getSize().y});
+  m_allControls->update(true);
+  m_allControls->draw(ui, world.getPresenter());
 
   if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Menu))
   {

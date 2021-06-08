@@ -54,7 +54,7 @@ void GridBox::update(bool hasFocus)
 {
   for(size_t x = 0; x < m_widgets.shape()[0]; ++x)
   {
-    for(size_t y = 0; y < m_widgets.shape()[0]; ++y)
+    for(size_t y = 0; y < m_widgets.shape()[1]; ++y)
     {
       const auto& widget = m_widgets[x][y];
       if(widget == nullptr)
@@ -115,11 +115,11 @@ void GridBox::recalculateTotalSize()
 {
   auto totalWidth = std::accumulate(m_columnSizes.begin(), m_columnSizes.end(), 0, std::plus<>{});
   if(!m_columnSizes.empty())
-    totalWidth += (m_columnSizes.size() - 1) * m_separation.x;
+    totalWidth += gsl::narrow<int>(m_columnSizes.size() - 1) * m_separation.x;
 
   auto totalHeight = std::accumulate(m_rowSizes.begin(), m_rowSizes.end(), 0, std::plus<>{});
   if(!m_rowSizes.empty())
-    totalHeight += (m_rowSizes.size() - 1) * m_separation.y;
+    totalHeight += gsl::narrow<int>(m_rowSizes.size() - 1) * m_separation.y;
 
   m_size = {totalWidth, totalHeight};
 }

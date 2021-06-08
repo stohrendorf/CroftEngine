@@ -41,17 +41,17 @@ void Label::update(bool hasFocus)
 {
   constexpr int FadeSpeed = 30;
   const auto delta = hasFocus ? FadeSpeed : -FadeSpeed;
-  m_alpha = gsl::narrow_cast<uint8_t>(std::clamp(m_alpha + delta, 0, 255));
+  m_selectionAlpha = gsl::narrow_cast<uint8_t>(std::clamp(m_selectionAlpha + delta, 0, 255));
 }
 
 void Label::draw(ui::Ui& ui, const engine::Presenter& presenter) const
 {
-  if(m_alpha != 0)
+  if(m_selectionAlpha != 0)
   {
     const auto bgPos = m_position - glm::ivec2{OutlineBorderWidth, FontHeight - OutlineBorderWidth / 2};
     const auto bgSize = m_size + glm::ivec2{2 * OutlineBorderWidth, 0};
-    ui.drawBox(bgPos, bgSize, gl::SRGBA8{0, 0, 0, 224 * m_alpha / 255});
-    ui.drawOutlineBox(bgPos, bgSize, m_alpha);
+    ui.drawBox(bgPos, bgSize, gl::SRGBA8{0, 0, 0, 224 * m_selectionAlpha / 255});
+    ui.drawOutlineBox(bgPos, bgSize, m_selectionAlpha);
   }
   m_text->draw(ui, presenter.getTrFont(), m_position);
 }

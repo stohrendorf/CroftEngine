@@ -21,7 +21,8 @@ class ControlsMenuState : public SelectedMenuState
 {
 private:
   std::unique_ptr<MenuState> m_previous;
-  std::shared_ptr<ui::widgets::GridBox> m_controls{};
+  std::shared_ptr<ui::widgets::GridBox> m_allControls{};
+  std::vector<std::shared_ptr<ui::widgets::GridBox>> m_controls{};
 
 public:
   explicit ControlsMenuState(const std::shared_ptr<MenuRingTransform>& ringTransform,

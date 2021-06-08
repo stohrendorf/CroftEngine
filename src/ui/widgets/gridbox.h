@@ -38,6 +38,11 @@ public:
     return m_selected;
   }
 
+  void setSelected(const std ::pair<size_t, size_t>& selected)
+  {
+    m_selected = selected;
+  }
+
   template<size_t N>
   bool next()
   {
@@ -102,7 +107,7 @@ public:
     recalculateTotalSize();
   }
 
-  [[nodiscard]] std::pair<size_t, size_t> getExtents() const
+  [[nodiscard]] std::tuple<size_t, size_t> getExtents() const
   {
     return {
       m_widgets.shape()[0],

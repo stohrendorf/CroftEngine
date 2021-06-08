@@ -33,6 +33,6 @@ private:
   std::unique_ptr<ui::Text> m_text;
   glm::ivec2 m_position;
   glm::ivec2 m_size;
-  uint8_t m_alpha = 0;
+  uint8_t m_selectionAlpha = 0;
 };
 } // namespace ui::widgets
