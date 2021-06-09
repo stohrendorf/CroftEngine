@@ -16,6 +16,14 @@ namespace menu
 {
 namespace
 {
+void applyLayout(const std::shared_ptr<ui::widgets::GridBox>& gridBox)
+{
+  gridBox->fitToContent();
+  gridBox->setRowSize(3, 2 * ui::FontHeight);
+  gridBox->setColumnSize(1, gridBox->getColumnSizes()[1] + 2 * ui::FontHeight);
+  gridBox->setColumnSize(3, gridBox->getColumnSizes()[3] + 2 * ui::FontHeight);
+}
+
 std::shared_ptr<ui::widgets::GridBox>
   createButtonGridBox(const std::function<std::shared_ptr<ui::widgets::Widget>(hid::Action)>& factory)
 {
@@ -33,37 +41,36 @@ std::shared_ptr<ui::widgets::GridBox>
     gridBox->set(x0 + 1, y, widget);
   };
 
-  gridBox->setExtents(8, 8);
+  gridBox->setExtents(6, 8);
 
   add(0, 0, hid::Action::Forward);
   add(0, 1, hid::Action::Backward);
   add(0, 2, hid::Action::Left);
   add(0, 3, hid::Action::Right);
 
-  add(3, 0, hid::Action::StepLeft);
-  add(3, 1, hid::Action::StepRight);
-  add(3, 2, hid::Action::MoveSlow);
-  add(3, 3, hid::Action::Roll);
+  add(2, 0, hid::Action::StepLeft);
+  add(2, 1, hid::Action::StepRight);
+  add(2, 2, hid::Action::MoveSlow);
+  add(2, 3, hid::Action::Roll);
 
-  add(6, 0, hid::Action::Action);
-  add(6, 1, hid::Action::Holster);
-  add(6, 2, hid::Action::Menu);
-  add(6, 3, hid::Action::FreeLook);
+  add(4, 0, hid::Action::Action);
+  add(4, 1, hid::Action::Holster);
+  add(4, 2, hid::Action::Menu);
+  add(4, 3, hid::Action::FreeLook);
 
   add(0, 4, hid::Action::DrawPistols);
   add(0, 5, hid::Action::DrawShotgun);
   add(0, 6, hid::Action::DrawUzis);
   add(0, 7, hid::Action::DrawMagnums);
 
-  add(3, 4, hid::Action::ConsumeSmallMedipack);
-  add(3, 5, hid::Action::ConsumeLargeMedipack);
+  add(2, 4, hid::Action::ConsumeSmallMedipack);
+  add(2, 5, hid::Action::ConsumeLargeMedipack);
 
-  add(6, 4, hid::Action::Save);
-  add(6, 5, hid::Action::Load);
-  add(6, 6, hid::Action::Screenshot);
+  add(4, 4, hid::Action::Save);
+  add(4, 5, hid::Action::Load);
+  add(4, 6, hid::Action::Screenshot);
 
-  gridBox->fitToContent();
-  gridBox->setRowSize(4, 2 * ui::FontHeight);
+  applyLayout(gridBox);
   return gridBox;
 }
 } // namespace
@@ -148,7 +155,7 @@ std::unique_ptr<MenuState> ControlsMenuState::onFrame(ui::Ui& ui, engine::world:
         nextControls->setSelected({std::get<0>(currentControls->getSelected()), 0});
       }
     }
-    if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Forward))
+    else if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Forward))
     {
       if(!currentControls->prevRow())
       {
@@ -162,6 +169,21 @@ std::unique_ptr<MenuState> ControlsMenuState::onFrame(ui::Ui& ui, engine::world:
         const auto& nextControls = m_controls.at(std::get<1>(m_allControls->getSelected()));
         nextControls->setSelected(
           {std::get<0>(currentControls->getSelected()), std::get<1>(nextControls->getExtents()) - 1});
+      }
+    }
+    else if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Right))
+    {
+      if(!currentControls->nextColumn() || !currentControls->nextColumn())
+      {
+        currentControls->setSelected({1, std::get<1>(currentControls->getSelected())});
+      }
+    }
+    else if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Left))
+    {
+      if(!currentControls->prevColumn() || !currentControls->prevColumn())
+      {
+        currentControls->setSelected(
+          {std::get<0>(currentControls->getExtents()) - 1, std::get<1>(currentControls->getSelected())});
       }
     }
   }

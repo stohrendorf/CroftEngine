@@ -62,7 +62,7 @@ public:
 
   bool nextColumn()
   {
-    return prev<0>();
+    return next<0>();
   }
 
   template<size_t N>
