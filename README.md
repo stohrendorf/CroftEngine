@@ -118,6 +118,7 @@ set the target triplet as necessary, e.g. `vcpkg install boost:x64-windows`):
 * ffmpeg
 * glew
 * utfcpp
+* gettext
 
 ...or use this, and adjust the triplet:
-> `vcpkg install --triplet x64-windows boost glfw3 libpng openal-soft opengl glm libsndfile freetype cimg ffmpeg glew utfcpp`
+> `vcpkg install --triplet x64-windows boost glfw3 libpng openal-soft opengl glm libsndfile freetype cimg ffmpeg glew utfcpp gettext`

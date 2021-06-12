@@ -132,6 +132,14 @@ public:
     return m_columnSizes;
   }
 
+  [[nodiscard]] const auto& getSelectedWidget() const
+  {
+    auto [x, y] = m_selected;
+    auto [sx, sy] = getExtents();
+    Expects(x < sx && y < sy);
+    return m_widgets[x][y];
+  }
+
 private:
   void recalculateTotalSize();
 

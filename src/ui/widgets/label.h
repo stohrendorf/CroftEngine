@@ -8,7 +8,7 @@
 
 namespace ui
 {
-struct Text;
+class Text;
 }
 
 namespace ui::widgets
