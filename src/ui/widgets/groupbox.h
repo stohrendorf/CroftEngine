@@ -17,7 +17,7 @@ class Presenter;
 namespace ui
 {
 class Ui;
-struct Text;
+class Text;
 } // namespace ui
 
 namespace ui::widgets

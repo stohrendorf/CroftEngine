@@ -7,7 +7,7 @@
 
 namespace ui
 {
-struct Text;
+class Text;
 }
 
 namespace menu
