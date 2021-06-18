@@ -325,9 +325,7 @@ struct AVDecoder final : public SoLoud::AudioSource
     audioFrameSize
       = audioStream->context->sample_rate * videoStream->stream->time_base.num / videoStream->stream->time_base.den;
 
-    av_init_packet(&packet);
-    packet.data = nullptr;
-    packet.size = 0;
+    Expects(av_new_packet(&packet, 0) == 0);
     fillQueues();
 
     SoLoud::AudioSource::mBaseSamplerate = static_cast<float>(audioStream->context->sample_rate);
