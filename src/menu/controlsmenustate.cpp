@@ -193,7 +193,7 @@ ControlsMenuState::ControlsMenuState(const std::shared_ptr<MenuRingTransform>& r
     auto it = keyMap.find(action);
     if(it == keyMap.end())
       return std::make_shared<ui::widgets::Label>(
-        glm::ivec2{0, 0}, /* translators: TR charcmap encoding */ pgettext("ButtonAssignment", "N/A"));
+        glm::ivec2{0, 0}, /* translators: TR charmap encoding */ pgettext("ButtonAssignment", "N/A"));
     return std::make_shared<ui::widgets::Label>(glm::ivec2{0, 0}, hid::getName(it->second));
   };
 
@@ -204,7 +204,7 @@ ControlsMenuState::ControlsMenuState(const std::shared_ptr<MenuRingTransform>& r
     auto it = buttonMap.find(action);
     if(it == buttonMap.end())
       return std::make_shared<ui::widgets::Label>(
-        glm::ivec2{0, 0}, /* translators: TR charcmap encoding */ pgettext("ButtonAssignment", "N/A"));
+        glm::ivec2{0, 0}, /* translators: TR charmap encoding */ pgettext("ButtonAssignment", "N/A"));
     return std::make_shared<ui::widgets::Sprite>(glm::ivec2{0, 0}, glm::ivec2{0, 0}, layout.at(it->second));
   };
   m_controls.emplace_back(
