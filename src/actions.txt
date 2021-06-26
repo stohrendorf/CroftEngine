@@ -1,5 +1,5 @@
 Jump
-MoveSlow
+Walk
 Roll
 Action
 FreeLook

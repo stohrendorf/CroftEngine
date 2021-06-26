@@ -63,7 +63,7 @@ struct InputState
 
   boost::container::flat_map<Action, Button> actions{
     {Action::Jump, Button{false}},
-    {Action::MoveSlow, Button{false}},
+    {Action::Walk, Button{false}},
     {Action::Roll, Button{false}},
     {Action::Action, Button{false}},
     {Action::FreeLook, Button{false}},

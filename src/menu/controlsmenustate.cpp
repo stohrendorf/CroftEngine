@@ -45,7 +45,7 @@ public:
 
     add(2, 0, hid::Action::StepLeft);
     add(2, 1, hid::Action::StepRight);
-    add(2, 2, hid::Action::MoveSlow);
+    add(2, 2, hid::Action::Walk);
     add(2, 3, hid::Action::Roll);
 
     add(4, 0, hid::Action::Action);

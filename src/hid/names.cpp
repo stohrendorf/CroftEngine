@@ -176,7 +176,7 @@ std::string getName(Action action)
   switch(action)
   {
   case Action::Jump: return /* translators: TR charmap encoding */ pgettext("Action", "Jump");
-  case Action::MoveSlow: return /* translators: TR charmap encoding */ pgettext("Action", "Slow");
+  case Action::Walk: return /* translators: TR charmap encoding */ pgettext("Action", "Walk");
   case Action::Roll: return /* translators: TR charmap encoding */ pgettext("Action", "Roll");
   case Action::Action: return /* translators: TR charmap encoding */ pgettext("Action", "Action");
   case Action::FreeLook: return /* translators: TR charmap encoding */ pgettext("Action", "Look");

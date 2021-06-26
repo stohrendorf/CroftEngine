@@ -15,8 +15,8 @@ using hid::GlfwGamepadButton;
 using hid::GlfwKey;
 
 const InputMappingConfig defaultMapping{
-  {GlfwKey::LeftShift, Action::MoveSlow},
-  {GlfwGamepadButton::RightBumper, Action::MoveSlow},
+  {GlfwKey::LeftShift, Action::Walk},
+  {GlfwGamepadButton::RightBumper, Action::Walk},
   {GlfwKey::LeftControl, Action::Action},
   {GlfwGamepadButton::A, Action::Action},
   {GlfwKey::R, Action::Holster},

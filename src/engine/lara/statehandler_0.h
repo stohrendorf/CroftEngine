@@ -36,7 +36,7 @@ public:
 
     if(getWorld().getPresenter().getInputHandler().getInputState().zMovement == hid::AxisMovement::Forward)
     {
-      if(getWorld().getPresenter().getInputHandler().hasAction(hid::Action::MoveSlow))
+      if(getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Walk))
       {
         setGoalAnimState(LaraStateId::WalkForward);
       }

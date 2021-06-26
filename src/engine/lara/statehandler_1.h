@@ -56,7 +56,7 @@ public:
       return;
     }
 
-    if(getWorld().getPresenter().getInputHandler().hasAction(hid::Action::MoveSlow))
+    if(getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Walk))
     {
       setGoalAnimState(LaraStateId::WalkForward);
     }

@@ -87,7 +87,7 @@ public:
     }
     else if(getWorld().getPresenter().getInputHandler().getInputState().zMovement == hid::AxisMovement::Forward)
     {
-      if(getWorld().getPresenter().getInputHandler().hasAction(hid::Action::MoveSlow))
+      if(getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Walk))
       {
         create(LaraStateId::WalkForward, getLara())->handleInput(collisionInfo);
       }
@@ -98,7 +98,7 @@ public:
     }
     else if(getWorld().getPresenter().getInputHandler().getInputState().zMovement == hid::AxisMovement::Backward)
     {
-      if(getWorld().getPresenter().getInputHandler().hasAction(hid::Action::MoveSlow))
+      if(getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Walk))
       {
         create(LaraStateId::WalkBackward, getLara())->handleInput(collisionInfo);
       }
