@@ -75,6 +75,12 @@ public:
     return false;
   }
 
+  void setSelected(size_t idx)
+  {
+    Expects(idx < m_widgets.size());
+    m_selected = idx;
+  }
+
   [[nodiscard]] glm::ivec2 getSize() const override;
 
   [[nodiscard]] glm::ivec2 getPosition() const override
