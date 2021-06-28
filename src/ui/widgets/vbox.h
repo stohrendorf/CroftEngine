@@ -93,6 +93,11 @@ public:
   void update(bool hasFocus) override;
   void fitToContent() override;
 
+  [[nodiscard]] const auto& getWidgets() const
+  {
+    return m_widgets;
+  }
+
 private:
   glm::ivec2 m_position;
   glm::ivec2 m_size;

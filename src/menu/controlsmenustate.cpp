@@ -21,18 +21,17 @@ public:
   static constexpr size_t Columns = 6;
 
   explicit ControlsWidget(const std::function<std::shared_ptr<ui::widgets::Widget>(hid::Action)>& factory)
-      : m_stack{std::make_shared<ui::widgets::VBox>(glm::ivec2{0, 0}, glm::ivec2{0, 0})}
+      : m_content{std::make_shared<ui::widgets::VBox>(glm::ivec2{0, 0}, glm::ivec2{0, 0})}
   {
     auto gridBox = std::make_shared<ui::widgets::GridBox>(
       glm::ivec2{0, 0}, glm::ivec2{0, 0}, glm::ivec2{10, ui::OutlineBorderWidth});
     gridBox->setExtents(Columns, 5);
     gridBox->setSelected({1, 0});
-    m_gridBoxes.emplace_back(gridBox);
+    m_controlGroups.emplace_back(gridBox);
 
     auto groupBox = std::make_shared<ui::widgets::GroupBox>(
       glm::ivec2{0, 0}, glm::ivec2{0, 0}, /* translators: TR charmap encoding */ _("Gameplay"), gridBox);
-    m_groupBoxes.emplace_back(groupBox);
-    m_stack->append(groupBox);
+    m_content->append(groupBox);
 
     auto add = [&gridBox, &factory](size_t x0, size_t y, hid::Action action)
     {
@@ -64,12 +63,11 @@ public:
     gridBox = std::make_shared<ui::widgets::GridBox>(
       glm::ivec2{0, 0}, glm::ivec2{0, 0}, glm::ivec2{10, ui::OutlineBorderWidth});
     gridBox->setExtents(Columns, 4);
-    m_gridBoxes.emplace_back(gridBox);
+    m_controlGroups.emplace_back(gridBox);
 
     groupBox = std::make_shared<ui::widgets::GroupBox>(
       glm::ivec2{0, 0}, glm::ivec2{0, 0}, /* translators: TR charmap encoding */ _("Shortcuts"), gridBox);
-    m_groupBoxes.emplace_back(groupBox);
-    m_stack->append(groupBox);
+    m_content->append(groupBox);
 
     add(0, 0, hid::Action::DrawPistols);
     add(0, 1, hid::Action::DrawShotgun);
@@ -88,32 +86,32 @@ public:
 
   [[nodiscard]] glm::ivec2 getPosition() const override
   {
-    return m_stack->getPosition();
+    return m_content->getPosition();
   }
 
   [[nodiscard]] glm::ivec2 getSize() const override
   {
-    return m_stack->getSize();
+    return m_content->getSize();
   }
 
   void setPosition(const glm::ivec2& position) override
   {
-    m_stack->setPosition(position);
+    m_content->setPosition(position);
   }
 
   void setSize(const glm::ivec2& size) override
   {
-    m_stack->setSize(size);
+    m_content->setSize(size);
   }
 
   void update(bool hasFocus) override
   {
-    m_stack->update(hasFocus);
+    m_content->update(hasFocus);
   }
 
   void fitToContent() override
   {
-    for(const auto& gridBox : m_gridBoxes)
+    for(const auto& gridBox : m_controlGroups)
     {
       gridBox->fitToContent();
       gridBox->setColumnSize(1, gridBox->getColumnSizes()[1] + 2 * ui::FontHeight);
@@ -123,30 +121,30 @@ public:
     for(size_t x = 0; x < Columns; ++x)
     {
       int maxWidth = 0;
-      for(const auto& gridBox : m_gridBoxes)
+      for(const auto& gridBox : m_controlGroups)
       {
         maxWidth = std::max(gridBox->getColumnSizes().at(x), maxWidth);
       }
-      for(const auto& gridBox : m_gridBoxes)
+      for(const auto& gridBox : m_controlGroups)
       {
         gridBox->setColumnSize(x, maxWidth);
       }
     }
 
-    for(const auto& groupBox : m_groupBoxes)
+    for(const auto& groupBox : m_content->getWidgets())
       groupBox->fitToContent();
 
-    m_stack->fitToContent();
+    m_content->fitToContent();
   }
 
   void draw(ui::Ui& ui, const engine::Presenter& presenter) const override
   {
-    m_stack->draw(ui, presenter);
+    m_content->draw(ui, presenter);
   }
 
   [[nodiscard]] const auto& getCurrentGridBox() const
   {
-    return m_gridBoxes.at(m_stack->getSelected());
+    return m_controlGroups.at(m_content->getSelected());
   }
 
   void nextRow()
@@ -156,10 +154,10 @@ public:
       const auto& currentGridBox = getCurrentGridBox();
       if(!currentGridBox->nextRow())
       {
-        if(!m_stack->nextEntry())
+        if(!m_content->nextEntry())
         {
           // wrap around
-          m_stack->setSelected(0);
+          m_content->setSelected(0);
         }
 
         getCurrentGridBox()->setSelected({std::get<0>(currentGridBox->getSelected()), 0});
@@ -174,10 +172,10 @@ public:
       const auto& currentGridBox = getCurrentGridBox();
       if(!currentGridBox->prevRow())
       {
-        if(!m_stack->prevEntry())
+        if(!m_content->prevEntry())
         {
           // wrap around
-          m_stack->setSelected(m_gridBoxes.size() - 1);
+          m_content->setSelected(m_controlGroups.size() - 1);
         }
 
         getCurrentGridBox()->setSelected(
@@ -212,9 +210,8 @@ public:
   }
 
 private:
-  std::shared_ptr<ui::widgets::VBox> m_stack;
-  std::vector<std::shared_ptr<ui::widgets::GridBox>> m_gridBoxes;
-  std::vector<std::shared_ptr<ui::widgets::GroupBox>> m_groupBoxes;
+  std::shared_ptr<ui::widgets::VBox> m_content;
+  std::vector<std::shared_ptr<ui::widgets::GridBox>> m_controlGroups;
 };
 
 ControlsMenuState::ControlsMenuState(const std::shared_ptr<MenuRingTransform>& ringTransform,
