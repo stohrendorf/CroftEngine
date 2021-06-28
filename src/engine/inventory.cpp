@@ -150,7 +150,7 @@ bool Inventory::tryUse(objects::LaraObject& lara, const TR1ItemId id)
   }
   else if(id == TR1ItemId::SmallMedipack || id == TR1ItemId::SmallMedipackSprite)
   {
-    return tryUseMediPack(TR1ItemId::LargeMedipack, core::LaraHealth / 2);
+    return tryUseMediPack(TR1ItemId::SmallMedipack, core::LaraHealth / 2);
   }
 
   return true;
