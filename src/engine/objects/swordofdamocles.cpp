@@ -50,7 +50,7 @@ void SwordOfDamocles::update()
 
 void SwordOfDamocles::collide(CollisionInfo& collisionInfo)
 {
-  if(!testBoneCollision(getWorld().getObjectManager().getLara()))
+  if(!isNear(getWorld().getObjectManager().getLara(), collisionInfo.collisionRadius))
     return;
 
   if(collisionInfo.policies.is_set(CollisionInfo::PolicyFlags::EnableBaddiePush))
