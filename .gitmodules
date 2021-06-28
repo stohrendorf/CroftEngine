@@ -1,6 +1,6 @@
-[submodule "3rdparty/type_safe"]
-	path = 3rdparty/type_safe
-	url = https://github.com/foonathan/type_safe.git
 [submodule "3rdparty/rapidyaml"]
 	path = 3rdparty/rapidyaml
 	url = https://github.com/biojppm/rapidyaml.git
+[submodule "3rdparty/type_safe"]
+	path = 3rdparty/type_safe
+	url = https://github.com/foonathan/type_safe.git
