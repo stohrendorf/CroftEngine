@@ -265,7 +265,7 @@ void LaraObject::handleLaraStateDiving()
 
   updateImpl();
 
-  m_state.position.position += util::yawPitch(m_state.fallspeed * 1_frame / 4, m_state.rotation);
+  move(util::yawPitch(m_state.fallspeed * 1_frame / 4, m_state.rotation));
 
   testInteractions(collisionInfo);
 
@@ -2165,8 +2165,6 @@ LaraObject::LaraObject(const gsl::not_null<world::World*>& world,
 
   m_state.health = core::LaraHealth;
   m_state.collidable = true;
-  m_state.is_hit = true;
-  m_state.falling = true;
 
   if(m_state.position.room->isWaterRoom)
   {

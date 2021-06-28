@@ -110,7 +110,12 @@ public:
 
   void move(const glm::vec3& d)
   {
-    m_state.position.position += core::TRVec(d);
+    move(core::TRVec{d});
+  }
+
+  void move(const core::TRVec& d)
+  {
+    m_state.position.position += d;
   }
 
   void moveLocal(const core::TRVec& d)

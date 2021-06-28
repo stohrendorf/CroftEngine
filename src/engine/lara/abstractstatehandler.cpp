@@ -847,7 +847,7 @@ void AbstractStateHandler::jumpAgainstWall(CollisionInfo& collisionInfo)
   }
   else if(collisionInfo.collisionType == CollisionInfo::AxisColl::TopFront)
   {
-    m_lara.m_state.position.position += util::pitch(core::DefaultCollisionRadius, m_lara.m_state.rotation.Y);
+    m_lara.move(util::pitch(core::DefaultCollisionRadius, m_lara.m_state.rotation.Y));
     m_lara.m_state.speed = 0_spd;
     collisionInfo.mid.floorSpace.y = 0_len;
     if(m_lara.m_state.fallspeed < 0_spd)
@@ -894,7 +894,7 @@ void AbstractStateHandler::checkJumpWallSmash(CollisionInfo& collisionInfo)
 
   if(collisionInfo.collisionType == CollisionInfo::AxisColl::TopFront)
   {
-    m_lara.m_state.position.position += util::pitch(core::DefaultCollisionRadius, collisionInfo.facingAngle);
+    m_lara.move(util::pitch(core::DefaultCollisionRadius, collisionInfo.facingAngle));
     m_lara.m_state.speed = 0_spd;
     collisionInfo.mid.floorSpace.y = 0_len;
     if(m_lara.m_state.fallspeed <= 0_spd)
