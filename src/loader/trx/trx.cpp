@@ -92,13 +92,15 @@ EquivalenceSet::EquivalenceSet(std::ifstream& file)
   }
 }
 
-Equiv::Equiv(const std::filesystem::path& filename)
+Equiv::Equiv(const std::filesystem::path& filename, const std::function<void(const std::string&)>& statusCallback)
 {
-  std::ifstream file{filename.string()};
+  std::ifstream file{filename};
   if(!file.is_open())
   {
     BOOST_THROW_EXCEPTION(std::runtime_error("Failed to open Glidos equiv file"));
   }
+
+  const auto size = std::filesystem::file_size(filename);
 
   std::string head;
   std::getline(file, head);
@@ -108,12 +110,20 @@ Equiv::Equiv(const std::filesystem::path& filename)
     BOOST_THROW_EXCEPTION(std::runtime_error("Invalid texture equiv header"));
   }
 
+  static constexpr auto updateInterval = std::chrono::milliseconds(40);
+  auto nextUpdate = std::chrono::high_resolution_clock::now() + updateInterval;
   std::string line;
   while(std::getline(file, line))
   {
     boost::algorithm::trim(line);
     if(line.empty() || boost::algorithm::starts_with(line, "//"))
       continue;
+
+    if(const auto now = std::chrono::high_resolution_clock::now(); now >= nextUpdate)
+    {
+      nextUpdate = now + updateInterval;
+      statusCallback(_("Glidos - Loading equiv.txt (%1%%%)", file.tellg() * 100 / size));
+    }
 
     if(line == "BeginEquiv")
     {
@@ -302,10 +312,8 @@ Glidos::Glidos(std::filesystem::path baseDir, const std::function<void(const std
 
   m_rootTimestamp = last_write_time(util::ensureFileExists(m_baseDir / "equiv.txt"));
 
-  statusCallback(_("Glidos - Loading equiv.txt"));
-
   BOOST_LOG_TRIVIAL(debug) << "Loading equiv.txt";
-  const Equiv equiv{m_baseDir / "equiv.txt"};
+  const Equiv equiv{m_baseDir / "equiv.txt", statusCallback};
 
   std::vector<PathMap> maps;
 
@@ -329,32 +337,6 @@ Glidos::Glidos(std::filesystem::path baseDir, const std::function<void(const std
     equiv.resolve(map.getRoot(), m_newestTextureSourceTimestamps, m_rootTimestamp, m_filesByPart, statusCallback);
   }
   statusCallback(_("Glidos - Resolving maps (100%)"));
-}
-
-void Glidos::dump() const
-{
-  BOOST_LOG_TRIVIAL(info) << "Glidos database dump";
-  std::set<std::string> md5s;
-  for(const auto& part : m_filesByPart)
-  {
-    md5s.insert(part.first.getId());
-  }
-
-  for(const auto& md5 : md5s)
-  {
-    BOOST_LOG_TRIVIAL(info) << "Texture " << md5;
-    auto mappings = getMappingsForTexture(md5);
-    if(mappings.tiles.empty())
-    {
-      BOOST_LOG_TRIVIAL(warning) << "  - No mappings";
-      continue;
-    }
-
-    for(const auto& tile : mappings.tiles)
-    {
-      BOOST_LOG_TRIVIAL(info) << "  - " << tile.first << " => " << tile.second;
-    }
-  }
 }
 
 Glidos::TileMap Glidos::getMappingsForTexture(const std::string& textureId) const

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EdisonEngine\n"
 "Report-Msgid-Bugs-To: https://github.com/stohrendorf/EdisonEngine/issues\n"
-"POT-Creation-Date: 2021-06-26 11:13+0200\n"
+"POT-Creation-Date: 2021-06-28 13:02+0200\n"
 "Last-Translator: Steffen Ohrendorf\n"
 "Language-Team: none\n"
 "Language: de_DE\n"
@@ -220,25 +220,26 @@ msgid "Game"
 msgstr "Spiel"
 
 #. translators: TR charmap encoding
-#: menu/controlsmenustate.cpp:214
-msgid "Gamepad"
-msgstr "Gamepad"
+#: menu/controlsmenustate.cpp:33
+msgid "Gameplay"
+msgstr "Spiel"
 
-#: loader/trx/trx.cpp:321
+#: loader/trx/trx.cpp:329
 #, boost-format
 msgid "Glidos - Loading %1%"
 msgstr "Glidos - Lade %1%"
 
-#: loader/trx/trx.cpp:305
-msgid "Glidos - Loading equiv.txt"
-msgstr "Glidos - Lade equiv.txt"
+#: loader/trx/trx.cpp:125
+#, boost-format
+msgid "Glidos - Loading equiv.txt (%1%%%)"
+msgstr "Glidos - Lade equiv.txt (%1%%%)"
 
-#: loader/trx/trx.cpp:136 loader/trx/trx.cpp:186
+#: loader/trx/trx.cpp:146 loader/trx/trx.cpp:196
 #, boost-format
 msgid "Glidos - Resolving maps (%1%%%)"
 msgstr "Glidos - Löse Zuordnungen auf (%1%%%)"
 
-#: loader/trx/trx.cpp:331
+#: loader/trx/trx.cpp:339
 msgid "Glidos - Resolving maps (100%)"
 msgstr "Glidos - Löse Zuordnungen auf (100%)"
 
@@ -307,11 +308,6 @@ msgstr "Springen"
 #, boost-format
 msgid "KILLS %1%"
 msgstr "Besiegte Gegner %1%"
-
-#. translators: TR charmap encoding
-#: menu/controlsmenustate.cpp:211
-msgid "Keyboard"
-msgstr "Tastatur"
 
 #. translators: TR charmap encoding, gamepad
 #: hid/names.cpp:166
@@ -399,7 +395,7 @@ msgid "More Lights"
 msgstr "Mehr Lichter"
 
 #. translators: TR charmap encoding
-#: menu/controlsmenustate.cpp:196 menu/controlsmenustate.cpp:207
+#: menu/controlsmenustate.cpp:229
 msgctxt "ButtonAssignment"
 msgid "N/A"
 msgstr "N/V"
@@ -670,6 +666,11 @@ msgstr "Rollen"
 msgctxt "Keyboard|Key"
 msgid "Shift"
 msgstr "Umschalt"
+
+#. translators: TR charmap encoding
+#: menu/controlsmenustate.cpp:69
+msgid "Shortcuts"
+msgstr "Schnellzugriff"
 
 #. translators: TR charmap encoding
 #: menu/menudisplay.cpp:256

@@ -146,7 +146,7 @@ private:
 class Equiv
 {
 public:
-  explicit Equiv(const std::filesystem::path& filename);
+  explicit Equiv(const std::filesystem::path& filename, const std::function<void(const std::string&)>& statusCallback);
 
   void resolve(const std::filesystem::path& root,
                std::map<std::string, std::filesystem::file_time_type>& timestamps,
@@ -179,8 +179,6 @@ class Glidos
 {
 public:
   explicit Glidos(std::filesystem::path baseDir, const std::function<void(const std::string&)>& statusCallback);
-
-  void dump() const;
 
   struct TileMap
   {
