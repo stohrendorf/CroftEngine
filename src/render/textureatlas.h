@@ -10,6 +10,8 @@ namespace render
 {
 /**
  * @brief A Binary Space Partition Tree for 2D space.
+ *
+ * Based on https://blackpawn.com/texts/lightmaps/default.html.
  */
 struct alignas(64) BSPTree final
 {
@@ -20,10 +22,10 @@ struct alignas(64) BSPTree final
   //! @note This is a pure caching mechanism to avoid unnecessary recursion.
   bool isFilled = false;
 
-  int32_t x = 0;
-  int32_t y = 0;
-  int32_t width = 0;
-  int32_t height = 0;
+  const int32_t x = 0;
+  const int32_t y = 0;
+  const int32_t width = 0;
+  const int32_t height = 0;
 
   BSPTree() = default;
 
@@ -73,6 +75,7 @@ struct alignas(64) BSPTree final
   void splitY(const int32_t splitLocation)
   {
     Expects(splitLocation < height);
+    Expects(left == nullptr && right == nullptr);
     left = std::make_unique<BSPTree>(x, y, width, splitLocation);
     right = std::make_unique<BSPTree>(x, y + splitLocation, width, height - splitLocation);
   }
@@ -137,10 +140,18 @@ struct alignas(64) BSPTree final
     }
     else
     {
-      // In case of doubt do a vertical split
-      splitY(insHeight);
+      const auto dw = width - insWidth;
+      const auto dh = height - insHeight;
+      if(dw > dh)
+      {
+        splitX(insWidth);
+      }
+      else
+      {
+        splitY(insHeight);
+      }
 
-      // Recurse, because the width may not match
+      // Recurse, because the size may not match
       return left->tryInsert(insWidth, insHeight);
     }
   }
