@@ -8,7 +8,6 @@
 #include "menudisplay.h"
 #include "ui/widgets/gridbox.h"
 #include "ui/widgets/label.h"
-#include "ui/widgets/listbox.h"
 #include "ui/widgets/sprite.h"
 
 #include <functional>
@@ -21,8 +20,10 @@ public:
   static constexpr size_t Columns = 6;
 
   explicit ControlsWidget(const std::function<std::shared_ptr<ui::widgets::Widget>(hid::Action)>& factory)
-      : m_content{std::make_shared<ui::widgets::ListBox>()}
+      : m_content{std::make_shared<ui::widgets::GridBox>()}
   {
+    m_content->setExtents(1, 2);
+
     auto gridBox = std::make_shared<ui::widgets::GridBox>(glm::ivec2{10, ui::OutlineBorderWidth});
     gridBox->setExtents(Columns, 5);
     gridBox->setSelected({1, 0});
@@ -30,7 +31,7 @@ public:
 
     auto groupBox = std::make_shared<ui::widgets::GroupBox>(
       /* translators: TR charmap encoding */ _("Gameplay"), gridBox);
-    m_content->append(groupBox);
+    m_content->set(0, 0, groupBox);
 
     auto add = [&gridBox, &factory](size_t x0, size_t y, hid::Action action)
     {
@@ -64,7 +65,7 @@ public:
     m_controlGroups.emplace_back(gridBox);
 
     groupBox = std::make_shared<ui::widgets::GroupBox>(/* translators: TR charmap encoding */ _("Shortcuts"), gridBox);
-    m_content->append(groupBox);
+    m_content->set(0, 1, groupBox);
 
     add(0, 0, hid::Action::DrawPistols);
     add(0, 1, hid::Action::DrawShotgun);
@@ -128,8 +129,9 @@ public:
       }
     }
 
-    for(const auto& groupBox : m_content->getWidgets())
-      groupBox->fitToContent();
+    for(size_t x = 0; x < std::get<0>(m_content->getExtents()); ++x)
+      for(size_t y = 0; y < std::get<1>(m_content->getExtents()); ++y)
+        m_content->getWidget(x, y)->fitToContent();
 
     m_content->fitToContent();
   }
@@ -141,7 +143,7 @@ public:
 
   [[nodiscard]] const auto& getCurrentGridBox() const
   {
-    return m_controlGroups.at(m_content->getSelected());
+    return m_controlGroups.at(std::get<1>(m_content->getSelected()));
   }
 
   void nextRow()
@@ -151,10 +153,10 @@ public:
       const auto& currentGridBox = getCurrentGridBox();
       if(!currentGridBox->nextRow())
       {
-        if(!m_content->nextEntry())
+        if(!m_content->nextRow())
         {
           // wrap around
-          m_content->setSelected(0);
+          m_content->setSelected({0, 0});
         }
 
         getCurrentGridBox()->setSelected({std::get<0>(currentGridBox->getSelected()), 0});
@@ -169,10 +171,10 @@ public:
       const auto& currentGridBox = getCurrentGridBox();
       if(!currentGridBox->prevRow())
       {
-        if(!m_content->prevEntry())
+        if(!m_content->prevRow())
         {
           // wrap around
-          m_content->setSelected(m_controlGroups.size() - 1);
+          m_content->setSelected({0, m_controlGroups.size() - 1});
         }
 
         getCurrentGridBox()->setSelected(
@@ -207,7 +209,7 @@ public:
   }
 
 private:
-  std::shared_ptr<ui::widgets::ListBox> m_content;
+  std::shared_ptr<ui::widgets::GridBox> m_content;
   std::vector<std::shared_ptr<ui::widgets::GridBox>> m_controlGroups;
 };
 

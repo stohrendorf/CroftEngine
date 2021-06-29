@@ -130,12 +130,17 @@ public:
     return m_columnSizes;
   }
 
-  [[nodiscard]] const auto& getSelectedWidget() const
+  [[nodiscard]] const auto& getWidget(size_t x, size_t y) const
   {
-    auto [x, y] = m_selected;
     auto [sx, sy] = getExtents();
     Expects(x < sx && y < sy);
     return m_widgets[x][y];
+  }
+
+  [[nodiscard]] const auto& getSelectedWidget() const
+  {
+    auto [x, y] = m_selected;
+    return getWidget(x, y);
   }
 
 private:
