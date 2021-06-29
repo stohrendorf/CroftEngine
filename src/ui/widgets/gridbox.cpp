@@ -5,10 +5,8 @@
 
 namespace ui::widgets
 {
-GridBox::GridBox(const glm::ivec2& position, const glm::ivec2& size, const glm::ivec2& separation)
-    : m_position{position}
-    , m_size{size}
-    , m_separation{separation}
+GridBox::GridBox(const glm::ivec2& separation)
+    : m_separation{separation}
 {
 }
 

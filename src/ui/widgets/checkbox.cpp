@@ -10,9 +10,8 @@ namespace ui::widgets
 {
 constexpr int TextOffset = 20;
 
-Checkbox::Checkbox(const glm::ivec2& position, const std::string& label, int width)
-    : m_size{width, ui::FontHeight}
-    , m_label{std::make_unique<Label>(position, label)}
+Checkbox::Checkbox(const std::string& label)
+    : m_label{std::make_unique<Label>(label)}
 {
 }
 

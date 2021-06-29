@@ -7,7 +7,7 @@
 
 namespace ui::widgets
 {
-class VBox;
+class ListBox;
 class Checkbox;
 } // namespace ui::widgets
 

@@ -21,11 +21,11 @@ class Ui;
 
 namespace ui::widgets
 {
-class VBox : public Widget
+class ListBox : public Widget
 {
 public:
-  explicit VBox(const glm::ivec2& position, const glm::ivec2& size, size_t pageSize = 0);
-  ~VBox() override;
+  explicit ListBox(size_t pageSize = 0);
+  ~ListBox() override;
   void draw(ui::Ui& ui, const engine::Presenter& presenter) const override;
 
   size_t append(const gsl::not_null<std::shared_ptr<Widget>>& widget);
@@ -99,8 +99,8 @@ public:
   }
 
 private:
-  glm::ivec2 m_position;
-  glm::ivec2 m_size;
+  glm::ivec2 m_position{0, 0};
+  glm::ivec2 m_size{0, 0};
   const size_t m_pageSize;
   size_t m_selected = 0;
   std::vector<gsl::not_null<std::shared_ptr<Widget>>> m_widgets;

@@ -8,10 +8,9 @@
 
 namespace ui::widgets
 {
-Label::Label(const glm::ivec2& position, const std::string& text, int width)
+Label::Label(const std::string& text)
     : m_text{std::make_unique<ui::Text>(text)}
-    , m_position{position}
-    , m_size{width, ui::FontHeight}
+    , m_size{0, ui::FontHeight}
 {
 }
 

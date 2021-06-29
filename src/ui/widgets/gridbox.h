@@ -25,9 +25,7 @@ namespace ui::widgets
 class GridBox : public Widget
 {
 public:
-  explicit GridBox(const glm::ivec2& position,
-                   const glm::ivec2& size,
-                   const glm::ivec2& separation = glm::ivec2{ui::OutlineBorderWidth, ui::OutlineBorderWidth});
+  explicit GridBox(const glm::ivec2& separation = glm::ivec2{ui::OutlineBorderWidth, ui::OutlineBorderWidth});
   ~GridBox() override;
   void draw(ui::Ui& ui, const engine::Presenter& presenter) const override;
 
@@ -143,8 +141,8 @@ public:
 private:
   void recalculateTotalSize();
 
-  glm::ivec2 m_position;
-  glm::ivec2 m_size;
+  glm::ivec2 m_position{0, 0};
+  glm::ivec2 m_size{0, 0};
   using WidgetArray = boost::multi_array<std::shared_ptr<Widget>, 2>;
   WidgetArray m_widgets{};
   std::tuple<size_t, size_t> m_selected{0, 0};

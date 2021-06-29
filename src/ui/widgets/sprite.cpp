@@ -9,10 +9,8 @@
 
 namespace ui::widgets
 {
-Sprite::Sprite(const glm::ivec2& position, const glm::ivec2& size, engine::world::Sprite sprite)
-    : m_position{position}
-    , m_size{size}
-    , m_sprite{std::move(sprite)}
+Sprite::Sprite(engine::world::Sprite sprite)
+    : m_sprite{std::move(sprite)}
 {
 }
 

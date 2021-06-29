@@ -8,8 +8,8 @@
 #include "menudisplay.h"
 #include "ui/widgets/gridbox.h"
 #include "ui/widgets/label.h"
+#include "ui/widgets/listbox.h"
 #include "ui/widgets/sprite.h"
-#include "ui/widgets/vbox.h"
 
 #include <functional>
 
@@ -21,21 +21,20 @@ public:
   static constexpr size_t Columns = 6;
 
   explicit ControlsWidget(const std::function<std::shared_ptr<ui::widgets::Widget>(hid::Action)>& factory)
-      : m_content{std::make_shared<ui::widgets::VBox>(glm::ivec2{0, 0}, glm::ivec2{0, 0})}
+      : m_content{std::make_shared<ui::widgets::ListBox>()}
   {
-    auto gridBox = std::make_shared<ui::widgets::GridBox>(
-      glm::ivec2{0, 0}, glm::ivec2{0, 0}, glm::ivec2{10, ui::OutlineBorderWidth});
+    auto gridBox = std::make_shared<ui::widgets::GridBox>(glm::ivec2{10, ui::OutlineBorderWidth});
     gridBox->setExtents(Columns, 5);
     gridBox->setSelected({1, 0});
     m_controlGroups.emplace_back(gridBox);
 
     auto groupBox = std::make_shared<ui::widgets::GroupBox>(
-      glm::ivec2{0, 0}, glm::ivec2{0, 0}, /* translators: TR charmap encoding */ _("Gameplay"), gridBox);
+      /* translators: TR charmap encoding */ _("Gameplay"), gridBox);
     m_content->append(groupBox);
 
     auto add = [&gridBox, &factory](size_t x0, size_t y, hid::Action action)
     {
-      auto label = std::make_shared<ui::widgets::Label>(glm::ivec2{0, 0}, hid::getName(action));
+      auto label = std::make_shared<ui::widgets::Label>(hid::getName(action));
       label->fitToContent();
       gridBox->set(x0, y, label);
 
@@ -60,13 +59,11 @@ public:
     add(4, 1, hid::Action::Holster);
     add(4, 2, hid::Action::Menu);
 
-    gridBox = std::make_shared<ui::widgets::GridBox>(
-      glm::ivec2{0, 0}, glm::ivec2{0, 0}, glm::ivec2{10, ui::OutlineBorderWidth});
+    gridBox = std::make_shared<ui::widgets::GridBox>(glm::ivec2{10, ui::OutlineBorderWidth});
     gridBox->setExtents(Columns, 4);
     m_controlGroups.emplace_back(gridBox);
 
-    groupBox = std::make_shared<ui::widgets::GroupBox>(
-      glm::ivec2{0, 0}, glm::ivec2{0, 0}, /* translators: TR charmap encoding */ _("Shortcuts"), gridBox);
+    groupBox = std::make_shared<ui::widgets::GroupBox>(/* translators: TR charmap encoding */ _("Shortcuts"), gridBox);
     m_content->append(groupBox);
 
     add(0, 0, hid::Action::DrawPistols);
@@ -210,7 +207,7 @@ public:
   }
 
 private:
-  std::shared_ptr<ui::widgets::VBox> m_content;
+  std::shared_ptr<ui::widgets::ListBox> m_content;
   std::vector<std::shared_ptr<ui::widgets::GridBox>> m_controlGroups;
 };
 
@@ -226,8 +223,8 @@ ControlsMenuState::ControlsMenuState(const std::shared_ptr<MenuRingTransform>& r
     auto it = keyMap.find(action);
     if(it == keyMap.end())
       return std::make_shared<ui::widgets::Label>(
-        glm::ivec2{0, 0}, /* translators: TR charmap encoding */ pgettext("ButtonAssignment", "N/A"));
-    return std::make_shared<ui::widgets::Label>(glm::ivec2{0, 0}, hid::getName(it->second));
+        /* translators: TR charmap encoding */ pgettext("ButtonAssignment", "N/A"));
+    return std::make_shared<ui::widgets::Label>(hid::getName(it->second));
   };
   m_controls = std::make_shared<ControlsWidget>(createKeyLabel);
 }

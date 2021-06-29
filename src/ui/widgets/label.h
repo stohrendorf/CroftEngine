@@ -16,7 +16,7 @@ namespace ui::widgets
 class Label : public Widget
 {
 public:
-  explicit Label(const glm::ivec2& position, const std::string& text, int width = 0);
+  explicit Label(const std::string& text);
   ~Label() override;
 
   [[nodiscard]] glm::ivec2 getPosition() const override;
@@ -31,7 +31,7 @@ public:
 
 private:
   std::unique_ptr<ui::Text> m_text;
-  glm::ivec2 m_position;
+  glm::ivec2 m_position{0, 0};
   glm::ivec2 m_size;
   uint8_t m_selectionAlpha = 0;
 };

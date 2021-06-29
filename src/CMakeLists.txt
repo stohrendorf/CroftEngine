@@ -420,7 +420,7 @@ set( EDISONENGINE_SRCS
 
         ui/widgets/checkbox.cpp
         ui/widgets/gridbox.cpp
-        ui/widgets/vbox.cpp
+        ui/widgets/listbox.cpp
         ui/widgets/label.cpp
         ui/widgets/groupbox.cpp
         ui/widgets/sprite.cpp

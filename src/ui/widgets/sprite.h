@@ -23,7 +23,7 @@ class Label;
 class Sprite : public Widget
 {
 public:
-  explicit Sprite(const glm::ivec2& position, const glm::ivec2& size, engine::world::Sprite sprite);
+  explicit Sprite(engine::world::Sprite sprite);
   ~Sprite() override;
   void update(bool hasFocus) override;
   void draw(ui::Ui& ui, const engine::Presenter& presenter) const override;
@@ -36,8 +36,8 @@ public:
   void fitToContent() override;
 
 private:
-  glm::ivec2 m_position;
-  glm::ivec2 m_size;
+  glm::ivec2 m_position{0, 0};
+  glm::ivec2 m_size{0, 0};
   engine::world::Sprite m_sprite;
   uint8_t m_selectionAlpha = 0;
 };

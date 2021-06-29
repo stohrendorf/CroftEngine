@@ -8,7 +8,7 @@
 
 namespace ui::widgets
 {
-class VBox;
+class ListBox;
 }
 
 namespace menu
@@ -16,7 +16,7 @@ namespace menu
 class ListDisplayMenuState : public SelectedMenuState
 {
 private:
-  std::shared_ptr<ui::widgets::VBox> m_listBox;
+  std::shared_ptr<ui::widgets::ListBox> m_listBox;
   ui::widgets::GroupBox m_groupBox;
 
 public:

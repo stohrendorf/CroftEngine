@@ -11,7 +11,7 @@
 #include "menuring.h"
 #include "requestloadmenustate.h"
 #include "ui/widgets/label.h"
-#include "ui/widgets/vbox.h"
+#include "ui/widgets/listbox.h"
 
 namespace menu
 {
@@ -39,7 +39,7 @@ SavegameListMenuState::SavegameListMenuState(const std::shared_ptr<MenuRingTrans
       name = _("- EMPTY SLOT %1%", i + 1);
       m_hasSavegame.emplace_back(false);
     }
-    auto label = std::make_shared<ui::widgets::Label>(glm::ivec2{0, 0}, name, 0);
+    auto label = std::make_shared<ui::widgets::Label>(name);
     label->fitToContent();
     append(label);
   }
