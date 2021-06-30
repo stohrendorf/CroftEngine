@@ -184,16 +184,17 @@ void ModelObject::enemyPush(CollisionInfo& collisionInfo, const bool enableSpaz,
     bbox.maxZ += r;
   }
 
+  // determine which edge lara is closest to
   auto laraInBBox = util::pitch(enemyToLara, -m_state.rotation.Y);
-  if(laraInBBox.X < bbox.minX || laraInBBox.X > bbox.maxX || laraInBBox.Z < bbox.minZ || laraInBBox.Z > bbox.maxZ)
-    return;
-
   const auto distMinX = laraInBBox.X - bbox.minX;
   const auto distMaxX = bbox.maxX - laraInBBox.X;
   const auto distMinZ = laraInBBox.Z - bbox.minZ;
   const auto distMaxZ = bbox.maxZ - laraInBBox.Z;
   const auto closestEdge = std::min(std::min(distMinX, distMaxX), std::min(distMinZ, distMaxZ));
+  if(closestEdge <= 0_len)
+    return;
 
+  // push lara out to the closest edge
   if(distMinX == closestEdge)
   {
     laraInBBox.X = bbox.minX;
@@ -202,13 +203,14 @@ void ModelObject::enemyPush(CollisionInfo& collisionInfo, const bool enableSpaz,
   {
     laraInBBox.X = bbox.maxX;
   }
-  else if(distMaxZ == closestEdge)
+  else if(distMinZ == closestEdge)
   {
-    laraInBBox.Z = bbox.maxZ;
+    laraInBBox.Z = bbox.minZ;
   }
   else
   {
-    laraInBBox.Z = bbox.minZ;
+    BOOST_ASSERT(distMaxZ == closestEdge);
+    laraInBBox.Z = bbox.maxZ;
   }
   // update lara's position to where she was pushed
   lara.m_state.position.position = m_state.position.position + util::pitch(laraInBBox, m_state.rotation.Y);
