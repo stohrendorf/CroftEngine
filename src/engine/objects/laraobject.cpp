@@ -620,6 +620,9 @@ void LaraObject::testInteractions(CollisionInfo& collisionInfo)
 
   for(const auto& object : getWorld().getObjectManager().getObjects() | boost::adaptors::map_values)
   {
+    if(!object->m_isActive)
+      continue;
+
     if(rooms.find(object->m_state.position.room) == rooms.end())
       continue;
 
@@ -635,6 +638,9 @@ void LaraObject::testInteractions(CollisionInfo& collisionInfo)
 
   for(const auto& object : getWorld().getObjectManager().getDynamicObjects())
   {
+    if(!object->m_isActive)
+      continue;
+
     if(rooms.find(object->m_state.position.room) == rooms.end())
       continue;
 
