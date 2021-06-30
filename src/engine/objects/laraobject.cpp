@@ -618,44 +618,26 @@ void LaraObject::testInteractions(CollisionInfo& collisionInfo)
   for(const world::Portal& p : m_state.position.room->portals)
     rooms.insert(p.adjoiningRoom);
 
-  for(const auto& object : getWorld().getObjectManager().getObjects() | boost::adaptors::map_values)
+  const auto execCollisions = [this, &rooms, &collisionInfo](const auto& range)
   {
-    if(!object->m_isActive)
-      continue;
+    for(const auto& object : range)
+    {
+      if(!object->m_state.collidable || object->m_state.triggerState == TriggerState::Invisible)
+        continue;
 
-    if(rooms.find(object->m_state.position.room) == rooms.end())
-      continue;
+      if(rooms.find(object->m_state.position.room) == rooms.end())
+        continue;
 
-    if(object->m_state.triggerState == TriggerState::Invisible)
-      continue;
+      const auto d = m_state.position.position - object->m_state.position.position;
+      if(abs(d.X) >= 4 * core::SectorSize || abs(d.Y) >= 4 * core::SectorSize || abs(d.Z) >= 4 * core::SectorSize)
+        continue;
 
-    const auto d = m_state.position.position - object->m_state.position.position;
-    if(abs(d.X) >= 4 * core::SectorSize || abs(d.Y) >= 4 * core::SectorSize || abs(d.Z) >= 4 * core::SectorSize)
-      continue;
+      object->collide(collisionInfo);
+    }
+  };
 
-    object->collide(collisionInfo);
-  }
-
-  for(const auto& object : getWorld().getObjectManager().getDynamicObjects())
-  {
-    if(!object->m_isActive)
-      continue;
-
-    if(rooms.find(object->m_state.position.room) == rooms.end())
-      continue;
-
-    if(!object->m_state.collidable)
-      continue;
-
-    if(object->m_state.triggerState == TriggerState::Invisible)
-      continue;
-
-    const auto d = m_state.position.position - object->m_state.position.position;
-    if(abs(d.X) >= 4 * core::SectorSize || abs(d.Y) >= 4 * core::SectorSize || abs(d.Z) >= 4 * core::SectorSize)
-      continue;
-
-    object->collide(collisionInfo);
-  }
+  execCollisions(getWorld().getObjectManager().getObjects() | boost::adaptors::map_values);
+  execCollisions(getWorld().getObjectManager().getDynamicObjects());
 
   if(getWorld().getObjectManager().getLara().explosionStumblingDuration != 0_frame)
   {
