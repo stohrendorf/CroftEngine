@@ -14,13 +14,8 @@ void PickupObject::collide(CollisionInfo& /*collisionInfo*/)
   m_state.rotation.Y = getWorld().getObjectManager().getLara().m_state.rotation.Y;
   m_state.rotation.Z = 0_deg;
 
-  if(getWorld().getObjectManager().getLara().isInWater())
+  if(getWorld().getObjectManager().getLara().isDiving())
   {
-    if(!getWorld().getObjectManager().getLara().isDiving())
-    {
-      return;
-    }
-
     static const InteractionLimits limits{
       core::BoundingBox{{-512_len, -512_len, -512_len}, {512_len, 512_len, 512_len}},
       {-45_deg, -45_deg, -45_deg},
@@ -61,7 +56,7 @@ void PickupObject::collide(CollisionInfo& /*collisionInfo*/)
       getWorld().getObjectManager().getLara().setGoalAnimState(loader::file::LaraStateId::UnderwaterStop);
     }
   }
-  else
+  else if(getWorld().getObjectManager().getLara().isOnLand())
   {
     static const InteractionLimits limits{
       core::BoundingBox{{-256_len, -100_len, -256_len}, {256_len, 100_len, 100_len}},
@@ -75,29 +70,7 @@ void PickupObject::collide(CollisionInfo& /*collisionInfo*/)
       return;
     }
 
-    if(getWorld().getObjectManager().getLara().getCurrentAnimState() == loader::file::LaraStateId::PickUp)
-    {
-      if(getWorld().getObjectManager().getLara().getSkeleton()->getFrame() == 3443_frame)
-      {
-        if(m_state.type == TR1ItemId::ShotgunSprite)
-        {
-          const auto& shotgunLara = *getWorld().findAnimatedModelForType(TR1ItemId::LaraShotgunAnim);
-          BOOST_ASSERT(shotgunLara.bones.size()
-                       == getWorld().getObjectManager().getLara().getSkeleton()->getBoneCount());
-
-          getWorld().getObjectManager().getLara().getSkeleton()->setMeshPart(7, shotgunLara.bones[7].mesh);
-          getWorld().getObjectManager().getLara().getSkeleton()->rebuildMesh();
-        }
-
-        m_state.triggerState = TriggerState::Invisible;
-        getWorld().getPlayer().getInventory().put(m_state.type);
-        ++getWorld().getPlayer().pickups;
-        getWorld().addPickupWidget(getSprite());
-        setParent(getNode(), nullptr);
-        m_state.collidable = false;
-      }
-    }
-    else
+    if(getWorld().getObjectManager().getLara().getCurrentAnimState() != loader::file::LaraStateId::PickUp)
     {
       if(getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action)
          && getWorld().getObjectManager().getLara().getHandStatus() == HandStatus::None
@@ -114,6 +87,23 @@ void PickupObject::collide(CollisionInfo& /*collisionInfo*/)
         getWorld().getObjectManager().getLara().setGoalAnimState(loader::file::LaraStateId::Stop);
         getWorld().getObjectManager().getLara().setHandStatus(HandStatus::Grabbing);
       }
+    }
+    else if(getWorld().getObjectManager().getLara().getSkeleton()->getFrame() == 3443_frame)
+    {
+      if(m_state.type == TR1ItemId::ShotgunSprite)
+      {
+        const auto& shotgunLara = *getWorld().findAnimatedModelForType(TR1ItemId::LaraShotgunAnim);
+        BOOST_ASSERT(shotgunLara.bones.size() == getWorld().getObjectManager().getLara().getSkeleton()->getBoneCount());
+
+        getWorld().getObjectManager().getLara().getSkeleton()->setMeshPart(7, shotgunLara.bones[7].mesh);
+        getWorld().getObjectManager().getLara().getSkeleton()->rebuildMesh();
+      }
+
+      m_state.triggerState = TriggerState::Invisible;
+      getWorld().getPlayer().getInventory().put(m_state.type);
+      ++getWorld().getPlayer().pickups;
+      getWorld().addPickupWidget(getSprite());
+      setParent(getNode(), nullptr);
     }
   }
 }

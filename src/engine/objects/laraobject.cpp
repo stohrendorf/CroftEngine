@@ -623,9 +623,6 @@ void LaraObject::testInteractions(CollisionInfo& collisionInfo)
     if(rooms.find(object->m_state.position.room) == rooms.end())
       continue;
 
-    if(!object->m_state.collidable)
-      continue;
-
     if(object->m_state.triggerState == TriggerState::Invisible)
       continue;
 

@@ -63,6 +63,7 @@ void SpriteObject::serialize(const serialization::Serializer<world::World>& ser)
   if(ser.loading)
   {
     createModel();
+    m_node->setVisible(m_state.triggerState != TriggerState::Invisible);
   }
 }
 } // namespace engine::objects
