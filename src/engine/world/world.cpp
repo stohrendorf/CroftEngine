@@ -802,9 +802,9 @@ core::TypeId World::find(const Sprite* sprite) const
 
 void World::serialize(const serialization::Serializer<World>& ser)
 {
-  std::vector<size_t> roomOrder;
+  std::vector<size_t> physicalIds;
   std::transform(
-    m_rooms.begin(), m_rooms.end(), std::back_inserter(roomOrder), [](const Room& room) { return room.index; });
+    m_rooms.begin(), m_rooms.end(), std::back_inserter(physicalIds), [](const Room& room) { return room.physicalId; });
 
   if(ser.loading)
   {
@@ -815,21 +815,17 @@ void World::serialize(const serialization::Serializer<World>& ser)
       setParent(room.node, getPresenter().getRenderer().getRootNode());
     }
 
-    auto currentRoomOrder = roomOrder;
-    ser(S_NV("roomOrder", serialization::FrozenVector{roomOrder}));
-    for(size_t i = 0; i < roomOrder.size(); ++i)
+    ser(S_NV("roomPhysicalIds", serialization::FrozenVector{physicalIds}));
+    for(size_t i = 0; i < m_rooms.size(); ++i)
     {
-      const auto currentIdx = currentRoomOrder[i];
-      if(currentIdx == roomOrder[i])
+      if(m_rooms[i].physicalId == physicalIds[i])
         continue;
 
-      const auto otherIdx = std::distance(roomOrder.begin(), std::find(roomOrder.begin(), roomOrder.end(), currentIdx));
-      Expects(gsl::narrow<size_t>(otherIdx) < roomOrder.size());
-
-      std::swap(roomOrder[i], roomOrder[otherIdx]);
-      swapWithAlternate(m_rooms[i], m_rooms[otherIdx]);
-      Ensures(currentIdx == roomOrder[i]);
+      // do not use "swapWithAlternate", as that may break the "alternateRoom" member
+      std::swap(m_rooms[i], m_rooms[physicalIds[i]]);
     }
+    for(size_t i = 0; i < m_rooms.size(); ++i)
+      Ensures(physicalIds[i] == m_rooms[i].physicalId);
   }
 
   ser(S_NV("objectManager", m_objectManager),
@@ -841,7 +837,7 @@ void World::serialize(const serialization::Serializer<World>& ser)
       S_NV("cameraController", *m_cameraController),
       S_NV("secretsFound", m_secretsFoundBitmask),
       S_NV("roomsAreSwapped", m_roomsAreSwapped),
-      S_NV("roomOrder", roomOrder),
+      S_NV("roomPhysicalIds", physicalIds),
       S_NV("rooms", serialization::FrozenVector{m_rooms}),
       S_NV("boxes", serialization::FrozenVector{m_boxes}),
       S_NV("audioEngine", *m_audioEngine));

@@ -12,6 +12,7 @@
 #include "render/textureanimator.h"
 #include "serialization/serialization.h"
 #include "serialization/vector.h"
+#include "serialization/vector_element.h"
 #include "util.h"
 #include "world.h"
 
@@ -445,7 +446,8 @@ void Room::resetScenery()
 
 void Room::serialize(const serialization::Serializer<World>& ser)
 {
-  ser(S_NV("sectors", serialization::FrozenVector{sectors}));
+  ser(S_NV("sectors", serialization::FrozenVector{sectors}),
+      S_NV_VECTOR_ELEMENT("alternateRoom", ser.context.getRooms(), alternateRoom));
 }
 
 const Sector* Room::getSectorByIndex(const int dx, const int dz) const

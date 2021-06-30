@@ -66,7 +66,7 @@ struct RoomStaticMesh
 
 struct Room
 {
-  size_t index;
+  size_t physicalId;
 
   bool isWaterRoom;
   core::TRVec position{};
