@@ -375,7 +375,7 @@ void Room::createSceneNode(const loader::file::Room& srcRoom,
                    return p;
                  });
 
-  collectShaderLights(world.getEngine().getEngineConfig().renderSettings.getLightCollectionDepth());
+  collectShaderLights(world.getEngine().getEngineConfig()->renderSettings.getLightCollectionDepth());
   resetScenery();
 }
 

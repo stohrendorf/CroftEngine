@@ -17,7 +17,8 @@ class InputHandler final
 {
 public:
   explicit InputHandler(gsl::not_null<GLFWwindow*> window);
-  void setMapping(const engine::InputMappingConfig& inputMapping);
+  void setMappings(const std::vector<engine::NamedInputMappingConfig>& inputMappings);
+  void setActiveMapping(size_t mapping);
 
   void update();
 
@@ -47,21 +48,27 @@ public:
     return false;
   }
 
-  [[nodiscard]] const auto& getKeyMap() const
+  [[nodiscard]] const auto& getActionMap() const
   {
-    return m_inputKeyMap;
+    return m_actionMap;
   }
 
-  [[nodiscard]] const auto& getGamepadMap() const
+  [[nodiscard]] const auto& getMappings() const
   {
-    return m_inputGamepadMap;
+    return m_inputMappings;
+  }
+
+  [[nodiscard]] const auto& getActiveMappingName() const
+  {
+    return m_inputMappings.at(m_activeMapping).name;
   }
 
 private:
   InputState m_inputState{};
   const gsl::not_null<GLFWwindow*> m_window;
   int m_controllerIndex = -1;
-  boost::container::flat_map<Action, GlfwKey> m_inputKeyMap{};
-  boost::container::flat_map<Action, GlfwGamepadButton> m_inputGamepadMap{};
+  std::vector<engine::NamedInputMappingConfig> m_inputMappings{};
+  size_t m_activeMapping = 0;
+  boost::container::flat_map<Action, std::variant<GlfwKey, GlfwGamepadButton>> m_actionMap{};
 };
 } // namespace hid

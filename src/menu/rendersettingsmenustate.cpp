@@ -108,39 +108,39 @@ RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingT
   m_listBoxes.emplace_back(listBox);
   listBox->addSetting(
     /* translators: TR charmap encoding */ _("CRT"),
-    [&engine]() { return engine.getEngineConfig().renderSettings.crt; },
-    [&engine]() { toggle(engine, engine.getEngineConfig().renderSettings.crt); });
+    [&engine]() { return engine.getEngineConfig()->renderSettings.crt; },
+    [&engine]() { toggle(engine, engine.getEngineConfig()->renderSettings.crt); });
   listBox->addSetting(
     /* translators: TR charmap encoding */ _("Depth-of-Field"),
-    [&engine]() { return engine.getEngineConfig().renderSettings.dof; },
-    [&engine]() { toggle(engine, engine.getEngineConfig().renderSettings.dof); });
+    [&engine]() { return engine.getEngineConfig()->renderSettings.dof; },
+    [&engine]() { toggle(engine, engine.getEngineConfig()->renderSettings.dof); });
   listBox->addSetting(
     /* translators: TR charmap encoding */ _("Lens Distortion"),
-    [&engine]() { return engine.getEngineConfig().renderSettings.lensDistortion; },
-    [&engine]() { toggle(engine, engine.getEngineConfig().renderSettings.lensDistortion); });
+    [&engine]() { return engine.getEngineConfig()->renderSettings.lensDistortion; },
+    [&engine]() { toggle(engine, engine.getEngineConfig()->renderSettings.lensDistortion); });
   listBox->addSetting(
     /* translators: TR charmap encoding */ _("Film Grain"),
-    [&engine]() { return engine.getEngineConfig().renderSettings.filmGrain; },
-    [&engine]() { toggle(engine, engine.getEngineConfig().renderSettings.filmGrain); });
+    [&engine]() { return engine.getEngineConfig()->renderSettings.filmGrain; },
+    [&engine]() { toggle(engine, engine.getEngineConfig()->renderSettings.filmGrain); });
   listBox->addSetting(
     /* translators: TR charmap encoding */ _("Velvia"),
-    [&engine]() { return engine.getEngineConfig().renderSettings.velvia; },
-    [&engine]() { toggle(engine, engine.getEngineConfig().renderSettings.velvia); });
+    [&engine]() { return engine.getEngineConfig()->renderSettings.velvia; },
+    [&engine]() { toggle(engine, engine.getEngineConfig()->renderSettings.velvia); });
 
   listBox = std::make_shared<CheckListBox>(/* translators: TR charmap encoding */ _("Quality"));
   m_listBoxes.emplace_back(listBox);
   listBox->addSetting(
     /* translators: TR charmap encoding */ _("Bilinear Filtering"),
-    [&engine]() { return engine.getEngineConfig().renderSettings.bilinearFiltering; },
-    [&engine]() { toggle(engine, engine.getEngineConfig().renderSettings.bilinearFiltering); });
+    [&engine]() { return engine.getEngineConfig()->renderSettings.bilinearFiltering; },
+    [&engine]() { toggle(engine, engine.getEngineConfig()->renderSettings.bilinearFiltering); });
   if(gl::hasAnisotropicFilteringExtension())
   {
     m_anisotropyCheckbox = listBox->addSetting(
       "",
-      [&engine]() { return engine.getEngineConfig().renderSettings.anisotropyLevel != 0; },
+      [&engine]() { return engine.getEngineConfig()->renderSettings.anisotropyLevel != 0; },
       [&engine, maxLevel = std::lround(gl::getMaxAnisotropyLevel())]()
       {
-        auto& level = engine.getEngineConfig().renderSettings.anisotropyLevel;
+        auto& level = engine.getEngineConfig()->renderSettings.anisotropyLevel;
         if(level == 0)
           level = 2;
         else
@@ -152,33 +152,33 @@ RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingT
   }
   listBox->addSetting(
     /* translators: TR charmap encoding */ _("Water Denoise"),
-    [&engine]() { return engine.getEngineConfig().renderSettings.waterDenoise; },
-    [&engine]() { toggle(engine, engine.getEngineConfig().renderSettings.waterDenoise); });
+    [&engine]() { return engine.getEngineConfig()->renderSettings.waterDenoise; },
+    [&engine]() { toggle(engine, engine.getEngineConfig()->renderSettings.waterDenoise); });
   listBox->addSetting(
     /* translators: TR charmap encoding */ _("HBAO"),
-    [&engine]() { return engine.getEngineConfig().renderSettings.hbao; },
-    [&engine]() { toggle(engine, engine.getEngineConfig().renderSettings.hbao); });
+    [&engine]() { return engine.getEngineConfig()->renderSettings.hbao; },
+    [&engine]() { toggle(engine, engine.getEngineConfig()->renderSettings.hbao); });
   listBox->addSetting(
     /* translators: TR charmap encoding */ _("High Quality Shadows"),
-    [&engine]() { return engine.getEngineConfig().renderSettings.highQualityShadows; },
-    [&engine]() { toggle(engine, engine.getEngineConfig().renderSettings.highQualityShadows); });
+    [&engine]() { return engine.getEngineConfig()->renderSettings.highQualityShadows; },
+    [&engine]() { toggle(engine, engine.getEngineConfig()->renderSettings.highQualityShadows); });
 
   listBox = std::make_shared<CheckListBox>(/* translators: TR charmap encoding */ _("Other"));
   m_listBoxes.emplace_back(listBox);
   listBox->addSetting(
     /* translators: TR charmap encoding */ _("Fullscreen"),
-    [&engine]() { return engine.getEngineConfig().renderSettings.fullscreen; },
-    [&engine]() { toggle(engine, engine.getEngineConfig().renderSettings.fullscreen); });
+    [&engine]() { return engine.getEngineConfig()->renderSettings.fullscreen; },
+    [&engine]() { toggle(engine, engine.getEngineConfig()->renderSettings.fullscreen); });
   listBox->addSetting(
     /* translators: TR charmap encoding */ _("More Lights"),
-    [&engine]() { return engine.getEngineConfig().renderSettings.moreLights; },
-    [&engine]() { toggle(engine, engine.getEngineConfig().renderSettings.moreLights); });
+    [&engine]() { return engine.getEngineConfig()->renderSettings.moreLights; },
+    [&engine]() { toggle(engine, engine.getEngineConfig()->renderSettings.moreLights); });
   listBox->addSetting(
     /* translators: TR charmap encoding */ _("Performance Meter"),
-    [&engine]() { return engine.getEngineConfig().displaySettings.performanceMeter; },
+    [&engine]() { return engine.getEngineConfig()->displaySettings.performanceMeter; },
     [&engine]()
     {
-      auto& b = engine.getEngineConfig().displaySettings.performanceMeter;
+      auto& b = engine.getEngineConfig()->displaySettings.performanceMeter;
       b = !b;
     });
 }
@@ -189,7 +189,7 @@ std::unique_ptr<MenuState>
   if(m_anisotropyCheckbox != nullptr)
   {
     m_anisotropyCheckbox->setLabel(/* translators: TR charmap encoding */ _(
-      "%1%x Anisotropic Filtering", world.getEngine().getEngineConfig().renderSettings.anisotropyLevel));
+      "%1%x Anisotropic Filtering", world.getEngine().getEngineConfig()->renderSettings.anisotropyLevel));
   }
 
   {

@@ -79,46 +79,54 @@ void InputHandler::update()
   if(m_controllerIndex >= 0)
     glfwGetGamepadState(m_controllerIndex, &gamepadState);
 
-  for(const auto& [action, key] : m_inputKeyMap)
-  {
-    bool gamepadButtonPressed = false;
-    if(auto it = m_inputGamepadMap.find(action); m_controllerIndex >= 0 && it != m_inputGamepadMap.end())
-      gamepadButtonPressed = gamepadState.buttons[static_cast<int>(it->second)];
+  boost::container::flat_map<Action, bool> states{};
 
-    m_inputState.actions[action] = isKeyPressed(key) || gamepadButtonPressed;
+  for(const auto& [action, key] : m_actionMap)
+  {
+    if(std::holds_alternative<hid::GlfwGamepadButton>(key))
+    {
+      if(m_controllerIndex >= 0)
+        states[action] |= gamepadState.buttons[static_cast<int>(std::get<hid::GlfwGamepadButton>(key))] != 0;
+    }
+    else
+    {
+      states[action] |= isKeyPressed(std::get<hid::GlfwKey>(key));
+    }
   }
 
+  for(auto& [action, button] : m_inputState.actions)
+  {
+    auto it = states.find(action);
+    button = it != states.end() && it->second;
+  }
   m_inputState.setXAxisMovement(m_inputState.actions[Action::Left], m_inputState.actions[Action::Right]);
   m_inputState.setZAxisMovement(m_inputState.actions[Action::Backward], m_inputState.actions[Action::Forward]);
   m_inputState.setStepMovement(m_inputState.actions[Action::StepLeft], m_inputState.actions[Action::StepRight]);
 }
 
-void InputHandler::setMapping(const engine::InputMappingConfig& inputMapping)
+void InputHandler::setMappings(const std::vector<engine::NamedInputMappingConfig>& inputMappings)
 {
-  m_inputGamepadMap.clear();
-  m_inputKeyMap.clear();
+  Expects(!inputMappings.empty());
+  m_inputMappings = inputMappings;
+  setActiveMapping(m_activeMapping);
+}
 
-  for(const auto& [input, action] : inputMapping)
+void InputHandler::setActiveMapping(size_t mapping)
+{
+  Expects(mapping < m_inputMappings.size());
+  m_activeMapping = mapping;
+
+  m_actionMap.clear();
+
+  for(const auto& [input, action] : m_inputMappings.at(m_activeMapping).mappings)
   {
     if(std::holds_alternative<engine::NamedGlfwGamepadButton>(input))
     {
-      if(auto it = m_inputGamepadMap.find(action); it != m_inputGamepadMap.end())
-      {
-        BOOST_LOG_TRIVIAL(warning) << "Multiple gamepad mappings present for action " << toString(action);
-      }
-      m_inputGamepadMap[action] = std::get<engine::NamedGlfwGamepadButton>(input);
-    }
-    else if(std::holds_alternative<engine::NamedGlfwKey>(input))
-    {
-      if(auto it = m_inputKeyMap.find(action); it != m_inputKeyMap.end())
-      {
-        BOOST_LOG_TRIVIAL(warning) << "Multiple gamepad mappings present for action " << toString(action);
-      }
-      m_inputKeyMap[action] = std::get<engine::NamedGlfwKey>(input);
+      m_actionMap[action] = std::get<engine::NamedGlfwGamepadButton>(input).value;
     }
     else
     {
-      BOOST_THROW_EXCEPTION(std::runtime_error("Invalid input type"));
+      m_actionMap[action] = std::get<engine::NamedGlfwKey>(input).value;
     }
   }
 }

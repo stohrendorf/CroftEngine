@@ -68,12 +68,6 @@ Engine::Engine(const std::filesystem::path& rootPath, const glm::ivec2& resoluti
     : m_rootPath{rootPath}
     , m_scriptEngine{createScriptEngine(rootPath)}
 {
-  if(std::filesystem::is_regular_file(m_rootPath / "config.yaml"))
-  {
-    serialization::YAMLDocument<true> doc{m_rootPath / "config.yaml"};
-    doc.load("config", m_engineConfig, m_engineConfig);
-  }
-
   try
   {
     pybind11::eval_file(util::ensureFileExists(m_rootPath / "scripts" / "main.py").string());
@@ -104,19 +98,27 @@ Engine::Engine(const std::filesystem::path& rootPath, const glm::ivec2& resoluti
   setlocale(LC_ALL, m_language.c_str());
   textdomain("edisonengine");
 
+  m_engineConfig = std::make_unique<EngineConfig>();
+  if(std::filesystem::is_regular_file(m_rootPath / "config.yaml"))
+  {
+    serialization::YAMLDocument<true> doc{m_rootPath / "config.yaml"};
+    doc.load("config", *m_engineConfig, *m_engineConfig);
+  }
+
   m_presenter = std::make_shared<Presenter>(m_rootPath, resolution);
   if(gl::hasAnisotropicFilteringExtension()
-     && m_engineConfig.renderSettings.anisotropyLevel > gl::getMaxAnisotropyLevel())
-    m_engineConfig.renderSettings.anisotropyLevel = gsl::narrow<uint32_t>(std::llround(gl::getMaxAnisotropyLevel()));
-  m_presenter->apply(m_engineConfig.renderSettings);
-  m_presenter->getInputHandler().setMapping(m_engineConfig.inputMapping);
+     && m_engineConfig->renderSettings.anisotropyLevel > gl::getMaxAnisotropyLevel())
+    m_engineConfig->renderSettings.anisotropyLevel = gsl::narrow<uint32_t>(std::llround(gl::getMaxAnisotropyLevel()));
+  m_presenter->apply(m_engineConfig->renderSettings);
+  m_presenter->getInputHandler().setMappings(m_engineConfig->inputMappings);
+  m_presenter->getInputHandler().setActiveMapping(m_engineConfig->activeInputMapping);
   m_glidos = loadGlidosPack();
 }
 
 Engine::~Engine()
 {
   serialization::YAMLDocument<false> doc{m_rootPath / "config.yaml"};
-  doc.save("config", m_engineConfig, m_engineConfig);
+  doc.save("config", *m_engineConfig, *m_engineConfig);
   doc.write();
 }
 
@@ -138,7 +140,7 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
                       "allAmmoCheat")
         .value_or(false);
 
-  m_presenter->apply(m_engineConfig.renderSettings);
+  m_presenter->apply(m_engineConfig->renderSettings);
   std::shared_ptr<menu::MenuDisplay> menu;
   Throttler throttler;
   core::Frame laraDeadTime = 0_frame;
@@ -342,7 +344,7 @@ std::pair<RunResult, std::optional<size_t>> Engine::runTitleMenu(world::World& w
 {
   gl::Framebuffer::unbindAll();
 
-  m_presenter->apply(m_engineConfig.renderSettings);
+  m_presenter->apply(m_engineConfig->renderSettings);
 
   Expects(world.getAudioEngine().getInterceptStream() != nullptr);
   world.getAudioEngine().getInterceptStream()->setLooping(true);
@@ -431,7 +433,7 @@ std::pair<RunResult, std::optional<size_t>> Engine::runLevelSequenceItem(script:
 {
   m_presenter->getSoundEngine()->reset();
   m_presenter->clear();
-  m_presenter->apply(m_engineConfig.renderSettings);
+  m_presenter->apply(m_engineConfig->renderSettings);
   return item.run(*this, player);
 }
 
@@ -441,19 +443,19 @@ std::pair<RunResult, std::optional<size_t>> Engine::runLevelSequenceItemFromSave
 {
   m_presenter->getSoundEngine()->reset();
   m_presenter->clear();
-  m_presenter->apply(m_engineConfig.renderSettings);
+  m_presenter->apply(m_engineConfig->renderSettings);
   return item.runFromSave(*this, slot, player);
 }
 
 std::unique_ptr<loader::trx::Glidos> Engine::loadGlidosPack() const
 {
-  if(m_engineConfig.renderSettings.glidosPack.has_value())
+  if(m_engineConfig->renderSettings.glidosPack.has_value())
   {
-    if(!std::filesystem::is_directory(m_engineConfig.renderSettings.glidosPack.value()))
+    if(!std::filesystem::is_directory(m_engineConfig->renderSettings.glidosPack.value()))
       return nullptr;
 
     m_presenter->drawLoadingScreen(_("Loading Glidos texture pack"));
-    return std::make_unique<loader::trx::Glidos>(m_rootPath / m_engineConfig.renderSettings.glidosPack.value(),
+    return std::make_unique<loader::trx::Glidos>(m_rootPath / m_engineConfig->renderSettings.glidosPack.value(),
                                                  [this](const std::string& s) { m_presenter->drawLoadingScreen(s); });
   }
 
@@ -479,10 +481,10 @@ std::optional<SavegameMeta> Engine::getSavegameMeta(const std::optional<size_t>&
 
 void Engine::applyRenderSettings()
 {
-  m_presenter->apply(m_engineConfig.renderSettings);
+  m_presenter->apply(m_engineConfig->renderSettings);
   for(const auto& world : m_worlds)
     for(auto& room : world->getRooms())
-      room.collectShaderLights(m_engineConfig.renderSettings.getLightCollectionDepth());
+      room.collectShaderLights(m_engineConfig->renderSettings.getLightCollectionDepth());
 }
 
 std::filesystem::path Engine::getSavegameRootPath() const

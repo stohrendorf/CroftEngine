@@ -1,6 +1,6 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR Steffen Ohrendorf
-# This file is distributed under the same license as the EdisonEngine package.
+# This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
 #, fuzzy
@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EdisonEngine \n"
 "Report-Msgid-Bugs-To: https://github.com/stohrendorf/EdisonEngine/issues\n"
-"POT-Creation-Date: 2021-06-28 13:02+0200\n"
+"POT-Creation-Date: 2021-07-01 22:41+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -220,8 +220,13 @@ msgstr ""
 msgid "Game"
 msgstr ""
 
+#: engine/engineconfig.cpp:50
+msgctxt "Input|MappingName"
+msgid "Gamepad"
+msgstr ""
+
 #. translators: TR charmap encoding
-#: menu/controlsmenustate.cpp:33
+#: menu/controlsmenustate.cpp:35
 msgid "Gameplay"
 msgstr ""
 
@@ -310,6 +315,11 @@ msgstr ""
 msgid "KILLS %1%"
 msgstr ""
 
+#: engine/engineconfig.cpp:21
+msgctxt "Input|MappingName"
+msgid "Keyboard"
+msgstr ""
+
 #. translators: TR charmap encoding, gamepad
 #: hid/names.cpp:166
 msgctxt "Gamepad|Button"
@@ -360,11 +370,11 @@ msgstr ""
 msgid "Loading %1%"
 msgstr ""
 
-#: engine/engine.cpp:455
+#: engine/engine.cpp:457
 msgid "Loading Glidos texture pack"
 msgstr ""
 
-#: engine/world/world.cpp:925
+#: engine/world/world.cpp:921
 msgid "Loading..."
 msgstr ""
 
@@ -396,7 +406,7 @@ msgid "More Lights"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/controlsmenustate.cpp:229
+#: menu/controlsmenustate.cpp:233
 msgctxt "ButtonAssignment"
 msgid "N/A"
 msgstr ""
@@ -646,7 +656,7 @@ msgstr ""
 msgid "Save Game"
 msgstr ""
 
-#: engine/world/world.cpp:946
+#: engine/world/world.cpp:942
 msgid "Saving..."
 msgstr ""
 

@@ -85,7 +85,7 @@ class Engine
 {
 private:
   const std::filesystem::path m_rootPath;
-  EngineConfig m_engineConfig;
+  std::unique_ptr<EngineConfig> m_engineConfig;
   std::shared_ptr<Presenter> m_presenter;
   std::set<gsl::not_null<world::World*>> m_worlds;
 

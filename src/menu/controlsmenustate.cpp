@@ -19,8 +19,10 @@ class ControlsMenuState::ControlsWidget final : public ui::widgets::Widget
 public:
   static constexpr size_t Columns = 6;
 
-  explicit ControlsWidget(const std::function<std::shared_ptr<ui::widgets::Widget>(hid::Action)>& factory)
+  explicit ControlsWidget(const std::string& title,
+                          const std::function<std::shared_ptr<ui::widgets::Widget>(hid::Action)>& factory)
       : m_content{std::make_shared<ui::widgets::GridBox>()}
+      , m_container{std::make_shared<ui::widgets::GroupBox>(title, m_content)}
   {
     m_content->setExtents(1, 2);
 
@@ -84,27 +86,27 @@ public:
 
   [[nodiscard]] glm::ivec2 getPosition() const override
   {
-    return m_content->getPosition();
+    return m_container->getPosition();
   }
 
   [[nodiscard]] glm::ivec2 getSize() const override
   {
-    return m_content->getSize();
+    return m_container->getSize();
   }
 
   void setPosition(const glm::ivec2& position) override
   {
-    m_content->setPosition(position);
+    m_container->setPosition(position);
   }
 
   void setSize(const glm::ivec2& size) override
   {
-    m_content->setSize(size);
+    m_container->setSize(size);
   }
 
   void update(bool hasFocus) override
   {
-    m_content->update(hasFocus);
+    m_container->update(hasFocus);
   }
 
   void fitToContent() override
@@ -134,11 +136,12 @@ public:
         m_content->getWidget(x, y)->fitToContent();
 
     m_content->fitToContent();
+    m_container->fitToContent();
   }
 
   void draw(ui::Ui& ui, const engine::Presenter& presenter) const override
   {
-    m_content->draw(ui, presenter);
+    m_container->draw(ui, presenter);
   }
 
   [[nodiscard]] const auto& getCurrentGridBox() const
@@ -210,6 +213,7 @@ public:
 
 private:
   std::shared_ptr<ui::widgets::GridBox> m_content;
+  std::shared_ptr<ui::widgets::GroupBox> m_container;
   std::vector<std::shared_ptr<ui::widgets::GridBox>> m_controlGroups;
 };
 
@@ -221,14 +225,27 @@ ControlsMenuState::ControlsMenuState(const std::shared_ptr<MenuRingTransform>& r
 {
   const auto createKeyLabel = [&world](hid::Action action) -> std::shared_ptr<ui::widgets::Widget>
   {
-    const auto& keyMap = world.getEngine().getPresenter().getInputHandler().getKeyMap();
-    auto it = keyMap.find(action);
-    if(it == keyMap.end())
+    const auto& actionMap = world.getEngine().getPresenter().getInputHandler().getActionMap();
+    auto it = actionMap.find(action);
+    if(it == actionMap.end())
+    {
       return std::make_shared<ui::widgets::Label>(
         /* translators: TR charmap encoding */ pgettext("ButtonAssignment", "N/A"));
-    return std::make_shared<ui::widgets::Label>(hid::getName(it->second));
+    }
+    else
+    {
+      if(std::holds_alternative<hid::GlfwKey>(it->second))
+      {
+        return std::make_shared<ui::widgets::Label>(hid::getName(std::get<hid::GlfwKey>(it->second)));
+      }
+      else
+      {
+        return std::make_shared<ui::widgets::Label>(hid::getName(std::get<hid::GlfwGamepadButton>(it->second)));
+      }
+    }
   };
-  m_controls = std::make_shared<ControlsWidget>(createKeyLabel);
+  m_controls = std::make_shared<ControlsWidget>(
+    world.getEngine().getPresenter().getInputHandler().getActiveMappingName(), createKeyLabel);
 }
 
 std::unique_ptr<MenuState> ControlsMenuState::onFrame(ui::Ui& ui, engine::world::World& world, MenuDisplay& /*display*/)
@@ -239,15 +256,15 @@ std::unique_ptr<MenuState> ControlsMenuState::onFrame(ui::Ui& ui, engine::world:
   {
     m_controls->nextRow();
   }
-  else if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Forward))
+  if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Forward))
   {
     m_controls->prevRow();
   }
-  else if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Right))
+  if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Right))
   {
     m_controls->nextColumn();
   }
-  else if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Left))
+  if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Left))
   {
     m_controls->prevColumn();
   }

@@ -1020,7 +1020,7 @@ World::World(Engine& engine,
   sampler->set(gl::api::TextureMagFilter::Nearest);
   sampler->set(gl::api::SamplerParameterI::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge);
   sampler->set(gl::api::SamplerParameterI::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge);
-  if(const auto anisotropyLevel = getEngine().getEngineConfig().renderSettings.anisotropyLevel;
+  if(const auto anisotropyLevel = getEngine().getEngineConfig()->renderSettings.anisotropyLevel;
      anisotropyLevel != 0 && gl::hasAnisotropicFilteringExtension())
     sampler->set(gl::api::SamplerParameterF::TextureMaxAnisotropy, gsl::narrow<float>(anisotropyLevel));
   m_allTexturesHandle
@@ -1419,7 +1419,7 @@ void World::connectSectors()
 {
   for(auto& room : m_rooms)
   {
-    room.collectShaderLights(m_engine.getEngineConfig().renderSettings.getLightCollectionDepth());
+    room.collectShaderLights(m_engine.getEngineConfig()->renderSettings.getLightCollectionDepth());
     for(auto& sector : room.sectors)
       sector.connect(m_rooms);
   }
@@ -1462,7 +1462,7 @@ void World::initTextureDependentDataFromLevel(const loader::file::level::Level& 
 
 void World::drawPerformanceBar(ui::Ui& ui, float delayRatio) const
 {
-  if(!getEngine().getEngineConfig().displaySettings.performanceMeter)
+  if(!getEngine().getEngineConfig()->displaySettings.performanceMeter)
     return;
 
   const auto vp = getPresenter().getViewport();

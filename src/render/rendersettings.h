@@ -22,7 +22,7 @@ struct RenderSettings
   bool fullscreen = false;
   bool bilinearFiltering = false;
   uint32_t anisotropyLevel = std::numeric_limits<uint32_t>::max();
-  bool waterDenoise = true;
+  bool waterDenoise = false;
   bool hbao = true;
   bool velvia = true;
   bool moreLights = true;

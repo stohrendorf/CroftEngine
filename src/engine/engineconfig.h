@@ -18,11 +18,21 @@ using NamedAction = serialization::NamedEnum<hid::Action, hid::EnumUtil<hid::Act
 
 using InputMappingConfig = std::map<std::variant<NamedGlfwKey, NamedGlfwGamepadButton>, NamedAction>;
 
+struct NamedInputMappingConfig
+{
+  std::string name;
+  InputMappingConfig mappings;
+
+  void serialize(const serialization::Serializer<EngineConfig>& ser);
+  static NamedInputMappingConfig create(const serialization::Serializer<EngineConfig>& ser);
+};
+
 struct EngineConfig
 {
   render::RenderSettings renderSettings{};
   DisplaySettings displaySettings{};
-  InputMappingConfig inputMapping;
+  std::vector<NamedInputMappingConfig> inputMappings{};
+  size_t activeInputMapping = 0;
 
   explicit EngineConfig();
 

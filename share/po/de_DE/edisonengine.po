@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EdisonEngine\n"
 "Report-Msgid-Bugs-To: https://github.com/stohrendorf/EdisonEngine/issues\n"
-"POT-Creation-Date: 2021-06-28 13:02+0200\n"
+"POT-Creation-Date: 2021-07-01 22:41+0200\n"
 "Last-Translator: Steffen Ohrendorf\n"
 "Language-Team: none\n"
 "Language: de_DE\n"
@@ -219,8 +219,13 @@ msgstr "Ende des Spiels"
 msgid "Game"
 msgstr "Spiel"
 
+#: engine/engineconfig.cpp:50
+msgctxt "Input|MappingName"
+msgid "Gamepad"
+msgstr "Gamepad"
+
 #. translators: TR charmap encoding
-#: menu/controlsmenustate.cpp:33
+#: menu/controlsmenustate.cpp:35
 msgid "Gameplay"
 msgstr "Spiel"
 
@@ -309,6 +314,11 @@ msgstr "Springen"
 msgid "KILLS %1%"
 msgstr "Besiegte Gegner %1%"
 
+#: engine/engineconfig.cpp:21
+msgctxt "Input|MappingName"
+msgid "Keyboard"
+msgstr "Tastatur"
+
 #. translators: TR charmap encoding, gamepad
 #: hid/names.cpp:166
 msgctxt "Gamepad|Button"
@@ -359,11 +369,11 @@ msgstr "Spiel laden"
 msgid "Loading %1%"
 msgstr "Lade %1%"
 
-#: engine/engine.cpp:455
+#: engine/engine.cpp:457
 msgid "Loading Glidos texture pack"
 msgstr "Lade Glidos Textur Paket"
 
-#: engine/world/world.cpp:925
+#: engine/world/world.cpp:921
 msgid "Loading..."
 msgstr "Lade..."
 
@@ -395,7 +405,7 @@ msgid "More Lights"
 msgstr "Mehr Lichter"
 
 #. translators: TR charmap encoding
-#: menu/controlsmenustate.cpp:229
+#: menu/controlsmenustate.cpp:233
 msgctxt "ButtonAssignment"
 msgid "N/A"
 msgstr "N/V"
@@ -645,7 +655,7 @@ msgstr "Spiel sichern"
 msgid "Save Game"
 msgstr "Spiel sichern"
 
-#: engine/world/world.cpp:946
+#: engine/world/world.cpp:942
 msgid "Saving..."
 msgstr "Speichere..."
 
