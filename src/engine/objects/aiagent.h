@@ -151,7 +151,7 @@ private:
   bool isPositionOutOfReach(const core::TRVec& testPosition,
                             const core::Length& currentBoxFloor,
                             const core::Length& nextBoxFloor,
-                            const ai::PathFinder& lotInfo) const;
+                            const ai::PathFinder& pathFinder) const;
 
   core::Length m_collisionRadius = 0_len;
 };

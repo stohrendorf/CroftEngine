@@ -41,24 +41,24 @@ core::Angle AIAgent::rotateTowardsTarget(core::Angle maxRotationSpeed)
 bool AIAgent::isPositionOutOfReach(const core::TRVec& testPosition,
                                    const core::Length& currentBoxFloor,
                                    const core::Length& nextBoxFloor,
-                                   const ai::PathFinder& lotInfo) const
+                                   const ai::PathFinder& pathFinder) const
 {
   const auto sectorBox = findRealFloorSector(testPosition, m_state.position.room)->box;
   if(sectorBox == nullptr)
     return true;
 
-  if(!lotInfo.canVisit(*sectorBox))
+  if(!pathFinder.canVisit(*sectorBox))
     return true;
 
   const auto stepHeight = currentBoxFloor - sectorBox->floor;
 
-  if(stepHeight > lotInfo.step || stepHeight < lotInfo.drop)
+  if(stepHeight > pathFinder.step || stepHeight < pathFinder.drop)
     return true;
 
-  if(stepHeight < -lotInfo.step && sectorBox->floor > nextBoxFloor)
+  if(stepHeight < -pathFinder.step && sectorBox->floor > nextBoxFloor)
     return true;
 
-  return lotInfo.fly != 0_len && testPosition.Y > lotInfo.fly + sectorBox->floor;
+  return pathFinder.fly != 0_len && testPosition.Y > pathFinder.fly + sectorBox->floor;
 }
 
 bool AIAgent::anyMovingEnabledObjectInReach() const
@@ -85,7 +85,7 @@ bool AIAgent::animateCreature(const core::Angle& angle, const core::Angle& tilt)
   if(m_state.creatureInfo == nullptr)
     return false;
 
-  const auto& lotInfo = m_state.creatureInfo->pathFinder;
+  const auto& pathFinder = m_state.creatureInfo->pathFinder;
 
   const auto oldPosition = m_state.position;
 
@@ -109,7 +109,7 @@ bool AIAgent::animateCreature(const core::Angle& angle, const core::Angle& tilt)
   auto sector = findRealFloorSector(m_state.position.position + core::TRVec{0_len, bbox.minY, 0_len}, &room);
 
   if(sector->box == nullptr || m_state.box->*zoneRef != sector->box->*zoneRef
-     || boxFloor - sector->box->floor > lotInfo.step || boxFloor - sector->box->floor < lotInfo.drop)
+     || boxFloor - sector->box->floor > pathFinder.step || boxFloor - sector->box->floor < pathFinder.drop)
   {
     static const auto shoveMin = [](const core::Length& l) { return l / core::SectorSize * core::SectorSize; };
     static const auto shoveMax = [](const core::Length& l) { return shoveMin(l) + core::SectorSize - 1_len; };
@@ -135,7 +135,7 @@ bool AIAgent::animateCreature(const core::Angle& angle, const core::Angle& tilt)
   Expects(sector->box != nullptr);
 
   core::Length nextFloor = 0_len;
-  if(const auto& exitBox = lotInfo.getNextPathBox(sector->box); exitBox != nullptr)
+  if(const auto& exitBox = pathFinder.getNextPathBox(sector->box); exitBox != nullptr)
   {
     nextFloor = exitBox->floor;
   }
@@ -163,8 +163,9 @@ bool AIAgent::animateCreature(const core::Angle& angle, const core::Angle& tilt)
   const auto minZMove = boundedMin - inSectorZ;
   const auto maxZMove = boundedMax - inSectorZ;
 
-  const auto cannotMoveTo = [this, floor = sector->box->floor, nextFloor = nextFloor, &lotInfo](const core::TRVec& pos)
-  { return isPositionOutOfReach(pos, floor, nextFloor, lotInfo); };
+  const auto cannotMoveTo
+    = [this, floor = sector->box->floor, nextFloor = nextFloor, &pathFinder](const core::TRVec& pos)
+  { return isPositionOutOfReach(pos, floor, nextFloor, pathFinder); };
 
   if(inSectorZ < boundedMin)
   {
@@ -288,9 +289,10 @@ bool AIAgent::animateCreature(const core::Angle& angle, const core::Angle& tilt)
     return true;
   }
 
-  if(lotInfo.fly != 0_len)
+  if(pathFinder.fly != 0_len)
   {
-    auto moveY = std::clamp(m_state.creatureInfo->target.Y - m_state.position.position.Y, -lotInfo.fly, lotInfo.fly);
+    auto moveY
+      = std::clamp(m_state.creatureInfo->target.Y - m_state.position.position.Y, -pathFinder.fly, pathFinder.fly);
 
     const auto currentFloor
       = HeightInfo::fromFloor(sector,
@@ -307,7 +309,7 @@ bool AIAgent::animateCreature(const core::Angle& angle, const core::Angle& tilt)
         // we're already below the floor, so fix it
         m_state.position.position.X = oldPosition.position.X;
         m_state.position.position.Z = oldPosition.position.Z;
-        moveY = -lotInfo.fly;
+        moveY = -pathFinder.fly;
       }
       else
       {
@@ -331,7 +333,7 @@ bool AIAgent::animateCreature(const core::Angle& angle, const core::Angle& tilt)
         {
           m_state.position.position.X = oldPosition.position.X;
           m_state.position.position.Z = oldPosition.position.Z;
-          moveY = lotInfo.fly;
+          moveY = pathFinder.fly;
         }
         else
           moveY = 0_len;
