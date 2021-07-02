@@ -53,8 +53,6 @@ struct PathFinder
   core::Length fly = 0_len;
   //! @}
 
-  //! @brief The target box we need to reach
-  const world::Box* target_box = nullptr;
   const world::Box* required_box = nullptr;
 
   core::TRVec target;
@@ -114,12 +112,19 @@ struct PathFinder
     return m_nodes.at(box).next;
   }
 
+  [[nodiscard]] const auto& getTargetBox() const
+  {
+    return m_targetBox;
+  }
+
 private:
   std::unordered_map<const world::Box*, PathFinderNode> m_nodes;
   std::vector<gsl::not_null<const world::Box*>> m_boxes;
   std::deque<const world::Box*> m_expansions;
   //! Contains all boxes where the "traversable" state has been determined
   std::unordered_set<const world::Box*> m_visited;
+  //! @brief The target box we need to reach
+  const world::Box* m_targetBox = nullptr;
 };
 } // namespace ai
 } // namespace engine

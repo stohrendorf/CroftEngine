@@ -24,7 +24,7 @@ void updateMood(const world::World& world,
   }
 
   if(creatureInfo.mood != Mood::Attack && creatureInfo.pathFinder.required_box != nullptr
-     && !objectState.isInsideZoneButNotInBox(world, aiInfo.zone_number, *creatureInfo.pathFinder.target_box))
+     && !objectState.isInsideZoneButNotInBox(world, aiInfo.zone_number, *creatureInfo.pathFinder.getTargetBox()))
   {
     if(aiInfo.canReachEnemyZone())
     {
@@ -112,8 +112,8 @@ void updateMood(const world::World& world,
   {
     if(originalMood == Mood::Attack)
     {
-      Expects(creatureInfo.pathFinder.target_box != nullptr);
-      creatureInfo.pathFinder.setRandomSearchTarget(creatureInfo.pathFinder.target_box);
+      Expects(creatureInfo.pathFinder.getTargetBox() != nullptr);
+      creatureInfo.pathFinder.setRandomSearchTarget(creatureInfo.pathFinder.getTargetBox());
     }
     creatureInfo.pathFinder.required_box = nullptr;
   }
@@ -198,7 +198,7 @@ void updateMood(const world::World& world,
   }
   }
 
-  if(creatureInfo.pathFinder.target_box == nullptr)
+  if(creatureInfo.pathFinder.getTargetBox() == nullptr)
   {
     creatureInfo.pathFinder.setRandomSearchTarget(objectState.box);
   }
