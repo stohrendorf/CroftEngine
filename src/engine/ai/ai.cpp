@@ -18,8 +18,7 @@ void updateMood(const world::World& world,
     return;
 
   CreatureInfo& creatureInfo = *objectState.creatureInfo;
-  if(!creatureInfo.pathFinder.nodes[objectState.box].traversable
-     && creatureInfo.pathFinder.visited.count(objectState.box) != 0)
+  if(creatureInfo.pathFinder.isUnreachable(objectState.box))
   {
     creatureInfo.pathFinder.required_box = nullptr;
   }
@@ -140,7 +139,7 @@ void updateMood(const world::World& world,
     break;
   case Mood::Bored:
   {
-    const auto box = creatureInfo.pathFinder.boxes[util::rand15(creatureInfo.pathFinder.boxes.size())];
+    const auto box = creatureInfo.pathFinder.getRandomBox();
     if(!objectState.isInsideZoneButNotInBox(world, aiInfo.zone_number, *box))
       break;
 
@@ -161,7 +160,7 @@ void updateMood(const world::World& world,
        && objectState.isStalkBox(world, *creatureInfo.pathFinder.required_box))
       break;
 
-    const auto box = creatureInfo.pathFinder.boxes[util::rand15(creatureInfo.pathFinder.boxes.size())];
+    const auto box = creatureInfo.pathFinder.getRandomBox();
     if(!objectState.isInsideZoneButNotInBox(world, aiInfo.zone_number, *box))
       break;
 
@@ -181,7 +180,7 @@ void updateMood(const world::World& world,
   }
   case Mood::Escape:
   {
-    const auto box = creatureInfo.pathFinder.boxes[util::rand15(creatureInfo.pathFinder.boxes.size())];
+    const auto box = creatureInfo.pathFinder.getRandomBox();
     if(!objectState.isInsideZoneButNotInBox(world, aiInfo.zone_number, *box)
        || creatureInfo.pathFinder.required_box != nullptr)
       break;
@@ -248,9 +247,8 @@ AiInfo::AiInfo(world::World& world, objects::ObjectState& objectState)
   zone_number = objectState.box->*zoneRef;
   world.getObjectManager().getLara().m_state.box = world.getObjectManager().getLara().m_state.getCurrentSector()->box;
   enemy_zone = world.getObjectManager().getLara().m_state.box->*zoneRef;
-  enemy_unreachable = (!objectState.creatureInfo->pathFinder.canVisit(*world.getObjectManager().getLara().m_state.box)
-                       || (!objectState.creatureInfo->pathFinder.nodes[objectState.box].traversable
-                           && objectState.creatureInfo->pathFinder.visited.count(objectState.box) != 0));
+  enemy_unreachable = !objectState.creatureInfo->pathFinder.canVisit(*world.getObjectManager().getLara().m_state.box)
+                      || objectState.creatureInfo->pathFinder.isUnreachable(objectState.box);
 
   auto objectInfo = pybind11::globals()["getObjectInfo"](objectState.type.get()).cast<script::ObjectInfo>();
   const core::Length pivotLength{objectInfo.pivot_length};

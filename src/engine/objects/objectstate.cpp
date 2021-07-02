@@ -98,21 +98,10 @@ void ObjectState::initCreatureInfo(const world::World& world)
 
 void ObjectState::collectZoneBoxes(const world::World& world)
 {
-  const auto zoneRef1 = world::Box::getZoneRef(false, creatureInfo->pathFinder.fly, creatureInfo->pathFinder.step);
-  const auto zoneRef2 = world::Box::getZoneRef(true, creatureInfo->pathFinder.fly, creatureInfo->pathFinder.step);
-
   box = position.room->getInnerSectorByAbsolutePosition(position.position)->box;
   Ensures(box != nullptr);
-  const auto zoneData1 = box->*zoneRef1;
-  const auto zoneData2 = box->*zoneRef2;
-  creatureInfo->pathFinder.boxes.clear();
-  for(const auto& levelBox : world.getBoxes())
-  {
-    if(levelBox.*zoneRef1 == zoneData1 || levelBox.*zoneRef2 == zoneData2)
-    {
-      creatureInfo->pathFinder.boxes.emplace_back(&levelBox);
-    }
-  }
+
+  creatureInfo->pathFinder.collectBoxes(world, box);
 }
 
 glm::vec3 ObjectState::getPosition() const

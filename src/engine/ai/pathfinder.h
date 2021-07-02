@@ -25,11 +25,8 @@ namespace ai
 {
 struct PathFinderNode
 {
-  /**
-     * @brief The next box on the path.
-     */
-  const world::Box* exit_box = nullptr;
-  bool traversable = true;
+  const world::Box* next = nullptr;
+  bool reachable = true;
 
   void serialize(const serialization::Serializer<world::World>& ser);
   static PathFinderNode create(const serialization::Serializer<world::World>& ser);
@@ -37,12 +34,6 @@ struct PathFinderNode
 
 struct PathFinder
 {
-  std::unordered_map<const world::Box*, PathFinderNode> nodes;
-  std::vector<gsl::not_null<const world::Box*>> boxes;
-  std::deque<const world::Box*> expansions;
-  //! Contains all boxes where the "traversable" state has been determined
-  std::unordered_set<const world::Box*> visited;
-
   bool cannotVisitBlocked = true;
   bool cannotVisitBlockable = false;
 
@@ -103,6 +94,32 @@ struct PathFinder
   void searchPath(const world::World& world);
 
   void serialize(const serialization::Serializer<world::World>& ser);
+
+  void collectBoxes(const world::World& world, const gsl::not_null<const world::Box*>& box);
+
+  // returns true if and only if the box is visited and marked unreachable
+  [[nodiscard]] bool isUnreachable(const gsl::not_null<const world::Box*>& box) const
+  {
+    return m_visited.count(box) != 0 && !m_nodes.at(box).reachable;
+  }
+
+  [[nodiscard]] const auto& getRandomBox() const
+  {
+    Expects(!m_boxes.empty());
+    return m_boxes[util::rand15(m_boxes.size())];
+  }
+
+  [[nodiscard]] const auto& getNextPathBox(const gsl::not_null<const world::Box*>& box) const
+  {
+    return m_nodes.at(box).next;
+  }
+
+private:
+  std::unordered_map<const world::Box*, PathFinderNode> m_nodes;
+  std::vector<gsl::not_null<const world::Box*>> m_boxes;
+  std::deque<const world::Box*> m_expansions;
+  //! Contains all boxes where the "traversable" state has been determined
+  std::unordered_set<const world::Box*> m_visited;
 };
 } // namespace ai
 } // namespace engine

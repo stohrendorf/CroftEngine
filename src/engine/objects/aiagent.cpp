@@ -135,13 +135,13 @@ bool AIAgent::animateCreature(const core::Angle& angle, const core::Angle& tilt)
   Expects(sector->box != nullptr);
 
   core::Length nextFloor = 0_len;
-  if(lotInfo.nodes.at(sector->box).exit_box == nullptr)
+  if(const auto& exitBox = lotInfo.getNextPathBox(sector->box); exitBox != nullptr)
   {
-    nextFloor = sector->box->floor;
+    nextFloor = exitBox->floor;
   }
   else
   {
-    nextFloor = lotInfo.nodes.at(sector->box).exit_box->floor;
+    nextFloor = sector->box->floor;
   }
 
   const auto basePosX = m_state.position.position.X;

@@ -17,7 +17,7 @@ namespace engine::ai
 PathFinder::PathFinder(const world::World& world)
 {
   for(const auto& box : world.getBoxes())
-    nodes.emplace(&box, PathFinderNode{});
+    m_nodes.emplace(&box, PathFinderNode{});
 }
 
 bool PathFinder::calculateTarget(const world::World& world,
@@ -34,12 +34,14 @@ bool PathFinder::calculateTarget(const world::World& world,
 
   core::Length minZ = 0_len, maxZ = 0_len, minX = 0_len, maxX = 0_len;
 
-  const auto clampX = [&minX, &maxX, &here]() {
+  const auto clampX = [&minX, &maxX, &here]()
+  {
     minX = std::max(minX, here->xmin);
     maxX = std::min(maxX, here->xmax);
   };
 
-  const auto clampZ = [&minZ, &maxZ, &here]() {
+  const auto clampZ = [&minZ, &maxZ, &here]()
+  {
     minZ = std::max(minZ, here->zmin);
     maxZ = std::min(maxZ, here->zmax);
   };
@@ -194,7 +196,7 @@ bool PathFinder::calculateTarget(const world::World& world,
       return true;
     }
 
-    const auto nextBox = nodes[here].exit_box;
+    const auto nextBox = m_nodes[here].next;
     if(nextBox == nullptr || !canVisit(*nextBox))
       break;
 
@@ -240,12 +242,12 @@ void PathFinder::updatePath(const world::World& world)
   {
     target_box = required_box;
 
-    nodes[target_box].exit_box = nullptr;
-    nodes[target_box].traversable = true;
-    expansions.clear();
-    expansions.emplace_back(target_box);
-    visited.clear();
-    visited.emplace(target_box);
+    m_nodes[target_box].next = nullptr;
+    m_nodes[target_box].reachable = true;
+    m_expansions.clear();
+    m_expansions.emplace_back(target_box);
+    m_visited.clear();
+    m_visited.emplace(target_box);
   }
 
   Expects(target_box != nullptr);
@@ -258,11 +260,11 @@ void PathFinder::searchPath(const world::World& world)
 
   static constexpr uint8_t MaxExpansions = 5;
 
-  for(uint8_t i = 0; i < MaxExpansions && !expansions.empty(); ++i)
+  for(uint8_t i = 0; i < MaxExpansions && !m_expansions.empty(); ++i)
   {
-    const auto current = expansions.front();
-    expansions.pop_front();
-    const auto& currentNode = nodes[current];
+    const auto current = m_expansions.front();
+    m_expansions.pop_front();
+    const auto& currentNode = m_nodes[current];
     const auto searchZone = current->*zoneRef;
 
     for(const auto& successorBox : current->overlaps)
@@ -277,26 +279,29 @@ void PathFinder::searchPath(const world::World& world)
       if(boxHeightDiff > step || boxHeightDiff < drop)
         continue; // can't reach from this box, but still maybe from another one
 
-      auto& successorNode = nodes[successorBox];
+      auto& successorNode = m_nodes[successorBox];
 
-      if(!currentNode.traversable)
+      if(!currentNode.reachable)
       {
-        if(visited.emplace(successorBox).second)
-          successorNode.traversable = false;
+        if(m_visited.emplace(successorBox).second)
+        {
+          // the successor hasn't been visited, "unreachable" can be propagated/initialized
+          successorNode.reachable = false;
+        }
       }
       else
       {
-        if(successorNode.traversable && visited.count(successorBox) != 0)
+        if(successorNode.reachable && m_visited.count(successorBox) != 0)
           continue; // already visited and marked reachable
 
-        // mark as visited and check if traversable (may switch traversable to true)
-        visited.emplace(successorBox);
-        successorNode.traversable = canVisit(*successorBox);
-        if(successorNode.traversable)
-          successorNode.exit_box = current; // success! connect both boxes
+        // mark as visited and check if reachable (may switch reachable to true)
+        m_visited.emplace(successorBox);
+        successorNode.reachable = canVisit(*successorBox);
+        if(successorNode.reachable)
+          successorNode.next = current; // success! connect both boxes
 
-        if(std::find(expansions.begin(), expansions.end(), successorBox) == expansions.end())
-          expansions.emplace_back(successorBox);
+        if(std::find(m_expansions.begin(), m_expansions.end(), successorBox) == m_expansions.end())
+          m_expansions.emplace_back(successorBox);
       }
     }
   }
@@ -304,10 +309,10 @@ void PathFinder::searchPath(const world::World& world)
 
 void PathFinder::serialize(const serialization::Serializer<world::World>& ser)
 {
-  ser(S_NV("nodes", nodes),
-      S_NV("boxes", boxes),
-      S_NV("expansions", expansions),
-      S_NV("visited", visited),
+  ser(S_NV("nodes", m_nodes),
+      S_NV("boxes", m_boxes),
+      S_NV("expansions", m_expansions),
+      S_NV("visited", m_visited),
       S_NV("cannotVisitBlockable", cannotVisitBlockable),
       S_NV("cannotVisitBlocked", cannotVisitBlocked),
       S_NV("step", step),
@@ -318,9 +323,25 @@ void PathFinder::serialize(const serialization::Serializer<world::World>& ser)
       S_NV("target", target));
 }
 
+void PathFinder::collectBoxes(const world::World& world, const gsl::not_null<const world::Box*>& box)
+{
+  const auto zoneRef1 = world::Box::getZoneRef(false, fly, step);
+  const auto zoneRef2 = world::Box::getZoneRef(true, fly, step);
+  const auto zoneData1 = box.get()->*zoneRef1;
+  const auto zoneData2 = box.get()->*zoneRef2;
+  m_boxes.clear();
+  for(const auto& levelBox : world.getBoxes())
+  {
+    if(levelBox.*zoneRef1 == zoneData1 || levelBox.*zoneRef2 == zoneData2)
+    {
+      m_boxes.emplace_back(&levelBox);
+    }
+  }
+}
+
 void PathFinderNode::serialize(const serialization::Serializer<world::World>& ser)
 {
-  ser(S_NV_VECTOR_ELEMENT("exitBox", ser.context.getBoxes(), exit_box), S_NV("traversable", traversable));
+  ser(S_NV_VECTOR_ELEMENT("next", ser.context.getBoxes(), next), S_NV("reachable", reachable));
 }
 
 PathFinderNode PathFinderNode::create(const serialization::Serializer<world::World>& ser)
