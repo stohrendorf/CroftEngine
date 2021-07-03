@@ -38,7 +38,8 @@ bool PathFinder::calculateTarget(const world::World& world,
                                  core::TRVec& moveTarget,
                                  const objects::ObjectState& objectState)
 {
-  updatePath(world);
+  Expects(m_targetBox != nullptr);
+  searchPath(world);
 
   moveTarget = objectState.position.position;
 
@@ -248,24 +249,6 @@ bool PathFinder::calculateTarget(const world::World& world,
   return false;
 }
 
-void PathFinder::updatePath(const world::World& world)
-{
-  if(required_box != nullptr && required_box != m_targetBox)
-  {
-    m_targetBox = required_box;
-
-    m_nodes[m_targetBox].next = nullptr;
-    m_nodes[m_targetBox].reachable = true;
-    m_expansions.clear();
-    m_expansions.emplace_back(m_targetBox);
-    m_visited.clear();
-    m_visited.emplace(m_targetBox);
-  }
-
-  Expects(m_targetBox != nullptr);
-  searchPath(world);
-}
-
 void PathFinder::searchPath(const world::World& world)
 {
   const auto zoneRef = world::Box::getZoneRef(world.roomsAreSwapped(), fly, step);
@@ -331,7 +314,6 @@ void PathFinder::serialize(const serialization::Serializer<world::World>& ser)
       S_NV("drop", drop),
       S_NV("fly", fly),
       S_NV_VECTOR_ELEMENT("targetBox", ser.context.getBoxes(), m_targetBox),
-      S_NV_VECTOR_ELEMENT("requiredBox", ser.context.getBoxes(), required_box),
       S_NV("target", target));
 }
 

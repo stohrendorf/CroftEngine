@@ -53,15 +53,12 @@ struct PathFinder
   core::Length fly = 0_len;
   //! @}
 
-  const world::Box* required_box = nullptr;
-
   core::TRVec target;
 
   explicit PathFinder(const world::World& world);
 
   void setRandomSearchTarget(const gsl::not_null<const world::Box*>& box)
   {
-    required_box = box;
     const auto zSize = box->zmax - box->zmin - core::SectorSize;
     target.Z = util::rand15(zSize) + box->zmin + core::SectorSize / 2;
     const auto xSize = box->xmax - box->xmin - core::SectorSize;
@@ -76,20 +73,22 @@ struct PathFinder
     }
   }
 
-  bool calculateTarget(const world::World& world, core::TRVec& moveTarget, const objects::ObjectState& objectState);
+  bool calculateTarget(const world::World& world, core::TRVec& moveTarget, const objects::ObjectState& objectState0);
 
-  /**
-     * @brief Incrementally calculate all paths to a specific box.
-     *
-     * @details
-     * The algorithm performs a greedy breadth-first search, searching for all paths that lead to
-     * #required_box.  While searching, @arg maxDepth limits the number of nodes expanded, so it may take multiple
-     * calls to actually calculate the full path.  Until a full path is found, the nodes partially retain the old
-     * paths from a previous search.
-     */
-  void updatePath(const world::World& world);
+  void setTargetBox(const gsl::not_null<const world::Box*>& box)
+  {
+    if(box == m_targetBox)
+      return;
 
-  void searchPath(const world::World& world);
+    m_targetBox = box;
+
+    m_nodes[m_targetBox].next = nullptr;
+    m_nodes[m_targetBox].reachable = true;
+    m_expansions.clear();
+    m_expansions.emplace_back(m_targetBox);
+    m_visited.clear();
+    m_visited.emplace(m_targetBox);
+  }
 
   void serialize(const serialization::Serializer<world::World>& ser);
 
@@ -118,6 +117,8 @@ struct PathFinder
   }
 
 private:
+  void searchPath(const world::World& world);
+
   std::unordered_map<const world::Box*, PathFinderNode> m_nodes;
   std::vector<gsl::not_null<const world::Box*>> m_boxes;
   std::deque<const world::Box*> m_expansions;
