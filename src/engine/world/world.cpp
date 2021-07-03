@@ -725,6 +725,14 @@ void World::handleCommandSequence(const floordata::FloorDataValue* floorData, co
       {
         m_objectManager.getLara().m_underwaterRoute.required_box = &m_boxes[sink.box_index];
         m_objectManager.getLara().m_underwaterRoute.target = sink.position;
+        m_objectManager.getLara().m_underwaterRoute.target.X
+          = std::clamp(m_objectManager.getLara().m_underwaterRoute.target.X,
+                       m_objectManager.getLara().m_underwaterRoute.required_box->xmin,
+                       m_objectManager.getLara().m_underwaterRoute.required_box->xmax);
+        m_objectManager.getLara().m_underwaterRoute.target.Z
+          = std::clamp(m_objectManager.getLara().m_underwaterRoute.target.Z,
+                       m_objectManager.getLara().m_underwaterRoute.required_box->zmin,
+                       m_objectManager.getLara().m_underwaterRoute.required_box->zmax);
       }
       m_objectManager.getLara().m_underwaterCurrentStrength
         = 6_len * static_cast<core::Length::type>(sink.underwaterCurrentStrength);

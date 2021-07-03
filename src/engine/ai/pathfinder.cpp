@@ -14,6 +14,20 @@
 
 namespace engine::ai
 {
+namespace
+{
+template<typename T>
+[[nodiscard]] constexpr const auto& uncheckedClamp(const T& x, const T& min, const T& max)
+{
+  if(x < min)
+    return min;
+  else if(x > max)
+    return max;
+  else
+    return x;
+}
+} // namespace
+
 PathFinder::PathFinder(const world::World& world)
 {
   for(const auto& box : world.getBoxes())
@@ -176,7 +190,7 @@ bool PathFinder::calculateTarget(const world::World& world,
       else if(!detour)
       {
         moveTarget.Z
-          = std::clamp(moveTarget.Z, here->zmin + core::SectorSize / 2, here->zmax - core::SectorSize / 2 + 1_len);
+          = uncheckedClamp(moveTarget.Z, here->zmin + core::SectorSize / 2, here->zmax - core::SectorSize / 2);
       }
       Expects(here->containsZ(moveTarget.Z));
 
@@ -187,7 +201,7 @@ bool PathFinder::calculateTarget(const world::World& world,
       else if(!detour)
       {
         moveTarget.X
-          = std::clamp(moveTarget.X, here->xmin + core::SectorSize / 2, here->xmax - core::SectorSize / 2 + 1_len);
+          = uncheckedClamp(moveTarget.X, here->xmin + core::SectorSize / 2, here->xmax - core::SectorSize / 2);
       }
       Expects(here->containsX(moveTarget.X));
 
@@ -211,8 +225,7 @@ bool PathFinder::calculateTarget(const world::World& world,
   }
   else if(!detour)
   {
-    moveTarget.Z
-      = std::clamp(moveTarget.Z, here->zmin + core::SectorSize / 2, here->zmax - core::SectorSize / 2 + 1_len);
+    moveTarget.Z = uncheckedClamp(moveTarget.Z, here->zmin + core::SectorSize / 2, here->zmax - core::SectorSize / 2);
   }
   Expects(here->containsZ(moveTarget.Z));
 
@@ -223,8 +236,7 @@ bool PathFinder::calculateTarget(const world::World& world,
   }
   else if(!detour)
   {
-    moveTarget.X
-      = std::clamp(moveTarget.X, here->xmin + core::SectorSize / 2, here->xmax - core::SectorSize / 2 + 1_len);
+    moveTarget.X = uncheckedClamp(moveTarget.X, here->xmin + core::SectorSize / 2, here->xmax - core::SectorSize / 2);
   }
   Expects(here->containsX(moveTarget.X));
 

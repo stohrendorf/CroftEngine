@@ -251,6 +251,8 @@ set( EDISONENGINE_SRCS
         engine/objects/block.cpp
         engine/objects/boulder.h
         engine/objects/boulder.cpp
+        engine/objects/centaurstatue.h
+        engine/objects/centaurstatue.cpp
         engine/objects/crocodile.h
         engine/objects/crocodile.cpp
         engine/objects/collapsiblefloor.h

@@ -127,6 +127,12 @@ void updateMood(const world::World& world,
 
     creatureInfo.pathFinder.target = world.getObjectManager().getLara().m_state.position.position;
     creatureInfo.pathFinder.required_box = world.getObjectManager().getLara().m_state.box;
+    creatureInfo.pathFinder.target.X = std::clamp(creatureInfo.pathFinder.target.X,
+                                                  creatureInfo.pathFinder.required_box->xmin,
+                                                  creatureInfo.pathFinder.required_box->xmax);
+    creatureInfo.pathFinder.target.Z = std::clamp(creatureInfo.pathFinder.target.Z,
+                                                  creatureInfo.pathFinder.required_box->zmin,
+                                                  creatureInfo.pathFinder.required_box->zmax);
     if(creatureInfo.pathFinder.fly != 0_len && world.getObjectManager().getLara().isOnLand())
       creatureInfo.pathFinder.target.Y += world.getObjectManager()
                                             .getLara()

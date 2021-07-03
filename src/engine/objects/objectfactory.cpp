@@ -8,6 +8,7 @@
 #include "block.h"
 #include "boulder.h"
 #include "bridgeflat.h"
+#include "centaurstatue.h"
 #include "collapsiblefloor.h"
 #include "crocodile.h"
 #include "cutsceneactors.h"
@@ -259,6 +260,7 @@ const auto& getFactories()
     MODEL_FACTORY(RatOnLand, Rat),
     MODEL_FACTORY(SlammingDoors, SlammingDoors),
     MODEL_FACTORY(FlyingMutant, FlyingMutant),
+    MODEL_FACTORY(CentaurStatue, CentaurStatue),
     MODEL_FACTORY(MutantEggSmall, MutantEgg),
     MODEL_FACTORY(MutantEggBig, MutantEgg),
     MODEL_FACTORY(CentaurMutant, CentaurMutant),
