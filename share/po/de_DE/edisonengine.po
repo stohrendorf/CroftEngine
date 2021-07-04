@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EdisonEngine\n"
 "Report-Msgid-Bugs-To: https://github.com/stohrendorf/EdisonEngine/issues\n"
-"POT-Creation-Date: 2021-07-01 22:41+0200\n"
+"POT-Creation-Date: 2021-07-04 12:54+0200\n"
 "Last-Translator: Steffen Ohrendorf\n"
 "Language-Team: none\n"
 "Language: de_DE\n"
@@ -17,12 +17,25 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #. translators: TR charmap encoding
+#: menu/savegamelistmenustate.cpp:46
+#, boost-format
+msgctxt "SavegameTitle"
+msgid "%1% - %2%"
+msgstr "%1% - %2%"
+
+#. translators: TR charmap encoding
 #: menu/rendersettingsmenustate.cpp:192
 #, boost-format
 msgid "%1%x Anisotropic Filtering"
 msgstr "%1%x Anisotropische Filterung"
 
-#: menu/savegamelistmenustate.cpp:39
+#. translators: TR charmap encoding
+#: menu/savegamelistmenustate.cpp:45
+msgctxt "SavegameTime"
+msgid "%d %B %Y %X"
+msgstr "%d. %B %Y %X"
+
+#: menu/savegamelistmenustate.cpp:54
 #, boost-format
 msgid "- EMPTY SLOT %1%"
 msgstr "- LEERER SLOT %1%"
@@ -219,7 +232,7 @@ msgstr "Ende des Spiels"
 msgid "Game"
 msgstr "Spiel"
 
-#: engine/engineconfig.cpp:50
+#: engine/engineconfig.cpp:52
 msgctxt "Input|MappingName"
 msgid "Gamepad"
 msgstr "Gamepad"
@@ -314,7 +327,7 @@ msgstr "Springen"
 msgid "KILLS %1%"
 msgstr "Besiegte Gegner %1%"
 
-#: engine/engineconfig.cpp:21
+#: engine/engineconfig.cpp:23
 msgctxt "Input|MappingName"
 msgid "Keyboard"
 msgstr "Tastatur"
@@ -373,7 +386,7 @@ msgstr "Lade %1%"
 msgid "Loading Glidos texture pack"
 msgstr "Lade Glidos Textur Paket"
 
-#: engine/world/world.cpp:921
+#: engine/world/world.cpp:923
 msgid "Loading..."
 msgstr "Lade..."
 
@@ -655,7 +668,7 @@ msgstr "Spiel sichern"
 msgid "Save Game"
 msgstr "Spiel sichern"
 
-#: engine/world/world.cpp:942
+#: engine/world/world.cpp:944
 msgid "Saving..."
 msgstr "Speichere..."
 

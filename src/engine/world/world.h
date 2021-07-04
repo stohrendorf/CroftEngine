@@ -61,7 +61,7 @@ namespace engine
 class Presenter;
 class Engine;
 class AudioEngine;
-struct SavegameMeta;
+struct SavegameInfo;
 class CameraController;
 class Player;
 enum class TR1TrackId : int32_t;
@@ -212,7 +212,7 @@ public:
   bool cinematicLoop();
   void load(const std::optional<size_t>& slot);
   void save(const std::optional<size_t>& slot);
-  [[nodiscard]] std::map<size_t, SavegameMeta> getSavedGames() const;
+  [[nodiscard]] std::map<size_t, SavegameInfo> getSavedGames() const;
   [[nodiscard]] bool hasSavedGames() const;
 
   [[nodiscard]] const Presenter& getPresenter() const;

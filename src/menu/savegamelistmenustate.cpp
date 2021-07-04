@@ -13,6 +13,9 @@
 #include "ui/widgets/label.h"
 #include "ui/widgets/listbox.h"
 
+#include <ctime>
+#include <sstream>
+
 namespace menu
 {
 SavegameListMenuState::SavegameListMenuState(const std::shared_ptr<MenuRingTransform>& ringTransform,
@@ -31,7 +34,19 @@ SavegameListMenuState::SavegameListMenuState(const std::shared_ptr<MenuRingTrans
     std::string name;
     if(auto it = savedGames.find(i); it != savedGames.end())
     {
-      name = it->second.title;
+      const auto timePoint
+        = std::chrono::system_clock::to_time_t(std::chrono::time_point_cast<std::chrono::system_clock::duration>(
+          it->second.saveTime - std::filesystem::file_time_type::clock::now() + std::chrono::system_clock::now()));
+      const auto localTime = localtime(&timePoint);
+      Expects(localTime != nullptr);
+      std::stringstream timeStr;
+      timeStr.imbue(std::locale(world.getEngine().getLanguage()));
+      timeStr << std::put_time(localTime,
+                               /* translators: TR charmap encoding */ pgettext("SavegameTime", "%d %B %Y %X"));
+      name = (boost::format(/* translators: TR charmap encoding */ pgettext("SavegameTitle", "%1% - %2%"))
+              % timeStr.str() % it->second.meta.title)
+               .str();
+
       m_hasSavegame.emplace_back(true);
     }
     else

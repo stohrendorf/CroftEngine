@@ -952,9 +952,9 @@ void World::save(const std::optional<size_t>& slot)
   getPresenter().disableScreenOverlay();
 }
 
-std::map<size_t, SavegameMeta> World::getSavedGames() const
+std::map<size_t, SavegameInfo> World::getSavedGames() const
 {
-  std::map<size_t, SavegameMeta> result;
+  std::map<size_t, SavegameInfo> result;
   for(size_t i = 0; i < 100; ++i)
   {
     const auto path = m_engine.getSavegamePath(i);
@@ -964,7 +964,7 @@ std::map<size_t, SavegameMeta> World::getSavedGames() const
     serialization::YAMLDocument<true> doc{path};
     SavegameMeta meta{};
     doc.load("meta", meta, meta);
-    result.emplace(i, std::move(meta));
+    result.emplace(i, SavegameInfo{std::move(meta), std::filesystem::last_write_time(path)});
   }
   return result;
 }

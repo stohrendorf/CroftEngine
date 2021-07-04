@@ -76,6 +76,12 @@ struct SavegameMeta
   void serialize(const serialization::Serializer<SavegameMeta>& ser);
 };
 
+struct SavegameInfo
+{
+  SavegameMeta meta{};
+  std::filesystem::file_time_type saveTime{};
+};
+
 inline std::string makeSavegameFilename(size_t n)
 {
   return "save_" + std::to_string(n) + ".yaml";
