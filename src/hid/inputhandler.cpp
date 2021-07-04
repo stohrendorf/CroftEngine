@@ -94,10 +94,10 @@ void InputHandler::update()
     }
   }
 
-  for(auto& [action, button] : m_inputState.actions)
+  for(const auto& [action, state] : states)
   {
     auto it = states.find(action);
-    button = it != states.end() && it->second;
+    m_inputState.actions[action] = it->second;
   }
   m_inputState.setXAxisMovement(m_inputState.actions[Action::Left], m_inputState.actions[Action::Right]);
   m_inputState.setZAxisMovement(m_inputState.actions[Action::Backward], m_inputState.actions[Action::Forward]);
