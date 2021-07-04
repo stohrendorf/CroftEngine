@@ -38,7 +38,7 @@ void main()
     #endif
 
     #ifdef FILM_GRAIN
-    float grain = noise(uv * u_time);
+    float grain = noise(uv * time_seconds());
     #endif
 
     #ifdef LENS_DISTORTION
