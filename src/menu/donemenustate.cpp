@@ -19,7 +19,7 @@ void DoneMenuState::handleObject(ui::Ui& ui, engine::world::World& world, MenuDi
   }
   else
   {
-    idleRotation(world, object);
+    idleRotation(world, object, false);
   }
 }
 

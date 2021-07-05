@@ -36,7 +36,7 @@ void SwitchRingMenuState::handleObject(ui::Ui& ui,
   if(&object == &display.getCurrentRing().getSelectedObject())
   {
     display.updateMenuObjectDescription(ui, world, object);
-    idleRotation(world, object);
+    idleRotation(world, object, false);
   }
   else
   {

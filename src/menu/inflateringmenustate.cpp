@@ -39,7 +39,7 @@ void InflateRingMenuState::handleObject(ui::Ui& /*ui*/,
 {
   if(&object == &display.getCurrentRing().getSelectedObject())
   {
-    idleRotation(world, object);
+    idleRotation(world, object, false);
   }
   else
   {

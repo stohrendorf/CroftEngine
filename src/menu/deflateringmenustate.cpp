@@ -18,7 +18,7 @@ void DeflateRingMenuState::handleObject(ui::Ui& ui,
   }
   else
   {
-    idleRotation(world, object);
+    idleRotation(world, object, false);
   }
 }
 

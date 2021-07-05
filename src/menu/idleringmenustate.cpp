@@ -100,7 +100,7 @@ void IdleRingMenuState::handleObject(ui::Ui& ui, engine::world::World& world, Me
   if(&object == &display.getCurrentRing().getSelectedObject())
   {
     display.updateMenuObjectDescription(ui, world, object);
-    idleRotation(world, object);
+    idleRotation(world, object, display.getCurrentRing().list.size() == 1);
   }
   else
   {

@@ -18,7 +18,7 @@ struct MenuObject;
 constexpr int RingInfoYMargin = 28;
 
 extern void rotateForSelection(MenuObject& object);
-extern void idleRotation(engine::world::World& world, MenuObject& object);
+extern void idleRotation(engine::world::World& world, MenuObject& object, bool force);
 extern void zeroRotation(MenuObject& object, const core::Angle& speed);
 
 template<typename Unit, typename Type>
