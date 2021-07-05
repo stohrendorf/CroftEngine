@@ -14,14 +14,7 @@ namespace engine::world
 class World;
 }
 
-namespace engine
-{
-namespace objects
-{
-struct ObjectState;
-}
-
-namespace ai
+namespace engine::ai
 {
 struct PathFinderNode
 {
@@ -73,7 +66,10 @@ struct PathFinder
     }
   }
 
-  bool calculateTarget(const world::World& world, core::TRVec& moveTarget, const objects::ObjectState& objectState0);
+  bool calculateTarget(const world::World& world,
+                       core::TRVec& moveTarget,
+                       const core::TRVec& startPos,
+                       const gsl::not_null<const world::Box*>& startBox);
 
   void setTargetBox(const gsl::not_null<const world::Box*>& box)
   {
@@ -127,10 +123,9 @@ private:
   std::unordered_map<const world::Box*, PathFinderNode> m_nodes;
   std::vector<gsl::not_null<const world::Box*>> m_boxes;
   std::deque<const world::Box*> m_expansions;
-  //! Contains all boxes where the "traversable" state has been determined
+  //! Contains all boxes where the "reachable" state has been determined
   std::unordered_set<const world::Box*> m_visited;
   //! @brief The target box we need to reach
   const world::Box* m_targetBox = nullptr;
 };
-} // namespace ai
-} // namespace engine
+} // namespace engine::ai

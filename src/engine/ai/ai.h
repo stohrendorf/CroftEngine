@@ -12,6 +12,11 @@ namespace objects
 class AIAgent;
 }
 
+namespace objects
+{
+struct ObjectState;
+}
+
 namespace ai
 {
 enum class Mood

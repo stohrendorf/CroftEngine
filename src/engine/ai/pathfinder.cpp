@@ -1,6 +1,5 @@
 #include "pathfinder.h"
 
-#include "engine/objects/object.h"
 #include "engine/world/world.h"
 #include "serialization/box_ptr.h"
 #include "serialization/deque.h"
@@ -36,17 +35,15 @@ PathFinder::PathFinder(const world::World& world)
 
 bool PathFinder::calculateTarget(const world::World& world,
                                  core::TRVec& moveTarget,
-                                 const objects::ObjectState& objectState)
+                                 const core::TRVec& startPos,
+                                 const gsl::not_null<const world::Box*>& startBox)
 {
   Expects(m_targetBox != nullptr);
   searchPath(world);
 
-  moveTarget = objectState.position.position;
+  moveTarget = startPos;
 
-  auto here = objectState.box;
-  if(here == nullptr)
-    return false;
-
+  auto here = startBox;
   core::Length minZ = 0_len, maxZ = 0_len, minX = 0_len, maxX = 0_len;
 
   const auto clampX = [&minX, &maxX, &here]()
@@ -61,11 +58,14 @@ bool PathFinder::calculateTarget(const world::World& world,
     maxZ = std::min(maxZ, here->zmax);
   };
 
-  constexpr uint8_t CanMoveXPos = 0x01u;
-  constexpr uint8_t CanMoveXNeg = 0x02u;
-  constexpr uint8_t CanMoveZPos = 0x04u;
-  constexpr uint8_t CanMoveZNeg = 0x08u;
-  constexpr uint8_t CanMoveAllDirs = CanMoveXPos | CanMoveXNeg | CanMoveZPos | CanMoveZNeg;
+  static constexpr uint8_t CanMoveXPos = 0x01u;
+  static constexpr uint8_t CanMoveXNeg = 0x02u;
+  static constexpr uint8_t CanMoveZPos = 0x04u;
+  static constexpr uint8_t CanMoveZNeg = 0x08u;
+  static constexpr uint8_t CanMoveAllDirs = CanMoveXPos | CanMoveXNeg | CanMoveZPos | CanMoveZNeg;
+
+  static constexpr auto Margin = core::SectorSize / 2;
+
   bool detour = false;
 
   uint8_t moveDirs = CanMoveAllDirs;
@@ -80,7 +80,7 @@ bool PathFinder::calculateTarget(const world::World& world,
       moveTarget.Y = std::min(moveTarget.Y, here->floor);
     }
 
-    if(here->contains(objectState.position.position.X, objectState.position.position.Z))
+    if(here->contains(startPos.X, startPos.Z))
     {
       minZ = here->zmin;
       maxZ = here->zmax;
@@ -89,13 +89,13 @@ bool PathFinder::calculateTarget(const world::World& world,
     }
     else
     {
-      if(objectState.position.position.Z < here->zmin)
+      if(startPos.Z < here->zmin)
       {
         // try to move to -Z
-        if((moveDirs & CanMoveZNeg) && here->containsX(objectState.position.position.X))
+        if((moveDirs & CanMoveZNeg) && here->containsX(startPos.X))
         {
           // can move straight to -Z while not leaving the X limits of the current box
-          moveTarget.Z = std::max(moveTarget.Z, here->zmin + core::SectorSize / 2);
+          moveTarget.Z = std::max(moveTarget.Z, here->zmin + Margin);
 
           if(detour)
             return true;
@@ -106,18 +106,18 @@ bool PathFinder::calculateTarget(const world::World& world,
         }
         else if(detour || moveDirs != CanMoveZNeg)
         {
-          moveTarget.Z = maxZ - core::SectorSize / 2;
+          moveTarget.Z = maxZ - Margin;
           if(detour || moveDirs != CanMoveAllDirs)
             return true;
 
           detour = true;
         }
       }
-      else if(objectState.position.position.Z > here->zmax)
+      else if(startPos.Z > here->zmax)
       {
-        if((moveDirs & CanMoveZPos) && here->containsX(objectState.position.position.X))
+        if((moveDirs & CanMoveZPos) && here->containsX(startPos.X))
         {
-          moveTarget.Z = std::min(moveTarget.Z, here->zmax - core::SectorSize / 2);
+          moveTarget.Z = std::min(moveTarget.Z, here->zmax - Margin);
 
           if(detour)
             return true;
@@ -128,7 +128,7 @@ bool PathFinder::calculateTarget(const world::World& world,
         }
         else if(detour || moveDirs != CanMoveZPos)
         {
-          moveTarget.Z = minZ + core::SectorSize / 2;
+          moveTarget.Z = minZ + Margin;
           if(detour || moveDirs != CanMoveAllDirs)
             return true;
 
@@ -136,11 +136,11 @@ bool PathFinder::calculateTarget(const world::World& world,
         }
       }
 
-      if(objectState.position.position.X < here->xmin)
+      if(startPos.X < here->xmin)
       {
-        if((moveDirs & CanMoveXNeg) && here->containsZ(objectState.position.position.Z))
+        if((moveDirs & CanMoveXNeg) && here->containsZ(startPos.Z))
         {
-          moveTarget.X = std::max(moveTarget.X, here->xmin + core::SectorSize / 2);
+          moveTarget.X = std::max(moveTarget.X, here->xmin + Margin);
 
           if(detour)
             return true;
@@ -151,18 +151,18 @@ bool PathFinder::calculateTarget(const world::World& world,
         }
         else if(detour || moveDirs != CanMoveXNeg)
         {
-          moveTarget.X = maxX - core::SectorSize / 2;
+          moveTarget.X = maxX - Margin;
           if(detour || moveDirs != CanMoveAllDirs)
             return true;
 
           detour = true;
         }
       }
-      else if(objectState.position.position.X > here->xmax)
+      else if(startPos.X > here->xmax)
       {
-        if((moveDirs & CanMoveXPos) && here->containsZ(objectState.position.position.Z))
+        if((moveDirs & CanMoveXPos) && here->containsZ(startPos.Z))
         {
-          moveTarget.X = std::min(moveTarget.X, here->xmax - core::SectorSize / 2);
+          moveTarget.X = std::min(moveTarget.X, here->xmax - Margin);
 
           if(detour)
             return true;
@@ -173,7 +173,7 @@ bool PathFinder::calculateTarget(const world::World& world,
         }
         else if(detour || moveDirs != CanMoveXPos)
         {
-          moveTarget.X = minX + core::SectorSize / 2;
+          moveTarget.X = minX + Margin;
           if(detour || moveDirs != CanMoveAllDirs)
             return true;
 
@@ -190,10 +190,9 @@ bool PathFinder::calculateTarget(const world::World& world,
       }
       else if(!detour)
       {
-        moveTarget.Z
-          = uncheckedClamp(moveTarget.Z, here->zmin + core::SectorSize / 2, here->zmax - core::SectorSize / 2);
+        moveTarget.Z = uncheckedClamp(moveTarget.Z, here->zmin + Margin, here->zmax - Margin);
       }
-      Expects(here->containsZ(moveTarget.Z));
+      Ensures(here->containsZ(moveTarget.Z));
 
       if(moveDirs & (CanMoveXPos | CanMoveXNeg))
       {
@@ -201,45 +200,43 @@ bool PathFinder::calculateTarget(const world::World& world,
       }
       else if(!detour)
       {
-        moveTarget.X
-          = uncheckedClamp(moveTarget.X, here->xmin + core::SectorSize / 2, here->xmax - core::SectorSize / 2);
+        moveTarget.X = uncheckedClamp(moveTarget.X, here->xmin + Margin, here->xmax - Margin);
       }
-      Expects(here->containsX(moveTarget.X));
+      Ensures(here->containsX(moveTarget.X));
 
       moveTarget.Y = target.Y;
 
       return true;
     }
 
-    const auto nextBox = m_nodes[here].next;
+    const auto nextBox = getNextPathBox(here);
     if(nextBox == nullptr || !canVisit(*nextBox))
       break;
 
     here = nextBox;
   }
 
-  BOOST_ASSERT(here != nullptr);
   if(moveDirs & (CanMoveZPos | CanMoveZNeg))
   {
-    const auto center = here->zmax - here->zmin - core::SectorSize + 1_len;
-    moveTarget.Z = util::rand15(center) + here->zmin + core::SectorSize / 2;
+    const auto range = here->zmax - here->zmin - 2 * Margin;
+    moveTarget.Z = util::rand15(range) + here->zmin + Margin;
   }
   else if(!detour)
   {
-    moveTarget.Z = uncheckedClamp(moveTarget.Z, here->zmin + core::SectorSize / 2, here->zmax - core::SectorSize / 2);
+    moveTarget.Z = uncheckedClamp(moveTarget.Z, here->zmin + Margin, here->zmax - Margin);
   }
-  Expects(here->containsZ(moveTarget.Z));
+  Ensures(here->containsZ(moveTarget.Z));
 
   if(moveDirs & (CanMoveXPos | CanMoveXNeg))
   {
-    const auto center = here->xmax - here->xmin - core::SectorSize + 1_len;
-    moveTarget.X = util::rand15(center) + here->xmin + core::SectorSize / 2;
+    const auto range = here->xmax - here->xmin - 2 * Margin;
+    moveTarget.X = util::rand15(range) + here->xmin + Margin;
   }
   else if(!detour)
   {
-    moveTarget.X = uncheckedClamp(moveTarget.X, here->xmin + core::SectorSize / 2, here->xmax - core::SectorSize / 2);
+    moveTarget.X = uncheckedClamp(moveTarget.X, here->xmin + Margin, here->xmax - Margin);
   }
-  Expects(here->containsX(moveTarget.X));
+  Ensures(here->containsX(moveTarget.X));
 
   if(isFlying())
     moveTarget.Y = here->floor - 384_len;

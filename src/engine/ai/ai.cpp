@@ -228,7 +228,7 @@ void updateMood(const world::World& world,
   }
   if(newTargetBox != nullptr)
     creatureInfo.pathFinder.setTargetBox(newTargetBox);
-  creatureInfo.pathFinder.calculateTarget(world, creatureInfo.target, objectState);
+  creatureInfo.pathFinder.calculateTarget(world, creatureInfo.target, objectState.position.position, objectState.box);
 }
 
 std::shared_ptr<CreatureInfo> create(const serialization::TypeId<std::shared_ptr<CreatureInfo>>&,
@@ -271,8 +271,10 @@ AiInfo::AiInfo(world::World& world, objects::ObjectState& objectState)
                                               objectState.creatureInfo->pathFinder.step);
 
   objectState.box = objectState.getCurrentSector()->box;
+  Expects(objectState.box != nullptr);
   zone_number = objectState.box->*zoneRef;
   world.getObjectManager().getLara().m_state.box = world.getObjectManager().getLara().m_state.getCurrentSector()->box;
+  Expects(world.getObjectManager().getLara().m_state.box != nullptr);
   enemy_zone = world.getObjectManager().getLara().m_state.box->*zoneRef;
   enemy_unreachable = !objectState.creatureInfo->pathFinder.canVisit(*world.getObjectManager().getLara().m_state.box)
                       || objectState.creatureInfo->pathFinder.isUnreachable(objectState.box);
