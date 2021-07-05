@@ -57,8 +57,8 @@ bool ObjectState::isInsideZoneButNotInBox(const world::World& world,
 {
   Expects(creatureInfo != nullptr);
 
-  const auto zoneRef
-    = world::Box::getZoneRef(world.roomsAreSwapped(), creatureInfo->pathFinder.fly, creatureInfo->pathFinder.step);
+  const auto zoneRef = world::Box::getZoneRef(
+    world.roomsAreSwapped(), creatureInfo->pathFinder.isFlying(), creatureInfo->pathFinder.step);
 
   if(zoneId != targetBox.*zoneRef)
   {
@@ -92,16 +92,9 @@ void ObjectState::initCreatureInfo(const world::World& world)
   if(creatureInfo != nullptr)
     return;
 
-  creatureInfo = std::make_unique<ai::CreatureInfo>(world, type);
-  collectZoneBoxes(world);
-}
-
-void ObjectState::collectZoneBoxes(const world::World& world)
-{
   box = position.room->getInnerSectorByAbsolutePosition(position.position)->box;
   Ensures(box != nullptr);
-
-  creatureInfo->pathFinder.collectBoxes(world, box);
+  creatureInfo = std::make_unique<ai::CreatureInfo>(world, type, box);
 }
 
 glm::vec3 ObjectState::getPosition() const

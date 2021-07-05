@@ -55,7 +55,6 @@ struct AiInfo
 
 struct CreatureInfo
 {
-  core::TypeId type{uint16_t{0}};
   core::Angle head_rotation = 0_deg;
   core::Angle neck_rotation = 0_deg;
   core::Angle maximum_turn = 1_deg;
@@ -63,7 +62,10 @@ struct CreatureInfo
   PathFinder pathFinder;
   core::TRVec target;
 
-  CreatureInfo(const world::World& world, core::TypeId type);
+  CreatureInfo(const world::World& world, core::TypeId type, const gsl::not_null<const world::Box*>& initialBox);
+
+  // serialization constructor
+  explicit CreatureInfo(const world::World& world);
 
   void rotateHead(const core::Angle& angle)
   {

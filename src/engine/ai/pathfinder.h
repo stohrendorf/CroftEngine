@@ -116,6 +116,11 @@ struct PathFinder
     return m_targetBox;
   }
 
+  [[nodiscard]] bool isFlying() const
+  {
+    return fly != 0_len;
+  }
+
 private:
   void searchPath(const world::World& world);
 

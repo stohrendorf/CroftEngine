@@ -58,7 +58,7 @@ bool AIAgent::isPositionOutOfReach(const core::TRVec& testPosition,
   if(stepHeight < -pathFinder.step && sectorBox->floor > nextBoxFloor)
     return true;
 
-  return pathFinder.fly != 0_len && testPosition.Y > pathFinder.fly + sectorBox->floor;
+  return pathFinder.isFlying() && testPosition.Y > pathFinder.fly + sectorBox->floor;
 }
 
 bool AIAgent::anyMovingEnabledObjectInReach() const
@@ -91,7 +91,7 @@ bool AIAgent::animateCreature(const core::Angle& angle, const core::Angle& tilt)
 
   const auto boxFloor = m_state.box->floor;
   const auto zoneRef = world::Box::getZoneRef(
-    getWorld().roomsAreSwapped(), m_state.creatureInfo->pathFinder.fly, m_state.creatureInfo->pathFinder.step);
+    getWorld().roomsAreSwapped(), m_state.creatureInfo->pathFinder.isFlying(), m_state.creatureInfo->pathFinder.step);
   ModelObject::update();
   if(m_state.triggerState == TriggerState::Deactivated)
   {
@@ -289,7 +289,7 @@ bool AIAgent::animateCreature(const core::Angle& angle, const core::Angle& tilt)
     return true;
   }
 
-  if(pathFinder.fly != 0_len)
+  if(pathFinder.isFlying())
   {
     auto moveY
       = std::clamp(m_state.creatureInfo->target.Y - m_state.position.position.Y, -pathFinder.fly, pathFinder.fly);

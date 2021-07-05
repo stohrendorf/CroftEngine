@@ -71,7 +71,7 @@ bool PathFinder::calculateTarget(const world::World& world,
   uint8_t moveDirs = CanMoveAllDirs;
   while(true)
   {
-    if(fly != 0_len)
+    if(isFlying())
     {
       moveTarget.Y = std::min(moveTarget.Y, here->floor - core::SectorSize);
     }
@@ -241,7 +241,7 @@ bool PathFinder::calculateTarget(const world::World& world,
   }
   Expects(here->containsX(moveTarget.X));
 
-  if(fly != 0_len)
+  if(isFlying())
     moveTarget.Y = here->floor - 384_len;
   else
     moveTarget.Y = here->floor;
@@ -251,7 +251,7 @@ bool PathFinder::calculateTarget(const world::World& world,
 
 void PathFinder::searchPath(const world::World& world)
 {
-  const auto zoneRef = world::Box::getZoneRef(world.roomsAreSwapped(), fly, step);
+  const auto zoneRef = world::Box::getZoneRef(world.roomsAreSwapped(), isFlying(), step);
 
   static constexpr uint8_t MaxExpansions = 5;
 
@@ -319,8 +319,8 @@ void PathFinder::serialize(const serialization::Serializer<world::World>& ser)
 
 void PathFinder::collectBoxes(const world::World& world, const gsl::not_null<const world::Box*>& box)
 {
-  const auto zoneRef1 = world::Box::getZoneRef(false, fly, step);
-  const auto zoneRef2 = world::Box::getZoneRef(true, fly, step);
+  const auto zoneRef1 = world::Box::getZoneRef(false, isFlying(), step);
+  const auto zoneRef2 = world::Box::getZoneRef(true, isFlying(), step);
   const auto zoneData1 = box.get()->*zoneRef1;
   const auto zoneData2 = box.get()->*zoneRef2;
   m_boxes.clear();

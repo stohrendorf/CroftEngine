@@ -146,7 +146,7 @@ void updateMood(const world::World& world,
       = std::clamp(creatureInfo.pathFinder.target.X, newTargetBox->xmin, newTargetBox->xmax);
     creatureInfo.pathFinder.target.Z
       = std::clamp(creatureInfo.pathFinder.target.Z, newTargetBox->zmin, newTargetBox->zmax);
-    if(creatureInfo.pathFinder.fly != 0_len && world.getObjectManager().getLara().isOnLand())
+    if(creatureInfo.pathFinder.isFlying() && world.getObjectManager().getLara().isOnLand())
       creatureInfo.pathFinder.target.Y += world.getObjectManager()
                                             .getLara()
                                             .getSkeleton()
@@ -237,7 +237,7 @@ std::shared_ptr<CreatureInfo> create(const serialization::TypeId<std::shared_ptr
   if(!ser.node.has_val())
     return nullptr;
 
-  auto result = std::make_shared<CreatureInfo>(ser.context, core::TypeId::create(ser["type"]));
+  auto result = std::make_shared<CreatureInfo>(ser.context);
   ser(S_NV("data", *result));
   return result;
 }
@@ -256,7 +256,7 @@ void serialize(std::shared_ptr<CreatureInfo>& data, const serialization::Seriali
     }
     else
     {
-      ser(S_NV("type", data->type), S_NV("data", *data));
+      ser(S_NV("data", *data));
     }
   }
 }
@@ -266,8 +266,9 @@ AiInfo::AiInfo(world::World& world, objects::ObjectState& objectState)
   if(objectState.creatureInfo == nullptr)
     return;
 
-  const auto zoneRef = world::Box::getZoneRef(
-    world.roomsAreSwapped(), objectState.creatureInfo->pathFinder.fly, objectState.creatureInfo->pathFinder.step);
+  const auto zoneRef = world::Box::getZoneRef(world.roomsAreSwapped(),
+                                              objectState.creatureInfo->pathFinder.isFlying(),
+                                              objectState.creatureInfo->pathFinder.step);
 
   objectState.box = objectState.getCurrentSector()->box;
   zone_number = objectState.box->*zoneRef;
@@ -296,9 +297,15 @@ AiInfo::AiInfo(world::World& world, objects::ObjectState& objectState)
   }
 }
 
-CreatureInfo::CreatureInfo(const world::World& world, const core::TypeId type)
-    : type{type}
-    , pathFinder{world}
+CreatureInfo::CreatureInfo(const world::World& world)
+    : pathFinder{world}
+{
+}
+
+CreatureInfo::CreatureInfo(const world::World& world,
+                           const core::TypeId type,
+                           const gsl::not_null<const world::Box*>& initialBox)
+    : CreatureInfo{world}
 {
   switch(type.get_as<TR1ItemId>())
   {
@@ -331,6 +338,8 @@ CreatureInfo::CreatureInfo(const world::World& world, const core::TypeId type)
     // silence compiler
     break;
   }
+
+  pathFinder.collectBoxes(world, initialBox);
 }
 
 void CreatureInfo::serialize(const serialization::Serializer<world::World>& ser)

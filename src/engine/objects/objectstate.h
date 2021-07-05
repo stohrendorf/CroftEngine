@@ -122,8 +122,6 @@ public:
 
   void initCreatureInfo(const world::World& world);
 
-  void collectZoneBoxes(const world::World& world);
-
   const world::Sector* getCurrentSector() const;
 
   void loadObjectInfo();
