@@ -276,7 +276,7 @@ bool ModelObject::testBoneCollision(const ModelObject& other)
     }
   }
 
-  return m_state.touch_bits != 0;
+  return m_state.touch_bits.any();
 }
 
 gsl::not_null<std::shared_ptr<Particle>>

@@ -35,7 +35,7 @@ void SlammingDoors::update()
       for(const auto& x : {-23_len, 71_len})
       {
         for(const auto& y : {0_len, 10_len, -10_len})
-          emitBlood({x, y, -1718_len}, 0);
+          emitBlood({x, y, -1718_len}, x > 0_len ? 1 : 0);
       }
     }
   }
