@@ -23,7 +23,6 @@ namespace render::pass
 class GeometryPass;
 class PortalPass;
 class HBAOPass;
-class FXAAPass;
 class LinearizeDepthPass;
 
 class CompositionPass
@@ -34,7 +33,7 @@ public:
                            const glm::ivec2& viewport,
                            const PortalPass& portalPass,
                            const HBAOPass& hbaoPass,
-                           const FXAAPass& fxaaPass,
+                           const std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>>& colorBuffer,
                            const LinearizeDepthPass& linearizeDepthPass,
                            const LinearizeDepthPass& linearizePortalDepthPass);
 

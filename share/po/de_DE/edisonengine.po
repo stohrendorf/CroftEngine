@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EdisonEngine\n"
 "Report-Msgid-Bugs-To: https://github.com/stohrendorf/EdisonEngine/issues\n"
-"POT-Creation-Date: 2021-07-04 12:54+0200\n"
+"POT-Creation-Date: 2021-07-06 07:32+0200\n"
 "Last-Translator: Steffen Ohrendorf\n"
 "Language-Team: none\n"
 "Language: de_DE\n"
@@ -24,7 +24,7 @@ msgid "%1% - %2%"
 msgstr "%1% - %2%"
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:192
+#: menu/rendersettingsmenustate.cpp:196
 #, boost-format
 msgid "%1%x Anisotropic Filtering"
 msgstr "%1%x Anisotropische Filterung"
@@ -213,12 +213,17 @@ msgid "Exit to Title"
 msgstr "Zur~uck zum Hauptmen~u"
 
 #. translators: TR charmap encoding
+#: menu/rendersettingsmenustate.cpp:162
+msgid "FXAA"
+msgstr "FXAA"
+
+#. translators: TR charmap encoding
 #: menu/rendersettingsmenustate.cpp:122
 msgid "Film Grain"
 msgstr "Filmrauschen"
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:169
+#: menu/rendersettingsmenustate.cpp:173
 msgid "Fullscreen"
 msgstr "Vollbild"
 
@@ -283,7 +288,7 @@ msgid "HBAO"
 msgstr "HBAO"
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:162
+#: menu/rendersettingsmenustate.cpp:166
 msgid "High Quality Shadows"
 msgstr "Schatten mit hoher Qualit~at"
 
@@ -413,7 +418,7 @@ msgid "Menu"
 msgstr "Men~u"
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:173
+#: menu/rendersettingsmenustate.cpp:177
 msgid "More Lights"
 msgstr "Mehr Lichter"
 
@@ -440,7 +445,7 @@ msgid "OPTION"
 msgstr "Optionen"
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:166
+#: menu/rendersettingsmenustate.cpp:170
 msgid "Other"
 msgstr "Anderes"
 
@@ -559,7 +564,7 @@ msgid "Pause"
 msgstr "Pause"
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:177
+#: menu/rendersettingsmenustate.cpp:181
 msgid "Performance Meter"
 msgstr "Leistungsanzeige"
 

@@ -1,6 +1,6 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR Steffen Ohrendorf
-# This file is distributed under the same license as the PACKAGE package.
+# This file is distributed under the same license as the EdisonEngine package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
 #, fuzzy
@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EdisonEngine \n"
 "Report-Msgid-Bugs-To: https://github.com/stohrendorf/EdisonEngine/issues\n"
-"POT-Creation-Date: 2021-07-04 12:54+0200\n"
+"POT-Creation-Date: 2021-07-06 07:32+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -25,7 +25,7 @@ msgid "%1% - %2%"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:192
+#: menu/rendersettingsmenustate.cpp:196
 #, boost-format
 msgid "%1%x Anisotropic Filtering"
 msgstr ""
@@ -214,12 +214,17 @@ msgid "Exit to Title"
 msgstr ""
 
 #. translators: TR charmap encoding
+#: menu/rendersettingsmenustate.cpp:162
+msgid "FXAA"
+msgstr ""
+
+#. translators: TR charmap encoding
 #: menu/rendersettingsmenustate.cpp:122
 msgid "Film Grain"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:169
+#: menu/rendersettingsmenustate.cpp:173
 msgid "Fullscreen"
 msgstr ""
 
@@ -284,7 +289,7 @@ msgid "HBAO"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:162
+#: menu/rendersettingsmenustate.cpp:166
 msgid "High Quality Shadows"
 msgstr ""
 
@@ -414,7 +419,7 @@ msgid "Menu"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:173
+#: menu/rendersettingsmenustate.cpp:177
 msgid "More Lights"
 msgstr ""
 
@@ -441,7 +446,7 @@ msgid "OPTION"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:166
+#: menu/rendersettingsmenustate.cpp:170
 msgid "Other"
 msgstr ""
 
@@ -560,7 +565,7 @@ msgid "Pause"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:177
+#: menu/rendersettingsmenustate.cpp:181
 msgid "Performance Meter"
 msgstr ""
 

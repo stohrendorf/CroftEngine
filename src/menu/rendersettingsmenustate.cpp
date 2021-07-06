@@ -159,6 +159,10 @@ RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingT
     [&engine]() { return engine.getEngineConfig()->renderSettings.hbao; },
     [&engine]() { toggle(engine, engine.getEngineConfig()->renderSettings.hbao); });
   listBox->addSetting(
+    /* translators: TR charmap encoding */ _("FXAA"),
+    [&engine]() { return engine.getEngineConfig()->renderSettings.fxaa; },
+    [&engine]() { toggle(engine, engine.getEngineConfig()->renderSettings.fxaa); });
+  listBox->addSetting(
     /* translators: TR charmap encoding */ _("High Quality Shadows"),
     [&engine]() { return engine.getEngineConfig()->renderSettings.highQualityShadows; },
     [&engine]() { toggle(engine, engine.getEngineConfig()->renderSettings.highQualityShadows); });

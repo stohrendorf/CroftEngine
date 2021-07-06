@@ -29,7 +29,8 @@ void RenderPipeline::compositionPass(const bool water)
   if(m_renderSettings.hbao)
     m_hbaoPass->render(m_size);
   BOOST_ASSERT(m_fxaaPass != nullptr);
-  m_fxaaPass->render(m_size);
+  if(m_renderSettings.fxaa)
+    m_fxaaPass->render(m_size);
   BOOST_ASSERT(m_linearizeDepthPass != nullptr);
   m_linearizeDepthPass->render();
   BOOST_ASSERT(m_linearizePortalDepthPass != nullptr);
@@ -75,7 +76,8 @@ void RenderPipeline::resize(scene::MaterialManager& materialManager, const glm::
                                                               viewport,
                                                               *m_portalPass,
                                                               *m_hbaoPass,
-                                                              *m_fxaaPass,
+                                                              m_renderSettings.fxaa ? m_fxaaPass->getColorBuffer()
+                                                                                    : m_geometryPass->getColorBuffer(),
                                                               *m_linearizeDepthPass,
                                                               *m_linearizePortalDepthPass);
   m_uiPass = std::make_shared<pass::UIPass>(materialManager, viewport);

@@ -1,7 +1,6 @@
 #include "compositionpass.h"
 
 #include "config.h"
-#include "fxaapass.h"
 #include "geometrypass.h"
 #include "hbaopass.h"
 #include "linearizedepthpass.h"
@@ -22,7 +21,7 @@ CompositionPass::CompositionPass(scene::MaterialManager& materialManager,
                                  const glm::ivec2& viewport,
                                  const PortalPass& portalPass,
                                  const HBAOPass& hbaoPass,
-                                 const FXAAPass& fxaaPass,
+                                 const std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>>& colorBuffer,
                                  const LinearizeDepthPass& linearizeDepthPass,
                                  const LinearizeDepthPass& linearizePortalDepthPass)
     : m_compositionMaterial{materialManager.getComposition(false,
@@ -65,10 +64,10 @@ CompositionPass::CompositionPass(scene::MaterialManager& materialManager,
                  [texture = hbaoPass.getBlurredTexture()](
                    const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
                  { uniform.set(texture); });
-  m_mesh->bind("u_texture",
-               [buffer = fxaaPass.getColorBuffer()](
-                 const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
-               { uniform.set(buffer); });
+  m_mesh->bind(
+    "u_texture",
+    [colorBuffer](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
+    { uniform.set(colorBuffer); });
 
   m_waterMesh->bind("u_linearPortalDepth",
                     [buffer = linearizePortalDepthPass.getTexture()](
@@ -94,10 +93,10 @@ CompositionPass::CompositionPass(scene::MaterialManager& materialManager,
                       [texture = hbaoPass.getBlurredTexture()](
                         const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
                       { uniform.set(texture); });
-  m_waterMesh->bind("u_texture",
-                    [buffer = fxaaPass.getColorBuffer()](
-                      const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
-                    { uniform.set(buffer); });
+  m_waterMesh->bind(
+    "u_texture",
+    [colorBuffer](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
+    { uniform.set(colorBuffer); });
 
   auto sampler = std::make_unique<gl::Sampler>("composition-color");
   sampler->set(gl::api::SamplerParameterI::TextureWrapS, gl::api::TextureWrapMode::Repeat)
