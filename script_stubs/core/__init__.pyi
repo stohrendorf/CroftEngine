@@ -21,3 +21,6 @@ class Vec:
     @overload
     def __init__(self, x: Length, y: Length, z: Length):
         pass
+
+SectorSize: int
+QuarterSectorSize: int

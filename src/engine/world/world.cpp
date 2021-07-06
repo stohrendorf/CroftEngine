@@ -1,7 +1,6 @@
 #include "world.h"
 
 #include "core/i18n.h"
-#include "core/pybindmodule.h"
 #include "engine/audioengine.h"
 #include "engine/engine.h"
 #include "engine/objects/aiagent.h"

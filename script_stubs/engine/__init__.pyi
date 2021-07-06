@@ -12,6 +12,12 @@ class ObjectInfo:
     pivot_length: int
     target_update_chance: int
 
+    drop_limit: int
+    step_limit: int
+    fly_limit: int
+    cannot_visit_blocked: bool
+    cannot_visit_blockable: bool
+
 
 class ActivationState(Enum):
     INACTIVE = auto()

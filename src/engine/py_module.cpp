@@ -24,7 +24,12 @@ PYBIND11_EMBEDDED_MODULE(engine, m)
     .def_readwrite("radius", &engine::script::ObjectInfo::radius)
     .def_readwrite("hit_points", &engine::script::ObjectInfo::hit_points)
     .def_readwrite("pivot_length", &engine::script::ObjectInfo::pivot_length)
-    .def_readwrite("target_update_chance", &engine::script::ObjectInfo::target_update_chance);
+    .def_readwrite("target_update_chance", &engine::script::ObjectInfo::target_update_chance)
+    .def_readwrite("step_limit", &engine::script::ObjectInfo::step_limit)
+    .def_readwrite("drop_limit", &engine::script::ObjectInfo::drop_limit)
+    .def_readwrite("fly_limit", &engine::script::ObjectInfo::fly_limit)
+    .def_readwrite("cannot_visit_blocked", &engine::script::ObjectInfo::cannot_visit_blocked)
+    .def_readwrite("cannot_visit_blockable", &engine::script::ObjectInfo::cannot_visit_blockable);
 
   // NOLINTNEXTLINE(bugprone-unused-raii)
   py::class_<engine::script::LevelSequenceItem, std::shared_ptr<engine::script::LevelSequenceItem>>(

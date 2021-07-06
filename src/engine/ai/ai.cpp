@@ -309,37 +309,12 @@ CreatureInfo::CreatureInfo(const world::World& world,
                            const gsl::not_null<const world::Box*>& initialBox)
     : CreatureInfo{world}
 {
-  switch(type.get_as<TR1ItemId>())
-  {
-  case TR1ItemId::Wolf:
-  case TR1ItemId::LionMale:
-  case TR1ItemId::LionFemale:
-  case TR1ItemId::Panther: pathFinder.drop = -core::SectorSize; break;
-
-  case TR1ItemId::Bat:
-  case TR1ItemId::CrocodileInWater:
-  case TR1ItemId::Fish:
-    pathFinder.step = 20 * core::SectorSize;
-    pathFinder.drop = -20 * core::SectorSize;
-    pathFinder.fly = 16_len;
-    break;
-
-  case TR1ItemId::Gorilla:
-    pathFinder.step = core::SectorSize / 2;
-    pathFinder.drop = -core::SectorSize;
-    break;
-
-  case TR1ItemId::TRex:
-  case TR1ItemId::FlyingMutant:
-  case TR1ItemId::CentaurMutant:
-    pathFinder.cannotVisitBlockable = true;
-    pathFinder.cannotVisitBlocked = false;
-    break;
-
-  default:
-    // silence compiler
-    break;
-  }
+  auto objectInfo = pybind11::globals()["getObjectInfo"](type.get()).cast<script::ObjectInfo>();
+  pathFinder.step = core::Length{objectInfo.step_limit};
+  pathFinder.drop = core::Length{objectInfo.drop_limit};
+  pathFinder.fly = core::Length{objectInfo.fly_limit};
+  pathFinder.cannotVisitBlockable = objectInfo.cannot_visit_blocked;
+  pathFinder.cannotVisitBlocked = objectInfo.cannot_visit_blockable;
 
   pathFinder.collectBoxes(world, initialBox);
 }

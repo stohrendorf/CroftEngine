@@ -1,4 +1,5 @@
 #include "core/pybindmodule.h"
+#include "magic.h"
 #include "vec.h"
 
 namespace py = pybind11;
@@ -18,4 +19,7 @@ PYBIND11_EMBEDDED_MODULE(core, m)
     .def_readwrite("x", &core::TRVec::X)
     .def_readwrite("y", &core::TRVec::Y)
     .def_readwrite("z", &core::TRVec::Z);
+
+  m.attr("QuarterSectorSize") = core::QuarterSectorSize.get();
+  m.attr("SectorSize") = core::SectorSize.get();
 }

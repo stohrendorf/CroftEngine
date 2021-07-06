@@ -3,6 +3,7 @@
 #include "audio/tracktype.h"
 #include "core/angle.h"
 #include "core/id.h"
+#include "core/magic.h"
 #include "core/units.h"
 #include "engine/tracks_tr1.h"
 
@@ -26,6 +27,11 @@ struct ObjectInfo
   core::Health::type hit_points = -16384;
   core::Length::type pivot_length = 0;
   int target_update_chance = 0;
+  core::Length::type step_limit = core::QuarterSectorSize.get();
+  core::Length::type drop_limit = -core::QuarterSectorSize.get();
+  core::Length::type fly_limit = 0;
+  bool cannot_visit_blocked = true;
+  bool cannot_visit_blockable = false;
 };
 
 struct TrackInfo
@@ -97,7 +103,7 @@ public:
   std::pair<RunResult, std::optional<size_t>>
     runFromSave(Engine& engine, const std::optional<size_t>& slot, const std::shared_ptr<Player>& player) override;
 
-  bool isLevel(const std::filesystem::path& path) const override;
+  [[nodiscard]] bool isLevel(const std::filesystem::path& path) const override;
 };
 
 class TitleMenu : public Level
@@ -116,7 +122,7 @@ public:
 
   std::pair<RunResult, std::optional<size_t>> run(Engine& engine, const std::shared_ptr<Player>& player) override;
 
-  bool isLevel(const std::filesystem::path& /*path*/) const override
+  [[nodiscard]] bool isLevel(const std::filesystem::path& /*path*/) const override
   {
     return false;
   }
