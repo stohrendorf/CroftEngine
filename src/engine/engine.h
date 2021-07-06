@@ -16,24 +16,10 @@ namespace loader::trx
 class Glidos;
 }
 
-namespace loader::file
-{
-namespace level
+namespace loader::file::level
 {
 class Level;
-}
-
-struct Room;
-struct Sector;
-struct Mesh;
-struct SkeletalModelType;
-struct Box;
-struct StaticMesh;
-struct SpriteSequence;
-struct AnimFrame;
-struct Animation;
-struct CinematicFrame;
-} // namespace loader::file
+} // namespace loader::file::level
 
 namespace engine::world
 {
