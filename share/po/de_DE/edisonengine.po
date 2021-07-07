@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EdisonEngine\n"
 "Report-Msgid-Bugs-To: https://github.com/stohrendorf/EdisonEngine/issues\n"
-"POT-Creation-Date: 2021-07-06 07:32+0200\n"
+"POT-Creation-Date: 2021-07-08 01:36+0200\n"
 "Last-Translator: Steffen Ohrendorf\n"
 "Language-Team: none\n"
 "Language: de_DE\n"
@@ -101,12 +101,12 @@ msgid "Cheat Dive"
 msgstr "Cheat Tauchen"
 
 #. translators: TR charmap encoding
-#: menu/menudisplay.cpp:232
+#: menu/menudisplay.cpp:231
 msgid "Compass"
 msgstr "Kompa="
 
 #. translators: TR charmap encoding
-#: menu/menudisplay.cpp:183
+#: menu/menudisplay.cpp:182
 msgid "Controls"
 msgstr "Kontrollen"
 
@@ -139,7 +139,7 @@ msgid "Depth-of-Field"
 msgstr "Tiefensch~arfe"
 
 #. translators: TR charmap encoding
-#: menu/menudisplay.cpp:199
+#: menu/menudisplay.cpp:198
 msgid "Detail Levels"
 msgstr "Grafik"
 
@@ -228,12 +228,12 @@ msgid "Fullscreen"
 msgstr "Vollbild"
 
 #. translators: TR charmap encoding
-#: menu/menudisplay.cpp:466
+#: menu/menudisplay.cpp:465
 msgid "GAME OVER"
 msgstr "Ende des Spiels"
 
 #. translators: TR charmap encoding
-#: menu/menudisplay.cpp:173
+#: menu/menudisplay.cpp:172
 msgid "Game"
 msgstr "Spiel"
 
@@ -243,7 +243,7 @@ msgid "Gamepad"
 msgstr "Gamepad"
 
 #. translators: TR charmap encoding
-#: menu/controlsmenustate.cpp:35
+#: menu/controlswidget.cpp:25
 msgid "Gameplay"
 msgstr "Spiel"
 
@@ -267,7 +267,7 @@ msgid "Glidos - Resolving maps (100%)"
 msgstr "Glidos - Löse Zuordnungen auf (100%)"
 
 #. translators: TR charmap encoding
-#: menu/menudisplay.cpp:322
+#: menu/menudisplay.cpp:321
 msgid "Grenade"
 msgstr "Granaten"
 
@@ -278,7 +278,7 @@ msgid "Guide"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/menudisplay.cpp:209
+#: menu/menudisplay.cpp:208
 msgid "Gym"
 msgstr "Training"
 
@@ -299,12 +299,12 @@ msgid "Home"
 msgstr "Pos1"
 
 #. translators: TR charmap encoding
-#: menu/menudisplay.cpp:461
+#: menu/menudisplay.cpp:460
 msgid "INVENTORY"
 msgstr "Inventar"
 
 #. translators: TR charmap encoding
-#: menu/menudisplay.cpp:448
+#: menu/menudisplay.cpp:447
 msgid "ITEMS"
 msgstr "Gegenst~ande"
 
@@ -344,7 +344,7 @@ msgid "LThumb"
 msgstr "LStick"
 
 #. translators: TR charmap encoding
-#: menu/menudisplay.cpp:333
+#: menu/menudisplay.cpp:332
 msgid "Large Medi Pack"
 msgstr "Gro=es Medi-Pack"
 
@@ -391,7 +391,7 @@ msgstr "Lade %1%"
 msgid "Loading Glidos texture pack"
 msgstr "Lade Glidos Textur Paket"
 
-#: engine/world/world.cpp:923
+#: engine/world/world.cpp:922
 msgid "Loading..."
 msgstr "Lade..."
 
@@ -402,12 +402,12 @@ msgid "Look"
 msgstr "Umsehen"
 
 #. translators: TR charmap encoding
-#: menu/menudisplay.cpp:300
+#: menu/menudisplay.cpp:299
 msgid "Magnum Clips"
 msgstr "Magnum-Munition"
 
 #. translators: TR charmap encoding
-#: menu/menudisplay.cpp:267
+#: menu/menudisplay.cpp:266
 msgid "Magnums"
 msgstr "Magnums"
 
@@ -423,7 +423,7 @@ msgid "More Lights"
 msgstr "Mehr Lichter"
 
 #. translators: TR charmap encoding
-#: menu/controlsmenustate.cpp:233
+#: menu/controlsmenustate.cpp:29
 msgctxt "ButtonAssignment"
 msgid "N/A"
 msgstr "N/V"
@@ -440,7 +440,7 @@ msgid "NmLk"
 msgstr "Num"
 
 #. translators: TR charmap encoding
-#: menu/menudisplay.cpp:467
+#: menu/menudisplay.cpp:466
 msgid "OPTION"
 msgstr "Optionen"
 
@@ -581,7 +581,7 @@ msgid "PgUp"
 msgstr "BildHoch"
 
 #. translators: TR charmap encoding
-#: menu/menudisplay.cpp:245
+#: menu/menudisplay.cpp:244
 msgid "Pistols"
 msgstr "Pistolen"
 
@@ -673,7 +673,7 @@ msgstr "Spiel sichern"
 msgid "Save Game"
 msgstr "Spiel sichern"
 
-#: engine/world/world.cpp:944
+#: engine/world/world.cpp:943
 msgid "Saving..."
 msgstr "Speichere..."
 
@@ -696,22 +696,22 @@ msgid "Shift"
 msgstr "Umschalt"
 
 #. translators: TR charmap encoding
-#: menu/controlsmenustate.cpp:69
+#: menu/controlswidget.cpp:59
 msgid "Shortcuts"
 msgstr "Schnellzugriff"
 
 #. translators: TR charmap encoding
-#: menu/menudisplay.cpp:256
+#: menu/menudisplay.cpp:255
 msgid "Shotgun"
 msgstr "Schrotflinte"
 
 #. translators: TR charmap encoding
-#: menu/menudisplay.cpp:289
+#: menu/menudisplay.cpp:288
 msgid "Shotgun Cells"
 msgstr "Schrot-Munition"
 
 #. translators: TR charmap encoding
-#: menu/menudisplay.cpp:344
+#: menu/menudisplay.cpp:343
 msgid "Small Medi Pack"
 msgstr "Kleines Medi-Pack"
 
@@ -722,7 +722,7 @@ msgid "Small Medipack"
 msgstr "Kleines Medi-Pack"
 
 #. translators: TR charmap encoding
-#: menu/menudisplay.cpp:191
+#: menu/menudisplay.cpp:190
 msgid "Sound"
 msgstr "Audio"
 
@@ -774,6 +774,11 @@ msgctxt "Keyboard|Key"
 msgid "Tab"
 msgstr "Tab"
 
+#: menu/controlsmenustate.cpp:59
+#, boost-format
+msgid "To reset all mappings, hold %1% for %2% seconds."
+msgstr "Zum Zur~ucksetzen aller Zuordnungen, %1% f~ur %2% Sekunden halten."
+
 #. translators: TR charmap encoding
 #: hid/names.cpp:74
 msgctxt "Keyboard|Key"
@@ -781,12 +786,12 @@ msgid "Up"
 msgstr "Hoch"
 
 #. translators: TR charmap encoding
-#: menu/menudisplay.cpp:311
+#: menu/menudisplay.cpp:310
 msgid "Uzi Clips"
 msgstr "Uzi-Munition"
 
 #. translators: TR charmap encoding
-#: menu/menudisplay.cpp:278
+#: menu/menudisplay.cpp:277
 msgid "Uzis"
 msgstr "Uzis"
 

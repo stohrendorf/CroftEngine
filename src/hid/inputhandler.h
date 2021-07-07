@@ -63,6 +63,8 @@ public:
     return m_inputMappings.at(m_activeMapping).name;
   }
 
+  [[nodiscard]] bool hasKey(GlfwKey key) const;
+
 private:
   InputState m_inputState{};
   const gsl::not_null<GLFWwindow*> m_window;

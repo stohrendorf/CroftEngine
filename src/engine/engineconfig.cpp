@@ -92,4 +92,10 @@ EngineConfig::EngineConfig()
     : inputMappings{getDefaultMappings()}
 {
 }
+
+void EngineConfig::resetInputMappings()
+{
+  activeInputMapping = 0;
+  inputMappings = getDefaultMappings();
+}
 } // namespace engine

@@ -37,5 +37,7 @@ struct EngineConfig
   explicit EngineConfig();
 
   void serialize(const serialization::Serializer<EngineConfig>& ser);
+
+  void resetInputMappings();
 };
 } // namespace engine

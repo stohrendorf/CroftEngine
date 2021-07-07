@@ -1,5 +1,6 @@
 #include "controlsmenustate.h"
 
+#include "controlswidget.h"
 #include "core/i18n.h"
 #include "engine/engine.h"
 #include "engine/presenter.h"
@@ -8,220 +9,15 @@
 #include "menudisplay.h"
 #include "ui/widgets/gridbox.h"
 #include "ui/widgets/label.h"
-#include "ui/widgets/sprite.h"
-
-#include <functional>
 
 namespace menu
 {
-class ControlsMenuState::ControlsWidget final : public ui::widgets::Widget
+namespace
 {
-public:
-  static constexpr size_t Columns = 6;
+constexpr const auto ResetKey = hid::GlfwKey::Backspace;
+constexpr const auto ResetKeyDuration = std::chrono::seconds(5);
 
-  explicit ControlsWidget(const std::string& title,
-                          const std::function<std::shared_ptr<ui::widgets::Widget>(hid::Action)>& factory)
-      : m_content{std::make_shared<ui::widgets::GridBox>()}
-      , m_container{std::make_shared<ui::widgets::GroupBox>(title, m_content)}
-  {
-    m_content->setExtents(1, 2);
-
-    auto gridBox = std::make_shared<ui::widgets::GridBox>(glm::ivec2{10, ui::OutlineBorderWidth});
-    gridBox->setExtents(Columns, 5);
-    gridBox->setSelected({1, 0});
-    m_controlGroups.emplace_back(gridBox);
-
-    auto groupBox = std::make_shared<ui::widgets::GroupBox>(
-      /* translators: TR charmap encoding */ _("Gameplay"), gridBox);
-    m_content->set(0, 0, groupBox);
-
-    auto add = [&gridBox, &factory](size_t x0, size_t y, hid::Action action)
-    {
-      auto label = std::make_shared<ui::widgets::Label>(hid::getName(action));
-      label->fitToContent();
-      gridBox->set(x0, y, label);
-
-      auto widget = factory(action);
-      widget->fitToContent();
-      gridBox->set(x0 + 1, y, widget);
-    };
-
-    add(0, 0, hid::Action::Forward);
-    add(0, 1, hid::Action::Backward);
-    add(0, 2, hid::Action::Left);
-    add(0, 3, hid::Action::Right);
-    add(0, 4, hid::Action::Jump);
-
-    add(2, 0, hid::Action::StepLeft);
-    add(2, 1, hid::Action::StepRight);
-    add(2, 2, hid::Action::Walk);
-    add(2, 3, hid::Action::Roll);
-    add(2, 4, hid::Action::FreeLook);
-
-    add(4, 0, hid::Action::Action);
-    add(4, 1, hid::Action::Holster);
-    add(4, 2, hid::Action::Menu);
-
-    gridBox = std::make_shared<ui::widgets::GridBox>(glm::ivec2{10, ui::OutlineBorderWidth});
-    gridBox->setExtents(Columns, 4);
-    m_controlGroups.emplace_back(gridBox);
-
-    groupBox = std::make_shared<ui::widgets::GroupBox>(/* translators: TR charmap encoding */ _("Shortcuts"), gridBox);
-    m_content->set(0, 1, groupBox);
-
-    add(0, 0, hid::Action::DrawPistols);
-    add(0, 1, hid::Action::DrawShotgun);
-    add(0, 2, hid::Action::DrawUzis);
-    add(0, 3, hid::Action::DrawMagnums);
-
-    add(2, 0, hid::Action::ConsumeSmallMedipack);
-    add(2, 1, hid::Action::ConsumeLargeMedipack);
-
-    add(4, 0, hid::Action::Save);
-    add(4, 1, hid::Action::Load);
-    add(4, 2, hid::Action::Screenshot);
-
-    fitToContent();
-  }
-
-  [[nodiscard]] glm::ivec2 getPosition() const override
-  {
-    return m_container->getPosition();
-  }
-
-  [[nodiscard]] glm::ivec2 getSize() const override
-  {
-    return m_container->getSize();
-  }
-
-  void setPosition(const glm::ivec2& position) override
-  {
-    m_container->setPosition(position);
-  }
-
-  void setSize(const glm::ivec2& size) override
-  {
-    m_container->setSize(size);
-  }
-
-  void update(bool hasFocus) override
-  {
-    m_container->update(hasFocus);
-  }
-
-  void fitToContent() override
-  {
-    for(const auto& gridBox : m_controlGroups)
-    {
-      gridBox->fitToContent();
-      gridBox->setColumnSize(1, gridBox->getColumnSizes()[1] + 2 * ui::FontHeight);
-      gridBox->setColumnSize(3, gridBox->getColumnSizes()[3] + 2 * ui::FontHeight);
-    }
-
-    for(size_t x = 0; x < Columns; ++x)
-    {
-      int maxWidth = 0;
-      for(const auto& gridBox : m_controlGroups)
-      {
-        maxWidth = std::max(gridBox->getColumnSizes().at(x), maxWidth);
-      }
-      for(const auto& gridBox : m_controlGroups)
-      {
-        gridBox->setColumnSize(x, maxWidth);
-      }
-    }
-
-    for(size_t x = 0; x < std::get<0>(m_content->getExtents()); ++x)
-      for(size_t y = 0; y < std::get<1>(m_content->getExtents()); ++y)
-        m_content->getWidget(x, y)->fitToContent();
-
-    m_content->fitToContent();
-    m_container->fitToContent();
-  }
-
-  void draw(ui::Ui& ui, const engine::Presenter& presenter) const override
-  {
-    m_container->draw(ui, presenter);
-  }
-
-  [[nodiscard]] const auto& getCurrentGridBox() const
-  {
-    return m_controlGroups.at(std::get<1>(m_content->getSelected()));
-  }
-
-  void nextRow()
-  {
-    do
-    {
-      const auto& currentGridBox = getCurrentGridBox();
-      if(!currentGridBox->nextRow())
-      {
-        if(!m_content->nextRow())
-        {
-          // wrap around
-          m_content->setSelected({0, 0});
-        }
-
-        getCurrentGridBox()->setSelected({std::get<0>(currentGridBox->getSelected()), 0});
-      }
-    } while(getCurrentGridBox()->getSelectedWidget() == nullptr);
-  }
-
-  void prevRow()
-  {
-    do
-    {
-      const auto& currentGridBox = getCurrentGridBox();
-      if(!currentGridBox->prevRow())
-      {
-        if(!m_content->prevRow())
-        {
-          // wrap around
-          m_content->setSelected({0, m_controlGroups.size() - 1});
-        }
-
-        getCurrentGridBox()->setSelected(
-          {std::get<0>(currentGridBox->getSelected()), std::get<1>(getCurrentGridBox()->getExtents()) - 1});
-      }
-    } while(getCurrentGridBox()->getSelectedWidget() == nullptr);
-  }
-
-  void nextColumn()
-  {
-    do
-    {
-      const auto& currentGridBox = getCurrentGridBox();
-      if(!currentGridBox->nextColumn() || !currentGridBox->nextColumn())
-      {
-        getCurrentGridBox()->setSelected({1, std::get<1>(currentGridBox->getSelected())});
-      }
-    } while(getCurrentGridBox()->getSelectedWidget() == nullptr);
-  }
-
-  void prevColumn()
-  {
-    do
-    {
-      const auto& currentGridBox = getCurrentGridBox();
-      if(!currentGridBox->prevColumn() || !currentGridBox->prevColumn())
-      {
-        getCurrentGridBox()->setSelected(
-          {std::get<0>(currentGridBox->getExtents()) - 1, std::get<1>(currentGridBox->getSelected())});
-      }
-    } while(getCurrentGridBox()->getSelectedWidget() == nullptr);
-  }
-
-private:
-  std::shared_ptr<ui::widgets::GridBox> m_content;
-  std::shared_ptr<ui::widgets::GroupBox> m_container;
-  std::vector<std::shared_ptr<ui::widgets::GridBox>> m_controlGroups;
-};
-
-ControlsMenuState::ControlsMenuState(const std::shared_ptr<MenuRingTransform>& ringTransform,
-                                     std::unique_ptr<MenuState> previous,
-                                     const engine::world::World& world)
-    : SelectedMenuState{ringTransform}
-    , m_previous{std::move(previous)}
+std::shared_ptr<ControlsWidget> createControlsWidget(const engine::world::World& world)
 {
   const auto createKeyLabel = [&world](hid::Action action) -> std::shared_ptr<ui::widgets::Widget>
   {
@@ -244,12 +40,55 @@ ControlsMenuState::ControlsMenuState(const std::shared_ptr<MenuRingTransform>& r
       }
     }
   };
-  m_controls = std::make_shared<ControlsWidget>(
-    world.getEngine().getPresenter().getInputHandler().getActiveMappingName(), createKeyLabel);
+  return std::make_shared<ControlsWidget>(world.getEngine().getPresenter().getInputHandler().getActiveMappingName(),
+                                          createKeyLabel);
+}
+} // namespace
+
+ControlsMenuState::ControlsMenuState(const std::shared_ptr<MenuRingTransform>& ringTransform,
+                                     std::unique_ptr<MenuState> previous,
+                                     const engine::world::World& world)
+    : SelectedMenuState{ringTransform}
+    , m_previous{std::move(previous)}
+    , m_layout{std::make_shared<ui::widgets::GridBox>()}
+{
+  m_layout->setExtents(1, 2);
+  m_layout->set(0,
+                1,
+                std::make_shared<ui::widgets::Label>(
+                  _("To reset all mappings, hold %1% for %2% seconds.",
+                    hid::getName(ResetKey),
+                    std::chrono::duration_cast<std::chrono::seconds>(ResetKeyDuration).count())));
+  m_controls = createControlsWidget(world);
+  m_layout->set(0, 0, m_controls);
 }
 
 std::unique_ptr<MenuState> ControlsMenuState::onFrame(ui::Ui& ui, engine::world::World& world, MenuDisplay& /*display*/)
 {
+  if(!m_resetKeyPressedSince.has_value())
+  {
+    if(world.getPresenter().getInputHandler().hasKey(ResetKey))
+      m_resetKeyPressedSince = std::chrono::system_clock::now();
+  }
+  else
+  {
+    if(!world.getPresenter().getInputHandler().hasKey(ResetKey))
+    {
+      m_resetKeyPressedSince.reset();
+    }
+    else if(std::chrono::system_clock::now() - m_resetKeyPressedSince.value() >= ResetKeyDuration)
+    {
+      world.getEngine().getEngineConfig()->resetInputMappings();
+      world.getEngine().getPresenter().getInputHandler().setActiveMapping(
+        world.getEngine().getEngineConfig()->activeInputMapping);
+      world.getEngine().getPresenter().getInputHandler().setMappings(
+        world.getEngine().getEngineConfig()->inputMappings);
+      m_controls = createControlsWidget(world);
+      m_layout->set(0, 0, m_controls);
+    }
+  }
+
+  m_layout->fitToContent();
   m_controls->fitToContent();
 
   if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Backward))
@@ -270,9 +109,9 @@ std::unique_ptr<MenuState> ControlsMenuState::onFrame(ui::Ui& ui, engine::world:
   }
 
   const auto vp = world.getPresenter().getViewport();
-  m_controls->setPosition({(vp.x - m_controls->getSize().x) / 2, vp.y - 90 - m_controls->getSize().y});
-  m_controls->update(true);
-  m_controls->draw(ui, world.getPresenter());
+  m_layout->setPosition({(vp.x - m_layout->getSize().x) / 2, vp.y - 90 - m_layout->getSize().y});
+  m_layout->update(true);
+  m_layout->draw(ui, world.getPresenter());
 
   if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Menu))
   {

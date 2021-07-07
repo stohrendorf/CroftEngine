@@ -130,4 +130,10 @@ void InputHandler::setActiveMapping(size_t mapping)
     }
   }
 }
+
+// NOLINTNEXTLINE(readability-convert-member-functions-to-static)
+bool InputHandler::hasKey(GlfwKey key) const
+{
+  return isKeyPressed(key);
+}
 } // namespace hid
