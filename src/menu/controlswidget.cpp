@@ -7,17 +7,74 @@
 #include "ui/widgets/groupbox.h"
 #include "ui/widgets/label.h"
 
+#include <optional>
+#include <utility>
+
 namespace menu
 {
+namespace
+{
+constexpr const size_t Columns = 3;
+
+constexpr const std::array<std::array<std::optional<hid::Action>, 5>, Columns> gameplayActions{{
+  {
+    hid::Action::Forward,
+    hid::Action::Backward,
+    hid::Action::Left,
+    hid::Action::Right,
+    hid::Action::Jump,
+  },
+  {
+    hid::Action::StepLeft,
+    hid::Action::StepRight,
+    hid::Action::Walk,
+    hid::Action::Roll,
+    hid::Action::FreeLook,
+  },
+  {
+    hid::Action::Action,
+    hid::Action::Holster,
+    hid::Action::Menu,
+    std::nullopt,
+    std::nullopt,
+  },
+}};
+
+constexpr const std::array<std::array<std::optional<hid::Action>, 4>, Columns> shortcutActions{{
+  {
+    hid::Action::DrawPistols,
+    hid::Action::DrawShotgun,
+    hid::Action::DrawUzis,
+    hid::Action::DrawMagnums,
+  },
+  {
+    hid::Action::ConsumeSmallMedipack,
+    hid::Action::ConsumeLargeMedipack,
+    std::nullopt,
+    std::nullopt,
+  },
+  {
+    hid::Action::Save,
+    hid::Action::Load,
+    hid::Action::Screenshot,
+    std::nullopt,
+  },
+}};
+
+static_assert(gameplayActions.size() == shortcutActions.size());
+} // namespace
+
 ControlsWidget::ControlsWidget(const std::string& title,
-                               const std::function<std::shared_ptr<Widget>(hid::Action)>& factory)
+                               const hid::InputHandler& inputHandler,
+                               std::function<std::shared_ptr<Widget>(const hid::InputHandler&, hid::Action)> factory)
     : m_content{std::make_shared<ui::widgets::GridBox>()}
     , m_container{std::make_shared<ui::widgets::GroupBox>(title, m_content)}
+    , m_factory{std::move(factory)}
 {
   m_content->setExtents(1, 2);
 
   auto gridBox = std::make_shared<ui::widgets::GridBox>(glm::ivec2{10, ui::OutlineBorderWidth});
-  gridBox->setExtents(Columns, 5);
+  gridBox->setExtents(2 * gameplayActions.size(), gameplayActions[0].size());
   gridBox->setSelected({1, 0});
   m_controlGroups.emplace_back(gridBox);
 
@@ -25,53 +82,14 @@ ControlsWidget::ControlsWidget(const std::string& title,
     /* translators: TR charmap encoding */ _("Gameplay"), gridBox);
   m_content->set(0, 0, groupBox);
 
-  auto add = [&gridBox, &factory](size_t x0, size_t y, hid::Action action)
-  {
-    auto label = std::make_shared<ui::widgets::Label>(hid::getName(action));
-    label->fitToContent();
-    gridBox->set(x0, y, label);
-
-    auto widget = factory(action);
-    widget->fitToContent();
-    gridBox->set(x0 + 1, y, widget);
-  };
-
-  add(0, 0, hid::Action::Forward);
-  add(0, 1, hid::Action::Backward);
-  add(0, 2, hid::Action::Left);
-  add(0, 3, hid::Action::Right);
-  add(0, 4, hid::Action::Jump);
-
-  add(2, 0, hid::Action::StepLeft);
-  add(2, 1, hid::Action::StepRight);
-  add(2, 2, hid::Action::Walk);
-  add(2, 3, hid::Action::Roll);
-  add(2, 4, hid::Action::FreeLook);
-
-  add(4, 0, hid::Action::Action);
-  add(4, 1, hid::Action::Holster);
-  add(4, 2, hid::Action::Menu);
-
   gridBox = std::make_shared<ui::widgets::GridBox>(glm::ivec2{10, ui::OutlineBorderWidth});
-  gridBox->setExtents(Columns, 4);
+  gridBox->setExtents(2 * shortcutActions.size(), shortcutActions[0].size());
   m_controlGroups.emplace_back(gridBox);
 
   groupBox = std::make_shared<ui::widgets::GroupBox>(/* translators: TR charmap encoding */ _("Shortcuts"), gridBox);
   m_content->set(0, 1, groupBox);
 
-  add(0, 0, hid::Action::DrawPistols);
-  add(0, 1, hid::Action::DrawShotgun);
-  add(0, 2, hid::Action::DrawUzis);
-  add(0, 3, hid::Action::DrawMagnums);
-
-  add(2, 0, hid::Action::ConsumeSmallMedipack);
-  add(2, 1, hid::Action::ConsumeLargeMedipack);
-
-  add(4, 0, hid::Action::Save);
-  add(4, 1, hid::Action::Load);
-  add(4, 2, hid::Action::Screenshot);
-
-  fitToContent();
+  updateBindings(inputHandler);
 }
 
 void ControlsWidget::fitToContent()
@@ -199,5 +217,43 @@ void ControlsWidget::prevColumn()
         {std::get<0>(currentGridBox->getExtents()) - 1, std::get<1>(currentGridBox->getSelected())});
     }
   } while(getCurrentGridBox()->getSelectedWidget() == nullptr);
+}
+
+void ControlsWidget::updateBindings(const hid::InputHandler& inputHandler)
+{
+  auto set = [this, &inputHandler](ui::widgets::GridBox& gridBox, size_t x0, size_t y, hid::Action action)
+  {
+    auto label = std::make_shared<ui::widgets::Label>(hid::getName(action));
+    label->fitToContent();
+    gridBox.set(x0, y, label);
+
+    auto widget = m_factory(inputHandler, action);
+    widget->fitToContent();
+    gridBox.set(x0 + 1, y, widget);
+  };
+
+  for(size_t x = 0; x < gameplayActions.size(); ++x)
+  {
+    const auto& column = gameplayActions[x];
+    for(size_t y = 0; y < column.size(); ++y)
+    {
+      const auto& action = column[y];
+      if(action.has_value())
+        set(*m_controlGroups[0], x * 2, y, action.value());
+    }
+  }
+
+  for(size_t x = 0; x < shortcutActions.size(); ++x)
+  {
+    const auto& column = shortcutActions[x];
+    for(size_t y = 0; y < column.size(); ++y)
+    {
+      const auto& action = column[y];
+      if(action.has_value())
+        set(*m_controlGroups[1], x * 2, y, action.value());
+    }
+  }
+
+  fitToContent();
 }
 } // namespace menu

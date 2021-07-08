@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EdisonEngine\n"
 "Report-Msgid-Bugs-To: https://github.com/stohrendorf/EdisonEngine/issues\n"
-"POT-Creation-Date: 2021-07-08 01:36+0200\n"
+"POT-Creation-Date: 2021-07-08 02:12+0200\n"
 "Last-Translator: Steffen Ohrendorf\n"
 "Language-Team: none\n"
 "Language: de_DE\n"
@@ -243,7 +243,7 @@ msgid "Gamepad"
 msgstr "Gamepad"
 
 #. translators: TR charmap encoding
-#: menu/controlswidget.cpp:25
+#: menu/controlswidget.cpp:82
 msgid "Gameplay"
 msgstr "Spiel"
 
@@ -423,7 +423,7 @@ msgid "More Lights"
 msgstr "Mehr Lichter"
 
 #. translators: TR charmap encoding
-#: menu/controlsmenustate.cpp:29
+#: menu/controlsmenustate.cpp:30
 msgctxt "ButtonAssignment"
 msgid "N/A"
 msgstr "N/V"
@@ -696,7 +696,7 @@ msgid "Shift"
 msgstr "Umschalt"
 
 #. translators: TR charmap encoding
-#: menu/controlswidget.cpp:59
+#: menu/controlswidget.cpp:89
 msgid "Shortcuts"
 msgstr "Schnellzugriff"
 
@@ -774,7 +774,8 @@ msgctxt "Keyboard|Key"
 msgid "Tab"
 msgstr "Tab"
 
-#: menu/controlsmenustate.cpp:59
+#. translators: TR charmap encoding
+#: menu/controlsmenustate.cpp:62
 #, boost-format
 msgid "To reset all mappings, hold %1% for %2% seconds."
 msgstr "Zum Zur~ucksetzen aller Zuordnungen, %1% f~ur %2% Sekunden halten."

@@ -19,9 +19,10 @@ constexpr const auto ResetKeyDuration = std::chrono::seconds(5);
 
 std::shared_ptr<ControlsWidget> createControlsWidget(const engine::world::World& world)
 {
-  const auto createKeyLabel = [&world](hid::Action action) -> std::shared_ptr<ui::widgets::Widget>
+  const auto createKeyLabel
+    = [](const hid::InputHandler& inputHandler, hid::Action action) -> std::shared_ptr<ui::widgets::Widget>
   {
-    const auto& actionMap = world.getEngine().getPresenter().getInputHandler().getActionMap();
+    const auto& actionMap = inputHandler.getActionMap();
     auto it = actionMap.find(action);
     if(it == actionMap.end())
     {
@@ -41,6 +42,7 @@ std::shared_ptr<ControlsWidget> createControlsWidget(const engine::world::World&
     }
   };
   return std::make_shared<ControlsWidget>(world.getEngine().getPresenter().getInputHandler().getActiveMappingName(),
+                                          world.getEngine().getPresenter().getInputHandler(),
                                           createKeyLabel);
 }
 } // namespace
@@ -56,7 +58,8 @@ ControlsMenuState::ControlsMenuState(const std::shared_ptr<MenuRingTransform>& r
   m_layout->set(0,
                 1,
                 std::make_shared<ui::widgets::Label>(
-                  _("To reset all mappings, hold %1% for %2% seconds.",
+                  /* translators: TR charmap encoding */ _(
+                    "To reset all mappings, hold %1% for %2% seconds.",
                     hid::getName(ResetKey),
                     std::chrono::duration_cast<std::chrono::seconds>(ResetKeyDuration).count())));
   m_controls = createControlsWidget(world);
@@ -83,8 +86,7 @@ std::unique_ptr<MenuState> ControlsMenuState::onFrame(ui::Ui& ui, engine::world:
         world.getEngine().getEngineConfig()->activeInputMapping);
       world.getEngine().getPresenter().getInputHandler().setMappings(
         world.getEngine().getEngineConfig()->inputMappings);
-      m_controls = createControlsWidget(world);
-      m_layout->set(0, 0, m_controls);
+      m_controls->updateBindings(world.getPresenter().getInputHandler());
     }
   }
 
