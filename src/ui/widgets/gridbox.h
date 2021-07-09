@@ -29,7 +29,7 @@ public:
   ~GridBox() override;
   void draw(ui::Ui& ui, const engine::Presenter& presenter) const override;
 
-  void set(size_t x, size_t y, const gsl::not_null<std::shared_ptr<Widget>>& widget);
+  void set(size_t x, size_t y, const std::shared_ptr<Widget>& widget);
 
   [[nodiscard]] const auto& getSelected() const
   {

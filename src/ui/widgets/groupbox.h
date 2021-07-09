@@ -41,6 +41,8 @@ public:
   void update(bool hasFocus) override;
   void fitToContent() override;
 
+  void setTitle(const std::string& title);
+
 private:
   glm::ivec2 m_position{0, 0};
   glm::ivec2 m_size{0, 0};

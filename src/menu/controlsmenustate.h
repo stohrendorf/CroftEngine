@@ -1,5 +1,6 @@
 #pragma once
 
+#include "hid/delayedkey.h"
 #include "selectedmenustate.h"
 #include "ui/widgets/groupbox.h"
 
@@ -27,8 +28,11 @@ private:
   std::unique_ptr<MenuState> m_previous;
   std::shared_ptr<ControlsWidget> m_controls{};
   std::shared_ptr<ui::widgets::GridBox> m_layout{};
+  size_t m_editingIndex = 0;
+  std::vector<engine::NamedInputMappingConfig> m_editing;
 
-  std::optional<std::chrono::system_clock::time_point> m_resetKeyPressedSince{};
+  hid::DelayedKey m_resetKey;
+  hid::DelayedKey m_deleteKey;
 
 public:
   explicit ControlsMenuState(const std::shared_ptr<MenuRingTransform>& ringTransform,

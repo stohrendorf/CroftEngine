@@ -64,11 +64,11 @@ constexpr const std::array<std::array<std::optional<hid::Action>, 4>, Columns> s
 static_assert(gameplayActions.size() == shortcutActions.size());
 } // namespace
 
-ControlsWidget::ControlsWidget(const std::string& title,
-                               const hid::InputHandler& inputHandler,
-                               std::function<std::shared_ptr<Widget>(const hid::InputHandler&, hid::Action)> factory)
+ControlsWidget::ControlsWidget(
+  const engine::NamedInputMappingConfig& mappingConfig,
+  std::function<std::shared_ptr<Widget>(const engine::InputMappingConfig&, hid::Action)> factory)
     : m_content{std::make_shared<ui::widgets::GridBox>()}
-    , m_container{std::make_shared<ui::widgets::GroupBox>(title, m_content)}
+    , m_container{std::make_shared<ui::widgets::GroupBox>(mappingConfig.name, m_content)}
     , m_factory{std::move(factory)}
 {
   m_content->setExtents(1, 2);
@@ -89,7 +89,7 @@ ControlsWidget::ControlsWidget(const std::string& title,
   groupBox = std::make_shared<ui::widgets::GroupBox>(/* translators: TR charmap encoding */ _("Shortcuts"), gridBox);
   m_content->set(0, 1, groupBox);
 
-  updateBindings(inputHandler);
+  updateBindings(mappingConfig);
 }
 
 void ControlsWidget::fitToContent()
@@ -101,7 +101,7 @@ void ControlsWidget::fitToContent()
     gridBox->setColumnSize(3, gridBox->getColumnSizes()[3] + 2 * ui::FontHeight);
   }
 
-  for(size_t x = 0; x < Columns; ++x)
+  for(size_t x = 0; x < Columns * 2; ++x)
   {
     int maxWidth = 0;
     for(const auto& gridBox : m_controlGroups)
@@ -219,15 +219,17 @@ void ControlsWidget::prevColumn()
   } while(getCurrentGridBox()->getSelectedWidget() == nullptr);
 }
 
-void ControlsWidget::updateBindings(const hid::InputHandler& inputHandler)
+void ControlsWidget::updateBindings(const engine::NamedInputMappingConfig& mappingConfig)
 {
-  auto set = [this, &inputHandler](ui::widgets::GridBox& gridBox, size_t x0, size_t y, hid::Action action)
+  m_container->setTitle(mappingConfig.name);
+
+  auto set = [this, &mappingConfig](ui::widgets::GridBox& gridBox, size_t x0, size_t y, hid::Action action)
   {
     auto label = std::make_shared<ui::widgets::Label>(hid::getName(action));
     label->fitToContent();
     gridBox.set(x0, y, label);
 
-    auto widget = m_factory(inputHandler, action);
+    auto widget = m_factory(mappingConfig.mappings, action);
     widget->fitToContent();
     gridBox.set(x0 + 1, y, widget);
   };
@@ -255,5 +257,21 @@ void ControlsWidget::updateBindings(const hid::InputHandler& inputHandler)
   }
 
   fitToContent();
+}
+
+hid::Action ControlsWidget::getCurrentAction() const
+{
+  const auto getAction = [this](size_t n)
+  {
+    auto [x, y] = m_controlGroups.at(n)->getSelected();
+    switch(n)
+    {
+    case 0: return gameplayActions.at(x / 2).at(y).value();
+    case 1: return shortcutActions.at(x / 2).at(y).value();
+    default: BOOST_THROW_EXCEPTION(std::runtime_error("Invalid control group"));
+    }
+  };
+
+  return getAction(std::get<1>(m_content->getSelected()));
 }
 } // namespace menu

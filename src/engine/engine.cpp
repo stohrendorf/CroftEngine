@@ -111,7 +111,6 @@ Engine::Engine(const std::filesystem::path& rootPath, const glm::ivec2& resoluti
     m_engineConfig->renderSettings.anisotropyLevel = gsl::narrow<uint32_t>(std::llround(gl::getMaxAnisotropyLevel()));
   m_presenter->apply(m_engineConfig->renderSettings);
   m_presenter->getInputHandler().setMappings(m_engineConfig->inputMappings);
-  m_presenter->getInputHandler().setActiveMapping(m_engineConfig->activeInputMapping);
   m_glidos = loadGlidosPack();
 }
 

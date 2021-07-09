@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EdisonEngine\n"
 "Report-Msgid-Bugs-To: https://github.com/stohrendorf/EdisonEngine/issues\n"
-"POT-Creation-Date: 2021-07-08 02:12+0200\n"
+"POT-Creation-Date: 2021-07-09 19:20+0200\n"
 "Last-Translator: Steffen Ohrendorf\n"
 "Language-Team: none\n"
 "Language: de_DE\n"
@@ -387,7 +387,7 @@ msgstr "Spiel laden"
 msgid "Loading %1%"
 msgstr "Lade %1%"
 
-#: engine/engine.cpp:457
+#: engine/engine.cpp:456
 msgid "Loading Glidos texture pack"
 msgstr "Lade Glidos Textur Paket"
 
@@ -423,7 +423,7 @@ msgid "More Lights"
 msgstr "Mehr Lichter"
 
 #. translators: TR charmap encoding
-#: menu/controlsmenustate.cpp:30
+#: menu/controlsmenustate.cpp:38
 msgctxt "ButtonAssignment"
 msgid "N/A"
 msgstr "N/V"
@@ -775,7 +775,13 @@ msgid "Tab"
 msgstr "Tab"
 
 #. translators: TR charmap encoding
-#: menu/controlsmenustate.cpp:62
+#: menu/controlsmenustate.cpp:78
+#, boost-format
+msgid "To remove a mapping, hold %1% for %2% seconds."
+msgstr "Zum Zur~ucksetzen einer Zuordnung, %1% f~ur %2% Sekunden halten."
+
+#. translators: TR charmap encoding
+#: menu/controlsmenustate.cpp:72
 #, boost-format
 msgid "To reset all mappings, hold %1% for %2% seconds."
 msgstr "Zum Zur~ucksetzen aller Zuordnungen, %1% f~ur %2% Sekunden halten."

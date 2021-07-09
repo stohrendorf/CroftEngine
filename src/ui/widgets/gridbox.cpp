@@ -36,7 +36,7 @@ void GridBox::draw(ui::Ui& ui, const engine::Presenter& presenter) const
   }
 }
 
-void GridBox::set(size_t x, size_t y, const gsl::not_null<std::shared_ptr<Widget>>& widget)
+void GridBox::set(size_t x, size_t y, const std::shared_ptr<Widget>& widget)
 {
   if(x >= m_widgets.shape()[0] || y >= m_widgets.shape()[1])
     BOOST_THROW_EXCEPTION(std::out_of_range("cell coordinates out of range"));

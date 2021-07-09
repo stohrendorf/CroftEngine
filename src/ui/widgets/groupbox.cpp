@@ -70,4 +70,9 @@ void GroupBox::fitToContent()
 {
   m_size = m_widget->getSize() + glm::ivec2{2 * InnerMargin, TotalVerticalMargin};
 }
+
+void GroupBox::setTitle(const std::string& title)
+{
+  m_title = std::make_unique<ui::Text>(title);
+}
 } // namespace ui::widgets

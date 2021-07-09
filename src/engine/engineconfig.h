@@ -32,7 +32,6 @@ struct EngineConfig
   render::RenderSettings renderSettings{};
   DisplaySettings displaySettings{};
   std::vector<NamedInputMappingConfig> inputMappings{};
-  size_t activeInputMapping = 0;
 
   explicit EngineConfig();
 

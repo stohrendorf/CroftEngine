@@ -1,5 +1,6 @@
 #pragma once
 
+#include "engine/engineconfig.h"
 #include "ui/widgets/widget.h"
 
 #include <functional>
@@ -24,9 +25,8 @@ class ControlsWidget final : public ui::widgets::Widget
 {
 public:
   explicit ControlsWidget(
-    const std::string& title,
-    const hid::InputHandler& inputHandler,
-    std::function<std::shared_ptr<ui::widgets::Widget>(const hid::InputHandler&, hid::Action)> factory);
+    const engine::NamedInputMappingConfig& mappingConfig,
+    std::function<std::shared_ptr<ui::widgets::Widget>(const engine::InputMappingConfig&, hid::Action)> factory);
 
   [[nodiscard]] glm::ivec2 getPosition() const override;
 
@@ -52,12 +52,14 @@ public:
 
   void prevColumn();
 
-  void updateBindings(const hid::InputHandler& inputHandler);
+  void updateBindings(const engine::NamedInputMappingConfig& mappingConfig);
+
+  [[nodiscard]] hid::Action getCurrentAction() const;
 
 private:
   std::shared_ptr<ui::widgets::GridBox> m_content;
   std::shared_ptr<ui::widgets::GroupBox> m_container;
   std::vector<std::shared_ptr<ui::widgets::GridBox>> m_controlGroups;
-  std::function<std::shared_ptr<Widget>(const hid::InputHandler&, hid::Action)> m_factory;
+  std::function<std::shared_ptr<Widget>(const engine::InputMappingConfig&, hid::Action)> m_factory;
 };
 } // namespace menu

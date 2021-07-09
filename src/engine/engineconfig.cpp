@@ -45,7 +45,7 @@ std::vector<NamedInputMappingConfig> getDefaultMappings()
         {GlfwKey::Q, Action::StepLeft},
         {GlfwKey::E, Action::StepRight},
         {GlfwKey::F12, Action::Screenshot},
-        {GlfwKey::F10, Action::CheatDive}, // only available in debug builds
+        {GlfwKey::F10, Action::CheatDive} // only available in debug builds
       },
     },
     {
@@ -84,8 +84,7 @@ void EngineConfig::serialize(const serialization::Serializer<EngineConfig>& ser)
 {
   ser(S_NVD("renderSettings", renderSettings, render::RenderSettings{}),
       S_NVD("displaySettings", displaySettings, DisplaySettings{}),
-      S_NVD("inputMappings", inputMappings, getDefaultMappings()),
-      S_NVD("activeInputMapping", activeInputMapping, size_t{0}));
+      S_NVD("inputMappings", inputMappings, getDefaultMappings()));
 }
 
 EngineConfig::EngineConfig()
@@ -95,7 +94,6 @@ EngineConfig::EngineConfig()
 
 void EngineConfig::resetInputMappings()
 {
-  activeInputMapping = 0;
   inputMappings = getDefaultMappings();
 }
 } // namespace engine

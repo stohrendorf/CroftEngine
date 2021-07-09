@@ -81,16 +81,17 @@ void InputHandler::update()
 
   boost::container::flat_map<Action, bool> states{};
 
-  for(const auto& [action, key] : m_actionMap)
+  for(const auto& [input, action] : m_mergedInputMappings)
   {
-    if(std::holds_alternative<hid::GlfwGamepadButton>(key))
+    if(std::holds_alternative<engine::NamedGlfwGamepadButton>(input))
     {
       if(m_controllerIndex >= 0)
-        states[action] |= gamepadState.buttons[static_cast<int>(std::get<hid::GlfwGamepadButton>(key))] != 0;
+        states[action]
+          |= gamepadState.buttons[static_cast<int>(std::get<engine::NamedGlfwGamepadButton>(input).value)] != 0;
     }
     else
     {
-      states[action] |= isKeyPressed(std::get<hid::GlfwKey>(key));
+      states[action] |= isKeyPressed(std::get<engine::NamedGlfwKey>(input).value);
     }
   }
 
@@ -106,27 +107,14 @@ void InputHandler::update()
 
 void InputHandler::setMappings(const std::vector<engine::NamedInputMappingConfig>& inputMappings)
 {
-  Expects(!inputMappings.empty());
   m_inputMappings = inputMappings;
-  setActiveMapping(m_activeMapping);
-}
+  m_mergedInputMappings.clear();
 
-void InputHandler::setActiveMapping(size_t mapping)
-{
-  Expects(mapping < m_inputMappings.size());
-  m_activeMapping = mapping;
-
-  m_actionMap.clear();
-
-  for(const auto& [input, action] : m_inputMappings.at(m_activeMapping).mappings)
+  for(const auto& mapping : m_inputMappings)
   {
-    if(std::holds_alternative<engine::NamedGlfwGamepadButton>(input))
+    for(const auto& [input, action] : mapping.mappings)
     {
-      m_actionMap[action] = std::get<engine::NamedGlfwGamepadButton>(input).value;
-    }
-    else
-    {
-      m_actionMap[action] = std::get<engine::NamedGlfwKey>(input).value;
+      Expects(m_mergedInputMappings.insert({input, action}).second);
     }
   }
 }

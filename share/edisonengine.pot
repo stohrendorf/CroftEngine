@@ -1,6 +1,6 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR Steffen Ohrendorf
-# This file is distributed under the same license as the PACKAGE package.
+# This file is distributed under the same license as the EdisonEngine package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
 #, fuzzy
@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EdisonEngine \n"
 "Report-Msgid-Bugs-To: https://github.com/stohrendorf/EdisonEngine/issues\n"
-"POT-Creation-Date: 2021-07-08 02:12+0200\n"
+"POT-Creation-Date: 2021-07-09 19:20+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -388,7 +388,7 @@ msgstr ""
 msgid "Loading %1%"
 msgstr ""
 
-#: engine/engine.cpp:457
+#: engine/engine.cpp:456
 msgid "Loading Glidos texture pack"
 msgstr ""
 
@@ -424,7 +424,7 @@ msgid "More Lights"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/controlsmenustate.cpp:30
+#: menu/controlsmenustate.cpp:38
 msgctxt "ButtonAssignment"
 msgid "N/A"
 msgstr ""
@@ -776,7 +776,13 @@ msgid "Tab"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/controlsmenustate.cpp:62
+#: menu/controlsmenustate.cpp:78
+#, boost-format
+msgid "To remove a mapping, hold %1% for %2% seconds."
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/controlsmenustate.cpp:72
 #, boost-format
 msgid "To reset all mappings, hold %1% for %2% seconds."
 msgstr ""
