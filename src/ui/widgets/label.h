@@ -16,7 +16,14 @@ namespace ui::widgets
 class Label : public Widget
 {
 public:
-  explicit Label(const std::string& text);
+  enum class Alignment
+  {
+    Left,
+    Center,
+    Right
+  };
+
+  explicit Label(const std::string& text, Alignment alignment = Alignment::Left);
   ~Label() override;
 
   [[nodiscard]] glm::ivec2 getPosition() const override;
@@ -34,5 +41,6 @@ private:
   glm::ivec2 m_position{0, 0};
   glm::ivec2 m_size;
   uint8_t m_selectionAlpha = 0;
+  Alignment m_alignment = Alignment::Left;
 };
 } // namespace ui::widgets

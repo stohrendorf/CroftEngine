@@ -94,6 +94,10 @@ ControlsWidget::ControlsWidget(
 
 void ControlsWidget::fitToContent()
 {
+  for(size_t x = 0; x < std::get<0>(m_content->getExtents()); ++x)
+    for(size_t y = 0; y < std::get<1>(m_content->getExtents()); ++y)
+      m_content->getWidget(x, y)->fitToContent();
+
   for(const auto& gridBox : m_controlGroups)
   {
     gridBox->fitToContent();
@@ -111,12 +115,16 @@ void ControlsWidget::fitToContent()
     for(const auto& gridBox : m_controlGroups)
     {
       gridBox->setColumnSize(x, maxWidth);
+      if(x % 2 == 0)
+      {
+        for(size_t y = 0; y < std::get<1>(gridBox->getExtents()); ++y)
+        {
+          if(const auto widget = gridBox->getWidget(x, y))
+            widget->setSize({maxWidth, ui::FontHeight});
+        }
+      }
     }
   }
-
-  for(size_t x = 0; x < std::get<0>(m_content->getExtents()); ++x)
-    for(size_t y = 0; y < std::get<1>(m_content->getExtents()); ++y)
-      m_content->getWidget(x, y)->fitToContent();
 
   m_content->fitToContent();
   m_container->fitToContent();
@@ -225,7 +233,7 @@ void ControlsWidget::updateBindings(const engine::NamedInputMappingConfig& mappi
 
   auto set = [this, &mappingConfig](ui::widgets::GridBox& gridBox, size_t x0, size_t y, hid::Action action)
   {
-    auto label = std::make_shared<ui::widgets::Label>(hid::getName(action));
+    auto label = std::make_shared<ui::widgets::Label>(hid::getName(action), ui::widgets::Label::Alignment::Right);
     label->fitToContent();
     gridBox.set(x0, y, label);
 

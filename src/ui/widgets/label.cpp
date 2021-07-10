@@ -8,9 +8,10 @@
 
 namespace ui::widgets
 {
-Label::Label(const std::string& text)
+Label::Label(const std::string& text, Label::Alignment alignment)
     : m_text{std::make_unique<ui::Text>(text)}
     , m_size{0, ui::FontHeight}
+    , m_alignment{alignment}
 {
 }
 
@@ -52,7 +53,16 @@ void Label::draw(ui::Ui& ui, const engine::Presenter& presenter) const
     ui.drawBox(bgPos, bgSize, gl::SRGBA8{0, 0, 0, 224 * m_selectionAlpha / 255});
     ui.drawOutlineBox(bgPos, bgSize, m_selectionAlpha);
   }
-  m_text->draw(ui, presenter.getTrFont(), m_position);
+
+  auto x = 0;
+  switch(m_alignment)
+  {
+  case Alignment::Left: break;
+  case Alignment::Center: x = (m_size.x - m_text->getWidth()) / 2; break;
+  case Alignment::Right: x = m_size.x - m_text->getWidth(); break;
+  }
+
+  m_text->draw(ui, presenter.getTrFont(), {m_position.x + x, m_position.y});
 }
 
 void Label::fitToContent()
