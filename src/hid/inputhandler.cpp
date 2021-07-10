@@ -14,12 +14,14 @@ namespace
 #define PRINT_KEY_INPUT
 
 boost::container::flat_set<GlfwKey> pressedKeys;
+std::optional<GlfwKey> recentPressedKey;
+
 void keyCallback(GLFWwindow* /*window*/, int key, int /*scancode*/, int action, int /*mods*/)
 {
   auto typed = static_cast<GlfwKey>(key);
   switch(action)
   {
-  case GLFW_PRESS: pressedKeys.emplace(typed);
+  case GLFW_PRESS: pressedKeys.emplace(typed); recentPressedKey = typed;
 #ifdef PRINT_KEY_INPUT
     if(const auto name = toString(typed))
       BOOST_LOG_TRIVIAL(debug) << "Key pressed: " << name;
@@ -123,5 +125,10 @@ void InputHandler::setMappings(const std::vector<engine::NamedInputMappingConfig
 bool InputHandler::hasKey(GlfwKey key) const
 {
   return isKeyPressed(key);
+}
+
+std::optional<GlfwKey> InputHandler::takeRecentlyPressedKey()
+{
+  return std::exchange(recentPressedKey, std::nullopt);
 }
 } // namespace hid

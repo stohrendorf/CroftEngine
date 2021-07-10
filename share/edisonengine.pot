@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EdisonEngine \n"
 "Report-Msgid-Bugs-To: https://github.com/stohrendorf/EdisonEngine/issues\n"
-"POT-Creation-Date: 2021-07-09 19:20+0200\n"
+"POT-Creation-Date: 2021-07-10 03:05+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -424,7 +424,7 @@ msgid "More Lights"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/controlsmenustate.cpp:38
+#: menu/controlsmenustate.cpp:41
 msgctxt "ButtonAssignment"
 msgid "N/A"
 msgstr ""
@@ -776,13 +776,19 @@ msgid "Tab"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/controlsmenustate.cpp:78
+#: menu/controlsmenustate.cpp:75
+#, boost-format
+msgid "To change a mapping, use %1%."
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/controlsmenustate.cpp:79
 #, boost-format
 msgid "To remove a mapping, hold %1% for %2% seconds."
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/controlsmenustate.cpp:72
+#: menu/controlsmenustate.cpp:85
 #, boost-format
 msgid "To reset all mappings, hold %1% for %2% seconds."
 msgstr ""

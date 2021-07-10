@@ -54,6 +54,8 @@ public:
 
   [[nodiscard]] bool hasKey(GlfwKey key) const;
 
+  [[nodiscard]] std::optional<GlfwKey> takeRecentlyPressedKey();
+
 private:
   InputState m_inputState{};
   const gsl::not_null<GLFWwindow*> m_window;

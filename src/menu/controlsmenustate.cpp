@@ -14,6 +14,9 @@ namespace menu
 {
 namespace
 {
+constexpr auto EditAction = hid::Action::Action;
+constexpr auto BlinkPeriod = std::chrono::milliseconds{500};
+
 template<typename T, typename U>
 std::vector<T> getKeys(const std::map<T, U>& map, const U& needle)
 {
@@ -61,79 +64,129 @@ ControlsMenuState::ControlsMenuState(const std::shared_ptr<MenuRingTransform>& r
     : SelectedMenuState{ringTransform}
     , m_previous{std::move(previous)}
     , m_layout{std::make_shared<ui::widgets::GridBox>()}
-    , m_editing{world.getPresenter().getInputHandler().getMappings().at(m_editingIndex)}
+    , m_editing{world.getPresenter().getInputHandler().getMappings()}
     , m_resetKey{hid::GlfwKey::Backspace, 5}
     , m_deleteKey{hid::GlfwKey::Delete, 2}
 {
-  m_layout->setExtents(1, 3);
+  m_layout->setExtents(1, 4);
   m_layout->set(0,
                 1,
                 std::make_shared<ui::widgets::Label>(
-                  /* translators: TR charmap encoding */ _("To reset all mappings, hold %1% for %2% seconds.",
-                                                           hid::getName(m_resetKey.getKey()),
-                                                           m_resetKey.getDelay().count())));
+                  /* translators: TR charmap encoding */ _("To change a mapping, use %1%.", hid::getName(EditAction))));
   m_layout->set(0,
                 2,
                 std::make_shared<ui::widgets::Label>(
                   /* translators: TR charmap encoding */ _("To remove a mapping, hold %1% for %2% seconds.",
                                                            hid::getName(m_deleteKey.getKey()),
                                                            m_deleteKey.getDelay().count())));
+  m_layout->set(0,
+                3,
+                std::make_shared<ui::widgets::Label>(
+                  /* translators: TR charmap encoding */ _("To reset all mappings, hold %1% for %2% seconds.",
+                                                           hid::getName(m_resetKey.getKey()),
+                                                           m_resetKey.getDelay().count())));
   m_controls = createControlsWidget(world);
   m_layout->set(0, 0, m_controls);
 }
 
 std::unique_ptr<MenuState> ControlsMenuState::onFrame(ui::Ui& ui, engine::world::World& world, MenuDisplay& /*display*/)
 {
-  m_resetKey.update(world.getPresenter().getInputHandler());
-  if(m_resetKey.isActive())
+  bool edited = false;
+  if(m_mode == Mode::Display)
   {
-    world.getEngine().getEngineConfig()->resetInputMappings();
-    m_editingIndex = 0;
-    m_editing = world.getEngine().getEngineConfig()->inputMappings;
-    world.getEngine().getPresenter().getInputHandler().setMappings(m_editing);
-    m_controls->updateBindings(m_editing.at(m_editingIndex));
-  }
+    m_resetKey.update(world.getPresenter().getInputHandler());
+    if(m_resetKey.isActive())
+    {
+      world.getEngine().getEngineConfig()->resetInputMappings();
+      m_editingIndex = 0;
+      m_editing = world.getEngine().getEngineConfig()->inputMappings;
+      world.getEngine().getPresenter().getInputHandler().setMappings(m_editing);
+      m_controls->updateBindings(m_editing.at(m_editingIndex));
+    }
 
-  m_deleteKey.update(world.getPresenter().getInputHandler());
-  if(m_deleteKey.isActive())
+    m_deleteKey.update(world.getPresenter().getInputHandler());
+    if(m_deleteKey.isActive())
+    {
+      auto& mapping = m_editing.at(m_editingIndex);
+      auto keys = getKeys(mapping.mappings, engine::NamedAction{m_controls->getCurrentAction()});
+      for(auto key : keys)
+        mapping.mappings.erase(key);
+      m_controls->updateBindings(mapping);
+    }
+
+    if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Action))
+    {
+      auto& mapping = m_editing.at(m_editingIndex);
+      auto keys = getKeys(mapping.mappings, engine::NamedAction{m_controls->getCurrentAction()});
+      m_mode = Mode::ChangeKey;
+      (void)world.getPresenter().getInputHandler().takeRecentlyPressedKey();
+    }
+  }
+  else if(m_mode == Mode::ChangeKey)
   {
-    auto keys = getKeys(m_editing.at(m_editingIndex).mappings, engine::NamedAction{m_controls->getCurrentAction()});
-    auto& mapping = m_editing.at(m_editingIndex);
-    for(auto key : keys)
-      mapping.mappings.erase(key);
-    m_controls->updateBindings(mapping);
+    if(const auto newKey = world.getPresenter().getInputHandler().takeRecentlyPressedKey())
+    {
+      auto& mapping = m_editing.at(m_editingIndex);
+      auto keys = getKeys(mapping.mappings, engine::NamedAction{m_controls->getCurrentAction()});
+      for(auto key : keys)
+        mapping.mappings.erase(key);
+      mapping.mappings[newKey.value()] = m_controls->getCurrentAction();
+      m_mode = Mode::Display;
+      edited = true;
+      m_controls->updateBindings(mapping);
+    }
   }
 
   m_layout->fitToContent();
   m_controls->fitToContent();
 
-  if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Backward))
+  if(m_mode == Mode::Display && !edited)
   {
-    m_controls->nextRow();
-  }
-  if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Forward))
-  {
-    m_controls->prevRow();
-  }
-  if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Right))
-  {
-    m_controls->nextColumn();
-  }
-  if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Left))
-  {
-    m_controls->prevColumn();
+    if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Backward))
+    {
+      m_controls->nextRow();
+    }
+    if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Forward))
+    {
+      m_controls->prevRow();
+    }
+    if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Right))
+    {
+      m_controls->nextColumn();
+    }
+    if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Left))
+    {
+      m_controls->prevColumn();
+    }
   }
 
   const auto vp = world.getPresenter().getViewport();
   m_layout->setPosition({(vp.x - m_layout->getSize().x) / 2, vp.y - 90 - m_layout->getSize().y});
-  m_layout->update(true);
+  if(m_mode == Mode::Display)
+  {
+    m_layout->update(true);
+  }
+  else
+  {
+    m_layout->update(std::chrono::time_point_cast<std::chrono::milliseconds>(std::chrono::system_clock::now())
+                         .time_since_epoch()
+                         .count()
+                       % BlinkPeriod.count()
+                     < BlinkPeriod.count() / 2);
+  }
   m_layout->draw(ui, world.getPresenter());
 
-  if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Menu))
+  if(!edited && world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Menu))
   {
-    return std::move(m_previous);
+    if(m_mode == Mode::Display)
+    {
+      return std::move(m_previous);
+    }
+    else if(m_mode == Mode::ChangeKey)
+    {
+      m_mode = Mode::Display;
+    }
   }
-
   return nullptr;
 }
 } // namespace menu

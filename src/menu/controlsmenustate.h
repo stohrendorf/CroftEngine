@@ -25,6 +25,12 @@ class ControlsWidget;
 class ControlsMenuState : public SelectedMenuState
 {
 private:
+  enum class Mode
+  {
+    Display,
+    ChangeKey
+  };
+
   std::unique_ptr<MenuState> m_previous;
   std::shared_ptr<ControlsWidget> m_controls{};
   std::shared_ptr<ui::widgets::GridBox> m_layout{};
@@ -33,6 +39,8 @@ private:
 
   hid::DelayedKey m_resetKey;
   hid::DelayedKey m_deleteKey;
+
+  Mode m_mode = Mode::Display;
 
 public:
   explicit ControlsMenuState(const std::shared_ptr<MenuRingTransform>& ringTransform,
