@@ -1,4 +1,4 @@
-# language_override:  "en_US.utf8"
+# language_override = "en_GB.utf8"
 from engine import TR1ItemId
 
 from scripts.tr1.object_infos import object_infos
