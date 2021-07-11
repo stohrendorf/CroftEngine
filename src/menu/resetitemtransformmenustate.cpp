@@ -8,14 +8,13 @@
 
 namespace menu
 {
-void ResetItemTransformMenuState::handleObject(ui::Ui& ui,
-                                               engine::world::World& world,
+void ResetItemTransformMenuState::handleObject(ui::Ui& /*ui*/,
+                                               engine::world::World& /*world*/,
                                                MenuDisplay& display,
                                                MenuObject& object)
 {
   if(&object == &display.getCurrentRing().getSelectedObject())
   {
-    display.updateMenuObjectDescription(ui, world, object);
     object.baseRotationX = exactScale(object.selectedBaseRotationX, m_duration, Duration);
     object.rotationX = exactScale(object.selectedRotationX, m_duration, Duration);
     object.positionZ = exactScale(object.selectedPositionZ, m_duration, Duration);

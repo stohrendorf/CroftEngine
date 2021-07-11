@@ -6,14 +6,13 @@
 
 namespace menu
 {
-void DeflateRingMenuState::handleObject(ui::Ui& ui,
+void DeflateRingMenuState::handleObject(ui::Ui& /*ui*/,
                                         engine::world::World& world,
                                         MenuDisplay& display,
                                         MenuObject& object)
 {
   if(&object == &display.getCurrentRing().getSelectedObject())
   {
-    display.updateMenuObjectDescription(ui, world, object);
     zeroRotation(object, 256_au);
   }
   else

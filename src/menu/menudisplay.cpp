@@ -18,7 +18,7 @@
 
 namespace menu
 {
-void MenuDisplay::updateMenuObjectDescription(ui::Ui& ui, engine::world::World& world, const MenuObject& object)
+void MenuDisplay::drawMenuObjectDescription(ui::Ui& ui, engine::world::World& world, const MenuObject& object)
 {
   size_t totalItemCount = world.getPlayer().getInventory().count(object.type);
   std::string suffix;
@@ -26,34 +26,60 @@ void MenuDisplay::updateMenuObjectDescription(ui::Ui& ui, engine::world::World& 
   switch(object.type)
   {
   case engine::TR1ItemId::Puzzle1:
+  case engine::TR1ItemId::Puzzle1Sprite:
   case engine::TR1ItemId::Puzzle2:
+  case engine::TR1ItemId::Puzzle2Sprite:
   case engine::TR1ItemId::Puzzle3:
+  case engine::TR1ItemId::Puzzle3Sprite:
   case engine::TR1ItemId::Puzzle4:
+  case engine::TR1ItemId::Puzzle4Sprite:
   case engine::TR1ItemId::Key1:
+  case engine::TR1ItemId::Key1Sprite:
   case engine::TR1ItemId::Key2:
+  case engine::TR1ItemId::Key2Sprite:
   case engine::TR1ItemId::Key3:
+  case engine::TR1ItemId::Key3Sprite:
   case engine::TR1ItemId::Key4:
+  case engine::TR1ItemId::Key4Sprite:
   case engine::TR1ItemId::Item148:
   case engine::TR1ItemId::Item149:
   case engine::TR1ItemId::ScionPiece5:
-  case engine::TR1ItemId::LeadBar: break;
+  case engine::TR1ItemId::LeadBar:
+  case engine::TR1ItemId::LeadBarSprite: break;
+  case engine::TR1ItemId::ShotgunAmmo:
+  case engine::TR1ItemId::ShotgunAmmoSprite:
+    totalItemCount *= 2;
+    suffix = " A";
+    break;
   case engine::TR1ItemId::MagnumAmmo:
+  case engine::TR1ItemId::MagnumAmmoSprite:
+    totalItemCount *= 2;
+    suffix = " B";
+    break;
   case engine::TR1ItemId::UziAmmo:
-  case engine::TR1ItemId::ShotgunAmmo: totalItemCount *= 2; break;
+  case engine::TR1ItemId::UziAmmoSprite:
+    totalItemCount *= 2;
+    suffix = " C";
+    break;
   case engine::TR1ItemId::Shotgun:
+  case engine::TR1ItemId::ShotgunSprite:
     totalItemCount = world.getPlayer().getInventory().getAmmo(engine::WeaponType::Shotgun)->ammo / 6;
     suffix = " A";
     break;
   case engine::TR1ItemId::Magnums:
+  case engine::TR1ItemId::MagnumsSprite:
     totalItemCount = world.getPlayer().getInventory().getAmmo(engine::WeaponType::Magnums)->ammo;
     suffix = " B";
     break;
   case engine::TR1ItemId::Uzis:
+  case engine::TR1ItemId::UzisSprite:
     totalItemCount = world.getPlayer().getInventory().getAmmo(engine::WeaponType::Uzis)->ammo;
     suffix = " C";
     break;
   case engine::TR1ItemId::SmallMedipack:
+  case engine::TR1ItemId::SmallMedipackSprite:
   case engine::TR1ItemId::LargeMedipack:
+  case engine::TR1ItemId::LargeMedipackSprite:
     world.getPresenter().setHealthBarTimeout(40_frame);
     world.getPresenter().drawBars(ui, world.getPalette(), world.getObjectManager());
     break;
@@ -65,7 +91,8 @@ void MenuDisplay::updateMenuObjectDescription(ui::Ui& ui, engine::world::World& 
     ui::Text text{ui::makeAmmoString(std::to_string(totalItemCount) + suffix)};
     text.draw(ui,
               world.getPresenter().getTrFont(),
-              {world.getPresenter().getViewport().x - text.getWidth() - 64, world.getPresenter().getViewport().y - 56});
+              {(world.getPresenter().getViewport().x - text.getWidth()) / 2,
+               world.getPresenter().getViewport().y - RingInfoYMargin - 2 * ui::FontHeight});
   }
 }
 

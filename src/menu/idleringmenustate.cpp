@@ -24,6 +24,8 @@ std::unique_ptr<MenuState> IdleRingMenuState::onFrame(ui::Ui& ui, engine::world:
               world.getPresenter().getTrFont(),
               {(world.getPresenter().getViewport().x - text.getWidth()) / 2,
                world.getPresenter().getViewport().y - RingInfoYMargin - ui::FontHeight});
+
+    display.drawMenuObjectDescription(ui, world, currentObject);
   }
 
   if(world.getPresenter().getInputHandler().getInputState().xMovement.justChangedTo(hid::AxisMovement::Right)
@@ -95,11 +97,13 @@ std::unique_ptr<MenuState> IdleRingMenuState::onFrame(ui::Ui& ui, engine::world:
   return nullptr;
 }
 
-void IdleRingMenuState::handleObject(ui::Ui& ui, engine::world::World& world, MenuDisplay& display, MenuObject& object)
+void IdleRingMenuState::handleObject(ui::Ui& /*ui*/,
+                                     engine::world::World& world,
+                                     MenuDisplay& display,
+                                     MenuObject& object)
 {
   if(&object == &display.getCurrentRing().getSelectedObject())
   {
-    display.updateMenuObjectDescription(ui, world, object);
     idleRotation(world, object, display.getCurrentRing().list.size() == 1);
   }
   else

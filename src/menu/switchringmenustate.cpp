@@ -28,14 +28,13 @@ std::unique_ptr<MenuState>
   return create<InflateRingMenuState>(false);
 }
 
-void SwitchRingMenuState::handleObject(ui::Ui& ui,
+void SwitchRingMenuState::handleObject(ui::Ui& /*ui*/,
                                        engine::world::World& world,
                                        MenuDisplay& display,
                                        MenuObject& object)
 {
   if(&object == &display.getCurrentRing().getSelectedObject())
   {
-    display.updateMenuObjectDescription(ui, world, object);
     idleRotation(world, object, false);
   }
   else
