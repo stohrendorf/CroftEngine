@@ -8,26 +8,31 @@
 #include "ui/text.h"
 #include "ui/ui.h"
 
-#include <utility>
+#include <boost/algorithm/string/classification.hpp>
+#include <boost/algorithm/string/split.hpp>
 
 namespace ui::widgets
 {
-SelectionBox::SelectionBox(const std::string& question,
-                           const std::vector<std::string>& options,
-                           size_t initialSelection)
+SelectionBox::SelectionBox(const std::string& message, const std::vector<std::string>& options, size_t initialSelection)
     : m_container{std::make_shared<GridBox>()}
-    , m_question{std::make_shared<Label>(question, Label::Alignment::Center)}
     , m_selected{initialSelection}
 {
+  std::vector<std::string> lines;
+  boost::split(lines, message, boost::is_any_of("\n"));
+  std::transform(lines.begin(),
+                 lines.end(),
+                 std::back_inserter(m_messageLines),
+                 [](const std::string& line) { return std::make_shared<Label>(line, Label::Alignment::Center); });
   std::transform(options.begin(),
                  options.end(),
                  std::back_inserter(m_options),
                  [](const std::string& label) { return std::make_shared<Label>(label, Label::Alignment::Center); });
 
-  m_container->setExtents(1, 1 + m_options.size());
-  m_container->set(0, 0, m_question);
+  m_container->setExtents(1, m_messageLines.size() + m_options.size());
+  for(size_t i = 0; i < m_messageLines.size(); ++i)
+    m_container->set(0, i, m_messageLines[i]);
   for(size_t i = 0; i < m_options.size(); ++i)
-    m_container->set(0, i + 1, m_options[i]);
+    m_container->set(0, i + m_messageLines.size(), m_options[i]);
 }
 
 SelectionBox::~SelectionBox() = default;
@@ -70,15 +75,15 @@ void SelectionBox::setSize(const glm::ivec2& size)
 
 void SelectionBox::fitToContent()
 {
-  m_question->fitToContent();
+  for(const auto& line : m_messageLines)
+    line->fitToContent();
   for(const auto& option : m_options)
     option->fitToContent();
   m_container->fitToContent();
-  m_question->setSize({m_container->getColumnSizes()[0], m_question->getSize().y});
+  for(const auto& line : m_messageLines)
+    line->setSize({m_container->getColumnSizes()[0], line->getSize().y});
   for(const auto& option : m_options)
-  {
     option->setSize({m_container->getColumnSizes()[0], option->getSize().y});
-  }
   m_size = m_container->getSize();
 }
 } // namespace ui::widgets

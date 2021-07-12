@@ -24,7 +24,7 @@ class Label;
 class SelectionBox : public Widget
 {
 public:
-  explicit SelectionBox(const std::string& question,
+  explicit SelectionBox(const std::string& message,
                         const std::vector<std::string>& options,
                         size_t initialSelection = 0);
   ~SelectionBox() override;
@@ -57,7 +57,7 @@ public:
 
 private:
   std::shared_ptr<GridBox> m_container;
-  std::shared_ptr<Label> m_question;
+  std::vector<std::shared_ptr<Label>> m_messageLines;
   std::vector<std::shared_ptr<Label>> m_options;
   size_t m_selected;
   glm::ivec2 m_position{0, 0};
