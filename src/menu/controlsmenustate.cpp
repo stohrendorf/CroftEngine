@@ -80,21 +80,27 @@ ControlsMenuState::ControlsMenuState(const std::shared_ptr<MenuRingTransform>& r
         std::vector<std::string>{/* translators: TR charmap encoding */ _("OK"),
                                  /* translators: TR charmap encoding */ _("Discard changes")})}
 {
-  m_layout->setExtents(1, 4);
+  m_layout->setExtents(1, 5);
   m_controls = createControlsWidget(world);
   m_layout->set(0, 0, m_controls);
   m_layout->set(0,
                 1,
                 std::make_shared<ui::widgets::Label>(
-                  /* translators: TR charmap encoding */ _("To change a mapping, use %1%.", hid::getName(EditAction))));
+                  /* translators: TR charmap encoding */ _("Use %1% and %2% to edit other profiles.",
+                                                           hid::getName(hid::Action::StepLeft),
+                                                           hid::getName(hid::Action::StepRight))));
   m_layout->set(0,
                 2,
+                std::make_shared<ui::widgets::Label>(
+                  /* translators: TR charmap encoding */ _("To change a mapping, use %1%.", hid::getName(EditAction))));
+  m_layout->set(0,
+                3,
                 std::make_shared<ui::widgets::Label>(
                   /* translators: TR charmap encoding */ _("To remove a mapping, hold %1% for %2% seconds.",
                                                            hid::getName(m_deleteKey.getKey()),
                                                            m_deleteKey.getDelay().count())));
   m_layout->set(0,
-                3,
+                4,
                 std::make_shared<ui::widgets::Label>(
                   /* translators: TR charmap encoding */ _("To reset all mappings, hold %1% for %2% seconds.",
                                                            hid::getName(m_resetKey.getKey()),
@@ -203,6 +209,24 @@ void ControlsMenuState::handleDisplayInput(engine::world::World& world)
     for(auto key : keys)
       mapping.mappings.erase(key);
     m_controls->updateBindings(mapping);
+  }
+
+  if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::StepLeft))
+  {
+    if(m_editingIndex == 0)
+      m_editingIndex = m_editing.size() - 1;
+    else
+      --m_editingIndex;
+    m_controls->updateBindings(m_editing.at(m_editingIndex));
+  }
+
+  if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::StepRight))
+  {
+    if(m_editingIndex == m_editing.size() - 1)
+      m_editingIndex = 0;
+    else
+      ++m_editingIndex;
+    m_controls->updateBindings(m_editing.at(m_editingIndex));
   }
 
   if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Backward))

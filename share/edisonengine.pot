@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EdisonEngine \n"
 "Report-Msgid-Bugs-To: https://github.com/stohrendorf/EdisonEngine/issues\n"
-"POT-Creation-Date: 2021-07-12 19:38+0200\n"
+"POT-Creation-Date: 2021-07-12 19:54+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -983,19 +983,19 @@ msgid "Tab"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/controlsmenustate.cpp:89
+#: menu/controlsmenustate.cpp:95
 #, boost-format
 msgid "To change a mapping, use %1%."
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/controlsmenustate.cpp:93
+#: menu/controlsmenustate.cpp:99
 #, boost-format
 msgid "To remove a mapping, hold %1% for %2% seconds."
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/controlsmenustate.cpp:99
+#: menu/controlsmenustate.cpp:105
 #, boost-format
 msgid "To reset all mappings, hold %1% for %2% seconds."
 msgstr ""
@@ -1010,6 +1010,12 @@ msgstr ""
 #: hid/names.cpp:77
 msgctxt "Keyboard|Key"
 msgid "Up"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/controlsmenustate.cpp:89
+#, boost-format
+msgid "Use %1% and %2% to edit other profiles."
 msgstr ""
 
 #. translators: TR charmap encoding

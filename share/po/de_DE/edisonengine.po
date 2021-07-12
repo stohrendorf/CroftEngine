@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EdisonEngine\n"
 "Report-Msgid-Bugs-To: https://github.com/stohrendorf/EdisonEngine/issues\n"
-"POT-Creation-Date: 2021-07-12 19:38+0200\n"
+"POT-Creation-Date: 2021-07-12 19:54+0200\n"
 "Last-Translator: Steffen Ohrendorf\n"
 "Language-Team: none\n"
 "Language: de_DE\n"
@@ -985,19 +985,19 @@ msgid "Tab"
 msgstr "Tab"
 
 #. translators: TR charmap encoding
-#: menu/controlsmenustate.cpp:89
+#: menu/controlsmenustate.cpp:95
 #, boost-format
 msgid "To change a mapping, use %1%."
 msgstr "Zum Anpassen einer Zuordnung, %1% dr~ucken."
 
 #. translators: TR charmap encoding
-#: menu/controlsmenustate.cpp:93
+#: menu/controlsmenustate.cpp:99
 #, boost-format
 msgid "To remove a mapping, hold %1% for %2% seconds."
 msgstr "Zum Zur~ucksetzen einer Zuordnung, %1% f~ur %2% Sekunden halten."
 
 #. translators: TR charmap encoding
-#: menu/controlsmenustate.cpp:99
+#: menu/controlsmenustate.cpp:105
 #, boost-format
 msgid "To reset all mappings, hold %1% for %2% seconds."
 msgstr "Zum Zur~ucksetzen aller Zuordnungen, %1% f~ur %2% Sekunden halten."
@@ -1013,6 +1013,12 @@ msgstr "U"
 msgctxt "Keyboard|Key"
 msgid "Up"
 msgstr "Hoch"
+
+#. translators: TR charmap encoding
+#: menu/controlsmenustate.cpp:89
+#, boost-format
+msgid "Use %1% and %2% to edit other profiles."
+msgstr "Benutze %1% und %2% zum Bearbeiten anderer Profile."
 
 #. translators: TR charmap encoding
 #: menu/menudisplay.cpp:337
