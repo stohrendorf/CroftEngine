@@ -1,51 +1,45 @@
 if( VCPKG_TOOLCHAIN )
     include( dl_unpack )
     dl_unpack(
-            URL https://sourceforge.net/projects/mingw/files/MinGW/Base/gettext/gettext-0.18.3.2-2/gettext-0.18.3.2-2-mingw32-dev.tar.xz/download
-            FILENAME gettext-0.18.3.2-2-mingw32-dev.tar.xz
-            TEST bin/msgmerge.exe
+            URL https://mirror.msys2.org/mingw/mingw64/mingw-w64-x86_64-gettext-0.19.8.1-10-any.pkg.tar.zst
+            FILENAME mingw-w64-x86_64-gettext-0.19.8.1-10-any.pkg.tar.zst
+            TEST mingw64/bin/msgmerge.exe
             WORKING_DIRECTORY gettext
     )
     dl_unpack(
-            URL https://sourceforge.net/projects/mingw/files/MinGW/Base/gettext/gettext-0.18.3.2-2/libintl-0.18.3.2-2-mingw32-dll-8.tar.xz/download
-            FILENAME libintl-0.18.3.2-2-mingw32-dll-8.tar.xz
-            TEST bin/libintl-8.dll
+            URL https://mirror.msys2.org/mingw/mingw64/mingw-w64-x86_64-libiconv-1.16-2-any.pkg.tar.zst
+            FILENAME mingw-w64-x86_64-libiconv-1.16-2-any.pkg.tar.zst
+            TEST mingw64/bin/libiconv-2.dll
             WORKING_DIRECTORY gettext
     )
     dl_unpack(
-            URL https://sourceforge.net/projects/mingw/files/MinGW/Base/gettext/gettext-0.18.3.2-2/libgettextpo-0.18.3.2-2-mingw32-dll-0.tar.xz/download
-            FILENAME libgettextpo-0.18.3.2-2-mingw32-dll-0.tar.xz
-            TEST bin/libgettextsrc-0-18-3.dll
+            URL https://mirror.msys2.org/mingw/mingw64/mingw-w64-x86_64-libwinpthread-git-9.0.0.6246.ae63cde27-1-any.pkg.tar.zst
+            FILENAME mingw-w64-x86_64-libwinpthread-git-9.0.0.6246.ae63cde27-1-any.pkg.tar.zst
+            TEST mingw64/bin/libwinpthread-1.dll
             WORKING_DIRECTORY gettext
     )
     dl_unpack(
-            URL https://sourceforge.net/projects/mingw/files/MinGW/Base/libiconv/libiconv-1.14-3/libiconv-1.14-3-mingw32-dll.tar.lzma/download
-            FILENAME libiconv-1.14-3-mingw32-dll.tar.lzma
-            TEST bin/libintl-8.dll
+            URL https://repo.msys2.org/mingw/mingw64/mingw-w64-x86_64-iconv-1.16-2-any.pkg.tar.zst
+            FILENAME mingw-w64-x86_64-iconv-1.16-2-any.pkg.tar.zst
+            TEST mingw64/bin/libintl-8.dll
             WORKING_DIRECTORY gettext
     )
     dl_unpack(
-            URL https://sourceforge.net/projects/mingw/files/MinGW/Base/gcc/Version6/gcc-6.3.0/libgcc-6.3.0-1-mingw32-dll-1.tar.xz/download
-            FILENAME libgcc-6.3.0-1-mingw32-dll-1.tar.xz
-            TEST bin/libgcc_s_dw2-1.dll
-            WORKING_DIRECTORY gettext
-    )
-    dl_unpack(
-            URL https://sourceforge.net/projects/mingw/files/MinGW/Base/gcc/Version6/gcc-6.3.0/libstdc%2B%2B-6.3.0-1-mingw32-dll-6.tar.xz/download
-            FILENAME libstdc++-6.3.0-1-mingw32-dll-6.tar.xz
-            TEST bin/libstdc++-6.dll
+            URL https://mirror.msys2.org/mingw/mingw64/mingw-w64-x86_64-gcc-libs-10.3.0-5-any.pkg.tar.zst
+            FILENAME mingw-w64-x86_64-gcc-libs-10.3.0-5-any.pkg.tar.zst
+            TEST mingw64/bin/libstdc++-6.dll
             WORKING_DIRECTORY gettext
     )
     find_program(
             GETTEXT_MSGFMT_EXECUTABLE msgfmt
-            PATHS ${EXTERNAL_SRC_ROOT}/gettext/bin
+            PATHS ${EXTERNAL_SRC_ROOT}/gettext/mingw64/bin
     )
     if( NOT GETTEXT_MSGFMT_EXECUTABLE )
         message( FATAL_ERROR "Could not find msgfmt" )
     endif()
     find_program(
             GETTEXT_MSGMERGE_EXECUTABLE msgmerge
-            PATHS ${EXTERNAL_SRC_ROOT}/gettext/bin
+            PATHS ${EXTERNAL_SRC_ROOT}/gettext/mingw64/bin
     )
     if( NOT GETTEXT_MSGMERGE_EXECUTABLE )
         message( FATAL_ERROR "Could not find msgmerge" )
@@ -53,11 +47,11 @@ if( VCPKG_TOOLCHAIN )
 
     find_program(
             GETTEXT_XGETTEXT_EXECUTABLE xgettext
-            PATHS ${EXTERNAL_SRC_ROOT}/gettext/bin
+            PATHS ${EXTERNAL_SRC_ROOT}/gettext/mingw64/bin
     )
     find_program(
             GETTEXT_MSGINIT_EXECUTABLE msginit
-            PATHS ${EXTERNAL_SRC_ROOT}/gettext/bin
+            PATHS ${EXTERNAL_SRC_ROOT}/gettext/mingw64/bin
     )
 else()
     find_package( Gettext REQUIRED )
