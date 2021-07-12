@@ -64,12 +64,9 @@ constexpr const std::array<std::array<std::optional<hid::Action>, 4>, Columns> s
 static_assert(gameplayActions.size() == shortcutActions.size());
 } // namespace
 
-ControlsWidget::ControlsWidget(
-  const engine::NamedInputMappingConfig& mappingConfig,
-  std::function<std::shared_ptr<Widget>(const engine::InputMappingConfig&, hid::Action)> factory)
+ControlsWidget::ControlsWidget(const engine::NamedInputMappingConfig& mappingConfig)
     : m_content{std::make_shared<ui::widgets::GridBox>()}
     , m_container{std::make_shared<ui::widgets::GroupBox>(mappingConfig.name, m_content)}
-    , m_factory{std::move(factory)}
 {
   m_content->setExtents(1, 2);
 
@@ -88,8 +85,6 @@ ControlsWidget::ControlsWidget(
 
   groupBox = std::make_shared<ui::widgets::GroupBox>(/* translators: TR charmap encoding */ _("Shortcuts"), gridBox);
   m_content->set(0, 1, groupBox);
-
-  updateBindings(mappingConfig);
 }
 
 void ControlsWidget::fitToContent()
@@ -227,17 +222,19 @@ void ControlsWidget::prevColumn()
   } while(getCurrentGridBox()->getSelectedWidget() == nullptr);
 }
 
-void ControlsWidget::updateBindings(const engine::NamedInputMappingConfig& mappingConfig)
+void ControlsWidget::updateBindings(
+  const engine::NamedInputMappingConfig& mappingConfig,
+  const std::function<std::shared_ptr<ui::widgets::Widget>(const engine::InputMappingConfig&, hid::Action)>& factory)
 {
   m_container->setTitle(mappingConfig.name);
 
-  auto set = [this, &mappingConfig](ui::widgets::GridBox& gridBox, size_t x0, size_t y, hid::Action action)
+  auto set = [&mappingConfig, &factory](ui::widgets::GridBox& gridBox, size_t x0, size_t y, hid::Action action)
   {
     auto label = std::make_shared<ui::widgets::Label>(hid::getName(action), ui::widgets::Label::Alignment::Right);
     label->fitToContent();
     gridBox.set(x0, y, label);
 
-    auto widget = m_factory(mappingConfig.mappings, action);
+    auto widget = factory(mappingConfig.mappings, action);
     widget->fitToContent();
     gridBox.set(x0 + 1, y, widget);
   };

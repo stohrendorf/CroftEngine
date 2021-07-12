@@ -10,6 +10,7 @@
 #include "ui/widgets/gridbox.h"
 #include "ui/widgets/label.h"
 #include "ui/widgets/selectionbox.h"
+#include "ui/widgets/sprite.h"
 
 namespace menu
 {
@@ -30,32 +31,65 @@ std::vector<T> getKeys(const std::map<T, U>& map, const U& needle)
   return keys;
 }
 
-std::shared_ptr<ControlsWidget> createControlsWidget(const engine::world::World& world)
+std::function<std::shared_ptr<ui::widgets::Widget>(const engine::InputMappingConfig&, hid::Action)>
+  getButtonFactory(const engine::world::World& world, const std::string& controllerLayoutName)
 {
-  const auto createKeyLabel
-    = [](const engine::InputMappingConfig& mappingConfig, hid::Action action) -> std::shared_ptr<ui::widgets::Widget>
+  if(controllerLayoutName.empty())
   {
-    const auto keys = getKeys(mappingConfig, engine::NamedAction{action});
-    if(keys.empty())
+    return
+      [](const engine::InputMappingConfig& mappingConfig, hid::Action action) -> std::shared_ptr<ui::widgets::Widget>
     {
-      return std::make_shared<ui::widgets::Label>(
-        /* translators: TR charmap encoding */ pgettext("ButtonAssignment", "N/A"));
-    }
-    else
-    {
-      Expects(keys.size() == 1);
-      if(std::holds_alternative<engine::NamedGlfwKey>(keys[0]))
+      const auto keys = getKeys(mappingConfig, engine::NamedAction{action});
+      if(keys.empty())
       {
-        return std::make_shared<ui::widgets::Label>(hid::getName(std::get<engine::NamedGlfwKey>(keys[0])));
+        return std::make_shared<ui::widgets::Label>(
+          /* translators: TR charmap encoding */ pgettext("ButtonAssignment", "N/A"));
       }
       else
       {
-        return std::make_shared<ui::widgets::Label>(hid::getName(std::get<engine::NamedGlfwGamepadButton>(keys[0])));
+        Expects(keys.size() == 1);
+        if(std::holds_alternative<engine::NamedGlfwKey>(keys[0]))
+        {
+          return std::make_shared<ui::widgets::Label>(hid::getName(std::get<engine::NamedGlfwKey>(keys[0])));
+        }
+        else
+        {
+          return std::make_shared<ui::widgets::Label>(hid::getName(std::get<engine::NamedGlfwGamepadButton>(keys[0])));
+        }
       }
-    }
-  };
-  return std::make_shared<ControlsWidget>(world.getEngine().getPresenter().getInputHandler().getMappings().at(0),
-                                          createKeyLabel);
+    };
+  }
+  else
+  {
+    const auto& buttonMap = world.getControllerLayouts().at(controllerLayoutName);
+    return [&buttonMap](const engine::InputMappingConfig& mappingConfig,
+                        hid::Action action) -> std::shared_ptr<ui::widgets::Widget>
+    {
+      const auto keys = getKeys(mappingConfig, engine::NamedAction{action});
+      if(keys.empty())
+      {
+        return std::make_shared<ui::widgets::Label>(
+          /* translators: TR charcmap encoding */ pgettext("ButtonAssignment", "N/A"));
+      }
+      else
+      {
+        Expects(keys.size() == 1);
+        if(std::holds_alternative<engine::NamedGlfwKey>(keys[0]))
+        {
+          return std::make_shared<ui::widgets::Label>(hid::getName(std::get<engine::NamedGlfwKey>(keys[0])));
+        }
+        else
+        {
+          const auto it = buttonMap.find(std::get<engine::NamedGlfwGamepadButton>(keys[0]).value);
+          if(it == buttonMap.end())
+            return std::make_shared<ui::widgets::Label>(
+              /* translators: TR charcmap encoding */ pgettext("ButtonAssignment", "N/A"));
+          else
+            return std::make_shared<ui::widgets::Sprite>(it->second);
+        }
+      }
+    };
+  }
 }
 } // namespace
 
@@ -64,8 +98,9 @@ ControlsMenuState::ControlsMenuState(const std::shared_ptr<MenuRingTransform>& r
                                      const engine::world::World& world)
     : SelectedMenuState{ringTransform}
     , m_previous{std::move(previous)}
-    , m_layout{std::make_shared<ui::widgets::GridBox>()}
     , m_editing{world.getPresenter().getInputHandler().getMappings()}
+    , m_layout{std::make_shared<ui::widgets::GridBox>()}
+    , m_controls{std::make_shared<ControlsWidget>(m_editing.at(0))}
     , m_resetKey{hid::GlfwKey::Backspace, 5}
     , m_deleteKey{hid::GlfwKey::Delete, 2}
     , m_confirm{std::make_shared<ui::widgets::SelectionBox>(
@@ -80,8 +115,10 @@ ControlsMenuState::ControlsMenuState(const std::shared_ptr<MenuRingTransform>& r
         std::vector<std::string>{/* translators: TR charmap encoding */ _("OK"),
                                  /* translators: TR charmap encoding */ _("Discard changes")})}
 {
+  m_controls->updateBindings(m_editing.at(0), getButtonFactory(world, m_editing.at(0).controllerType));
+
   m_layout->setExtents(1, 5);
-  m_controls = createControlsWidget(world);
+
   m_layout->set(0, 0, m_controls);
   m_layout->set(0,
                 1,
@@ -199,7 +236,8 @@ void ControlsMenuState::handleDisplayInput(engine::world::World& world)
     m_editingIndex = 0;
     m_editing = world.getEngine().getEngineConfig()->inputMappings;
     world.getEngine().getPresenter().getInputHandler().setMappings(m_editing);
-    m_controls->updateBindings(m_editing.at(m_editingIndex));
+    m_controls->updateBindings(m_editing.at(m_editingIndex),
+                               getButtonFactory(world, m_editing.at(m_editingIndex).controllerType));
   }
 
   if(m_deleteKey.update(world.getPresenter().getInputHandler()))
@@ -208,7 +246,7 @@ void ControlsMenuState::handleDisplayInput(engine::world::World& world)
     auto keys = getKeys(mapping.mappings, engine::NamedAction{m_controls->getCurrentAction()});
     for(auto key : keys)
       mapping.mappings.erase(key);
-    m_controls->updateBindings(mapping);
+    m_controls->updateBindings(mapping, getButtonFactory(world, mapping.controllerType));
   }
 
   if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::StepLeft))
@@ -217,7 +255,8 @@ void ControlsMenuState::handleDisplayInput(engine::world::World& world)
       m_editingIndex = m_editing.size() - 1;
     else
       --m_editingIndex;
-    m_controls->updateBindings(m_editing.at(m_editingIndex));
+    m_controls->updateBindings(m_editing.at(m_editingIndex),
+                               getButtonFactory(world, m_editing.at(m_editingIndex).controllerType));
   }
 
   if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::StepRight))
@@ -226,7 +265,8 @@ void ControlsMenuState::handleDisplayInput(engine::world::World& world)
       m_editingIndex = 0;
     else
       ++m_editingIndex;
-    m_controls->updateBindings(m_editing.at(m_editingIndex));
+    m_controls->updateBindings(m_editing.at(m_editingIndex),
+                               getButtonFactory(world, m_editing.at(m_editingIndex).controllerType));
   }
 
   if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Backward))
@@ -265,7 +305,7 @@ void ControlsMenuState::handleChangeKeyInput(engine::world::World& world)
       mapping.mappings.erase(key);
     mapping.mappings[newKey.value()] = m_controls->getCurrentAction();
     m_mode = Mode::Display;
-    m_controls->updateBindings(mapping);
+    m_controls->updateBindings(mapping, getButtonFactory(world, mapping.controllerType));
   }
 }
 

@@ -21,6 +21,7 @@ std::vector<NamedInputMappingConfig> getDefaultMappings()
   return {
     {
       pgettext("Input|MappingName", "Keyboard"),
+      {},
       {
         {GlfwKey::LeftShift, Action::Walk},
         {GlfwKey::LeftControl, Action::Action},
@@ -50,6 +51,7 @@ std::vector<NamedInputMappingConfig> getDefaultMappings()
     },
     {
       pgettext("Input|MappingName", "Gamepad"),
+      "PS",
       {
         {GlfwGamepadButton::RightBumper, Action::Walk},
         {GlfwGamepadButton::A, Action::Action},
@@ -70,7 +72,7 @@ std::vector<NamedInputMappingConfig> getDefaultMappings()
 
 void NamedInputMappingConfig::serialize(const serialization::Serializer<EngineConfig>& ser)
 {
-  ser(S_NV("name", name), S_NV("mappings", mappings));
+  ser(S_NV("name", name), S_NV("controllerType", controllerType), S_NV("mappings", mappings));
 }
 
 NamedInputMappingConfig NamedInputMappingConfig::create(const serialization::Serializer<EngineConfig>& ser)

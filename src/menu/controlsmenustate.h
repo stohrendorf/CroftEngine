@@ -37,10 +37,10 @@ private:
   };
 
   std::unique_ptr<MenuState> m_previous;
-  std::shared_ptr<ControlsWidget> m_controls{};
-  std::shared_ptr<ui::widgets::GridBox> m_layout{};
   size_t m_editingIndex = 0;
   std::vector<engine::NamedInputMappingConfig> m_editing;
+  std::shared_ptr<ui::widgets::GridBox> m_layout{};
+  std::shared_ptr<ControlsWidget> m_controls{};
 
   hid::DelayedKey m_resetKey;
   hid::DelayedKey m_deleteKey;

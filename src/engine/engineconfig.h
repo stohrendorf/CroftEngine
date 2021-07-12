@@ -21,6 +21,7 @@ using InputMappingConfig = std::map<std::variant<NamedGlfwKey, NamedGlfwGamepadB
 struct NamedInputMappingConfig
 {
   std::string name;
+  std::string controllerType;
   InputMappingConfig mappings;
 
   void serialize(const serialization::Serializer<EngineConfig>& ser);
@@ -28,7 +29,7 @@ struct NamedInputMappingConfig
 
   bool operator==(const NamedInputMappingConfig& rhs) const
   {
-    return name == rhs.name && mappings == rhs.mappings;
+    return name == rhs.name && controllerType == rhs.controllerType && mappings == rhs.mappings;
   }
 };
 
