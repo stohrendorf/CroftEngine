@@ -11,6 +11,7 @@
 namespace ui::widgets
 {
 class GridBox;
+class SelectionBox;
 }
 
 namespace engine::world
@@ -28,7 +29,11 @@ private:
   enum class Mode
   {
     Display,
-    ChangeKey
+    ChangeKey,
+    ConfirmApply,
+    Apply,
+    NoApply,
+    Error,
   };
 
   std::unique_ptr<MenuState> m_previous;
@@ -40,10 +45,15 @@ private:
   hid::DelayedKey m_resetKey;
   hid::DelayedKey m_deleteKey;
 
+  std::shared_ptr<ui::widgets::SelectionBox> m_confirm{};
+  std::shared_ptr<ui::widgets::SelectionBox> m_error{};
+
   Mode m_mode = Mode::Display;
 
   void handleDisplayInput(engine::world::World& world);
   void handleChangeKeyInput(engine::world::World& world);
+  void handleConfirmInput(engine::world::World& world);
+  void handleErrorInput(engine::world::World& world);
 
 public:
   explicit ControlsMenuState(const std::shared_ptr<MenuRingTransform>& ringTransform,

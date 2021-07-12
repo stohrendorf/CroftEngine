@@ -9,6 +9,7 @@
 #include "menudisplay.h"
 #include "ui/widgets/gridbox.h"
 #include "ui/widgets/label.h"
+#include "ui/widgets/selectionbox.h"
 
 namespace menu
 {
@@ -67,8 +68,20 @@ ControlsMenuState::ControlsMenuState(const std::shared_ptr<MenuRingTransform>& r
     , m_editing{world.getPresenter().getInputHandler().getMappings()}
     , m_resetKey{hid::GlfwKey::Backspace, 5}
     , m_deleteKey{hid::GlfwKey::Delete, 2}
+    , m_confirm{std::make_shared<ui::widgets::SelectionBox>(
+        /* translators: TR charmap encoding */ _("Apply changes?"),
+        std::vector<std::string>{/* translators: TR charmap encoding */ _("Yes"),
+                                 /* translators: TR charmap encoding */ _("No"),
+                                 /* translators: TR charmap encoding */ _("Return")})}
+    , m_error{std::make_shared<ui::widgets::SelectionBox>(
+        /* translators: TR charmap encoding */ _("Ensure your mapping contains all movement directions, %1% and %2%.",
+                                                 hid::getName(hid::Action::Action),
+                                                 hid::getName(hid::Action::Menu)),
+        std::vector<std::string>{_("OK")})}
 {
   m_layout->setExtents(1, 4);
+  m_controls = createControlsWidget(world);
+  m_layout->set(0, 0, m_controls);
   m_layout->set(0,
                 1,
                 std::make_shared<ui::widgets::Label>(
@@ -85,40 +98,78 @@ ControlsMenuState::ControlsMenuState(const std::shared_ptr<MenuRingTransform>& r
                   /* translators: TR charmap encoding */ _("To reset all mappings, hold %1% for %2% seconds.",
                                                            hid::getName(m_resetKey.getKey()),
                                                            m_resetKey.getDelay().count())));
-  m_controls = createControlsWidget(world);
-  m_layout->set(0, 0, m_controls);
+  m_confirm->fitToContent();
+  m_error->fitToContent();
 }
 
 std::unique_ptr<MenuState> ControlsMenuState::onFrame(ui::Ui& ui, engine::world::World& world, MenuDisplay& /*display*/)
 {
+  const auto vp = world.getPresenter().getViewport();
+
   if(m_mode == Mode::Display && world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Menu))
   {
-    return std::move(m_previous);
+    bool validMapping = true;
+    for(const auto required : {hid::Action::Forward,
+                               hid::Action::Backward,
+                               hid::Action::Left,
+                               hid::Action::Right,
+                               hid::Action::Action,
+                               hid::Action::Menu})
+    {
+      for(const auto& x : m_editing)
+      {
+        validMapping &= !getKeys(x.mappings, engine::NamedAction{required}).empty();
+      }
+    }
+    if(validMapping)
+      m_mode = Mode::ConfirmApply;
+    else
+      m_mode = Mode::Error;
   }
 
   switch(m_mode)
   {
   case Mode::Display: handleDisplayInput(world); break;
   case Mode::ChangeKey: handleChangeKeyInput(world); break;
+  case Mode::ConfirmApply: handleConfirmInput(world); break;
+  case Mode::Apply: [[fallthrough]];
+  case Mode::NoApply: return std::move(m_previous);
+  case Mode::Error: handleErrorInput(world); break;
   }
 
   m_controls->fitToContent();
   m_layout->fitToContent();
 
-  const auto vp = world.getPresenter().getViewport();
   m_layout->setPosition({(vp.x - m_layout->getSize().x) / 2, vp.y - 90 - m_layout->getSize().y});
   switch(m_mode)
   {
-  case Mode::Display: m_layout->update(true); break;
+  case Mode::Display:
+    m_layout->update(true);
+    m_layout->draw(ui, world.getPresenter());
+    break;
   case Mode::ChangeKey:
     m_layout->update(std::chrono::time_point_cast<std::chrono::milliseconds>(std::chrono::system_clock::now())
                          .time_since_epoch()
                          .count()
                        % BlinkPeriod.count()
                      < BlinkPeriod.count() / 2);
+    m_layout->draw(ui, world.getPresenter());
     break;
+  case Mode::ConfirmApply:
+    m_confirm->update(true);
+    m_confirm->setPosition({(vp.x - m_confirm->getSize().x) / 2, vp.y - 200 - m_confirm->getSize().y});
+    m_layout->draw(ui, world.getPresenter());
+    m_confirm->draw(ui, world.getPresenter());
+    break;
+  case Mode::Error:
+    m_error->update(true);
+    m_error->setPosition({(vp.x - m_error->getSize().x) / 2, vp.y - 200 - m_error->getSize().y});
+    m_layout->draw(ui, world.getPresenter());
+    m_error->draw(ui, world.getPresenter());
+    break;
+  case Mode::Apply: [[fallthrough]];
+  case Mode::NoApply: break;
   }
-  m_layout->draw(ui, world.getPresenter());
 
   return nullptr;
 }
@@ -181,5 +232,33 @@ void ControlsMenuState::handleChangeKeyInput(engine::world::World& world)
     m_mode = Mode::Display;
     m_controls->updateBindings(mapping);
   }
+}
+
+void ControlsMenuState::handleConfirmInput(engine::world::World& world)
+{
+  if(world.getPresenter().getInputHandler().getInputState().zMovement.justChangedTo(hid::AxisMovement::Backward))
+  {
+    m_confirm->next();
+  }
+  else if(world.getPresenter().getInputHandler().getInputState().zMovement.justChangedTo(hid::AxisMovement::Forward))
+  {
+    m_confirm->prev();
+  }
+  else if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Action))
+  {
+    switch(m_confirm->getSelected())
+    {
+    case 0: m_mode = Mode::Apply; break;
+    case 1: m_mode = Mode::NoApply; break;
+    case 2: m_mode = Mode::Display; break;
+    default: BOOST_THROW_EXCEPTION(std::domain_error("invalid selection"));
+    }
+  }
+}
+
+void ControlsMenuState::handleErrorInput(engine::world::World& world)
+{
+  if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Action))
+    m_mode = Mode::Display;
 }
 } // namespace menu

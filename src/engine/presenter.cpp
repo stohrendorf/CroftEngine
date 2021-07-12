@@ -17,7 +17,7 @@
 #include "render/scene/screenoverlay.h"
 #include "render/scene/shadercache.h"
 #include "render/textureanimator.h"
-#include "ui/label.h"
+#include "ui/text.h"
 #include "ui/ui.h"
 #include "video/player.h"
 

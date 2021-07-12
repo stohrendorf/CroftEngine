@@ -1,7 +1,7 @@
 #include "groupbox.h"
 
 #include "engine/presenter.h"
-#include "ui/label.h"
+#include "ui/text.h"
 #include "ui/ui.h"
 #include "ui/util.h"
 

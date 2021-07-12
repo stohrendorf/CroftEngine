@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EdisonEngine \n"
 "Report-Msgid-Bugs-To: https://github.com/stohrendorf/EdisonEngine/issues\n"
-"POT-Creation-Date: 2021-07-12 03:22+0200\n"
+"POT-Creation-Date: 2021-07-12 07:39+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -111,6 +111,11 @@ msgstr ""
 #: hid/names.cpp:130
 msgctxt "Keyboard|Key"
 msgid "Alt"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/controlsmenustate.cpp:72
+msgid "Apply changes?"
 msgstr ""
 
 #. translators: TR charmap encoding
@@ -273,6 +278,12 @@ msgstr ""
 #: hid/names.cpp:81
 msgctxt "Keyboard|Key"
 msgid "End"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/controlsmenustate.cpp:77
+#, boost-format
+msgid "Ensure your mapping contains all movement directions, %1% and %2%."
 msgstr ""
 
 #. translators: TR charmap encoding
@@ -562,7 +573,7 @@ msgid "N"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/controlsmenustate.cpp:41
+#: menu/controlsmenustate.cpp:42
 msgctxt "ButtonAssignment"
 msgid "N/A"
 msgstr ""
@@ -579,9 +590,18 @@ msgid "NmLk"
 msgstr ""
 
 #. translators: TR charmap encoding
+#: menu/controlsmenustate.cpp:74
+msgid "No"
+msgstr ""
+
+#. translators: TR charmap encoding
 #: hid/names.cpp:49
 msgctxt "Keyboard|Key"
 msgid "O"
+msgstr ""
+
+#: menu/controlsmenustate.cpp:80
+msgid "OK"
 msgstr ""
 
 #. translators: TR charmap encoding
@@ -796,6 +816,11 @@ msgid "Ret"
 msgstr ""
 
 #. translators: TR charmap encoding
+#: menu/controlsmenustate.cpp:75
+msgid "Return"
+msgstr ""
+
+#. translators: TR charmap encoding
 #: hid/names.cpp:198
 msgctxt "Action"
 msgid "Right"
@@ -950,19 +975,19 @@ msgid "Tab"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/controlsmenustate.cpp:75
+#: menu/controlsmenustate.cpp:88
 #, boost-format
 msgid "To change a mapping, use %1%."
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/controlsmenustate.cpp:79
+#: menu/controlsmenustate.cpp:92
 #, boost-format
 msgid "To remove a mapping, hold %1% for %2% seconds."
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/controlsmenustate.cpp:85
+#: menu/controlsmenustate.cpp:98
 #, boost-format
 msgid "To reset all mappings, hold %1% for %2% seconds."
 msgstr ""
@@ -1039,6 +1064,11 @@ msgstr ""
 #: hid/names.cpp:59
 msgctxt "Keyboard|Key"
 msgid "Y"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/controlsmenustate.cpp:73
+msgid "Yes"
 msgstr ""
 
 #. translators: TR charmap encoding

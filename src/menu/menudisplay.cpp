@@ -12,7 +12,7 @@
 #include "menuring.h"
 #include "render/scene/camera.h"
 #include "ui/core.h"
-#include "ui/label.h"
+#include "ui/text.h"
 #include "ui/util.h"
 #include "util.h"
 

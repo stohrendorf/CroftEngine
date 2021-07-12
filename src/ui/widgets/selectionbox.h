@@ -1,10 +1,10 @@
 #pragma once
 
-#include "engine/world/sprite.h"
 #include "widget.h"
 
 #include <glm/glm.hpp>
 #include <memory>
+#include <vector>
 
 namespace ui
 {
@@ -18,11 +18,16 @@ class Presenter;
 
 namespace ui::widgets
 {
-class Sprite : public Widget
+class GridBox;
+class Label;
+
+class SelectionBox : public Widget
 {
 public:
-  explicit Sprite(engine::world::Sprite sprite);
-  ~Sprite() override;
+  explicit SelectionBox(const std::string& question,
+                        const std::vector<std::string>& options,
+                        size_t initialSelection = 0);
+  ~SelectionBox() override;
   void update(bool hasFocus) override;
   void draw(ui::Ui& ui, const engine::Presenter& presenter) const override;
 
@@ -33,10 +38,29 @@ public:
   void setSize(const glm::ivec2& size) override;
   void fitToContent() override;
 
+  [[nodiscard]] auto getSelected() const
+  {
+    return m_selected;
+  }
+
+  void prev()
+  {
+    if(m_selected > 0)
+      --m_selected;
+  }
+
+  void next()
+  {
+    if(m_selected + 1 < m_options.size())
+      ++m_selected;
+  }
+
 private:
+  std::shared_ptr<GridBox> m_container;
+  std::shared_ptr<Label> m_question;
+  std::vector<std::shared_ptr<Label>> m_options;
+  size_t m_selected;
   glm::ivec2 m_position{0, 0};
   glm::ivec2 m_size{0, 0};
-  engine::world::Sprite m_sprite;
-  uint8_t m_selectionAlpha = 0;
 };
 } // namespace ui::widgets

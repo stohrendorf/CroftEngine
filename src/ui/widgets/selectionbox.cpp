@@ -1,0 +1,84 @@
+#include "selectionbox.h"
+
+#include "core/i18n.h"
+#include "engine/presenter.h"
+#include "gridbox.h"
+#include "label.h"
+#include "ui/core.h"
+#include "ui/text.h"
+#include "ui/ui.h"
+
+#include <utility>
+
+namespace ui::widgets
+{
+SelectionBox::SelectionBox(const std::string& question,
+                           const std::vector<std::string>& options,
+                           size_t initialSelection)
+    : m_container{std::make_shared<GridBox>()}
+    , m_question{std::make_shared<Label>(question, Label::Alignment::Center)}
+    , m_selected{initialSelection}
+{
+  std::transform(options.begin(),
+                 options.end(),
+                 std::back_inserter(m_options),
+                 [](const std::string& label) { return std::make_shared<Label>(label, Label::Alignment::Center); });
+
+  m_container->setExtents(1, 1 + m_options.size());
+  m_container->set(0, 0, m_question);
+  for(size_t i = 0; i < m_options.size(); ++i)
+    m_container->set(0, i + 1, m_options[i]);
+}
+
+SelectionBox::~SelectionBox() = default;
+
+void SelectionBox::draw(ui::Ui& ui, const engine::Presenter& presenter) const
+{
+  const auto bgPos = m_position - glm::ivec2{ui::FontHeight, 2 * ui::FontHeight};
+  const auto bgSize = m_size + glm::ivec2{2 * ui::FontHeight, 2 * ui::FontHeight};
+  ui.drawBox(bgPos, bgSize, gl::SRGBA8{0, 0, 0, 224});
+  ui.drawOutlineBox(bgPos, bgSize, 255);
+  m_container->draw(ui, presenter);
+}
+
+void SelectionBox::update(bool hasFocus)
+{
+  for(size_t i = 0; i < m_options.size(); ++i)
+    m_options[i]->update(hasFocus && m_selected == i);
+}
+
+void SelectionBox::setPosition(const glm::ivec2& position)
+{
+  m_position = position;
+  m_container->setPosition(m_position);
+}
+
+glm::ivec2 SelectionBox::getPosition() const
+{
+  return m_position;
+}
+
+glm::ivec2 SelectionBox::getSize() const
+{
+  return m_size;
+}
+
+void SelectionBox::setSize(const glm::ivec2& size)
+{
+  m_size = size;
+}
+
+void SelectionBox::fitToContent()
+{
+  m_question->fitToContent();
+  for(const auto& option : m_options)
+    option->fitToContent();
+  m_container->fitToContent();
+  m_question->setSize({m_container->getColumnSizes()[0], m_question->getSize().y});
+  for(const auto& option : m_options)
+  {
+    option->setSize({m_container->getColumnSizes()[0], option->getSize().y});
+  }
+  m_size = m_container->getSize();
+}
+} // namespace ui::widgets

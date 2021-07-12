@@ -35,7 +35,7 @@
 #include "serialization/yamldocument.h"
 #include "texturing.h"
 #include "ui/core.h"
-#include "ui/label.h"
+#include "ui/text.h"
 #include "ui/ui.h"
 
 #include <gl/glew_init.h>

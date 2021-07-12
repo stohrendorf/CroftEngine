@@ -1,4 +1,4 @@
-#include "label.h"
+#include "text.h"
 
 #include "render/scene/material.h"
 #include "ui.h"

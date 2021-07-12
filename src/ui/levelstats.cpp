@@ -3,7 +3,7 @@
 #include "core/i18n.h"
 #include "engine/player.h"
 #include "engine/presenter.h"
-#include "label.h"
+#include "text.h"
 #include "ui/ui.h"
 
 namespace ui

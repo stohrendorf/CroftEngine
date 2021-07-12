@@ -1,7 +1,7 @@
 #pragma once
 
 #include "menuringtransform.h"
-#include "ui/label.h"
+#include "ui/text.h"
 
 namespace ui
 {

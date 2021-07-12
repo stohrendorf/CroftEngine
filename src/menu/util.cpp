@@ -3,7 +3,7 @@
 #include "engine/presenter.h"
 #include "engine/world/world.h"
 #include "menuobject.h"
-#include "ui/label.h"
+#include "ui/text.h"
 
 namespace menu
 {

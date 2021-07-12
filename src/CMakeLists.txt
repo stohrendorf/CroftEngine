@@ -413,8 +413,8 @@ set( EDISONENGINE_SRCS
         render/scene/visitor.h
         render/scene/visitor.cpp
 
-        ui/label.h
-        ui/label.cpp
+        ui/text.h
+        ui/text.cpp
         ui/levelstats.h
         ui/levelstats.cpp
         ui/ui.h
@@ -426,6 +426,7 @@ set( EDISONENGINE_SRCS
         ui/widgets/label.cpp
         ui/widgets/groupbox.cpp
         ui/widgets/sprite.cpp
+        ui/widgets/selectionbox.cpp
 
         video/player.h
         video/player.cpp

@@ -1,7 +1,7 @@
 #include "listbox.h"
 
 #include "engine/presenter.h"
-#include "ui/label.h"
+#include "ui/text.h"
 
 namespace ui::widgets
 {
