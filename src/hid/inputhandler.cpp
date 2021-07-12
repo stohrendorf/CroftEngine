@@ -18,6 +18,9 @@ std::optional<GlfwKey> recentPressedKey;
 
 void keyCallback(GLFWwindow* /*window*/, int key, int /*scancode*/, int action, int /*mods*/)
 {
+  if(key < 0)
+    return;
+  
   auto typed = static_cast<GlfwKey>(key);
   switch(action)
   {

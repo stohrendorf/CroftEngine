@@ -42,6 +42,9 @@ private:
 
   Mode m_mode = Mode::Display;
 
+  void handleDisplayInput(engine::world::World& world);
+  void handleChangeKeyInput(engine::world::World& world);
+
 public:
   explicit ControlsMenuState(const std::shared_ptr<MenuRingTransform>& ringTransform,
                              std::unique_ptr<MenuState> previous,

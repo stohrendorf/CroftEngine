@@ -91,102 +91,95 @@ ControlsMenuState::ControlsMenuState(const std::shared_ptr<MenuRingTransform>& r
 
 std::unique_ptr<MenuState> ControlsMenuState::onFrame(ui::Ui& ui, engine::world::World& world, MenuDisplay& /*display*/)
 {
-  bool edited = false;
-  if(m_mode == Mode::Display)
+  if(m_mode == Mode::Display && world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Menu))
   {
-    m_resetKey.update(world.getPresenter().getInputHandler());
-    if(m_resetKey.isActive())
-    {
-      world.getEngine().getEngineConfig()->resetInputMappings();
-      m_editingIndex = 0;
-      m_editing = world.getEngine().getEngineConfig()->inputMappings;
-      world.getEngine().getPresenter().getInputHandler().setMappings(m_editing);
-      m_controls->updateBindings(m_editing.at(m_editingIndex));
-    }
-
-    m_deleteKey.update(world.getPresenter().getInputHandler());
-    if(m_deleteKey.isActive())
-    {
-      auto& mapping = m_editing.at(m_editingIndex);
-      auto keys = getKeys(mapping.mappings, engine::NamedAction{m_controls->getCurrentAction()});
-      for(auto key : keys)
-        mapping.mappings.erase(key);
-      m_controls->updateBindings(mapping);
-    }
-
-    if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Action))
-    {
-      auto& mapping = m_editing.at(m_editingIndex);
-      auto keys = getKeys(mapping.mappings, engine::NamedAction{m_controls->getCurrentAction()});
-      m_mode = Mode::ChangeKey;
-      (void)world.getPresenter().getInputHandler().takeRecentlyPressedKey();
-    }
-  }
-  else if(m_mode == Mode::ChangeKey)
-  {
-    if(const auto newKey = world.getPresenter().getInputHandler().takeRecentlyPressedKey())
-    {
-      auto& mapping = m_editing.at(m_editingIndex);
-      auto keys = getKeys(mapping.mappings, engine::NamedAction{m_controls->getCurrentAction()});
-      for(auto key : keys)
-        mapping.mappings.erase(key);
-      mapping.mappings[newKey.value()] = m_controls->getCurrentAction();
-      m_mode = Mode::Display;
-      edited = true;
-      m_controls->updateBindings(mapping);
-    }
+    return std::move(m_previous);
   }
 
-  m_layout->fitToContent();
+  switch(m_mode)
+  {
+  case Mode::Display: handleDisplayInput(world); break;
+  case Mode::ChangeKey: handleChangeKeyInput(world); break;
+  }
+
   m_controls->fitToContent();
-
-  if(m_mode == Mode::Display && !edited)
-  {
-    if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Backward))
-    {
-      m_controls->nextRow();
-    }
-    if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Forward))
-    {
-      m_controls->prevRow();
-    }
-    if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Right))
-    {
-      m_controls->nextColumn();
-    }
-    if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Left))
-    {
-      m_controls->prevColumn();
-    }
-  }
+  m_layout->fitToContent();
 
   const auto vp = world.getPresenter().getViewport();
   m_layout->setPosition({(vp.x - m_layout->getSize().x) / 2, vp.y - 90 - m_layout->getSize().y});
-  if(m_mode == Mode::Display)
+  switch(m_mode)
   {
-    m_layout->update(true);
-  }
-  else
-  {
+  case Mode::Display: m_layout->update(true); break;
+  case Mode::ChangeKey:
     m_layout->update(std::chrono::time_point_cast<std::chrono::milliseconds>(std::chrono::system_clock::now())
                          .time_since_epoch()
                          .count()
                        % BlinkPeriod.count()
                      < BlinkPeriod.count() / 2);
+    break;
   }
   m_layout->draw(ui, world.getPresenter());
 
-  if(!edited && world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Menu))
-  {
-    if(m_mode == Mode::Display)
-    {
-      return std::move(m_previous);
-    }
-    else if(m_mode == Mode::ChangeKey)
-    {
-      m_mode = Mode::Display;
-    }
-  }
   return nullptr;
+}
+
+void ControlsMenuState::handleDisplayInput(engine::world::World& world)
+{
+  if(m_resetKey.update(world.getPresenter().getInputHandler()))
+  {
+    world.getEngine().getEngineConfig()->resetInputMappings();
+    m_editingIndex = 0;
+    m_editing = world.getEngine().getEngineConfig()->inputMappings;
+    world.getEngine().getPresenter().getInputHandler().setMappings(m_editing);
+    m_controls->updateBindings(m_editing.at(m_editingIndex));
+  }
+
+  if(m_deleteKey.update(world.getPresenter().getInputHandler()))
+  {
+    auto& mapping = m_editing.at(m_editingIndex);
+    auto keys = getKeys(mapping.mappings, engine::NamedAction{m_controls->getCurrentAction()});
+    for(auto key : keys)
+      mapping.mappings.erase(key);
+    m_controls->updateBindings(mapping);
+  }
+
+  if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Backward))
+  {
+    m_controls->nextRow();
+  }
+  if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Forward))
+  {
+    m_controls->prevRow();
+  }
+  if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Right))
+  {
+    m_controls->nextColumn();
+  }
+  if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Left))
+  {
+    m_controls->prevColumn();
+  }
+
+  if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Action))
+  {
+    auto& mapping = m_editing.at(m_editingIndex);
+    auto keys = getKeys(mapping.mappings, engine::NamedAction{m_controls->getCurrentAction()});
+    m_mode = Mode::ChangeKey;
+    (void)world.getPresenter().getInputHandler().takeRecentlyPressedKey();
+  }
+}
+
+void ControlsMenuState::handleChangeKeyInput(engine::world::World& world)
+{
+  if(const auto newKey = world.getPresenter().getInputHandler().takeRecentlyPressedKey())
+  {
+    auto& mapping = m_editing.at(m_editingIndex);
+    auto keys = getKeys(mapping.mappings, engine::NamedAction{m_controls->getCurrentAction()});
+    for(auto key : keys)
+      mapping.mappings.erase(key);
+    mapping.mappings[newKey.value()] = m_controls->getCurrentAction();
+    m_mode = Mode::Display;
+    m_controls->updateBindings(mapping);
+  }
 }
 } // namespace menu

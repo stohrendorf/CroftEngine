@@ -28,7 +28,7 @@ public:
     return m_delay;
   }
 
-  void update(const InputHandler& handler)
+  [[nodiscard]] bool update(const InputHandler& handler)
   {
     if(!m_pressedSince.has_value())
     {
@@ -40,6 +40,8 @@ public:
       if(!handler.hasKey(m_key))
         m_pressedSince.reset();
     }
+
+    return isActive();
   }
 
   [[nodiscard]] bool isActive() const

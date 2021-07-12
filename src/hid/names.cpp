@@ -15,11 +15,11 @@ std::string getName(GlfwKey key)
   switch(key)
   {
   case GlfwKey::Space: return /* translators: TR charmap encoding */ pgettext("Keyboard|Key", "Space");
-  case GlfwKey::Apostrophe: return "'";
-  case GlfwKey::Comma: return ",";
-  case GlfwKey::Minus: return "-";
-  case GlfwKey::Period: return ".";
-  case GlfwKey::Slash: return "/";
+  case GlfwKey::Apostrophe: return /* translators: TR charmap encoding */ pgettext("Keyboard|Key", "'");
+  case GlfwKey::Comma: return /* translators: TR charmap encoding */ pgettext("Keyboard|Key", ",");
+  case GlfwKey::Minus: return /* translators: TR charmap encoding */ pgettext("Keyboard|Key", "-");
+  case GlfwKey::Period: return /* translators: TR charmap encoding */ pgettext("Keyboard|Key", ".");
+  case GlfwKey::Slash: return /* translators: TR charmap encoding */ pgettext("Keyboard|Key", "/");
   case GlfwKey::Num0: return "0";
   case GlfwKey::Num1: return "1";
   case GlfwKey::Num2: return "2";
@@ -30,7 +30,7 @@ std::string getName(GlfwKey key)
   case GlfwKey::Num7: return "7";
   case GlfwKey::Num8: return "8";
   case GlfwKey::Num9: return "9";
-  case GlfwKey::Semicolon: return ";";
+  case GlfwKey::Semicolon: return /* translators: TR charmap encoding */ pgettext("Keyboard|Key", ";");
   case GlfwKey::Equal: return /* translators: TR charmap encoding */ pgettext("Keyboard|Key", "Equal");
   case GlfwKey::A: return "A";
   case GlfwKey::B: return "B";
@@ -58,10 +58,13 @@ std::string getName(GlfwKey key)
   case GlfwKey::X: return "X";
   case GlfwKey::Y: return "Y";
   case GlfwKey::Z: return "Z";
-  case GlfwKey::LeftBracket: return {ui::SquareBracketLeft};
-  case GlfwKey::Backslash: return "\\";
-  case GlfwKey::RightBracket: return {ui::SquareBracketRight};
-  case GlfwKey::GraveAccent: return std::string{ui::Acute1} + " ";
+  case GlfwKey::LeftBracket:
+    return /* translators: TR charmap encoding (square bracket left) */ pgettext("Keyboard|Key", "<");
+  case GlfwKey::Backslash: return /* translators: TR charmap encoding */ pgettext("Keyboard|Key", "\\");
+  case GlfwKey::RightBracket:
+    return /* translators: TR charmap encoding (square bracket right) */ pgettext("Keyboard|Key", ">");
+  case GlfwKey::GraveAccent:
+    return /* translators: TR charmap encoding (grave accent) */ pgettext("Keyboard|Key", "( ");
   case GlfwKey::Escape: return /* translators: TR charmap encoding */ pgettext("Keyboard|Key", "Esc");
   case GlfwKey::Enter: return /* translators: TR charmap encoding */ pgettext("Keyboard|Key", "Ret");
   case GlfwKey::Tab: return /* translators: TR charmap encoding */ pgettext("Keyboard|Key", "Tab");
