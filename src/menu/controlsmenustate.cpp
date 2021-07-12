@@ -109,23 +109,30 @@ std::unique_ptr<MenuState> ControlsMenuState::onFrame(ui::Ui& ui, engine::world:
 
   if(m_mode == Mode::Display && world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Menu))
   {
-    bool validMapping = true;
-    for(const auto required : {hid::Action::Forward,
-                               hid::Action::Backward,
-                               hid::Action::Left,
-                               hid::Action::Right,
-                               hid::Action::Action,
-                               hid::Action::Menu})
+    if(m_editing == world.getEngine().getEngineConfig()->inputMappings)
     {
-      for(const auto& x : m_editing)
-      {
-        validMapping &= !getKeys(x.mappings, engine::NamedAction{required}).empty();
-      }
+      m_mode = Mode::Discard;
     }
-    if(validMapping)
-      m_mode = Mode::ConfirmApply;
     else
-      m_mode = Mode::Error;
+    {
+      bool validMapping = true;
+      for(const auto required : {hid::Action::Forward,
+                                 hid::Action::Backward,
+                                 hid::Action::Left,
+                                 hid::Action::Right,
+                                 hid::Action::Action,
+                                 hid::Action::Menu})
+      {
+        for(const auto& x : m_editing)
+        {
+          validMapping &= !getKeys(x.mappings, engine::NamedAction{required}).empty();
+        }
+      }
+      if(validMapping)
+        m_mode = Mode::ConfirmApply;
+      else
+        m_mode = Mode::Error;
+    }
   }
 
   switch(m_mode)

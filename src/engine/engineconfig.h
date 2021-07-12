@@ -25,6 +25,11 @@ struct NamedInputMappingConfig
 
   void serialize(const serialization::Serializer<EngineConfig>& ser);
   static NamedInputMappingConfig create(const serialization::Serializer<EngineConfig>& ser);
+
+  bool operator==(const NamedInputMappingConfig& rhs) const
+  {
+    return name == rhs.name && mappings == rhs.mappings;
+  }
 };
 
 struct EngineConfig
