@@ -140,7 +140,10 @@ std::unique_ptr<MenuState> ControlsMenuState::onFrame(ui::Ui& ui, engine::world:
   case Mode::Display: handleDisplayInput(world); break;
   case Mode::ChangeKey: handleChangeKeyInput(world); break;
   case Mode::ConfirmApply: handleConfirmInput(world); break;
-  case Mode::Apply: [[fallthrough]];
+  case Mode::Apply:
+    world.getEngine().getEngineConfig()->inputMappings = m_editing;
+    world.getEngine().getPresenter().getInputHandler().setMappings(m_editing);
+    return std::move(m_previous);
   case Mode::Discard: return std::move(m_previous);
   case Mode::Error: handleErrorInput(world); break;
   }
