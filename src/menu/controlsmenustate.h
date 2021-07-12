@@ -32,7 +32,7 @@ private:
     ChangeKey,
     ConfirmApply,
     Apply,
-    NoApply,
+    Discard,
     Error,
   };
 

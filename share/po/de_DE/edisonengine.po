@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EdisonEngine\n"
 "Report-Msgid-Bugs-To: https://github.com/stohrendorf/EdisonEngine/issues\n"
-"POT-Creation-Date: 2021-07-12 07:39+0200\n"
+"POT-Creation-Date: 2021-07-12 19:38+0200\n"
 "Last-Translator: Steffen Ohrendorf\n"
 "Language-Team: none\n"
 "Language: de_DE\n"
@@ -227,6 +227,11 @@ msgid "Detail Levels"
 msgstr "Grafik"
 
 #. translators: TR charmap encoding
+#: menu/controlsmenustate.cpp:81
+msgid "Discard changes"
+msgstr "Anpassungen verwerfen"
+
+#. translators: TR charmap encoding
 #: hid/names.cpp:76
 msgctxt "Keyboard|Key"
 msgid "Down"
@@ -282,10 +287,13 @@ msgstr "Ende"
 #. translators: TR charmap encoding
 #: menu/controlsmenustate.cpp:77
 #, boost-format
-msgid "Ensure your mapping contains all movement directions, %1% and %2%."
+msgid ""
+"Ensure your mapping contains all\n"
+"movement directions, %1% and %2%."
 msgstr ""
-"Stelle sicher dass die Zuordnung alle Bewegungsrichtungen sowie %1% und %2% "
-"enth~alt."
+"Stelle sicher dass die Zuordnung\n"
+"alle Bewegungsrichtungen sowie\n"
+"%1% und %2% enth~alt."
 
 #. translators: TR charmap encoding
 #: hid/names.cpp:34
@@ -601,6 +609,7 @@ msgctxt "Keyboard|Key"
 msgid "O"
 msgstr "O"
 
+#. translators: TR charmap encoding
 #: menu/controlsmenustate.cpp:80
 msgid "OK"
 msgstr "OK"
@@ -976,19 +985,19 @@ msgid "Tab"
 msgstr "Tab"
 
 #. translators: TR charmap encoding
-#: menu/controlsmenustate.cpp:88
+#: menu/controlsmenustate.cpp:89
 #, boost-format
 msgid "To change a mapping, use %1%."
 msgstr "Zum Anpassen einer Zuordnung, %1% dr~ucken."
 
 #. translators: TR charmap encoding
-#: menu/controlsmenustate.cpp:92
+#: menu/controlsmenustate.cpp:93
 #, boost-format
 msgid "To remove a mapping, hold %1% for %2% seconds."
 msgstr "Zum Zur~ucksetzen einer Zuordnung, %1% f~ur %2% Sekunden halten."
 
 #. translators: TR charmap encoding
-#: menu/controlsmenustate.cpp:98
+#: menu/controlsmenustate.cpp:99
 #, boost-format
 msgid "To reset all mappings, hold %1% for %2% seconds."
 msgstr "Zum Zur~ucksetzen aller Zuordnungen, %1% f~ur %2% Sekunden halten."

@@ -74,10 +74,11 @@ ControlsMenuState::ControlsMenuState(const std::shared_ptr<MenuRingTransform>& r
                                  /* translators: TR charmap encoding */ _("No"),
                                  /* translators: TR charmap encoding */ _("Return")})}
     , m_error{std::make_shared<ui::widgets::SelectionBox>(
-        /* translators: TR charmap encoding */ _("Ensure your mapping contains all movement directions, %1% and %2%.",
+        /* translators: TR charmap encoding */ _("Ensure your mapping contains all\nmovement directions, %1% and %2%.",
                                                  hid::getName(hid::Action::Action),
                                                  hid::getName(hid::Action::Menu)),
-        std::vector<std::string>{_("OK")})}
+        std::vector<std::string>{/* translators: TR charmap encoding */ _("OK"),
+                                 /* translators: TR charmap encoding */ _("Discard changes")})}
 {
   m_layout->setExtents(1, 4);
   m_controls = createControlsWidget(world);
@@ -133,7 +134,7 @@ std::unique_ptr<MenuState> ControlsMenuState::onFrame(ui::Ui& ui, engine::world:
   case Mode::ChangeKey: handleChangeKeyInput(world); break;
   case Mode::ConfirmApply: handleConfirmInput(world); break;
   case Mode::Apply: [[fallthrough]];
-  case Mode::NoApply: return std::move(m_previous);
+  case Mode::Discard: return std::move(m_previous);
   case Mode::Error: handleErrorInput(world); break;
   }
 
@@ -168,7 +169,7 @@ std::unique_ptr<MenuState> ControlsMenuState::onFrame(ui::Ui& ui, engine::world:
     m_error->draw(ui, world.getPresenter());
     break;
   case Mode::Apply: [[fallthrough]];
-  case Mode::NoApply: break;
+  case Mode::Discard: break;
   }
 
   return nullptr;
@@ -249,7 +250,7 @@ void ControlsMenuState::handleConfirmInput(engine::world::World& world)
     switch(m_confirm->getSelected())
     {
     case 0: m_mode = Mode::Apply; break;
-    case 1: m_mode = Mode::NoApply; break;
+    case 1: m_mode = Mode::Discard; break;
     case 2: m_mode = Mode::Display; break;
     default: BOOST_THROW_EXCEPTION(std::domain_error("invalid selection"));
     }
@@ -258,7 +259,22 @@ void ControlsMenuState::handleConfirmInput(engine::world::World& world)
 
 void ControlsMenuState::handleErrorInput(engine::world::World& world)
 {
-  if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Action))
-    m_mode = Mode::Display;
+  if(world.getPresenter().getInputHandler().getInputState().zMovement.justChangedTo(hid::AxisMovement::Backward))
+  {
+    m_error->next();
+  }
+  else if(world.getPresenter().getInputHandler().getInputState().zMovement.justChangedTo(hid::AxisMovement::Forward))
+  {
+    m_error->prev();
+  }
+  else if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Action))
+  {
+    switch(m_error->getSelected())
+    {
+    case 0: m_mode = Mode::Display; break;
+    case 1: m_mode = Mode::Discard; break;
+    default: BOOST_THROW_EXCEPTION(std::domain_error("invalid selection"));
+    }
+  }
 }
 } // namespace menu
