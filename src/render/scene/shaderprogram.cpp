@@ -15,29 +15,9 @@ namespace
 {
 std::string readAll(const std::filesystem::path& filePath)
 {
-  // Open file for reading.
-  std::ifstream stream(filePath, std::ios::in | std::ios::binary);
-  if(!stream.is_open())
-  {
-    BOOST_LOG_TRIVIAL(error) << "Failed to load file: " << filePath;
-    return {};
-  }
-  stream.seekg(0, std::ios::end);
-  const auto size = static_cast<std::size_t>(stream.tellg());
-  stream.seekg(0, std::ios::beg);
-
-  // Read entire file contents.
-  std::string buffer;
-  buffer.resize(size);
-  stream.read(&buffer[0], size);
-  if(static_cast<std::size_t>(stream.gcount()) != size)
-  {
-    BOOST_LOG_TRIVIAL(error) << "Failed to read complete contents of file '" << filePath
-                             << "' (amount read vs. file size: " << stream.gcount() << " < " << size << ").";
-    return {};
-  }
-
-  return buffer;
+  std::ifstream stream{util::ensureFileExists(filePath), std::ios::in};
+  std::noskipws(stream);
+  return std::string{std::istream_iterator<char>{stream}, std::istream_iterator<char>{}};
 }
 
 std::string replaceDefines(const std::vector<std::string>& defines, bool isInput)

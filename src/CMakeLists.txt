@@ -598,6 +598,12 @@ foreach( _file ${_shared_files} )
     copy_runtime_dep_file( ${CMAKE_SOURCE_DIR} ${_bin_dir}/${_dirname} ${_file} )
 endforeach()
 
+copy_runtime_dep_file(
+        ${CMAKE_SOURCE_DIR}
+        ${_bin_dir}/share
+        share/gamecontrollerdb.txt
+)
+
 if( WIN32 )
     file(
             GLOB _shaders

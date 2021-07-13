@@ -5,6 +5,7 @@
 
 #include <GLFW/glfw3.h>
 #include <algorithm>
+#include <filesystem>
 #include <gsl/gsl-lite.hpp>
 #include <variant>
 
@@ -16,7 +17,7 @@ enum class GlfwGamepadButton;
 class InputHandler final
 {
 public:
-  explicit InputHandler(gsl::not_null<GLFWwindow*> window);
+  explicit InputHandler(gsl::not_null<GLFWwindow*> window, const std::filesystem::path& gameControllerDb);
   void setMappings(const std::vector<engine::NamedInputMappingConfig>& inputMappings);
 
   void update();
@@ -59,7 +60,6 @@ public:
 private:
   InputState m_inputState{};
   const gsl::not_null<GLFWwindow*> m_window;
-  int m_controllerIndex = -1;
   std::vector<engine::NamedInputMappingConfig> m_inputMappings{};
   engine::InputMappingConfig m_mergedInputMappings{};
 };

@@ -346,7 +346,8 @@ Presenter::Presenter(const std::filesystem::path& rootPath, const glm::ivec2& re
         gl::CImgWrapper{util::ensureFileExists(rootPath / "splash.png")}.toTexture())}
     , m_trTTFFont{std::make_unique<gl::Font>(util::ensureFileExists(rootPath / "trfont.ttf"))}
     , m_debugFont{std::make_unique<gl::Font>(util::ensureFileExists(rootPath / "DroidSansMono.ttf"))}
-    , m_inputHandler{std::make_unique<hid::InputHandler>(m_window->getWindow())}
+    , m_inputHandler{std::make_unique<hid::InputHandler>(m_window->getWindow(),
+                                                         rootPath / "share" / "gamecontrollerdb.txt")}
     , m_shaderCache{std::make_shared<render::scene::ShaderCache>(rootPath / "shaders")}
     , m_materialManager{std::make_unique<render::scene::MaterialManager>(m_shaderCache, m_renderer)}
     , m_csm{std::make_shared<render::scene::CSM>(1024, *m_materialManager)}

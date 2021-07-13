@@ -2,9 +2,11 @@
 
 #include "glfw_gamepad_buttons.h"
 #include "glfw_keys.h"
+#include "util/helpers.h"
 
 #include <boost/container/flat_set.hpp>
 #include <boost/log/trivial.hpp>
+#include <fstream>
 #include <utility>
 
 namespace hid
@@ -13,6 +15,7 @@ namespace
 {
 #define PRINT_KEY_INPUT
 
+boost::container::flat_set<int> connectedGamepads;
 boost::container::flat_set<GlfwKey> pressedKeys;
 std::optional<GlfwKey> recentPressedKey;
 
@@ -20,7 +23,7 @@ void keyCallback(GLFWwindow* /*window*/, int key, int /*scancode*/, int action, 
 {
   if(key < 0)
     return;
-  
+
   auto typed = static_cast<GlfwKey>(key);
   switch(action)
   {
@@ -38,6 +41,28 @@ void keyCallback(GLFWwindow* /*window*/, int key, int /*scancode*/, int action, 
   }
 }
 
+void joystickCallback(int jid, int event)
+{
+  switch(event)
+  {
+  case GLFW_CONNECTED:
+    if(glfwJoystickIsGamepad(jid) == GLFW_FALSE)
+    {
+      BOOST_LOG_TRIVIAL(info) << "Connected joystick #" << glfwGetJoystickName(jid) << " is not a gamepad";
+      break;
+    }
+
+    connectedGamepads.emplace(jid);
+    BOOST_LOG_TRIVIAL(info) << "Gamepad #" << jid << " connected: " << glfwGetGamepadName(jid);
+    break;
+  case GLFW_DISCONNECTED:
+    if(connectedGamepads.erase(jid) > 0)
+      BOOST_LOG_TRIVIAL(info) << "Gamepad #" << jid << " disconnected";
+    break;
+  default: BOOST_THROW_EXCEPTION(std::domain_error("invalid joystick connection event"));
+  }
+}
+
 void installHandlers(GLFWwindow* window)
 {
   static bool installed = false;
@@ -46,6 +71,7 @@ void installHandlers(GLFWwindow* window)
     return;
 
   glfwSetKeyCallback(window, &keyCallback);
+  glfwSetJoystickCallback(joystickCallback);
   installed = true;
 }
 
@@ -55,9 +81,15 @@ bool isKeyPressed(GlfwKey key)
 }
 } // namespace
 
-InputHandler::InputHandler(gsl::not_null<GLFWwindow*> window)
+InputHandler::InputHandler(gsl::not_null<GLFWwindow*> window, const std::filesystem::path& gameControllerDb)
     : m_window{std::move(window)}
 {
+  std::ifstream gameControllerDbFile{util::ensureFileExists(gameControllerDb), std::ios::in | std::ios::binary};
+  std::noskipws(gameControllerDbFile);
+  std::string gameControllerDbData{std::istream_iterator<char>{gameControllerDbFile}, std::istream_iterator<char>{}};
+
+  Expects(glfwUpdateGamepadMappings(gameControllerDbData.c_str()) == GLFW_TRUE);
+
   installHandlers(m_window);
 
   for(auto i = GLFW_JOYSTICK_1; i <= GLFW_JOYSTICK_LAST; ++i)
@@ -66,23 +98,30 @@ InputHandler::InputHandler(gsl::not_null<GLFWwindow*> window)
       continue;
 
     const gsl::czstring name = glfwGetGamepadName(i);
-    if(name == nullptr)
+    if(name == nullptr || glfwJoystickIsGamepad(i) != GLFW_TRUE)
+    {
+      BOOST_LOG_TRIVIAL(info) << "Connected joystick #" << i << " " << glfwGetJoystickName(i) << " is not a gamepad";
       continue;
+    }
 
-    if(!glfwJoystickIsGamepad(i))
-      continue;
-
-    BOOST_LOG_TRIVIAL(info) << "Found gamepad controller: " << name;
-    m_controllerIndex = i;
-    break;
+    BOOST_LOG_TRIVIAL(info) << "Found gamepad controller #" << i << ": " << name;
+    connectedGamepads.emplace(i);
   }
 }
 
 void InputHandler::update()
 {
-  GLFWgamepadstate gamepadState;
-  if(m_controllerIndex >= 0)
-    glfwGetGamepadState(m_controllerIndex, &gamepadState);
+  std::vector<GLFWgamepadstate> gamepadStates;
+  gamepadStates.resize(connectedGamepads.size());
+  std::transform(connectedGamepads.begin(),
+                 connectedGamepads.end(),
+                 std::back_inserter(gamepadStates),
+                 [](int jid)
+                 {
+                   GLFWgamepadstate state;
+                   Expects(glfwGetGamepadState(jid, &state) == GLFW_TRUE);
+                   return state;
+                 });
 
   boost::container::flat_map<Action, bool> states{};
 
@@ -90,7 +129,7 @@ void InputHandler::update()
   {
     if(std::holds_alternative<engine::NamedGlfwGamepadButton>(input))
     {
-      if(m_controllerIndex >= 0)
+      for(const auto& gamepadState : gamepadStates)
         states[action]
           |= gamepadState.buttons[static_cast<int>(std::get<engine::NamedGlfwGamepadButton>(input).value)] != 0;
     }
