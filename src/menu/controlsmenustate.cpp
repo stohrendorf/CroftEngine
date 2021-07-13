@@ -292,6 +292,7 @@ void ControlsMenuState::handleDisplayInput(engine::world::World& world)
     auto keys = getKeys(mapping.mappings, engine::NamedAction{m_controls->getCurrentAction()});
     m_mode = Mode::ChangeKey;
     (void)world.getPresenter().getInputHandler().takeRecentlyPressedKey();
+    (void)world.getPresenter().getInputHandler().takeRecentlyPressedButton();
   }
 }
 
@@ -304,6 +305,16 @@ void ControlsMenuState::handleChangeKeyInput(engine::world::World& world)
     for(auto key : keys)
       mapping.mappings.erase(key);
     mapping.mappings[newKey.value()] = m_controls->getCurrentAction();
+    m_mode = Mode::Display;
+    m_controls->updateBindings(mapping, getButtonFactory(world, mapping.controllerType));
+  }
+  else if(const auto newButton = world.getPresenter().getInputHandler().takeRecentlyPressedButton())
+  {
+    auto& mapping = m_editing.at(m_editingIndex);
+    auto keys = getKeys(mapping.mappings, engine::NamedAction{m_controls->getCurrentAction()});
+    for(auto key : keys)
+      mapping.mappings.erase(key);
+    mapping.mappings[newButton.value()] = m_controls->getCurrentAction();
     m_mode = Mode::Display;
     m_controls->updateBindings(mapping, getButtonFactory(world, mapping.controllerType));
   }

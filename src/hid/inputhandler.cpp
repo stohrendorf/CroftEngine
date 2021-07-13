@@ -16,6 +16,9 @@ namespace
 #define PRINT_KEY_INPUT
 
 boost::container::flat_set<int> connectedGamepads;
+boost::container::flat_set<GlfwGamepadButton> pressedButtons;
+std::optional<GlfwGamepadButton> recentPressedButton;
+
 boost::container::flat_set<GlfwKey> pressedKeys;
 std::optional<GlfwKey> recentPressedKey;
 
@@ -125,13 +128,26 @@ void InputHandler::update()
 
   boost::container::flat_map<Action, bool> states{};
 
+  const auto prevPressedButtons = std::exchange(pressedButtons, {});
+  for(const auto& [button, _] : hid::EnumUtil<GlfwGamepadButton>::all())
+  {
+    for(const auto& state : gamepadStates)
+    {
+      if(state.buttons[static_cast<int>(button)] != 0)
+      {
+        pressedButtons.emplace(button);
+        if(prevPressedButtons.count(button) == 0)
+          recentPressedButton = button;
+        break;
+      }
+    }
+  }
+
   for(const auto& [input, action] : m_mergedInputMappings)
   {
     if(std::holds_alternative<engine::NamedGlfwGamepadButton>(input))
     {
-      for(const auto& gamepadState : gamepadStates)
-        states[action]
-          |= gamepadState.buttons[static_cast<int>(std::get<engine::NamedGlfwGamepadButton>(input).value)] != 0;
+      states[action] |= pressedButtons.count(std::get<engine::NamedGlfwGamepadButton>(input).value) != 0;
     }
     else
     {
@@ -172,5 +188,10 @@ bool InputHandler::hasKey(GlfwKey key) const
 std::optional<GlfwKey> InputHandler::takeRecentlyPressedKey()
 {
   return std::exchange(recentPressedKey, std::nullopt);
+}
+
+std::optional<GlfwGamepadButton> InputHandler::takeRecentlyPressedButton()
+{
+  return std::exchange(recentPressedButton, std::nullopt);
 }
 } // namespace hid

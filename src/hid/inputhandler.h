@@ -56,6 +56,7 @@ public:
   [[nodiscard]] bool hasKey(GlfwKey key) const;
 
   [[nodiscard]] std::optional<GlfwKey> takeRecentlyPressedKey();
+  [[nodiscard]] std::optional<GlfwGamepadButton> takeRecentlyPressedButton();
 
 private:
   InputState m_inputState{};
