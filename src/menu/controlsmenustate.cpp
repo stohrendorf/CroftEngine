@@ -166,10 +166,12 @@ std::unique_ptr<MenuState> ControlsMenuState::onFrame(ui::Ui& ui, engine::world:
                                  hid::Action::Action,
                                  hid::Action::Menu})
       {
-        for(const auto& x : m_editing)
+        bool anyAssignment = false;
+        for(const auto& profiles : m_editing)
         {
-          validMapping &= !getKeys(x.mappings, engine::NamedAction{required}).empty();
+          anyAssignment |= !getKeys(profiles.mappings, engine::NamedAction{required}).empty();
         }
+        validMapping &= anyAssignment;
       }
       if(validMapping)
         m_mode = Mode::ConfirmApply;
