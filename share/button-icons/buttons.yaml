@@ -31,6 +31,18 @@ layouts:
         value: ps4/dpad_down.png
       - key: !<GlfwGamepadButton> DPadLeft
         value: ps4/dpad_left.png
+      - key: !<GlfwAxis> LeftX
+        value: ps4/left_stick.png
+      - key: !<GlfwAxis> LeftY
+        value: ps4/left_stick.png
+      - key: !<GlfwAxis> RightX
+        value: ps4/right_stick.png
+      - key: !<GlfwAxis> RightY
+        value: ps4/right_stick.png
+      - key: !<GlfwAxis> LeftTrigger
+        value: ps4/l2.png
+      - key: !<GlfwAxis> RightTrigger
+        value: ps4/r2.png
   - name: XBox
     icons:
       - key: !<GlfwGamepadButton> A
@@ -63,3 +75,15 @@ layouts:
         value: xbox360/dpad_down.png
       - key: !<GlfwGamepadButton> DPadLeft
         value: xbox360/dpad_left.png
+      - key: !<GlfwAxis> LeftX
+        value: xbox360/left_stick.png
+      - key: !<GlfwAxis> LeftY
+        value: xbox360/left_stick.png
+      - key: !<GlfwAxis> RightX
+        value: xbox360/right_stick.png
+      - key: !<GlfwAxis> RightY
+        value: xbox360/right_stick.png
+      - key: !<GlfwAxis> LeftTrigger
+        value: xbox360/lt.png
+      - key: !<GlfwAxis> RightTrigger
+        value: xbox360/rt.png

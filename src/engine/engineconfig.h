@@ -2,6 +2,8 @@
 
 #include "displaysettings.h"
 #include "hid/actions.h"
+#include "hid/glfw_axes.h"
+#include "hid/glfw_axis_dirs.h"
 #include "hid/glfw_gamepad_buttons.h"
 #include "hid/glfw_keys.h"
 #include "render/rendersettings.h"
@@ -14,9 +16,12 @@ namespace engine
 {
 using NamedGlfwKey = serialization::NamedEnum<hid::GlfwKey, hid::EnumUtil<hid::GlfwKey>>;
 using NamedGlfwGamepadButton = serialization::NamedEnum<hid::GlfwGamepadButton, hid::EnumUtil<hid::GlfwGamepadButton>>;
+using NamedGlfwAxis = serialization::NamedEnum<hid::GlfwAxis, hid::EnumUtil<hid::GlfwAxis>>;
+using NamedGlfwAxisDir = serialization::NamedEnum<hid::GlfwAxisDir, hid::EnumUtil<hid::GlfwAxisDir>>;
 using NamedAction = serialization::NamedEnum<hid::Action, hid::EnumUtil<hid::Action>>;
+using NamedAxisDir = std::pair<NamedGlfwAxis, NamedGlfwAxisDir>;
 
-using InputMappingConfig = std::map<std::variant<NamedGlfwKey, NamedGlfwGamepadButton>, NamedAction>;
+using InputMappingConfig = std::map<std::variant<NamedGlfwKey, NamedGlfwGamepadButton, NamedAxisDir>, NamedAction>;
 
 struct NamedInputMappingConfig
 {

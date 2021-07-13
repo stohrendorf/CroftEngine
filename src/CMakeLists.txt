@@ -55,6 +55,21 @@ wrap_enum(
 )
 wrap_enum(
         NAMESPACE hid
+        NAME GlfwAxis
+        TYPE int32_t
+        SOURCE ${CMAKE_CURRENT_SOURCE_DIR}/glfw_axes.txt
+        DEST ${CMAKE_CURRENT_SOURCE_DIR}/hid/glfw_axes.h
+        WITH_INCLUDES "<GLFW/glfw3.h>"
+)
+wrap_enum(
+        NAMESPACE hid
+        NAME GlfwAxisDir
+        TYPE int32_t
+        SOURCE ${CMAKE_CURRENT_SOURCE_DIR}/glfw_axis_dirs.txt
+        DEST ${CMAKE_CURRENT_SOURCE_DIR}/hid/glfw_axis_dirs.h
+)
+wrap_enum(
+        NAMESPACE hid
         NAME Action
         TYPE int32_t
         SOURCE ${CMAKE_CURRENT_SOURCE_DIR}/actions.txt

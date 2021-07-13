@@ -22,6 +22,11 @@ std::optional<GlfwGamepadButton> recentPressedButton;
 boost::container::flat_set<GlfwKey> pressedKeys;
 std::optional<GlfwKey> recentPressedKey;
 
+boost::container::flat_set<AxisDir> pressedAxes;
+std::optional<AxisDir> recentPressedAxis;
+
+constexpr float AxisDeadZone = 0.5f;
+
 void keyCallback(GLFWwindow* /*window*/, int key, int /*scancode*/, int action, int /*mods*/)
 {
   if(key < 0)
@@ -143,15 +148,36 @@ void InputHandler::update()
     }
   }
 
+  const auto prevPressedAxes = std::exchange(pressedAxes, {});
+  for(const auto& [axis, _] : hid::EnumUtil<GlfwAxis>::all())
+  {
+    for(const auto& state : gamepadStates)
+    {
+      if(const auto value = state.axes[static_cast<int>(axis)]; std::abs(value) > AxisDeadZone)
+      {
+        const AxisDir axisDir{axis, value > 0 ? GlfwAxisDir::Positive : GlfwAxisDir::Negative};
+        pressedAxes.emplace(axisDir);
+        if(prevPressedAxes.count(axisDir) == 0)
+          recentPressedAxis = axisDir;
+        break;
+      }
+    }
+  }
+
   for(const auto& [input, action] : m_mergedInputMappings)
   {
     if(std::holds_alternative<engine::NamedGlfwGamepadButton>(input))
     {
       states[action] |= pressedButtons.count(std::get<engine::NamedGlfwGamepadButton>(input).value) != 0;
     }
-    else
+    else if(std::holds_alternative<engine::NamedGlfwKey>(input))
     {
       states[action] |= isKeyPressed(std::get<engine::NamedGlfwKey>(input).value);
+    }
+    else
+    {
+      const auto mapped = std::get<engine::NamedAxisDir>(input);
+      states[action] |= pressedAxes.count({mapped.first.value, mapped.second.value}) != 0;
     }
   }
 
@@ -193,5 +219,10 @@ std::optional<GlfwKey> InputHandler::takeRecentlyPressedKey()
 std::optional<GlfwGamepadButton> InputHandler::takeRecentlyPressedButton()
 {
   return std::exchange(recentPressedButton, std::nullopt);
+}
+
+std::optional<AxisDir> InputHandler::takeRecentlyPressedAxis()
+{
+  return std::exchange(recentPressedAxis, std::nullopt);
 }
 } // namespace hid

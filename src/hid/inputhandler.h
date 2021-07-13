@@ -1,5 +1,6 @@
 #pragma once
 
+#include "axisdir.h"
 #include "engine/engineconfig.h"
 #include "inputstate.h"
 
@@ -57,6 +58,7 @@ public:
 
   [[nodiscard]] std::optional<GlfwKey> takeRecentlyPressedKey();
   [[nodiscard]] std::optional<GlfwGamepadButton> takeRecentlyPressedButton();
+  [[nodiscard]] std::optional<AxisDir> takeRecentlyPressedAxis();
 
 private:
   InputState m_inputState{};

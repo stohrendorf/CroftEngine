@@ -36,6 +36,8 @@ src/engine/soundeffects_tr1.h
 src/engine/tracks_tr1.h
 src/hid/glfw_keys.h
 src/hid/glfw_gamepad_buttons.h
+src/hid/glfw_axes.h
+src/hid/glfw_axis_dirs.h
 src/hid/actions.h
 
 share/**/*.mo

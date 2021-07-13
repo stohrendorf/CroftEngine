@@ -5,6 +5,7 @@
 #include "render/textureatlas.h"
 #include "serialization/map.h"
 #include "serialization/serialization.h"
+#include "serialization/variant.h"
 #include "serialization/vector.h"
 #include "serialization/yamldocument.h"
 #include "ui/core.h"
@@ -22,7 +23,7 @@ ControllerLayouts loadControllerButtonIcons(render::MultiTextureAtlas& atlases,
   struct Layout
   {
     std::string name{};
-    std::map<NamedGlfwGamepadButton, std::string> icons;
+    std::map<std::variant<NamedGlfwGamepadButton, NamedGlfwAxis>, std::string> icons;
 
     [[nodiscard]] static Layout create(const serialization::Serializer<int>& ser)
     {
@@ -43,7 +44,7 @@ ControllerLayouts loadControllerButtonIcons(render::MultiTextureAtlas& atlases,
   {
     BOOST_LOG_TRIVIAL(debug) << "Loading controller buttons: " << layout.name;
     ControllerLayout currentLayout;
-    for(const auto& [button, icon] : layout.icons)
+    for(const auto& [buttonOrAxis, icon] : layout.icons)
     {
       gl::CImgWrapper src{util::ensureFileExists(configFile.parent_path() / icon)};
       const auto newHeight = ui::FontHeight * 120 / 100;
@@ -58,6 +59,20 @@ ControllerLayouts loadControllerButtonIcons(render::MultiTextureAtlas& atlases,
       world::Sprite sprite{
         atlasLoc.first, uvLoc, uvLoc + uvSize, {0, 0 + YOffset}, {src.width(), src.height() + YOffset}, nullptr};
 
+      std::string btnName;
+      if(std::holds_alternative<NamedGlfwGamepadButton>(buttonOrAxis))
+      {
+        btnName = toString(std::get<NamedGlfwGamepadButton>(buttonOrAxis));
+      }
+      else if(std::holds_alternative<NamedGlfwAxis>(buttonOrAxis))
+      {
+        btnName = toString(std::get<NamedGlfwAxis>(buttonOrAxis));
+      }
+      else
+      {
+        BOOST_THROW_EXCEPTION(std::runtime_error("invalid controller button configuration"));
+      }
+
       sprite.mesh = render::scene::createSpriteMesh(static_cast<float>(sprite.render0.x),
                                                     static_cast<float>(-sprite.render0.y),
                                                     static_cast<float>(sprite.render1.x),
@@ -66,9 +81,16 @@ ControllerLayouts loadControllerButtonIcons(render::MultiTextureAtlas& atlases,
                                                     sprite.uv1,
                                                     material,
                                                     sprite.textureId.get_as<int32_t>(),
-                                                    "controller-" + layout.name + "-" + toString(button));
+                                                    "controller-" + layout.name + "-" + btnName);
 
-      currentLayout.emplace(button, sprite);
+      if(std::holds_alternative<NamedGlfwGamepadButton>(buttonOrAxis))
+      {
+        currentLayout.emplace(std::get<NamedGlfwGamepadButton>(buttonOrAxis).value, sprite);
+      }
+      else
+      {
+        currentLayout.emplace(std::get<NamedGlfwAxis>(buttonOrAxis).value, sprite);
+      }
     }
 
     controllerLayouts.emplace(layout.name, std::move(currentLayout));

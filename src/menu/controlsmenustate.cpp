@@ -34,62 +34,85 @@ std::vector<T> getKeys(const std::map<T, U>& map, const U& needle)
 std::function<std::shared_ptr<ui::widgets::Widget>(const engine::InputMappingConfig&, hid::Action)>
   getButtonFactory(const engine::world::World& world, const std::string& controllerLayoutName)
 {
-  if(controllerLayoutName.empty())
+  return [controllerLayoutName, &world](const engine::InputMappingConfig& mappingConfig,
+                                        hid::Action action) -> std::shared_ptr<ui::widgets::Widget>
   {
-    return
-      [](const engine::InputMappingConfig& mappingConfig, hid::Action action) -> std::shared_ptr<ui::widgets::Widget>
+    const auto keys = getKeys(mappingConfig, engine::NamedAction{action});
+    if(keys.empty())
     {
-      const auto keys = getKeys(mappingConfig, engine::NamedAction{action});
-      if(keys.empty())
-      {
-        return std::make_shared<ui::widgets::Label>(
-          /* translators: TR charmap encoding */ pgettext("ButtonAssignment", "N/A"));
-      }
-      else
-      {
-        Expects(keys.size() == 1);
-        if(std::holds_alternative<engine::NamedGlfwKey>(keys[0]))
-        {
-          return std::make_shared<ui::widgets::Label>(hid::getName(std::get<engine::NamedGlfwKey>(keys[0])));
-        }
-        else
-        {
-          return std::make_shared<ui::widgets::Label>(hid::getName(std::get<engine::NamedGlfwGamepadButton>(keys[0])));
-        }
-      }
-    };
-  }
-  else
-  {
-    const auto& buttonMap = world.getControllerLayouts().at(controllerLayoutName);
-    return [&buttonMap](const engine::InputMappingConfig& mappingConfig,
-                        hid::Action action) -> std::shared_ptr<ui::widgets::Widget>
+      return std::make_shared<ui::widgets::Label>(
+        /* translators: TR charcmap encoding */ pgettext("ButtonAssignment", "N/A"));
+    }
+
+    Expects(keys.size() == 1);
+    if(std::holds_alternative<engine::NamedGlfwKey>(keys[0]))
     {
-      const auto keys = getKeys(mappingConfig, engine::NamedAction{action});
-      if(keys.empty())
-      {
+      return std::make_shared<ui::widgets::Label>(hid::getName(std::get<engine::NamedGlfwKey>(keys[0])));
+    }
+    else if(std::holds_alternative<engine::NamedGlfwGamepadButton>(keys[0]))
+    {
+      Expects(!controllerLayoutName.empty());
+      const auto& buttonMap = world.getControllerLayouts().at(controllerLayoutName);
+      const auto it = buttonMap.find(std::get<engine::NamedGlfwGamepadButton>(keys[0]).value);
+      if(it == buttonMap.end())
         return std::make_shared<ui::widgets::Label>(
           /* translators: TR charcmap encoding */ pgettext("ButtonAssignment", "N/A"));
-      }
-      else
+
+      return std::make_shared<ui::widgets::Sprite>(it->second);
+    }
+    else if(std::holds_alternative<engine::NamedAxisDir>(keys[0]))
+    {
+      Expects(!controllerLayoutName.empty());
+      const auto& buttonMap = world.getControllerLayouts().at(controllerLayoutName);
+      const auto ref = std::get<engine::NamedAxisDir>(keys[0]);
+      const auto it = buttonMap.find(ref.first.value);
+      if(it == buttonMap.end())
+        return std::make_shared<ui::widgets::Label>(
+          /* translators: TR charcmap encoding */ pgettext("ButtonAssignment", "N/A"));
+
+      const auto makeDirName = [&ref](const std::string& negativeName, const std::string& positiveName)
       {
-        Expects(keys.size() == 1);
-        if(std::holds_alternative<engine::NamedGlfwKey>(keys[0]))
+        switch(ref.second.value)
         {
-          return std::make_shared<ui::widgets::Label>(hid::getName(std::get<engine::NamedGlfwKey>(keys[0])));
+        case hid::GlfwAxisDir::Positive: return positiveName;
+        case hid::GlfwAxisDir::Negative: return negativeName;
+        default: BOOST_THROW_EXCEPTION(std::domain_error("axis direction"));
         }
-        else
-        {
-          const auto it = buttonMap.find(std::get<engine::NamedGlfwGamepadButton>(keys[0]).value);
-          if(it == buttonMap.end())
-            return std::make_shared<ui::widgets::Label>(
-              /* translators: TR charcmap encoding */ pgettext("ButtonAssignment", "N/A"));
-          else
-            return std::make_shared<ui::widgets::Sprite>(it->second);
-        }
+      };
+
+      std::string axisName;
+      switch(ref.first.value)
+      {
+      case hid::GlfwAxis::LeftX: [[fallthrough]];
+      case hid::GlfwAxis::RightX:
+        axisName = makeDirName(/* translators: TR charcmap encoding */ pgettext("GamepadAxis", "Left"),
+                               /* translators: TR charcmap encoding */ pgettext("GamepadAxis", "Right"));
+        break;
+      case hid::GlfwAxis::LeftY: [[fallthrough]];
+      case hid::GlfwAxis::RightY:
+        axisName = makeDirName(/* translators: TR charcmap encoding */ pgettext("GamepadAxis", "Up"),
+                               /* translators: TR charcmap encoding */ pgettext("GamepadAxis", "Down"));
+        break;
+      case hid::GlfwAxis::LeftTrigger: [[fallthrough]];
+      case hid::GlfwAxis::RightTrigger: break;
       }
-    };
-  }
+
+      auto grid = std::make_shared<ui::widgets::GridBox>(glm::ivec2{0, 0});
+      grid->setExtents(2, 1);
+      auto s = std::make_shared<ui::widgets::Sprite>(it->second);
+      s->fitToContent();
+      grid->set(0, 0, s);
+      auto l = std::make_shared<ui::widgets::Label>(axisName);
+      l->fitToContent();
+      grid->set(1, 0, l);
+      grid->fitToContent();
+      return grid;
+    }
+    else
+    {
+      BOOST_THROW_EXCEPTION(std::runtime_error("failed to create display widget for button assignment"));
+    }
+  };
 }
 } // namespace
 
@@ -295,30 +318,34 @@ void ControlsMenuState::handleDisplayInput(engine::world::World& world)
     m_mode = Mode::ChangeKey;
     (void)world.getPresenter().getInputHandler().takeRecentlyPressedKey();
     (void)world.getPresenter().getInputHandler().takeRecentlyPressedButton();
+    (void)world.getPresenter().getInputHandler().takeRecentlyPressedAxis();
   }
 }
 
 void ControlsMenuState::handleChangeKeyInput(engine::world::World& world)
 {
-  if(const auto newKey = world.getPresenter().getInputHandler().takeRecentlyPressedKey())
+  auto setMapping = [&](const auto& button)
   {
     auto& mapping = m_editing.at(m_editingIndex);
     auto keys = getKeys(mapping.mappings, engine::NamedAction{m_controls->getCurrentAction()});
     for(auto key : keys)
       mapping.mappings.erase(key);
-    mapping.mappings[newKey.value()] = m_controls->getCurrentAction();
+    mapping.mappings[button] = m_controls->getCurrentAction();
     m_mode = Mode::Display;
     m_controls->updateBindings(mapping, getButtonFactory(world, mapping.controllerType));
+  };
+
+  if(const auto newKey = world.getPresenter().getInputHandler().takeRecentlyPressedKey())
+  {
+    setMapping(newKey.value());
   }
   else if(const auto newButton = world.getPresenter().getInputHandler().takeRecentlyPressedButton())
   {
-    auto& mapping = m_editing.at(m_editingIndex);
-    auto keys = getKeys(mapping.mappings, engine::NamedAction{m_controls->getCurrentAction()});
-    for(auto key : keys)
-      mapping.mappings.erase(key);
-    mapping.mappings[newButton.value()] = m_controls->getCurrentAction();
-    m_mode = Mode::Display;
-    m_controls->updateBindings(mapping, getButtonFactory(world, mapping.controllerType));
+    setMapping(newButton.value());
+  }
+  else if(const auto newAxis = world.getPresenter().getInputHandler().takeRecentlyPressedAxis())
+  {
+    setMapping(newAxis.value());
   }
 }
 

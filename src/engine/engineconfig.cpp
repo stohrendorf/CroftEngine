@@ -3,6 +3,7 @@
 #include "core/i18n.h"
 #include "serialization/default.h"
 #include "serialization/map.h"
+#include "serialization/pair.h"
 #include "serialization/serialization.h"
 #include "serialization/variant.h"
 #include "serialization/vector.h"
@@ -13,6 +14,8 @@ namespace
 {
 using hid::Action;
 using hid::EnumUtil;
+using hid::GlfwAxis;
+using hid::GlfwAxisDir;
 using hid::GlfwGamepadButton;
 using hid::GlfwKey;
 
@@ -21,7 +24,7 @@ std::vector<NamedInputMappingConfig> getDefaultMappings()
   return {
     {
       pgettext("Input|MappingName", "Keyboard"),
-      {},
+      "PS",
       {
         {GlfwKey::LeftShift, Action::Walk},
         {GlfwKey::LeftControl, Action::Action},
@@ -64,6 +67,8 @@ std::vector<NamedInputMappingConfig> getDefaultMappings()
         {GlfwGamepadButton::DPadRight, Action::Right},
         {GlfwGamepadButton::DPadUp, Action::Forward},
         {GlfwGamepadButton::DPadDown, Action::Backward},
+        {NamedAxisDir{GlfwAxis::LeftTrigger, GlfwAxisDir::Positive}, Action::StepLeft},
+        {NamedAxisDir{GlfwAxis::RightTrigger, GlfwAxisDir::Positive}, Action::StepRight},
       },
     },
   };
