@@ -68,7 +68,7 @@ ControlsWidget::ControlsWidget(const engine::NamedInputMappingConfig& mappingCon
     : m_content{std::make_shared<ui::widgets::GridBox>()}
     , m_container{std::make_shared<ui::widgets::GroupBox>(mappingConfig.name, m_content)}
 {
-  m_content->setExtents(1, 2);
+  m_content->setExtents(1, 3);
 
   auto gridBox = std::make_shared<ui::widgets::GridBox>(glm::ivec2{10, ui::OutlineBorderWidth});
   gridBox->setExtents(2 * gameplayActions.size(), gameplayActions[0].size());
@@ -77,14 +77,16 @@ ControlsWidget::ControlsWidget(const engine::NamedInputMappingConfig& mappingCon
 
   auto groupBox = std::make_shared<ui::widgets::GroupBox>(
     /* translators: TR charmap encoding */ _("Gameplay"), gridBox);
-  m_content->set(0, 0, groupBox);
+  m_content->set(0, 1, groupBox);
 
   gridBox = std::make_shared<ui::widgets::GridBox>(glm::ivec2{10, ui::OutlineBorderWidth});
   gridBox->setExtents(2 * shortcutActions.size(), shortcutActions[0].size());
   m_controlGroups.emplace_back(gridBox);
 
   groupBox = std::make_shared<ui::widgets::GroupBox>(/* translators: TR charmap encoding */ _("Shortcuts"), gridBox);
-  m_content->set(0, 1, groupBox);
+  m_content->set(0, 2, groupBox);
+
+  m_content->setSelected({0, 1});
 }
 
 void ControlsWidget::fitToContent()
@@ -157,7 +159,7 @@ void ControlsWidget::draw(ui::Ui& ui, const engine::Presenter& presenter) const
 
 const std::shared_ptr<ui::widgets::GridBox>& ControlsWidget::getCurrentGridBox() const
 {
-  return m_controlGroups.at(std::get<1>(m_content->getSelected()));
+  return m_controlGroups.at(std::get<1>(m_content->getSelected()) - 1);
 }
 
 void ControlsWidget::nextRow()
@@ -170,7 +172,7 @@ void ControlsWidget::nextRow()
       if(!m_content->nextRow())
       {
         // wrap around
-        m_content->setSelected({0, 0});
+        m_content->setSelected({0, 1});
       }
 
       getCurrentGridBox()->setSelected({std::get<0>(currentGridBox->getSelected()), 0});
@@ -185,10 +187,10 @@ void ControlsWidget::prevRow()
     const auto& currentGridBox = getCurrentGridBox();
     if(!currentGridBox->prevRow())
     {
-      if(!m_content->prevRow())
+      if(!m_content->prevRow() || std::get<1>(m_content->getSelected()) == 0)
       {
         // wrap around
-        m_content->setSelected({0, m_controlGroups.size() - 1});
+        m_content->setSelected({0, std::get<1>(m_content->getExtents()) - 1});
       }
 
       getCurrentGridBox()->setSelected(
@@ -227,6 +229,10 @@ void ControlsWidget::updateBindings(
   const std::function<std::shared_ptr<ui::widgets::Widget>(const engine::InputMappingConfig&, hid::Action)>& factory)
 {
   m_container->setTitle(mappingConfig.name);
+  m_content->set(0,
+                 0,
+                 std::make_shared<ui::widgets::Label>(
+                   /* translators: TR charmap encoding */ _("Controller Type: %1%", mappingConfig.controllerType)));
 
   auto set = [&mappingConfig, &factory](ui::widgets::GridBox& gridBox, size_t x0, size_t y, hid::Action action)
   {
@@ -266,17 +272,13 @@ void ControlsWidget::updateBindings(
 
 hid::Action ControlsWidget::getCurrentAction() const
 {
-  const auto getAction = [this](size_t n)
+  const auto selectedIdx = std::get<1>(m_content->getSelected());
+  auto [x, y] = m_controlGroups.at(selectedIdx)->getSelected();
+  switch(selectedIdx)
   {
-    auto [x, y] = m_controlGroups.at(n)->getSelected();
-    switch(n)
-    {
-    case 0: return gameplayActions.at(x / 2).at(y).value();
-    case 1: return shortcutActions.at(x / 2).at(y).value();
-    default: BOOST_THROW_EXCEPTION(std::runtime_error("Invalid control group"));
-    }
-  };
-
-  return getAction(std::get<1>(m_content->getSelected()));
+  case 1: return gameplayActions.at(x / 2).at(y).value();
+  case 2: return shortcutActions.at(x / 2).at(y).value();
+  default: BOOST_THROW_EXCEPTION(std::runtime_error("Invalid control group"));
+  }
 }
 } // namespace menu

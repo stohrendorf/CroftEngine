@@ -17,6 +17,9 @@ namespace menu
 namespace
 {
 constexpr auto EditAction = hid::Action::Action;
+constexpr auto ChangeControllerTypeAction = hid::Action::Holster;
+constexpr auto PrevProfileAction = hid::Action::StepLeft;
+constexpr auto NextProfileAction = hid::Action::StepRight;
 constexpr auto BlinkPeriod = std::chrono::milliseconds{500};
 
 template<typename T, typename U>
@@ -140,15 +143,15 @@ ControlsMenuState::ControlsMenuState(const std::shared_ptr<MenuRingTransform>& r
 {
   m_controls->updateBindings(m_editing.at(0), getButtonFactory(world, m_editing.at(0).controllerType));
 
-  m_layout->setExtents(1, 5);
+  m_layout->setExtents(1, 6);
 
   m_layout->set(0, 0, m_controls);
   m_layout->set(0,
                 1,
                 std::make_shared<ui::widgets::Label>(
                   /* translators: TR charmap encoding */ _("Use %1% and %2% to edit other profiles.",
-                                                           hid::getName(hid::Action::StepLeft),
-                                                           hid::getName(hid::Action::StepRight))));
+                                                           hid::getName(PrevProfileAction),
+                                                           hid::getName(NextProfileAction))));
   m_layout->set(0,
                 2,
                 std::make_shared<ui::widgets::Label>(
@@ -156,11 +159,16 @@ ControlsMenuState::ControlsMenuState(const std::shared_ptr<MenuRingTransform>& r
   m_layout->set(0,
                 3,
                 std::make_shared<ui::widgets::Label>(
+                  /* translators: TR charmap encoding */ _("To change the controller type, use %1%.",
+                                                           hid::getName(ChangeControllerTypeAction))));
+  m_layout->set(0,
+                4,
+                std::make_shared<ui::widgets::Label>(
                   /* translators: TR charmap encoding */ _("To remove a mapping, hold %1% for %2% seconds.",
                                                            hid::getName(m_deleteKey.getKey()),
                                                            m_deleteKey.getDelay().count())));
   m_layout->set(0,
-                4,
+                5,
                 std::make_shared<ui::widgets::Label>(
                   /* translators: TR charmap encoding */ _("To reset all mappings, hold %1% for %2% seconds.",
                                                            hid::getName(m_resetKey.getKey()),
@@ -274,7 +282,7 @@ void ControlsMenuState::handleDisplayInput(engine::world::World& world)
     m_controls->updateBindings(mapping, getButtonFactory(world, mapping.controllerType));
   }
 
-  if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::StepLeft))
+  if(world.getPresenter().getInputHandler().hasDebouncedAction(PrevProfileAction))
   {
     if(m_editingIndex == 0)
       m_editingIndex = m_editing.size() - 1;
@@ -284,12 +292,25 @@ void ControlsMenuState::handleDisplayInput(engine::world::World& world)
                                getButtonFactory(world, m_editing.at(m_editingIndex).controllerType));
   }
 
-  if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::StepRight))
+  if(world.getPresenter().getInputHandler().hasDebouncedAction(NextProfileAction))
   {
     if(m_editingIndex == m_editing.size() - 1)
       m_editingIndex = 0;
     else
       ++m_editingIndex;
+    m_controls->updateBindings(m_editing.at(m_editingIndex),
+                               getButtonFactory(world, m_editing.at(m_editingIndex).controllerType));
+  }
+
+  if(world.getPresenter().getInputHandler().hasDebouncedAction(ChangeControllerTypeAction))
+  {
+    auto layoutIt = world.getControllerLayouts().find(m_editing.at(m_editingIndex).controllerType);
+    Expects(layoutIt != world.getControllerLayouts().end());
+    ++layoutIt;
+    if(layoutIt == world.getControllerLayouts().end())
+      m_editing.at(m_editingIndex).controllerType = world.getControllerLayouts().begin()->first;
+    else
+      m_editing.at(m_editingIndex).controllerType = layoutIt->first;
     m_controls->updateBindings(m_editing.at(m_editingIndex),
                                getButtonFactory(world, m_editing.at(m_editingIndex).controllerType));
   }
@@ -311,7 +332,7 @@ void ControlsMenuState::handleDisplayInput(engine::world::World& world)
     m_controls->prevColumn();
   }
 
-  if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Action))
+  if(world.getPresenter().getInputHandler().hasDebouncedAction(EditAction))
   {
     auto& mapping = m_editing.at(m_editingIndex);
     auto keys = getKeys(mapping.mappings, engine::NamedAction{m_controls->getCurrentAction()});

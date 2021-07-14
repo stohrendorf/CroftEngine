@@ -36,7 +36,7 @@ public:
     return m_selected;
   }
 
-  void setSelected(const std ::pair<size_t, size_t>& selected)
+  void setSelected(const std::pair<size_t, size_t>& selected)
   {
     m_selected = selected;
   }
