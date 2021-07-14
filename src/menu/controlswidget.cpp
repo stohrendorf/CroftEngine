@@ -272,12 +272,12 @@ void ControlsWidget::updateBindings(
 
 hid::Action ControlsWidget::getCurrentAction() const
 {
-  const auto selectedIdx = std::get<1>(m_content->getSelected());
+  const auto selectedIdx = std::get<1>(m_content->getSelected()) - 1;
   auto [x, y] = m_controlGroups.at(selectedIdx)->getSelected();
   switch(selectedIdx)
   {
-  case 1: return gameplayActions.at(x / 2).at(y).value();
-  case 2: return shortcutActions.at(x / 2).at(y).value();
+  case 0: return gameplayActions.at(x / 2).at(y).value();
+  case 1: return shortcutActions.at(x / 2).at(y).value();
   default: BOOST_THROW_EXCEPTION(std::runtime_error("Invalid control group"));
   }
 }
