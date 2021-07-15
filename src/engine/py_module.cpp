@@ -1,11 +1,11 @@
 #include "ai/py_module.h"
 
-#include "core/i18n.h"
 #include "core/pybindmodule.h"
 #include "engine/objects/objectstate.h"
 #include "items_tr1.h"
 #include "script/reflection.h"
 #include "soundeffects_tr1.h"
+#include "weapontype.h"
 
 #include <memory>
 
@@ -17,6 +17,17 @@ PYBIND11_EMBEDDED_MODULE(engine, m)
   engine::ai::initAiModule(m.def_submodule("ai"));
 
   py::class_<engine::script::TrackInfo>(m, "TrackInfo").def(py::init<core::SoundEffectId::type, audio::TrackType>());
+
+  {
+    auto e = py::enum_<engine::WeaponType>(m, "WeaponType");
+#define EXPOSE_ENUM_MEMBER(n) e.value(#n, engine::WeaponType::n)
+    e.value("None_", engine::WeaponType::None);
+    EXPOSE_ENUM_MEMBER(Pistols);
+    EXPOSE_ENUM_MEMBER(Magnums);
+    EXPOSE_ENUM_MEMBER(Uzis);
+    EXPOSE_ENUM_MEMBER(Shotgun);
+#undef EXPOSE_ENUM_MEMBER
+  }
 
   py::class_<engine::script::ObjectInfo>(m, "ObjectInfo")
     .def(py::init<>())
@@ -67,7 +78,8 @@ PYBIND11_EMBEDDED_MODULE(engine, m)
                   std::unordered_map<engine::TR1ItemId, size_t>,
                   std::unordered_set<engine::TR1ItemId>,
                   std::optional<engine::TR1TrackId>,
-                  bool>(),
+                  bool,
+                  engine::WeaponType>(),
          py::kw_only{},
          py::arg("name"),
          py::arg("secrets"),
@@ -77,7 +89,8 @@ PYBIND11_EMBEDDED_MODULE(engine, m)
          py::arg("inventory") = py::dict{},
          py::arg("drop_inventory") = py::set{},
          py::arg("track") = std::nullopt,
-         py::arg("allow_save") = true);
+         py::arg("allow_save") = true,
+         py::arg("default_weapon") = engine::WeaponType::Pistols);
 
   py::class_<engine::script::TitleMenu, engine::script::Level, std::shared_ptr<engine::script::TitleMenu>>(
     m, "TitleMenu", py::is_final{})

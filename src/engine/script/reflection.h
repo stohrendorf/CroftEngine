@@ -14,6 +14,7 @@
 namespace engine
 {
 enum class RunResult;
+enum class WeaponType;
 class Engine;
 class Player;
 } // namespace engine
@@ -73,6 +74,7 @@ private:
   const std::unordered_set<TR1ItemId> m_dropInventory;
   const std::optional<TR1TrackId> m_track;
   const bool m_allowSave;
+  const WeaponType m_defaultWeapon;
 
 protected:
   [[nodiscard]] std::unique_ptr<world::World> loadWorld(Engine& engine, const std::shared_ptr<Player>& player);
@@ -86,7 +88,8 @@ public:
                  std::unordered_map<TR1ItemId, size_t> inventory,
                  std::unordered_set<TR1ItemId> dropInventory,
                  std::optional<TR1TrackId> track,
-                 bool allowSave)
+                 bool allowSave,
+                 WeaponType defaultWeapon)
       : m_name{std::move(name)}
       , m_secrets{secrets}
       , m_useAlternativeLara{useAlternativeLara}
@@ -96,6 +99,7 @@ public:
       , m_dropInventory{std::move(dropInventory)}
       , m_track{track}
       , m_allowSave{allowSave}
+      , m_defaultWeapon{defaultWeapon}
   {
   }
 
@@ -115,10 +119,7 @@ public:
             const std::unordered_map<std::string, std::unordered_map<TR1ItemId, std::string>>& itemTitles,
             const std::unordered_map<TR1ItemId, size_t>& inventory,
             const std::unordered_set<TR1ItemId>& dropInventory,
-            std::optional<TR1TrackId> track)
-      : Level{name, 0, useAlternativeLara, titles, itemTitles, inventory, dropInventory, track, false}
-  {
-  }
+            std::optional<TR1TrackId> track);
 
   std::pair<RunResult, std::optional<size_t>> run(Engine& engine, const std::shared_ptr<Player>& player) override;
 

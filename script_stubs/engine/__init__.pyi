@@ -32,6 +32,14 @@ class TrackType(Enum):
     LARA_TALK = auto()
 
 
+class WeaponType(Enum):
+    None_ = auto()
+    Pistols = auto()
+    Magnums = auto()
+    Uzis = auto()
+    Shotgun = auto()
+
+
 class TR1SoundEffect(Enum):
     ...
 
@@ -63,6 +71,7 @@ class Level(LevelSequenceItem):
             drop_inventory: Set[TR1ItemId] = set(),
             use_alternative_lara: bool = False,
             allow_save: bool = True,
+            default_weapon: WeaponType = WeaponType.Pistols,
     ):
         ...
 

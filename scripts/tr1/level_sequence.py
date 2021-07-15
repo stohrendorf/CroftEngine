@@ -1,4 +1,4 @@
-from engine import TR1TrackId, TR1ItemId, Video, Cutscene, Level, TitleMenu
+from engine import TR1TrackId, TR1ItemId, Video, Cutscene, Level, TitleMenu, WeaponType
 
 title_menu = TitleMenu(
     name="TITLE",
@@ -334,6 +334,7 @@ level_sequence = [
                 TR1ItemId.ScionPiece5: "Scion",
             },
         },
+        default_weapon=WeaponType.None_,
     ),
     Cutscene(
         name="CUT4",

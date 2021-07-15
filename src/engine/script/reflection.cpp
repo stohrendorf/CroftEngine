@@ -137,6 +137,8 @@ bool Level::isLevel(const std::filesystem::path& path) const
 std::pair<RunResult, std::optional<size_t>> Level::run(Engine& engine, const std::shared_ptr<Player>& player)
 {
   auto world = loadWorld(engine, player);
+  player->requestedWeaponType = m_defaultWeapon;
+  player->selectedWeaponType = m_defaultWeapon;
   return engine.run(*world, false, m_allowSave);
 }
 
@@ -155,5 +157,16 @@ std::pair<RunResult, std::optional<size_t>> TitleMenu::run(Engine& engine, const
   player->getInventory().clear();
   auto world = loadWorld(engine, player);
   return engine.runTitleMenu(*world);
+}
+
+TitleMenu::TitleMenu(const std::string& name,
+                     bool useAlternativeLara,
+                     const std::unordered_map<std::string, std::string>& titles,
+                     const std::unordered_map<std::string, std::unordered_map<TR1ItemId, std::string>>& itemTitles,
+                     const std::unordered_map<TR1ItemId, size_t>& inventory,
+                     const std::unordered_set<TR1ItemId>& dropInventory,
+                     std::optional<TR1TrackId> track)
+    : Level{name, 0, useAlternativeLara, titles, itemTitles, inventory, dropInventory, track, false, WeaponType::None}
+{
 }
 } // namespace engine::script
