@@ -13,7 +13,7 @@ namespace hid
 {
 namespace
 {
-#define PRINT_KEY_INPUT
+// #define PRINT_KEY_INPUT
 
 boost::container::flat_set<int> connectedGamepads;
 boost::container::flat_set<GlfwGamepadButton> pressedButtons;
@@ -25,7 +25,7 @@ std::optional<GlfwKey> recentPressedKey;
 boost::container::flat_set<AxisDir> pressedAxes;
 std::optional<AxisDir> recentPressedAxis;
 
-constexpr float AxisDeadZone = 0.5f;
+constexpr float AxisDeadZone = 0.4f;
 
 void keyCallback(GLFWwindow* /*window*/, int key, int /*scancode*/, int action, int /*mods*/)
 {
