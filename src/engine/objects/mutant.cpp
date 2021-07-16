@@ -67,19 +67,19 @@ void FlyingMutant::update()
     m_state.creatureInfo->pathFinder.step = 256_len;
     m_state.creatureInfo->pathFinder.fly = 0_len;
     m_state.creatureInfo->pathFinder.drop = -256_len;
-    ai::AiInfo aiInfo{getWorld(), m_state};
+    ai::EnemyLocation enemyLocation{getWorld(), m_state};
     bool frontLeft = false;
     bool frontRight = false;
     if(m_state.type != TR1ItemId::WalkingMutant2)
     {
-      if(canShootAtLara(aiInfo)
-         && (aiInfo.zone_number != aiInfo.enemy_zone || aiInfo.distance > util::square(3840_len)))
+      if(canShootAtLara(enemyLocation)
+         && (enemyLocation.zoneId != enemyLocation.enemyZoneId || enemyLocation.enemyDistance > util::square(3840_len)))
       {
-        if(aiInfo.angle > 0_deg && aiInfo.angle < 45_deg)
+        if(enemyLocation.angleToEnemy > 0_deg && enemyLocation.angleToEnemy < 45_deg)
         {
           frontRight = true;
         }
-        else if(aiInfo.angle < 0_deg && aiInfo.angle > -45_deg)
+        else if(enemyLocation.angleToEnemy < 0_deg && enemyLocation.angleToEnemy > -45_deg)
         {
           frontLeft = true;
         }
@@ -89,37 +89,38 @@ void FlyingMutant::update()
     {
       if(m_state.current_anim_state == DoFly)
       {
-        if(m_flying && !isEscaping() && aiInfo.zone_number == aiInfo.enemy_zone)
+        if(m_flying && !isEscaping() && enemyLocation.zoneId == enemyLocation.enemyZoneId)
         {
           m_flying = false;
         }
         if(!m_flying)
         {
-          updateMood(getWorld(), m_state, aiInfo, true);
+          updateMood(getWorld(), m_state, enemyLocation, true);
         }
         m_state.creatureInfo->pathFinder.step = 30720_len;
         m_state.creatureInfo->pathFinder.fly = 0_len;
         m_state.creatureInfo->pathFinder.drop = -30720_len;
-        aiInfo = ai::AiInfo{getWorld(), m_state};
+        enemyLocation = ai::EnemyLocation{getWorld(), m_state};
       }
       else if(isEscaping()
-              || (aiInfo.zone_number != aiInfo.enemy_zone && !frontRight && !frontLeft && (!aiInfo.ahead || isBored())))
+              || (enemyLocation.zoneId != enemyLocation.enemyZoneId && !frontRight && !frontLeft
+                  && (!enemyLocation.enemyAhead || isBored())))
       {
         m_flying = true;
       }
     }
 
-    if(aiInfo.ahead)
+    if(enemyLocation.enemyAhead)
     {
-      headRot = aiInfo.angle;
+      headRot = enemyLocation.angleToEnemy;
     }
     if(m_state.current_anim_state != DoFly)
     {
-      updateMood(getWorld(), m_state, aiInfo, false);
+      updateMood(getWorld(), m_state, enemyLocation, false);
     }
     else if(m_flying)
     {
-      updateMood(getWorld(), m_state, aiInfo, true);
+      updateMood(getWorld(), m_state, enemyLocation, true);
     }
 
     turnRot = rotateTowardsTarget(m_state.creatureInfo->maximum_turn);
@@ -131,15 +132,16 @@ void FlyingMutant::update()
       m_lookingAround = false;
       if(m_flying)
         goal(DoFly);
-      else if(touched(0x678u) || (aiInfo.bite && aiInfo.distance < util::square(300_len)))
+      else if(touched(0x678u)
+              || (enemyLocation.canAttackForward && enemyLocation.enemyDistance < util::square(300_len)))
         goal(DoHit200);
-      else if(aiInfo.bite && aiInfo.distance < util::square(600_len))
+      else if(enemyLocation.canAttackForward && enemyLocation.enemyDistance < util::square(600_len))
         goal(DoHit150);
       else if(frontRight)
         goal(DoShootBullet);
       else if(frontLeft)
         goal(DoThrowGrenade);
-      else if(isBored() || (isStalking() && aiInfo.distance < util::square(4608_len)))
+      else if(isBored() || (isStalking() && enemyLocation.enemyDistance < util::square(4608_len)))
         goal(6_as);
       else
         goal(DoRun);
@@ -150,14 +152,14 @@ void FlyingMutant::update()
       {
         goal(DoPrepareAttack);
       }
-      else if(isBored() || (isStalking() && aiInfo.zone_number != aiInfo.enemy_zone))
+      else if(isBored() || (isStalking() && enemyLocation.zoneId != enemyLocation.enemyZoneId))
       {
         if(util::rand15() < 80)
         {
           goal(6_as);
         }
       }
-      else if(isStalking() && aiInfo.distance > util::square(4608_len))
+      else if(isStalking() && enemyLocation.enemyDistance > util::square(4608_len))
       {
         goal(DoPrepareAttack);
         break;
@@ -165,15 +167,17 @@ void FlyingMutant::update()
       break;
     case DoRun.get():
       m_state.creatureInfo->maximum_turn = 6_deg;
-      if(m_flying || touched(0x678u) || (aiInfo.bite && aiInfo.distance < util::square(600_len)))
+      if(m_flying || touched(0x678u)
+         || (enemyLocation.canAttackForward && enemyLocation.enemyDistance < util::square(600_len)))
       {
         goal(DoPrepareAttack);
       }
-      else if(aiInfo.ahead && aiInfo.distance < util::square(2560_len))
+      else if(enemyLocation.enemyAhead && enemyLocation.enemyDistance < util::square(2560_len))
       {
         goal(DoHit100);
       }
-      else if(frontLeft || frontRight || isBored() || (isStalking() && aiInfo.distance < util::square(4608_len)))
+      else if(frontLeft || frontRight || isBored()
+              || (isStalking() && enemyLocation.enemyDistance < util::square(4608_len)))
       {
         goal(DoPrepareAttack);
       }
@@ -194,9 +198,9 @@ void FlyingMutant::update()
       }
       else if(isStalking())
       {
-        if(aiInfo.distance >= util::square(4608_len))
+        if(enemyLocation.enemyDistance >= util::square(4608_len))
           goal(DoPrepareAttack);
-        else if(aiInfo.zone_number == aiInfo.enemy_zone || util::rand15() < 256)
+        else if(enemyLocation.zoneId == enemyLocation.enemyZoneId || util::rand15() < 256)
           goal(DoWalk);
       }
       else if(isBored() && util::rand15() < 256)
@@ -298,12 +302,12 @@ void CentaurMutant::update()
   core::Angle headRot = 0_deg;
   if(getHealth() > 0_hp)
   {
-    const ai::AiInfo aiInfo{getWorld(), m_state};
-    if(aiInfo.ahead)
+    const ai::EnemyLocation enemyLocation{getWorld(), m_state};
+    if(enemyLocation.enemyAhead)
     {
-      headRot = aiInfo.angle;
+      headRot = enemyLocation.angleToEnemy;
     }
-    updateMood(getWorld(), m_state, aiInfo, true);
+    updateMood(getWorld(), m_state, enemyLocation, true);
     turnRot = rotateTowardsTarget(4_deg);
     switch(m_state.current_anim_state.get())
     {
@@ -311,7 +315,8 @@ void CentaurMutant::update()
       m_state.creatureInfo->neck_rotation = 0_deg;
       if(m_state.required_anim_state != 0_as)
         goal(m_state.required_anim_state);
-      else if((aiInfo.bite && aiInfo.distance < util::square(1536_len)) || !canShootAtLara(aiInfo))
+      else if((enemyLocation.canAttackForward && enemyLocation.enemyDistance < util::square(1536_len))
+              || !canShootAtLara(enemyLocation))
         goal(3_as);
       else
         goal(4_as);
@@ -325,9 +330,9 @@ void CentaurMutant::update()
       }
       break;
     case 3:
-      if(aiInfo.bite && aiInfo.distance < util::square(1536_len))
+      if(enemyLocation.canAttackForward && enemyLocation.enemyDistance < util::square(1536_len))
         goal(1_as, 6_as);
-      else if(canShootAtLara(aiInfo))
+      else if(canShootAtLara(enemyLocation))
         goal(1_as, 4_as);
       else if(util::rand15() < 96)
         goal(1_as, 6_as);
@@ -335,7 +340,7 @@ void CentaurMutant::update()
     case 4:
       if(m_state.required_anim_state != 0_as)
         goal(m_state.required_anim_state);
-      else if(canShootAtLara(aiInfo))
+      else if(canShootAtLara(enemyLocation))
         goal(2_as);
       else
         goal(1_as);
@@ -392,12 +397,12 @@ void TorsoBoss::update()
   core::Angle headRot = 0_deg;
   if(alive())
   {
-    const ai::AiInfo aiInfo{getWorld(), m_state};
-    if(aiInfo.ahead)
+    const ai::EnemyLocation enemyLocation{getWorld(), m_state};
+    if(enemyLocation.enemyAhead)
     {
-      headRot = aiInfo.angle;
+      headRot = enemyLocation.angleToEnemy;
     }
-    updateMood(getWorld(), m_state, aiInfo, true);
+    updateMood(getWorld(), m_state, enemyLocation, true);
     const auto angleToTarget = angleFromAtan(m_state.creatureInfo->target.X - m_state.position.position.X,
                                              m_state.creatureInfo->target.Z - m_state.position.position.Z)
                                - m_state.rotation.Y;
@@ -426,7 +431,7 @@ void TorsoBoss::update()
         goal(TurnLeft);
         break;
       }
-      if(aiInfo.distance >= util::square(2600_len))
+      if(enemyLocation.enemyDistance >= util::square(2600_len))
       {
         goal(Approach);
       }
@@ -437,7 +442,7 @@ void TorsoBoss::update()
         else
           goal(Attack1);
       }
-      else if(aiInfo.distance >= util::square(2250_len))
+      else if(enemyLocation.enemyDistance >= util::square(2250_len))
       {
         goal(Approach);
       }
@@ -518,7 +523,7 @@ void TorsoBoss::update()
       // TODO this is just weird, but it's just like the original...
       goal(m_state.goal_anim_state.get() + std::clamp(angleToTarget, -3_deg, 3_deg).get());
 
-      if(abs(angleToTarget) > 45_deg || aiInfo.distance < util::square(2600_len))
+      if(abs(angleToTarget) > 45_deg || enemyLocation.enemyDistance < util::square(2600_len))
         goal(Think);
 
       break;

@@ -16,12 +16,12 @@ void Raptor::update()
   core::Angle animHead = 0_deg;
   if(alive())
   {
-    const ai::AiInfo aiInfo{getWorld(), m_state};
-    if(aiInfo.ahead)
+    const ai::EnemyLocation enemyLocation{getWorld(), m_state};
+    if(enemyLocation.enemyAhead)
     {
-      animHead = aiInfo.angle;
+      animHead = enemyLocation.angleToEnemy;
     }
-    updateMood(getWorld(), m_state, aiInfo, true);
+    updateMood(getWorld(), m_state, enemyLocation, true);
     animAngle = rotateTowardsTarget(m_state.creatureInfo->maximum_turn);
     switch(m_state.current_anim_state.get())
     {
@@ -30,9 +30,9 @@ void Raptor::update()
         goal(m_state.required_anim_state);
       else if(touched(0xff7c00UL))
         goal(8_as);
-      else if(aiInfo.bite && aiInfo.distance < util::square(680_len))
+      else if(enemyLocation.canAttackForward && enemyLocation.enemyDistance < util::square(680_len))
         goal(8_as);
-      else if(aiInfo.bite && aiInfo.distance < util::square(1536_len))
+      else if(enemyLocation.canAttackForward && enemyLocation.enemyDistance < util::square(1536_len))
         goal(4_as);
       else if(!isBored())
         goal(3_as);
@@ -43,7 +43,7 @@ void Raptor::update()
       m_state.creatureInfo->maximum_turn = 1_deg;
       if(!isBored())
         goal(1_as);
-      else if(aiInfo.ahead && util::rand15() < 256)
+      else if(enemyLocation.enemyAhead && util::rand15() < 256)
         goal(1_as, 6_as);
       break;
     case 3:
@@ -53,7 +53,7 @@ void Raptor::update()
       {
         goal(1_as);
       }
-      else if(aiInfo.bite && aiInfo.distance < util::square(1536_len))
+      else if(enemyLocation.canAttackForward && enemyLocation.enemyDistance < util::square(1536_len))
       {
         if(m_state.goal_anim_state == 3_as)
         {
@@ -63,7 +63,7 @@ void Raptor::update()
             goal(1_as);
         }
       }
-      else if(aiInfo.ahead && !isEscaping() && util::rand15() < 256)
+      else if(enemyLocation.enemyAhead && !isEscaping() && util::rand15() < 256)
         goal(1_as, 6_as);
       else if(isBored())
         goal(1_as);
@@ -72,7 +72,7 @@ void Raptor::update()
       animTilt = animAngle;
       if(m_state.required_anim_state == 0_as)
       {
-        if(aiInfo.ahead)
+        if(enemyLocation.enemyAhead)
         {
           if(touched(0xff7c00UL))
           {
@@ -85,7 +85,7 @@ void Raptor::update()
       break;
     case 7:
       animTilt = animAngle;
-      if(m_state.required_anim_state == 0_as && aiInfo.ahead)
+      if(m_state.required_anim_state == 0_as && enemyLocation.enemyAhead)
       {
         if(touched(0xff7c00UL))
         {

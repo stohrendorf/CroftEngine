@@ -39,22 +39,22 @@ inline std::ostream& operator<<(std::ostream& str, const Mood mood)
   }
 }
 
-struct AiInfo
+struct EnemyLocation
 {
-  world::ZoneId zone_number = 0;
-  world::ZoneId enemy_zone = 0;
-  bool enemy_unreachable = false;
-  core::Area distance{0};
-  bool ahead = false;
-  bool bite = false;
-  core::Angle angle = 0_deg;
-  core::Angle enemy_facing = 0_deg;
+  world::ZoneId zoneId = 0;
+  world::ZoneId enemyZoneId = 0;
+  bool enemyUnreachable = false;
+  core::Area enemyDistance{0};
+  bool enemyAhead = false;
+  bool canAttackForward = false;
+  core::Angle angleToEnemy = 0_deg;
+  core::Angle enemyAngleToSelf = 0_deg;
 
-  AiInfo(world::World& world, objects::ObjectState& objectState);
+  EnemyLocation(world::World& world, objects::ObjectState& objectState);
 
   [[nodiscard]] bool canReachEnemyZone() const noexcept
   {
-    return !enemy_unreachable && zone_number == enemy_zone;
+    return !enemyUnreachable && zoneId == enemyZoneId;
   }
 };
 
@@ -86,6 +86,9 @@ std::shared_ptr<CreatureInfo> create(const serialization::TypeId<std::shared_ptr
 
 void serialize(std::shared_ptr<CreatureInfo>& data, const serialization::Serializer<world::World>& ser);
 
-void updateMood(const world::World& world, const objects::ObjectState& objectState, const AiInfo& aiInfo, bool violent);
+void updateMood(const world::World& world,
+                const objects::ObjectState& objectState,
+                const EnemyLocation& enemyLocation,
+                bool violent);
 } // namespace ai
 } // namespace engine

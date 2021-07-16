@@ -44,19 +44,19 @@ void Pierre::update()
   }
   if(alive())
   {
-    ai::AiInfo aiInfo{getWorld(), m_state};
-    if(aiInfo.ahead)
+    ai::EnemyLocation enemyLocation{getWorld(), m_state};
+    if(enemyLocation.enemyAhead)
     {
-      headRot = aiInfo.angle;
+      headRot = enemyLocation.angleToEnemy;
     }
     if(m_fleeTime != 0_frame)
     {
-      aiInfo.enemy_zone = -1;
-      aiInfo.enemy_unreachable = true;
+      enemyLocation.enemyZoneId = -1;
+      enemyLocation.enemyUnreachable = true;
       m_state.is_hit = true;
     }
 
-    updateMood(getWorld(), m_state, aiInfo, false);
+    updateMood(getWorld(), m_state, enemyLocation, false);
 
     creatureTurn = rotateTowardsTarget(m_state.creatureInfo->maximum_turn);
     switch(m_state.current_anim_state.get())
@@ -88,9 +88,9 @@ void Pierre::update()
         goal(1_as, 6_as);
       else if(isEscaping())
         goal(1_as, 3_as);
-      else if(canShootAtLara(aiInfo))
+      else if(canShootAtLara(enemyLocation))
         goal(1_as, 4_as);
-      else if(!aiInfo.ahead || aiInfo.distance > util::square(3 * core::SectorSize))
+      else if(!enemyLocation.enemyAhead || enemyLocation.enemyDistance > util::square(3 * core::SectorSize))
         goal(1_as, 3_as);
       break;
     case 3:
@@ -100,15 +100,15 @@ void Pierre::update()
       {
         goal(1_as, 6_as);
       }
-      else if(canShootAtLara(aiInfo))
+      else if(canShootAtLara(enemyLocation))
         goal(1_as, 4_as);
-      else if(aiInfo.ahead && aiInfo.distance < util::square(3 * core::SectorSize))
+      else if(enemyLocation.enemyAhead && enemyLocation.enemyDistance < util::square(3 * core::SectorSize))
         goal(1_as, 2_as);
       break;
     case 4:
       if(m_state.required_anim_state != 0_as)
         goal(m_state.required_anim_state);
-      else if(canShootAtLara(aiInfo))
+      else if(canShootAtLara(enemyLocation))
         goal(7_as);
       else
         goal(1_as);
@@ -122,9 +122,9 @@ void Pierre::update()
     case 7:
       if(m_state.required_anim_state == 0_as)
       {
-        if(tryShootAtLara(*this, aiInfo.distance, {60_len, 200_len, 0_len}, 11, headRot))
+        if(tryShootAtLara(*this, enemyLocation.enemyDistance, {60_len, 200_len, 0_len}, 11, headRot))
           hitLara(25_hp);
-        if(tryShootAtLara(*this, aiInfo.distance, {-57_len, 200_len, 0_len}, 14, headRot))
+        if(tryShootAtLara(*this, enemyLocation.enemyDistance, {-57_len, 200_len, 0_len}, 14, headRot))
           hitLara(25_hp);
         require(4_as);
       }

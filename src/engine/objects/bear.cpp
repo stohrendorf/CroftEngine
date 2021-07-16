@@ -26,8 +26,8 @@ void Bear::update()
 
   if(alive())
   {
-    const ai::AiInfo aiInfo{getWorld(), m_state};
-    updateMood(getWorld(), m_state, aiInfo, true);
+    const ai::EnemyLocation enemyLocation{getWorld(), m_state};
+    updateMood(getWorld(), m_state, enemyLocation, true);
 
     rotationToMoveTarget = rotateTowardsTarget(m_state.creatureInfo->maximum_turn);
     if(m_state.is_hit)
@@ -37,7 +37,7 @@ void Bear::update()
     {
     case Walking.get():
       m_state.creatureInfo->maximum_turn = 2_deg;
-      if(getWorld().getObjectManager().getLara().isDead() && touched(0x2406cUL) && aiInfo.ahead)
+      if(getWorld().getObjectManager().getLara().isDead() && touched(0x2406cUL) && enemyLocation.enemyAhead)
       {
         goal(GettingDown);
       }
@@ -55,7 +55,7 @@ void Bear::update()
     case GettingDown.get():
       if(getWorld().getObjectManager().getLara().isDead())
       {
-        if(aiInfo.bite && aiInfo.distance < util::square(768_len))
+        if(enemyLocation.canAttackForward && enemyLocation.enemyDistance < util::square(768_len))
           goal(Biting);
         else
           goal(Walking);
@@ -73,13 +73,13 @@ void Bear::update()
     case WalkingTall.get():
       if(m_hurt)
         goal(RoaringStanding, 0_as); // NOLINT(bugprone-branch-clone)
-      else if(aiInfo.ahead && touched(0x2406cUL))
+      else if(enemyLocation.enemyAhead && touched(0x2406cUL))
         goal(RoaringStanding);
       else if(isEscaping())
         goal(RoaringStanding, 0_as);
       else if(isBored() || util::rand15() < 80)
         goal(RoaringStanding, Growling);
-      else if(aiInfo.distance > util::square(2 * core::SectorSize) || util::rand15() < 1536)
+      else if(enemyLocation.enemyDistance > util::square(2 * core::SectorSize) || util::rand15() < 1536)
         goal(RoaringStanding, GettingDown);
       break;
     case Running.get():
@@ -92,11 +92,11 @@ void Bear::update()
       {
         goal(GettingDown);
       }
-      else if(aiInfo.ahead && m_state.required_anim_state == 0_as)
+      else if(enemyLocation.enemyAhead && m_state.required_anim_state == 0_as)
       {
-        if(!m_hurt && aiInfo.distance < util::square(2048_len) && util::rand15() < 768)
+        if(!m_hurt && enemyLocation.enemyDistance < util::square(2048_len) && util::rand15() < 768)
           goal(GettingDown, RoaringStanding);
-        else if(aiInfo.distance < util::square(core::SectorSize))
+        else if(enemyLocation.enemyDistance < util::square(core::SectorSize))
           goal(RunningAttack);
       }
       break;
@@ -107,7 +107,7 @@ void Bear::update()
         goal(m_state.required_anim_state);
       else if(isBored() || isEscaping())
         goal(GettingDown);
-      else if(aiInfo.bite && aiInfo.distance < util::square(600_len))
+      else if(enemyLocation.canAttackForward && enemyLocation.enemyDistance < util::square(600_len))
         goal(Standing);
       else
         goal(WalkingTall);
@@ -129,7 +129,7 @@ void Bear::update()
       break;
     default: break;
     }
-    rotateCreatureHead(aiInfo.angle);
+    rotateCreatureHead(enemyLocation.angleToEnemy);
   }
   else
   {

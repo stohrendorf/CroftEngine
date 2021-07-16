@@ -7,7 +7,7 @@ namespace engine
 {
 namespace ai
 {
-struct AiInfo;
+struct EnemyLocation;
 }
 
 namespace objects
@@ -52,7 +52,7 @@ protected:
     return m_state.health;
   }
 
-  bool canShootAtLara(const ai::AiInfo& aiInfo) const;
+  bool canShootAtLara(const ai::EnemyLocation& enemyLocation) const;
 
   bool tryShootAtLara(engine::objects::ModelObject& object,
                       const core::Area& distance,

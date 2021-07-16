@@ -11,23 +11,24 @@ namespace engine::ai
 {
 namespace
 {
-std::optional<ai::Mood> getNewViolentMood(const AiInfo& aiInfo, const ai::CreatureInfo& creatureInfo, bool isHit)
+std::optional<ai::Mood>
+  getNewViolentMood(const EnemyLocation& enemyLocation, const ai::CreatureInfo& creatureInfo, bool isHit)
 {
   switch(creatureInfo.mood)
   {
   case Mood::Bored:
   case Mood::Stalk:
-    if(aiInfo.canReachEnemyZone())
+    if(enemyLocation.canReachEnemyZone())
       return Mood::Attack;
     else if(isHit)
       return Mood::Escape;
     break;
   case Mood::Attack:
-    if(!aiInfo.canReachEnemyZone())
+    if(!enemyLocation.canReachEnemyZone())
       return Mood::Bored;
     break;
   case Mood::Escape:
-    if(aiInfo.canReachEnemyZone())
+    if(enemyLocation.canReachEnemyZone())
       return Mood::Attack;
     break;
   }
@@ -35,20 +36,23 @@ std::optional<ai::Mood> getNewViolentMood(const AiInfo& aiInfo, const ai::Creatu
   return std::nullopt;
 }
 
-std::optional<ai::Mood>
-  getNewNonViolentMood(const AiInfo& aiInfo, const ai::CreatureInfo& creatureInfo, bool isHit, bool hasTargetBox)
+std::optional<ai::Mood> getNewNonViolentMood(const EnemyLocation& enemyLocation,
+                                             const ai::CreatureInfo& creatureInfo,
+                                             bool isHit,
+                                             bool hasTargetBox)
 {
   switch(creatureInfo.mood)
   {
   case Mood::Bored: [[fallthrough]];
   case Mood::Stalk:
-    if(isHit && (util::rand15() < 2048 || !aiInfo.canReachEnemyZone()))
+    if(isHit && (util::rand15() < 2048 || !enemyLocation.canReachEnemyZone()))
     {
       return Mood::Escape;
     }
-    else if(aiInfo.canReachEnemyZone())
+    else if(enemyLocation.canReachEnemyZone())
     {
-      if(aiInfo.distance >= util::square(3 * core::SectorSize) && (creatureInfo.mood != Mood::Stalk || hasTargetBox))
+      if(enemyLocation.enemyDistance >= util::square(3 * core::SectorSize)
+         && (creatureInfo.mood != Mood::Stalk || hasTargetBox))
       {
         return Mood::Stalk;
       }
@@ -59,17 +63,17 @@ std::optional<ai::Mood>
     }
     break;
   case Mood::Attack:
-    if(isHit && (util::rand15() < 2048 || !aiInfo.canReachEnemyZone()))
+    if(isHit && (util::rand15() < 2048 || !enemyLocation.canReachEnemyZone()))
     {
       return Mood::Escape;
     }
-    else if(!aiInfo.canReachEnemyZone())
+    else if(!enemyLocation.canReachEnemyZone())
     {
       return Mood::Bored;
     }
     break;
   case Mood::Escape:
-    if(aiInfo.canReachEnemyZone() && util::rand15() < 256)
+    if(enemyLocation.canReachEnemyZone() && util::rand15() < 256)
     {
       return Mood::Stalk;
     }
@@ -79,23 +83,23 @@ std::optional<ai::Mood>
   return std::nullopt;
 }
 
-std::optional<ai::Mood>
-  getNewMood(const AiInfo& aiInfo, const ai::CreatureInfo& creatureInfo, bool isHit, bool violent, bool hasTargetBox)
+std::optional<ai::Mood> getNewMood(
+  const EnemyLocation& enemyLocation, const ai::CreatureInfo& creatureInfo, bool isHit, bool violent, bool hasTargetBox)
 {
   if(violent)
   {
-    return getNewViolentMood(aiInfo, creatureInfo, isHit);
+    return getNewViolentMood(enemyLocation, creatureInfo, isHit);
   }
   else
   {
-    return getNewNonViolentMood(aiInfo, creatureInfo, isHit, hasTargetBox);
+    return getNewNonViolentMood(enemyLocation, creatureInfo, isHit, hasTargetBox);
   }
 }
 } // namespace
 
 void updateMood(const world::World& world,
                 const objects::ObjectState& objectState,
-                const AiInfo& aiInfo,
+                const EnemyLocation& enemyLocation,
                 const bool violent)
 {
   if(objectState.creatureInfo == nullptr)
@@ -109,9 +113,9 @@ void updateMood(const world::World& world,
   }
 
   if(creatureInfo.mood != Mood::Attack && newTargetBox != nullptr
-     && !objectState.isInsideZoneButNotInBox(world, aiInfo.zone_number, *creatureInfo.pathFinder.getTargetBox()))
+     && !objectState.isInsideZoneButNotInBox(world, enemyLocation.zoneId, *creatureInfo.pathFinder.getTargetBox()))
   {
-    if(aiInfo.canReachEnemyZone())
+    if(enemyLocation.canReachEnemyZone())
     {
       creatureInfo.mood = Mood::Bored;
     }
@@ -120,7 +124,7 @@ void updateMood(const world::World& world,
   const auto originalMood = creatureInfo.mood;
   if(world.getObjectManager().getLara().isDead())
     creatureInfo.mood = Mood::Bored;
-  else if(auto newMood = getNewMood(aiInfo, creatureInfo, objectState.is_hit, violent, newTargetBox != nullptr))
+  else if(auto newMood = getNewMood(enemyLocation, creatureInfo, objectState.is_hit, violent, newTargetBox != nullptr))
     creatureInfo.mood = newMood.value();
 
   if(originalMood != creatureInfo.mood)
@@ -159,7 +163,7 @@ void updateMood(const world::World& world,
   case Mood::Bored:
   {
     const auto box = creatureInfo.pathFinder.getRandomBox();
-    if(!objectState.isInsideZoneButNotInBox(world, aiInfo.zone_number, *box))
+    if(!objectState.isInsideZoneButNotInBox(world, enemyLocation.zoneId, *box))
       break;
 
     if(objectState.isStalkBox(world, *box))
@@ -181,7 +185,7 @@ void updateMood(const world::World& world,
       break;
 
     const auto box = creatureInfo.pathFinder.getRandomBox();
-    if(!objectState.isInsideZoneButNotInBox(world, aiInfo.zone_number, *box))
+    if(!objectState.isInsideZoneButNotInBox(world, enemyLocation.zoneId, *box))
       break;
 
     if(objectState.isStalkBox(world, *box))
@@ -193,7 +197,7 @@ void updateMood(const world::World& world,
     {
       newTargetBox = box;
       creatureInfo.pathFinder.setRandomSearchTarget(box);
-      if(!aiInfo.canReachEnemyZone())
+      if(!enemyLocation.canReachEnemyZone())
       {
         creatureInfo.mood = Mood::Bored;
       }
@@ -203,7 +207,7 @@ void updateMood(const world::World& world,
   case Mood::Escape:
   {
     const auto box = creatureInfo.pathFinder.getRandomBox();
-    if(!objectState.isInsideZoneButNotInBox(world, aiInfo.zone_number, *box) || newTargetBox != nullptr)
+    if(!objectState.isInsideZoneButNotInBox(world, enemyLocation.zoneId, *box) || newTargetBox != nullptr)
       break;
 
     if(objectState.isEscapeBox(world, *box))
@@ -211,7 +215,7 @@ void updateMood(const world::World& world,
       newTargetBox = box;
       creatureInfo.pathFinder.setRandomSearchTarget(box);
     }
-    else if(aiInfo.canReachEnemyZone() && objectState.isStalkBox(world, *box))
+    else if(enemyLocation.canReachEnemyZone() && objectState.isStalkBox(world, *box))
     {
       newTargetBox = box;
       creatureInfo.pathFinder.setRandomSearchTarget(box);
@@ -261,7 +265,7 @@ void serialize(std::shared_ptr<CreatureInfo>& data, const serialization::Seriali
   }
 }
 
-AiInfo::AiInfo(world::World& world, objects::ObjectState& objectState)
+EnemyLocation::EnemyLocation(world::World& world, objects::ObjectState& objectState)
 {
   if(objectState.creatureInfo == nullptr)
     return;
@@ -272,30 +276,27 @@ AiInfo::AiInfo(world::World& world, objects::ObjectState& objectState)
 
   objectState.box = objectState.getCurrentSector()->box;
   Expects(objectState.box != nullptr);
-  zone_number = objectState.box->*zoneRef;
+  zoneId = objectState.box->*zoneRef;
   world.getObjectManager().getLara().m_state.box = world.getObjectManager().getLara().m_state.getCurrentSector()->box;
   Expects(world.getObjectManager().getLara().m_state.box != nullptr);
-  enemy_zone = world.getObjectManager().getLara().m_state.box->*zoneRef;
-  enemy_unreachable = !objectState.creatureInfo->pathFinder.canVisit(*world.getObjectManager().getLara().m_state.box)
-                      || objectState.creatureInfo->pathFinder.isUnreachable(objectState.box);
+  enemyZoneId = world.getObjectManager().getLara().m_state.box->*zoneRef;
+  enemyUnreachable = !objectState.creatureInfo->pathFinder.canVisit(*world.getObjectManager().getLara().m_state.box)
+                     || objectState.creatureInfo->pathFinder.isUnreachable(objectState.box);
 
   auto objectInfo = pybind11::globals()["getObjectInfo"](objectState.type.get()).cast<script::ObjectInfo>();
   const core::Length pivotLength{objectInfo.pivot_length};
-  const auto d = world.getObjectManager().getLara().m_state.position.position
-                 - (objectState.position.position + util::pitch(pivotLength, objectState.rotation.Y));
-  const auto pivotAngle = core::angleFromAtan(d.X, d.Z);
-  distance = util::square(d.X) + util::square(d.Z);
-  angle = pivotAngle - objectState.rotation.Y;
-  enemy_facing = pivotAngle - 180_deg - world.getObjectManager().getLara().m_state.rotation.Y;
-  ahead = angle > -90_deg && angle < 90_deg;
-  if(ahead)
+  const auto toLara = world.getObjectManager().getLara().m_state.position.position
+                      - (objectState.position.position + util::pitch(pivotLength, objectState.rotation.Y));
+  const auto angleToLara = core::angleFromAtan(toLara.X, toLara.Z);
+  enemyDistance = util::square(toLara.X) + util::square(toLara.Z);
+  angleToEnemy = angleToLara - objectState.rotation.Y;
+  enemyAngleToSelf = angleToLara - 180_deg - world.getObjectManager().getLara().m_state.rotation.Y;
+  enemyAhead = angleToEnemy > -90_deg && angleToEnemy < 90_deg;
+  if(enemyAhead)
   {
     const auto laraY = world.getObjectManager().getLara().m_state.position.position.Y;
-    if(objectState.position.position.Y - core::QuarterSectorSize < laraY
-       && objectState.position.position.Y + core::QuarterSectorSize > laraY)
-    {
-      bite = true;
-    }
+    canAttackForward = objectState.position.position.Y - core::QuarterSectorSize < laraY
+                       && objectState.position.position.Y + core::QuarterSectorSize > laraY;
   }
 }
 

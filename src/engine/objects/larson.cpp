@@ -15,13 +15,13 @@ void Larson::update()
   core::Angle headRot = 0_deg;
   if(alive())
   {
-    const ai::AiInfo aiInfo{getWorld(), m_state};
-    if(aiInfo.ahead)
+    const ai::EnemyLocation enemyLocation{getWorld(), m_state};
+    if(enemyLocation.enemyAhead)
     {
-      headRot = aiInfo.angle;
+      headRot = enemyLocation.angleToEnemy;
     }
 
-    updateMood(getWorld(), m_state, aiInfo, false);
+    updateMood(getWorld(), m_state, enemyLocation, false);
 
     creatureTurn = rotateTowardsTarget(m_state.creatureInfo->maximum_turn);
     switch(m_state.current_anim_state.get())
@@ -53,9 +53,9 @@ void Larson::update()
         goal(1_as, 6_as);
       else if(isEscaping())
         goal(1_as, 3_as);
-      else if(canShootAtLara(aiInfo))
+      else if(canShootAtLara(enemyLocation))
         goal(1_as, 4_as);
-      else if(!aiInfo.ahead || aiInfo.distance > util::square(3 * core::SectorSize))
+      else if(!enemyLocation.enemyAhead || enemyLocation.enemyDistance > util::square(3 * core::SectorSize))
         goal(1_as, 3_as);
       break;
     case 3: // running
@@ -63,15 +63,15 @@ void Larson::update()
       tiltRot = creatureTurn / 2;
       if(isBored() && util::rand15() < 96)
         goal(1_as, 6_as);
-      else if(canShootAtLara(aiInfo))
+      else if(canShootAtLara(enemyLocation))
         goal(1_as, 4_as);
-      else if(aiInfo.ahead && aiInfo.distance < util::square(3 * core::SectorSize))
+      else if(enemyLocation.enemyAhead && enemyLocation.enemyDistance < util::square(3 * core::SectorSize))
         goal(1_as, 2_as);
       break;
     case 4: // aiming
       if(m_state.required_anim_state != 0_as)
         goal(m_state.required_anim_state);
-      else if(canShootAtLara(aiInfo))
+      else if(canShootAtLara(enemyLocation))
         goal(7_as);
       else
         goal(1_as);
@@ -85,7 +85,7 @@ void Larson::update()
     case 7: // firing
       if(m_state.required_anim_state == 0_as)
       {
-        if(tryShootAtLara(*this, aiInfo.distance, core::TRVec{-60_len, 170_len, 0_len}, 14, headRot))
+        if(tryShootAtLara(*this, enemyLocation.enemyDistance, core::TRVec{-60_len, 170_len, 0_len}, 14, headRot))
         {
           hitLara(50_hp);
         }

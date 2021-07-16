@@ -12,16 +12,16 @@ void Crocodile::updateInWater()
   core::Angle headRot = 0_deg;
   if(alive())
   {
-    const ai::AiInfo aiInfo{getWorld(), m_state};
-    if(aiInfo.ahead)
+    const ai::EnemyLocation enemyLocation{getWorld(), m_state};
+    if(enemyLocation.enemyAhead)
     {
-      headRot = aiInfo.angle;
+      headRot = enemyLocation.angleToEnemy;
     }
-    updateMood(getWorld(), m_state, aiInfo, true);
+    updateMood(getWorld(), m_state, enemyLocation, true);
     rotateTowardsTarget(3_deg);
     if(m_state.current_anim_state == 1_as)
     {
-      if(aiInfo.bite && touched())
+      if(enemyLocation.canAttackForward && touched())
         goal(2_as);
     }
     else if(m_state.current_anim_state == 2_as)
@@ -30,7 +30,7 @@ void Crocodile::updateInWater()
       {
         require(0_as);
       }
-      if(aiInfo.bite && touched())
+      if(enemyLocation.canAttackForward && touched())
       {
         if(m_state.required_anim_state == 0_as)
         {
@@ -120,12 +120,12 @@ void Crocodile::updateOnLand()
   core::Angle headRot = 0_deg;
   if(alive())
   {
-    const ai::AiInfo aiInfo{getWorld(), m_state};
-    if(aiInfo.ahead)
+    const ai::EnemyLocation enemyLocation{getWorld(), m_state};
+    if(enemyLocation.enemyAhead)
     {
-      headRot = aiInfo.angle;
+      headRot = enemyLocation.angleToEnemy;
     }
-    updateMood(getWorld(), m_state, aiInfo, true);
+    updateMood(getWorld(), m_state, enemyLocation, true);
     if(m_state.current_anim_state == 4_as)
     {
       m_state.rotation.Y += 6_deg;
@@ -137,7 +137,7 @@ void Crocodile::updateOnLand()
     switch(m_state.current_anim_state.get())
     {
     case 1:
-      if(aiInfo.bite && aiInfo.distance < util::square(435_len))
+      if(enemyLocation.canAttackForward && enemyLocation.enemyDistance < util::square(435_len))
       {
         goal(5_as);
         break;
@@ -146,7 +146,8 @@ void Crocodile::updateOnLand()
       {
       case ai::Mood::Escape: goal(2_as); break;
       case ai::Mood::Attack:
-        if((aiInfo.angle >= -90_deg && aiInfo.angle <= 90_deg) || aiInfo.distance <= util::square(3 * core::SectorSize))
+        if((enemyLocation.angleToEnemy >= -90_deg && enemyLocation.angleToEnemy <= 90_deg)
+           || enemyLocation.enemyDistance <= util::square(3 * core::SectorSize))
           goal(2_as);
         else
           goal(4_as);
@@ -158,18 +159,18 @@ void Crocodile::updateOnLand()
       }
       break;
     case 2:
-      if(aiInfo.ahead && touched(0x3fcUL))
+      if(enemyLocation.enemyAhead && touched(0x3fcUL))
         goal(1_as);
       else if(isStalking())
         goal(3_as);
       else if(isBored())
         goal(1_as);
-      else if(isAttacking() && aiInfo.distance > util::square(3 * core::SectorSize)
-              && (aiInfo.angle < -90_deg || aiInfo.angle > 90_deg))
+      else if(isAttacking() && enemyLocation.enemyDistance > util::square(3 * core::SectorSize)
+              && (enemyLocation.angleToEnemy < -90_deg || enemyLocation.angleToEnemy > 90_deg))
         goal(1_as);
       break;
     case 3:
-      if(aiInfo.ahead && touched(0x03fcUL))
+      if(enemyLocation.enemyAhead && touched(0x03fcUL))
         goal(1_as);
       else if(isAttacking() || isEscaping())
         goal(2_as);
@@ -177,7 +178,7 @@ void Crocodile::updateOnLand()
         goal(1_as);
       break;
     case 4:
-      if(aiInfo.angle > -90_deg && aiInfo.angle < 90_deg)
+      if(enemyLocation.angleToEnemy > -90_deg && enemyLocation.angleToEnemy < 90_deg)
         goal(3_as);
       break;
     case 5:

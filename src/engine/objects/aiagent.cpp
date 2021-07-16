@@ -417,9 +417,9 @@ void AIAgent::collide(CollisionInfo& collisionInfo)
   enemyPush(collisionInfo, enableSpaz, false);
 }
 
-bool AIAgent::canShootAtLara(const ai::AiInfo& aiInfo) const
+bool AIAgent::canShootAtLara(const ai::EnemyLocation& enemyLocation) const
 {
-  if(!aiInfo.ahead || aiInfo.distance >= util::square(7 * core::SectorSize))
+  if(!enemyLocation.enemyAhead || enemyLocation.enemyDistance >= util::square(7 * core::SectorSize))
   {
     return false;
   }

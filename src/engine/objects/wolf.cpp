@@ -28,20 +28,20 @@ void Wolf::update()
   core::Angle rotationToMoveTarget = 0_deg;
   if(alive())
   {
-    const ai::AiInfo aiInfo{getWorld(), m_state};
+    const ai::EnemyLocation enemyLocation{getWorld(), m_state};
 
-    if(aiInfo.ahead)
+    if(enemyLocation.enemyAhead)
     {
-      pitch = aiInfo.angle;
+      pitch = enemyLocation.angleToEnemy;
     }
 
-    updateMood(getWorld(), m_state, aiInfo, false);
+    updateMood(getWorld(), m_state, enemyLocation, false);
     rotationToMoveTarget = rotateTowardsTarget(m_state.creatureInfo->maximum_turn);
     switch(m_state.current_anim_state.get())
     {
     case LyingDown.get():
       pitch = 0_deg;
-      if(isEscaping() || aiInfo.canReachEnemyZone())
+      if(isEscaping() || enemyLocation.canReachEnemyZone())
         goal(Walking, PrepareToStrike);
       else if(util::rand15() < 32)
         goal(Walking, Running);
@@ -67,7 +67,7 @@ void Wolf::update()
       }
       if(isEscaping())
         goal(Jumping); // NOLINT(bugprone-branch-clone)
-      else if(aiInfo.distance < util::square(345_len) && aiInfo.bite)
+      else if(enemyLocation.enemyDistance < util::square(345_len) && enemyLocation.canAttackForward)
         goal(Biting);
       else if(isStalking())
         goal(Stalking);
@@ -82,16 +82,16 @@ void Wolf::update()
       { // NOLINT(bugprone-branch-clone)
         goal(Jumping);
       }
-      else if(aiInfo.distance < util::square(345_len) && aiInfo.bite)
+      else if(enemyLocation.enemyDistance < util::square(345_len) && enemyLocation.canAttackForward)
       {
         goal(Biting);
       }
-      else if(aiInfo.distance <= util::square(3 * core::SectorSize))
+      else if(enemyLocation.enemyDistance <= util::square(3 * core::SectorSize))
       {
         if(isAttacking())
         {
-          if(!aiInfo.ahead || aiInfo.distance > util::square(3 * core::SectorSize / 2)
-             || (aiInfo.enemy_facing < 90_deg && aiInfo.enemy_facing > -90_deg))
+          if(!enemyLocation.enemyAhead || enemyLocation.enemyDistance > util::square(3 * core::SectorSize / 2)
+             || (enemyLocation.enemyAngleToSelf < 90_deg && enemyLocation.enemyAngleToSelf > -90_deg))
           {
             goal(Jumping);
           }
@@ -114,10 +114,10 @@ void Wolf::update()
     case Jumping.get():
       m_state.creatureInfo->maximum_turn = 5_deg;
       roll = rotationToMoveTarget;
-      if(aiInfo.ahead && aiInfo.distance < util::square(3 * core::SectorSize / 2))
+      if(enemyLocation.enemyAhead && enemyLocation.enemyDistance < util::square(3 * core::SectorSize / 2))
       {
-        if(aiInfo.distance <= util::square(3 * core::SectorSize / 2) / 2
-           || (aiInfo.enemy_facing <= 90_deg && aiInfo.enemy_facing >= -90_deg))
+        if(enemyLocation.enemyDistance <= util::square(3 * core::SectorSize / 2) / 2
+           || (enemyLocation.enemyAngleToSelf <= 90_deg && enemyLocation.enemyAngleToSelf >= -90_deg))
         {
           goal(JumpAttack, 0_as);
         }
@@ -126,7 +126,7 @@ void Wolf::update()
           goal(PrepareToStrike, Stalking);
         }
       }
-      else if(isStalking() || aiInfo.distance >= util::square(3 * core::SectorSize))
+      else if(isStalking() || enemyLocation.enemyDistance >= util::square(3 * core::SectorSize))
       {
         if(isBored())
           goal(PrepareToStrike);
@@ -147,7 +147,7 @@ void Wolf::update()
       goal(Jumping);
       break;
     case Biting.get():
-      if(m_state.required_anim_state == 0_as && touched(0x774fUL) && aiInfo.ahead)
+      if(m_state.required_anim_state == 0_as && touched(0x774fUL) && enemyLocation.enemyAhead)
       {
         emitParticle(core::TRVec{0_len, -14_len, 174_len}, 6, &createBloodSplat);
         hitLara(100_hp);

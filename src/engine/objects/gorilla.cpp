@@ -17,13 +17,13 @@ void Gorilla::update()
 
   if(alive())
   {
-    const ai::AiInfo aiInfo{getWorld(), m_state};
-    if(aiInfo.ahead)
-      headRot = aiInfo.angle;
-    updateMood(getWorld(), m_state, aiInfo, false);
+    const ai::EnemyLocation enemyLocation{getWorld(), m_state};
+    if(enemyLocation.enemyAhead)
+      headRot = enemyLocation.angleToEnemy;
+    updateMood(getWorld(), m_state, enemyLocation, false);
 
     turn = rotateTowardsTarget(m_state.creatureInfo->maximum_turn);
-    if(m_state.is_hit || aiInfo.distance < util::square(2 * core::SectorSize))
+    if(m_state.is_hit || enemyLocation.enemyDistance < util::square(2 * core::SectorSize))
     {
       m_wantAttack = true;
     }
@@ -45,11 +45,11 @@ void Gorilla::update()
       {
         goal(m_state.required_anim_state);
       }
-      else if(aiInfo.bite && aiInfo.distance < util::square(430_len))
+      else if(enemyLocation.canAttackForward && enemyLocation.enemyDistance < util::square(430_len))
       {
         goal(4_as);
       }
-      else if(m_wantAttack || !aiInfo.canReachEnemyZone() || !aiInfo.ahead)
+      else if(m_wantAttack || !enemyLocation.canReachEnemyZone() || !enemyLocation.enemyAhead)
       {
         goal(3_as);
       }
@@ -83,11 +83,12 @@ void Gorilla::update()
     case 3:
       // running
       m_state.creatureInfo->maximum_turn = 5_deg;
-      if(!m_wantAttack && !m_turnedRight && !m_turnedLeft && aiInfo.angle > -45_deg && aiInfo.angle < 45_deg)
+      if(!m_wantAttack && !m_turnedRight && !m_turnedLeft && enemyLocation.angleToEnemy > -45_deg
+         && enemyLocation.angleToEnemy < 45_deg)
       {
         goal(1_as);
       }
-      else if(aiInfo.ahead && touched(0xff00))
+      else if(enemyLocation.enemyAhead && touched(0xff00))
       {
         goal(1_as, 4_as);
       }

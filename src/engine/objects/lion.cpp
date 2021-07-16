@@ -17,12 +17,12 @@ void Lion::update()
 
   if(alive())
   {
-    const ai::AiInfo aiInfo{getWorld(), m_state};
-    if(aiInfo.ahead)
+    const ai::EnemyLocation enemyLocation{getWorld(), m_state};
+    if(enemyLocation.enemyAhead)
     {
-      headRot = aiInfo.angle;
+      headRot = enemyLocation.angleToEnemy;
     }
-    updateMood(getWorld(), m_state, aiInfo, true);
+    updateMood(getWorld(), m_state, enemyLocation, true);
     angle = rotateTowardsTarget(m_state.creatureInfo->maximum_turn);
     switch(m_state.current_anim_state.get())
     {
@@ -33,9 +33,9 @@ void Lion::update()
       }
       else if(!isBored())
       {
-        if(aiInfo.ahead && touched(0x380066UL))
+        if(enemyLocation.enemyAhead && touched(0x380066UL))
           goal(7_as);
-        else if(aiInfo.ahead && aiInfo.distance < util::square(core::SectorSize))
+        else if(enemyLocation.enemyAhead && enemyLocation.enemyDistance < util::square(core::SectorSize))
           goal(4_as);
         else
           goal(3_as);
@@ -57,9 +57,9 @@ void Lion::update()
       m_state.creatureInfo->maximum_turn = 5_deg;
       if(isBored())
         goal(1_as); // NOLINT(bugprone-branch-clone)
-      else if(aiInfo.ahead && aiInfo.distance < util::square(core::SectorSize))
+      else if(enemyLocation.enemyAhead && enemyLocation.enemyDistance < util::square(core::SectorSize))
         goal(1_as);
-      else if(aiInfo.ahead && touched(0x380066UL))
+      else if(enemyLocation.enemyAhead && touched(0x380066UL))
         goal(1_as);
       else if(!isEscaping() && util::rand15() < 128)
         goal(1_as, 6_as);

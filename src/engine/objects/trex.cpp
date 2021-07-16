@@ -23,12 +23,12 @@ void TRex::update()
   core::Angle creatureHead = 0_deg;
   if(alive())
   {
-    const ai::AiInfo aiInfo{getWorld(), m_state};
-    if(aiInfo.ahead)
+    const ai::EnemyLocation enemyLocation{getWorld(), m_state};
+    if(enemyLocation.enemyAhead)
     {
-      creatureHead = aiInfo.angle;
+      creatureHead = enemyLocation.angleToEnemy;
     }
-    updateMood(getWorld(), m_state, aiInfo, true);
+    updateMood(getWorld(), m_state, enemyLocation, true);
 
     rotationToMoveTarget = rotateTowardsTarget(m_state.creatureInfo->maximum_turn);
     if(touched())
@@ -39,9 +39,9 @@ void TRex::update()
         getWorld().getObjectManager().getLara().m_state.health -= 1_hp;
     }
 
-    m_wantAttack = !isEscaping() && !aiInfo.ahead && abs(aiInfo.enemy_facing) < 90_deg;
-    if(!m_wantAttack && aiInfo.distance > util::square(1500_len) && aiInfo.distance < util::square(4 * core::SectorSize)
-       && aiInfo.bite)
+    m_wantAttack = !isEscaping() && !enemyLocation.enemyAhead && abs(enemyLocation.enemyAngleToSelf) < 90_deg;
+    if(!m_wantAttack && enemyLocation.enemyDistance > util::square(1500_len)
+       && enemyLocation.enemyDistance < util::square(4 * core::SectorSize) && enemyLocation.canAttackForward)
     {
       m_wantAttack = true;
     }
@@ -51,7 +51,7 @@ void TRex::update()
     case Think.get():
       if(m_state.required_anim_state != 0_as)
         goal(m_state.required_anim_state);
-      else if(aiInfo.distance < util::square(1500_len) && aiInfo.bite)
+      else if(enemyLocation.enemyDistance < util::square(1500_len) && enemyLocation.canAttackForward)
         goal(BiteToDeath);
       else if(isBored() || m_wantAttack)
         goal(Attack);
@@ -62,16 +62,16 @@ void TRex::update()
       m_state.creatureInfo->maximum_turn = 2_deg;
       if(!isBored() || !m_wantAttack)
         goal(Think);
-      else if(aiInfo.ahead && util::rand15() < 512)
+      else if(enemyLocation.enemyAhead && util::rand15() < 512)
         goal(Think, 6_as);
       break;
     case RunningAttack.get():
       m_state.creatureInfo->maximum_turn = 4_deg;
-      if(aiInfo.distance < util::square(5 * core::SectorSize) && aiInfo.bite)
+      if(enemyLocation.enemyDistance < util::square(5 * core::SectorSize) && enemyLocation.canAttackForward)
         goal(Think); // NOLINT(bugprone-branch-clone)
       else if(m_wantAttack)
         goal(Think);
-      else if(!isEscaping() && aiInfo.ahead && util::rand15() < 512)
+      else if(!isEscaping() && enemyLocation.enemyAhead && util::rand15() < 512)
         goal(Think, 6_as);
       else if(isBored())
         goal(Think);
