@@ -18,7 +18,7 @@ void Crocodile::updateInWater()
       headRot = enemyLocation.angleToEnemy;
     }
     updateMood(getWorld(), m_state, enemyLocation, true);
-    rotateTowardsTarget(3_deg);
+    rotateTowardsTarget(3_deg / 1_frame);
     if(m_state.current_anim_state == 1_as)
     {
       if(enemyLocation.canAttackForward && touched())
@@ -67,7 +67,7 @@ void Crocodile::updateInWater()
 
       loadObjectInfo(true);
     }
-    getSkeleton()->patchBone(8, core::TRRotation{0_deg, m_state.creatureInfo->head_rotation, 0_deg}.toMatrix());
+    getSkeleton()->patchBone(8, core::TRRotation{0_deg, m_state.creatureInfo->headRotation, 0_deg}.toMatrix());
     animateCreature(0_deg, 0_deg);
   }
   else
@@ -132,7 +132,7 @@ void Crocodile::updateOnLand()
     }
     else
     {
-      turnRot = rotateTowardsTarget(3_deg);
+      turnRot = rotateTowardsTarget(3_deg / 1_frame);
     }
     switch(m_state.current_anim_state.get())
     {
@@ -221,7 +221,7 @@ void Crocodile::updateOnLand()
   }
   if(m_state.creatureInfo != nullptr)
   {
-    getSkeleton()->patchBone(8, core::TRRotation{0_deg, m_state.creatureInfo->head_rotation, 0_deg}.toMatrix());
+    getSkeleton()->patchBone(8, core::TRRotation{0_deg, m_state.creatureInfo->headRotation, 0_deg}.toMatrix());
     animateCreature(turnRot, 0_deg);
   }
   else

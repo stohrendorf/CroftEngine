@@ -20,6 +20,7 @@ constexpr int32_t FullRotation = 1u << 16u;
 constexpr int32_t AngleStorageScale = 1u << 16u;
 
 QS_DECLARE_QUANTITY(Angle, int32_t, "au");
+using RotationSpeed = QS_COMBINE_UNITS(Angle, /, Frame);
 
 [[nodiscard]] constexpr Angle auToAngle(int16_t value) noexcept;
 

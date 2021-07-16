@@ -322,9 +322,9 @@ CreatureInfo::CreatureInfo(const world::World& world,
 
 void CreatureInfo::serialize(const serialization::Serializer<world::World>& ser)
 {
-  ser(S_NV("headRotation", head_rotation),
-      S_NV("neckRotation", neck_rotation),
-      S_NV("maximumTurn", maximum_turn),
+  ser(S_NV("headRotation", headRotation),
+      S_NV("neckRotation", neckRotation),
+      S_NV("maxTurnSpeed", maxTurnSpeed),
       S_NV("mood", mood),
       S_NV("pathFinder", pathFinder),
       S_NV("target", target));

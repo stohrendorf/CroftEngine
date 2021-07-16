@@ -58,7 +58,7 @@ void Pierre::update()
 
     updateMood(getWorld(), m_state, enemyLocation, false);
 
-    creatureTurn = rotateTowardsTarget(m_state.creatureInfo->maximum_turn);
+    creatureTurn = rotateTowardsTarget(m_state.creatureInfo->maxTurnSpeed);
     switch(m_state.current_anim_state.get())
     {
     case 1:
@@ -83,7 +83,7 @@ void Pierre::update()
       }
       break;
     case 2:
-      m_state.creatureInfo->maximum_turn = 3_deg;
+      m_state.creatureInfo->maxTurnSpeed = 3_deg / 1_frame;
       if(isBored() && util::rand15() < 96)
         goal(1_as, 6_as);
       else if(isEscaping())
@@ -94,7 +94,7 @@ void Pierre::update()
         goal(1_as, 3_as);
       break;
     case 3:
-      m_state.creatureInfo->maximum_turn = 6_deg;
+      m_state.creatureInfo->maxTurnSpeed = 6_deg / 1_frame;
       tiltRot = creatureTurn / 2;
       if(isBored() && util::rand15() < 96)
       {
@@ -145,7 +145,7 @@ void Pierre::update()
   rotateCreatureTilt(tiltRot);
   rotateCreatureHead(headRot);
   animateCreature(creatureTurn, 0_deg);
-  getSkeleton()->patchBone(7, core::TRRotation{0_deg, m_state.creatureInfo->head_rotation, 0_deg}.toMatrix());
+  getSkeleton()->patchBone(7, core::TRRotation{0_deg, m_state.creatureInfo->headRotation, 0_deg}.toMatrix());
   if(m_fleeTime != 0_frame)
   {
     if(raycastLineOfSight(getWorld().getCameraController().getTRPosition(),

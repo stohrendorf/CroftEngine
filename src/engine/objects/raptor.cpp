@@ -22,7 +22,7 @@ void Raptor::update()
       animHead = enemyLocation.angleToEnemy;
     }
     updateMood(getWorld(), m_state, enemyLocation, true);
-    animAngle = rotateTowardsTarget(m_state.creatureInfo->maximum_turn);
+    animAngle = rotateTowardsTarget(m_state.creatureInfo->maxTurnSpeed);
     switch(m_state.current_anim_state.get())
     {
     case 1:
@@ -40,14 +40,14 @@ void Raptor::update()
         goal(2_as);
       break;
     case 2:
-      m_state.creatureInfo->maximum_turn = 1_deg;
+      m_state.creatureInfo->maxTurnSpeed = 1_deg / 1_frame;
       if(!isBored())
         goal(1_as);
       else if(enemyLocation.enemyAhead && util::rand15() < 256)
         goal(1_as, 6_as);
       break;
     case 3:
-      m_state.creatureInfo->maximum_turn = 4_deg;
+      m_state.creatureInfo->maxTurnSpeed = 4_deg / 1_frame;
       animTilt = animAngle;
       if(touched(0xff7c00UL))
       {
@@ -115,7 +115,7 @@ void Raptor::update()
 
   rotateCreatureTilt(animTilt);
   rotateCreatureHead(animHead);
-  getSkeleton()->patchBone(20, core::TRRotation{0_deg, m_state.creatureInfo->head_rotation, 0_deg}.toMatrix());
+  getSkeleton()->patchBone(20, core::TRRotation{0_deg, m_state.creatureInfo->headRotation, 0_deg}.toMatrix());
   animateCreature(animAngle, animTilt);
 }
 } // namespace engine::objects

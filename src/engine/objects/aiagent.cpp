@@ -11,9 +11,9 @@
 
 namespace engine::objects
 {
-core::Angle AIAgent::rotateTowardsTarget(core::Angle maxRotationSpeed)
+core::Angle AIAgent::rotateTowardsTarget(core::RotationSpeed maxRotationSpeed)
 {
-  if(m_state.speed == 0_spd || maxRotationSpeed == 0_au)
+  if(m_state.speed == 0_spd || maxRotationSpeed == 0_au / 1_frame)
   {
     return 0_au;
   }
@@ -24,15 +24,14 @@ core::Angle AIAgent::rotateTowardsTarget(core::Angle maxRotationSpeed)
   if(turnAngle < -90_deg || turnAngle > 90_deg)
   {
     // the target is behind the current object, so we need a U-turn
-    const auto relativeSpeed
-      = m_state.speed * (90_deg).cast<core::Speed::type>() / maxRotationSpeed.cast<core::Speed::type>();
-    if(util::square(dx) + util::square(dz) < util::square(relativeSpeed * 1_frame))
+    const auto relativeSpeed = m_state.speed * 90_deg / maxRotationSpeed;
+    if(util::square(dx) + util::square(dz) < util::square(relativeSpeed))
     {
       maxRotationSpeed /= 2;
     }
   }
 
-  turnAngle = std::clamp(turnAngle, -maxRotationSpeed, maxRotationSpeed);
+  turnAngle = std::clamp(turnAngle, -maxRotationSpeed * 1_frame, maxRotationSpeed * 1_frame);
 
   m_state.rotation.Y += turnAngle;
   return turnAngle;

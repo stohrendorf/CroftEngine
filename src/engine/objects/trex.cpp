@@ -30,7 +30,7 @@ void TRex::update()
     }
     updateMood(getWorld(), m_state, enemyLocation, true);
 
-    rotationToMoveTarget = rotateTowardsTarget(m_state.creatureInfo->maximum_turn);
+    rotationToMoveTarget = rotateTowardsTarget(m_state.creatureInfo->maxTurnSpeed);
     if(touched())
     {
       if(m_state.current_anim_state == RunningAttack)
@@ -59,14 +59,14 @@ void TRex::update()
         goal(RunningAttack);
       break;
     case Attack.get():
-      m_state.creatureInfo->maximum_turn = 2_deg;
+      m_state.creatureInfo->maxTurnSpeed = 2_deg / 1_frame;
       if(!isBored() || !m_wantAttack)
         goal(Think);
       else if(enemyLocation.enemyAhead && util::rand15() < 512)
         goal(Think, 6_as);
       break;
     case RunningAttack.get():
-      m_state.creatureInfo->maximum_turn = 4_deg;
+      m_state.creatureInfo->maxTurnSpeed = 4_deg / 1_frame;
       if(enemyLocation.enemyDistance < util::square(5 * core::SectorSize) && enemyLocation.canAttackForward)
         goal(Think); // NOLINT(bugprone-branch-clone)
       else if(m_wantAttack)
@@ -118,9 +118,9 @@ void TRex::update()
   }
 
   rotateCreatureHead(creatureHead);
-  m_state.creatureInfo->neck_rotation = m_state.creatureInfo->head_rotation;
-  getSkeleton()->patchBone(11, core::TRRotation{0_deg, m_state.creatureInfo->head_rotation, 0_deg}.toMatrix());
-  getSkeleton()->patchBone(12, core::TRRotation{0_deg, m_state.creatureInfo->head_rotation, 0_deg}.toMatrix());
+  m_state.creatureInfo->neckRotation = m_state.creatureInfo->headRotation;
+  getSkeleton()->patchBone(11, core::TRRotation{0_deg, m_state.creatureInfo->headRotation, 0_deg}.toMatrix());
+  getSkeleton()->patchBone(12, core::TRRotation{0_deg, m_state.creatureInfo->headRotation, 0_deg}.toMatrix());
   animateCreature(rotationToMoveTarget, 0_deg);
   m_state.collidable = true;
 }

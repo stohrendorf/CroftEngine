@@ -29,14 +29,14 @@ void Bear::update()
     const ai::EnemyLocation enemyLocation{getWorld(), m_state};
     updateMood(getWorld(), m_state, enemyLocation, true);
 
-    rotationToMoveTarget = rotateTowardsTarget(m_state.creatureInfo->maximum_turn);
+    rotationToMoveTarget = rotateTowardsTarget(m_state.creatureInfo->maxTurnSpeed);
     if(m_state.is_hit)
       m_hurt = true;
 
     switch(m_state.current_anim_state.get())
     {
     case Walking.get():
-      m_state.creatureInfo->maximum_turn = 2_deg;
+      m_state.creatureInfo->maxTurnSpeed = 2_deg / 1_frame;
       if(getWorld().getObjectManager().getLara().isDead() && touched(0x2406cUL) && enemyLocation.enemyAhead)
       {
         goal(GettingDown);
@@ -83,7 +83,7 @@ void Bear::update()
         goal(RoaringStanding, GettingDown);
       break;
     case Running.get():
-      m_state.creatureInfo->maximum_turn = 5_deg;
+      m_state.creatureInfo->maxTurnSpeed = 5_deg / 1_frame;
       if(touched(0x2406cUL))
       {
         hitLara(3_hp);
@@ -133,7 +133,7 @@ void Bear::update()
   }
   else
   {
-    rotationToMoveTarget = rotateTowardsTarget(1_deg);
+    rotationToMoveTarget = rotateTowardsTarget(1_deg / 1_frame);
     switch(m_state.current_anim_state.get())
     {
     case Walking.get():
@@ -158,7 +158,7 @@ void Bear::update()
     }
     rotateCreatureHead(0_deg);
   }
-  getSkeleton()->patchBone(14, core::TRRotation{0_deg, m_state.creatureInfo->head_rotation, 0_deg}.toMatrix());
+  getSkeleton()->patchBone(14, core::TRRotation{0_deg, m_state.creatureInfo->headRotation, 0_deg}.toMatrix());
   animateCreature(rotationToMoveTarget, 0_deg);
 }
 

@@ -45,7 +45,7 @@ protected:
 
   bool animateCreature(const core::Angle& angle, const core::Angle& tilt);
 
-  core::Angle rotateTowardsTarget(core::Angle maxRotationSpeed);
+  core::Angle rotateTowardsTarget(core::RotationSpeed maxRotationSpeed);
 
   core::Health getHealth() const
   {

@@ -22,7 +22,7 @@ void Rat::update()
         headRot = enemyLocation.angleToEnemy;
       }
       updateMood(getWorld(), m_state, enemyLocation, true);
-      const auto turn = rotateTowardsTarget(3_deg);
+      const auto turn = rotateTowardsTarget(3_deg / 1_frame);
 
       if(m_state.current_anim_state == 1_as && enemyLocation.enemyAhead)
       {
@@ -83,7 +83,7 @@ void Rat::update()
         m_state.current_anim_state = 3_as;
       }
       rotateCreatureHead(0_deg);
-      getSkeleton()->patchBone(2, core::TRRotation{0_deg, m_state.creatureInfo->head_rotation, 0_deg}.toMatrix());
+      getSkeleton()->patchBone(2, core::TRRotation{0_deg, m_state.creatureInfo->headRotation, 0_deg}.toMatrix());
       ModelObject::update();
       if(m_state.triggerState == TriggerState::Deactivated)
       {
@@ -117,7 +117,7 @@ void Rat::update()
         headRot = enemyLocation.angleToEnemy;
       }
       updateMood(getWorld(), m_state, enemyLocation, false);
-      turn = rotateTowardsTarget(6_deg);
+      turn = rotateTowardsTarget(6_deg / 1_frame);
 
       switch(m_state.current_anim_state.get())
       {
@@ -177,7 +177,7 @@ void Rat::update()
 
       loadObjectInfo(true);
     }
-    getSkeleton()->patchBone(2, core::TRRotation{0_deg, m_state.creatureInfo->head_rotation, 0_deg}.toMatrix());
+    getSkeleton()->patchBone(2, core::TRRotation{0_deg, m_state.creatureInfo->headRotation, 0_deg}.toMatrix());
     animateCreature(turn, 0_deg);
   }
 }

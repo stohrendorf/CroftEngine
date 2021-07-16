@@ -23,7 +23,7 @@ void Lion::update()
       headRot = enemyLocation.angleToEnemy;
     }
     updateMood(getWorld(), m_state, enemyLocation, true);
-    angle = rotateTowardsTarget(m_state.creatureInfo->maximum_turn);
+    angle = rotateTowardsTarget(m_state.creatureInfo->maxTurnSpeed);
     switch(m_state.current_anim_state.get())
     {
     case 1:
@@ -46,7 +46,7 @@ void Lion::update()
       }
       break;
     case 2:
-      m_state.creatureInfo->maximum_turn = 2_deg;
+      m_state.creatureInfo->maxTurnSpeed = 2_deg / 1_frame;
       if(!isBored())
         goal(1_as);
       else if(util::rand15() < 128)
@@ -54,7 +54,7 @@ void Lion::update()
       break;
     case 3:
       tiltRot = angle;
-      m_state.creatureInfo->maximum_turn = 5_deg;
+      m_state.creatureInfo->maxTurnSpeed = 5_deg / 1_frame;
       if(isBored())
         goal(1_as); // NOLINT(bugprone-branch-clone)
       else if(enemyLocation.enemyAhead && enemyLocation.enemyDistance < util::square(core::SectorSize))
@@ -109,7 +109,7 @@ void Lion::update()
 
   rotateCreatureTilt(tiltRot);
   rotateCreatureHead(headRot);
-  getSkeleton()->patchBone(20, core::TRRotation{0_deg, m_state.creatureInfo->head_rotation, 0_deg}.toMatrix());
+  getSkeleton()->patchBone(20, core::TRRotation{0_deg, m_state.creatureInfo->headRotation, 0_deg}.toMatrix());
   animateCreature(angle, tiltRot);
 }
 } // namespace engine::objects

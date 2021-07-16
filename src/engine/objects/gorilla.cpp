@@ -22,7 +22,7 @@ void Gorilla::update()
       headRot = enemyLocation.angleToEnemy;
     updateMood(getWorld(), m_state, enemyLocation, false);
 
-    turn = rotateTowardsTarget(m_state.creatureInfo->maximum_turn);
+    turn = rotateTowardsTarget(m_state.creatureInfo->maxTurnSpeed);
     if(m_state.is_hit || enemyLocation.enemyDistance < util::square(2 * core::SectorSize))
     {
       m_wantAttack = true;
@@ -71,18 +71,18 @@ void Gorilla::update()
         else if(r < 752)
         {
           goal(8_as);
-          m_state.creatureInfo->maximum_turn = 0_deg;
+          m_state.creatureInfo->maxTurnSpeed = 0_deg / 1_frame;
         }
         else
         {
           goal(9_as);
-          m_state.creatureInfo->maximum_turn = 0_deg;
+          m_state.creatureInfo->maxTurnSpeed = 0_deg / 1_frame;
         }
       }
       break;
     case 3:
       // running
-      m_state.creatureInfo->maximum_turn = 5_deg;
+      m_state.creatureInfo->maxTurnSpeed = 5_deg / 1_frame;
       if(!m_wantAttack && !m_turnedRight && !m_turnedLeft && enemyLocation.angleToEnemy > -45_deg
          && enemyLocation.angleToEnemy < 45_deg)
       {
@@ -142,7 +142,7 @@ void Gorilla::update()
   if(m_state.current_anim_state == 11_as)
   {
     // climbing
-    getSkeleton()->patchBone(14, core::TRRotation{0_deg, m_state.creatureInfo->head_rotation, 0_deg}.toMatrix());
+    getSkeleton()->patchBone(14, core::TRRotation{0_deg, m_state.creatureInfo->headRotation, 0_deg}.toMatrix());
     animateCreature(turn, 0_deg);
   }
   else
@@ -158,7 +158,7 @@ void Gorilla::update()
       m_turnedLeft = false;
     }
     const auto old = m_state.position.position;
-    getSkeleton()->patchBone(14, core::TRRotation{0_deg, m_state.creatureInfo->head_rotation, 0_deg}.toMatrix());
+    getSkeleton()->patchBone(14, core::TRRotation{0_deg, m_state.creatureInfo->headRotation, 0_deg}.toMatrix());
     animateCreature(turn, 0_deg);
     if(old.Y - 384_len < m_state.position.position.Y)
       return;

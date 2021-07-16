@@ -22,7 +22,7 @@ void Bat::update()
     const ai::EnemyLocation enemyLocation{getWorld(), m_state};
     updateMood(getWorld(), m_state, enemyLocation, false);
 
-    rotationToMoveTarget = rotateTowardsTarget(20_deg);
+    rotationToMoveTarget = rotateTowardsTarget(20_deg / 1_frame);
     switch(m_state.current_anim_state.get())
     {
     case StartingToFly: goal(FlyingStraight); break;

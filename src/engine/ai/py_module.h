@@ -12,9 +12,9 @@ namespace py = pybind11;
 void initAiModule(const py::module& m)
 {
   py::class_<CreatureInfo>(m, "CreatureInfo")
-    .def_readwrite("head_rotation", &CreatureInfo::head_rotation)
-    .def_readwrite("neck_rotation", &CreatureInfo::neck_rotation)
-    .def_readwrite("maximum_turn", &CreatureInfo::maximum_turn)
+    .def_readwrite("head_rotation", &CreatureInfo::headRotation)
+    .def_readwrite("neck_rotation", &CreatureInfo::neckRotation)
+    .def_readwrite("max_turn_speed", &CreatureInfo::maxTurnSpeed)
     .def_readwrite("mood", &CreatureInfo::mood)
     .def_readwrite("target", &CreatureInfo::target);
 

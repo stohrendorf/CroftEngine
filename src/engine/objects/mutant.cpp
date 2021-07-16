@@ -123,7 +123,7 @@ void FlyingMutant::update()
       updateMood(getWorld(), m_state, enemyLocation, true);
     }
 
-    turnRot = rotateTowardsTarget(m_state.creatureInfo->maximum_turn);
+    turnRot = rotateTowardsTarget(m_state.creatureInfo->maxTurnSpeed);
     switch(m_state.current_anim_state.get())
     {
     case DoPrepareAttack.get():
@@ -147,7 +147,7 @@ void FlyingMutant::update()
         goal(DoRun);
       break;
     case DoWalk.get():
-      m_state.creatureInfo->maximum_turn = 2_deg;
+      m_state.creatureInfo->maxTurnSpeed = 2_deg / 1_frame;
       if(frontLeft || frontRight || m_flying || isAttacking() || isEscaping())
       {
         goal(DoPrepareAttack);
@@ -166,7 +166,7 @@ void FlyingMutant::update()
       }
       break;
     case DoRun.get():
-      m_state.creatureInfo->maximum_turn = 6_deg;
+      m_state.creatureInfo->maxTurnSpeed = 6_deg / 1_frame;
       if(m_flying || touched(0x678u)
          || (enemyLocation.canAttackForward && enemyLocation.enemyDistance < util::square(600_len)))
       {
@@ -267,21 +267,21 @@ void FlyingMutant::update()
 
   if(!m_lookingAround)
   {
-    m_state.creatureInfo->head_rotation = m_state.creatureInfo->neck_rotation;
+    m_state.creatureInfo->headRotation = m_state.creatureInfo->neckRotation;
   }
   rotateCreatureHead(headRot);
   if(!m_lookingAround)
   {
-    m_state.creatureInfo->neck_rotation = std::exchange(m_state.creatureInfo->head_rotation, 0_deg);
+    m_state.creatureInfo->neckRotation = std::exchange(m_state.creatureInfo->headRotation, 0_deg);
   }
   else
   {
-    m_state.creatureInfo->neck_rotation = 0_deg;
+    m_state.creatureInfo->neckRotation = 0_deg;
   }
   if(getSkeleton()->getBoneCount() >= 2)
-    getSkeleton()->patchBone(1, core::TRRotation{0_deg, m_state.creatureInfo->head_rotation, 0_deg}.toMatrix());
+    getSkeleton()->patchBone(1, core::TRRotation{0_deg, m_state.creatureInfo->headRotation, 0_deg}.toMatrix());
   if(getSkeleton()->getBoneCount() >= 3)
-    getSkeleton()->patchBone(2, core::TRRotation{0_deg, m_state.creatureInfo->neck_rotation, 0_deg}.toMatrix());
+    getSkeleton()->patchBone(2, core::TRRotation{0_deg, m_state.creatureInfo->neckRotation, 0_deg}.toMatrix());
   animateCreature(turnRot, 0_deg);
 }
 
@@ -308,11 +308,11 @@ void CentaurMutant::update()
       headRot = enemyLocation.angleToEnemy;
     }
     updateMood(getWorld(), m_state, enemyLocation, true);
-    turnRot = rotateTowardsTarget(4_deg);
+    turnRot = rotateTowardsTarget(4_deg / 1_frame);
     switch(m_state.current_anim_state.get())
     {
     case 1:
-      m_state.creatureInfo->neck_rotation = 0_deg;
+      m_state.creatureInfo->neckRotation = 0_deg;
       if(m_state.required_anim_state != 0_as)
         goal(m_state.required_anim_state);
       else if((enemyLocation.canAttackForward && enemyLocation.enemyDistance < util::square(1536_len))
@@ -325,8 +325,7 @@ void CentaurMutant::update()
       if(m_state.required_anim_state == 0_as)
       {
         require(4_as);
-        m_state.creatureInfo->neck_rotation
-          = emitParticle({11_len, 415_len, 41_len}, 13, &createMutantGrenade)->angle.X;
+        m_state.creatureInfo->neckRotation = emitParticle({11_len, 415_len, 41_len}, 13, &createMutantGrenade)->angle.X;
       }
       break;
     case 3:
@@ -367,7 +366,7 @@ void CentaurMutant::update()
 
   rotateCreatureHead(headRot);
   getSkeleton()->patchBone(
-    11, core::TRRotation{m_state.creatureInfo->neck_rotation, m_state.creatureInfo->head_rotation, 0_deg}.toMatrix());
+    11, core::TRRotation{m_state.creatureInfo->neckRotation, m_state.creatureInfo->headRotation, 0_deg}.toMatrix());
   animateCreature(turnRot, 0_deg);
   if(m_state.triggerState == TriggerState::Deactivated)
   {

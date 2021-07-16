@@ -60,9 +60,9 @@ struct EnemyLocation
 
 struct CreatureInfo
 {
-  core::Angle head_rotation = 0_deg;
-  core::Angle neck_rotation = 0_deg;
-  core::Angle maximum_turn = 1_deg;
+  core::Angle headRotation = 0_deg;
+  core::Angle neckRotation = 0_deg;
+  core::RotationSpeed maxTurnSpeed = 1_deg / 1_frame;
   Mood mood = Mood::Bored;
   PathFinder pathFinder;
   core::TRVec target;
@@ -74,8 +74,8 @@ struct CreatureInfo
 
   void rotateHead(const core::Angle& angle)
   {
-    const auto delta = std::clamp(angle - head_rotation, -5_deg, +5_deg);
-    head_rotation = std::clamp(delta + head_rotation, -90_deg, +90_deg);
+    const auto delta = std::clamp(angle - headRotation, -5_deg, +5_deg);
+    headRotation = std::clamp(delta + headRotation, -90_deg, +90_deg);
   }
 
   void serialize(const serialization::Serializer<world::World>& ser);
