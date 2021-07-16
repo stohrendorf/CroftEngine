@@ -1,8 +1,7 @@
 #include "tr2level.h"
 
-using namespace loader::file;
-using namespace loader::file::level;
-
+namespace loader::file::level
+{
 #define TR_AUDIO_MAP_SIZE_TR2 370
 
 void TR2Level::loadFileData()
@@ -134,3 +133,4 @@ void TR2Level::loadFileData()
   for(size_t i = 0; i < texture16.size(); i++)
     convertTexture(texture16[i], m_textures[i]);
 }
+} // namespace loader::file::level

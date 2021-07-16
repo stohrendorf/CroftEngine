@@ -1,6 +1,5 @@
 #include "level.h"
 
-#include "engine/objects/laraobject.h"
 #include "render/textureanimator.h"
 #include "tr1level.h"
 #include "tr2level.h"
@@ -12,9 +11,8 @@
 #include <boost/algorithm/string/case_conv.hpp>
 #include <filesystem>
 
-using namespace loader::file;
-using namespace level;
-
+namespace loader::file::level
+{
 Level::~Level() = default;
 
 /// \brief reads the mesh data.
@@ -78,7 +76,7 @@ std::unique_ptr<Level> Level::createLoader(const std::filesystem::path& filename
 }
 
 std::unique_ptr<Level> Level::createLoader(io::SDLReader&& reader,
-                                           std::filesystem::path filename,
+                                           const std::filesystem::path& filename,
                                            Game game_version,
                                            const std::filesystem::path& sfxPath)
 {
@@ -224,3 +222,4 @@ void Level::convertTexture(WordTexture& tex, DWordTexture& dst)
     }
   }
 }
+} // namespace loader::file::level

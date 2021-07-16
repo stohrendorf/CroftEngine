@@ -14,14 +14,7 @@
 #include <utility>
 #include <vector>
 
-namespace loader
-{
-namespace trx
-{
-class Glidos;
-}
-
-namespace file::level
+namespace loader::file::level
 {
 class Level
 {
@@ -100,8 +93,6 @@ public:
 
   virtual void loadFileData() = 0;
 
-  [[nodiscard]] const std::unique_ptr<SkeletalModelType>& findAnimatedModelForType(core::TypeId type) const;
-
   const auto& getFilename() const
   {
     return m_filename;
@@ -124,9 +115,8 @@ private:
   static Game probeVersion(io::SDLReader& reader, const std::filesystem::path& filename);
 
   static std::unique_ptr<Level> createLoader(io::SDLReader&& reader,
-                                             std::filesystem::path filename,
+                                             const std::filesystem::path& filename,
                                              Game game_version,
                                              const std::filesystem::path& sfxPath);
 };
-} // namespace file::level
-} // namespace loader
+} // namespace loader::file::level

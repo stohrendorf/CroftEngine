@@ -1,8 +1,7 @@
 #include "tr1level.h"
 
-using namespace loader::file;
-using namespace loader::file::level;
-
+namespace loader::file::level
+{
 #define TR_AUDIO_MAP_SIZE_TR1 256
 
 void TR1Level::loadFileData()
@@ -161,3 +160,4 @@ void TR1Level::loadFileData()
 
   BOOST_LOG_TRIVIAL(debug) << "Done. File position = " << m_reader.tell();
 }
+} // namespace loader::file::level
