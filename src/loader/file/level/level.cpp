@@ -10,7 +10,6 @@
 #include "util/md5.h"
 
 #include <boost/algorithm/string/case_conv.hpp>
-#include <boost/range/adaptors.hpp>
 #include <filesystem>
 
 using namespace loader::file;
@@ -27,28 +26,33 @@ void Level::readMeshData(io::SDLReader& reader)
   const auto meshDataSize = meshDataWords * 2;
   reader.skip(meshDataSize);
 
-  reader.readVector(m_meshIndices, reader.readU32());
+  std::vector<uint32_t> offsets;
+  reader.readVector(offsets, reader.readU32());
+  std::set<uint32_t> uniqueOffsets{offsets.begin(), offsets.end()};
   const auto endPos = reader.tell();
 
   m_meshes.clear();
-
-  uint32_t meshDataPos = 0;
-  for(uint32_t i = 0; i < m_meshIndices.size(); i++)
+  for(const auto offset : uniqueOffsets)
   {
-    replace(m_meshIndices.begin(), m_meshIndices.end(), meshDataPos, i);
-
-    reader.seek(basePos + std::streamoff(meshDataPos));
+    reader.seek(basePos + std::streamoff(offset));
 
     if(gameToEngine(m_gameVersion) >= Engine::TR4)
       m_meshes.emplace_back(*Mesh::readTr4(reader));
     else
       m_meshes.emplace_back(*Mesh::readTr1(reader));
-
-    auto it = std::find_if(
-      m_meshIndices.begin(), m_meshIndices.end(), [meshDataPos](uint32_t pos) { return pos > meshDataPos; });
-    if(it != m_meshIndices.end())
-      meshDataPos = *it;
   }
+  Ensures(m_meshes.size() == uniqueOffsets.size());
+
+  m_meshIndices.clear();
+  std::transform(offsets.begin(),
+                 offsets.end(),
+                 std::back_inserter(m_meshIndices),
+                 [&uniqueOffsets](uint32_t offset)
+                 {
+                   auto it = uniqueOffsets.find(offset);
+                   Expects(it != uniqueOffsets.end());
+                   return std::distance(uniqueOffsets.begin(), it);
+                 });
 
   reader.seek(endPos);
 }
