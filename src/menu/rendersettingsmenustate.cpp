@@ -138,7 +138,7 @@ RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingT
     m_anisotropyCheckbox = listBox->addSetting(
       "",
       [&engine]() { return engine.getEngineConfig()->renderSettings.anisotropyLevel != 0; },
-      [&engine, maxLevel = std::lround(gl::getMaxAnisotropyLevel())]()
+      [&engine, maxLevel = gsl::narrow<uint32_t>(std::lround(gl::getMaxAnisotropyLevel()))]()
       {
         auto& level = engine.getEngineConfig()->renderSettings.anisotropyLevel;
         if(level == 0)
