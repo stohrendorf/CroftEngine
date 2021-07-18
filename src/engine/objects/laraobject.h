@@ -316,6 +316,7 @@ public:
 
     void update(LaraObject& lara, const Weapon& weapon);
     void holsterWeapons(LaraObject& lara, WeaponType weaponType);
+    void overrideHolsterWeaponsMeshes(LaraObject& lara, WeaponType weaponType);
 
     void serialize(const serialization::Serializer<world::World>& ser);
   };

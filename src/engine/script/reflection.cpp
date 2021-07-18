@@ -136,9 +136,9 @@ bool Level::isLevel(const std::filesystem::path& path) const
 
 std::pair<RunResult, std::optional<size_t>> Level::run(Engine& engine, const std::shared_ptr<Player>& player)
 {
-  auto world = loadWorld(engine, player);
   player->requestedWeaponType = m_defaultWeapon;
   player->selectedWeaponType = m_defaultWeapon;
+  auto world = loadWorld(engine, player);
   return engine.run(*world, false, m_allowSave);
 }
 

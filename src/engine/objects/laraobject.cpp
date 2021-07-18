@@ -2120,18 +2120,8 @@ void LaraObject::serialize(const serialization::Serializer<world::World>& ser)
       S_NV("rightArm", rightArm),
       S_NV("weaponTargetVector", m_weaponTargetVector));
 
-  ser.lazy(
-    [this](const serialization::Serializer<world::World>& ser)
-    {
-      ser(S_NV("aimAt", serialization::ObjectReference{aimAt}));
-      if(ser.loading && getWorld().getPlayer().getInventory().count(TR1ItemId::Shotgun) > 0)
-      {
-        const auto& src = *getWorld().findAnimatedModelForType(TR1ItemId::LaraShotgunAnim);
-        BOOST_ASSERT(src.bones.size() == getSkeleton()->getBoneCount());
-        getSkeleton()->setMeshPart(BoneTorso, src.bones[BoneTorso].mesh);
-        getSkeleton()->rebuildMesh();
-      }
-    });
+  ser.lazy([this](const serialization::Serializer<world::World>& ser)
+           { ser(S_NV("aimAt", serialization::ObjectReference{aimAt})); });
 
   if(ser.loading)
     forceSourcePosition = nullptr;
@@ -2174,6 +2164,13 @@ LaraObject::LaraObject(const gsl::not_null<world::World*>& world,
     BOOST_ASSERT(src.bones.size() == getSkeleton()->getBoneCount());
     getSkeleton()->setMeshPart(BoneTorso, src.bones[BoneTorso].mesh);
     getSkeleton()->rebuildMesh();
+  }
+
+  if(auto weaponType = world->getPlayer().selectedWeaponType;
+     weaponType != WeaponType::None && weaponType != WeaponType::Shotgun)
+  {
+    leftArm.overrideHolsterWeaponsMeshes(*this, world->getPlayer().selectedWeaponType);
+    rightArm.overrideHolsterWeaponsMeshes(*this, world->getPlayer().selectedWeaponType);
   }
 }
 
@@ -2268,25 +2265,29 @@ void LaraObject::AimInfo::holsterWeapons(LaraObject& lara, WeaponType weaponType
     frame -= 1_frame;
     if(frame == 12_frame)
     {
-      TR1ItemId srcId;
-      switch(weaponType)
-      {
-      case WeaponType::Pistols: srcId = TR1ItemId::LaraPistolsAnim; break;
-      case WeaponType::Magnums: srcId = TR1ItemId::LaraMagnumsAnim; break;
-      case WeaponType::Uzis: srcId = TR1ItemId::LaraUzisAnim; break;
-      default: BOOST_THROW_EXCEPTION(std::domain_error("weaponType"));
-      }
-
-      const auto& src = *lara.getWorld().findAnimatedModelForType(srcId);
-      BOOST_ASSERT(src.bones.size() == lara.getSkeleton()->getBoneCount());
-      const auto& normalLara = *lara.getWorld().findAnimatedModelForType(TR1ItemId::Lara);
-      BOOST_ASSERT(normalLara.bones.size() == lara.getSkeleton()->getBoneCount());
-      lara.getSkeleton()->setMeshPart(handBoneId, normalLara.bones[handBoneId].mesh);
-      lara.getSkeleton()->setMeshPart(thighBoneId, src.bones[thighBoneId].mesh);
-      lara.getSkeleton()->rebuildMesh();
-
+      overrideHolsterWeaponsMeshes(lara, weaponType);
       lara.playSoundEffect(TR1SoundEffect::LaraHolster);
     }
   }
+}
+
+void LaraObject::AimInfo::overrideHolsterWeaponsMeshes(LaraObject& lara, WeaponType weaponType)
+{
+  TR1ItemId srcId;
+  switch(weaponType)
+  {
+  case WeaponType::Pistols: srcId = TR1ItemId::LaraPistolsAnim; break;
+  case WeaponType::Magnums: srcId = TR1ItemId::LaraMagnumsAnim; break;
+  case WeaponType::Uzis: srcId = TR1ItemId::LaraUzisAnim; break;
+  default: BOOST_THROW_EXCEPTION(std::domain_error("weaponType"));
+  }
+
+  const auto& src = *lara.getWorld().findAnimatedModelForType(srcId);
+  BOOST_ASSERT(src.bones.size() == lara.getSkeleton()->getBoneCount());
+  const auto& normalLara = *lara.getWorld().findAnimatedModelForType(TR1ItemId::Lara);
+  BOOST_ASSERT(normalLara.bones.size() == lara.getSkeleton()->getBoneCount());
+  lara.getSkeleton()->setMeshPart(handBoneId, normalLara.bones[handBoneId].mesh);
+  lara.getSkeleton()->setMeshPart(thighBoneId, src.bones[thighBoneId].mesh);
+  lara.getSkeleton()->rebuildMesh();
 }
 } // namespace engine::objects
