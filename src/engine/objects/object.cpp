@@ -19,7 +19,7 @@ void Object::applyTransform()
   getNode()->setLocalMatrix(translate(glm::mat4{1.0f}, tr) * m_state.rotation.toMatrix());
 }
 
-Object::Object(const gsl::not_null<world::World*>& world, const core::RoomBoundPosition& position)
+Object::Object(const gsl::not_null<world::World*>& world, const RoomBoundPosition& position)
     : m_world{world}
     , m_state{world->getPresenter().getSoundEngine().get(), position}
     , m_hasUpdateFunction{false}
@@ -30,7 +30,7 @@ Object::Object(const gsl::not_null<world::World*>& world,
                const gsl::not_null<const world::Room*>& room,
                const loader::file::Item& item,
                const bool hasUpdateFunction)
-    : Object{world, core::RoomBoundPosition{room, item.position}}
+    : Object{world, RoomBoundPosition{room, item.position}}
 {
   m_hasUpdateFunction = hasUpdateFunction;
   m_state.type = item.type;
@@ -145,7 +145,7 @@ bool InteractionLimits::canInteract(const ObjectState& objectState, const Object
   return distance.contains(core::TRVec{glm::vec3{dist}});
 }
 
-void Object::emitRicochet(const core::RoomBoundPosition& pos)
+void Object::emitRicochet(const RoomBoundPosition& pos)
 {
   const auto particle = std::make_shared<RicochetParticle>(pos, getWorld());
   setParent(particle, m_state.position.room->node);

@@ -10,19 +10,6 @@
 
 namespace core
 {
-void RoomBoundPosition::serialize(const serialization::Serializer<engine::world::World>& ser)
-{
-  ser(S_NV_VECTOR_ELEMENT_NOT_NULL("room", ser.context.getRooms(), room), S_NV("position", position));
-}
-
-RoomBoundPosition RoomBoundPosition::create(const serialization::Serializer<engine::world::World>& ser)
-{
-  const engine::world::Room* room = nullptr;
-  TRVec position{};
-  ser(S_NV_VECTOR_ELEMENT("room", ser.context.getRooms(), room), S_NV("position", position));
-  return RoomBoundPosition{room, position};
-}
-
 void TRVec::serialize(const serialization::Serializer<engine::world::World>& ser)
 {
   ser(S_NV("x", X), S_NV("y", Y), S_NV("z", Z));
@@ -31,10 +18,5 @@ void TRVec::serialize(const serialization::Serializer<engine::world::World>& ser
 std::ostream& operator<<(std::ostream& stream, const TRVec& rhs)
 {
   return stream << "(" << rhs.X << ", " << rhs.Y << ", " << rhs.Z << ")";
-}
-
-std::ostream& operator<<(std::ostream& stream, const RoomBoundPosition& rhs)
-{
-  return stream << "[" << rhs.room->node->getName() << " " << rhs.position << "]";
 }
 } // namespace core

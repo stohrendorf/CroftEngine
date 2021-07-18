@@ -55,7 +55,7 @@ class Object
   const gsl::not_null<world::World*> m_world;
 
 protected:
-  Object(const gsl::not_null<world::World*>& world, const core::RoomBoundPosition& position);
+  Object(const gsl::not_null<world::World*>& world, const RoomBoundPosition& position);
 
 public:
   ObjectState m_state;
@@ -183,7 +183,7 @@ public:
 
   virtual void serialize(const serialization::Serializer<world::World>& ser);
 
-  void emitRicochet(const core::RoomBoundPosition& pos);
+  void emitRicochet(const RoomBoundPosition& pos);
 
   std::optional<core::Length> getWaterSurfaceHeight() const;
 

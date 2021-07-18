@@ -7,7 +7,7 @@ namespace engine::objects
 class WaterfallMist final : public NullRenderModelObject
 {
 public:
-  WaterfallMist(const gsl::not_null<world::World*>& world, const core::RoomBoundPosition& position)
+  WaterfallMist(const gsl::not_null<world::World*>& world, const RoomBoundPosition& position)
       : NullRenderModelObject{world, position}
   {
   }

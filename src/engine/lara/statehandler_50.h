@@ -51,7 +51,7 @@ public:
       p.Y += util::rand15s(r);
       p.Z += util::rand15s(r);
       auto fx = std::make_shared<SparkleParticle>(
-        core::RoomBoundPosition{world.getObjectManager().getLara().m_state.position.room, p}, world);
+        RoomBoundPosition{world.getObjectManager().getLara().m_state.position.room, p}, world);
       world.getObjectManager().registerParticle(fx);
     }
   }

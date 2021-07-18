@@ -155,7 +155,7 @@ public:
   }
 
   template<typename T>
-  std::shared_ptr<T> createObject(const core::RoomBoundPosition& position)
+  std::shared_ptr<T> createObject(const RoomBoundPosition& position)
   {
     auto object = std::make_shared<T>(this, position);
 

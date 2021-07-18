@@ -75,7 +75,7 @@ Particle::Particle(const std::string& id,
 
 Particle::Particle(const std::string& id,
                    const core::TypeId objectNumber,
-                   core::RoomBoundPosition pos,
+                   RoomBoundPosition pos,
                    world::World& world,
                    const std::shared_ptr<render::scene::Renderable>& renderable)
     : Node{id}
@@ -147,7 +147,7 @@ bool BubbleParticle::update(world::World& world)
   return true;
 }
 
-FlameParticle::FlameParticle(const core::RoomBoundPosition& pos, world::World& world, bool randomize)
+FlameParticle::FlameParticle(const RoomBoundPosition& pos, world::World& world, bool randomize)
     : Particle{"flame", TR1ItemId::Flame, pos, world}
 {
   timePerSpriteFrame = 0;

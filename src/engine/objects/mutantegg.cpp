@@ -39,8 +39,8 @@ bool shatterModel(ModelObject& object, const std::bitset<32>& meshMask, const co
     world::RenderMeshDataCompositor compositor;
     compositor.append(*modelType->bones[i].mesh);
     auto particle = std::make_shared<MeshShrapnelParticle>(
-      core::RoomBoundPosition{object.m_state.position.room,
-                              core::TRVec{object.getSkeleton()->getMeshPartTranslationWorld(i)}},
+      RoomBoundPosition{object.m_state.position.room,
+                        core::TRVec{object.getSkeleton()->getMeshPartTranslationWorld(i)}},
       object.getWorld(),
       compositor.toMesh(*object.getWorld().getPresenter().getMaterialManager(), false, {}),
       isTorsoBoss,

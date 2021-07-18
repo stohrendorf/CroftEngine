@@ -7,7 +7,7 @@ namespace engine::objects
 class Animating final : public ModelObject
 {
 public:
-  Animating(const gsl::not_null<world::World*>& world, const core::RoomBoundPosition& position)
+  Animating(const gsl::not_null<world::World*>& world, const RoomBoundPosition& position)
       : ModelObject{world, position}
   {
   }

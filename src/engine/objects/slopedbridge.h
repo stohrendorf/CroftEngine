@@ -10,7 +10,7 @@ private:
   int m_flatness;
 
 public:
-  SlopedBridge(const gsl::not_null<world::World*>& world, const core::RoomBoundPosition& position)
+  SlopedBridge(const gsl::not_null<world::World*>& world, const RoomBoundPosition& position)
       : ModelObject{world, position}
       , m_flatness{0}
   {
@@ -64,7 +64,7 @@ private:
 class BridgeSlope1 final : public SlopedBridge
 {
 public:
-  BridgeSlope1(const gsl::not_null<world::World*>& world, const core::RoomBoundPosition& position)
+  BridgeSlope1(const gsl::not_null<world::World*>& world, const RoomBoundPosition& position)
       : SlopedBridge{world, position}
   {
   }
@@ -81,7 +81,7 @@ public:
 class BridgeSlope2 final : public SlopedBridge
 {
 public:
-  BridgeSlope2(const gsl::not_null<world::World*>& world, const core::RoomBoundPosition& position)
+  BridgeSlope2(const gsl::not_null<world::World*>& world, const RoomBoundPosition& position)
       : SlopedBridge{world, position}
   {
   }

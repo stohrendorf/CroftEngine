@@ -28,7 +28,7 @@ void SlammingDoors::update()
           = core::TRVec{glm::vec3{translate(objectSpheres.at(boneId).m, bitePos.toRenderSystem())[3]}};
 
         auto blood = createBloodSplat(
-          getWorld(), core::RoomBoundPosition{m_state.position.room, position}, m_state.speed, m_state.rotation.Y);
+          getWorld(), RoomBoundPosition{m_state.position.room, position}, m_state.speed, m_state.rotation.Y);
         getWorld().getObjectManager().registerParticle(std::move(blood));
       };
 

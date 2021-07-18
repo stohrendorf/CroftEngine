@@ -8,7 +8,7 @@ namespace engine::objects
 class Larson final : public AIAgent
 {
 public:
-  Larson(const gsl::not_null<world::World*>& world, const core::RoomBoundPosition& position)
+  Larson(const gsl::not_null<world::World*>& world, const RoomBoundPosition& position)
       : AIAgent{world, position}
   {
   }

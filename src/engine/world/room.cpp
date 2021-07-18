@@ -404,7 +404,7 @@ void patchHeightsForBlock(const engine::objects::Object& object, const core::Len
     groundSector->box->blocked = (height < 0_len);
 }
 
-std::optional<core::Length> getWaterSurfaceHeight(const core::RoomBoundPosition& pos)
+std::optional<core::Length> getWaterSurfaceHeight(const RoomBoundPosition& pos)
 {
   auto sector = pos.room->getSectorByAbsolutePosition(pos.position);
 

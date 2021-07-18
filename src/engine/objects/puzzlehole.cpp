@@ -126,7 +126,7 @@ PuzzleHole::PuzzleHole(const gsl::not_null<world::World*>& world,
   initMesh();
 }
 
-PuzzleHole::PuzzleHole(const gsl::not_null<world::World*>& world, const core::RoomBoundPosition& position)
+PuzzleHole::PuzzleHole(const gsl::not_null<world::World*>& world, const RoomBoundPosition& position)
     : ModelObject{world, position}
 {
 }

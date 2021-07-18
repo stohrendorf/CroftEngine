@@ -123,22 +123,4 @@ inline constexpr bool operator==(const TRVec& lhs, const TRVec& rhs) noexcept
 }
 
 extern std::ostream& operator<<(std::ostream& stream, const TRVec& rhs);
-
-struct RoomBoundPosition final
-{
-  gsl::not_null<const engine::world::Room*> room;
-
-  TRVec position;
-
-  explicit RoomBoundPosition(gsl::not_null<const engine::world::Room*> r, TRVec pos = {})
-      : room{std::move(r)}
-      , position{std::move(pos)}
-  {
-  }
-
-  void serialize(const serialization::Serializer<engine::world::World>& ser);
-  [[nodiscard]] static RoomBoundPosition create(const serialization::Serializer<engine::world::World>& ser);
-};
-
-extern std::ostream& operator<<(std::ostream& stream, const RoomBoundPosition& rhs);
 } // namespace core

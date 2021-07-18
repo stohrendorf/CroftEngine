@@ -63,7 +63,7 @@ void SwordOfDamocles::collide(CollisionInfo& collisionInfo)
   const auto tmp = getWorld().getObjectManager().getLara().m_state.position.position
                    + core::TRVec{util::rand15s(128_len), -util::rand15(745_len), util::rand15s(128_len)};
   auto fx = createBloodSplat(getWorld(),
-                             core::RoomBoundPosition{m_state.position.room, tmp},
+                             RoomBoundPosition{m_state.position.room, tmp},
                              getWorld().getObjectManager().getLara().m_state.speed,
                              util::rand15s(22.5_deg) + m_state.rotation.Y);
   getWorld().getObjectManager().registerParticle(fx);

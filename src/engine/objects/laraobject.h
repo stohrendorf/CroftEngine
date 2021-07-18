@@ -57,7 +57,7 @@ private:
 #endif
 
 public:
-  LaraObject(const gsl::not_null<world::World*>& world, const core::RoomBoundPosition& position)
+  LaraObject(const gsl::not_null<world::World*>& world, const RoomBoundPosition& position)
       : ModelObject{world, position}
       , m_underwaterRoute{*world}
   {
@@ -342,7 +342,7 @@ public:
 
   void initWeaponAnimData();
 
-  static core::RoomBoundPosition getUpperThirdBBoxCtr(const ModelObject& object);
+  static RoomBoundPosition getUpperThirdBBoxCtr(const ModelObject& object);
 
   void drawWeapons(WeaponType weaponType);
 

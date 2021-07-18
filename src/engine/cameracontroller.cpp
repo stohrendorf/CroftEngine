@@ -128,10 +128,10 @@ using ClampCallback = void(core::Length& goalX,
                            const core::Length& maxX,
                            const core::Length& maxY);
 
-core::RoomBoundPosition clampBox(const core::RoomBoundPosition& start,
-                                 const core::TRVec& goal,
-                                 const std::function<ClampCallback>& callback,
-                                 const ObjectManager& objectManager)
+RoomBoundPosition clampBox(const RoomBoundPosition& start,
+                           const core::TRVec& goal,
+                           const std::function<ClampCallback>& callback,
+                           const ObjectManager& objectManager)
 {
   auto result = raycastLineOfSight(start, goal, objectManager).second;
   const gsl::not_null startSector = start.room->getSectorByAbsolutePosition(start.position);
@@ -146,11 +146,13 @@ core::RoomBoundPosition clampBox(const core::RoomBoundPosition& start,
   Expects(box != nullptr);
 
   // align to the closest border of the next sector
-  static const auto alignMin = [](core::Length& x) {
+  static const auto alignMin = [](core::Length& x)
+  {
     x = (x / core::SectorSize) * core::SectorSize - 1_len;
     BOOST_ASSERT(x % core::SectorSize == core::SectorSize - 1_len);
   };
-  static const auto alignMax = [](core::Length& x) {
+  static const auto alignMax = [](core::Length& x)
+  {
     x = (x / core::SectorSize + 1) * core::SectorSize;
     BOOST_ASSERT(x % core::SectorSize == 0_len);
   };
@@ -543,7 +545,7 @@ void CameraController::handleFixedCamera()
   }
 }
 
-core::Length CameraController::moveIntoBox(core::RoomBoundPosition& goal, const core::Length& margin) const
+core::Length CameraController::moveIntoBox(RoomBoundPosition& goal, const core::Length& margin) const
 {
   const auto sector = world::findRealFloorSector(goal);
   Expects(sector->box != nullptr);
@@ -587,7 +589,7 @@ core::Length CameraController::moveIntoBox(core::RoomBoundPosition& goal, const 
     return 0_len;
 }
 
-void CameraController::updatePosition(const core::RoomBoundPosition& goal, const int smoothFactor)
+void CameraController::updatePosition(const RoomBoundPosition& goal, const int smoothFactor)
 {
   m_position.position += (goal.position - m_position.position) / smoothFactor;
   m_position.room = goal.room;

@@ -7,7 +7,7 @@ namespace engine::objects
 class CutsceneActor : public ModelObject
 {
 public:
-  CutsceneActor(const gsl::not_null<world::World*>& world, const core::RoomBoundPosition& position)
+  CutsceneActor(const gsl::not_null<world::World*>& world, const RoomBoundPosition& position)
       : ModelObject{world, position}
   {
   }
@@ -23,7 +23,7 @@ public:
 class CutsceneActor1 final : public CutsceneActor
 {
 public:
-  CutsceneActor1(const gsl::not_null<world::World*>& world, const core::RoomBoundPosition& position)
+  CutsceneActor1(const gsl::not_null<world::World*>& world, const RoomBoundPosition& position)
       : CutsceneActor{world, position}
   {
   }
@@ -40,7 +40,7 @@ public:
 class CutsceneActor2 final : public CutsceneActor
 {
 public:
-  CutsceneActor2(const gsl::not_null<world::World*>& world, const core::RoomBoundPosition& position)
+  CutsceneActor2(const gsl::not_null<world::World*>& world, const RoomBoundPosition& position)
       : CutsceneActor{world, position}
   {
   }
@@ -57,7 +57,7 @@ public:
 class CutsceneActor3 final : public CutsceneActor
 {
 public:
-  CutsceneActor3(const gsl::not_null<world::World*>& world, const core::RoomBoundPosition& position)
+  CutsceneActor3(const gsl::not_null<world::World*>& world, const RoomBoundPosition& position)
       : CutsceneActor{world, position}
   {
   }
@@ -74,7 +74,7 @@ public:
 class CutsceneActor4 final : public CutsceneActor
 {
 public:
-  CutsceneActor4(const gsl::not_null<world::World*>& world, const core::RoomBoundPosition& position)
+  CutsceneActor4(const gsl::not_null<world::World*>& world, const RoomBoundPosition& position)
       : CutsceneActor{world, position}
   {
   }

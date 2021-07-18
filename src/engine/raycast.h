@@ -5,13 +5,13 @@
 namespace core
 {
 struct TRVec;
-struct RoomBoundPosition;
 } // namespace core
 
 namespace engine
 {
 class ObjectManager;
+struct RoomBoundPosition;
 
-extern std::pair<bool, core::RoomBoundPosition>
-  raycastLineOfSight(const core::RoomBoundPosition& start, const core::TRVec& goal, const ObjectManager& objectManager);
+extern std::pair<bool, RoomBoundPosition>
+  raycastLineOfSight(const RoomBoundPosition& start, const core::TRVec& goal, const ObjectManager& objectManager);
 } // namespace engine

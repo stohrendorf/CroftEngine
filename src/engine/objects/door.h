@@ -8,7 +8,7 @@ namespace engine::objects
 class Door final : public ModelObject
 {
 public:
-  Door(const gsl::not_null<world::World*>& world, const core::RoomBoundPosition& position)
+  Door(const gsl::not_null<world::World*>& world, const RoomBoundPosition& position)
       : ModelObject{world, position}
   {
   }

@@ -84,6 +84,13 @@ bool AIAgent::animateCreature(const core::Angle& angle, const core::Angle& tilt)
   if(m_state.creatureInfo == nullptr)
     return false;
 
+  const auto invariantCheck = gsl::finally(
+    [this]()
+    {
+      const auto sector = m_state.getCurrentSector();
+      Ensures(sector != nullptr && sector->box != nullptr);
+    });
+
   const auto& pathFinder = m_state.creatureInfo->pathFinder;
 
   const auto oldPosition = m_state.position;
@@ -107,8 +114,9 @@ bool AIAgent::animateCreature(const core::Angle& angle, const core::Angle& tilt)
   auto room = m_state.position.room;
   auto sector = findRealFloorSector(m_state.position.position + core::TRVec{0_len, bbox.minY, 0_len}, &room);
 
-  if(sector->box == nullptr || m_state.getCurrentBox().get()->*zoneRef != sector->box->*zoneRef
-     || boxFloor - sector->box->floor > pathFinder.step || boxFloor - sector->box->floor < pathFinder.drop)
+  if(sector->box == nullptr || boxFloor - sector->box->floor > pathFinder.step
+     || boxFloor - sector->box->floor < pathFinder.drop
+     || m_state.getCurrentBox().get()->*zoneRef != sector->box->*zoneRef)
   {
     static const auto shoveMin = [](const core::Length& l) { return l / core::SectorSize * core::SectorSize; };
     static const auto shoveMax = [](const core::Length& l) { return shoveMin(l) + core::SectorSize - 1_len; };
@@ -270,8 +278,7 @@ bool AIAgent::animateCreature(const core::Angle& angle, const core::Angle& tilt)
     }
   }
 
-  m_state.position.position.X += moveX;
-  m_state.position.position.Z += moveZ;
+  move(core::TRVec{moveX, 0_len, moveZ});
 
   if(moveX != 0_len || moveZ != 0_len)
   {
@@ -433,7 +440,7 @@ bool AIAgent::canShootAtLara(const ai::EnemyLocation& enemyLocation) const
 namespace
 {
 gsl::not_null<std::shared_ptr<Particle>> createMuzzleFlash(world::World& world,
-                                                           const core::RoomBoundPosition& pos,
+                                                           const RoomBoundPosition& pos,
                                                            const core::Speed& /*speed*/,
                                                            const core::Angle& angle)
 {

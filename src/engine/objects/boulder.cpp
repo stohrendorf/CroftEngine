@@ -115,7 +115,7 @@ void engine::objects::RollingBall::collide(CollisionInfo& collisionInfo)
       const auto tmp = getWorld().getObjectManager().getLara().m_state.position.position
                        + core::TRVec{util::rand15s(128_len), -util::rand15s(512_len), util::rand15s(128_len)};
       auto fx = createBloodSplat(getWorld(),
-                                 core::RoomBoundPosition{m_state.position.room, tmp},
+                                 RoomBoundPosition{m_state.position.room, tmp},
                                  2 * m_state.speed,
                                  util::rand15s(22.5_deg) + m_state.rotation.Y);
       getWorld().getObjectManager().registerParticle(fx);
@@ -134,14 +134,14 @@ void engine::objects::RollingBall::collide(CollisionInfo& collisionInfo)
   const auto z = getWorld().getObjectManager().getLara().m_state.position.position.Z - m_state.position.position.Z;
   const auto xyz = std::max(2 * core::QuarterSectorSize, sqrt(util::square(x) + util::square(y) + util::square(z)));
 
-  auto fx = createBloodSplat(
-    getWorld(),
-    core::RoomBoundPosition{
-      m_state.position.room,
-      core::TRVec{x * core::SectorSize / 2 / xyz + m_state.position.position.X,
-                  y * core::SectorSize / 2 / xyz + m_state.position.position.Y - 2 * core::QuarterSectorSize,
-                  z * core::SectorSize / 2 / xyz + m_state.position.position.Z}},
-    m_state.speed,
-    m_state.rotation.Y);
+  auto fx
+    = createBloodSplat(getWorld(),
+                       RoomBoundPosition{m_state.position.room,
+                                         core::TRVec{x * core::SectorSize / 2 / xyz + m_state.position.position.X,
+                                                     y * core::SectorSize / 2 / xyz + m_state.position.position.Y
+                                                       - 2 * core::QuarterSectorSize,
+                                                     z * core::SectorSize / 2 / xyz + m_state.position.position.Z}},
+                       m_state.speed,
+                       m_state.rotation.Y);
   getWorld().getObjectManager().registerParticle(fx);
 }

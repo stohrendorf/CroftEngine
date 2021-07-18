@@ -11,7 +11,7 @@ namespace engine
 namespace
 {
 bool clampY(const core::TRVec& start,
-            core::RoomBoundPosition& goal,
+            RoomBoundPosition& goal,
             const gsl::not_null<const world::Sector*>& sector,
             const ObjectManager& objectManager)
 {
@@ -49,16 +49,16 @@ enum class CollisionType
   None      // resulting position is valid and needs no further adjustment
 };
 
-std::pair<CollisionType, core::RoomBoundPosition> clampSteps(const core::RoomBoundPosition& start,
-                                                             const core::TRVec& goal,
-                                                             const ObjectManager& objectManager,
-                                                             core::Length(core::TRVec::*stepAxis),
-                                                             core::Length(core::TRVec::*secondaryAxis))
+std::pair<CollisionType, RoomBoundPosition> clampSteps(const RoomBoundPosition& start,
+                                                       const core::TRVec& goal,
+                                                       const ObjectManager& objectManager,
+                                                       core::Length(core::TRVec::*stepAxis),
+                                                       core::Length(core::TRVec::*secondaryAxis))
 {
   const auto delta = goal - start.position;
   if(delta.*stepAxis == 0_len)
   {
-    return {CollisionType::None, core::RoomBoundPosition{start.room, goal}};
+    return {CollisionType::None, RoomBoundPosition{start.room, goal}};
   }
 
   const auto dir = delta.*stepAxis < 0_len ? -1 : 1;
@@ -77,7 +77,8 @@ std::pair<CollisionType, core::RoomBoundPosition> clampSteps(const core::RoomBou
   result.position.*secondaryAxis += sectorStep.*secondaryAxis * deltaStep / sectorStep.*stepAxis;
   result.position.Y += sectorStep.Y * deltaStep / sectorStep.*stepAxis;
 
-  auto testVerticalHit = [&objectManager](core::RoomBoundPosition& pos) {
+  auto testVerticalHit = [&objectManager](RoomBoundPosition& pos)
+  {
     const auto sector = world::findRealFloorSector(pos);
     const auto floor = HeightInfo::fromFloor(sector, pos.position, objectManager.getObjects()).y;
     const auto ceiling = HeightInfo::fromCeiling(sector, pos.position, objectManager.getObjects()).y;
@@ -88,11 +89,11 @@ std::pair<CollisionType, core::RoomBoundPosition> clampSteps(const core::RoomBou
   {
     if(dir > 0 && result.position.*stepAxis >= goal.*stepAxis)
     {
-      return {CollisionType::None, core::RoomBoundPosition{result.room, goal}};
+      return {CollisionType::None, RoomBoundPosition{result.room, goal}};
     }
     if(dir < 0 && result.position.*stepAxis <= goal.*stepAxis)
     {
-      return {CollisionType::None, core::RoomBoundPosition{result.room, goal}};
+      return {CollisionType::None, RoomBoundPosition{result.room, goal}};
     }
 
     if(testVerticalHit(result))
@@ -116,13 +117,14 @@ std::pair<CollisionType, core::RoomBoundPosition> clampSteps(const core::RoomBou
 
 } // namespace
 
-std::pair<bool, core::RoomBoundPosition>
-  raycastLineOfSight(const core::RoomBoundPosition& start, const core::TRVec& goal, const ObjectManager& objectManager)
+std::pair<bool, RoomBoundPosition>
+  raycastLineOfSight(const RoomBoundPosition& start, const core::TRVec& goal, const ObjectManager& objectManager)
 {
-  auto collide =
-    [&start, &goal, &objectManager](
-      core::Length(core::TRVec::*firstStepAxis),
-      core::Length(core::TRVec::*secondStepAxis)) -> std::tuple<CollisionType, CollisionType, core::RoomBoundPosition> {
+  auto collide
+    = [&start, &goal, &objectManager](
+        core::Length(core::TRVec::*firstStepAxis),
+        core::Length(core::TRVec::*secondStepAxis)) -> std::tuple<CollisionType, CollisionType, RoomBoundPosition>
+  {
     auto [firstType, firstPos] = clampSteps(start, goal, objectManager, firstStepAxis, secondStepAxis);
     auto [secondType, secondPos] = clampSteps(start, firstPos.position, objectManager, secondStepAxis, firstStepAxis);
     BOOST_ASSERT(secondPos.room->getSectorByAbsolutePosition(secondPos.position) != nullptr);

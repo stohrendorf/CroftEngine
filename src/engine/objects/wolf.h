@@ -8,7 +8,7 @@ namespace engine::objects
 class Wolf final : public AIAgent
 {
 public:
-  Wolf(const gsl::not_null<world::World*>& world, const core::RoomBoundPosition& position)
+  Wolf(const gsl::not_null<world::World*>& world, const RoomBoundPosition& position)
       : AIAgent{world, position}
   {
   }

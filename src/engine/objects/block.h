@@ -8,7 +8,7 @@ namespace engine::objects
 class Block final : public ModelObject
 {
 public:
-  Block(const gsl::not_null<world::World*>& world, const core::RoomBoundPosition& position)
+  Block(const gsl::not_null<world::World*>& world, const RoomBoundPosition& position)
       : ModelObject{world, position}
   {
   }

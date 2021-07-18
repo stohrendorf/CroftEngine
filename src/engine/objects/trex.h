@@ -8,7 +8,7 @@ namespace engine::objects
 class TRex final : public AIAgent
 {
 public:
-  TRex(const gsl::not_null<world::World*>& world, const core::RoomBoundPosition& position)
+  TRex(const gsl::not_null<world::World*>& world, const RoomBoundPosition& position)
       : AIAgent{world, position}
   {
   }

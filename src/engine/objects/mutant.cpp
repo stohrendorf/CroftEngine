@@ -15,7 +15,7 @@ namespace engine::objects
 namespace
 {
 gsl::not_null<std::shared_ptr<Particle>> createMutantGrenade(world::World& world,
-                                                             const core::RoomBoundPosition& pos,
+                                                             const RoomBoundPosition& pos,
                                                              const core::Speed& /*speed*/,
                                                              const core::Angle& angle)
 {
@@ -24,7 +24,7 @@ gsl::not_null<std::shared_ptr<Particle>> createMutantGrenade(world::World& world
   return particle;
 }
 gsl::not_null<std::shared_ptr<Particle>> createMutantBullet(world::World& world,
-                                                            const core::RoomBoundPosition& pos,
+                                                            const RoomBoundPosition& pos,
                                                             const core::Speed& /*speed*/,
                                                             const core::Angle& angle)
 {

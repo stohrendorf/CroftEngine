@@ -25,7 +25,7 @@ public:
   void loadObjectInfo(bool withoutGameState = false);
 
 protected:
-  AIAgent(const gsl::not_null<world::World*>& world, const core::RoomBoundPosition& position)
+  AIAgent(const gsl::not_null<world::World*>& world, const RoomBoundPosition& position)
       : ModelObject{world, position}
   {
   }

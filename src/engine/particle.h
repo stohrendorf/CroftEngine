@@ -26,7 +26,7 @@ class Particle
     , public audio::Emitter
 {
 public:
-  core::RoomBoundPosition pos;
+  RoomBoundPosition pos;
   core::TRRotation angle{0_deg, 0_deg, 0_deg};
   const core::TypeId object_number;
   core::Speed speed = 0_spd;
@@ -78,7 +78,7 @@ public:
 
   explicit Particle(const std::string& id,
                     core::TypeId objectNumber,
-                    core::RoomBoundPosition pos,
+                    RoomBoundPosition pos,
                     world::World& world,
                     const std::shared_ptr<render::scene::Renderable>& renderable = nullptr);
 
@@ -95,7 +95,7 @@ public:
 class BloodSplatterParticle final : public Particle
 {
 public:
-  explicit BloodSplatterParticle(const core::RoomBoundPosition& pos,
+  explicit BloodSplatterParticle(const RoomBoundPosition& pos,
                                  const core::Speed& speed_,
                                  const core::Angle& angle_,
                                  world::World& world)
@@ -111,7 +111,7 @@ public:
 class SplashParticle final : public Particle
 {
 public:
-  explicit SplashParticle(const core::RoomBoundPosition& pos, world::World& world, const bool waterfall)
+  explicit SplashParticle(const RoomBoundPosition& pos, world::World& world, const bool waterfall)
       : Particle{"splash", TR1ItemId::Splash, pos, world}
   {
     if(!waterfall)
@@ -132,7 +132,7 @@ public:
 class RicochetParticle final : public Particle
 {
 public:
-  explicit RicochetParticle(const core::RoomBoundPosition& pos, world::World& world)
+  explicit RicochetParticle(const RoomBoundPosition& pos, world::World& world)
       : Particle{"ricochet", TR1ItemId::Ricochet, pos, world}
   {
     timePerSpriteFrame = 4;
@@ -148,7 +148,7 @@ public:
 class BubbleParticle final : public Particle
 {
 public:
-  explicit BubbleParticle(const core::RoomBoundPosition& pos, world::World& world)
+  explicit BubbleParticle(const RoomBoundPosition& pos, world::World& world)
       : Particle{"bubble", TR1ItemId::Bubbles, pos, world, nullptr}
   {
     speed = 10_spd + util::rand15(6_spd);
@@ -164,7 +164,7 @@ public:
 class SparkleParticle final : public Particle
 {
 public:
-  explicit SparkleParticle(const core::RoomBoundPosition& pos, world::World& world)
+  explicit SparkleParticle(const RoomBoundPosition& pos, world::World& world)
       : Particle{"sparkles", TR1ItemId::Sparkles, pos, world}
   {
   }
@@ -175,7 +175,7 @@ public:
 class MuzzleFlashParticle final : public Particle
 {
 public:
-  explicit MuzzleFlashParticle(const core::RoomBoundPosition& pos, world::World& world, const core::Angle& yAngle)
+  explicit MuzzleFlashParticle(const RoomBoundPosition& pos, world::World& world, const core::Angle& yAngle)
       : Particle{"muzzleflash", TR1ItemId::MuzzleFlash, pos, world}
   {
     angle.Y = yAngle;
@@ -189,7 +189,7 @@ public:
 class FlameParticle final : public Particle
 {
 public:
-  explicit FlameParticle(const core::RoomBoundPosition& pos, world::World& world, bool randomize = false);
+  explicit FlameParticle(const RoomBoundPosition& pos, world::World& world, bool randomize = false);
 
   bool update(world::World& world) override;
 };
@@ -197,7 +197,7 @@ public:
 class ExplosionParticle final : public Particle
 {
 public:
-  explicit ExplosionParticle(const core::RoomBoundPosition& pos,
+  explicit ExplosionParticle(const RoomBoundPosition& pos,
                              world::World& world,
                              const core::Speed& fallSpeed,
                              const core::TRRotation& angle)
@@ -213,7 +213,7 @@ public:
 class MeshShrapnelParticle final : public Particle
 {
 public:
-  explicit MeshShrapnelParticle(const core::RoomBoundPosition& pos,
+  explicit MeshShrapnelParticle(const RoomBoundPosition& pos,
                                 world::World& world,
                                 const gsl::not_null<std::shared_ptr<render::scene::Renderable>>& renderable,
                                 const bool torsoBoss,
@@ -242,7 +242,7 @@ private:
 class MutantAmmoParticle : public Particle
 {
 protected:
-  explicit MutantAmmoParticle(const core::RoomBoundPosition& pos, world::World& world, const TR1ItemId itemType)
+  explicit MutantAmmoParticle(const RoomBoundPosition& pos, world::World& world, const TR1ItemId itemType)
       : Particle{"mutantAmmo", itemType, pos, world}
   {
   }
@@ -253,7 +253,7 @@ protected:
 class MutantBulletParticle final : public MutantAmmoParticle
 {
 public:
-  explicit MutantBulletParticle(const core::RoomBoundPosition& pos, world::World& world, const core::Angle& yAngle)
+  explicit MutantBulletParticle(const RoomBoundPosition& pos, world::World& world, const core::Angle& yAngle)
       : MutantAmmoParticle{pos, world, TR1ItemId::MutantBullet}
   {
     speed = 250_spd;
@@ -268,7 +268,7 @@ public:
 class MutantGrenadeParticle final : public MutantAmmoParticle
 {
 public:
-  explicit MutantGrenadeParticle(const core::RoomBoundPosition& pos, world::World& world, const core::Angle& yAngle)
+  explicit MutantGrenadeParticle(const RoomBoundPosition& pos, world::World& world, const core::Angle& yAngle)
       : MutantAmmoParticle{pos, world, TR1ItemId::MutantGrenade}
   {
     speed = 220_spd;
@@ -282,7 +282,7 @@ public:
 class LavaParticle final : public Particle
 {
 public:
-  explicit LavaParticle(const core::RoomBoundPosition& pos, world::World& world)
+  explicit LavaParticle(const RoomBoundPosition& pos, world::World& world)
       : Particle{"lava", TR1ItemId::LavaParticles, pos, world}
   {
     angle.Y = util::rand15(180_deg) * 2;
@@ -297,7 +297,7 @@ public:
 class SmokeParticle final : public Particle
 {
 public:
-  explicit SmokeParticle(const core::RoomBoundPosition& pos, world::World& world, const core::TRRotation& rotation)
+  explicit SmokeParticle(const RoomBoundPosition& pos, world::World& world, const core::TRRotation& rotation)
       : Particle{"smoke", TR1ItemId::Smoke, pos, world}
   {
     angle = rotation;
@@ -307,7 +307,7 @@ public:
 };
 
 inline gsl::not_null<std::shared_ptr<Particle>> createBloodSplat(world::World& world,
-                                                                 const core::RoomBoundPosition& pos,
+                                                                 const RoomBoundPosition& pos,
                                                                  const core::Speed& speed,
                                                                  const core::Angle& angle)
 {

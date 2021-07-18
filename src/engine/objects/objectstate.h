@@ -3,6 +3,7 @@
 #include "audio/soundengine.h"
 #include "core/id.h"
 #include "engine/floordata/floordata.h"
+#include "engine/roomboundposition.h"
 #include "engine/world/box.h"
 #include "loader/file/datatypes.h"
 
@@ -41,7 +42,7 @@ struct ObjectState final : public audio::Emitter
 private:
   friend Object;
 
-  explicit ObjectState(const gsl::not_null<audio::SoundEngine*>& engine, core::RoomBoundPosition position)
+  explicit ObjectState(const gsl::not_null<audio::SoundEngine*>& engine, RoomBoundPosition position)
       : Emitter{engine}
       , position{std::move(position)}
   {
@@ -70,7 +71,7 @@ public:
   glm::vec3 getPosition() const override;
 
   core::TypeId type = core::TypeId{uint16_t(-1)};
-  core::RoomBoundPosition position;
+  RoomBoundPosition position;
   core::TRRotation rotation;
   core::Speed speed = 0_spd;
   core::Speed fallspeed = 0_spd;

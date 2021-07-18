@@ -398,7 +398,7 @@ void LaraObject::update()
       findRealFloorSector(m_state.position.position, &room);
       for(int i = 0; i < 10; ++i)
       {
-        core::RoomBoundPosition surfacePos{room};
+        RoomBoundPosition surfacePos{room};
         surfacePos.position.X = m_state.position.position.X;
         surfacePos.position.Y = *waterSurfaceHeight;
         surfacePos.position.Z = m_state.position.position.Z;
@@ -950,7 +950,7 @@ void LaraObject::updateAimingState(const Weapon& weapon)
     return;
   }
 
-  core::RoomBoundPosition weaponPosition{m_state.position};
+  RoomBoundPosition weaponPosition{m_state.position};
   weaponPosition.position.Y -= weapon.weaponHeight;
   const auto enemyChestPos = getUpperThirdBBoxCtr(*aimAt);
   auto targetVector = getVectorAngles(enemyChestPos.position - weaponPosition.position);
@@ -1028,7 +1028,7 @@ void LaraObject::initWeaponAnimData()
   }
 }
 
-core::RoomBoundPosition LaraObject::getUpperThirdBBoxCtr(const ModelObject& object)
+RoomBoundPosition LaraObject::getUpperThirdBBoxCtr(const ModelObject& object)
 {
   const auto kf = object.getSkeleton()->getInterpolationInfo().getNearestFrame();
   const auto bbox = kf->bbox.toBBox();
@@ -1037,7 +1037,7 @@ core::RoomBoundPosition LaraObject::getUpperThirdBBoxCtr(const ModelObject& obje
   const auto ctrZ = (bbox.minZ + bbox.maxZ) / 2;
   const auto ctrY3 = (bbox.maxY - bbox.minY) / 3 + bbox.minY;
 
-  core::RoomBoundPosition result{object.m_state.position};
+  RoomBoundPosition result{object.m_state.position};
   result.position += util::pitch(core::TRVec{ctrX, ctrY3, ctrZ}, object.m_state.rotation.Y);
   return result;
 }
@@ -1066,7 +1066,7 @@ void LaraObject::drawWeapons(WeaponType weaponType)
 
 void LaraObject::findTarget(const Weapon& weapon)
 {
-  core::RoomBoundPosition weaponPosition{m_state.position};
+  RoomBoundPosition weaponPosition{m_state.position};
   weaponPosition.position.Y -= weapons.at(WeaponType::Shotgun).weaponHeight;
   aimAt.reset();
   core::Angle bestYAngle{std::numeric_limits<core::Angle::type>::max()};
@@ -1572,7 +1572,7 @@ bool LaraObject::fireWeapon(const WeaponType weaponType,
     static constexpr float VeryLargeDistanceProbablyClipping = 1u << 14u;
 
     const auto aimHitPos
-      = raycastLineOfSight(core::RoomBoundPosition{weaponHolder.m_state.position.room, weaponPosition},
+      = raycastLineOfSight(RoomBoundPosition{weaponHolder.m_state.position.room, weaponPosition},
                            weaponPosition + core::TRVec{-bulletDir * VeryLargeDistanceProbablyClipping},
                            getWorld().getObjectManager())
           .second;
@@ -1597,7 +1597,7 @@ void LaraObject::hitTarget(ModelObject& object, const core::TRVec& hitPos, const
   object.m_state.is_hit = true;
   object.m_state.health -= damage;
   auto fx = createBloodSplat(getWorld(),
-                             core::RoomBoundPosition{object.m_state.position.room, hitPos},
+                             RoomBoundPosition{object.m_state.position.room, hitPos},
                              object.m_state.speed,
                              object.m_state.rotation.Y);
   getWorld().getObjectManager().registerParticle(fx);

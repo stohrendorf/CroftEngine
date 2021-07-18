@@ -8,7 +8,7 @@ namespace engine::objects
 class FlyingMutant : public AIAgent
 {
 public:
-  FlyingMutant(const gsl::not_null<world::World*>& world, const core::RoomBoundPosition& position)
+  FlyingMutant(const gsl::not_null<world::World*>& world, const RoomBoundPosition& position)
       : AIAgent{world, position}
   {
   }
@@ -35,7 +35,7 @@ private:
 class WalkingMutant final : public FlyingMutant
 {
 public:
-  WalkingMutant(const gsl::not_null<world::World*>& world, const core::RoomBoundPosition& position)
+  WalkingMutant(const gsl::not_null<world::World*>& world, const RoomBoundPosition& position)
       : FlyingMutant{world, position}
   {
   }
@@ -57,7 +57,7 @@ public:
 class CentaurMutant final : public AIAgent
 {
 public:
-  CentaurMutant(const gsl::not_null<world::World*>& world, const core::RoomBoundPosition& position)
+  CentaurMutant(const gsl::not_null<world::World*>& world, const RoomBoundPosition& position)
       : AIAgent{world, position}
   {
   }
@@ -76,7 +76,7 @@ public:
 class TorsoBoss final : public AIAgent
 {
 public:
-  TorsoBoss(const gsl::not_null<world::World*>& world, const core::RoomBoundPosition& position)
+  TorsoBoss(const gsl::not_null<world::World*>& world, const RoomBoundPosition& position)
       : AIAgent{world, position}
   {
   }

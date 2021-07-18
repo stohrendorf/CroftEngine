@@ -282,10 +282,8 @@ bool ModelObject::testBoneCollision(const ModelObject& other)
 gsl::not_null<std::shared_ptr<Particle>>
   ModelObject::emitParticle(const core::TRVec& localPosition,
                             const size_t boneIndex,
-                            gsl::not_null<std::shared_ptr<Particle>> (*generate)(world::World& world,
-                                                                                 const core::RoomBoundPosition&,
-                                                                                 const core::Speed&,
-                                                                                 const core::Angle&))
+                            gsl::not_null<std::shared_ptr<Particle>> (*generate)(
+                              world::World& world, const RoomBoundPosition&, const core::Speed&, const core::Angle&))
 {
   BOOST_ASSERT(generate != nullptr);
   BOOST_ASSERT(boneIndex < m_skeleton->getBoneCount());
@@ -320,7 +318,7 @@ void ModelObject::serialize(const serialization::Serializer<world::World>& ser)
 
 std::shared_ptr<ModelObject> ModelObject::create(serialization::Serializer<world::World>& ser)
 {
-  auto result = std::make_shared<ModelObject>(&ser.context, core::RoomBoundPosition::create(ser["@position"]));
+  auto result = std::make_shared<ModelObject>(&ser.context, RoomBoundPosition::create(ser["@position"]));
   result->serialize(ser);
   return result;
 }

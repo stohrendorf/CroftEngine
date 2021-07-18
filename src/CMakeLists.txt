@@ -175,6 +175,8 @@ set( EDISONENGINE_SRCS
         engine/py_module.cpp
         engine/raycast.h
         engine/raycast.cpp
+        engine/roomboundposition.h
+        engine/roomboundposition.cpp
         engine/skeletalmodelnode.h
         engine/skeletalmodelnode.cpp
 

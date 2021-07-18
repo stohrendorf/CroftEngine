@@ -7,7 +7,7 @@ namespace engine::objects
 class Switch : public ModelObject
 {
 public:
-  Switch(const gsl::not_null<world::World*>& world, const core::RoomBoundPosition& position)
+  Switch(const gsl::not_null<world::World*>& world, const RoomBoundPosition& position)
       : ModelObject{world, position}
   {
   }
