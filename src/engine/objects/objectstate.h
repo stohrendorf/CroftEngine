@@ -83,7 +83,6 @@ public:
   floordata::ActivationState activationState;
   core::Length floor = 0_len;
   std::bitset<32> touch_bits;
-  const world::Box* box = nullptr;
 
   bool falling = false;
   bool is_hit = false;
@@ -130,6 +129,8 @@ public:
   {
     return health <= 0_hp;
   }
+
+  gsl::not_null<const world::Box*> getCurrentBox() const;
 };
 
 } // namespace objects

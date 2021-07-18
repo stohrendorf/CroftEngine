@@ -88,7 +88,7 @@ bool AIAgent::animateCreature(const core::Angle& angle, const core::Angle& tilt)
 
   const auto oldPosition = m_state.position;
 
-  const auto boxFloor = m_state.box->floor;
+  const auto boxFloor = m_state.getCurrentBox()->floor;
   const auto zoneRef = world::Box::getZoneRef(
     getWorld().roomsAreSwapped(), m_state.creatureInfo->pathFinder.isFlying(), m_state.creatureInfo->pathFinder.step);
   ModelObject::update();
@@ -107,7 +107,7 @@ bool AIAgent::animateCreature(const core::Angle& angle, const core::Angle& tilt)
   auto room = m_state.position.room;
   auto sector = findRealFloorSector(m_state.position.position + core::TRVec{0_len, bbox.minY, 0_len}, &room);
 
-  if(sector->box == nullptr || m_state.box->*zoneRef != sector->box->*zoneRef
+  if(sector->box == nullptr || m_state.getCurrentBox().get()->*zoneRef != sector->box->*zoneRef
      || boxFloor - sector->box->floor > pathFinder.step || boxFloor - sector->box->floor < pathFinder.drop)
   {
     static const auto shoveMin = [](const core::Length& l) { return l / core::SectorSize * core::SectorSize; };

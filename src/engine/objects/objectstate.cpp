@@ -92,9 +92,7 @@ void ObjectState::initCreatureInfo(const world::World& world)
   if(creatureInfo != nullptr)
     return;
 
-  box = position.room->getInnerSectorByAbsolutePosition(position.position)->box;
-  Ensures(box != nullptr);
-  creatureInfo = std::make_unique<ai::CreatureInfo>(world, type, box);
+  creatureInfo = std::make_unique<ai::CreatureInfo>(world, type, getCurrentBox());
 }
 
 glm::vec3 ObjectState::getPosition() const
@@ -124,7 +122,6 @@ void ObjectState::serialize(const serialization::Serializer<world::World>& ser)
       S_NV("activationState", activationState),
       S_NV("floor", floor),
       S_NV("touchBits", touch_bits),
-      S_NV_VECTOR_ELEMENT("box", ser.context.getBoxes(), box),
       S_NV("falling", falling),
       S_NV("isHit", is_hit),
       S_NV("collidable", collidable),
@@ -135,5 +132,11 @@ void ObjectState::serialize(const serialization::Serializer<world::World>& ser)
 const world::Sector* ObjectState::getCurrentSector() const
 {
   return position.room->getSectorByAbsolutePosition(position.position);
+}
+
+gsl::not_null<const world::Box*> ObjectState::getCurrentBox() const
+{
+  gsl::not_null sector{getCurrentSector()};
+  return sector->box;
 }
 } // namespace engine::objects

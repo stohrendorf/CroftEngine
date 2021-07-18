@@ -107,7 +107,7 @@ void updateMood(const world::World& world,
 
   CreatureInfo& creatureInfo = *objectState.creatureInfo;
   auto newTargetBox = creatureInfo.pathFinder.getTargetBox();
-  if(creatureInfo.pathFinder.isUnreachable(objectState.box))
+  if(creatureInfo.pathFinder.isUnreachable(objectState.getCurrentBox()))
   {
     newTargetBox = nullptr;
   }
@@ -145,7 +145,7 @@ void updateMood(const world::World& world,
       break;
 
     creatureInfo.pathFinder.target = world.getObjectManager().getLara().m_state.position.position;
-    newTargetBox = world.getObjectManager().getLara().m_state.box;
+    newTargetBox = world.getObjectManager().getLara().m_state.getCurrentBox();
     creatureInfo.pathFinder.target.X
       = std::clamp(creatureInfo.pathFinder.target.X, newTargetBox->xmin, newTargetBox->xmax);
     creatureInfo.pathFinder.target.Z
@@ -227,12 +227,13 @@ void updateMood(const world::World& world,
 
   if(creatureInfo.pathFinder.getTargetBox() == nullptr)
   {
-    newTargetBox = objectState.box;
-    creatureInfo.pathFinder.setRandomSearchTarget(objectState.box);
+    newTargetBox = objectState.getCurrentBox();
+    creatureInfo.pathFinder.setRandomSearchTarget(objectState.getCurrentBox());
   }
   if(newTargetBox != nullptr)
     creatureInfo.pathFinder.setTargetBox(newTargetBox);
-  creatureInfo.pathFinder.calculateTarget(world, creatureInfo.target, objectState.position.position, objectState.box);
+  creatureInfo.pathFinder.calculateTarget(
+    world, creatureInfo.target, objectState.position.position, objectState.getCurrentBox());
 }
 
 std::shared_ptr<CreatureInfo> create(const serialization::TypeId<std::shared_ptr<CreatureInfo>>&,
@@ -274,14 +275,13 @@ EnemyLocation::EnemyLocation(world::World& world, objects::ObjectState& objectSt
                                               objectState.creatureInfo->pathFinder.isFlying(),
                                               objectState.creatureInfo->pathFinder.step);
 
-  objectState.box = objectState.getCurrentSector()->box;
-  Expects(objectState.box != nullptr);
-  zoneId = objectState.box->*zoneRef;
-  world.getObjectManager().getLara().m_state.box = world.getObjectManager().getLara().m_state.getCurrentSector()->box;
-  Expects(world.getObjectManager().getLara().m_state.box != nullptr);
-  enemyZoneId = world.getObjectManager().getLara().m_state.box->*zoneRef;
-  enemyUnreachable = !objectState.creatureInfo->pathFinder.canVisit(*world.getObjectManager().getLara().m_state.box)
-                     || objectState.creatureInfo->pathFinder.isUnreachable(objectState.box);
+  zoneId = objectState.getCurrentBox().get()->*zoneRef;
+  world.getObjectManager().getLara().m_state.getCurrentBox()
+    = world.getObjectManager().getLara().m_state.getCurrentBox();
+  enemyZoneId = world.getObjectManager().getLara().m_state.getCurrentBox().get()->*zoneRef;
+  enemyUnreachable
+    = !objectState.creatureInfo->pathFinder.canVisit(*world.getObjectManager().getLara().m_state.getCurrentBox())
+      || objectState.creatureInfo->pathFinder.isUnreachable(objectState.getCurrentBox());
 
   auto objectInfo = pybind11::globals()["getObjectInfo"](objectState.type.get()).cast<script::ObjectInfo>();
   const core::Length pivotLength{objectInfo.pivot_length};
