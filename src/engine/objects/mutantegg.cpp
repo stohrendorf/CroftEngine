@@ -39,14 +39,14 @@ bool shatterModel(ModelObject& object, const std::bitset<32>& meshMask, const co
     world::RenderMeshDataCompositor compositor;
     compositor.append(*modelType->bones[i].mesh);
     auto particle = std::make_shared<MeshShrapnelParticle>(
-      RoomBoundPosition{object.m_state.position.room,
+      RoomBoundPosition{object.m_state.location.room,
                         core::TRVec{object.getSkeleton()->getMeshPartTranslationWorld(i)}},
       object.getWorld(),
       compositor.toMesh(*object.getWorld().getPresenter().getMaterialManager(), false, {}),
       isTorsoBoss,
       damageRadius);
     particle->negSpriteFrameId = gsl::narrow<int16_t>((modelType->meshBaseIndex + i).index);
-    setParent(particle, object.m_state.position.room->node);
+    setParent(particle, object.m_state.location.room->node);
     object.getWorld().getObjectManager().registerParticle(std::move(particle));
 
     BOOST_LOG_TRIVIAL(trace) << "Shatter model: mesh " << i << " converted";
@@ -123,7 +123,7 @@ void MutantEgg::update()
   if(m_state.goal_anim_state != 1_as)
   {
     if(m_state.activationState.isOneshot() || m_state.type == TR1ItemId::MutantEggBig
-       || (getWorld().getObjectManager().getLara().m_state.position.position - m_state.position.position).absMax()
+       || (getWorld().getObjectManager().getLara().m_state.location.position - m_state.location.position).absMax()
             < 4096_len)
     {
       BOOST_LOG_TRIVIAL(debug) << getSkeleton()->getName() << ": Hatching " << m_childObject->getNode()->getName();
@@ -137,9 +137,9 @@ void MutantEgg::update()
 
       if(m_childObject != nullptr)
       {
-        m_childObject->m_state.position = m_state.position;
+        m_childObject->m_state.location = m_state.location;
         m_childObject->m_state.rotation.Y = m_state.rotation.Y;
-        addChild(m_state.position.room->node, m_childObject->getNode());
+        addChild(m_state.location.room->node, m_childObject->getNode());
 
         m_childObject->applyTransform();
 

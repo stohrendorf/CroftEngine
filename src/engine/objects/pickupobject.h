@@ -7,8 +7,8 @@ namespace engine::objects
 class PickupObject final : public SpriteObject
 {
 public:
-  PickupObject(const gsl::not_null<world::World*>& world, const RoomBoundPosition& position, std::string name)
-      : SpriteObject{world, position, std::move(name)}
+  PickupObject(const gsl::not_null<world::World*>& world, const RoomBoundPosition& location, std::string name)
+      : SpriteObject{world, location, std::move(name)}
   {
   }
 

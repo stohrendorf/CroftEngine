@@ -18,7 +18,7 @@ CutsceneActor::CutsceneActor(const gsl::not_null<world::World*>& world,
 void CutsceneActor::update()
 {
   m_state.rotation.Y = getWorld().getCameraController().getEyeRotation().Y;
-  m_state.position.position = getWorld().getCameraController().getTRPosition().position;
+  m_state.location.position = getWorld().getCameraController().getTRLocation().position;
   ModelObject::update();
 }
 

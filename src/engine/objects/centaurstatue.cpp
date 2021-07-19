@@ -39,7 +39,7 @@ CentaurStatue::CentaurStatue(const gsl::not_null<world::World*>& world,
 
 void CentaurStatue::update()
 {
-  const auto d = getWorld().getObjectManager().getLara().m_state.position.position - m_state.position.position;
+  const auto d = getWorld().getObjectManager().getLara().m_state.location.position - m_state.location.position;
   if(abs(d.Y) >= core::SectorSize)
     return;
 

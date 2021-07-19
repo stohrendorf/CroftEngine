@@ -19,7 +19,7 @@ protected:
   void commonOnWaterHandling(CollisionInfo& collisionInfo)
   {
     collisionInfo.facingAngle = getMovementAngle();
-    collisionInfo.initHeightInfo(getLara().m_state.position.position + core::TRVec(0_len, core::LaraSwimHeight, 0_len),
+    collisionInfo.initHeightInfo(getLara().m_state.location.position + core::TRVec(0_len, core::LaraSwimHeight, 0_len),
                                  getWorld(),
                                  core::LaraSwimHeight);
     applyShift(collisionInfo);
@@ -29,7 +29,7 @@ protected:
        || collisionInfo.collisionType == CollisionInfo::AxisColl::Front)
     {
       getLara().m_state.fallspeed = 0_spd;
-      getLara().m_state.position.position = collisionInfo.initialPosition;
+      getLara().m_state.location.position = collisionInfo.initialPosition;
     }
     else if(collisionInfo.collisionType == CollisionInfo::AxisColl::Left)
     {
@@ -41,7 +41,7 @@ protected:
     }
 
     auto wsh = getLara().getWaterSurfaceHeight();
-    if(wsh.has_value() && *wsh > getLara().m_state.position.position.Y - core::DefaultCollisionRadius)
+    if(wsh.has_value() && *wsh > getLara().m_state.location.position.Y - core::DefaultCollisionRadius)
     {
       tryClimbOutOfWater(collisionInfo);
       return;
@@ -107,25 +107,25 @@ private:
 
     getLara().move(core::TRVec(0_len, 695_len + collisionInfo.front.floorSpace.y, 0_len));
     getLara().updateFloorHeight(-381_len);
-    core::TRVec d = getLara().m_state.position.position;
+    core::TRVec d = getLara().m_state.location.position;
     if(*yRot == 0_deg)
     {
-      d.Z = (getLara().m_state.position.position.Z / core::SectorSize + 1) * core::SectorSize
+      d.Z = (getLara().m_state.location.position.Z / core::SectorSize + 1) * core::SectorSize
             + core::DefaultCollisionRadius;
     }
     else if(*yRot == 180_deg)
     {
-      d.Z = (getLara().m_state.position.position.Z / core::SectorSize + 0) * core::SectorSize
+      d.Z = (getLara().m_state.location.position.Z / core::SectorSize + 0) * core::SectorSize
             - core::DefaultCollisionRadius;
     }
     else if(*yRot == -90_deg)
     {
-      d.X = (getLara().m_state.position.position.X / core::SectorSize + 0) * core::SectorSize
+      d.X = (getLara().m_state.location.position.X / core::SectorSize + 0) * core::SectorSize
             - core::DefaultCollisionRadius;
     }
     else if(*yRot == 90_deg)
     {
-      d.X = (getLara().m_state.position.position.X / core::SectorSize + 1) * core::SectorSize
+      d.X = (getLara().m_state.location.position.X / core::SectorSize + 1) * core::SectorSize
             + core::DefaultCollisionRadius;
     }
     else
@@ -133,7 +133,7 @@ private:
       throw std::runtime_error("Unexpected angle value");
     }
 
-    getLara().m_state.position.position = d;
+    getLara().m_state.location.position = d;
 
     setAnimation(AnimationId::CLIMB_OUT_OF_WATER, 1849_frame);
     setGoalAnimState(LaraStateId::Stop);

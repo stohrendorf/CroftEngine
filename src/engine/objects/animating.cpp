@@ -16,8 +16,7 @@ void Animating::update()
   }
 
   ModelObject::update();
-  auto room = m_state.position.room;
-  findRealFloorSector(m_state.position.position, &room);
-  setCurrentRoom(room);
+  m_state.location.updateRoom();
+  setCurrentRoom(m_state.location.room);
 }
 } // namespace engine::objects

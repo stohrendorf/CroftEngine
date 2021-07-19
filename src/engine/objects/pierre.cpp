@@ -138,9 +138,9 @@ void Pierre::update()
   {
     getSkeleton()->setAnim(&getWorld().findAnimatedModelForType(TR1ItemId::Pierre)->animations[12]);
     m_state.current_anim_state = 5_as;
-    getWorld().createPickup(TR1ItemId::MagnumsSprite, m_state.position.room, m_state.position.position);
-    getWorld().createPickup(TR1ItemId::ScionPiece2, m_state.position.room, m_state.position.position);
-    getWorld().createPickup(TR1ItemId::Key1Sprite, m_state.position.room, m_state.position.position);
+    getWorld().createPickup(TR1ItemId::MagnumsSprite, m_state.location.room, m_state.location.position);
+    getWorld().createPickup(TR1ItemId::ScionPiece2, m_state.location.room, m_state.location.position);
+    getWorld().createPickup(TR1ItemId::Key1Sprite, m_state.location.room, m_state.location.position);
   }
   rotateCreatureTilt(tiltRot);
   rotateCreatureHead(headRot);
@@ -148,8 +148,8 @@ void Pierre::update()
   getSkeleton()->patchBone(7, core::TRRotation{0_deg, m_state.creatureInfo->headRotation, 0_deg}.toMatrix());
   if(m_fleeTime != 0_frame)
   {
-    if(raycastLineOfSight(getWorld().getCameraController().getTRPosition(),
-                          m_state.position.position - core::TRVec{0_len, core::SectorSize, 0_len},
+    if(raycastLineOfSight(getWorld().getCameraController().getTRLocation(),
+                          m_state.location.position - core::TRVec{0_len, core::SectorSize, 0_len},
                           getWorld().getObjectManager())
          .first)
     {

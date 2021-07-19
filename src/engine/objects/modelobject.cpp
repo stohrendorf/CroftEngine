@@ -143,13 +143,13 @@ bool ModelObject::isNear(const ModelObject& other, const core::Length& radius) c
 {
   const auto bbox = getSkeleton()->getInterpolationInfo().getNearestFrame()->bbox.toBBox();
   const auto otherBBox = other.getSkeleton()->getInterpolationInfo().getNearestFrame()->bbox.toBBox();
-  if(other.m_state.position.position.Y + otherBBox.minY >= m_state.position.position.Y + bbox.maxY
-     || m_state.position.position.Y + bbox.minY >= other.m_state.position.position.Y + otherBBox.maxY)
+  if(other.m_state.location.position.Y + otherBBox.minY >= m_state.location.position.Y + bbox.maxY
+     || m_state.location.position.Y + bbox.minY >= other.m_state.location.position.Y + otherBBox.maxY)
   {
     return false;
   }
 
-  const auto xz = util::pitch(other.m_state.position.position - m_state.position.position, -m_state.rotation.Y);
+  const auto xz = util::pitch(other.m_state.location.position - m_state.location.position, -m_state.rotation.Y);
   return xz.X >= bbox.minX - radius && xz.X <= bbox.maxX + radius && xz.Z >= bbox.minZ - radius
          && xz.Z <= bbox.maxZ + radius;
 }
@@ -158,13 +158,13 @@ bool ModelObject::isNear(const Particle& other, const core::Length& radius) cons
 {
   const auto frame = getSkeleton()->getInterpolationInfo().getNearestFrame();
   const auto bbox = frame->bbox.toBBox();
-  if(other.pos.position.Y >= m_state.position.position.Y + bbox.maxY
-     || m_state.position.position.Y + bbox.minY >= other.pos.position.Y)
+  if(other.location.position.Y >= m_state.location.position.Y + bbox.maxY
+     || m_state.location.position.Y + bbox.minY >= other.location.position.Y)
   {
     return false;
   }
 
-  const auto xz = util::pitch(other.pos.position - m_state.position.position, -m_state.rotation.Y);
+  const auto xz = util::pitch(other.location.position - m_state.location.position, -m_state.rotation.Y);
   return xz.X >= bbox.minX - radius && xz.X <= bbox.maxX + radius && xz.Z >= bbox.minZ - radius
          && xz.Z <= bbox.maxZ + radius;
 }
@@ -173,7 +173,7 @@ void ModelObject::enemyPush(CollisionInfo& collisionInfo, const bool enableSpaz,
 {
   auto& lara = getWorld().getObjectManager().getLara();
 
-  const auto enemyToLara = lara.m_state.position.position - m_state.position.position;
+  const auto enemyToLara = lara.m_state.location.position - m_state.location.position;
   auto bbox = m_skeleton->getInterpolationInfo().getNearestFrame()->bbox.toBBox();
   if(withXZCollRadius)
   {
@@ -213,7 +213,7 @@ void ModelObject::enemyPush(CollisionInfo& collisionInfo, const bool enableSpaz,
     laraInBBox.Z = bbox.maxZ;
   }
   // update lara's position to where she was pushed
-  lara.m_state.position.position = m_state.position.position + util::pitch(laraInBBox, m_state.rotation.Y);
+  lara.m_state.location.position = m_state.location.position + util::pitch(laraInBBox, m_state.rotation.Y);
   if(enableSpaz)
   {
     const auto midX = (bbox.minX + bbox.maxX) / 2;
@@ -235,18 +235,18 @@ void ModelObject::enemyPush(CollisionInfo& collisionInfo, const bool enableSpaz,
   collisionInfo.badNegativeDistance = -384_len;
   collisionInfo.badCeilingDistance = 0_len;
   const auto facingAngle = collisionInfo.facingAngle;
-  collisionInfo.facingAngle = angleFromAtan(lara.m_state.position.position.X - collisionInfo.initialPosition.X,
-                                            lara.m_state.position.position.Z - collisionInfo.initialPosition.Z);
-  collisionInfo.initHeightInfo(lara.m_state.position.position, getWorld(), core::LaraWalkHeight);
+  collisionInfo.facingAngle = angleFromAtan(lara.m_state.location.position.X - collisionInfo.initialPosition.X,
+                                            lara.m_state.location.position.Z - collisionInfo.initialPosition.Z);
+  collisionInfo.initHeightInfo(lara.m_state.location.position, getWorld(), core::LaraWalkHeight);
   collisionInfo.facingAngle = facingAngle;
   if(collisionInfo.collisionType != CollisionInfo::AxisColl::None)
   {
-    lara.m_state.position.position.X = collisionInfo.initialPosition.X;
-    lara.m_state.position.position.Z = collisionInfo.initialPosition.Z;
+    lara.m_state.location.position.X = collisionInfo.initialPosition.X;
+    lara.m_state.location.position.Z = collisionInfo.initialPosition.Z;
   }
   else
   {
-    collisionInfo.initialPosition = lara.m_state.position.position;
+    collisionInfo.initialPosition = lara.m_state.location.position;
     lara.updateFloorHeight(-10_len);
   }
 }
@@ -292,9 +292,9 @@ gsl::not_null<std::shared_ptr<Particle>>
     = m_skeleton->getBoneCollisionSpheres(m_state, *m_skeleton->getInterpolationInfo().getNearestFrame(), nullptr);
   BOOST_ASSERT(boneIndex < boneSpheres.size());
 
-  auto roomPos = m_state.position;
-  roomPos.position = core::TRVec{glm::vec3{translate(boneSpheres.at(boneIndex).m, localPosition.toRenderSystem())[3]}};
-  auto particle = generate(getWorld(), roomPos, m_state.speed, m_state.rotation.Y);
+  auto location = m_state.location;
+  location.position = core::TRVec{glm::vec3{translate(boneSpheres.at(boneIndex).m, localPosition.toRenderSystem())[3]}};
+  auto particle = generate(getWorld(), location, m_state.speed, m_state.rotation.Y);
   getWorld().getObjectManager().registerParticle(particle);
 
   return particle;
@@ -302,7 +302,7 @@ gsl::not_null<std::shared_ptr<Particle>>
 
 void ModelObject::updateLighting()
 {
-  m_lighting.update(core::Shade{core::Shade::type{-1}}, *m_state.position.room);
+  m_lighting.update(core::Shade{core::Shade::type{-1}}, *m_state.location.room);
 }
 
 void ModelObject::serialize(const serialization::Serializer<world::World>& ser)
@@ -318,7 +318,7 @@ void ModelObject::serialize(const serialization::Serializer<world::World>& ser)
 
 std::shared_ptr<ModelObject> ModelObject::create(serialization::Serializer<world::World>& ser)
 {
-  auto result = std::make_shared<ModelObject>(&ser.context, RoomBoundPosition::create(ser["@position"]));
+  auto result = std::make_shared<ModelObject>(&ser.context, RoomBoundPosition::create(ser["@location"]));
   result->serialize(ser);
   return result;
 }

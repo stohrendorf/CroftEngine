@@ -55,7 +55,7 @@ class Object
   const gsl::not_null<world::World*> m_world;
 
 protected:
-  Object(const gsl::not_null<world::World*>& world, const RoomBoundPosition& position);
+  Object(const gsl::not_null<world::World*>& world, const RoomBoundPosition& location);
 
 public:
   ObjectState m_state;
@@ -103,9 +103,9 @@ public:
 
   void move(const core::Length& dx, const core::Length& dy, const core::Length& dz)
   {
-    m_state.position.position.X += dx;
-    m_state.position.position.Y += dy;
-    m_state.position.position.Z += dz;
+    m_state.location.position.X += dx;
+    m_state.location.position.Y += dy;
+    m_state.location.position.Z += dz;
   }
 
   void move(const glm::vec3& d)
@@ -115,12 +115,12 @@ public:
 
   void move(const core::TRVec& d)
   {
-    m_state.position.position += d;
+    m_state.location.position += d;
   }
 
   void moveLocal(const core::TRVec& d)
   {
-    m_state.position.position += util::pitch(d, m_state.rotation.Y);
+    m_state.location.position += util::pitch(d, m_state.rotation.Y);
   }
 
   const world::World& getWorld() const
@@ -165,10 +165,10 @@ public:
 
   bool alignTransform(const core::TRVec& speed, const Object& target)
   {
-    auto targetPos = target.m_state.position.position.toRenderSystem();
+    auto targetPos = target.m_state.location.position.toRenderSystem();
     targetPos += glm::vec3{target.m_state.rotation.toMatrix() * glm::vec4{speed.toRenderSystem(), 1.0f}};
 
-    return alignTransformClamped(core::TRVec{targetPos}, target.m_state.rotation, 16_len, 364_au);
+    return alignTransformClamped(core::TRVec{targetPos}, target.m_state.rotation, 16_len, 2_deg);
   }
 
   virtual void updateLighting() = 0;
@@ -183,7 +183,7 @@ public:
 
   virtual void serialize(const serialization::Serializer<world::World>& ser);
 
-  void emitRicochet(const RoomBoundPosition& pos);
+  void emitRicochet(const RoomBoundPosition& location);
 
   std::optional<core::Length> getWaterSurfaceHeight() const;
 

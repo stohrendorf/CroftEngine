@@ -8,7 +8,7 @@ void engine::objects::RollingBall::update()
 {
   if(m_state.triggerState == TriggerState::Active)
   {
-    if(m_state.position.position.Y >= m_state.floor)
+    if(m_state.location.position.Y >= m_state.floor)
     {
       if(m_state.current_anim_state == 0_as)
       {
@@ -23,43 +23,42 @@ void engine::objects::RollingBall::update()
         m_state.falling = true;
       }
     }
-    const auto oldPos = m_state.position.position;
+    const auto oldPos = m_state.location.position;
     ModelObject::update();
 
-    auto room = m_state.position.room;
-    auto sector = findRealFloorSector(m_state.position.position, &room);
-    setCurrentRoom(room);
+    auto sector = m_state.location.updateRoom();
+    setCurrentRoom(m_state.location.room);
     const auto hi
-      = HeightInfo::fromFloor(sector, m_state.position.position, getWorld().getObjectManager().getObjects());
+      = HeightInfo::fromFloor(sector, m_state.location.position, getWorld().getObjectManager().getObjects());
     m_state.floor = hi.y;
     getWorld().handleCommandSequence(hi.lastCommandSequenceOrDeath, true);
-    if(m_state.floor - core::QuarterSectorSize <= m_state.position.position.Y)
+    if(m_state.floor - core::QuarterSectorSize <= m_state.location.position.Y)
     {
       m_state.fallspeed = 0_spd;
       m_state.falling = false;
-      m_state.position.position.Y = m_state.floor;
+      m_state.location.position.Y = m_state.floor;
     }
 
     // let's see if we hit a wall, and if that's the case, stop.
-    const auto testPos = m_state.position.position + util::pitch(core::SectorSize / 2, m_state.rotation.Y);
-    sector = findRealFloorSector(testPos, room);
-    if(HeightInfo::fromFloor(sector, testPos, getWorld().getObjectManager().getObjects()).y
-       < m_state.position.position.Y)
+    auto testPos = m_state.location.delta(util::pitch(core::SectorSize / 2, m_state.rotation.Y));
+    sector = testPos.updateRoom();
+    if(HeightInfo::fromFloor(sector, testPos.position, getWorld().getObjectManager().getObjects()).y
+       < m_state.location.position.Y)
     {
       m_state.fallspeed = 0_spd;
       m_state.touch_bits.reset();
       m_state.speed = 0_spd;
       m_state.triggerState = TriggerState::Deactivated;
-      m_state.position.position.X = oldPos.X;
-      m_state.position.position.Y = m_state.floor;
-      m_state.position.position.Z = oldPos.Z;
+      m_state.location.position.X = oldPos.X;
+      m_state.location.position.Y = m_state.floor;
+      m_state.location.position.Z = oldPos.Z;
     }
   }
   else if(m_state.triggerState == TriggerState::Deactivated && !m_state.updateActivationTimeout())
   {
     m_state.triggerState = TriggerState::Deactivated;
-    m_state.position.position = m_position.position;
-    setCurrentRoom(m_position.room);
+    m_state.location.position = m_location.position;
+    setCurrentRoom(m_location.room);
     getSkeleton()->setAnimation(
       m_state.current_anim_state, getWorld().findAnimatedModelForType(m_state.type)->animations, 0_frame);
     m_state.goal_anim_state = m_state.current_anim_state;
@@ -101,7 +100,7 @@ void engine::objects::RollingBall::collide(CollisionInfo& collisionInfo)
       return;
 
     getWorld().getObjectManager().getLara().m_state.health = core::DeadHealth;
-    getWorld().getObjectManager().getLara().setCurrentRoom(m_state.position.room);
+    getWorld().getObjectManager().getLara().setCurrentRoom(m_state.location.room);
     getWorld().getObjectManager().getLara().setAnimation(loader::file::AnimationId::SQUASH_BOULDER, 3561_frame);
     getWorld().getCameraController().setModifier(CameraModifier::FollowCenter);
     getWorld().getCameraController().setEyeRotation(-25_deg, 170_deg);
@@ -112,10 +111,10 @@ void engine::objects::RollingBall::collide(CollisionInfo& collisionInfo)
     getWorld().getObjectManager().getLara().setCurrentAnimState(loader::file::LaraStateId::BoulderDeath);
     for(int i = 0; i < 15; ++i)
     {
-      const auto tmp = getWorld().getObjectManager().getLara().m_state.position.position
+      const auto tmp = getWorld().getObjectManager().getLara().m_state.location.position
                        + core::TRVec{util::rand15s(128_len), -util::rand15s(512_len), util::rand15s(128_len)};
       auto fx = createBloodSplat(getWorld(),
-                                 RoomBoundPosition{m_state.position.room, tmp},
+                                 RoomBoundPosition{m_state.location.room, tmp},
                                  2 * m_state.speed,
                                  util::rand15s(22.5_deg) + m_state.rotation.Y);
       getWorld().getObjectManager().registerParticle(fx);
@@ -128,19 +127,19 @@ void engine::objects::RollingBall::collide(CollisionInfo& collisionInfo)
     enemyPush(collisionInfo, collisionInfo.policies.is_set(CollisionInfo::PolicyFlags::EnableSpaz), true);
   }
   getWorld().getObjectManager().getLara().m_state.health -= 100_hp;
-  const auto x = getWorld().getObjectManager().getLara().m_state.position.position.X - m_state.position.position.X;
-  const auto y = getWorld().getObjectManager().getLara().m_state.position.position.Y - 350_len
-                 - (m_state.position.position.Y - 2 * core::QuarterSectorSize);
-  const auto z = getWorld().getObjectManager().getLara().m_state.position.position.Z - m_state.position.position.Z;
+  const auto x = getWorld().getObjectManager().getLara().m_state.location.position.X - m_state.location.position.X;
+  const auto y = getWorld().getObjectManager().getLara().m_state.location.position.Y - 350_len
+                 - (m_state.location.position.Y - 2 * core::QuarterSectorSize);
+  const auto z = getWorld().getObjectManager().getLara().m_state.location.position.Z - m_state.location.position.Z;
   const auto xyz = std::max(2 * core::QuarterSectorSize, sqrt(util::square(x) + util::square(y) + util::square(z)));
 
   auto fx
     = createBloodSplat(getWorld(),
-                       RoomBoundPosition{m_state.position.room,
-                                         core::TRVec{x * core::SectorSize / 2 / xyz + m_state.position.position.X,
-                                                     y * core::SectorSize / 2 / xyz + m_state.position.position.Y
+                       RoomBoundPosition{m_state.location.room,
+                                         core::TRVec{x * core::SectorSize / 2 / xyz + m_state.location.position.X,
+                                                     y * core::SectorSize / 2 / xyz + m_state.location.position.Y
                                                        - 2 * core::QuarterSectorSize,
-                                                     z * core::SectorSize / 2 / xyz + m_state.position.position.Z}},
+                                                     z * core::SectorSize / 2 / xyz + m_state.location.position.Z}},
                        m_state.speed,
                        m_state.rotation.Y);
   getWorld().getObjectManager().registerParticle(fx);

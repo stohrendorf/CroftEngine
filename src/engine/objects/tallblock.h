@@ -8,8 +8,8 @@ namespace engine::objects
 class TallBlock final : public ModelObject
 {
 public:
-  TallBlock(const gsl::not_null<world::World*>& world, const RoomBoundPosition& position)
-      : ModelObject{world, position}
+  TallBlock(const gsl::not_null<world::World*>& world, const RoomBoundPosition& location)
+      : ModelObject{world, location}
   {
   }
 

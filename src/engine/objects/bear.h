@@ -8,8 +8,8 @@ namespace engine::objects
 class Bear final : public AIAgent
 {
 public:
-  Bear(const gsl::not_null<world::World*>& world, const RoomBoundPosition& position)
-      : AIAgent{world, position}
+  Bear(const gsl::not_null<world::World*>& world, const RoomBoundPosition& location)
+      : AIAgent{world, location}
   {
   }
 

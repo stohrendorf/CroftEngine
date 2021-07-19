@@ -155,9 +155,9 @@ public:
   }
 
   template<typename T>
-  std::shared_ptr<T> createObject(const RoomBoundPosition& position)
+  std::shared_ptr<T> createObject(const RoomBoundPosition& location)
   {
-    auto object = std::make_shared<T>(this, position);
+    auto object = std::make_shared<T>(this, location);
 
     m_objectManager.registerDynamicObject(object);
 

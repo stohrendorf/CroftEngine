@@ -38,12 +38,12 @@ void engine::objects::DartGun::update()
   }
 
   auto dart = getWorld().createObject<Dart>(
-    TR1ItemId::Dart, m_state.position.room, m_state.rotation.Y, m_state.position.position - d, 0);
+    TR1ItemId::Dart, m_state.location.room, m_state.rotation.Y, m_state.location.position - d, 0);
   dart->activate();
   dart->m_state.triggerState = TriggerState::Active;
 
-  auto particle = std::make_shared<SmokeParticle>(dart->m_state.position, getWorld(), dart->m_state.rotation);
-  setParent(particle, dart->m_state.position.room->node);
+  auto particle = std::make_shared<SmokeParticle>(dart->m_state.location, getWorld(), dart->m_state.rotation);
+  setParent(particle, dart->m_state.location.room->node);
   getWorld().getObjectManager().registerParticle(std::move(particle));
 
   playSoundEffect(TR1SoundEffect::DartgunShoot);

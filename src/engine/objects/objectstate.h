@@ -42,9 +42,9 @@ struct ObjectState final : public audio::Emitter
 private:
   friend Object;
 
-  explicit ObjectState(const gsl::not_null<audio::SoundEngine*>& engine, RoomBoundPosition position)
+  explicit ObjectState(const gsl::not_null<audio::SoundEngine*>& engine, RoomBoundPosition location)
       : Emitter{engine}
-      , position{std::move(position)}
+      , location{std::move(location)}
   {
   }
 
@@ -54,7 +54,7 @@ public:
                        const core::TypeId type)
       : Emitter{engine}
       , type{type}
-      , position{room}
+      , location{room}
   {
   }
 
@@ -71,7 +71,7 @@ public:
   glm::vec3 getPosition() const override;
 
   core::TypeId type = core::TypeId{uint16_t(-1)};
-  RoomBoundPosition position;
+  RoomBoundPosition location;
   core::TRRotation rotation;
   core::Speed speed = 0_spd;
   core::Speed fallspeed = 0_spd;

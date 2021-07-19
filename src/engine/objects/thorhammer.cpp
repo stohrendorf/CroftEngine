@@ -18,9 +18,9 @@ ThorHammerHandle::ThorHammerHandle(const gsl::not_null<world::World*>& world,
   m_block->m_state.triggerState = TriggerState::Active;
 }
 
-ThorHammerHandle::ThorHammerHandle(const gsl::not_null<world::World*>& world, const RoomBoundPosition& position)
-    : ModelObject{world, position}
-    , m_block{world->createObject<ThorHammerBlock>(position)}
+ThorHammerHandle::ThorHammerHandle(const gsl::not_null<world::World*>& world, const RoomBoundPosition& location)
+    : ModelObject{world, location}
+    , m_block{world->createObject<ThorHammerBlock>(location)}
 {
 }
 
@@ -52,8 +52,8 @@ void ThorHammerHandle::update()
   case 2:
     if(getSkeleton()->getLocalFrame() > 30_frame)
     {
-      auto posX = m_state.position.position.X;
-      auto posZ = m_state.position.position.Z;
+      auto posX = m_state.location.position.X;
+      auto posZ = m_state.location.position.Z;
       if(m_state.rotation.Y == 0_deg)
       {
         posZ += 3 * core::SectorSize;
@@ -72,17 +72,17 @@ void ThorHammerHandle::update()
       }
       if(!getWorld().getObjectManager().getLara().isDead())
       {
-        if(posX - 520_len < getWorld().getObjectManager().getLara().m_state.position.position.X
-           && posX + 520_len > getWorld().getObjectManager().getLara().m_state.position.position.X
-           && posZ - 520_len < getWorld().getObjectManager().getLara().m_state.position.position.Z
-           && posZ + 520_len > getWorld().getObjectManager().getLara().m_state.position.position.Z)
+        if(posX - 520_len < getWorld().getObjectManager().getLara().m_state.location.position.X
+           && posX + 520_len > getWorld().getObjectManager().getLara().m_state.location.position.X
+           && posZ - 520_len < getWorld().getObjectManager().getLara().m_state.location.position.Z
+           && posZ + 520_len > getWorld().getObjectManager().getLara().m_state.location.position.Z)
         {
           getWorld().getObjectManager().getLara().m_state.health = core::DeadHealth;
           getWorld().getObjectManager().getLara().getSkeleton()->setAnim(
             &getWorld().findAnimatedModelForType(TR1ItemId::Lara)->animations[139], 3561_frame);
           getWorld().getObjectManager().getLara().setCurrentAnimState(loader::file::LaraStateId::BoulderDeath);
           getWorld().getObjectManager().getLara().setGoalAnimState(loader::file::LaraStateId::BoulderDeath);
-          getWorld().getObjectManager().getLara().m_state.position.position.Y = m_state.position.position.Y;
+          getWorld().getObjectManager().getLara().m_state.location.position.Y = m_state.location.position.Y;
           getWorld().getObjectManager().getLara().m_state.falling = false;
         }
       }
@@ -90,35 +90,35 @@ void ThorHammerHandle::update()
     break;
   case 3:
   {
-    const auto sector = findRealFloorSector(m_state.position.position, m_state.position.room);
+    const auto sector = m_state.location.delta(0_len, 0_len, 0_len).updateRoom();
     const auto hi
-      = HeightInfo::fromFloor(sector, m_state.position.position, getWorld().getObjectManager().getObjects());
+      = HeightInfo::fromFloor(sector, m_state.location.position, getWorld().getObjectManager().getObjects());
     getWorld().handleCommandSequence(hi.lastCommandSequenceOrDeath, true);
 
-    const auto oldPosX = m_state.position.position.X;
-    const auto oldPosZ = m_state.position.position.Z;
+    const auto oldPosX = m_state.location.position.X;
+    const auto oldPosZ = m_state.location.position.Z;
     if(m_state.rotation.Y == 0_deg)
     {
-      m_state.position.position.Z += 3 * core::SectorSize;
+      m_state.location.position.Z += 3 * core::SectorSize;
     }
     else if(m_state.rotation.Y == 90_deg)
     {
-      m_state.position.position.X += 3 * core::SectorSize;
+      m_state.location.position.X += 3 * core::SectorSize;
     }
     else if(m_state.rotation.Y == 180_deg)
     {
-      m_state.position.position.Z -= 3 * core::SectorSize;
+      m_state.location.position.Z -= 3 * core::SectorSize;
     }
     else if(m_state.rotation.Y == -90_deg)
     {
-      m_state.position.position.X -= 3 * core::SectorSize;
+      m_state.location.position.X -= 3 * core::SectorSize;
     }
     if(!getWorld().getObjectManager().getLara().isDead())
     {
       world::patchHeightsForBlock(*this, -2 * core::SectorSize);
     }
-    m_state.position.position.X = oldPosX;
-    m_state.position.position.Z = oldPosZ;
+    m_state.location.position.X = oldPosX;
+    m_state.location.position.Z = oldPosZ;
     deactivate();
     m_state.triggerState = TriggerState::Deactivated;
     break;

@@ -48,9 +48,9 @@ void Crocodile::updateInWater()
     if(auto waterSurfaceHeight = getWaterSurfaceHeight())
     {
       *waterSurfaceHeight += core::QuarterSectorSize;
-      if(*waterSurfaceHeight > m_state.position.position.Y)
+      if(*waterSurfaceHeight > m_state.location.position.Y)
       {
-        m_state.position.position.Y = *waterSurfaceHeight;
+        m_state.location.position.Y = *waterSurfaceHeight;
       }
     }
     else
@@ -60,7 +60,7 @@ void Crocodile::updateInWater()
       goal(getSkeleton()->getAnim()->state_id);
       m_state.current_anim_state = getSkeleton()->getAnim()->state_id;
       m_state.rotation.X = 0_deg;
-      m_state.position.position.Y = m_state.floor;
+      m_state.location.position.Y = m_state.floor;
       m_state.creatureInfo->pathFinder.step = 256_len;
       m_state.creatureInfo->pathFinder.drop = -256_len;
       m_state.creatureInfo->pathFinder.fly = 0_len;
@@ -80,13 +80,13 @@ void Crocodile::updateInWater()
     }
     if(const auto waterSurfaceHeight = getWaterSurfaceHeight())
     {
-      if(*waterSurfaceHeight + 32_len < m_state.position.position.Y)
+      if(*waterSurfaceHeight + 32_len < m_state.location.position.Y)
       {
-        m_state.position.position.Y = m_state.position.position.Y - 32_len;
+        m_state.location.position.Y = m_state.location.position.Y - 32_len;
       }
-      else if(*waterSurfaceHeight > m_state.position.position.Y)
+      else if(*waterSurfaceHeight > m_state.location.position.Y)
       {
-        m_state.position.position.Y = *waterSurfaceHeight;
+        m_state.location.position.Y = *waterSurfaceHeight;
         m_state.creatureInfo.reset();
       }
     }
@@ -96,20 +96,18 @@ void Crocodile::updateInWater()
       m_state.type = TR1ItemId::CrocodileOnLand;
       goal(7_as);
       m_state.current_anim_state = m_state.goal_anim_state;
-      auto room = m_state.position.room;
-      auto sector = findRealFloorSector(m_state.position.position, &room);
-      m_state.position.position.Y
-        = HeightInfo::fromFloor(sector, m_state.position.position, getWorld().getObjectManager().getObjects()).y;
+      auto sector = m_state.location.delta({}).updateRoom();
+      m_state.location.position.Y
+        = HeightInfo::fromFloor(sector, m_state.location.position, getWorld().getObjectManager().getObjects()).y;
       m_state.rotation.X = 0_deg;
 
       loadObjectInfo(true);
     }
     ModelObject::update();
-    auto room = m_state.position.room;
-    auto sector = findRealFloorSector(m_state.position.position, &room);
+    auto sector = m_state.location.updateRoom();
     m_state.floor
-      = HeightInfo::fromFloor(sector, m_state.position.position, getWorld().getObjectManager().getObjects()).y;
-    setCurrentRoom(room);
+      = HeightInfo::fromFloor(sector, m_state.location.position, getWorld().getObjectManager().getObjects()).y;
+    setCurrentRoom(m_state.location.room);
   }
 }
 
@@ -204,7 +202,7 @@ void Crocodile::updateOnLand()
   {
     rotateCreatureHead(headRot);
   }
-  if(m_state.position.room->isWaterRoom)
+  if(m_state.location.room->isWaterRoom)
   {
     getSkeleton()->setAnim(&getWorld().findAnimatedModelForType(TR1ItemId::CrocodileInWater)->animations[0]);
     goal(getSkeleton()->getAnim()->state_id);

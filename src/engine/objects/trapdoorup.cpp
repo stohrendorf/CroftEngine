@@ -7,8 +7,7 @@ namespace engine::objects
 void TrapDoorUp::update()
 {
   ModelObject::update();
-  auto pos = m_state.position;
-  world::findRealFloorSector(pos);
-  setCurrentRoom(pos.room);
+  m_state.location.updateRoom();
+  setCurrentRoom(m_state.location.room);
 }
 } // namespace engine::objects

@@ -15,13 +15,13 @@ namespace engine::objects
 // NOLINTNEXTLINE(readability-make-member-function-const)
 void Object::applyTransform()
 {
-  const glm::vec3 tr = m_state.position.position.toRenderSystem() - m_state.position.room->position.toRenderSystem();
+  const glm::vec3 tr = m_state.location.position.toRenderSystem() - m_state.location.room->position.toRenderSystem();
   getNode()->setLocalMatrix(translate(glm::mat4{1.0f}, tr) * m_state.rotation.toMatrix());
 }
 
-Object::Object(const gsl::not_null<world::World*>& world, const RoomBoundPosition& position)
+Object::Object(const gsl::not_null<world::World*>& world, const RoomBoundPosition& location)
     : m_world{world}
-    , m_state{world->getPresenter().getSoundEngine().get(), position}
+    , m_state{world->getPresenter().getSoundEngine().get(), location}
     , m_hasUpdateFunction{false}
 {
 }
@@ -62,14 +62,9 @@ Object::Object(const gsl::not_null<world::World*>& world,
 
 void Object::setCurrentRoom(const gsl::not_null<const world::Room*>& newRoom)
 {
-  if(newRoom == m_state.position.room)
-  {
-    return;
-  }
-
   setParent(getNode(), newRoom->node);
 
-  m_state.position.room = newRoom;
+  m_state.location.room = newRoom;
   applyTransform();
 }
 
@@ -140,22 +135,22 @@ bool InteractionLimits::canInteract(const ObjectState& objectState, const Object
     return false;
   }
 
-  const auto offs = laraState.position.position - objectState.position.position;
+  const auto offs = laraState.location.position - objectState.location.position;
   const auto dist = glm::vec4{offs.toRenderSystem(), 0.0f} * objectState.rotation.toMatrix();
   return distance.contains(core::TRVec{glm::vec3{dist}});
 }
 
-void Object::emitRicochet(const RoomBoundPosition& pos)
+void Object::emitRicochet(const RoomBoundPosition& location)
 {
-  const auto particle = std::make_shared<RicochetParticle>(pos, getWorld());
-  setParent(particle, m_state.position.room->node);
+  const auto particle = std::make_shared<RicochetParticle>(location, getWorld());
+  setParent(particle, m_state.location.room->node);
   getWorld().getObjectManager().registerParticle(particle);
   getWorld().getAudioEngine().playSoundEffect(TR1SoundEffect::Ricochet, particle.get());
 }
 
 std::optional<core::Length> Object::getWaterSurfaceHeight() const
 {
-  return world::getWaterSurfaceHeight(m_state.position);
+  return world::getWaterSurfaceHeight(m_state.location);
 }
 
 bool Object::alignTransformClamped(const core::TRVec& targetPos,
@@ -163,7 +158,7 @@ bool Object::alignTransformClamped(const core::TRVec& targetPos,
                                    const core::Length& maxDistance,
                                    const core::Angle& maxAngle)
 {
-  auto d = targetPos - m_state.position.position;
+  auto d = targetPos - m_state.location.position;
   const auto dist = d.length();
   if(maxDistance < dist)
   {
@@ -171,7 +166,7 @@ bool Object::alignTransformClamped(const core::TRVec& targetPos,
   }
   else
   {
-    m_state.position.position = targetPos;
+    m_state.location.position = targetPos;
   }
 
   core::TRRotation phi = targetRot - m_state.rotation;
@@ -180,7 +175,7 @@ bool Object::alignTransformClamped(const core::TRVec& targetPos,
   m_state.rotation.Z += std::clamp(phi.Z, -maxAngle, maxAngle);
 
   phi = targetRot - m_state.rotation;
-  d = targetPos - m_state.position.position;
+  d = targetPos - m_state.location.position;
 
   return abs(phi.X) < 1_au && abs(phi.Y) < 1_au && abs(phi.Z) < 1_au && d.X == 0_len && d.Y == 0_len && d.Z == 0_len;
 }
@@ -188,7 +183,7 @@ bool Object::alignTransformClamped(const core::TRVec& targetPos,
 void Object::serialize(const serialization::Serializer<world::World>& ser)
 {
   ser(S_NV("@type", m_state.type),
-      S_NV("@position", m_state.position),
+      S_NV("@location", m_state.location),
       S_NV("state", m_state),
       S_NV("hasUpdateFunction", m_hasUpdateFunction),
       S_NV("isActive", m_isActive));
@@ -198,7 +193,7 @@ void Object::serialize(const serialization::Serializer<world::World>& ser)
 
     if(ser.loading)
     {
-      setParent(getNode(), m_state.position.room->node);
+      setParent(getNode(), m_state.location.room->node);
 
       applyTransform();
     }

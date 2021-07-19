@@ -25,8 +25,8 @@ public:
   void loadObjectInfo(bool withoutGameState = false);
 
 protected:
-  AIAgent(const gsl::not_null<world::World*>& world, const RoomBoundPosition& position)
-      : ModelObject{world, position}
+  AIAgent(const gsl::not_null<world::World*>& world, const RoomBoundPosition& location)
+      : ModelObject{world, location}
   {
   }
 
@@ -131,7 +131,7 @@ protected:
 
   void settle()
   {
-    m_state.position.position.Y = m_state.floor;
+    m_state.location.position.Y = m_state.floor;
     m_state.falling = false;
   }
 

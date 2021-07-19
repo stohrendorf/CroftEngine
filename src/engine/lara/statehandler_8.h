@@ -28,7 +28,7 @@ public:
     setMovementAngle(collisionInfo.facingAngle);
     applyShift(collisionInfo);
     placeOnFloor(collisionInfo);
-    collisionInfo.initHeightInfo(getLara().m_state.position.position, getWorld(), core::LaraWalkHeight);
+    collisionInfo.initHeightInfo(getLara().m_state.location.position, getWorld(), core::LaraWalkHeight);
     getLara().m_state.health = core::DeadHealth;
     setAir(-1_frame);
   }

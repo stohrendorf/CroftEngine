@@ -89,14 +89,14 @@ void CollisionInfo::initHeightInfo(const core::TRVec& laraPos, const world::Worl
   shift = core::TRVec{0_len, 0_len, 0_len};
   facingAxis = axisFromAngle(facingAngle);
 
-  auto room = world.getObjectManager().getLara().m_state.position.room;
-  const auto refTestPos = laraPos - core::TRVec(0_len, height + core::ScalpToHandsHeight, 0_len);
-  const auto currentSector = findRealFloorSector(refTestPos, &room);
+  RoomBoundPosition refTestLocation{world.getObjectManager().getLara().m_state.location.room,
+                                    laraPos - core::TRVec(0_len, height + core::ScalpToHandsHeight, 0_len)};
+  const auto currentSector = refTestLocation.updateRoom();
 
-  mid.init(currentSector, refTestPos, world.getObjectManager().getObjects(), laraPos.Y, height);
+  mid.init(currentSector, refTestLocation.position, world.getObjectManager().getObjects(), laraPos.Y, height);
 
   std::tie(floorSlantX, floorSlantZ) = getFloorSlantInfo(
-    currentSector, core::TRVec{laraPos.X, world.getObjectManager().getLara().m_state.position.position.Y, laraPos.Z});
+    currentSector, core::TRVec{laraPos.X, world.getObjectManager().getLara().m_state.location.position.Y, laraPos.Z});
 
   core::Length frontX = 0_len, frontZ = 0_len;
   core::Length frontLeftX = 0_len, frontLeftZ = 0_len;
@@ -138,14 +138,12 @@ void CollisionInfo::initHeightInfo(const core::TRVec& laraPos, const world::Worl
     break;
   }
 
-  const auto initVSI = [&refTestPos, &world, &height, laraPosY = laraPos.Y, policyFlags = policies](
-                         VerticalSpaceInfo& vsi,
-                         core::Length dx,
-                         core::Length dz,
-                         const gsl::not_null<gsl::not_null<const world::Room*>*>& room) {
-    const auto testPos = refTestPos + core::TRVec(dx, 0_len, dz);
-    const auto sector = findRealFloorSector(testPos, room);
-    vsi.init(sector, testPos, world.getObjectManager().getObjects(), laraPosY, height);
+  const auto initVSI = [&refTestLocation, &world, &height, laraPosY = laraPos.Y, policyFlags = policies](
+                         VerticalSpaceInfo& vsi, core::Length dx, core::Length dz)
+  {
+    RoomBoundPosition testLocation = refTestLocation.delta(dx, 0_len, dz);
+    const auto sector = testLocation.updateRoom();
+    vsi.init(sector, testLocation.position, world.getObjectManager().getObjects(), laraPosY, height);
 
     if(policyFlags.is_set(PolicyFlags::SlopesAreWalls) && vsi.floorSpace.slantClass == SlantClass::Steep
        && vsi.floorSpace.y < 0_len)
@@ -162,9 +160,9 @@ void CollisionInfo::initHeightInfo(const core::TRVec& laraPos, const world::Worl
     }
   };
 
-  initVSI(front, frontX, frontZ, &room);
-  initVSI(frontLeft, frontLeftX, frontLeftZ, &room);
-  initVSI(frontRight, frontRightX, frontRightZ, &room);
+  initVSI(front, frontX, frontZ);
+  initVSI(frontLeft, frontLeftX, frontLeftZ);
+  initVSI(frontRight, frontRightX, frontRightZ);
 
   checkStaticMeshCollisions(laraPos, height, world);
 
@@ -247,13 +245,14 @@ std::set<gsl::not_null<const world::Room*>> CollisionInfo::collectTouchingRooms(
                                                                                 const world::World& world)
 {
   std::set<gsl::not_null<const world::Room*>> result;
-  auto room = world.getObjectManager().getLara().m_state.position.room;
+  auto room = world.getObjectManager().getLara().m_state.location.room;
   result.emplace(room);
 
-  const auto roomAt = [position, room](const core::Length& x, const core::Length& y, const core::Length& z) {
-    auto tmp = room;
-    findRealFloorSector(position + core::TRVec(x, y, z), &tmp);
-    return tmp;
+  const auto roomAt = [position, room](const core::Length& x, const core::Length& y, const core::Length& z)
+  {
+    RoomBoundPosition tmp{room, position + core::TRVec{x, y, z}};
+    tmp.updateRoom();
+    return tmp.room;
   };
 
   result.emplace(roomAt(radius, 0_len, radius));

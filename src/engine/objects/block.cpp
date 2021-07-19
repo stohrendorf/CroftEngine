@@ -13,7 +13,7 @@ void Block::collide(CollisionInfo& /*collisionInfo*/)
 {
   if(!getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action)
      || m_state.triggerState == TriggerState::Active || getWorld().getObjectManager().getLara().m_state.falling
-     || getWorld().getObjectManager().getLara().m_state.position.position.Y != m_state.position.position.Y)
+     || getWorld().getObjectManager().getLara().m_state.location.position.Y != m_state.location.position.Y)
   {
     return;
   }
@@ -65,8 +65,8 @@ void Block::collide(CollisionInfo& /*collisionInfo*/)
     default: BOOST_THROW_EXCEPTION(std::domain_error("Invalid axis"));
     }
 
-    getWorld().getObjectManager().getLara().m_state.position.position.*vp
-      = (getWorld().getObjectManager().getLara().m_state.position.position.*vp / core::SectorSize) * core::SectorSize
+    getWorld().getObjectManager().getLara().m_state.location.position.*vp
+      = (getWorld().getObjectManager().getLara().m_state.location.position.*vp / core::SectorSize) * core::SectorSize
         + d;
 
     getWorld().getObjectManager().getLara().setGoalAnimState(loader::file::LaraStateId::PushableGrab);
@@ -130,17 +130,17 @@ void Block::update()
 
   ModelObject::update();
 
-  auto pos = m_state.position;
-  auto sector = world::findRealFloorSector(pos);
-  const auto height = HeightInfo::fromFloor(sector, pos.position, getWorld().getObjectManager().getObjects()).y;
-  if(height > pos.position.Y)
+  auto location = m_state.location;
+  auto sector = location.updateRoom();
+  const auto height = HeightInfo::fromFloor(sector, location.position, getWorld().getObjectManager().getObjects()).y;
+  if(height > location.position.Y)
   {
     m_state.falling = true;
   }
   else if(m_state.falling)
   {
-    pos.position.Y = height;
-    m_state.position.position = pos.position;
+    location.position.Y = height;
+    m_state.location.position = location.position;
     m_state.falling = false;
     m_state.triggerState = TriggerState::Deactivated;
     getWorld().dinoStompEffect(*this);
@@ -148,7 +148,7 @@ void Block::update()
     applyTransform(); // needed for properly placing geometry on floor
   }
 
-  setCurrentRoom(pos.room);
+  setCurrentRoom(location.room);
 
   if(m_state.triggerState != TriggerState::Deactivated)
   {
@@ -158,17 +158,18 @@ void Block::update()
   m_state.triggerState = TriggerState::Inactive;
   deactivate();
   world::patchHeightsForBlock(*this, -core::SectorSize);
-  pos = m_state.position;
-  sector = world::findRealFloorSector(pos);
+  location = m_state.location;
+  sector = location.updateRoom();
   getWorld().handleCommandSequence(
-    HeightInfo::fromFloor(sector, pos.position, getWorld().getObjectManager().getObjects()).lastCommandSequenceOrDeath,
+    HeightInfo::fromFloor(sector, location.position, getWorld().getObjectManager().getObjects())
+      .lastCommandSequenceOrDeath,
     true);
 }
 
 bool Block::isOnFloor(const core::Length& height) const
 {
-  const auto sector = findRealFloorSector(m_state.position.position, m_state.position.room);
-  return sector->floorHeight == -core::HeightLimit || sector->floorHeight == m_state.position.position.Y - height;
+  const auto sector = m_state.location.delta(0_len, 0_len, 0_len).updateRoom();
+  return sector->floorHeight == -core::HeightLimit || sector->floorHeight == m_state.location.position.Y - height;
 }
 
 bool Block::canPushBlock(const core::Length& height, const core::Axis axis) const
@@ -178,32 +179,32 @@ bool Block::canPushBlock(const core::Length& height, const core::Axis axis) cons
     return false;
   }
 
-  auto pos = m_state.position.position;
+  auto location = m_state.location;
   switch(axis)
   {
-  case core::Axis::PosZ: pos.Z += core::SectorSize; break;
-  case core::Axis::PosX: pos.X += core::SectorSize; break;
-  case core::Axis::NegZ: pos.Z -= core::SectorSize; break;
-  case core::Axis::NegX: pos.X -= core::SectorSize; break;
+  case core::Axis::PosZ: location.position.Z += core::SectorSize; break;
+  case core::Axis::PosX: location.position.X += core::SectorSize; break;
+  case core::Axis::NegZ: location.position.Z -= core::SectorSize; break;
+  case core::Axis::NegX: location.position.X -= core::SectorSize; break;
   default: break;
   }
 
   CollisionInfo tmp;
   tmp.facingAxis = axis;
   tmp.collisionRadius = 500_len;
-  if(tmp.checkStaticMeshCollisions(pos, 2 * tmp.collisionRadius, getWorld()))
+  if(tmp.checkStaticMeshCollisions(location.position, 2 * tmp.collisionRadius, getWorld()))
   {
     return false;
   }
 
-  const auto targetSector = findRealFloorSector(pos, m_state.position.room);
-  if(targetSector->floorHeight != pos.Y)
+  const auto targetSector = location.updateRoom();
+  if(targetSector->floorHeight != location.position.Y)
   {
     return false;
   }
 
-  pos.Y -= height;
-  return pos.Y >= findRealFloorSector(pos, m_state.position.room)->ceilingHeight;
+  location.position.Y -= height;
+  return location.position.Y >= location.updateRoom()->ceilingHeight;
 }
 
 bool Block::canPullBlock(const core::Length& height, const core::Axis axis) const
@@ -213,86 +214,85 @@ bool Block::canPullBlock(const core::Length& height, const core::Axis axis) cons
     return false;
   }
 
-  auto pos = m_state.position.position;
+  auto location = m_state.location;
   switch(axis)
   {
-  case core::Axis::Deg0: pos.Z -= core::SectorSize; break;
-  case core::Axis::Right90: pos.X -= core::SectorSize; break;
-  case core::Axis::Deg180: pos.Z += core::SectorSize; break;
-  case core::Axis::Left90: pos.X += core::SectorSize; break;
+  case core::Axis::Deg0: location.position.Z -= core::SectorSize; break;
+  case core::Axis::Right90: location.position.X -= core::SectorSize; break;
+  case core::Axis::Deg180: location.position.Z += core::SectorSize; break;
+  case core::Axis::Left90: location.position.X += core::SectorSize; break;
   default: break;
   }
 
-  auto room = m_state.position.room;
-  auto sector = findRealFloorSector(pos, &room);
+  auto sector = location.updateRoom();
 
   CollisionInfo tmp;
   tmp.facingAxis = axis;
   tmp.collisionRadius = 500_len;
-  if(tmp.checkStaticMeshCollisions(pos, 2 * tmp.collisionRadius, getWorld()))
+  if(tmp.checkStaticMeshCollisions(location.position, 2 * tmp.collisionRadius, getWorld()))
   {
     return false;
   }
 
-  if(sector->floorHeight != pos.Y)
+  if(sector->floorHeight != location.position.Y)
   {
     return false;
   }
 
-  auto topPos = pos;
-  topPos.Y -= height;
-  const auto topSector = findRealFloorSector(topPos, m_state.position.room);
-  if(topPos.Y < topSector->ceilingHeight)
+  auto topPos = location;
+  topPos.position.Y -= height;
+  const auto topSector = topPos.updateRoom();
+  if(topPos.position.Y < topSector->ceilingHeight)
   {
     return false;
   }
 
-  auto laraPos = pos;
+  auto laraLocation = location;
   switch(axis)
   {
-  case core::Axis::PosZ: laraPos.Z -= core::SectorSize; break;
-  case core::Axis::PosX: laraPos.X -= core::SectorSize; break;
-  case core::Axis::NegZ: laraPos.Z += core::SectorSize; break;
-  case core::Axis::NegX: laraPos.X += core::SectorSize; break;
+  case core::Axis::PosZ: laraLocation.position.Z -= core::SectorSize; break;
+  case core::Axis::PosX: laraLocation.position.X -= core::SectorSize; break;
+  case core::Axis::NegZ: laraLocation.position.Z += core::SectorSize; break;
+  case core::Axis::NegX: laraLocation.position.X += core::SectorSize; break;
   default: break;
   }
 
-  sector = findRealFloorSector(laraPos, &room);
-  if(sector->floorHeight != pos.Y)
+  sector = laraLocation.updateRoom();
+  if(sector->floorHeight != location.position.Y)
   {
     return false;
   }
 
-  laraPos.Y -= core::LaraWalkHeight;
-  sector = findRealFloorSector(laraPos, &room);
-  if(laraPos.Y < sector->ceilingHeight)
+  laraLocation.position.Y -= core::LaraWalkHeight;
+  sector = laraLocation.updateRoom();
+  if(laraLocation.position.Y < sector->ceilingHeight)
   {
     return false;
   }
 
-  laraPos = getWorld().getObjectManager().getLara().m_state.position.position;
+  laraLocation = getWorld().getObjectManager().getLara().m_state.location;
   switch(axis)
   {
   case core::Axis::Deg0:
-    laraPos.Z -= core::SectorSize;
+    laraLocation.position.Z -= core::SectorSize;
     tmp.facingAxis = core::Axis::Deg180;
     break;
   case core::Axis::Right90:
-    laraPos.X -= core::SectorSize;
+    laraLocation.position.X -= core::SectorSize;
     tmp.facingAxis = core::Axis::Left90;
     break;
   case core::Axis::Deg180:
-    laraPos.Z += core::SectorSize;
+    laraLocation.position.Z += core::SectorSize;
     tmp.facingAxis = core::Axis::Deg0;
     break;
   case core::Axis::Left90:
-    laraPos.X += core::SectorSize;
+    laraLocation.position.X += core::SectorSize;
     tmp.facingAxis = core::Axis::Right90;
     break;
   default: break;
   }
   tmp.collisionRadius = core::DefaultCollisionRadius;
 
-  return !tmp.checkStaticMeshCollisions(laraPos, core::LaraWalkHeight, getWorld());
+  return !tmp.checkStaticMeshCollisions(laraLocation.position, core::LaraWalkHeight, getWorld());
 }
 } // namespace engine::objects

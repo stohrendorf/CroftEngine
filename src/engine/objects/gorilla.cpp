@@ -157,16 +157,16 @@ void Gorilla::update()
       m_state.rotation.Y += 90_deg;
       m_turnedLeft = false;
     }
-    const auto old = m_state.position.position;
+    const auto old = m_state.location.position;
     getSkeleton()->patchBone(14, core::TRRotation{0_deg, m_state.creatureInfo->headRotation, 0_deg}.toMatrix());
     animateCreature(turn, 0_deg);
-    if(old.Y - 384_len < m_state.position.position.Y)
+    if(old.Y - 384_len < m_state.location.position.Y)
       return;
 
     const auto xSectorOld = old.X / core::SectorSize;
     const auto zSectorOld = old.Z / core::SectorSize;
-    const auto xSectorNew = m_state.position.position.X / core::SectorSize;
-    const auto zSectorNew = m_state.position.position.Z / core::SectorSize;
+    const auto xSectorNew = m_state.location.position.X / core::SectorSize;
+    const auto zSectorNew = m_state.location.position.Z / core::SectorSize;
     if(zSectorOld == zSectorNew)
     {
       if(xSectorOld == xSectorNew)
@@ -176,12 +176,12 @@ void Gorilla::update()
       if(xSectorOld >= xSectorNew)
       {
         m_state.rotation.Y = -90_deg;
-        m_state.position.position.X = xSectorOld * core::SectorSize + 75_len;
+        m_state.location.position.X = xSectorOld * core::SectorSize + 75_len;
       }
       else
       {
         m_state.rotation.Y = 90_deg;
-        m_state.position.position.X = xSectorNew * core::SectorSize - 75_len;
+        m_state.location.position.X = xSectorNew * core::SectorSize - 75_len;
       }
     }
     else if(xSectorOld == xSectorNew)
@@ -189,16 +189,16 @@ void Gorilla::update()
       if(zSectorOld >= zSectorNew)
       {
         m_state.rotation.Y = -180_deg;
-        m_state.position.position.Z = zSectorOld * core::SectorSize + 75_len;
+        m_state.location.position.Z = zSectorOld * core::SectorSize + 75_len;
       }
       else
       {
         m_state.rotation.Y = 0_deg;
-        m_state.position.position.Z = zSectorNew * core::SectorSize - 75_len;
+        m_state.location.position.Z = zSectorNew * core::SectorSize - 75_len;
       }
     }
 
-    m_state.position.position.Y = old.Y;
+    m_state.location.position.Y = old.Y;
     getSkeleton()->setAnim(&getWorld().findAnimatedModelForType(TR1ItemId::Gorilla)->animations[19]);
     m_state.current_anim_state = 11_as;
   }

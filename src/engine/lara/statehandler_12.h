@@ -24,7 +24,7 @@ public:
     collisionInfo.badCeilingDistance = 0_len;
     collisionInfo.facingAngle = getMovementAngle();
     collisionInfo.policies |= CollisionInfo::SlopeBlockingPolicy;
-    collisionInfo.initHeightInfo(getLara().m_state.position.position, getWorld(), core::LaraWalkHeight);
+    collisionInfo.initHeightInfo(getLara().m_state.location.position, getWorld(), core::LaraWalkHeight);
     applyShift(collisionInfo);
   }
 };

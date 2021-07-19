@@ -28,7 +28,7 @@ public:
     setMovementAngle(getLara().m_state.rotation.Y);
     collisionInfo.policies |= CollisionInfo::SlopeBlockingPolicy;
     collisionInfo.facingAngle = getLara().m_state.rotation.Y;
-    collisionInfo.initHeightInfo(getLara().m_state.position.position, getWorld(), core::LaraWalkHeight);
+    collisionInfo.initHeightInfo(getLara().m_state.location.position, getWorld(), core::LaraWalkHeight);
   }
 
   static void emitSparkles(world::World& world)
@@ -51,7 +51,7 @@ public:
       p.Y += util::rand15s(r);
       p.Z += util::rand15s(r);
       auto fx = std::make_shared<SparkleParticle>(
-        RoomBoundPosition{world.getObjectManager().getLara().m_state.position.room, p}, world);
+        RoomBoundPosition{world.getObjectManager().getLara().m_state.location.room, p}, world);
       world.getObjectManager().registerParticle(fx);
     }
   }

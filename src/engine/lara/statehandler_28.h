@@ -28,7 +28,7 @@ public:
     collisionInfo.badCeilingDistance = 192_len;
     collisionInfo.facingAngle = getLara().m_state.rotation.Y;
     setMovementAngle(collisionInfo.facingAngle);
-    collisionInfo.initHeightInfo(getLara().m_state.position.position, getWorld(), core::LaraHangingHeight);
+    collisionInfo.initHeightInfo(getLara().m_state.location.position, getWorld(), core::LaraHangingHeight);
 
     if(tryGrabEdge(collisionInfo))
     {

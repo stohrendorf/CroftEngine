@@ -7,8 +7,8 @@ namespace engine::objects
 class ThorHammerBlock final : public ModelObject
 {
 public:
-  ThorHammerBlock(const gsl::not_null<world::World*>& world, const RoomBoundPosition& position)
-      : ModelObject{world, position}
+  ThorHammerBlock(const gsl::not_null<world::World*>& world, const RoomBoundPosition& location)
+      : ModelObject{world, location}
   {
   }
 
@@ -26,7 +26,7 @@ public:
 class ThorHammerHandle final : public ModelObject
 {
 public:
-  ThorHammerHandle(const gsl::not_null<world::World*>& world, const RoomBoundPosition& position);
+  ThorHammerHandle(const gsl::not_null<world::World*>& world, const RoomBoundPosition& location);
 
   ThorHammerHandle(const gsl::not_null<world::World*>& world,
                    const gsl::not_null<const world::Room*>& room,

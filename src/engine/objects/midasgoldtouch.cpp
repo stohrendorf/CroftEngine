@@ -12,10 +12,10 @@ void MidasGoldTouch::collide(CollisionInfo& /*info*/)
 {
   auto& lara = getWorld().getObjectManager().getLara();
   if(!lara.m_state.falling && lara.getCurrentAnimState() == loader::file::LaraStateId::Stop
-     && m_state.position.position.X - core::SectorSize / 2 < lara.m_state.position.position.X
-     && m_state.position.position.X + core::SectorSize / 2 > lara.m_state.position.position.X
-     && m_state.position.position.Z - core::SectorSize / 2 < lara.m_state.position.position.Z
-     && m_state.position.position.Z + core::SectorSize / 2 > lara.m_state.position.position.Z)
+     && m_state.location.position.X - core::SectorSize / 2 < lara.m_state.location.position.X
+     && m_state.location.position.X + core::SectorSize / 2 > lara.m_state.location.position.X
+     && m_state.location.position.Z - core::SectorSize / 2 < lara.m_state.location.position.Z
+     && m_state.location.position.Z + core::SectorSize / 2 > lara.m_state.location.position.Z)
   {
     lara.getSkeleton()->setAnim(&getWorld().findAnimatedModelForType(TR1ItemId::AlternativeLara)->animations[1]);
     lara.setCurrentAnimState(loader::file::LaraStateId::MidasDeath);
@@ -26,7 +26,7 @@ void MidasGoldTouch::collide(CollisionInfo& /*info*/)
     lara.m_state.falling = false;
     getWorld().getCameraController().setMode(CameraMode::Cinematic);
     getWorld().getCameraController().m_cinematicFrame = 0;
-    getWorld().getCameraController().m_cinematicPos = lara.m_state.position.position;
+    getWorld().getCameraController().m_cinematicPos = lara.m_state.location.position;
     getWorld().getCameraController().m_cinematicRot = lara.m_state.rotation;
     return;
   }

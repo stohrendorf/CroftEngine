@@ -145,7 +145,7 @@ void LaraObject::setAnimation(AnimationId anim, const std::optional<core::Frame>
 void LaraObject::handleLaraStateOnLand()
 {
   CollisionInfo collisionInfo;
-  collisionInfo.initialPosition = m_state.position.position;
+  collisionInfo.initialPosition = m_state.location.position;
   collisionInfo.collisionRadius = core::DefaultCollisionRadius;
   collisionInfo.policies = CollisionInfo::SpazPushPolicy;
 
@@ -228,7 +228,7 @@ void LaraObject::handleLaraStateOnLand()
 void LaraObject::handleLaraStateDiving()
 {
   CollisionInfo collisionInfo;
-  collisionInfo.initialPosition = m_state.position.position;
+  collisionInfo.initialPosition = m_state.location.position;
   collisionInfo.collisionRadius = core::DefaultCollisionRadiusUnderwater;
   collisionInfo.policies.reset_all();
   collisionInfo.badCeilingDistance = core::LaraDiveHeight;
@@ -279,7 +279,7 @@ void LaraObject::handleLaraStateDiving()
 void LaraObject::handleLaraStateSwimming()
 {
   CollisionInfo collisionInfo;
-  collisionInfo.initialPosition = m_state.position.position;
+  collisionInfo.initialPosition = m_state.location.position;
   collisionInfo.collisionRadius = core::DefaultCollisionRadius;
   collisionInfo.policies.reset_all();
   collisionInfo.badCeilingDistance = core::DefaultCollisionRadius;
@@ -332,7 +332,7 @@ void LaraObject::handleLaraStateSwimming()
 
 void LaraObject::placeOnFloor(const CollisionInfo& collisionInfo)
 {
-  m_state.position.position.Y += collisionInfo.mid.floorSpace.y;
+  m_state.location.position.Y += collisionInfo.mid.floorSpace.y;
 }
 
 LaraObject::~LaraObject() = default;
@@ -357,12 +357,12 @@ void LaraObject::update()
     m_cheatDive = !m_cheatDive;
 #endif
 
-  if(m_underwaterState == UnderwaterState::OnLand && (m_cheatDive || m_state.position.room->isWaterRoom))
+  if(m_underwaterState == UnderwaterState::OnLand && (m_cheatDive || m_state.location.room->isWaterRoom))
   {
     m_air = core::LaraAir;
     m_underwaterState = UnderwaterState::Diving;
     m_state.falling = false;
-    m_state.position.position.Y += 100_len;
+    m_state.location.position.Y += 100_len;
     updateFloorHeight(0_len);
     getWorld().getAudioEngine().stopSoundEffect(TR1SoundEffect::LaraScream, &m_state);
     if(getCurrentAnimState() == LaraStateId::SwandiveBegin)
@@ -394,22 +394,21 @@ void LaraObject::update()
     {
       playSoundEffect(TR1SoundEffect::LaraFallIntoWater);
 
-      auto room = m_state.position.room;
-      findRealFloorSector(m_state.position.position, &room);
+      auto surfaceLocation = m_state.location;
+      surfaceLocation.updateRoom();
       for(int i = 0; i < 10; ++i)
       {
-        RoomBoundPosition surfacePos{room};
-        surfacePos.position.X = m_state.position.position.X;
-        surfacePos.position.Y = *waterSurfaceHeight;
-        surfacePos.position.Z = m_state.position.position.Z;
+        surfaceLocation.position.X = m_state.location.position.X;
+        surfaceLocation.position.Y = *waterSurfaceHeight;
+        surfaceLocation.position.Z = m_state.location.position.Z;
 
-        auto particle = std::make_shared<SplashParticle>(surfacePos, getWorld(), false);
-        setParent(particle, surfacePos.room->node);
+        auto particle = std::make_shared<SplashParticle>(surfaceLocation, getWorld(), false);
+        setParent(particle, surfaceLocation.room->node);
         getWorld().getObjectManager().registerParticle(particle);
       }
     }
   }
-  else if(m_underwaterState == UnderwaterState::Diving && !(m_cheatDive || m_state.position.room->isWaterRoom))
+  else if(m_underwaterState == UnderwaterState::Diving && !(m_cheatDive || m_state.location.room->isWaterRoom))
   {
     auto waterSurfaceHeight = getWaterSurfaceHeight();
     m_state.fallspeed = 0_spd;
@@ -418,7 +417,7 @@ void LaraObject::update()
     resetHeadTorsoRotation();
     m_handStatus = HandStatus::None;
 
-    if(!waterSurfaceHeight || abs(*waterSurfaceHeight - m_state.position.position.Y) >= core::QuarterSectorSize)
+    if(!waterSurfaceHeight || abs(*waterSurfaceHeight - m_state.location.position.Y) >= core::QuarterSectorSize)
     {
       m_underwaterState = UnderwaterState::OnLand;
       setAnimation(AnimationId::FREE_FALL_FORWARD, 492_frame);
@@ -433,13 +432,13 @@ void LaraObject::update()
       setAnimation(AnimationId::UNDERWATER_TO_ONWATER, 1937_frame);
       setGoalAnimState(LaraStateId::OnWaterStop);
       setCurrentAnimState(LaraStateId::OnWaterStop);
-      m_state.position.position.Y = *waterSurfaceHeight + 1_len;
+      m_state.location.position.Y = *waterSurfaceHeight + 1_len;
       m_swimToDiveKeypressDuration = 11_frame;
       updateFloorHeight(-381_len);
       playSoundEffect(TR1SoundEffect::LaraCatchingAir);
     }
   }
-  else if(m_underwaterState == UnderwaterState::Swimming && !(m_cheatDive || m_state.position.room->isWaterRoom))
+  else if(m_underwaterState == UnderwaterState::Swimming && !(m_cheatDive || m_state.location.room->isWaterRoom))
   {
     m_underwaterState = UnderwaterState::OnLand;
     setAnimation(AnimationId::FREE_FALL_FORWARD, 492_frame);
@@ -571,11 +570,10 @@ void LaraObject::updateImpl()
 
 void LaraObject::updateFloorHeight(const core::Length& dy)
 {
-  auto pos = m_state.position.position;
+  auto pos = m_state.location.position;
   pos.Y += dy;
-  auto room = m_state.position.room;
-  const auto sector = findRealFloorSector(pos, &room);
-  setCurrentRoom(room);
+  const auto sector = m_state.location.updateRoom();
+  setCurrentRoom(m_state.location.room);
   const HeightInfo hi = HeightInfo::fromFloor(sector, pos, getWorld().getObjectManager().getObjects());
   m_state.floor = hi.y;
 }
@@ -614,8 +612,8 @@ void LaraObject::testInteractions(CollisionInfo& collisionInfo)
     return;
 
   std::set<gsl::not_null<const world::Room*>> rooms;
-  rooms.insert(m_state.position.room);
-  for(const world::Portal& p : m_state.position.room->portals)
+  rooms.insert(m_state.location.room);
+  for(const world::Portal& p : m_state.location.room->portals)
     rooms.insert(p.adjoiningRoom);
 
   const auto execCollisions = [this, &rooms, &collisionInfo](const auto& range)
@@ -625,10 +623,10 @@ void LaraObject::testInteractions(CollisionInfo& collisionInfo)
       if(!object->m_state.collidable || object->m_state.triggerState == TriggerState::Invisible)
         continue;
 
-      if(rooms.find(object->m_state.position.room) == rooms.end())
+      if(rooms.find(object->m_state.location.room) == rooms.end())
         continue;
 
-      const auto d = m_state.position.position - object->m_state.position.position;
+      const auto d = m_state.location.position - object->m_state.location.position;
       if(abs(d.X) >= 4 * core::SectorSize || abs(d.Y) >= 4 * core::SectorSize || abs(d.Z) >= 4 * core::SectorSize)
         continue;
 
@@ -656,19 +654,19 @@ void LaraObject::handleUnderwaterCurrent(CollisionInfo& collisionInfo)
     return;
 
   core::TRVec targetPos;
-  if(!m_underwaterRoute.calculateTarget(getWorld(), targetPos, m_state.position.position, m_state.getCurrentBox()))
+  if(!m_underwaterRoute.calculateTarget(getWorld(), targetPos, m_state.location.position, m_state.getCurrentBox()))
     return;
 
-  targetPos -= m_state.position.position;
-  m_state.position.position.X += std::clamp(targetPos.X, -m_underwaterCurrentStrength, m_underwaterCurrentStrength);
-  m_state.position.position.Y += std::clamp(targetPos.Y, -m_underwaterCurrentStrength, m_underwaterCurrentStrength);
-  m_state.position.position.Z += std::clamp(targetPos.Z, -m_underwaterCurrentStrength, m_underwaterCurrentStrength);
+  targetPos -= m_state.location.position;
+  m_state.location.position.X += std::clamp(targetPos.X, -m_underwaterCurrentStrength, m_underwaterCurrentStrength);
+  m_state.location.position.Y += std::clamp(targetPos.Y, -m_underwaterCurrentStrength, m_underwaterCurrentStrength);
+  m_state.location.position.Z += std::clamp(targetPos.Z, -m_underwaterCurrentStrength, m_underwaterCurrentStrength);
 
   m_underwaterCurrentStrength = 0_len;
-  collisionInfo.facingAngle = angleFromAtan(m_state.position.position.X - collisionInfo.initialPosition.X,
-                                            m_state.position.position.Z - collisionInfo.initialPosition.Z);
+  collisionInfo.facingAngle = angleFromAtan(m_state.location.position.X - collisionInfo.initialPosition.X,
+                                            m_state.location.position.Z - collisionInfo.initialPosition.Z);
 
-  collisionInfo.initHeightInfo(m_state.position.position + core::TRVec{0_len, core::LaraDiveGroundElevation, 0_len},
+  collisionInfo.initHeightInfo(m_state.location.position + core::TRVec{0_len, core::LaraDiveGroundElevation, 0_len},
                                getWorld(),
                                core::LaraDiveHeight);
   if(collisionInfo.collisionType == CollisionInfo::AxisColl::Front)
@@ -689,11 +687,11 @@ void LaraObject::handleUnderwaterCurrent(CollisionInfo& collisionInfo)
 
   if(collisionInfo.mid.floorSpace.y < 0_len)
   {
-    m_state.position.position.Y += collisionInfo.mid.floorSpace.y;
+    m_state.location.position.Y += collisionInfo.mid.floorSpace.y;
     m_state.rotation.X += 2_deg;
   }
   applyShift(collisionInfo);
-  collisionInfo.initialPosition = m_state.position.position;
+  collisionInfo.initialPosition = m_state.location.position;
 }
 
 void LaraObject::updateLarasWeaponsStatus()
@@ -950,13 +948,13 @@ void LaraObject::updateAimingState(const Weapon& weapon)
     return;
   }
 
-  RoomBoundPosition weaponPosition{m_state.position};
-  weaponPosition.position.Y -= weapon.weaponHeight;
+  RoomBoundPosition weaponLocation{m_state.location};
+  weaponLocation.position.Y -= weapon.weaponHeight;
   const auto enemyChestPos = getUpperThirdBBoxCtr(*aimAt);
-  auto targetVector = getVectorAngles(enemyChestPos.position - weaponPosition.position);
+  auto targetVector = getVectorAngles(enemyChestPos.position - weaponLocation.position);
   targetVector.X -= m_state.rotation.X;
   targetVector.Y -= m_state.rotation.Y;
-  if(!raycastLineOfSight(weaponPosition, enemyChestPos.position, getWorld().getObjectManager()).first)
+  if(!raycastLineOfSight(weaponLocation, enemyChestPos.position, getWorld().getObjectManager()).first)
   {
     rightArm.aiming = false;
     leftArm.aiming = false;
@@ -1037,7 +1035,7 @@ RoomBoundPosition LaraObject::getUpperThirdBBoxCtr(const ModelObject& object)
   const auto ctrZ = (bbox.minZ + bbox.maxZ) / 2;
   const auto ctrY3 = (bbox.maxY - bbox.minY) / 3 + bbox.minY;
 
-  RoomBoundPosition result{object.m_state.position};
+  RoomBoundPosition result{object.m_state.location};
   result.position += util::pitch(core::TRVec{ctrX, ctrY3, ctrZ}, object.m_state.rotation.Y);
   return result;
 }
@@ -1066,8 +1064,8 @@ void LaraObject::drawWeapons(WeaponType weaponType)
 
 void LaraObject::findTarget(const Weapon& weapon)
 {
-  RoomBoundPosition weaponPosition{m_state.position};
-  weaponPosition.position.Y -= weapons.at(WeaponType::Shotgun).weaponHeight;
+  RoomBoundPosition weaponLocation{m_state.location};
+  weaponLocation.position.Y -= weapons.at(WeaponType::Shotgun).weaponHeight;
   aimAt.reset();
   core::Angle bestYAngle{std::numeric_limits<core::Angle::type>::max()};
   for(const auto& currentEnemy : getWorld().getObjectManager().getObjects() | boost::adaptors::map_values)
@@ -1085,7 +1083,7 @@ void LaraObject::findTarget(const Weapon& weapon)
     if(!modelEnemy->getNode()->isVisible() || !modelEnemy->m_isActive)
       continue;
 
-    const auto d = currentEnemy->m_state.position.position - weaponPosition.position;
+    const auto d = currentEnemy->m_state.location.position - weaponLocation.position;
     if(abs(d.X) > weapon.targetDist)
       continue;
 
@@ -1099,11 +1097,11 @@ void LaraObject::findTarget(const Weapon& weapon)
       continue;
 
     auto enemyPos = getUpperThirdBBoxCtr(*std::dynamic_pointer_cast<const ModelObject>(currentEnemy.get()));
-    const auto canShoot = raycastLineOfSight(weaponPosition, enemyPos.position, getWorld().getObjectManager()).first;
+    const auto canShoot = raycastLineOfSight(weaponLocation, enemyPos.position, getWorld().getObjectManager()).first;
     if(!canShoot)
       continue;
 
-    auto aimAngle = getVectorAngles(enemyPos.position - weaponPosition.position);
+    auto aimAngle = getVectorAngles(enemyPos.position - weaponLocation.position);
     aimAngle.X -= m_torsoRotation.X + m_state.rotation.X;
     aimAngle.Y -= m_torsoRotation.Y + m_state.rotation.Y;
     if(aimAngle.Y < weapon.lockAngles.y.min || aimAngle.Y > weapon.lockAngles.y.max
@@ -1539,7 +1537,7 @@ bool LaraObject::fireWeapon(const WeaponType weaponType,
 
   --ammoPtr->ammo;
   const auto weapon = &weapons.at(weaponType);
-  core::TRVec weaponPosition = weaponHolder.m_state.position.position;
+  core::TRVec weaponPosition = weaponHolder.m_state.location.position;
   weaponPosition.Y -= weapon->weaponHeight;
   const core::TRRotation shootVector{
     util::rand15s(weapon->shotInaccuracy) + aimAngle.X, util::rand15s(weapon->shotInaccuracy) + aimAngle.Y, +0_deg};
@@ -1572,7 +1570,7 @@ bool LaraObject::fireWeapon(const WeaponType weaponType,
     static constexpr float VeryLargeDistanceProbablyClipping = 1u << 14u;
 
     const auto aimHitPos
-      = raycastLineOfSight(RoomBoundPosition{weaponHolder.m_state.position.room, weaponPosition},
+      = raycastLineOfSight(RoomBoundPosition{weaponHolder.m_state.location.room, weaponPosition},
                            weaponPosition + core::TRVec{-bulletDir * VeryLargeDistanceProbablyClipping},
                            getWorld().getObjectManager())
           .second;
@@ -1597,7 +1595,7 @@ void LaraObject::hitTarget(ModelObject& object, const core::TRVec& hitPos, const
   object.m_state.is_hit = true;
   object.m_state.health -= damage;
   auto fx = createBloodSplat(getWorld(),
-                             RoomBoundPosition{object.m_state.position.room, hitPos},
+                             RoomBoundPosition{object.m_state.location.room, hitPos},
                              object.m_state.speed,
                              object.m_state.rotation.Y);
   getWorld().getObjectManager().registerParticle(fx);
@@ -2077,9 +2075,9 @@ void LaraObject::burnIfAlive()
   if(isDead())
     return;
 
-  const auto sector = findRealFloorSector(m_state.position.position, m_state.position.room);
+  const auto sector = m_state.location.delta(0_len, 0_len, 0_len).updateRoom();
   if(HeightInfo::fromFloor(sector,
-                           {m_state.position.position.X, 32000_len, m_state.position.position.Z},
+                           {m_state.location.position.X, 32000_len, m_state.location.position.Z},
                            getWorld().getObjectManager().getObjects())
        .y
      != m_state.floor)
@@ -2090,8 +2088,8 @@ void LaraObject::burnIfAlive()
 
   for(size_t i = 0; i < 10; ++i)
   {
-    auto particle = std::make_shared<FlameParticle>(m_state.position, getWorld(), true);
-    setParent(particle, m_state.position.room->node);
+    auto particle = std::make_shared<FlameParticle>(m_state.location, getWorld(), true);
+    setParent(particle, m_state.location.room->node);
     getWorld().getObjectManager().registerParticle(particle);
   }
 }
@@ -2140,7 +2138,7 @@ LaraObject::LaraObject(const gsl::not_null<world::World*>& world,
   m_state.health = core::LaraHealth;
   m_state.collidable = true;
 
-  if(m_state.position.room->isWaterRoom)
+  if(m_state.location.room->isWaterRoom)
   {
     m_underwaterState = UnderwaterState::Diving;
     setAnimation(AnimationId::UNDERWATER_IDLE, 1736_frame);

@@ -381,11 +381,10 @@ void Room::createSceneNode(const loader::file::Room& srcRoom,
 
 void patchHeightsForBlock(const engine::objects::Object& object, const core::Length& height)
 {
-  auto room = object.m_state.position.room;
+  auto tmp = object.m_state.location;
   // TODO Ugly const_cast
-  gsl::not_null groundSector = const_cast<Sector*>(findRealFloorSector(object.m_state.position.position, &room).get());
-  const auto topSector = findRealFloorSector(
-    object.m_state.position.position + core::TRVec{0_len, height - core::SectorSize, 0_len}, &room);
+  gsl::not_null groundSector = const_cast<Sector*>(tmp.updateRoom().get());
+  const auto topSector = tmp.delta(0_len, height - core::SectorSize, 0_len).updateRoom();
 
   if(groundSector->floorHeight == -core::HeightLimit)
   {
@@ -404,18 +403,18 @@ void patchHeightsForBlock(const engine::objects::Object& object, const core::Len
     groundSector->box->blocked = (height < 0_len);
 }
 
-std::optional<core::Length> getWaterSurfaceHeight(const RoomBoundPosition& pos)
+std::optional<core::Length> getWaterSurfaceHeight(const RoomBoundPosition& location)
 {
-  auto sector = pos.room->getSectorByAbsolutePosition(pos.position);
+  auto sector = location.room->getSectorByAbsolutePosition(location.position);
 
-  if(pos.room->isWaterRoom)
+  if(location.room->isWaterRoom)
   {
     while(sector->roomAbove != nullptr)
     {
       if(!sector->roomAbove->isWaterRoom)
         return sector->ceilingHeight;
 
-      sector = sector->roomAbove->getSectorByAbsolutePosition(pos.position);
+      sector = sector->roomAbove->getSectorByAbsolutePosition(location.position);
       Expects(sector != nullptr);
     }
 
@@ -428,7 +427,7 @@ std::optional<core::Length> getWaterSurfaceHeight(const RoomBoundPosition& pos)
       if(sector->roomBelow->isWaterRoom)
         return sector->floorHeight;
 
-      sector = sector->roomBelow->getSectorByAbsolutePosition(pos.position);
+      sector = sector->roomBelow->getSectorByAbsolutePosition(location.position);
     }
   }
 
@@ -510,45 +509,5 @@ void Room::collectShaderLights(size_t depth)
   }
 
   lightsBuffer->setData(bufferLights, gl::api::BufferUsage::StaticDraw);
-}
-
-gsl::not_null<const Sector*> findRealFloorSector(const core::TRVec& position,
-                                                 const gsl::not_null<gsl::not_null<const Room*>*>& room)
-{
-  const Sector* sector;
-  while(true)
-  {
-    sector = (*room)->getBoundarySectorByIndex((position.X - (*room)->position.X) / core::SectorSize,
-                                               (position.Z - (*room)->position.Z) / core::SectorSize);
-    if(sector->boundaryRoom == nullptr)
-    {
-      break;
-    }
-
-    *room = sector->boundaryRoom;
-  }
-
-  // go up/down until we are in the room that contains our coordinates
-  Expects(sector != nullptr);
-  if(position.Y >= sector->floorHeight)
-  {
-    while(position.Y >= sector->floorHeight && sector->roomBelow != nullptr)
-    {
-      *room = sector->roomBelow;
-      sector = (*room)->getSectorByAbsolutePosition(position);
-      Expects(sector != nullptr);
-    }
-  }
-  else
-  {
-    while(position.Y < sector->ceilingHeight && sector->roomAbove != nullptr)
-    {
-      *room = sector->roomAbove;
-      sector = (*room)->getSectorByAbsolutePosition(position);
-      Expects(sector != nullptr);
-    }
-  }
-
-  return sector;
 }
 } // namespace engine::world

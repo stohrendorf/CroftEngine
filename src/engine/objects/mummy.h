@@ -8,8 +8,8 @@ namespace engine::objects
 class Mummy final : public ModelObject
 {
 public:
-  Mummy(const gsl::not_null<world::World*>& world, const RoomBoundPosition& position)
-      : ModelObject{world, position}
+  Mummy(const gsl::not_null<world::World*>& world, const RoomBoundPosition& location)
+      : ModelObject{world, location}
   {
   }
 

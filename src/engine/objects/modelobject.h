@@ -12,8 +12,8 @@ protected:
   Lighting m_lighting;
 
 public:
-  ModelObject(const gsl::not_null<world::World*>& world, const RoomBoundPosition& position)
-      : Object{world, position}
+  ModelObject(const gsl::not_null<world::World*>& world, const RoomBoundPosition& location)
+      : Object{world, location}
   {
   }
 
@@ -85,7 +85,7 @@ public:
     emitParticle(const core::TRVec& localPosition,
                  size_t boneIndex,
                  gsl::not_null<std::shared_ptr<Particle>> (*generate)(world::World& world,
-                                                                      const RoomBoundPosition& pos,
+                                                                      const RoomBoundPosition& location,
                                                                       const core::Speed& speed,
                                                                       const core::Angle& angle));
 
@@ -99,8 +99,8 @@ public:
 class NullRenderModelObject : public ModelObject
 {
 public:
-  NullRenderModelObject(const gsl::not_null<world::World*>& world, const RoomBoundPosition& position)
-      : ModelObject{world, position}
+  NullRenderModelObject(const gsl::not_null<world::World*>& world, const RoomBoundPosition& location)
+      : ModelObject{world, location}
   {
   }
 

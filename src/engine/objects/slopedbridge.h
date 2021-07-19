@@ -10,8 +10,8 @@ private:
   int m_flatness;
 
 public:
-  SlopedBridge(const gsl::not_null<world::World*>& world, const RoomBoundPosition& position)
-      : ModelObject{world, position}
+  SlopedBridge(const gsl::not_null<world::World*>& world, const RoomBoundPosition& location)
+      : ModelObject{world, location}
       , m_flatness{0}
   {
   }
@@ -28,14 +28,14 @@ public:
 
   void patchFloor(const core::TRVec& pos, core::Length& y) final
   {
-    const auto tmp = m_state.position.position.Y + getBridgeSlopeHeight(pos) / m_flatness;
+    const auto tmp = m_state.location.position.Y + getBridgeSlopeHeight(pos) / m_flatness;
     if(pos.Y <= tmp)
       y = tmp;
   }
 
   void patchCeiling(const core::TRVec& pos, core::Length& y) final
   {
-    const auto tmp = m_state.position.position.Y + getBridgeSlopeHeight(pos) / m_flatness;
+    const auto tmp = m_state.location.position.Y + getBridgeSlopeHeight(pos) / m_flatness;
     if(pos.Y <= tmp)
       return;
 
@@ -64,8 +64,8 @@ private:
 class BridgeSlope1 final : public SlopedBridge
 {
 public:
-  BridgeSlope1(const gsl::not_null<world::World*>& world, const RoomBoundPosition& position)
-      : SlopedBridge{world, position}
+  BridgeSlope1(const gsl::not_null<world::World*>& world, const RoomBoundPosition& location)
+      : SlopedBridge{world, location}
   {
   }
 
@@ -81,8 +81,8 @@ public:
 class BridgeSlope2 final : public SlopedBridge
 {
 public:
-  BridgeSlope2(const gsl::not_null<world::World*>& world, const RoomBoundPosition& position)
-      : SlopedBridge{world, position}
+  BridgeSlope2(const gsl::not_null<world::World*>& world, const RoomBoundPosition& location)
+      : SlopedBridge{world, location}
   {
   }
 

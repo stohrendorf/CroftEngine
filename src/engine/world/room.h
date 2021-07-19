@@ -154,20 +154,7 @@ struct Room
   void collectShaderLights(size_t depth);
 };
 
-extern gsl::not_null<const Sector*> findRealFloorSector(const core::TRVec& position,
-                                                        const gsl::not_null<gsl::not_null<const Room*>*>& room);
-
-inline gsl::not_null<const Sector*> findRealFloorSector(const core::TRVec& position, gsl::not_null<const Room*> room)
-{
-  return findRealFloorSector(position, &room);
-}
-
-inline gsl::not_null<const Sector*> findRealFloorSector(RoomBoundPosition& rbs)
-{
-  return findRealFloorSector(rbs.position, &rbs.room);
-}
-
 extern void patchHeightsForBlock(const engine::objects::Object& object, const core::Length& height);
 
-[[nodiscard]] extern std::optional<core::Length> getWaterSurfaceHeight(const RoomBoundPosition& pos);
+[[nodiscard]] extern std::optional<core::Length> getWaterSurfaceHeight(const RoomBoundPosition& location);
 } // namespace engine::world

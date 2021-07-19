@@ -8,8 +8,8 @@ namespace engine::objects
 class CentaurStatue final : public ModelObject
 {
 public:
-  CentaurStatue(const gsl::not_null<world::World*>& world, const RoomBoundPosition& position)
-      : ModelObject{world, position}
+  CentaurStatue(const gsl::not_null<world::World*>& world, const RoomBoundPosition& location)
+      : ModelObject{world, location}
   {
   }
 

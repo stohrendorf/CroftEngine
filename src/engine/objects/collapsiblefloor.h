@@ -7,8 +7,8 @@ namespace engine::objects
 class CollapsibleFloor final : public ModelObject
 {
 public:
-  CollapsibleFloor(const gsl::not_null<world::World*>& world, const RoomBoundPosition& position)
-      : ModelObject{world, position}
+  CollapsibleFloor(const gsl::not_null<world::World*>& world, const RoomBoundPosition& location)
+      : ModelObject{world, location}
   {
   }
 
@@ -24,24 +24,24 @@ public:
 
   void patchFloor(const core::TRVec& pos, core::Length& y) override
   {
-    if(pos.Y > m_state.position.position.Y - 512_len)
+    if(pos.Y > m_state.location.position.Y - 512_len)
       return;
 
     if(m_state.current_anim_state != 0_as && m_state.current_anim_state != 1_as)
       return;
 
-    y = m_state.position.position.Y - 512_len;
+    y = m_state.location.position.Y - 512_len;
   }
 
   void patchCeiling(const core::TRVec& pos, core::Length& y) override
   {
-    if(pos.Y <= m_state.position.position.Y - 512_len)
+    if(pos.Y <= m_state.location.position.Y - 512_len)
       return;
 
     if(m_state.current_anim_state != 0_as && m_state.current_anim_state != 1_as)
       return;
 
-    y = m_state.position.position.Y - 256_len;
+    y = m_state.location.position.Y - 256_len;
   }
 };
 } // namespace engine::objects

@@ -51,7 +51,7 @@ std::pair<RunResult, std::optional<size_t>> Cutscene::run(Engine& engine, const 
                                      player);
 
   world->getCameraController().setEyeRotation(0_deg, m_cameraRot);
-  auto pos = world->getCameraController().getTRPosition().position;
+  auto pos = world->getCameraController().getTRLocation().position;
   if(m_cameraPosX.has_value())
     pos.X = m_cameraPosX.value();
   if(m_cameraPosZ.has_value())

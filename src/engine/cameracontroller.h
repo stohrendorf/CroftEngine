@@ -57,7 +57,7 @@ private:
   const gsl::not_null<world::World*> m_world;
 
   //! @brief Global camera position.
-  RoomBoundPosition m_position;
+  RoomBoundPosition m_location;
   //! @brief The point the camera moves around.
   RoomBoundPosition m_lookAt;
   CameraMode m_mode = CameraMode::Chase;
@@ -169,22 +169,22 @@ public:
 
   const auto& getCurrentRoom() const
   {
-    return m_position.room;
+    return m_location.room;
   }
 
   void setPosition(const core::TRVec& p)
   {
-    m_position.position = p;
+    m_location.position = p;
   }
 
-  const RoomBoundPosition& getTRPosition() const
+  const RoomBoundPosition& getTRLocation() const
   {
-    return m_position;
+    return m_location;
   }
 
-  void setPosition(const RoomBoundPosition& p)
+  void setLocation(const RoomBoundPosition& location)
   {
-    m_position = p;
+    m_location = location;
   }
 
   void setBounce(const core::Length& bounce)

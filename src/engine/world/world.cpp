@@ -127,7 +127,7 @@ bool evaluateCondition(floordata::SequenceCondition condition,
   case floordata::SequenceCondition::LaraIsHere: return true;
   case floordata::SequenceCondition::LaraOnGround:
   case floordata::SequenceCondition::LaraOnGroundInverted:
-    return objectManager.getLara().m_state.position.position.Y == objectManager.getLara().m_state.floor;
+    return objectManager.getLara().m_state.location.position.Y == objectManager.getLara().m_state.floor;
   case floordata::SequenceCondition::ItemActivated:
   {
     auto swtch = objectManager.getObject(floordata::Command{*floorData++}.parameter);
@@ -236,7 +236,7 @@ void World::useAlternativeLaraAppearance(const bool withHead)
 
 void World::dinoStompEffect(objects::Object& object)
 {
-  const auto d = object.m_state.position.position.toRenderSystem() - m_cameraController->getPosition();
+  const auto d = object.m_state.location.position.toRenderSystem() - m_cameraController->getPosition();
   const auto absD = glm::abs(d);
 
   static constexpr auto MaxD = 16 * core::SectorSize.get<float>();
@@ -277,8 +277,8 @@ void World::laraBubblesEffect(objects::Object& object)
 
   while(bubbleCount-- > 0)
   {
-    auto particle = std::make_shared<BubbleParticle>(RoomBoundPosition{object.m_state.position.room, position}, *this);
-    setParent(particle, object.m_state.position.room->node);
+    auto particle = std::make_shared<BubbleParticle>(RoomBoundPosition{object.m_state.location.room, position}, *this);
+    setParent(particle, object.m_state.location.room->node);
     m_objectManager.registerParticle(particle);
   }
 }
@@ -317,7 +317,7 @@ void World::floodEffect()
 {
   if(m_effectTimer <= 120_frame)
   {
-    auto pos = m_objectManager.getLara().m_state.position.position;
+    auto pos = m_objectManager.getLara().m_state.location.position;
     core::Frame mul = 0_frame;
     if(m_effectTimer >= 30_frame)
     {
@@ -442,7 +442,7 @@ void World::swapWithAlternate(Room& orig, Room& alternate)
 
   for(const auto& object : m_objectManager.getObjects() | boost::adaptors::map_values)
   {
-    if(object->m_state.position.room != &orig)
+    if(object->m_state.location.room != &orig)
       continue;
 
     if(const auto tmp = std::dynamic_pointer_cast<objects::Block>(object.get()))
@@ -464,12 +464,12 @@ void World::swapWithAlternate(Room& orig, Room& alternate)
   // except for the heights.
   for(const auto& object : m_objectManager.getObjects() | boost::adaptors::map_values)
   {
-    if(object->m_state.position.room == &orig)
+    if(object->m_state.location.room == &orig)
     {
       // although this seems contradictory, remember the nodes have been swapped above
       setParent(object->getNode(), orig.node);
     }
-    else if(object->m_state.position.room == &alternate)
+    else if(object->m_state.location.room == &alternate)
     {
       setParent(object->getNode(), alternate.node);
       continue;
@@ -491,11 +491,11 @@ void World::swapWithAlternate(Room& orig, Room& alternate)
 
   for(const auto& object : m_objectManager.getDynamicObjects())
   {
-    if(object->m_state.position.room == &orig)
+    if(object->m_state.location.room == &orig)
     {
       setParent(object->getNode(), orig.node);
     }
-    else if(object->m_state.position.room == &alternate)
+    else if(object->m_state.location.room == &alternate)
     {
       setParent(object->getNode(), alternate.node);
     }
@@ -660,7 +660,7 @@ void World::handleCommandSequence(const floordata::FloorDataValue* floorData, co
   {
     if(!fromHeavy)
     {
-      if(m_objectManager.getLara().m_state.position.position.Y == m_objectManager.getLara().m_state.floor)
+      if(m_objectManager.getLara().m_state.location.position.Y == m_objectManager.getLara().m_state.floor)
       {
         m_objectManager.getLara().burnIfAlive();
       }

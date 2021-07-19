@@ -7,8 +7,8 @@ namespace engine::objects
 class BridgeFlat final : public ModelObject
 {
 public:
-  BridgeFlat(const gsl::not_null<world::World*>& world, const RoomBoundPosition& position)
-      : ModelObject{world, position}
+  BridgeFlat(const gsl::not_null<world::World*>& world, const RoomBoundPosition& location)
+      : ModelObject{world, location}
   {
   }
 
@@ -22,16 +22,16 @@ public:
 
   void patchFloor(const core::TRVec& pos, core::Length& y) override
   {
-    if(pos.Y <= m_state.position.position.Y)
-      y = m_state.position.position.Y;
+    if(pos.Y <= m_state.location.position.Y)
+      y = m_state.location.position.Y;
   }
 
   void patchCeiling(const core::TRVec& pos, core::Length& y) override
   {
-    if(pos.Y <= m_state.position.position.Y)
+    if(pos.Y <= m_state.location.position.Y)
       return;
 
-    y = m_state.position.position.Y + core::QuarterSectorSize;
+    y = m_state.location.position.Y + core::QuarterSectorSize;
   }
 };
 } // namespace engine::objects

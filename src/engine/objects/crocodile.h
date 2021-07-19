@@ -8,8 +8,8 @@ namespace engine::objects
 class Crocodile final : public AIAgent
 {
 public:
-  Crocodile(const gsl::not_null<world::World*>& world, const RoomBoundPosition& position)
-      : AIAgent{world, position}
+  Crocodile(const gsl::not_null<world::World*>& world, const RoomBoundPosition& location)
+      : AIAgent{world, location}
   {
   }
 

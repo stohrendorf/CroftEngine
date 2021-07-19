@@ -18,8 +18,8 @@ core::Angle AIAgent::rotateTowardsTarget(core::RotationSpeed maxRotationSpeed)
     return 0_au;
   }
 
-  const auto dx = m_state.creatureInfo->target.X - m_state.position.position.X;
-  const auto dz = m_state.creatureInfo->target.Z - m_state.position.position.Z;
+  const auto dx = m_state.creatureInfo->target.X - m_state.location.position.X;
+  const auto dz = m_state.creatureInfo->target.Z - m_state.location.position.Z;
   auto turnAngle = angleFromAtan(dx, dz) - m_state.rotation.Y;
   if(turnAngle < -90_deg || turnAngle > 90_deg)
   {
@@ -42,7 +42,7 @@ bool AIAgent::isPositionOutOfReach(const core::TRVec& testPosition,
                                    const core::Length& nextBoxFloor,
                                    const ai::PathFinder& pathFinder) const
 {
-  const auto sectorBox = findRealFloorSector(testPosition, m_state.position.room)->box;
+  const auto sectorBox = RoomBoundPosition{m_state.location.room, testPosition}.updateRoom()->box;
   if(sectorBox == nullptr)
     return true;
 
@@ -71,7 +71,7 @@ bool AIAgent::anyMovingEnabledObjectInReach() const
       continue;
 
     if(object->m_state.triggerState == TriggerState::Active && object->m_state.speed != 0_spd
-       && object->m_state.position.position.distanceTo(m_state.position.position) < m_collisionRadius)
+       && object->m_state.location.position.distanceTo(m_state.location.position) < m_collisionRadius)
     {
       return true;
     }
@@ -93,7 +93,7 @@ bool AIAgent::animateCreature(const core::Angle& angle, const core::Angle& tilt)
 
   const auto& pathFinder = m_state.creatureInfo->pathFinder;
 
-  const auto oldPosition = m_state.position;
+  const auto oldLocation = m_state.location;
 
   const auto boxFloor = m_state.getCurrentBox()->floor;
   const auto zoneRef = world::Box::getZoneRef(
@@ -109,10 +109,10 @@ bool AIAgent::animateCreature(const core::Angle& angle, const core::Angle& tilt)
   }
 
   const auto bbox = getSkeleton()->getBoundingBox();
-  const auto bboxMinY = m_state.position.position.Y + bbox.minY;
+  const auto bboxMinY = m_state.location.position.Y + bbox.minY;
 
-  auto room = m_state.position.room;
-  auto sector = findRealFloorSector(m_state.position.position + core::TRVec{0_len, bbox.minY, 0_len}, &room);
+  auto edgeLocation = m_state.location;
+  auto sector = edgeLocation.delta(0_len, bbox.minY, 0_len).updateRoom();
 
   if(sector->box == nullptr || boxFloor - sector->box->floor > pathFinder.step
      || boxFloor - sector->box->floor < pathFinder.drop
@@ -121,22 +121,21 @@ bool AIAgent::animateCreature(const core::Angle& angle, const core::Angle& tilt)
     static const auto shoveMin = [](const core::Length& l) { return l / core::SectorSize * core::SectorSize; };
     static const auto shoveMax = [](const core::Length& l) { return shoveMin(l) + core::SectorSize - 1_len; };
 
-    const auto oldSectorX = oldPosition.position.X / core::SectorSize;
-    const auto newSectorX = m_state.position.position.X / core::SectorSize;
+    const auto oldSectorX = oldLocation.position.X / core::SectorSize;
+    const auto newSectorX = m_state.location.position.X / core::SectorSize;
     if(newSectorX < oldSectorX)
-      m_state.position.position.X = shoveMin(oldPosition.position.X);
+      m_state.location.position.X = shoveMin(oldLocation.position.X);
     else if(newSectorX > oldSectorX)
-      m_state.position.position.X = shoveMax(oldPosition.position.X);
+      m_state.location.position.X = shoveMax(oldLocation.position.X);
 
-    const auto oldSectorZ = oldPosition.position.Z / core::SectorSize;
-    const auto newSectorZ = m_state.position.position.Z / core::SectorSize;
+    const auto oldSectorZ = oldLocation.position.Z / core::SectorSize;
+    const auto newSectorZ = m_state.location.position.Z / core::SectorSize;
     if(newSectorZ < oldSectorZ)
-      m_state.position.position.Z = shoveMin(oldPosition.position.Z);
+      m_state.location.position.Z = shoveMin(oldLocation.position.Z);
     else if(newSectorZ > oldSectorZ)
-      m_state.position.position.Z = shoveMax(oldPosition.position.Z);
+      m_state.location.position.Z = shoveMax(oldLocation.position.Z);
 
-    room = oldPosition.room;
-    sector = findRealFloorSector(m_state.position.position + core::TRVec{0_len, bbox.minY, 0_len}, &room);
+    sector = edgeLocation.delta(0_len, bbox.minY, 0_len).updateRoom();
   }
 
   Expects(sector->box != nullptr);
@@ -151,8 +150,8 @@ bool AIAgent::animateCreature(const core::Angle& angle, const core::Angle& tilt)
     nextFloor = sector->box->floor;
   }
 
-  const auto basePosX = m_state.position.position.X;
-  const auto basePosZ = m_state.position.position.Z;
+  const auto basePosX = m_state.location.position.X;
+  const auto basePosZ = m_state.location.position.Z;
 
   const auto inSectorX = basePosX % core::SectorSize;
   const auto inSectorZ = basePosZ % core::SectorSize;
@@ -282,8 +281,9 @@ bool AIAgent::animateCreature(const core::Angle& angle, const core::Angle& tilt)
 
   if(moveX != 0_len || moveZ != 0_len)
   {
-    sector
-      = findRealFloorSector(core::TRVec{m_state.position.position.X, bboxMinY, m_state.position.position.Z}, &room);
+    auto bboxMinYLocation = m_state.location;
+    bboxMinYLocation.position.Y = bboxMinY;
+    sector = bboxMinYLocation.updateRoom();
 
     m_state.rotation.Y += angle;
     m_state.rotation.Z += std::clamp(8 * tilt - m_state.rotation.Z, -3_deg, +3_deg);
@@ -291,35 +291,35 @@ bool AIAgent::animateCreature(const core::Angle& angle, const core::Angle& tilt)
 
   if(anyMovingEnabledObjectInReach())
   {
-    m_state.position = oldPosition;
+    m_state.location = oldLocation;
     return true;
   }
 
   if(pathFinder.isFlying())
   {
     auto moveY
-      = std::clamp(m_state.creatureInfo->target.Y - m_state.position.position.Y, -pathFinder.fly, pathFinder.fly);
+      = std::clamp(m_state.creatureInfo->target.Y - m_state.location.position.Y, -pathFinder.fly, pathFinder.fly);
 
     const auto currentFloor
       = HeightInfo::fromFloor(sector,
-                              core::TRVec{m_state.position.position.X, bboxMinY, m_state.position.position.Z},
+                              core::TRVec{m_state.location.position.X, bboxMinY, m_state.location.position.Z},
                               getWorld().getObjectManager().getObjects())
           .y;
 
-    if(m_state.position.position.Y + moveY > currentFloor)
+    if(m_state.location.position.Y + moveY > currentFloor)
     {
       // fly target is below floor
 
-      if(m_state.position.position.Y > currentFloor)
+      if(m_state.location.position.Y > currentFloor)
       {
         // we're already below the floor, so fix it
-        m_state.position.position.X = oldPosition.position.X;
-        m_state.position.position.Z = oldPosition.position.Z;
+        m_state.location.position.X = oldLocation.position.X;
+        m_state.location.position.Z = oldLocation.position.Z;
         moveY = -pathFinder.fly;
       }
       else
       {
-        m_state.position.position.Y = currentFloor;
+        m_state.location.position.Y = currentFloor;
         moveY = 0_len;
       }
     }
@@ -327,18 +327,18 @@ bool AIAgent::animateCreature(const core::Angle& angle, const core::Angle& tilt)
     {
       const auto ceiling
         = HeightInfo::fromCeiling(sector,
-                                  core::TRVec{m_state.position.position.X, bboxMinY, m_state.position.position.Z},
+                                  core::TRVec{m_state.location.position.X, bboxMinY, m_state.location.position.Z},
                                   getWorld().getObjectManager().getObjects())
             .y;
 
       const auto y = m_state.type == TR1ItemId::CrocodileInWater ? 0_len : bbox.minY;
 
-      if(m_state.position.position.Y + y + moveY < ceiling)
+      if(m_state.location.position.Y + y + moveY < ceiling)
       {
-        if(m_state.position.position.Y + y < ceiling)
+        if(m_state.location.position.Y + y < ceiling)
         {
-          m_state.position.position.X = oldPosition.position.X;
-          m_state.position.position.Z = oldPosition.position.Z;
+          m_state.location.position.X = oldLocation.position.X;
+          m_state.location.position.Z = oldLocation.position.Z;
           moveY = pathFinder.fly;
         }
         else
@@ -346,12 +346,13 @@ bool AIAgent::animateCreature(const core::Angle& angle, const core::Angle& tilt)
       }
     }
 
-    m_state.position.position.Y += moveY;
-    sector
-      = findRealFloorSector(core::TRVec{m_state.position.position.X, bboxMinY, m_state.position.position.Z}, &room);
+    m_state.location.position.Y += moveY;
+    auto bboxMinYLocation = m_state.location;
+    bboxMinYLocation.position.Y = bboxMinY;
+    sector = bboxMinYLocation.updateRoom();
     m_state.floor
       = HeightInfo::fromFloor(sector,
-                              core::TRVec{m_state.position.position.X, bboxMinY, m_state.position.position.Z},
+                              core::TRVec{m_state.location.position.X, bboxMinY, m_state.location.position.Z},
                               getWorld().getObjectManager().getObjects())
           .y;
 
@@ -366,31 +367,31 @@ bool AIAgent::animateCreature(const core::Angle& angle, const core::Angle& tilt)
     else
       m_state.rotation.X = yaw;
 
-    setCurrentRoom(room);
+    setCurrentRoom(edgeLocation.room);
 
     return true;
   }
 
-  if(m_state.position.position.Y > m_state.floor)
+  if(m_state.location.position.Y > m_state.floor)
   {
-    m_state.position.position.Y = m_state.floor;
+    m_state.location.position.Y = m_state.floor;
   }
-  else if(m_state.floor - m_state.position.position.Y > 64_len)
+  else if(m_state.floor - m_state.location.position.Y > 64_len)
   {
-    m_state.position.position.Y += 64_len;
+    m_state.location.position.Y += 64_len;
   }
-  else if(m_state.position.position.Y < m_state.floor)
+  else if(m_state.location.position.Y < m_state.floor)
   {
-    m_state.position.position.Y = m_state.floor;
+    m_state.location.position.Y = m_state.floor;
   }
 
   m_state.rotation.X = 0_au;
 
-  sector = findRealFloorSector(m_state.position.position, &room);
+  sector = m_state.location.updateRoom();
   m_state.floor
-    = HeightInfo::fromFloor(sector, m_state.position.position, getWorld().getObjectManager().getObjects()).y;
+    = HeightInfo::fromFloor(sector, m_state.location.position, getWorld().getObjectManager().getObjects()).y;
 
-  setCurrentRoom(room);
+  setCurrentRoom(m_state.location.room);
 
   return true;
 }
@@ -430,8 +431,8 @@ bool AIAgent::canShootAtLara(const ai::EnemyLocation& enemyLocation) const
     return false;
   }
 
-  return raycastLineOfSight(m_state.position,
-                            getWorld().getObjectManager().getLara().m_state.position.position
+  return raycastLineOfSight(m_state.location,
+                            getWorld().getObjectManager().getLara().m_state.location.position
                               - core::TRVec{0_len, 768_len, 0_len},
                             getWorld().getObjectManager())
     .first;
@@ -440,12 +441,12 @@ bool AIAgent::canShootAtLara(const ai::EnemyLocation& enemyLocation) const
 namespace
 {
 gsl::not_null<std::shared_ptr<Particle>> createMuzzleFlash(world::World& world,
-                                                           const RoomBoundPosition& pos,
+                                                           const RoomBoundPosition& location,
                                                            const core::Speed& /*speed*/,
                                                            const core::Angle& angle)
 {
-  auto particle = std::make_shared<MuzzleFlashParticle>(pos, world, angle);
-  setParent(particle, pos.room->node);
+  auto particle = std::make_shared<MuzzleFlashParticle>(location, world, angle);
+  setParent(particle, location.room->node);
   return particle;
 }
 } // namespace
@@ -475,11 +476,11 @@ bool AIAgent::tryShootAtLara(ModelObject& object,
 
   if(!isHit)
   {
-    auto pos = getWorld().getObjectManager().getLara().m_state.position;
-    pos.position.X += util::rand15s(core::SectorSize / 2);
-    pos.position.Y = getWorld().getObjectManager().getLara().m_state.floor;
-    pos.position.Z += util::rand15s(core::SectorSize / 2);
-    getWorld().getObjectManager().getLara().emitRicochet(pos);
+    auto location = getWorld().getObjectManager().getLara().m_state.location;
+    location.position.X += util::rand15s(core::SectorSize / 2);
+    location.position.Y = getWorld().getObjectManager().getLara().m_state.floor;
+    location.position.Z += util::rand15s(core::SectorSize / 2);
+    getWorld().getObjectManager().getLara().emitRicochet(location);
   }
 
   auto p = object.emitParticle(bonePos, boneIndex, &createMuzzleFlash);

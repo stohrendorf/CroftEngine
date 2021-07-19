@@ -8,8 +8,8 @@ namespace engine::objects
 class Lion final : public AIAgent
 {
 public:
-  Lion(const gsl::not_null<world::World*>& world, const RoomBoundPosition& position)
-      : AIAgent{world, position}
+  Lion(const gsl::not_null<world::World*>& world, const RoomBoundPosition& location)
+      : AIAgent{world, location}
   {
   }
 

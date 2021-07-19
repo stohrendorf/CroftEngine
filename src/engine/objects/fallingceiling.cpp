@@ -24,10 +24,10 @@ void FallingCeiling::update()
   {
     deactivate();
   }
-  else if(m_state.current_anim_state == 1_as && m_state.position.position.Y >= m_state.floor)
+  else if(m_state.current_anim_state == 1_as && m_state.location.position.Y >= m_state.floor)
   {
     m_state.goal_anim_state = 2_as;
-    m_state.position.position.Y = m_state.floor;
+    m_state.location.position.Y = m_state.floor;
     m_state.fallspeed = 0_spd;
     m_state.falling = false;
   }

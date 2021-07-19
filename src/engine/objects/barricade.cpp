@@ -17,9 +17,8 @@ void Barricade::update()
   }
 
   ModelObject::update();
-  auto room = m_state.position.room;
-  findRealFloorSector(m_state.position.position, &room);
-  setCurrentRoom(room);
+  m_state.location.updateRoom();
+  setCurrentRoom(m_state.location.room);
 }
 
 void Barricade::collide(CollisionInfo& collisionInfo)

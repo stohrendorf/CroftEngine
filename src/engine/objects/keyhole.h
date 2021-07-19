@@ -7,8 +7,8 @@ namespace engine::objects
 class KeyHole final : public ModelObject
 {
 public:
-  KeyHole(const gsl::not_null<world::World*>& world, const RoomBoundPosition& position)
-      : ModelObject{world, position}
+  KeyHole(const gsl::not_null<world::World*>& world, const RoomBoundPosition& location)
+      : ModelObject{world, location}
   {
   }
 

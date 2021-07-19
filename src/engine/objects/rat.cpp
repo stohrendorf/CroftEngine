@@ -55,22 +55,22 @@ void Rat::update()
 
         loadObjectInfo(true);
       }
-      const auto prevY = std::exchange(m_state.position.position.Y, m_state.floor);
+      const auto prevY = std::exchange(m_state.location.position.Y, m_state.floor);
       animateCreature(turn, 0_deg);
       if(prevY != -core::HeightLimit)
       {
         const auto w = *waterHeight;
         if(w < prevY - 32_len)
         {
-          m_state.position.position.Y = prevY - 32_len;
+          m_state.location.position.Y = prevY - 32_len;
         }
         else if(w > prevY + 32_len)
         {
-          m_state.position.position.Y = prevY + 32_len;
+          m_state.location.position.Y = prevY + 32_len;
         }
         else
         {
-          m_state.position.position.Y = w;
+          m_state.location.position.Y = w;
         }
       }
       applyTransform();
@@ -97,7 +97,7 @@ void Rat::update()
         getSkeleton()->setAnim(&getWorld().findAnimatedModelForType(TR1ItemId::RatOnLand)->animations[8]);
         goal(5_as);
         m_state.current_anim_state = m_state.goal_anim_state;
-        m_state.position.position.Y = m_state.floor;
+        m_state.location.position.Y = m_state.floor;
         applyTransform();
 
         loadObjectInfo(true);
@@ -172,7 +172,7 @@ void Rat::update()
       getSkeleton()->setAnim(&getWorld().findAnimatedModelForType(TR1ItemId::RatInWater)->animations[0]);
       goal(getSkeleton()->getAnim()->state_id);
       m_state.current_anim_state = getSkeleton()->getAnim()->state_id;
-      m_state.position.position.Y = waterHeight.value();
+      m_state.location.position.Y = waterHeight.value();
       applyTransform();
 
       loadObjectInfo(true);

@@ -29,20 +29,21 @@ void Doppelganger::update()
 
   if(!m_flag)
   {
-    const auto twinPos = core::TRVec{72 * core::SectorSize - lara.m_state.position.position.X,
-                                     lara.m_state.position.position.Y,
-                                     120 * core::SectorSize - lara.m_state.position.position.Z};
-
-    const auto sector = findRealFloorSector(twinPos, &m_state.position.room);
-    setParent(getNode(), m_state.position.room->node);
-    m_state.floor = HeightInfo::fromCeiling(sector, twinPos, getWorld().getObjectManager().getObjects()).y;
-
-    const auto laraSector = findRealFloorSector(lara.m_state.position.position, lara.m_state.position.room);
-    const auto laraHeight
-      = HeightInfo::fromFloor(laraSector, lara.m_state.position.position, getWorld().getObjectManager().getObjects()).y;
-    getSkeleton()->setAnim(lara.getSkeleton()->getAnim(), lara.getSkeleton()->getFrame());
-    m_state.position.position = twinPos;
+    m_state.location = lara.m_state.location;
+    m_state.location.position = core::TRVec{72 * core::SectorSize - m_state.location.position.X,
+                                            m_state.location.position.Y,
+                                            120 * core::SectorSize - m_state.location.position.Z};
     m_state.rotation = lara.m_state.rotation - core::TRRotation{0_deg, 180_deg, 0_deg};
+
+    const auto sector = m_state.location.updateRoom();
+    setParent(getNode(), m_state.location.room->node);
+    m_state.floor
+      = HeightInfo::fromCeiling(sector, m_state.location.position, getWorld().getObjectManager().getObjects()).y;
+
+    const auto laraSector = lara.m_state.location.delta(0_len, 0_len, 0_len).updateRoom();
+    const auto laraHeight
+      = HeightInfo::fromFloor(laraSector, lara.m_state.location.position, getWorld().getObjectManager().getObjects()).y;
+    getSkeleton()->setAnim(lara.getSkeleton()->getAnim(), lara.getSkeleton()->getFrame());
 
     if(laraHeight + core::SectorSize <= m_state.floor && !lara.m_state.falling)
     {
@@ -55,28 +56,28 @@ void Doppelganger::update()
       m_state.fallspeed = 0_spd;
       m_state.speed = 0_spd;
       m_state.falling = true;
-      m_state.position.position.Y += 50_len;
+      m_state.location.position.Y += 50_len;
     }
   }
 
   if(m_flag)
   {
     ModelObject::update();
-    const auto oldPos = m_state.position.position;
-    const auto sector = findRealFloorSector(m_state.position.position, m_state.position.room);
+    auto oldLocation = m_state.location;
+    const auto sector = m_state.location.delta(0_len, 0_len, 0_len).updateRoom();
     const auto hi
-      = HeightInfo::fromFloor(sector, m_state.position.position, getWorld().getObjectManager().getObjects());
+      = HeightInfo::fromFloor(sector, m_state.location.position, getWorld().getObjectManager().getObjects());
     const auto height = hi.y;
     m_state.floor = height;
     getWorld().handleCommandSequence(hi.lastCommandSequenceOrDeath, true);
-    if(m_state.floor > m_state.position.position.Y)
+    if(m_state.floor > m_state.location.position.Y)
       return;
 
-    m_state.position.position.Y = m_state.floor;
+    m_state.location.position.Y = m_state.floor;
     m_state.floor = hi.y;
-    const auto sector2 = findRealFloorSector({oldPos.X, hi.y, oldPos.Z}, m_state.position.room);
-    const auto hi2
-      = HeightInfo::fromFloor(sector2, {oldPos.X, hi.y, oldPos.Z}, getWorld().getObjectManager().getObjects());
+    oldLocation.position.Y = hi.y;
+    const auto sector2 = oldLocation.delta(0_len, 0_len, 0_len).updateRoom();
+    const auto hi2 = HeightInfo::fromFloor(sector2, oldLocation.position, getWorld().getObjectManager().getObjects());
     getWorld().handleCommandSequence(hi2.lastCommandSequenceOrDeath, true);
     m_state.fallspeed = 0_spd;
     m_state.goal_anim_state = 8;

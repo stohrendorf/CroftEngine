@@ -20,7 +20,7 @@ private:
   void createModel();
 
 protected:
-  SpriteObject(const gsl::not_null<world::World*>& world, const RoomBoundPosition& position, std::string name);
+  SpriteObject(const gsl::not_null<world::World*>& world, const RoomBoundPosition& location, std::string name);
 
 public:
   SpriteObject(const gsl::not_null<world::World*>& world,

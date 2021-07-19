@@ -153,7 +153,7 @@ void LightningBall::update()
   if(getWorld().getObjectManager().getLara().isNear(*this, radius))
   {
     // target at lara
-    m_mainBoltEnd = getWorld().getObjectManager().getLara().m_state.position.position - m_state.position.position;
+    m_mainBoltEnd = getWorld().getObjectManager().getLara().m_state.location.position - m_state.location.position;
     m_mainBoltEnd
       = core::TRVec{glm::vec3((-m_state.rotation).toMatrix() * glm::vec4(m_mainBoltEnd.toRenderSystem(), 1.0f))};
 
@@ -166,10 +166,10 @@ void LightningBall::update()
   {
     // we don't have poles, so just shoot downwards
     m_mainBoltEnd = core::TRVec{};
-    const auto sector = world::findRealFloorSector(m_state.position);
+    const auto sector = m_state.location.updateRoom();
     m_mainBoltEnd.Y
-      = -HeightInfo::fromFloor(sector, m_state.position.position, getWorld().getObjectManager().getObjects()).y;
-    m_mainBoltEnd.Y -= m_state.position.position.Y;
+      = -HeightInfo::fromFloor(sector, m_state.location.position, getWorld().getObjectManager().getObjects()).y;
+    m_mainBoltEnd.Y -= m_state.location.position.Y;
   }
   else
   {
@@ -177,7 +177,7 @@ void LightningBall::update()
     const auto objectSpheres = getSkeleton()->getBoneCollisionSpheres(
       m_state, *getSkeleton()->getInterpolationInfo().getNearestFrame(), nullptr);
     m_mainBoltEnd = core::TRVec{objectSpheres[util::rand15(objectSpheres.size() - 1) + 1].getPosition()}
-                    - m_state.position.position;
+                    - m_state.location.position;
     m_mainBoltEnd
       = core::TRVec{glm::vec3((-m_state.rotation).toMatrix() * glm::vec4(m_mainBoltEnd.toRenderSystem(), 1.0f))};
   }

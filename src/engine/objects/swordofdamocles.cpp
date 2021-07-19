@@ -21,22 +21,22 @@ void SwordOfDamocles::update()
     {
       m_state.fallspeed += core::Gravity * 1_frame;
     }
-    m_state.position.position.Y += m_state.fallspeed * 1_frame;
-    m_state.position.position.X += m_dropSpeedX * 1_frame;
-    m_state.position.position.Z += m_dropSpeedZ * 1_frame;
-    if(m_state.position.position.Y > m_state.floor)
+    m_state.location.position.Y += m_state.fallspeed * 1_frame;
+    m_state.location.position.X += m_dropSpeedX * 1_frame;
+    m_state.location.position.Z += m_dropSpeedZ * 1_frame;
+    if(m_state.location.position.Y > m_state.floor)
     {
       playSoundEffect(TR1SoundEffect::Clatter);
-      m_state.position.position.Y = m_state.floor + 10_len;
+      m_state.location.position.Y = m_state.floor + 10_len;
       m_state.triggerState = TriggerState::Deactivated;
       deactivate();
       m_state.falling = false;
     }
   }
-  else if(m_state.position.position.Y != m_state.floor)
+  else if(m_state.location.position.Y != m_state.floor)
   {
     m_state.rotation.Y += m_rotateSpeed * 1_frame;
-    const auto d = getWorld().getObjectManager().getLara().m_state.position.position - m_state.position.position;
+    const auto d = getWorld().getObjectManager().getLara().m_state.location.position - m_state.location.position;
     if(abs(d.X) <= 1536_len && abs(d.Z) <= 1536_len && d.Y > 0_len && d.Y < 3 * core::SectorSize)
     {
       m_dropSpeedX = d.X / 32_frame;
@@ -60,10 +60,10 @@ void SwordOfDamocles::collide(CollisionInfo& collisionInfo)
     return;
 
   getWorld().getObjectManager().getLara().m_state.health -= 100_hp;
-  const auto tmp = getWorld().getObjectManager().getLara().m_state.position.position
+  const auto tmp = getWorld().getObjectManager().getLara().m_state.location.position
                    + core::TRVec{util::rand15s(128_len), -util::rand15(745_len), util::rand15s(128_len)};
   auto fx = createBloodSplat(getWorld(),
-                             RoomBoundPosition{m_state.position.room, tmp},
+                             RoomBoundPosition{m_state.location.room, tmp},
                              getWorld().getObjectManager().getLara().m_state.speed,
                              util::rand15s(22.5_deg) + m_state.rotation.Y);
   getWorld().getObjectManager().registerParticle(fx);

@@ -40,9 +40,9 @@ public:
     setAir(-1_frame);
     setHandStatus(objects::HandStatus::Grabbing);
     auto h = getLara().getWaterSurfaceHeight();
-    if(h.has_value() && *h < getLara().m_state.position.position.Y - core::DefaultCollisionRadius)
+    if(h.has_value() && *h < getLara().m_state.location.position.Y - core::DefaultCollisionRadius)
     {
-      getLara().m_state.position.position.Y -= 5_len;
+      getLara().m_state.location.position.Y -= 5_len;
     }
 
     StateHandler_Underwater::postprocessFrame(collisionInfo);

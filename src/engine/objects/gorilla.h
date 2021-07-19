@@ -8,8 +8,8 @@ namespace engine::objects
 class Gorilla final : public AIAgent
 {
 public:
-  Gorilla(const gsl::not_null<world::World*>& world, const RoomBoundPosition& position)
-      : AIAgent{world, position}
+  Gorilla(const gsl::not_null<world::World*>& world, const RoomBoundPosition& location)
+      : AIAgent{world, location}
   {
   }
 

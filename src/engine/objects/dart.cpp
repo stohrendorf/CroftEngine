@@ -28,30 +28,27 @@ void Dart::update()
     getWorld().getObjectManager().getLara().m_state.health -= 50_hp;
     getWorld().getObjectManager().getLara().m_state.is_hit = true;
 
-    auto fx = createBloodSplat(getWorld(), m_state.position, m_state.speed, m_state.rotation.Y);
+    auto fx = createBloodSplat(getWorld(), m_state.location, m_state.speed, m_state.rotation.Y);
     getWorld().getObjectManager().registerParticle(fx);
   }
 
-  const auto oldPos = m_state.position;
+  const auto oldLocation = m_state.location;
 
   ModelObject::update();
-
-  auto room = m_state.position.room;
-  const auto sector = findRealFloorSector(m_state.position.position, &room);
-  if(room != m_state.position.room)
-    setCurrentRoom(room);
+  const auto sector = m_state.location.updateRoom();
+  setCurrentRoom(m_state.location.room);
 
   const HeightInfo h
-    = HeightInfo::fromFloor(sector, m_state.position.position, getWorld().getObjectManager().getObjects());
+    = HeightInfo::fromFloor(sector, m_state.location.position, getWorld().getObjectManager().getObjects());
   m_state.floor = h.y;
 
-  if(m_state.position.position.Y < m_state.floor)
+  if(m_state.location.position.Y < m_state.floor)
     return;
 
   kill();
 
   const auto [success, ricochetPos]
-    = raycastLineOfSight(oldPos, m_state.position.position, getWorld().getObjectManager());
+    = raycastLineOfSight(oldLocation, m_state.location.position, getWorld().getObjectManager());
 
   auto particle = std::make_shared<RicochetParticle>(ricochetPos, getWorld());
   setParent(particle, ricochetPos.room->node);

@@ -74,7 +74,7 @@ public:
     collisionInfo.badNegativeDistance = -core::ClimbLimit2ClickMin;
     collisionInfo.badCeilingDistance = 0_len;
     collisionInfo.policies.set(CollisionInfo::PolicyFlags::SlopesAreWalls);
-    collisionInfo.initHeightInfo(getLara().m_state.position.position, getWorld(), core::LaraWalkHeight);
+    collisionInfo.initHeightInfo(getLara().m_state.location.position, getWorld(), core::LaraWalkHeight);
 
     if(stopIfCeilingBlocked(collisionInfo))
     {
@@ -134,7 +134,7 @@ public:
 
     if(!tryStartSlide(collisionInfo))
     {
-      getLara().m_state.position.position.Y += std::min(collisionInfo.mid.floorSpace.y, 50_len);
+      getLara().m_state.location.position.Y += std::min(collisionInfo.mid.floorSpace.y, 50_len);
     }
   }
 };

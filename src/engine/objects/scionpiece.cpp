@@ -40,7 +40,7 @@ void ScionPiece::collide(CollisionInfo& /*collisionInfo*/)
       getWorld().getCameraController().setMode(CameraMode::Cinematic);
       getWorld().getCameraController().m_cinematicFrame = 0;
       getWorld().getCameraController().m_cinematicPos
-        = getWorld().getObjectManager().getLara().m_state.position.position;
+        = getWorld().getObjectManager().getLara().m_state.location.position;
       getWorld().getCameraController().m_cinematicRot = getWorld().getObjectManager().getLara().m_state.rotation;
     }
   }
@@ -69,9 +69,9 @@ void ScionPiece3::update()
     m_state.triggerState = TriggerState::Invisible;
     m_state.health = core::DeadHealth;
 
-    const auto sector = findRealFloorSector(m_state.position.position, m_state.position.room);
+    const auto sector = m_state.location.delta(0_len, 0_len, 0_len).updateRoom();
     const auto hi
-      = HeightInfo::fromFloor(sector, m_state.position.position, getWorld().getObjectManager().getObjects());
+      = HeightInfo::fromFloor(sector, m_state.location.position, getWorld().getObjectManager().getObjects());
     getWorld().handleCommandSequence(hi.lastCommandSequenceOrDeath, true);
     getSkeleton()->removeAllChildren();
     getSkeleton()->clearParts();
@@ -79,11 +79,11 @@ void ScionPiece3::update()
 
   if(m_deadTime % 10_frame == 0_frame)
   {
-    const auto pos = m_state.position.position
+    const auto pos = m_state.location.position
                      + core::TRVec{util::rand15s(512_len), util::rand15s(64_len) - 500_len, util::rand15s(512_len)};
     const auto particle = std::make_shared<ExplosionParticle>(
-      RoomBoundPosition{m_state.position.room, pos}, getWorld(), 0_spd, core::TRRotation{0_deg, 0_deg, 0_deg});
-    setParent(particle, m_state.position.room->node);
+      RoomBoundPosition{m_state.location.room, pos}, getWorld(), 0_spd, core::TRRotation{0_deg, 0_deg, 0_deg});
+    setParent(particle, m_state.location.room->node);
     getWorld().getObjectManager().registerParticle(particle);
     getWorld().getAudioEngine().playSoundEffect(TR1SoundEffect::Explosion2, particle.get());
 
@@ -122,7 +122,7 @@ void ScionPiece4::collide(CollisionInfo& /*info*/)
   getWorld().getObjectManager().getLara().setHandStatus(HandStatus::Grabbing);
   getWorld().getCameraController().m_cinematicFrame = 0;
   getWorld().getCameraController().setMode(CameraMode::Cinematic);
-  getWorld().getCameraController().m_cinematicPos = getWorld().getObjectManager().getLara().m_state.position.position;
+  getWorld().getCameraController().m_cinematicPos = getWorld().getObjectManager().getLara().m_state.location.position;
   getWorld().getCameraController().m_cinematicRot
     = getWorld().getObjectManager().getLara().m_state.rotation - core::TRRotation{0_deg, 90_deg, 0_deg};
 }

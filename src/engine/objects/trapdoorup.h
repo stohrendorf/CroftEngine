@@ -7,8 +7,8 @@ namespace engine::objects
 class TrapDoorUp final : public ModelObject
 {
 public:
-  TrapDoorUp(const gsl::not_null<world::World*>& world, const RoomBoundPosition& position)
-      : ModelObject{world, position}
+  TrapDoorUp(const gsl::not_null<world::World*>& world, const RoomBoundPosition& location)
+      : ModelObject{world, location}
   {
   }
 
@@ -24,25 +24,25 @@ public:
 
   void patchFloor(const core::TRVec& pos, core::Length& y) override
   {
-    if(m_state.current_anim_state != 1_as || !possiblyOnTrapdoor(pos) || pos.Y > m_state.position.position.Y)
+    if(m_state.current_anim_state != 1_as || !possiblyOnTrapdoor(pos) || pos.Y > m_state.location.position.Y)
       return;
 
-    y = m_state.position.position.Y;
+    y = m_state.location.position.Y;
   }
 
   void patchCeiling(const core::TRVec& pos, core::Length& y) override
   {
-    if(m_state.current_anim_state != 1_as || !possiblyOnTrapdoor(pos) || pos.Y <= m_state.position.position.Y)
+    if(m_state.current_anim_state != 1_as || !possiblyOnTrapdoor(pos) || pos.Y <= m_state.location.position.Y)
       return;
 
-    y = m_state.position.position.Y + core::QuarterSectorSize;
+    y = m_state.location.position.Y + core::QuarterSectorSize;
   }
 
 private:
   bool possiblyOnTrapdoor(const core::TRVec& pos) const
   {
-    const auto trapdoorSectorX = m_state.position.position.X / core::SectorSize;
-    const auto trapdoorSectorZ = m_state.position.position.Z / core::SectorSize;
+    const auto trapdoorSectorX = m_state.location.position.X / core::SectorSize;
+    const auto trapdoorSectorZ = m_state.location.position.Z / core::SectorSize;
     const auto posSectorX = pos.X / core::SectorSize;
     const auto posSectorZ = pos.Z / core::SectorSize;
     auto trapdoorAxis = axisFromAngle(m_state.rotation.Y, 1_au);

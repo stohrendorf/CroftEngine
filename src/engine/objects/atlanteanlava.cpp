@@ -8,34 +8,35 @@ namespace engine::objects
 {
 void AtlanteanLava::update()
 {
-  world::findRealFloorSector(m_state.position);
-  setParent(getNode(), m_state.position.room->node);
+  m_state.location.updateRoom();
+  setParent(getNode(), m_state.location.room->node);
   if(m_state.triggerState != TriggerState::Deactivated)
   {
-    auto pos = m_state.position.position;
+    auto location = m_state.location;
     if(m_state.rotation.Y == 0_deg)
     {
-      pos.Z += 2048_len;
-      m_state.position.position.Z += 25_len;
+      location.position.Z += 2048_len;
+      m_state.location.position.Z += 25_len;
     }
     else if(m_state.rotation.Y == -180_deg)
     {
-      pos.Z -= 2048_len;
-      m_state.position.position.Z -= 25_len;
+      location.position.Z -= 2048_len;
+      m_state.location.position.Z -= 25_len;
     }
     else if(m_state.rotation.Y == 90_deg)
     {
-      pos.X += 2048_len;
-      m_state.position.position.X += 25_len;
+      location.position.X += 2048_len;
+      m_state.location.position.X += 25_len;
     }
     else
     {
-      pos.X -= 2048_len;
-      m_state.position.position.X -= 25_len;
+      location.position.X -= 2048_len;
+      m_state.location.position.X -= 25_len;
     }
 
-    const auto sector = findRealFloorSector(pos, m_state.position.room);
-    if(HeightInfo::fromFloor(sector, pos, getWorld().getObjectManager().getObjects()).y != m_state.position.position.Y)
+    const auto sector = location.updateRoom();
+    if(HeightInfo::fromFloor(sector, location.position, getWorld().getObjectManager().getObjects()).y
+       != m_state.location.position.Y)
     {
       m_state.triggerState = TriggerState::Deactivated;
     }

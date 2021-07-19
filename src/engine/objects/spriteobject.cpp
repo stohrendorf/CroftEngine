@@ -30,9 +30,9 @@ SpriteObject::SpriteObject(const gsl::not_null<world::World*>& world,
 }
 
 SpriteObject::SpriteObject(const gsl::not_null<world::World*>& world,
-                           const RoomBoundPosition& position,
+                           const RoomBoundPosition& location,
                            std::string name)
-    : Object{world, position}
+    : Object{world, location}
     , m_node{std::make_shared<render::scene::Node>(std::move(name))}
 {
 }

@@ -84,8 +84,8 @@ void TRex::update()
         hitLara(1_hp);
         getWorld().getObjectManager().getLara().m_state.falling = false;
 
-        getWorld().getObjectManager().getLara().setCurrentRoom(m_state.position.room);
-        getWorld().getObjectManager().getLara().m_state.position.position = m_state.position.position;
+        getWorld().getObjectManager().getLara().setCurrentRoom(m_state.location.room);
+        getWorld().getObjectManager().getLara().m_state.location.position = m_state.location.position;
         getWorld().getObjectManager().getLara().m_state.rotation.X = 0_deg;
         getWorld().getObjectManager().getLara().m_state.rotation.Y = m_state.rotation.Y;
         getWorld().getObjectManager().getLara().m_state.rotation.Z = 0_deg;

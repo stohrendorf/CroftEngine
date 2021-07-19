@@ -15,21 +15,21 @@ namespace engine::objects
 namespace
 {
 gsl::not_null<std::shared_ptr<Particle>> createMutantGrenade(world::World& world,
-                                                             const RoomBoundPosition& pos,
+                                                             const RoomBoundPosition& location,
                                                              const core::Speed& /*speed*/,
                                                              const core::Angle& angle)
 {
-  auto particle = std::make_shared<MutantGrenadeParticle>(pos, world, angle);
-  setParent(particle, pos.room->node);
+  auto particle = std::make_shared<MutantGrenadeParticle>(location, world, angle);
+  setParent(particle, location.room->node);
   return particle;
 }
 gsl::not_null<std::shared_ptr<Particle>> createMutantBullet(world::World& world,
-                                                            const RoomBoundPosition& pos,
+                                                            const RoomBoundPosition& location,
                                                             const core::Speed& /*speed*/,
                                                             const core::Angle& angle)
 {
-  auto particle = std::make_shared<MutantBulletParticle>(pos, world, angle);
-  setParent(particle, pos.room->node);
+  auto particle = std::make_shared<MutantBulletParticle>(location, world, angle);
+  setParent(particle, location.room->node);
   return particle;
 }
 } // namespace
@@ -257,7 +257,7 @@ void FlyingMutant::update()
       break;
     case 12: goal(DoPrepareAttack); break;
     case DoFly.get():
-      if(!m_flying && m_state.position.position.Y == m_state.floor)
+      if(!m_flying && m_state.location.position.Y == m_state.floor)
       {
         goal(DoPrepareAttack);
       }
@@ -402,8 +402,8 @@ void TorsoBoss::update()
       headRot = enemyLocation.angleToEnemy;
     }
     updateMood(getWorld(), m_state, enemyLocation, true);
-    const auto angleToTarget = angleFromAtan(m_state.creatureInfo->target.X - m_state.position.position.X,
-                                             m_state.creatureInfo->target.Z - m_state.position.position.Z)
+    const auto angleToTarget = angleFromAtan(m_state.creatureInfo->target.X - m_state.location.position.X,
+                                             m_state.creatureInfo->target.Z - m_state.location.position.Z)
                                - m_state.rotation.Y;
 
     if(touched())
@@ -506,8 +506,8 @@ void TorsoBoss::update()
         lara.getSkeleton()->setAnim(&getWorld().findAnimatedModelForType(TR1ItemId::AlternativeLara)->animations[0]);
         lara.setGoalAnimState(LaraStateId::BoulderDeath);
         lara.setCurrentAnimState(LaraStateId::BoulderDeath);
-        lara.setCurrentRoom(m_state.position.room);
-        lara.m_state.position = m_state.position;
+        lara.setCurrentRoom(m_state.location.room);
+        lara.m_state.location = m_state.location;
         lara.m_state.rotation = {0_deg, m_state.rotation.Y, 0_deg};
         lara.m_state.health = core::DeadHealth;
         lara.setAir(-1_frame);
@@ -550,7 +550,7 @@ void TorsoBoss::update()
   if(m_state.current_anim_state == Falling)
   {
     ModelObject::update();
-    if(m_state.position.position.Y > m_state.floor)
+    if(m_state.location.position.Y > m_state.floor)
     {
       goal(Think);
       settle();
@@ -566,9 +566,9 @@ void TorsoBoss::update()
   {
     playSoundEffect(TR1SoundEffect::Mummy);
     shatterModel(*this, ~0u, 250_len);
-    const auto sector = world::findRealFloorSector(m_state.position);
+    const auto sector = m_state.location.updateRoom();
     getWorld().handleCommandSequence(
-      HeightInfo::fromFloor(sector, m_state.position.position, getWorld().getObjectManager().getObjects())
+      HeightInfo::fromFloor(sector, m_state.location.position, getWorld().getObjectManager().getObjects())
         .lastCommandSequenceOrDeath,
       true);
     kill();

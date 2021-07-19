@@ -7,8 +7,8 @@ namespace engine::objects
 class Barricade final : public ModelObject
 {
 public:
-  Barricade(const gsl::not_null<world::World*>& world, const RoomBoundPosition& position)
-      : ModelObject{world, position}
+  Barricade(const gsl::not_null<world::World*>& world, const RoomBoundPosition& location)
+      : ModelObject{world, location}
   {
   }
 

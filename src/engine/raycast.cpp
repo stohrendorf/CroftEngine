@@ -24,7 +24,7 @@ bool clampY(const core::TRVec& start,
     const auto dy = goalFloor - start.Y;
     goal.position.X = delta.X * dy / delta.Y + start.X;
     goal.position.Z = delta.Z * dy / delta.Y + start.Z;
-    world::findRealFloorSector(goal);
+    goal.updateRoom();
     return false;
   }
 
@@ -35,7 +35,7 @@ bool clampY(const core::TRVec& start,
     const auto dy = goalCeiling - start.Y;
     goal.position.X = delta.X * dy / delta.Y + start.X;
     goal.position.Z = delta.Z * dy / delta.Y + start.Z;
-    world::findRealFloorSector(goal);
+    goal.updateRoom();
     return false;
   }
 
@@ -77,12 +77,12 @@ std::pair<CollisionType, RoomBoundPosition> clampSteps(const RoomBoundPosition& 
   result.position.*secondaryAxis += sectorStep.*secondaryAxis * deltaStep / sectorStep.*stepAxis;
   result.position.Y += sectorStep.Y * deltaStep / sectorStep.*stepAxis;
 
-  auto testVerticalHit = [&objectManager](RoomBoundPosition& pos)
+  auto testVerticalHit = [&objectManager](RoomBoundPosition& location)
   {
-    const auto sector = world::findRealFloorSector(pos);
-    const auto floor = HeightInfo::fromFloor(sector, pos.position, objectManager.getObjects()).y;
-    const auto ceiling = HeightInfo::fromCeiling(sector, pos.position, objectManager.getObjects()).y;
-    return pos.position.Y > floor || pos.position.Y < ceiling;
+    const auto sector = location.updateRoom();
+    const auto floor = HeightInfo::fromFloor(sector, location.position, objectManager.getObjects()).y;
+    const auto ceiling = HeightInfo::fromCeiling(sector, location.position, objectManager.getObjects()).y;
+    return location.position.Y > floor || location.position.Y < ceiling;
   };
 
   while(true)
@@ -142,7 +142,7 @@ std::pair<bool, RoomBoundPosition>
     return {false, result};
   }
 
-  const auto sector = world::findRealFloorSector(result);
+  const auto sector = result.updateRoom();
   bool success = clampY(start.position, result, sector, objectManager) && firstCollision == CollisionType::None
                  && secondCollision == CollisionType::None;
   return {success, result};

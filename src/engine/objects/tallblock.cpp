@@ -22,9 +22,8 @@ void TallBlock::update()
   }
 
   ModelObject::update();
-  auto room = m_state.position.room;
-  findRealFloorSector(m_state.position.position, &room);
-  setCurrentRoom(room);
+  m_state.location.updateRoom();
+  setCurrentRoom(m_state.location.room);
 
   if(m_state.triggerState != TriggerState::Deactivated)
   {
@@ -33,10 +32,10 @@ void TallBlock::update()
 
   m_state.triggerState = TriggerState::Active;
   world::patchHeightsForBlock(*this, -2 * core::SectorSize);
-  auto pos = m_state.position.position;
+  auto pos = m_state.location.position;
   pos.X = (pos.X / core::SectorSize) * core::SectorSize + core::SectorSize / 2;
   pos.Z = (pos.Z / core::SectorSize) * core::SectorSize + core::SectorSize / 2;
-  m_state.position.position = pos;
+  m_state.location.position = pos;
 }
 
 void TallBlock::serialize(const serialization::Serializer<world::World>& ser)

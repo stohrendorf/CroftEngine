@@ -7,8 +7,8 @@ namespace engine::objects
 class DartGun final : public ModelObject
 {
 public:
-  DartGun(const gsl::not_null<world::World*>& world, const RoomBoundPosition& position)
-      : ModelObject{world, position}
+  DartGun(const gsl::not_null<world::World*>& world, const RoomBoundPosition& location)
+      : ModelObject{world, location}
   {
   }
 

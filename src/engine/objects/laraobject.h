@@ -57,8 +57,8 @@ private:
 #endif
 
 public:
-  LaraObject(const gsl::not_null<world::World*>& world, const RoomBoundPosition& position)
-      : ModelObject{world, position}
+  LaraObject(const gsl::not_null<world::World*>& world, const RoomBoundPosition& location)
+      : ModelObject{world, location}
       , m_underwaterRoute{*world}
   {
     initMuzzleFlashes();
@@ -105,7 +105,7 @@ public:
 
   void applyShift(const CollisionInfo& collisionInfo)
   {
-    m_state.position.position = m_state.position.position + collisionInfo.shift;
+    m_state.location.position += collisionInfo.shift;
     collisionInfo.shift = {0_len, 0_len, 0_len};
   }
 
@@ -285,8 +285,8 @@ public:
 
   void updateExplosionStumbling()
   {
-    const auto rot = angleFromAtan(forceSourcePosition->X - m_state.position.position.X,
-                                   forceSourcePosition->Z - m_state.position.position.Z)
+    const auto rot = angleFromAtan(forceSourcePosition->X - m_state.location.position.X,
+                                   forceSourcePosition->Z - m_state.location.position.Z)
                      - 180_deg;
     hit_direction = axisFromAngle(m_state.rotation.Y - rot);
     Expects(hit_direction.has_value());
@@ -390,7 +390,7 @@ public:
   {
     const auto v = objectState.rotation.toMatrix() * glm::vec4{offset.toRenderSystem(), 1.0f};
     const auto p = core::TRVec{glm::vec3{v}};
-    m_state.position.position = objectState.position.position + p;
+    m_state.location.position = objectState.location.position + p;
     m_state.rotation = objectState.rotation;
   }
 

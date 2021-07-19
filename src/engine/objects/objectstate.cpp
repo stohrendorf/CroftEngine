@@ -16,7 +16,7 @@ ObjectState::~ObjectState() = default;
 
 bool ObjectState::isStalkBox(const world::World& world, const world::Box& targetBox) const
 {
-  const auto laraPos = world.getObjectManager().getLara().m_state.position.position;
+  const auto laraPos = world.getObjectManager().getLara().m_state.location.position;
 
   const auto laraToBoxDistX = (targetBox.xmin + targetBox.xmax) / 2 - laraPos.X;
   const auto laraToBoxDistZ = (targetBox.zmin + targetBox.zmax) / 2 - laraPos.Z;
@@ -34,7 +34,7 @@ bool ObjectState::isStalkBox(const world::World& world, const world::Box& target
   }
 
   const auto objectToLaraAxis
-    = axisFromAngle(angleFromAtan(laraPos.X - position.position.X, laraPos.Z - position.position.Z));
+    = axisFromAngle(angleFromAtan(laraPos.X - location.position.X, laraPos.Z - location.position.Z));
   if(laraAxis != objectToLaraAxis)
   {
     return true;
@@ -70,20 +70,20 @@ bool ObjectState::isInsideZoneButNotInBox(const world::World& world,
     return false;
   }
 
-  return !targetBox.contains(position.position.X, position.position.Z);
+  return !targetBox.contains(location.position.X, location.position.Z);
 }
 
 bool ObjectState::isEscapeBox(const world::World& world, const world::Box& targetBox) const
 {
-  const auto laraPos = world.getObjectManager().getLara().m_state.position.position;
+  const auto laraPos = world.getObjectManager().getLara().m_state.location.position;
 
   const auto laraToBoxCtrX = (targetBox.xmin + targetBox.xmax) / 2 - laraPos.X;
   const auto laraToBoxCtrZ = (targetBox.zmin + targetBox.zmax) / 2 - laraPos.Z;
   if(abs(laraToBoxCtrX) < 5 * core::SectorSize && abs(laraToBoxCtrZ) < 5 * core::SectorSize)
     return false;
 
-  const auto laraToObjX = position.position.X - laraPos.X;
-  const auto laraToObjZ = position.position.Z - laraPos.Z;
+  const auto laraToObjX = location.position.X - laraPos.X;
+  const auto laraToObjZ = location.position.Z - laraPos.Z;
   return ((laraToObjZ > 0_len) == (laraToBoxCtrZ > 0_len)) || ((laraToObjX > 0_len) == (laraToBoxCtrX > 0_len));
 }
 
@@ -97,7 +97,7 @@ void ObjectState::initCreatureInfo(const world::World& world)
 
 glm::vec3 ObjectState::getPosition() const
 {
-  return position.position.toRenderSystem();
+  return location.position.toRenderSystem();
 }
 
 void ObjectState::loadObjectInfo()
@@ -108,7 +108,7 @@ void ObjectState::loadObjectInfo()
 
 void ObjectState::serialize(const serialization::Serializer<world::World>& ser)
 {
-  ser(S_NV("position", position),
+  ser(S_NV("location", location),
       S_NV("type", type),
       S_NV("rotation", rotation),
       S_NV("speed", speed),
@@ -131,7 +131,7 @@ void ObjectState::serialize(const serialization::Serializer<world::World>& ser)
 
 const world::Sector* ObjectState::getCurrentSector() const
 {
-  return position.room->getSectorByAbsolutePosition(position.position);
+  return location.room->getSectorByAbsolutePosition(location.position);
 }
 
 gsl::not_null<const world::Box*> ObjectState::getCurrentBox() const

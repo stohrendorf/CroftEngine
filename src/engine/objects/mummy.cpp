@@ -22,8 +22,8 @@ void Mummy::update()
   if(m_state.current_anim_state == 1_as)
   {
     auto head = angleFromAtan(
-      getWorld().getObjectManager().getLara().m_state.position.position.X - m_state.position.position.X,
-      getWorld().getObjectManager().getLara().m_state.position.position.Z - m_state.position.position.Z);
+      getWorld().getObjectManager().getLara().m_state.location.position.X - m_state.location.position.X,
+      getWorld().getObjectManager().getLara().m_state.location.position.Z - m_state.location.position.Z);
     head = std::clamp(head - m_state.rotation.Y, -90_deg, +90_deg);
     m_headRotation += std::clamp(head - m_headRotation, -5_deg, +5_deg);
     getSkeleton()->patchBone(3, core::TRRotation{0_deg, m_headRotation, 0_deg}.toMatrix());

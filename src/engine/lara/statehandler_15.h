@@ -60,7 +60,7 @@ public:
     collisionInfo.badNegativeDistance = -core::HeightLimit;
     collisionInfo.badCeilingDistance = 0_len;
     collisionInfo.facingAngle = getMovementAngle();
-    collisionInfo.initHeightInfo(getLara().m_state.position.position, getWorld(), core::LaraWalkHeight);
+    collisionInfo.initHeightInfo(getLara().m_state.location.position, getWorld(), core::LaraWalkHeight);
 
     if(collisionInfo.mid.ceilingSpace.y <= -core::DefaultCollisionRadius)
     {
@@ -71,7 +71,7 @@ public:
     setGoalAnimState(LaraStateId::Stop);
     setCurrentAnimState(LaraStateId::Stop);
     getLara().m_state.speed = 0_spd;
-    getLara().m_state.position.position = collisionInfo.initialPosition;
+    getLara().m_state.location.position = collisionInfo.initialPosition;
   }
 };
 } // namespace engine::lara

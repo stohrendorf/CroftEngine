@@ -41,14 +41,12 @@ void freeLookClamp(core::Length& goalX,
   }
 }
 
-bool isVerticallyOutsideRoom(const core::TRVec& pos,
-                             const gsl::not_null<const world::Room*>& room,
-                             const ObjectManager& objectManager)
+bool isVerticallyOutsideRoom(RoomBoundPosition location, const ObjectManager& objectManager)
 {
-  const auto sector = findRealFloorSector(pos, room);
-  const auto floor = HeightInfo::fromFloor(sector, pos, objectManager.getObjects()).y;
-  const auto ceiling = HeightInfo::fromCeiling(sector, pos, objectManager.getObjects()).y;
-  return pos.Y >= floor || pos.Y <= ceiling;
+  const auto sector = location.updateRoom();
+  const auto floor = HeightInfo::fromFloor(sector, location.position, objectManager.getObjects()).y;
+  const auto ceiling = HeightInfo::fromCeiling(sector, location.position, objectManager.getObjects()).y;
+  return location.position.Y >= floor || location.position.Y <= ceiling;
 }
 
 void clampToCorners(const core::Area& targetHorizontalDistanceSq,
@@ -159,16 +157,18 @@ RoomBoundPosition clampBox(const RoomBoundPosition& start,
 
   core::TRVec testPos = result.position;
 
-  const auto testPosInvalid
-    = [&testPos, &result, &objectManager] { return isVerticallyOutsideRoom(testPos, result.room, objectManager); };
+  const auto testPosInvalid = [&testPos, &result, &objectManager] {
+    return isVerticallyOutsideRoom(RoomBoundPosition{result.room, testPos}, objectManager);
+  };
 
   alignMin(testPos.Z);
   BOOST_ASSERT(abs(testPos.Z - result.position.Z) <= core::SectorSize);
   auto minZ = box->zmin;
   const bool invalidMinZ = testPosInvalid();
-  if(!invalidMinZ && findRealFloorSector(testPos, result.room)->box != nullptr)
+  if(!invalidMinZ)
   {
-    minZ = std::min(minZ, findRealFloorSector(testPos, result.room)->box->zmin);
+    if(const auto box = RoomBoundPosition{result.room, testPos}.updateRoom()->box)
+      minZ = std::min(minZ, box->zmin);
   }
   minZ += core::QuarterSectorSize;
 
@@ -177,9 +177,10 @@ RoomBoundPosition clampBox(const RoomBoundPosition& start,
   BOOST_ASSERT(abs(testPos.Z - result.position.Z) <= core::SectorSize);
   auto maxZ = box->zmax;
   const bool invalidMaxZ = testPosInvalid();
-  if(!invalidMaxZ && findRealFloorSector(testPos, result.room)->box != nullptr)
+  if(!invalidMaxZ)
   {
-    maxZ = std::max(maxZ, findRealFloorSector(testPos, result.room)->box->zmax);
+    if(const auto box = RoomBoundPosition{result.room, testPos}.updateRoom()->box)
+      maxZ = std::max(maxZ, box->zmax);
   }
   maxZ -= core::QuarterSectorSize;
 
@@ -188,9 +189,10 @@ RoomBoundPosition clampBox(const RoomBoundPosition& start,
   BOOST_ASSERT(abs(testPos.X - result.position.X) <= core::SectorSize);
   auto minX = box->xmin;
   const bool invalidMinX = testPosInvalid();
-  if(!invalidMinX && findRealFloorSector(testPos, result.room)->box != nullptr)
+  if(!invalidMinX)
   {
-    minX = std::max(minX, findRealFloorSector(testPos, result.room)->box->xmin);
+    if(const auto box = RoomBoundPosition{result.room, testPos}.updateRoom()->box)
+      minX = std::max(minX, box->xmin);
   }
   minX += core::QuarterSectorSize;
 
@@ -199,9 +201,10 @@ RoomBoundPosition clampBox(const RoomBoundPosition& start,
   BOOST_ASSERT(abs(testPos.X - result.position.X) <= core::SectorSize);
   auto maxX = box->xmax;
   const bool invalidMaxX = testPosInvalid();
-  if(!invalidMaxX && findRealFloorSector(testPos, result.room)->box != nullptr)
+  if(!invalidMaxX)
   {
-    maxX = std::max(maxX, findRealFloorSector(testPos, result.room)->box->xmax);
+    if(const auto box = RoomBoundPosition{result.room, testPos}.updateRoom()->box)
+      maxX = std::max(maxX, box->xmax);
   }
   maxX -= core::QuarterSectorSize;
 
@@ -210,7 +213,7 @@ RoomBoundPosition clampBox(const RoomBoundPosition& start,
     if(result.position.X >= start.position.X)
       std::swap(minX, maxX);
     callback(result.position.Z, result.position.X, start.position.Z, start.position.X, minZ, minX, maxZ, maxX);
-    world::findRealFloorSector(result);
+    result.updateRoom();
     return result;
   }
 
@@ -219,7 +222,7 @@ RoomBoundPosition clampBox(const RoomBoundPosition& start,
     if(result.position.X >= start.position.X)
       std::swap(minX, maxX);
     callback(result.position.Z, result.position.X, start.position.Z, start.position.X, maxZ, minX, minZ, maxX);
-    world::findRealFloorSector(result);
+    result.updateRoom();
     return result;
   }
 
@@ -228,7 +231,7 @@ RoomBoundPosition clampBox(const RoomBoundPosition& start,
     if(result.position.Z >= start.position.Z)
       std::swap(minZ, maxZ);
     callback(result.position.X, result.position.Z, start.position.X, start.position.Z, minX, minZ, maxX, maxZ);
-    world::findRealFloorSector(result);
+    result.updateRoom();
     return result;
   }
 
@@ -237,7 +240,7 @@ RoomBoundPosition clampBox(const RoomBoundPosition& start,
     if(result.position.Z >= start.position.Z)
       std::swap(minZ, maxZ);
     callback(result.position.X, result.position.Z, start.position.X, start.position.Z, maxX, minZ, minX, maxZ);
-    world::findRealFloorSector(result);
+    result.updateRoom();
     return result;
   }
 
@@ -250,13 +253,13 @@ CameraController::CameraController(const gsl::not_null<world::World*>& world,
     : Listener{world->getPresenter().getSoundEngine().get()}
     , m_camera{std::move(camera)}
     , m_world{world}
-    , m_position{world->getObjectManager().getLara().m_state.position}
-    , m_lookAt{world->getObjectManager().getLara().m_state.position}
+    , m_location{world->getObjectManager().getLara().m_state.location}
+    , m_lookAt{world->getObjectManager().getLara().m_state.location}
 {
-  const auto yOffset = world->getObjectManager().getLara().m_state.position.position.Y - core::SectorSize;
+  const auto yOffset = world->getObjectManager().getLara().m_state.location.position.Y - core::SectorSize;
   m_lookAt.position.Y -= yOffset;
-  m_position.position.Y -= yOffset;
-  m_position.position.Z -= 100_len;
+  m_location.position.Y -= yOffset;
+  m_location.position.Z -= 100_len;
 }
 
 void CameraController::setRotationAroundLara(const core::Angle& x, const core::Angle& y)
@@ -377,9 +380,9 @@ std::unordered_set<const world::Portal*> CameraController::tracePortals()
   for(const auto& room : m_world->getRooms())
     room.node->setVisible(false);
 
-  auto result = render::PortalTracer::trace(*m_position.room, *m_world);
+  auto result = render::PortalTracer::trace(*m_location.room, *m_world);
 
-  for(const auto& portal : m_position.room->portals)
+  for(const auto& portal : m_location.room->portals)
     portal.adjoiningRoom->node->setVisible(true);
 
   return result;
@@ -409,7 +412,7 @@ std::unordered_set<const world::Portal*> CameraController::update()
   // if we have a fixed position, we also have an object we're looking at
   const gsl::not_null focusedObject = isCompletelyFixed ? m_lookAtObject.get() : &m_world->getObjectManager().getLara();
   auto focusBBox = focusedObject->getBoundingBox();
-  auto focusY = focusedObject->m_state.position.position.Y;
+  auto focusY = focusedObject->m_state.location.position.Y;
   if(isCompletelyFixed)
     focusY += (focusBBox.minY + focusBBox.maxY) / 2;
   else
@@ -422,15 +425,15 @@ std::unordered_set<const world::Portal*> CameraController::update()
 
     BOOST_ASSERT(m_lookAtObject.get() != focusedObject);
     const auto distToFocused
-      = m_lookAtObject->m_state.position.position.distanceTo(focusedObject->m_state.position.position);
+      = m_lookAtObject->m_state.location.position.distanceTo(focusedObject->m_state.location.position);
     auto eyeRotY
-      = angleFromAtan(m_lookAtObject->m_state.position.position.X - focusedObject->m_state.position.position.X,
-                      m_lookAtObject->m_state.position.position.Z - focusedObject->m_state.position.position.Z)
+      = angleFromAtan(m_lookAtObject->m_state.location.position.X - focusedObject->m_state.location.position.X,
+                      m_lookAtObject->m_state.location.position.Z - focusedObject->m_state.location.position.Z)
         - focusedObject->m_state.rotation.Y;
     eyeRotY /= 2;
     focusBBox = m_lookAtObject->getBoundingBox();
     auto eyeRotX = angleFromAtan(
-      focusY - ((focusBBox.minY + focusBBox.maxY) / 2 + m_lookAtObject->m_state.position.position.Y), distToFocused);
+      focusY - ((focusBBox.minY + focusBBox.maxY) / 2 + m_lookAtObject->m_state.location.position.Y), distToFocused);
     eyeRotX /= 2;
 
     if(abs(eyeRotY) < 50_deg && abs(eyeRotX) < 85_deg)
@@ -448,7 +451,7 @@ std::unordered_set<const world::Portal*> CameraController::update()
     }
   }
 
-  m_lookAt.room = focusedObject->m_state.position.room;
+  m_lookAt.room = focusedObject->m_state.location.room;
   if(m_mode == CameraMode::FreeLook || m_mode == CameraMode::Combat)
   {
     focusY -= core::QuarterSectorSize;
@@ -473,8 +476,8 @@ std::unordered_set<const world::Portal*> CameraController::update()
   }
   else
   {
-    m_lookAt.position.X = focusedObject->m_state.position.position.X;
-    m_lookAt.position.Z = focusedObject->m_state.position.position.Z;
+    m_lookAt.position.X = focusedObject->m_state.location.position.X;
+    m_lookAt.position.Z = focusedObject->m_state.location.position.Z;
 
     if(m_modifier == CameraModifier::FollowCenter)
     {
@@ -495,8 +498,8 @@ std::unordered_set<const world::Portal*> CameraController::update()
       m_isCompletelyFixed = true;
     }
 
-    m_lookAt.room = focusedObject->m_state.position.room;
-    const auto sector = world::findRealFloorSector(m_lookAt);
+    m_lookAt.room = focusedObject->m_state.location.room;
+    const auto sector = m_lookAt.updateRoom();
     if(HeightInfo::fromFloor(sector, m_lookAt.position, m_world->getObjectManager().getObjects()).y
        < m_lookAt.position.Y)
       HeightInfo::skipSteepSlants = false;
@@ -547,31 +550,27 @@ void CameraController::handleFixedCamera()
 
 core::Length CameraController::moveIntoBox(RoomBoundPosition& goal, const core::Length& margin) const
 {
-  const auto sector = world::findRealFloorSector(goal);
+  const auto sector = goal.updateRoom();
   Expects(sector->box != nullptr);
 
   if(goal.position.Z < sector->box->zmin + margin
-     && isVerticallyOutsideRoom(
-       goal.position - core::TRVec(0_len, 0_len, margin), goal.room, m_world->getObjectManager()))
+     && isVerticallyOutsideRoom(goal.delta(0_len, 0_len, -margin), m_world->getObjectManager()))
   {
     goal.position.Z = sector->box->zmin + margin;
   }
   else if(goal.position.Z > sector->box->zmax - margin
-          && isVerticallyOutsideRoom(
-            goal.position + core::TRVec(0_len, 0_len, margin), goal.room, m_world->getObjectManager()))
+          && isVerticallyOutsideRoom(goal.delta(0_len, 0_len, margin), m_world->getObjectManager()))
   {
     goal.position.Z = sector->box->zmax - margin;
   }
 
   if(goal.position.X < sector->box->xmin + margin
-     && isVerticallyOutsideRoom(
-       goal.position - core::TRVec(margin, 0_len, 0_len), goal.room, m_world->getObjectManager()))
+     && isVerticallyOutsideRoom(goal.delta(-margin, 0_len, 0_len), m_world->getObjectManager()))
   {
     goal.position.X = sector->box->xmin + margin;
   }
   else if(goal.position.X > sector->box->xmax - margin
-          && isVerticallyOutsideRoom(
-            goal.position + core::TRVec(margin, 0_len, 0_len), goal.room, m_world->getObjectManager()))
+          && isVerticallyOutsideRoom(goal.delta(margin, 0_len, 0_len), m_world->getObjectManager()))
   {
     goal.position.X = sector->box->xmax - margin;
   }
@@ -591,21 +590,21 @@ core::Length CameraController::moveIntoBox(RoomBoundPosition& goal, const core::
 
 void CameraController::updatePosition(const RoomBoundPosition& goal, const int smoothFactor)
 {
-  m_position.position += (goal.position - m_position.position) / smoothFactor;
-  m_position.room = goal.room;
+  m_location.position += (goal.position - m_location.position) / smoothFactor;
+  m_location.room = goal.room;
   HeightInfo::skipSteepSlants = false;
-  auto sector = world::findRealFloorSector(m_position);
-  auto floor = HeightInfo::fromFloor(sector, m_position.position, m_world->getObjectManager().getObjects()).y
+  auto sector = m_location.updateRoom();
+  auto floor = HeightInfo::fromFloor(sector, m_location.position, m_world->getObjectManager().getObjects()).y
                - core::QuarterSectorSize;
-  if(floor <= std::min(m_position.position.Y, goal.position.Y))
+  if(floor <= std::min(m_location.position.Y, goal.position.Y))
   {
-    m_position = raycastLineOfSight(m_lookAt, m_position.position, m_world->getObjectManager()).second;
-    sector = world::findRealFloorSector(m_position);
-    floor = HeightInfo::fromFloor(sector, m_position.position, m_world->getObjectManager().getObjects()).y
+    m_location = raycastLineOfSight(m_lookAt, m_location.position, m_world->getObjectManager()).second;
+    sector = m_location.updateRoom();
+    floor = HeightInfo::fromFloor(sector, m_location.position, m_world->getObjectManager().getObjects()).y
             - core::QuarterSectorSize;
   }
 
-  auto ceiling = HeightInfo::fromCeiling(sector, m_position.position, m_world->getObjectManager().getObjects()).y
+  auto ceiling = HeightInfo::fromCeiling(sector, m_location.position, m_world->getObjectManager().getObjects()).y
                  + core::QuarterSectorSize;
   if(floor < ceiling)
   {
@@ -615,30 +614,28 @@ void CameraController::updatePosition(const RoomBoundPosition& goal, const int s
   if(m_bounce < 0_len)
   {
     const core::TRVec tmp{util::rand15s(m_bounce), util::rand15s(m_bounce), util::rand15s(m_bounce)};
-    m_position.position += tmp;
+    m_location.position += tmp;
     m_lookAt.position += tmp;
     m_bounce += 5_len;
   }
   else if(m_bounce > 0_len)
   {
-    m_position.position.Y += m_bounce;
+    m_location.position.Y += m_bounce;
     m_lookAt.position.Y += m_bounce;
     m_bounce = 0_len;
   }
 
-  auto camPos = m_position.position;
-  if(m_position.position.Y > floor)
-    camPos.Y = floor;
-  else if(m_position.position.Y < ceiling)
-    camPos.Y = ceiling;
+  if(m_location.position.Y > floor)
+    m_location.position.Y = floor;
+  else if(m_location.position.Y < ceiling)
+    m_location.position.Y = ceiling;
 
-  // update current room
-  findRealFloorSector(camPos, &m_position.room);
+  m_location.updateRoom();
 
-  if(camPos.X != m_lookAt.position.X || camPos.Z != m_lookAt.position.Z)
+  if(m_location.position.X != m_lookAt.position.X || m_location.position.Z != m_lookAt.position.Z)
   {
     // only apply lookAt if we won't get NaN values because of parallel up and look axes
-    const auto m = lookAt(camPos.toRenderSystem(), m_lookAt.position.toRenderSystem(), {0, 1, 0});
+    const auto m = lookAt(m_location.position.toRenderSystem(), m_lookAt.position.toRenderSystem(), {0, 1, 0});
     m_camera->setViewMatrix(m);
   }
 }
@@ -673,8 +670,8 @@ void CameraController::chaseObject(const objects::Object& object)
 void CameraController::handleFreeLook(const objects::Object& object)
 {
   const auto originalLookAt = m_lookAt.position;
-  m_lookAt.position.X = object.m_state.position.position.X;
-  m_lookAt.position.Z = object.m_state.position.position.Z;
+  m_lookAt.position.X = object.m_state.location.position.X;
+  m_lookAt.position.Z = object.m_state.location.position.Z;
 
   m_rotationAroundLara.X = m_world->getObjectManager().getLara().m_torsoRotation.X
                            + m_world->getObjectManager().getLara().m_headRotation.X + object.m_state.rotation.X;
@@ -683,10 +680,10 @@ void CameraController::handleFreeLook(const objects::Object& object)
   m_distance = core::DefaultCameraLaraDistance;
   m_lookAt.position += util::pitch(-util::sin(core::SectorSize / 2, m_rotationAroundLara.X), object.m_state.rotation.Y);
 
-  if(isVerticallyOutsideRoom(m_lookAt.position, m_lookAt.room, m_world->getObjectManager()))
+  if(isVerticallyOutsideRoom(m_lookAt, m_world->getObjectManager()))
   {
-    m_lookAt.position.X = object.m_state.position.position.X;
-    m_lookAt.position.Z = object.m_state.position.position.Z;
+    m_lookAt.position.X = object.m_state.location.position.X;
+    m_lookAt.position.Z = object.m_state.location.position.Z;
   }
   m_lookAt.position.Y += moveIntoBox(m_lookAt, core::CameraWallDistance);
 
@@ -704,8 +701,8 @@ void CameraController::handleFreeLook(const objects::Object& object)
 
 void CameraController::handleEnemy(objects::Object& object)
 {
-  m_lookAt.position.X = object.m_state.position.position.X;
-  m_lookAt.position.Z = object.m_state.position.position.Z;
+  m_lookAt.position.X = object.m_state.location.position.X;
+  m_lookAt.position.Z = object.m_state.location.position.Z;
 
   if(m_enemy != nullptr)
   {
@@ -742,15 +739,15 @@ void CameraController::handleEnemy(objects::Object& object)
 std::unordered_set<const world::Portal*> CameraController::updateCinematic(const world::CinematicFrame& frame,
                                                                            const bool ingame)
 {
-  const core::TRVec basePos = ingame ? m_cinematicPos : m_position.position;
+  const core::TRVec basePos = ingame ? m_cinematicPos : m_location.position;
   const core::TRVec newLookAt = basePos + util::pitch(frame.lookAt, m_eyeRotation.Y);
   const core::TRVec newPos = basePos + util::pitch(frame.position, m_eyeRotation.Y);
 
   if(ingame)
   {
     m_lookAt.position = newLookAt;
-    m_position.position = newPos;
-    findRealFloorSector(m_position.position, &m_position.room);
+    m_location.position = newPos;
+    m_location.updateRoom();
   }
 
   auto m = lookAt(newPos.toRenderSystem(), newLookAt.toRenderSystem(), {0, 1, 0});
@@ -781,14 +778,14 @@ CameraController::CameraController(const gsl::not_null<world::World*>& world,
     : Listener{world->getPresenter().getSoundEngine().get()}
     , m_camera{std::move(camera)}
     , m_world{world}
-    , m_position{&world->getRooms()[0]}
+    , m_location{&world->getRooms()[0]}
     , m_lookAt{&world->getRooms()[0]}
 {
 }
 
 void CameraController::serialize(const serialization::Serializer<world::World>& ser)
 {
-  ser(S_NV("position", m_position),
+  ser(S_NV("location", m_location),
       S_NV("lookAt", m_lookAt),
       S_NV("mode", m_mode),
       S_NV("modifier", m_modifier),

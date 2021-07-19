@@ -144,7 +144,7 @@ void updateMood(const world::World& world,
        >= pybind11::globals()["getObjectInfo"](objectState.type.get()).cast<script::ObjectInfo>().target_update_chance)
       break;
 
-    creatureInfo.pathFinder.target = world.getObjectManager().getLara().m_state.position.position;
+    creatureInfo.pathFinder.target = world.getObjectManager().getLara().m_state.location.position;
     newTargetBox = world.getObjectManager().getLara().m_state.getCurrentBox();
     creatureInfo.pathFinder.target.X
       = std::clamp(creatureInfo.pathFinder.target.X, newTargetBox->xmin, newTargetBox->xmax);
@@ -233,7 +233,7 @@ void updateMood(const world::World& world,
   if(newTargetBox != nullptr)
     creatureInfo.pathFinder.setTargetBox(newTargetBox);
   creatureInfo.pathFinder.calculateTarget(
-    world, creatureInfo.target, objectState.position.position, objectState.getCurrentBox());
+    world, creatureInfo.target, objectState.location.position, objectState.getCurrentBox());
 }
 
 std::shared_ptr<CreatureInfo> create(const serialization::TypeId<std::shared_ptr<CreatureInfo>>&,
@@ -285,8 +285,8 @@ EnemyLocation::EnemyLocation(world::World& world, objects::ObjectState& objectSt
 
   auto objectInfo = pybind11::globals()["getObjectInfo"](objectState.type.get()).cast<script::ObjectInfo>();
   const core::Length pivotLength{objectInfo.pivot_length};
-  const auto toLara = world.getObjectManager().getLara().m_state.position.position
-                      - (objectState.position.position + util::pitch(pivotLength, objectState.rotation.Y));
+  const auto toLara = world.getObjectManager().getLara().m_state.location.position
+                      - (objectState.location.position + util::pitch(pivotLength, objectState.rotation.Y));
   const auto angleToLara = core::angleFromAtan(toLara.X, toLara.Z);
   enemyDistance = util::square(toLara.X) + util::square(toLara.Z);
   angleToEnemy = angleToLara - objectState.rotation.Y;
@@ -294,9 +294,9 @@ EnemyLocation::EnemyLocation(world::World& world, objects::ObjectState& objectSt
   enemyAhead = angleToEnemy > -90_deg && angleToEnemy < 90_deg;
   if(enemyAhead)
   {
-    const auto laraY = world.getObjectManager().getLara().m_state.position.position.Y;
-    canAttackForward = objectState.position.position.Y - core::QuarterSectorSize < laraY
-                       && objectState.position.position.Y + core::QuarterSectorSize > laraY;
+    const auto laraY = world.getObjectManager().getLara().m_state.location.position.Y;
+    canAttackForward = objectState.location.position.Y - core::QuarterSectorSize < laraY
+                       && objectState.location.position.Y + core::QuarterSectorSize > laraY;
   }
 }
 

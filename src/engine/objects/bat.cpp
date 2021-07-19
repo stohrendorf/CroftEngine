@@ -47,7 +47,7 @@ void Bat::update()
   }
   else
   {
-    if(m_state.position.position.Y >= m_state.floor)
+    if(m_state.location.position.Y >= m_state.floor)
     {
       goal(Dying);
       settle();
