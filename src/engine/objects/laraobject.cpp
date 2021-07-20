@@ -265,7 +265,7 @@ void LaraObject::handleLaraStateDiving()
 
   updateImpl();
 
-  move(util::yawPitch(m_state.fallspeed * 1_frame / 4, m_state.rotation));
+  m_state.location.move(util::yawPitch(m_state.fallspeed * 1_frame / 4, m_state.rotation));
 
   testInteractions(collisionInfo);
 
@@ -319,7 +319,7 @@ void LaraObject::handleLaraStateSwimming()
 
   updateImpl();
 
-  move(util::pitch(m_state.fallspeed * 1_frame / 4, getMovementAngle()).toRenderSystem());
+  m_state.location.move(util::pitch(m_state.fallspeed * 1_frame / 4, getMovementAngle()).toRenderSystem());
 
   testInteractions(collisionInfo);
 
@@ -2073,7 +2073,7 @@ void LaraObject::burnIfAlive()
   if(isDead())
     return;
 
-  const auto sector = m_state.location.delta(0_len, 0_len, 0_len).updateRoom();
+  const auto sector = m_state.location.moved({}).updateRoom();
   if(HeightInfo::fromFloor(sector,
                            {m_state.location.position.X, 32000_len, m_state.location.position.Z},
                            getWorld().getObjectManager().getObjects())

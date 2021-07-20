@@ -141,7 +141,7 @@ void CollisionInfo::initHeightInfo(const core::TRVec& laraPos, const world::Worl
   const auto initVSI = [&refTestLocation, &world, &height, laraPosY = laraPos.Y, policyFlags = policies](
                          VerticalSpaceInfo& vsi, core::Length dx, core::Length dz)
   {
-    Location testLocation = refTestLocation.delta(dx, 0_len, dz);
+    Location testLocation = refTestLocation.moved(dx, 0_len, dz);
     const auto sector = testLocation.updateRoom();
     vsi.init(sector, testLocation.position, world.getObjectManager().getObjects(), laraPosY, height);
 

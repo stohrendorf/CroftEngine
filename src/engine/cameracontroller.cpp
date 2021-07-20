@@ -554,23 +554,23 @@ core::Length CameraController::moveIntoBox(Location& goal, const core::Length& m
   Expects(sector->box != nullptr);
 
   if(goal.position.Z < sector->box->zmin + margin
-     && isVerticallyOutsideRoom(goal.delta(0_len, 0_len, -margin), m_world->getObjectManager()))
+     && isVerticallyOutsideRoom(goal.moved(0_len, 0_len, -margin), m_world->getObjectManager()))
   {
     goal.position.Z = sector->box->zmin + margin;
   }
   else if(goal.position.Z > sector->box->zmax - margin
-          && isVerticallyOutsideRoom(goal.delta(0_len, 0_len, margin), m_world->getObjectManager()))
+          && isVerticallyOutsideRoom(goal.moved(0_len, 0_len, margin), m_world->getObjectManager()))
   {
     goal.position.Z = sector->box->zmax - margin;
   }
 
   if(goal.position.X < sector->box->xmin + margin
-     && isVerticallyOutsideRoom(goal.delta(-margin, 0_len, 0_len), m_world->getObjectManager()))
+     && isVerticallyOutsideRoom(goal.moved(-margin, 0_len, 0_len), m_world->getObjectManager()))
   {
     goal.position.X = sector->box->xmin + margin;
   }
   else if(goal.position.X > sector->box->xmax - margin
-          && isVerticallyOutsideRoom(goal.delta(margin, 0_len, 0_len), m_world->getObjectManager()))
+          && isVerticallyOutsideRoom(goal.moved(margin, 0_len, 0_len), m_world->getObjectManager()))
   {
     goal.position.X = sector->box->xmax - margin;
   }

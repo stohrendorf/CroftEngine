@@ -548,7 +548,7 @@ bool AbstractStateHandler::tryGrabEdge(const CollisionInfo& collisionInfo)
 
 core::Length AbstractStateHandler::getRelativeHeightAtDirection(core::Angle angle, const core::Length dist) const
 {
-  auto pos = m_lara.m_state.location.delta(util::pitch(dist, angle));
+  auto pos = m_lara.m_state.location.moved(util::pitch(dist, angle));
   pos.position.Y -= core::LaraWalkHeight;
 
   const auto sector = pos.updateRoom();
@@ -740,7 +740,7 @@ void AbstractStateHandler::commonEdgeHangHandling(CollisionInfo& collisionInfo)
 // ReSharper disable once CppMemberFunctionMayBeConst
 bool AbstractStateHandler::applyLandingDamage()
 {
-  const auto sector = m_lara.m_state.location.delta(0_len, 0_len, 0_len).updateRoom();
+  const auto sector = m_lara.m_state.location.moved(0_len, 0_len, 0_len).updateRoom();
   const HeightInfo h
     = HeightInfo::fromFloor(sector,
                             m_lara.m_state.location.position - core::TRVec{0_len, core::LaraWalkHeight, 0_len},
@@ -847,7 +847,7 @@ void AbstractStateHandler::jumpAgainstWall(CollisionInfo& collisionInfo)
   }
   else if(collisionInfo.collisionType == CollisionInfo::AxisColl::TopFront)
   {
-    m_lara.move(util::pitch(core::DefaultCollisionRadius, m_lara.m_state.rotation.Y));
+    m_lara.m_state.location.move(util::pitch(core::DefaultCollisionRadius, m_lara.m_state.rotation.Y));
     m_lara.m_state.speed = 0_spd;
     collisionInfo.mid.floorSpace.y = 0_len;
     if(m_lara.m_state.fallspeed < 0_spd)
@@ -894,7 +894,7 @@ void AbstractStateHandler::checkJumpWallSmash(CollisionInfo& collisionInfo)
 
   if(collisionInfo.collisionType == CollisionInfo::AxisColl::TopFront)
   {
-    m_lara.move(util::pitch(core::DefaultCollisionRadius, collisionInfo.facingAngle));
+    m_lara.m_state.location.move(util::pitch(core::DefaultCollisionRadius, collisionInfo.facingAngle));
     m_lara.m_state.speed = 0_spd;
     collisionInfo.mid.floorSpace.y = 0_len;
     if(m_lara.m_state.fallspeed <= 0_spd)

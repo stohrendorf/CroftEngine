@@ -24,6 +24,8 @@ public:
 
   void loadObjectInfo(bool withoutGameState = false);
 
+  void serialize(const serialization::Serializer<world::World>& ser) override;
+
 protected:
   AIAgent(const gsl::not_null<world::World*>& world, const Location& location)
       : ModelObject{world, location}

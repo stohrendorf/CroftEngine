@@ -30,15 +30,34 @@ struct Location final
 
   gsl::not_null<const world::Sector*> updateRoom();
 
-  [[nodiscard]] auto delta(const core::TRVec& d) const
+  [[nodiscard]] auto moved(const core::TRVec& d) const
   {
-    return Location{room, position + d};
+    auto tmp = *this;
+    tmp.move(d);
+    return tmp;
   }
 
-  [[nodiscard]] auto delta(const core::Length& dx, const core::Length& dy, const core::Length& dz) const
+  [[nodiscard]] auto moved(const core::Length& dx, const core::Length& dy, const core::Length& dz) const
   {
-    return Location{room, position + core::TRVec{dx, dy, dz}};
+    return moved(core::TRVec{dx, dy, dz});
   }
+
+  void move(const glm::vec3& d)
+  {
+    move(core::TRVec{d});
+  }
+
+  void move(const core::Length& dx, const core::Length& dy, const core::Length& dz)
+  {
+    move(core::TRVec{dx, dy, dz});
+  }
+
+  void move(const core::TRVec& d)
+  {
+    position += d;
+  }
+
+  [[nodiscard]] bool isValid() const;
 };
 
 extern std::ostream& operator<<(std::ostream& stream, const Location& rhs);

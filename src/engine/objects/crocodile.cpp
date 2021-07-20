@@ -96,7 +96,7 @@ void Crocodile::updateInWater()
       m_state.type = TR1ItemId::CrocodileOnLand;
       goal(7_as);
       m_state.current_anim_state = m_state.goal_anim_state;
-      auto sector = m_state.location.delta({}).updateRoom();
+      auto sector = m_state.location.moved({}).updateRoom();
       m_state.location.position.Y
         = HeightInfo::fromFloor(sector, m_state.location.position, getWorld().getObjectManager().getObjects()).y;
       m_state.rotation.X = 0_deg;

@@ -162,7 +162,7 @@ bool Object::alignTransformClamped(const core::TRVec& targetPos,
   const auto dist = d.length();
   if(maxDistance < dist)
   {
-    move(maxDistance.cast<float>().get() * normalize(d.toRenderSystem()));
+    m_state.location.move(maxDistance.cast<float>().get() * normalize(d.toRenderSystem()));
   }
   else
   {

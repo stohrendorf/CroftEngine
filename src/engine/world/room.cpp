@@ -384,7 +384,7 @@ void patchHeightsForBlock(const engine::objects::Object& object, const core::Len
   auto tmp = object.m_state.location;
   // TODO Ugly const_cast
   gsl::not_null groundSector = const_cast<Sector*>(tmp.updateRoom().get());
-  const auto topSector = tmp.delta(0_len, height - core::SectorSize, 0_len).updateRoom();
+  const auto topSector = tmp.moved(0_len, height - core::SectorSize, 0_len).updateRoom();
 
   if(groundSector->floorHeight == -core::HeightLimit)
   {

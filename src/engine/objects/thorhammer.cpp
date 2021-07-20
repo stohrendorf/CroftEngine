@@ -90,7 +90,7 @@ void ThorHammerHandle::update()
     break;
   case 3:
   {
-    const auto sector = m_state.location.delta(0_len, 0_len, 0_len).updateRoom();
+    const auto sector = m_state.location.moved({}).updateRoom();
     const auto hi
       = HeightInfo::fromFloor(sector, m_state.location.position, getWorld().getObjectManager().getObjects());
     getWorld().handleCommandSequence(hi.lastCommandSequenceOrDeath, true);

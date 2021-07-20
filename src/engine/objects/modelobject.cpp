@@ -126,8 +126,10 @@ void ModelObject::applyMovement(const bool forLara)
     m_state.speed = m_skeleton->calculateFloorSpeed();
   }
 
-  move(util::pitch(m_state.speed * 1_frame, getMovementAngle())
-       + core::TRVec{0_len, (m_state.falling ? m_state.fallspeed : 0_spd) * 1_frame, 0_len});
+  m_state.location.move(util::pitch(m_state.speed * 1_frame, getMovementAngle())
+                        + core::TRVec{0_len, (m_state.falling ? m_state.fallspeed : 0_spd) * 1_frame, 0_len});
+  m_state.location.updateRoom();
+  setCurrentRoom(m_state.location.room);
 
   applyTransform();
 

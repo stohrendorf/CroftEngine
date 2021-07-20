@@ -105,7 +105,7 @@ private:
       return;
     }
 
-    getLara().move(core::TRVec(0_len, 695_len + collisionInfo.front.floorSpace.y, 0_len));
+    getLara().m_state.location.move(core::TRVec(0_len, 695_len + collisionInfo.front.floorSpace.y, 0_len));
     getLara().updateFloorHeight(-381_len);
     core::TRVec d = getLara().m_state.location.position;
     if(*yRot == 0_deg)

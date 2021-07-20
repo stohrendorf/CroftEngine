@@ -101,23 +101,6 @@ public:
     m_state.rotation.Z += dz;
   }
 
-  void move(const core::Length& dx, const core::Length& dy, const core::Length& dz)
-  {
-    m_state.location.position.X += dx;
-    m_state.location.position.Y += dy;
-    m_state.location.position.Z += dz;
-  }
-
-  void move(const glm::vec3& d)
-  {
-    move(core::TRVec{d});
-  }
-
-  void move(const core::TRVec& d)
-  {
-    m_state.location.position += d;
-  }
-
   void moveLocal(const core::TRVec& d)
   {
     m_state.location.position += util::pitch(d, m_state.rotation.Y);

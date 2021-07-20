@@ -5,6 +5,8 @@
 #include "engine/script/reflection.h"
 #include "engine/world/world.h"
 #include "laraobject.h"
+#include "serialization/quantity.h"
+#include "serialization/serialization.h"
 
 #include <boost/range/adaptors.hpp>
 #include <pybind11/pybind11.h>
@@ -89,6 +91,7 @@ bool AIAgent::animateCreature(const core::Angle& angle, const core::Angle& tilt)
     {
       const auto sector = m_state.getCurrentSector();
       Ensures(sector != nullptr && sector->box != nullptr);
+      BOOST_ASSERT(m_state.location.isValid());
     });
 
   const auto& pathFinder = m_state.creatureInfo->pathFinder;
@@ -101,6 +104,11 @@ bool AIAgent::animateCreature(const core::Angle& angle, const core::Angle& tilt)
   ModelObject::update();
   if(m_state.triggerState == TriggerState::Deactivated)
   {
+    if(!m_state.location.isValid())
+    {
+      m_state.location = oldLocation;
+      setCurrentRoom(m_state.location.room);
+    }
     m_state.health = core::DeadHealth;
     m_state.collidable = false;
     m_state.creatureInfo.reset();
@@ -109,17 +117,18 @@ bool AIAgent::animateCreature(const core::Angle& angle, const core::Angle& tilt)
   }
 
   const auto bbox = getSkeleton()->getBoundingBox();
-  const auto bboxMinY = m_state.location.position.Y + bbox.minY;
+  const auto bboxMaxY = m_state.location.position.Y + bbox.maxY;
 
-  auto edgeLocation = m_state.location;
-  auto sector = edgeLocation.delta(0_len, bbox.minY, 0_len).updateRoom();
+  auto sector = m_state.location.moved(0_len, bbox.maxY, 0_len).updateRoom();
 
   if(sector->box == nullptr || boxFloor - sector->box->floor > pathFinder.step
      || boxFloor - sector->box->floor < pathFinder.drop
      || m_state.getCurrentBox().get()->*zoneRef != sector->box->*zoneRef)
   {
-    static const auto shoveMin = [](const core::Length& l) { return l / core::SectorSize * core::SectorSize; };
-    static const auto shoveMax = [](const core::Length& l) { return shoveMin(l) + core::SectorSize - 1_len; };
+    static const auto shoveMin
+      = [this](const core::Length& l) { return l / core::SectorSize * core::SectorSize + m_collisionRadius; };
+    static const auto shoveMax
+      = [this](const core::Length& l) { return shoveMin(l) + core::SectorSize - 1_len - m_collisionRadius; };
 
     const auto oldSectorX = oldLocation.position.X / core::SectorSize;
     const auto newSectorX = m_state.location.position.X / core::SectorSize;
@@ -135,12 +144,12 @@ bool AIAgent::animateCreature(const core::Angle& angle, const core::Angle& tilt)
     else if(newSectorZ > oldSectorZ)
       m_state.location.position.Z = shoveMax(oldLocation.position.Z);
 
-    sector = edgeLocation.delta(0_len, bbox.minY, 0_len).updateRoom();
+    sector = m_state.location.moved(0_len, bbox.maxY, 0_len).updateRoom();
   }
 
   Expects(sector->box != nullptr);
 
-  core::Length nextFloor = 0_len;
+  core::Length nextFloor;
   if(const auto& exitBox = pathFinder.getNextPathBox(sector->box); exitBox != nullptr)
   {
     nextFloor = exitBox->floor;
@@ -159,131 +168,134 @@ bool AIAgent::animateCreature(const core::Angle& angle, const core::Angle& tilt)
   core::Length moveX = 0_len;
   core::Length moveZ = 0_len;
 
-  const auto boundedMin = m_collisionRadius;
-  const auto boundedMax = core::SectorSize - m_collisionRadius;
-  const core::TRVec base{basePosX, bboxMinY, basePosZ};
+  // in-sector coordinate limits incorporating collision radius
+  const auto collisionMin = m_collisionRadius;
+  const auto collisionMax = core::SectorSize - m_collisionRadius;
+  const core::TRVec bottom{basePosX, bboxMaxY, basePosZ};
+  // relative bounding box collision test coordinates
   const core::TRVec testX{m_collisionRadius, 0_len, 0_len};
   const core::TRVec testZ{0_len, 0_len, m_collisionRadius};
-  const auto minXMove = boundedMin - inSectorX;
-  const auto maxXMove = boundedMax - inSectorX;
-  const auto minZMove = boundedMin - inSectorZ;
-  const auto maxZMove = boundedMax - inSectorZ;
+  // how much we can move without violating the collision radius constraint
+  const auto negXMoveLimit = collisionMin - inSectorX;
+  const auto posXMoveLimit = collisionMax - inSectorX;
+  const auto negZMoveLimit = collisionMin - inSectorZ;
+  const auto posZMoveLimit = collisionMax - inSectorZ;
 
   const auto cannotMoveTo
     = [this, floor = sector->box->floor, nextFloor = nextFloor, &pathFinder](const core::TRVec& pos)
   { return isPositionOutOfReach(pos, floor, nextFloor, pathFinder); };
 
-  if(inSectorZ < boundedMin)
+  if(inSectorZ < collisionMin)
   {
-    const auto testBase = base - testZ;
+    const auto testBase = bottom - testZ;
     if(cannotMoveTo(testBase))
     {
-      moveZ = minZMove;
+      moveZ = negZMoveLimit;
     }
 
-    if(inSectorX < boundedMin)
+    if(inSectorX < collisionMin)
     {
-      if(cannotMoveTo(base - testX))
+      if(cannotMoveTo(bottom - testX))
       {
-        moveX = minXMove;
+        moveX = negXMoveLimit;
       }
       else if(moveZ == 0_len && cannotMoveTo(testBase - testX))
       {
         switch(axisFromAngle(m_state.rotation.Y))
         {
         case core::Axis::NegZ:
-        case core::Axis::PosX: moveX = minXMove; break;
+        case core::Axis::PosX: moveX = negXMoveLimit; break;
         case core::Axis::PosZ:
-        case core::Axis::NegX: moveZ = minZMove; break;
+        case core::Axis::NegX: moveZ = negZMoveLimit; break;
         }
       }
     }
-    else if(inSectorX > boundedMax)
+    else if(inSectorX > collisionMax)
     {
-      if(cannotMoveTo(base + testX))
+      if(cannotMoveTo(bottom + testX))
       {
-        moveX = maxXMove;
+        moveX = posXMoveLimit;
       }
       else if(moveZ == 0_len && cannotMoveTo(testBase + testX))
       {
         switch(axisFromAngle(m_state.rotation.Y))
         {
         case core::Axis::PosZ:
-        case core::Axis::PosX: moveZ = minZMove; break;
+        case core::Axis::PosX: moveZ = negZMoveLimit; break;
         case core::Axis::NegZ:
-        case core::Axis::NegX: moveX = maxXMove; break;
+        case core::Axis::NegX: moveX = posXMoveLimit; break;
         }
       }
     }
   }
-  else if(inSectorZ > boundedMax)
+  else if(inSectorZ > collisionMax)
   {
-    const auto testBase = base + testZ;
+    const auto testBase = bottom + testZ;
     if(cannotMoveTo(testBase))
     {
-      moveZ = maxZMove;
+      moveZ = posZMoveLimit;
     }
 
-    if(inSectorX < boundedMin)
+    if(inSectorX < collisionMin)
     {
-      if(cannotMoveTo(base - testX))
+      if(cannotMoveTo(bottom - testX))
       {
-        moveX = minXMove;
+        moveX = negXMoveLimit;
       }
       else if(moveZ == 0_len && cannotMoveTo(testBase - testX))
       {
         switch(axisFromAngle(m_state.rotation.Y))
         {
         case core::Axis::PosX:
-        case core::Axis::NegZ: moveX = minXMove; break;
+        case core::Axis::NegZ: moveX = negXMoveLimit; break;
         case core::Axis::NegX:
-        case core::Axis::PosZ: moveZ = maxZMove; break;
+        case core::Axis::PosZ: moveZ = posZMoveLimit; break;
         }
       }
     }
-    else if(inSectorX > boundedMax)
+    else if(inSectorX > collisionMax)
     {
-      if(cannotMoveTo(base + testX))
+      if(cannotMoveTo(bottom + testX))
       {
-        moveX = maxXMove;
+        moveX = posXMoveLimit;
       }
       else if(moveZ == 0_len && cannotMoveTo(testBase + testX))
       {
         switch(axisFromAngle(m_state.rotation.Y))
         {
         case core::Axis::PosZ:
-        case core::Axis::NegX: moveX = maxXMove; break;
+        case core::Axis::NegX: moveX = posXMoveLimit; break;
         case core::Axis::NegZ:
-        case core::Axis::PosX: moveZ = maxZMove; break;
+        case core::Axis::PosX: moveZ = posZMoveLimit; break;
         }
       }
     }
   }
   else
   {
-    if(inSectorX < boundedMin)
+    if(inSectorX < collisionMin)
     {
-      if(cannotMoveTo(base - testX))
+      if(cannotMoveTo(bottom - testX))
       {
-        moveX = minXMove;
+        moveX = negXMoveLimit;
       }
     }
-    else if(inSectorX > boundedMax)
+    else if(inSectorX > collisionMax)
     {
-      if(cannotMoveTo(base + testX))
+      if(cannotMoveTo(bottom + testX))
       {
-        moveX = maxXMove;
+        moveX = posXMoveLimit;
       }
     }
   }
 
-  move(core::TRVec{moveX, 0_len, moveZ});
+  m_state.location.move(moveX, 0_len, moveZ);
 
   if(moveX != 0_len || moveZ != 0_len)
   {
-    auto bboxMinYLocation = m_state.location;
-    bboxMinYLocation.position.Y = bboxMinY;
-    sector = bboxMinYLocation.updateRoom();
+    auto bboxMaxYLocation = m_state.location;
+    bboxMaxYLocation.position.Y = bboxMaxY;
+    sector = bboxMaxYLocation.updateRoom();
 
     m_state.rotation.Y += angle;
     m_state.rotation.Z += std::clamp(8 * tilt - m_state.rotation.Z, -3_deg, +3_deg);
@@ -302,7 +314,7 @@ bool AIAgent::animateCreature(const core::Angle& angle, const core::Angle& tilt)
 
     const auto currentFloor
       = HeightInfo::fromFloor(sector,
-                              core::TRVec{m_state.location.position.X, bboxMinY, m_state.location.position.Z},
+                              core::TRVec{m_state.location.position.X, bboxMaxY, m_state.location.position.Z},
                               getWorld().getObjectManager().getObjects())
           .y;
 
@@ -327,11 +339,11 @@ bool AIAgent::animateCreature(const core::Angle& angle, const core::Angle& tilt)
     {
       const auto ceiling
         = HeightInfo::fromCeiling(sector,
-                                  core::TRVec{m_state.location.position.X, bboxMinY, m_state.location.position.Z},
+                                  core::TRVec{m_state.location.position.X, bboxMaxY, m_state.location.position.Z},
                                   getWorld().getObjectManager().getObjects())
             .y;
 
-      const auto y = m_state.type == TR1ItemId::CrocodileInWater ? 0_len : bbox.minY;
+      const auto y = m_state.type == TR1ItemId::CrocodileInWater ? 0_len : bbox.maxY;
 
       if(m_state.location.position.Y + y + moveY < ceiling)
       {
@@ -347,12 +359,12 @@ bool AIAgent::animateCreature(const core::Angle& angle, const core::Angle& tilt)
     }
 
     m_state.location.position.Y += moveY;
-    auto bboxMinYLocation = m_state.location;
-    bboxMinYLocation.position.Y = bboxMinY;
-    sector = bboxMinYLocation.updateRoom();
+    auto bboxMaxYLocation = m_state.location;
+    bboxMaxYLocation.position.Y = bboxMaxY;
+    sector = bboxMaxYLocation.updateRoom();
     m_state.floor
       = HeightInfo::fromFloor(sector,
-                              core::TRVec{m_state.location.position.X, bboxMinY, m_state.location.position.Z},
+                              core::TRVec{m_state.location.position.X, bboxMaxY, m_state.location.position.Z},
                               getWorld().getObjectManager().getObjects())
           .y;
 
@@ -367,7 +379,9 @@ bool AIAgent::animateCreature(const core::Angle& angle, const core::Angle& tilt)
     else
       m_state.rotation.X = yaw;
 
-    setCurrentRoom(edgeLocation.room);
+    m_state.location.updateRoom();
+    BOOST_ASSERT(m_state.location.isValid());
+    setCurrentRoom(m_state.location.room);
 
     return true;
   }
@@ -388,10 +402,10 @@ bool AIAgent::animateCreature(const core::Angle& angle, const core::Angle& tilt)
   m_state.rotation.X = 0_au;
 
   sector = m_state.location.updateRoom();
+  BOOST_ASSERT(m_state.location.isValid());
+  setCurrentRoom(m_state.location.room);
   m_state.floor
     = HeightInfo::fromFloor(sector, m_state.location.position, getWorld().getObjectManager().getObjects()).y;
-
-  setCurrentRoom(m_state.location.room);
 
   return true;
 }
@@ -502,5 +516,10 @@ void AIAgent::hitLara(const core::Health& strength)
 {
   getWorld().getObjectManager().getLara().m_state.is_hit = true;
   getWorld().getObjectManager().getLara().m_state.health -= strength;
+}
+
+void AIAgent::serialize(const serialization::Serializer<world::World>& ser)
+{
+  ser(S_NV("collisionRadius", m_collisionRadius));
 }
 } // namespace engine::objects

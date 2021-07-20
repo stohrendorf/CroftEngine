@@ -58,6 +58,11 @@ gsl::not_null<const world::Sector*> Location::updateRoom()
   return sector;
 }
 
+bool Location::isValid() const
+{
+  return room->isInnerPositionXZ(position);
+}
+
 std::ostream& operator<<(std::ostream& stream, const Location& rhs)
 {
   return stream << "[" << rhs.room->node->getName() << " " << rhs.position << "]";

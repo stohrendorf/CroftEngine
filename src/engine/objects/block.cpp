@@ -168,7 +168,7 @@ void Block::update()
 
 bool Block::isOnFloor(const core::Length& height) const
 {
-  const auto sector = m_state.location.delta(0_len, 0_len, 0_len).updateRoom();
+  const auto sector = m_state.location.moved({}).updateRoom();
   return sector->floorHeight == -core::HeightLimit || sector->floorHeight == m_state.location.position.Y - height;
 }
 

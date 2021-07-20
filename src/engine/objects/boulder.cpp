@@ -40,7 +40,7 @@ void engine::objects::RollingBall::update()
     }
 
     // let's see if we hit a wall, and if that's the case, stop.
-    auto testPos = m_state.location.delta(util::pitch(core::SectorSize / 2, m_state.rotation.Y));
+    auto testPos = m_state.location.moved(util::pitch(core::SectorSize / 2, m_state.rotation.Y));
     sector = testPos.updateRoom();
     if(HeightInfo::fromFloor(sector, testPos.position, getWorld().getObjectManager().getObjects()).y
        < m_state.location.position.Y)

@@ -40,7 +40,7 @@ void Doppelganger::update()
     m_state.floor
       = HeightInfo::fromCeiling(sector, m_state.location.position, getWorld().getObjectManager().getObjects()).y;
 
-    const auto laraSector = lara.m_state.location.delta(0_len, 0_len, 0_len).updateRoom();
+    const auto laraSector = lara.m_state.location.moved({}).updateRoom();
     const auto laraHeight
       = HeightInfo::fromFloor(laraSector, lara.m_state.location.position, getWorld().getObjectManager().getObjects()).y;
     getSkeleton()->setAnim(lara.getSkeleton()->getAnim(), lara.getSkeleton()->getFrame());
@@ -64,7 +64,7 @@ void Doppelganger::update()
   {
     ModelObject::update();
     auto oldLocation = m_state.location;
-    const auto sector = m_state.location.delta(0_len, 0_len, 0_len).updateRoom();
+    const auto sector = m_state.location.moved({}).updateRoom();
     const auto hi
       = HeightInfo::fromFloor(sector, m_state.location.position, getWorld().getObjectManager().getObjects());
     const auto height = hi.y;
@@ -76,7 +76,7 @@ void Doppelganger::update()
     m_state.location.position.Y = m_state.floor;
     m_state.floor = hi.y;
     oldLocation.position.Y = hi.y;
-    const auto sector2 = oldLocation.delta(0_len, 0_len, 0_len).updateRoom();
+    const auto sector2 = oldLocation.moved({}).updateRoom();
     const auto hi2 = HeightInfo::fromFloor(sector2, oldLocation.position, getWorld().getObjectManager().getObjects());
     getWorld().handleCommandSequence(hi2.lastCommandSequenceOrDeath, true);
     m_state.fallspeed = 0_spd;
