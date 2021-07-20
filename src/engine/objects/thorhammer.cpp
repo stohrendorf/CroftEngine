@@ -18,7 +18,7 @@ ThorHammerHandle::ThorHammerHandle(const gsl::not_null<world::World*>& world,
   m_block->m_state.triggerState = TriggerState::Active;
 }
 
-ThorHammerHandle::ThorHammerHandle(const gsl::not_null<world::World*>& world, const RoomBoundPosition& location)
+ThorHammerHandle::ThorHammerHandle(const gsl::not_null<world::World*>& world, const Location& location)
     : ModelObject{world, location}
     , m_block{world->createObject<ThorHammerBlock>(location)}
 {

@@ -34,7 +34,7 @@ void SwingingBlade::update()
       getWorld().getObjectManager().getLara().m_state.location.position.Y - util::rand15(745_len),
       getWorld().getObjectManager().getLara().m_state.location.position.Z + util::rand15s(128_len)};
     auto fx = createBloodSplat(getWorld(),
-                               RoomBoundPosition{m_state.location.room, splatPos},
+                               Location{m_state.location.room, splatPos},
                                getWorld().getObjectManager().getLara().m_state.speed,
                                getWorld().getObjectManager().getLara().m_state.rotation.Y + util::rand15s(+22_deg));
     getWorld().getObjectManager().registerParticle(fx);

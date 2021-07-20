@@ -4,7 +4,7 @@
 #include "core/angle.h"
 #include "core/vec.h"
 #include "floordata/types.h"
-#include "roomboundposition.h"
+#include "location.h"
 
 namespace render::scene
 {
@@ -57,9 +57,9 @@ private:
   const gsl::not_null<world::World*> m_world;
 
   //! @brief Global camera position.
-  RoomBoundPosition m_location;
+  Location m_location;
   //! @brief The point the camera moves around.
-  RoomBoundPosition m_lookAt;
+  Location m_lookAt;
   CameraMode m_mode = CameraMode::Chase;
 
   CameraModifier m_modifier = CameraModifier::None;
@@ -158,7 +158,7 @@ public:
 
   [[nodiscard]] glm::vec3 getPosition() const override;
 
-  const RoomBoundPosition& getLookAt() const
+  const Location& getLookAt() const
   {
     return m_lookAt;
   }
@@ -177,12 +177,12 @@ public:
     m_location.position = p;
   }
 
-  const RoomBoundPosition& getTRLocation() const
+  const Location& getTRLocation() const
   {
     return m_location;
   }
 
-  void setLocation(const RoomBoundPosition& location)
+  void setLocation(const Location& location)
   {
     m_location = location;
   }
@@ -210,9 +210,9 @@ private:
 
   void handleFixedCamera();
 
-  core::Length moveIntoBox(RoomBoundPosition& goal, const core::Length& margin) const;
+  core::Length moveIntoBox(Location& goal, const core::Length& margin) const;
 
-  void updatePosition(const RoomBoundPosition& goal, int smoothFactor);
+  void updatePosition(const Location& goal, int smoothFactor);
 
   void chaseObject(const objects::Object& object);
 

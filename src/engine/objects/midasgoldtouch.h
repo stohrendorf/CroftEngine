@@ -7,7 +7,7 @@ namespace engine::objects
 class MidasGoldTouch final : public NullRenderModelObject
 {
 public:
-  MidasGoldTouch(const gsl::not_null<world::World*>& world, const RoomBoundPosition& location)
+  MidasGoldTouch(const gsl::not_null<world::World*>& world, const Location& location)
       : NullRenderModelObject{world, location}
   {
   }

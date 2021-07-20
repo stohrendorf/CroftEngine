@@ -277,7 +277,7 @@ void World::laraBubblesEffect(objects::Object& object)
 
   while(bubbleCount-- > 0)
   {
-    auto particle = std::make_shared<BubbleParticle>(RoomBoundPosition{object.m_state.location.room, position}, *this);
+    auto particle = std::make_shared<BubbleParticle>(Location{object.m_state.location.room, position}, *this);
     setParent(particle, object.m_state.location.room->node);
     m_objectManager.registerParticle(particle);
   }

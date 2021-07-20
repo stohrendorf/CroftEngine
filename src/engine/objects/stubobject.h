@@ -7,7 +7,7 @@ namespace engine::objects
 class StubObject final : public ModelObject
 {
 public:
-  StubObject(const gsl::not_null<world::World*>& world, const RoomBoundPosition& location)
+  StubObject(const gsl::not_null<world::World*>& world, const Location& location)
       : ModelObject{world, location}
   {
   }

@@ -283,7 +283,7 @@ gsl::not_null<std::shared_ptr<Particle>>
   ModelObject::emitParticle(const core::TRVec& localPosition,
                             const size_t boneIndex,
                             gsl::not_null<std::shared_ptr<Particle>> (*generate)(
-                              world::World& world, const RoomBoundPosition&, const core::Speed&, const core::Angle&))
+                              world::World& world, const Location&, const core::Speed&, const core::Angle&))
 {
   BOOST_ASSERT(generate != nullptr);
   BOOST_ASSERT(boneIndex < m_skeleton->getBoneCount());
@@ -318,7 +318,7 @@ void ModelObject::serialize(const serialization::Serializer<world::World>& ser)
 
 std::shared_ptr<ModelObject> ModelObject::create(serialization::Serializer<world::World>& ser)
 {
-  auto result = std::make_shared<ModelObject>(&ser.context, RoomBoundPosition::create(ser["@location"]));
+  auto result = std::make_shared<ModelObject>(&ser.context, Location::create(ser["@location"]));
   result->serialize(ser);
   return result;
 }

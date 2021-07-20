@@ -10,8 +10,8 @@ struct TRVec;
 namespace engine
 {
 class ObjectManager;
-struct RoomBoundPosition;
+struct Location;
 
-extern std::pair<bool, RoomBoundPosition>
-  raycastLineOfSight(const RoomBoundPosition& start, const core::TRVec& goal, const ObjectManager& objectManager);
+extern std::pair<bool, Location>
+  raycastLineOfSight(const Location& start, const core::TRVec& goal, const ObjectManager& objectManager);
 } // namespace engine

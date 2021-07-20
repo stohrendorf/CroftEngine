@@ -5,7 +5,7 @@
 #include "core/units.h"
 #include "core/vec.h"
 #include "engine/lighting.h"
-#include "engine/roomboundposition.h"
+#include "engine/location.h"
 #include "sector.h"
 
 #include <algorithm>
@@ -156,5 +156,5 @@ struct Room
 
 extern void patchHeightsForBlock(const engine::objects::Object& object, const core::Length& height);
 
-[[nodiscard]] extern std::optional<core::Length> getWaterSurfaceHeight(const RoomBoundPosition& location);
+[[nodiscard]] extern std::optional<core::Length> getWaterSurfaceHeight(const Location& location);
 } // namespace engine::world

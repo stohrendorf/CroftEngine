@@ -1,4 +1,4 @@
-#include "roomboundposition.h"
+#include "location.h"
 
 #include "engine/world/world.h"
 #include "serialization/serialization.h"
@@ -6,20 +6,20 @@
 
 namespace engine
 {
-void RoomBoundPosition::serialize(const serialization::Serializer<world::World>& ser)
+void Location::serialize(const serialization::Serializer<world::World>& ser)
 {
   ser(S_NV_VECTOR_ELEMENT_NOT_NULL("room", ser.context.getRooms(), room), S_NV("position", position));
 }
 
-RoomBoundPosition RoomBoundPosition::create(const serialization::Serializer<world::World>& ser)
+Location Location::create(const serialization::Serializer<world::World>& ser)
 {
   const world::Room* room = nullptr;
   core::TRVec position{};
   ser(S_NV_VECTOR_ELEMENT("room", ser.context.getRooms(), room), S_NV("position", position));
-  return RoomBoundPosition{room, position};
+  return Location{room, position};
 }
 
-gsl::not_null<const world::Sector*> RoomBoundPosition::updateRoom()
+gsl::not_null<const world::Sector*> Location::updateRoom()
 {
   const world::Sector* sector;
   while(true)
@@ -58,7 +58,7 @@ gsl::not_null<const world::Sector*> RoomBoundPosition::updateRoom()
   return sector;
 }
 
-std::ostream& operator<<(std::ostream& stream, const RoomBoundPosition& rhs)
+std::ostream& operator<<(std::ostream& stream, const Location& rhs)
 {
   return stream << "[" << rhs.room->node->getName() << " " << rhs.position << "]";
 }

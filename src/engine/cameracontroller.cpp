@@ -41,7 +41,7 @@ void freeLookClamp(core::Length& goalX,
   }
 }
 
-bool isVerticallyOutsideRoom(RoomBoundPosition location, const ObjectManager& objectManager)
+bool isVerticallyOutsideRoom(Location location, const ObjectManager& objectManager)
 {
   const auto sector = location.updateRoom();
   const auto floor = HeightInfo::fromFloor(sector, location.position, objectManager.getObjects()).y;
@@ -126,10 +126,10 @@ using ClampCallback = void(core::Length& goalX,
                            const core::Length& maxX,
                            const core::Length& maxY);
 
-RoomBoundPosition clampBox(const RoomBoundPosition& start,
-                           const core::TRVec& goal,
-                           const std::function<ClampCallback>& callback,
-                           const ObjectManager& objectManager)
+Location clampBox(const Location& start,
+                  const core::TRVec& goal,
+                  const std::function<ClampCallback>& callback,
+                  const ObjectManager& objectManager)
 {
   auto result = raycastLineOfSight(start, goal, objectManager).second;
   const gsl::not_null startSector = start.room->getSectorByAbsolutePosition(start.position);
@@ -158,7 +158,7 @@ RoomBoundPosition clampBox(const RoomBoundPosition& start,
   core::TRVec testPos = result.position;
 
   const auto testPosInvalid = [&testPos, &result, &objectManager] {
-    return isVerticallyOutsideRoom(RoomBoundPosition{result.room, testPos}, objectManager);
+    return isVerticallyOutsideRoom(Location{result.room, testPos}, objectManager);
   };
 
   alignMin(testPos.Z);
@@ -167,7 +167,7 @@ RoomBoundPosition clampBox(const RoomBoundPosition& start,
   const bool invalidMinZ = testPosInvalid();
   if(!invalidMinZ)
   {
-    if(const auto box = RoomBoundPosition{result.room, testPos}.updateRoom()->box)
+    if(const auto box = Location{result.room, testPos}.updateRoom()->box)
       minZ = std::min(minZ, box->zmin);
   }
   minZ += core::QuarterSectorSize;
@@ -179,7 +179,7 @@ RoomBoundPosition clampBox(const RoomBoundPosition& start,
   const bool invalidMaxZ = testPosInvalid();
   if(!invalidMaxZ)
   {
-    if(const auto box = RoomBoundPosition{result.room, testPos}.updateRoom()->box)
+    if(const auto box = Location{result.room, testPos}.updateRoom()->box)
       maxZ = std::max(maxZ, box->zmax);
   }
   maxZ -= core::QuarterSectorSize;
@@ -191,7 +191,7 @@ RoomBoundPosition clampBox(const RoomBoundPosition& start,
   const bool invalidMinX = testPosInvalid();
   if(!invalidMinX)
   {
-    if(const auto box = RoomBoundPosition{result.room, testPos}.updateRoom()->box)
+    if(const auto box = Location{result.room, testPos}.updateRoom()->box)
       minX = std::max(minX, box->xmin);
   }
   minX += core::QuarterSectorSize;
@@ -203,7 +203,7 @@ RoomBoundPosition clampBox(const RoomBoundPosition& start,
   const bool invalidMaxX = testPosInvalid();
   if(!invalidMaxX)
   {
-    if(const auto box = RoomBoundPosition{result.room, testPos}.updateRoom()->box)
+    if(const auto box = Location{result.room, testPos}.updateRoom()->box)
       maxX = std::max(maxX, box->xmax);
   }
   maxX -= core::QuarterSectorSize;
@@ -548,7 +548,7 @@ void CameraController::handleFixedCamera()
   }
 }
 
-core::Length CameraController::moveIntoBox(RoomBoundPosition& goal, const core::Length& margin) const
+core::Length CameraController::moveIntoBox(Location& goal, const core::Length& margin) const
 {
   const auto sector = goal.updateRoom();
   Expects(sector->box != nullptr);
@@ -588,7 +588,7 @@ core::Length CameraController::moveIntoBox(RoomBoundPosition& goal, const core::
     return 0_len;
 }
 
-void CameraController::updatePosition(const RoomBoundPosition& goal, const int smoothFactor)
+void CameraController::updatePosition(const Location& goal, const int smoothFactor)
 {
   m_location.position += (goal.position - m_location.position) / smoothFactor;
   m_location.room = goal.room;

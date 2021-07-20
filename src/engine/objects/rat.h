@@ -8,7 +8,7 @@ namespace engine::objects
 class Rat final : public AIAgent
 {
 public:
-  Rat(const gsl::not_null<world::World*>& world, const RoomBoundPosition& location)
+  Rat(const gsl::not_null<world::World*>& world, const Location& location)
       : AIAgent{world, location}
   {
   }

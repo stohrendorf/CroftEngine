@@ -7,7 +7,7 @@ namespace engine::objects
 class LightningBall final : public ModelObject
 {
 public:
-  LightningBall(const gsl::not_null<world::World*>& world, const RoomBoundPosition& location)
+  LightningBall(const gsl::not_null<world::World*>& world, const Location& location)
       : ModelObject{world, location}
   {
   }

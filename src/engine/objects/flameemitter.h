@@ -7,7 +7,7 @@ namespace engine::objects
 class FlameEmitter final : public NullRenderModelObject
 {
 public:
-  FlameEmitter(const gsl::not_null<world::World*>& world, const RoomBoundPosition& location)
+  FlameEmitter(const gsl::not_null<world::World*>& world, const Location& location)
       : NullRenderModelObject{world, location}
   {
   }

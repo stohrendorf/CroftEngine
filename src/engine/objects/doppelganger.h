@@ -8,7 +8,7 @@ namespace engine::objects
 class Doppelganger final : public ModelObject
 {
 public:
-  Doppelganger(const gsl::not_null<world::World*>& world, const RoomBoundPosition& location)
+  Doppelganger(const gsl::not_null<world::World*>& world, const Location& location)
       : ModelObject{world, location}
   {
   }

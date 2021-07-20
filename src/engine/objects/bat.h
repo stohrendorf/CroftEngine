@@ -8,7 +8,7 @@ namespace engine::objects
 class Bat final : public AIAgent
 {
 public:
-  Bat(const gsl::not_null<world::World*>& world, const RoomBoundPosition& location)
+  Bat(const gsl::not_null<world::World*>& world, const Location& location)
       : AIAgent{world, location}
   {
   }

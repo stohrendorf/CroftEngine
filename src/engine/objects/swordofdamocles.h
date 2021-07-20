@@ -7,7 +7,7 @@ namespace engine::objects
 class SwordOfDamocles final : public ModelObject
 {
 public:
-  SwordOfDamocles(const gsl::not_null<world::World*>& world, const RoomBoundPosition& location)
+  SwordOfDamocles(const gsl::not_null<world::World*>& world, const Location& location)
       : ModelObject{world, location}
   {
   }

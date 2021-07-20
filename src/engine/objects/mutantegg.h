@@ -10,7 +10,7 @@ extern bool shatterModel(ModelObject& object, const std::bitset<32>& meshMask, c
 class MutantEgg final : public ModelObject
 {
 public:
-  MutantEgg(const gsl::not_null<world::World*>& world, const RoomBoundPosition& location)
+  MutantEgg(const gsl::not_null<world::World*>& world, const Location& location)
       : ModelObject{world, location}
   {
   }

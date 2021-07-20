@@ -948,7 +948,7 @@ void LaraObject::updateAimingState(const Weapon& weapon)
     return;
   }
 
-  RoomBoundPosition weaponLocation{m_state.location};
+  Location weaponLocation{m_state.location};
   weaponLocation.position.Y -= weapon.weaponHeight;
   const auto enemyChestPos = getUpperThirdBBoxCtr(*aimAt);
   auto targetVector = getVectorAngles(enemyChestPos.position - weaponLocation.position);
@@ -1026,7 +1026,7 @@ void LaraObject::initWeaponAnimData()
   }
 }
 
-RoomBoundPosition LaraObject::getUpperThirdBBoxCtr(const ModelObject& object)
+Location LaraObject::getUpperThirdBBoxCtr(const ModelObject& object)
 {
   const auto kf = object.getSkeleton()->getInterpolationInfo().getNearestFrame();
   const auto bbox = kf->bbox.toBBox();
@@ -1035,7 +1035,7 @@ RoomBoundPosition LaraObject::getUpperThirdBBoxCtr(const ModelObject& object)
   const auto ctrZ = (bbox.minZ + bbox.maxZ) / 2;
   const auto ctrY3 = (bbox.maxY - bbox.minY) / 3 + bbox.minY;
 
-  RoomBoundPosition result{object.m_state.location};
+  Location result{object.m_state.location};
   result.position += util::pitch(core::TRVec{ctrX, ctrY3, ctrZ}, object.m_state.rotation.Y);
   return result;
 }
@@ -1064,7 +1064,7 @@ void LaraObject::drawWeapons(WeaponType weaponType)
 
 void LaraObject::findTarget(const Weapon& weapon)
 {
-  RoomBoundPosition weaponLocation{m_state.location};
+  Location weaponLocation{m_state.location};
   weaponLocation.position.Y -= weapons.at(WeaponType::Shotgun).weaponHeight;
   aimAt.reset();
   core::Angle bestYAngle{std::numeric_limits<core::Angle::type>::max()};
@@ -1570,7 +1570,7 @@ bool LaraObject::fireWeapon(const WeaponType weaponType,
     static constexpr float VeryLargeDistanceProbablyClipping = 1u << 14u;
 
     const auto aimHitPos
-      = raycastLineOfSight(RoomBoundPosition{weaponHolder.m_state.location.room, weaponPosition},
+      = raycastLineOfSight(Location{weaponHolder.m_state.location.room, weaponPosition},
                            weaponPosition + core::TRVec{-bulletDir * VeryLargeDistanceProbablyClipping},
                            getWorld().getObjectManager())
           .second;
@@ -1594,10 +1594,8 @@ void LaraObject::hitTarget(ModelObject& object, const core::TRVec& hitPos, const
   }
   object.m_state.is_hit = true;
   object.m_state.health -= damage;
-  auto fx = createBloodSplat(getWorld(),
-                             RoomBoundPosition{object.m_state.location.room, hitPos},
-                             object.m_state.speed,
-                             object.m_state.rotation.Y);
+  auto fx = createBloodSplat(
+    getWorld(), Location{object.m_state.location.room, hitPos}, object.m_state.speed, object.m_state.rotation.Y);
   getWorld().getObjectManager().registerParticle(fx);
   if(object.m_state.isDead())
     return;

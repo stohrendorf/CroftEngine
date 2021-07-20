@@ -68,7 +68,7 @@ struct ObjectFactory
 
   [[nodiscard]] virtual std::shared_ptr<Object> createNew(world::World& world, loader::file::Item& item) const = 0;
   [[nodiscard]] virtual std::shared_ptr<Object>
-    createFromSave(const RoomBoundPosition& location, const serialization::Serializer<world::World>& ser) const = 0;
+    createFromSave(const Location& location, const serialization::Serializer<world::World>& ser) const = 0;
 };
 
 template<typename T>
@@ -87,7 +87,7 @@ struct ModelFactory : public ObjectFactory
   }
 
   [[nodiscard]] std::shared_ptr<Object>
-    createFromSave(const RoomBoundPosition& location, const serialization::Serializer<world::World>& ser) const override
+    createFromSave(const Location& location, const serialization::Serializer<world::World>& ser) const override
   {
     auto object = std::make_shared<T>(&ser.context, location);
     object->serialize(ser);
@@ -113,7 +113,7 @@ struct SpriteFactory : public ObjectFactory
   }
 
   [[nodiscard]] std::shared_ptr<Object>
-    createFromSave(const RoomBoundPosition& location, const serialization::Serializer<world::World>& ser) const override
+    createFromSave(const Location& location, const serialization::Serializer<world::World>& ser) const override
   {
     std::string spriteName;
     ser(S_NV("@name", spriteName));
@@ -150,7 +150,7 @@ struct WalkingMutantFactory : public ObjectFactory
   }
 
   [[nodiscard]] std::shared_ptr<Object>
-    createFromSave(const RoomBoundPosition& location, const serialization::Serializer<world::World>& ser) const override
+    createFromSave(const Location& location, const serialization::Serializer<world::World>& ser) const override
   {
     auto object = std::make_shared<WalkingMutant>(&ser.context, location);
     object->serialize(ser);
@@ -170,7 +170,7 @@ struct HiddenModelFactory : public ModelFactory<StubObject>
   }
 
   [[nodiscard]] std::shared_ptr<Object>
-    createFromSave(const RoomBoundPosition& location, const serialization::Serializer<world::World>& ser) const override
+    createFromSave(const Location& location, const serialization::Serializer<world::World>& ser) const override
   {
     auto object = std::static_pointer_cast<StubObject>(ModelFactory<StubObject>::createFromSave(location, ser));
     object->getSkeleton()->setRenderable(nullptr);
@@ -351,7 +351,7 @@ gsl::not_null<std::shared_ptr<Object>> create(const serialization::TypeId<gsl::n
                                               const serialization::Serializer<world::World>& ser)
 {
   const auto type = core::TypeId::create(ser["@type"]);
-  const auto position = RoomBoundPosition::create(ser["@location"]);
+  const auto position = Location::create(ser["@location"]);
 
   if(const auto factory = findFactory(type.get_as<TR1ItemId>()))
     return factory->createFromSave(position, ser);

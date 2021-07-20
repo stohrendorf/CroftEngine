@@ -23,12 +23,13 @@ void SlammingDoors::update()
       const auto objectSpheres = getSkeleton()->getBoneCollisionSpheres(
         m_state, *getSkeleton()->getInterpolationInfo().getNearestFrame(), nullptr);
 
-      const auto emitBlood = [&objectSpheres, this](const core::TRVec& bitePos, size_t boneId) {
+      const auto emitBlood = [&objectSpheres, this](const core::TRVec& bitePos, size_t boneId)
+      {
         const auto position
           = core::TRVec{glm::vec3{translate(objectSpheres.at(boneId).m, bitePos.toRenderSystem())[3]}};
 
-        auto blood = createBloodSplat(
-          getWorld(), RoomBoundPosition{m_state.location.room, position}, m_state.speed, m_state.rotation.Y);
+        auto blood
+          = createBloodSplat(getWorld(), Location{m_state.location.room, position}, m_state.speed, m_state.rotation.Y);
         getWorld().getObjectManager().registerParticle(std::move(blood));
       };
 

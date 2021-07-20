@@ -42,7 +42,7 @@ bool AIAgent::isPositionOutOfReach(const core::TRVec& testPosition,
                                    const core::Length& nextBoxFloor,
                                    const ai::PathFinder& pathFinder) const
 {
-  const auto sectorBox = RoomBoundPosition{m_state.location.room, testPosition}.updateRoom()->box;
+  const auto sectorBox = Location{m_state.location.room, testPosition}.updateRoom()->box;
   if(sectorBox == nullptr)
     return true;
 
@@ -441,7 +441,7 @@ bool AIAgent::canShootAtLara(const ai::EnemyLocation& enemyLocation) const
 namespace
 {
 gsl::not_null<std::shared_ptr<Particle>> createMuzzleFlash(world::World& world,
-                                                           const RoomBoundPosition& location,
+                                                           const Location& location,
                                                            const core::Speed& /*speed*/,
                                                            const core::Angle& angle)
 {

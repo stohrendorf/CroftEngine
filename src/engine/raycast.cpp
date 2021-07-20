@@ -11,7 +11,7 @@ namespace engine
 namespace
 {
 bool clampY(const core::TRVec& start,
-            RoomBoundPosition& goal,
+            Location& goal,
             const gsl::not_null<const world::Sector*>& sector,
             const ObjectManager& objectManager)
 {
@@ -49,16 +49,16 @@ enum class CollisionType
   None      // resulting position is valid and needs no further adjustment
 };
 
-std::pair<CollisionType, RoomBoundPosition> clampSteps(const RoomBoundPosition& start,
-                                                       const core::TRVec& goal,
-                                                       const ObjectManager& objectManager,
-                                                       core::Length(core::TRVec::*stepAxis),
-                                                       core::Length(core::TRVec::*secondaryAxis))
+std::pair<CollisionType, Location> clampSteps(const Location& start,
+                                              const core::TRVec& goal,
+                                              const ObjectManager& objectManager,
+                                              core::Length(core::TRVec::*stepAxis),
+                                              core::Length(core::TRVec::*secondaryAxis))
 {
   const auto delta = goal - start.position;
   if(delta.*stepAxis == 0_len)
   {
-    return {CollisionType::None, RoomBoundPosition{start.room, goal}};
+    return {CollisionType::None, Location{start.room, goal}};
   }
 
   const auto dir = delta.*stepAxis < 0_len ? -1 : 1;
@@ -77,7 +77,7 @@ std::pair<CollisionType, RoomBoundPosition> clampSteps(const RoomBoundPosition& 
   result.position.*secondaryAxis += sectorStep.*secondaryAxis * deltaStep / sectorStep.*stepAxis;
   result.position.Y += sectorStep.Y * deltaStep / sectorStep.*stepAxis;
 
-  auto testVerticalHit = [&objectManager](RoomBoundPosition& location)
+  auto testVerticalHit = [&objectManager](Location& location)
   {
     const auto sector = location.updateRoom();
     const auto floor = HeightInfo::fromFloor(sector, location.position, objectManager.getObjects()).y;
@@ -89,11 +89,11 @@ std::pair<CollisionType, RoomBoundPosition> clampSteps(const RoomBoundPosition& 
   {
     if(dir > 0 && result.position.*stepAxis >= goal.*stepAxis)
     {
-      return {CollisionType::None, RoomBoundPosition{result.room, goal}};
+      return {CollisionType::None, Location{result.room, goal}};
     }
     if(dir < 0 && result.position.*stepAxis <= goal.*stepAxis)
     {
-      return {CollisionType::None, RoomBoundPosition{result.room, goal}};
+      return {CollisionType::None, Location{result.room, goal}};
     }
 
     if(testVerticalHit(result))
@@ -117,13 +117,12 @@ std::pair<CollisionType, RoomBoundPosition> clampSteps(const RoomBoundPosition& 
 
 } // namespace
 
-std::pair<bool, RoomBoundPosition>
-  raycastLineOfSight(const RoomBoundPosition& start, const core::TRVec& goal, const ObjectManager& objectManager)
+std::pair<bool, Location>
+  raycastLineOfSight(const Location& start, const core::TRVec& goal, const ObjectManager& objectManager)
 {
-  auto collide
-    = [&start, &goal, &objectManager](
-        core::Length(core::TRVec::*firstStepAxis),
-        core::Length(core::TRVec::*secondStepAxis)) -> std::tuple<CollisionType, CollisionType, RoomBoundPosition>
+  auto collide = [&start, &goal, &objectManager](
+                   core::Length(core::TRVec::*firstStepAxis),
+                   core::Length(core::TRVec::*secondStepAxis)) -> std::tuple<CollisionType, CollisionType, Location>
   {
     auto [firstType, firstPos] = clampSteps(start, goal, objectManager, firstStepAxis, secondStepAxis);
     auto [secondType, secondPos] = clampSteps(start, firstPos.position, objectManager, secondStepAxis, firstStepAxis);

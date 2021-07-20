@@ -7,7 +7,7 @@ namespace engine::objects
 class FallingCeiling final : public ModelObject
 {
 public:
-  FallingCeiling(const gsl::not_null<world::World*>& world, const RoomBoundPosition& location)
+  FallingCeiling(const gsl::not_null<world::World*>& world, const Location& location)
       : ModelObject{world, location}
   {
   }

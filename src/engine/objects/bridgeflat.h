@@ -7,7 +7,7 @@ namespace engine::objects
 class BridgeFlat final : public ModelObject
 {
 public:
-  BridgeFlat(const gsl::not_null<world::World*>& world, const RoomBoundPosition& location)
+  BridgeFlat(const gsl::not_null<world::World*>& world, const Location& location)
       : ModelObject{world, location}
   {
   }

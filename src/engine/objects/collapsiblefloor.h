@@ -7,7 +7,7 @@ namespace engine::objects
 class CollapsibleFloor final : public ModelObject
 {
 public:
-  CollapsibleFloor(const gsl::not_null<world::World*>& world, const RoomBoundPosition& location)
+  CollapsibleFloor(const gsl::not_null<world::World*>& world, const Location& location)
       : ModelObject{world, location}
   {
   }

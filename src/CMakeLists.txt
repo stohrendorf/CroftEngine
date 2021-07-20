@@ -164,6 +164,8 @@ set( EDISONENGINE_SRCS
         engine/inventory.cpp
         engine/lighting.h
         engine/lighting.cpp
+        engine/location.h
+        engine/location.cpp
         engine/objectmanager.h
         engine/objectmanager.cpp
         engine/particle.h
@@ -175,8 +177,6 @@ set( EDISONENGINE_SRCS
         engine/py_module.cpp
         engine/raycast.h
         engine/raycast.cpp
-        engine/roomboundposition.h
-        engine/roomboundposition.cpp
         engine/skeletalmodelnode.h
         engine/skeletalmodelnode.cpp
 

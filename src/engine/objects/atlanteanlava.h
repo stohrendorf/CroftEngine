@@ -7,7 +7,7 @@ namespace engine::objects
 class AtlanteanLava final : public ModelObject
 {
 public:
-  AtlanteanLava(const gsl::not_null<world::World*>& world, const RoomBoundPosition& location)
+  AtlanteanLava(const gsl::not_null<world::World*>& world, const Location& location)
       : ModelObject{world, location}
   {
   }

@@ -7,7 +7,7 @@ namespace engine::objects
 class UnderwaterSwitch final : public Switch
 {
 public:
-  UnderwaterSwitch(const gsl::not_null<world::World*>& world, const RoomBoundPosition& location)
+  UnderwaterSwitch(const gsl::not_null<world::World*>& world, const Location& location)
       : Switch{world, location}
   {
   }

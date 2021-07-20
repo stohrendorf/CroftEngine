@@ -8,7 +8,7 @@ namespace engine::objects
 class Raptor final : public AIAgent
 {
 public:
-  Raptor(const gsl::not_null<world::World*>& world, const RoomBoundPosition& location)
+  Raptor(const gsl::not_null<world::World*>& world, const Location& location)
       : AIAgent{world, location}
   {
   }

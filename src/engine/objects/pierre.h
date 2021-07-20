@@ -8,7 +8,7 @@ namespace engine::objects
 class Pierre final : public AIAgent
 {
 public:
-  Pierre(const gsl::not_null<world::World*>& world, const RoomBoundPosition& location)
+  Pierre(const gsl::not_null<world::World*>& world, const Location& location)
       : AIAgent{world, location}
   {
   }

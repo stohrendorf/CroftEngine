@@ -7,7 +7,7 @@ namespace engine::objects
 class TrapDoorUp final : public ModelObject
 {
 public:
-  TrapDoorUp(const gsl::not_null<world::World*>& world, const RoomBoundPosition& location)
+  TrapDoorUp(const gsl::not_null<world::World*>& world, const Location& location)
       : ModelObject{world, location}
   {
   }

@@ -7,7 +7,7 @@ namespace engine::objects
 class SlammingDoors final : public ModelObject
 {
 public:
-  SlammingDoors(const gsl::not_null<world::World*>& world, const RoomBoundPosition& location)
+  SlammingDoors(const gsl::not_null<world::World*>& world, const Location& location)
       : ModelObject{world, location}
   {
   }

@@ -7,7 +7,7 @@ namespace engine::objects
 class LavaParticleEmitter final : public NullRenderModelObject
 {
 public:
-  LavaParticleEmitter(const gsl::not_null<world::World*>& world, const RoomBoundPosition& location)
+  LavaParticleEmitter(const gsl::not_null<world::World*>& world, const Location& location)
       : NullRenderModelObject{world, location}
   {
   }

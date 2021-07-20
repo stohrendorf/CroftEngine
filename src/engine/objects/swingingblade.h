@@ -7,7 +7,7 @@ namespace engine::objects
 class SwingingBlade final : public ModelObject
 {
 public:
-  SwingingBlade(const gsl::not_null<world::World*>& world, const RoomBoundPosition& location)
+  SwingingBlade(const gsl::not_null<world::World*>& world, const Location& location)
       : ModelObject{world, location}
   {
   }

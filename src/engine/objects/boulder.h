@@ -8,7 +8,7 @@ namespace engine::objects
 class RollingBall final : public ModelObject
 {
 public:
-  RollingBall(const gsl::not_null<world::World*>& world, const RoomBoundPosition& location)
+  RollingBall(const gsl::not_null<world::World*>& world, const Location& location)
       : ModelObject{world, location}
       , m_location{location}
   {
@@ -28,6 +28,6 @@ public:
   void collide(CollisionInfo& collisionInfo) override;
 
 private:
-  RoomBoundPosition m_location;
+  Location m_location;
 };
 } // namespace engine::objects

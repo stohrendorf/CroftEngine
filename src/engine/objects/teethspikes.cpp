@@ -33,9 +33,9 @@ void engine::objects::TeethSpikes::collide(CollisionInfo& collisionInfo)
       auto fx
         = createBloodSplat(
         getWorld(),
-        RoomBoundPosition{getWorld().getObjectManager().getLara().m_state.location.room,
-                          getWorld().getObjectManager().getLara().m_state.location.position
-                            + core::TRVec{util::rand15s(128_len), -util::rand15(512_len), util::rand15s(128_len)}},
+        Location{getWorld().getObjectManager().getLara().m_state.location.room,
+                 getWorld().getObjectManager().getLara().m_state.location.position
+                   + core::TRVec{util::rand15s(128_len), -util::rand15(512_len), util::rand15s(128_len)}},
         20_spd,
         util::rand15(+180_deg));
       getWorld().getObjectManager().registerParticle(fx);

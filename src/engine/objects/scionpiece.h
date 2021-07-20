@@ -8,7 +8,7 @@ namespace engine::objects
 class ScionPiece final : public SpriteObject
 {
 public:
-  ScionPiece(const gsl::not_null<world::World*>& world, const RoomBoundPosition& location, std::string name)
+  ScionPiece(const gsl::not_null<world::World*>& world, const Location& location, std::string name)
       : SpriteObject{world, location, std::move(name)}
   {
   }
@@ -28,7 +28,7 @@ public:
 class ScionPiece3 final : public ModelObject
 {
 public:
-  ScionPiece3(const gsl::not_null<world::World*>& world, const RoomBoundPosition& location)
+  ScionPiece3(const gsl::not_null<world::World*>& world, const Location& location)
       : ModelObject{world, location}
   {
   }
@@ -50,7 +50,7 @@ private:
 class ScionPiece4 final : public ModelObject
 {
 public:
-  ScionPiece4(const gsl::not_null<world::World*>& world, const RoomBoundPosition& location)
+  ScionPiece4(const gsl::not_null<world::World*>& world, const Location& location)
       : ModelObject{world, location}
   {
   }
@@ -69,7 +69,7 @@ public:
 class ScionHolder final : public ModelObject
 {
 public:
-  ScionHolder(const gsl::not_null<world::World*>& world, const RoomBoundPosition& location)
+  ScionHolder(const gsl::not_null<world::World*>& world, const Location& location)
       : ModelObject{world, location}
   {
   }
