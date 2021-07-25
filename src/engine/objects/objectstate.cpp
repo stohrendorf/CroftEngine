@@ -1,14 +1,13 @@
 #include "objectstate.h"
 
 #include "engine/script/reflection.h"
+#include "engine/script/scriptengine.h"
 #include "engine/world/world.h"
 #include "laraobject.h"
 #include "serialization/bitset.h"
 #include "serialization/quantity.h"
 #include "serialization/serialization.h"
 #include "serialization/vector_element.h"
-
-#include <pybind11/pybind11.h>
 
 namespace engine::objects
 {
@@ -100,10 +99,9 @@ glm::vec3 ObjectState::getPosition() const
   return location.position.toRenderSystem();
 }
 
-void ObjectState::loadObjectInfo()
+void ObjectState::loadObjectInfo(const script::ScriptEngine& scriptEngine)
 {
-  pybind11::object getObjectInfo = pybind11::globals()["getObjectInfo"];
-  health = core::Health{getObjectInfo(type.get()).cast<script::ObjectInfo>().hit_points};
+  health = core::Health{scriptEngine.getObjectInfo(type).hit_points};
 }
 
 void ObjectState::serialize(const serialization::Serializer<world::World>& ser)

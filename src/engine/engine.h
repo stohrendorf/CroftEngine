@@ -2,13 +2,13 @@
 
 #include "engineconfig.h"
 #include "inventory.h"
+#include "script/scriptengine.h"
 
 #include <boost/assert.hpp>
 #include <filesystem>
 #include <glm/glm.hpp>
 #include <memory>
 #include <optional>
-#include <pybind11/embed.h>
 #include <set>
 
 namespace loader::trx
@@ -77,11 +77,10 @@ class Engine
 {
 private:
   const std::filesystem::path m_rootPath;
+  script::ScriptEngine m_scriptEngine;
   std::unique_ptr<EngineConfig> m_engineConfig;
   std::shared_ptr<Presenter> m_presenter;
   std::set<gsl::not_null<world::World*>> m_worlds;
-
-  std::shared_ptr<pybind11::scoped_interpreter> m_scriptEngine;
 
   std::string m_language;
 
@@ -165,5 +164,10 @@ public:
   }
 
   void applyRenderSettings();
+
+  const auto& getScriptEngine() const
+  {
+    return m_scriptEngine;
+  }
 };
 } // namespace engine

@@ -41,7 +41,6 @@ int main()
 
   engine::Engine engine{std::filesystem::current_path()};
   size_t levelSequenceIndex = 0;
-  const size_t levelSequenceLength = pybind11::len(pybind11::globals()["level_sequence"]);
   enum class Mode
   {
     Title,
@@ -52,20 +51,18 @@ int main()
   std::optional<size_t> loadSlot;
   bool doLoad = false;
 
-  auto processLoadRequest = [&engine, &levelSequenceIndex, &levelSequenceLength, &mode, &loadSlot, &doLoad](
-                              const std::optional<size_t>& slot) -> void
+  auto processLoadRequest
+    = [&engine, &levelSequenceIndex, &mode, &loadSlot, &doLoad](const std::optional<size_t>& slot) -> void
   {
     const auto meta = engine.getSavegameMeta(slot);
     Expects(meta.has_value());
-    for(levelSequenceIndex = 0; levelSequenceIndex < levelSequenceLength; ++levelSequenceIndex)
+    for(levelSequenceIndex = 0; true; ++levelSequenceIndex)
     {
-      if(gsl::not_null {
-           pybind11::globals()["level_sequence"][pybind11::cast(levelSequenceIndex)]
-             .cast<engine::script::LevelSequenceItem*>()
-         } -> isLevel(meta->filename))
+      auto item = engine.getScriptEngine().getLevelSequenceItem(levelSequenceIndex);
+      if(item == nullptr || item->isLevel(meta->filename))
         break;
     }
-    Expects(levelSequenceIndex < levelSequenceLength);
+    Expects(engine.getScriptEngine().getLevelSequenceItem(levelSequenceIndex) != nullptr);
     loadSlot = slot;
     doLoad = true;
     mode = Mode::Game;
@@ -81,24 +78,19 @@ int main()
     case Mode::Title:
       Expects(!doLoad);
       player = std::make_shared<engine::Player>();
-      runResult = engine.runLevelSequenceItem(
-        *gsl::not_null{pybind11::globals()["title_menu"].cast<engine::script::LevelSequenceItem*>()}, player);
+      runResult = engine.runLevelSequenceItem(*engine.getScriptEngine().getTitleMenu(), player);
       break;
     case Mode::Gym:
       Expects(!doLoad);
       player = std::make_shared<engine::Player>();
-      runResult = engine.runLevelSequenceItem(
-        *gsl::not_null{pybind11::globals()["lara_home"].cast<engine::script::LevelSequenceItem*>()}, player);
+      runResult = engine.runLevelSequenceItem(*engine.getScriptEngine().getLaraHome(), player);
       break;
     case Mode::Game:
       if(doLoad)
       {
         player = std::make_shared<engine::Player>();
         runResult = engine.runLevelSequenceItemFromSave(
-          *gsl::not_null{pybind11::globals()["level_sequence"][pybind11::cast(levelSequenceIndex)]
-                           .cast<engine::script::LevelSequenceItem*>()},
-          loadSlot,
-          player);
+          *gsl::not_null{engine.getScriptEngine().getLevelSequenceItem(levelSequenceIndex)}, loadSlot, player);
       }
       else
       {
@@ -106,9 +98,7 @@ int main()
           player = std::make_shared<engine::Player>();
 
         runResult = engine.runLevelSequenceItem(
-          *gsl::not_null{pybind11::globals()["level_sequence"][pybind11::cast(levelSequenceIndex)]
-                           .cast<engine::script::LevelSequenceItem*>()},
-          player);
+          *gsl::not_null{engine.getScriptEngine().getLevelSequenceItem(levelSequenceIndex)}, player);
       }
       break;
     }
@@ -147,7 +137,7 @@ int main()
       case engine::RunResult::ExitApp: return EXIT_SUCCESS;
       case engine::RunResult::NextLevel:
         ++levelSequenceIndex;
-        if(levelSequenceIndex >= levelSequenceLength)
+        if(engine.getScriptEngine().getLevelSequenceItem(levelSequenceIndex) == nullptr)
         {
           levelSequenceIndex = 0;
           mode = Mode::Title;

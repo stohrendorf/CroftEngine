@@ -1,7 +1,6 @@
 #include "reflection.h"
 
 #include "core/i18n.h"
-#include "core/pybindmodule.h"
 #include "engine/cameracontroller.h"
 #include "engine/engine.h"
 #include "engine/objects/modelobject.h"
@@ -104,12 +103,8 @@ std::unique_ptr<world::World> Level::loadWorld(Engine& engine, const std::shared
   for(const auto& type : m_dropInventory)
     player->getInventory().drop(type);
 
-  if(const auto tbl = core::get<pybind11::dict>(
-       core::get<pybind11::dict>(pybind11::globals(), "cheats").value_or(pybind11::dict{}), "inventory"))
-  {
-    for(const auto& [type, qty] : *tbl)
-      player->getInventory().put(type.cast<TR1ItemId>(), qty.cast<size_t>());
-  }
+  for(const auto& [type, qty] : engine.getScriptEngine().getCheatInventory())
+    player->getInventory().put(type.cast<TR1ItemId>(), qty.cast<size_t>());
 
   return std::make_unique<world::World>(engine,
                                         loadLevel(engine, m_name, util::unescape(title)),

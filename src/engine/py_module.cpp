@@ -1,6 +1,5 @@
 #include "ai/py_module.h"
 
-#include "core/pybindmodule.h"
 #include "engine/objects/objectstate.h"
 #include "items_tr1.h"
 #include "script/reflection.h"
@@ -8,6 +7,7 @@
 #include "weapontype.h"
 
 #include <memory>
+#include <pybind11/embed.h>
 
 namespace py = pybind11;
 

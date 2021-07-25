@@ -749,15 +749,17 @@ void World::handleCommandSequence(const floordata::FloorDataValue* floorData, co
     case floordata::CommandOpcode::FlipEffect: flipEffect = command.parameter; break;
     case floordata::CommandOpcode::EndLevel: finishLevel(); break;
     case floordata::CommandOpcode::PlayTrack:
-      m_audioEngine->triggerCdTrack(
-        static_cast<TR1TrackId>(command.parameter), activationRequest, chunkHeader.sequenceCondition);
+      m_audioEngine->triggerCdTrack(m_engine.getScriptEngine(),
+                                    static_cast<TR1TrackId>(command.parameter),
+                                    activationRequest,
+                                    chunkHeader.sequenceCondition);
       break;
     case floordata::CommandOpcode::Secret:
       BOOST_ASSERT(command.parameter < 16);
       if(!m_secretsFoundBitmask.test(command.parameter))
       {
         m_secretsFoundBitmask.set(command.parameter);
-        m_audioEngine->playStopCdTrack(TR1TrackId::Secret, false);
+        m_audioEngine->playStopCdTrack(m_engine.getScriptEngine(), TR1TrackId::Secret, false);
         ++m_player->secrets;
       }
       break;
@@ -1063,7 +1065,7 @@ World::World(Engine& engine,
   getPresenter().getSoundEngine()->setListener(m_cameraController.get());
   getPresenter().setTrFont(std::make_unique<ui::TRFont>(*m_spriteSequences.at(TR1ItemId::FontGraphics)));
   if(track.has_value())
-    m_audioEngine->playStopCdTrack(track.value(), false);
+    m_audioEngine->playStopCdTrack(m_engine.getScriptEngine(), track.value(), false);
   getPresenter().disableScreenOverlay();
 }
 

@@ -1,6 +1,7 @@
-#include "core/pybindmodule.h"
 #include "magic.h"
 #include "vec.h"
+
+#include <pybind11/embed.h>
 
 namespace py = pybind11;
 

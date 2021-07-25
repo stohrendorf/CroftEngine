@@ -1,5 +1,6 @@
 #include "aiagent.h"
 
+#include "engine/engine.h"
 #include "engine/particle.h"
 #include "engine/raycast.h"
 #include "engine/script/reflection.h"
@@ -505,11 +506,10 @@ bool AIAgent::tryShootAtLara(ModelObject& object,
 
 void AIAgent::loadObjectInfo(bool withoutGameState)
 {
-  m_collisionRadius
-    = core::Length{pybind11::globals()["getObjectInfo"](m_state.type.get()).cast<script::ObjectInfo>().radius};
+  m_collisionRadius = core::Length{getWorld().getEngine().getScriptEngine().getObjectInfo(m_state.type).radius};
 
   if(!withoutGameState)
-    m_state.loadObjectInfo();
+    m_state.loadObjectInfo(getWorld().getEngine().getScriptEngine());
 }
 
 void AIAgent::hitLara(const core::Health& strength)

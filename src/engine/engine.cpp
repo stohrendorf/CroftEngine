@@ -2,7 +2,6 @@
 
 #include "audio/tracktype.h"
 #include "core/i18n.h"
-#include "core/pybindmodule.h"
 #include "engine/ai/ai.h"
 #include "engine/audioengine.h"
 #include "floordata/floordata.h"
@@ -54,19 +53,11 @@ namespace engine
 namespace
 {
 const gsl::czstring QuicksaveFilename = "quicksave.yaml";
-
-std::shared_ptr<pybind11::scoped_interpreter> createScriptEngine(const std::filesystem::path& rootPath)
-{
-  auto interpreter = std::make_shared<pybind11::scoped_interpreter>();
-  pybind11::module::import("sys").attr("path").cast<pybind11::list>().append(
-    std::filesystem::absolute(rootPath).string());
-  return interpreter;
-}
 } // namespace
 
 Engine::Engine(const std::filesystem::path& rootPath, const glm::ivec2& resolution)
     : m_rootPath{rootPath}
-    , m_scriptEngine{createScriptEngine(rootPath)}
+    , m_scriptEngine{rootPath}
 {
   try
   {
@@ -80,7 +71,7 @@ Engine::Engine(const std::filesystem::path& rootPath, const glm::ivec2& resoluti
 
   m_language = std::use_facet<boost::locale::info>(boost::locale::generator()("")).name();
   BOOST_LOG_TRIVIAL(info) << "Detected user's language is " << m_language;
-  if(const std::optional overrideLanguage = core::get<std::string>(pybind11::globals(), "language_override"))
+  if(const auto overrideLanguage = m_scriptEngine.getLanguageOverride())
   {
     m_language = overrideLanguage.value();
     BOOST_LOG_TRIVIAL(info) << "Language override is " << m_language;
@@ -130,14 +121,8 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
     world.getObjectManager().getLara().initWeaponAnimData();
   }
 
-  const bool godMode
-    = core::get<bool>(core::get<pybind11::dict>(pybind11::globals(), "cheats").value_or(pybind11::dict{}), "godMode")
-        .value_or(false);
-
-  const bool allAmmoCheat
-    = core::get<bool>(core::get<pybind11::dict>(pybind11::globals(), "cheats").value_or(pybind11::dict{}),
-                      "allAmmoCheat")
-        .value_or(false);
+  const bool godMode = m_scriptEngine.isGodMode();
+  const bool allAmmoCheat = m_scriptEngine.hasAllAmmoCheat();
 
   m_presenter->apply(m_engineConfig->renderSettings);
   std::shared_ptr<menu::MenuDisplay> menu;

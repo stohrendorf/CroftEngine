@@ -140,8 +140,7 @@ void updateMood(const world::World& world,
   switch(creatureInfo.mood)
   {
   case Mood::Attack:
-    if(util::rand15()
-       >= pybind11::globals()["getObjectInfo"](objectState.type.get()).cast<script::ObjectInfo>().target_update_chance)
+    if(util::rand15() >= world.getEngine().getScriptEngine().getObjectInfo(objectState.type).target_update_chance)
       break;
 
     creatureInfo.pathFinder.target = world.getObjectManager().getLara().m_state.location.position;
@@ -283,7 +282,7 @@ EnemyLocation::EnemyLocation(world::World& world, objects::ObjectState& objectSt
     = !objectState.creatureInfo->pathFinder.canVisit(*world.getObjectManager().getLara().m_state.getCurrentBox())
       || objectState.creatureInfo->pathFinder.isUnreachable(objectState.getCurrentBox());
 
-  auto objectInfo = pybind11::globals()["getObjectInfo"](objectState.type.get()).cast<script::ObjectInfo>();
+  auto objectInfo = world.getEngine().getScriptEngine().getObjectInfo(objectState.type);
   const core::Length pivotLength{objectInfo.pivot_length};
   const auto toLara = world.getObjectManager().getLara().m_state.location.position
                       - (objectState.location.position + util::pitch(pivotLength, objectState.rotation.Y));
@@ -310,7 +309,7 @@ CreatureInfo::CreatureInfo(const world::World& world,
                            const gsl::not_null<const world::Box*>& initialBox)
     : CreatureInfo{world}
 {
-  auto objectInfo = pybind11::globals()["getObjectInfo"](type.get()).cast<script::ObjectInfo>();
+  auto objectInfo = world.getEngine().getScriptEngine().getObjectInfo(type);
   pathFinder.step = core::Length{objectInfo.step_limit};
   pathFinder.drop = core::Length{objectInfo.drop_limit};
   pathFinder.fly = core::Length{objectInfo.fly_limit};

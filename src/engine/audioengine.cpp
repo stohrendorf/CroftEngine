@@ -3,6 +3,7 @@
 #include "audio/streamsource.h"
 #include "objects/laraobject.h"
 #include "script/reflection.h"
+#include "script/scriptengine.h"
 #include "serialization/map.h"
 #include "serialization/optional.h"
 #include "serialization/serialization.h"
@@ -15,7 +16,8 @@
 
 namespace engine
 {
-void AudioEngine::triggerCdTrack(TR1TrackId trackId,
+void AudioEngine::triggerCdTrack(const script::ScriptEngine& scriptEngine,
+                                 TR1TrackId trackId,
                                  const floordata::ActivationState& activationRequest,
                                  const floordata::SequenceCondition triggerType)
 {
@@ -25,7 +27,7 @@ void AudioEngine::triggerCdTrack(TR1TrackId trackId,
   if(trackId < TR1TrackId::LaraTalk2)
   { // NOLINT(bugprone-branch-clone)
     // 1..27
-    triggerNormalCdTrack(trackId, activationRequest, triggerType);
+    triggerNormalCdTrack(scriptEngine, trackId, activationRequest, triggerType);
   }
   else if(trackId == TR1TrackId::LaraTalk2)
   {
@@ -35,38 +37,38 @@ void AudioEngine::triggerCdTrack(TR1TrackId trackId,
     {
       trackId = TR1TrackId::LaraTalk3;
     }
-    triggerNormalCdTrack(trackId, activationRequest, triggerType);
+    triggerNormalCdTrack(scriptEngine, trackId, activationRequest, triggerType);
   }
   else if(trackId < TR1TrackId::LaraTalk15)
   {
     // 29..40
     if(trackId != TR1TrackId::LaraTalk11)
-      triggerNormalCdTrack(trackId, activationRequest, triggerType);
+      triggerNormalCdTrack(scriptEngine, trackId, activationRequest, triggerType);
   }
   else if(trackId == TR1TrackId::LaraTalk15)
   { // NOLINT(bugprone-branch-clone)
     // 41
     if(m_world.getObjectManager().getLara().getCurrentAnimState() == loader::file::LaraStateId::Hang)
-      triggerNormalCdTrack(trackId, activationRequest, triggerType);
+      triggerNormalCdTrack(scriptEngine, trackId, activationRequest, triggerType);
   }
   else if(trackId == TR1TrackId::LaraTalk16)
   {
     // 42
     if(m_world.getObjectManager().getLara().getCurrentAnimState() == loader::file::LaraStateId::Hang)
-      triggerNormalCdTrack(TR1TrackId::LaraTalk17, activationRequest, triggerType);
+      triggerNormalCdTrack(scriptEngine, TR1TrackId::LaraTalk17, activationRequest, triggerType);
     else
-      triggerNormalCdTrack(trackId, activationRequest, triggerType);
+      triggerNormalCdTrack(scriptEngine, trackId, activationRequest, triggerType);
   }
   else if(trackId < TR1TrackId::LaraTalk23)
   {
     // 43..48
-    triggerNormalCdTrack(trackId, activationRequest, triggerType);
+    triggerNormalCdTrack(scriptEngine, trackId, activationRequest, triggerType);
   }
   else if(trackId == TR1TrackId::LaraTalk23)
   {
     // 49
     if(m_world.getObjectManager().getLara().getCurrentAnimState() == loader::file::LaraStateId::OnWaterStop)
-      triggerNormalCdTrack(trackId, activationRequest, triggerType);
+      triggerNormalCdTrack(scriptEngine, trackId, activationRequest, triggerType);
   }
   else if(trackId == TR1TrackId::LaraTalk24)
   {
@@ -78,22 +80,23 @@ void AudioEngine::triggerCdTrack(TR1TrackId trackId,
       {
         m_world.finishLevel();
         m_cdTrack50time = 0_frame;
-        triggerNormalCdTrack(trackId, activationRequest, triggerType);
+        triggerNormalCdTrack(scriptEngine, trackId, activationRequest, triggerType);
       }
     }
     else if(m_world.getObjectManager().getLara().getCurrentAnimState() == loader::file::LaraStateId::OnWaterExit)
     {
-      triggerNormalCdTrack(trackId, activationRequest, triggerType);
+      triggerNormalCdTrack(scriptEngine, trackId, activationRequest, triggerType);
     }
   }
   else
   {
     // 51..64
-    triggerNormalCdTrack(trackId, activationRequest, triggerType);
+    triggerNormalCdTrack(scriptEngine, trackId, activationRequest, triggerType);
   }
 }
 
-void AudioEngine::triggerNormalCdTrack(const TR1TrackId trackId,
+void AudioEngine::triggerNormalCdTrack(const script::ScriptEngine& scriptEngine,
+                                       const TR1TrackId trackId,
                                        const floordata::ActivationState& activationRequest,
                                        const floordata::SequenceCondition triggerType)
 {
@@ -112,7 +115,7 @@ void AudioEngine::triggerNormalCdTrack(const TR1TrackId trackId,
 
   if(!m_cdTrackActivationStates[trackId].isFullyActivated())
   {
-    playStopCdTrack(trackId, true);
+    playStopCdTrack(scriptEngine, trackId, true);
     return;
   }
 
@@ -120,12 +123,12 @@ void AudioEngine::triggerNormalCdTrack(const TR1TrackId trackId,
     m_cdTrackActivationStates[trackId].setOneshot(true);
 
   if(!m_currentTrack.has_value() || *m_currentTrack != trackId)
-    playStopCdTrack(trackId, false);
+    playStopCdTrack(scriptEngine, trackId, false);
 }
 
-void AudioEngine::playStopCdTrack(const TR1TrackId trackId, bool stop)
+void AudioEngine::playStopCdTrack(const script::ScriptEngine& scriptEngine, const TR1TrackId trackId, bool stop)
 {
-  const auto trackInfo = pybind11::globals()["getTrackInfo"](trackId).cast<script::TrackInfo>();
+  const auto trackInfo = scriptEngine.getTrackInfo(trackId);
 
   switch(trackInfo.type)
   {

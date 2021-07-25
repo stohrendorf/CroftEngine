@@ -7,11 +7,6 @@
 #include "engine/world/box.h"
 #include "loader/file/datatypes.h"
 
-namespace pybind11
-{
-class dict;
-}
-
 namespace engine::world
 {
 class World;
@@ -23,6 +18,11 @@ namespace engine
 namespace ai
 {
 struct CreatureInfo;
+}
+
+namespace script
+{
+class ScriptEngine;
 }
 
 namespace objects
@@ -124,7 +124,7 @@ public:
 
   const world::Sector* getCurrentSector() const;
 
-  void loadObjectInfo();
+  void loadObjectInfo(const script::ScriptEngine& scriptEngine);
 
   bool isDead() const
   {

@@ -16,6 +16,11 @@ namespace engine::world
 class World;
 }
 
+namespace engine::script
+{
+class ScriptEngine;
+}
+
 namespace engine
 {
 enum class TR1TrackId;
@@ -74,13 +79,15 @@ public:
 
   gsl::not_null<std::shared_ptr<audio::Voice>> playStream(size_t trackId);
 
-  void playStopCdTrack(TR1TrackId trackId, bool stop);
+  void playStopCdTrack(const script::ScriptEngine& scriptEngine, TR1TrackId trackId, bool stop);
 
-  void triggerNormalCdTrack(TR1TrackId trackId,
+  void triggerNormalCdTrack(const script::ScriptEngine& scriptEngine,
+                            TR1TrackId trackId,
                             const floordata::ActivationState& activationRequest,
                             floordata::SequenceCondition triggerType);
 
-  void triggerCdTrack(TR1TrackId trackId,
+  void triggerCdTrack(const script::ScriptEngine& scriptEngine,
+                      TR1TrackId trackId,
                       const floordata::ActivationState& activationRequest,
                       floordata::SequenceCondition triggerType);
 

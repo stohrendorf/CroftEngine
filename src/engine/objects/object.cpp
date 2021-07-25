@@ -1,6 +1,7 @@
 #include "object.h"
 
 #include "engine/audioengine.h"
+#include "engine/engine.h"
 #include "engine/particle.h"
 #include "engine/presenter.h"
 #include "engine/script/reflection.h"
@@ -37,7 +38,7 @@ Object::Object(const gsl::not_null<world::World*>& world,
 
   BOOST_ASSERT(room->isInnerPositionXZ(item.position));
 
-  m_state.loadObjectInfo();
+  m_state.loadObjectInfo(world->getEngine().getScriptEngine());
 
   m_state.rotation.Y = item.rotation;
   m_state.activationState = floordata::ActivationState(item.activationState);
@@ -188,15 +189,17 @@ void Object::serialize(const serialization::Serializer<world::World>& ser)
       S_NV("hasUpdateFunction", m_hasUpdateFunction),
       S_NV("isActive", m_isActive));
 
-  ser.lazy([this](const serialization::Serializer<world::World>& ser) {
-    // FIXME ser(S_NV("renderables", serialization::FrozenVector{getNode()->getChildren()}));
-
-    if(ser.loading)
+  ser.lazy(
+    [this](const serialization::Serializer<world::World>& ser)
     {
-      setParent(getNode(), m_state.location.room->node);
+      // FIXME ser(S_NV("renderables", serialization::FrozenVector{getNode()->getChildren()}));
 
-      applyTransform();
-    }
-  });
+      if(ser.loading)
+      {
+        setParent(getNode(), m_state.location.room->node);
+
+        applyTransform();
+      }
+    });
 }
 } // namespace engine::objects
