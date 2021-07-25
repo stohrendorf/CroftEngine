@@ -520,6 +520,7 @@ void AIAgent::hitLara(const core::Health& strength)
 
 void AIAgent::serialize(const serialization::Serializer<world::World>& ser)
 {
+  ModelObject::serialize(ser);
   ser(S_NV("collisionRadius", m_collisionRadius));
 }
 } // namespace engine::objects
