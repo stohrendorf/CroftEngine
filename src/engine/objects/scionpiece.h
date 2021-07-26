@@ -8,19 +8,7 @@ namespace engine::objects
 class ScionPiece final : public SpriteObject
 {
 public:
-  ScionPiece(const gsl::not_null<world::World*>& world, const Location& location, std::string name)
-      : SpriteObject{world, location, std::move(name)}
-  {
-  }
-
-  ScionPiece(const gsl::not_null<world::World*>& world,
-             const std::string& name,
-             const gsl::not_null<const world::Room*>& room,
-             const loader::file::Item& item,
-             const gsl::not_null<const world::Sprite*>& sprite)
-      : SpriteObject{world, name, room, item, true, sprite}
-  {
-  }
+  SPRITEOBJECT_DEFAULT_CONSTRUCTORS(ScionPiece, true)
 
   void collide(CollisionInfo& collisionInfo) override;
 };
@@ -28,18 +16,7 @@ public:
 class ScionPiece3 final : public ModelObject
 {
 public:
-  ScionPiece3(const gsl::not_null<world::World*>& world, const Location& location)
-      : ModelObject{world, location}
-  {
-  }
-
-  ScionPiece3(const gsl::not_null<world::World*>& world,
-              const gsl::not_null<const world::Room*>& room,
-              const loader::file::Item& item,
-              const gsl::not_null<const world::SkeletalModelType*>& animatedModel)
-      : ModelObject{world, room, item, true, animatedModel}
-  {
-  }
+  MODELOBJECT_DEFAULT_CONSTRUCTORS(ScionPiece3, true)
 
   void update() override;
 
@@ -50,18 +27,7 @@ private:
 class ScionPiece4 final : public ModelObject
 {
 public:
-  ScionPiece4(const gsl::not_null<world::World*>& world, const Location& location)
-      : ModelObject{world, location}
-  {
-  }
-
-  ScionPiece4(const gsl::not_null<world::World*>& world,
-              const gsl::not_null<const world::Room*>& room,
-              const loader::file::Item& item,
-              const gsl::not_null<const world::SkeletalModelType*>& animatedModel)
-      : ModelObject{world, room, item, true, animatedModel}
-  {
-  }
+  MODELOBJECT_DEFAULT_CONSTRUCTORS(ScionPiece4, true)
 
   void collide(CollisionInfo& info) override;
 };
@@ -69,18 +35,7 @@ public:
 class ScionHolder final : public ModelObject
 {
 public:
-  ScionHolder(const gsl::not_null<world::World*>& world, const Location& location)
-      : ModelObject{world, location}
-  {
-  }
-
-  ScionHolder(const gsl::not_null<world::World*>& world,
-              const gsl::not_null<const world::Room*>& room,
-              const loader::file::Item& item,
-              const gsl::not_null<const world::SkeletalModelType*>& animatedModel)
-      : ModelObject{world, room, item, true, animatedModel}
-  {
-  }
+  MODELOBJECT_DEFAULT_CONSTRUCTORS(ScionHolder, true)
 
   void collide(CollisionInfo& info) override;
 };

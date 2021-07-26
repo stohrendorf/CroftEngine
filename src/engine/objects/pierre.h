@@ -8,15 +8,7 @@ namespace engine::objects
 class Pierre final : public AIAgent
 {
 public:
-  Pierre(const gsl::not_null<world::World*>& world, const Location& location)
-      : AIAgent{world, location}
-  {
-  }
-
-  Pierre(const gsl::not_null<world::World*>& world,
-         const gsl::not_null<const world::Room*>& room,
-         const loader::file::Item& item,
-         const gsl::not_null<const world::SkeletalModelType*>& animatedModel);
+  AIAGENT_DEFAULT_CONSTRUCTORS(Pierre)
 
   void update() override;
 

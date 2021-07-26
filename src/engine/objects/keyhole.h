@@ -7,18 +7,7 @@ namespace engine::objects
 class KeyHole final : public ModelObject
 {
 public:
-  KeyHole(const gsl::not_null<world::World*>& world, const Location& location)
-      : ModelObject{world, location}
-  {
-  }
-
-  KeyHole(const gsl::not_null<world::World*>& world,
-          const gsl::not_null<const world::Room*>& room,
-          const loader::file::Item& item,
-          const gsl::not_null<const world::SkeletalModelType*>& animatedModel)
-      : ModelObject{world, room, item, false, animatedModel}
-  {
-  }
+  MODELOBJECT_DEFAULT_CONSTRUCTORS(KeyHole, false)
 
   void collide(CollisionInfo& collisionInfo) override;
 };

@@ -8,18 +8,7 @@ namespace engine::objects
 class Bear final : public AIAgent
 {
 public:
-  Bear(const gsl::not_null<world::World*>& world, const Location& location)
-      : AIAgent{world, location}
-  {
-  }
-
-  Bear(const gsl::not_null<world::World*>& world,
-       const gsl::not_null<const world::Room*>& room,
-       const loader::file::Item& item,
-       const gsl::not_null<const world::SkeletalModelType*>& animatedModel)
-      : AIAgent{world, room, item, animatedModel}
-  {
-  }
+  AIAGENT_DEFAULT_CONSTRUCTORS(Bear)
 
   void update() override;
 

@@ -157,5 +157,20 @@ private:
 
   core::Length m_collisionRadius = 0_len;
 };
+
+#define AIAGENT_DEFAULT_CONSTRUCTORS(CLASS)                                  \
+  CLASS(const gsl::not_null<world::World*>& world, const Location& location) \
+      : AIAgent{world, location}                                             \
+  {                                                                          \
+  }                                                                          \
+                                                                             \
+  CLASS(const gsl::not_null<world::World*>& world,                           \
+        const gsl::not_null<const world::Room*>& room,                       \
+        const loader::file::Item& item,                                      \
+        const gsl::not_null<const world::SkeletalModelType*>& animatedModel) \
+      : AIAgent{world, room, item, animatedModel}                            \
+  {                                                                          \
+  }
+
 } // namespace objects
 } // namespace engine

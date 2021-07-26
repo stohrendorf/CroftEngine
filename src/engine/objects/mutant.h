@@ -8,18 +8,7 @@ namespace engine::objects
 class FlyingMutant : public AIAgent
 {
 public:
-  FlyingMutant(const gsl::not_null<world::World*>& world, const Location& location)
-      : AIAgent{world, location}
-  {
-  }
-
-  FlyingMutant(const gsl::not_null<world::World*>& world,
-               const gsl::not_null<const world::Room*>& room,
-               const loader::file::Item& item,
-               const gsl::not_null<const world::SkeletalModelType*>& animatedModel)
-      : AIAgent{world, room, item, animatedModel}
-  {
-  }
+  AIAGENT_DEFAULT_CONSTRUCTORS(FlyingMutant)
 
   void update() final;
 
@@ -57,18 +46,7 @@ public:
 class CentaurMutant final : public AIAgent
 {
 public:
-  CentaurMutant(const gsl::not_null<world::World*>& world, const Location& location)
-      : AIAgent{world, location}
-  {
-  }
-
-  CentaurMutant(const gsl::not_null<world::World*>& world,
-                const gsl::not_null<const world::Room*>& room,
-                const loader::file::Item& item,
-                const gsl::not_null<const world::SkeletalModelType*>& animatedModel)
-      : AIAgent{world, room, item, animatedModel}
-  {
-  }
+  AIAGENT_DEFAULT_CONSTRUCTORS(CentaurMutant)
 
   void update() override;
 };
@@ -76,18 +54,7 @@ public:
 class TorsoBoss final : public AIAgent
 {
 public:
-  TorsoBoss(const gsl::not_null<world::World*>& world, const Location& location)
-      : AIAgent{world, location}
-  {
-  }
-
-  TorsoBoss(const gsl::not_null<world::World*>& world,
-            const gsl::not_null<const world::Room*>& room,
-            const loader::file::Item& item,
-            const gsl::not_null<const world::SkeletalModelType*>& animatedModel)
-      : AIAgent{world, room, item, animatedModel}
-  {
-  }
+  AIAGENT_DEFAULT_CONSTRUCTORS(TorsoBoss)
 
   void update() override;
 

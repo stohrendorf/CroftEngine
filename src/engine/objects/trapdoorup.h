@@ -7,18 +7,7 @@ namespace engine::objects
 class TrapDoorUp final : public ModelObject
 {
 public:
-  TrapDoorUp(const gsl::not_null<world::World*>& world, const Location& location)
-      : ModelObject{world, location}
-  {
-  }
-
-  TrapDoorUp(const gsl::not_null<world::World*>& world,
-             const gsl::not_null<const world::Room*>& room,
-             const loader::file::Item& item,
-             const gsl::not_null<const world::SkeletalModelType*>& animatedModel)
-      : ModelObject{world, room, item, true, animatedModel}
-  {
-  }
+  MODELOBJECT_DEFAULT_CONSTRUCTORS(TrapDoorUp, true)
 
   void update() override;
 
