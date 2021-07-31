@@ -129,9 +129,12 @@ void Portal::buildMesh(const loader::file::Portal& srcPortal,
     glm::vec3 pos;
   };
 
+  static const constexpr float PortalOffset = 8;
+
   std::array<Vertex, 4> glVertices{};
+  const auto offset = glm::normalize(srcPortal.normal.toRenderSystem()) * PortalOffset;
   for(size_t i = 0; i < 4; ++i)
-    glVertices[i].pos = srcPortal.vertices[i].toRenderSystem();
+    glVertices[i].pos = srcPortal.vertices[i].toRenderSystem() - offset;
 
   gl::VertexLayout<Vertex> layout{{VERTEX_ATTRIBUTE_POSITION_NAME, &Vertex::pos}};
   auto vb = std::make_shared<gl::VertexBuffer<Vertex>>(layout, 0, "portal");
