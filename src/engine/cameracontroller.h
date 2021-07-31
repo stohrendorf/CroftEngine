@@ -203,7 +203,7 @@ public:
 
   size_t m_cinematicFrame = 0;
   core::TRVec m_cinematicPos{0_len, 0_len, 0_len};
-  core::TRRotation m_cinematicRot{0_deg, 0_deg, 0_deg};
+  core::TRRotation m_cinematicRot{};
 
 private:
   std::unordered_set<const world::Portal*> tracePortals();

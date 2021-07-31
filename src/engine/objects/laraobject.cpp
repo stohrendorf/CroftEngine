@@ -1220,7 +1220,7 @@ void LaraObject::drawShotgun()
 
 void LaraObject::updateAimAngles(const Weapon& weapon, AimInfo& aimInfo) const
 {
-  core::TRRotationXY targetRot{0_deg, 0_deg};
+  core::TRRotationXY targetRot{};
   if(aimInfo.aiming)
   {
     targetRot = m_weaponTargetVector;

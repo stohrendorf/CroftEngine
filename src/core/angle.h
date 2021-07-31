@@ -137,9 +137,9 @@ enum class Axis
 class TRRotation final
 {
 public:
-  Angle X;
-  Angle Y;
-  Angle Z;
+  Angle X{0_deg};
+  Angle Y{0_deg};
+  Angle Z{0_deg};
 
   TRRotation() = default;
 
@@ -194,7 +194,6 @@ inline glm::mat4 fromPackedAngles(uint32_t angleData)
 struct TRRotationXY
 {
   Angle X{0_deg};
-
   Angle Y{0_deg};
 
   [[nodiscard]] glm::mat4 toMatrix() const

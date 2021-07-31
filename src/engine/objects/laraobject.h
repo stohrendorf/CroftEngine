@@ -266,8 +266,8 @@ public:
 
   void resetHeadTorsoRotation()
   {
-    m_headRotation = {0_deg, 0_deg, 0_deg};
-    m_torsoRotation = {0_deg, 0_deg, 0_deg};
+    m_headRotation = core::TRRotation{};
+    m_torsoRotation = core::TRRotation{};
   }
 
   core::TRRotation m_headRotation;

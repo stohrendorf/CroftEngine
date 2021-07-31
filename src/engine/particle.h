@@ -27,7 +27,7 @@ class Particle
 {
 public:
   Location location;
-  core::TRRotation angle{0_deg, 0_deg, 0_deg};
+  core::TRRotation angle{};
   const core::TypeId object_number;
   core::Speed speed = 0_spd;
   core::Speed fall_speed = 0_spd;
