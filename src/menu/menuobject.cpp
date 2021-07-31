@@ -42,7 +42,8 @@ bool MenuObject::animate()
 
 void MenuObject::updateMeshRenderMask()
 {
-  auto setMask = [this](uint32_t mask) {
+  auto setMask = [this](uint32_t mask)
+  {
     if(std::exchange(meshRenderMask, mask) == mask)
       return;
 
@@ -96,9 +97,8 @@ void MenuObject::initModel(const engine::world::World& world)
   Expects(obj != nullptr);
   node = std::make_shared<engine::SkeletalModelNode>("menu-object", &world, obj.get());
   node->bind("u_lightAmbient",
-             [](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform) {
-               uniform.set(0.5f);
-             });
+             [](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
+             { uniform.set(0.5f); });
   core::AnimStateId animState{0_as};
   engine::SkeletalModelNode::buildMesh(node, animState);
 }

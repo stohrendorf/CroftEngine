@@ -154,4 +154,4 @@ struct TextureTile
 
   static std::unique_ptr<TextureTile> readTr5(io::SDLReader& reader);
 };
-} // namespace loader
+} // namespace loader::file

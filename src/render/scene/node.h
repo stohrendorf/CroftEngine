@@ -119,9 +119,9 @@ public:
   std::shared_ptr<Node> findChild(const Node* node) const
   {
     const auto it
-      = std::find_if(m_children.begin(), m_children.end(), [node](const gsl::not_null<std::shared_ptr<Node>>& ptr) {
-          return ptr.get().get() == node;
-        });
+      = std::find_if(m_children.begin(),
+                     m_children.end(),
+                     [node](const gsl::not_null<std::shared_ptr<Node>>& ptr) { return ptr.get().get() == node; });
 
     if(it == m_children.end())
       return nullptr;

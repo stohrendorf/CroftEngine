@@ -26,9 +26,10 @@ void load(std::vector<T>& data, const Serializer<TContext>& ser)
   Expects(ser.node.is_seq());
   data = std::vector<T>();
   data.reserve(ser.node.num_children());
-  std::transform(ser.node.begin(), ser.node.end(), std::back_inserter(data), [&ser](const ryml::NodeRef& element) {
-    return access<T>::callCreate(ser.withNode(element));
-  });
+  std::transform(ser.node.begin(),
+                 ser.node.end(),
+                 std::back_inserter(data),
+                 [&ser](const ryml::NodeRef& element) { return access<T>::callCreate(ser.withNode(element)); });
 }
 
 template<typename T>

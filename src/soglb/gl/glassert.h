@@ -26,7 +26,7 @@ auto glAssertFn(F code, const gsl::czstring codeStr) -> decltype(code())
   return result;
 }
 } // namespace detail
-} // namespace render::gl
+} // namespace gl
 
 #define GL_ASSERT(gl_code)        \
   do                              \

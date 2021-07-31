@@ -125,14 +125,16 @@ void Door::serialize(const serialization::Serializer<world::World>& ser)
 
   if(ser.loading)
   {
-    ser.lazy([this](const serialization::Serializer<world::World>& /*ser*/) {
+    ser.lazy(
+      [this](const serialization::Serializer<world::World>& /*ser*/)
+      {
         m_info.wingsSector
           = const_cast<world::Sector*>(m_state.location.room->getSectorByAbsolutePosition(m_wingsPosition));
         if(m_info.originalSector.boundaryRoom != nullptr)
-      {
-        m_target.wingsSector = const_cast<world::Sector*>(
-          m_info.originalSector.boundaryRoom->getSectorByAbsolutePosition(m_state.location.position));
-      }
+        {
+          m_target.wingsSector = const_cast<world::Sector*>(
+            m_info.originalSector.boundaryRoom->getSectorByAbsolutePosition(m_state.location.position));
+        }
 
         if(m_state.location.room->alternateRoom != nullptr)
         {

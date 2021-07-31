@@ -53,9 +53,8 @@ void ObjectManager::applyScheduledDeletions()
 
     auto it2 = std::find_if(m_objects.begin(),
                             m_objects.end(),
-                            [del](const std::pair<uint16_t, gsl::not_null<std::shared_ptr<objects::Object>>>& i) {
-                              return i.second.get().get() == del;
-                            });
+                            [del](const std::pair<uint16_t, gsl::not_null<std::shared_ptr<objects::Object>>>& i)
+                            { return i.second.get().get() == del; });
     if(it2 != m_objects.end())
     {
       m_objects.erase(it2);
@@ -81,9 +80,8 @@ std::shared_ptr<objects::Object> ObjectManager::find(const objects::Object* obje
 
   auto it = std::find_if(m_objects.begin(),
                          m_objects.end(),
-                         [object](const std::pair<uint16_t, gsl::not_null<std::shared_ptr<objects::Object>>>& x) {
-                           return x.second.get().get() == object;
-                         });
+                         [object](const std::pair<uint16_t, gsl::not_null<std::shared_ptr<objects::Object>>>& x)
+                         { return x.second.get().get() == object; });
 
   if(it == m_objects.end())
     return nullptr;

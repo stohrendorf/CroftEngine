@@ -180,7 +180,8 @@ public:
 
 inline glm::mat4 fromPackedAngles(uint32_t angleData)
 {
-  const auto getAngle = [angleData](const uint8_t n) -> Angle {
+  const auto getAngle = [angleData](const uint8_t n) -> Angle
+  {
     BOOST_ASSERT(n < 3);
     return auToAngle(((angleData >> (10u * n)) & 0x3ffu) * 64);
   };

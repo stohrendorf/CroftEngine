@@ -30,8 +30,7 @@ void engine::objects::TeethSpikes::collide(CollisionInfo& collisionInfo)
     getWorld().getObjectManager().getLara().m_state.health -= 15_hp;
     while(bloodSplats-- > 0)
     {
-      auto fx
-        = createBloodSplat(
+      auto fx = createBloodSplat(
         getWorld(),
         Location{getWorld().getObjectManager().getLara().m_state.location.room,
                  getWorld().getObjectManager().getLara().m_state.location.position

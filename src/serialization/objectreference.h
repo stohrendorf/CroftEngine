@@ -47,14 +47,16 @@ struct ObjectReference final
     }
     else
     {
-      ser.lazy([pptr = &ptr](const Serializer<engine::world::World>& ser) {
-        ser.tag("objectref");
-        engine::ObjectId id = 0;
-        ser(S_NV("id", id));
-        auto tmp = ser.context.getObjectManager().getObjects().at(id).get();
-        Expects(tmp != nullptr);
-        *pptr = std::dynamic_pointer_cast<T>(tmp);
-      });
+      ser.lazy(
+        [pptr = &ptr](const Serializer<engine::world::World>& ser)
+        {
+          ser.tag("objectref");
+          engine::ObjectId id = 0;
+          ser(S_NV("id", id));
+          auto tmp = ser.context.getObjectManager().getObjects().at(id).get();
+          Expects(tmp != nullptr);
+          *pptr = std::dynamic_pointer_cast<T>(tmp);
+        });
     }
   }
 };

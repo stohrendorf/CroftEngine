@@ -133,8 +133,7 @@ void engine::objects::RollingBall::collide(CollisionInfo& collisionInfo)
   const auto z = getWorld().getObjectManager().getLara().m_state.location.position.Z - m_state.location.position.Z;
   const auto xyz = std::max(2 * core::QuarterSectorSize, sqrt(util::square(x) + util::square(y) + util::square(z)));
 
-  auto fx
-    = createBloodSplat(
+  auto fx = createBloodSplat(
     getWorld(),
     Location{m_state.location.room,
              core::TRVec{x * core::SectorSize / 2 / xyz + m_state.location.position.X,

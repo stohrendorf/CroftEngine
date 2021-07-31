@@ -19,13 +19,15 @@ std::optional<PortalTracer::CullBox> PortalTracer::narrowCullBox(const PortalTra
     return std::nullopt; // wrong orientation (normals must face the camera)
   }
 
-  const auto toView = [&camera](const glm::vec3& v) {
+  const auto toView = [&camera](const glm::vec3& v)
+  {
     const auto tmp = camera.getCamera()->getViewMatrix() * glm::vec4{v, 1.0f};
     BOOST_ASSERT(tmp.w > std::numeric_limits<float>::epsilon());
     return glm::vec3{tmp} / tmp.w;
   };
 
-  const auto toScreen = [&camera](const glm::vec3& v) {
+  const auto toScreen = [&camera](const glm::vec3& v)
+  {
     const auto tmp = camera.getCamera()->getProjectionMatrix() * glm::vec4{v, 1.0f};
     BOOST_ASSERT(tmp.w > std::numeric_limits<float>::epsilon());
     return glm::vec2{tmp} / tmp.w;

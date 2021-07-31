@@ -35,7 +35,8 @@ bool BufferParameter::bind(const Node& node,
 
 void BufferParameter::bindBoneTransformBuffer()
 {
-  m_bufferBinder = [](const Node& node, const Mesh& /*mesh*/, gl::ShaderStorageBlock& ssb) {
+  m_bufferBinder = [](const Node& node, const Mesh& /*mesh*/, gl::ShaderStorageBlock& ssb)
+  {
     if(const auto* mo = dynamic_cast<const engine::SkeletalModelNode*>(&node))
       ssb.bind(mo->getMeshMatricesBuffer());
   };

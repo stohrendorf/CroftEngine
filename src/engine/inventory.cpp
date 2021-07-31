@@ -15,14 +15,16 @@ void Inventory::put(const core::TypeId id, const size_t quantity)
 {
   BOOST_LOG_TRIVIAL(debug) << "Object " << toString(id.get_as<TR1ItemId>()) << " added to inventory";
 
-  auto addWeapon = [this](Ammo& ammo, size_t n) {
+  auto addWeapon = [this](Ammo& ammo, size_t n)
+  {
     // convert existing ammo clips to ammo
     ammo.addClips(count(ammo.ammoType) + n);
     m_inventory.erase(ammo.ammoType);
     m_inventory[ammo.weaponType] = 1;
   };
 
-  auto addAmmoClips = [this](Ammo& ammo, size_t n) {
+  auto addAmmoClips = [this](Ammo& ammo, size_t n)
+  {
     if(count(ammo.weaponType) > 0)
       ammo.addClips(n);
     else
@@ -113,7 +115,8 @@ bool Inventory::tryUse(objects::LaraObject& lara, const TR1ItemId id)
     return true;
   };
 
-  auto tryUseMediPack = [this, &lara](TR1ItemId mediPack, const core::Health& health) -> bool {
+  auto tryUseMediPack = [this, &lara](TR1ItemId mediPack, const core::Health& health) -> bool
+  {
     if(count(mediPack) == 0)
       return false;
 

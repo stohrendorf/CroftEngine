@@ -27,18 +27,16 @@ public:
   template<typename T>
   void set(const std::shared_ptr<gl::ShaderStorageBuffer<T>>& value)
   {
-    m_bufferBinder = [value](const Node& /*node*/, const Mesh& /*mesh*/, gl::ShaderStorageBlock& shaderStorageBlock) {
-      shaderStorageBlock.bind(*value);
-    };
+    m_bufferBinder = [value](const Node& /*node*/, const Mesh& /*mesh*/, gl::ShaderStorageBlock& shaderStorageBlock)
+    { shaderStorageBlock.bind(*value); };
   }
 
   template<class ClassType, typename T>
   void bind(ClassType* classInstance, const gl::ShaderStorageBuffer<T>& (ClassType::*valueMethod)() const)
   {
     m_bufferBinder = [classInstance, valueMethod](
-                       const Node& /*node*/, const Mesh& /*mesh*/, gl::ShaderStorageBlock& shaderStorageBlock) {
-      shaderStorageBlock.bind((classInstance->*valueMethod)());
-    };
+                       const Node& /*node*/, const Mesh& /*mesh*/, gl::ShaderStorageBlock& shaderStorageBlock)
+    { shaderStorageBlock.bind((classInstance->*valueMethod)()); };
   }
 
   using BufferBinder = void(const Node& node, const Mesh& mesh, gl::ShaderStorageBlock& shaderStorageBlock);

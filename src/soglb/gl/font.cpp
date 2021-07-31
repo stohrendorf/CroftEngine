@@ -44,10 +44,12 @@ FT_Library loadFreeTypeLib()
 
   BOOST_ASSERT(freeTypeLib != nullptr);
 
-  atexit([]() {
-    FT_Done_FreeType(freeTypeLib);
-    freeTypeLib = nullptr;
-  });
+  atexit(
+    []()
+    {
+      FT_Done_FreeType(freeTypeLib);
+      freeTypeLib = nullptr;
+    });
 
   return freeTypeLib;
 }

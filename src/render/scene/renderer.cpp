@@ -35,7 +35,8 @@ void Renderer::render()
     if(glewIsSupported("GL_ATI_meminfo") == GL_TRUE)
     {
       std::array<GLint, 4> tmp;
-      auto logStats = [&tmp](const char* prefix) {
+      auto logStats = [&tmp](const char* prefix)
+      {
         BOOST_LOG_TRIVIAL(debug) << prefix << ": total free " << tmp[0] / 1024 << ", largest free block "
                                  << tmp[1] / 1024 << ", total auxiliary free " << tmp[2] / 1024
                                  << ", largest auxiliary free " << tmp[3] / 1024;

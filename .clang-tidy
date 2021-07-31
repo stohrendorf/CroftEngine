@@ -1,6 +1,7 @@
 Checks: >
   *,
   -altera-struct-pack-align,
+  -altera-unroll-loops,
   -android-*,
   -cert-con36-c,
   -cert-con54-cpp,

@@ -12,7 +12,7 @@ namespace ui::widgets
 {
 class GridBox;
 class SelectionBox;
-}
+} // namespace ui::widgets
 
 namespace engine::world
 {
