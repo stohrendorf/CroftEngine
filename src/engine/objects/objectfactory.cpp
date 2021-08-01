@@ -41,6 +41,7 @@
 #include "render/scene/materialmanager.h"
 #include "scionpiece.h"
 #include "serialization/serialization.h"
+#include "skateboardkid.h"
 #include "slammingdoors.h"
 #include "slopedbridge.h"
 #include "stubobject.h"
@@ -69,6 +70,26 @@ struct ObjectFactory
   [[nodiscard]] virtual std::shared_ptr<Object> createNew(world::World& world, loader::file::Item& item) const = 0;
   [[nodiscard]] virtual std::shared_ptr<Object>
     createFromSave(const Location& location, const serialization::Serializer<world::World>& ser) const = 0;
+};
+
+/* NOLINTNEXTLINE(altera-struct-pack-align) */
+struct UnsupportedObjectFactory : public ObjectFactory
+{
+  virtual ~UnsupportedObjectFactory() = default;
+
+  [[nodiscard]] std::shared_ptr<Object> createNew(world::World& /*world*/, loader::file::Item& item) const override
+  {
+    BOOST_LOG_TRIVIAL(fatal) << "Object type " << toString(item.type.get_as<engine::TR1ItemId>())
+                             << " is not supported";
+    BOOST_THROW_EXCEPTION(std::runtime_error("unsupported object type"));
+  }
+
+  [[nodiscard]] std::shared_ptr<Object>
+    createFromSave(const Location& location, const serialization::Serializer<world::World>& /*ser*/) const override
+  {
+    BOOST_LOG_TRIVIAL(fatal) << "Object type is not supported";
+    BOOST_THROW_EXCEPTION(std::runtime_error("unsupported object type"));
+  }
 };
 
 template<typename T>
@@ -133,6 +154,11 @@ struct SpriteFactory : public ObjectFactory
 #define SPRITE_FACTORY(ENUM, CLASS)                                                           \
   {                                                                                           \
     TR1ItemId::_PAREN_WRAPPER(ENUM), std::make_shared<SpriteFactory<_PAREN_WRAPPER(CLASS)>>() \
+  }
+
+#define UNSUPPORTED_FACTORY(ENUM)                                                 \
+  {                                                                               \
+    TR1ItemId::_PAREN_WRAPPER(ENUM), std::make_shared<UnsupportedObjectFactory>() \
   }
 
 /* NOLINTNEXTLINE(altera-struct-pack-align) */
@@ -273,6 +299,7 @@ const auto& getFactories()
     {TR1ItemId::WalkingMutant2, std::make_unique<WalkingMutantFactory>()},
     {TR1ItemId::CameraTarget, std::make_unique<HiddenModelFactory>()},
     {TR1ItemId::SavegameCrystal, std::make_unique<HiddenModelFactory>()},
+    MODEL_FACTORY(SkateboardKid, SkateboardKid),
     SPRITE_FACTORY(ScionPiece1, ScionPiece),
     SPRITE_FACTORY(Item141, PickupObject),
     SPRITE_FACTORY(Item142, PickupObject),
@@ -297,6 +324,9 @@ const auto& getFactories()
     SPRITE_FACTORY(LargeMedipackSprite, PickupObject),
     SPRITE_FACTORY(ScionPiece2, PickupObject),
     SPRITE_FACTORY(LeadBarSprite, PickupObject),
+    UNSUPPORTED_FACTORY(DinoWarrior),
+    UNSUPPORTED_FACTORY(Fish),
+    UNSUPPORTED_FACTORY(Skateboard),
   };
   return factories;
 }

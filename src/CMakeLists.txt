@@ -331,6 +331,8 @@ set( EDISONENGINE_SRCS
         engine/objects/rat.cpp
         engine/objects/scionpiece.h
         engine/objects/scionpiece.cpp
+        engine/objects/skateboardkid.h
+        engine/objects/skateboardkid.cpp
         engine/objects/slammingdoors.h
         engine/objects/slammingdoors.cpp
         engine/objects/spriteobject.h

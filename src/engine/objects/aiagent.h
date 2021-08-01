@@ -60,7 +60,7 @@ protected:
                       const core::Area& distance,
                       const core::TRVec& bonePos,
                       size_t boneIndex,
-                      const core::Angle& angle);
+                      const core::Angle& muzzleFlashAngle);
 
   bool alive() const
   {

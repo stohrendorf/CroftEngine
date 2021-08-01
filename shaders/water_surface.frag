@@ -60,7 +60,6 @@ void main()
     vec2 bm2 = bumpMap(uv*0.1, u_time*0.2);
     sn += normalize(vec3(bm2.x, 1, bm2.y));
 
-    const float IOR = 1.3;
     vec4 orig = u_viewProjection * vec4(ppi.vertexPosWorld, 1);
     orig /= orig.w;
     vec4 surface = u_viewProjection * vec4(vec3(sn.x, 0, sn.z) + ppi.vertexPosWorld, 1);

@@ -164,6 +164,12 @@ ob.radius = 102
 ob.hit_points = 70
 ob.target_update_chance = 0x7fff
 
+ob = object_infos[TR1ItemId.SkateboardKid]
+ob.ai_agent = True
+ob.radius = 204
+ob.hit_points = 125
+ob.target_update_chance = 0x7fff
+
 ob = object_infos[TR1ItemId.TorsoBoss]
 ob.ai_agent = True
 ob.radius = 341

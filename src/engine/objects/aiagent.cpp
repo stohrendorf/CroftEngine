@@ -470,7 +470,7 @@ bool AIAgent::tryShootAtLara(ModelObject& object,
                              const core::Area& distance,
                              const core::TRVec& bonePos,
                              size_t boneIndex,
-                             const core::Angle& angle)
+                             const core::Angle& muzzleFlashAngle)
 {
   bool isHit = false;
   if(distance <= util::square(7 * core::SectorSize))
@@ -499,7 +499,7 @@ bool AIAgent::tryShootAtLara(ModelObject& object,
   }
 
   auto p = object.emitParticle(bonePos, boneIndex, &createMuzzleFlash);
-  p->angle.Y += angle;
+  p->angle.Y += muzzleFlashAngle;
 
   return isHit;
 }

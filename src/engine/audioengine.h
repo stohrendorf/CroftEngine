@@ -118,6 +118,11 @@ public:
     return m_interceptStream;
   }
 
+  [[nodiscard]] const auto& getCurrentTrack() const
+  {
+    return m_currentTrack;
+  }
+
   void serialize(const serialization::Serializer<world::World>& ser);
 };
 } // namespace engine
