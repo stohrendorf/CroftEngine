@@ -176,6 +176,12 @@ ob.radius = 341
 ob.hit_points = 500
 ob.target_update_chance = 0x7fff
 
+ob = object_infos[TR1ItemId.Kold]
+ob.ai_agent = True
+ob.radius = 102
+ob.hit_points = 200
+ob.target_update_chance = 0x7fff
+
 ob = object_infos[TR1ItemId.ScionPiece3]
 ob.hit_points = 5
 

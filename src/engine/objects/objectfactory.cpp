@@ -24,6 +24,7 @@
 #include "flameemitter.h"
 #include "gorilla.h"
 #include "keyhole.h"
+#include "kold.h"
 #include "laraobject.h"
 #include "larson.h"
 #include "lavaparticleemitter.h"
@@ -299,6 +300,7 @@ const auto& getFactories()
     MODEL_FACTORY(MidasGoldTouch, MidasGoldTouch),
     MODEL_FACTORY(Motorboat, Motorboat),
     MODEL_FACTORY(SuspendedShack, SuspendedShack),
+    MODEL_FACTORY(Kold, Kold),
     {TR1ItemId::WalkingMutant1, std::make_unique<WalkingMutantFactory>()},
     {TR1ItemId::WalkingMutant2, std::make_unique<WalkingMutantFactory>()},
     {TR1ItemId::CameraTarget, std::make_unique<HiddenModelFactory>()},
