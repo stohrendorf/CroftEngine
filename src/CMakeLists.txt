@@ -339,6 +339,8 @@ set( EDISONENGINE_SRCS
         engine/objects/slammingdoors.cpp
         engine/objects/spriteobject.h
         engine/objects/spriteobject.cpp
+        engine/objects/suspendedshack.h
+        engine/objects/suspendedshack.cpp
         engine/objects/swingingblade.h
         engine/objects/swingingblade.cpp
         engine/objects/switch.h

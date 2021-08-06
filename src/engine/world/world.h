@@ -321,6 +321,11 @@ public:
     return m_controllerLayouts;
   }
 
+  [[nodiscard]] auto& getMapFlipActivationStates()
+  {
+    return m_mapFlipActivationStates;
+  }
+
 private:
   void drawPickupWidgets(ui::Ui& ui);
 

@@ -46,6 +46,7 @@
 #include "slammingdoors.h"
 #include "slopedbridge.h"
 #include "stubobject.h"
+#include "suspendedshack.h"
 #include "swingingblade.h"
 #include "switch.h"
 #include "swordofdamocles.h"
@@ -297,6 +298,7 @@ const auto& getFactories()
     MODEL_FACTORY(LarasHomePolaroid, StubObject),
     MODEL_FACTORY(MidasGoldTouch, MidasGoldTouch),
     MODEL_FACTORY(Motorboat, Motorboat),
+    MODEL_FACTORY(SuspendedShack, SuspendedShack),
     {TR1ItemId::WalkingMutant1, std::make_unique<WalkingMutantFactory>()},
     {TR1ItemId::WalkingMutant2, std::make_unique<WalkingMutantFactory>()},
     {TR1ItemId::CameraTarget, std::make_unique<HiddenModelFactory>()},
