@@ -301,6 +301,8 @@ set( EDISONENGINE_SRCS
         engine/objects/keyhole.cpp
         engine/objects/kold.h
         engine/objects/kold.cpp
+        engine/objects/cowboy.h
+        engine/objects/cowboy.cpp
         engine/objects/laraobject.h
         engine/objects/laraobject.cpp
         engine/objects/larson.h

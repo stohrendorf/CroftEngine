@@ -1,16 +1,13 @@
-#include "kold.h"
+#include "cowboy.h"
 
-#include "engine/cameracontroller.h"
-#include "engine/raycast.h"
-#include "engine/world/animation.h"
+#include "engine/particle.h"
 #include "engine/world/world.h"
-#include "laraobject.h"
-#include "pickupobject.h"
+#include "serialization/quantity.h"
 #include "serialization/serialization.h"
 
 namespace engine::objects
 {
-void Kold::update()
+void Cowboy::update()
 {
   activateAi();
 
@@ -25,7 +22,7 @@ void Kold::update()
       headRot = enemyLocation.angleToEnemy;
     }
 
-    updateMood(getWorld(), m_state, enemyLocation, true);
+    updateMood(getWorld(), m_state, enemyLocation, false);
 
     creatureTurn = rotateTowardsTarget(m_state.creatureInfo->maxTurnSpeed);
     switch(m_state.current_anim_state.get())
@@ -60,7 +57,7 @@ void Kold::update()
         require(4_as);
         goal(1_as);
       }
-      else if(enemyLocation.enemyDistance > util::square(4096_len))
+      else if(enemyLocation.enemyDistance > util::square(3072_len))
       {
         require(3_as);
         goal(1_as);
@@ -78,7 +75,7 @@ void Kold::update()
         }
         else if(enemyLocation.enemyAhead)
         {
-          if(enemyLocation.enemyDistance < util::square(4096_len))
+          if(enemyLocation.enemyDistance < util::square(3072_len))
           {
             require(2_as);
             goal(1_as);
@@ -87,7 +84,7 @@ void Kold::update()
       }
       break;
     case 4:
-      m_shotAtLara = false;
+      m_aimTime = 0_frame;
       if(m_state.required_anim_state != 0_as || !canShootAtLara(enemyLocation))
       {
         goal(1_as);
@@ -98,14 +95,29 @@ void Kold::update()
       }
       break;
     case 6:
-      if(!m_shotAtLara)
+      if(m_aimTime == 0_frame)
       {
-        if(tryShootAtLara(*this, enemyLocation.enemyDistance / 2, {-20_len, 440_len, 20_len}, 9, headRot))
+        if(tryShootAtLara(*this, enemyLocation.enemyDistance, {1_len, 200_len, 41_len}, 5, headRot))
         {
-          hitLara(150_hp);
+          hitLara(70_hp);
         }
-        m_shotAtLara = true;
       }
+      else if(m_aimTime == 6_frame)
+      {
+        if(canShootAtLara(enemyLocation))
+        {
+          if(tryShootAtLara(*this, enemyLocation.enemyDistance, {-2_len, 200_len, 40_len}, 8, headRot))
+          {
+            hitLara(70_hp);
+          }
+        }
+        else
+        {
+          auto p = emitParticle({-2_len, 200_len, 40_len}, 8, &createMuzzleFlash);
+          p->angle.Y += headRot;
+        }
+      }
+      m_aimTime += 1_frame;
       if(m_state.creatureInfo->mood == ai::Mood::Escape)
       {
         require(3_as);
@@ -116,9 +128,9 @@ void Kold::update()
   }
   else if(m_state.current_anim_state != 5_as) // injured/dying
   {
-    getSkeleton()->setAnim(&getWorld().findAnimatedModelForType(TR1ItemId::Kold)->animations[14]);
+    getSkeleton()->setAnim(&getWorld().findAnimatedModelForType(TR1ItemId::Kold)->animations[7]);
     m_state.current_anim_state = 5_as;
-    getWorld().createPickup(TR1ItemId::ShotgunSprite, m_state.location.room, m_state.location.position);
+    getWorld().createPickup(TR1ItemId::MagnumsSprite, m_state.location.room, m_state.location.position);
   }
   rotateCreatureTilt(tiltRot);
   rotateCreatureHead(headRot);
@@ -126,9 +138,9 @@ void Kold::update()
   getSkeleton()->patchBone(0, core::TRRotation{0_deg, m_state.creatureInfo->headRotation, 0_deg}.toMatrix());
 }
 
-void Kold::serialize(const serialization::Serializer<world::World>& ser)
+void Cowboy::serialize(const serialization::Serializer<world::World>& ser)
 {
   AIAgent::serialize(ser);
-  ser(S_NV("shotAtLara", m_shotAtLara));
+  ser(S_NV("aimTime", m_aimTime));
 }
 } // namespace engine::objects

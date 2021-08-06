@@ -182,6 +182,12 @@ ob.radius = 102
 ob.hit_points = 200
 ob.target_update_chance = 0x7fff
 
+ob = object_infos[TR1ItemId.Cowboy]
+ob.ai_agent = True
+ob.radius = 102
+ob.hit_points = 150
+ob.target_update_chance = 0x7fff
+
 ob = object_infos[TR1ItemId.ScionPiece3]
 ob.hit_points = 5
 

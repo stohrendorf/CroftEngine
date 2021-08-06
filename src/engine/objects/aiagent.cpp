@@ -453,19 +453,6 @@ bool AIAgent::canShootAtLara(const ai::EnemyLocation& enemyLocation) const
     .first;
 }
 
-namespace
-{
-gsl::not_null<std::shared_ptr<Particle>> createMuzzleFlash(world::World& world,
-                                                           const Location& location,
-                                                           const core::Speed& /*speed*/,
-                                                           const core::Angle& angle)
-{
-  auto particle = std::make_shared<MuzzleFlashParticle>(location, world, angle);
-  setParent(particle, location.room->node);
-  return particle;
-}
-} // namespace
-
 bool AIAgent::tryShootAtLara(ModelObject& object,
                              const core::Area& distance,
                              const core::TRVec& bonePos,

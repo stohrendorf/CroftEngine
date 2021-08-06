@@ -10,6 +10,7 @@
 #include "bridgeflat.h"
 #include "centaurstatue.h"
 #include "collapsiblefloor.h"
+#include "cowboy.h"
 #include "crocodile.h"
 #include "cutsceneactors.h"
 #include "dart.h"
@@ -301,6 +302,7 @@ const auto& getFactories()
     MODEL_FACTORY(Motorboat, Motorboat),
     MODEL_FACTORY(SuspendedShack, SuspendedShack),
     MODEL_FACTORY(Kold, Kold),
+    MODEL_FACTORY(Cowboy, Cowboy),
     {TR1ItemId::WalkingMutant1, std::make_unique<WalkingMutantFactory>()},
     {TR1ItemId::WalkingMutant2, std::make_unique<WalkingMutantFactory>()},
     {TR1ItemId::CameraTarget, std::make_unique<HiddenModelFactory>()},

@@ -313,4 +313,9 @@ inline gsl::not_null<std::shared_ptr<Particle>>
   setParent(particle, location.room->node);
   return particle;
 }
+
+extern gsl::not_null<std::shared_ptr<Particle>> createMuzzleFlash(world::World& world,
+                                                                  const Location& location,
+                                                                  const core::Speed& /*speed*/,
+                                                                  const core::Angle& angle);
 } // namespace engine
