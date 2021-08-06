@@ -46,11 +46,10 @@ void SkateboardKid::update()
     updateMood(getWorld(), m_state, enemyLocation, false);
     turn = rotateTowardsTarget(4_deg / 1_frame);
 
-    if(m_state.health < 120_hp)
+    if(m_state.health < 120_hp && getWorld().getAudioEngine().getCurrentTrack() != TR1TrackId::LaraTalk30)
     {
-      if(getWorld().getAudioEngine().getCurrentTrack() != TR1TrackId::LaraTalk30)
-        getWorld().getAudioEngine().playStopCdTrack(
-          getWorld().getEngine().getScriptEngine(), TR1TrackId::LaraTalk30, false);
+      getWorld().getAudioEngine().playStopCdTrack(
+        getWorld().getEngine().getScriptEngine(), TR1TrackId::LaraTalk30, false);
     }
 
     switch(m_state.current_anim_state.get())

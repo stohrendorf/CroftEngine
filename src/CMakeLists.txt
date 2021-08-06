@@ -313,6 +313,8 @@ set( EDISONENGINE_SRCS
         engine/objects/midasgoldtouch.cpp
         engine/objects/modelobject.h
         engine/objects/modelobject.cpp
+        engine/objects/motorboat.h
+        engine/objects/motorboat.cpp
         engine/objects/mummy.h
         engine/objects/mummy.cpp
         engine/objects/mutant.h
