@@ -78,7 +78,7 @@ public:
 
     [[nodiscard]] glm::vec3 getPosition() const
     {
-      return glm::vec3(m[3]);
+      return {m[3]};
     }
   };
 
