@@ -89,6 +89,10 @@ public:
 
   void updateLighting() override;
 
+  void collideWithLara(CollisionInfo& collisionInfo, bool push = true);
+
+  void trapCollideWithLara(CollisionInfo& collisionInfo);
+
   void serialize(const serialization::Serializer<world::World>& ser) override;
 
   static std::shared_ptr<ModelObject> create(serialization::Serializer<world::World>& ser);

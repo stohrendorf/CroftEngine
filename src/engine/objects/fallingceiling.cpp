@@ -35,21 +35,6 @@ void FallingCeiling::update()
 
 void FallingCeiling::collide(CollisionInfo& collisionInfo)
 {
-  if(m_state.triggerState == TriggerState::Active)
-  {
-    if(isNear(getWorld().getObjectManager().getLara(), collisionInfo.collisionRadius))
-    {
-      testBoneCollision(getWorld().getObjectManager().getLara());
-    }
-  }
-  else if(m_state.triggerState != TriggerState::Invisible
-          && isNear(getWorld().getObjectManager().getLara(), collisionInfo.collisionRadius)
-          && testBoneCollision(getWorld().getObjectManager().getLara()))
-  {
-    if(collisionInfo.policies.is_set(CollisionInfo::PolicyFlags::EnableBaddiePush))
-    {
-      enemyPush(collisionInfo, false, true);
-    }
-  }
+  trapCollideWithLara(collisionInfo);
 }
 } // namespace engine::objects

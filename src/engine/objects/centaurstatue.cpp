@@ -61,4 +61,9 @@ void CentaurStatue::serialize(const serialization::Serializer<world::World>& ser
   ModelObject::serialize(ser);
   ser(S_NV("childObject", serialization::ObjectReference{m_childObject}));
 }
+
+void CentaurStatue::collide(CollisionInfo& info)
+{
+  collideWithLara(info);
+}
 } // namespace engine::objects

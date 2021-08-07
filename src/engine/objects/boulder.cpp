@@ -74,18 +74,8 @@ void engine::objects::RollingBall::collide(CollisionInfo& collisionInfo)
   if(m_state.triggerState != TriggerState::Active)
   {
     if(m_state.triggerState != TriggerState::Invisible)
-    {
-      if(!isNear(lara, collisionInfo.collisionRadius))
-        return;
+      collideWithLara(collisionInfo);
 
-      if(!testBoneCollision(lara))
-        return;
-
-      if(!collisionInfo.policies.is_set(CollisionInfo::PolicyFlags::EnableBaddiePush))
-        return;
-
-      enemyPush(collisionInfo, false, true);
-    }
     return;
   }
 

@@ -20,6 +20,8 @@ public:
 
   void update() override;
 
+  void collide(CollisionInfo& info) override;
+
   void serialize(const serialization::Serializer<world::World>& ser) override;
 
 private:

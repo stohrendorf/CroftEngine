@@ -326,6 +326,34 @@ std::shared_ptr<ModelObject> ModelObject::create(serialization::Serializer<world
   return result;
 }
 
+void ModelObject::collideWithLara(CollisionInfo& collisionInfo, bool push)
+{
+  auto& lara = getWorld().getObjectManager().getLara();
+
+  if(!isNear(lara, collisionInfo.collisionRadius))
+    return;
+
+  if(!testBoneCollision(lara))
+    return;
+
+  if(!push || !collisionInfo.policies.is_set(CollisionInfo::PolicyFlags::EnableBaddiePush))
+    return;
+
+  enemyPush(collisionInfo, false, true);
+}
+
+void ModelObject::trapCollideWithLara(CollisionInfo& collisionInfo)
+{
+  if(m_state.triggerState == TriggerState::Active)
+  {
+    collideWithLara(collisionInfo, false);
+  }
+  else if(m_state.triggerState != TriggerState::Invisible)
+  {
+    collideWithLara(collisionInfo);
+  }
+}
+
 std::shared_ptr<ModelObject> create(const serialization::TypeId<std::shared_ptr<ModelObject>>&,
                                     serialization::Serializer<world::World>& ser)
 {

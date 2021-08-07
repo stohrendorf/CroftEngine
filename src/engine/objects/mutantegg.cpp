@@ -155,16 +155,7 @@ void MutantEgg::update()
 
 void MutantEgg::collide(CollisionInfo& info)
 {
-  if(!isNear(getWorld().getObjectManager().getLara(), info.collisionRadius))
-    return;
-
-  if(!testBoneCollision(getWorld().getObjectManager().getLara()))
-    return;
-
-  if(!info.policies.is_set(CollisionInfo::PolicyFlags::EnableBaddiePush))
-    return;
-
-  enemyPush(info, false, true);
+  collideWithLara(info);
 }
 
 void MutantEgg::serialize(const serialization::Serializer<world::World>& ser)

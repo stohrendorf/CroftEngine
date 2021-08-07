@@ -45,15 +45,6 @@ void Mummy::update()
 
 void Mummy::collide(CollisionInfo& info)
 {
-  if(!isNear(getWorld().getObjectManager().getLara(), info.collisionRadius))
-    return;
-
-  if(!testBoneCollision(getWorld().getObjectManager().getLara()))
-    return;
-
-  if(!info.policies.is_set(CollisionInfo::PolicyFlags::EnableBaddiePush))
-    return;
-
-  enemyPush(info, false, true);
+  collideWithLara(info);
 }
 } // namespace engine::objects

@@ -36,15 +36,6 @@ void SuspendedShack::update()
 
 void SuspendedShack::collide(CollisionInfo& collisionInfo)
 {
-  if(!isNear(getWorld().getObjectManager().getLara(), collisionInfo.collisionRadius))
-    return;
-
-  if(!testBoneCollision(getWorld().getObjectManager().getLara()))
-    return;
-
-  if(!collisionInfo.policies.is_set(CollisionInfo::PolicyFlags::EnableBaddiePush))
-    return;
-
-  enemyPush(collisionInfo, false, true);
+  collideWithLara(collisionInfo);
 }
 } // namespace engine::objects
