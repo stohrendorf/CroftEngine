@@ -15,7 +15,6 @@ SkateboardKid::SkateboardKid(const gsl::not_null<world::World*>& world, const Lo
     , m_skateboard{std::make_shared<SkeletalModelNode>(
         "skateboard", world, world->findAnimatedModelForType(TR1ItemId::Skateboard).get())}
 {
-  setParent(m_skateboard, getNode());
 }
 
 SkateboardKid::SkateboardKid(const gsl::not_null<world::World*>& world,
@@ -27,12 +26,15 @@ SkateboardKid::SkateboardKid(const gsl::not_null<world::World*>& world,
         "skateboard", world, world->findAnimatedModelForType(TR1ItemId::Skateboard).get())}
 {
   m_state.current_anim_state = 2_as;
-  setParent(m_skateboard, getNode());
+  SkeletalModelNode::buildMesh(m_skateboard, m_state.current_anim_state);
+  m_lighting.bind(*m_skateboard);
 }
 
 void SkateboardKid::update()
 {
-  Expects(m_state.creatureInfo != nullptr);
+  // FIXME this is done somewhere else in the original engine, so this should be replaced with an "Expects" instead of
+  //       initializing it here.
+  m_state.initCreatureInfo(getWorld());
 
   core::Angle headRot = 0_deg;
   core::Angle turn = 0_deg;
@@ -130,8 +132,10 @@ void SkateboardKid::update()
   const auto animIdx = std::distance(getWorld().findAnimatedModelForType(TR1ItemId::SkateboardKid)->animations,
                                      getSkeleton()->getAnim());
   const auto& skateboardAnim = getWorld().findAnimatedModelForType(TR1ItemId::Skateboard)->animations[animIdx];
-  m_skateboard->setAnim(&skateboardAnim, skateboardAnim.firstFrame + getSkeleton()->getLocalFrame());
+  const auto animFrame = skateboardAnim.firstFrame + getSkeleton()->getLocalFrame();
+  m_skateboard->setAnim(&skateboardAnim, std::min(skateboardAnim.lastFrame, animFrame));
   m_skateboard->updatePose();
+  setParent(m_skateboard, getNode());
 }
 
 void SkateboardKid::serialize(const serialization::Serializer<world::World>& ser)
