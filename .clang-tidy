@@ -2,6 +2,7 @@ Checks: >
   *,
   -altera-struct-pack-align,
   -altera-unroll-loops,
+  -altera-id-dependent-backward-branch,
   -android-*,
   -cert-con36-c,
   -cert-con54-cpp,
