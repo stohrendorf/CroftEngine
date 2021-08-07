@@ -7,8 +7,6 @@
 #include "loader/file/item.h"
 #include "serialization/serialization.h"
 
-#include <boost/range/adaptor/indexed.hpp>
-
 namespace engine::objects
 {
 ModelObject::ModelObject(const gsl::not_null<world::World*>& world,
@@ -255,25 +253,28 @@ void ModelObject::enemyPush(CollisionInfo& collisionInfo, const bool enableSpaz,
 
 bool ModelObject::testBoneCollision(const ModelObject& other)
 {
-  m_state.touch_bits = 0;
+  m_state.touch_bits.reset();
   const auto boneSpheres
     = m_skeleton->getBoneCollisionSpheres(m_state, *m_skeleton->getInterpolationInfo().getNearestFrame(), nullptr);
-  const auto laraSpheres = other.m_skeleton->getBoneCollisionSpheres(
+  const auto otherSpheres = other.m_skeleton->getBoneCollisionSpheres(
     other.m_state, *other.m_skeleton->getInterpolationInfo().getNearestFrame(), nullptr);
-  for(const auto& boneSphere : boneSpheres | boost::adaptors::indexed(0))
+  for(size_t boneSphereIdx = 0; boneSphereIdx < boneSpheres.size(); ++boneSphereIdx)
   {
-    if(boneSphere.value().radius <= 0_len)
+    const auto& boneSphere = boneSpheres[boneSphereIdx];
+    if(boneSphere.radius <= 0_len)
       continue;
 
-    for(const auto& laraSphere : laraSpheres)
+    for(const auto& otherSphere : otherSpheres)
     {
-      if(laraSphere.radius <= 0_len)
-        continue;
-      if(distance(laraSphere.getPosition(), boneSphere.value().getPosition())
-         >= (boneSphere.value().radius + laraSphere.radius).get<float>())
+      if(otherSphere.radius <= 0_len)
         continue;
 
-      m_state.touch_bits.set(boneSphere.index());
+      const auto distance = glm::distance(otherSphere.getPosition(), boneSphere.getPosition());
+      const auto radii = (boneSphere.radius + otherSphere.radius).get<float>();
+      if(distance >= radii)
+        continue;
+
+      m_state.touch_bits.set(boneSphereIdx);
       break;
     }
   }
