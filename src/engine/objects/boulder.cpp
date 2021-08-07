@@ -69,14 +69,16 @@ void engine::objects::RollingBall::update()
 
 void engine::objects::RollingBall::collide(CollisionInfo& collisionInfo)
 {
+  auto& lara = getWorld().getObjectManager().getLara();
+
   if(m_state.triggerState != TriggerState::Active)
   {
     if(m_state.triggerState != TriggerState::Invisible)
     {
-      if(!isNear(getWorld().getObjectManager().getLara(), collisionInfo.collisionRadius))
+      if(!isNear(lara, collisionInfo.collisionRadius))
         return;
 
-      if(!testBoneCollision(getWorld().getObjectManager().getLara()))
+      if(!testBoneCollision(lara))
         return;
 
       if(!collisionInfo.policies.is_set(CollisionInfo::PolicyFlags::EnableBaddiePush))
@@ -87,31 +89,31 @@ void engine::objects::RollingBall::collide(CollisionInfo& collisionInfo)
     return;
   }
 
-  if(!isNear(getWorld().getObjectManager().getLara(), collisionInfo.collisionRadius))
+  if(!isNear(lara, collisionInfo.collisionRadius))
     return;
 
-  if(!testBoneCollision(getWorld().getObjectManager().getLara()))
+  if(!testBoneCollision(lara))
     return;
 
-  if(!getWorld().getObjectManager().getLara().m_state.falling)
+  if(!lara.m_state.falling)
   {
-    getWorld().getObjectManager().getLara().m_state.is_hit = true;
-    if(getWorld().getObjectManager().getLara().isDead())
+    lara.m_state.is_hit = true;
+    if(lara.isDead())
       return;
 
-    getWorld().getObjectManager().getLara().m_state.health = core::DeadHealth;
-    getWorld().getObjectManager().getLara().setCurrentRoom(m_state.location.room);
-    getWorld().getObjectManager().getLara().setAnimation(loader::file::AnimationId::SQUASH_BOULDER, 3561_frame);
+    lara.m_state.health = core::DeadHealth;
+    lara.setCurrentRoom(m_state.location.room);
+    lara.setAnimation(loader::file::AnimationId::SQUASH_BOULDER, 3561_frame);
     getWorld().getCameraController().setModifier(CameraModifier::FollowCenter);
     getWorld().getCameraController().setEyeRotation(-25_deg, 170_deg);
-    getWorld().getObjectManager().getLara().m_state.rotation.X = 0_deg;
-    getWorld().getObjectManager().getLara().m_state.rotation.Y = m_state.rotation.Y;
-    getWorld().getObjectManager().getLara().m_state.rotation.Z = 0_deg;
-    getWorld().getObjectManager().getLara().setGoalAnimState(loader::file::LaraStateId::BoulderDeath);
-    getWorld().getObjectManager().getLara().setCurrentAnimState(loader::file::LaraStateId::BoulderDeath);
+    lara.m_state.rotation.X = 0_deg;
+    lara.m_state.rotation.Y = m_state.rotation.Y;
+    lara.m_state.rotation.Z = 0_deg;
+    lara.setGoalAnimState(loader::file::LaraStateId::BoulderDeath);
+    lara.setCurrentAnimState(loader::file::LaraStateId::BoulderDeath);
     for(int i = 0; i < 15; ++i)
     {
-      const auto tmp = getWorld().getObjectManager().getLara().m_state.location.position
+      const auto tmp = lara.m_state.location.position
                        + core::TRVec{util::rand15s(128_len), -util::rand15s(512_len), util::rand15s(128_len)};
       auto fx = createBloodSplat(getWorld(),
                                  Location{m_state.location.room, tmp},
@@ -126,11 +128,11 @@ void engine::objects::RollingBall::collide(CollisionInfo& collisionInfo)
   {
     enemyPush(collisionInfo, collisionInfo.policies.is_set(CollisionInfo::PolicyFlags::EnableSpaz), true);
   }
-  getWorld().getObjectManager().getLara().m_state.health -= 100_hp;
-  const auto x = getWorld().getObjectManager().getLara().m_state.location.position.X - m_state.location.position.X;
-  const auto y = getWorld().getObjectManager().getLara().m_state.location.position.Y - 350_len
-                 - (m_state.location.position.Y - 2 * core::QuarterSectorSize);
-  const auto z = getWorld().getObjectManager().getLara().m_state.location.position.Z - m_state.location.position.Z;
+  lara.m_state.health -= 100_hp;
+  const auto x = lara.m_state.location.position.X - m_state.location.position.X;
+  const auto y
+    = lara.m_state.location.position.Y - 350_len - (m_state.location.position.Y - 2 * core::QuarterSectorSize);
+  const auto z = lara.m_state.location.position.Z - m_state.location.position.Z;
   const auto xyz = std::max(2 * core::QuarterSectorSize, sqrt(util::square(x) + util::square(y) + util::square(z)));
 
   auto fx = createBloodSplat(
