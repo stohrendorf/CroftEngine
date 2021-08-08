@@ -763,7 +763,7 @@ bool AbstractStateHandler::applyLandingDamage()
   }
   else
   {
-    m_lara.m_state.health = -1_hp;
+    m_lara.m_state.health = core::DeadHealth;
   }
   return m_lara.isDead();
 }

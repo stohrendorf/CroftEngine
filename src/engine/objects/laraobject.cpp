@@ -2081,7 +2081,7 @@ void LaraObject::burnIfAlive()
      != m_state.floor)
     return;
 
-  m_state.health = -1_hp;
+  m_state.health = core::DeadHealth;
   m_state.is_hit = true;
 
   for(size_t i = 0; i < 10; ++i)
