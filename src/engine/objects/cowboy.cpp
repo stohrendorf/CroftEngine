@@ -128,14 +128,15 @@ void Cowboy::update()
   }
   else if(m_state.current_anim_state != 5_as) // injured/dying
   {
-    getSkeleton()->setAnim(&getWorld().findAnimatedModelForType(TR1ItemId::Kold)->animations[7]);
+    getSkeleton()->setAnim(&getWorld().findAnimatedModelForType(TR1ItemId::Cowboy)->animations[7]);
     m_state.current_anim_state = 5_as;
     getWorld().createPickup(TR1ItemId::MagnumsSprite, m_state.location.room, m_state.location.position);
   }
   rotateCreatureTilt(tiltRot);
   rotateCreatureHead(headRot);
   animateCreature(creatureTurn, 0_deg);
-  getSkeleton()->patchBone(0, core::TRRotation{0_deg, m_state.creatureInfo->headRotation, 0_deg}.toMatrix());
+  if(m_state.creatureInfo != nullptr)
+    getSkeleton()->patchBone(0, core::TRRotation{0_deg, m_state.creatureInfo->headRotation, 0_deg}.toMatrix());
 }
 
 void Cowboy::serialize(const serialization::Serializer<world::World>& ser)
