@@ -123,7 +123,8 @@ void Kold::update()
   rotateCreatureTilt(tiltRot);
   rotateCreatureHead(headRot);
   animateCreature(creatureTurn, 0_deg);
-  getSkeleton()->patchBone(0, core::TRRotation{0_deg, m_state.creatureInfo->headRotation, 0_deg}.toMatrix());
+  if(m_state.creatureInfo != nullptr)
+    getSkeleton()->patchBone(0, core::TRRotation{0_deg, m_state.creatureInfo->headRotation, 0_deg}.toMatrix());
 }
 
 void Kold::serialize(const serialization::Serializer<world::World>& ser)
