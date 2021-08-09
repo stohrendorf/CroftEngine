@@ -444,8 +444,8 @@ bool ExplosionParticle::update(world::World&)
   if(timePerSpriteFrame == 2)
   {
     timePerSpriteFrame = 0;
-    --negSpriteFrameId;
-    if(negSpriteFrameId <= 0 || static_cast<size_t>(negSpriteFrameId) <= getLength())
+    nextFrame();
+    if(static_cast<size_t>(-negSpriteFrameId) >= getLength())
     {
       return false;
     }
