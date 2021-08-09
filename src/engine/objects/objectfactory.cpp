@@ -261,6 +261,7 @@ const auto& getFactories()
     MODEL_FACTORY(Raptor, Raptor),
     MODEL_FACTORY(SwordOfDamocles, SwordOfDamocles),
     MODEL_FACTORY(FallingCeiling, FallingCeiling),
+    MODEL_FACTORY(FallingCeiling2, FallingCeiling),
     MODEL_FACTORY(CutsceneActor1, CutsceneActor1),
     MODEL_FACTORY(CutsceneActor2, CutsceneActor2),
     MODEL_FACTORY(CutsceneActor3, CutsceneActor3),
