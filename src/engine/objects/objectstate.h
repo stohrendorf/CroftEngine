@@ -15,11 +15,6 @@ struct Sector;
 
 namespace engine
 {
-namespace ai
-{
-struct CreatureInfo;
-}
-
 namespace script
 {
 class ScriptEngine;
@@ -90,8 +85,6 @@ public:
   bool collidable = true;
   bool already_looked_at = false;
 
-  std::shared_ptr<ai::CreatureInfo> creatureInfo;
-
   void serialize(const serialization::Serializer<world::World>& ser);
 
   bool updateActivationTimeout()
@@ -116,11 +109,7 @@ public:
 
   bool isStalkBox(const world::World& world, const world::Box& targetBox) const;
 
-  bool isInsideZoneButNotInBox(const world::World& world, world::ZoneId zoneId, const world::Box& targetBox) const;
-
   bool isEscapeBox(const world::World& world, const world::Box& targetBox) const;
-
-  void initCreatureInfo(const world::World& world);
 
   const world::Sector* getCurrentSector() const;
 

@@ -17,12 +17,12 @@ void Gorilla::update()
 
   if(alive())
   {
-    const ai::EnemyLocation enemyLocation{getWorld(), m_state};
+    const ai::EnemyLocation enemyLocation{*this};
     if(enemyLocation.enemyAhead)
       headRot = enemyLocation.angleToEnemy;
-    updateMood(getWorld(), m_state, enemyLocation, false);
+    updateMood(*this, enemyLocation, false);
 
-    turn = rotateTowardsTarget(m_state.creatureInfo->maxTurnSpeed);
+    turn = rotateTowardsTarget(getCreatureInfo()->maxTurnSpeed);
     if(m_state.is_hit || enemyLocation.enemyDistance < util::square(2 * core::SectorSize))
     {
       m_wantAttack = true;
@@ -71,18 +71,18 @@ void Gorilla::update()
         else if(r < 752)
         {
           goal(8_as);
-          m_state.creatureInfo->maxTurnSpeed = 0_deg / 1_frame;
+          getCreatureInfo()->maxTurnSpeed = 0_deg / 1_frame;
         }
         else
         {
           goal(9_as);
-          m_state.creatureInfo->maxTurnSpeed = 0_deg / 1_frame;
+          getCreatureInfo()->maxTurnSpeed = 0_deg / 1_frame;
         }
       }
       break;
     case 3:
       // running
-      m_state.creatureInfo->maxTurnSpeed = 5_deg / 1_frame;
+      getCreatureInfo()->maxTurnSpeed = 5_deg / 1_frame;
       if(!m_wantAttack && !m_turnedRight && !m_turnedLeft && enemyLocation.angleToEnemy > -45_deg
          && enemyLocation.angleToEnemy < 45_deg)
       {
@@ -142,7 +142,7 @@ void Gorilla::update()
   if(m_state.current_anim_state == 11_as)
   {
     // climbing
-    getSkeleton()->patchBone(14, core::TRRotation{0_deg, m_state.creatureInfo->headRotation, 0_deg}.toMatrix());
+    getSkeleton()->patchBone(14, core::TRRotation{0_deg, getCreatureInfo()->headRotation, 0_deg}.toMatrix());
     animateCreature(turn, 0_deg);
   }
   else
@@ -158,7 +158,7 @@ void Gorilla::update()
       m_turnedLeft = false;
     }
     const auto old = m_state.location.position;
-    getSkeleton()->patchBone(14, core::TRRotation{0_deg, m_state.creatureInfo->headRotation, 0_deg}.toMatrix());
+    getSkeleton()->patchBone(14, core::TRRotation{0_deg, getCreatureInfo()->headRotation, 0_deg}.toMatrix());
     animateCreature(turn, 0_deg);
     if(old.Y - 384_len < m_state.location.position.Y)
       return;

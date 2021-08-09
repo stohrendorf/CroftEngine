@@ -15,15 +15,15 @@ void Larson::update()
   core::Angle headRot = 0_deg;
   if(alive())
   {
-    const ai::EnemyLocation enemyLocation{getWorld(), m_state};
+    const ai::EnemyLocation enemyLocation{*this};
     if(enemyLocation.enemyAhead)
     {
       headRot = enemyLocation.angleToEnemy;
     }
 
-    updateMood(getWorld(), m_state, enemyLocation, false);
+    updateMood(*this, enemyLocation, false);
 
-    creatureTurn = rotateTowardsTarget(m_state.creatureInfo->maxTurnSpeed);
+    creatureTurn = rotateTowardsTarget(getCreatureInfo()->maxTurnSpeed);
     switch(m_state.current_anim_state.get())
     {
     case 1: // standing holding weapon
@@ -48,7 +48,7 @@ void Larson::update()
       }
       break;
     case 2: // walking
-      m_state.creatureInfo->maxTurnSpeed = 3_deg / 1_frame;
+      getCreatureInfo()->maxTurnSpeed = 3_deg / 1_frame;
       if(isBored() && util::rand15() < 96)
         goal(1_as, 6_as);
       else if(isEscaping())
@@ -59,7 +59,7 @@ void Larson::update()
         goal(1_as, 3_as);
       break;
     case 3: // running
-      m_state.creatureInfo->maxTurnSpeed = 6_deg / 1_frame;
+      getCreatureInfo()->maxTurnSpeed = 6_deg / 1_frame;
       tiltRot = creatureTurn / 2;
       if(isBored() && util::rand15() < 96)
         goal(1_as, 6_as);
@@ -104,7 +104,7 @@ void Larson::update()
   }
   rotateCreatureTilt(tiltRot);
   rotateCreatureHead(headRot);
-  getSkeleton()->patchBone(7, core::TRRotation{0_deg, m_state.creatureInfo->headRotation, 0_deg}.toMatrix());
+  getSkeleton()->patchBone(7, core::TRRotation{0_deg, getCreatureInfo()->headRotation, 0_deg}.toMatrix());
   animateCreature(creatureTurn, 0_deg);
 }
 } // namespace engine::objects

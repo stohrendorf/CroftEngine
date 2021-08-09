@@ -44,7 +44,7 @@ void Pierre::update()
   }
   if(alive())
   {
-    ai::EnemyLocation enemyLocation{getWorld(), m_state};
+    ai::EnemyLocation enemyLocation{*this};
     if(enemyLocation.enemyAhead)
     {
       headRot = enemyLocation.angleToEnemy;
@@ -56,9 +56,9 @@ void Pierre::update()
       m_state.is_hit = true;
     }
 
-    updateMood(getWorld(), m_state, enemyLocation, false);
+    updateMood(*this, enemyLocation, false);
 
-    creatureTurn = rotateTowardsTarget(m_state.creatureInfo->maxTurnSpeed);
+    creatureTurn = rotateTowardsTarget(getCreatureInfo()->maxTurnSpeed);
     switch(m_state.current_anim_state.get())
     {
     case 1:
@@ -83,7 +83,7 @@ void Pierre::update()
       }
       break;
     case 2:
-      m_state.creatureInfo->maxTurnSpeed = 3_deg / 1_frame;
+      getCreatureInfo()->maxTurnSpeed = 3_deg / 1_frame;
       if(isBored() && util::rand15() < 96)
         goal(1_as, 6_as);
       else if(isEscaping())
@@ -94,7 +94,7 @@ void Pierre::update()
         goal(1_as, 3_as);
       break;
     case 3:
-      m_state.creatureInfo->maxTurnSpeed = 6_deg / 1_frame;
+      getCreatureInfo()->maxTurnSpeed = 6_deg / 1_frame;
       tiltRot = creatureTurn / 2;
       if(isBored() && util::rand15() < 96)
       {
@@ -145,7 +145,7 @@ void Pierre::update()
   rotateCreatureTilt(tiltRot);
   rotateCreatureHead(headRot);
   animateCreature(creatureTurn, 0_deg);
-  getSkeleton()->patchBone(7, core::TRRotation{0_deg, m_state.creatureInfo->headRotation, 0_deg}.toMatrix());
+  getSkeleton()->patchBone(7, core::TRRotation{0_deg, getCreatureInfo()->headRotation, 0_deg}.toMatrix());
   if(m_fleeTime != 0_frame)
   {
     if(raycastLineOfSight(getWorld().getCameraController().getTRLocation(),
@@ -158,7 +158,7 @@ void Pierre::update()
     else if(m_fleeTime > 10_frame)
     {
       m_state.health = core::DeadHealth;
-      m_state.creatureInfo = nullptr;
+      freeCreatureInfo();
       kill();
       getWorld().setPierre(nullptr);
     }
@@ -166,7 +166,7 @@ void Pierre::update()
   if(getWaterSurfaceHeight().has_value())
   {
     m_state.health = core::DeadHealth;
-    m_state.creatureInfo = nullptr;
+    freeCreatureInfo();
     kill();
     getWorld().setPierre(nullptr);
   }

@@ -143,7 +143,7 @@ void MutantEgg::update()
         m_childObject->applyTransform();
 
         m_childObject->m_state.touch_bits.reset();
-        m_childObject->m_state.initCreatureInfo(getWorld());
+        m_childObject->initCreatureInfo();
         m_childObject->activate();
         m_childObject->m_state.triggerState = TriggerState::Active;
       }

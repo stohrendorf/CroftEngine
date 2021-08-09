@@ -10,7 +10,6 @@
 #include "serialization/serialization.h"
 
 #include <boost/range/adaptors.hpp>
-#include <pybind11/pybind11.h>
 
 namespace engine::objects
 {
@@ -21,8 +20,8 @@ core::Angle AIAgent::rotateTowardsTarget(core::RotationSpeed maxRotationSpeed)
     return 0_au;
   }
 
-  const auto dx = m_state.creatureInfo->target.X - m_state.location.position.X;
-  const auto dz = m_state.creatureInfo->target.Z - m_state.location.position.Z;
+  const auto dx = m_creatureInfo->target.X - m_state.location.position.X;
+  const auto dz = m_creatureInfo->target.Z - m_state.location.position.Z;
   auto turnAngle = angleFromAtan(dx, dz) - m_state.rotation.Y;
   if(turnAngle < -90_deg || turnAngle > 90_deg)
   {
@@ -84,7 +83,7 @@ bool AIAgent::anyMovingEnabledObjectInReach() const
 
 bool AIAgent::animateCreature(const core::Angle& angle, const core::Angle& tilt)
 {
-  if(m_state.creatureInfo == nullptr)
+  if(m_creatureInfo == nullptr)
     return false;
 
   const auto invariantCheck = gsl::finally(
@@ -95,13 +94,13 @@ bool AIAgent::animateCreature(const core::Angle& angle, const core::Angle& tilt)
       BOOST_ASSERT(m_state.location.isValid());
     });
 
-  const auto& pathFinder = m_state.creatureInfo->pathFinder;
+  const auto& pathFinder = m_creatureInfo->pathFinder;
 
   const auto oldLocation = m_state.location;
 
   const auto boxFloor = m_state.getCurrentBox()->floor;
   const auto zoneRef = world::Box::getZoneRef(
-    getWorld().roomsAreSwapped(), m_state.creatureInfo->pathFinder.isFlying(), m_state.creatureInfo->pathFinder.step);
+    getWorld().roomsAreSwapped(), m_creatureInfo->pathFinder.isFlying(), m_creatureInfo->pathFinder.step);
   ModelObject::update();
   if(m_state.triggerState == TriggerState::Deactivated)
   {
@@ -112,7 +111,7 @@ bool AIAgent::animateCreature(const core::Angle& angle, const core::Angle& tilt)
     }
     m_state.health = core::DeadHealth;
     m_state.collidable = false;
-    m_state.creatureInfo.reset();
+    m_creatureInfo.reset();
     deactivate();
     return false;
   }
@@ -310,8 +309,7 @@ bool AIAgent::animateCreature(const core::Angle& angle, const core::Angle& tilt)
 
   if(pathFinder.isFlying())
   {
-    auto moveY
-      = std::clamp(m_state.creatureInfo->target.Y - m_state.location.position.Y, -pathFinder.fly, pathFinder.fly);
+    auto moveY = std::clamp(m_creatureInfo->target.Y - m_state.location.position.Y, -pathFinder.fly, pathFinder.fly);
 
     const auto currentFloor
       = HeightInfo::fromFloor(sector,
@@ -508,6 +506,34 @@ void AIAgent::hitLara(const core::Health& strength)
 void AIAgent::serialize(const serialization::Serializer<world::World>& ser)
 {
   ModelObject::serialize(ser);
-  ser(S_NV("collisionRadius", m_collisionRadius));
+  ser(S_NV("collisionRadius", m_collisionRadius), S_NV("creatureInfo", m_creatureInfo));
+}
+
+void AIAgent::initCreatureInfo()
+{
+  if(m_creatureInfo != nullptr)
+    return;
+
+  m_creatureInfo = std::make_unique<ai::CreatureInfo>(getWorld(), m_state.type, m_state.getCurrentBox());
+}
+
+bool AIAgent::isInsideZoneButNotInBox(const world::ZoneId zoneId, const world::Box& targetBox) const
+{
+  Expects(m_creatureInfo != nullptr);
+
+  const auto zoneRef = world::Box::getZoneRef(
+    getWorld().roomsAreSwapped(), m_creatureInfo->pathFinder.isFlying(), m_creatureInfo->pathFinder.step);
+
+  if(zoneId != targetBox.*zoneRef)
+  {
+    return false;
+  }
+
+  if(!m_creatureInfo->pathFinder.canVisit(targetBox))
+  {
+    return false;
+  }
+
+  return !targetBox.contains(m_state.location.position.X, m_state.location.position.Z);
 }
 } // namespace engine::objects

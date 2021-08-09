@@ -28,15 +28,15 @@ void Wolf::update()
   core::Angle rotationToMoveTarget = 0_deg;
   if(alive())
   {
-    const ai::EnemyLocation enemyLocation{getWorld(), m_state};
+    const ai::EnemyLocation enemyLocation{*this};
 
     if(enemyLocation.enemyAhead)
     {
       pitch = enemyLocation.angleToEnemy;
     }
 
-    updateMood(getWorld(), m_state, enemyLocation, false);
-    rotationToMoveTarget = rotateTowardsTarget(m_state.creatureInfo->maxTurnSpeed);
+    updateMood(*this, enemyLocation, false);
+    rotationToMoveTarget = rotateTowardsTarget(getCreatureInfo()->maxTurnSpeed);
     switch(m_state.current_anim_state.get())
     {
     case LyingDown.get():
@@ -53,7 +53,7 @@ void Wolf::update()
         goal(Running);
       break;
     case Running.get():
-      m_state.creatureInfo->maxTurnSpeed = 2_deg / 1_frame;
+      getCreatureInfo()->maxTurnSpeed = 2_deg / 1_frame;
       if(!isBored())
         goal(Stalking, 0_as);
       else if(util::rand15() < 32)
@@ -77,7 +77,7 @@ void Wolf::update()
         goal(Walking);
       break;
     case Stalking.get():
-      m_state.creatureInfo->maxTurnSpeed = 2_deg / 1_frame;
+      getCreatureInfo()->maxTurnSpeed = 2_deg / 1_frame;
       if(isEscaping())
       { // NOLINT(bugprone-branch-clone)
         goal(Jumping);
@@ -112,7 +112,7 @@ void Wolf::update()
       }
       break;
     case Jumping.get():
-      m_state.creatureInfo->maxTurnSpeed = 5_deg / 1_frame;
+      getCreatureInfo()->maxTurnSpeed = 5_deg / 1_frame;
       roll = rotationToMoveTarget;
       if(enemyLocation.enemyAhead && enemyLocation.enemyDistance < util::square(3 * core::SectorSize / 2))
       {
@@ -166,7 +166,7 @@ void Wolf::update()
   }
   rotateCreatureTilt(roll);
   rotateCreatureHead(pitch);
-  getSkeleton()->patchBone(3, core::TRRotation{0_deg, m_state.creatureInfo->headRotation, 0_deg}.toMatrix());
+  getSkeleton()->patchBone(3, core::TRRotation{0_deg, getCreatureInfo()->headRotation, 0_deg}.toMatrix());
   animateCreature(rotationToMoveTarget, roll);
 }
 } // namespace engine::objects

@@ -50,7 +50,7 @@ struct EnemyLocation
   core::Angle angleToEnemy = 0_deg;
   core::Angle enemyAngleToSelf = 0_deg;
 
-  EnemyLocation(world::World& world, objects::ObjectState& objectState);
+  EnemyLocation(objects::AIAgent& aiAgent);
 
   [[nodiscard]] bool canReachEnemyZone() const noexcept
   {
@@ -81,14 +81,11 @@ struct CreatureInfo
   void serialize(const serialization::Serializer<world::World>& ser);
 };
 
-std::shared_ptr<CreatureInfo> create(const serialization::TypeId<std::shared_ptr<CreatureInfo>>&,
+std::unique_ptr<CreatureInfo> create(const serialization::TypeId<std::unique_ptr<CreatureInfo>>&,
                                      const serialization::Serializer<world::World>& ser);
 
-void serialize(std::shared_ptr<CreatureInfo>& data, const serialization::Serializer<world::World>& ser);
+void serialize(std::unique_ptr<CreatureInfo>& data, const serialization::Serializer<world::World>& ser);
 
-void updateMood(const world::World& world,
-                const objects::ObjectState& objectState,
-                const EnemyLocation& enemyLocation,
-                bool violent);
+void updateMood(const objects::AIAgent& aiAgent, const EnemyLocation& enemyLocation, bool violent);
 } // namespace ai
 } // namespace engine

@@ -50,28 +50,6 @@ bool ObjectState::isStalkBox(const world::World& world, const world::Box& target
   BOOST_THROW_EXCEPTION(std::runtime_error("Unreachable code reached"));
 }
 
-bool ObjectState::isInsideZoneButNotInBox(const world::World& world,
-                                          const world::ZoneId zoneId,
-                                          const world::Box& targetBox) const
-{
-  Expects(creatureInfo != nullptr);
-
-  const auto zoneRef = world::Box::getZoneRef(
-    world.roomsAreSwapped(), creatureInfo->pathFinder.isFlying(), creatureInfo->pathFinder.step);
-
-  if(zoneId != targetBox.*zoneRef)
-  {
-    return false;
-  }
-
-  if(!creatureInfo->pathFinder.canVisit(targetBox))
-  {
-    return false;
-  }
-
-  return !targetBox.contains(location.position.X, location.position.Z);
-}
-
 bool ObjectState::isEscapeBox(const world::World& world, const world::Box& targetBox) const
 {
   const auto laraPos = world.getObjectManager().getLara().m_state.location.position;
@@ -84,14 +62,6 @@ bool ObjectState::isEscapeBox(const world::World& world, const world::Box& targe
   const auto laraToObjX = location.position.X - laraPos.X;
   const auto laraToObjZ = location.position.Z - laraPos.Z;
   return ((laraToObjZ > 0_len) == (laraToBoxCtrZ > 0_len)) || ((laraToObjX > 0_len) == (laraToBoxCtrX > 0_len));
-}
-
-void ObjectState::initCreatureInfo(const world::World& world)
-{
-  if(creatureInfo != nullptr)
-    return;
-
-  creatureInfo = std::make_unique<ai::CreatureInfo>(world, type, getCurrentBox());
 }
 
 glm::vec3 ObjectState::getPosition() const
@@ -123,8 +93,7 @@ void ObjectState::serialize(const serialization::Serializer<world::World>& ser)
       S_NV("falling", falling),
       S_NV("isHit", is_hit),
       S_NV("collidable", collidable),
-      S_NV("alreadyLookedAt", already_looked_at),
-      S_NV("creatureInfo", creatureInfo));
+      S_NV("alreadyLookedAt", already_looked_at));
 }
 
 const world::Sector* ObjectState::getCurrentSector() const

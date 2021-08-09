@@ -1,6 +1,7 @@
 #include "ai.h"
 
 #include "engine/engine.h"
+#include "engine/objects/aiagent.h"
 #include "engine/objects/laraobject.h"
 #include "engine/script/reflection.h"
 #include "engine/world/world.h"
@@ -97,23 +98,20 @@ std::optional<ai::Mood> getNewMood(
 }
 } // namespace
 
-void updateMood(const world::World& world,
-                const objects::ObjectState& objectState,
-                const EnemyLocation& enemyLocation,
-                const bool violent)
+void updateMood(const objects::AIAgent& aiAgent, const EnemyLocation& enemyLocation, const bool violent)
 {
-  if(objectState.creatureInfo == nullptr)
+  if(aiAgent.getCreatureInfo() == nullptr)
     return;
 
-  CreatureInfo& creatureInfo = *objectState.creatureInfo;
+  CreatureInfo& creatureInfo = *aiAgent.getCreatureInfo();
   auto newTargetBox = creatureInfo.pathFinder.getTargetBox();
-  if(creatureInfo.pathFinder.isUnreachable(objectState.getCurrentBox()))
+  if(creatureInfo.pathFinder.isUnreachable(aiAgent.m_state.getCurrentBox()))
   {
     newTargetBox = nullptr;
   }
 
   if(creatureInfo.mood != Mood::Attack && newTargetBox != nullptr
-     && !objectState.isInsideZoneButNotInBox(world, enemyLocation.zoneId, *creatureInfo.pathFinder.getTargetBox()))
+     && !aiAgent.isInsideZoneButNotInBox(enemyLocation.zoneId, *creatureInfo.pathFinder.getTargetBox()))
   {
     if(enemyLocation.canReachEnemyZone())
     {
@@ -122,9 +120,10 @@ void updateMood(const world::World& world,
     newTargetBox = nullptr;
   }
   const auto originalMood = creatureInfo.mood;
-  if(world.getObjectManager().getLara().isDead())
+  if(aiAgent.getWorld().getObjectManager().getLara().isDead())
     creatureInfo.mood = Mood::Bored;
-  else if(auto newMood = getNewMood(enemyLocation, creatureInfo, objectState.is_hit, violent, newTargetBox != nullptr))
+  else if(auto newMood
+          = getNewMood(enemyLocation, creatureInfo, aiAgent.m_state.is_hit, violent, newTargetBox != nullptr))
     creatureInfo.mood = newMood.value();
 
   if(originalMood != creatureInfo.mood)
@@ -140,17 +139,19 @@ void updateMood(const world::World& world,
   switch(creatureInfo.mood)
   {
   case Mood::Attack:
-    if(util::rand15() >= world.getEngine().getScriptEngine().getObjectInfo(objectState.type).target_update_chance)
+    if(util::rand15()
+       >= aiAgent.getWorld().getEngine().getScriptEngine().getObjectInfo(aiAgent.m_state.type).target_update_chance)
       break;
 
-    creatureInfo.pathFinder.target = world.getObjectManager().getLara().m_state.location.position;
-    newTargetBox = world.getObjectManager().getLara().m_state.getCurrentBox();
+    creatureInfo.pathFinder.target = aiAgent.getWorld().getObjectManager().getLara().m_state.location.position;
+    newTargetBox = aiAgent.getWorld().getObjectManager().getLara().m_state.getCurrentBox();
     creatureInfo.pathFinder.target.X
       = std::clamp(creatureInfo.pathFinder.target.X, newTargetBox->xmin, newTargetBox->xmax);
     creatureInfo.pathFinder.target.Z
       = std::clamp(creatureInfo.pathFinder.target.Z, newTargetBox->zmin, newTargetBox->zmax);
-    if(creatureInfo.pathFinder.isFlying() && world.getObjectManager().getLara().isOnLand())
-      creatureInfo.pathFinder.target.Y += world.getObjectManager()
+    if(creatureInfo.pathFinder.isFlying() && aiAgent.getWorld().getObjectManager().getLara().isOnLand())
+      creatureInfo.pathFinder.target.Y += aiAgent.getWorld()
+                                            .getObjectManager()
                                             .getLara()
                                             .getSkeleton()
                                             ->getInterpolationInfo()
@@ -162,10 +163,10 @@ void updateMood(const world::World& world,
   case Mood::Bored:
   {
     const auto box = creatureInfo.pathFinder.getRandomBox();
-    if(!objectState.isInsideZoneButNotInBox(world, enemyLocation.zoneId, *box))
+    if(!aiAgent.isInsideZoneButNotInBox(enemyLocation.zoneId, *box))
       break;
 
-    if(objectState.isStalkBox(world, *box))
+    if(aiAgent.m_state.isStalkBox(aiAgent.getWorld(), *box))
     {
       newTargetBox = box;
       creatureInfo.pathFinder.setRandomSearchTarget(box);
@@ -180,14 +181,14 @@ void updateMood(const world::World& world,
   }
   case Mood::Stalk:
   {
-    if(newTargetBox != nullptr && objectState.isStalkBox(world, *newTargetBox))
+    if(newTargetBox != nullptr && aiAgent.m_state.isStalkBox(aiAgent.getWorld(), *newTargetBox))
       break;
 
     const auto box = creatureInfo.pathFinder.getRandomBox();
-    if(!objectState.isInsideZoneButNotInBox(world, enemyLocation.zoneId, *box))
+    if(!aiAgent.isInsideZoneButNotInBox(enemyLocation.zoneId, *box))
       break;
 
-    if(objectState.isStalkBox(world, *box))
+    if(aiAgent.m_state.isStalkBox(aiAgent.getWorld(), *box))
     {
       newTargetBox = box;
       creatureInfo.pathFinder.setRandomSearchTarget(box);
@@ -206,15 +207,15 @@ void updateMood(const world::World& world,
   case Mood::Escape:
   {
     const auto box = creatureInfo.pathFinder.getRandomBox();
-    if(!objectState.isInsideZoneButNotInBox(world, enemyLocation.zoneId, *box) || newTargetBox != nullptr)
+    if(!aiAgent.isInsideZoneButNotInBox(enemyLocation.zoneId, *box) || newTargetBox != nullptr)
       break;
 
-    if(objectState.isEscapeBox(world, *box))
+    if(aiAgent.m_state.isEscapeBox(aiAgent.getWorld(), *box))
     {
       newTargetBox = box;
       creatureInfo.pathFinder.setRandomSearchTarget(box);
     }
-    else if(enemyLocation.canReachEnemyZone() && objectState.isStalkBox(world, *box))
+    else if(enemyLocation.canReachEnemyZone() && aiAgent.m_state.isStalkBox(aiAgent.getWorld(), *box))
     {
       newTargetBox = box;
       creatureInfo.pathFinder.setRandomSearchTarget(box);
@@ -226,37 +227,37 @@ void updateMood(const world::World& world,
 
   if(creatureInfo.pathFinder.getTargetBox() == nullptr)
   {
-    newTargetBox = objectState.getCurrentBox();
-    creatureInfo.pathFinder.setRandomSearchTarget(objectState.getCurrentBox());
+    newTargetBox = aiAgent.m_state.getCurrentBox();
+    creatureInfo.pathFinder.setRandomSearchTarget(aiAgent.m_state.getCurrentBox());
   }
   if(newTargetBox != nullptr)
     creatureInfo.pathFinder.setTargetBox(newTargetBox);
   creatureInfo.pathFinder.calculateTarget(
-    world, creatureInfo.target, objectState.location.position, objectState.getCurrentBox());
+    aiAgent.getWorld(), creatureInfo.target, aiAgent.m_state.location.position, aiAgent.m_state.getCurrentBox());
 }
 
-std::shared_ptr<CreatureInfo> create(const serialization::TypeId<std::shared_ptr<CreatureInfo>>&,
+std::unique_ptr<CreatureInfo> create(const serialization::TypeId<std::unique_ptr<CreatureInfo>>&,
                                      const serialization::Serializer<world::World>& ser)
 {
-  if(!ser.node.has_val())
+  if(ser.isNull())
     return nullptr;
 
-  auto result = std::make_shared<CreatureInfo>(ser.context);
+  auto result = std::make_unique<CreatureInfo>(ser.context);
   ser(S_NV("data", *result));
   return result;
 }
 
-void serialize(std::shared_ptr<CreatureInfo>& data, const serialization::Serializer<world::World>& ser)
+void serialize(std::unique_ptr<CreatureInfo>& data, const serialization::Serializer<world::World>& ser)
 {
   if(ser.loading)
   {
-    data = create(serialization::TypeId<std::shared_ptr<CreatureInfo>>{}, ser);
+    data = create(serialization::TypeId<std::unique_ptr<CreatureInfo>>{}, ser);
   }
   else
   {
     if(data == nullptr)
     {
-      ser.node |= ryml::MAP;
+      ser.setNull();
     }
     else
     {
@@ -265,37 +266,37 @@ void serialize(std::shared_ptr<CreatureInfo>& data, const serialization::Seriali
   }
 }
 
-EnemyLocation::EnemyLocation(world::World& world, objects::ObjectState& objectState)
+EnemyLocation::EnemyLocation(objects::AIAgent& aiAgent)
 {
-  if(objectState.creatureInfo == nullptr)
+  if(aiAgent.getCreatureInfo() == nullptr)
     return;
 
-  const auto zoneRef = world::Box::getZoneRef(world.roomsAreSwapped(),
-                                              objectState.creatureInfo->pathFinder.isFlying(),
-                                              objectState.creatureInfo->pathFinder.step);
+  const auto zoneRef = world::Box::getZoneRef(aiAgent.getWorld().roomsAreSwapped(),
+                                              aiAgent.getCreatureInfo()->pathFinder.isFlying(),
+                                              aiAgent.getCreatureInfo()->pathFinder.step);
 
-  zoneId = objectState.getCurrentBox().get()->*zoneRef;
-  world.getObjectManager().getLara().m_state.getCurrentBox()
-    = world.getObjectManager().getLara().m_state.getCurrentBox();
-  enemyZoneId = world.getObjectManager().getLara().m_state.getCurrentBox().get()->*zoneRef;
-  enemyUnreachable
-    = !objectState.creatureInfo->pathFinder.canVisit(*world.getObjectManager().getLara().m_state.getCurrentBox())
-      || objectState.creatureInfo->pathFinder.isUnreachable(objectState.getCurrentBox());
+  zoneId = aiAgent.m_state.getCurrentBox().get()->*zoneRef;
+  aiAgent.getWorld().getObjectManager().getLara().m_state.getCurrentBox()
+    = aiAgent.getWorld().getObjectManager().getLara().m_state.getCurrentBox();
+  enemyZoneId = aiAgent.getWorld().getObjectManager().getLara().m_state.getCurrentBox().get()->*zoneRef;
+  enemyUnreachable = !aiAgent.getCreatureInfo()->pathFinder.canVisit(
+                       *aiAgent.getWorld().getObjectManager().getLara().m_state.getCurrentBox())
+                     || aiAgent.getCreatureInfo()->pathFinder.isUnreachable(aiAgent.m_state.getCurrentBox());
 
-  auto objectInfo = world.getEngine().getScriptEngine().getObjectInfo(objectState.type);
+  auto objectInfo = aiAgent.getWorld().getEngine().getScriptEngine().getObjectInfo(aiAgent.m_state.type);
   const core::Length pivotLength{objectInfo.pivot_length};
-  const auto toLara = world.getObjectManager().getLara().m_state.location.position
-                      - (objectState.location.position + util::pitch(pivotLength, objectState.rotation.Y));
+  const auto toLara = aiAgent.getWorld().getObjectManager().getLara().m_state.location.position
+                      - (aiAgent.m_state.location.position + util::pitch(pivotLength, aiAgent.m_state.rotation.Y));
   const auto angleToLara = core::angleFromAtan(toLara.X, toLara.Z);
   enemyDistance = util::square(toLara.X) + util::square(toLara.Z);
-  angleToEnemy = angleToLara - objectState.rotation.Y;
-  enemyAngleToSelf = angleToLara - 180_deg - world.getObjectManager().getLara().m_state.rotation.Y;
+  angleToEnemy = angleToLara - aiAgent.m_state.rotation.Y;
+  enemyAngleToSelf = angleToLara - 180_deg - aiAgent.getWorld().getObjectManager().getLara().m_state.rotation.Y;
   enemyAhead = angleToEnemy > -90_deg && angleToEnemy < 90_deg;
   if(enemyAhead)
   {
-    const auto laraY = world.getObjectManager().getLara().m_state.location.position.Y;
-    canAttackForward = objectState.location.position.Y - core::QuarterSectorSize < laraY
-                       && objectState.location.position.Y + core::QuarterSectorSize > laraY;
+    const auto laraY = aiAgent.getWorld().getObjectManager().getLara().m_state.location.position.Y;
+    canAttackForward = aiAgent.m_state.location.position.Y - core::QuarterSectorSize < laraY
+                       && aiAgent.m_state.location.position.Y + core::QuarterSectorSize > laraY;
   }
 }
 

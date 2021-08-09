@@ -19,15 +19,15 @@ void Kold::update()
   core::Angle headRot = 0_deg;
   if(alive())
   {
-    ai::EnemyLocation enemyLocation{getWorld(), m_state};
+    ai::EnemyLocation enemyLocation{*this};
     if(enemyLocation.enemyAhead)
     {
       headRot = enemyLocation.angleToEnemy;
     }
 
-    updateMood(getWorld(), m_state, enemyLocation, true);
+    updateMood(*this, enemyLocation, true);
 
-    creatureTurn = rotateTowardsTarget(m_state.creatureInfo->maxTurnSpeed);
+    creatureTurn = rotateTowardsTarget(getCreatureInfo()->maxTurnSpeed);
     switch(m_state.current_anim_state.get())
     {
     case 1:
@@ -39,7 +39,7 @@ void Kold::update()
       {
         goal(4_as);
       }
-      else if(m_state.creatureInfo->mood != ai::Mood::Bored)
+      else if(getCreatureInfo()->mood != ai::Mood::Bored)
       {
         goal(3_as);
       }
@@ -49,8 +49,8 @@ void Kold::update()
       }
       break;
     case 2:
-      m_state.creatureInfo->maxTurnSpeed = 3_deg / 1_frame;
-      if(m_state.creatureInfo->mood == ai::Mood::Escape || !enemyLocation.enemyAhead)
+      getCreatureInfo()->maxTurnSpeed = 3_deg / 1_frame;
+      if(getCreatureInfo()->mood == ai::Mood::Escape || !enemyLocation.enemyAhead)
       {
         require(3_as);
         goal(1_as);
@@ -67,9 +67,9 @@ void Kold::update()
       }
       break;
     case 3:
-      m_state.creatureInfo->maxTurnSpeed = 6_deg / 1_frame;
+      getCreatureInfo()->maxTurnSpeed = 6_deg / 1_frame;
       tiltRot = creatureTurn / 2;
-      if(m_state.creatureInfo->mood != ai::Mood::Escape || enemyLocation.enemyAhead)
+      if(getCreatureInfo()->mood != ai::Mood::Escape || enemyLocation.enemyAhead)
       {
         if(canShootAtLara(enemyLocation))
         {
@@ -106,7 +106,7 @@ void Kold::update()
         }
         m_shotAtLara = true;
       }
-      if(m_state.creatureInfo->mood == ai::Mood::Escape)
+      if(getCreatureInfo()->mood == ai::Mood::Escape)
       {
         require(3_as);
       }
@@ -123,8 +123,8 @@ void Kold::update()
   rotateCreatureTilt(tiltRot);
   rotateCreatureHead(headRot);
   animateCreature(creatureTurn, 0_deg);
-  if(m_state.creatureInfo != nullptr)
-    getSkeleton()->patchBone(0, core::TRRotation{0_deg, m_state.creatureInfo->headRotation, 0_deg}.toMatrix());
+  if(getCreatureInfo() != nullptr)
+    getSkeleton()->patchBone(0, core::TRRotation{0_deg, getCreatureInfo()->headRotation, 0_deg}.toMatrix());
 }
 
 void Kold::serialize(const serialization::Serializer<world::World>& ser)

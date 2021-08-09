@@ -7,6 +7,8 @@ namespace engine::objects
 {
 extern bool shatterModel(ModelObject& object, const std::bitset<32>& meshMask, const core::Length& damageRadius);
 
+class AIAgent;
+
 class MutantEgg final : public ModelObject
 {
 public:
@@ -27,6 +29,6 @@ public:
   void serialize(const serialization::Serializer<world::World>& ser) override;
 
 private:
-  std::shared_ptr<Object> m_childObject{nullptr};
+  std::shared_ptr<AIAgent> m_childObject{nullptr};
 };
 } // namespace engine::objects

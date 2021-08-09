@@ -19,8 +19,8 @@ void Bat::update()
   core::Angle rotationToMoveTarget = 0_deg;
   if(alive())
   {
-    const ai::EnemyLocation enemyLocation{getWorld(), m_state};
-    updateMood(getWorld(), m_state, enemyLocation, false);
+    const ai::EnemyLocation enemyLocation{*this};
+    updateMood(*this, enemyLocation, false);
 
     rotationToMoveTarget = rotateTowardsTarget(20_deg / 1_frame);
     switch(m_state.current_anim_state.get())

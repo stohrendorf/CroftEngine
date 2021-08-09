@@ -12,12 +12,12 @@ void Crocodile::updateInWater()
   core::Angle headRot = 0_deg;
   if(alive())
   {
-    const ai::EnemyLocation enemyLocation{getWorld(), m_state};
+    const ai::EnemyLocation enemyLocation{*this};
     if(enemyLocation.enemyAhead)
     {
       headRot = enemyLocation.angleToEnemy;
     }
-    updateMood(getWorld(), m_state, enemyLocation, true);
+    updateMood(*this, enemyLocation, true);
     rotateTowardsTarget(3_deg / 1_frame);
     if(m_state.current_anim_state == 1_as)
     {
@@ -61,13 +61,13 @@ void Crocodile::updateInWater()
       m_state.current_anim_state = getSkeleton()->getAnim()->state_id;
       m_state.rotation.X = 0_deg;
       m_state.location.position.Y = m_state.floor;
-      m_state.creatureInfo->pathFinder.step = 256_len;
-      m_state.creatureInfo->pathFinder.drop = -256_len;
-      m_state.creatureInfo->pathFinder.fly = 0_len;
+      getCreatureInfo()->pathFinder.step = 256_len;
+      getCreatureInfo()->pathFinder.drop = -256_len;
+      getCreatureInfo()->pathFinder.fly = 0_len;
 
       loadObjectInfo(true);
     }
-    getSkeleton()->patchBone(8, core::TRRotation{0_deg, m_state.creatureInfo->headRotation, 0_deg}.toMatrix());
+    getSkeleton()->patchBone(8, core::TRRotation{0_deg, getCreatureInfo()->headRotation, 0_deg}.toMatrix());
     animateCreature(0_deg, 0_deg);
   }
   else
@@ -87,7 +87,7 @@ void Crocodile::updateInWater()
       else if(*waterSurfaceHeight > m_state.location.position.Y)
       {
         m_state.location.position.Y = *waterSurfaceHeight;
-        m_state.creatureInfo.reset();
+        freeCreatureInfo();
       }
     }
     else
@@ -118,12 +118,12 @@ void Crocodile::updateOnLand()
   core::Angle headRot = 0_deg;
   if(alive())
   {
-    const ai::EnemyLocation enemyLocation{getWorld(), m_state};
+    const ai::EnemyLocation enemyLocation{*this};
     if(enemyLocation.enemyAhead)
     {
       headRot = enemyLocation.angleToEnemy;
     }
-    updateMood(getWorld(), m_state, enemyLocation, true);
+    updateMood(*this, enemyLocation, true);
     if(m_state.current_anim_state == 4_as)
     {
       m_state.rotation.Y += 6_deg;
@@ -140,7 +140,7 @@ void Crocodile::updateOnLand()
         goal(5_as);
         break;
       }
-      switch(m_state.creatureInfo->mood)
+      switch(getCreatureInfo()->mood)
       {
       case ai::Mood::Escape: goal(2_as); break;
       case ai::Mood::Attack:
@@ -198,7 +198,7 @@ void Crocodile::updateOnLand()
       m_state.current_anim_state = 7_as;
     }
   }
-  if(m_state.creatureInfo != nullptr)
+  if(getCreatureInfo() != nullptr)
   {
     rotateCreatureHead(headRot);
   }
@@ -208,18 +208,18 @@ void Crocodile::updateOnLand()
     goal(getSkeleton()->getAnim()->state_id);
     m_state.current_anim_state = getSkeleton()->getAnim()->state_id;
     m_state.type = TR1ItemId::CrocodileInWater;
-    if(m_state.creatureInfo != nullptr)
+    if(getCreatureInfo() != nullptr)
     {
-      m_state.creatureInfo->pathFinder.step = 20 * core::SectorSize;
-      m_state.creatureInfo->pathFinder.drop = -20 * core::SectorSize;
-      m_state.creatureInfo->pathFinder.fly = 16_len;
+      getCreatureInfo()->pathFinder.step = 20 * core::SectorSize;
+      getCreatureInfo()->pathFinder.drop = -20 * core::SectorSize;
+      getCreatureInfo()->pathFinder.fly = 16_len;
     }
 
     loadObjectInfo(true);
   }
-  if(m_state.creatureInfo != nullptr)
+  if(getCreatureInfo() != nullptr)
   {
-    getSkeleton()->patchBone(8, core::TRRotation{0_deg, m_state.creatureInfo->headRotation, 0_deg}.toMatrix());
+    getSkeleton()->patchBone(8, core::TRRotation{0_deg, getCreatureInfo()->headRotation, 0_deg}.toMatrix());
     animateCreature(turnRot, 0_deg);
   }
   else

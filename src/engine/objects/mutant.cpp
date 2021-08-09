@@ -56,7 +56,7 @@ void FlyingMutant::update()
     if(shatterModel(*this, 0xffffffffu, 100_len))
     {
       playSoundEffect(TR1SoundEffect::Mummy);
-      m_state.creatureInfo.reset();
+      freeCreatureInfo();
       kill();
       m_state.triggerState = TriggerState::Deactivated;
       return;
@@ -64,10 +64,10 @@ void FlyingMutant::update()
   }
   else
   {
-    m_state.creatureInfo->pathFinder.step = 256_len;
-    m_state.creatureInfo->pathFinder.fly = 0_len;
-    m_state.creatureInfo->pathFinder.drop = -256_len;
-    ai::EnemyLocation enemyLocation{getWorld(), m_state};
+    getCreatureInfo()->pathFinder.step = 256_len;
+    getCreatureInfo()->pathFinder.fly = 0_len;
+    getCreatureInfo()->pathFinder.drop = -256_len;
+    ai::EnemyLocation enemyLocation{*this};
     bool frontLeft = false;
     bool frontRight = false;
     if(m_state.type != TR1ItemId::WalkingMutant2)
@@ -95,12 +95,12 @@ void FlyingMutant::update()
         }
         if(!m_flying)
         {
-          updateMood(getWorld(), m_state, enemyLocation, true);
+          updateMood(*this, enemyLocation, true);
         }
-        m_state.creatureInfo->pathFinder.step = 30720_len;
-        m_state.creatureInfo->pathFinder.fly = 0_len;
-        m_state.creatureInfo->pathFinder.drop = -30720_len;
-        enemyLocation = ai::EnemyLocation{getWorld(), m_state};
+        getCreatureInfo()->pathFinder.step = 30720_len;
+        getCreatureInfo()->pathFinder.fly = 0_len;
+        getCreatureInfo()->pathFinder.drop = -30720_len;
+        enemyLocation = ai::EnemyLocation{*this};
       }
       else if(isEscaping()
               || (enemyLocation.zoneId != enemyLocation.enemyZoneId && !frontRight && !frontLeft
@@ -116,14 +116,14 @@ void FlyingMutant::update()
     }
     if(m_state.current_anim_state != DoFly)
     {
-      updateMood(getWorld(), m_state, enemyLocation, false);
+      updateMood(*this, enemyLocation, false);
     }
     else if(m_flying)
     {
-      updateMood(getWorld(), m_state, enemyLocation, true);
+      updateMood(*this, enemyLocation, true);
     }
 
-    turnRot = rotateTowardsTarget(m_state.creatureInfo->maxTurnSpeed);
+    turnRot = rotateTowardsTarget(getCreatureInfo()->maxTurnSpeed);
     switch(m_state.current_anim_state.get())
     {
     case DoPrepareAttack.get():
@@ -147,7 +147,7 @@ void FlyingMutant::update()
         goal(DoRun);
       break;
     case DoWalk.get():
-      m_state.creatureInfo->maxTurnSpeed = 2_deg / 1_frame;
+      getCreatureInfo()->maxTurnSpeed = 2_deg / 1_frame;
       if(frontLeft || frontRight || m_flying || isAttacking() || isEscaping())
       {
         goal(DoPrepareAttack);
@@ -166,7 +166,7 @@ void FlyingMutant::update()
       }
       break;
     case DoRun.get():
-      m_state.creatureInfo->maxTurnSpeed = 6_deg / 1_frame;
+      getCreatureInfo()->maxTurnSpeed = 6_deg / 1_frame;
       if(m_flying || touched(0x678u)
          || (enemyLocation.canAttackForward && enemyLocation.enemyDistance < util::square(600_len)))
       {
@@ -267,21 +267,21 @@ void FlyingMutant::update()
 
   if(!m_lookingAround)
   {
-    m_state.creatureInfo->headRotation = m_state.creatureInfo->neckRotation;
+    getCreatureInfo()->headRotation = getCreatureInfo()->neckRotation;
   }
   rotateCreatureHead(headRot);
   if(!m_lookingAround)
   {
-    m_state.creatureInfo->neckRotation = std::exchange(m_state.creatureInfo->headRotation, 0_deg);
+    getCreatureInfo()->neckRotation = std::exchange(getCreatureInfo()->headRotation, 0_deg);
   }
   else
   {
-    m_state.creatureInfo->neckRotation = 0_deg;
+    getCreatureInfo()->neckRotation = 0_deg;
   }
   if(getSkeleton()->getBoneCount() >= 2)
-    getSkeleton()->patchBone(1, core::TRRotation{0_deg, m_state.creatureInfo->headRotation, 0_deg}.toMatrix());
+    getSkeleton()->patchBone(1, core::TRRotation{0_deg, getCreatureInfo()->headRotation, 0_deg}.toMatrix());
   if(getSkeleton()->getBoneCount() >= 3)
-    getSkeleton()->patchBone(2, core::TRRotation{0_deg, m_state.creatureInfo->neckRotation, 0_deg}.toMatrix());
+    getSkeleton()->patchBone(2, core::TRRotation{0_deg, getCreatureInfo()->neckRotation, 0_deg}.toMatrix());
   animateCreature(turnRot, 0_deg);
 }
 
@@ -302,17 +302,17 @@ void CentaurMutant::update()
   core::Angle headRot = 0_deg;
   if(getHealth() > 0_hp)
   {
-    const ai::EnemyLocation enemyLocation{getWorld(), m_state};
+    const ai::EnemyLocation enemyLocation{*this};
     if(enemyLocation.enemyAhead)
     {
       headRot = enemyLocation.angleToEnemy;
     }
-    updateMood(getWorld(), m_state, enemyLocation, true);
+    updateMood(*this, enemyLocation, true);
     turnRot = rotateTowardsTarget(4_deg / 1_frame);
     switch(m_state.current_anim_state.get())
     {
     case 1:
-      m_state.creatureInfo->neckRotation = 0_deg;
+      getCreatureInfo()->neckRotation = 0_deg;
       if(m_state.required_anim_state != 0_as)
         goal(m_state.required_anim_state);
       else if((enemyLocation.canAttackForward && enemyLocation.enemyDistance < util::square(1536_len))
@@ -325,7 +325,7 @@ void CentaurMutant::update()
       if(m_state.required_anim_state == 0_as)
       {
         require(4_as);
-        m_state.creatureInfo->neckRotation = emitParticle({11_len, 415_len, 41_len}, 13, &createMutantGrenade)->angle.X;
+        getCreatureInfo()->neckRotation = emitParticle({11_len, 415_len, 41_len}, 13, &createMutantGrenade)->angle.X;
       }
       break;
     case 3:
@@ -366,7 +366,7 @@ void CentaurMutant::update()
 
   rotateCreatureHead(headRot);
   getSkeleton()->patchBone(
-    11, core::TRRotation{m_state.creatureInfo->neckRotation, m_state.creatureInfo->headRotation, 0_deg}.toMatrix());
+    11, core::TRRotation{getCreatureInfo()->neckRotation, getCreatureInfo()->headRotation, 0_deg}.toMatrix());
   animateCreature(turnRot, 0_deg);
   if(m_state.triggerState == TriggerState::Deactivated)
   {
@@ -396,14 +396,14 @@ void TorsoBoss::update()
   core::Angle headRot = 0_deg;
   if(alive())
   {
-    const ai::EnemyLocation enemyLocation{getWorld(), m_state};
+    const ai::EnemyLocation enemyLocation{*this};
     if(enemyLocation.enemyAhead)
     {
       headRot = enemyLocation.angleToEnemy;
     }
-    updateMood(getWorld(), m_state, enemyLocation, true);
-    const auto angleToTarget = angleFromAtan(m_state.creatureInfo->target.X - m_state.location.position.X,
-                                             m_state.creatureInfo->target.Z - m_state.location.position.Z)
+    updateMood(*this, enemyLocation, true);
+    const auto angleToTarget = angleFromAtan(getCreatureInfo()->target.X - m_state.location.position.X,
+                                             getCreatureInfo()->target.Z - m_state.location.position.Z)
                                - m_state.rotation.Y;
 
     if(touched())

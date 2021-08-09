@@ -34,18 +34,18 @@ void SkateboardKid::update()
 {
   // FIXME this is done somewhere else in the original engine, so this should be replaced with an "Expects" instead of
   //       initializing it here.
-  m_state.initCreatureInfo(getWorld());
+  initCreatureInfo();
 
   core::Angle headRot = 0_deg;
   core::Angle turn = 0_deg;
   if(alive())
   {
-    const ai::EnemyLocation enemyLocation{getWorld(), m_state};
+    const ai::EnemyLocation enemyLocation{*this};
     if(enemyLocation.enemyAhead)
     {
       headRot = enemyLocation.angleToEnemy;
     }
-    updateMood(getWorld(), m_state, enemyLocation, false);
+    updateMood(*this, enemyLocation, false);
     turn = rotateTowardsTarget(4_deg / 1_frame);
 
     if(m_state.health < 120_hp && getWorld().getAudioEngine().getCurrentTrack() != TR1TrackId::LaraTalk30)
@@ -86,7 +86,7 @@ void SkateboardKid::update()
         m_triedShoot = true;
       }
 
-      if(m_state.creatureInfo->mood == ai::Mood::Escape || enemyLocation.enemyDistance < util::square(1024_len))
+      if(getCreatureInfo()->mood == ai::Mood::Escape || enemyLocation.enemyDistance < util::square(1024_len))
       {
         require(2_as);
       }
@@ -99,7 +99,7 @@ void SkateboardKid::update()
       }
       else if(canShootAtLara(enemyLocation))
       {
-        if(m_state.creatureInfo->mood == ai::Mood::Escape || enemyLocation.enemyDistance <= util::square(2560_len)
+        if(getCreatureInfo()->mood == ai::Mood::Escape || enemyLocation.enemyDistance <= util::square(2560_len)
            || enemyLocation.enemyDistance >= util::square(4096_len))
         {
           goal(4_as);
@@ -126,7 +126,7 @@ void SkateboardKid::update()
   }
 
   rotateCreatureHead(headRot);
-  getSkeleton()->patchBone(0, core::TRRotation{0_deg, m_state.creatureInfo->headRotation, 0_deg}.toMatrix());
+  getSkeleton()->patchBone(0, core::TRRotation{0_deg, getCreatureInfo()->headRotation, 0_deg}.toMatrix());
   animateCreature(turn, 0_deg);
 
   const auto animIdx = std::distance(getWorld().findAnimatedModelForType(TR1ItemId::SkateboardKid)->animations,

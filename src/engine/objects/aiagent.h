@@ -26,6 +26,15 @@ public:
 
   void serialize(const serialization::Serializer<world::World>& ser) override;
 
+  void initCreatureInfo();
+
+  [[nodiscard]] const auto& getCreatureInfo() const
+  {
+    return m_creatureInfo;
+  }
+
+  [[nodiscard]] bool isInsideZoneButNotInBox(world::ZoneId zoneId, const world::Box& targetBox) const;
+
 protected:
   AIAgent(const gsl::not_null<world::World*>& world, const Location& location)
       : ModelObject{world, location}
@@ -42,7 +51,7 @@ protected:
   // ReSharper disable once CppMemberFunctionMayBeConst
   void rotateCreatureHead(const core::Angle& angle)
   {
-    m_state.creatureInfo->rotateHead(angle);
+    m_creatureInfo->rotateHead(angle);
   }
 
   bool animateCreature(const core::Angle& angle, const core::Angle& tilt);
@@ -93,42 +102,42 @@ protected:
 
   bool isBored() const
   {
-    return m_state.creatureInfo->mood == ai::Mood::Bored;
+    return m_creatureInfo->mood == ai::Mood::Bored;
   }
 
   void bored()
   {
-    m_state.creatureInfo->mood = ai::Mood::Bored;
+    m_creatureInfo->mood = ai::Mood::Bored;
   }
 
   bool isAttacking() const
   {
-    return m_state.creatureInfo->mood == ai::Mood::Attack;
+    return m_creatureInfo->mood == ai::Mood::Attack;
   }
 
   void attacking()
   {
-    m_state.creatureInfo->mood = ai::Mood::Attack;
+    m_creatureInfo->mood = ai::Mood::Attack;
   }
 
   bool isStalking() const
   {
-    return m_state.creatureInfo->mood == ai::Mood::Stalk;
+    return m_creatureInfo->mood == ai::Mood::Stalk;
   }
 
   void stalking()
   {
-    m_state.creatureInfo->mood = ai::Mood::Stalk;
+    m_creatureInfo->mood = ai::Mood::Stalk;
   }
 
   bool isEscaping() const
   {
-    return m_state.creatureInfo->mood == ai::Mood::Escape;
+    return m_creatureInfo->mood == ai::Mood::Escape;
   }
 
   void escaping()
   {
-    m_state.creatureInfo->mood = ai::Mood::Escape;
+    m_creatureInfo->mood = ai::Mood::Escape;
   }
 
   void settle()
@@ -144,7 +153,12 @@ protected:
       m_state.triggerState = TriggerState::Active;
     }
 
-    m_state.initCreatureInfo(getWorld());
+    initCreatureInfo();
+  }
+
+  void freeCreatureInfo()
+  {
+    m_creatureInfo.reset();
   }
 
 private:
@@ -156,6 +170,8 @@ private:
                             const ai::PathFinder& pathFinder) const;
 
   core::Length m_collisionRadius = 0_len;
+
+  std::unique_ptr<ai::CreatureInfo> m_creatureInfo;
 };
 
 #define AIAGENT_DEFAULT_CONSTRUCTORS(CLASS)                                  \
