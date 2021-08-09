@@ -286,7 +286,7 @@ public:
       : Particle{"lava", TR1ItemId::LavaParticles, location, world}
   {
     angle.Y = util::rand15(180_deg) * 2;
-    speed = util::rand15(512_spd);
+    speed = util::rand15(32_spd);
     fall_speed = -util::rand15(165_spd);
     negSpriteFrameId = util::rand15(int16_t{-4});
   }

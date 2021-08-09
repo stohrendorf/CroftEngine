@@ -388,6 +388,7 @@ bool MutantGrenadeParticle::update(world::World& world)
   applyTransform();
   return true;
 }
+
 bool LavaParticle::update(world::World& world)
 {
   fall_speed += core::Gravity * 1_frame;
@@ -409,6 +410,7 @@ bool LavaParticle::update(world::World& world)
     return false;
   }
 
+  applyTransform();
   return true;
 }
 
@@ -432,6 +434,7 @@ bool MuzzleFlashParticle::update(world::World&)
     return false;
 
   angle.Z = util::rand15s(+180_deg);
+  applyTransform();
   return true;
 }
 
@@ -448,6 +451,7 @@ bool ExplosionParticle::update(world::World&)
     }
   }
 
+  applyTransform();
   return true;
 }
 
