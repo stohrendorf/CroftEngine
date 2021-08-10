@@ -22,12 +22,12 @@ std::string unescape(const std::string& escaped)
     {
       switch(c)
       {
-      case 'a': result += u8"ä"; break;
-      case 'o': result += u8"ö"; break;
-      case 'u': result += u8"ü"; break;
-      case 'A': result += u8"Ä"; break;
-      case 'O': result += u8"Ö"; break;
-      case 'U': result += u8"Ü"; break;
+      case 'a': result += "ä"; break;
+      case 'o': result += "ö"; break;
+      case 'u': result += "ü"; break;
+      case 'A': result += "Ä"; break;
+      case 'O': result += "Ö"; break;
+      case 'U': result += "Ü"; break;
       default:
         BOOST_LOG_TRIVIAL(warning) << "Cannot add umlaut dots to character " << c;
         result += c;
@@ -39,7 +39,7 @@ std::string unescape(const std::string& escaped)
 
     if(c == ui::SzLig)
     {
-      result += u8"ß";
+      result += "ß";
       continue;
     }
 
