@@ -318,4 +318,14 @@ extern gsl::not_null<std::shared_ptr<Particle>> createMuzzleFlash(world::World& 
                                                                   const Location& location,
                                                                   const core::Speed& /*speed*/,
                                                                   const core::Angle& angle);
+
+extern gsl::not_null<std::shared_ptr<Particle>> createMutantBullet(world::World& world,
+                                                                   const Location& location,
+                                                                   const core::Speed& /*speed*/,
+                                                                   const core::Angle& angle);
+
+extern gsl::not_null<std::shared_ptr<Particle>> createMutantGrenade(world::World& world,
+                                                                    const Location& location,
+                                                                    const core::Speed& /*speed*/,
+                                                                    const core::Angle& angle);
 } // namespace engine

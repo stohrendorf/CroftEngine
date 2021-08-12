@@ -12,28 +12,6 @@
 
 namespace engine::objects
 {
-namespace
-{
-gsl::not_null<std::shared_ptr<Particle>> createMutantGrenade(world::World& world,
-                                                             const Location& location,
-                                                             const core::Speed& /*speed*/,
-                                                             const core::Angle& angle)
-{
-  auto particle = std::make_shared<MutantGrenadeParticle>(location, world, angle);
-  setParent(particle, location.room->node);
-  return particle;
-}
-gsl::not_null<std::shared_ptr<Particle>> createMutantBullet(world::World& world,
-                                                            const Location& location,
-                                                            const core::Speed& /*speed*/,
-                                                            const core::Angle& angle)
-{
-  auto particle = std::make_shared<MutantBulletParticle>(location, world, angle);
-  setParent(particle, location.room->node);
-  return particle;
-}
-} // namespace
-
 void FlyingMutant::update()
 {
   activateAi();
