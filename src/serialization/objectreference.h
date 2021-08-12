@@ -34,8 +34,12 @@ struct ObjectReference final
         {
           engine::ObjectId tmp = objId;
           ser(S_NV("id", tmp));
+          return;
         }
       }
+
+      // this may happen if the object was killed, thus rendering this reference invalid
+      ser.setNull();
     }
   }
 
