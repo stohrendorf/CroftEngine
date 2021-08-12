@@ -73,8 +73,6 @@ void ScionPiece3::update()
     const auto hi
       = HeightInfo::fromFloor(sector, m_state.location.position, getWorld().getObjectManager().getObjects());
     getWorld().handleCommandSequence(hi.lastCommandSequenceOrDeath, true);
-    getSkeleton()->removeAllChildren();
-    getSkeleton()->clearParts();
   }
 
   if(m_deadTime % 10_frame == 0_frame)

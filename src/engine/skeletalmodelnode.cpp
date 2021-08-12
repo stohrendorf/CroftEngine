@@ -209,8 +209,8 @@ std::vector<SkeletalModelNode::Sphere> SkeletalModelNode::getBoneCollisionSphere
     transforms.push(*baseTransform * state.rotation.toMatrix());
   }
 
-  transforms.top()
-    = glm::translate(transforms.top(), frame.pos.toGl()) * core::fromPackedAngles(angleData[0]) * m_meshParts[0].patch;
+  transforms.top() = glm::translate(transforms.top(), frame.pos.toGl()) * core::fromPackedAngles(angleData[0])
+                     * m_meshParts.at(0).patch;
 
   std::vector<Sphere> result;
   result.emplace_back(glm::translate(glm::mat4{1.0f}, pos.toRenderSystem())
