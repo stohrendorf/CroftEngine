@@ -36,6 +36,7 @@
 #include "mummy.h"
 #include "mutant.h"
 #include "mutantegg.h"
+#include "natla.h"
 #include "pickupobject.h"
 #include "pierre.h"
 #include "puzzlehole.h"
@@ -304,6 +305,7 @@ const auto& getFactories()
     MODEL_FACTORY(SuspendedShack, SuspendedShack),
     MODEL_FACTORY(Kold, Kold),
     MODEL_FACTORY(Cowboy, Cowboy),
+    MODEL_FACTORY(Natla, Natla),
     {TR1ItemId::WalkingMutant1, std::make_unique<WalkingMutantFactory>()},
     {TR1ItemId::WalkingMutant2, std::make_unique<WalkingMutantFactory>()},
     {TR1ItemId::CameraTarget, std::make_unique<HiddenModelFactory>()},

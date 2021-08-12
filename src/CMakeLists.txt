@@ -325,6 +325,8 @@ set( EDISONENGINE_SRCS
         engine/objects/mutant.cpp
         engine/objects/mutantegg.h
         engine/objects/mutantegg.cpp
+        engine/objects/natla.h
+        engine/objects/natla.cpp
         engine/objects/pickupobject.h
         engine/objects/pickupobject.cpp
         engine/objects/pierre.h
