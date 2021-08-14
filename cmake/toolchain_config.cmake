@@ -20,10 +20,7 @@ if( MSVC )
     include( dl_unpack )
     add_definitions( -D_CRT_SECURE_NO_WARNINGS )
     # C4201: anonymous structs/unions
-    set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4 /MP /wd4201 /experimental:external /external:W0 /external:templates- /external:I ${EXTERNAL_SRC_ROOT}" )
-    if( VCPKG_TOOLCHAIN AND Z_VCPKG_ROOT_DIR )
-        set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /external:I ${Z_VCPKG_ROOT_DIR}" )
-    endif()
+    set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4 /MP /wd4201 /experimental:external /external:W0 /external:templates-" )
 
     string( REPLACE "/Ob0" "/Ob1" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}" )
     set( CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /RTC1" )
