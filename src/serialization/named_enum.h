@@ -1,6 +1,6 @@
 #pragma once
 
-#include "serialization_fwd.h"
+#include "serialization.h"
 
 namespace serialization
 {
@@ -21,7 +21,14 @@ struct NamedEnum
     ser.tag(Converter::name());
     std::string name;
     ser.node >> name;
-    value = Converter::fromString(name);
+    try
+    {
+      value = Converter::fromString(name);
+    }
+    catch(std::domain_error&)
+    {
+      SERIALIZER_EXCEPTION("invalid enum value");
+    }
   }
 
   template<typename TContext>
