@@ -56,8 +56,10 @@ class TrackInfo:
     def __init__(self, soundid: int, tracktype: TrackType, /):
         ...
 
+
 class LevelSequenceItem:
     ...
+
 
 class Level(LevelSequenceItem):
     def __init__(
@@ -75,12 +77,15 @@ class Level(LevelSequenceItem):
     ):
         ...
 
+
 class TitleMenu(Level):
     ...
+
 
 class Video(LevelSequenceItem):
     def __init__(self, name: str):
         ...
+
 
 class Cutscene(LevelSequenceItem):
     def __init__(
@@ -89,8 +94,17 @@ class Cutscene(LevelSequenceItem):
             track: TR1TrackId,
             camera_rot: float,
             weapon_swap: bool = False,
-            flip_rooms: bool=False,
+            flip_rooms: bool = False,
             camera_pos_x: Optional[int] = None,
             camera_pos_z: Optional[int] = None,
+    ):
+        ...
+
+
+class SplashScreen(LevelSequenceItem):
+    def __init__(
+            self, *,
+            path: str,
+            duration_seconds: int,
     ):
         ...

@@ -6,10 +6,17 @@
 #include "engine/objects/modelobject.h"
 #include "engine/player.h"
 #include "engine/presenter.h"
+#include "engine/throttler.h"
 #include "engine/world/world.h"
 #include "loader/file/level/level.h"
+#include "render/scene/materialmanager.h"
+#include "render/scene/mesh.h"
+#include "render/scene/rendercontext.h"
+#include "render/scene/renderer.h"
 
 #include <boost/range/adaptors.hpp>
+#include <gl/framebuffer.h>
+#include <gl/texture2d.h>
 
 namespace engine::script
 {
@@ -163,5 +170,69 @@ TitleMenu::TitleMenu(const std::string& name,
                      std::optional<TR1TrackId> track)
     : Level{name, 0, useAlternativeLara, titles, itemTitles, inventory, dropInventory, track, false, WeaponType::None}
 {
+}
+
+SplashScreen::SplashScreen(std::string path, int durationSeconds)
+    : m_path{path}
+    , m_durationSeconds{durationSeconds}
+{
+  Expects(m_durationSeconds > 0);
+}
+
+SplashScreen::~SplashScreen() = default;
+
+std::pair<RunResult, std::optional<size_t>> SplashScreen::run(Engine& engine, const std::shared_ptr<Player>& /*player*/)
+{
+  const auto end = std::chrono::high_resolution_clock::now() + std::chrono::seconds{m_durationSeconds};
+  Throttler throttler{};
+
+  glm::ivec2 size{-1, -1};
+  auto image = std::make_shared<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>>(
+    gl::CImgWrapper{util::ensureFileExists(engine.getRootPath() / "data" / "tr1" / "DATA" / m_path)}.toTexture());
+  std::shared_ptr<render::scene::Mesh> mesh;
+
+  render::scene::RenderContext context{render::scene::RenderMode::Full, std::nullopt};
+  while(std::chrono::high_resolution_clock::now() < end)
+  {
+    if(engine.getPresenter().update() || engine.getPresenter().shouldClose())
+      break;
+
+    engine.getPresenter().getInputHandler().update();
+    if(engine.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Menu))
+      break;
+
+    if(size != engine.getPresenter().getViewport())
+    {
+      size = engine.getPresenter().getViewport();
+
+      // scale splash image so that its aspect ratio is preserved, but is completely visible
+      const auto targetSize = glm::vec2{size};
+      const auto sourceSize = glm::vec2{image->getTexture()->size()};
+      const float splashScale = std::min(targetSize.x / sourceSize.x, targetSize.y / sourceSize.y);
+
+      auto scaledSourceSize = sourceSize * splashScale;
+      auto sourceOffset = (targetSize - scaledSourceSize) / 2.0f;
+      mesh = render::scene::createScreenQuad(
+        sourceOffset, scaledSourceSize, engine.getPresenter().getMaterialManager()->getBackdrop(), m_path.string());
+      mesh->bind(
+        "u_input",
+        [&image](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
+        { uniform.set(image); });
+      mesh->bind(
+        "u_screenSize",
+        [targetSize](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
+        { uniform.set(targetSize); });
+    }
+
+    gl::Framebuffer::unbindAll();
+    engine.getPresenter().getRenderer().clear(
+      gl::api::ClearBufferMask::ColorBufferBit | gl::api::ClearBufferMask::DepthBufferBit, {0, 0, 0, 0}, 1);
+    mesh->render(context);
+    engine.getPresenter().swapBuffers();
+
+    throttler.wait();
+  }
+
+  return {RunResult::NextLevel, std::nullopt};
 }
 } // namespace engine::script

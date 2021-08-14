@@ -48,9 +48,7 @@ void Presenter::playVideo(const std::filesystem::path& path)
     m_soundEngine->getSoLoud(),
     [&](const std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>>& textureHandle)
     {
-      glfwPollEvents();
-      m_window->updateWindowSize();
-      if(m_window->isMinimized())
+      if(update())
         return true;
 
       m_renderer->getCamera()->setScreenSize(m_window->getViewport());
@@ -383,9 +381,7 @@ void Presenter::scaleSplashImage()
 
 void Presenter::drawLoadingScreen(const std::string& state)
 {
-  glfwPollEvents();
-  m_window->updateWindowSize();
-  if(m_window->isMinimized())
+  if(update())
     return;
 
   if(m_screenOverlay == nullptr)
@@ -523,5 +519,12 @@ void Presenter::renderUi(ui::Ui& ui, float alpha)
 void Presenter::disableScreenOverlay()
 {
   m_screenOverlay.reset();
+}
+
+bool Presenter::update()
+{
+  glfwPollEvents();
+  m_window->updateWindowSize();
+  return m_window->isMinimized();
 }
 } // namespace engine

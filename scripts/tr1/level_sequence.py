@@ -1,4 +1,4 @@
-from engine import TR1TrackId, TR1ItemId, Video, Cutscene, Level, TitleMenu, WeaponType
+from engine import TR1TrackId, TR1ItemId, Video, Cutscene, Level, TitleMenu, SplashScreen, WeaponType
 
 title_menu = TitleMenu(
     name="TITLE",
@@ -375,4 +375,11 @@ level_sequence = [
         },
     ),
     Video("END.RPL"),
+    *(
+        SplashScreen(
+            path=f"{name}.PCX",
+            duration_seconds=15,
+        )
+        for name in ("END", "CRED1", "CRED2", "CRED3")
+    ),
 ]

@@ -9,6 +9,8 @@
 
 #include <boost/log/trivial.hpp>
 #include <filesystem>
+#include <gl/pixel.h>
+#include <gl/soglb_fwd.h>
 #include <unordered_set>
 
 namespace engine
@@ -18,6 +20,12 @@ enum class WeaponType;
 class Engine;
 class Player;
 } // namespace engine
+
+namespace render::scene
+{
+class Mesh;
+class MaterialManager;
+} // namespace render::scene
 
 namespace engine::script
 {
@@ -187,6 +195,25 @@ public:
       , m_cameraPosZ{std::nullopt}
   {
   }
+
+  std::pair<RunResult, std::optional<size_t>> run(Engine& engine, const std::shared_ptr<Player>& player) override;
+
+  [[nodiscard]] bool isLevel(const std::filesystem::path& /*path*/) const override
+  {
+    return false;
+  }
+};
+
+class SplashScreen : public LevelSequenceItem
+{
+private:
+  const std::filesystem::path m_path;
+  const int m_durationSeconds;
+
+public:
+  explicit SplashScreen(std::string path, int durationSeconds);
+
+  ~SplashScreen() override;
 
   std::pair<RunResult, std::optional<size_t>> run(Engine& engine, const std::shared_ptr<Player>& player) override;
 

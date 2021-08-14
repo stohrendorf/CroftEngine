@@ -149,6 +149,8 @@ public:
 
   void disableScreenOverlay();
 
+  bool update();
+
 private:
   const std::unique_ptr<gl::Window> m_window;
 

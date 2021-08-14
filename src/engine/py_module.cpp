@@ -110,6 +110,11 @@ PYBIND11_EMBEDDED_MODULE(engine, m)
          py::arg("drop_inventory") = py::set{},
          py::arg("track") = std::nullopt);
 
+  py::class_<engine::script::SplashScreen,
+             engine::script::LevelSequenceItem,
+             std::shared_ptr<engine::script::SplashScreen>>(m, "SplashScreen", py::is_final{})
+    .def(py::init<std::string, int>(), py::kw_only{}, py::arg("path"), py::arg("duration_seconds"));
+
   py::enum_<engine::objects::TriggerState>(m, "ActivationState")
     .value("INACTIVE", engine::objects::TriggerState::Inactive)
     .value("DEACTIVATED", engine::objects::TriggerState::Deactivated)
