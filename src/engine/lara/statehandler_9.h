@@ -26,14 +26,14 @@ public:
 
   void postprocessFrame(CollisionInfo& collisionInfo) override
   {
-    collisionInfo.badPositiveDistance = core::HeightLimit;
-    collisionInfo.badNegativeDistance = -core::ClimbLimit2ClickMin;
-    collisionInfo.badCeilingDistance = 192_len;
+    collisionInfo.floorCollisionRangeMin = core::HeightLimit;
+    collisionInfo.floorCollisionRangeMax = -core::ClimbLimit2ClickMin;
+    collisionInfo.ceilingCollisionRangeMin = 192_len;
     collisionInfo.facingAngle = getMovementAngle();
     getLara().m_state.falling = true;
     collisionInfo.initHeightInfo(getLara().m_state.location.position, getWorld(), core::LaraWalkHeight);
     jumpAgainstWall(collisionInfo);
-    if(collisionInfo.mid.floorSpace.y > 0_len)
+    if(collisionInfo.mid.floor.y > 0_len)
     {
       return;
     }

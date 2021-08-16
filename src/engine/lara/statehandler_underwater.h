@@ -58,7 +58,7 @@ public:
     default: break;
     }
 
-    if(collisionInfo.mid.floorSpace.y >= 0_len)
+    if(collisionInfo.mid.floor.y >= 0_len)
     {
       return;
     }

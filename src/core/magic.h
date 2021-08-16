@@ -9,6 +9,7 @@ constexpr auto SectorSize = 1024_len;
 constexpr auto QuarterSectorSize = SectorSize / 4;
 
 constexpr auto HeightLimit = QuarterSectorSize * 127;
+constexpr auto InvalidHeight = -HeightLimit;
 
 constexpr auto SteppableHeight = QuarterSectorSize / 2;
 constexpr auto ClimbLimit2ClickMin = QuarterSectorSize + SteppableHeight;

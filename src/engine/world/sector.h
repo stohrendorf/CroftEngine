@@ -26,9 +26,9 @@ struct Sector
 
   const Box* box = nullptr;
   Room* roomBelow = nullptr;
-  core::Length floorHeight = -core::HeightLimit; // value is sometimes considered exclusive, sometimes not
+  core::Length floorHeight = core::InvalidHeight; // value is sometimes considered exclusive, sometimes not
   Room* roomAbove = nullptr;
-  core::Length ceilingHeight = -core::HeightLimit; // value is sometimes considered exclusive, sometimes not
+  core::Length ceilingHeight = core::InvalidHeight; // value is sometimes considered exclusive, sometimes not
 
   Sector() = default;
   Sector(const loader::file::Sector& src,

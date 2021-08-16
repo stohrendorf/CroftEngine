@@ -231,9 +231,9 @@ void ModelObject::enemyPush(CollisionInfo& collisionInfo, const bool enableSpaz,
       lara.hit_frame = 34_frame;
     }
   }
-  collisionInfo.badPositiveDistance = core::HeightLimit;
-  collisionInfo.badNegativeDistance = -384_len;
-  collisionInfo.badCeilingDistance = 0_len;
+  collisionInfo.floorCollisionRangeMin = core::HeightLimit;
+  collisionInfo.floorCollisionRangeMax = -384_len;
+  collisionInfo.ceilingCollisionRangeMin = 0_len;
   const auto facingAngle = collisionInfo.facingAngle;
   collisionInfo.facingAngle = angleFromAtan(lara.m_state.location.position.X - collisionInfo.initialPosition.X,
                                             lara.m_state.location.position.Z - collisionInfo.initialPosition.Z);

@@ -56,12 +56,12 @@ struct Sector
      */
   core::ContainerIndex<uint16_t, engine::floordata::FloorDataValue> floorDataIndex;
 
-  core::BoxId boxIndex{int16_t(-1)};             //!< Index into Boxes[]/Zones[] (-1 if none)
-  core::RoomId8 roomIndexBelow{uint8_t(-1)};     //!< The number of the room below this one (255 if none)
-  core::Length floorHeight = -core::HeightLimit; //!< Absolute height of floor (multiply by 256 for world coordinates)
-  core::RoomId8 roomIndexAbove{uint8_t(-1)};     //!< The number of the room above this one (255 if none)
+  core::BoxId boxIndex{int16_t(-1)};              //!< Index into Boxes[]/Zones[] (-1 if none)
+  core::RoomId8 roomIndexBelow{uint8_t(-1)};      //!< The number of the room below this one (255 if none)
+  core::Length floorHeight = core::InvalidHeight; //!< Absolute height of floor (multiply by 256 for world coordinates)
+  core::RoomId8 roomIndexAbove{uint8_t(-1)};      //!< The number of the room above this one (255 if none)
   core::Length ceilingHeight
-    = -core::HeightLimit; //!< Absolute height of ceiling (multiply by 256 for world coordinates)
+    = core::InvalidHeight; //!< Absolute height of ceiling (multiply by 256 for world coordinates)
 
   static Sector read(io::SDLReader& reader);
 };

@@ -42,24 +42,24 @@ struct HeightInfo
   HeightInfo() = default;
 };
 
-struct VerticalSpaceInfo
+struct VerticalDistances
 {
-  HeightInfo floorSpace;
-  HeightInfo ceilingSpace;
+  HeightInfo floor;
+  HeightInfo ceiling;
 
   void init(const gsl::not_null<const world::Sector*>& roomSector,
             const core::TRVec& position,
             const std::map<uint16_t, gsl::not_null<std::shared_ptr<objects::Object>>>& objects,
-            const core::Length& itemY,
-            const core::Length& itemHeight)
+            const core::Length& objectY,
+            const core::Length& objectHeight)
   {
-    floorSpace = HeightInfo::fromFloor(roomSector, position, objects);
-    if(floorSpace.y != -core::HeightLimit)
-      floorSpace.y -= itemY;
+    floor = HeightInfo::fromFloor(roomSector, position, objects);
+    if(floor.y != core::InvalidHeight)
+      floor.y -= objectY;
 
-    ceilingSpace = HeightInfo::fromCeiling(roomSector, position, objects);
-    if(ceilingSpace.y != -core::HeightLimit)
-      ceilingSpace.y -= itemY - itemHeight;
+    ceiling = HeightInfo::fromCeiling(roomSector, position, objects);
+    if(ceiling.y != core::InvalidHeight)
+      ceiling.y -= objectY - objectHeight;
   }
 };
 } // namespace engine

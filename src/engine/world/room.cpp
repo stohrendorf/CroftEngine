@@ -389,7 +389,7 @@ void patchHeightsForBlock(const engine::objects::Object& object, const core::Len
   gsl::not_null groundSector = const_cast<Sector*>(tmp.updateRoom().get());
   const auto topSector = tmp.moved(0_len, height - core::SectorSize, 0_len).updateRoom();
 
-  if(groundSector->floorHeight == -core::HeightLimit)
+  if(groundSector->floorHeight == core::InvalidHeight)
   {
     groundSector->floorHeight = topSector->ceilingHeight + height;
   }
@@ -397,7 +397,7 @@ void patchHeightsForBlock(const engine::objects::Object& object, const core::Len
   {
     groundSector->floorHeight += height;
     if(groundSector->floorHeight == topSector->ceilingHeight)
-      groundSector->floorHeight = -core::HeightLimit;
+      groundSector->floorHeight = core::InvalidHeight;
   }
 
   Expects(groundSector->box != nullptr);

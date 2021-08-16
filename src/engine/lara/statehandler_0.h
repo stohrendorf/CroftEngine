@@ -57,9 +57,9 @@ public:
     getLara().m_state.falling = false;
     collisionInfo.facingAngle = getLara().m_state.rotation.Y;
     setMovementAngle(collisionInfo.facingAngle);
-    collisionInfo.badPositiveDistance = core::ClimbLimit2ClickMin;
-    collisionInfo.badNegativeDistance = -core::ClimbLimit2ClickMin;
-    collisionInfo.badCeilingDistance = 0_len;
+    collisionInfo.floorCollisionRangeMin = core::ClimbLimit2ClickMin;
+    collisionInfo.floorCollisionRangeMax = -core::ClimbLimit2ClickMin;
+    collisionInfo.ceilingCollisionRangeMin = 0_len;
     collisionInfo.policies |= CollisionInfo::SlopeBlockingPolicy;
     collisionInfo.policies.set(CollisionInfo::PolicyFlags::LavaIsPit);
     collisionInfo.initHeightInfo(getLara().m_state.location.position, getWorld(), core::LaraWalkHeight);
@@ -91,7 +91,7 @@ public:
       }
     }
 
-    if(collisionInfo.mid.floorSpace.y > core::ClimbLimit2ClickMin)
+    if(collisionInfo.mid.floor.y > core::ClimbLimit2ClickMin)
     {
       setAnimation(AnimationId::FREE_FALL_FORWARD, 492_frame);
       setGoalAnimState(LaraStateId::JumpForward);
@@ -100,7 +100,7 @@ public:
       getLara().m_state.falling = true;
     }
 
-    if(collisionInfo.mid.floorSpace.y > core::SteppableHeight)
+    if(collisionInfo.mid.floor.y > core::SteppableHeight)
     {
       const auto fr = getLara().getSkeleton()->getFrame();
       if(fr < 28_frame || fr > 45_frame)
@@ -113,8 +113,7 @@ public:
       }
     }
 
-    if(collisionInfo.mid.floorSpace.y >= -core::ClimbLimit2ClickMin
-       && collisionInfo.mid.floorSpace.y < -core::SteppableHeight)
+    if(collisionInfo.mid.floor.y >= -core::ClimbLimit2ClickMin && collisionInfo.mid.floor.y < -core::SteppableHeight)
     {
       const auto fr = getLara().getSkeleton()->getFrame();
       if(fr < 27_frame || fr > 44_frame)

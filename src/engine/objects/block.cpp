@@ -169,7 +169,7 @@ void Block::update()
 bool Block::isOnFloor(const core::Length& height) const
 {
   const auto sector = m_state.location.moved({}).updateRoom();
-  return sector->floorHeight == -core::HeightLimit || sector->floorHeight == m_state.location.position.Y - height;
+  return sector->floorHeight == core::InvalidHeight || sector->floorHeight == m_state.location.position.Y - height;
 }
 
 bool Block::canPushBlock(const core::Length& height, const core::Axis axis) const

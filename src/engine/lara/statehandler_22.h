@@ -41,9 +41,9 @@ public:
   {
     getLara().m_state.fallspeed = 0_spd;
     getLara().m_state.falling = false;
-    collisionInfo.badPositiveDistance = 128_len;
-    collisionInfo.badNegativeDistance = -128_len;
-    collisionInfo.badCeilingDistance = 0_len;
+    collisionInfo.floorCollisionRangeMin = 128_len;
+    collisionInfo.floorCollisionRangeMax = -128_len;
+    collisionInfo.ceilingCollisionRangeMin = 0_len;
     collisionInfo.facingAngle = getLara().m_state.rotation.Y - 90_deg;
     setMovementAngle(collisionInfo.facingAngle);
     collisionInfo.policies |= CollisionInfo::SlopeBlockingPolicy;

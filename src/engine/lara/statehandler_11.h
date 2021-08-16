@@ -27,9 +27,9 @@ public:
     getLara().m_state.falling = true;
     collisionInfo.facingAngle = getLara().m_state.rotation.Y;
     setMovementAngle(collisionInfo.facingAngle);
-    collisionInfo.badPositiveDistance = core::HeightLimit;
-    collisionInfo.badNegativeDistance = 0_len;
-    collisionInfo.badCeilingDistance = 192_len;
+    collisionInfo.floorCollisionRangeMin = core::HeightLimit;
+    collisionInfo.floorCollisionRangeMax = 0_len;
+    collisionInfo.ceilingCollisionRangeMin = 192_len;
     collisionInfo.initHeightInfo(getLara().m_state.location.position, getWorld(), core::LaraWalkHeight);
 
     if(tryReach(collisionInfo))
@@ -38,7 +38,7 @@ public:
     }
 
     jumpAgainstWall(collisionInfo);
-    if(getLara().m_state.fallspeed <= 0_spd || collisionInfo.mid.floorSpace.y > 0_len)
+    if(getLara().m_state.fallspeed <= 0_spd || collisionInfo.mid.floor.y > 0_len)
     {
       return;
     }

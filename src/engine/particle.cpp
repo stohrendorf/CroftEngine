@@ -138,7 +138,7 @@ bool BubbleParticle::update(world::World& world)
   }
 
   if(const auto ceiling = HeightInfo::fromCeiling(sector, location.position, world.getObjectManager().getObjects()).y;
-     ceiling == -core::HeightLimit || location.position.Y <= ceiling)
+     ceiling == core::InvalidHeight || location.position.Y <= ceiling)
   {
     return false;
   }

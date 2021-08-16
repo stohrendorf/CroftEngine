@@ -56,13 +56,13 @@ public:
   {
     getLara().m_state.fallspeed = 0_spd;
     getLara().m_state.falling = false;
-    collisionInfo.badPositiveDistance = core::HeightLimit;
-    collisionInfo.badNegativeDistance = -core::HeightLimit;
-    collisionInfo.badCeilingDistance = 0_len;
+    collisionInfo.floorCollisionRangeMin = core::HeightLimit;
+    collisionInfo.floorCollisionRangeMax = -core::HeightLimit;
+    collisionInfo.ceilingCollisionRangeMin = 0_len;
     collisionInfo.facingAngle = getMovementAngle();
     collisionInfo.initHeightInfo(getLara().m_state.location.position, getWorld(), core::LaraWalkHeight);
 
-    if(collisionInfo.mid.ceilingSpace.y <= -core::DefaultCollisionRadius)
+    if(collisionInfo.mid.ceiling.y <= -core::DefaultCollisionRadius)
     {
       return;
     }

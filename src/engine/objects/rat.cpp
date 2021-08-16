@@ -57,7 +57,7 @@ void Rat::update()
       }
       const auto prevY = std::exchange(m_state.location.position.Y, m_state.floor);
       animateCreature(turn, 0_deg);
-      if(prevY != -core::HeightLimit)
+      if(prevY != core::InvalidHeight)
       {
         const auto w = *waterHeight;
         if(w < prevY - 32_len)

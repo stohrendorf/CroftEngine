@@ -23,7 +23,7 @@ protected:
                                  getWorld(),
                                  core::LaraSwimHeight);
     applyShift(collisionInfo);
-    if(collisionInfo.mid.floorSpace.y < 0_len || collisionInfo.collisionType == CollisionInfo::AxisColl::TopFront
+    if(collisionInfo.mid.floor.y < 0_len || collisionInfo.collisionType == CollisionInfo::AxisColl::TopFront
        || collisionInfo.collisionType == CollisionInfo::AxisColl::TopBottom
        || collisionInfo.collisionType == CollisionInfo::AxisColl::Top
        || collisionInfo.collisionType == CollisionInfo::AxisColl::Front)
@@ -73,28 +73,28 @@ private:
       return;
     }
 
-    const auto gradient = abs(collisionInfo.frontLeft.floorSpace.y - collisionInfo.frontRight.floorSpace.y);
+    const auto gradient = abs(collisionInfo.frontLeft.floor.y - collisionInfo.frontRight.floor.y);
     if(gradient >= core::MaxGrabbableGradient)
     {
       return;
     }
 
-    if(collisionInfo.front.ceilingSpace.y > 0_len)
+    if(collisionInfo.front.ceiling.y > 0_len)
     {
       return;
     }
 
-    if(collisionInfo.mid.ceilingSpace.y > -core::ClimbLimit2ClickMin)
+    if(collisionInfo.mid.ceiling.y > -core::ClimbLimit2ClickMin)
     {
       return;
     }
 
-    if(collisionInfo.front.floorSpace.y + core::LaraSwimHeight <= 2 * -core::QuarterSectorSize)
+    if(collisionInfo.front.floor.y + core::LaraSwimHeight <= 2 * -core::QuarterSectorSize)
     {
       return;
     }
 
-    if(collisionInfo.front.floorSpace.y + core::LaraSwimHeight > core::DefaultCollisionRadius)
+    if(collisionInfo.front.floor.y + core::LaraSwimHeight > core::DefaultCollisionRadius)
     {
       return;
     }
@@ -105,7 +105,7 @@ private:
       return;
     }
 
-    getLara().m_state.location.move(core::TRVec(0_len, 695_len + collisionInfo.front.floorSpace.y, 0_len));
+    getLara().m_state.location.move(core::TRVec(0_len, 695_len + collisionInfo.front.floor.y, 0_len));
     getLara().updateFloorHeight(-381_len);
     core::TRVec d = getLara().m_state.location.position;
     if(*yRot == 0_deg)

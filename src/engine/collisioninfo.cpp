@@ -90,10 +90,8 @@ void CollisionInfo::initHeightInfo(const core::TRVec& laraPos, const world::Worl
   facingAxis = axisFromAngle(facingAngle);
 
   Location refTestLocation{world.getObjectManager().getLara().m_state.location.room,
-                           laraPos - core::TRVec(0_len, height + core::ScalpToHandsHeight, 0_len)};
+                           laraPos - core::TRVec{0_len, height + core::ScalpToHandsHeight, 0_len}};
   const auto currentSector = refTestLocation.updateRoom();
-
-  mid.init(currentSector, refTestLocation.position, world.getObjectManager().getObjects(), laraPos.Y, height);
 
   std::tie(floorSlantX, floorSlantZ) = getFloorSlantInfo(
     currentSector, core::TRVec{laraPos.X, world.getObjectManager().getLara().m_state.location.position.Y, laraPos.Z});
@@ -138,56 +136,57 @@ void CollisionInfo::initHeightInfo(const core::TRVec& laraPos, const world::Worl
     break;
   }
 
-  const auto initVSI = [&refTestLocation, &world, &height, laraPosY = laraPos.Y, policyFlags = policies](
-                         VerticalSpaceInfo& vsi, core::Length dx, core::Length dz)
+  const auto initVD = [&refTestLocation, &world, &height, laraPosY = laraPos.Y, policyFlags = policies](
+                        VerticalDistances& vd, core::Length dx, core::Length dz)
   {
-    Location testLocation = refTestLocation.moved(dx, 0_len, dz);
+    auto testLocation = refTestLocation.moved(dx, 0_len, dz);
     const auto sector = testLocation.updateRoom();
-    vsi.init(sector, testLocation.position, world.getObjectManager().getObjects(), laraPosY, height);
+    vd.init(sector, testLocation.position, world.getObjectManager().getObjects(), laraPosY, height);
 
-    if(policyFlags.is_set(PolicyFlags::SlopesAreWalls) && vsi.floorSpace.slantClass == SlantClass::Steep
-       && vsi.floorSpace.y < 0_len)
+    if(policyFlags.is_set(PolicyFlags::SlopesAreWalls) && vd.floor.slantClass == SlantClass::Steep
+       && vd.floor.y < 0_len)
     {
-      vsi.floorSpace.y = -32767_len; // This is not a typo, it is really -32767
+      vd.floor.y = -32767_len; // This is not a typo, it is really -32767
     }
-    else if(vsi.floorSpace.y > 0_len
-            && ((policyFlags.is_set(PolicyFlags::SlopesArePits) && vsi.floorSpace.slantClass == SlantClass::Steep)
-                || (policyFlags.is_set(PolicyFlags::LavaIsPit) && vsi.floorSpace.lastCommandSequenceOrDeath != nullptr
-                    && floordata::FloorDataChunk::extractType(*vsi.floorSpace.lastCommandSequenceOrDeath)
+    else if(vd.floor.y > 0_len
+            && ((policyFlags.is_set(PolicyFlags::SlopesArePits) && vd.floor.slantClass == SlantClass::Steep)
+                || (policyFlags.is_set(PolicyFlags::LavaIsPit) && vd.floor.lastCommandSequenceOrDeath != nullptr
+                    && floordata::FloorDataChunk::extractType(*vd.floor.lastCommandSequenceOrDeath)
                          == floordata::FloorDataChunkType::Death)))
     {
-      vsi.floorSpace.y = core::SectorSize / 2;
+      vd.floor.y = core::SectorSize / 2;
     }
   };
 
-  initVSI(front, frontX, frontZ);
-  initVSI(frontLeft, frontLeftX, frontLeftZ);
-  initVSI(frontRight, frontRightX, frontRightZ);
+  mid.init(currentSector, refTestLocation.position, world.getObjectManager().getObjects(), laraPos.Y, height);
+  initVD(front, frontX, frontZ);
+  initVD(frontLeft, frontLeftX, frontLeftZ);
+  initVD(frontRight, frontRightX, frontRightZ);
 
   checkStaticMeshCollisions(laraPos, height, world);
 
-  if(mid.floorSpace.y == -core::HeightLimit)
+  if(mid.floor.y == core::InvalidHeight)
   {
-    shift = initialPosition - laraPos;
     collisionType = AxisColl::Front;
+    shift = initialPosition - laraPos;
     return;
   }
 
-  if(mid.floorSpace.y <= mid.ceilingSpace.y)
+  if(mid.floor.y <= mid.ceiling.y)
   {
     collisionType = AxisColl::TopFront;
     shift = initialPosition - laraPos;
     return;
   }
 
-  if(mid.ceilingSpace.y >= 0_len)
+  if(mid.ceiling.y >= 0_len)
   {
     collisionType = AxisColl::Top;
-    shift.Y = mid.ceilingSpace.y;
+    shift.Y = mid.ceiling.y;
   }
 
-  if(front.floorSpace.y > badPositiveDistance || front.floorSpace.y < badNegativeDistance
-     || front.ceilingSpace.y > badCeilingDistance)
+  if(front.floor.y > floorCollisionRangeMin || front.floor.y < floorCollisionRangeMax
+     || front.ceiling.y > ceilingCollisionRangeMin)
   {
     collisionType = AxisColl::Front;
     switch(facingAxis)
@@ -206,14 +205,14 @@ void CollisionInfo::initHeightInfo(const core::TRVec& laraPos, const world::Worl
     return;
   }
 
-  if(front.ceilingSpace.y >= badCeilingDistance)
+  if(front.ceiling.y >= ceilingCollisionRangeMin)
   {
     collisionType = AxisColl::TopBottom;
     shift = initialPosition - laraPos;
     return;
   }
 
-  if(frontLeft.floorSpace.y > badPositiveDistance || frontLeft.floorSpace.y < badNegativeDistance)
+  if(frontLeft.floor.y > floorCollisionRangeMin || frontLeft.floor.y < floorCollisionRangeMax)
   {
     collisionType = AxisColl::Left;
     switch(facingAxis)
@@ -226,7 +225,7 @@ void CollisionInfo::initHeightInfo(const core::TRVec& laraPos, const world::Worl
     return;
   }
 
-  if(frontRight.floorSpace.y > badPositiveDistance || frontRight.floorSpace.y < badNegativeDistance)
+  if(frontRight.floor.y > floorCollisionRangeMin || frontRight.floor.y < floorCollisionRangeMax)
   {
     collisionType = AxisColl::Right;
     switch(facingAxis)

@@ -220,7 +220,7 @@ void LaraObject::handleLaraStateOnLand()
   updateFloorHeight(-381_len);
 
   updateLarasWeaponsStatus();
-  getWorld().handleCommandSequence(collisionInfo.mid.floorSpace.lastCommandSequenceOrDeath, false);
+  getWorld().handleCommandSequence(collisionInfo.mid.floor.lastCommandSequenceOrDeath, false);
 
   applyTransform();
 }
@@ -231,9 +231,9 @@ void LaraObject::handleLaraStateDiving()
   collisionInfo.initialPosition = m_state.location.position;
   collisionInfo.collisionRadius = core::DefaultCollisionRadiusUnderwater;
   collisionInfo.policies.reset_all();
-  collisionInfo.badCeilingDistance = core::LaraDiveHeight;
-  collisionInfo.badPositiveDistance = core::HeightLimit;
-  collisionInfo.badNegativeDistance = -core::LaraDiveHeight;
+  collisionInfo.ceilingCollisionRangeMin = core::LaraDiveHeight;
+  collisionInfo.floorCollisionRangeMin = core::HeightLimit;
+  collisionInfo.floorCollisionRangeMax = -core::LaraDiveHeight;
 
   lara::AbstractStateHandler::create(getCurrentAnimState(), *this)->handleInput(collisionInfo);
 
@@ -273,7 +273,7 @@ void LaraObject::handleLaraStateDiving()
 
   updateFloorHeight(0_len);
   updateLarasWeaponsStatus();
-  getWorld().handleCommandSequence(collisionInfo.mid.floorSpace.lastCommandSequenceOrDeath, false);
+  getWorld().handleCommandSequence(collisionInfo.mid.floor.lastCommandSequenceOrDeath, false);
 }
 
 void LaraObject::handleLaraStateSwimming()
@@ -282,9 +282,9 @@ void LaraObject::handleLaraStateSwimming()
   collisionInfo.initialPosition = m_state.location.position;
   collisionInfo.collisionRadius = core::DefaultCollisionRadius;
   collisionInfo.policies.reset_all();
-  collisionInfo.badCeilingDistance = core::DefaultCollisionRadius;
-  collisionInfo.badPositiveDistance = core::HeightLimit;
-  collisionInfo.badNegativeDistance = -core::DefaultCollisionRadius;
+  collisionInfo.ceilingCollisionRangeMin = core::DefaultCollisionRadius;
+  collisionInfo.floorCollisionRangeMin = core::HeightLimit;
+  collisionInfo.floorCollisionRangeMax = -core::DefaultCollisionRadius;
 
   setCameraRotationAroundLaraX(-22_deg);
 
@@ -327,12 +327,12 @@ void LaraObject::handleLaraStateSwimming()
 
   updateFloorHeight(core::DefaultCollisionRadius);
   updateLarasWeaponsStatus();
-  getWorld().handleCommandSequence(collisionInfo.mid.floorSpace.lastCommandSequenceOrDeath, false);
+  getWorld().handleCommandSequence(collisionInfo.mid.floor.lastCommandSequenceOrDeath, false);
 }
 
 void LaraObject::placeOnFloor(const CollisionInfo& collisionInfo)
 {
-  m_state.location.position.Y += collisionInfo.mid.floorSpace.y;
+  m_state.location.position.Y += collisionInfo.mid.floor.y;
 }
 
 LaraObject::~LaraObject() = default;
@@ -685,9 +685,9 @@ void LaraObject::handleUnderwaterCurrent(CollisionInfo& collisionInfo)
   else if(collisionInfo.collisionType == CollisionInfo::AxisColl::Right)
     m_state.rotation.Y -= 5_deg;
 
-  if(collisionInfo.mid.floorSpace.y < 0_len)
+  if(collisionInfo.mid.floor.y < 0_len)
   {
-    m_state.location.position.Y += collisionInfo.mid.floorSpace.y;
+    m_state.location.position.Y += collisionInfo.mid.floor.y;
     m_state.rotation.X += 2_deg;
   }
   applyShift(collisionInfo);

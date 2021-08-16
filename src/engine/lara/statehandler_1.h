@@ -70,9 +70,9 @@ public:
   {
     collisionInfo.facingAngle = getLara().m_state.rotation.Y;
     setMovementAngle(collisionInfo.facingAngle);
-    collisionInfo.badPositiveDistance = core::HeightLimit;
-    collisionInfo.badNegativeDistance = -core::ClimbLimit2ClickMin;
-    collisionInfo.badCeilingDistance = 0_len;
+    collisionInfo.floorCollisionRangeMin = core::HeightLimit;
+    collisionInfo.floorCollisionRangeMax = -core::ClimbLimit2ClickMin;
+    collisionInfo.ceilingCollisionRangeMin = 0_len;
     collisionInfo.policies.set(CollisionInfo::PolicyFlags::SlopesAreWalls);
     collisionInfo.initHeightInfo(getLara().m_state.location.position, getWorld(), core::LaraWalkHeight);
 
@@ -89,8 +89,8 @@ public:
     if(checkWallCollision(collisionInfo))
     {
       getLara().m_state.rotation.Z = 0_deg;
-      if(collisionInfo.front.floorSpace.slantClass == SlantClass::None
-         && collisionInfo.front.floorSpace.y < -core::ClimbLimit2ClickMax)
+      if(collisionInfo.front.floor.slantClass == SlantClass::None
+         && collisionInfo.front.floor.y < -core::ClimbLimit2ClickMax)
       {
         if(getLara().getSkeleton()->getFrame() < 10_frame)
         {
@@ -109,7 +109,7 @@ public:
       setAnimation(AnimationId::STAY_SOLID, 185_frame);
     }
 
-    if(collisionInfo.mid.floorSpace.y > core::ClimbLimit2ClickMin)
+    if(collisionInfo.mid.floor.y > core::ClimbLimit2ClickMin)
     {
       setAnimation(AnimationId::FREE_FALL_FORWARD, 492_frame);
       setGoalAnimState(LaraStateId::JumpForward);
@@ -119,8 +119,7 @@ public:
       return;
     }
 
-    if(collisionInfo.mid.floorSpace.y >= -core::ClimbLimit2ClickMin
-       && collisionInfo.mid.floorSpace.y < -core::SteppableHeight)
+    if(collisionInfo.mid.floor.y >= -core::ClimbLimit2ClickMin && collisionInfo.mid.floor.y < -core::SteppableHeight)
     {
       if(getLara().getSkeleton()->getFrame() >= 3_frame && getLara().getSkeleton()->getFrame() <= 14_frame)
       {
@@ -134,7 +133,7 @@ public:
 
     if(!tryStartSlide(collisionInfo))
     {
-      getLara().m_state.location.position.Y += std::min(collisionInfo.mid.floorSpace.y, 50_len);
+      getLara().m_state.location.position.Y += std::min(collisionInfo.mid.floor.y, 50_len);
     }
   }
 };

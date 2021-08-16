@@ -50,20 +50,18 @@ struct CollisionInfo
   AxisColl collisionType = AxisColl::None;
   mutable core::TRVec shift;
   core::Axis facingAxis = core::Axis::PosZ;
-  core::Angle facingAngle = 0_deg;      // external
-  core::Length collisionRadius = 0_len; // external
-  PolicyFlagSet policies;               // external
-  core::TRVec initialPosition;          // external
-  //! The deepest floor distance considered passable.
-  core::Length badPositiveDistance = 0_len; // external
-  //! The highest floor distance considered passable.
-  core::Length badNegativeDistance = 0_len; // external
-  core::Length badCeilingDistance = 0_len;  // external
+  core::Angle facingAngle = 0_deg;               // external
+  core::Length collisionRadius = 0_len;          // external
+  PolicyFlagSet policies;                        // external
+  core::TRVec initialPosition;                   // external
+  core::Length floorCollisionRangeMin = 0_len;   // external
+  core::Length floorCollisionRangeMax = 0_len;   // external
+  core::Length ceilingCollisionRangeMin = 0_len; // external
 
-  VerticalSpaceInfo mid;
-  VerticalSpaceInfo front;
-  VerticalSpaceInfo frontLeft;
-  VerticalSpaceInfo frontRight;
+  VerticalDistances mid;
+  VerticalDistances front;
+  VerticalDistances frontLeft;
+  VerticalDistances frontRight;
 
   int8_t floorSlantX = 0;
   int8_t floorSlantZ = 0;

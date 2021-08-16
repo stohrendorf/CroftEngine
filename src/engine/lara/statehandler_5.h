@@ -32,9 +32,9 @@ public:
   {
     getLara().m_state.fallspeed = 0_spd;
     getLara().m_state.falling = false;
-    collisionInfo.badPositiveDistance = core::HeightLimit;
-    collisionInfo.badNegativeDistance = -core::ClimbLimit2ClickMin;
-    collisionInfo.badCeilingDistance = 0_len;
+    collisionInfo.floorCollisionRangeMin = core::HeightLimit;
+    collisionInfo.floorCollisionRangeMax = -core::ClimbLimit2ClickMin;
+    collisionInfo.ceilingCollisionRangeMin = 0_len;
     collisionInfo.policies |= CollisionInfo::SlopeBlockingPolicy;
     collisionInfo.facingAngle = getLara().m_state.rotation.Y + 180_deg;
     setMovementAngle(collisionInfo.facingAngle);
@@ -44,7 +44,7 @@ public:
       return;
     }
 
-    if(collisionInfo.mid.floorSpace.y > 200_len)
+    if(collisionInfo.mid.floor.y > 200_len)
     {
       setAnimation(AnimationId::FREE_FALL_BACK, 1473_frame);
       setGoalAnimState(LaraStateId::FallBackward);

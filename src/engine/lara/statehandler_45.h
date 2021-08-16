@@ -24,9 +24,9 @@ public:
     collisionInfo.facingAngle = getLara().m_state.rotation.Y;
     setMovementAngle(collisionInfo.facingAngle);
     collisionInfo.policies |= CollisionInfo::PolicyFlags::SlopesAreWalls;
-    collisionInfo.badPositiveDistance = core::HeightLimit;
-    collisionInfo.badNegativeDistance = -core::ClimbLimit2ClickMin;
-    collisionInfo.badCeilingDistance = 0_len;
+    collisionInfo.floorCollisionRangeMin = core::HeightLimit;
+    collisionInfo.floorCollisionRangeMax = -core::ClimbLimit2ClickMin;
+    collisionInfo.ceilingCollisionRangeMin = 0_len;
     collisionInfo.initHeightInfo(getLara().m_state.location.position, getWorld(), core::LaraWalkHeight);
 
     if(stopIfCeilingBlocked(collisionInfo))
@@ -39,7 +39,7 @@ public:
       return;
     }
 
-    if(collisionInfo.mid.floorSpace.y <= 200_len)
+    if(collisionInfo.mid.floor.y <= 200_len)
     {
       applyShift(collisionInfo);
       placeOnFloor(collisionInfo);
