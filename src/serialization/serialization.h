@@ -80,15 +80,6 @@ class Serializer final
       , context{context}
       , loading{loading}
   {
-    ryml::set_callbacks(ryml::Callbacks{
-      nullptr,
-      [](size_t length, void* /*hint*/, void* /*user_data*/) -> gsl::owner<void*> { return new char[length]; },
-      [](gsl::owner<void*> mem, size_t /*length*/, void* /*user_data*/) { delete[] static_cast<char*>(mem); },
-      [](const char* msg, size_t msg_len, ryml::Location /*location*/, void* /*user_data*/)
-      {
-        const std::string msgStr{msg, msg_len};
-        SERIALIZER_EXCEPTION(msgStr);
-      }});
   }
 
   std::shared_ptr<LazyQueue> m_lazyQueue;

@@ -18,6 +18,32 @@ private:
   std::string m_buffer;
   ryml::Tree m_tree;
 
+  struct CustomErrorCallbacks
+  {
+  public:
+    explicit CustomErrorCallbacks()
+        : m_callbacks{ryml::get_callbacks()}
+    {
+      ryml::set_callbacks(ryml::Callbacks{
+        nullptr,
+        [](size_t length, void* /*hint*/, void* /*user_data*/) -> gsl::owner<void*> { return new char[length]; },
+        [](gsl::owner<void*> mem, size_t /*length*/, void* /*user_data*/) { delete[] static_cast<char*>(mem); },
+        [](const char* msg, size_t msg_len, ryml::Location /*location*/, void* /*user_data*/)
+        {
+          const std::string msgStr{msg, msg_len};
+          SERIALIZER_EXCEPTION(msgStr);
+        }});
+    }
+
+    ~CustomErrorCallbacks()
+    {
+      ryml::set_callbacks(m_callbacks);
+    }
+
+  private:
+    const ryml::Callbacks m_callbacks;
+  };
+
 public:
   explicit YAMLDocument(const std::filesystem::path& filename)
       : m_filename{filename}
@@ -48,6 +74,8 @@ public:
     const std::string oldLocale = setlocale(LC_NUMERIC, nullptr);
     setlocale(LC_NUMERIC, "C");
 
+    CustomErrorCallbacks callbacks{};
+
     Serializer<TContext> ser{m_tree.rootref()[c4::to_csubstr(key)], context, true, nullptr};
     auto result = access<T>::callCreate(ser);
     ser.processQueues();
@@ -62,6 +90,8 @@ public:
     const std::string oldLocale = setlocale(LC_NUMERIC, nullptr);
     setlocale(LC_NUMERIC, "C");
 
+    CustomErrorCallbacks callbacks{};
+
     Serializer<TContext> ser{m_tree.rootref()[c4::to_csubstr(key)], context, true, nullptr};
     access<T>::callSerializeOrLoad(data, ser);
     ser.processQueues();
@@ -74,6 +104,8 @@ public:
   {
     const std::string oldLocale = setlocale(LC_NUMERIC, nullptr);
     setlocale(LC_NUMERIC, "C");
+
+    CustomErrorCallbacks callbacks{};
 
     Serializer ser{m_tree.rootref()[m_tree.copy_to_arena(c4::to_csubstr(key))], context, false, nullptr};
     access<T>::callSerializeOrSave(data, ser);
