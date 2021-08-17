@@ -671,21 +671,19 @@ void LaraObject::handleUnderwaterCurrent(CollisionInfo& collisionInfo)
   collisionInfo.initHeightInfo(m_state.location.position + core::TRVec{0_len, core::LaraDiveGroundElevation, 0_len},
                                getWorld(),
                                core::LaraDiveHeight);
-  if(collisionInfo.collisionType == CollisionInfo::AxisColl::Front)
+  switch(collisionInfo.collisionType)
   {
+  case CollisionInfo::AxisColl::Front:
     if(m_state.rotation.X > 35_deg)
       m_state.rotation.X += 2_deg;
     else if(m_state.rotation.X < -35_deg)
       m_state.rotation.X -= 2_deg;
+    break;
+  case CollisionInfo::AxisColl::Top: m_state.rotation.X -= 2_deg; break;
+  case CollisionInfo::AxisColl::TopBottom: m_state.fallspeed = 0_spd; break;
+  case CollisionInfo::AxisColl::Left: m_state.rotation.Y += 5_deg; break;
+  case CollisionInfo::AxisColl::Right: m_state.rotation.Y -= 5_deg; break;
   }
-  else if(collisionInfo.collisionType == CollisionInfo::AxisColl::Top)
-    m_state.rotation.X -= 2_deg;
-  else if(collisionInfo.collisionType == CollisionInfo::AxisColl::TopBottom)
-    m_state.fallspeed = 0_spd;
-  else if(collisionInfo.collisionType == CollisionInfo::AxisColl::Left)
-    m_state.rotation.Y += 5_deg;
-  else if(collisionInfo.collisionType == CollisionInfo::AxisColl::Right)
-    m_state.rotation.Y -= 5_deg;
 
   if(collisionInfo.mid.floor.y < 0_len)
   {

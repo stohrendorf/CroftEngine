@@ -404,7 +404,6 @@ bool AbstractStateHandler::tryClimb(const CollisionInfo& collisionInfo)
   return true;
 }
 
-// ReSharper disable once CppMemberFunctionMayBeConst
 void AbstractStateHandler::applyShift(const CollisionInfo& collisionInfo)
 {
   m_lara.applyShift(collisionInfo);
@@ -412,28 +411,25 @@ void AbstractStateHandler::applyShift(const CollisionInfo& collisionInfo)
 
 bool AbstractStateHandler::checkWallCollision(const CollisionInfo& collisionInfo)
 {
-  if(collisionInfo.collisionType == CollisionInfo::AxisColl::Front
-     || collisionInfo.collisionType == CollisionInfo::AxisColl::TopBottom)
+  switch(collisionInfo.collisionType)
   {
+  case CollisionInfo::AxisColl::Left:
+    applyShift(collisionInfo);
+    m_lara.m_state.rotation.Y += 5_deg;
+    return false;
+  case CollisionInfo::AxisColl::Right:
+    applyShift(collisionInfo);
+    m_lara.m_state.rotation.Y -= 5_deg;
+    return false;
+  case CollisionInfo::AxisColl::Front: [[fallthrough]];
+  case CollisionInfo::AxisColl::TopBottom:
     applyShift(collisionInfo);
     setGoalAnimState(LaraStateId::Stop);
     m_lara.m_state.falling = false;
     m_lara.m_state.speed = 0_spd;
     return true;
+  default: return false;
   }
-
-  if(collisionInfo.collisionType == CollisionInfo::AxisColl::Left)
-  {
-    applyShift(collisionInfo);
-    m_lara.m_state.rotation.Y += 5_deg;
-  }
-  else if(collisionInfo.collisionType == CollisionInfo::AxisColl::Right)
-  {
-    applyShift(collisionInfo);
-    m_lara.m_state.rotation.Y -= 5_deg;
-  }
-
-  return false;
 }
 
 bool AbstractStateHandler::tryStartSlide(const CollisionInfo& collisionInfo)
@@ -828,23 +824,18 @@ void AbstractStateHandler::setCameraModifier(const CameraModifier k)
 void AbstractStateHandler::jumpAgainstWall(CollisionInfo& collisionInfo)
 {
   applyShift(collisionInfo);
-  if(collisionInfo.collisionType == CollisionInfo::AxisColl::Left)
+  switch(collisionInfo.collisionType)
   {
-    m_lara.m_state.rotation.Y += 5_deg;
-  }
-  else if(collisionInfo.collisionType == CollisionInfo::AxisColl::Right)
-  {
-    m_lara.m_state.rotation.Y -= 5_deg;
-  }
-  else if(collisionInfo.collisionType == CollisionInfo::AxisColl::Top)
-  {
+  case CollisionInfo::AxisColl::None: break;
+  case CollisionInfo::AxisColl::Front: break;
+  case CollisionInfo::AxisColl::Left: m_lara.m_state.rotation.Y += 5_deg; break;
+  case CollisionInfo::AxisColl::Right: m_lara.m_state.rotation.Y -= 5_deg; break;
+  case CollisionInfo::AxisColl::Top:
     if(m_lara.m_state.fallspeed <= 0_spd)
-    {
       m_lara.m_state.fallspeed = 1_spd;
-    }
-  }
-  else if(collisionInfo.collisionType == CollisionInfo::AxisColl::TopFront)
-  {
+    break;
+  case CollisionInfo::AxisColl::TopBottom: break;
+  case CollisionInfo::AxisColl::TopFront:
     m_lara.m_state.location.move(util::pitch(core::DefaultCollisionRadius, m_lara.m_state.rotation.Y));
     m_lara.m_state.speed = 0_spd;
     collisionInfo.mid.floor.y = 0_len;
@@ -852,6 +843,7 @@ void AbstractStateHandler::jumpAgainstWall(CollisionInfo& collisionInfo)
     {
       m_lara.m_state.fallspeed = 16_spd;
     }
+    break;
   }
 }
 
@@ -859,14 +851,11 @@ void AbstractStateHandler::checkJumpWallSmash(CollisionInfo& collisionInfo)
 {
   applyShift(collisionInfo);
 
-  if(collisionInfo.collisionType == CollisionInfo::AxisColl::None)
+  switch(collisionInfo.collisionType)
   {
-    return;
-  }
-
-  if(collisionInfo.collisionType == CollisionInfo::AxisColl::Front
-     || collisionInfo.collisionType == CollisionInfo::AxisColl::TopBottom)
-  {
+  case CollisionInfo::AxisColl::None: break;
+  case CollisionInfo::AxisColl::Front: [[fallthrough]];
+  case CollisionInfo::AxisColl::TopBottom:
     m_lara.m_state.speed /= 4;
     setMovementAngle(getMovementAngle() - 180_deg);
     setAnimation(AnimationId::SMASH_JUMP, 481_frame);
@@ -876,22 +865,10 @@ void AbstractStateHandler::checkJumpWallSmash(CollisionInfo& collisionInfo)
     {
       m_lara.m_state.fallspeed = 1_spd;
     }
-    return;
-  }
-
-  if(collisionInfo.collisionType == CollisionInfo::AxisColl::Left)
-  {
-    m_lara.m_state.rotation.Y += 5_deg;
-    return;
-  }
-  if(collisionInfo.collisionType == CollisionInfo::AxisColl::Right)
-  {
-    m_lara.m_state.rotation.Y -= 5_deg;
-    return;
-  }
-
-  if(collisionInfo.collisionType == CollisionInfo::AxisColl::TopFront)
-  {
+    break;
+  case CollisionInfo::AxisColl::Left: m_lara.m_state.rotation.Y += 5_deg; break;
+  case CollisionInfo::AxisColl::Right: m_lara.m_state.rotation.Y -= 5_deg; break;
+  case CollisionInfo::AxisColl::TopFront:
     m_lara.m_state.location.move(util::pitch(core::DefaultCollisionRadius, collisionInfo.facingAngle));
     m_lara.m_state.speed = 0_spd;
     collisionInfo.mid.floor.y = 0_len;
@@ -899,11 +876,13 @@ void AbstractStateHandler::checkJumpWallSmash(CollisionInfo& collisionInfo)
     {
       m_lara.m_state.fallspeed = 16_spd;
     }
-  }
-
-  if(collisionInfo.collisionType == CollisionInfo::AxisColl::Top && m_lara.m_state.fallspeed <= 0_spd)
-  {
-    m_lara.m_state.fallspeed = 1_spd;
+    break;
+  case CollisionInfo::AxisColl::Top:
+    if(m_lara.m_state.fallspeed <= 0_spd)
+    {
+      m_lara.m_state.fallspeed = 1_spd;
+    }
+    break;
   }
 }
 
