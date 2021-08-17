@@ -79,19 +79,4 @@ struct CollisionInfo
                                  const core::Length& pokeHeight,
                                  const world::World& world);
 };
-
-inline gsl::czstring toString(CollisionInfo::AxisColl value)
-{
-  switch(value)
-  {
-  case CollisionInfo::AxisColl::None: return "None";
-  case CollisionInfo::AxisColl::Front: return "Front";
-  case CollisionInfo::AxisColl::Left: return "Left";
-  case CollisionInfo::AxisColl::Right: return "Right";
-  case CollisionInfo::AxisColl::Top: return "Top";
-  case CollisionInfo::AxisColl::TopBottom: return "TopBottom";
-  case CollisionInfo::AxisColl::TopFront: return "TopFront";
-  default: return "<null>";
-  }
-}
 } // namespace engine
