@@ -19,6 +19,10 @@ struct NamedEnum
   void load(const Serializer<TContext>& ser)
   {
     ser.tag(Converter::name());
+
+    if(!ser.node.has_val())
+      SERIALIZER_EXCEPTION("cannot get enum value from non-value node");
+
     std::string name;
     ser.node >> name;
     try
