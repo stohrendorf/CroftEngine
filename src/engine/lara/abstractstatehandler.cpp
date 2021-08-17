@@ -548,13 +548,11 @@ bool AbstractStateHandler::tryGrabEdge(const CollisionInfo& collisionInfo)
 
 core::Length AbstractStateHandler::getRelativeHeightAtDirection(core::Angle angle, const core::Length dist) const
 {
-  auto pos = m_lara.m_state.location.moved(util::pitch(dist, angle));
-  pos.position.Y -= core::LaraWalkHeight;
+  auto location = m_lara.m_state.location.moved(util::pitch(dist, angle));
+  location.position.Y -= core::LaraWalkHeight;
+  const auto sector = location.updateRoom();
 
-  const auto sector = pos.updateRoom();
-
-  HeightInfo h = HeightInfo::fromFloor(sector, pos.position, getWorld().getObjectManager().getObjects());
-
+  HeightInfo h = HeightInfo::fromFloor(sector, location.position, getWorld().getObjectManager().getObjects());
   if(h.y != core::InvalidHeight)
   {
     h.y -= m_lara.m_state.location.position.Y;
@@ -740,7 +738,7 @@ void AbstractStateHandler::commonEdgeHangHandling(CollisionInfo& collisionInfo)
 // ReSharper disable once CppMemberFunctionMayBeConst
 bool AbstractStateHandler::applyLandingDamage()
 {
-  const auto sector = m_lara.m_state.location.moved(0_len, 0_len, 0_len).updateRoom();
+  const auto sector = m_lara.m_state.location.moved({}).updateRoom();
   const HeightInfo h
     = HeightInfo::fromFloor(sector,
                             m_lara.m_state.location.position - core::TRVec{0_len, core::LaraWalkHeight, 0_len},

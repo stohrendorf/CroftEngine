@@ -570,12 +570,14 @@ void LaraObject::updateImpl()
 
 void LaraObject::updateFloorHeight(const core::Length& dy)
 {
-  auto pos = m_state.location.position;
-  pos.Y += dy;
-  const auto sector = m_state.location.updateRoom();
+  auto location = m_state.location;
+  location.position.Y += dy;
+  const auto sector = location.updateRoom();
   setCurrentRoom(m_state.location.room);
-  const HeightInfo hi = HeightInfo::fromFloor(sector, pos, getWorld().getObjectManager().getObjects());
+  const HeightInfo hi = HeightInfo::fromFloor(
+    sector, m_state.location.position - core::TRVec{0_len, dy, 0_len}, getWorld().getObjectManager().getObjects());
   m_state.floor = hi.y;
+  setCurrentRoom(location.room);
 }
 
 void LaraObject::setCameraRotationAroundLara(const core::Angle& x, const core::Angle& y)

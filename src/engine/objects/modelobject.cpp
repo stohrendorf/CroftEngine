@@ -101,7 +101,11 @@ void ModelObject::update()
 
 void ModelObject::applyMovement(const bool forLara)
 {
-  if(m_state.falling)
+  if(!m_state.falling)
+  {
+    m_state.speed = m_skeleton->calculateFloorSpeed();
+  }
+  else
   {
     if(m_state.fallspeed >= core::TerminalSpeed)
     {
@@ -119,15 +123,14 @@ void ModelObject::applyMovement(const bool forLara)
         = m_state.speed + m_skeleton->calculateFloorSpeed(0_frame) - m_skeleton->calculateFloorSpeed(-1_frame);
     }
   }
-  else
-  {
-    m_state.speed = m_skeleton->calculateFloorSpeed();
-  }
 
   m_state.location.move(util::pitch(m_state.speed * 1_frame, getMovementAngle())
                         + core::TRVec{0_len, (m_state.falling ? m_state.fallspeed : 0_spd) * 1_frame, 0_len});
-  m_state.location.updateRoom();
-  setCurrentRoom(m_state.location.room);
+  if(!forLara)
+  {
+    m_state.location.updateRoom();
+    setCurrentRoom(m_state.location.room);
+  }
 
   applyTransform();
 
