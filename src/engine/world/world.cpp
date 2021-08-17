@@ -863,24 +863,16 @@ void World::gameLoop(bool godMode, float delayRatio, float blackAlpha)
   if(getObjectManager().getLara().getHandStatus() == engine::objects::HandStatus::Combat
      && m_player->selectedWeaponType != WeaponType::Pistols)
   {
-    size_t n = 0;
     std::string suffix;
     switch(m_player->selectedWeaponType)
     {
-    case WeaponType::Shotgun:
-      n = m_player->getInventory().getAmmo(WeaponType::Shotgun)->ammo / 6;
-      suffix = " A";
-      break;
-    case WeaponType::Magnums:
-      n = m_player->getInventory().getAmmo(WeaponType::Magnums)->ammo;
-      suffix = " B";
-      break;
-    case WeaponType::Uzis:
-      n = m_player->getInventory().getAmmo(WeaponType::Uzis)->ammo;
-      suffix = " C";
-      break;
+    case WeaponType::Shotgun: suffix = " A"; break;
+    case WeaponType::Magnums: suffix = " B"; break;
+    case WeaponType::Uzis: suffix = " C"; break;
     default: Expects(false); break;
     }
+    const auto ammoPtr = m_player->getInventory().getAmmo(m_player->selectedWeaponType);
+    const auto n = ammoPtr->ammo / ammoPtr->roundsPerShot;
     auto text = ui::Text{ui::makeAmmoString(std::to_string(n) + suffix)};
     text.draw(ui, getPresenter().getTrFont(), glm::ivec2{getPresenter().getViewport().x - 17 - text.getWidth(), 22});
   }

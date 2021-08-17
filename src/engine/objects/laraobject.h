@@ -370,10 +370,10 @@ public:
 
   void updateAnimNotShotgun(WeaponType weaponType);
 
-  bool fireWeapon(WeaponType weaponType,
-                  const std::shared_ptr<ModelObject>& targetObject,
-                  const ModelObject& weaponHolder,
-                  const core::TRRotationXY& aimAngle);
+  bool shootBullet(const WeaponType weaponType,
+                   const std::shared_ptr<ModelObject>& targetObject,
+                   const ModelObject& weaponHolder,
+                   const core::TRRotationXY& aimAngle);
 
   void hitTarget(ModelObject& object, const core::TRVec& hitPos, const core::Health& damage);
 

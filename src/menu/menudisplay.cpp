@@ -63,9 +63,12 @@ void MenuDisplay::drawMenuObjectDescription(ui::Ui& ui, engine::world::World& wo
     break;
   case engine::TR1ItemId::Shotgun:
   case engine::TR1ItemId::ShotgunSprite:
-    totalItemCount = world.getPlayer().getInventory().getAmmo(engine::WeaponType::Shotgun)->ammo / 6;
+  {
+    const auto ammoPtr = world.getPlayer().getInventory().getAmmo(engine::WeaponType::Shotgun);
+    totalItemCount = ammoPtr->ammo / ammoPtr->roundsPerShot;
     suffix = " A";
     break;
+  }
   case engine::TR1ItemId::Magnums:
   case engine::TR1ItemId::MagnumsSprite:
     totalItemCount = world.getPlayer().getInventory().getAmmo(engine::WeaponType::Magnums)->ammo;

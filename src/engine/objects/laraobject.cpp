@@ -1400,12 +1400,13 @@ void LaraObject::updateAnimShotgun()
 void LaraObject::tryShootShotgun()
 {
   bool fireShotgun = false;
-  for(int i = 0; i < 5; ++i)
+  const auto rounds = getWorld().getPlayer().getInventory().getAmmo(WeaponType::Shotgun)->roundsPerShot;
+  for(size_t i = 0; i < rounds; ++i)
   {
     core::TRRotationXY aimAngle;
     aimAngle.Y = util::rand15s(+20_deg) + m_state.rotation.Y + leftArm.aimRotation.Y;
     aimAngle.X = util::rand15s(+20_deg) + leftArm.aimRotation.X;
-    if(fireWeapon(WeaponType::Shotgun, aimAt, *this, aimAngle))
+    if(shootBullet(WeaponType::Shotgun, aimAt, *this, aimAngle))
     {
       fireShotgun = true;
     }
@@ -1519,10 +1520,10 @@ void LaraObject::updateAnimNotShotgun(const WeaponType weaponType)
   leftArm.update(*this, weapon);
 }
 
-bool LaraObject::fireWeapon(const WeaponType weaponType,
-                            const std::shared_ptr<ModelObject>& targetObject,
-                            const ModelObject& weaponHolder,
-                            const core::TRRotationXY& aimAngle)
+bool LaraObject::shootBullet(const WeaponType weaponType,
+                             const std::shared_ptr<ModelObject>& targetObject,
+                             const ModelObject& weaponHolder,
+                             const core::TRRotationXY& aimAngle)
 {
   Expects(weaponType != WeaponType::None);
 
@@ -2220,7 +2221,7 @@ void LaraObject::AimInfo::update(LaraObject& lara, const Weapon& weapon)
     core::TRRotationXY aimAngle;
     aimAngle.X = aimRotation.X;
     aimAngle.Y = lara.m_state.rotation.Y + aimRotation.Y;
-    if(lara.fireWeapon(weapon.type, lara.aimAt, lara, aimAngle))
+    if(lara.shootBullet(weapon.type, lara.aimAt, lara, aimAngle))
     {
       flashTimeout = weapon.flashTime;
       lara.playSoundEffect(weapon.shotSound);

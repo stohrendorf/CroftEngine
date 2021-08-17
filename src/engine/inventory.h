@@ -24,6 +24,7 @@ class LaraObject;
 struct Ammo
 {
   const size_t roundsPerClip;
+  const size_t roundsPerShot;
   const TR1ItemId ammoType;
   const TR1ItemId weaponType;
   size_t ammo = 0;
@@ -43,10 +44,10 @@ class Inventory
 private:
   std::map<TR1ItemId, size_t> m_inventory;
 
-  Ammo m_pistolsAmmo{1, TR1ItemId::Lara, TR1ItemId::Pistols};
-  Ammo m_magnumsAmmo{50, TR1ItemId::MagnumAmmo, TR1ItemId::Magnums};
-  Ammo m_uzisAmmo{100, TR1ItemId::UziAmmo, TR1ItemId::Uzis};
-  Ammo m_shotgunAmmo{12, TR1ItemId::ShotgunAmmo, TR1ItemId::Shotgun};
+  Ammo m_pistolsAmmo{1, 1, TR1ItemId::Lara, TR1ItemId::Pistols};
+  Ammo m_magnumsAmmo{50, 1, TR1ItemId::MagnumAmmo, TR1ItemId::Magnums};
+  Ammo m_uzisAmmo{100, 1, TR1ItemId::UziAmmo, TR1ItemId::Uzis};
+  Ammo m_shotgunAmmo{12, 6, TR1ItemId::ShotgunAmmo, TR1ItemId::Shotgun};
 
 public:
   explicit Inventory() = default;
