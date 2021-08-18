@@ -14,6 +14,7 @@ macro( add_boost_test name )
             Boost::system
             Boost::unit_test_framework
             Boost::log
+            Boost::log_setup
             Boost::disable_autolinking
             Boost::headers
             gsl-lite::gsl-lite

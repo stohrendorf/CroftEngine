@@ -567,6 +567,7 @@ target_link_libraries(
         Boost::system
         Boost::locale
         Boost::log
+        Boost::log_setup
         Boost::disable_autolinking
         Boost::headers
         Boost::stacktrace
