@@ -38,6 +38,7 @@
 #include <boost/locale/generator.hpp>
 #include <boost/locale/info.hpp>
 #include <boost/range/adaptor/map.hpp>
+#include <cstdlib>
 #include <filesystem>
 #include <gl/font.h>
 #include <gl/glew_init.h>
@@ -83,8 +84,10 @@ Engine::Engine(const std::filesystem::path& rootPath, const glm::ivec2& resoluti
   char cPath[512];
   wcstombs(cPath, poDir.c_str(), 512);
   bindtextdomain("edisonengine", cPath);
+  Expects(putenv(("LANG=" + m_language).c_str()) == 0);
 #else
   bindtextdomain("edisonengine", poDir.c_str());
+  Expects(setenv("LANG", m_language.c_str(), true) == 0);
 #endif
   setlocale(LC_ALL, m_language.c_str());
   textdomain("edisonengine");
