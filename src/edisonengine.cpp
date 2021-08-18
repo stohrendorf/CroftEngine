@@ -50,7 +50,8 @@ int main()
   boost::log::add_console_log(std::cout, boost::log::keywords::format = logFormat)
     ->set_filter(boost::log::trivial::severity >= consoleMinSeverity);
   boost::log::add_file_log(boost::log::keywords::file_name = "edisonengine.log",
-                           boost::log::keywords::format = logFormat);
+                           boost::log::keywords::format = logFormat,
+                           boost::log::keywords::auto_flush = true);
 
   engine::Engine engine{std::filesystem::current_path()};
   size_t levelSequenceIndex = 0;
