@@ -142,7 +142,10 @@ void MenuDisplay::display(ui::Ui& ui, engine::world::World& world)
   }
 
   if(result != MenuResult::None)
-    world.getAudioEngine().fadeMusicVolume(musicVolume);
+  {
+    world.getEngine().getEngineConfig()->audioSettings = audioSettings;
+    world.getAudioEngine().fadeMusicVolume(world.getEngine().getEngineConfig()->audioSettings.musicVolume);
+  }
 }
 
 bool MenuDisplay::doOptions(engine::world::World& world, MenuObject& object)
@@ -465,7 +468,7 @@ std::vector<MenuObject> MenuDisplay::getKeysRingObjects(const engine::world::Wor
 
 MenuDisplay::MenuDisplay(InventoryMode mode, engine::world::World& world)
     : mode{mode}
-    , musicVolume{world.getAudioEngine().getMusicVolume()}
+    , audioSettings{world.getEngine().getEngineConfig()->audioSettings}
     , allowMenuClose{mode != InventoryMode::TitleMode && mode != InventoryMode::DeathMode}
     , m_currentState{std::make_unique<InflateRingMenuState>(ringTransform, true)}
     , m_upArrow{ui::getSpriteSelector(ui::ArrowUpSprite)}
@@ -502,7 +505,8 @@ MenuDisplay::MenuDisplay(InventoryMode mode, engine::world::World& world)
   // TODO fadeInInventory(mode != InventoryMode::TitleMode);
   if(mode != InventoryMode::TitleMode)
   {
-    world.getAudioEngine().fadeMusicVolume(0.1f);
+    world.getEngine().getEngineConfig()->audioSettings.musicVolume *= 0.1f;
+    world.getAudioEngine().fadeMusicVolume(world.getEngine().getEngineConfig()->audioSettings.musicVolume);
   }
   world.getAudioEngine().playSoundEffect(engine::TR1SoundEffect::MenuOptionPopup, nullptr);
 }

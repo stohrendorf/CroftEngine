@@ -1,5 +1,6 @@
 #pragma once
 
+#include "audiosettings.h"
 #include "displaysettings.h"
 #include "hid/actions.h"
 #include "hid/glfw_axes.h"
@@ -42,6 +43,7 @@ struct EngineConfig
 {
   render::RenderSettings renderSettings{};
   DisplaySettings displaySettings{};
+  AudioSettings audioSettings{};
   std::vector<NamedInputMappingConfig> inputMappings{};
 
   explicit EngineConfig();

@@ -163,7 +163,7 @@ public:
     m_worlds.erase(world);
   }
 
-  void applyRenderSettings();
+  void applySettings();
 
   const auto& getScriptEngine() const
   {

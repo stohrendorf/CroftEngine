@@ -49,6 +49,7 @@ class AudioEngine;
 class Engine;
 class ObjectManager;
 class CameraController;
+struct AudioSettings;
 
 class Presenter final
 {
@@ -121,7 +122,7 @@ public:
   void renderScreenOverlay();
   void renderUi(ui::Ui& ui, float alpha);
 
-  void apply(const render::RenderSettings& renderSettings);
+  void apply(const render::RenderSettings& renderSettings, const AudioSettings& audioSettings);
 
   void drawLoadingScreen(const std::string& state);
   bool preFrame();

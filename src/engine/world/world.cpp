@@ -996,6 +996,8 @@ World::World(Engine& engine,
     , m_samplesData{std::move(level->m_samplesData)}
 {
   m_engine.registerWorld(this);
+  m_audioEngine->setMusicVolume(m_engine.getEngineConfig()->audioSettings.musicVolume);
+  m_audioEngine->setSfxVolume(m_engine.getEngineConfig()->audioSettings.sfxVolume);
 
   initTextureDependentDataFromLevel(*level);
 

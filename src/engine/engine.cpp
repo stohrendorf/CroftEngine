@@ -103,7 +103,7 @@ Engine::Engine(const std::filesystem::path& rootPath, const glm::ivec2& resoluti
   if(gl::hasAnisotropicFilteringExtension()
      && m_engineConfig->renderSettings.anisotropyLevel > gl::getMaxAnisotropyLevel())
     m_engineConfig->renderSettings.anisotropyLevel = gsl::narrow<uint32_t>(std::llround(gl::getMaxAnisotropyLevel()));
-  m_presenter->apply(m_engineConfig->renderSettings);
+  m_presenter->apply(m_engineConfig->renderSettings, m_engineConfig->audioSettings);
   m_presenter->getInputHandler().setMappings(m_engineConfig->inputMappings);
   m_glidos = loadGlidosPack();
 }
@@ -127,7 +127,12 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
   const bool godMode = m_scriptEngine.isGodMode();
   const bool allAmmoCheat = m_scriptEngine.hasAllAmmoCheat();
 
-  m_presenter->apply(m_engineConfig->renderSettings);
+  m_presenter->apply(m_engineConfig->renderSettings, m_engineConfig->audioSettings);
+  for(const auto& world : m_worlds)
+  {
+    world->getAudioEngine().setMusicVolume(m_engineConfig->audioSettings.musicVolume);
+    world->getAudioEngine().setSfxVolume(m_engineConfig->audioSettings.sfxVolume);
+  }
   std::shared_ptr<menu::MenuDisplay> menu;
   Throttler throttler;
   core::Frame laraDeadTime = 0_frame;
@@ -331,7 +336,12 @@ std::pair<RunResult, std::optional<size_t>> Engine::runTitleMenu(world::World& w
 {
   gl::Framebuffer::unbindAll();
 
-  m_presenter->apply(m_engineConfig->renderSettings);
+  m_presenter->apply(m_engineConfig->renderSettings, m_engineConfig->audioSettings);
+  for(const auto& world : m_worlds)
+  {
+    world->getAudioEngine().setMusicVolume(m_engineConfig->audioSettings.musicVolume);
+    world->getAudioEngine().setSfxVolume(m_engineConfig->audioSettings.sfxVolume);
+  }
 
   Expects(world.getAudioEngine().getInterceptStream() != nullptr);
   world.getAudioEngine().getInterceptStream()->setLooping(true);
@@ -420,7 +430,12 @@ std::pair<RunResult, std::optional<size_t>> Engine::runLevelSequenceItem(script:
 {
   m_presenter->getSoundEngine()->reset();
   m_presenter->clear();
-  m_presenter->apply(m_engineConfig->renderSettings);
+  m_presenter->apply(m_engineConfig->renderSettings, m_engineConfig->audioSettings);
+  for(const auto& world : m_worlds)
+  {
+    world->getAudioEngine().setMusicVolume(m_engineConfig->audioSettings.musicVolume);
+    world->getAudioEngine().setSfxVolume(m_engineConfig->audioSettings.sfxVolume);
+  }
   return item.run(*this, player);
 }
 
@@ -430,7 +445,12 @@ std::pair<RunResult, std::optional<size_t>> Engine::runLevelSequenceItemFromSave
 {
   m_presenter->getSoundEngine()->reset();
   m_presenter->clear();
-  m_presenter->apply(m_engineConfig->renderSettings);
+  m_presenter->apply(m_engineConfig->renderSettings, m_engineConfig->audioSettings);
+  for(const auto& world : m_worlds)
+  {
+    world->getAudioEngine().setMusicVolume(m_engineConfig->audioSettings.musicVolume);
+    world->getAudioEngine().setSfxVolume(m_engineConfig->audioSettings.sfxVolume);
+  }
   return item.runFromSave(*this, slot, player);
 }
 
@@ -466,12 +486,16 @@ std::optional<SavegameMeta> Engine::getSavegameMeta(const std::optional<size_t>&
   return getSavegameMeta(getSavegamePath(slot));
 }
 
-void Engine::applyRenderSettings()
+void Engine::applySettings()
 {
-  m_presenter->apply(m_engineConfig->renderSettings);
+  m_presenter->apply(m_engineConfig->renderSettings, m_engineConfig->audioSettings);
   for(const auto& world : m_worlds)
+  {
+    world->getAudioEngine().setMusicVolume(m_engineConfig->audioSettings.musicVolume);
+    world->getAudioEngine().setSfxVolume(m_engineConfig->audioSettings.sfxVolume);
     for(auto& room : world->getRooms())
       room.collectShaderLights(m_engineConfig->renderSettings.getLightCollectionDepth());
+  }
 }
 
 std::filesystem::path Engine::getSavegameRootPath() const

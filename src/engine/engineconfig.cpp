@@ -91,6 +91,7 @@ void EngineConfig::serialize(const serialization::Serializer<EngineConfig>& ser)
 {
   ser(S_NVD("renderSettings", renderSettings, render::RenderSettings{}),
       S_NVD("displaySettings", displaySettings, DisplaySettings{}),
+      S_NVD("audioSettings", audioSettings, AudioSettings{}),
       S_NVD("inputMappings", inputMappings, getDefaultMappings()));
 }
 

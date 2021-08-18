@@ -471,7 +471,7 @@ void Presenter::debounceInput()
   m_inputHandler->update();
 }
 
-void Presenter::apply(const render::RenderSettings& renderSettings)
+void Presenter::apply(const render::RenderSettings& renderSettings, const AudioSettings& audioSettings)
 {
   setFullscreen(renderSettings.fullscreen);
   if(m_csm->getResolution() != renderSettings.getCSMResolution())
@@ -481,6 +481,7 @@ void Presenter::apply(const render::RenderSettings& renderSettings)
   }
   m_renderPipeline->apply(renderSettings, *m_materialManager);
   m_materialManager->setFiltering(renderSettings.bilinearFiltering, gsl::narrow<float>(renderSettings.anisotropyLevel));
+  m_soundEngine->getSoLoud().setGlobalVolume(audioSettings.globalVolume);
 }
 
 gl::CImgWrapper Presenter::takeScreenshot() const

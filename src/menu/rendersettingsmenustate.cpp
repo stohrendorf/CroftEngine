@@ -101,7 +101,7 @@ RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingT
   static const auto toggle = [](engine::Engine& engine, bool& value)
   {
     value = !value;
-    engine.applyRenderSettings();
+    engine.applySettings();
   };
 
   auto listBox = std::make_shared<CheckListBox>(/* translators: TR charmap encoding */ _("Effects"));
@@ -147,7 +147,7 @@ RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingT
           level *= 2;
         if(level > maxLevel)
           level = 0;
-        engine.applyRenderSettings();
+        engine.applySettings();
       });
   }
   listBox->addSetting(

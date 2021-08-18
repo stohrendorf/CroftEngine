@@ -146,6 +146,8 @@ set( EDISONENGINE_SRCS
 
         engine/audioengine.h
         engine/audioengine.cpp
+        engine/audiosettings.h
+        engine/audiosettings.cpp
         engine/cameracontroller.h
         engine/cameracontroller.cpp
         engine/controllerbuttons.h

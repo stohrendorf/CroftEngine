@@ -1,5 +1,6 @@
 #pragma once
 
+#include "engine/audiosettings.h"
 #include "menuringtransform.h"
 #include "ui/text.h"
 
@@ -41,7 +42,7 @@ struct MenuDisplay
 
   const InventoryMode mode;
   std::optional<engine::TR1ItemId> inventoryChosen{};
-  float musicVolume;
+  engine::AudioSettings audioSettings;
   bool allowMenuClose = true;
   bool allowSave = true;
 
