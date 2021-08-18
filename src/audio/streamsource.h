@@ -9,6 +9,7 @@
 #include <gsl/gsl-lite.hpp>
 #include <sndfile.h>
 #include <soloud_audiosource.h>
+#include <utility>
 
 namespace audio
 {
@@ -135,8 +136,8 @@ public:
 class WadStream final : public SoLoud::AudioSource
 {
 public:
-  WadStream(const std::filesystem::path& filename, const size_t trackIndex)
-      : m_filename{filename}
+  WadStream(std::filesystem::path filename, const size_t trackIndex)
+      : m_filename{std::move(filename)}
       , m_trackIndex{trackIndex}
   {
   }

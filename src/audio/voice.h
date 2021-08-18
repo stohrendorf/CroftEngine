@@ -6,6 +6,7 @@
 #include <glm/glm.hpp>
 #include <gsl/gsl-lite.hpp>
 #include <soloud.h>
+#include <utility>
 
 namespace audio
 {
@@ -23,7 +24,7 @@ public:
                  gsl::not_null<std::shared_ptr<SoLoud::AudioSource>> source,
                  SoLoud::handle voiceHandle)
       : m_soLoud{std::move(soLoud)}
-      , m_source{source}
+      , m_source{std::move(source)}
       , m_voiceHandle{voiceHandle}
   {
   }
@@ -80,7 +81,7 @@ public:
     pause(false);
   }
 
-  bool isValid() const
+  [[nodiscard]] bool isValid() const
   {
     return m_soLoud->isValidVoiceHandle(m_voiceHandle);
   }

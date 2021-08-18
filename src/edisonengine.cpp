@@ -6,6 +6,9 @@
 #include <boost/log/core.hpp>
 #include <boost/log/expressions.hpp>
 #include <boost/log/trivial.hpp>
+#include <boost/log/utility/setup/common_attributes.hpp>
+#include <boost/log/utility/setup/console.hpp>
+#include <boost/log/utility/setup/file.hpp>
 #include <boost/stacktrace.hpp>
 #include <csignal>
 #include <iostream>
@@ -35,9 +38,19 @@ int main()
   std::signal(SIGSEGV, &stacktrace_handler);
   std::signal(SIGABRT, &stacktrace_handler);
 
-#ifdef NDEBUG
-  boost::log::core::get()->set_filter(boost::log::trivial::severity >= boost::log::trivial::info);
+  static const gsl::czstring logFormat = "[%TimeStamp% %Severity% %ThreadID%] %Message%";
+
+#ifndef NDEBUG
+  static const auto consoleMinSeverity = boost::log::trivial::trace;
+#else
+  static const auto consoleMinSeverity = boost::log::trivial::info;
 #endif
+
+  boost::log::add_common_attributes();
+  boost::log::add_console_log(std::cout, boost::log::keywords::format = logFormat)
+    ->set_filter(boost::log::trivial::severity >= consoleMinSeverity);
+  boost::log::add_file_log(boost::log::keywords::file_name = "edisonengine.log",
+                           boost::log::keywords::format = logFormat);
 
   engine::Engine engine{std::filesystem::current_path()};
   size_t levelSequenceIndex = 0;
