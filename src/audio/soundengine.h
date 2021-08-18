@@ -113,10 +113,9 @@ public:
     return m_underwaterFilter;
   }
 
-  gsl::not_null<std::shared_ptr<Voice>> playBackground(const std::shared_ptr<SoLoud::AudioSource>& audioSource,
-                                                       float volume)
+  gsl::not_null<std::shared_ptr<Voice>> playBackground(const std::shared_ptr<SoLoud::AudioSource>& audioSource)
   {
-    return std::make_shared<audio::Voice>(m_soLoud, audioSource, m_soLoud->playBackground(*audioSource, volume));
+    return std::make_shared<audio::Voice>(m_soLoud, audioSource, m_soLoud->playBackground(*audioSource));
   }
 
 private:

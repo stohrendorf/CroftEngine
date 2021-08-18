@@ -41,7 +41,7 @@ struct MenuDisplay
 
   const InventoryMode mode;
   std::optional<engine::TR1ItemId> inventoryChosen{};
-  float streamVolume;
+  float musicVolume;
   bool allowMenuClose = true;
   bool allowSave = true;
 

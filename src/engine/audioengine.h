@@ -41,7 +41,8 @@ class AudioEngine
   std::optional<TR1TrackId> m_currentTrack;
   std::optional<TR1SoundEffect> m_currentLaraTalk;
   std::vector<std::shared_ptr<SoLoud::AudioSource>> m_samples;
-  float m_streamVolume = 0.8f;
+  audio::VoiceCollection m_music{0.8f};
+  audio::VoiceCollection m_sfx{0.8f};
 
 public:
   explicit AudioEngine(world::World& world,
@@ -97,14 +98,29 @@ public:
 
   void addWav(const gsl::not_null<const uint8_t*>& buffer);
 
-  void fadeStreamVolume(float volume)
+  void fadeMusicVolume(float volume)
   {
-    Expects(volume >= 0);
-    m_streamVolume = volume;
-    if(m_ambientStream != nullptr)
-      m_ambientStream->fadeVolume(volume, std::chrono::milliseconds(2000));
-    if(m_interceptStream != nullptr)
-      m_interceptStream->fadeVolume(volume, std::chrono::milliseconds(2000));
+    m_music.fadeVolume(volume, std::chrono::milliseconds(2000));
+  }
+
+  void setMusicVolume(float volume)
+  {
+    m_music.setVolume(volume);
+  }
+
+  void setSfxVolume(float volume)
+  {
+    m_sfx.setVolume(volume);
+  }
+
+  [[nodiscard]] auto getMusicVolume() const
+  {
+    return m_music.getVolume();
+  }
+
+  [[nodiscard]] auto getSfxVolume() const
+  {
+    return m_sfx.getVolume();
   }
 
   void fadeGlobalVolume(float volume, SoLoud::time time = 2.0)
@@ -121,6 +137,12 @@ public:
   [[nodiscard]] const auto& getCurrentTrack() const
   {
     return m_currentTrack;
+  }
+
+  void cleanup()
+  {
+    m_music.cleanup();
+    m_sfx.cleanup();
   }
 
   void serialize(const serialization::Serializer<world::World>& ser);

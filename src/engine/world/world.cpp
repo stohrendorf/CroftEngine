@@ -567,6 +567,8 @@ void World::update(const bool godMode)
                         m_pickupWidgets.end());
   for(auto& w : m_pickupWidgets)
     w.nextFrame();
+
+  m_audioEngine->cleanup();
 }
 
 void World::runEffect(const size_t id, objects::Object* object)

@@ -76,7 +76,7 @@ void AudioEngine::triggerCdTrack(const script::ScriptEngine& scriptEngine,
     if(m_cdTrackActivationStates[trackId].isOneshot())
     {
       m_cdTrack50time += 1_frame;
-      if(m_cdTrack50time == 120_frame)
+      if(m_cdTrack50time == core::FrameRate * 4_sec)
       {
         m_world.finishLevel();
         m_cdTrack50time = 0_frame;
@@ -174,6 +174,9 @@ void AudioEngine::playStopCdTrack(const script::ScriptEngine& scriptEngine, cons
     }
     break;
   case audio::TrackType::Ambient:
+    if(m_ambientStream != nullptr)
+      m_music.remove(m_ambientStream);
+
     m_ambientStream.reset();
     m_currentTrack.reset();
 
@@ -181,12 +184,16 @@ void AudioEngine::playStopCdTrack(const script::ScriptEngine& scriptEngine, cons
     {
       BOOST_LOG_TRIVIAL(debug) << "playStopCdTrack - play ambient " << static_cast<size_t>(trackInfo.id.get());
       m_ambientStream = playStream(trackInfo.id.get());
+      m_music.add(m_ambientStream);
       m_ambientStream->setLooping(true);
       m_interceptStream.reset();
       m_currentTrack = trackId;
     }
     break;
   case audio::TrackType::Interception:
+    if(m_interceptStream != nullptr)
+      m_music.remove(m_interceptStream);
+
     m_interceptStream.reset();
     m_currentTrack.reset();
 
@@ -194,6 +201,7 @@ void AudioEngine::playStopCdTrack(const script::ScriptEngine& scriptEngine, cons
     {
       BOOST_LOG_TRIVIAL(debug) << "playStopCdTrack - play interception " << static_cast<size_t>(trackInfo.id.get());
       m_interceptStream = playStream(trackInfo.id.get());
+      m_music.add(m_interceptStream);
       m_interceptStream->setLooping(false);
       m_currentTrack = trackId;
     }
@@ -206,7 +214,8 @@ gsl::not_null<std::shared_ptr<audio::Voice>> AudioEngine::playStream(size_t trac
   if(std::filesystem::is_regular_file(m_rootPath / "CDAUDIO.WAD"))
   {
     auto wad = std::make_shared<audio::WadStream>(m_rootPath / "CDAUDIO.WAD", trackId);
-    auto voice = m_soundEngine->playBackground(wad, m_streamVolume);
+    auto voice = m_soundEngine->playBackground(wad);
+    m_music.add(voice);
     voice->setProtect(true);
     return voice;
   }
@@ -214,7 +223,8 @@ gsl::not_null<std::shared_ptr<audio::Voice>> AudioEngine::playStream(size_t trac
   {
     auto wav = std::make_shared<SoLoud::WavStream>();
     wav->load(util::ensureFileExists(m_rootPath / (boost::format("%03d.ogg") % trackId).str()).string().c_str());
-    auto voice = m_soundEngine->playBackground(wav, m_streamVolume);
+    auto voice = m_soundEngine->playBackground(wav);
+    m_music.add(voice);
     voice->setProtect(true);
     return voice;
   }
@@ -260,6 +270,7 @@ std::shared_ptr<audio::Voice> AudioEngine::playSoundEffect(const core::SoundEffe
     else
     {
       auto voice = m_soundEngine->play(audioSource, pitch, volume, emitter);
+      m_sfx.add(voice);
       voice->setLooping(true);
       return voice;
     }
@@ -281,7 +292,9 @@ std::shared_ptr<audio::Voice> AudioEngine::playSoundEffect(const core::SoundEffe
     }
     else
     {
-      return m_soundEngine->play(audioSource, pitch, volume, emitter);
+      auto voice = m_soundEngine->play(audioSource, pitch, volume, emitter);
+      m_sfx.add(voice);
+      return voice;
     }
   case loader::file::PlaybackType::Wait:
     // BOOST_LOG_TRIVIAL(trace) << "Play single-instance sound effect " << toString(id.get_as<TR1SoundEffect>());
@@ -292,9 +305,16 @@ std::shared_ptr<audio::Voice> AudioEngine::playSoundEffect(const core::SoundEffe
     }
     else
     {
-      return m_soundEngine->play(audioSource, pitch, volume, emitter);
+      auto voice = m_soundEngine->play(audioSource, pitch, volume, emitter);
+      m_sfx.add(voice);
+      return voice;
     }
-  default: return m_soundEngine->play(audioSource, pitch, volume, emitter);
+  default:
+  {
+    auto voice = m_soundEngine->play(audioSource, pitch, volume, emitter);
+    m_sfx.add(voice);
+    return voice;
+  }
   }
 }
 
