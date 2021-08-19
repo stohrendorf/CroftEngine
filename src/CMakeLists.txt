@@ -458,6 +458,7 @@ set( EDISONENGINE_SRCS
         ui/widgets/listbox.cpp
         ui/widgets/label.cpp
         ui/widgets/groupbox.cpp
+        ui/widgets/progressbar.cpp
         ui/widgets/sprite.cpp
         ui/widgets/selectionbox.cpp
 
@@ -503,6 +504,7 @@ set( EDISONENGINE_SRCS
 
         menu/menudisplay.cpp
         menu/menuobject.cpp
+        menu/audiosettingsmenustate.cpp
         menu/applyitemtransformmenustate.cpp
         menu/closepassportmenustate.cpp
         menu/controlsmenustate.cpp

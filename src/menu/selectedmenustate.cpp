@@ -1,5 +1,6 @@
 #include "selectedmenustate.h"
 
+#include "audiosettingsmenustate.h"
 #include "controlsmenustate.h"
 #include "deflateringmenustate.h"
 #include "deselectingmenustate.h"
@@ -29,7 +30,10 @@ std::unique_ptr<MenuState> SelectedMenuState::onFrame(ui::Ui& /*ui*/, engine::wo
   else if(currentObject.type == engine::TR1ItemId::DirectionKeys)
     return create<ControlsMenuState>(
       create<FinishItemAnimationMenuState>(create<ResetItemTransformMenuState>(create<DeselectingMenuState>())), world);
-  // TODO sound options
+  else if(currentObject.type == engine::TR1ItemId::CassettePlayer)
+    return create<AudioSettingsMenuState>(
+      create<FinishItemAnimationMenuState>(create<ResetItemTransformMenuState>(create<DeselectingMenuState>())),
+      display);
 
   if(currentObject.selectedRotationY == currentObject.rotationY && currentObject.animate())
     return nullptr;
