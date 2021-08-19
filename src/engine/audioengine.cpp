@@ -318,7 +318,7 @@ std::shared_ptr<audio::Voice> AudioEngine::playSoundEffect(const core::SoundEffe
   }
 }
 
-void AudioEngine::stopSoundEffect(core::SoundEffectId id, audio::Emitter* emitter)
+void AudioEngine::stopSoundEffect(const core::SoundEffectId& id, audio::Emitter* emitter)
 {
   const auto soundEffectIt = m_soundEffects.find(id.get());
   if(soundEffectIt == m_soundEffects.end())
@@ -367,7 +367,7 @@ void AudioEngine::addWav(const gsl::not_null<const uint8_t*>& buffer)
   m_samples.emplace_back(audio::loadWav(buffer.get()));
 }
 
-std::shared_ptr<audio::Voice> AudioEngine::playSoundEffect(const core::SoundEffectId id, const glm::vec3& pos)
+std::shared_ptr<audio::Voice> AudioEngine::playSoundEffect(const core::SoundEffectId& id, const glm::vec3& pos)
 {
   auto voice = playSoundEffect(id, nullptr);
   if(voice != nullptr)

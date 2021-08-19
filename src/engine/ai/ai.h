@@ -67,7 +67,7 @@ struct CreatureInfo
   PathFinder pathFinder;
   core::TRVec target;
 
-  CreatureInfo(const world::World& world, core::TypeId type, const gsl::not_null<const world::Box*>& initialBox);
+  CreatureInfo(const world::World& world, const core::TypeId& type, const gsl::not_null<const world::Box*>& initialBox);
 
   // serialization constructor
   explicit CreatureInfo(const world::World& world);

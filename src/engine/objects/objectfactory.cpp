@@ -131,7 +131,7 @@ struct SpriteFactory : public ObjectFactory
 
     const auto& spriteSequence = world.findSpriteSequenceForType(item.type);
     Expects(spriteSequence != nullptr);
-    Expects(!spriteSequence->sprites.empty());
+    Expects(!spriteSequence->sprites.empty()); //-V1004
 
     const world::Sprite& sprite = spriteSequence->sprites[0];
     return std::make_shared<T>(

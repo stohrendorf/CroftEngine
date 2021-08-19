@@ -128,13 +128,13 @@ std::unique_ptr<AbstractStateHandler> AbstractStateHandler::create(const LaraSta
 }
 
 // ReSharper disable once CppMemberFunctionMayBeConst
-void AbstractStateHandler::setAir(const core::Frame a) noexcept
+void AbstractStateHandler::setAir(const core::Frame& a) noexcept
 {
   m_lara.setAir(a);
 }
 
 // ReSharper disable once CppMemberFunctionMayBeConst
-void AbstractStateHandler::setMovementAngle(const core::Angle angle) noexcept
+void AbstractStateHandler::setMovementAngle(const core::Angle& angle) noexcept
 {
   m_lara.setMovementAngle(angle);
 }
@@ -182,7 +182,7 @@ void AbstractStateHandler::placeOnFloor(const CollisionInfo& collisionInfo)
   m_lara.placeOnFloor(collisionInfo);
 }
 
-void AbstractStateHandler::setYRotationSpeed(const core::Angle spd)
+void AbstractStateHandler::setYRotationSpeed(const core::Angle& spd)
 {
   m_lara.setYRotationSpeed(spd);
 }
@@ -192,17 +192,17 @@ core::Angle AbstractStateHandler::getYRotationSpeed() const
   return m_lara.getYRotationSpeed();
 }
 
-void AbstractStateHandler::subYRotationSpeed(const core::Angle val, const core::Angle limit)
+void AbstractStateHandler::subYRotationSpeed(const core::Angle& val, const core::Angle& limit)
 {
   m_lara.subYRotationSpeed(val, limit);
 }
 
-void AbstractStateHandler::addYRotationSpeed(const core::Angle val, const core::Angle limit)
+void AbstractStateHandler::addYRotationSpeed(const core::Angle& val, const core::Angle& limit)
 {
   m_lara.addYRotationSpeed(val, limit);
 }
 
-void AbstractStateHandler::setFallSpeedOverride(const core::Speed v)
+void AbstractStateHandler::setFallSpeedOverride(const core::Speed& v)
 {
   m_lara.setFallSpeedOverride(v);
 }
@@ -217,7 +217,7 @@ core::Angle AbstractStateHandler::getCurrentSlideAngle() const noexcept
   return m_lara.getCurrentSlideAngle();
 }
 
-void AbstractStateHandler::setCurrentSlideAngle(const core::Angle a) noexcept
+void AbstractStateHandler::setCurrentSlideAngle(const core::Angle& a) noexcept
 {
   m_lara.setCurrentSlideAngle(a);
 }
@@ -542,7 +542,7 @@ bool AbstractStateHandler::tryGrabEdge(const CollisionInfo& collisionInfo)
   return true;
 }
 
-core::Length AbstractStateHandler::getRelativeHeightAtDirection(core::Angle angle, const core::Length dist) const
+core::Length AbstractStateHandler::getRelativeHeightAtDirection(const core::Angle& angle, const core::Length& dist) const
 {
   auto location = m_lara.m_state.location.moved(util::pitch(dist, angle));
   location.position.Y -= core::LaraWalkHeight;
@@ -768,13 +768,13 @@ loader::file::BoundingBox AbstractStateHandler::getBoundingBox() const
 }
 
 // ReSharper disable once CppMemberFunctionMayBeConst
-void AbstractStateHandler::addSwimToDiveKeypressDuration(const core::Frame n) noexcept
+void AbstractStateHandler::addSwimToDiveKeypressDuration(const core::Frame& n) noexcept
 {
   m_lara.addSwimToDiveKeypressDuration(n);
 }
 
 // ReSharper disable once CppMemberFunctionMayBeConst
-void AbstractStateHandler::setSwimToDiveKeypressDuration(const core::Frame n) noexcept
+void AbstractStateHandler::setSwimToDiveKeypressDuration(const core::Frame& n) noexcept
 {
   m_lara.setSwimToDiveKeypressDuration(n);
 }
@@ -792,25 +792,25 @@ void AbstractStateHandler::setUnderwaterState(const objects::UnderwaterState u) 
 }
 
 // ReSharper disable once CppMemberFunctionMayBeConst
-void AbstractStateHandler::setCameraRotationAroundLara(const core::Angle x, const core::Angle y)
+void AbstractStateHandler::setCameraRotationAroundLara(const core::Angle& x, const core::Angle& y)
 {
   m_lara.setCameraRotationAroundLara(x, y);
 }
 
 // ReSharper disable once CppMemberFunctionMayBeConst
-void AbstractStateHandler::setCameraRotationAroundLaraX(const core::Angle x)
+void AbstractStateHandler::setCameraRotationAroundLaraX(const core::Angle& x)
 {
   m_lara.setCameraRotationAroundLaraX(x);
 }
 
 // ReSharper disable once CppMemberFunctionMayBeConst
-void AbstractStateHandler::setCameraRotationAroundLaraY(const core::Angle y)
+void AbstractStateHandler::setCameraRotationAroundLaraY(const core::Angle& y)
 {
   m_lara.setCameraRotationAroundLaraY(y);
 }
 
 // ReSharper disable once CppMemberFunctionMayBeConst
-void AbstractStateHandler::setCameraDistance(const core::Length d)
+void AbstractStateHandler::setCameraDistance(const core::Length& d)
 {
   m_lara.setCameraDistance(d);
 }

@@ -132,7 +132,7 @@ bool evaluateCondition(floordata::SequenceCondition condition,
   {
     auto swtch = objectManager.getObject(floordata::Command{*floorData++}.parameter);
     Expects(swtch != nullptr);
-    if(!swtch->triggerSwitch(request.getTimeout()))
+    if(!swtch->triggerSwitch(request.getTimeout())) //-V1004
       return false;
 
     switchIsOn = (swtch->m_state.current_anim_state == 1_as);
@@ -142,13 +142,13 @@ bool evaluateCondition(floordata::SequenceCondition condition,
   {
     auto key = objectManager.getObject(floordata::Command{*floorData++}.parameter);
     Expects(key != nullptr);
-    return key->triggerKey();
+    return key->triggerKey(); //-V1004
   }
   case floordata::SequenceCondition::ItemPickedUp:
   {
     auto item = objectManager.getObject(floordata::Command{*floorData++}.parameter);
     Expects(item != nullptr);
-    return item->triggerPickUp();
+    return item->triggerPickUp(); //-V1004
   }
   case floordata::SequenceCondition::LaraInCombatMode:
     return objectManager.getLara().getHandStatus() == objects::HandStatus::Combat;
@@ -183,7 +183,7 @@ bool World::isValid(const loader::file::AnimFrame* frame) const
          && reinterpret_cast<const short*>(frame) < m_poseFrames.data() + m_poseFrames.size();
 }
 
-const std::unique_ptr<SpriteSequence>& World::findSpriteSequenceForType(core::TypeId type) const
+const std::unique_ptr<SpriteSequence>& World::findSpriteSequenceForType(const core::TypeId& type) const
 {
   const auto it = m_spriteSequences.find(type);
   if(it != m_spriteSequences.end())
@@ -193,7 +193,7 @@ const std::unique_ptr<SpriteSequence>& World::findSpriteSequenceForType(core::Ty
   return none;
 }
 
-const StaticMesh* World::findStaticMeshById(core::StaticMeshId meshId) const
+const StaticMesh* World::findStaticMeshById(const core::StaticMeshId& meshId) const
 {
   auto it = m_staticMeshes.find(meshId);
   if(it != m_staticMeshes.end())
@@ -503,7 +503,7 @@ void World::swapWithAlternate(Room& orig, Room& alternate)
 }
 
 std::shared_ptr<objects::PickupObject>
-  World::createPickup(const core::TypeId type, const gsl::not_null<const Room*>& room, const core::TRVec& position)
+  World::createPickup(const core::TypeId& type, const gsl::not_null<const Room*>& room, const core::TRVec& position)
 {
   loader::file::Item item;
   item.type = type;
@@ -515,7 +515,7 @@ std::shared_ptr<objects::PickupObject>
 
   const auto& spriteSequence = findSpriteSequenceForType(type);
   Expects(spriteSequence != nullptr && !spriteSequence->sprites.empty());
-  const Sprite& sprite = spriteSequence->sprites[0];
+  const Sprite& sprite = spriteSequence->sprites[0]; //-V1004
 
   auto object = std::make_shared<objects::PickupObject>(this, "pickup", room, item, &sprite);
 
@@ -611,7 +611,7 @@ const std::vector<Animation>& World::getAnimations() const
   return m_animations;
 }
 
-const std::unique_ptr<SkeletalModelType>& World::findAnimatedModelForType(core::TypeId type) const
+const std::unique_ptr<SkeletalModelType>& World::findAnimatedModelForType(const core::TypeId& type) const
 {
   const auto it = m_animatedModels.find(type);
   if(it != m_animatedModels.end())
@@ -1061,7 +1061,7 @@ World::World(Engine& engine,
   getPresenter().getSoundEngine()->setListener(m_cameraController.get());
   getPresenter().setTrFont(std::make_unique<ui::TRFont>(*m_spriteSequences.at(TR1ItemId::FontGraphics)));
   if(track.has_value())
-    m_audioEngine->playStopCdTrack(m_engine.getScriptEngine(), track.value(), false);
+    m_audioEngine->playStopCdTrack(m_engine.getScriptEngine(), *track, false);
   getPresenter().disableScreenOverlay();
 }
 
@@ -1351,10 +1351,10 @@ void World::initFromLevel(loader::file::level::Level& level)
     m_rooms[i].alternateRoom = srcRoom.alternateRoom.get() >= 0 ? &m_rooms.at(srcRoom.alternateRoom.get()) : nullptr;
   }
 
-  Ensures(m_animations.size() == m_animations.size());
-  Ensures(m_transitionCases.size() == m_transitionCases.size());
-  Ensures(m_transitions.size() == m_transitions.size());
-  Ensures(m_boxes.size() == m_boxes.size());
+  Ensures(m_animations.size() == level.m_animations.size());
+  Ensures(m_transitionCases.size() == level.m_transitionCases.size());
+  Ensures(m_transitions.size() == level.m_transitions.size());
+  Ensures(m_boxes.size() == level.m_boxes.size());
 
   connectSectors();
 

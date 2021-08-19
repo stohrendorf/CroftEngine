@@ -74,7 +74,7 @@ HeightInfo HeightInfo::fromFloor(gsl::not_null<const world::Sector*> roomSector,
       }
     }
     break;
-    case floordata::FloorDataChunkType::CeilingSlant: ++fd; break;
+    case floordata::FloorDataChunkType::CeilingSlant: ++fd; break; //-V1037
     case floordata::FloorDataChunkType::BoundaryRoom: ++fd; break;
     case floordata::FloorDataChunkType::Death: hi.lastCommandSequenceOrDeath = fd - 1; break;
     case floordata::FloorDataChunkType::CommandSequence:

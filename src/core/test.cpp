@@ -60,7 +60,7 @@ BOOST_AUTO_TEST_CASE(test_bounding_box_intersects)
   core::BoundingBox e{{2_len, 1_len, 3_len}, {2_len, 2_len, 4_len}};
   BOOST_CHECK(a.intersects(e));
   core::BoundingBox f{{1_len, 2_len, 3_len}, {1_len, 2_len, 3_len}};
-  BOOST_CHECK(!f.intersects(f));
+  BOOST_CHECK(!f.intersects(f)); //-V678
 }
 
 BOOST_AUTO_TEST_SUITE_END()

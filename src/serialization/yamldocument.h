@@ -71,7 +71,7 @@ public:
   template<typename T, typename TContext, bool DelayLoading = Loading>
   auto load(const std::string& key, TContext& context) -> std::enable_if_t<DelayLoading, T>
   {
-    const std::string oldLocale = setlocale(LC_NUMERIC, nullptr);
+    const std::string oldLocale = gsl::not_null{setlocale(LC_NUMERIC, nullptr)}.get();
     setlocale(LC_NUMERIC, "C");
 
     CustomErrorCallbacks callbacks{};
@@ -87,7 +87,7 @@ public:
   template<typename T, typename TContext, bool DelayLoading = Loading>
   auto load(const std::string& key, TContext& context, T& data) -> std::enable_if_t<DelayLoading, void>
   {
-    const std::string oldLocale = setlocale(LC_NUMERIC, nullptr);
+    const std::string oldLocale = gsl::not_null{setlocale(LC_NUMERIC, nullptr)}.get();
     setlocale(LC_NUMERIC, "C");
 
     CustomErrorCallbacks callbacks{};
@@ -102,7 +102,7 @@ public:
   template<typename T, typename TContext, bool DelayLoading = Loading>
   auto save(const std::string& key, TContext& context, T& data) -> std::enable_if_t<!DelayLoading, void>
   {
-    const std::string oldLocale = setlocale(LC_NUMERIC, nullptr);
+    const std::string oldLocale = gsl::not_null{setlocale(LC_NUMERIC, nullptr)}.get();
     setlocale(LC_NUMERIC, "C");
 
     CustomErrorCallbacks callbacks{};

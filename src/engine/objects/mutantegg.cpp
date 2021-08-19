@@ -23,7 +23,7 @@ bool shatterModel(ModelObject& object, const std::bitset<32>& meshMask, const co
         : object.m_state.type;
   const auto& modelType = object.getWorld().findAnimatedModelForType(modelSourceType);
   Expects(modelType != nullptr);
-  Expects(modelType->bones.size() == object.getSkeleton()->getBoneCount());
+  Expects(modelType->bones.size() == object.getSkeleton()->getBoneCount()); //-V1004
   BOOST_LOG_TRIVIAL(trace) << "Shatter model: " << modelType->bones.size() << " meshes";
 
   for(size_t i = 0; i < modelType->bones.size(); ++i)
@@ -136,16 +136,17 @@ void MutantEgg::update()
 
       if(m_childObject != nullptr)
       {
-        m_childObject->m_state.location = m_state.location;
-        m_childObject->m_state.rotation.Y = m_state.rotation.Y;
+        auto& childState = m_childObject->m_state;
+        childState.location = m_state.location;
+        childState.rotation.Y = m_state.rotation.Y;
         addChild(m_state.location.room->node, m_childObject->getNode());
 
         m_childObject->applyTransform();
 
-        m_childObject->m_state.touch_bits.reset();
+        childState.touch_bits.reset();
         m_childObject->initCreatureInfo();
         m_childObject->activate();
-        m_childObject->m_state.triggerState = TriggerState::Active;
+        childState.triggerState = TriggerState::Active;
       }
     }
   }

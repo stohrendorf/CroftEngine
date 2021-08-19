@@ -31,7 +31,7 @@ public:
 
   auto getFlat(bool withAlphaMultiplier, bool invertY, bool withAspectRatio)
   {
-    std::vector<std::string> defines;
+    std::vector<std::string> defines; //-V827
     if(withAlphaMultiplier)
       defines.emplace_back("ALPHA_MULTIPLIER");
     if(invertY)
@@ -48,7 +48,7 @@ public:
 
   auto getGeometry(bool water, bool skeletal, bool roomShadowing)
   {
-    std::vector<std::string> defines;
+    std::vector<std::string> defines; //-V827
     if(water)
       defines.emplace_back("WATER");
     if(skeletal)
@@ -114,7 +114,7 @@ public:
 
   auto getComposition(bool water, bool lensDistortion, bool dof, bool filmGrain, bool hbao, bool velvia)
   {
-    std::vector<std::string> defines;
+    std::vector<std::string> defines; //-V827
     if(water)
       defines.emplace_back("WATER");
     if(lensDistortion)

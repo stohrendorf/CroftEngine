@@ -424,11 +424,13 @@ std::unordered_set<const world::Portal*> CameraController::update()
     // in this case, we have an object to look at, but the camera is _not_ fixed
 
     BOOST_ASSERT(m_lookAtObject.get() != focusedObject);
+    const auto& focusedPosition = focusedObject->m_state.location.position;
+    const auto& lookAtPosition = m_lookAtObject->m_state.location.position;
     const auto distToFocused
-      = m_lookAtObject->m_state.location.position.distanceTo(focusedObject->m_state.location.position);
+      = lookAtPosition.distanceTo(focusedPosition);
     auto eyeRotY
-      = angleFromAtan(m_lookAtObject->m_state.location.position.X - focusedObject->m_state.location.position.X,
-                      m_lookAtObject->m_state.location.position.Z - focusedObject->m_state.location.position.Z)
+      = angleFromAtan(lookAtPosition.X - focusedPosition.X,
+                      lookAtPosition.Z - focusedPosition.Z)
         - focusedObject->m_state.rotation.Y;
     eyeRotY /= 2;
     focusBBox = m_lookAtObject->getBoundingBox();
@@ -438,13 +440,14 @@ std::unordered_set<const world::Portal*> CameraController::update()
 
     if(abs(eyeRotY) < 50_deg && abs(eyeRotX) < 85_deg)
     {
-      eyeRotY -= m_world->getObjectManager().getLara().m_headRotation.Y;
-      m_world->getObjectManager().getLara().m_headRotation.Y += std::clamp(eyeRotY, -4_deg, +4_deg);
-      m_world->getObjectManager().getLara().m_torsoRotation.Y = m_world->getObjectManager().getLara().m_headRotation.Y;
+      auto& lara = m_world->getObjectManager().getLara();
+      eyeRotY -= lara.m_headRotation.Y;
+      lara.m_headRotation.Y += std::clamp(eyeRotY, -4_deg, +4_deg);
+      lara.m_torsoRotation.Y = lara.m_headRotation.Y;
 
-      eyeRotX -= m_world->getObjectManager().getLara().m_headRotation.X;
-      m_world->getObjectManager().getLara().m_headRotation.X += std::clamp(eyeRotX, -4_deg, +4_deg);
-      m_world->getObjectManager().getLara().m_torsoRotation.X = m_world->getObjectManager().getLara().m_headRotation.X;
+      eyeRotX -= lara.m_headRotation.X;
+      lara.m_headRotation.X += std::clamp(eyeRotX, -4_deg, +4_deg);
+      lara.m_torsoRotation.X = lara.m_headRotation.X;
 
       m_mode = CameraMode::FreeLook;
       m_lookAtObject->m_state.already_looked_at = true;
@@ -673,10 +676,11 @@ void CameraController::handleFreeLook(const objects::Object& object)
   m_lookAt.position.X = object.m_state.location.position.X;
   m_lookAt.position.Z = object.m_state.location.position.Z;
 
-  m_rotationAroundLara.X = m_world->getObjectManager().getLara().m_torsoRotation.X
-                           + m_world->getObjectManager().getLara().m_headRotation.X + object.m_state.rotation.X;
-  m_rotationAroundLara.Y = m_world->getObjectManager().getLara().m_torsoRotation.Y
-                           + m_world->getObjectManager().getLara().m_headRotation.Y + object.m_state.rotation.Y;
+  auto& lara = m_world->getObjectManager().getLara();
+  m_rotationAroundLara.X = lara.m_torsoRotation.X
+                           + lara.m_headRotation.X + object.m_state.rotation.X;
+  m_rotationAroundLara.Y = lara.m_torsoRotation.Y
+                           + lara.m_headRotation.Y + object.m_state.rotation.Y;
   m_distance = core::DefaultCameraLaraDistance;
   m_lookAt.position += util::pitch(-util::sin(core::SectorSize / 2, m_rotationAroundLara.X), object.m_state.rotation.Y);
 
@@ -687,7 +691,7 @@ void CameraController::handleFreeLook(const objects::Object& object)
   }
   m_lookAt.position.Y += moveIntoBox(m_lookAt, core::CameraWallDistance);
 
-  auto goal = clampBox(
+  const auto goal = clampBox(
     m_lookAt,
     m_lookAt.position - util::pitch(m_distance, m_rotationAroundLara.Y, -util::sin(m_distance, m_rotationAroundLara.X)),
     &freeLookClamp,
@@ -713,10 +717,11 @@ void CameraController::handleEnemy(objects::Object& object)
   }
   else
   {
-    m_rotationAroundLara.X = m_world->getObjectManager().getLara().m_torsoRotation.X
-                             + m_world->getObjectManager().getLara().m_headRotation.X + object.m_state.rotation.X;
-    m_rotationAroundLara.Y = m_world->getObjectManager().getLara().m_torsoRotation.Y
-                             + m_world->getObjectManager().getLara().m_headRotation.Y + object.m_state.rotation.Y;
+    auto& lara = m_world->getObjectManager().getLara();
+    m_rotationAroundLara.X = lara.m_torsoRotation.X
+                             + lara.m_headRotation.X + object.m_state.rotation.X;
+    m_rotationAroundLara.Y = lara.m_torsoRotation.Y
+                             + lara.m_headRotation.Y + object.m_state.rotation.Y;
   }
 
   m_distance = core::CombatCameraLaraDistance;

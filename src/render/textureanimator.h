@@ -35,7 +35,7 @@ public:
 
   explicit TextureAnimator(const std::vector<uint16_t>& data);
 
-  void registerVertex(const core::TextureTileId tileId,
+  void registerVertex(const core::TextureTileId& tileId,
                       const std::shared_ptr<gl::VertexBuffer<AnimatedUV>>& buffer,
                       const int sourceIndex,
                       const size_t bufferIndex)
@@ -97,7 +97,7 @@ private:
 
     void registerVertex(const std::shared_ptr<gl::VertexBuffer<AnimatedUV>>& buffer,
                         VertexReference vertex,
-                        const core::TextureTileId tileId)
+                        const core::TextureTileId& tileId)
     {
       const auto it = std::find(tileIds.begin(), tileIds.end(), tileId);
       Expects(it != tileIds.end());

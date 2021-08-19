@@ -94,7 +94,7 @@ gsl::not_null<std::shared_ptr<Voice>> SoundEngine::play(const std::shared_ptr<So
   }
   Ensures(voice != nullptr);
 
-  voice->setRelativePlaySpeed(pitch);
+  voice->setRelativePlaySpeed(pitch); //-V1004
   m_voices[emitter][audioSource].emplace_back(voice);
   m_soLoud->update3dAudio();
   voice->play();

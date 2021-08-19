@@ -898,7 +898,7 @@ std::unique_ptr<CinematicFrame> CinematicFrame::read(io::SDLReader& reader)
   cf->lookAt = readCoordinates16(reader);
   cf->position = readCoordinates16(reader);
   cf->fov = core::auToAngle(reader.readI16());
-  cf->rotZ = core::auToAngle(reader.readI16());
+  cf->rotZ = core::auToAngle(reader.readI16()); //-V656
   return cf;
 }
 

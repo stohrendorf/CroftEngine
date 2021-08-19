@@ -24,11 +24,12 @@ CentaurStatue::CentaurStatue(const gsl::not_null<world::World*>& world,
     item.type = TR1ItemId::CentaurMutant;
     item.activationState = 0;
     m_childObject = std::make_shared<CentaurMutant>(world, room, item, model.get());
-    m_childObject->m_state.activationState.setOneshot(true);
+    auto& childState = m_childObject->m_state;
+    childState.activationState.setOneshot(true);
     m_childObject->getSkeleton()->setAnimation(
-      m_childObject->m_state.current_anim_state, &model->animations[7], model->animations[7].firstFrame + 36_frame);
-    m_childObject->m_state.goal_anim_state = m_childObject->m_state.current_anim_state = model->animations[7].state_id;
-    m_childObject->m_state.rotation.Y = m_state.rotation.Y;
+      childState.current_anim_state, &model->animations[7], model->animations[7].firstFrame + 36_frame);
+    childState.goal_anim_state =childState.current_anim_state = model->animations[7].state_id;
+    childState.rotation.Y = m_state.rotation.Y;
     getWorld().getObjectManager().registerObject(m_childObject);
   }
   else

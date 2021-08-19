@@ -52,7 +52,7 @@ glm::vec3 Particle::getPosition() const
 }
 
 Particle::Particle(const std::string& id,
-                   const core::TypeId objectNumber,
+                   const core::TypeId& objectNumber,
                    const gsl::not_null<const world::Room*>& room,
                    world::World& world,
                    const std::shared_ptr<render::scene::Renderable>& renderable)
@@ -74,7 +74,7 @@ Particle::Particle(const std::string& id,
 }
 
 Particle::Particle(const std::string& id,
-                   const core::TypeId objectNumber,
+                   const core::TypeId& objectNumber,
                    Location location,
                    world::World& world,
                    const std::shared_ptr<render::scene::Renderable>& renderable)
@@ -181,12 +181,13 @@ bool FlameParticle::update(world::World& world)
     if(world.getObjectManager().getLara().isNear(*this, 600_len))
     {
       // it's hot here, isn't it?
-      world.getObjectManager().getLara().m_state.health -= 3_hp;
-      world.getObjectManager().getLara().m_state.is_hit = true;
+      auto& laraState = world.getObjectManager().getLara().m_state;
+      laraState.health -= 3_hp;
+      laraState.is_hit = true;
 
       const auto distSq
-        = util::square(world.getObjectManager().getLara().m_state.location.position.X - location.position.X)
-          + util::square(world.getObjectManager().getLara().m_state.location.position.Z - location.position.Z);
+        = util::square(laraState.location.position.X - location.position.X)
+          + util::square(laraState.location.position.Z - location.position.Z);
       if(distSq < util::square(300_len))
       {
         timePerSpriteFrame = 100;
@@ -221,7 +222,7 @@ bool FlameParticle::update(world::World& world)
       glm::vec3{translate(itemSpheres.at(-timePerSpriteFrame - 1).m, location.position.toRenderSystem())[3]}};
 
     if(const auto waterHeight = world::getWaterSurfaceHeight(location);
-       !waterHeight.has_value() || waterHeight.value() >= location.position.Y)
+       !waterHeight.has_value() || *waterHeight >= location.position.Y)
     {
       world.getAudioEngine().playSoundEffect(TR1SoundEffect::Burning, this);
       world.getObjectManager().getLara().m_state.health -= 3_hp;
@@ -266,17 +267,17 @@ bool MeshShrapnelParticle::update(world::World& world)
 
     explode = true;
   }
-  else if(world.getObjectManager().getLara().isNear(*this, 2 * m_damageRadius))
+  else if(auto& lara = world.getObjectManager().getLara(); lara.isNear(*this, 2 * m_damageRadius))
   {
-    world.getObjectManager().getLara().m_state.is_hit = true;
+    lara.m_state.is_hit = true;
     if(m_damageRadius <= 0_len)
       return false;
 
-    world.getObjectManager().getLara().m_state.health -= m_damageRadius * 1_hp / 1_len;
+    lara.m_state.health -= m_damageRadius * 1_hp / 1_len;
     explode = true;
 
-    world.getObjectManager().getLara().forceSourcePosition = &location.position;
-    world.getObjectManager().getLara().explosionStumblingDuration = 5_frame;
+    lara.forceSourcePosition = &location.position;
+    lara.explosionStumblingDuration = 5_frame;
   }
 
   setParent(this, location.room->node);
@@ -320,14 +321,15 @@ bool MutantBulletParticle::update(world::World& world)
   }
   else if(world.getObjectManager().getLara().isNear(*this, 200_len))
   {
-    world.getObjectManager().getLara().m_state.health -= 30_hp;
+    auto& laraState = world.getObjectManager().getLara().m_state;
+    laraState.health -= 30_hp;
     auto particle = std::make_shared<BloodSplatterParticle>(location, speed, angle.Y, world);
     setParent(particle, location.room->node);
     world.getObjectManager().registerParticle(particle);
     world.getAudioEngine().playSoundEffect(TR1SoundEffect::BulletHitsLara, particle.get());
-    world.getObjectManager().getLara().m_state.is_hit = true;
-    angle.Y = world.getObjectManager().getLara().m_state.rotation.Y;
-    speed = world.getObjectManager().getLara().m_state.speed;
+    laraState.is_hit = true;
+    angle.Y = laraState.rotation.Y;
+    speed = laraState.speed;
     timePerSpriteFrame = 0;
     negSpriteFrameId = 0;
     return false;

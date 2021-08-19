@@ -59,7 +59,8 @@ void Rat::update()
       animateCreature(turn, 0_deg);
       if(prevY != core::InvalidHeight)
       {
-        const auto w = *waterHeight;
+        Expects(waterHeight.has_value());
+        const auto w = *waterHeight; //-V1007
         if(w < prevY - 32_len)
         {
           m_state.location.position.Y = prevY - 32_len;
@@ -172,7 +173,7 @@ void Rat::update()
       getSkeleton()->setAnim(&getWorld().findAnimatedModelForType(TR1ItemId::RatInWater)->animations[0]);
       goal(getSkeleton()->getAnim()->state_id);
       m_state.current_anim_state = getSkeleton()->getAnim()->state_id;
-      m_state.location.position.Y = waterHeight.value();
+      m_state.location.position.Y = *waterHeight;
       applyTransform();
 
       loadObjectInfo(true);

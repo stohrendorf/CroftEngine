@@ -120,11 +120,12 @@ void updateMood(const objects::AIAgent& aiAgent, const EnemyLocation& enemyLocat
     newTargetBox = nullptr;
   }
   const auto originalMood = creatureInfo.mood;
-  if(aiAgent.getWorld().getObjectManager().getLara().isDead())
+  auto& lara = aiAgent.getWorld().getObjectManager().getLara();
+  if(lara.isDead())
     creatureInfo.mood = Mood::Bored;
   else if(auto newMood
           = getNewMood(enemyLocation, creatureInfo, aiAgent.m_state.is_hit, violent, newTargetBox != nullptr))
-    creatureInfo.mood = newMood.value();
+    creatureInfo.mood = *newMood;
 
   if(originalMood != creatureInfo.mood)
   {
@@ -143,21 +144,15 @@ void updateMood(const objects::AIAgent& aiAgent, const EnemyLocation& enemyLocat
        >= aiAgent.getWorld().getEngine().getScriptEngine().getObjectInfo(aiAgent.m_state.type).target_update_chance)
       break;
 
-    creatureInfo.pathFinder.target = aiAgent.getWorld().getObjectManager().getLara().m_state.location.position;
-    newTargetBox = aiAgent.getWorld().getObjectManager().getLara().m_state.getCurrentBox();
+    creatureInfo.pathFinder.target = lara.m_state.location.position;
+    newTargetBox = lara.m_state.getCurrentBox();
     creatureInfo.pathFinder.target.X
       = std::clamp(creatureInfo.pathFinder.target.X, newTargetBox->xmin, newTargetBox->xmax);
     creatureInfo.pathFinder.target.Z
       = std::clamp(creatureInfo.pathFinder.target.Z, newTargetBox->zmin, newTargetBox->zmax);
-    if(creatureInfo.pathFinder.isFlying() && aiAgent.getWorld().getObjectManager().getLara().isOnLand())
-      creatureInfo.pathFinder.target.Y += aiAgent.getWorld()
-                                            .getObjectManager()
-                                            .getLara()
-                                            .getSkeleton()
-                                            ->getInterpolationInfo()
-                                            .getNearestFrame()
-                                            ->bbox.toBBox()
-                                            .minY;
+    if(creatureInfo.pathFinder.isFlying() && lara.isOnLand())
+      creatureInfo.pathFinder.target.Y
+        += lara.getSkeleton()->getInterpolationInfo().getNearestFrame()->bbox.toBBox().minY;
 
     break;
   case Mood::Bored:
@@ -276,25 +271,23 @@ EnemyLocation::EnemyLocation(objects::AIAgent& aiAgent)
                                               aiAgent.getCreatureInfo()->pathFinder.step);
 
   zoneId = aiAgent.m_state.getCurrentBox().get()->*zoneRef;
-  aiAgent.getWorld().getObjectManager().getLara().m_state.getCurrentBox()
-    = aiAgent.getWorld().getObjectManager().getLara().m_state.getCurrentBox();
-  enemyZoneId = aiAgent.getWorld().getObjectManager().getLara().m_state.getCurrentBox().get()->*zoneRef;
-  enemyUnreachable = !aiAgent.getCreatureInfo()->pathFinder.canVisit(
-                       *aiAgent.getWorld().getObjectManager().getLara().m_state.getCurrentBox())
+  auto& lara = aiAgent.getWorld().getObjectManager().getLara();
+  enemyZoneId = lara.m_state.getCurrentBox().get()->*zoneRef;
+  enemyUnreachable = !aiAgent.getCreatureInfo()->pathFinder.canVisit(*lara.m_state.getCurrentBox())
                      || aiAgent.getCreatureInfo()->pathFinder.isUnreachable(aiAgent.m_state.getCurrentBox());
 
   auto objectInfo = aiAgent.getWorld().getEngine().getScriptEngine().getObjectInfo(aiAgent.m_state.type);
   const core::Length pivotLength{objectInfo.pivot_length};
-  const auto toLara = aiAgent.getWorld().getObjectManager().getLara().m_state.location.position
+  const auto toLara = lara.m_state.location.position
                       - (aiAgent.m_state.location.position + util::pitch(pivotLength, aiAgent.m_state.rotation.Y));
   const auto angleToLara = core::angleFromAtan(toLara.X, toLara.Z);
   enemyDistance = util::square(toLara.X) + util::square(toLara.Z);
   angleToEnemy = angleToLara - aiAgent.m_state.rotation.Y;
-  enemyAngleToSelf = angleToLara - 180_deg - aiAgent.getWorld().getObjectManager().getLara().m_state.rotation.Y;
+  enemyAngleToSelf = angleToLara - 180_deg - lara.m_state.rotation.Y;
   enemyAhead = angleToEnemy > -90_deg && angleToEnemy < 90_deg;
   if(enemyAhead)
   {
-    const auto laraY = aiAgent.getWorld().getObjectManager().getLara().m_state.location.position.Y;
+    const auto laraY = lara.m_state.location.position.Y;
     canAttackForward = aiAgent.m_state.location.position.Y - core::QuarterSectorSize < laraY
                        && aiAgent.m_state.location.position.Y + core::QuarterSectorSize > laraY;
   }
@@ -306,7 +299,7 @@ CreatureInfo::CreatureInfo(const world::World& world)
 }
 
 CreatureInfo::CreatureInfo(const world::World& world,
-                           const core::TypeId type,
+                           const core::TypeId& type,
                            const gsl::not_null<const world::Box*>& initialBox)
     : CreatureInfo{world}
 {

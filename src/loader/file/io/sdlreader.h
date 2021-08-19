@@ -113,7 +113,7 @@ public:
     m_stream.seekg(delta, std::ios::cur);
   }
 
-  void seek(const std::streampos position)
+  void seek(const std::streampos& position)
   {
     m_stream.seekg(position, std::ios::beg);
   }

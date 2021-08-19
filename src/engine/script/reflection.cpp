@@ -59,9 +59,9 @@ std::pair<RunResult, std::optional<size_t>> Cutscene::run(Engine& engine, const 
   world->getCameraController().setEyeRotation(0_deg, m_cameraRot);
   auto pos = world->getCameraController().getTRLocation().position;
   if(m_cameraPosX.has_value())
-    pos.X = m_cameraPosX.value();
+    pos.X = *m_cameraPosX;
   if(m_cameraPosZ.has_value())
-    pos.Z = m_cameraPosZ.value();
+    pos.Z = *m_cameraPosZ;
 
   world->getCameraController().setPosition(pos);
 
@@ -79,7 +79,7 @@ std::pair<RunResult, std::optional<size_t>> Cutscene::run(Engine& engine, const 
 
       auto m = std::dynamic_pointer_cast<objects::ModelObject>(object.get());
       Expects(m != nullptr);
-      m->getSkeleton()->setMeshPart(1, laraPistol->bones[1].mesh);
+      m->getSkeleton()->setMeshPart(1, laraPistol->bones[1].mesh); //-V1004
       m->getSkeleton()->setMeshPart(4, laraPistol->bones[4].mesh);
       m->getSkeleton()->rebuildMesh();
     }
@@ -194,16 +194,17 @@ std::pair<RunResult, std::optional<size_t>> SplashScreen::run(Engine& engine, co
   render::scene::RenderContext context{render::scene::RenderMode::Full, std::nullopt};
   while(std::chrono::high_resolution_clock::now() < end)
   {
-    if(engine.getPresenter().update() || engine.getPresenter().shouldClose())
+    auto& presenter = engine.getPresenter();
+    if(presenter.update() || presenter.shouldClose())
       break;
 
-    engine.getPresenter().getInputHandler().update();
-    if(engine.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Menu))
+    presenter.getInputHandler().update();
+    if(presenter.getInputHandler().hasDebouncedAction(hid::Action::Menu))
       break;
 
-    if(size != engine.getPresenter().getViewport())
+    if(size != presenter.getViewport())
     {
-      size = engine.getPresenter().getViewport();
+      size = presenter.getViewport();
 
       // scale splash image so that its aspect ratio is preserved, but is completely visible
       const auto targetSize = glm::vec2{size};
@@ -213,7 +214,7 @@ std::pair<RunResult, std::optional<size_t>> SplashScreen::run(Engine& engine, co
       auto scaledSourceSize = sourceSize * splashScale;
       auto sourceOffset = (targetSize - scaledSourceSize) / 2.0f;
       mesh = render::scene::createScreenQuad(
-        sourceOffset, scaledSourceSize, engine.getPresenter().getMaterialManager()->getBackdrop(), m_path.string());
+        sourceOffset, scaledSourceSize, presenter.getMaterialManager()->getBackdrop(), m_path.string());
       mesh->bind(
         "u_input",
         [&image](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
@@ -224,11 +225,13 @@ std::pair<RunResult, std::optional<size_t>> SplashScreen::run(Engine& engine, co
         { uniform.set(targetSize); });
     }
 
+    Ensures(mesh != nullptr);
+
     gl::Framebuffer::unbindAll();
-    engine.getPresenter().getRenderer().clear(
+    presenter.getRenderer().clear(
       gl::api::ClearBufferMask::ColorBufferBit | gl::api::ClearBufferMask::DepthBufferBit, {0, 0, 0, 0}, 1);
-    mesh->render(context);
-    engine.getPresenter().swapBuffers();
+    mesh->render(context); //-V1004 //-V614
+    presenter.swapBuffers();
 
     throttler.wait();
   }

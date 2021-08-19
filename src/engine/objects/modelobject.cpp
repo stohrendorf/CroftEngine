@@ -29,11 +29,12 @@ void ModelObject::update()
   m_state.is_hit = false;
   m_state.touch_bits = 0;
 
+  const auto& anim = getSkeleton()->getAnim();
   if(endOfAnim)
   {
     const auto* cmd
-      = getSkeleton()->getAnim()->animCommandCount == 0 ? nullptr : getSkeleton()->getAnim()->animCommands;
-    for(uint16_t i = 0; i < getSkeleton()->getAnim()->animCommandCount; ++i)
+      = anim->animCommandCount == 0 ? nullptr : anim->animCommands;
+    for(uint16_t i = 0; i < anim->animCommandCount; ++i)
     {
       BOOST_ASSERT(cmd <= &getWorld().getAnimCommands().back());
       const auto opcode = static_cast<AnimCommandOpcode>(*cmd);
@@ -53,7 +54,7 @@ void ModelObject::update()
         cmd += 2;
         break;
         // NOLINTNEXTLINE(bugprone-branch-clone)
-      case AnimCommandOpcode::PlaySound: cmd += 2; break;
+      case AnimCommandOpcode::PlaySound: cmd += 2; break; //-V1037
       case AnimCommandOpcode::PlayEffect: cmd += 2; break;
       case AnimCommandOpcode::Kill: m_state.triggerState = TriggerState::Deactivated; break;
       default: break;
@@ -61,14 +62,14 @@ void ModelObject::update()
     }
 
     m_skeleton->setAnimation(
-      m_state.current_anim_state, getSkeleton()->getAnim()->nextAnimation, getSkeleton()->getAnim()->nextFrame);
+      m_state.current_anim_state, anim->nextAnimation, anim->nextFrame);
     m_state.goal_anim_state = m_state.current_anim_state;
     if(m_state.current_anim_state == m_state.required_anim_state)
       m_state.required_anim_state = 0_as;
   }
 
-  const auto* cmd = getSkeleton()->getAnim()->animCommandCount == 0 ? nullptr : getSkeleton()->getAnim()->animCommands;
-  for(uint16_t i = 0; i < getSkeleton()->getAnim()->animCommandCount; ++i)
+  const auto* cmd = anim->animCommandCount == 0 ? nullptr : anim->animCommands;
+  for(uint16_t i = 0; i < anim->animCommandCount; ++i)
   {
     BOOST_ASSERT(cmd != nullptr && cmd <= &getWorld().getAnimCommands().back());
     const auto opcode = static_cast<AnimCommandOpcode>(*cmd);

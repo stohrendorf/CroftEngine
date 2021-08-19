@@ -45,7 +45,7 @@ public:
     return m_skeleton;
   }
 
-  bool triggerSwitch(const core::Frame timeout) override
+  bool triggerSwitch(const core::Frame& timeout) override
   {
     if(m_state.triggerState != TriggerState::Deactivated)
     {

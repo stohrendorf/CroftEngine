@@ -156,7 +156,7 @@ void Door::Info::open() // NOLINT(readability-make-member-function-const)
     return;
 
   *wingsSector = originalSector;
-  if(wingsBox != nullptr)
+  if(wingsBox != nullptr) //-V1051
     wingsBox->blocked = false;
 }
 
@@ -166,7 +166,7 @@ void Door::Info::close() // NOLINT(readability-make-member-function-const)
     return;
 
   *wingsSector = world::Sector{};
-  if(wingsBox != nullptr)
+  if(wingsBox != nullptr) //-V1051
     wingsBox->blocked = true;
 }
 

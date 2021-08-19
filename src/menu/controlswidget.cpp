@@ -252,7 +252,7 @@ void ControlsWidget::updateBindings(
     {
       const auto& action = column[y];
       if(action.has_value())
-        set(*m_controlGroups[0], x * 2, y, action.value());
+        set(*m_controlGroups[0], x * 2, y, *action);
     }
   }
 
@@ -263,7 +263,7 @@ void ControlsWidget::updateBindings(
     {
       const auto& action = column[y];
       if(action.has_value())
-        set(*m_controlGroups[1], x * 2, y, action.value());
+        set(*m_controlGroups[1], x * 2, y, *action);
     }
   }
 

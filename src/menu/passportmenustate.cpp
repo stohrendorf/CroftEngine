@@ -154,7 +154,7 @@ std::unique_ptr<MenuState> PassportMenuState::onFrame(ui::Ui& ui, engine::world:
       break;
     }
     if(auto tmp = showLoadGamePage(world, display))
-      return std::move(tmp.value());
+      return std::move(*tmp);
     break;
   case SaveGamePage:
     if(!m_allowSave && display.mode != InventoryMode::TitleMode)
@@ -168,7 +168,7 @@ std::unique_ptr<MenuState> PassportMenuState::onFrame(ui::Ui& ui, engine::world:
     }
     if(auto tmp = showSaveGamePage(
          world, display, display.mode != InventoryMode::TitleMode && display.mode != InventoryMode::DeathMode))
-      return std::move(tmp.value());
+      return std::move(*tmp);
     break;
   case ExitGamePage: showExitGamePage(world, display, display.mode != InventoryMode::TitleMode); break;
   default: Expects(page == -1); break;

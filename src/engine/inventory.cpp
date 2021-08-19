@@ -11,7 +11,7 @@
 
 namespace engine
 {
-void Inventory::put(const core::TypeId id, const size_t quantity)
+void Inventory::put(const core::TypeId& id, const size_t quantity)
 {
   BOOST_LOG_TRIVIAL(debug) << "Object " << toString(id.get_as<TR1ItemId>()) << " added to inventory";
 
@@ -98,12 +98,13 @@ bool Inventory::tryUse(objects::LaraObject& lara, const TR1ItemId id)
     if(count(weapon) == 0)
       return false;
 
-    lara.getWorld().getPlayer().requestedWeaponType = weaponType;
-    if(lara.getWorld().getPlayer().selectedWeaponType == lara.getWorld().getPlayer().requestedWeaponType)
+    auto& player = lara.getWorld().getPlayer();
+    player.requestedWeaponType = weaponType;
+    if(player.selectedWeaponType == player.requestedWeaponType)
     {
       if(lara.getHandStatus() == objects::HandStatus::None)
       {
-        lara.getWorld().getPlayer().selectedWeaponType = WeaponType::None;
+        player.selectedWeaponType = WeaponType::None;
       }
       else if(lara.getHandStatus() == objects::HandStatus::Combat)
       {

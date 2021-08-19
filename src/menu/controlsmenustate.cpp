@@ -304,11 +304,12 @@ void ControlsMenuState::handleDisplayInput(engine::world::World& world)
 
   if(world.getPresenter().getInputHandler().hasDebouncedAction(ChangeControllerTypeAction))
   {
-    auto layoutIt = world.getControllerLayouts().find(m_editing.at(m_editingIndex).controllerType);
-    Expects(layoutIt != world.getControllerLayouts().end());
+    auto& layouts = world.getControllerLayouts();
+    auto layoutIt = layouts.find(m_editing.at(m_editingIndex).controllerType);
+    Expects(layoutIt != layouts.end());
     ++layoutIt;
-    if(layoutIt == world.getControllerLayouts().end())
-      m_editing.at(m_editingIndex).controllerType = world.getControllerLayouts().begin()->first;
+    if(layoutIt == layouts.end())
+      m_editing.at(m_editingIndex).controllerType = layouts.begin()->first;
     else
       m_editing.at(m_editingIndex).controllerType = layoutIt->first;
     m_controls->updateBindings(m_editing.at(m_editingIndex),
@@ -334,12 +335,10 @@ void ControlsMenuState::handleDisplayInput(engine::world::World& world)
 
   if(world.getPresenter().getInputHandler().hasDebouncedAction(EditAction))
   {
-    auto& mapping = m_editing.at(m_editingIndex);
-    auto keys = getKeys(mapping.mappings, engine::NamedAction{m_controls->getCurrentAction()});
     m_mode = Mode::ChangeKey;
-    (void)world.getPresenter().getInputHandler().takeRecentlyPressedKey();
-    (void)world.getPresenter().getInputHandler().takeRecentlyPressedButton();
-    (void)world.getPresenter().getInputHandler().takeRecentlyPressedAxis();
+    (void)world.getPresenter().getInputHandler().takeRecentlyPressedKey(); //-V530
+    (void)world.getPresenter().getInputHandler().takeRecentlyPressedButton(); //-V530
+    (void)world.getPresenter().getInputHandler().takeRecentlyPressedAxis(); //-V530
   }
 }
 
@@ -358,15 +357,15 @@ void ControlsMenuState::handleChangeKeyInput(engine::world::World& world)
 
   if(const auto newKey = world.getPresenter().getInputHandler().takeRecentlyPressedKey())
   {
-    setMapping(newKey.value());
+    setMapping(*newKey);
   }
   else if(const auto newButton = world.getPresenter().getInputHandler().takeRecentlyPressedButton())
   {
-    setMapping(newButton.value());
+    setMapping(*newButton);
   }
   else if(const auto newAxis = world.getPresenter().getInputHandler().takeRecentlyPressedAxis())
   {
-    setMapping(newAxis.value());
+    setMapping(*newAxis);
   }
 }
 

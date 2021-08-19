@@ -68,9 +68,9 @@ protected:
     return m_lara;
   }
 
-  void setAir(core::Frame a) noexcept;
+  void setAir(const core::Frame& a) noexcept;
 
-  void setMovementAngle(core::Angle angle) noexcept;
+  void setMovementAngle(const core::Angle& angle) noexcept;
 
   [[nodiscard]] core::Angle getMovementAngle() const noexcept;
 
@@ -88,21 +88,21 @@ protected:
 
   void placeOnFloor(const CollisionInfo& collisionInfo);
 
-  void setYRotationSpeed(core::Angle spd);
+  void setYRotationSpeed(const core::Angle& spd);
 
   [[nodiscard]] core::Angle getYRotationSpeed() const;
 
-  void subYRotationSpeed(core::Angle val, core::Angle limit = -32768_au);
+  void subYRotationSpeed(const core::Angle& val, const core::Angle& limit = -32768_au);
 
-  void addYRotationSpeed(core::Angle val, core::Angle limit = 32767_au);
+  void addYRotationSpeed(const core::Angle& val, const core::Angle& limit = 32767_au);
 
-  void setFallSpeedOverride(core::Speed v);
+  void setFallSpeedOverride(const core::Speed& v);
 
   void dampenHorizontalSpeed(float f);
 
   [[nodiscard]] core::Angle getCurrentSlideAngle() const noexcept;
 
-  void setCurrentSlideAngle(core::Angle a) noexcept;
+  void setCurrentSlideAngle(const core::Angle& a) noexcept;
 
   void setGoalAnimState(LaraStateId state);
   void setCurrentAnimState(LaraStateId state);
@@ -125,7 +125,7 @@ protected:
 
   void applyShift(const CollisionInfo& collisionInfo);
 
-  [[nodiscard]] core::Length getRelativeHeightAtDirection(core::Angle angle, core::Length dist) const;
+  [[nodiscard]] core::Length getRelativeHeightAtDirection(const core::Angle& angle, const core::Length& dist) const;
 
   void commonJumpHandling(CollisionInfo& collisionInfo);
 
@@ -141,21 +141,21 @@ protected:
 
   [[nodiscard]] loader::file::BoundingBox getBoundingBox() const;
 
-  void addSwimToDiveKeypressDuration(core::Frame n) noexcept;
+  void addSwimToDiveKeypressDuration(const core::Frame& n) noexcept;
 
-  void setSwimToDiveKeypressDuration(core::Frame n) noexcept;
+  void setSwimToDiveKeypressDuration(const core::Frame& n) noexcept;
 
   [[nodiscard]] core::Frame getSwimToDiveKeypressDuration() const;
 
   void setUnderwaterState(objects::UnderwaterState u) noexcept;
 
-  void setCameraRotationAroundLara(core::Angle x, core::Angle y);
+  void setCameraRotationAroundLara(const core::Angle& x, const core::Angle& y);
 
-  void setCameraRotationAroundLaraX(core::Angle x);
+  void setCameraRotationAroundLaraX(const core::Angle& x);
 
-  void setCameraRotationAroundLaraY(core::Angle y);
+  void setCameraRotationAroundLaraY(const core::Angle& y);
 
-  void setCameraDistance(core::Length d);
+  void setCameraDistance(const core::Length& d);
 
   void setCameraModifier(CameraModifier k);
 

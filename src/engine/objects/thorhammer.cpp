@@ -70,20 +70,20 @@ void ThorHammerHandle::update()
       {
         posX -= 3 * core::SectorSize;
       }
-      if(!getWorld().getObjectManager().getLara().isDead())
+      if(auto& lara = getWorld().getObjectManager().getLara(); !lara.isDead())
       {
-        if(posX - 520_len < getWorld().getObjectManager().getLara().m_state.location.position.X
-           && posX + 520_len > getWorld().getObjectManager().getLara().m_state.location.position.X
-           && posZ - 520_len < getWorld().getObjectManager().getLara().m_state.location.position.Z
-           && posZ + 520_len > getWorld().getObjectManager().getLara().m_state.location.position.Z)
+        if(posX - 520_len < lara.m_state.location.position.X
+           && posX + 520_len > lara.m_state.location.position.X
+           && posZ - 520_len < lara.m_state.location.position.Z
+           && posZ + 520_len > lara.m_state.location.position.Z)
         {
-          getWorld().getObjectManager().getLara().m_state.health = core::DeadHealth;
-          getWorld().getObjectManager().getLara().getSkeleton()->setAnim(
+          lara.m_state.health = core::DeadHealth;
+          lara.getSkeleton()->setAnim(
             &getWorld().findAnimatedModelForType(TR1ItemId::Lara)->animations[139], 3561_frame);
-          getWorld().getObjectManager().getLara().setCurrentAnimState(loader::file::LaraStateId::BoulderDeath);
-          getWorld().getObjectManager().getLara().setGoalAnimState(loader::file::LaraStateId::BoulderDeath);
-          getWorld().getObjectManager().getLara().m_state.location.position.Y = m_state.location.position.Y;
-          getWorld().getObjectManager().getLara().m_state.falling = false;
+          lara.setCurrentAnimState(loader::file::LaraStateId::BoulderDeath);
+          lara.setGoalAnimState(loader::file::LaraStateId::BoulderDeath);
+          lara.m_state.location.position.Y = m_state.location.position.Y;
+          lara.m_state.falling = false;
         }
       }
     }

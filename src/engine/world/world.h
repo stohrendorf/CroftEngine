@@ -128,7 +128,7 @@ public:
   }
 
   template<typename T>
-  std::shared_ptr<T> createObject(const core::TypeId type,
+  std::shared_ptr<T> createObject(const core::TypeId& type,
                                   const gsl::not_null<const Room*>& room,
                                   const core::Angle& angle,
                                   const core::TRVec& position,
@@ -170,8 +170,8 @@ public:
   [[nodiscard]] const std::vector<Box>& getBoxes() const;
   [[nodiscard]] const std::vector<Room>& getRooms() const;
   std::vector<Room>& getRooms();
-  [[nodiscard]] const StaticMesh* findStaticMeshById(core::StaticMeshId meshId) const;
-  [[nodiscard]] const std::unique_ptr<SpriteSequence>& findSpriteSequenceForType(core::TypeId type) const;
+  [[nodiscard]] const StaticMesh* findStaticMeshById(const core::StaticMeshId& meshId) const;
+  [[nodiscard]] const std::unique_ptr<SpriteSequence>& findSpriteSequenceForType(const core::TypeId& type) const;
   [[nodiscard]] const Animation& getAnimation(loader::file::AnimationId id) const;
   [[nodiscard]] const std::vector<CinematicFrame>& getCinematicFrames() const;
   [[nodiscard]] const std::vector<int16_t>& getAnimCommands() const;
@@ -193,10 +193,10 @@ public:
   void flickerEffect();
   void doGlobalEffect();
   std::shared_ptr<objects::PickupObject>
-    createPickup(core::TypeId type, const gsl::not_null<const Room*>& room, const core::TRVec& position);
+    createPickup(const core::TypeId& type, const gsl::not_null<const Room*>& room, const core::TRVec& position);
   void useAlternativeLaraAppearance(bool withHead = false);
   void runEffect(size_t id, objects::Object* object);
-  [[nodiscard]] const std::unique_ptr<SkeletalModelType>& findAnimatedModelForType(core::TypeId type) const;
+  [[nodiscard]] const std::unique_ptr<SkeletalModelType>& findAnimatedModelForType(const core::TypeId& type) const;
   [[nodiscard]] const std::vector<Animation>& getAnimations() const;
   [[nodiscard]] const std::vector<int16_t>& getPoseFrames() const;
   [[nodiscard]] gsl::not_null<std::shared_ptr<RenderMeshData>> getRenderMesh(size_t idx) const;
@@ -280,13 +280,13 @@ public:
   auto& getPlayer()
   {
     Expects(m_player != nullptr);
-    return *m_player;
+    return *m_player; //-V1004
   }
 
   [[nodiscard]] const auto& getPlayer() const
   {
     Expects(m_player != nullptr);
-    return *m_player;
+    return *m_player; //-V1004
   }
 
   [[nodiscard]] const auto& getPlayerPtr() const

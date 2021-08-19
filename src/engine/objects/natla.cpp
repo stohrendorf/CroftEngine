@@ -46,7 +46,7 @@ void Natla::update()
     const auto canShoot = abs(enemyLocation.angleToEnemy) < 30_deg && canShootAtLara(enemyLocation);
     if(m_state.current_anim_state == AimFlying && m_attemptToFly)
     {
-      if(m_attemptToFly && canShoot && util::rand15() < 256)
+      if(canShoot && util::rand15() < 256)
         m_attemptToFly = false;
 
       if(!m_attemptToFly)

@@ -39,7 +39,6 @@ public:
         std::vector<char> infoLog(length, '\0');
         GL_ASSERT(api::getShaderInfoLog(m_handle, length, nullptr, infoLog.data()));
         infoLog.back() = '\0';
-        std::string result = infoLog.data();
         BOOST_LOG_TRIVIAL(error) << infoLog.data();
       }
 

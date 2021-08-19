@@ -457,6 +457,7 @@ bool AIAgent::tryShootAtLara(ModelObject& object,
                              size_t boneIndex,
                              const core::Angle& muzzleFlashAngle)
 {
+  auto& lara = getWorld().getObjectManager().getLara();
   bool isHit = false;
   if(distance <= util::square(7 * core::SectorSize))
   {
@@ -464,23 +465,23 @@ bool AIAgent::tryShootAtLara(ModelObject& object,
     {
       isHit = true;
 
-      getWorld().getObjectManager().getLara().emitParticle(
+      lara.emitParticle(
         core::TRVec{},
-        util::rand15(getWorld().getObjectManager().getLara().getSkeleton()->getBoneCount()),
+        util::rand15(lara.getSkeleton()->getBoneCount()),
         &createBloodSplat);
 
-      if(!getWorld().getObjectManager().getLara().isInWater())
-        getWorld().getObjectManager().getLara().playSoundEffect(TR1SoundEffect::BulletHitsLara);
+      if(!lara.isInWater())
+        lara.playSoundEffect(TR1SoundEffect::BulletHitsLara);
     }
   }
 
   if(!isHit)
   {
-    auto location = getWorld().getObjectManager().getLara().m_state.location;
+    auto location = lara.m_state.location;
     location.position.X += util::rand15s(core::SectorSize / 2);
-    location.position.Y = getWorld().getObjectManager().getLara().m_state.floor;
+    location.position.Y = lara.m_state.floor;
     location.position.Z += util::rand15s(core::SectorSize / 2);
-    getWorld().getObjectManager().getLara().emitRicochet(location);
+    lara.emitRicochet(location);
   }
 
   auto p = object.emitParticle(bonePos, boneIndex, &createMuzzleFlash);

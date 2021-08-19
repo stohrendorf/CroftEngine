@@ -23,7 +23,7 @@ gsl::not_null<std::shared_ptr<render::scene::Mesh>>
              float lineWidth,
              std::shared_ptr<gl::VertexBuffer<glm::vec3>>& vb)
 {
-  std::vector<glm::vec3> vertices(LightningBall::ControlPoints);
+  std::array<glm::vec3, LightningBall::ControlPoints> vertices;
 
   static const gl::VertexLayout<glm::vec3> layout{
     {VERTEX_ATTRIBUTE_POSITION_NAME, gl::VertexAttribute<glm::vec3>::Trivial{}}};
@@ -193,10 +193,11 @@ void LightningBall::collide(CollisionInfo& /*info*/)
   if(!m_laraHit)
     return;
 
-  getWorld().getObjectManager().getLara().hit_direction = static_cast<core::Axis>(util::rand15(4));
-  getWorld().getObjectManager().getLara().hit_frame += 1_frame;
-  if(getWorld().getObjectManager().getLara().hit_frame > 34_frame)
-    getWorld().getObjectManager().getLara().hit_frame = 34_frame;
+  auto& lara = getWorld().getObjectManager().getLara();
+  lara.hit_direction = static_cast<core::Axis>(util::rand15(4));
+  lara.hit_frame += 1_frame;
+  if(lara.hit_frame > 34_frame)
+    lara.hit_frame = 34_frame;
 }
 
 void LightningBall::prepareRender()

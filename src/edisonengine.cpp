@@ -73,7 +73,7 @@ int main()
     for(levelSequenceIndex = 0; true; ++levelSequenceIndex)
     {
       auto item = engine.getScriptEngine().getLevelSequenceItem(levelSequenceIndex);
-      if(item == nullptr || item->isLevel(meta->filename))
+      if(item == nullptr || item->isLevel(meta->filename)) //-V1007
         break;
     }
     Expects(engine.getScriptEngine().getLevelSequenceItem(levelSequenceIndex) != nullptr);

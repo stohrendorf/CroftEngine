@@ -29,7 +29,7 @@ Sector::Sector(const loader::file::Sector& src,
 
     if(const auto boundaryRoomIndex = engine::floordata::getBoundaryRoom(floorData); boundaryRoomIndex.has_value())
     {
-      boundaryRoom = &rooms.at(boundaryRoomIndex.value());
+      boundaryRoom = &rooms.at(*boundaryRoomIndex);
     }
   }
 }
@@ -38,7 +38,7 @@ void Sector::connect(std::vector<Room>& rooms)
 {
   if(m_roomIndexBelow.has_value())
   {
-    roomBelow = &rooms.at(m_roomIndexBelow.value());
+    roomBelow = &rooms.at(*m_roomIndexBelow);
   }
   else
   {
@@ -47,7 +47,7 @@ void Sector::connect(std::vector<Room>& rooms)
 
   if(m_roomIndexAbove.has_value())
   {
-    roomAbove = &rooms.at(m_roomIndexAbove.value());
+    roomAbove = &rooms.at(*m_roomIndexAbove);
   }
   else
   {

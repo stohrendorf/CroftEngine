@@ -71,17 +71,17 @@ struct Id
     return static_cast<T>(m_value);
   }
 
-  [[nodiscard]] constexpr bool operator<(const Id<type, tag, Enums...> r) const
+  [[nodiscard]] constexpr bool operator<(const Id<type, tag, Enums...>& r) const
   {
     return get() < r.get();
   }
 
-  [[nodiscard]] constexpr bool operator==(const Id<type, tag, Enums...> r) const
+  [[nodiscard]] constexpr bool operator==(const Id<type, tag, Enums...>& r) const
   {
     return get() == r.get();
   }
 
-  [[nodiscard]] constexpr bool operator!=(const Id<type, tag, Enums...> r) const
+  [[nodiscard]] constexpr bool operator!=(const Id<type, tag, Enums...>& r) const
   {
     return get() != r.get();
   }

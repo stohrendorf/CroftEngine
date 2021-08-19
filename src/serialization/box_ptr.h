@@ -29,7 +29,7 @@ inline const engine::world::Box* ptrLoad(const TypeId<const engine::world::Box*>
     return nullptr;
 
   ser.tag("box");
-  return &ser.context.getBoxes().at(idx.value());
+  return &ser.context.getBoxes().at(*idx);
 }
 
 inline engine::world::Box*

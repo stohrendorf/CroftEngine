@@ -55,15 +55,15 @@ PYBIND11_EMBEDDED_MODULE(engine, m)
          py::kw_only{},
          py::arg("name"),
          py::arg("track"),
-         py::arg("flip_rooms") = false,
-         py::arg("weapon_swap") = false,
+         py::arg("flip_rooms") = false, //-V601
+         py::arg("weapon_swap") = false, //-V601
          py::arg("camera_rot"))
     .def(py::init<std::string, engine::TR1TrackId, bool, bool, float, int, int>(),
          py::kw_only{},
          py::arg("name"),
          py::arg("track"),
-         py::arg("flip_rooms") = false,
-         py::arg("weapon_swap") = false,
+         py::arg("flip_rooms") = false, //-V601
+         py::arg("weapon_swap") = false, //-V601
          py::arg("camera_rot"),
          py::arg("camera_pos_x"),
          py::arg("camera_pos_z"));
@@ -83,13 +83,13 @@ PYBIND11_EMBEDDED_MODULE(engine, m)
          py::kw_only{},
          py::arg("name"),
          py::arg("secrets"),
-         py::arg("use_alternative_lara") = false,
+         py::arg("use_alternative_lara") = false, //-V601
          py::arg("titles"),
          py::arg("item_titles") = py::dict{},
          py::arg("inventory") = py::dict{},
          py::arg("drop_inventory") = py::set{},
          py::arg("track") = std::nullopt,
-         py::arg("allow_save") = true,
+         py::arg("allow_save") = true, //-V601
          py::arg("default_weapon") = engine::WeaponType::Pistols);
 
   py::class_<engine::script::TitleMenu, engine::script::Level, std::shared_ptr<engine::script::TitleMenu>>(
@@ -103,7 +103,7 @@ PYBIND11_EMBEDDED_MODULE(engine, m)
                   std::optional<engine::TR1TrackId>>(),
          py::kw_only{},
          py::arg("name"),
-         py::arg("use_alternative_lara") = false,
+         py::arg("use_alternative_lara") = false, //-V601
          py::arg("titles"),
          py::arg("item_titles") = py::dict{},
          py::arg("inventory") = py::dict{},

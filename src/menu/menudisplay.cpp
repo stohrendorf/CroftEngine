@@ -482,10 +482,7 @@ MenuDisplay::MenuDisplay(InventoryMode mode, engine::world::World& world)
     {
       rings.pop_back();
     }
-  }
 
-  if(mode == InventoryMode::GameMode)
-  {
     currentRingIndex = rings.size();
     rings.emplace_back(
 

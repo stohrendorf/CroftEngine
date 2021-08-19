@@ -17,34 +17,36 @@ void ScionPiece::collide(CollisionInfo& /*collisionInfo*/)
                                         {-10_deg, 0_deg, 0_deg},
                                         {10_deg, 0_deg, 0_deg}};
 
+  auto& lara = getWorld().getObjectManager().getLara();
   m_state.rotation.X = 0_deg;
-  m_state.rotation.Y = getWorld().getObjectManager().getLara().m_state.rotation.Y;
+  m_state.rotation.Y =lara.m_state.rotation.Y;
   m_state.rotation.Z = 0_deg;
 
-  if(!limits.canInteract(m_state, getWorld().getObjectManager().getLara().m_state))
+  if(!limits.canInteract(m_state, lara.m_state))
     return;
 
-  if(getWorld().getObjectManager().getLara().getCurrentAnimState() != loader::file::LaraStateId::PickUp)
+  if(lara.getCurrentAnimState() != loader::file::LaraStateId::PickUp)
   {
     if(getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action)
-       && getWorld().getObjectManager().getLara().getHandStatus() == HandStatus::None
-       && !getWorld().getObjectManager().getLara().m_state.falling
-       && getWorld().getObjectManager().getLara().getCurrentAnimState() == loader::file::LaraStateId::Stop)
+       && lara.getHandStatus() == HandStatus::None
+       && !lara.m_state.falling
+       && lara.getCurrentAnimState() == loader::file::LaraStateId::Stop)
     {
-      getWorld().getObjectManager().getLara().alignForInteraction({0_len, 640_len, -310_len}, m_state);
-      getWorld().getObjectManager().getLara().getSkeleton()->setAnim(
+      lara.alignForInteraction({0_len, 640_len, -310_len}, m_state);
+      lara.getSkeleton()->setAnim(
         getWorld().findAnimatedModelForType(TR1ItemId::AlternativeLara)->animations);
-      getWorld().getObjectManager().getLara().setCurrentAnimState(loader::file::LaraStateId::PickUp);
-      getWorld().getObjectManager().getLara().setGoalAnimState(loader::file::LaraStateId::PickUp);
-      getWorld().getObjectManager().getLara().setHandStatus(HandStatus::Grabbing);
-      getWorld().getCameraController().setMode(CameraMode::Cinematic);
-      getWorld().getCameraController().m_cinematicFrame = 0;
-      getWorld().getCameraController().m_cinematicPos
-        = getWorld().getObjectManager().getLara().m_state.location.position;
-      getWorld().getCameraController().m_cinematicRot = getWorld().getObjectManager().getLara().m_state.rotation;
+      lara.setCurrentAnimState(loader::file::LaraStateId::PickUp);
+      lara.setGoalAnimState(loader::file::LaraStateId::PickUp);
+      lara.setHandStatus(HandStatus::Grabbing);
+      auto& cameraController = getWorld().getCameraController();
+      cameraController.setMode(CameraMode::Cinematic);
+      cameraController.m_cinematicFrame = 0;
+      cameraController.m_cinematicPos
+        = lara.m_state.location.position;
+      cameraController.m_cinematicRot = lara.m_state.rotation;
     }
   }
-  else if(getWorld().getObjectManager().getLara().getSkeleton()->getLocalFrame() == 44_frame)
+  else if(lara.getSkeleton()->getLocalFrame() == 44_frame)
   {
     m_state.triggerState = TriggerState::Invisible;
     getWorld().getPlayer().getInventory().put(m_state.type);
@@ -97,32 +99,34 @@ void ScionPiece3::update()
 
 void ScionPiece4::collide(CollisionInfo& /*info*/)
 {
-  m_state.rotation = {0_deg, getWorld().getObjectManager().getLara().m_state.rotation.Y, 0_deg};
+  auto& lara = getWorld().getObjectManager().getLara();
+  m_state.rotation = {0_deg, lara.m_state.rotation.Y, 0_deg};
 
   static const InteractionLimits limits{core::BoundingBox{{-256_len, -206_len, -862_len}, {256_len, 306_len, -200_len}},
                                         {-10_deg, 0_deg, 0_deg},
                                         {+10_deg, 0_deg, 0_deg}};
 
   if(!getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action)
-     || getWorld().getObjectManager().getLara().getHandStatus() != HandStatus::None
-     || getWorld().getObjectManager().getLara().m_state.falling
-     || getWorld().getObjectManager().getLara().getCurrentAnimState() != loader::file::LaraStateId::Stop
-     || !limits.canInteract(m_state, getWorld().getObjectManager().getLara().m_state))
+     || lara.getHandStatus() != HandStatus::None
+     || lara.m_state.falling
+     || lara.getCurrentAnimState() != loader::file::LaraStateId::Stop
+     || !limits.canInteract(m_state, lara.m_state))
     return;
 
   static const core::TRVec alignSpeed{0_len, 280_len, -407_len};
 
-  getWorld().getObjectManager().getLara().alignTransform(alignSpeed, *this);
-  getWorld().getObjectManager().getLara().getSkeleton()->setAnim(
+  lara.alignTransform(alignSpeed, *this);
+  lara.getSkeleton()->setAnim(
     getWorld().findAnimatedModelForType(TR1ItemId::AlternativeLara)->animations);
-  getWorld().getObjectManager().getLara().setCurrentAnimState(loader::file::LaraStateId::PickUp);
-  getWorld().getObjectManager().getLara().setGoalAnimState(loader::file::LaraStateId::PickUp);
-  getWorld().getObjectManager().getLara().setHandStatus(HandStatus::Grabbing);
-  getWorld().getCameraController().m_cinematicFrame = 0;
-  getWorld().getCameraController().setMode(CameraMode::Cinematic);
-  getWorld().getCameraController().m_cinematicPos = getWorld().getObjectManager().getLara().m_state.location.position;
-  getWorld().getCameraController().m_cinematicRot
-    = getWorld().getObjectManager().getLara().m_state.rotation - core::TRRotation{0_deg, 90_deg, 0_deg};
+  lara.setCurrentAnimState(loader::file::LaraStateId::PickUp);
+  lara.setGoalAnimState(loader::file::LaraStateId::PickUp);
+  lara.setHandStatus(HandStatus::Grabbing);
+  auto& cameraController = getWorld().getCameraController();
+  cameraController.m_cinematicFrame = 0;
+  cameraController.setMode(CameraMode::Cinematic);
+  cameraController.m_cinematicPos = lara.m_state.location.position;
+  cameraController.m_cinematicRot
+    = lara.m_state.rotation - core::TRRotation{0_deg, 90_deg, 0_deg};
 }
 
 void ScionHolder::collide(CollisionInfo& info)

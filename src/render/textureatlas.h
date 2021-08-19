@@ -226,7 +226,7 @@ public:
 
     for(size_t i = 0; i < m_atlases.size(); ++i)
       if(const auto position = m_atlases[i].put(extended))
-        return {i, position.value() + glm::ivec2{BoundaryMargin, BoundaryMargin}};
+        return {i, *position + glm::ivec2{BoundaryMargin, BoundaryMargin}};
 
     m_atlases.emplace_back(m_pageSize);
     auto position = m_atlases.back().put(extended);

@@ -87,11 +87,4 @@ Checks: >
   google-default-arguments,
   google-explicit-constructor,
   google-runtime-operator
-CheckOptions:
-  - key: performance-unnecessary-value-param.AllowedTypes
-    # "obviously" you can't specify the underlying type (that would be too easy, no?)
-    # oh, and namespaces don't work, either, because nobody uses the same name with different definitions in different
-    #   namespaces (like, uh, ever heard or inline namespaces for API versioning?)
-    # 'nough ranting :/
-    value: ^Angle$;^Frame$;^Speed$;^Length$;^Bitfield$
 HeaderFilterRegex: '.*(?!rapidyaml|c4core)[\/]src[\/].*'

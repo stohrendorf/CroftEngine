@@ -4,6 +4,8 @@
 #include "core/id.h"
 #include "core/vec.h"
 
+#include <array>
+
 namespace loader::file
 {
 namespace io

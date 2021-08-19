@@ -46,7 +46,7 @@ private:
 public:
   explicit ObjectState(const gsl::not_null<audio::SoundEngine*>& engine,
                        const gsl::not_null<const world::Room*>& room,
-                       const core::TypeId type)
+                       const core::TypeId& type)
       : Emitter{engine}
       , type{type}
       , location{room}

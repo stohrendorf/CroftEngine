@@ -72,12 +72,12 @@ public:
     m_soLoud->setVolume(m_voiceHandle, currentWithoutBase * m_baseVolume);
   }
 
-  void fadeVolume(float volume, std::chrono::milliseconds time)
+  void fadeVolume(float volume, const std::chrono::milliseconds& time)
   {
     m_soLoud->fadeVolume(m_voiceHandle, volume * m_baseVolume, time.count() / 1000.0);
   }
 
-  void fadeBaseVolume(float baseVolume, std::chrono::milliseconds time)
+  void fadeBaseVolume(float baseVolume, const std::chrono::milliseconds& time)
   {
     const auto currentWithoutBase = getLocalVolume();
     m_baseVolume = baseVolume;

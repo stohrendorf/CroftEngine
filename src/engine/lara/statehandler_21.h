@@ -39,15 +39,16 @@ public:
 
   void postprocessFrame(CollisionInfo& collisionInfo) override
   {
-    getLara().m_state.fallspeed = 0_spd;
-    getLara().m_state.falling = false;
+    auto& laraState = getLara().m_state;
+    laraState.fallspeed = 0_spd;
+   laraState.falling = false;
     collisionInfo.floorCollisionRangeMin = 128_len;
     collisionInfo.floorCollisionRangeMax = -128_len;
     collisionInfo.ceilingCollisionRangeMin = 0_len;
-    collisionInfo.facingAngle = getLara().m_state.rotation.Y + 90_deg;
+    collisionInfo.facingAngle = laraState.rotation.Y + 90_deg;
     setMovementAngle(collisionInfo.facingAngle);
     collisionInfo.policies |= CollisionInfo::SlopeBlockingPolicy;
-    collisionInfo.initHeightInfo(getLara().m_state.location.position, getWorld(), core::LaraWalkHeight);
+    collisionInfo.initHeightInfo(laraState.location.position, getWorld(), core::LaraWalkHeight);
 
     if(stopIfCeilingBlocked(collisionInfo))
     {

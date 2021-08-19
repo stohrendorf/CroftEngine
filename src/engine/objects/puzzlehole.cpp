@@ -25,17 +25,18 @@ void PuzzleHole::collide(CollisionInfo& /*collisionInfo*/)
                                         core::TRRotation{-10_deg, -30_deg, -10_deg},
                                         core::TRRotation{10_deg, 30_deg, 10_deg}};
 
-  if(getWorld().getObjectManager().getLara().getCurrentAnimState() == loader::file::LaraStateId::Stop)
+  auto& lara = getWorld().getObjectManager().getLara();
+  if(lara.getCurrentAnimState() == loader::file::LaraStateId::Stop)
   {
     if(!getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action)
-       || getWorld().getObjectManager().getLara().getHandStatus() != HandStatus::None
-       || getWorld().getObjectManager().getLara().m_state.falling
-       || !limits.canInteract(m_state, getWorld().getObjectManager().getLara().m_state))
+       || lara.getHandStatus() != HandStatus::None
+       || lara.m_state.falling
+       || !limits.canInteract(m_state, lara.m_state))
       return;
 
     if(m_state.triggerState == TriggerState::Invisible)
     {
-      getWorld().getObjectManager().getLara().playSoundEffect(TR1SoundEffect::LaraNo);
+      lara.playSoundEffect(TR1SoundEffect::LaraNo);
       return;
     }
 
@@ -58,25 +59,25 @@ void PuzzleHole::collide(CollisionInfo& /*collisionInfo*/)
     }
     if(!hasPuzzlePiece)
     {
-      getWorld().getObjectManager().getLara().playSoundEffect(TR1SoundEffect::LaraNo);
+      lara.playSoundEffect(TR1SoundEffect::LaraNo);
       return;
     }
 
-    getWorld().getObjectManager().getLara().alignForInteraction(core::TRVec{0_len, 0_len, 327_len}, m_state);
+    lara.alignForInteraction(core::TRVec{0_len, 0_len, 327_len}, m_state);
 
     do
     {
-      getWorld().getObjectManager().getLara().setGoalAnimState(loader::file::LaraStateId::InsertPuzzle);
-      getWorld().getObjectManager().getLara().updateImpl();
-    } while(getWorld().getObjectManager().getLara().getCurrentAnimState() != loader::file::LaraStateId::InsertPuzzle);
+      lara.setGoalAnimState(loader::file::LaraStateId::InsertPuzzle);
+      lara.updateImpl();
+    } while(lara.getCurrentAnimState() != loader::file::LaraStateId::InsertPuzzle);
 
-    getWorld().getObjectManager().getLara().setGoalAnimState(loader::file::LaraStateId::Stop);
-    getWorld().getObjectManager().getLara().setHandStatus(HandStatus::Grabbing);
+    lara.setGoalAnimState(loader::file::LaraStateId::Stop);
+    lara.setHandStatus(HandStatus::Grabbing);
     m_state.triggerState = TriggerState::Active;
   }
-  else if(getWorld().getObjectManager().getLara().getCurrentAnimState() == loader::file::LaraStateId::InsertPuzzle
-          && getWorld().getObjectManager().getLara().getSkeleton()->getFrame() == 3372_frame
-          && limits.canInteract(m_state, getWorld().getObjectManager().getLara().m_state))
+  else if(lara.getCurrentAnimState() == loader::file::LaraStateId::InsertPuzzle
+          && lara.getSkeleton()->getFrame() == 3372_frame
+          && limits.canInteract(m_state, lara.m_state))
   {
     swapPuzzleState();
   }
@@ -91,7 +92,7 @@ void PuzzleHole::initMesh()
   setParent(m_skeleton, nullptr);
   m_skeleton
     = std::make_shared<SkeletalModelNode>(toString(m_state.type.get_as<TR1ItemId>()), &getWorld(), model.get());
-  m_skeleton->setAnimation(m_state.current_anim_state, model->animations, model->animations->firstFrame);
+  m_skeleton->setAnimation(m_state.current_anim_state, model->animations, model->animations->firstFrame); //-V1004
   setParent(m_skeleton, parent);
   SkeletalModelNode::buildMesh(m_skeleton, m_state.current_anim_state);
   m_lighting.bind(*m_skeleton);

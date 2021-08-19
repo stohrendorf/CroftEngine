@@ -54,7 +54,7 @@ public:
 
   void serialize(const serialization::Serializer<world::World>& ser);
 
-  void put(core::TypeId id, size_t quantity = 1);
+  void put(const core::TypeId& id, size_t quantity = 1);
 
   bool tryTake(TR1ItemId id, size_t quantity = 1);
 

@@ -76,7 +76,7 @@ public:
   }
 
   std::shared_ptr<audio::Voice> playSoundEffect(const core::SoundEffectId& id, audio::Emitter* emitter);
-  std::shared_ptr<audio::Voice> playSoundEffect(core::SoundEffectId id, const glm::vec3& pos);
+  std::shared_ptr<audio::Voice> playSoundEffect(const core::SoundEffectId& id, const glm::vec3& pos);
 
   gsl::not_null<std::shared_ptr<audio::Voice>> playStream(size_t trackId);
 
@@ -92,7 +92,7 @@ public:
                       const floordata::ActivationState& activationRequest,
                       floordata::SequenceCondition triggerType);
 
-  void stopSoundEffect(core::SoundEffectId id, audio::Emitter* emitter);
+  void stopSoundEffect(const core::SoundEffectId& id, audio::Emitter* emitter);
 
   void setUnderwater(bool underwater);
 

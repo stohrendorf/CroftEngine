@@ -36,7 +36,7 @@ gsl::not_null<const world::Sector*> Location::updateRoom()
 
   // go up/down until we are in the room that contains our coordinates
   Expects(sector != nullptr);
-  if(position.Y >= sector->floorHeight)
+  if(position.Y >= sector->floorHeight) //-V1004
   {
     while(position.Y >= sector->floorHeight && sector->roomBelow != nullptr)
     {

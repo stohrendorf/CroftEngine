@@ -71,13 +71,13 @@ protected:
 
 public:
   explicit Particle(const std::string& id,
-                    core::TypeId objectNumber,
+                    const core::TypeId& objectNumber,
                     const gsl::not_null<const world::Room*>& room,
                     world::World& world,
                     const std::shared_ptr<render::scene::Renderable>& renderable = nullptr);
 
   explicit Particle(const std::string& id,
-                    core::TypeId objectNumber,
+                    const core::TypeId& objectNumber,
                     Location location,
                     world::World& world,
                     const std::shared_ptr<render::scene::Renderable>& renderable = nullptr);

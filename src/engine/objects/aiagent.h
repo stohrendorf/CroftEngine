@@ -97,7 +97,7 @@ protected:
   {
     m_state.goal_anim_state = goal;
     if(required.has_value())
-      require(required.value());
+      require(*required);
   }
 
   bool isBored() const

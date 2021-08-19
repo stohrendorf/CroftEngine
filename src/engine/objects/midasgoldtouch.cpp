@@ -24,10 +24,11 @@ void MidasGoldTouch::collide(CollisionInfo& /*info*/)
     getWorld().getPlayer().selectedWeaponType = WeaponType::None;
     lara.setAir(-1_frame);
     lara.m_state.falling = false;
-    getWorld().getCameraController().setMode(CameraMode::Cinematic);
-    getWorld().getCameraController().m_cinematicFrame = 0;
-    getWorld().getCameraController().m_cinematicPos = lara.m_state.location.position;
-    getWorld().getCameraController().m_cinematicRot = lara.m_state.rotation;
+    auto& cameraController = getWorld().getCameraController();
+    cameraController.setMode(CameraMode::Cinematic);
+    cameraController.m_cinematicFrame = 0;
+    cameraController.m_cinematicPos = lara.m_state.location.position;
+    cameraController.m_cinematicRot = lara.m_state.rotation;
     return;
   }
 

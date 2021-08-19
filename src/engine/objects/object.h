@@ -133,9 +133,9 @@ public:
 
   void deactivate();
 
-  virtual bool triggerSwitch(core::Frame timeout) = 0;
+  virtual bool triggerSwitch(const core::Frame& timeout) = 0;
 
-  std::shared_ptr<audio::Voice> playSoundEffect(core::SoundEffectId id);
+  std::shared_ptr<audio::Voice> playSoundEffect(const core::SoundEffectId& id);
 
   bool triggerPickUp();
 

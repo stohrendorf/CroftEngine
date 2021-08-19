@@ -13,7 +13,7 @@ namespace engine::floordata
 {
 struct FloorDataChunk
 {
-  explicit FloorDataChunk(const FloorDataValue fd)
+  explicit FloorDataChunk(const FloorDataValue& fd)
       : isLast{extractIsLast(fd)}
       , sequenceCondition{extractSequenceCondition(fd)}
       , type{extractType(fd)}
@@ -24,18 +24,18 @@ struct FloorDataChunk
   SequenceCondition sequenceCondition;
   FloorDataChunkType type;
 
-  static FloorDataChunkType extractType(const FloorDataValue data)
+  static FloorDataChunkType extractType(const FloorDataValue& data)
   {
     return gsl::narrow_cast<FloorDataChunkType>(data.get() & 0xffu);
   }
 
 private:
-  static SequenceCondition extractSequenceCondition(const FloorDataValue data)
+  static SequenceCondition extractSequenceCondition(const FloorDataValue& data)
   {
     return gsl::narrow_cast<SequenceCondition>((data.get() & 0x3f00u) >> 8u);
   }
 
-  static constexpr bool extractIsLast(const FloorDataValue data)
+  static constexpr bool extractIsLast(const FloorDataValue& data)
   {
     return (data.get() & 0x8000u) != 0;
   }
@@ -53,7 +53,7 @@ public:
 
   explicit ActivationState() = default;
 
-  explicit ActivationState(const FloorDataValue fd)
+  explicit ActivationState(const FloorDataValue& fd)
       : m_oneshot{(fd.get() & Oneshot) != 0}
       , m_inverted{(fd.get() & InvertedActivation) != 0}
       , m_locked{(fd.get() & Locked) != 0}
@@ -151,7 +151,7 @@ public:
   }
 
 private:
-  static ActivationSet extractActivationSet(const FloorDataValue fd)
+  static ActivationSet extractActivationSet(const FloorDataValue& fd)
   {
     const auto bits = gsl::narrow_cast<uint16_t>(util::bits(fd.get(), 9, 5));
     return ActivationSet{bits};
@@ -166,7 +166,7 @@ private:
 
 struct CameraParameters
 {
-  explicit CameraParameters(const FloorDataValue fd)
+  explicit CameraParameters(const FloorDataValue& fd)
       : timeout{core::Seconds{static_cast<core::Seconds::type>(int8_t(fd.get()))}}
       , oneshot{(fd.get() & 0x100u) != 0}
       , isLast{(fd.get() & 0x8000u) != 0}
@@ -182,7 +182,7 @@ struct CameraParameters
 
 struct Command
 {
-  explicit Command(const FloorDataValue fd)
+  explicit Command(const FloorDataValue& fd)
       : isLast{extractIsLast(fd)}
       , opcode{extractOpcode(fd)}
       , parameter{extractParameter(fd)}
@@ -194,17 +194,17 @@ struct Command
   uint16_t parameter;
 
 private:
-  static CommandOpcode extractOpcode(const FloorDataValue data)
+  static CommandOpcode extractOpcode(const FloorDataValue& data)
   {
     return gsl::narrow_cast<CommandOpcode>(util::bits(data.get(), 10, 4));
   }
 
-  static constexpr uint16_t extractParameter(const FloorDataValue data)
+  static constexpr uint16_t extractParameter(const FloorDataValue& data)
   {
-    return static_cast<uint16_t>(data.get() & 0x03ffu);
+    return gsl::narrow_cast<uint16_t>(data.get() & 0x03ffu);
   }
 
-  static constexpr bool extractIsLast(const FloorDataValue data)
+  static constexpr bool extractIsLast(const FloorDataValue& data)
   {
     return (data.get() & 0x8000u) != 0;
   }

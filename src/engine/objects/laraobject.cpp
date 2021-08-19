@@ -520,7 +520,7 @@ void LaraObject::updateImpl()
           setHandStatus(HandStatus::None);
           break;
           // NOLINTNEXTLINE(bugprone-branch-clone)
-        case AnimCommandOpcode::PlaySound: cmd += 2; break;
+        case AnimCommandOpcode::PlaySound: cmd += 2; break; //-V1037
         case AnimCommandOpcode::PlayEffect: cmd += 2; break;
         default: break;
         }
@@ -636,16 +636,18 @@ void LaraObject::testInteractions(CollisionInfo& collisionInfo)
     }
   };
 
-  execCollisions(getWorld().getObjectManager().getObjects() | boost::adaptors::map_values);
-  execCollisions(getWorld().getObjectManager().getDynamicObjects());
+  auto& objectManager = getWorld().getObjectManager();
+  execCollisions(objectManager.getObjects() | boost::adaptors::map_values);
+  execCollisions(objectManager.getDynamicObjects());
 
-  if(getWorld().getObjectManager().getLara().explosionStumblingDuration != 0_frame)
+  auto& lara = objectManager.getLara();
+  if(lara.explosionStumblingDuration != 0_frame)
   {
-    getWorld().getObjectManager().getLara().updateExplosionStumbling();
+    lara.updateExplosionStumbling();
   }
-  if(!getWorld().getObjectManager().getLara().hit_direction.has_value())
+  if(!lara.hit_direction.has_value())
   {
-    getWorld().getObjectManager().getLara().hit_frame = 0_frame;
+    lara.hit_frame = 0_frame;
   }
   // TODO selectedPuzzleKey = -1;
 }
@@ -683,6 +685,7 @@ void LaraObject::handleUnderwaterCurrent(CollisionInfo& collisionInfo)
   case CollisionInfo::AxisColl::TopBottom: m_state.fallspeed = 0_spd; break;
   case CollisionInfo::AxisColl::Left: m_state.rotation.Y += 5_deg; break;
   case CollisionInfo::AxisColl::Right: m_state.rotation.Y -= 5_deg; break;
+  default: break;
   }
 
   if(collisionInfo.mid.floor.y < 0_len)
@@ -704,6 +707,9 @@ void LaraObject::updateLarasWeaponsStatus()
   {
     rightArm.flashTimeout -= 1_frame;
   }
+
+  auto& player = getWorld().getPlayer();
+
   bool doHolsterUpdate = false;
   if(isDead())
   {
@@ -718,7 +724,7 @@ void LaraObject::updateLarasWeaponsStatus()
         doHolsterUpdate = true;
       }
     }
-    else if(getWorld().getPlayer().requestedWeaponType == getWorld().getPlayer().selectedWeaponType)
+    else if(player.requestedWeaponType == player.selectedWeaponType)
     {
       if(getWorld().getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Holster))
       {
@@ -731,13 +737,13 @@ void LaraObject::updateLarasWeaponsStatus()
     }
     else if(m_handStatus == HandStatus::None)
     {
-      getWorld().getPlayer().selectedWeaponType = getWorld().getPlayer().requestedWeaponType;
+      player.selectedWeaponType = player.requestedWeaponType;
       initWeaponAnimData();
       doHolsterUpdate = true;
     }
   }
 
-  if(doHolsterUpdate && getWorld().getPlayer().selectedWeaponType != WeaponType::None)
+  if(doHolsterUpdate && player.selectedWeaponType != WeaponType::None)
   {
     if(m_handStatus == HandStatus::None)
     {
@@ -753,18 +759,18 @@ void LaraObject::updateLarasWeaponsStatus()
 
   if(m_handStatus == HandStatus::DrawWeapon)
   {
-    if(getWorld().getPlayer().selectedWeaponType >= WeaponType::Pistols)
+    if(player.selectedWeaponType >= WeaponType::Pistols)
     {
-      if(getWorld().getPlayer().selectedWeaponType <= WeaponType::Uzis)
+      if(player.selectedWeaponType <= WeaponType::Uzis)
       {
         if(getWorld().getCameraController().getMode() != CameraMode::Cinematic
            && getWorld().getCameraController().getMode() != CameraMode::FreeLook)
         {
           getWorld().getCameraController().setMode(CameraMode::Combat);
         }
-        drawWeapons(getWorld().getPlayer().selectedWeaponType);
+        drawWeapons(player.selectedWeaponType);
       }
-      else if(getWorld().getPlayer().selectedWeaponType == WeaponType::Shotgun)
+      else if(player.selectedWeaponType == WeaponType::Shotgun)
       {
         if(getWorld().getCameraController().getMode() != CameraMode::Cinematic
            && getWorld().getCameraController().getMode() != CameraMode::FreeLook)
@@ -1176,7 +1182,7 @@ void LaraObject::overrideLaraMeshesDrawWeapons(WeaponType weaponType)
   BOOST_ASSERT(src->bones.size() == getSkeleton()->getBoneCount());
   const auto& normalLara = *getWorld().findAnimatedModelForType(TR1ItemId::Lara);
   BOOST_ASSERT(normalLara.bones.size() == getSkeleton()->getBoneCount());
-  getSkeleton()->setMeshPart(leftArm.handBoneId, src->bones[leftArm.handBoneId].mesh);
+  getSkeleton()->setMeshPart(leftArm.handBoneId, src->bones[leftArm.handBoneId].mesh); //-V1004
   getSkeleton()->setMeshPart(leftArm.thighBoneId, normalLara.bones[leftArm.thighBoneId].mesh);
   getSkeleton()->setMeshPart(rightArm.handBoneId, src->bones[rightArm.handBoneId].mesh);
   getSkeleton()->setMeshPart(rightArm.thighBoneId, normalLara.bones[rightArm.thighBoneId].mesh);
@@ -2154,7 +2160,8 @@ LaraObject::LaraObject(const gsl::not_null<world::World*>& world,
 
   initMuzzleFlashes();
 
-  if(world->getPlayer().getInventory().count(TR1ItemId::Shotgun) > 0)
+  auto& player = world->getPlayer();
+  if(player.getInventory().count(TR1ItemId::Shotgun) > 0)
   {
     const auto& src = *getWorld().findAnimatedModelForType(TR1ItemId::LaraShotgunAnim);
     BOOST_ASSERT(src.bones.size() == getSkeleton()->getBoneCount());
@@ -2162,11 +2169,11 @@ LaraObject::LaraObject(const gsl::not_null<world::World*>& world,
     getSkeleton()->rebuildMesh();
   }
 
-  if(auto weaponType = world->getPlayer().selectedWeaponType;
+  if(auto weaponType = player.selectedWeaponType;
      weaponType != WeaponType::None && weaponType != WeaponType::Shotgun)
   {
-    leftArm.overrideHolsterWeaponsMeshes(*this, world->getPlayer().selectedWeaponType);
-    rightArm.overrideHolsterWeaponsMeshes(*this, world->getPlayer().selectedWeaponType);
+    leftArm.overrideHolsterWeaponsMeshes(*this, player.selectedWeaponType);
+    rightArm.overrideHolsterWeaponsMeshes(*this, player.selectedWeaponType);
   }
 }
 

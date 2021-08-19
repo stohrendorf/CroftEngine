@@ -74,7 +74,7 @@ Engine::Engine(const std::filesystem::path& rootPath, const glm::ivec2& resoluti
   BOOST_LOG_TRIVIAL(info) << "Detected user's language is " << m_language;
   if(const auto overrideLanguage = m_scriptEngine.getLanguageOverride())
   {
-    m_language = overrideLanguage.value();
+    m_language = *overrideLanguage;
     BOOST_LOG_TRIVIAL(info) << "Language override is " << m_language;
   }
 
@@ -510,7 +510,7 @@ std::filesystem::path Engine::getSavegamePath(const std::optional<size_t>& slot)
 {
   const auto root = getSavegameRootPath();
   if(slot.has_value())
-    return root / makeSavegameFilename(slot.value());
+    return root / makeSavegameFilename(*slot);
   else
     return root / QuicksaveFilename;
 }
