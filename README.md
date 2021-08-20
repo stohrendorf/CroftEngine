@@ -1,4 +1,5 @@
 # EdisonEngine
+
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fstohrendorf%2FEdisonEngine.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fstohrendorf%2FEdisonEngine?ref=badge_shield)
 
 An open-source Tomb Raider 1 engine remake.
@@ -46,23 +47,13 @@ Now, if you're still here, here's how to set up EdisonEngine and get it running.
          ...
    ```
 6. You should now be able to run `edisonengine.exe`. If something bad happens as mentioned above, or something doesn't
-   work as expected, please run it from powershell or cmd, and attach the logs to the issue. You may also get help by
+   work as expected, make a copy of `edisonengine.log`, and attach the file to the issue. You may also get help by
    [joining Discord](https://discord.gg/ndBqb5BmkH), I'll be there in the #edisonengine channel and chat with you as
    soon as I can, there are also other members already involved enough to give you some guidance.
-7. Be aware that savegames are usually not compatible between releases yet. After all, this is still alpha quality
-   software - i.e., don't rely on it.
-8. The default keybindings are WASD for movement Q and E for stepping left and right, Space for jump, Shift for slow
-   movements, X for rolling, Ctrl for Action, 1 for drawing pistols, 2 for shotguns, 3 for uzis and 4 for magnums. You
-   can consume small medi packs by pressing 5, and large ones by pressing 6. Quicksaves and loading them can be done
-   using F5 and F6, but these saves cannot be loaded in the menu yet and must be loaded while in-game. You can make make
-   screenshots by pressing F12, and toggling some debug output by pressing F11. The menu can be opened using Esc, and
-   videos can be skipped using Esc.
-9. You may customize all these controls by editing `config.yaml`; within there, there's a line `inputMapping:`; if you
-   don't understand how this works (because you're not inclined enough with technical details), head over to the discord
-   server mentioned above. Otherwise, you can find the values you need to enter there
-   [here](https://github.com/stohrendorf/EdisonEngine/blob/master/src/glfw_gamepad_buttons.txt) and
-   [here](https://github.com/stohrendorf/EdisonEngine/blob/master/src/glfw_keys.txt). This file will appear with default
-   settings when you have started and closed the engine once.
+7. The default keybindings are WASD for movement Q and E for stepping left and right, Space for jump, Shift for walking,
+   X for rolling, Ctrl for Action, 1 for drawing pistols, 2 for shotguns, 3 for uzis and 4 for magnums. You can consume
+   small medi packs by pressing 5, and large ones by pressing 6. Quicksaves and loading them can be done using F5 and
+   F6. You can take screenshots by pressing F12. The menu can be opened using Esc, and videos can be skipped using Esc.
 
 ## Credits
 
@@ -73,10 +64,10 @@ because I want to be grateful - I'd like to give credit to the OpenTomb contribu
 
 * [TeslaRus](https://github.com/TeslaRus): main developer.
 * [Cochrane](https://github.com/Cochrane): renderer rewrites and optimizing, Mac OS X support.
-* [Gh0stBlade](https://github.com/Gh0stBlade): renderer add-ons, shader port, gameflow implementation,
-  state control fix-ups, camera and AI programming.
-* [Lwmte](https://github.com/Lwmte): state and scripting fix-ups, controls, GUI and audio modules,
-  trigger and entity system rewrites.
+* [Gh0stBlade](https://github.com/Gh0stBlade): renderer add-ons, shader port, gameflow implementation, state control
+  fix-ups, camera and AI programming.
+* [Lwmte](https://github.com/Lwmte): state and scripting fix-ups, controls, GUI and audio modules, trigger and entity
+  system rewrites.
 * Nickotte: interface programming, ring inventory implementation, camera fix-ups.
 * [pmatulka](https://github.com/pmatulka): Linux port and testing.
 * [richardba](https://github.com/richardba): Github migration, Github repo maintenance, website design.
@@ -89,23 +80,23 @@ because I want to be grateful - I'd like to give credit to the OpenTomb contribu
 * [gabrielmtzcarrillo](https://github.com/gabrielmtzcarrillo): entity shader work.
 * [filfreire](https://github.com/filfreire): documentation.
 
-Additional contributions from: Ado Croft (extensive testing), E. Popov (TRN caustics shader port),
-godmodder (general help), jack9267 (vt loader optimization), meta2tr (testing and bugtracking),
-shabtronic (renderer fix-ups), Tonttu (console patch) and xythobuz (additional Mac patches).
+Additional contributions from: Ado Croft (extensive testing), E. Popov (TRN caustics shader port), godmodder (general
+help), jack9267 (vt loader optimization), meta2tr (testing and bugtracking), shabtronic (renderer fix-ups), Tonttu (
+console patch) and xythobuz (additional Mac patches).
 
 Translations by: Joey79100 (French), Nickotte (Italian), Lwmte (Russian), SuiKaze Raider (Spanish).
-
 
 ## Building
 
 Do a `git submodule update --init --recursive`.
 
-EdisonEngine uses [vcpkg](https://github.com/Microsoft/vcpkg); refer to its documentation for basic usage,
-but the only thing you need is to call cmake with
+EdisonEngine uses [vcpkg](https://github.com/Microsoft/vcpkg); refer to its documentation for basic usage, but the only
+thing you need is to call cmake with
 `-DCMAKE_TOOLCHAIN_FILE=C:/devel/vcpkg/scripts/buildsystems/vcpkg.cmake` (adjust path as necessary).
 
-This is the list of the required libraries to be installed with `vcpkg install` (remember to
-set the target triplet as necessary, e.g. `vcpkg install boost:x64-windows`):
+This is the list of the required libraries to be installed with `vcpkg install` (remember to set the target triplet as
+necessary, e.g. `vcpkg install boost:x64-windows`):
+
 * boost
 * glfw3
 * libpng
