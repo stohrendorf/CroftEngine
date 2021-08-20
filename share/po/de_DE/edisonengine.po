@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EdisonEngine\n"
 "Report-Msgid-Bugs-To: https://github.com/stohrendorf/EdisonEngine/issues\n"
-"POT-Creation-Date: 2021-08-19 17:41+0200\n"
+"POT-Creation-Date: 2021-08-20 08:39+0200\n"
 "Last-Translator: Steffen Ohrendorf\n"
 "Language-Team: none\n"
 "Language: de_DE\n"
@@ -117,6 +117,7 @@ msgstr "Alt"
 msgid "Apply changes?"
 msgstr "Zuordnung anwenden?"
 
+#. translators: TR charmap encoding
 #: menu/audiosettingsmenustate.cpp:23
 msgid "Audio Settings"
 msgstr "Audio Einstellungen"
@@ -290,7 +291,7 @@ msgid "E"
 msgstr "E"
 
 #. translators: TR charmap encoding
-#: menu/audiosettingsmenustate.cpp:50 menu/rendersettingsmenustate.cpp:107
+#: menu/audiosettingsmenustate.cpp:51 menu/rendersettingsmenustate.cpp:107
 msgid "Effects"
 msgstr "Effekte"
 
@@ -399,7 +400,8 @@ msgstr "Glidos - Löse Zuordnungen auf (%1%%%)"
 msgid "Glidos - Resolving maps (100%)"
 msgstr "Glidos - Löse Zuordnungen auf (100%)"
 
-#: menu/audiosettingsmenustate.cpp:40
+#. translators: TR charmap encoding
+#: menu/audiosettingsmenustate.cpp:41
 msgid "Global"
 msgstr "Global"
 
@@ -601,7 +603,8 @@ msgstr "Men~u"
 msgid "More Lights"
 msgstr "Mehr Lichter"
 
-#: menu/audiosettingsmenustate.cpp:45
+#. translators: TR charmap encoding
+#: menu/audiosettingsmenustate.cpp:46
 msgid "Music"
 msgstr "Musik"
 
@@ -630,7 +633,7 @@ msgid "NmLk"
 msgstr "Num"
 
 #. translators: TR charmap encoding
-#: menu/controlsmenustate.cpp:135
+#: menu/controlsmenustate.cpp:135 ui/widgets/messagebox.cpp:15
 msgid "No"
 msgstr "Nein"
 
@@ -1132,7 +1135,7 @@ msgid "Y"
 msgstr "Z"
 
 #. translators: TR charmap encoding
-#: menu/controlsmenustate.cpp:134
+#: menu/controlsmenustate.cpp:134 ui/widgets/messagebox.cpp:14
 msgid "Yes"
 msgstr "Ja"
 
