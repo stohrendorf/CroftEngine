@@ -163,7 +163,7 @@ RenderState RenderState::getDefaults()
 {
   static bool initialized = false;
 
-  RenderState defaults;
+  static RenderState defaults;
   if(!initialized)
   {
     initialized = true;
