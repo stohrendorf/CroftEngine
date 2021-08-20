@@ -455,12 +455,13 @@ set( EDISONENGINE_SRCS
 
         ui/widgets/checkbox.cpp
         ui/widgets/gridbox.cpp
-        ui/widgets/listbox.cpp
-        ui/widgets/label.cpp
         ui/widgets/groupbox.cpp
+        ui/widgets/label.cpp
+        ui/widgets/listbox.cpp
+        ui/widgets/messagebox.cpp
         ui/widgets/progressbar.cpp
-        ui/widgets/sprite.cpp
         ui/widgets/selectionbox.cpp
+        ui/widgets/sprite.cpp
 
         video/player.h
         video/player.cpp

@@ -1179,7 +1179,7 @@ void LaraObject::overrideLaraMeshesDrawWeapons(WeaponType weaponType)
 
   const auto& src = getWorld().findAnimatedModelForType(id);
   Expects(src != nullptr);
-  BOOST_ASSERT(src->bones.size() == getSkeleton()->getBoneCount());
+  BOOST_ASSERT(src->bones.size() == getSkeleton()->getBoneCount()); //-V1004
   const auto& normalLara = *getWorld().findAnimatedModelForType(TR1ItemId::Lara);
   BOOST_ASSERT(normalLara.bones.size() == getSkeleton()->getBoneCount());
   getSkeleton()->setMeshPart(leftArm.handBoneId, src->bones[leftArm.handBoneId].mesh); //-V1004

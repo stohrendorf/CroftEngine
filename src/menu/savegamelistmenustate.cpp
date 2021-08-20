@@ -65,7 +65,10 @@ std::unique_ptr<MenuState>
 {
   if(!m_loading)
   {
-    // TODO confirm overwrite if necessary
+    if(m_hasSavegame.at(idx))
+    {
+      // TODO confirm overwrite if necessary
+    }
     world.save(idx);
     return create<ClosePassportMenuState>(display.getCurrentRing().getSelectedObject(),
                                           create<DeflateRingMenuState>(DeflateRingMenuState::Direction::Backpack,

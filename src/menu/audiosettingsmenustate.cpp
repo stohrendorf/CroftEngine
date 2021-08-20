@@ -20,7 +20,8 @@ AudioSettingsMenuState::AudioSettingsMenuState(const std::shared_ptr<MenuRingTra
     : SelectedMenuState{ringTransform}
     , m_previous{std::move(previous)}
     , m_grid{std::make_shared<ui::widgets::GridBox>(2 * glm::ivec2{ui::OutlineBorderWidth, ui::OutlineBorderWidth})}
-    , m_container{std::make_shared<ui::widgets::GroupBox>(_("Audio Settings"), m_grid)}
+    , m_container{std::make_shared<ui::widgets::GroupBox>(/* translators: TR charmap encoding */ _("Audio Settings"),
+                                                          m_grid)}
     , m_globalVolume{std::make_shared<ui::widgets::ProgressBar>()}
     , m_musicVolume{std::make_shared<ui::widgets::ProgressBar>()}
     , m_sfxVolume{std::make_shared<ui::widgets::ProgressBar>()}
@@ -37,17 +38,17 @@ AudioSettingsMenuState::AudioSettingsMenuState(const std::shared_ptr<MenuRingTra
   m_grid->setExtents(2, 3);
   m_grid->setSelected({0, 0});
 
-  auto label = std::make_shared<ui::widgets::Label>(_("Global"));
+  auto label = std::make_shared<ui::widgets::Label>(/* translators: TR charmap encoding */ _("Global"));
   label->fitToContent();
   m_grid->set(0, 0, std::move(label));
   m_grid->set(1, 0, m_globalVolume);
 
-  label = std::make_shared<ui::widgets::Label>(_("Music"));
+  label = std::make_shared<ui::widgets::Label>(/* translators: TR charmap encoding */ _("Music"));
   label->fitToContent();
   m_grid->set(0, 1, label);
   m_grid->set(1, 1, m_musicVolume);
 
-  label = std::make_shared<ui::widgets::Label>(_("Effects"));
+  label = std::make_shared<ui::widgets::Label>(/* translators: TR charmap encoding */ _("Effects"));
   label->fitToContent();
   m_grid->set(0, 2, label);
   m_grid->set(1, 2, m_sfxVolume);

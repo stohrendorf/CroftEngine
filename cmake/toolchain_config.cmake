@@ -27,7 +27,7 @@ if( MSVC )
 endif()
 
 if( WIN32 )
-    add_definitions( -DNOMINMAX -DNOGDI -DNOBITMAP )
+    add_definitions( -DNOMINMAX -DNOGDI -DNOBITMAP -DNOMB )
 endif()
 
 if( CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU" )
