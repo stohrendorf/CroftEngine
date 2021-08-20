@@ -222,6 +222,7 @@ void LaraObject::handleLaraStateOnLand()
   updateLarasWeaponsStatus();
   getWorld().handleCommandSequence(collisionInfo.mid.floor.lastCommandSequenceOrDeath, false);
 
+  drawRoutine();
   applyTransform();
 }
 
@@ -564,8 +565,6 @@ void LaraObject::updateImpl()
   }
 
   applyMovement(true);
-
-  drawRoutine();
 }
 
 void LaraObject::updateFloorHeight(const core::Length& dy)
@@ -2169,8 +2168,7 @@ LaraObject::LaraObject(const gsl::not_null<world::World*>& world,
     getSkeleton()->rebuildMesh();
   }
 
-  if(auto weaponType = player.selectedWeaponType;
-     weaponType != WeaponType::None && weaponType != WeaponType::Shotgun)
+  if(auto weaponType = player.selectedWeaponType; weaponType != WeaponType::None && weaponType != WeaponType::Shotgun)
   {
     leftArm.overrideHolsterWeaponsMeshes(*this, player.selectedWeaponType);
     rightArm.overrideHolsterWeaponsMeshes(*this, player.selectedWeaponType);
