@@ -189,14 +189,6 @@ level_sequence = [
             },
         },
     ),
-    Cutscene(
-        name="CUT2",
-        track=TR1TrackId.Cutscene4,
-        camera_pos_x=51962,
-        camera_pos_z=53760,
-        camera_rot=90.0,
-        weapon_swap=True,
-    ),
     Level(
         name="LEVEL7B",
         titles={
@@ -220,6 +212,14 @@ level_sequence = [
                 TR1ItemId.ScionPiece5: "Scion",
             },
         },
+    ),
+    Cutscene(
+        name="CUT2",
+        track=TR1TrackId.Cutscene4,
+        camera_pos_x=51962,
+        camera_pos_z=53760,
+        camera_rot=90.0,
+        weapon_swap=True,
     ),
     Video("VISION.RPL"),
     Level(
