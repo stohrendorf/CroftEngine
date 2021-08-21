@@ -57,21 +57,19 @@ void Rat::update()
       }
       const auto prevY = std::exchange(m_state.location.position.Y, m_state.floor);
       animateCreature(turn, 0_deg);
-      if(prevY != core::InvalidHeight)
+      if(waterHeight.has_value() && prevY != core::InvalidHeight)
       {
-        Expects(waterHeight.has_value());
-        const auto w = *waterHeight; //-V1007
-        if(w < prevY - 32_len)
+        if(*waterHeight < prevY - 32_len)
         {
           m_state.location.position.Y = prevY - 32_len;
         }
-        else if(w > prevY + 32_len)
+        else if(*waterHeight > prevY + 32_len)
         {
           m_state.location.position.Y = prevY + 32_len;
         }
         else
         {
-          m_state.location.position.Y = w;
+          m_state.location.position.Y = *waterHeight;
         }
       }
       applyTransform();
