@@ -97,6 +97,11 @@ public:
     m_particles.emplace_back(std::move(particle));
   }
 
+  [[nodiscard]] const auto& getParticles() const
+  {
+    return m_particles;
+  }
+
   void eraseParticle(const std::shared_ptr<Particle>& particle);
 
   void applyScheduledDeletions();

@@ -170,8 +170,10 @@ bool FlameParticle::update(world::World& world)
   if(gsl::narrow<size_t>(-negSpriteFrameId) >= world.findSpriteSequenceForType(object_number)->sprites.size())
     negSpriteFrameId = 0;
 
+  objects::LaraObject& lara = world.getObjectManager().getLara();
   if(timePerSpriteFrame >= 0)
   {
+    // not attached to lara
     world.getAudioEngine().playSoundEffect(TR1SoundEffect::Burning, this);
     if(timePerSpriteFrame != 0)
     {
@@ -180,10 +182,11 @@ bool FlameParticle::update(world::World& world)
       return true;
     }
 
-    if(world.getObjectManager().getLara().isNear(*this, 600_len))
+    BOOST_ASSERT(timePerSpriteFrame == 0);
+    if(lara.isNear(*this, 600_len))
     {
-      // it's hot here, isn't it?
-      auto& laraState = world.getObjectManager().getLara().m_state;
+      // lara is close enough to be hurt by heat
+      auto& laraState = lara.m_state;
       laraState.health -= 3_hp;
       laraState.is_hit = true;
 
@@ -191,18 +194,28 @@ bool FlameParticle::update(world::World& world)
                           + util::square(laraState.location.position.Z - location.position.Z);
       if(distSq < util::square(300_len))
       {
+        // only attach a new flame to lara every 100 frames
         timePerSpriteFrame = 100;
 
-        const auto particle = std::make_shared<FlameParticle>(location, world);
-        particle->timePerSpriteFrame = -1;
-        setParent(particle, location.room->node);
-        world.getObjectManager().registerParticle(particle);
+        const auto alreadyAttachedToLara
+          = std::any_of(world.getObjectManager().getParticles().begin(),
+                        world.getObjectManager().getParticles().end(),
+                        [](const gsl::not_null<std::shared_ptr<Particle>>& particle)
+                        { return particle->object_number == TR1ItemId::Flame && particle->timePerSpriteFrame == -1; });
+
+        if(!alreadyAttachedToLara)
+        {
+          const auto particle = std::make_shared<FlameParticle>(location, world);
+          particle->timePerSpriteFrame = -1;
+          setParent(particle, location.room->node);
+          world.getObjectManager().registerParticle(particle);
+        }
       }
     }
   }
   else
   {
-    // burn baby burn
+    // this flame is attached to lara
 
     location.position = {0_len, 0_len, 0_len};
     if(timePerSpriteFrame == -1)
@@ -214,10 +227,8 @@ bool FlameParticle::update(world::World& world)
       location.position.Y = 0_len;
     }
 
-    const auto itemSpheres = world.getObjectManager().getLara().getSkeleton()->getBoneCollisionSpheres(
-      world.getObjectManager().getLara().m_state,
-      *world.getObjectManager().getLara().getSkeleton()->getInterpolationInfo().getNearestFrame(),
-      nullptr);
+    const auto itemSpheres = lara.getSkeleton()->getBoneCollisionSpheres(
+      lara.m_state, *lara.getSkeleton()->getInterpolationInfo().getNearestFrame(), nullptr);
 
     location.position = core::TRVec{
       glm::vec3{translate(itemSpheres.at(-timePerSpriteFrame - 1).m, location.position.toRenderSystem())[3]}};
@@ -226,8 +237,8 @@ bool FlameParticle::update(world::World& world)
        !waterHeight.has_value() || *waterHeight >= location.position.Y)
     {
       world.getAudioEngine().playSoundEffect(TR1SoundEffect::Burning, this);
-      world.getObjectManager().getLara().m_state.health -= 3_hp;
-      world.getObjectManager().getLara().m_state.is_hit = true;
+      lara.m_state.health -= 3_hp;
+      lara.m_state.is_hit = true;
     }
     else
     {
