@@ -38,7 +38,7 @@ private:
   std::deque<gsl::not_null<std::shared_ptr<render::scene::Renderable>>> m_renderables{};
   Lighting m_lighting;
 
-  void initRenderables(world::World& world);
+  void initRenderables(world::World& world, bool billboard);
 
 protected:
   void nextFrame()
@@ -74,12 +74,14 @@ public:
                     const core::TypeId& objectNumber,
                     const gsl::not_null<const world::Room*>& room,
                     world::World& world,
+                    bool billboard,
                     const std::shared_ptr<render::scene::Renderable>& renderable = nullptr);
 
   explicit Particle(const std::string& id,
                     const core::TypeId& objectNumber,
                     Location location,
                     world::World& world,
+                    bool billboard,
                     const std::shared_ptr<render::scene::Renderable>& renderable = nullptr);
 
   void setShade(const core::Shade& shade)
@@ -99,7 +101,7 @@ public:
                                  const core::Speed& speed_,
                                  const core::Angle& angle_,
                                  world::World& world)
-      : Particle{"bloodsplat", TR1ItemId::Blood, location, world}
+      : Particle{"bloodsplat", TR1ItemId::Blood, location, world, true}
   {
     speed = speed_;
     angle.Y = angle_;
@@ -112,7 +114,7 @@ class SplashParticle final : public Particle
 {
 public:
   explicit SplashParticle(const Location& location, world::World& world, const bool waterfall)
-      : Particle{"splash", TR1ItemId::Splash, location, world}
+      : Particle{"splash", TR1ItemId::Splash, location, world, false}
   {
     if(!waterfall)
     {
@@ -133,7 +135,7 @@ class RicochetParticle final : public Particle
 {
 public:
   explicit RicochetParticle(const Location& location, world::World& world)
-      : Particle{"ricochet", TR1ItemId::Ricochet, location, world}
+      : Particle{"ricochet", TR1ItemId::Ricochet, location, world, false}
   {
     timePerSpriteFrame = 4;
 
@@ -149,7 +151,7 @@ class BubbleParticle final : public Particle
 {
 public:
   explicit BubbleParticle(const Location& location, world::World& world)
-      : Particle{"bubble", TR1ItemId::Bubbles, location, world, nullptr}
+      : Particle{"bubble", TR1ItemId::Bubbles, location, world, true, nullptr}
   {
     speed = 10_spd + util::rand15(6_spd);
 
@@ -165,7 +167,7 @@ class SparkleParticle final : public Particle
 {
 public:
   explicit SparkleParticle(const Location& location, world::World& world)
-      : Particle{"sparkles", TR1ItemId::Sparkles, location, world}
+      : Particle{"sparkles", TR1ItemId::Sparkles, location, world, true}
   {
   }
 
@@ -176,7 +178,7 @@ class MuzzleFlashParticle final : public Particle
 {
 public:
   explicit MuzzleFlashParticle(const Location& location, world::World& world, const core::Angle& yAngle)
-      : Particle{"muzzleflash", TR1ItemId::MuzzleFlash, location, world}
+      : Particle{"muzzleflash", TR1ItemId::MuzzleFlash, location, world, false}
   {
     angle.Y = yAngle;
     timePerSpriteFrame = 3;
@@ -201,7 +203,7 @@ public:
                              world::World& world,
                              const core::Speed& fallSpeed,
                              const core::TRRotation& angle)
-      : Particle{"explosion", TR1ItemId::Explosion, location, world}
+      : Particle{"explosion", TR1ItemId::Explosion, location, world, false}
   {
     fall_speed = fallSpeed;
     this->angle = angle;
@@ -218,7 +220,7 @@ public:
                                 const gsl::not_null<std::shared_ptr<render::scene::Renderable>>& renderable,
                                 const bool torsoBoss,
                                 const core::Length& damageRadius)
-      : Particle{"meshShrapnel", TR1ItemId::MeshShrapnel, location, world, renderable}
+      : Particle{"meshShrapnel", TR1ItemId::MeshShrapnel, location, world, false, renderable}
       , m_damageRadius{damageRadius}
   {
     clearRenderables();
@@ -243,7 +245,7 @@ class MutantAmmoParticle : public Particle
 {
 protected:
   explicit MutantAmmoParticle(const Location& location, world::World& world, const TR1ItemId itemType)
-      : Particle{"mutantAmmo", itemType, location, world}
+      : Particle{"mutantAmmo", itemType, location, world, false}
   {
   }
 
@@ -283,7 +285,7 @@ class LavaParticle final : public Particle
 {
 public:
   explicit LavaParticle(const Location& location, world::World& world)
-      : Particle{"lava", TR1ItemId::LavaParticles, location, world}
+      : Particle{"lava", TR1ItemId::LavaParticles, location, world, true}
   {
     angle.Y = util::rand15(180_deg) * 2;
     speed = util::rand15(32_spd);
@@ -298,7 +300,7 @@ class SmokeParticle final : public Particle
 {
 public:
   explicit SmokeParticle(const Location& location, world::World& world, const core::TRRotation& rotation)
-      : Particle{"smoke", TR1ItemId::Smoke, location, world}
+      : Particle{"smoke", TR1ItemId::Smoke, location, world, false}
   {
     angle = rotation;
   }

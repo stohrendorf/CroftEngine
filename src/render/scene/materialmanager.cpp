@@ -27,19 +27,20 @@ void configureForScreenSpaceEffect(Material& m, bool enableBlend = false)
 }
 } // namespace
 
-const std::shared_ptr<Material>& MaterialManager::getSprite()
+std::shared_ptr<Material> MaterialManager::getSprite(bool billboard)
 {
-  if(m_sprite != nullptr)
-    return m_sprite;
+  if(const auto& tmp = m_sprite[billboard])
+    return tmp;
 
-  m_sprite = std::make_shared<Material>(m_shaderCache->getGeometry(false, false, true));
-  m_sprite->getRenderState().setCullFace(false);
+  auto m = std::make_shared<Material>(m_shaderCache->getGeometry(false, false, true));
+  m->getRenderState().setCullFace(false);
 
-  m_sprite->getUniformBlock("Transform")->bindTransformBuffer();
-  m_sprite->getUniformBlock("Camera")->bindCameraBuffer(m_renderer->getCamera());
-  m_sprite->getUniform("u_isSprite")->set(1);
+  m->getUniformBlock("Transform")->bindTransformBuffer();
+  m->getUniformBlock("Camera")->bindCameraBuffer(m_renderer->getCamera());
+  m->getUniform("u_isSprite")->set(billboard ? 2 : 1);
 
-  return m_sprite;
+  m_sprite[billboard] = m;
+  return m;
 }
 
 const std::shared_ptr<Material>& MaterialManager::getCSMDepthOnly(bool skeletal)

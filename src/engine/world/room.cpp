@@ -346,7 +346,7 @@ void Room::createSceneNode(const loader::file::Room& srcRoom,
     const auto& sprite = world.getSprites().at(spriteInstance.id.get());
 
     auto spriteNode = std::make_shared<render::scene::Node>("sprite");
-    spriteNode->setRenderable(sprite.mesh);
+    spriteNode->setRenderable(sprite.yBoundMesh);
     const auto& v = srcRoom.vertices.at(spriteInstance.vertex.get());
     spriteNode->setLocalMatrix(translate(glm::mat4{1.0f}, v.position.toRenderSystem()));
     spriteNode->bind("u_lightAmbient",

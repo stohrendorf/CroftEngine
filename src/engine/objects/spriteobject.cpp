@@ -39,7 +39,7 @@ void SpriteObject::createModel()
 {
   Expects(m_sprite != nullptr);
 
-  m_node->setRenderable(m_sprite->mesh);
+  m_node->setRenderable(m_sprite->yBoundMesh);
   m_node->bind("u_lightAmbient",
                [brightness = m_brightness](
                  const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)

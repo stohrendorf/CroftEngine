@@ -22,7 +22,8 @@ struct Sprite
   glm::ivec2 render0;
   glm::ivec2 render1;
 
-  std::shared_ptr<render::scene::Mesh> mesh;
+  std::shared_ptr<render::scene::Mesh> yBoundMesh;
+  std::shared_ptr<render::scene::Mesh> billboardMesh;
 };
 
 struct SpriteSequence

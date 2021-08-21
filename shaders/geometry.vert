@@ -21,8 +21,13 @@ void main()
     #endif
     mat4 mv = u_view * mm;
 
-    if (u_isSprite != 0) {
+    if (u_isSprite == 1) {
         mv[0].xyz = vec3(1, 0, 0);
+        mv[2].xyz = vec3(0, 0, 1);
+    }
+    else if (u_isSprite == 2) {
+        mv[0].xyz = vec3(1, 0, 0);
+        mv[1].xyz = vec3(0, 1, 0);
         mv[2].xyz = vec3(0, 0, 1);
     }
 

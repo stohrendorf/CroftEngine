@@ -73,15 +73,16 @@ ControllerLayouts loadControllerButtonIcons(render::MultiTextureAtlas& atlases,
         BOOST_THROW_EXCEPTION(std::runtime_error("invalid controller button configuration"));
       }
 
-      sprite.mesh = render::scene::createSpriteMesh(static_cast<float>(sprite.render0.x),
-                                                    static_cast<float>(-sprite.render0.y),
-                                                    static_cast<float>(sprite.render1.x),
-                                                    static_cast<float>(-sprite.render1.y),
-                                                    sprite.uv0,
-                                                    sprite.uv1,
-                                                    material,
-                                                    sprite.textureId.get_as<int32_t>(),
-                                                    "controller-" + layout.name + "-" + btnName);
+      sprite.yBoundMesh = sprite.billboardMesh
+        = render::scene::createSpriteMesh(static_cast<float>(sprite.render0.x),
+                                          static_cast<float>(-sprite.render0.y),
+                                          static_cast<float>(sprite.render1.x),
+                                          static_cast<float>(-sprite.render1.y),
+                                          sprite.uv0,
+                                          sprite.uv1,
+                                          material,
+                                          sprite.textureId.get_as<int32_t>(),
+                                          "controller-" + layout.name + "-" + btnName);
 
       if(std::holds_alternative<NamedGlfwGamepadButton>(buttonOrAxis))
       {

@@ -12,7 +12,7 @@
 
 namespace engine
 {
-void Particle::initRenderables(world::World& world)
+void Particle::initRenderables(world::World& world, bool billboard)
 {
   setShade(core::Shade{core::Shade::type{4096}});
 
@@ -29,7 +29,7 @@ void Particle::initRenderables(world::World& world)
   {
     for(const world::Sprite& spr : spriteSequence->sprites)
     {
-      m_renderables.emplace_back(spr.mesh);
+      m_renderables.emplace_back(billboard ? spr.billboardMesh : spr.yBoundMesh);
     }
   }
   else
@@ -55,6 +55,7 @@ Particle::Particle(const std::string& id,
                    const core::TypeId& objectNumber,
                    const gsl::not_null<const world::Room*>& room,
                    world::World& world,
+                   bool billboard,
                    const std::shared_ptr<render::scene::Renderable>& renderable)
     : Node{id}
     , Emitter{world.getPresenter().getSoundEngine().get()}
@@ -63,7 +64,7 @@ Particle::Particle(const std::string& id,
 {
   if(renderable == nullptr)
   {
-    initRenderables(world);
+    initRenderables(world, billboard);
   }
   else
   {
@@ -77,6 +78,7 @@ Particle::Particle(const std::string& id,
                    const core::TypeId& objectNumber,
                    Location location,
                    world::World& world,
+                   bool billboard,
                    const std::shared_ptr<render::scene::Renderable>& renderable)
     : Node{id}
     , Emitter{world.getPresenter().getSoundEngine().get()}
@@ -85,7 +87,7 @@ Particle::Particle(const std::string& id,
 {
   if(renderable == nullptr)
   {
-    initRenderables(world);
+    initRenderables(world, billboard);
   }
   else
   {
@@ -148,7 +150,7 @@ bool BubbleParticle::update(world::World& world)
 }
 
 FlameParticle::FlameParticle(const Location& location, world::World& world, bool randomize)
-    : Particle{"flame", TR1ItemId::Flame, location, world}
+    : Particle{"flame", TR1ItemId::Flame, location, world, false}
 {
   timePerSpriteFrame = 0;
   negSpriteFrameId = 0;
@@ -185,9 +187,8 @@ bool FlameParticle::update(world::World& world)
       laraState.health -= 3_hp;
       laraState.is_hit = true;
 
-      const auto distSq
-        = util::square(laraState.location.position.X - location.position.X)
-          + util::square(laraState.location.position.Z - location.position.Z);
+      const auto distSq = util::square(laraState.location.position.X - location.position.X)
+                          + util::square(laraState.location.position.Z - location.position.Z);
       if(distSq < util::square(300_len))
       {
         timePerSpriteFrame = 100;

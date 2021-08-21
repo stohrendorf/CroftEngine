@@ -19,7 +19,7 @@ public:
   explicit MaterialManager(gsl::not_null<std::shared_ptr<ShaderCache>> shaderCache,
                            gsl::not_null<std::shared_ptr<Renderer>> renderer);
 
-  [[nodiscard]] const std::shared_ptr<Material>& getSprite();
+  [[nodiscard]] std::shared_ptr<Material> getSprite(bool billboard);
 
   [[nodiscard]] const std::shared_ptr<Material>& getCSMDepthOnly(bool skeletal);
   [[nodiscard]] const std::shared_ptr<Material>& getDepthOnly(bool skeletal);
@@ -58,7 +58,7 @@ private:
   const gsl::not_null<std::shared_ptr<ShaderCache>> m_shaderCache;
   std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::RGB8>>> m_noiseTexture;
 
-  std::shared_ptr<Material> m_sprite{nullptr};
+  std::map<bool, std::shared_ptr<Material>> m_sprite{};
   std::map<bool, std::shared_ptr<Material>> m_csmDepthOnly{};
   std::map<bool, std::shared_ptr<Material>> m_depthOnly{};
   std::map<std::tuple<bool, bool, bool>, std::shared_ptr<Material>> m_geometry{};
