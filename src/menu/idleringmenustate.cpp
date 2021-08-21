@@ -30,14 +30,14 @@ std::unique_ptr<MenuState> IdleRingMenuState::onFrame(ui::Ui& ui, engine::world:
     display.drawMenuObjectDescription(ui, world, currentObject);
   }
 
-  if(presenter.getInputHandler().getInputState().xMovement.justChangedTo(hid::AxisMovement::Right)
+  if(presenter.getInputHandler().getInputState().xMovement == hid::AxisMovement::Right
      && display.getCurrentRing().list.size() > 1)
   {
     world.getAudioEngine().playSoundEffect(engine::TR1SoundEffect::MenuMove, nullptr);
     return create<RotateLeftRightMenuState>(true, display.getCurrentRing(), std::move(display.m_currentState));
   }
 
-  if(presenter.getInputHandler().getInputState().xMovement.justChangedTo(hid::AxisMovement::Left)
+  if(presenter.getInputHandler().getInputState().xMovement == hid::AxisMovement::Left
      && display.getCurrentRing().list.size() > 1)
   {
     world.getAudioEngine().playSoundEffect(engine::TR1SoundEffect::MenuMove, nullptr);
