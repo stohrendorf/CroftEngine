@@ -426,12 +426,9 @@ std::unordered_set<const world::Portal*> CameraController::update()
     BOOST_ASSERT(m_lookAtObject.get() != focusedObject);
     const auto& focusedPosition = focusedObject->m_state.location.position;
     const auto& lookAtPosition = m_lookAtObject->m_state.location.position;
-    const auto distToFocused
-      = lookAtPosition.distanceTo(focusedPosition);
-    auto eyeRotY
-      = angleFromAtan(lookAtPosition.X - focusedPosition.X,
-                      lookAtPosition.Z - focusedPosition.Z)
-        - focusedObject->m_state.rotation.Y;
+    const auto distToFocused = lookAtPosition.distanceTo(focusedPosition);
+    auto eyeRotY = angleFromAtan(lookAtPosition.X - focusedPosition.X, lookAtPosition.Z - focusedPosition.Z)
+                   - focusedObject->m_state.rotation.Y;
     eyeRotY /= 2;
     focusBBox = m_lookAtObject->getBoundingBox();
     auto eyeRotX = angleFromAtan(
@@ -677,10 +674,8 @@ void CameraController::handleFreeLook(const objects::Object& object)
   m_lookAt.position.Z = object.m_state.location.position.Z;
 
   auto& lara = m_world->getObjectManager().getLara();
-  m_rotationAroundLara.X = lara.m_torsoRotation.X
-                           + lara.m_headRotation.X + object.m_state.rotation.X;
-  m_rotationAroundLara.Y = lara.m_torsoRotation.Y
-                           + lara.m_headRotation.Y + object.m_state.rotation.Y;
+  m_rotationAroundLara.X = lara.m_torsoRotation.X + lara.m_headRotation.X + object.m_state.rotation.X;
+  m_rotationAroundLara.Y = lara.m_torsoRotation.Y + lara.m_headRotation.Y + object.m_state.rotation.Y;
   m_distance = core::DefaultCameraLaraDistance;
   m_lookAt.position += util::pitch(-util::sin(core::SectorSize / 2, m_rotationAroundLara.X), object.m_state.rotation.Y);
 
@@ -718,10 +713,8 @@ void CameraController::handleEnemy(objects::Object& object)
   else
   {
     auto& lara = m_world->getObjectManager().getLara();
-    m_rotationAroundLara.X = lara.m_torsoRotation.X
-                             + lara.m_headRotation.X + object.m_state.rotation.X;
-    m_rotationAroundLara.Y = lara.m_torsoRotation.Y
-                             + lara.m_headRotation.Y + object.m_state.rotation.Y;
+    m_rotationAroundLara.X = lara.m_torsoRotation.X + lara.m_headRotation.X + object.m_state.rotation.X;
+    m_rotationAroundLara.Y = lara.m_torsoRotation.Y + lara.m_headRotation.Y + object.m_state.rotation.Y;
   }
 
   m_distance = core::CombatCameraLaraDistance;
@@ -745,8 +738,9 @@ std::unordered_set<const world::Portal*> CameraController::updateCinematic(const
                                                                            const bool ingame)
 {
   const core::TRVec basePos = ingame ? m_cinematicPos : m_location.position;
-  const core::TRVec newLookAt = basePos + util::pitch(frame.lookAt, m_eyeRotation.Y);
-  const core::TRVec newPos = basePos + util::pitch(frame.position, m_eyeRotation.Y);
+  const auto yRotOffset = ingame ? m_cinematicRot.Y : 0_deg;
+  const core::TRVec newLookAt = basePos + util::pitch(frame.lookAt, m_eyeRotation.Y + yRotOffset);
+  const core::TRVec newPos = basePos + util::pitch(frame.position, m_eyeRotation.Y + yRotOffset);
 
   if(ingame)
   {
