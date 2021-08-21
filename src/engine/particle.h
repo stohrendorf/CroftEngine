@@ -55,6 +55,7 @@ protected:
 
   void applyTransform()
   {
+    location.updateRoom();
     const glm::vec3 tr = location.position.toRenderSystem() - location.room->position.toRenderSystem();
     setLocalMatrix(translate(glm::mat4{1.0f}, tr) * angle.toMatrix());
   }
