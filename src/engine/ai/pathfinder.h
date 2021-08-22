@@ -16,15 +16,6 @@ class World;
 
 namespace engine::ai
 {
-struct PathFinderNode
-{
-  const world::Box* next = nullptr;
-  bool reachable = true;
-
-  void serialize(const serialization::Serializer<world::World>& ser);
-  static PathFinderNode create(const serialization::Serializer<world::World>& ser);
-};
-
 struct PathFinder
 {
   bool cannotVisitBlocked = true;
@@ -47,8 +38,6 @@ struct PathFinder
   //! @}
 
   core::TRVec target;
-
-  explicit PathFinder(const world::World& world);
 
   void setRandomSearchTarget(const gsl::not_null<const world::Box*>& box)
   {
@@ -78,12 +67,10 @@ struct PathFinder
 
     m_targetBox = box;
 
-    m_nodes[m_targetBox].next = nullptr;
-    m_nodes[m_targetBox].reachable = true;
     m_expansions.clear();
     m_expansions.emplace_back(m_targetBox);
-    m_visited.clear();
-    m_visited.emplace(m_targetBox);
+    m_reachable.clear();
+    m_reachable[m_targetBox] = true;
   }
 
   void serialize(const serialization::Serializer<world::World>& ser);
@@ -93,7 +80,8 @@ struct PathFinder
   // returns true if and only if the box is visited and marked unreachable
   [[nodiscard]] bool isUnreachable(const gsl::not_null<const world::Box*>& box) const
   {
-    return m_visited.count(box) != 0 && !m_nodes.at(box).reachable;
+    const auto it = m_reachable.find(box);
+    return it != m_reachable.end() && !it->second;
   }
 
   [[nodiscard]] const auto& getRandomBox() const
@@ -102,9 +90,10 @@ struct PathFinder
     return m_boxes[util::rand15(m_boxes.size())];
   }
 
-  [[nodiscard]] const auto& getNextPathBox(const gsl::not_null<const world::Box*>& box) const
+  [[nodiscard]] const world::Box* getNextPathBox(const gsl::not_null<const world::Box*>& box) const
   {
-    return m_nodes.at(box).next;
+    const auto it = m_edges.find(box);
+    return it == m_edges.end() ? nullptr : it->second.get();
   }
 
   [[nodiscard]] const auto& getTargetBox() const
@@ -120,11 +109,10 @@ struct PathFinder
 private:
   void searchPath(const world::World& world);
 
-  std::unordered_map<const world::Box*, PathFinderNode> m_nodes;
   std::vector<gsl::not_null<const world::Box*>> m_boxes;
-  std::deque<const world::Box*> m_expansions;
-  //! Contains all boxes where the "reachable" state has been determined
-  std::unordered_set<const world::Box*> m_visited;
+  std::deque<gsl::not_null<const world::Box*>> m_expansions;
+  std::unordered_map<gsl::not_null<const world::Box*>, bool> m_reachable;
+  std::unordered_map<gsl::not_null<const world::Box*>, gsl::not_null<const world::Box*>> m_edges;
   //! @brief The target box we need to reach
   const world::Box* m_targetBox = nullptr;
 };

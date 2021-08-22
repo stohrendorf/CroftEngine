@@ -8,7 +8,7 @@
 namespace serialization
 {
 template<typename T, typename TContext>
-void save(const std::deque<T>& data, const Serializer<TContext>& ser)
+void save(std::deque<T>& data, const Serializer<TContext>& ser)
 {
   ser.tag("deque");
   ser.node |= ryml::SEQ;
@@ -23,6 +23,7 @@ template<typename T, typename TContext>
 void load(std::deque<T>& data, const Serializer<TContext>& ser)
 {
   ser.tag("deque");
+  Expects(ser.node.is_seq());
   data = std::deque<T>();
   std::transform(ser.node.begin(),
                  ser.node.end(),

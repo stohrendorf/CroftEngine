@@ -27,12 +27,6 @@ template<typename T>
 }
 } // namespace
 
-PathFinder::PathFinder(const world::World& world)
-{
-  for(const auto& box : world.getBoxes())
-    m_nodes.emplace(&box, PathFinderNode{});
-}
-
 bool PathFinder::calculateTarget(const world::World& world,
                                  core::TRVec& moveTarget,
                                  const core::TRVec& startPos,
@@ -252,50 +246,57 @@ void PathFinder::searchPath(const world::World& world)
 
   static constexpr uint8_t MaxExpansions = 5;
 
+  auto setReachable = [this](const world::Box* box, bool reachable)
+  {
+    m_reachable[box] = reachable;
+    if(std::find(m_expansions.begin(), m_expansions.end(), box) == m_expansions.end())
+      m_expansions.emplace_back(box);
+  };
+
   for(uint8_t i = 0; i < MaxExpansions && !m_expansions.empty(); ++i)
   {
-    const auto current = m_expansions.front();
+    const auto currentBox = m_expansions.front();
     m_expansions.pop_front();
-    const auto& currentNode = m_nodes[current];
-    const auto searchZone = current->*zoneRef;
+    const auto searchZone = currentBox.get()->*zoneRef;
 
-    for(const auto& successorBox : current->overlaps)
+    for(const auto& successorBox : currentBox->overlaps)
     {
-      if(successorBox == current)
+      if(successorBox == currentBox)
         continue;
 
       if(searchZone != successorBox.get()->*zoneRef)
-        continue; // cannot switch zones
+        continue;
 
-      const auto boxHeightDiff = successorBox->floor - current->floor;
-      if(boxHeightDiff > step || boxHeightDiff < drop)
-        continue; // can't reach from this box, but still maybe from another one
+      if(const auto boxHeightDiff = successorBox->floor - currentBox->floor;
+         boxHeightDiff > step || boxHeightDiff < drop)
+        continue;
 
-      auto& successorNode = m_nodes[successorBox];
+      const auto it = m_reachable.find(successorBox);
+      const bool initialized = it != m_reachable.end();
 
-      if(!currentNode.reachable)
+      if(!m_reachable.at(currentBox))
       {
-        if(m_visited.emplace(successorBox).second)
+        // propagate "unreachable" to all connected boxes if their reachability hasn't been determined yet
+        if(!initialized)
         {
-          // the successor hasn't been visited, "unreachable" can be propagated/initialized
-          successorNode.reachable = false;
-          if(std::find(m_expansions.begin(), m_expansions.end(), successorBox) == m_expansions.end())
-            m_expansions.emplace_back(successorBox);
+          setReachable(successorBox, false);
         }
       }
       else
       {
-        if(successorNode.reachable && m_visited.count(successorBox) != 0)
+        // propagate "reachable" to all connected boxes if their reachability hasn't been determined yet
+        // OR they were previously determined to be unreachable
+        if(initialized && it->second)
           continue; // already visited and marked reachable
 
-        // mark as visited and check if reachable (may switch reachable to true)
-        m_visited.emplace(successorBox);
-        successorNode.reachable = canVisit(*successorBox);
-        if(successorNode.reachable)
-          successorNode.next = current; // success! connect both boxes
+        const auto reachable = canVisit(*successorBox);
+        if(reachable)
+        {
+          m_edges.erase(successorBox);
+          m_edges.emplace(successorBox, currentBox); // success! connect both boxes
+        }
 
-        if(std::find(m_expansions.begin(), m_expansions.end(), successorBox) == m_expansions.end())
-          m_expansions.emplace_back(successorBox);
+        setReachable(successorBox, reachable);
       }
     }
   }
@@ -303,10 +304,10 @@ void PathFinder::searchPath(const world::World& world)
 
 void PathFinder::serialize(const serialization::Serializer<world::World>& ser)
 {
-  ser(S_NV("nodes", m_nodes),
+  ser(S_NV("edges", m_edges),
       S_NV("boxes", m_boxes),
       S_NV("expansions", m_expansions),
-      S_NV("visited", m_visited),
+      S_NV("reachable", m_reachable),
       S_NV("cannotVisitBlockable", cannotVisitBlockable),
       S_NV("cannotVisitBlocked", cannotVisitBlocked),
       S_NV("step", step),
@@ -330,17 +331,5 @@ void PathFinder::collectBoxes(const world::World& world, const gsl::not_null<con
       m_boxes.emplace_back(&levelBox);
     }
   }
-}
-
-void PathFinderNode::serialize(const serialization::Serializer<world::World>& ser)
-{
-  ser(S_NV_VECTOR_ELEMENT("next", ser.context.getBoxes(), next), S_NV("reachable", reachable));
-}
-
-PathFinderNode PathFinderNode::create(const serialization::Serializer<world::World>& ser)
-{
-  PathFinderNode tmp{};
-  tmp.serialize(ser);
-  return tmp;
 }
 } // namespace engine::ai

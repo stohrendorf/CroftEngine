@@ -70,7 +70,7 @@ struct CreatureInfo
   CreatureInfo(const world::World& world, const core::TypeId& type, const gsl::not_null<const world::Box*>& initialBox);
 
   // serialization constructor
-  explicit CreatureInfo(const world::World& world);
+  explicit CreatureInfo() = default;
 
   void rotateHead(const core::Angle& angle)
   {

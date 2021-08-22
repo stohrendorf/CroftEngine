@@ -237,7 +237,7 @@ std::unique_ptr<CreatureInfo> create(const serialization::TypeId<std::unique_ptr
   if(ser.isNull())
     return nullptr;
 
-  auto result = std::make_unique<CreatureInfo>(ser.context);
+  auto result = std::make_unique<CreatureInfo>();
   ser(S_NV("data", *result));
   return result;
 }
@@ -293,15 +293,9 @@ EnemyLocation::EnemyLocation(objects::AIAgent& aiAgent)
   }
 }
 
-CreatureInfo::CreatureInfo(const world::World& world)
-    : pathFinder{world}
-{
-}
-
 CreatureInfo::CreatureInfo(const world::World& world,
                            const core::TypeId& type,
                            const gsl::not_null<const world::Box*>& initialBox)
-    : CreatureInfo{world}
 {
   auto objectInfo = world.getEngine().getScriptEngine().getObjectInfo(type);
   pathFinder.step = core::Length{objectInfo.step_limit};

@@ -2134,7 +2134,6 @@ LaraObject::LaraObject(const std::string& name,
                        const loader::file::Item& item,
                        const gsl::not_null<const world::SkeletalModelType*>& animatedModel)
     : ModelObject(name, world, room, item, false, animatedModel)
-    , m_underwaterRoute{*world}
 {
   m_underwaterRoute.step = core::SectorSize * 20;
   m_underwaterRoute.drop = -core::SectorSize * 20;
