@@ -17,7 +17,8 @@ public:
   {
   }
 
-  ModelObject(const gsl::not_null<world::World*>& world,
+  ModelObject(const std::string& name,
+              const gsl::not_null<world::World*>& world,
               const gsl::not_null<const world::Room*>& room,
               const loader::file::Item& item,
               bool hasUpdateFunction,
@@ -98,18 +99,19 @@ public:
   static std::shared_ptr<ModelObject> create(serialization::Serializer<world::World>& ser);
 };
 
-#define MODELOBJECT_DEFAULT_CONSTRUCTORS(CLASS, HAS_UPDATE_FUNCTION)         \
-  CLASS(const gsl::not_null<world::World*>& world, const Location& location) \
-      : ModelObject{world, location}                                         \
-  {                                                                          \
-  }                                                                          \
-                                                                             \
-  CLASS(const gsl::not_null<world::World*>& world,                           \
-        const gsl::not_null<const world::Room*>& room,                       \
-        const loader::file::Item& item,                                      \
-        const gsl::not_null<const world::SkeletalModelType*>& animatedModel) \
-      : ModelObject{world, room, item, HAS_UPDATE_FUNCTION, animatedModel}   \
-  {                                                                          \
+#define MODELOBJECT_DEFAULT_CONSTRUCTORS(CLASS, HAS_UPDATE_FUNCTION)             \
+  CLASS(const gsl::not_null<world::World*>& world, const Location& location)     \
+      : ModelObject{world, location}                                             \
+  {                                                                              \
+  }                                                                              \
+                                                                                 \
+  CLASS(const std::string& name,                                                 \
+        const gsl::not_null<world::World*>& world,                               \
+        const gsl::not_null<const world::Room*>& room,                           \
+        const loader::file::Item& item,                                          \
+        const gsl::not_null<const world::SkeletalModelType*>& animatedModel)     \
+      : ModelObject{name, world, room, item, HAS_UPDATE_FUNCTION, animatedModel} \
+  {                                                                              \
   }
 
 class NullRenderModelObject : public ModelObject
@@ -120,12 +122,13 @@ public:
   {
   }
 
-  NullRenderModelObject(const gsl::not_null<world::World*>& world,
+  NullRenderModelObject(const std::string& name,
+                        const gsl::not_null<world::World*>& world,
                         const gsl::not_null<const world::Room*>& room,
                         const loader::file::Item& item,
                         bool hasUpdateFunction,
                         const gsl::not_null<const world::SkeletalModelType*>& model)
-      : ModelObject{world, room, item, hasUpdateFunction, model}
+      : ModelObject{name, world, room, item, hasUpdateFunction, model}
   {
     getSkeleton()->setRenderable(nullptr);
     getSkeleton()->removeAllChildren();

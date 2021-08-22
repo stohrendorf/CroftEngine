@@ -29,8 +29,7 @@ void PuzzleHole::collide(CollisionInfo& /*collisionInfo*/)
   if(lara.getCurrentAnimState() == loader::file::LaraStateId::Stop)
   {
     if(!getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action)
-       || lara.getHandStatus() != HandStatus::None
-       || lara.m_state.falling
+       || lara.getHandStatus() != HandStatus::None || lara.m_state.falling
        || !limits.canInteract(m_state, lara.m_state))
       return;
 
@@ -76,8 +75,7 @@ void PuzzleHole::collide(CollisionInfo& /*collisionInfo*/)
     m_state.triggerState = TriggerState::Active;
   }
   else if(lara.getCurrentAnimState() == loader::file::LaraStateId::InsertPuzzle
-          && lara.getSkeleton()->getFrame() == 3372_frame
-          && limits.canInteract(m_state, lara.m_state))
+          && lara.getSkeleton()->getFrame() == 3372_frame && limits.canInteract(m_state, lara.m_state))
   {
     swapPuzzleState();
   }
@@ -118,11 +116,12 @@ void PuzzleHole::swapPuzzleState()
   initMesh();
 }
 
-PuzzleHole::PuzzleHole(const gsl::not_null<world::World*>& world,
+PuzzleHole::PuzzleHole(const std::string& name,
+                       const gsl::not_null<world::World*>& world,
                        const gsl::not_null<const world::Room*>& room,
                        const loader::file::Item& item,
                        const gsl::not_null<const world::SkeletalModelType*>& animatedModel)
-    : ModelObject{world, room, item, false, animatedModel}
+    : ModelObject{name, world, room, item, false, animatedModel}
 {
   initMesh();
 }

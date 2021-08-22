@@ -72,7 +72,8 @@ struct ObjectFactory
 {
   virtual ~ObjectFactory() = default;
 
-  [[nodiscard]] virtual std::shared_ptr<Object> createNew(world::World& world, loader::file::Item& item) const = 0;
+  [[nodiscard]] virtual std::shared_ptr<Object>
+    createNew(world::World& world, loader::file::Item& item, size_t id) const = 0;
   [[nodiscard]] virtual std::shared_ptr<Object>
     createFromSave(const Location& location, const serialization::Serializer<world::World>& ser) const = 0;
 };
@@ -82,7 +83,8 @@ struct UnsupportedObjectFactory : public ObjectFactory
 {
   virtual ~UnsupportedObjectFactory() = default;
 
-  [[nodiscard]] std::shared_ptr<Object> createNew(world::World& /*world*/, loader::file::Item& item) const override
+  [[nodiscard]] std::shared_ptr<Object>
+    createNew(world::World& /*world*/, loader::file::Item& item, size_t /*id*/) const override
   {
     BOOST_LOG_TRIVIAL(fatal) << "Object type " << toString(item.type.get_as<engine::TR1ItemId>())
                              << " is not supported";
@@ -90,7 +92,7 @@ struct UnsupportedObjectFactory : public ObjectFactory
   }
 
   [[nodiscard]] std::shared_ptr<Object>
-    createFromSave(const Location& location, const serialization::Serializer<world::World>& /*ser*/) const override
+    createFromSave(const Location& /*location*/, const serialization::Serializer<world::World>& /*ser*/) const override
   {
     BOOST_LOG_TRIVIAL(fatal) << "Object type is not supported";
     BOOST_THROW_EXCEPTION(std::runtime_error("unsupported object type"));
@@ -101,12 +103,14 @@ template<typename T>
 /* NOLINTNEXTLINE(altera-struct-pack-align) */
 struct ModelFactory : public ObjectFactory
 {
-  [[nodiscard]] std::shared_ptr<Object> createNew(world::World& world, loader::file::Item& item) const override
+  [[nodiscard]] std::shared_ptr<Object>
+    createNew(world::World& world, loader::file::Item& item, size_t id) const override
   {
     const auto* room = &world.getRooms().at(item.room.get());
     const auto& model = world.findAnimatedModelForType(item.type);
     Expects(model != nullptr);
-    auto object = std::make_shared<T>(&world, room, item, model.get());
+    auto object
+      = std::make_shared<T>(makeObjectName(item.type.get_as<TR1ItemId>(), id), &world, room, item, model.get());
     addChild(room->node, object->getNode());
     object->applyTransform();
     return object;
@@ -125,7 +129,8 @@ template<typename T>
 /* NOLINTNEXTLINE(altera-struct-pack-align) */
 struct SpriteFactory : public ObjectFactory
 {
-  [[nodiscard]] std::shared_ptr<Object> createNew(world::World& world, loader::file::Item& item) const override
+  [[nodiscard]] std::shared_ptr<Object>
+    createNew(world::World& world, loader::file::Item& item, size_t id) const override
   {
     const auto* room = &world.getRooms().at(item.room.get());
 
@@ -134,8 +139,7 @@ struct SpriteFactory : public ObjectFactory
     Expects(!spriteSequence->sprites.empty()); //-V1004
 
     const world::Sprite& sprite = spriteSequence->sprites[0];
-    return std::make_shared<T>(
-      &world, std::string("sprite(type:") + toString(item.type.get_as<TR1ItemId>()) + ")", room, item, &sprite);
+    return std::make_shared<T>(makeObjectName(item.type.get_as<TR1ItemId>(), id), &world, room, item, &sprite);
   }
 
   [[nodiscard]] std::shared_ptr<Object>
@@ -143,7 +147,7 @@ struct SpriteFactory : public ObjectFactory
   {
     std::string spriteName;
     ser(S_NV("@name", spriteName));
-    auto object = std::make_shared<T>(&ser.context, location, std::move(spriteName));
+    auto object = std::make_shared<T>(spriteName, &ser.context, location);
     object->serialize(ser);
     return object;
   }
@@ -169,12 +173,14 @@ struct SpriteFactory : public ObjectFactory
 /* NOLINTNEXTLINE(altera-struct-pack-align) */
 struct WalkingMutantFactory : public ObjectFactory
 {
-  [[nodiscard]] std::shared_ptr<Object> createNew(world::World& world, loader::file::Item& item) const override
+  [[nodiscard]] std::shared_ptr<Object>
+    createNew(world::World& world, loader::file::Item& item, size_t id) const override
   {
     const auto* room = &world.getRooms().at(item.room.get());
     const auto& model = world.findAnimatedModelForType(TR1ItemId::FlyingMutant);
     Expects(model != nullptr);
-    auto object = std::make_shared<WalkingMutant>(&world, room, item, model.get());
+    auto object = std::make_shared<WalkingMutant>(
+      makeObjectName(item.type.get_as<TR1ItemId>(), id), &world, room, item, model.get());
     addChild(room->node, object->getNode());
     object->applyTransform();
     return object;
@@ -192,9 +198,10 @@ struct WalkingMutantFactory : public ObjectFactory
 /* NOLINTNEXTLINE(altera-struct-pack-align) */
 struct HiddenModelFactory : public ModelFactory<StubObject>
 {
-  [[nodiscard]] std::shared_ptr<Object> createNew(world::World& world, loader::file::Item& item) const override
+  [[nodiscard]] std::shared_ptr<Object>
+    createNew(world::World& world, loader::file::Item& item, size_t id) const override
   {
-    auto object = std::static_pointer_cast<StubObject>(ModelFactory<StubObject>::createNew(world, item));
+    auto object = std::static_pointer_cast<StubObject>(ModelFactory<StubObject>::createNew(world, item, id));
     object->getSkeleton()->setRenderable(nullptr);
     object->getSkeleton()->clearParts();
     return object;
@@ -353,16 +360,17 @@ ObjectFactory* findFactory(TR1ItemId type)
 }
 } // namespace
 
-std::shared_ptr<Object> createObject(world::World& world, loader::file::Item& item)
+std::shared_ptr<Object> createObject(world::World& world, loader::file::Item& item, size_t id)
 {
   if(const auto factory = findFactory(item.type.get_as<TR1ItemId>()))
-    return factory->createNew(world, item);
+    return factory->createNew(world, item, id);
 
   const auto* room = &world.getRooms().at(item.room.get());
 
   if(const auto& model = world.findAnimatedModelForType(item.type))
   {
-    auto object = std::make_shared<StubObject>(&world, room, item, model.get());
+    auto object = std::make_shared<StubObject>(
+      makeObjectName(item.type.get_as<TR1ItemId>(), id), &world, room, item, model.get());
     BOOST_LOG_TRIVIAL(warning) << "Unimplemented object type " << toString(item.type.get_as<TR1ItemId>());
 
     addChild(room->node, object->getNode());
@@ -381,7 +389,7 @@ std::shared_ptr<Object> createObject(world::World& world, loader::file::Item& it
 
     BOOST_LOG_TRIVIAL(warning) << "Unimplemented object type " << toString(item.type.get_as<TR1ItemId>());
     return std::make_shared<SpriteObject>(
-      &world, std::string("sprite(type:") + toString(item.type.get_as<TR1ItemId>()) + ")", room, item, true, &sprite);
+      makeObjectName(item.type.get_as<TR1ItemId>(), id), &world, room, item, true, &sprite);
   }
 
   BOOST_LOG_TRIVIAL(error) << "Failed to find an appropriate animated model for object type " << int(item.type.get());

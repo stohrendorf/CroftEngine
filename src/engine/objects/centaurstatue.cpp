@@ -13,22 +13,28 @@
 
 namespace engine::objects
 {
-CentaurStatue::CentaurStatue(const gsl::not_null<world::World*>& world,
+CentaurStatue::CentaurStatue(const std::string& name,
+                             const gsl::not_null<world::World*>& world,
                              const gsl::not_null<const world::Room*>& room,
                              loader::file::Item item,
                              const gsl::not_null<const world::SkeletalModelType*>& animatedModel)
-    : ModelObject{world, room, item, true, animatedModel}
+    : ModelObject{name, world, room, item, true, animatedModel}
 {
   if(const auto& model = world->findAnimatedModelForType(TR1ItemId::CentaurMutant); model != nullptr)
   {
     item.type = TR1ItemId::CentaurMutant;
     item.activationState = 0;
-    m_childObject = std::make_shared<CentaurMutant>(world, room, item, model.get());
+    m_childObject = std::make_shared<CentaurMutant>(
+      makeObjectName(item.type.get_as<TR1ItemId>(), getWorld().getObjectManager().getObjectCounter()),
+      world,
+      room,
+      item,
+      model.get());
     auto& childState = m_childObject->m_state;
     childState.activationState.setOneshot(true);
     m_childObject->getSkeleton()->setAnimation(
       childState.current_anim_state, &model->animations[7], model->animations[7].firstFrame + 36_frame);
-    childState.goal_anim_state =childState.current_anim_state = model->animations[7].state_id;
+    childState.goal_anim_state = childState.current_anim_state = model->animations[7].state_id;
     childState.rotation.Y = m_state.rotation.Y;
     getWorld().getObjectManager().registerObject(m_childObject);
   }

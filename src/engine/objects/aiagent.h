@@ -15,7 +15,8 @@ namespace objects
 class AIAgent : public ModelObject
 {
 public:
-  AIAgent(const gsl::not_null<world::World*>& world,
+  AIAgent(const std::string& name,
+          const gsl::not_null<world::World*>& world,
           const gsl::not_null<const world::Room*>& room,
           const loader::file::Item& item,
           const gsl::not_null<const world::SkeletalModelType*>& animatedModel);
@@ -180,11 +181,12 @@ private:
   {                                                                          \
   }                                                                          \
                                                                              \
-  CLASS(const gsl::not_null<world::World*>& world,                           \
+  CLASS(const std::string& name,                                             \
+        const gsl::not_null<world::World*>& world,                           \
         const gsl::not_null<const world::Room*>& room,                       \
         const loader::file::Item& item,                                      \
         const gsl::not_null<const world::SkeletalModelType*>& animatedModel) \
-      : AIAgent{world, room, item, animatedModel}                            \
+      : AIAgent{name, world, room, item, animatedModel}                      \
   {                                                                          \
   }
 

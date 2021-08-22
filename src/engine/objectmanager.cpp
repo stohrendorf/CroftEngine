@@ -21,7 +21,7 @@ void ObjectManager::createObjects(world::World& world, std::vector<loader::file:
   m_lara = nullptr;
   for(const auto& idItem : items | boost::adaptors::indexed())
   {
-    auto object = objects::createObject(world, idItem.value());
+    auto object = objects::createObject(world, idItem.value(), idItem.index());
     if(idItem.value().type == TR1ItemId::Lara)
     {
       m_lara = std::dynamic_pointer_cast<objects::LaraObject>(object);

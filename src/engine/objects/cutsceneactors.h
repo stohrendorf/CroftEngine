@@ -12,7 +12,8 @@ public:
   {
   }
 
-  CutsceneActor(const gsl::not_null<world::World*>& world,
+  CutsceneActor(const std::string& name,
+                const gsl::not_null<world::World*>& world,
                 const gsl::not_null<const world::Room*>& room,
                 const loader::file::Item& item,
                 const gsl::not_null<const world::SkeletalModelType*>& animatedModel);
@@ -28,11 +29,12 @@ public:
   {
   }
 
-  CutsceneActor1(const gsl::not_null<world::World*>& world,
+  CutsceneActor1(const std::string& name,
+                 const gsl::not_null<world::World*>& world,
                  const gsl::not_null<const world::Room*>& room,
                  const loader::file::Item& item,
                  const gsl::not_null<const world::SkeletalModelType*>& animatedModel)
-      : CutsceneActor(world, room, item, animatedModel)
+      : CutsceneActor(name, world, room, item, animatedModel)
   {
   }
 };
@@ -45,11 +47,12 @@ public:
   {
   }
 
-  CutsceneActor2(const gsl::not_null<world::World*>& world,
+  CutsceneActor2(const std::string& name,
+                 const gsl::not_null<world::World*>& world,
                  const gsl::not_null<const world::Room*>& room,
                  const loader::file::Item& item,
                  const gsl::not_null<const world::SkeletalModelType*>& animatedModel)
-      : CutsceneActor(world, room, item, animatedModel)
+      : CutsceneActor(name, world, room, item, animatedModel)
   {
   }
 };
@@ -62,11 +65,12 @@ public:
   {
   }
 
-  CutsceneActor3(const gsl::not_null<world::World*>& world,
+  CutsceneActor3(const std::string& name,
+                 const gsl::not_null<world::World*>& world,
                  const gsl::not_null<const world::Room*>& room,
                  const loader::file::Item& item,
                  const gsl::not_null<const world::SkeletalModelType*>& animatedModel)
-      : CutsceneActor(world, room, item, animatedModel)
+      : CutsceneActor(name, world, room, item, animatedModel)
   {
   }
 };
@@ -79,11 +83,12 @@ public:
   {
   }
 
-  CutsceneActor4(const gsl::not_null<world::World*>& world,
+  CutsceneActor4(const std::string& name,
+                 const gsl::not_null<world::World*>& world,
                  const gsl::not_null<const world::Room*>& room,
                  const loader::file::Item& item,
                  const gsl::not_null<const world::SkeletalModelType*>& animatedModel)
-      : CutsceneActor(world, room, item, animatedModel)
+      : CutsceneActor(name, world, room, item, animatedModel)
   {
   }
 

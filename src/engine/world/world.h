@@ -146,7 +146,12 @@ public:
     item.shade = core::Shade{core::Shade::type{0}};
     item.activationState = activationState;
 
-    auto object = std::make_shared<T>(this, room, item, model.get());
+    auto object
+      = std::make_shared<T>(objects::makeObjectName(type.get_as<TR1ItemId>(), m_objectManager.getDynamicObjectCount()),
+                            this,
+                            room,
+                            item,
+                            model.get());
 
     m_objectManager.registerDynamicObject(object);
     addChild(room->node, object->getNode());

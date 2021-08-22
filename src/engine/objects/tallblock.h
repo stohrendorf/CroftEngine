@@ -13,11 +13,12 @@ public:
   {
   }
 
-  TallBlock(const gsl::not_null<world::World*>& world,
+  TallBlock(const std::string& name,
+            const gsl::not_null<world::World*>& world,
             const gsl::not_null<const world::Room*>& room,
             const loader::file::Item& item,
             const gsl::not_null<const world::SkeletalModelType*>& animatedModel)
-      : ModelObject{world, room, item, true, animatedModel}
+      : ModelObject{name, world, room, item, true, animatedModel}
   {
     world::patchHeightsForBlock(*this, -2 * core::SectorSize);
   }

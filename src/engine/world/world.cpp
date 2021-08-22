@@ -517,7 +517,12 @@ std::shared_ptr<objects::PickupObject>
   Expects(spriteSequence != nullptr && !spriteSequence->sprites.empty());
   const Sprite& sprite = spriteSequence->sprites[0]; //-V1004
 
-  auto object = std::make_shared<objects::PickupObject>(this, "pickup", room, item, &sprite);
+  auto object = std::make_shared<objects::PickupObject>(
+    objects::makeObjectName(item.type.get_as<TR1ItemId>(), m_objectManager.getDynamicObjectCount()),
+    this,
+    room,
+    item,
+    &sprite);
 
   m_objectManager.registerDynamicObject(object);
   addChild(room->node, object->getNode());

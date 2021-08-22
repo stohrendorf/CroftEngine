@@ -9,14 +9,14 @@
 
 namespace engine::objects
 {
-ModelObject::ModelObject(const gsl::not_null<world::World*>& world,
+ModelObject::ModelObject(const std::string& name,
+                         const gsl::not_null<world::World*>& world,
                          const gsl::not_null<const world::Room*>& room,
                          const loader::file::Item& item,
                          const bool hasUpdateFunction,
                          const gsl::not_null<const world::SkeletalModelType*>& model)
     : Object{world, room, item, hasUpdateFunction}
-    , m_skeleton{std::make_shared<SkeletalModelNode>(
-        std::string("skeleton(type:") + toString(item.type.get_as<TR1ItemId>()) + ")", world, model)}
+    , m_skeleton{std::make_shared<SkeletalModelNode>(name, world, model)}
 {
   SkeletalModelNode::buildMesh(m_skeleton, m_state.current_anim_state);
   m_lighting.bind(*m_skeleton);
@@ -32,8 +32,7 @@ void ModelObject::update()
   const auto& anim = getSkeleton()->getAnim();
   if(endOfAnim)
   {
-    const auto* cmd
-      = anim->animCommandCount == 0 ? nullptr : anim->animCommands;
+    const auto* cmd = anim->animCommandCount == 0 ? nullptr : anim->animCommands;
     for(uint16_t i = 0; i < anim->animCommandCount; ++i)
     {
       BOOST_ASSERT(cmd <= &getWorld().getAnimCommands().back());
@@ -61,8 +60,7 @@ void ModelObject::update()
       }
     }
 
-    m_skeleton->setAnimation(
-      m_state.current_anim_state, anim->nextAnimation, anim->nextFrame);
+    m_skeleton->setAnimation(m_state.current_anim_state, anim->nextAnimation, anim->nextFrame);
     m_state.goal_anim_state = m_state.current_anim_state;
     if(m_state.current_anim_state == m_state.required_anim_state)
       m_state.required_anim_state = 0_as;

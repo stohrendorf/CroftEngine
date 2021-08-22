@@ -60,11 +60,12 @@ bool shatterModel(ModelObject& object, const std::bitset<32>& meshMask, const co
   return true;
 }
 
-MutantEgg::MutantEgg(const gsl::not_null<world::World*>& world,
+MutantEgg::MutantEgg(const std::string& name,
+                     const gsl::not_null<world::World*>& world,
                      const gsl::not_null<const world::Room*>& room,
                      loader::file::Item item,
                      const gsl::not_null<const world::SkeletalModelType*>& animatedModel)
-    : ModelObject{world, room, item, true, animatedModel}
+    : ModelObject{name, world, room, item, true, animatedModel}
 {
   m_state.activationState = floordata::ActivationState(uint16_t(item.activationState & ~0x3e00u));
 
@@ -73,31 +74,47 @@ MutantEgg::MutantEgg(const gsl::not_null<world::World*>& world,
   case 1:
     item.type = TR1ItemId::WalkingMutant1;
     if(world->findAnimatedModelForType(TR1ItemId::FlyingMutant) != nullptr)
-      m_childObject = std::make_shared<WalkingMutant>(
-        world, room, item, world->findAnimatedModelForType(TR1ItemId::FlyingMutant).get());
+      m_childObject = std::make_shared<WalkingMutant>(makeObjectName(item.type.get_as<TR1ItemId>(), 999999),
+                                                      world,
+                                                      room,
+                                                      item,
+                                                      world->findAnimatedModelForType(TR1ItemId::FlyingMutant).get());
     break;
   case 2:
     item.type = TR1ItemId::CentaurMutant;
     if(world->findAnimatedModelForType(item.type) != nullptr)
-      m_childObject
-        = std::make_shared<CentaurMutant>(world, room, item, world->findAnimatedModelForType(item.type).get());
+      m_childObject = std::make_shared<CentaurMutant>(makeObjectName(item.type.get_as<TR1ItemId>(), 999999),
+                                                      world,
+                                                      room,
+                                                      item,
+                                                      world->findAnimatedModelForType(item.type).get());
     break;
   case 4:
     item.type = TR1ItemId::TorsoBoss;
     if(world->findAnimatedModelForType(item.type) != nullptr)
-      m_childObject = std::make_shared<TorsoBoss>(world, room, item, world->findAnimatedModelForType(item.type).get());
+      m_childObject = std::make_shared<TorsoBoss>(makeObjectName(item.type.get_as<TR1ItemId>(), 999999),
+                                                  world,
+                                                  room,
+                                                  item,
+                                                  world->findAnimatedModelForType(item.type).get());
     break;
   case 8:
     item.type = TR1ItemId::WalkingMutant2;
     if(world->findAnimatedModelForType(TR1ItemId::FlyingMutant) != nullptr)
-      m_childObject = std::make_shared<WalkingMutant>(
-        world, room, item, world->findAnimatedModelForType(TR1ItemId::FlyingMutant).get());
+      m_childObject = std::make_shared<WalkingMutant>(makeObjectName(item.type.get_as<TR1ItemId>(), 999999),
+                                                      world,
+                                                      room,
+                                                      item,
+                                                      world->findAnimatedModelForType(TR1ItemId::FlyingMutant).get());
     break;
   default:
     item.type = TR1ItemId::FlyingMutant;
     if(world->findAnimatedModelForType(TR1ItemId::FlyingMutant) != nullptr)
-      m_childObject = std::make_shared<FlyingMutant>(
-        world, room, item, world->findAnimatedModelForType(TR1ItemId::FlyingMutant).get());
+      m_childObject = std::make_shared<FlyingMutant>(makeObjectName(item.type.get_as<TR1ItemId>(), 999999),
+                                                     world,
+                                                     room,
+                                                     item,
+                                                     world->findAnimatedModelForType(TR1ItemId::FlyingMutant).get());
     break;
   }
 

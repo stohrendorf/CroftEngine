@@ -13,7 +13,7 @@
 namespace loader::file
 {
 struct Item;
-} // namespace loader::file
+}
 
 namespace engine::world
 {
@@ -23,15 +23,15 @@ class World;
 namespace engine
 {
 class Particle;
+struct CollisionInfo;
+} // namespace engine
 
-namespace ai
+namespace engine::ai
 {
 struct CreatureInfo;
 }
 
-struct CollisionInfo;
-
-namespace objects
+namespace engine::objects
 {
 struct InteractionLimits
 {
@@ -176,5 +176,6 @@ protected:
                              const core::Length& maxDistance,
                              const core::Angle& maxAngle);
 };
-} // namespace objects
-} // namespace engine
+
+extern std::string makeObjectName(const TR1ItemId type, const size_t id);
+} // namespace engine::objects

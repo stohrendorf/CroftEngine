@@ -12,11 +12,12 @@ public:
   {
   }
 
-  SwordOfDamocles(const gsl::not_null<world::World*>& world,
+  SwordOfDamocles(const std::string& name,
+                  const gsl::not_null<world::World*>& world,
                   const gsl::not_null<const world::Room*>& room,
                   const loader::file::Item& item,
                   const gsl::not_null<const world::SkeletalModelType*>& animatedModel)
-      : ModelObject{world, room, item, true, animatedModel}
+      : ModelObject{name, world, room, item, true, animatedModel}
   {
     m_state.rotation.Y += util::rand15s(180_deg) + util::rand15s(180_deg);
     m_state.fallspeed = 50_spd;

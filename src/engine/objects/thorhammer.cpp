@@ -7,11 +7,12 @@
 
 namespace engine::objects
 {
-ThorHammerHandle::ThorHammerHandle(const gsl::not_null<world::World*>& world,
+ThorHammerHandle::ThorHammerHandle(const std::string& name,
+                                   const gsl::not_null<world::World*>& world,
                                    const gsl::not_null<const world::Room*>& room,
                                    const loader::file::Item& item,
                                    const gsl::not_null<const world::SkeletalModelType*>& animatedModel)
-    : ModelObject{world, room, item, true, animatedModel}
+    : ModelObject{name, world, room, item, true, animatedModel}
     , m_block{world->createObject<ThorHammerBlock>(TR1ItemId::ThorHammerBlock, room, item.rotation, item.position, 0)}
 {
   m_block->activate();
@@ -72,14 +73,12 @@ void ThorHammerHandle::update()
       }
       if(auto& lara = getWorld().getObjectManager().getLara(); !lara.isDead())
       {
-        if(posX - 520_len < lara.m_state.location.position.X
-           && posX + 520_len > lara.m_state.location.position.X
-           && posZ - 520_len < lara.m_state.location.position.Z
-           && posZ + 520_len > lara.m_state.location.position.Z)
+        if(posX - 520_len < lara.m_state.location.position.X && posX + 520_len > lara.m_state.location.position.X
+           && posZ - 520_len < lara.m_state.location.position.Z && posZ + 520_len > lara.m_state.location.position.Z)
         {
           lara.m_state.health = core::DeadHealth;
-          lara.getSkeleton()->setAnim(
-            &getWorld().findAnimatedModelForType(TR1ItemId::Lara)->animations[139], 3561_frame);
+          lara.getSkeleton()->setAnim(&getWorld().findAnimatedModelForType(TR1ItemId::Lara)->animations[139],
+                                      3561_frame);
           lara.setCurrentAnimState(loader::file::LaraStateId::BoulderDeath);
           lara.setGoalAnimState(loader::file::LaraStateId::BoulderDeath);
           lara.m_state.location.position.Y = m_state.location.position.Y;

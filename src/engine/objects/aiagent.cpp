@@ -409,11 +409,12 @@ bool AIAgent::animateCreature(const core::Angle& angle, const core::Angle& tilt)
   return true;
 }
 
-AIAgent::AIAgent(const gsl::not_null<world::World*>& world,
+AIAgent::AIAgent(const std::string& name,
+                 const gsl::not_null<world::World*>& world,
                  const gsl::not_null<const world::Room*>& room,
                  const loader::file::Item& item,
                  const gsl::not_null<const world::SkeletalModelType*>& animatedModel)
-    : ModelObject{world, room, item, true, animatedModel}
+    : ModelObject{name, world, room, item, true, animatedModel}
 {
   m_state.collidable = true;
   const core::Angle v = util::rand15s(90_deg);
@@ -465,10 +466,7 @@ bool AIAgent::tryShootAtLara(ModelObject& object,
     {
       isHit = true;
 
-      lara.emitParticle(
-        core::TRVec{},
-        util::rand15(lara.getSkeleton()->getBoneCount()),
-        &createBloodSplat);
+      lara.emitParticle(core::TRVec{}, util::rand15(lara.getSkeleton()->getBoneCount()), &createBloodSplat);
 
       if(!lara.isInWater())
         lara.playSoundEffect(TR1SoundEffect::BulletHitsLara);

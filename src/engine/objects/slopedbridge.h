@@ -16,12 +16,13 @@ public:
   {
   }
 
-  SlopedBridge(const gsl::not_null<world::World*>& world,
+  SlopedBridge(const std::string& name,
+               const gsl::not_null<world::World*>& world,
                const gsl::not_null<const world::Room*>& room,
                const loader::file::Item& item,
                const gsl::not_null<const world::SkeletalModelType*>& animatedModel,
                const int flatness)
-      : ModelObject{world, room, item, false, animatedModel}
+      : ModelObject{name, world, room, item, false, animatedModel}
       , m_flatness{flatness}
   {
   }
@@ -69,11 +70,12 @@ public:
   {
   }
 
-  BridgeSlope1(const gsl::not_null<world::World*>& world,
+  BridgeSlope1(const std::string& name,
+               const gsl::not_null<world::World*>& world,
                const gsl::not_null<const world::Room*>& room,
                const loader::file::Item& item,
                const gsl::not_null<const world::SkeletalModelType*>& animatedModel)
-      : SlopedBridge{world, room, item, animatedModel, 4}
+      : SlopedBridge{name, world, room, item, animatedModel, 4}
   {
   }
 };
@@ -86,11 +88,12 @@ public:
   {
   }
 
-  BridgeSlope2(const gsl::not_null<world::World*>& world,
+  BridgeSlope2(const std::string& name,
+               const gsl::not_null<world::World*>& world,
                const gsl::not_null<const world::Room*>& room,
                const loader::file::Item& item,
                const gsl::not_null<const world::SkeletalModelType*>& animatedModel)
-      : SlopedBridge{world, room, item, animatedModel, 2}
+      : SlopedBridge{name, world, room, item, animatedModel, 2}
   {
   }
 };

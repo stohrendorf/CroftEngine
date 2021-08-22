@@ -13,11 +13,12 @@ public:
   {
   }
 
-  Kold(const gsl::not_null<world::World*>& world,
+  Kold(const std::string& name,
+       const gsl::not_null<world::World*>& world,
        const gsl::not_null<const world::Room*>& room,
        const loader::file::Item& item,
        const gsl::not_null<const world::SkeletalModelType*>& animatedModel)
-      : AIAgent{world, room, item, animatedModel}
+      : AIAgent{name, world, room, item, animatedModel}
   {
     m_state.current_anim_state = 3_as;
   }

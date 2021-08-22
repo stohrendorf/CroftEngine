@@ -9,11 +9,12 @@ namespace engine::objects
 {
 // #define NO_DOOR_BLOCK
 
-Door::Door(const gsl::not_null<world::World*>& world,
+Door::Door(const std::string& name,
+           const gsl::not_null<world::World*>& world,
            const gsl::not_null<const world::Room*>& room,
            const loader::file::Item& item,
            const gsl::not_null<const world::SkeletalModelType*>& animatedModel)
-    : ModelObject{world, room, item, true, animatedModel}
+    : ModelObject{name, world, room, item, true, animatedModel}
 {
 #ifndef NO_DOOR_BLOCK
   core::Length dx = 0_len, dz = 0_len;

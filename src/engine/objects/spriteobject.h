@@ -20,11 +20,11 @@ private:
   void createModel();
 
 protected:
-  SpriteObject(const gsl::not_null<world::World*>& world, const Location& location, std::string name);
+  SpriteObject(const std::string& name, const gsl::not_null<world::World*>& world, const Location& location);
 
 public:
-  SpriteObject(const gsl::not_null<world::World*>& world,
-               std::string name,
+  SpriteObject(const std::string& name,
+               const gsl::not_null<world::World*>& world,
                const gsl::not_null<const world::Room*>& room,
                const loader::file::Item& item,
                bool hasUpdateFunction,
@@ -75,19 +75,19 @@ public:
   void serialize(const serialization::Serializer<world::World>& ser) override;
 };
 
-#define SPRITEOBJECT_DEFAULT_CONSTRUCTORS(CLASS, HAS_UPDATE_FUNCTION)                          \
-  CLASS(const gsl::not_null<world::World*>& world, const Location& location, std::string name) \
-      : SpriteObject{world, location, std::move(name)}                                         \
-  {                                                                                            \
-  }                                                                                            \
-                                                                                               \
-  CLASS(const gsl::not_null<world::World*>& world,                                             \
-        const std::string& name,                                                               \
-        const gsl::not_null<const world::Room*>& room,                                         \
-        const loader::file::Item& item,                                                        \
-        const gsl::not_null<const world::Sprite*>& sprite)                                     \
-      : SpriteObject{world, name, room, item, HAS_UPDATE_FUNCTION, sprite}                     \
-  {                                                                                            \
+#define SPRITEOBJECT_DEFAULT_CONSTRUCTORS(CLASS, HAS_UPDATE_FUNCTION)                                 \
+  CLASS(const std::string& name, const gsl::not_null<world::World*>& world, const Location& location) \
+      : SpriteObject{name, world, location}                                                           \
+  {                                                                                                   \
+  }                                                                                                   \
+                                                                                                      \
+  CLASS(const std::string& name,                                                                      \
+        const gsl::not_null<world::World*>& world,                                                    \
+        const gsl::not_null<const world::Room*>& room,                                                \
+        const loader::file::Item& item,                                                               \
+        const gsl::not_null<const world::Sprite*>& sprite)                                            \
+      : SpriteObject{name, world, room, item, HAS_UPDATE_FUNCTION, sprite}                            \
+  {                                                                                                   \
   }
 
 } // namespace engine::objects

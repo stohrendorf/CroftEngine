@@ -17,7 +17,8 @@ class ThorHammerHandle final : public ModelObject
 public:
   ThorHammerHandle(const gsl::not_null<world::World*>& world, const Location& location);
 
-  ThorHammerHandle(const gsl::not_null<world::World*>& world,
+  ThorHammerHandle(const std::string& name,
+                   const gsl::not_null<world::World*>& world,
                    const gsl::not_null<const world::Room*>& room,
                    const loader::file::Item& item,
                    const gsl::not_null<const world::SkeletalModelType*>& animatedModel);

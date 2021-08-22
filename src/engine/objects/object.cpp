@@ -202,4 +202,9 @@ void Object::serialize(const serialization::Serializer<world::World>& ser)
       }
     });
 }
+
+std::string makeObjectName(const TR1ItemId type, const size_t id)
+{
+  return "#" + std::to_string(id) + " " + toString(type);
+}
 } // namespace engine::objects

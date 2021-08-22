@@ -87,6 +87,11 @@ public:
     m_dynamicObjects.emplace(object);
   }
 
+  [[nodiscard]] auto getDynamicObjectCount() const
+  {
+    return m_dynamicObjects.size();
+  }
+
   void registerParticle(const gsl::not_null<std::shared_ptr<Particle>>& particle)
   {
     m_particles.emplace_back(particle);
@@ -109,6 +114,10 @@ public:
   std::shared_ptr<objects::Object> find(const objects::Object* object) const;
   void createObjects(world::World& world, std::vector<loader::file::Item>& items);
   [[nodiscard]] std::shared_ptr<objects::Object> getObject(ObjectId id) const;
+  [[nodiscard]] auto getObjectCounter() const
+  {
+    return m_objectCounter;
+  }
   void update(world::World& world, bool godMode);
 
   void serialize(const serialization::Serializer<world::World>& ser);

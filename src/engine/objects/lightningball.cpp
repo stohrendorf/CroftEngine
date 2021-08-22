@@ -99,11 +99,12 @@ Bolt updateBolt(const glm::vec3& start, const core::TRVec& end, const std::share
 }
 } // namespace
 
-LightningBall::LightningBall(const gsl::not_null<world::World*>& world,
+LightningBall::LightningBall(const std::string& name,
+                             const gsl::not_null<world::World*>& world,
                              const gsl::not_null<const world::Room*>& room,
                              const loader::file::Item& item,
                              const gsl::not_null<const world::SkeletalModelType*>& animatedModel)
-    : ModelObject{world, room, item, true, animatedModel}
+    : ModelObject{name, world, room, item, true, animatedModel}
 {
   if(!animatedModel->bones.empty())
   {
