@@ -279,6 +279,8 @@ void PathFinder::searchPath(const world::World& world)
         {
           // the successor hasn't been visited, "unreachable" can be propagated/initialized
           successorNode.reachable = false;
+          if(std::find(m_expansions.begin(), m_expansions.end(), successorBox) == m_expansions.end())
+            m_expansions.emplace_back(successorBox);
         }
       }
       else
