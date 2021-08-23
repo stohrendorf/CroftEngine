@@ -277,7 +277,7 @@ void PathFinder::searchPath(const world::World& world)
         const auto reachable = canVisit(*successorBox);
         if(reachable)
         {
-          m_edges.erase(successorBox);
+          BOOST_ASSERT_MSG(m_edges.count(successorBox) == 0, "cycle in pathfinder graph detected");
           m_edges.emplace(successorBox, currentBox); // success! connect both boxes
         }
 

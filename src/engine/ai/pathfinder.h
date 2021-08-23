@@ -73,6 +73,7 @@ struct PathFinder
     m_expansions.emplace_back(m_targetBox);
     m_reachable.clear();
     m_reachable[m_targetBox] = true;
+    m_edges.clear();
   }
 
   void serialize(const serialization::Serializer<world::World>& ser);
