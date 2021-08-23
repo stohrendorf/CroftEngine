@@ -39,7 +39,7 @@ void Doppelganger::update()
     const auto sector = m_state.location.updateRoom();
     setParent(getNode(), m_state.location.room->node);
     m_state.floor
-      = HeightInfo::fromCeiling(sector, m_state.location.position, getWorld().getObjectManager().getObjects()).y;
+      = HeightInfo::fromFloor(sector, m_state.location.position, getWorld().getObjectManager().getObjects()).y;
 
     const auto laraSector = lara.m_state.location.moved({}).updateRoom();
     const auto laraHeight
@@ -50,10 +50,10 @@ void Doppelganger::update()
     {
       m_flag = true;
 
-      m_state.goal_anim_state = 9_as;
-      m_state.current_anim_state = 9_as;
       getSkeleton()->setAnimation(
         m_state.current_anim_state, &getWorld().findAnimatedModelForType(TR1ItemId::Lara)->animations[32], 481_frame);
+      m_state.goal_anim_state = 9_as;
+      m_state.current_anim_state = 9_as;
       m_state.fallspeed = 0_spd;
       m_state.speed = 0_spd;
       m_state.falling = true;
@@ -64,25 +64,22 @@ void Doppelganger::update()
   if(m_flag)
   {
     ModelObject::update();
-    auto oldLocation = m_state.location;
     const auto sector = m_state.location.moved({}).updateRoom();
     const auto hi
       = HeightInfo::fromFloor(sector, m_state.location.position, getWorld().getObjectManager().getObjects());
-    const auto height = hi.y;
-    m_state.floor = height;
+    m_state.floor = hi.y;
     getWorld().handleCommandSequence(hi.lastCommandSequenceOrDeath, true);
     if(m_state.floor > m_state.location.position.Y)
       return;
 
     m_state.location.position.Y = m_state.floor;
-    m_state.floor = hi.y;
-    oldLocation.position.Y = hi.y;
-    const auto sector2 = oldLocation.moved({}).updateRoom();
-    const auto hi2 = HeightInfo::fromFloor(sector2, oldLocation.position, getWorld().getObjectManager().getObjects());
+    const auto sector2 = m_state.location.moved({}).updateRoom();
+    const auto hi2
+      = HeightInfo::fromFloor(sector2, m_state.location.position, getWorld().getObjectManager().getObjects());
     getWorld().handleCommandSequence(hi2.lastCommandSequenceOrDeath, true);
     m_state.fallspeed = 0_spd;
-    m_state.goal_anim_state = 8;
-    m_state.required_anim_state = 8;
+    m_state.goal_anim_state = 8_as;
+    m_state.required_anim_state = 8_as;
     m_state.falling = false;
   }
 }
