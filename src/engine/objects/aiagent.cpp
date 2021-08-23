@@ -175,7 +175,7 @@ bool AIAgent::animateCreature(const core::Angle& angle, const core::Angle& tilt)
   // relative bounding box collision test coordinates
   const core::TRVec testX{m_collisionRadius, 0_len, 0_len};
   const core::TRVec testZ{0_len, 0_len, m_collisionRadius};
-  // how much we can move without violating the collision radius constraint
+  // how much we can move until we leave the sector
   const auto xMoveLimit = collisionInterval - inSectorX;
   const auto zMoveLimit = collisionInterval - inSectorZ;
 
@@ -201,10 +201,10 @@ bool AIAgent::animateCreature(const core::Angle& angle, const core::Angle& tilt)
       {
         switch(axisFromAngle(m_state.rotation.Y))
         {
-        case core::Axis::NegZ:
-        case core::Axis::PosX: moveX = xMoveLimit.min; break;
-        case core::Axis::PosZ:
-        case core::Axis::NegX: moveZ = zMoveLimit.min; break;
+        case core::Axis::Deg180: [[fallthrough]];
+        case core::Axis::Right90: moveX = xMoveLimit.min; break;
+        case core::Axis::Deg0: [[fallthrough]];
+        case core::Axis::Left90: moveZ = zMoveLimit.min; break;
         }
       }
     }
@@ -218,10 +218,10 @@ bool AIAgent::animateCreature(const core::Angle& angle, const core::Angle& tilt)
       {
         switch(axisFromAngle(m_state.rotation.Y))
         {
-        case core::Axis::PosZ:
-        case core::Axis::PosX: moveZ = zMoveLimit.min; break;
-        case core::Axis::NegZ:
-        case core::Axis::NegX: moveX = xMoveLimit.max; break;
+        case core::Axis::Deg180: [[fallthrough]];
+        case core::Axis::Left90: moveX = xMoveLimit.max; break;
+        case core::Axis::Deg0: [[fallthrough]];
+        case core::Axis::Right90: moveZ = zMoveLimit.min; break;
         }
       }
     }
@@ -244,10 +244,10 @@ bool AIAgent::animateCreature(const core::Angle& angle, const core::Angle& tilt)
       {
         switch(axisFromAngle(m_state.rotation.Y))
         {
-        case core::Axis::PosX:
-        case core::Axis::NegZ: moveX = xMoveLimit.min; break;
-        case core::Axis::NegX:
-        case core::Axis::PosZ: moveZ = zMoveLimit.max; break;
+        case core::Axis::Right90: [[fallthrough]];
+        case core::Axis::Deg0: moveX = xMoveLimit.min; break;
+        case core::Axis::Left90: [[fallthrough]];
+        case core::Axis::Deg180: moveZ = zMoveLimit.max; break;
         }
       }
     }
@@ -261,10 +261,10 @@ bool AIAgent::animateCreature(const core::Angle& angle, const core::Angle& tilt)
       {
         switch(axisFromAngle(m_state.rotation.Y))
         {
-        case core::Axis::PosZ:
-        case core::Axis::NegX: moveX = xMoveLimit.max; break;
-        case core::Axis::NegZ:
-        case core::Axis::PosX: moveZ = zMoveLimit.max; break;
+        case core::Axis::Deg0: [[fallthrough]];
+        case core::Axis::Left90: moveX = xMoveLimit.max; break;
+        case core::Axis::Deg180: [[fallthrough]];
+        case core::Axis::Right90: moveZ = zMoveLimit.max; break;
         }
       }
     }
@@ -276,7 +276,6 @@ bool AIAgent::animateCreature(const core::Angle& angle, const core::Angle& tilt)
       if(cannotMoveTo(bottom - testX))
       {
         moveX = xMoveLimit.min;
-        (void)cannotMoveTo(bottom - testX);
       }
     }
     else if(inSectorX > collisionInterval.max)

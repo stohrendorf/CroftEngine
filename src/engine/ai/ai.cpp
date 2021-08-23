@@ -299,8 +299,8 @@ CreatureInfo::CreatureInfo(const world::World& world,
   pathFinder.step = core::Length{objectInfo.step_limit};
   pathFinder.drop = core::Length{objectInfo.drop_limit};
   pathFinder.fly = core::Length{objectInfo.fly_limit};
-  pathFinder.cannotVisitBlockable = objectInfo.cannot_visit_blocked;
-  pathFinder.cannotVisitBlocked = objectInfo.cannot_visit_blockable;
+  pathFinder.cannotVisitBlockable = objectInfo.cannot_visit_blockable;
+  pathFinder.cannotVisitBlocked = objectInfo.cannot_visit_blocked;
 
   pathFinder.collectBoxes(world, initialBox);
 }
