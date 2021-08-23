@@ -1,5 +1,6 @@
 #pragma once
 
+#include "core/interval.h"
 #include "core/magic.h"
 #include "core/units.h"
 #include "serialization/serialization_fwd.h"
@@ -15,10 +16,8 @@ using ZoneId = uint32_t;
 
 struct Box
 {
-  core::Length zmin = 0_len;
-  core::Length zmax = 0_len;
-  core::Length xmin = 0_len;
-  core::Length xmax = 0_len;
+  core::Interval<core::Length> xInterval{0_len, 0_len};
+  core::Interval<core::Length> zInterval{0_len, 0_len};
 
   core::Length floor = 0_len;
 
@@ -26,21 +25,6 @@ struct Box
   bool blockable = true;
 
   std::vector<gsl::not_null<Box*>> overlaps{};
-
-  constexpr bool containsX(const core::Length& x) const noexcept
-  {
-    return x >= xmin && x <= xmax;
-  }
-
-  constexpr bool containsZ(const core::Length& z) const noexcept
-  {
-    return z >= zmin && z <= zmax;
-  }
-
-  constexpr bool contains(const core::Length& x, const core::Length& z) const noexcept
-  {
-    return containsX(x) && containsZ(z);
-  }
 
   ZoneId zoneFly = 0;
   ZoneId zoneFlySwapped = 0;

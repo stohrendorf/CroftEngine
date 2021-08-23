@@ -63,9 +63,9 @@ public:
     return *m_sprite;
   }
 
-  loader::file::BoundingBox getBoundingBox() const override
+  core::BoundingBox getBoundingBox() const override
   {
-    return loader::file::BoundingBox{};
+    return core::BoundingBox{};
   }
 
   void updateLighting() override

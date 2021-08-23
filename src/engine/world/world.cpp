@@ -729,8 +729,8 @@ void World::handleCommandSequence(const floordata::FloorDataValue* floorData, co
       {
         m_objectManager.getLara().m_underwaterRoute.setTargetBox(&m_boxes[sink.box_index]);
         auto newTarget = sink.position;
-        newTarget.X = std::clamp(newTarget.X, m_boxes[sink.box_index].xmin, m_boxes[sink.box_index].xmax);
-        newTarget.Z = std::clamp(newTarget.Z, m_boxes[sink.box_index].zmin, m_boxes[sink.box_index].zmax);
+        newTarget.X = m_boxes[sink.box_index].xInterval.clamp(newTarget.X);
+        newTarget.Z = m_boxes[sink.box_index].zInterval.clamp(newTarget.Z);
         m_objectManager.getLara().m_underwaterRoute.target = newTarget;
       }
       m_objectManager.getLara().m_underwaterCurrentStrength
@@ -1257,7 +1257,7 @@ void World::initFromLevel(loader::file::level::Level& level)
       TransitionCase{transitionCase.firstFrame, transitionCase.lastFrame, transitionCase.targetFrame, anim});
   }
 
-  Expects(m_transitions.size() == m_transitions.size());
+  Expects(m_transitions.size() == level.m_transitions.size());
   std::transform(
     level.m_transitions.begin(),
     level.m_transitions.end(),
@@ -1293,15 +1293,18 @@ void World::initFromLevel(loader::file::level::Level& level)
     return result;
   };
 
-  std::transform(
-    level.m_boxes.begin(),
-    level.m_boxes.end(),
-    m_boxes.begin(),
-    [&getOverlaps](const loader::file::Box& box)
-    {
-      return Box{
-        box.zmin, box.zmax, box.xmin, box.xmax, box.floor, box.blocked, box.blockable, getOverlaps(box.overlap_index)};
-    });
+  std::transform(level.m_boxes.begin(),
+                 level.m_boxes.end(),
+                 m_boxes.begin(),
+                 [&getOverlaps](const loader::file::Box& box)
+                 {
+                   return Box{{box.xmin, box.xmax},
+                              {box.zmin, box.zmax},
+                              box.floor,
+                              box.blocked,
+                              box.blockable,
+                              getOverlaps(box.overlap_index)};
+                 });
 
   Expects(level.m_baseZones.flyZone.size() == m_boxes.size());
   Expects(level.m_baseZones.groundZone1.size() == m_boxes.size());

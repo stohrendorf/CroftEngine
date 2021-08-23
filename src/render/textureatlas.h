@@ -219,7 +219,7 @@ public:
     return m_pageSize;
   }
 
-  std::pair<size_t, glm::ivec2> put(gl::CImgWrapper& img)
+  std::pair<size_t, glm::ivec2> put(const gl::CImgWrapper& img)
   {
     auto extended = img;
     extended.extendBorder(BoundaryMargin);

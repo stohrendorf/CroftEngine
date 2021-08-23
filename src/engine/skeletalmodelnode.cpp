@@ -124,12 +124,12 @@ void SkeletalModelNode::updatePose(const InterpolationInfo& framePair)
   }
 }
 
-loader::file::BoundingBox SkeletalModelNode::getBoundingBox() const
+core::BoundingBox SkeletalModelNode::getBoundingBox() const
 {
   const auto framePair = getInterpolationInfo();
   BOOST_ASSERT(framePair.bias >= 0 && framePair.bias <= 1);
 
-  return {framePair.firstFrame->bbox.toBBox(), framePair.secondFrame->bbox.toBBox(), framePair.bias};
+  return core::BoundingBox{framePair.firstFrame->bbox.toBBox(), framePair.secondFrame->bbox.toBBox(), framePair.bias};
 }
 
 bool SkeletalModelNode::handleStateTransitions(core::AnimStateId& animState, const core::AnimStateId& goal)
@@ -325,14 +325,14 @@ bool SkeletalModelNode::canBeCulled(const glm::mat4& viewProjection) const
 {
   const auto bbox = getInterpolationInfo().firstFrame->bbox.toBBox();
   const std::array<glm::vec3, 8> corners{
-    core::TRVec{bbox.maxX, bbox.maxY, bbox.maxZ}.toRenderSystem(),
-    core::TRVec{bbox.maxX, bbox.maxY, bbox.minZ}.toRenderSystem(),
-    core::TRVec{bbox.maxX, bbox.minY, bbox.maxZ}.toRenderSystem(),
-    core::TRVec{bbox.maxX, bbox.minY, bbox.minZ}.toRenderSystem(),
-    core::TRVec{bbox.minX, bbox.maxY, bbox.maxZ}.toRenderSystem(),
-    core::TRVec{bbox.minX, bbox.maxY, bbox.minZ}.toRenderSystem(),
-    core::TRVec{bbox.minX, bbox.minY, bbox.maxZ}.toRenderSystem(),
-    core::TRVec{bbox.minX, bbox.minY, bbox.minZ}.toRenderSystem(),
+    core::TRVec{bbox.x.max, bbox.y.max, bbox.z.max}.toRenderSystem(),
+    core::TRVec{bbox.x.max, bbox.y.max, bbox.z.min}.toRenderSystem(),
+    core::TRVec{bbox.x.max, bbox.y.min, bbox.z.max}.toRenderSystem(),
+    core::TRVec{bbox.x.max, bbox.y.min, bbox.z.min}.toRenderSystem(),
+    core::TRVec{bbox.x.min, bbox.y.max, bbox.z.max}.toRenderSystem(),
+    core::TRVec{bbox.x.min, bbox.y.max, bbox.z.min}.toRenderSystem(),
+    core::TRVec{bbox.x.min, bbox.y.min, bbox.z.max}.toRenderSystem(),
+    core::TRVec{bbox.x.min, bbox.y.min, bbox.z.min}.toRenderSystem(),
   };
 
   glm::vec2 min{1000.0f}, max{-1000.0f};

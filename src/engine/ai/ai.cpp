@@ -146,13 +146,11 @@ void updateMood(const objects::AIAgent& aiAgent, const EnemyLocation& enemyLocat
 
     creatureInfo.pathFinder.target = lara.m_state.location.position;
     newTargetBox = lara.m_state.getCurrentBox();
-    creatureInfo.pathFinder.target.X
-      = std::clamp(creatureInfo.pathFinder.target.X, newTargetBox->xmin, newTargetBox->xmax);
-    creatureInfo.pathFinder.target.Z
-      = std::clamp(creatureInfo.pathFinder.target.Z, newTargetBox->zmin, newTargetBox->zmax);
+    creatureInfo.pathFinder.target.X = newTargetBox->xInterval.clamp(creatureInfo.pathFinder.target.X);
+    creatureInfo.pathFinder.target.Z = newTargetBox->zInterval.clamp(creatureInfo.pathFinder.target.Z);
     if(creatureInfo.pathFinder.isFlying() && lara.isOnLand())
       creatureInfo.pathFinder.target.Y
-        += lara.getSkeleton()->getInterpolationInfo().getNearestFrame()->bbox.toBBox().minY;
+        += lara.getSkeleton()->getInterpolationInfo().getNearestFrame()->bbox.toBBox().y.min;
 
     break;
   case Mood::Bored:

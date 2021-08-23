@@ -1,49 +1,61 @@
 #pragma once
 
+#include "interval.h"
 #include "vec.h"
 
 #include <utility>
 
 namespace core
 {
-struct BoundingBox final
+struct BoundingBox
 {
+  core::Interval<core::Length> x{0_len, 0_len};
+  core::Interval<core::Length> y{0_len, 0_len};
+  core::Interval<core::Length> z{0_len, 0_len};
+
   explicit BoundingBox() = default;
 
-  explicit BoundingBox(TRVec min, TRVec max)
-      : min{std::move(min)}
-      , max{std::move(max)}
+  explicit BoundingBox(const core::Length& minX,
+                       const core::Length& maxX,
+                       const core::Length& minY,
+                       const core::Length& maxY,
+                       const core::Length& minZ,
+                       const core::Length& maxZ)
+      : x{minX, maxX}
+      , y{minY, maxY}
+      , z{minZ, maxZ}
   {
   }
 
-  [[nodiscard]] bool isValid() const noexcept
+  explicit BoundingBox(const BoundingBox& a, const BoundingBox& b, const float bias)
+      : x{lerp(a.x.min, b.x.min, bias), lerp(a.x.max, b.x.max, bias)}
+      , y{lerp(a.y.min, b.y.min, bias), lerp(a.y.max, b.y.max, bias)}
+      , z{lerp(a.z.min, b.z.min, bias), lerp(a.z.max, b.z.max, bias)}
   {
-    return min.X <= max.X && min.Y <= max.Y && min.Z <= max.Z;
   }
 
-  void makeValid() noexcept
+  explicit BoundingBox(const TRVec& min, const TRVec& max)
+      : x{min.X, max.X}
+      , y{min.Y, max.Y}
+      , z{min.Z, max.Z}
   {
-    if(min.X > max.X)
-      std::swap(min.X, max.X);
-    if(min.Y > max.Y)
-      std::swap(min.Y, max.Y);
-    if(min.Z > max.Z)
-      std::swap(min.Z, max.Z);
+  }
+
+  void sanitize()
+  {
+    x = x.sanitized();
+    y = y.sanitized();
+    z = z.sanitized();
   }
 
   [[nodiscard]] bool contains(const TRVec& v) const noexcept
   {
-    return v.X >= min.X && v.X <= max.X && v.Y >= min.Y && v.Y <= max.Y && v.Z >= min.Z && v.Z <= max.Z;
+    return x.contains(v.X) && y.contains(v.Y) && z.contains(v.Z);
   }
 
-  TRVec min{0_len, 0_len, 0_len};
-
-  TRVec max{0_len, 0_len, 0_len};
-
-  [[nodiscard]] bool intersects(const core::BoundingBox& b) const noexcept
+  [[nodiscard]] bool intersectsExclusive(const core::BoundingBox& b) const noexcept
   {
-    return min.X < b.max.X && max.X > b.min.X && min.Y < b.max.Y && max.Y > b.min.Y && min.Z < b.max.Z
-           && max.Z > b.min.Z;
+    return x.intersectsExclusive(b.x) && y.intersectsExclusive(b.y) && z.intersectsExclusive(b.z);
   }
 };
 } // namespace core

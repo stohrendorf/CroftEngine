@@ -44,7 +44,7 @@ struct InteractionLimits
       , minAngle{std::move(min)}
       , maxAngle{std::move(max)}
   {
-    distance.makeValid();
+    distance.sanitize();
   }
 
   [[nodiscard]] bool canInteract(const ObjectState& objectState, const ObjectState& laraState) const;
@@ -156,7 +156,7 @@ public:
 
   virtual void updateLighting() = 0;
 
-  virtual loader::file::BoundingBox getBoundingBox() const = 0;
+  virtual core::BoundingBox getBoundingBox() const = 0;
 
   virtual void collide(CollisionInfo& /*collisionInfo*/)
   {

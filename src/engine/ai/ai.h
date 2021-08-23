@@ -50,7 +50,7 @@ struct EnemyLocation
   core::Angle angleToEnemy = 0_deg;
   core::Angle enemyAngleToSelf = 0_deg;
 
-  EnemyLocation(objects::AIAgent& aiAgent);
+  explicit EnemyLocation(objects::AIAgent& aiAgent);
 
   [[nodiscard]] bool canReachEnemyZone() const noexcept
   {

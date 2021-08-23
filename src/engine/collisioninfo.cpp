@@ -33,27 +33,22 @@ namespace
     // nothing to do
     break;
   case core::Axis::Right90:
-    result.min.X = bbox.min.Z;
-    result.max.X = bbox.max.Z;
-    result.min.Z = -bbox.max.X;
-    result.max.Z = -bbox.min.X;
+    result.x = {bbox.z.min, bbox.z.max};
+    result.z = {-bbox.x.max, -bbox.x.min};
     break;
   case core::Axis::Deg180:
-    result.min.X = -bbox.max.X;
-    result.max.X = -bbox.min.X;
-    result.min.Z = -bbox.max.Z;
-    result.max.Z = -bbox.min.Z;
+    result.x = {-bbox.x.max, -bbox.x.min};
+    result.z = {-bbox.z.max, -bbox.z.min};
     break;
   case core::Axis::Left90:
-    result.min.X = -bbox.max.Z;
-    result.max.X = -bbox.min.Z;
-    result.min.Z = bbox.min.X;
-    result.max.Z = bbox.max.X;
+    result.x = {-bbox.z.max, -bbox.z.min};
+    result.z = {bbox.x.min, bbox.x.max};
     break;
   }
 
-  result.min += pos;
-  result.max += pos;
+  result.x += pos.X;
+  result.y += pos.Y;
+  result.z += pos.Z;
   return result;
 }
 
@@ -286,12 +281,12 @@ bool CollisionInfo::checkStaticMeshCollisions(const core::TRVec& pokePosition,
         continue;
 
       const auto meshBox = rotateTranslate(rsm.staticMesh->collisionBox, rsm.position, rsm.rotation);
-      if(!meshBox.intersects(pokeBox))
+      if(!meshBox.intersectsExclusive(pokeBox))
         continue;
 
       // both collision boxes are in world space
-      shift.X = absMin(meshBox.min.X - pokeBox.max.X, meshBox.max.X - pokeBox.min.X);
-      shift.Z = absMin(meshBox.min.Z - pokeBox.max.Z, meshBox.max.Z - pokeBox.min.Z);
+      shift.X = absMin(meshBox.x.min - pokeBox.x.max, meshBox.x.max - pokeBox.x.min);
+      shift.Z = absMin(meshBox.z.min - pokeBox.z.max, meshBox.z.max - pokeBox.z.min);
 
       switch(facingAxis)
       {

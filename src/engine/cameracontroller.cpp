@@ -137,7 +137,7 @@ Location clampBox(const Location& start,
   if(const gsl::not_null goalSector = result.room->getSectorByAbsolutePosition(result.position);
      const auto goalBox = goalSector->box)
   {
-    if(!box->contains(result.position.X, result.position.Z))
+    if(!box->xInterval.contains(result.position.X) || !box->zInterval.contains(result.position.Z))
       box = goalBox;
   }
 
@@ -163,48 +163,48 @@ Location clampBox(const Location& start,
 
   alignMin(testPos.Z);
   BOOST_ASSERT(abs(testPos.Z - result.position.Z) <= core::SectorSize);
-  auto minZ = box->zmin;
+  auto minZ = box->zInterval.min;
   const bool invalidMinZ = testPosInvalid();
   if(!invalidMinZ)
   {
     if(const auto box = Location{result.room, testPos}.updateRoom()->box)
-      minZ = std::min(minZ, box->zmin);
+      minZ = std::min(minZ, box->zInterval.min);
   }
   minZ += core::QuarterSectorSize;
 
   testPos = result.position;
   alignMax(testPos.Z);
   BOOST_ASSERT(abs(testPos.Z - result.position.Z) <= core::SectorSize);
-  auto maxZ = box->zmax;
+  auto maxZ = box->zInterval.max;
   const bool invalidMaxZ = testPosInvalid();
   if(!invalidMaxZ)
   {
     if(const auto box = Location{result.room, testPos}.updateRoom()->box)
-      maxZ = std::max(maxZ, box->zmax);
+      maxZ = std::max(maxZ, box->zInterval.max);
   }
   maxZ -= core::QuarterSectorSize;
 
   testPos = result.position;
   alignMin(testPos.X);
   BOOST_ASSERT(abs(testPos.X - result.position.X) <= core::SectorSize);
-  auto minX = box->xmin;
+  auto minX = box->xInterval.min;
   const bool invalidMinX = testPosInvalid();
   if(!invalidMinX)
   {
     if(const auto box = Location{result.room, testPos}.updateRoom()->box)
-      minX = std::max(minX, box->xmin);
+      minX = std::max(minX, box->xInterval.min);
   }
   minX += core::QuarterSectorSize;
 
   testPos = result.position;
   alignMax(testPos.X);
   BOOST_ASSERT(abs(testPos.X - result.position.X) <= core::SectorSize);
-  auto maxX = box->xmax;
+  auto maxX = box->xInterval.max;
   const bool invalidMaxX = testPosInvalid();
   if(!invalidMaxX)
   {
     if(const auto box = Location{result.room, testPos}.updateRoom()->box)
-      maxX = std::max(maxX, box->xmax);
+      maxX = std::max(maxX, box->xInterval.max);
   }
   maxX -= core::QuarterSectorSize;
 
@@ -414,9 +414,9 @@ std::unordered_set<const world::Portal*> CameraController::update()
   auto focusBBox = focusedObject->getBoundingBox();
   auto focusY = focusedObject->m_state.location.position.Y;
   if(isCompletelyFixed)
-    focusY += (focusBBox.minY + focusBBox.maxY) / 2;
+    focusY += focusBBox.y.mid();
   else
-    focusY += (focusBBox.minY - focusBBox.maxY) * 3 / 4 + focusBBox.maxY;
+    focusY += focusBBox.y.max - focusBBox.y.size() * 3 / 4;
 
   if(m_lookAtObject != nullptr && !isCompletelyFixed)
   {
@@ -431,8 +431,8 @@ std::unordered_set<const world::Portal*> CameraController::update()
                    - focusedObject->m_state.rotation.Y;
     eyeRotY /= 2;
     focusBBox = m_lookAtObject->getBoundingBox();
-    auto eyeRotX = angleFromAtan(
-      focusY - ((focusBBox.minY + focusBBox.maxY) / 2 + m_lookAtObject->m_state.location.position.Y), distToFocused);
+    auto eyeRotX
+      = angleFromAtan(focusY - (focusBBox.y.mid() + m_lookAtObject->m_state.location.position.Y), distToFocused);
     eyeRotX /= 2;
 
     if(abs(eyeRotY) < 50_deg && abs(eyeRotX) < 85_deg)
@@ -481,7 +481,7 @@ std::unordered_set<const world::Portal*> CameraController::update()
 
     if(m_modifier == CameraModifier::FollowCenter)
     {
-      const auto midZ = (focusBBox.minZ + focusBBox.maxZ) / 2;
+      const auto midZ = focusBBox.z.mid();
       m_lookAt.position += util::pitch(midZ, focusedObject->m_state.rotation.Y);
     }
 
@@ -553,26 +553,26 @@ core::Length CameraController::moveIntoBox(Location& goal, const core::Length& m
   const auto sector = goal.updateRoom();
   Expects(sector->box != nullptr);
 
-  if(goal.position.Z < sector->box->zmin + margin
+  if(goal.position.Z < sector->box->zInterval.min + margin
      && isVerticallyOutsideRoom(goal.moved(0_len, 0_len, -margin), m_world->getObjectManager()))
   {
-    goal.position.Z = sector->box->zmin + margin;
+    goal.position.Z = sector->box->zInterval.min + margin;
   }
-  else if(goal.position.Z > sector->box->zmax - margin
+  else if(goal.position.Z > sector->box->zInterval.max - margin
           && isVerticallyOutsideRoom(goal.moved(0_len, 0_len, margin), m_world->getObjectManager()))
   {
-    goal.position.Z = sector->box->zmax - margin;
+    goal.position.Z = sector->box->zInterval.max - margin;
   }
 
-  if(goal.position.X < sector->box->xmin + margin
+  if(goal.position.X < sector->box->xInterval.min + margin
      && isVerticallyOutsideRoom(goal.moved(-margin, 0_len, 0_len), m_world->getObjectManager()))
   {
-    goal.position.X = sector->box->xmin + margin;
+    goal.position.X = sector->box->xInterval.min + margin;
   }
-  else if(goal.position.X > sector->box->xmax - margin
+  else if(goal.position.X > sector->box->xInterval.max - margin
           && isVerticallyOutsideRoom(goal.moved(margin, 0_len, 0_len), m_world->getObjectManager()))
   {
-    goal.position.X = sector->box->xmax - margin;
+    goal.position.X = sector->box->xInterval.max - margin;
   }
 
   auto bottom = HeightInfo::fromFloor(sector, goal.position, m_world->getObjectManager().getObjects()).y - margin;
@@ -673,7 +673,7 @@ void CameraController::handleFreeLook(const objects::Object& object)
   m_lookAt.position.X = object.m_state.location.position.X;
   m_lookAt.position.Z = object.m_state.location.position.Z;
 
-  auto& lara = m_world->getObjectManager().getLara();
+  const auto& lara = m_world->getObjectManager().getLara();
   m_rotationAroundLara.X = lara.m_torsoRotation.X + lara.m_headRotation.X + object.m_state.rotation.X;
   m_rotationAroundLara.Y = lara.m_torsoRotation.Y + lara.m_headRotation.Y + object.m_state.rotation.Y;
   m_distance = core::DefaultCameraLaraDistance;

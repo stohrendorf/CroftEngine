@@ -139,7 +139,7 @@ protected:
 
   bool applyLandingDamage();
 
-  [[nodiscard]] loader::file::BoundingBox getBoundingBox() const;
+  [[nodiscard]] core::BoundingBox getBoundingBox() const;
 
   void addSwimToDiveKeypressDuration(const core::Frame& n) noexcept;
 

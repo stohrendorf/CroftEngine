@@ -107,7 +107,7 @@ void SoundEngine::dropEmitter(Emitter* emitter)
   if(it == m_voices.end())
     return;
 
-  for(const auto& [source, voices] : it->second)
+  for(const auto& [_, voices] : it->second)
     for(const auto& voice : voices)
       voice->stop();
 

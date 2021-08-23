@@ -16,12 +16,12 @@ namespace engine::ai
 namespace
 {
 template<typename T>
-[[nodiscard]] constexpr const auto& uncheckedClamp(const T& x, const T& min, const T& max)
+[[nodiscard]] constexpr const auto& uncheckedClamp(const T& x, const core::Interval<T>& interval)
 {
-  if(x < min)
-    return min;
-  else if(x > max)
-    return max;
+  if(x < interval.min)
+    return interval.min;
+  else if(x > interval.max)
+    return interval.max;
   else
     return x;
 }
@@ -33,32 +33,23 @@ bool PathFinder::calculateTarget(const world::World& world,
                                  const gsl::not_null<const world::Box*>& startBox)
 {
   Expects(m_targetBox != nullptr);
+  Expects(m_targetBox->xInterval.contains(target.X));
+  Expects(m_targetBox->zInterval.contains(target.Z));
+  Expects(startBox->xInterval.contains(startPos.X));
+  Expects(startBox->zInterval.contains(startPos.Z));
   searchPath(world);
 
   moveTarget = startPos;
 
   auto here = startBox;
-  core::Length minZ = 0_len, maxZ = 0_len, minX = 0_len, maxX = 0_len;
-
-  const auto clampX = [&minX, &maxX, &here]()
-  {
-    minX = std::max(minX, here->xmin);
-    maxX = std::min(maxX, here->xmax);
-  };
-
-  const auto clampZ = [&minZ, &maxZ, &here]()
-  {
-    minZ = std::max(minZ, here->zmin);
-    maxZ = std::min(maxZ, here->zmax);
-  };
+  core::Interval<core::Length> xRange{0_len, 0_len};
+  core::Interval<core::Length> zRange{0_len, 0_len};
 
   static constexpr uint8_t CanMoveXPos = 0x01u;
   static constexpr uint8_t CanMoveXNeg = 0x02u;
   static constexpr uint8_t CanMoveZPos = 0x04u;
   static constexpr uint8_t CanMoveZNeg = 0x08u;
   static constexpr uint8_t CanMoveAllDirs = CanMoveXPos | CanMoveXNeg | CanMoveZPos | CanMoveZNeg;
-
-  static constexpr auto Margin = core::SectorSize / 2;
 
   bool detour = false;
 
@@ -74,55 +65,51 @@ bool PathFinder::calculateTarget(const world::World& world,
       moveTarget.Y = std::min(moveTarget.Y, here->floor);
     }
 
-    if(here->contains(startPos.X, startPos.Z))
+    if(here->xInterval.contains(startPos.X) && here->zInterval.contains(startPos.Z))
     {
-      minZ = here->zmin;
-      maxZ = here->zmax;
-      minX = here->xmin;
-      maxX = here->xmax;
+      xRange = here->xInterval;
+      zRange = here->zInterval;
     }
     else
     {
-      if(startPos.Z < here->zmin)
+      if(startPos.Z < here->zInterval.min)
       {
         // try to move to -Z
-        if((moveDirs & CanMoveZNeg) && here->containsX(startPos.X))
+        if((moveDirs & CanMoveZNeg) && here->xInterval.contains(startPos.X))
         {
           // can move straight to -Z while not leaving the X limits of the current box
-          moveTarget.Z = std::max(moveTarget.Z, here->zmin + Margin);
+          moveTarget.Z = std::max(moveTarget.Z, here->zInterval.min + Margin);
 
           if(detour)
             return true;
 
-          // narrow X to the current box limits, ensure we can only move to -Z from now on
-          clampX();
+          xRange = xRange.intersect(here->xInterval);
           moveDirs = CanMoveZNeg;
         }
         else if(detour || moveDirs != CanMoveZNeg)
         {
-          moveTarget.Z = maxZ - Margin;
+          moveTarget.Z = zRange.max - Margin;
           if(detour || moveDirs != CanMoveAllDirs)
             return true;
 
           detour = true;
         }
       }
-      else if(startPos.Z > here->zmax)
+      else if(startPos.Z > here->zInterval.max)
       {
-        if((moveDirs & CanMoveZPos) && here->containsX(startPos.X))
+        if((moveDirs & CanMoveZPos) && here->xInterval.contains(startPos.X))
         {
-          moveTarget.Z = std::min(moveTarget.Z, here->zmax - Margin);
+          moveTarget.Z = std::min(moveTarget.Z, here->zInterval.max - Margin);
 
           if(detour)
             return true;
 
-          clampX();
-
+          xRange = xRange.intersect(here->xInterval);
           moveDirs = CanMoveZPos;
         }
         else if(detour || moveDirs != CanMoveZPos)
         {
-          moveTarget.Z = minZ + Margin;
+          moveTarget.Z = zRange.min + Margin;
           if(detour || moveDirs != CanMoveAllDirs)
             return true;
 
@@ -130,44 +117,42 @@ bool PathFinder::calculateTarget(const world::World& world,
         }
       }
 
-      if(startPos.X < here->xmin)
+      if(startPos.X < here->xInterval.min)
       {
-        if((moveDirs & CanMoveXNeg) && here->containsZ(startPos.Z))
+        if((moveDirs & CanMoveXNeg) && here->zInterval.contains(startPos.Z))
         {
-          moveTarget.X = std::max(moveTarget.X, here->xmin + Margin);
+          moveTarget.X = std::max(moveTarget.X, here->xInterval.min + Margin);
 
           if(detour)
             return true;
 
-          clampZ();
-
+          zRange = zRange.intersect(here->zInterval);
           moveDirs = CanMoveXNeg;
         }
         else if(detour || moveDirs != CanMoveXNeg)
         {
-          moveTarget.X = maxX - Margin;
+          moveTarget.X = xRange.max - Margin;
           if(detour || moveDirs != CanMoveAllDirs)
             return true;
 
           detour = true;
         }
       }
-      else if(startPos.X > here->xmax)
+      else if(startPos.X > here->xInterval.max)
       {
-        if((moveDirs & CanMoveXPos) && here->containsZ(startPos.Z))
+        if((moveDirs & CanMoveXPos) && here->zInterval.contains(startPos.Z))
         {
-          moveTarget.X = std::min(moveTarget.X, here->xmax - Margin);
+          moveTarget.X = std::min(moveTarget.X, here->xInterval.max - Margin);
 
           if(detour)
             return true;
 
-          clampZ();
-
+          zRange = zRange.intersect(here->zInterval);
           moveDirs = CanMoveXPos;
         }
         else if(detour || moveDirs != CanMoveXPos)
         {
-          moveTarget.X = minX + Margin;
+          moveTarget.X = xRange.min + Margin;
           if(detour || moveDirs != CanMoveAllDirs)
             return true;
 
@@ -184,9 +169,9 @@ bool PathFinder::calculateTarget(const world::World& world,
       }
       else if(!detour)
       {
-        moveTarget.Z = uncheckedClamp(moveTarget.Z, here->zmin + Margin, here->zmax - Margin);
+        moveTarget.Z = uncheckedClamp(moveTarget.Z, here->zInterval.narrowed(Margin));
       }
-      Ensures(here->containsZ(moveTarget.Z));
+      Ensures(here->zInterval.contains(moveTarget.Z));
 
       if(moveDirs & (CanMoveXPos | CanMoveXNeg))
       {
@@ -194,9 +179,9 @@ bool PathFinder::calculateTarget(const world::World& world,
       }
       else if(!detour)
       {
-        moveTarget.X = uncheckedClamp(moveTarget.X, here->xmin + Margin, here->xmax - Margin);
+        moveTarget.X = uncheckedClamp(moveTarget.X, here->xInterval.narrowed(Margin));
       }
-      Ensures(here->containsX(moveTarget.X));
+      Ensures(here->xInterval.contains(moveTarget.X));
 
       moveTarget.Y = target.Y;
 
@@ -212,25 +197,25 @@ bool PathFinder::calculateTarget(const world::World& world,
 
   if(moveDirs & (CanMoveZPos | CanMoveZNeg))
   {
-    const auto range = here->zmax - here->zmin - 2 * Margin;
-    moveTarget.Z = util::rand15(range) + here->zmin + Margin;
+    const auto range = here->zInterval.size() - 2 * Margin;
+    moveTarget.Z = util::rand15(range) + here->zInterval.min + Margin;
   }
   else if(!detour)
   {
-    moveTarget.Z = uncheckedClamp(moveTarget.Z, here->zmin + Margin, here->zmax - Margin);
+    moveTarget.Z = uncheckedClamp(moveTarget.Z, here->zInterval.narrowed(Margin));
   }
-  Ensures(here->containsZ(moveTarget.Z));
+  Ensures(here->zInterval.contains(moveTarget.Z));
 
   if(moveDirs & (CanMoveXPos | CanMoveXNeg))
   {
-    const auto range = here->xmax - here->xmin - 2 * Margin;
-    moveTarget.X = util::rand15(range) + here->xmin + Margin;
+    const auto range = here->xInterval.size() - 2 * Margin;
+    moveTarget.X = util::rand15(range) + here->xInterval.min + Margin;
   }
   else if(!detour)
   {
-    moveTarget.X = uncheckedClamp(moveTarget.X, here->xmin + Margin, here->xmax - Margin);
+    moveTarget.X = uncheckedClamp(moveTarget.X, here->xInterval.narrowed(Margin));
   }
-  Ensures(here->containsX(moveTarget.X));
+  Ensures(here->xInterval.contains(moveTarget.X));
 
   if(isFlying())
     moveTarget.Y = here->floor - 384_len;

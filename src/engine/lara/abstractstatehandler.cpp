@@ -275,7 +275,7 @@ bool AbstractStateHandler::tryReach(CollisionInfo& collisionInfo)
   }
 
   const auto bbox = getBoundingBox();
-  const auto spaceToReach = collisionInfo.front.floor.y - bbox.minY;
+  const auto spaceToReach = collisionInfo.front.floor.y - bbox.y.min;
 
   if(spaceToReach < 0_len && m_lara.m_state.fallspeed * 1_frame + spaceToReach < 0_len)
   {
@@ -507,7 +507,7 @@ bool AbstractStateHandler::tryGrabEdge(const CollisionInfo& collisionInfo)
   }
 
   auto bbox = getBoundingBox();
-  auto spaceToReach = collisionInfo.front.floor.y - bbox.minY;
+  auto spaceToReach = collisionInfo.front.floor.y - bbox.y.min;
 
   if(spaceToReach < 0_len && m_lara.m_state.fallspeed * 1_frame + spaceToReach < 0_len)
   {
@@ -528,7 +528,7 @@ bool AbstractStateHandler::tryGrabEdge(const CollisionInfo& collisionInfo)
   setGoalAnimState(LaraStateId::Hang);
   setCurrentAnimState(LaraStateId::Hang);
   bbox = getBoundingBox();
-  spaceToReach = collisionInfo.front.floor.y - bbox.minY;
+  spaceToReach = collisionInfo.front.floor.y - bbox.y.min;
 
   const core::TRVec pos = m_lara.m_state.location.position + core::TRVec(0_len, spaceToReach, 0_len);
   m_lara.m_state.location.position = pos;
@@ -542,7 +542,8 @@ bool AbstractStateHandler::tryGrabEdge(const CollisionInfo& collisionInfo)
   return true;
 }
 
-core::Length AbstractStateHandler::getRelativeHeightAtDirection(const core::Angle& angle, const core::Length& dist) const
+core::Length AbstractStateHandler::getRelativeHeightAtDirection(const core::Angle& angle,
+                                                                const core::Length& dist) const
 {
   auto location = m_lara.m_state.location.moved(util::pitch(dist, angle));
   location.position.Y -= core::LaraWalkHeight;
@@ -677,7 +678,7 @@ void AbstractStateHandler::commonEdgeHangHandling(CollisionInfo& collisionInfo)
     setCurrentAnimState(LaraStateId::JumpUp);
     setHandStatus(objects::HandStatus::None);
     const auto bbox = getBoundingBox();
-    const auto hangDistance = collisionInfo.front.floor.y - bbox.minY + 2_len;
+    const auto hangDistance = collisionInfo.front.floor.y - bbox.y.min + 2_len;
     const core::TRVec& pos
       = m_lara.m_state.location.position + core::TRVec(collisionInfo.shift.X, hangDistance, collisionInfo.shift.Z);
     m_lara.m_state.location.position = pos;
@@ -722,7 +723,7 @@ void AbstractStateHandler::commonEdgeHangHandling(CollisionInfo& collisionInfo)
   }
 
   const auto bbox = getBoundingBox();
-  const auto spaceToReach = collisionInfo.front.floor.y - bbox.minY;
+  const auto spaceToReach = collisionInfo.front.floor.y - bbox.y.min;
 
   if(spaceToReach >= -core::QuarterSectorSize && spaceToReach <= core::QuarterSectorSize)
   {
@@ -762,7 +763,7 @@ bool AbstractStateHandler::applyLandingDamage()
   return m_lara.isDead();
 }
 
-loader::file::BoundingBox AbstractStateHandler::getBoundingBox() const
+core::BoundingBox AbstractStateHandler::getBoundingBox() const
 {
   return m_lara.getBoundingBox();
 }

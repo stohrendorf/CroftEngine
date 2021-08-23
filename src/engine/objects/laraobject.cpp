@@ -1036,9 +1036,9 @@ Location LaraObject::getUpperThirdBBoxCtr(const ModelObject& object)
   const auto kf = object.getSkeleton()->getInterpolationInfo().getNearestFrame();
   const auto bbox = kf->bbox.toBBox();
 
-  const auto ctrX = (bbox.minX + bbox.maxX) / 2;
-  const auto ctrZ = (bbox.minZ + bbox.maxZ) / 2;
-  const auto ctrY3 = (bbox.maxY - bbox.minY) / 3 + bbox.minY;
+  const auto ctrX = bbox.x.mid();
+  const auto ctrZ = bbox.z.mid();
+  const auto ctrY3 = bbox.y.size() / 3 + bbox.y.min;
 
   Location result{object.m_state.location};
   result.position += util::pitch(core::TRVec{ctrX, ctrY3, ctrZ}, object.m_state.rotation.Y);

@@ -136,7 +136,7 @@ void ModelObject::applyMovement(const bool forLara)
   m_skeleton->updatePose();
 }
 
-loader::file::BoundingBox ModelObject::getBoundingBox() const
+core::BoundingBox ModelObject::getBoundingBox() const
 {
   return m_skeleton->getBoundingBox();
 }
@@ -145,30 +145,29 @@ bool ModelObject::isNear(const ModelObject& other, const core::Length& radius) c
 {
   const auto bbox = getSkeleton()->getInterpolationInfo().getNearestFrame()->bbox.toBBox();
   const auto otherBBox = other.getSkeleton()->getInterpolationInfo().getNearestFrame()->bbox.toBBox();
-  if(other.m_state.location.position.Y + otherBBox.minY >= m_state.location.position.Y + bbox.maxY
-     || m_state.location.position.Y + bbox.minY >= other.m_state.location.position.Y + otherBBox.maxY)
+  const auto selfY = m_state.location.position.Y + bbox.y;
+  const auto otherY = other.m_state.location.position.Y + otherBBox.y;
+  if(!selfY.intersectsExclusive(otherY))
   {
     return false;
   }
 
   const auto xz = util::pitch(other.m_state.location.position - m_state.location.position, -m_state.rotation.Y);
-  return xz.X >= bbox.minX - radius && xz.X <= bbox.maxX + radius && xz.Z >= bbox.minZ - radius
-         && xz.Z <= bbox.maxZ + radius;
+  return bbox.x.broadened(radius).contains(xz.X) && bbox.z.broadened(radius).contains(xz.Z);
 }
 
 bool ModelObject::isNear(const Particle& other, const core::Length& radius) const
 {
   const auto frame = getSkeleton()->getInterpolationInfo().getNearestFrame();
   const auto bbox = frame->bbox.toBBox();
-  if(other.location.position.Y >= m_state.location.position.Y + bbox.maxY
-     || m_state.location.position.Y + bbox.minY >= other.location.position.Y)
+  const auto selfY = m_state.location.position.Y + bbox.y;
+  if(!selfY.containsExclusive(other.location.position.Y))
   {
     return false;
   }
 
   const auto xz = util::pitch(other.location.position - m_state.location.position, -m_state.rotation.Y);
-  return xz.X >= bbox.minX - radius && xz.X <= bbox.maxX + radius && xz.Z >= bbox.minZ - radius
-         && xz.Z <= bbox.maxZ + radius;
+  return bbox.x.broadened(radius).contains(xz.X) && bbox.z.broadened(radius).contains(xz.Z);
 }
 
 void ModelObject::enemyPush(CollisionInfo& collisionInfo, const bool enableSpaz, const bool withXZCollRadius)
@@ -180,18 +179,16 @@ void ModelObject::enemyPush(CollisionInfo& collisionInfo, const bool enableSpaz,
   if(withXZCollRadius)
   {
     const auto r = collisionInfo.collisionRadius;
-    bbox.minX -= r;
-    bbox.maxX += r;
-    bbox.minZ -= r;
-    bbox.maxZ += r;
+    bbox.x = bbox.x.broadened(r);
+    bbox.z = bbox.z.broadened(r);
   }
 
   // determine which edge lara is closest to
   auto laraInBBox = util::pitch(enemyToLara, -m_state.rotation.Y);
-  const auto distMinX = laraInBBox.X - bbox.minX;
-  const auto distMaxX = bbox.maxX - laraInBBox.X;
-  const auto distMinZ = laraInBBox.Z - bbox.minZ;
-  const auto distMaxZ = bbox.maxZ - laraInBBox.Z;
+  const auto distMinX = laraInBBox.X - bbox.x.min;
+  const auto distMaxX = bbox.x.max - laraInBBox.X;
+  const auto distMinZ = laraInBBox.Z - bbox.z.min;
+  const auto distMaxZ = bbox.z.max - laraInBBox.Z;
   const auto closestEdge = std::min(std::min(distMinX, distMaxX), std::min(distMinZ, distMaxZ));
   if(closestEdge <= 0_len)
     return;
@@ -199,28 +196,26 @@ void ModelObject::enemyPush(CollisionInfo& collisionInfo, const bool enableSpaz,
   // push lara out to the closest edge
   if(distMinX == closestEdge)
   {
-    laraInBBox.X = bbox.minX;
+    laraInBBox.X = bbox.x.min;
   }
   else if(distMaxX == closestEdge)
   {
-    laraInBBox.X = bbox.maxX;
+    laraInBBox.X = bbox.x.max;
   }
   else if(distMinZ == closestEdge)
   {
-    laraInBBox.Z = bbox.minZ;
+    laraInBBox.Z = bbox.z.min;
   }
   else
   {
     BOOST_ASSERT(distMaxZ == closestEdge);
-    laraInBBox.Z = bbox.maxZ;
+    laraInBBox.Z = bbox.z.max;
   }
   // update lara's position to where she was pushed
   lara.m_state.location.position = m_state.location.position + util::pitch(laraInBBox, m_state.rotation.Y);
   if(enableSpaz)
   {
-    const auto midX = (bbox.minX + bbox.maxX) / 2;
-    const auto midZ = (bbox.minZ + bbox.maxZ) / 2;
-    const auto tmp = enemyToLara - util::pitch(core::TRVec{midX, 0_len, midZ}, m_state.rotation.Y);
+    const auto tmp = enemyToLara - util::pitch(core::TRVec{bbox.x.mid(), 0_len, bbox.z.mid()}, m_state.rotation.Y);
     const auto a = angleFromAtan(tmp.X, tmp.Z) - 180_deg;
     lara.hit_direction = axisFromAngle(lara.m_state.rotation.Y - a);
     if(lara.hit_frame == 0_frame)

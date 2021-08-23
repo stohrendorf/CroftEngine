@@ -117,9 +117,9 @@ bool AIAgent::animateCreature(const core::Angle& angle, const core::Angle& tilt)
   }
 
   const auto bbox = getSkeleton()->getBoundingBox();
-  const auto bboxMaxY = m_state.location.position.Y + bbox.maxY;
+  const auto bboxMaxY = m_state.location.position.Y + bbox.y.max;
 
-  auto sector = m_state.location.moved(0_len, bbox.maxY, 0_len).updateRoom();
+  auto sector = m_state.location.moved(0_len, bbox.y.max, 0_len).updateRoom();
 
   if(sector->box == nullptr || boxFloor - sector->box->floor > pathFinder.step
      || boxFloor - sector->box->floor < pathFinder.drop
@@ -144,7 +144,7 @@ bool AIAgent::animateCreature(const core::Angle& angle, const core::Angle& tilt)
     else if(newSectorZ > oldSectorZ)
       m_state.location.position.Z = shoveMax(oldLocation.position.Z);
 
-    sector = m_state.location.moved(0_len, bbox.maxY, 0_len).updateRoom();
+    sector = m_state.location.moved(0_len, bbox.y.max, 0_len).updateRoom();
   }
 
   Expects(sector->box != nullptr);
@@ -342,7 +342,7 @@ bool AIAgent::animateCreature(const core::Angle& angle, const core::Angle& tilt)
                                   getWorld().getObjectManager().getObjects())
             .y;
 
-      const auto y = m_state.type == TR1ItemId::CrocodileInWater ? 0_len : bbox.maxY;
+      const auto y = m_state.type == TR1ItemId::CrocodileInWater ? 0_len : bbox.y.max;
 
       if(m_state.location.position.Y + y + moveY < ceiling)
       {
@@ -533,6 +533,7 @@ bool AIAgent::isInsideZoneButNotInBox(const world::ZoneId zoneId, const world::B
     return false;
   }
 
-  return !targetBox.contains(m_state.location.position.X, m_state.location.position.Z);
+  return !targetBox.xInterval.contains(m_state.location.position.X)
+         || !targetBox.zInterval.contains(m_state.location.position.Z);
 }
 } // namespace engine::objects

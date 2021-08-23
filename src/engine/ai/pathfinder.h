@@ -18,6 +18,8 @@ namespace engine::ai
 {
 struct PathFinder
 {
+  static constexpr auto Margin = core::SectorSize / 2;
+
   bool cannotVisitBlocked = true;
   bool cannotVisitBlockable = false;
 
@@ -41,10 +43,10 @@ struct PathFinder
 
   void setRandomSearchTarget(const gsl::not_null<const world::Box*>& box)
   {
-    const auto zSize = box->zmax - box->zmin - core::SectorSize;
-    target.Z = util::rand15(zSize) + box->zmin + core::SectorSize / 2;
-    const auto xSize = box->xmax - box->xmin - core::SectorSize;
-    target.X = util::rand15(xSize) + box->xmin + core::SectorSize / 2;
+    const auto xSize = box->xInterval.size() - 2 * Margin;
+    target.X = util::rand15(xSize) + box->xInterval.min + Margin;
+    const auto zSize = box->zInterval.size() - 2 * Margin;
+    target.Z = util::rand15(zSize) + box->zInterval.min + Margin;
     if(fly != 0_len)
     {
       target.Y = box->floor - 384_len;

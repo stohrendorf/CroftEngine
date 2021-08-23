@@ -17,8 +17,8 @@ bool ObjectState::isStalkBox(const world::World& world, const world::Box& target
 {
   const auto laraPos = world.getObjectManager().getLara().m_state.location.position;
 
-  const auto laraToBoxDistX = (targetBox.xmin + targetBox.xmax) / 2 - laraPos.X;
-  const auto laraToBoxDistZ = (targetBox.zmin + targetBox.zmax) / 2 - laraPos.Z;
+  const auto laraToBoxDistX = targetBox.xInterval.mid() - laraPos.X;
+  const auto laraToBoxDistZ = targetBox.zInterval.mid() - laraPos.Z;
 
   if(abs(laraToBoxDistX) > 3 * core::SectorSize || abs(laraToBoxDistZ) > 3 * core::SectorSize)
   {
@@ -54,8 +54,8 @@ bool ObjectState::isEscapeBox(const world::World& world, const world::Box& targe
 {
   const auto laraPos = world.getObjectManager().getLara().m_state.location.position;
 
-  const auto laraToBoxCtrX = (targetBox.xmin + targetBox.xmax) / 2 - laraPos.X;
-  const auto laraToBoxCtrZ = (targetBox.zmin + targetBox.zmax) / 2 - laraPos.Z;
+  const auto laraToBoxCtrX = targetBox.xInterval.mid() - laraPos.X;
+  const auto laraToBoxCtrZ = targetBox.zInterval.mid() - laraPos.Z;
   if(abs(laraToBoxCtrX) < 5 * core::SectorSize && abs(laraToBoxCtrZ) < 5 * core::SectorSize)
     return false;
 

@@ -72,7 +72,7 @@ public:
 
   void applyMovement(bool forLara);
 
-  loader::file::BoundingBox getBoundingBox() const override;
+  core::BoundingBox getBoundingBox() const override;
 
   bool isNear(const ModelObject& other, const core::Length& radius) const;
 

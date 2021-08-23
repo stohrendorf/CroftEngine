@@ -173,7 +173,7 @@ TitleMenu::TitleMenu(const std::string& name,
 }
 
 SplashScreen::SplashScreen(std::string path, int durationSeconds)
-    : m_path{path}
+    : m_path{std::move(path)}
     , m_durationSeconds{durationSeconds}
 {
   Expects(m_durationSeconds > 0);

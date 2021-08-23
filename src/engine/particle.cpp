@@ -309,9 +309,8 @@ void MutantAmmoParticle::aimLaraChest(world::World& world)
 {
   const auto d = world.getObjectManager().getLara().m_state.location.position - location.position;
   const auto bbox = world.getObjectManager().getLara().getSkeleton()->getBoundingBox();
-  angle.X
-    = util::rand15s(256_au)
-      - angleFromAtan(bbox.maxY + (bbox.minY - bbox.maxY) * 3 / 4 + d.Y, sqrt(util::square(d.X) + util::square(d.Z)));
+  angle.X = util::rand15s(256_au)
+            - angleFromAtan(bbox.y.max - bbox.y.size() * 3 / 4 + d.Y, sqrt(util::square(d.X) + util::square(d.Z)));
   angle.Y = util::rand15s(256_au) + angleFromAtan(d.X, d.Z);
 }
 

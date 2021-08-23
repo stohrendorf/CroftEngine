@@ -35,7 +35,7 @@ public:
 
   core::Speed calculateFloorSpeed(const core::Frame& frameOffset = 0_frame) const;
 
-  loader::file::BoundingBox getBoundingBox() const;
+  core::BoundingBox getBoundingBox() const;
 
   void patchBone(const size_t idx, const glm::mat4& m)
   {

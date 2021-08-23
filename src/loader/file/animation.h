@@ -1,5 +1,6 @@
 #pragma once
 
+#include "core/boundingbox.h"
 #include "core/containeroffset.h"
 #include "core/id.h"
 #include "core/units.h"
@@ -32,59 +33,20 @@ class SDLReader;
 
 #pragma pack(push, 1)
 
-struct BoundingBox
-{
-  core::Length minX{0_len}, maxX{0_len};
-  core::Length minY{0_len}, maxY{0_len};
-  core::Length minZ{0_len}, maxZ{0_len};
-
-  explicit BoundingBox() = default;
-
-  BoundingBox(const core::Length& minX,
-              const core::Length& maxX,
-              const core::Length& minY,
-              const core::Length& maxY,
-              const core::Length& minZ,
-              const core::Length& maxZ)
-      : minX{minX}
-      , maxX{maxX}
-      , minY{minY}
-      , maxY{maxY}
-      , minZ{minZ}
-      , maxZ{maxZ}
-  {
-  }
-
-  BoundingBox(const BoundingBox& a, const BoundingBox& b, const float bias)
-      : minX{lerp(a.minX, b.minX, bias)}
-      , maxX{lerp(a.maxX, b.maxX, bias)}
-      , minY{lerp(a.minY, b.minY, bias)}
-      , maxY{lerp(a.maxY, b.maxY, bias)}
-      , minZ{lerp(a.minZ, b.minZ, bias)}
-      , maxZ{lerp(a.maxZ, b.maxZ, bias)}
-  {
-  }
-
-  [[nodiscard]] core::TRVec getCenter() const
-  {
-    return {(minX + maxX) / 2, (minY + maxY) / 2, (minZ + maxZ) / 2};
-  }
-};
-
 struct BoundingBoxIO
 {
   int16_t minX{0}, maxX{0};
   int16_t minY{0}, maxY{0};
   int16_t minZ{0}, maxZ{0};
 
-  [[nodiscard]] BoundingBox toBBox() const
+  [[nodiscard]] core::BoundingBox toBBox() const
   {
-    return BoundingBox{core::Length{static_cast<core::Length::type>(minX)},
-                       core::Length{static_cast<core::Length::type>(maxX)},
-                       core::Length{static_cast<core::Length::type>(minY)},
-                       core::Length{static_cast<core::Length::type>(maxY)},
-                       core::Length{static_cast<core::Length::type>(minZ)},
-                       core::Length{static_cast<core::Length::type>(maxZ)}};
+    return core::BoundingBox{core::Length{static_cast<core::Length::type>(minX)},
+                             core::Length{static_cast<core::Length::type>(maxX)},
+                             core::Length{static_cast<core::Length::type>(minY)},
+                             core::Length{static_cast<core::Length::type>(maxY)},
+                             core::Length{static_cast<core::Length::type>(minZ)},
+                             core::Length{static_cast<core::Length::type>(maxZ)}};
   }
 };
 
@@ -115,7 +77,7 @@ struct alignas(4) AnimFrame
   {
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
     const auto begin = reinterpret_cast<const uint32_t*>(this + 1);
-    return gsl::span(begin, numValues);
+    return {begin, numValues};
   }
 
   [[nodiscard]] const AnimFrame* next() const
