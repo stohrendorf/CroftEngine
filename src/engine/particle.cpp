@@ -102,7 +102,10 @@ bool BloodSplatterParticle::update(world::World& world)
   location.position += util::pitch(speed * 1_frame, angle.Y);
   ++timePerSpriteFrame;
   if(timePerSpriteFrame != 4)
+  {
+    applyTransform();
     return true;
+  }
 
   timePerSpriteFrame = 0;
   nextFrame();
