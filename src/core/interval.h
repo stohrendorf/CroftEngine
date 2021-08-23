@@ -43,6 +43,11 @@ struct Interval final
     return *this;
   }
 
+  [[nodiscard]] constexpr auto operator-(const T& value) const
+  {
+    return Interval<T>{min - value, max - value};
+  }
+
   [[nodiscard]] constexpr bool isValid() const
   {
     return min <= max;

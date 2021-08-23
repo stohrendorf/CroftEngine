@@ -169,122 +169,121 @@ bool AIAgent::animateCreature(const core::Angle& angle, const core::Angle& tilt)
   core::Length moveZ = 0_len;
 
   // in-sector coordinate limits incorporating collision radius
-  const auto collisionMin = m_collisionRadius;
-  const auto collisionMax = core::SectorSize - m_collisionRadius;
+  const auto collisionInterval = core::Interval{0_len, core::SectorSize - 1_len}.narrowed(m_collisionRadius);
+  Expects(collisionInterval.isValid());
   const core::TRVec bottom{basePosX, bboxMaxY, basePosZ};
   // relative bounding box collision test coordinates
   const core::TRVec testX{m_collisionRadius, 0_len, 0_len};
   const core::TRVec testZ{0_len, 0_len, m_collisionRadius};
   // how much we can move without violating the collision radius constraint
-  const auto negXMoveLimit = collisionMin - inSectorX;
-  const auto posXMoveLimit = collisionMax - inSectorX;
-  const auto negZMoveLimit = collisionMin - inSectorZ;
-  const auto posZMoveLimit = collisionMax - inSectorZ;
+  const auto xMoveLimit = collisionInterval - inSectorX;
+  const auto zMoveLimit = collisionInterval - inSectorZ;
 
   const auto cannotMoveTo
     = [this, floor = sector->box->floor, nextFloor = nextFloor, &pathFinder](const core::TRVec& pos)
   { return isPositionOutOfReach(pos, floor, nextFloor, pathFinder); };
 
-  if(inSectorZ < collisionMin)
+  if(inSectorZ < collisionInterval.min)
   {
     const auto testBase = bottom - testZ;
     if(cannotMoveTo(testBase))
     {
-      moveZ = negZMoveLimit;
+      moveZ = zMoveLimit.min;
     }
 
-    if(inSectorX < collisionMin)
+    if(inSectorX < collisionInterval.min)
     {
       if(cannotMoveTo(bottom - testX))
       {
-        moveX = negXMoveLimit;
+        moveX = xMoveLimit.min;
       }
       else if(moveZ == 0_len && cannotMoveTo(testBase - testX))
       {
         switch(axisFromAngle(m_state.rotation.Y))
         {
         case core::Axis::NegZ:
-        case core::Axis::PosX: moveX = negXMoveLimit; break;
+        case core::Axis::PosX: moveX = xMoveLimit.min; break;
         case core::Axis::PosZ:
-        case core::Axis::NegX: moveZ = negZMoveLimit; break;
+        case core::Axis::NegX: moveZ = zMoveLimit.min; break;
         }
       }
     }
-    else if(inSectorX > collisionMax)
+    else if(inSectorX > collisionInterval.max)
     {
       if(cannotMoveTo(bottom + testX))
       {
-        moveX = posXMoveLimit;
+        moveX = xMoveLimit.max;
       }
       else if(moveZ == 0_len && cannotMoveTo(testBase + testX))
       {
         switch(axisFromAngle(m_state.rotation.Y))
         {
         case core::Axis::PosZ:
-        case core::Axis::PosX: moveZ = negZMoveLimit; break;
+        case core::Axis::PosX: moveZ = zMoveLimit.min; break;
         case core::Axis::NegZ:
-        case core::Axis::NegX: moveX = posXMoveLimit; break;
+        case core::Axis::NegX: moveX = xMoveLimit.max; break;
         }
       }
     }
   }
-  else if(inSectorZ > collisionMax)
+  else if(inSectorZ > collisionInterval.max)
   {
     const auto testBase = bottom + testZ;
     if(cannotMoveTo(testBase))
     {
-      moveZ = posZMoveLimit;
+      moveZ = zMoveLimit.max;
     }
 
-    if(inSectorX < collisionMin)
+    if(inSectorX < collisionInterval.min)
     {
       if(cannotMoveTo(bottom - testX))
       {
-        moveX = negXMoveLimit;
+        moveX = xMoveLimit.min;
       }
       else if(moveZ == 0_len && cannotMoveTo(testBase - testX))
       {
         switch(axisFromAngle(m_state.rotation.Y))
         {
         case core::Axis::PosX:
-        case core::Axis::NegZ: moveX = negXMoveLimit; break;
+        case core::Axis::NegZ: moveX = xMoveLimit.min; break;
         case core::Axis::NegX:
-        case core::Axis::PosZ: moveZ = posZMoveLimit; break;
+        case core::Axis::PosZ: moveZ = zMoveLimit.max; break;
         }
       }
     }
-    else if(inSectorX > collisionMax)
+    else if(inSectorX > collisionInterval.max)
     {
       if(cannotMoveTo(bottom + testX))
       {
-        moveX = posXMoveLimit;
+        moveX = xMoveLimit.max;
       }
       else if(moveZ == 0_len && cannotMoveTo(testBase + testX))
       {
         switch(axisFromAngle(m_state.rotation.Y))
         {
         case core::Axis::PosZ:
-        case core::Axis::NegX: moveX = posXMoveLimit; break;
+        case core::Axis::NegX: moveX = xMoveLimit.max; break;
         case core::Axis::NegZ:
-        case core::Axis::PosX: moveZ = posZMoveLimit; break;
+        case core::Axis::PosX: moveZ = zMoveLimit.max; break;
         }
       }
     }
   }
   else
   {
-    if(inSectorX < collisionMin)
+    if(inSectorX < collisionInterval.min)
     {
       if(cannotMoveTo(bottom - testX))
       {
-        moveX = negXMoveLimit;
+        moveX = xMoveLimit.min;
+        (void)cannotMoveTo(bottom - testX);
       }
     }
-    else if(inSectorX > collisionMax)
+    else if(inSectorX > collisionInterval.max)
     {
       if(cannotMoveTo(bottom + testX))
       {
-        moveX = posXMoveLimit;
+        moveX = xMoveLimit.max;
       }
     }
   }
