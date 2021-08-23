@@ -12,6 +12,8 @@ struct Interval final
   T max{};
 
   explicit Interval() = default;
+  Interval(const Interval<T>&) = default;
+  Interval(Interval<T>&&) noexcept = default;
 
   Interval(const T& min, const T& max)
       : min{min}
