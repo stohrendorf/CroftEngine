@@ -9,6 +9,7 @@
 #include "engine/controllerbuttons.h"
 #include "engine/floordata/floordata.h"
 #include "engine/objectmanager.h"
+#include "engine/objects/object.h"
 #include "loader/file/datatypes.h"
 #include "loader/file/item.h"
 #include "mesh.h"
