@@ -26,13 +26,4 @@ if False:
 else:
     cheats = {}
 
-
-def getObjectInfo(id):
-    return object_infos[TR1ItemId(id)]
-
-
-def getTrackInfo(id):
-    return tracks[id]
-
-
 print("Yay! Main script loaded.")

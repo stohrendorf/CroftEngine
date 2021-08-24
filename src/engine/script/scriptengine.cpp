@@ -49,7 +49,7 @@ LevelSequenceItem* ScriptEngine::getLevelSequenceItem(size_t idx) const
 // NOLINTNEXTLINE(readability-convert-member-functions-to-static)
 TrackInfo ScriptEngine::getTrackInfo(engine::TR1TrackId trackId) const
 {
-  return pybind11::globals()["getTrackInfo"](trackId).cast<script::TrackInfo>();
+  return pybind11::globals()["tracks"][pybind11::cast(trackId)].cast<script::TrackInfo>();
 }
 
 // NOLINTNEXTLINE(readability-convert-member-functions-to-static)
@@ -61,7 +61,7 @@ std::optional<std::string> ScriptEngine::getLanguageOverride() const
 // NOLINTNEXTLINE(readability-convert-member-functions-to-static)
 ObjectInfo ScriptEngine::getObjectInfo(const core::TypeId& type) const
 {
-  return pybind11::globals()["getObjectInfo"](type.get()).cast<ObjectInfo>();
+  return pybind11::globals()["object_infos"][pybind11::cast(type.get_as<engine::TR1ItemId>())].cast<ObjectInfo>();
 }
 
 // NOLINTNEXTLINE(readability-convert-member-functions-to-static)
