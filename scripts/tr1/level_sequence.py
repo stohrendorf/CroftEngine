@@ -294,12 +294,6 @@ level_sequence = [
             },
         },
     ),
-    Cutscene(
-        name="CUT3",
-        track=TR1TrackId.Cutscene3,
-        flip_rooms=True,
-        camera_rot=90.0,
-    ),
     Video("CANYON.RPL"),
     Level(
         name="LEVEL10A",
@@ -337,10 +331,10 @@ level_sequence = [
         default_weapon=WeaponType.None_,
     ),
     Cutscene(
-        name="CUT4",
-        track=TR1TrackId.Cutscene1,
+        name="CUT3",
+        track=TR1TrackId.Cutscene3,
+        flip_rooms=True,
         camera_rot=90.0,
-        weapon_swap=True,
     ),
     Video("PYRAMID.RPL"),
     Level(
@@ -359,6 +353,12 @@ level_sequence = [
         },
     ),
     Video("PRISON.RPL"),
+    Cutscene(
+        name="CUT4",
+        track=TR1TrackId.Cutscene1,
+        camera_rot=90.0,
+        weapon_swap=True,
+    ),
     Level(
         name="LEVEL10C",
         titles={
