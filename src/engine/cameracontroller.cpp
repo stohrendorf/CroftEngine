@@ -141,7 +141,8 @@ Location clampBox(const Location& start,
       box = goalBox;
   }
 
-  Expects(box != nullptr);
+  if(box == nullptr)
+    return result;
 
   // align to the closest border of the next sector
   static const auto alignMin = [](core::Length& x)
