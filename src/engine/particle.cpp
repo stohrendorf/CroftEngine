@@ -14,8 +14,6 @@ namespace engine
 {
 void Particle::initRenderables(world::World& world, bool billboard)
 {
-  setShade(core::Shade{core::Shade::type{4096}});
-
   if(const auto& modelType = world.findAnimatedModelForType(object_number))
   {
     for(const auto& bone : modelType->bones)

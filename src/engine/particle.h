@@ -37,6 +37,7 @@ public:
 private:
   std::deque<gsl::not_null<std::shared_ptr<render::scene::Renderable>>> m_renderables{};
   Lighting m_lighting;
+  std::optional<core::Shade> m_shade{std::nullopt};
 
   void initRenderables(world::World& world, bool billboard);
 
@@ -56,6 +57,7 @@ protected:
   void applyTransform()
   {
     location.updateRoom();
+    m_lighting.update(m_shade.value_or(core::Shade{core::Shade::type{-1}}), *location.room);
     const glm::vec3 tr = location.position.toRenderSystem() - location.room->position.toRenderSystem();
     setLocalMatrix(translate(glm::mat4{1.0f}, tr) * angle.toMatrix());
   }
@@ -87,7 +89,7 @@ public:
 
   void setShade(const core::Shade& shade)
   {
-    m_lighting.update(shade, *location.room);
+    m_shade = shade;
   }
 
   virtual bool update(world::World& world) = 0;
