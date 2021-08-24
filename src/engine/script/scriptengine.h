@@ -28,6 +28,7 @@ public:
 
   [[nodiscard]] gsl::not_null<LevelSequenceItem*> getTitleMenu() const;
   [[nodiscard]] std::vector<LevelSequenceItem*> getLaraHome() const;
+  [[nodiscard]] std::vector<LevelSequenceItem*> getEarlyBoot() const;
   [[nodiscard]] LevelSequenceItem* getLevelSequenceItem(size_t idx) const;
   [[nodiscard]] TrackInfo getTrackInfo(engine::TR1TrackId trackId) const;
   [[nodiscard]] std::optional<std::string> getLanguageOverride() const;

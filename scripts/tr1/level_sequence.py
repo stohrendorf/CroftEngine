@@ -1,5 +1,11 @@
 from engine import TR1TrackId, TR1ItemId, Video, Cutscene, Level, TitleMenu, SplashScreen, WeaponType
 
+early_boot = [
+    Video("CORE.RPL"),
+    Video("ESCAPE.RPL"),
+    Video("CAFE.RPL"),
+]
+
 title_menu = TitleMenu(
     name="TITLE",
     titles={
@@ -24,9 +30,6 @@ lara_home = [
 ]
 
 level_sequence = [
-    Video("CORE.RPL"),
-    Video("ESCAPE.RPL"),
-    Video("CAFE.RPL"),
     Video("SNOW.RPL"),
     Level(
         name="LEVEL1",

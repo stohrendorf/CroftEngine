@@ -57,11 +57,12 @@ int main()
   size_t levelSequenceIndex = 0;
   enum class Mode
   {
+    Boot,
     Title,
     Gym,
     Game
   };
-  auto mode = Mode::Title;
+  auto mode = Mode::Boot;
   std::optional<size_t> loadSlot;
   bool doLoad = false;
 
@@ -89,6 +90,12 @@ int main()
     std::pair<engine::RunResult, std::optional<size_t>> runResult;
     switch(mode)
     {
+    case Mode::Boot:
+      Expects(!doLoad);
+      player = std::make_shared<engine::Player>();
+      for(const auto& item : engine.getScriptEngine().getEarlyBoot())
+        runResult = engine.runLevelSequenceItem(*item, player);
+      break;
     case Mode::Title:
       Expects(!doLoad);
       player = std::make_shared<engine::Player>();
@@ -123,6 +130,11 @@ int main()
 
     switch(mode)
     {
+    case Mode::Boot:
+      if(runResult.first == engine::RunResult::ExitApp)
+        return EXIT_SUCCESS;
+      mode = Mode::Title;
+      break;
     case Mode::Title:
       switch(runResult.first)
       {
