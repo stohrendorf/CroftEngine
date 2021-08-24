@@ -2,6 +2,8 @@
 
 #include "reflection.h"
 
+#include <pybind11/stl.h>
+
 namespace engine::script
 {
 namespace
@@ -21,9 +23,9 @@ gsl::not_null<LevelSequenceItem*> ScriptEngine::getTitleMenu() const
   return gsl::not_null{pybind11::globals()["title_menu"].cast<LevelSequenceItem*>()};
 }
 
-gsl::not_null<LevelSequenceItem*> ScriptEngine::getLaraHome() const
+std::vector<LevelSequenceItem*> ScriptEngine::getLaraHome() const
 {
-  return gsl::not_null{pybind11::globals()["lara_home"].cast<LevelSequenceItem*>()};
+  return pybind11::globals()["lara_home"].cast<std::vector<LevelSequenceItem*>>();
 }
 
 LevelSequenceItem* ScriptEngine::getLevelSequenceItem(size_t idx) const

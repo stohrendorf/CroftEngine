@@ -97,7 +97,8 @@ int main()
     case Mode::Gym:
       Expects(!doLoad);
       player = std::make_shared<engine::Player>();
-      runResult = engine.runLevelSequenceItem(*engine.getScriptEngine().getLaraHome(), player);
+      for(const auto& item : engine.getScriptEngine().getLaraHome())
+        runResult = engine.runLevelSequenceItem(*item, player);
       break;
     case Mode::Game:
       if(doLoad)

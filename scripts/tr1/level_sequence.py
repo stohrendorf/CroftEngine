@@ -9,16 +9,19 @@ title_menu = TitleMenu(
     track=TR1TrackId.MainTheme,
 )
 
-lara_home = Level(
-    name="GYM",
-    titles={
-        "en_GB": "Lara's home",
-        "de_DE": "Laras Haus",
-    },
-    secrets=0,
-    use_alternative_lara=True,
-    allow_save=False,
-)
+lara_home = [
+    Video("MANSION.RPL"),
+    Level(
+        name="GYM",
+        titles={
+            "en_GB": "Lara's home",
+            "de_DE": "Laras Haus",
+        },
+        secrets=0,
+        use_alternative_lara=True,
+        allow_save=False,
+    ),
+]
 
 level_sequence = [
     Video("CORE.RPL"),
