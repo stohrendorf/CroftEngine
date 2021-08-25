@@ -86,7 +86,6 @@ void ModelObject::update()
     case AnimCommandOpcode::PlayEffect:
       if(getSkeleton()->getFrame().get() == cmd[0])
       {
-        BOOST_LOG_TRIVIAL(debug) << "Anim effect: " << int(cmd[1]);
         getWorld().runEffect(cmd[1], this);
       }
       cmd += 2;
