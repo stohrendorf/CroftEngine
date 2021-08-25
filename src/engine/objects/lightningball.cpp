@@ -176,7 +176,7 @@ void LightningBall::update()
   {
     // select a random "pole"
     const auto objectSpheres = getSkeleton()->getBoneCollisionSpheres();
-    m_mainBoltEnd = core::TRVec{objectSpheres[util::rand15(objectSpheres.size() - 1) + 1].getPosition()}
+    m_mainBoltEnd = core::TRVec{objectSpheres[util::rand15(objectSpheres.size() - 1) + 1].getCollisionPosition()}
                     - m_state.location.position;
     m_mainBoltEnd
       = core::TRVec{glm::vec3((-m_state.rotation).toMatrix() * glm::vec4(m_mainBoltEnd.toRenderSystem(), 1.0f))};

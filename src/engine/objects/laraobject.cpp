@@ -1559,7 +1559,7 @@ bool LaraObject::shootBullet(const WeaponType weaponType,
   for(const auto& sphere : spheres)
   {
     hitPos = weaponPosition.toRenderSystem()
-             + bulletDir * dot(sphere.getPosition() - weaponPosition.toRenderSystem(), bulletDir);
+             + bulletDir * dot(sphere.getCollisionPosition() - weaponPosition.toRenderSystem(), bulletDir);
 
     if(core::Length{static_cast<core::Length::type>(length(hitPos - sphere.getPosition()))} <= sphere.radius)
     {

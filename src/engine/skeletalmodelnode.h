@@ -68,10 +68,12 @@ public:
   struct Sphere
   {
     const glm::mat4 m;
+    const core::TRVec offset;
     const core::Length radius;
 
-    Sphere(const glm::mat4& m, const core::Length& radius)
+    Sphere(const glm::mat4& m, core::TRVec offset, const core::Length& radius)
         : m{m}
+        , offset{std::move(offset)}
         , radius{radius}
     {
     }
@@ -81,9 +83,19 @@ public:
       return {m[3]};
     }
 
+    [[nodiscard]] glm::vec3 getCollisionPosition() const
+    {
+      return relative(offset.toRenderSystem());
+    }
+
     [[nodiscard]] glm::vec3 relative(const glm::vec3& pos) const
     {
-      return glm::vec3{(m * glm::vec4{pos, 1.0f})[3]};
+      return glm::vec3{m * glm::vec4{pos, 1.0f}};
+    }
+
+    [[nodiscard]] glm::vec3 relativeWithOffset(const glm::vec3& pos) const
+    {
+      return relative(pos + offset.toRenderSystem());
     }
   };
 

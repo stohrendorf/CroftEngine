@@ -17,18 +17,18 @@ struct SkeletalModelType
   struct Bone
   {
     const gsl::not_null<std::shared_ptr<RenderMeshData>> mesh;
-    const core::TRVec center;
+    const core::TRVec collisionCenter;
     const core::Length collisionSize;
     const glm::vec3 position;
     const bool pushMatrix;
     const bool popMatrix;
 
     explicit Bone(gsl::not_null<std::shared_ptr<RenderMeshData>> mesh,
-                  core::TRVec center,
+                  core::TRVec collisionCenter,
                   const core::Length& collision_size,
                   const std::optional<loader::file::BoneTreeEntry>& boneTreeEntry)
         : mesh{std::move(mesh)}
-        , center{std::move(center)}
+        , collisionCenter{std::move(collisionCenter)}
         , collisionSize{collision_size}
         , position{boneTreeEntry.has_value() ? boneTreeEntry->toGl() : glm::vec3{0}}
         , pushMatrix{(boneTreeEntry.has_value() && (boneTreeEntry->flags & 0x02u) != 0)}

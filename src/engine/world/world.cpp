@@ -271,7 +271,8 @@ void World::laraBubblesEffect(objects::Object& object)
 
   const auto boneSpheres = modelNode->getSkeleton()->getBoneCollisionSpheres();
 
-  const auto position = core::TRVec{boneSpheres.at(14).relative(core::TRVec{0_len, 0_len, 50_len}.toRenderSystem())};
+  const auto position
+    = core::TRVec{boneSpheres.at(14).relativeWithOffset(core::TRVec{0_len, 0_len, 50_len}.toRenderSystem())};
 
   while(bubbleCount-- > 0)
   {

@@ -193,7 +193,8 @@ std::vector<SkeletalModelNode::Sphere> SkeletalModelNode::getBoneCollisionSphere
   result.reserve(m_meshParts.size());
   for(size_t i = 0; i < m_meshParts.size(); ++i)
   {
-    result.emplace_back(getModelMatrix() * m_meshParts[i].poseMatrix, m_model->bones[i].collisionSize);
+    const auto& bone = m_model->bones[i];
+    result.emplace_back(getModelMatrix() * m_meshParts[i].poseMatrix, bone.collisionCenter, bone.collisionSize);
   }
   return result;
 }
