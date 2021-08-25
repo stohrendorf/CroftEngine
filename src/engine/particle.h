@@ -206,7 +206,7 @@ public:
                              world::World& world,
                              const core::Speed& fallSpeed,
                              const core::TRRotation& angle)
-      : Particle{"explosion", TR1ItemId::Explosion, location, world, false}
+      : Particle{"explosion", TR1ItemId::Explosion, location, world, true}
   {
     fall_speed = fallSpeed;
     this->angle = angle;
