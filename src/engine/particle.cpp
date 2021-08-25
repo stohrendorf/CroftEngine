@@ -221,6 +221,7 @@ bool FlameParticle::update(world::World& world)
     location.position = core::TRVec{
       itemSpheres.at(-timePerSpriteFrame - 1)
         .relative(core::TRVec{0_len, timePerSpriteFrame == -1 ? -100_len : 0_len, 0_len}.toRenderSystem())};
+    location.updateRoom();
 
     if(const auto waterHeight = world::getWaterSurfaceHeight(location);
        !waterHeight.has_value() || *waterHeight >= location.position.Y)
