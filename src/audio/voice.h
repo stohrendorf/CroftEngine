@@ -32,6 +32,7 @@ public:
       , m_voiceHandle{voiceHandle}
       , m_baseVolume{baseVolume}
   {
+    m_soLoud->setInaudibleBehavior(m_voiceHandle, true, false);
   }
 
   virtual ~Voice()
