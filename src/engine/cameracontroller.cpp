@@ -168,8 +168,8 @@ Location clampBox(const Location& start,
   const bool invalidMinZ = testPosInvalid();
   if(!invalidMinZ)
   {
-    if(const auto box = Location{result.room, testPos}.updateRoom()->box)
-      minZ = std::min(minZ, box->zInterval.min);
+    if(const auto testBox = Location{result.room, testPos}.updateRoom()->box)
+      minZ = std::min(minZ, testBox->zInterval.min);
   }
   minZ += core::QuarterSectorSize;
 
@@ -180,8 +180,8 @@ Location clampBox(const Location& start,
   const bool invalidMaxZ = testPosInvalid();
   if(!invalidMaxZ)
   {
-    if(const auto box = Location{result.room, testPos}.updateRoom()->box)
-      maxZ = std::max(maxZ, box->zInterval.max);
+    if(const auto testBox = Location{result.room, testPos}.updateRoom()->box)
+      maxZ = std::max(maxZ, testBox->zInterval.max);
   }
   maxZ -= core::QuarterSectorSize;
 
@@ -192,8 +192,8 @@ Location clampBox(const Location& start,
   const bool invalidMinX = testPosInvalid();
   if(!invalidMinX)
   {
-    if(const auto box = Location{result.room, testPos}.updateRoom()->box)
-      minX = std::max(minX, box->xInterval.min);
+    if(const auto testBox = Location{result.room, testPos}.updateRoom()->box)
+      minX = std::max(minX, testBox->xInterval.min);
   }
   minX += core::QuarterSectorSize;
 
@@ -204,8 +204,8 @@ Location clampBox(const Location& start,
   const bool invalidMaxX = testPosInvalid();
   if(!invalidMaxX)
   {
-    if(const auto box = Location{result.room, testPos}.updateRoom()->box)
-      maxX = std::max(maxX, box->xInterval.max);
+    if(const auto testBox = Location{result.room, testPos}.updateRoom()->box)
+      maxX = std::max(maxX, testBox->xInterval.max);
   }
   maxX -= core::QuarterSectorSize;
 
