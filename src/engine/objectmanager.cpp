@@ -137,7 +137,7 @@ void ObjectManager::update(world::World& world, bool godMode)
 
   if(m_lara != nullptr)
   {
-    if(godMode)
+    if(godMode && !m_lara->isDead())
       m_lara->m_state.health = core::LaraHealth;
     m_lara->update();
     m_lara->updateLighting();
