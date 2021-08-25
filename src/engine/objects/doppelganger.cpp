@@ -82,5 +82,10 @@ void Doppelganger::update()
     m_state.required_anim_state = 8_as;
     m_state.falling = false;
   }
+  else
+  {
+    applyTransform();
+    getSkeleton()->updatePose();
+  }
 }
 } // namespace engine::objects
