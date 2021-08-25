@@ -217,22 +217,10 @@ bool FlameParticle::update(world::World& world)
   else
   {
     // this flame is attached to lara
-
-    location.position = {0_len, 0_len, 0_len};
-    if(timePerSpriteFrame == -1)
-    {
-      location.position.Y = -100_len;
-    }
-    else
-    {
-      location.position.Y = 0_len;
-    }
-
-    const auto itemSpheres = lara.getSkeleton()->getBoneCollisionSpheres(
-      lara.m_state, *lara.getSkeleton()->getInterpolationInfo().getNearestFrame(), nullptr);
-
+    const auto itemSpheres = lara.getSkeleton()->getBoneCollisionSpheres();
     location.position = core::TRVec{
-      glm::vec3{translate(itemSpheres.at(-timePerSpriteFrame - 1).m, location.position.toRenderSystem())[3]}};
+      itemSpheres.at(-timePerSpriteFrame - 1)
+        .relative(core::TRVec{0_len, timePerSpriteFrame == -1 ? -100_len : 0_len, 0_len}.toRenderSystem())};
 
     if(const auto waterHeight = world::getWaterSurfaceHeight(location);
        !waterHeight.has_value() || *waterHeight >= location.position.Y)

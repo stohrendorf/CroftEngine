@@ -30,12 +30,12 @@ public:
 
   ~Node() override;
 
-  const std::string& getName() const
+  [[nodiscard]] const std::string& getName() const
   {
     return m_name;
   }
 
-  const std::weak_ptr<Node>& getParent() const
+  [[nodiscard]] const std::weak_ptr<Node>& getParent() const
   {
     return m_parent;
   }
@@ -45,13 +45,13 @@ public:
     m_visible = visible;
   }
 
-  bool isVisible() const
+  [[nodiscard]] bool isVisible() const
   {
     return m_visible;
   }
 
   // NOLINTNEXTLINE(misc-no-recursion)
-  const glm::mat4& getModelMatrix() const
+  [[nodiscard]] const glm::mat4& getModelMatrix() const
   {
     if(!m_dirty)
       return m_transform.modelMatrix;
@@ -71,12 +71,12 @@ public:
     return m_transform.modelMatrix;
   }
 
-  glm::vec3 getTranslationWorld() const
+  [[nodiscard]] glm::vec3 getTranslationWorld() const
   {
-    return glm::vec3(getModelMatrix()[3]);
+    return {getModelMatrix()[3]};
   }
 
-  const std::shared_ptr<Renderable>& getRenderable() const
+  [[nodiscard]] const std::shared_ptr<Renderable>& getRenderable() const
   {
     return m_renderable;
   }
@@ -86,12 +86,12 @@ public:
     m_renderable = renderable;
   }
 
-  const List& getChildren() const
+  [[nodiscard]] const List& getChildren() const
   {
     return m_children;
   }
 
-  List& getChildren()
+  [[nodiscard]] List& getChildren()
   {
     return m_children;
   }
@@ -103,7 +103,7 @@ public:
     m_children.clear();
   }
 
-  const glm::mat4& getLocalMatrix() const
+  [[nodiscard]] const glm::mat4& getLocalMatrix() const
   {
     return m_localMatrix;
   }
@@ -116,7 +116,7 @@ public:
 
   void accept(Visitor& visitor);
 
-  std::shared_ptr<Node> findChild(const Node* node) const
+  [[nodiscard]] std::shared_ptr<Node> findChild(const Node* node) const
   {
     const auto it
       = std::find_if(m_children.begin(),
@@ -131,7 +131,7 @@ public:
 
   [[nodiscard]] const auto& getTransformBuffer() const
   {
-    getModelMatrix(); // update data if dirty
+    (void)getModelMatrix(); // update data if dirty
     if(!m_bufferDirty)
       return m_transformBuffer;
 
@@ -140,7 +140,7 @@ public:
     return m_transformBuffer;
   }
 
-  virtual bool canBeCulled(const glm::mat4& /*viewProjection*/) const
+  [[nodiscard]] virtual bool canBeCulled(const glm::mat4& /*viewProjection*/) const
   {
     return false;
   }

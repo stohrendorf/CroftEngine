@@ -78,7 +78,7 @@ void activateCommand(objects::Object& object,
      || dynamic_cast<objects::AIAgent*>(&object) == nullptr)
   {
     object.m_state.triggerState = objects::TriggerState::Active;
-    object.m_state.touch_bits = 0;
+    object.m_state.touch_bits.reset();
     object.activate();
   }
 }
@@ -269,11 +269,9 @@ void World::laraBubblesEffect(objects::Object& object)
 
   object.playSoundEffect(TR1SoundEffect::LaraUnderwaterGurgle);
 
-  const auto boneSpheres = modelNode->getSkeleton()->getBoneCollisionSpheres(
-    object.m_state, *modelNode->getSkeleton()->getInterpolationInfo().getNearestFrame(), nullptr);
+  const auto boneSpheres = modelNode->getSkeleton()->getBoneCollisionSpheres();
 
-  const auto position
-    = core::TRVec{glm::vec3{translate(boneSpheres.at(14).m, core::TRVec{0_len, 0_len, 50_len}.toRenderSystem())[3]}};
+  const auto position = core::TRVec{boneSpheres.at(14).relative(core::TRVec{0_len, 0_len, 50_len}.toRenderSystem())};
 
   while(bubbleCount-- > 0)
   {

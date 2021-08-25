@@ -1551,8 +1551,7 @@ bool LaraObject::shootBullet(const WeaponType weaponType,
   std::vector<SkeletalModelNode::Sphere> spheres;
   if(targetObject != nullptr)
   {
-    spheres = targetObject->getSkeleton()->getBoneCollisionSpheres(
-      targetObject->m_state, *targetObject->getSkeleton()->getInterpolationInfo().getNearestFrame(), nullptr);
+    spheres = targetObject->getSkeleton()->getBoneCollisionSpheres();
   }
   bool hasHit = false;
   glm::vec3 hitPos;

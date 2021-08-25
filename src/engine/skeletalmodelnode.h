@@ -33,16 +33,16 @@ public:
                     const gsl::not_null<const world::Animation*>& animation,
                     core::Frame frame);
 
-  core::Speed calculateFloorSpeed(const core::Frame& frameOffset = 0_frame) const;
+  [[nodiscard]] core::Speed calculateFloorSpeed(const core::Frame& frameOffset = 0_frame) const;
 
-  core::BoundingBox getBoundingBox() const;
+  [[nodiscard]] core::BoundingBox getBoundingBox() const;
 
   void patchBone(const size_t idx, const glm::mat4& m)
   {
     m_meshParts.at(idx).patch = m;
   }
 
-  bool advanceFrame(objects::ObjectState& state);
+  [[nodiscard]] bool advanceFrame(objects::ObjectState& state);
 
   struct InterpolationInfo
   {
@@ -80,11 +80,14 @@ public:
     {
       return {m[3]};
     }
+
+    [[nodiscard]] glm::vec3 relative(const glm::vec3& pos) const
+    {
+      return glm::mat3{m} * pos + glm::vec3{m[3]};
+    }
   };
 
-  std::vector<Sphere> getBoneCollisionSpheres(const objects::ObjectState& state,
-                                              const loader::file::AnimFrame& frame,
-                                              const glm::mat4* baseTransform);
+  [[nodiscard]] std::vector<Sphere> getBoneCollisionSpheres();
 
   void serialize(const serialization::Serializer<world::World>& ser);
 
@@ -92,32 +95,32 @@ public:
 
   void rebuildMesh();
 
-  bool canBeCulled(const glm::mat4& viewProjection) const override;
+  [[nodiscard]] bool canBeCulled(const glm::mat4& viewProjection) const override;
 
   void setMeshPart(size_t idx, const std::shared_ptr<world::RenderMeshData>& mesh)
   {
     m_meshParts.at(idx).mesh = mesh;
   }
 
-  const auto& getMeshPart(size_t idx) const
+  [[nodiscard]] const auto& getMeshPart(size_t idx) const
   {
     return m_meshParts.at(idx).mesh;
   }
 
-  glm::vec3 getMeshPartTranslationWorld(size_t idx) const
+  [[nodiscard]] glm::vec3 getMeshPartTranslationWorld(size_t idx) const
   {
-    auto m = getModelMatrix() * m_meshParts.at(idx).matrix;
+    auto m = getModelMatrix() * m_meshParts.at(idx).poseMatrix;
     return glm::vec3{m[3]};
   }
 
-  size_t getBoneCount() const
+  [[nodiscard]] size_t getBoneCount() const
   {
     return m_meshParts.size();
   }
 
   void setMeshMatrix(size_t idx, const glm::mat4& m)
   {
-    m_meshParts.at(idx).matrix = m;
+    m_meshParts.at(idx).poseMatrix = m;
   }
 
   void setVisible(size_t idx, bool visible)
@@ -130,13 +133,13 @@ public:
     return m_meshParts.at(idx).visible;
   }
 
-  const auto& getMeshMatricesBuffer() const
+  [[nodiscard]] const auto& getMeshMatricesBuffer() const
   {
     std::vector<glm::mat4> matrices;
     std::transform(m_meshParts.begin(),
                    m_meshParts.end(),
                    std::back_inserter(matrices),
-                   [](const auto& part) { return part.matrix; });
+                   [](const auto& part) { return part.poseMatrix; });
     m_meshMatricesBuffer.setData(matrices, gl::api::BufferUsage::DynamicDraw);
     return m_meshMatricesBuffer;
   }
@@ -177,7 +180,7 @@ private:
     }
 
     glm::mat4 patch{1.0f};
-    glm::mat4 matrix{1.0f};
+    glm::mat4 poseMatrix{1.0f};
     std::shared_ptr<world::RenderMeshData> mesh{nullptr};
     std::shared_ptr<world::RenderMeshData> currentMesh{nullptr};
     bool visible = true;
@@ -189,7 +192,7 @@ private:
     }
 
     void serialize(const serialization::Serializer<world::World>& ser);
-    static MeshPart create(const serialization::Serializer<world::World>& ser);
+    [[nodiscard]] static MeshPart create(const serialization::Serializer<world::World>& ser);
   };
 
   const gsl::not_null<const world::World*> m_world;

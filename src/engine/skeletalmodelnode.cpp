@@ -90,7 +90,7 @@ void SkeletalModelNode::updatePose(const InterpolationInfo& framePair)
   transformsSecond.push(translate(glm::mat4{1.0f}, framePair.secondFrame->pos.toGl())
                         * core::fromPackedAngles(angleDataSecond[0]) * m_meshParts[0].patch);
 
-  m_meshParts[0].matrix = util::mix(transformsFirst.top(), transformsSecond.top(), framePair.bias);
+  m_meshParts[0].poseMatrix = util::mix(transformsFirst.top(), transformsSecond.top(), framePair.bias);
 
   if(m_model->bones.size() <= 1)
     return;
@@ -120,7 +120,7 @@ void SkeletalModelNode::updatePose(const InterpolationInfo& framePair)
       transformsSecond.top() *= translate(glm::mat4{1.0f}, m_model->bones[i].position)
                                 * core::fromPackedAngles(angleDataSecond[i]) * m_meshParts[i].patch;
 
-    m_meshParts[i].matrix = util::mix(transformsFirst.top(), transformsSecond.top(), framePair.bias);
+    m_meshParts[i].poseMatrix = util::mix(transformsFirst.top(), transformsSecond.top(), framePair.bias);
   }
 }
 
@@ -185,60 +185,16 @@ bool SkeletalModelNode::advanceFrame(objects::ObjectState& state)
   return m_frame > m_anim->lastFrame;
 }
 
-std::vector<SkeletalModelNode::Sphere> SkeletalModelNode::getBoneCollisionSpheres(const objects::ObjectState& state,
-                                                                                  const loader::file::AnimFrame& frame,
-                                                                                  const glm::mat4* baseTransform)
+std::vector<SkeletalModelNode::Sphere> SkeletalModelNode::getBoneCollisionSpheres()
 {
-  BOOST_ASSERT(frame.numValues > 0);
-  BOOST_ASSERT(!m_model->bones.empty());
-
-  const auto angleData = frame.getAngleData();
-
-  std::stack<glm::mat4> transforms;
-
-  core::TRVec pos;
-
-  if(baseTransform == nullptr)
-  {
-    pos = state.location.position;
-    transforms.push(state.rotation.toMatrix());
-  }
-  else
-  {
-    pos = core::TRVec{};
-    transforms.push(*baseTransform * state.rotation.toMatrix());
-  }
-
-  transforms.top() = glm::translate(transforms.top(), frame.pos.toGl()) * core::fromPackedAngles(angleData[0])
-                     * m_meshParts.at(0).patch;
-
+  updatePose();
+  Expects(m_meshParts.size() == m_model->bones.size());
   std::vector<Sphere> result;
-  result.emplace_back(glm::translate(glm::mat4{1.0f}, pos.toRenderSystem())
-                        + glm::translate(transforms.top(), m_model->bones[0].center.toRenderSystem()),
-                      m_model->bones[0].collisionSize);
-
-  for(gsl::index i = 1; i < m_model->bones.size(); ++i)
+  result.reserve(m_meshParts.size());
+  for(size_t i = 0; i < m_meshParts.size(); ++i)
   {
-    if(m_model->bones[i].popMatrix)
-    {
-      transforms.pop();
-    }
-    if(m_model->bones[i].pushMatrix)
-    {
-      transforms.push({transforms.top()}); // make sure to have a copy, not a reference
-    }
-
-    if(frame.numValues < i)
-      transforms.top() *= glm::translate(glm::mat4{1.0f}, m_model->bones[i].position) * m_meshParts[i].patch;
-    else
-      transforms.top() *= glm::translate(glm::mat4{1.0f}, m_model->bones[i].position)
-                          * core::fromPackedAngles(angleData[i]) * m_meshParts[i].patch;
-
-    auto m = glm::translate(transforms.top(), m_model->bones[i].center.toRenderSystem());
-    m[3] += glm::vec4(pos.toRenderSystem(), 0);
-    result.emplace_back(m, m_model->bones[i].collisionSize);
+    result.emplace_back(getModelMatrix() * m_meshParts[i].poseMatrix, m_model->bones[i].collisionSize);
   }
-
   return result;
 }
 
@@ -366,7 +322,7 @@ void SkeletalModelNode::replaceAnim(const gsl::not_null<const world::Animation*>
 
 void SkeletalModelNode::MeshPart::serialize(const serialization::Serializer<world::World>& ser)
 {
-  ser(S_NV("patch", patch), S_NV("matrix", matrix), S_NV("mesh", mesh), S_NV("visible", visible));
+  ser(S_NV("patch", patch), S_NV("poseMatrix", poseMatrix), S_NV("mesh", mesh), S_NV("visible", visible));
 }
 
 SkeletalModelNode::MeshPart SkeletalModelNode::MeshPart::create(const serialization::Serializer<world::World>& ser)

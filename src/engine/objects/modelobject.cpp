@@ -251,10 +251,8 @@ void ModelObject::enemyPush(CollisionInfo& collisionInfo, const bool enableSpaz,
 bool ModelObject::testBoneCollision(const ModelObject& other)
 {
   m_state.touch_bits.reset();
-  const auto boneSpheres
-    = m_skeleton->getBoneCollisionSpheres(m_state, *m_skeleton->getInterpolationInfo().getNearestFrame(), nullptr);
-  const auto otherSpheres = other.m_skeleton->getBoneCollisionSpheres(
-    other.m_state, *other.m_skeleton->getInterpolationInfo().getNearestFrame(), nullptr);
+  const auto boneSpheres = m_skeleton->getBoneCollisionSpheres();
+  const auto otherSpheres = other.m_skeleton->getBoneCollisionSpheres();
   for(size_t boneSphereIdx = 0; boneSphereIdx < boneSpheres.size(); ++boneSphereIdx)
   {
     const auto& boneSphere = boneSpheres[boneSphereIdx];
@@ -288,12 +286,11 @@ gsl::not_null<std::shared_ptr<Particle>>
   BOOST_ASSERT(generate != nullptr);
   BOOST_ASSERT(boneIndex < m_skeleton->getBoneCount());
 
-  const auto boneSpheres
-    = m_skeleton->getBoneCollisionSpheres(m_state, *m_skeleton->getInterpolationInfo().getNearestFrame(), nullptr);
+  const auto boneSpheres = m_skeleton->getBoneCollisionSpheres();
   BOOST_ASSERT(boneIndex < boneSpheres.size());
 
   auto location = m_state.location;
-  location.position = core::TRVec{glm::vec3{translate(boneSpheres.at(boneIndex).m, localPosition.toRenderSystem())[3]}};
+  location.position = core::TRVec{boneSpheres.at(boneIndex).relative(localPosition.toRenderSystem())};
   auto particle = generate(getWorld(), location, m_state.speed, m_state.rotation.Y);
   getWorld().getObjectManager().registerParticle(particle);
 
@@ -325,7 +322,7 @@ std::shared_ptr<ModelObject> ModelObject::create(serialization::Serializer<world
 
 void ModelObject::collideWithLara(CollisionInfo& collisionInfo, bool push)
 {
-  auto& lara = getWorld().getObjectManager().getLara();
+  const auto& lara = getWorld().getObjectManager().getLara();
 
   if(!isNear(lara, collisionInfo.collisionRadius))
     return;

@@ -33,10 +33,7 @@ public:
 
   static void emitSparkles(world::World& world)
   {
-    const auto spheres = world.getObjectManager().getLara().getSkeleton()->getBoneCollisionSpheres(
-      world.getObjectManager().getLara().m_state,
-      *world.getObjectManager().getLara().getSkeleton()->getInterpolationInfo().getNearestFrame(),
-      nullptr);
+    const auto spheres = world.getObjectManager().getLara().getSkeleton()->getBoneCollisionSpheres();
 
     const auto& normalLara = world.findAnimatedModelForType(TR1ItemId::Lara);
     Expects(normalLara != nullptr);
