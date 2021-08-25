@@ -409,6 +409,7 @@ void patchHeightsForBlock(const engine::objects::Object& object, const core::Len
 std::optional<core::Length> getWaterSurfaceHeight(const Location& location)
 {
   auto sector = location.room->getSectorByAbsolutePosition(location.position);
+  Expects(sector != nullptr);
 
   if(location.room->isWaterRoom)
   {
@@ -431,6 +432,7 @@ std::optional<core::Length> getWaterSurfaceHeight(const Location& location)
         return sector->floorHeight;
 
       sector = sector->roomBelow->getSectorByAbsolutePosition(location.position);
+      Expects(sector != nullptr);
     }
   }
 
