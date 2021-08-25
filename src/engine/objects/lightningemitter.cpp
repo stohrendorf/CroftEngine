@@ -1,4 +1,4 @@
-#include "lightningball.h"
+#include "lightningemitter.h"
 
 #include "engine/heightinfo.h"
 #include "engine/presenter.h"
@@ -23,13 +23,13 @@ gsl::not_null<std::shared_ptr<render::scene::Mesh>>
              float lineWidth,
              std::shared_ptr<gl::VertexBuffer<glm::vec3>>& vb)
 {
-  std::array<glm::vec3, LightningBall::ControlPoints> vertices;
+  std::array<glm::vec3, LightningEmitter::ControlPoints> vertices;
 
   static const gl::VertexLayout<glm::vec3> layout{
     {VERTEX_ATTRIBUTE_POSITION_NAME, gl::VertexAttribute<glm::vec3>::Trivial{}}};
 
   std::vector<uint16_t> indices;
-  for(uint16_t i = 0; i < LightningBall::ControlPoints; ++i)
+  for(uint16_t i = 0; i < LightningEmitter::ControlPoints; ++i)
     indices.emplace_back(i);
 
   auto indexBuffer = std::make_shared<gl::ElementArrayBuffer<uint16_t>>("bolt");
@@ -51,13 +51,13 @@ gsl::not_null<std::shared_ptr<render::scene::Mesh>>
   return mesh;
 }
 
-using Bolt = std::array<glm::vec3, LightningBall::ControlPoints>;
+using Bolt = std::array<glm::vec3, LightningEmitter::ControlPoints>;
 
 Bolt updateBolt(const glm::vec3& start, const core::TRVec& end, const std::shared_ptr<gl::VertexBuffer<glm::vec3>>& vb)
 {
   std::vector<glm::vec3> data{start, end.toRenderSystem()};
   auto radius = static_cast<float>(core::SectorSize.get());
-  for(size_t i = 0; i < LightningBall::SegmentSplits; ++i)
+  for(size_t i = 0; i < LightningEmitter::SegmentSplits; ++i)
   {
     std::vector<glm::vec3> splitData;
     splitData.reserve(data.size() * 2);
@@ -99,11 +99,11 @@ Bolt updateBolt(const glm::vec3& start, const core::TRVec& end, const std::share
 }
 } // namespace
 
-LightningBall::LightningBall(const std::string& name,
-                             const gsl::not_null<world::World*>& world,
-                             const gsl::not_null<const world::Room*>& room,
-                             const loader::file::Item& item,
-                             const gsl::not_null<const world::SkeletalModelType*>& animatedModel)
+LightningEmitter::LightningEmitter(const std::string& name,
+                                   const gsl::not_null<world::World*>& world,
+                                   const gsl::not_null<const world::Room*>& room,
+                                   const loader::file::Item& item,
+                                   const gsl::not_null<const world::SkeletalModelType*>& animatedModel)
     : ModelObject{name, world, room, item, true, animatedModel}
 {
   if(!animatedModel->bones.empty())
@@ -114,7 +114,7 @@ LightningBall::LightningBall(const std::string& name,
   init(*world);
 }
 
-void LightningBall::update()
+void LightningEmitter::update()
 {
   if(!m_state.updateActivationTimeout())
   {
@@ -188,7 +188,7 @@ void LightningBall::update()
   playSoundEffect(TR1SoundEffect::Chatter);
 }
 
-void LightningBall::collide(CollisionInfo& /*info*/)
+void LightningEmitter::collide(CollisionInfo& /*info*/)
 {
   if(!m_laraHit)
     return;
@@ -200,7 +200,7 @@ void LightningBall::collide(CollisionInfo& /*info*/)
     lara.hit_frame = 34_frame;
 }
 
-void LightningBall::prepareRender()
+void LightningEmitter::prepareRender()
 {
   ModelObject::update();
   for(size_t i = 1; i < getSkeleton()->getBoneCount(); ++i)
@@ -228,7 +228,7 @@ void LightningBall::prepareRender()
   }
 }
 
-void LightningBall::init(world::World& world)
+void LightningEmitter::init(world::World& world)
 {
   m_mainBoltMesh = createBolt(world.getPresenter().getMaterialManager()->getLightning(), 10, m_mainVb);
   m_mainBoltNode = std::make_shared<render::scene::Node>("lightning-bolt-main");
@@ -247,7 +247,7 @@ void LightningBall::init(world::World& world)
   }
 }
 
-void LightningBall::serialize(const serialization::Serializer<world::World>& ser)
+void LightningEmitter::serialize(const serialization::Serializer<world::World>& ser)
 {
   ModelObject::serialize(ser);
   ser(S_NV("poles", m_poles),

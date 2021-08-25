@@ -311,8 +311,8 @@ set( EDISONENGINE_SRCS
         engine/objects/larson.cpp
         engine/objects/lavaparticleemitter.h
         engine/objects/lavaparticleemitter.cpp
-        engine/objects/lightningball.h
-        engine/objects/lightningball.cpp
+        engine/objects/lightningemitter.h
+        engine/objects/lightningemitter.cpp
         engine/objects/lion.h
         engine/objects/lion.cpp
         engine/objects/midasgoldtouch.h

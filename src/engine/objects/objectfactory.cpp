@@ -29,7 +29,7 @@
 #include "laraobject.h"
 #include "larson.h"
 #include "lavaparticleemitter.h"
-#include "lightningball.h"
+#include "lightningemitter.h"
 #include "lion.h"
 #include "midasgoldtouch.h"
 #include "motorboat.h"
@@ -289,7 +289,7 @@ const auto& getFactories()
     MODEL_FACTORY(ThorHammerBlock, ThorHammerBlock),
     MODEL_FACTORY(ThorHammerHandle, ThorHammerHandle),
     MODEL_FACTORY(FlameEmitter, FlameEmitter),
-    MODEL_FACTORY(ThorLightningBall, LightningBall),
+    MODEL_FACTORY(LightningEmitter, LightningEmitter),
     MODEL_FACTORY(RatInWater, Rat),
     MODEL_FACTORY(RatOnLand, Rat),
     MODEL_FACTORY(SlammingDoors, SlammingDoors),

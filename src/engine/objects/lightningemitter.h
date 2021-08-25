@@ -4,19 +4,19 @@
 
 namespace engine::objects
 {
-class LightningBall final : public ModelObject
+class LightningEmitter final : public ModelObject
 {
 public:
-  LightningBall(const gsl::not_null<world::World*>& world, const Location& location)
+  LightningEmitter(const gsl::not_null<world::World*>& world, const Location& location)
       : ModelObject{world, location}
   {
   }
 
-  LightningBall(const std::string& name,
-                const gsl::not_null<world::World*>& world,
-                const gsl::not_null<const world::Room*>& room,
-                const loader::file::Item& item,
-                const gsl::not_null<const world::SkeletalModelType*>& animatedModel);
+  LightningEmitter(const std::string& name,
+                   const gsl::not_null<world::World*>& world,
+                   const gsl::not_null<const world::Room*>& room,
+                   const loader::file::Item& item,
+                   const gsl::not_null<const world::SkeletalModelType*>& animatedModel);
 
   void update() override;
 
