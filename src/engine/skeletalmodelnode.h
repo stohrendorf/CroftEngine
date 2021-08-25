@@ -83,7 +83,7 @@ public:
 
     [[nodiscard]] glm::vec3 relative(const glm::vec3& pos) const
     {
-      return glm::mat3{m} * pos + glm::vec3{m[3]};
+      return glm::vec3{(m * glm::vec4{pos, 1.0f})[3]};
     }
   };
 
