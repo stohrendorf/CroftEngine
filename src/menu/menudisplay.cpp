@@ -502,8 +502,7 @@ MenuDisplay::MenuDisplay(InventoryMode mode, engine::world::World& world)
   // TODO fadeInInventory(mode != InventoryMode::TitleMode);
   if(mode != InventoryMode::TitleMode)
   {
-    world.getEngine().getEngineConfig()->audioSettings.musicVolume *= 0.1f;
-    world.getAudioEngine().fadeMusicVolume(world.getEngine().getEngineConfig()->audioSettings.musicVolume);
+    world.getAudioEngine().fadeMusicVolume(world.getEngine().getEngineConfig()->audioSettings.musicVolume * 0.1f);
   }
   world.getAudioEngine().playSoundEffect(engine::TR1SoundEffect::MenuOptionPopup, nullptr);
 }
