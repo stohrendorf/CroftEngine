@@ -13,7 +13,23 @@ if( MSVC AND CMAKE_CXX_CLANG_TIDY )
     set( CMAKE_CXX_CLANG_TIDY "${CMAKE_CXX_CLANG_TIDY};--extra-arg-before=-std=c++${CMAKE_CXX_STANDARD};--extra-arg-before=-EHsc" )
 endif()
 if( CMAKE_CXX_CPPCHECK )
-    set( CMAKE_CXX_CPPCHECK "${CMAKE_CXX_CPPCHECK};--enable=warning,performance,portability,style;--language=c++;--std=c++${CMAKE_CXX_STANDARD};--inline-suppr" )
+    set( CMAKE_CXX_CPPCHECK "${CMAKE_CXX_CPPCHECK};--enable=warning,performance,portability,style;--language=c++;--std=c++${CMAKE_CXX_STANDARD};--inline-suppr;--cppcheck-build-dir=${CMAKE_BINARY_DIR}/cppcheck" )
+    add_definitions( -D__cppcheck__ )
+    set( CMAKE_EXPORT_COMPILE_COMMANDS ON )
+
+    add_custom_target(
+            cppcheck-all
+            COMMAND ${CMAKE_CXX_CPPCHECK}
+            --enable=all
+            --language=c++
+            --std=c++${CMAKE_CXX_STANDARD}
+            --inline-suppr
+            --cppcheck-build-dir=${CMAKE_BINARY_DIR}/cppcheck
+            --project=${CMAKE_BINARY_DIR}/compile_commands.json
+            --report-progress
+            -j 8
+            COMMENT "Running cppcheck"
+    )
 endif()
 
 if( MSVC )
