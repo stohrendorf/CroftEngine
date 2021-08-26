@@ -38,7 +38,7 @@ std::unique_ptr<MenuState> SelectedMenuState::onFrame(ui::Ui& /*ui*/, engine::wo
   if(currentObject.selectedRotationY == currentObject.rotationY && currentObject.animate())
     return nullptr;
 
-  const bool autoSelect = display.doOptions(world, currentObject);
+  const bool autoSelect = MenuDisplay::doOptions(world, currentObject);
   if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Menu))
   {
     if(display.rings.size() > 1 || !display.allowMenuClose)

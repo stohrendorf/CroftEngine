@@ -27,7 +27,7 @@ std::unique_ptr<MenuState> IdleRingMenuState::onFrame(ui::Ui& ui, engine::world:
               {(presenter.getViewport().x - text.getWidth()) / 2,
                presenter.getViewport().y - RingInfoYMargin - ui::FontHeight});
 
-    display.drawMenuObjectDescription(ui, world, currentObject);
+    MenuDisplay::drawMenuObjectDescription(ui, world, currentObject);
   }
 
   if(presenter.getInputHandler().getInputState().xMovement == hid::AxisMovement::Right

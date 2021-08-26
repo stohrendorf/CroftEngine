@@ -56,8 +56,8 @@ struct MenuDisplay
   std::vector<gsl::not_null<std::unique_ptr<MenuRing>>> rings;
   size_t currentRingIndex = 0;
   bool passOpen = false;
-  bool doOptions(engine::world::World& world, MenuObject& object);
-  void drawMenuObjectDescription(ui::Ui& ui, engine::world::World& world, const MenuObject& object);
+  static bool doOptions(engine::world::World& world, MenuObject& object);
+  static void drawMenuObjectDescription(ui::Ui& ui, engine::world::World& world, const MenuObject& object);
 
   [[nodiscard]] MenuRing& getCurrentRing()
   {

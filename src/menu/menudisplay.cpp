@@ -188,8 +188,8 @@ bool MenuDisplay::doOptions(engine::world::World& world, MenuObject& object)
     }
     break;
   default:
-    if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Action)
-       || world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Menu))
+    if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Menu)
+       || world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Action))
     {
       object.animDirection = -1_frame;
       object.goalFrame = 0_frame;
