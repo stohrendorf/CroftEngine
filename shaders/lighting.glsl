@@ -104,3 +104,22 @@ float calc_positional_lighting(in vec3 normal, in vec3 pos)
 
     return sum;
 }
+
+float calc_distance_lighting(in vec3 pos)
+{
+    if (lights.length() <= 0)
+    {
+        return u_lightAmbient;
+    }
+
+    float sum = u_lightAmbient;
+    for (int i=0; i<lights.length(); ++i)
+    {
+        vec3 d = pos - lights[i].position.xyz;
+        float r = length(d) / lights[i].fadeDistance;
+        float intensity = lights[i].brightness / (r*r + 1.0);
+        sum += intensity;
+    }
+
+    return sum;
+}
