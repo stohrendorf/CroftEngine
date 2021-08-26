@@ -102,7 +102,12 @@ void MenuDisplay::drawMenuObjectDescription(ui::Ui& ui, engine::world::World& wo
 void MenuDisplay::display(ui::Ui& ui, engine::world::World& world)
 {
   core::Angle itemAngle{0_deg};
-  world.getCameraController().getCamera()->setViewMatrix(ringTransform->getView());
+  const auto& camera = world.getCameraController().getCamera();
+  camera->setViewMatrix(ringTransform->getView());
+  const auto resetFov
+    = gsl::finally([oldFOV = camera->getFieldOfViewY(), &camera]() { camera->setFieldOfView(oldFOV); });
+  camera->setFieldOfView(engine::Presenter::DefaultFov);
+
   for(auto& menuObject : getCurrentRing().list)
   {
     MenuObject* object = &menuObject;
