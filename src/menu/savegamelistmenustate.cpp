@@ -30,11 +30,19 @@ SavegameListMenuState::SavegameListMenuState(const std::shared_ptr<MenuRingTrans
 {
   const auto savedGames = world.getSavedGames();
 
+  std::filesystem::file_time_type mostRecentTime = std::filesystem::file_time_type ::min();
+  size_t mostRecentSlot = 0;
   for(size_t i = 0; i < TotalSlots; ++i)
   {
     std::string name;
     if(auto it = savedGames.find(i); it != savedGames.end())
     {
+      if(it->second.saveTime > mostRecentTime)
+      {
+        mostRecentTime = it->second.saveTime;
+        mostRecentSlot = i;
+      }
+
       const auto timePoint
         = std::chrono::system_clock::to_time_t(std::chrono::time_point_cast<std::chrono::system_clock::duration>(
           it->second.saveTime - std::filesystem::file_time_type::clock::now() + std::chrono::system_clock::now()));
@@ -59,6 +67,8 @@ SavegameListMenuState::SavegameListMenuState(const std::shared_ptr<MenuRingTrans
     label->fitToContent();
     append(label);
   }
+
+  getListBox()->setSelected(mostRecentSlot);
 }
 
 std::unique_ptr<MenuState>
