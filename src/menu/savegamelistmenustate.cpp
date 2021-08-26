@@ -12,6 +12,7 @@
 #include "requestloadmenustate.h"
 #include "ui/widgets/label.h"
 #include "ui/widgets/listbox.h"
+#include "ui/widgets/messagebox.h"
 
 #include <ctime>
 #include <sstream>
@@ -67,7 +68,9 @@ std::unique_ptr<MenuState>
   {
     if(m_hasSavegame.at(idx))
     {
-      // TODO confirm overwrite if necessary
+      m_confirmOverwrite = std::make_shared<ui::widgets::MessageBox>(
+        /* translators: TR charmap encoding */ _("Overwrite slot %1%?", idx + 1));
+      return nullptr;
     }
     world.save(idx);
     return create<ClosePassportMenuState>(display.getCurrentRing().getSelectedObject(),
@@ -86,5 +89,42 @@ std::unique_ptr<MenuState>
 std::unique_ptr<MenuState> SavegameListMenuState::onAborted()
 {
   return std::move(m_previous);
+}
+
+std::unique_ptr<MenuState> SavegameListMenuState::onFrame(ui::Ui& ui, engine::world::World& world, MenuDisplay& display)
+{
+  if(m_confirmOverwrite == nullptr)
+    return ListDisplayMenuState::onFrame(ui, world, display);
+
+  draw(ui, world, display);
+  m_confirmOverwrite->fitToContent();
+  const auto vp = world.getPresenter().getViewport();
+  m_confirmOverwrite->setPosition(
+    {(vp.x - m_confirmOverwrite->getSize().x) / 2, vp.y - m_confirmOverwrite->getSize().y - 90});
+
+  if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Left)
+     || world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Right))
+  {
+    m_confirmOverwrite->setConfirmed(!m_confirmOverwrite->isConfirmed());
+  }
+  else if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Action))
+  {
+    if(m_confirmOverwrite->isConfirmed())
+    {
+      world.save(getListBox()->getSelected());
+      return create<ClosePassportMenuState>(display.getCurrentRing().getSelectedObject(),
+                                            create<DeflateRingMenuState>(DeflateRingMenuState::Direction::Backpack,
+                                                                         create<DoneMenuState>(MenuResult::Closed)));
+    }
+    else
+    {
+      m_confirmOverwrite.reset();
+      return nullptr;
+    }
+  }
+
+  m_confirmOverwrite->update(true);
+  m_confirmOverwrite->draw(ui, world.getPresenter());
+  return nullptr;
 }
 } // namespace menu

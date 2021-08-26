@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EdisonEngine\n"
 "Report-Msgid-Bugs-To: https://github.com/stohrendorf/EdisonEngine/issues\n"
-"POT-Creation-Date: 2021-08-20 08:39+0200\n"
+"POT-Creation-Date: 2021-08-26 17:10+0200\n"
 "Last-Translator: Steffen Ohrendorf\n"
 "Language-Team: none\n"
 "Language: de_DE\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #. translators: TR charmap encoding
-#: menu/savegamelistmenustate.cpp:46
+#: menu/savegamelistmenustate.cpp:47
 #, boost-format
 msgctxt "SavegameTitle"
 msgid "%1% - %2%"
@@ -30,7 +30,7 @@ msgid "%1%x Anisotropic Filtering"
 msgstr "%1%x Anisotropische Filterung"
 
 #. translators: TR charmap encoding
-#: menu/savegamelistmenustate.cpp:45
+#: menu/savegamelistmenustate.cpp:46
 msgctxt "SavegameTime"
 msgid "%d %B %Y %X"
 msgstr "%d. %B %Y %X"
@@ -59,7 +59,7 @@ msgctxt "Keyboard|Key"
 msgid "-"
 msgstr "="
 
-#: menu/savegamelistmenustate.cpp:54
+#: menu/savegamelistmenustate.cpp:55
 #, boost-format
 msgid "- EMPTY SLOT %1%"
 msgstr "- LEERER SLOT %1%"
@@ -566,7 +566,7 @@ msgstr "Lade %1%"
 msgid "Loading Glidos texture pack"
 msgstr "Lade Glidos Textur Paket"
 
-#: engine/world/world.cpp:917
+#: engine/world/world.cpp:921
 msgid "Loading..."
 msgstr "Lade..."
 
@@ -657,6 +657,12 @@ msgstr "Optionen"
 #: menu/rendersettingsmenustate.cpp:170
 msgid "Other"
 msgstr "Anderes"
+
+#. translators: TR charmap encoding
+#: menu/savegamelistmenustate.cpp:72
+#, boost-format
+msgid "Overwrite slot %1%?"
+msgstr "Slot %1% ~uberschreiben?"
 
 #. translators: TR charmap encoding
 #: hid/names.cpp:50
@@ -917,7 +923,7 @@ msgstr "Spiel sichern"
 msgid "Save Game"
 msgstr "Spiel sichern"
 
-#: engine/world/world.cpp:938
+#: engine/world/world.cpp:942
 msgid "Saving..."
 msgstr "Speichere..."
 

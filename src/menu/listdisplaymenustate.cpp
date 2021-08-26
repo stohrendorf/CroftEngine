@@ -21,16 +21,7 @@ ListDisplayMenuState::ListDisplayMenuState(const std::shared_ptr<MenuRingTransfo
 
 std::unique_ptr<MenuState> ListDisplayMenuState::onFrame(ui::Ui& ui, engine::world::World& world, MenuDisplay& display)
 {
-  m_listBox->fitToContent();
-  m_groupBox.fitToContent();
-
-  {
-    const auto vp = world.getPresenter().getViewport();
-    m_groupBox.setPosition({(vp.x - m_groupBox.getSize().x) / 2, vp.y - m_groupBox.getSize().y - 90});
-  }
-
-  m_groupBox.update(true);
-  m_groupBox.draw(ui, world.getPresenter());
+  draw(ui, world, display);
 
   if(world.getPresenter().getInputHandler().getInputState().zMovement.justChangedTo(hid::AxisMovement::Forward))
   {
@@ -63,5 +54,19 @@ std::unique_ptr<MenuState> ListDisplayMenuState::onFrame(ui::Ui& ui, engine::wor
 size_t ListDisplayMenuState::append(const std::shared_ptr<ui::widgets::Widget>& widget)
 {
   return m_listBox->append(widget);
+}
+
+void ListDisplayMenuState::draw(ui::Ui& ui, engine::world::World& world, MenuDisplay& display)
+{
+  m_listBox->fitToContent();
+  m_groupBox.fitToContent();
+
+  {
+    const auto vp = world.getPresenter().getViewport();
+    m_groupBox.setPosition({(vp.x - m_groupBox.getSize().x) / 2, vp.y - m_groupBox.getSize().y - 90});
+  }
+
+  m_groupBox.update(true);
+  m_groupBox.draw(ui, world.getPresenter());
 }
 } // namespace menu
