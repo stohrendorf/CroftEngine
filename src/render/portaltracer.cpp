@@ -39,7 +39,7 @@ std::optional<PortalTracer::CullBox> PortalTracer::narrowCullBox(const PortalTra
   size_t behindCamera = 0, tooFar = 0;
   for(const auto& camSpace : portal.vertices | boost::adaptors::transformed(toView))
   {
-    if(-camSpace.z <= camera.getCamera()->getNearPlane())
+    if(-camSpace.z < 0)
     {
       ++behindCamera;
       continue;
