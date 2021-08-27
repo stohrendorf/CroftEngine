@@ -4,9 +4,9 @@
 #include "engine/engineconfig.h"
 #include "inputstate.h"
 
-#include <GLFW/glfw3.h>
 #include <algorithm>
 #include <filesystem>
+#include <GLFW/glfw3.h>
 #include <gsl/gsl-lite.hpp>
 #include <variant>
 

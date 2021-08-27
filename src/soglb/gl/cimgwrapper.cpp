@@ -6,9 +6,9 @@
 
 #include "texture2d.h"
 
-#include <CImg.h>
 #include <boost/algorithm/string/case_conv.hpp>
 #include <boost/assert.hpp>
+#include <CImg.h>
 #include <fstream>
 #include <gsl/gsl-lite.hpp>
 

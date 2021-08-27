@@ -3,8 +3,8 @@
 #include "glassert.h"
 #include "renderstate.h"
 
-#include <GL/glew.h>
 #include <boost/log/trivial.hpp>
+#include <GL/glew.h>
 
 using namespace gl;
 
