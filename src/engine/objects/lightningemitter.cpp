@@ -18,10 +18,9 @@ namespace engine::objects
 {
 namespace
 {
-gsl::not_null<std::shared_ptr<render::scene::Mesh>>
-  createBolt(const gsl::not_null<std::shared_ptr<render::scene::Material>>& material,
-             float lineWidth,
-             std::shared_ptr<gl::VertexBuffer<glm::vec3>>& vb)
+std::tuple<gsl::not_null<std::shared_ptr<render::scene::Mesh>>,
+           gsl::not_null<std::shared_ptr<gl::VertexBuffer<glm::vec3>>>>
+  createBolt(const gsl::not_null<std::shared_ptr<render::scene::Material>>& material, float lineWidth)
 {
   std::array<glm::vec3, LightningEmitter::ControlPoints> vertices;
 
@@ -35,7 +34,7 @@ gsl::not_null<std::shared_ptr<render::scene::Mesh>>
   auto indexBuffer = std::make_shared<gl::ElementArrayBuffer<uint16_t>>("bolt");
   indexBuffer->setData(indices, gl::api::BufferUsage::StaticDraw);
 
-  vb = std::make_shared<gl::VertexBuffer<glm::vec3>>(layout, 0, "bolt");
+  auto vb = std::make_shared<gl::VertexBuffer<glm::vec3>>(layout, 0, "bolt");
   vb->setData(
     &vertices[0], gsl::narrow_cast<gl::api::core::SizeType>(vertices.size()), gl::api::BufferUsage::DynamicDraw);
 
@@ -48,7 +47,7 @@ gsl::not_null<std::shared_ptr<render::scene::Mesh>>
 
   mesh->getMaterialGroup().set(render::scene::RenderMode::Full, material);
 
-  return mesh;
+  return {mesh, vb};
 }
 
 using Bolt = std::array<glm::vec3, LightningEmitter::ControlPoints>;
@@ -231,7 +230,7 @@ void LightningEmitter::prepareRender()
 
 void LightningEmitter::init(world::World& world)
 {
-  m_mainBoltMesh = createBolt(world.getPresenter().getMaterialManager()->getLightning(), 10, m_mainVb);
+  std::tie(m_mainBoltMesh, m_mainVb) = createBolt(world.getPresenter().getMaterialManager()->getLightning(), 10);
   m_mainBoltNode = std::make_shared<render::scene::Node>("lightning-bolt-main");
   m_mainBoltNode->setRenderable(m_mainBoltMesh);
   m_mainBoltNode->setVisible(false);
@@ -239,7 +238,7 @@ void LightningEmitter::init(world::World& world)
 
   for(auto& childBolt : m_childBolts)
   {
-    childBolt.mesh = createBolt(world.getPresenter().getMaterialManager()->getLightning(), 3, childBolt.vb);
+    std::tie(childBolt.mesh, childBolt.vb) = createBolt(world.getPresenter().getMaterialManager()->getLightning(), 3);
 
     childBolt.node = std::make_shared<render::scene::Node>("lightning-bolt-child");
     childBolt.node->setRenderable(childBolt.mesh);
