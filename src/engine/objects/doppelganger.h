@@ -21,7 +21,9 @@ public:
 
   void update() override;
 
+  void serialize(const serialization::Serializer<world::World>& ser) override;
+
 private:
-  bool m_flag = false;
+  bool m_falling = false;
 };
 } // namespace engine::objects

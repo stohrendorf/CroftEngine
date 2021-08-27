@@ -4,6 +4,7 @@
 #include "engine/world/animation.h"
 #include "engine/world/world.h"
 #include "laraobject.h"
+#include "serialization/serialization.h"
 
 namespace engine::objects
 {
@@ -28,7 +29,7 @@ void Doppelganger::update()
     m_state.health = core::LaraHealth;
   }
 
-  if(!m_flag)
+  if(!m_falling)
   {
     m_state.location = lara.m_state.location;
     m_state.location.position = core::TRVec{72 * core::SectorSize - m_state.location.position.X,
@@ -48,12 +49,15 @@ void Doppelganger::update()
 
     if(laraHeight + core::SectorSize <= m_state.floor && !lara.m_state.falling)
     {
-      m_flag = true;
+      m_falling = true;
 
-      getSkeleton()->setAnimation(
-        m_state.current_anim_state, &getWorld().findAnimatedModelForType(TR1ItemId::Lara)->animations[32], 481_frame);
-      m_state.goal_anim_state = 9_as;
-      m_state.current_anim_state = 9_as;
+      getSkeleton()->setAnimation(m_state.current_anim_state,
+                                  &getWorld()
+                                     .findAnimatedModelForType(TR1ItemId::Lara)
+                                     ->animations[static_cast<int>(loader::file::AnimationId::SMASH_JUMP)],
+                                  481_frame);
+      m_state.goal_anim_state = loader::file::LaraStateId::FreeFall;
+      m_state.current_anim_state = loader::file::LaraStateId::FreeFall;
       m_state.fallspeed = 0_spd;
       m_state.speed = 0_spd;
       m_state.falling = true;
@@ -61,7 +65,7 @@ void Doppelganger::update()
     }
   }
 
-  if(m_flag)
+  if(m_falling)
   {
     ModelObject::update();
     const auto sector = m_state.location.moved({}).updateRoom();
@@ -78,8 +82,8 @@ void Doppelganger::update()
       = HeightInfo::fromFloor(sector2, m_state.location.position, getWorld().getObjectManager().getObjects());
     getWorld().handleCommandSequence(hi2.lastCommandSequenceOrDeath, true);
     m_state.fallspeed = 0_spd;
-    m_state.goal_anim_state = 8_as;
-    m_state.required_anim_state = 8_as;
+    m_state.goal_anim_state = loader::file::LaraStateId::Death;
+    m_state.required_anim_state = loader::file::LaraStateId::Death;
     m_state.falling = false;
   }
   else
@@ -87,5 +91,11 @@ void Doppelganger::update()
     applyTransform();
     getSkeleton()->updatePose();
   }
+}
+
+void Doppelganger::serialize(const serialization::Serializer<world::World>& ser)
+{
+  ModelObject::serialize(ser);
+  ser(S_NV("falling", m_falling));
 }
 } // namespace engine::objects
