@@ -62,7 +62,6 @@ private:
   friend class StateHandler_2;
 
 protected:
-  // ReSharper disable once CppMemberFunctionMayBeConst
   objects::LaraObject& getLara()
   {
     return m_lara;

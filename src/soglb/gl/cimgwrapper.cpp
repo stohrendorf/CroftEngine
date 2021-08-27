@@ -186,7 +186,6 @@ const uint8_t* CImgWrapper::data() const
 void CImgWrapper::savePng(const std::string& filename)
 {
   deinterleave();
-  // ReSharper disable once CppExpressionWithoutSideEffects
   m_image->save_png(filename.c_str(), 1);
 }
 

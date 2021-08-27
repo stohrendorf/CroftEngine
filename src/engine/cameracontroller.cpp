@@ -375,7 +375,6 @@ void CameraController::handleCommandSequence(const floordata::FloorDataValue* cm
     m_lookAtObject = nullptr;
 }
 
-// ReSharper disable once CppMemberFunctionMayBeConst
 std::unordered_set<const world::Portal*> CameraController::tracePortals()
 {
   for(const auto& room : m_world->getRooms())

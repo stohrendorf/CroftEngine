@@ -49,7 +49,6 @@ protected:
     m_state.rotation.Z += z;
   }
 
-  // ReSharper disable once CppMemberFunctionMayBeConst
   void rotateCreatureHead(const core::Angle& angle)
   {
     m_creatureInfo->rotateHead(angle);

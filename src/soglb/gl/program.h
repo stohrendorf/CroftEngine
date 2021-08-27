@@ -152,7 +152,6 @@ public:
     return *this;
   }
 
-  // ReSharper disable once CppMemberFunctionMayBeConst
   template<typename T>
   std::enable_if_t<std::is_trivial_v<T>, void> set(const T& value)
   {
@@ -161,7 +160,6 @@ public:
       GL_ASSERT(api::programUniform1(m_program, getLocation(), value));
   }
 
-  // ReSharper disable once CppMemberFunctionMayBeConst
   template<typename T>
   void set(const std::vector<T>& values)
   {
@@ -171,7 +169,6 @@ public:
         api::programUniform1(m_program, getLocation(), gsl::narrow<api::core::SizeType>(values.size()), values.data()));
   }
 
-  // ReSharper disable once CppMemberFunctionMayBeConst
   template<typename T, size_t N>
   void set(const std::array<T, N>& values)
   {
@@ -181,7 +178,6 @@ public:
         api::programUniform1(m_program, getLocation(), gsl::narrow<api::core::SizeType>(values.size()), values.data()));
   }
 
-  // ReSharper disable once CppMemberFunctionMayBeConst
   void set(const glm::mat3& value)
   {
     Expects(m_program != InvalidProgram);
@@ -189,7 +185,6 @@ public:
       GL_ASSERT(api::programUniformMatrix3(m_program, getLocation(), 1, false, value_ptr(value)));
   }
 
-  // ReSharper disable once CppMemberFunctionMayBeConst
   void set(const glm::mat4& value)
   {
     Expects(m_program != InvalidProgram);
@@ -197,7 +192,6 @@ public:
       GL_ASSERT(api::programUniformMatrix4(m_program, getLocation(), 1, false, value_ptr(value)));
   }
 
-  // ReSharper disable once CppMemberFunctionMayBeConst
   void set(const std::vector<glm::mat4>& values)
   {
     Expects(m_program != InvalidProgram);
@@ -211,7 +205,6 @@ public:
         ));
   }
 
-  // ReSharper disable once CppMemberFunctionMayBeConst
   void set(const glm::vec2& value)
   {
     Expects(m_program != InvalidProgram);
@@ -219,7 +212,6 @@ public:
       GL_ASSERT(api::programUniform2(m_program, getLocation(), value.x, value.y));
   }
 
-  // ReSharper disable once CppMemberFunctionMayBeConst
   void set(const std::vector<glm::vec2>& values)
   {
     Expects(m_program != InvalidProgram);
@@ -232,7 +224,6 @@ public:
         ));
   }
 
-  // ReSharper disable once CppMemberFunctionMayBeConst
   void set(const std::vector<glm::vec3>& values)
   {
     Expects(m_program != InvalidProgram);
@@ -245,7 +236,6 @@ public:
         ));
   }
 
-  // ReSharper disable once CppMemberFunctionMayBeConst
   void set(const std::vector<glm::vec4>& values)
   {
     Expects(m_program != InvalidProgram);
@@ -258,7 +248,6 @@ public:
         ));
   }
 
-  // ReSharper disable once CppMemberFunctionMayBeConst
   void set(const glm::vec3& value)
   {
     Expects(m_program != InvalidProgram);
@@ -266,7 +255,6 @@ public:
       GL_ASSERT(api::programUniform3(m_program, getLocation(), value.x, value.y, value.z));
   }
 
-  // ReSharper disable once CppMemberFunctionMayBeConst
   void set(const glm::vec4& value)
   {
     Expects(m_program != InvalidProgram);
@@ -367,14 +355,12 @@ public:
   {
   }
 
-  // ReSharper disable once CppMemberFunctionMayBeConst
   template<api::ShaderType _Type> // NOLINT(bugprone-reserved-identifier)
   void attach(const Shader<_Type>& shader)
   {
     GL_ASSERT(api::attachShader(getHandle(), shader.getHandle()));
   }
 
-  // ReSharper disable once CppMemberFunctionMayBeConst
   void link(const std::string& label = {})
   {
     GL_ASSERT(api::linkProgram(getHandle()));

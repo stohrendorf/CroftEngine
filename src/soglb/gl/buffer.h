@@ -28,7 +28,6 @@ public:
     return static_cast<T*>(const_cast<void*>(data));
   }
 
-  // ReSharper disable once CppMemberFunctionMayBeConst
   void unmap()
   {
     GL_ASSERT(api::unmapNamedBuffer(getHandle()));

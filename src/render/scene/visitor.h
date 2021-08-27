@@ -25,7 +25,6 @@ public:
 
   virtual void visit(Node& node);
 
-  // ReSharper disable once CppMemberFunctionMayBeConst
   RenderContext& getContext()
   {
     return m_context;

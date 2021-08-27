@@ -127,13 +127,11 @@ std::unique_ptr<AbstractStateHandler> AbstractStateHandler::create(const LaraSta
   }
 }
 
-// ReSharper disable once CppMemberFunctionMayBeConst
 void AbstractStateHandler::setAir(const core::Frame& a) noexcept
 {
   m_lara.setAir(a);
 }
 
-// ReSharper disable once CppMemberFunctionMayBeConst
 void AbstractStateHandler::setMovementAngle(const core::Angle& angle) noexcept
 {
   m_lara.setMovementAngle(angle);
@@ -149,7 +147,6 @@ objects::HandStatus AbstractStateHandler::getHandStatus() const noexcept
   return m_lara.getHandStatus();
 }
 
-// ReSharper disable once CppMemberFunctionMayBeConst
 void AbstractStateHandler::setHandStatus(const objects::HandStatus status) noexcept
 {
   m_lara.setHandStatus(status);
@@ -160,7 +157,6 @@ LaraStateId AbstractStateHandler::getCurrentAnimState() const
   return m_lara.getCurrentAnimState();
 }
 
-// ReSharper disable once CppMemberFunctionMayBeConst
 void AbstractStateHandler::setAnimation(const AnimationId anim, const std::optional<core::Frame>& firstFrame)
 {
   m_lara.setAnimation(anim, firstFrame);
@@ -732,7 +728,6 @@ void AbstractStateHandler::commonEdgeHangHandling(CollisionInfo& collisionInfo)
   }
 }
 
-// ReSharper disable once CppMemberFunctionMayBeConst
 bool AbstractStateHandler::applyLandingDamage()
 {
   const auto sector = m_lara.m_state.location.moved({}).updateRoom();
@@ -768,55 +763,46 @@ core::BoundingBox AbstractStateHandler::getBoundingBox() const
   return m_lara.getBoundingBox();
 }
 
-// ReSharper disable once CppMemberFunctionMayBeConst
 void AbstractStateHandler::addSwimToDiveKeypressDuration(const core::Frame& n) noexcept
 {
   m_lara.addSwimToDiveKeypressDuration(n);
 }
 
-// ReSharper disable once CppMemberFunctionMayBeConst
 void AbstractStateHandler::setSwimToDiveKeypressDuration(const core::Frame& n) noexcept
 {
   m_lara.setSwimToDiveKeypressDuration(n);
 }
 
-// ReSharper disable once CppMemberFunctionMayBeConst
 core::Frame AbstractStateHandler::getSwimToDiveKeypressDuration() const
 {
   return m_lara.getSwimToDiveKeypressDuration();
 }
 
-// ReSharper disable once CppMemberFunctionMayBeConst
 void AbstractStateHandler::setUnderwaterState(const objects::UnderwaterState u) noexcept
 {
   m_lara.setUnderwaterState(u);
 }
 
-// ReSharper disable once CppMemberFunctionMayBeConst
 void AbstractStateHandler::setCameraRotationAroundLara(const core::Angle& x, const core::Angle& y)
 {
   m_lara.setCameraRotationAroundLara(x, y);
 }
 
-// ReSharper disable once CppMemberFunctionMayBeConst
 void AbstractStateHandler::setCameraRotationAroundLaraX(const core::Angle& x)
 {
   m_lara.setCameraRotationAroundLaraX(x);
 }
 
-// ReSharper disable once CppMemberFunctionMayBeConst
 void AbstractStateHandler::setCameraRotationAroundLaraY(const core::Angle& y)
 {
   m_lara.setCameraRotationAroundLaraY(y);
 }
 
-// ReSharper disable once CppMemberFunctionMayBeConst
 void AbstractStateHandler::setCameraDistance(const core::Length& d)
 {
   m_lara.setCameraDistance(d);
 }
 
-// ReSharper disable once CppMemberFunctionMayBeConst
 void AbstractStateHandler::setCameraModifier(const CameraModifier k)
 {
   m_lara.setCameraModifier(k);
@@ -887,7 +873,6 @@ void AbstractStateHandler::checkJumpWallSmash(CollisionInfo& collisionInfo)
   }
 }
 
-// ReSharper disable once CppMemberFunctionMayBeConst
 void AbstractStateHandler::laraUpdateImpl()
 {
   m_lara.updateImpl();

@@ -396,7 +396,6 @@ void World::explosionEffect()
   m_activeEffect.reset();
 }
 
-// ReSharper disable once CppMemberFunctionMayBeConst
 void World::laraHandsFreeEffect()
 {
   m_objectManager.getLara().setHandStatus(objects::HandStatus::None);
