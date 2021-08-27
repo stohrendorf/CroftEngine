@@ -1,14 +1,14 @@
 AccessModifierOffset: -2
 AlignAfterOpenBracket: Align
-AlignConsecutiveAssignments: false
-AlignConsecutiveDeclarations: false
+AlignConsecutiveAssignments: None
+AlignConsecutiveDeclarations: None
 AlignEscapedNewlines: Left
 AlignOperands: true
 AlignTrailingComments: true
 # AllowAllArgumentsOnNextLine: true
 # AllowAllConstructorInitializersOnNextLine: true
 AllowAllParametersOfDeclarationOnNextLine: true
-AllowShortBlocksOnASingleLine: true
+AllowShortBlocksOnASingleLine: Always
 AllowShortCaseLabelsOnASingleLine: true
 AllowShortFunctionsOnASingleLine: None
 AllowShortIfStatementsOnASingleLine: Never
@@ -51,7 +51,7 @@ MaxEmptyLinesToKeep: 1
 NamespaceIndentation: None
 PointerAlignment: Left
 ReflowComments: false
-SortIncludes: true
+SortIncludes: CaseInsensitive
 SortUsingDeclarations: true
 SpaceAfterCStyleCast: false
 # SpaceAfterLogicalNot: false
