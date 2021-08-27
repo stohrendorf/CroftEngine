@@ -31,12 +31,14 @@ void TRex::update()
     updateMood(*this, enemyLocation, true);
 
     rotationToMoveTarget = rotateTowardsTarget(getCreatureInfo()->maxTurnSpeed);
+
+    auto& lara = getWorld().getObjectManager().getLara();
     if(touched())
     {
       if(m_state.current_anim_state == RunningAttack)
-        getWorld().getObjectManager().getLara().m_state.health -= 10_hp;
+        lara.m_state.health -= 10_hp;
       else
-        getWorld().getObjectManager().getLara().m_state.health -= 1_hp;
+        lara.m_state.health -= 1_hp;
     }
 
     m_wantAttack = !isEscaping() && !enemyLocation.enemyAhead && abs(enemyLocation.enemyAngleToSelf) < 90_deg;
@@ -81,24 +83,24 @@ void TRex::update()
       {
         goal(8_as);
 
-        hitLara(1_hp);
-        getWorld().getObjectManager().getLara().m_state.falling = false;
+        lara.m_state.falling = false;
 
-        getWorld().getObjectManager().getLara().setCurrentRoom(m_state.location.room);
-        getWorld().getObjectManager().getLara().m_state.location.position = m_state.location.position;
-        getWorld().getObjectManager().getLara().m_state.rotation.X = 0_deg;
-        getWorld().getObjectManager().getLara().m_state.rotation.Y = m_state.rotation.Y;
-        getWorld().getObjectManager().getLara().m_state.rotation.Z = 0_deg;
-        getWorld().getObjectManager().getLara().getSkeleton()->setAnim(
-          &getWorld().findAnimatedModelForType(TR1ItemId::AlternativeLara)->animations[1]);
-        getWorld().getObjectManager().getLara().setCurrentAnimState(loader::file::LaraStateId::BoulderDeath);
-        getWorld().getObjectManager().getLara().setGoalAnimState(loader::file::LaraStateId::BoulderDeath);
-        getWorld().getObjectManager().getLara().setHandStatus(HandStatus::Grabbing);
+        lara.setCurrentRoom(m_state.location.room);
+        lara.m_state.location.position = m_state.location.position;
+        lara.m_state.rotation.X = 0_deg;
+        lara.m_state.rotation.Y = m_state.rotation.Y;
+        lara.m_state.rotation.Z = 0_deg;
+        lara.getSkeleton()->setAnim(&getWorld().findAnimatedModelForType(TR1ItemId::AlternativeLara)->animations[1]);
+        lara.setCurrentAnimState(loader::file::LaraStateId::BoulderDeath);
+        lara.setGoalAnimState(loader::file::LaraStateId::BoulderDeath);
+        lara.setHandStatus(HandStatus::Grabbing);
         getWorld().getPlayer().selectedWeaponType = WeaponType::None;
         getWorld().getCameraController().setModifier(CameraModifier::FollowCenter);
         getWorld().getCameraController().setRotationAroundLara(-25_deg, 170_deg);
-        getWorld().getObjectManager().getLara().setAir(-1_frame);
         getWorld().useAlternativeLaraAppearance(true);
+        lara.setAir(-1_frame);
+        lara.m_state.health = core::DeadHealth;
+        lara.m_state.is_hit = true;
       }
       require(Attack);
       break;
