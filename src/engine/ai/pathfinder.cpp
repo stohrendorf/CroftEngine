@@ -229,7 +229,7 @@ void PathFinder::searchPath(const world::World& world)
 {
   const auto zoneRef = world::Box::getZoneRef(world.roomsAreSwapped(), isFlying(), step);
 
-  static constexpr uint8_t MaxExpansions = 5;
+  static constexpr uint8_t MaxExpansions = 15;
 
   auto setReachable = [this](const world::Box* box, bool reachable)
   {
