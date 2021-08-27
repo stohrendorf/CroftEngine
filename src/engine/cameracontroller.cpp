@@ -380,12 +380,7 @@ std::unordered_set<const world::Portal*> CameraController::tracePortals()
   for(const auto& room : m_world->getRooms())
     room.node->setVisible(false);
 
-  auto result = render::PortalTracer::trace(*m_location.room, *m_world);
-
-  for(const auto& portal : m_location.room->portals)
-    portal.adjoiningRoom->node->setVisible(true);
-
-  return result;
+  return render::PortalTracer::trace(*m_location.room, *m_world);
 }
 
 std::unordered_set<const world::Portal*> CameraController::update()
