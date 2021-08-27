@@ -53,10 +53,11 @@ gsl::not_null<std::shared_ptr<render::scene::Mesh>>
 
 using Bolt = std::array<glm::vec3, LightningEmitter::ControlPoints>;
 
-Bolt updateBolt(const glm::vec3& start, const core::TRVec& end, const std::shared_ptr<gl::VertexBuffer<glm::vec3>>& vb)
+Bolt updateBolt(const glm::vec3& start, const glm::vec3& end, const std::shared_ptr<gl::VertexBuffer<glm::vec3>>& vb)
 {
-  std::vector<glm::vec3> data{start, end.toRenderSystem()};
-  auto radius = static_cast<float>(core::SectorSize.get());
+  std::vector<glm::vec3> data{start, end};
+  static constexpr float RadiusRatio = 0.3f;
+  auto radius = static_cast<float>(glm::distance(start, end) * RadiusRatio);
   for(size_t i = 0; i < LightningEmitter::SegmentSplits; ++i)
   {
     std::vector<glm::vec3> splitData;
@@ -217,14 +218,14 @@ void LightningEmitter::prepareRender()
   const auto segmentStart
     = glm::vec3(core::fromPackedAngles(nearestFrame->getAngleData()[0]) * glm::vec4(nearestFrame->pos.toGl(), 1.0f));
 
-  const Bolt mainBolt = updateBolt(segmentStart, m_mainBoltEnd, m_mainVb);
+  const Bolt mainBolt = updateBolt(segmentStart, m_mainBoltEnd.toRenderSystem(), m_mainVb);
 
   for(const auto& childBolt : m_childBolts)
   {
     const auto end
       = m_mainBoltEnd
         + core::TRVec{util::rand15s(core::QuarterSectorSize / 2), 0_len, util::rand15s(core::QuarterSectorSize / 2)};
-    updateBolt(mainBolt[util::rand15(ControlPoints - 1)], end, childBolt.vb);
+    updateBolt(mainBolt[util::rand15(ControlPoints - 1)], end.toRenderSystem(), childBolt.vb);
   }
 }
 
