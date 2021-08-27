@@ -41,7 +41,7 @@ public:
   {
     auto& laraState = getLara().m_state;
     laraState.fallspeed = 0_spd;
-   laraState.falling = false;
+    laraState.falling = false;
     collisionInfo.floorCollisionRangeMin = 128_len;
     collisionInfo.floorCollisionRangeMax = -128_len;
     collisionInfo.ceilingCollisionRangeMin = 0_len;

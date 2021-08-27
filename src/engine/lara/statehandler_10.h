@@ -2,8 +2,8 @@
 
 #include "abstractstatehandler.h"
 #include "engine/collisioninfo.h"
-#include "hid/inputstate.h"
 #include "engine/world/world.h"
+#include "hid/inputstate.h"
 
 namespace engine::lara
 {
@@ -20,13 +20,11 @@ public:
     setCameraRotationAroundLara(-60_deg, 0_deg);
     collisionInfo.policies &= ~CollisionInfo::SpazPushPolicy;
     const auto& inputState = getWorld().getPresenter().getInputHandler().getInputState();
-    if(inputState.xMovement == hid::AxisMovement::Left
-       || inputState.stepMovement == hid::AxisMovement::Left)
+    if(inputState.xMovement == hid::AxisMovement::Left || inputState.stepMovement == hid::AxisMovement::Left)
     {
       setGoalAnimState(LaraStateId::ShimmyLeft);
     }
-    else if(inputState.xMovement == hid::AxisMovement::Right
-            || inputState.stepMovement == hid::AxisMovement::Right)
+    else if(inputState.xMovement == hid::AxisMovement::Right || inputState.stepMovement == hid::AxisMovement::Right)
     {
       setGoalAnimState(LaraStateId::ShimmyRight);
     }

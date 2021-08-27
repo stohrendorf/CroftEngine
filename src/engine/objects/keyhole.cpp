@@ -20,9 +20,7 @@ void KeyHole::collide(CollisionInfo& /*collisionInfo*/)
     return;
 
   if(!getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action)
-     || lara.getHandStatus() != HandStatus::None
-     || lara.m_state.falling
-     || !limits.canInteract(m_state, lara.m_state))
+     || lara.getHandStatus() != HandStatus::None || lara.m_state.falling || !limits.canInteract(m_state, lara.m_state))
     return;
 
   if(m_state.triggerState == TriggerState::Invisible)

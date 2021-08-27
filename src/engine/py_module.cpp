@@ -55,14 +55,14 @@ PYBIND11_EMBEDDED_MODULE(engine, m)
          py::kw_only{},
          py::arg("name"),
          py::arg("track"),
-         py::arg("flip_rooms") = false, //-V601
+         py::arg("flip_rooms") = false,  //-V601
          py::arg("weapon_swap") = false, //-V601
          py::arg("camera_rot"))
     .def(py::init<std::string, engine::TR1TrackId, bool, bool, float, int, int>(),
          py::kw_only{},
          py::arg("name"),
          py::arg("track"),
-         py::arg("flip_rooms") = false, //-V601
+         py::arg("flip_rooms") = false,  //-V601
          py::arg("weapon_swap") = false, //-V601
          py::arg("camera_rot"),
          py::arg("camera_pos_x"),
