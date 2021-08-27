@@ -132,7 +132,7 @@ bool evaluateCondition(floordata::SequenceCondition condition,
   {
     auto swtch = objectManager.getObject(floordata::Command{*floorData++}.parameter);
     Expects(swtch != nullptr);
-    if(!swtch->triggerSwitch(request.getTimeout())) //-V1004
+    if(!swtch->triggerSwitch(request.getTimeout()))
       return false;
 
     switchIsOn = (swtch->m_state.current_anim_state == 1_as);
@@ -142,13 +142,13 @@ bool evaluateCondition(floordata::SequenceCondition condition,
   {
     auto key = objectManager.getObject(floordata::Command{*floorData++}.parameter);
     Expects(key != nullptr);
-    return key->triggerKey(); //-V1004
+    return key->triggerKey();
   }
   case floordata::SequenceCondition::ItemPickedUp:
   {
     auto item = objectManager.getObject(floordata::Command{*floorData++}.parameter);
     Expects(item != nullptr);
-    return item->triggerPickUp(); //-V1004
+    return item->triggerPickUp();
   }
   case floordata::SequenceCondition::LaraInCombatMode:
     return objectManager.getLara().getHandStatus() == objects::HandStatus::Combat;
@@ -513,7 +513,7 @@ std::shared_ptr<objects::PickupObject>
 
   const auto& spriteSequence = findSpriteSequenceForType(type);
   Expects(spriteSequence != nullptr && !spriteSequence->sprites.empty());
-  const Sprite& sprite = spriteSequence->sprites[0]; //-V1004
+  const Sprite& sprite = spriteSequence->sprites[0];
 
   auto object = std::make_shared<objects::PickupObject>(
     objects::makeObjectName(item.type.get_as<TR1ItemId>(), m_objectManager.getDynamicObjectCount()),

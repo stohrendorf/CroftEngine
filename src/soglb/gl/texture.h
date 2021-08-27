@@ -55,6 +55,6 @@ public:
     else SOGLB_CONVERT_TYPE(TextureCubeMapArray);
     else static_assert(!std::is_same_v<PixelT, PixelT>, "Texture type not suitable for copy sub-data operation");
 #undef SOGLB_CONVERT_TYPE
-  } //-V591
+  }
 };
 } // namespace gl

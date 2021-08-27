@@ -286,13 +286,13 @@ public:
   auto& getPlayer()
   {
     Expects(m_player != nullptr);
-    return *m_player; //-V1004
+    return *m_player;
   }
 
   [[nodiscard]] const auto& getPlayer() const
   {
     Expects(m_player != nullptr);
-    return *m_player; //-V1004
+    return *m_player;
   }
 
   [[nodiscard]] const auto& getPlayerPtr() const

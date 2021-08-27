@@ -15,7 +15,7 @@ void SlammingDoors::update()
   else
   {
     m_state.goal_anim_state = 1_as;
-    if(m_state.touch_bits.any() && m_state.current_anim_state == 1_as) //-V1051
+    if(m_state.touch_bits.any() && m_state.current_anim_state == 1_as)
     {
       getWorld().getObjectManager().getLara().m_state.health -= 400_hp;
       getWorld().getObjectManager().getLara().m_state.is_hit = true;

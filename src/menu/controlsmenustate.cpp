@@ -336,9 +336,9 @@ void ControlsMenuState::handleDisplayInput(engine::world::World& world)
   if(world.getPresenter().getInputHandler().hasDebouncedAction(EditAction))
   {
     m_mode = Mode::ChangeKey;
-    (void)world.getPresenter().getInputHandler().takeRecentlyPressedKey();    //-V530
-    (void)world.getPresenter().getInputHandler().takeRecentlyPressedButton(); //-V530
-    (void)world.getPresenter().getInputHandler().takeRecentlyPressedAxis();   //-V530
+    (void)world.getPresenter().getInputHandler().takeRecentlyPressedKey();
+    (void)world.getPresenter().getInputHandler().takeRecentlyPressedButton();
+    (void)world.getPresenter().getInputHandler().takeRecentlyPressedAxis();
   }
 }
 

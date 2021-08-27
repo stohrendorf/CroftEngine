@@ -28,7 +28,7 @@ struct ShaderLight
 
   bool operator==(const ShaderLight& rhs) const
   {
-    return position == rhs.position && brightness == rhs.brightness && fadeDistance == rhs.fadeDistance; //-V550
+    return position == rhs.position && brightness == rhs.brightness && fadeDistance == rhs.fadeDistance;
   }
 
   bool operator!=(const ShaderLight& rhs) const

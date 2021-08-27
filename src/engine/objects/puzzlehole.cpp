@@ -90,7 +90,7 @@ void PuzzleHole::initMesh()
   setParent(m_skeleton, nullptr);
   m_skeleton
     = std::make_shared<SkeletalModelNode>(toString(m_state.type.get_as<TR1ItemId>()), &getWorld(), model.get());
-  m_skeleton->setAnimation(m_state.current_anim_state, model->animations, model->animations->firstFrame); //-V1004
+  m_skeleton->setAnimation(m_state.current_anim_state, model->animations, model->animations->firstFrame);
   setParent(m_skeleton, parent);
   SkeletalModelNode::buildMesh(m_skeleton, m_state.current_anim_state);
   m_lighting.bind(*m_skeleton);

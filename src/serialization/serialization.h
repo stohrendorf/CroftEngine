@@ -239,7 +239,7 @@ public:
 
     auto ser = createMapMemberSerializer(name, true);
     Expects(ser.has_value());
-    doSerialize(name, data, *ser); //-V1007
+    doSerialize(name, data, *ser);
     return *this;
   }
 

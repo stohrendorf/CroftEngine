@@ -39,7 +39,7 @@ public:
     Expects(normalLara != nullptr);
     for(size_t i = 0; i < spheres.size(); ++i)
     {
-      if(world.getObjectManager().getLara().getSkeleton()->getMeshPart(i) == normalLara->bones[i].mesh) //-V1004
+      if(world.getObjectManager().getLara().getSkeleton()->getMeshPart(i) == normalLara->bones[i].mesh)
         continue;
 
       const auto r = spheres[i].radius;

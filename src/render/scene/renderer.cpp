@@ -92,7 +92,7 @@ void Renderer::clear(const gl::api::core::Bitfield<gl::api::ClearBufferMask>& fl
 
   if(flags.isSet(gl::api::ClearBufferMask::DepthBufferBit))
   {
-    if(clearDepth != m_clearDepth) //-V550
+    if(clearDepth != m_clearDepth)
     {
       GL_ASSERT(gl::api::clearDepth(clearDepth));
       m_clearDepth = clearDepth;

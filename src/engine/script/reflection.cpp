@@ -79,7 +79,7 @@ std::pair<RunResult, std::optional<size_t>> Cutscene::run(Engine& engine, const 
 
       auto m = std::dynamic_pointer_cast<objects::ModelObject>(object.get());
       Expects(m != nullptr);
-      m->getSkeleton()->setMeshPart(1, laraPistol->bones[1].mesh); //-V1004
+      m->getSkeleton()->setMeshPart(1, laraPistol->bones[1].mesh);
       m->getSkeleton()->setMeshPart(4, laraPistol->bones[4].mesh);
       m->getSkeleton()->rebuildMesh();
     }
@@ -230,7 +230,7 @@ std::pair<RunResult, std::optional<size_t>> SplashScreen::run(Engine& engine, co
     gl::Framebuffer::unbindAll();
     presenter.getRenderer().clear(
       gl::api::ClearBufferMask::ColorBufferBit | gl::api::ClearBufferMask::DepthBufferBit, {0, 0, 0, 0}, 1);
-    mesh->render(context); //-V1004 //-V614
+    mesh->render(context);
     presenter.swapBuffers();
 
     throttler.wait();

@@ -521,7 +521,7 @@ void LaraObject::updateImpl()
           setHandStatus(HandStatus::None);
           break;
           // NOLINTNEXTLINE(bugprone-branch-clone)
-        case AnimCommandOpcode::PlaySound: cmd += 2; break; //-V1037
+        case AnimCommandOpcode::PlaySound: cmd += 2; break;
         case AnimCommandOpcode::PlayEffect: cmd += 2; break;
         default: break;
         }
@@ -1178,10 +1178,10 @@ void LaraObject::overrideLaraMeshesDrawWeapons(WeaponType weaponType)
 
   const auto& src = getWorld().findAnimatedModelForType(id);
   Expects(src != nullptr);
-  BOOST_ASSERT(src->bones.size() == getSkeleton()->getBoneCount()); //-V1004
+  BOOST_ASSERT(src->bones.size() == getSkeleton()->getBoneCount());
   const auto& normalLara = *getWorld().findAnimatedModelForType(TR1ItemId::Lara);
   BOOST_ASSERT(normalLara.bones.size() == getSkeleton()->getBoneCount());
-  getSkeleton()->setMeshPart(leftArm.handBoneId, src->bones[leftArm.handBoneId].mesh); //-V1004
+  getSkeleton()->setMeshPart(leftArm.handBoneId, src->bones[leftArm.handBoneId].mesh);
   getSkeleton()->setMeshPart(leftArm.thighBoneId, normalLara.bones[leftArm.thighBoneId].mesh);
   getSkeleton()->setMeshPart(rightArm.handBoneId, src->bones[rightArm.handBoneId].mesh);
   getSkeleton()->setMeshPart(rightArm.thighBoneId, normalLara.bones[rightArm.thighBoneId].mesh);
