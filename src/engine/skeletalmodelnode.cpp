@@ -281,26 +281,22 @@ void SkeletalModelNode::rebuildMesh()
 
 bool SkeletalModelNode::canBeCulled(const glm::mat4& viewProjection) const
 {
-  const auto bbox = getInterpolationInfo().firstFrame->bbox.toBBox();
-  const std::array<glm::vec3, 8> corners{
-    core::TRVec{bbox.x.max, bbox.y.max, bbox.z.max}.toRenderSystem(),
-    core::TRVec{bbox.x.max, bbox.y.max, bbox.z.min}.toRenderSystem(),
-    core::TRVec{bbox.x.max, bbox.y.min, bbox.z.max}.toRenderSystem(),
-    core::TRVec{bbox.x.max, bbox.y.min, bbox.z.min}.toRenderSystem(),
-    core::TRVec{bbox.x.min, bbox.y.max, bbox.z.max}.toRenderSystem(),
-    core::TRVec{bbox.x.min, bbox.y.max, bbox.z.min}.toRenderSystem(),
-    core::TRVec{bbox.x.min, bbox.y.min, bbox.z.max}.toRenderSystem(),
-    core::TRVec{bbox.x.min, bbox.y.min, bbox.z.min}.toRenderSystem(),
-  };
+  auto bbox = getInterpolationInfo().firstFrame->bbox.toBBox();
+  bbox.x = bbox.x.broadened(bbox.x.size() / 2);
+  bbox.y = bbox.x.broadened(bbox.y.size() / 2);
+  bbox.z = bbox.x.broadened(bbox.z.size() / 2);
 
   glm::vec2 min{1000.0f}, max{-1000.0f};
-  for(const auto& v : corners)
-  {
-    auto proj = viewProjection * getModelMatrix() * glm::vec4{v, 1.0f};
-    proj /= proj.w;
-    min = glm::min(min, glm::vec2{proj});
-    max = glm::max(max, glm::vec2{proj});
-  }
+  for(const auto& x : {bbox.x.min, bbox.x.max})
+    for(const auto& y : {bbox.y.min, bbox.y.max})
+      for(const auto& z : {bbox.z.min, bbox.z.max})
+      {
+        const auto v = core::TRVec{x, y, z}.toRenderSystem();
+        auto proj = viewProjection * getModelMatrix() * glm::vec4{v, 1.0f};
+        proj /= proj.w;
+        min = glm::min(min, glm::vec2{proj});
+        max = glm::max(max, glm::vec2{proj});
+      }
 
   return min.x > 1 || min.y > 1 || max.x < -1 || max.y < -1;
 }
