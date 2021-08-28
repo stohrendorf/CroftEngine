@@ -109,7 +109,10 @@ void Window::setFullscreen()
   if(m_isFullscreen)
     return;
 
-  const auto mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+  const auto monitor = glfwGetPrimaryMonitor();
+  Expects(monitor != nullptr);
+  Expects(glfwGetError(nullptr) == GLFW_NO_ERROR);
+  const auto mode = glfwGetVideoMode(monitor);
   Expects(mode != nullptr);
   Expects(glfwGetError(nullptr) == GLFW_NO_ERROR);
 
@@ -118,7 +121,17 @@ void Window::setFullscreen()
   glfwGetWindowSize(m_window, &m_windowSize.x, &m_windowSize.y);
   Expects(glfwGetError(nullptr) == GLFW_NO_ERROR);
 
-  glfwSetWindowMonitor(m_window, glfwGetPrimaryMonitor(), 0, 0, mode->width, mode->height, GLFW_DONT_CARE);
+  glm::ivec2 pos{0, 0};
+  glfwGetMonitorPos(monitor, &pos.x, &pos.y);
+  Expects(glfwGetError(nullptr) == GLFW_NO_ERROR);
+
+  glfwSetWindowAttrib(m_window, GLFW_DECORATED, GLFW_FALSE);
+  Expects(glfwGetError(nullptr) == GLFW_NO_ERROR);
+  glfwSetWindowAttrib(m_window, GLFW_RESIZABLE, GLFW_FALSE);
+  Expects(glfwGetError(nullptr) == GLFW_NO_ERROR);
+  glfwSetWindowPos(m_window, pos.x, pos.y);
+  Expects(glfwGetError(nullptr) == GLFW_NO_ERROR);
+  glfwSetWindowSize(m_window, mode->width, mode->height);
   Expects(glfwGetError(nullptr) == GLFW_NO_ERROR);
   m_isFullscreen = true;
 }
@@ -128,8 +141,15 @@ void Window::setWindowed()
   if(!m_isFullscreen)
     return;
 
-  glfwSetWindowMonitor(m_window, nullptr, m_windowPos.x, m_windowPos.y, m_windowSize.x, m_windowSize.y, GLFW_DONT_CARE);
+  glfwSetWindowAttrib(m_window, GLFW_DECORATED, GLFW_TRUE);
   Expects(glfwGetError(nullptr) == GLFW_NO_ERROR);
+  glfwSetWindowAttrib(m_window, GLFW_RESIZABLE, GLFW_TRUE);
+  Expects(glfwGetError(nullptr) == GLFW_NO_ERROR);
+  glfwSetWindowPos(m_window, m_windowPos.x, m_windowPos.y);
+  Expects(glfwGetError(nullptr) == GLFW_NO_ERROR);
+  glfwSetWindowSize(m_window, m_windowSize.x, m_windowSize.y);
+  Expects(glfwGetError(nullptr) == GLFW_NO_ERROR);
+
   m_isFullscreen = false;
 }
 
