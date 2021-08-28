@@ -97,9 +97,7 @@ void Pierre::update()
       getCreatureInfo()->maxTurnSpeed = 6_deg / 1_frame;
       tiltRot = creatureTurn / 2;
       if(isBored() && util::rand15() < 96)
-      {
         goal(1_as, 6_as);
-      }
       else if(canShootAtLara(enemyLocation))
         goal(1_as, 4_as);
       else if(enemyLocation.enemyAhead && enemyLocation.enemyDistance < util::square(3 * core::SectorSize))

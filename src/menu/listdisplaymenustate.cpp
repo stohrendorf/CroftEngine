@@ -56,7 +56,7 @@ size_t ListDisplayMenuState::append(const std::shared_ptr<ui::widgets::Widget>& 
   return m_listBox->append(widget);
 }
 
-void ListDisplayMenuState::draw(ui::Ui& ui, engine::world::World& world, MenuDisplay& display)
+void ListDisplayMenuState::draw(ui::Ui& ui, engine::world::World& world, MenuDisplay& /*display*/)
 {
   m_listBox->fitToContent();
   m_groupBox.fitToContent();

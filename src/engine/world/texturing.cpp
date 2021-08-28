@@ -284,6 +284,7 @@ void remapTextures(const loader::file::level::Level& level,
   std::map<SourceTile, std::pair<size_t, glm::ivec2>> replaced;
 
   std::vector<AtlasTile*> tilesOrderedBySize;
+  tilesOrderedBySize.reserve(atlasTiles.size());
   for(auto& tile : atlasTiles)
     tilesOrderedBySize.emplace_back(&tile);
 
@@ -330,6 +331,7 @@ void remapTextures(const loader::file::level::Level& level,
   }
 
   std::vector<Sprite*> spritesOrderedBySize;
+  spritesOrderedBySize.reserve(sprites.size());
   for(auto& sprite : sprites)
     spritesOrderedBySize.emplace_back(&sprite);
 

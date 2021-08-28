@@ -15,8 +15,6 @@ namespace menu
 class SavegameListMenuState : public ListDisplayMenuState
 {
 private:
-  static constexpr size_t TotalSlots = 20;
-
   std::unique_ptr<MenuState> m_previous;
   std::vector<bool> m_hasSavegame;
   const bool m_loading;

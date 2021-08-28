@@ -86,9 +86,7 @@ void Larson::update()
       if(m_state.required_anim_state == 0_as)
       {
         if(tryShootAtLara(*this, enemyLocation.enemyDistance, core::TRVec{-60_len, 170_len, 0_len}, 14, headRot))
-        {
           hitLara(50_hp);
-        }
         require(4_as);
       }
       if(isEscaping())

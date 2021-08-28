@@ -8,11 +8,6 @@ if( MSVC )
 endif()
 
 find_package( Boost COMPONENTS system log log_setup locale REQUIRED )
-target_compile_definitions(
-        Boost::log
-        INTERFACE
-        -DBOOST_LOG_DYN_LINK=0
-)
 
 add_library(
         Boost::stacktrace INTERFACE IMPORTED

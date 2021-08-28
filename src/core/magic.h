@@ -55,4 +55,6 @@ constexpr auto CombatCameraLaraDistance = SectorSize + DefaultCameraLaraDistance
 constexpr auto Gravity = 6_spd / 1_frame;
 constexpr auto TerminalGravity = 1_spd / 1_frame;
 constexpr auto TerminalSpeed = 128_spd;
+
+constexpr size_t SavegameSlots = 20;
 } // namespace core

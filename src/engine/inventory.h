@@ -83,7 +83,7 @@ public:
     m_inventory.erase(id);
   }
 
-  bool tryUse(objects::LaraObject& lara, TR1ItemId weaponType);
+  bool tryUse(objects::LaraObject& lara, TR1ItemId id);
 
   gsl::not_null<Ammo*> getAmmo(WeaponType weaponType)
   {

@@ -11,6 +11,7 @@
 
 namespace py = pybind11;
 
+// NOLINTNEXTLINE(cert-err58-cpp)
 PYBIND11_EMBEDDED_MODULE(engine, m)
 {
   m.doc() = "edisonengine engine module";

@@ -81,7 +81,7 @@ struct ObjectFactory
 /* NOLINTNEXTLINE(altera-struct-pack-align) */
 struct UnsupportedObjectFactory : public ObjectFactory
 {
-  virtual ~UnsupportedObjectFactory() = default;
+  ~UnsupportedObjectFactory() override = default;
 
   [[nodiscard]] std::shared_ptr<Object>
     createNew(world::World& /*world*/, loader::file::Item& item, size_t /*id*/) const override

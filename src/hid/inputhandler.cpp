@@ -211,16 +211,19 @@ bool InputHandler::hasKey(GlfwKey key) const
   return isKeyPressed(key);
 }
 
+// NOLINTNEXTLINE(readability-convert-member-functions-to-static)
 std::optional<GlfwKey> InputHandler::takeRecentlyPressedKey()
 {
   return std::exchange(recentPressedKey, std::nullopt);
 }
 
+// NOLINTNEXTLINE(readability-convert-member-functions-to-static)
 std::optional<GlfwGamepadButton> InputHandler::takeRecentlyPressedButton()
 {
   return std::exchange(recentPressedButton, std::nullopt);
 }
 
+// NOLINTNEXTLINE(readability-convert-member-functions-to-static)
 std::optional<AxisDir> InputHandler::takeRecentlyPressedAxis()
 {
   return std::exchange(recentPressedAxis, std::nullopt);

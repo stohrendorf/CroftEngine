@@ -11,6 +11,7 @@
 
 namespace
 {
+// NOLINTNEXTLINE(misc-no-recursion)
 std::filesystem::path readSymlink(const std::filesystem::path& root,
                                   const std::filesystem::path& ref,
                                   std::filesystem::file_time_type& srcTimestamp)

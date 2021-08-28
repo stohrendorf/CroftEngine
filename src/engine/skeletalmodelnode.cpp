@@ -35,6 +35,7 @@ SkeletalModelNode::SkeletalModelNode(const std::string& id,
 core::Speed SkeletalModelNode::calculateFloorSpeed(const core::Frame& frameOffset) const
 {
   const auto scaled = m_anim->speed + m_anim->acceleration * (getLocalFrame() + frameOffset);
+  // NOLINTNEXTLINE(hicpp-signed-bitwise)
   return scaled / (1 << 16);
 }
 

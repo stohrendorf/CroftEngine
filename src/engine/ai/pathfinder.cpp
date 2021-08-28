@@ -49,6 +49,7 @@ bool PathFinder::calculateTarget(const world::World& world,
   static constexpr uint8_t CanMoveXNeg = 0x02u;
   static constexpr uint8_t CanMoveZPos = 0x04u;
   static constexpr uint8_t CanMoveZNeg = 0x08u;
+  // NOLINTNEXTLINE(hicpp-signed-bitwise)
   static constexpr uint8_t CanMoveAllDirs = CanMoveXPos | CanMoveXNeg | CanMoveZPos | CanMoveZNeg;
 
   bool detour = false;
@@ -163,6 +164,7 @@ bool PathFinder::calculateTarget(const world::World& world,
 
     if(here == m_targetBox)
     {
+      // NOLINTNEXTLINE(hicpp-signed-bitwise)
       if(moveDirs & (CanMoveZPos | CanMoveZNeg))
       {
         moveTarget.Z = target.Z;
@@ -173,6 +175,7 @@ bool PathFinder::calculateTarget(const world::World& world,
       }
       Ensures(here->zInterval.contains(moveTarget.Z));
 
+      // NOLINTNEXTLINE(hicpp-signed-bitwise)
       if(moveDirs & (CanMoveXPos | CanMoveXNeg))
       {
         moveTarget.X = target.X;
@@ -195,6 +198,7 @@ bool PathFinder::calculateTarget(const world::World& world,
     here = nextBox;
   }
 
+  // NOLINTNEXTLINE(hicpp-signed-bitwise)
   if(moveDirs & (CanMoveZPos | CanMoveZNeg))
   {
     const auto range = here->zInterval.size() - 2 * Margin;
@@ -206,6 +210,7 @@ bool PathFinder::calculateTarget(const world::World& world,
   }
   Ensures(here->zInterval.contains(moveTarget.Z));
 
+  // NOLINTNEXTLINE(hicpp-signed-bitwise)
   if(moveDirs & (CanMoveXPos | CanMoveXNeg))
   {
     const auto range = here->xInterval.size() - 2 * Margin;

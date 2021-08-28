@@ -32,7 +32,7 @@ SavegameListMenuState::SavegameListMenuState(const std::shared_ptr<MenuRingTrans
 
   std::filesystem::file_time_type mostRecentTime = std::filesystem::file_time_type ::min();
   size_t mostRecentSlot = 0;
-  for(size_t i = 0; i < TotalSlots; ++i)
+  for(size_t i = 0; i < core::SavegameSlots; ++i)
   {
     std::string name;
     if(auto it = savedGames.find(i); it != savedGames.end())

@@ -199,6 +199,7 @@ void ControlsWidget::prevRow()
   } while(getCurrentGridBox()->getSelectedWidget() == nullptr);
 }
 
+// NOLINTNEXTLINE(readability-make-member-function-const)
 void ControlsWidget::nextColumn()
 {
   do
@@ -211,6 +212,7 @@ void ControlsWidget::nextColumn()
   } while(getCurrentGridBox()->getSelectedWidget() == nullptr);
 }
 
+// NOLINTNEXTLINE(readability-make-member-function-const)
 void ControlsWidget::prevColumn()
 {
   do

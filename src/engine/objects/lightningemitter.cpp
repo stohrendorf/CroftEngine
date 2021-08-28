@@ -22,7 +22,7 @@ std::tuple<gsl::not_null<std::shared_ptr<render::scene::Mesh>>,
            gsl::not_null<std::shared_ptr<gl::VertexBuffer<glm::vec3>>>>
   createBolt(const gsl::not_null<std::shared_ptr<render::scene::Material>>& material, float lineWidth)
 {
-  std::array<glm::vec3, LightningEmitter::ControlPoints> vertices;
+  std::array<glm::vec3, LightningEmitter::ControlPoints> vertices{};
 
   static const gl::VertexLayout<glm::vec3> layout{
     {VERTEX_ATTRIBUTE_POSITION_NAME, gl::VertexAttribute<glm::vec3>::Trivial{}}};

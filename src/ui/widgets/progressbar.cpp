@@ -22,7 +22,7 @@ void ProgressBar::draw(ui::Ui& ui, const engine::Presenter& /*presenter*/) const
              15);
 }
 
-void ProgressBar::update(bool hasFocus)
+void ProgressBar::update(bool /*hasFocus*/)
 {
 }
 

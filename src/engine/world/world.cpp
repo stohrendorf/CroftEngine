@@ -952,7 +952,7 @@ void World::save(const std::optional<size_t>& slot)
 std::map<size_t, SavegameInfo> World::getSavedGames() const
 {
   std::map<size_t, SavegameInfo> result;
-  for(size_t i = 0; i < 100; ++i)
+  for(size_t i = 0; i < core::SavegameSlots; ++i)
   {
     const auto path = m_engine.getSavegamePath(i);
     if(!std::filesystem::is_regular_file(path))
@@ -968,7 +968,7 @@ std::map<size_t, SavegameInfo> World::getSavedGames() const
 
 bool World::hasSavedGames() const
 {
-  for(size_t i = 0; i < 100; ++i)
+  for(size_t i = 0; i < core::SavegameSlots; ++i)
   {
     const auto path = m_engine.getSavegamePath(i);
     if(!std::filesystem::is_regular_file(path))
@@ -1180,7 +1180,7 @@ void World::initFromLevel(loader::file::level::Level& level)
                                 anim.animCommandCount,
                                 anim.animCommandCount == 0 ? nullptr : &anim.animCommandIndex.from(m_animCommands),
                                 nextAnimation,
-                                std::move(transitions)};
+                                transitions};
   }
 
   std::transform(level.m_meshes.begin(),
@@ -1456,8 +1456,10 @@ void World::initTextureDependentDataFromLevel(const loader::file::level::Level& 
     level.m_sprites.begin(),
     level.m_sprites.end(),
     std::back_inserter(m_sprites),
-    [](const loader::file::Sprite& sprite) {
-      return Sprite{sprite.texture_id, sprite.uv0.toGl(), sprite.uv1.toGl(), sprite.render0, sprite.render1, nullptr};
+    [](const loader::file::Sprite& sprite)
+    {
+      return Sprite{
+        sprite.texture_id, sprite.uv0.toGl(), sprite.uv1.toGl(), sprite.render0, sprite.render1, nullptr, nullptr};
     });
 
   for(const auto& [sequenceId, sequence] : level.m_spriteSequences)

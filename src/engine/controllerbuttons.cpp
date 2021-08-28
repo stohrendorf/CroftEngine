@@ -56,8 +56,13 @@ ControllerLayouts loadControllerButtonIcons(render::MultiTextureAtlas& atlases,
         = (glm::vec2{atlasLoc.second} + glm::vec2{0.5f, 0.5f}) / gsl::narrow_cast<float>(atlases.getSize());
       const glm::vec2 uvSize = glm::vec2{src.width(), src.height()} / gsl::narrow_cast<float>(atlases.getSize());
       static constexpr int YOffset = -ui::FontHeight + 1;
-      world::Sprite sprite{
-        atlasLoc.first, uvLoc, uvLoc + uvSize, {0, 0 + YOffset}, {src.width(), src.height() + YOffset}, nullptr};
+      world::Sprite sprite{atlasLoc.first,
+                           uvLoc,
+                           uvLoc + uvSize,
+                           {0, 0 + YOffset},
+                           {src.width(), src.height() + YOffset},
+                           nullptr,
+                           nullptr};
 
       std::string btnName;
       if(std::holds_alternative<NamedGlfwGamepadButton>(buttonOrAxis))

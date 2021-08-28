@@ -12,6 +12,7 @@ std::optional<PortalTracer::CullBox> PortalTracer::narrowCullBox(const PortalTra
                                                                  const engine::world::Portal& portal,
                                                                  const engine::CameraController& camera)
 {
+  // NOLINTNEXTLINE(hicpp-signed-bitwise)
   static constexpr auto Eps = 1.0f / (1 << 14);
 
   if(dot(portal.normal, portal.vertices[0] - camera.getPosition()) >= 0)
@@ -133,6 +134,7 @@ std::optional<PortalTracer::CullBox> PortalTracer::narrowCullBox(const PortalTra
   return portalCullBox;
 }
 
+// NOLINTNEXTLINE(misc-no-recursion)
 bool PortalTracer::traceRoom(const engine::world::Room& room,
                              const PortalTracer::CullBox& roomCullBox,
                              const engine::world::World& world,

@@ -48,20 +48,11 @@ void Cowboy::update()
     case 2:
       getCreatureInfo()->maxTurnSpeed = 3_deg / 1_frame;
       if(getCreatureInfo()->mood == ai::Mood::Escape || !enemyLocation.enemyAhead)
-      {
-        require(3_as);
-        goal(1_as);
-      }
+        goal(1_as, 3_as);
       else if(canShootAtLara(enemyLocation))
-      {
-        require(4_as);
-        goal(1_as);
-      }
+        goal(1_as, 4_as);
       else if(enemyLocation.enemyDistance > util::square(3072_len))
-      {
-        require(3_as);
-        goal(1_as);
-      }
+        goal(1_as, 3_as);
       break;
     case 3:
       getCreatureInfo()->maxTurnSpeed = 6_deg / 1_frame;
@@ -69,18 +60,9 @@ void Cowboy::update()
       if(getCreatureInfo()->mood != ai::Mood::Escape || enemyLocation.enemyAhead)
       {
         if(canShootAtLara(enemyLocation))
-        {
-          require(4_as);
-          goal(1_as);
-        }
-        else if(enemyLocation.enemyAhead)
-        {
-          if(enemyLocation.enemyDistance < util::square(3072_len))
-          {
-            require(2_as);
-            goal(1_as);
-          }
-        }
+          goal(1_as, 4_as);
+        else if(enemyLocation.enemyAhead && enemyLocation.enemyDistance < util::square(3072_len))
+          goal(1_as, 2_as);
       }
       break;
     case 4:
