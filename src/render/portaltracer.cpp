@@ -26,11 +26,13 @@ std::optional<PortalTracer::CullBox> PortalTracer::narrowCullBox(const PortalTra
     return glm::vec3{tmp} / tmp.w;
   };
 
-  const auto toScreen = [&camera](const glm::vec3& v)
+  const auto toScreen = [&camera](const glm::vec3& v) -> std::optional<glm::vec2>
   {
     const auto tmp = camera.getCamera()->getProjectionMatrix() * glm::vec4{v, 1.0f};
-    BOOST_ASSERT(tmp.w > std::numeric_limits<float>::epsilon());
-    return glm::vec2{tmp} / tmp.w;
+    if(tmp.w > std::numeric_limits<float>::epsilon())
+      return glm::vec2{tmp} / tmp.w;
+    else
+      return std::nullopt;
   };
 
   // 1. determine the screen cull box of the current portal
@@ -51,11 +53,16 @@ std::optional<PortalTracer::CullBox> PortalTracer::narrowCullBox(const PortalTra
     }
 
     const auto screen = toScreen(camSpace);
+    if(!screen.has_value())
+    {
+      // if calculation fails because of numerical issues, just don't do anything
+      return parentCullBox;
+    }
 
-    portalCullBox.min.x = std::min(portalCullBox.min.x, screen.x);
-    portalCullBox.min.y = std::min(portalCullBox.min.y, screen.y);
-    portalCullBox.max.x = std::max(portalCullBox.max.x, screen.x);
-    portalCullBox.max.y = std::max(portalCullBox.max.y, screen.y);
+    portalCullBox.min.x = std::min(portalCullBox.min.x, screen->x);
+    portalCullBox.min.y = std::min(portalCullBox.min.y, screen->y);
+    portalCullBox.max.x = std::max(portalCullBox.max.x, screen->x);
+    portalCullBox.max.y = std::max(portalCullBox.max.y, screen->y);
 
     // the first vertex must set the cull box to a valid state
     BOOST_ASSERT(portalCullBox.min.x <= portalCullBox.max.x);
