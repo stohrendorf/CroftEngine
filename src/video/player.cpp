@@ -7,6 +7,7 @@
 #include <gl/texturehandle.h>
 #include <optional>
 #include <soloud.h>
+#include <thread>
 
 extern "C"
 {
