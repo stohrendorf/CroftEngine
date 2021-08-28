@@ -13,7 +13,8 @@ namespace engine::objects
 class SpriteObject : public Object
 {
 private:
-  std::shared_ptr<render::scene::Node> m_node;
+  std::shared_ptr<render::scene::Node> m_objectNode;
+  std::shared_ptr<render::scene::Node> m_displayNode;
   const world::Sprite* m_sprite = nullptr;
   core::Brightness m_brightness{0.5f};
 
@@ -37,9 +38,9 @@ public:
 
   ~SpriteObject() override
   {
-    if(m_node != nullptr)
+    if(m_objectNode != nullptr)
     {
-      setParent(m_node, nullptr);
+      setParent(m_objectNode, nullptr);
     }
   }
 
@@ -50,7 +51,7 @@ public:
 
   std::shared_ptr<render::scene::Node> getNode() const override
   {
-    return m_node;
+    return m_objectNode;
   }
 
   void update() override
