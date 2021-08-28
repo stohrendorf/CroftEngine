@@ -2,6 +2,7 @@
 
 #include "audio/soundengine.h"
 
+#include <atomic>
 #include <gl/texture2d.h>
 #include <gl/texturehandle.h>
 #include <optional>
@@ -212,6 +213,7 @@ struct AVDecoder final : public SoLoud::AudioSource
 
     unsigned int getAudio(float* buffer, unsigned int framesToRead, unsigned int /*aBufferSize*/) override
     {
+      Expects(m_decoder->audioStream->context->channels >= 0);
       m_decoder->fillQueues();
 
       size_t written = 0;
@@ -229,7 +231,7 @@ struct AVDecoder final : public SoLoud::AudioSource
           {
             // deinterlace
             BOOST_ASSERT(srcPtr != src.cend());
-            buffer[c * stride] = *srcPtr++;
+            buffer[gsl::narrow_cast<size_t>(c * stride)] = *srcPtr++;
           }
           BOOST_ASSERT(framesToRead > 0);
           --framesToRead;
@@ -237,7 +239,11 @@ struct AVDecoder final : public SoLoud::AudioSource
           ++buffer;
         }
 
-        src.erase(src.begin(), std::next(src.begin(), m_decoder->audioStream->context->channels * frames));
+        src.erase(src.begin(),
+                  std::next(src.begin(),
+                            gsl::narrow_cast<std::remove_reference_t<decltype(src)>::difference_type>(
+                              m_decoder->audioStream->context->channels)
+                              * frames));
         if(src.empty())
         {
           m_decoder->audioQueue.pop();
@@ -246,7 +252,7 @@ struct AVDecoder final : public SoLoud::AudioSource
 
       for(int c = 0; c < m_decoder->audioStream->context->channels; ++c)
       {
-        std::fill_n(&buffer[c * stride], framesToRead, 0.0f);
+        std::fill_n(&buffer[gsl::narrow_cast<size_t>(c * stride)], framesToRead, 0.0f);
       }
       buffer += framesToRead;
       written += framesToRead;
@@ -303,9 +309,11 @@ struct AVDecoder final : public SoLoud::AudioSource
     Expects(audioStream->context->channels == 1 || audioStream->context->channels == 2);
 
     swrContext = swr_alloc_set_opts(nullptr,
+                                    // NOLINTNEXTLINE(hicpp-signed-bitwise)
                                     audioStream->context->channels == 1 ? AV_CH_LAYOUT_MONO : AV_CH_LAYOUT_STEREO,
                                     AV_SAMPLE_FMT_FLT,
                                     audioStream->context->sample_rate,
+                                    // NOLINTNEXTLINE(hicpp-signed-bitwise)
                                     audioStream->context->channels == 1 ? AV_CH_LAYOUT_MONO : AV_CH_LAYOUT_STEREO,
                                     audioStream->context->sample_fmt,
                                     audioStream->context->sample_rate,
@@ -359,6 +367,7 @@ struct AVDecoder final : public SoLoud::AudioSource
         break;
       }
     }
+    // NOLINTNEXTLINE(hicpp-signed-bitwise)
     if(err != 0 && err != AVERROR_EOF)
     {
       BOOST_LOG_TRIVIAL(warning) << "fillQueues done: " << getAvError(err) << "; audio=" << audioQueue.size()
@@ -374,18 +383,6 @@ struct AVDecoder final : public SoLoud::AudioSource
 
   std::optional<AVFramePtr> takeFrame()
   {
-    {
-      std::unique_lock lock{imgQueueMutex};
-      if(imgQueue.empty())
-        return std::nullopt;
-
-      const auto& tb = videoStream->stream->time_base;
-      const auto audioTs = static_cast<double>(totalAudioFrames) / audioFrameSize;
-      const auto videoTs = static_cast<double>(imgQueue.front().frame->best_effort_timestamp) * tb.num / tb.den;
-      if(audioTs < videoTs)
-        return std::nullopt;
-    }
-
     std::unique_lock lock{imgQueueMutex};
     while(!frameReady)
       frameReadyCondition.wait(lock);
@@ -396,6 +393,13 @@ struct AVDecoder final : public SoLoud::AudioSource
     {
       img = std::move(imgQueue.front());
       imgQueue.pop();
+      const auto& tb = videoStream->stream->time_base;
+      const auto audioTs = static_cast<double>(totalAudioFrames) / static_cast<double>(audioFrameSize);
+      const auto videoTs = static_cast<double>(img->frame->pts) * tb.num / tb.den;
+      lock.unlock();
+      if(audioTs < videoTs)
+        std::this_thread::sleep_for(std::chrono::milliseconds{gsl::narrow_cast<int>((videoTs - audioTs) * 1000)});
+      lock.lock();
     }
 
     stopped = imgQueue.empty() && audioQueue.empty();
@@ -420,6 +424,7 @@ struct AVDecoder final : public SoLoud::AudioSource
           BOOST_LOG_TRIVIAL(error) << "Frames still present in video decoder";
         else if(sendPacketErr == AVERROR(ENOMEM))
           BOOST_LOG_TRIVIAL(error) << "Failed to add packet to video decoder queue";
+        // NOLINTNEXTLINE(hicpp-signed-bitwise)
         else if(sendPacketErr == AVERROR_EOF)
           BOOST_LOG_TRIVIAL(error) << "Video decoder already flushed";
 
@@ -443,6 +448,7 @@ struct AVDecoder final : public SoLoud::AudioSource
       {
         AVFramePtr filteredFrame;
         const auto ret = av_buffersink_get_frame(filterGraph.output, filteredFrame.frame);
+        // NOLINTNEXTLINE(hicpp-signed-bitwise)
         if(ret == AVERROR(EAGAIN) || ret == AVERROR_EOF)
           break;
         if(ret < 0)
@@ -474,6 +480,7 @@ struct AVDecoder final : public SoLoud::AudioSource
           BOOST_LOG_TRIVIAL(error) << "Frames still present in audio decoder";
         else if(err == AVERROR(ENOMEM))
           BOOST_LOG_TRIVIAL(error) << "Failed to add packet to audio decoder queue";
+        // NOLINTNEXTLINE(hicpp-signed-bitwise)
         else if(err == AVERROR_EOF)
           BOOST_LOG_TRIVIAL(error) << "Audio decoder already flushed";
 
@@ -492,22 +499,23 @@ struct AVDecoder final : public SoLoud::AudioSource
         BOOST_THROW_EXCEPTION(std::runtime_error("Failed to receive resampled audio data"));
       }
 
-      std::vector<float> audio(outSamples * 2, 0);
-      auto* audioData = reinterpret_cast<uint8_t*>(audio.data()); // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
+      std::vector<float> audio(gsl::narrow_cast<size_t>(outSamples) * 2u, 0);
+      // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+      auto* audioData = reinterpret_cast<uint8_t*>(audio.data());
 
-      const auto framesDecoded = swr_convert(
-        swrContext,
-        &audioData,
-        outSamples,
-        const_cast<const uint8_t**>(audioFrame.frame->data), // NOLINT(cppcoreguidelines-pro-type-const-cast)
-        audioFrame.frame->nb_samples);
+      const auto framesDecoded = swr_convert(swrContext,
+                                             &audioData,
+                                             outSamples,
+                                             // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
+                                             const_cast<const uint8_t**>(audioFrame.frame->data),
+                                             audioFrame.frame->nb_samples);
       if(framesDecoded < 0)
       {
         BOOST_THROW_EXCEPTION(std::runtime_error("Error while converting"));
       }
 
       // cppcheck-suppress invalidFunctionArg
-      audio.resize(framesDecoded * 2);
+      audio.resize(gsl::narrow_cast<size_t>(framesDecoded) * 2u);
 
       audioQueue.push(std::move(audio));
     }
@@ -529,7 +537,7 @@ struct AVDecoder final : public SoLoud::AudioSource
 
   size_t audioFrameSize = 0;
   size_t audioFrameOffset = 0;
-  size_t totalAudioFrames = 0;
+  std::atomic<size_t> totalAudioFrames = 0;
 
   SoLoud::AudioSourceInstance* createInstance() override
   {
@@ -541,14 +549,24 @@ struct Converter
 {
   static constexpr auto OutputPixFmt = AV_PIX_FMT_RGBA;
 
-  SwsContext* context = nullptr;
   AVFilterLink* filter;
+  SwsContext* context;
   std::array<uint8_t*, 4> dstVideoData{nullptr};
   std::array<int, 4> dstVideoLinesize{0};
   std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>> textureHandle{nullptr};
 
   explicit Converter(AVFilterLink* filter)
       : filter{filter}
+      , context{sws_getContext(filter->w,
+                               filter->h,
+                               static_cast<AVPixelFormat>(filter->format),
+                               filter->w,
+                               filter->h,
+                               OutputPixFmt,
+                               SWS_FAST_BILINEAR,
+                               nullptr,
+                               nullptr,
+                               nullptr)}
   {
     auto texture = std::make_shared<gl::Texture2D<gl::SRGBA8>>(glm::ivec2{filter->w, filter->h}, "video");
     auto sampler = std::make_unique<gl::Sampler>("video");
@@ -556,16 +574,6 @@ struct Converter
     textureHandle
       = std::make_shared<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>>(std::move(texture), std::move(sampler));
 
-    context = sws_getContext(filter->w,
-                             filter->h,
-                             static_cast<AVPixelFormat>(filter->format),
-                             filter->w,
-                             filter->h,
-                             OutputPixFmt,
-                             SWS_FAST_BILINEAR,
-                             nullptr,
-                             nullptr,
-                             nullptr);
     if(context == nullptr)
     {
       BOOST_THROW_EXCEPTION(std::runtime_error("Failed to create SWS context"));
@@ -596,11 +604,10 @@ struct Converter
               dstVideoLinesize.data());
 
     std::vector<gl::SRGBA8> dstData;
-    dstData.resize(filter->w * filter->h, {0, 0, 0, 255});
+    dstData.resize(gsl::narrow_cast<size_t>(filter->w * filter->h), {0, 0, 0, 255});
 
-    std::copy_n(reinterpret_cast<gl::SRGBA8*>(dstVideoData[0]), // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
-                filter->w * filter->h,
-                dstData.data());
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+    std::copy_n(reinterpret_cast<gl::SRGBA8*>(dstVideoData[0]), filter->w * filter->h, dstData.data());
 
     textureHandle->getTexture()->assign(dstData.data());
   }
