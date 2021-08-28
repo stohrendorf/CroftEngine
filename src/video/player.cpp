@@ -251,6 +251,8 @@ struct AVDecoder final : public SoLoud::AudioSource
       buffer += framesToRead;
       written += framesToRead;
 
+      m_decoder->totalAudioFrames += written;
+
       m_decoder->audioFrameOffset += written;
       Expects(m_decoder->audioFrameSize > 0);
       while(m_decoder->audioFrameOffset >= m_decoder->audioFrameSize)
@@ -370,8 +372,20 @@ struct AVDecoder final : public SoLoud::AudioSource
   std::condition_variable frameReadyCondition;
   bool frameReady = false;
 
-  auto takeFrame()
+  std::optional<AVFramePtr> takeFrame()
   {
+    {
+      std::unique_lock lock{imgQueueMutex};
+      if(imgQueue.empty())
+        return std::nullopt;
+
+      const auto& tb = videoStream->stream->time_base;
+      const auto audioTs = static_cast<double>(totalAudioFrames) / audioFrameSize;
+      const auto videoTs = static_cast<double>(imgQueue.front().frame->best_effort_timestamp) * tb.num / tb.den;
+      if(audioTs < videoTs)
+        return std::nullopt;
+    }
+
     std::unique_lock lock{imgQueueMutex};
     while(!frameReady)
       frameReadyCondition.wait(lock);
@@ -389,7 +403,7 @@ struct AVDecoder final : public SoLoud::AudioSource
     return img;
   }
 
-  static constexpr size_t QueueLimit = 30;
+  static constexpr size_t QueueLimit = 60;
 
   void decodeVideoPacket()
   {
@@ -515,6 +529,7 @@ struct AVDecoder final : public SoLoud::AudioSource
 
   size_t audioFrameSize = 0;
   size_t audioFrameOffset = 0;
+  size_t totalAudioFrames = 0;
 
   SoLoud::AudioSourceInstance* createInstance() override
   {
@@ -603,6 +618,7 @@ void play(const std::filesystem::path& filename,
   const auto decoder = decoderPtr.get();
   Expects(decoder->filterGraph.graph->sink_links_count == 1);
   Converter converter{decoder->filterGraph.graph->sink_links[0]};
+  decoderPtr->fillQueues();
 
   const auto handle = soLoud.play(*decoderPtr);
 
