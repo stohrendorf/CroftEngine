@@ -49,7 +49,6 @@ std::optional<PortalTracer::CullBox> PortalTracer::narrowCullBox(const PortalTra
     else if(-camSpace.z >= camera.getCamera()->getFarPlane())
     {
       ++tooFar;
-      continue;
     }
 
     const auto screen = toScreen(camSpace);
