@@ -90,6 +90,16 @@ public:
     m_viewport = viewport;
   }
 
+  void setScissorTest(bool enabled)
+  {
+    m_scissorTest = enabled;
+  }
+
+  void setScissorRegion(const glm::vec2& xy, const glm::vec2& size)
+  {
+    m_scissorRegion = {xy, size};
+  }
+
   void setProgram(const uint32_t program)
   {
     m_program = program;
@@ -124,5 +134,7 @@ private:
   std::optional<api::FrontFaceDirection> m_frontFace{};
   std::optional<float> m_lineWidth{};
   std::optional<bool> m_lineSmooth{};
+  std::optional<bool> m_scissorTest{};
+  std::optional<std::tuple<glm::vec2, glm::vec2>> m_scissorRegion{};
 };
 } // namespace gl

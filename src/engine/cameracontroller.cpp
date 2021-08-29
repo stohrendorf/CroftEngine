@@ -378,7 +378,10 @@ void CameraController::handleCommandSequence(const floordata::FloorDataValue* cm
 std::unordered_set<const world::Portal*> CameraController::tracePortals()
 {
   for(const auto& room : m_world->getRooms())
+  {
     room.node->setVisible(false);
+    room.node->clearScissors();
+  }
 
   return render::PortalTracer::trace(*m_location.room, *m_world);
 }

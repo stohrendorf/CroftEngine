@@ -38,13 +38,9 @@ void RenderState::apply(const bool force) const
   if(RS_CHANGED(m_blendEnabled))
   {
     if(m_blendEnabled.value())
-    {
       GL_ASSERT(api::enable(api::EnableCap::Blend));
-    }
     else
-    {
       GL_ASSERT(api::disable(api::EnableCap::Blend));
-    }
     getCurrentState().m_blendEnabled = m_blendEnabled;
   }
   if(RS_CHANGED(m_blendFactors))
@@ -56,13 +52,9 @@ void RenderState::apply(const bool force) const
   if(RS_CHANGED(m_cullFaceEnabled))
   {
     if(m_cullFaceEnabled.value())
-    {
       GL_ASSERT(api::enable(api::EnableCap::CullFace));
-    }
     else
-    {
       GL_ASSERT(api::disable(api::EnableCap::CullFace));
-    }
     getCurrentState().m_cullFaceEnabled = m_cullFaceEnabled;
   }
   if(RS_CHANGED(m_cullFaceSide))
@@ -83,25 +75,17 @@ void RenderState::apply(const bool force) const
   if(RS_CHANGED(m_lineSmooth))
   {
     if(m_lineSmooth.value())
-    {
       GL_ASSERT(api::enable(api::EnableCap::LineSmooth));
-    }
     else
-    {
       GL_ASSERT(api::disable(api::EnableCap::LineSmooth));
-    }
     getCurrentState().m_lineSmooth = m_lineSmooth;
   }
   if(RS_CHANGED(m_depthTestEnabled))
   {
     if(m_depthTestEnabled.value())
-    {
       GL_ASSERT(api::enable(api::EnableCap::DepthTest));
-    }
     else
-    {
       GL_ASSERT(api::disable(api::EnableCap::DepthTest));
-    }
     getCurrentState().m_depthTestEnabled = m_depthTestEnabled;
   }
   if(RS_CHANGED(m_depthWriteEnabled))
@@ -112,19 +96,35 @@ void RenderState::apply(const bool force) const
   if(RS_CHANGED(m_depthClampEnabled))
   {
     if(m_depthClampEnabled.value())
-    {
       GL_ASSERT(api::enable(api::EnableCap::DepthClamp));
-    }
     else
-    {
       GL_ASSERT(api::disable(api::EnableCap::DepthClamp));
-    }
     getCurrentState().m_depthClampEnabled = m_depthClampEnabled;
   }
   if(RS_CHANGED(m_depthFunction))
   {
     GL_ASSERT(api::depthFunc(m_depthFunction.value()));
     getCurrentState().m_depthFunction = m_depthFunction;
+  }
+  if(RS_CHANGED(m_scissorTest))
+  {
+    if(m_scissorTest.value())
+      GL_ASSERT(api::enable(api::EnableCap::ScissorTest));
+    else
+      GL_ASSERT(api::disable(api::EnableCap::ScissorTest));
+    getCurrentState().m_scissorTest = m_scissorTest;
+  }
+  if(RS_CHANGED(m_scissorRegion) && getCurrentState().m_viewport.has_value())
+  {
+    const auto vp = glm::vec2{*getCurrentState().m_viewport};
+    const auto& [xy, size] = *m_scissorRegion;
+    const auto screenXy = glm::floor(vp * (xy + glm::vec2{1, 1}) * 0.5f);
+    const auto screenSize = glm::ceil(vp * size * 0.5f);
+    GL_ASSERT(api::scissor(gsl::narrow_cast<int32_t>(screenXy.x),
+                           gsl::narrow_cast<int32_t>(screenXy.y),
+                           gsl::narrow_cast<api::core::SizeType>(screenSize.x),
+                           gsl::narrow_cast<api::core::SizeType>(screenSize.y)));
+    getCurrentState().m_scissorRegion = m_scissorRegion;
   }
 #undef RS_CHANGED
 }
@@ -145,6 +145,8 @@ void RenderState::merge(const RenderState& other)
   MERGE_OPT(m_frontFace);
   MERGE_OPT(m_lineWidth);
   MERGE_OPT(m_lineSmooth);
+  MERGE_OPT(m_scissorTest);
+  MERGE_OPT(m_scissorRegion);
 #undef MERGE_OPT
 }
 
@@ -178,6 +180,8 @@ RenderState RenderState::getDefaults()
     defaults.setFrontFace(api::FrontFaceDirection::Cw);
     defaults.setLineWidth(1.0f);
     defaults.setLineSmooth(true);
+    defaults.setScissorTest(false);
+    defaults.setScissorRegion({0, 0}, {0, 0});
   }
   return defaults;
 }

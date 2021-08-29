@@ -154,6 +154,7 @@ bool PortalTracer::traceRoom(const engine::world::Room& room,
     {
       const auto& childRoom = portal.adjoiningRoom;
       const bool waterChanged = inWater == startFromWater && childRoom->isWaterRoom != startFromWater;
+      childRoom->node->addScissor(narrowedCullBox->min, narrowedCullBox->max - narrowedCullBox->min);
       if(traceRoom(*childRoom,
                    *narrowedCullBox,
                    world,

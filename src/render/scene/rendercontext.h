@@ -60,6 +60,12 @@ public:
     return m_viewProjection;
   }
 
+  [[nodiscard]] const auto& getCurrentState() const
+  {
+    Expects(!m_renderStates.empty());
+    return m_renderStates.top();
+  }
+
 private:
   Node m_dummyNode{""};
   Node* m_currentNode;

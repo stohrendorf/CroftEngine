@@ -152,6 +152,41 @@ public:
       setParent(node, nullptr);
   }
 
+  void clearScissors()
+  {
+    m_scissors.clear();
+  }
+
+  void addScissor(const glm::vec2& xy, const glm::vec2& size)
+  {
+    m_scissors.emplace_back(xy, size);
+  }
+
+  std::tuple<glm::vec2, glm::vec2> getCombinedScissors() const
+  {
+    if(m_scissors.empty())
+    {
+      if(const auto p = m_parent.lock())
+        return p->getCombinedScissors();
+      else
+        return {{-1, -1}, {2, 2}};
+    }
+    glm::vec2 min{1, 1};
+    glm::vec2 max{-1, -1};
+    for(const auto& [xy, size] : m_scissors)
+    {
+      min = glm::min(min, xy);
+      max = glm::max(max, xy + size);
+    }
+    if(const auto p = m_parent.lock())
+    {
+      const auto [pXy, pSize] = p->getCombinedScissors();
+      min = glm::max(min, pXy);
+      max = glm::min(max, pXy + pSize);
+    }
+    return {min, max - min};
+  }
+
 private:
   void transformChanged();
 
@@ -166,6 +201,8 @@ private:
   mutable bool m_bufferDirty = true;
   mutable Transform m_transform{};
   mutable gl::UniformBuffer<Transform> m_transformBuffer;
+
+  std::vector<std::tuple<glm::vec2, glm::vec2>> m_scissors;
 
   friend void setParent(gsl::not_null<std::shared_ptr<Node>> node, const std::shared_ptr<Node>& newParent);
   friend void setParent(Node* node, const std::shared_ptr<Node>& newParent);

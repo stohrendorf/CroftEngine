@@ -146,7 +146,13 @@ void Presenter::renderWorld(const ObjectManager& objectManager,
 
         SOGLB_DEBUGGROUP(room.node->getName());
         context.setCurrentNode(room.node.get());
+        auto state = context.getCurrentState();
+        state.setScissorTest(true);
+        const auto [xy, size] = room.node->getCombinedScissors();
+        state.setScissorRegion(xy, size);
+        context.pushState(state);
         room.node->getRenderable()->render(context);
+        context.popState();
       }
       if constexpr(render::pass::FlushPasses)
         GL_ASSERT(gl::api::finish());
