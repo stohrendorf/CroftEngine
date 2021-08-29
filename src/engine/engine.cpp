@@ -242,6 +242,16 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
           return {RunResult::RequestLoad, menu->requestLoad};
         }
       }
+
+      if(m_presenter->getInputHandler().hasDebouncedAction(hid::Action::Load))
+      {
+        if(getSavegameMeta(std::nullopt).has_value())
+        {
+          updateTimeSpent();
+          return {RunResult::RequestLoad, std::nullopt};
+        }
+      }
+
       continue;
     }
 
