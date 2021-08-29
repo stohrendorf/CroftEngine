@@ -18,7 +18,7 @@
 
 namespace menu
 {
-std::unique_ptr<MenuState> SelectedMenuState::onFrame(ui::Ui& /*ui*/, engine::world::World& world, MenuDisplay& display)
+std::unique_ptr<MenuState> SelectedMenuState::onFrame(ui::Ui& ui, engine::world::World& world, MenuDisplay& display)
 {
   auto& currentObject = display.getCurrentRing().getSelectedObject();
   if(currentObject.type == engine::TR1ItemId::PassportClosed)
@@ -70,6 +70,11 @@ std::unique_ptr<MenuState> SelectedMenuState::onFrame(ui::Ui& /*ui*/, engine::wo
         create<DeflateRingMenuState>(DeflateRingMenuState::Direction::Backpack, create<DoneMenuState>(result))));
     }
   }
+
+  if(m_itemTitle == nullptr)
+    m_itemTitle = std::make_unique<ui::Text>(currentObject.name);
+  const auto& vp = world.getPresenter().getViewport();
+  m_itemTitle->draw(ui, world.getPresenter().getTrFont(), {(vp.x - m_itemTitle->getWidth()) / 2, vp.y - 16});
 
   return nullptr;
 }
