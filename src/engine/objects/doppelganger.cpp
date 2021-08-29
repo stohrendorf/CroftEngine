@@ -29,7 +29,7 @@ void Doppelganger::update()
     m_state.health = core::LaraHealth;
   }
 
-  if(!m_falling)
+  if(!m_killed)
   {
     m_state.location = lara.m_state.location;
     m_state.location.position = core::TRVec{72 * core::SectorSize - m_state.location.position.X,
@@ -49,7 +49,7 @@ void Doppelganger::update()
 
     if(laraHeight + core::SectorSize <= m_state.floor && !lara.m_state.falling)
     {
-      m_falling = true;
+      m_killed = true;
 
       getSkeleton()->setAnimation(m_state.current_anim_state,
                                   &getWorld()
@@ -65,7 +65,7 @@ void Doppelganger::update()
     }
   }
 
-  if(m_falling)
+  if(m_killed)
   {
     ModelObject::update();
     const auto sector = m_state.location.moved({}).updateRoom();
@@ -96,6 +96,6 @@ void Doppelganger::update()
 void Doppelganger::serialize(const serialization::Serializer<world::World>& ser)
 {
   ModelObject::serialize(ser);
-  ser(S_NV("falling", m_falling));
+  ser(S_NV("killed", m_killed));
 }
 } // namespace engine::objects

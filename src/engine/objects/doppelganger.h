@@ -24,6 +24,6 @@ public:
   void serialize(const serialization::Serializer<world::World>& ser) override;
 
 private:
-  bool m_falling = false;
+  bool m_killed = false;
 };
 } // namespace engine::objects
