@@ -33,8 +33,6 @@ if( CMAKE_CXX_CPPCHECK )
 endif()
 
 if( MSVC )
-    include( dl_unpack )
-    add_definitions( -D_CRT_SECURE_NO_WARNINGS )
     # C4201: anonymous structs/unions
     set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4 /MP /wd4201 /experimental:external /external:W0 /external:templates-" )
 

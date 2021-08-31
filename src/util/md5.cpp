@@ -341,13 +341,17 @@ struct State
 
     std::array<char, 33> buf{};
     buf.fill('\0');
-    for(int i = 0; i < 16; i++)
+    for(size_t i = 0; i < 16; i++)
     {
+#ifdef WIN32
+      Expects(sprintf_s(buf.data() + i * 2, 3, "%02X", digest[i]) == 2);
+#else
       sprintf(buf.data() + i * 2, "%02X", digest[i]);
+#endif
     }
     buf[32] = 0;
 
-    return std::string(buf.data());
+    return buf.data();
   }
 };
 

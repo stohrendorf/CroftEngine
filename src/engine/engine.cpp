@@ -82,9 +82,9 @@ Engine::Engine(const std::filesystem::path& rootPath, const glm::ivec2& resoluti
   BOOST_LOG_TRIVIAL(info) << "Using locales from " << poDir;
 #ifdef WIN32
   char cPath[512];
-  wcstombs(cPath, poDir.c_str(), 512);
+  Expects(wcstombs_s(nullptr, cPath, poDir.c_str(), 512) == 0);
   bindtextdomain("edisonengine", cPath);
-  Expects(putenv(("LANG=" + m_language).c_str()) == 0);
+  Expects(_putenv_s("LANG", m_language.c_str()) == 0);
 #else
   bindtextdomain("edisonengine", poDir.c_str());
   Expects(setenv("LANG", m_language.c_str(), true) == 0);
@@ -331,7 +331,15 @@ void Engine::makeScreenshot()
     std::filesystem::create_directories(m_rootPath / "screenshots");
 
   auto time = std::time(nullptr);
+#ifdef WIN32
+  struct tm localTimeData
+  {
+  };
+  Expects(localtime_s(&localTimeData, &time) == 0);
+  auto localTime = &localTimeData;
+#else
   auto localTime = std::localtime(&time);
+#endif
   auto filename = boost::format("%04d-%02d-%02d %02d-%02d-%02d.png") % (localTime->tm_year + 1900)
                   % (localTime->tm_mon + 1) % localTime->tm_mday % localTime->tm_hour % localTime->tm_min
                   % localTime->tm_sec;
