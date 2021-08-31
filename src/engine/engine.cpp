@@ -311,7 +311,7 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
     }
     else
     {
-      if(!world.cinematicLoop())
+      if(m_presenter->getInputHandler().hasDebouncedAction(hid::Action::Menu) || !world.cinematicLoop())
         return {RunResult::NextLevel, std::nullopt};
     }
 
