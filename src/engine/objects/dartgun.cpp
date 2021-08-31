@@ -37,7 +37,7 @@ void engine::objects::DartGun::update()
   default: break;
   }
 
-  auto dart = getWorld().createObject<Dart>(
+  auto dart = getWorld().createDynamicObject<Dart>(
     TR1ItemId::Dart, m_state.location.room, m_state.rotation.Y, m_state.location.position - d, 0);
   dart->activate();
   auto& dartState = dart->m_state;

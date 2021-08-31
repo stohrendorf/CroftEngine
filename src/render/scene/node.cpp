@@ -40,33 +40,29 @@ void Node::accept(Visitor& visitor)
 {
   SOGLB_DEBUGGROUP(getName());
 
-  const auto renderOnce = [this, &visitor]()
-  {
-    if(m_renderable != nullptr)
-    {
-      visitor.getContext().setCurrentNode(this);
-      [[maybe_unused]] const bool rendered = m_renderable->render(visitor.getContext());
-      if constexpr(Visitor::FlushAfterEachRender)
-      {
-        if(rendered)
-        {
-          GL_ASSERT(gl::api::finish());
-        }
-      }
-    }
-
-    for(const auto& node : m_children)
-    {
-      visitor.visit(*node);
-    }
-  };
-
   auto state = visitor.getContext().getCurrentState();
   state.setScissorTest(true);
   const auto [xy, size] = getCombinedScissors();
   state.setScissorRegion(xy, size);
   visitor.getContext().pushState(state);
-  renderOnce();
+
+  visitor.getContext().setCurrentNode(this);
+  if(m_renderable != nullptr)
+  {
+    [[maybe_unused]] const bool rendered = m_renderable->render(visitor.getContext());
+    if constexpr(Visitor::FlushAfterEachRender)
+    {
+      if(rendered)
+      {
+        GL_ASSERT(gl::api::finish());
+      }
+    }
+  }
+
+  for(const auto& node : m_children)
+  {
+    visitor.visit(*node);
+  }
   visitor.getContext().popState();
 
   visitor.getContext().setCurrentNode(nullptr);

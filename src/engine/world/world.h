@@ -129,11 +129,11 @@ public:
   }
 
   template<typename T>
-  std::shared_ptr<T> createObject(const core::TypeId& type,
-                                  const gsl::not_null<const Room*>& room,
-                                  const core::Angle& angle,
-                                  const core::TRVec& position,
-                                  const uint16_t activationState)
+  std::shared_ptr<T> createDynamicObject(const core::TypeId& type,
+                                         const gsl::not_null<const Room*>& room,
+                                         const core::Angle& angle,
+                                         const core::TRVec& position,
+                                         const uint16_t activationState)
   {
     const auto& model = findAnimatedModelForType(type);
     if(model == nullptr)
@@ -161,7 +161,7 @@ public:
   }
 
   template<typename T>
-  std::shared_ptr<T> createObject(const Location& location)
+  std::shared_ptr<T> createDynamicObject(const Location& location)
   {
     auto object = std::make_shared<T>(this, location);
 

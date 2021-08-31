@@ -79,9 +79,7 @@ public:
          bool hasUpdateFunction);
 
   Object(const Object&) = delete;
-
   Object& operator=(const Object&) = delete;
-
   Object& operator=(Object&&) = delete;
 
   virtual ~Object() = default;

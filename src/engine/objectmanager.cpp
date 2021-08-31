@@ -105,19 +105,19 @@ void ObjectManager::update(world::World& world, bool godMode)
     if(object.get() == m_lara) // Lara is special and needs to be updated last
       continue;
 
-    object->updateLighting();
     if(object->m_isActive)
       object->update();
 
+    object->updateLighting();
     object->getNode()->setVisible(object->m_state.triggerState != objects::TriggerState::Invisible);
   }
 
   for(const auto& object : m_dynamicObjects)
   {
-    object->updateLighting();
     if(object->m_isActive)
       object->update();
 
+    object->updateLighting();
     object->getNode()->setVisible(object->m_state.triggerState != objects::TriggerState::Invisible);
   }
 
