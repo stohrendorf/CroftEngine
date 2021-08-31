@@ -41,12 +41,16 @@ public:
       self->m_where = offset;
       break;
     case SEEK_CUR:
-      BOOST_ASSERT(self->m_where + offset <= self->m_dataSize && self->m_where + offset >= 0);
-      self->m_where += offset;
+      if(offset < 0 && -offset > self->m_dataSize)
+        self->m_where = 0;
+      else
+        self->m_where = std::min(self->m_where + offset, self->m_dataSize);
       break;
     case SEEK_END:
-      BOOST_ASSERT(offset >= 0 && offset <= self->m_dataSize);
-      self->m_where = self->m_dataSize - offset;
+      if(offset > 0 && offset > self->m_dataSize)
+        self->m_where = 0;
+      else
+        self->m_where = std::min(self->m_dataSize - offset, self->m_dataSize);
       break;
     default: BOOST_ASSERT(false);
     }
