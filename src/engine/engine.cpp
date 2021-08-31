@@ -270,7 +270,8 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
         }
       }
 
-      if(m_presenter->getInputHandler().hasDebouncedAction(hid::Action::Menu))
+      if(world.getCameraController().getMode() != CameraMode::Cinematic
+         && m_presenter->getInputHandler().hasDebouncedAction(hid::Action::Menu))
       {
         updateTimeSpent();
         menu = std::make_shared<menu::MenuDisplay>(menu::InventoryMode::GameMode, world);
