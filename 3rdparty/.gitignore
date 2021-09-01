@@ -8,3 +8,5 @@
 *.zip
 *.tar.gz
 *.tar.xz
+
+!*.patch

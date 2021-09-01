@@ -8,7 +8,7 @@ set( _gsl_lite_version "0.38.1" )
 dl_unpack(
         URL https://github.com/gsl-lite/gsl-lite/archive/refs/tags/v${_gsl_lite_version}.tar.gz
         FILENAME gsl-lite-v${_gsl_lite_version}.tar.gz
-        TEST gsl-lite-${_gsl_lite_version}
+        TEST_DIR gsl-lite-${_gsl_lite_version}
 )
 
 add_library( gsl-lite::gsl-lite INTERFACE IMPORTED )

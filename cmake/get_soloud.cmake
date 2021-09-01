@@ -9,7 +9,8 @@ set( _soloud_version RELEASE_20200207 )
 dl_unpack(
         URL https://github.com/jarikomppa/soloud/archive/${_soloud_version}.tar.gz
         FILENAME ${_soloud_version}.tar.gz
-        TEST soloud-${_soloud_version}
+        TEST_DIR soloud-${_soloud_version}
+        PATCH soloud-20200207.patch
 )
 
 find_package( Threads REQUIRED )

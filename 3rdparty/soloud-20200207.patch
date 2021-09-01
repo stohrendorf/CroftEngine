@@ -1,0 +1,294 @@
+diff -ur soloud-RELEASE_20200207-orig/include/soloud.h soloud-RELEASE_20200207/include/soloud.h
+--- soloud-RELEASE_20200207-orig/include/soloud.h	2020-02-07 21:56:48.000000000 +0100
++++ soloud-RELEASE_20200207/include/soloud.h	2021-09-01 06:12:31.309423700 +0200
+@@ -40,7 +40,7 @@
+ #define WIN32_LEAN_AND_MEAN
+ #endif
+ #include <windows.h> // only needed for OutputDebugStringA, should be solved somehow.
+-#define SOLOUD_ASSERT(x) if (!(x)) { char temp[200]; sprintf(temp, "%s(%d): assert(%s) failed.\n", __FILE__, __LINE__, #x); OutputDebugStringA(temp); __debugbreak(); }
++#define SOLOUD_ASSERT(x) if (!(x)) { char temp[200]; sprintf_s(temp, "%s(%d): assert(%s) failed.\n", __FILE__, __LINE__, #x); OutputDebugStringA(temp); __debugbreak(); }
+ #else
+ #include <assert.h> // assert
+ #define SOLOUD_ASSERT(x) assert(x)
+diff -ur soloud-RELEASE_20200207-orig/src/backend/xaudio2/soloud_xaudio2.cpp soloud-RELEASE_20200207/src/backend/xaudio2/soloud_xaudio2.cpp
+--- soloud-RELEASE_20200207-orig/src/backend/xaudio2/soloud_xaudio2.cpp	2020-02-07 21:56:48.000000000 +0100
++++ soloud-RELEASE_20200207/src/backend/xaudio2/soloud_xaudio2.cpp	2021-09-01 06:06:52.254615500 +0200
+@@ -74,7 +74,7 @@
+ 
+     private:
+         // Called just before this voice's processing pass begins.
+-        void __stdcall OnVoiceProcessingPassStart(UINT32 aBytesRequired) {}
++        void __stdcall OnVoiceProcessingPassStart(UINT32 /*aBytesRequired*/) {}
+ 
+         // Called just after this voice's processing pass ends.
+         void __stdcall OnVoiceProcessingPassEnd() {}
+@@ -84,24 +84,24 @@
+         void __stdcall OnStreamEnd() {}
+ 
+         // Called when this voice is about to start processing a new buffer.
+-        void __stdcall OnBufferStart(void *aBufferContext) {}
++        void __stdcall OnBufferStart(void */*aBufferContext*/) {}
+ 
+         // Called when this voice has just finished processing a buffer.
+         // The buffer can now be reused or destroyed.
+-        void __stdcall OnBufferEnd(void *aBufferContext) 
++        void __stdcall OnBufferEnd(void */*aBufferContext*/)
+         {
+             SetEvent(mBufferEndEvent);
+         }
+ 
+         // Called when this voice has just reached the end position of a loop.
+-        void __stdcall OnLoopEnd(void *aBufferContext) {}
++        void __stdcall OnLoopEnd(void */*aBufferContext*/) {}
+ 
+         // Called in the event of a critical error during voice processing,
+         // such as a failing xAPO or an error from the hardware XMA decoder.
+         // The voice may have to be destroyed and re-created to recover from
+         // the error.  The callback arguments report which buffer was being
+         // processed when the error occurred, and its HRESULT code.
+-        void __stdcall OnVoiceError(void *aBufferContext, HRESULT aError) {}
++        void __stdcall OnVoiceError(void */*aBufferContext*/, HRESULT /*aError*/) {}
+ 
+         HANDLE mBufferEndEvent;
+     };
+@@ -182,7 +182,7 @@
+         CoUninitialize();
+     }
+ 
+-    result xaudio2_init(Soloud *aSoloud, unsigned int aFlags, unsigned int aSamplerate, unsigned int aBuffer, unsigned int aChannels)
++    result xaudio2_init(Soloud *aSoloud, unsigned int aFlags, unsigned int aSamplerate, unsigned int aBuffer, unsigned int /*aChannels*/)
+     {
+         if (FAILED(CoInitializeEx(0, COINIT_MULTITHREADED)))
+         {
+diff -ur soloud-RELEASE_20200207-orig/src/core/soloud_core_voicegroup.cpp soloud-RELEASE_20200207/src/core/soloud_core_voicegroup.cpp
+--- soloud-RELEASE_20200207-orig/src/core/soloud_core_voicegroup.cpp	2020-02-07 21:56:48.000000000 +0100
++++ soloud-RELEASE_20200207/src/core/soloud_core_voicegroup.cpp	2021-09-01 06:05:25.706644700 +0200
+@@ -39,7 +39,7 @@
+ 		{
+ 			if (mVoiceGroup[i] == NULL)
+ 			{
+-				mVoiceGroup[i] = new unsigned int[16];
++				mVoiceGroup[i] = new unsigned int[17];
+ 				if (mVoiceGroup[i] == NULL)
+ 				{
+ 					unlockAudioMutex_internal();
+@@ -49,7 +49,7 @@
+ 				mVoiceGroup[i][1] = 0;
+ 				unlockAudioMutex_internal();
+ 				return 0xfffff000 | i;
+-			}		
++			}
+ 		}
+ 		if (mVoiceGroupCount == 4096)
+ 		{
+@@ -94,13 +94,13 @@
+ 		return 0xfffff000 | i;
+ 	}
+ 
+-	// Destroy a voice group. 
++	// Destroy a voice group.
+ 	result Soloud::destroyVoiceGroup(handle aVoiceGroupHandle)
+ 	{
+ 		if (!isVoiceGroup(aVoiceGroupHandle))
+ 			return INVALID_PARAMETER;
+ 		int c = aVoiceGroupHandle & 0xfff;
+-		
++
+ 		lockAudioMutex_internal();
+ 		delete[] mVoiceGroup[c];
+ 		mVoiceGroup[c] = NULL;
+@@ -113,13 +113,13 @@
+ 	{
+ 		if (!isVoiceGroup(aVoiceGroupHandle))
+ 			return INVALID_PARAMETER;
+-		
++
+ 		// Don't consider adding invalid voice handles as an error, since the voice may just have ended.
+ 		if (!isValidVoiceHandle(aVoiceHandle))
+ 			return SO_NO_ERROR;
+ 
+ 		trimVoiceGroup_internal(aVoiceGroupHandle);
+-		
++
+ 		int c = aVoiceGroupHandle & 0xfff;
+ 		unsigned int i;
+ 
+@@ -137,12 +137,12 @@
+ 			{
+ 				mVoiceGroup[c][i] = aVoiceHandle;
+ 				mVoiceGroup[c][i + 1] = 0;
+-				
++
+ 				unlockAudioMutex_internal();
+ 				return SO_NO_ERROR;
+ 			}
+ 		}
+-		
++
+ 		// Full group, allocate more memory
+ 		unsigned int * n = new unsigned int[mVoiceGroup[c][0] * 2 + 1];
+ 		if (n == NULL)
+@@ -171,7 +171,7 @@
+ 			return 0;
+ 
+ 		lockAudioMutex_internal();
+-		bool res = mVoiceGroup[c] != NULL;		
++		bool res = mVoiceGroup[c] != NULL;
+ 		unlockAudioMutex_internal();
+ 
+ 		return res;
+@@ -213,12 +213,12 @@
+ 		for (i = 1; i < mVoiceGroup[c][0]; i++)
+ 		{
+ 			// If we hit a voice in the group that's not set, we're done
+-			if (mVoiceGroup[c][i] == 0) 
++			if (mVoiceGroup[c][i] == 0)
+ 			{
+ 				unlockAudioMutex_internal();
+ 				return;
+ 			}
+-			
++
+ 			unlockAudioMutex_internal();
+ 			while (!isValidVoiceHandle(mVoiceGroup[c][i])) // function locks mutex, so we need to unlock it before the call
+ 			{
+diff -ur soloud-RELEASE_20200207-orig/src/core/soloud_filter.cpp soloud-RELEASE_20200207/src/core/soloud_filter.cpp
+--- soloud-RELEASE_20200207-orig/src/core/soloud_filter.cpp	2020-02-07 21:56:48.000000000 +0100
++++ soloud-RELEASE_20200207/src/core/soloud_filter.cpp	2021-09-01 06:07:33.696938700 +0200
+@@ -32,22 +32,22 @@
+ 		return 1; // there's always WET
+ 	}
+ 
+-	const char* Filter::getParamName(unsigned int aParamIndex)
++	const char* Filter::getParamName(unsigned int /*aParamIndex*/)
+ 	{
+ 		return "Wet";
+ 	}
+ 
+-	unsigned int Filter::getParamType(unsigned int aParamIndex)
++	unsigned int Filter::getParamType(unsigned int /*aParamIndex*/)
+ 	{
+ 		return Filter::FLOAT_PARAM;
+ 	}
+-	
+-	float Filter::getParamMax(unsigned int aParamIndex)
++
++	float Filter::getParamMax(unsigned int /*aParamIndex*/)
+ 	{
+ 		return 1;
+ 	}
+ 
+-	float Filter::getParamMin(unsigned int aParamIndex)
++	float Filter::getParamMin(unsigned int /*aParamIndex*/)
+ 	{
+ 		return 0;
+ 	}
+@@ -59,7 +59,7 @@
+ 	Filter::~Filter()
+ 	{
+ 	}
+-	
++
+ 	FilterInstance::FilterInstance()
+ 	{
+ 		mNumParams = 0;
+@@ -69,7 +69,7 @@
+ 	}
+ 
+ 	result FilterInstance::initParams(int aNumParams)
+-	{		
++	{
+ 		mNumParams = aNumParams;
+ 		delete[] mParam;
+ 		delete[] mParamFader;
+diff -ur soloud-RELEASE_20200207-orig/src/core/soloud.cpp soloud-RELEASE_20200207/src/core/soloud.cpp
+--- soloud-RELEASE_20200207-orig/src/core/soloud.cpp	2020-02-07 21:56:48.000000000 +0100
++++ soloud-RELEASE_20200207/src/core/soloud.cpp	2021-09-01 07:40:29.115000000 +0200
+@@ -40,6 +40,10 @@
+
+ //#define FLOATING_POINT_DEBUG
+
++namespace
++{
++float dummyTickBuffer[SAMPLE_GRANULARITY];
++}
+
+ #if !defined(WITH_SDL2) && !defined(WITH_SDL1) && !defined(WITH_PORTAUDIO) && \
+    !defined(WITH_OPENAL) && !defined(WITH_XAUDIO2) && !defined(WITH_WINMM) && \
+@@ -1462,11 +1466,13 @@
+ 						voice->mResampleData[1] = t;
+
+ 						// Get a block of source data
++                                                float* const data0 = voice->mResampleData[0] ? voice->mResampleData[0]->mData : dummyTickBuffer;
++                                                float* const data1 = voice->mResampleData[1] ? voice->mResampleData[1]->mData : dummyTickBuffer;
+
+ 						int readcount = 0;
+ 						if (!voice->hasEnded() || voice->mFlags & AudioSourceInstance::LOOPING)
+ 						{
+-							readcount = voice->getAudio(voice->mResampleData[0]->mData, SAMPLE_GRANULARITY, SAMPLE_GRANULARITY);
++							readcount = voice->getAudio(data0, SAMPLE_GRANULARITY, SAMPLE_GRANULARITY);
+ 							if (readcount < SAMPLE_GRANULARITY)
+ 							{
+ 								if (voice->mFlags & AudioSourceInstance::LOOPING)
+@@ -1474,7 +1480,7 @@
+ 									while (readcount < SAMPLE_GRANULARITY && voice->seek(voice->mLoopPoint, mScratch.mData, mScratchSize) == SO_NO_ERROR)
+ 									{
+ 										voice->mLoopCount++;
+-										int inc = voice->getAudio(voice->mResampleData[0]->mData + readcount, SAMPLE_GRANULARITY - readcount, SAMPLE_GRANULARITY);
++										int inc = voice->getAudio(data0 + readcount, SAMPLE_GRANULARITY - readcount, SAMPLE_GRANULARITY);
+ 										readcount += inc;
+ 										if (inc == 0) break;
+ 									}
+@@ -1487,7 +1493,7 @@
+ 						{
+ 							unsigned int k;
+ 							for (k = 0; k < voice->mChannels; k++)
+-								memset(voice->mResampleData[0]->mData + readcount + SAMPLE_GRANULARITY * k, 0, sizeof(float) * (SAMPLE_GRANULARITY - readcount));
++								memset(data0 + readcount + SAMPLE_GRANULARITY * k, 0, sizeof(float) * (SAMPLE_GRANULARITY - readcount));
+ 						}
+
+ 						// If we go past zero, crop to zero (a bit of a kludge)
+@@ -1509,7 +1515,7 @@
+ 							if (voice->mFilter[j])
+ 							{
+ 								voice->mFilter[j]->filter(
+-									voice->mResampleData[0]->mData,
++									data0,
+ 									SAMPLE_GRANULARITY,
+ 									voice->mChannels,
+ 									voice->mSamplerate,
+@@ -1547,10 +1553,12 @@
+ 					// Call resampler to generate the samples, once per channel
+ 					if (writesamples)
+ 					{
++                                                float* const data0 = voice->mResampleData[0] ? voice->mResampleData[0]->mData : dummyTickBuffer;
++                                                float* const data1 = voice->mResampleData[1] ? voice->mResampleData[1]->mData : dummyTickBuffer;
+ 						for (j = 0; j < voice->mChannels; j++)
+ 						{
+-							resample(voice->mResampleData[0]->mData + SAMPLE_GRANULARITY * j,
+-								voice->mResampleData[1]->mData + SAMPLE_GRANULARITY * j,
++							resample(data0 + SAMPLE_GRANULARITY * j,
++								data1 + SAMPLE_GRANULARITY * j,
+ 									 aScratch + aBufferSize * j + outofs,
+ 									 voice->mSrcOffset,
+ 									 writesamples,
+@@ -1616,7 +1624,9 @@
+ 						int readcount = 0;
+ 						if (!voice->hasEnded() || voice->mFlags & AudioSourceInstance::LOOPING)
+ 						{
+-							readcount = voice->getAudio(voice->mResampleData[0]->mData, SAMPLE_GRANULARITY, SAMPLE_GRANULARITY);
++                                                        float* const data0 = voice->mResampleData[0] ? voice->mResampleData[0]->mData : dummyTickBuffer;
++                                                        float* const data1 = voice->mResampleData[1] ? voice->mResampleData[1]->mData : dummyTickBuffer;
++							readcount = voice->getAudio(data0, SAMPLE_GRANULARITY, SAMPLE_GRANULARITY);
+ 							if (readcount < SAMPLE_GRANULARITY)
+ 							{
+ 								if (voice->mFlags & AudioSourceInstance::LOOPING)
+@@ -1624,7 +1634,7 @@
+ 									while (readcount < SAMPLE_GRANULARITY && voice->seek(voice->mLoopPoint, mScratch.mData, mScratchSize) == SO_NO_ERROR)
+ 									{
+ 										voice->mLoopCount++;
+-										readcount += voice->getAudio(voice->mResampleData[0]->mData + readcount, SAMPLE_GRANULARITY - readcount, SAMPLE_GRANULARITY);
++										readcount += voice->getAudio(data0 + readcount, SAMPLE_GRANULARITY - readcount, SAMPLE_GRANULARITY);
+ 									}
+ 								}
+ 							}

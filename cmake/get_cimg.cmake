@@ -11,7 +11,7 @@ else()
     dl_unpack(
             URL https://github.com/dtschump/CImg/archive/${_cimg_version}.tar.gz
             FILENAME CImg-${_cimg_version}.tar.gz
-            TEST CImg-${_cimg_version}
+            TEST_DIR CImg-${_cimg_version}
     )
 
     add_library( CImg::CImg INTERFACE IMPORTED )
