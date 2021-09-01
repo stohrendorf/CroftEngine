@@ -114,6 +114,7 @@ void Object::kill()
   }
   getWorld().getObjectManager().scheduleDeletion(this);
   m_state.activationState.setLocked(true);
+  m_isActive = false;
 }
 
 bool Object::triggerPickUp()

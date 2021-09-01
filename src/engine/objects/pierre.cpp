@@ -142,8 +142,8 @@ void Pierre::update()
   }
   rotateCreatureTilt(tiltRot);
   rotateCreatureHead(headRot);
-  animateCreature(creatureTurn, 0_deg);
   getSkeleton()->patchBone(7, core::TRRotation{0_deg, getCreatureInfo()->headRotation, 0_deg}.toMatrix());
+  animateCreature(creatureTurn, 0_deg);
   if(m_fleeTime != 0_frame)
   {
     if(raycastLineOfSight(getWorld().getCameraController().getTRLocation(),
