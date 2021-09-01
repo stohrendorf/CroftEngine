@@ -11,8 +11,9 @@ class Visitor
 public:
   static constexpr bool FlushAfterEachRender = false;
 
-  explicit Visitor(RenderContext& context)
+  explicit Visitor(RenderContext& context, bool withScissors = true)
       : m_context{context}
+      , m_withScissors{withScissors}
   {
   }
 
@@ -30,7 +31,13 @@ public:
     return m_context;
   }
 
+  [[nodiscard]] bool withScissors() const
+  {
+    return m_withScissors;
+  }
+
 private:
   RenderContext& m_context;
+  const bool m_withScissors;
 };
 } // namespace render::scene

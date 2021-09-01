@@ -100,7 +100,7 @@ void Presenter::renderWorld(const ObjectManager& objectManager,
 
       render::scene::RenderContext context{render::scene::RenderMode::CSMDepthOnly,
                                            m_csm->getActiveMatrix(glm::mat4{1.0f})};
-      render::scene::Visitor visitor{context};
+      render::scene::Visitor visitor{context, false};
 
       for(const auto& room : rooms)
       {

@@ -41,7 +41,7 @@ void Node::accept(Visitor& visitor)
   SOGLB_DEBUGGROUP(getName());
 
   auto state = visitor.getContext().getCurrentState();
-  state.setScissorTest(true);
+  state.setScissorTest(visitor.withScissors());
   const auto [xy, size] = getCombinedScissors();
   state.setScissorRegion(xy, size);
   visitor.getContext().pushState(state);
