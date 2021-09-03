@@ -7,9 +7,24 @@ namespace engine::objects
 class ThorHammerBlock final : public ModelObject
 {
 public:
-  MODELOBJECT_DEFAULT_CONSTRUCTORS(ThorHammerBlock, true)
+  ThorHammerBlock(const gsl::not_null<world::World*>& world, const Location& location)
+      : ModelObject{world, location}
+  {
+  }
+
+  ThorHammerBlock(const std::string& name,
+                  const gsl::not_null<world::World*>& world,
+                  const gsl::not_null<const world::Room*>& room,
+                  const loader::file::Item& item,
+                  const gsl::not_null<const world::SkeletalModelType*>& animatedModel)
+      : ModelObject{name, world, room, item, true, animatedModel}
+  {
+    getSkeleton()->getRenderState().setScissorTest(false);
+  }
 
   void collide(CollisionInfo& info) override;
+
+  void serialize(const serialization::Serializer<world::World>& ser) override;
 };
 
 class ThorHammerHandle final : public ModelObject

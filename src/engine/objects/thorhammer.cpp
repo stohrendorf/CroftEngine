@@ -32,6 +32,8 @@ ThorHammerHandle::ThorHammerHandle(const std::string& name,
   getWorld().getObjectManager().registerObject(m_block);
   m_block->activate();
   m_block->m_state.triggerState = TriggerState::Active;
+
+  getSkeleton()->getRenderState().setScissorTest(false);
 }
 
 ThorHammerHandle::ThorHammerHandle(const gsl::not_null<world::World*>& world, const Location& location)
@@ -140,6 +142,8 @@ void ThorHammerHandle::serialize(const serialization::Serializer<world::World>& 
 {
   ModelObject::serialize(ser);
   ser(S_NV("block", serialization::ObjectReference{m_block}));
+  if(ser.loading)
+    getSkeleton()->getRenderState().setScissorTest(false);
 }
 
 void ThorHammerBlock::collide(CollisionInfo& info)
@@ -154,5 +158,12 @@ void ThorHammerBlock::collide(CollisionInfo& info)
     return;
 
   enemyPush(info, false, true);
+}
+
+void ThorHammerBlock::serialize(const serialization::Serializer<world::World>& ser)
+{
+  ModelObject::serialize(ser);
+  if(ser.loading)
+    getSkeleton()->getRenderState().setScissorTest(false);
 }
 } // namespace engine::objects

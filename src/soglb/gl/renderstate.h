@@ -95,6 +95,11 @@ public:
     m_scissorTest = enabled;
   }
 
+  [[nodiscard]] const auto& getScissorTest() const
+  {
+    return m_scissorTest;
+  }
+
   void setScissorRegion(const glm::vec2& xy, const glm::vec2& size)
   {
     m_scissorRegion = {xy, size};

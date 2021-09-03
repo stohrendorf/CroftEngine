@@ -70,11 +70,8 @@ public:
              const gsl::not_null<const world::SkeletalModelType*>& animatedModel);
 
   LaraObject(const LaraObject&) = delete;
-
   LaraObject(LaraObject&&) = delete;
-
   LaraObject& operator=(const LaraObject&) = delete;
-
   LaraObject& operator=(LaraObject&&) = delete;
 
   ~LaraObject() override;

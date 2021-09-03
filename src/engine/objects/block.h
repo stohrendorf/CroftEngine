@@ -24,11 +24,14 @@ public:
     {
       world::patchHeightsForBlock(*this, -core::SectorSize);
     }
+    getSkeleton()->getRenderState().setScissorTest(false);
   }
 
   void collide(CollisionInfo& collisionInfo) override;
 
   void update() override;
+
+  void serialize(const serialization::Serializer<world::World>& ser) override;
 
 private:
   bool isOnFloor(const core::Length& height) const;

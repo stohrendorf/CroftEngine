@@ -295,4 +295,10 @@ bool Block::canPullBlock(const core::Length& height, const core::Axis axis) cons
 
   return !tmp.checkStaticMeshCollisions(laraLocation.position, core::LaraWalkHeight, getWorld());
 }
+void Block::serialize(const serialization::Serializer<world::World>& ser)
+{
+  ModelObject::serialize(ser);
+  if(ser.loading)
+    getSkeleton()->getRenderState().setScissorTest(false);
+}
 } // namespace engine::objects

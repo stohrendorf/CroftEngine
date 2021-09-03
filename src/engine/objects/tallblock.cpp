@@ -1,5 +1,7 @@
 #include "tallblock.h"
 
+#include "serialization/serialization.h"
+
 namespace engine::objects
 {
 void TallBlock::update()
@@ -43,5 +45,7 @@ void TallBlock::serialize(const serialization::Serializer<world::World>& ser)
   world::patchHeightsForBlock(*this, 2 * core::SectorSize);
   ModelObject::serialize(ser);
   world::patchHeightsForBlock(*this, -2 * core::SectorSize);
+  if(ser.loading)
+    getSkeleton()->getRenderState().setScissorTest(false);
 }
 } // namespace engine::objects

@@ -131,5 +131,7 @@ void TRex::serialize(const serialization::Serializer<world::World>& ser)
 {
   AIAgent::serialize(ser);
   ser(S_NV("wantAttack", m_wantAttack));
+  if(ser.loading)
+    getSkeleton()->getRenderState().setScissorTest(false);
 }
 } // namespace engine::objects

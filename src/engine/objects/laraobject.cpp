@@ -2130,7 +2130,10 @@ void LaraObject::serialize(const serialization::Serializer<world::World>& ser)
            { ser(S_NV("aimAt", serialization::ObjectReference{aimAt})); });
 
   if(ser.loading)
+  {
     forceSourcePosition = nullptr;
+    getSkeleton()->getRenderState().setScissorTest(false);
+  }
 }
 
 LaraObject::LaraObject(const std::string& name,
@@ -2178,6 +2181,8 @@ LaraObject::LaraObject(const std::string& name,
     leftArm.overrideHolsterWeaponsMeshes(*this, player.selectedWeaponType);
     rightArm.overrideHolsterWeaponsMeshes(*this, player.selectedWeaponType);
   }
+
+  getSkeleton()->getRenderState().setScissorTest(false);
 }
 
 void LaraObject::initMuzzleFlashes()

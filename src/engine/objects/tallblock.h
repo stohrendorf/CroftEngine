@@ -21,6 +21,7 @@ public:
       : ModelObject{name, world, room, item, true, animatedModel}
   {
     world::patchHeightsForBlock(*this, -2 * core::SectorSize);
+    getSkeleton()->getRenderState().setScissorTest(false);
   }
 
   void update() override;

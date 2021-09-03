@@ -3,6 +3,8 @@
 #include "materialparameteroverrider.h"
 #include "visitor.h"
 
+#include <gl/renderstate.h>
+
 namespace render::scene
 {
 class Renderable;
@@ -187,6 +189,11 @@ public:
     return {min, max - min};
   }
 
+  gl::RenderState& getRenderState()
+  {
+    return m_renderState;
+  }
+
 private:
   void transformChanged();
 
@@ -196,6 +203,7 @@ private:
   bool m_visible = true;
   std::shared_ptr<Renderable> m_renderable = nullptr;
   glm::mat4 m_localMatrix{1.0f};
+  gl::RenderState m_renderState;
 
   mutable bool m_dirty = false;
   mutable bool m_bufferDirty = true;

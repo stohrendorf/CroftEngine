@@ -175,5 +175,5 @@ protected:
                              const core::Angle& maxAngle);
 };
 
-extern std::string makeObjectName(const TR1ItemId type, const size_t id);
+extern std::string makeObjectName(TR1ItemId type, size_t id);
 } // namespace engine::objects

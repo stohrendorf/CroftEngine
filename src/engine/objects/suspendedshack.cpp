@@ -2,6 +2,7 @@
 
 #include "engine/world/world.h"
 #include "laraobject.h"
+#include "serialization/serialization.h"
 
 namespace engine::objects
 {
@@ -37,5 +38,11 @@ void SuspendedShack::update()
 void SuspendedShack::collide(CollisionInfo& collisionInfo)
 {
   collideWithLara(collisionInfo);
+}
+void SuspendedShack::serialize(const serialization::Serializer<world::World>& ser)
+{
+  ModelObject::serialize(ser);
+  if(ser.loading)
+    getSkeleton()->getRenderState().setScissorTest(false);
 }
 } // namespace engine::objects

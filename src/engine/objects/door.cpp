@@ -51,6 +51,8 @@ Door::Door(const std::string& name,
     m_alternateTarget.close();
   }
 #endif
+
+  getSkeleton()->getRenderState().setScissorTest(false);
 }
 
 void Door::update()
@@ -126,6 +128,8 @@ void Door::serialize(const serialization::Serializer<world::World>& ser)
 
   if(ser.loading)
   {
+    getSkeleton()->getRenderState().setScissorTest(false);
+
     ser.lazy(
       [this](const serialization::Serializer<world::World>& /*ser*/)
       {

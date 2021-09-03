@@ -18,6 +18,8 @@ void Visitor::visit(Node& node)
     return;
   }
 
+  m_context.pushState(node.getRenderState());
   node.accept(*this);
+  m_context.popState();
 }
 } // namespace render::scene
