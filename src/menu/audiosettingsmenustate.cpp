@@ -18,7 +18,7 @@ namespace menu
 {
 AudioSettingsMenuState::AudioSettingsMenuState(const std::shared_ptr<MenuRingTransform>& ringTransform,
                                                std::unique_ptr<MenuState> previous,
-                                               const MenuDisplay& display)
+                                               const MenuDisplay& /*display*/)
     : SelectedMenuState{ringTransform}
     , m_previous{std::move(previous)}
     , m_grid{std::make_shared<ui::widgets::GridBox>(2 * glm::ivec2{ui::OutlineBorderWidth, ui::OutlineBorderWidth})}
@@ -57,7 +57,7 @@ AudioSettingsMenuState::AudioSettingsMenuState(const std::shared_ptr<MenuRingTra
 }
 
 std::unique_ptr<MenuState>
-  AudioSettingsMenuState::onFrame(ui::Ui& ui, engine::world::World& world, MenuDisplay& display)
+  AudioSettingsMenuState::onFrame(ui::Ui& ui, engine::world::World& world, MenuDisplay& /*display*/)
 {
   static constexpr float Stepping = 0.1f;
   auto& audioSettings = world.getEngine().getEngineConfig()->audioSettings;

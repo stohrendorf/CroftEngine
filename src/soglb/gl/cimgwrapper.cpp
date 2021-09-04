@@ -253,11 +253,8 @@ std::unique_ptr<cimg_library::CImg<uint8_t>> CImgWrapper::loadPcx(const std::fil
   std::ifstream stream{filename, std::ios::in | std::ios::binary};
   Expects(stream.is_open());
 
-  stream.seekg(0, std::ios::end);
-  const auto size = stream.tellg();
-  stream.seekg(0, std::ios::beg);
-
   PcxHeader header;
+  // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
   stream.read(reinterpret_cast<char*>(&header), sizeof(PcxHeader));
 
   Expects(header.zsoft == 10 && header.version >= 5 && header.bpp == 8 && header.encoding == 1 && header.planes == 1);
@@ -277,12 +274,14 @@ std::unique_ptr<cimg_library::CImg<uint8_t>> CImgWrapper::loadPcx(const std::fil
   Palette palette;
   stream.seekg(-static_cast<std::ifstream::pos_type>(sizeof(Palette)), std::ios::end);
   Expects(stream.good());
+  // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
   stream.read(reinterpret_cast<char*>(&palette[0][0]), sizeof(Palette));
   Expects(stream.good());
 
   auto readByte = [&stream]()
   {
     uint8_t tmp;
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
     stream.read(reinterpret_cast<char*>(&tmp), 1);
     Expects(stream.good());
     return tmp;

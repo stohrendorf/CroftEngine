@@ -84,18 +84,22 @@ void gl::initializeGl()
   if(err != GLEW_OK)
   {
     BOOST_LOG_TRIVIAL(error) << "glewInit: "
-                             << reinterpret_cast<gsl::czstring>( // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
-                                  glewGetErrorString(err));
+                             // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+                             << reinterpret_cast<gsl::czstring>(glewGetErrorString(err));
     BOOST_THROW_EXCEPTION(std::runtime_error("Failed to initialize GLEW"));
   }
 
   BOOST_LOG_TRIVIAL(info) << "OpenGL version: "
+                          // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
                           << reinterpret_cast<const char*>(api::getString(api::StringName::Version));
   BOOST_LOG_TRIVIAL(info) << "GLSL version: "
+                          // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
                           << reinterpret_cast<const char*>(api::getString(api::StringName::ShadingLanguageVersion));
   BOOST_LOG_TRIVIAL(info) << "OpenGL vendor: "
+                          // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
                           << reinterpret_cast<const char*>(api::getString(api::StringName::Vendor));
   BOOST_LOG_TRIVIAL(info) << "OpenGL renderer: "
+                          // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
                           << reinterpret_cast<const char*>(api::getString(api::StringName::Renderer));
   glGetError(); // clear the error flag
 

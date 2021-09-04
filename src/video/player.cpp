@@ -464,7 +464,6 @@ struct AVDecoder final : public audio::AbstractStreamSource
     {
       auto& src = audioQueue.front();
       const auto frames = std::min(static_cast<size_t>(bufferSize), src.size() / 2);
-      auto srcPtr = src.cbegin();
 
       Expects(bufferSize >= frames);
 
