@@ -1,9 +1,8 @@
 #pragma once
 
+#include <AL/alc.h>
 #include <boost/current_function.hpp>
 #include <gsl/gsl-lite.hpp>
-
-struct ALCdevice;
 
 namespace audio::detail
 {
