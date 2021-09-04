@@ -1886,8 +1886,8 @@ void LaraObject::drawRoutine()
     matrixStack.push();
     matrixStack.transform({BoneArmR, BoneForeArmR, BoneHandR}, objInfo.bones, angleData, getSkeleton());
 
-    m_muzzleFlashLeft->setVisible(rightArm.flashTimeout != 0_frame);
-    m_muzzleFlashRight->setVisible(leftArm.flashTimeout != 0_frame);
+    m_muzzleFlashLeft->setVisible(false);
+    m_muzzleFlashRight->setVisible(false);
     break;
   case WeaponType::Pistols:
   case WeaponType::Magnums:
@@ -1983,8 +1983,8 @@ void LaraObject::drawRoutineInterpolated(const SkeletalModelNode::InterpolationI
     matrixStack.push();
     matrixStack.transform({BoneArmR, BoneForeArmR, BoneHandR}, objInfo.bones, angleDataA, angleDataB, getSkeleton());
 
-    m_muzzleFlashLeft->setVisible(rightArm.flashTimeout != 0_frame);
-    m_muzzleFlashRight->setVisible(leftArm.flashTimeout != 0_frame);
+    m_muzzleFlashLeft->setVisible(false);
+    m_muzzleFlashRight->setVisible(false);
     break;
   case WeaponType::Pistols:
   case WeaponType::Magnums:

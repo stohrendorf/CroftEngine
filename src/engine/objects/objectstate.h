@@ -13,13 +13,13 @@ class World;
 struct Sector;
 } // namespace engine::world
 
-namespace engine
-{
-namespace script
+namespace engine::script
 {
 class ScriptEngine;
 }
 
+namespace engine
+{
 namespace objects
 {
 enum class TriggerState
@@ -54,11 +54,8 @@ public:
   }
 
   ObjectState(const ObjectState&) = delete;
-
   ObjectState(ObjectState&&) = default;
-
   ObjectState& operator=(const ObjectState&) = delete;
-
   ObjectState& operator=(ObjectState&&) = default;
 
   ~ObjectState() override;
@@ -122,6 +119,5 @@ public:
 
   gsl::not_null<const world::Box*> getCurrentBox() const;
 };
-
 } // namespace objects
 } // namespace engine
