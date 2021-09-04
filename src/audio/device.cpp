@@ -33,7 +33,9 @@ void logDeviceInfo(ALCdevice* device)
   {
     ALCint frq;
     ALC_ASSERT(device, alcGetIntegerv(device, ALC_FREQUENCY, 1, &frq));
-    BOOST_LOG_TRIVIAL(info) << "OpenAL: Frequency " << frq;
+    ALCint stereoSources;
+    ALC_ASSERT(device, alcGetIntegerv(device, ALC_STEREO_SOURCES, 1, &stereoSources));
+    BOOST_LOG_TRIVIAL(info) << "OpenAL: Frequency " << frq << ", stereo sources " << stereoSources;
   }
 
   if(alcIsExtensionPresent(device, EE_STRINGIFY(ALC_SOFT_HRTF)) != ALC_TRUE)
