@@ -150,19 +150,22 @@ void Font::drawText(Image<SRGBA8>& img, const gsl::czstring text, glm::ivec2 xy,
     FTC_SBit sbit = nullptr;
     FTC_Node node = nullptr;
     const auto error = FTC_SBitCache_Lookup(m_sbitCache, &imgType, glyphIndex, &sbit, &node);
-    if(error != FT_Err_Ok || sbit->buffer == nullptr)
+    if(error != FT_Err_Ok)
     {
       BOOST_LOG_TRIVIAL(warning) << "Failed to load from sbit cache: " << getFreeTypeErrorMessage(error);
       FTC_Node_Unref(node, m_cache);
       continue;
     }
 
-    for(int dy = 0, i = 0; dy < sbit->height; dy++)
+    if(sbit->buffer != nullptr)
     {
-      for(int dx = 0; dx < sbit->width; dx++, i++)
+      for(int dy = 0, i = 0; dy < sbit->height; dy++)
       {
-        currentColor.channels[3] = gsl::narrow_cast<uint8_t>(sbit->buffer[i] * baseAlpha / 255);
-        img.set(xy + glm::ivec2{dx + sbit->left, dy - sbit->top}, currentColor, true);
+        for(int dx = 0; dx < sbit->width; dx++, i++)
+        {
+          currentColor.channels[3] = gsl::narrow_cast<uint8_t>(sbit->buffer[i] * baseAlpha / 255);
+          img.set(xy + glm::ivec2{dx + sbit->left, dy - sbit->top}, currentColor, true);
+        }
       }
     }
 
