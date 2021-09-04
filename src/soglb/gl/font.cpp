@@ -41,7 +41,7 @@ FT_Library loadFreeTypeLib()
     BOOST_THROW_EXCEPTION(std::runtime_error("Failed to load freetype library"));
   }
 
-  BOOST_ASSERT(freeTypeLib != nullptr);
+  Expects(freeTypeLib != nullptr);
 
   atexit(
     []()
@@ -87,7 +87,7 @@ Font::Font(std::filesystem::path ttf)
     BOOST_LOG_TRIVIAL(fatal) << "Failed to create cache manager: " << getFreeTypeErrorMessage(error);
     BOOST_THROW_EXCEPTION(std::runtime_error("Failed to create cache manager"));
   }
-  BOOST_ASSERT(m_cache != nullptr);
+  Ensures(m_cache != nullptr);
 
   error = FTC_CMapCache_New(m_cache, &m_cmapCache);
   if(error != FT_Err_Ok)
@@ -95,7 +95,7 @@ Font::Font(std::filesystem::path ttf)
     BOOST_LOG_TRIVIAL(fatal) << "Failed to create cmap cache: " << getFreeTypeErrorMessage(error);
     BOOST_THROW_EXCEPTION(std::runtime_error("Failed to create cmap cache"));
   }
-  BOOST_ASSERT(m_cmapCache != nullptr);
+  Ensures(m_cmapCache != nullptr);
 
   error = FTC_SBitCache_New(m_cache, &m_sbitCache);
   if(error != FT_Err_Ok)
@@ -103,7 +103,7 @@ Font::Font(std::filesystem::path ttf)
     BOOST_LOG_TRIVIAL(fatal) << "Failed to create cmap cache: " << getFreeTypeErrorMessage(error);
     BOOST_THROW_EXCEPTION(std::runtime_error("Failed to create cmap cache"));
   }
-  BOOST_ASSERT(m_sbitCache != nullptr);
+  Ensures(m_sbitCache != nullptr);
 
   const auto face = getFace();
   const auto h = face->ascender - face->descender;
@@ -150,7 +150,7 @@ void Font::drawText(Image<SRGBA8>& img, const gsl::czstring text, glm::ivec2 xy,
     FTC_SBit sbit = nullptr;
     FTC_Node node = nullptr;
     const auto error = FTC_SBitCache_Lookup(m_sbitCache, &imgType, glyphIndex, &sbit, &node);
-    if(error != FT_Err_Ok)
+    if(error != FT_Err_Ok || sbit->buffer == nullptr)
     {
       BOOST_LOG_TRIVIAL(warning) << "Failed to load from sbit cache: " << getFreeTypeErrorMessage(error);
       FTC_Node_Unref(node, m_cache);
