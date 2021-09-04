@@ -3,11 +3,10 @@
 #include "image.h"
 
 #include <boost/log/trivial.hpp>
+#include <freetype/ftoutln.h>
 #include <gsl/gsl-lite.hpp>
 #include <utf8.h>
 #include <utility>
-
-#include FT_OUTLINE_H
 
 namespace gl
 {
@@ -26,7 +25,7 @@ gsl::czstring getFreeTypeErrorMessage(const FT_Error err)
   {
 #define FT_ERROR_END_LIST }
 
-#include FT_ERRORS_H
+#include <freetype/fterrors.h>
   return "(Unknown error)";
 }
 

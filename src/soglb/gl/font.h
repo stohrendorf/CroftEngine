@@ -3,11 +3,9 @@
 #include "pixel.h"
 #include "soglb_fwd.h"
 
-#include <ft2build.h>
-#include FT_CACHE_H
-
 #include <boost/throw_exception.hpp>
 #include <filesystem>
+#include <freetype/ftcache.h>
 #include <glm/common.hpp>
 #include <optional>
 
