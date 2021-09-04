@@ -144,7 +144,7 @@ function( configure_gettext )
 
         # .pot ---{msginit}---> .po
         set( _po "${GETTEXT_POTFILE_DESTINATION}/po/${lang}/${GETTEXT_DOMAIN}.po" )
-        set( _gmo "${GETTEXT_POTFILE_DESTINATION}/po/${lang}/LC_MESSAGES/${GETTEXT_DOMAIN}.mo" )
+        set( _mo "${GETTEXT_POTFILE_DESTINATION}/po/${lang}/LC_MESSAGES/${GETTEXT_DOMAIN}.mo" )
         if( NOT EXISTS "${_po}" )
             message( STATUS "Creating initial .po file for ${lang}" )
             execute_process(
@@ -166,18 +166,18 @@ function( configure_gettext )
                 COMMENT "Updating the ${lang} .po file from the .pot file" )
 
         add_custom_command(
-                OUTPUT "${_gmo}"
+                OUTPUT "${_mo}"
                 COMMAND "${GETTEXT_MSGFMT_EXECUTABLE}"
                 "${_po}"
-                "--output-file=${_gmo}"
+                "--output-file=${_mo}"
                 "--statistics"
                 DEPENDS "${_po}"
                 WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
-                COMMENT "Creating the ${lang} .gmo file from the .po file" )
+                COMMENT "Creating the ${lang} .mo file from the .po file" )
 
         add_custom_target(
                 "${GETTEXT_TARGET_NAME}-${lang}"
-                DEPENDS "${_gmo}"
+                DEPENDS "${_mo}"
         )
         add_dependencies( "${GETTEXT_TARGET_NAME}" "${GETTEXT_TARGET_NAME}-${lang}" )
     endforeach()
