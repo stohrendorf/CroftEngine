@@ -231,6 +231,7 @@ std::pair<RunResult, std::optional<size_t>> SplashScreen::run(Engine& engine, co
     presenter.getRenderer().clear(
       gl::api::ClearBufferMask::ColorBufferBit | gl::api::ClearBufferMask::DepthBufferBit, {0, 0, 0, 0}, 1);
     mesh->render(context);
+    presenter.updateSoundEngine();
     presenter.swapBuffers();
 
     throttler.wait();

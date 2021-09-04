@@ -8,57 +8,93 @@
 #include <fstream>
 #include <gsl/gsl-lite.hpp>
 #include <sndfile.h>
-#include <soloud_audiosource.h>
-#include <utility>
 
 namespace audio
 {
+class AbstractStreamSource
+{
+public:
+  explicit AbstractStreamSource(const AbstractStreamSource&) = delete;
+  explicit AbstractStreamSource(AbstractStreamSource&&) = delete;
+  AbstractStreamSource& operator=(const AbstractStreamSource&) = delete;
+  AbstractStreamSource& operator=(AbstractStreamSource&&) = delete;
+
+  virtual ~AbstractStreamSource() = default;
+
+  virtual size_t readStereo(int16_t* buffer, size_t bufferSize, bool looping) = 0;
+
+  [[nodiscard]] virtual int getSampleRate() const = 0;
+
+protected:
+  explicit AbstractStreamSource() = default;
+};
+
 namespace sndfile
 {
-inline size_t readStereo(float* sampleBuffer, const size_t frameCount, SNDFILE* sndFile, const int channels)
+inline int16_t clampSample(float v) noexcept
+{
+  if(v <= -1)
+    return std::numeric_limits<short>::lowest();
+  else if(v >= 1)
+    return std::numeric_limits<short>::max();
+  else
+    return static_cast<short>(std::numeric_limits<short>::max() * v);
+}
+
+inline size_t readStereo(
+  short* sampleBuffer, const size_t frameCount, SNDFILE* sndFile, const bool sourceIsMono, const bool looping)
 {
   size_t processedFrames = 0;
-  std::vector<float> interleaved;
+  std::vector<float> tmp;
+  const auto samplesPerFrame = sourceIsMono ? 1 : 2;
   while(processedFrames < frameCount)
   {
     const auto requestedFrames = frameCount - processedFrames;
-    interleaved.resize(requestedFrames * channels);
-    const auto readFrames = sf_readf_float(sndFile, interleaved.data(), requestedFrames);
-
-    auto srcPtr = interleaved.cbegin();
-    for(sf_count_t i = 0; i < readFrames; ++i)
+    const auto requestedSamples = requestedFrames * samplesPerFrame;
+    tmp.resize(requestedSamples);
+    const auto readFrames = sf_readf_float(sndFile, tmp.data(), gsl::narrow<sf_count_t>(requestedFrames));
+    if(readFrames > 0)
     {
-      for(int c = 0; c < channels; ++c)
-      {
-        // deinterlace
-        BOOST_ASSERT(srcPtr != interleaved.cend());
-        sampleBuffer[c * frameCount] = *srcPtr++;
-      }
-      ++processedFrames;
-      ++sampleBuffer;
-    }
+      for(size_t i = 0; i < static_cast<size_t>(readFrames * samplesPerFrame); ++i)
+        sampleBuffer[processedFrames * samplesPerFrame + i] = clampSample(tmp[i]);
 
-    if(readFrames <= 0)
-      break;
+      processedFrames += readFrames;
+    }
+    else
+    {
+      if(!looping)
+      {
+        std::fill_n(sampleBuffer + processedFrames * samplesPerFrame, requestedSamples, int16_t{0});
+        break;
+      }
+
+      // restart if there are not enough samples
+      sf_seek(sndFile, 0, SEEK_SET);
+    }
   }
 
-  for(int c = 0; c < channels; ++c)
+  if(sourceIsMono)
   {
-    std::fill_n(&sampleBuffer[c * frameCount], frameCount - processedFrames, 0.0f);
+    // Need to duplicate the samples from mono to stereo
+    for(size_t i = 0; i < frameCount; ++i)
+    {
+      const size_t src = frameCount - i - 1;
+      const size_t dest = 2 * frameCount - i - 2;
+      sampleBuffer[dest] = sampleBuffer[dest + 1] = sampleBuffer[src];
+    }
   }
 
   return processedFrames;
 }
 } // namespace sndfile
 
-class WadStreamInstance final : public SoLoud::AudioSourceInstance
+class WadStreamSource final : public AbstractStreamSource
 {
 private:
   std::ifstream m_wadFile;
   SF_INFO m_sfInfo{};
   SNDFILE* m_sndFile = nullptr;
   std::unique_ptr<sndfile::InputStreamViewWrapper> m_wrapper;
-  bool m_hasEnded{false};
 
   // CDAUDIO.WAD step size defines CDAUDIO's header stride, on which each track
   // info is placed. Also CDAUDIO count specifies static amount of tracks existing
@@ -68,7 +104,7 @@ private:
   static constexpr size_t WADCount = 130;
 
 public:
-  WadStreamInstance(const std::filesystem::path& filename, const size_t trackIndex)
+  WadStreamSource(const std::filesystem::path& filename, const size_t trackIndex)
       : m_wadFile{filename, std::ios::in | std::ios::binary}
   {
     BOOST_LOG_TRIVIAL(trace) << "Creating WAD stream source from " << filename << ", track " << trackIndex;
@@ -78,7 +114,7 @@ public:
     if(!m_wadFile.is_open())
       BOOST_THROW_EXCEPTION(std::runtime_error("Failed to open WAD file"));
 
-    m_wadFile.seekg(trackIndex * WADStride, std::ios::beg);
+    m_wadFile.seekg(gsl::narrow<std::ifstream::off_type>(trackIndex * WADStride), std::ios::beg);
 
     std::array<char, WADNameLength> trackName{};
     m_wadFile.read(trackName.data(), WADNameLength);
@@ -102,53 +138,48 @@ public:
       BOOST_LOG_TRIVIAL(error) << "Failed to open WAD file: " << sf_strerror(nullptr);
       BOOST_THROW_EXCEPTION(std::runtime_error("Failed to open WAD file"));
     }
-
-    mChannels = m_sfInfo.channels;
-    mBaseSamplerate = m_sfInfo.samplerate;
   }
 
-  unsigned int getAudio(float* aBuffer, unsigned int aSamplesToRead, unsigned int /*aBufferSize*/) override
+  size_t readStereo(int16_t* frameBuffer, const size_t frameCount, const bool looping) override
   {
-    auto tmp = sndfile::readStereo(aBuffer, aSamplesToRead, m_sndFile, m_sfInfo.channels == 1);
-    if(tmp <= 0)
-      m_hasEnded = true;
-    return tmp;
+    return sndfile::readStereo(frameBuffer, frameCount, m_sndFile, m_sfInfo.channels == 1, looping);
   }
 
-  bool hasEnded() override
+  [[nodiscard]] int getSampleRate() const override
   {
-    return m_hasEnded;
-  }
-
-  SoLoud::result seek(SoLoud::time aSeconds, float* /*mScratch*/, unsigned int /*mScratchSize*/) override
-  {
-    sf_seek(m_sndFile, m_sfInfo.samplerate * aSeconds, SF_SEEK_SET);
-    return SoLoud::SO_NO_ERROR;
-  }
-
-  SoLoud::result rewind() override
-  {
-    sf_seek(m_sndFile, 0, SF_SEEK_SET);
-    return SoLoud::SO_NO_ERROR;
+    return m_sfInfo.samplerate;
   }
 };
 
-class WadStream final : public SoLoud::AudioSource
+class SndfileStreamSource final : public AbstractStreamSource
 {
-public:
-  WadStream(std::filesystem::path filename, const size_t trackIndex)
-      : m_filename{std::move(filename)}
-      , m_trackIndex{trackIndex}
-  {
-  }
-
-  SoLoud::AudioSourceInstance* createInstance() override
-  {
-    return new WadStreamInstance{m_filename, m_trackIndex};
-  }
-
 private:
-  const std::filesystem::path m_filename;
-  const size_t m_trackIndex;
+  SF_INFO m_sfInfo{};
+  SNDFILE* m_sndFile = nullptr;
+
+public:
+  explicit SndfileStreamSource(const std::filesystem::path& filename)
+  {
+    BOOST_LOG_TRIVIAL(trace) << "Creating sndfile stream source from " << filename;
+
+    memset(&m_sfInfo, 0, sizeof(m_sfInfo));
+
+    m_sndFile = sf_open(filename.string().c_str(), SFM_READ, &m_sfInfo);
+    if(m_sndFile == nullptr)
+    {
+      BOOST_LOG_TRIVIAL(error) << "Failed to open audio file: " << sf_strerror(nullptr);
+      BOOST_THROW_EXCEPTION(std::runtime_error("Failed to open audio file"));
+    }
+  }
+
+  size_t readStereo(int16_t* frameBuffer, const size_t frameCount, const bool looping) override
+  {
+    return sndfile::readStereo(frameBuffer, frameCount, m_sndFile, m_sfInfo.channels == 1, looping);
+  }
+
+  [[nodiscard]] int getSampleRate() const override
+  {
+    return m_sfInfo.samplerate;
+  }
 };
 } // namespace audio

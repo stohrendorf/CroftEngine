@@ -1,6 +1,6 @@
 #include "audioengine.h"
 
-#include "audio/streamsource.h"
+#include "audio/buffervoice.h"
 #include "objects/laraobject.h"
 #include "script/reflection.h"
 #include "script/scriptengine.h"
@@ -11,8 +11,6 @@
 #include "world/world.h"
 
 #include <boost/format.hpp>
-#include <pybind11/pybind11.h>
-#include <soloud_wavstream.h>
 
 namespace engine
 {
@@ -175,7 +173,10 @@ void AudioEngine::playStopCdTrack(const script::ScriptEngine& scriptEngine, cons
     break;
   case audio::TrackType::Ambient:
     if(m_ambientStream != nullptr)
+    {
       m_music.remove(m_ambientStream);
+      m_soundEngine->getDevice().removeStream(m_ambientStream);
+    }
 
     m_ambientStream.reset();
     m_currentTrack.reset();
@@ -184,6 +185,7 @@ void AudioEngine::playStopCdTrack(const script::ScriptEngine& scriptEngine, cons
     {
       BOOST_LOG_TRIVIAL(debug) << "playStopCdTrack - play ambient " << static_cast<size_t>(trackInfo.id.get());
       m_ambientStream = playStream(trackInfo.id.get());
+      m_ambientStream->setLooping(true);
       m_music.add(m_ambientStream);
       m_ambientStream->setLooping(true);
       m_interceptStream.reset();
@@ -192,7 +194,10 @@ void AudioEngine::playStopCdTrack(const script::ScriptEngine& scriptEngine, cons
     break;
   case audio::TrackType::Interception:
     if(m_interceptStream != nullptr)
+    {
       m_music.remove(m_interceptStream);
+      m_soundEngine->getDevice().removeStream(m_interceptStream);
+    }
 
     m_interceptStream.reset();
     m_currentTrack.reset();
@@ -209,24 +214,31 @@ void AudioEngine::playStopCdTrack(const script::ScriptEngine& scriptEngine, cons
   }
 }
 
-gsl::not_null<std::shared_ptr<audio::Voice>> AudioEngine::playStream(size_t trackId)
+gsl::not_null<std::shared_ptr<audio::StreamVoice>> AudioEngine::playStream(size_t trackId)
 {
+  static constexpr size_t DefaultBufferSize = 8192;
+  static constexpr size_t DefaultBufferCount = 4;
+
   if(std::filesystem::is_regular_file(m_rootPath / "CDAUDIO.WAD"))
   {
-    auto wad = std::make_shared<audio::WadStream>(m_rootPath / "CDAUDIO.WAD", trackId);
-    auto voice = m_soundEngine->playBackground(wad);
-    m_music.add(voice);
-    voice->setProtect(true);
-    return voice;
+    auto stream = m_soundEngine->getDevice().createStream(
+      std::make_unique<audio::WadStreamSource>(m_rootPath / "CDAUDIO.WAD", trackId),
+      DefaultBufferSize,
+      DefaultBufferCount);
+    m_music.add(stream);
+    stream->play();
+    return stream;
   }
   else
   {
-    auto wav = std::make_shared<SoLoud::WavStream>();
-    wav->load(util::ensureFileExists(m_rootPath / (boost::format("%03d.ogg") % trackId).str()).string().c_str());
-    auto voice = m_soundEngine->playBackground(wav);
-    m_music.add(voice);
-    voice->setProtect(true);
-    return voice;
+    auto stream
+      = m_soundEngine->getDevice().createStream(std::make_unique<audio::SndfileStreamSource>(util::ensureFileExists(
+                                                  m_rootPath / (boost::format("%03d.ogg") % trackId).str())),
+                                                DefaultBufferSize,
+                                                DefaultBufferCount);
+    m_music.add(stream);
+    stream->play();
+    return stream;
   }
 }
 
@@ -257,63 +269,65 @@ std::shared_ptr<audio::Voice> AudioEngine::playSoundEffect(const core::SoundEffe
   if(volume <= 0)
     return nullptr;
 
-  const auto& audioSource = m_samples.at(sample);
+  const auto& buffer = m_samples.at(sample);
   switch(soundEffect->getPlaybackType(loader::file::level::Engine::TR1))
   {
   case loader::file::PlaybackType::Looping:
     // BOOST_LOG_TRIVIAL(trace) << "Play looping sound effect " << toString(id.get_as<TR1SoundEffect>());
-    if(auto voices = m_soundEngine->getVoicesForAudioSource(emitter, audioSource); !voices.empty())
+
+    if(auto voices = m_soundEngine->getVoicesForBuffer(emitter, sample); !voices.empty())
     {
-      BOOST_ASSERT(voices.size() == 1);
+      Expects(voices.size() == 1);
       return voices[0];
     }
     else
     {
-      auto voice = m_soundEngine->play(audioSource, pitch, volume, emitter);
-      m_sfx.add(voice);
-      voice->setLooping(true);
-      return voice;
+      auto voice = m_soundEngine->playBuffer(buffer, sample, pitch, volume, emitter);
+      m_sfx.add(voice.get());
+      voice->getSource()->setLooping(true);
+      voice->getSource()->play();
+      return voice.get();
     }
   case loader::file::PlaybackType::Restart:
     // BOOST_LOG_TRIVIAL(trace) << "Play restarting sound effect " << toString(id.get_as<TR1SoundEffect>());
-    if(auto voices = m_soundEngine->getVoicesForAudioSource(emitter, audioSource); !voices.empty())
+    if(auto voices = m_soundEngine->getVoicesForBuffer(emitter, sample); !voices.empty())
     {
+      Expects(voices.size() == 1);
       auto voice = voices[0];
-      if(!voice->isValid())
-        return m_soundEngine->play(audioSource, pitch, volume, emitter);
-
-      voice->pause();
-      voice->setRelativePlaySpeed(pitch);
-      voice->setVolume(volume);
+      voice->getSource()->pause();
+      voice->getSource()->setPitch(pitch);
+      voice->setLocalGain(volume);
       if(emitter != nullptr)
-        voice->setPosition(emitter->getPosition());
-      voice->restart();
+        voice->getSource()->setPosition(emitter->getPosition());
+      voice->getSource()->rewind();
+      m_sfx.add(voice);
+      voice->play();
       return voice;
     }
     else
     {
-      auto voice = m_soundEngine->play(audioSource, pitch, volume, emitter);
-      m_sfx.add(voice);
-      return voice;
+      auto voice = m_soundEngine->playBuffer(buffer, sample, pitch, volume, emitter);
+      m_sfx.add(voice.get());
+      return voice.get();
     }
   case loader::file::PlaybackType::Wait:
     // BOOST_LOG_TRIVIAL(trace) << "Play single-instance sound effect " << toString(id.get_as<TR1SoundEffect>());
-    if(auto voices = m_soundEngine->getVoicesForAudioSource(emitter, audioSource); !voices.empty())
+    if(auto voices = m_soundEngine->getVoicesForBuffer(emitter, sample); !voices.empty())
     {
       BOOST_ASSERT(voices.size() == 1);
       return voices[0];
     }
     else
     {
-      auto voice = m_soundEngine->play(audioSource, pitch, volume, emitter);
-      m_sfx.add(voice);
-      return voice;
+      auto voice = m_soundEngine->playBuffer(buffer, sample, pitch, volume, emitter);
+      m_sfx.add(voice.get());
+      return voice.get();
     }
   default:
   {
-    auto voice = m_soundEngine->play(audioSource, pitch, volume, emitter);
-    m_sfx.add(voice);
-    return voice;
+    auto handle = m_soundEngine->playBuffer(buffer, sample, pitch, volume, emitter);
+    m_sfx.add(handle.get());
+    return handle.get();
   }
   }
 }
@@ -331,7 +345,7 @@ void AudioEngine::stopSoundEffect(const core::SoundEffectId& id, audio::Emitter*
   bool anyStopped = false;
   for(size_t i = first; i < last; ++i)
   {
-    anyStopped |= m_soundEngine->stop(m_samples.at(i), emitter);
+    anyStopped |= m_soundEngine->stopBuffer(i, emitter);
   }
 
   if(!anyStopped)
@@ -347,16 +361,14 @@ void AudioEngine::setUnderwater(bool underwater)
   {
     if(m_underwaterAmbience == nullptr)
     {
-      m_soundEngine->getSoLoud().setGlobalFilter(0, &m_soundEngine->getUnderwaterFilter());
-      m_soundEngine->getSoLoud().setFilterParameter(0, 0, SoLoud::BiquadResonantFilter::WET, 0.5f);
+      m_soundEngine->getDevice().applyDirectFilterToAllSources(m_soundEngine->getDevice().getUnderwaterFilter());
       m_underwaterAmbience = playSoundEffect(TR1SoundEffect::UnderwaterAmbience, nullptr);
-      m_underwaterAmbience->setLooping(true);
+      m_underwaterAmbience->getSource()->setLooping(true);
     }
   }
   else if(m_underwaterAmbience != nullptr)
   {
-    m_soundEngine->getSoLoud().setGlobalFilter(0, nullptr);
-
+    m_soundEngine->getDevice().applyDirectFilterToAllSources(nullptr);
     stopSoundEffect(TR1SoundEffect::UnderwaterAmbience, nullptr);
     m_underwaterAmbience.reset();
   }
@@ -364,14 +376,16 @@ void AudioEngine::setUnderwater(bool underwater)
 
 void AudioEngine::addWav(const gsl::not_null<const uint8_t*>& buffer)
 {
-  m_samples.emplace_back(audio::loadWav(buffer.get()));
+  auto handle = std::make_shared<audio::BufferHandle>();
+  handle->fillFromWav(buffer.get());
+  m_samples.emplace_back(std::move(handle));
 }
 
 std::shared_ptr<audio::Voice> AudioEngine::playSoundEffect(const core::SoundEffectId& id, const glm::vec3& pos)
 {
   auto voice = playSoundEffect(id, nullptr);
   if(voice != nullptr)
-    voice->setPosition(pos);
+    voice->getSource()->setPosition(pos);
   return voice;
 }
 

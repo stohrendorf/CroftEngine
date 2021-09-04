@@ -5,16 +5,16 @@
 #include <gl/pixel.h>
 #include <gl/soglb_fwd.h>
 
-namespace SoLoud
+namespace audio
 {
-class Soloud;
+class Device;
 }
 
 namespace video
 {
 extern void
   play(const std::filesystem::path& filename,
-       SoLoud::Soloud& soLoud,
+       audio::Device& audioDevice,
        const std::function<bool(const std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>>& textureHandle)>&
          onFrame);
 }

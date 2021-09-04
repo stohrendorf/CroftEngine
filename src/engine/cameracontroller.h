@@ -2,6 +2,7 @@
 
 #include "audio/soundengine.h"
 #include "core/angle.h"
+#include "core/magic.h"
 #include "core/vec.h"
 #include "floordata/types.h"
 #include "location.h"

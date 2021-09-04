@@ -1,12 +1,12 @@
 #include "player.h"
 
-#include "audio/soundengine.h"
+#include "audio/device.h"
+#include "audio/streamvoice.h"
 
 #include <atomic>
 #include <gl/texture2d.h>
 #include <gl/texturehandle.h>
 #include <optional>
-#include <soloud.h>
 #include <thread>
 
 extern "C"
@@ -194,86 +194,8 @@ struct FilterGraph
   }
 };
 
-struct AVDecoder final : public SoLoud::AudioSource
+struct AVDecoder final : public audio::AbstractStreamSource
 {
-  class AVDecoderAudioInstance : public SoLoud::AudioSourceInstance
-  {
-  private:
-    gsl::not_null<AVDecoder*> m_decoder;
-
-  public:
-    explicit AVDecoderAudioInstance(gsl::not_null<AVDecoder*> decoder)
-        : m_decoder{std::move(decoder)}
-    {
-    }
-
-    bool hasEnded() override
-    {
-      return m_decoder->stopped;
-    }
-
-    unsigned int getAudio(float* buffer, unsigned int framesToRead, unsigned int /*aBufferSize*/) override
-    {
-      Expects(m_decoder->audioStream->context->channels >= 0);
-      m_decoder->fillQueues();
-
-      size_t written = 0;
-      const auto stride = framesToRead;
-      while(framesToRead != 0 && !m_decoder->audioQueue.empty())
-      {
-        auto& src = m_decoder->audioQueue.front();
-        const auto frames
-          = std::min(static_cast<size_t>(framesToRead), src.size() / m_decoder->audioStream->context->channels);
-        auto srcPtr = src.cbegin();
-
-        for(size_t i = 0; i < frames; ++i)
-        {
-          for(int c = 0; c < m_decoder->audioStream->context->channels; ++c)
-          {
-            // deinterlace
-            BOOST_ASSERT(srcPtr != src.cend());
-            buffer[gsl::narrow_cast<size_t>(c * stride)] = *srcPtr++;
-          }
-          BOOST_ASSERT(framesToRead > 0);
-          --framesToRead;
-          ++written;
-          ++buffer;
-        }
-
-        src.erase(src.begin(),
-                  std::next(src.begin(),
-                            gsl::narrow_cast<std::remove_reference_t<decltype(src)>::difference_type>(
-                              m_decoder->audioStream->context->channels)
-                              * frames));
-        if(src.empty())
-        {
-          m_decoder->audioQueue.pop();
-        }
-      }
-
-      for(int c = 0; c < m_decoder->audioStream->context->channels; ++c)
-      {
-        std::fill_n(&buffer[gsl::narrow_cast<size_t>(c * stride)], framesToRead, 0.0f);
-      }
-      buffer += framesToRead;
-      written += framesToRead;
-
-      m_decoder->totalAudioFrames += written;
-
-      m_decoder->audioFrameOffset += written;
-      Expects(m_decoder->audioFrameSize > 0);
-      while(m_decoder->audioFrameOffset >= m_decoder->audioFrameSize)
-      {
-        m_decoder->audioFrameOffset -= m_decoder->audioFrameSize;
-        std::unique_lock lock{m_decoder->imgQueueMutex};
-        m_decoder->frameReady = true;
-        m_decoder->frameReadyCondition.notify_one();
-      }
-
-      return gsl::narrow<unsigned int>(written);
-    }
-  };
-
   AVFormatContext* fmtContext = nullptr;
   AVFramePtr audioFrame;
   std::unique_ptr<Stream> audioStream;
@@ -312,7 +234,7 @@ struct AVDecoder final : public SoLoud::AudioSource
     swrContext = swr_alloc_set_opts(nullptr,
                                     // NOLINTNEXTLINE(hicpp-signed-bitwise)
                                     audioStream->context->channels == 1 ? AV_CH_LAYOUT_MONO : AV_CH_LAYOUT_STEREO,
-                                    AV_SAMPLE_FMT_FLT,
+                                    AV_SAMPLE_FMT_S16,
                                     audioStream->context->sample_rate,
                                     // NOLINTNEXTLINE(hicpp-signed-bitwise)
                                     audioStream->context->channels == 1 ? AV_CH_LAYOUT_MONO : AV_CH_LAYOUT_STEREO,
@@ -338,9 +260,6 @@ struct AVDecoder final : public SoLoud::AudioSource
 
     Expects(av_new_packet(&packet, 0) == 0);
     fillQueues();
-
-    SoLoud::AudioSource::mBaseSamplerate = static_cast<float>(audioStream->context->sample_rate);
-    SoLoud::AudioSource::mChannels = audioStream->context->channels;
   }
 
   bool stopped = false;
@@ -377,7 +296,7 @@ struct AVDecoder final : public SoLoud::AudioSource
   }
 
   std::queue<AVFramePtr> imgQueue;
-  std::queue<std::vector<float>> audioQueue;
+  std::queue<std::vector<int16_t>> audioQueue;
   mutable std::mutex imgQueueMutex;
   std::condition_variable frameReadyCondition;
   bool frameReady = false;
@@ -500,7 +419,7 @@ struct AVDecoder final : public SoLoud::AudioSource
         BOOST_THROW_EXCEPTION(std::runtime_error("Failed to receive resampled audio data"));
       }
 
-      std::vector<float> audio(gsl::narrow_cast<size_t>(outSamples) * 2u, 0);
+      std::vector<int16_t> audio(gsl::narrow_cast<size_t>(outSamples) * 2u, 0);
       // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
       auto* audioData = reinterpret_cast<uint8_t*>(audio.data());
 
@@ -536,14 +455,61 @@ struct AVDecoder final : public SoLoud::AudioSource
     }
   }
 
+  size_t readStereo(int16_t* buffer, size_t bufferSize, bool /*looping*/) override
+  {
+    fillQueues();
+
+    size_t written = 0;
+    while(bufferSize != 0 && !audioQueue.empty())
+    {
+      auto& src = audioQueue.front();
+      const auto frames = std::min(static_cast<size_t>(bufferSize), src.size() / 2);
+      auto srcPtr = src.cbegin();
+
+      Expects(bufferSize >= frames);
+
+      std::copy_n(src.data(), 2 * frames, buffer);
+      bufferSize -= frames;
+      written += frames;
+      buffer += 2 * frames;
+
+      src.erase(src.begin(), std::next(src.begin(), 2 * frames));
+      if(src.empty())
+      {
+        audioQueue.pop();
+      }
+    }
+
+    totalAudioFrames += written;
+    audioFrameOffset += written;
+    Expects(audioFrameSize > 0);
+    while(audioFrameOffset >= audioFrameSize)
+    {
+      audioFrameOffset -= audioFrameSize;
+      std::unique_lock lock{imgQueueMutex};
+      frameReady = true;
+      frameReadyCondition.notify_one();
+    }
+
+    if(written == 0)
+    {
+      std::unique_lock lock{imgQueueMutex};
+      frameReady = true;
+      frameReadyCondition.notify_one();
+    }
+
+    std::fill_n(buffer, 2 * bufferSize, 0);
+    return written;
+  }
+
+  int getSampleRate() const override
+  {
+    return audioStream->context->sample_rate;
+  }
+
   size_t audioFrameSize = 0;
   size_t audioFrameOffset = 0;
   std::atomic<size_t> totalAudioFrames = 0;
-
-  SoLoud::AudioSourceInstance* createInstance() override
-  {
-    return new AVDecoderAudioInstance(this);
-  }
 };
 
 struct Converter
@@ -615,7 +581,7 @@ struct Converter
 };
 
 void play(const std::filesystem::path& filename,
-          SoLoud::Soloud& soLoud,
+          audio::Device& audioDevice,
           const std::function<bool(const std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>>& textureHandle)>&
             onFrame)
 {
@@ -628,12 +594,17 @@ void play(const std::filesystem::path& filename,
   Converter converter{decoder->filterGraph.graph->sink_links[0]};
   decoderPtr->fillQueues();
 
-  const auto handle = soLoud.play(*decoderPtr);
+  auto stream = audioDevice.createStream(std::move(decoderPtr), decoder->audioFrameSize, 2);
+  stream->setLooping(true);
+  stream->play();
 
-  const auto streamFinisher = gsl::finally([&handle, &soLoud]() { soLoud.stop(handle); });
+  const auto streamFinisher = gsl::finally([&stream, &audioDevice]() { audioDevice.removeStream(stream); });
 
   while(!decoder->stopped)
   {
+    if(const auto s = stream->getSource(); s->isPaused() || s->isStopped())
+      s->play();
+
     if(const auto f = decoder->takeFrame())
     {
       converter.update(*f);

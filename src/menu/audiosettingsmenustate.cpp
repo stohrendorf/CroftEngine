@@ -1,6 +1,8 @@
 #include "audiosettingsmenustate.h"
 
+#include "audio/soundengine.h"
 #include "core/i18n.h"
+#include "engine/audioengine.h"
 #include "engine/engine.h"
 #include "engine/presenter.h"
 #include "engine/world/world.h"
@@ -29,11 +31,8 @@ AudioSettingsMenuState::AudioSettingsMenuState(const std::shared_ptr<MenuRingTra
   static constexpr int Width = 200;
 
   m_globalVolume->setSize({Width, ui::FontHeight});
-  m_globalVolume->setValue(display.audioSettings.globalVolume);
   m_musicVolume->setSize({Width, ui::FontHeight});
-  m_musicVolume->setValue(display.audioSettings.musicVolume);
   m_sfxVolume->setSize({Width, ui::FontHeight});
-  m_sfxVolume->setValue(display.audioSettings.sfxVolume);
 
   m_grid->setExtents(2, 3);
   m_grid->setSelected({0, 0});
@@ -61,6 +60,10 @@ std::unique_ptr<MenuState>
   AudioSettingsMenuState::onFrame(ui::Ui& ui, engine::world::World& world, MenuDisplay& display)
 {
   static constexpr float Stepping = 0.1f;
+  auto& audioSettings = world.getEngine().getEngineConfig()->audioSettings;
+  m_globalVolume->setValue(audioSettings.globalVolume);
+  m_musicVolume->setValue(audioSettings.musicVolume);
+  m_sfxVolume->setValue(audioSettings.sfxVolume);
 
   const auto& inputHandler = world.getEngine().getPresenter().getInputHandler();
   if(inputHandler.hasDebouncedAction(hid::Action::Menu))
@@ -97,11 +100,18 @@ std::unique_ptr<MenuState>
   Ensures(selected != nullptr);
   selected->setValue(std::clamp(selected->getValue() + delta, 0.0f, 1.0f));
 
-  display.audioSettings.globalVolume = m_globalVolume->getValue();
-  display.audioSettings.musicVolume = m_musicVolume->getValue();
-  display.audioSettings.sfxVolume = m_sfxVolume->getValue();
+  audioSettings.globalVolume = m_globalVolume->getValue();
+  audioSettings.musicVolume = m_musicVolume->getValue();
+  audioSettings.sfxVolume = m_sfxVolume->getValue();
 
-  world.getPresenter().getSoundEngine()->getSoLoud().setGlobalVolume(display.audioSettings.globalVolume);
+  world.getPresenter().getSoundEngine()->setListenerGain(audioSettings.globalVolume);
+  world.getAudioEngine().setMusicGain(audioSettings.musicVolume);
+  world.getAudioEngine().setSfxGain(audioSettings.sfxVolume);
+
+  if(delta != 0)
+  {
+    world.getAudioEngine().playSoundEffect(engine::TR1SoundEffect::MenuGamePageTurn, nullptr);
+  }
 
   m_grid->update(true);
 

@@ -189,6 +189,7 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
             currentBlendDuration += 1_frame;
 
           m_presenter->renderUi(ui, currentBlendDuration.cast<float>() / BlendDuration.cast<float>());
+          m_presenter->updateSoundEngine();
           m_presenter->swapBuffers();
 
           if(m_presenter->getInputHandler().hasDebouncedAction(hid::Action::Action))
@@ -216,6 +217,7 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
                                world.getCameraController(),
                                world.getCameraController().update(),
                                throttler.getAverageDelayRatio());
+      m_presenter->updateSoundEngine();
       m_presenter->renderScreenOverlay();
       ui::Ui ui{m_presenter->getMaterialManager()->getUi(), world.getPalette()};
       ui.drawBox({0, 0}, m_presenter->getViewport(), gl::SRGBA8{0, 0, 0, 224});
@@ -405,6 +407,7 @@ std::pair<RunResult, std::optional<size_t>> Engine::runTitleMenu(world::World& w
     backdropMesh->render(context);
     menu->display(ui, world);
     m_presenter->renderUi(ui, 1);
+    m_presenter->updateSoundEngine();
     m_presenter->swapBuffers();
     switch(menu->result)
     {
@@ -490,8 +493,8 @@ void Engine::applySettings()
   m_presenter->apply(m_engineConfig->renderSettings, m_engineConfig->audioSettings);
   for(const auto& world : m_worlds)
   {
-    world->getAudioEngine().setMusicVolume(m_engineConfig->audioSettings.musicVolume);
-    world->getAudioEngine().setSfxVolume(m_engineConfig->audioSettings.sfxVolume);
+    world->getAudioEngine().setMusicGain(m_engineConfig->audioSettings.musicVolume);
+    world->getAudioEngine().setSfxGain(m_engineConfig->audioSettings.sfxVolume);
     for(auto& room : world->getRooms())
       room.collectShaderLights(m_engineConfig->renderSettings.getLightCollectionDepth());
   }

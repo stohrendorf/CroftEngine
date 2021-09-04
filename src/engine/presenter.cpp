@@ -38,14 +38,14 @@ void Presenter::playVideo(const std::filesystem::path& path)
 {
   util::ensureFileExists(path);
 
-  m_soundEngine->getSoLoud().setGlobalVolume(1.0f);
+  m_soundEngine->setListenerGain(1.0f);
 
   auto mesh = createScreenQuad(m_materialManager->getFlat(false, true, true), "video");
   mesh->getRenderState().setBlend(false);
 
   video::play(
     path,
-    m_soundEngine->getSoLoud(),
+    m_soundEngine->getDevice(),
     [&](const std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>>& textureHandle)
     {
       if(update())
@@ -69,6 +69,7 @@ void Presenter::playVideo(const std::filesystem::path& path)
       m_renderer->clear(gl::api::ClearBufferMask::ColorBufferBit, {0, 0, 0, 255}, 1);
       render::scene::RenderContext context{render::scene::RenderMode::Full, std::nullopt};
       mesh->render(context);
+      updateSoundEngine();
       swapBuffers();
       m_inputHandler->update();
       return !m_window->windowShouldClose() && !m_inputHandler->hasDebouncedAction(hid::Action::Menu);
@@ -415,6 +416,7 @@ void Presenter::drawLoadingScreen(const std::string& state)
   m_splashImageMesh->render(context);
   m_screenOverlay->setAlphaMultiplier(0.8f);
   m_screenOverlay->render(context);
+  updateSoundEngine();
   swapBuffers();
 }
 
@@ -462,7 +464,6 @@ void Presenter::setTrFont(std::unique_ptr<ui::TRFont>&& font)
 void Presenter::swapBuffers()
 {
   m_window->swapBuffers();
-  m_soundEngine->update();
 }
 
 void Presenter::clear()
@@ -487,7 +488,7 @@ void Presenter::apply(const render::RenderSettings& renderSettings, const AudioS
   }
   m_renderPipeline->apply(renderSettings, *m_materialManager);
   m_materialManager->setFiltering(renderSettings.bilinearFiltering, gsl::narrow<float>(renderSettings.anisotropyLevel));
-  m_soundEngine->getSoLoud().setGlobalVolume(audioSettings.globalVolume);
+  m_soundEngine->setListenerGain(audioSettings.globalVolume);
 }
 
 gl::CImgWrapper Presenter::takeScreenshot() const
@@ -533,5 +534,10 @@ bool Presenter::update()
   glfwPollEvents();
   m_window->updateWindowSize();
   return m_window->isMinimized();
+}
+
+void Presenter::updateSoundEngine()
+{
+  m_soundEngine->update();
 }
 } // namespace engine

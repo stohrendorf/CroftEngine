@@ -1,6 +1,7 @@
 #pragma once
 
 #include "audio/soundengine.h"
+#include "audio/voicegroup.h"
 #include "core/id.h"
 #include "floordata/floordata.h"
 #include "loader/file/audio.h"
@@ -21,6 +22,13 @@ namespace engine::script
 class ScriptEngine;
 }
 
+namespace audio
+{
+class SourceHandle;
+class BufferHandle;
+class Voice;
+} // namespace audio
+
 namespace engine
 {
 enum class TR1TrackId;
@@ -36,13 +44,13 @@ class AudioEngine
   std::map<TR1TrackId, engine::floordata::ActivationState> m_cdTrackActivationStates;
   core::Frame m_cdTrack50time = 0_frame;
   std::shared_ptr<audio::Voice> m_underwaterAmbience;
-  std::shared_ptr<audio::Voice> m_ambientStream;
-  std::shared_ptr<audio::Voice> m_interceptStream;
+  std::shared_ptr<audio::StreamVoice> m_ambientStream;
+  std::shared_ptr<audio::StreamVoice> m_interceptStream;
   std::optional<TR1TrackId> m_currentTrack;
   std::optional<TR1SoundEffect> m_currentLaraTalk;
-  std::vector<std::shared_ptr<SoLoud::AudioSource>> m_samples;
-  audio::VoiceCollection m_music{0.8f};
-  audio::VoiceCollection m_sfx{0.8f};
+  std::vector<std::shared_ptr<audio::BufferHandle>> m_samples;
+  audio::VoiceGroup m_music{0.8f};
+  audio::VoiceGroup m_sfx{0.8f};
 
 public:
   explicit AudioEngine(world::World& world,
@@ -78,7 +86,7 @@ public:
   std::shared_ptr<audio::Voice> playSoundEffect(const core::SoundEffectId& id, audio::Emitter* emitter);
   std::shared_ptr<audio::Voice> playSoundEffect(const core::SoundEffectId& id, const glm::vec3& pos);
 
-  gsl::not_null<std::shared_ptr<audio::Voice>> playStream(size_t trackId);
+  gsl::not_null<std::shared_ptr<audio::StreamVoice>> playStream(size_t trackId);
 
   void playStopCdTrack(const script::ScriptEngine& scriptEngine, TR1TrackId trackId, bool stop);
 
@@ -98,35 +106,24 @@ public:
 
   void addWav(const gsl::not_null<const uint8_t*>& buffer);
 
-  void fadeMusicVolume(float volume)
+  void setMusicGain(float gain)
   {
-    m_music.fadeVolume(volume, std::chrono::milliseconds(2000));
+    m_music.setGain(gain);
   }
 
-  void setMusicVolume(float volume)
+  void setSfxGain(float gain)
   {
-    m_music.setVolume(volume);
+    m_sfx.setGain(gain);
   }
 
-  void setSfxVolume(float volume)
+  [[nodiscard]] auto getMusicGain() const
   {
-    m_sfx.setVolume(volume);
+    return m_music.getGain();
   }
 
-  [[nodiscard]] auto getMusicVolume() const
+  [[nodiscard]] auto getSfxGain() const
   {
-    return m_music.getVolume();
-  }
-
-  [[nodiscard]] auto getSfxVolume() const
-  {
-    return m_sfx.getVolume();
-  }
-
-  void fadeGlobalVolume(float volume, SoLoud::time time = 2.0)
-  {
-    Expects(volume >= 0);
-    m_soundEngine->getSoLoud().fadeGlobalVolume(volume, time);
+    return m_sfx.getGain();
   }
 
   [[nodiscard]] const auto& getInterceptStream() const
@@ -143,6 +140,11 @@ public:
   {
     m_music.cleanup();
     m_sfx.cleanup();
+  }
+
+  [[nodiscard]] const auto& getSoundEngine() const
+  {
+    return m_soundEngine;
   }
 
   void serialize(const serialization::Serializer<world::World>& ser);

@@ -21,8 +21,6 @@
 #include "transition.h"
 #include "ui/pickupwidget.h"
 
-#include <pybind11/pytypes.h>
-
 namespace gl
 {
 class CImgWrapper;

@@ -152,6 +152,8 @@ public:
 
   bool update();
 
+  void updateSoundEngine();
+
 private:
   const std::unique_ptr<gl::Window> m_window;
 

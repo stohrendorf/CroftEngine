@@ -29,7 +29,7 @@ include( dl_unpack )
 include( get_python3 )
 include( get_pybind11 )
 include( get_gsllite )
-include( get_soloud )
+include( get_openal )
 include( get_utf8cpp )
 include( get_gettext )
 

@@ -330,7 +330,7 @@ void World::floodEffect()
     if(m_globalSoundEffect == nullptr)
       m_globalSoundEffect = m_audioEngine->playSoundEffect(TR1SoundEffect::WaterFlow3, pos.toRenderSystem());
     else
-      m_globalSoundEffect->setPosition(pos.toRenderSystem());
+      m_globalSoundEffect->getSource()->setPosition(pos.toRenderSystem());
   }
   else
   {
@@ -893,6 +893,7 @@ void World::gameLoop(bool godMode, float delayRatio, float blackAlpha)
   drawPerformanceBar(ui, delayRatio);
 
   getPresenter().renderUi(ui, 1);
+  getPresenter().updateSoundEngine();
   getPresenter().swapBuffers();
 }
 
@@ -911,6 +912,7 @@ bool World::cinematicLoop()
   getPresenter().renderWorld(getObjectManager(), getRooms(), getCameraController(), waterEntryPortals, 0);
   getPresenter().renderScreenOverlay();
   getPresenter().renderUi(ui, 1);
+  getPresenter().updateSoundEngine();
   getPresenter().swapBuffers();
   return true;
 }
@@ -999,8 +1001,8 @@ World::World(Engine& engine,
     , m_samplesData{std::move(level->m_samplesData)}
 {
   m_engine.registerWorld(this);
-  m_audioEngine->setMusicVolume(m_engine.getEngineConfig()->audioSettings.musicVolume);
-  m_audioEngine->setSfxVolume(m_engine.getEngineConfig()->audioSettings.sfxVolume);
+  m_audioEngine->setMusicGain(m_engine.getEngineConfig()->audioSettings.musicVolume);
+  m_audioEngine->setSfxGain(m_engine.getEngineConfig()->audioSettings.sfxVolume);
 
   initTextureDependentDataFromLevel(*level);
 
@@ -1418,13 +1420,13 @@ void World::initFromLevel(loader::file::level::Level& level)
     m_positionalEmitters.emplace_back(src.position.toRenderSystem(), getPresenter().getSoundEngine().get());
     auto voice = m_audioEngine->playSoundEffect(src.sound_effect_id, &m_positionalEmitters.back());
     Expects(voice != nullptr);
-    voice->pause();
+    voice->getSource()->pause();
     m_staticSoundEffects.emplace_back(
       StaticSoundEffect{std::move(voice),
                         (src.flags & loader::file::SoundSource::PlayIfRoomsSwapped) != 0,
                         (src.flags & loader::file::SoundSource::PlayIfRoomsNotSwapped) != 0});
   }
-  m_audioEngine->fadeGlobalVolume(1.0f);
+  m_audioEngine->getSoundEngine()->setListenerGain(1.0f);
   updateStaticSoundEffects();
 }
 
@@ -1500,16 +1502,16 @@ void World::updateStaticSoundEffects()
     if(m_roomsAreSwapped && soundEffect.playIfSwapped)
     {
       soundEffect.voice->play();
-      soundEffect.voice->setLooping(true);
+      soundEffect.voice->getSource()->setLooping(true);
     }
     else if(!m_roomsAreSwapped && soundEffect.playIfNotSwapped)
     {
       soundEffect.voice->play();
-      soundEffect.voice->setLooping(true);
+      soundEffect.voice->getSource()->setLooping(true);
     }
     else
     {
-      soundEffect.voice->setLooping(false);
+      soundEffect.voice->getSource()->setLooping(false);
     }
   }
 }

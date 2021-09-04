@@ -145,12 +145,6 @@ void MenuDisplay::display(ui::Ui& ui, engine::world::World& world)
     ui::Text title{getCurrentRing().title};
     title.draw(ui, world.getPresenter().getTrFont(), {(vp.x - title.getWidth()) / 2, RingInfoYMargin});
   }
-
-  if(result != MenuResult::None)
-  {
-    world.getEngine().getEngineConfig()->audioSettings = audioSettings;
-    world.getAudioEngine().fadeMusicVolume(world.getEngine().getEngineConfig()->audioSettings.musicVolume);
-  }
 }
 
 bool MenuDisplay::doOptions(engine::world::World& world, MenuObject& object)
@@ -473,7 +467,6 @@ std::vector<MenuObject> MenuDisplay::getKeysRingObjects(const engine::world::Wor
 
 MenuDisplay::MenuDisplay(InventoryMode mode, engine::world::World& world)
     : mode{mode}
-    , audioSettings{world.getEngine().getEngineConfig()->audioSettings}
     , allowMenuClose{mode != InventoryMode::TitleMode && mode != InventoryMode::DeathMode}
     , m_currentState{std::make_unique<InflateRingMenuState>(ringTransform, true)}
     , m_upArrow{ui::getSpriteSelector(ui::ArrowUpSprite)}
@@ -505,10 +498,6 @@ MenuDisplay::MenuDisplay(InventoryMode mode, engine::world::World& world)
 
   world.getCameraController().getCamera()->setFieldOfView(engine::Presenter::DefaultFov);
   // TODO fadeInInventory(mode != InventoryMode::TitleMode);
-  if(mode != InventoryMode::TitleMode)
-  {
-    world.getAudioEngine().fadeMusicVolume(world.getEngine().getEngineConfig()->audioSettings.musicVolume * 0.1f);
-  }
   world.getAudioEngine().playSoundEffect(engine::TR1SoundEffect::MenuOptionPopup, nullptr);
 }
 
