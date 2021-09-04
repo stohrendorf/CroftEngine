@@ -5,7 +5,7 @@ from scripts.tr1.object_infos import object_infos
 from scripts.tr1.audio import tracks
 from scripts.tr1.level_sequence import level_sequence, title_menu, lara_home, early_boot
 
-if True:
+if False:
     cheats = {
         "godMode": True,
         "allAmmoCheat": True,
