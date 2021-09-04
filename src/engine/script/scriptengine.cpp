@@ -53,9 +53,9 @@ TrackInfo ScriptEngine::getTrackInfo(engine::TR1TrackId trackId) const
 }
 
 // NOLINTNEXTLINE(readability-convert-member-functions-to-static)
-std::optional<std::string> ScriptEngine::getLanguageOverride() const
+std::optional<std::string> ScriptEngine::getLocaleOverride() const
 {
-  return get<std::string>(pybind11::globals(), "language_override");
+  return get<std::string>(pybind11::globals(), "locale_override");
 }
 
 // NOLINTNEXTLINE(readability-convert-member-functions-to-static)

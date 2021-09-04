@@ -82,7 +82,7 @@ private:
   std::shared_ptr<Presenter> m_presenter;
   std::set<gsl::not_null<world::World*>> m_worlds;
 
-  std::string m_language;
+  std::string m_locale;
 
   std::unique_ptr<loader::trx::Glidos> m_glidos;
   [[nodiscard]] std::unique_ptr<loader::trx::Glidos> loadGlidosPack() const;
@@ -109,16 +109,16 @@ public:
   std::pair<RunResult, std::optional<size_t>> run(world::World& world, bool isCutscene, bool allowSave);
   std::pair<RunResult, std::optional<size_t>> runTitleMenu(world::World& world);
 
-  [[nodiscard]] const std::string& getLanguage() const
+  [[nodiscard]] const std::string& getLocale() const
   {
-    return m_language;
+    return m_locale;
   }
 
-  [[nodiscard]] std::string getLanguageWithoutEncoding() const
+  [[nodiscard]] std::string getLocaleWithoutEncoding() const
   {
-    if(auto idx = m_language.find('.'); idx != std::string::npos)
-      return m_language.substr(0, idx);
-    return m_language;
+    if(auto idx = m_locale.find('.'); idx != std::string::npos)
+      return m_locale.substr(0, idx);
+    return m_locale;
   }
 
   [[nodiscard]] std::filesystem::path getSavegameRootPath() const;

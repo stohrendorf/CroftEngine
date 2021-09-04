@@ -49,7 +49,7 @@ SavegameListMenuState::SavegameListMenuState(const std::shared_ptr<MenuRingTrans
       const auto localTime = localtime(&timePoint);
       Expects(localTime != nullptr);
       std::stringstream timeStr;
-      timeStr.imbue(std::locale(world.getEngine().getLanguage()));
+      timeStr.imbue(std::locale(world.getEngine().getLocale()));
       timeStr << std::put_time(localTime,
                                /* translators: TR charmap encoding */ pgettext("SavegameTime", "%d %B %Y %X"));
       name = (boost::format(/* translators: TR charmap encoding */ pgettext("SavegameTitle", "%1% - %2%"))

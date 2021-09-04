@@ -70,31 +70,31 @@ Engine::Engine(const std::filesystem::path& rootPath, const glm::ivec2& resoluti
     BOOST_THROW_EXCEPTION(std::runtime_error("Failed to load main.py"));
   }
 
-  m_language = std::use_facet<boost::locale::info>(boost::locale::generator()("")).name();
-  BOOST_LOG_TRIVIAL(info) << "Detected user's language is " << m_language;
-  if(const auto overrideLanguage = m_scriptEngine.getLanguageOverride())
+  m_locale = std::use_facet<boost::locale::info>(boost::locale::generator()("")).name();
+  BOOST_LOG_TRIVIAL(info) << "Detected user's locale is " << m_locale;
+  if(const auto overrideLocale = m_scriptEngine.getLocaleOverride())
   {
-    m_language = *overrideLanguage;
-    BOOST_LOG_TRIVIAL(info) << "Language override is " << m_language;
+    m_locale = *overrideLocale;
+    BOOST_LOG_TRIVIAL(info) << "Locale override is " << m_locale;
   }
 
   const auto poDir = std::filesystem::absolute(std::filesystem::current_path() / "share" / "po");
   BOOST_LOG_TRIVIAL(info) << "Using locales from " << poDir;
 #ifdef _WIN32
-  Expects(_putenv_s("LANG", m_language.c_str()) == 0);
+  Expects(_putenv_s("LANG", m_locale.c_str()) == 0);
   BOOST_LOG_TRIVIAL(trace) << "gettext text domain: " << textdomain("edisonengine");
   if(wbindtextdomain("edisonengine", poDir.c_str()) == nullptr)
   {
     BOOST_LOG_TRIVIAL(warning) << "failed to bind text domain";
   }
 #else
-  Expects(setenv("LANG", m_language.c_str(), true) == 0);
+  Expects(setenv("LANG", m_locale.c_str(), true) == 0);
   if(bindtextdomain("edisonengine", poDir.c_str()) == nullptr)
   {
     BOOST_LOG_TRIVIAL(warning) << "failed to bind text domain";
   }
 #endif
-  if(auto result = setlocale(LC_MESSAGES, m_language.c_str()); result != nullptr)
+  if(auto result = setlocale(LC_MESSAGES, m_locale.c_str()); result != nullptr)
   {
     BOOST_LOG_TRIVIAL(trace) << "gettext setlocale result: " << result;
   }
@@ -107,7 +107,7 @@ Engine::Engine(const std::filesystem::path& rootPath, const glm::ivec2& resoluti
        "translation-test-message")
      == std::string{"translation-test-message"})
   {
-    BOOST_LOG_TRIVIAL(warning) << "Missing translations for " << m_language;
+    BOOST_LOG_TRIVIAL(warning) << "Missing translations for " << m_locale;
   }
 
   m_engineConfig = std::make_unique<EngineConfig>();

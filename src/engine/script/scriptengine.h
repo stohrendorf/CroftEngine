@@ -31,7 +31,7 @@ public:
   [[nodiscard]] std::vector<LevelSequenceItem*> getEarlyBoot() const;
   [[nodiscard]] LevelSequenceItem* getLevelSequenceItem(size_t idx) const;
   [[nodiscard]] TrackInfo getTrackInfo(engine::TR1TrackId trackId) const;
-  [[nodiscard]] std::optional<std::string> getLanguageOverride() const;
+  [[nodiscard]] std::optional<std::string> getLocaleOverride() const;
   [[nodiscard]] ObjectInfo getObjectInfo(const core::TypeId& type) const;
 
   [[nodiscard]] bool isGodMode() const;
