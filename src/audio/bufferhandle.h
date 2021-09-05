@@ -64,7 +64,9 @@ public:
     Expects(data[8] == 'W' && data[9] == 'A' && data[10] == 'V' && data[11] == 'E');
 
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-    sndfile::MemBufferFileIo wavMem(data, static_cast<size_t>(*reinterpret_cast<const uint32_t*>(data + 4)) + 8u);
+    uint32_t dataSize = 0;
+    std::memcpy(&dataSize, data + 4, sizeof(uint32_t));
+    sndfile::MemBufferFileIo wavMem(data, gsl::narrow_cast<sf_count_t>(dataSize) + 8);
     SF_INFO sfInfo;
     memset(&sfInfo, 0, sizeof(sfInfo));
     SNDFILE* sfFile = sf_open_virtual(&wavMem, SFM_READ, &sfInfo, &wavMem);
