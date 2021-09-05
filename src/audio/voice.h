@@ -44,7 +44,7 @@ public:
     return m_source->isPaused();
   }
 
-  [[nodiscard]] virtual bool isStopped() const
+  [[nodiscard]] bool isStopped() const
   {
     return m_source->isStopped();
   }

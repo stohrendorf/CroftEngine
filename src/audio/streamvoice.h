@@ -18,17 +18,10 @@ public:
 
   void update();
 
-  [[nodiscard]] const auto& getStream() const
-  {
-    return m_stream;
-  }
-
   void setLooping(const bool looping)
   {
     m_looping = looping;
   }
-
-  [[nodiscard]] bool isStopped() const override;
 
 private:
   std::unique_ptr<AbstractStreamSource> m_stream;

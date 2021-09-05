@@ -67,10 +67,4 @@ bool StreamVoice::fillBuffer(BufferHandle& buffer)
   buffer.fill(m_sampleBuffer.data(), framesRead * 2, 2, m_stream->getSampleRate());
   return framesRead > 0;
 }
-
-bool StreamVoice::isStopped() const
-{
-  auto sourceHandle = static_cast<StreamingSourceHandle*>(getSource().get().get());
-  return sourceHandle->getQueueSize() == 0 && Voice::isStopped();
-}
 } // namespace audio

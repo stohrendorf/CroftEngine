@@ -5,6 +5,8 @@
 #include "filterhandle.h"
 #include "util/helpers.h"
 
+#include <mutex>
+#include <thread>
 #include <unordered_set>
 #include <utility>
 
@@ -116,12 +118,12 @@ public:
   }
 
   // NOLINTNEXTLINE(readability-make-member-function-const)
-  void stop()
+  virtual void stop()
   {
     AL_ASSERT(alSourceStop(m_handle));
   }
 
-  [[nodiscard]] bool isStopped() const
+  [[nodiscard]] virtual bool isStopped() const
   {
     ALenum state = AL_STOPPED;
     AL_ASSERT(alGetSourcei(m_handle, AL_SOURCE_STATE, &state));
@@ -169,12 +171,26 @@ public:
 class StreamingSourceHandle : public SourceHandle
 {
 private:
-  std::unordered_set<std::shared_ptr<BufferHandle>> m_queuedBuffers;
+  mutable std::mutex m_queueMutex{};
+  std::unordered_set<std::shared_ptr<BufferHandle>> m_queuedBuffers{};
 
 public:
+  ~StreamingSourceHandle() override
+  {
+    std::unique_lock lock{m_queueMutex};
+    if(!m_queuedBuffers.empty())
+    {
+      lock.unlock();
+      BOOST_LOG_TRIVIAL(warning) << "Streaming source handle still processing on destruction";
+      gracefullyStop(std::chrono::milliseconds{10});
+    }
+  }
+
   // NOLINTNEXTLINE(readability-make-member-function-const)
   [[nodiscard]] std::shared_ptr<BufferHandle> unqueueBuffer()
   {
+    std::unique_lock lock{m_queueMutex};
+
     ALuint unqueued;
     AL_ASSERT(alSourceUnqueueBuffers(get(), 1, &unqueued));
 
@@ -193,6 +209,8 @@ public:
   // NOLINTNEXTLINE(readability-make-member-function-const)
   void queueBuffer(const std::shared_ptr<BufferHandle>& buffer)
   {
+    std::unique_lock lock{m_queueMutex};
+
     if(!m_queuedBuffers.emplace(buffer).second)
       BOOST_THROW_EXCEPTION(std::runtime_error("Buffer enqueued more than once"));
 
@@ -200,9 +218,31 @@ public:
     AL_ASSERT(alSourceQueueBuffers(get(), 1, &bufferId));
   }
 
-  [[nodiscard]] auto getQueueSize() const
+  [[nodiscard]] bool isStopped() const override
   {
-    return m_queuedBuffers.size();
+    std::unique_lock lock{m_queueMutex};
+    return m_queuedBuffers.empty() && SourceHandle::isStopped();
+  }
+
+  void gracefullyStop(const std::chrono::milliseconds& sleep)
+  {
+    stop();
+    while(!isStopped())
+    {
+      std::this_thread::sleep_for(sleep);
+    }
+  }
+
+  void stop() override
+  {
+    SourceHandle::stop();
+    std::unique_lock lock{m_queueMutex};
+    while(!m_queuedBuffers.empty())
+    {
+      lock.unlock();
+      (void)unqueueBuffer();
+      lock.lock();
+    }
   }
 };
 } // namespace audio
