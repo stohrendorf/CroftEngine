@@ -101,24 +101,25 @@ void AudioEngine::triggerNormalCdTrack(const script::ScriptEngine& scriptEngine,
   if(trackId >= TR1TrackId::Sentinel)
     return;
 
-  if(m_cdTrackActivationStates[trackId].isOneshot())
+  auto& trackState = m_cdTrackActivationStates[trackId];
+  if(trackState.isOneshot())
     return;
 
   if(triggerType == floordata::SequenceCondition::ItemActivated)
-    m_cdTrackActivationStates[trackId] ^= activationRequest.getActivationSet();
+    trackState ^= activationRequest.getActivationSet();
   else if(triggerType == floordata::SequenceCondition::LaraOnGroundInverted)
-    m_cdTrackActivationStates[trackId] &= ~activationRequest.getActivationSet();
+    trackState &= ~activationRequest.getActivationSet();
   else
-    m_cdTrackActivationStates[trackId] |= activationRequest.getActivationSet();
+    trackState |= activationRequest.getActivationSet();
 
-  if(!m_cdTrackActivationStates[trackId].isFullyActivated())
+  if(!trackState.isFullyActivated())
   {
     playStopCdTrack(scriptEngine, trackId, true);
     return;
   }
 
   if(activationRequest.isOneshot())
-    m_cdTrackActivationStates[trackId].setOneshot(true);
+    trackState.setOneshot(true);
 
   if(!m_currentTrack.has_value() || *m_currentTrack != trackId)
     playStopCdTrack(scriptEngine, trackId, false);
