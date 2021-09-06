@@ -4,6 +4,7 @@
 #include "objects/laraobject.h"
 #include "script/reflection.h"
 #include "script/scriptengine.h"
+#include "serialization/chrono.h"
 #include "serialization/map.h"
 #include "serialization/optional.h"
 #include "serialization/serialization.h"
@@ -180,16 +181,19 @@ void AudioEngine::playStopCdTrack(const script::ScriptEngine& scriptEngine, cons
     }
 
     m_ambientStream.reset();
+    m_ambientStreamId.reset();
     m_currentTrack.reset();
 
     if(!stop)
     {
       BOOST_LOG_TRIVIAL(debug) << "playStopCdTrack - play ambient " << static_cast<size_t>(trackInfo.id.get());
       m_ambientStream = playStream(trackInfo.id.get());
+      m_ambientStreamId = trackInfo.id.get();
       m_ambientStream->setLooping(true);
       m_music.add(m_ambientStream);
       m_ambientStream->setLooping(true);
       m_interceptStream.reset();
+      m_interceptStreamId.reset();
       m_currentTrack = trackId;
     }
     break;
@@ -201,12 +205,14 @@ void AudioEngine::playStopCdTrack(const script::ScriptEngine& scriptEngine, cons
     }
 
     m_interceptStream.reset();
+    m_interceptStreamId.reset();
     m_currentTrack.reset();
 
     if(!stop)
     {
       BOOST_LOG_TRIVIAL(debug) << "playStopCdTrack - play interception " << static_cast<size_t>(trackInfo.id.get());
       m_interceptStream = playStream(trackInfo.id.get());
+      m_interceptStreamId = trackInfo.id.get();
       m_music.add(m_interceptStream);
       m_interceptStream->setLooping(false);
       m_currentTrack = trackId;
@@ -215,7 +221,8 @@ void AudioEngine::playStopCdTrack(const script::ScriptEngine& scriptEngine, cons
   }
 }
 
-gsl::not_null<std::shared_ptr<audio::StreamVoice>> AudioEngine::playStream(size_t trackId)
+gsl::not_null<std::shared_ptr<audio::StreamVoice>>
+  AudioEngine::playStream(size_t trackId, const std::chrono::milliseconds& initialPosition)
 {
   static constexpr size_t DefaultBufferSize = 8192;
   static constexpr size_t DefaultBufferCount = 4;
@@ -225,7 +232,8 @@ gsl::not_null<std::shared_ptr<audio::StreamVoice>> AudioEngine::playStream(size_
     auto stream = m_soundEngine->getDevice().createStream(
       std::make_unique<audio::WadStreamSource>(m_rootPath / "CDAUDIO.WAD", trackId),
       DefaultBufferSize,
-      DefaultBufferCount);
+      DefaultBufferCount,
+      initialPosition);
     m_music.add(stream);
     stream->play();
     return stream;
@@ -236,7 +244,8 @@ gsl::not_null<std::shared_ptr<audio::StreamVoice>> AudioEngine::playStream(size_
       = m_soundEngine->getDevice().createStream(std::make_unique<audio::SndfileStreamSource>(util::ensureFileExists(
                                                   m_rootPath / (boost::format("%03d.ogg") % trackId).str())),
                                                 DefaultBufferSize,
-                                                DefaultBufferCount);
+                                                DefaultBufferCount,
+                                                initialPosition);
     m_music.add(stream);
     stream->play();
     return stream;
@@ -392,8 +401,44 @@ std::shared_ptr<audio::Voice> AudioEngine::playSoundEffect(const core::SoundEffe
 
 void AudioEngine::serialize(const serialization::Serializer<world::World>& ser)
 {
+  std::chrono::milliseconds ambientPosition
+    = m_ambientStream == nullptr ? std::chrono::milliseconds{0} : m_ambientStream->getPosition();
+  std::chrono::milliseconds interceptPosition
+    = m_interceptStream == nullptr ? std::chrono::milliseconds{0} : m_interceptStream->getPosition();
+
   ser(S_NV("currentTrack", m_currentTrack),
       S_NV("currentLaraTalk", m_currentLaraTalk),
-      S_NV("cdTrackActivationStates", m_cdTrackActivationStates));
+      S_NV("cdTrackActivationStates", m_cdTrackActivationStates),
+      S_NV("ambientStreamId", m_ambientStreamId),
+      S_NV("ambientStreamPosition", ambientPosition),
+      S_NV("interceptStreamId", m_interceptStreamId),
+      S_NV("interceptStreamPosition", interceptPosition));
+
+  if(ser.loading)
+  {
+    if(m_ambientStream != nullptr)
+    {
+      m_music.remove(m_ambientStream);
+      m_soundEngine->getDevice().removeStream(m_ambientStream);
+    }
+    m_ambientStream.reset();
+
+    if(m_ambientStreamId.has_value())
+    {
+      m_ambientStream = playStream(*m_ambientStreamId, ambientPosition);
+    }
+
+    if(m_interceptStream != nullptr)
+    {
+      m_music.remove(m_interceptStream);
+      m_soundEngine->getDevice().removeStream(m_interceptStream);
+    }
+    m_interceptStream.reset();
+
+    if(m_interceptStreamId.has_value())
+    {
+      m_interceptStream = playStream(*m_interceptStreamId, interceptPosition);
+    }
+  }
 }
 } // namespace engine

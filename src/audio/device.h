@@ -76,9 +76,12 @@ public:
   }
 
   [[nodiscard]] gsl::not_null<std::shared_ptr<StreamVoice>>
-    createStream(std::unique_ptr<AbstractStreamSource>&& src, const size_t bufferSize, const size_t bufferCount)
+    createStream(std::unique_ptr<AbstractStreamSource>&& src,
+                 const size_t bufferSize,
+                 const size_t bufferCount,
+                 const std::chrono::milliseconds& initialPosition)
   {
-    const auto r = std::make_shared<StreamVoice>(*this, std::move(src), bufferSize, bufferCount);
+    const auto r = std::make_shared<StreamVoice>(*this, std::move(src), bufferSize, bufferCount, initialPosition);
 
     std::lock_guard lock{m_streamsLock};
     m_streams.emplace(r);

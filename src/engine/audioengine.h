@@ -10,6 +10,7 @@
 #include <boost/container/flat_map.hpp>
 #include <filesystem>
 #include <map>
+#include <optional>
 #include <utility>
 
 namespace engine::world
@@ -45,7 +46,9 @@ class AudioEngine
   core::Frame m_cdTrack50time = 0_frame;
   std::shared_ptr<audio::Voice> m_underwaterAmbience;
   std::shared_ptr<audio::StreamVoice> m_ambientStream;
+  std::optional<size_t> m_ambientStreamId{};
   std::shared_ptr<audio::StreamVoice> m_interceptStream;
+  std::optional<size_t> m_interceptStreamId{};
   std::optional<TR1TrackId> m_currentTrack;
   std::optional<TR1SoundEffect> m_currentLaraTalk;
   std::vector<std::shared_ptr<audio::BufferHandle>> m_samples;
@@ -78,7 +81,9 @@ public:
     m_cdTrack50time = 0_frame;
     m_underwaterAmbience.reset();
     m_ambientStream.reset();
+    m_ambientStreamId.reset();
     m_interceptStream.reset();
+    m_interceptStreamId.reset();
     m_currentTrack.reset();
     m_currentLaraTalk.reset();
   }
@@ -86,7 +91,8 @@ public:
   std::shared_ptr<audio::Voice> playSoundEffect(const core::SoundEffectId& id, audio::Emitter* emitter);
   std::shared_ptr<audio::Voice> playSoundEffect(const core::SoundEffectId& id, const glm::vec3& pos);
 
-  gsl::not_null<std::shared_ptr<audio::StreamVoice>> playStream(size_t trackId);
+  gsl::not_null<std::shared_ptr<audio::StreamVoice>>
+    playStream(size_t trackId, const std::chrono::milliseconds& initialPosition = std::chrono::milliseconds{0});
 
   void playStopCdTrack(const script::ScriptEngine& scriptEngine, TR1TrackId trackId, bool stop);
 

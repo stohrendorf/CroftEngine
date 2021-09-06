@@ -509,6 +509,15 @@ struct AVDecoder final : public audio::AbstractStreamSource
   size_t audioFrameSize = 0;
   size_t audioFrameOffset = 0;
   std::atomic<size_t> totalAudioFrames = 0;
+
+  std::chrono::milliseconds getPosition() const override
+  {
+    return std::chrono::milliseconds{0};
+  }
+
+  void seek(const std::chrono::milliseconds& /*position*/) override
+  {
+  }
 };
 
 struct Converter
@@ -593,7 +602,8 @@ void play(const std::filesystem::path& filename,
   Converter converter{decoder->filterGraph.graph->sink_links[0]};
   decoderPtr->fillQueues();
 
-  auto stream = audioDevice.createStream(std::move(decoderPtr), decoder->audioFrameSize, 2);
+  auto stream
+    = audioDevice.createStream(std::move(decoderPtr), decoder->audioFrameSize, 2, std::chrono::milliseconds{0});
   stream->setLooping(true);
   stream->play();
 

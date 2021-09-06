@@ -14,7 +14,8 @@ public:
   explicit StreamVoice(Device& device,
                        std::unique_ptr<AbstractStreamSource>&& source,
                        size_t bufferSize,
-                       size_t bufferCount);
+                       size_t bufferCount,
+                       const std::chrono::milliseconds& initialPosition = std::chrono::milliseconds{0});
 
   void update();
 
@@ -22,6 +23,9 @@ public:
   {
     m_looping = looping;
   }
+
+  [[nodiscard]] std::chrono::milliseconds getPosition() const;
+  void seek(const std::chrono::milliseconds& position);
 
 private:
   std::unique_ptr<AbstractStreamSource> m_stream;

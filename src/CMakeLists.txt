@@ -257,6 +257,7 @@ set( EDISONENGINE_SRCS
         audio/streamvoice.h
         audio/streamvoice.cpp
         audio/streamsource.h
+        audio/streamsource.cpp
         audio/tracktype.h
         audio/utils.h
         audio/utils.cpp

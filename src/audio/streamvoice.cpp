@@ -7,7 +7,8 @@ namespace audio
 StreamVoice::StreamVoice(Device& device,
                          std::unique_ptr<AbstractStreamSource>&& source,
                          const size_t bufferSize,
-                         const size_t bufferCount)
+                         const size_t bufferCount,
+                         const std::chrono::milliseconds& initialPosition)
     : Voice{device.createStreamingSourceHandle()}
     , m_stream{std::move(source)}
     , m_sampleBuffer(bufferSize * 2)
@@ -18,6 +19,8 @@ StreamVoice::StreamVoice(Device& device,
   Expects(bufferSize > 0);
   Expects(bufferCount >= 2);
 
+  m_stream->seek(initialPosition);
+  
   auto sourceHandle = static_cast<StreamingSourceHandle*>(getSource().get().get());
   m_buffers.reserve(bufferCount);
   for(size_t i = 0; i < bufferCount; ++i)
@@ -66,5 +69,15 @@ bool StreamVoice::fillBuffer(BufferHandle& buffer)
   const auto framesRead = m_stream->readStereo(m_sampleBuffer.data(), m_sampleBuffer.size() / 2, m_looping);
   buffer.fill(m_sampleBuffer.data(), framesRead * 2, 2, m_stream->getSampleRate());
   return framesRead > 0;
+}
+
+std::chrono::milliseconds StreamVoice::getPosition() const
+{
+  return m_stream->getPosition();
+}
+
+void StreamVoice::seek(const std::chrono::milliseconds& position)
+{
+  m_stream->seek(position);
 }
 } // namespace audio
