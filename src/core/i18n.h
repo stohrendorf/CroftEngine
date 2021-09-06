@@ -2,6 +2,7 @@
 
 #include <boost/format.hpp>
 #include <cstring>
+#include <filesystem>
 
 #ifdef _MSC_VER
 #  define fprintf
@@ -88,4 +89,9 @@ inline const char*
 inline const char* npgettext(const char* msg_ctxt, const char* msgid, const char* msgid_plural, unsigned long n)
 {
   return dnpgettext(textdomain(nullptr), msg_ctxt, msgid, msgid_plural, n);
+}
+
+namespace core
+{
+extern void setLocale(const std::filesystem::path& poDir, const std::string& locale);
 }

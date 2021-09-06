@@ -78,37 +78,7 @@ Engine::Engine(const std::filesystem::path& rootPath, const glm::ivec2& resoluti
     BOOST_LOG_TRIVIAL(info) << "Locale override is " << m_locale;
   }
 
-  const auto poDir = std::filesystem::absolute(std::filesystem::current_path() / "share" / "po");
-  BOOST_LOG_TRIVIAL(info) << "Using locales from " << poDir;
-#ifdef _WIN32
-  Expects(_putenv_s("LANG", m_locale.c_str()) == 0);
-  BOOST_LOG_TRIVIAL(trace) << "gettext text domain: " << textdomain("edisonengine");
-  if(wbindtextdomain("edisonengine", poDir.c_str()) == nullptr)
-  {
-    BOOST_LOG_TRIVIAL(warning) << "failed to bind text domain";
-  }
-#else
-  Expects(setenv("LANG", m_locale.c_str(), true) == 0);
-  if(bindtextdomain("edisonengine", poDir.c_str()) == nullptr)
-  {
-    BOOST_LOG_TRIVIAL(warning) << "failed to bind text domain";
-  }
-#endif
-  if(auto result = setlocale(LC_MESSAGES, m_locale.c_str()); result != nullptr)
-  {
-    BOOST_LOG_TRIVIAL(trace) << "gettext setlocale result: " << result;
-  }
-  else
-  {
-    BOOST_LOG_TRIVIAL(warning) << "failed to set gettext locale";
-  }
-
-  if(/* translators: insert the locale here, this is an internal check if valid translations exist */ _(
-       "translation-test-message")
-     == std::string{"translation-test-message"})
-  {
-    BOOST_LOG_TRIVIAL(warning) << "Missing translations for " << m_locale;
-  }
+  core::setLocale(std::filesystem::absolute(std::filesystem::current_path() / "share" / "po"), m_locale);
 
   m_engineConfig = std::make_unique<EngineConfig>();
   if(std::filesystem::is_regular_file(m_rootPath / "config.yaml"))

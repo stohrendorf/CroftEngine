@@ -481,6 +481,7 @@ set( EDISONENGINE_SRCS
         core/angle.cpp
         core/boundingbox.h
         core/containeroffset.h
+        core/i18n.cpp
         core/id.h
         core/magic.h
         core/py_module.cpp
