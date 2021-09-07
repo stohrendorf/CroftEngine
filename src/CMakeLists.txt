@@ -249,11 +249,14 @@ set( EDISONENGINE_SRCS
         audio/alext.h
         audio/alext.cpp
         audio/bufferhandle.h
+        audio/bufferhandle.cpp
         audio/device.h
         audio/device.cpp
         audio/filterhandle.h
         audio/soundengine.h
         audio/soundengine.cpp
+        audio/sourcehandle.h
+        audio/sourcehandle.cpp
         audio/streamvoice.h
         audio/streamvoice.cpp
         audio/streamsource.h

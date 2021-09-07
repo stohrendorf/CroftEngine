@@ -6,13 +6,10 @@
 
 namespace audio
 {
-class Device;
-
 class StreamVoice : public Voice
 {
 public:
-  explicit StreamVoice(Device& device,
-                       std::unique_ptr<AbstractStreamSource>&& source,
+  explicit StreamVoice(std::unique_ptr<AbstractStreamSource>&& source,
                        size_t bufferSize,
                        size_t bufferCount,
                        const std::chrono::milliseconds& initialPosition = std::chrono::milliseconds{0});

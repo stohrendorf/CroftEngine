@@ -1,15 +1,16 @@
 #include "streamvoice.h"
 
-#include "device.h"
+#include "bufferhandle.h"
+
+#include <boost/log/trivial.hpp>
 
 namespace audio
 {
-StreamVoice::StreamVoice(Device& device,
-                         std::unique_ptr<AbstractStreamSource>&& source,
+StreamVoice::StreamVoice(std::unique_ptr<AbstractStreamSource>&& source,
                          const size_t bufferSize,
                          const size_t bufferCount,
                          const std::chrono::milliseconds& initialPosition)
-    : Voice{device.createStreamingSourceHandle()}
+    : Voice{std::make_shared<StreamingSourceHandle>()}
     , m_stream{std::move(source)}
     , m_sampleBuffer(bufferSize * 2)
 {
@@ -20,7 +21,7 @@ StreamVoice::StreamVoice(Device& device,
   Expects(bufferCount >= 2);
 
   m_stream->seek(initialPosition);
-  
+
   auto sourceHandle = static_cast<StreamingSourceHandle*>(getSource().get().get());
   m_buffers.reserve(bufferCount);
   for(size_t i = 0; i < bufferCount; ++i)

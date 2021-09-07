@@ -2,6 +2,7 @@
 
 #include "buffervoice.h"
 
+#include <boost/log/trivial.hpp>
 #include <glm/gtx/string_cast.hpp>
 
 namespace audio

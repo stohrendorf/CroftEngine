@@ -1,171 +1,72 @@
 #pragma once
 
-#include "bufferhandle.h"
-#include "core/magic.h"
-#include "filterhandle.h"
-#include "util/helpers.h"
-
+#include <AL/al.h>
+#include <glm/vec3.hpp>
 #include <mutex>
-#include <thread>
 #include <unordered_set>
-#include <utility>
 
 namespace audio
 {
+class BufferHandle;
+class FilterHandle;
+
 class SourceHandle
 {
-  const ALuint m_handle{};
-
-  [[nodiscard]] static ALuint createHandle()
-  {
-    ALuint handle;
-    AL_ASSERT(alGenSources(1, &handle));
-
-    Expects(alIsSource(handle));
-
-    return handle;
-  }
-
 public:
   explicit SourceHandle(const SourceHandle&) = delete;
   explicit SourceHandle(SourceHandle&&) = delete;
   SourceHandle& operator=(const SourceHandle&) = delete;
   SourceHandle& operator=(SourceHandle&&) = delete;
 
-  explicit SourceHandle()
-      : m_handle{createHandle()}
-  {
-    set(AL_REFERENCE_DISTANCE, core::SectorSize.get());
-  }
+  explicit SourceHandle();
 
-  virtual ~SourceHandle()
-  {
-    AL_ASSERT(alSourceStop(m_handle));
-    AL_ASSERT(alDeleteSources(1, &m_handle));
-  }
+  virtual ~SourceHandle();
 
   [[nodiscard]] ALuint get() const noexcept
   {
     return m_handle;
   }
 
-  // NOLINTNEXTLINE(readability-make-member-function-const)
-  void setDirectFilter(const std::shared_ptr<FilterHandle>& f)
-  {
-    AL_ASSERT(alSourcei(m_handle, AL_DIRECT_FILTER, f ? f->get() : AL_FILTER_NULL));
-  }
+  void setDirectFilter(const std::shared_ptr<FilterHandle>& f);
 
-  // NOLINTNEXTLINE(readability-make-member-function-const)
-  void set(const ALenum e, const ALint v)
-  {
-    AL_ASSERT(alSourcei(m_handle, e, v));
-  }
+  void set(ALenum e, ALint v);
 
-  [[nodiscard]] auto geti(ALenum e) const
-  {
-    ALint value{};
-    AL_ASSERT(alGetSourcei(m_handle, e, &value));
-    return value;
-  }
+  [[nodiscard]] auto geti(ALenum e) const;
 
-  // NOLINTNEXTLINE(readability-make-member-function-const)
-  void set(const ALenum e, const ALint* v)
-  {
-    AL_ASSERT(alSourceiv(m_handle, e, v));
-  }
+  void set(ALenum e, const ALint* v);
 
-  // NOLINTNEXTLINE(readability-make-member-function-const)
-  void set(const ALenum e, const ALfloat v)
-  {
-    AL_ASSERT(alSourcef(m_handle, e, v));
-  }
+  void set(ALenum e, ALfloat v);
 
-  [[nodiscard]] auto getf(ALenum e) const
-  {
-    ALfloat value{};
-    AL_ASSERT(alGetSourcef(m_handle, e, &value));
-    return value;
-  }
+  [[nodiscard]] auto getf(ALenum e) const;
 
-  // NOLINTNEXTLINE(readability-make-member-function-const)
-  void set(const ALenum e, const ALfloat a, const ALfloat b, const ALfloat c)
-  {
-    AL_ASSERT(alSource3f(m_handle, e, a, b, c));
-  }
+  void set(ALenum e, ALfloat a, ALfloat b, ALfloat c);
 
-  // NOLINTNEXTLINE(readability-make-member-function-const)
-  void set(const ALenum e, const ALfloat* v)
-  {
-    AL_ASSERT(alSourcefv(m_handle, e, v));
-  }
+  void set(ALenum e, const ALfloat* v);
 
-  // NOLINTNEXTLINE(readability-make-member-function-const)
-  void play()
-  {
-    AL_ASSERT(alSourcePlay(m_handle));
-  }
+  void play();
 
-  // NOLINTNEXTLINE(readability-make-member-function-const)
-  void pause()
-  {
-    AL_ASSERT(alSourcePause(m_handle));
-  }
+  void pause();
 
-  // NOLINTNEXTLINE(readability-make-member-function-const)
-  void rewind()
-  {
-    AL_ASSERT(alSourceRewind(m_handle));
-  }
+  void rewind();
 
-  // NOLINTNEXTLINE(readability-make-member-function-const)
-  virtual void stop()
-  {
-    AL_ASSERT(alSourceStop(m_handle));
-  }
+  virtual void stop();
 
-  [[nodiscard]] virtual bool isStopped() const
-  {
-    ALenum state = AL_STOPPED;
-    AL_ASSERT(alGetSourcei(m_handle, AL_SOURCE_STATE, &state));
+  [[nodiscard]] virtual bool isStopped() const;
 
-    return state == AL_STOPPED;
-  }
+  [[nodiscard]] bool isPaused() const;
 
-  [[nodiscard]] bool isPaused() const
-  {
-    ALenum state = AL_STOPPED;
-    AL_ASSERT(alGetSourcei(m_handle, AL_SOURCE_STATE, &state));
+  void setLooping(bool isLooping);
 
-    return state == AL_PAUSED;
-  }
+  void setGain(ALfloat gain);
 
-  void setLooping(const bool isLooping)
-  {
-    set(AL_LOOPING, isLooping ? AL_TRUE : AL_FALSE);
-  }
+  void setPosition(const glm::vec3& position);
 
-  void setGain(const ALfloat gain)
-  {
-    set(AL_GAIN, std::clamp(gain, 0.0f, 1.0f));
-  }
+  void setPitch(ALfloat pitch_value);
 
-  void setPosition(const glm::vec3& position)
-  {
-    set(AL_POSITION, position.x, position.y, position.z);
-  }
+  [[nodiscard]] ALint getBuffersProcessed() const;
 
-  void setPitch(const ALfloat pitch_value)
-  {
-    // Clamp pitch value according to specs
-    set(AL_PITCH, std::clamp(pitch_value, 0.5f, 2.0f));
-  }
-
-  [[nodiscard]] ALint getBuffersProcessed() const
-  {
-    ALint processed = 0;
-    AL_ASSERT(alGetSourcei(m_handle, AL_BUFFERS_PROCESSED, &processed));
-    return processed;
-  }
+private:
+  const ALuint m_handle{};
 };
 
 class StreamingSourceHandle : public SourceHandle
@@ -175,74 +76,16 @@ private:
   std::unordered_set<std::shared_ptr<BufferHandle>> m_queuedBuffers{};
 
 public:
-  ~StreamingSourceHandle() override
-  {
-    std::unique_lock lock{m_queueMutex};
-    if(!m_queuedBuffers.empty())
-    {
-      lock.unlock();
-      BOOST_LOG_TRIVIAL(warning) << "Streaming source handle still processing on destruction";
-      gracefullyStop(std::chrono::milliseconds{10});
-    }
-  }
+  ~StreamingSourceHandle() override;
 
-  // NOLINTNEXTLINE(readability-make-member-function-const)
-  [[nodiscard]] std::shared_ptr<BufferHandle> unqueueBuffer()
-  {
-    std::unique_lock lock{m_queueMutex};
+  [[nodiscard]] std::shared_ptr<BufferHandle> unqueueBuffer();
 
-    ALuint unqueued;
-    AL_ASSERT(alSourceUnqueueBuffers(get(), 1, &unqueued));
+  void queueBuffer(const std::shared_ptr<BufferHandle>& buffer);
 
-    auto it
-      = std::find_if(m_queuedBuffers.begin(),
-                     m_queuedBuffers.end(),
-                     [unqueued](const std::shared_ptr<BufferHandle>& buffer) { return buffer->get() == unqueued; });
+  [[nodiscard]] bool isStopped() const override;
 
-    if(it == m_queuedBuffers.end())
-      BOOST_THROW_EXCEPTION(std::runtime_error("Unqueued buffer not in queue"));
-    auto result = *it;
-    m_queuedBuffers.erase(it);
-    return result;
-  }
+  void gracefullyStop(const std::chrono::milliseconds& sleep);
 
-  // NOLINTNEXTLINE(readability-make-member-function-const)
-  void queueBuffer(const std::shared_ptr<BufferHandle>& buffer)
-  {
-    std::unique_lock lock{m_queueMutex};
-
-    if(!m_queuedBuffers.emplace(buffer).second)
-      BOOST_THROW_EXCEPTION(std::runtime_error("Buffer enqueued more than once"));
-
-    ALuint bufferId = buffer->get();
-    AL_ASSERT(alSourceQueueBuffers(get(), 1, &bufferId));
-  }
-
-  [[nodiscard]] bool isStopped() const override
-  {
-    std::unique_lock lock{m_queueMutex};
-    return m_queuedBuffers.empty() && SourceHandle::isStopped();
-  }
-
-  void gracefullyStop(const std::chrono::milliseconds& sleep)
-  {
-    stop();
-    while(!isStopped())
-    {
-      std::this_thread::sleep_for(sleep);
-    }
-  }
-
-  void stop() override
-  {
-    SourceHandle::stop();
-    std::unique_lock lock{m_queueMutex};
-    while(!m_queuedBuffers.empty())
-    {
-      lock.unlock();
-      (void)unqueueBuffer();
-      lock.lock();
-    }
-  }
+  void stop() override;
 };
 } // namespace audio

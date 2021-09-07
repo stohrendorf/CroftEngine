@@ -81,7 +81,7 @@ public:
                  const size_t bufferCount,
                  const std::chrono::milliseconds& initialPosition)
   {
-    const auto r = std::make_shared<StreamVoice>(*this, std::move(src), bufferSize, bufferCount, initialPosition);
+    const auto r = std::make_shared<StreamVoice>(std::move(src), bufferSize, bufferCount, initialPosition);
 
     std::lock_guard lock{m_streamsLock};
     m_streams.emplace(r);
@@ -93,11 +93,6 @@ public:
     const auto r = std::make_shared<SourceHandle>();
     m_sources.emplace(r);
     return r;
-  }
-
-  [[nodiscard]] gsl::not_null<std::shared_ptr<SourceHandle>> createStreamingSourceHandle()
-  {
-    return std::make_shared<StreamingSourceHandle>();
   }
 
   void reset();

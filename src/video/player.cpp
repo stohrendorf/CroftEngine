@@ -4,6 +4,7 @@
 #include "audio/streamvoice.h"
 
 #include <atomic>
+#include <boost/log/trivial.hpp>
 #include <gl/texture2d.h>
 #include <gl/texturehandle.h>
 #include <optional>
