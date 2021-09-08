@@ -25,6 +25,7 @@ SourceHandle::SourceHandle()
     : m_handle{createHandle()}
 {
   set(AL_REFERENCE_DISTANCE, core::SectorSize.get());
+  set(AL_AIR_ABSORPTION_FACTOR, 1.0f);
 }
 
 SourceHandle::~SourceHandle()
