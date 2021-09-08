@@ -8,7 +8,7 @@ class VoiceGroup final
 {
 private:
   float m_gain;
-  std::vector<gsl::not_null<std::shared_ptr<Voice>>> m_voices{};
+  std::vector<std::weak_ptr<Voice>> m_voices{};
 
 public:
   explicit VoiceGroup(float gain = 1.0f)
@@ -19,13 +19,26 @@ public:
   void add(gsl::not_null<std::shared_ptr<Voice>> voice)
   {
     voice->setGroupGain(m_gain);
-    if(std::find(m_voices.begin(), m_voices.end(), voice) == m_voices.end())
-      m_voices.emplace_back(std::move(voice));
+    if(std::find_if(
+         m_voices.begin(), m_voices.end(), [&voice](const auto& weakVoice) { return weakVoice.lock() == voice; })
+       == m_voices.end())
+      m_voices.emplace_back(voice.get());
   }
 
   void remove(const gsl::not_null<std::shared_ptr<Voice>>& voice)
   {
-    m_voices.erase(std::remove(m_voices.begin(), m_voices.end(), voice), m_voices.end());
+    decltype(m_voices) cleaned;
+    std::copy_if(m_voices.begin(),
+                 m_voices.end(),
+                 std::back_inserter(cleaned),
+                 [&voice](const auto& weakVoice)
+                 {
+                   if(auto v = weakVoice.lock())
+                     return v == voice;
+                   else
+                     return false;
+                 });
+    m_voices = std::move(cleaned);
   }
 
   void cleanup()
@@ -34,7 +47,13 @@ public:
     std::copy_if(m_voices.begin(),
                  m_voices.end(),
                  std::back_inserter(cleaned),
-                 [](const auto& voice) { return !voice->isStopped(); });
+                 [](const auto& weakVoice)
+                 {
+                   if(auto v = weakVoice.lock())
+                     return !v->isStopped();
+                   else
+                     return false;
+                 });
     m_voices = std::move(cleaned);
   }
 
@@ -46,8 +65,11 @@ public:
   void setGain(float gain)
   {
     m_gain = gain;
-    for(const auto& voice : m_voices)
-      voice->setGroupGain(gain);
+    for(const auto& weakVoice : m_voices)
+    {
+      if(auto v = weakVoice.lock())
+        v->setGroupGain(gain);
+    }
   }
 };
 } // namespace audio

@@ -3,14 +3,17 @@
 #include "bufferhandle.h"
 
 #include <boost/log/trivial.hpp>
+#include <utility>
 
 namespace audio
 {
-StreamVoice::StreamVoice(std::unique_ptr<AbstractStreamSource>&& source,
+StreamVoice::StreamVoice(std::unique_ptr<StreamingSourceHandle>&& streamSource,
+                         std::unique_ptr<AbstractStreamSource>&& source,
                          const size_t bufferSize,
                          const size_t bufferCount,
                          const std::chrono::milliseconds& initialPosition)
-    : Voice{std::make_shared<StreamingSourceHandle>()}
+    : Voice{}
+    , m_streamSource{dynamic_cast<StreamingSourceHandle*>(streamSource.get())}
     , m_stream{std::move(source)}
     , m_sampleBuffer(bufferSize * 2)
 {
@@ -22,15 +25,16 @@ StreamVoice::StreamVoice(std::unique_ptr<AbstractStreamSource>&& source,
 
   m_stream->seek(initialPosition);
 
-  auto sourceHandle = static_cast<StreamingSourceHandle*>(getSource().get().get());
   m_buffers.reserve(bufferCount);
   for(size_t i = 0; i < bufferCount; ++i)
   {
     auto buffer = std::make_shared<BufferHandle>();
     m_buffers.emplace_back(buffer);
     fillBuffer(*buffer);
-    sourceHandle->queueBuffer(buffer);
+    m_streamSource->queueBuffer(buffer);
   }
+
+  Voice::associate(std::move(streamSource));
 }
 
 void StreamVoice::update()
@@ -41,9 +45,7 @@ void StreamVoice::update()
   if(isStopped() && !m_looping)
     return;
 
-  auto sourceHandle = static_cast<StreamingSourceHandle*>(getSource().get().get());
-
-  ALint processed = sourceHandle->getBuffersProcessed();
+  ALint processed = m_streamSource->getBuffersProcessed();
   Expects(processed >= 0 && static_cast<size_t>(processed) <= m_buffers.size());
 
   if(static_cast<size_t>(processed) >= m_buffers.size())
@@ -51,7 +53,7 @@ void StreamVoice::update()
 
   while(processed-- > 0)
   {
-    const auto buffer = sourceHandle->unqueueBuffer();
+    const auto buffer = m_streamSource->unqueueBuffer();
     auto it = std::find(m_buffers.begin(), m_buffers.end(), buffer);
     if(it == m_buffers.end())
     {
@@ -60,7 +62,7 @@ void StreamVoice::update()
     }
 
     if(fillBuffer(*buffer))
-      sourceHandle->queueBuffer(buffer);
+      m_streamSource->queueBuffer(buffer);
     break;
   }
 }
@@ -72,7 +74,7 @@ bool StreamVoice::fillBuffer(BufferHandle& buffer)
   return framesRead > 0;
 }
 
-std::chrono::milliseconds StreamVoice::getPosition() const
+std::chrono::milliseconds StreamVoice::getStreamPosition() const
 {
   return m_stream->getPosition();
 }
@@ -80,5 +82,15 @@ std::chrono::milliseconds StreamVoice::getPosition() const
 void StreamVoice::seek(const std::chrono::milliseconds& position)
 {
   m_stream->seek(position);
+}
+
+void StreamVoice::associate(std::unique_ptr<SourceHandle>&& /*source*/)
+{
+  BOOST_THROW_EXCEPTION(std::runtime_error("Re-association of streams not supported"));
+}
+
+Clock::duration StreamVoice::getDuration() const
+{
+  return m_stream->getDuration();
 }
 } // namespace audio

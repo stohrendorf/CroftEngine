@@ -1,6 +1,9 @@
 #pragma once
 
+#include "core.h"
+
 #include <AL/al.h>
+#include <chrono>
 #include <cstdint>
 
 namespace audio
@@ -23,10 +26,17 @@ public:
   }
 
   void fill(const int16_t* samples, size_t sampleCount, int channels, int sampleRate);
+  void fillFromWav(const uint8_t* data);
 
-  bool fillFromWav(const uint8_t* data);
+  [[nodiscard]] Clock::duration getDuration() const
+  {
+    return Clock::duration((m_sampleRate * Clock::duration::period::den)
+                           / (m_sampleCount * Clock::duration::period::num));
+  }
 
 private:
   const ALuint m_handle{};
+  size_t m_sampleCount = 0;
+  int m_sampleRate = 0;
 };
 } // namespace audio

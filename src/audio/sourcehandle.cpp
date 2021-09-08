@@ -16,9 +16,7 @@ namespace
 {
   ALuint handle;
   AL_ASSERT(alGenSources(1, &handle));
-
-  Expects(alIsSource(handle));
-
+  Ensures(alIsSource(handle));
   return handle;
 }
 } // namespace
@@ -31,7 +29,7 @@ SourceHandle::SourceHandle()
 
 SourceHandle::~SourceHandle()
 {
-  AL_ASSERT(alSourceStop(m_handle));
+  SourceHandle::stop();
   AL_ASSERT(alDeleteSources(1, &m_handle));
 }
 
@@ -146,22 +144,19 @@ void SourceHandle::setPitch(const ALfloat pitch_value)
   set(AL_PITCH, std::clamp(pitch_value, 0.5f, 2.0f));
 }
 
-ALint SourceHandle::getBuffersProcessed() const
+Clock::duration SourceHandle::getPlayHead() const
 {
-  ALint processed = 0;
-  AL_ASSERT(alGetSourcei(m_handle, AL_BUFFERS_PROCESSED, &processed));
-  return processed;
+  ALfloat offset = 0;
+  AL_ASSERT(alGetSourcef(m_handle, AL_SAMPLE_OFFSET, &offset));
+  Ensures(offset >= 0);
+
+  using period = Clock::duration::period;
+  return Clock::duration{gsl::narrow_cast<Clock::duration::rep>(offset * period::den / period::num)};
 }
 
 StreamingSourceHandle::~StreamingSourceHandle()
 {
-  std::unique_lock lock{m_queueMutex};
-  if(!m_queuedBuffers.empty())
-  {
-    lock.unlock();
-    BOOST_LOG_TRIVIAL(warning) << "Streaming source handle still processing on destruction";
-    gracefullyStop(std::chrono::milliseconds{10});
-  }
+  gracefullyStop(std::chrono::milliseconds{10});
 }
 
 // NOLINTNEXTLINE(readability-make-member-function-const)
@@ -204,6 +199,7 @@ bool StreamingSourceHandle::isStopped() const
 void StreamingSourceHandle::gracefullyStop(const std::chrono::milliseconds& sleep)
 {
   stop();
+
   while(!isStopped())
   {
     std::this_thread::sleep_for(sleep);
@@ -213,12 +209,16 @@ void StreamingSourceHandle::gracefullyStop(const std::chrono::milliseconds& slee
 void StreamingSourceHandle::stop()
 {
   SourceHandle::stop();
+
   std::unique_lock lock{m_queueMutex};
-  while(!m_queuedBuffers.empty())
-  {
-    lock.unlock();
-    (void)unqueueBuffer();
-    lock.lock();
-  }
+  AL_ASSERT(alSourcei(get(), AL_BUFFER, AL_NONE));
+  m_queuedBuffers.clear();
+}
+
+ALint StreamingSourceHandle::getBuffersProcessed() const
+{
+  ALint processed = 0;
+  AL_ASSERT(alGetSourcei(get(), AL_BUFFERS_PROCESSED, &processed));
+  return processed;
 }
 } // namespace audio

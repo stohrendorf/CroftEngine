@@ -1,5 +1,6 @@
 #pragma once
 
+#include "core.h"
 #include "sndfile/helpers.h"
 
 #include <chrono>
@@ -27,12 +28,26 @@ public:
   [[nodiscard]] virtual std::chrono::milliseconds getPosition() const = 0;
   virtual void seek(const std::chrono::milliseconds& position) = 0;
 
+  [[nodiscard]] virtual Clock::duration getDuration() const = 0;
+
 protected:
   explicit AbstractStreamSource() = default;
 };
 
 class WadStreamSource final : public AbstractStreamSource
 {
+public:
+  WadStreamSource(const std::filesystem::path& filename, size_t trackIndex);
+
+  size_t readStereo(int16_t* frameBuffer, size_t frameCount, bool looping) override;
+
+  [[nodiscard]] int getSampleRate() const override;
+
+  [[nodiscard]] std::chrono::milliseconds getPosition() const override;
+  void seek(const std::chrono::milliseconds& position) override;
+
+  [[nodiscard]] Clock::duration getDuration() const override;
+
 private:
   std::ifstream m_wadFile;
   SF_INFO m_sfInfo{};
@@ -45,17 +60,6 @@ private:
   static constexpr size_t WADStride = 268;
   static constexpr size_t WADNameLength = 260;
   static constexpr size_t WADCount = 130;
-
-public:
-  WadStreamSource(const std::filesystem::path& filename, size_t trackIndex);
-
-  size_t readStereo(int16_t* frameBuffer, size_t frameCount, bool looping) override;
-
-  [[nodiscard]] int getSampleRate() const override;
-
-  [[nodiscard]] std::chrono::milliseconds getPosition() const override;
-
-  void seek(const std::chrono::milliseconds& position) override;
 };
 
 class SndfileStreamSource final : public AbstractStreamSource
@@ -72,7 +76,8 @@ public:
   [[nodiscard]] int getSampleRate() const override;
 
   [[nodiscard]] std::chrono::milliseconds getPosition() const override;
-
   void seek(const std::chrono::milliseconds& position) override;
+
+  [[nodiscard]] Clock::duration getDuration() const override;
 };
 } // namespace audio

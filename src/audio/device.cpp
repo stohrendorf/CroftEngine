@@ -1,6 +1,7 @@
 #include "device.h"
 
 #include <boost/log/trivial.hpp>
+#include <glm/gtx/norm.hpp>
 #include <optional>
 
 #ifdef _WIN32
@@ -24,7 +25,8 @@ namespace audio
 {
 namespace
 {
-const std::array<ALCint, 5> deviceQueryParamList{ALC_STEREO_SOURCES, 64, ALC_SYNC, ALC_FALSE, ALC_INVALID};
+const std::array<ALCint, 5> deviceQueryParamList{
+  ALC_STEREO_SOURCES, Device::SourceHandleSlots, ALC_SYNC, ALC_FALSE, ALC_INVALID};
 
 void logDeviceInfo(ALCdevice* device)
 {
@@ -100,7 +102,6 @@ Device::~Device()
 
   m_underwaterFilter.reset();
 
-  m_sources.clear();
   {
     std::lock_guard lock{m_streamsLock};
     m_streams.clear();
@@ -211,6 +212,60 @@ void Device::reset()
 
   std::lock_guard lock{m_streamsLock};
   m_streams.clear();
-  m_sources.clear();
+}
+
+void Device::update()
+{
+  // remove expired voices
+  {
+    m_allVoices.erase(std::remove_if(m_allVoices.begin(), m_allVoices.end(), [](const auto& v) { return v->done(); }),
+                      m_allVoices.end());
+  }
+
+  // order voices by non-positional, then by distance
+  glm::vec3 listenerPos;
+  AL_ASSERT(alGetListener3f(AL_POSITION, &listenerPos.x, &listenerPos.y, &listenerPos.z));
+  std::stable_sort(m_allVoices.begin(),
+                   m_allVoices.end(),
+                   [&listenerPos](const auto& a, const auto& b)
+                   {
+                     const gsl::not_null aVoice = a;
+                     const gsl::not_null bVoice = b;
+
+                     // non-positional voices have the highest priority
+                     const auto aDist
+                       = aVoice->isPositional() ? glm::distance(listenerPos, *aVoice->getPosition()) : 0.0f;
+                     const auto bDist
+                       = bVoice->isPositional() ? glm::distance(listenerPos, *bVoice->getPosition()) : 0.0f;
+                     return aDist < bDist;
+                   });
+
+  size_t vi = 0;
+  for(const auto& voice : m_allVoices)
+  {
+    if(voice->isPaused())
+    {
+      voice->associate(nullptr);
+      continue;
+    }
+
+    ++vi;
+    if(vi < SourceHandleSlots)
+    {
+      if(!voice->hasSourceHandle())
+        voice->associate(std::make_unique<SourceHandle>());
+      voice->getSourceHandle()->setDirectFilter(m_filter);
+    }
+    else
+    {
+      voice->associate(nullptr);
+    }
+  }
+
+  if(const auto now = std::chrono::system_clock::now(); now - m_lastLogTime >= std::chrono::seconds{5})
+  {
+    m_lastLogTime = now;
+    BOOST_LOG_TRIVIAL(debug) << m_allVoices.size() << " voices registered";
+  }
 }
 } // namespace audio

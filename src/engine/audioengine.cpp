@@ -284,7 +284,6 @@ std::shared_ptr<audio::Voice> AudioEngine::playSoundEffect(const core::SoundEffe
   {
   case loader::file::PlaybackType::Looping:
     // BOOST_LOG_TRIVIAL(trace) << "Play looping sound effect " << toString(id.get_as<TR1SoundEffect>());
-
     if(auto voices = m_soundEngine->getVoicesForBuffer(emitter, sample); !voices.empty())
     {
       Expects(voices.size() == 1);
@@ -294,8 +293,8 @@ std::shared_ptr<audio::Voice> AudioEngine::playSoundEffect(const core::SoundEffe
     {
       auto voice = m_soundEngine->playBuffer(buffer, sample, pitch, volume, emitter);
       m_sfx.add(voice.get());
-      voice->getSource()->setLooping(true);
-      voice->getSource()->play();
+      voice->setLooping(true);
+      voice->play();
       return voice.get();
     }
   case loader::file::PlaybackType::Restart:
@@ -304,12 +303,12 @@ std::shared_ptr<audio::Voice> AudioEngine::playSoundEffect(const core::SoundEffe
     {
       Expects(voices.size() == 1);
       auto voice = voices[0];
-      voice->getSource()->pause();
-      voice->getSource()->setPitch(pitch);
+      voice->pause();
+      voice->setPitch(pitch);
       voice->setLocalGain(volume);
       if(emitter != nullptr)
-        voice->getSource()->setPosition(emitter->getPosition());
-      voice->getSource()->rewind();
+        voice->setPosition(emitter->getPosition());
+      voice->rewind();
       m_sfx.add(voice);
       voice->play();
       return voice;
@@ -371,14 +370,14 @@ void AudioEngine::setUnderwater(bool underwater)
   {
     if(m_underwaterAmbience == nullptr)
     {
-      m_soundEngine->getDevice().applyDirectFilterToAllSources(m_soundEngine->getDevice().getUnderwaterFilter());
+      m_soundEngine->getDevice().setFilter(m_soundEngine->getDevice().getUnderwaterFilter());
       m_underwaterAmbience = playSoundEffect(TR1SoundEffect::UnderwaterAmbience, nullptr);
-      m_underwaterAmbience->getSource()->setLooping(true);
+      m_underwaterAmbience->setLooping(true);
     }
   }
   else if(m_underwaterAmbience != nullptr)
   {
-    m_soundEngine->getDevice().applyDirectFilterToAllSources(nullptr);
+    m_soundEngine->getDevice().setFilter(nullptr);
     stopSoundEffect(TR1SoundEffect::UnderwaterAmbience, nullptr);
     m_underwaterAmbience.reset();
   }
@@ -395,16 +394,16 @@ std::shared_ptr<audio::Voice> AudioEngine::playSoundEffect(const core::SoundEffe
 {
   auto voice = playSoundEffect(id, nullptr);
   if(voice != nullptr)
-    voice->getSource()->setPosition(pos);
+    voice->setPosition(pos);
   return voice;
 }
 
 void AudioEngine::serialize(const serialization::Serializer<world::World>& ser)
 {
   std::chrono::milliseconds ambientPosition
-    = m_ambientStream == nullptr ? std::chrono::milliseconds{0} : m_ambientStream->getPosition();
+    = m_ambientStream == nullptr ? std::chrono::milliseconds{0} : m_ambientStream->getStreamPosition();
   std::chrono::milliseconds interceptPosition
-    = m_interceptStream == nullptr ? std::chrono::milliseconds{0} : m_interceptStream->getPosition();
+    = m_interceptStream == nullptr ? std::chrono::milliseconds{0} : m_interceptStream->getStreamPosition();
 
   ser(S_NV("currentTrack", m_currentTrack),
       S_NV("currentLaraTalk", m_currentLaraTalk),

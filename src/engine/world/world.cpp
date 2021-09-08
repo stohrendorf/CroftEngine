@@ -330,7 +330,7 @@ void World::floodEffect()
     if(m_globalSoundEffect == nullptr)
       m_globalSoundEffect = m_audioEngine->playSoundEffect(TR1SoundEffect::WaterFlow3, pos.toRenderSystem());
     else
-      m_globalSoundEffect->getSource()->setPosition(pos.toRenderSystem());
+      m_globalSoundEffect->setPosition(pos.toRenderSystem());
   }
   else
   {
@@ -1420,7 +1420,7 @@ void World::initFromLevel(loader::file::level::Level& level)
     m_positionalEmitters.emplace_back(src.position.toRenderSystem(), getPresenter().getSoundEngine().get());
     auto voice = m_audioEngine->playSoundEffect(src.sound_effect_id, &m_positionalEmitters.back());
     Expects(voice != nullptr);
-    voice->getSource()->pause();
+    voice->pause();
     m_staticSoundEffects.emplace_back(
       StaticSoundEffect{std::move(voice),
                         (src.flags & loader::file::SoundSource::PlayIfRoomsSwapped) != 0,
@@ -1499,19 +1499,23 @@ void World::updateStaticSoundEffects()
 {
   for(const auto& soundEffect : m_staticSoundEffects)
   {
+    const auto voice = soundEffect.voice.lock();
+    if(voice == nullptr)
+      continue;
+    
     if(m_roomsAreSwapped && soundEffect.playIfSwapped)
     {
-      soundEffect.voice->play();
-      soundEffect.voice->getSource()->setLooping(true);
+      voice->play();
+      voice->setLooping(true);
     }
     else if(!m_roomsAreSwapped && soundEffect.playIfNotSwapped)
     {
-      soundEffect.voice->play();
-      soundEffect.voice->getSource()->setLooping(true);
+      voice->play();
+      voice->setLooping(true);
     }
     else
     {
-      soundEffect.voice->getSource()->setLooping(false);
+      voice->setLooping(false);
     }
   }
 }

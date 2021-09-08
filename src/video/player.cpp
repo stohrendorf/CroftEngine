@@ -317,10 +317,12 @@ struct AVDecoder final : public audio::AbstractStreamSource
       const auto& tb = videoStream->stream->time_base;
       const auto audioTs = static_cast<double>(totalAudioFrames) / static_cast<double>(audioFrameSize);
       const auto videoTs = static_cast<double>(img->frame->pts) * tb.num / tb.den;
-      lock.unlock();
       if(audioTs < videoTs)
+      {
+        lock.unlock();
         std::this_thread::sleep_for(std::chrono::milliseconds{gsl::narrow_cast<int>((videoTs - audioTs) * 1000)});
-      lock.lock();
+        lock.lock();
+      }
     }
 
     stopped = imgQueue.empty() && audioQueue.empty();
@@ -480,6 +482,16 @@ struct AVDecoder final : public audio::AbstractStreamSource
       }
     }
 
+    if(written == 0)
+    {
+      std::unique_lock lock{imgQueueMutex};
+      if(!imgQueue.empty())
+      {
+        // audio ended prematurely - pad with zero audio data until all video frames are consumed
+        written = bufferSize;
+      }
+    }
+
     totalAudioFrames += written;
     audioFrameOffset += written;
     Expects(audioFrameSize > 0);
@@ -518,6 +530,13 @@ struct AVDecoder final : public audio::AbstractStreamSource
 
   void seek(const std::chrono::milliseconds& /*position*/) override
   {
+  }
+
+  audio::Clock::duration getDuration() const override
+  {
+    using period = audio::Clock::duration::period;
+    return audio::Clock::duration{videoStream->stream->duration * videoStream->stream->time_base.num * period::den
+                                  / (videoStream->stream->time_base.den * period::num)};
   }
 };
 
@@ -598,6 +617,9 @@ void play(const std::filesystem::path& filename,
     BOOST_THROW_EXCEPTION(std::runtime_error("Video file not found"));
 
   auto decoderPtr = std::make_unique<AVDecoder>(filename.string());
+  BOOST_LOG_TRIVIAL(info) << "Playing " << filename << ", estimated duration "
+                          << std::chrono::duration_cast<std::chrono::seconds>(decoderPtr->getDuration()).count()
+                          << " seconds";
   const auto decoder = decoderPtr.get();
   Expects(decoder->filterGraph.graph->sink_links_count == 1);
   Converter converter{decoder->filterGraph.graph->sink_links[0]};
@@ -612,9 +634,6 @@ void play(const std::filesystem::path& filename,
 
   while(!decoder->stopped)
   {
-    if(const auto s = stream->getSource(); s->isPaused() || s->isStopped())
-      s->play();
-
     if(const auto f = decoder->takeFrame())
     {
       converter.update(*f);

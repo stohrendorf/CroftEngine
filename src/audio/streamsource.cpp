@@ -121,6 +121,12 @@ void WadStreamSource::seek(const std::chrono::milliseconds& position)
   sf_seek(m_sndFile, frames, SF_SEEK_SET);
 }
 
+Clock::duration WadStreamSource::getDuration() const
+{
+  return Clock::duration{(m_sfInfo.frames * Clock::duration::period::den)
+                         / (m_sfInfo.samplerate * Clock::duration::period::num)};
+}
+
 SndfileStreamSource::SndfileStreamSource(const std::filesystem::path& filename)
 {
   BOOST_LOG_TRIVIAL(trace) << "Creating sndfile stream source from " << filename;
@@ -155,5 +161,11 @@ void SndfileStreamSource::seek(const std::chrono::milliseconds& position)
 {
   const auto frames = position.count() * m_sfInfo.samplerate / 1000;
   sf_seek(m_sndFile, frames, SF_SEEK_SET);
+}
+
+Clock::duration SndfileStreamSource::getDuration() const
+{
+  return Clock::duration{(m_sfInfo.frames * Clock::duration::period::den)
+                         / (m_sfInfo.samplerate * Clock::duration::period::num)};
 }
 } // namespace audio

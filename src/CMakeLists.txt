@@ -264,6 +264,8 @@ set( EDISONENGINE_SRCS
         audio/tracktype.h
         audio/utils.h
         audio/utils.cpp
+        audio/voice.h
+        audio/voice.cpp
 
         util/helpers.h
         util/helpers.cpp

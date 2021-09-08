@@ -33,7 +33,7 @@ void SoundEngine::update()
       {
         if(const auto locked = voice.lock())
         {
-          locked->getSource()->setPosition(pos);
+          locked->setPosition(pos);
         }
       }
     }
@@ -87,24 +87,15 @@ bool SoundEngine::stopBuffer(size_t bufferId, Emitter* emitter)
 gsl::not_null<std::shared_ptr<BufferVoice>> SoundEngine::playBuffer(
   const std::shared_ptr<BufferHandle>& buffer, size_t bufferId, ALfloat pitch, ALfloat volume, Emitter* emitter)
 {
-  auto src = m_device.createSourceHandle();
-  auto v = std::make_shared<BufferVoice>(src, buffer);
-  src->setPitch(pitch);
+  auto v = std::make_shared<BufferVoice>(buffer);
+  v->setPitch(pitch);
   v->setLocalGain(volume);
   if(emitter != nullptr)
-  {
-    src->setPosition(emitter->getPosition());
-  }
-  else
-  {
-    src->set(AL_SOURCE_RELATIVE, AL_TRUE);
-    src->set(AL_POSITION, 0, 0, 0);
-    src->set(AL_VELOCITY, 0, 0, 0);
-  }
-
-  src->play();
+    v->setPosition(emitter->getPosition());
+  v->play();
 
   m_voices[emitter][bufferId].emplace_back(v);
+  m_device.registerVoice(v);
 
   return v;
 }
@@ -139,7 +130,7 @@ gsl::not_null<std::shared_ptr<BufferVoice>> SoundEngine::playBuffer(
   const std::shared_ptr<BufferHandle>& buffer, size_t bufferId, ALfloat pitch, ALfloat volume, const glm::vec3& pos)
 {
   auto voice = playBuffer(buffer, bufferId, pitch, volume, nullptr);
-  voice->getSource()->setPosition(pos);
+  voice->setPosition(pos);
   return voice;
 }
 

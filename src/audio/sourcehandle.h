@@ -1,5 +1,7 @@
 #pragma once
 
+#include "core.h"
+
 #include <AL/al.h>
 #include <glm/vec3.hpp>
 #include <mutex>
@@ -19,7 +21,6 @@ public:
   SourceHandle& operator=(SourceHandle&&) = delete;
 
   explicit SourceHandle();
-
   virtual ~SourceHandle();
 
   [[nodiscard]] ALuint get() const noexcept
@@ -30,40 +31,28 @@ public:
   void setDirectFilter(const std::shared_ptr<FilterHandle>& f);
 
   void set(ALenum e, ALint v);
-
   [[nodiscard]] auto geti(ALenum e) const;
-
   void set(ALenum e, const ALint* v);
-
   void set(ALenum e, ALfloat v);
-
   [[nodiscard]] auto getf(ALenum e) const;
-
   void set(ALenum e, ALfloat a, ALfloat b, ALfloat c);
-
   void set(ALenum e, const ALfloat* v);
 
   void play();
-
   void pause();
-
   void rewind();
-
   virtual void stop();
 
   [[nodiscard]] virtual bool isStopped() const;
-
   [[nodiscard]] bool isPaused() const;
 
   void setLooping(bool isLooping);
 
   void setGain(ALfloat gain);
-
   void setPosition(const glm::vec3& position);
-
   void setPitch(ALfloat pitch_value);
 
-  [[nodiscard]] ALint getBuffersProcessed() const;
+  [[nodiscard]] Clock::duration getPlayHead() const;
 
 private:
   const ALuint m_handle{};
@@ -71,10 +60,6 @@ private:
 
 class StreamingSourceHandle : public SourceHandle
 {
-private:
-  mutable std::mutex m_queueMutex{};
-  std::unordered_set<std::shared_ptr<BufferHandle>> m_queuedBuffers{};
-
 public:
   ~StreamingSourceHandle() override;
 
@@ -85,7 +70,12 @@ public:
   [[nodiscard]] bool isStopped() const override;
 
   void gracefullyStop(const std::chrono::milliseconds& sleep);
-
   void stop() override;
+
+  [[nodiscard]] ALint getBuffersProcessed() const;
+
+private:
+  mutable std::mutex m_queueMutex{};
+  std::unordered_set<std::shared_ptr<BufferHandle>> m_queuedBuffers{};
 };
 } // namespace audio
