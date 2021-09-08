@@ -44,7 +44,7 @@ size_t readStereo(
       }
 
       // restart if there are not enough samples
-      sf_seek(sndFile, 0, SEEK_SET);
+      Expects(sf_seek(sndFile, 0, SEEK_SET) != -1);
     }
   }
 
@@ -112,13 +112,14 @@ int WadStreamSource::getSampleRate() const
 std::chrono::milliseconds WadStreamSource::getPosition() const
 {
   const auto frames = sf_seek(m_sndFile, 0, SF_SEEK_CUR);
+  Expects(frames != -1);
   return std::chrono::milliseconds{frames * 1000 / m_sfInfo.samplerate};
 }
 
 void WadStreamSource::seek(const std::chrono::milliseconds& position)
 {
   const auto frames = position.count() * m_sfInfo.samplerate / 1000;
-  sf_seek(m_sndFile, frames, SF_SEEK_SET);
+  Expects(sf_seek(m_sndFile, frames, SF_SEEK_SET) != -1);
 }
 
 Clock::duration WadStreamSource::getDuration() const
@@ -154,13 +155,14 @@ int SndfileStreamSource::getSampleRate() const
 std::chrono::milliseconds SndfileStreamSource::getPosition() const
 {
   const auto frames = sf_seek(m_sndFile, 0, SF_SEEK_CUR);
+  Expects(frames != -1);
   return std::chrono::milliseconds{frames * 1000 / m_sfInfo.samplerate};
 }
 
 void SndfileStreamSource::seek(const std::chrono::milliseconds& position)
 {
   const auto frames = position.count() * m_sfInfo.samplerate / 1000;
-  sf_seek(m_sndFile, frames, SF_SEEK_SET);
+  Expects(sf_seek(m_sndFile, frames, SF_SEEK_SET) != -1);
 }
 
 Clock::duration SndfileStreamSource::getDuration() const

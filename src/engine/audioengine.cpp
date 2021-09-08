@@ -190,8 +190,6 @@ void AudioEngine::playStopCdTrack(const script::ScriptEngine& scriptEngine, cons
       m_ambientStream = playStream(trackInfo.id.get());
       m_ambientStreamId = trackInfo.id.get();
       m_ambientStream->setLooping(true);
-      m_music.add(m_ambientStream);
-      m_ambientStream->setLooping(true);
       m_interceptStream.reset();
       m_interceptStreamId.reset();
       m_currentTrack = trackId;
@@ -213,7 +211,6 @@ void AudioEngine::playStopCdTrack(const script::ScriptEngine& scriptEngine, cons
       BOOST_LOG_TRIVIAL(debug) << "playStopCdTrack - play interception " << static_cast<size_t>(trackInfo.id.get());
       m_interceptStream = playStream(trackInfo.id.get());
       m_interceptStreamId = trackInfo.id.get();
-      m_music.add(m_interceptStream);
       m_interceptStream->setLooping(false);
       m_currentTrack = trackId;
     }
@@ -425,6 +422,9 @@ void AudioEngine::serialize(const serialization::Serializer<world::World>& ser)
     if(m_ambientStreamId.has_value())
     {
       m_ambientStream = playStream(*m_ambientStreamId, ambientPosition);
+      m_ambientStream->setLooping(true);
+      m_ambientStream->update();
+      m_ambientStream->play();
     }
 
     if(m_interceptStream != nullptr)
@@ -437,6 +437,8 @@ void AudioEngine::serialize(const serialization::Serializer<world::World>& ser)
     if(m_interceptStreamId.has_value())
     {
       m_interceptStream = playStream(*m_interceptStreamId, interceptPosition);
+      m_interceptStream->update();
+      m_interceptStream->play();
     }
   }
 }
