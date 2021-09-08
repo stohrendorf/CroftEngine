@@ -116,6 +116,8 @@ void SoundEngine::dropEmitter(Emitter* emitter)
 
 SoundEngine::~SoundEngine()
 {
+  reset();
+
   for(auto& emitter : m_emitters)
   {
     dropEmitter(emitter);

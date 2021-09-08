@@ -201,17 +201,15 @@ Device::Device()
 
 void Device::reset()
 {
+  std::lock_guard lock{m_streamsLock};
+  for(const auto& stream : m_streams)
   {
-    std::lock_guard lock{m_streamsLock};
-    for(const auto& stream : m_streams)
-    {
-      stream->setLooping(false);
-      stream->stop();
-    }
+    stream->setLooping(false);
+    stream->stop();
   }
 
-  std::lock_guard lock{m_streamsLock};
   m_streams.clear();
+  m_allVoices.clear();
 }
 
 void Device::update()

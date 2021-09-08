@@ -5,7 +5,7 @@
 
 namespace audio
 {
-class BufferVoice : public Voice
+class BufferVoice final : public Voice
 {
 private:
   gsl::not_null<std::shared_ptr<BufferHandle>> m_buffer;
@@ -15,6 +15,13 @@ public:
       : Voice{}
       , m_buffer{std::move(buffer)}
   {
+  }
+
+  ~BufferVoice() override
+  {
+    stop();
+    if(const auto& source = getSourceHandle(); source != nullptr)
+      AL_ASSERT(alSourcei(source->get(), AL_BUFFER, AL_NONE));
   }
 
   void associate(std::unique_ptr<SourceHandle>&& source) override
