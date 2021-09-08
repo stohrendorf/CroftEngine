@@ -144,16 +144,6 @@ void SourceHandle::setPitch(const ALfloat pitch_value)
   set(AL_PITCH, std::clamp(pitch_value, 0.5f, 2.0f));
 }
 
-Clock::duration SourceHandle::getPlayHead() const
-{
-  ALfloat offset = 0;
-  AL_ASSERT(alGetSourcef(m_handle, AL_SAMPLE_OFFSET, &offset));
-  Ensures(offset >= 0);
-
-  using period = Clock::duration::period;
-  return Clock::duration{gsl::narrow_cast<Clock::duration::rep>(offset * period::den / period::num)};
-}
-
 StreamingSourceHandle::~StreamingSourceHandle()
 {
   gracefullyStop(std::chrono::milliseconds{10});

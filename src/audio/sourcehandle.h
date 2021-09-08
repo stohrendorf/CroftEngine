@@ -1,9 +1,8 @@
 #pragma once
 
-#include "core.h"
-
 #include <AL/al.h>
 #include <glm/vec3.hpp>
+#include <memory>
 #include <mutex>
 #include <unordered_set>
 
@@ -51,8 +50,6 @@ public:
   void setGain(ALfloat gain);
   void setPosition(const glm::vec3& position);
   void setPitch(ALfloat pitch_value);
-
-  [[nodiscard]] Clock::duration getPlayHead() const;
 
 private:
   const ALuint m_handle{};
