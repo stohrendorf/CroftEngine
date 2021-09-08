@@ -249,6 +249,7 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
     {
       if(world.getObjectManager().getLara().isDead())
       {
+        world.getAudioEngine().setMusicGain(0);
         updateTimeSpent();
         laraDeadTime += 1_frame;
         if(laraDeadTime >= 300_frame || (laraDeadTime >= 60_frame && m_presenter->getInputHandler().hasAnyAction()))
