@@ -1,42 +1,17 @@
 #pragma once
 
 #include "alext.h"
+#include "handle.h"
 #include "utils.h"
 
 namespace audio
 {
 class FilterHandle final
 {
-  const ALuint m_handle{};
-
-  [[nodiscard]] static ALuint createHandle()
-  {
-    ALuint handle;
-    AL_ASSERT(alGenFilters(1, &handle));
-
-    Expects(alIsFilter(handle));
-
-    return handle;
-  }
+  const Handle m_handle{alGenFilters, alIsFilter, alDeleteFilters};
 
 public:
-  explicit FilterHandle()
-      : m_handle{createHandle()}
-  {
-  }
-
-  explicit FilterHandle(const FilterHandle&) = delete;
-
-  explicit FilterHandle(FilterHandle&&) = delete;
-
-  FilterHandle& operator=(const FilterHandle&) = delete;
-
-  FilterHandle& operator=(FilterHandle&&) = delete;
-
-  ~FilterHandle()
-  {
-    AL_ASSERT(alDeleteFilters(1, &m_handle));
-  }
+  explicit FilterHandle() = default;
 
   [[nodiscard]] ALuint get() const noexcept
   {

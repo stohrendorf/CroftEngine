@@ -1,5 +1,7 @@
 #pragma once
 
+#include "handle.h"
+
 #include <AL/al.h>
 #include <glm/vec3.hpp>
 #include <memory>
@@ -14,11 +16,6 @@ class FilterHandle;
 class SourceHandle
 {
 public:
-  explicit SourceHandle(const SourceHandle&) = delete;
-  explicit SourceHandle(SourceHandle&&) = delete;
-  SourceHandle& operator=(const SourceHandle&) = delete;
-  SourceHandle& operator=(SourceHandle&&) = delete;
-
   explicit SourceHandle();
   virtual ~SourceHandle();
 
@@ -30,12 +27,8 @@ public:
   void setDirectFilter(const std::shared_ptr<FilterHandle>& f);
 
   void set(ALenum e, ALint v);
-  [[nodiscard]] auto geti(ALenum e) const;
-  void set(ALenum e, const ALint* v);
   void set(ALenum e, ALfloat v);
-  [[nodiscard]] auto getf(ALenum e) const;
   void set(ALenum e, ALfloat a, ALfloat b, ALfloat c);
-  void set(ALenum e, const ALfloat* v);
 
   void play();
   void pause();
@@ -52,7 +45,7 @@ public:
   void setPitch(ALfloat pitch_value);
 
 private:
-  const ALuint m_handle{};
+  const Handle m_handle{alGenSources, alIsSource, alDeleteSources};
 };
 
 class StreamingSourceHandle : public SourceHandle

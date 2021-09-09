@@ -22,7 +22,6 @@ namespace
 } // namespace
 
 SourceHandle::SourceHandle()
-    : m_handle{createHandle()}
 {
   set(AL_REFERENCE_DISTANCE, core::SectorSize.get());
   set(AL_AIR_ABSORPTION_FACTOR, 1.0f);
@@ -31,7 +30,6 @@ SourceHandle::SourceHandle()
 SourceHandle::~SourceHandle()
 {
   SourceHandle::stop();
-  AL_ASSERT(alDeleteSources(1, &m_handle));
 }
 
 // NOLINTNEXTLINE(readability-make-member-function-const)
@@ -46,42 +44,16 @@ void SourceHandle::set(const ALenum e, const ALint v)
   AL_ASSERT(alSourcei(m_handle, e, v));
 }
 
-auto SourceHandle::geti(ALenum e) const
-{
-  ALint value{};
-  AL_ASSERT(alGetSourcei(m_handle, e, &value));
-  return value;
-}
-
-// NOLINTNEXTLINE(readability-make-member-function-const)
-void SourceHandle::set(const ALenum e, const ALint* v)
-{
-  AL_ASSERT(alSourceiv(m_handle, e, v));
-}
-
 // NOLINTNEXTLINE(readability-make-member-function-const)
 void SourceHandle::set(const ALenum e, const ALfloat v)
 {
   AL_ASSERT(alSourcef(m_handle, e, v));
 }
 
-auto SourceHandle::getf(ALenum e) const
-{
-  ALfloat value{};
-  AL_ASSERT(alGetSourcef(m_handle, e, &value));
-  return value;
-}
-
 // NOLINTNEXTLINE(readability-make-member-function-const)
 void SourceHandle::set(const ALenum e, const ALfloat a, const ALfloat b, const ALfloat c)
 {
   AL_ASSERT(alSource3f(m_handle, e, a, b, c));
-}
-
-// NOLINTNEXTLINE(readability-make-member-function-const)
-void SourceHandle::set(const ALenum e, const ALfloat* v)
-{
-  AL_ASSERT(alSourcefv(m_handle, e, v));
 }
 
 // NOLINTNEXTLINE(readability-make-member-function-const)

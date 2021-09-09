@@ -8,28 +8,6 @@
 
 namespace audio
 {
-namespace
-{
-[[nodiscard]] ALuint createHandle()
-{
-  ALuint handle;
-  AL_ASSERT(alGenBuffers(1, &handle));
-  Ensures(alIsBuffer(handle));
-
-  return handle;
-}
-} // namespace
-
-BufferHandle::BufferHandle()
-    : m_handle{createHandle()}
-{
-}
-
-BufferHandle::~BufferHandle()
-{
-  AL_ASSERT(alDeleteBuffers(1, &m_handle));
-}
-
 // NOLINTNEXTLINE(readability-make-member-function-const)
 void BufferHandle::fill(const int16_t* samples, const size_t sampleCount, const int channels, const int sampleRate)
 {
