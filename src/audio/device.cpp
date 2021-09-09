@@ -97,6 +97,8 @@ std::optional<std::tuple<ALCdevice*, ALCcontext*>> tryCreateDeviceContext(const 
 
 Device::~Device()
 {
+  reset();
+
   m_shutdown = true;
   m_streamUpdater.join();
 
@@ -207,8 +209,14 @@ void Device::reset()
     stream->setLooping(false);
     stream->stop();
   }
-
   m_streams.clear();
+
+  m_filter.reset();
+  for(const auto& voice : m_allVoices)
+  {
+    if(const auto& src = voice->getSourceHandle())
+      src->setDirectFilter(nullptr);
+  }
   m_allVoices.clear();
 }
 
