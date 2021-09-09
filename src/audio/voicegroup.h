@@ -2,6 +2,9 @@
 
 #include "voice.h"
 
+#include <algorithm>
+#include <gsl/gsl-lite.hpp>
+
 namespace audio
 {
 class VoiceGroup final

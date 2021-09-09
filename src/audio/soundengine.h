@@ -1,67 +1,21 @@
 #pragma once
 
-#include "device.h"
-
+#include <AL/al.h>
+#include <glm/vec3.hpp>
 #include <gsl/gsl-lite.hpp>
 #include <unordered_map>
 #include <unordered_set>
+#include <vector>
 
 namespace audio
 {
+class Device;
 class Voice;
 class SoundEngine;
 class BufferVoice;
-
-class Emitter
-{
-  friend class SoundEngine;
-
-public:
-  explicit Emitter(const gsl::not_null<SoundEngine*>& engine);
-  virtual ~Emitter();
-
-  Emitter(const Emitter& rhs)
-      : Emitter{rhs.m_engine}
-  {
-  }
-
-  Emitter() = delete;
-
-  Emitter& operator=(const Emitter& rhs);
-  Emitter(Emitter&& rhs) noexcept;
-  Emitter& operator=(Emitter&& rhs) noexcept;
-  [[nodiscard]] virtual glm::vec3 getPosition() const = 0;
-
-private:
-  mutable SoundEngine* m_engine = nullptr;
-};
-
-class Listener
-{
-  friend class SoundEngine;
-
-public:
-  explicit Listener(const gsl::not_null<SoundEngine*>& engine);
-  virtual ~Listener();
-
-  Listener(const Listener& rhs)
-      : Listener{rhs.m_engine}
-  {
-  }
-
-  Listener() = delete;
-
-  Listener& operator=(const Listener& rhs);
-  Listener(Listener&& rhs) noexcept;
-  Listener& operator=(Listener&&) noexcept;
-
-  [[nodiscard]] virtual glm::vec3 getPosition() const = 0;
-  [[nodiscard]] virtual glm::vec3 getFrontVector() const = 0;
-  [[nodiscard]] virtual glm::vec3 getUpVector() const = 0;
-
-private:
-  mutable SoundEngine* m_engine = nullptr;
-};
+class BufferHandle;
+class Listener;
+class Emitter;
 
 class SoundEngine final
 {
@@ -69,6 +23,7 @@ class SoundEngine final
   friend class Listener;
 
 public:
+  explicit SoundEngine();
   ~SoundEngine();
 
   gsl::not_null<std::shared_ptr<BufferVoice>> playBuffer(
@@ -86,12 +41,12 @@ public:
 
   [[nodiscard]] const auto& getDevice() const noexcept
   {
-    return m_device;
+    return *m_device;
   }
 
   [[nodiscard]] auto& getDevice() noexcept
   {
-    return m_device;
+    return *m_device;
   }
 
   void setListener(const Listener* listener)
@@ -99,11 +54,8 @@ public:
     m_listener = listener;
   }
 
-  void setListenerGain(float gain)
-  {
-    m_device.setListenerGain(gain);
-  }
-  
+  void setListenerGain(float gain);
+
   void update();
 
   void dropEmitter(Emitter* emitter);
@@ -111,7 +63,7 @@ public:
   void reset();
 
 private:
-  Device m_device;
+  const gsl::not_null<std::unique_ptr<Device>> m_device;
   std::unordered_map<Emitter*, std::unordered_map<size_t, std::vector<std::weak_ptr<Voice>>>> m_voices;
   const Listener* m_listener = nullptr;
 

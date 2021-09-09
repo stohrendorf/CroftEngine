@@ -1,5 +1,7 @@
 #include "engine.h"
 
+#include "audio/soundengine.h"
+#include "audio/streamvoice.h"
 #include "audio/tracktype.h"
 #include "core/i18n.h"
 #include "engine/ai/ai.h"

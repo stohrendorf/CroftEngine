@@ -1,6 +1,5 @@
 #pragma once
 
-#include "audio/soundengine.h"
 #include "core/boundingbox.h"
 #include "core/units.h"
 #include "engine/collisioninfo.h"
@@ -29,6 +28,11 @@ struct CollisionInfo;
 namespace engine::ai
 {
 struct CreatureInfo;
+}
+
+namespace audio
+{
+class Voice;
 }
 
 namespace engine::objects

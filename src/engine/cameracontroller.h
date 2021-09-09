@@ -1,11 +1,13 @@
 #pragma once
 
-#include "audio/soundengine.h"
+#include "audio/listener.h"
 #include "core/angle.h"
 #include "core/magic.h"
 #include "core/vec.h"
 #include "floordata/types.h"
 #include "location.h"
+
+#include <unordered_set>
 
 namespace render::scene
 {

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "audio/soundengine.h"
+#include "audio/emitter.h"
 #include "core/angle.h"
 #include "core/id.h"
 #include "core/vec.h"

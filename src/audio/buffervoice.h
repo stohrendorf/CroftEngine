@@ -1,6 +1,7 @@
 #pragma once
 
 #include "bufferhandle.h"
+#include "utils.h"
 #include "voice.h"
 
 namespace audio

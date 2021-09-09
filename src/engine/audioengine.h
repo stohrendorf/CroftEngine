@@ -1,6 +1,5 @@
 #pragma once
 
-#include "audio/soundengine.h"
 #include "audio/voicegroup.h"
 #include "core/id.h"
 #include "floordata/floordata.h"
@@ -25,9 +24,12 @@ class ScriptEngine;
 
 namespace audio
 {
+class SoundEngine;
 class SourceHandle;
 class BufferHandle;
 class Voice;
+class StreamVoice;
+class Emitter;
 } // namespace audio
 
 namespace engine
@@ -38,7 +40,7 @@ class AudioEngine
 {
   world::World& m_world;
   const std::filesystem::path m_rootPath;
-  const std::shared_ptr<audio::SoundEngine> m_soundEngine;
+  const gsl::not_null<std::shared_ptr<audio::SoundEngine>> m_soundEngine;
 
   std::vector<loader::file::SoundEffectProperties> m_soundEffectProperties{};
   boost::container::flat_map<int, const loader::file::SoundEffectProperties*> m_soundEffects{};
@@ -150,7 +152,12 @@ public:
 
   [[nodiscard]] const auto& getSoundEngine() const
   {
-    return m_soundEngine;
+    return *m_soundEngine;
+  }
+
+  [[nodiscard]] auto& getSoundEngine()
+  {
+    return *m_soundEngine;
   }
 
   void serialize(const serialization::Serializer<world::World>& ser);

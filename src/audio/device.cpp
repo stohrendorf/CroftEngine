@@ -25,8 +25,12 @@ namespace audio
 {
 namespace
 {
-const std::array<ALCint, 5> deviceQueryParamList{
-  ALC_STEREO_SOURCES, Device::SourceHandleSlots, ALC_SYNC, ALC_FALSE, ALC_INVALID};
+const std::array<ALCint, 5> deviceQueryParamList{// reserve additional 2 sources for audio tracks
+                                                 ALC_STEREO_SOURCES,
+                                                 Device::SourceHandleSlots + 2,
+                                                 ALC_SYNC,
+                                                 ALC_FALSE,
+                                                 ALC_INVALID};
 
 void logDeviceInfo(ALCdevice* device)
 {

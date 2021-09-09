@@ -1,5 +1,6 @@
 #include "particle.h"
 
+#include "audio/soundengine.h"
 #include "audioengine.h"
 #include "objects/laraobject.h"
 #include "presenter.h"

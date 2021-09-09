@@ -1,5 +1,6 @@
 #include "world.h"
 
+#include "audio/soundengine.h"
 #include "core/i18n.h"
 #include "engine/audioengine.h"
 #include "engine/engine.h"
@@ -271,8 +272,7 @@ void World::laraBubblesEffect(objects::Object& object)
 
   const auto boneSpheres = modelNode->getSkeleton()->getBoneCollisionSpheres();
 
-  const auto position
-    = core::TRVec{boneSpheres.at(14).relativeWithOffset(core::TRVec{0_len, 0_len, 50_len}.toRenderSystem())};
+  const auto position = core::TRVec{boneSpheres.at(14).relative(core::TRVec{0_len, 0_len, 50_len}.toRenderSystem())};
 
   while(bubbleCount-- > 0)
   {
@@ -1422,11 +1422,11 @@ void World::initFromLevel(loader::file::level::Level& level)
     Expects(voice != nullptr);
     voice->pause();
     m_staticSoundEffects.emplace_back(
-      StaticSoundEffect{std::move(voice),
+      StaticSoundEffect{voice,
                         (src.flags & loader::file::SoundSource::PlayIfRoomsSwapped) != 0,
                         (src.flags & loader::file::SoundSource::PlayIfRoomsNotSwapped) != 0});
   }
-  m_audioEngine->getSoundEngine()->setListenerGain(1.0f);
+  m_audioEngine->getSoundEngine().setListenerGain(1.0f);
   updateStaticSoundEffects();
 }
 
@@ -1502,7 +1502,7 @@ void World::updateStaticSoundEffects()
     const auto voice = soundEffect.voice.lock();
     if(voice == nullptr)
       continue;
-    
+
     if(m_roomsAreSwapped && soundEffect.playIfSwapped)
     {
       voice->play();

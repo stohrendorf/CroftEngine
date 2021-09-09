@@ -252,7 +252,11 @@ set( EDISONENGINE_SRCS
         audio/bufferhandle.cpp
         audio/device.h
         audio/device.cpp
+        audio/emitter.h
+        audio/emitter.cpp
         audio/filterhandle.h
+        audio/listener.h
+        audio/listener.cpp
         audio/soundengine.h
         audio/soundengine.cpp
         audio/sourcehandle.h

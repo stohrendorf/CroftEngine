@@ -1,6 +1,6 @@
 #pragma once
 
-#include "audio/soundengine.h"
+#include "audio/emitter.h"
 #include "core/id.h"
 #include "engine/floordata/floordata.h"
 #include "engine/location.h"
@@ -18,9 +18,7 @@ namespace engine::script
 class ScriptEngine;
 }
 
-namespace engine
-{
-namespace objects
+namespace engine::objects
 {
 enum class TriggerState
 {
@@ -119,5 +117,4 @@ public:
 
   gsl::not_null<const world::Box*> getCurrentBox() const;
 };
-} // namespace objects
-} // namespace engine
+} // namespace engine::objects
