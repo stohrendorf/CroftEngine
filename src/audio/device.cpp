@@ -71,32 +71,6 @@ void logDeviceInfo(ALCdevice* device)
     }
   }
 }
-
-std::optional<std::tuple<ALCdevice*, ALCcontext*>> tryCreateDeviceContext(const char* deviceName)
-{
-  BOOST_LOG_TRIVIAL(info) << "Probing device " << deviceName;
-  auto device = alcOpenDevice(deviceName);
-
-  if(device == nullptr)
-  {
-    BOOST_LOG_TRIVIAL(info) << "Failed to open device";
-    return std::nullopt;
-  }
-
-  if(alcIsExtensionPresent(device, ALC_EXT_EFX_NAME) == ALC_TRUE)
-  {
-    BOOST_LOG_TRIVIAL(info) << "Device supports EFX";
-    auto context = alcCreateContext(device, deviceQueryParamList.data());
-    // fails e.g. with Rapture3D, where EFX is supported
-    if(context != nullptr)
-    {
-      return std::tuple{device, context};
-    }
-  }
-
-  alcCloseDevice(device);
-  return std::nullopt;
-}
 } // namespace
 
 Device::~Device()
@@ -129,43 +103,16 @@ Device::Device()
 {
   alcGetError(nullptr); // clear any error
 
-  if(alcIsExtensionPresent(nullptr, EE_STRINGIFY(ALC_ENUMERATE_ALL_EXT)) == ALC_TRUE)
+  BOOST_LOG_TRIVIAL(info) << "Trying to use default OpenAL device";
+  m_device = alcOpenDevice(nullptr);
+
+  if(m_device != nullptr)
   {
-    BOOST_LOG_TRIVIAL(info) << "Probing OpenAL devices...";
-
-    gsl::czstring deviceList = alcGetString(nullptr, ALC_ALL_DEVICES_SPECIFIER);
-    Expects(deviceList != nullptr);
-
-    if(deviceList == nullptr)
-    {
-      BOOST_LOG_TRIVIAL(warning) << "No audio devices";
-      return;
-    }
-
-    while(*deviceList != '\0')
-    {
-      if(const auto deviceContext = tryCreateDeviceContext(deviceList))
-      {
-        m_device = std::get<0>(*deviceContext);
-        m_context = std::get<1>(*deviceContext);
-        break;
-      }
-      deviceList += strlen(deviceList) + 1;
-    }
+    m_context = alcCreateContext(m_device, deviceQueryParamList.data());
   }
   else
   {
-    BOOST_LOG_TRIVIAL(info) << "Trying to use default OpenAL device";
-    m_device = alcOpenDevice(nullptr);
-
-    if(m_device != nullptr)
-    {
-      m_context = alcCreateContext(m_device, deviceQueryParamList.data());
-    }
-    else
-    {
-      BOOST_LOG_TRIVIAL(error) << "Failed to open default device";
-    }
+    BOOST_LOG_TRIVIAL(error) << "Failed to open default device";
   }
 
   if(m_context == nullptr)
