@@ -289,7 +289,7 @@ gsl::not_null<std::shared_ptr<Particle>>
   BOOST_ASSERT(boneIndex < boneSpheres.size());
 
   auto location = m_state.location;
-  location.position = core::TRVec{boneSpheres.at(boneIndex).relativeWithOffset(localPosition.toRenderSystem())};
+  location.position = core::TRVec{boneSpheres.at(boneIndex).relative(localPosition.toRenderSystem())};
   auto particle = generate(getWorld(), location, m_state.speed, m_state.rotation.Y);
   getWorld().getObjectManager().registerParticle(particle);
 

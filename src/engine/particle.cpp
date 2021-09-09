@@ -221,7 +221,7 @@ bool FlameParticle::update(world::World& world)
     const auto itemSpheres = lara.getSkeleton()->getBoneCollisionSpheres();
     location.position = core::TRVec{
       itemSpheres.at(-timePerSpriteFrame - 1)
-        .relativeWithOffset(core::TRVec{0_len, timePerSpriteFrame == -1 ? -100_len : 0_len, 0_len}.toRenderSystem())};
+        .relative(core::TRVec{0_len, timePerSpriteFrame == -1 ? -100_len : 0_len, 0_len}.toRenderSystem())};
 
     if(const auto waterHeight = world::getWaterSurfaceHeight(location);
        !waterHeight.has_value() || *waterHeight >= location.position.Y)

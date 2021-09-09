@@ -92,11 +92,6 @@ public:
     {
       return glm::vec3{m * glm::vec4{pos, 1.0f}};
     }
-
-    [[nodiscard]] glm::vec3 relativeWithOffset(const glm::vec3& pos) const
-    {
-      return relative(pos + offset.toRenderSystem());
-    }
   };
 
   [[nodiscard]] std::vector<Sphere> getBoneCollisionSpheres();
