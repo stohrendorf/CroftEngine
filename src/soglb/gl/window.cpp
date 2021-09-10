@@ -47,6 +47,7 @@ Window::Window(const glm::ivec2& resolution)
   glfwWindowHint(GLFW_CONTEXT_NO_ERROR, GLFW_TRUE);
 #endif
 
+  glfwWindowHint(GLFW_MAXIMIZED, GLFW_TRUE);
   m_window = glfwCreateWindow(resolution.x, resolution.y, "EdisonEngine", nullptr, nullptr);
 
   if(m_window == nullptr)
