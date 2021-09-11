@@ -12,29 +12,12 @@ private:
   gsl::not_null<std::shared_ptr<BufferHandle>> m_buffer;
 
 public:
-  explicit BufferVoice(gsl::not_null<std::shared_ptr<BufferHandle>> buffer)
-      : Voice{}
-      , m_buffer{std::move(buffer)}
-  {
-  }
+  explicit BufferVoice(gsl::not_null<std::shared_ptr<BufferHandle>> buffer);
 
-  ~BufferVoice() override
-  {
-    stop();
-    if(const auto& source = getSourceHandle(); source != nullptr)
-      AL_ASSERT(alSourcei(source->get(), AL_BUFFER, AL_NONE));
-  }
+  ~BufferVoice() override;
 
-  void associate(std::unique_ptr<SourceHandle>&& source) override
-  {
-    if(source != nullptr)
-      AL_ASSERT(alSourcei(source->get(), AL_BUFFER, m_buffer->get()));
-    Voice::associate(std::move(source));
-  }
+  void associate(std::unique_ptr<SourceHandle>&& source) override;
 
-  [[nodiscard]] Clock::duration getDuration() const override
-  {
-    return m_buffer->getDuration();
-  }
+  [[nodiscard]] Clock::duration getDuration() const override;
 };
 } // namespace audio

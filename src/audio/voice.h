@@ -1,13 +1,17 @@
 #pragma once
 
 #include "core.h"
-#include "sourcehandle.h"
 
+#include <AL/al.h>
 #include <chrono>
+#include <glm/vec3.hpp>
+#include <memory>
 #include <optional>
 
 namespace audio
 {
+class SourceHandle;
+
 class Voice
 {
 public:
@@ -43,14 +47,14 @@ public:
 
 private:
   std::optional<std::chrono::high_resolution_clock::time_point> m_playStartTime{};
-  float m_groupGain = 1.0f;
-  float m_localGain = 1.0f;
-  float m_pitch = 1.0f;
+  ALfloat m_groupGain = 1.0f;
+  ALfloat m_localGain = 1.0f;
+  ALfloat m_pitch = 1.0f;
   std::optional<bool> m_paused{};
   bool m_looping = false;
   bool m_startedPlaying = false;
   std::optional<glm::vec3> m_position{};
-  std::unique_ptr<SourceHandle> m_source;
+  std::unique_ptr<SourceHandle> m_source{nullptr};
 
   void updateGain();
 };

@@ -1,6 +1,7 @@
 #include "player.h"
 
 #include "audio/device.h"
+#include "audio/streamsource.h"
 #include "audio/streamvoice.h"
 
 #include <atomic>
@@ -510,7 +511,7 @@ struct AVDecoder final : public audio::AbstractStreamSource
       frameReadyCondition.notify_one();
     }
 
-    std::fill_n(buffer, 2 * bufferSize, 0);
+    std::fill_n(buffer, 2 * bufferSize, int16_t{0});
     return written;
   }
 

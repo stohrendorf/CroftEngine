@@ -1,5 +1,10 @@
 #include "device.h"
 
+#include "alext.h"
+#include "filterhandle.h"
+#include "sourcehandle.h"
+#include "streamvoice.h"
+
 #include <boost/log/trivial.hpp>
 #include <glm/gtx/norm.hpp>
 #include <optional>
@@ -133,9 +138,9 @@ Device::Device()
 
   m_underwaterFilter = std::make_shared<FilterHandle>();
 
-  AL_ASSERT(alFilteri(m_underwaterFilter->get(), AL_FILTER_TYPE, AL_FILTER_LOWPASS));
-  AL_ASSERT(alFilterf(m_underwaterFilter->get(), AL_LOWPASS_GAIN, 0.7f));   // Low frequencies gain.
-  AL_ASSERT(alFilterf(m_underwaterFilter->get(), AL_LOWPASS_GAINHF, 0.1f)); // High frequencies gain.
+  AL_ASSERT(alFilteri(*m_underwaterFilter, AL_FILTER_TYPE, AL_FILTER_LOWPASS));
+  AL_ASSERT(alFilterf(*m_underwaterFilter, AL_LOWPASS_GAIN, 0.7f));   // Low frequencies gain.
+  AL_ASSERT(alFilterf(*m_underwaterFilter, AL_LOWPASS_GAINHF, 0.1f)); // High frequencies gain.
 
   m_streamUpdater = std::thread{[this]()
                                 {
@@ -224,5 +229,49 @@ void Device::update()
     m_lastLogTime = now;
     BOOST_LOG_TRIVIAL(debug) << m_allVoices.size() << " voices registered";
   }
+}
+
+gsl::not_null<std::shared_ptr<StreamVoice>> Device::createStream(std::unique_ptr<AbstractStreamSource>&& src,
+                                                                 const size_t bufferSize,
+                                                                 const size_t bufferCount,
+                                                                 const std::chrono::milliseconds& initialPosition)
+{
+  const auto r = std::make_shared<StreamVoice>(
+    std::make_unique<StreamingSourceHandle>(), std::move(src), bufferSize, bufferCount, initialPosition);
+
+  std::lock_guard lock{m_streamsLock};
+  m_streams.emplace(r);
+  return r;
+}
+
+void Device::updateStreams()
+{
+  std::lock_guard lock{m_streamsLock};
+  for(const auto& stream : m_streams)
+    stream->update();
+}
+
+void Device::removeStream(const std::shared_ptr<StreamVoice>& stream)
+{
+  stream->setLooping(false);
+  stream->stop();
+  std::lock_guard lock{m_streamsLock};
+  m_streams.erase(stream);
+}
+
+// NOLINTNEXTLINE(readability-make-member-function-const, readability-convert-member-functions-to-static)
+void Device::setListenerTransform(const glm::vec3& pos, const glm::vec3& front, const glm::vec3& up)
+{
+  AL_ASSERT(alListener3f(AL_POSITION, pos.x, pos.y, pos.z));
+
+  const std::array<ALfloat, 6> o{front.x, front.y, front.z, up.x, up.y, up.z};
+  AL_ASSERT(alListenerfv(AL_ORIENTATION, o.data()));
+}
+
+// NOLINTNEXTLINE(readability-make-member-function-const, readability-convert-member-functions-to-static)
+void Device::setListenerGain(float gain)
+{
+  Expects(gain >= 0);
+  AL_ASSERT(alListenerf(AL_GAIN, gain));
 }
 } // namespace audio

@@ -22,6 +22,7 @@ namespace
 } // namespace
 
 SourceHandle::SourceHandle()
+    : Handle{alGenSources, alIsSource, alDeleteSources}
 {
   set(AL_REFERENCE_DISTANCE, core::SectorSize.get());
   set(AL_AIR_ABSORPTION_FACTOR, 1.0f);
@@ -35,55 +36,55 @@ SourceHandle::~SourceHandle()
 // NOLINTNEXTLINE(readability-make-member-function-const)
 void SourceHandle::setDirectFilter(const std::shared_ptr<FilterHandle>& f)
 {
-  AL_ASSERT(alSourcei(m_handle, AL_DIRECT_FILTER, f ? f->get() : AL_FILTER_NULL));
+  AL_ASSERT(alSourcei(*this, AL_DIRECT_FILTER, f ? *f : AL_FILTER_NULL));
 }
 
 // NOLINTNEXTLINE(readability-make-member-function-const)
 void SourceHandle::set(const ALenum e, const ALint v)
 {
-  AL_ASSERT(alSourcei(m_handle, e, v));
+  AL_ASSERT(alSourcei(*this, e, v));
 }
 
 // NOLINTNEXTLINE(readability-make-member-function-const)
 void SourceHandle::set(const ALenum e, const ALfloat v)
 {
-  AL_ASSERT(alSourcef(m_handle, e, v));
+  AL_ASSERT(alSourcef(*this, e, v));
 }
 
 // NOLINTNEXTLINE(readability-make-member-function-const)
 void SourceHandle::set(const ALenum e, const ALfloat a, const ALfloat b, const ALfloat c)
 {
-  AL_ASSERT(alSource3f(m_handle, e, a, b, c));
+  AL_ASSERT(alSource3f(*this, e, a, b, c));
 }
 
 // NOLINTNEXTLINE(readability-make-member-function-const)
 void SourceHandle::play()
 {
-  AL_ASSERT(alSourcePlay(m_handle));
+  AL_ASSERT(alSourcePlay(*this));
 }
 
 // NOLINTNEXTLINE(readability-make-member-function-const)
 void SourceHandle::pause()
 {
-  AL_ASSERT(alSourcePause(m_handle));
+  AL_ASSERT(alSourcePause(*this));
 }
 
 // NOLINTNEXTLINE(readability-make-member-function-const)
 void SourceHandle::rewind()
 {
-  AL_ASSERT(alSourceRewind(m_handle));
+  AL_ASSERT(alSourceRewind(*this));
 }
 
 // NOLINTNEXTLINE(readability-make-member-function-const)
 void SourceHandle::stop()
 {
-  AL_ASSERT(alSourceStop(m_handle));
+  AL_ASSERT(alSourceStop(*this));
 }
 
 bool SourceHandle::isStopped() const
 {
   ALenum state = AL_STOPPED;
-  AL_ASSERT(alGetSourcei(m_handle, AL_SOURCE_STATE, &state));
+  AL_ASSERT(alGetSourcei(*this, AL_SOURCE_STATE, &state));
 
   return state == AL_STOPPED;
 }
@@ -91,7 +92,7 @@ bool SourceHandle::isStopped() const
 bool SourceHandle::isPaused() const
 {
   ALenum state = AL_STOPPED;
-  AL_ASSERT(alGetSourcei(m_handle, AL_SOURCE_STATE, &state));
+  AL_ASSERT(alGetSourcei(*this, AL_SOURCE_STATE, &state));
 
   return state == AL_PAUSED;
 }
@@ -128,11 +129,11 @@ std::shared_ptr<BufferHandle> StreamingSourceHandle::unqueueBuffer()
   std::unique_lock lock{m_queueMutex};
 
   ALuint unqueued;
-  AL_ASSERT(alSourceUnqueueBuffers(get(), 1, &unqueued));
+  AL_ASSERT(alSourceUnqueueBuffers(*this, 1, &unqueued));
 
   auto it = std::find_if(m_queuedBuffers.begin(),
                          m_queuedBuffers.end(),
-                         [unqueued](const std::shared_ptr<BufferHandle>& buffer) { return buffer->get() == unqueued; });
+                         [unqueued](const std::shared_ptr<BufferHandle>& buffer) { return *buffer == unqueued; });
 
   if(it == m_queuedBuffers.end())
     BOOST_THROW_EXCEPTION(std::runtime_error("Unqueued buffer not in queue"));
@@ -149,8 +150,8 @@ void StreamingSourceHandle::queueBuffer(const std::shared_ptr<BufferHandle>& buf
   if(!m_queuedBuffers.emplace(buffer).second)
     BOOST_THROW_EXCEPTION(std::runtime_error("Buffer enqueued more than once"));
 
-  ALuint bufferId = buffer->get();
-  AL_ASSERT(alSourceQueueBuffers(get(), 1, &bufferId));
+  ALuint bufferId = *buffer;
+  AL_ASSERT(alSourceQueueBuffers(*this, 1, &bufferId));
 }
 
 bool StreamingSourceHandle::isStopped() const
@@ -174,14 +175,14 @@ void StreamingSourceHandle::stop()
   SourceHandle::stop();
 
   std::unique_lock lock{m_queueMutex};
-  AL_ASSERT(alSourcei(get(), AL_BUFFER, AL_NONE));
+  AL_ASSERT(alSourcei(*this, AL_BUFFER, AL_NONE));
   m_queuedBuffers.clear();
 }
 
 ALint StreamingSourceHandle::getBuffersProcessed() const
 {
   ALint processed = 0;
-  AL_ASSERT(alGetSourcei(get(), AL_BUFFERS_PROCESSED, &processed));
+  AL_ASSERT(alGetSourcei(*this, AL_BUFFERS_PROCESSED, &processed));
   return processed;
 }
 } // namespace audio

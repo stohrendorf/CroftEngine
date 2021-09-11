@@ -1,11 +1,17 @@
 #pragma once
 
-#include "sourcehandle.h"
-#include "streamsource.h"
 #include "voice.h"
+
+#include <gsl/gsl-lite.hpp>
+#include <memory>
+#include <vector>
 
 namespace audio
 {
+class StreamingSourceHandle;
+class BufferHandle;
+class AbstractStreamSource;
+
 class StreamVoice : public Voice
 {
 public:
@@ -14,6 +20,8 @@ public:
                        size_t bufferSize,
                        size_t bufferCount,
                        const std::chrono::milliseconds& initialPosition = std::chrono::milliseconds{0});
+
+  ~StreamVoice() override;
 
   void update();
 

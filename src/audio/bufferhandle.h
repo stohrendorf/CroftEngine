@@ -9,14 +9,12 @@
 
 namespace audio
 {
-class BufferHandle final
+class BufferHandle : public Handle
 {
 public:
-  explicit BufferHandle() = default;
-
-  [[nodiscard]] ALuint get() const noexcept
+  explicit BufferHandle()
+      : Handle{alGenBuffers, alIsBuffer, alDeleteBuffers}
   {
-    return m_handle;
   }
 
   void fill(const int16_t* samples, size_t sampleCount, int channels, int sampleRate);
@@ -29,7 +27,6 @@ public:
   }
 
 private:
-  const Handle m_handle{alGenBuffers, alIsBuffer, alDeleteBuffers};
   size_t m_sampleCount = 0;
   int m_sampleRate = 0;
 };

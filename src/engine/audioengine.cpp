@@ -3,6 +3,7 @@
 #include "audio/buffervoice.h"
 #include "audio/device.h"
 #include "audio/soundengine.h"
+#include "audio/streamsource.h"
 #include "audio/streamvoice.h"
 #include "objects/laraobject.h"
 #include "script/reflection.h"

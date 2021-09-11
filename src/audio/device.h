@@ -1,20 +1,23 @@
 #pragma once
 
-#include "filterhandle.h"
-#include "sourcehandle.h"
-#include "streamvoice.h"
-
 #include <AL/alc.h>
 #include <array>
 #include <chrono>
+#include <glm/vec3.hpp>
 #include <gsl/gsl-lite.hpp>
 #include <mutex>
 #include <set>
 #include <thread>
 #include <unordered_set>
+#include <vector>
 
 namespace audio
 {
+class Voice;
+class StreamVoice;
+class FilterHandle;
+class AbstractStreamSource;
+
 class Device final
 {
 public:
@@ -36,29 +39,11 @@ public:
     return m_underwaterFilter;
   }
 
-  void removeStream(const std::shared_ptr<StreamVoice>& stream)
-  {
-    stream->setLooping(false);
-    stream->stop();
-    std::lock_guard lock{m_streamsLock};
-    m_streams.erase(stream);
-  }
+  void removeStream(const std::shared_ptr<StreamVoice>& stream);
 
-  // NOLINTNEXTLINE(readability-make-member-function-const, readability-convert-member-functions-to-static)
-  void setListenerTransform(const glm::vec3& pos, const glm::vec3& front, const glm::vec3& up)
-  {
-    AL_ASSERT(alListener3f(AL_POSITION, pos.x, pos.y, pos.z));
+  void setListenerTransform(const glm::vec3& pos, const glm::vec3& front, const glm::vec3& up);
 
-    const std::array<ALfloat, 6> o{front.x, front.y, front.z, up.x, up.y, up.z};
-    AL_ASSERT(alListenerfv(AL_ORIENTATION, o.data()));
-  }
-
-  // NOLINTNEXTLINE(readability-make-member-function-const, readability-convert-member-functions-to-static)
-  void setListenerGain(float gain)
-  {
-    Expects(gain >= 0);
-    AL_ASSERT(alListenerf(AL_GAIN, gain));
-  }
+  void setListenerGain(float gain);
 
   void setFilter(const std::shared_ptr<FilterHandle>& filter)
   {
@@ -67,17 +52,9 @@ public:
 
   [[nodiscard]] gsl::not_null<std::shared_ptr<StreamVoice>>
     createStream(std::unique_ptr<AbstractStreamSource>&& src,
-                 const size_t bufferSize,
-                 const size_t bufferCount,
-                 const std::chrono::milliseconds& initialPosition)
-  {
-    const auto r = std::make_shared<StreamVoice>(
-      std::make_unique<StreamingSourceHandle>(), std::move(src), bufferSize, bufferCount, initialPosition);
-
-    std::lock_guard lock{m_streamsLock};
-    m_streams.emplace(r);
-    return r;
-  }
+                 size_t bufferSize,
+                 size_t bufferCount,
+                 const std::chrono::milliseconds& initialPosition);
 
   void reset();
 
@@ -98,11 +75,6 @@ private:
   std::shared_ptr<FilterHandle> m_filter{nullptr};
   std::chrono::system_clock::time_point m_lastLogTime = std::chrono::system_clock::now();
 
-  void updateStreams()
-  {
-    std::lock_guard lock{m_streamsLock};
-    for(const auto& stream : m_streams)
-      stream->update();
-  }
+  void updateStreams();
 };
 } // namespace audio

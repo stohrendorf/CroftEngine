@@ -6,16 +6,12 @@
 
 namespace audio
 {
-class FilterHandle final
+class FilterHandle final : public Handle
 {
-  const Handle m_handle{alGenFilters, alIsFilter, alDeleteFilters};
-
 public:
-  explicit FilterHandle() = default;
-
-  [[nodiscard]] ALuint get() const noexcept
+  explicit FilterHandle()
+      : Handle{alGenFilters, alIsFilter, alDeleteFilters}
   {
-    return m_handle;
   }
 };
 } // namespace audio

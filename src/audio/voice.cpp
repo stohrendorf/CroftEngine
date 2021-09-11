@@ -1,5 +1,7 @@
 #include "voice.h"
 
+#include "sourcehandle.h"
+
 #include <algorithm>
 #include <utility>
 

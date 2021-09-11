@@ -38,5 +38,5 @@
 *.out binary
 *.app binary
 
-*.po text
-*.pot text
+*.po text=LF
+*.pot text=LF

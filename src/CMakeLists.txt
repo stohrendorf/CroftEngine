@@ -250,6 +250,8 @@ set( EDISONENGINE_SRCS
         audio/alext.cpp
         audio/bufferhandle.h
         audio/bufferhandle.cpp
+        audio/buffervoice.h
+        audio/buffervoice.cpp
         audio/device.h
         audio/device.cpp
         audio/emitter.h

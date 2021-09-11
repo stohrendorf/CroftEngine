@@ -13,7 +13,7 @@ void BufferHandle::fill(const int16_t* samples, const size_t sampleCount, const 
 {
   m_sampleCount = sampleCount;
   m_sampleRate = sampleRate;
-  AL_ASSERT(alBufferData(m_handle,
+  AL_ASSERT(alBufferData(*this,
                          channels == 2 ? AL_FORMAT_STEREO16 : AL_FORMAT_MONO16,
                          samples,
                          gsl::narrow<ALsizei>(sampleCount * sizeof(samples[0])),

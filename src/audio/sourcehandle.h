@@ -13,16 +13,11 @@ namespace audio
 class BufferHandle;
 class FilterHandle;
 
-class SourceHandle
+class SourceHandle : public Handle
 {
 public:
   explicit SourceHandle();
-  virtual ~SourceHandle();
-
-  [[nodiscard]] ALuint get() const noexcept
-  {
-    return m_handle;
-  }
+  ~SourceHandle() override;
 
   void setDirectFilter(const std::shared_ptr<FilterHandle>& f);
 
@@ -43,9 +38,6 @@ public:
   void setGain(ALfloat gain);
   void setPosition(const glm::vec3& position);
   void setPitch(ALfloat pitch_value);
-
-private:
-  const Handle m_handle{alGenSources, alIsSource, alDeleteSources};
 };
 
 class StreamingSourceHandle : public SourceHandle

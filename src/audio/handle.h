@@ -7,7 +7,7 @@
 
 namespace audio
 {
-class Handle final
+class Handle
 {
 public:
   using Allocator = void(ALsizei, ALuint*);
@@ -20,7 +20,7 @@ public:
   {
   }
 
-  ~Handle()
+  virtual ~Handle()
   {
     AL_ASSERT(m_deleter(1, &m_handle));
   }

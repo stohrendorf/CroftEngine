@@ -4,17 +4,18 @@
 
 #include <algorithm>
 #include <gsl/gsl-lite.hpp>
+#include <vector>
 
 namespace audio
 {
 class VoiceGroup final
 {
 private:
-  float m_gain;
+  ALfloat m_gain;
   std::vector<std::weak_ptr<Voice>> m_voices{};
 
 public:
-  explicit VoiceGroup(float gain = 1.0f)
+  explicit VoiceGroup(ALfloat gain = 1.0f)
       : m_gain{gain}
   {
   }
@@ -60,12 +61,12 @@ public:
     m_voices = std::move(cleaned);
   }
 
-  [[nodiscard]] float getGain() const
+  [[nodiscard]] ALfloat getGain() const
   {
     return m_gain;
   }
 
-  void setGain(float gain)
+  void setGain(ALfloat gain)
   {
     m_gain = gain;
     for(const auto& weakVoice : m_voices)

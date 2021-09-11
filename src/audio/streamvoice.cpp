@@ -1,9 +1,10 @@
 #include "streamvoice.h"
 
 #include "bufferhandle.h"
+#include "sourcehandle.h"
+#include "streamsource.h"
 
 #include <boost/log/trivial.hpp>
-#include <utility>
 
 namespace audio
 {
@@ -57,7 +58,7 @@ void StreamVoice::update()
     auto it = std::find(m_buffers.begin(), m_buffers.end(), buffer);
     if(it == m_buffers.end())
     {
-      BOOST_LOG_TRIVIAL(error) << "Got unexpected buffer ID #" << buffer->get();
+      BOOST_LOG_TRIVIAL(error) << "Got unexpected buffer ID #" << static_cast<ALuint>(*buffer);
       continue;
     }
 
@@ -93,4 +94,6 @@ Clock::duration StreamVoice::getDuration() const
 {
   return m_stream->getDuration();
 }
+
+StreamVoice::~StreamVoice() = default;
 } // namespace audio
