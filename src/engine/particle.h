@@ -129,6 +129,7 @@ public:
       this->location.position.X += util::rand15s(core::SectorSize);
       this->location.position.Z += util::rand15s(core::SectorSize);
     }
+    getRenderState().setScissorTest(false);
   }
 
   bool update(world::World& world) override;
