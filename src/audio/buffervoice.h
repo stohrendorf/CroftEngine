@@ -1,11 +1,13 @@
 #pragma once
 
-#include "bufferhandle.h"
-#include "utils.h"
 #include "voice.h"
+
+#include <gsl/gsl-lite.hpp>
 
 namespace audio
 {
+class BufferHandle;
+
 class BufferVoice final : public Voice
 {
 private:

@@ -1,5 +1,6 @@
 #include "buffervoice.h"
 
+#include "bufferhandle.h"
 #include "sourcehandle.h"
 
 namespace audio

@@ -1,5 +1,6 @@
 #include "audioengine.h"
 
+#include "audio/bufferhandle.h"
 #include "audio/buffervoice.h"
 #include "audio/device.h"
 #include "audio/soundengine.h"
