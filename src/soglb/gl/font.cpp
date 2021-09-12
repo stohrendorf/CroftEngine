@@ -108,8 +108,6 @@ Font::Font(std::filesystem::path ttf)
   const auto face = getFace();
   const auto h = face->ascender - face->descender;
   Expects(h != 0);
-  m_ascender = static_cast<float>(face->ascender) / h;
-  m_descender = static_cast<float>(face->descender) / h;
   m_lineHeight = static_cast<float>(face->height) / h;
 }
 
@@ -180,56 +178,6 @@ void Font::drawText(Image<SRGBA8>& img, const gsl::czstring text, glm::ivec2 xy,
   }
 }
 
-glm::ivec2 Font::getBounds(const gsl::czstring text, int size) const
-{
-  Expects(text);
-  Expects(size > 0);
-
-  size = std::lround(m_lineHeight * static_cast<float>(size));
-
-  FTC_ImageTypeRec imgType;
-  imgType.face_id = const_cast<Font*>(this); // NOLINT(cppcoreguidelines-pro-type-const-cast)
-  imgType.width = size;
-  imgType.height = size;
-  imgType.flags = FT_LOAD_DEFAULT | FT_LOAD_RENDER; // NOLINT(hicpp-signed-bitwise)
-
-  int x = 0;
-  int y = size;
-
-  std::optional<char32_t> prevChar = std::nullopt;
-  std::vector<char32_t> utf32;
-  utf8::utf8to32(text, text + std::strlen(text), std::back_inserter(utf32));
-  for(const char32_t chr : utf32)
-  {
-    const auto glyphIndex = getGlyphIndex(chr);
-    if(glyphIndex == 0)
-    {
-      BOOST_LOG_TRIVIAL(warning) << "Failed to load character '" << chr << "'";
-      continue;
-    }
-
-    FTC_SBit sbit = nullptr;
-    FTC_Node node = nullptr;
-    const auto error = FTC_SBitCache_Lookup(m_sbitCache, &imgType, glyphIndex, &sbit, &node);
-    if(error != FT_Err_Ok)
-    {
-      BOOST_LOG_TRIVIAL(warning) << "Failed to load from sbit cache: " << getFreeTypeErrorMessage(error);
-      FTC_Node_Unref(node, m_cache);
-      continue;
-    }
-
-    if(prevChar.has_value())
-      x += getGlyphKernAdvance(prevChar.value(), chr);
-    x += sbit->xadvance;
-    y += sbit->yadvance;
-
-    FTC_Node_Unref(node, m_cache);
-    prevChar = chr;
-  }
-
-  return glm::ivec2{x, y};
-}
-
 void Font::drawText(Image<SRGBA8>& img,
                     const std::string& text,
                     const glm::ivec2& xy,
@@ -240,17 +188,6 @@ void Font::drawText(Image<SRGBA8>& img,
                     const int size)
 {
   drawText(img, text.c_str(), xy, SRGBA8{red, green, blue, alpha}, size);
-}
-
-FT_Size_Metrics Font::getMetrics()
-{
-  FT_Face face;
-  if(FTC_Manager_LookupFace(m_cache, this, &face) != FT_Err_Ok)
-  {
-    BOOST_THROW_EXCEPTION(std::runtime_error("Failed to retrieve face information"));
-  }
-
-  return face->size->metrics;
 }
 
 FT_Face Font::getFace() const
