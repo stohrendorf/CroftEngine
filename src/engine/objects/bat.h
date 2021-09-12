@@ -1,7 +1,6 @@
 #pragma once
 
 #include "aiagent.h"
-#include "engine/ai/ai.h"
 
 namespace engine::objects
 {

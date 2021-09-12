@@ -4,6 +4,7 @@
 #include "engine/particle.h"
 #include "engine/raycast.h"
 #include "engine/script/reflection.h"
+#include "engine/skeletalmodelnode.h"
 #include "engine/world/world.h"
 #include "laraobject.h"
 #include "serialization/quantity.h"
@@ -514,7 +515,7 @@ void AIAgent::initCreatureInfo()
   m_creatureInfo = std::make_unique<ai::CreatureInfo>(getWorld(), m_state.type, m_state.getCurrentBox());
 }
 
-bool AIAgent::isInsideZoneButNotInBox(const world::ZoneId zoneId, const world::Box& targetBox) const
+bool AIAgent::isInsideZoneButNotInBox(const uint32_t zoneId, const world::Box& targetBox) const
 {
   Expects(m_creatureInfo != nullptr);
 

@@ -10,17 +10,6 @@
 
 namespace audio
 {
-namespace
-{
-[[nodiscard]] ALuint createHandle()
-{
-  ALuint handle;
-  AL_ASSERT(alGenSources(1, &handle));
-  Ensures(alIsSource(handle));
-  return handle;
-}
-} // namespace
-
 SourceHandle::SourceHandle()
     : Handle{alGenSources, alIsSource, alDeleteSources}
 {

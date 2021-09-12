@@ -20,6 +20,25 @@ struct ObjectState;
 
 namespace engine
 {
+struct InterpolationInfo
+{
+  const gsl::not_null<const loader::file::AnimFrame*> firstFrame;
+  const gsl::not_null<const loader::file::AnimFrame*> secondFrame;
+  const float bias;
+
+  [[nodiscard]] const auto& getNearestFrame() const
+  {
+    if(bias <= 0.5f)
+    {
+      return firstFrame;
+    }
+    else
+    {
+      return secondFrame;
+    }
+  }
+};
+
 class SkeletalModelNode : public render::scene::Node
 {
 public:
@@ -43,25 +62,6 @@ public:
   }
 
   [[nodiscard]] bool advanceFrame(objects::ObjectState& state);
-
-  struct InterpolationInfo
-  {
-    const gsl::not_null<const loader::file::AnimFrame*> firstFrame;
-    const gsl::not_null<const loader::file::AnimFrame*> secondFrame;
-    const float bias;
-
-    [[nodiscard]] const auto& getNearestFrame() const
-    {
-      if(bias <= 0.5f)
-      {
-        return firstFrame;
-      }
-      else
-      {
-        return secondFrame;
-      }
-    }
-  };
 
   InterpolationInfo getInterpolationInfo() const;
 

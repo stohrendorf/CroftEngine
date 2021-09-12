@@ -1,6 +1,6 @@
 #include "thorhammer.h"
 
-#include "engine/world/animation.h"
+#include "engine/skeletalmodelnode.h"
 #include "engine/world/world.h"
 #include "laraobject.h"
 #include "serialization/objectreference.h"
@@ -165,5 +165,15 @@ void ThorHammerBlock::serialize(const serialization::Serializer<world::World>& s
   ModelObject::serialize(ser);
   if(ser.loading)
     getSkeleton()->getRenderState().setScissorTest(false);
+}
+
+ThorHammerBlock::ThorHammerBlock(const std::string& name,
+                                 const gsl::not_null<world::World*>& world,
+                                 const gsl::not_null<const world::Room*>& room,
+                                 const loader::file::Item& item,
+                                 const gsl::not_null<const world::SkeletalModelType*>& animatedModel)
+    : ModelObject{name, world, room, item, true, animatedModel}
+{
+  getSkeleton()->getRenderState().setScissorTest(false);
 }
 } // namespace engine::objects

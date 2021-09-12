@@ -2,6 +2,7 @@
 
 #include "core/boundingbox.h"
 #include "engine/presenter.h"
+#include "engine/skeletalmodelnode.h"
 #include "engine/world/world.h"
 #include "hid/inputhandler.h"
 #include "laraobject.h"
@@ -300,5 +301,19 @@ void Block::serialize(const serialization::Serializer<world::World>& ser)
   ModelObject::serialize(ser);
   if(ser.loading)
     getSkeleton()->getRenderState().setScissorTest(false);
+}
+
+Block::Block(const std::string& name,
+             const gsl::not_null<world::World*>& world,
+             const gsl::not_null<const world::Room*>& room,
+             const loader::file::Item& item,
+             const gsl::not_null<const world::SkeletalModelType*>& animatedModel)
+    : ModelObject{name, world, room, item, true, animatedModel}
+{
+  if(m_state.triggerState != TriggerState::Invisible)
+  {
+    world::patchHeightsForBlock(*this, -core::SectorSize);
+  }
+  getSkeleton()->getRenderState().setScissorTest(false);
 }
 } // namespace engine::objects

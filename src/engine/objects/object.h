@@ -2,9 +2,6 @@
 
 #include "core/boundingbox.h"
 #include "core/units.h"
-#include "engine/collisioninfo.h"
-#include "engine/floordata/floordata.h"
-#include "engine/skeletalmodelnode.h"
 #include "objectstate.h"
 
 #include <utility>

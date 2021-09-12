@@ -20,6 +20,7 @@
 #include "earthquake.h"
 #include "engine/items_tr1.h"
 #include "engine/presenter.h"
+#include "engine/skeletalmodelnode.h"
 #include "engine/world/world.h"
 #include "fallingceiling.h"
 #include "flameemitter.h"

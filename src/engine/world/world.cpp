@@ -12,6 +12,7 @@
 #include "engine/objects/tallblock.h"
 #include "engine/player.h"
 #include "engine/presenter.h"
+#include "engine/skeletalmodelnode.h"
 #include "engine/tracks_tr1.h"
 #include "loader/file/level/level.h"
 #include "loader/trx/trx.h"

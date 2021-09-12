@@ -1,6 +1,8 @@
 #include "dartgun.h"
 
+#include "dart.h"
 #include "engine/particle.h"
+#include "engine/skeletalmodelnode.h"
 #include "engine/soundeffects_tr1.h"
 #include "engine/world/world.h"
 

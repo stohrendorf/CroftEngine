@@ -1,10 +1,11 @@
 #pragma once
 
-#include "engine/ai/ai.h"
 #include "modelobject.h"
 
 namespace engine::objects
 {
+class AIAgent;
+
 class CentaurStatue final : public ModelObject
 {
 public:

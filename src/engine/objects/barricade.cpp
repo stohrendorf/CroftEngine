@@ -1,8 +1,5 @@
 #include "barricade.h"
 
-#include "engine/world/world.h"
-#include "laraobject.h"
-
 namespace engine::objects
 {
 void Barricade::update()

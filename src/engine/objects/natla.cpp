@@ -4,7 +4,6 @@
 #include "engine/engine.h"
 #include "engine/particle.h"
 #include "engine/tracks_tr1.h"
-#include "engine/world/animation.h"
 #include "engine/world/world.h"
 #include "serialization/quantity.h"
 #include "serialization/serialization.h"

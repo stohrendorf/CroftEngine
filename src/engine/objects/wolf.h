@@ -1,7 +1,6 @@
 #pragma once
 
 #include "aiagent.h"
-#include "engine/ai/ai.h"
 
 namespace engine::objects
 {
@@ -17,12 +16,7 @@ public:
        const gsl::not_null<world::World*>& world,
        const gsl::not_null<const world::Room*>& room,
        const loader::file::Item& item,
-       const gsl::not_null<const world::SkeletalModelType*>& animatedModel)
-      : AIAgent{name, world, room, item, animatedModel}
-  {
-    getSkeleton()->setAnim(getSkeleton()->getAnim(), 96_frame);
-    getSkeleton()->updatePose();
-  }
+       const gsl::not_null<const world::SkeletalModelType*>& animatedModel);
 
   void update() override;
 };

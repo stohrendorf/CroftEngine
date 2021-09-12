@@ -1,6 +1,6 @@
 #include "mummy.h"
 
-#include "engine/script/reflection.h"
+#include "engine/skeletalmodelnode.h"
 #include "engine/world/world.h"
 #include "laraobject.h"
 

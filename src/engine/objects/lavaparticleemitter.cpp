@@ -1,8 +1,8 @@
 #include "lavaparticleemitter.h"
 
 #include "engine/particle.h"
+#include "engine/soundeffects_tr1.h"
 #include "engine/world/world.h"
-#include "laraobject.h"
 
 namespace engine::objects
 {

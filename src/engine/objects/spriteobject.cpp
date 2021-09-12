@@ -1,9 +1,9 @@
 #include "spriteobject.h"
 
-#include "engine/lighting.h"
+#include "engine/world/room.h"
+#include "engine/world/sprite.h"
 #include "engine/world/world.h"
 #include "loader/file/item.h"
-#include "loader/file/level/level.h"
 #include "render/scene/mesh.h"
 #include "serialization/quantity.h"
 #include "serialization/serialization.h"

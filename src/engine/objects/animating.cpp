@@ -1,7 +1,5 @@
 #include "animating.h"
 
-#include "engine/world/room.h"
-
 namespace engine::objects
 {
 void Animating::update()

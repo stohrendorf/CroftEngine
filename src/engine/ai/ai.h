@@ -1,23 +1,22 @@
 #pragma once
 
-#include "engine/world/box.h"
+#include "core/id.h"
 #include "pathfinder.h"
 
 #include <boost/range/adaptor/map.hpp>
 
-namespace engine
-{
-namespace objects
+namespace engine::objects
 {
 class AIAgent;
-}
-
-namespace objects
-{
 struct ObjectState;
+} // namespace engine::objects
+
+namespace engine::world
+{
+struct Box;
 }
 
-namespace ai
+namespace engine::ai
 {
 enum class Mood
 {
@@ -41,8 +40,8 @@ inline std::ostream& operator<<(std::ostream& str, const Mood mood)
 
 struct EnemyLocation
 {
-  world::ZoneId zoneId = 0;
-  world::ZoneId enemyZoneId = 0;
+  uint32_t zoneId = 0;
+  uint32_t enemyZoneId = 0;
   bool enemyUnreachable = false;
   core::Area enemyDistance{0};
   bool enemyAhead = false;
@@ -87,5 +86,4 @@ std::unique_ptr<CreatureInfo> create(const serialization::TypeId<std::unique_ptr
 void serialize(std::unique_ptr<CreatureInfo>& data, const serialization::Serializer<world::World>& ser);
 
 void updateMood(const objects::AIAgent& aiAgent, const EnemyLocation& enemyLocation, bool violent);
-} // namespace ai
-} // namespace engine
+} // namespace engine::ai

@@ -1,14 +1,14 @@
 #include "mutant.h"
 
-#include "engine/lara/abstractstatehandler.h"
 #include "engine/particle.h"
 #include "engine/player.h"
-#include "engine/world/animation.h"
+#include "engine/skeletalmodelnode.h"
 #include "engine/world/world.h"
 #include "laraobject.h"
-#include "mutantegg.h"
+#include "loader/file/larastateid.h"
 #include "serialization/quantity.h"
 #include "serialization/serialization.h"
+#include "shatter.h"
 
 namespace engine::objects
 {
@@ -482,8 +482,8 @@ void TorsoBoss::update()
         goal(LaraKilled);
         auto& lara = getWorld().getObjectManager().getLara();
         lara.getSkeleton()->setAnim(&getWorld().findAnimatedModelForType(TR1ItemId::AlternativeLara)->animations[0]);
-        lara.setGoalAnimState(LaraStateId::BoulderDeath);
-        lara.setCurrentAnimState(LaraStateId::BoulderDeath);
+        lara.setGoalAnimState(loader::file::LaraStateId::BoulderDeath);
+        lara.setCurrentAnimState(loader::file::LaraStateId::BoulderDeath);
         lara.setCurrentRoom(m_state.location.room);
         lara.m_state.location = m_state.location;
         lara.m_state.rotation = {0_deg, m_state.rotation.Y, 0_deg};
@@ -558,5 +558,19 @@ void TorsoBoss::serialize(const serialization::Serializer<world::World>& ser)
 {
   AIAgent::serialize(ser);
   ser(S_NV("hasHitLara", m_hasHitLara), S_NV("turnStartFrame", m_turnStartFrame));
+}
+
+WalkingMutant::WalkingMutant(const std::string& name,
+                             const gsl::not_null<world::World*>& world,
+                             const gsl::not_null<const world::Room*>& room,
+                             const loader::file::Item& item,
+                             const gsl::not_null<const world::SkeletalModelType*>& animatedModel)
+    : FlyingMutant{name, world, room, item, animatedModel}
+{
+  for(size_t i = 0; i < getSkeleton()->getBoneCount(); ++i)
+  {
+    getSkeleton()->setVisible(i, (0xffe07fffu >> i) & 1u);
+  }
+  getSkeleton()->rebuildMesh();
 }
 } // namespace engine::objects

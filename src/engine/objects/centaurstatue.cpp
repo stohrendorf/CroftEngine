@@ -1,15 +1,13 @@
 #include "centaurstatue.h"
 
 #include "engine/particle.h"
-#include "engine/presenter.h"
-#include "engine/world/rendermeshdata.h"
+#include "engine/skeletalmodelnode.h"
 #include "laraobject.h"
 #include "mutant.h"
-#include "mutantegg.h"
-#include "render/scene/mesh.h"
 #include "serialization/objectreference.h"
 #include "serialization/quantity.h"
 #include "serialization/serialization.h"
+#include "shatter.h"
 
 namespace engine::objects
 {

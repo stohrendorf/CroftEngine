@@ -2,10 +2,9 @@
 
 #include "engine/audioengine.h"
 #include "engine/engine.h"
+#include "engine/skeletalmodelnode.h"
 #include "engine/tracks_tr1.h"
-#include "engine/world/animation.h"
 #include "engine/world/world.h"
-#include "laraobject.h"
 #include "serialization/serialization.h"
 
 namespace engine::objects

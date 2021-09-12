@@ -39,7 +39,7 @@ core::Speed SkeletalModelNode::calculateFloorSpeed(const core::Frame& frameOffse
   return scaled / (1 << 16);
 }
 
-SkeletalModelNode::InterpolationInfo SkeletalModelNode::getInterpolationInfo() const
+InterpolationInfo SkeletalModelNode::getInterpolationInfo() const
 {
   Expects(m_anim != nullptr);
 

@@ -3,6 +3,16 @@
 #include "engine/lighting.h"
 #include "object.h"
 
+namespace engine
+{
+class SkeletalModelNode;
+}
+
+namespace engine::world
+{
+struct SkeletalModelType;
+}
+
 namespace engine::objects
 {
 class ModelObject : public Object
@@ -28,18 +38,9 @@ public:
   ModelObject& operator=(const ModelObject&) = delete;
   ModelObject& operator=(ModelObject&&) = delete;
 
-  ~ModelObject() override
-  {
-    if(m_skeleton != nullptr)
-    {
-      setParent(m_skeleton, nullptr);
-    }
-  }
+  ~ModelObject() override;
 
-  std::shared_ptr<render::scene::Node> getNode() const override
-  {
-    return m_skeleton;
-  }
+  std::shared_ptr<render::scene::Node> getNode() const override;
 
   const std::shared_ptr<SkeletalModelNode>& getSkeleton() const
   {
@@ -127,13 +128,7 @@ public:
                         const gsl::not_null<const world::Room*>& room,
                         const loader::file::Item& item,
                         bool hasUpdateFunction,
-                        const gsl::not_null<const world::SkeletalModelType*>& model)
-      : ModelObject{name, world, room, item, hasUpdateFunction, model}
-  {
-    getSkeleton()->setRenderable(nullptr);
-    getSkeleton()->removeAllChildren();
-    getSkeleton()->clearParts();
-  }
+                        const gsl::not_null<const world::SkeletalModelType*>& model);
 
   void serialize(const serialization::Serializer<world::World>& ser) override;
 };

@@ -1932,7 +1932,7 @@ void LaraObject::drawRoutine()
   }
 }
 
-void LaraObject::drawRoutineInterpolated(const SkeletalModelNode::InterpolationInfo& interpolationInfo)
+void LaraObject::drawRoutineInterpolated(const InterpolationInfo& interpolationInfo)
 {
   const auto& objInfo = *getWorld().findAnimatedModelForType(m_state.type);
 
@@ -2200,6 +2200,26 @@ void LaraObject::initMuzzleFlashes()
 
   m_muzzleFlashRight->setRenderable(mdl);
   m_muzzleFlashRight->setVisible(false);
+}
+
+void LaraObject::updateExplosionStumbling()
+{
+  const auto rot = angleFromAtan(forceSourcePosition->X - m_state.location.position.X,
+                                 forceSourcePosition->Z - m_state.location.position.Z)
+                   - 180_deg;
+  hit_direction = axisFromAngle(m_state.rotation.Y - rot);
+  Expects(hit_direction.has_value());
+  if(hit_frame == 0_frame)
+  {
+    playSoundEffect(TR1SoundEffect::LaraOof);
+  }
+
+  hit_frame += 1_frame;
+  if(hit_frame > 34_frame)
+  {
+    hit_frame = 34_frame;
+  }
+  explosionStumblingDuration -= 1_frame;
 }
 
 void LaraObject::AimInfo::serialize(const serialization::Serializer<world::World>& ser)

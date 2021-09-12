@@ -1,6 +1,7 @@
 #include "cowboy.h"
 
 #include "engine/particle.h"
+#include "engine/skeletalmodelnode.h"
 #include "engine/world/world.h"
 #include "serialization/quantity.h"
 #include "serialization/serialization.h"

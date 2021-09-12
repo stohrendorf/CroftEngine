@@ -322,4 +322,43 @@ void PathFinder::collectBoxes(const world::World& world, const gsl::not_null<con
     }
   }
 }
+
+bool PathFinder::canVisit(const world::Box& box) const noexcept
+{
+  if(cannotVisitBlocked && box.blocked)
+    return false;
+  if(cannotVisitBlockable && box.blockable)
+    return false;
+  return true;
+}
+
+void PathFinder::setRandomSearchTarget(const gsl::not_null<const world::Box*>& box)
+{
+  const auto xSize = box->xInterval.size() - 2 * Margin;
+  target.X = util::rand15(xSize) + box->xInterval.min + Margin;
+  const auto zSize = box->zInterval.size() - 2 * Margin;
+  target.Z = util::rand15(zSize) + box->zInterval.min + Margin;
+  if(fly != 0_len)
+  {
+    target.Y = box->floor - 384_len;
+  }
+  else
+  {
+    target.Y = box->floor;
+  }
+}
+
+void PathFinder::setTargetBox(const gsl::not_null<const world::Box*>& box)
+{
+  if(box == m_targetBox)
+    return;
+
+  m_targetBox = box;
+
+  m_expansions.clear();
+  m_expansions.emplace_back(m_targetBox);
+  m_reachable.clear();
+  m_reachable[m_targetBox] = true;
+  m_edges.clear();
+}
 } // namespace engine::ai

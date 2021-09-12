@@ -4,9 +4,9 @@
 #include "audioengine.h"
 #include "core/i18n.h"
 #include "engine.h"
-#include "engine/objects/laraobject.h"
 #include "loader/file/level/level.h"
 #include "objectmanager.h"
+#include "objects/laraobject.h"
 #include "render/pass/config.h"
 #include "render/renderpipeline.h"
 #include "render/scene/camera.h"
@@ -21,6 +21,7 @@
 #include "ui/text.h"
 #include "ui/ui.h"
 #include "video/player.h"
+#include "world/room.h"
 
 #include <boost/range/adaptors.hpp>
 #include <gl/debuggroup.h>

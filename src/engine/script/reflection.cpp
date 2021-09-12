@@ -6,6 +6,7 @@
 #include "engine/objects/modelobject.h"
 #include "engine/player.h"
 #include "engine/presenter.h"
+#include "engine/skeletalmodelnode.h"
 #include "engine/throttler.h"
 #include "engine/world/world.h"
 #include "loader/file/level/level.h"

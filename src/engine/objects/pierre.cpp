@@ -2,10 +2,8 @@
 
 #include "engine/cameracontroller.h"
 #include "engine/raycast.h"
-#include "engine/world/animation.h"
+#include "engine/skeletalmodelnode.h"
 #include "engine/world/world.h"
-#include "laraobject.h"
-#include "pickupobject.h"
 #include "serialization/quantity.h"
 #include "serialization/serialization.h"
 

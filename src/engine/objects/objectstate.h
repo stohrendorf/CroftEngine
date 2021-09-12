@@ -4,13 +4,13 @@
 #include "core/id.h"
 #include "engine/floordata/floordata.h"
 #include "engine/location.h"
-#include "engine/world/box.h"
 #include "loader/file/datatypes.h"
 
 namespace engine::world
 {
 class World;
 struct Sector;
+struct Box;
 } // namespace engine::world
 
 namespace engine::script

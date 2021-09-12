@@ -1,9 +1,8 @@
 #include "wolf.h"
 
 #include "engine/particle.h"
-#include "engine/world/animation.h"
+#include "engine/skeletalmodelnode.h"
 #include "engine/world/world.h"
-#include "laraobject.h"
 
 namespace engine::objects
 {
@@ -168,5 +167,16 @@ void Wolf::update()
   rotateCreatureHead(pitch);
   getSkeleton()->patchBone(3, core::TRRotation{0_deg, getCreatureInfo()->headRotation, 0_deg}.toMatrix());
   animateCreature(rotationToMoveTarget, roll);
+}
+
+Wolf::Wolf(const std::string& name,
+           const gsl::not_null<world::World*>& world,
+           const gsl::not_null<const world::Room*>& room,
+           const loader::file::Item& item,
+           const gsl::not_null<const world::SkeletalModelType*>& animatedModel)
+    : AIAgent{name, world, room, item, animatedModel}
+{
+  getSkeleton()->setAnim(getSkeleton()->getAnim(), 96_frame);
+  getSkeleton()->updatePose();
 }
 } // namespace engine::objects

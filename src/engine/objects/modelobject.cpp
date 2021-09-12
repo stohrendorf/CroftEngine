@@ -1,6 +1,7 @@
 #include "modelobject.h"
 
 #include "engine/particle.h"
+#include "engine/skeletalmodelnode.h"
 #include "engine/world/animation.h"
 #include "engine/world/world.h"
 #include "laraobject.h"
@@ -347,6 +348,19 @@ void ModelObject::trapCollideWithLara(CollisionInfo& collisionInfo)
   }
 }
 
+ModelObject::~ModelObject()
+{
+  if(m_skeleton != nullptr)
+  {
+    setParent(m_skeleton, nullptr);
+  }
+}
+
+std::shared_ptr<render::scene::Node> ModelObject::getNode() const
+{
+  return m_skeleton;
+}
+
 std::shared_ptr<ModelObject> create(const serialization::TypeId<std::shared_ptr<ModelObject>>&,
                                     serialization::Serializer<world::World>& ser)
 {
@@ -362,5 +376,18 @@ void NullRenderModelObject::serialize(const serialization::Serializer<world::Wor
     getSkeleton()->removeAllChildren();
     getSkeleton()->clearParts();
   }
+}
+
+NullRenderModelObject::NullRenderModelObject(const std::string& name,
+                                             const gsl::not_null<world::World*>& world,
+                                             const gsl::not_null<const world::Room*>& room,
+                                             const loader::file::Item& item,
+                                             bool hasUpdateFunction,
+                                             const gsl::not_null<const world::SkeletalModelType*>& model)
+    : ModelObject{name, world, room, item, hasUpdateFunction, model}
+{
+  getSkeleton()->setRenderable(nullptr);
+  getSkeleton()->removeAllChildren();
+  getSkeleton()->clearParts();
 }
 } // namespace engine::objects

@@ -6,6 +6,7 @@
 #include "presenter.h"
 #include "render/scene/materialmanager.h"
 #include "render/scene/mesh.h"
+#include "skeletalmodelnode.h"
 #include "world/rendermeshdata.h"
 #include "world/world.h"
 
@@ -96,6 +97,14 @@ Particle::Particle(const std::string& id,
   }
 }
 
+void Particle::applyTransform()
+{
+  location.updateRoom();
+  m_lighting.update(m_shade.value_or(core::Shade{core::Shade::type{-1}}), *location.room);
+  const glm::vec3 tr = location.position.toRenderSystem() - location.room->position.toRenderSystem();
+  setLocalMatrix(translate(glm::mat4{1.0f}, tr) * angle.toMatrix());
+}
+
 bool BloodSplatterParticle::update(world::World& world)
 {
   location.position += util::pitch(speed * 1_frame, angle.Y);
@@ -128,6 +137,22 @@ bool SplashParticle::update(world::World& world)
 
   applyTransform();
   return true;
+}
+
+SplashParticle::SplashParticle(const Location& location, world::World& world, const bool waterfall)
+    : Particle{"splash", TR1ItemId::Splash, location, world, false}
+{
+  if(!waterfall)
+  {
+    speed = util::rand15(128_spd);
+    angle.Y = core::auToAngle(2 * util::rand15s());
+  }
+  else
+  {
+    this->location.position.X += util::rand15s(core::SectorSize);
+    this->location.position.Z += util::rand15s(core::SectorSize);
+  }
+  getRenderState().setScissorTest(false);
 }
 
 bool BubbleParticle::update(world::World& world)
@@ -505,6 +530,14 @@ gsl::not_null<std::shared_ptr<Particle>> createMutantGrenade(world::World& world
                                                              const core::Angle& angle)
 {
   auto particle = std::make_shared<MutantGrenadeParticle>(location, world, angle);
+  setParent(particle, location.room->node);
+  return particle;
+}
+
+gsl::not_null<std::shared_ptr<Particle>>
+  createBloodSplat(world::World& world, const Location& location, const core::Speed& speed, const core::Angle& angle)
+{
+  auto particle = std::make_shared<BloodSplatterParticle>(location, speed, angle, world);
   setParent(particle, location.room->node);
   return particle;
 }

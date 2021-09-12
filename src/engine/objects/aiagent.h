@@ -34,7 +34,7 @@ public:
     return m_creatureInfo;
   }
 
-  [[nodiscard]] bool isInsideZoneButNotInBox(world::ZoneId zoneId, const world::Box& targetBox) const;
+  [[nodiscard]] bool isInsideZoneButNotInBox(uint32_t zoneId, const world::Box& targetBox) const;
 
 protected:
   AIAgent(const gsl::not_null<world::World*>& world, const Location& location)

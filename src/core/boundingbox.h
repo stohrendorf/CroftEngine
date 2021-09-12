@@ -3,8 +3,6 @@
 #include "interval.h"
 #include "vec.h"
 
-#include <utility>
-
 namespace core
 {
 struct BoundingBox

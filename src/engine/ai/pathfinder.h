@@ -1,7 +1,7 @@
 #pragma once
 
-#include "engine/world/box.h"
-#include "loader/file/datatypes.h"
+#include "core/magic.h"
+#include "core/vec.h"
 #include "serialization/serialization_fwd.h"
 #include "util/helpers.h"
 
@@ -12,7 +12,8 @@
 namespace engine::world
 {
 class World;
-}
+struct Box;
+} // namespace engine::world
 
 namespace engine::ai
 {
@@ -23,14 +24,7 @@ struct PathFinder
   bool cannotVisitBlocked = true;
   bool cannotVisitBlockable = false;
 
-  [[nodiscard]] bool canVisit(const world::Box& box) const noexcept
-  {
-    if(cannotVisitBlocked && box.blocked)
-      return false;
-    if(cannotVisitBlockable && box.blockable)
-      return false;
-    return true;
-  }
+  [[nodiscard]] bool canVisit(const world::Box& box) const noexcept;
 
   //! @brief Movement limits
   //! @{
@@ -41,40 +35,14 @@ struct PathFinder
 
   core::TRVec target;
 
-  void setRandomSearchTarget(const gsl::not_null<const world::Box*>& box)
-  {
-    const auto xSize = box->xInterval.size() - 2 * Margin;
-    target.X = util::rand15(xSize) + box->xInterval.min + Margin;
-    const auto zSize = box->zInterval.size() - 2 * Margin;
-    target.Z = util::rand15(zSize) + box->zInterval.min + Margin;
-    if(fly != 0_len)
-    {
-      target.Y = box->floor - 384_len;
-    }
-    else
-    {
-      target.Y = box->floor;
-    }
-  }
+  void setRandomSearchTarget(const gsl::not_null<const world::Box*>& box);
 
   bool calculateTarget(const world::World& world,
                        core::TRVec& moveTarget,
                        const core::TRVec& startPos,
                        const gsl::not_null<const world::Box*>& startBox);
 
-  void setTargetBox(const gsl::not_null<const world::Box*>& box)
-  {
-    if(box == m_targetBox)
-      return;
-
-    m_targetBox = box;
-
-    m_expansions.clear();
-    m_expansions.emplace_back(m_targetBox);
-    m_reachable.clear();
-    m_reachable[m_targetBox] = true;
-    m_edges.clear();
-  }
+  void setTargetBox(const gsl::not_null<const world::Box*>& box);
 
   void serialize(const serialization::Serializer<world::World>& ser);
 

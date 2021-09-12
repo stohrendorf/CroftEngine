@@ -1,7 +1,7 @@
 #include "suspendedshack.h"
 
+#include "engine/skeletalmodelnode.h"
 #include "engine/world/world.h"
-#include "laraobject.h"
 #include "serialization/serialization.h"
 
 namespace engine::objects
@@ -44,5 +44,15 @@ void SuspendedShack::serialize(const serialization::Serializer<world::World>& se
   ModelObject::serialize(ser);
   if(ser.loading)
     getSkeleton()->getRenderState().setScissorTest(false);
+}
+
+SuspendedShack::SuspendedShack(const std::string& name,
+                               const gsl::not_null<world::World*>& world,
+                               const gsl::not_null<const world::Room*>& room,
+                               const loader::file::Item& item,
+                               const gsl::not_null<const world::SkeletalModelType*>& animatedModel)
+    : ModelObject{name, world, room, item, true, animatedModel}
+{
+  getSkeleton()->getRenderState().setScissorTest(false);
 }
 } // namespace engine::objects

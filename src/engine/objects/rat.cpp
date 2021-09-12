@@ -1,7 +1,7 @@
 #include "rat.h"
 
 #include "engine/particle.h"
-#include "engine/world/animation.h"
+#include "engine/skeletalmodelnode.h"
 #include "engine/world/world.h"
 #include "laraobject.h"
 

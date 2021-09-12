@@ -2,9 +2,7 @@
 
 #include "engine/audioengine.h"
 #include "engine/particle.h"
-#include "engine/presenter.h"
 #include "engine/world/world.h"
-#include "laraobject.h"
 
 namespace engine::objects
 {

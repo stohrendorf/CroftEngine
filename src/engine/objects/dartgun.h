@@ -1,6 +1,6 @@
 #pragma once
 
-#include "dart.h"
+#include "modelobject.h"
 
 namespace engine::objects
 {

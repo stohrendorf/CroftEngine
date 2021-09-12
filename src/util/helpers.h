@@ -6,7 +6,6 @@
 #include <filesystem>
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
-#include <gsl/gsl-lite.hpp>
 
 namespace util
 {

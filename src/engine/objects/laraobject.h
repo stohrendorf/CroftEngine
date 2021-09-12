@@ -12,8 +12,15 @@
 namespace engine
 {
 struct CollisionInfo;
+struct InterpolationInfo;
+} // namespace engine
 
-namespace objects
+namespace loader::file
+{
+struct AnimFrame;
+}
+
+namespace engine::objects
 {
 enum class UnderwaterState
 {
@@ -280,25 +287,7 @@ public:
   core::Frame explosionStumblingDuration = 0_frame;
   const core::TRVec* forceSourcePosition = nullptr;
 
-  void updateExplosionStumbling()
-  {
-    const auto rot = angleFromAtan(forceSourcePosition->X - m_state.location.position.X,
-                                   forceSourcePosition->Z - m_state.location.position.Z)
-                     - 180_deg;
-    hit_direction = axisFromAngle(m_state.rotation.Y - rot);
-    Expects(hit_direction.has_value());
-    if(hit_frame == 0_frame)
-    {
-      playSoundEffect(TR1SoundEffect::LaraOof);
-    }
-
-    hit_frame += 1_frame;
-    if(hit_frame > 34_frame)
-    {
-      hit_frame = 34_frame;
-    }
-    explosionStumblingDuration -= 1_frame;
-  }
+  void updateExplosionStumbling();
 
   struct AimInfo
   {
@@ -381,7 +370,7 @@ public:
 
   void drawRoutine();
 
-  void drawRoutineInterpolated(const SkeletalModelNode::InterpolationInfo& interpolationInfo);
+  void drawRoutineInterpolated(const InterpolationInfo& interpolationInfo);
 
   void alignForInteraction(const core::TRVec& offset, const ObjectState& objectState)
   {
@@ -403,5 +392,4 @@ public:
 private:
   void initMuzzleFlashes();
 };
-} // namespace objects
-} // namespace engine
+} // namespace engine::objects

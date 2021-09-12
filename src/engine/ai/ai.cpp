@@ -4,6 +4,7 @@
 #include "engine/objects/aiagent.h"
 #include "engine/objects/laraobject.h"
 #include "engine/script/reflection.h"
+#include "engine/skeletalmodelnode.h"
 #include "engine/world/world.h"
 #include "serialization/quantity.h"
 #include "serialization/serialization.h"

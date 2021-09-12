@@ -1,6 +1,7 @@
 #include "menuobject.h"
 
 #include "engine/objects/laraobject.h"
+#include "engine/skeletalmodelnode.h"
 #include "engine/world/world.h"
 #include "menuringtransform.h"
 #include "render/scene/renderable.h"

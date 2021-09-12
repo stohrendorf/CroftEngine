@@ -1,12 +1,9 @@
 #pragma once
 
-#include "engine/ai/ai.h"
 #include "modelobject.h"
 
 namespace engine::objects
 {
-extern bool shatterModel(ModelObject& object, const std::bitset<32>& meshMask, const core::Length& damageRadius);
-
 class AIAgent;
 
 class MutantEgg final : public ModelObject
