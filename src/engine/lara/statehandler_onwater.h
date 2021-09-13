@@ -47,7 +47,7 @@ protected:
       return;
     }
 
-    setAnimation(AnimationId::FREE_FALL_TO_UNDERWATER_ALTERNATE, 2041_frame);
+    setAnimation(AnimationId::FREE_FALL_TO_UNDERWATER_ALTERNATE);
     setGoalAnimState(LaraStateId::UnderwaterForward);
     setCurrentAnimState(LaraStateId::UnderwaterDiving);
     getLara().m_state.rotation.X = -45_deg;
@@ -135,7 +135,7 @@ private:
 
     getLara().m_state.location.position = d;
 
-    setAnimation(AnimationId::CLIMB_OUT_OF_WATER, 1849_frame);
+    setAnimation(AnimationId::CLIMB_OUT_OF_WATER);
     setGoalAnimState(LaraStateId::Stop);
     setCurrentAnimState(LaraStateId::OnWaterExit);
     getLara().m_state.speed = 0_spd;

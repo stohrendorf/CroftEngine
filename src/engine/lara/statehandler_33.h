@@ -99,7 +99,7 @@ public:
       return;
     }
 
-    setAnimation(AnimationId::FREE_FALL_TO_UNDERWATER_ALTERNATE, 2041_frame);
+    setAnimation(AnimationId::FREE_FALL_TO_UNDERWATER_ALTERNATE);
     setGoalAnimState(LaraStateId::UnderwaterForward);
     setCurrentAnimState(LaraStateId::UnderwaterDiving);
     getLara().m_state.rotation.X = -45_deg;

@@ -80,21 +80,21 @@ public:
       const auto fr = getLara().getSkeleton()->getFrame();
       if(fr >= 29_frame && fr <= 47_frame)
       {
-        setAnimation(AnimationId::END_WALK_LEFT, 74_frame);
+        setAnimation(AnimationId::END_WALK_LEFT);
       }
       else if((fr >= 22_frame && fr <= 28_frame) || (fr >= 48_frame && fr <= 57_frame))
       {
-        setAnimation(AnimationId::END_WALK_RIGHT, 58_frame);
+        setAnimation(AnimationId::END_WALK_RIGHT);
       }
       else
       {
-        setAnimation(AnimationId::STAY_SOLID, 185_frame);
+        setAnimation(AnimationId::STAY_SOLID);
       }
     }
 
     if(collisionInfo.mid.floor.y > core::ClimbLimit2ClickMin)
     {
-      setAnimation(AnimationId::FREE_FALL_FORWARD, 492_frame);
+      setAnimation(AnimationId::FREE_FALL_FORWARD);
       setGoalAnimState(LaraStateId::JumpForward);
       setCurrentAnimState(LaraStateId::JumpForward);
       getLara().m_state.fallspeed = 0_spd;
@@ -106,11 +106,11 @@ public:
       const auto fr = getLara().getSkeleton()->getFrame();
       if(fr < 28_frame || fr > 45_frame)
       {
-        setAnimation(AnimationId::WALK_DOWN_RIGHT, 887_frame);
+        setAnimation(AnimationId::WALK_DOWN_RIGHT);
       }
       else
       {
-        setAnimation(AnimationId::WALK_DOWN_LEFT, 874_frame);
+        setAnimation(AnimationId::WALK_DOWN_LEFT);
       }
     }
 
@@ -119,11 +119,11 @@ public:
       const auto fr = getLara().getSkeleton()->getFrame();
       if(fr < 27_frame || fr > 44_frame)
       {
-        setAnimation(AnimationId::WALK_UP_STEP_RIGHT, 844_frame);
+        setAnimation(AnimationId::WALK_UP_STEP_RIGHT);
       }
       else
       {
-        setAnimation(AnimationId::WALK_UP_STEP_LEFT, 858_frame);
+        setAnimation(AnimationId::WALK_UP_STEP_LEFT);
       }
     }
 

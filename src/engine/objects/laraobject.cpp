@@ -383,7 +383,7 @@ void LaraObject::update()
     else
     {
       m_state.rotation.X = -45_deg;
-      setAnimation(AnimationId::FREE_FALL_TO_UNDERWATER, 1895_frame);
+      setAnimation(AnimationId::FREE_FALL_TO_UNDERWATER);
       setGoalAnimState(LaraStateId::UnderwaterForward);
       setCurrentAnimState(LaraStateId::UnderwaterDiving);
       m_state.fallspeed += m_state.fallspeed / 2;
@@ -421,7 +421,7 @@ void LaraObject::update()
     if(!waterSurfaceHeight || abs(*waterSurfaceHeight - m_state.location.position.Y) >= core::QuarterSectorSize)
     {
       m_underwaterState = UnderwaterState::OnLand;
-      setAnimation(AnimationId::FREE_FALL_FORWARD, 492_frame);
+      setAnimation(AnimationId::FREE_FALL_FORWARD);
       setGoalAnimState(LaraStateId::JumpForward);
       setCurrentAnimState(LaraStateId::JumpForward);
       m_state.speed = std::exchange(m_state.fallspeed, 0_spd) / 4;
@@ -430,7 +430,7 @@ void LaraObject::update()
     else
     {
       m_underwaterState = UnderwaterState::Swimming;
-      setAnimation(AnimationId::UNDERWATER_TO_ONWATER, 1937_frame);
+      setAnimation(AnimationId::UNDERWATER_TO_ONWATER);
       setGoalAnimState(LaraStateId::OnWaterStop);
       setCurrentAnimState(LaraStateId::OnWaterStop);
       m_state.location.position.Y = *waterSurfaceHeight + 1_len;
@@ -442,7 +442,7 @@ void LaraObject::update()
   else if(m_underwaterState == UnderwaterState::Swimming && !(m_cheatDive || m_state.location.room->isWaterRoom))
   {
     m_underwaterState = UnderwaterState::OnLand;
-    setAnimation(AnimationId::FREE_FALL_FORWARD, 492_frame);
+    setAnimation(AnimationId::FREE_FALL_FORWARD);
     setGoalAnimState(LaraStateId::JumpForward);
     setCurrentAnimState(LaraStateId::JumpForward);
     m_state.speed = std::exchange(m_state.fallspeed, 0_spd) / 4;
@@ -2153,14 +2153,14 @@ LaraObject::LaraObject(const std::string& name,
   if(m_state.location.room->isWaterRoom)
   {
     m_underwaterState = UnderwaterState::Diving;
-    setAnimation(AnimationId::UNDERWATER_IDLE, 1736_frame);
+    setAnimation(AnimationId::UNDERWATER_IDLE);
     setCurrentAnimState(LaraStateId::UnderwaterStop);
     setGoalAnimState(LaraStateId::UnderwaterStop);
   }
   else
   {
     m_underwaterState = UnderwaterState::OnLand;
-    setAnimation(AnimationId::STAY_SOLID, 185_frame);
+    setAnimation(AnimationId::STAY_SOLID);
     setCurrentAnimState(LaraStateId::Stop);
     setGoalAnimState(LaraStateId::Stop);
   }

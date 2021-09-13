@@ -25,7 +25,7 @@ public:
 
     if(getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Roll))
     {
-      setAnimation(AnimationId::ROLL_BEGIN, 3857_frame);
+      setAnimation(AnimationId::ROLL_BEGIN, getWorld().getAnimation(AnimationId::ROLL_BEGIN).firstFrame + 2_frame);
       setGoalAnimState(LaraStateId::Stop);
       setCurrentAnimState(LaraStateId::RollForward);
       return;
@@ -94,24 +94,24 @@ public:
       {
         if(getLara().getSkeleton()->getFrame() < 10_frame)
         {
-          setAnimation(AnimationId::WALL_SMASH_LEFT, 800_frame);
+          setAnimation(AnimationId::WALL_SMASH_LEFT);
           setCurrentAnimState(LaraStateId::Unknown12);
           return;
         }
         if(getLara().getSkeleton()->getFrame() >= 10_frame && getLara().getSkeleton()->getFrame() < 22_frame)
         {
-          setAnimation(AnimationId::WALL_SMASH_RIGHT, 815_frame);
+          setAnimation(AnimationId::WALL_SMASH_RIGHT);
           setCurrentAnimState(LaraStateId::Unknown12);
           return;
         }
       }
 
-      setAnimation(AnimationId::STAY_SOLID, 185_frame);
+      setAnimation(AnimationId::STAY_SOLID);
     }
 
     if(collisionInfo.mid.floor.y > core::ClimbLimit2ClickMin)
     {
-      setAnimation(AnimationId::FREE_FALL_FORWARD, 492_frame);
+      setAnimation(AnimationId::FREE_FALL_FORWARD);
       setGoalAnimState(LaraStateId::JumpForward);
       setCurrentAnimState(LaraStateId::JumpForward);
       getLara().m_state.falling = true;
@@ -123,11 +123,11 @@ public:
     {
       if(getLara().getSkeleton()->getFrame() >= 3_frame && getLara().getSkeleton()->getFrame() <= 14_frame)
       {
-        setAnimation(AnimationId::RUN_UP_STEP_LEFT, 837_frame);
+        setAnimation(AnimationId::RUN_UP_STEP_LEFT);
       }
       else
       {
-        setAnimation(AnimationId::RUN_UP_STEP_RIGHT, 830_frame);
+        setAnimation(AnimationId::RUN_UP_STEP_RIGHT);
       }
     }
 

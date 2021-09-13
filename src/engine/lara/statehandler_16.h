@@ -62,18 +62,18 @@ public:
 
     if(checkWallCollision(collisionInfo))
     {
-      setAnimation(AnimationId::STAY_SOLID, 185_frame);
+      setAnimation(AnimationId::STAY_SOLID);
     }
 
     if(collisionInfo.mid.floor.y > core::QuarterSectorSize && collisionInfo.mid.floor.y < core::ClimbLimit2ClickMin)
     {
       if(getLara().getSkeleton()->getFrame() < 964_frame || getLara().getSkeleton()->getFrame() > 993_frame)
       {
-        setAnimation(AnimationId::WALK_DOWN_BACK_LEFT, 899_frame);
+        setAnimation(AnimationId::WALK_DOWN_BACK_LEFT);
       }
       else
       {
-        setAnimation(AnimationId::WALK_DOWN_BACK_RIGHT, 930_frame);
+        setAnimation(AnimationId::WALK_DOWN_BACK_RIGHT);
       }
     }
 

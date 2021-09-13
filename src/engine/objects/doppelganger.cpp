@@ -52,10 +52,8 @@ void Doppelganger::update()
       m_killed = true;
 
       getSkeleton()->setAnimation(m_state.current_anim_state,
-                                  &getWorld()
-                                     .findAnimatedModelForType(TR1ItemId::Lara)
-                                     ->animations[static_cast<int>(loader::file::AnimationId::SMASH_JUMP)],
-                                  481_frame);
+                                  &getWorld().getAnimation(loader::file::AnimationId::SMASH_JUMP),
+                                  getWorld().getAnimation(loader::file::AnimationId::SMASH_JUMP).firstFrame + 1_frame);
       m_state.goal_anim_state = loader::file::LaraStateId::FreeFall;
       m_state.current_anim_state = loader::file::LaraStateId::FreeFall;
       m_state.fallspeed = 0_spd;

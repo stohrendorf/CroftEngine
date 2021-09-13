@@ -45,7 +45,7 @@ public:
     }
     else
     {
-      setAnimation(AnimationId::LANDING_HARD, 358_frame);
+      setAnimation(AnimationId::LANDING_HARD);
       setGoalAnimState(LaraStateId::Stop);
       setCurrentAnimState(LaraStateId::Stop);
     }

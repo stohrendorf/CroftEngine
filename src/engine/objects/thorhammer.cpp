@@ -78,7 +78,7 @@ void ThorHammerHandle::update()
            && pos.Z + 520_len > laraPos.Z)
         {
           lara.m_state.health = core::DeadHealth;
-          lara.setAnimation(loader::file::AnimationId::SQUASH_BOULDER, 3561_frame);
+          lara.setAnimation(loader::file::AnimationId::SQUASH_BOULDER);
           lara.setCurrentAnimState(loader::file::LaraStateId::BoulderDeath);
           lara.setGoalAnimState(loader::file::LaraStateId::BoulderDeath);
           laraPos.Y = m_state.location.position.Y;

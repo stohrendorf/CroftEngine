@@ -94,7 +94,7 @@ void engine::objects::RollingBall::collide(CollisionInfo& collisionInfo)
 
     lara.m_state.health = core::DeadHealth;
     lara.setCurrentRoom(m_state.location.room);
-    lara.setAnimation(loader::file::AnimationId::SQUASH_BOULDER, 3561_frame);
+    lara.setAnimation(loader::file::AnimationId::SQUASH_BOULDER);
     getWorld().getCameraController().setModifier(CameraModifier::FollowCenter);
     getWorld().getCameraController().setEyeRotation(-25_deg, 170_deg);
     lara.m_state.rotation.X = 0_deg;

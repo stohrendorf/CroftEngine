@@ -67,7 +67,7 @@ public:
       return;
     }
 
-    setAnimation(AnimationId::STAY_SOLID, 185_frame);
+    setAnimation(AnimationId::STAY_SOLID);
     setGoalAnimState(LaraStateId::Stop);
     setCurrentAnimState(LaraStateId::Stop);
     getLara().m_state.speed = 0_spd;
