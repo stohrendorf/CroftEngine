@@ -350,9 +350,9 @@ Presenter::Presenter(const std::filesystem::path& rootPath, const glm::ivec2& re
     , m_renderer{std::make_shared<render::scene::Renderer>(std::make_shared<render::scene::Camera>(
         DefaultFov, m_window->getViewport(), DefaultNearPlane, DefaultFarPlane))}
     , m_splashImage{std::make_shared<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>>(
-        gl::CImgWrapper{util::ensureFileExists(rootPath / "splash.png")}.toTexture())}
-    , m_trTTFFont{std::make_unique<gl::Font>(util::ensureFileExists(rootPath / "trfont.ttf"))}
-    , m_debugFont{std::make_unique<gl::Font>(util::ensureFileExists(rootPath / "DroidSansMono.ttf"))}
+        gl::CImgWrapper{util::ensureFileExists(rootPath / "share" / "splash.png")}.toTexture())}
+    , m_trTTFFont{std::make_unique<gl::Font>(util::ensureFileExists(rootPath / "share" / "trfont.ttf"))}
+    , m_debugFont{std::make_unique<gl::Font>(util::ensureFileExists(rootPath / "share" / "DroidSansMono.ttf"))}
     , m_inputHandler{std::make_unique<hid::InputHandler>(m_window->getWindow(),
                                                          rootPath / "share" / "gamecontrollerdb.txt")}
     , m_shaderCache{std::make_shared<render::scene::ShaderCache>(rootPath / "shaders")}
