@@ -3,6 +3,7 @@
 #include "engine/cameracontroller.h"
 #include "engine/player.h"
 #include "engine/skeletalmodelnode.h"
+#include "engine/world/skeletalmodeltype.h"
 #include "engine/world/world.h"
 #include "laraobject.h"
 #include "serialization/serialization.h"

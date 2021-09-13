@@ -15,6 +15,7 @@
 #include "serialization/vector_element.h"
 #include "world/animation.h"
 #include "world/rendermeshdata.h"
+#include "world/skeletalmodeltype.h"
 #include "world/transition.h"
 
 #include <glm/gtc/matrix_transform.hpp>

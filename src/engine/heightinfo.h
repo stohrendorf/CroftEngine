@@ -1,6 +1,19 @@
 #pragma once
 
-#include "loader/file/datatypes.h"
+#include "core/magic.h"
+#include "core/units.h"
+#include "engine/floordata/types.h"
+#include "qs/qs.h"
+
+#include <cstdint>
+#include <gsl/gsl-lite.hpp>
+#include <map>
+#include <memory>
+
+namespace core
+{
+struct TRVec;
+}
 
 namespace engine::world
 {
@@ -14,8 +27,6 @@ class Object;
 
 namespace engine
 {
-class CameraController;
-
 enum class SlantClass
 {
   None,

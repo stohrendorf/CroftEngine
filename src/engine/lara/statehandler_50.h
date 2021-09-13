@@ -3,6 +3,7 @@
 #include "abstractstatehandler.h"
 #include "engine/collisioninfo.h"
 #include "engine/particle.h"
+#include "engine/world/skeletalmodeltype.h"
 
 namespace engine::lara
 {

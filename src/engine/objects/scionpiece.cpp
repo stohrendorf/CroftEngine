@@ -6,6 +6,7 @@
 #include "engine/player.h"
 #include "engine/presenter.h"
 #include "engine/skeletalmodelnode.h"
+#include "engine/world/skeletalmodeltype.h"
 #include "engine/world/world.h"
 #include "hid/inputhandler.h"
 #include "laraobject.h"

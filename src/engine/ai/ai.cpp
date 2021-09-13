@@ -6,6 +6,7 @@
 #include "engine/script/reflection.h"
 #include "engine/skeletalmodelnode.h"
 #include "engine/world/world.h"
+#include "loader/file/animation.h"
 #include "serialization/quantity.h"
 #include "serialization/serialization.h"
 

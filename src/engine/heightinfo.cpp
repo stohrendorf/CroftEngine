@@ -1,6 +1,5 @@
 #include "heightinfo.h"
 
-#include "cameracontroller.h"
 #include "engine/objects/object.h"
 #include "engine/world/room.h"
 

@@ -6,36 +6,40 @@
 #include "camerasink.h"
 #include "cinematicframe.h"
 #include "engine/controllerbuttons.h"
-#include "engine/floordata/floordata.h"
 #include "engine/objectmanager.h"
 #include "engine/objects/object.h"
-#include "loader/file/datatypes.h"
 #include "loader/file/item.h"
 #include "mesh.h"
 #include "room.h"
-#include "skeletalmodeltype.h"
 #include "sprite.h"
 #include "staticmesh.h"
 #include "staticsoundeffect.h"
 #include "transition.h"
 #include "ui/pickupwidget.h"
 
-namespace gl
+#include <gl/soglb_fwd.h>
+
+namespace audio
 {
-class CImgWrapper;
+class SoundEngine;
+class Voice;
+} // namespace audio
+
+namespace engine::floordata
+{
+class ActivationState;
+}
+
+namespace ui
+{
+class Ui;
 }
 
 namespace loader::file
 {
 enum class AnimationId : uint16_t;
 struct AnimFrame;
-struct SkeletalModelType;
 } // namespace loader::file
-
-namespace loader::trx
-{
-class Glidos;
-}
 
 namespace loader::file::level
 {
@@ -45,7 +49,6 @@ class Level;
 namespace render
 {
 class TextureAnimator;
-class MultiTextureAtlas;
 } // namespace render
 
 namespace engine::objects
@@ -63,12 +66,13 @@ struct SavegameInfo;
 class CameraController;
 class Player;
 enum class TR1TrackId : int32_t;
+struct Location;
 } // namespace engine
 
 namespace engine::world
 {
-struct Animation;
 class RenderMeshData;
+struct SkeletalModelType;
 
 class World final
 {

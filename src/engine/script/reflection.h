@@ -21,12 +21,6 @@ class Engine;
 class Player;
 } // namespace engine
 
-namespace render::scene
-{
-class Mesh;
-class MaterialManager;
-} // namespace render::scene
-
 namespace engine::script
 {
 struct ObjectInfo

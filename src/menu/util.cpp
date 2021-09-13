@@ -2,6 +2,7 @@
 
 #include "engine/presenter.h"
 #include "engine/world/world.h"
+#include "hid/inputhandler.h"
 #include "menuobject.h"
 #include "ui/text.h"
 

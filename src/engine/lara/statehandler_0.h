@@ -4,6 +4,7 @@
 #include "engine/collisioninfo.h"
 #include "engine/objects/laraobject.h"
 #include "engine/presenter.h"
+#include "engine/skeletalmodelnode.h"
 #include "engine/world/world.h"
 #include "hid/inputhandler.h"
 

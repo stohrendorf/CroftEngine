@@ -1,6 +1,8 @@
 #include "thorhammer.h"
 
+#include "engine/items_tr1.h"
 #include "engine/skeletalmodelnode.h"
+#include "engine/world/skeletalmodeltype.h"
 #include "engine/world/world.h"
 #include "laraobject.h"
 #include "serialization/objectreference.h"

@@ -8,7 +8,6 @@
 #include <filesystem>
 #include <GLFW/glfw3.h>
 #include <gsl/gsl-lite.hpp>
-#include <variant>
 
 namespace hid
 {

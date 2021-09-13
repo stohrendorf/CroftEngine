@@ -1,6 +1,7 @@
 #pragma once
 
 #include "core/angle.h"
+#include "core/vec.h"
 #include "heightinfo.h"
 #include "type_safe/flag_set.hpp"
 
@@ -13,11 +14,6 @@ class World;
 
 namespace engine
 {
-namespace objects
-{
-class LaraObject;
-}
-
 struct CollisionInfo
 {
   enum class AxisColl

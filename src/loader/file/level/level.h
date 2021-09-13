@@ -1,18 +1,27 @@
 #pragma once
 
-#include "engine/audioengine.h"
-#include "engine/objects/object.h"
-#include "engine/particle.h"
+#include "core/id.h"
+#include "engine/floordata/types.h"
 #include "game.h"
 #include "loader/file/animation.h"
+#include "loader/file/audio.h"
 #include "loader/file/datatypes.h"
 #include "loader/file/io/sdlreader.h"
 #include "loader/file/item.h"
 #include "loader/file/mesh.h"
+#include "loader/file/meshes.h"
+#include "loader/file/texture.h"
 
+#include <filesystem>
+#include <map>
 #include <memory>
 #include <utility>
 #include <vector>
+
+namespace loader::file
+{
+struct Palette;
+}
 
 namespace loader::file::level
 {

@@ -2,7 +2,6 @@
 
 #include "engine/floordata/floordata.h"
 #include "loader/file/datatypes.h"
-#include "loader/file/level/level.h"
 #include "serialization/optional.h"
 #include "serialization/quantity.h"
 #include "serialization/serialization.h"

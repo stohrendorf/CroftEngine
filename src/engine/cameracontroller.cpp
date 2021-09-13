@@ -1,6 +1,5 @@
 #include "cameracontroller.h"
 
-#include "engine.h"
 #include "objects/laraobject.h"
 #include "presenter.h"
 #include "raycast.h"

@@ -1,6 +1,7 @@
 #include "room.h"
 
 #include "engine/engine.h"
+#include "engine/engineconfig.h"
 #include "engine/lighting.h"
 #include "engine/objects/object.h"
 #include "loader/file/level/level.h"

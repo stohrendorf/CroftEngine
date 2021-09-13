@@ -1,10 +1,9 @@
 #include "raycast.h"
 
 #include "heightinfo.h"
+#include "location.h"
 #include "objectmanager.h"
 #include "world/room.h"
-
-#include <algorithm>
 
 namespace engine
 {

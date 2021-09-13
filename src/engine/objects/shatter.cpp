@@ -5,6 +5,7 @@
 #include "engine/presenter.h"
 #include "engine/skeletalmodelnode.h"
 #include "engine/world/rendermeshdata.h"
+#include "engine/world/skeletalmodeltype.h"
 #include "engine/world/world.h"
 #include "modelobject.h"
 #include "render/scene/mesh.h"

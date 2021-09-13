@@ -2,6 +2,7 @@
 
 #include "engine/particle.h"
 #include "engine/skeletalmodelnode.h"
+#include "engine/world/skeletalmodeltype.h"
 #include "laraobject.h"
 #include "mutant.h"
 #include "serialization/objectreference.h"

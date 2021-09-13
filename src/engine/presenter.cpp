@@ -4,6 +4,7 @@
 #include "audioengine.h"
 #include "core/i18n.h"
 #include "engine.h"
+#include "hid/inputhandler.h"
 #include "loader/file/level/level.h"
 #include "objectmanager.h"
 #include "objects/laraobject.h"

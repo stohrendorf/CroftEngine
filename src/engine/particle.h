@@ -3,7 +3,6 @@
 #include "audio/emitter.h"
 #include "core/angle.h"
 #include "core/id.h"
-#include "core/vec.h"
 #include "engine/lighting.h"
 #include "items_tr1.h"
 #include "location.h"
@@ -11,7 +10,6 @@
 #include "util/helpers.h"
 
 #include <deque>
-#include <glm/gtc/matrix_transform.hpp>
 #include <memory>
 
 namespace engine::world

@@ -1,8 +1,10 @@
 #include "pierre.h"
 
 #include "engine/cameracontroller.h"
+#include "engine/items_tr1.h"
 #include "engine/raycast.h"
 #include "engine/skeletalmodelnode.h"
+#include "engine/world/skeletalmodeltype.h"
 #include "engine/world/world.h"
 #include "serialization/quantity.h"
 #include "serialization/serialization.h"

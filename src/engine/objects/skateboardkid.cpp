@@ -2,8 +2,10 @@
 
 #include "engine/audioengine.h"
 #include "engine/engine.h"
+#include "engine/items_tr1.h"
 #include "engine/skeletalmodelnode.h"
 #include "engine/tracks_tr1.h"
+#include "engine/world/skeletalmodeltype.h"
 #include "engine/world/world.h"
 #include "serialization/serialization.h"
 

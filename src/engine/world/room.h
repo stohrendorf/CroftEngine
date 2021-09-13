@@ -1,11 +1,9 @@
 #pragma once
 
 #include "core/angle.h"
-#include "core/id.h"
 #include "core/units.h"
 #include "core/vec.h"
 #include "engine/lighting.h"
-#include "engine/location.h"
 #include "sector.h"
 
 #include <algorithm>
@@ -33,6 +31,11 @@ namespace loader::file
 struct Portal;
 struct Room;
 } // namespace loader::file
+
+namespace engine
+{
+struct Location;
+}
 
 namespace engine::world
 {

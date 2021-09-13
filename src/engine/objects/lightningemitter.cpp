@@ -3,6 +3,7 @@
 #include "engine/heightinfo.h"
 #include "engine/presenter.h"
 #include "engine/skeletalmodelnode.h"
+#include "engine/world/skeletalmodeltype.h"
 #include "engine/world/world.h"
 #include "laraobject.h"
 #include "render/scene/material.h"

@@ -1,13 +1,12 @@
 #include "particle.h"
 
-#include "audio/soundengine.h"
 #include "audioengine.h"
 #include "objects/laraobject.h"
 #include "presenter.h"
-#include "render/scene/materialmanager.h"
 #include "render/scene/mesh.h"
 #include "skeletalmodelnode.h"
 #include "world/rendermeshdata.h"
+#include "world/skeletalmodeltype.h"
 #include "world/world.h"
 
 #include <utility>

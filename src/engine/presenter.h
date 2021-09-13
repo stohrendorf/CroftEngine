@@ -1,7 +1,6 @@
 #pragma once
 
 #include "core/magic.h"
-#include "hid/inputhandler.h"
 
 #include <boost/assert.hpp>
 #include <filesystem>
@@ -20,6 +19,11 @@ namespace ui
 class TRFont;
 class Ui;
 } // namespace ui
+
+namespace hid
+{
+class InputHandler;
+}
 
 namespace render
 {
@@ -45,8 +49,6 @@ struct Portal;
 
 namespace engine
 {
-class AudioEngine;
-class Engine;
 class ObjectManager;
 class CameraController;
 struct AudioSettings;

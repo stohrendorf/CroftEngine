@@ -1,12 +1,15 @@
 #pragma once
 
 #include "core/angle.h"
-#include "engine/skeletalmodelnode.h"
 #include "loader/file/animationid.h"
-#include "loader/file/datatypes.h"
 #include "loader/file/larastateid.h"
 
 #include <memory>
+
+namespace core
+{
+struct BoundingBox;
+}
 
 namespace engine
 {
@@ -15,15 +18,21 @@ enum class CameraModifier;
 using LaraStateId = loader::file::LaraStateId;
 using AnimationId = loader::file::AnimationId;
 struct CollisionInfo;
+} // namespace engine
 
-namespace objects
+namespace engine::objects
 {
 class LaraObject;
 enum class HandStatus;
 enum class UnderwaterState;
-} // namespace objects
+} // namespace engine::objects
 
-namespace lara
+namespace engine::world
+{
+class World;
+}
+
+namespace engine::lara
 {
 class AbstractStateHandler
 {
@@ -34,15 +43,12 @@ public:
   {
   }
 
-  AbstractStateHandler(const AbstractStateHandler&) = delete;
-
-  AbstractStateHandler(AbstractStateHandler&&) = delete;
-
-  AbstractStateHandler& operator=(const AbstractStateHandler&) = delete;
-
-  AbstractStateHandler& operator=(AbstractStateHandler&&) = delete;
-
   virtual ~AbstractStateHandler() = default;
+
+  AbstractStateHandler(const AbstractStateHandler&) = delete;
+  AbstractStateHandler(AbstractStateHandler&&) = delete;
+  AbstractStateHandler& operator=(const AbstractStateHandler&) = delete;
+  AbstractStateHandler& operator=(AbstractStateHandler&&) = delete;
 
   virtual void postprocessFrame(CollisionInfo& collisionInfo) = 0;
 
@@ -160,5 +166,4 @@ protected:
 
   void laraUpdateImpl();
 };
-} // namespace lara
-} // namespace engine
+} // namespace engine::lara

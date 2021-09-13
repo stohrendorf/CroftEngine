@@ -1,6 +1,8 @@
 #include "kold.h"
 
+#include "engine/items_tr1.h"
 #include "engine/skeletalmodelnode.h"
+#include "engine/world/skeletalmodeltype.h"
 #include "engine/world/world.h"
 #include "serialization/serialization.h"
 

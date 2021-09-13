@@ -1,6 +1,5 @@
 #pragma once
 
-#include "mesh.h"
 #include "render/scene/names.h"
 
 #include <gl/pixel.h>
@@ -16,7 +15,6 @@ class Mesh;
 namespace loader::file
 {
 struct Mesh;
-struct Palette;
 } // namespace loader::file
 
 namespace engine::world

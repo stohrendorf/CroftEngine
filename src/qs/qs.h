@@ -1,8 +1,8 @@
 #pragma once
 
-#include "mult_div.h"
-#include "quantity.h"
-#include "stream.h"
+#include "mult_div.h" // IWYU pragma: export
+#include "quantity.h" // IWYU pragma: export
+#include "stream.h"   // IWYU pragma: export
 
 #include <gsl/gsl-lite.hpp>
 

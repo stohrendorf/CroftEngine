@@ -1,17 +1,14 @@
 #pragma once
-#include "items_tr1.h"
 
-#include <boost/throw_exception.hpp>
+#include "serialization/serialization_fwd.h"
+
+#include <cstdint>
 #include <gsl/gsl-lite.hpp>
 #include <map>
+#include <memory>
 #include <set>
+#include <utility>
 #include <vector>
-
-namespace serialization
-{
-template<typename TContext>
-class Serializer;
-}
 
 namespace loader::file
 {

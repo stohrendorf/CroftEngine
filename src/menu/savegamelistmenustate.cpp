@@ -7,6 +7,7 @@
 #include "engine/engine.h"
 #include "engine/presenter.h"
 #include "engine/world/world.h"
+#include "hid/inputhandler.h"
 #include "menudisplay.h"
 #include "menuring.h"
 #include "requestloadmenustate.h"

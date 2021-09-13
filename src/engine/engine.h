@@ -1,12 +1,10 @@
 #pragma once
 
-#include "engineconfig.h"
-#include "inventory.h"
 #include "script/scriptengine.h"
 
 #include <boost/assert.hpp>
 #include <filesystem>
-#include <glm/glm.hpp>
+#include <glm/vec2.hpp>
 #include <memory>
 #include <optional>
 #include <set>
@@ -16,34 +14,21 @@ namespace loader::trx
 class Glidos;
 }
 
-namespace loader::file::level
-{
-class Level;
-} // namespace loader::file::level
-
 namespace engine::world
 {
 class World;
-class RenderMeshData;
-} // namespace engine::world
+}
 
-namespace engine
-{
-namespace objects
-{
-class Object;
-class PickupObject;
-} // namespace objects
-
-namespace script
+namespace engine::script
 {
 class LevelSequenceItem;
 }
 
-class Particle;
+namespace engine
+{
 class Player;
 class Presenter;
-class Throttler;
+struct EngineConfig;
 
 enum class RunResult
 {
@@ -165,7 +150,7 @@ public:
 
   void applySettings();
 
-  const auto& getScriptEngine() const
+  [[nodiscard]] const auto& getScriptEngine() const
   {
     return m_scriptEngine;
   }

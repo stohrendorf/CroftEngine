@@ -1,6 +1,8 @@
 #include "larson.h"
 
+#include "engine/items_tr1.h"
 #include "engine/skeletalmodelnode.h"
+#include "engine/world/skeletalmodeltype.h"
 #include "engine/world/world.h"
 
 namespace engine::objects

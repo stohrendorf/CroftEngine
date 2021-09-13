@@ -5,6 +5,7 @@
 #include "engine/world/animation.h"
 #include "engine/world/world.h"
 #include "laraobject.h"
+#include "loader/file/animation.h"
 #include "loader/file/item.h"
 #include "serialization/serialization.h"
 

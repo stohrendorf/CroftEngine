@@ -1,13 +1,26 @@
 #pragma once
 
-#include "loader/file/animation.h"
+#include "core/id.h"
+#include "core/units.h"
+#include "core/vec.h"
 #include "render/scene/node.h"
 
 #include <gsl/gsl-lite.hpp>
 #include <utility>
 
+namespace core
+{
+struct BoundingBox;
+}
+
+namespace loader::file
+{
+struct AnimFrame;
+}
+
 namespace engine::world
 {
+struct Animation;
 struct SkeletalModelType;
 class World;
 class RenderMeshData;

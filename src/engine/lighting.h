@@ -3,7 +3,7 @@
 #include "core/units.h"
 
 #include <gl/buffer.h>
-#include <glm/glm.hpp>
+#include <glm/vec4.hpp>
 #include <limits>
 
 namespace render::scene

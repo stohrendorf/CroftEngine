@@ -2,8 +2,10 @@
 
 #include "core/i18n.h"
 #include "engine/engine.h"
+#include "engine/engineconfig.h"
 #include "engine/presenter.h"
 #include "engine/world/world.h"
+#include "hid/inputhandler.h"
 #include "menudisplay.h"
 #include "render/renderpipeline.h"
 #include "ui/widgets/checkbox.h"

@@ -1,12 +1,12 @@
 #pragma once
 
-#include "core/id.h"
 #include "core/magic.h"
 #include "core/units.h"
 #include "engine/floordata/types.h"
 #include "serialization/serialization_fwd.h"
 
 #include <optional>
+#include <vector>
 
 namespace loader::file
 {
