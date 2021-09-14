@@ -1,19 +1,25 @@
 #pragma once
 
 #include "color.h"
+#include "core/angle.h"
 #include "core/containeroffset.h"
 #include "core/id.h"
 #include "core/magic.h"
+#include "core/units.h"
 #include "core/vec.h"
 #include "engine/floordata/types.h"
 #include "meshes.h"
 #include "primitives.h"
-#include "render/scene/node.h"
+#include "qs/quantity.h"
 #include "texture.h"
 
 #include <array>
+#include <cstddef>
 #include <cstdint>
+#include <glm/vec2.hpp>
+#include <glm/vec4.hpp>
 #include <memory>
+#include <vector>
 
 /**
  * @defgroup native Native data interface
@@ -24,11 +30,6 @@
 
 namespace loader::file
 {
-namespace level
-{
-class Level;
-}
-
 namespace io
 {
 class SDLReader;

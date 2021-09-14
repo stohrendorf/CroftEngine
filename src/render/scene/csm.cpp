@@ -1,15 +1,33 @@
 #include "csm.h"
 
+#include "blur.h"
 #include "camera.h"
+#include "materialgroup.h"
 #include "materialmanager.h"
 #include "mesh.h"
-#include "node.h"
 #include "rendercontext.h"
+#include "rendermode.h"
 
 #include <gl/debuggroup.h>
+#include <gl/framebuffer.h>
+#include <gl/pixel.h>
+#include <gl/program.h>
+#include <gl/sampler.h>
 #include <gl/texture2d.h>
 #include <gl/texturedepth.h>
-#include <numeric>
+#include <gl/texturehandle.h>
+#include <glm/common.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <limits>
+#include <optional>
+#include <string>
+#include <utility>
+#include <vector>
+
+namespace render::scene
+{
+class Node;
+}
 
 namespace render::scene
 {

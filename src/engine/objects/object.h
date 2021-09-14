@@ -1,9 +1,25 @@
 #pragma once
 
+#include "core/angle.h"
 #include "core/boundingbox.h"
+#include "core/id.h"
 #include "core/units.h"
+#include "core/vec.h"
+#include "engine/items_tr1.h"
+#include "engine/location.h"
 #include "objectstate.h"
+#include "qs/qs.h"
+#include "util/helpers.h"
 
+#include <cstddef>
+#include <cstdint>
+#include <glm/mat4x4.hpp>
+#include <glm/vec3.hpp>
+#include <glm/vec4.hpp>
+#include <gsl/gsl-lite.hpp>
+#include <memory>
+#include <optional>
+#include <string>
 #include <utility>
 
 namespace loader::file
@@ -14,22 +30,22 @@ struct Item;
 namespace engine::world
 {
 class World;
-}
+struct Room;
+} // namespace engine::world
 
 namespace engine
 {
-class Particle;
 struct CollisionInfo;
-} // namespace engine
-
-namespace engine::ai
-{
-struct CreatureInfo;
 }
 
 namespace audio
 {
 class Voice;
+}
+
+namespace render::scene
+{
+class Node;
 }
 
 namespace engine::objects

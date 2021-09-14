@@ -1,7 +1,19 @@
 #pragma once
 
+#include "engine/items_tr1.h"
 #include "menuringtransform.h"
 #include "ui/text.h"
+
+#include <cstddef>
+#include <gsl/gsl-lite.hpp>
+#include <memory>
+#include <optional>
+#include <vector>
+
+namespace engine::world
+{
+class World;
+}
 
 namespace ui
 {

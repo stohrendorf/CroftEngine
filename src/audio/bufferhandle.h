@@ -5,6 +5,7 @@
 
 #include <AL/al.h>
 #include <chrono>
+#include <cstddef>
 #include <cstdint>
 
 namespace audio

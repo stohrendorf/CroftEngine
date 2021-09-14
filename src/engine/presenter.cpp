@@ -1,33 +1,61 @@
 #include "presenter.h"
 
 #include "audio/soundengine.h"
-#include "audioengine.h"
+#include "audiosettings.h"
+#include "cameracontroller.h"
 #include "core/i18n.h"
-#include "engine.h"
+#include "hid/actions.h"
 #include "hid/inputhandler.h"
-#include "loader/file/level/level.h"
 #include "objectmanager.h"
 #include "objects/laraobject.h"
+#include "objects/object.h"
+#include "objects/objectstate.h"
+#include "qs/qs.h"
 #include "render/pass/config.h"
 #include "render/renderpipeline.h"
+#include "render/rendersettings.h"
 #include "render/scene/camera.h"
 #include "render/scene/csm.h"
 #include "render/scene/materialmanager.h"
+#include "render/scene/mesh.h"
 #include "render/scene/node.h"
+#include "render/scene/renderable.h"
 #include "render/scene/rendercontext.h"
 #include "render/scene/renderer.h"
+#include "render/scene/rendermode.h"
 #include "render/scene/screenoverlay.h"
 #include "render/scene/shadercache.h"
-#include "render/textureanimator.h"
+#include "render/scene/visitor.h"
 #include "ui/text.h"
 #include "ui/ui.h"
+#include "util/helpers.h"
 #include "video/player.h"
 #include "world/room.h"
 
-#include <boost/range/adaptors.hpp>
+#include <algorithm>
+#include <boost/range/adaptor/map.hpp>
+#include <cstdint>
+#include <cstdlib>
+#include <gl/cimgwrapper.h>
 #include <gl/debuggroup.h>
 #include <gl/font.h>
+#include <gl/framebuffer.h>
+#include <gl/glassert.h>
+#include <gl/glfw.h>
+#include <gl/image.h>
+#include <gl/pixel.h>
+#include <gl/program.h>
+#include <gl/renderstate.h>
 #include <gl/texture2d.h>
+#include <gl/texturehandle.h>
+#include <gl/window.h>
+#include <glm/common.hpp>
+#include <glm/mat4x4.hpp>
+#include <glm/vec3.hpp>
+#include <glm/vec4.hpp>
+#include <optional>
+#include <set>
+#include <utility>
 
 namespace
 {

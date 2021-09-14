@@ -1,13 +1,17 @@
 #pragma once
 
 #include "core/magic.h"
+#include "core/units.h"
 #include "core/vec.h"
-#include "serialization/serialization_fwd.h"
+#include "qs/qs.h"
+#include "serialization/serialization_fwd.h" // IWYU pragma: keep
 #include "util/helpers.h"
 
 #include <deque>
+#include <gsl/gsl-lite.hpp>
+#include <map>
 #include <unordered_map>
-#include <unordered_set>
+#include <vector>
 
 namespace engine::world
 {

@@ -4,8 +4,12 @@
 #include "mesh.h"
 #include "node.h"
 
+#include <gl/program.h>
+
 namespace render::scene
 {
+class ShaderProgram;
+
 bool UniformParameter::bind(const Node& node,
                             const Mesh& mesh,
                             const gsl::not_null<std::shared_ptr<ShaderProgram>>& shaderProgram)

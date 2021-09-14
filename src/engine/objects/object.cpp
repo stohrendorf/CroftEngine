@@ -2,14 +2,24 @@
 
 #include "engine/audioengine.h"
 #include "engine/engine.h"
+#include "engine/floordata/floordata.h"
+#include "engine/objectmanager.h"
 #include "engine/particle.h"
 #include "engine/presenter.h"
-#include "engine/script/reflection.h"
+#include "engine/soundeffects_tr1.h"
+#include "engine/world/room.h"
+#include "engine/world/sector.h"
 #include "engine/world/world.h"
 #include "laraobject.h"
-#include "render/scene/sprite.h"
+#include "loader/file/item.h"
+#include "objectstate.h"
+#include "render/scene/node.h"
 #include "serialization/serialization.h"
-#include "serialization/vector.h"
+
+#include <algorithm>
+#include <boost/assert.hpp>
+#include <exception>
+#include <glm/gtc/matrix_transform.hpp>
 
 namespace engine::objects
 {

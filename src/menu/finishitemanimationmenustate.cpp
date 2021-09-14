@@ -1,10 +1,12 @@
 #include "finishitemanimationmenustate.h"
 
+#include "core/angle.h"
+#include "core/units.h"
 #include "engine/items_tr1.h"
-#include "engine/presenter.h"
-#include "engine/world/world.h"
 #include "menudisplay.h"
+#include "menuobject.h"
 #include "menuring.h"
+#include "menustate.h"
 #include "util.h"
 
 namespace menu

@@ -2,6 +2,8 @@
 
 #include "glassert.h"
 
+#include <glm/common.hpp>
+
 namespace gl
 {
 inline RenderState& getCurrentState()

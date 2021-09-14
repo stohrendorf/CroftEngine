@@ -1,6 +1,6 @@
 #pragma once
 
-#include "serialization/serialization_fwd.h"
+#include "serialization/serialization_fwd.h" // IWYU pragma: keep
 
 #include <cstdint>
 #include <gsl/gsl-lite.hpp>

@@ -1,14 +1,24 @@
 #include "datatypes.h"
 
-#include "engine/world/world.h"
+#include "color.h"
+#include "core/boundingbox.h"
+#include "core/interval.h"
 #include "io/sdlreader.h"
 #include "io/util.h"
-#include "level/level.h"
-#include "serialization/quantity.h"
-#include "serialization/serialization.h"
-#include "serialization/vector.h"
-#include "serialization/vector_element.h"
+#include "meshes.h"
+#include "primitives.h"
+#include "qs/qs.h"
+#include "texture.h"
 #include "util/helpers.h"
+
+#include <algorithm>
+#include <boost/assert.hpp>
+#include <boost/log/trivial.hpp>
+#include <boost/throw_exception.hpp>
+#include <gsl/gsl-lite.hpp>
+#include <iosfwd>
+#include <stdexcept>
+#include <type_traits>
 
 namespace loader::file
 {

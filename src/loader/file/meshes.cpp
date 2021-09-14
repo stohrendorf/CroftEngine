@@ -1,8 +1,13 @@
 #include "meshes.h"
 
+#include "color.h"
 #include "io/sdlreader.h"
 #include "io/util.h"
+#include "qs/quantity.h"
 #include "util/helpers.h"
+
+#include <gsl/gsl-lite.hpp>
+#include <type_traits>
 
 namespace loader::file
 {

@@ -1,6 +1,29 @@
 #pragma once
 
+#include "core/angle.h"
+#include "core/id.h"
+#include "core/magic.h"
+#include "core/units.h"
+#include "core/vec.h"
+#include "engine/location.h"
 #include "modelobject.h"
+#include "objectstate.h"
+#include "qs/qs.h"
+
+#include <boost/assert.hpp>
+#include <optional>
+
+namespace engine::world
+{
+class World;
+struct Room;
+struct SkeletalModelType;
+} // namespace engine::world
+
+namespace loader::file
+{
+struct Item;
+}
 
 namespace engine::objects
 {

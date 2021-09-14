@@ -2,8 +2,8 @@
 
 #include <gl/pixel.h>
 #include <gl/soglb_fwd.h>
-#include <glm/fwd.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <glm/vec2.hpp>
+#include <memory>
 
 namespace render
 {
@@ -20,7 +20,6 @@ class Mesh;
 
 namespace render::pass
 {
-class GeometryPass;
 class PortalPass;
 class HBAOPass;
 class LinearizeDepthPass;

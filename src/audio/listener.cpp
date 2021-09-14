@@ -2,6 +2,9 @@
 
 #include "soundengine.h"
 
+#include <unordered_set>
+#include <utility>
+
 namespace audio
 {
 Listener::~Listener()

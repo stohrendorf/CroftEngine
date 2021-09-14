@@ -1,6 +1,9 @@
 #include "slopedbridge.h"
 
+#include "modelobject.h"
 #include "serialization/serialization.h"
+
+#include <exception>
 
 namespace engine::objects
 {

@@ -2,12 +2,12 @@
 
 #include <gl/pixel.h>
 #include <gl/soglb_fwd.h>
-#include <glm/fwd.hpp>
+#include <glm/vec2.hpp>
+#include <memory>
 
 namespace render::scene
 {
 class Mesh;
-class ShaderProgram;
 class Material;
 class MaterialManager;
 } // namespace render::scene

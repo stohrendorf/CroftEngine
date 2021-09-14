@@ -1,6 +1,27 @@
 #pragma once
 
 #include "aiagent.h"
+#include "core/units.h"
+
+#include <gsl/gsl-lite.hpp>
+#include <string>
+
+namespace engine
+{
+struct Location;
+}
+
+namespace engine::world
+{
+class World;
+struct Room;
+struct SkeletalModelType;
+} // namespace engine::world
+
+namespace loader::file
+{
+struct Item;
+}
 
 namespace engine::objects
 {

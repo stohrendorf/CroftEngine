@@ -1,8 +1,13 @@
 #include "earthquake.h"
 
+#include "core/units.h"
 #include "engine/audioengine.h"
 #include "engine/cameracontroller.h"
+#include "engine/soundeffects_tr1.h"
 #include "engine/world/world.h"
+#include "objectstate.h"
+#include "qs/quantity.h"
+#include "util/helpers.h"
 
 namespace engine::objects
 {

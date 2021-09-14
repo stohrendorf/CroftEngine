@@ -1,8 +1,16 @@
 #include "bat.h"
 
+#include "core/angle.h"
+#include "core/id.h"
+#include "core/units.h"
+#include "core/vec.h"
 #include "engine/ai/ai.h"
+#include "engine/location.h"
 #include "engine/particle.h"
-#include "laraobject.h"
+#include "objectstate.h"
+#include "qs/qs.h"
+
+#include <cstdint>
 
 namespace engine::objects
 {

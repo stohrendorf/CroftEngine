@@ -2,9 +2,25 @@
 
 #include "menustate.h"
 
+#include <cstddef>
+#include <memory>
+
+namespace engine::world
+{
+class World;
+}
+
+namespace ui
+{
+class Ui;
+}
+
 namespace menu
 {
 enum class MenuResult;
+struct MenuDisplay;
+struct MenuObject;
+struct MenuRingTransform;
 
 class RequestLoadMenuState : public MenuState
 {

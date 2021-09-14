@@ -4,12 +4,23 @@
 #include "engine/world/sprite.h"
 #include "engine/world/world.h"
 #include "loader/file/item.h"
+#include "object.h"
+#include "objectstate.h"
+#include "qs/quantity.h"
 #include "render/scene/mesh.h"
 #include "serialization/quantity.h"
 #include "serialization/serialization.h"
 #include "serialization/vector_element.h"
 
-#include <utility>
+#include <algorithm>
+#include <exception>
+#include <gl/buffer.h>
+#include <gl/program.h>
+#include <glm/fwd.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/mat4x4.hpp>
+#include <glm/vec2.hpp>
+#include <vector>
 
 namespace engine::objects
 {

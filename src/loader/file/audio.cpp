@@ -1,5 +1,6 @@
 #include "audio.h"
 
+#include "io/sdlreader.h"
 #include "io/util.h"
 
 namespace loader::file

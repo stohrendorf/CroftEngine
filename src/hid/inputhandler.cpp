@@ -1,13 +1,26 @@
 #include "inputhandler.h"
 
+#include "actions.h"
+#include "axisdir.h"
+#include "glfw_axes.h"
+#include "glfw_axis_dirs.h"
 #include "glfw_gamepad_buttons.h"
 #include "glfw_keys.h"
+#include "inputstate.h"
+#include "serialization/named_enum.h"
 #include "util/helpers.h"
 
 #include <boost/container/flat_set.hpp>
 #include <boost/log/trivial.hpp>
+#include <boost/throw_exception.hpp>
 #include <fstream>
+#include <gl/glfw.h>
+#include <iterator>
+#include <stdexcept>
+#include <string>
+#include <type_traits>
 #include <utility>
+#include <variant>
 
 namespace hid
 {

@@ -1,10 +1,13 @@
 #pragma once
 
 #include "core/units.h"
+#include "qs/qs.h"
 
 #include <gl/buffer.h>
 #include <glm/vec4.hpp>
+#include <gsl/gsl-lite.hpp>
 #include <limits>
+#include <memory>
 
 namespace render::scene
 {

@@ -2,6 +2,28 @@
 
 #include "aiagent.h"
 
+#include <gsl/gsl-lite.hpp>
+#include <memory>
+#include <string>
+
+namespace engine
+{
+class SkeletalModelNode;
+struct Location;
+} // namespace engine
+
+namespace engine::world
+{
+class World;
+struct Room;
+struct SkeletalModelType;
+} // namespace engine::world
+
+namespace loader::file
+{
+struct Item;
+}
+
 namespace engine::objects
 {
 class SkateboardKid final : public AIAgent

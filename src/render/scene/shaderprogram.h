@@ -1,10 +1,12 @@
 #pragma once
 
 #include <boost/container/flat_map.hpp>
+#include <boost/container/vector.hpp>
 #include <filesystem>
 #include <gl/program.h>
-#include <map>
+#include <gsl/gsl-lite.hpp>
 #include <memory>
+#include <string>
 #include <vector>
 
 namespace render::scene

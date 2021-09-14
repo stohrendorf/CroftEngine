@@ -2,8 +2,12 @@
 
 #include "core/vec.h"
 
+#include <cstdint>
+
 namespace engine::world
 {
+class World;
+
 struct CameraSink
 {
   core::TRVec position{};

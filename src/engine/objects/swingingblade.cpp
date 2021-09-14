@@ -1,9 +1,21 @@
 #include "swingingblade.h"
 
+#include "core/angle.h"
+#include "core/id.h"
+#include "core/units.h"
+#include "core/vec.h"
 #include "engine/heightinfo.h"
+#include "engine/location.h"
+#include "engine/objectmanager.h"
 #include "engine/particle.h"
 #include "engine/world/world.h"
 #include "laraobject.h"
+#include "modelobject.h"
+#include "objectstate.h"
+#include "qs/qs.h"
+#include "util/helpers.h"
+
+#include <bitset>
 
 namespace engine::objects
 {

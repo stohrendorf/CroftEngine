@@ -7,6 +7,7 @@
 #include "ui/util.h"
 
 #include <boost/throw_exception.hpp>
+#include <stdexcept>
 
 namespace hid
 {

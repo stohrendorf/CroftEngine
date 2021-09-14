@@ -1,6 +1,28 @@
 #pragma once
 
+#include "core/id.h"
+#include "core/units.h"
+#include "engine/floordata/floordata.h"
 #include "modelobject.h"
+#include "objectstate.h"
+
+namespace engine
+{
+struct CollisionInfo;
+struct Location;
+} // namespace engine
+
+namespace engine::world
+{
+class World;
+struct Room;
+struct SkeletalModelType;
+} // namespace engine::world
+
+namespace loader::file
+{
+struct Item;
+}
 
 namespace engine::objects
 {

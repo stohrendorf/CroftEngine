@@ -1,6 +1,8 @@
 #pragma once
 
 #include "ai.h"
+#include "core/angle.h"
+#include "core/vec.h"
 
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>

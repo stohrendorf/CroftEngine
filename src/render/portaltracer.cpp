@@ -1,10 +1,22 @@
 #include "portaltracer.h"
 
 #include "engine/cameracontroller.h"
+#include "engine/world/room.h"
 #include "engine/world/world.h"
 #include "scene/camera.h"
+#include "scene/node.h"
 
+#include <algorithm>
+#include <array>
+#include <boost/assert.hpp>
 #include <boost/range/adaptor/transformed.hpp>
+#include <cstddef>
+#include <glm/mat4x4.hpp>
+#include <glm/vec3.hpp>
+#include <glm/vec4.hpp>
+#include <gsl/gsl-lite.hpp>
+#include <limits>
+#include <memory>
 
 namespace render
 {

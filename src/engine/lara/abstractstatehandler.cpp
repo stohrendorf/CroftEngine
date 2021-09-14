@@ -1,5 +1,22 @@
 #include "abstractstatehandler.h"
 
+#include "core/boundingbox.h"
+#include "core/interval.h"
+#include "core/magic.h"
+#include "core/vec.h"
+#include "engine/cameracontroller.h"
+#include "engine/collisioninfo.h"
+#include "engine/heightinfo.h"
+#include "engine/location.h"
+#include "engine/objectmanager.h"
+#include "engine/objects/laraobject.h"
+#include "engine/objects/objectstate.h"
+#include "engine/presenter.h"
+#include "engine/world/animation.h"
+#include "engine/world/world.h"
+#include "hid/actions.h"
+#include "hid/inputhandler.h"
+#include "qs/mult_div.h"
 #include "statehandler_0.h"
 #include "statehandler_1.h"
 #include "statehandler_10.h"
@@ -56,8 +73,14 @@
 #include "statehandler_7.h"
 #include "statehandler_8.h"
 #include "statehandler_9.h"
+#include "util/helpers.h"
 
+#include <algorithm>
+#include <boost/log/trivial.hpp>
+#include <boost/throw_exception.hpp>
 #include <cstdlib>
+#include <stdexcept>
+#include <type_traits>
 
 namespace engine::lara
 {

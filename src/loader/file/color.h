@@ -1,9 +1,11 @@
 #pragma once
 
-#include <boost/assert.hpp>
+#include <array>
+#include <cstdint>
 #include <gl/pixel.h>
-#include <glm/common.hpp>
+#include <glm/vec3.hpp>
 #include <gsl/gsl-lite.hpp>
+#include <memory>
 
 namespace loader::file
 {

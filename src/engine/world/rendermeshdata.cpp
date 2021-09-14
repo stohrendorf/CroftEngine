@@ -1,15 +1,35 @@
 #include "rendermeshdata.h"
 
+#include "core/containeroffset.h"
+#include "core/id.h"
+#include "core/units.h"
+#include "core/vec.h"
 #include "engine/world/atlastile.h"
 #include "engine/world/util.h"
 #include "loader/file/datatypes.h"
 #include "loader/file/mesh.h"
+#include "loader/file/primitives.h"
+#include "loader/file/texture.h"
+#include "render/scene/material.h"
+#include "render/scene/materialgroup.h"
 #include "render/scene/materialmanager.h"
 #include "render/scene/mesh.h"
 #include "render/scene/rendermode.h"
+#include "render/scene/shaderprogram.h"
 
+#include <boost/assert.hpp>
+#include <cstddef>
+#include <gl/buffer.h>
+#include <gl/pixel.h>
+#include <gl/renderstate.h>
 #include <gl/vertexarray.h>
-#include <render/renderpipeline.h>
+#include <gl/vertexbuffer.h>
+#include <initializer_list>
+
+namespace gl
+{
+class Program;
+}
 
 namespace engine::world
 {

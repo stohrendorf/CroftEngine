@@ -1,12 +1,30 @@
 #include "natla.h"
 
+#include "aiagent.h"
+#include "core/id.h"
+#include "core/magic.h"
+#include "core/vec.h"
+#include "engine/ai/ai.h"
+#include "engine/ai/pathfinder.h"
 #include "engine/audioengine.h"
 #include "engine/engine.h"
+#include "engine/floordata/floordata.h"
+#include "engine/location.h"
 #include "engine/particle.h"
+#include "engine/soundeffects_tr1.h"
 #include "engine/tracks_tr1.h"
 #include "engine/world/world.h"
+#include "objectstate.h"
+#include "qs/qs.h"
 #include "serialization/quantity.h"
 #include "serialization/serialization.h"
+#include "util/helpers.h"
+
+#include <algorithm>
+#include <cstddef>
+#include <exception>
+#include <gsl/gsl-lite.hpp>
+#include <memory>
 
 namespace engine::objects
 {

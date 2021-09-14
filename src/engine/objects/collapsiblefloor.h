@@ -1,6 +1,17 @@
 #pragma once
 
+#include "core/id.h"
+#include "core/units.h"
+#include "core/vec.h"
+#include "engine/location.h"
 #include "modelobject.h"
+#include "objectstate.h"
+#include "qs/qs.h"
+
+namespace engine::world
+{
+struct SkeletalModelType;
+}
 
 namespace engine::objects
 {

@@ -2,54 +2,71 @@
 
 #include "audio/soundengine.h"
 #include "audio/streamvoice.h"
-#include "audio/tracktype.h"
 #include "core/i18n.h"
-#include "engine/ai/ai.h"
+#include "core/units.h"
 #include "engine/audioengine.h"
-#include "floordata/floordata.h"
+#include "engine/audiosettings.h"
+#include "engine/cameracontroller.h"
+#include "engine/engineconfig.h"
+#include "engine/inventory.h"
+#include "engine/objectmanager.h"
+#include "engine/objects/objectstate.h"
+#include "engine/world/room.h"
+#include "hid/actions.h"
 #include "hid/inputhandler.h"
-#include "loader/file/level/level.h"
 #include "loader/trx/trx.h"
 #include "menu/menudisplay.h"
-#include "objects/aiagent.h"
-#include "objects/block.h"
 #include "objects/laraobject.h"
-#include "objects/modelobject.h"
-#include "objects/objectfactory.h"
-#include "objects/pickupobject.h"
-#include "objects/tallblock.h"
 #include "player.h"
 #include "presenter.h"
-#include "render/renderpipeline.h"
-#include "render/scene/csm.h"
+#include "qs/qs.h"
+#include "render/rendersettings.h"
 #include "render/scene/materialmanager.h"
-#include "render/scene/renderer.h"
-#include "render/scene/screenoverlay.h"
-#include "render/textureanimator.h"
+#include "render/scene/mesh.h"
+#include "render/scene/rendercontext.h"
+#include "render/scene/rendermode.h"
 #include "script/reflection.h"
+#include "script/scriptengine.h"
 #include "serialization/serialization.h"
 #include "serialization/yamldocument.h"
 #include "throttler.h"
-#include "tracks_tr1.h"
 #include "ui/levelstats.h"
-#include "ui/text.h"
 #include "ui/ui.h"
-#include "world/rendermeshdata.h"
+#include "util/helpers.h"
 #include "world/world.h"
 
+#include <algorithm>
+#include <boost/format.hpp>
 #include <boost/locale/generator.hpp>
 #include <boost/locale/info.hpp>
-#include <boost/range/adaptor/map.hpp>
-#include <cstdlib>
+#include <boost/log/sinks/basic_sink_frontend.hpp>
+#include <boost/log/trivial.hpp>
+#include <boost/throw_exception.hpp>
+#include <chrono>
+#include <cmath>
+#include <cstdint>
+#include <ctime>
+#include <exception>
 #include <filesystem>
-#include <gl/font.h>
+#include <gl/cimgwrapper.h>
+#include <gl/framebuffer.h>
 #include <gl/glew_init.h>
+#include <gl/pixel.h>
+#include <gl/program.h>
 #include <gl/texture2d.h>
-#include <glm/gtx/norm.hpp>
+#include <gl/texturehandle.h>
+#include <glm/fwd.hpp>
+#include <glm/mat4x4.hpp>
+#include <iosfwd>
 #include <locale>
-#include <numeric>
-#include <pybind11/embed.h>
-#include <pybind11/stl.h>
+#include <pybind11/eval.h>
+#include <stdexcept>
+#include <vector>
+
+namespace render::scene
+{
+class Node;
+}
 
 namespace engine
 {
@@ -331,6 +348,7 @@ void Engine::makeScreenshot()
   Expects(localtime_s(&localTimeData, &time) == 0);
   auto localTime = &localTimeData;
 #else
+  // NOLINTNEXTLINE(concurrency-mt-unsafe)
   auto localTime = std::localtime(&time);
 #endif
   auto filename = boost::format("%04d-%02d-%02d %02d-%02d-%02d.png") % (localTime->tm_year + 1900)

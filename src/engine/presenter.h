@@ -1,13 +1,22 @@
 #pragma once
 
 #include "core/magic.h"
+#include "core/units.h"
+#include "qs/quantity.h"
 
+#include <array>
 #include <boost/assert.hpp>
 #include <filesystem>
 #include <gl/cimgwrapper.h>
-#include <gl/soglb_fwd.h>
+#include <gl/pixel.h>
+#include <gl/soglb_fwd.h> // IWYU pragma: keep
 #include <gl/window.h>
+#include <glm/vec2.hpp>
+#include <gsl/gsl-lite.hpp>
+#include <memory>
+#include <string>
 #include <unordered_set>
+#include <vector>
 
 namespace audio
 {

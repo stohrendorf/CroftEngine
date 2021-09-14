@@ -4,12 +4,20 @@
 #include "shaderprogram.h"
 
 #include <boost/log/trivial.hpp>
+#include <functional>
+#include <gl/buffer.h>
 #include <gl/program.h>
 #include <gsl/gsl-lite.hpp>
+#include <iosfwd>
+#include <memory>
+#include <string>
+#include <utility>
 
 namespace render::scene
 {
 class Camera;
+class Mesh;
+class Node;
 
 class UniformParameter final : public MaterialParameter
 {

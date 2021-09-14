@@ -3,6 +3,8 @@
 #include "serialization/quantity.h"
 #include "serialization/serialization.h"
 
+#include <exception>
+
 namespace core
 {
 void TRRotationXY::serialize(const serialization::Serializer<engine::world::World>& ser)

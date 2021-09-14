@@ -1,8 +1,18 @@
 #include "location.h"
 
+#include "core/magic.h"
 #include "engine/world/world.h"
+#include "qs/qs.h"
+#include "render/scene/node.h"
 #include "serialization/serialization.h"
 #include "serialization/vector_element.h"
+#include "world/room.h"
+#include "world/sector.h"
+
+#include <exception>
+#include <memory>
+#include <ostream>
+#include <string>
 
 namespace engine
 {

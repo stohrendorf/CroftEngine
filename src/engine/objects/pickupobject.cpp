@@ -1,13 +1,31 @@
 #include "pickupobject.h"
 
-#include "engine/engine.h"
+#include "core/angle.h"
+#include "core/boundingbox.h"
+#include "core/id.h"
+#include "core/units.h"
+#include "core/vec.h"
+#include "engine/inventory.h"
+#include "engine/items_tr1.h"
+#include "engine/objectmanager.h"
 #include "engine/player.h"
 #include "engine/presenter.h"
 #include "engine/skeletalmodelnode.h"
 #include "engine/world/skeletalmodeltype.h"
 #include "engine/world/world.h"
+#include "hid/actions.h"
 #include "hid/inputhandler.h"
 #include "laraobject.h"
+#include "loader/file/larastateid.h"
+#include "object.h"
+#include "objectstate.h"
+#include "qs/quantity.h"
+#include "render/scene/node.h"
+
+#include <boost/assert.hpp>
+#include <gsl/gsl-lite.hpp>
+#include <memory>
+#include <vector>
 
 namespace engine::objects
 {

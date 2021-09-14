@@ -3,12 +3,17 @@
 #include "core/id.h"
 #include "engine/tracks_tr1.h"
 
+#include <cstddef>
 #include <filesystem>
 #include <gsl/gsl-lite.hpp>
 #include <memory>
 #include <optional>
+#include <pybind11/cast.h>
 #include <pybind11/embed.h>
+#include <pybind11/pybind11.h>
+#include <pybind11/pytypes.h>
 #include <string>
+#include <vector>
 
 namespace engine::script
 {

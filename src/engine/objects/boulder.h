@@ -1,6 +1,27 @@
 #pragma once
 
+#include "engine/location.h"
 #include "modelobject.h"
+
+#include <gsl/gsl-lite.hpp>
+#include <string>
+
+namespace engine
+{
+struct CollisionInfo;
+}
+
+namespace engine::world
+{
+class World;
+struct Room;
+struct SkeletalModelType;
+} // namespace engine::world
+
+namespace loader::file
+{
+struct Item;
+}
 
 namespace engine::objects
 {

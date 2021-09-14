@@ -1,18 +1,33 @@
 #include "idleringmenustate.h"
 
 #include "applyitemtransformmenustate.h"
+#include "core/angle.h"
+#include "core/units.h"
 #include "deflateringmenustate.h"
 #include "donemenustate.h"
 #include "engine/audioengine.h"
+#include "engine/items_tr1.h"
 #include "engine/presenter.h"
+#include "engine/soundeffects_tr1.h"
 #include "engine/world/world.h"
+#include "hid/actions.h"
 #include "hid/inputhandler.h"
+#include "hid/inputstate.h"
 #include "menudisplay.h"
+#include "menuobject.h"
 #include "menuring.h"
+#include "menustate.h"
 #include "rotateleftrightmenustate.h"
 #include "switchringmenustate.h"
 #include "ui/core.h"
+#include "ui/text.h"
 #include "util.h"
+
+#include <glm/vec2.hpp>
+#include <optional>
+#include <string>
+#include <utility>
+#include <vector>
 
 namespace menu
 {

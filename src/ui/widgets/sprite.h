@@ -3,8 +3,8 @@
 #include "engine/world/sprite.h"
 #include "widget.h"
 
-#include <glm/glm.hpp>
-#include <memory>
+#include <cstdint>
+#include <glm/vec2.hpp>
 
 namespace ui
 {

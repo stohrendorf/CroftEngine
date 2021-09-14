@@ -3,11 +3,15 @@
 #include "script/scriptengine.h"
 
 #include <boost/assert.hpp>
+#include <cstddef>
 #include <filesystem>
 #include <glm/vec2.hpp>
+#include <gsl/gsl-lite.hpp>
+#include <map>
 #include <memory>
 #include <optional>
 #include <set>
+#include <string>
 
 namespace loader::trx
 {

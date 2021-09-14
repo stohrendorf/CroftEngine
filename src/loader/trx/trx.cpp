@@ -3,10 +3,25 @@
 #include "core/i18n.h"
 #include "util/helpers.h"
 
+#include <boost/algorithm/string/classification.hpp>
+#include <boost/algorithm/string/predicate.hpp>
+#include <boost/algorithm/string/replace.hpp>
+#include <boost/algorithm/string/split.hpp>
+#include <boost/algorithm/string/trim.hpp>
+#include <boost/cstdint.hpp>
+#include <boost/format.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/log/trivial.hpp>
+#include <boost/throw_exception.hpp>
+#include <chrono>
+#include <deque>
 #include <fstream>
 #include <gsl/gsl-lite.hpp>
+#include <memory>
+#include <regex>
+#include <sstream>
+#include <stdexcept>
+#include <type_traits>
 #include <utility>
 
 namespace
@@ -65,7 +80,7 @@ Rectangle::Rectangle(const std::string& serialized)
 TexturePart::TexturePart(const std::string& serialized)
 {
   std::vector<std::string> parts;
-  split(parts, serialized, boost::is_any_of("\\/"));
+  boost::algorithm::split(parts, serialized, boost::is_any_of("\\/"));
   if(parts.size() != 2 || parts[0].size() != 32)
   {
     BOOST_THROW_EXCEPTION(std::runtime_error("Failed to parse Glidos texture part"));
@@ -244,7 +259,7 @@ PathMap::PathMap(const std::filesystem::path& baseTxtName,
     else
     {
       std::vector<std::string> parts;
-      split(parts, line, boost::is_any_of(" \t"));
+      boost::algorithm::split(parts, line, boost::is_any_of(" \t"));
       if(parts.size() != 2)
       {
         BOOST_THROW_EXCEPTION(std::runtime_error("Failed to parse mapping line"));

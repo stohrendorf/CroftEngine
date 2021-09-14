@@ -1,10 +1,10 @@
 #include "progressbar.h"
 
-#include "engine/presenter.h"
-#include "label.h"
 #include "ui/core.h"
 #include "ui/ui.h"
-#include "ui/util.h"
+
+#include <algorithm>
+#include <gsl/gsl-lite.hpp>
 
 namespace ui::widgets
 {

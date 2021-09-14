@@ -1,10 +1,31 @@
 #include "crocodile.h"
 
+#include "core/angle.h"
+#include "core/id.h"
+#include "core/magic.h"
+#include "core/units.h"
+#include "core/vec.h"
+#include "engine/ai/ai.h"
+#include "engine/ai/pathfinder.h"
+#include "engine/heightinfo.h"
+#include "engine/items_tr1.h"
+#include "engine/location.h"
+#include "engine/objectmanager.h"
 #include "engine/particle.h"
 #include "engine/skeletalmodelnode.h"
+#include "engine/world/animation.h"
+#include "engine/world/room.h"
 #include "engine/world/skeletalmodeltype.h"
 #include "engine/world/world.h"
-#include "laraobject.h"
+#include "modelobject.h"
+#include "objectstate.h"
+#include "qs/qs.h"
+#include "util/helpers.h"
+
+#include <boost/assert.hpp>
+#include <gsl/gsl-lite.hpp>
+#include <memory>
+#include <optional>
 
 namespace engine::objects
 {

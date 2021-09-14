@@ -1,15 +1,15 @@
 #include "selectionbox.h"
 
-#include "core/i18n.h"
-#include "engine/presenter.h"
 #include "gridbox.h"
 #include "label.h"
 #include "ui/core.h"
-#include "ui/text.h"
 #include "ui/ui.h"
 
+#include <algorithm>
 #include <boost/algorithm/string/classification.hpp>
 #include <boost/algorithm/string/split.hpp>
+#include <gl/pixel.h>
+#include <iterator>
 
 namespace ui::widgets
 {

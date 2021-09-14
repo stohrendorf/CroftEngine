@@ -1,15 +1,40 @@
 #include "particle.h"
 
 #include "audioengine.h"
+#include "core/boundingbox.h"
+#include "core/interval.h"
+#include "core/magic.h"
+#include "core/vec.h"
+#include "heightinfo.h"
+#include "items_tr1.h"
+#include "location.h"
+#include "objectmanager.h"
 #include "objects/laraobject.h"
+#include "objects/objectstate.h"
 #include "presenter.h"
 #include "render/scene/mesh.h"
 #include "skeletalmodelnode.h"
+#include "soundeffects_tr1.h"
 #include "world/rendermeshdata.h"
+#include "world/room.h"
 #include "world/skeletalmodeltype.h"
+#include "world/sprite.h"
 #include "world/world.h"
 
+#include <boost/assert.hpp>
+#include <boost/log/trivial.hpp>
+#include <gl/renderstate.h>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/mat4x4.hpp>
+#include <glm/vec3.hpp>
+#include <type_traits>
 #include <utility>
+#include <vector>
+
+namespace render::scene
+{
+class Renderable;
+}
 
 namespace engine
 {
@@ -317,6 +342,26 @@ bool MeshShrapnelParticle::update(world::World& world)
   world.getObjectManager().registerParticle(particle);
   world.getAudioEngine().playSoundEffect(TR1SoundEffect::Explosion2, particle.get());
   return false;
+}
+
+MeshShrapnelParticle::MeshShrapnelParticle(const Location& location,
+                                           world::World& world,
+                                           const gsl::not_null<std::shared_ptr<render::scene::Renderable>>& renderable,
+                                           const bool torsoBoss,
+                                           const core::Length& damageRadius)
+    : Particle{"meshShrapnel", TR1ItemId::MeshShrapnel, location, world, false, renderable}
+    , m_damageRadius{damageRadius}
+{
+  clearRenderables();
+
+  angle.Y = core::Angle{util::rand15s() * 2};
+  speed = util::rand15(256_spd);
+  fall_speed = util::rand15(256_spd);
+  if(!torsoBoss)
+  {
+    speed /= 2;
+    fall_speed /= 2;
+  }
 }
 
 void MutantAmmoParticle::aimLaraChest(world::World& world)

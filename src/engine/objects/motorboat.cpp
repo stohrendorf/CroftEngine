@@ -1,5 +1,9 @@
 #include "motorboat.h"
 
+#include "core/id.h"
+#include "modelobject.h"
+#include "objectstate.h"
+
 namespace engine::objects
 {
 void Motorboat::update()

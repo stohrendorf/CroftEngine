@@ -1,17 +1,42 @@
 #include "cameracontroller.h"
 
+#include "core/boundingbox.h"
+#include "core/interval.h"
+#include "engine/floordata/floordata.h"
+#include "engine/floordata/types.h"
+#include "engine/heightinfo.h"
+#include "engine/location.h"
+#include "engine/objects/object.h"
+#include "engine/objects/objectstate.h"
+#include "engine/world/camerasink.h"
+#include "engine/world/cinematicframe.h"
+#include "objectmanager.h"
 #include "objects/laraobject.h"
 #include "presenter.h"
+#include "qs/qs.h"
 #include "raycast.h"
 #include "render/portaltracer.h"
 #include "render/scene/camera.h"
+#include "render/scene/node.h"
 #include "serialization/objectreference.h"
-#include "serialization/optional.h"
 #include "serialization/quantity.h"
 #include "serialization/serialization.h"
+#include "util/helpers.h"
+#include "world/box.h"
+#include "world/room.h"
 #include "world/sector.h"
+#include "world/world.h"
 
+#include <algorithm>
+#include <boost/assert.hpp>
+#include <exception>
+#include <functional>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/mat4x4.hpp>
+#include <glm/vec3.hpp>
+#include <map>
 #include <utility>
+#include <vector>
 
 namespace engine
 {

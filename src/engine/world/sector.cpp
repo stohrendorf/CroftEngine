@@ -1,5 +1,7 @@
 #include "sector.h"
 
+#include "core/containeroffset.h"
+#include "core/id.h"
 #include "engine/floordata/floordata.h"
 #include "loader/file/datatypes.h"
 #include "serialization/optional.h"
@@ -7,6 +9,9 @@
 #include "serialization/serialization.h"
 #include "serialization/vector_element.h"
 #include "world.h"
+
+#include <exception>
+#include <gsl/gsl-lite.hpp>
 
 namespace engine::world
 {

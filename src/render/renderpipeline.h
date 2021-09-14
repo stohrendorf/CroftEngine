@@ -1,23 +1,21 @@
 #pragma once
 
 #include "rendersettings.h"
-#include "scene/blur.h"
-#include "scene/camera.h"
-#include "scene/material.h"
-#include "scene/rendercontext.h"
 
-#include <chrono>
 #include <gl/pixel.h>
 #include <gl/soglb_fwd.h>
+#include <gl/texturedepth.h>
+#include <glm/vec2.hpp>
 #include <memory>
+
+namespace render::scene
+{
+class MaterialManager;
+class Camera;
+} // namespace render::scene
 
 namespace render
 {
-namespace scene
-{
-class MaterialManager;
-} // namespace scene
-
 namespace pass
 {
 class PortalPass;

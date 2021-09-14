@@ -7,11 +7,10 @@
 #include "pass/linearizedepthpass.h"
 #include "pass/portalpass.h"
 #include "pass/uipass.h"
-#include "scene/materialmanager.h"
-#include "scene/mesh.h"
-#include "scene/shadercache.h"
+#include "rendersettings.h"
 
-#include <gl/texturedepth.h>
+#include <boost/assert.hpp>
+#include <glm/vec2.hpp>
 
 namespace render
 {

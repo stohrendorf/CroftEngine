@@ -1,9 +1,24 @@
 #include "dart.h"
 
+#include "core/angle.h"
+#include "core/units.h"
+#include "core/vec.h"
+#include "engine/heightinfo.h"
+#include "engine/location.h"
+#include "engine/objectmanager.h"
 #include "engine/particle.h"
 #include "engine/raycast.h"
+#include "engine/world/room.h"
 #include "engine/world/world.h"
 #include "laraobject.h"
+#include "modelobject.h"
+#include "qs/quantity.h"
+#include "render/scene/node.h"
+
+#include <bitset>
+#include <memory>
+#include <type_traits>
+#include <utility>
 
 namespace engine::objects
 {

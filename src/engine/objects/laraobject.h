@@ -1,24 +1,50 @@
 #pragma once
 
-#include "engine/ai/ai.h"
+#include "core/angle.h"
+#include "core/id.h"
+#include "core/magic.h"
+#include "core/units.h"
+#include "core/vec.h"
+#include "engine/ai/pathfinder.h"
 #include "engine/cameracontroller.h"
 #include "engine/collisioninfo.h"
-#include "engine/soundeffects_tr1.h"
+#include "engine/location.h"
 #include "engine/weapontype.h"
 #include "loader/file/animationid.h"
 #include "loader/file/larastateid.h"
 #include "modelobject.h"
+#include "objectstate.h"
+#include "qs/qs.h"
+#include "render/scene/node.h"
+
+#include <algorithm>
+#include <cstddef>
+#include <cstdint>
+#include <glm/mat4x4.hpp>
+#include <glm/vec3.hpp>
+#include <glm/vec4.hpp>
+#include <gsl/gsl-lite.hpp>
+#include <memory>
+#include <optional>
+#include <string>
+
+namespace engine::world
+{
+class World;
+struct Room;
+struct SkeletalModelType;
+} // namespace engine::world
 
 namespace engine
 {
-struct CollisionInfo;
 struct InterpolationInfo;
-} // namespace engine
+}
 
 namespace loader::file
 {
 struct AnimFrame;
-}
+struct Item;
+} // namespace loader::file
 
 namespace engine::objects
 {

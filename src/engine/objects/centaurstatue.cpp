@@ -1,14 +1,36 @@
 #include "centaurstatue.h"
 
-#include "engine/particle.h"
+#include "aiagent.h"
+#include "core/angle.h"
+#include "core/id.h"
+#include "core/magic.h"
+#include "core/units.h"
+#include "core/vec.h"
+#include "engine/floordata/floordata.h"
+#include "engine/items_tr1.h"
+#include "engine/location.h"
+#include "engine/objectmanager.h"
 #include "engine/skeletalmodelnode.h"
+#include "engine/soundeffects_tr1.h"
+#include "engine/world/animation.h"
 #include "engine/world/skeletalmodeltype.h"
+#include "engine/world/world.h"
 #include "laraobject.h"
+#include "loader/file/item.h"
+#include "modelobject.h"
 #include "mutant.h"
+#include "object.h"
+#include "objectstate.h"
+#include "qs/qs.h"
 #include "serialization/objectreference.h"
-#include "serialization/quantity.h"
 #include "serialization/serialization.h"
 #include "shatter.h"
+#include "util/helpers.h"
+
+#include <bitset>
+#include <boost/log/trivial.hpp>
+#include <exception>
+#include <map>
 
 namespace engine::objects
 {

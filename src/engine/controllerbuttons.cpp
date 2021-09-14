@@ -1,18 +1,30 @@
 #include "controllerbuttons.h"
 
-#include "engine/engineconfig.h"
+#include "core/id.h"
+#include "engineconfig.h"
 #include "render/scene/sprite.h"
 #include "render/textureatlas.h"
 #include "serialization/map.h"
+#include "serialization/named_enum.h"
 #include "serialization/serialization.h"
 #include "serialization/variant.h"
 #include "serialization/vector.h"
 #include "serialization/yamldocument.h"
 #include "ui/core.h"
 #include "util/helpers.h"
+#include "world/sprite.h"
 
 #include <boost/log/trivial.hpp>
+#include <boost/throw_exception.hpp>
+#include <cstdint>
+#include <exception>
 #include <gl/cimgwrapper.h>
+#include <glm/vec2.hpp>
+#include <gsl/gsl-lite.hpp>
+#include <iosfwd>
+#include <stdexcept>
+#include <utility>
+#include <vector>
 
 namespace engine
 {

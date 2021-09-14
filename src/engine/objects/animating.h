@@ -2,6 +2,11 @@
 
 #include "modelobject.h"
 
+namespace engine::world
+{
+struct SkeletalModelType;
+}
+
 namespace engine::objects
 {
 class Animating final : public ModelObject

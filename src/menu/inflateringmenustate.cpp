@@ -1,9 +1,14 @@
 #include "inflateringmenustate.h"
 
+#include "core/vec.h"
 #include "idleringmenustate.h"
 #include "menudisplay.h"
 #include "menuring.h"
+#include "menuringtransform.h"
+#include "menustate.h"
 #include "util.h"
+
+#include <vector>
 
 namespace menu
 {

@@ -1,18 +1,20 @@
 #pragma once
 
 #include <array>
+#include <cstddef>
+#include <cstdint>
 #include <gl/pixel.h>
 #include <gl/soglb_fwd.h>
-#include <gsl/gsl-lite.hpp>
+#include <glm/fwd.hpp>
+#include <glm/vec2.hpp>
+#include <glm/vec4.hpp>
 #include <memory>
-#include <utility>
 #include <vector>
 
 namespace render::scene
 {
-class Mesh;
 class Material;
-} // namespace render::scene
+}
 
 namespace engine::world
 {

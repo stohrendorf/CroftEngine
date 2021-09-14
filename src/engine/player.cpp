@@ -1,10 +1,15 @@
 #include "player.h"
 
+#include "engine/objectmanager.h"
 #include "objects/laraobject.h"
 #include "serialization/chrono.h"
 #include "serialization/quantity.h"
 #include "serialization/serialization.h"
 #include "world/world.h"
+
+#include <exception>
+#include <gsl/gsl-lite.hpp>
+#include <memory>
 
 namespace engine
 {

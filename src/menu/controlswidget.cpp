@@ -3,11 +3,20 @@
 #include "core/i18n.h"
 #include "hid/actions.h"
 #include "hid/names.h"
+#include "ui/core.h"
 #include "ui/widgets/gridbox.h"
 #include "ui/widgets/groupbox.h"
 #include "ui/widgets/label.h"
 
+#include <algorithm>
+#include <array>
+#include <boost/format.hpp>
+#include <boost/throw_exception.hpp>
+#include <cstddef>
+#include <glm/vec2.hpp>
 #include <optional>
+#include <stdexcept>
+#include <tuple>
 #include <utility>
 
 namespace menu

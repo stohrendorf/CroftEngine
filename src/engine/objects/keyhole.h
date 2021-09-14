@@ -2,6 +2,16 @@
 
 #include "modelobject.h"
 
+namespace engine
+{
+struct CollisionInfo;
+}
+
+namespace engine::world
+{
+struct SkeletalModelType;
+}
+
 namespace engine::objects
 {
 class KeyHole final : public ModelObject

@@ -4,7 +4,10 @@
 #include "ui/core.h"
 #include "ui/text.h"
 #include "ui/ui.h"
-#include "ui/util.h"
+
+#include <algorithm>
+#include <gl/pixel.h>
+#include <gsl/gsl-lite.hpp>
 
 namespace ui::widgets
 {

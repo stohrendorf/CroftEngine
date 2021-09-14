@@ -1,15 +1,38 @@
 #include "scionpiece.h"
 
+#include "core/angle.h"
+#include "core/boundingbox.h"
+#include "core/magic.h"
+#include "core/vec.h"
 #include "engine/audioengine.h"
-#include "engine/engine.h"
+#include "engine/cameracontroller.h"
+#include "engine/collisioninfo.h"
+#include "engine/heightinfo.h"
+#include "engine/inventory.h"
+#include "engine/items_tr1.h"
+#include "engine/location.h"
+#include "engine/objectmanager.h"
 #include "engine/particle.h"
 #include "engine/player.h"
 #include "engine/presenter.h"
 #include "engine/skeletalmodelnode.h"
+#include "engine/soundeffects_tr1.h"
+#include "engine/world/room.h"
 #include "engine/world/skeletalmodeltype.h"
 #include "engine/world/world.h"
+#include "hid/actions.h"
 #include "hid/inputhandler.h"
 #include "laraobject.h"
+#include "loader/file/larastateid.h"
+#include "modelobject.h"
+#include "object.h"
+#include "objectstate.h"
+#include "qs/qs.h"
+#include "render/scene/node.h"
+#include "util/helpers.h"
+
+#include <gsl/gsl-lite.hpp>
+#include <memory>
 
 namespace engine::objects
 {

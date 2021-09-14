@@ -1,16 +1,19 @@
 #pragma once
 
 #include "core/angle.h"
+#include "core/units.h"
 #include "core/vec.h"
 #include "heightinfo.h"
 #include "type_safe/flag_set.hpp"
 
+#include <gsl/gsl-lite.hpp>
 #include <set>
 
 namespace engine::world
 {
 class World;
-}
+struct Room;
+} // namespace engine::world
 
 namespace engine
 {

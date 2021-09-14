@@ -1,12 +1,27 @@
 #include "screenoverlay.h"
 
-#include "material.h"
 #include "materialmanager.h"
 #include "mesh.h"
 #include "rendercontext.h"
-#include "renderer.h"
+#include "rendermode.h"
 
+#include <boost/throw_exception.hpp>
+#include <gl/image.h>
+#include <gl/pixel.h>
+#include <gl/program.h>
+#include <gl/renderstate.h>
+#include <gl/sampler.h>
 #include <gl/texture2d.h>
+#include <gl/texturehandle.h>
+#include <glm/vec2.hpp>
+#include <stdexcept>
+#include <utility>
+#include <vector>
+
+namespace render::scene
+{
+class Node;
+}
 
 namespace render::scene
 {

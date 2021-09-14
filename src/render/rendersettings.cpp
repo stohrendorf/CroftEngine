@@ -4,6 +4,9 @@
 #include "serialization/optional_value.h"
 #include "serialization/serialization.h"
 
+#include <exception>
+#include <gsl/gsl-lite.hpp>
+
 namespace render
 {
 void RenderSettings::serialize(const serialization::Serializer<engine::EngineConfig>& ser)

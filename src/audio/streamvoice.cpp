@@ -3,8 +3,15 @@
 #include "bufferhandle.h"
 #include "sourcehandle.h"
 #include "streamsource.h"
+#include "voice.h"
 
+#include <AL/al.h>
+#include <algorithm>
 #include <boost/log/trivial.hpp>
+#include <boost/throw_exception.hpp>
+#include <cstdint>
+#include <stdexcept>
+#include <utility>
 
 namespace audio
 {

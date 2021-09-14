@@ -1,6 +1,20 @@
 #include "streamsource.h"
 
+#include "core.h"
+#include "sndfile/helpers.h"
+
+#include <algorithm>
+#include <array>
 #include <boost/log/trivial.hpp>
+#include <boost/throw_exception.hpp>
+#include <cstdio>
+#include <cstring>
+#include <gsl/gsl-lite.hpp>
+#include <limits>
+#include <sstream>
+#include <stdexcept>
+#include <string>
+#include <vector>
 
 namespace audio
 {

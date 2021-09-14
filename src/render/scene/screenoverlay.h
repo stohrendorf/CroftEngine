@@ -2,15 +2,19 @@
 
 #include "renderable.h"
 
+#include <algorithm>
 #include <gl/image.h>
 #include <gl/pixel.h>
 #include <gl/soglb_fwd.h>
+#include <glm/fwd.hpp>
+#include <gsl/gsl-lite.hpp>
 #include <memory>
 
 namespace render::scene
 {
 class Mesh;
 class MaterialManager;
+class RenderContext;
 
 class ScreenOverlay : public Renderable
 {

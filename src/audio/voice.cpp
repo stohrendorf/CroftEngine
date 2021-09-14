@@ -1,8 +1,9 @@
 #include "voice.h"
 
+#include "core.h"
 #include "sourcehandle.h"
 
-#include <algorithm>
+#include <AL/al.h>
 #include <utility>
 
 namespace audio

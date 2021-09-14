@@ -1,7 +1,17 @@
 #include "fallingceiling.h"
 
+#include "core/id.h"
+#include "core/units.h"
+#include "core/vec.h"
+#include "engine/location.h"
+#include "engine/objectmanager.h"
 #include "engine/world/world.h"
 #include "laraobject.h"
+#include "modelobject.h"
+#include "objectstate.h"
+#include "qs/quantity.h"
+
+#include <bitset>
 
 namespace engine::objects
 {

@@ -1,13 +1,31 @@
 #include "midasgoldtouch.h"
 
-#include "engine/particle.h"
+#include "core/angle.h"
+#include "core/boundingbox.h"
+#include "core/magic.h"
+#include "core/units.h"
+#include "core/vec.h"
+#include "engine/cameracontroller.h"
+#include "engine/inventory.h"
+#include "engine/items_tr1.h"
+#include "engine/location.h"
+#include "engine/objectmanager.h"
 #include "engine/player.h"
 #include "engine/presenter.h"
 #include "engine/skeletalmodelnode.h"
+#include "engine/weapontype.h"
+#include "engine/world/animation.h"
 #include "engine/world/skeletalmodeltype.h"
 #include "engine/world/world.h"
+#include "hid/actions.h"
 #include "hid/inputhandler.h"
 #include "laraobject.h"
+#include "loader/file/larastateid.h"
+#include "object.h"
+#include "objectstate.h"
+#include "qs/qs.h"
+
+#include <memory>
 
 namespace engine::objects
 {

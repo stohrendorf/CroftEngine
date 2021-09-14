@@ -1,42 +1,65 @@
 #include "player.h"
 
+#include "audio/core.h"
 #include "audio/device.h"
 #include "audio/streamsource.h"
 #include "audio/streamvoice.h"
 
+#include <algorithm>
+#include <array>
 #include <atomic>
 #include <boost/log/trivial.hpp>
+#include <boost/throw_exception.hpp>
+#include <cerrno>
+#include <chrono>
+#include <condition_variable>
+#include <cstdint>
+#include <cstdio>
+#include <filesystem>
+#include <functional>
+#include <gl/pixel.h>
+#include <gl/sampler.h>
 #include <gl/texture2d.h>
 #include <gl/texturehandle.h>
+#include <glm/vec2.hpp>
+#include <gsl/gsl-lite.hpp>
+#include <iterator>
+#include <mutex>
 #include <optional>
+#include <queue>
+#include <sstream>
+#include <stdexcept>
+#include <string>
 #include <thread>
+#include <type_traits>
+#include <utility>
+#include <vector>
 
 extern "C"
 {
 #include <libavcodec/avcodec.h>
+#include <libavcodec/codec.h>
+#include <libavcodec/codec_id.h>
+#include <libavcodec/codec_par.h>
+#include <libavcodec/packet.h>
 #include <libavcodec/version.h>
 #include <libavfilter/avfilter.h>
 #include <libavfilter/buffersink.h>
 #include <libavfilter/buffersrc.h>
 #include <libavformat/avformat.h>
+#include <libavutil/avutil.h>
 #include <libavutil/channel_layout.h>
+#include <libavutil/dict.h>
+#include <libavutil/error.h>
+#include <libavutil/frame.h>
 #include <libavutil/imgutils.h>
-#include <libavutil/opt.h>
+#include <libavutil/mem.h>
+#include <libavutil/pixfmt.h>
+#include <libavutil/rational.h>
 #include <libavutil/samplefmt.h>
-#include <libavutil/timestamp.h>
 #include <libswresample/swresample.h>
 #include <libswscale/swscale.h>
 }
-
-#include <condition_variable>
-#include <filesystem>
-#include <functional>
-#include <gl/image.h>
-#include <gsl/gsl-lite.hpp>
-#include <mutex>
-#include <queue>
-#include <string>
-#include <vector>
 
 namespace video
 {

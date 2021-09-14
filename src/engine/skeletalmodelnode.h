@@ -5,8 +5,19 @@
 #include "core/vec.h"
 #include "render/scene/node.h"
 
+#include <algorithm>
+#include <cstddef>
+#include <gl/buffer.h>
+#include <glm/fwd.hpp>
+#include <glm/mat4x4.hpp>
+#include <glm/vec4.hpp>
 #include <gsl/gsl-lite.hpp>
+#include <iterator>
+#include <memory>
+#include <optional>
+#include <string>
 #include <utility>
+#include <vector>
 
 namespace core
 {

@@ -1,16 +1,36 @@
 #include "aiagent.h"
 
+#include "core/boundingbox.h"
+#include "core/interval.h"
+#include "core/magic.h"
+#include "engine/ai/pathfinder.h"
+#include "engine/collisioninfo.h"
 #include "engine/engine.h"
+#include "engine/heightinfo.h"
+#include "engine/items_tr1.h"
+#include "engine/objectmanager.h"
+#include "engine/objects/objectstate.h"
 #include "engine/particle.h"
 #include "engine/raycast.h"
 #include "engine/script/reflection.h"
+#include "engine/script/scriptengine.h"
 #include "engine/skeletalmodelnode.h"
+#include "engine/soundeffects_tr1.h"
+#include "engine/world/box.h"
+#include "engine/world/sector.h"
 #include "engine/world/world.h"
 #include "laraobject.h"
+#include "modelobject.h"
+#include "object.h"
 #include "serialization/quantity.h"
 #include "serialization/serialization.h"
+#include "util/helpers.h"
 
-#include <boost/range/adaptors.hpp>
+#include <boost/assert.hpp>
+#include <boost/range/adaptor/map.hpp>
+#include <exception>
+#include <map>
+#include <type_traits>
 
 namespace engine::objects
 {

@@ -1,5 +1,10 @@
 #include "barricade.h"
 
+#include "core/id.h"
+#include "engine/location.h"
+#include "modelobject.h"
+#include "objectstate.h"
+
 namespace engine::objects
 {
 void Barricade::update()

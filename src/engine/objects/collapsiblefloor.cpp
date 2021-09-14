@@ -1,7 +1,10 @@
 #include "collapsiblefloor.h"
 
+#include "engine/heightinfo.h"
+#include "engine/objectmanager.h"
 #include "engine/world/world.h"
 #include "laraobject.h"
+#include "modelobject.h"
 
 namespace engine::objects
 {

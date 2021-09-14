@@ -1,16 +1,18 @@
 #pragma once
 
-#include "serialization/serialization_fwd.h"
+#include "qs/qs.h"
+#include "serialization/serialization_fwd.h" // IWYU pragma: keep
 #include "units.h"
 
-#include <glm/glm.hpp>
+#include <algorithm>
+#include <glm/exponential.hpp>
+#include <glm/vec3.hpp>
 #include <gsl/gsl-lite.hpp>
-#include <utility>
+#include <iosfwd>
 
 namespace engine::world
 {
 class World;
-struct Room;
 } // namespace engine::world
 
 namespace core

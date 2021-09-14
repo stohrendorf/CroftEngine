@@ -4,14 +4,24 @@
 #include "ui/widgets/widget.h"
 
 #include <functional>
+#include <glm/fwd.hpp>
 #include <memory>
-#include <string>
+#include <vector>
+
+namespace engine
+{
+class Presenter;
+}
+
+namespace ui
+{
+class Ui;
+}
 
 namespace hid
 {
 enum class Action;
-class InputHandler;
-} // namespace hid
+}
 
 namespace ui::widgets
 {

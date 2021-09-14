@@ -1,15 +1,41 @@
 #include "mutant.h"
 
+#include "aiagent.h"
+#include "core/angle.h"
+#include "core/id.h"
+#include "core/magic.h"
+#include "core/vec.h"
+#include "engine/ai/ai.h"
+#include "engine/ai/pathfinder.h"
+#include "engine/cameracontroller.h"
+#include "engine/heightinfo.h"
+#include "engine/items_tr1.h"
+#include "engine/location.h"
+#include "engine/objectmanager.h"
 #include "engine/particle.h"
 #include "engine/player.h"
 #include "engine/skeletalmodelnode.h"
+#include "engine/soundeffects_tr1.h"
+#include "engine/weapontype.h"
+#include "engine/world/animation.h"
 #include "engine/world/skeletalmodeltype.h"
 #include "engine/world/world.h"
 #include "laraobject.h"
 #include "loader/file/larastateid.h"
+#include "modelobject.h"
+#include "objectstate.h"
+#include "qs/qs.h"
 #include "serialization/quantity.h"
 #include "serialization/serialization.h"
 #include "shatter.h"
+#include "util/helpers.h"
+
+#include <algorithm>
+#include <bitset>
+#include <cstddef>
+#include <exception>
+#include <memory>
+#include <utility>
 
 namespace engine::objects
 {

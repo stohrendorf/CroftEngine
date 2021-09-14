@@ -3,6 +3,7 @@
 #include "shaderprogram.h"
 
 #include <boost/algorithm/string/join.hpp>
+#include <map>
 
 namespace render::scene
 {

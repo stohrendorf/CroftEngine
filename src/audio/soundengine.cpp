@@ -4,9 +4,14 @@
 #include "device.h"
 #include "emitter.h"
 #include "listener.h"
+#include "voice.h"
 
+#include <AL/al.h>
+#include <algorithm>
 #include <boost/log/trivial.hpp>
-#include <glm/gtx/string_cast.hpp>
+#include <glm/fwd.hpp>
+#include <iterator>
+#include <utility>
 
 namespace audio
 {

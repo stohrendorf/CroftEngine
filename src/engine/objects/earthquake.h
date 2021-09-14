@@ -2,6 +2,21 @@
 
 #include "modelobject.h"
 
+#include <gsl/gsl-lite.hpp>
+#include <string>
+
+namespace engine
+{
+struct Location;
+}
+
+namespace engine::world
+{
+class World;
+struct Room;
+struct SkeletalModelType;
+} // namespace engine::world
+
 namespace engine::objects
 {
 class Earthquake final : public NullRenderModelObject

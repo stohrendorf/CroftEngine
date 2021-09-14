@@ -1,18 +1,29 @@
 #include "passportmenustate.h"
 
 #include "closepassportmenustate.h"
+#include "core/angle.h"
 #include "core/i18n.h"
 #include "donemenustate.h"
 #include "engine/audioengine.h"
-#include "engine/engine.h"
+#include "engine/items_tr1.h"
 #include "engine/presenter.h"
+#include "engine/soundeffects_tr1.h"
 #include "engine/world/world.h"
+#include "hid/actions.h"
 #include "hid/inputhandler.h"
+#include "hid/inputstate.h"
 #include "idleringmenustate.h"
+#include "menu/menuobject.h"
+#include "menu/menustate.h"
 #include "menudisplay.h"
 #include "menuring.h"
+#include "qs/qs.h"
 #include "savegamelistmenustate.h"
 #include "util.h"
+
+#include <glm/vec2.hpp>
+#include <gsl/gsl-lite.hpp>
+#include <utility>
 
 namespace menu
 {

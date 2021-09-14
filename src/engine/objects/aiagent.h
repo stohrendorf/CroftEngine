@@ -1,16 +1,48 @@
 #pragma once
 
+#include "core/angle.h"
+#include "core/id.h"
+#include "core/units.h"
+#include "core/vec.h"
 #include "engine/ai/ai.h"
+#include "engine/location.h"
 #include "modelobject.h"
+#include "objectstate.h"
+#include "qs/qs.h"
+
+#include <algorithm>
+#include <bitset>
+#include <cstddef>
+#include <cstdint>
+#include <gsl/gsl-lite.hpp>
+#include <memory>
+#include <optional>
+#include <string>
 
 namespace engine
 {
-namespace ai
-{
-struct EnemyLocation;
+struct CollisionInfo;
 }
 
-namespace objects
+namespace engine::ai
+{
+struct PathFinder;
+}
+
+namespace engine::world
+{
+class World;
+struct Box;
+struct Room;
+struct SkeletalModelType;
+} // namespace engine::world
+
+namespace loader::file
+{
+struct Item;
+}
+
+namespace engine::objects
 {
 class AIAgent : public ModelObject
 {
@@ -189,5 +221,4 @@ private:
   {                                                                          \
   }
 
-} // namespace objects
-} // namespace engine
+} // namespace engine::objects

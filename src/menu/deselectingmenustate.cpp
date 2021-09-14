@@ -1,11 +1,10 @@
 #include "deselectingmenustate.h"
 
-#include "engine/audioengine.h"
-#include "engine/presenter.h"
-#include "engine/world/world.h"
+#include "core/angle.h"
 #include "idleringmenustate.h"
 #include "menudisplay.h"
 #include "menuring.h"
+#include "menustate.h"
 #include "util.h"
 
 namespace menu

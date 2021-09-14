@@ -1,18 +1,14 @@
 #pragma once
 
-#include "boxgouraud.h"
 #include "engine/world/sprite.h"
-#include "loader/file/color.h"
 
+#include <cstddef>
 #include <cstdint>
-#include <optional>
+#include <glm/vec2.hpp>
+#include <gsl/gsl-lite.hpp>
 #include <string>
-#include <utility>
-
-namespace loader::file
-{
-struct Palette;
-} // namespace loader::file
+#include <tuple>
+#include <vector>
 
 namespace ui
 {

@@ -2,6 +2,11 @@
 
 #include "bufferhandle.h"
 #include "sourcehandle.h"
+#include "utils.h"
+#include "voice.h"
+
+#include <AL/al.h>
+#include <utility>
 
 namespace audio
 {

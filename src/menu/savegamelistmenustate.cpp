@@ -2,21 +2,34 @@
 
 #include "closepassportmenustate.h"
 #include "core/i18n.h"
+#include "core/magic.h"
 #include "deflateringmenustate.h"
 #include "donemenustate.h"
 #include "engine/engine.h"
 #include "engine/presenter.h"
 #include "engine/world/world.h"
+#include "hid/actions.h"
 #include "hid/inputhandler.h"
+#include "listdisplaymenustate.h"
 #include "menudisplay.h"
 #include "menuring.h"
+#include "menustate.h"
 #include "requestloadmenustate.h"
 #include "ui/widgets/label.h"
 #include "ui/widgets/listbox.h"
 #include "ui/widgets/messagebox.h"
 
+#include <boost/format.hpp>
+#include <chrono>
 #include <ctime>
+#include <filesystem>
+#include <glm/vec2.hpp>
+#include <gsl/gsl-lite.hpp>
+#include <iomanip>
+#include <locale>
+#include <map>
 #include <sstream>
+#include <utility>
 
 namespace menu
 {

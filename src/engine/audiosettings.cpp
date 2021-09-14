@@ -3,6 +3,9 @@
 #include "serialization/default.h"
 #include "serialization/serialization.h"
 
+#include <exception>
+#include <gsl/gsl-lite.hpp>
+
 namespace engine
 {
 void AudioSettings::serialize(const serialization::Serializer<EngineConfig>& ser)

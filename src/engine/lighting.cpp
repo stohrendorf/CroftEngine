@@ -3,6 +3,15 @@
 #include "engine/world/room.h"
 #include "render/scene/node.h"
 
+#include <gl/api/gl.hpp>
+#include <gl/program.h>
+#include <vector>
+
+namespace render::scene
+{
+class Mesh;
+}
+
 namespace engine
 {
 void Lighting::update(const core::Shade& shade, const world::Room& baseRoom)

@@ -3,8 +3,9 @@
 #include "core/interval.h"
 #include "core/magic.h"
 #include "core/units.h"
-#include "serialization/serialization_fwd.h"
+#include "serialization/serialization_fwd.h" // IWYU pragma: keep
 
+#include <cstdint>
 #include <gsl/gsl-lite.hpp>
 #include <vector>
 

@@ -1,15 +1,29 @@
 #include "materialmanager.h"
 
+#include "bufferparameter.h"
 #include "csm.h"
+#include "material.h"
 #include "node.h"
 #include "renderer.h"
 #include "shadercache.h"
+#include "uniformparameter.h"
 
+#include <algorithm>
+#include <boost/assert.hpp>
+#include <chrono>
+#include <cstdint>
 #include <gl/glew_init.h>
+#include <gl/pixel.h>
+#include <gl/program.h>
+#include <gl/renderstate.h>
+#include <gl/sampler.h>
 #include <gl/texture2d.h>
 #include <gl/texture2darray.h>
+#include <gl/texturehandle.h>
+#include <glm/vec2.hpp>
 #include <random>
 #include <utility>
+#include <vector>
 
 namespace render::scene
 {

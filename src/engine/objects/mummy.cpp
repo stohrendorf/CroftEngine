@@ -1,8 +1,23 @@
 #include "mummy.h"
 
+#include "core/id.h"
+#include "core/magic.h"
+#include "core/units.h"
+#include "core/vec.h"
+#include "engine/location.h"
+#include "engine/objectmanager.h"
 #include "engine/skeletalmodelnode.h"
 #include "engine/world/world.h"
 #include "laraobject.h"
+#include "modelobject.h"
+#include "objectstate.h"
+#include "qs/qs.h"
+
+#include <algorithm>
+#include <bitset>
+#include <cstddef>
+#include <initializer_list>
+#include <memory>
 
 namespace engine::objects
 {

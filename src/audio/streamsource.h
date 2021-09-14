@@ -4,9 +4,11 @@
 #include "sndfile/helpers.h"
 
 #include <chrono>
+#include <cstddef>
+#include <cstdint>
 #include <filesystem>
 #include <fstream>
-#include <gsl/gsl-lite.hpp>
+#include <memory>
 #include <sndfile.h>
 
 namespace audio

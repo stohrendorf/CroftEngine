@@ -1,14 +1,27 @@
 #include "ai.h"
 
+#include "core/boundingbox.h"
+#include "core/interval.h"
+#include "core/magic.h"
 #include "engine/engine.h"
+#include "engine/location.h"
+#include "engine/objectmanager.h"
 #include "engine/objects/aiagent.h"
 #include "engine/objects/laraobject.h"
+#include "engine/objects/objectstate.h"
 #include "engine/script/reflection.h"
+#include "engine/script/scriptengine.h"
 #include "engine/skeletalmodelnode.h"
+#include "engine/world/box.h"
 #include "engine/world/world.h"
 #include "loader/file/animation.h"
+#include "pathfinder.h"
 #include "serialization/quantity.h"
 #include "serialization/serialization.h"
+#include "util/helpers.h"
+
+#include <exception>
+#include <optional>
 
 namespace engine::ai
 {

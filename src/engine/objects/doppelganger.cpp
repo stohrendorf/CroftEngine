@@ -1,11 +1,30 @@
 #include "doppelganger.h"
 
-#include "engine/particle.h"
+#include "core/angle.h"
+#include "core/id.h"
+#include "core/magic.h"
+#include "core/units.h"
+#include "core/vec.h"
+#include "engine/heightinfo.h"
+#include "engine/items_tr1.h"
+#include "engine/location.h"
+#include "engine/objectmanager.h"
 #include "engine/skeletalmodelnode.h"
+#include "engine/world/animation.h"
+#include "engine/world/room.h"
 #include "engine/world/skeletalmodeltype.h"
 #include "engine/world/world.h"
 #include "laraobject.h"
+#include "loader/file/animationid.h"
+#include "loader/file/larastateid.h"
+#include "modelobject.h"
+#include "objectstate.h"
+#include "qs/qs.h"
+#include "render/scene/node.h"
 #include "serialization/serialization.h"
+
+#include <exception>
+#include <memory>
 
 namespace engine::objects
 {

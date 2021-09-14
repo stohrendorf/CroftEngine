@@ -1,9 +1,19 @@
 #include "renderer.h"
 
-#include "camera.h"
+#include "node.h"
 #include "rendercontext.h"
+#include "rendermode.h"
+#include "visitor.h"
 
+#include <array>
+#include <boost/log/trivial.hpp>
+#include <cstdint>
 #include <gl/api/gl_api_provider.hpp>
+#include <gl/glassert.h>
+#include <gl/pixel.h>
+#include <gl/renderstate.h>
+#include <glm/mat4x4.hpp>
+#include <optional>
 #include <utility>
 
 namespace render::scene

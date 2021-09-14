@@ -1,10 +1,12 @@
 #include "sprite.h"
 
-#include "engine/presenter.h"
-#include "render/scene/sprite.h"
 #include "ui/core.h"
 #include "ui/ui.h"
 
+#include <algorithm>
+#include <gl/pixel.h>
+#include <glm/common.hpp>
+#include <gsl/gsl-lite.hpp>
 #include <utility>
 
 namespace ui::widgets

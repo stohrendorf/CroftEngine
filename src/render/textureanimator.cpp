@@ -2,10 +2,12 @@
 
 #include "engine/world/atlastile.h"
 #include "loader/file/datatypes.h"
-#include "textureatlas.h"
+#include "loader/file/texture.h"
 
+#include <array>
 #include <gl/vertexbuffer.h>
 #include <memory>
+#include <utility>
 
 namespace render
 {

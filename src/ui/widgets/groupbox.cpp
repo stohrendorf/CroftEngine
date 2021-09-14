@@ -1,10 +1,14 @@
 #include "groupbox.h"
 
 #include "engine/presenter.h"
+#include "gl/pixel.h"
+#include "ui/boxgouraud.h"
+#include "ui/core.h"
 #include "ui/text.h"
 #include "ui/ui.h"
-#include "ui/util.h"
+#include "ui/widgets/widget.h"
 
+#include <glm/fwd.hpp>
 #include <utility>
 
 namespace ui::widgets

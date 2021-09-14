@@ -3,16 +3,32 @@
 #include "selectedmenustate.h"
 #include "ui/widgets/groupbox.h"
 
+#include <cstddef>
+#include <memory>
 #include <string>
-#include <vector>
+
+namespace engine::world
+{
+class World;
+}
+
+namespace ui
+{
+class Ui;
+}
 
 namespace ui::widgets
 {
+class Widget;
 class ListBox;
-}
+} // namespace ui::widgets
 
 namespace menu
 {
+class MenuState;
+struct MenuDisplay;
+struct MenuRingTransform;
+
 class ListDisplayMenuState : public SelectedMenuState
 {
 private:

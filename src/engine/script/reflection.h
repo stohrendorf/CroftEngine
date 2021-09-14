@@ -5,13 +5,21 @@
 #include "core/id.h"
 #include "core/magic.h"
 #include "core/units.h"
+#include "engine/items_tr1.h"
 #include "engine/tracks_tr1.h"
+#include "qs/quantity.h"
 
 #include <boost/log/trivial.hpp>
+#include <boost/throw_exception.hpp>
+#include <cstddef>
 #include <filesystem>
-#include <gl/pixel.h>
-#include <gl/soglb_fwd.h>
+#include <memory>
+#include <optional>
+#include <stdexcept>
+#include <string>
+#include <unordered_map>
 #include <unordered_set>
+#include <utility>
 
 namespace engine
 {
@@ -20,6 +28,11 @@ enum class WeaponType;
 class Engine;
 class Player;
 } // namespace engine
+
+namespace engine::world
+{
+class World;
+}
 
 namespace engine::script
 {

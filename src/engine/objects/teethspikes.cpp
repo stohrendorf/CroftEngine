@@ -1,9 +1,23 @@
 #include "teethspikes.h"
 
+#include "core/angle.h"
+#include "core/magic.h"
+#include "core/units.h"
+#include "core/vec.h"
+#include "engine/collisioninfo.h"
+#include "engine/location.h"
+#include "engine/objectmanager.h"
 #include "engine/particle.h"
 #include "engine/skeletalmodelnode.h"
 #include "engine/world/world.h"
 #include "laraobject.h"
+#include "loader/file/animationid.h"
+#include "loader/file/larastateid.h"
+#include "objectstate.h"
+#include "qs/qs.h"
+#include "util/helpers.h"
+
+#include <memory>
 
 void engine::objects::TeethSpikes::collide(CollisionInfo& collisionInfo)
 {

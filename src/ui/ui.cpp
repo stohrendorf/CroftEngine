@@ -1,16 +1,36 @@
 #include "ui.h"
 
 #include "boxgouraud.h"
+#include "core/id.h"
 #include "engine/world/sprite.h"
 #include "render/scene/material.h"
+#include "render/scene/materialgroup.h"
 #include "render/scene/mesh.h"
 #include "render/scene/names.h"
 #include "render/scene/rendercontext.h"
+#include "render/scene/rendermode.h"
+#include "render/scene/shaderprogram.h"
 
+#include <algorithm>
+#include <cstdint>
+#include <gl/buffer.h>
 #include <gl/debuggroup.h>
+#include <gl/pixel.h>
+#include <gl/program.h>
+#include <gl/renderstate.h>
 #include <gl/vertexarray.h>
 #include <gl/vertexbuffer.h>
-#include <glm/glm.hpp>
+#include <glm/common.hpp>
+#include <glm/mat4x4.hpp>
+#include <gsl/gsl-lite.hpp>
+#include <optional>
+#include <string>
+#include <utility>
+
+namespace render::scene
+{
+class Node;
+}
 
 namespace ui
 {

@@ -1,15 +1,23 @@
 #include "pathfinder.h"
 
+#include "core/interval.h"
+#include "engine/world/box.h"
 #include "engine/world/world.h"
 #include "serialization/box_ptr.h"
 #include "serialization/deque.h"
 #include "serialization/not_null.h"
+#include "serialization/optional.h"
+#include "serialization/ptr.h"
 #include "serialization/quantity.h"
 #include "serialization/serialization.h"
 #include "serialization/unordered_map.h"
-#include "serialization/unordered_set.h"
 #include "serialization/vector.h"
 #include "serialization/vector_element.h"
+
+#include <algorithm>
+#include <boost/assert.hpp>
+#include <cstdint>
+#include <exception>
 
 namespace engine::ai
 {

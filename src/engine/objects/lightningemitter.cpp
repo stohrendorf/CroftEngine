@@ -1,20 +1,47 @@
 #include "lightningemitter.h"
 
+#include "core/angle.h"
+#include "core/magic.h"
+#include "core/units.h"
 #include "engine/heightinfo.h"
+#include "engine/location.h"
+#include "engine/objectmanager.h"
 #include "engine/presenter.h"
 #include "engine/skeletalmodelnode.h"
+#include "engine/soundeffects_tr1.h"
 #include "engine/world/skeletalmodeltype.h"
 #include "engine/world/world.h"
+#include "gl/api/soglb_core.hpp"
+#include "gl/renderstate.h"
 #include "laraobject.h"
+#include "loader/file/animation.h"
+#include "modelobject.h"
+#include "objectstate.h"
+#include "qs/qs.h"
 #include "render/scene/material.h"
+#include "render/scene/materialgroup.h"
 #include "render/scene/materialmanager.h"
 #include "render/scene/mesh.h"
 #include "render/scene/names.h"
+#include "render/scene/node.h"
+#include "render/scene/rendermode.h"
+#include "render/scene/shaderprogram.h"
 #include "serialization/serialization.h"
+#include "util/helpers.h"
 
+#include <algorithm>
+#include <boost/assert.hpp>
+#include <cstdint>
+#include <exception>
 #include <gl/buffer.h>
 #include <gl/vertexarray.h>
 #include <gl/vertexbuffer.h>
+#include <glm/mat4x4.hpp>
+#include <glm/vec4.hpp>
+#include <optional>
+#include <tuple>
+#include <utility>
+#include <vector>
 
 namespace engine::objects
 {

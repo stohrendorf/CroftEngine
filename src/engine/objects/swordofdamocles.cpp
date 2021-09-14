@@ -1,10 +1,19 @@
 #include "swordofdamocles.h"
 
+#include "core/magic.h"
+#include "core/vec.h"
+#include "engine/collisioninfo.h"
+#include "engine/location.h"
+#include "engine/objectmanager.h"
 #include "engine/particle.h"
+#include "engine/soundeffects_tr1.h"
 #include "engine/world/world.h"
 #include "laraobject.h"
+#include "modelobject.h"
 #include "serialization/quantity.h"
 #include "serialization/serialization.h"
+
+#include <exception>
 
 namespace engine::objects
 {

@@ -1,6 +1,7 @@
 #include "animation.h"
 
 #include "io/sdlreader.h"
+#include "qs/quantity.h"
 
 #include <boost/log/trivial.hpp>
 

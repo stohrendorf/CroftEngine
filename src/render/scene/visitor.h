@@ -3,7 +3,6 @@
 namespace render::scene
 {
 class RenderContext;
-
 class Node;
 
 class Visitor

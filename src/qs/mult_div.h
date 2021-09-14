@@ -1,5 +1,7 @@
 #pragma once
 
+// IWYU pragma: private, include "quantity.h"
+
 #include "quantity.h"
 #include "string_util.h"
 #include "tuple_util.h"

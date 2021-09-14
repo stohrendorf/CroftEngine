@@ -2,6 +2,7 @@
 
 #include "audiosettingsmenustate.h"
 #include "controlsmenustate.h"
+#include "core/angle.h"
 #include "deflateringmenustate.h"
 #include "deselectingmenustate.h"
 #include "donemenustate.h"
@@ -9,12 +10,22 @@
 #include "engine/presenter.h"
 #include "engine/world/world.h"
 #include "finishitemanimationmenustate.h"
+#include "hid/actions.h"
+#include "hid/inputhandler.h"
 #include "menudisplay.h"
+#include "menuobject.h"
 #include "menuring.h"
+#include "menustate.h"
 #include "passportmenustate.h"
+#include "qs/quantity.h"
 #include "rendersettingsmenustate.h"
 #include "resetitemtransformmenustate.h"
+#include "ui/text.h"
 #include "util.h"
+
+#include <glm/vec2.hpp>
+#include <optional>
+#include <vector>
 
 namespace menu
 {
@@ -89,4 +100,11 @@ void SelectedMenuState::handleObject(ui::Ui& /*ui*/,
   else
     rotateForSelection(object);
 }
+
+SelectedMenuState::SelectedMenuState(const std::shared_ptr<MenuRingTransform>& ringTransform)
+    : MenuState{ringTransform}
+{
+}
+
+SelectedMenuState::~SelectedMenuState() = default;
 } // namespace menu

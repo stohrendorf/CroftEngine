@@ -1,9 +1,11 @@
 #pragma once
 
-#include "color.h"
+#include "core/units.h"
 #include "core/vec.h"
 #include "primitives.h"
 
+#include <cstdint>
+#include <memory>
 #include <vector>
 
 namespace loader::file

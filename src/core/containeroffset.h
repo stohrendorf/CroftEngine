@@ -1,6 +1,6 @@
 #pragma once
 
-#include "serialization/serialization_fwd.h"
+#include "serialization/serialization_fwd.h" // IWYU pragma: keep
 #include "tpl_helper.h"
 
 #include <boost/throw_exception.hpp>

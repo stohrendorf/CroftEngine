@@ -2,15 +2,13 @@
 
 #include <gl/pixel.h>
 #include <gl/soglb_fwd.h>
-#include <gl/texturedepth.h>
-#include <glm/fwd.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <glm/vec2.hpp>
+#include <memory>
 
 namespace render::scene
 {
 class Camera;
 class MaterialManager;
-class ShaderProgram;
 class Material;
 class Mesh;
 } // namespace render::scene

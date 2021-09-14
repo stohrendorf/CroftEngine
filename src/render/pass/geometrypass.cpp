@@ -1,11 +1,13 @@
 #include "geometrypass.h"
 
 #include <gl/framebuffer.h>
+#include <gl/pixel.h>
 #include <gl/renderstate.h>
 #include <gl/sampler.h>
 #include <gl/texture2d.h>
 #include <gl/texturedepth.h>
 #include <gl/texturehandle.h>
+#include <utility>
 
 namespace render::pass
 {

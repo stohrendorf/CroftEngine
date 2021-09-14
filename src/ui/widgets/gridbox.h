@@ -3,12 +3,19 @@
 #include "ui/core.h"
 #include "widget.h"
 
+#include <algorithm>
 #include <boost/multi_array.hpp>
-#include <glm/glm.hpp>
+#include <boost/multi_array/base.hpp>
+#include <boost/multi_array/extent_gen.hpp>
+#include <boost/multi_array/multi_array_ref.hpp>
+#include <boost/multi_array/subarray.hpp>
+#include <cstddef>
+#include <glm/vec2.hpp>
 #include <gsl/gsl-lite.hpp>
+#include <map>
 #include <memory>
-#include <string>
 #include <tuple>
+#include <vector>
 
 namespace engine
 {

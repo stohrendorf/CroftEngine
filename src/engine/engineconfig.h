@@ -10,8 +10,11 @@
 #include "render/rendersettings.h"
 #include "serialization/named_enum.h"
 
+#include <algorithm>
 #include <map>
+#include <string>
 #include <variant>
+#include <vector>
 
 namespace engine
 {
@@ -23,6 +26,8 @@ using NamedAction = serialization::NamedEnum<hid::Action, hid::EnumUtil<hid::Act
 using NamedAxisDir = std::pair<NamedGlfwAxis, NamedGlfwAxisDir>;
 
 using InputMappingConfig = std::map<std::variant<NamedGlfwKey, NamedGlfwGamepadButton, NamedAxisDir>, NamedAction>;
+
+struct EngineConfig;
 
 struct NamedInputMappingConfig
 {

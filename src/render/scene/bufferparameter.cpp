@@ -3,6 +3,11 @@
 #include "engine/skeletalmodelnode.h"
 #include "mesh.h"
 #include "node.h"
+#include "shaderprogram.h"
+
+#include <boost/log/trivial.hpp>
+#include <gl/program.h>
+#include <iosfwd>
 
 namespace render::scene
 {

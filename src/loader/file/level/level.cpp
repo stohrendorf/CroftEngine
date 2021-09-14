@@ -1,15 +1,27 @@
 #include "level.h"
 
-#include "render/textureanimator.h"
+#include "game.h"
+#include "loader/file/color.h"
 #include "tr1level.h"
 #include "tr2level.h"
 #include "tr3level.h"
 #include "tr4level.h"
 #include "tr5level.h"
+#include "util/helpers.h"
 #include "util/md5.h"
 
+#include <algorithm>
+#include <array>
 #include <boost/algorithm/string/case_conv.hpp>
+#include <boost/throw_exception.hpp>
+#include <cstdint>
 #include <filesystem>
+#include <gsl/gsl-lite.hpp>
+#include <iosfwd>
+#include <iterator>
+#include <set>
+#include <stdexcept>
+#include <string>
 
 namespace loader::file::level
 {
@@ -197,7 +209,7 @@ void Level::convertTexture(ByteTexture& tex, Palette& pal, DWordTexture& dst)
     }
   }
 
-  dst.md5 = util::md5(&tex.pixels[0][0], 256 * 256);
+  dst.md5 = util::md5(&tex.pixels[0][0], 256u * 256u);
 }
 
 void Level::convertTexture(WordTexture& tex, DWordTexture& dst)

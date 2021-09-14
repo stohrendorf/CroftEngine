@@ -1,9 +1,22 @@
 #include "raycast.h"
 
+#include "core/magic.h"
+#include "core/units.h"
+#include "core/vec.h"
 #include "heightinfo.h"
 #include "location.h"
 #include "objectmanager.h"
+#include "qs/qs.h"
 #include "world/room.h"
+
+#include <boost/assert.hpp>
+#include <gsl/gsl-lite.hpp>
+#include <tuple>
+
+namespace engine::world
+{
+struct Sector;
+}
 
 namespace engine
 {

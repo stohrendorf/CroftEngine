@@ -1,5 +1,25 @@
 #include "tr1level.h"
 
+#include "core/id.h"
+#include "loader/file/animation.h"
+#include "loader/file/audio.h"
+#include "loader/file/color.h"
+#include "loader/file/datatypes.h"
+#include "loader/file/item.h"
+#include "loader/file/meshes.h"
+#include "loader/file/texture.h"
+
+#include <array>
+#include <boost/log/trivial.hpp>
+#include <boost/throw_exception.hpp>
+#include <cstddef>
+#include <cstdint>
+#include <iosfwd>
+#include <map>
+#include <memory>
+#include <stdexcept>
+#include <vector>
+
 namespace loader::file::level
 {
 #define TR_AUDIO_MAP_SIZE_TR1 256

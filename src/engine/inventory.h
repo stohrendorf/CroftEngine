@@ -4,7 +4,10 @@
 #include "items_tr1.h"
 #include "weapontype.h"
 
+#include <algorithm>
 #include <boost/throw_exception.hpp>
+#include <cstddef>
+#include <cstdint>
 #include <gsl/gsl-lite.hpp>
 #include <map>
 #include <stdexcept>

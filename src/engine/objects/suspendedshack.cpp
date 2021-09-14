@@ -2,7 +2,11 @@
 
 #include "engine/skeletalmodelnode.h"
 #include "engine/world/world.h"
+#include "modelobject.h"
 #include "serialization/serialization.h"
+
+#include <gsl/gsl-lite.hpp>
+#include <string>
 
 namespace engine::objects
 {

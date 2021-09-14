@@ -1,15 +1,26 @@
 #pragma once
 
+#include "menustate.h"
 #include "selectedmenustate.h"
-#include "ui/widgets/groupbox.h"
 
-#include <functional>
+#include <cstddef>
+#include <memory>
+#include <vector>
+
+namespace engine::world
+{
+class World;
+}
+
+namespace ui
+{
+class Ui;
+}
 
 namespace ui::widgets
 {
-class ListBox;
 class Checkbox;
-} // namespace ui::widgets
+}
 
 namespace engine
 {
@@ -18,6 +29,9 @@ class Engine;
 
 namespace menu
 {
+struct MenuDisplay;
+struct MenuRingTransform;
+
 class RenderSettingsMenuState : public SelectedMenuState
 {
 private:

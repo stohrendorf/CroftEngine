@@ -1,6 +1,6 @@
 #pragma once
 
-#include "bindableresource.h"
+#include "bindableresource.h" // IWYU pragma: export
 #include "renderstate.h"
 #include "soglb_fwd.h"
 

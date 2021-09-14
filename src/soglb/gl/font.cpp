@@ -3,8 +3,8 @@
 #include "image.h"
 
 #include <boost/log/trivial.hpp>
-#include <freetype/ftoutln.h>
 #include <gsl/gsl-lite.hpp>
+#include <optional>
 #include <utf8.h>
 #include <utility>
 

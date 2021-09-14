@@ -4,10 +4,20 @@
 #include "filterhandle.h"
 #include "sourcehandle.h"
 #include "streamvoice.h"
+#include "utils.h"
+#include "voice.h"
 
+#include <AL/al.h>
+#include <AL/alc.h>
+#include <AL/efx.h>
+#include <algorithm>
+#include <array>
 #include <boost/log/trivial.hpp>
+#include <boost/throw_exception.hpp>
+#include <glm/fwd.hpp>
 #include <glm/gtx/norm.hpp>
-#include <optional>
+#include <stdexcept>
+#include <utility>
 
 #ifdef _WIN32
 #  define WIN32_LEAN_AND_MEAN

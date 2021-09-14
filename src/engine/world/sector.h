@@ -3,8 +3,9 @@
 #include "core/magic.h"
 #include "core/units.h"
 #include "engine/floordata/types.h"
-#include "serialization/serialization_fwd.h"
+#include "serialization/serialization_fwd.h" // IWYU pragma: keep
 
+#include <cstddef>
 #include <optional>
 #include <vector>
 

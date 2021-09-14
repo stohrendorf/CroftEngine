@@ -6,10 +6,15 @@
 
 #include <gl/api/gl.hpp>
 #include <gl/soglb_fwd.h>
+#include <glm/vec2.hpp>
+#include <gsl/gsl-lite.hpp>
+#include <memory>
+#include <string>
 
 namespace render::scene
 {
 class RenderContext;
+class Material;
 
 class Mesh
     : public Renderable

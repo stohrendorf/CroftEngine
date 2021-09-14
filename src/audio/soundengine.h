@@ -1,8 +1,10 @@
 #pragma once
 
 #include <AL/al.h>
+#include <cstddef>
 #include <glm/vec3.hpp>
 #include <gsl/gsl-lite.hpp>
+#include <memory>
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
@@ -11,7 +13,6 @@ namespace audio
 {
 class Device;
 class Voice;
-class SoundEngine;
 class BufferVoice;
 class BufferHandle;
 class Listener;

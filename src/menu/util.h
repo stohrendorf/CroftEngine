@@ -2,9 +2,7 @@
 
 #include "core/angle.h"
 #include "core/units.h"
-
-#include <glm/fwd.hpp>
-#include <memory>
+#include "qs/qs.h"
 
 namespace engine::world
 {

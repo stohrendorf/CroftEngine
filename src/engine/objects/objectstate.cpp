@@ -1,13 +1,24 @@
 #include "objectstate.h"
 
+#include "core/interval.h"
+#include "core/magic.h"
+#include "core/vec.h"
+#include "engine/objectmanager.h"
 #include "engine/script/reflection.h"
 #include "engine/script/scriptengine.h"
+#include "engine/world/box.h"
+#include "engine/world/room.h"
+#include "engine/world/sector.h"
 #include "engine/world/world.h"
 #include "laraobject.h"
+#include "qs/qs.h"
 #include "serialization/bitset.h"
 #include "serialization/quantity.h"
 #include "serialization/serialization.h"
-#include "serialization/vector_element.h"
+
+#include <boost/throw_exception.hpp>
+#include <exception>
+#include <stdexcept>
 
 namespace engine::objects
 {

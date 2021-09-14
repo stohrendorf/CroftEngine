@@ -1,13 +1,17 @@
 #pragma once
 
-#include "serialization/serialization_fwd.h"
+#include "qs/qs.h"
+#include "serialization/serialization_fwd.h" // IWYU pragma: keep
 #include "units.h"
 
 #include <boost/assert.hpp>
-#include <cmath>
+#include <cstdint>
 #include <glm/gtx/euler_angles.hpp>
+#include <glm/mat4x4.hpp>
+#include <glm/vec3.hpp>
 #include <gsl/gsl-lite.hpp>
 #include <optional>
+#include <type_traits>
 
 namespace engine::world
 {

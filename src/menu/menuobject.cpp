@@ -1,12 +1,36 @@
 #include "menuobject.h"
 
+#include "core/id.h"
+#include "core/vec.h"
+#include "engine/objectmanager.h"
 #include "engine/objects/laraobject.h"
+#include "engine/objects/objectstate.h"
 #include "engine/skeletalmodelnode.h"
 #include "engine/world/skeletalmodeltype.h"
 #include "engine/world/world.h"
 #include "menuringtransform.h"
+#include "qs/qs.h"
+#include "render/scene/node.h"
 #include "render/scene/renderable.h"
 #include "render/scene/rendercontext.h"
+#include "render/scene/rendermode.h"
+#include "util/helpers.h"
+
+#include <boost/log/trivial.hpp>
+#include <cstddef>
+#include <cstdint>
+#include <gl/program.h>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/mat4x4.hpp>
+#include <gsl/gsl-lite.hpp>
+#include <optional>
+#include <utility>
+#include <vector>
+
+namespace render::scene
+{
+class Mesh;
+}
 
 namespace menu
 {

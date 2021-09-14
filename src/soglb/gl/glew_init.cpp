@@ -1,7 +1,7 @@
 #include "glew_init.h"
 
+#include "api/gl.hpp"
 #include "glassert.h"
-#include "renderstate.h"
 
 #include <boost/log/trivial.hpp>
 #include <GL/glew.h>

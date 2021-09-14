@@ -1,12 +1,18 @@
 #pragma once
 
+#include "engine/engineconfig.h"
 #include "hid/delayedkey.h"
+#include "menustate.h"
 #include "selectedmenustate.h"
-#include "ui/widgets/groupbox.h"
 
-#include <chrono>
-#include <functional>
-#include <optional>
+#include <cstddef>
+#include <memory>
+#include <vector>
+
+namespace ui
+{
+class Ui;
+}
 
 namespace ui::widgets
 {
@@ -22,6 +28,8 @@ class World;
 namespace menu
 {
 class ControlsWidget;
+struct MenuDisplay;
+struct MenuRingTransform;
 
 class ControlsMenuState : public SelectedMenuState
 {

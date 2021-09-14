@@ -1,8 +1,26 @@
 #include "collisioninfo.h"
 
+#include "core/boundingbox.h"
+#include "core/interval.h"
 #include "core/magic.h"
+#include "engine/floordata/floordata.h"
+#include "engine/floordata/types.h"
+#include "engine/heightinfo.h"
+#include "engine/location.h"
+#include "engine/objectmanager.h"
+#include "engine/objects/objectstate.h"
+#include "engine/world/room.h"
+#include "engine/world/sector.h"
+#include "engine/world/staticmesh.h"
 #include "objects/laraobject.h"
+#include "qs/qs.h"
+#include "type_safe/integer.hpp"
 #include "world/world.h"
+
+#include <cstdint>
+#include <gsl/gsl-lite.hpp>
+#include <tuple>
+#include <vector>
 
 namespace engine
 {

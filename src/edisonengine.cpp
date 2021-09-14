@@ -1,6 +1,7 @@
 #include "engine/engine.h"
 #include "engine/player.h"
 #include "engine/script/reflection.h"
+#include "engine/script/scriptengine.h"
 
 #include <boost/exception/diagnostic_information.hpp>
 #include <boost/log/core.hpp>
@@ -9,9 +10,17 @@
 #include <boost/log/utility/setup/common_attributes.hpp>
 #include <boost/log/utility/setup/console.hpp>
 #include <boost/log/utility/setup/file.hpp>
-#include <boost/stacktrace.hpp>
+#include <boost/stacktrace/stacktrace.hpp>
 #include <csignal>
+#include <cstdlib>
+#include <exception>
+#include <filesystem>
+#include <gsl/gsl-lite.hpp>
 #include <iostream>
+#include <map>
+#include <memory>
+#include <optional>
+#include <vector>
 
 namespace
 {

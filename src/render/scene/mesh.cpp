@@ -1,11 +1,20 @@
 #include "mesh.h"
 
 #include "material.h"
+#include "materialgroup.h"
 #include "names.h"
 #include "rendercontext.h"
+#include "rendermode.h"
+#include "shaderprogram.h"
 
+#include <array>
+#include <boost/assert.hpp>
+#include <cstdint>
+#include <gl/buffer.h>
+#include <gl/renderstate.h>
 #include <gl/vertexarray.h>
 #include <gl/vertexbuffer.h>
+#include <vector>
 
 namespace render::scene
 {

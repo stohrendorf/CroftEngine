@@ -1,14 +1,15 @@
 #pragma once
 
 #include <chrono>
+#include <cstdint>
 #include <gl/pixel.h>
-#include <gl/renderstate.h>
+#include <gsl/gsl-lite.hpp>
+#include <memory>
 
 namespace render::scene
 {
 class Camera;
 class Node;
-class RenderContext;
 
 class Renderer final
 {

@@ -2,9 +2,16 @@
 
 #include "core/magic.h"
 #include "core/units.h"
+#include "engine/weapontype.h"
 #include "inventory.h"
 
 #include <chrono>
+#include <cstddef>
+
+namespace engine::world
+{
+class World;
+}
 
 namespace engine
 {

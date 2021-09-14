@@ -1,6 +1,39 @@
 #pragma once
 
+#include "core/vec.h"
 #include "modelobject.h"
+
+#include <array>
+#include <cstddef>
+#include <gl/soglb_fwd.h>
+#include <glm/vec3.hpp>
+#include <gsl/gsl-lite.hpp>
+#include <memory>
+#include <string>
+
+namespace engine
+{
+struct CollisionInfo;
+struct Location;
+} // namespace engine
+
+namespace engine::world
+{
+class World;
+struct Room;
+struct SkeletalModelType;
+} // namespace engine::world
+
+namespace loader::file
+{
+struct Item;
+}
+
+namespace render::scene
+{
+class Node;
+class Mesh;
+} // namespace render::scene
 
 namespace engine::objects
 {
@@ -36,20 +69,20 @@ private:
   bool m_laraHit = false;
   int m_chargeTimeout = 1;
   bool m_shooting = false;
-  core::TRVec m_mainBoltEnd;
+  core::TRVec m_mainBoltEnd{};
 
   struct ChildBolt
   {
-    std::shared_ptr<render::scene::Mesh> mesh;
-    std::shared_ptr<render::scene::Node> node;
-    std::shared_ptr<gl::VertexBuffer<glm::vec3>> vb;
+    std::shared_ptr<render::scene::Mesh> mesh = nullptr;
+    std::shared_ptr<render::scene::Node> node = nullptr;
+    std::shared_ptr<gl::VertexBuffer<glm::vec3>> vb = nullptr;
   };
 
-  std::array<ChildBolt, ChildBolts> m_childBolts;
+  std::array<ChildBolt, ChildBolts> m_childBolts{};
 
-  std::shared_ptr<render::scene::Mesh> m_mainBoltMesh;
-  std::shared_ptr<render::scene::Node> m_mainBoltNode;
-  std::shared_ptr<gl::VertexBuffer<glm::vec3>> m_mainVb;
+  std::shared_ptr<render::scene::Mesh> m_mainBoltMesh = nullptr;
+  std::shared_ptr<render::scene::Node> m_mainBoltNode = nullptr;
+  std::shared_ptr<gl::VertexBuffer<glm::vec3>> m_mainVb = nullptr;
 
   void init(world::World& world);
 };

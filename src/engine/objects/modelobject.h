@@ -1,16 +1,46 @@
 #pragma once
 
+#include "core/angle.h"
+#include "core/boundingbox.h"
+#include "core/id.h"
+#include "core/units.h"
 #include "engine/lighting.h"
 #include "object.h"
+#include "objectstate.h"
+
+#include <cstddef>
+#include <gsl/gsl-lite.hpp>
+#include <memory>
+#include <string>
+
+namespace core
+{
+struct TRVec;
+}
 
 namespace engine
 {
+class Particle;
+struct CollisionInfo;
+struct Location;
 class SkeletalModelNode;
-}
+} // namespace engine
 
 namespace engine::world
 {
+class World;
+struct Room;
 struct SkeletalModelType;
+} // namespace engine::world
+
+namespace loader::file
+{
+struct Item;
+}
+
+namespace render::scene
+{
+class Node;
 }
 
 namespace engine::objects

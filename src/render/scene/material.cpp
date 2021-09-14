@@ -1,11 +1,13 @@
 #include "material.h"
 
-#include "node.h"
+#include "bufferparameter.h"
 #include "shaderprogram.h"
 #include "uniformparameter.h"
 
-#include <boost/algorithm/string/join.hpp>
+#include <algorithm>
 #include <boost/log/trivial.hpp>
+#include <gl/program.h>
+#include <iosfwd>
 #include <utility>
 
 namespace render::scene

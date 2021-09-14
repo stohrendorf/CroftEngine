@@ -2,9 +2,26 @@
 
 #include "core/units.h"
 #include "menustate.h"
+#include "qs/qs.h"
+
+#include <memory>
+
+namespace engine::world
+{
+class World;
+}
+
+namespace ui
+{
+class Ui;
+}
 
 namespace menu
 {
+struct MenuDisplay;
+struct MenuObject;
+struct MenuRingTransform;
+
 class ApplyItemTransformMenuState : public MenuState
 {
 private:

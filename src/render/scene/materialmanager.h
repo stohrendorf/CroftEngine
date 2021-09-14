@@ -1,14 +1,16 @@
 #pragma once
 
+#include <cstdint>
 #include <gl/pixel.h>
 #include <gl/soglb_fwd.h>
+#include <gsl/gsl-lite.hpp>
 #include <map>
-#include <utility>
+#include <memory>
+#include <tuple>
 
 namespace render::scene
 {
 class CSM;
-class Camera;
 class Material;
 class Renderer;
 class ShaderCache;

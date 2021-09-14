@@ -4,7 +4,7 @@
 #include "soglb_fwd.h"
 
 #include <filesystem>
-#include <glm/common.hpp>
+#include <glm/vec2.hpp>
 #include <memory>
 #include <string>
 

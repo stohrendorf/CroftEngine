@@ -1,8 +1,11 @@
 #pragma once
 
 #include <boost/format.hpp>
+#include <clocale>
 #include <cstring>
 #include <filesystem>
+#include <string>
+#include <utility>
 
 #ifdef _MSC_VER
 #  define fprintf

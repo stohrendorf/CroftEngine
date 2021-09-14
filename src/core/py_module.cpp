@@ -1,7 +1,12 @@
 #include "magic.h"
+#include "qs/quantity.h"
+#include "units.h"
 #include "vec.h"
 
+#include <pybind11/cast.h>
 #include <pybind11/embed.h>
+#include <pybind11/pybind11.h>
+#include <pybind11/pytypes.h>
 
 namespace py = pybind11;
 

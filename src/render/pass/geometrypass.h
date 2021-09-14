@@ -2,8 +2,8 @@
 
 #include <gl/pixel.h>
 #include <gl/soglb_fwd.h>
-#include <gl/texturedepth.h>
-#include <glm/fwd.hpp>
+#include <glm/vec2.hpp>
+#include <memory>
 
 namespace render::pass
 {

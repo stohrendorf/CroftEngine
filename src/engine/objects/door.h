@@ -1,7 +1,30 @@
 #pragma once
 
+#include "core/vec.h"
 #include "engine/world/sector.h"
 #include "modelobject.h"
+
+#include <gsl/gsl-lite.hpp>
+#include <string>
+
+namespace engine
+{
+struct CollisionInfo;
+struct Location;
+} // namespace engine
+
+namespace engine::world
+{
+class World;
+struct Box;
+struct Room;
+struct SkeletalModelType;
+} // namespace engine::world
+
+namespace loader::file
+{
+struct Item;
+}
 
 namespace engine::objects
 {

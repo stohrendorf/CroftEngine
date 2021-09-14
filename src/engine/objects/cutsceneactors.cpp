@@ -1,7 +1,12 @@
 #include "cutsceneactors.h"
 
+#include "core/angle.h"
+#include "core/vec.h"
 #include "engine/cameracontroller.h"
+#include "engine/location.h"
 #include "engine/world/world.h"
+#include "modelobject.h"
+#include "objectstate.h"
 
 namespace engine::objects
 {

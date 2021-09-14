@@ -1,12 +1,18 @@
 #include "sprite.h"
 
-#include "camera.h"
 #include "material.h"
+#include "materialgroup.h"
 #include "mesh.h"
 #include "names.h"
-#include "node.h"
+#include "rendermode.h"
+#include "shaderprogram.h"
 
+#include <boost/assert.hpp>
+#include <cstdint>
+#include <gl/buffer.h>
 #include <gl/vertexarray.h>
+#include <gl/vertexbuffer.h>
+#include <vector>
 
 namespace render::scene
 {

@@ -3,14 +3,28 @@
 #include "audio/emitter.h"
 #include "core/angle.h"
 #include "core/id.h"
+#include "core/units.h"
 #include "engine/lighting.h"
 #include "items_tr1.h"
 #include "location.h"
+#include "qs/qs.h"
 #include "render/scene/node.h"
 #include "util/helpers.h"
 
+#include <algorithm>
+#include <cstddef>
+#include <cstdint>
 #include <deque>
+#include <glm/fwd.hpp>
+#include <gsl/gsl-lite.hpp>
 #include <memory>
+#include <optional>
+#include <string>
+
+namespace render::scene
+{
+class Renderable;
+}
 
 namespace engine::world
 {
@@ -202,21 +216,7 @@ public:
                                 world::World& world,
                                 const gsl::not_null<std::shared_ptr<render::scene::Renderable>>& renderable,
                                 const bool torsoBoss,
-                                const core::Length& damageRadius)
-      : Particle{"meshShrapnel", TR1ItemId::MeshShrapnel, location, world, false, renderable}
-      , m_damageRadius{damageRadius}
-  {
-    clearRenderables();
-
-    angle.Y = core::Angle{util::rand15s() * 2};
-    speed = util::rand15(256_spd);
-    fall_speed = util::rand15(256_spd);
-    if(!torsoBoss)
-    {
-      speed /= 2;
-      fall_speed /= 2;
-    }
-  }
+                                const core::Length& damageRadius);
 
   bool update(world::World& world) override;
 

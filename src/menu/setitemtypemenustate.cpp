@@ -1,7 +1,9 @@
 #include "setitemtypemenustate.h"
 
 #include "menudisplay.h"
+#include "menuobject.h"
 #include "menuring.h"
+#include "menustate.h"
 
 namespace menu
 {

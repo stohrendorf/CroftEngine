@@ -2,6 +2,8 @@
 
 #include "io/sdlreader.h"
 
+#include <algorithm>
+
 namespace loader::file
 {
 ByteColor ByteColor::read(io::SDLReader& reader, const bool withAlpha)

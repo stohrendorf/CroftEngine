@@ -1,16 +1,30 @@
 #include "shatter.h"
 
+#include "core/containeroffset.h"
+#include "core/id.h"
+#include "core/vec.h"
 #include "engine/items_tr1.h"
+#include "engine/location.h"
+#include "engine/objectmanager.h"
 #include "engine/particle.h"
 #include "engine/presenter.h"
 #include "engine/skeletalmodelnode.h"
 #include "engine/world/rendermeshdata.h"
+#include "engine/world/room.h"
 #include "engine/world/skeletalmodeltype.h"
 #include "engine/world/world.h"
 #include "modelobject.h"
+#include "objectstate.h"
 #include "render/scene/mesh.h"
+#include "render/scene/node.h"
 
 #include <boost/log/trivial.hpp>
+#include <cstddef>
+#include <cstdint>
+#include <gsl/gsl-lite.hpp>
+#include <memory>
+#include <utility>
+#include <vector>
 
 namespace engine::objects
 {

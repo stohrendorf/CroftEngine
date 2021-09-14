@@ -1,12 +1,35 @@
 #include "block.h"
 
 #include "core/boundingbox.h"
+#include "core/id.h"
+#include "core/magic.h"
+#include "core/vec.h"
+#include "engine/collisioninfo.h"
+#include "engine/floordata/floordata.h"
+#include "engine/heightinfo.h"
+#include "engine/location.h"
+#include "engine/objectmanager.h"
 #include "engine/presenter.h"
 #include "engine/skeletalmodelnode.h"
+#include "engine/soundeffects_tr1.h"
+#include "engine/world/room.h"
+#include "engine/world/sector.h"
 #include "engine/world/world.h"
+#include "hid/actions.h"
 #include "hid/inputhandler.h"
+#include "hid/inputstate.h"
 #include "laraobject.h"
-#include "serialization/quantity.h"
+#include "loader/file/larastateid.h"
+#include "modelobject.h"
+#include "object.h"
+#include "objectstate.h"
+#include "qs/qs.h"
+#include "serialization/serialization.h"
+
+#include <boost/throw_exception.hpp>
+#include <gl/renderstate.h>
+#include <memory>
+#include <stdexcept>
 
 namespace engine::objects
 {

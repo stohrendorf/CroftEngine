@@ -1,13 +1,32 @@
 #include "modelobject.h"
 
+#include "core/interval.h"
+#include "core/magic.h"
+#include "core/vec.h"
+#include "engine/collisioninfo.h"
+#include "engine/location.h"
+#include "engine/objectmanager.h"
 #include "engine/particle.h"
 #include "engine/skeletalmodelnode.h"
+#include "engine/soundeffects_tr1.h"
 #include "engine/world/animation.h"
 #include "engine/world/world.h"
 #include "laraobject.h"
 #include "loader/file/animation.h"
-#include "loader/file/item.h"
+#include "object.h"
+#include "objectstate.h"
+#include "qs/qs.h"
+#include "render/scene/node.h"
 #include "serialization/serialization.h"
+#include "util/helpers.h"
+
+#include <algorithm>
+#include <bitset>
+#include <boost/assert.hpp>
+#include <cstdint>
+#include <exception>
+#include <optional>
+#include <vector>
 
 namespace engine::objects
 {

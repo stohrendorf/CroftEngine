@@ -3,18 +3,29 @@
 #include "audio/soundengine.h"
 #include "core/i18n.h"
 #include "engine/audioengine.h"
+#include "engine/audiosettings.h"
 #include "engine/engine.h"
 #include "engine/engineconfig.h"
 #include "engine/presenter.h"
+#include "engine/soundeffects_tr1.h"
 #include "engine/world/world.h"
+#include "hid/actions.h"
 #include "hid/inputhandler.h"
-#include "menudisplay.h"
-#include "menuring.h"
-#include "savegamelistmenustate.h"
+#include "menu/selectedmenustate.h"
+#include "ui/core.h"
 #include "ui/widgets/gridbox.h"
 #include "ui/widgets/groupbox.h"
 #include "ui/widgets/label.h"
 #include "ui/widgets/progressbar.h"
+
+#include <algorithm>
+#include <boost/throw_exception.hpp>
+#include <cstddef>
+#include <glm/vec2.hpp>
+#include <gsl/gsl-lite.hpp>
+#include <stdexcept>
+#include <tuple>
+#include <utility>
 
 namespace menu
 {

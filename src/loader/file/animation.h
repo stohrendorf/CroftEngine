@@ -7,9 +7,11 @@
 #include "core/vec.h"
 
 #include <boost/assert.hpp>
+#include <cstddef>
+#include <cstdint>
+#include <glm/vec3.hpp>
 #include <gsl/gsl-lite.hpp>
-#include <optional>
-#include <utility>
+#include <memory>
 
 namespace render::scene
 {

@@ -1,12 +1,11 @@
 #pragma once
 
-#include "ui/core.h"
 #include "widget.h"
 
-#include <glm/glm.hpp>
+#include <cstddef>
+#include <glm/vec2.hpp>
 #include <gsl/gsl-lite.hpp>
 #include <memory>
-#include <string>
 #include <vector>
 
 namespace engine

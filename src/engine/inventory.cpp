@@ -1,13 +1,20 @@
 #include "inventory.h"
 
-#include "engine/player.h"
-#include "engine/world/world.h"
+#include "core/magic.h"
+#include "core/units.h"
 #include "items_tr1.h"
 #include "objects/laraobject.h"
+#include "objects/objectstate.h"
+#include "player.h"
+#include "qs/qs.h"
 #include "serialization/map.h"
 #include "serialization/serialization.h"
+#include "soundeffects_tr1.h"
+#include "weapontype.h"
+#include "world/world.h"
 
 #include <boost/log/trivial.hpp>
+#include <exception>
 
 namespace engine
 {

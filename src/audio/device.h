@@ -1,14 +1,14 @@
 #pragma once
 
 #include <AL/alc.h>
-#include <array>
 #include <chrono>
+#include <cstddef>
 #include <glm/vec3.hpp>
 #include <gsl/gsl-lite.hpp>
+#include <memory>
 #include <mutex>
 #include <set>
 #include <thread>
-#include <unordered_set>
 #include <vector>
 
 namespace audio

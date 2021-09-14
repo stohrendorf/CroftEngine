@@ -1,9 +1,11 @@
 #include "switchringmenustate.h"
 
+#include "core/vec.h"
 #include "inflateringmenustate.h"
 #include "menudisplay.h"
 #include "menuring.h"
 #include "menuringtransform.h"
+#include "menustate.h"
 #include "util.h"
 
 namespace menu

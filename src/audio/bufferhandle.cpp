@@ -3,7 +3,12 @@
 #include "sndfile/helpers.h"
 #include "utils.h"
 
+#include <AL/al.h>
+#include <boost/assert.hpp>
 #include <boost/log/trivial.hpp>
+#include <cstring>
+#include <gsl/gsl-lite.hpp>
+#include <sndfile.h>
 #include <vector>
 
 namespace audio

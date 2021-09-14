@@ -1,14 +1,22 @@
 #pragma once
 
-#include "blur.h"
+#include "core/units.h"
 #include "core/vec.h"
 
+#include <algorithm>
+#include <array>
+#include <cstddef>
 #include <cstdint>
 #include <gl/buffer.h>
 #include <gl/pixel.h>
+#include <gl/renderstate.h>
 #include <gl/soglb_fwd.h>
-#include <glm/glm.hpp>
+#include <glm/fwd.hpp>
+#include <glm/mat4x4.hpp>
+#include <glm/vec3.hpp>
+#include <glm/vec4.hpp>
 #include <gsl/gsl-lite.hpp>
+#include <memory>
 
 namespace render::scene
 {
@@ -16,6 +24,9 @@ class Camera;
 class Material;
 class Mesh;
 class MaterialManager;
+
+template<typename PixelT>
+class SeparableBlur;
 
 struct CSMBuffer
 {

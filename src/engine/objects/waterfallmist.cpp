@@ -1,8 +1,19 @@
 #include "waterfallmist.h"
 
+#include "core/magic.h"
+#include "core/vec.h"
+#include "engine/floordata/floordata.h"
+#include "engine/location.h"
+#include "engine/objectmanager.h"
 #include "engine/particle.h"
+#include "engine/world/room.h"
 #include "engine/world/world.h"
 #include "laraobject.h"
+#include "objectstate.h"
+#include "qs/quantity.h"
+#include "render/scene/node.h"
+
+#include <memory>
 
 namespace engine::objects
 {

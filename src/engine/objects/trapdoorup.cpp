@@ -1,5 +1,7 @@
 #include "trapdoorup.h"
 
+#include "modelobject.h"
+
 namespace engine::objects
 {
 void TrapDoorUp::update()

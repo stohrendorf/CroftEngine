@@ -5,7 +5,8 @@
 #include <gl/pixel.h>
 #include <gl/soglb_fwd.h>
 #include <gl/texture2d.h>
-#include <gl/texturedepth.h>
+#include <glm/fwd.hpp>
+#include <memory>
 
 namespace render::scene
 {

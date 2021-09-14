@@ -1,24 +1,35 @@
 #include "skeletalmodelnode.h"
 
-#include "engine/objects/object.h"
-#include "engine/presenter.h"
+#include "core/angle.h"
+#include "core/boundingbox.h"
+#include "core/interval.h"
 #include "loader/file/animation.h"
-#include "loader/file/mesh.h"
+#include "objects/objectstate.h"
+#include "presenter.h"
+#include "qs/qs.h"
 #include "render/scene/mesh.h"
 #include "serialization/glm.h"
 #include "serialization/not_null.h"
+#include "serialization/ptr.h"
 #include "serialization/quantity.h"
 #include "serialization/rendermeshdata_ptr.h"
 #include "serialization/serialization.h"
 #include "serialization/skeletalmodeltype_ptr.h"
 #include "serialization/vector.h"
 #include "serialization/vector_element.h"
+#include "util/helpers.h"
 #include "world/animation.h"
 #include "world/rendermeshdata.h"
 #include "world/skeletalmodeltype.h"
 #include "world/transition.h"
+#include "world/world.h"
 
+#include <boost/assert.hpp>
+#include <exception>
+#include <glm/common.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/vec2.hpp>
+#include <initializer_list>
 #include <stack>
 #include <utility>
 

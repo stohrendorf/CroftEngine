@@ -1,7 +1,14 @@
 #include "heightinfo.h"
 
+#include "core/vec.h"
+#include "engine/floordata/floordata.h"
 #include "engine/objects/object.h"
 #include "engine/world/room.h"
+#include "engine/world/sector.h"
+#include "util/helpers.h"
+
+#include <cstdlib>
+#include <type_traits>
 
 namespace engine
 {

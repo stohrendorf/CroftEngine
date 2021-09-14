@@ -1,12 +1,27 @@
 #pragma once
 
 #include "core/angle.h"
+#include "core/magic.h"
 #include "core/units.h"
 #include "core/vec.h"
 #include "engine/lighting.h"
+#include "qs/qs.h"
 #include "sector.h"
 
 #include <algorithm>
+#include <array>
+#include <cstddef>
+#include <gl/buffer.h>
+#include <glm/vec3.hpp>
+#include <gsl/gsl-lite.hpp>
+#include <memory>
+#include <optional>
+#include <vector>
+
+namespace engine::world
+{
+class World;
+}
 
 namespace render
 {

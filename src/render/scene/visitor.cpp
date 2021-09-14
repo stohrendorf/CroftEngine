@@ -1,10 +1,11 @@
 #include "visitor.h"
 
-#include "camera.h"
-#include "renderable.h"
+#include "node.h"
 #include "rendercontext.h"
 
 #include <gl/debuggroup.h>
+#include <optional>
+#include <string>
 
 namespace render::scene
 {

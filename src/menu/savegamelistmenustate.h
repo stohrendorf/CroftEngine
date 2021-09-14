@@ -1,9 +1,22 @@
 #pragma once
 
 #include "listdisplaymenustate.h"
+#include "menustate.h"
 
+#include <cstddef>
+#include <memory>
 #include <string>
 #include <vector>
+
+namespace engine::world
+{
+class World;
+}
+
+namespace ui
+{
+class Ui;
+}
 
 namespace ui::widgets
 {
@@ -12,6 +25,9 @@ class MessageBox;
 
 namespace menu
 {
+struct MenuDisplay;
+struct MenuRingTransform;
+
 class SavegameListMenuState : public ListDisplayMenuState
 {
 private:

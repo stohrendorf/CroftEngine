@@ -3,9 +3,16 @@
 #include "core/id.h"
 #include "qs/qs.h"
 
+#include <array>
 #include <boost/assert.hpp>
+#include <cstdint>
+#include <gl/image.h>
 #include <gl/pixel.h>
-#include <gl/soglb_fwd.h>
+#include <glm/vec2.hpp>
+#include <gsl/gsl-lite.hpp>
+#include <limits>
+#include <memory>
+#include <string>
 
 namespace loader::file
 {

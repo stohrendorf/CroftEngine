@@ -2,7 +2,28 @@
 
 #include "engine/skeletalmodelnode.h"
 #include "engine/world/room.h"
+#include "modelobject.h"
 #include "serialization/serialization.h"
+
+#include <gsl/gsl-lite.hpp>
+#include <string>
+
+namespace engine
+{
+struct Location;
+}
+
+namespace engine::world
+{
+class World;
+struct Room;
+struct SkeletalModelType;
+} // namespace engine::world
+
+namespace loader::file
+{
+struct Item;
+}
 
 namespace engine::objects
 {

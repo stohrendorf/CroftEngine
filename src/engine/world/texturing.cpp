@@ -2,22 +2,37 @@
 
 #include "atlastile.h"
 #include "core/i18n.h"
+#include "core/id.h"
 #include "loader/file/datatypes.h"
 #include "loader/file/level/level.h"
+#include "loader/file/texture.h"
 #include "loader/trx/trx.h"
 #include "render/textureatlas.h"
 #include "sprite.h"
 
+#include <algorithm>
 #include <array>
+#include <boost/assert.hpp>
+#include <boost/format.hpp>
 #include <boost/log/trivial.hpp>
+#include <cstddef>
+#include <cstdint>
+#include <filesystem>
+#include <gl/cimgwrapper.h>
 #include <gl/image.h>
+#include <gl/pixel.h>
 #include <gl/texture2darray.h>
-#include <glm/glm.hpp>
+#include <glm/vec2.hpp>
+#include <glm/vec3.hpp>
+#include <gsl/gsl-lite.hpp>
+#include <iosfwd>
 #include <map>
 #include <memory>
 #include <numeric>
 #include <set>
+#include <type_traits>
 #include <unordered_set>
+#include <utility>
 #include <vector>
 
 namespace engine::world

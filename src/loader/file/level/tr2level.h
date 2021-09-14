@@ -1,6 +1,11 @@
 #pragma once
 
+#include "game.h"
 #include "level.h"
+#include "loader/file/io/sdlreader.h"
+
+#include <filesystem>
+#include <utility>
 
 namespace loader::file::level
 {

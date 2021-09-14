@@ -1,9 +1,17 @@
 #include "switch.h"
 
+#include "core/angle.h"
+#include "core/boundingbox.h"
+#include "engine/objectmanager.h"
 #include "engine/presenter.h"
 #include "engine/world/world.h"
+#include "hid/actions.h"
 #include "hid/inputhandler.h"
 #include "laraobject.h"
+#include "loader/file/larastateid.h"
+#include "modelobject.h"
+#include "object.h"
+#include "qs/quantity.h"
 
 namespace engine::objects
 {

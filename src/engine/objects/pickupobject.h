@@ -2,6 +2,17 @@
 
 #include "spriteobject.h"
 
+namespace engine
+{
+struct CollisionInfo;
+}
+
+namespace engine::world
+{
+class World;
+struct Sprite;
+} // namespace engine::world
+
 namespace engine::objects
 {
 class PickupObject final : public SpriteObject

@@ -1,7 +1,12 @@
 #include "listbox.h"
 
-#include "engine/presenter.h"
-#include "ui/text.h"
+#include "ui/boxgouraud.h"
+#include "ui/core.h"
+#include "widget.h"
+
+#include <algorithm>
+#include <gl/pixel.h>
+#include <glm/fwd.hpp>
 
 namespace ui::widgets
 {

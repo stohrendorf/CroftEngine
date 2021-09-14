@@ -1,11 +1,31 @@
 #pragma once
 
+#include "core/boundingbox.h"
+#include "core/units.h"
 #include "object.h"
+#include "render/scene/node.h"
+
+#include <boost/throw_exception.hpp>
+#include <gsl/gsl-lite.hpp>
+#include <memory>
+#include <stdexcept>
+#include <string>
+
+namespace engine
+{
+struct Location;
+}
+
+namespace loader::file
+{
+struct Item;
+}
 
 namespace engine::world
 {
 class World;
 struct Sprite;
+struct Room;
 } // namespace engine::world
 
 namespace engine::objects

@@ -2,6 +2,11 @@
 
 #include "utils.h"
 
+#include <AL/al.h>
+#include <AL/alc.h>
+#include <AL/efx.h>
+#include <boost/assert.hpp>
+
 #ifndef AL_ALEXT_PROTOTYPES
 
 #  include <boost/log/trivial.hpp>

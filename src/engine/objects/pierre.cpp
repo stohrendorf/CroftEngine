@@ -1,13 +1,33 @@
 #include "pierre.h"
 
+#include "aiagent.h"
+#include "core/angle.h"
+#include "core/id.h"
+#include "core/magic.h"
+#include "core/units.h"
+#include "core/vec.h"
+#include "engine/ai/ai.h"
 #include "engine/cameracontroller.h"
+#include "engine/floordata/floordata.h"
 #include "engine/items_tr1.h"
+#include "engine/location.h"
 #include "engine/raycast.h"
 #include "engine/skeletalmodelnode.h"
+#include "engine/world/animation.h"
 #include "engine/world/skeletalmodeltype.h"
 #include "engine/world/world.h"
+#include "object.h"
+#include "objectstate.h"
+#include "qs/qs.h"
 #include "serialization/quantity.h"
 #include "serialization/serialization.h"
+#include "util/helpers.h"
+
+#include <exception>
+#include <gsl/gsl-lite.hpp>
+#include <map>
+#include <memory>
+#include <optional>
 
 namespace engine::objects
 {

@@ -1,16 +1,30 @@
 #pragma once
 
 #include "audio/emitter.h"
+#include "core/angle.h"
 #include "core/id.h"
+#include "core/units.h"
 #include "engine/floordata/floordata.h"
 #include "engine/location.h"
-#include "loader/file/datatypes.h"
+#include "qs/quantity.h"
+
+#include <bitset>
+#include <cstdint>
+#include <glm/fwd.hpp>
+#include <gsl/gsl-lite.hpp>
+#include <utility>
+
+namespace audio
+{
+class SoundEngine;
+}
 
 namespace engine::world
 {
 class World;
 struct Sector;
 struct Box;
+struct Room;
 } // namespace engine::world
 
 namespace engine::script

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "bindableresource.h"
+#include "bindableresource.h" // IWYU pragma: export
 
 #include <glm/gtc/type_ptr.hpp>
 #include <utility>

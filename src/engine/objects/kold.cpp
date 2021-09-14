@@ -1,10 +1,21 @@
 #include "kold.h"
 
+#include "aiagent.h"
+#include "core/angle.h"
+#include "core/units.h"
+#include "engine/ai/ai.h"
 #include "engine/items_tr1.h"
+#include "engine/location.h"
 #include "engine/skeletalmodelnode.h"
 #include "engine/world/skeletalmodeltype.h"
 #include "engine/world/world.h"
+#include "loader/file/animation.h"
+#include "qs/qs.h"
 #include "serialization/serialization.h"
+#include "util/helpers.h"
+
+#include <exception>
+#include <memory>
 
 namespace engine::objects
 {

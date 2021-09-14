@@ -1,8 +1,12 @@
 #pragma once
 
+#include <cstdint>
 #include <filesystem>
 #include <gsl/gsl-lite.hpp>
+#include <memory>
+#include <string>
 #include <unordered_map>
+#include <utility>
 #include <vector>
 
 namespace render::scene

@@ -1,14 +1,17 @@
 #include "applyitemtransformmenustate.h"
 
-#include "engine/presenter.h"
-#include "engine/world/world.h"
+#include "core/angle.h"
+#include "menu/menuobject.h"
 #include "menudisplay.h"
 #include "menuring.h"
+#include "qs/qs.h"
 #include "selectedmenustate.h"
 #include "util.h"
 
 namespace menu
 {
+class MenuState;
+
 void ApplyItemTransformMenuState::handleObject(ui::Ui& /*ui*/,
                                                engine::world::World& /*world*/,
                                                MenuDisplay& display,

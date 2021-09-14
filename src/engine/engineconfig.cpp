@@ -1,6 +1,8 @@
 #include "engineconfig.h"
 
 #include "core/i18n.h"
+#include "engine/audiosettings.h"
+#include "engine/displaysettings.h"
 #include "serialization/default.h"
 #include "serialization/map.h"
 #include "serialization/pair.h"
@@ -8,12 +10,15 @@
 #include "serialization/variant.h"
 #include "serialization/vector.h"
 
+#include <exception>
+#include <gsl/gsl-lite.hpp>
+#include <stdexcept>
+
 namespace engine
 {
 namespace
 {
 using hid::Action;
-using hid::EnumUtil;
 using hid::GlfwAxis;
 using hid::GlfwAxisDir;
 using hid::GlfwGamepadButton;

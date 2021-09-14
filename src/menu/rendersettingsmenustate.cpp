@@ -1,17 +1,34 @@
 #include "rendersettingsmenustate.h"
 
 #include "core/i18n.h"
+#include "engine/displaysettings.h"
 #include "engine/engine.h"
 #include "engine/engineconfig.h"
 #include "engine/presenter.h"
 #include "engine/world/world.h"
+#include "hid/actions.h"
 #include "hid/inputhandler.h"
-#include "menudisplay.h"
-#include "render/renderpipeline.h"
+#include "hid/inputstate.h"
+#include "menustate.h"
+#include "render/rendersettings.h"
+#include "selectedmenustate.h"
 #include "ui/widgets/checkbox.h"
+#include "ui/widgets/groupbox.h"
 #include "ui/widgets/listbox.h"
+#include "ui/widgets/widget.h"
 
+#include <algorithm>
+#include <boost/format.hpp>
+#include <cmath>
+#include <cstdint>
+#include <functional>
 #include <gl/glew_init.h>
+#include <glm/fwd.hpp>
+#include <glm/vec2.hpp>
+#include <gsl/gsl-lite.hpp>
+#include <string>
+#include <tuple>
+#include <utility>
 
 namespace menu
 {

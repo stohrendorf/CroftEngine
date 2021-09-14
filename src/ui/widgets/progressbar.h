@@ -2,10 +2,7 @@
 
 #include "widget.h"
 
-#include <glm/glm.hpp>
-#include <gsl/gsl-lite.hpp>
-#include <memory>
-#include <string>
+#include <glm/vec2.hpp>
 
 namespace ui
 {

@@ -1,13 +1,16 @@
 #pragma once
 
-#include <boost/algorithm/string.hpp>
+#include <algorithm>
+#include <cstdint>
 #include <filesystem>
+#include <fstream>
+#include <functional>
 #include <gsl/gsl-lite.hpp>
 #include <map>
-#include <optional>
-#include <regex>
 #include <set>
+#include <string>
 #include <utility>
+#include <vector>
 
 namespace loader::trx
 {

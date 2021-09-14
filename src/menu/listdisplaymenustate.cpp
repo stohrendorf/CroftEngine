@@ -1,13 +1,20 @@
 #include "listdisplaymenustate.h"
 
-#include "engine/engine.h"
 #include "engine/presenter.h"
 #include "engine/world/world.h"
+#include "hid/actions.h"
 #include "hid/inputhandler.h"
-#include "menudisplay.h"
-#include "ui/core.h"
-#include "ui/util.h"
+#include "hid/inputstate.h"
+#include "menustate.h"
+#include "selectedmenustate.h"
+#include "ui/widgets/groupbox.h"
 #include "ui/widgets/listbox.h"
+
+#include <cstddef>
+#include <glm/vec2.hpp>
+#include <gsl/gsl-lite.hpp>
+#include <memory>
+#include <string>
 
 namespace menu
 {

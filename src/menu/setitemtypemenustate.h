@@ -2,6 +2,19 @@
 
 #include "menustate.h"
 
+#include <memory>
+#include <utility>
+
+namespace engine::world
+{
+class World;
+}
+
+namespace ui
+{
+class Ui;
+}
+
 namespace engine
 {
 enum class TR1ItemId;
@@ -9,6 +22,10 @@ enum class TR1ItemId;
 
 namespace menu
 {
+struct MenuDisplay;
+struct MenuObject;
+struct MenuRingTransform;
+
 class SetItemTypeMenuState : public MenuState
 {
 private:

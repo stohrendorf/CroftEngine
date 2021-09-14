@@ -1,25 +1,60 @@
 #include "reflection.h"
 
 #include "core/i18n.h"
+#include "core/vec.h"
 #include "engine/cameracontroller.h"
 #include "engine/engine.h"
+#include "engine/inventory.h"
+#include "engine/location.h"
+#include "engine/objectmanager.h"
 #include "engine/objects/modelobject.h"
+#include "engine/objects/object.h"
+#include "engine/objects/objectstate.h"
 #include "engine/player.h"
 #include "engine/presenter.h"
 #include "engine/skeletalmodelnode.h"
 #include "engine/throttler.h"
+#include "engine/weapontype.h"
 #include "engine/world/skeletalmodeltype.h"
 #include "engine/world/world.h"
+#include "hid/actions.h"
 #include "hid/inputhandler.h"
+#include "loader/file/level/game.h"
 #include "loader/file/level/level.h"
 #include "render/scene/materialmanager.h"
 #include "render/scene/mesh.h"
 #include "render/scene/rendercontext.h"
 #include "render/scene/renderer.h"
+#include "render/scene/rendermode.h"
+#include "scriptengine.h"
+#include "util/helpers.h"
 
-#include <boost/range/adaptors.hpp>
+#include <algorithm>
+#include <boost/format.hpp>
+#include <boost/range/adaptor/map.hpp>
+#include <chrono>
+#include <gl/cimgwrapper.h>
 #include <gl/framebuffer.h>
+#include <gl/pixel.h>
+#include <gl/program.h>
 #include <gl/texture2d.h>
+#include <gl/texturehandle.h>
+#include <glm/mat4x4.hpp>
+#include <glm/vec2.hpp>
+#include <gsl/gsl-lite.hpp>
+#include <iosfwd>
+#include <map>
+#include <pybind11/cast.h>
+#include <pybind11/pytypes.h>
+#include <pybind11/stl.h>
+#include <system_error>
+#include <type_traits>
+#include <vector>
+
+namespace render::scene
+{
+class Node;
+}
 
 namespace engine::script
 {

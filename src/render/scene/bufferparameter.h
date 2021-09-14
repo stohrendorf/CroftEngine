@@ -2,9 +2,13 @@
 
 #include "materialparameter.h"
 
+#include <functional>
 #include <gl/buffer.h>
 #include <gl/program.h>
 #include <gsl/gsl-lite.hpp>
+#include <memory>
+#include <string>
+#include <utility>
 
 namespace render::scene
 {

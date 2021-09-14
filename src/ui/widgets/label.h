@@ -2,14 +2,21 @@
 
 #include "widget.h"
 
-#include <glm/glm.hpp>
+#include <cstdint>
+#include <glm/vec2.hpp>
 #include <memory>
 #include <string>
 
+namespace engine
+{
+class Presenter;
+}
+
 namespace ui
 {
+class Ui;
 class Text;
-}
+} // namespace ui
 
 namespace ui::widgets
 {

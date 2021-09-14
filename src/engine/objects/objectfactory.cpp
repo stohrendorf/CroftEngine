@@ -10,6 +10,7 @@
 #include "bridgeflat.h"
 #include "centaurstatue.h"
 #include "collapsiblefloor.h"
+#include "core/id.h"
 #include "cowboy.h"
 #include "crocodile.h"
 #include "cutsceneactors.h"
@@ -19,8 +20,10 @@
 #include "doppelganger.h"
 #include "earthquake.h"
 #include "engine/items_tr1.h"
-#include "engine/presenter.h"
+#include "engine/location.h"
 #include "engine/skeletalmodelnode.h"
+#include "engine/world/room.h"
+#include "engine/world/sprite.h"
 #include "engine/world/world.h"
 #include "fallingceiling.h"
 #include "flameemitter.h"
@@ -32,23 +35,26 @@
 #include "lavaparticleemitter.h"
 #include "lightningemitter.h"
 #include "lion.h"
+#include "loader/file/item.h"
 #include "midasgoldtouch.h"
 #include "motorboat.h"
 #include "mummy.h"
 #include "mutant.h"
 #include "mutantegg.h"
 #include "natla.h"
+#include "object.h"
 #include "pickupobject.h"
 #include "pierre.h"
 #include "puzzlehole.h"
 #include "raptor.h"
 #include "rat.h"
-#include "render/scene/materialmanager.h"
+#include "render/scene/node.h"
 #include "scionpiece.h"
 #include "serialization/serialization.h"
 #include "skateboardkid.h"
 #include "slammingdoors.h"
 #include "slopedbridge.h"
+#include "spriteobject.h"
 #include "stubobject.h"
 #include "suspendedshack.h"
 #include "swingingblade.h"
@@ -63,6 +69,14 @@
 #include "underwaterswitch.h"
 #include "waterfallmist.h"
 #include "wolf.h"
+
+#include <boost/assert.hpp>
+#include <boost/throw_exception.hpp>
+#include <exception>
+#include <map>
+#include <stdexcept>
+#include <string>
+#include <vector>
 
 namespace engine::objects
 {

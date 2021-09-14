@@ -1,12 +1,36 @@
 #include "thorhammer.h"
 
+#include "core/angle.h"
+#include "core/id.h"
+#include "core/magic.h"
+#include "core/units.h"
+#include "core/vec.h"
+#include "engine/collisioninfo.h"
+#include "engine/heightinfo.h"
 #include "engine/items_tr1.h"
+#include "engine/location.h"
+#include "engine/objectmanager.h"
 #include "engine/skeletalmodelnode.h"
+#include "engine/world/animation.h"
+#include "engine/world/room.h"
 #include "engine/world/skeletalmodeltype.h"
 #include "engine/world/world.h"
+#include "gl/renderstate.h"
 #include "laraobject.h"
+#include "loader/file/animationid.h"
+#include "loader/file/item.h"
+#include "loader/file/larastateid.h"
+#include "modelobject.h"
+#include "object.h"
+#include "objectstate.h"
+#include "qs/qs.h"
 #include "serialization/objectreference.h"
 #include "serialization/serialization.h"
+#include "util/helpers.h"
+
+#include <exception>
+#include <iterator>
+#include <map>
 
 namespace engine::objects
 {

@@ -2,10 +2,17 @@
 
 #include "core/id.h"
 
+#include <algorithm>
 #include <boost/assert.hpp>
+#include <cstddef>
+#include <cstdint>
 #include <gl/soglb_fwd.h>
-#include <glm/glm.hpp>
+#include <glm/fwd.hpp>
+#include <glm/vec2.hpp>
+#include <gsl/gsl-lite.hpp>
+#include <iterator>
 #include <map>
+#include <memory>
 #include <set>
 #include <vector>
 

@@ -1,17 +1,17 @@
 #pragma once
 
-#include "access.h"
-#include "serialization_fwd.h"
+#include "access.h"            // IWYU pragma: export
+#include "serialization_fwd.h" // IWYU pragma: export
 
-#include <boost/algorithm/string.hpp>
+#include <boost/algorithm/string/replace.hpp>
 #include <boost/log/trivial.hpp>
 #include <boost/throw_exception.hpp>
 #include <exception>
 #include <gsl/gsl-lite.hpp>
 #include <optional>
 #include <queue>
-#include <ryml.hpp>
-#include <ryml_std.hpp>
+#include <ryml.hpp>     // IWYU pragma: export
+#include <ryml_std.hpp> // IWYU pragma: export
 #include <typeinfo>
 
 // #define SERIALIZATION_TRACE

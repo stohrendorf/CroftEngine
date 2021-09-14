@@ -1,6 +1,29 @@
 #pragma once
 
+#include "core/angle.h"
+#include "core/magic.h"
+#include "core/units.h"
+#include "core/vec.h"
+#include "engine/location.h"
 #include "modelobject.h"
+#include "objectstate.h"
+#include "qs/qs.h"
+
+#include <gsl/gsl-lite.hpp>
+#include <optional>
+#include <string>
+
+namespace engine::world
+{
+class World;
+struct Room;
+struct SkeletalModelType;
+} // namespace engine::world
+
+namespace loader::file
+{
+struct Item;
+}
 
 namespace engine::objects
 {

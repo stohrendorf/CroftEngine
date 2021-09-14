@@ -1,7 +1,27 @@
 #pragma once
 
+#include "core/units.h"
 #include "modelobject.h"
 #include "spriteobject.h"
+
+namespace engine
+{
+struct CollisionInfo;
+struct Location;
+} // namespace engine
+
+namespace engine::world
+{
+class World;
+struct Room;
+struct SkeletalModelType;
+struct Sprite;
+} // namespace engine::world
+
+namespace loader::file
+{
+struct Item;
+}
 
 namespace engine::objects
 {

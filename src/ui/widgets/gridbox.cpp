@@ -1,7 +1,12 @@
 #include "gridbox.h"
 
-#include "engine/presenter.h"
-#include "ui/text.h"
+#include "widget.h"
+
+#include <boost/throw_exception.hpp>
+#include <functional>
+#include <glm/fwd.hpp>
+#include <numeric>
+#include <stdexcept>
 
 namespace ui::widgets
 {

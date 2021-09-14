@@ -1,9 +1,19 @@
 #pragma once
 
+#include "menu/menustate.h"
 #include "selectedmenustate.h"
 
-#include <string>
-#include <vector>
+#include <memory>
+
+namespace engine::world
+{
+class World;
+}
+
+namespace ui
+{
+class Ui;
+}
 
 namespace ui::widgets
 {
@@ -14,6 +24,9 @@ class ProgressBar;
 
 namespace menu
 {
+struct MenuDisplay;
+struct MenuRingTransform;
+
 class AudioSettingsMenuState : public SelectedMenuState
 {
 private:

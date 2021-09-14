@@ -1,13 +1,27 @@
 #include "ai/py_module.h"
 
-#include "engine/objects/objectstate.h"
+#include "audio/tracktype.h"
+#include "core/id.h"
 #include "items_tr1.h"
+#include "objects/objectstate.h"
+#include "qs/quantity.h"
 #include "script/reflection.h"
 #include "soundeffects_tr1.h"
+#include "tracks_tr1.h"
 #include "weapontype.h"
 
+#include <cstddef>
+#include <map>
 #include <memory>
+#include <optional>
+#include <pybind11/attr.h>
+#include <pybind11/cast.h>
 #include <pybind11/embed.h>
+#include <pybind11/pytypes.h>
+#include <string>
+#include <type_traits>
+#include <unordered_map>
+#include <unordered_set>
 
 namespace py = pybind11;
 

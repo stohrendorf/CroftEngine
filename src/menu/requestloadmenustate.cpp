@@ -2,8 +2,12 @@
 
 #include "menudisplay.h"
 
+#include <optional>
+
 namespace menu
 {
+class MenuState;
+
 void RequestLoadMenuState::handleObject(ui::Ui& /*ui*/,
                                         engine::world::World& /*world*/,
                                         MenuDisplay& /*display*/,

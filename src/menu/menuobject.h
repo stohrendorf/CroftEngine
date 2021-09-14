@@ -5,8 +5,13 @@
 #include "engine/items_tr1.h"
 
 #include <bitset>
-#include <cstdint>
+#include <memory>
 #include <string>
+
+namespace engine::world
+{
+class World;
+}
 
 namespace engine
 {

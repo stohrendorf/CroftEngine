@@ -5,10 +5,30 @@
 #include "render/scene/materialmanager.h"
 #include "render/scene/mesh.h"
 #include "render/scene/rendercontext.h"
+#include "render/scene/rendermode.h"
+#include "render/scene/uniformparameter.h"
 
+#include <algorithm>
 #include <gl/debuggroup.h>
 #include <gl/framebuffer.h>
+#include <gl/glassert.h>
+#include <gl/pixel.h>
+#include <gl/program.h>
+#include <gl/renderstate.h>
+#include <gl/sampler.h>
 #include <gl/texture2d.h>
+#include <gl/texturedepth.h>
+#include <gl/texturehandle.h>
+#include <glm/mat4x4.hpp>
+#include <gsl/gsl-lite.hpp>
+#include <optional>
+#include <utility>
+#include <vector>
+
+namespace render::scene
+{
+class Node;
+}
 
 namespace render::pass
 {

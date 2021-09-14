@@ -1,8 +1,23 @@
 #include "atlanteanlava.h"
 
-#include "engine/particle.h"
+#include "core/angle.h"
+#include "core/magic.h"
+#include "core/units.h"
+#include "core/vec.h"
+#include "engine/cameracontroller.h"
+#include "engine/heightinfo.h"
+#include "engine/location.h"
+#include "engine/objectmanager.h"
+#include "engine/world/room.h"
 #include "engine/world/world.h"
 #include "laraobject.h"
+#include "objectstate.h"
+#include "qs/quantity.h"
+#include "render/scene/node.h"
+
+#include <bitset>
+#include <gsl/gsl-lite.hpp>
+#include <memory>
 
 namespace engine::objects
 {

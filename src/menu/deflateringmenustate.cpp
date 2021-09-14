@@ -1,8 +1,13 @@
 #include "deflateringmenustate.h"
 
+#include "core/vec.h"
 #include "menudisplay.h"
 #include "menuring.h"
+#include "menuringtransform.h"
+#include "menustate.h"
 #include "util.h"
+
+#include <utility>
 
 namespace menu
 {

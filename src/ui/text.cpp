@@ -1,8 +1,11 @@
 #include "text.h"
 
-#include "render/scene/material.h"
 #include "ui.h"
 #include "util.h"
+
+#include <algorithm>
+#include <array>
+#include <utility>
 
 namespace ui
 {

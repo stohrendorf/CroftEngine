@@ -4,6 +4,7 @@
 #include <gl/pixel.h>
 #include <gl/soglb_fwd.h>
 #include <memory>
+#include <string>
 #include <vector>
 
 namespace loader::file::level

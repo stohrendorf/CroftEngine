@@ -1,13 +1,17 @@
 #include "closepassportmenustate.h"
 
-#include "deflateringmenustate.h"
+#include "core/units.h"
 #include "engine/items_tr1.h"
 #include "finishitemanimationmenustate.h"
-#include "menudisplay.h"
 #include "menuobject.h"
+#include "menustate.h"
 #include "passportmenustate.h"
+#include "qs/qs.h"
 #include "resetitemtransformmenustate.h"
 #include "setitemtypemenustate.h"
+
+#include <gsl/gsl-lite.hpp>
+#include <utility>
 
 namespace menu
 {

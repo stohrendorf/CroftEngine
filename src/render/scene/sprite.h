@@ -1,14 +1,18 @@
 #pragma once
 
+#include <array>
 #include <gl/vertexbuffer.h>
-#include <glm/glm.hpp>
+#include <glm/vec2.hpp>
+#include <glm/vec3.hpp>
+#include <glm/vec4.hpp>
 #include <gsl/gsl-lite.hpp>
+#include <memory>
+#include <string>
 
 namespace render::scene
 {
 class Material;
 class Mesh;
-class Node;
 
 struct SpriteVertex
 {

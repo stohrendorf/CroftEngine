@@ -1,12 +1,12 @@
 #include "mesh.h"
 
-#include "color.h"
-#include "datatypes.h"
 #include "io/sdlreader.h"
 #include "io/util.h"
+#include "loader/file/primitives.h"
+#include "qs/quantity.h"
 
-#include <gl/vertexarray.h>
-#include <utility>
+#include <cstddef>
+#include <gsl/gsl-lite.hpp>
 
 namespace loader::file
 {

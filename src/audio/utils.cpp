@@ -3,8 +3,12 @@
 #include <AL/al.h>
 #include <AL/alc.h>
 #include <boost/log/trivial.hpp>
-#include <boost/stacktrace.hpp>
+#include <boost/stacktrace/stacktrace.hpp>
+#include <boost/throw_exception.hpp>
 #include <gsl/gsl-lite.hpp>
+#include <ios>
+#include <stdexcept>
+#include <string>
 
 namespace audio::detail
 {

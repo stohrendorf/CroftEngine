@@ -1,12 +1,17 @@
 #pragma once
 
+#include "core/units.h"
 #include "core/vec.h"
-#include "serialization/serialization_fwd.h"
+#include "serialization/serialization_fwd.h" // IWYU pragma: keep
 
+#include <glm/vec3.hpp>
+#include <gsl/gsl-lite.hpp>
 #include <iosfwd>
+#include <utility>
 
 namespace engine::world
 {
+class World;
 struct Room;
 struct Sector;
 } // namespace engine::world

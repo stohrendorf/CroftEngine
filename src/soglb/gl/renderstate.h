@@ -2,15 +2,13 @@
 
 #include "api/gl.hpp"
 
-#include <boost/assert.hpp>
-#include <glm/glm.hpp>
+#include <cstdint>
+#include <glm/vec2.hpp>
 #include <optional>
-#include <vector>
+#include <tuple>
 
 namespace gl
 {
-class Texture;
-
 class RenderState final
 {
 public:

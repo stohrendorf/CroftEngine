@@ -3,6 +3,8 @@
 #include "serialization/bitset.h"
 #include "serialization/serialization.h"
 
+#include <exception>
+
 namespace engine::floordata
 {
 void ActivationState::serialize(const serialization::Serializer<world::World>& ser)

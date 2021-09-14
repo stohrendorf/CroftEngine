@@ -6,6 +6,11 @@
 #include "text.h"
 #include "ui/ui.h"
 
+#include <boost/format.hpp>
+#include <chrono>
+#include <gl/pixel.h>
+#include <glm/vec2.hpp>
+
 namespace ui
 {
 void LevelStats::draw(Ui& ui) const

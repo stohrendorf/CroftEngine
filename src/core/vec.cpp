@@ -1,12 +1,11 @@
 #include "vec.h"
 
-#include "engine/world/world.h"
-#include "loader/file/datatypes.h"
-#include "loader/file/level/level.h"
-#include "serialization/not_null.h"
+#include "qs/stream.h"
 #include "serialization/quantity.h"
 #include "serialization/serialization.h"
-#include "serialization/vector_element.h"
+
+#include <exception>
+#include <ostream>
 
 namespace core
 {

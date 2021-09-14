@@ -3,9 +3,17 @@
 #include "bufferhandle.h"
 #include "core/magic.h"
 #include "filterhandle.h"
-#include "util/helpers.h"
+#include "handle.h"
+#include "qs/quantity.h"
+#include "utils.h"
 
-#include <boost/log/trivial.hpp>
+#include <AL/al.h>
+#include <AL/efx.h>
+#include <algorithm>
+#include <boost/throw_exception.hpp>
+#include <glm/fwd.hpp>
+#include <map>
+#include <stdexcept>
 #include <thread>
 
 namespace audio

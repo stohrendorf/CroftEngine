@@ -3,10 +3,18 @@
 #include "audio/listener.h"
 #include "core/angle.h"
 #include "core/magic.h"
+#include "core/units.h"
 #include "core/vec.h"
 #include "floordata/types.h"
 #include "location.h"
+#include "qs/quantity.h"
+#include "serialization/serialization_fwd.h" // IWYU pragma: keep
 
+#include <cstddef>
+#include <cstdint>
+#include <glm/fwd.hpp>
+#include <gsl/gsl-lite.hpp>
+#include <memory>
 #include <unordered_set>
 
 namespace render::scene

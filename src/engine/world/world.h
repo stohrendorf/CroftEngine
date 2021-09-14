@@ -2,10 +2,17 @@
 
 #include "animation.h"
 #include "atlastile.h"
+#include "audio/emitter.h"
 #include "box.h"
 #include "camerasink.h"
 #include "cinematicframe.h"
+#include "core/angle.h"
+#include "core/id.h"
+#include "core/units.h"
+#include "core/vec.h"
 #include "engine/controllerbuttons.h"
+#include "engine/floordata/types.h"
+#include "engine/items_tr1.h"
 #include "engine/objectmanager.h"
 #include "engine/objects/object.h"
 #include "loader/file/item.h"
@@ -17,7 +24,23 @@
 #include "transition.h"
 #include "ui/pickupwidget.h"
 
+#include <array>
+#include <bitset>
+#include <boost/assert.hpp>
+#include <cstddef>
+#include <cstdint>
+#include <filesystem>
+#include <gl/pixel.h>
 #include <gl/soglb_fwd.h>
+#include <glm/vec3.hpp>
+#include <gsl/gsl-lite.hpp>
+#include <map>
+#include <memory>
+#include <optional>
+#include <string>
+#include <unordered_map>
+#include <utility>
+#include <vector>
 
 namespace audio
 {

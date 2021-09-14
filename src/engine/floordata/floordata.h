@@ -1,13 +1,23 @@
 #pragma once
 
 #include "core/magic.h"
-#include "serialization/serialization_fwd.h"
+#include "core/units.h"
+#include "qs/qs.h"
+#include "serialization/serialization_fwd.h" // IWYU pragma: keep
 #include "types.h"
 #include "util/helpers.h"
 
 #include <bitset>
+#include <cstddef>
+#include <cstdint>
 #include <gsl/gsl-lite.hpp>
 #include <optional>
+#include <type_traits>
+
+namespace engine::world
+{
+class World;
+}
 
 namespace engine::floordata
 {

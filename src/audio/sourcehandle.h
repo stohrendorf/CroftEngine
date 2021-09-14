@@ -3,6 +3,7 @@
 #include "handle.h"
 
 #include <AL/al.h>
+#include <chrono>
 #include <glm/vec3.hpp>
 #include <memory>
 #include <mutex>

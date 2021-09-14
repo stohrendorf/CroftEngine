@@ -3,6 +3,9 @@
 #include "ui/util.h"
 
 #include <boost/log/trivial.hpp>
+#include <boost/throw_exception.hpp>
+#include <sstream>
+#include <stdexcept>
 
 namespace util
 {

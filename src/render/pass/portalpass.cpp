@@ -1,5 +1,17 @@
 #include "portalpass.h"
 
+#include "render/scene/blur.h"
+
+#include <gl/pixel.h>
+#include <gl/texturedepth.h>
+#include <glm/fwd.hpp>
+#include <memory>
+
+namespace render::scene
+{
+class MaterialManager;
+}
+
 namespace render::pass
 {
 PortalPass::PortalPass(scene::MaterialManager& materialManager, const glm::vec2& viewport)

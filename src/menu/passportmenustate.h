@@ -2,17 +2,27 @@
 
 #include "core/units.h"
 #include "menustate.h"
+#include "ui/text.h"
 
+#include <memory>
 #include <optional>
+
+namespace engine::world
+{
+class World;
+}
 
 namespace ui
 {
-class Text;
+class Ui;
 }
 
 namespace menu
 {
 enum class InventoryMode;
+struct MenuDisplay;
+struct MenuObject;
+struct MenuRingTransform;
 
 class PassportMenuState : public MenuState
 {

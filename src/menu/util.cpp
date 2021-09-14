@@ -3,8 +3,10 @@
 #include "engine/presenter.h"
 #include "engine/world/world.h"
 #include "hid/inputhandler.h"
+#include "hid/inputstate.h"
 #include "menuobject.h"
-#include "ui/text.h"
+
+#include <boost/assert.hpp>
 
 namespace menu
 {

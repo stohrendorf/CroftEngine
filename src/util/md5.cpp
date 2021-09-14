@@ -32,7 +32,9 @@ documentation and/or software.
 
 #include "md5.h"
 
+#include <algorithm>
 #include <array>
+#include <cstdio>
 #include <gsl/gsl-lite.hpp>
 
 constexpr size_t Blocksize = 64;

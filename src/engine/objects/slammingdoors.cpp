@@ -1,9 +1,25 @@
 #include "slammingdoors.h"
 
+#include "core/angle.h"
+#include "core/id.h"
+#include "core/units.h"
+#include "core/vec.h"
+#include "engine/location.h"
+#include "engine/objectmanager.h"
 #include "engine/particle.h"
 #include "engine/skeletalmodelnode.h"
 #include "engine/world/world.h"
 #include "laraobject.h"
+#include "modelobject.h"
+#include "objectstate.h"
+#include "qs/quantity.h"
+
+#include <bitset>
+#include <cstddef>
+#include <initializer_list>
+#include <memory>
+#include <utility>
+#include <vector>
 
 namespace engine::objects
 {

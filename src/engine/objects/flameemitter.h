@@ -2,6 +2,28 @@
 
 #include "modelobject.h"
 
+#include <gsl/gsl-lite.hpp>
+#include <memory>
+#include <string>
+
+namespace engine
+{
+class Particle;
+struct Location;
+} // namespace engine
+
+namespace engine::world
+{
+class World;
+struct Room;
+struct SkeletalModelType;
+} // namespace engine::world
+
+namespace loader::file
+{
+struct Item;
+}
+
 namespace engine::objects
 {
 class FlameEmitter final : public NullRenderModelObject

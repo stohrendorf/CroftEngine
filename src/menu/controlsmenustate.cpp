@@ -5,12 +5,41 @@
 #include "engine/engine.h"
 #include "engine/presenter.h"
 #include "engine/world/world.h"
+#include "hid/actions.h"
+#include "hid/glfw_axes.h"
+#include "hid/glfw_axis_dirs.h"
+#include "hid/glfw_gamepad_buttons.h"
+#include "hid/glfw_keys.h"
+#include "hid/inputhandler.h"
+#include "hid/inputstate.h"
 #include "hid/names.h"
-#include "menudisplay.h"
+#include "menu/selectedmenustate.h"
+#include "menustate.h"
+#include "serialization/named_enum.h"
 #include "ui/widgets/gridbox.h"
 #include "ui/widgets/label.h"
 #include "ui/widgets/selectionbox.h"
 #include "ui/widgets/sprite.h"
+
+#include <boost/format.hpp>
+#include <boost/throw_exception.hpp>
+#include <chrono>
+#include <functional>
+#include <glm/vec2.hpp>
+#include <gsl/gsl-lite.hpp>
+#include <initializer_list>
+#include <map>
+#include <optional>
+#include <stdexcept>
+#include <string>
+#include <type_traits>
+#include <utility>
+#include <variant>
+
+namespace ui::widgets
+{
+class Widget;
+}
 
 namespace menu
 {

@@ -1,10 +1,11 @@
 #include "texture.h"
 
 #include "io/sdlreader.h"
-#include "loader/trx/trx.h"
 
+#include <algorithm>
 #include <boost/log/trivial.hpp>
 #include <gl/image.h>
+#include <gl/pixel.h>
 
 namespace loader::file
 {

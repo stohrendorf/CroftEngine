@@ -1,14 +1,15 @@
 #pragma once
 
-#include "serialization/serialization_fwd.h"
+#include "serialization/serialization_fwd.h" // IWYU pragma: keep
 
+#include <cstddef>
 #include <gsl/gsl-lite.hpp>
 #include <memory>
 
 namespace loader::file
 {
 struct Item;
-} // namespace loader::file
+}
 
 namespace engine::world
 {

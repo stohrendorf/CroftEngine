@@ -1,11 +1,11 @@
 #include "messagebox.h"
 
 #include "core/i18n.h"
-#include "engine/presenter.h"
 #include "label.h"
 #include "ui/core.h"
 #include "ui/ui.h"
-#include "ui/util.h"
+
+#include <gl/pixel.h>
 
 namespace ui::widgets
 {

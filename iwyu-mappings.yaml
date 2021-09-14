@@ -1,14 +1,37 @@
 - include: [ "<bits/exception.h>", "private", "<exception>", "public" ]
+- include: [ "<bits/types/struct_tm.h>", "private", "<ctime>", "public" ]
+
 - include: [ "@\"c4/std/.*\"", "private", "<ryml_std.hpp>", "public" ]
+- include: [ "@\"c4/yml/.*\"", "private", "<ryml.hpp>", "public" ]
+
 - include: [ "<glm/ext/vector_float2.hpp>", "private", "<glm/vec2.hpp>", "public" ]
 - include: [ "<glm/ext/vector_int2.hpp>", "private", "<glm/vec2.hpp>", "public" ]
 - include: [ "<glm/detail/type_vec2.hpp>", "private", "<glm/vec2.hpp>", "public" ]
 - include: [ "<glm/detail/type_vec2.inl>", "private", "<glm/vec2.hpp>", "public" ]
+
 - include: [ "<glm/ext/vector_float3.hpp>", "private", "<glm/vec3.hpp>", "public" ]
 - include: [ "<glm/ext/vector_int3.hpp>", "private", "<glm/vec3.hpp>", "public" ]
 - include: [ "<glm/detail/type_vec3.hpp>", "private", "<glm/vec3.hpp>", "public" ]
 - include: [ "<glm/detail/type_vec3.inl>", "private", "<glm/vec3.hpp>", "public" ]
+
 - include: [ "<glm/ext/vector_float4.hpp>", "private", "<glm/vec4.hpp>", "public" ]
 - include: [ "<glm/ext/vector_int4.hpp>", "private", "<glm/vec4.hpp>", "public" ]
 - include: [ "<glm/detail/type_vec4.hpp>", "private", "<glm/vec4.hpp>", "public" ]
 - include: [ "<glm/detail/type_vec4.inl>", "private", "<glm/vec4.hpp>", "public" ]
+
+- include: [ "<glm/ext/matrix_float4x4.hpp>", "private", "<glm/mat4x4.hpp>", "public" ]
+- include: [ "<glm/detail/type_mat4x4.hpp>", "private", "<glm/mat4x4.hpp>", "public" ]
+- include: [ "<glm/detail/type_mat4x4.inl>", "private", "<glm/mat4x4.hpp>", "public" ]
+
+- include: [ "<glm/detail/func_common.inl>", "private", "<glm/common.hpp>", "public" ]
+
+- include: [ "<glm/ext/matrix_transform.inl>", "private", "<glm/gtc/matrix_transform.hpp>", "public" ]
+
+- include: [ "<glm/gtx/norm.inl>", "private", "<glm/gtx/norm.hpp>", "public" ]
+
+- include: [ "@<pybind11/detail/.*>", "private", "<pybind11/pybind11.h>", "public" ]
+
+- symbol: [ "gsl::not_null", "private", "<gsl/gsl-lite.hpp>", "public" ]
+
+- ref: "/usr/share/include-what-you-use/boost-all.imp"
+- ref: "/usr/share/include-what-you-use/libcxx.imp"

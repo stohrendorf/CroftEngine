@@ -1,13 +1,29 @@
 #pragma once
 
 #include "materialparameteroverrider.h"
-#include "visitor.h"
 
+#include <algorithm>
+#include <boost/assert.hpp>
+#include <boost/throw_exception.hpp>
+#include <gl/buffer.h>
 #include <gl/renderstate.h>
+#include <glm/common.hpp>
+#include <glm/mat4x4.hpp>
+#include <glm/vec2.hpp>
+#include <glm/vec3.hpp>
+#include <glm/vec4.hpp>
+#include <gsl/gsl-lite.hpp>
+#include <memory>
+#include <stdexcept>
+#include <string>
+#include <tuple>
+#include <utility>
+#include <vector>
 
 namespace render::scene
 {
 class Renderable;
+class Visitor;
 
 struct Transform
 {

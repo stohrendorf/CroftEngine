@@ -1,7 +1,11 @@
 #pragma once
 
+#include "core.h"
 #include "voice.h"
 
+#include <chrono>
+#include <cstddef>
+#include <cstdint>
 #include <gsl/gsl-lite.hpp>
 #include <memory>
 #include <vector>
@@ -11,6 +15,7 @@ namespace audio
 class StreamingSourceHandle;
 class BufferHandle;
 class AbstractStreamSource;
+class SourceHandle;
 
 class StreamVoice : public Voice
 {

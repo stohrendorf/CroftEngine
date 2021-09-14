@@ -1,10 +1,13 @@
 #pragma once
 
 #include "core/angle.h"
+#include "core/units.h"
 #include "loader/file/animationid.h"
 #include "loader/file/larastateid.h"
+#include "qs/quantity.h"
 
 #include <memory>
+#include <optional>
 
 namespace core
 {

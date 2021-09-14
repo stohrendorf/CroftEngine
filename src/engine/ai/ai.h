@@ -1,20 +1,31 @@
 #pragma once
 
+#include "core/angle.h"
 #include "core/id.h"
+#include "core/units.h"
+#include "core/vec.h"
 #include "pathfinder.h"
+#include "qs/qs.h"
+#include "serialization/serialization_fwd.h" // IWYU pragma: keep
 
-#include <boost/range/adaptor/map.hpp>
+#include <algorithm>
+#include <boost/throw_exception.hpp>
+#include <cstdint>
+#include <gsl/gsl-lite.hpp>
+#include <memory>
+#include <ostream>
+#include <stdexcept>
 
 namespace engine::objects
 {
 class AIAgent;
-struct ObjectState;
 } // namespace engine::objects
 
 namespace engine::world
 {
+class World;
 struct Box;
-}
+} // namespace engine::world
 
 namespace engine::ai
 {

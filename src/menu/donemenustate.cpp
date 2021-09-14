@@ -1,15 +1,21 @@
 #include "donemenustate.h"
 
-#include "engine/engine.h"
+#include "core/angle.h"
+#include "engine/inventory.h"
 #include "engine/items_tr1.h"
+#include "engine/objectmanager.h"
 #include "engine/player.h"
 #include "engine/world/world.h"
 #include "menudisplay.h"
 #include "menuring.h"
 #include "util.h"
 
+#include <optional>
+
 namespace menu
 {
+class MenuState;
+
 void DoneMenuState::handleObject(ui::Ui& /*ui*/, engine::world::World& world, MenuDisplay& display, MenuObject& object)
 {
   if(&object == &display.getCurrentRing().getSelectedObject())

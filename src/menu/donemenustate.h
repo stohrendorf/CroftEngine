@@ -2,9 +2,24 @@
 
 #include "menustate.h"
 
+#include <memory>
+
+namespace engine::world
+{
+class World;
+}
+
+namespace ui
+{
+class Ui;
+}
+
 namespace menu
 {
 enum class MenuResult;
+struct MenuDisplay;
+struct MenuObject;
+struct MenuRingTransform;
 
 class DoneMenuState : public MenuState
 {

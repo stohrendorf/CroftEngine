@@ -32,6 +32,7 @@ documentation and/or software.
 
 */
 
+#include <cstddef>
 #include <cstdint>
 #include <string>
 

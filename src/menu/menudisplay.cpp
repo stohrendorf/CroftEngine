@@ -1,20 +1,37 @@
 #include "menudisplay.h"
 
+#include "core/angle.h"
 #include "core/i18n.h"
+#include "core/units.h"
 #include "engine/audioengine.h"
-#include "engine/engine.h"
-#include "engine/objects/laraobject.h"
+#include "engine/cameracontroller.h"
+#include "engine/inventory.h"
 #include "engine/player.h"
 #include "engine/presenter.h"
+#include "engine/soundeffects_tr1.h"
+#include "engine/weapontype.h"
 #include "engine/world/world.h"
+#include "hid/actions.h"
 #include "hid/inputhandler.h"
 #include "inflateringmenustate.h"
+#include "menuobject.h"
 #include "menuring.h"
+#include "menuringtransform.h"
+#include "menustate.h"
+#include "qs/qs.h"
 #include "render/scene/camera.h"
 #include "ui/core.h"
 #include "ui/text.h"
 #include "ui/util.h"
 #include "util.h"
+
+#include <algorithm>
+#include <bitset>
+#include <boost/throw_exception.hpp>
+#include <glm/vec2.hpp>
+#include <stdexcept>
+#include <string>
+#include <utility>
 
 namespace menu
 {

@@ -1,15 +1,31 @@
 #include "objectmanager.h"
 
+#include "core/id.h"
+#include "core/magic.h"
+#include "core/units.h"
+#include "items_tr1.h"
 #include "loader/file/item.h"
+#include "location.h"
 #include "objects/laraobject.h"
+#include "objects/object.h"
 #include "objects/objectfactory.h"
+#include "objects/objectstate.h"
 #include "particle.h"
+#include "render/scene/node.h"
 #include "serialization/map.h"
 #include "serialization/not_null.h"
 #include "serialization/objectreference.h"
 #include "serialization/serialization.h"
+#include "world/room.h"
+#include "world/world.h"
 
+#include <algorithm>
 #include <boost/range/adaptor/indexed.hpp>
+#include <boost/range/adaptor/map.hpp>
+#include <boost/throw_exception.hpp>
+#include <exception>
+#include <limits>
+#include <stdexcept>
 
 namespace engine
 {

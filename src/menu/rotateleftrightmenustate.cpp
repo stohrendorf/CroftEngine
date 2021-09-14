@@ -2,7 +2,14 @@
 
 #include "menudisplay.h"
 #include "menuring.h"
+#include "menuringtransform.h"
+#include "menustate.h"
 #include "util.h"
+
+#include <limits>
+#include <type_traits>
+#include <utility>
+#include <vector>
 
 namespace menu
 {
