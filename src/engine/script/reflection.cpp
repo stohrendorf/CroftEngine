@@ -31,7 +31,9 @@
 
 #include <algorithm>
 #include <boost/format.hpp>
+#include <boost/log/trivial.hpp>
 #include <boost/range/adaptor/map.hpp>
+#include <boost/throw_exception.hpp>
 #include <chrono>
 #include <gl/cimgwrapper.h>
 #include <gl/framebuffer.h>
@@ -46,7 +48,8 @@
 #include <map>
 #include <pybind11/cast.h>
 #include <pybind11/pytypes.h>
-#include <pybind11/stl.h>
+#include <pybind11/stl.h> // IWYU pragma: keep
+#include <stdexcept>
 #include <system_error>
 #include <type_traits>
 #include <vector>
@@ -276,5 +279,12 @@ std::pair<RunResult, std::optional<size_t>> SplashScreen::run(Engine& engine, co
   }
 
   return {RunResult::NextLevel, std::nullopt};
+}
+
+std::pair<RunResult, std::optional<size_t>>
+  LevelSequenceItem::runFromSave(Engine&, const std::optional<size_t>&, const std::shared_ptr<Player>&)
+{
+  BOOST_LOG_TRIVIAL(error) << "Cannot run from save";
+  BOOST_THROW_EXCEPTION(std::runtime_error("Cannot run from save"));
 }
 } // namespace engine::script

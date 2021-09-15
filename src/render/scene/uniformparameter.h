@@ -1,9 +1,7 @@
 #pragma once
 
 #include "materialparameter.h"
-#include "shaderprogram.h"
 
-#include <boost/log/trivial.hpp>
 #include <functional>
 #include <gl/buffer.h>
 #include <gl/program.h>
@@ -18,6 +16,7 @@ namespace render::scene
 class Camera;
 class Mesh;
 class Node;
+class ShaderProgram;
 
 class UniformParameter final : public MaterialParameter
 {
@@ -66,16 +65,7 @@ public:
             const gsl::not_null<std::shared_ptr<ShaderProgram>>& shaderProgram) override;
 
 private:
-  [[nodiscard]] gl::Uniform* findUniform(const gsl::not_null<std::shared_ptr<ShaderProgram>>& shaderProgram) const
-  {
-    if(const auto uniform = shaderProgram->findUniform(getName().c_str()))
-      return uniform;
-
-    BOOST_LOG_TRIVIAL(warning) << "Uniform '" << getName() << "' not found in program '" << shaderProgram->getId()
-                               << "'";
-
-    return nullptr;
-  }
+  [[nodiscard]] gl::Uniform* findUniform(const gsl::not_null<std::shared_ptr<ShaderProgram>>& shaderProgram) const;
 
   std::function<UniformValueSetter> m_valueSetter;
 };
@@ -123,16 +113,7 @@ public:
 
 private:
   [[nodiscard]] gl::UniformBlock*
-    findUniformBlock(const gsl::not_null<std::shared_ptr<ShaderProgram>>& shaderProgram) const
-  {
-    if(const auto block = shaderProgram->findUniformBlock(getName().c_str()))
-      return block;
-
-    BOOST_LOG_TRIVIAL(warning) << "Uniform block '" << getName() << "' not found in program '" << shaderProgram->getId()
-                               << "'";
-
-    return nullptr;
-  }
+    findUniformBlock(const gsl::not_null<std::shared_ptr<ShaderProgram>>& shaderProgram) const;
 
   std::function<BufferBinder> m_bufferBinder;
 };

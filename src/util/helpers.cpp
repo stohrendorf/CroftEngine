@@ -4,6 +4,9 @@
 
 #include <boost/log/trivial.hpp>
 #include <boost/throw_exception.hpp>
+#include <cstdlib>
+#include <glm/gtc/type_ptr.hpp>
+#include <gsl/gsl-lite.hpp>
 #include <sstream>
 #include <stdexcept>
 
@@ -60,5 +63,51 @@ std::filesystem::path ensureFileExists(const std::filesystem::path& path)
     BOOST_THROW_EXCEPTION(std::runtime_error("required file not found"));
   }
   return path;
+}
+
+core::TRVec pitch(const core::TRVec& vec, const core::Angle& rot)
+{
+  const auto s = sin(rot);
+  const auto c = cos(rot);
+  return core::TRVec{(vec.Z.cast<float>() * s + vec.X.cast<float>() * c).cast<core::Length>(),
+                     vec.Y,
+                     (vec.Z.cast<float>() * c - vec.X.cast<float>() * s).cast<core::Length>()};
+}
+
+core::TRVec pitch(const core::Length& len, const core::Angle& rot, const core::Length& dy)
+{
+  return core::TRVec{sin(len, rot), dy, cos(len, rot)};
+}
+
+core::Length cos(const core::Length& len, const core::Angle& rot)
+{
+  return (len.cast<float>() * cos(rot)).cast<core::Length>();
+}
+
+core::Length sin(const core::Length& len, const core::Angle& rot)
+{
+  return (len.cast<float>() * sin(rot)).cast<core::Length>();
+}
+
+glm::mat4 mix(const glm::mat4& a, const glm::mat4& b, const float bias)
+{
+  glm::mat4 result{0.0f};
+  const auto ap = value_ptr(a);
+  const auto bp = value_ptr(b);
+  const auto rp = value_ptr(result);
+  for(int i = 0; i < 16; ++i)
+    rp[i] = ap[i] * (1 - bias) + bp[i] * bias;
+  return result;
+}
+
+int16_t rand15s()
+{
+  return static_cast<int16_t>(rand15() - Rand15Max / 2);
+}
+
+int16_t rand15()
+{
+  // NOLINTNEXTLINE(cert-msc50-cpp)
+  return gsl::narrow_cast<int16_t>(std::rand() % Rand15Max);
 }
 } // namespace util

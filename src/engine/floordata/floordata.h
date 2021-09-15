@@ -153,12 +153,7 @@ public:
 
   void serialize(const serialization::Serializer<world::World>& ser);
 
-  static ActivationState create(const serialization::Serializer<world::World>& ser)
-  {
-    ActivationState result{};
-    result.serialize(ser);
-    return result;
-  }
+  static ActivationState create(const serialization::Serializer<world::World>& ser);
 
 private:
   static ActivationSet extractActivationSet(const FloorDataValue& fd)
@@ -220,31 +215,5 @@ private:
   }
 };
 
-inline std::optional<uint8_t> getBoundaryRoom(const FloorDataValue* fdData)
-{
-  if(fdData == nullptr)
-    return {};
-
-  FloorDataChunk chunk{fdData[0]};
-  if(chunk.type == FloorDataChunkType::FloorSlant)
-  {
-    if(chunk.isLast)
-      return {};
-    fdData += 2;
-    chunk = FloorDataChunk{fdData[0]};
-  }
-  if(chunk.type == FloorDataChunkType::CeilingSlant)
-  {
-    if(chunk.isLast)
-      return {};
-    fdData += 2;
-    chunk = FloorDataChunk{fdData[0]};
-  }
-  if(chunk.type == FloorDataChunkType::BoundaryRoom)
-  {
-    return gsl::narrow_cast<uint8_t>(fdData[1].get());
-  }
-
-  return {};
-}
+extern std::optional<uint8_t> getBoundaryRoom(const FloorDataValue* fdData);
 } // namespace engine::floordata

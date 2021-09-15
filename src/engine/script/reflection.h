@@ -9,13 +9,10 @@
 #include "engine/tracks_tr1.h"
 #include "qs/quantity.h"
 
-#include <boost/log/trivial.hpp>
-#include <boost/throw_exception.hpp>
 #include <cstddef>
 #include <filesystem>
 #include <memory>
 #include <optional>
-#include <stdexcept>
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
@@ -68,11 +65,7 @@ public:
   virtual ~LevelSequenceItem() = default;
   virtual std::pair<RunResult, std::optional<size_t>> run(Engine& engine, const std::shared_ptr<Player>& player) = 0;
   virtual std::pair<RunResult, std::optional<size_t>>
-    runFromSave(Engine& /*engine*/, const std::optional<size_t>& /*slot*/, const std::shared_ptr<Player>& /*player*/)
-  {
-    BOOST_LOG_TRIVIAL(error) << "Cannot run from save";
-    BOOST_THROW_EXCEPTION(std::runtime_error("Cannot run from save"));
-  }
+    runFromSave(Engine& /*engine*/, const std::optional<size_t>& /*slot*/, const std::shared_ptr<Player>& /*player*/);
 
   [[nodiscard]] virtual bool isLevel(const std::filesystem::path& path) const = 0;
 };

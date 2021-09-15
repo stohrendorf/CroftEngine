@@ -8,6 +8,7 @@ wrap_enum(
         TYPE uint16_t
         SOURCE ${CMAKE_CURRENT_SOURCE_DIR}/animationids.txt
         DEST ${CMAKE_CURRENT_SOURCE_DIR}/loader/file/animationid.h
+        DEST_IMPL ${CMAKE_CURRENT_SOURCE_DIR}/loader/file/animationid.cpp
 )
 wrap_enum(
         NAMESPACE loader::file
@@ -15,6 +16,7 @@ wrap_enum(
         TYPE uint16_t
         SOURCE ${CMAKE_CURRENT_SOURCE_DIR}/states.txt
         DEST ${CMAKE_CURRENT_SOURCE_DIR}/loader/file/larastateid.h
+        DEST_IMPL ${CMAKE_CURRENT_SOURCE_DIR}/loader/file/larastateid.cpp
 )
 wrap_enum(
         NAMESPACE engine
@@ -22,6 +24,7 @@ wrap_enum(
         TYPE int32_t
         SOURCE ${CMAKE_CURRENT_SOURCE_DIR}/items_tr1.txt
         DEST ${CMAKE_CURRENT_SOURCE_DIR}/engine/items_tr1.h
+        DEST_IMPL ${CMAKE_CURRENT_SOURCE_DIR}/engine/items_tr1.cpp
 )
 wrap_enum(
         NAMESPACE engine
@@ -29,6 +32,7 @@ wrap_enum(
         TYPE int32_t
         SOURCE ${CMAKE_CURRENT_SOURCE_DIR}/soundeffects_tr1.txt
         DEST ${CMAKE_CURRENT_SOURCE_DIR}/engine/soundeffects_tr1.h
+        DEST_IMPL ${CMAKE_CURRENT_SOURCE_DIR}/engine/soundeffects_tr1.cpp
 )
 wrap_enum(
         NAMESPACE engine
@@ -36,6 +40,7 @@ wrap_enum(
         TYPE int32_t
         SOURCE ${CMAKE_CURRENT_SOURCE_DIR}/tracks_tr1.txt
         DEST ${CMAKE_CURRENT_SOURCE_DIR}/engine/tracks_tr1.h
+        DEST_IMPL ${CMAKE_CURRENT_SOURCE_DIR}/engine/tracks_tr1.cpp
 )
 wrap_enum(
         NAMESPACE hid
@@ -43,6 +48,7 @@ wrap_enum(
         TYPE int32_t
         SOURCE ${CMAKE_CURRENT_SOURCE_DIR}/glfw_keys.txt
         DEST ${CMAKE_CURRENT_SOURCE_DIR}/hid/glfw_keys.h
+        DEST_IMPL ${CMAKE_CURRENT_SOURCE_DIR}/hid/glfw_keys.cpp
         WITH_INCLUDES "<GLFW/glfw3.h>"
 )
 wrap_enum(
@@ -51,6 +57,7 @@ wrap_enum(
         TYPE int32_t
         SOURCE ${CMAKE_CURRENT_SOURCE_DIR}/glfw_gamepad_buttons.txt
         DEST ${CMAKE_CURRENT_SOURCE_DIR}/hid/glfw_gamepad_buttons.h
+        DEST_IMPL ${CMAKE_CURRENT_SOURCE_DIR}/hid/glfw_gamepad_buttons.cpp
         WITH_INCLUDES "<GLFW/glfw3.h>"
 )
 wrap_enum(
@@ -59,6 +66,7 @@ wrap_enum(
         TYPE int32_t
         SOURCE ${CMAKE_CURRENT_SOURCE_DIR}/glfw_axes.txt
         DEST ${CMAKE_CURRENT_SOURCE_DIR}/hid/glfw_axes.h
+        DEST_IMPL ${CMAKE_CURRENT_SOURCE_DIR}/hid/glfw_axes.cpp
         WITH_INCLUDES "<GLFW/glfw3.h>"
 )
 wrap_enum(
@@ -67,6 +75,7 @@ wrap_enum(
         TYPE int32_t
         SOURCE ${CMAKE_CURRENT_SOURCE_DIR}/glfw_axis_dirs.txt
         DEST ${CMAKE_CURRENT_SOURCE_DIR}/hid/glfw_axis_dirs.h
+        DEST_IMPL ${CMAKE_CURRENT_SOURCE_DIR}/hid/glfw_axis_dirs.cpp
 )
 wrap_enum(
         NAMESPACE hid
@@ -74,6 +83,7 @@ wrap_enum(
         TYPE int32_t
         SOURCE ${CMAKE_CURRENT_SOURCE_DIR}/actions.txt
         DEST ${CMAKE_CURRENT_SOURCE_DIR}/hid/actions.h
+        DEST_IMPL ${CMAKE_CURRENT_SOURCE_DIR}/hid/actions.cpp
 )
 
 set( EDISONENGINE_SRCS
@@ -182,6 +192,9 @@ set( EDISONENGINE_SRCS
         engine/raycast.cpp
         engine/skeletalmodelnode.h
         engine/skeletalmodelnode.cpp
+        engine/items_tr1.cpp
+        engine/soundeffects_tr1.cpp
+        engine/tracks_tr1.cpp
 
         engine/world/box.h
         engine/world/box.cpp
@@ -208,6 +221,11 @@ set( EDISONENGINE_SRCS
         hid/inputhandler.cpp
         hid/names.h
         hid/names.cpp
+        hid/actions.cpp
+        hid/glfw_axes.cpp
+        hid/glfw_axis_dirs.cpp
+        hid/glfw_gamepad_buttons.cpp
+        hid/glfw_keys.cpp
 
         loader/file/level/game.h
         loader/file/level/level.h
@@ -240,6 +258,8 @@ set( EDISONENGINE_SRCS
         loader/file/primitives.cpp
         loader/file/texture.h
         loader/file/texture.cpp
+        loader/file/animationid.cpp
+        loader/file/larastateid.cpp
 
         loader/file/io/sdlreader.h
         loader/file/io/util.h
@@ -273,6 +293,10 @@ set( EDISONENGINE_SRCS
         audio/utils.cpp
         audio/voice.h
         audio/voice.cpp
+        audio/voicegroup.h
+        audio/voicegroup.cpp
+        audio/sndfile/helpers.h
+        audio/sndfile/helpers.cpp
 
         util/helpers.h
         util/helpers.cpp

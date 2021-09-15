@@ -27,6 +27,8 @@
 
 - include: [ "<glm/ext/matrix_transform.inl>", "private", "<glm/gtc/matrix_transform.hpp>", "public" ]
 
+- include: [ "<glm/gtc/type_ptr.inl>", "private", "<glm/gtc/type_ptr.hpp>", "public" ]
+
 - include: [ "<glm/gtx/norm.inl>", "private", "<glm/gtx/norm.hpp>", "public" ]
 
 - include: [ "@<pybind11/detail/.*>", "private", "<pybind11/pybind11.h>", "public" ]

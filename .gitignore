@@ -29,16 +29,16 @@
 # Thank you, Windows!
 Thumbs.db
 
-src/loader/file/animationid.h
-src/loader/file/larastateid.h
-src/engine/items_tr1.h
-src/engine/soundeffects_tr1.h
-src/engine/tracks_tr1.h
-src/hid/glfw_keys.h
-src/hid/glfw_gamepad_buttons.h
-src/hid/glfw_axes.h
-src/hid/glfw_axis_dirs.h
-src/hid/actions.h
+src/loader/file/animationid.*
+src/loader/file/larastateid.*
+src/engine/items_tr1.*
+src/engine/soundeffects_tr1.*
+src/engine/tracks_tr1.*
+src/hid/glfw_keys.*
+src/hid/glfw_gamepad_buttons.*
+src/hid/glfw_axes.*
+src/hid/glfw_axis_dirs.*
+src/hid/actions.*
 
 share/**/*.mo
 

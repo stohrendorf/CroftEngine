@@ -447,4 +447,36 @@ void AudioEngine::serialize(const serialization::Serializer<world::World>& ser)
     }
   }
 }
+
+AudioEngine::AudioEngine(world::World& world,
+                         std::filesystem::path rootPath,
+                         std::shared_ptr<audio::SoundEngine> soundEngine)
+    : m_world{world}
+    , m_rootPath{std::move(rootPath)}
+    , m_soundEngine{std::move(soundEngine)}
+{
+}
+
+void AudioEngine::init(const std::vector<loader::file::SoundEffectProperties>& soundEffectProperties,
+                       const std::vector<int16_t>& soundEffects)
+{
+  m_soundEffectProperties = soundEffectProperties;
+  m_soundEffects.clear();
+  for(size_t i = 0; i < soundEffects.size(); ++i)
+  {
+    if(soundEffects[i] < 0)
+      continue;
+
+    m_soundEffects[gsl::narrow<int>(i)] = &m_soundEffectProperties.at(soundEffects[i]);
+  }
+  m_cdTrackActivationStates.clear();
+  m_cdTrack50time = 0_frame;
+  m_underwaterAmbience.reset();
+  m_ambientStream.reset();
+  m_ambientStreamId.reset();
+  m_interceptStream.reset();
+  m_interceptStreamId.reset();
+  m_currentTrack.reset();
+  m_currentLaraTalk.reset();
+}
 } // namespace engine

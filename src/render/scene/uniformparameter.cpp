@@ -3,13 +3,13 @@
 #include "camera.h"
 #include "mesh.h"
 #include "node.h"
+#include "shaderprogram.h"
 
+#include <boost/log/trivial.hpp>
 #include <gl/program.h>
 
 namespace render::scene
 {
-class ShaderProgram;
-
 bool UniformParameter::bind(const Node& node,
                             const Mesh& mesh,
                             const gsl::not_null<std::shared_ptr<ShaderProgram>>& shaderProgram)
@@ -35,6 +35,16 @@ bool UniformParameter::bind(const Node& node,
     m_valueSetter(node, mesh, *uniform);
 
   return true;
+}
+
+gl::Uniform* UniformParameter::findUniform(const gsl::not_null<std::shared_ptr<ShaderProgram>>& shaderProgram) const
+{
+  if(const auto uniform = shaderProgram->findUniform(getName().c_str()))
+    return uniform;
+
+  BOOST_LOG_TRIVIAL(warning) << "Uniform '" << getName() << "' not found in program '" << shaderProgram->getId() << "'";
+
+  return nullptr;
 }
 
 bool UniformBlockParameter::bind(const Node& node,
@@ -74,5 +84,17 @@ void UniformBlockParameter::bindCameraBuffer(const gsl::not_null<std::shared_ptr
 {
   m_bufferBinder = [camera](const Node& /*node*/, const Mesh& /*mesh*/, gl::UniformBlock& ub)
   { ub.bind(camera->getMatricesBuffer()); };
+}
+
+gl::UniformBlock*
+  UniformBlockParameter::findUniformBlock(const gsl::not_null<std::shared_ptr<ShaderProgram>>& shaderProgram) const
+{
+  if(const auto block = shaderProgram->findUniformBlock(getName().c_str()))
+    return block;
+
+  BOOST_LOG_TRIVIAL(warning) << "Uniform block '" << getName() << "' not found in program '" << shaderProgram->getId()
+                             << "'";
+
+  return nullptr;
 }
 } // namespace render::scene
