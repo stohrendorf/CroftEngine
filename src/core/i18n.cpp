@@ -24,7 +24,6 @@ void setLocale(const std::filesystem::path& poDir, const std::string& locale)
     BOOST_LOG_TRIVIAL(warning) << "failed to bind text domain";
   }
 #endif
-  ;
   if(auto result = bind_textdomain_codeset("edisonengine", "UTF-8"); result != nullptr)
   {
     BOOST_LOG_TRIVIAL(trace) << "gettext bind_textdomain_codeset result: " << result;
@@ -32,6 +31,14 @@ void setLocale(const std::filesystem::path& poDir, const std::string& locale)
   else
   {
     BOOST_LOG_TRIVIAL(warning) << "failed to set textdomain codeset";
+  }
+  if(auto result = textdomain("edisonengine"))
+  {
+    BOOST_LOG_TRIVIAL(trace) << "gettext textdomain result: " << result;
+  }
+  else
+  {
+    BOOST_LOG_TRIVIAL(warning) << "failed to set textdomain";
   }
   if(auto result = setlocale(LC_MESSAGES, locale.c_str()); result != nullptr)
   {
