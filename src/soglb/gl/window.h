@@ -2,6 +2,7 @@
 
 #include "glfw.h"
 
+#include <filesystem>
 #include <glm/vec2.hpp>
 
 namespace gl
@@ -9,7 +10,7 @@ namespace gl
 class Window final
 {
 public:
-  explicit Window(const glm::ivec2& resolution = {1280, 800});
+  explicit Window(const std::filesystem::path& logoPath, const glm::ivec2& resolution = {1280, 800});
   ~Window();
 
   [[nodiscard]] bool isVsync() const;

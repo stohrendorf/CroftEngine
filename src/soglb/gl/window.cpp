@@ -18,7 +18,7 @@ void glErrorCallback(const int err, const gsl::czstring msg)
 }
 } // namespace
 
-Window::Window(const glm::ivec2& resolution)
+Window::Window(const std::filesystem::path& logoPath, const glm::ivec2& resolution)
     : m_windowPos{0, 0}
     , m_windowSize{resolution}
 {
@@ -58,7 +58,7 @@ Window::Window(const glm::ivec2& resolution)
     BOOST_THROW_EXCEPTION(std::runtime_error("Failed to create window"));
   }
 
-  CImgWrapper imgWrapper{std::filesystem::path{"logo.png"}};
+  CImgWrapper imgWrapper{std::filesystem::path{logoPath}};
   imgWrapper.interleave();
   GLFWimage img;
   img.width = imgWrapper.width();

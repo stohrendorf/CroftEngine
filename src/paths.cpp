@@ -17,15 +17,12 @@ std::filesystem::path getSysUserDataDir()
 #endif
 }
 
+#define EE_STRINGIFY2(x) #x
+#define EE_STRINGIFY(x) EE_STRINGIFY2(x)
+
 std::filesystem::path getSysEngineDataDir()
 {
-#ifdef WIN32
-  const char* appData = getenv("LOCALAPPDATA");
-  Expects(appData != nullptr && std::filesystem::is_directory(appData));
-  return std::filesystem::path{appData} / "edisonengine" / "share";
-#else
-  return std::filesystem::path{"/"} / "usr" / "share" / "edisonengine";
-#endif
+  return std::filesystem::path{EE_STRINGIFY(EE_DATAROOT_DIR)};
 }
 
 std::filesystem::path getUserDataDir()

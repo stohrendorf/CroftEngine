@@ -13,4 +13,4 @@ dl_unpack(
 )
 set( PYBIND11_FINDPYTHON FALSE )
 set( PYBIND11_NOPYTHON TRUE )
-add_subdirectory( ${EXTERNAL_SRC_ROOT}/pybind11-${_pybind11_version} )
+add_subdirectory( ${EXTERNAL_SRC_ROOT}/pybind11-${_pybind11_version} EXCLUDE_FROM_ALL )

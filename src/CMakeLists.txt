@@ -651,93 +651,51 @@ if(( LINUX OR UNIX ) AND CMAKE_COMPILER_IS_GNUCC )
     )
 endif()
 
-macro( copy_runtime_dep_file SRCDIR DSTDIR FILENAME )
-    add_custom_command(
-            COMMENT "Copy ${FILENAME}"
-            OUTPUT ${DSTDIR}/${FILENAME}
-            MAIN_DEPENDENCY ${SRCDIR}/${FILENAME}
-            COMMAND ${CMAKE_COMMAND} -E make_directory ${DSTDIR}
-            COMMAND ${CMAKE_COMMAND} -E copy ${SRCDIR}/${FILENAME} ${DSTDIR}/
-    )
-    set_source_files_properties(
-            ${DSTDIR}/${FILENAME}
-            PROPERTIES GENERATED TRUE
-    )
-    set_property(
-            TARGET edisonengine-runtime-deps
-            APPEND PROPERTY SOURCES ${DSTDIR}/${FILENAME}
-    )
-endmacro()
+get_target_property( _bin_dir edisonengine BINARY_DIR )
+
+include( GNUInstallDirs )
+
+target_compile_definitions(
+        edisonengine
+        PRIVATE
+        -DEE_DATAROOT_DIR=${CMAKE_INSTALL_FULL_DATAROOTDIR}/edisonengine
+)
 
 add_custom_target( edisonengine-runtime-deps )
 add_dependencies( edisonengine edisonengine-runtime-deps )
 
-get_target_property( _bin_dir edisonengine BINARY_DIR )
-
 file(
         GLOB_RECURSE _shared_files
-        RELATIVE ${CMAKE_SOURCE_DIR}
-        ${CMAKE_SOURCE_DIR}/share/*.mo
+        RELATIVE ${CMAKE_SOURCE_DIR}/share
+        ${CMAKE_SOURCE_DIR}/share/*
 )
+list( FILTER _shared_files EXCLUDE REGEX "\\.full\\." )
+list( FILTER _shared_files EXCLUDE REGEX "\\.po" )
+list( FILTER _shared_files EXCLUDE REGEX "__pycache__" )
 
 foreach( _file ${_shared_files} )
     get_filename_component( _dirname ${_file} DIRECTORY )
-    copy_runtime_dep_file( ${CMAKE_SOURCE_DIR} ${_bin_dir}/${_dirname} ${_file} )
+    add_custom_command(
+            COMMENT "Copy ${_file}"
+            OUTPUT ${_bin_dir}/share/${_file}
+            MAIN_DEPENDENCY ${CMAKE_SOURCE_DIR}/share/${_file}
+            COMMAND ${CMAKE_COMMAND} -E make_directory ${_bin_dir}/share/${_dirname}
+            COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/share/${_file} ${_bin_dir}/share/${_dirname}/
+    )
+    set_source_files_properties(
+            ${_bin_dir}/share/${_file}
+            PROPERTIES GENERATED TRUE
+    )
+    set_property(
+            TARGET edisonengine-runtime-deps
+            APPEND PROPERTY SOURCES ${_bin_dir}/share/${_file}
+    )
+    install(
+            FILES ${CMAKE_SOURCE_DIR}/share/${_file}
+            DESTINATION ${CMAKE_INSTALL_FULL_DATAROOTDIR}/edisonengine/${_dirname}
+    )
 endforeach()
-
-copy_runtime_dep_file(
-        ${CMAKE_SOURCE_DIR}
-        ${_bin_dir}/share
-        share/gamecontrollerdb.txt
-)
-
-file(
-        GLOB _shaders
-        RELATIVE ${CMAKE_SOURCE_DIR}
-        ${CMAKE_SOURCE_DIR}/share/shaders/*.frag
-        ${CMAKE_SOURCE_DIR}/share/shaders/*.vert
-        ${CMAKE_SOURCE_DIR}/share/shaders/*.glsl
-)
-list( FILTER _shaders EXCLUDE REGEX "\\.full\\." )
-
-foreach( _file ${_shaders} )
-    get_filename_component( _dirname ${_file} DIRECTORY )
-    copy_runtime_dep_file( ${CMAKE_SOURCE_DIR} ${_bin_dir}/${_dirname} ${_file} )
-endforeach()
-
-file(
-        GLOB_RECURSE _buttons
-        RELATIVE ${CMAKE_SOURCE_DIR}
-        ${CMAKE_SOURCE_DIR}/share/button-icons/*.*
-)
-
-foreach( _file ${_buttons} )
-    get_filename_component( _dirname ${_file} DIRECTORY )
-    copy_runtime_dep_file( ${CMAKE_SOURCE_DIR} ${_bin_dir}/${_dirname} ${_file} )
-endforeach()
-
-file(
-        GLOB_RECURSE _scripts
-        RELATIVE ${CMAKE_SOURCE_DIR}
-        ${CMAKE_SOURCE_DIR}/share/scripts/*.py
-)
-
-foreach( _file ${_scripts} )
-    get_filename_component( _dirname ${_file} DIRECTORY )
-    copy_runtime_dep_file( ${CMAKE_SOURCE_DIR} ${_bin_dir}/${_dirname} ${_file} )
-endforeach()
-
-copy_runtime_dep_file( ${CMAKE_SOURCE_DIR}/share ${_bin_dir}/share trfont.ttf )
-copy_runtime_dep_file( ${CMAKE_SOURCE_DIR}/share ${_bin_dir}/share OFL.txt )
-copy_runtime_dep_file( ${CMAKE_SOURCE_DIR}/share ${_bin_dir}/share "Apache License.txt" )
-copy_runtime_dep_file( ${CMAKE_SOURCE_DIR}/share ${_bin_dir}/share DroidSansMono.ttf )
-copy_runtime_dep_file( ${CMAKE_SOURCE_DIR}/share ${_bin_dir}/share splash.png )
 
 if( WIN32 AND NOT DEFINED ENV{WSLENV} )
-    copy_runtime_dep_file( ${CMAKE_SOURCE_DIR} ${_bin_dir} LICENSE )
-    copy_runtime_dep_file( ${CMAKE_SOURCE_DIR} ${_bin_dir} logo.png )
     copy_python3_deps( edisonengine )
-else()
-    copy_runtime_dep_file( ${CMAKE_SOURCE_DIR} ${_bin_dir}/share LICENSE )
-    copy_runtime_dep_file( ${CMAKE_SOURCE_DIR} ${_bin_dir}/share logo.png )
 endif()
