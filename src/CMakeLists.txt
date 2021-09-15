@@ -643,6 +643,11 @@ target_link_libraries(
         ${Intl_LIBRARIES}
 )
 
+install(
+        TARGETS edisonengine
+        DESTINATION ${CMAKE_INSTALL_BINDIR}
+)
+
 if(( LINUX OR UNIX ) AND CMAKE_COMPILER_IS_GNUCC )
     target_link_libraries(
             edisonengine
