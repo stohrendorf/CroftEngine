@@ -4,10 +4,9 @@
 #include "serialization/serialization_fwd.h" // IWYU pragma: keep
 #include "units.h"
 
-#include <boost/assert.hpp>
 #include <cstdint>
-#include <glm/gtx/euler_angles.hpp>
-#include <glm/mat4x4.hpp>
+#include <glm/ext/scalar_constants.hpp>
+#include <glm/fwd.hpp>
 #include <glm/vec3.hpp>
 #include <gsl/gsl-lite.hpp>
 #include <optional>
@@ -64,17 +63,17 @@ using RotationSpeed = QS_COMBINE_UNITS(Angle, /, Frame);
 
 [[nodiscard]] inline float sin(const Angle& a) noexcept
 {
-  return glm::sin(toRad(a));
+  return std::sin(toRad(a));
 }
 
 [[nodiscard]] inline float cos(const Angle& a) noexcept
 {
-  return glm::cos(toRad(a));
+  return std::cos(toRad(a));
 }
 
 [[nodiscard]] inline Angle abs(const Angle& a)
 {
-  return Angle{glm::abs(a.get())};
+  return Angle{std::abs(a.get())};
 }
 
 enum class Axis
@@ -169,10 +168,7 @@ public:
     return {X - rhs.X, Y - rhs.Y, Z - rhs.Z};
   }
 
-  [[nodiscard]] glm::mat4 toMatrix() const
-  {
-    return glm::yawPitchRoll(-toRad(Y), toRad(X), -toRad(Z));
-  }
+  [[nodiscard]] glm::mat4 toMatrix() const;
 
   [[nodiscard]] TRRotation operator-() const
   {
@@ -182,42 +178,19 @@ public:
   void serialize(const serialization::Serializer<engine::world::World>& ser);
 };
 
-inline glm::mat4 fromPackedAngles(uint32_t angleData)
-{
-  const auto getAngle = [angleData](const uint8_t n) -> Angle
-  {
-    BOOST_ASSERT(n < 3);
-    return auToAngle(((angleData >> (10u * n)) & 0x3ffu) * 64);
-  };
-
-  const TRRotation r{getAngle(2), getAngle(1), getAngle(0)};
-
-  return r.toMatrix();
-}
+[[nodiscard]] extern glm::mat4 fromPackedAngles(uint32_t angleData);
 
 struct TRRotationXY
 {
   Angle X{0_deg};
   Angle Y{0_deg};
 
-  [[nodiscard]] glm::mat4 toMatrix() const
-  {
-    return glm::yawPitchRoll(-toRad(Y), toRad(X), 0.0f);
-  }
+  [[nodiscard]] glm::mat4 toMatrix() const;
 
   void serialize(const serialization::Serializer<engine::world::World>& ser);
 };
 
-[[nodiscard]] inline TRRotationXY getVectorAngles(const Length& dx, const Length& dy, const Length& dz)
-{
-  const auto y = angleFromAtan(dx, dz);
-  const auto dxz = sqrt(dx * dx + dz * dz);
-  auto x = angleFromAtan(dy, dxz);
-  if((dy < 0_len) == (toRad(x) < 0))
-    x = -x;
-
-  return TRRotationXY{x, y};
-}
+[[nodiscard]] extern TRRotationXY getVectorAngles(const Length& dx, const Length& dy, const Length& dz);
 
 [[nodiscard]] constexpr Angle auToAngle(int16_t value) noexcept
 {

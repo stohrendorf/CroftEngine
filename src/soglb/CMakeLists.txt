@@ -27,6 +27,7 @@ add_library( soglb STATIC
         gl/image.h
         gl/pixel.h
         gl/program.h
+        gl/program.cpp
         gl/shader.h
         gl/shader.cpp
         gl/vertexbuffer.h

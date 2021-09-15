@@ -1,11 +1,26 @@
 #pragma once
 
 #include "buffer.h"
-#include "shader.h"
-#include "texturehandle.h"
+#include "glassert.h"
+#include "soglb_fwd.h"
 
+#include <array>
+#include <cstddef>
+#include <cstdint>
+#include <glm/fwd.hpp>
+#include <glm/mat3x3.hpp>
+#include <glm/mat4x4.hpp>
+#include <glm/vec2.hpp>
+#include <glm/vec3.hpp>
+#include <glm/vec4.hpp>
+#include <gsl/gsl-lite.hpp>
+#include <limits>
+#include <memory>
+#include <string>
 #include <type_traits>
+#include <utility>
 #include <variant>
+#include <vector>
 
 namespace gl
 {
@@ -134,23 +149,8 @@ class Uniform final : public LocatableProgramInterface<api::ProgramInterface::Un
 {
 public:
   explicit Uniform(const Program& program, uint32_t index);
-
-  Uniform(Uniform&& rhs) noexcept
-      : LocatableProgramInterface{std::move(rhs)}
-      , m_size{std::exchange(rhs.m_size, -1)}
-      , m_program{std::exchange(rhs.m_program, InvalidProgram)}
-      , m_value{std::exchange(rhs.m_value, {})}
-  {
-  }
-
-  Uniform& operator=(Uniform&& rhs) noexcept
-  {
-    m_size = std::exchange(rhs.m_size, -1);
-    m_program = std::exchange(rhs.m_program, InvalidProgram);
-    m_value = std::exchange(rhs.m_value, {});
-    LocatableProgramInterface::operator=(std::move(rhs));
-    return *this;
-  }
+  Uniform(Uniform&& rhs) noexcept;
+  Uniform& operator=(Uniform&& rhs) noexcept;
 
   template<typename T>
   std::enable_if_t<std::is_trivial_v<T>, void> set(const T& value)
@@ -178,89 +178,23 @@ public:
         api::programUniform1(m_program, getLocation(), gsl::narrow<api::core::SizeType>(values.size()), values.data()));
   }
 
-  void set(const glm::mat3& value)
-  {
-    Expects(m_program != InvalidProgram);
-    if(changeValue(value))
-      GL_ASSERT(api::programUniformMatrix3(m_program, getLocation(), 1, false, value_ptr(value)));
-  }
+  void set(const glm::mat3& value);
 
-  void set(const glm::mat4& value)
-  {
-    Expects(m_program != InvalidProgram);
-    if(changeValue(value))
-      GL_ASSERT(api::programUniformMatrix4(m_program, getLocation(), 1, false, value_ptr(value)));
-  }
+  void set(const glm::mat4& value);
 
-  void set(const std::vector<glm::mat4>& values)
-  {
-    Expects(m_program != InvalidProgram);
-    if(changeValue(values))
-      GL_ASSERT(api::programUniformMatrix4(
-        m_program,
-        getLocation(),
-        gsl::narrow<api::core::SizeType>(values.size()),
-        false,
-        reinterpret_cast<const float*>(values.data()) // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
-        ));
-  }
+  void set(const std::vector<glm::mat4>& values);
 
-  void set(const glm::vec2& value)
-  {
-    Expects(m_program != InvalidProgram);
-    if(changeValue(value))
-      GL_ASSERT(api::programUniform2(m_program, getLocation(), value.x, value.y));
-  }
+  void set(const glm::vec2& value);
 
-  void set(const std::vector<glm::vec2>& values)
-  {
-    Expects(m_program != InvalidProgram);
-    if(changeValue(values))
-      GL_ASSERT(api::programUniform2(
-        m_program,
-        getLocation(),
-        gsl::narrow<api::core::SizeType>(values.size()),
-        reinterpret_cast<const float*>(values.data()) // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
-        ));
-  }
+  void set(const std::vector<glm::vec2>& values);
 
-  void set(const std::vector<glm::vec3>& values)
-  {
-    Expects(m_program != InvalidProgram);
-    if(changeValue(values))
-      GL_ASSERT(api::programUniform3(
-        m_program,
-        getLocation(),
-        gsl::narrow<api::core::SizeType>(values.size()),
-        reinterpret_cast<const float*>(values.data()) // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
-        ));
-  }
+  void set(const std::vector<glm::vec3>& values);
 
-  void set(const std::vector<glm::vec4>& values)
-  {
-    Expects(m_program != InvalidProgram);
-    if(changeValue(values))
-      GL_ASSERT(api::programUniform4(
-        m_program,
-        getLocation(),
-        gsl::narrow<api::core::SizeType>(values.size()),
-        reinterpret_cast<const float*>(values.data()) // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
-        ));
-  }
+  void set(const std::vector<glm::vec4>& values);
 
-  void set(const glm::vec3& value)
-  {
-    Expects(m_program != InvalidProgram);
-    if(changeValue(value))
-      GL_ASSERT(api::programUniform3(m_program, getLocation(), value.x, value.y, value.z));
-  }
+  void set(const glm::vec3& value);
 
-  void set(const glm::vec4& value)
-  {
-    Expects(m_program != InvalidProgram);
-    if(changeValue(value))
-      GL_ASSERT(api::programUniform4(m_program, getLocation(), value.x, value.y, value.z, value.w));
-  }
+  void set(const glm::vec4& value);
 
   // NOLINTNEXTLINE(bugprone-reserved-identifier)
   template<typename _Texture>
@@ -338,22 +272,7 @@ private:
 class Program final : public BindableResource
 {
 public:
-  explicit Program(const std::string& label = {})
-      : BindableResource{[]([[maybe_unused]] const api::core::SizeType n, uint32_t* handle)
-                         {
-                           BOOST_ASSERT(n == 1 && handle != nullptr);
-                           *handle = api::createProgram();
-                         },
-                         api::useProgram,
-                         []([[maybe_unused]] const api::core::SizeType n, const uint32_t* handle)
-                         {
-                           BOOST_ASSERT(n == 1 && handle != nullptr);
-                           api::deleteProgram(*handle);
-                         },
-                         api::ObjectIdentifier::Program,
-                         label}
-  {
-  }
+  explicit Program(const std::string& label = {});
 
   template<api::ShaderType _Type> // NOLINT(bugprone-reserved-identifier)
   void attach(const Shader<_Type>& shader)
@@ -361,72 +280,23 @@ public:
     GL_ASSERT(api::attachShader(getHandle(), shader.getHandle()));
   }
 
-  void link(const std::string& label = {})
-  {
-    GL_ASSERT(api::linkProgram(getHandle()));
+  void link(const std::string& label = {});
 
-    setLabel(api::ObjectIdentifier::Program, label);
-  }
+  [[nodiscard]] bool getLinkStatus() const;
 
-  [[nodiscard]] bool getLinkStatus() const
-  {
-    auto success = static_cast<int32_t>(api::Boolean::False);
-    GL_ASSERT(api::getProgram(getHandle(), api::ProgramProperty::LinkStatus, &success));
-    return success == static_cast<int32_t>(api::Boolean::True);
-  }
+  [[nodiscard]] std::string getInfoLog() const;
 
-  [[nodiscard]] std::string getInfoLog() const
-  {
-    int32_t length = 0;
-    GL_ASSERT(api::getProgram(getHandle(), api::ProgramProperty::InfoLogLength, &length));
-    if(length == 0)
-    {
-      length = 4096;
-    }
-    if(length > 0)
-    {
-      std::vector<char> infoLog;
-      infoLog.resize(length, '\0');
-      GL_ASSERT(api::getProgramInfoLog(getHandle(), length, nullptr, infoLog.data()));
-      infoLog[length - 1] = '\0';
-      std::string result = infoLog.data();
-      return result;
-    }
+  [[nodiscard]] uint32_t getActiveResourceCount(api::ProgramInterface what) const;
 
-    return {};
-  }
+  [[nodiscard]] std::vector<ProgramInput> getInputs() const;
 
-  [[nodiscard]] auto getActiveResourceCount(const api::ProgramInterface what) const
-  {
-    int32_t n = 0;
-    GL_ASSERT(api::getProgramInterface(getHandle(), what, api::ProgramInterfacePName::ActiveResources, &n));
-    return gsl::narrow<uint32_t>(n);
-  }
+  [[nodiscard]] std::vector<ProgramOutput> getOutputs() const;
 
-  [[nodiscard]] std::vector<ProgramInput> getInputs() const
-  {
-    return getInputs<ProgramInput>();
-  }
+  [[nodiscard]] std::vector<Uniform> getUniforms() const;
 
-  [[nodiscard]] std::vector<ProgramOutput> getOutputs() const
-  {
-    return getInputs<ProgramOutput>();
-  }
+  [[nodiscard]] std::vector<ShaderStorageBlock> getShaderStorageBlocks() const;
 
-  [[nodiscard]] std::vector<Uniform> getUniforms() const
-  {
-    return getInputs<Uniform>();
-  }
-
-  [[nodiscard]] std::vector<ShaderStorageBlock> getShaderStorageBlocks() const
-  {
-    return getInputs<ShaderStorageBlock>();
-  }
-
-  [[nodiscard]] std::vector<UniformBlock> getUniformBlocks() const
-  {
-    return getInputs<UniformBlock>();
-  }
+  [[nodiscard]] std::vector<UniformBlock> getUniformBlocks() const;
 
 private:
   template<typename T>
@@ -489,13 +359,5 @@ std::vector<int32_t> ProgramInterface<_Type>::getProperty(const Program& program
   GL_ASSERT(api::getProgramResource(
     program.getHandle(), Type, index, NumProperties, properties.data(), count, nullptr, values.data()));
   return values;
-}
-
-inline Uniform::Uniform(const Program& program, const uint32_t index)
-    : LocatableProgramInterface{program, index}
-    , m_program{program.getHandle()}
-{
-  GL_ASSERT(api::getActiveUniforms(program.getHandle(), 1, &index, api::UniformPName::UniformSize, &m_size));
-  Expects(m_size >= 0);
 }
 } // namespace gl
