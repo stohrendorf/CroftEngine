@@ -9,7 +9,6 @@
 #include "engine/location.h"
 #include "objectstate.h"
 #include "qs/qs.h"
-#include "util/helpers.h"
 
 #include <cstddef>
 #include <cstdint>
@@ -116,10 +115,7 @@ public:
     m_state.rotation.Z += dz;
   }
 
-  void moveLocal(const core::TRVec& d)
-  {
-    m_state.location.position += util::pitch(d, m_state.rotation.Y);
-  }
+  void moveLocal(const core::TRVec& d);
 
   const world::World& getWorld() const
   {

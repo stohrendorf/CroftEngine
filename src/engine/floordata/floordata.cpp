@@ -3,6 +3,7 @@
 #include "serialization/bitset.h"
 #include "serialization/serialization.h"
 #include "types.h"
+#include "util/helpers.h"
 
 #include <exception>
 
@@ -21,6 +22,12 @@ ActivationState ActivationState::create(const serialization::Serializer<world::W
   ActivationState result{};
   result.serialize(ser);
   return result;
+}
+
+ActivationState::ActivationSet ActivationState::extractActivationSet(const FloorDataValue& fd)
+{
+  const auto bits = gsl::narrow_cast<uint16_t>(util::bits(fd.get(), 9, 5));
+  return ActivationSet{bits};
 }
 
 std::optional<uint8_t> getBoundaryRoom(const FloorDataValue* fdData)
@@ -49,5 +56,18 @@ std::optional<uint8_t> getBoundaryRoom(const FloorDataValue* fdData)
   }
 
   return {};
+}
+
+CameraParameters::CameraParameters(const FloorDataValue& fd)
+    : timeout{core::Seconds{static_cast<core::Seconds::type>(int8_t(fd.get()))}}
+    , oneshot{(fd.get() & 0x100u) != 0}
+    , isLast{(fd.get() & 0x8000u) != 0}
+    , smoothness{gsl::narrow_cast<uint8_t>(util::bits(fd.get(), 9, 5) * 2)}
+{
+}
+
+CommandOpcode Command::extractOpcode(const FloorDataValue& data)
+{
+  return gsl::narrow_cast<CommandOpcode>(util::bits(data.get(), 10, 4));
 }
 } // namespace engine::floordata

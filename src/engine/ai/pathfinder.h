@@ -5,7 +5,6 @@
 #include "core/vec.h"
 #include "qs/qs.h"
 #include "serialization/serialization_fwd.h" // IWYU pragma: keep
-#include "util/helpers.h"
 
 #include <deque>
 #include <gsl/gsl-lite.hpp>
@@ -59,11 +58,7 @@ struct PathFinder
     return it != m_reachable.end() && !it->second;
   }
 
-  [[nodiscard]] const auto& getRandomBox() const
-  {
-    Expects(!m_boxes.empty());
-    return m_boxes[util::rand15(m_boxes.size())];
-  }
+  [[nodiscard]] const gsl::not_null<const world::Box*>& getRandomBox() const;
 
   [[nodiscard]] const world::Box* getNextPathBox(const gsl::not_null<const world::Box*>& box) const
   {

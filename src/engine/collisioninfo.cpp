@@ -15,6 +15,7 @@
 #include "objects/laraobject.h"
 #include "qs/qs.h"
 #include "type_safe/integer.hpp"
+#include "util/helpers.h"
 #include "world/world.h"
 
 #include <cstdint>

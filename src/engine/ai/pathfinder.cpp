@@ -13,6 +13,7 @@
 #include "serialization/unordered_map.h"
 #include "serialization/vector.h"
 #include "serialization/vector_element.h"
+#include "util/helpers.h"
 
 #include <algorithm>
 #include <boost/assert.hpp>
@@ -368,5 +369,11 @@ void PathFinder::setTargetBox(const gsl::not_null<const world::Box*>& box)
   m_reachable.clear();
   m_reachable[m_targetBox] = true;
   m_edges.clear();
+}
+
+const gsl::not_null<const world::Box*>& PathFinder::getRandomBox() const
+{
+  Expects(!m_boxes.empty());
+  return m_boxes[util::rand15(m_boxes.size())];
 }
 } // namespace engine::ai

@@ -1,6 +1,7 @@
 #pragma once
 
-#include "serialization.h"
+#include "exception.h"
+#include "serialization_fwd.h"
 
 namespace serialization
 {

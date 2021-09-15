@@ -5,7 +5,6 @@
 #include "qs/qs.h"
 #include "serialization/serialization_fwd.h" // IWYU pragma: keep
 #include "types.h"
-#include "util/helpers.h"
 
 #include <bitset>
 #include <cstddef>
@@ -156,11 +155,7 @@ public:
   static ActivationState create(const serialization::Serializer<world::World>& ser);
 
 private:
-  static ActivationSet extractActivationSet(const FloorDataValue& fd)
-  {
-    const auto bits = gsl::narrow_cast<uint16_t>(util::bits(fd.get(), 9, 5));
-    return ActivationSet{bits};
-  }
+  static ActivationSet extractActivationSet(const FloorDataValue& fd);
 
   bool m_oneshot = false;
   bool m_inverted = false;
@@ -171,13 +166,7 @@ private:
 
 struct CameraParameters
 {
-  explicit CameraParameters(const FloorDataValue& fd)
-      : timeout{core::Seconds{static_cast<core::Seconds::type>(int8_t(fd.get()))}}
-      , oneshot{(fd.get() & 0x100u) != 0}
-      , isLast{(fd.get() & 0x8000u) != 0}
-      , smoothness{gsl::narrow_cast<uint8_t>(util::bits(fd.get(), 9, 5) * 2)}
-  {
-  }
+  explicit CameraParameters(const FloorDataValue& fd);
 
   const core::Seconds timeout;
   const bool oneshot;
@@ -199,10 +188,7 @@ struct Command
   uint16_t parameter;
 
 private:
-  static CommandOpcode extractOpcode(const FloorDataValue& data)
-  {
-    return gsl::narrow_cast<CommandOpcode>(util::bits(data.get(), 10, 4));
-  }
+  static CommandOpcode extractOpcode(const FloorDataValue& data);
 
   static constexpr uint16_t extractParameter(const FloorDataValue& data)
   {

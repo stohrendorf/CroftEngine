@@ -1,6 +1,7 @@
 #pragma once
 
-#include "access.h"            // IWYU pragma: export
+#include "access.h" // IWYU pragma: export
+#include "exception.h"
 #include "serialization_fwd.h" // IWYU pragma: export
 
 #include <boost/algorithm/string/replace.hpp>
@@ -34,19 +35,6 @@ inline std::string toString(const c4::csubstr& s)
   return {s.data(), s.size()};
 }
 } // namespace util
-
-class Exception : public std::runtime_error
-{
-public:
-  explicit Exception(const std::string& msg)
-      : Exception{msg.c_str()}
-  {
-  }
-
-  explicit Exception(gsl::czstring msg);
-};
-
-#define SERIALIZER_EXCEPTION(msg) BOOST_THROW_EXCEPTION(::serialization::Exception{msg})
 
 template<typename T>
 struct TypeId

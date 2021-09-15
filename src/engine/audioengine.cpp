@@ -14,6 +14,7 @@
 #include "serialization/optional.h"
 #include "serialization/serialization.h"
 #include "tracks_tr1.h"
+#include "util/helpers.h"
 #include "world/world.h"
 
 #include <boost/format.hpp>

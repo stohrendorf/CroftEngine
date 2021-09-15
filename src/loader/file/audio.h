@@ -3,7 +3,6 @@
 #include "core/id.h"
 #include "core/vec.h"
 #include "level/game.h"
-#include "util/helpers.h"
 
 #include <cstdint>
 #include <memory>
@@ -103,10 +102,7 @@ struct SoundEffectProperties
     }
   }
 
-  [[nodiscard]] uint8_t getSampleCount() const
-  {
-    return util::bits(sampleCountAndLoopType, 2, 4);
-  }
+  [[nodiscard]] uint8_t getSampleCount() const;
 
   //! @brief Whether to play this sample without orientation (no panning).
   [[nodiscard]] bool ignoreOrientation() const

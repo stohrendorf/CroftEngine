@@ -2,6 +2,7 @@
 
 #include "io/sdlreader.h"
 #include "io/util.h"
+#include "util/helpers.h"
 
 namespace loader::file
 {
@@ -37,5 +38,10 @@ std::unique_ptr<SoundEffectProperties> SoundEffectProperties::readTr3(io::SDLRea
   result->sampleCountAndLoopType = reader.readU8();
   result->flags = reader.readU8();
   return result;
+}
+
+uint8_t SoundEffectProperties::getSampleCount() const
+{
+  return util::bits(sampleCountAndLoopType, 2, 4);
 }
 } // namespace loader::file

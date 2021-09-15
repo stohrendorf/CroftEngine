@@ -15,6 +15,7 @@
 #include "objectstate.h"
 #include "render/scene/node.h"
 #include "serialization/serialization.h"
+#include "util/helpers.h"
 
 #include <algorithm>
 #include <boost/assert.hpp>
@@ -212,6 +213,11 @@ void Object::serialize(const serialization::Serializer<world::World>& ser)
         applyTransform();
       }
     });
+}
+
+void Object::moveLocal(const core::TRVec& d)
+{
+  m_state.location.position += util::pitch(d, m_state.rotation.Y);
 }
 
 std::string makeObjectName(const TR1ItemId type, const size_t id)
