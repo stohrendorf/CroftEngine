@@ -75,13 +75,16 @@ namespace
 const gsl::czstring QuicksaveFilename = "quicksave.yaml";
 } // namespace
 
-Engine::Engine(const std::filesystem::path& rootPath, const glm::ivec2& resolution)
-    : m_rootPath{rootPath}
-    , m_scriptEngine{rootPath}
+Engine::Engine(const std::filesystem::path& userDataPath,
+               const std::filesystem::path& engineDataPath,
+               const glm::ivec2& resolution)
+    : m_userDataPath{userDataPath}
+    , m_engineDataPath{engineDataPath}
+    , m_scriptEngine{engineDataPath}
 {
   try
   {
-    pybind11::eval_file(util::ensureFileExists(m_rootPath / "scripts" / "main.py").string());
+    pybind11::eval_file(util::ensureFileExists(m_engineDataPath / "scripts" / "main.py").string());
   }
   catch(std::exception& e)
   {
@@ -97,16 +100,16 @@ Engine::Engine(const std::filesystem::path& rootPath, const glm::ivec2& resoluti
     BOOST_LOG_TRIVIAL(info) << "Locale override is " << m_locale;
   }
 
-  core::setLocale(std::filesystem::absolute(std::filesystem::current_path() / "share" / "po"), m_locale);
+  core::setLocale(std::filesystem::absolute(m_engineDataPath / "po"), m_locale);
 
   m_engineConfig = std::make_unique<EngineConfig>();
-  if(std::filesystem::is_regular_file(m_rootPath / "config.yaml"))
+  if(std::filesystem::is_regular_file(m_userDataPath / "config.yaml"))
   {
-    serialization::YAMLDocument<true> doc{m_rootPath / "config.yaml"};
+    serialization::YAMLDocument<true> doc{m_userDataPath / "config.yaml"};
     doc.load("config", *m_engineConfig, *m_engineConfig);
   }
 
-  m_presenter = std::make_shared<Presenter>(m_rootPath, resolution);
+  m_presenter = std::make_shared<Presenter>(m_engineDataPath, resolution);
   if(gl::hasAnisotropicFilteringExtension()
      && m_engineConfig->renderSettings.anisotropyLevel > gl::getMaxAnisotropyLevel())
     m_engineConfig->renderSettings.anisotropyLevel = gsl::narrow<uint32_t>(std::llround(gl::getMaxAnisotropyLevel()));
@@ -117,7 +120,7 @@ Engine::Engine(const std::filesystem::path& rootPath, const glm::ivec2& resoluti
 
 Engine::~Engine()
 {
-  serialization::YAMLDocument<false> doc{m_rootPath / "config.yaml"};
+  serialization::YAMLDocument<false> doc{m_userDataPath / "config.yaml"};
   doc.save("config", *m_engineConfig, *m_engineConfig);
   doc.write();
 }
@@ -337,8 +340,8 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
 void Engine::makeScreenshot()
 {
   auto img = m_presenter->takeScreenshot();
-  if(!std::filesystem::is_directory(m_rootPath / "screenshots"))
-    std::filesystem::create_directories(m_rootPath / "screenshots");
+  if(!std::filesystem::is_directory(m_userDataPath / "screenshots"))
+    std::filesystem::create_directories(m_userDataPath / "screenshots");
 
   auto time = std::time(nullptr);
 #ifdef WIN32
@@ -354,7 +357,7 @@ void Engine::makeScreenshot()
   auto filename = boost::format("%04d-%02d-%02d %02d-%02d-%02d.png") % (localTime->tm_year + 1900)
                   % (localTime->tm_mon + 1) % localTime->tm_mday % localTime->tm_hour % localTime->tm_min
                   % localTime->tm_sec;
-  img.savePng(m_rootPath / "screenshots" / filename.str());
+  img.savePng(m_userDataPath / "screenshots" / filename.str());
 }
 
 std::pair<RunResult, std::optional<size_t>> Engine::runTitleMenu(world::World& world)
@@ -367,7 +370,7 @@ std::pair<RunResult, std::optional<size_t>> Engine::runTitleMenu(world::World& w
   world.getAudioEngine().getInterceptStream()->setLooping(true);
 
   const auto backdrop = std::make_shared<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>>(
-    gl::CImgWrapper{util::ensureFileExists(m_rootPath / "data" / "tr1" / "DATA" / "TITLEH.PCX")}.toTexture());
+    gl::CImgWrapper{util::ensureFileExists(m_userDataPath / "data" / "tr1" / "DATA" / "TITLEH.PCX")}.toTexture());
   const auto menu = std::make_shared<menu::MenuDisplay>(menu::InventoryMode::TitleMode, world);
   Throttler throttler;
   while(true)
@@ -473,7 +476,7 @@ std::unique_ptr<loader::trx::Glidos> Engine::loadGlidosPack() const
       return nullptr;
 
     m_presenter->drawLoadingScreen(_("Loading Glidos texture pack"));
-    return std::make_unique<loader::trx::Glidos>(m_rootPath / m_engineConfig->renderSettings.glidosPack.value(),
+    return std::make_unique<loader::trx::Glidos>(m_userDataPath / m_engineConfig->renderSettings.glidosPack.value(),
                                                  [this](const std::string& s) { m_presenter->drawLoadingScreen(s); });
   }
 
@@ -511,7 +514,7 @@ void Engine::applySettings()
 
 std::filesystem::path Engine::getSavegameRootPath() const
 {
-  auto p = m_rootPath / "saves";
+  auto p = m_userDataPath / "saves";
   if(!std::filesystem::is_directory(p))
     std::filesystem::create_directory(p);
   return p;

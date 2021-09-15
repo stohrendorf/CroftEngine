@@ -69,7 +69,7 @@ std::unique_ptr<loader::file::level::Level>
   loadLevel(Engine& engine, const std::string& basename, const std::string& title)
 {
   engine.getPresenter().drawLoadingScreen(_("Loading %1%", title));
-  auto level = loader::file::level::Level::createLoader(engine.getRootPath() / getLocalLevelPath(basename),
+  auto level = loader::file::level::Level::createLoader(engine.getUserDataPath() / getLocalLevelPath(basename),
                                                         loader::file::level::Game::Unknown);
   level->loadFileData();
   return level;
@@ -78,7 +78,7 @@ std::unique_ptr<loader::file::level::Level>
 
 std::pair<RunResult, std::optional<size_t>> Video::run(Engine& engine, const std::shared_ptr<Player>& /*player*/)
 {
-  engine.getPresenter().playVideo(engine.getRootPath() / "data" / "tr1" / "FMV" / m_name);
+  engine.getPresenter().playVideo(engine.getUserDataPath() / "data" / "tr1" / "FMV" / m_name);
   return {RunResult::NextLevel, std::nullopt};
 }
 
@@ -226,7 +226,7 @@ std::pair<RunResult, std::optional<size_t>> SplashScreen::run(Engine& engine, co
 
   glm::ivec2 size{-1, -1};
   auto image = std::make_shared<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>>(
-    gl::CImgWrapper{util::ensureFileExists(engine.getRootPath() / "data" / "tr1" / "DATA" / m_path)}.toTexture());
+    gl::CImgWrapper{util::ensureFileExists(engine.getUserDataPath() / "data" / "tr1" / "DATA" / m_path)}.toTexture());
   std::shared_ptr<render::scene::Mesh> mesh;
 
   render::scene::RenderContext context{render::scene::RenderMode::Full, std::nullopt};

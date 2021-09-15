@@ -52,8 +52,8 @@ share/**/*.mo
 *.user
 *.cap
 
-shaders/*.err
-shaders/*.full.glsl
+share/shaders/*.err
+share/shaders/*.full.glsl
 
 __pycache__
 

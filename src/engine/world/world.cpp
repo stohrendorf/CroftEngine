@@ -974,7 +974,8 @@ void World::load(const std::optional<size_t>& slot)
   serialization::YAMLDocument<true> doc{filename};
   SavegameMeta meta{};
   doc.load("meta", meta, meta);
-  if(!std::filesystem::equivalent(meta.filename, std::filesystem::relative(m_levelFilename, m_engine.getRootPath())))
+  if(!std::filesystem::equivalent(meta.filename,
+                                  std::filesystem::relative(m_levelFilename, m_engine.getUserDataPath())))
   {
     BOOST_LOG_TRIVIAL(error) << "Savegame mismatch. File is for " << meta.filename << ", but current level is "
                              << m_levelFilename;
@@ -993,7 +994,7 @@ void World::save(const std::optional<size_t>& slot)
   const auto filename = m_engine.getSavegamePath(slot);
   BOOST_LOG_TRIVIAL(info) << "Save " << filename;
   serialization::YAMLDocument<false> doc{filename};
-  SavegameMeta meta{std::filesystem::relative(m_levelFilename, m_engine.getRootPath()).string(), m_title};
+  SavegameMeta meta{std::filesystem::relative(m_levelFilename, m_engine.getUserDataPath()).string(), m_title};
   doc.save("meta", meta, meta);
   doc.save("data", *this, *this);
   doc.write();
@@ -1041,7 +1042,7 @@ World::World(Engine& engine,
     : m_engine{engine}
     , m_levelFilename{level->getFilename()}
     , m_audioEngine{std::make_unique<AudioEngine>(
-        *this, engine.getRootPath() / "data" / "tr1" / "AUDIO", engine.getPresenter().getSoundEngine())}
+        *this, engine.getUserDataPath() / "data" / "tr1" / "AUDIO", engine.getPresenter().getSoundEngine())}
     , m_title{std::move(title)}
     , m_totalSecrets{totalSecrets}
     , m_itemTitles{std::move(itemTitles)}
@@ -1056,10 +1057,10 @@ World::World(Engine& engine,
   initTextureDependentDataFromLevel(*level);
 
   render::MultiTextureAtlas atlases{2048};
-  m_controllerLayouts = loadControllerButtonIcons(
-    atlases,
-    util::ensureFileExists(m_engine.getRootPath() / "share" / "button-icons" / "buttons.yaml"),
-    getPresenter().getMaterialManager()->getSprite(true));
+  m_controllerLayouts
+    = loadControllerButtonIcons(atlases,
+                                util::ensureFileExists(m_engine.getEngineDataPath() / "button-icons" / "buttons.yaml"),
+                                getPresenter().getMaterialManager()->getSprite(true));
   m_allTextures = buildTextures(*level,
                                 m_engine.getGlidos(),
                                 atlases,

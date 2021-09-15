@@ -2,6 +2,7 @@
 #include "engine/player.h"
 #include "engine/script/reflection.h"
 #include "engine/script/scriptengine.h"
+#include "paths.h"
 
 #include <boost/exception/diagnostic_information.hpp>
 #include <boost/log/core.hpp>
@@ -58,11 +59,11 @@ int main()
   boost::log::add_common_attributes();
   boost::log::add_console_log(std::cout, boost::log::keywords::format = logFormat)
     ->set_filter(boost::log::trivial::severity >= consoleMinSeverity);
-  boost::log::add_file_log(boost::log::keywords::file_name = "edisonengine.log",
+  boost::log::add_file_log(boost::log::keywords::file_name = (getUserDataDir() / "edisonengine.log").string(),
                            boost::log::keywords::format = logFormat,
                            boost::log::keywords::auto_flush = true);
 
-  engine::Engine engine{std::filesystem::current_path()};
+  engine::Engine engine{getUserDataDir(), getEngineDataDir()};
   size_t levelSequenceIndex = 0;
   enum class Mode
   {

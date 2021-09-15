@@ -79,6 +79,7 @@ wrap_enum(
 set( EDISONENGINE_SRCS
         edisonengine.cpp
         gslfailhandler.cpp
+        paths.cpp
 
         engine/lara/abstractstatehandler.h
         engine/lara/abstractstatehandler.cpp
@@ -666,50 +667,53 @@ copy_runtime_dep_file(
         share/gamecontrollerdb.txt
 )
 
-if( WIN32 )
-    file(
-            GLOB _shaders
-            RELATIVE ${CMAKE_SOURCE_DIR}
-            ${CMAKE_SOURCE_DIR}/shaders/*.frag
-            ${CMAKE_SOURCE_DIR}/shaders/*.vert
-            ${CMAKE_SOURCE_DIR}/shaders/*.glsl
-    )
-    list( FILTER _shaders EXCLUDE REGEX "\\.full\\." )
+file(
+        GLOB _shaders
+        RELATIVE ${CMAKE_SOURCE_DIR}
+        ${CMAKE_SOURCE_DIR}/share/shaders/*.frag
+        ${CMAKE_SOURCE_DIR}/share/shaders/*.vert
+        ${CMAKE_SOURCE_DIR}/share/shaders/*.glsl
+)
+list( FILTER _shaders EXCLUDE REGEX "\\.full\\." )
 
-    foreach( _file ${_shaders} )
-        get_filename_component( _dirname ${_file} DIRECTORY )
-        copy_runtime_dep_file( ${CMAKE_SOURCE_DIR} ${_bin_dir}/${_dirname} ${_file} )
-    endforeach()
+foreach( _file ${_shaders} )
+    get_filename_component( _dirname ${_file} DIRECTORY )
+    copy_runtime_dep_file( ${CMAKE_SOURCE_DIR} ${_bin_dir}/${_dirname} ${_file} )
+endforeach()
 
-    file(
-            GLOB_RECURSE _buttons
-            RELATIVE ${CMAKE_SOURCE_DIR}
-            ${CMAKE_SOURCE_DIR}/share/button-icons/*.*
-    )
+file(
+        GLOB_RECURSE _buttons
+        RELATIVE ${CMAKE_SOURCE_DIR}
+        ${CMAKE_SOURCE_DIR}/share/button-icons/*.*
+)
 
-    foreach( _file ${_buttons} )
-        get_filename_component( _dirname ${_file} DIRECTORY )
-        copy_runtime_dep_file( ${CMAKE_SOURCE_DIR} ${_bin_dir}/${_dirname} ${_file} )
-    endforeach()
+foreach( _file ${_buttons} )
+    get_filename_component( _dirname ${_file} DIRECTORY )
+    copy_runtime_dep_file( ${CMAKE_SOURCE_DIR} ${_bin_dir}/${_dirname} ${_file} )
+endforeach()
 
-    file(
-            GLOB_RECURSE _scripts
-            RELATIVE ${CMAKE_SOURCE_DIR}
-            ${CMAKE_SOURCE_DIR}/scripts/*.py
-    )
+file(
+        GLOB_RECURSE _scripts
+        RELATIVE ${CMAKE_SOURCE_DIR}
+        ${CMAKE_SOURCE_DIR}/share/scripts/*.py
+)
 
-    foreach( _file ${_scripts} )
-        get_filename_component( _dirname ${_file} DIRECTORY )
-        copy_runtime_dep_file( ${CMAKE_SOURCE_DIR} ${_bin_dir}/${_dirname} ${_file} )
-    endforeach()
+foreach( _file ${_scripts} )
+    get_filename_component( _dirname ${_file} DIRECTORY )
+    copy_runtime_dep_file( ${CMAKE_SOURCE_DIR} ${_bin_dir}/${_dirname} ${_file} )
+endforeach()
 
+copy_runtime_dep_file( ${CMAKE_SOURCE_DIR}/share ${_bin_dir}/share trfont.ttf )
+copy_runtime_dep_file( ${CMAKE_SOURCE_DIR}/share ${_bin_dir}/share OFL.txt )
+copy_runtime_dep_file( ${CMAKE_SOURCE_DIR}/share ${_bin_dir}/share "Apache License.txt" )
+copy_runtime_dep_file( ${CMAKE_SOURCE_DIR}/share ${_bin_dir}/share DroidSansMono.ttf )
+copy_runtime_dep_file( ${CMAKE_SOURCE_DIR}/share ${_bin_dir}/share splash.png )
+
+if( WIN32 AND NOT DEFINED ENV{WSLENV} )
     copy_runtime_dep_file( ${CMAKE_SOURCE_DIR} ${_bin_dir} LICENSE )
     copy_runtime_dep_file( ${CMAKE_SOURCE_DIR} ${_bin_dir} logo.png )
-    copy_runtime_dep_file( ${CMAKE_SOURCE_DIR}/share ${_bin_dir}/share trfont.ttf )
-    copy_runtime_dep_file( ${CMAKE_SOURCE_DIR}/share ${_bin_dir}/share OFL.txt )
-    copy_runtime_dep_file( ${CMAKE_SOURCE_DIR}/share ${_bin_dir}/share "Apache License.txt" )
-    copy_runtime_dep_file( ${CMAKE_SOURCE_DIR}/share ${_bin_dir}/share DroidSansMono.ttf )
-    copy_runtime_dep_file( ${CMAKE_SOURCE_DIR}/share ${_bin_dir}/share splash.png )
-
     copy_python3_deps( edisonengine )
+else()
+    copy_runtime_dep_file( ${CMAKE_SOURCE_DIR} ${_bin_dir}/share LICENSE )
+    copy_runtime_dep_file( ${CMAKE_SOURCE_DIR} ${_bin_dir}/share logo.png )
 endif()

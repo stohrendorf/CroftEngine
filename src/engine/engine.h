@@ -65,7 +65,8 @@ inline std::string makeSavegameFilename(size_t n)
 class Engine
 {
 private:
-  const std::filesystem::path m_rootPath;
+  const std::filesystem::path m_userDataPath;
+  const std::filesystem::path m_engineDataPath;
   script::ScriptEngine m_scriptEngine;
   std::unique_ptr<EngineConfig> m_engineConfig;
   std::shared_ptr<Presenter> m_presenter;
@@ -79,7 +80,9 @@ private:
   void makeScreenshot();
 
 public:
-  explicit Engine(const std::filesystem::path& rootPath, const glm::ivec2& resolution = {1280, 800});
+  explicit Engine(const std::filesystem::path& userDataPath,
+                  const std::filesystem::path& engineDataPath,
+                  const glm::ivec2& resolution = {1280, 800});
 
   ~Engine();
 
@@ -113,9 +116,14 @@ public:
   [[nodiscard]] std::filesystem::path getSavegameRootPath() const;
   [[nodiscard]] std::filesystem::path getSavegamePath(const std::optional<size_t>& slot) const;
 
-  [[nodiscard]] const std::filesystem::path& getRootPath() const
+  [[nodiscard]] const std::filesystem::path& getUserDataPath() const
   {
-    return m_rootPath;
+    return m_userDataPath;
+  }
+
+  [[nodiscard]] const std::filesystem::path& getEngineDataPath() const
+  {
+    return m_engineDataPath;
   }
 
   std::pair<RunResult, std::optional<size_t>> runLevelSequenceItem(script::LevelSequenceItem& item,

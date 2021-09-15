@@ -127,7 +127,7 @@ if( WIN32 )
 endif()
 
 function( copy_python3_deps target )
-    if( WIN32 )
+    if( WIN32 AND NOT DEFINED ENV{WSLENV} )
         get_target_property( _bin_dir ${target} BINARY_DIR )
 
         add_custom_command(

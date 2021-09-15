@@ -373,18 +373,18 @@ void Presenter::drawBars(ui::Ui& ui, const std::array<gl::SRGBA8, 256>& palette,
           });
 }
 
-Presenter::Presenter(const std::filesystem::path& rootPath, const glm::ivec2& resolution)
+Presenter::Presenter(const std::filesystem::path& engineDataPath, const glm::ivec2& resolution)
     : m_window{std::make_unique<gl::Window>(resolution)}
     , m_soundEngine{std::make_shared<audio::SoundEngine>()}
     , m_renderer{std::make_shared<render::scene::Renderer>(std::make_shared<render::scene::Camera>(
         DefaultFov, m_window->getViewport(), DefaultNearPlane, DefaultFarPlane))}
     , m_splashImage{std::make_shared<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>>(
-        gl::CImgWrapper{util::ensureFileExists(rootPath / "share" / "splash.png")}.toTexture())}
-    , m_trTTFFont{std::make_unique<gl::Font>(util::ensureFileExists(rootPath / "share" / "trfont.ttf"))}
-    , m_debugFont{std::make_unique<gl::Font>(util::ensureFileExists(rootPath / "share" / "DroidSansMono.ttf"))}
+        gl::CImgWrapper{util::ensureFileExists(engineDataPath / "splash.png")}.toTexture())}
+    , m_trTTFFont{std::make_unique<gl::Font>(util::ensureFileExists(engineDataPath / "trfont.ttf"))}
+    , m_debugFont{std::make_unique<gl::Font>(util::ensureFileExists(engineDataPath / "DroidSansMono.ttf"))}
     , m_inputHandler{std::make_unique<hid::InputHandler>(m_window->getWindow(),
-                                                         rootPath / "share" / "gamecontrollerdb.txt")}
-    , m_shaderCache{std::make_shared<render::scene::ShaderCache>(rootPath / "shaders")}
+                                                         engineDataPath / "gamecontrollerdb.txt")}
+    , m_shaderCache{std::make_shared<render::scene::ShaderCache>(engineDataPath / "shaders")}
     , m_materialManager{std::make_unique<render::scene::MaterialManager>(m_shaderCache, m_renderer)}
     , m_csm{std::make_shared<render::scene::CSM>(1024, *m_materialManager)}
     , m_renderPipeline{std::make_unique<render::RenderPipeline>(*m_materialManager, m_window->getViewport())}
