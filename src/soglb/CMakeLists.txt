@@ -2,6 +2,7 @@ include( get_freetype )
 include( get_boost )
 include( get_glew )
 include( get_glfw )
+include( get_glm )
 
 add_custom_target( soglb-gen
         COMMENT "Generating structured OpenGL bindings"
@@ -68,5 +69,6 @@ target_link_libraries(
         Boost::log
         Boost::disable_autolinking
         utf8cpp::utf8cpp
+        glm::glm
 )
 target_include_directories( soglb PUBLIC . )
