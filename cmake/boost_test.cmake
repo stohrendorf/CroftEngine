@@ -19,6 +19,7 @@ macro( add_boost_test name )
             Boost::headers
             gsl-lite::gsl-lite
             Threads::Threads
+            glm::glm
             ${CMAKE_DL_LIBS}
     )
 endmacro()
