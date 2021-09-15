@@ -632,7 +632,7 @@ target_link_libraries(
         PNG::PNG
         type_safe
         OpenGL
-        glm
+        glm::glm
         FFmpeg
         gsl-lite::gsl-lite
         soglb

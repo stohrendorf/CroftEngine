@@ -2,15 +2,15 @@ if( TARGET glm::glm )
     return()
 endif()
 
-find_package( glm CONFIG REQUIRED )
+set( _glm_version 0.9.9.8 )
 
-if( NOT TARGET glm )
-    add_library( glm INTERFACE IMPORTED )
-    target_include_directories( glm SYSTEM BEFORE INTERFACE ${GLM_INCLUDE_DIR} )
-endif()
-if( NOT TARGET glm::glm )
-    add_library( glm::glm INTERFACE IMPORTED )
-    target_link_libraries( glm::glm INTERFACE glm )
-endif()
+include( ./dl_unpack )
 
-target_compile_definitions( glm::glm INTERFACE -DGLM_ENABLE_EXPERIMENTAL -DGLM_FORCE_RADIANS -DGLM_FORCE_CXX${CMAKE_CXX_STANDARD} )
+dl_unpack(
+        URL https://github.com/g-truc/glm/archive/refs/tags/${_glm_version}.tar.gz
+        FILENAME glm-${_glm_version}.tar.gz
+        TEST_DIR glm-${_glm_version}
+)
+
+add_library( glm::glm INTERFACE IMPORTED )
+target_include_directories( glm::glm SYSTEM BEFORE INTERFACE "${EXTERNAL_SRC_ROOT}/glm-${_glm_version}" )

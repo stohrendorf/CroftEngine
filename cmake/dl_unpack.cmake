@@ -79,7 +79,7 @@ function( dl_unpack )
             message( FATAL_ERROR "PATCH required DL_UNPACK_TEST_DIR" )
         endif()
 
-        find_package( Git REQUIRED )
+        include( get_git )
 
         message( STATUS "Apply patch ${DL_UNPACK_PATCH} to ${DL_UNPACK_FILENAME}..." )
         execute_process(
