@@ -2,7 +2,7 @@
 
 #include "buffer.h"
 #include "program.h"
-#include "soglb_fwd.h"
+#include "soglb_fwd.h" // IWYU pragma: export
 
 #include <gsl/gsl-lite.hpp>
 #include <map>

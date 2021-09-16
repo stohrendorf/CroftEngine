@@ -1,5 +1,6 @@
 #include "streamvoice.h"
 
+#include "audio/core.h"
 #include "bufferhandle.h"
 #include "sourcehandle.h"
 #include "streamsource.h"
@@ -20,8 +21,7 @@ StreamVoice::StreamVoice(std::unique_ptr<StreamingSourceHandle>&& streamSource,
                          const size_t bufferSize,
                          const size_t bufferCount,
                          const std::chrono::milliseconds& initialPosition)
-    : Voice{}
-    , m_streamSource{dynamic_cast<StreamingSourceHandle*>(streamSource.get())}
+    : m_streamSource{dynamic_cast<StreamingSourceHandle*>(streamSource.get())}
     , m_stream{std::move(source)}
     , m_sampleBuffer(bufferSize * 2)
 {

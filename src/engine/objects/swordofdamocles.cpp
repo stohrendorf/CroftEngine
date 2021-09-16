@@ -10,6 +10,7 @@
 #include "engine/world/world.h"
 #include "laraobject.h"
 #include "modelobject.h"
+#include "objectstate.h"
 #include "serialization/quantity.h"
 #include "serialization/serialization.h"
 

@@ -25,6 +25,7 @@
 #include <boost/assert.hpp>
 #include <cstdint>
 #include <exception>
+#include <glm/geometric.hpp>
 #include <optional>
 #include <vector>
 

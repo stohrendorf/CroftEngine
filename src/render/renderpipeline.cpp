@@ -10,6 +10,8 @@
 #include "rendersettings.h"
 
 #include <boost/assert.hpp>
+#include <gl/texturedepth.h> // IWYU pragma: keep
+#include <glm/fwd.hpp>
 #include <glm/vec2.hpp>
 
 namespace render

@@ -4,7 +4,9 @@
 #include "quantity.h" // IWYU pragma: export
 #include "stream.h"   // IWYU pragma: export
 
+#include <cstdint>
 #include <gsl/gsl-lite.hpp>
+#include <type_traits>
 
 // NOLINTNEXTLINE(bugprone-reserved-identifier)
 #define _QS_PAREN_WRAPPER(value) value

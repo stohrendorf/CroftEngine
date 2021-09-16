@@ -1,6 +1,5 @@
 #include "vec.h"
 
-#include "qs/stream.h"
 #include "serialization/quantity.h"
 #include "serialization/serialization.h"
 

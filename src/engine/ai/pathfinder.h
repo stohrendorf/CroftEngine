@@ -4,13 +4,15 @@
 #include "core/units.h"
 #include "core/vec.h"
 #include "qs/qs.h"
-#include "serialization/serialization_fwd.h" // IWYU pragma: keep
+#include "serialization/serialization_fwd.h"
 
 #include <deque>
 #include <gsl/gsl-lite.hpp>
 #include <map>
 #include <unordered_map>
 #include <vector>
+
+// IWYU pragma: no_forward_declare serialization::Serializer
 
 namespace engine::world
 {

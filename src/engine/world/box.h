@@ -3,11 +3,13 @@
 #include "core/interval.h"
 #include "core/magic.h"
 #include "core/units.h"
-#include "serialization/serialization_fwd.h" // IWYU pragma: keep
+#include "serialization/serialization_fwd.h"
 
 #include <cstdint>
 #include <gsl/gsl-lite.hpp>
 #include <vector>
+
+// IWYU pragma: no_forward_declare serialization::Serializer
 
 namespace engine::world
 {

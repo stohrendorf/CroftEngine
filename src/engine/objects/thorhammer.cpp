@@ -15,7 +15,6 @@
 #include "engine/world/room.h"
 #include "engine/world/skeletalmodeltype.h"
 #include "engine/world/world.h"
-#include "gl/renderstate.h"
 #include "laraobject.h"
 #include "loader/file/animationid.h"
 #include "loader/file/item.h"
@@ -29,6 +28,7 @@
 #include "util/helpers.h"
 
 #include <exception>
+#include <gl/renderstate.h>
 #include <iterator>
 #include <map>
 

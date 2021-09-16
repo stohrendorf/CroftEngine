@@ -7,6 +7,8 @@
 #include "tuple_util.h"
 
 #include <string>
+#include <tuple>
+#include <type_traits>
 
 namespace qs
 {

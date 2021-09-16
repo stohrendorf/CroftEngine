@@ -16,10 +16,12 @@
 #include "objectstate.h"
 #include "qs/qs.h"
 #include "render/scene/node.h"
+#include "serialization/serialization_fwd.h"
 
 #include <algorithm>
 #include <cstddef>
 #include <cstdint>
+#include <glm/fwd.hpp>
 #include <glm/mat4x4.hpp>
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
@@ -27,6 +29,8 @@
 #include <memory>
 #include <optional>
 #include <string>
+
+// IWYU pragma: no_forward_declare serialization::Serializer
 
 namespace engine::world
 {

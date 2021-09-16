@@ -3,7 +3,7 @@
 #include "engine/items_tr1.h"
 #include "reflection.h"
 
-#include <pybind11/stl.h>
+#include <pybind11/stl.h> // IWYU pragma: keep
 
 namespace engine::script
 {

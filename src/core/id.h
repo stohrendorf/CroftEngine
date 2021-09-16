@@ -1,10 +1,12 @@
 #pragma once
 
-#include "serialization/serialization_fwd.h" // IWYU pragma: keep
+#include "serialization/serialization_fwd.h"
 #include "tpl_helper.h"
 
 #include <cstdint>
 #include <functional>
+
+// IWYU pragma: no_forward_declare serialization::Serializer
 
 namespace engine
 {

@@ -3,7 +3,6 @@
 #include "ui.h"
 #include "util.h"
 
-#include <algorithm>
 #include <array>
 #include <utility>
 

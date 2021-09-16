@@ -11,7 +11,6 @@
 #include "engine/world/box.h"
 #include "engine/world/room.h"
 #include "engine/world/world.h"
-#include "gl/renderstate.h"
 #include "laraobject.h"
 #include "modelobject.h"
 #include "objectstate.h"
@@ -20,6 +19,7 @@
 #include "serialization/vector_element.h"
 
 #include <exception>
+#include <gl/renderstate.h>
 #include <memory>
 
 namespace engine::objects

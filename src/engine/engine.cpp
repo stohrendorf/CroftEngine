@@ -39,7 +39,6 @@
 #include <boost/format.hpp>
 #include <boost/locale/generator.hpp>
 #include <boost/locale/info.hpp>
-#include <boost/log/sinks/basic_sink_frontend.hpp>
 #include <boost/log/trivial.hpp>
 #include <boost/throw_exception.hpp>
 #include <chrono>
@@ -61,6 +60,7 @@
 #include <locale>
 #include <pybind11/eval.h>
 #include <stdexcept>
+#include <utility>
 #include <vector>
 
 namespace render::scene
@@ -75,10 +75,10 @@ namespace
 const gsl::czstring QuicksaveFilename = "quicksave.yaml";
 } // namespace
 
-Engine::Engine(const std::filesystem::path& userDataPath,
+Engine::Engine(std::filesystem::path userDataPath,
                const std::filesystem::path& engineDataPath,
                const glm::ivec2& resolution)
-    : m_userDataPath{userDataPath}
+    : m_userDataPath{std::move(userDataPath)}
     , m_engineDataPath{engineDataPath}
     , m_scriptEngine{engineDataPath}
 {

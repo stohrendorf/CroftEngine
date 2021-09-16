@@ -1,7 +1,7 @@
 #include "device.h"
 
-#include "alext.h"
 #include "filterhandle.h"
+#include "loadefx.h"
 #include "sourcehandle.h"
 #include "streamvoice.h"
 #include "utils.h"
@@ -9,13 +9,13 @@
 
 #include <AL/al.h>
 #include <AL/alc.h>
-#include <AL/efx.h>
+#include <AL/alext.h>
 #include <algorithm>
 #include <array>
 #include <boost/log/trivial.hpp>
 #include <boost/throw_exception.hpp>
 #include <glm/fwd.hpp>
-#include <glm/gtx/norm.hpp>
+#include <glm/geometric.hpp>
 #include <stdexcept>
 #include <utility>
 

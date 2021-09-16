@@ -1,14 +1,15 @@
 #pragma once
 
 #include "qs/qs.h"
-#include "serialization/serialization_fwd.h" // IWYU pragma: keep
+#include "serialization/serialization_fwd.h"
 #include "units.h"
 
 #include <algorithm>
-#include <glm/exponential.hpp>
 #include <glm/vec3.hpp>
 #include <gsl/gsl-lite.hpp>
 #include <iosfwd>
+
+// IWYU pragma: no_forward_declare serialization::Serializer
 
 namespace engine::world
 {
@@ -103,7 +104,7 @@ struct TRVec final
     const auto dx = gsl::narrow<float>((X - rhs.X).get());
     const auto dy = gsl::narrow<float>((Y - rhs.Y).get());
     const auto dz = gsl::narrow<float>((Z - rhs.Z).get());
-    return Length{static_cast<Length::type>(glm::sqrt(dx * dx + dy * dy + dz * dz))};
+    return Length{static_cast<Length::type>(std::sqrt(dx * dx + dy * dy + dz * dz))};
   }
 
   void serialize(const serialization::Serializer<engine::world::World>& ser);

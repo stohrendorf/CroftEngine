@@ -1,7 +1,6 @@
 #include "shader.h"
 
 #include "api/gl.hpp"
-#include "api/soglb_core.hpp"
 #include "glassert.h"
 
 #include <boost/log/trivial.hpp>

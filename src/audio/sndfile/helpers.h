@@ -3,7 +3,7 @@
 #include <cstdint>
 #include <iosfwd>
 #include <memory>
-#include <sndfile.h>
+#include <sndfile.h> // IWYU pragma: export
 
 namespace audio::sndfile
 {

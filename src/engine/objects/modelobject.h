@@ -7,11 +7,15 @@
 #include "engine/lighting.h"
 #include "object.h"
 #include "objectstate.h"
+#include "serialization/serialization_fwd.h"
 
 #include <cstddef>
 #include <gsl/gsl-lite.hpp>
 #include <memory>
 #include <string>
+
+// IWYU pragma: no_forward_declare serialization::Serializer
+// IWYU pragma: no_forward_declare serialization::TypeId
 
 namespace core
 {

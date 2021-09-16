@@ -1,6 +1,7 @@
 #pragma once
 
 #include "script/scriptengine.h"
+#include "serialization/serialization_fwd.h"
 
 #include <boost/assert.hpp>
 #include <cstddef>
@@ -12,6 +13,8 @@
 #include <optional>
 #include <set>
 #include <string>
+
+// IWYU pragma: no_forward_declare serialization::Serializer
 
 namespace loader::trx
 {
@@ -80,7 +83,7 @@ private:
   void makeScreenshot();
 
 public:
-  explicit Engine(const std::filesystem::path& userDataPath,
+  explicit Engine(std::filesystem::path userDataPath,
                   const std::filesystem::path& engineDataPath,
                   const glm::ivec2& resolution = {1280, 800});
 

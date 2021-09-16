@@ -16,7 +16,7 @@ class Voice
 {
 public:
   explicit Voice() = default;
-  virtual ~Voice() = default;
+  virtual ~Voice();
 
   void setGroupGain(ALfloat groupGain);
   void setLocalGain(ALfloat localGain);
@@ -54,7 +54,7 @@ private:
   bool m_looping = false;
   bool m_startedPlaying = false;
   std::optional<glm::vec3> m_position{};
-  std::unique_ptr<SourceHandle> m_source{nullptr};
+  std::unique_ptr<SourceHandle> m_source;
 
   void updateGain();
 };

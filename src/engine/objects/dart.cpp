@@ -12,6 +12,7 @@
 #include "engine/world/world.h"
 #include "laraobject.h"
 #include "modelobject.h"
+#include "objectstate.h"
 #include "qs/quantity.h"
 #include "render/scene/node.h"
 

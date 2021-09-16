@@ -9,6 +9,7 @@
 #include "modelobject.h"
 #include "objectstate.h"
 #include "qs/qs.h"
+#include "serialization/serialization_fwd.h"
 
 #include <algorithm>
 #include <bitset>
@@ -18,6 +19,8 @@
 #include <memory>
 #include <optional>
 #include <string>
+
+// IWYU pragma: no_forward_declare serialization::Serializer
 
 namespace engine
 {

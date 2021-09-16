@@ -1,5 +1,8 @@
 #include "program.h"
 
+#include "bindableresource.h"
+#include "glassert.h"
+
 #include <boost/assert.hpp>
 #include <glm/gtc/type_ptr.hpp>
 

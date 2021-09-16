@@ -4,9 +4,12 @@
 
 #include <gl/pixel.h>
 #include <gl/soglb_fwd.h>
-#include <gl/texture2d.h>
+#include <gl/texture2d.h> // IWYU pragma: keep
 #include <glm/fwd.hpp>
 #include <memory>
+
+// IWYU pragma: no_forward_declare gl::Framebuffer
+// IWYU pragma: no_forward_declare gl::TextureDepth
 
 namespace render::scene
 {

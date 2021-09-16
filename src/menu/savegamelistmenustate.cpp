@@ -28,6 +28,7 @@
 #include <iomanip>
 #include <locale>
 #include <map>
+#include <ratio>
 #include <sstream>
 #include <utility>
 

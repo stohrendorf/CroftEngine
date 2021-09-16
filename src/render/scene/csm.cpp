@@ -12,12 +12,16 @@
 #include <gl/framebuffer.h>
 #include <gl/pixel.h>
 #include <gl/program.h>
+#include <gl/renderstate.h>
 #include <gl/sampler.h>
 #include <gl/texture2d.h>
 #include <gl/texturedepth.h>
 #include <gl/texturehandle.h>
 #include <glm/common.hpp>
+#include <glm/ext/matrix_clip_space.hpp>
+#include <glm/geometric.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/vec3.hpp>
 #include <limits>
 #include <optional>
 #include <string>

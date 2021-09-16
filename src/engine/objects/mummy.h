@@ -2,9 +2,12 @@
 
 #include "core/angle.h"
 #include "modelobject.h"
+#include "serialization/serialization_fwd.h"
 
 #include <gsl/gsl-lite.hpp>
 #include <string>
+
+// IWYU pragma: no_forward_declare serialization::Serializer
 
 namespace engine
 {

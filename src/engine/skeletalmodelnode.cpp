@@ -7,7 +7,7 @@
 #include "objects/objectstate.h"
 #include "presenter.h"
 #include "qs/qs.h"
-#include "render/scene/mesh.h"
+#include "render/scene/mesh.h" // IWYU pragma: keep
 #include "serialization/glm.h"
 #include "serialization/not_null.h"
 #include "serialization/ptr.h"

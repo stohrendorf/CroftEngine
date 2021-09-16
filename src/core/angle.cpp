@@ -6,7 +6,6 @@
 
 #include <boost/assert.hpp>
 #include <exception>
-#include <glm/fwd.hpp>
 #include <glm/gtx/euler_angles.hpp>
 #include <glm/mat4x4.hpp>
 

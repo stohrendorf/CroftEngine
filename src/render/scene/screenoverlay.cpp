@@ -16,7 +16,6 @@
 #include <glm/vec2.hpp>
 #include <stdexcept>
 #include <utility>
-#include <vector>
 
 namespace render::scene
 {

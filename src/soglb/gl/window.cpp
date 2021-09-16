@@ -6,7 +6,12 @@
 #include "renderstate.h"
 
 #include <boost/log/trivial.hpp>
+#include <boost/throw_exception.hpp>
+#include <cstdlib>
+#include <GLFW/glfw3.h>
+#include <glm/fwd.hpp>
 #include <gsl/gsl-lite.hpp>
+#include <stdexcept>
 
 namespace gl
 {

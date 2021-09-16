@@ -12,7 +12,7 @@
 #include "objects/laraobject.h"
 #include "objects/objectstate.h"
 #include "presenter.h"
-#include "render/scene/mesh.h"
+#include "render/scene/mesh.h" // IWYU pragma: keep
 #include "skeletalmodelnode.h"
 #include "soundeffects_tr1.h"
 #include "world/rendermeshdata.h"

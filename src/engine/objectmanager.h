@@ -1,6 +1,6 @@
 #pragma once
 
-#include "serialization/serialization_fwd.h" // IWYU pragma: keep
+#include "serialization/serialization_fwd.h"
 
 #include <cstdint>
 #include <gsl/gsl-lite.hpp>
@@ -9,6 +9,8 @@
 #include <set>
 #include <utility>
 #include <vector>
+
+// IWYU pragma: no_forward_declare serialization::Serializer
 
 namespace loader::file
 {

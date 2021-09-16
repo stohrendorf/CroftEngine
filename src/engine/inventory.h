@@ -2,6 +2,7 @@
 
 #include "core/id.h"
 #include "items_tr1.h"
+#include "serialization/serialization_fwd.h"
 #include "weapontype.h"
 
 #include <algorithm>
@@ -11,6 +12,8 @@
 #include <gsl/gsl-lite.hpp>
 #include <map>
 #include <stdexcept>
+
+// IWYU pragma: no_forward_declare serialization::Serializer
 
 namespace engine::world
 {

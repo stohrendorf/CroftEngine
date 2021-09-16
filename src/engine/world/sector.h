@@ -3,11 +3,13 @@
 #include "core/magic.h"
 #include "core/units.h"
 #include "engine/floordata/types.h"
-#include "serialization/serialization_fwd.h" // IWYU pragma: keep
+#include "serialization/serialization_fwd.h"
 
 #include <cstddef>
 #include <optional>
 #include <vector>
+
+// IWYU pragma: no_forward_declare serialization::Serializer
 
 namespace loader::file
 {

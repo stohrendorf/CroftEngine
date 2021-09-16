@@ -1,29 +1,23 @@
 #include "tallblock.h"
 
+#include "core/id.h"
+#include "core/magic.h"
+#include "core/units.h"
+#include "core/vec.h"
+#include "engine/location.h"
 #include "engine/skeletalmodelnode.h"
 #include "engine/world/room.h"
 #include "modelobject.h"
-#include "serialization/serialization.h"
+#include "objectstate.h"
+#include "qs/qs.h"
+#include "serialization/serialization.h" // IWYU pragma: keep
 
+#include <gl/renderstate.h>
 #include <gsl/gsl-lite.hpp>
+#include <memory>
 #include <string>
 
-namespace engine
-{
-struct Location;
-}
-
-namespace engine::world
-{
-class World;
-struct Room;
-struct SkeletalModelType;
-} // namespace engine::world
-
-namespace loader::file
-{
-struct Item;
-}
+// IWYU pragma: no_forward_declare serialization::Serializer
 
 namespace engine::objects
 {

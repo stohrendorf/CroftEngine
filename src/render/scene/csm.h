@@ -13,10 +13,14 @@
 #include <gl/soglb_fwd.h>
 #include <glm/fwd.hpp>
 #include <glm/mat4x4.hpp>
-#include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
 #include <gsl/gsl-lite.hpp>
 #include <memory>
+
+// IWYU pragma: no_forward_declare gl::Framebuffer
+// IWYU pragma: no_forward_declare gl::Texture2D
+// IWYU pragma: no_forward_declare gl::TextureDepth
+// IWYU pragma: no_forward_declare gl::TextureHandle
 
 namespace render::scene
 {

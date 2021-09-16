@@ -5,7 +5,13 @@
 #include <gl/pixel.h>
 #include <gl/soglb_fwd.h>
 #include <glm/fwd.hpp>
+#include <gsl/gsl-lite.hpp>
 #include <memory>
+
+// IWYU pragma: no_forward_declare gl::Framebuffer
+// IWYU pragma: no_forward_declare gl::Texture2D
+// IWYU pragma: no_forward_declare gl::TextureHandle
+// IWYU pragma: no_forward_declare gsl::not_null
 
 namespace render::scene
 {

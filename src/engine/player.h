@@ -4,9 +4,12 @@
 #include "core/units.h"
 #include "engine/weapontype.h"
 #include "inventory.h"
+#include "serialization/serialization_fwd.h"
 
 #include <chrono>
 #include <cstddef>
+
+// IWYU pragma: no_forward_declare serialization::Serializer
 
 namespace engine::world
 {

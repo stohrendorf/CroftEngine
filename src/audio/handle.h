@@ -2,7 +2,7 @@
 
 #include "utils.h"
 
-#include <AL/al.h>
+#include <AL/al.h> // IWYU pragma: export
 #include <gsl/gsl-lite.hpp>
 
 namespace audio

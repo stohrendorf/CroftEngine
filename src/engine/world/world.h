@@ -18,6 +18,7 @@
 #include "loader/file/item.h"
 #include "mesh.h"
 #include "room.h"
+#include "serialization/serialization_fwd.h"
 #include "sprite.h"
 #include "staticmesh.h"
 #include "staticsoundeffect.h"
@@ -41,6 +42,10 @@
 #include <unordered_map>
 #include <utility>
 #include <vector>
+
+// IWYU pragma: no_forward_declare serialization::Serializer
+// IWYU pragma: no_forward_declare gl::Texture2DArray
+// IWYU pragma: no_forward_declare gl::TextureHandle
 
 namespace audio
 {

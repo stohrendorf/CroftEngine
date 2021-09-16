@@ -3,10 +3,14 @@
 #include "pixel.h"
 #include "soglb_fwd.h"
 
+#include <cstdint>
 #include <filesystem>
 #include <freetype/ftcache.h>
 #include <glm/vec2.hpp>
 #include <gsl/gsl-lite.hpp>
+#include <string>
+
+// IWYU pragma: no_forward_declare gl::Image
 
 namespace gl
 {

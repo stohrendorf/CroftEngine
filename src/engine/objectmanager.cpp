@@ -14,7 +14,7 @@
 #include "render/scene/node.h"
 #include "serialization/map.h"
 #include "serialization/not_null.h"
-#include "serialization/objectreference.h"
+#include "serialization/objectreference.h" // IWYU pragma: keep
 #include "serialization/serialization.h"
 #include "world/room.h"
 #include "world/world.h"

@@ -9,9 +9,11 @@
 #include "engine/location.h"
 #include "objectstate.h"
 #include "qs/qs.h"
+#include "serialization/serialization_fwd.h"
 
 #include <cstddef>
 #include <cstdint>
+#include <glm/fwd.hpp>
 #include <glm/mat4x4.hpp>
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
@@ -20,6 +22,8 @@
 #include <optional>
 #include <string>
 #include <utility>
+
+// IWYU pragma: no_forward_declare serialization::Serializer
 
 namespace loader::file
 {

@@ -1,5 +1,7 @@
 #include "serialization.h"
 
+#include <stdexcept>
+
 namespace serialization
 {
 Exception::Exception(const gsl::czstring msg)

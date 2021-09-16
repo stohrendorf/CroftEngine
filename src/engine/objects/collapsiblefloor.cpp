@@ -5,6 +5,7 @@
 #include "engine/world/world.h"
 #include "laraobject.h"
 #include "modelobject.h"
+#include "objectstate.h"
 
 namespace engine::objects
 {

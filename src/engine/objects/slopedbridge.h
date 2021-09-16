@@ -8,10 +8,13 @@
 #include "modelobject.h"
 #include "objectstate.h"
 #include "qs/qs.h"
+#include "serialization/serialization_fwd.h"
 
 #include <gsl/gsl-lite.hpp>
 #include <optional>
 #include <string>
+
+// IWYU pragma: no_forward_declare serialization::Serializer
 
 namespace engine::world
 {

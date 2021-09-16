@@ -5,7 +5,6 @@
 
 #include <gl/api/gl.hpp>
 #include <gl/program.h>
-#include <vector>
 
 namespace render::scene
 {

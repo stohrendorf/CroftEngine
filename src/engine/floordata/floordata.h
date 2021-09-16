@@ -3,7 +3,7 @@
 #include "core/magic.h"
 #include "core/units.h"
 #include "qs/qs.h"
-#include "serialization/serialization_fwd.h" // IWYU pragma: keep
+#include "serialization/serialization_fwd.h"
 #include "types.h"
 
 #include <bitset>
@@ -11,7 +11,8 @@
 #include <cstdint>
 #include <gsl/gsl-lite.hpp>
 #include <optional>
-#include <type_traits>
+
+// IWYU pragma: no_forward_declare serialization::Serializer
 
 namespace engine::world
 {

@@ -3,10 +3,14 @@
 #include "pixel.h"
 #include "soglb_fwd.h"
 
+#include <cstdint>
 #include <filesystem>
 #include <glm/vec2.hpp>
+#include <gsl/gsl-lite.hpp>
 #include <memory>
 #include <string>
+
+// IWYU pragma: no_forward_declare gl::Texture2D
 
 namespace cimg_library
 {

@@ -463,7 +463,7 @@ def load_xml():
         logging.info('Writing header for API {}...'.format(api_name))
         with open('api/{}.hpp'.format(api_name), 'w') as f:
             f.write('#pragma once\n')
-            f.write('#include "soglb_core.hpp"\n')
+            f.write('#include "soglb_core.hpp" // IWYU pragma: export\n')
             f.write('#include "{}_enabled_features.hpp"\n'.format(api_name))
             f.write('namespace {}::api\n'.format(api_name))
             f.write('{\n')

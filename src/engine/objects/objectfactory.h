@@ -1,10 +1,13 @@
 #pragma once
 
-#include "serialization/serialization_fwd.h" // IWYU pragma: keep
+#include "serialization/serialization_fwd.h"
 
 #include <cstddef>
 #include <gsl/gsl-lite.hpp>
 #include <memory>
+
+// IWYU pragma: no_forward_declare serialization::Serializer
+// IWYU pragma: no_forward_declare serialization::TypeId
 
 namespace loader::file
 {

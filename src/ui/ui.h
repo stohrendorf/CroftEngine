@@ -11,6 +11,9 @@
 #include <memory>
 #include <vector>
 
+// IWYU pragma: no_forward_declare gl::ElementArrayBuffer
+// IWYU pragma: no_forward_declare gl::VertexBuffer
+
 namespace render::scene
 {
 class Material;

@@ -71,6 +71,7 @@
 #include "wolf.h"
 
 #include <boost/assert.hpp>
+#include <boost/log/trivial.hpp>
 #include <boost/throw_exception.hpp>
 #include <exception>
 #include <map>

@@ -16,6 +16,8 @@
 #include <set>
 #include <vector>
 
+// IWYU pragma: no_forward_declare gl::VertexBuffer
+
 namespace engine::world
 {
 struct AtlasTile;

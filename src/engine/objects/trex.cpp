@@ -17,7 +17,6 @@
 #include "engine/world/animation.h"
 #include "engine/world/skeletalmodeltype.h"
 #include "engine/world/world.h"
-#include "gl/renderstate.h"
 #include "laraobject.h"
 #include "loader/file/larastateid.h"
 #include "objectstate.h"
@@ -26,6 +25,7 @@
 #include "util/helpers.h"
 
 #include <exception>
+#include <gl/renderstate.h>
 #include <memory>
 
 namespace engine::objects

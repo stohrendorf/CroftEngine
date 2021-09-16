@@ -39,7 +39,7 @@ bool UniformParameter::bind(const Node& node,
 
 gl::Uniform* UniformParameter::findUniform(const gsl::not_null<std::shared_ptr<ShaderProgram>>& shaderProgram) const
 {
-  if(const auto uniform = shaderProgram->findUniform(getName().c_str()))
+  if(const auto uniform = shaderProgram->findUniform(getName()))
     return uniform;
 
   BOOST_LOG_TRIVIAL(warning) << "Uniform '" << getName() << "' not found in program '" << shaderProgram->getId() << "'";
@@ -89,7 +89,7 @@ void UniformBlockParameter::bindCameraBuffer(const gsl::not_null<std::shared_ptr
 gl::UniformBlock*
   UniformBlockParameter::findUniformBlock(const gsl::not_null<std::shared_ptr<ShaderProgram>>& shaderProgram) const
 {
-  if(const auto block = shaderProgram->findUniformBlock(getName().c_str()))
+  if(const auto block = shaderProgram->findUniformBlock(getName()))
     return block;
 
   BOOST_LOG_TRIVIAL(warning) << "Uniform block '" << getName() << "' not found in program '" << shaderProgram->getId()

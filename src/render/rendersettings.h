@@ -1,12 +1,14 @@
 #pragma once
 
-#include "serialization/serialization_fwd.h" // IWYU pragma: keep
+#include "serialization/serialization_fwd.h"
 
 #include <cstddef>
 #include <cstdint>
 #include <limits>
 #include <optional>
 #include <string>
+
+// IWYU pragma: no_forward_declare serialization::Serializer
 
 namespace engine
 {

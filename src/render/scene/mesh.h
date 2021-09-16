@@ -10,6 +10,7 @@
 #include <gsl/gsl-lite.hpp>
 #include <memory>
 #include <string>
+#include <utility>
 
 namespace render::scene
 {

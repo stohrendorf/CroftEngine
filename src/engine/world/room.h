@@ -7,6 +7,7 @@
 #include "engine/lighting.h"
 #include "qs/qs.h"
 #include "sector.h"
+#include "serialization/serialization_fwd.h"
 
 #include <algorithm>
 #include <array>
@@ -17,6 +18,8 @@
 #include <memory>
 #include <optional>
 #include <vector>
+
+// IWYU pragma: no_forward_declare serialization::Serializer
 
 namespace engine::world
 {

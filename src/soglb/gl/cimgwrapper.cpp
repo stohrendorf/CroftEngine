@@ -4,6 +4,7 @@
 #  undef _X
 #endif
 
+#include "pixel.h"
 #include "texture2d.h"
 
 #include <boost/algorithm/string/case_conv.hpp>
@@ -11,6 +12,7 @@
 #include <CImg.h>
 #include <fstream>
 #include <gsl/gsl-lite.hpp>
+#include <utility>
 
 namespace gl
 {

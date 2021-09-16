@@ -11,6 +11,7 @@
 #include "loader/file/larastateid.h"
 #include "modelobject.h"
 #include "object.h"
+#include "objectstate.h"
 #include "qs/quantity.h"
 
 namespace engine::objects

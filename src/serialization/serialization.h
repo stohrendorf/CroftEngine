@@ -1,12 +1,11 @@
 #pragma once
 
-#include "access.h" // IWYU pragma: export
-#include "exception.h"
+#include "access.h"            // IWYU pragma: export
+#include "exception.h"         // IWYU pragma: export
 #include "serialization_fwd.h" // IWYU pragma: export
 
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/log/trivial.hpp>
-#include <boost/throw_exception.hpp>
 #include <exception>
 #include <gsl/gsl-lite.hpp>
 #include <optional>

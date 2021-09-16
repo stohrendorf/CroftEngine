@@ -41,7 +41,9 @@
 #include <gl/renderstate.h>
 #include <gl/vertexarray.h>
 #include <gl/vertexbuffer.h>
+#include <glm/ext/scalar_int_sized.hpp>
 #include <glm/fwd.hpp>
+#include <glm/geometric.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/mat4x4.hpp>
 #include <glm/vec2.hpp>

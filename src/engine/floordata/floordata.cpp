@@ -6,6 +6,7 @@
 #include "util/helpers.h"
 
 #include <exception>
+#include <type_traits>
 
 namespace engine::floordata
 {

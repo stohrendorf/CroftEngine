@@ -16,7 +16,7 @@
 #include "engine/world/world.h"
 #include "hid/actions.h"
 #include "hid/inputhandler.h"
-#include "qs/mult_div.h"
+#include "qs/qs.h"
 #include "statehandler_0.h"
 #include "statehandler_1.h"
 #include "statehandler_10.h"

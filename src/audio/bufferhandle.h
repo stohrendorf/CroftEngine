@@ -3,7 +3,6 @@
 #include "core.h"
 #include "handle.h"
 
-#include <AL/al.h>
 #include <chrono>
 #include <cstddef>
 #include <cstdint>

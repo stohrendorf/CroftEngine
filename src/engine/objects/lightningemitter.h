@@ -2,14 +2,17 @@
 
 #include "core/vec.h"
 #include "modelobject.h"
+#include "serialization/serialization_fwd.h"
 
 #include <array>
 #include <cstddef>
 #include <gl/soglb_fwd.h>
-#include <glm/vec3.hpp>
+#include <glm/fwd.hpp>
 #include <gsl/gsl-lite.hpp>
 #include <memory>
 #include <string>
+
+// IWYU pragma: no_forward_declare serialization::Serializer
 
 namespace engine
 {

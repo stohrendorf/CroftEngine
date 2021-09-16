@@ -4,7 +4,11 @@
 #include "glassert.h"
 
 #include <boost/log/trivial.hpp>
+#include <boost/throw_exception.hpp>
+#include <cstdint>
 #include <GL/glew.h>
+#include <gsl/gsl-lite.hpp>
+#include <stdexcept>
 
 using namespace gl;
 

@@ -1,12 +1,20 @@
 #include "suspendedshack.h"
 
+#include "core/id.h"
+#include "engine/floordata/floordata.h"
 #include "engine/skeletalmodelnode.h"
 #include "engine/world/world.h"
 #include "modelobject.h"
-#include "serialization/serialization.h"
+#include "objectstate.h"
+#include "serialization/serialization.h" // IWYU pragma: keep
 
+#include <array>
+#include <gl/renderstate.h>
 #include <gsl/gsl-lite.hpp>
+#include <memory>
 #include <string>
+
+// IWYU pragma: no_forward_declare serialization::Serializer
 
 namespace engine::objects
 {
@@ -43,6 +51,7 @@ void SuspendedShack::collide(CollisionInfo& collisionInfo)
 {
   collideWithLara(collisionInfo);
 }
+
 void SuspendedShack::serialize(const serialization::Serializer<world::World>& ser)
 {
   ModelObject::serialize(ser);

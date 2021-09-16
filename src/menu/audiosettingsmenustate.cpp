@@ -21,6 +21,7 @@
 #include <algorithm>
 #include <boost/throw_exception.hpp>
 #include <cstddef>
+#include <glm/fwd.hpp>
 #include <glm/vec2.hpp>
 #include <gsl/gsl-lite.hpp>
 #include <stdexcept>

@@ -18,7 +18,7 @@
 #include "render/portaltracer.h"
 #include "render/scene/camera.h"
 #include "render/scene/node.h"
-#include "serialization/objectreference.h"
+#include "serialization/objectreference.h" // IWYU pragma: keep
 #include "serialization/quantity.h"
 #include "serialization/serialization.h"
 #include "util/helpers.h"

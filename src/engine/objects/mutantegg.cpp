@@ -25,11 +25,14 @@
 #include "shatter.h"
 
 #include <bitset>
+#include <boost/log/trivial.hpp>
 #include <cstddef>
 #include <cstdint>
 #include <exception>
 #include <iosfwd>
 #include <map>
+
+// IWYU pragma: no_forward_declare serialization::Serializer
 
 namespace engine::objects
 {

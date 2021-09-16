@@ -153,4 +153,6 @@ bool Voice::isPaused() const
 {
   return m_paused.value_or(true);
 }
+
+Voice::~Voice() = default;
 } // namespace audio

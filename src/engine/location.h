@@ -2,12 +2,14 @@
 
 #include "core/units.h"
 #include "core/vec.h"
-#include "serialization/serialization_fwd.h" // IWYU pragma: keep
+#include "serialization/serialization_fwd.h"
 
 #include <glm/vec3.hpp>
 #include <gsl/gsl-lite.hpp>
 #include <iosfwd>
 #include <utility>
+
+// IWYU pragma: no_forward_declare serialization::Serializer
 
 namespace engine::world
 {

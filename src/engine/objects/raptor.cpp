@@ -12,7 +12,7 @@
 #include "engine/world/skeletalmodeltype.h"
 #include "engine/world/world.h"
 #include "objectstate.h"
-#include "qs/mult_div.h"
+#include "qs/qs.h"
 #include "util/helpers.h"
 
 #include <memory>

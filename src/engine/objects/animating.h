@@ -2,6 +2,22 @@
 
 #include "modelobject.h"
 
+namespace engine
+{
+struct Location;
+}
+
+namespace engine::world
+{
+class World;
+struct Room;
+} // namespace engine::world
+
+namespace loader::file
+{
+struct Item;
+}
+
 namespace engine::world
 {
 struct SkeletalModelType;

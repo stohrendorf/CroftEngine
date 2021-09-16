@@ -22,7 +22,6 @@
 #include <gsl/gsl-lite.hpp>
 #include <optional>
 #include <utility>
-#include <vector>
 
 namespace render::scene
 {

@@ -17,6 +17,11 @@ struct Room;
 struct SkeletalModelType;
 } // namespace engine::world
 
+namespace loader::file
+{
+struct Item;
+}
+
 namespace engine::objects
 {
 class Earthquake final : public NullRenderModelObject

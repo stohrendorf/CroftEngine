@@ -6,7 +6,8 @@
 #include "heightinfo.h"
 #include "type_safe/flag_set.hpp"
 
-#include <gsl/gsl-lite.hpp>
+#include <cstdint>
+#include <gsl/gsl-lite.hpp> // IWYU pragma: keep
 #include <set>
 
 namespace engine::world

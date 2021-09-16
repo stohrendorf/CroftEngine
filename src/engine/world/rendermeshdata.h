@@ -7,6 +7,7 @@
 #include <cstdint>
 #include <gl/pixel.h>
 #include <gl/vertexbuffer.h>
+#include <glm/ext/scalar_int_sized.hpp>
 #include <glm/fwd.hpp>
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>

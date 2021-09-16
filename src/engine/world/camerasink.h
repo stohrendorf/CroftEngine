@@ -1,8 +1,11 @@
 #pragma once
 
 #include "core/vec.h"
+#include "serialization/serialization_fwd.h"
 
 #include <cstdint>
+
+// IWYU pragma: no_forward_declare serialization::Serializer
 
 namespace engine::world
 {

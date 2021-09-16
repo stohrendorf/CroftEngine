@@ -3,11 +3,11 @@
 #include "api/gl.hpp"
 
 #ifdef SOGLB_DEBUGGING
-#  include "api/gl_api_provider.hpp"
-
-#  include <boost/assert.hpp>
 #  include <boost/log/trivial.hpp>
-#  include <boost/stacktrace.hpp>
+#  include <boost/stacktrace/stacktrace.hpp>
+#  include <boost/throw_exception.hpp>
+#  include <iosfwd>
+#  include <stdexcept>
 
 void gl::checkGlError(gsl::czstring code)
 {

@@ -7,7 +7,6 @@
 #include "qs/quantity.h"
 #include "utils.h"
 
-#include <AL/al.h>
 #include <AL/efx.h>
 #include <algorithm>
 #include <boost/throw_exception.hpp>

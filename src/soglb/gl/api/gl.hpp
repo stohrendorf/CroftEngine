@@ -1,6 +1,6 @@
 #pragma once
 #include "gl_enabled_features.hpp"
-#include "soglb_core.hpp"
+#include "soglb_core.hpp" // IWYU pragma: export
 namespace gl::api
 {
 // API feature levels

@@ -1,6 +1,7 @@
 #include "trapdoorup.h"
 
 #include "modelobject.h"
+#include "objectstate.h"
 
 namespace engine::objects
 {

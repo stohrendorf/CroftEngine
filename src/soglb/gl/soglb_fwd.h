@@ -1,8 +1,18 @@
 #pragma once
 
-#include "api/gl.hpp"
+#include "api/soglb_core.hpp" // IWYU pragma: export
 
 #include <glm/fwd.hpp>
+
+namespace gl::api
+{
+enum class BufferTarget : core::EnumType;
+enum class PixelFormat : core::EnumType;
+enum class SizedInternalFormat : core::EnumType;
+enum class ProgramInterface : core::EnumType;
+enum class TextureTarget : core::EnumType;
+enum class ShaderType : core::EnumType;
+} // namespace gl::api
 
 namespace gl
 {

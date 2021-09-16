@@ -2,6 +2,7 @@
 
 #include <chrono>
 #include <cstdint>
+#include <gl/api/gl.hpp>
 #include <gl/pixel.h>
 #include <gsl/gsl-lite.hpp>
 #include <memory>

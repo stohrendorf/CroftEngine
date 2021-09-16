@@ -4,9 +4,11 @@
 #include <boost/assert.hpp>
 #include <boost/iostreams/filtering_stream.hpp>
 #include <boost/iostreams/restrict.hpp>
+#include <boost/throw_exception.hpp>
 #include <cstdio>
 #include <gsl/gsl-lite.hpp>
 #include <istream>
+#include <stdexcept>
 #include <string>
 
 namespace audio::sndfile
@@ -51,7 +53,7 @@ sf_count_t memBufferDoSeek(const sf_count_t offset, const int whence, void* user
     else
       self->m_where = std::min(self->m_dataSize - offset, self->m_dataSize);
     break;
-  default: BOOST_ASSERT(false);
+  default: BOOST_THROW_EXCEPTION(std::domain_error("invalid seek operation"));
   }
   return self->m_where;
 }
@@ -109,7 +111,7 @@ sf_count_t streamDoSeek(const sf_count_t offset, const int whence, void* user_da
     BOOST_ASSERT(offset >= 0 && offset <= streamGetFileLength(user_data));
     self->m_streamImpl->stream->seekg(offset, std::ios::end);
     break;
-  default: BOOST_ASSERT(false);
+  default: BOOST_THROW_EXCEPTION(std::domain_error("invalid seek operation"));
   }
   return self->m_streamImpl->stream->tellg();
 }

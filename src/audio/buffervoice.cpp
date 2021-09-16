@@ -1,5 +1,6 @@
 #include "buffervoice.h"
 
+#include "audio/core.h"
 #include "bufferhandle.h"
 #include "sourcehandle.h"
 #include "utils.h"
@@ -11,8 +12,7 @@
 namespace audio
 {
 BufferVoice::BufferVoice(gsl::not_null<std::shared_ptr<BufferHandle>> buffer)
-    : Voice{}
-    , m_buffer{std::move(buffer)}
+    : m_buffer{std::move(buffer)}
 {
 }
 

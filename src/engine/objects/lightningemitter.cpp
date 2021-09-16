@@ -11,8 +11,6 @@
 #include "engine/soundeffects_tr1.h"
 #include "engine/world/skeletalmodeltype.h"
 #include "engine/world/world.h"
-#include "gl/api/soglb_core.hpp"
-#include "gl/renderstate.h"
 #include "laraobject.h"
 #include "loader/file/animation.h"
 #include "modelobject.h"
@@ -34,9 +32,12 @@
 #include <cstdint>
 #include <exception>
 #include <gl/buffer.h>
+#include <gl/renderstate.h>
 #include <gl/vertexarray.h>
 #include <gl/vertexbuffer.h>
+#include <glm/geometric.hpp>
 #include <glm/mat4x4.hpp>
+#include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
 #include <optional>
 #include <tuple>

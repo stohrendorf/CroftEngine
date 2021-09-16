@@ -267,8 +267,8 @@ set( EDISONENGINE_SRCS
         loader/trx/trx.h
         loader/trx/trx.cpp
 
-        audio/alext.h
-        audio/alext.cpp
+        audio/loadefx.h
+        audio/loadefx.cpp
         audio/bufferhandle.h
         audio/bufferhandle.cpp
         audio/buffervoice.h

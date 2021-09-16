@@ -5,7 +5,7 @@
 #include <boost/log/trivial.hpp>
 #include <gsl/gsl-lite.hpp>
 #include <optional>
-#include <utf8.h>
+#include <utf8.h> // IWYU pragma: keep
 #include <utility>
 
 namespace gl

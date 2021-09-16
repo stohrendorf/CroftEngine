@@ -1,9 +1,12 @@
 #pragma once
 
 #include "aiagent.h"
+#include "serialization/serialization_fwd.h"
 
 #include <gsl/gsl-lite.hpp>
 #include <string>
+
+// IWYU pragma: no_forward_declare serialization::Serializer
 
 namespace engine
 {

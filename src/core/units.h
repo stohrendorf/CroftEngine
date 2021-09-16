@@ -3,6 +3,7 @@
 #include "qs/qs.h"
 
 #include <cmath>
+#include <cstdint>
 
 namespace core
 {

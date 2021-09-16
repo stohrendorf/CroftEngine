@@ -3,6 +3,8 @@
 #include "glassert.h"
 
 #include <glm/common.hpp>
+#include <gsl/gsl-lite.hpp>
+#include <utility>
 
 namespace gl
 {

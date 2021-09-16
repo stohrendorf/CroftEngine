@@ -10,7 +10,14 @@
 
 namespace engine::world
 {
+class World;
+struct Room;
 struct SkeletalModelType;
+} // namespace engine::world
+
+namespace loader::file
+{
+struct Item;
 }
 
 namespace engine::objects

@@ -5,6 +5,11 @@
 #include <glm/vec2.hpp>
 #include <memory>
 
+// IWYU pragma: no_forward_declare gl::Framebuffer
+// IWYU pragma: no_forward_declare gl::Texture2D
+// IWYU pragma: no_forward_declare gl::TextureDepth
+// IWYU pragma: no_forward_declare gl::TextureHandle
+
 namespace render::pass
 {
 class GeometryPass

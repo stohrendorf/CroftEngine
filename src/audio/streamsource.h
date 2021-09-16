@@ -9,7 +9,6 @@
 #include <filesystem>
 #include <fstream>
 #include <memory>
-#include <sndfile.h>
 
 namespace audio
 {

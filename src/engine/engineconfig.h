@@ -9,12 +9,15 @@
 #include "hid/glfw_keys.h"
 #include "render/rendersettings.h"
 #include "serialization/named_enum.h"
+#include "serialization/serialization_fwd.h"
 
 #include <algorithm>
 #include <map>
 #include <string>
 #include <variant>
 #include <vector>
+
+// IWYU pragma: no_forward_declare serialization::Serializer
 
 namespace engine
 {

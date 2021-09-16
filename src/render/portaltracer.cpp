@@ -11,6 +11,8 @@
 #include <boost/assert.hpp>
 #include <boost/range/adaptor/transformed.hpp>
 #include <cstddef>
+#include <glm/fwd.hpp>
+#include <glm/geometric.hpp>
 #include <glm/mat4x4.hpp>
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>

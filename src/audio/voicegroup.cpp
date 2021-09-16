@@ -2,6 +2,7 @@
 
 #include "voice.h"
 
+#include <AL/al.h>
 #include <algorithm>
 #include <iterator>
 #include <utility>

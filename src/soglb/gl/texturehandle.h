@@ -1,6 +1,6 @@
 #pragma once
 
-#include "api/gl.hpp"
+#include "api/gl.hpp" // IWYU pragma: export
 #include "glassert.h"
 #include "sampler.h"
 #include "texture.h"

@@ -11,12 +11,17 @@
 #include <gl/pixel.h>
 #include <gl/soglb_fwd.h> // IWYU pragma: keep
 #include <gl/window.h>
+#include <glm/trigonometric.hpp>
 #include <glm/vec2.hpp>
 #include <gsl/gsl-lite.hpp>
 #include <memory>
 #include <string>
 #include <unordered_set>
 #include <vector>
+
+// IWYU pragma: no_forward_declare gl::Font
+// IWYU pragma: no_forward_declare gl::Texture2D
+// IWYU pragma: no_forward_declare gl::TextureHandle
 
 namespace audio
 {

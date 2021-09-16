@@ -8,7 +8,7 @@
 #include "floordata/types.h"
 #include "location.h"
 #include "qs/quantity.h"
-#include "serialization/serialization_fwd.h" // IWYU pragma: keep
+#include "serialization/serialization_fwd.h"
 
 #include <cstddef>
 #include <cstdint>
@@ -16,6 +16,8 @@
 #include <gsl/gsl-lite.hpp>
 #include <memory>
 #include <unordered_set>
+
+// IWYU pragma: no_forward_declare serialization::Serializer
 
 namespace render::scene
 {

@@ -20,6 +20,7 @@
 #include <algorithm>
 #include <boost/assert.hpp>
 #include <exception>
+#include <glm/geometric.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
 namespace engine::objects

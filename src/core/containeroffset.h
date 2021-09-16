@@ -1,12 +1,14 @@
 #pragma once
 
-#include "serialization/serialization_fwd.h" // IWYU pragma: keep
+#include "serialization/serialization_fwd.h"
 #include "tpl_helper.h"
 
 #include <boost/throw_exception.hpp>
 #include <gsl/gsl-lite.hpp>
 #include <stdexcept>
 #include <vector>
+
+// IWYU pragma: no_forward_declare serialization::Serializer
 
 namespace core
 {

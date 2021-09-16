@@ -1,16 +1,20 @@
 #pragma once
 
 #include "qs/qs.h"
-#include "serialization/serialization_fwd.h" // IWYU pragma: keep
+#include "serialization/serialization_fwd.h"
 #include "units.h"
 
+#include <cmath>
 #include <cstdint>
+#include <cstdlib>
 #include <glm/ext/scalar_constants.hpp>
 #include <glm/fwd.hpp>
 #include <glm/vec3.hpp>
 #include <gsl/gsl-lite.hpp>
 #include <optional>
 #include <type_traits>
+
+// IWYU pragma: no_forward_declare serialization::Serializer
 
 namespace engine::world
 {

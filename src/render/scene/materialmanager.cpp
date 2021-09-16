@@ -18,7 +18,7 @@
 #include <gl/renderstate.h>
 #include <gl/sampler.h>
 #include <gl/texture2d.h>
-#include <gl/texture2darray.h>
+#include <gl/texture2darray.h> // IWYU pragma: keep
 #include <gl/texturehandle.h>
 #include <glm/vec2.hpp>
 #include <random>
@@ -27,6 +27,8 @@
 
 namespace render::scene
 {
+class Mesh;
+
 namespace
 {
 void configureForScreenSpaceEffect(Material& m, bool enableBlend = false)

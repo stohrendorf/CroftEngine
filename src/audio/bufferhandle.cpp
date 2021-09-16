@@ -8,7 +8,6 @@
 #include <boost/log/trivial.hpp>
 #include <cstring>
 #include <gsl/gsl-lite.hpp>
-#include <sndfile.h>
 #include <vector>
 
 namespace audio

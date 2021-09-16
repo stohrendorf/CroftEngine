@@ -2,6 +2,9 @@
 
 #include "aiagent.h"
 #include "core/units.h"
+#include "serialization/serialization_fwd.h"
+
+// IWYU pragma: no_forward_declare serialization::Serializer
 
 namespace engine::world
 {

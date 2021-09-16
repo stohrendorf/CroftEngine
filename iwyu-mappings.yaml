@@ -1,6 +1,20 @@
 - include: [ "<bits/exception.h>", "private", "<exception>", "public" ]
 - include: [ "<bits/types/struct_tm.h>", "private", "<ctime>", "public" ]
 
+- symbol: [ "std::atan2", "private", "<cmath>", "public" ]
+- symbol: [ "std::sin", "private", "<cmath>", "public" ]
+- symbol: [ "std::cos", "private", "<cmath>", "public" ]
+
+- symbol: [ "glm::ceil", "private", "<glm/common.hpp>", "public" ]
+- symbol: [ "glm::floor", "private", "<glm/common.hpp>", "public" ]
+
+- include: [ "<boost/log/core/record.hpp>", "public", "<boost/log/trivial.hpp>", "public" ]
+- include: [ "<boost/log/sources/record_ostream.hpp>", "public", "<boost/log/trivial.hpp>", "public" ]
+- include: [ "<boost/log/sinks/basic_sink_frontend.hpp>", "public", "<boost/log/trivial.hpp>", "public" ]
+# FIXME this is ugly as we map a preprocessor include to a log include
+- include: [ "<boost/preprocessor/seq/limits/enum_256.hpp>", "public", "<boost/log/trivial.hpp>", "public" ]
+- include: [ "<boost/preprocessor/seq/limits/size_256.hpp>", "public", "<boost/log/trivial.hpp>", "public" ]
+
 - include: [ "@\"c4/std/.*\"", "private", "<ryml_std.hpp>", "public" ]
 - include: [ "@\"c4/yml/.*\"", "private", "<ryml.hpp>", "public" ]
 
@@ -19,21 +33,34 @@
 - include: [ "<glm/detail/type_vec4.hpp>", "private", "<glm/vec4.hpp>", "public" ]
 - include: [ "<glm/detail/type_vec4.inl>", "private", "<glm/vec4.hpp>", "public" ]
 
+- include: [ "<glm/ext/matrix_float3x3.hpp>", "private", "<glm/mat3x3.hpp>", "public" ]
+- include: [ "<glm/detail/type_mat3x3.hpp>", "private", "<glm/mat3x3.hpp>", "public" ]
+- include: [ "<glm/detail/type_mat3x3.inl>", "private", "<glm/mat3x3.hpp>", "public" ]
+
 - include: [ "<glm/ext/matrix_float4x4.hpp>", "private", "<glm/mat4x4.hpp>", "public" ]
 - include: [ "<glm/detail/type_mat4x4.hpp>", "private", "<glm/mat4x4.hpp>", "public" ]
 - include: [ "<glm/detail/type_mat4x4.inl>", "private", "<glm/mat4x4.hpp>", "public" ]
 
+- include: [ "<glm/ext/matrix_clip_space.inl>", "private", "<glm/ext/matrix_clip_space.hpp>", "public" ]
+
 - include: [ "<glm/detail/func_common.inl>", "private", "<glm/common.hpp>", "public" ]
+- include: [ "<glm/detail/func_geometric.inl>", "private", "<glm/geometric.hpp>", "public" ]
+- include: [ "<glm/detail/func_exponential.inl>", "private", "<glm/exponential.hpp>", "public" ]
+- include: [ "<glm/detail/func_trigonometric.inl>", "private", "<glm/trigonometric.hpp>", "public" ]
 
 - include: [ "<glm/ext/matrix_transform.inl>", "private", "<glm/gtc/matrix_transform.hpp>", "public" ]
+- include: [ "<glm/ext/scalar_constants.inl>", "private", "<glm/ext/scalar_constants.hpp>", "public" ]
 
 - include: [ "<glm/gtc/type_ptr.inl>", "private", "<glm/gtc/type_ptr.hpp>", "public" ]
 
 - include: [ "<glm/gtx/norm.inl>", "private", "<glm/gtx/norm.hpp>", "public" ]
+- include: [ "<glm/gtx/euler_angles.inl>", "private", "<glm/gtx/euler_angles.hpp>", "public" ]
 
 - include: [ "@<pybind11/detail/.*>", "private", "<pybind11/pybind11.h>", "public" ]
 
 - symbol: [ "gsl::not_null", "private", "<gsl/gsl-lite.hpp>", "public" ]
+
+- symbol: [ "serialization::Serializer", "private", "\"serialization/serialization_fwd.h\"", "public" ]
 
 - ref: "/usr/share/include-what-you-use/boost-all.imp"
 - ref: "/usr/share/include-what-you-use/libcxx.imp"

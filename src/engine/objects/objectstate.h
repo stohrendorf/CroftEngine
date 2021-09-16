@@ -7,12 +7,15 @@
 #include "engine/floordata/floordata.h"
 #include "engine/location.h"
 #include "qs/quantity.h"
+#include "serialization/serialization_fwd.h"
 
 #include <bitset>
 #include <cstdint>
 #include <glm/fwd.hpp>
 #include <gsl/gsl-lite.hpp>
 #include <utility>
+
+// IWYU pragma: no_forward_declare serialization::Serializer
 
 namespace audio
 {

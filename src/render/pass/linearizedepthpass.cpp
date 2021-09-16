@@ -17,13 +17,12 @@
 #include <gl/renderstate.h>
 #include <gl/sampler.h>
 #include <gl/texture2d.h>
-#include <gl/texturedepth.h>
+#include <gl/texturedepth.h> // IWYU pragma: keep
 #include <gl/texturehandle.h>
 #include <glm/mat4x4.hpp>
 #include <gsl/gsl-lite.hpp>
 #include <optional>
 #include <utility>
-#include <vector>
 
 namespace render::scene
 {

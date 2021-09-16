@@ -1,8 +1,7 @@
 #pragma once
 
 #include <AL/alc.h>
-#include <AL/alext.h>
-#include <AL/efx.h>
+#include <AL/efx.h> // IWYU pragma: export
 #include <gsl/gsl-lite.hpp>
 
 #ifdef AL_ALEXT_PROTOTYPES
@@ -62,7 +61,5 @@ extern LPALGETAUXILIARYEFFECTSLOTI alGetAuxiliaryEffectSloti;
 extern LPALGETAUXILIARYEFFECTSLOTIV alGetAuxiliaryEffectSlotiv;
 extern LPALGETAUXILIARYEFFECTSLOTF alGetAuxiliaryEffectSlotf;
 extern LPALGETAUXILIARYEFFECTSLOTFV alGetAuxiliaryEffectSlotfv;
-
-// ReSharper enable IdentifierTypo
 
 #endif

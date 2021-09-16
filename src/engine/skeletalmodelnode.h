@@ -4,6 +4,7 @@
 #include "core/units.h"
 #include "core/vec.h"
 #include "render/scene/node.h"
+#include "serialization/serialization_fwd.h"
 
 #include <algorithm>
 #include <cstddef>
@@ -18,6 +19,8 @@
 #include <string>
 #include <utility>
 #include <vector>
+
+// IWYU pragma: no_forward_declare serialization::Serializer
 
 namespace core
 {

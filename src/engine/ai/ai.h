@@ -6,7 +6,7 @@
 #include "core/vec.h"
 #include "pathfinder.h"
 #include "qs/qs.h"
-#include "serialization/serialization_fwd.h" // IWYU pragma: keep
+#include "serialization/serialization_fwd.h"
 
 #include <algorithm>
 #include <boost/throw_exception.hpp>
@@ -15,6 +15,9 @@
 #include <memory>
 #include <ostream>
 #include <stdexcept>
+
+// IWYU pragma: no_forward_declare serialization::Serializer
+// IWYU pragma: no_forward_declare serialization::TypeId
 
 namespace engine::objects
 {

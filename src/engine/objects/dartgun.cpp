@@ -20,6 +20,7 @@
 
 #include <gsl/gsl-lite.hpp>
 #include <memory>
+#include <type_traits>
 #include <utility>
 
 void engine::objects::DartGun::update()

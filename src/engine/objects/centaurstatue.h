@@ -1,10 +1,13 @@
 #pragma once
 
 #include "modelobject.h"
+#include "serialization/serialization_fwd.h"
 
 #include <gsl/gsl-lite.hpp>
 #include <memory>
 #include <string>
+
+// IWYU pragma: no_forward_declare serialization::Serializer
 
 namespace engine
 {

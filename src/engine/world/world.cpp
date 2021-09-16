@@ -22,12 +22,12 @@
 #include "engine/inventory.h"
 #include "engine/location.h"
 #include "engine/objects/aiagent.h"
-#include "engine/objects/block.h"
+#include "engine/objects/block.h" // IWYU pragma: keep
 #include "engine/objects/laraobject.h"
 #include "engine/objects/modelobject.h"
 #include "engine/objects/objectstate.h"
 #include "engine/objects/pickupobject.h"
-#include "engine/objects/tallblock.h"
+#include "engine/objects/tallblock.h" // IWYU pragma: keep
 #include "engine/particle.h"
 #include "engine/player.h"
 #include "engine/presenter.h"
