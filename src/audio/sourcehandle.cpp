@@ -20,7 +20,7 @@ namespace audio
 SourceHandle::SourceHandle()
     : Handle{alGenSources, alIsSource, alDeleteSources}
 {
-  set(AL_REFERENCE_DISTANCE, core::SectorSize.get());
+  set(AL_REFERENCE_DISTANCE, 2 * core::SectorSize.get());
   set(AL_AIR_ABSORPTION_FACTOR, 1.0f);
 }
 
