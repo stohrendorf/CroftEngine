@@ -141,42 +141,13 @@ void AudioEngine::playStopCdTrack(const script::ScriptEngine& scriptEngine, cons
   case audio::TrackType::AmbientEffect:
     if(!stop)
     {
-      BOOST_LOG_TRIVIAL(debug) << "playStopCdTrack - play sound effect "
-                               << toString(static_cast<TR1SoundEffect>(trackInfo.id.get()));
+      BOOST_LOG_TRIVIAL(debug) << "playStopCdTrack - play sound effect " << toString(trackId);
       playSoundEffect(core::SoundEffectId{trackInfo.id}, nullptr);
     }
     else
     {
-      BOOST_LOG_TRIVIAL(debug) << "playStopCdTrack - stop effect "
-                               << toString(static_cast<TR1SoundEffect>(trackInfo.id.get()));
+      BOOST_LOG_TRIVIAL(debug) << "playStopCdTrack - stop effect " << toString(trackId);
       stopSoundEffect(core::SoundEffectId{trackInfo.id}, nullptr);
-    }
-    break;
-  case audio::TrackType::LaraTalk:
-    if(!stop)
-    {
-      const auto sfxId = static_cast<TR1SoundEffect>(trackInfo.id.get());
-
-      if(!m_currentLaraTalk.has_value() || *m_currentLaraTalk != sfxId)
-      {
-        BOOST_LOG_TRIVIAL(debug) << "playStopCdTrack - play lara talk " << toString(sfxId);
-
-        if(m_currentLaraTalk.has_value())
-          stopSoundEffect(*m_currentLaraTalk, &m_world.getObjectManager().getLara().m_state);
-
-        if(const auto lara = m_world.getObjectManager().getLaraPtr())
-          lara->playSoundEffect(sfxId);
-        else
-          playSoundEffect(sfxId, nullptr);
-        m_currentLaraTalk = sfxId;
-      }
-    }
-    else
-    {
-      BOOST_LOG_TRIVIAL(debug) << "playStopCdTrack - stop lara talk "
-                               << toString(static_cast<TR1SoundEffect>(trackInfo.id.get()));
-      stopSoundEffect(static_cast<TR1SoundEffect>(trackInfo.id.get()), &m_world.getObjectManager().getLara().m_state);
-      m_currentLaraTalk.reset();
     }
     break;
   case audio::TrackType::Ambient:
@@ -192,7 +163,7 @@ void AudioEngine::playStopCdTrack(const script::ScriptEngine& scriptEngine, cons
 
     if(!stop)
     {
-      BOOST_LOG_TRIVIAL(debug) << "playStopCdTrack - play ambient " << static_cast<size_t>(trackInfo.id.get());
+      BOOST_LOG_TRIVIAL(debug) << "playStopCdTrack - play ambient " << toString(trackId);
       m_ambientStream = playStream(trackInfo.id.get());
       m_ambientStreamId = trackInfo.id.get();
       m_ambientStream->setLooping(true);
@@ -214,7 +185,7 @@ void AudioEngine::playStopCdTrack(const script::ScriptEngine& scriptEngine, cons
 
     if(!stop)
     {
-      BOOST_LOG_TRIVIAL(debug) << "playStopCdTrack - play interception " << static_cast<size_t>(trackInfo.id.get());
+      BOOST_LOG_TRIVIAL(debug) << "playStopCdTrack - play interception " << toString(trackId);
       m_interceptStream = playStream(trackInfo.id.get());
       m_interceptStreamId = trackInfo.id.get();
       m_interceptStream->setLooping(false);
@@ -409,7 +380,6 @@ void AudioEngine::serialize(const serialization::Serializer<world::World>& ser)
     = m_interceptStream == nullptr ? std::chrono::milliseconds{0} : m_interceptStream->getStreamPosition();
 
   ser(S_NV("currentTrack", m_currentTrack),
-      S_NV("currentLaraTalk", m_currentLaraTalk),
       S_NV("cdTrackActivationStates", m_cdTrackActivationStates),
       S_NV("ambientStreamId", m_ambientStreamId),
       S_NV("ambientStreamPosition", ambientPosition),
@@ -478,6 +448,5 @@ void AudioEngine::init(const std::vector<loader::file::SoundEffectProperties>& s
   m_interceptStream.reset();
   m_interceptStreamId.reset();
   m_currentTrack.reset();
-  m_currentLaraTalk.reset();
 }
 } // namespace engine

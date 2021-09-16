@@ -52,7 +52,6 @@ class AudioEngine
   std::shared_ptr<audio::StreamVoice> m_interceptStream;
   std::optional<size_t> m_interceptStreamId{};
   std::optional<TR1TrackId> m_currentTrack;
-  std::optional<TR1SoundEffect> m_currentLaraTalk;
   std::vector<std::shared_ptr<audio::BufferHandle>> m_samples;
   audio::VoiceGroup m_music{0.8f};
   audio::VoiceGroup m_sfx{0.8f};

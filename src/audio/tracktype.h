@@ -6,7 +6,6 @@ enum class TrackType
 {
   Ambient,
   Interception,
-  AmbientEffect,
-  LaraTalk
+  AmbientEffect
 };
 }

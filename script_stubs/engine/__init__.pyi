@@ -29,7 +29,6 @@ class TrackType(Enum):
     AMBIENT = auto()
     INTERCEPTION = auto()
     AMBIENT_EFFECT = auto()
-    LARA_TALK = auto()
 
 
 class WeaponType(Enum):

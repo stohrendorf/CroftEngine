@@ -30,7 +30,7 @@ tracks = {
     TR1TrackId.Ambience3: TrackInfo(5, TrackType.AMBIENT),  # PC ONLY: Wind  ambience
     TR1TrackId.Ambience4: TrackInfo(6, TrackType.AMBIENT),  # PC ONLY: Pulse ambience
     **{
-        TR1TrackId(int(TR1TrackId.LaraTalk0) + i): TrackInfo(i + int(TR1SoundEffect.LaraTalk0), TrackType.LARA_TALK)
+        TR1TrackId(int(TR1TrackId.LaraTalk0) + i): TrackInfo(29 + i, TrackType.INTERCEPTION)
         for i in range(int(TR1TrackId.LaraTalk30) - int(TR1TrackId.LaraTalk0) + 1)
     },
 }
