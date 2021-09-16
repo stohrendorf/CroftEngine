@@ -17,11 +17,19 @@
 
 namespace audio
 {
-SourceHandle::SourceHandle()
+SourceHandle::SourceHandle(bool positional)
     : Handle{alGenSources, alIsSource, alDeleteSources}
 {
-  set(AL_REFERENCE_DISTANCE, 2 * core::SectorSize.get());
-  set(AL_AIR_ABSORPTION_FACTOR, 1.0f);
+  if(positional)
+  {
+    set(AL_REFERENCE_DISTANCE, 2 * core::SectorSize.get());
+    set(AL_AIR_ABSORPTION_FACTOR, 1.0f);
+  }
+  else
+  {
+    set(AL_REFERENCE_DISTANCE, 0.0f);
+    set(AL_AIR_ABSORPTION_FACTOR, 0.0f);
+  }
 }
 
 SourceHandle::~SourceHandle()

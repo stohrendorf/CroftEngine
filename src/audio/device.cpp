@@ -225,7 +225,7 @@ void Device::update()
     if(vi < SourceHandleSlots)
     {
       if(!voice->hasSourceHandle())
-        voice->associate(std::make_unique<SourceHandle>());
+        voice->associate(std::make_unique<SourceHandle>(voice->isPositional()));
       voice->getSourceHandle()->setDirectFilter(m_filter);
     }
     else

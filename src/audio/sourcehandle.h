@@ -16,7 +16,7 @@ class FilterHandle;
 class SourceHandle : public Handle
 {
 public:
-  explicit SourceHandle();
+  explicit SourceHandle(bool positional);
   ~SourceHandle() override;
 
   void setDirectFilter(const std::shared_ptr<FilterHandle>& f);
@@ -43,6 +43,11 @@ public:
 class StreamingSourceHandle : public SourceHandle
 {
 public:
+  explicit StreamingSourceHandle()
+      : SourceHandle{false}
+  {
+  }
+
   ~StreamingSourceHandle() override;
 
   [[nodiscard]] std::shared_ptr<BufferHandle> unqueueBuffer();
