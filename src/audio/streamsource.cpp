@@ -20,32 +20,23 @@ namespace audio
 {
 namespace
 {
-constexpr int16_t clampSample(float v) noexcept
-{
-  if(v <= -1)
-    return std::numeric_limits<short>::lowest();
-  else if(v >= 1)
-    return std::numeric_limits<short>::max();
-  else
-    return static_cast<short>(std::numeric_limits<short>::max() * v);
-}
-
 size_t readStereo(
   short* sampleBuffer, const size_t frameCount, SNDFILE* sndFile, const bool sourceIsMono, const bool looping)
 {
   size_t processedFrames = 0;
-  std::vector<float> tmp;
+  std::vector<int16_t> tmp;
   const auto samplesPerFrame = sourceIsMono ? 1 : 2;
   while(processedFrames < frameCount)
   {
     const auto requestedFrames = frameCount - processedFrames;
     const auto requestedSamples = requestedFrames * samplesPerFrame;
     tmp.resize(requestedSamples);
-    const auto readFrames = sf_readf_float(sndFile, tmp.data(), gsl::narrow<sf_count_t>(requestedFrames));
+    const auto readFrames = sf_readf_short(sndFile, tmp.data(), gsl::narrow<sf_count_t>(requestedFrames));
     if(readFrames > 0)
     {
-      for(size_t i = 0; i < static_cast<size_t>(readFrames * samplesPerFrame); ++i)
-        sampleBuffer[processedFrames * samplesPerFrame + i] = clampSample(tmp[i]);
+      std::copy_n(tmp.begin(),
+                  static_cast<size_t>(readFrames * samplesPerFrame),
+                  &sampleBuffer[processedFrames * samplesPerFrame]);
 
       processedFrames += readFrames;
     }
