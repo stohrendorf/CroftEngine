@@ -50,6 +50,7 @@
 #include "render/rendersettings.h"
 #include "render/scene/camera.h"
 #include "render/scene/materialmanager.h"
+#include "render/scene/mesh.h"
 #include "render/scene/node.h"
 #include "render/scene/renderer.h"
 #include "render/scene/sprite.h"
@@ -1375,13 +1376,13 @@ void World::initFromLevel(loader::file::level::Level& level)
   {
     RenderMeshDataCompositor compositor;
     compositor.append(*meshesDirect.at(staticMesh.mesh)->meshData);
-    const bool distinct = m_staticMeshes
-                            .emplace(staticMesh.id,
-                                     StaticMesh{staticMesh.collision_box,
-                                                staticMesh.doNotCollide(),
-                                                staticMesh.isVisible(),
-                                                compositor.toMesh(*getPresenter().getMaterialManager(), false, {})})
-                            .second;
+    auto mesh = compositor.toMesh(*getPresenter().getMaterialManager(), false, {});
+    mesh->getRenderState().setScissorTest(false);
+    const bool distinct
+      = m_staticMeshes
+          .emplace(staticMesh.id,
+                   StaticMesh{staticMesh.collision_box, staticMesh.doNotCollide(), staticMesh.isVisible(), mesh})
+          .second;
 
     Expects(distinct);
   }
