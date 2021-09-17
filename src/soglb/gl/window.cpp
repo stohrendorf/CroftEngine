@@ -23,9 +23,9 @@ void glErrorCallback(const int err, const gsl::czstring msg)
 }
 } // namespace
 
-Window::Window(const std::filesystem::path& logoPath, const glm::ivec2& resolution)
+Window::Window(const std::filesystem::path& logoPath, const glm::ivec2& windowSize)
     : m_windowPos{0, 0}
-    , m_windowSize{resolution}
+    , m_windowSize{windowSize}
 {
   glfwSetErrorCallback(&glErrorCallback);
 
@@ -53,7 +53,7 @@ Window::Window(const std::filesystem::path& logoPath, const glm::ivec2& resoluti
 #endif
 
   glfwWindowHint(GLFW_MAXIMIZED, GLFW_TRUE);
-  m_window = glfwCreateWindow(resolution.x, resolution.y, "EdisonEngine", nullptr, nullptr);
+  m_window = glfwCreateWindow(windowSize.x, windowSize.y, "EdisonEngine", nullptr, nullptr);
 
   if(m_window == nullptr)
   {

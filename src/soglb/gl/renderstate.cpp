@@ -15,8 +15,10 @@ inline RenderState& getCurrentState()
 
   if(!initialized)
   {
+    auto oldWanted = RenderState::getWantedState();
     RenderState::resetWantedState();
     initialized = true;
+    RenderState::getWantedState() = oldWanted;
     RenderState::applyWantedState();
   }
   return currentState;

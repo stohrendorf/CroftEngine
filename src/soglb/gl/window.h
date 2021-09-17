@@ -10,7 +10,7 @@ namespace gl
 class Window final
 {
 public:
-  explicit Window(const std::filesystem::path& logoPath, const glm::ivec2& resolution = {1280, 800});
+  explicit Window(const std::filesystem::path& logoPath, const glm::ivec2& windowSize = {1280, 800});
   ~Window();
 
   [[nodiscard]] bool isVsync() const;
