@@ -5,6 +5,7 @@
 #include <glm/vec2.hpp>
 #include <gsl/gsl-lite.hpp>
 #include <memory>
+#include <string>
 
 // IWYU pragma: no_forward_declare gl::Framebuffer
 // IWYU pragma: no_forward_declare gl::Texture2D
@@ -27,7 +28,8 @@ class LinearizeDepthPass
 public:
   explicit LinearizeDepthPass(scene::MaterialManager& materialManager,
                               const glm::ivec2& viewport,
-                              const std::shared_ptr<gl::TextureHandle<gl::TextureDepth<float>>>& depth);
+                              const std::shared_ptr<gl::TextureHandle<gl::TextureDepth<float>>>& depth,
+                              const std::string& prefix);
 
   void render();
 

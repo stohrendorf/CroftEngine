@@ -33,7 +33,8 @@ namespace render::pass
 {
 LinearizeDepthPass::LinearizeDepthPass(scene::MaterialManager& materialManager,
                                        const glm::ivec2& viewport,
-                                       const std::shared_ptr<gl::TextureHandle<gl::TextureDepth<float>>>& depth)
+                                       const std::shared_ptr<gl::TextureHandle<gl::TextureDepth<float>>>& depth,
+                                       const std::string& prefix)
     : m_material{materialManager.getLinearDepth()}
     , m_renderMesh{scene::createScreenQuad(m_material, "linearize-depth")}
 {
@@ -42,10 +43,10 @@ LinearizeDepthPass::LinearizeDepthPass(scene::MaterialManager& materialManager,
     [depth](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
     { uniform.set(depth); });
 
-  auto sampler = std::make_unique<gl::Sampler>("linearize-depth");
+  auto sampler = std::make_unique<gl::Sampler>("linearize-depth-sampler");
   sampler->set(gl::api::TextureMinFilter::Nearest).set(gl::api::TextureMagFilter::Nearest);
   m_linearDepth = std::make_shared<gl::TextureHandle<gl::Texture2D<gl::Scalar32F>>>(
-    std::make_shared<gl::Texture2D<gl::Scalar32F>>(viewport, "linearize-depth"), std::move(sampler));
+    std::make_shared<gl::Texture2D<gl::Scalar32F>>(viewport, prefix + "linearize-depth-texture"), std::move(sampler));
 
   m_fb = gl::FrameBufferBuilder()
            .textureNoBlend(gl::api::FramebufferAttachment::ColorAttachment0, m_linearDepth->getTexture())
