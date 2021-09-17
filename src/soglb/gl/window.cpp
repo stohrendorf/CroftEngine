@@ -80,6 +80,7 @@ Window::Window(const std::filesystem::path& logoPath, const glm::ivec2& windowSi
 #ifdef NDEBUG
   glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 #endif
+  setVsync(true);
 }
 
 void Window::setVsync(const bool enable)
