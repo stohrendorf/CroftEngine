@@ -71,7 +71,6 @@ void StreamVoice::update()
 
     if(fillBuffer(*buffer))
       m_streamSource->queueBuffer(buffer);
-    break;
   }
 }
 

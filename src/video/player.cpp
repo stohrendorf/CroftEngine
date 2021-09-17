@@ -636,7 +636,7 @@ void play(const std::filesystem::path& filename,
   decoderPtr->fillQueues();
 
   auto stream
-    = audioDevice.createStream(std::move(decoderPtr), decoder->audioFrameSize, 2, std::chrono::milliseconds{0});
+    = audioDevice.createStream(std::move(decoderPtr), decoder->audioFrameSize, 30, std::chrono::milliseconds{0});
   stream->setLooping(true);
   stream->play();
 
