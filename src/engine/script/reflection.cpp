@@ -166,15 +166,7 @@ std::unique_ptr<world::World> Level::loadWorld(Engine& engine, const std::shared
 
 bool Level::isLevel(const std::filesystem::path& path) const
 {
-  try
-  {
-    return std::filesystem::equivalent(getLocalLevelPath(m_name), path);
-  }
-  catch(std::error_code& ec)
-  {
-    ec.clear();
-    return false;
-  }
+  return getLocalLevelPath(m_name) == path;
 }
 
 std::pair<RunResult, std::optional<size_t>> Level::run(Engine& engine, const std::shared_ptr<Player>& player)

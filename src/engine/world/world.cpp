@@ -974,8 +974,7 @@ void World::load(const std::optional<size_t>& slot)
   serialization::YAMLDocument<true> doc{filename};
   SavegameMeta meta{};
   doc.load("meta", meta, meta);
-  if(!std::filesystem::equivalent(meta.filename,
-                                  std::filesystem::relative(m_levelFilename, m_engine.getUserDataPath())))
+  if(meta.filename != std::filesystem::relative(m_levelFilename, m_engine.getUserDataPath()))
   {
     BOOST_LOG_TRIVIAL(error) << "Savegame mismatch. File is for " << meta.filename << ", but current level is "
                              << m_levelFilename;
