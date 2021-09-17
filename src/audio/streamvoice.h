@@ -38,7 +38,7 @@ public:
   [[nodiscard]] std::chrono::milliseconds getStreamPosition() const;
   void seek(const std::chrono::milliseconds& position);
 
-  void associate(std::unique_ptr<SourceHandle>&& source) override;
+  [[noreturn]] void associate(std::unique_ptr<SourceHandle>&& source) override;
 
   [[nodiscard]] Clock::duration getDuration() const override;
 
