@@ -315,17 +315,6 @@ const std::shared_ptr<Material>& MaterialManager::getHBAO()
   return m_hbao;
 }
 
-const std::shared_ptr<Material>& MaterialManager::getLinearDepth()
-{
-  if(m_linearDepth != nullptr)
-    return m_linearDepth;
-
-  auto m = std::make_shared<Material>(m_shaderCache->getLinearDepth());
-  configureForScreenSpaceEffect(*m);
-  m_linearDepth = m;
-  return m_linearDepth;
-}
-
 const std::shared_ptr<Material>& MaterialManager::getVSMSquare()
 {
   if(m_vsmSquare != nullptr)

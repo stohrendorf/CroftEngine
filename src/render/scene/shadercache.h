@@ -144,11 +144,6 @@ public:
     return get("flat.vert", "crt.frag");
   }
 
-  auto getLinearDepth()
-  {
-    return get("flat.vert", "linearize_depth.frag");
-  }
-
   auto getUi()
   {
     return get("ui.vert", "ui.frag");

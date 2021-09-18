@@ -1,8 +1,9 @@
 #include "time_uniform.glsl"
+#include "camera_interface.glsl"
 
 vec3 shade_texel(in vec3 rgb, in float depth)
 {
-    return rgb * (1.0 - depth);
+    return rgb * clamp((u_farPlane - depth) / u_farPlane, 0.0, 1.0);
 }
 
 vec3 shaded_texel(in sampler2D tex, in vec2 uv, in float depth)

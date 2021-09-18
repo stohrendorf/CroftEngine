@@ -6,7 +6,7 @@ float dof_focal_depth = 1536.0/u_farPlane;
 float dof_start = 128.0/u_farPlane;
 float dof_dist = 20*1024.0/u_farPlane;
 // autofocus
-float dof_focal_depth = texture(u_linearDepth, vec2(0.5)).r;
+float dof_focal_depth = -texture(u_geometryPosition, vec2(0.5)).z / u_farPlane;
 #endif
 const float DofBlurRange = 3;
 
@@ -22,15 +22,15 @@ vec3 dof_color(in vec2 uv, in float blur_amount)//processing the sample
     vec2 db = vec2(0.866, -0.5)*dof_texel*fringe*blur_amount;
 
     vec3 col;
-    col.r = shaded_texel(u_texture, uv+dr, texture(u_linearDepth, uv+dr).r).r;
-    col.g = shaded_texel(u_texture, uv+dg, texture(u_linearDepth, uv+dg).r).g;
-    col.b = shaded_texel(u_texture, uv+db, texture(u_linearDepth, uv+db).r).b;
+    col.r = shaded_texel(u_texture, uv+dr, -texture(u_geometryPosition, uv+dr).z).r;
+    col.g = shaded_texel(u_texture, uv+dg, -texture(u_geometryPosition, uv+dg).z).g;
+    col.b = shaded_texel(u_texture, uv+db, -texture(u_geometryPosition, uv+db).z).b;
     return col;
 }
 
 vec3 do_dof(in vec2 uv)
 {
-    float depth = texture(u_linearDepth, uv).r;
+    float depth = -texture(u_geometryPosition, uv).z / u_farPlane;
     float blur_amount = clamp((abs(depth-dof_focal_depth) - dof_start) / dof_dist, -DofBlurRange, DofBlurRange);
 
     const float NAmount = 0.0001;//dither amount
@@ -40,7 +40,7 @@ vec3 do_dof(in vec2 uv)
     const float BokehBias = 0.5;//bokeh edge bias
     vec2 blur_radius = dof_texel * blur_amount + noise;
 
-    vec3 col = shaded_texel(u_texture, uv, texture(u_linearDepth, uv).r);
+    vec3 col = shaded_texel(u_texture, uv, -texture(u_geometryPosition, uv).z);
     float weight_sum = 1.0;
 
     const int Rings = 3;

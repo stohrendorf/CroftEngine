@@ -1,10 +1,10 @@
 layout(bindless_sampler) uniform sampler2D u_texture;
-layout(bindless_sampler) uniform sampler2D u_linearPortalDepth;
+layout(bindless_sampler) uniform sampler2D u_geometryPosition;
+layout(bindless_sampler) uniform sampler2D u_portalPosition;
 layout(bindless_sampler) uniform sampler2D u_portalPerturb;
 #ifdef HBAO
 layout(bindless_sampler) uniform sampler2D u_ao;
 #endif
-layout(bindless_sampler) uniform sampler2D u_linearDepth;
 
 #include "flat_pipeline_interface.glsl"
 #include "camera_interface.glsl"
@@ -31,9 +31,9 @@ layout(location=0) out vec4 out_color;
 
 void main()
 {
-#ifdef WATER
+    #ifdef WATER
     vec2 uv = (fpi.texCoord - vec2(0.5)) * 0.9 + vec2(0.5);// scale a bit to avoid edge clamping when underwater
-#else
+    #else
     vec2 uv = fpi.texCoord;
     #endif
 
@@ -55,16 +55,14 @@ void main()
     #else
     vec3 finalColor = vec3(1.0);
     #endif
-    float pDepth = texture(u_linearPortalDepth, uv).r;
-    float geomDepth = texture(u_linearDepth, uv).r;
-    float d = geomDepth - pDepth;
-    d = clamp(d*4, 0, 1);
-    if (d > 0)
+    float pDepth = -texture(u_portalPosition, uv).z;
+    float geomDepth = -texture(u_geometryPosition, uv).z;
+    if (geomDepth > pDepth)
     {
         // camera ray goes through water surface; apply perturb
         vec2 pUv = uv + texture(u_portalPerturb, uv).xy * 64;
-        if (texture(u_linearDepth, pUv).r >= pDepth) {
-            // ...but only apply it if the source pixel's geometry is below the water surface.
+        if (-texture(u_geometryPosition, pUv).z > pDepth) {
+            // ...but only apply it if the source pixel's geometry is behind the water surface.
             uv = pUv;
             #ifdef WATER
             finalColor = vec3(1.0);
@@ -75,20 +73,22 @@ void main()
     }
 
         #ifndef DOF
-    finalColor *= shaded_texel(u_texture, uv, texture(u_linearPortalDepth, uv).r);
+    finalColor *= shaded_texel(u_texture, uv, -texture(u_portalPosition, uv).z);
     #else
     finalColor *= do_dof(uv);
     #endif
 
     #ifdef WATER
-    d = clamp(pDepth*4, 0, 1);
+    float d = clamp(pDepth*4, 0, u_farPlane) / u_farPlane;
     // light absorbtion
     finalColor *= mix(vec3(1), WaterColor, d);
     // light scatter
     finalColor = mix(finalColor, WaterColor, d/30);
     #else
-    if (d > 0)
+    if (geomDepth > pDepth)
     {
+        float d = geomDepth - pDepth;
+        d = clamp(d*4, 0, u_farPlane) / u_farPlane;
         // light absorbtion
         finalColor *= mix(vec3(1), WaterColor, d);
         // light scatter
@@ -103,7 +103,7 @@ void main()
     finalColor *= grain*0.5 + 1.0;
     #endif
 
-#ifdef VELVIA
+    #ifdef VELVIA
     const float velviaAmount = 0.03;
     const vec2 velviaFac = vec2(1.0 + 2*velviaAmount, -velviaAmount);
     vec3 velviaColor = vec3(dot(finalColor, velviaFac.xyy), dot(finalColor, velviaFac.yxy), dot(finalColor, velviaFac.yyx));

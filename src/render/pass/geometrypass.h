@@ -29,6 +29,11 @@ public:
     return m_positionBufferHandle;
   }
 
+  [[nodiscard]] const auto& getInterpolatedPositionBuffer() const
+  {
+    return m_interpolatedPositionBufferHandle;
+  }
+
   [[nodiscard]] const auto& getColorBuffer() const
   {
     return m_colorBufferHandle;
@@ -36,16 +41,16 @@ public:
 
   [[nodiscard]] const auto& getDepthBuffer() const
   {
-    return m_depthBufferHandle;
+    return m_depthBuffer;
   }
 
 private:
   std::shared_ptr<gl::TextureDepth<float>> m_depthBuffer;
-  std::shared_ptr<gl::TextureHandle<gl::TextureDepth<float>>> m_depthBufferHandle;
   std::shared_ptr<gl::Texture2D<gl::SRGBA8>> m_colorBuffer;
   std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>> m_colorBufferHandle;
   std::shared_ptr<gl::Texture2D<gl::RGB32F>> m_positionBuffer;
   std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::RGB32F>>> m_positionBufferHandle;
+  std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::RGB32F>>> m_interpolatedPositionBufferHandle;
   std::shared_ptr<gl::Texture2D<gl::RGB16F>> m_normalBuffer;
   std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::RGB16F>>> m_normalBufferHandle;
   std::shared_ptr<gl::Framebuffer> m_fb;

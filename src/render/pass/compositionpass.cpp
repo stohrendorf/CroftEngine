@@ -1,8 +1,8 @@
 #include "compositionpass.h"
 
 #include "config.h"
+#include "geometrypass.h"
 #include "hbaopass.h"
-#include "linearizedepthpass.h"
 #include "portalpass.h"
 #include "render/rendersettings.h"
 #include "render/scene/material.h"
@@ -37,11 +37,10 @@ namespace render::pass
 CompositionPass::CompositionPass(scene::MaterialManager& materialManager,
                                  const RenderSettings& renderSettings,
                                  const glm::ivec2& viewport,
+                                 const GeometryPass& geometryPass,
                                  const PortalPass& portalPass,
                                  const HBAOPass& hbaoPass,
-                                 const std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>>& colorBuffer,
-                                 const LinearizeDepthPass& linearizeDepthPass,
-                                 const LinearizeDepthPass& linearizePortalDepthPass)
+                                 const std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>>& colorBuffer)
     : m_compositionMaterial{materialManager.getComposition(false,
                                                            renderSettings.lensDistortion,
                                                            renderSettings.dof,
@@ -59,8 +58,8 @@ CompositionPass::CompositionPass(scene::MaterialManager& materialManager,
     , m_crtMesh{scene::createScreenQuad(materialManager.getCrt(), "composition-crt")}
     , m_colorBuffer{std::make_shared<gl::Texture2D<gl::SRGBA8>>(viewport, "composition-color")}
 {
-  m_mesh->bind("u_linearPortalDepth",
-               [buffer = linearizePortalDepthPass.getTexture()](
+  m_mesh->bind("u_portalPosition",
+               [buffer = portalPass.getPositionBuffer()](
                  const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
                { uniform.set(buffer); });
   if(renderSettings.waterDenoise)
@@ -73,8 +72,8 @@ CompositionPass::CompositionPass(scene::MaterialManager& materialManager,
                  [texture = portalPass.getNoisyTexture()](
                    const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
                  { uniform.set(texture); });
-  m_mesh->bind("u_linearDepth",
-               [buffer = linearizeDepthPass.getTexture()](
+  m_mesh->bind("u_geometryPosition",
+               [buffer = geometryPass.getInterpolatedPositionBuffer()](
                  const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
                { uniform.set(buffer); });
   if(renderSettings.hbao)
@@ -87,8 +86,8 @@ CompositionPass::CompositionPass(scene::MaterialManager& materialManager,
     [colorBuffer](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
     { uniform.set(colorBuffer); });
 
-  m_waterMesh->bind("u_linearPortalDepth",
-                    [buffer = linearizePortalDepthPass.getTexture()](
+  m_waterMesh->bind("u_portalPosition",
+                    [buffer = portalPass.getPositionBuffer()](
                       const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
                     { uniform.set(buffer); });
 
@@ -102,8 +101,8 @@ CompositionPass::CompositionPass(scene::MaterialManager& materialManager,
                       [texture = portalPass.getNoisyTexture()](
                         const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
                       { uniform.set(texture); });
-  m_waterMesh->bind("u_linearDepth",
-                    [buffer = linearizeDepthPass.getTexture()](
+  m_waterMesh->bind("u_geometryPosition",
+                    [buffer = geometryPass.getInterpolatedPositionBuffer()](
                       const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
                     { uniform.set(buffer); });
   if(renderSettings.hbao)

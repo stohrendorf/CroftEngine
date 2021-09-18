@@ -11,7 +11,6 @@ class TextureDepth final : public TextureImpl<api::TextureTarget::Texture2d, Sca
 public:
   using typename TextureImpl<api::TextureTarget::Texture2d, ScalarDepth<_T>>::Pixel;
   using TextureImpl<api::TextureTarget::Texture2d, ScalarDepth<_T>>::getHandle;
-  using TextureImpl<api::TextureTarget::Texture2d, ScalarDepth<_T>>::getSubDataTarget;
 
   explicit TextureDepth(const glm::ivec2& size, const std::string& label = {})
       : TextureImpl<api::TextureTarget::Texture2d, ScalarDepth<_T>>{label}
@@ -40,25 +39,6 @@ public:
   TextureDepth<_T>& fill(const _T& value)
   {
     return fill(Pixel{value});
-  }
-
-  void copyFrom(const TextureDepth<_T>& src)
-  {
-    GL_ASSERT(api::copyImageSubData(src.getHandle(),
-                                    src.getSubDataTarget(),
-                                    0,
-                                    0,
-                                    0,
-                                    0,
-                                    getHandle(),
-                                    getSubDataTarget(),
-                                    0,
-                                    0,
-                                    0,
-                                    0,
-                                    src.m_size.x,
-                                    src.m_size.y,
-                                    1));
   }
 
   [[nodiscard]] const glm::ivec2& size() const

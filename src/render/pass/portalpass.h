@@ -21,18 +21,20 @@ namespace render::pass
 class PortalPass
 {
 public:
-  explicit PortalPass(scene::MaterialManager& materialManager, const glm::vec2& viewport);
+  explicit PortalPass(scene::MaterialManager& materialManager,
+                      const std::shared_ptr<gl::TextureDepth<float>>& depthBuffer,
+                      const glm::vec2& viewport);
 
-  void bind(const gl::TextureHandle<gl::TextureDepth<float>>& depth);
+  void bind(const gl::TextureHandle<gl::Texture2D<gl::RGB32F>>& position);
 
   void renderBlur()
   {
     m_blur.render();
   }
 
-  [[nodiscard]] const auto& getDepthBuffer() const
+  [[nodiscard]] const auto& getPositionBuffer() const
   {
-    return m_depthBufferHandle;
+    return m_positionBufferHandle;
   }
 
   [[nodiscard]] const auto& getNoisyTexture() const
@@ -46,8 +48,8 @@ public:
   }
 
 private:
-  std::shared_ptr<gl::TextureDepth<float>> m_depthBuffer;
-  std::shared_ptr<gl::TextureHandle<gl::TextureDepth<float>>> m_depthBufferHandle;
+  std::shared_ptr<gl::Texture2D<gl::RGB32F>> m_positionBuffer;
+  std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::RGB32F>>> m_positionBufferHandle;
   std::shared_ptr<gl::Texture2D<gl::RG32F>> m_perturbBuffer;
   std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::RG32F>>> m_perturbBufferHandle;
   scene::SeparableBlur<gl::RG32F> m_blur;

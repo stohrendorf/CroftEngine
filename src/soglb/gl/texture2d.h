@@ -11,6 +11,7 @@ class Texture2D final : public TextureImpl<api::TextureTarget::Texture2d, _Pixel
 public:
   using typename TextureImpl<api::TextureTarget::Texture2d, _PixelT>::Pixel;
   using TextureImpl<api::TextureTarget::Texture2d, _PixelT>::getHandle;
+  using TextureImpl<api::TextureTarget::Texture2d, _PixelT>::getSubDataTarget;
 
   explicit Texture2D(const glm::ivec2& size, const std::string& label = {})
       : Texture2D<_PixelT>{size, 1, label}
@@ -47,6 +48,25 @@ public:
   [[nodiscard]] const glm::ivec2& size() const noexcept
   {
     return m_size;
+  }
+
+  void copyFrom(const Texture2D<_PixelT>& src)
+  {
+    GL_ASSERT(api::copyImageSubData(src.getHandle(),
+                                    src.getSubDataTarget(),
+                                    0,
+                                    0,
+                                    0,
+                                    0,
+                                    getHandle(),
+                                    getSubDataTarget(),
+                                    0,
+                                    0,
+                                    0,
+                                    0,
+                                    src.m_size.x,
+                                    src.m_size.y,
+                                    1));
   }
 
 private:

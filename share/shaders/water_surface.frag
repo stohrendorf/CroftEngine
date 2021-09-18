@@ -5,6 +5,7 @@
 #include "noise.glsl"
 
 layout(location=0) out vec2 out_perturb;
+layout(location=1) out vec3 out_position;
 
 mat2 rotate2d(in float a){
     float ca = cos(a);
@@ -65,4 +66,5 @@ void main()
     vec4 surface = u_viewProjection * vec4(vec3(sn.x, 0, sn.z) + ppi.vertexPosWorld, 1);
     surface /= surface.w;
     out_perturb = (surface-orig).xy;
+    out_position = ppi.vertexPosView;
 }

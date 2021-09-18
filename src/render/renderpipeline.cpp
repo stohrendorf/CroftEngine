@@ -4,7 +4,6 @@
 #include "pass/fxaapass.h"
 #include "pass/geometrypass.h"
 #include "pass/hbaopass.h"
-#include "pass/linearizedepthpass.h"
 #include "pass/portalpass.h"
 #include "pass/uipass.h"
 #include "rendersettings.h"
@@ -32,10 +31,6 @@ void RenderPipeline::compositionPass(const bool water)
   BOOST_ASSERT(m_fxaaPass != nullptr);
   if(m_renderSettings.fxaa)
     m_fxaaPass->render(m_size);
-  BOOST_ASSERT(m_linearizeDepthPass != nullptr);
-  m_linearizeDepthPass->render();
-  BOOST_ASSERT(m_linearizePortalDepthPass != nullptr);
-  m_linearizePortalDepthPass->render();
   BOOST_ASSERT(m_compositionPass != nullptr);
   m_compositionPass->render(water, m_renderSettings);
 }
@@ -65,22 +60,17 @@ void RenderPipeline::resize(scene::MaterialManager& materialManager, const glm::
   m_size = viewport;
 
   m_geometryPass = std::make_shared<pass::GeometryPass>(viewport);
-  m_linearizeDepthPass = std::make_shared<pass::LinearizeDepthPass>(
-    materialManager, viewport, m_geometryPass->getDepthBuffer(), "geometry/");
-  m_portalPass = std::make_shared<pass::PortalPass>(materialManager, viewport);
-  m_linearizePortalDepthPass
-    = std::make_shared<pass::LinearizeDepthPass>(materialManager, viewport, m_portalPass->getDepthBuffer(), "portal/");
+  m_portalPass = std::make_shared<pass::PortalPass>(materialManager, m_geometryPass->getDepthBuffer(), viewport);
   m_hbaoPass = std::make_shared<pass::HBAOPass>(materialManager, viewport, *m_geometryPass);
   m_fxaaPass = std::make_shared<pass::FXAAPass>(materialManager, viewport, *m_geometryPass);
   m_compositionPass = std::make_shared<pass::CompositionPass>(materialManager,
                                                               m_renderSettings,
                                                               viewport,
+                                                              *m_geometryPass,
                                                               *m_portalPass,
                                                               *m_hbaoPass,
                                                               m_renderSettings.fxaa ? m_fxaaPass->getColorBuffer()
-                                                                                    : m_geometryPass->getColorBuffer(),
-                                                              *m_linearizeDepthPass,
-                                                              *m_linearizePortalDepthPass);
+                                                                                    : m_geometryPass->getColorBuffer());
   m_uiPass = std::make_shared<pass::UIPass>(materialManager, viewport);
 }
 
@@ -88,7 +78,7 @@ void RenderPipeline::bindPortalFrameBuffer()
 {
   BOOST_ASSERT(m_portalPass != nullptr);
   BOOST_ASSERT(m_geometryPass != nullptr);
-  m_portalPass->bind(*m_geometryPass->getDepthBuffer());
+  m_portalPass->bind(*m_geometryPass->getPositionBuffer());
 }
 
 void RenderPipeline::bindUiFrameBuffer()

@@ -18,32 +18,40 @@ class MaterialManager;
 
 namespace render::pass
 {
-PortalPass::PortalPass(scene::MaterialManager& materialManager, const glm::vec2& viewport)
-    : m_depthBuffer{std::make_shared<gl::TextureDepth<float>>(viewport, "portal-depth")}
+PortalPass::PortalPass(scene::MaterialManager& materialManager,
+                       const std::shared_ptr<gl::TextureDepth<float>>& depthBuffer,
+                       const glm::vec2& viewport)
+    : m_positionBuffer{std::make_shared<gl::Texture2D<gl::RGB32F>>(viewport, "portal-position")}
     , m_perturbBuffer{std::make_shared<gl::Texture2D<gl::RG32F>>(viewport, "portal-perturb")}
     , m_blur{"perturb", materialManager, 4, true}
 {
-  auto sampler = std::make_unique<gl::Sampler>("portal-depth");
-  sampler->set(gl::api::TextureMinFilter::Linear).set(gl::api::TextureMagFilter::Linear);
-  m_depthBufferHandle = std::make_shared<gl::TextureHandle<gl::TextureDepth<float>>>(m_depthBuffer, std::move(sampler));
+  auto sampler = std::make_unique<gl::Sampler>("portal-position-sampler");
+  sampler->set(gl::api::SamplerParameterI::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge)
+    .set(gl::api::SamplerParameterI::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge)
+    .set(gl::api::TextureMinFilter::Linear)
+    .set(gl::api::TextureMagFilter::Linear);
 
-  sampler = std::make_unique<gl::Sampler>("portal-perturb");
+  m_positionBufferHandle
+    = std::make_shared<gl::TextureHandle<gl::Texture2D<gl::RGB32F>>>(m_positionBuffer, std::move(sampler));
+
+  sampler = std::make_unique<gl::Sampler>("portal-perturb-sampler");
   sampler->set(gl::api::TextureMinFilter::Linear).set(gl::api::TextureMagFilter::Linear);
   m_perturbBufferHandle
     = std::make_shared<gl::TextureHandle<gl::Texture2D<gl::RG32F>>>(m_perturbBuffer, std::move(sampler));
   m_blur.setInput(m_perturbBufferHandle);
 
   m_fb = gl::FrameBufferBuilder()
-           .texture(gl::api::FramebufferAttachment::DepthAttachment, m_depthBuffer)
            .textureNoBlend(gl::api::FramebufferAttachment::ColorAttachment0, m_perturbBuffer)
+           .textureNoBlend(gl::api::FramebufferAttachment::ColorAttachment1, m_positionBuffer)
+           .textureNoBlend(gl::api::FramebufferAttachment::DepthAttachment, depthBuffer)
            .build("portal-fb");
 }
 
 // NOLINTNEXTLINE(readability-make-member-function-const)
-void PortalPass::bind(const gl::TextureHandle<gl::TextureDepth<float>>& depth)
+void PortalPass::bind(const gl::TextureHandle<gl::Texture2D<gl::RGB32F>>& position)
 {
   gl::Framebuffer::unbindAll();
-  m_depthBuffer->copyFrom(*depth.getTexture());
+  m_positionBuffer->copyFrom(*position.getTexture());
   m_fb->bindWithAttachments();
 }
 } // namespace render::pass

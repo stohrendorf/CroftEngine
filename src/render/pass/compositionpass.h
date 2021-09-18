@@ -28,7 +28,7 @@ namespace render::pass
 {
 class PortalPass;
 class HBAOPass;
-class LinearizeDepthPass;
+class GeometryPass;
 
 class CompositionPass
 {
@@ -36,11 +36,10 @@ public:
   explicit CompositionPass(scene::MaterialManager& materialManager,
                            const RenderSettings& renderSettings,
                            const glm::ivec2& viewport,
+                           const GeometryPass& geometryPass,
                            const PortalPass& portalPass,
                            const HBAOPass& hbaoPass,
-                           const std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>>& colorBuffer,
-                           const LinearizeDepthPass& linearizeDepthPass,
-                           const LinearizeDepthPass& linearizePortalDepthPass);
+                           const std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>>& colorBuffer);
 
   void updateCamera(const gsl::not_null<std::shared_ptr<scene::Camera>>& camera);
 
