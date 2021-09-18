@@ -44,7 +44,7 @@ gsl::not_null<std::shared_ptr<Mesh>> createScreenQuad(const glm::vec2& xy,
 
   static const std::array<uint16_t, 6> indices{0, 1, 2, 0, 2, 3};
 
-  auto indexBuffer = std::make_shared<gl::ElementArrayBuffer<uint16_t>>(label + "^-idx");
+  auto indexBuffer = std::make_shared<gl::ElementArrayBuffer<uint16_t>>(label + "-idx");
   indexBuffer->setData(&indices[0], 6, gl::api::BufferUsage::StaticDraw);
 
   auto mesh = std::make_shared<MeshImpl<uint16_t, Vertex>>(std::make_shared<gl::VertexArray<uint16_t, Vertex>>(
