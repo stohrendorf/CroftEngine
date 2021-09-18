@@ -41,7 +41,7 @@ private:
 public:
   explicit RenderPipeline(scene::MaterialManager& materialManager, const glm::ivec2& viewport);
 
-  void bindGeometryFrameBuffer(const glm::ivec2& size);
+  void bindGeometryFrameBuffer(const glm::ivec2& size, float farPlane);
   void bindPortalFrameBuffer();
   void bindUiFrameBuffer();
   void renderUiFrameBuffer(float alpha);

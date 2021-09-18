@@ -60,7 +60,7 @@ void main()
     if (geomDepth > pDepth)
     {
         // camera ray goes through water surface; apply perturb
-        vec2 pUv = uv + texture(u_portalPerturb, uv).xy * 64;
+        vec2 pUv = uv + texture(u_portalPerturb, uv).xy;
         if (-texture(u_geometryPosition, pUv).z > pDepth) {
             // ...but only apply it if the source pixel's geometry is behind the water surface.
             uv = pUv;
@@ -79,24 +79,17 @@ void main()
     #endif
 
     #ifdef WATER
-    float d = clamp(pDepth*4, 0, u_farPlane) / u_farPlane;
+    float inVolumeRay = pDepth;
+    #else
+    float inVolumeRay = geomDepth - pDepth;
+    #endif
+    float d = clamp(inVolumeRay*4, 0, u_farPlane) / u_farPlane;
     // light absorbtion
     finalColor *= mix(vec3(1), WaterColor, d);
     // light scatter
-    finalColor = mix(finalColor, WaterColor, d/30);
-    #else
-    if (geomDepth > pDepth)
-    {
-        float d = geomDepth - pDepth;
-        d = clamp(d*4, 0, u_farPlane) / u_farPlane;
-        // light absorbtion
-        finalColor *= mix(vec3(1), WaterColor, d);
-        // light scatter
-        finalColor = mix(finalColor, WaterColor, d/30);
-    }
-        #endif
+    finalColor = mix(finalColor, WaterColor, d/30.0);
 
-        #ifdef HBAO
+    #ifdef HBAO
     finalColor *= texture(u_ao, uv).r;
     #endif
     #ifdef FILM_GRAIN

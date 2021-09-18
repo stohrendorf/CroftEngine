@@ -162,7 +162,7 @@ void Presenter::renderWorld(const ObjectManager& objectManager,
 
   {
     SOGLB_DEBUGGROUP("geometry-pass");
-    m_renderPipeline->bindGeometryFrameBuffer(m_window->getViewport());
+    m_renderPipeline->bindGeometryFrameBuffer(m_window->getViewport(), cameraController.getCamera()->getFarPlane());
     m_renderer->clear(
       gl::api::ClearBufferMask::ColorBufferBit | gl::api::ClearBufferMask::DepthBufferBit, {0, 0, 0, 0}, 1);
 

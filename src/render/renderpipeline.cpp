@@ -87,10 +87,12 @@ void RenderPipeline::bindUiFrameBuffer()
   m_uiPass->bind();
 }
 
-void RenderPipeline::bindGeometryFrameBuffer(const glm::ivec2& size)
+void RenderPipeline::bindGeometryFrameBuffer(const glm::ivec2& size, float farPlane)
 {
   BOOST_ASSERT(m_geometryPass != nullptr);
   m_geometryPass->bind(size);
+  m_geometryPass->getColorBuffer()->getTexture()->clear({0, 0, 0, 255});
+  m_geometryPass->getPositionBuffer()->getTexture()->clear({0.0f, 0.0f, -farPlane});
 }
 
 void RenderPipeline::renderUiFrameBuffer(float alpha)

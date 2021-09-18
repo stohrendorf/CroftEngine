@@ -180,7 +180,7 @@ RenderState RenderState::getDefaults()
     defaults.setDepthWrite(true);
     defaults.setDepthClamp(false);
     defaults.setDepthFunction(api::DepthFunction::Less);
-    defaults.setBlend(true);
+    defaults.setBlend(false);
     defaults.setBlendFactors(api::BlendingFactor::SrcAlpha, api::BlendingFactor::OneMinusSrcAlpha);
     defaults.setCullFaceSide(api::CullFaceMode::Back);
     defaults.setFrontFace(api::FrontFaceDirection::Cw);

@@ -50,7 +50,7 @@ vec2 bumpMap(in vec2 st, in float time){
     bumpFunc(st-vec2(0, eps), time)
     );
 
-    return (ff-vec2(bumpFunc(st, time)))/eps*0.002;
+    return (ff-vec2(bumpFunc(st, time)))/eps*0.13;
 }
 
 void main()
