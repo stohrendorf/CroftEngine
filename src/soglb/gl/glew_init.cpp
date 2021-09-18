@@ -69,9 +69,8 @@ void SOGLB_API debugCallback(const api::DebugSource source,
                              const gsl::czstring message,
                              const void* /*userParam*/)
 {
-  if(source == api::DebugSource::DebugSourceApplication)
-    return;
-  if(severity == api::DebugSeverity::DebugSeverityNotification)
+  if(source == api::DebugSource::DebugSourceApplication
+     && (type == api::DebugType::DebugTypePushGroup || type == api::DebugType::DebugTypePopGroup))
     return;
 
   BOOST_LOG_TRIVIAL(debug) << "GLDebug #" << id << ", severity " << glDebugSeverityToString(severity) << ", type "

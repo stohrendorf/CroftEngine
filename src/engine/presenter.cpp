@@ -221,12 +221,6 @@ void Presenter::renderWorld(const ObjectManager& objectManager,
       m_screenOverlay = std::make_unique<render::scene::ScreenOverlay>(*m_materialManager, m_window->getViewport());
     m_debugFont->drawText(
       *m_screenOverlay->getImage(),
-      std::to_string(m_renderer->getFrameRate()).c_str(),
-      glm::ivec2{m_screenOverlay->getImage()->getSize().x - 80, m_screenOverlay->getImage()->getSize().y - 20},
-      gl::SRGBA8{255},
-      DebugTextFontSize);
-    m_debugFont->drawText(
-      *m_screenOverlay->getImage(),
       std::to_string(delayRatio).c_str(),
       glm::ivec2{m_screenOverlay->getImage()->getSize().x - 80, m_screenOverlay->getImage()->getSize().y - 40},
       gl::SRGBA8{255},

@@ -31,11 +31,6 @@ public:
 
   void render();
 
-  [[nodiscard]] float getFrameRate() const
-  {
-    return m_frameRate;
-  }
-
   void clear(const gl::api::core::Bitfield<gl::api::ClearBufferMask>& flags,
              const gl::SRGBA8& clearColor,
              float clearDepth);
@@ -65,11 +60,9 @@ public:
 private:
   const std::chrono::high_resolution_clock::time_point m_constructionTime{std::chrono::high_resolution_clock::now()};
 
-  std::chrono::high_resolution_clock::time_point m_frameLastFPS{}; // The last time the frame count was updated.
-  uint_fast32_t m_frameCount = 0;                                  // The current frame count.
-  float m_frameRate = 0;                                           // The current frame rate.
-  gl::SRGBA8 m_clearColor; // The clear color value last used for clearing the color buffer.
-  float m_clearDepth = 1;  // The clear depth value last used for clearing the depth buffer.
+  std::chrono::high_resolution_clock::time_point m_lastLogTime{};
+  gl::SRGBA8 m_clearColor;
+  float m_clearDepth = 1;
 
   std::shared_ptr<Node> m_rootNode;
   gsl::not_null<std::shared_ptr<Camera>> m_camera;

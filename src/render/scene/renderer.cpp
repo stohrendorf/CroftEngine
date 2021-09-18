@@ -33,15 +33,11 @@ void Renderer::render()
   Visitor visitor{context};
   m_rootNode->accept(visitor);
 
-  // Update FPS.
-  ++m_frameCount;
-  const auto t = getGameTime();
-  const auto dt = t - m_frameLastFPS;
-  if(dt >= std::chrono::seconds(1))
+  const auto t = std::chrono::high_resolution_clock::now();
+  const auto dt = t - m_lastLogTime;
+  if(dt >= std::chrono::seconds(5))
   {
-    m_frameRate
-      = std::exchange(m_frameCount, 0) * 1000.0f / std::chrono::duration_cast<std::chrono::milliseconds>(dt).count();
-    m_frameLastFPS = t;
+    m_lastLogTime = t;
 
     if(glewIsSupported("GL_ATI_meminfo") == GL_TRUE)
     {
