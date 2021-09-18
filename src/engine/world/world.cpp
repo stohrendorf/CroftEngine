@@ -74,6 +74,7 @@
 #include "transition.h"
 #include "ui/text.h"
 #include "ui/ui.h"
+#include "util/fsutil.h"
 #include "util/helpers.h"
 
 #include <algorithm>
@@ -975,7 +976,7 @@ void World::load(const std::optional<size_t>& slot)
   serialization::YAMLDocument<true> doc{filename};
   SavegameMeta meta{};
   doc.load("meta", meta, meta);
-  if(meta.filename != std::filesystem::relative(m_levelFilename, m_engine.getUserDataPath()))
+  if(!util::preferredEqual(meta.filename, std::filesystem::relative(m_levelFilename, m_engine.getUserDataPath())))
   {
     BOOST_LOG_TRIVIAL(error) << "Savegame mismatch. File is for " << meta.filename << ", but current level is "
                              << m_levelFilename;

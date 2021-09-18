@@ -27,6 +27,7 @@
 #include "render/scene/renderer.h"
 #include "render/scene/rendermode.h"
 #include "scriptengine.h"
+#include "util/fsutil.h"
 #include "util/helpers.h"
 
 #include <algorithm>
@@ -166,7 +167,7 @@ std::unique_ptr<world::World> Level::loadWorld(Engine& engine, const std::shared
 
 bool Level::isLevel(const std::filesystem::path& path) const
 {
-  return getLocalLevelPath(m_name) == path;
+  return util::preferredEqual(getLocalLevelPath(m_name), path);
 }
 
 std::pair<RunResult, std::optional<size_t>> Level::run(Engine& engine, const std::shared_ptr<Player>& player)
