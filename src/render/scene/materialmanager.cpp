@@ -155,6 +155,7 @@ const std::shared_ptr<Material>& MaterialManager::getWaterSurface()
 
   m_waterSurface = std::make_shared<Material>(m_shaderCache->getWaterSurface());
   m_waterSurface->getRenderState().setCullFace(false);
+  m_waterSurface->getRenderState().setBlend(false);
 
   m_waterSurface->getUniformBlock("Camera")->bindCameraBuffer(m_renderer->getCamera());
   m_waterSurface->getUniform("u_time")->bind(
