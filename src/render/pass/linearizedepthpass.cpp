@@ -36,7 +36,7 @@ LinearizeDepthPass::LinearizeDepthPass(scene::MaterialManager& materialManager,
                                        const std::shared_ptr<gl::TextureHandle<gl::TextureDepth<float>>>& depth,
                                        const std::string& prefix)
     : m_material{materialManager.getLinearDepth()}
-    , m_renderMesh{scene::createScreenQuad(m_material, "linearize-depth")}
+    , m_renderMesh{scene::createScreenQuad(m_material, prefix + "linearize-depth")}
 {
   m_renderMesh->bind(
     "u_depth",
