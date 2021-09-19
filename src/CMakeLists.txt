@@ -522,8 +522,8 @@ set( EDISONENGINE_SRCS
         video/converter.cpp
         video/filtergraph.h
         video/filtergraph.cpp
-        video/player.h
-        video/player.cpp
+        video/videoplayer.h
+        video/videoplayer.cpp
         video/stream.h
         video/stream.cpp
 

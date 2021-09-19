@@ -29,7 +29,7 @@
 #include "ui/text.h"
 #include "ui/ui.h"
 #include "util/helpers.h"
-#include "video/player.h"
+#include "video/videoplayer.h"
 #include "world/room.h"
 
 #include <algorithm>

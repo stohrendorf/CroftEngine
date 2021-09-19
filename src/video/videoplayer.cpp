@@ -1,4 +1,4 @@
-#include "player.h"
+#include "videoplayer.h"
 
 #include "audio/device.h"
 #include "audio/streamsource.h"
