@@ -1,6 +1,8 @@
 set( CMAKE_CXX_STANDARD 17 )
 set( CMAKE_CXX_STANDARD_REQUIRED ON )
 
+option( PERMISSIVE_BUILD "Disable a few compiler flags which are not strictly relevant for releases" OFF )
+
 enable_testing()
 
 if( CMAKE_BUILD_TYPE STREQUAL "Release" )
@@ -49,12 +51,8 @@ endif()
 
 if( CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU" )
     message( STATUS "GCC or Clang detected" )
-    set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wdouble-promotion -Wstrict-overflow=2 -Wparentheses -fvisibility=hidden" )
-    if( NOT CMAKE_CXX_COMPILER_ID STREQUAL "Clang" )
-        set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wsuggest-attribute=cold -Wsuggest-attribute=noreturn -Wduplicated-cond -Wtrampolines -Wunsafe-loop-optimizations -Wcast-align=strict -Wparentheses -Wlogical-op" )
-    else()
-        set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wcast-align" )
-    endif()
+
+    set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden" )
 
     if( MINGW )
         set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wa,-mbig-obj" )
@@ -68,5 +66,14 @@ if( CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GN
     option( SANITIZE_UNDEFINED "Use -fsanitize=undefined" OFF )
     if( SANITIZE_UNDEFINED )
         set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=undefined" )
+    endif()
+
+    if( NOT PERMISSIVE_BUILD )
+        set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wdouble-promotion -Wstrict-overflow=2 -Wparentheses" )
+        if( NOT CMAKE_CXX_COMPILER_ID STREQUAL "Clang" )
+            set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wsuggest-attribute=cold -Wsuggest-attribute=noreturn -Wduplicated-cond -Wtrampolines -Wunsafe-loop-optimizations -Wcast-align=strict -Wparentheses -Wlogical-op" )
+        else()
+            set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wcast-align" )
+        endif()
     endif()
 endif()
