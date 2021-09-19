@@ -31,17 +31,16 @@ struct ADecoder final : public audio::AbstractStreamSource
   std::unique_ptr<Stream> audioStream;
   SwrContext* swrContext = nullptr;
   std::queue<std::vector<int16_t>> audioQueue;
+  AVPacket packet{};
 
   explicit ADecoder(const std::filesystem::path& filename);
   ~ADecoder() override;
-
-  AVPacket packet{};
 
   void fillQueues(bool looping);
 
   void decodePacket();
 
-  size_t readStereo(int16_t* buffer, size_t bufferSize, bool /*looping*/) override;
+  size_t readStereo(int16_t* buffer, size_t bufferSize, bool looping) override;
 
   [[nodiscard]] int getSampleRate() const override;
 

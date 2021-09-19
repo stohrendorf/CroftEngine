@@ -2,6 +2,7 @@
 
 #include "avframeptr.h"
 #include "stream.h"
+#include "util.h"
 
 #include <algorithm>
 #include <boost/log/trivial.hpp>
@@ -198,9 +199,7 @@ size_t ADecoder::readStereo(int16_t* buffer, size_t bufferSize, bool looping)
 
 audio::Clock::duration ADecoder::getDuration() const
 {
-  using period = audio::Clock::duration::period;
-  return audio::Clock::duration{audioStream->stream->duration * audioStream->stream->time_base.num * period::den
-                                / (audioStream->stream->time_base.den * period::num)};
+  return toDuration<audio::Clock::duration>(audioStream->stream->duration, audioStream->stream->time_base);
 }
 
 int ADecoder::getSampleRate() const
@@ -210,16 +209,12 @@ int ADecoder::getSampleRate() const
 
 std::chrono::milliseconds ADecoder::getPosition() const
 {
-  using period = std::chrono::milliseconds::period;
-  return std::chrono::milliseconds{audioStream->stream->cur_dts * audioStream->stream->time_base.num * period::den
-                                   / (audioStream->stream->time_base.den * period::num)};
+  return toDuration<std::chrono::milliseconds>(audioStream->stream->cur_dts, audioStream->stream->time_base);
 }
 
 void ADecoder::seek(const std::chrono::milliseconds& position)
 {
-  using period = std::chrono::milliseconds::period;
-  const auto ts = position.count() * (audioStream->stream->time_base.den * period::num)
-                  / (audioStream->stream->time_base.num * period::den);
+  const auto ts = fromDuration(position, audioStream->stream->time_base);
 
   Expects(av_seek_frame(fmtContext, audioStream->index, ts, 0) >= 0);
   audioQueue = {};

@@ -3,6 +3,7 @@
 #include "avframeptr.h"
 #include "filtergraph.h"
 #include "stream.h"
+#include "util.h"
 
 #include <algorithm>
 #include <boost/log/trivial.hpp>
@@ -339,9 +340,7 @@ size_t AVDecoder::readStereo(int16_t* buffer, size_t bufferSize, bool)
 
 audio::Clock::duration AVDecoder::getDuration() const
 {
-  using period = audio::Clock::duration::period;
-  return audio::Clock::duration{videoStream->stream->duration * videoStream->stream->time_base.num * period::den
-                                / (videoStream->stream->time_base.den * period::num)};
+  return toDuration<audio::Clock::duration>(videoStream->stream->duration, videoStream->stream->time_base);
 }
 
 int AVDecoder::getSampleRate() const
