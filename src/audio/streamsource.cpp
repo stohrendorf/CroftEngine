@@ -133,48 +133,4 @@ Clock::duration WadStreamSource::getDuration() const
   return Clock::duration{(m_sfInfo.frames * Clock::duration::period::den)
                          / (m_sfInfo.samplerate * Clock::duration::period::num)};
 }
-
-SndfileStreamSource::SndfileStreamSource(const std::filesystem::path& filename)
-{
-  BOOST_LOG_TRIVIAL(trace) << "Creating sndfile stream source from " << filename;
-
-  memset(&m_sfInfo, 0, sizeof(m_sfInfo));
-
-  m_sndFile = sf_open(filename.string().c_str(), SFM_READ, &m_sfInfo);
-  if(m_sndFile == nullptr)
-  {
-    BOOST_LOG_TRIVIAL(error) << "Failed to open audio file: " << sf_strerror(nullptr);
-    BOOST_THROW_EXCEPTION(std::runtime_error("Failed to open audio file"));
-  }
-  sf_command(m_sndFile, SFC_SET_SCALE_FLOAT_INT_READ, nullptr, SF_TRUE);
-}
-
-size_t SndfileStreamSource::readStereo(int16_t* frameBuffer, const size_t frameCount, const bool looping)
-{
-  return audio::readStereo(frameBuffer, frameCount, m_sndFile, m_sfInfo.channels == 1, looping);
-}
-
-int SndfileStreamSource::getSampleRate() const
-{
-  return m_sfInfo.samplerate;
-}
-
-std::chrono::milliseconds SndfileStreamSource::getPosition() const
-{
-  const auto frames = sf_seek(m_sndFile, 0, SF_SEEK_CUR);
-  Expects(frames != -1);
-  return std::chrono::milliseconds{frames * 1000 / m_sfInfo.samplerate};
-}
-
-void SndfileStreamSource::seek(const std::chrono::milliseconds& position)
-{
-  const auto frames = position.count() * m_sfInfo.samplerate / 1000;
-  Expects(sf_seek(m_sndFile, frames, SF_SEEK_SET) != -1);
-}
-
-Clock::duration SndfileStreamSource::getDuration() const
-{
-  return Clock::duration{(m_sfInfo.frames * Clock::duration::period::den)
-                         / (m_sfInfo.samplerate * Clock::duration::period::num)};
-}
 } // namespace audio

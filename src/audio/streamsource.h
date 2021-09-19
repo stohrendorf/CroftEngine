@@ -62,23 +62,4 @@ private:
   static constexpr size_t WADNameLength = 260;
   static constexpr size_t WADCount = 130;
 };
-
-class SndfileStreamSource final : public AbstractStreamSource
-{
-private:
-  SF_INFO m_sfInfo{};
-  SNDFILE* m_sndFile = nullptr;
-
-public:
-  explicit SndfileStreamSource(const std::filesystem::path& filename);
-
-  size_t readStereo(int16_t* frameBuffer, size_t frameCount, bool looping) override;
-
-  [[nodiscard]] int getSampleRate() const override;
-
-  [[nodiscard]] std::chrono::milliseconds getPosition() const override;
-  void seek(const std::chrono::milliseconds& position) override;
-
-  [[nodiscard]] Clock::duration getDuration() const override;
-};
 } // namespace audio
