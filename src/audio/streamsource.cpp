@@ -102,6 +102,7 @@ WadStreamSource::WadStreamSource(const std::filesystem::path& filename, const si
     BOOST_LOG_TRIVIAL(error) << "Failed to open WAD file: " << sf_strerror(nullptr);
     BOOST_THROW_EXCEPTION(std::runtime_error("Failed to open WAD file"));
   }
+  sf_command(m_sndFile, SFC_SET_SCALE_FLOAT_INT_READ, nullptr, SF_TRUE);
 }
 
 size_t WadStreamSource::readStereo(int16_t* frameBuffer, const size_t frameCount, const bool looping)
@@ -145,6 +146,7 @@ SndfileStreamSource::SndfileStreamSource(const std::filesystem::path& filename)
     BOOST_LOG_TRIVIAL(error) << "Failed to open audio file: " << sf_strerror(nullptr);
     BOOST_THROW_EXCEPTION(std::runtime_error("Failed to open audio file"));
   }
+  sf_command(m_sndFile, SFC_SET_SCALE_FLOAT_INT_READ, nullptr, SF_TRUE);
 }
 
 size_t SndfileStreamSource::readStereo(int16_t* frameBuffer, const size_t frameCount, const bool looping)
