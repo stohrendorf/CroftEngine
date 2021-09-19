@@ -47,6 +47,7 @@
 #include <gl/program.h>
 #include <gl/renderstate.h>
 #include <gl/texture2d.h>
+#include <gl/texturedepth.h>
 #include <gl/texturehandle.h>
 #include <gl/window.h>
 #include <glm/common.hpp>
@@ -122,13 +123,15 @@ void Presenter::renderWorld(const ObjectManager& objectManager,
     m_csm->updateCamera(*m_renderer->getCamera());
     m_csm->applyViewport();
 
+    for(const auto& texture : m_csm->getDepthTextures())
+      texture->getTexture()->clear(gl::ScalarDepth{1.0f});
+
     for(size_t i = 0; i < render::scene::CSMBuffer::NSplits; ++i)
     {
       SOGLB_DEBUGGROUP("csm-pass/" + std::to_string(i));
 
       m_csm->setActiveSplit(i);
       m_csm->getActiveFramebuffer()->bindWithAttachments();
-      m_renderer->clear(gl::api::ClearBufferMask::DepthBufferBit, {0, 0, 0, 0}, 1);
 
       render::scene::RenderContext context{render::scene::RenderMode::CSMDepthOnly,
                                            m_csm->getActiveMatrix(glm::mat4{1.0f})};
@@ -162,13 +165,11 @@ void Presenter::renderWorld(const ObjectManager& objectManager,
 
   {
     SOGLB_DEBUGGROUP("geometry-pass");
+    gl::RenderState::resetWantedState();
     m_renderPipeline->bindGeometryFrameBuffer(m_window->getViewport(), cameraController.getCamera()->getFarPlane());
-    m_renderer->clear(
-      gl::api::ClearBufferMask::ColorBufferBit | gl::api::ClearBufferMask::DepthBufferBit, {0, 0, 0, 0}, 1);
 
     {
       SOGLB_DEBUGGROUP("depth-prefill-pass");
-      gl::RenderState::resetWantedState();
       render::scene::RenderContext context{render::scene::RenderMode::DepthOnly,
                                            cameraController.getCamera()->getViewProjectionMatrix()};
       for(const auto& room : rooms)

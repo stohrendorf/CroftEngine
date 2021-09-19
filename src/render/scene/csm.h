@@ -66,6 +66,8 @@ public:
 
   [[nodiscard]] std::array<std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::RG16F>>>, CSMBuffer::NSplits>
     getTextures() const;
+  [[nodiscard]] std::array<std::shared_ptr<gl::TextureHandle<gl::TextureDepth<float>>>, CSMBuffer::NSplits>
+    getDepthTextures() const;
   [[nodiscard]] std::array<glm::mat4, CSMBuffer::NSplits> getMatrices(const glm::mat4& modelMatrix) const;
   [[nodiscard]] std::array<float, CSMBuffer::NSplits> getSplitEnds() const;
 

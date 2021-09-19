@@ -21,7 +21,7 @@ protected:
 };
 
 // NOLINTNEXTLINE(bugprone-reserved-identifier)
-template<api::TextureTarget _Target, typename PixelT>
+template<api::TextureTarget _Target, typename _PixelT>
 class TextureImpl : public Texture
 {
 protected:
@@ -36,7 +36,7 @@ protected:
 
 public:
   static constexpr auto Target = _Target;
-  using Pixel = PixelT;
+  using Pixel = _PixelT;
 
   [[nodiscard]] static api::CopyImageSubDataTarget getSubDataTarget()
   {
@@ -53,8 +53,14 @@ public:
     else SOGLB_CONVERT_TYPE(Texture2dMultisample);
     else SOGLB_CONVERT_TYPE(Texture2dMultisampleArray);
     else SOGLB_CONVERT_TYPE(TextureCubeMapArray);
-    else static_assert(!std::is_same_v<PixelT, PixelT>, "Texture type not suitable for copy sub-data operation");
+    else static_assert(!std::is_same_v<_PixelT, _PixelT>, "Texture type not suitable for copy sub-data operation");
 #undef SOGLB_CONVERT_TYPE
+  }
+
+  TextureImpl<_Target, _PixelT>& clear(const _PixelT& pixel, int level = 0)
+  {
+    GL_ASSERT(api::clearTexImage(getHandle(), level, Pixel::PixelFormat, Pixel::PixelType, &pixel));
+    return *this;
   }
 };
 } // namespace gl

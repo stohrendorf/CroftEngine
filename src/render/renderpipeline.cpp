@@ -93,6 +93,7 @@ void RenderPipeline::bindGeometryFrameBuffer(const glm::ivec2& size, float farPl
   m_geometryPass->bind(size);
   m_geometryPass->getColorBuffer()->getTexture()->clear({0, 0, 0, 255});
   m_geometryPass->getPositionBuffer()->getTexture()->clear({0.0f, 0.0f, -farPlane});
+  m_geometryPass->getDepthBuffer()->clear(gl::ScalarDepth{1.0f});
 }
 
 void RenderPipeline::renderUiFrameBuffer(float alpha)

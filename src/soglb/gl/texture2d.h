@@ -39,12 +39,6 @@ public:
     return *this;
   }
 
-  Texture2D<_PixelT>& clear(const _PixelT& pixel, int level = 0)
-  {
-    GL_ASSERT(api::clearTexImage(getHandle(), level, Pixel::PixelFormat, Pixel::PixelType, &pixel));
-    return *this;
-  }
-
   [[nodiscard]] const glm::ivec2& size() const noexcept
   {
     return m_size;

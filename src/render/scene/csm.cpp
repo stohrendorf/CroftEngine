@@ -127,6 +127,15 @@ std::array<std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::RG16F>>>, CSMBuff
   return result;
 }
 
+std::array<std::shared_ptr<gl::TextureHandle<gl::TextureDepth<float>>>, CSMBuffer::NSplits>
+  CSM::getDepthTextures() const
+{
+  std::array<std::shared_ptr<gl::TextureHandle<gl::TextureDepth<float>>>, CSMBuffer::NSplits> result;
+  for(size_t i = 0; i < CSMBuffer::NSplits; ++i)
+    result[i] = m_splits.at(i).depthTextureHandle;
+  return result;
+}
+
 std::array<glm::mat4, CSMBuffer::NSplits> CSM::getMatrices(const glm::mat4& modelMatrix) const
 {
   std::array<glm::mat4, CSMBuffer::NSplits> result{};
