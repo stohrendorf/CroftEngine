@@ -70,6 +70,8 @@ Door::Door(const std::string& name,
 #endif
 
   getSkeleton()->getRenderState().setScissorTest(false);
+  getSkeleton()->getRenderState().setPolygonOffsetFill(true);
+  getSkeleton()->getRenderState().setPolygonOffset(-1, -1);
 }
 
 void Door::update()
@@ -146,6 +148,8 @@ void Door::serialize(const serialization::Serializer<world::World>& ser)
   if(ser.loading)
   {
     getSkeleton()->getRenderState().setScissorTest(false);
+    getSkeleton()->getRenderState().setPolygonOffsetFill(true);
+    getSkeleton()->getRenderState().setPolygonOffset(-1, -1);
 
     ser.lazy(
       [this](const serialization::Serializer<world::World>& /*ser*/)

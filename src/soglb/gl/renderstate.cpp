@@ -132,6 +132,18 @@ void RenderState::apply(const bool force) const
                            gsl::narrow_cast<api::core::SizeType>(screenSize.y)));
     getCurrentState().m_scissorRegion = m_scissorRegion;
   }
+  if(RS_CHANGED(m_polygonOffsetFillEnabled) || RS_CHANGED(m_polygonOffset))
+  {
+    Expects(m_polygonOffset.has_value());
+    if(m_polygonOffsetFillEnabled.value())
+      GL_ASSERT(api::enable(api::EnableCap::PolygonOffsetFill));
+    else
+      GL_ASSERT(api::disable(api::EnableCap::PolygonOffsetFill));
+    auto [factor, units] = *m_polygonOffset;
+    GL_ASSERT(api::polygonOffset(factor, units));
+    getCurrentState().m_polygonOffsetFillEnabled = m_polygonOffsetFillEnabled;
+    getCurrentState().m_polygonOffset = m_polygonOffset;
+  }
 #undef RS_CHANGED
 }
 
@@ -153,6 +165,8 @@ void RenderState::merge(const RenderState& other)
   MERGE_OPT(m_lineSmooth);
   MERGE_OPT(m_scissorTest);
   MERGE_OPT(m_scissorRegion);
+  MERGE_OPT(m_polygonOffsetFillEnabled);
+  MERGE_OPT(m_polygonOffset);
 #undef MERGE_OPT
 }
 
@@ -188,6 +202,8 @@ RenderState RenderState::getDefaults()
     defaults.setLineSmooth(true);
     defaults.setScissorTest(false);
     defaults.setScissorRegion({0, 0}, {0, 0});
+    defaults.setPolygonOffsetFill(false);
+    defaults.setPolygonOffset(0, 0);
   }
   return defaults;
 }

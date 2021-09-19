@@ -410,6 +410,8 @@ set( EDISONENGINE_SRCS
         engine/objects/teethspikes.cpp
         engine/objects/thorhammer.h
         engine/objects/thorhammer.cpp
+        engine/objects/trapdoordown.h
+        engine/objects/trapdoordown.cpp
         engine/objects/trapdoorup.h
         engine/objects/trapdoorup.cpp
         engine/objects/trex.h

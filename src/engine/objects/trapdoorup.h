@@ -1,17 +1,23 @@
 #pragma once
 
-#include "core/angle.h"
-#include "core/id.h"
-#include "core/magic.h"
 #include "core/units.h"
-#include "core/vec.h"
-#include "engine/location.h"
 #include "modelobject.h"
-#include "objectstate.h"
-#include "qs/qs.h"
+#include "serialization/serialization_fwd.h"
 
-#include <boost/assert.hpp>
-#include <optional>
+#include <gsl/gsl-lite.hpp>
+#include <string>
+
+// IWYU pragma: no_forward_declare serialization::Serializer
+
+namespace core
+{
+struct TRVec;
+}
+
+namespace engine
+{
+struct Location;
+}
 
 namespace engine::world
 {
@@ -30,50 +36,26 @@ namespace engine::objects
 class TrapDoorUp final : public ModelObject
 {
 public:
-  MODELOBJECT_DEFAULT_CONSTRUCTORS(TrapDoorUp, true)
+  TrapDoorUp(const gsl::not_null<world::World*>& world, const Location& location)
+      : ModelObject{world, location}
+  {
+  }
+
+  TrapDoorUp(const std::string& name,
+             const gsl::not_null<world::World*>& world,
+             const gsl::not_null<const world::Room*>& room,
+             const loader::file::Item& item,
+             const gsl::not_null<const world::SkeletalModelType*>& animatedModel);
 
   void update() override;
 
-  void patchFloor(const core::TRVec& pos, core::Length& y) override
-  {
-    if(m_state.current_anim_state != 1_as || !possiblyOnTrapdoor(pos) || pos.Y > m_state.location.position.Y)
-      return;
+  void patchFloor(const core::TRVec& pos, core::Length& y) override;
 
-    y = m_state.location.position.Y;
-  }
+  void patchCeiling(const core::TRVec& pos, core::Length& y) override;
 
-  void patchCeiling(const core::TRVec& pos, core::Length& y) override
-  {
-    if(m_state.current_anim_state != 1_as || !possiblyOnTrapdoor(pos) || pos.Y <= m_state.location.position.Y)
-      return;
-
-    y = m_state.location.position.Y + core::QuarterSectorSize;
-  }
+  void serialize(const serialization::Serializer<world::World>& ser) override;
 
 private:
-  bool possiblyOnTrapdoor(const core::TRVec& pos) const
-  {
-    const auto trapdoorSectorX = m_state.location.position.X / core::SectorSize;
-    const auto trapdoorSectorZ = m_state.location.position.Z / core::SectorSize;
-    const auto posSectorX = pos.X / core::SectorSize;
-    const auto posSectorZ = pos.Z / core::SectorSize;
-    auto trapdoorAxis = axisFromAngle(m_state.rotation.Y, 1_au);
-    BOOST_ASSERT(trapdoorAxis.has_value());
-
-    if(*trapdoorAxis == core::Axis::PosZ && trapdoorSectorX == posSectorX
-       && (trapdoorSectorZ - 1 == posSectorZ || trapdoorSectorZ - 2 == posSectorZ))
-      return true;
-    if(*trapdoorAxis == core::Axis::NegZ && trapdoorSectorX == posSectorX
-       && (trapdoorSectorZ + 1 == posSectorZ || trapdoorSectorZ + 2 == posSectorZ))
-      return true;
-    if(*trapdoorAxis == core::Axis::PosX && trapdoorSectorZ == posSectorZ
-       && (trapdoorSectorX - 1 == posSectorX || trapdoorSectorX - 2 == posSectorX))
-      return true;
-    if(*trapdoorAxis == core::Axis::NegX && trapdoorSectorZ == posSectorZ
-       && (trapdoorSectorX + 1 == posSectorX || trapdoorSectorX + 2 == posSectorX))
-      return true;
-
-    return false;
-  }
+  bool possiblyOnTrapdoor(const core::TRVec& pos) const;
 };
 } // namespace engine::objects

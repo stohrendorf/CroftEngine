@@ -119,6 +119,16 @@ public:
 
   void merge(const RenderState& other);
 
+  void setPolygonOffsetFill(bool enabled)
+  {
+    m_polygonOffsetFillEnabled = enabled;
+  }
+
+  void setPolygonOffset(float factor, float units)
+  {
+    m_polygonOffset = {factor, units};
+  }
+
 private:
   void apply(bool force = false) const;
 
@@ -139,5 +149,7 @@ private:
   std::optional<bool> m_lineSmooth{};
   std::optional<bool> m_scissorTest{};
   std::optional<std::tuple<glm::vec2, glm::vec2>> m_scissorRegion{};
+  std::optional<bool> m_polygonOffsetFillEnabled{};
+  std::optional<std::tuple<float, float>> m_polygonOffset{};
 };
 } // namespace gl

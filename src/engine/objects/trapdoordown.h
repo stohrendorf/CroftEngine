@@ -1,71 +1,61 @@
 #pragma once
 
+#include "core/units.h"
 #include "modelobject.h"
+#include "serialization/serialization_fwd.h"
+
+#include <gsl/gsl-lite.hpp>
+#include <string>
+
+// IWYU pragma: no_forward_declare serialization::Serializer
+
+namespace core
+{
+struct TRVec;
+}
+
+namespace engine
+{
+struct Location;
+}
+
+namespace engine::world
+{
+class World;
+struct Room;
+struct SkeletalModelType;
+} // namespace engine::world
+
+namespace loader::file
+{
+struct Item;
+}
 
 namespace engine::objects
 {
 class TrapDoorDown final : public ModelObject
 {
 public:
-  MODELOBJECT_DEFAULT_CONSTRUCTORS(TrapDoorDown, true)
-
-  void update() override
+  TrapDoorDown(const gsl::not_null<world::World*>& world, const Location& location)
+      : ModelObject{world, location}
   {
-    if(m_state.updateActivationTimeout())
-    {
-      if(m_state.current_anim_state == 0_as)
-        m_state.goal_anim_state = 1_as;
-    }
-    else if(m_state.current_anim_state == 1_as)
-    {
-      m_state.goal_anim_state = 0_as;
-    }
-
-    ModelObject::update();
   }
 
-  void patchFloor(const core::TRVec& pos, core::Length& y) override
-  {
-    if(m_state.current_anim_state != 0_as || !possiblyOnTrapdoor(pos) || pos.Y > m_state.location.position.Y
-       || y <= m_state.location.position.Y)
-      return;
+  TrapDoorDown(const std::string& name,
+               const gsl::not_null<world::World*>& world,
+               const gsl::not_null<const world::Room*>& room,
+               const loader::file::Item& item,
+               const gsl::not_null<const world::SkeletalModelType*>& animatedModel);
 
-    y = m_state.location.position.Y;
-  }
+  void update() override;
 
-  void patchCeiling(const core::TRVec& pos, core::Length& y) override
-  {
-    if(m_state.current_anim_state != 0_as || !possiblyOnTrapdoor(pos) || pos.Y <= m_state.location.position.Y
-       || y > m_state.location.position.Y)
-      return;
+  void patchFloor(const core::TRVec& pos, core::Length& y) override;
 
-    y = m_state.location.position.Y + core::QuarterSectorSize;
-  }
+  void patchCeiling(const core::TRVec& pos, core::Length& y) override;
+
+  void serialize(const serialization::Serializer<world::World>& ser) override;
 
 private:
-  bool possiblyOnTrapdoor(const core::TRVec& pos) const
-  {
-    const auto trapdoorSectorX = m_state.location.position.X / core::SectorSize;
-    const auto trapdoorSectorZ = m_state.location.position.Z / core::SectorSize;
-    const auto posSectorX = pos.X / core::SectorSize;
-    const auto posSectorZ = pos.Z / core::SectorSize;
-    auto trapdoorAxis = axisFromAngle(m_state.rotation.Y, 1_au);
-    BOOST_ASSERT(trapdoorAxis.has_value());
-
-    if(*trapdoorAxis == core::Axis::PosZ && trapdoorSectorX == posSectorX
-       && (trapdoorSectorZ + 1 == posSectorZ || trapdoorSectorZ == posSectorZ))
-      return true;
-    if(*trapdoorAxis == core::Axis::NegZ && trapdoorSectorX == posSectorX
-       && (trapdoorSectorZ - 1 == posSectorZ || trapdoorSectorZ == posSectorZ))
-      return true;
-    if(*trapdoorAxis == core::Axis::PosX && trapdoorSectorZ == posSectorZ
-       && (trapdoorSectorX + 1 == posSectorX || trapdoorSectorX == posSectorX))
-      return true;
-    if(*trapdoorAxis == core::Axis::NegX && trapdoorSectorZ == posSectorZ
-       && (trapdoorSectorX - 1 == posSectorX || trapdoorSectorX == posSectorX))
-      return true;
-
-    return false;
-  }
+  bool possiblyOnTrapdoor(const core::TRVec& pos) const;
 };
 } // namespace engine::objects
