@@ -15,7 +15,7 @@
 #include "serialization/serialization.h"
 #include "tracks_tr1.h"
 #include "util/helpers.h"
-#include "video/adecoder.h"
+#include "video/ffmpegstreamsource.h"
 #include "world/world.h"
 
 #include <boost/format.hpp>
@@ -215,11 +215,12 @@ gsl::not_null<std::shared_ptr<audio::StreamVoice>>
   }
   else
   {
-    auto stream = m_soundEngine->getDevice().createStream(std::make_unique<video::ADecoder>(util::ensureFileExists(
-                                                            m_rootPath / (boost::format("%03d.ogg") % trackId).str())),
-                                                          DefaultBufferSize,
-                                                          DefaultBufferCount,
-                                                          initialPosition);
+    auto stream
+      = m_soundEngine->getDevice().createStream(std::make_unique<video::FfmpegStreamSource>(util::ensureFileExists(
+                                                  m_rootPath / (boost::format("%03d.ogg") % trackId).str())),
+                                                DefaultBufferSize,
+                                                DefaultBufferCount,
+                                                initialPosition);
     m_music.add(stream);
     stream->play();
     return stream;

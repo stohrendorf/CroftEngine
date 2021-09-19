@@ -15,25 +15,22 @@
 #include <optional>
 #include <queue>
 #include <string>
-#include <vector>
 
 extern "C"
 {
 #include <libavformat/avformat.h>
-#include <libswresample/swresample.h>
 }
 
 namespace video
 {
 struct Stream;
+struct AudioStreamDecoder;
 
 struct AVDecoder final : public audio::AbstractStreamSource
 {
   AVFormatContext* fmtContext = nullptr;
-  AVFramePtr audioFrame;
-  std::unique_ptr<Stream> audioStream;
+  std::unique_ptr<AudioStreamDecoder> audioDecoder;
   std::unique_ptr<Stream> videoStream;
-  SwrContext* swrContext = nullptr;
   FilterGraph filterGraph;
 
   explicit AVDecoder(const std::string& filename);
@@ -45,7 +42,6 @@ struct AVDecoder final : public audio::AbstractStreamSource
   void fillQueues();
 
   std::queue<AVFramePtr> imgQueue;
-  std::queue<std::vector<int16_t>> audioQueue;
   mutable std::mutex imgQueueMutex;
   std::condition_variable frameReadyCondition;
   bool frameReady = false;
@@ -55,10 +51,6 @@ struct AVDecoder final : public audio::AbstractStreamSource
   static constexpr size_t QueueLimit = 60;
 
   void decodeVideoPacket();
-
-  void decodeAudioPacket();
-
-  void decodePacket();
 
   size_t readStereo(int16_t* buffer, size_t bufferSize, bool /*looping*/) override;
 

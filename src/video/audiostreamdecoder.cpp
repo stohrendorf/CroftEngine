@@ -1,4 +1,4 @@
-#include "adecoder.h"
+#include "audiostreamdecoder.h"
 
 #include "avframeptr.h"
 #include "stream.h"
@@ -36,37 +36,23 @@ std::string getAvError(int err)
 }
 } // namespace
 
-ADecoder::ADecoder(const std::filesystem::path& filename)
+AudioStreamDecoder::AudioStreamDecoder(AVFormatContext* fmtContext, bool rplFakeAudioHack)
+    : fmtContext{fmtContext}
+    , stream{std::make_unique<Stream>(fmtContext, AVMEDIA_TYPE_AUDIO, rplFakeAudioHack)}
+    , swrContext{swr_alloc_set_opts(nullptr,
+                                    // NOLINTNEXTLINE(hicpp-signed-bitwise)
+                                    stream->context->channels == 1 ? AV_CH_LAYOUT_MONO : AV_CH_LAYOUT_STEREO,
+                                    AV_SAMPLE_FMT_S16,
+                                    stream->context->sample_rate,
+                                    // NOLINTNEXTLINE(hicpp-signed-bitwise)
+                                    stream->context->channels == 1 ? AV_CH_LAYOUT_MONO : AV_CH_LAYOUT_STEREO,
+                                    stream->context->sample_fmt,
+                                    stream->context->sample_rate,
+                                    0,
+                                    nullptr)}
 {
-  if(avformat_open_input(&fmtContext, filename.string().c_str(), nullptr, nullptr) < 0)
-  {
-    BOOST_THROW_EXCEPTION(std::runtime_error("Could not open source file"));
-  }
+  Expects(stream->context->channels == 1 || stream->context->channels == 2);
 
-  if(avformat_find_stream_info(fmtContext, nullptr) < 0)
-  {
-    BOOST_THROW_EXCEPTION(std::runtime_error("Could not find stream information"));
-  }
-
-  audioStream = std::make_unique<Stream>(fmtContext, AVMEDIA_TYPE_AUDIO, false);
-
-#ifndef NDEBUG
-  av_dump_format(fmtContext, 0, filename.string().c_str(), 0);
-#endif
-
-  Expects(audioStream->context->channels == 1 || audioStream->context->channels == 2);
-
-  swrContext = swr_alloc_set_opts(nullptr,
-                                  // NOLINTNEXTLINE(hicpp-signed-bitwise)
-                                  audioStream->context->channels == 1 ? AV_CH_LAYOUT_MONO : AV_CH_LAYOUT_STEREO,
-                                  AV_SAMPLE_FMT_S16,
-                                  audioStream->context->sample_rate,
-                                  // NOLINTNEXTLINE(hicpp-signed-bitwise)
-                                  audioStream->context->channels == 1 ? AV_CH_LAYOUT_MONO : AV_CH_LAYOUT_STEREO,
-                                  audioStream->context->sample_fmt,
-                                  audioStream->context->sample_rate,
-                                  0,
-                                  nullptr);
   if(swrContext == nullptr)
   {
     BOOST_THROW_EXCEPTION(std::runtime_error("Could not allocate resampler context"));
@@ -76,49 +62,27 @@ ADecoder::ADecoder(const std::filesystem::path& filename)
   {
     BOOST_THROW_EXCEPTION(std::runtime_error("Failed to initialize the resampling context"));
   }
-
-  Expects(av_new_packet(&packet, 0) == 0);
-  fillQueues(false);
 }
 
-ADecoder::~ADecoder()
+AudioStreamDecoder::~AudioStreamDecoder()
 {
   swr_free(&swrContext);
-  avformat_close_input(&fmtContext);
 }
 
-void ADecoder::fillQueues(bool looping)
+bool AudioStreamDecoder::push(const AVPacket& packet)
 {
-  while(audioQueue.size() < QueueLimit)
-  {
-    const auto err = av_read_frame(fmtContext, &packet);
-    // NOLINTNEXTLINE(hicpp-signed-bitwise)
-    if(err == AVERROR_EOF && looping)
-    {
-      Expects(av_seek_frame(fmtContext, audioStream->index, 0, 0) >= 0);
-      continue;
-    }
-    else if(err != 0)
-    {
-      break;
-    }
+  std::unique_lock lock{mutex};
 
-    decodePacket();
-    av_packet_unref(&packet);
-  }
-}
+  if(packet.stream_index != stream->index || queue.size() >= QueueLimit)
+    return false;
+  lastPacketPts = packet.pts;
 
-void ADecoder::decodePacket()
-{
-  if(packet.stream_index != audioStream->index)
-    return;
-
-  if(const auto err = avcodec_send_packet(audioStream->context, &packet))
+  if(const auto err = avcodec_send_packet(stream->context, &packet))
   {
     if(err == AVERROR(EINVAL))
     {
       BOOST_LOG_TRIVIAL(info) << "Flushing audio decoder";
-      avcodec_flush_buffers(audioStream->context);
+      avcodec_flush_buffers(stream->context);
     }
     else
     {
@@ -136,7 +100,7 @@ void ADecoder::decodePacket()
   }
 
   int err;
-  while((err = avcodec_receive_frame(audioStream->context, audioFrame.frame)) == 0)
+  while((err = avcodec_receive_frame(stream->context, audioFrame.frame)) == 0)
   {
     const auto outSamples = swr_get_out_samples(swrContext, audioFrame.frame->nb_samples);
     if(outSamples < 0)
@@ -163,20 +127,22 @@ void ADecoder::decodePacket()
     // cppcheck-suppress invalidFunctionArg
     audio.resize(gsl::narrow_cast<size_t>(framesDecoded) * 2u);
 
-    audioQueue.push(std::move(audio));
+    queue.push(std::move(audio));
   }
   if(err != AVERROR(EAGAIN))
     BOOST_LOG_TRIVIAL(info) << "Audio stream chunk decoded: " << getAvError(err);
+
+  return true;
 }
 
-size_t ADecoder::readStereo(int16_t* buffer, size_t bufferSize, bool looping)
+size_t AudioStreamDecoder::readStereo(int16_t* buffer, size_t bufferSize)
 {
-  fillQueues(looping);
+  std::unique_lock lock{mutex};
 
   size_t written = 0;
-  while(bufferSize != 0 && !audioQueue.empty())
+  while(bufferSize != 0 && !queue.empty())
   {
-    auto& src = audioQueue.front();
+    auto& src = queue.front();
     const auto frames = std::min(static_cast<size_t>(bufferSize), src.size() / 2);
 
     Expects(bufferSize >= frames);
@@ -189,7 +155,7 @@ size_t ADecoder::readStereo(int16_t* buffer, size_t bufferSize, bool looping)
     src.erase(src.begin(), std::next(src.begin(), 2 * frames));
     if(src.empty())
     {
-      audioQueue.pop();
+      queue.pop();
     }
   }
 
@@ -197,27 +163,27 @@ size_t ADecoder::readStereo(int16_t* buffer, size_t bufferSize, bool looping)
   return written;
 }
 
-audio::Clock::duration ADecoder::getDuration() const
+audio::Clock::duration AudioStreamDecoder::getDuration() const
 {
-  return toDuration<audio::Clock::duration>(audioStream->stream->duration, audioStream->stream->time_base);
+  return toDuration<audio::Clock::duration>(stream->stream->duration, stream->stream->time_base);
 }
 
-int ADecoder::getSampleRate() const
+int AudioStreamDecoder::getSampleRate() const
 {
-  return audioStream->context->sample_rate;
+  return stream->context->sample_rate;
 }
 
-std::chrono::milliseconds ADecoder::getPosition() const
+std::chrono::milliseconds AudioStreamDecoder::getPosition() const
 {
-  return toDuration<std::chrono::milliseconds>(audioStream->stream->cur_dts, audioStream->stream->time_base);
+  std::unique_lock lock{mutex};
+  return toDuration<std::chrono::milliseconds>(lastPacketPts, stream->stream->time_base);
 }
 
-void ADecoder::seek(const std::chrono::milliseconds& position)
+void AudioStreamDecoder::seek(const std::chrono::milliseconds& position)
 {
-  const auto ts = fromDuration(position, audioStream->stream->time_base);
-
-  Expects(av_seek_frame(fmtContext, audioStream->index, ts, 0) >= 0);
-  audioQueue = {};
-  fillQueues(false);
+  std::unique_lock lock{mutex};
+  const auto ts = fromDuration(position, stream->stream->time_base);
+  Expects(av_seek_frame(fmtContext, stream->index, ts, 0) >= 0);
+  queue = {};
 }
 } // namespace video

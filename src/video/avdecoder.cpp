@@ -1,5 +1,6 @@
 #include "avdecoder.h"
 
+#include "audiostreamdecoder.h"
 #include "avframeptr.h"
 #include "filtergraph.h"
 #include "stream.h"
@@ -11,10 +12,11 @@
 #include <cerrno>
 #include <gsl/gsl-lite.hpp>
 #include <iosfwd>
-#include <iterator>
 #include <stdexcept>
 #include <thread>
+#include <type_traits>
 #include <utility>
+#include <vector>
 
 extern "C"
 {
@@ -22,7 +24,6 @@ extern "C"
 #include <libavfilter/buffersink.h>
 #include <libavfilter/buffersrc.h>
 #include <libavformat/avformat.h>
-#include <libswresample/swresample.h>
 }
 
 namespace video
@@ -52,41 +53,17 @@ AVDecoder::AVDecoder(const std::string& filename)
   }
 
   videoStream = std::make_unique<Stream>(fmtContext, AVMEDIA_TYPE_VIDEO, false);
-
-  audioStream = std::make_unique<Stream>(fmtContext, AVMEDIA_TYPE_AUDIO, true);
+  audioDecoder = std::make_unique<AudioStreamDecoder>(fmtContext, true);
 
 #ifndef NDEBUG
   av_dump_format(fmtContext, 0, filename.c_str(), 0);
 #endif
 
-  Expects(audioStream->context->channels == 1 || audioStream->context->channels == 2);
-
-  swrContext = swr_alloc_set_opts(nullptr,
-                                  // NOLINTNEXTLINE(hicpp-signed-bitwise)
-                                  audioStream->context->channels == 1 ? AV_CH_LAYOUT_MONO : AV_CH_LAYOUT_STEREO,
-                                  AV_SAMPLE_FMT_S16,
-                                  audioStream->context->sample_rate,
-                                  // NOLINTNEXTLINE(hicpp-signed-bitwise)
-                                  audioStream->context->channels == 1 ? AV_CH_LAYOUT_MONO : AV_CH_LAYOUT_STEREO,
-                                  audioStream->context->sample_fmt,
-                                  audioStream->context->sample_rate,
-                                  0,
-                                  nullptr);
-  if(swrContext == nullptr)
-  {
-    BOOST_THROW_EXCEPTION(std::runtime_error("Could not allocate resampler context"));
-  }
-
-  if(swr_init(swrContext) < 0)
-  {
-    BOOST_THROW_EXCEPTION(std::runtime_error("Failed to initialize the resampling context"));
-  }
-
   filterGraph.init(*videoStream);
 
   Expects(videoStream->stream->time_base.den != 0);
   audioFrameSize
-    = audioStream->context->sample_rate * videoStream->stream->time_base.num / videoStream->stream->time_base.den;
+    = audioDecoder->getSampleRate() * videoStream->stream->time_base.num / videoStream->stream->time_base.den;
 
   Expects(av_new_packet(&packet, 0) == 0);
   fillQueues();
@@ -94,7 +71,6 @@ AVDecoder::AVDecoder(const std::string& filename)
 
 AVDecoder::~AVDecoder()
 {
-  swr_free(&swrContext);
   avformat_close_input(&fmtContext);
 }
 
@@ -102,7 +78,7 @@ void AVDecoder::fillQueues()
 {
   {
     std::unique_lock lock(imgQueueMutex);
-    if(audioQueue.size() >= QueueLimit || imgQueue.size() >= QueueLimit)
+    if(audioDecoder->filled() || imgQueue.size() >= QueueLimit)
     {
       return;
     }
@@ -111,11 +87,19 @@ void AVDecoder::fillQueues()
   int err;
   while((err = av_read_frame(fmtContext, &packet)) == 0)
   {
-    decodePacket();
+    if(packet.stream_index == videoStream->index)
+    {
+      decodeVideoPacket();
+    }
+    else if(packet.stream_index == audioDecoder->stream->index)
+    {
+      audioDecoder->push(packet);
+    }
+
     av_packet_unref(&packet);
 
     std::unique_lock lock(imgQueueMutex);
-    if(audioQueue.size() >= QueueLimit || imgQueue.size() >= QueueLimit)
+    if(audioDecoder->filled() || imgQueue.size() >= QueueLimit)
     {
       break;
     }
@@ -123,8 +107,7 @@ void AVDecoder::fillQueues()
   // NOLINTNEXTLINE(hicpp-signed-bitwise)
   if(err != 0 && err != AVERROR_EOF)
   {
-    BOOST_LOG_TRIVIAL(warning) << "fillQueues done: " << getAvError(err) << "; audio=" << audioQueue.size()
-                               << ", video=" << imgQueue.size();
+    BOOST_LOG_TRIVIAL(warning) << "fillQueues done: " << getAvError(err);
   }
 }
 
@@ -151,7 +134,7 @@ std::optional<AVFramePtr> AVDecoder::takeFrame()
     }
   }
 
-  stopped = imgQueue.empty() && audioQueue.empty();
+  stopped = imgQueue.empty() && audioDecoder->empty();
 
   return img;
 }
@@ -212,110 +195,23 @@ void AVDecoder::decodeVideoPacket()
     BOOST_LOG_TRIVIAL(info) << "Video stream chunk decoded: " << getAvError(err);
 }
 
-void AVDecoder::decodeAudioPacket()
-{
-  if(const auto err = avcodec_send_packet(audioStream->context, &packet))
-  {
-    if(err == AVERROR(EINVAL))
-    {
-      BOOST_LOG_TRIVIAL(info) << "Flushing audio decoder";
-      avcodec_flush_buffers(audioStream->context);
-    }
-    else
-    {
-      if(err == AVERROR(EAGAIN))
-        BOOST_LOG_TRIVIAL(error) << "Frames still present in audio decoder";
-      else if(err == AVERROR(ENOMEM))
-        BOOST_LOG_TRIVIAL(error) << "Failed to add packet to audio decoder queue";
-      // NOLINTNEXTLINE(hicpp-signed-bitwise)
-      else if(err == AVERROR_EOF)
-        BOOST_LOG_TRIVIAL(error) << "Audio decoder already flushed";
-
-      BOOST_LOG_TRIVIAL(error) << "Failed to send packet to audio decoder: " << getAvError(err);
-      BOOST_THROW_EXCEPTION(std::runtime_error("Failed to send packet to audio decoder"));
-    }
-  }
-
-  int err;
-  while((err = avcodec_receive_frame(audioStream->context, audioFrame.frame)) == 0)
-  {
-    const auto outSamples = swr_get_out_samples(swrContext, audioFrame.frame->nb_samples);
-    if(outSamples < 0)
-    {
-      BOOST_LOG_TRIVIAL(error) << "Failed to receive resampled audio data";
-      BOOST_THROW_EXCEPTION(std::runtime_error("Failed to receive resampled audio data"));
-    }
-
-    std::vector<int16_t> audio(gsl::narrow_cast<size_t>(outSamples) * 2u, 0);
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-    auto* audioData = reinterpret_cast<uint8_t*>(audio.data());
-
-    const auto framesDecoded = swr_convert(swrContext,
-                                           &audioData,
-                                           outSamples,
-                                           // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
-                                           const_cast<const uint8_t**>(audioFrame.frame->data),
-                                           audioFrame.frame->nb_samples);
-    if(framesDecoded < 0)
-    {
-      BOOST_THROW_EXCEPTION(std::runtime_error("Error while converting"));
-    }
-
-    // cppcheck-suppress invalidFunctionArg
-    audio.resize(gsl::narrow_cast<size_t>(framesDecoded) * 2u);
-
-    audioQueue.push(std::move(audio));
-  }
-  if(err != AVERROR(EAGAIN))
-    BOOST_LOG_TRIVIAL(info) << "Audio stream chunk decoded: " << getAvError(err);
-}
-
-void AVDecoder::decodePacket()
-{
-  if(packet.stream_index == videoStream->index)
-  {
-    decodeVideoPacket();
-  }
-  else if(packet.stream_index == audioStream->index)
-  {
-    decodeAudioPacket();
-  }
-}
-
-size_t AVDecoder::readStereo(int16_t* buffer, size_t bufferSize, bool)
+size_t AVDecoder::readStereo(int16_t* buffer, size_t bufferSize, bool /*looping*/)
 {
   fillQueues();
 
   size_t written = 0;
-  while(bufferSize != 0 && !audioQueue.empty())
   {
-    auto& src = audioQueue.front();
-    const auto frames = std::min(static_cast<size_t>(bufferSize), src.size() / 2);
-
-    Expects(bufferSize >= frames);
-
-    std::copy_n(src.data(), 2 * frames, buffer);
-    bufferSize -= frames;
-    written += frames;
-    buffer += 2 * frames;
-
-    src.erase(src.begin(), std::next(src.begin(), 2 * frames));
-    if(src.empty())
-    {
-      audioQueue.pop();
-    }
-  }
-
-  if(written == 0)
-  {
+    written = audioDecoder->readStereo(buffer, bufferSize);
     std::unique_lock lock{imgQueueMutex};
-    if(!imgQueue.empty())
+    if(written == 0 && !imgQueue.empty())
     {
       // audio ended prematurely - pad with zero audio data until all video frames are consumed
       written = bufferSize;
     }
   }
 
+  bufferSize -= written;
+  buffer += 2 * written;
   totalAudioFrames += written;
   audioFrameOffset += written;
   Expects(audioFrameSize > 0);
@@ -345,6 +241,6 @@ audio::Clock::duration AVDecoder::getDuration() const
 
 int AVDecoder::getSampleRate() const
 {
-  return audioStream->context->sample_rate;
+  return audioDecoder->getSampleRate();
 }
 } // namespace video
