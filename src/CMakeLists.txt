@@ -512,8 +512,18 @@ set( EDISONENGINE_SRCS
         ui/widgets/selectionbox.cpp
         ui/widgets/sprite.cpp
 
+        video/avdecoder.h
+        video/avdecoder.cpp
+        video/avframeptr.h
+        video/avframeptr.cpp
+        video/converter.h
+        video/converter.cpp
+        video/filtergraph.h
+        video/filtergraph.cpp
         video/player.h
         video/player.cpp
+        video/stream.h
+        video/stream.cpp
 
         core/angle.h
         core/angle.cpp

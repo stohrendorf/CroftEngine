@@ -1,0 +1,33 @@
+#pragma once
+
+#include <array>
+#include <cstdint>
+#include <gl/pixel.h>
+#include <gl/soglb_fwd.h>
+#include <memory>
+
+// IWYU pragma: no_forward_declare gl::Texture2D
+// IWYU pragma: no_forward_declare gl::TextureHandle
+
+struct AVFilterLink;
+struct SwsContext;
+
+namespace video
+{
+struct AVFramePtr;
+
+struct Converter final
+{
+  AVFilterLink* filter;
+  SwsContext* context;
+  std::array<uint8_t*, 4> dstVideoData{nullptr};
+  std::array<int, 4> dstVideoLinesize{0};
+  std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>> textureHandle{nullptr};
+
+  explicit Converter(AVFilterLink* filter);
+
+  ~Converter();
+
+  void update(const AVFramePtr& videoFrame);
+};
+} // namespace video
