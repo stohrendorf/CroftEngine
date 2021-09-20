@@ -217,8 +217,8 @@ void CSM::updateCamera(const Camera& camera)
     bboxMin = glm::floor(bboxMin / SnapSize) * SnapSize;
     bboxMax = glm::ceil(bboxMax / SnapSize) * SnapSize;
 
-    m_splits[cascadeIterator].vpMatrix = glm::ortho(bboxMin.x, bboxMax.x, bboxMin.y, bboxMax.y, -bboxMax.z, -bboxMin.z)
-                                         * glm::lookAt(glm::vec3{0.0f}, m_lightDir, m_lightDirOrtho);
+    m_splits[cascadeIterator].vpMatrix
+      = glm::ortho(bboxMin.x, bboxMax.x, bboxMin.y, bboxMax.y, -bboxMax.z, -bboxMin.z) * lightViewWS;
   }
 }
 } // namespace render::scene
