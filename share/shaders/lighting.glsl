@@ -29,12 +29,12 @@ float calc_vsm_value(in int splitIdx, in vec3 normal, in float shadow, in float 
     }
         #undef FETCH_CSM
 
-    float currentDepth = projCoords.z;
+    float currentDepth = clamp(projCoords.z, 0.0, 1.0);
     const float ShadowSlopeBias = 0.005;
     const float MaxShadowSlopeBias = 2*ShadowSlopeBias;
     float bias = ShadowSlopeBias * tan(acos(clamp(d, 0.0, 1.0)));
     bias = clamp(bias, 0.0, MaxShadowSlopeBias);
-    if (currentDepth > 1.0 || currentDepth < moments.x + bias) {
+    if (currentDepth < moments.x + bias) {
         return 1.0;
     }
 
