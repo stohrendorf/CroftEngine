@@ -217,16 +217,8 @@ void CSM::updateCamera(const Camera& camera)
     bboxMin = glm::floor(bboxMin / SnapSize) * SnapSize;
     bboxMax = glm::ceil(bboxMax / SnapSize) * SnapSize;
 
-    // recalculate matrices to avoid numerical problems when zNear+zFar ~= 0
-    const auto zNear = -bboxMax.z;
-    static constexpr float zOffset = 100.0f;
-    const auto zShift = zOffset - zNear;
-    bboxMin.z -= zShift;
-    bboxMax.z -= zShift;
-
-    const auto offset = glm::normalize(m_lightDir) * zShift;
     m_splits[cascadeIterator].vpMatrix = glm::ortho(bboxMin.x, bboxMax.x, bboxMin.y, bboxMax.y, -bboxMax.z, -bboxMin.z)
-                                         * glm::lookAt(glm::vec3{0.0f} - offset, m_lightDir - offset, m_lightDirOrtho);
+                                         * glm::lookAt(glm::vec3{0.0f}, m_lightDir, m_lightDirOrtho);
   }
 }
 } // namespace render::scene
