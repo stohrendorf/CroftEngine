@@ -57,7 +57,20 @@ void StreamVoice::update()
   Expects(processed >= 0 && static_cast<size_t>(processed) <= m_buffers.size());
 
   if(static_cast<size_t>(processed) >= m_buffers.size())
+  {
     BOOST_LOG_TRIVIAL(warning) << "Lost stream sync";
+    // source should in theory be stopped now as all buffers are processed, but ensure it really is to guarantee
+    // a cleared queue
+    m_streamSource->stop();
+    // refill buffers and play
+    for(const auto& buffer : m_buffers)
+    {
+      if(fillBuffer(*buffer))
+        m_streamSource->queueBuffer(buffer);
+    }
+    m_streamSource->play();
+    return;
+  }
 
   while(processed-- > 0)
   {
