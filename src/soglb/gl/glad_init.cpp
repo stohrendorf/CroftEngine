@@ -7,6 +7,7 @@
 #include <boost/log/trivial.hpp>
 #include <boost/throw_exception.hpp>
 #include <cstdint>
+#include <cstdlib>
 #include <gsl/gsl-lite.hpp>
 #include <stdexcept>
 
@@ -91,17 +92,35 @@ void gl::initializeGl(void* (*loadProc)(const char* name))
 
   BOOST_LOG_TRIVIAL(info) << "OpenGL version: "
                           // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-                          << reinterpret_cast<const char*>(api::getString(api::StringName::Version));
+                          << reinterpret_cast<const char*>(GL_ASSERT_FN(api::getString(api::StringName::Version)));
   BOOST_LOG_TRIVIAL(info) << "GLSL version: "
                           // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-                          << reinterpret_cast<const char*>(api::getString(api::StringName::ShadingLanguageVersion));
+                          << reinterpret_cast<const char*>(
+                               GL_ASSERT_FN(api::getString(api::StringName::ShadingLanguageVersion)));
   BOOST_LOG_TRIVIAL(info) << "OpenGL vendor: "
                           // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-                          << reinterpret_cast<const char*>(api::getString(api::StringName::Vendor));
+                          << reinterpret_cast<const char*>(GL_ASSERT_FN(api::getString(api::StringName::Vendor)));
   BOOST_LOG_TRIVIAL(info) << "OpenGL renderer: "
                           // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-                          << reinterpret_cast<const char*>(api::getString(api::StringName::Renderer));
-  glGetError(); // clear the error flag
+                          << reinterpret_cast<const char*>(GL_ASSERT_FN(api::getString(api::StringName::Renderer)));
+  {
+    int32_t numExts = 0;
+    GL_ASSERT(api::getIntegerv(api::GetPName::NumExtensions, &numExts));
+    BOOST_LOG_TRIVIAL(info) << "OpenGL extensions: " << numExts;
+    Expects(numExts >= 0);
+    for(int32_t i = 0; i < numExts; ++i)
+    {
+      BOOST_LOG_TRIVIAL(info) << " - "
+                              // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+                              << reinterpret_cast<const char*>(
+                                   GL_ASSERT_FN(api::getString(api::StringName::Extensions, i)));
+    }
+  }
+
+  if(getenv("ENABLE_VULKAN_RENDERDOC_CAPTURE") != nullptr)
+  {
+    BOOST_LOG_TRIVIAL(info) << "RenderDoc detected";
+  }
 
   Expects(GLAD_GL_ARB_bindless_texture);
 
