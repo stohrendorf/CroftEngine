@@ -88,10 +88,10 @@ void main()
     #endif
 
     if (u_isSprite == 0) {
-        out_color.rgba = vec4(finalColor * calc_positional_lighting(gpi.normal, gpi.vertexPosWorld) * shadow_map_multiplier(gpi.normal), 1.0);
+        out_color.rgba = vec4(finalColor * calc_positional_lighting(gpi.vertexNormalWorld, gpi.vertexPosWorld) * shadow_map_multiplier(gpi.vertexNormalWorld), 1.0);
     }
     else {
-        out_color.rgba = vec4(finalColor * calc_distance_lighting(gpi.vertexPosWorld) * shadow_map_multiplier(gpi.normal), 1.0);
+        out_color.rgba = vec4(finalColor * calc_distance_lighting(gpi.vertexPosWorld) * shadow_map_multiplier(gpi.vertexNormalWorld), 1.0);
     }
     out_normal = gpi.hbaoNormal;
     out_position = gpi.vertexPos;

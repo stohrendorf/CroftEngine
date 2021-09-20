@@ -7,7 +7,7 @@ IN_OUT GeometryPipelineInterface {
     vec3 vertexPos;
     vec3 vertexPosLight[CSMSplits];
     vec3 vertexPosWorld;
-    vec3 normal;
+    vec3 vertexNormalWorld;
     vec3 hbaoNormal;
 
     flat float isQuad;

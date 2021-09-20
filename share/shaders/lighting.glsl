@@ -14,10 +14,10 @@ layout(std430, binding=3) readonly restrict buffer b_lights {
     Light lights[];
 };
 
-float calc_vsm_value(in int splitIdx, in vec3 normal, in float shadow, in float d)
+float calc_vsm_value(in int splitIdx, in float shadow, in float lightNormDot)
 {
     vec3 projCoords = gpi.vertexPosLight[splitIdx];
-    vec2 moments;
+    vec2 moments = vec2(0);
     // https://stackoverflow.com/a/32273875
     #define FETCH_CSM(idx) case idx: moments = texture(u_csmVsm[idx], projCoords.xy).xy; break
     switch (splitIdx) {
@@ -32,8 +32,7 @@ float calc_vsm_value(in int splitIdx, in vec3 normal, in float shadow, in float 
     float currentDepth = clamp(projCoords.z, 0.0, 1.0);
     const float ShadowSlopeBias = 0.005;
     const float MaxShadowSlopeBias = 2*ShadowSlopeBias;
-    float dc = clamp(d, 0.0, 1.0);
-    float bias = ShadowSlopeBias * sqrt(1-dc*dc) / dc;
+    float bias = ShadowSlopeBias * sqrt(1.0 - lightNormDot*lightNormDot) / lightNormDot;
     bias = clamp(bias, 0.0, MaxShadowSlopeBias);
     if (currentDepth < moments.x + bias) {
         return 1.0;
@@ -52,16 +51,17 @@ float calc_vsm_value(in int splitIdx, in vec3 normal, in float shadow, in float 
 
     float result = mix(shadow, 1.0, pMax);
     #ifdef ROOM_SHADOWING
-    result = mix(1.0, result, -d);
+    result = mix(1.0, result, -lightNormDot);
     #endif
     return result;
 }
 
-float shadow_map_multiplier(in vec3 normal, in float shadow)
+float shadow_map_multiplier(in vec3 worldNormal, in float shadow)
 {
-    float d = dot(normalize(normal), normalize(u_csmLightDir));
+    float lightNormDot = dot(normalize(worldNormal), normalize(u_csmLightDir));
     #ifdef ROOM_SHADOWING
-    if (d > 0) {
+    if (lightNormDot > 0) {
+        // ceilings are always fully lit
         return 1.0;
     }
         #endif
@@ -74,39 +74,35 @@ float shadow_map_multiplier(in vec3 normal, in float shadow)
         }
     }
     if (splitIdx == CSMSplits) return 1.0;
-    return calc_vsm_value(splitIdx, normal, shadow, d);
+    return calc_vsm_value(splitIdx, shadow, lightNormDot);
 }
 
-float shadow_map_multiplier(in vec3 normal) {
-    return shadow_map_multiplier(normal, 0.5);
+float shadow_map_multiplier(in vec3 worldNormal) {
+    return shadow_map_multiplier(worldNormal, 0.5);
 }
 
-/*
- * @param normal is the surface normal in world space
- * @param pos is the surface position in world space
- */
-float calc_positional_lighting(in vec3 normal, in vec3 pos)
+float calc_positional_lighting(in vec3 worldNormal, in vec3 worldPos)
 {
-    if (lights.length() <= 0 || normal == vec3(0))
+    if (lights.length() <= 0 || worldNormal == vec3(0))
     {
         return u_lightAmbient;
     }
 
-    normal = normalize(normal);
+    worldNormal = normalize(worldNormal);
     float sum = u_lightAmbient;
     for (int i=0; i<lights.length(); ++i)
     {
-        vec3 d = pos - lights[i].position.xyz;
+        vec3 d = worldPos - lights[i].position.xyz;
         float ld = length(d);
         float r = ld / lights[i].fadeDistance;
         float intensity = lights[i].brightness / (r*r + 1.0);
-        sum += intensity * clamp(-dot(d/ld, normal), 0, 1);
+        sum += intensity * clamp(-dot(d/ld, worldNormal), 0, 1);
     }
 
     return sum;
 }
 
-float calc_distance_lighting(in vec3 pos)
+float calc_distance_lighting(in vec3 worldPos)
 {
     if (lights.length() <= 0)
     {
@@ -116,7 +112,7 @@ float calc_distance_lighting(in vec3 pos)
     float sum = u_lightAmbient;
     for (int i=0; i<lights.length(); ++i)
     {
-        vec3 d = pos - lights[i].position.xyz;
+        vec3 d = worldPos - lights[i].position.xyz;
         float r = length(d) / lights[i].fadeDistance;
         float intensity = lights[i].brightness / (r*r + 1.0);
         sum += intensity;

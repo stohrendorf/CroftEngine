@@ -32,17 +32,17 @@ void main()
     }
 
     vec4 tmp = mv * vec4(a_position, 1);
-    gpi.vertexPosWorld = vec3(mm * vec4(a_position, 1));
+    gpi.vertexPos = tmp.xyz;
+    gpi.vertexPosWorld = vec3(mm * vec4(a_position, 1.0));
     gl_Position = u_projection * tmp;
     gpi.texCoord = a_texCoord;
     gpi.texIndex = a_texIndex;
     gpi.color = a_color;
 
-    gpi.normal = normalize(mat3(mm) * a_normal);
-    gpi.hbaoNormal = normalize(mat3(mv) * a_normal);
-    gpi.vertexPos = tmp.xyz;
-    float dist = 16 * clamp(1.0 - dot(normalize(u_csmLightDir), gpi.normal), 0.0, 1.0);
-    vec4 pos = vec4(a_position + dist * gpi.normal, 1);
+    gpi.vertexNormalWorld = normalize(vec3(mm * vec4(a_normal, 0.0)));
+    gpi.hbaoNormal = normalize(vec3(mv * vec4(a_normal, 0.0)));
+    float dist = 16 * clamp(1.0 - dot(normalize(u_csmLightDir), gpi.vertexNormalWorld), 0.0, 1.0);
+    vec4 pos = vec4(a_position + dist * gpi.vertexNormalWorld, 1.0);
     for (int i=0; i<CSMSplits; ++i)
     {
         #ifdef SKELETAL
