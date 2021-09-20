@@ -146,13 +146,6 @@ std::array<glm::mat4, CSMBuffer::NSplits> CSM::getMatrices(const glm::mat4& mode
   return result;
 }
 
-std::array<float, CSMBuffer::NSplits> CSM::getSplitEnds() const
-{
-  std::array<float, CSMBuffer::NSplits> result{};
-  std::transform(m_splits.begin(), m_splits.end(), result.begin(), [](const Split& split) { return split.end; });
-  return result;
-}
-
 void CSM::updateCamera(const Camera& camera)
 {
   //Start off by calculating the split distances
@@ -177,7 +170,6 @@ void CSM::updateCamera(const Camera& camera)
     const auto ir = static_cast<float>(i + 1) / static_cast<float>(m_splits.size());
     const auto zi = nearClip + ir * (farClip - nearClip);
     cascadeSplits.emplace_back(zi);
-    m_splits[i].end = -zi;
   }
 #endif
 

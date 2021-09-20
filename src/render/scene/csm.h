@@ -38,7 +38,6 @@ struct CSMBuffer
 
   std::array<glm::mat4, NSplits> lightMVP{};
   glm::vec4 lightDir{};
-  std::array<glm::vec4, NSplits> csmSplits{};
 };
 static_assert(sizeof(CSMBuffer) % 16 == 0);
 
@@ -55,7 +54,6 @@ public:
     std::shared_ptr<Material> squareMaterial{};
     std::shared_ptr<Mesh> squareMesh{};
     std::shared_ptr<SeparableBlur<gl::RG16F>> squareBlur;
-    float end = 0;
 
     void init(int32_t resolution, size_t idx, MaterialManager& materialManager);
     void renderSquare();
@@ -69,7 +67,6 @@ public:
   [[nodiscard]] std::array<std::shared_ptr<gl::TextureHandle<gl::TextureDepth<float>>>, CSMBuffer::NSplits>
     getDepthTextures() const;
   [[nodiscard]] std::array<glm::mat4, CSMBuffer::NSplits> getMatrices(const glm::mat4& modelMatrix) const;
-  [[nodiscard]] std::array<float, CSMBuffer::NSplits> getSplitEnds() const;
 
   [[nodiscard]] auto getActiveMatrix(const glm::mat4& modelMatrix) const
   {
@@ -91,13 +88,6 @@ public:
 
   auto& getBuffer(const glm::mat4& modelMatrix)
   {
-    const auto splitEnds = getSplitEnds();
-    std::transform(splitEnds.begin(),
-                   splitEnds.end(),
-                   m_bufferData.csmSplits.begin(),
-                   [](float v) {
-                     return glm::vec4{v, 0, 0, 0};
-                   });
     m_bufferData.lightMVP = getMatrices(modelMatrix);
     m_bufferData.lightDir = glm::vec4{m_lightDir, 0.0f};
     m_buffer.setData(m_bufferData, gl::api::BufferUsage::DynamicDraw);
