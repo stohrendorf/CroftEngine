@@ -1,6 +1,5 @@
 include( get_freetype )
 include( get_boost )
-include( get_glew )
 include( get_glfw )
 include( get_glm )
 
@@ -44,9 +43,10 @@ add_library( soglb STATIC
         gl/font.cpp
         gl/renderstate.h
         gl/renderstate.cpp
-        gl/glew_init.h
-        gl/glew_init.cpp
+        gl/glad_init.h
+        gl/glad_init.cpp
         gl/api/gl.cpp
+        gl/api/glad.c
         gl/window.h
         gl/window.cpp
         gl/cimgwrapper.h
@@ -62,7 +62,6 @@ target_link_libraries( soglb PRIVATE CImg::CImg )
 target_link_libraries(
         soglb
         PUBLIC
-        GLEW::GLEW
         glfw
         gsl-lite::gsl-lite
         Freetype::Freetype

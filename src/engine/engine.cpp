@@ -49,7 +49,7 @@
 #include <filesystem>
 #include <gl/cimgwrapper.h>
 #include <gl/framebuffer.h>
-#include <gl/glew_init.h>
+#include <gl/glad_init.h>
 #include <gl/pixel.h>
 #include <gl/program.h>
 #include <gl/texture2d.h>

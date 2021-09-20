@@ -1,3 +1,3 @@
 #pragma once
 
-#include <GL/glew.h> // IWYU pragma: export
+#include "glad.h" // IWYU pragma: export

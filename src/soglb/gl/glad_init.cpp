@@ -1,12 +1,12 @@
-#include "glew_init.h"
+#include "glad_init.h"
 
 #include "api/gl.hpp"
+#include "api/gl_api_provider.hpp"
 #include "glassert.h"
 
 #include <boost/log/trivial.hpp>
 #include <boost/throw_exception.hpp>
 #include <cstdint>
-#include <GL/glew.h>
 #include <gsl/gsl-lite.hpp>
 #include <stdexcept>
 
@@ -82,14 +82,10 @@ void SOGLB_API debugCallback(const api::DebugSource source,
 
 void gl::initializeGl()
 {
-  glewExperimental = GL_TRUE; // Let GLEW ignore "GL_INVALID_ENUM in glGetString(GL_EXTENSIONS)"
-  const auto err = glewInit();
-  if(err != GLEW_OK)
+  if(gladLoadGL() == 0)
   {
-    BOOST_LOG_TRIVIAL(error) << "glewInit: "
-                             // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-                             << reinterpret_cast<gsl::czstring>(glewGetErrorString(err));
-    BOOST_THROW_EXCEPTION(std::runtime_error("Failed to initialize GLEW"));
+    BOOST_LOG_TRIVIAL(error) << "gladLoadGL failed";
+    BOOST_THROW_EXCEPTION(std::runtime_error("Failed to initialize glad"));
   }
 
   BOOST_LOG_TRIVIAL(info) << "OpenGL version: "
@@ -106,7 +102,7 @@ void gl::initializeGl()
                           << reinterpret_cast<const char*>(api::getString(api::StringName::Renderer));
   glGetError(); // clear the error flag
 
-  Expects(GLEW_ARB_bindless_texture);
+  Expects(GLAD_GL_ARB_bindless_texture);
 
 #ifdef SOGLB_DEBUGGING
   GL_ASSERT(api::enable(api::EnableCap::DebugOutput));
@@ -126,7 +122,7 @@ void gl::initializeGl()
 
 bool gl::hasAnisotropicFilteringExtension()
 {
-  return GLEW_ARB_texture_filter_anisotropic == GL_TRUE || GLEW_EXT_texture_filter_anisotropic == GL_TRUE;
+  return GLAD_GL_ARB_texture_filter_anisotropic == GL_TRUE || GLAD_GL_EXT_texture_filter_anisotropic == GL_TRUE;
 }
 
 float gl::getMaxAnisotropyLevel()

@@ -22,7 +22,7 @@
 #include <cmath>
 #include <cstdint>
 #include <functional>
-#include <gl/glew_init.h>
+#include <gl/glad_init.h>
 #include <glm/fwd.hpp>
 #include <glm/vec2.hpp>
 #include <gsl/gsl-lite.hpp>

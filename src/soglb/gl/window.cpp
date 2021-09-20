@@ -1,8 +1,8 @@
 #include "window.h"
 
 #include "cimgwrapper.h"
+#include "glad_init.h"
 #include "glassert.h"
-#include "glew_init.h"
 #include "renderstate.h"
 
 #include <boost/log/trivial.hpp>

@@ -83,7 +83,7 @@
 #include <boost/throw_exception.hpp>
 #include <cstdint>
 #include <exception>
-#include <gl/glew_init.h>
+#include <gl/glad_init.h>
 #include <gl/pixel.h>
 #include <gl/sampler.h>
 #include <gl/texture2darray.h>

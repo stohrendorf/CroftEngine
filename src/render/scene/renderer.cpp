@@ -39,7 +39,7 @@ void Renderer::render()
   {
     m_lastLogTime = t;
 
-    if(glewIsSupported("GL_ATI_meminfo") == GL_TRUE)
+    if(GLAD_GL_ATI_meminfo)
     {
       std::array<GLint, 4> tmp{};
       auto logStats = [&tmp](const char* prefix)
@@ -59,7 +59,7 @@ void Renderer::render()
       GL_ASSERT(glGetIntegerv(GL_RENDERBUFFER_FREE_MEMORY_ATI, tmp.data()));
       logStats("Renderbuffer");
     }
-    else if(glewIsSupported("GL_NVX_gpu_memory_info") == GL_TRUE)
+    else if(GLAD_GL_NVX_gpu_memory_info)
     {
       GLint dedicated;
       GL_ASSERT(glGetIntegerv(GL_GPU_MEMORY_INFO_DEDICATED_VIDMEM_NVX, &dedicated));
