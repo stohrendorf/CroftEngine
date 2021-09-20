@@ -10,8 +10,6 @@
 #include "geometry_pipeline_interface.glsl"
 #include "camera_interface.glsl"
 
-uniform int u_isSprite = 0;
-
 void main()
 {
     #ifdef SKELETAL
@@ -21,15 +19,14 @@ void main()
     #endif
     mat4 mv = u_view * mm;
 
-    if (u_isSprite == 1) {
-        mv[0].xyz = vec3(1, 0, 0);
-        mv[2].xyz = vec3(0, 0, 1);
-    }
-    else if (u_isSprite == 2) {
-        mv[0].xyz = vec3(1, 0, 0);
-        mv[1].xyz = vec3(0, 1, 0);
-        mv[2].xyz = vec3(0, 0, 1);
-    }
+    #if SPRITEMODE == 1
+    mv[0].xyz = vec3(1, 0, 0);
+    mv[2].xyz = vec3(0, 0, 1);
+    #elif SPRITEMODE == 2
+    mv[0].xyz = vec3(1, 0, 0);
+    mv[1].xyz = vec3(0, 1, 0);
+    mv[2].xyz = vec3(0, 0, 1);
+    #endif
 
     vec4 tmp = mv * vec4(a_position, 1);
     gpi.vertexPos = tmp.xyz;
@@ -39,8 +36,8 @@ void main()
     gpi.texIndex = a_texIndex;
     gpi.color = a_color;
 
-    gpi.vertexNormalWorld = normalize(vec3(mm * vec4(a_normal, 0.0)));
-    gpi.hbaoNormal = normalize(vec3(mv * vec4(a_normal, 0.0)));
+    gpi.vertexNormalWorld = normalize(mat3(mm) * a_normal);
+    gpi.hbaoNormal = normalize(mat3(mv) * a_normal);
     float dist = 16 * clamp(1.0 - dot(normalize(u_csmLightDir), gpi.vertexNormalWorld), 0.0, 1.0);
     vec4 pos = vec4(a_position + dist * gpi.vertexNormalWorld, 1.0);
     for (int i=0; i<CSMSplits; ++i)

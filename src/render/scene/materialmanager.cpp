@@ -48,12 +48,11 @@ std::shared_ptr<Material> MaterialManager::getSprite(bool billboard)
   if(const auto& tmp = m_sprite[billboard])
     return tmp;
 
-  auto m = std::make_shared<Material>(m_shaderCache->getGeometry(false, false, true));
+  auto m = std::make_shared<Material>(m_shaderCache->getGeometry(false, false, true, billboard ? 2 : 1));
   m->getRenderState().setCullFace(false);
 
   m->getUniformBlock("Transform")->bindTransformBuffer();
   m->getUniformBlock("Camera")->bindCameraBuffer(m_renderer->getCamera());
-  m->getUniform("u_isSprite")->set(billboard ? 2 : 1);
 
   m_sprite[billboard] = m;
   return m;
@@ -106,11 +105,10 @@ std::shared_ptr<Material> MaterialManager::getGeometry(bool water, bool skeletal
   if(auto it = m_geometry.find(key); it != m_geometry.end())
     return it->second;
 
-  auto m = std::make_shared<Material>(m_shaderCache->getGeometry(water, skeletal, roomShadowing));
+  auto m = std::make_shared<Material>(m_shaderCache->getGeometry(water, skeletal, roomShadowing, 0));
   m->getUniform("u_diffuseTextures")
     ->bind([this](const Node& /*node*/, const Mesh& /*mesh*/, gl::Uniform& uniform)
            { uniform.set(m_geometryTextures); });
-  m->getUniform("u_isSprite")->set(0);
 
   m->getUniformBlock("Transform")->bindTransformBuffer();
   if(auto buffer = m->tryGetBuffer("BoneTransform"))

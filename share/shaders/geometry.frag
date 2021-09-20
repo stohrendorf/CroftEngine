@@ -7,8 +7,6 @@ layout(bindless_sampler) uniform sampler2DArray u_diffuseTextures;
 #include "water_caustics.glsl"
 #endif
 
-uniform int u_isSprite = 0;
-
 layout(location=0) out vec4 out_color;
 layout(location=1) out vec3 out_normal;
 layout(location=2) out vec3 out_position;
@@ -87,12 +85,11 @@ void main()
     finalColor *= water_multiplier(gpi.vertexPosWorld);
     #endif
 
-    if (u_isSprite == 0) {
-        out_color.rgba = vec4(finalColor * calc_positional_lighting(gpi.vertexNormalWorld, gpi.vertexPosWorld) * shadow_map_multiplier(gpi.vertexNormalWorld), 1.0);
-    }
-    else {
-        out_color.rgba = vec4(finalColor * calc_distance_lighting(gpi.vertexPosWorld) * shadow_map_multiplier(gpi.vertexNormalWorld), 1.0);
-    }
+    #if SPRITEMODE == 0
+    out_color.rgba = vec4(finalColor * calc_positional_lighting(gpi.vertexNormalWorld, gpi.vertexPosWorld) * shadow_map_multiplier(gpi.vertexNormalWorld), 1.0);
+    #else
+    out_color.rgba = vec4(finalColor * calc_distance_lighting(gpi.vertexPosWorld) * shadow_map_multiplier(gpi.vertexNormalWorld), 1.0);
+    #endif
     out_normal = gpi.hbaoNormal;
     out_position = gpi.vertexPos;
 }
