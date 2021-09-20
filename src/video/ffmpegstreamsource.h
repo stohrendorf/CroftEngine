@@ -27,7 +27,8 @@ public:
 
   void fillQueues(bool looping);
 
-  size_t readStereo(int16_t* buffer, size_t bufferSize, bool looping) final;
+  size_t read(int16_t* buffer, size_t bufferSize, bool looping) final;
+  [[nodiscard]] int getChannels() const final;
 
   [[nodiscard]] int getSampleRate() const final;
 
@@ -109,8 +110,8 @@ public:
   ~FfmpegMemoryStreamSource() override;
 
 private:
-  static int read(void* opaque, uint8_t* buf, int bufSize);
-  static int64_t seek(void* opaque, int64_t offset, int whence);
+  static int ffmpegRead(void* opaque, uint8_t* buf, int bufSize);
+  static int64_t ffmpegSeek(void* opaque, int64_t offset, int whence);
 };
 
 class FfmpegSubStreamStreamSource
@@ -123,7 +124,7 @@ public:
   ~FfmpegSubStreamStreamSource() override;
 
 private:
-  static int read(void* opaque, uint8_t* buf, int bufSize);
-  static int64_t seek(void* opaque, int64_t offset, int whence);
+  static int ffmpegRead(void* opaque, uint8_t* buf, int bufSize);
+  static int64_t ffmpegSeek(void* opaque, int64_t offset, int whence);
 };
 } // namespace video

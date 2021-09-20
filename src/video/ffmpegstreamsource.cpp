@@ -79,15 +79,15 @@ void BasicFfmpegStreamSource::fillQueues(bool looping)
   }
 }
 
-size_t BasicFfmpegStreamSource::readStereo(int16_t* buffer, size_t bufferSize, bool looping)
+size_t BasicFfmpegStreamSource::read(int16_t* buffer, size_t bufferSize, bool looping)
 {
   fillQueues(looping);
   size_t written = 0;
   while(written < bufferSize)
   {
-    const auto read = m_decoder->readStereo(buffer, bufferSize - written);
+    const auto read = m_decoder->read(buffer, bufferSize - written);
     written += read;
-    buffer += 2 * read;
+    buffer += getChannels() * read;
     if(written < bufferSize)
     {
       if(!looping)
@@ -119,6 +119,11 @@ void BasicFfmpegStreamSource::seek(const std::chrono::milliseconds& position)
   fillQueues(false);
 }
 
+int BasicFfmpegStreamSource::getChannels() const
+{
+  return m_decoder->getChannels();
+}
+
 FfmpegStreamSource::FfmpegStreamSource(const std::filesystem::path& filename)
     : BasicFfmpegStreamSource{nullptr, filename.string().c_str()}
 {
@@ -126,15 +131,19 @@ FfmpegStreamSource::FfmpegStreamSource(const std::filesystem::path& filename)
 
 FfmpegMemoryStreamSource::FfmpegMemoryStreamSource(const gsl::span<const uint8_t>& data)
     : detail::FfmpegMemoryStreamSourceFileData{data}
-    , BasicFfmpegStreamSource{
-        [this]()
-        {
-          auto ctx = avformat_alloc_context();
-          ctx->pb = avio_alloc_context(
-            dataBuffer, 0, 0, this, &FfmpegMemoryStreamSource::read, nullptr, &FfmpegMemoryStreamSource::seek);
-          return ctx;
-        }(),
-        nullptr}
+    , BasicFfmpegStreamSource{[this]()
+                              {
+                                auto ctx = avformat_alloc_context();
+                                ctx->pb = avio_alloc_context(dataBuffer,
+                                                             0,
+                                                             0,
+                                                             this,
+                                                             &FfmpegMemoryStreamSource::ffmpegRead,
+                                                             nullptr,
+                                                             &FfmpegMemoryStreamSource::ffmpegSeek);
+                                return ctx;
+                              }(),
+                              nullptr}
 {
 }
 
@@ -144,7 +153,7 @@ FfmpegMemoryStreamSource::~FfmpegMemoryStreamSource()
   avio_context_free(&getFmtContext()->pb);
 }
 
-int FfmpegMemoryStreamSource::read(void* opaque, uint8_t* buf, int bufSize)
+int FfmpegMemoryStreamSource::ffmpegRead(void* opaque, uint8_t* buf, int bufSize)
 {
   auto* h = static_cast<FfmpegMemoryStreamSource*>(opaque);
   const auto n = std::min(h->data.size() - h->dataPosition, gsl::narrow<size_t>(bufSize));
@@ -156,7 +165,7 @@ int FfmpegMemoryStreamSource::read(void* opaque, uint8_t* buf, int bufSize)
   return n;
 }
 
-int64_t FfmpegMemoryStreamSource::seek(void* opaque, int64_t offset, int whence)
+int64_t FfmpegMemoryStreamSource::ffmpegSeek(void* opaque, int64_t offset, int whence)
 {
   auto* h = static_cast<FfmpegMemoryStreamSource*>(opaque);
   if((whence & AVSEEK_SIZE) != 0)
@@ -184,15 +193,19 @@ FfmpegSubStreamStreamSource::FfmpegSubStreamStreamSource(std::unique_ptr<std::is
                                                          size_t start,
                                                          size_t end)
     : detail::FfmpegMemoryStreamSourceSubFileData{std::move(istream), start, end}
-    , BasicFfmpegStreamSource{
-        [this]()
-        {
-          auto ctx = avformat_alloc_context();
-          ctx->pb = avio_alloc_context(
-            dataBuffer, 0, 0, this, &FfmpegSubStreamStreamSource::read, nullptr, &FfmpegSubStreamStreamSource::seek);
-          return ctx;
-        }(),
-        nullptr}
+    , BasicFfmpegStreamSource{[this]()
+                              {
+                                auto ctx = avformat_alloc_context();
+                                ctx->pb = avio_alloc_context(dataBuffer,
+                                                             0,
+                                                             0,
+                                                             this,
+                                                             &FfmpegSubStreamStreamSource::ffmpegRead,
+                                                             nullptr,
+                                                             &FfmpegSubStreamStreamSource::ffmpegSeek);
+                                return ctx;
+                              }(),
+                              nullptr}
 {
 }
 
@@ -202,7 +215,7 @@ FfmpegSubStreamStreamSource::~FfmpegSubStreamStreamSource()
   avio_context_free(&getFmtContext()->pb);
 }
 
-int FfmpegSubStreamStreamSource::read(void* opaque, uint8_t* buf, int bufSize)
+int FfmpegSubStreamStreamSource::ffmpegRead(void* opaque, uint8_t* buf, int bufSize)
 {
   auto* h = static_cast<FfmpegSubStreamStreamSource*>(opaque);
   const auto n = std::min(h->dataEnd - h->dataStart - h->dataPosition, gsl::narrow<size_t>(bufSize));
@@ -212,7 +225,7 @@ int FfmpegSubStreamStreamSource::read(void* opaque, uint8_t* buf, int bufSize)
   return n;
 }
 
-int64_t FfmpegSubStreamStreamSource::seek(void* opaque, int64_t offset, int whence)
+int64_t FfmpegSubStreamStreamSource::ffmpegSeek(void* opaque, int64_t offset, int whence)
 {
   auto* h = static_cast<FfmpegSubStreamStreamSource*>(opaque);
   const auto size = h->dataEnd - h->dataStart;

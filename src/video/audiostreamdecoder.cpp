@@ -41,7 +41,7 @@ AudioStreamDecoder::AudioStreamDecoder(AVFormatContext* fmtContext, bool rplFake
     , stream{std::make_unique<Stream>(fmtContext, AVMEDIA_TYPE_AUDIO, rplFakeAudioHack)}
     , swrContext{swr_alloc_set_opts(nullptr,
                                     // NOLINTNEXTLINE(hicpp-signed-bitwise)
-                                    AV_CH_LAYOUT_STEREO,
+                                    stream->context->channels == 1 ? AV_CH_LAYOUT_MONO : AV_CH_LAYOUT_STEREO,
                                     AV_SAMPLE_FMT_S16,
                                     stream->context->sample_rate,
                                     // NOLINTNEXTLINE(hicpp-signed-bitwise)
@@ -109,7 +109,7 @@ bool AudioStreamDecoder::push(const AVPacket& packet)
       BOOST_THROW_EXCEPTION(std::runtime_error("Failed to receive resampled audio data"));
     }
 
-    std::vector<int16_t> audio(gsl::narrow_cast<size_t>(outSamples) * 2u, 0);
+    std::vector<int16_t> audio(gsl::narrow_cast<size_t>(outSamples * getChannels()), 0);
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
     auto* audioData = reinterpret_cast<uint8_t*>(audio.data());
 
@@ -125,7 +125,7 @@ bool AudioStreamDecoder::push(const AVPacket& packet)
     }
 
     // cppcheck-suppress invalidFunctionArg
-    audio.resize(gsl::narrow_cast<size_t>(framesDecoded) * 2u);
+    audio.resize(gsl::narrow_cast<size_t>(framesDecoded * getChannels()));
 
     queue.push(std::move(audio));
   }
@@ -135,7 +135,7 @@ bool AudioStreamDecoder::push(const AVPacket& packet)
   return true;
 }
 
-size_t AudioStreamDecoder::readStereo(int16_t* buffer, size_t bufferSize)
+size_t AudioStreamDecoder::read(int16_t* buffer, size_t bufferSize)
 {
   std::unique_lock lock{mutex};
 
@@ -143,23 +143,23 @@ size_t AudioStreamDecoder::readStereo(int16_t* buffer, size_t bufferSize)
   while(bufferSize != 0 && !queue.empty())
   {
     auto& src = queue.front();
-    const auto frames = std::min(bufferSize, src.size() / 2);
+    const auto frames = std::min(bufferSize, src.size() / getChannels());
 
     Expects(bufferSize >= frames);
 
-    std::copy_n(src.data(), 2 * frames, buffer);
+    std::copy_n(src.data(), getChannels() * frames, buffer);
     bufferSize -= frames;
     written += frames;
-    buffer += 2 * frames;
+    buffer += getChannels() * frames;
 
-    src.erase(src.begin(), std::next(src.begin(), 2 * frames));
+    src.erase(src.begin(), std::next(src.begin(), getChannels() * frames));
     if(src.empty())
     {
       queue.pop();
     }
   }
 
-  std::fill_n(buffer, 2 * bufferSize, int16_t{0});
+  std::fill_n(buffer, getChannels() * bufferSize, int16_t{0});
   return written;
 }
 
@@ -185,5 +185,10 @@ void AudioStreamDecoder::seek(const std::chrono::milliseconds& position)
   const auto ts = fromDuration(position, stream->stream->time_base);
   Expects(av_seek_frame(fmtContext, stream->index, ts, 0) >= 0);
   queue = {};
+}
+
+int AudioStreamDecoder::getChannels() const
+{
+  return stream->context->channels;
 }
 } // namespace video

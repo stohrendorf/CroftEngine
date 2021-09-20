@@ -52,7 +52,8 @@ struct AVDecoder final : public audio::AbstractStreamSource
 
   void decodeVideoPacket();
 
-  size_t readStereo(int16_t* buffer, size_t bufferSize, bool /*looping*/) override;
+  size_t read(int16_t* buffer, size_t bufferSize, bool /*looping*/) override;
+  int getChannels() const override;
 
   [[nodiscard]] int getSampleRate() const override;
 

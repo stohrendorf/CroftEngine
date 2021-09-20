@@ -51,7 +51,7 @@ struct AudioStreamDecoder final
 
   bool push(const AVPacket& packet);
 
-  size_t readStereo(int16_t* buffer, size_t bufferSize);
+  size_t read(int16_t* buffer, size_t bufferSize);
 
   [[nodiscard]] int getSampleRate() const;
 
@@ -60,5 +60,7 @@ struct AudioStreamDecoder final
   void seek(const std::chrono::milliseconds& position);
 
   [[nodiscard]] audio::Clock::duration getDuration() const;
+
+  [[nodiscard]] int getChannels() const;
 };
 } // namespace video

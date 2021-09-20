@@ -17,7 +17,7 @@ public:
   {
   }
 
-  void fill(const int16_t* samples, size_t frameCount, int sampleRate);
+  void fill(const int16_t* samples, size_t frameCount, int channels, int sampleRate);
   void fillFromWav(const uint8_t* data);
 
   [[nodiscard]] Clock::duration getDuration() const

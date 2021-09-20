@@ -195,13 +195,13 @@ void AVDecoder::decodeVideoPacket()
     BOOST_LOG_TRIVIAL(info) << "Video stream chunk decoded: " << getAvError(err);
 }
 
-size_t AVDecoder::readStereo(int16_t* buffer, size_t bufferSize, bool /*looping*/)
+size_t AVDecoder::read(int16_t* buffer, size_t bufferSize, bool /*looping*/)
 {
   fillQueues();
 
   size_t written = 0;
   {
-    written = audioDecoder->readStereo(buffer, bufferSize);
+    written = audioDecoder->read(buffer, bufferSize);
     std::unique_lock lock{imgQueueMutex};
     if(written == 0 && !imgQueue.empty())
     {
@@ -211,7 +211,7 @@ size_t AVDecoder::readStereo(int16_t* buffer, size_t bufferSize, bool /*looping*
   }
 
   bufferSize -= written;
-  buffer += 2 * written;
+  buffer += audioDecoder->getChannels() * written;
   totalAudioFrames += written;
   audioFrameOffset += written;
   Expects(audioFrameSize > 0);
@@ -230,7 +230,7 @@ size_t AVDecoder::readStereo(int16_t* buffer, size_t bufferSize, bool /*looping*
     frameReadyCondition.notify_one();
   }
 
-  std::fill_n(buffer, 2 * bufferSize, int16_t{0});
+  std::fill_n(buffer, audioDecoder->getChannels() * bufferSize, int16_t{0});
   return written;
 }
 
@@ -242,5 +242,10 @@ audio::Clock::duration AVDecoder::getDuration() const
 int AVDecoder::getSampleRate() const
 {
   return audioDecoder->getSampleRate();
+}
+
+int AVDecoder::getChannels() const
+{
+  return audioDecoder->getChannels();
 }
 } // namespace video

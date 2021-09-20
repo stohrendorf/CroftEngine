@@ -13,12 +13,16 @@
 namespace audio
 {
 // NOLINTNEXTLINE(readability-make-member-function-const)
-void BufferHandle::fill(const int16_t* samples, const size_t frameCount, const int sampleRate)
+void BufferHandle::fill(const int16_t* samples, const size_t frameCount, const int channels, const int sampleRate)
 {
+  Expects(channels == 1 || channels == 2);
   m_frameCount = frameCount;
   m_sampleRate = sampleRate;
-  AL_ASSERT(alBufferData(
-    *this, AL_FORMAT_STEREO16, samples, gsl::narrow<ALsizei>(frameCount * sizeof(samples[0]) * 2), sampleRate));
+  AL_ASSERT(alBufferData(*this,
+                         channels == 1 ? AL_FORMAT_MONO16 : AL_FORMAT_STEREO16,
+                         samples,
+                         gsl::narrow<ALsizei>(frameCount * sizeof(samples[0]) * channels),
+                         sampleRate));
 }
 
 // NOLINTNEXTLINE(readability-make-member-function-const)
@@ -37,15 +41,15 @@ void BufferHandle::fillFromWav(const uint8_t* data)
   while(true)
   {
     const auto offset = pcm.size();
-    pcm.resize(pcm.size() + 2 * ChunkSize);
-    const auto read = tmp->readStereo(&pcm[offset], ChunkSize, false);
+    pcm.resize(pcm.size() + tmp->getChannels() * ChunkSize);
+    const auto read = tmp->read(&pcm[offset], ChunkSize, false);
     if(read != ChunkSize)
     {
-      pcm.erase(std::next(pcm.begin(), offset + 2 * read), pcm.end());
+      pcm.erase(std::next(pcm.begin(), offset + tmp->getChannels() * read), pcm.end());
       break;
     }
   }
 
-  fill(pcm.data(), pcm.size() / 2, tmp->getSampleRate());
+  fill(pcm.data(), pcm.size() / tmp->getChannels(), tmp->getChannels(), tmp->getSampleRate());
 }
 } // namespace audio

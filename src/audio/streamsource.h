@@ -21,7 +21,8 @@ public:
 
   virtual ~AbstractStreamSource() = default;
 
-  virtual size_t readStereo(int16_t* buffer, size_t bufferSize, bool looping) = 0;
+  virtual size_t read(int16_t* buffer, size_t bufferSize, bool looping) = 0;
+  virtual int getChannels() const = 0;
 
   [[nodiscard]] virtual int getSampleRate() const = 0;
 
