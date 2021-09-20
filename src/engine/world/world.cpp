@@ -1376,13 +1376,12 @@ void World::initFromLevel(loader::file::level::Level& level)
   for(const auto& staticMesh : level.m_staticMeshes)
   {
     RenderMeshDataCompositor compositor;
-    compositor.append(*meshesDirect.at(staticMesh.mesh)->meshData);
+    if(staticMesh.isVisible())
+      compositor.append(*meshesDirect.at(staticMesh.mesh)->meshData);
     auto mesh = compositor.toMesh(*getPresenter().getMaterialManager(), false, {});
     mesh->getRenderState().setScissorTest(false);
     const bool distinct
-      = m_staticMeshes
-          .emplace(staticMesh.id,
-                   StaticMesh{staticMesh.collision_box, staticMesh.doNotCollide(), staticMesh.isVisible(), mesh})
+      = m_staticMeshes.emplace(staticMesh.id, StaticMesh{staticMesh.collision_box, staticMesh.doNotCollide(), mesh})
           .second;
 
     Expects(distinct);

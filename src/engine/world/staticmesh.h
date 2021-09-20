@@ -14,7 +14,6 @@ struct StaticMesh
 {
   const core::BoundingBox collisionBox;
   const bool doNotCollide;
-  const bool isVisible;
 
   std::shared_ptr<render::scene::Mesh> renderMesh{nullptr};
 };
