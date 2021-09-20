@@ -14,6 +14,7 @@ add_library(
 )
 
 if( UNIX )
+    target_compile_definitions( Boost::log INTERFACE -DBOOST_LOG_DYN_LINK )
     if( NOT CMAKE_ADDR2LINE )
         message( WARNING "add2line not found, stacktraces will be without symbol resolution" )
         target_link_libraries( Boost::stacktrace INTERFACE Boost::stacktrace_basic )
