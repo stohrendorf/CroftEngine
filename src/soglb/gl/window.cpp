@@ -73,7 +73,7 @@ Window::Window(const std::filesystem::path& logoPath, const glm::ivec2& windowSi
 
   glfwMakeContextCurrent(m_window);
 
-  initializeGl();
+  initializeGl([](const char* procName) -> void* { return reinterpret_cast<void*>(glfwGetProcAddress(procName)); });
 
   updateWindowSize();
 

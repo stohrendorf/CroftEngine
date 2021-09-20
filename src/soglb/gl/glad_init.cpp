@@ -80,9 +80,10 @@ void SOGLB_API debugCallback(const api::DebugSource source,
 #endif
 } // namespace
 
-void gl::initializeGl()
+void gl::initializeGl(void* (*loadProc)(const char* name))
 {
-  if(gladLoadGL() == 0)
+  Expects(loadProc != nullptr);
+  if(gladLoadGLLoader(loadProc) == 0)
   {
     BOOST_LOG_TRIVIAL(error) << "gladLoadGL failed";
     BOOST_THROW_EXCEPTION(std::runtime_error("Failed to initialize glad"));
