@@ -1,7 +1,7 @@
 #include "bufferhandle.h"
 
-#include "sndfile/helpers.h"
 #include "utils.h"
+#include "video/ffmpegstreamsource.h"
 
 #include <AL/al.h>
 #include <boost/assert.hpp>
@@ -13,15 +13,12 @@
 namespace audio
 {
 // NOLINTNEXTLINE(readability-make-member-function-const)
-void BufferHandle::fill(const int16_t* samples, const size_t sampleCount, const int channels, const int sampleRate)
+void BufferHandle::fill(const int16_t* samples, const size_t frameCount, const int sampleRate)
 {
-  m_sampleCount = sampleCount;
+  m_frameCount = frameCount;
   m_sampleRate = sampleRate;
-  AL_ASSERT(alBufferData(*this,
-                         channels == 2 ? AL_FORMAT_STEREO16 : AL_FORMAT_MONO16,
-                         samples,
-                         gsl::narrow<ALsizei>(sampleCount * sizeof(samples[0])),
-                         sampleRate));
+  AL_ASSERT(alBufferData(
+    *this, AL_FORMAT_STEREO16, samples, gsl::narrow<ALsizei>(frameCount * sizeof(samples[0]) * 2), sampleRate));
 }
 
 // NOLINTNEXTLINE(readability-make-member-function-const)
@@ -33,23 +30,22 @@ void BufferHandle::fillFromWav(const uint8_t* data)
   // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
   uint32_t dataSize = 0;
   std::memcpy(&dataSize, data + 4, sizeof(uint32_t));
-  sndfile::MemBufferFileIo wavMem(data, gsl::narrow_cast<sf_count_t>(dataSize) + 8);
-  SF_INFO sfInfo;
-  memset(&sfInfo, 0, sizeof(sfInfo));
-  SNDFILE* sfFile = sf_open_virtual(&wavMem, SFM_READ, &sfInfo, &wavMem);
+  auto tmp = std::make_unique<video::FfmpegMemoryStreamSource>(gsl::span{data, dataSize + 8});
 
-  if(sfFile == nullptr)
+  static constexpr size_t ChunkSize = 8192;
+  std::vector<int16_t> pcm;
+  while(true)
   {
-    BOOST_LOG_TRIVIAL(error) << "Failed to load WAV sample from memory: " << sf_strerror(sfFile);
-    return;
+    const auto offset = pcm.size();
+    pcm.resize(pcm.size() + 2 * ChunkSize);
+    const auto read = tmp->readStereo(&pcm[offset], ChunkSize, false);
+    if(read != ChunkSize)
+    {
+      pcm.erase(std::next(pcm.begin(), offset + 2 * read), pcm.end());
+      break;
+    }
   }
 
-  BOOST_ASSERT(sfInfo.frames >= 0);
-
-  std::vector<int16_t> pcm(sfInfo.frames * sfInfo.channels);
-  sf_readf_short(sfFile, pcm.data(), sfInfo.frames);
-  fill(pcm.data(), pcm.size(), sfInfo.channels, sfInfo.samplerate);
-
-  sf_close(sfFile);
+  fill(pcm.data(), pcm.size() / 2, tmp->getSampleRate());
 }
 } // namespace audio

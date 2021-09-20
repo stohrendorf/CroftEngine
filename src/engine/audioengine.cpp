@@ -6,6 +6,7 @@
 #include "audio/soundengine.h"
 #include "audio/streamsource.h"
 #include "audio/streamvoice.h"
+#include "audio/wadstreamsource.h"
 #include "objects/laraobject.h"
 #include "script/reflection.h"
 #include "script/scriptengine.h"
@@ -204,11 +205,10 @@ gsl::not_null<std::shared_ptr<audio::StreamVoice>>
 
   if(std::filesystem::is_regular_file(m_rootPath / "CDAUDIO.WAD"))
   {
-    auto stream = m_soundEngine->getDevice().createStream(
-      std::make_unique<audio::WadStreamSource>(m_rootPath / "CDAUDIO.WAD", trackId),
-      DefaultBufferSize,
-      DefaultBufferCount,
-      initialPosition);
+    auto stream = m_soundEngine->getDevice().createStream(audio::createWadStream(m_rootPath / "CDAUDIO.WAD", trackId),
+                                                          DefaultBufferSize,
+                                                          DefaultBufferCount,
+                                                          initialPosition);
     m_music.add(stream);
     stream->play();
     return stream;

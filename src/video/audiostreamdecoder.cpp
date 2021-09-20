@@ -41,7 +41,7 @@ AudioStreamDecoder::AudioStreamDecoder(AVFormatContext* fmtContext, bool rplFake
     , stream{std::make_unique<Stream>(fmtContext, AVMEDIA_TYPE_AUDIO, rplFakeAudioHack)}
     , swrContext{swr_alloc_set_opts(nullptr,
                                     // NOLINTNEXTLINE(hicpp-signed-bitwise)
-                                    stream->context->channels == 1 ? AV_CH_LAYOUT_MONO : AV_CH_LAYOUT_STEREO,
+                                    AV_CH_LAYOUT_STEREO,
                                     AV_SAMPLE_FMT_S16,
                                     stream->context->sample_rate,
                                     // NOLINTNEXTLINE(hicpp-signed-bitwise)
@@ -143,7 +143,7 @@ size_t AudioStreamDecoder::readStereo(int16_t* buffer, size_t bufferSize)
   while(bufferSize != 0 && !queue.empty())
   {
     auto& src = queue.front();
-    const auto frames = std::min(static_cast<size_t>(bufferSize), src.size() / 2);
+    const auto frames = std::min(bufferSize, src.size() / 2);
 
     Expects(bufferSize >= frames);
 

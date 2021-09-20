@@ -287,7 +287,7 @@ set( EDISONENGINE_SRCS
         audio/streamvoice.h
         audio/streamvoice.cpp
         audio/streamsource.h
-        audio/streamsource.cpp
+        audio/wadstreamsource.cpp
         audio/tracktype.h
         audio/utils.h
         audio/utils.cpp
@@ -295,8 +295,6 @@ set( EDISONENGINE_SRCS
         audio/voice.cpp
         audio/voicegroup.h
         audio/voicegroup.cpp
-        audio/sndfile/helpers.h
-        audio/sndfile/helpers.cpp
 
         util/helpers.h
         util/helpers.cpp
@@ -641,7 +639,6 @@ target_link_libraries(
         Boost::headers
         Boost::stacktrace
         OpenAL::OpenAL
-        SndFile::sndfile
         ryml
         PNG::PNG
         type_safe

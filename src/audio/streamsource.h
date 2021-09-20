@@ -1,7 +1,6 @@
 #pragma once
 
 #include "core.h"
-#include "sndfile/helpers.h"
 
 #include <chrono>
 #include <cstddef>
@@ -33,33 +32,5 @@ public:
 
 protected:
   explicit AbstractStreamSource() = default;
-};
-
-class WadStreamSource final : public AbstractStreamSource
-{
-public:
-  WadStreamSource(const std::filesystem::path& filename, size_t trackIndex);
-
-  size_t readStereo(int16_t* frameBuffer, size_t frameCount, bool looping) override;
-
-  [[nodiscard]] int getSampleRate() const override;
-
-  [[nodiscard]] std::chrono::milliseconds getPosition() const override;
-  void seek(const std::chrono::milliseconds& position) override;
-
-  [[nodiscard]] Clock::duration getDuration() const override;
-
-private:
-  std::ifstream m_wadFile;
-  SF_INFO m_sfInfo{};
-  SNDFILE* m_sndFile = nullptr;
-  std::unique_ptr<sndfile::InputStreamViewWrapper> m_wrapper;
-
-  // CDAUDIO.WAD step size defines CDAUDIO's header stride, on which each track
-  // info is placed. Also CDAUDIO count specifies static amount of tracks existing
-  // in CDAUDIO.WAD file. Name length specifies maximum string size for trackname.
-  static constexpr size_t WADStride = 268;
-  static constexpr size_t WADNameLength = 260;
-  static constexpr size_t WADCount = 130;
 };
 } // namespace audio

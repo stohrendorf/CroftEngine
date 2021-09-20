@@ -77,7 +77,7 @@ void StreamVoice::update()
 bool StreamVoice::fillBuffer(BufferHandle& buffer)
 {
   const auto framesRead = m_stream->readStereo(m_sampleBuffer.data(), m_sampleBuffer.size() / 2, m_looping);
-  buffer.fill(m_sampleBuffer.data(), framesRead * 2, 2, m_stream->getSampleRate());
+  buffer.fill(m_sampleBuffer.data(), framesRead, m_stream->getSampleRate());
   return framesRead > 0;
 }
 
