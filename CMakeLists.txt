@@ -19,6 +19,8 @@ function( group_files )
     endforeach()
 endfunction()
 
+include( GNUInstallDirs )
+
 include( get_opengl )
 include( get_glm )
 include( get_boost )
@@ -35,3 +37,15 @@ include( get_gettext )
 add_subdirectory( 3rdparty/rapidyaml EXCLUDE_FROM_ALL )
 add_subdirectory( 3rdparty/type_safe EXCLUDE_FROM_ALL )
 add_subdirectory( src )
+
+if( UNIX )
+    install(
+            FILES share/logo.png
+            DESTINATION ${CMAKE_INSTALL_FULL_DATADIR}/pixmaps
+            RENAME edisonengine.png
+    )
+    install(
+            FILES share/edisonengine.desktop
+            DESTINATION ${CMAKE_INSTALL_FULL_DATADIR}/applications
+    )
+endif()

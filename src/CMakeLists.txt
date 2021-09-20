@@ -669,8 +669,6 @@ endif()
 
 get_target_property( _bin_dir edisonengine BINARY_DIR )
 
-include( GNUInstallDirs )
-
 target_compile_definitions(
         edisonengine
         PRIVATE
