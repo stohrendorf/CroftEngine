@@ -111,3 +111,26 @@ necessary, e.g. `vcpkg install boost:x64-windows`):
 
 ...or use this, and adjust the triplet:
 > `vcpkg install --triplet x64-windows boost glfw3 libpng openal-soft opengl glm freetype cimg ffmpeg utfcpp gettext`
+
+## Generating Glad OpenGL bindings
+
+**Warning!** The [Glad](https://glad.dav1d.de/) bindings have been manually patched to always try to load
+the `GL_ARB_bindless_texture` extension, regardless of whether `GL_EXTENSIONS` reports it or not. This is to allow
+debugging with [RenderDoc](https://github.com/baldurk/renderdoc/).
+
+See [src/soglb/glad-patches.md](./src/soglb/glad-patches.md) for the applied patches.
+
+### Generator Settings
+
+Use the following settings to generate the bindings:
+
+* OpenGL version 4.5, core profile
+* No loader generation
+* Do not omit KHR
+* Local files
+* Extensions:
+    * GL_ARB_bindless_texture
+    * GL_ARB_texture_filter_anisotropic
+    * GL_ATI_meminfo
+    * GL_EXT_texture_filter_anisotropic
+    * GL_NVX_gpu_memory_info
