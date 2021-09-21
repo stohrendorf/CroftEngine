@@ -136,8 +136,7 @@ struct TeamcityFormatterRegistrar
   {
     if(underTeamcity())
     {
-      static TeamcityBoostLogFormatter formatter;
-      boost::unit_test::unit_test_log.set_formatter(&formatter);
+      boost::unit_test::unit_test_log.set_formatter(new TeamcityBoostLogFormatter());
       boost::unit_test::unit_test_log.set_threshold_level(boost::unit_test::log_test_units);
     }
   }
