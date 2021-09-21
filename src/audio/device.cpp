@@ -188,11 +188,18 @@ void Device::reset()
 
 void Device::update()
 {
-  // remove expired voices
+  // remove expired streams and voices
   {
-    m_allVoices.erase(std::remove_if(m_allVoices.begin(), m_allVoices.end(), [](const auto& v) { return v->done(); }),
-                      m_allVoices.end());
+    std::lock_guard lock{m_streamsLock};
+    auto streams = std::move(m_streams);
+    for(const auto& stream : streams)
+    {
+      if(!stream->done())
+        m_streams.emplace(stream);
+    }
   }
+  m_allVoices.erase(std::remove_if(m_allVoices.begin(), m_allVoices.end(), [](const auto& v) { return v->done(); }),
+                    m_allVoices.end());
 
   // order voices by non-positional, then by distance
   glm::vec3 listenerPos;

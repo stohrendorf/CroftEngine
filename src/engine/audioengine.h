@@ -47,9 +47,9 @@ class AudioEngine
   std::map<TR1TrackId, engine::floordata::ActivationState> m_cdTrackActivationStates;
   core::Frame m_cdTrack50time = 0_frame;
   std::shared_ptr<audio::Voice> m_underwaterAmbience;
-  std::shared_ptr<audio::StreamVoice> m_ambientStream;
+  std::weak_ptr<audio::StreamVoice> m_ambientStream;
   std::optional<size_t> m_ambientStreamId{};
-  std::shared_ptr<audio::StreamVoice> m_interceptStream;
+  std::weak_ptr<audio::StreamVoice> m_interceptStream;
   std::optional<size_t> m_interceptStreamId{};
   std::optional<TR1TrackId> m_currentTrack;
   std::vector<std::shared_ptr<audio::BufferHandle>> m_samples;

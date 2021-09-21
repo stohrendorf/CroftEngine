@@ -366,8 +366,8 @@ std::pair<RunResult, std::optional<size_t>> Engine::runTitleMenu(world::World& w
 
   applySettings();
 
-  Expects(world.getAudioEngine().getInterceptStream() != nullptr);
-  world.getAudioEngine().getInterceptStream()->setLooping(true);
+  if(const auto stream = world.getAudioEngine().getInterceptStream().lock())
+    stream->setLooping(true);
 
   const auto backdrop = std::make_shared<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>>(
     gl::CImgWrapper{util::ensureFileExists(m_userDataPath / "data" / "tr1" / "DATA" / "TITLEH.PCX")}.toTexture());

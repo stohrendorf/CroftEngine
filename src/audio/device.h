@@ -40,6 +40,11 @@ public:
   }
 
   void removeStream(const std::shared_ptr<StreamVoice>& stream);
+  void removeStream(const std::weak_ptr<StreamVoice>& stream)
+  {
+    if(const auto locked = stream.lock())
+      removeStream(stream);
+  }
 
   void setListenerTransform(const glm::vec3& pos, const glm::vec3& front, const glm::vec3& up);
 
