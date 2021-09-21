@@ -13,7 +13,7 @@ macro( add_boost_test name )
             ${ARGN}
     )
     target_include_directories( ${name} PRIVATE ${CMAKE_SOURCE_DIR}/src )
-    add_test( NAME ${name} COMMAND ${name} )
+    add_test( NAME ${name} COMMAND ${name} --color_output=no )
     target_link_libraries(
             ${name}
             PRIVATE
