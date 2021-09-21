@@ -19,12 +19,12 @@ public:
   {
     GL_ASSERT(api::genSampler(1, &m_handle));
     Expects(m_handle != 0);
-    Expects(api::isSampler(m_handle));
 
     set(api::SamplerParameterI::TextureWrapS, api::TextureWrapMode::ClampToEdge);
     set(api::SamplerParameterI::TextureWrapT, api::TextureWrapMode::ClampToEdge);
     set(api::TextureMinFilter::Nearest);
     set(api::TextureMagFilter::Nearest);
+    Expects(api::isSampler(m_handle));
 
     if(!label.empty())
       GL_ASSERT(api::objectLabel(api::ObjectIdentifier::Sampler, m_handle, -1, label.c_str()));
