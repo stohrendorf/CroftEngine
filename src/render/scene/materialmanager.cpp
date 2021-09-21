@@ -53,7 +53,10 @@ std::shared_ptr<Material> MaterialManager::getSprite(bool billboard)
 
   m->getUniformBlock("Transform")->bindTransformBuffer();
   m->getUniformBlock("Camera")->bindCameraBuffer(m_renderer->getCamera());
-
+  m->getUniform("u_diffuseTextures")
+    ->bind([this](const Node& /*node*/, const Mesh& /*mesh*/, gl::Uniform& uniform)
+           { uniform.set(m_geometryTextures); });
+  
   m_sprite[billboard] = m;
   return m;
 }
