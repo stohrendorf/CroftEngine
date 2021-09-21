@@ -3,6 +3,7 @@
 #include "time_uniform.glsl"
 
 #include "noise.glsl"
+#include "constants.glsl"
 
 layout(location=0) out vec2 out_perturb;
 layout(location=1) out vec3 out_position;
@@ -28,7 +29,6 @@ const float TimeMult = 0.0002;
 const float TexScale = 2048;
 
 float bumpTex(in vec2 uv, in float time) {
-    const float PI = 3.14159265359;
     vec2 coords1 = rotate2d(.9*PI) * uv + time*vec2(0.1, -0.3)*TimeMult;
     vec2 coords2 = rotate2d(.06*PI) * uv - time*vec2(0.1, 0.2)*TimeMult;
 

@@ -88,7 +88,9 @@ float calc_positional_lighting(in vec3 worldNormal, in vec3 worldPos)
         return u_lightAmbient;
     }
 
+        #if SPRITEMODE == 0
     worldNormal = normalize(worldNormal);
+    #endif
     float sum = u_lightAmbient;
     for (int i=0; i<lights.length(); ++i)
     {
@@ -96,26 +98,11 @@ float calc_positional_lighting(in vec3 worldNormal, in vec3 worldPos)
         float ld = length(d);
         float r = ld / lights[i].fadeDistance;
         float intensity = lights[i].brightness / (r*r + 1.0);
+        #if SPRITEMODE == 0
         sum += intensity * clamp(-dot(d/ld, worldNormal), 0, 1);
-    }
-
-    return sum;
-}
-
-float calc_distance_lighting(in vec3 worldPos)
-{
-    if (lights.length() <= 0)
-    {
-        return u_lightAmbient;
-    }
-
-    float sum = u_lightAmbient;
-    for (int i=0; i<lights.length(); ++i)
-    {
-        vec3 d = worldPos - lights[i].position.xyz;
-        float r = length(d) / lights[i].fadeDistance;
-        float intensity = lights[i].brightness / (r*r + 1.0);
+        #else
         sum += intensity;
+        #endif
     }
 
     return sum;

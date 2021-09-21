@@ -17,16 +17,16 @@ vec3 angleAxis(vec3 v, vec3 axis, float theta)
 
 void main()
 {
-    const float radius = 16;
-    const float bias = .025;
-    const int dirs = 6;
-    const float dirRotation = 2*PI/dirs;
-    const int steps = 6;
+    const float Radius = 16;
+    const float Bias = 0.025;
+    const int Dirs = 6;
+    const float DirRotation = 2*PI/Dirs;
+    const int Steps = 6;
 
     vec3 fragPos = texture(u_position, fpi.texCoord).xyz;
-    float stepSize = radius / (fragPos.z*.0001) / float(steps+1);
-    float stepSizes[dirs];
-    for (int i = 0; i < dirs; ++i) {
+    float stepSize = Radius / (fragPos.z*0.0001) / float(Steps+1);
+    float stepSizes[Dirs];
+    for (int i = 0; i < Dirs; ++i) {
         stepSizes[i] = stepSize*snoise(fpi.texCoord + vec2(i, 0)) + stepSize;
     }
 
@@ -39,17 +39,17 @@ void main()
         baseTangent = angleAxis(normalize(vec3(normal.y, -normal.x, 0)), normal, snoise(fpi.texCoord));
     }
 
-    vec3 tangents[dirs];
-    for (int i = 0; i < dirs; ++i) {
-        tangents[i] = stepSizes[i] * angleAxis(baseTangent, normal, i*dirRotation);
+    vec3 tangents[Dirs];
+    for (int i = 0; i < Dirs; ++i) {
+        tangents[i] = stepSizes[i] * angleAxis(baseTangent, normal, i*DirRotation);
     }
 
     float occlusion = 0.0;
-    for (int i = 0; i < dirs; ++i)
+    for (int i = 0; i < Dirs; ++i)
     {
         vec3 tangent = tangents[i];
         vec3 d = vec3(0);
-        for (int j = 0; j < steps; ++j)
+        for (int j = 0; j < Steps; ++j)
         {
             d += tangent;
             vec4 offset = u_projection * vec4(fragPos + d, 1.0);
@@ -58,9 +58,9 @@ void main()
             vec3 k = texture(u_position, offset.xy).xyz;
             vec3 vk = k - fragPos;
             float lvk = length(vk);
-            float w = min(radius/lvk, 1);
-            occlusion += w * max(dot(vk, normal) / lvk - bias, 0);
+            float w = min(Radius/lvk, 1);
+            occlusion += w * max(dot(vk, normal) / lvk - Bias, 0);
         }
     }
-    out_ao = pow(1 - occlusion / (steps*dirs), 2);
+    out_ao = pow(1 - occlusion / (Steps*Dirs), 2);
 }
