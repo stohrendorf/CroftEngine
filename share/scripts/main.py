@@ -1,12 +1,12 @@
 # locale_override = "en_GB.utf8"
 from engine import TR1ItemId
 
-from scripts.tr1.object_infos import object_infos
-from scripts.tr1.audio import tracks
-from scripts.tr1.level_sequence import level_sequence, title_menu, lara_home, early_boot
+from scripts.tr1.object_infos import object_infos  # lgtm [py/unused-import]
+from scripts.tr1.audio import tracks  # lgtm [py/unused-import]
+from scripts.tr1.level_sequence import level_sequence, title_menu, lara_home, early_boot  # lgtm [py/unused-import]
 
 if False:
-    cheats = {
+    cheats = {  # lgtm [py/unreachable-statement]
         "godMode": True,
         "allAmmoCheat": True,
         "inventory": {
