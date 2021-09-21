@@ -25,6 +25,10 @@ void main()
 
     vec3 fragPos = texture(u_position, fpi.texCoord).xyz;
     float stepSize = radius / (fragPos.z*.0001) / float(steps+1);
+    float stepSizes[dirs];
+    for (int i = 0; i < dirs; ++i) {
+        stepSizes[i] = stepSize*snoise(fpi.texCoord + vec2(i, 0)) + stepSize;
+    }
 
     vec3 normal = normalize(texture(u_normals, fpi.texCoord).xyz);
     vec3 baseTangent;
@@ -35,13 +39,19 @@ void main()
         baseTangent = angleAxis(normalize(vec3(normal.y, -normal.x, 0)), normal, snoise(fpi.texCoord));
     }
 
+    vec3 tangents[dirs];
+    for (int i = 0; i < dirs; ++i) {
+        tangents[i] = stepSizes[i] * angleAxis(baseTangent, normal, i*dirRotation);
+    }
+
     float occlusion = 0.0;
     for (int i = 0; i < dirs; ++i)
     {
-        vec3 tangent = stepSize * angleAxis(baseTangent, normal, i*dirRotation) * (1 + snoise(fpi.texCoord + vec2(i, 0)));
+        vec3 tangent = tangents[i];
+        vec3 d = vec3(0);
         for (int j = 0; j < steps; ++j)
         {
-            vec3 d = tangent * (1+j);
+            d += tangent;
             vec4 offset = u_projection * vec4(fragPos + d, 1.0);
             offset /= offset.w;
             offset.xy = offset.xy * vec2(0.5) + vec2(0.5);
