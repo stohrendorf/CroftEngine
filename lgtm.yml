@@ -13,7 +13,6 @@ extraction:
         - libpng-dev
         - libopenal-dev
         - libgl-dev
-        - libglm-dev
         - libasound2-dev
         - libfreetype6-dev
         - cimg-dev
