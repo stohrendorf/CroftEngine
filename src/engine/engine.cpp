@@ -192,7 +192,7 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
                                    world.getRooms(),
                                    world.getCameraController(),
                                    world.getCameraController().update(),
-                                   throttler.getAverageDelayRatio());
+                                   throttler.getAverageWaitRatio());
           m_presenter->renderScreenOverlay();
 
           if(currentBlendDuration < BlendDuration)
@@ -226,12 +226,12 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
                                world.getRooms(),
                                world.getCameraController(),
                                world.getCameraController().update(),
-                               throttler.getAverageDelayRatio());
+                               throttler.getAverageWaitRatio());
       m_presenter->updateSoundEngine();
       m_presenter->renderScreenOverlay();
       ui::Ui ui{m_presenter->getMaterialManager()->getUi(), world.getPalette()};
       ui.drawBox({0, 0}, m_presenter->getViewport(), gl::SRGBA8{0, 0, 0, 224});
-      world.drawPerformanceBar(ui, throttler.getAverageDelayRatio());
+      world.drawPerformanceBar(ui, throttler.getAverageWaitRatio());
       m_presenter->renderUi(ui, 1);
       menu->display(ui, world);
       m_presenter->renderUi(ui, 1);
@@ -320,7 +320,7 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
         runtime += 1_frame;
         blackAlpha = 1 - runtime.cast<float>() / BlendInDuration.cast<float>();
       }
-      world.gameLoop(godMode, throttler.getAverageDelayRatio(), blackAlpha);
+      world.gameLoop(godMode, throttler.getAverageWaitRatio(), blackAlpha);
     }
     else
     {

@@ -243,7 +243,7 @@ public:
   core::TypeId find(const SkeletalModelType* model) const;
   core::TypeId find(const Sprite* sprite) const;
   void serialize(const serialization::Serializer<World>& ser);
-  void gameLoop(bool godMode, float delayRatio, float blackAlpha);
+  void gameLoop(bool godMode, float waitRatio, float blackAlpha);
   bool cinematicLoop();
   void load(const std::optional<size_t>& slot);
   void save(const std::optional<size_t>& slot);
@@ -349,7 +349,7 @@ public:
     return m_cameraSinks;
   }
 
-  void drawPerformanceBar(ui::Ui& ui, float delayRatio) const;
+  void drawPerformanceBar(ui::Ui& ui, float waitRatio) const;
 
   [[nodiscard]] const auto& getControllerLayouts() const
   {

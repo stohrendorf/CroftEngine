@@ -112,7 +112,7 @@ void Presenter::renderWorld(const ObjectManager& objectManager,
                             const std::vector<world::Room>& rooms,
                             const CameraController& cameraController,
                             const std::unordered_set<const world::Portal*>& waterEntryPortals,
-                            float delayRatio)
+                            float waitRatio)
 {
   m_renderPipeline->updateCamera(m_renderer->getCamera());
 
@@ -222,7 +222,7 @@ void Presenter::renderWorld(const ObjectManager& objectManager,
       m_screenOverlay = std::make_unique<render::scene::ScreenOverlay>(*m_materialManager, m_window->getViewport());
     m_debugFont->drawText(
       *m_screenOverlay->getImage(),
-      std::to_string(delayRatio).c_str(),
+      std::to_string(waitRatio).c_str(),
       glm::ivec2{m_screenOverlay->getImage()->getSize().x - 80, m_screenOverlay->getImage()->getSize().y - 40},
       gl::SRGBA8{255},
       DebugTextFontSize);

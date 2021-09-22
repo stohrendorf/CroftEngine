@@ -906,7 +906,7 @@ void World::serialize(const serialization::Serializer<World>& ser)
   }
 }
 
-void World::gameLoop(bool godMode, float delayRatio, float blackAlpha)
+void World::gameLoop(bool godMode, float waitRatio, float blackAlpha)
 {
   ui::Ui ui{getPresenter().getMaterialManager()->getUi(), getPalette()};
 
@@ -934,14 +934,14 @@ void World::gameLoop(bool godMode, float delayRatio, float blackAlpha)
   }
 
   drawPickupWidgets(ui);
-  getPresenter().renderWorld(getObjectManager(), getRooms(), getCameraController(), waterEntryPortals, delayRatio);
+  getPresenter().renderWorld(getObjectManager(), getRooms(), getCameraController(), waterEntryPortals, waitRatio);
   getPresenter().renderScreenOverlay();
   if(blackAlpha > 0)
   {
     ui.drawBox({0, 0}, getPresenter().getViewport(), gl::SRGBA8{0, 0, 0, gsl::narrow_cast<uint8_t>(255 * blackAlpha)});
   }
 
-  drawPerformanceBar(ui, delayRatio);
+  drawPerformanceBar(ui, waitRatio);
 
   getPresenter().renderUi(ui, 1);
   getPresenter().updateSoundEngine();
@@ -1527,14 +1527,14 @@ void World::initTextureDependentDataFromLevel(const loader::file::level::Level& 
   }
 }
 
-void World::drawPerformanceBar(ui::Ui& ui, float delayRatio) const
+void World::drawPerformanceBar(ui::Ui& ui, float waitRatio) const
 {
   if(!getEngine().getEngineConfig()->displaySettings.performanceMeter)
     return;
 
   const auto vp = getPresenter().getViewport();
   ui.drawBox({0, vp.y}, {vp.x, -20}, gl::SRGBA8{0, 0, 0, 224});
-  const auto w = gsl::narrow_cast<int>(delayRatio * gsl::narrow_cast<float>(vp.x));
+  const auto w = gsl::narrow_cast<int>(waitRatio * gsl::narrow_cast<float>(vp.x));
   if(w > 0)
   {
     ui.drawBox({0, vp.y}, {w, -20}, gl::SRGBA8{0, 255, 0, 128});

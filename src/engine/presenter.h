@@ -83,7 +83,7 @@ public:
                    const std::vector<world::Room>& rooms,
                    const CameraController& cameraController,
                    const std::unordered_set<const world::Portal*>& waterEntryPortals,
-                   float delayRatio);
+                   float waitRatio);
 
   [[nodiscard]] const auto& getSoundEngine() const
   {
