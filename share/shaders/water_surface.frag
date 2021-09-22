@@ -4,8 +4,9 @@
 
 #include "noise.glsl"
 #include "constants.glsl"
+#include "util.glsl"
 
-layout(location=0) out vec2 out_perturb;
+layout(location=0) out vec3 out_perturb;
 layout(location=1) out vec3 out_position;
 
 mat2 rotate2d(in float a){
@@ -56,15 +57,31 @@ vec2 bumpMap(in vec2 st, in float time){
 void main()
 {
     vec2 uv = ppi.vertexPosWorld.xz / TexScale;
-    vec2 bm = bumpMap(uv, u_time);
-    vec3 sn = normalize(vec3(bm.x, 1, bm.y));// normal in XZ plane (model space)
+    // ripples
+    vec2 bm1 = bumpMap(uv, u_time);
+    vec3 n1 = normalize(vec3(bm1.x, 1, bm1.y));
+    // large (slower) waves
     vec2 bm2 = bumpMap(uv*0.1, u_time*0.2);
-    sn += normalize(vec3(bm2.x, 1, bm2.y));
+    vec3 n2 = normalize(vec3(bm2.x, 1, bm2.y));
+    // normal in XZ plane (model space)
+    vec3 sn = n1 + n2;
+    // specular normal with less ripples
+    vec3 specN = normalize(n1*0.3 + n2);
 
-    vec4 orig = u_viewProjection * vec4(ppi.vertexPosWorld, 1);
+    // blinn specular
+    vec4 viewVertexPos = u_view * vec4(ppi.vertexPosWorld, 1);
+    vec3 V = -normalize(viewVertexPos.xyz);
+    const vec3 L = vec3(0, 1, 0);
+    vec3 H = normalize(V+L);
+    float cosTheta = clamp(dot(specN, H), 0.0, 1.0);
+    float specular = texel_shade(-viewVertexPos.z) * pow(cosTheta, 40) * 0.7;
+
+    vec4 orig = u_projection * viewVertexPos;
     orig /= orig.w;
     vec4 surface = u_viewProjection * vec4(vec3(sn.x, 0, sn.z) + ppi.vertexPosWorld, 1);
+
     surface /= surface.w;
-    out_perturb = (surface-orig).xy;
+
+    out_perturb = vec3((surface-orig).xy, specular);
     out_position = ppi.vertexPosView;
 }

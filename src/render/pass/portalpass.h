@@ -50,9 +50,9 @@ public:
 private:
   std::shared_ptr<gl::Texture2D<gl::RGB32F>> m_positionBuffer;
   std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::RGB32F>>> m_positionBufferHandle;
-  std::shared_ptr<gl::Texture2D<gl::RG32F>> m_perturbBuffer;
-  std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::RG32F>>> m_perturbBufferHandle;
-  scene::SeparableBlur<gl::RG32F> m_blur;
+  std::shared_ptr<gl::Texture2D<gl::RGB32F>> m_perturbBuffer;
+  std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::RGB32F>>> m_perturbBufferHandle;
+  scene::SeparableBlur<gl::RGB32F> m_blur;
   std::shared_ptr<gl::Framebuffer> m_fb;
 };
 } // namespace render::pass

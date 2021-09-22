@@ -57,10 +57,12 @@ void main()
     #endif
     float pDepth = -texture(u_portalPosition, uv).z;
     float geomDepth = -texture(u_geometryPosition, uv).z;
+    float whiteness = 0;
     if (geomDepth > pDepth)
     {
         // camera ray goes through water surface; apply perturb
-        vec2 pUv = uv + texture(u_portalPerturb, uv).xy;
+        vec3 dUvSpecular = texture(u_portalPerturb, uv).xyz;
+        vec2 pUv = uv + dUvSpecular.xy;
         if (-texture(u_geometryPosition, pUv).z > pDepth) {
             // ...but only apply it if the source pixel's geometry is behind the water surface.
             uv = pUv;
@@ -68,6 +70,7 @@ void main()
             finalColor = vec3(1.0);
             #else
             finalColor = WaterColor;
+            whiteness = dUvSpecular.z;
             #endif
         }
     }
@@ -77,6 +80,7 @@ void main()
     #else
     finalColor *= do_dof(uv);
     #endif
+    finalColor = mix(finalColor, vec3(1), whiteness);
 
     #ifdef WATER
     float inVolumeRay = pDepth;

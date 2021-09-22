@@ -98,7 +98,7 @@ public:
   {
     Expects(extent > 0);
     Expects(blurDim > 0);
-    Expects(blurDim < 3);
+    Expects(blurDim <= 3);
     std::vector<std::string> defines{"BLUR_DIM " + std::to_string(blurDim)};
     return get("flat.vert", "blur_fast_gauss_" + std::to_string(extent * 2 + 1) + ".frag", defines);
   }

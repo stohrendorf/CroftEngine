@@ -22,7 +22,7 @@ PortalPass::PortalPass(scene::MaterialManager& materialManager,
                        const std::shared_ptr<gl::TextureDepth<float>>& depthBuffer,
                        const glm::vec2& viewport)
     : m_positionBuffer{std::make_shared<gl::Texture2D<gl::RGB32F>>(viewport, "portal-position")}
-    , m_perturbBuffer{std::make_shared<gl::Texture2D<gl::RG32F>>(viewport, "portal-perturb")}
+    , m_perturbBuffer{std::make_shared<gl::Texture2D<gl::RGB32F>>(viewport, "portal-perturb")}
     , m_blur{"perturb", materialManager, 4, true}
 {
   auto sampler = std::make_unique<gl::Sampler>("portal-position-sampler");
@@ -37,7 +37,7 @@ PortalPass::PortalPass(scene::MaterialManager& materialManager,
   sampler = std::make_unique<gl::Sampler>("portal-perturb-sampler");
   sampler->set(gl::api::TextureMinFilter::Linear).set(gl::api::TextureMagFilter::Linear);
   m_perturbBufferHandle
-    = std::make_shared<gl::TextureHandle<gl::Texture2D<gl::RG32F>>>(m_perturbBuffer, std::move(sampler));
+    = std::make_shared<gl::TextureHandle<gl::Texture2D<gl::RGB32F>>>(m_perturbBuffer, std::move(sampler));
   m_blur.setInput(m_perturbBufferHandle);
 
   m_fb = gl::FrameBufferBuilder()

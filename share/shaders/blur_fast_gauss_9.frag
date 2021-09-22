@@ -4,6 +4,8 @@
 #define BLUR_TYPE float
 #elif BLUR_DIM == 2
 #define BLUR_TYPE vec2
+#elif BLUR_DIM == 3
+#define BLUR_TYPE vec3
 #endif
 
 layout(bindless_sampler) uniform sampler2D u_input;
