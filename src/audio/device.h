@@ -43,7 +43,7 @@ public:
   void removeStream(const std::weak_ptr<StreamVoice>& stream)
   {
     if(const auto locked = stream.lock())
-      removeStream(stream);
+      removeStream(locked);
   }
 
   void setListenerTransform(const glm::vec3& pos, const glm::vec3& front, const glm::vec3& up);
