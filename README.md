@@ -17,7 +17,7 @@ must be open-source as well.
 ## Usage
 
 **Important**: If you're not technically inclined, i.e. you don't know what 7z archives are, or how to use cmd or
-powershell, this is *not* for you. As EdisonEngine is still in alpha stage, there's no easy plug-and-play solution.
+powershell, this is *not* for you. As EdisonEngine is still in beta stage, there's no easy plug-and-play solution yet - but it's planned.
 
 Now, if you're still here, here's how to set up EdisonEngine and get it running.
 
@@ -105,7 +105,6 @@ necessary, e.g. `vcpkg install boost:x64-windows`):
 * libpng
 * openal-soft
 * opengl
-* glm
 * freetype
 * cimg
 * ffmpeg
@@ -113,7 +112,7 @@ necessary, e.g. `vcpkg install boost:x64-windows`):
 * gettext
 
 ...or use this, and adjust the triplet:
-> `vcpkg install --triplet x64-windows boost glfw3 libpng openal-soft opengl glm freetype cimg ffmpeg utfcpp gettext`
+> `vcpkg install --triplet x64-windows boost glfw3 libpng openal-soft opengl freetype cimg ffmpeg utfcpp gettext`
 
 ## Generating Glad OpenGL bindings
 
