@@ -162,6 +162,7 @@ void AudioEngine::playStopCdTrack(const script::ScriptEngine& scriptEngine, cons
       BOOST_LOG_TRIVIAL(debug) << "playStopCdTrack - play ambient " << toString(trackId);
       const auto stream = playStream(trackInfo.id.get());
       stream->setLooping(true);
+      m_ambientStream = stream.get();
       m_ambientStreamId = trackInfo.id.get();
       m_soundEngine->getDevice().removeStream(m_interceptStream);
       m_interceptStreamId.reset();
