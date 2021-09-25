@@ -13,11 +13,11 @@
 void main()
 {
     #ifdef SKELETAL
-    mat4 mm = u_modelMatrix * u_bones[int(a_boneIndex)];
+    mat4 mm = modelTransform.m * boneTransform.m[int(a_boneIndex)];
     #else
-    mat4 mm = u_modelMatrix;
+    mat4 mm = modelTransform.m;
     #endif
-    mat4 mv = u_view * mm;
+    mat4 mv = camera.view * mm;
 
     #if SPRITEMODE == 1
     mv[0].xyz = vec3(1, 0, 0);
@@ -31,21 +31,21 @@ void main()
     vec4 tmp = mv * vec4(a_position, 1);
     gpi.vertexPos = tmp.xyz;
     gpi.vertexPosWorld = vec3(mm * vec4(a_position, 1.0));
-    gl_Position = u_projection * tmp;
+    gl_Position = camera.projection * tmp;
     gpi.texCoord = a_texCoord;
     gpi.texIndex = a_texIndex;
     gpi.color = a_color;
 
     gpi.vertexNormalWorld = normalize(mat3(mm) * a_normal);
     gpi.hbaoNormal = normalize(mat3(mv) * a_normal);
-    float dist = 16 * clamp(1.0 - dot(normalize(u_csmLightDir), gpi.vertexNormalWorld), 0.0, 1.0);
+    float dist = 16 * clamp(1.0 - dot(normalize(csm.lightDir), gpi.vertexNormalWorld), 0.0, 1.0);
     vec4 pos = vec4(a_position + dist * gpi.vertexNormalWorld, 1.0);
     for (int i=0; i<CSMSplits; ++i)
     {
         #ifdef SKELETAL
-        mat4 lmvp = u_lightMVP[i] * u_bones[int(a_boneIndex)];
+        mat4 lmvp = csm.lightMVP[i] * boneTransform.m[int(a_boneIndex)];
         #else
-        mat4 lmvp = u_lightMVP[i];
+        mat4 lmvp = csm.lightMVP[i];
         #endif
         vec4 tmp = lmvp * pos;
         gpi.vertexPosLight[i] = (tmp.xyz / tmp.w) * 0.5 + 0.5;
@@ -54,7 +54,7 @@ void main()
     gpi.isQuad = a_isQuad;
     if (a_isQuad != 0)
     {
-        mat4 mvp = u_projection * mv;
+        mat4 mvp = camera.projection * mv;
 
         vec4 tmp = mvp * vec4(a_quadVert1, 1);
         gpi.quadVerts[0] = vec3(tmp.xy / tmp.w, tmp.w);

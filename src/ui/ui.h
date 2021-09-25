@@ -59,7 +59,7 @@ public:
   void drawVLine(const glm::ivec2& xy, int length, const gl::SRGBA8& color);
   void draw(const engine::world::Sprite& sprite, const glm::ivec2& xy);
 
-  void render(const glm::vec2& screenSize);
+  void render();
 
 private:
   const std::shared_ptr<render::scene::Material> m_material;

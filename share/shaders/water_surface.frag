@@ -69,16 +69,16 @@ void main()
     vec3 specN = normalize(n1*0.3 + n2);
 
     // blinn specular
-    vec4 viewVertexPos = u_view * vec4(ppi.vertexPosWorld, 1);
+    vec4 viewVertexPos = camera.view * vec4(ppi.vertexPosWorld, 1);
     vec3 V = -normalize(viewVertexPos.xyz);
     const vec3 L = vec3(0, 1, 0);
     vec3 H = normalize(V+L);
     float cosTheta = clamp(dot(specN, H), 0.0, 1.0);
     float specular = texel_shade(-viewVertexPos.z) * pow(cosTheta, 40) * 0.7;
 
-    vec4 orig = u_projection * viewVertexPos;
+    vec4 orig = camera.projection * viewVertexPos;
     orig /= orig.w;
-    vec4 surface = u_viewProjection * vec4(vec3(sn.x, 0, sn.z) + ppi.vertexPosWorld, 1);
+    vec4 surface = camera.viewProjection * vec4(vec3(sn.x, 0, sn.z) + ppi.vertexPosWorld, 1);
 
     surface /= surface.w;
 

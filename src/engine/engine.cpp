@@ -402,20 +402,12 @@ std::pair<RunResult, std::optional<size_t>> Engine::runTitleMenu(world::World& w
         "u_input",
         [backdrop](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
         { uniform.set(backdrop); });
-      backdropMesh->bind(
-        "u_screenSize",
-        [targetSize](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
-        { uniform.set(targetSize); });
     }
 
     backdropMesh->bind(
       "u_input",
       [backdrop](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
       { uniform.set(backdrop); });
-    backdropMesh->bind(
-      "u_screenSize",
-      [this](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
-      { uniform.set(glm::vec2{m_presenter->getViewport()}); });
     backdropMesh->render(context);
     menu->display(ui, world);
     m_presenter->renderUi(ui, 1);

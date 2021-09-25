@@ -56,7 +56,7 @@ std::shared_ptr<Material> MaterialManager::getSprite(bool billboard)
   m->getUniform("u_diffuseTextures")
     ->bind([this](const Node& /*node*/, const Mesh& /*mesh*/, gl::Uniform& uniform)
            { uniform.set(m_geometryTextures); });
-  
+
   m_sprite[billboard] = m;
   return m;
 }
@@ -228,7 +228,7 @@ std::shared_ptr<Material>
       });
   }
 
-  if(auto uniform = m->tryGetUniform("distortion_power"))
+  if(auto uniform = m->tryGetUniform("u_distortionPower"))
     uniform->set(water ? -2.0f : -1.0f);
 
   if(auto uniform = m->tryGetUniform("u_noise"))
@@ -263,6 +263,7 @@ const std::shared_ptr<Material>& MaterialManager::getUi()
   auto m = std::make_shared<Material>(m_shaderCache->getUi());
   m->getUniform("u_input")->bind([this](const Node& /*node*/, const Mesh& /*mesh*/, gl::Uniform& uniform)
                                  { uniform.set(m_geometryTextures); });
+  m->getUniformBlock("Camera")->bindCameraBuffer(m_renderer->getCamera());
   configureForScreenSpaceEffect(*m, true);
   m_ui = m;
   return m_ui;
@@ -277,6 +278,8 @@ std::shared_ptr<Material> MaterialManager::getFlat(bool withAlpha, bool invertY,
   auto m = std::make_shared<Material>(m_shaderCache->getFlat(withAlpha, invertY, withAspectRatio));
   m->getRenderState().setBlend(withAlpha);
   m->getRenderState().setBlendFactors(gl::api::BlendingFactor::SrcAlpha, gl::api::BlendingFactor::OneMinusSrcAlpha);
+  if(const auto uniformBlock = m->tryGetUniformBlock("Camera"))
+    uniformBlock->bindCameraBuffer(m_renderer->getCamera());
   configureForScreenSpaceEffect(*m);
   m_flat.emplace(key, m);
   return m;
@@ -288,6 +291,7 @@ const std::shared_ptr<Material>& MaterialManager::getBackdrop()
     return m_backdrop;
 
   auto m = std::make_shared<Material>(m_shaderCache->getBackdrop());
+  m->getUniformBlock("Camera")->bindCameraBuffer(m_renderer->getCamera());
   configureForScreenSpaceEffect(*m);
   m_backdrop = m;
   return m_backdrop;

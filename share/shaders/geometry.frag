@@ -17,7 +17,7 @@ layout(location=2) out vec3 out_position;
 // "A Quadrilateral Rendering Primitive" by Kai Hormann and Marco Tarini
 vec4 barycentric(in vec4 wwww)
 {
-    vec2 v = (gl_FragCoord.xy / u_screenSize.xy) * 2 - 1;
+    vec2 v = (gl_FragCoord.xy / camera.screenSize.xy) * 2 - 1;
     vec2 s[4];
     vec4 r;
     for (int i=0; i<4; ++i) {

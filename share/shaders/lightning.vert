@@ -3,5 +3,5 @@
 #include "camera_interface.glsl"
 
 void main() {
-    gl_Position = u_projection * u_view * u_modelMatrix * vec4(a_position, 1);
+    gl_Position = camera.viewProjection * modelTransform.m * vec4(a_position, 1);
 }

@@ -87,7 +87,7 @@ void main()
     #else
     float inVolumeRay = geomDepth - pDepth;
     #endif
-    float d = clamp(inVolumeRay*2, 0, u_farPlane) / u_farPlane;
+    float d = clamp(inVolumeRay*2, 0, camera.farPlane) / camera.farPlane;
     // light absorbtion
     finalColor *= mix(vec3(1), WaterColor, d);
     // light scatter

@@ -52,7 +52,7 @@ void main()
         for (int j = 0; j < Steps; ++j)
         {
             d += tangent;
-            vec4 offset = u_projection * vec4(fragPos + d, 1.0);
+            vec4 offset = camera.projection * vec4(fragPos + d, 1.0);
             offset /= offset.w;
             offset.xy = offset.xy * vec2(0.5) + vec2(0.5);
             vec3 k = texture(u_position, offset.xy).xyz;

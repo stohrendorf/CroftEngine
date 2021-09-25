@@ -16,6 +16,7 @@
 #include "render/rendersettings.h"
 #include "render/scene/camera.h"
 #include "render/scene/csm.h"
+#include "render/scene/material.h"
 #include "render/scene/materialmanager.h"
 #include "render/scene/mesh.h"
 #include "render/scene/node.h"
@@ -75,37 +76,34 @@ void Presenter::playVideo(const std::filesystem::path& path)
   auto mesh = createScreenQuad(m_materialManager->getFlat(false, true, true), "video");
   mesh->getRenderState().setBlend(false);
 
-  video::play(
-    path,
-    m_soundEngine->getDevice(),
-    [&](const std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>>& textureHandle)
-    {
-      if(update())
-        return true;
+  video::play(path,
+              m_soundEngine->getDevice(),
+              [&](const std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>>& textureHandle)
+              {
+                if(update())
+                  return true;
 
-      m_renderer->getCamera()->setScreenSize(m_window->getViewport());
-      mesh->bind(
-        "u_input",
-        [&textureHandle](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
-        { uniform.set(textureHandle); });
-      mesh->bind("u_aspectRatio",
-                 [this](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
-                 {
-                   const auto vp = m_window->getViewport();
-                   uniform.set(static_cast<float>(vp.x) / static_cast<float>(vp.y));
-                 });
+                m_renderer->getCamera()->setScreenSize(m_window->getViewport());
+                mesh->bind("u_input",
+                           [&textureHandle](const render::scene::Node& /*node*/,
+                                            const render::scene::Mesh& /*mesh*/,
+                                            gl::Uniform& uniform) { uniform.set(textureHandle); });
+                mesh->getMaterialGroup()
+                  .get(render::scene::RenderMode::Full)
+                  ->getUniformBlock("Camera")
+                  ->bindCameraBuffer(m_renderer->getCamera());
 
-      if(m_window->isMinimized())
-        return true;
+                if(m_window->isMinimized())
+                  return true;
 
-      m_renderer->clear(gl::api::ClearBufferMask::ColorBufferBit, {0, 0, 0, 255}, 1);
-      render::scene::RenderContext context{render::scene::RenderMode::Full, std::nullopt};
-      mesh->render(context);
-      updateSoundEngine();
-      swapBuffers();
-      m_inputHandler->update();
-      return !m_window->windowShouldClose() && !m_inputHandler->hasDebouncedAction(hid::Action::Menu);
-    });
+                m_renderer->clear(gl::api::ClearBufferMask::ColorBufferBit, {0, 0, 0, 255}, 1);
+                render::scene::RenderContext context{render::scene::RenderMode::Full, std::nullopt};
+                mesh->render(context);
+                updateSoundEngine();
+                swapBuffers();
+                m_inputHandler->update();
+                return !m_window->windowShouldClose() && !m_inputHandler->hasDebouncedAction(hid::Action::Menu);
+              });
 }
 
 void Presenter::renderWorld(const ObjectManager& objectManager,
@@ -406,10 +404,6 @@ void Presenter::scaleSplashImage()
     "u_input",
     [this](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
     { uniform.set(m_splashImage); });
-  m_splashImageMesh->bind(
-    "u_screenSize",
-    [targetSize](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
-    { uniform.set(targetSize); });
 }
 
 void Presenter::drawLoadingScreen(const std::string& state)
@@ -546,7 +540,7 @@ void Presenter::renderScreenOverlay()
 void Presenter::renderUi(ui::Ui& ui, float alpha)
 {
   m_renderPipeline->bindUiFrameBuffer();
-  ui.render(getViewport());
+  ui.render();
   m_renderPipeline->renderUiFrameBuffer(alpha);
 }
 

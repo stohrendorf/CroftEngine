@@ -3,7 +3,7 @@
 
 float texel_shade(in float depth)
 {
-    return clamp((u_farPlane - depth) / u_farPlane, 0.0, 1.0);
+    return clamp((camera.farPlane - depth) / camera.farPlane, 0.0, 1.0);
 }
 
 vec3 shade_texel(in vec3 rgb, in float depth)

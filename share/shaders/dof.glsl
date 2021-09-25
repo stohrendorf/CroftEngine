@@ -1,12 +1,12 @@
 #ifdef WATER
-float dof_start = 32.0/u_farPlane;
-float dof_dist = 4*1024.0/u_farPlane;
-float dof_focal_depth = 1536.0/u_farPlane;
+float dof_start = 32.0/camera.farPlane;
+float dof_dist = 4*1024.0/camera.farPlane;
+float dof_focal_depth = 1536.0/camera.farPlane;
 #else
-float dof_start = 128.0/u_farPlane;
-float dof_dist = 20*1024.0/u_farPlane;
+float dof_start = 128.0/camera.farPlane;
+float dof_dist = 20*1024.0/camera.farPlane;
 // autofocus
-float dof_focal_depth = -texture(u_geometryPosition, vec2(0.5)).z / u_farPlane;
+float dof_focal_depth = -texture(u_geometryPosition, vec2(0.5)).z / camera.farPlane;
 #endif
 const float DofBlurRange = 3;
 
@@ -30,7 +30,7 @@ vec3 dof_color(in vec2 uv, in float blur_amount)//processing the sample
 
 vec3 do_dof(in vec2 uv)
 {
-    float depth = -texture(u_geometryPosition, uv).z / u_farPlane;
+    float depth = -texture(u_geometryPosition, uv).z / camera.farPlane;
     float blur_amount = clamp((abs(depth-dof_focal_depth) - dof_start) / dof_dist, -DofBlurRange, DofBlurRange);
 
     const float NAmount = 0.0001;//dither amount

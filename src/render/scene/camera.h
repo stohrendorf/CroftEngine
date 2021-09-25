@@ -13,18 +13,13 @@ struct CameraMatrices
   enum class DirtyFlag
   {
     Projection,
-    InvView,
     ViewProjection,
-    InvViewProjection,
     _flag_set_size [[maybe_unused]]
   };
 
   glm::mat4 projection{1.0f};
-  glm::mat4 inverseProjection{1.0f};
   glm::mat4 view{1.0f};
-  glm::mat4 inverseView{1.0f};
   glm::mat4 viewProjection{1.0f};
-  glm::mat4 inverseViewProjection{1.0f};
   glm::vec4 screenSize{0};
   float aspectRatio = 1;
   float nearPlane = 0;
@@ -60,7 +55,6 @@ public:
     m_fieldOfView = fieldOfView;
     m_dirty.set(CameraMatrices::DirtyFlag::Projection);
     m_dirty.set(CameraMatrices::DirtyFlag::ViewProjection);
-    m_dirty.set(CameraMatrices::DirtyFlag::InvViewProjection);
   }
 
   [[nodiscard]] float getAspectRatio() const
@@ -77,7 +71,6 @@ public:
     m_matrices.screenSize = glm::vec4{screenSize, 0, 0};
     m_dirty.set(CameraMatrices::DirtyFlag::Projection);
     m_dirty.set(CameraMatrices::DirtyFlag::ViewProjection);
-    m_dirty.set(CameraMatrices::DirtyFlag::InvViewProjection);
   }
 
   [[nodiscard]] float getNearPlane() const
@@ -99,19 +92,11 @@ public:
   {
     m_matrices.view = m;
     m_dirty.set(CameraMatrices::DirtyFlag::ViewProjection);
-    m_dirty.set(CameraMatrices::DirtyFlag::InvViewProjection);
-    m_dirty.set(CameraMatrices::DirtyFlag::InvView);
   }
 
-  [[nodiscard]] const glm::mat4& getInverseViewMatrix() const
+  [[nodiscard]] auto getInverseViewMatrix() const
   {
-    if(m_dirty.is_set(CameraMatrices::DirtyFlag::InvView))
-    {
-      m_matrices.inverseView = inverse(m_matrices.view);
-      m_dirty.reset(CameraMatrices::DirtyFlag::InvView);
-    }
-
-    return m_matrices.inverseView;
+    return glm::inverse(m_matrices.view);
   }
 
   [[nodiscard]] const glm::mat4& getProjectionMatrix() const
@@ -120,7 +105,6 @@ public:
     {
       m_matrices.projection
         = glm::perspective(m_fieldOfView, m_matrices.aspectRatio, m_matrices.nearPlane, m_matrices.farPlane);
-      m_matrices.inverseProjection = glm::inverse(m_matrices.projection);
       m_dirty.reset(CameraMatrices::DirtyFlag::Projection);
     }
 
@@ -172,38 +156,11 @@ public:
 
   [[nodiscard]] const auto& getMatricesBuffer() const
   {
-    if(m_dirty.any())
-    {
-      if(m_dirty.is_set(CameraMatrices::DirtyFlag::InvView))
-      {
-        m_matrices.inverseView = inverse(m_matrices.view);
-        m_dirty.reset(CameraMatrices::DirtyFlag::InvView);
-      }
-
-      if(m_dirty.is_set(CameraMatrices::DirtyFlag::Projection))
-      {
-        m_matrices.projection
-          = glm::perspective(m_fieldOfView, m_matrices.aspectRatio, m_matrices.nearPlane, m_matrices.farPlane);
-        m_matrices.inverseProjection = glm::inverse(m_matrices.projection);
-        m_dirty.reset(CameraMatrices::DirtyFlag::Projection);
-      }
-
-      if(m_dirty.is_set(CameraMatrices::DirtyFlag::ViewProjection))
-      {
-        m_matrices.viewProjection = m_matrices.projection * m_matrices.view;
-        m_dirty.reset(CameraMatrices::DirtyFlag::ViewProjection);
-      }
-
-      if(m_dirty.is_set(CameraMatrices::DirtyFlag::InvViewProjection))
-      {
-        m_matrices.inverseViewProjection = inverse(m_matrices.viewProjection);
-        m_dirty.reset(CameraMatrices::DirtyFlag::InvViewProjection);
-      }
-
-      m_matricesBuffer.setData(m_matrices, gl::api::BufferUsage::DynamicDraw);
-    }
-
+    (void)getProjectionMatrix();
+    (void)getViewProjectionMatrix();
     BOOST_ASSERT(m_dirty.none());
+
+    m_matricesBuffer.setData(m_matrices, gl::api::BufferUsage::DynamicDraw);
     return m_matricesBuffer;
   }
 

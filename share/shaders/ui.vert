@@ -3,8 +3,7 @@
 
 #include "vtx_input.glsl"
 #include "ui_pipeline_interface.glsl"
-
-uniform vec2 u_screenSize;
+#include "camera_interface.glsl"
 
 float toLinear(in float srgb)
 {
@@ -25,7 +24,7 @@ vec4 toLinear(in vec4 srgb)
 
 void main()
 {
-    vec2 p = (a_position.xy / u_screenSize) * 2 - 1;
+    vec2 p = (a_position.xy / camera.screenSize.xy) * 2 - 1;
     gl_Position = vec4(p.x, -p.y, 0, 1);
     upi.texCoord = a_texCoord;
     upi.texIndex = a_texIndex;

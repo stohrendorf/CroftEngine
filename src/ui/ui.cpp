@@ -83,17 +83,17 @@ void createQuad(std::vector<Ui::UiVertex>& vertices, const glm::vec2& a, const g
   vertices.emplace_back(Ui::UiVertex{{a.x, b.y}, {0, 1}, -1, glColor, glColor, glColor, glColor});
   vertices.emplace_back(Ui::UiVertex{{b.x, b.y}, {1, 1}, -1, glColor, glColor, glColor, glColor});
   vertices.emplace_back(Ui::UiVertex{{b.x, a.y}, {1, 0}, -1, glColor, glColor, glColor, glColor});
-};
+}
 
 void createHLine(std::vector<Ui::UiVertex>& vertices, const glm::vec2& a, int length, const gl::SRGBA8& color)
 {
   return createQuad(vertices, a, glm::vec2{length, 1}, color);
-};
+}
 
 void createVLine(std::vector<Ui::UiVertex>& vertices, const glm::vec2& a, int length, const gl::SRGBA8& color)
 {
   return createQuad(vertices, a, glm::vec2{1, length}, color);
-};
+}
 } // namespace
 
 std::shared_ptr<gl::VertexBuffer<Ui::UiVertex>> Ui::UiVertex::createVertexBuffer()
@@ -162,7 +162,7 @@ void Ui::drawBox(const glm::ivec2& xy, const glm::ivec2& size, const gl::SRGBA8&
   createQuad(m_vertices, xy, size, color);
 }
 
-void Ui::render(const glm::vec2& screenSize)
+void Ui::render()
 {
   SOGLB_DEBUGGROUP("ui");
 
@@ -189,10 +189,6 @@ void Ui::render(const glm::vec2& screenSize)
     indexBuffer, vbo, std::vector{&m_material->getShaderProgram()->getHandle()}, "ui-vao");
   auto mesh = std::make_shared<render::scene::MeshImpl<uint16_t, UiVertex>>(vao);
   mesh->getMaterialGroup().set(render::scene::RenderMode::Full, m_material);
-  mesh->bind(
-    "u_screenSize",
-    [screenSize](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
-    { uniform.set(screenSize); });
   mesh->getRenderState().setBlend(true);
   mesh->getRenderState().setBlendFactors(gl::api::BlendingFactor::SrcAlpha,
                                          gl::api::BlendingFactor::One,

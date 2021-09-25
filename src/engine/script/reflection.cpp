@@ -253,10 +253,6 @@ std::pair<RunResult, std::optional<size_t>> SplashScreen::run(Engine& engine, co
         "u_input",
         [&image](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
         { uniform.set(image); });
-      mesh->bind(
-        "u_screenSize",
-        [targetSize](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
-        { uniform.set(targetSize); });
     }
 
     Ensures(mesh != nullptr);

@@ -58,7 +58,7 @@ float calc_vsm_value(in int splitIdx, in float shadow, in float lightNormDot)
 
 float shadow_map_multiplier(in vec3 worldNormal, in float shadow)
 {
-    float lightNormDot = dot(normalize(worldNormal), normalize(u_csmLightDir));
+    float lightNormDot = dot(normalize(worldNormal), normalize(csm.lightDir));
     #ifdef ROOM_SHADOWING
     if (lightNormDot > 0) {
         // ceilings are always fully lit

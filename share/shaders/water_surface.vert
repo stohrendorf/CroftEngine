@@ -5,6 +5,6 @@
 void main()
 {
     ppi.vertexPosWorld = a_position;
-    ppi.vertexPosView = (u_view * vec4(a_position, 1)).xyz;
-    gl_Position = u_viewProjection * vec4(a_position, 1);
+    ppi.vertexPosView = (camera.view * vec4(a_position, 1)).xyz;
+    gl_Position = camera.viewProjection * vec4(a_position, 1);
 }
