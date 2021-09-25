@@ -7,3 +7,6 @@ layout(std140, binding=1) uniform Camera {
     float nearPlane;
     float farPlane;
 } camera;
+
+
+float InvFarPlane = 1.0 / camera.farPlane;

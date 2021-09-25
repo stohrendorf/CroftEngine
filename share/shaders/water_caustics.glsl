@@ -9,6 +9,7 @@ float voronoi(in vec3 p)
     float m_dist = 1.;// minimum distance
     const float Epsilon = 1.0/255.0;
     const float Offset = 0.5;
+    const vec3 Time = vec3(u_time*0.005);
 
     for (float fy = -1; fy <= 1; fy += 1.0) {
         for (float fx = -1; fx <= 1; fx += 1.0) {
@@ -18,7 +19,7 @@ float voronoi(in vec3 p)
                 vec3 point = snoise3(i_st + neighbor);
 
                 // Animate the point
-                point = sin(vec3(u_time*0.005) + 6.2831*point) * .5 + .5;
+                point = sin(point*6.2831 + Time) * 0.5 + 0.5;
 
                 // Vector between the sample and the point
                 vec3 diff = neighbor + point - f_st;

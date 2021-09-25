@@ -1,12 +1,14 @@
+#include "camera_interface.glsl"
+
 #ifdef WATER
-float dof_start = 32.0/camera.farPlane;
-float dof_dist = 4*1024.0/camera.farPlane;
-float dof_focal_depth = 1536.0/camera.farPlane;
+float dof_start = 32.0 * InvFarPlane;
+float dof_dist = 4 * 1024.0 * InvFarPlane;
+float dof_focal_depth = 1536.0 * InvFarPlane;
 #else
-float dof_start = 128.0/camera.farPlane;
-float dof_dist = 20*1024.0/camera.farPlane;
+float dof_start = 128.0 * InvFarPlane;
+float dof_dist = 20*1024.0 * InvFarPlane;
 // autofocus
-float dof_focal_depth = -texture(u_geometryPosition, vec2(0.5)).z / camera.farPlane;
+float dof_focal_depth = -texture(u_geometryPosition, vec2(0.5)).z * InvFarPlane;
 #endif
 const float DofBlurRange = 3;
 
@@ -30,7 +32,7 @@ vec3 dof_color(in vec2 uv, in float blur_amount)//processing the sample
 
 vec3 do_dof(in vec2 uv)
 {
-    float depth = -texture(u_geometryPosition, uv).z / camera.farPlane;
+    float depth = -texture(u_geometryPosition, uv).z * InvFarPlane;
     float blur_amount = clamp((abs(depth-dof_focal_depth) - dof_start) / dof_dist, -DofBlurRange, DofBlurRange);
 
     const float NAmount = 0.0001;//dither amount
@@ -48,7 +50,7 @@ vec3 do_dof(in vec2 uv)
     float bokehFactor = 0;
     for (int i = 1; i <= Rings; ++i)
     {
-        int ringsamples = i * Samples;
+        int ringsamples = int(sqrt(i) * Samples);
         float angleDelta = PI * 2.0 / float(ringsamples);
 
         float angle = 0;
@@ -63,6 +65,5 @@ vec3 do_dof(in vec2 uv)
 
         bokehFactor += BokehDelta;
     }
-    col /= weight_sum;
-    return col;
+    return col / weight_sum;
 }

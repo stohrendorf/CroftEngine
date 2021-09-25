@@ -87,7 +87,7 @@ void main()
     #else
     float inVolumeRay = geomDepth - pDepth;
     #endif
-    float d = clamp(inVolumeRay*2, 0, camera.farPlane) / camera.farPlane;
+    float d = clamp(inVolumeRay * 2 * InvFarPlane, 0, 1);
     // light absorbtion
     finalColor *= mix(vec3(1), WaterColor, d);
     // light scatter
@@ -101,10 +101,10 @@ void main()
     #endif
 
     #ifdef VELVIA
-    const float velviaAmount = 0.03;
-    const vec2 velviaFac = vec2(1.0 + 2*velviaAmount, -velviaAmount);
+    const float VelviaAmount = 0.03;
+    const vec2 velviaFac = vec2(2*VelviaAmount + 1.0, -VelviaAmount);
     vec3 velviaColor = vec3(dot(finalColor, velviaFac.xyy), dot(finalColor, velviaFac.yxy), dot(finalColor, velviaFac.yyx));
-    finalColor = vec3(1.0) - clamp((vec3(1.0) - velviaColor*1.01)*1.01, vec3(0.0), vec3(1.0));
+    finalColor = vec3(1.0) - clamp((-velviaColor*1.01 + vec3(1.0))*1.01, vec3(0.0), vec3(1.0));
     #endif
 
     out_color = vec4(finalColor, 1.0);
