@@ -12,6 +12,7 @@ struct CameraMatrices
 {
   enum class DirtyFlag
   {
+    BufferData,
     Projection,
     ViewProjection,
     _flag_set_size [[maybe_unused]]
@@ -41,6 +42,8 @@ public:
     m_matrices.screenSize = glm::vec4{screenSize, 0, 0};
     m_matrices.nearPlane = nearPlane;
     m_matrices.farPlane = farPlane;
+
+    m_matricesBuffer.setData(m_matrices, gl::api::BufferUsage::DynamicDraw);
   }
 
   Camera(const Camera&) = delete;
@@ -71,6 +74,7 @@ public:
     m_matrices.screenSize = glm::vec4{screenSize, 0, 0};
     m_dirty.set(CameraMatrices::DirtyFlag::Projection);
     m_dirty.set(CameraMatrices::DirtyFlag::ViewProjection);
+    m_dirty.set(CameraMatrices::DirtyFlag::BufferData);
   }
 
   [[nodiscard]] float getNearPlane() const
@@ -92,6 +96,7 @@ public:
   {
     m_matrices.view = m;
     m_dirty.set(CameraMatrices::DirtyFlag::ViewProjection);
+    m_dirty.set(CameraMatrices::DirtyFlag::BufferData);
   }
 
   [[nodiscard]] auto getInverseViewMatrix() const
@@ -106,6 +111,7 @@ public:
       m_matrices.projection
         = glm::perspective(m_fieldOfView, m_matrices.aspectRatio, m_matrices.nearPlane, m_matrices.farPlane);
       m_dirty.reset(CameraMatrices::DirtyFlag::Projection);
+      m_dirty.set(CameraMatrices::DirtyFlag::BufferData);
     }
 
     return m_matrices.projection;
@@ -117,6 +123,7 @@ public:
     {
       m_matrices.viewProjection = getProjectionMatrix() * getViewMatrix();
       m_dirty.reset(CameraMatrices::DirtyFlag::ViewProjection);
+      m_dirty.set(CameraMatrices::DirtyFlag::BufferData);
     }
 
     return m_matrices.viewProjection;
@@ -154,13 +161,20 @@ public:
     return m_fieldOfView;
   }
 
-  [[nodiscard]] const auto& getMatricesBuffer() const
+  [[nodiscard]] const gl::UniformBuffer<CameraMatrices>& getMatricesBuffer() const
   {
-    (void)getProjectionMatrix();
-    (void)getViewProjectionMatrix();
-    BOOST_ASSERT(m_dirty.none());
+    if(m_dirty.any())
+    {
+      (void)getProjectionMatrix();
+      (void)getViewProjectionMatrix();
+    }
+    if(m_dirty.is_set(CameraMatrices::DirtyFlag::BufferData))
+    {
+      m_matricesBuffer.setData(m_matrices, gl::api::BufferUsage::DynamicDraw);
+      m_dirty.reset(CameraMatrices::DirtyFlag::BufferData);
+    }
 
-    m_matricesBuffer.setData(m_matrices, gl::api::BufferUsage::DynamicDraw);
+    BOOST_ASSERT(m_dirty.none());
     return m_matricesBuffer;
   }
 
