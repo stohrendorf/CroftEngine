@@ -1,9 +1,3 @@
-#ifdef SKELETAL
-#define VTX_INPUT_BONE_INDEX
-#endif
-
-#define VTX_INPUT_TEXCOORD
-
 #include "vtx_input.glsl"
 #include "transform_interface.glsl"
 #include "camera_interface.glsl"
@@ -13,7 +7,6 @@
 void main()
 {
     gpi.texCoord = a_texCoord;
-    gpi.texIndex = a_texIndex;
     gpi.color = a_color;
 
     #ifdef SKELETAL

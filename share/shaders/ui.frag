@@ -5,8 +5,8 @@ layout(location=0) out vec4 out_color;
 
 void main()
 {
-    if (upi.texIndex >= 0) {
-        out_color = texture(u_input, vec3(upi.texCoord, upi.texIndex));
+    if (upi.texCoord.z >= 0) {
+        out_color = texture(u_input, upi.texCoord);
     }
     else {
         vec4 top = mix(upi.topLeft, upi.topRight, upi.texCoord.x);

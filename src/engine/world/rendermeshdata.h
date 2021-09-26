@@ -42,36 +42,32 @@ public:
     glm::vec3 position;
     glm::vec3 normal;
     glm::vec4 color{1.0f};
-    glm::vec2 uv;
-    glm::int32 textureIndex{-1};
+    glm::vec3 uv;
     glm::int32 boneIndex{-1};
     glm::int32 isQuad{0};
     glm::vec3 quadVert1;
     glm::vec3 quadVert2;
     glm::vec3 quadVert3;
     glm::vec3 quadVert4;
-    glm::vec2 quadUv1;
-    glm::vec2 quadUv2;
-    glm::vec2 quadUv3;
-    glm::vec2 quadUv4;
+    glm::vec4 quadUv12;
+    glm::vec4 quadUv34;
 
     static const gl::VertexLayout<RenderVertex>& getLayout()
     {
-      static const gl::VertexLayout<RenderVertex> layout{{VERTEX_ATTRIBUTE_POSITION_NAME, &RenderVertex::position},
-                                                         {VERTEX_ATTRIBUTE_NORMAL_NAME, &RenderVertex::normal},
-                                                         {VERTEX_ATTRIBUTE_COLOR_NAME, &RenderVertex::color},
-                                                         {VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, &RenderVertex::uv},
-                                                         {VERTEX_ATTRIBUTE_TEXINDEX_NAME, &RenderVertex::textureIndex},
-                                                         {VERTEX_ATTRIBUTE_BONE_INDEX_NAME, &RenderVertex::boneIndex},
-                                                         {VERTEX_ATTRIBUTE_IS_QUAD, &RenderVertex::isQuad},
-                                                         {VERTEX_ATTRIBUTE_QUAD_VERT1, &RenderVertex::quadVert1},
-                                                         {VERTEX_ATTRIBUTE_QUAD_VERT2, &RenderVertex::quadVert2},
-                                                         {VERTEX_ATTRIBUTE_QUAD_VERT3, &RenderVertex::quadVert3},
-                                                         {VERTEX_ATTRIBUTE_QUAD_VERT4, &RenderVertex::quadVert4},
-                                                         {VERTEX_ATTRIBUTE_QUAD_UV1, &RenderVertex::quadUv1},
-                                                         {VERTEX_ATTRIBUTE_QUAD_UV2, &RenderVertex::quadUv2},
-                                                         {VERTEX_ATTRIBUTE_QUAD_UV3, &RenderVertex::quadUv3},
-                                                         {VERTEX_ATTRIBUTE_QUAD_UV4, &RenderVertex::quadUv4}};
+      static const gl::VertexLayout<RenderVertex> layout{
+        {VERTEX_ATTRIBUTE_POSITION_NAME, &RenderVertex::position},
+        {VERTEX_ATTRIBUTE_NORMAL_NAME, &RenderVertex::normal},
+        {VERTEX_ATTRIBUTE_COLOR_NAME, &RenderVertex::color},
+        {VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, &RenderVertex::uv},
+        {VERTEX_ATTRIBUTE_BONE_INDEX_NAME, &RenderVertex::boneIndex},
+        {VERTEX_ATTRIBUTE_IS_QUAD, &RenderVertex::isQuad},
+        {VERTEX_ATTRIBUTE_QUAD_VERT1, &RenderVertex::quadVert1},
+        {VERTEX_ATTRIBUTE_QUAD_VERT2, &RenderVertex::quadVert2},
+        {VERTEX_ATTRIBUTE_QUAD_VERT3, &RenderVertex::quadVert3},
+        {VERTEX_ATTRIBUTE_QUAD_VERT4, &RenderVertex::quadVert4},
+        {VERTEX_ATTRIBUTE_QUAD_UV12, &RenderVertex::quadUv12},
+        {VERTEX_ATTRIBUTE_QUAD_UV34, &RenderVertex::quadUv34},
+      };
 
       return layout;
     }

@@ -1,6 +1,5 @@
 IN_OUT UIPipelineInterface {
-    vec2 texCoord;
-    flat float texIndex;
+    vec3 texCoord;
     flat vec4 topLeft;
     flat vec4 topRight;
     flat vec4 bottomLeft;

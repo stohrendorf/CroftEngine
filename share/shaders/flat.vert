@@ -1,5 +1,3 @@
-#define VTX_INPUT_TEXCOORD
-
 #include "vtx_input.glsl"
 #include "flat_pipeline_interface.glsl"
 #include "camera_interface.glsl"
@@ -27,5 +25,5 @@ void main()
         #endif
 
     gl_Position = vec4(p.x, p.y, 0, 1);
-    fpi.texCoord = a_texCoord;
+    fpi.texCoord = a_texCoord.xy;
 }

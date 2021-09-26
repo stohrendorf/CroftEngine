@@ -1,10 +1,3 @@
-#define VTX_INPUT_NORMAL
-#define VTX_INPUT_TEXCOORD
-#define VTX_INPUT_TEXCOORD_QUAD
-#ifdef SKELETAL
-#define VTX_INPUT_BONE_INDEX
-#endif
-
 #include "vtx_input.glsl"
 #include "transform_interface.glsl"
 #include "geometry_pipeline_interface.glsl"
@@ -33,7 +26,6 @@ void main()
     gpi.vertexPosWorld = vec3(mm * vec4(a_position, 1.0));
     gl_Position = camera.projection * tmp;
     gpi.texCoord = a_texCoord;
-    gpi.texIndex = a_texIndex;
     gpi.color = a_color;
 
     gpi.vertexNormalWorld = normalize(mat3(mm) * a_normal);
@@ -65,9 +57,9 @@ void main()
         tmp = mvp * vec4(a_quadVert4, 1);
         gpi.quadVerts[3] = vec3(tmp.xy / tmp.w, tmp.w);
 
-        gpi.quadUvs[0] = a_quadUv1;
-        gpi.quadUvs[1] = a_quadUv2;
-        gpi.quadUvs[2] = a_quadUv3;
-        gpi.quadUvs[3] = a_quadUv4;
+        gpi.quadUvs[0] = a_quadUv12.xy;
+        gpi.quadUvs[1] = a_quadUv12.zw;
+        gpi.quadUvs[2] = a_quadUv34.xy;
+        gpi.quadUvs[3] = a_quadUv34.zw;
     }
 }

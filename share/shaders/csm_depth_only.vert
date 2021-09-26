@@ -1,7 +1,3 @@
-#ifdef SKELETAL
-#define VTX_INPUT_BONE_INDEX
-#endif
-
 #include "vtx_input.glsl"
 #include "transform_interface.glsl"
 

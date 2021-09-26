@@ -48,8 +48,8 @@ void TextureAnimator::Sequence::updateCoordinates(const std::vector<engine::worl
       BOOST_ASSERT(vref.queueOffset < tileIds.size());
       const engine::world::AtlasTile& tile = tiles[tileIds[vref.queueOffset].get()];
 
-      uvArray[vref.bufferIndex].uv = tile.uvCoordinates[vref.sourceIndex];
-      uvArray[vref.bufferIndex].index = tile.textureKey.tileAndFlag & loader::file::TextureIndexMask;
+      uvArray[vref.bufferIndex].uv
+        = glm::vec3{tile.uvCoordinates[vref.sourceIndex], tile.textureKey.tileAndFlag & loader::file::TextureIndexMask};
     }
 
     buffer->unmap();

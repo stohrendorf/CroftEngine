@@ -51,7 +51,6 @@ RenderMeshData::RenderMeshData(const loader::file::Mesh& mesh,
     for(int i = 0; i < 4; ++i)
     {
       RenderVertex iv{};
-      iv.textureIndex = tile.textureKey.tileAndFlag & loader::file::TextureIndexMask;
       if(useQuadHandling)
       {
         iv.isQuad = 1;
@@ -59,10 +58,8 @@ RenderMeshData::RenderMeshData(const loader::file::Mesh& mesh,
         iv.quadVert2 = quad.vertices[1].from(mesh.vertices).toRenderSystem();
         iv.quadVert3 = quad.vertices[2].from(mesh.vertices).toRenderSystem();
         iv.quadVert4 = quad.vertices[3].from(mesh.vertices).toRenderSystem();
-        iv.quadUv1 = tile.uvCoordinates[0];
-        iv.quadUv2 = tile.uvCoordinates[1];
-        iv.quadUv3 = tile.uvCoordinates[2];
-        iv.quadUv4 = tile.uvCoordinates[3];
+        iv.quadUv12 = glm::vec4{tile.uvCoordinates[0], tile.uvCoordinates[1]};
+        iv.quadUv34 = glm::vec4{tile.uvCoordinates[2], tile.uvCoordinates[3]};
       }
 
       if(mesh.normals.empty())
@@ -92,7 +89,7 @@ RenderMeshData::RenderMeshData(const loader::file::Mesh& mesh,
       }
 
       iv.position = quad.vertices[i].from(mesh.vertices).toRenderSystem();
-      iv.uv = tile.uvCoordinates[i];
+      iv.uv = glm::vec3{tile.uvCoordinates[i], tile.textureKey.tileAndFlag & loader::file::TextureIndexMask};
       m_vertices.emplace_back(iv);
     }
 
@@ -111,7 +108,7 @@ RenderMeshData::RenderMeshData(const loader::file::Mesh& mesh,
     {
       RenderVertex iv{};
       iv.position = quad.vertices[i].from(mesh.vertices).toRenderSystem();
-      iv.textureIndex = -1;
+      iv.uv = glm::vec3{0, 0, -1};
       iv.color = color;
       if(mesh.normals.empty())
         iv.color *= toBrightness(quad.vertices[i].from(mesh.vertex_shades)).get();
@@ -155,8 +152,7 @@ RenderMeshData::RenderMeshData(const loader::file::Mesh& mesh,
     {
       RenderVertex iv{};
       iv.position = tri.vertices[i].from(mesh.vertices).toRenderSystem();
-      iv.textureIndex = tile.textureKey.tileAndFlag & loader::file::TextureIndexMask;
-      iv.uv = tile.uvCoordinates[i];
+      iv.uv = glm::vec3{tile.uvCoordinates[i], tile.textureKey.tileAndFlag & loader::file::TextureIndexMask};
       if(mesh.normals.empty())
         iv.color = glm::vec4{glm::vec3{toBrightness(tri.vertices[i].from(mesh.vertex_shades)).get()}, 1.0f};
 
@@ -185,7 +181,7 @@ RenderMeshData::RenderMeshData(const loader::file::Mesh& mesh,
     {
       RenderVertex iv{};
       iv.position = tri.vertices[i].from(mesh.vertices).toRenderSystem();
-      iv.textureIndex = -1;
+      iv.uv = glm::vec3{0, 0, -1};
       iv.color = color;
       if(mesh.normals.empty())
         iv.color *= glm::vec4{glm::vec3{toBrightness(tri.vertices[i].from(mesh.vertex_shades)).get()}, 1.0f};

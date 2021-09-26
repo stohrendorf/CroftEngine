@@ -43,35 +43,39 @@ void createQuad(std::vector<Ui::UiVertex>& vertices,
 {
   static const auto toColor = [](const gl::SRGBA8& c) { return glm::vec4{c.channels} / 255.0f; };
 
-  vertices.emplace_back(Ui::UiVertex{{topLeft.x, topLeft.y},
-                                     {0, 0},
-                                     -1,
-                                     toColor(colors.topLeft),
-                                     toColor(colors.topRight),
-                                     toColor(colors.bottomLeft),
-                                     toColor(colors.bottomRight)});
+  vertices.emplace_back(Ui::UiVertex{
+    {topLeft.x, topLeft.y},
+    {0, 0, -1},
+    toColor(colors.topLeft),
+    toColor(colors.topRight),
+    toColor(colors.bottomLeft),
+    toColor(colors.bottomRight),
+  });
 
-  vertices.emplace_back(Ui::UiVertex{{topLeft.x, bottomRight.y},
-                                     {0, 1},
-                                     -1,
-                                     toColor(colors.topLeft),
-                                     toColor(colors.topRight),
-                                     toColor(colors.bottomLeft),
-                                     toColor(colors.bottomRight)});
-  vertices.emplace_back(Ui::UiVertex{{bottomRight.x, bottomRight.y},
-                                     {1, 1},
-                                     -1,
-                                     toColor(colors.topLeft),
-                                     toColor(colors.topRight),
-                                     toColor(colors.bottomLeft),
-                                     toColor(colors.bottomRight)});
-  vertices.emplace_back(Ui::UiVertex{{bottomRight.x, topLeft.y},
-                                     {1, 0},
-                                     -1,
-                                     toColor(colors.topLeft),
-                                     toColor(colors.topRight),
-                                     toColor(colors.bottomLeft),
-                                     toColor(colors.bottomRight)});
+  vertices.emplace_back(Ui::UiVertex{
+    {topLeft.x, bottomRight.y},
+    {0, 1, -1},
+    toColor(colors.topLeft),
+    toColor(colors.topRight),
+    toColor(colors.bottomLeft),
+    toColor(colors.bottomRight),
+  });
+  vertices.emplace_back(Ui::UiVertex{
+    {bottomRight.x, bottomRight.y},
+    {1, 1, -1},
+    toColor(colors.topLeft),
+    toColor(colors.topRight),
+    toColor(colors.bottomLeft),
+    toColor(colors.bottomRight),
+  });
+  vertices.emplace_back(Ui::UiVertex{
+    {bottomRight.x, topLeft.y},
+    {1, 0, -1},
+    toColor(colors.topLeft),
+    toColor(colors.topRight),
+    toColor(colors.bottomLeft),
+    toColor(colors.bottomRight),
+  });
 }
 
 void createQuad(std::vector<Ui::UiVertex>& vertices, const glm::vec2& a, const glm::vec2& dxy, const gl::SRGBA8& color)
@@ -79,10 +83,10 @@ void createQuad(std::vector<Ui::UiVertex>& vertices, const glm::vec2& a, const g
   const auto glColor = glm::vec4{color.channels} / 255.0f;
   const auto b = a + dxy;
 
-  vertices.emplace_back(Ui::UiVertex{{a.x, a.y}, {0, 0}, -1, glColor, glColor, glColor, glColor});
-  vertices.emplace_back(Ui::UiVertex{{a.x, b.y}, {0, 1}, -1, glColor, glColor, glColor, glColor});
-  vertices.emplace_back(Ui::UiVertex{{b.x, b.y}, {1, 1}, -1, glColor, glColor, glColor, glColor});
-  vertices.emplace_back(Ui::UiVertex{{b.x, a.y}, {1, 0}, -1, glColor, glColor, glColor, glColor});
+  vertices.emplace_back(Ui::UiVertex{{a.x, a.y}, {0, 0, -1}, glColor, glColor, glColor, glColor});
+  vertices.emplace_back(Ui::UiVertex{{a.x, b.y}, {0, 1, -1}, glColor, glColor, glColor, glColor});
+  vertices.emplace_back(Ui::UiVertex{{b.x, b.y}, {1, 1, -1}, glColor, glColor, glColor, glColor});
+  vertices.emplace_back(Ui::UiVertex{{b.x, a.y}, {1, 0, -1}, glColor, glColor, glColor, glColor});
 }
 
 void createHLine(std::vector<Ui::UiVertex>& vertices, const glm::vec2& a, int length, const gl::SRGBA8& color)
@@ -101,7 +105,6 @@ std::shared_ptr<gl::VertexBuffer<Ui::UiVertex>> Ui::UiVertex::createVertexBuffer
   static const gl::VertexLayout<UiVertex> layout{
     {VERTEX_ATTRIBUTE_POSITION_NAME, &UiVertex::pos},
     {VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, &UiVertex::uv},
-    {VERTEX_ATTRIBUTE_TEXINDEX_NAME, &UiVertex::texIndex},
     {VERTEX_ATTRIBUTE_COLOR_TOP_LEFT_NAME, &UiVertex::topLeft},
     {VERTEX_ATTRIBUTE_COLOR_TOP_RIGHT_NAME, &UiVertex::topRight},
     {VERTEX_ATTRIBUTE_COLOR_BOTTOM_LEFT_NAME, &UiVertex::bottomLeft},
@@ -209,9 +212,9 @@ void Ui::draw(const engine::world::Sprite& sprite, const glm::ivec2& xy)
   const auto b = sprite.render1 + xy;
   const auto ta = sprite.uv0;
   const auto tb = sprite.uv1;
-  m_vertices.emplace_back(UiVertex{{a.x, a.y}, {ta.x, ta.y}, sprite.textureId.get()});
-  m_vertices.emplace_back(UiVertex{{a.x, b.y}, {ta.x, tb.y}, sprite.textureId.get()});
-  m_vertices.emplace_back(UiVertex{{b.x, b.y}, {tb.x, tb.y}, sprite.textureId.get()});
-  m_vertices.emplace_back(UiVertex{{b.x, a.y}, {tb.x, ta.y}, sprite.textureId.get()});
+  m_vertices.emplace_back(UiVertex{{a.x, a.y}, {ta.x, ta.y, sprite.textureId.get()}});
+  m_vertices.emplace_back(UiVertex{{a.x, b.y}, {ta.x, tb.y, sprite.textureId.get()}});
+  m_vertices.emplace_back(UiVertex{{b.x, b.y}, {tb.x, tb.y, sprite.textureId.get()}});
+  m_vertices.emplace_back(UiVertex{{b.x, a.y}, {tb.x, ta.y, sprite.textureId.get()}});
 }
 } // namespace ui

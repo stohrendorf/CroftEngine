@@ -25,10 +25,12 @@ std::array<SpriteVertex, 4> createSpriteVertices(const float x0,
                                                  const int textureIdx)
 {
   BOOST_ASSERT(textureIdx >= 0);
-  const std::array<SpriteVertex, 4> vertices{SpriteVertex{{x0, y0, 0}, {t0.x, t0.y}, textureIdx},
-                                             SpriteVertex{{x1, y0, 0}, {t1.x, t0.y}, textureIdx},
-                                             SpriteVertex{{x1, y1, 0}, {t1.x, t1.y}, textureIdx},
-                                             SpriteVertex{{x0, y1, 0}, {t0.x, t1.y}, textureIdx}};
+  const std::array<SpriteVertex, 4> vertices{
+    SpriteVertex{{x0, y0, 0}, {t0.x, t0.y, textureIdx}},
+    SpriteVertex{{x1, y0, 0}, {t1.x, t0.y, textureIdx}},
+    SpriteVertex{{x1, y1, 0}, {t1.x, t1.y, textureIdx}},
+    SpriteVertex{{x0, y1, 0}, {t0.x, t1.y, textureIdx}},
+  };
   return vertices;
 }
 
@@ -75,7 +77,6 @@ gl::VertexLayout<SpriteVertex> SpriteVertex::getLayout()
 {
   return {{VERTEX_ATTRIBUTE_POSITION_NAME, &SpriteVertex::pos},
           {VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, &SpriteVertex::uv},
-          {VERTEX_ATTRIBUTE_TEXINDEX_NAME, &SpriteVertex::textureIdx},
           {VERTEX_ATTRIBUTE_COLOR_NAME, &SpriteVertex::color},
           {VERTEX_ATTRIBUTE_NORMAL_NAME, &SpriteVertex::normal}};
 }

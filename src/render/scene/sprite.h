@@ -17,8 +17,7 @@ class Mesh;
 struct SpriteVertex
 {
   glm::vec3 pos;
-  glm::vec2 uv;
-  int textureIdx;
+  glm::vec3 uv;
   glm::vec4 color{1.0f};
   glm::vec3 normal{0, 0, 1};
 

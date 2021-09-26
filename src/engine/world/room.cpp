@@ -73,25 +73,23 @@ struct RenderVertex
   glm::vec3 quadVert2{};
   glm::vec3 quadVert3{};
   glm::vec3 quadVert4{};
-  glm::vec2 quadUv1{};
-  glm::vec2 quadUv2{};
-  glm::vec2 quadUv3{};
-  glm::vec2 quadUv4{};
+  glm::vec4 quadUv12{};
+  glm::vec4 quadUv34{};
 
   static const gl::VertexLayout<RenderVertex>& getLayout()
   {
-    static const gl::VertexLayout<RenderVertex> layout{{VERTEX_ATTRIBUTE_POSITION_NAME, &RenderVertex::position},
-                                                       {VERTEX_ATTRIBUTE_NORMAL_NAME, &RenderVertex::normal},
-                                                       {VERTEX_ATTRIBUTE_COLOR_NAME, &RenderVertex::color},
-                                                       {VERTEX_ATTRIBUTE_IS_QUAD, &RenderVertex::isQuad},
-                                                       {VERTEX_ATTRIBUTE_QUAD_VERT1, &RenderVertex::quadVert1},
-                                                       {VERTEX_ATTRIBUTE_QUAD_VERT2, &RenderVertex::quadVert2},
-                                                       {VERTEX_ATTRIBUTE_QUAD_VERT3, &RenderVertex::quadVert3},
-                                                       {VERTEX_ATTRIBUTE_QUAD_VERT4, &RenderVertex::quadVert4},
-                                                       {VERTEX_ATTRIBUTE_QUAD_UV1, &RenderVertex::quadUv1},
-                                                       {VERTEX_ATTRIBUTE_QUAD_UV2, &RenderVertex::quadUv2},
-                                                       {VERTEX_ATTRIBUTE_QUAD_UV3, &RenderVertex::quadUv3},
-                                                       {VERTEX_ATTRIBUTE_QUAD_UV4, &RenderVertex::quadUv4}};
+    static const gl::VertexLayout<RenderVertex> layout{
+      {VERTEX_ATTRIBUTE_POSITION_NAME, &RenderVertex::position},
+      {VERTEX_ATTRIBUTE_NORMAL_NAME, &RenderVertex::normal},
+      {VERTEX_ATTRIBUTE_COLOR_NAME, &RenderVertex::color},
+      {VERTEX_ATTRIBUTE_IS_QUAD, &RenderVertex::isQuad},
+      {VERTEX_ATTRIBUTE_QUAD_VERT1, &RenderVertex::quadVert1},
+      {VERTEX_ATTRIBUTE_QUAD_VERT2, &RenderVertex::quadVert2},
+      {VERTEX_ATTRIBUTE_QUAD_VERT3, &RenderVertex::quadVert3},
+      {VERTEX_ATTRIBUTE_QUAD_VERT4, &RenderVertex::quadVert4},
+      {VERTEX_ATTRIBUTE_QUAD_UV12, &RenderVertex::quadUv12},
+      {VERTEX_ATTRIBUTE_QUAD_UV34, &RenderVertex::quadUv34},
+    };
 
     return layout;
   }
@@ -208,7 +206,6 @@ void Room::createSceneNode(const loader::file::Room& srcRoom,
 
   static const gl::VertexLayout<render::TextureAnimator::AnimatedUV> uvAttribs{
     {VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, gl::VertexAttribute{&render::TextureAnimator::AnimatedUV::uv}},
-    {VERTEX_ATTRIBUTE_TEXINDEX_NAME, gl::VertexAttribute{&render::TextureAnimator::AnimatedUV::index}},
   };
   auto uvCoords = std::make_shared<gl::VertexBuffer<render::TextureAnimator::AnimatedUV>>(uvAttribs, 0, label + "-uv");
 
@@ -260,10 +257,8 @@ void Room::createSceneNode(const loader::file::Room& srcRoom,
         iv.quadVert2 = quad.vertices[1].from(srcRoom.vertices).position.toRenderSystem();
         iv.quadVert3 = quad.vertices[2].from(srcRoom.vertices).position.toRenderSystem();
         iv.quadVert4 = quad.vertices[3].from(srcRoom.vertices).position.toRenderSystem();
-        iv.quadUv1 = tile.uvCoordinates[0];
-        iv.quadUv2 = tile.uvCoordinates[1];
-        iv.quadUv3 = tile.uvCoordinates[2];
-        iv.quadUv4 = tile.uvCoordinates[3];
+        iv.quadUv12 = glm::vec4{tile.uvCoordinates[0], tile.uvCoordinates[1]};
+        iv.quadUv34 = glm::vec4{tile.uvCoordinates[2], tile.uvCoordinates[3]};
       }
 
       if(i <= 2)

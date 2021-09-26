@@ -48,11 +48,11 @@ void main()
     for (int i = 0; i < Dirs; ++i)
     {
         vec3 tangent = tangents[i];
-        vec3 d = vec3(0);
+        vec3 d = fragPos;
         for (int j = 0; j < Steps; ++j)
         {
             d += tangent;
-            vec4 offset = camera.projection * vec4(fragPos + d, 1.0);
+            vec4 offset = camera.projection * vec4(d, 1.0);
             vec3 k = texture(u_position, (offset.xy / offset.w) * vec2(0.5) + vec2(0.5)).xyz;
             vec3 vk = k - fragPos;
             float lvk = 1.0 / length(vk);

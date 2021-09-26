@@ -34,8 +34,7 @@ public:
   struct UiVertex
   {
     glm::vec2 pos;
-    glm::vec2 uv;
-    glm::int32_t texIndex;
+    glm::vec3 uv;
     glm::vec4 topLeft{0};
     glm::vec4 topRight{0};
     glm::vec4 bottomLeft{0};

@@ -9,6 +9,7 @@
 #include <gl/soglb_fwd.h>
 #include <glm/fwd.hpp>
 #include <glm/vec2.hpp>
+#include <glm/vec3.hpp>
 #include <gsl/gsl-lite.hpp>
 #include <iterator>
 #include <map>
@@ -30,14 +31,11 @@ class TextureAnimator
 public:
   struct AnimatedUV
   {
-    glm::int32_t index{-1};
-    glm::vec2 uv{};
+    glm::vec3 uv{0, 0, -1};
 
     explicit AnimatedUV() = default;
-
-    explicit AnimatedUV(glm::int32_t index, const glm::vec2& uv)
-        : index{index}
-        , uv{uv}
+    explicit AnimatedUV(glm::int32 index, const glm::vec2& uv)
+        : uv{uv, index}
     {
     }
   };

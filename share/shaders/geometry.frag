@@ -60,15 +60,15 @@ void main()
     out_position = gpi.vertexPos;
 
     vec3 finalColor = gpi.color.rgb;
-    if (gpi.texIndex >= 0) {
+    if (gpi.texCoord.z >= 0) {
         vec2 uv;
         if (gpi.isQuad == 0) {
-            uv = gpi.texCoord;
+            uv = gpi.texCoord.xy;
         }
         else {
             uv = barycentricUv();
         }
-        vec4 texColor = texture(u_diffuseTextures, vec3(uv, gpi.texIndex));
+        vec4 texColor = texture(u_diffuseTextures, vec3(uv, gpi.texCoord.z));
         if (texColor.a < 0.5) {
             discard;
         }

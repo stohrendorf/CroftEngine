@@ -1,6 +1,3 @@
-#define VTX_INPUT_TEXCOORD
-#define VTX_INPUT_COLOR_QUAD
-
 #include "vtx_input.glsl"
 #include "ui_pipeline_interface.glsl"
 #include "camera_interface.glsl"
@@ -27,7 +24,6 @@ void main()
     vec2 p = (a_position.xy / camera.screenSize.xy) * 2 - 1;
     gl_Position = vec4(p.x, -p.y, 0, 1);
     upi.texCoord = a_texCoord;
-    upi.texIndex = a_texIndex;
     upi.topLeft = toLinear(a_colorTopLeft);
     upi.topRight = toLinear(a_colorTopRight);
     upi.bottomLeft = toLinear(a_colorBottomLeft);
