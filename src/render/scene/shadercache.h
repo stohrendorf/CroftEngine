@@ -25,10 +25,6 @@ public:
   {
   }
 
-  static std::string makeId(const std::filesystem::path& vshPath,
-                            const std::filesystem::path& fshPath,
-                            const std::vector<std::string>& defines);
-
   gsl::not_null<std::shared_ptr<ShaderProgram>> get(const std::filesystem::path& vshPath,
                                                     const std::filesystem::path& fshPath,
                                                     const std::vector<std::string>& defines = {});

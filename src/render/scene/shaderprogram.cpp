@@ -125,11 +125,12 @@ void replaceIncludes(const std::filesystem::path& filepath,
 } // namespace
 
 ShaderProgram::ShaderProgram() = default;
-
 ShaderProgram::~ShaderProgram() = default;
 
-gsl::not_null<std::shared_ptr<ShaderProgram>> ShaderProgram::createFromFile(const std::string& id,
+gsl::not_null<std::shared_ptr<ShaderProgram>> ShaderProgram::createFromFile(const std::string& programId,
+                                                                            const std::string& vshId,
                                                                             const std::filesystem::path& vshPath,
+                                                                            const std::string& fshId,
                                                                             const std::filesystem::path& fshPath,
                                                                             const std::vector<std::string>& defines)
 {
@@ -149,7 +150,7 @@ gsl::not_null<std::shared_ptr<ShaderProgram>> ShaderProgram::createFromFile(cons
     BOOST_THROW_EXCEPTION(std::runtime_error("Failed to create shader from sources"));
   }
 
-  auto shaderProgram = createFromSource(vshPath, vshSource, fshPath, fshSource, defines);
+  auto shaderProgram = createFromSource(programId, vshId, vshPath, vshSource, fshId, fshPath, fshSource, defines);
 
   if(shaderProgram == nullptr)
   {
@@ -157,12 +158,15 @@ gsl::not_null<std::shared_ptr<ShaderProgram>> ShaderProgram::createFromFile(cons
     BOOST_THROW_EXCEPTION(std::runtime_error("Failed to create shader from sources"));
   }
 
-  shaderProgram->m_id = id;
+  shaderProgram->m_id = programId;
   return shaderProgram;
 }
 
-std::shared_ptr<ShaderProgram> ShaderProgram::createFromSource(const std::filesystem::path& vshPath,
+std::shared_ptr<ShaderProgram> ShaderProgram::createFromSource(const std::string& programId,
+                                                               const std::string& vshId,
+                                                               const std::filesystem::path& vshPath,
                                                                const std::string& vshSource,
+                                                               const std::string& fshId,
                                                                const std::filesystem::path& fshPath,
                                                                const std::string& fshSource,
                                                                const std::vector<std::string>& defines)
@@ -182,7 +186,7 @@ std::shared_ptr<ShaderProgram> ShaderProgram::createFromSource(const std::filesy
 
   std::string definesStr = replaceDefines(defines, false);
   shaderSource[1] = definesStr.c_str();
-  gl::VertexShader vertexShader{shaderSource, vshPath.string() + ";" + boost::algorithm::join(defines, ";")};
+  gl::VertexShader vertexShader{shaderSource, vshId};
 
   // Compile the fragment shader.
   std::string fshSourceStr;
@@ -196,12 +200,12 @@ std::shared_ptr<ShaderProgram> ShaderProgram::createFromSource(const std::filesy
 
   definesStr = replaceDefines(defines, true);
   shaderSource[1] = definesStr.c_str();
-  gl::FragmentShader fragmentShader{shaderSource, fshPath.string() + ";" + boost::algorithm::join(defines, ";")};
+  gl::FragmentShader fragmentShader{shaderSource, fshId};
 
   auto shaderProgram = std::make_shared<ShaderProgram>();
   shaderProgram->m_handle.attach(vertexShader);
   shaderProgram->m_handle.attach(fragmentShader);
-  shaderProgram->m_handle.link(vshPath.string() + ";" + fshPath.string() + ";" + boost::algorithm::join(defines, ";"));
+  shaderProgram->m_handle.link(programId);
 
   if(!shaderProgram->m_handle.getLinkStatus())
   {
