@@ -51,7 +51,7 @@ private:
   Attachments m_attachments;
 
 public:
-  explicit Framebuffer(Attachments attachments, const std::string& label = {})
+  explicit Framebuffer(Attachments attachments, const std::string_view& label)
       : BindableResource{api::createFramebuffers,
                          [](const uint32_t handle)
                          { bindFramebuffer(api::FramebufferTarget::DrawFramebuffer, handle); },
@@ -170,7 +170,7 @@ private:
   Framebuffer::Attachments m_attachments;
 
 public:
-  std::shared_ptr<Framebuffer> build(const std::string& label = {})
+  std::shared_ptr<Framebuffer> build(const std::string_view& label)
   {
     return std::make_shared<Framebuffer>(std::move(m_attachments), label);
   }

@@ -371,8 +371,9 @@ Presenter::Presenter(const std::filesystem::path& engineDataPath, const glm::ive
     , m_soundEngine{std::make_shared<audio::SoundEngine>()}
     , m_renderer{std::make_shared<render::scene::Renderer>(std::make_shared<render::scene::Camera>(
         DefaultFov, m_window->getViewport(), DefaultNearPlane, DefaultFarPlane))}
-    , m_splashImage{std::make_shared<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>>(
-        gl::CImgWrapper{util::ensureFileExists(engineDataPath / "splash.png")}.toTexture())}
+    , m_splashImage{gsl::make_shared<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>>(
+        gl::CImgWrapper{util::ensureFileExists(engineDataPath / "splash.png")}.toTexture("splash"),
+        gsl::make_unique<gl::Sampler>("splash-sampler"))}
     , m_trTTFFont{std::make_unique<gl::Font>(util::ensureFileExists(engineDataPath / "trfont.ttf"))}
     , m_debugFont{std::make_unique<gl::Font>(util::ensureFileExists(engineDataPath / "DroidSansMono.ttf"))}
     , m_inputHandler{std::make_unique<hid::InputHandler>(m_window->getWindow(),

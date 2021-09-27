@@ -3,6 +3,9 @@
 #include "bindableresource.h" // IWYU pragma: export
 #include "typetraits.h"
 
+#include <gsl/gsl-lite.hpp>
+#include <string_view>
+
 namespace gl
 {
 // NOLINTNEXTLINE(bugprone-reserved-identifier)
@@ -12,7 +15,7 @@ class Buffer : public BindableResource
 public:
   static constexpr api::BufferTarget Target = _Target;
 
-  explicit Buffer(const std::string& label = {})
+  explicit Buffer(const std::string_view& label)
       : BindableResource{api::createBuffers,
                          [](const uint32_t handle) { bindBuffer(Target, handle); },
                          api::deleteBuffers,
@@ -21,11 +24,12 @@ public:
   {
   }
 
-  [[nodiscard]] T* map(const api::BufferAccess access = api::BufferAccess::ReadOnly)
+  [[nodiscard]] gsl::span<T> map(const api::BufferAccess access = api::BufferAccess::ReadOnly)
   {
     const void* data = GL_ASSERT_FN(api::mapNamedBuffer(getHandle(), access));
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
-    return static_cast<T*>(const_cast<void*>(data));
+    return gsl::span{static_cast<T*>(const_cast<void*>(data)),
+                     gsl::narrow_cast<typename gsl::span<T>::index_type>(m_size)};
   }
 
   void unmap()
@@ -35,56 +39,29 @@ public:
 
   void setData(const T& data, const api::BufferUsage usage)
   {
-    setData(&data, 1, usage);
+    setData(gsl::span{&data, 1}, usage);
   }
 
-  void setData(const std::vector<T>& data, const api::BufferUsage usage)
+  void setData(const gsl::span<const T>& data, const api::BufferUsage usage)
   {
-    if(data.empty())
+    if(m_size == data.size() && m_usage == usage)
     {
-      if(size() != 0)
-      {
-        static const T tmp{};
-        setData(&tmp, 0, usage);
-      }
-      return;
-    }
-
-    setData(gsl::not_null{data.data()}, gsl::narrow<api::core::SizeType>(data.size()), usage);
-  }
-
-  void setData(const gsl::not_null<const T*>& data, const api::core::SizeType size, const api::BufferUsage usage)
-  {
-    Expects(size >= 0);
-
-    if(size == 0)
-      return;
-
-    if(m_size == size && m_usage == usage)
-    {
-      GL_ASSERT(api::namedBufferSubData(getHandle(), 0, gsl::narrow<std::size_t>(sizeof(T) * m_size), data));
+      GL_ASSERT(api::namedBufferSubData(getHandle(), 0, data.size_bytes(), data.data()));
     }
     else
     {
       m_usage = usage;
-      m_size = size;
-      GL_ASSERT(api::namedBufferData(getHandle(), gsl::narrow<std::size_t>(sizeof(T) * m_size), data, usage));
+      m_size = gsl::narrow<api::core::SizeType>(data.size());
+      GL_ASSERT(api::namedBufferData(getHandle(), data.size_bytes(), data.data(), usage));
     }
   }
 
-  void setSubData(const gsl::not_null<const T*>& data, const api::core::SizeType start, api::core::SizeType count)
+  void setSubData(const gsl::span<const T>& data, const api::core::SizeType start)
   {
     Expects(m_size >= 0);
-    Expects(count >= 0);
 
-    if(count == 0)
-    {
-      count = m_size - start;
-      Expects(count >= 0);
-    }
-
-    GL_ASSERT(api::namedBufferSubData(
-      getHandle(), gsl::narrow<std::intptr_t>(sizeof(T) * start), gsl::narrow<std::size_t>(sizeof(T) * count), data));
+    GL_ASSERT(
+      api::namedBufferSubData(getHandle(), gsl::narrow<std::intptr_t>(sizeof(T) * start), data.size_byts(), data));
   }
 
   [[nodiscard]] auto size() const noexcept
@@ -110,21 +87,21 @@ template<typename T>
 class ElementArrayBuffer final : public Buffer<T, api::BufferTarget::ElementArrayBuffer>
 {
 public:
-  explicit ElementArrayBuffer(const std::string& label = {})
+  using Buffer<T, api::BufferTarget::ElementArrayBuffer>::size;
+
+  explicit ElementArrayBuffer(const std::string_view& label)
       : Buffer<T, api::BufferTarget::ElementArrayBuffer>{label}
   {
   }
 
   void drawElements(api::PrimitiveType primitiveType) const
   {
-    GL_ASSERT(api::drawElements(
-      primitiveType, Buffer<T, api::BufferTarget::ElementArrayBuffer>::size(), DrawElementsType<T>, nullptr));
+    GL_ASSERT(api::drawElements(primitiveType, size(), DrawElementsType<T>, nullptr));
   }
 
   void drawElements(api::PrimitiveType primitiveType, api::core::SizeType instances) const
   {
-    GL_ASSERT(api::drawElementsInstance(
-      primitiveType, Buffer<T, api::BufferTarget::ElementArrayBuffer>::size(), DrawElementsType<T>, instances));
+    GL_ASSERT(api::drawElementsInstance(primitiveType, size(), DrawElementsType<T>, instances));
   }
 };
 } // namespace gl

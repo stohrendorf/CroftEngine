@@ -207,8 +207,8 @@ RenderMeshData::RenderMeshData(const loader::file::Mesh& mesh,
 gsl::not_null<std::shared_ptr<render::scene::Mesh>> RenderMeshDataCompositor::toMesh(
   render::scene::MaterialManager& materialManager, bool skeletal, const std::string& label)
 {
-  auto vb = std::make_shared<gl::VertexBuffer<RenderMeshData::RenderVertex>>(
-    RenderMeshData::RenderVertex::getLayout(), 0, label);
+  auto vb = std::make_shared<gl::VertexBuffer<RenderMeshData::RenderVertex>>(RenderMeshData::RenderVertex::getLayout(),
+                                                                             label);
   vb->setData(m_vertices, gl::api::BufferUsage::StaticDraw);
 
 #ifndef NDEBUG

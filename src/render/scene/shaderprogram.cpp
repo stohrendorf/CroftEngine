@@ -124,7 +124,12 @@ void replaceIncludes(const std::filesystem::path& filepath,
 }
 } // namespace
 
-ShaderProgram::ShaderProgram() = default;
+ShaderProgram::ShaderProgram(const std::string_view& label)
+    : m_handle{label}
+    , m_id{label}
+{
+}
+
 ShaderProgram::~ShaderProgram() = default;
 
 gsl::not_null<std::shared_ptr<ShaderProgram>> ShaderProgram::createFromFile(const std::string& programId,
@@ -158,7 +163,6 @@ gsl::not_null<std::shared_ptr<ShaderProgram>> ShaderProgram::createFromFile(cons
     BOOST_THROW_EXCEPTION(std::runtime_error("Failed to create shader from sources"));
   }
 
-  shaderProgram->m_id = programId;
   return shaderProgram;
 }
 
@@ -202,10 +206,10 @@ std::shared_ptr<ShaderProgram> ShaderProgram::createFromSource(const std::string
   shaderSource[1] = definesStr.c_str();
   gl::FragmentShader fragmentShader{shaderSource, fshId};
 
-  auto shaderProgram = std::make_shared<ShaderProgram>();
+  auto shaderProgram = std::make_shared<ShaderProgram>(programId);
   shaderProgram->m_handle.attach(vertexShader);
   shaderProgram->m_handle.attach(fragmentShader);
-  shaderProgram->m_handle.link(programId);
+  shaderProgram->m_handle.link();
 
   if(!shaderProgram->m_handle.getLinkStatus())
   {

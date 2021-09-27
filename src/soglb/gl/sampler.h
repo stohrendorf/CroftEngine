@@ -4,6 +4,7 @@
 #include "glassert.h"
 
 #include <glm/gtc/type_ptr.hpp>
+#include <string_view>
 
 namespace gl
 {
@@ -15,7 +16,7 @@ public:
   Sampler(Sampler&&) = delete;
   void operator=(Sampler&&) = delete;
 
-  explicit Sampler(const std::string& label = {})
+  explicit Sampler(const std::string_view& label)
   {
     GL_ASSERT(api::genSampler(1, &m_handle));
     Expects(m_handle != 0);
@@ -27,7 +28,8 @@ public:
     Expects(api::isSampler(m_handle));
 
     if(!label.empty())
-      GL_ASSERT(api::objectLabel(api::ObjectIdentifier::Sampler, m_handle, -1, label.c_str()));
+      GL_ASSERT(api::objectLabel(
+        api::ObjectIdentifier::Sampler, m_handle, gsl::narrow<api::core::SizeType>(label.size()), label.data()));
   }
 
   ~Sampler()

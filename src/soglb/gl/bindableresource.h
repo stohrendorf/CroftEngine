@@ -5,6 +5,7 @@
 
 #include <boost/assert.hpp>
 #include <functional>
+#include <string_view>
 
 namespace gl
 {
@@ -42,7 +43,7 @@ protected:
                             Binder binder,
                             Deleter deleter,
                             const api::ObjectIdentifier identifier,
-                            const std::string& label)
+                            const std::string_view& label)
       : m_allocator{std::move(allocator)}
       , m_binder{std::move(binder)}
       , m_deleter{std::move(deleter)}
@@ -89,17 +90,16 @@ protected:
   }
 
   // NOLINTNEXTLINE(readability-make-member-function-const)
-  void setLabel(const api::ObjectIdentifier identifier, const std::string& label)
+  void setLabel(const api::ObjectIdentifier identifier, const std::string_view& label)
   {
     int32_t maxLabelLength = 0;
     GL_ASSERT(api::getIntegerv(api::GetPName::MaxLabelLength, &maxLabelLength));
     BOOST_ASSERT(maxLabelLength > 0);
 
-    GL_ASSERT(
-      api::objectLabel(identifier,
-                       m_handle,
-                       -1,
-                       label.empty() ? nullptr : label.substr(0, static_cast<std::size_t>(maxLabelLength)).c_str()));
+    GL_ASSERT(api::objectLabel(identifier,
+                               m_handle,
+                               std::min(maxLabelLength, gsl::narrow<int32_t>(label.size())),
+                               label.empty() ? nullptr : label.data()));
   }
 
 private:

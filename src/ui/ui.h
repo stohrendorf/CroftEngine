@@ -40,8 +40,8 @@ public:
     glm::vec4 bottomLeft{0};
     glm::vec4 bottomRight{0};
 
-    static std::shared_ptr<gl::VertexBuffer<Ui::UiVertex>> createVertexBuffer();
-    static std::shared_ptr<gl::ElementArrayBuffer<uint16_t>> createIndexBuffer();
+    static gsl::not_null<std::shared_ptr<gl::VertexBuffer<Ui::UiVertex>>> createVertexBuffer();
+    static gsl::not_null<std::shared_ptr<gl::ElementArrayBuffer<uint16_t>>> createIndexBuffer();
   };
 
   explicit Ui(std::shared_ptr<render::scene::Material> material, const std::array<gl::SRGBA8, 256>& palette);

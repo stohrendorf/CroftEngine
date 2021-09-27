@@ -12,7 +12,7 @@
 namespace gl
 {
 template<api::ShaderType _Type>
-Shader<_Type>::Shader(const gsl::span<gsl::czstring>& src, const std::string& label)
+Shader<_Type>::Shader(const gsl::span<gsl::czstring>& src, const std::string_view& label)
     : m_handle{GL_ASSERT_FN(api::createShader(Type))}
 {
   Expects(m_handle != 0);
@@ -44,7 +44,8 @@ Shader<_Type>::Shader(const gsl::span<gsl::czstring>& src, const std::string& la
 
   if(!label.empty())
   {
-    GL_ASSERT(api::objectLabel(api::ObjectIdentifier::Shader, m_handle, -1, label.c_str()));
+    GL_ASSERT(api::objectLabel(
+      api::ObjectIdentifier::Shader, m_handle, gsl::narrow<api::core::SizeType>(label.size()), label.data()));
   }
 }
 

@@ -2,6 +2,8 @@
 
 #include "texture.h"
 
+#include <string_view>
+
 namespace gl
 {
 // NOLINTNEXTLINE(bugprone-reserved-identifier)
@@ -12,7 +14,7 @@ public:
   using typename TextureImpl<api::TextureTarget::Texture2d, ScalarDepth<_T>>::Pixel;
   using TextureImpl<api::TextureTarget::Texture2d, ScalarDepth<_T>>::getHandle;
 
-  explicit TextureDepth(const glm::ivec2& size, const std::string& label = {})
+  explicit TextureDepth(const glm::ivec2& size, const std::string_view& label)
       : TextureImpl<api::TextureTarget::Texture2d, ScalarDepth<_T>>{label}
       , m_size{size}
   {
@@ -22,10 +24,11 @@ public:
     GL_ASSERT(api::textureStorage2D(getHandle(), 1, Pixel::InternalFormat, size.x, size.y));
   }
 
-  TextureDepth<_T>& assign(const ScalarDepth<_T>* data)
+  TextureDepth<_T>& assign(const gsl::span<const ScalarDepth<_T>>& data)
   {
-    GL_ASSERT(
-      api::textureSubImage2D(getHandle(), 0, 0, 0, m_size.x, m_size.y, Pixel::PixelFormat, Pixel::PixelType, data));
+    Expects(m_size.x * m_size.y == data.size());
+    GL_ASSERT(api::textureSubImage2D(
+      getHandle(), 0, 0, 0, m_size.x, m_size.y, Pixel::PixelFormat, Pixel::PixelType, data.data()));
     return *this;
   }
 
@@ -33,7 +36,7 @@ public:
   {
     Expects(m_size.x >= 0 && m_size.y >= 0);
     std::vector<Pixel> data(m_size.x * m_size.y, value);
-    return assign(data.data());
+    return assign(data);
   }
 
   TextureDepth<_T>& fill(const _T& value)

@@ -80,6 +80,6 @@ void Converter::update(const AVFramePtr& videoFrame)
   // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
   std::copy_n(reinterpret_cast<gl::SRGBA8*>(dstVideoData[0]), filter->w * filter->h, dstData.data());
 
-  textureHandle->getTexture()->assign(dstData.data());
+  textureHandle->getTexture()->assign(dstData);
 }
 } // namespace video

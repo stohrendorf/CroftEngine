@@ -2,6 +2,8 @@
 
 #include "texture.h"
 
+#include <string_view>
+
 namespace gl
 {
 // NOLINTNEXTLINE(bugprone-reserved-identifier)
@@ -13,12 +15,12 @@ public:
   using TextureImpl<api::TextureTarget::Texture2d, _PixelT>::getHandle;
   using TextureImpl<api::TextureTarget::Texture2d, _PixelT>::getSubDataTarget;
 
-  explicit Texture2D(const glm::ivec2& size, const std::string& label = {})
+  explicit Texture2D(const glm::ivec2& size, const std::string_view& label)
       : Texture2D<_PixelT>{size, 1, label}
   {
   }
 
-  explicit Texture2D(const glm::ivec2& size, int levels, const std::string& label = {})
+  explicit Texture2D(const glm::ivec2& size, int levels, const std::string_view& label)
       : TextureImpl<api::TextureTarget::Texture2d, _PixelT>{label}
       , m_size{size}
   {
@@ -28,14 +30,15 @@ public:
     GL_ASSERT(api::textureStorage2D(getHandle(), levels, Pixel::SizedInternalFormat, size.x, size.y));
   }
 
-  Texture2D<_PixelT>& assign(const gsl::not_null<const _PixelT*>& data, int level = 0)
+  Texture2D<_PixelT>& assign(const gsl::span<const _PixelT>& data, int level = 0)
   {
     const int levelDiv = 1 << level;
     const auto sizeX = glm::max(1, m_size.x / levelDiv);
     const auto sizeY = glm::max(1, m_size.y / levelDiv);
+    Expects(sizeX * sizeY == data.size());
 
-    GL_ASSERT(
-      api::textureSubImage2D(getHandle(), level, 0, 0, sizeX, sizeY, Pixel::PixelFormat, Pixel::PixelType, data.get()));
+    GL_ASSERT(api::textureSubImage2D(
+      getHandle(), level, 0, 0, sizeX, sizeY, Pixel::PixelFormat, Pixel::PixelType, data.data()));
     return *this;
   }
 

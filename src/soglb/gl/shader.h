@@ -6,6 +6,7 @@
 #include <cstdint>
 #include <gsl/gsl-lite.hpp>
 #include <string>
+#include <string_view>
 
 namespace gl
 {
@@ -16,7 +17,7 @@ class Shader final
 public:
   static constexpr api::ShaderType Type = _Type;
 
-  explicit Shader(const gsl::span<gsl::czstring>& src, const std::string& label = {});
+  explicit Shader(const gsl::span<gsl::czstring>& src, const std::string_view& label);
 
   Shader(const Shader&) = delete;
   Shader(Shader&&) = delete;

@@ -173,13 +173,13 @@ void Portal::buildMesh(const loader::file::Portal& srcPortal,
     glVertices[i].pos = srcPortal.vertices[i].toRenderSystem() - offset;
 
   gl::VertexLayout<Vertex> layout{{VERTEX_ATTRIBUTE_POSITION_NAME, &Vertex::pos}};
-  auto vb = std::make_shared<gl::VertexBuffer<Vertex>>(layout, 0, "portal");
-  vb->setData(&glVertices[0], 4, gl::api::BufferUsage::StaticDraw);
+  auto vb = std::make_shared<gl::VertexBuffer<Vertex>>(layout, "portal");
+  vb->setData(glVertices, gl::api::BufferUsage::StaticDraw);
 
   static const std::array<uint16_t, 6> indices{0, 1, 2, 0, 2, 3};
 
   auto indexBuffer = std::make_shared<gl::ElementArrayBuffer<uint16_t>>("portal");
-  indexBuffer->setData(&indices[0], 6, gl::api::BufferUsage::StaticDraw);
+  indexBuffer->setData(indices, gl::api::BufferUsage::StaticDraw);
 
   auto vao = std::make_shared<gl::VertexArray<uint16_t, Vertex>>(
     indexBuffer, vb, std::vector{&material->getShaderProgram()->getHandle()}, "portal");
@@ -202,12 +202,12 @@ void Room::createSceneNode(const loader::file::Room& srcRoom,
   std::vector<render::TextureAnimator::AnimatedUV> uvCoordsData;
 
   const auto label = "Room:" + std::to_string(roomId);
-  auto vbuf = std::make_shared<gl::VertexBuffer<RenderVertex>>(RenderVertex::getLayout(), 0, label);
+  auto vbuf = std::make_shared<gl::VertexBuffer<RenderVertex>>(RenderVertex::getLayout(), label);
 
   static const gl::VertexLayout<render::TextureAnimator::AnimatedUV> uvAttribs{
     {VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, gl::VertexAttribute{&render::TextureAnimator::AnimatedUV::uv}},
   };
-  auto uvCoords = std::make_shared<gl::VertexBuffer<render::TextureAnimator::AnimatedUV>>(uvAttribs, 0, label + "-uv");
+  auto uvCoords = std::make_shared<gl::VertexBuffer<render::TextureAnimator::AnimatedUV>>(uvAttribs, label + "-uv");
 
   for(const loader::file::QuadFace& quad : srcRoom.rectangles)
   {

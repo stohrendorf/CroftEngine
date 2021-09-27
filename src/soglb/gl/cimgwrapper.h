@@ -9,6 +9,7 @@
 #include <gsl/gsl-lite.hpp>
 #include <memory>
 #include <string>
+#include <string_view>
 
 // IWYU pragma: no_forward_declare gl::Texture2D
 
@@ -94,7 +95,7 @@ public:
 
   void fromScreenshot();
 
-  std::shared_ptr<gl::Texture2D<gl::SRGBA8>> toTexture();
+  gsl::not_null<std::shared_ptr<gl::Texture2D<gl::SRGBA8>>> toTexture(const std::string_view& label);
 
 private:
   void unshare();

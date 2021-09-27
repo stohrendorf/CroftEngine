@@ -40,7 +40,7 @@ void TextureAnimator::Sequence::updateCoordinates(const std::vector<engine::worl
 
   for(const auto& [buffer, vertices] : affectedVertices)
   {
-    auto* uvArray = buffer->map(gl::api::BufferAccess::ReadWrite);
+    auto uvArray = buffer->map(gl::api::BufferAccess::ReadWrite);
 
     for(const VertexReference& vref : vertices)
     {

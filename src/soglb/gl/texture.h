@@ -3,6 +3,7 @@
 #include "bindableresource.h" // IWYU pragma: export
 
 #include <glm/gtc/type_ptr.hpp>
+#include <string_view>
 #include <utility>
 
 namespace gl
@@ -14,7 +15,7 @@ protected:
                    Binder binder,
                    Deleter deleter,
                    const api::ObjectIdentifier identifier,
-                   const std::string& label)
+                   const std::string_view& label)
       : BindableResource{std::move(allocator), std::move(binder), std::move(deleter), identifier, label}
   {
   }
@@ -25,7 +26,7 @@ template<api::TextureTarget _Target, typename _PixelT>
 class TextureImpl : public Texture
 {
 protected:
-  explicit TextureImpl(const std::string& label = {})
+  explicit TextureImpl(const std::string_view& label)
       : Texture{[](const api::core::SizeType n, api::core::Handle* textures) { createTextures(_Target, n, textures); },
                 [](const uint32_t handle) { bindTexture(_Target, handle); },
                 api::deleteTextures,

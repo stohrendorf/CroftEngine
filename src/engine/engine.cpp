@@ -370,7 +370,8 @@ std::pair<RunResult, std::optional<size_t>> Engine::runTitleMenu(world::World& w
     stream->setLooping(true);
 
   const auto backdrop = std::make_shared<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>>(
-    gl::CImgWrapper{util::ensureFileExists(m_userDataPath / "data" / "tr1" / "DATA" / "TITLEH.PCX")}.toTexture());
+    gl::CImgWrapper{util::ensureFileExists(m_userDataPath / "data" / "tr1" / "DATA" / "TITLEH.PCX")}.toTexture("title"),
+    gsl::make_unique<gl::Sampler>("title-sampler"));
   const auto menu = std::make_shared<menu::MenuDisplay>(menu::InventoryMode::TitleMode, world);
   Throttler throttler;
   while(true)

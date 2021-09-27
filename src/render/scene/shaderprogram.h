@@ -14,7 +14,7 @@ namespace render::scene
 class ShaderProgram
 {
 public:
-  explicit ShaderProgram();
+  explicit ShaderProgram(const std::string_view& label);
 
   ShaderProgram(const ShaderProgram&) = delete;
   ShaderProgram(ShaderProgram&&) = delete;
@@ -82,8 +82,8 @@ private:
                                                          const std::string& fshSource,
                                                          const std::vector<std::string>& defines = {});
 
-  std::string m_id;
   gl::Program m_handle;
+  std::string m_id;
 
   boost::container::flat_map<std::string, gl::ProgramInput> m_vertexAttributes;
   boost::container::flat_map<std::string, gl::Uniform> m_uniforms;

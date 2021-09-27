@@ -172,7 +172,7 @@ void createMipmaps(const std::vector<std::shared_ptr<gl::CImgWrapper>>& images,
       BOOST_LOG_TRIVIAL(debug) << "Mipmap level " << mipmapLevel << " (size " << dstSize << ", " << tiles.size()
                                << " tiles)";
       src.resizePow2Mipmap(1);
-      allTextures.assign(src.pixels().data(), texture, mipmapLevel);
+      allTextures.assign(src.pixels(), texture, mipmapLevel);
     }
   }
 }
@@ -435,10 +435,10 @@ std::unique_ptr<gl::Texture2DArray<gl::SRGBA8>>
   auto images = atlases.takeImages();
 
   auto allTextures = std::make_unique<gl::Texture2DArray<gl::SRGBA8>>(
-    glm::ivec3{atlases.getSize(), atlases.getSize(), gsl::narrow<int>(images.size())}, textureLevels, "all-textures");
+    glm::ivec3{atlases.getSize(), atlases.getSize(), gsl::narrow<int>(images.size())}, "all-textures", textureLevels);
 
   for(size_t i = 0; i < images.size(); ++i)
-    allTextures->assign(images[i]->pixels().data(), gsl::narrow_cast<int>(i), 0);
+    allTextures->assign(images[i]->pixels(), gsl::narrow_cast<int>(i));
   createMipmaps(images, textureLevels, *allTextures, atlasTiles, sprites, drawLoadingScreen);
 
   return allTextures;

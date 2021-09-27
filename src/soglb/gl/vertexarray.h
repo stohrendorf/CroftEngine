@@ -4,6 +4,7 @@
 #include "renderstate.h"
 #include "soglb_fwd.h"
 
+#include <string_view>
 #include <tuple>
 #include <utility>
 #include <vector>
@@ -50,7 +51,7 @@ public:
   explicit VertexArray(IndexBufferPtr indexBuffer,
                        VertexBuffers vertexBuffers,
                        const std::vector<const Program*>& programs,
-                       const std::string& label = {})
+                       const std::string_view& label)
       : BindableResource{api::createVertexArrays,
                          api::bindVertexArray,
                          api::deleteVertexArrays,

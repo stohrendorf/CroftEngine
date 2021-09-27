@@ -18,8 +18,8 @@ public:
   using Texture = _Texture;
   static_assert(std::is_base_of_v<::gl::Texture, Texture>);
 
-  explicit TextureHandle(std::shared_ptr<Texture> texture,
-                         std::unique_ptr<Sampler>&& sampler = std::make_unique<Sampler>())
+  explicit TextureHandle(gsl::not_null<std::shared_ptr<Texture>> texture,
+                         gsl::not_null<std::unique_ptr<Sampler>>&& sampler)
       : m_texture{std::move(texture)}
       , m_sampler{std::move(sampler)}
       , m_handle{GL_ASSERT_FN(api::getTextureSamplerHandle(m_texture->getHandle(), m_sampler->getHandle()))}
@@ -44,8 +44,8 @@ public:
   }
 
 private:
-  const std::shared_ptr<Texture> m_texture;
-  const std::unique_ptr<Sampler> m_sampler;
+  const gsl::not_null<std::shared_ptr<Texture>> m_texture;
+  const gsl::not_null<std::unique_ptr<Sampler>> m_sampler;
   const uint64_t m_handle;
 };
 } // namespace gl

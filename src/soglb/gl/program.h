@@ -17,6 +17,7 @@
 #include <limits>
 #include <memory>
 #include <string>
+#include <string_view>
 #include <type_traits>
 #include <utility>
 #include <variant>
@@ -275,7 +276,7 @@ private:
 class Program final : public BindableResource
 {
 public:
-  explicit Program(const std::string& label = {});
+  explicit Program(const std::string_view& label);
 
   template<api::ShaderType _Type> // NOLINT(bugprone-reserved-identifier)
   void attach(const Shader<_Type>& shader)
@@ -283,7 +284,7 @@ public:
     GL_ASSERT(api::attachShader(getHandle(), shader.getHandle()));
   }
 
-  void link(const std::string& label = {});
+  void link();
 
   [[nodiscard]] bool getLinkStatus() const;
 

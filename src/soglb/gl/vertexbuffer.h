@@ -6,6 +6,7 @@
 
 #include <gsl/gsl-lite.hpp>
 #include <map>
+#include <string_view>
 
 namespace gl
 {
@@ -62,7 +63,7 @@ template<typename T>
 class VertexBuffer final : public ArrayBuffer<T>
 {
 public:
-  explicit VertexBuffer(VertexLayout<T> layout, uint32_t divisor = 0, const std::string& label = {})
+  explicit VertexBuffer(VertexLayout<T> layout, const std::string_view& label, uint32_t divisor = 0)
       : ArrayBuffer<T>{label}
       , m_layout{std::move(layout)}
       , m_divisor{divisor}

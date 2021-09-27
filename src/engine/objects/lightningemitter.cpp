@@ -64,9 +64,8 @@ std::tuple<gsl::not_null<std::shared_ptr<render::scene::Mesh>>,
   auto indexBuffer = std::make_shared<gl::ElementArrayBuffer<uint16_t>>("bolt");
   indexBuffer->setData(indices, gl::api::BufferUsage::StaticDraw);
 
-  auto vb = std::make_shared<gl::VertexBuffer<glm::vec3>>(layout, 0, "bolt");
-  vb->setData(
-    &vertices[0], gsl::narrow_cast<gl::api::core::SizeType>(vertices.size()), gl::api::BufferUsage::DynamicDraw);
+  auto vb = std::make_shared<gl::VertexBuffer<glm::vec3>>(layout, "bolt");
+  vb->setData(vertices, gl::api::BufferUsage::DynamicDraw);
 
   auto vao = std::make_shared<gl::VertexArray<uint16_t, glm::vec3>>(
     indexBuffer, vb, std::vector{&material->getShaderProgram()->getHandle()}, "bolt");
@@ -121,7 +120,9 @@ Bolt updateBolt(const glm::vec3& start, const glm::vec3& end, const std::shared_
 
   Bolt bolt;
   const auto boltData = vb->map(gl::api::BufferAccess::WriteOnly);
-  std::copy(data.begin(), data.end(), boltData);
+  gsl_Assert(boltData.size() == data.size());
+  gsl_Assert(boltData.size() == bolt.size());
+  std::copy(data.begin(), data.end(), boltData.begin());
   std::copy(data.begin(), data.end(), bolt.begin());
   vb->unmap();
 
