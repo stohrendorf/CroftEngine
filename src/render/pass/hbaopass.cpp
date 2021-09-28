@@ -37,15 +37,17 @@ HBAOPass::HBAOPass(scene::MaterialManager& materialManager,
     : m_material{materialManager.getHBAO()}
     , m_renderMesh{scene::createScreenQuad(m_material, "hbao")}
     , m_aoBuffer{std::make_shared<gl::Texture2D<gl::ScalarByte>>(viewport, "hbao-ao")}
+    , m_aoBufferHandle{std::make_shared<gl::TextureHandle<gl::Texture2D<gl::ScalarByte>>>(
+        m_aoBuffer,
+        gslu::make_nn_unique<gl::Sampler>("hbao-ao")
+          | set(gl::api::SamplerParameterI::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge)
+          | set(gl::api::SamplerParameterI::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge)
+          | set(gl::api::TextureMinFilter::Linear) | set(gl::api::TextureMagFilter::Linear))}
     , m_blur{"hbao", materialManager, 2, false}
+    , m_fb{gl::FrameBufferBuilder()
+             .textureNoBlend(gl::api::FramebufferAttachment::ColorAttachment0, m_aoBuffer)
+             .build("hbao-fb")}
 {
-  auto sampler = gslu::make_nn_unique<gl::Sampler>("hbao-ao");
-  sampler->set(gl::api::SamplerParameterI::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge)
-    .set(gl::api::SamplerParameterI::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge)
-    .set(gl::api::TextureMinFilter::Linear)
-    .set(gl::api::TextureMagFilter::Linear);
-  m_aoBufferHandle = std::make_shared<gl::TextureHandle<gl::Texture2D<gl::ScalarByte>>>(m_aoBuffer, std::move(sampler));
-
   m_renderMesh->bind("u_normals",
                      [buffer = geometryPass.getNormalBuffer()](
                        const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
@@ -56,10 +58,6 @@ HBAOPass::HBAOPass(scene::MaterialManager& materialManager,
                      { uniform.set(buffer); });
 
   m_blur.setInput(gsl::not_null{m_aoBufferHandle});
-
-  m_fb = gl::FrameBufferBuilder()
-           .textureNoBlend(gl::api::FramebufferAttachment::ColorAttachment0, m_aoBuffer)
-           .build("hbao-fb");
 }
 
 void HBAOPass::updateCamera(const gsl::not_null<std::shared_ptr<scene::Camera>>& camera)

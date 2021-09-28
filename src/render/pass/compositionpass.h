@@ -47,14 +47,14 @@ public:
   void render(bool water, const RenderSettings& renderSettings);
 
 private:
-  std::shared_ptr<scene::Material> m_compositionMaterial;
-  std::shared_ptr<scene::Material> m_waterCompositionMaterial;
+  gsl::not_null<std::shared_ptr<scene::Material>> m_compositionMaterial;
+  gsl::not_null<std::shared_ptr<scene::Material>> m_waterCompositionMaterial;
 
-  std::shared_ptr<scene::Mesh> m_mesh;
-  std::shared_ptr<scene::Mesh> m_waterMesh;
-  std::shared_ptr<scene::Mesh> m_crtMesh;
+  gsl::not_null<std::shared_ptr<scene::Mesh>> m_mesh;
+  gsl::not_null<std::shared_ptr<scene::Mesh>> m_waterMesh;
+  gsl::not_null<std::shared_ptr<scene::Mesh>> m_crtMesh;
   gsl::not_null<std::shared_ptr<gl::Texture2D<gl::SRGBA8>>> m_colorBuffer;
-  std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>> m_colorBufferHandle;
-  std::shared_ptr<gl::Framebuffer> m_fb;
+  gsl::not_null<std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>>> m_colorBufferHandle;
+  gsl::not_null<std::shared_ptr<gl::Framebuffer>> m_fb;
 };
 } // namespace render::pass

@@ -41,13 +41,13 @@ public:
   }
 
 private:
-  const std::shared_ptr<scene::Material> m_material;
+  const gsl::not_null<std::shared_ptr<scene::Material>> m_material;
 
-  std::shared_ptr<scene::Mesh> m_renderMesh;
+  gsl::not_null<std::shared_ptr<scene::Mesh>> m_renderMesh;
 
   gsl::not_null<std::shared_ptr<gl::Texture2D<gl::ScalarByte>>> m_aoBuffer;
-  std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::ScalarByte>>> m_aoBufferHandle;
-  std::shared_ptr<gl::Framebuffer> m_fb;
+  gsl::not_null<std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::ScalarByte>>>> m_aoBufferHandle;
+  gsl::not_null<std::shared_ptr<gl::Framebuffer>> m_fb;
 
   scene::SeparableBlur<gl::ScalarByte> m_blur;
 };

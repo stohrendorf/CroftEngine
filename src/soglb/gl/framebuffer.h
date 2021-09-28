@@ -3,6 +3,8 @@
 #include "texture.h"
 
 #include <boost/log/trivial.hpp>
+#include <gsl/gsl-lite.hpp>
+#include <gslu.h>
 #include <utility>
 
 namespace gl
@@ -170,9 +172,9 @@ private:
   Framebuffer::Attachments m_attachments;
 
 public:
-  std::shared_ptr<Framebuffer> build(const std::string_view& label)
+  gsl::not_null<std::shared_ptr<Framebuffer>> build(const std::string_view& label)
   {
-    return std::make_shared<Framebuffer>(std::move(m_attachments), label);
+    return gslu::make_nn_shared<Framebuffer>(std::move(m_attachments), label);
   }
 
   FrameBufferBuilder& texture(api::FramebufferAttachment attachment,

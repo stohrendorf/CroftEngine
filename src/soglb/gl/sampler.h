@@ -1,10 +1,13 @@
 #pragma once
 
 #include "api/gl.hpp" // IWYU pragma: export
+#include "detail/argsholder.h"
 #include "glassert.h"
 
 #include <glm/gtc/type_ptr.hpp>
 #include <string_view>
+#include <tuple>
+#include <utility>
 
 namespace gl
 {
@@ -92,3 +95,15 @@ private:
   uint32_t m_handle = 0;
 };
 } // namespace gl
+
+namespace gl::detail
+{
+} // namespace gl::detail
+
+template<typename... Args>
+inline gsl::not_null<std::unique_ptr<gl::Sampler>> operator|(gsl::not_null<std::unique_ptr<gl::Sampler>>&& sampler,
+                                                             const gl::detail::ArgsHolder<Args...>& setter)
+{
+  std::apply([&sampler](const Args&... args) { sampler->set(args...); }, setter.args);
+  return std::move(sampler);
+}

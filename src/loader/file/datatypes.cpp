@@ -686,7 +686,6 @@ RoomVertex RoomVertex::readTr1(io::SDLReader& reader)
   room_vertex.shade = core::Shade{reader.readI16()};
   // only in TR2
   room_vertex.lighting2 = room_vertex.shade.get();
-  room_vertex.attributes = 0;
   // only in TR5
   room_vertex.normal = {0_len, 0_len, 0_len};
   const auto f = toBrightness(room_vertex.shade).get();

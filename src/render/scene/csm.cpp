@@ -38,15 +38,13 @@ namespace render::scene
 {
 void CSM::Split::init(int32_t resolution, size_t idx, MaterialManager& materialManager)
 {
+  auto sampler = gslu::make_nn_unique<gl::Sampler>("csm-texture/" + std::to_string(idx))
+                 | set(gl::api::TextureMinFilter::Linear) | set(gl::api::TextureMagFilter::Linear)
+                 | set(gl::api::SamplerParameterI::TextureWrapS, gl::api::TextureWrapMode::ClampToBorder)
+                 | set(gl::api::SamplerParameterI::TextureWrapT, gl::api::TextureWrapMode::ClampToBorder);
   const auto depthTexture = gslu::make_nn_shared<gl::TextureDepth<float>>(glm::ivec2{resolution, resolution},
                                                                           "csm-texture/" + std::to_string(idx));
-  auto sampler = gslu::make_nn_unique<gl::Sampler>("csm-texture/" + std::to_string(idx));
-  sampler->set(gl::api::TextureMinFilter::Linear)
-    .set(gl::api::TextureMagFilter::Linear)
-    .set(gl::api::SamplerParameterI::TextureWrapS, gl::api::TextureWrapMode::ClampToBorder)
-    .set(gl::api::SamplerParameterI::TextureWrapT, gl::api::TextureWrapMode::ClampToBorder)
-    .setBorderColor(glm::vec4{1.0f});
-
+  sampler->setBorderColor(glm::vec4{1.0f});
   depthTextureHandle = std::make_shared<gl::TextureHandle<gl::TextureDepth<float>>>(depthTexture, std::move(sampler));
 
   depthFramebuffer = gl::FrameBufferBuilder()
@@ -55,14 +53,13 @@ void CSM::Split::init(int32_t resolution, size_t idx, MaterialManager& materialM
 
   const auto squaredTexture = gslu::make_nn_shared<gl::Texture2D<gl::RG16F>>(
     glm::ivec2{resolution, resolution}, "csm-texture/" + std::to_string(idx) + "/squared");
-  auto squaredSampler = gslu::make_nn_unique<gl::Sampler>("csm-texture/" + std::to_string(idx) + "/squared");
-  squaredSampler->set(gl::api::TextureMinFilter::Linear)
-    .set(gl::api::TextureMagFilter::Linear)
-    .set(gl::api::SamplerParameterI::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge)
-    .set(gl::api::SamplerParameterI::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge);
 
-  squaredTextureHandle
-    = std::make_shared<gl::TextureHandle<gl::Texture2D<gl::RG16F>>>(squaredTexture, std::move(squaredSampler));
+  squaredTextureHandle = std::make_shared<gl::TextureHandle<gl::Texture2D<gl::RG16F>>>(
+    squaredTexture,
+    gslu::make_nn_unique<gl::Sampler>("csm-texture/" + std::to_string(idx) + "/squared")
+      | set(gl::api::TextureMinFilter::Linear) | set(gl::api::TextureMagFilter::Linear)
+      | set(gl::api::SamplerParameterI::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge)
+      | set(gl::api::SamplerParameterI::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge));
   squareFramebuffer = gl::FrameBufferBuilder()
                         .textureNoBlend(gl::api::FramebufferAttachment::ColorAttachment0, squaredTexture)
                         .build("csm-split-fb/" + std::to_string(idx) + "/square");

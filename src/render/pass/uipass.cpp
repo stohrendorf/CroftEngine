@@ -41,22 +41,20 @@ UIPass::UIPass(scene::MaterialManager& materialManager, const glm::ivec2& viewpo
     : m_material{materialManager.getFlat(true, false)}
     , m_mesh{scene::createScreenQuad(m_material, "ui")}
     , m_colorBuffer{std::make_shared<gl::Texture2D<gl::SRGBA8>>(viewport, "ui-color")}
+    , m_colorBufferHandle{std::make_shared<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>>(
+        m_colorBuffer,
+        gslu::make_nn_unique<gl::Sampler>("ui-color")
+          | set(gl::api::SamplerParameterI::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge)
+          | set(gl::api::SamplerParameterI::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge)
+          | set(gl::api::TextureMinFilter::Nearest) | set(gl::api::TextureMagFilter::Nearest))}
+    , m_fb{gl::FrameBufferBuilder()
+             .texture(gl::api::FramebufferAttachment::ColorAttachment0, m_colorBuffer)
+             .build("ui-fb")}
 {
-  auto sampler = gslu::make_nn_unique<gl::Sampler>("ui-color");
-  sampler->set(gl::api::SamplerParameterI::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge)
-    .set(gl::api::SamplerParameterI::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge)
-    .set(gl::api::TextureMinFilter::Nearest)
-    .set(gl::api::TextureMagFilter::Nearest);
-  m_colorBufferHandle
-    = std::make_shared<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>>(m_colorBuffer, std::move(sampler));
-
   m_mesh->bind("u_input",
                [this](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
                { uniform.set(gsl::not_null{m_colorBufferHandle}); });
   m_mesh->getRenderState().setBlend(true);
-
-  m_fb
-    = gl::FrameBufferBuilder().texture(gl::api::FramebufferAttachment::ColorAttachment0, m_colorBuffer).build("ui-fb");
 }
 
 // NOLINTNEXTLINE(readability-make-member-function-const)

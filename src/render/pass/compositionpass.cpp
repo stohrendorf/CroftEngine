@@ -59,6 +59,15 @@ CompositionPass::CompositionPass(
     , m_waterMesh{scene::createScreenQuad(m_waterCompositionMaterial, "composition-water")}
     , m_crtMesh{scene::createScreenQuad(materialManager.getCrt(), "composition-crt")}
     , m_colorBuffer{std::make_shared<gl::Texture2D<gl::SRGBA8>>(viewport, "composition-color")}
+    , m_colorBufferHandle{std::make_shared<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>>(
+        m_colorBuffer,
+        gslu::make_nn_unique<gl::Sampler>("composition-color")
+          | set(gl::api::SamplerParameterI::TextureWrapS, gl::api::TextureWrapMode::Repeat)
+          | set(gl::api::SamplerParameterI::TextureWrapT, gl::api::TextureWrapMode::Repeat)
+          | set(gl::api::TextureMinFilter::Linear) | set(gl::api::TextureMagFilter::Linear))}
+    , m_fb{gl::FrameBufferBuilder()
+             .texture(gl::api::FramebufferAttachment::ColorAttachment0, m_colorBuffer)
+             .build("composition-fb")}
 {
   m_mesh->bind("u_portalPosition",
                [buffer = portalPass.getPositionBuffer()](
@@ -117,21 +126,9 @@ CompositionPass::CompositionPass(
     [colorBuffer](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
     { uniform.set(colorBuffer); });
 
-  auto sampler = gslu::make_nn_unique<gl::Sampler>("composition-color");
-  sampler->set(gl::api::SamplerParameterI::TextureWrapS, gl::api::TextureWrapMode::Repeat)
-    .set(gl::api::SamplerParameterI::TextureWrapT, gl::api::TextureWrapMode::Repeat)
-    .set(gl::api::TextureMinFilter::Linear)
-    .set(gl::api::TextureMagFilter::Linear);
-  m_colorBufferHandle
-    = std::make_shared<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>>(m_colorBuffer, std::move(sampler));
-
   m_crtMesh->bind("u_input",
                   [this](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
                   { uniform.set(gsl::not_null{m_colorBufferHandle}); });
-
-  m_fb = gl::FrameBufferBuilder()
-           .texture(gl::api::FramebufferAttachment::ColorAttachment0, m_colorBuffer)
-           .build("composition-fb");
 }
 
 // NOLINTNEXTLINE(readability-make-member-function-const)

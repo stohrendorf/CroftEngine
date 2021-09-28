@@ -32,14 +32,12 @@ public:
 
   void setInput(const gsl::not_null<std::shared_ptr<TextureHandle>>& src)
   {
-    auto texture = gslu::make_nn_shared<gl::Texture2D<PixelT>>(src->getTexture()->size(), m_name + "/blurred");
-    auto sampler = gslu::make_nn_unique<gl::Sampler>(m_name + "/blurred");
-    sampler->set(gl::api::SamplerParameterI::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge)
-      .set(gl::api::SamplerParameterI::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge)
-      .set(gl::api::TextureMinFilter::Linear)
-      .set(gl::api::TextureMagFilter::Linear);
-
-    m_blurredTexture = std::make_shared<TextureHandle>(std::move(texture), std::move(sampler));
+    m_blurredTexture = std::make_shared<TextureHandle>(
+      gslu::make_nn_shared<gl::Texture2D<PixelT>>(src->getTexture()->size(), m_name + "/blurred"),
+      gslu::make_nn_unique<gl::Sampler>(m_name + "/blurred")
+        | set(gl::api::SamplerParameterI::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge)
+        | set(gl::api::SamplerParameterI::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge)
+        | set(gl::api::TextureMinFilter::Linear) | set(gl::api::TextureMagFilter::Linear));
     m_mesh = createScreenQuad(m_material, m_name + "/blur");
     m_mesh->bind("u_input",
                  [src](const Node& /*node*/, const Mesh& /*mesh*/, gl::Uniform& uniform) { uniform.set(src); });

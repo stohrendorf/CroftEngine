@@ -21,24 +21,24 @@ public:
   ~GeometryPass();
   void bind(const glm::ivec2& size);
 
-  [[nodiscard]] auto getNormalBuffer() const
+  [[nodiscard]] const auto& getNormalBuffer() const
   {
-    return gsl::not_null{m_normalBufferHandle};
+    return m_normalBufferHandle;
   }
 
-  [[nodiscard]] auto getPositionBuffer() const
+  [[nodiscard]] const auto& getPositionBuffer() const
   {
-    return gsl::not_null{m_positionBufferHandle};
+    return m_positionBufferHandle;
   }
 
-  [[nodiscard]] auto getInterpolatedPositionBuffer() const
+  [[nodiscard]] const auto& getInterpolatedPositionBuffer() const
   {
-    return gsl::not_null{m_interpolatedPositionBufferHandle};
+    return m_interpolatedPositionBufferHandle;
   }
 
-  [[nodiscard]] auto getColorBuffer() const
+  [[nodiscard]] const auto& getColorBuffer() const
   {
-    return gsl::not_null{m_colorBufferHandle};
+    return m_colorBufferHandle;
   }
 
   [[nodiscard]] const auto& getDepthBuffer() const
@@ -49,12 +49,12 @@ public:
 private:
   gsl::not_null<std::shared_ptr<gl::TextureDepth<float>>> m_depthBuffer;
   gsl::not_null<std::shared_ptr<gl::Texture2D<gl::SRGBA8>>> m_colorBuffer;
-  std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>> m_colorBufferHandle;
+  gsl::not_null<std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>>> m_colorBufferHandle;
   gsl::not_null<std::shared_ptr<gl::Texture2D<gl::RGB32F>>> m_positionBuffer;
-  std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::RGB32F>>> m_positionBufferHandle;
-  std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::RGB32F>>> m_interpolatedPositionBufferHandle;
+  gsl::not_null<std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::RGB32F>>>> m_positionBufferHandle;
+  gsl::not_null<std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::RGB32F>>>> m_interpolatedPositionBufferHandle;
   gsl::not_null<std::shared_ptr<gl::Texture2D<gl::RGB16F>>> m_normalBuffer;
-  std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::RGB16F>>> m_normalBufferHandle;
-  std::shared_ptr<gl::Framebuffer> m_fb;
+  gsl::not_null<std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::RGB16F>>>> m_normalBufferHandle;
+  gsl::not_null<std::shared_ptr<gl::Framebuffer>> m_fb;
 };
 } // namespace render::pass

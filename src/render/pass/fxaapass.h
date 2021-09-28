@@ -31,16 +31,16 @@ public:
 
   void render(const glm::ivec2& size);
 
-  [[nodiscard]] auto getColorBuffer() const
+  [[nodiscard]] const auto& getColorBuffer() const
   {
-    return gsl::not_null{m_colorBufferHandle};
+    return m_colorBufferHandle;
   }
 
 private:
-  const std::shared_ptr<scene::Material> m_material;
-  std::shared_ptr<scene::Mesh> m_mesh;
+  const gsl::not_null<std::shared_ptr<scene::Material>> m_material;
+  gsl::not_null<std::shared_ptr<scene::Mesh>> m_mesh;
   gsl::not_null<std::shared_ptr<gl::Texture2D<gl::SRGBA8>>> m_colorBuffer;
-  std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>> m_colorBufferHandle;
-  std::shared_ptr<gl::Framebuffer> m_fb;
+  gsl::not_null<std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>>> m_colorBufferHandle;
+  gsl::not_null<std::shared_ptr<gl::Framebuffer>> m_fb;
 };
 } // namespace render::pass
