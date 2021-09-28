@@ -32,6 +32,7 @@
 #include "util/helpers.h"
 
 #include <gsl/gsl-lite.hpp>
+#include <gslu.h>
 #include <memory>
 
 namespace engine::objects
@@ -57,7 +58,8 @@ void ScionPiece::collide(CollisionInfo& /*collisionInfo*/)
        && lara.getCurrentAnimState() == loader::file::LaraStateId::Stop)
     {
       lara.alignForInteraction({0_len, 640_len, -310_len}, m_state);
-      lara.getSkeleton()->setAnim(getWorld().findAnimatedModelForType(TR1ItemId::AlternativeLara)->animations);
+      lara.getSkeleton()->setAnim(
+        gsl::not_null{&getWorld().findAnimatedModelForType(TR1ItemId::AlternativeLara)->animations[0]});
       lara.setCurrentAnimState(loader::file::LaraStateId::PickUp);
       lara.setGoalAnimState(loader::file::LaraStateId::PickUp);
       lara.setHandStatus(HandStatus::Grabbing);
@@ -74,7 +76,7 @@ void ScionPiece::collide(CollisionInfo& /*collisionInfo*/)
     getWorld().getPlayer().getInventory().put(m_state.type);
     ++getWorld().getPlayer().pickups;
     getWorld().addPickupWidget(getSprite());
-    setParent(getNode(), nullptr);
+    setParent(gsl::not_null{getNode()}, nullptr);
     m_state.collidable = false;
   }
 }
@@ -103,11 +105,11 @@ void ScionPiece3::update()
   {
     const auto pos = m_state.location.position
                      + core::TRVec{util::rand15s(512_len), util::rand15s(64_len) - 500_len, util::rand15s(512_len)};
-    const auto particle = std::make_shared<ExplosionParticle>(
+    const auto particle = gslu::make_nn_shared<ExplosionParticle>(
       Location{m_state.location.room, pos}, getWorld(), 0_spd, core::TRRotation{});
     setParent(particle, m_state.location.room->node);
     getWorld().getObjectManager().registerParticle(particle);
-    getWorld().getAudioEngine().playSoundEffect(TR1SoundEffect::Explosion2, particle.get());
+    getWorld().getAudioEngine().playSoundEffect(TR1SoundEffect::Explosion2, gsl::not_null{particle.get().get()});
 
     getWorld().getCameraController().setBounce(-200_len);
   }
@@ -136,7 +138,8 @@ void ScionPiece4::collide(CollisionInfo& /*info*/)
   static const core::TRVec alignSpeed{0_len, 280_len, -407_len};
 
   lara.alignTransform(alignSpeed, *this);
-  lara.getSkeleton()->setAnim(getWorld().findAnimatedModelForType(TR1ItemId::AlternativeLara)->animations);
+  lara.getSkeleton()->setAnim(
+    gsl::not_null{&getWorld().findAnimatedModelForType(TR1ItemId::AlternativeLara)->animations[0]});
   lara.setCurrentAnimState(loader::file::LaraStateId::PickUp);
   lara.setGoalAnimState(loader::file::LaraStateId::PickUp);
   lara.setHandStatus(HandStatus::Grabbing);

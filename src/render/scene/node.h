@@ -263,8 +263,7 @@ inline void setParent(Node* node, const std::shared_ptr<Node>& newParent)
       return;
 
     const auto sharedNode = currentParent->findChild(node);
-    Expects(sharedNode != nullptr);
-    setParent(sharedNode, newParent);
+    setParent(gsl::not_null{sharedNode}, newParent);
     return;
   }
 

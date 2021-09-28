@@ -45,6 +45,7 @@
 #include <gl/renderstate.h>
 #include <glm/geometric.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <gslu.h>
 #include <initializer_list>
 #include <iosfwd>
 #include <limits>
@@ -170,7 +171,8 @@ constexpr size_t BoneHead = 14;
 
 void LaraObject::setAnimation(AnimationId anim, const std::optional<core::Frame>& firstFrame)
 {
-  getSkeleton()->setAnimation(m_state.current_anim_state, &getWorld().getAnimation(anim), firstFrame.value_or(0_frame));
+  getSkeleton()->setAnimation(
+    m_state.current_anim_state, gsl::not_null{&getWorld().getAnimation(anim)}, firstFrame.value_or(0_frame));
 }
 
 void LaraObject::handleLaraStateOnLand()
@@ -434,7 +436,7 @@ void LaraObject::update()
         surfaceLocation.position.Y = *waterSurfaceHeight;
         surfaceLocation.position.Z = m_state.location.position.Z;
 
-        auto particle = std::make_shared<SplashParticle>(surfaceLocation, getWorld(), false);
+        auto particle = gslu::make_nn_shared<SplashParticle>(surfaceLocation, getWorld(), false);
         setParent(particle, surfaceLocation.room->node);
         getWorld().getObjectManager().registerParticle(particle);
       }
@@ -559,8 +561,9 @@ void LaraObject::updateImpl()
       }
     }
 
-    getSkeleton()->setAnimation(
-      m_state.current_anim_state, getSkeleton()->getAnim()->nextAnimation, getSkeleton()->getAnim()->nextFrame);
+    getSkeleton()->setAnimation(m_state.current_anim_state,
+                                gsl::not_null{getSkeleton()->getAnim()->nextAnimation},
+                                getSkeleton()->getAnim()->nextFrame);
   }
 
   if(getSkeleton()->getAnim()->animCommandCount > 0)
@@ -839,7 +842,7 @@ void LaraObject::updateLarasWeaponsStatus()
     switch(getWorld().getPlayer().selectedWeaponType)
     {
     case WeaponType::Pistols:
-      if(getWorld().getPlayer().getInventory().getAmmo(WeaponType::Pistols)->ammo != 0)
+      if(getWorld().getPlayer().getInventory().getAmmo(WeaponType::Pistols).ammo != 0)
       {
         if(getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action))
         {
@@ -856,7 +859,7 @@ void LaraObject::updateLarasWeaponsStatus()
       updateWeapons(getWorld().getPlayer().selectedWeaponType);
       break;
     case WeaponType::Magnums:
-      if(getWorld().getPlayer().getInventory().getAmmo(WeaponType::Magnums)->ammo != 0)
+      if(getWorld().getPlayer().getInventory().getAmmo(WeaponType::Magnums).ammo != 0)
       {
         if(getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action))
         {
@@ -873,7 +876,7 @@ void LaraObject::updateLarasWeaponsStatus()
       updateWeapons(getWorld().getPlayer().selectedWeaponType);
       break;
     case WeaponType::Uzis:
-      if(getWorld().getPlayer().getInventory().getAmmo(WeaponType::Uzis)->ammo != 0)
+      if(getWorld().getPlayer().getInventory().getAmmo(WeaponType::Uzis).ammo != 0)
       {
         if(getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action))
         {
@@ -890,7 +893,7 @@ void LaraObject::updateLarasWeaponsStatus()
       updateWeapons(getWorld().getPlayer().selectedWeaponType);
       break;
     case WeaponType::Shotgun:
-      if(getWorld().getPlayer().getInventory().getAmmo(WeaponType::Shotgun)->ammo != 0)
+      if(getWorld().getPlayer().getInventory().getAmmo(WeaponType::Shotgun).ammo != 0)
       {
         if(getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action))
         {
@@ -1436,7 +1439,7 @@ void LaraObject::updateAnimShotgun()
 void LaraObject::tryShootShotgun()
 {
   bool fireShotgun = false;
-  const auto rounds = getWorld().getPlayer().getInventory().getAmmo(WeaponType::Shotgun)->roundsPerShot;
+  const auto rounds = getWorld().getPlayer().getInventory().getAmmo(WeaponType::Shotgun).roundsPerShot;
   for(size_t i = 0; i < rounds; ++i)
   {
     core::TRRotationXY aimAngle;
@@ -1563,16 +1566,16 @@ bool LaraObject::shootBullet(const WeaponType weaponType,
 {
   Expects(weaponType != WeaponType::None);
 
-  const auto ammoPtr = getWorld().getPlayer().getInventory().getAmmo(weaponType);
+  auto& ammo = getWorld().getPlayer().getInventory().getAmmo(weaponType);
 
-  if(ammoPtr->ammo == 0)
+  if(ammo.ammo == 0)
   {
     playSoundEffect(TR1SoundEffect::EmptyAmmo);
     getWorld().getPlayer().requestedWeaponType = WeaponType::Pistols;
     return false;
   }
 
-  --ammoPtr->ammo;
+  --ammo.ammo;
   const auto weapon = &weapons.at(weaponType);
   core::TRVec weaponPosition = weaponHolder.m_state.location.position;
   weaponPosition.Y -= weapon->weaponHeight;
@@ -1601,7 +1604,7 @@ bool LaraObject::shootBullet(const WeaponType weaponType,
 
   if(!hasHit)
   {
-    ++ammoPtr->misses;
+    ++ammo.misses;
 
     static constexpr float VeryLargeDistanceProbablyClipping = 1u << 14u;
 
@@ -1615,7 +1618,7 @@ bool LaraObject::shootBullet(const WeaponType weaponType,
   else
   {
     BOOST_ASSERT(targetObject != nullptr);
-    ++ammoPtr->hits;
+    ++ammo.hits;
     hitTarget(*targetObject, core::TRVec{hitPos}, weapon->damage);
   }
 
@@ -2128,7 +2131,7 @@ void LaraObject::burnIfAlive()
 
   for(size_t i = 0; i < 10; ++i)
   {
-    auto particle = std::make_shared<FlameParticle>(m_state.location, getWorld(), true);
+    auto particle = gslu::make_nn_shared<FlameParticle>(m_state.location, getWorld(), true);
     setParent(particle, m_state.location.room->node);
     getWorld().getObjectManager().registerParticle(particle);
   }

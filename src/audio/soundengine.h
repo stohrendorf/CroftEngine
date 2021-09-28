@@ -27,10 +27,13 @@ public:
   explicit SoundEngine();
   ~SoundEngine();
 
-  gsl::not_null<std::shared_ptr<BufferVoice>> playBuffer(
-    const std::shared_ptr<BufferHandle>& buffer, size_t bufferId, ALfloat pitch, ALfloat volume, const glm::vec3& pos);
+  gsl::not_null<std::shared_ptr<BufferVoice>> playBuffer(const gsl::not_null<std::shared_ptr<BufferHandle>>& buffer,
+                                                         size_t bufferId,
+                                                         ALfloat pitch,
+                                                         ALfloat volume,
+                                                         const glm::vec3& pos);
 
-  gsl::not_null<std::shared_ptr<BufferVoice>> playBuffer(const std::shared_ptr<BufferHandle>& buffer,
+  gsl::not_null<std::shared_ptr<BufferVoice>> playBuffer(const gsl::not_null<std::shared_ptr<BufferHandle>>& buffer,
                                                          size_t bufferId,
                                                          ALfloat pitch,
                                                          ALfloat volume,

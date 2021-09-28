@@ -120,7 +120,7 @@ void MenuObject::initModel(const engine::world::World& world)
 {
   const auto& obj = world.findAnimatedModelForType(type);
   Expects(obj != nullptr);
-  node = std::make_shared<engine::SkeletalModelNode>("menu-object", &world, obj.get());
+  node = std::make_shared<engine::SkeletalModelNode>("menu-object", gsl::not_null{&world}, gsl::not_null{obj.get()});
   node->bind("u_lightAmbient",
              [](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
              { uniform.set(0.5f); });
@@ -148,7 +148,7 @@ void MenuObject::draw(const engine::world::World& world,
   {
     node->setLocalMatrix(nodeMatrix);
     core::AnimStateId animState{0_as};
-    node->setAnimation(animState, obj->animations, meshAnimFrame);
+    node->setAnimation(animState, gsl::not_null{&obj->animations[0]}, meshAnimFrame);
 
     if(type == engine::TR1ItemId::Compass)
     {

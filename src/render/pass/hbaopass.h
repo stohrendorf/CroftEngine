@@ -35,7 +35,7 @@ public:
 
   void render(const glm::ivec2& size);
 
-  [[nodiscard]] const auto& getBlurredTexture() const
+  [[nodiscard]] auto getBlurredTexture() const
   {
     return m_blur.getBlurredTexture();
   }
@@ -45,7 +45,7 @@ private:
 
   std::shared_ptr<scene::Mesh> m_renderMesh;
 
-  std::shared_ptr<gl::Texture2D<gl::ScalarByte>> m_aoBuffer;
+  gsl::not_null<std::shared_ptr<gl::Texture2D<gl::ScalarByte>>> m_aoBuffer;
   std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::ScalarByte>>> m_aoBufferHandle;
   std::shared_ptr<gl::Framebuffer> m_fb;
 

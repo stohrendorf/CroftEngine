@@ -10,6 +10,7 @@
 #include <algorithm>
 #include <boost/log/trivial.hpp>
 #include <glm/fwd.hpp>
+#include <gslu.h>
 #include <iterator>
 #include <utility>
 
@@ -92,17 +93,21 @@ bool SoundEngine::stopBuffer(size_t bufferId, Emitter* emitter)
   return any;
 }
 
-gsl::not_null<std::shared_ptr<BufferVoice>> SoundEngine::playBuffer(
-  const std::shared_ptr<BufferHandle>& buffer, size_t bufferId, ALfloat pitch, ALfloat volume, Emitter* emitter)
+gsl::not_null<std::shared_ptr<BufferVoice>>
+  SoundEngine::playBuffer(const gsl::not_null<std::shared_ptr<BufferHandle>>& buffer,
+                          size_t bufferId,
+                          ALfloat pitch,
+                          ALfloat volume,
+                          Emitter* emitter)
 {
-  auto v = std::make_shared<BufferVoice>(buffer);
+  auto v = gslu::make_nn_shared<BufferVoice>(buffer);
   v->setPitch(pitch);
   v->setLocalGain(volume);
   if(emitter != nullptr)
     v->setPosition(emitter->getPosition());
   v->play();
 
-  m_voices[emitter][bufferId].emplace_back(v);
+  m_voices[emitter][bufferId].emplace_back(v.get());
   m_device->registerVoice(v);
 
   return v;
@@ -141,8 +146,12 @@ SoundEngine::~SoundEngine()
     listener->m_engine = nullptr;
 }
 
-gsl::not_null<std::shared_ptr<BufferVoice>> SoundEngine::playBuffer(
-  const std::shared_ptr<BufferHandle>& buffer, size_t bufferId, ALfloat pitch, ALfloat volume, const glm::vec3& pos)
+gsl::not_null<std::shared_ptr<BufferVoice>>
+  SoundEngine::playBuffer(const gsl::not_null<std::shared_ptr<BufferHandle>>& buffer,
+                          size_t bufferId,
+                          ALfloat pitch,
+                          ALfloat volume,
+                          const glm::vec3& pos)
 {
   auto voice = playBuffer(buffer, bufferId, pitch, volume, nullptr);
   voice->setPosition(pos);

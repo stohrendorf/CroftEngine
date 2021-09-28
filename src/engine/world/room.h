@@ -104,7 +104,7 @@ struct Room
   Room* alternateRoom{nullptr};
 
   std::shared_ptr<render::scene::Node> node = nullptr;
-  std::vector<std::shared_ptr<render::scene::Node>> sceneryNodes{};
+  std::vector<gsl::not_null<std::shared_ptr<render::scene::Node>>> sceneryNodes{};
 
   void createSceneNode(const loader::file::Room& srcRoom,
                        size_t roomId,
@@ -142,7 +142,7 @@ struct Room
   {
     dx = std::clamp(dx, 1, sectorCountX - 2);
     dz = std::clamp(dz, 1, sectorCountZ - 2);
-    return &sectors[sectorCountZ * dx + dz];
+    return gsl::not_null{&sectors[sectorCountZ * dx + dz]};
   }
 
   [[nodiscard]] gsl::not_null<const Sector*> getBoundarySectorByIndex(int dx, int dz) const
@@ -161,7 +161,7 @@ struct Room
     {
       dx = std::clamp(dx, 0, sectorCountX - 1);
     }
-    return getSectorByIndex(dx, dz);
+    return gsl::not_null{getSectorByIndex(dx, dz)};
   }
 
   void resetScenery();
@@ -169,7 +169,7 @@ struct Room
   void serialize(const serialization::Serializer<World>& ser);
 
   std::vector<engine::ShaderLight> bufferLights{};
-  std::shared_ptr<gl::ShaderStorageBuffer<engine::ShaderLight>> lightsBuffer{
+  gsl::not_null<std::shared_ptr<gl::ShaderStorageBuffer<engine::ShaderLight>>> lightsBuffer{
     std::make_shared<gl::ShaderStorageBuffer<engine::ShaderLight>>("lights-buffer")};
 
   void collectShaderLights(size_t depth);

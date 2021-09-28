@@ -11,6 +11,7 @@
 #include <gl/framebuffer.h>
 #include <gl/sampler.h>
 #include <gl/texturehandle.h>
+#include <gslu.h>
 
 namespace render::scene
 {
@@ -29,10 +30,10 @@ public:
     Expects(extent > 0);
   }
 
-  void setInput(const std::shared_ptr<TextureHandle>& src)
+  void setInput(const gsl::not_null<std::shared_ptr<TextureHandle>>& src)
   {
-    auto texture = std::make_shared<gl::Texture2D<PixelT>>(src->getTexture()->size(), m_name + "/blurred");
-    auto sampler = std::make_unique<gl::Sampler>(m_name + "/blurred");
+    auto texture = gslu::make_nn_shared<gl::Texture2D<PixelT>>(src->getTexture()->size(), m_name + "/blurred");
+    auto sampler = gslu::make_nn_unique<gl::Sampler>(m_name + "/blurred");
     sampler->set(gl::api::SamplerParameterI::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge)
       .set(gl::api::SamplerParameterI::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge)
       .set(gl::api::TextureMinFilter::Linear)
@@ -60,9 +61,9 @@ public:
     m_mesh->render(context);
   }
 
-  [[nodiscard]] const std::shared_ptr<TextureHandle>& getBlurredTexture() const
+  [[nodiscard]] gsl::not_null<std::shared_ptr<TextureHandle>> getBlurredTexture() const
   {
-    return m_blurredTexture;
+    return gsl::not_null{m_blurredTexture};
   }
 
 private:
@@ -85,7 +86,7 @@ public:
   {
   }
 
-  void setInput(const std::shared_ptr<TextureHandle>& src)
+  void setInput(const gsl::not_null<std::shared_ptr<TextureHandle>>& src)
   {
     m_blur1.setInput(src);
     m_blur2.setInput(m_blur1.getBlurredTexture());
@@ -97,7 +98,7 @@ public:
     m_blur2.render();
   }
 
-  [[nodiscard]] const std::shared_ptr<TextureHandle>& getBlurredTexture() const
+  [[nodiscard]] auto getBlurredTexture() const
   {
     return m_blur2.getBlurredTexture();
   }

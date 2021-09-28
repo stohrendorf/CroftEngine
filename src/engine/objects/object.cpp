@@ -22,6 +22,7 @@
 #include <exception>
 #include <glm/geometric.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <gslu.h>
 
 namespace engine::objects
 {
@@ -34,7 +35,7 @@ void Object::applyTransform()
 
 Object::Object(const gsl::not_null<world::World*>& world, const Location& location)
     : m_world{world}
-    , m_state{world->getPresenter().getSoundEngine().get(), location}
+    , m_state{gsl::not_null{world->getPresenter().getSoundEngine().get()}, location}
     , m_hasUpdateFunction{false}
 {
 }
@@ -75,7 +76,7 @@ Object::Object(const gsl::not_null<world::World*>& world,
 
 void Object::setCurrentRoom(const gsl::not_null<const world::Room*>& newRoom)
 {
-  setParent(getNode(), newRoom->node);
+  setParent(gsl::not_null{getNode()}, newRoom->node);
 
   m_state.location.room = newRoom;
   applyTransform();
@@ -156,10 +157,10 @@ bool InteractionLimits::canInteract(const ObjectState& objectState, const Object
 
 void Object::emitRicochet(const Location& location)
 {
-  const auto particle = std::make_shared<RicochetParticle>(location, getWorld());
+  const auto particle = gslu::make_nn_shared<RicochetParticle>(location, getWorld());
   setParent(particle, m_state.location.room->node);
   getWorld().getObjectManager().registerParticle(particle);
-  getWorld().getAudioEngine().playSoundEffect(TR1SoundEffect::Ricochet, particle.get());
+  getWorld().getAudioEngine().playSoundEffect(TR1SoundEffect::Ricochet, gsl::not_null{particle.get().get()});
 }
 
 std::optional<core::Length> Object::getWaterSurfaceHeight() const
@@ -209,7 +210,7 @@ void Object::serialize(const serialization::Serializer<world::World>& ser)
 
       if(ser.loading)
       {
-        setParent(getNode(), m_state.location.room->node);
+        setParent(gsl::not_null{getNode()}, m_state.location.room->node);
 
         applyTransform();
       }

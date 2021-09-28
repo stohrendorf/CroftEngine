@@ -39,11 +39,11 @@ public:
     return m_underwaterFilter;
   }
 
-  void removeStream(const std::shared_ptr<StreamVoice>& stream);
+  void removeStream(const gsl::not_null<std::shared_ptr<StreamVoice>>& stream);
   void removeStream(const std::weak_ptr<StreamVoice>& stream)
   {
     if(const auto locked = stream.lock())
-      removeStream(locked);
+      removeStream(gsl::not_null{locked});
   }
 
   void setListenerTransform(const glm::vec3& pos, const glm::vec3& front, const glm::vec3& up);
@@ -72,8 +72,8 @@ private:
   ALCdevice* m_device = nullptr;
   ALCcontext* m_context = nullptr;
   std::shared_ptr<FilterHandle> m_underwaterFilter = nullptr;
-  std::vector<std::shared_ptr<Voice>> m_allVoices;
-  std::set<std::shared_ptr<StreamVoice>> m_streams;
+  std::vector<gsl::not_null<std::shared_ptr<Voice>>> m_allVoices;
+  std::set<gsl::not_null<std::shared_ptr<StreamVoice>>> m_streams;
   std::thread m_streamUpdater;
   std::recursive_mutex m_streamsLock;
   bool m_shutdown = false;

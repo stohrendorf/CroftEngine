@@ -7,6 +7,7 @@
 #include <gl/texture2d.h>
 #include <gl/texturedepth.h>
 #include <gl/texturehandle.h>
+#include <gslu.h>
 #include <utility>
 
 namespace render::pass
@@ -27,7 +28,7 @@ GeometryPass::GeometryPass(const glm::ivec2& viewport)
     , m_positionBuffer{std::make_shared<gl::Texture2D<gl::RGB32F>>(viewport, "geometry-position")}
     , m_normalBuffer{std::make_shared<gl::Texture2D<gl::RGB16F>>(viewport, "geometry-normal")}
 {
-  auto sampler = std::make_unique<gl::Sampler>("geometry-color");
+  auto sampler = gslu::make_nn_unique<gl::Sampler>("geometry-color");
   sampler->set(gl::api::SamplerParameterI::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge)
     .set(gl::api::SamplerParameterI::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge)
     .set(gl::api::TextureMinFilter::Linear)
@@ -35,7 +36,7 @@ GeometryPass::GeometryPass(const glm::ivec2& viewport)
   m_colorBufferHandle
     = std::make_shared<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>>(m_colorBuffer, std::move(sampler));
 
-  sampler = std::make_unique<gl::Sampler>("geometry-position");
+  sampler = gslu::make_nn_unique<gl::Sampler>("geometry-position");
   sampler->set(gl::api::SamplerParameterI::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge)
     .set(gl::api::SamplerParameterI::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge)
     .set(gl::api::TextureMinFilter::Nearest)
@@ -43,7 +44,7 @@ GeometryPass::GeometryPass(const glm::ivec2& viewport)
   m_positionBufferHandle
     = std::make_shared<gl::TextureHandle<gl::Texture2D<gl::RGB32F>>>(m_positionBuffer, std::move(sampler));
 
-  sampler = std::make_unique<gl::Sampler>("geometry-position-interpolated");
+  sampler = gslu::make_nn_unique<gl::Sampler>("geometry-position-interpolated");
   sampler->set(gl::api::SamplerParameterI::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge)
     .set(gl::api::SamplerParameterI::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge)
     .set(gl::api::TextureMinFilter::Linear)
@@ -51,7 +52,7 @@ GeometryPass::GeometryPass(const glm::ivec2& viewport)
   m_interpolatedPositionBufferHandle
     = std::make_shared<gl::TextureHandle<gl::Texture2D<gl::RGB32F>>>(m_positionBuffer, std::move(sampler));
 
-  sampler = std::make_unique<gl::Sampler>("geometry-normal");
+  sampler = gslu::make_nn_unique<gl::Sampler>("geometry-normal");
   sampler->set(gl::api::SamplerParameterI::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge)
     .set(gl::api::SamplerParameterI::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge)
     .set(gl::api::TextureMinFilter::Nearest)

@@ -48,6 +48,7 @@
 #include <glm/mat4x4.hpp>
 #include <glm/vec2.hpp>
 #include <glm/vec4.hpp>
+#include <gslu.h>
 #include <initializer_list>
 #include <iosfwd>
 #include <iterator>
@@ -117,13 +118,13 @@ struct RenderMesh
     }
 #endif
 
-    auto indexBuffer = std::make_shared<gl::ElementArrayBuffer<IndexType>>(label);
+    auto indexBuffer = gslu::make_nn_shared<gl::ElementArrayBuffer<IndexType>>(label);
     indexBuffer->setData(m_indices, gl::api::BufferUsage::StaticDraw);
 
     auto vBufs = std::make_tuple(vbuf, uvBuf);
 
     auto mesh = std::make_shared<render::scene::MeshImpl<IndexType, RenderVertex, render::TextureAnimator::AnimatedUV>>(
-      std::make_shared<gl::VertexArray<IndexType, RenderVertex, render::TextureAnimator::AnimatedUV>>(
+      gslu::make_nn_shared<gl::VertexArray<IndexType, RenderVertex, render::TextureAnimator::AnimatedUV>>(
         indexBuffer,
         vBufs,
         std::vector{&m_materialFull->getShaderProgram()->getHandle(),
@@ -173,15 +174,15 @@ void Portal::buildMesh(const loader::file::Portal& srcPortal,
     glVertices[i].pos = srcPortal.vertices[i].toRenderSystem() - offset;
 
   gl::VertexLayout<Vertex> layout{{VERTEX_ATTRIBUTE_POSITION_NAME, &Vertex::pos}};
-  auto vb = std::make_shared<gl::VertexBuffer<Vertex>>(layout, "portal");
+  auto vb = gslu::make_nn_shared<gl::VertexBuffer<Vertex>>(layout, "portal");
   vb->setData(glVertices, gl::api::BufferUsage::StaticDraw);
 
   static const std::array<uint16_t, 6> indices{0, 1, 2, 0, 2, 3};
 
-  auto indexBuffer = std::make_shared<gl::ElementArrayBuffer<uint16_t>>("portal");
+  auto indexBuffer = gslu::make_nn_shared<gl::ElementArrayBuffer<uint16_t>>("portal");
   indexBuffer->setData(indices, gl::api::BufferUsage::StaticDraw);
 
-  auto vao = std::make_shared<gl::VertexArray<uint16_t, Vertex>>(
+  auto vao = gslu::make_nn_shared<gl::VertexArray<uint16_t, Vertex>>(
     indexBuffer, vb, std::vector{&material->getShaderProgram()->getHandle()}, "portal");
   mesh = std::make_shared<render::scene::MeshImpl<uint16_t, Vertex>>(vao);
   mesh->getMaterialGroup().set(render::scene::RenderMode::DepthOnly, material);
@@ -202,12 +203,12 @@ void Room::createSceneNode(const loader::file::Room& srcRoom,
   std::vector<render::TextureAnimator::AnimatedUV> uvCoordsData;
 
   const auto label = "Room:" + std::to_string(roomId);
-  auto vbuf = std::make_shared<gl::VertexBuffer<RenderVertex>>(RenderVertex::getLayout(), label);
+  auto vbuf = gslu::make_nn_shared<gl::VertexBuffer<RenderVertex>>(RenderVertex::getLayout(), label);
 
   static const gl::VertexLayout<render::TextureAnimator::AnimatedUV> uvAttribs{
     {VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, gl::VertexAttribute{&render::TextureAnimator::AnimatedUV::uv}},
   };
-  auto uvCoords = std::make_shared<gl::VertexBuffer<render::TextureAnimator::AnimatedUV>>(uvAttribs, label + "-uv");
+  auto uvCoords = gslu::make_nn_shared<gl::VertexBuffer<render::TextureAnimator::AnimatedUV>>(uvAttribs, label + "-uv");
 
   for(const loader::file::QuadFace& quad : srcRoom.rectangles)
   {
@@ -400,7 +401,7 @@ void Room::createSceneNode(const loader::file::Room& srcRoom,
                  std::back_inserter(portals),
                  [material = materialManager.getWaterSurface(), &world](const loader::file::Portal& portal)
                  {
-                   Portal p{&world.getRooms().at(portal.adjoining_room.get()),
+                   Portal p{gsl::not_null{&world.getRooms().at(portal.adjoining_room.get())},
                             portal.normal.toRenderSystem(),
                             {portal.vertices[0].toRenderSystem(),
                              portal.vertices[1].toRenderSystem(),
@@ -419,7 +420,7 @@ void patchHeightsForBlock(const engine::objects::Object& object, const core::Len
 {
   auto tmp = object.m_state.location;
   // TODO Ugly const_cast
-  gsl::not_null groundSector = const_cast<Sector*>(tmp.updateRoom().get());
+  const auto groundSector = gsl::not_null{const_cast<Sector*>(tmp.updateRoom().get())};
   const auto topSector = tmp.moved(0_len, height - core::SectorSize, 0_len).updateRoom();
 
   if(groundSector->floorHeight == core::InvalidHeight)
@@ -477,7 +478,7 @@ void Room::resetScenery()
   node->removeAllChildren();
   for(const auto& subNode : sceneryNodes)
   {
-    addChild(node, subNode);
+    addChild(gsl::not_null{node}, subNode);
   }
 }
 

@@ -115,6 +115,6 @@ const world::Sector* ObjectState::getCurrentSector() const
 gsl::not_null<const world::Box*> ObjectState::getCurrentBox() const
 {
   gsl::not_null sector{getCurrentSector()};
-  return sector->box;
+  return gsl::not_null{sector->box};
 }
 } // namespace engine::objects

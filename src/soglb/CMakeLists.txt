@@ -69,5 +69,6 @@ target_link_libraries(
         Boost::disable_autolinking
         utf8cpp::utf8cpp
         glm::glm
+        shared
 )
 target_include_directories( soglb PUBLIC . )

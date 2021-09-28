@@ -67,7 +67,8 @@ void Rat::update()
       if(!waterHeight.has_value())
       {
         m_state.type = TR1ItemId::RatOnLand;
-        getSkeleton()->setAnim(&getWorld().findAnimatedModelForType(TR1ItemId::RatOnLand)->animations[0]);
+        getSkeleton()->setAnim(
+          gsl::not_null{&getWorld().findAnimatedModelForType(TR1ItemId::RatOnLand)->animations[0]});
         goal(getSkeleton()->getAnim()->state_id);
         m_state.current_anim_state = getSkeleton()->getAnim()->state_id;
 
@@ -96,7 +97,8 @@ void Rat::update()
     {
       if(m_state.current_anim_state != 3_as)
       {
-        getSkeleton()->setAnim(&getWorld().findAnimatedModelForType(TR1ItemId::RatInWater)->animations[2]);
+        getSkeleton()->setAnim(
+          gsl::not_null{&getWorld().findAnimatedModelForType(TR1ItemId::RatInWater)->animations[2]});
         m_state.current_anim_state = 3_as;
       }
       rotateCreatureHead(0_deg);
@@ -111,7 +113,8 @@ void Rat::update()
       if(!getWaterSurfaceHeight().has_value())
       {
         m_state.type = TR1ItemId::RatOnLand;
-        getSkeleton()->setAnim(&getWorld().findAnimatedModelForType(TR1ItemId::RatOnLand)->animations[8]);
+        getSkeleton()->setAnim(
+          gsl::not_null{&getWorld().findAnimatedModelForType(TR1ItemId::RatOnLand)->animations[8]});
         goal(5_as);
         m_state.current_anim_state = m_state.goal_anim_state;
         m_state.location.position.Y = m_state.floor;
@@ -179,14 +182,14 @@ void Rat::update()
     }
     else if(m_state.current_anim_state != 5_as)
     {
-      getSkeleton()->setAnim(&getWorld().findAnimatedModelForType(TR1ItemId::RatOnLand)->animations[8]);
+      getSkeleton()->setAnim(gsl::not_null{&getWorld().findAnimatedModelForType(TR1ItemId::RatOnLand)->animations[8]});
       m_state.current_anim_state = 5_as;
     }
     rotateCreatureHead(headRot);
     if(const auto waterHeight = getWaterSurfaceHeight())
     {
       m_state.type = TR1ItemId::RatInWater;
-      getSkeleton()->setAnim(&getWorld().findAnimatedModelForType(TR1ItemId::RatInWater)->animations[0]);
+      getSkeleton()->setAnim(gsl::not_null{&getWorld().findAnimatedModelForType(TR1ItemId::RatInWater)->animations[0]});
       goal(getSkeleton()->getAnim()->state_id);
       m_state.current_anim_state = getSkeleton()->getAnim()->state_id;
       m_state.location.position.Y = *waterHeight;

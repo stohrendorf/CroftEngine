@@ -179,6 +179,6 @@ void ObjectManager::eraseParticle(const std::shared_ptr<Particle>& particle)
   if(it != m_particles.end())
     m_particles.erase(it);
 
-  setParent(particle, nullptr);
+  setParent(gsl::not_null{particle}, nullptr);
 }
 } // namespace engine

@@ -74,6 +74,7 @@
 #include <boost/log/trivial.hpp>
 #include <boost/throw_exception.hpp>
 #include <exception>
+#include <gslu.h>
 #include <map>
 #include <stdexcept>
 #include <string>
@@ -88,9 +89,9 @@ struct ObjectFactory
 {
   virtual ~ObjectFactory() = default;
 
-  [[nodiscard]] virtual std::shared_ptr<Object>
+  [[nodiscard]] virtual gsl::not_null<std::shared_ptr<Object>>
     createNew(world::World& world, loader::file::Item& item, size_t id) const = 0;
-  [[nodiscard]] virtual std::shared_ptr<Object>
+  [[nodiscard]] virtual gsl::not_null<std::shared_ptr<Object>>
     createFromSave(const Location& location, const serialization::Serializer<world::World>& ser) const = 0;
 };
 
@@ -99,7 +100,7 @@ struct UnsupportedObjectFactory : public ObjectFactory
 {
   ~UnsupportedObjectFactory() override = default;
 
-  [[nodiscard]] std::shared_ptr<Object>
+  [[nodiscard]] [[noreturn]] gsl::not_null<std::shared_ptr<Object>>
     createNew(world::World& /*world*/, loader::file::Item& item, size_t /*id*/) const override
   {
     BOOST_LOG_TRIVIAL(fatal) << "Object type " << toString(item.type.get_as<engine::TR1ItemId>())
@@ -107,7 +108,7 @@ struct UnsupportedObjectFactory : public ObjectFactory
     BOOST_THROW_EXCEPTION(std::runtime_error("unsupported object type"));
   }
 
-  [[nodiscard]] std::shared_ptr<Object>
+  [[nodiscard]] [[noreturn]] gsl::not_null<std::shared_ptr<Object>>
     createFromSave(const Location& /*location*/, const serialization::Serializer<world::World>& /*ser*/) const override
   {
     BOOST_LOG_TRIVIAL(fatal) << "Object type is not supported";
@@ -119,23 +120,23 @@ template<typename T>
 /* NOLINTNEXTLINE(altera-struct-pack-align) */
 struct ModelFactory : public ObjectFactory
 {
-  [[nodiscard]] std::shared_ptr<Object>
+  [[nodiscard]] gsl::not_null<std::shared_ptr<Object>>
     createNew(world::World& world, loader::file::Item& item, size_t id) const override
   {
-    const auto* room = &world.getRooms().at(item.room.get());
+    const auto room = gsl::not_null{&world.getRooms().at(item.room.get())};
     const auto& model = world.findAnimatedModelForType(item.type);
     Expects(model != nullptr);
-    auto object
-      = std::make_shared<T>(makeObjectName(item.type.get_as<TR1ItemId>(), id), &world, room, item, model.get());
-    addChild(room->node, object->getNode());
+    auto object = gslu::make_nn_shared<T>(
+      makeObjectName(item.type.get_as<TR1ItemId>(), id), gsl::not_null{&world}, room, item, gsl::not_null{model.get()});
+    addChild(gsl::not_null{room->node}, gsl::not_null{object->getNode()});
     object->applyTransform();
     return object;
   }
 
-  [[nodiscard]] std::shared_ptr<Object>
+  [[nodiscard]] gsl::not_null<std::shared_ptr<Object>>
     createFromSave(const Location& location, const serialization::Serializer<world::World>& ser) const override
   {
-    auto object = std::make_shared<T>(&ser.context, location);
+    auto object = gslu::make_nn_shared<T>(gsl::not_null{&ser.context}, location);
     object->serialize(ser);
     return object;
   }
@@ -145,25 +146,26 @@ template<typename T>
 /* NOLINTNEXTLINE(altera-struct-pack-align) */
 struct SpriteFactory : public ObjectFactory
 {
-  [[nodiscard]] std::shared_ptr<Object>
+  [[nodiscard]] gsl::not_null<std::shared_ptr<Object>>
     createNew(world::World& world, loader::file::Item& item, size_t id) const override
   {
-    const auto* room = &world.getRooms().at(item.room.get());
+    const auto room = gsl::not_null{&world.getRooms().at(item.room.get())};
 
     const auto& spriteSequence = world.findSpriteSequenceForType(item.type);
     Expects(spriteSequence != nullptr);
     Expects(!spriteSequence->sprites.empty());
 
     const world::Sprite& sprite = spriteSequence->sprites[0];
-    return std::make_shared<T>(makeObjectName(item.type.get_as<TR1ItemId>(), id), &world, room, item, &sprite);
+    return gslu::make_nn_shared<T>(
+      makeObjectName(item.type.get_as<TR1ItemId>(), id), gsl::not_null{&world}, room, item, gsl::not_null{&sprite});
   }
 
-  [[nodiscard]] std::shared_ptr<Object>
+  [[nodiscard]] gsl::not_null<std::shared_ptr<Object>>
     createFromSave(const Location& location, const serialization::Serializer<world::World>& ser) const override
   {
     std::string spriteName;
     ser(S_NV("@name", spriteName));
-    auto object = std::make_shared<T>(spriteName, &ser.context, location);
+    auto object = gslu::make_nn_shared<T>(spriteName, gsl::not_null{&ser.context}, location);
     object->serialize(ser);
     return object;
   }
@@ -189,23 +191,23 @@ struct SpriteFactory : public ObjectFactory
 /* NOLINTNEXTLINE(altera-struct-pack-align) */
 struct WalkingMutantFactory : public ObjectFactory
 {
-  [[nodiscard]] std::shared_ptr<Object>
+  [[nodiscard]] gsl::not_null<std::shared_ptr<Object>>
     createNew(world::World& world, loader::file::Item& item, size_t id) const override
   {
-    const auto* room = &world.getRooms().at(item.room.get());
+    const auto room = gsl::not_null{&world.getRooms().at(item.room.get())};
     const auto& model = world.findAnimatedModelForType(TR1ItemId::FlyingMutant);
     Expects(model != nullptr);
-    auto object = std::make_shared<WalkingMutant>(
-      makeObjectName(item.type.get_as<TR1ItemId>(), id), &world, room, item, model.get());
-    addChild(room->node, object->getNode());
+    auto object = gslu::make_nn_shared<WalkingMutant>(
+      makeObjectName(item.type.get_as<TR1ItemId>(), id), gsl::not_null{&world}, room, item, gsl::not_null{model.get()});
+    addChild(gsl::not_null{room->node}, gsl::not_null{object->getNode()});
     object->applyTransform();
     return object;
   }
 
-  [[nodiscard]] std::shared_ptr<Object>
+  [[nodiscard]] gsl::not_null<std::shared_ptr<Object>>
     createFromSave(const Location& location, const serialization::Serializer<world::World>& ser) const override
   {
-    auto object = std::make_shared<WalkingMutant>(&ser.context, location);
+    auto object = gslu::make_nn_shared<WalkingMutant>(gsl::not_null{&ser.context}, location);
     object->serialize(ser);
     return object;
   }
@@ -214,19 +216,19 @@ struct WalkingMutantFactory : public ObjectFactory
 /* NOLINTNEXTLINE(altera-struct-pack-align) */
 struct HiddenModelFactory : public ModelFactory<StubObject>
 {
-  [[nodiscard]] std::shared_ptr<Object>
+  [[nodiscard]] gsl::not_null<std::shared_ptr<Object>>
     createNew(world::World& world, loader::file::Item& item, size_t id) const override
   {
-    auto object = std::static_pointer_cast<StubObject>(ModelFactory<StubObject>::createNew(world, item, id));
+    auto object = gslu::static_pointer_cast<StubObject>(ModelFactory<StubObject>::createNew(world, item, id));
     object->getSkeleton()->setRenderable(nullptr);
     object->getSkeleton()->clearParts();
     return object;
   }
 
-  [[nodiscard]] std::shared_ptr<Object>
+  [[nodiscard]] gsl::not_null<std::shared_ptr<Object>>
     createFromSave(const Location& location, const serialization::Serializer<world::World>& ser) const override
   {
-    auto object = std::static_pointer_cast<StubObject>(ModelFactory<StubObject>::createFromSave(location, ser));
+    auto object = gslu::static_pointer_cast<StubObject>(ModelFactory<StubObject>::createFromSave(location, ser));
     object->getSkeleton()->setRenderable(nullptr);
     object->getSkeleton()->clearParts();
     return object;
@@ -381,15 +383,15 @@ std::shared_ptr<Object> createObject(world::World& world, loader::file::Item& it
   if(const auto factory = findFactory(item.type.get_as<TR1ItemId>()))
     return factory->createNew(world, item, id);
 
-  const auto* room = &world.getRooms().at(item.room.get());
+  const auto room = gsl::not_null{&world.getRooms().at(item.room.get())};
 
   if(const auto& model = world.findAnimatedModelForType(item.type))
   {
     auto object = std::make_shared<StubObject>(
-      makeObjectName(item.type.get_as<TR1ItemId>(), id), &world, room, item, model.get());
+      makeObjectName(item.type.get_as<TR1ItemId>(), id), gsl::not_null{&world}, room, item, gsl::not_null{model.get()});
     BOOST_LOG_TRIVIAL(warning) << "Unimplemented object type " << toString(item.type.get_as<TR1ItemId>());
 
-    addChild(room->node, object->getNode());
+    addChild(gsl::not_null{room->node}, gsl::not_null{object->getNode()});
 
     object->applyTransform();
 
@@ -404,8 +406,12 @@ std::shared_ptr<Object> createObject(world::World& world, loader::file::Item& it
     std::shared_ptr<Object> object;
 
     BOOST_LOG_TRIVIAL(warning) << "Unimplemented object type " << toString(item.type.get_as<TR1ItemId>());
-    return std::make_shared<SpriteObject>(
-      makeObjectName(item.type.get_as<TR1ItemId>(), id), &world, room, item, true, &sprite);
+    return std::make_shared<SpriteObject>(makeObjectName(item.type.get_as<TR1ItemId>(), id),
+                                          gsl::not_null{&world},
+                                          room,
+                                          item,
+                                          true,
+                                          gsl::not_null{&sprite});
   }
 
   BOOST_LOG_TRIVIAL(error) << "Failed to find an appropriate animated model for object type " << int(item.type.get());

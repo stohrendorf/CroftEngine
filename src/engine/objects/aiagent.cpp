@@ -171,7 +171,7 @@ bool AIAgent::animateCreature(const core::Angle& angle, const core::Angle& tilt)
   Expects(sector->box != nullptr);
 
   core::Length nextFloor;
-  if(const auto& exitBox = pathFinder.getNextPathBox(sector->box); exitBox != nullptr)
+  if(const auto& exitBox = pathFinder.getNextPathBox(gsl::not_null{sector->box}); exitBox != nullptr)
   {
     nextFloor = exitBox->floor;
   }

@@ -202,7 +202,7 @@ public:
 
   // NOLINTNEXTLINE(bugprone-reserved-identifier)
   template<typename _Texture>
-  void set(const std::shared_ptr<TextureHandle<_Texture>>& textureHandle)
+  void set(const gsl::not_null<std::shared_ptr<TextureHandle<_Texture>>>& textureHandle)
   {
     Expects(m_program != InvalidProgram);
     if(changeValue(textureHandle->getHandle()))
@@ -228,14 +228,7 @@ public:
 
   // NOLINTNEXTLINE(bugprone-reserved-identifier)
   template<typename _Texture>
-  void set(const std::vector<std::shared_ptr<TextureHandle<_Texture>>>& textureHandles)
-  {
-    setTextures(textureHandles.begin(), textureHandles.end());
-  }
-
-  // NOLINTNEXTLINE(bugprone-reserved-identifier)
-  template<typename _Texture, size_t N>
-  void set(const std::array<std::shared_ptr<TextureHandle<_Texture>>, N>& textureHandles)
+  void set(const gsl::span<const gsl::not_null<std::shared_ptr<TextureHandle<_Texture>>>>& textureHandles)
   {
     setTextures(textureHandles.begin(), textureHandles.end());
   }

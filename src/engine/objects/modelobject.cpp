@@ -82,7 +82,7 @@ void ModelObject::update()
       }
     }
 
-    m_skeleton->setAnimation(m_state.current_anim_state, anim->nextAnimation, anim->nextFrame);
+    m_skeleton->setAnimation(m_state.current_anim_state, gsl::not_null{anim->nextAnimation}, anim->nextFrame);
     m_state.goal_anim_state = m_state.current_anim_state;
     if(m_state.current_anim_state == m_state.required_anim_state)
       m_state.required_anim_state = 0_as;
@@ -336,7 +336,7 @@ void ModelObject::serialize(const serialization::Serializer<world::World>& ser)
 
 std::shared_ptr<ModelObject> ModelObject::create(serialization::Serializer<world::World>& ser)
 {
-  auto result = std::make_shared<ModelObject>(&ser.context, Location::create(ser["@location"]));
+  auto result = std::make_shared<ModelObject>(gsl::not_null{&ser.context}, Location::create(ser["@location"]));
   result->serialize(ser);
   return result;
 }
@@ -373,7 +373,7 @@ ModelObject::~ModelObject()
 {
   if(m_skeleton != nullptr)
   {
-    setParent(m_skeleton, nullptr);
+    setParent(gsl::not_null{m_skeleton}, nullptr);
   }
 }
 

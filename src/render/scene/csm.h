@@ -62,9 +62,11 @@ public:
 
   explicit CSM(int32_t resolution, MaterialManager& materialManager);
 
-  [[nodiscard]] std::array<std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::RG16F>>>, CSMBuffer::NSplits>
+  [[nodiscard]] std::array<gsl::not_null<std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::RG16F>>>>,
+                           CSMBuffer::NSplits>
     getTextures() const;
-  [[nodiscard]] std::array<std::shared_ptr<gl::TextureHandle<gl::TextureDepth<float>>>, CSMBuffer::NSplits>
+  [[nodiscard]] std::array<gsl::not_null<std::shared_ptr<gl::TextureHandle<gl::TextureDepth<float>>>>,
+                           CSMBuffer::NSplits>
     getDepthTextures() const;
   [[nodiscard]] std::array<glm::mat4, CSMBuffer::NSplits> getMatrices(const glm::mat4& modelMatrix) const;
 

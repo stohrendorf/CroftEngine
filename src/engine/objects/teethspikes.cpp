@@ -57,7 +57,7 @@ void engine::objects::TeethSpikes::collide(CollisionInfo& collisionInfo)
     if(getWorld().getObjectManager().getLara().isDead())
     {
       getWorld().getObjectManager().getLara().getSkeleton()->setAnim(
-        &getWorld().getAnimation(loader::file::AnimationId::SPIKED));
+        gsl::not_null{&getWorld().getAnimation(loader::file::AnimationId::SPIKED)});
       getWorld().getObjectManager().getLara().setCurrentAnimState(loader::file::LaraStateId::Death);
       getWorld().getObjectManager().getLara().setGoalAnimState(loader::file::LaraStateId::Death);
       getWorld().getObjectManager().getLara().m_state.falling = false;

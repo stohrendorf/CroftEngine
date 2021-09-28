@@ -10,13 +10,8 @@ namespace serialization
 class Exception : public std::runtime_error
 {
 public:
-  explicit Exception(const std::string& msg)
-      : Exception{msg.c_str()}
-  {
-  }
-
-  explicit Exception(gsl::czstring msg);
+  explicit Exception(const std::string& msg);
 };
 
-#define SERIALIZER_EXCEPTION(msg) BOOST_THROW_EXCEPTION(::serialization::Exception{msg})
+#define SERIALIZER_EXCEPTION(...) BOOST_THROW_EXCEPTION(::serialization::Exception(__VA_ARGS__))
 } // namespace serialization

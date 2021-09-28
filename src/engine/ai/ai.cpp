@@ -147,7 +147,7 @@ void updateMood(const objects::AIAgent& aiAgent, const EnemyLocation& enemyLocat
     if(originalMood == Mood::Attack)
     {
       Expects(creatureInfo.pathFinder.getTargetBox() != nullptr);
-      creatureInfo.pathFinder.setRandomSearchTarget(creatureInfo.pathFinder.getTargetBox());
+      creatureInfo.pathFinder.setRandomSearchTarget(gsl::not_null{creatureInfo.pathFinder.getTargetBox()});
     }
     newTargetBox = nullptr;
   }
@@ -239,7 +239,7 @@ void updateMood(const objects::AIAgent& aiAgent, const EnemyLocation& enemyLocat
     creatureInfo.pathFinder.setRandomSearchTarget(aiAgent.m_state.getCurrentBox());
   }
   if(newTargetBox != nullptr)
-    creatureInfo.pathFinder.setTargetBox(newTargetBox);
+    creatureInfo.pathFinder.setTargetBox(gsl::not_null{newTargetBox});
   creatureInfo.pathFinder.calculateTarget(
     aiAgent.getWorld(), creatureInfo.target, aiAgent.m_state.location.position, aiAgent.m_state.getCurrentBox());
 }

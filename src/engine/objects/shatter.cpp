@@ -22,6 +22,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <gsl/gsl-lite.hpp>
+#include <gslu.h>
 #include <memory>
 #include <utility>
 #include <vector>
@@ -54,7 +55,7 @@ bool shatterModel(ModelObject& object, const std::bitset<32>& meshMask, const co
     object.getSkeleton()->rebuildMesh();
     world::RenderMeshDataCompositor compositor;
     compositor.append(*modelType->bones[i].mesh);
-    auto particle = std::make_shared<MeshShrapnelParticle>(
+    auto particle = gslu::make_nn_shared<MeshShrapnelParticle>(
       Location{object.m_state.location.room, core::TRVec{object.getSkeleton()->getMeshPartTranslationWorld(i)}},
       object.getWorld(),
       compositor.toMesh(*object.getWorld().getPresenter().getMaterialManager(), false, {}),

@@ -57,7 +57,7 @@ template<typename IndexT, typename... VertexTs>
 class MeshImpl : public Mesh
 {
 public:
-  explicit MeshImpl(std::shared_ptr<gl::VertexArray<IndexT, VertexTs...>> vao,
+  explicit MeshImpl(gsl::not_null<std::shared_ptr<gl::VertexArray<IndexT, VertexTs...>>> vao,
                     gl::api::PrimitiveType primitiveType = gl::api::PrimitiveType::Triangles)
       : Mesh{primitiveType}
       , m_vao{std::move(vao)}

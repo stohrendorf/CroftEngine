@@ -50,7 +50,7 @@ public:
 
   void draw(ui::Ui& ui, const engine::Presenter& presenter) const override;
 
-  [[nodiscard]] const std::shared_ptr<ui::widgets::GridBox>& getCurrentGridBox() const;
+  [[nodiscard]] const gsl::not_null<std::shared_ptr<ui::widgets::GridBox>>& getCurrentGridBox() const;
 
   void nextRow();
 
@@ -67,8 +67,8 @@ public:
   [[nodiscard]] hid::Action getCurrentAction() const;
 
 private:
-  std::shared_ptr<ui::widgets::GridBox> m_content;
-  std::shared_ptr<ui::widgets::GroupBox> m_container;
-  std::vector<std::shared_ptr<ui::widgets::GridBox>> m_controlGroups;
+  gsl::not_null<std::shared_ptr<ui::widgets::GridBox>> m_content;
+  gsl::not_null<std::shared_ptr<ui::widgets::GroupBox>> m_container;
+  std::vector<gsl::not_null<std::shared_ptr<ui::widgets::GridBox>>> m_controlGroups;
 };
 } // namespace menu

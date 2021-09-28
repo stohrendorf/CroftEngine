@@ -12,6 +12,7 @@
 #include <gl/program.h>
 #include <gl/renderstate.h>
 #include <gl/shader.h>
+#include <gslu.h>
 #include <iterator>
 #include <set>
 #include <sstream>
@@ -155,25 +156,17 @@ gsl::not_null<std::shared_ptr<ShaderProgram>> ShaderProgram::createFromFile(cons
     BOOST_THROW_EXCEPTION(std::runtime_error("Failed to create shader from sources"));
   }
 
-  auto shaderProgram = createFromSource(programId, vshId, vshPath, vshSource, fshId, fshPath, fshSource, defines);
-
-  if(shaderProgram == nullptr)
-  {
-    BOOST_LOG_TRIVIAL(error) << "Failed to create effect from shaders '" << vshPath << "', '" << fshPath << "'.";
-    BOOST_THROW_EXCEPTION(std::runtime_error("Failed to create shader from sources"));
-  }
-
-  return shaderProgram;
+  return createFromSource(programId, vshId, vshPath, vshSource, fshId, fshPath, fshSource, defines);
 }
 
-std::shared_ptr<ShaderProgram> ShaderProgram::createFromSource(const std::string& programId,
-                                                               const std::string& vshId,
-                                                               const std::filesystem::path& vshPath,
-                                                               const std::string& vshSource,
-                                                               const std::string& fshId,
-                                                               const std::filesystem::path& fshPath,
-                                                               const std::string& fshSource,
-                                                               const std::vector<std::string>& defines)
+gsl::not_null<std::shared_ptr<ShaderProgram>> ShaderProgram::createFromSource(const std::string& programId,
+                                                                              const std::string& vshId,
+                                                                              const std::filesystem::path& vshPath,
+                                                                              const std::string& vshSource,
+                                                                              const std::string& fshId,
+                                                                              const std::filesystem::path& fshPath,
+                                                                              const std::string& fshSource,
+                                                                              const std::vector<std::string>& defines)
 {
   static constexpr size_t SHADER_SOURCE_LENGTH = 3;
   std::array<gsl::czstring, SHADER_SOURCE_LENGTH> shaderSource{nullptr};
@@ -206,7 +199,7 @@ std::shared_ptr<ShaderProgram> ShaderProgram::createFromSource(const std::string
   shaderSource[1] = definesStr.c_str();
   gl::FragmentShader fragmentShader{shaderSource, fshId};
 
-  auto shaderProgram = std::make_shared<ShaderProgram>(programId);
+  auto shaderProgram = gslu::make_nn_shared<ShaderProgram>(programId);
   shaderProgram->m_handle.attach(vertexShader);
   shaderProgram->m_handle.attach(fragmentShader);
   shaderProgram->m_handle.link();
@@ -216,7 +209,7 @@ std::shared_ptr<ShaderProgram> ShaderProgram::createFromSource(const std::string
     BOOST_LOG_TRIVIAL(error) << "Linking program failed (" << (vshPath.empty() ? "<none>" : vshPath) << ","
                              << (fshPath.empty() ? "<none>" : fshPath) << "): " << shaderProgram->m_handle.getInfoLog();
 
-    return nullptr;
+    BOOST_THROW_EXCEPTION(std::runtime_error("Failed to link program"));
   }
 
   BOOST_LOG_TRIVIAL(debug) << "Program vertex=" << vshPath << " fragment=" << fshPath

@@ -25,7 +25,8 @@ namespace engine
 using ControllerLayout = std::map<std::variant<hid::GlfwGamepadButton, hid::GlfwAxis>, world::Sprite>;
 using ControllerLayouts = std::map<std::string, ControllerLayout>;
 
-extern ControllerLayouts loadControllerButtonIcons(render::MultiTextureAtlas& atlases,
-                                                   const std::filesystem::path& configFile,
-                                                   const std::shared_ptr<render::scene::Material>& material);
+extern ControllerLayouts
+  loadControllerButtonIcons(render::MultiTextureAtlas& atlases,
+                            const std::filesystem::path& configFile,
+                            const gsl::not_null<std::shared_ptr<render::scene::Material>>& material);
 } // namespace engine

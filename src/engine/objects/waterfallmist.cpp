@@ -13,6 +13,7 @@
 #include "qs/quantity.h"
 #include "render/scene/node.h"
 
+#include <gslu.h>
 #include <memory>
 
 namespace engine::objects
@@ -26,7 +27,7 @@ void WaterfallMist::update()
   if(abs(d.X) > 20 * core::SectorSize || abs(d.Y) > 20 * core::SectorSize || abs(d.Z) > 20 * core::SectorSize)
     return;
 
-  auto particle = std::make_shared<SplashParticle>(m_state.location, getWorld(), true);
+  auto particle = gslu::make_nn_shared<SplashParticle>(m_state.location, getWorld(), true);
   setParent(particle, m_state.location.room->node);
   getWorld().getObjectManager().registerParticle(particle);
 }

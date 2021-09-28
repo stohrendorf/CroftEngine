@@ -6,6 +6,7 @@
 #include <gl/buffer.h>
 #include <glm/vec4.hpp>
 #include <gsl/gsl-lite.hpp>
+#include <gslu.h>
 #include <limits>
 #include <memory>
 
@@ -43,10 +44,10 @@ struct ShaderLight
   {
     static std::weak_ptr<gl::ShaderStorageBuffer<ShaderLight>> instance;
     if(auto tmp = instance.lock())
-      return tmp;
+      return gsl::not_null{tmp};
 
-    auto tmp = std::make_shared<gl::ShaderStorageBuffer<ShaderLight>>("empty-lights-buffer");
-    instance = tmp;
+    auto tmp = gslu::make_nn_shared<gl::ShaderStorageBuffer<ShaderLight>>("empty-lights-buffer");
+    instance = tmp.get();
     return tmp;
   }
 };

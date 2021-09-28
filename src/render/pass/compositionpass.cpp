@@ -24,6 +24,7 @@
 #include <gl/texturehandle.h>
 #include <glm/mat4x4.hpp>
 #include <gsl/gsl-lite.hpp>
+#include <gslu.h>
 #include <optional>
 #include <utility>
 
@@ -34,13 +35,14 @@ class Node;
 
 namespace render::pass
 {
-CompositionPass::CompositionPass(scene::MaterialManager& materialManager,
-                                 const RenderSettings& renderSettings,
-                                 const glm::ivec2& viewport,
-                                 const GeometryPass& geometryPass,
-                                 const PortalPass& portalPass,
-                                 const HBAOPass& hbaoPass,
-                                 const std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>>& colorBuffer)
+CompositionPass::CompositionPass(
+  scene::MaterialManager& materialManager,
+  const RenderSettings& renderSettings,
+  const glm::ivec2& viewport,
+  const GeometryPass& geometryPass,
+  const PortalPass& portalPass,
+  const HBAOPass& hbaoPass,
+  const gsl::not_null<std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>>>& colorBuffer)
     : m_compositionMaterial{materialManager.getComposition(false,
                                                            renderSettings.lensDistortion,
                                                            renderSettings.dof,
@@ -115,7 +117,7 @@ CompositionPass::CompositionPass(scene::MaterialManager& materialManager,
     [colorBuffer](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
     { uniform.set(colorBuffer); });
 
-  auto sampler = std::make_unique<gl::Sampler>("composition-color");
+  auto sampler = gslu::make_nn_unique<gl::Sampler>("composition-color");
   sampler->set(gl::api::SamplerParameterI::TextureWrapS, gl::api::TextureWrapMode::Repeat)
     .set(gl::api::SamplerParameterI::TextureWrapT, gl::api::TextureWrapMode::Repeat)
     .set(gl::api::TextureMinFilter::Linear)
@@ -125,7 +127,7 @@ CompositionPass::CompositionPass(scene::MaterialManager& materialManager,
 
   m_crtMesh->bind("u_input",
                   [this](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
-                  { uniform.set(m_colorBufferHandle); });
+                  { uniform.set(gsl::not_null{m_colorBufferHandle}); });
 
   m_fb = gl::FrameBufferBuilder()
            .texture(gl::api::FramebufferAttachment::ColorAttachment0, m_colorBuffer)

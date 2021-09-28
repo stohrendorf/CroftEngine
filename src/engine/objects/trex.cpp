@@ -111,7 +111,8 @@ void TRex::update()
         lara.m_state.rotation.X = 0_deg;
         lara.m_state.rotation.Y = m_state.rotation.Y;
         lara.m_state.rotation.Z = 0_deg;
-        lara.getSkeleton()->setAnim(&getWorld().findAnimatedModelForType(TR1ItemId::AlternativeLara)->animations[1]);
+        lara.getSkeleton()->setAnim(
+          gsl::not_null{&getWorld().findAnimatedModelForType(TR1ItemId::AlternativeLara)->animations[1]});
         lara.setCurrentAnimState(loader::file::LaraStateId::BoulderDeath);
         lara.setGoalAnimState(loader::file::LaraStateId::BoulderDeath);
         lara.setHandStatus(HandStatus::Grabbing);

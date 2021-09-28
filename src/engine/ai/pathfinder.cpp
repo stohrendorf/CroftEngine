@@ -204,7 +204,7 @@ bool PathFinder::calculateTarget(const world::World& world,
     if(nextBox == nullptr || !canVisit(*nextBox))
       break;
 
-    here = nextBox;
+    here = gsl::not_null{nextBox};
   }
 
   // NOLINTNEXTLINE(hicpp-signed-bitwise)
@@ -245,7 +245,7 @@ void PathFinder::searchPath(const world::World& world)
 
   static constexpr uint8_t MaxExpansions = 15;
 
-  auto setReachable = [this](const world::Box* box, bool reachable)
+  auto setReachable = [this](const gsl::not_null<const world::Box*>& box, bool reachable)
   {
     m_reachable[box] = reachable;
     if(std::find(m_expansions.begin(), m_expansions.end(), box) == m_expansions.end())
@@ -367,7 +367,7 @@ void PathFinder::setTargetBox(const gsl::not_null<const world::Box*>& box)
   m_expansions.clear();
   m_expansions.emplace_back(m_targetBox);
   m_reachable.clear();
-  m_reachable[m_targetBox] = true;
+  m_reachable[box] = true;
   m_edges.clear();
 }
 

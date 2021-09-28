@@ -156,9 +156,9 @@ Location clampBox(const Location& start,
                   const ObjectManager& objectManager)
 {
   auto result = raycastLineOfSight(start, goal, objectManager).second;
-  const gsl::not_null startSector = start.room->getSectorByAbsolutePosition(start.position);
+  const auto startSector = gsl::not_null{start.room->getSectorByAbsolutePosition(start.position)};
   auto box = startSector->box;
-  if(const gsl::not_null goalSector = result.room->getSectorByAbsolutePosition(result.position);
+  if(const auto goalSector = gsl::not_null{result.room->getSectorByAbsolutePosition(result.position)};
      const auto goalBox = goalSector->box)
   {
     if(!box->xInterval.contains(result.position.X) || !box->zInterval.contains(result.position.Z))
@@ -275,7 +275,7 @@ Location clampBox(const Location& start,
 
 CameraController::CameraController(const gsl::not_null<world::World*>& world,
                                    gsl::not_null<std::shared_ptr<render::scene::Camera>> camera)
-    : Listener{world->getPresenter().getSoundEngine().get()}
+    : Listener{gsl::not_null{world->getPresenter().getSoundEngine().get()}}
     , m_camera{std::move(camera)}
     , m_world{world}
     , m_location{world->getObjectManager().getLara().m_state.location}
@@ -432,7 +432,8 @@ std::unordered_set<const world::Portal*> CameraController::update()
     = m_lookAtObject != nullptr && (m_mode == CameraMode::FixedPosition || m_mode == CameraMode::HeavyFixedPosition);
 
   // if we have a fixed position, we also have an object we're looking at
-  const gsl::not_null focusedObject = isCompletelyFixed ? m_lookAtObject.get() : &m_world->getObjectManager().getLara();
+  const auto focusedObject
+    = gsl::not_null{isCompletelyFixed ? m_lookAtObject.get() : &m_world->getObjectManager().getLara()};
   auto focusBBox = focusedObject->getBoundingBox();
   auto focusY = focusedObject->m_state.location.position.Y;
   if(isCompletelyFixed)
@@ -796,11 +797,11 @@ std::unordered_set<const world::Portal*> CameraController::updateCinematic(const
 CameraController::CameraController(const gsl::not_null<world::World*>& world,
                                    gsl::not_null<std::shared_ptr<render::scene::Camera>> camera,
                                    bool /*noLaraTag*/)
-    : Listener{world->getPresenter().getSoundEngine().get()}
+    : Listener{gsl::not_null{world->getPresenter().getSoundEngine().get()}}
     , m_camera{std::move(camera)}
     , m_world{world}
-    , m_location{&world->getRooms()[0]}
-    , m_lookAt{&world->getRooms()[0]}
+    , m_location{gsl::not_null{&world->getRooms()[0]}}
+    , m_lookAt{gsl::not_null{&world->getRooms()[0]}}
 {
 }
 

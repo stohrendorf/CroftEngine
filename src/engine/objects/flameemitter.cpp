@@ -20,8 +20,8 @@ void FlameEmitter::update()
       return;
 
     m_flame = std::make_shared<FlameParticle>(m_state.location, getWorld());
-    setParent(m_flame, m_state.location.room->node);
-    getWorld().getObjectManager().registerParticle(m_flame);
+    setParent(gsl::not_null{m_flame}, m_state.location.room->node);
+    getWorld().getObjectManager().registerParticle(gsl::not_null{m_flame});
   }
   else if(m_flame != nullptr)
   {

@@ -41,7 +41,7 @@ SpriteObject::SpriteObject(const std::string& name,
     , m_brightness{toBrightness(item.shade)}
 {
   createModel();
-  addChild(room->node, m_objectNode);
+  addChild(gsl::not_null{room->node}, m_objectNode);
   addChild(m_objectNode, m_displayNode);
   applyTransform();
 }

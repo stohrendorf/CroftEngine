@@ -50,11 +50,12 @@ MutantEgg::MutantEgg(const std::string& name,
   case 1:
     item.type = TR1ItemId::WalkingMutant1;
     if(world->findAnimatedModelForType(TR1ItemId::FlyingMutant) != nullptr)
-      m_childObject = std::make_shared<WalkingMutant>(makeObjectName(item.type.get_as<TR1ItemId>(), 999999),
-                                                      world,
-                                                      room,
-                                                      item,
-                                                      world->findAnimatedModelForType(TR1ItemId::FlyingMutant).get());
+      m_childObject = std::make_shared<WalkingMutant>(
+        makeObjectName(item.type.get_as<TR1ItemId>(), 999999),
+        world,
+        room,
+        item,
+        gsl::not_null{world->findAnimatedModelForType(TR1ItemId::FlyingMutant).get()});
     break;
   case 2:
     item.type = TR1ItemId::CentaurMutant;
@@ -63,7 +64,7 @@ MutantEgg::MutantEgg(const std::string& name,
                                                       world,
                                                       room,
                                                       item,
-                                                      world->findAnimatedModelForType(item.type).get());
+                                                      gsl::not_null{world->findAnimatedModelForType(item.type).get()});
     break;
   case 4:
     item.type = TR1ItemId::TorsoBoss;
@@ -72,25 +73,27 @@ MutantEgg::MutantEgg(const std::string& name,
                                                   world,
                                                   room,
                                                   item,
-                                                  world->findAnimatedModelForType(item.type).get());
+                                                  gsl::not_null{world->findAnimatedModelForType(item.type).get()});
     break;
   case 8:
     item.type = TR1ItemId::WalkingMutant2;
     if(world->findAnimatedModelForType(TR1ItemId::FlyingMutant) != nullptr)
-      m_childObject = std::make_shared<WalkingMutant>(makeObjectName(item.type.get_as<TR1ItemId>(), 999999),
-                                                      world,
-                                                      room,
-                                                      item,
-                                                      world->findAnimatedModelForType(TR1ItemId::FlyingMutant).get());
+      m_childObject = std::make_shared<WalkingMutant>(
+        makeObjectName(item.type.get_as<TR1ItemId>(), 999999),
+        world,
+        room,
+        item,
+        gsl::not_null{world->findAnimatedModelForType(TR1ItemId::FlyingMutant).get()});
     break;
   default:
     item.type = TR1ItemId::FlyingMutant;
     if(world->findAnimatedModelForType(TR1ItemId::FlyingMutant) != nullptr)
-      m_childObject = std::make_shared<FlyingMutant>(makeObjectName(item.type.get_as<TR1ItemId>(), 999999),
-                                                     world,
-                                                     room,
-                                                     item,
-                                                     world->findAnimatedModelForType(TR1ItemId::FlyingMutant).get());
+      m_childObject
+        = std::make_shared<FlyingMutant>(makeObjectName(item.type.get_as<TR1ItemId>(), 999999),
+                                         world,
+                                         room,
+                                         item,
+                                         gsl::not_null{world->findAnimatedModelForType(TR1ItemId::FlyingMutant).get()});
     break;
   }
 
@@ -100,7 +103,7 @@ MutantEgg::MutantEgg(const std::string& name,
   }
   else
   {
-    getWorld().getObjectManager().registerObject(m_childObject);
+    getWorld().getObjectManager().registerObject(gsl::not_null{m_childObject});
   }
 
   for(size_t i = 0; i < getSkeleton()->getBoneCount(); ++i)
@@ -132,7 +135,7 @@ void MutantEgg::update()
         auto& childState = m_childObject->m_state;
         childState.location = m_state.location;
         childState.rotation.Y = m_state.rotation.Y;
-        addChild(m_state.location.room->node, m_childObject->getNode());
+        addChild(gsl::not_null{m_state.location.room->node}, gsl::not_null{m_childObject->getNode()});
 
         m_childObject->applyTransform();
 

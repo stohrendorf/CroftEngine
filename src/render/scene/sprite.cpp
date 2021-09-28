@@ -12,6 +12,7 @@
 #include <gl/buffer.h>
 #include <gl/vertexarray.h>
 #include <gl/vertexbuffer.h>
+#include <gslu.h>
 #include <vector>
 
 namespace render::scene
@@ -44,7 +45,7 @@ gsl::not_null<std::shared_ptr<gl::VertexBuffer<SpriteVertex>>> createSpriteVerte
                                                                                         const std::string& label)
 {
   const auto vertices = createSpriteVertices(x0, y0, x1, y1, t0, t1, textureIdx);
-  auto vb = gsl::make_shared<gl::VertexBuffer<SpriteVertex>>(SpriteVertex::getLayout(), label);
+  auto vb = gslu::make_nn_shared<gl::VertexBuffer<SpriteVertex>>(SpriteVertex::getLayout(), label);
   vb->setData(vertices, gl::api::BufferUsage::StaticDraw);
   return vb;
 }
@@ -62,12 +63,12 @@ gsl::not_null<std::shared_ptr<Mesh>> createSpriteMesh(const float x0,
   auto vb = createSpriteVertexBuffer(x0, y0, x1, y1, t0, t1, textureIdx, label);
   static const std::array<uint16_t, 6> indices{0, 1, 2, 0, 2, 3};
 
-  auto indexBuffer = std::make_shared<gl::ElementArrayBuffer<uint16_t>>(label);
+  auto indexBuffer = gslu::make_nn_shared<gl::ElementArrayBuffer<uint16_t>>(label);
   indexBuffer->setData(indices, gl::api::BufferUsage::StaticDraw);
 
-  auto vao = std::make_shared<gl::VertexArray<uint16_t, SpriteVertex>>(
+  auto vao = gslu::make_nn_shared<gl::VertexArray<uint16_t, SpriteVertex>>(
     indexBuffer, vb, std::vector{&materialFull->getShaderProgram()->getHandle()}, label);
-  auto mesh = std::make_shared<MeshImpl<uint16_t, SpriteVertex>>(vao);
+  auto mesh = gslu::make_nn_shared<MeshImpl<uint16_t, SpriteVertex>>(vao);
   mesh->getMaterialGroup().set(RenderMode::Full, materialFull);
 
   return mesh;

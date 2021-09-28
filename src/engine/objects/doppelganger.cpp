@@ -36,7 +36,8 @@ Doppelganger::Doppelganger(const std::string& name,
     : ModelObject{name, world, room, item, true, animatedModel}
 {
   const auto& laraModel = world->findAnimatedModelForType(TR1ItemId::Lara);
-  getSkeleton()->setAnimation(m_state.current_anim_state, laraModel->animations, laraModel->animations->firstFrame);
+  getSkeleton()->setAnimation(
+    m_state.current_anim_state, gsl::not_null{&laraModel->animations[0]}, laraModel->animations->firstFrame);
 }
 
 void Doppelganger::update()
@@ -58,21 +59,21 @@ void Doppelganger::update()
     m_state.rotation = lara.m_state.rotation - core::TRRotation{0_deg, 180_deg, 0_deg};
 
     const auto sector = m_state.location.updateRoom();
-    setParent(getNode(), m_state.location.room->node);
+    setParent(gsl::not_null{getNode()}, m_state.location.room->node);
     m_state.floor
       = HeightInfo::fromFloor(sector, m_state.location.position, getWorld().getObjectManager().getObjects()).y;
 
     const auto laraSector = lara.m_state.location.moved({}).updateRoom();
     const auto laraHeight
       = HeightInfo::fromFloor(laraSector, lara.m_state.location.position, getWorld().getObjectManager().getObjects()).y;
-    getSkeleton()->setAnim(lara.getSkeleton()->getAnim(), lara.getSkeleton()->getFrame());
+    getSkeleton()->setAnim(gsl::not_null{lara.getSkeleton()->getAnim()}, lara.getSkeleton()->getFrame());
 
     if(laraHeight + core::SectorSize <= m_state.floor && !lara.m_state.falling)
     {
       m_killed = true;
 
       getSkeleton()->setAnimation(m_state.current_anim_state,
-                                  &getWorld().getAnimation(loader::file::AnimationId::SMASH_JUMP),
+                                  gsl::not_null{&getWorld().getAnimation(loader::file::AnimationId::SMASH_JUMP)},
                                   getWorld().getAnimation(loader::file::AnimationId::SMASH_JUMP).firstFrame + 1_frame);
       m_state.goal_anim_state = loader::file::LaraStateId::FreeFall;
       m_state.current_anim_state = loader::file::LaraStateId::FreeFall;

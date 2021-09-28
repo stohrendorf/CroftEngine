@@ -26,7 +26,7 @@ Location Location::create(const serialization::Serializer<world::World>& ser)
   const world::Room* room = nullptr;
   core::TRVec position{};
   ser(S_NV_VECTOR_ELEMENT("room", ser.context.getRooms(), room), S_NV("position", position));
-  return Location{room, position};
+  return Location{gsl::not_null{room}, position};
 }
 
 gsl::not_null<const world::Sector*> Location::updateRoom()
@@ -41,7 +41,7 @@ gsl::not_null<const world::Sector*> Location::updateRoom()
       break;
     }
 
-    room = sector->boundaryRoom;
+    room = gsl::not_null{sector->boundaryRoom};
   }
 
   // go up/down until we are in the room that contains our coordinates
@@ -50,7 +50,7 @@ gsl::not_null<const world::Sector*> Location::updateRoom()
   {
     while(position.Y >= sector->floorHeight && sector->roomBelow != nullptr)
     {
-      room = sector->roomBelow;
+      room = gsl::not_null{sector->roomBelow};
       sector = room->getSectorByAbsolutePosition(position);
       Expects(sector != nullptr);
     }
@@ -59,13 +59,13 @@ gsl::not_null<const world::Sector*> Location::updateRoom()
   {
     while(position.Y < sector->ceilingHeight && sector->roomAbove != nullptr)
     {
-      room = sector->roomAbove;
+      room = gsl::not_null{sector->roomAbove};
       sector = room->getSectorByAbsolutePosition(position);
       Expects(sector != nullptr);
     }
   }
 
-  return sector;
+  return gsl::not_null{sector};
 }
 
 bool Location::isValid() const

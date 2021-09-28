@@ -56,6 +56,7 @@
 #include <gl/texturehandle.h>
 #include <glm/fwd.hpp>
 #include <glm/mat4x4.hpp>
+#include <gslu.h>
 #include <iosfwd>
 #include <locale>
 #include <pybind11/eval.h>
@@ -369,9 +370,9 @@ std::pair<RunResult, std::optional<size_t>> Engine::runTitleMenu(world::World& w
   if(const auto stream = world.getAudioEngine().getInterceptStream().lock())
     stream->setLooping(true);
 
-  const auto backdrop = std::make_shared<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>>(
+  const auto backdrop = gslu::make_nn_shared<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>>(
     gl::CImgWrapper{util::ensureFileExists(m_userDataPath / "data" / "tr1" / "DATA" / "TITLEH.PCX")}.toTexture("title"),
-    gsl::make_unique<gl::Sampler>("title-sampler"));
+    gslu::make_nn_unique<gl::Sampler>("title-sampler"));
   const auto menu = std::make_shared<menu::MenuDisplay>(menu::InventoryMode::TitleMode, world);
   Throttler throttler;
   while(true)

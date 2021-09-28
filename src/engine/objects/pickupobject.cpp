@@ -58,7 +58,7 @@ void PickupObject::collide(CollisionInfo& /*collisionInfo*/)
         getWorld().getPlayer().getInventory().put(m_state.type);
         ++getWorld().getPlayer().pickups;
         getWorld().addPickupWidget(getSprite());
-        setParent(getNode(), nullptr);
+        setParent(gsl::not_null{getNode()}, nullptr);
         m_state.collidable = false;
         return;
       }
@@ -123,7 +123,7 @@ void PickupObject::collide(CollisionInfo& /*collisionInfo*/)
       getWorld().getPlayer().getInventory().put(m_state.type);
       ++getWorld().getPlayer().pickups;
       getWorld().addPickupWidget(getSprite());
-      setParent(getNode(), nullptr);
+      setParent(gsl::not_null{getNode()}, nullptr);
     }
   }
 }

@@ -24,6 +24,7 @@
 #include <gl/renderstate.h>
 #include <gl/vertexarray.h>
 #include <gl/vertexbuffer.h>
+#include <gslu.h>
 #include <initializer_list>
 
 namespace gl
@@ -207,8 +208,8 @@ RenderMeshData::RenderMeshData(const loader::file::Mesh& mesh,
 gsl::not_null<std::shared_ptr<render::scene::Mesh>> RenderMeshDataCompositor::toMesh(
   render::scene::MaterialManager& materialManager, bool skeletal, const std::string& label)
 {
-  auto vb = std::make_shared<gl::VertexBuffer<RenderMeshData::RenderVertex>>(RenderMeshData::RenderVertex::getLayout(),
-                                                                             label);
+  auto vb = gslu::make_nn_shared<gl::VertexBuffer<RenderMeshData::RenderVertex>>(
+    RenderMeshData::RenderVertex::getLayout(), label);
   vb->setData(m_vertices, gl::api::BufferUsage::StaticDraw);
 
 #ifndef NDEBUG
@@ -217,21 +218,21 @@ gsl::not_null<std::shared_ptr<render::scene::Mesh>> RenderMeshDataCompositor::to
     BOOST_ASSERT(idx < m_vertices.size());
   }
 #endif
-  auto indexBuffer = std::make_shared<gl::ElementArrayBuffer<RenderMeshData::IndexType>>(label);
+  auto indexBuffer = gslu::make_nn_shared<gl::ElementArrayBuffer<RenderMeshData::IndexType>>(label);
   indexBuffer->setData(m_indices, gl::api::BufferUsage::StaticDraw);
 
   const auto material = materialManager.getGeometry(false, skeletal, false);
   const auto materialCSMDepthOnly = materialManager.getCSMDepthOnly(skeletal);
   const auto materialDepthOnly = materialManager.getDepthOnly(skeletal);
 
-  auto va = std::make_shared<gl::VertexArray<RenderMeshData::IndexType, RenderMeshData::RenderVertex>>(
+  auto va = gslu::make_nn_shared<gl::VertexArray<RenderMeshData::IndexType, RenderMeshData::RenderVertex>>(
     indexBuffer,
     vb,
     std::vector<const gl::Program*>{&material->getShaderProgram()->getHandle(),
                                     &materialDepthOnly->getShaderProgram()->getHandle(),
                                     &materialCSMDepthOnly->getShaderProgram()->getHandle()},
     label);
-  auto mesh = std::make_shared<render::scene::MeshImpl<RenderMeshData::IndexType, RenderMeshData::RenderVertex>>(
+  auto mesh = gslu::make_nn_shared<render::scene::MeshImpl<RenderMeshData::IndexType, RenderMeshData::RenderVertex>>(
     va, gl::api::PrimitiveType::Triangles);
   mesh->getMaterialGroup()
     .set(render::scene::RenderMode::Full, material)

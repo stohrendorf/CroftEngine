@@ -28,8 +28,7 @@ public:
   {
     const void* data = GL_ASSERT_FN(api::mapNamedBuffer(getHandle(), access));
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
-    return gsl::span{static_cast<T*>(const_cast<void*>(data)),
-                     gsl::narrow_cast<typename gsl::span<T>::index_type>(m_size)};
+    return gsl::span{static_cast<T*>(const_cast<void*>(data)), m_size};
   }
 
   void unmap()
@@ -51,15 +50,13 @@ public:
     else
     {
       m_usage = usage;
-      m_size = gsl::narrow<api::core::SizeType>(data.size());
+      m_size = data.size();
       GL_ASSERT(api::namedBufferData(getHandle(), data.size_bytes(), data.data(), usage));
     }
   }
 
   void setSubData(const gsl::span<const T>& data, const api::core::SizeType start)
   {
-    Expects(m_size >= 0);
-
     GL_ASSERT(
       api::namedBufferSubData(getHandle(), gsl::narrow<std::intptr_t>(sizeof(T) * start), data.size_byts(), data));
   }
@@ -70,7 +67,7 @@ public:
   }
 
 private:
-  api::core::SizeType m_size = 0;
+  size_t m_size = 0;
   api::BufferUsage m_usage{static_cast<api::BufferUsage>(0)};
 };
 

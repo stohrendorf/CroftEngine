@@ -257,7 +257,7 @@ std::shared_ptr<audio::Voice> AudioEngine::playSoundEffect(const core::SoundEffe
     else
     {
       auto voice = m_soundEngine->playBuffer(buffer, sample, pitch, volume, emitter);
-      m_sfx.add(voice.get());
+      m_sfx.add(voice);
       voice->setLooping(true);
       voice->play();
       return voice.get();
@@ -281,7 +281,7 @@ std::shared_ptr<audio::Voice> AudioEngine::playSoundEffect(const core::SoundEffe
     else
     {
       auto voice = m_soundEngine->playBuffer(buffer, sample, pitch, volume, emitter);
-      m_sfx.add(voice.get());
+      m_sfx.add(voice);
       return voice.get();
     }
   case loader::file::PlaybackType::Wait:
@@ -294,13 +294,13 @@ std::shared_ptr<audio::Voice> AudioEngine::playSoundEffect(const core::SoundEffe
     else
     {
       auto voice = m_soundEngine->playBuffer(buffer, sample, pitch, volume, emitter);
-      m_sfx.add(voice.get());
+      m_sfx.add(voice);
       return voice.get();
     }
   default:
   {
     auto handle = m_soundEngine->playBuffer(buffer, sample, pitch, volume, emitter);
-    m_sfx.add(handle.get());
+    m_sfx.add(handle);
     return handle.get();
   }
   }

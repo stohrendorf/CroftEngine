@@ -24,7 +24,7 @@ namespace engine::objects
 void AtlanteanLava::update()
 {
   m_state.location.updateRoom();
-  setParent(getNode(), m_state.location.room->node);
+  setParent(gsl::not_null{getNode()}, m_state.location.room->node);
   if(m_state.triggerState != TriggerState::Deactivated)
   {
     auto location = m_state.location;
@@ -62,7 +62,7 @@ void AtlanteanLava::update()
     getWorld().getObjectManager().getLara().burnIfAlive();
 
     auto& cameraController = getWorld().getCameraController();
-    cameraController.setLookAtObject(getWorld().getObjectManager().find(this));
+    cameraController.setLookAtObject(gsl::not_null{getWorld().getObjectManager().find(this)});
     cameraController.setMode(CameraMode::FixedPosition);
     cameraController.setModifier(CameraModifier::Chase);
     cameraController.setDistance(3 * core::SectorSize);

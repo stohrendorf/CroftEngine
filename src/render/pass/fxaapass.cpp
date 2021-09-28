@@ -19,6 +19,7 @@
 #include <gl/texturehandle.h>
 #include <glm/mat4x4.hpp>
 #include <gsl/gsl-lite.hpp>
+#include <gslu.h>
 #include <optional>
 #include <utility>
 
@@ -36,7 +37,7 @@ FXAAPass::FXAAPass(scene::MaterialManager& materialManager,
     , m_mesh{scene::createScreenQuad(m_material, "fxaa")}
     , m_colorBuffer{std::make_shared<gl::Texture2D<gl::SRGBA8>>(viewport, "fxaa-color")}
 {
-  auto sampler = std::make_unique<gl::Sampler>("fxaa-color");
+  auto sampler = gslu::make_nn_unique<gl::Sampler>("fxaa-color");
   sampler->set(gl::api::SamplerParameterI::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge)
     .set(gl::api::SamplerParameterI::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge)
     .set(gl::api::TextureMinFilter::Linear)

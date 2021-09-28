@@ -11,6 +11,7 @@
 #include <gl/texturehandle.h>
 #include <glm/vec2.hpp>
 #include <gsl/gsl-lite.hpp>
+#include <gslu.h>
 #include <stdexcept>
 #include <utility>
 #include <vector>
@@ -39,8 +40,8 @@ Converter::Converter(AVFilterLink* filter)
                              nullptr,
                              nullptr)}
 {
-  auto texture = std::make_shared<gl::Texture2D<gl::SRGBA8>>(glm::ivec2{filter->w, filter->h}, "video");
-  auto sampler = std::make_unique<gl::Sampler>("video");
+  auto texture = gslu::make_nn_shared<gl::Texture2D<gl::SRGBA8>>(glm::ivec2{filter->w, filter->h}, "video");
+  auto sampler = gslu::make_nn_unique<gl::Sampler>("video");
   sampler->set(gl::api::TextureMagFilter::Linear);
   textureHandle
     = std::make_shared<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>>(std::move(texture), std::move(sampler));

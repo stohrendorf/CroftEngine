@@ -20,6 +20,7 @@
 #include <gl/texturehandle.h>
 #include <glm/mat4x4.hpp>
 #include <gsl/gsl-lite.hpp>
+#include <gslu.h>
 #include <optional>
 #include <utility>
 
@@ -38,7 +39,7 @@ HBAOPass::HBAOPass(scene::MaterialManager& materialManager,
     , m_aoBuffer{std::make_shared<gl::Texture2D<gl::ScalarByte>>(viewport, "hbao-ao")}
     , m_blur{"hbao", materialManager, 2, false}
 {
-  auto sampler = std::make_unique<gl::Sampler>("hbao-ao");
+  auto sampler = gslu::make_nn_unique<gl::Sampler>("hbao-ao");
   sampler->set(gl::api::SamplerParameterI::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge)
     .set(gl::api::SamplerParameterI::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge)
     .set(gl::api::TextureMinFilter::Linear)
@@ -54,7 +55,7 @@ HBAOPass::HBAOPass(scene::MaterialManager& materialManager,
                        const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
                      { uniform.set(buffer); });
 
-  m_blur.setInput(m_aoBufferHandle);
+  m_blur.setInput(gsl::not_null{m_aoBufferHandle});
 
   m_fb = gl::FrameBufferBuilder()
            .textureNoBlend(gl::api::FramebufferAttachment::ColorAttachment0, m_aoBuffer)

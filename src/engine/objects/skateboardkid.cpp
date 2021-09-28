@@ -32,7 +32,7 @@ namespace engine::objects
 SkateboardKid::SkateboardKid(const gsl::not_null<world::World*>& world, const Location& location)
     : AIAgent{world, location}
     , m_skateboard{std::make_shared<SkeletalModelNode>(
-        "skateboard", world, world->findAnimatedModelForType(TR1ItemId::Skateboard).get())}
+        "skateboard", world, gsl::not_null{world->findAnimatedModelForType(TR1ItemId::Skateboard).get()})}
 {
 }
 
@@ -43,7 +43,7 @@ SkateboardKid::SkateboardKid(const std::string& name,
                              const gsl::not_null<const world::SkeletalModelType*>& animatedModel)
     : AIAgent{name, world, room, item, animatedModel}
     , m_skateboard{std::make_shared<SkeletalModelNode>(
-        "skateboard", world, world->findAnimatedModelForType(TR1ItemId::Skateboard).get())}
+        "skateboard", world, gsl::not_null{world->findAnimatedModelForType(TR1ItemId::Skateboard).get()})}
 {
   m_state.current_anim_state = 2_as;
   SkeletalModelNode::buildMesh(m_skateboard, m_state.current_anim_state);
@@ -140,7 +140,8 @@ void SkateboardKid::update()
   }
   else if(m_state.current_anim_state != 5_as)
   {
-    getSkeleton()->setAnim(&getWorld().findAnimatedModelForType(TR1ItemId::SkateboardKid)->animations[13]);
+    getSkeleton()->setAnim(
+      gsl::not_null{&getWorld().findAnimatedModelForType(TR1ItemId::SkateboardKid)->animations[13]});
     m_state.current_anim_state = 5_as;
     getWorld().createPickup(TR1ItemId::UzisSprite, m_state.location.room, m_state.location.position);
   }
@@ -153,9 +154,9 @@ void SkateboardKid::update()
                                      getSkeleton()->getAnim());
   const auto& skateboardAnim = getWorld().findAnimatedModelForType(TR1ItemId::Skateboard)->animations[animIdx];
   const auto animFrame = skateboardAnim.firstFrame + getSkeleton()->getLocalFrame();
-  m_skateboard->setAnim(&skateboardAnim, std::min(skateboardAnim.lastFrame, animFrame));
+  m_skateboard->setAnim(gsl::not_null{&skateboardAnim}, std::min(skateboardAnim.lastFrame, animFrame));
   m_skateboard->updatePose();
-  setParent(m_skateboard, getNode());
+  setParent(gsl::not_null{m_skateboard}, getNode());
 }
 
 void SkateboardKid::serialize(const serialization::Serializer<world::World>& ser)

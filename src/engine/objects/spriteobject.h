@@ -33,8 +33,8 @@ namespace engine::objects
 class SpriteObject : public Object
 {
 private:
-  std::shared_ptr<render::scene::Node> m_objectNode;
-  std::shared_ptr<render::scene::Node> m_displayNode;
+  gsl::not_null<std::shared_ptr<render::scene::Node>> m_objectNode;
+  gsl::not_null<std::shared_ptr<render::scene::Node>> m_displayNode;
   const world::Sprite* m_sprite = nullptr;
   core::Brightness m_brightness{0.5f};
 
@@ -58,10 +58,7 @@ public:
 
   ~SpriteObject() override
   {
-    if(m_objectNode != nullptr)
-    {
-      setParent(m_objectNode, nullptr);
-    }
+    setParent(m_objectNode, nullptr);
   }
 
   bool triggerSwitch(const core::Frame&) override

@@ -55,6 +55,7 @@
 #include <glm/mat4x4.hpp>
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
+#include <gslu.h>
 #include <optional>
 #include <set>
 #include <utility>
@@ -78,7 +79,7 @@ void Presenter::playVideo(const std::filesystem::path& path)
 
   video::play(path,
               m_soundEngine->getDevice(),
-              [&](const std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>>& textureHandle)
+              [&](const gsl::not_null<std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>>>& textureHandle)
               {
                 if(update())
                   return true;
@@ -307,7 +308,7 @@ void drawBar(ui::Ui& ui,
     for(int i = 0; i < BarHeight; ++i)
       ui.drawHLine(xy0 + glm::ivec2{0, i}, p, getBarColor(static_cast<float>(i) / (BarHeight - 1), barColors));
   }
-};
+}
 } // namespace
 
 void Presenter::drawBars(ui::Ui& ui, const std::array<gl::SRGBA8, 256>& palette, const ObjectManager& objectManager)
@@ -369,11 +370,11 @@ void Presenter::drawBars(ui::Ui& ui, const std::array<gl::SRGBA8, 256>& palette,
 Presenter::Presenter(const std::filesystem::path& engineDataPath, const glm::ivec2& resolution)
     : m_window{std::make_unique<gl::Window>(engineDataPath / "logo.png", resolution)}
     , m_soundEngine{std::make_shared<audio::SoundEngine>()}
-    , m_renderer{std::make_shared<render::scene::Renderer>(std::make_shared<render::scene::Camera>(
+    , m_renderer{std::make_shared<render::scene::Renderer>(gslu::make_nn_shared<render::scene::Camera>(
         DefaultFov, m_window->getViewport(), DefaultNearPlane, DefaultFarPlane))}
     , m_splashImage{gsl::make_shared<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>>(
         gl::CImgWrapper{util::ensureFileExists(engineDataPath / "splash.png")}.toTexture("splash"),
-        gsl::make_unique<gl::Sampler>("splash-sampler"))}
+        gslu::make_nn_unique<gl::Sampler>("splash-sampler"))}
     , m_trTTFFont{std::make_unique<gl::Font>(util::ensureFileExists(engineDataPath / "trfont.ttf"))}
     , m_debugFont{std::make_unique<gl::Font>(util::ensureFileExists(engineDataPath / "DroidSansMono.ttf"))}
     , m_inputHandler{std::make_unique<hid::InputHandler>(m_window->getWindow(),
@@ -383,7 +384,7 @@ Presenter::Presenter(const std::filesystem::path& engineDataPath, const glm::ive
     , m_csm{std::make_shared<render::scene::CSM>(1024, *m_materialManager)}
     , m_renderPipeline{std::make_unique<render::RenderPipeline>(*m_materialManager, m_window->getViewport())}
 {
-  m_materialManager->setCSM(m_csm);
+  m_materialManager->setCSM(gsl::not_null{m_csm});
   scaleSplashImage();
   drawLoadingScreen(_("Booting"));
 }
@@ -505,7 +506,7 @@ void Presenter::apply(const render::RenderSettings& renderSettings, const AudioS
   if(m_csm->getResolution() != renderSettings.getCSMResolution())
   {
     m_csm = std::make_shared<render::scene::CSM>(renderSettings.getCSMResolution(), *m_materialManager);
-    m_materialManager->setCSM(m_csm);
+    m_materialManager->setCSM(gsl::not_null{m_csm});
   }
   m_renderPipeline->apply(renderSettings, *m_materialManager);
   m_materialManager->setFiltering(renderSettings.bilinearFiltering, gsl::narrow<float>(renderSettings.anisotropyLevel));

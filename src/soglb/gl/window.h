@@ -4,6 +4,7 @@
 
 #include <filesystem>
 #include <glm/vec2.hpp>
+#include <gsl/gsl-lite.hpp>
 
 namespace gl
 {
@@ -28,9 +29,9 @@ public:
 
   void swapBuffers() const;
 
-  [[nodiscard]] GLFWwindow* getWindow() const
+  [[nodiscard]] gsl::not_null<GLFWwindow*> getWindow() const
   {
-    return m_window;
+    return gsl::not_null{m_window};
   }
 
   [[nodiscard]] const glm::ivec2& getViewport() const

@@ -26,6 +26,7 @@
 #include <glm/fwd.hpp>
 #include <glm/vec2.hpp>
 #include <gsl/gsl-lite.hpp>
+#include <gslu.h>
 #include <string>
 #include <tuple>
 #include <utility>
@@ -35,7 +36,7 @@ namespace menu
 class RenderSettingsMenuState::CheckListBox : public ui::widgets::Widget
 {
 private:
-  std::shared_ptr<ui::widgets::ListBox> m_listBox;
+  gsl::not_null<std::shared_ptr<ui::widgets::ListBox>> m_listBox;
   ui::widgets::GroupBox m_groupBox;
   std::vector<std::tuple<std::function<bool()>, std::function<void()>, std::shared_ptr<ui::widgets::Checkbox>>>
     m_checkboxes;
@@ -87,7 +88,7 @@ public:
 
   auto addSetting(const std::string& name, std::function<bool()>&& getter, std::function<void()>&& toggler)
   {
-    auto checkbox = std::make_shared<ui::widgets::Checkbox>(name);
+    auto checkbox = gslu::make_nn_shared<ui::widgets::Checkbox>(name);
     checkbox->setChecked(getter());
     checkbox->fitToContent();
     m_listBox->append(checkbox);

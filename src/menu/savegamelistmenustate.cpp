@@ -25,6 +25,7 @@
 #include <filesystem>
 #include <glm/vec2.hpp>
 #include <gsl/gsl-lite.hpp>
+#include <gslu.h>
 #include <iomanip>
 #include <locale>
 #include <map>
@@ -78,7 +79,7 @@ SavegameListMenuState::SavegameListMenuState(const std::shared_ptr<MenuRingTrans
       name = _("- EMPTY SLOT %1%", i + 1);
       m_hasSavegame.emplace_back(false);
     }
-    auto label = std::make_shared<ui::widgets::Label>(name);
+    auto label = gslu::make_nn_shared<ui::widgets::Label>(name);
     label->fitToContent();
     append(label);
   }

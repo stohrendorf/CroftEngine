@@ -21,6 +21,7 @@
 #include <gl/texture2darray.h> // IWYU pragma: keep
 #include <gl/texturehandle.h>
 #include <glm/vec2.hpp>
+#include <gslu.h>
 #include <random>
 #include <utility>
 #include <vector>
@@ -43,19 +44,19 @@ void configureForScreenSpaceEffect(Material& m, bool enableBlend = false)
 }
 } // namespace
 
-std::shared_ptr<Material> MaterialManager::getSprite(bool billboard)
+gsl::not_null<std::shared_ptr<Material>> MaterialManager::getSprite(bool billboard)
 {
   if(const auto& tmp = m_sprite[billboard])
-    return tmp;
+    return gsl::not_null{tmp};
 
-  auto m = std::make_shared<Material>(m_shaderCache->getGeometry(false, false, true, billboard ? 2 : 1));
+  auto m = gslu::make_nn_shared<Material>(m_shaderCache->getGeometry(false, false, true, billboard ? 2 : 1));
   m->getRenderState().setCullFace(false);
 
   m->getUniformBlock("Transform")->bindTransformBuffer();
   m->getUniformBlock("Camera")->bindCameraBuffer(m_renderer->getCamera());
   m->getUniform("u_diffuseTextures")
     ->bind([this](const Node& /*node*/, const Mesh& /*mesh*/, gl::Uniform& uniform)
-           { uniform.set(m_geometryTextures); });
+           { uniform.set(gsl::not_null{m_geometryTextures}); });
 
   m_sprite[billboard] = m;
   return m;
@@ -96,7 +97,7 @@ const std::shared_ptr<Material>& MaterialManager::getDepthOnly(bool skeletal)
   m_depthOnly[skeletal]
     ->getUniform("u_diffuseTextures")
     ->bind([this](const Node& /*node*/, const Mesh& /*mesh*/, gl::Uniform& uniform)
-           { uniform.set(m_geometryTextures); });
+           { uniform.set(gsl::not_null{m_geometryTextures}); });
 
   return m_depthOnly[skeletal];
 }
@@ -111,7 +112,7 @@ std::shared_ptr<Material> MaterialManager::getGeometry(bool water, bool skeletal
   auto m = std::make_shared<Material>(m_shaderCache->getGeometry(water, skeletal, roomShadowing, 0));
   m->getUniform("u_diffuseTextures")
     ->bind([this](const Node& /*node*/, const Mesh& /*mesh*/, gl::Uniform& uniform)
-           { uniform.set(m_geometryTextures); });
+           { uniform.set(gsl::not_null{m_geometryTextures}); });
 
   m->getUniformBlock("Transform")->bindTransformBuffer();
   if(auto buffer = m->tryGetBuffer("BoneTransform"))
@@ -129,11 +130,11 @@ std::shared_ptr<Material> MaterialManager::getGeometry(bool water, bool skeletal
       [this](const Node& /*node*/, const Mesh& /*mesh*/, gl::Uniform& uniform)
       {
         BOOST_ASSERT(m_csm != nullptr);
-        uniform.set(m_csm->getTextures());
+        uniform.set(gsl::make_span(m_csm->getTextures()));
       });
 
   if(auto uniform = m->tryGetUniform("u_noise"))
-    uniform->set(m_noiseTexture);
+    uniform->set(gsl::not_null{m_noiseTexture});
 
   if(auto uniform = m->tryGetUniform("u_time"))
   {
@@ -149,10 +150,10 @@ std::shared_ptr<Material> MaterialManager::getGeometry(bool water, bool skeletal
   return m;
 }
 
-const std::shared_ptr<Material>& MaterialManager::getWaterSurface()
+gsl::not_null<std::shared_ptr<Material>> MaterialManager::getWaterSurface()
 {
   if(m_waterSurface != nullptr)
-    return m_waterSurface;
+    return gsl::not_null{m_waterSurface};
 
   m_waterSurface = std::make_shared<Material>(m_shaderCache->getWaterSurface());
   m_waterSurface->getRenderState().setCullFace(false);
@@ -166,21 +167,21 @@ const std::shared_ptr<Material>& MaterialManager::getWaterSurface()
       uniform.set(gsl::narrow_cast<float>(now.time_since_epoch().count()));
     });
 
-  m_waterSurface->getUniform("u_noise")->set(m_noiseTexture);
+  m_waterSurface->getUniform("u_noise")->set(gsl::not_null{m_noiseTexture});
 
-  return m_waterSurface;
+  return gsl::not_null{m_waterSurface};
 }
 
-const std::shared_ptr<Material>& MaterialManager::getLightning()
+gsl::not_null<std::shared_ptr<Material>> MaterialManager::getLightning()
 {
   if(m_lightning != nullptr)
-    return m_lightning;
+    return gsl::not_null{m_lightning};
 
   m_lightning = std::make_shared<render::scene::Material>(m_shaderCache->getLightning());
   m_lightning->getUniformBlock("Transform")->bindTransformBuffer();
   m_lightning->getUniformBlock("Camera")->bindCameraBuffer(m_renderer->getCamera());
 
-  return m_lightning;
+  return gsl::not_null{m_lightning};
 }
 
 MaterialManager::MaterialManager(gsl::not_null<std::shared_ptr<ShaderCache>> shaderCache,
@@ -199,9 +200,9 @@ MaterialManager::MaterialManager(gsl::not_null<std::shared_ptr<ShaderCache>> sha
     i = gl::RGB8{gsl::narrow_cast<uint8_t>(value), gsl::narrow_cast<uint8_t>(value), gsl::narrow_cast<uint8_t>(value)};
   }
 
-  auto noiseTexture = std::make_shared<gl::Texture2D<gl::RGB8>>(glm::ivec2{NoiseTextureSize}, "noise");
+  auto noiseTexture = gslu::make_nn_shared<gl::Texture2D<gl::RGB8>>(glm::ivec2{NoiseTextureSize}, "noise");
   noiseTexture->assign(noiseData);
-  auto sampler = std::make_unique<gl::Sampler>("noise");
+  auto sampler = gslu::make_nn_unique<gl::Sampler>("noise");
   sampler->set(gl::api::SamplerParameterI::TextureWrapS, gl::api::TextureWrapMode::MirroredRepeat)
     .set(gl::api::SamplerParameterI::TextureWrapT, gl::api::TextureWrapMode::MirroredRepeat)
     .set(gl::api::TextureMinFilter::Linear)
@@ -232,7 +233,7 @@ std::shared_ptr<Material>
     uniform->set(water ? -2.0f : -1.0f);
 
   if(auto uniform = m->tryGetUniform("u_noise"))
-    uniform->set(m_noiseTexture);
+    uniform->set(gsl::not_null{m_noiseTexture});
 
   m_composition.emplace(key, m);
   return m;
@@ -250,7 +251,7 @@ const std::shared_ptr<Material>& MaterialManager::getCrt()
       const auto now = std::chrono::time_point_cast<std::chrono::milliseconds>(renderer->getGameTime());
       uniform.set(gsl::narrow_cast<float>(now.time_since_epoch().count()));
     });
-  m->getUniform("u_noise")->set(m_noiseTexture);
+  m->getUniform("u_noise")->set(gsl::not_null{m_noiseTexture});
   m_crt = m;
   return m_crt;
 }
@@ -262,7 +263,7 @@ const std::shared_ptr<Material>& MaterialManager::getUi()
 
   auto m = std::make_shared<Material>(m_shaderCache->getUi());
   m->getUniform("u_input")->bind([this](const Node& /*node*/, const Mesh& /*mesh*/, gl::Uniform& uniform)
-                                 { uniform.set(m_geometryTextures); });
+                                 { uniform.set(gsl::not_null{m_geometryTextures}); });
   m->getUniformBlock("Camera")->bindCameraBuffer(m_renderer->getCamera());
   configureForScreenSpaceEffect(*m, true);
   m_ui = m;
@@ -314,7 +315,7 @@ const std::shared_ptr<Material>& MaterialManager::getHBAO()
     return m_hbao;
 
   auto m = std::make_shared<Material>(m_shaderCache->getHBAO());
-  m->getUniform("u_noise")->set(m_noiseTexture);
+  m->getUniform("u_noise")->set(gsl::not_null{m_noiseTexture});
   configureForScreenSpaceEffect(*m);
   m_hbao = m;
   return m_hbao;
@@ -342,7 +343,7 @@ void MaterialManager::setFiltering(bool bilinear, float anisotropyLevel)
   if(m_geometryTextures == nullptr)
     return;
 
-  auto sampler = std::make_unique<gl::Sampler>("geometry-sampler");
+  auto sampler = gslu::make_nn_unique<gl::Sampler>("geometry-sampler");
   if(bilinear)
   {
     sampler->set(gl::api::TextureMinFilter::LinearMipmapLinear);

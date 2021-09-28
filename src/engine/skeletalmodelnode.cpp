@@ -163,7 +163,7 @@ bool SkeletalModelNode::handleStateTransitions(core::AnimStateId& animState, con
 
     if(it != tr.transitionCases.cend())
     {
-      setAnimation(animState, it->targetAnimation, it->targetFrame);
+      setAnimation(animState, gsl::not_null{it->targetAnimation}, it->targetFrame);
       return true;
     }
   }
@@ -238,7 +238,7 @@ void serialize(std::shared_ptr<SkeletalModelNode>& data, const serialization::Se
     const world::SkeletalModelType* model = nullptr;
     ser(S_NV("model", model));
     data = std::make_shared<SkeletalModelNode>(
-      create(serialization::TypeId<std::string>{}, ser["id"]), &ser.context, model);
+      create(serialization::TypeId<std::string>{}, ser["id"]), gsl::not_null{&ser.context}, gsl::not_null{model});
   }
   else
   {
@@ -252,7 +252,8 @@ void SkeletalModelNode::buildMesh(const std::shared_ptr<SkeletalModelNode>& skel
   if(!skeleton->m_meshParts.empty())
     return;
 
-  skeleton->setAnimation(animState, skeleton->m_model->animations, skeleton->m_model->animations->firstFrame);
+  skeleton->setAnimation(
+    animState, gsl::not_null{&skeleton->m_model->animations[0]}, skeleton->m_model->animations->firstFrame);
   for(const auto& bone : skeleton->m_model->bones)
   {
     skeleton->m_meshParts.emplace_back(bone.mesh.get());

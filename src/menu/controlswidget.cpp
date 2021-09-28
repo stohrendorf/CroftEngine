@@ -14,6 +14,7 @@
 #include <boost/throw_exception.hpp>
 #include <cstddef>
 #include <glm/vec2.hpp>
+#include <gslu.h>
 #include <optional>
 #include <stdexcept>
 #include <tuple>
@@ -79,7 +80,7 @@ ControlsWidget::ControlsWidget(const engine::NamedInputMappingConfig& mappingCon
 {
   m_content->setExtents(1, 3);
 
-  auto gridBox = std::make_shared<ui::widgets::GridBox>(glm::ivec2{10, ui::OutlineBorderWidth});
+  auto gridBox = gslu::make_nn_shared<ui::widgets::GridBox>(glm::ivec2{10, ui::OutlineBorderWidth});
   gridBox->setExtents(2 * gameplayActions.size(), gameplayActions[0].size());
   gridBox->setSelected({1, 0});
   m_controlGroups.emplace_back(gridBox);
@@ -88,7 +89,7 @@ ControlsWidget::ControlsWidget(const engine::NamedInputMappingConfig& mappingCon
     /* translators: TR charmap encoding */ _("Gameplay"), gridBox);
   m_content->set(0, 1, groupBox);
 
-  gridBox = std::make_shared<ui::widgets::GridBox>(glm::ivec2{10, ui::OutlineBorderWidth});
+  gridBox = gslu::make_nn_shared<ui::widgets::GridBox>(glm::ivec2{10, ui::OutlineBorderWidth});
   gridBox->setExtents(2 * shortcutActions.size(), shortcutActions[0].size());
   m_controlGroups.emplace_back(gridBox);
 
@@ -166,7 +167,7 @@ void ControlsWidget::draw(ui::Ui& ui, const engine::Presenter& presenter) const
   m_container->draw(ui, presenter);
 }
 
-const std::shared_ptr<ui::widgets::GridBox>& ControlsWidget::getCurrentGridBox() const
+const gsl::not_null<std::shared_ptr<ui::widgets::GridBox>>& ControlsWidget::getCurrentGridBox() const
 {
   return m_controlGroups.at(std::get<1>(m_content->getSelected()) - 1);
 }

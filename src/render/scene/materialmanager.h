@@ -26,16 +26,16 @@ public:
   explicit MaterialManager(gsl::not_null<std::shared_ptr<ShaderCache>> shaderCache,
                            gsl::not_null<std::shared_ptr<Renderer>> renderer);
 
-  [[nodiscard]] std::shared_ptr<Material> getSprite(bool billboard);
+  [[nodiscard]] gsl::not_null<std::shared_ptr<Material>> getSprite(bool billboard);
 
   [[nodiscard]] const std::shared_ptr<Material>& getCSMDepthOnly(bool skeletal);
   [[nodiscard]] const std::shared_ptr<Material>& getDepthOnly(bool skeletal);
 
   [[nodiscard]] std::shared_ptr<Material> getGeometry(bool water, bool skeletal, bool roomShadowing);
 
-  [[nodiscard]] const std::shared_ptr<Material>& getWaterSurface();
+  [[nodiscard]] gsl::not_null<std::shared_ptr<Material>> getWaterSurface();
 
-  [[nodiscard]] const std::shared_ptr<Material>& getLightning();
+  [[nodiscard]] gsl::not_null<std::shared_ptr<Material>> getLightning();
 
   [[nodiscard]] std::shared_ptr<Material>
     getComposition(bool water, bool lensDistortion, bool dof, bool filmGrain, bool hbao, bool velvia);

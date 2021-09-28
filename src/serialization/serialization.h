@@ -12,6 +12,7 @@
 #include <queue>
 #include <ryml.hpp>     // IWYU pragma: export
 #include <ryml_std.hpp> // IWYU pragma: export
+#include <string_view>
 #include <typeinfo>
 
 // #define SERIALIZATION_TRACE
@@ -116,18 +117,17 @@ class Serializer final
     return result;
   }
 #endif
-  std::optional<Serializer<TContext>> createMapMemberSerializer(const gsl::not_null<gsl::czstring>& name,
-                                                                bool required) const
+  std::optional<Serializer<TContext>> createMapMemberSerializer(const std::string_view& name, bool required) const
   {
     ensureIsMap();
-    auto childNode = node.find_child(c4::to_csubstr(name.get()));
+    auto childNode = node.find_child(c4::csubstr(name.data(), name.size()));
     const bool exists = !childNode.is_seed() && childNode.valid() && childNode.type() != ryml::NOTYPE;
     if(loading)
     {
       if(!exists)
       {
         if(required)
-          SERIALIZER_EXCEPTION(std::string{"Node "} + name.get() + " not defined");
+          SERIALIZER_EXCEPTION(std::string{"Node "} + std::string{name.begin(), name.end()} + " not defined");
         else
           return std::nullopt;
       }
@@ -135,17 +135,17 @@ class Serializer final
     else
     {
       if(exists)
-        SERIALIZER_EXCEPTION(std::string{"Node "} + name.get() + " already defined");
+        SERIALIZER_EXCEPTION(std::string{"Node "} + std::string{name.begin(), name.end()} + " already defined");
 
       childNode = node.append_child();
-      childNode.set_key(node.tree()->copy_to_arena(c4::to_csubstr(name.get())));
+      childNode.set_key(node.tree()->copy_to_arena(c4::csubstr(name.data(), name.size())));
     }
 
     return withNode(childNode);
   }
 
   template<typename T>
-  void doSerialize(const gsl::not_null<gsl::czstring>& name, T&& data, Serializer<TContext>& ser) const
+  void doSerialize(const std::string_view& name, T&& data, Serializer<TContext>& ser) const
   {
     try
     {
@@ -156,19 +156,19 @@ class Serializer final
     }
     catch(Exception&)
     {
-      BOOST_LOG_TRIVIAL(fatal) << "Error while serializing \"" << name.get() << "\" of type \"" << typeid(data).name()
+      BOOST_LOG_TRIVIAL(fatal) << "Error while serializing \"" << name << "\" of type \"" << typeid(data).name()
                                << "\"";
       throw;
     }
     catch(std::exception& ex)
     {
-      BOOST_LOG_TRIVIAL(fatal) << "Error while serializing \"" << name.get() << "\" of type \"" << typeid(data).name()
+      BOOST_LOG_TRIVIAL(fatal) << "Error while serializing \"" << name << "\" of type \"" << typeid(data).name()
                                << "\"";
       SERIALIZER_EXCEPTION(ex.what());
     }
     catch(...)
     {
-      BOOST_LOG_TRIVIAL(fatal) << "Error while serializing \"" << name.get() << "\" of type \"" << typeid(data).name()
+      BOOST_LOG_TRIVIAL(fatal) << "Error while serializing \"" << name << "\" of type \"" << typeid(data).name()
                                << "\"";
       SERIALIZER_EXCEPTION("Unexpected exception");
     }
@@ -200,13 +200,13 @@ public:
   }
 
   template<typename T>
-  void lazy(const gsl::not_null<gsl::czstring>& name, T& data) const
+  void lazy(const std::string_view& name, T& data) const
   {
     lazy([pdata = &data, name = name](const Serializer<TContext>& ser) { ser(name, *pdata); });
   }
 
   template<typename T, typename... Ts>
-  const Serializer<TContext>& operator()(const gsl::not_null<gsl::czstring>& headName, T&& headData, Ts&&... tail) const
+  const Serializer<TContext>& operator()(const std::string_view& headName, T&& headData, Ts&&... tail) const
   {
     (*this)(headName, std::forward<T>(headData));
     if constexpr(sizeof...(tail) > 0)
@@ -215,7 +215,7 @@ public:
   }
 
   template<typename T>
-  const Serializer<TContext>& operator()(const gsl::not_null<gsl::czstring>& name, T&& data) const
+  const Serializer<TContext>& operator()(const std::string_view& name, T&& data) const
   {
     ensureIsMap();
     BOOST_ASSERT(node.valid());
@@ -231,7 +231,7 @@ public:
   }
 
   template<typename T>
-  const Serializer<TContext>& operator()(const gsl::not_null<gsl::czstring>& name, Default<T>&& data) const
+  const Serializer<TContext>& operator()(const std::string_view& name, Default<T>&& data) const
   {
     ensureIsMap();
     BOOST_ASSERT(node.valid());
@@ -259,13 +259,13 @@ public:
   }
 
   template<typename T>
-  const Serializer<TContext>& operator()(const gsl::not_null<gsl::czstring>& name, OptionalValue<T>&& data) const
+  const Serializer<TContext>& operator()(const std::string_view& name, OptionalValue<T>&& data) const
   {
     ensureIsMap();
     BOOST_ASSERT(node.valid());
     BOOST_ASSERT(!node.is_seed());
 #ifdef SERIALIZATION_TRACE
-    BOOST_LOG_TRIVIAL(trace) << "Serializing node " << getQualifiedKey() << "::" << name.get();
+    BOOST_LOG_TRIVIAL(trace) << "Serializing node " << getQualifiedKey() << "::" << name;
 #endif
 
     if(loading)

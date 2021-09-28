@@ -17,6 +17,7 @@
 #include "render/scene/node.h"
 
 #include <bitset>
+#include <gslu.h>
 #include <memory>
 #include <type_traits>
 #include <utility>
@@ -57,7 +58,7 @@ void Dart::update()
   const auto [success, ricochetPos]
     = raycastLineOfSight(oldLocation, m_state.location.position, getWorld().getObjectManager());
 
-  auto particle = std::make_shared<RicochetParticle>(ricochetPos, getWorld());
+  auto particle = gslu::make_nn_shared<RicochetParticle>(ricochetPos, getWorld());
   setParent(particle, ricochetPos.room->node);
   particle->angle = m_state.rotation;
   particle->timePerSpriteFrame = 6;

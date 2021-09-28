@@ -73,14 +73,14 @@ public:
   }
 
 private:
-  static std::shared_ptr<ShaderProgram> createFromSource(const std::string& programId,
-                                                         const std::string& vshId,
-                                                         const std::filesystem::path& vshPath,
-                                                         const std::string& vshSource,
-                                                         const std::string& fshId,
-                                                         const std::filesystem::path& fshPath,
-                                                         const std::string& fshSource,
-                                                         const std::vector<std::string>& defines = {});
+  static gsl::not_null<std::shared_ptr<ShaderProgram>> createFromSource(const std::string& programId,
+                                                                        const std::string& vshId,
+                                                                        const std::filesystem::path& vshPath,
+                                                                        const std::string& vshSource,
+                                                                        const std::string& fshId,
+                                                                        const std::filesystem::path& fshPath,
+                                                                        const std::string& fshSource,
+                                                                        const std::vector<std::string>& defines = {});
 
   gl::Program m_handle;
   std::string m_id;

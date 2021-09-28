@@ -4,7 +4,7 @@
 
 namespace serialization
 {
-Exception::Exception(const gsl::czstring msg)
+Exception::Exception(const std::string& msg)
     : std::runtime_error{msg}
 {
 #ifndef NDEBUG

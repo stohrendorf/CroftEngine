@@ -16,7 +16,7 @@ public:
   virtual ~Listener();
 
   Listener(const Listener& rhs)
-      : Listener{rhs.m_engine}
+      : Listener{gsl::not_null{rhs.m_engine}}
   {
   }
 

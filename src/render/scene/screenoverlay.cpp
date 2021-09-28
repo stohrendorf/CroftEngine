@@ -14,6 +14,7 @@
 #include <gl/texture2d.h>
 #include <gl/texturehandle.h>
 #include <glm/vec2.hpp>
+#include <gslu.h>
 #include <stdexcept>
 #include <utility>
 
@@ -51,9 +52,9 @@ void ScreenOverlay::init(MaterialManager& materialManager, const glm::ivec2& vie
     BOOST_THROW_EXCEPTION(std::runtime_error("Cannot create screen overlay because the viewport is empty"));
   }
 
-  auto texture = std::make_shared<gl::Texture2D<gl::SRGBA8>>(m_image->getSize(), "screenoverlay");
+  auto texture = gslu::make_nn_shared<gl::Texture2D<gl::SRGBA8>>(m_image->getSize(), "screenoverlay");
   texture->assign(m_image->getData());
-  auto sampler = gsl::make_unique<gl::Sampler>("screenoverlay-sampler");
+  auto sampler = gslu::make_nn_unique<gl::Sampler>("screenoverlay-sampler");
   sampler->set(gl::api::TextureMinFilter::Nearest)
     .set(gl::api::TextureMagFilter::Nearest)
     .set(gl::api::SamplerParameterI::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge)
@@ -63,7 +64,7 @@ void ScreenOverlay::init(MaterialManager& materialManager, const glm::ivec2& vie
   m_mesh = createScreenQuad(materialManager.getFlat(true, true), "screenoverlay");
   m_mesh->bind("u_input",
                [this](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
-               { uniform.set(m_texture); });
+               { uniform.set(gsl::not_null{m_texture}); });
   m_mesh->bind("u_alphaMultiplier",
                [this](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
                { uniform.set(m_alphaMultiplier); });

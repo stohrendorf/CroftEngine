@@ -50,14 +50,14 @@ CentaurStatue::CentaurStatue(const std::string& name,
       world,
       room,
       item,
-      model.get());
+      gsl::not_null{model.get()});
     auto& childState = m_childObject->m_state;
     childState.activationState.setOneshot(true);
     m_childObject->getSkeleton()->setAnimation(
-      childState.current_anim_state, &model->animations[7], model->animations[7].firstFrame + 36_frame);
+      childState.current_anim_state, gsl::not_null{&model->animations[7]}, model->animations[7].firstFrame + 36_frame);
     childState.goal_anim_state = childState.current_anim_state = model->animations[7].state_id;
     childState.rotation.Y = m_state.rotation.Y;
-    getWorld().getObjectManager().registerObject(m_childObject);
+    getWorld().getObjectManager().registerObject(gsl::not_null{m_childObject});
   }
   else
   {

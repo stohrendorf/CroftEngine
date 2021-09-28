@@ -39,6 +39,7 @@
 #include <glm/mat4x4.hpp>
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
+#include <gslu.h>
 #include <optional>
 #include <tuple>
 #include <utility>
@@ -61,15 +62,16 @@ std::tuple<gsl::not_null<std::shared_ptr<render::scene::Mesh>>,
   for(uint16_t i = 0; i < LightningEmitter::ControlPoints; ++i)
     indices.emplace_back(i);
 
-  auto indexBuffer = std::make_shared<gl::ElementArrayBuffer<uint16_t>>("bolt");
+  auto indexBuffer = gslu::make_nn_shared<gl::ElementArrayBuffer<uint16_t>>("bolt");
   indexBuffer->setData(indices, gl::api::BufferUsage::StaticDraw);
 
-  auto vb = std::make_shared<gl::VertexBuffer<glm::vec3>>(layout, "bolt");
+  auto vb = gslu::make_nn_shared<gl::VertexBuffer<glm::vec3>>(layout, "bolt");
   vb->setData(vertices, gl::api::BufferUsage::DynamicDraw);
 
-  auto vao = std::make_shared<gl::VertexArray<uint16_t, glm::vec3>>(
+  auto vao = gslu::make_nn_shared<gl::VertexArray<uint16_t, glm::vec3>>(
     indexBuffer, vb, std::vector{&material->getShaderProgram()->getHandle()}, "bolt");
-  auto mesh = std::make_shared<render::scene::MeshImpl<uint16_t, glm::vec3>>(vao, gl::api::PrimitiveType::LineStrip);
+  auto mesh
+    = gslu::make_nn_shared<render::scene::MeshImpl<uint16_t, glm::vec3>>(vao, gl::api::PrimitiveType::LineStrip);
 
   mesh->getRenderState().setLineSmooth(true);
   mesh->getRenderState().setLineWidth(lineWidth);
@@ -265,7 +267,7 @@ void LightningEmitter::init(world::World& world)
   m_mainBoltNode = std::make_shared<render::scene::Node>("lightning-bolt-main");
   m_mainBoltNode->setRenderable(m_mainBoltMesh);
   m_mainBoltNode->setVisible(false);
-  addChild(getSkeleton(), m_mainBoltNode);
+  addChild(gsl::not_null{getSkeleton()}, gsl::not_null{m_mainBoltNode});
 
   for(auto& childBolt : m_childBolts)
   {
@@ -274,7 +276,7 @@ void LightningEmitter::init(world::World& world)
     childBolt.node = std::make_shared<render::scene::Node>("lightning-bolt-child");
     childBolt.node->setRenderable(childBolt.mesh);
     childBolt.node->setVisible(false);
-    addChild(getSkeleton(), childBolt.node);
+    addChild(gsl::not_null{getSkeleton()}, gsl::not_null{childBolt.node});
   }
 }
 

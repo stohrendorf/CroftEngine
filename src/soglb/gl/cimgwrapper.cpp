@@ -12,6 +12,7 @@
 #include <CImg.h>
 #include <fstream>
 #include <gsl/gsl-lite.hpp>
+#include <gslu.h>
 #include <utility>
 
 namespace gl
@@ -244,7 +245,7 @@ void CImgWrapper::fromScreenshot()
 
 gsl::not_null<std::shared_ptr<gl::Texture2D<gl::SRGBA8>>> CImgWrapper::toTexture(const std::string_view& label)
 {
-  auto result = gsl::make_shared<gl::Texture2D<gl::SRGBA8>>(glm::ivec2{width(), height()}, label);
+  auto result = gslu::make_nn_shared<gl::Texture2D<gl::SRGBA8>>(glm::ivec2{width(), height()}, label);
   result->assign(pixels());
   return result;
 }

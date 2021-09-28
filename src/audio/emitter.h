@@ -16,7 +16,7 @@ public:
   virtual ~Emitter();
 
   Emitter(const Emitter& rhs)
-      : Emitter{rhs.m_engine}
+      : Emitter{gsl::not_null{rhs.m_engine}}
   {
   }
 

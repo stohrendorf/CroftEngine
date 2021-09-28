@@ -27,6 +27,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/mat4x4.hpp>
 #include <glm/vec3.hpp>
+#include <gslu.h>
 #include <type_traits>
 #include <utility>
 #include <vector>
@@ -82,7 +83,7 @@ Particle::Particle(const std::string& id,
                    bool billboard,
                    const std::shared_ptr<render::scene::Renderable>& renderable)
     : Node{id}
-    , Emitter{world.getPresenter().getSoundEngine().get()}
+    , Emitter{gsl::not_null{world.getPresenter().getSoundEngine().get()}}
     , location{room}
     , object_number{objectNumber}
 {
@@ -105,7 +106,7 @@ Particle::Particle(const std::string& id,
                    bool billboard,
                    const std::shared_ptr<render::scene::Renderable>& renderable)
     : Node{id}
-    , Emitter{world.getPresenter().getSoundEngine().get()}
+    , Emitter{gsl::not_null{world.getPresenter().getSoundEngine().get()}}
     , location{std::move(location)}
     , object_number{objectNumber}
 {
@@ -256,7 +257,7 @@ bool FlameParticle::update(world::World& world)
 
         if(!alreadyAttachedToLara)
         {
-          const auto particle = std::make_shared<FlameParticle>(location, world);
+          const auto particle = gslu::make_nn_shared<FlameParticle>(location, world);
           particle->timePerSpriteFrame = -1;
           setParent(particle, location.room->node);
           world.getObjectManager().registerParticle(particle);
@@ -337,10 +338,10 @@ bool MeshShrapnelParticle::update(world::World& world)
   if(!explode)
     return true;
 
-  const auto particle = std::make_shared<ExplosionParticle>(location, world, fall_speed, angle);
+  const auto particle = gslu::make_nn_shared<ExplosionParticle>(location, world, fall_speed, angle);
   setParent(particle, location.room->node);
   world.getObjectManager().registerParticle(particle);
-  world.getAudioEngine().playSoundEffect(TR1SoundEffect::Explosion2, particle.get());
+  world.getAudioEngine().playSoundEffect(TR1SoundEffect::Explosion2, particle.get().get());
   return false;
 }
 
@@ -382,21 +383,21 @@ bool MutantBulletParticle::update(world::World& world)
      || HeightInfo::fromCeiling(sector, location.position, world.getObjectManager().getObjects()).y
           >= location.position.Y)
   {
-    auto particle = std::make_shared<RicochetParticle>(location, world);
+    auto particle = gslu::make_nn_shared<RicochetParticle>(location, world);
     particle->timePerSpriteFrame = 6;
     setParent(particle, location.room->node);
     world.getObjectManager().registerParticle(particle);
-    world.getAudioEngine().playSoundEffect(TR1SoundEffect::Ricochet, particle.get());
+    world.getAudioEngine().playSoundEffect(TR1SoundEffect::Ricochet, particle.get().get());
     return false;
   }
   else if(world.getObjectManager().getLara().isNear(*this, 200_len))
   {
     auto& laraState = world.getObjectManager().getLara().m_state;
     laraState.health -= 30_hp;
-    auto particle = std::make_shared<BloodSplatterParticle>(location, speed, angle.Y, world);
+    auto particle = gslu::make_nn_shared<BloodSplatterParticle>(location, speed, angle.Y, world);
     setParent(particle, location.room->node);
     world.getObjectManager().registerParticle(particle);
-    world.getAudioEngine().playSoundEffect(TR1SoundEffect::BulletHitsLara, particle.get());
+    world.getAudioEngine().playSoundEffect(TR1SoundEffect::BulletHitsLara, particle.get().get());
     laraState.is_hit = true;
     angle.Y = laraState.rotation.Y;
     speed = laraState.speed;
@@ -418,10 +419,10 @@ bool MutantGrenadeParticle::update(world::World& world)
      || HeightInfo::fromCeiling(sector, location.position, world.getObjectManager().getObjects()).y
           >= location.position.Y)
   {
-    auto particle = std::make_shared<ExplosionParticle>(location, world, fall_speed, angle);
+    auto particle = gslu::make_nn_shared<ExplosionParticle>(location, world, fall_speed, angle);
     setParent(particle, location.room->node);
     world.getObjectManager().registerParticle(particle);
-    world.getAudioEngine().playSoundEffect(TR1SoundEffect::Explosion2, particle.get());
+    world.getAudioEngine().playSoundEffect(TR1SoundEffect::Explosion2, particle.get().get());
 
     const auto dd = location.position - world.getObjectManager().getLara().m_state.location.position;
     const auto d = util::square(dd.X) + util::square(dd.Y) + util::square(dd.Z);
@@ -437,10 +438,10 @@ bool MutantGrenadeParticle::update(world::World& world)
   else if(world.getObjectManager().getLara().isNear(*this, 200_len))
   {
     world.getObjectManager().getLara().m_state.health -= 100_hp;
-    auto particle = std::make_shared<ExplosionParticle>(location, world, fall_speed, angle);
+    auto particle = gslu::make_nn_shared<ExplosionParticle>(location, world, fall_speed, angle);
     setParent(particle, location.room->node);
     world.getObjectManager().registerParticle(particle);
-    world.getAudioEngine().playSoundEffect(TR1SoundEffect::Explosion2, particle.get());
+    world.getAudioEngine().playSoundEffect(TR1SoundEffect::Explosion2, particle.get().get());
 
     if(!world.getObjectManager().getLara().isDead())
     {
@@ -553,7 +554,7 @@ gsl::not_null<std::shared_ptr<Particle>> createMuzzleFlash(world::World& world,
                                                            const core::Speed& /*speed*/,
                                                            const core::Angle& angle)
 {
-  auto particle = std::make_shared<MuzzleFlashParticle>(location, world, angle);
+  auto particle = gslu::make_nn_shared<MuzzleFlashParticle>(location, world, angle);
   setParent(particle, location.room->node);
   return particle;
 }
@@ -563,7 +564,7 @@ gsl::not_null<std::shared_ptr<Particle>> createMutantBullet(world::World& world,
                                                             const core::Speed& /*speed*/,
                                                             const core::Angle& angle)
 {
-  auto particle = std::make_shared<MutantBulletParticle>(location, world, angle);
+  auto particle = gslu::make_nn_shared<MutantBulletParticle>(location, world, angle);
   setParent(particle, location.room->node);
   return particle;
 }
@@ -573,7 +574,7 @@ gsl::not_null<std::shared_ptr<Particle>> createMutantGrenade(world::World& world
                                                              const core::Speed& /*speed*/,
                                                              const core::Angle& angle)
 {
-  auto particle = std::make_shared<MutantGrenadeParticle>(location, world, angle);
+  auto particle = gslu::make_nn_shared<MutantGrenadeParticle>(location, world, angle);
   setParent(particle, location.room->node);
   return particle;
 }
@@ -581,7 +582,7 @@ gsl::not_null<std::shared_ptr<Particle>> createMutantGrenade(world::World& world
 gsl::not_null<std::shared_ptr<Particle>>
   createBloodSplat(world::World& world, const Location& location, const core::Speed& speed, const core::Angle& angle)
 {
-  auto particle = std::make_shared<BloodSplatterParticle>(location, speed, angle, world);
+  auto particle = gslu::make_nn_shared<BloodSplatterParticle>(location, speed, angle, world);
   setParent(particle, location.room->node);
   return particle;
 }

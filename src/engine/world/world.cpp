@@ -90,6 +90,7 @@
 #include <gl/texturehandle.h>
 #include <glm/gtx/norm.hpp>
 #include <glm/vec2.hpp>
+#include <gslu.h>
 #include <iterator>
 #include <set>
 #include <sstream>
@@ -304,7 +305,7 @@ void World::laraNormalEffect()
 {
   m_objectManager.getLara().setCurrentAnimState(loader::file::LaraStateId::Stop);
   m_objectManager.getLara().setRequiredAnimState(loader::file::LaraStateId::Unknown12);
-  m_objectManager.getLara().getSkeleton()->setAnim(&getAnimation(loader::file::AnimationId::STAY_SOLID));
+  m_objectManager.getLara().getSkeleton()->setAnim(gsl::not_null{&getAnimation(loader::file::AnimationId::STAY_SOLID)});
   m_cameraController->setMode(CameraMode::Chase);
   getPresenter().getRenderer().getCamera()->setFieldOfView(Presenter::DefaultFov);
 }
@@ -327,7 +328,7 @@ void World::laraBubblesEffect(objects::Object& object)
 
   while(bubbleCount-- > 0)
   {
-    auto particle = std::make_shared<BubbleParticle>(Location{object.m_state.location.room, position}, *this);
+    auto particle = gslu::make_nn_shared<BubbleParticle>(Location{object.m_state.location.room, position}, *this);
     setParent(particle, object.m_state.location.room->node);
     m_objectManager.registerParticle(particle);
   }
@@ -516,11 +517,11 @@ void World::swapWithAlternate(Room& orig, Room& alternate)
     if(object->m_state.location.room == &orig)
     {
       // although this seems contradictory, remember the nodes have been swapped above
-      setParent(object->getNode(), orig.node);
+      setParent(gsl::not_null{object->getNode()}, orig.node);
     }
     else if(object->m_state.location.room == &alternate)
     {
-      setParent(object->getNode(), alternate.node);
+      setParent(gsl::not_null{object->getNode()}, alternate.node);
       continue;
     }
     else
@@ -542,16 +543,16 @@ void World::swapWithAlternate(Room& orig, Room& alternate)
   {
     if(object->m_state.location.room == &orig)
     {
-      setParent(object->getNode(), orig.node);
+      setParent(gsl::not_null{object->getNode()}, orig.node);
     }
     else if(object->m_state.location.room == &alternate)
     {
-      setParent(object->getNode(), alternate.node);
+      setParent(gsl::not_null{object->getNode()}, alternate.node);
     }
   }
 }
 
-std::shared_ptr<objects::PickupObject>
+gsl::not_null<std::shared_ptr<objects::PickupObject>>
   World::createPickup(const core::TypeId& type, const gsl::not_null<const Room*>& room, const core::TRVec& position)
 {
   loader::file::Item item;
@@ -566,15 +567,15 @@ std::shared_ptr<objects::PickupObject>
   Expects(spriteSequence != nullptr && !spriteSequence->sprites.empty());
   const Sprite& sprite = spriteSequence->sprites[0];
 
-  auto object = std::make_shared<objects::PickupObject>(
+  auto object = gslu::make_nn_shared<objects::PickupObject>(
     objects::makeObjectName(item.type.get_as<TR1ItemId>(), m_objectManager.getDynamicObjectCount()),
-    this,
+    gsl::not_null{this},
     room,
     item,
-    &sprite);
+    gsl::not_null{&sprite});
 
   m_objectManager.registerDynamicObject(object);
-  addChild(room->node, object->getNode());
+  addChild(gsl::not_null{room->node}, gsl::not_null{object->getNode()});
 
   return object;
 }
@@ -770,13 +771,13 @@ void World::handleCommandSequence(const floordata::FloorDataValue* floorData, co
     }
     break;
     case floordata::CommandOpcode::LookAt:
-      m_cameraController->setLookAtObject(m_objectManager.getObject(command.parameter));
+      m_cameraController->setLookAtObject(gsl::not_null{m_objectManager.getObject(command.parameter)});
       break;
     case floordata::CommandOpcode::UnderwaterCurrent:
     {
       const auto& sink = m_cameraSinks.at(command.parameter);
       {
-        m_objectManager.getLara().m_underwaterRoute.setTargetBox(&m_boxes[sink.box_index]);
+        m_objectManager.getLara().m_underwaterRoute.setTargetBox(gsl::not_null{&m_boxes.at(sink.box_index)});
         auto newTarget = sink.position;
         newTarget.X = m_boxes[sink.box_index].xInterval.clamp(newTarget.X);
         newTarget.Z = m_boxes[sink.box_index].zInterval.clamp(newTarget.Z);
@@ -870,7 +871,7 @@ void World::serialize(const serialization::Serializer<World>& ser)
     for(auto& room : m_rooms)
     {
       room.resetScenery();
-      setParent(room.node, getPresenter().getRenderer().getRootNode());
+      setParent(gsl::not_null{room.node}, getPresenter().getRenderer().getRootNode());
     }
 
     ser(S_NV("roomPhysicalIds", serialization::FrozenVector{physicalIds}));
@@ -927,8 +928,8 @@ void World::gameLoop(bool godMode, float waitRatio, float blackAlpha)
     case WeaponType::Uzis: suffix = " C"; break;
     default: Expects(false); break;
     }
-    const auto ammoPtr = m_player->getInventory().getAmmo(m_player->selectedWeaponType);
-    const auto n = ammoPtr->ammo / ammoPtr->roundsPerShot;
+    const auto& ammo = m_player->getInventory().getAmmo(m_player->selectedWeaponType);
+    const auto n = ammo.ammo / ammo.roundsPerShot;
     auto text = ui::Text{ui::makeAmmoString(std::to_string(n) + suffix)};
     text.draw(ui, getPresenter().getTrFont(), glm::ivec2{getPresenter().getViewport().x - 17 - text.getWidth(), 22});
   }
@@ -1069,7 +1070,7 @@ World::World(Engine& engine,
                                 m_sprites,
                                 [this](const std::string& s) { getPresenter().drawLoadingScreen(s); });
 
-  auto sampler = std::make_unique<gl::Sampler>("all-textures");
+  auto sampler = gslu::make_nn_unique<gl::Sampler>("all-textures");
   sampler->set(gl::api::TextureMinFilter::NearestMipmapLinear);
   sampler->set(gl::api::TextureMagFilter::Nearest);
   sampler->set(gl::api::SamplerParameterI::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge);
@@ -1077,8 +1078,8 @@ World::World(Engine& engine,
   if(const auto anisotropyLevel = getEngine().getEngineConfig()->renderSettings.anisotropyLevel;
      anisotropyLevel != 0 && gl::hasAnisotropicFilteringExtension())
     sampler->set(gl::api::SamplerParameterF::TextureMaxAnisotropy, gsl::narrow<float>(anisotropyLevel));
-  m_allTexturesHandle
-    = std::make_shared<gl::TextureHandle<gl::Texture2DArray<gl::SRGBA8>>>(m_allTextures, std::move(sampler));
+  m_allTexturesHandle = std::make_shared<gl::TextureHandle<gl::Texture2DArray<gl::SRGBA8>>>(
+    gsl::not_null{m_allTextures}, std::move(sampler));
   getPresenter().getMaterialManager()->setGeometryTextures(m_allTexturesHandle);
 
   for(size_t i = 0; i < m_sprites.size(); ++i)
@@ -1110,8 +1111,7 @@ World::World(Engine& engine,
 
   for(const auto offset : level->m_sampleIndices)
   {
-    Expects(offset < m_samplesData.size());
-    m_audioEngine->addWav(&m_samplesData[offset]);
+    m_audioEngine->addWav(gsl::not_null{&m_samplesData.at(offset)});
   }
 
   getPresenter().drawLoadingScreen(util::unescape(m_title));
@@ -1132,7 +1132,7 @@ World::World(Engine& engine,
 
 World::~World()
 {
-  m_engine.unregisterWorld(this);
+  m_engine.unregisterWorld(gsl::not_null{this});
 }
 
 void World::drawPickupWidgets(ui::Ui& ui)
@@ -1243,7 +1243,7 @@ void World::initFromLevel(loader::file::level::Level& level)
                  {
                    return Mesh{mesh.collision_center,
                                mesh.collision_radius,
-                               std::make_shared<RenderMeshData>(mesh, m_atlasTiles, m_palette)};
+                               gslu::make_nn_shared<RenderMeshData>(mesh, m_atlasTiles, m_palette)};
                  });
 
   std::vector<gsl::not_null<const Mesh*>> meshesDirect;
@@ -1409,12 +1409,13 @@ void World::initFromLevel(loader::file::level::Level& level)
                    [](const loader::file::Light& light) {
                      return Light{light.position, light.intensity, light.fadeDistance};
                    });
-    std::transform(srcRoom.staticMeshes.begin(),
-                   srcRoom.staticMeshes.end(),
-                   std::back_inserter(m_rooms[i].staticMeshes),
-                   [this](const loader::file::RoomStaticMesh& rsm) {
-                     return RoomStaticMesh{rsm.position, rsm.rotation, rsm.shade, findStaticMeshById(rsm.meshId)};
-                   });
+    std::transform(
+      srcRoom.staticMeshes.begin(),
+      srcRoom.staticMeshes.end(),
+      std::back_inserter(m_rooms[i].staticMeshes),
+      [this](const loader::file::RoomStaticMesh& rsm) {
+        return RoomStaticMesh{rsm.position, rsm.rotation, rsm.shade, gsl::not_null{findStaticMeshById(rsm.meshId)}};
+      });
     m_rooms[i].alternateRoom = srcRoom.alternateRoom.get() >= 0 ? &m_rooms.at(srcRoom.alternateRoom.get()) : nullptr;
   }
 
@@ -1435,7 +1436,7 @@ void World::initFromLevel(loader::file::level::Level& level)
   for(size_t i = 0; i < m_rooms.size(); ++i)
   {
     m_rooms[i].createSceneNode(level.m_rooms.at(i), i, *this, *m_textureAnimator, *getPresenter().getMaterialManager());
-    setParent(m_rooms[i].node, getPresenter().getRenderer().getRootNode());
+    setParent(gsl::not_null{m_rooms[i].node}, getPresenter().getRenderer().getRootNode());
   }
 
   std::transform(level.m_cameras.begin(),
@@ -1448,7 +1449,8 @@ void World::initFromLevel(loader::file::level::Level& level)
   m_objectManager.createObjects(*this, level.m_items);
   if(m_objectManager.getLaraPtr() == nullptr)
   {
-    m_cameraController = std::make_unique<CameraController>(this, getPresenter().getRenderer().getCamera(), true);
+    m_cameraController
+      = std::make_unique<CameraController>(gsl::not_null{this}, getPresenter().getRenderer().getCamera(), true);
 
     for(const auto& item : level.m_items)
     {
@@ -1460,14 +1462,16 @@ void World::initFromLevel(loader::file::level::Level& level)
   }
   else
   {
-    m_cameraController = std::make_unique<CameraController>(this, getPresenter().getRenderer().getCamera());
+    m_cameraController
+      = std::make_unique<CameraController>(gsl::not_null{this}, getPresenter().getRenderer().getCamera());
   }
 
   m_positionalEmitters.clear();
   m_positionalEmitters.reserve(level.m_soundSources.size());
   for(loader::file::SoundSource& src : level.m_soundSources)
   {
-    m_positionalEmitters.emplace_back(src.position.toRenderSystem(), getPresenter().getSoundEngine().get());
+    m_positionalEmitters.emplace_back(src.position.toRenderSystem(),
+                                      gsl::not_null{getPresenter().getSoundEngine().get()});
     auto voice = m_audioEngine->playSoundEffect(src.sound_effect_id, &m_positionalEmitters.back());
     Expects(voice != nullptr);
     voice->pause();

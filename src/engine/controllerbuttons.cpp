@@ -30,7 +30,7 @@ namespace engine
 {
 ControllerLayouts loadControllerButtonIcons(render::MultiTextureAtlas& atlases,
                                             const std::filesystem::path& configFile,
-                                            const std::shared_ptr<render::scene::Material>& material)
+                                            const gsl::not_null<std::shared_ptr<render::scene::Material>>& material)
 {
   struct Layout
   {
@@ -99,7 +99,8 @@ ControllerLayouts loadControllerButtonIcons(render::MultiTextureAtlas& atlases,
                                           sprite.uv1,
                                           material,
                                           sprite.textureId.get_as<int32_t>(),
-                                          "controller-" + layout.name + "-" + btnName);
+                                          "controller-" + layout.name + "-" + btnName)
+            .get();
 
       if(std::holds_alternative<NamedGlfwGamepadButton>(buttonOrAxis))
       {

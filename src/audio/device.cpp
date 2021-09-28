@@ -16,6 +16,7 @@
 #include <boost/throw_exception.hpp>
 #include <glm/fwd.hpp>
 #include <glm/geometric.hpp>
+#include <gslu.h>
 #include <stdexcept>
 #include <utility>
 
@@ -47,7 +48,7 @@ const std::array<ALCint, 5> deviceQueryParamList{// reserve additional 2 sources
                                                  ALC_FALSE,
                                                  ALC_INVALID};
 
-void logDeviceInfo(ALCdevice* device)
+void logDeviceInfo(const gsl::not_null<ALCdevice*>& device)
 {
   BOOST_LOG_TRIVIAL(info) << "OpenAL device: " << alcGetString(device, ALC_ALL_DEVICES_SPECIFIER);
   BOOST_LOG_TRIVIAL(info) << "OpenAL version: " << AL_ASSERT_FN(alGetString(AL_VERSION));
@@ -142,9 +143,9 @@ Device::Device()
   AL_ASSERT(alListenerf(AL_METERS_PER_UNIT, 1 / 512.0f));
   AL_ASSERT(alDistanceModel(AL_INVERSE_DISTANCE_CLAMPED));
 
-  loadALExtFunctions(m_device);
+  loadALExtFunctions(gsl::not_null{m_device});
 
-  logDeviceInfo(m_device);
+  logDeviceInfo(gsl::not_null{m_device});
 
   m_underwaterFilter = std::make_shared<FilterHandle>();
 
@@ -208,14 +209,9 @@ void Device::update()
                    m_allVoices.end(),
                    [&listenerPos](const auto& a, const auto& b)
                    {
-                     const gsl::not_null aVoice = a;
-                     const gsl::not_null bVoice = b;
-
                      // non-positional voices have the highest priority
-                     const auto aDist
-                       = aVoice->isPositional() ? glm::distance(listenerPos, *aVoice->getPosition()) : 0.0f;
-                     const auto bDist
-                       = bVoice->isPositional() ? glm::distance(listenerPos, *bVoice->getPosition()) : 0.0f;
+                     const auto aDist = a->isPositional() ? glm::distance(listenerPos, *a->getPosition()) : 0.0f;
+                     const auto bDist = b->isPositional() ? glm::distance(listenerPos, *b->getPosition()) : 0.0f;
                      return aDist < bDist;
                    });
 
@@ -253,7 +249,7 @@ gsl::not_null<std::shared_ptr<StreamVoice>> Device::createStream(std::unique_ptr
                                                                  const size_t bufferCount,
                                                                  const std::chrono::milliseconds& initialPosition)
 {
-  const auto r = std::make_shared<StreamVoice>(
+  auto r = gslu::make_nn_shared<StreamVoice>(
     std::make_unique<StreamingSourceHandle>(), std::move(src), bufferSize, bufferCount, initialPosition);
 
   std::lock_guard lock{m_streamsLock};
@@ -268,7 +264,7 @@ void Device::updateStreams()
     stream->update();
 }
 
-void Device::removeStream(const std::shared_ptr<StreamVoice>& stream)
+void Device::removeStream(const gsl::not_null<std::shared_ptr<StreamVoice>>& stream)
 {
   stream->setLooping(false);
   stream->stop();

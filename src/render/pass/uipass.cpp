@@ -18,6 +18,7 @@
 #include <gl/texturehandle.h>
 #include <glm/mat4x4.hpp>
 #include <gsl/gsl-lite.hpp>
+#include <gslu.h>
 #include <optional>
 #include <utility>
 
@@ -41,7 +42,7 @@ UIPass::UIPass(scene::MaterialManager& materialManager, const glm::ivec2& viewpo
     , m_mesh{scene::createScreenQuad(m_material, "ui")}
     , m_colorBuffer{std::make_shared<gl::Texture2D<gl::SRGBA8>>(viewport, "ui-color")}
 {
-  auto sampler = std::make_unique<gl::Sampler>("ui-color");
+  auto sampler = gslu::make_nn_unique<gl::Sampler>("ui-color");
   sampler->set(gl::api::SamplerParameterI::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge)
     .set(gl::api::SamplerParameterI::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge)
     .set(gl::api::TextureMinFilter::Nearest)
@@ -51,7 +52,7 @@ UIPass::UIPass(scene::MaterialManager& materialManager, const glm::ivec2& viewpo
 
   m_mesh->bind("u_input",
                [this](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
-               { uniform.set(m_colorBufferHandle); });
+               { uniform.set(gsl::not_null{m_colorBufferHandle}); });
   m_mesh->getRenderState().setBlend(true);
 
   m_fb

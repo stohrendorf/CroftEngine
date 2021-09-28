@@ -45,6 +45,7 @@
 #include <glm/mat4x4.hpp>
 #include <glm/vec2.hpp>
 #include <gsl/gsl-lite.hpp>
+#include <gslu.h>
 #include <iosfwd>
 #include <map>
 #include <pybind11/cast.h>
@@ -221,10 +222,10 @@ std::pair<RunResult, std::optional<size_t>> SplashScreen::run(Engine& engine, co
   Throttler throttler{};
 
   glm::ivec2 size{-1, -1};
-  auto image = std::make_shared<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>>(
+  auto image = gslu::make_nn_shared<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>>(
     gl::CImgWrapper{util::ensureFileExists(engine.getUserDataPath() / "data" / "tr1" / "DATA" / m_path)}.toTexture(
       m_path.string()),
-    gsl::make_unique<gl::Sampler>(m_path.string() + "-sampler"));
+    gslu::make_nn_unique<gl::Sampler>(m_path.string() + "-sampler"));
   std::shared_ptr<render::scene::Mesh> mesh;
 
   render::scene::RenderContext context{render::scene::RenderMode::Full, std::nullopt};

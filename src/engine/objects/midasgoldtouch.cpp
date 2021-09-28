@@ -38,7 +38,8 @@ void MidasGoldTouch::collide(CollisionInfo& /*info*/)
      && m_state.location.position.Z - core::SectorSize / 2 < lara.m_state.location.position.Z
      && m_state.location.position.Z + core::SectorSize / 2 > lara.m_state.location.position.Z)
   {
-    lara.getSkeleton()->setAnim(&getWorld().findAnimatedModelForType(TR1ItemId::AlternativeLara)->animations[1]);
+    lara.getSkeleton()->setAnim(
+      gsl::not_null{&getWorld().findAnimatedModelForType(TR1ItemId::AlternativeLara)->animations[1]});
     lara.setCurrentAnimState(loader::file::LaraStateId::MidasDeath);
     lara.setGoalAnimState(loader::file::LaraStateId::MidasDeath);
     lara.setHandStatus(HandStatus::Grabbing);
@@ -70,7 +71,8 @@ void MidasGoldTouch::collide(CollisionInfo& /*info*/)
 
   Expects(getWorld().getPlayer().getInventory().tryTake(TR1ItemId::LeadBar));
   getWorld().getPlayer().getInventory().put(TR1ItemId::Puzzle1Sprite);
-  lara.getSkeleton()->setAnim(&getWorld().findAnimatedModelForType(TR1ItemId::AlternativeLara)->animations[0]);
+  lara.getSkeleton()->setAnim(
+    gsl::not_null{&getWorld().findAnimatedModelForType(TR1ItemId::AlternativeLara)->animations[0]});
   lara.setCurrentAnimState(loader::file::LaraStateId::UseMidas);
   lara.setGoalAnimState(loader::file::LaraStateId::UseMidas);
   lara.setHandStatus(HandStatus::Grabbing);

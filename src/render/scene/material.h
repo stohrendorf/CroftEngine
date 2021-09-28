@@ -37,25 +37,19 @@ public:
   std::shared_ptr<UniformParameter> tryGetUniform(const std::string& name) const;
   gsl::not_null<std::shared_ptr<UniformParameter>> getUniform(const std::string& name) const
   {
-    auto result = tryGetUniform(name);
-    Expects(result != nullptr);
-    return result;
+    return gsl::not_null{tryGetUniform(name)};
   }
 
   std::shared_ptr<UniformBlockParameter> tryGetUniformBlock(const std::string& name) const;
   gsl::not_null<std::shared_ptr<UniformBlockParameter>> getUniformBlock(const std::string& name) const
   {
-    auto result = tryGetUniformBlock(name);
-    Expects(result != nullptr);
-    return result;
+    return gsl::not_null{tryGetUniformBlock(name)};
   }
 
   std::shared_ptr<BufferParameter> tryGetBuffer(const std::string& name) const;
   gsl::not_null<std::shared_ptr<BufferParameter>> getBuffer(const std::string& name) const
   {
-    auto result = tryGetBuffer(name);
-    Expects(result != nullptr);
-    return result;
+    return gsl::not_null{tryGetBuffer(name)};
   }
 
   gl::RenderState& getRenderState()

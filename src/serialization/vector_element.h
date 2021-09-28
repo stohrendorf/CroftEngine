@@ -67,7 +67,7 @@ struct NotNullVectorElement
     ser.tag("element");
     std::ptrdiff_t n = 0;
     ser.node >> n;
-    element = &vec.at(n);
+    element = gsl::not_null{&vec.at(n)};
   }
 
   template<typename TContext>

@@ -8,6 +8,7 @@
 #include <gl/texturedepth.h>
 #include <gl/texturehandle.h>
 #include <glm/fwd.hpp>
+#include <gslu.h>
 #include <memory>
 #include <utility>
 
@@ -19,13 +20,13 @@ class MaterialManager;
 namespace render::pass
 {
 PortalPass::PortalPass(scene::MaterialManager& materialManager,
-                       const std::shared_ptr<gl::TextureDepth<float>>& depthBuffer,
+                       const gsl::not_null<std::shared_ptr<gl::TextureDepth<float>>>& depthBuffer,
                        const glm::vec2& viewport)
     : m_positionBuffer{std::make_shared<gl::Texture2D<gl::RGB32F>>(viewport, "portal-position")}
     , m_perturbBuffer{std::make_shared<gl::Texture2D<gl::RGB32F>>(viewport, "portal-perturb")}
     , m_blur{"perturb", materialManager, 4, true}
 {
-  auto sampler = std::make_unique<gl::Sampler>("portal-position-sampler");
+  auto sampler = gslu::make_nn_unique<gl::Sampler>("portal-position-sampler");
   sampler->set(gl::api::SamplerParameterI::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge)
     .set(gl::api::SamplerParameterI::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge)
     .set(gl::api::TextureMinFilter::Linear)
@@ -34,11 +35,11 @@ PortalPass::PortalPass(scene::MaterialManager& materialManager,
   m_positionBufferHandle
     = std::make_shared<gl::TextureHandle<gl::Texture2D<gl::RGB32F>>>(m_positionBuffer, std::move(sampler));
 
-  sampler = std::make_unique<gl::Sampler>("portal-perturb-sampler");
+  sampler = gslu::make_nn_unique<gl::Sampler>("portal-perturb-sampler");
   sampler->set(gl::api::TextureMinFilter::Linear).set(gl::api::TextureMagFilter::Linear);
   m_perturbBufferHandle
     = std::make_shared<gl::TextureHandle<gl::Texture2D<gl::RGB32F>>>(m_perturbBuffer, std::move(sampler));
-  m_blur.setInput(m_perturbBufferHandle);
+  m_blur.setInput(gsl::not_null{m_perturbBufferHandle});
 
   m_fb = gl::FrameBufferBuilder()
            .textureNoBlend(gl::api::FramebufferAttachment::ColorAttachment0, m_perturbBuffer)

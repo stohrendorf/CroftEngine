@@ -91,16 +91,16 @@ public:
 
   bool tryUse(objects::LaraObject& lara, TR1ItemId id);
 
-  gsl::not_null<Ammo*> getAmmo(WeaponType weaponType)
+  Ammo& getAmmo(WeaponType weaponType)
   {
     m_pistolsAmmo.ammo = 1000;
 
     switch(weaponType)
     {
-    case WeaponType::Pistols: return &m_pistolsAmmo;
-    case WeaponType::Magnums: return &m_magnumsAmmo;
-    case WeaponType::Uzis: return &m_uzisAmmo;
-    case WeaponType::Shotgun: return &m_shotgunAmmo;
+    case WeaponType::Pistols: return m_pistolsAmmo;
+    case WeaponType::Magnums: return m_magnumsAmmo;
+    case WeaponType::Uzis: return m_uzisAmmo;
+    case WeaponType::Shotgun: return m_shotgunAmmo;
     default: BOOST_THROW_EXCEPTION(std::domain_error("weaponType"));
     }
   }

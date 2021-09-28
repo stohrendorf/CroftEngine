@@ -31,15 +31,15 @@ public:
 
   void render(const glm::ivec2& size);
 
-  [[nodiscard]] const auto& getColorBuffer() const
+  [[nodiscard]] auto getColorBuffer() const
   {
-    return m_colorBufferHandle;
+    return gsl::not_null{m_colorBufferHandle};
   }
 
 private:
   const std::shared_ptr<scene::Material> m_material;
   std::shared_ptr<scene::Mesh> m_mesh;
-  std::shared_ptr<gl::Texture2D<gl::SRGBA8>> m_colorBuffer;
+  gsl::not_null<std::shared_ptr<gl::Texture2D<gl::SRGBA8>>> m_colorBuffer;
   std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>> m_colorBufferHandle;
   std::shared_ptr<gl::Framebuffer> m_fb;
 };

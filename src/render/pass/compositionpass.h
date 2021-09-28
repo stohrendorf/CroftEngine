@@ -33,13 +33,14 @@ class GeometryPass;
 class CompositionPass
 {
 public:
-  explicit CompositionPass(scene::MaterialManager& materialManager,
-                           const RenderSettings& renderSettings,
-                           const glm::ivec2& viewport,
-                           const GeometryPass& geometryPass,
-                           const PortalPass& portalPass,
-                           const HBAOPass& hbaoPass,
-                           const std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>>& colorBuffer);
+  explicit CompositionPass(
+    scene::MaterialManager& materialManager,
+    const RenderSettings& renderSettings,
+    const glm::ivec2& viewport,
+    const GeometryPass& geometryPass,
+    const PortalPass& portalPass,
+    const HBAOPass& hbaoPass,
+    const gsl::not_null<std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>>>& colorBuffer);
 
   void updateCamera(const gsl::not_null<std::shared_ptr<scene::Camera>>& camera);
 
@@ -52,7 +53,7 @@ private:
   std::shared_ptr<scene::Mesh> m_mesh;
   std::shared_ptr<scene::Mesh> m_waterMesh;
   std::shared_ptr<scene::Mesh> m_crtMesh;
-  std::shared_ptr<gl::Texture2D<gl::SRGBA8>> m_colorBuffer;
+  gsl::not_null<std::shared_ptr<gl::Texture2D<gl::SRGBA8>>> m_colorBuffer;
   std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>> m_colorBufferHandle;
   std::shared_ptr<gl::Framebuffer> m_fb;
 };

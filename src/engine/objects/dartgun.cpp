@@ -19,6 +19,7 @@
 #include "render/scene/node.h"
 
 #include <gsl/gsl-lite.hpp>
+#include <gslu.h>
 #include <memory>
 #include <type_traits>
 #include <utility>
@@ -62,7 +63,7 @@ void engine::objects::DartGun::update()
   auto& dartState = dart->m_state;
   dartState.triggerState = TriggerState::Active;
 
-  auto particle = std::make_shared<SmokeParticle>(dartState.location, getWorld(), dartState.rotation);
+  auto particle = gslu::make_nn_shared<SmokeParticle>(dartState.location, getWorld(), dartState.rotation);
   setParent(particle, dartState.location.room->node);
   getWorld().getObjectManager().registerParticle(std::move(particle));
 

@@ -82,20 +82,20 @@ struct alignas(4) AnimFrame
     return {begin, numValues};
   }
 
-  [[nodiscard]] const AnimFrame* next() const
+  [[nodiscard]] gsl::not_null<const AnimFrame*> next() const
   {
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
     const auto begin = reinterpret_cast<const uint32_t*>(this + 1);
     const auto end = begin + numValues;
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-    const auto next = reinterpret_cast<const AnimFrame*>(end);
+    auto next = gsl::not_null{reinterpret_cast<const AnimFrame*>(end)};
     Expects(next->numValues == numValues);
     return next;
   }
 
-  [[nodiscard]] const AnimFrame* next(size_t n) const
+  [[nodiscard]] gsl::not_null<const AnimFrame*> next(size_t n) const
   {
-    auto result = this;
+    auto result = gsl::not_null{this};
     while(n--)
     {
       result = result->next();

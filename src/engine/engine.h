@@ -158,7 +158,7 @@ public:
     m_worlds.emplace(world);
   }
 
-  void unregisterWorld(world::World* world)
+  void unregisterWorld(const gsl::not_null<world::World*>& world)
   {
     m_worlds.erase(world);
   }

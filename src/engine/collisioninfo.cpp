@@ -80,7 +80,7 @@ std::tuple<int8_t, int8_t> getFloorSlantInfo(gsl::not_null<const world::Sector*>
 {
   while(sector->roomBelow != nullptr)
   {
-    sector = sector->roomBelow->getSectorByAbsolutePosition(position);
+    sector = gsl::not_null{sector->roomBelow->getSectorByAbsolutePosition(position)};
   }
 
   static const auto zero = std::make_tuple(int8_t{0}, int8_t{0});

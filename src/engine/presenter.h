@@ -125,13 +125,11 @@ public:
 
   [[nodiscard]] const auto& getRenderer() const
   {
-    BOOST_ASSERT(m_renderer != nullptr);
     return *m_renderer;
   }
 
   [[nodiscard]] auto& getRenderer()
   {
-    BOOST_ASSERT(m_renderer != nullptr);
     return *m_renderer;
   }
 
@@ -174,21 +172,21 @@ private:
   const std::unique_ptr<gl::Window> m_window;
 
   std::shared_ptr<audio::SoundEngine> m_soundEngine;
-  const std::shared_ptr<render::scene::Renderer> m_renderer;
-  const std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>> m_splashImage;
+  const gsl::not_null<std::shared_ptr<render::scene::Renderer>> m_renderer;
+  const gsl::not_null<std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>>> m_splashImage;
   std::shared_ptr<render::scene::Mesh> m_splashImageMesh;
-  const std::unique_ptr<gl::Font> m_trTTFFont;
-  const std::unique_ptr<gl::Font> m_debugFont;
+  const gsl::not_null<std::unique_ptr<gl::Font>> m_trTTFFont;
+  const gsl::not_null<std::unique_ptr<gl::Font>> m_debugFont;
   core::Health m_drawnHealth = core::LaraHealth;
   core::Frame m_healthBarTimeout = -40_frame;
-  const std::unique_ptr<hid::InputHandler> m_inputHandler;
+  const gsl::not_null<std::unique_ptr<hid::InputHandler>> m_inputHandler;
   std::unique_ptr<ui::TRFont> m_trFont;
 
-  const std::shared_ptr<render::scene::ShaderCache> m_shaderCache{};
-  const std::unique_ptr<render::scene::MaterialManager> m_materialManager;
+  const gsl::not_null<std::shared_ptr<render::scene::ShaderCache>> m_shaderCache;
+  const gsl::not_null<std::unique_ptr<render::scene::MaterialManager>> m_materialManager;
   std::shared_ptr<render::scene::CSM> m_csm{};
 
-  const std::unique_ptr<render::RenderPipeline> m_renderPipeline;
+  const gsl::not_null<std::unique_ptr<render::RenderPipeline>> m_renderPipeline;
   std::unique_ptr<render::scene::ScreenOverlay> m_screenOverlay;
 
   bool m_showDebugInfo = false;

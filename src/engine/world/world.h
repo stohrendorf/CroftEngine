@@ -35,6 +35,7 @@
 #include <gl/soglb_fwd.h>
 #include <glm/vec3.hpp>
 #include <gsl/gsl-lite.hpp>
+#include <gslu.h>
 #include <map>
 #include <memory>
 #include <optional>
@@ -176,15 +177,15 @@ public:
     item.shade = core::Shade{core::Shade::type{0}};
     item.activationState = activationState;
 
-    auto object
-      = std::make_shared<T>(objects::makeObjectName(type.get_as<TR1ItemId>(), m_objectManager.getDynamicObjectCount()),
-                            this,
-                            room,
-                            item,
-                            model.get());
+    auto object = gslu::make_nn_shared<T>(
+      objects::makeObjectName(type.get_as<TR1ItemId>(), m_objectManager.getDynamicObjectCount()),
+      gsl::not_null{this},
+      room,
+      item,
+      gsl::not_null{model.get()});
 
     m_objectManager.registerDynamicObject(object);
-    addChild(room->node, object->getNode());
+    addChild(gsl::not_null{room->node}, gsl::not_null{object->getNode()});
 
     return object;
   }
@@ -227,7 +228,7 @@ public:
   void chainBlockEffect();
   void flickerEffect();
   void doGlobalEffect();
-  std::shared_ptr<objects::PickupObject>
+  gsl::not_null<std::shared_ptr<objects::PickupObject>>
     createPickup(const core::TypeId& type, const gsl::not_null<const Room*>& room, const core::TRVec& position);
   void useAlternativeLaraAppearance(bool withHead = false);
   void runEffect(size_t id, objects::Object* object);

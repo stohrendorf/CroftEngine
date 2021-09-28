@@ -624,6 +624,7 @@ group_files( ${EDISONENGINE_SRCS} )
 
 target_include_directories( edisonengine PRIVATE . ${Intl_INCLUDE_DIRS} )
 
+add_subdirectory( shared )
 add_subdirectory( soglb )
 add_subdirectory( qs )
 add_subdirectory( core )
@@ -652,6 +653,7 @@ target_link_libraries(
         Python3::Python
         Threads::Threads
         ${Intl_LIBRARIES}
+        shared
 )
 
 install(
