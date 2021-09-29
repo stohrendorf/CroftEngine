@@ -1070,11 +1070,10 @@ World::World(Engine& engine,
                                 m_sprites,
                                 [this](const std::string& s) { getPresenter().drawLoadingScreen(s); });
 
-  auto sampler = gslu::make_nn_unique<gl::Sampler>("all-textures");
-  sampler->set(gl::api::TextureMinFilter::NearestMipmapLinear);
-  sampler->set(gl::api::TextureMagFilter::Nearest);
-  sampler->set(gl::api::SamplerParameterI::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge);
-  sampler->set(gl::api::SamplerParameterI::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge);
+  auto sampler = gslu::make_nn_unique<gl::Sampler>("all-textures") | set(gl::api::TextureMinFilter::NearestMipmapLinear)
+                 | set(gl::api::TextureMagFilter::Nearest)
+                 | set(gl::api::SamplerParameterI::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge)
+                 | set(gl::api::SamplerParameterI::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge);
   if(const auto anisotropyLevel = getEngine().getEngineConfig()->renderSettings.anisotropyLevel;
      anisotropyLevel != 0 && gl::hasAnisotropicFilteringExtension())
     sampler->set(gl::api::SamplerParameterF::TextureMaxAnisotropy, gsl::narrow<float>(anisotropyLevel));

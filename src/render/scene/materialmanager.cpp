@@ -203,12 +203,12 @@ MaterialManager::MaterialManager(gsl::not_null<std::shared_ptr<ShaderCache>> sha
 
   auto noiseTexture = gslu::make_nn_shared<gl::Texture2D<gl::RGB8>>(glm::ivec2{NoiseTextureSize}, "noise");
   noiseTexture->assign(noiseData);
-  auto sampler = gslu::make_nn_unique<gl::Sampler>("noise");
-  sampler->set(gl::api::SamplerParameterI::TextureWrapS, gl::api::TextureWrapMode::MirroredRepeat)
-    .set(gl::api::SamplerParameterI::TextureWrapT, gl::api::TextureWrapMode::MirroredRepeat)
-    .set(gl::api::TextureMinFilter::Linear)
-    .set(gl::api::TextureMagFilter::Linear);
-  m_noiseTexture = std::make_shared<gl::TextureHandle<gl::Texture2D<gl::RGB8>>>(noiseTexture, std::move(sampler));
+  m_noiseTexture = std::make_shared<gl::TextureHandle<gl::Texture2D<gl::RGB8>>>(
+    noiseTexture,
+    gslu::make_nn_unique<gl::Sampler>("noise")
+      | set(gl::api::SamplerParameterI::TextureWrapS, gl::api::TextureWrapMode::MirroredRepeat)
+      | set(gl::api::SamplerParameterI::TextureWrapT, gl::api::TextureWrapMode::MirroredRepeat)
+      | set(gl::api::TextureMinFilter::Linear) | set(gl::api::TextureMagFilter::Linear));
 }
 
 gsl::not_null<std::shared_ptr<Material>>
@@ -347,13 +347,11 @@ void MaterialManager::setFiltering(bool bilinear, float anisotropyLevel)
   auto sampler = gslu::make_nn_unique<gl::Sampler>("geometry-sampler");
   if(bilinear)
   {
-    sampler->set(gl::api::TextureMinFilter::LinearMipmapLinear);
-    sampler->set(gl::api::TextureMagFilter::Linear);
+    sampler->set(gl::api::TextureMinFilter::LinearMipmapLinear).set(gl::api::TextureMagFilter::Linear);
   }
   else
   {
-    sampler->set(gl::api::TextureMinFilter::NearestMipmapLinear);
-    sampler->set(gl::api::TextureMagFilter::Nearest);
+    sampler->set(gl::api::TextureMinFilter::NearestMipmapLinear).set(gl::api::TextureMagFilter::Nearest);
   }
 
   if(anisotropyLevel != 0 && gl::hasAnisotropicFilteringExtension())

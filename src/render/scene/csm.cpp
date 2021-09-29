@@ -42,9 +42,10 @@ void CSM::Split::init(int32_t resolution, size_t idx, MaterialManager& materialM
                  | set(gl::api::TextureMinFilter::Linear) | set(gl::api::TextureMagFilter::Linear)
                  | set(gl::api::SamplerParameterI::TextureWrapS, gl::api::TextureWrapMode::ClampToBorder)
                  | set(gl::api::SamplerParameterI::TextureWrapT, gl::api::TextureWrapMode::ClampToBorder);
+  sampler->setBorderColor(glm::vec4{1.0f});
+
   const auto depthTexture = gslu::make_nn_shared<gl::TextureDepth<float>>(glm::ivec2{resolution, resolution},
                                                                           "csm-texture/" + std::to_string(idx));
-  sampler->setBorderColor(glm::vec4{1.0f});
   depthTextureHandle = std::make_shared<gl::TextureHandle<gl::TextureDepth<float>>>(depthTexture, std::move(sampler));
 
   depthFramebuffer = gl::FrameBufferBuilder()
