@@ -909,7 +909,7 @@ void World::serialize(const serialization::Serializer<World>& ser)
 
 void World::gameLoop(bool godMode, float waitRatio, float blackAlpha)
 {
-  ui::Ui ui{getPresenter().getMaterialManager()->getUi(), getPalette()};
+  ui::Ui ui{getPresenter().getMaterialManager()->getUi(), getPalette(), getPresenter().getViewport()};
 
   update(godMode);
   m_player->laraHealth = m_objectManager.getLara().m_state.health;
@@ -931,7 +931,7 @@ void World::gameLoop(bool godMode, float waitRatio, float blackAlpha)
     const auto& ammo = m_player->getInventory().getAmmo(m_player->selectedWeaponType);
     const auto n = ammo.ammo / ammo.roundsPerShot;
     auto text = ui::Text{ui::makeAmmoString(std::to_string(n) + suffix)};
-    text.draw(ui, getPresenter().getTrFont(), glm::ivec2{getPresenter().getViewport().x - 17 - text.getWidth(), 22});
+    text.draw(ui, getPresenter().getTrFont(), glm::ivec2{ui.getSize().x - 17 - text.getWidth(), 22});
   }
 
   drawPickupWidgets(ui);
@@ -939,7 +939,7 @@ void World::gameLoop(bool godMode, float waitRatio, float blackAlpha)
   getPresenter().renderScreenOverlay();
   if(blackAlpha > 0)
   {
-    ui.drawBox({0, 0}, getPresenter().getViewport(), gl::SRGBA8{0, 0, 0, gsl::narrow_cast<uint8_t>(255 * blackAlpha)});
+    ui.drawBox({0, 0}, ui.getSize(), gl::SRGBA8{0, 0, 0, gsl::narrow_cast<uint8_t>(255 * blackAlpha)});
   }
 
   drawPerformanceBar(ui, waitRatio);
@@ -960,7 +960,7 @@ bool World::cinematicLoop()
     = m_cameraController->updateCinematic(m_cinematicFrames.at(m_cameraController->m_cinematicFrame), false);
   doGlobalEffect();
 
-  ui::Ui ui{getPresenter().getMaterialManager()->getUi(), getPalette()};
+  ui::Ui ui{getPresenter().getMaterialManager()->getUi(), getPalette(), getPresenter().getViewport()};
   getPresenter().renderWorld(getObjectManager(), getRooms(), getCameraController(), waterEntryPortals, 0);
   getPresenter().renderScreenOverlay();
   getPresenter().renderUi(ui, 1);
@@ -1136,9 +1136,9 @@ World::~World()
 
 void World::drawPickupWidgets(ui::Ui& ui)
 {
-  auto x = getPresenter().getViewport().x * 9 / 10;
-  auto y = getPresenter().getViewport().y * 9 / 10;
-  auto widthPerWidget = getPresenter().getViewport().x / 10 * 4 / 3;
+  auto x = ui.getSize().x * 9 / 10;
+  auto y = ui.getSize().y * 9 / 10;
+  auto widthPerWidget = ui.getSize().x / 10 * 4 / 3;
   for(const auto& widget : m_pickupWidgets)
   {
     if(widget.expired())
@@ -1535,16 +1535,15 @@ void World::drawPerformanceBar(ui::Ui& ui, float waitRatio) const
   if(!getEngine().getEngineConfig()->displaySettings.performanceMeter)
     return;
 
-  const auto vp = getPresenter().getViewport();
-  ui.drawBox({0, vp.y}, {vp.x, -20}, gl::SRGBA8{0, 0, 0, 224});
-  const auto w = gsl::narrow_cast<int>(waitRatio * gsl::narrow_cast<float>(vp.x));
+  ui.drawBox({0, ui.getSize().y}, {ui.getSize().x, -20}, gl::SRGBA8{0, 0, 0, 224});
+  const auto w = gsl::narrow_cast<int>(waitRatio * gsl::narrow_cast<float>(ui.getSize().x));
   if(w > 0)
   {
-    ui.drawBox({0, vp.y}, {w, -20}, gl::SRGBA8{0, 255, 0, 128});
+    ui.drawBox({0, ui.getSize().y}, {w, -20}, gl::SRGBA8{0, 255, 0, 128});
   }
   else
   {
-    ui.drawBox({vp.x, vp.y}, {w, -20}, gl::SRGBA8{255, 0, 0, 128});
+    ui.drawBox({ui.getSize().x, ui.getSize().y}, {w, -20}, gl::SRGBA8{255, 0, 0, 128});
   }
 }
 

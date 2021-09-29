@@ -217,7 +217,6 @@ std::unique_ptr<MenuState>
   }
 
   {
-    const auto vp = world.getPresenter().getViewport();
     int maxW = 0;
     int totalH = 0;
     static constexpr int Separation = 10;
@@ -228,12 +227,12 @@ std::unique_ptr<MenuState>
       totalH += listBox->getSize().y + Separation;
     }
 
-    int y = vp.y - totalH - 90;
+    int y = ui.getSize().y - totalH - 90;
     for(const auto& listBox : m_listBoxes)
     {
       const auto height = listBox->getSize().y;
       listBox->setSize({maxW, height});
-      listBox->setPosition({(vp.x - maxW) / 2, y});
+      listBox->setPosition({(ui.getSize().x - maxW) / 2, y});
       y += height + Separation;
     }
   }

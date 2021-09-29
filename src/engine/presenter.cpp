@@ -84,7 +84,7 @@ void Presenter::playVideo(const std::filesystem::path& path)
                 if(update())
                   return true;
 
-                m_renderer->getCamera()->setScreenSize(m_window->getViewport());
+                m_renderer->getCamera()->setViewport(m_window->getViewport());
                 mesh->bind("u_input",
                            [&textureHandle](const render::scene::Node& /*node*/,
                                             const render::scene::Mesh& /*mesh*/,
@@ -316,7 +316,7 @@ void Presenter::drawBars(ui::Ui& ui, const std::array<gl::SRGBA8, 256>& palette,
   if(objectManager.getLara().isInWater())
   {
     drawBar(ui,
-            {m_window->getViewport().x - BarWidth - 10, 8},
+            {ui.getSize().x - BarWidth - 10, 8},
             std::clamp(objectManager.getLara().getAir() * BarWidth / core::LaraAir, 0, BarWidth),
             palette[0],
             palette[17],
@@ -394,12 +394,12 @@ Presenter::~Presenter() = default;
 void Presenter::scaleSplashImage()
 {
   // scale splash image so that its aspect ratio is preserved, but the boundaries match
-  const auto targetSize = glm::vec2{m_window->getViewport()};
+  const auto viewport = glm::vec2{m_window->getViewport()};
   const auto sourceSize = glm::vec2{m_splashImage->getTexture()->size()};
-  const float splashScale = std::max(targetSize.x / sourceSize.x, targetSize.y / sourceSize.y);
+  const float splashScale = std::max(viewport.x / sourceSize.x, viewport.y / sourceSize.y);
 
   auto scaledSourceSize = sourceSize * splashScale;
-  auto sourceOffset = (targetSize - scaledSourceSize) / 2.0f;
+  auto sourceOffset = (viewport - scaledSourceSize) / 2.0f;
   m_splashImageMesh
     = render::scene::createScreenQuad(sourceOffset, scaledSourceSize, m_materialManager->getBackdrop(), "backdrop");
   m_splashImageMesh->bind(
@@ -418,7 +418,7 @@ void Presenter::drawLoadingScreen(const std::string& state)
 
   if(m_window->getViewport() != m_screenOverlay->getImage()->getSize())
   {
-    m_renderer->getCamera()->setScreenSize(m_window->getViewport());
+    m_renderer->getCamera()->setViewport(m_window->getViewport());
     m_screenOverlay->init(*m_materialManager, m_window->getViewport());
     scaleSplashImage();
   }
@@ -448,7 +448,7 @@ bool Presenter::preFrame()
   if(m_window->isMinimized())
     return false;
 
-  m_renderer->getCamera()->setScreenSize(m_window->getViewport());
+  m_renderer->getCamera()->setViewport(m_window->getViewport());
   m_renderPipeline->resize(*m_materialManager, m_window->getViewport());
   if(m_screenOverlay != nullptr)
   {

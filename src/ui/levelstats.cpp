@@ -15,9 +15,9 @@ namespace ui
 {
 void LevelStats::draw(Ui& ui) const
 {
-  const auto center = m_presenter->getViewport() / 2;
+  const auto center = ui.getSize() / 2;
 
-  ui.drawBox({0, 0}, m_presenter->getViewport(), gl::SRGBA8{0, 0, 0, 224});
+  ui.drawBox({0, 0}, ui.getSize(), gl::SRGBA8{0, 0, 0, 224});
 
   {
     Text text{m_title};

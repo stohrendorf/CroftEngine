@@ -21,7 +21,7 @@ vec4 toLinear(in vec4 srgb)
 
 void main()
 {
-    vec2 p = (a_position.xy / camera.screenSize.xy) * 2 - 1;
+    vec2 p = (a_position.xy / camera.viewport.xy) * 2 - 1;
     gl_Position = vec4(p.x, -p.y, 0, 1);
     upi.texCoord = a_texCoord;
     upi.topLeft = toLinear(a_colorTopLeft);

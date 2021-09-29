@@ -1,59 +1,59 @@
 #include "util.glsl"
 
 #ifndef FXAA_QUALITY_PRESET
-    #define FXAA_QUALITY_PRESET 39
+#define FXAA_QUALITY_PRESET 39
 #endif
 
 #if (FXAA_QUALITY_PRESET == 10)
-    const float FxaaQualityP[3] = { 1.5, 3, 12 };
+const float FxaaQualityP[3] = { 1.5, 3, 12 };
 #endif
 #if (FXAA_QUALITY_PRESET == 11)
-    const float FxaaQualityP[4] = { 1.0, 1.5, 3, 12 };
+const float FxaaQualityP[4] = { 1.0, 1.5, 3, 12 };
 #endif
 #if (FXAA_QUALITY_PRESET == 12)
-    const float FxaaQualityP[5] = { 1.0, 1.5, 2, 4, 12 };
+const float FxaaQualityP[5] = { 1.0, 1.5, 2, 4, 12 };
 #endif
 #if (FXAA_QUALITY_PRESET == 13)
-    const float FxaaQualityP[6] = { 1.0, 1.5, 2, 2, 4, 12 };
+const float FxaaQualityP[6] = { 1.0, 1.5, 2, 2, 4, 12 };
 #endif
 #if (FXAA_QUALITY_PRESET == 14)
-    const float FxaaQualityP[7] = { 1.0, 1.5, 2, 2, 2, 4, 12 };
+const float FxaaQualityP[7] = { 1.0, 1.5, 2, 2, 2, 4, 12 };
 #endif
 #if (FXAA_QUALITY_PRESET == 15)
-    const float FxaaQualityP[8] = { 1.0, 1.5, 2, 2, 2, 2, 4, 12 };
+const float FxaaQualityP[8] = { 1.0, 1.5, 2, 2, 2, 2, 4, 12 };
 #endif
 #if (FXAA_QUALITY_PRESET == 20)
-    const float FxaaQualityP[3] = { 1.5, 2, 8 };
+const float FxaaQualityP[3] = { 1.5, 2, 8 };
 #endif
 #if (FXAA_QUALITY_PRESET == 21)
-    const float FxaaQualityP[4] = { 1, 1.5, 2, 8 };
+const float FxaaQualityP[4] = { 1, 1.5, 2, 8 };
 #endif
 #if (FXAA_QUALITY_PRESET == 22)
-    const float FxaaQualityP[5] = { 1, 1.5, 2, 2, 8 };
+const float FxaaQualityP[5] = { 1, 1.5, 2, 2, 8 };
 #endif
 #if (FXAA_QUALITY_PRESET == 23)
-    const float FxaaQualityP[6] = { 1, 1.5, 2, 2, 2, 8 };
+const float FxaaQualityP[6] = { 1, 1.5, 2, 2, 2, 8 };
 #endif
 #if (FXAA_QUALITY_PRESET == 24)
-    const float FxaaQualityP[7] = { 1, 1.5, 2, 2, 2, 3, 8 };
+const float FxaaQualityP[7] = { 1, 1.5, 2, 2, 2, 3, 8 };
 #endif
 #if (FXAA_QUALITY_PRESET == 25)
-    const float FxaaQualityP[8] = { 1, 1.5, 2, 2, 2, 2, 4, 8 };
+const float FxaaQualityP[8] = { 1, 1.5, 2, 2, 2, 2, 4, 8 };
 #endif
 #if (FXAA_QUALITY_PRESET == 26)
-    const float FxaaQualityP[9] = { 1, 1.5, 2, 2, 2, 2, 2, 4, 8 };
+const float FxaaQualityP[9] = { 1, 1.5, 2, 2, 2, 2, 2, 4, 8 };
 #endif
 #if (FXAA_QUALITY_PRESET == 27)
-    const float FxaaQualityP[10] = { 1, 1.5, 2, 2, 2, 2, 2, 2, 4, 8 };
+const float FxaaQualityP[10] = { 1, 1.5, 2, 2, 2, 2, 2, 2, 4, 8 };
 #endif
 #if (FXAA_QUALITY_PRESET == 28)
-    const float FxaaQualityP[11] = { 1, 1.5, 2, 2, 2, 2, 2, 2, 2, 4, 8 };
+const float FxaaQualityP[11] = { 1, 1.5, 2, 2, 2, 2, 2, 2, 2, 4, 8 };
 #endif
 #if (FXAA_QUALITY_PRESET == 29)
-    const float FxaaQualityP[12] = { 1, 1.5, 2, 2, 2, 2, 2, 2, 2, 2, 4, 8 };
+const float FxaaQualityP[12] = { 1, 1.5, 2, 2, 2, 2, 2, 2, 2, 2, 4, 8 };
 #endif
 #if (FXAA_QUALITY_PRESET == 39)
-    const float FxaaQualityP[12] = { 1, 1, 1, 1, 1, 1.5, 2, 2, 2, 2, 4, 8 };
+const float FxaaQualityP[12] = { 1, 1, 1, 1, 1, 1.5, 2, 2, 2, 2, 4, 8 };
 #endif
 
 bool fxaaStep(
@@ -125,18 +125,18 @@ in float edgeThresholdMin// 0.0312..0.0833
     float edgeHorz = abs(-2.0 * lumaW + lumaLeft) + abs(-2.0 * lumaM + lumaV) * 2.0 + abs(-2.0 * lumaE + lumaRight);
     float edgeVert = abs(-2.0 * lumaS + lumaBottom) + abs(-2.0 * lumaM + lumaH) * 2.0 + abs(-2.0 * lumaN + lumaTop);
     /*--------------------------------------------------------------------------*/
-    float lengthSign = 1.0/screenSize.x;
+    float lengthSign = 1.0/inputSize.x;
     bool horzSpan = edgeHorz >= edgeVert;
     float subpixA = (lumaV + lumaH) * 2.0 + lumaLeft + lumaRight;
-/*--------------------------------------------------------------------------*/
+    /*--------------------------------------------------------------------------*/
     if (!horzSpan) {
         lumaN = lumaW;
         lumaS = lumaE;
     }
     else {
-        lengthSign = 1.0/screenSize.y;
+        lengthSign = 1.0/inputSize.y;
     }
-/*--------------------------------------------------------------------------*/
+    /*--------------------------------------------------------------------------*/
     float gradientN = abs(lumaN - lumaM);
     float gradientS = abs(lumaS - lumaM);
     float lumaNN = lumaN + lumaM;
@@ -146,11 +146,11 @@ in float edgeThresholdMin// 0.0312..0.0833
         lengthSign = -lengthSign;
     }
     float subpixC = clamp(abs(subpixA / 12.0 - lumaM) / lumaRange, 0, 1);
-/*--------------------------------------------------------------------------*/
+    /*--------------------------------------------------------------------------*/
     vec2 posB = posM;
     vec2 offNP = horzSpan
-        ? vec2(1.0/screenSize.x, 0.0)
-    : vec2(0.0, 1.0/screenSize.y);
+    ? vec2(1.0/inputSize.x, 0.0)
+    : vec2(0.0, 1.0/inputSize.y);
     if (!horzSpan) {
         posB.x += lengthSign * 0.5;
     }
@@ -172,25 +172,25 @@ in float edgeThresholdMin// 0.0312..0.0833
     /*--------------------------------------------------------------------------*/
     bool doneN = false;
     bool doneP = false;
-    for(int i=1; i<FxaaQualityP.length(); ++i)
+    for (int i=1; i<FxaaQualityP.length(); ++i)
     {
         if (!fxaaStep(tex, lumaNN, posN, posP, doneN, lumaEndN, doneP, lumaEndP, offNP, gradientScaled, FxaaQualityP[i]))
         break;
     }
-/*--------------------------------------------------------------------------*/
+    /*--------------------------------------------------------------------------*/
     float dstN = posM.x - posN.x;
     float dstP = posP.x - posM.x;
     if (!horzSpan) {
         dstN = posM.y - posN.y;
         dstP = posP.y - posM.y;
     }
-/*--------------------------------------------------------------------------*/
+    /*--------------------------------------------------------------------------*/
     bool goodSpan = dstN < dstP
-        ? (lumaEndN < 0.0) != (lumaMM < 0.0)
-        : (lumaEndP < 0.0) != (lumaMM < 0.0);
+    ? (lumaEndN < 0.0) != (lumaMM < 0.0)
+    : (lumaEndP < 0.0) != (lumaMM < 0.0);
     float pixelOffsetSubpix = max(
-        goodSpan ? -min(dstN, dstP)/(dstP + dstN) + 0.5 : 0.0,
-        subpixF * subpixF * subpixelAA
+    goodSpan ? -min(dstN, dstP)/(dstP + dstN) + 0.5 : 0.0,
+    subpixF * subpixF * subpixelAA
     );
     if (!horzSpan) {
         posM.x += pixelOffsetSubpix * lengthSign;

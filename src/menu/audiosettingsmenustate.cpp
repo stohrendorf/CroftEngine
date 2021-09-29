@@ -129,11 +129,9 @@ std::unique_ptr<MenuState>
 
   m_grid->update(true);
 
-  {
-    const auto vp = world.getPresenter().getViewport();
-    m_container->setPosition({(vp.x - m_container->getSize().x) / 2, vp.y - m_container->getSize().y - 90});
-    m_container->draw(ui, world.getPresenter());
-  }
+  m_container->setPosition(
+    {(ui.getSize().x - m_container->getSize().x) / 2, ui.getSize().y - m_container->getSize().y - 90});
+  m_container->draw(ui, world.getPresenter());
 
   return nullptr;
 }

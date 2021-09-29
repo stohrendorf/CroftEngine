@@ -70,8 +70,8 @@ void ListDisplayMenuState::draw(ui::Ui& ui, engine::world::World& world, MenuDis
   m_groupBox.fitToContent();
 
   {
-    const auto vp = world.getPresenter().getViewport();
-    m_groupBox.setPosition({(vp.x - m_groupBox.getSize().x) / 2, vp.y - m_groupBox.getSize().y - 90});
+    m_groupBox.setPosition(
+      {(ui.getSize().x - m_groupBox.getSize().x) / 2, ui.getSize().y - m_groupBox.getSize().y - 90});
   }
 
   m_groupBox.update(true);

@@ -185,7 +185,7 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
             continue;
           }
 
-          ui::Ui ui{m_presenter->getMaterialManager()->getUi(), world.getPalette()};
+          ui::Ui ui{m_presenter->getMaterialManager()->getUi(), world.getPalette(), m_presenter->getViewport()};
           ui::LevelStats stats{world.getTitle(), world.getTotalSecrets(), world.getPlayerPtr(), m_presenter};
           stats.draw(ui);
 
@@ -230,8 +230,8 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
                                throttler.getAverageWaitRatio());
       m_presenter->updateSoundEngine();
       m_presenter->renderScreenOverlay();
-      ui::Ui ui{m_presenter->getMaterialManager()->getUi(), world.getPalette()};
-      ui.drawBox({0, 0}, m_presenter->getViewport(), gl::SRGBA8{0, 0, 0, 224});
+      ui::Ui ui{m_presenter->getMaterialManager()->getUi(), world.getPalette(), m_presenter->getViewport()};
+      ui.drawBox({0, 0}, ui.getSize(), gl::SRGBA8{0, 0, 0, 224});
       world.drawPerformanceBar(ui, throttler.getAverageWaitRatio());
       m_presenter->renderUi(ui, 1);
       menu->display(ui, world);
@@ -387,17 +387,17 @@ std::pair<RunResult, std::optional<size_t>> Engine::runTitleMenu(world::World& w
     if(!m_presenter->preFrame())
       continue;
 
-    ui::Ui ui{m_presenter->getMaterialManager()->getUi(), world.getPalette()};
+    ui::Ui ui{m_presenter->getMaterialManager()->getUi(), world.getPalette(), m_presenter->getViewport()};
     render::scene::RenderContext context{render::scene::RenderMode::Full, std::nullopt};
 
     std::shared_ptr<render::scene::Mesh> backdropMesh;
     {
-      const auto targetSize = glm::vec2{m_presenter->getViewport()};
+      const auto viewport = glm::vec2{m_presenter->getViewport()};
       const auto sourceSize = glm::vec2{backdrop->getTexture()->size()};
-      const float splashScale = std::min(targetSize.x / sourceSize.x, targetSize.y / sourceSize.y);
+      const float splashScale = std::min(viewport.x / sourceSize.x, viewport.y / sourceSize.y);
 
       auto scaledSourceSize = sourceSize * splashScale;
-      auto sourceOffset = (targetSize - scaledSourceSize) / 2.0f;
+      auto sourceOffset = (viewport - scaledSourceSize) / 2.0f;
       backdropMesh = render::scene::createScreenQuad(
         sourceOffset, scaledSourceSize, m_presenter->getMaterialManager()->getBackdrop(), "backdrop");
       backdropMesh->bind(

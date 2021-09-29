@@ -124,9 +124,8 @@ std::unique_ptr<MenuState> SavegameListMenuState::onFrame(ui::Ui& ui, engine::wo
 
   draw(ui, world, display);
   m_confirmOverwrite->fitToContent();
-  const auto vp = world.getPresenter().getViewport();
   m_confirmOverwrite->setPosition(
-    {(vp.x - m_confirmOverwrite->getSize().x) / 2, vp.y - m_confirmOverwrite->getSize().y - 90});
+    {(ui.getSize().x - m_confirmOverwrite->getSize().x) / 2, ui.getSize().y - m_confirmOverwrite->getSize().y - 90});
 
   if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Left)
      || world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Right))

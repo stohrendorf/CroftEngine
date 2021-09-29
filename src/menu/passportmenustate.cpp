@@ -187,10 +187,8 @@ std::unique_ptr<MenuState> PassportMenuState::onFrame(ui::Ui& ui, engine::world:
   }
 
   if(m_passportText != nullptr)
-  {
-    const auto& vp = world.getPresenter().getViewport();
-    m_passportText->draw(ui, world.getPresenter().getTrFont(), {(vp.x - m_passportText->getWidth()) / 2, vp.y - 16});
-  }
+    m_passportText->draw(
+      ui, world.getPresenter().getTrFont(), {(ui.getSize().x - m_passportText->getWidth()) / 2, ui.getSize().y - 16});
 
   if(forcePageTurn == hid::AxisMovement::Left
      || world.getPresenter().getInputHandler().getInputState().xMovement.justChangedTo(hid::AxisMovement::Left))

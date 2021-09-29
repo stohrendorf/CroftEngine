@@ -111,8 +111,7 @@ void MenuDisplay::drawMenuObjectDescription(ui::Ui& ui, engine::world::World& wo
     ui::Text text{ui::makeAmmoString(std::to_string(totalItemCount) + suffix)};
     text.draw(ui,
               world.getPresenter().getTrFont(),
-              {(world.getPresenter().getViewport().x - text.getWidth()) / 2,
-               world.getPresenter().getViewport().y - RingInfoYMargin - 2 * ui::FontHeight});
+              {(ui.getSize().x - text.getWidth()) / 2, ui.getSize().y - RingInfoYMargin - 2 * ui::FontHeight});
   }
 }
 
@@ -140,27 +139,28 @@ void MenuDisplay::display(ui::Ui& ui, engine::world::World& world)
     m_currentState->begin(world);
   }
 
-  const auto& vp = world.getPresenter().getViewport();
   static constexpr int RingInfoXMargin = 20;
   if(currentRingIndex > 0)
   {
     m_upArrow.draw(ui, world.getPresenter().getTrFont(), {RingInfoXMargin, RingInfoYMargin});
     m_upArrow.draw(
-      ui, world.getPresenter().getTrFont(), {vp.x - m_upArrow.getWidth() - RingInfoXMargin, RingInfoYMargin});
+      ui, world.getPresenter().getTrFont(), {ui.getSize().x - m_upArrow.getWidth() - RingInfoXMargin, RingInfoYMargin});
   }
 
   if(currentRingIndex + 1 < rings.size())
   {
-    m_downArrow.draw(ui, world.getPresenter().getTrFont(), {RingInfoXMargin, vp.y - RingInfoYMargin + ui::FontHeight});
-    m_downArrow.draw(ui,
-                     world.getPresenter().getTrFont(),
-                     {vp.x - m_downArrow.getWidth() - RingInfoXMargin, vp.y - RingInfoYMargin + ui::FontHeight});
+    m_downArrow.draw(
+      ui, world.getPresenter().getTrFont(), {RingInfoXMargin, ui.getSize().y - RingInfoYMargin + ui::FontHeight});
+    m_downArrow.draw(
+      ui,
+      world.getPresenter().getTrFont(),
+      {ui.getSize().x - m_downArrow.getWidth() - RingInfoXMargin, ui.getSize().y - RingInfoYMargin + ui::FontHeight});
   }
 
   if(rings.size() > 1)
   {
     ui::Text title{getCurrentRing().title};
-    title.draw(ui, world.getPresenter().getTrFont(), {(vp.x - title.getWidth()) / 2, RingInfoYMargin});
+    title.draw(ui, world.getPresenter().getTrFont(), {(ui.getSize().x - title.getWidth()) / 2, RingInfoYMargin});
   }
 }
 

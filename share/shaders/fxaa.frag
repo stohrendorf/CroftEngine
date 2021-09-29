@@ -1,5 +1,5 @@
 layout(bindless_sampler) uniform sampler2D u_input;
-vec2 screenSize = textureSize(u_input, 0);
+vec2 inputSize = textureSize(u_input, 0);
 
 #include "flat_pipeline_interface.glsl"
 #include "time_uniform.glsl"

@@ -3,6 +3,7 @@
 #include <cstddef>
 #include <memory>
 #include <string>
+#include <utility>
 
 namespace engine
 {
@@ -17,14 +18,14 @@ class Ui;
 class LevelStats
 {
 public:
-  LevelStats(const std::string& title,
+  LevelStats(std::string title,
              size_t totalSecrets,
-             const std::shared_ptr<engine::Player>& player,
-             const std::shared_ptr<engine::Presenter>& presenter)
-      : m_title{title}
+             std::shared_ptr<engine::Player> player,
+             std::shared_ptr<engine::Presenter> presenter)
+      : m_title{std::move(title)}
       , m_totalSecrets{totalSecrets}
-      , m_player{player}
-      , m_presenter{presenter}
+      , m_player{std::move(player)}
+      , m_presenter{std::move(presenter)}
   {
   }
 

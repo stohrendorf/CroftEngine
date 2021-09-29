@@ -40,8 +40,7 @@ std::unique_ptr<MenuState> IdleRingMenuState::onFrame(ui::Ui& ui, engine::world:
     ui::Text text{world.getItemTitle(currentObject.type).value_or(currentObject.name)};
     text.draw(ui,
               presenter.getTrFont(),
-              {(presenter.getViewport().x - text.getWidth()) / 2,
-               presenter.getViewport().y - RingInfoYMargin - ui::FontHeight});
+              {(ui.getSize().x - text.getWidth()) / 2, ui.getSize().y - RingInfoYMargin - ui::FontHeight});
 
     MenuDisplay::drawMenuObjectDescription(ui, world, currentObject);
   }

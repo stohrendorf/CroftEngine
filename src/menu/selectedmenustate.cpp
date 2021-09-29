@@ -84,8 +84,8 @@ std::unique_ptr<MenuState> SelectedMenuState::onFrame(ui::Ui& ui, engine::world:
 
   if(m_itemTitle == nullptr)
     m_itemTitle = std::make_unique<ui::Text>(currentObject.name);
-  const auto& vp = world.getPresenter().getViewport();
-  m_itemTitle->draw(ui, world.getPresenter().getTrFont(), {(vp.x - m_itemTitle->getWidth()) / 2, vp.y - 16});
+  m_itemTitle->draw(
+    ui, world.getPresenter().getTrFont(), {(ui.getSize().x - m_itemTitle->getWidth()) / 2, ui.getSize().y - 16});
 
   return nullptr;
 }

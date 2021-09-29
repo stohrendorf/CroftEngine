@@ -208,8 +208,6 @@ ControlsMenuState::ControlsMenuState(const std::shared_ptr<MenuRingTransform>& r
 
 std::unique_ptr<MenuState> ControlsMenuState::onFrame(ui::Ui& ui, engine::world::World& world, MenuDisplay& /*display*/)
 {
-  const auto vp = world.getPresenter().getViewport();
-
   if(m_mode == Mode::Display && world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Menu))
   {
     if(m_editing == world.getEngine().getEngineConfig()->inputMappings)
@@ -256,7 +254,7 @@ std::unique_ptr<MenuState> ControlsMenuState::onFrame(ui::Ui& ui, engine::world:
   m_controls->fitToContent();
   m_layout->fitToContent();
 
-  m_layout->setPosition({(vp.x - m_layout->getSize().x) / 2, vp.y - 90 - m_layout->getSize().y});
+  m_layout->setPosition({(ui.getSize().x - m_layout->getSize().x) / 2, ui.getSize().y - 90 - m_layout->getSize().y});
   switch(m_mode)
   {
   case Mode::Display:
@@ -273,13 +271,14 @@ std::unique_ptr<MenuState> ControlsMenuState::onFrame(ui::Ui& ui, engine::world:
     break;
   case Mode::ConfirmApply:
     m_confirm->update(true);
-    m_confirm->setPosition({(vp.x - m_confirm->getSize().x) / 2, vp.y - 200 - m_confirm->getSize().y});
+    m_confirm->setPosition(
+      {(ui.getSize().x - m_confirm->getSize().x) / 2, ui.getSize().y - 200 - m_confirm->getSize().y});
     m_layout->draw(ui, world.getPresenter());
     m_confirm->draw(ui, world.getPresenter());
     break;
   case Mode::Error:
     m_error->update(true);
-    m_error->setPosition({(vp.x - m_error->getSize().x) / 2, vp.y - 200 - m_error->getSize().y});
+    m_error->setPosition({(ui.getSize().x - m_error->getSize().x) / 2, ui.getSize().y - 200 - m_error->getSize().y});
     m_layout->draw(ui, world.getPresenter());
     m_error->draw(ui, world.getPresenter());
     break;

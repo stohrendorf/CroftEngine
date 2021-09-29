@@ -21,7 +21,7 @@ struct CameraMatrices
   glm::mat4 projection{1.0f};
   glm::mat4 view{1.0f};
   glm::mat4 viewProjection{1.0f};
-  glm::vec4 screenSize{0};
+  glm::vec4 viewport{0};
   float aspectRatio = 1;
   float nearPlane = 0;
   float farPlane = 1;
@@ -34,12 +34,12 @@ class Camera final
   friend class Node;
 
 public:
-  Camera(float fieldOfView, const glm::vec2& screenSize, float nearPlane, float farPlane)
+  Camera(float fieldOfView, const glm::vec2& viewport, float nearPlane, float farPlane)
       : m_fieldOfView{fieldOfView}
   {
     m_dirty.set_all();
-    m_matrices.aspectRatio = screenSize.x / screenSize.y;
-    m_matrices.screenSize = glm::vec4{screenSize, 0, 0};
+    m_matrices.aspectRatio = viewport.x / viewport.y;
+    m_matrices.viewport = glm::vec4{viewport, 0, 0};
     m_matrices.nearPlane = nearPlane;
     m_matrices.farPlane = farPlane;
 
@@ -65,13 +65,13 @@ public:
     return m_matrices.aspectRatio;
   }
 
-  void setScreenSize(const glm::vec2& screenSize)
+  void setViewport(const glm::vec2& viewport)
   {
-    if(glm::vec2{m_matrices.screenSize} == screenSize)
+    if(glm::vec2{m_matrices.viewport} == viewport)
       return;
 
-    m_matrices.aspectRatio = screenSize.x / screenSize.y;
-    m_matrices.screenSize = glm::vec4{screenSize, 0, 0};
+    m_matrices.aspectRatio = viewport.x / viewport.y;
+    m_matrices.viewport = glm::vec4{viewport, 0, 0};
     m_dirty.set(CameraMatrices::DirtyFlag::Projection);
     m_dirty.set(CameraMatrices::DirtyFlag::ViewProjection);
     m_dirty.set(CameraMatrices::DirtyFlag::BufferData);

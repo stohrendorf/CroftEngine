@@ -44,7 +44,9 @@ public:
     static gsl::not_null<std::shared_ptr<gl::ElementArrayBuffer<uint16_t>>> createIndexBuffer();
   };
 
-  explicit Ui(std::shared_ptr<render::scene::Material> material, const std::array<gl::SRGBA8, 256>& palette);
+  explicit Ui(std::shared_ptr<render::scene::Material> material,
+              const std::array<gl::SRGBA8, 256>& palette,
+              const glm::ivec2& size);
 
   void drawOutlineBox(const glm::ivec2& xy, const glm::ivec2& size, uint8_t alpha = 255);
   void drawBox(const glm::ivec2& xy, const glm::ivec2& size, const BoxGouraud& gouraud);
@@ -60,9 +62,15 @@ public:
 
   void render();
 
+  [[nodiscard]] const auto& getSize() const
+  {
+    return m_size;
+  }
+
 private:
   const std::shared_ptr<render::scene::Material> m_material;
   const std::array<gl::SRGBA8, 256> m_palette;
+  const glm::ivec2 m_size;
   std::vector<UiVertex> m_vertices{};
 };
 } // namespace ui

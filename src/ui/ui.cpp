@@ -119,9 +119,12 @@ gsl::not_null<std::shared_ptr<gl::ElementArrayBuffer<uint16_t>>> Ui::UiVertex::c
   return gslu::make_nn_shared<gl::ElementArrayBuffer<uint16_t>>("ui-indices");
 }
 
-Ui::Ui(std::shared_ptr<render::scene::Material> material, const std::array<gl::SRGBA8, 256>& palette)
+Ui::Ui(std::shared_ptr<render::scene::Material> material,
+       const std::array<gl::SRGBA8, 256>& palette,
+       const glm::ivec2& size)
     : m_material{std::move(material)}
     , m_palette{palette}
+    , m_size{size}
 {
 }
 
