@@ -23,9 +23,6 @@
 #include <variant>
 #include <vector>
 
-// IWYU pragma: no_forward_declare gl::Shader
-// IWYU pragma: no_forward_declare gl::TextureHandle
-
 namespace gl
 {
 class Program;

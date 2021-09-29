@@ -15,8 +15,6 @@
 #include <gsl/gsl-lite.hpp>
 #include <utility>
 
-// IWYU pragma: no_forward_declare serialization::Serializer
-
 namespace audio
 {
 class SoundEngine;

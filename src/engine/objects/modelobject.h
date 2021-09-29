@@ -14,9 +14,6 @@
 #include <memory>
 #include <string>
 
-// IWYU pragma: no_forward_declare serialization::Serializer
-// IWYU pragma: no_forward_declare serialization::TypeId
-
 namespace core
 {
 struct TRVec;

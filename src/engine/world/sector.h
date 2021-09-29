@@ -9,8 +9,6 @@
 #include <optional>
 #include <vector>
 
-// IWYU pragma: no_forward_declare serialization::Serializer
-
 namespace loader::file
 {
 struct Sector;

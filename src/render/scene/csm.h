@@ -17,11 +17,6 @@
 #include <gsl/gsl-lite.hpp>
 #include <memory>
 
-// IWYU pragma: no_forward_declare gl::Framebuffer
-// IWYU pragma: no_forward_declare gl::Texture2D
-// IWYU pragma: no_forward_declare gl::TextureDepth
-// IWYU pragma: no_forward_declare gl::TextureHandle
-
 namespace render::scene
 {
 class Camera;
@@ -94,12 +89,6 @@ public:
     m_bufferData.lightDir = glm::vec4{m_lightDir, 0.0f};
     m_buffer.setData(m_bufferData, gl::api::BufferUsage::DynamicDraw);
     return m_buffer;
-  }
-
-  // NOLINTNEXTLINE(readability-make-member-function-const)
-  void applyViewport()
-  {
-    gl::RenderState::getWantedState().setViewport(glm::ivec2{m_resolution, m_resolution});
   }
 
   void renderSquare()

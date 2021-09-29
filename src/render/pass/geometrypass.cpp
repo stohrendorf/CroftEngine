@@ -12,20 +12,10 @@
 
 namespace render::pass
 {
-GeometryPass::~GeometryPass() = default;
-
-// NOLINTNEXTLINE(readability-make-member-function-const)
-void GeometryPass::bind(const glm::ivec2& size)
-{
-  gl::Framebuffer::unbindAll();
-  gl::RenderState::getWantedState().setViewport(size);
-  m_fb->bindWithAttachments();
-}
-
 GeometryPass::GeometryPass(const glm::ivec2& viewport)
     : m_depthBuffer{std::make_shared<gl::TextureDepth<float>>(viewport, "geometry-depth")}
-    , m_colorBuffer{std::make_shared<gl::Texture2D<gl::SRGBA8>>(viewport, "geometry-color")}
-    , m_colorBufferHandle{std::make_shared<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>>(
+    , m_colorBuffer{std::make_shared<gl::Texture2D<gl::SRGB8>>(viewport, "geometry-color")}
+    , m_colorBufferHandle{std::make_shared<gl::TextureHandle<gl::Texture2D<gl::SRGB8>>>(
         m_colorBuffer,
         gslu::make_nn_unique<gl::Sampler>("geometry-color")
           | set(gl::api::SamplerParameterI::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge)
@@ -52,11 +42,22 @@ GeometryPass::GeometryPass(const glm::ivec2& viewport)
           | set(gl::api::SamplerParameterI::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge)
           | set(gl::api::TextureMinFilter::Nearest) | set(gl::api::TextureMagFilter::Nearest))}
     , m_fb{gl::FrameBufferBuilder()
-             .texture(gl::api::FramebufferAttachment::ColorAttachment0, m_colorBuffer)
+             .textureNoBlend(gl::api::FramebufferAttachment::ColorAttachment0, m_colorBuffer)
              .textureNoBlend(gl::api::FramebufferAttachment::ColorAttachment1, m_normalBuffer)
              .textureNoBlend(gl::api::FramebufferAttachment::ColorAttachment2, m_positionBuffer)
              .textureNoBlend(gl::api::FramebufferAttachment::DepthAttachment, m_depthBuffer)
              .build("geometry-fb")}
 {
+}
+
+GeometryPass::~GeometryPass() = default;
+
+// NOLINTNEXTLINE(readability-make-member-function-const)
+void GeometryPass::bind()
+{
+  m_fb->bind();
+  gl::RenderState::resetWantedState();
+  gl::RenderState::getWantedState().merge(m_fb->getRenderState());
+  gl::RenderState::applyWantedState();
 }
 } // namespace render::pass

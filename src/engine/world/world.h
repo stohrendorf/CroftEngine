@@ -44,10 +44,6 @@
 #include <utility>
 #include <vector>
 
-// IWYU pragma: no_forward_declare serialization::Serializer
-// IWYU pragma: no_forward_declare gl::Texture2DArray
-// IWYU pragma: no_forward_declare gl::TextureHandle
-
 namespace audio
 {
 class SoundEngine;

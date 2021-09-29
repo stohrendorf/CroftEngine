@@ -2,8 +2,6 @@
 
 #include "cimgwrapper.h"
 #include "glad_init.h"
-#include "glassert.h"
-#include "renderstate.h"
 
 #include <boost/log/trivial.hpp>
 #include <boost/throw_exception.hpp>
@@ -103,7 +101,6 @@ void Window::updateWindowSize()
     return;
 
   m_viewport = tmpSize;
-  RenderState::getWantedState().setViewport(m_viewport);
 }
 
 void Window::swapBuffers() const

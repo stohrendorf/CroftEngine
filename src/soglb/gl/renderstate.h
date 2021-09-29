@@ -2,6 +2,7 @@
 
 #include "api/gl.hpp"
 
+#include <array>
 #include <cstdint>
 #include <glm/vec2.hpp>
 #include <optional>
@@ -12,6 +13,8 @@ namespace gl
 class RenderState final
 {
 public:
+  static constexpr uint32_t IndexedCaps = 8;
+
   RenderState(const RenderState&) noexcept = default;
   RenderState(RenderState&&) noexcept = default;
   RenderState& operator=(const RenderState&) = default;
@@ -20,22 +23,23 @@ public:
   explicit RenderState() noexcept = default;
   ~RenderState() noexcept = default;
 
-  void setBlend(const bool enabled)
+  void setBlend(const uint32_t index, const bool enabled)
   {
-    m_blendEnabled = enabled;
+    m_blendEnabled.at(index) = enabled;
   }
 
-  void setBlendFactors(const api::BlendingFactor src, const api::BlendingFactor dst)
+  void setBlendFactors(const uint32_t index, const api::BlendingFactor src, const api::BlendingFactor dst)
   {
-    setBlendFactors(src, src, dst, dst);
+    setBlendFactors(index, src, src, dst, dst);
   }
 
-  void setBlendFactors(const api::BlendingFactor srcRgb,
+  void setBlendFactors(const uint32_t index,
+                       const api::BlendingFactor srcRgb,
                        const api::BlendingFactor srcAlpha,
                        const api::BlendingFactor dstRgb,
                        const api::BlendingFactor dstAlpha)
   {
-    m_blendFactors = {srcRgb, srcAlpha, dstRgb, dstAlpha};
+    m_blendFactors.at(index) = {srcRgb, srcAlpha, dstRgb, dstAlpha};
   }
 
   void setCullFace(const bool enabled)
@@ -140,8 +144,10 @@ private:
   std::optional<bool> m_depthWriteEnabled{};
   std::optional<bool> m_depthClampEnabled{};
   std::optional<api::DepthFunction> m_depthFunction{};
-  std::optional<bool> m_blendEnabled{};
-  std::optional<std::tuple<api::BlendingFactor, api::BlendingFactor, api::BlendingFactor, api::BlendingFactor>>
+  std::array<std::optional<bool>, IndexedCaps> m_blendEnabled{};
+  std::array<
+    std::optional<std::tuple<api::BlendingFactor, api::BlendingFactor, api::BlendingFactor, api::BlendingFactor>>,
+    IndexedCaps>
     m_blendFactors{};
   std::optional<api::CullFaceMode> m_cullFaceSide{};
   std::optional<api::FrontFaceDirection> m_frontFace{};

@@ -6,9 +6,6 @@
 #include <gsl/gsl-lite.hpp>
 #include <memory>
 
-// IWYU pragma: no_forward_declare serialization::Serializer
-// IWYU pragma: no_forward_declare serialization::TypeId
-
 namespace loader::file
 {
 struct Item;

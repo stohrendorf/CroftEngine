@@ -2,11 +2,15 @@
 
 #include "rendersettings.h"
 
+#include <gl/soglb_fwd.h>
 #include <glm/vec2.hpp>
-#include <gsl/gsl-lite.hpp>
 #include <memory>
 
-// IWYU pragma: no_forward_declare gsl::not_null
+namespace gsl
+{
+template<class T>
+class not_null;
+}
 
 namespace render::scene
 {
@@ -41,8 +45,8 @@ private:
 public:
   explicit RenderPipeline(scene::MaterialManager& materialManager, const glm::ivec2& viewport);
 
-  void bindGeometryFrameBuffer(const glm::ivec2& size, float farPlane);
-  void bindPortalFrameBuffer();
+  void bindGeometryFrameBuffer(float farPlane);
+  [[nodiscard]] gl::RenderState bindPortalFrameBuffer();
   void bindUiFrameBuffer();
   void renderUiFrameBuffer(float alpha);
   void compositionPass(bool water);

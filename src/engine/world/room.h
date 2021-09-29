@@ -19,8 +19,6 @@
 #include <optional>
 #include <vector>
 
-// IWYU pragma: no_forward_declare serialization::Serializer
-
 namespace engine::world
 {
 class World;

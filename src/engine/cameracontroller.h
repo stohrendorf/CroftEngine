@@ -17,8 +17,6 @@
 #include <memory>
 #include <unordered_set>
 
-// IWYU pragma: no_forward_declare serialization::Serializer
-
 namespace render::scene
 {
 class Camera;

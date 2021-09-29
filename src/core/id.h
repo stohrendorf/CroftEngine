@@ -6,8 +6,6 @@
 #include <cstdint>
 #include <functional>
 
-// IWYU pragma: no_forward_declare serialization::Serializer
-
 namespace engine
 {
 enum class TR1ItemId;

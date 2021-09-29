@@ -19,10 +19,6 @@
 #include <unordered_set>
 #include <vector>
 
-// IWYU pragma: no_forward_declare gl::Font
-// IWYU pragma: no_forward_declare gl::Texture2D
-// IWYU pragma: no_forward_declare gl::TextureHandle
-
 namespace audio
 {
 class SoundEngine;

@@ -56,6 +56,7 @@ HBAOPass::HBAOPass(scene::MaterialManager& materialManager,
                      [buffer = geometryPass.getPositionBuffer()](
                        const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
                      { uniform.set(buffer); });
+  m_renderMesh->getRenderState().merge(m_fb->getRenderState());
 
   m_blur.setInput(gsl::not_null{m_aoBufferHandle});
 }
@@ -65,15 +66,11 @@ void HBAOPass::updateCamera(const gsl::not_null<std::shared_ptr<scene::Camera>>&
   m_material->getUniformBlock("Camera")->bindCameraBuffer(camera);
 }
 
-void HBAOPass::render(const glm::ivec2& size)
+void HBAOPass::render()
 {
   SOGLB_DEBUGGROUP("hbao-pass");
-  m_fb->bindWithAttachments();
-
-  gl::RenderState::resetWantedState();
-  gl::RenderState::getWantedState().setBlend(false);
-  gl::RenderState::getWantedState().setViewport(size);
   scene::RenderContext context{scene::RenderMode::Full, std::nullopt};
+  m_fb->bind();
 
   m_renderMesh->render(context);
   m_blur.render();

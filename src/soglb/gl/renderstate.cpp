@@ -41,19 +41,25 @@ void RenderState::apply(const bool force) const
     GL_ASSERT(api::useProgram(m_program.value()));
     getCurrentState().m_program = m_program;
   }
-  if(RS_CHANGED(m_blendEnabled))
+  for(uint32_t i = 0; i < IndexedCaps; ++i)
   {
-    if(m_blendEnabled.value())
-      GL_ASSERT(api::enable(api::EnableCap::Blend));
-    else
-      GL_ASSERT(api::disable(api::EnableCap::Blend));
-    getCurrentState().m_blendEnabled = m_blendEnabled;
+    if(RS_CHANGED(m_blendEnabled[i]))
+    {
+      if(m_blendEnabled[i].value())
+        GL_ASSERT(api::enable(api::EnableCap::Blend, i));
+      else
+        GL_ASSERT(api::disable(api::EnableCap::Blend, i));
+      getCurrentState().m_blendEnabled[i] = m_blendEnabled[i];
+    }
   }
-  if(RS_CHANGED(m_blendFactors))
+  for(uint32_t i = 0; i < IndexedCaps; ++i)
   {
-    const auto [srcRgb, srcAlpha, dstRgb, dstAlpha] = m_blendFactors.value();
-    GL_ASSERT(api::blendFuncSeparate(srcRgb, dstRgb, srcAlpha, dstAlpha));
-    getCurrentState().m_blendFactors = m_blendFactors;
+    if(RS_CHANGED(m_blendFactors[i]))
+    {
+      const auto [srcRgb, srcAlpha, dstRgb, dstAlpha] = m_blendFactors[i].value();
+      GL_ASSERT(api::blendFuncSeparate(i, srcRgb, dstRgb, srcAlpha, dstAlpha));
+      getCurrentState().m_blendFactors[i] = m_blendFactors[i];
+    }
   }
   if(RS_CHANGED(m_cullFaceEnabled))
   {
@@ -152,13 +158,16 @@ void RenderState::merge(const RenderState& other)
 #define MERGE_OPT(n)                                               \
   if(other.n.has_value()) /* NOLINT(bugprone-macro-parentheses) */ \
   n = other.n             /* NOLINT(bugprone-macro-parentheses) */
+  MERGE_OPT(m_viewport);
   MERGE_OPT(m_cullFaceEnabled);
   MERGE_OPT(m_depthTestEnabled);
   MERGE_OPT(m_depthWriteEnabled);
   MERGE_OPT(m_depthClampEnabled);
   MERGE_OPT(m_depthFunction);
-  MERGE_OPT(m_blendEnabled);
-  MERGE_OPT(m_blendFactors);
+  for(uint32_t i = 0; i < IndexedCaps; ++i)
+    MERGE_OPT(m_blendEnabled[i]);
+  for(uint32_t i = 0; i < IndexedCaps; ++i)
+    MERGE_OPT(m_blendFactors[i]);
   MERGE_OPT(m_cullFaceSide);
   MERGE_OPT(m_frontFace);
   MERGE_OPT(m_lineWidth);
@@ -194,8 +203,10 @@ RenderState RenderState::getDefaults()
     defaults.setDepthWrite(true);
     defaults.setDepthClamp(false);
     defaults.setDepthFunction(api::DepthFunction::Less);
-    defaults.setBlend(false);
-    defaults.setBlendFactors(api::BlendingFactor::SrcAlpha, api::BlendingFactor::OneMinusSrcAlpha);
+    for(uint32_t i = 0; i < IndexedCaps; ++i)
+      defaults.setBlend(i, false);
+    for(uint32_t i = 0; i < IndexedCaps; ++i)
+      defaults.setBlendFactors(i, api::BlendingFactor::SrcAlpha, api::BlendingFactor::OneMinusSrcAlpha);
     defaults.setCullFaceSide(api::CullFaceMode::Back);
     defaults.setFrontFace(api::FrontFaceDirection::Cw);
     defaults.setLineWidth(1.0f);

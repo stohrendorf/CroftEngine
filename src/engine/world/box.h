@@ -9,8 +9,6 @@
 #include <gsl/gsl-lite.hpp>
 #include <vector>
 
-// IWYU pragma: no_forward_declare serialization::Serializer
-
 namespace engine::world
 {
 class World;

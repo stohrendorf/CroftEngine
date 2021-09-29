@@ -7,11 +7,6 @@
 #include <gsl/gsl-lite.hpp>
 #include <memory>
 
-// IWYU pragma: no_forward_declare gl::Framebuffer
-// IWYU pragma: no_forward_declare gl::Texture2D
-// IWYU pragma: no_forward_declare gl::TextureDepth
-// IWYU pragma: no_forward_declare gl::TextureHandle
-
 namespace render::pass
 {
 class GeometryPass
@@ -19,7 +14,7 @@ class GeometryPass
 public:
   explicit GeometryPass(const glm::ivec2& viewport);
   ~GeometryPass();
-  void bind(const glm::ivec2& size);
+  void bind();
 
   [[nodiscard]] const auto& getNormalBuffer() const
   {
@@ -48,8 +43,8 @@ public:
 
 private:
   gsl::not_null<std::shared_ptr<gl::TextureDepth<float>>> m_depthBuffer;
-  gsl::not_null<std::shared_ptr<gl::Texture2D<gl::SRGBA8>>> m_colorBuffer;
-  gsl::not_null<std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>>> m_colorBufferHandle;
+  gsl::not_null<std::shared_ptr<gl::Texture2D<gl::SRGB8>>> m_colorBuffer;
+  gsl::not_null<std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::SRGB8>>>> m_colorBufferHandle;
   gsl::not_null<std::shared_ptr<gl::Texture2D<gl::RGB32F>>> m_positionBuffer;
   gsl::not_null<std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::RGB32F>>>> m_positionBufferHandle;
   gsl::not_null<std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::RGB32F>>>> m_interpolatedPositionBufferHandle;

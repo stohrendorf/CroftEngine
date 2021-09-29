@@ -16,9 +16,6 @@
 #include <ostream>
 #include <stdexcept>
 
-// IWYU pragma: no_forward_declare serialization::Serializer
-// IWYU pragma: no_forward_declare serialization::TypeId
-
 namespace engine::objects
 {
 class AIAgent;

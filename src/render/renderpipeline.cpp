@@ -9,9 +9,9 @@
 #include "rendersettings.h"
 
 #include <boost/assert.hpp>
-#include <gl/texturedepth.h> // IWYU pragma: keep
-#include <glm/fwd.hpp>
+#include <gl/texturedepth.h>
 #include <glm/vec2.hpp>
+#include <gsl/gsl-lite.hpp>
 
 namespace render
 {
@@ -27,10 +27,10 @@ void RenderPipeline::compositionPass(const bool water)
     m_portalPass->renderBlur();
   BOOST_ASSERT(m_hbaoPass != nullptr);
   if(m_renderSettings.hbao)
-    m_hbaoPass->render(m_size);
+    m_hbaoPass->render();
   BOOST_ASSERT(m_fxaaPass != nullptr);
   if(m_renderSettings.fxaa)
-    m_fxaaPass->render(m_size);
+    m_fxaaPass->render();
   BOOST_ASSERT(m_compositionPass != nullptr);
   m_compositionPass->render(water, m_renderSettings);
 }
@@ -74,11 +74,11 @@ void RenderPipeline::resize(scene::MaterialManager& materialManager, const glm::
   m_uiPass = std::make_shared<pass::UIPass>(materialManager, viewport);
 }
 
-void RenderPipeline::bindPortalFrameBuffer()
+gl::RenderState RenderPipeline::bindPortalFrameBuffer()
 {
   BOOST_ASSERT(m_portalPass != nullptr);
   BOOST_ASSERT(m_geometryPass != nullptr);
-  m_portalPass->bind(*m_geometryPass->getPositionBuffer());
+  return m_portalPass->bind(*m_geometryPass->getPositionBuffer());
 }
 
 void RenderPipeline::bindUiFrameBuffer()
@@ -87,13 +87,13 @@ void RenderPipeline::bindUiFrameBuffer()
   m_uiPass->bind();
 }
 
-void RenderPipeline::bindGeometryFrameBuffer(const glm::ivec2& size, float farPlane)
+void RenderPipeline::bindGeometryFrameBuffer(float farPlane)
 {
   BOOST_ASSERT(m_geometryPass != nullptr);
-  m_geometryPass->bind(size);
-  m_geometryPass->getColorBuffer()->getTexture()->clear({0, 0, 0, 255});
+  m_geometryPass->getColorBuffer()->getTexture()->clear({0, 0, 0});
   m_geometryPass->getPositionBuffer()->getTexture()->clear({0.0f, 0.0f, -farPlane});
   m_geometryPass->getDepthBuffer()->clear(gl::ScalarDepth{1.0f});
+  return m_geometryPass->bind();
 }
 
 void RenderPipeline::renderUiFrameBuffer(float alpha)

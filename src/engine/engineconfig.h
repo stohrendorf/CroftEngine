@@ -17,8 +17,6 @@
 #include <variant>
 #include <vector>
 
-// IWYU pragma: no_forward_declare serialization::Serializer
-
 namespace engine
 {
 using NamedGlfwKey = serialization::NamedEnum<hid::GlfwKey, hid::EnumUtil<hid::GlfwKey>>;

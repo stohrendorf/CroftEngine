@@ -7,8 +7,6 @@
 #include <gsl/gsl-lite.hpp>
 #include <string>
 
-// IWYU pragma: no_forward_declare serialization::Serializer
-
 namespace engine
 {
 struct Location;

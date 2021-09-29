@@ -35,39 +35,31 @@ FXAAPass::FXAAPass(scene::MaterialManager& materialManager,
                    const GeometryPass& geometryPass)
     : m_material{materialManager.getFXAA()}
     , m_mesh{scene::createScreenQuad(m_material, "fxaa")}
-    , m_colorBuffer{std::make_shared<gl::Texture2D<gl::SRGBA8>>(viewport, "fxaa-color")}
-    , m_colorBufferHandle{std::make_shared<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>>(
+    , m_colorBuffer{std::make_shared<gl::Texture2D<gl::SRGB8>>(viewport, "fxaa-color")}
+    , m_colorBufferHandle{std::make_shared<gl::TextureHandle<gl::Texture2D<gl::SRGB8>>>(
         m_colorBuffer,
         gslu::make_nn_unique<gl::Sampler>("fxaa-color")
           | set(gl::api::SamplerParameterI::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge)
           | set(gl::api::SamplerParameterI::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge)
           | set(gl::api::TextureMinFilter::Linear) | set(gl::api::TextureMagFilter::Linear))}
     , m_fb{gl::FrameBufferBuilder()
-             .texture(gl::api::FramebufferAttachment::ColorAttachment0, m_colorBuffer)
+             .textureNoBlend(gl::api::FramebufferAttachment::ColorAttachment0, m_colorBuffer)
              .build("fxaa-fb")}
 {
   m_mesh->bind("u_input",
                [buffer = geometryPass.getColorBuffer()](
                  const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
                { uniform.set(buffer); });
+
+  m_mesh->getRenderState().merge(m_fb->getRenderState());
 }
 
-// NOLINTNEXTLINE(readability-make-member-function-const)
-void FXAAPass::bind()
-{
-  m_fb->bindWithAttachments();
-}
-
-void FXAAPass::render(const glm::ivec2& size)
+void FXAAPass::render()
 {
   SOGLB_DEBUGGROUP("fxaa-pass");
-  bind();
 
-  gl::RenderState::resetWantedState();
-  gl::RenderState::getWantedState().setBlend(false);
-  gl::RenderState::getWantedState().setViewport(size);
   scene::RenderContext context{scene::RenderMode::Full, std::nullopt};
-
+  m_fb->bind();
   m_mesh->render(context);
 
   if constexpr(FlushPasses)

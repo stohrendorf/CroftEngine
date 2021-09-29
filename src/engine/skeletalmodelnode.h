@@ -20,8 +20,6 @@
 #include <utility>
 #include <vector>
 
-// IWYU pragma: no_forward_declare serialization::Serializer
-
 namespace core
 {
 struct BoundingBox;

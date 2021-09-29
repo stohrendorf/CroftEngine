@@ -75,7 +75,6 @@ void Presenter::playVideo(const std::filesystem::path& path)
   m_soundEngine->setListenerGain(1.0f);
 
   auto mesh = createScreenQuad(m_materialManager->getFlat(false, true, true), "video");
-  mesh->getRenderState().setBlend(false);
 
   video::play(path,
               m_soundEngine->getDevice(),
@@ -120,7 +119,6 @@ void Presenter::renderWorld(const ObjectManager& objectManager,
     gl::RenderState::resetWantedState();
     gl::RenderState::getWantedState().setDepthClamp(true);
     m_csm->updateCamera(*m_renderer->getCamera());
-    m_csm->applyViewport();
 
     for(const auto& texture : m_csm->getDepthTextures())
       texture->getTexture()->clear(gl::ScalarDepth{1.0f});
@@ -130,7 +128,8 @@ void Presenter::renderWorld(const ObjectManager& objectManager,
       SOGLB_DEBUGGROUP("csm-pass/" + std::to_string(i));
 
       m_csm->setActiveSplit(i);
-      m_csm->getActiveFramebuffer()->bindWithAttachments();
+      m_csm->getActiveFramebuffer()->bind();
+      gl::RenderState::getWantedState() = m_csm->getActiveFramebuffer()->getRenderState();
 
       render::scene::RenderContext context{render::scene::RenderMode::CSMDepthOnly,
                                            m_csm->getActiveMatrix(glm::mat4{1.0f})};
@@ -164,8 +163,7 @@ void Presenter::renderWorld(const ObjectManager& objectManager,
 
   {
     SOGLB_DEBUGGROUP("geometry-pass");
-    gl::RenderState::resetWantedState();
-    m_renderPipeline->bindGeometryFrameBuffer(m_window->getViewport(), cameraController.getCamera()->getFarPlane());
+    m_renderPipeline->bindGeometryFrameBuffer(cameraController.getCamera()->getFarPlane());
 
     {
       SOGLB_DEBUGGROUP("depth-prefill-pass");
@@ -190,7 +188,6 @@ void Presenter::renderWorld(const ObjectManager& objectManager,
         GL_ASSERT(gl::api::finish());
     }
 
-    gl::RenderState::resetWantedState();
     m_renderer->render();
 
     if constexpr(render::pass::FlushPasses)
@@ -204,7 +201,7 @@ void Presenter::renderWorld(const ObjectManager& objectManager,
     render::scene::RenderContext context{render::scene::RenderMode::DepthOnly,
                                          cameraController.getCamera()->getViewProjectionMatrix()};
 
-    m_renderPipeline->bindPortalFrameBuffer();
+    context.pushState(m_renderPipeline->bindPortalFrameBuffer());
     for(const auto& portal : waterEntryPortals)
     {
       portal->mesh->render(context);

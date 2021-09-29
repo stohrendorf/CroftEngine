@@ -8,11 +8,6 @@
 #include <memory>
 #include <tuple>
 
-// IWYU pragma: no_forward_declare gl::Framebuffer
-// IWYU pragma: no_forward_declare gl::Texture2D
-// IWYU pragma: no_forward_declare gl::Texture2DArray
-// IWYU pragma: no_forward_declare gl::TextureHandle
-
 namespace render::scene
 {
 class CSM;

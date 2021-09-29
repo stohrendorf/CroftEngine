@@ -4,7 +4,7 @@
 
 layout(bindless_sampler) uniform sampler2D u_input;
 layout(bindless_sampler) uniform sampler2D u_noise;
-layout(location=0) out vec4 out_color;
+layout(location=0) out vec3 out_color;
 
 vec3 crt(in sampler2D tex, in vec2 uv)
 {
@@ -31,11 +31,6 @@ float noise(in vec2 p, in float time)
 
 void main()
 {
-    float time = time_seconds()/2.0;
-    vec3 color = crt(u_input, fpi.texCoord);
-
     const float Intensity = 0.01;
-    color += noise(fpi.texCoord * 2, time) * Intensity;
-
-    out_color = vec4(color, 1.0);
+    out_color = crt(u_input, fpi.texCoord) + noise(fpi.texCoord * 2.0, time_seconds() * 0.5) * Intensity;
 }

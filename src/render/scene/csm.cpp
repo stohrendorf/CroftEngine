@@ -71,6 +71,7 @@ void CSM::Split::init(int32_t resolution, size_t idx, MaterialManager& materialM
   squareMesh->bind("u_shadow",
                    [this](const Node& /*node*/, const Mesh& /*mesh*/, gl::Uniform& uniform)
                    { uniform.set(gsl::not_null{depthTextureHandle}); });
+  squareMesh->getRenderState().merge(squareFramebuffer->getRenderState());
   squareMesh->getMaterialGroup().set(RenderMode::Full, squareMaterial);
 
   squareBlur = std::make_shared<SeparableBlur<gl::RG16F>>(
@@ -82,13 +83,9 @@ void CSM::Split::init(int32_t resolution, size_t idx, MaterialManager& materialM
 void CSM::Split::renderSquare()
 {
   SOGLB_DEBUGGROUP("square-pass");
-  squareFramebuffer->bindWithAttachments();
+  squareFramebuffer->bind();
 
-  gl::RenderState::resetWantedState();
-  gl::RenderState::getWantedState().setBlend(false);
-  gl::RenderState::getWantedState().setViewport(depthTextureHandle->getTexture()->size());
   RenderContext context{RenderMode::Full, std::nullopt};
-
   squareMesh->render(context);
 }
 
@@ -96,13 +93,7 @@ void CSM::Split::renderSquare()
 void CSM::Split::renderBlur()
 {
   SOGLB_DEBUGGROUP("square-pass");
-  squareFramebuffer->bindWithAttachments();
-
-  gl::RenderState::resetWantedState();
-  gl::RenderState::getWantedState().setBlend(false);
-  gl::RenderState::getWantedState().setViewport(depthTextureHandle->getTexture()->size());
-  RenderContext context{RenderMode::Full, std::nullopt};
-
+  squareFramebuffer->bind();
   squareBlur->render();
 }
 

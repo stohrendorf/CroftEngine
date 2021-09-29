@@ -6,9 +6,6 @@
 #include <gl/soglb_fwd.h>
 #include <memory>
 
-// IWYU pragma: no_forward_declare gl::Texture2D
-// IWYU pragma: no_forward_declare gl::TextureHandle
-
 struct AVFilterLink;
 struct SwsContext;
 

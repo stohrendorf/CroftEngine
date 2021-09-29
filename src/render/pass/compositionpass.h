@@ -6,11 +6,6 @@
 #include <gsl/gsl-lite.hpp>
 #include <memory>
 
-// IWYU pragma: no_forward_declare gl::Framebuffer
-// IWYU pragma: no_forward_declare gl::Texture2D
-// IWYU pragma: no_forward_declare gl::TextureHandle
-// IWYU pragma: no_forward_declare gsl::not_null
-
 namespace render
 {
 struct RenderSettings;
@@ -40,7 +35,7 @@ public:
     const GeometryPass& geometryPass,
     const PortalPass& portalPass,
     const HBAOPass& hbaoPass,
-    const gsl::not_null<std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>>>& colorBuffer);
+    const gsl::not_null<std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::SRGB8>>>>& colorBuffer);
 
   void updateCamera(const gsl::not_null<std::shared_ptr<scene::Camera>>& camera);
 
@@ -53,8 +48,8 @@ private:
   gsl::not_null<std::shared_ptr<scene::Mesh>> m_mesh;
   gsl::not_null<std::shared_ptr<scene::Mesh>> m_waterMesh;
   gsl::not_null<std::shared_ptr<scene::Mesh>> m_crtMesh;
-  gsl::not_null<std::shared_ptr<gl::Texture2D<gl::SRGBA8>>> m_colorBuffer;
-  gsl::not_null<std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>>> m_colorBufferHandle;
+  gsl::not_null<std::shared_ptr<gl::Texture2D<gl::SRGB8>>> m_colorBuffer;
+  gsl::not_null<std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::SRGB8>>>> m_colorBufferHandle;
   gsl::not_null<std::shared_ptr<gl::Framebuffer>> m_fb;
 };
 } // namespace render::pass

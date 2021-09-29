@@ -7,8 +7,6 @@
 #include <string>
 #include <vector>
 
-// IWYU pragma: no_forward_declare gl::Texture2DArray
-
 namespace loader::file::level
 {
 class Level;

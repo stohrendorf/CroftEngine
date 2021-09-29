@@ -9,8 +9,6 @@
 #include <iosfwd>
 #include <utility>
 
-// IWYU pragma: no_forward_declare serialization::Serializer
-
 namespace engine::world
 {
 class World;

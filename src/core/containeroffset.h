@@ -8,8 +8,6 @@
 #include <stdexcept>
 #include <vector>
 
-// IWYU pragma: no_forward_declare serialization::Serializer
-
 namespace core
 {
 template<typename OffsetType, typename... DataTypes>

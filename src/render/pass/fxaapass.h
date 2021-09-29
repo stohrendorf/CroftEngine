@@ -5,10 +5,6 @@
 #include <glm/vec2.hpp>
 #include <memory>
 
-// IWYU pragma: no_forward_declare gl::Framebuffer
-// IWYU pragma: no_forward_declare gl::Texture2D
-// IWYU pragma: no_forward_declare gl::TextureHandle
-
 namespace render::scene
 {
 class MaterialManager;
@@ -27,9 +23,7 @@ public:
                     const glm::ivec2& viewport,
                     const GeometryPass& geometryPass);
 
-  void bind();
-
-  void render(const glm::ivec2& size);
+  void render();
 
   [[nodiscard]] const auto& getColorBuffer() const
   {
@@ -39,8 +33,8 @@ public:
 private:
   const gsl::not_null<std::shared_ptr<scene::Material>> m_material;
   gsl::not_null<std::shared_ptr<scene::Mesh>> m_mesh;
-  gsl::not_null<std::shared_ptr<gl::Texture2D<gl::SRGBA8>>> m_colorBuffer;
-  gsl::not_null<std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>>> m_colorBufferHandle;
+  gsl::not_null<std::shared_ptr<gl::Texture2D<gl::SRGB8>>> m_colorBuffer;
+  gsl::not_null<std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::SRGB8>>>> m_colorBufferHandle;
   gsl::not_null<std::shared_ptr<gl::Framebuffer>> m_fb;
 };
 } // namespace render::pass

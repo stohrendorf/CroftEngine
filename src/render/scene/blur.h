@@ -45,17 +45,14 @@ public:
     m_framebuffer = gl::FrameBufferBuilder()
                       .textureNoBlend(gl::api::FramebufferAttachment::ColorAttachment0, m_blurredTexture->getTexture())
                       .build(m_name + "/framebuffer");
+    m_mesh->getRenderState().merge(m_framebuffer->getRenderState());
   }
 
   void render() const
   {
     SOGLB_DEBUGGROUP(m_name + "/blur-pass");
-    gl::RenderState::resetWantedState();
-    gl::RenderState::getWantedState().setBlend(false);
-    gl::RenderState::getWantedState().setViewport(m_blurredTexture->getTexture()->size());
     RenderContext context{RenderMode::Full, std::nullopt};
-
-    m_framebuffer->bindWithAttachments();
+    m_framebuffer->bind();
     m_mesh->render(context);
   }
 

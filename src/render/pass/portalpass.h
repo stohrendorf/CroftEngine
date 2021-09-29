@@ -8,9 +8,6 @@
 #include <glm/fwd.hpp>
 #include <memory>
 
-// IWYU pragma: no_forward_declare gl::Framebuffer
-// IWYU pragma: no_forward_declare gl::TextureDepth
-
 namespace render::scene
 {
 class MaterialManager;
@@ -25,7 +22,7 @@ public:
                       const gsl::not_null<std::shared_ptr<gl::TextureDepth<float>>>& depthBuffer,
                       const glm::vec2& viewport);
 
-  void bind(const gl::TextureHandle<gl::Texture2D<gl::RGB32F>>& position);
+  [[nodiscard]] gl::RenderState bind(const gl::TextureHandle<gl::Texture2D<gl::RGB32F>>& position);
 
   void renderBlur()
   {

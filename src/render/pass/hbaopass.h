@@ -8,11 +8,6 @@
 #include <gsl/gsl-lite.hpp>
 #include <memory>
 
-// IWYU pragma: no_forward_declare gl::Framebuffer
-// IWYU pragma: no_forward_declare gl::Texture2D
-// IWYU pragma: no_forward_declare gl::TextureHandle
-// IWYU pragma: no_forward_declare gsl::not_null
-
 namespace render::scene
 {
 class MaterialManager;
@@ -33,7 +28,7 @@ public:
                     const GeometryPass& geometryPass);
   void updateCamera(const gsl::not_null<std::shared_ptr<scene::Camera>>& camera);
 
-  void render(const glm::ivec2& size);
+  void render();
 
   [[nodiscard]] auto getBlurredTexture() const
   {
@@ -47,8 +42,7 @@ private:
 
   gsl::not_null<std::shared_ptr<gl::Texture2D<gl::ScalarByte>>> m_aoBuffer;
   gsl::not_null<std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::ScalarByte>>>> m_aoBufferHandle;
-  gsl::not_null<std::shared_ptr<gl::Framebuffer>> m_fb;
-
   scene::SeparableBlur<gl::ScalarByte> m_blur;
+  gsl::not_null<std::shared_ptr<gl::Framebuffer>> m_fb;
 };
 } // namespace render::pass

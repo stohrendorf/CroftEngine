@@ -10,8 +10,6 @@
 #include <gsl/gsl-lite.hpp>
 #include <string>
 
-// IWYU pragma: no_forward_declare gl::Image
-
 namespace gl
 {
 class Font

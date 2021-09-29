@@ -32,15 +32,13 @@ class Mesh;
 
 namespace
 {
-void configureForScreenSpaceEffect(Material& m, bool enableBlend = false)
+void configureForScreenSpaceEffect(Material& m, bool enableBlend)
 {
   m.getRenderState().setDepthTest(false);
   m.getRenderState().setDepthWrite(false);
+  m.getRenderState().setBlend(0, enableBlend);
   if(enableBlend)
-  {
-    m.getRenderState().setBlend(true);
-    m.getRenderState().setBlendFactors(gl::api::BlendingFactor::SrcAlpha, gl::api::BlendingFactor::OneMinusSrcAlpha);
-  }
+    m.getRenderState().setBlendFactors(0, gl::api::BlendingFactor::SrcAlpha, gl::api::BlendingFactor::OneMinusSrcAlpha);
 }
 } // namespace
 
@@ -158,7 +156,8 @@ gsl::not_null<std::shared_ptr<Material>> MaterialManager::getWaterSurface()
 
   m_waterSurface = std::make_shared<Material>(m_shaderCache->getWaterSurface());
   m_waterSurface->getRenderState().setCullFace(false);
-  m_waterSurface->getRenderState().setBlend(false);
+  m_waterSurface->getRenderState().setBlend(0, false);
+  m_waterSurface->getRenderState().setBlend(1, false);
 
   m_waterSurface->getUniformBlock("Camera")->bindCameraBuffer(m_renderer->getCamera());
   m_waterSurface->getUniform("u_time")->bind(
@@ -278,11 +277,11 @@ gsl::not_null<std::shared_ptr<Material>> MaterialManager::getFlat(bool withAlpha
     return it->second;
 
   auto m = gslu::make_nn_shared<Material>(m_shaderCache->getFlat(withAlpha, invertY, withAspectRatio));
-  m->getRenderState().setBlend(withAlpha);
-  m->getRenderState().setBlendFactors(gl::api::BlendingFactor::SrcAlpha, gl::api::BlendingFactor::OneMinusSrcAlpha);
+  m->getRenderState().setBlend(0, withAlpha);
+  m->getRenderState().setBlendFactors(0, gl::api::BlendingFactor::SrcAlpha, gl::api::BlendingFactor::OneMinusSrcAlpha);
   if(const auto uniformBlock = m->tryGetUniformBlock("Camera"))
     uniformBlock->bindCameraBuffer(m_renderer->getCamera());
-  configureForScreenSpaceEffect(*m);
+  configureForScreenSpaceEffect(*m, withAlpha);
   m_flat.emplace(key, m);
   return m;
 }
@@ -294,7 +293,7 @@ const std::shared_ptr<Material>& MaterialManager::getBackdrop()
 
   auto m = std::make_shared<Material>(m_shaderCache->getBackdrop());
   m->getUniformBlock("Camera")->bindCameraBuffer(m_renderer->getCamera());
-  configureForScreenSpaceEffect(*m);
+  configureForScreenSpaceEffect(*m, false);
   m_backdrop = m;
   return m_backdrop;
 }
@@ -305,7 +304,7 @@ gsl::not_null<std::shared_ptr<Material>> MaterialManager::getFXAA()
     return gsl::not_null{m_fxaa};
 
   auto m = std::make_shared<Material>(m_shaderCache->getFXAA());
-  configureForScreenSpaceEffect(*m);
+  configureForScreenSpaceEffect(*m, false);
   m_fxaa = m;
   return gsl::not_null{m_fxaa};
 }
@@ -317,7 +316,7 @@ gsl::not_null<std::shared_ptr<Material>> MaterialManager::getHBAO()
 
   auto m = gslu::make_nn_shared<Material>(m_shaderCache->getHBAO());
   m->getUniform("u_noise")->set(gsl::not_null{m_noiseTexture});
-  configureForScreenSpaceEffect(*m);
+  configureForScreenSpaceEffect(*m, false);
   m_hbao = m;
   return m;
 }
@@ -328,7 +327,7 @@ gsl::not_null<std::shared_ptr<Material>> MaterialManager::getVSMSquare()
     return gsl::not_null{m_vsmSquare};
 
   auto m = std::make_shared<Material>(m_shaderCache->getVSMSquare());
-  configureForScreenSpaceEffect(*m);
+  configureForScreenSpaceEffect(*m, false);
   m_vsmSquare = m;
   return gsl::not_null{m_vsmSquare};
 }
@@ -369,7 +368,7 @@ gsl::not_null<std::shared_ptr<Material>>
     return it->second;
 
   auto m = gslu::make_nn_shared<Material>(m_shaderCache->getFastGaussBlur(extent, blurDim));
-  configureForScreenSpaceEffect(*m);
+  configureForScreenSpaceEffect(*m, false);
   m->getUniform("u_blurDir")->set(int(blurDir));
   m_fastGaussBlur.emplace(key, m);
   return m;
@@ -383,7 +382,7 @@ gsl::not_null<std::shared_ptr<Material>>
     return it->second;
 
   auto m = gslu::make_nn_shared<Material>(m_shaderCache->getFastBoxBlur(extent, blurDim));
-  configureForScreenSpaceEffect(*m);
+  configureForScreenSpaceEffect(*m, false);
   m->getUniform("u_blurDir")->set(int(blurDir));
   m_fastBoxBlur.emplace(key, m);
   return m;

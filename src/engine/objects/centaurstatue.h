@@ -7,8 +7,6 @@
 #include <memory>
 #include <string>
 
-// IWYU pragma: no_forward_declare serialization::Serializer
-
 namespace engine
 {
 struct CollisionInfo;

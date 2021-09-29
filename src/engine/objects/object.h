@@ -23,8 +23,6 @@
 #include <string>
 #include <utility>
 
-// IWYU pragma: no_forward_declare serialization::Serializer
-
 namespace loader::file
 {
 struct Item;

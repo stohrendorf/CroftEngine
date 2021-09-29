@@ -335,7 +335,6 @@ void Room::createSceneNode(const loader::file::Room& srcRoom,
   auto resMesh = renderMesh.toMesh(vbuf, uvCoords, label);
   resMesh->getRenderState().setCullFace(true);
   resMesh->getRenderState().setCullFaceSide(gl::api::CullFaceMode::Back);
-  resMesh->getRenderState().setBlend(false);
 
   node = std::make_shared<render::scene::Node>("Room:" + std::to_string(roomId));
   node->setRenderable(resMesh);

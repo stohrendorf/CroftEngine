@@ -29,14 +29,6 @@ class Node;
 
 namespace render::pass
 {
-// NOLINTNEXTLINE(readability-make-member-function-const)
-void UIPass::bind()
-{
-  gl::Framebuffer::unbindAll();
-  m_colorBuffer->clear({0, 0, 0, 0});
-  m_fb->bindWithAttachments();
-}
-
 UIPass::UIPass(scene::MaterialManager& materialManager, const glm::ivec2& viewport)
     : m_material{materialManager.getFlat(true, false)}
     , m_mesh{scene::createScreenQuad(m_material, "ui")}
@@ -54,7 +46,16 @@ UIPass::UIPass(scene::MaterialManager& materialManager, const glm::ivec2& viewpo
   m_mesh->bind("u_input",
                [this](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
                { uniform.set(gsl::not_null{m_colorBufferHandle}); });
-  m_mesh->getRenderState().setBlend(true);
+
+  m_mesh->getRenderState().merge(m_fb->getRenderState());
+}
+
+// NOLINTNEXTLINE(readability-make-member-function-const)
+void UIPass::bind()
+{
+  gl::Framebuffer::unbindAll();
+  m_colorBuffer->clear({0, 0, 0, 0});
+  m_fb->bind();
 }
 
 // NOLINTNEXTLINE(readability-make-member-function-const)

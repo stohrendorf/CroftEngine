@@ -42,7 +42,7 @@ CompositionPass::CompositionPass(
   const GeometryPass& geometryPass,
   const PortalPass& portalPass,
   const HBAOPass& hbaoPass,
-  const gsl::not_null<std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>>>& colorBuffer)
+  const gsl::not_null<std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::SRGB8>>>>& colorBuffer)
     : m_compositionMaterial{materialManager.getComposition(false,
                                                            renderSettings.lensDistortion,
                                                            renderSettings.dof,
@@ -58,15 +58,15 @@ CompositionPass::CompositionPass(
     , m_mesh{scene::createScreenQuad(m_compositionMaterial, "composition")}
     , m_waterMesh{scene::createScreenQuad(m_waterCompositionMaterial, "composition-water")}
     , m_crtMesh{scene::createScreenQuad(materialManager.getCrt(), "composition-crt")}
-    , m_colorBuffer{std::make_shared<gl::Texture2D<gl::SRGBA8>>(viewport, "composition-color")}
-    , m_colorBufferHandle{std::make_shared<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>>(
+    , m_colorBuffer{std::make_shared<gl::Texture2D<gl::SRGB8>>(viewport, "composition-color")}
+    , m_colorBufferHandle{std::make_shared<gl::TextureHandle<gl::Texture2D<gl::SRGB8>>>(
         m_colorBuffer,
         gslu::make_nn_unique<gl::Sampler>("composition-color")
           | set(gl::api::SamplerParameterI::TextureWrapS, gl::api::TextureWrapMode::Repeat)
           | set(gl::api::SamplerParameterI::TextureWrapT, gl::api::TextureWrapMode::Repeat)
           | set(gl::api::TextureMinFilter::Linear) | set(gl::api::TextureMagFilter::Linear))}
     , m_fb{gl::FrameBufferBuilder()
-             .texture(gl::api::FramebufferAttachment::ColorAttachment0, m_colorBuffer)
+             .textureNoBlend(gl::api::FramebufferAttachment::ColorAttachment0, m_colorBuffer)
              .build("composition-fb")}
 {
   m_mesh->bind("u_portalPosition",
@@ -97,6 +97,8 @@ CompositionPass::CompositionPass(
     [colorBuffer](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
     { uniform.set(colorBuffer); });
 
+  m_mesh->getRenderState().merge(m_fb->getRenderState());
+
   m_waterMesh->bind("u_portalPosition",
                     [buffer = portalPass.getPositionBuffer()](
                       const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
@@ -126,6 +128,8 @@ CompositionPass::CompositionPass(
     [colorBuffer](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
     { uniform.set(colorBuffer); });
 
+  m_waterMesh->getRenderState().merge(m_fb->getRenderState());
+
   m_crtMesh->bind("u_input",
                   [this](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
                   { uniform.set(gsl::not_null{m_colorBufferHandle}); });
@@ -143,12 +147,10 @@ void CompositionPass::render(bool water, const RenderSettings& renderSettings)
 {
   SOGLB_DEBUGGROUP("postprocess-pass");
   if(renderSettings.crt)
-    m_fb->bindWithAttachments();
+    m_fb->bind();
   else
     gl::Framebuffer::unbindAll();
 
-  gl::RenderState::resetWantedState();
-  gl::RenderState::getWantedState().setBlend(false);
   scene::RenderContext context{scene::RenderMode::Full, std::nullopt};
   if(water)
     m_waterMesh->render(context);

@@ -24,6 +24,7 @@ add_library( soglb STATIC
         gl/buffer.h
         gl/debuggroup.h
         gl/framebuffer.h
+        gl/framebuffer.cpp
         gl/image.h
         gl/pixel.h
         gl/program.h

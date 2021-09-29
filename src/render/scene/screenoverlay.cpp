@@ -69,6 +69,6 @@ void ScreenOverlay::init(MaterialManager& materialManager, const glm::ivec2& vie
                [this](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
                { uniform.set(m_alphaMultiplier); });
 
-  m_mesh->getRenderState().setBlend(true);
+  m_mesh->getRenderState().setBlend(0, true);
 }
 } // namespace render::scene

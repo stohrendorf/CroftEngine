@@ -14,8 +14,6 @@
 #include <optional>
 #include <string>
 
-// IWYU pragma: no_forward_declare serialization::Serializer
-
 namespace engine::world
 {
 class World;

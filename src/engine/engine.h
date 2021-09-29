@@ -14,8 +14,6 @@
 #include <set>
 #include <string>
 
-// IWYU pragma: no_forward_declare serialization::Serializer
-
 namespace loader::trx
 {
 class Glidos;

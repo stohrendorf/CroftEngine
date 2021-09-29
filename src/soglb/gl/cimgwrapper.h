@@ -11,8 +11,6 @@
 #include <string>
 #include <string_view>
 
-// IWYU pragma: no_forward_declare gl::Texture2D
-
 namespace cimg_library
 {
 template<typename T>

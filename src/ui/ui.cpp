@@ -196,8 +196,9 @@ void Ui::render()
     indexBuffer, std::tuple{vbo}, std::vector{&m_material->getShaderProgram()->getHandle()}, "ui-vao");
   auto mesh = std::make_shared<render::scene::MeshImpl<uint16_t, UiVertex>>(vao);
   mesh->getMaterialGroup().set(render::scene::RenderMode::Full, m_material);
-  mesh->getRenderState().setBlend(true);
-  mesh->getRenderState().setBlendFactors(gl::api::BlendingFactor::SrcAlpha,
+  mesh->getRenderState().setBlend(0, true);
+  mesh->getRenderState().setBlendFactors(0,
+                                         gl::api::BlendingFactor::SrcAlpha,
                                          gl::api::BlendingFactor::One,
                                          gl::api::BlendingFactor::OneMinusSrcAlpha,
                                          gl::api::BlendingFactor::One);
