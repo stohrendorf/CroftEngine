@@ -210,7 +210,7 @@ void Presenter::renderWorld(const ObjectManager& objectManager,
       GL_ASSERT(gl::api::finish());
   }
 
-  m_renderPipeline->compositionPass(cameraController.getCurrentRoom()->isWaterRoom);
+  m_renderPipeline->worldCompositionPass(cameraController.getCurrentRoom()->isWaterRoom);
 
   if(m_showDebugInfo)
   {

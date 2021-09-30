@@ -25,10 +25,10 @@ class PortalPass;
 class HBAOPass;
 class GeometryPass;
 
-class CompositionPass
+class WorldCompositionPass
 {
 public:
-  explicit CompositionPass(
+  explicit WorldCompositionPass(
     scene::MaterialManager& materialManager,
     const RenderSettings& renderSettings,
     const glm::ivec2& viewport,

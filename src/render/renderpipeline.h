@@ -26,7 +26,7 @@ class PortalPass;
 class GeometryPass;
 class HBAOPass;
 class FXAAPass;
-class CompositionPass;
+class WorldCompositionPass;
 class UIPass;
 } // namespace pass
 
@@ -39,7 +39,7 @@ private:
   std::shared_ptr<pass::GeometryPass> m_geometryPass;
   std::shared_ptr<pass::HBAOPass> m_hbaoPass;
   std::shared_ptr<pass::FXAAPass> m_fxaaPass;
-  std::shared_ptr<pass::CompositionPass> m_compositionPass;
+  std::shared_ptr<pass::WorldCompositionPass> m_worldCompositionPass;
   std::shared_ptr<pass::UIPass> m_uiPass;
 
 public:
@@ -49,7 +49,7 @@ public:
   [[nodiscard]] gl::RenderState bindPortalFrameBuffer();
   void bindUiFrameBuffer();
   void renderUiFrameBuffer(float alpha);
-  void compositionPass(bool water);
+  void worldCompositionPass(bool water);
 
   void updateCamera(const gsl::not_null<std::shared_ptr<scene::Camera>>& camera);
 

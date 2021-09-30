@@ -1,11 +1,11 @@
 #include "renderpipeline.h"
 
-#include "pass/compositionpass.h"
 #include "pass/fxaapass.h"
 #include "pass/geometrypass.h"
 #include "pass/hbaopass.h"
 #include "pass/portalpass.h"
 #include "pass/uipass.h"
+#include "pass/worldcompositionpass.h"
 #include "rendersettings.h"
 
 #include <boost/assert.hpp>
@@ -20,7 +20,7 @@ RenderPipeline::RenderPipeline(scene::MaterialManager& materialManager, const gl
   resize(materialManager, viewport, true);
 }
 
-void RenderPipeline::compositionPass(const bool water)
+void RenderPipeline::worldCompositionPass(const bool water)
 {
   BOOST_ASSERT(m_portalPass != nullptr);
   if(m_renderSettings.waterDenoise)
@@ -31,14 +31,14 @@ void RenderPipeline::compositionPass(const bool water)
   BOOST_ASSERT(m_fxaaPass != nullptr);
   if(m_renderSettings.fxaa)
     m_fxaaPass->render();
-  BOOST_ASSERT(m_compositionPass != nullptr);
-  m_compositionPass->render(water, m_renderSettings);
+  BOOST_ASSERT(m_worldCompositionPass != nullptr);
+  m_worldCompositionPass->render(water, m_renderSettings);
 }
 
 void RenderPipeline::updateCamera(const gsl::not_null<std::shared_ptr<scene::Camera>>& camera)
 {
-  BOOST_ASSERT(m_compositionPass != nullptr);
-  m_compositionPass->updateCamera(camera);
+  BOOST_ASSERT(m_worldCompositionPass != nullptr);
+  m_worldCompositionPass->updateCamera(camera);
   BOOST_ASSERT(m_hbaoPass != nullptr);
   if(m_renderSettings.hbao)
     m_hbaoPass->updateCamera(camera);
@@ -63,14 +63,14 @@ void RenderPipeline::resize(scene::MaterialManager& materialManager, const glm::
   m_portalPass = std::make_shared<pass::PortalPass>(materialManager, m_geometryPass->getDepthBuffer(), viewport);
   m_hbaoPass = std::make_shared<pass::HBAOPass>(materialManager, viewport, *m_geometryPass);
   m_fxaaPass = std::make_shared<pass::FXAAPass>(materialManager, viewport, *m_geometryPass);
-  m_compositionPass = std::make_shared<pass::CompositionPass>(materialManager,
-                                                              m_renderSettings,
-                                                              viewport,
-                                                              *m_geometryPass,
-                                                              *m_portalPass,
-                                                              *m_hbaoPass,
-                                                              m_renderSettings.fxaa ? m_fxaaPass->getColorBuffer()
-                                                                                    : m_geometryPass->getColorBuffer());
+  m_worldCompositionPass = std::make_shared<pass::WorldCompositionPass>(
+    materialManager,
+    m_renderSettings,
+    viewport,
+    *m_geometryPass,
+    *m_portalPass,
+    *m_hbaoPass,
+    m_renderSettings.fxaa ? m_fxaaPass->getColorBuffer() : m_geometryPass->getColorBuffer());
   m_uiPass = std::make_shared<pass::UIPass>(materialManager, viewport);
 }
 

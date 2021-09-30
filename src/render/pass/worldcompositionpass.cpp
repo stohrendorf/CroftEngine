@@ -1,4 +1,4 @@
-#include "compositionpass.h"
+#include "worldcompositionpass.h"
 
 #include "config.h"
 #include "geometrypass.h"
@@ -35,7 +35,7 @@ class Node;
 
 namespace render::pass
 {
-CompositionPass::CompositionPass(
+WorldCompositionPass::WorldCompositionPass(
   scene::MaterialManager& materialManager,
   const RenderSettings& renderSettings,
   const glm::ivec2& viewport,
@@ -136,14 +136,14 @@ CompositionPass::CompositionPass(
 }
 
 // NOLINTNEXTLINE(readability-make-member-function-const)
-void CompositionPass::updateCamera(const gsl::not_null<std::shared_ptr<scene::Camera>>& camera)
+void WorldCompositionPass::updateCamera(const gsl::not_null<std::shared_ptr<scene::Camera>>& camera)
 {
   m_compositionMaterial->getUniformBlock("Camera")->bindCameraBuffer(camera);
   m_waterCompositionMaterial->getUniformBlock("Camera")->bindCameraBuffer(camera);
 }
 
 // NOLINTNEXTLINE(readability-make-member-function-const)
-void CompositionPass::render(bool water, const RenderSettings& renderSettings)
+void WorldCompositionPass::render(bool water, const RenderSettings& renderSettings)
 {
   SOGLB_DEBUGGROUP("postprocess-pass");
   if(renderSettings.crt)

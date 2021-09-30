@@ -446,8 +446,6 @@ set( EDISONENGINE_SRCS
         render/textureanimator.h
         render/textureanimator.cpp
 
-        render/pass/compositionpass.h
-        render/pass/compositionpass.cpp
         render/pass/fxaapass.h
         render/pass/fxaapass.cpp
         render/pass/geometrypass.h
@@ -458,6 +456,8 @@ set( EDISONENGINE_SRCS
         render/pass/portalpass.cpp
         render/pass/uipass.h
         render/pass/uipass.cpp
+        render/pass/worldcompositionpass.h
+        render/pass/worldcompositionpass.cpp
 
         render/scene/bufferparameter.h
         render/scene/bufferparameter.cpp
