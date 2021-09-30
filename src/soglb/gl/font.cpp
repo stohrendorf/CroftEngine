@@ -108,7 +108,7 @@ Font::Font(std::filesystem::path ttf)
   const auto face = getFace();
   const auto h = face->ascender - face->descender;
   Expects(h != 0);
-  m_lineHeight = static_cast<float>(face->height) / h;
+  m_lineHeight = gsl::narrow_cast<float>(face->height) / gsl::narrow_cast<float>(h);
 }
 
 Font::~Font()
@@ -122,7 +122,7 @@ void Font::drawText(Image<SRGBA8>& img, const gsl::czstring text, glm::ivec2 xy,
   Expects(text);
   Expects(size > 0);
 
-  size *= m_lineHeight;
+  size = gsl::narrow_cast<int>(gsl::narrow_cast<float>(size) * m_lineHeight);
 
   const int baseAlpha = color.channels[3];
   auto currentColor = color;
@@ -210,7 +210,7 @@ int Font::getGlyphKernAdvance(const FT_UInt left, const FT_UInt right) const
   {
     BOOST_THROW_EXCEPTION(std::runtime_error("Failed to retrieve kerning information"));
   }
-  return std::lround(k.x / 64.0f * m_lineHeight);
+  return gsl::narrow<int>(std::lround(gsl::narrow<float>(k.x) / 64.0f * m_lineHeight));
 }
 
 FT_UInt Font::getGlyphIndex(const char32_t chr) const
