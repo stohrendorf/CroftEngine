@@ -64,7 +64,7 @@ class LevelSequenceItem
 public:
   virtual ~LevelSequenceItem() = default;
   virtual std::pair<RunResult, std::optional<size_t>> run(Engine& engine, const std::shared_ptr<Player>& player) = 0;
-  virtual std::pair<RunResult, std::optional<size_t>>
+  [[noreturn]] virtual std::pair<RunResult, std::optional<size_t>>
     runFromSave(Engine& /*engine*/, const std::optional<size_t>& /*slot*/, const std::shared_ptr<Player>& /*player*/);
 
   [[nodiscard]] virtual bool isLevel(const std::filesystem::path& path) const = 0;

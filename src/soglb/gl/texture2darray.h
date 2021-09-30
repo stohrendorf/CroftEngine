@@ -32,7 +32,7 @@ public:
 
     const int levelDiv = 1 << level;
     const auto size = glm::max(glm::ivec3{1, 1, 1}, m_size / levelDiv);
-    Expects(size.x * size.y == data.size());
+    Expects(gsl::narrow_cast<size_t>(size.x) * gsl::narrow_cast<size_t>(size.y) == data.size());
 
     GL_ASSERT(api::textureSubImage3D(
       getHandle(), level, 0, 0, z, size.x, size.y, 1, Pixel::PixelFormat, Pixel::PixelType, data.data()));
