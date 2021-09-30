@@ -46,11 +46,11 @@ public:
     return get("backdrop.vert", "flat.frag");
   }
 
-  auto getGeometry(bool water, bool skeletal, bool roomShadowing, uint8_t spriteMode)
+  auto getGeometry(bool inWater, bool skeletal, bool roomShadowing, uint8_t spriteMode)
   {
     std::vector<std::string> defines;
-    if(water)
-      defines.emplace_back("WATER");
+    if(inWater)
+      defines.emplace_back("IN_WATER");
     if(skeletal)
       defines.emplace_back("SKELETAL");
     if(roomShadowing)
@@ -113,11 +113,11 @@ public:
     return get("flat.vert", "vsm_square.frag");
   }
 
-  auto getComposition(bool water, bool lensDistortion, bool dof, bool filmGrain, bool hbao, bool velvia)
+  auto getWorldComposition(bool inWater, bool lensDistortion, bool dof, bool filmGrain, bool hbao, bool velvia)
   {
     std::vector<std::string> defines;
-    if(water)
-      defines.emplace_back("WATER");
+    if(inWater)
+      defines.emplace_back("IN_WATER");
     if(lensDistortion)
       defines.emplace_back("LENS_DISTORTION");
     if(dof)

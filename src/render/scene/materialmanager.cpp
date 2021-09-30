@@ -101,14 +101,14 @@ gsl::not_null<std::shared_ptr<Material>> MaterialManager::getDepthOnly(bool skel
   return m;
 }
 
-gsl::not_null<std::shared_ptr<Material>> MaterialManager::getGeometry(bool water, bool skeletal, bool roomShadowing)
+gsl::not_null<std::shared_ptr<Material>> MaterialManager::getGeometry(bool inWater, bool skeletal, bool roomShadowing)
 {
   Expects(m_geometryTextures != nullptr);
-  const std::tuple key{water, skeletal, roomShadowing};
+  const std::tuple key{inWater, skeletal, roomShadowing};
   if(auto it = m_geometry.find(key); it != m_geometry.end())
     return it->second;
 
-  auto m = gslu::make_nn_shared<Material>(m_shaderCache->getGeometry(water, skeletal, roomShadowing, 0));
+  auto m = gslu::make_nn_shared<Material>(m_shaderCache->getGeometry(inWater, skeletal, roomShadowing, 0));
   m->getUniform("u_diffuseTextures")
     ->bind([this](const Node& /*node*/, const Mesh& /*mesh*/, gl::Uniform& uniform)
            { uniform.set(gsl::not_null{m_geometryTextures}); });
@@ -210,14 +210,14 @@ MaterialManager::MaterialManager(gsl::not_null<std::shared_ptr<ShaderCache>> sha
       | set(gl::api::TextureMinFilter::Linear) | set(gl::api::TextureMagFilter::Linear));
 }
 
-gsl::not_null<std::shared_ptr<Material>>
-  MaterialManager::getComposition(bool water, bool lensDistortion, bool dof, bool filmGrain, bool hbao, bool velvia)
+gsl::not_null<std::shared_ptr<Material>> MaterialManager::getWorldComposition(
+  bool inWater, bool lensDistortion, bool dof, bool filmGrain, bool hbao, bool velvia)
 {
-  const std::tuple key{water, lensDistortion, dof, filmGrain, hbao, velvia};
+  const std::tuple key{inWater, lensDistortion, dof, filmGrain, hbao, velvia};
   if(auto it = m_composition.find(key); it != m_composition.end())
     return it->second;
   auto m = gslu::make_nn_shared<Material>(
-    m_shaderCache->getComposition(water, lensDistortion, dof, filmGrain, hbao, velvia));
+    m_shaderCache->getWorldComposition(inWater, lensDistortion, dof, filmGrain, hbao, velvia));
 
   if(auto uniform = m->tryGetUniform("u_time"))
   {
@@ -230,7 +230,7 @@ gsl::not_null<std::shared_ptr<Material>>
   }
 
   if(auto uniform = m->tryGetUniform("u_distortionPower"))
-    uniform->set(water ? -2.0f : -1.0f);
+    uniform->set(inWater ? -2.0f : -1.0f);
 
   if(auto uniform = m->tryGetUniform("u_noise"))
     uniform->set(gsl::not_null{m_noiseTexture});

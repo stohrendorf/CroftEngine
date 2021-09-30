@@ -1,6 +1,6 @@
 #include "camera_interface.glsl"
 
-#ifdef WATER
+#ifdef IN_WATER
 float dof_start = 32.0 * InvFarPlane;
 float dof_dist = 4 * 1024.0 * InvFarPlane;
 float dof_focal_depth = 1536.0 * InvFarPlane;

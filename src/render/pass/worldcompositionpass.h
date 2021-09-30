@@ -39,14 +39,14 @@ public:
 
   void updateCamera(const gsl::not_null<std::shared_ptr<scene::Camera>>& camera);
 
-  void render(bool water, const RenderSettings& renderSettings);
+  void render(bool inWater, const RenderSettings& renderSettings);
 
 private:
-  gsl::not_null<std::shared_ptr<scene::Material>> m_compositionMaterial;
-  gsl::not_null<std::shared_ptr<scene::Material>> m_waterCompositionMaterial;
+  gsl::not_null<std::shared_ptr<scene::Material>> m_noWaterMaterial;
+  gsl::not_null<std::shared_ptr<scene::Material>> m_inWaterMaterial;
 
-  gsl::not_null<std::shared_ptr<scene::Mesh>> m_mesh;
-  gsl::not_null<std::shared_ptr<scene::Mesh>> m_waterMesh;
+  gsl::not_null<std::shared_ptr<scene::Mesh>> m_noWaterMesh;
+  gsl::not_null<std::shared_ptr<scene::Mesh>> m_inWaterMesh;
   gsl::not_null<std::shared_ptr<scene::Mesh>> m_crtMesh;
   gsl::not_null<std::shared_ptr<gl::Texture2D<gl::SRGB8>>> m_colorBuffer;
   gsl::not_null<std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::SRGB8>>>> m_colorBufferHandle;

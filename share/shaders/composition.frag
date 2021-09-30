@@ -31,7 +31,7 @@ layout(location=0) out vec4 out_color;
 
 void main()
 {
-    #ifdef WATER
+    #ifdef IN_WATER
     vec2 uv = (fpi.texCoord - vec2(0.5)) * 0.9 + vec2(0.5);// scale a bit to avoid edge clamping when underwater
     #else
     vec2 uv = fpi.texCoord;
@@ -45,12 +45,12 @@ void main()
     do_lens_distortion(uv);
     #endif
 
-    #ifdef WATER
+    #ifdef IN_WATER
     do_water_distortion(uv);
     #endif
 
     const vec3 WaterColor = vec3(149.0f / 255.0f, 229.0f / 255.0f, 229.0f / 255.0f);
-    #ifdef WATER
+    #ifdef IN_WATER
     vec3 finalColor = WaterColor;
     #else
     vec3 finalColor = vec3(1.0);
@@ -66,7 +66,7 @@ void main()
         if (-texture(u_geometryPosition, pUv).z > pDepth) {
             // ...but only apply it if the source pixel's geometry is behind the water surface.
             uv = pUv;
-            #ifdef WATER
+            #ifdef IN_WATER
             finalColor = vec3(1.0);
             #else
             finalColor = WaterColor;
@@ -82,7 +82,7 @@ void main()
     #endif
     finalColor = mix(finalColor, vec3(1), whiteness);
 
-    #ifdef WATER
+    #ifdef IN_WATER
     float inVolumeRay = pDepth;
     #else
     float inVolumeRay = geomDepth - pDepth;

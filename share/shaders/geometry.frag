@@ -3,7 +3,7 @@
 #include "time_uniform.glsl"
 
 layout(bindless_sampler) uniform sampler2DArray u_diffuseTextures;
-#ifdef WATER
+#ifdef IN_WATER
 #include "water_caustics.glsl"
 #endif
 
@@ -78,7 +78,7 @@ void main()
         finalColor *= finalColor;
     }
 
-        #ifdef WATER
+        #ifdef IN_WATER
     finalColor *= water_multiplier(gpi.vertexPosWorld);
     #endif
 

@@ -26,14 +26,14 @@ public:
   [[nodiscard]] gsl::not_null<std::shared_ptr<Material>> getCSMDepthOnly(bool skeletal);
   [[nodiscard]] gsl::not_null<std::shared_ptr<Material>> getDepthOnly(bool skeletal);
 
-  [[nodiscard]] gsl::not_null<std::shared_ptr<Material>> getGeometry(bool water, bool skeletal, bool roomShadowing);
+  [[nodiscard]] gsl::not_null<std::shared_ptr<Material>> getGeometry(bool inWater, bool skeletal, bool roomShadowing);
 
   [[nodiscard]] gsl::not_null<std::shared_ptr<Material>> getWaterSurface();
 
   [[nodiscard]] gsl::not_null<std::shared_ptr<Material>> getLightning();
 
   [[nodiscard]] gsl::not_null<std::shared_ptr<Material>>
-    getComposition(bool water, bool lensDistortion, bool dof, bool filmGrain, bool hbao, bool velvia);
+    getWorldComposition(bool inWater, bool lensDistortion, bool dof, bool filmGrain, bool hbao, bool velvia);
 
   [[nodiscard]] gsl::not_null<std::shared_ptr<Material>> getCrt();
 
