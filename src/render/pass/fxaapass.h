@@ -14,14 +14,12 @@ class Mesh;
 
 namespace render::pass
 {
-class GeometryPass;
-
 class FXAAPass
 {
 public:
   explicit FXAAPass(scene::MaterialManager& materialManager,
                     const glm::ivec2& viewport,
-                    const GeometryPass& geometryPass);
+                    const gsl::not_null<std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::SRGB8>>>>& aliased);
 
   void render();
 

@@ -1,7 +1,6 @@
 #include "fxaapass.h"
 
 #include "config.h"
-#include "geometrypass.h"
 #include "render/scene/materialmanager.h"
 #include "render/scene/mesh.h"
 #include "render/scene/rendercontext.h"
@@ -32,7 +31,7 @@ namespace render::pass
 {
 FXAAPass::FXAAPass(scene::MaterialManager& materialManager,
                    const glm::ivec2& viewport,
-                   const GeometryPass& geometryPass)
+                   const gsl::not_null<std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::SRGB8>>>>& aliased)
     : m_material{materialManager.getFXAA()}
     , m_mesh{scene::createScreenQuad(m_material, "fxaa")}
     , m_colorBuffer{std::make_shared<gl::Texture2D<gl::SRGB8>>(viewport, "fxaa-color")}
@@ -47,9 +46,8 @@ FXAAPass::FXAAPass(scene::MaterialManager& materialManager,
              .build("fxaa-fb")}
 {
   m_mesh->bind("u_input",
-               [buffer = geometryPass.getColorBuffer()](
-                 const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
-               { uniform.set(buffer); });
+               [aliased](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
+               { uniform.set(aliased); });
 
   m_mesh->getRenderState().merge(m_fb->getRenderState());
 }
