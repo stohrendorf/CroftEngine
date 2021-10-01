@@ -2,6 +2,7 @@
 
 #include <gl/pixel.h>
 #include <gl/soglb_fwd.h>
+#include <glm/vec2.hpp>
 #include <gsl/gsl-lite.hpp>
 #include <memory>
 #include <string>
@@ -14,18 +15,21 @@ class Mesh;
 
 namespace render::pass
 {
-class EffectPass final
+class Framebuffer final
 {
 public:
-  explicit EffectPass(std::string name,
-                      gsl::not_null<std::shared_ptr<scene::Material>> material,
-                      const gsl::not_null<std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::SRGB8>>>>& input);
-
-  void render(bool inWater);
+  explicit Framebuffer(const std::string& name,
+                       gsl::not_null<std::shared_ptr<scene::Material>> material,
+                       const glm::ivec2& size);
 
   [[nodiscard]] const auto& getOutput() const
   {
     return m_colorBufferHandle;
+  }
+
+  [[nodiscard]] const auto& getDepthBuffer() const
+  {
+    return m_depthBuffer;
   }
 
   [[nodiscard]] const auto& getFramebuffer() const
@@ -33,12 +37,14 @@ public:
     return m_fb;
   }
 
+  void bind();
+
 private:
-  const std::string m_name;
   const gsl::not_null<std::shared_ptr<scene::Material>> m_material;
   gsl::not_null<std::shared_ptr<scene::Mesh>> m_mesh;
-  gsl::not_null<std::shared_ptr<gl::Texture2D<gl::SRGB8>>> m_colorBuffer;
-  gsl::not_null<std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::SRGB8>>>> m_colorBufferHandle;
+  gsl::not_null<std::shared_ptr<gl::TextureDepth<float>>> m_depthBuffer;
+  gsl::not_null<std::shared_ptr<gl::Texture2D<gl::SRGBA8>>> m_colorBuffer;
+  gsl::not_null<std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>>> m_colorBufferHandle;
   gsl::not_null<std::shared_ptr<gl::Framebuffer>> m_fb;
 };
 } // namespace render::pass

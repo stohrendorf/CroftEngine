@@ -277,7 +277,7 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
         laraDeadTime += 1_frame;
         if(laraDeadTime >= 300_frame || (laraDeadTime >= 60_frame && m_presenter->getInputHandler().hasAnyAction()))
         {
-          menu = std::make_shared<menu::MenuDisplay>(menu::InventoryMode::DeathMode, world);
+          menu = std::make_shared<menu::MenuDisplay>(menu::InventoryMode::DeathMode, world, m_presenter->getViewport());
           menu->allowSave = false;
           throttler.reset();
           continue;
@@ -288,7 +288,7 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
          && m_presenter->getInputHandler().hasDebouncedAction(hid::Action::Menu))
       {
         updateTimeSpent();
-        menu = std::make_shared<menu::MenuDisplay>(menu::InventoryMode::GameMode, world);
+        menu = std::make_shared<menu::MenuDisplay>(menu::InventoryMode::GameMode, world, m_presenter->getViewport());
         menu->allowSave = allowSave;
         throttler.reset();
         continue;
@@ -373,7 +373,8 @@ std::pair<RunResult, std::optional<size_t>> Engine::runTitleMenu(world::World& w
   const auto backdrop = gslu::make_nn_shared<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>>(
     gl::CImgWrapper{util::ensureFileExists(m_userDataPath / "data" / "tr1" / "DATA" / "TITLEH.PCX")}.toTexture("title"),
     gslu::make_nn_unique<gl::Sampler>("title-sampler"));
-  const auto menu = std::make_shared<menu::MenuDisplay>(menu::InventoryMode::TitleMode, world);
+  const auto menu
+    = std::make_shared<menu::MenuDisplay>(menu::InventoryMode::TitleMode, world, m_presenter->getViewport());
   Throttler throttler;
   while(true)
   {

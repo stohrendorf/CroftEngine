@@ -19,7 +19,9 @@
 #include "menuringtransform.h"
 #include "menustate.h"
 #include "qs/qs.h"
+#include "render/pass/framebuffer.h"
 #include "render/scene/camera.h"
+#include "render/scene/materialmanager.h"
 #include "ui/core.h"
 #include "ui/text.h"
 #include "ui/util.h"
@@ -28,6 +30,9 @@
 #include <algorithm>
 #include <bitset>
 #include <boost/throw_exception.hpp>
+#include <gl/texture2d.h>
+#include <gl/texturedepth.h>
+#include <gl/texturehandle.h>
 #include <glm/vec2.hpp>
 #include <stdexcept>
 #include <string>
@@ -117,6 +122,10 @@ void MenuDisplay::drawMenuObjectDescription(ui::Ui& ui, engine::world::World& wo
 
 void MenuDisplay::display(ui::Ui& ui, engine::world::World& world)
 {
+  m_fb->getOutput()->getTexture()->clear({0, 0, 0, 0});
+  m_fb->getDepthBuffer()->fill(1.0f);
+  m_fb->bind();
+
   core::Angle itemAngle{0_deg};
   const auto& camera = world.getCameraController().getCamera();
   camera->setViewMatrix(ringTransform->getView());
@@ -482,12 +491,14 @@ std::vector<MenuObject> MenuDisplay::getKeysRingObjects(const engine::world::Wor
   return objects;
 }
 
-MenuDisplay::MenuDisplay(InventoryMode mode, engine::world::World& world)
+MenuDisplay::MenuDisplay(InventoryMode mode, engine::world::World& world, const glm::ivec2& viewport)
     : mode{mode}
     , allowMenuClose{mode != InventoryMode::TitleMode && mode != InventoryMode::DeathMode}
     , m_currentState{std::make_unique<InflateRingMenuState>(ringTransform, true)}
     , m_upArrow{ui::getSpriteSelector(ui::ArrowUpSprite)}
     , m_downArrow{ui::getSpriteSelector(ui::ArrowDownSprite)}
+    , m_fb{gslu::make_nn_shared<render::pass::Framebuffer>(
+        "menu", world.getPresenter().getMaterialManager()->getFlat(false, false, false), viewport)}
 {
   if(mode == InventoryMode::GameMode)
   {

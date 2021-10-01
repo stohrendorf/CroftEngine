@@ -20,6 +20,11 @@ namespace ui
 class Ui;
 }
 
+namespace render::pass
+{
+class Framebuffer;
+}
+
 namespace menu
 {
 enum class InventoryMode
@@ -48,7 +53,7 @@ enum class MenuResult
 
 struct MenuDisplay
 {
-  explicit MenuDisplay(InventoryMode mode, engine::world::World& world);
+  explicit MenuDisplay(InventoryMode mode, engine::world::World& world, const glm::ivec2& viewport);
   ~MenuDisplay();
 
   const InventoryMode mode;
@@ -87,5 +92,7 @@ private:
 
   ui::Text m_upArrow;
   ui::Text m_downArrow;
+
+  gsl::not_null<std::shared_ptr<render::pass::Framebuffer>> m_fb;
 };
 } // namespace menu

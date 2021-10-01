@@ -448,6 +448,8 @@ set( EDISONENGINE_SRCS
 
         render/pass/effectpass.h
         render/pass/effectpass.cpp
+        render/pass/framebuffer.h
+        render/pass/framebuffer.cpp
         render/pass/geometrypass.h
         render/pass/geometrypass.cpp
         render/pass/hbaopass.h
