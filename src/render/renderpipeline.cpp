@@ -37,18 +37,7 @@ void RenderPipeline::worldCompositionPass(const bool inWater)
     effect->render(inWater);
     finalOutput = effect->getFramebuffer();
   }
-  GL_ASSERT(gl::api::blitNamedFramebuffer(finalOutput->getHandle(),
-                                          0,
-                                          0,
-                                          0,
-                                          m_size.x - 1,
-                                          m_size.y - 1,
-                                          0,
-                                          0,
-                                          m_size.x - 1,
-                                          m_size.y - 1,
-                                          gl::api::ClearBufferMask::ColorBufferBit,
-                                          gl::api::BlitFramebufferFilter::Nearest));
+  finalOutput->blit(m_size);
 }
 
 void RenderPipeline::updateCamera(const gsl::not_null<std::shared_ptr<scene::Camera>>& camera)

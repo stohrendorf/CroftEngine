@@ -61,9 +61,13 @@ public:
 private:
   Attachments m_attachments;
   RenderState m_renderState;
+  const glm::ivec2 m_size;
 
 public:
-  explicit Framebuffer(Attachments attachments, const std::string_view& label, RenderState&& renderState);
+  explicit Framebuffer(Attachments attachments,
+                       const std::string_view& label,
+                       RenderState&& renderState,
+                       const glm::ivec2& size);
 
   [[nodiscard]] const Attachments& getAttachments() const
   {
@@ -80,6 +84,11 @@ public:
   {
     return m_renderState;
   }
+
+  void blit(const Framebuffer& target, gl::api::BlitFramebufferFilter filter = gl::api::BlitFramebufferFilter::Nearest);
+
+  void blit(const glm::ivec2& backbufferSize,
+            gl::api::BlitFramebufferFilter filter = gl::api::BlitFramebufferFilter::Nearest);
 };
 
 class FrameBufferBuilder

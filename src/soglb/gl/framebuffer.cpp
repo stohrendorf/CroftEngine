@@ -13,7 +13,10 @@ void TextureAttachment::attach(const Framebuffer& framebuffer, const api::Frameb
   GL_ASSERT(api::namedFramebufferTexture(framebuffer.getHandle(), attachment, m_texture->getHandle(), m_level));
 }
 
-Framebuffer::Framebuffer(Framebuffer::Attachments attachments, const std::string_view& label, RenderState&& renderState)
+Framebuffer::Framebuffer(Framebuffer::Attachments attachments,
+                         const std::string_view& label,
+                         RenderState&& renderState,
+                         const glm::ivec2& size)
     : BindableResource{api::createFramebuffers,
                        [](const uint32_t handle) { bindFramebuffer(api::FramebufferTarget::DrawFramebuffer, handle); },
                        api::deleteFramebuffers,
@@ -21,6 +24,7 @@ Framebuffer::Framebuffer(Framebuffer::Attachments attachments, const std::string
                        label}
     , m_attachments{std::move(attachments)}
     , m_renderState{std::move(renderState)}
+    , m_size{size}
 {
   std::vector<api::ColorBuffer> colorAttachments;
   for(const auto& [attachment, slot] : m_attachments)
@@ -101,21 +105,53 @@ void Framebuffer::invalidate()
   invalidateNamedFramebufferData(getHandle(), gsl::narrow<api::core::SizeType>(attachments.size()), attachments.data());
 }
 
+void Framebuffer::blit(const Framebuffer& target, gl::api::BlitFramebufferFilter filter)
+{
+  GL_ASSERT(gl::api::blitNamedFramebuffer(getHandle(),
+                                          target.getHandle(),
+                                          0,
+                                          0,
+                                          m_size.x - 1,
+                                          m_size.y - 1,
+                                          0,
+                                          0,
+                                          target.m_size.x - 1,
+                                          target.m_size.y - 1,
+                                          gl::api::ClearBufferMask::ColorBufferBit,
+                                          filter));
+}
+
+void Framebuffer::blit(const glm::ivec2& backbufferSize, gl::api::BlitFramebufferFilter filter)
+{
+  GL_ASSERT(gl::api::blitNamedFramebuffer(getHandle(),
+                                          0,
+                                          0,
+                                          0,
+                                          m_size.x - 1,
+                                          m_size.y - 1,
+                                          0,
+                                          0,
+                                          backbufferSize.x - 1,
+                                          backbufferSize.y - 1,
+                                          gl::api::ClearBufferMask::ColorBufferBit,
+                                          filter));
+}
+
 gsl::not_null<std::shared_ptr<Framebuffer>> FrameBufferBuilder::build(const std::string_view& label)
 {
   Expects(!m_attachments.empty());
 
-  glm::ivec2 viewport{-1, -1};
+  glm::ivec2 size{-1, -1};
   for(const auto& [attachment, _] : m_attachments)
   {
     const auto attachmentSize = attachment->getTextureSize();
-    if(viewport == glm::ivec2{-1, -1})
-      viewport = attachmentSize;
+    if(size == glm::ivec2{-1, -1})
+      size = attachmentSize;
     else
-      gsl_Assert(viewport == attachmentSize);
+      gsl_Assert(size == attachmentSize);
   }
 
-  m_renderState.setViewport(viewport);
-  return gslu::make_nn_shared<Framebuffer>(std::move(m_attachments), label, std::move(m_renderState));
+  m_renderState.setViewport(size);
+  return gslu::make_nn_shared<Framebuffer>(std::move(m_attachments), label, std::move(m_renderState), size);
 }
 } // namespace gl
