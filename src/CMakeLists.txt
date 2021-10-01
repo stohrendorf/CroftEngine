@@ -446,8 +446,8 @@ set( EDISONENGINE_SRCS
         render/textureanimator.h
         render/textureanimator.cpp
 
-        render/pass/fxaapass.h
-        render/pass/fxaapass.cpp
+        render/pass/effectpass.h
+        render/pass/effectpass.cpp
         render/pass/geometrypass.h
         render/pass/geometrypass.cpp
         render/pass/hbaopass.h

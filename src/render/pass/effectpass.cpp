@@ -1,7 +1,6 @@
-#include "fxaapass.h"
+#include "effectpass.h"
 
 #include "config.h"
-#include "render/scene/materialmanager.h"
 #include "render/scene/mesh.h"
 #include "render/scene/rendercontext.h"
 #include "render/scene/rendermode.h"
@@ -29,35 +28,37 @@ class Node;
 
 namespace render::pass
 {
-FXAAPass::FXAAPass(scene::MaterialManager& materialManager,
-                   const glm::ivec2& viewport,
-                   const gsl::not_null<std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::SRGB8>>>>& aliased)
-    : m_material{materialManager.getFXAA()}
-    , m_mesh{scene::createScreenQuad(m_material, "fxaa")}
-    , m_colorBuffer{std::make_shared<gl::Texture2D<gl::SRGB8>>(viewport, "fxaa-color")}
+EffectPass::EffectPass(std::string name,
+                       gsl::not_null<std::shared_ptr<scene::Material>> material,
+                       const gsl::not_null<std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::SRGB8>>>>& input)
+    : m_name{std::move(name)}
+    , m_material{std::move(material)}
+    , m_mesh{scene::createScreenQuad(m_material, m_name)}
+    , m_colorBuffer{std::make_shared<gl::Texture2D<gl::SRGB8>>(input->getTexture()->size(), m_name + "-color")}
     , m_colorBufferHandle{std::make_shared<gl::TextureHandle<gl::Texture2D<gl::SRGB8>>>(
         m_colorBuffer,
-        gslu::make_nn_unique<gl::Sampler>("fxaa-color")
+        gslu::make_nn_unique<gl::Sampler>(m_name + "-color")
           | set(gl::api::SamplerParameterI::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge)
           | set(gl::api::SamplerParameterI::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge)
           | set(gl::api::TextureMinFilter::Linear) | set(gl::api::TextureMagFilter::Linear))}
     , m_fb{gl::FrameBufferBuilder()
              .textureNoBlend(gl::api::FramebufferAttachment::ColorAttachment0, m_colorBuffer)
-             .build("fxaa-fb")}
+             .build(m_name + "-fb")}
 {
   m_mesh->bind("u_input",
-               [aliased](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
-               { uniform.set(aliased); });
+               [input](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
+               { uniform.set(input); });
 
   m_mesh->getRenderState().merge(m_fb->getRenderState());
 }
 
-void FXAAPass::render()
+void EffectPass::render()
 {
-  SOGLB_DEBUGGROUP("fxaa-pass");
+  SOGLB_DEBUGGROUP(m_name + "-pass");
+
+  m_fb->bind();
 
   scene::RenderContext context{scene::RenderMode::Full, std::nullopt};
-  m_fb->bind();
   m_mesh->render(context);
 
   if constexpr(FlushPasses)

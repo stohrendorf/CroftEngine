@@ -25,11 +25,11 @@ public:
   {
   }
 
-  gsl::not_null<std::shared_ptr<ShaderProgram>> get(const std::filesystem::path& vshPath,
-                                                    const std::filesystem::path& fshPath,
-                                                    const std::vector<std::string>& defines = {});
+  [[nodiscard]] gsl::not_null<std::shared_ptr<ShaderProgram>> get(const std::filesystem::path& vshPath,
+                                                                  const std::filesystem::path& fshPath,
+                                                                  const std::vector<std::string>& defines = {});
 
-  auto getFlat(bool withAlphaMultiplier, bool invertY, bool withAspectRatio)
+  [[nodiscard]] auto getFlat(bool withAlphaMultiplier, bool invertY, bool withAspectRatio)
   {
     std::vector<std::string> defines;
     if(withAlphaMultiplier)
@@ -41,12 +41,12 @@ public:
     return get("flat.vert", "flat.frag", defines);
   }
 
-  auto getBackdrop()
+  [[nodiscard]] auto getBackdrop()
   {
     return get("backdrop.vert", "flat.frag");
   }
 
-  auto getGeometry(bool inWater, bool skeletal, bool roomShadowing, uint8_t spriteMode)
+  [[nodiscard]] auto getGeometry(bool inWater, bool skeletal, bool roomShadowing, uint8_t spriteMode)
   {
     std::vector<std::string> defines;
     if(inWater)
@@ -59,7 +59,7 @@ public:
     return get("geometry.vert", "geometry.frag", defines);
   }
 
-  auto getCSMDepthOnly(bool skeletal)
+  [[nodiscard]] auto getCSMDepthOnly(bool skeletal)
   {
     std::vector<std::string> defines;
     if(skeletal)
@@ -67,7 +67,7 @@ public:
     return get("csm_depth_only.vert", "empty.frag", defines);
   }
 
-  auto getDepthOnly(bool skeletal)
+  [[nodiscard]] auto getDepthOnly(bool skeletal)
   {
     std::vector<std::string> defines;
     if(skeletal)
@@ -75,22 +75,42 @@ public:
     return get("depth_only.vert", "depth_only.frag", defines);
   }
 
-  auto getWaterSurface()
+  [[nodiscard]] auto getWaterSurface()
   {
     return get("water_surface.vert", "water_surface.frag");
   }
 
-  auto getFXAA()
+  [[nodiscard]] auto getFXAA()
   {
-    return get("flat.vert", "fxaa.frag");
+    return get("flat.vert", "fx_fxaa.frag");
   }
 
-  auto getHBAO()
+  [[nodiscard]] auto getCRT()
+  {
+    return get("flat.vert", "fx_crt.frag");
+  }
+
+  [[nodiscard]] auto getVelvia()
+  {
+    return get("flat.vert", "fx_velvia.frag");
+  }
+
+  [[nodiscard]] auto getFilmGrain()
+  {
+    return get("flat.vert", "fx_film_grain.frag");
+  }
+
+  [[nodiscard]] auto getLensDistortion()
+  {
+    return get("flat.vert", "fx_lens_distortion.frag");
+  }
+
+  [[nodiscard]] auto getHBAO()
   {
     return get("flat.vert", "hbao.frag");
   }
 
-  auto getFastGaussBlur(const uint8_t extent, uint8_t blurDim)
+  [[nodiscard]] auto getFastGaussBlur(const uint8_t extent, uint8_t blurDim)
   {
     Expects(extent > 0);
     Expects(blurDim > 0);
@@ -99,7 +119,7 @@ public:
     return get("flat.vert", "blur_fast_gauss_" + std::to_string(extent * 2 + 1) + ".frag", defines);
   }
 
-  auto getFastBoxBlur(const uint8_t extent, uint8_t blurDim)
+  [[nodiscard]] auto getFastBoxBlur(const uint8_t extent, uint8_t blurDim)
   {
     Expects(extent > 0);
     Expects(blurDim > 0);
@@ -108,40 +128,29 @@ public:
     return get("flat.vert", "blur_fast_box_" + std::to_string(extent * 2 + 1) + ".frag", defines);
   }
 
-  auto getVSMSquare()
+  [[nodiscard]] auto getVSMSquare()
   {
     return get("flat.vert", "vsm_square.frag");
   }
 
-  auto getWorldComposition(bool inWater, bool lensDistortion, bool dof, bool filmGrain, bool hbao, bool velvia)
+  [[nodiscard]] auto getWorldComposition(bool inWater, bool dof, bool hbao)
   {
     std::vector<std::string> defines;
     if(inWater)
       defines.emplace_back("IN_WATER");
-    if(lensDistortion)
-      defines.emplace_back("LENS_DISTORTION");
     if(dof)
       defines.emplace_back("DOF");
-    if(filmGrain)
-      defines.emplace_back("FILM_GRAIN");
     if(hbao)
       defines.emplace_back("HBAO");
-    if(velvia)
-      defines.emplace_back("VELVIA");
     return get("flat.vert", "composition.frag", defines);
   }
 
-  auto getLightning()
+  [[nodiscard]] auto getLightning()
   {
     return get("lightning.vert", "lightning.frag");
   }
 
-  auto getCrt()
-  {
-    return get("flat.vert", "crt.frag");
-  }
-
-  auto getUi()
+  [[nodiscard]] auto getUi()
   {
     return get("ui.vert", "ui.frag");
   }

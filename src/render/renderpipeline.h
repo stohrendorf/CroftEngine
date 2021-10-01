@@ -25,9 +25,9 @@ namespace pass
 class PortalPass;
 class GeometryPass;
 class HBAOPass;
-class FXAAPass;
 class WorldCompositionPass;
 class UIPass;
+class EffectPass;
 } // namespace pass
 
 class RenderPipeline
@@ -38,9 +38,10 @@ private:
   std::shared_ptr<pass::PortalPass> m_portalPass;
   std::shared_ptr<pass::GeometryPass> m_geometryPass;
   std::shared_ptr<pass::HBAOPass> m_hbaoPass;
-  std::shared_ptr<pass::FXAAPass> m_fxaaPass;
   std::shared_ptr<pass::WorldCompositionPass> m_worldCompositionPass;
   std::shared_ptr<pass::UIPass> m_uiPass;
+
+  std::vector<gsl::not_null<std::shared_ptr<pass::EffectPass>>> m_effects{};
 
 public:
   explicit RenderPipeline(scene::MaterialManager& materialManager, const glm::ivec2& viewport);

@@ -17,16 +17,12 @@ layout(location=0) out vec4 out_color;
 
 #include "water_deform.glsl"
 
-#if defined(DOF) || defined(FILM_GRAIN)
+#if defined(DOF)
 #include "noise.glsl"
 #endif
 
 #ifdef DOF
 #include "dof.glsl"
-#endif
-
-#ifdef LENS_DISTORTION
-#include "lens.glsl"
 #endif
 
 void main()
@@ -35,14 +31,6 @@ void main()
     vec2 uv = (fpi.texCoord - vec2(0.5)) * 0.9 + vec2(0.5);// scale a bit to avoid edge clamping when underwater
     #else
     vec2 uv = fpi.texCoord;
-    #endif
-
-    #ifdef FILM_GRAIN
-    float grain = noise(uv * time_seconds());
-    #endif
-
-    #ifdef LENS_DISTORTION
-    do_lens_distortion(uv);
     #endif
 
     #ifdef IN_WATER
@@ -95,16 +83,6 @@ void main()
 
     #ifdef HBAO
     finalColor *= texture(u_ao, uv).r;
-    #endif
-    #ifdef FILM_GRAIN
-    finalColor *= grain*0.5 + 1.0;
-    #endif
-
-    #ifdef VELVIA
-    const float VelviaAmount = 0.03;
-    const vec2 velviaFac = vec2(2*VelviaAmount + 1.0, -VelviaAmount);
-    vec3 velviaColor = vec3(dot(finalColor, velviaFac.xyy), dot(finalColor, velviaFac.yxy), dot(finalColor, velviaFac.yyx));
-    finalColor = vec3(1.0) - clamp((-velviaColor*1.01 + vec3(1.0))*1.01, vec3(0.0), vec3(1.0));
     #endif
 
     out_color = vec4(finalColor, 1.0);

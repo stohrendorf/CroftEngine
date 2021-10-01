@@ -56,8 +56,7 @@ GeometryPass::~GeometryPass() = default;
 void GeometryPass::bind()
 {
   m_fb->bind();
-  gl::RenderState::resetWantedState();
-  gl::RenderState::getWantedState().merge(m_fb->getRenderState());
+  gl::RenderState::getWantedState() = m_fb->getRenderState();
   gl::RenderState::applyWantedState();
 }
 } // namespace render::pass

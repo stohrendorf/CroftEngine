@@ -35,29 +35,16 @@ class Node;
 
 namespace render::pass
 {
-WorldCompositionPass::WorldCompositionPass(
-  scene::MaterialManager& materialManager,
-  const RenderSettings& renderSettings,
-  const glm::ivec2& viewport,
-  const GeometryPass& geometryPass,
-  const PortalPass& portalPass,
-  const HBAOPass& hbaoPass,
-  const gsl::not_null<std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::SRGB8>>>>& colorBuffer)
-    : m_noWaterMaterial{materialManager.getWorldComposition(false,
-                                                            renderSettings.lensDistortion,
-                                                            renderSettings.dof,
-                                                            renderSettings.filmGrain,
-                                                            renderSettings.hbao,
-                                                            renderSettings.velvia)}
-    , m_inWaterMaterial{materialManager.getWorldComposition(true,
-                                                            renderSettings.lensDistortion,
-                                                            renderSettings.dof,
-                                                            renderSettings.filmGrain,
-                                                            renderSettings.hbao,
-                                                            renderSettings.velvia)}
+WorldCompositionPass::WorldCompositionPass(scene::MaterialManager& materialManager,
+                                           const RenderSettings& renderSettings,
+                                           const glm::ivec2& viewport,
+                                           const GeometryPass& geometryPass,
+                                           const PortalPass& portalPass,
+                                           const HBAOPass& hbaoPass)
+    : m_noWaterMaterial{materialManager.getWorldComposition(false, renderSettings.dof, renderSettings.hbao)}
+    , m_inWaterMaterial{materialManager.getWorldComposition(true, renderSettings.dof, renderSettings.hbao)}
     , m_noWaterMesh{scene::createScreenQuad(m_noWaterMaterial, "composition-nowater")}
     , m_inWaterMesh{scene::createScreenQuad(m_inWaterMaterial, "composition-water")}
-    , m_crtMesh{scene::createScreenQuad(materialManager.getCrt(), "composition-crt")}
     , m_colorBuffer{std::make_shared<gl::Texture2D<gl::SRGB8>>(viewport, "composition-color")}
     , m_colorBufferHandle{std::make_shared<gl::TextureHandle<gl::Texture2D<gl::SRGB8>>>(
         m_colorBuffer,
@@ -92,10 +79,10 @@ WorldCompositionPass::WorldCompositionPass(
                         [texture = hbaoPass.getBlurredTexture()](const render::scene::Node& /*node*/,
                                                                  const render::scene::Mesh& /*mesh*/,
                                                                  gl::Uniform& uniform) { uniform.set(texture); });
-  m_noWaterMesh->bind(
-    "u_texture",
-    [colorBuffer](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
-    { uniform.set(colorBuffer); });
+  m_noWaterMesh->bind("u_texture",
+                      [buffer = geometryPass.getColorBuffer()](
+                        const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
+                      { uniform.set(buffer); });
 
   m_noWaterMesh->getRenderState().merge(m_fb->getRenderState());
 
@@ -123,16 +110,12 @@ WorldCompositionPass::WorldCompositionPass(
                         [texture = hbaoPass.getBlurredTexture()](const render::scene::Node& /*node*/,
                                                                  const render::scene::Mesh& /*mesh*/,
                                                                  gl::Uniform& uniform) { uniform.set(texture); });
-  m_inWaterMesh->bind(
-    "u_texture",
-    [colorBuffer](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
-    { uniform.set(colorBuffer); });
+  m_inWaterMesh->bind("u_texture",
+                      [buffer = geometryPass.getColorBuffer()](
+                        const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
+                      { uniform.set(buffer); });
 
   m_inWaterMesh->getRenderState().merge(m_fb->getRenderState());
-
-  m_crtMesh->bind("u_input",
-                  [this](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
-                  { uniform.set(gsl::not_null{m_colorBufferHandle}); });
 }
 
 // NOLINTNEXTLINE(readability-make-member-function-const)
@@ -143,25 +126,16 @@ void WorldCompositionPass::updateCamera(const gsl::not_null<std::shared_ptr<scen
 }
 
 // NOLINTNEXTLINE(readability-make-member-function-const)
-void WorldCompositionPass::render(bool inWater, const RenderSettings& renderSettings)
+void WorldCompositionPass::render(bool inWater)
 {
-  SOGLB_DEBUGGROUP("postprocess-pass");
-  if(renderSettings.crt)
-    m_fb->bind();
-  else
-    gl::Framebuffer::unbindAll();
+  SOGLB_DEBUGGROUP("world-composition-pass");
+  m_fb->bind();
 
   scene::RenderContext context{scene::RenderMode::Full, std::nullopt};
   if(inWater)
     m_inWaterMesh->render(context);
   else
     m_noWaterMesh->render(context);
-
-  if(renderSettings.crt)
-  {
-    gl::Framebuffer::unbindAll();
-    m_crtMesh->render(context);
-  }
 
   if constexpr(FlushPasses)
     GL_ASSERT(gl::api::finish());

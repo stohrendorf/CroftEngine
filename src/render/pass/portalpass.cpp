@@ -47,7 +47,6 @@ PortalPass::PortalPass(scene::MaterialManager& materialManager,
 // NOLINTNEXTLINE(readability-make-member-function-const)
 gl::RenderState PortalPass::bind(const gl::TextureHandle<gl::Texture2D<gl::RGB32F>>& position)
 {
-  gl::Framebuffer::unbindAll();
   m_positionBuffer->copyFrom(*position.getTexture());
   m_fb->bind();
   return m_fb->getRenderState();

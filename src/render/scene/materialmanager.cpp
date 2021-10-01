@@ -210,14 +210,12 @@ MaterialManager::MaterialManager(gsl::not_null<std::shared_ptr<ShaderCache>> sha
       | set(gl::api::TextureMinFilter::Linear) | set(gl::api::TextureMagFilter::Linear));
 }
 
-gsl::not_null<std::shared_ptr<Material>> MaterialManager::getWorldComposition(
-  bool inWater, bool lensDistortion, bool dof, bool filmGrain, bool hbao, bool velvia)
+gsl::not_null<std::shared_ptr<Material>> MaterialManager::getWorldComposition(bool inWater, bool dof, bool hbao)
 {
-  const std::tuple key{inWater, lensDistortion, dof, filmGrain, hbao, velvia};
+  const std::tuple key{inWater, dof, hbao};
   if(auto it = m_composition.find(key); it != m_composition.end())
     return it->second;
-  auto m = gslu::make_nn_shared<Material>(
-    m_shaderCache->getWorldComposition(inWater, lensDistortion, dof, filmGrain, hbao, velvia));
+  auto m = gslu::make_nn_shared<Material>(m_shaderCache->getWorldComposition(inWater, dof, hbao));
 
   if(auto uniform = m->tryGetUniform("u_time"))
   {
@@ -229,30 +227,10 @@ gsl::not_null<std::shared_ptr<Material>> MaterialManager::getWorldComposition(
       });
   }
 
-  if(auto uniform = m->tryGetUniform("u_distortionPower"))
-    uniform->set(inWater ? -2.0f : -1.0f);
-
   if(auto uniform = m->tryGetUniform("u_noise"))
     uniform->set(gsl::not_null{m_noiseTexture});
 
   m_composition.emplace(key, m);
-  return m;
-}
-
-gsl::not_null<std::shared_ptr<Material>> MaterialManager::getCrt()
-{
-  if(m_crt != nullptr)
-    return gsl::not_null{m_crt};
-
-  auto m = gslu::make_nn_shared<Material>(m_shaderCache->getCrt());
-  m->getUniform("u_time")->bind(
-    [renderer = m_renderer](const Node&, const Mesh& /*mesh*/, gl::Uniform& uniform)
-    {
-      const auto now = std::chrono::time_point_cast<std::chrono::milliseconds>(renderer->getGameTime());
-      uniform.set(gsl::narrow_cast<float>(now.time_since_epoch().count()));
-    });
-  m->getUniform("u_noise")->set(gsl::not_null{m_noiseTexture});
-  m_crt = m;
   return m;
 }
 
@@ -303,10 +281,73 @@ gsl::not_null<std::shared_ptr<Material>> MaterialManager::getFXAA()
   if(m_fxaa != nullptr)
     return gsl::not_null{m_fxaa};
 
-  auto m = std::make_shared<Material>(m_shaderCache->getFXAA());
+  auto m = gslu::make_nn_shared<Material>(m_shaderCache->getFXAA());
+  configureForScreenSpaceEffect(*m, false);
   configureForScreenSpaceEffect(*m, false);
   m_fxaa = m;
-  return gsl::not_null{m_fxaa};
+  return m;
+}
+
+gsl::not_null<std::shared_ptr<Material>> MaterialManager::getCRT()
+{
+  if(m_crt != nullptr)
+    return gsl::not_null{m_crt};
+
+  auto m = gslu::make_nn_shared<Material>(m_shaderCache->getCRT());
+  m->getUniform("u_time")->bind(
+    [renderer = m_renderer](const Node&, const Mesh& /*mesh*/, gl::Uniform& uniform)
+    {
+      const auto now = std::chrono::time_point_cast<std::chrono::milliseconds>(renderer->getGameTime());
+      uniform.set(gsl::narrow_cast<float>(now.time_since_epoch().count()));
+    });
+  m->getUniform("u_noise")->set(gsl::not_null{m_noiseTexture});
+  configureForScreenSpaceEffect(*m, false);
+  m_crt = m;
+  return m;
+}
+
+gsl::not_null<std::shared_ptr<Material>> MaterialManager::getVelvia()
+{
+  if(m_velvia != nullptr)
+    return gsl::not_null{m_velvia};
+
+  auto m = gslu::make_nn_shared<Material>(m_shaderCache->getVelvia());
+  configureForScreenSpaceEffect(*m, false);
+  configureForScreenSpaceEffect(*m, false);
+  m_velvia = m;
+  return m;
+}
+
+gsl::not_null<std::shared_ptr<Material>> MaterialManager::getFilmGrain()
+{
+  if(m_filmGrain != nullptr)
+    return gsl::not_null{m_filmGrain};
+
+  auto m = gslu::make_nn_shared<Material>(m_shaderCache->getFilmGrain());
+  m->getUniform("u_time")->bind(
+    [renderer = m_renderer](const Node&, const Mesh& /*mesh*/, gl::Uniform& uniform)
+    {
+      const auto now = std::chrono::time_point_cast<std::chrono::milliseconds>(renderer->getGameTime());
+      uniform.set(gsl::narrow_cast<float>(now.time_since_epoch().count()));
+    });
+  m->getUniform("u_noise")->set(gsl::not_null{m_noiseTexture});
+  configureForScreenSpaceEffect(*m, false);
+  m_filmGrain = m;
+  return m;
+}
+
+gsl::not_null<std::shared_ptr<Material>> MaterialManager::getLensDistortion()
+{
+  if(m_lensDistortion != nullptr)
+    return gsl::not_null{m_lensDistortion};
+
+  auto m = gslu::make_nn_shared<Material>(m_shaderCache->getLensDistortion());
+  m->getUniformBlock("Camera")->bindCameraBuffer(m_renderer->getCamera());
+  // FIXME
+  m->getUniform("u_distortionPower")->set(/*inWater*/ false ? -2.0f : -1.0f);
+
+  m_lensDistortion = m;
+  return m;
 }
 
 gsl::not_null<std::shared_ptr<Material>> MaterialManager::getHBAO()

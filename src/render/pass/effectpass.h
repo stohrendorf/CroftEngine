@@ -2,33 +2,37 @@
 
 #include <gl/pixel.h>
 #include <gl/soglb_fwd.h>
-#include <glm/vec2.hpp>
 #include <memory>
 
 namespace render::scene
 {
-class MaterialManager;
 class Material;
 class Mesh;
 } // namespace render::scene
 
 namespace render::pass
 {
-class FXAAPass
+class EffectPass final
 {
 public:
-  explicit FXAAPass(scene::MaterialManager& materialManager,
-                    const glm::ivec2& viewport,
-                    const gsl::not_null<std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::SRGB8>>>>& aliased);
+  explicit EffectPass(std::string name,
+                      gsl::not_null<std::shared_ptr<scene::Material>> material,
+                      const gsl::not_null<std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::SRGB8>>>>& input);
 
   void render();
 
-  [[nodiscard]] const auto& getColorBuffer() const
+  [[nodiscard]] const auto& getOutput() const
   {
     return m_colorBufferHandle;
   }
 
+  [[nodiscard]] const auto& getFramebuffer() const
+  {
+    return m_fb;
+  }
+
 private:
+  const std::string m_name;
   const gsl::not_null<std::shared_ptr<scene::Material>> m_material;
   gsl::not_null<std::shared_ptr<scene::Mesh>> m_mesh;
   gsl::not_null<std::shared_ptr<gl::Texture2D<gl::SRGB8>>> m_colorBuffer;

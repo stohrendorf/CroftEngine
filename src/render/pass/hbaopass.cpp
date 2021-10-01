@@ -69,9 +69,9 @@ void HBAOPass::updateCamera(const gsl::not_null<std::shared_ptr<scene::Camera>>&
 void HBAOPass::render()
 {
   SOGLB_DEBUGGROUP("hbao-pass");
-  scene::RenderContext context{scene::RenderMode::Full, std::nullopt};
   m_fb->bind();
 
+  scene::RenderContext context{scene::RenderMode::Full, std::nullopt};
   m_renderMesh->render(context);
   m_blur.render();
 

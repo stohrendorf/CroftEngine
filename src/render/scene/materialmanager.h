@@ -32,17 +32,19 @@ public:
 
   [[nodiscard]] gsl::not_null<std::shared_ptr<Material>> getLightning();
 
-  [[nodiscard]] gsl::not_null<std::shared_ptr<Material>>
-    getWorldComposition(bool inWater, bool lensDistortion, bool dof, bool filmGrain, bool hbao, bool velvia);
-
-  [[nodiscard]] gsl::not_null<std::shared_ptr<Material>> getCrt();
+  [[nodiscard]] gsl::not_null<std::shared_ptr<Material>> getWorldComposition(bool inWater, bool dof, bool hbao);
 
   [[nodiscard]] gsl::not_null<std::shared_ptr<Material>> getUi();
+
+  [[nodiscard]] gsl::not_null<std::shared_ptr<Material>> getFXAA();
+  [[nodiscard]] gsl::not_null<std::shared_ptr<Material>> getCRT();
+  [[nodiscard]] gsl::not_null<std::shared_ptr<Material>> getVelvia();
+  [[nodiscard]] gsl::not_null<std::shared_ptr<Material>> getFilmGrain();
+  [[nodiscard]] gsl::not_null<std::shared_ptr<Material>> getLensDistortion();
 
   [[nodiscard]] gsl::not_null<std::shared_ptr<Material>>
     getFlat(bool withAlpha, bool invertY = false, bool withAspectRatio = false);
   [[nodiscard]] const std::shared_ptr<Material>& getBackdrop();
-  [[nodiscard]] gsl::not_null<std::shared_ptr<Material>> getFXAA();
   [[nodiscard]] gsl::not_null<std::shared_ptr<Material>> getHBAO();
   [[nodiscard]] gsl::not_null<std::shared_ptr<Material>> getVSMSquare();
   [[nodiscard]] gsl::not_null<std::shared_ptr<Material>>
@@ -62,20 +64,24 @@ private:
   const gsl::not_null<std::shared_ptr<ShaderCache>> m_shaderCache;
   std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::RGB8>>> m_noiseTexture;
 
+  std::shared_ptr<Material> m_fxaa{nullptr};
+  std::shared_ptr<Material> m_crt{nullptr};
+  std::shared_ptr<Material> m_velvia{nullptr};
+  std::shared_ptr<Material> m_filmGrain{nullptr};
+  std::shared_ptr<Material> m_lensDistortion{nullptr};
+
   std::map<bool, gsl::not_null<std::shared_ptr<Material>>> m_sprite{};
   std::map<bool, gsl::not_null<std::shared_ptr<Material>>> m_csmDepthOnly{};
   std::map<bool, gsl::not_null<std::shared_ptr<Material>>> m_depthOnly{};
   std::map<std::tuple<bool, bool, bool>, gsl::not_null<std::shared_ptr<Material>>> m_geometry{};
   std::shared_ptr<Material> m_waterSurface{nullptr};
   std::shared_ptr<Material> m_lightning{nullptr};
-  std::map<std::tuple<bool, bool, bool, bool, bool, bool>, gsl::not_null<std::shared_ptr<Material>>> m_composition{};
-  std::shared_ptr<Material> m_crt{nullptr};
+  std::map<std::tuple<bool, bool, bool>, gsl::not_null<std::shared_ptr<Material>>> m_composition{};
   std::shared_ptr<Material> m_ui{nullptr};
   std::map<std::tuple<bool, bool, bool>, gsl::not_null<std::shared_ptr<Material>>> m_flat{};
   std::map<std::tuple<uint8_t, uint8_t, uint8_t>, gsl::not_null<std::shared_ptr<Material>>> m_fastGaussBlur{};
   std::map<std::tuple<uint8_t, uint8_t, uint8_t>, gsl::not_null<std::shared_ptr<Material>>> m_fastBoxBlur{};
   std::shared_ptr<Material> m_backdrop{nullptr};
-  std::shared_ptr<Material> m_fxaa{nullptr};
   std::shared_ptr<Material> m_hbao{nullptr};
   std::shared_ptr<Material> m_linearDepth{nullptr};
   std::shared_ptr<Material> m_vsmSquare{nullptr};

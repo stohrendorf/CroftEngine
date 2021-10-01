@@ -64,10 +64,10 @@ void UIPass::render(float alpha)
   SOGLB_DEBUGGROUP("ui-pass");
   gl::Framebuffer::unbindAll();
 
-  scene::RenderContext context{scene::RenderMode::Full, std::nullopt};
   m_mesh->bind("u_alphaMultiplier",
                [alpha](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
                { uniform.set(alpha); });
+  scene::RenderContext context{scene::RenderMode::Full, std::nullopt};
   m_mesh->render(context);
 
   if constexpr(FlushPasses)
