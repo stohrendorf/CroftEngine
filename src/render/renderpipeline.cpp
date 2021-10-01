@@ -20,7 +20,7 @@ RenderPipeline::RenderPipeline(scene::MaterialManager& materialManager, const gl
   resize(materialManager, viewport, true);
 }
 
-void RenderPipeline::worldCompositionPass(const bool water)
+void RenderPipeline::worldCompositionPass(const bool inWater)
 {
   BOOST_ASSERT(m_portalPass != nullptr);
   if(m_renderSettings.waterDenoise)
@@ -30,11 +30,11 @@ void RenderPipeline::worldCompositionPass(const bool water)
     m_hbaoPass->render();
   BOOST_ASSERT(m_worldCompositionPass != nullptr);
 
-  m_worldCompositionPass->render(water);
+  m_worldCompositionPass->render(inWater);
   auto finalOutput = m_worldCompositionPass->getFramebuffer();
   for(const auto& effect : m_effects)
   {
-    effect->render();
+    effect->render(inWater);
     finalOutput = effect->getFramebuffer();
   }
   GL_ASSERT(gl::api::blitNamedFramebuffer(finalOutput->getHandle(),

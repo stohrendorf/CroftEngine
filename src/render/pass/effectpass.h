@@ -19,7 +19,7 @@ public:
                       gsl::not_null<std::shared_ptr<scene::Material>> material,
                       const gsl::not_null<std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::SRGB8>>>>& input);
 
-  void render();
+  void render(bool inWater);
 
   [[nodiscard]] const auto& getOutput() const
   {

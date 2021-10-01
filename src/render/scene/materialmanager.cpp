@@ -343,8 +343,6 @@ gsl::not_null<std::shared_ptr<Material>> MaterialManager::getLensDistortion()
 
   auto m = gslu::make_nn_shared<Material>(m_shaderCache->getLensDistortion());
   m->getUniformBlock("Camera")->bindCameraBuffer(m_renderer->getCamera());
-  // FIXME
-  m->getUniform("u_distortionPower")->set(/*inWater*/ false ? -2.0f : -1.0f);
 
   m_lensDistortion = m;
   return m;

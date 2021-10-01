@@ -50,7 +50,7 @@ public:
   [[nodiscard]] gl::RenderState bindPortalFrameBuffer();
   void bindUiFrameBuffer();
   void renderUiFrameBuffer(float alpha);
-  void worldCompositionPass(bool water);
+  void worldCompositionPass(bool inWater);
 
   void updateCamera(const gsl::not_null<std::shared_ptr<scene::Camera>>& camera);
 

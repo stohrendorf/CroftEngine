@@ -52,13 +52,16 @@ EffectPass::EffectPass(std::string name,
   m_mesh->getRenderState().merge(m_fb->getRenderState());
 }
 
-void EffectPass::render()
+void EffectPass::render(bool inWater)
 {
   SOGLB_DEBUGGROUP(m_name + "-pass");
 
   m_fb->bind();
 
   scene::RenderContext context{scene::RenderMode::Full, std::nullopt};
+  m_mesh->bind("u_inWater",
+               [inWater](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
+               { uniform.set(inWater ? 1.0f : 0.0f); });
   m_mesh->render(context);
 
   if constexpr(FlushPasses)

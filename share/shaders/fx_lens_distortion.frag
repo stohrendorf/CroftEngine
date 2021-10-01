@@ -4,8 +4,9 @@
 layout(bindless_sampler) uniform sampler2D u_input;
 layout(location=0) out vec3 out_color;
 
-uniform float u_distortionPower;
-float absDistortionPower = abs(u_distortionPower);
+uniform float u_inWater;
+float distortionPower = u_inWater != 0.0 ? -2.0 : -1.0;
+float absDistortionPower = abs(distortionPower);
 
 vec2 fisheye(in vec2 polar, in float stationary_radius)
 {
@@ -22,10 +23,10 @@ vec2 do_lens_distortion(in vec2 uv)
 {
     float stationary_radius = max(0.5, 0.5 / camera.aspectRatio);
 
-    if (u_distortionPower > 0.0) {
+    if (distortionPower > 0.0) {
         return vec2(0.5, 0.5) + fisheye(uv - vec2(0.5, 0.5), stationary_radius);
     }
-    else if (u_distortionPower < 0.0) {
+    else if (distortionPower < 0.0) {
         return vec2(0.5, 0.5) + anti_fisheye(uv - vec2(0.5, 0.5), stationary_radius);
     }
     else {
