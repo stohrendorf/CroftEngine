@@ -1,6 +1,7 @@
 #include "framebuffer.h"
 
 #include "render/scene/mesh.h"
+#include "render/scene/rendercontext.h"
 
 #include <algorithm>
 #include <gl/framebuffer.h>
@@ -33,6 +34,12 @@ Framebuffer::Framebuffer(const std::string& name,
              .textureNoBlend(gl::api::FramebufferAttachment::DepthAttachment, m_depthBuffer)
              .build(name + "-fb")}
 {
+  m_mesh->bind("u_input",
+               [this](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
+               { uniform.set(m_colorBufferHandle); });
+  m_mesh->getRenderState().setBlend(0, true);
+  m_mesh->getRenderState().setBlendFactors(
+    0, gl::api::BlendingFactor::SrcAlpha, gl::api::BlendingFactor::OneMinusSrcAlpha);
 }
 
 void Framebuffer::bind()
@@ -40,5 +47,11 @@ void Framebuffer::bind()
   m_fb->bind();
   gl::RenderState::getWantedState().merge(m_fb->getRenderState());
   gl::RenderState::applyWantedState();
+}
+
+void Framebuffer::render()
+{
+  scene::RenderContext context{scene::RenderMode::Full, std::nullopt};
+  m_mesh->render(context);
 }
 } // namespace render::pass

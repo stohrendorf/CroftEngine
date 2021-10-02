@@ -67,8 +67,8 @@ bool Mesh::render(RenderContext& context)
 
   BOOST_ASSERT(context.getCurrentNode() != nullptr);
 
-  context.pushState(getRenderState());
   context.pushState(material->getRenderState());
+  context.pushState(getRenderState());
   context.bindState();
 
   material->bind(*context.getCurrentNode(), *this);

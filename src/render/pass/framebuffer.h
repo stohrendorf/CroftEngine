@@ -39,6 +39,8 @@ public:
 
   void bind();
 
+  void render();
+
 private:
   const gsl::not_null<std::shared_ptr<scene::Material>> m_material;
   gsl::not_null<std::shared_ptr<scene::Mesh>> m_mesh;

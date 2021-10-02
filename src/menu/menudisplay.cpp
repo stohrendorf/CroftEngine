@@ -31,6 +31,7 @@
 #include <bitset>
 #include <boost/throw_exception.hpp>
 #include <gl/debuggroup.h>
+#include <gl/framebuffer.h>
 #include <gl/texture2d.h>
 #include <gl/texturedepth.h>
 #include <gl/texturehandle.h>
@@ -173,6 +174,9 @@ void MenuDisplay::display(ui::Ui& ui, engine::world::World& world)
     ui::Text title{getCurrentRing().title};
     title.draw(ui, world.getPresenter().getTrFont(), {(ui.getSize().x - title.getWidth()) / 2, RingInfoYMargin});
   }
+
+  gl::Framebuffer::unbindAll();
+  m_fb->render();
 }
 
 bool MenuDisplay::doOptions(engine::world::World& world, MenuObject& object)
