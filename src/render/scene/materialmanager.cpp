@@ -204,7 +204,7 @@ MaterialManager::MaterialManager(gsl::not_null<std::shared_ptr<ShaderCache>> sha
   noiseTexture->assign(noiseData);
   m_noiseTexture = std::make_shared<gl::TextureHandle<gl::Texture2D<gl::RGB8>>>(
     noiseTexture,
-    gslu::make_nn_unique<gl::Sampler>("noise")
+    gslu::make_nn_unique<gl::Sampler>("noise-sampler")
       | set(gl::api::SamplerParameterI::TextureWrapS, gl::api::TextureWrapMode::MirroredRepeat)
       | set(gl::api::SamplerParameterI::TextureWrapT, gl::api::TextureWrapMode::MirroredRepeat)
       | set(gl::api::TextureMinFilter::Linear) | set(gl::api::TextureMagFilter::Linear));

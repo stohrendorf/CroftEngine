@@ -48,7 +48,7 @@ WorldCompositionPass::WorldCompositionPass(scene::MaterialManager& materialManag
     , m_colorBuffer{std::make_shared<gl::Texture2D<gl::SRGB8>>(viewport, "composition-color")}
     , m_colorBufferHandle{std::make_shared<gl::TextureHandle<gl::Texture2D<gl::SRGB8>>>(
         m_colorBuffer,
-        gslu::make_nn_unique<gl::Sampler>("composition-color")
+        gslu::make_nn_unique<gl::Sampler>("composition-color-sampler")
           | set(gl::api::SamplerParameterI::TextureWrapS, gl::api::TextureWrapMode::Repeat)
           | set(gl::api::SamplerParameterI::TextureWrapT, gl::api::TextureWrapMode::Repeat)
           | set(gl::api::TextureMinFilter::Linear) | set(gl::api::TextureMagFilter::Linear))}

@@ -24,7 +24,7 @@ Framebuffer::Framebuffer(const std::string& name,
     , m_depthBuffer{std::make_shared<gl::TextureDepth<float>>(size, name + "-depth")}
     , m_colorBufferHandle{std::make_shared<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>>(
         m_colorBuffer,
-        gslu::make_nn_unique<gl::Sampler>(name + "-color")
+        gslu::make_nn_unique<gl::Sampler>(name + "-color-sampler")
           | set(gl::api::SamplerParameterI::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge)
           | set(gl::api::SamplerParameterI::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge)
           | set(gl::api::TextureMinFilter::Linear) | set(gl::api::TextureMagFilter::Linear))}

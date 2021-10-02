@@ -30,6 +30,7 @@
 #include <algorithm>
 #include <bitset>
 #include <boost/throw_exception.hpp>
+#include <gl/debuggroup.h>
 #include <gl/texture2d.h>
 #include <gl/texturedepth.h>
 #include <gl/texturehandle.h>
@@ -122,6 +123,7 @@ void MenuDisplay::drawMenuObjectDescription(ui::Ui& ui, engine::world::World& wo
 
 void MenuDisplay::display(ui::Ui& ui, engine::world::World& world)
 {
+  SOGLB_DEBUGGROUP("menu");
   m_fb->getOutput()->getTexture()->clear({0, 0, 0, 0});
   m_fb->getDepthBuffer()->fill(1.0f);
   m_fb->bind();

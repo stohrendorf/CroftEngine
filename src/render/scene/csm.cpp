@@ -38,7 +38,7 @@ namespace render::scene
 {
 void CSM::Split::init(int32_t resolution, size_t idx, MaterialManager& materialManager)
 {
-  auto sampler = gslu::make_nn_unique<gl::Sampler>("csm-texture/" + std::to_string(idx))
+  auto sampler = gslu::make_nn_unique<gl::Sampler>("csm-texture/" + std::to_string(idx) + "-sampler")
                  | set(gl::api::TextureMinFilter::Linear) | set(gl::api::TextureMagFilter::Linear)
                  | set(gl::api::SamplerParameterI::TextureWrapS, gl::api::TextureWrapMode::ClampToBorder)
                  | set(gl::api::SamplerParameterI::TextureWrapT, gl::api::TextureWrapMode::ClampToBorder);
@@ -57,7 +57,7 @@ void CSM::Split::init(int32_t resolution, size_t idx, MaterialManager& materialM
 
   squaredTextureHandle = std::make_shared<gl::TextureHandle<gl::Texture2D<gl::RG16F>>>(
     squaredTexture,
-    gslu::make_nn_unique<gl::Sampler>("csm-texture/" + std::to_string(idx) + "/squared")
+    gslu::make_nn_unique<gl::Sampler>("csm-texture/" + std::to_string(idx) + "/squared-sampler")
       | set(gl::api::TextureMinFilter::Linear) | set(gl::api::TextureMagFilter::Linear)
       | set(gl::api::SamplerParameterI::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge)
       | set(gl::api::SamplerParameterI::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge));

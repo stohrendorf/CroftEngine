@@ -35,7 +35,7 @@ UIPass::UIPass(scene::MaterialManager& materialManager, const glm::ivec2& viewpo
     , m_colorBuffer{std::make_shared<gl::Texture2D<gl::SRGBA8>>(viewport, "ui-color")}
     , m_colorBufferHandle{std::make_shared<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>>(
         m_colorBuffer,
-        gslu::make_nn_unique<gl::Sampler>("ui-color")
+        gslu::make_nn_unique<gl::Sampler>("ui-color-sampler")
           | set(gl::api::SamplerParameterI::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge)
           | set(gl::api::SamplerParameterI::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge)
           | set(gl::api::TextureMinFilter::Nearest) | set(gl::api::TextureMagFilter::Nearest))}

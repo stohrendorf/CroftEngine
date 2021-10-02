@@ -41,7 +41,7 @@ Converter::Converter(AVFilterLink* filter)
                              nullptr)}
     , textureHandle{std::make_shared<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>>(
         gslu::make_nn_shared<gl::Texture2D<gl::SRGBA8>>(glm::ivec2{filter->w, filter->h}, "video"),
-        gslu::make_nn_unique<gl::Sampler>("video") | set(gl::api::TextureMagFilter::Linear))}
+        gslu::make_nn_unique<gl::Sampler>("video-sampler") | set(gl::api::TextureMagFilter::Linear))}
 {
   if(context == nullptr)
   {
