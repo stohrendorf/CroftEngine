@@ -2,6 +2,7 @@
 
 #include "cimgwrapper.h"
 #include "glad_init.h"
+#include "glassert.h"
 
 #include <boost/log/trivial.hpp>
 #include <boost/throw_exception.hpp>
