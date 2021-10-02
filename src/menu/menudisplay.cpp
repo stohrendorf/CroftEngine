@@ -126,7 +126,7 @@ void MenuDisplay::display(ui::Ui& ui, engine::world::World& world)
 {
   SOGLB_DEBUGGROUP("menu");
   m_fb->getOutput()->getTexture()->clear({0, 0, 0, 0});
-  m_fb->getDepthBuffer()->fill(1.0f);
+  m_fb->getDepthBuffer()->clear(gl::ScalarDepth32F{1.0f});
   m_fb->bind();
 
   core::Angle itemAngle{0_deg};

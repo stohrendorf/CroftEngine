@@ -24,26 +24,6 @@ public:
     GL_ASSERT(api::textureStorage2D(getHandle(), 1, Pixel::InternalFormat, size.x, size.y));
   }
 
-  TextureDepth<_T>& assign(const gsl::span<const ScalarDepth<_T>>& data)
-  {
-    Expects(m_size.x * m_size.y == data.size());
-    GL_ASSERT(api::textureSubImage2D(
-      getHandle(), 0, 0, 0, m_size.x, m_size.y, Pixel::PixelFormat, Pixel::PixelType, data.data()));
-    return *this;
-  }
-
-  TextureDepth<_T>& fill(const ScalarDepth<_T>& value)
-  {
-    Expects(m_size.x >= 0 && m_size.y >= 0);
-    std::vector<Pixel> data(m_size.x * m_size.y, value);
-    return assign(data);
-  }
-
-  TextureDepth<_T>& fill(const _T& value)
-  {
-    return fill(Pixel{value});
-  }
-
   [[nodiscard]] const glm::ivec2& size() const
   {
     return m_size;
