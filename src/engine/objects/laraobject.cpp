@@ -792,24 +792,20 @@ void LaraObject::updateLarasWeaponsStatus()
 
   if(m_handStatus == HandStatus::DrawWeapon)
   {
-    if(player.selectedWeaponType >= WeaponType::Pistols)
+    if(player.selectedWeaponType != WeaponType::None)
     {
-      if(player.selectedWeaponType <= WeaponType::Uzis)
+      if(getWorld().getCameraController().getMode() != CameraMode::Cinematic
+         && getWorld().getCameraController().getMode() != CameraMode::FreeLook)
       {
-        if(getWorld().getCameraController().getMode() != CameraMode::Cinematic
-           && getWorld().getCameraController().getMode() != CameraMode::FreeLook)
-        {
-          getWorld().getCameraController().setMode(CameraMode::Combat);
-        }
+        getWorld().getCameraController().setMode(CameraMode::Combat);
+      }
+
+      if(player.selectedWeaponType != WeaponType::Shotgun)
+      {
         drawWeapons(player.selectedWeaponType);
       }
-      else if(player.selectedWeaponType == WeaponType::Shotgun)
+      else
       {
-        if(getWorld().getCameraController().getMode() != CameraMode::Cinematic
-           && getWorld().getCameraController().getMode() != CameraMode::FreeLook)
-        {
-          getWorld().getCameraController().setMode(CameraMode::Combat);
-        }
         drawShotgun();
       }
     }
