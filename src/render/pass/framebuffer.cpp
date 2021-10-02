@@ -21,8 +21,8 @@ Framebuffer::Framebuffer(const std::string& name,
                          const glm::ivec2& size)
     : m_material{std::move(material)}
     , m_mesh{scene::createScreenQuad(m_material, name)}
-    , m_colorBuffer{std::make_shared<gl::Texture2D<gl::SRGBA8>>(size, name + "-color")}
     , m_depthBuffer{std::make_shared<gl::TextureDepth<float>>(size, name + "-depth")}
+    , m_colorBuffer{std::make_shared<gl::Texture2D<gl::SRGBA8>>(size, name + "-color")}
     , m_colorBufferHandle{std::make_shared<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>>(
         m_colorBuffer,
         gslu::make_nn_unique<gl::Sampler>(name + "-color-sampler")
