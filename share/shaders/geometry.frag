@@ -7,7 +7,7 @@ layout(bindless_sampler) uniform sampler2DArray u_diffuseTextures;
 #include "water_caustics.glsl"
 #endif
 
-layout(location=0) out vec3 out_color;
+layout(location=0) out vec4 out_color;
 layout(location=1) out vec3 out_normal;
 layout(location=2) out vec3 out_position;
 
@@ -82,5 +82,5 @@ void main()
     finalColor *= water_multiplier(gpi.vertexPosWorld);
     #endif
 
-    out_color = finalColor * calc_positional_lighting(gpi.vertexNormalWorld, gpi.vertexPosWorld) * shadow_map_multiplier(gpi.vertexNormalWorld);
+    out_color = vec4(finalColor * calc_positional_lighting(gpi.vertexNormalWorld, gpi.vertexPosWorld) * shadow_map_multiplier(gpi.vertexNormalWorld), 1.0);
 }
