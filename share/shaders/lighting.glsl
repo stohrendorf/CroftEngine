@@ -14,9 +14,8 @@ layout(std430, binding=3) readonly restrict buffer b_lights {
     Light lights[];
 };
 
-float calc_vsm_value(in int splitIdx, in float shadow, in float lightNormDot)
+float calc_vsm_value(in int splitIdx, in float shadow, in float lightNormDot, in vec3 projCoords)
 {
-    vec3 projCoords = gpi.vertexPosLight[splitIdx];
     vec2 moments = vec2(0);
     // https://stackoverflow.com/a/32273875
     #define FETCH_CSM(idx) case idx: moments = texture(u_csmVsm[idx], projCoords.xy).xy; break
@@ -66,15 +65,13 @@ float shadow_map_multiplier(in vec3 worldNormal, in float shadow)
     }
         #endif
 
-    int splitIdx;
-    for (splitIdx = 0; splitIdx<CSMSplits; ++splitIdx) {
-        vec2 p = gpi.vertexPosLight[splitIdx].xy;
-        if (all(greaterThanEqual(p, vec2(0))) && all(lessThanEqual(p, vec2(1)))) {
-            break;
+    for (int splitIdx = 0; splitIdx<CSMSplits; ++splitIdx) {
+        vec3 p = gpi.vertexPosLight[splitIdx];
+        if (all(greaterThanEqual(p.xy, vec2(0))) && all(lessThanEqual(p.xy, vec2(1)))) {
+            return calc_vsm_value(splitIdx, shadow, lightNormDot, p);
         }
     }
-    if (splitIdx == CSMSplits) return 1.0;
-    return calc_vsm_value(splitIdx, shadow, lightNormDot);
+    return 1.0;
 }
 
 float shadow_map_multiplier(in vec3 worldNormal) {
