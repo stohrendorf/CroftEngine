@@ -515,7 +515,7 @@ gl::CImgWrapper Presenter::takeScreenshot() const
   const auto vp = m_window->getViewport();
 
   std::vector<uint8_t> pixels;
-  pixels.resize(vp.x * vp.y * 4);
+  pixels.resize(gsl::narrow<size_t>(vp.x) * gsl::narrow<size_t>(vp.y) * 4u);
   GL_ASSERT(
     gl::api::readPixel(0, 0, vp.x, vp.y, gl::api::PixelFormat::Rgba, gl::api::PixelType::UnsignedByte, pixels.data()));
 

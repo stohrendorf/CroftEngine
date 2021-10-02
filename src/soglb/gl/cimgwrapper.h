@@ -77,7 +77,8 @@ public:
     static_assert(sizeof(gl::SRGBA8) == 4);
     interleave();
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-    return gsl::make_span(reinterpret_cast<const gl::SRGBA8*>(data()), width() * height());
+    return gsl::make_span(reinterpret_cast<const gl::SRGBA8*>(data()),
+                          gsl::narrow<size_t>(width()) * gsl::narrow<size_t>(height()));
   }
 
   void savePng(const std::string& filename);

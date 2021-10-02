@@ -84,7 +84,7 @@ auto imix(const Pixel<T, _Channels, _PixelFormat, _SizedInternalFormat>& lhs,
           const Pixel<T, _Channels, _PixelFormat, _SizedInternalFormat>& rhs,
           U bias,
           U biasMax = std::numeric_limits<U>::max())
-  -> std::enable_if_t<std::is_unsigned_v<T> == std::is_unsigned_v<U>,
+  -> std::enable_if_t<std::is_unsigned_v<T> == std::is_unsigned_v<U>, // lgtm [cpp/comparison-of-identical-expressions]
                       Pixel<T, _Channels, _PixelFormat, _SizedInternalFormat>>
 {
   if(bias >= biasMax)

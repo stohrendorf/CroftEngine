@@ -258,8 +258,8 @@ struct Room
   std::vector<SpriteInstance> sprites{};
   std::vector<Portal> portals{};
 
-  int sectorCountZ{};            // "width" of sector list
-  int sectorCountX{};            // "height" of sector list
+  uint16_t sectorCountZ{};       // "width" of sector list
+  uint16_t sectorCountX{};       // "height" of sector list
   std::vector<Sector> sectors{}; // [NumXsectors * NumZsectors] list of sectors in this room
   core::Shade ambientShade{};
   int16_t intensity2{};        // Almost always the same value as AmbientIntensity1 [absent from TR1 data files]
