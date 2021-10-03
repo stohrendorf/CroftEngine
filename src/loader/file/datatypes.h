@@ -331,6 +331,11 @@ struct Room
   static std::unique_ptr<Room> readTr4(io::SDLReader& reader);
 
   static std::unique_ptr<Room> readTr5(io::SDLReader& reader);
+
+  [[nodiscard]] constexpr size_t getTotalSectors() const
+  {
+    return gsl::narrow_cast<size_t>(sectorCountX) * gsl::narrow_cast<size_t>(sectorCountZ);
+  }
 };
 
 struct Sprite

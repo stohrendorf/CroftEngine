@@ -75,7 +75,7 @@ std::unique_ptr<Room> Room::readTr1(io::SDLReader& reader)
 
   room->sectorCountZ = reader.readU16();
   room->sectorCountX = reader.readU16();
-  reader.readVector(room->sectors, room->sectorCountZ * room->sectorCountX, &Sector::read);
+  reader.readVector(room->sectors, room->getTotalSectors(), &Sector::read);
 
   // read and make consistent
   room->ambientShade = core::Shade{reader.readI16()};
@@ -128,7 +128,7 @@ std::unique_ptr<Room> Room::readTr2(io::SDLReader& reader)
 
   room->sectorCountZ = reader.readU16();
   room->sectorCountX = reader.readU16();
-  reader.readVector(room->sectors, room->sectorCountZ * room->sectorCountX, &Sector::read);
+  reader.readVector(room->sectors, room->getTotalSectors(), &Sector::read);
 
   // read and make consistent
   room->ambientShade = core::Shade{gsl::narrow<core::Shade::type>((8191 - reader.readI16()) * 4)};
@@ -188,7 +188,7 @@ std::unique_ptr<Room> Room::readTr3(io::SDLReader& reader)
 
   room->sectorCountZ = reader.readU16();
   room->sectorCountX = reader.readU16();
-  reader.readVector(room->sectors, room->sectorCountZ * room->sectorCountX, &Sector::read);
+  reader.readVector(room->sectors, room->getTotalSectors(), &Sector::read);
 
   room->ambientShade = core::Shade{reader.readI16()};
   room->intensity2 = reader.readI16();
@@ -252,7 +252,7 @@ std::unique_ptr<Room> Room::readTr4(io::SDLReader& reader)
 
   room->sectorCountZ = reader.readU16();
   room->sectorCountX = reader.readU16();
-  reader.readVector(room->sectors, room->sectorCountZ * room->sectorCountX, &Sector::read);
+  reader.readVector(room->sectors, room->getTotalSectors(), &Sector::read);
 
   room->ambientShade = core::Shade{reader.readI16()};
   room->intensity2 = reader.readI16();
@@ -447,7 +447,7 @@ std::unique_ptr<Room> Room::readTr5(io::SDLReader& reader)
 
   reader.seek(position + std::streamoff(208) + sector_data_offset);
 
-  reader.readVector(room->sectors, room->sectorCountZ * room->sectorCountX, &Sector::read);
+  reader.readVector(room->sectors, room->getTotalSectors(), &Sector::read);
 
   room->portals.resize(reader.readI16());
   for(size_t i = 0; i < room->portals.size(); i++)
