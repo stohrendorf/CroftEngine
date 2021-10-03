@@ -170,7 +170,7 @@ gsl::not_null<std::shared_ptr<ShaderProgram>> ShaderProgram::createFromSource(co
 {
   static constexpr size_t SHADER_SOURCE_LENGTH = 3;
   std::array<gsl::czstring, SHADER_SOURCE_LENGTH> shaderSource{nullptr};
-  shaderSource[0] = "#version 450\n#extension GL_ARB_bindless_texture : require\n";
+  shaderSource[0] = "#version 450 core\n#extension GL_ARB_bindless_texture : require\n";
 
   std::string vshSourceStr;
   if(!vshPath.empty())
