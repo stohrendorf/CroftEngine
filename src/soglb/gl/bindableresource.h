@@ -9,9 +9,13 @@
 
 namespace gl
 {
+// NOLINTNEXTLINE(bugprone-reserved-identifier)
+template<api::ObjectIdentifier _Identifier>
 class BindableResource
 {
 public:
+  static constexpr auto Identifier = _Identifier;
+
   BindableResource(const BindableResource&) = delete;
   void operator=(const BindableResource&) = delete;
 
@@ -39,11 +43,7 @@ protected:
   using Binder = std::function<void(uint32_t)>;
   using Deleter = std::function<void(api::core::SizeType, api::core::Handle*)>;
 
-  explicit BindableResource(Allocator allocator,
-                            Binder binder,
-                            Deleter deleter,
-                            const api::ObjectIdentifier identifier,
-                            const std::string_view& label)
+  explicit BindableResource(Allocator allocator, Binder binder, Deleter deleter, const std::string_view& label)
       : m_allocator{std::move(allocator)}
       , m_binder{std::move(binder)}
       , m_deleter{std::move(deleter)}
@@ -56,10 +56,7 @@ protected:
 
     BOOST_ASSERT(m_handle != 0);
 
-    if(!label.empty())
-    {
-      setLabel(identifier, label);
-    }
+    setLabel(label);
   }
 
   BindableResource(BindableResource&& rhs) noexcept
@@ -90,13 +87,16 @@ protected:
   }
 
   // NOLINTNEXTLINE(readability-make-member-function-const)
-  void setLabel(const api::ObjectIdentifier identifier, const std::string_view& label)
+  void setLabel(const std::string_view& label)
   {
+    if(label.empty())
+      return;
+
     int32_t maxLabelLength = 0;
     GL_ASSERT(api::getIntegerv(api::GetPName::MaxLabelLength, &maxLabelLength));
     BOOST_ASSERT(maxLabelLength > 0);
 
-    GL_ASSERT(api::objectLabel(identifier,
+    GL_ASSERT(api::objectLabel(Identifier,
                                m_handle,
                                std::min(maxLabelLength, gsl::narrow<int32_t>(label.size())),
                                label.empty() ? nullptr : label.data()));

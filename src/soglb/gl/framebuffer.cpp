@@ -20,7 +20,6 @@ Framebuffer::Framebuffer(Framebuffer::Attachments attachments,
     : BindableResource{api::createFramebuffers,
                        [](const uint32_t handle) { bindFramebuffer(api::FramebufferTarget::DrawFramebuffer, handle); },
                        api::deleteFramebuffers,
-                       api::ObjectIdentifier::Framebuffer,
                        label}
     , m_attachments{std::move(attachments)}
     , m_renderState{std::move(renderState)}

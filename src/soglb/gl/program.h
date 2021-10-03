@@ -263,7 +263,7 @@ private:
   }
 };
 
-class Program final : public BindableResource
+class Program final : public BindableResource<api::ObjectIdentifier::Program>
 {
 public:
   explicit Program(const std::string_view& label);

@@ -52,7 +52,7 @@ public:
   }
 };
 
-class Framebuffer final : public BindableResource
+class Framebuffer final : public BindableResource<api::ObjectIdentifier::Framebuffer>
 {
 public:
   using Attachment = std::tuple<gsl::not_null<std::shared_ptr<TextureAttachment>>, api::FramebufferAttachment>;

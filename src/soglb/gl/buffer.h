@@ -10,17 +10,14 @@ namespace gl
 {
 // NOLINTNEXTLINE(bugprone-reserved-identifier)
 template<typename T, api::BufferTarget _Target>
-class Buffer : public BindableResource
+class Buffer : public BindableResource<api::ObjectIdentifier::Buffer>
 {
 public:
   static constexpr api::BufferTarget Target = _Target;
 
   explicit Buffer(const std::string_view& label)
-      : BindableResource{api::createBuffers,
-                         [](const uint32_t handle) { bindBuffer(Target, handle); },
-                         api::deleteBuffers,
-                         api::ObjectIdentifier::Buffer,
-                         label}
+      : BindableResource{
+        api::createBuffers, [](const uint32_t handle) { bindBuffer(Target, handle); }, api::deleteBuffers, label}
   {
   }
 

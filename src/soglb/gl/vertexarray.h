@@ -12,7 +12,7 @@
 namespace gl
 {
 template<typename IndexT, typename VertexT0, typename... VertexTs>
-class VertexArray final : public BindableResource
+class VertexArray final : public BindableResource<api::ObjectIdentifier::VertexArray>
 {
 private:
   template<typename... Ts, size_t... Is>
@@ -52,11 +52,7 @@ public:
                        VertexBuffers vertexBuffers,
                        const std::vector<const Program*>& programs,
                        const std::string_view& label)
-      : BindableResource{api::createVertexArrays,
-                         api::bindVertexArray,
-                         api::deleteVertexArrays,
-                         api::ObjectIdentifier::VertexArray,
-                         label}
+      : BindableResource{api::createVertexArrays, api::bindVertexArray, api::deleteVertexArrays, label}
       , m_indexBuffer{std::move(indexBuffer)}
       , m_vertexBuffers{std::move(vertexBuffers)}
   {

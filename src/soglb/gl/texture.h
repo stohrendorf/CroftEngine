@@ -8,15 +8,11 @@
 
 namespace gl
 {
-class Texture : public BindableResource
+class Texture : public BindableResource<api::ObjectIdentifier::Texture>
 {
 protected:
-  explicit Texture(Allocator allocator,
-                   Binder binder,
-                   Deleter deleter,
-                   const api::ObjectIdentifier identifier,
-                   const std::string_view& label)
-      : BindableResource{std::move(allocator), std::move(binder), std::move(deleter), identifier, label}
+  explicit Texture(Allocator allocator, Binder binder, Deleter deleter, const std::string_view& label)
+      : BindableResource{std::move(allocator), std::move(binder), std::move(deleter), label}
   {
   }
 };
@@ -30,7 +26,6 @@ protected:
       : Texture{[](const api::core::SizeType n, api::core::Handle* textures) { createTextures(_Target, n, textures); },
                 [](const uint32_t handle) { bindTexture(_Target, handle); },
                 api::deleteTextures,
-                api::ObjectIdentifier::Texture,
                 label}
   {
   }

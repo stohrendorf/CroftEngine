@@ -129,10 +129,8 @@ Program::Program(const std::string_view& label)
                          BOOST_ASSERT(n == 1 && handle != nullptr);
                          api::deleteProgram(*handle);
                        },
-                       api::ObjectIdentifier::Program,
                        label}
 {
-  setLabel(api::ObjectIdentifier::Program, label);
 }
 
 void Program::link()

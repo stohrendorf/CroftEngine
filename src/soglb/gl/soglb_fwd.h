@@ -12,10 +12,13 @@ enum class SizedInternalFormat : core::EnumType;
 enum class ProgramInterface : core::EnumType;
 enum class TextureTarget : core::EnumType;
 enum class ShaderType : core::EnumType;
+enum class ObjectIdentifier : core::EnumType;
 } // namespace gl::api
 
 namespace gl
 {
+// NOLINTNEXTLINE(bugprone-reserved-identifier)
+template<api::ObjectIdentifier _Identifier>
 class BindableResource;
 // NOLINTNEXTLINE(bugprone-reserved-identifier)
 template<typename T, api::BufferTarget _Target>
