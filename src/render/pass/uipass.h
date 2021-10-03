@@ -17,7 +17,9 @@ namespace render::pass
 class UIPass
 {
 public:
-  explicit UIPass(scene::MaterialManager& materialManager, const glm::ivec2& viewport);
+  explicit UIPass(scene::MaterialManager& materialManager,
+                  const glm::ivec2& renderViewport,
+                  const glm::ivec2& displayViewport);
   void bind();
 
   [[nodiscard]] const auto& getColorBuffer() const

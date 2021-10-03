@@ -151,9 +151,15 @@ public:
     m_window->setFullscreen(value);
   }
 
-  [[nodiscard]] const auto& getViewport() const
+  [[nodiscard]] const auto& getDisplayViewport() const
   {
     return m_window->getViewport();
+  }
+
+  [[nodiscard]] auto getRenderViewport() const
+  {
+    const int divisor = m_halfRes ? 2 : 1;
+    return m_window->getViewport() / divisor;
   }
 
   [[nodiscard]] gl::CImgWrapper takeScreenshot() const;
@@ -186,6 +192,7 @@ private:
   std::unique_ptr<render::scene::ScreenOverlay> m_screenOverlay;
 
   bool m_showDebugInfo = false;
+  bool m_halfRes = false;
 
   void scaleSplashImage();
 };

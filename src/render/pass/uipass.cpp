@@ -29,10 +29,12 @@ class Node;
 
 namespace render::pass
 {
-UIPass::UIPass(scene::MaterialManager& materialManager, const glm::ivec2& viewport)
+UIPass::UIPass(scene::MaterialManager& materialManager,
+               const glm::ivec2& renderViewport,
+               const glm::ivec2& displayViewport)
     : m_material{materialManager.getFlat(true, false)}
     , m_mesh{scene::createScreenQuad(m_material, "ui")}
-    , m_colorBuffer{std::make_shared<gl::Texture2D<gl::SRGBA8>>(viewport, "ui-color")}
+    , m_colorBuffer{std::make_shared<gl::Texture2D<gl::SRGBA8>>(renderViewport, "ui-color")}
     , m_colorBufferHandle{std::make_shared<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>>(
         m_colorBuffer,
         gslu::make_nn_unique<gl::Sampler>("ui-color-sampler")
@@ -48,12 +50,12 @@ UIPass::UIPass(scene::MaterialManager& materialManager, const glm::ivec2& viewpo
                { uniform.set(gsl::not_null{m_colorBufferHandle}); });
 
   m_mesh->getRenderState().merge(m_fb->getRenderState());
+  m_mesh->getRenderState().setViewport(displayViewport);
 }
 
 // NOLINTNEXTLINE(readability-make-member-function-const)
 void UIPass::bind()
 {
-  gl::Framebuffer::unbindAll();
   m_colorBuffer->clear({0, 0, 0, 0});
   m_fb->bind();
 }

@@ -186,6 +186,10 @@ RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingT
     /* translators: TR charmap encoding */ _("High Quality Shadows"),
     [&engine]() { return engine.getEngineConfig()->renderSettings.highQualityShadows; },
     [&engine]() { toggle(engine, engine.getEngineConfig()->renderSettings.highQualityShadows); });
+  listBox->addSetting(
+    /* translators: TR charmap encoding */ _("Half Resolution"),
+    [&engine]() { return engine.getEngineConfig()->renderSettings.halfResRender; },
+    [&engine]() { toggle(engine, engine.getEngineConfig()->renderSettings.halfResRender); });
 
   listBox = std::make_shared<CheckListBox>(/* translators: TR charmap encoding */ _("Other"));
   m_listBoxes.emplace_back(listBox);

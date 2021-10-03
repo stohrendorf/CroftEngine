@@ -15,9 +15,11 @@
 
 namespace render
 {
-RenderPipeline::RenderPipeline(scene::MaterialManager& materialManager, const glm::ivec2& viewport)
+RenderPipeline::RenderPipeline(scene::MaterialManager& materialManager,
+                               const glm::ivec2& renderViewport,
+                               const glm::ivec2& displayViewport)
 {
-  resize(materialManager, viewport, true);
+  resize(materialManager, renderViewport, displayViewport, true);
 }
 
 void RenderPipeline::worldCompositionPass(const bool inWater)
@@ -37,7 +39,7 @@ void RenderPipeline::worldCompositionPass(const bool inWater)
     effect->render(inWater);
     finalOutput = effect->getFramebuffer();
   }
-  finalOutput->blit(m_size);
+  finalOutput->blit(m_displaySize);
 }
 
 void RenderPipeline::updateCamera(const gsl::not_null<std::shared_ptr<scene::Camera>>& camera)
@@ -52,23 +54,27 @@ void RenderPipeline::updateCamera(const gsl::not_null<std::shared_ptr<scene::Cam
 void RenderPipeline::apply(const RenderSettings& renderSettings, scene::MaterialManager& materialManager)
 {
   m_renderSettings = renderSettings;
-  resize(materialManager, m_size, true);
+  resize(materialManager, m_renderSize, m_displaySize, true);
 }
 
-void RenderPipeline::resize(scene::MaterialManager& materialManager, const glm::ivec2& viewport, bool force)
+void RenderPipeline::resize(scene::MaterialManager& materialManager,
+                            const glm::ivec2& renderViewport,
+                            const glm::ivec2& displayViewport,
+                            bool force)
 {
-  if(!force && m_size == viewport)
+  if(!force && m_renderSize == renderViewport && m_displaySize == displayViewport)
   {
     return;
   }
 
-  m_size = viewport;
+  m_renderSize = renderViewport;
+  m_displaySize = displayViewport;
 
-  m_geometryPass = std::make_shared<pass::GeometryPass>(viewport);
-  m_portalPass = std::make_shared<pass::PortalPass>(materialManager, m_geometryPass->getDepthBuffer(), viewport);
-  m_hbaoPass = std::make_shared<pass::HBAOPass>(materialManager, viewport, *m_geometryPass);
+  m_geometryPass = std::make_shared<pass::GeometryPass>(m_renderSize);
+  m_portalPass = std::make_shared<pass::PortalPass>(materialManager, m_geometryPass->getDepthBuffer(), m_renderSize);
+  m_hbaoPass = std::make_shared<pass::HBAOPass>(materialManager, m_renderSize, *m_geometryPass);
   m_worldCompositionPass = std::make_shared<pass::WorldCompositionPass>(
-    materialManager, m_renderSettings, viewport, *m_geometryPass, *m_portalPass, *m_hbaoPass);
+    materialManager, m_renderSettings, m_renderSize, *m_geometryPass, *m_portalPass, *m_hbaoPass);
 
   auto fxSource = m_worldCompositionPass->getColorBuffer();
   auto addEffect =
@@ -90,7 +96,7 @@ void RenderPipeline::resize(scene::MaterialManager& materialManager, const glm::
     addEffect("filmGrain", materialManager.getFilmGrain());
   if(m_renderSettings.crt)
     addEffect("crt", materialManager.getCRT());
-  m_uiPass = std::make_shared<pass::UIPass>(materialManager, viewport);
+  m_uiPass = std::make_shared<pass::UIPass>(materialManager, m_renderSize, m_displaySize);
 }
 
 gl::RenderState RenderPipeline::bindPortalFrameBuffer()

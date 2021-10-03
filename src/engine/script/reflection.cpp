@@ -239,9 +239,9 @@ std::pair<RunResult, std::optional<size_t>> SplashScreen::run(Engine& engine, co
     if(presenter.getInputHandler().hasDebouncedAction(hid::Action::Menu))
       break;
 
-    if(size != presenter.getViewport())
+    if(size != presenter.getRenderViewport())
     {
-      size = presenter.getViewport();
+      size = presenter.getRenderViewport();
 
       // scale splash image so that its aspect ratio is preserved, but is completely visible
       const auto targetSize = glm::vec2{size};

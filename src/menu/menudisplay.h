@@ -20,6 +20,11 @@ namespace ui
 class Ui;
 }
 
+namespace render::scene
+{
+class Material;
+}
+
 namespace render::pass
 {
 class Framebuffer;
@@ -84,6 +89,8 @@ struct MenuDisplay
     return *rings.at(currentRingIndex);
   }
 
+  void setViewport(const glm::ivec2& viewport);
+
 private:
   [[nodiscard]] static std::vector<MenuObject> getOptionRingObjects(const engine::world::World& world,
                                                                     bool withHomePolaroid);
@@ -93,6 +100,7 @@ private:
   ui::Text m_upArrow;
   ui::Text m_downArrow;
 
+  const gsl::not_null<std::shared_ptr<render::scene::Material>> m_material;
   gsl::not_null<std::shared_ptr<render::pass::Framebuffer>> m_fb;
 };
 } // namespace menu

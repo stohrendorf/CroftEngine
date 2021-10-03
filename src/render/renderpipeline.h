@@ -34,7 +34,8 @@ class RenderPipeline
 {
 private:
   RenderSettings m_renderSettings{};
-  glm::ivec2 m_size{-1};
+  glm::ivec2 m_renderSize{-1};
+  glm::ivec2 m_displaySize{-1};
   std::shared_ptr<pass::PortalPass> m_portalPass;
   std::shared_ptr<pass::GeometryPass> m_geometryPass;
   std::shared_ptr<pass::HBAOPass> m_hbaoPass;
@@ -44,7 +45,9 @@ private:
   std::vector<gsl::not_null<std::shared_ptr<pass::EffectPass>>> m_effects{};
 
 public:
-  explicit RenderPipeline(scene::MaterialManager& materialManager, const glm::ivec2& viewport);
+  explicit RenderPipeline(scene::MaterialManager& materialManager,
+                          const glm::ivec2& renderViewport,
+                          const glm::ivec2& displayViewport);
 
   void bindGeometryFrameBuffer(float farPlane);
   [[nodiscard]] gl::RenderState bindPortalFrameBuffer();
@@ -54,7 +57,10 @@ public:
 
   void updateCamera(const gsl::not_null<std::shared_ptr<scene::Camera>>& camera);
 
-  void resize(scene::MaterialManager& materialManager, const glm::ivec2& viewport, bool force = false);
+  void resize(scene::MaterialManager& materialManager,
+              const glm::ivec2& renderViewport,
+              const glm::ivec2& displayViewport,
+              bool force = false);
 
   void apply(const RenderSettings& renderSettings, scene::MaterialManager& materialManager);
 };

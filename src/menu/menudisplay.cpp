@@ -125,6 +125,8 @@ void MenuDisplay::drawMenuObjectDescription(ui::Ui& ui, engine::world::World& wo
 void MenuDisplay::display(ui::Ui& ui, engine::world::World& world)
 {
   SOGLB_DEBUGGROUP("menu");
+  setViewport(world.getPresenter().getRenderViewport());
+
   m_fb->getOutput()->getTexture()->clear({0, 0, 0, 0});
   m_fb->getDepthBuffer()->clear(gl::ScalarDepth32F{1.0f});
   m_fb->bind();
@@ -176,6 +178,7 @@ void MenuDisplay::display(ui::Ui& ui, engine::world::World& world)
   }
 
   gl::Framebuffer::unbindAll();
+  gl::RenderState::getWantedState().setViewport(world.getPresenter().getDisplayViewport());
   m_fb->render();
 }
 
@@ -503,8 +506,8 @@ MenuDisplay::MenuDisplay(InventoryMode mode, engine::world::World& world, const 
     , m_currentState{std::make_unique<InflateRingMenuState>(ringTransform, true)}
     , m_upArrow{ui::getSpriteSelector(ui::ArrowUpSprite)}
     , m_downArrow{ui::getSpriteSelector(ui::ArrowDownSprite)}
-    , m_fb{gslu::make_nn_shared<render::pass::Framebuffer>(
-        "menu", world.getPresenter().getMaterialManager()->getFlat(false, false, false), viewport)}
+    , m_material{world.getPresenter().getMaterialManager()->getFlat(false, false, false)}
+    , m_fb{gslu::make_nn_shared<render::pass::Framebuffer>("menu", m_material, viewport)}
 {
   if(mode == InventoryMode::GameMode)
   {
@@ -533,6 +536,12 @@ MenuDisplay::MenuDisplay(InventoryMode mode, engine::world::World& world, const 
   world.getCameraController().getCamera()->setFieldOfView(engine::Presenter::DefaultFov);
   // TODO fadeInInventory(mode != InventoryMode::TitleMode);
   world.getAudioEngine().playSoundEffect(engine::TR1SoundEffect::MenuOptionPopup, nullptr);
+}
+
+void MenuDisplay::setViewport(const glm::ivec2& viewport)
+{
+  if(m_fb->getOutput()->getTexture()->size() != viewport)
+    m_fb = gslu::make_nn_shared<render::pass::Framebuffer>("menu", m_material, viewport);
 }
 
 MenuDisplay::~MenuDisplay() = default;

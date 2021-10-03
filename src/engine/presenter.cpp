@@ -83,7 +83,7 @@ void Presenter::playVideo(const std::filesystem::path& path)
                 if(update())
                   return true;
 
-                m_renderer->getCamera()->setViewport(m_window->getViewport());
+                m_renderer->getCamera()->setViewport(getRenderViewport());
                 mesh->bind("u_input",
                            [&textureHandle](const render::scene::Node& /*node*/,
                                             const render::scene::Mesh& /*mesh*/,
@@ -215,7 +215,7 @@ void Presenter::renderWorld(const ObjectManager& objectManager,
   if(m_showDebugInfo)
   {
     if(m_screenOverlay == nullptr)
-      m_screenOverlay = std::make_unique<render::scene::ScreenOverlay>(*m_materialManager, m_window->getViewport());
+      m_screenOverlay = std::make_unique<render::scene::ScreenOverlay>(*m_materialManager, getRenderViewport());
     m_debugFont->drawText(
       *m_screenOverlay->getImage(),
       std::to_string(waitRatio).c_str(),
@@ -240,8 +240,8 @@ void Presenter::renderWorld(const ObjectManager& objectManager,
       if(std::abs(projVertex.x) > 1 || std::abs(projVertex.y) > 1)
         return;
 
-      projVertex.x = (projVertex.x / 2 + 0.5f) * m_window->getViewport().x;
-      projVertex.y = (1 - (projVertex.y / 2 + 0.5f)) * m_window->getViewport().y;
+      projVertex.x = (projVertex.x / 2 + 0.5f) * getRenderViewport().x;
+      projVertex.y = (1 - (projVertex.y / 2 + 0.5f)) * getRenderViewport().y;
 
       m_debugFont->drawText(*m_screenOverlay->getImage(),
                             object->getNode()->getName().c_str(),
@@ -368,7 +368,7 @@ Presenter::Presenter(const std::filesystem::path& engineDataPath, const glm::ive
     : m_window{std::make_unique<gl::Window>(engineDataPath / "logo.png", resolution)}
     , m_soundEngine{std::make_shared<audio::SoundEngine>()}
     , m_renderer{std::make_shared<render::scene::Renderer>(gslu::make_nn_shared<render::scene::Camera>(
-        DefaultFov, m_window->getViewport(), DefaultNearPlane, DefaultFarPlane))}
+        DefaultFov, getRenderViewport(), DefaultNearPlane, DefaultFarPlane))}
     , m_splashImage{gsl::make_shared<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>>(
         gl::CImgWrapper{util::ensureFileExists(engineDataPath / "splash.png")}.toTexture("splash"),
         gslu::make_nn_unique<gl::Sampler>("splash-sampler"))}
@@ -379,7 +379,8 @@ Presenter::Presenter(const std::filesystem::path& engineDataPath, const glm::ive
     , m_shaderCache{std::make_shared<render::scene::ShaderCache>(engineDataPath / "shaders")}
     , m_materialManager{std::make_unique<render::scene::MaterialManager>(m_shaderCache, m_renderer)}
     , m_csm{std::make_shared<render::scene::CSM>(1024, *m_materialManager)}
-    , m_renderPipeline{std::make_unique<render::RenderPipeline>(*m_materialManager, m_window->getViewport())}
+    , m_renderPipeline{
+        std::make_unique<render::RenderPipeline>(*m_materialManager, getRenderViewport(), getDisplayViewport())}
 {
   m_materialManager->setCSM(gsl::not_null{m_csm});
   scaleSplashImage();
@@ -391,7 +392,7 @@ Presenter::~Presenter() = default;
 void Presenter::scaleSplashImage()
 {
   // scale splash image so that its aspect ratio is preserved, but the boundaries match
-  const auto viewport = glm::vec2{m_window->getViewport()};
+  const auto viewport = glm::vec2{getRenderViewport()};
   const auto sourceSize = glm::vec2{m_splashImage->getTexture()->size()};
   const float splashScale = std::max(viewport.x / sourceSize.x, viewport.y / sourceSize.y);
 
@@ -411,12 +412,12 @@ void Presenter::drawLoadingScreen(const std::string& state)
     return;
 
   if(m_screenOverlay == nullptr)
-    m_screenOverlay = std::make_unique<render::scene::ScreenOverlay>(*m_materialManager, m_window->getViewport());
+    m_screenOverlay = std::make_unique<render::scene::ScreenOverlay>(*m_materialManager, getRenderViewport());
 
-  if(m_window->getViewport() != m_screenOverlay->getImage()->getSize())
+  if(getRenderViewport() != m_screenOverlay->getImage()->getSize())
   {
-    m_renderer->getCamera()->setViewport(m_window->getViewport());
-    m_screenOverlay->init(*m_materialManager, m_window->getViewport());
+    m_renderer->getCamera()->setViewport(getRenderViewport());
+    m_screenOverlay->init(*m_materialManager, getRenderViewport());
     scaleSplashImage();
   }
 
@@ -445,13 +446,13 @@ bool Presenter::preFrame()
   if(m_window->isMinimized())
     return false;
 
-  m_renderer->getCamera()->setViewport(m_window->getViewport());
-  m_renderPipeline->resize(*m_materialManager, m_window->getViewport());
+  m_renderer->getCamera()->setViewport(getRenderViewport());
+  m_renderPipeline->resize(*m_materialManager, getRenderViewport(), getDisplayViewport());
   if(m_screenOverlay != nullptr)
   {
-    if(m_screenOverlay->getImage()->getSize() != m_window->getViewport())
+    if(m_screenOverlay->getImage()->getSize() != getRenderViewport())
     {
-      m_screenOverlay->init(*m_materialManager, m_window->getViewport());
+      m_screenOverlay->init(*m_materialManager, getRenderViewport());
     }
 
     m_screenOverlay->getImage()->fill({0, 0, 0, 0});
@@ -499,6 +500,8 @@ void Presenter::debounceInput()
 
 void Presenter::apply(const render::RenderSettings& renderSettings, const AudioSettings& audioSettings)
 {
+  m_halfRes = renderSettings.halfResRender;
+  m_renderer->getCamera()->setViewport(getRenderViewport());
   setFullscreen(renderSettings.fullscreen);
   if(m_csm->getResolution() != renderSettings.getCSMResolution())
   {
@@ -512,7 +515,7 @@ void Presenter::apply(const render::RenderSettings& renderSettings, const AudioS
 
 gl::CImgWrapper Presenter::takeScreenshot() const
 {
-  const auto vp = m_window->getViewport();
+  const auto vp = getRenderViewport();
 
   std::vector<uint8_t> pixels;
   pixels.resize(gsl::narrow<size_t>(vp.x) * gsl::narrow<size_t>(vp.y) * 4u);

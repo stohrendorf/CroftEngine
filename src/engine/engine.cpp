@@ -185,7 +185,7 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
             continue;
           }
 
-          ui::Ui ui{m_presenter->getMaterialManager()->getUi(), world.getPalette(), m_presenter->getViewport()};
+          ui::Ui ui{m_presenter->getMaterialManager()->getUi(), world.getPalette(), m_presenter->getRenderViewport()};
           ui::LevelStats stats{world.getTitle(), world.getTotalSecrets(), world.getPlayerPtr(), m_presenter};
           stats.draw(ui);
 
@@ -230,7 +230,7 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
                                throttler.getAverageWaitRatio());
       m_presenter->updateSoundEngine();
       m_presenter->renderScreenOverlay();
-      ui::Ui ui{m_presenter->getMaterialManager()->getUi(), world.getPalette(), m_presenter->getViewport()};
+      ui::Ui ui{m_presenter->getMaterialManager()->getUi(), world.getPalette(), m_presenter->getRenderViewport()};
       ui.drawBox({0, 0}, ui.getSize(), gl::SRGBA8{0, 0, 0, 224});
       world.drawPerformanceBar(ui, throttler.getAverageWaitRatio());
       m_presenter->renderUi(ui, 1);
@@ -277,7 +277,8 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
         laraDeadTime += 1_frame;
         if(laraDeadTime >= 300_frame || (laraDeadTime >= 60_frame && m_presenter->getInputHandler().hasAnyAction()))
         {
-          menu = std::make_shared<menu::MenuDisplay>(menu::InventoryMode::DeathMode, world, m_presenter->getViewport());
+          menu = std::make_shared<menu::MenuDisplay>(
+            menu::InventoryMode::DeathMode, world, m_presenter->getRenderViewport());
           menu->allowSave = false;
           throttler.reset();
           continue;
@@ -288,7 +289,8 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
          && m_presenter->getInputHandler().hasDebouncedAction(hid::Action::Menu))
       {
         updateTimeSpent();
-        menu = std::make_shared<menu::MenuDisplay>(menu::InventoryMode::GameMode, world, m_presenter->getViewport());
+        menu
+          = std::make_shared<menu::MenuDisplay>(menu::InventoryMode::GameMode, world, m_presenter->getRenderViewport());
         menu->allowSave = allowSave;
         throttler.reset();
         continue;
@@ -374,7 +376,7 @@ std::pair<RunResult, std::optional<size_t>> Engine::runTitleMenu(world::World& w
     gl::CImgWrapper{util::ensureFileExists(m_userDataPath / "data" / "tr1" / "DATA" / "TITLEH.PCX")}.toTexture("title"),
     gslu::make_nn_unique<gl::Sampler>("title-sampler"));
   const auto menu
-    = std::make_shared<menu::MenuDisplay>(menu::InventoryMode::TitleMode, world, m_presenter->getViewport());
+    = std::make_shared<menu::MenuDisplay>(menu::InventoryMode::TitleMode, world, m_presenter->getRenderViewport());
   Throttler throttler;
   while(true)
   {
@@ -388,12 +390,12 @@ std::pair<RunResult, std::optional<size_t>> Engine::runTitleMenu(world::World& w
     if(!m_presenter->preFrame())
       continue;
 
-    ui::Ui ui{m_presenter->getMaterialManager()->getUi(), world.getPalette(), m_presenter->getViewport()};
+    ui::Ui ui{m_presenter->getMaterialManager()->getUi(), world.getPalette(), m_presenter->getRenderViewport()};
     render::scene::RenderContext context{render::scene::RenderMode::Full, std::nullopt};
 
     std::shared_ptr<render::scene::Mesh> backdropMesh;
     {
-      const auto viewport = glm::vec2{m_presenter->getViewport()};
+      const auto viewport = glm::vec2{m_presenter->getRenderViewport()};
       const auto sourceSize = glm::vec2{backdrop->getTexture()->size()};
       const float splashScale = std::min(viewport.x / sourceSize.x, viewport.y / sourceSize.y);
 

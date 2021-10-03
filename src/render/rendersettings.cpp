@@ -24,6 +24,7 @@ void RenderSettings::serialize(const serialization::Serializer<engine::EngineCon
       S_NVO("moreLights", moreLights),
       S_NVO("highQualityShadows", highQualityShadows),
       S_NVO("anisotropyLevel", anisotropyLevel),
+      S_NVO("halfResRender", halfResRender),
       S_NVO("glidosPack", glidosPack));
 }
 } // namespace render

@@ -30,6 +30,7 @@ struct RenderSettings
   bool fxaa = true;
   bool moreLights = true;
   bool highQualityShadows = true;
+  bool halfResRender = false;
   std::optional<std::string> glidosPack = std::nullopt;
 
   [[nodiscard]] size_t getLightCollectionDepth() const

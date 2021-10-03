@@ -58,6 +58,7 @@ public:
     m_fieldOfView = fieldOfView;
     m_dirty.set(CameraMatrices::DirtyFlag::Projection);
     m_dirty.set(CameraMatrices::DirtyFlag::ViewProjection);
+    m_dirty.set(CameraMatrices::DirtyFlag::BufferData);
   }
 
   [[nodiscard]] float getAspectRatio() const
