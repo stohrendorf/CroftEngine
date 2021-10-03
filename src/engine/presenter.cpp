@@ -515,7 +515,7 @@ void Presenter::apply(const render::RenderSettings& renderSettings, const AudioS
 
 gl::CImgWrapper Presenter::takeScreenshot() const
 {
-  const auto vp = getRenderViewport();
+  const auto vp = getDisplayViewport();
 
   std::vector<uint8_t> pixels;
   pixels.resize(gsl::narrow<size_t>(vp.x) * gsl::narrow<size_t>(vp.y) * 4u);
