@@ -66,9 +66,10 @@ float shadow_map_multiplier(in vec3 worldNormal, in float shadow)
         #endif
 
     for (int splitIdx = 0; splitIdx<CSMSplits; ++splitIdx) {
-        vec3 p = gpi.vertexPosLight[splitIdx];
-        if (all(greaterThanEqual(p.xy, vec2(0))) && all(lessThanEqual(p.xy, vec2(1)))) {
-            return calc_vsm_value(splitIdx, shadow, lightNormDot, p);
+        vec4 p = gpi.vertexPosLight[splitIdx];
+        if (p.w == 1.0) {
+            // use the same cascade for the whole primitive
+            return calc_vsm_value(splitIdx, shadow, lightNormDot, p.xyz);
         }
     }
     return 1.0;
