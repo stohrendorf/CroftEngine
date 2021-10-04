@@ -1,0 +1,30 @@
+name: EdisonEngine-CI
+
+on:
+  schedule:
+    - cron: "0 18 * * *" # every day at 6 PM : https://crontab.guru/#0_18_*_*_*
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Checkout"
+        uses: actions/checkout@v2
+        with:
+          submodules: "recursive"
+          fetch-depth: 0
+      - name: Install CMake and ninja
+        uses: lukka/get-cmake@latest
+      - name: "Install dependencies"
+        run: |
+          sudo apt-get update && sudo apt-get install -y libboost-all-dev libglfw3-dev libpng++-dev libopenal-dev libglvnd-dev libfreetype6-dev cimg-dev ffmpeg libutfcpp-dev gettext libavcodec-dev libavformat-dev libavfilter-dev
+      - name: "Run cmake"
+        run: |
+          cmake -S . -B build -G Ninja
+      - name: "Build"
+        run: |
+          ninja -C build
+      - name: "Test"
+        run: |
+          ctest -T Test --test-dir build --output-on-failure --no-compress-output --extra-verbose
