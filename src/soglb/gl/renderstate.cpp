@@ -140,15 +140,21 @@ void RenderState::apply(const bool force) const
   }
   if(RS_CHANGED(m_polygonOffsetFillEnabled) || RS_CHANGED(m_polygonOffset))
   {
-    Expects(m_polygonOffset.has_value());
     if(m_polygonOffsetFillEnabled.value())
+    {
+      Expects(m_polygonOffset.has_value());
       GL_ASSERT(api::enable(api::EnableCap::PolygonOffsetFill));
+      auto [factor, units] = *m_polygonOffset;
+      GL_ASSERT(api::polygonOffset(factor, units));
+      getCurrentState().m_polygonOffset = m_polygonOffset;
+    }
     else
+    {
       GL_ASSERT(api::disable(api::EnableCap::PolygonOffsetFill));
-    auto [factor, units] = *m_polygonOffset;
-    GL_ASSERT(api::polygonOffset(factor, units));
+      GL_ASSERT(api::polygonOffset(0, 0));
+      getCurrentState().m_polygonOffset = {0, 0};
+    }
     getCurrentState().m_polygonOffsetFillEnabled = m_polygonOffsetFillEnabled;
-    getCurrentState().m_polygonOffset = m_polygonOffset;
   }
 #undef RS_CHANGED
 }

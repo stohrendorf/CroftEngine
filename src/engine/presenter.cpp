@@ -167,6 +167,7 @@ void Presenter::renderWorld(const ObjectManager& objectManager,
 
     {
       SOGLB_DEBUGGROUP("depth-prefill-pass");
+      gl::RenderState::resetWantedState();
       render::scene::RenderContext context{render::scene::RenderMode::DepthOnly,
                                            cameraController.getCamera()->getViewProjectionMatrix()};
       for(const auto& room : rooms)

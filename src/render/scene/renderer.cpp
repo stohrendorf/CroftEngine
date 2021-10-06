@@ -29,6 +29,7 @@ Renderer::~Renderer() = default;
 
 void Renderer::render()
 {
+  gl::RenderState::resetWantedState();
   RenderContext context{RenderMode::Full, std::nullopt};
   Visitor visitor{context};
   m_rootNode->accept(visitor);
