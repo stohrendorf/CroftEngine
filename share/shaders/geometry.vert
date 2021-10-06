@@ -40,11 +40,7 @@ void main()
         mat4 lmvp = csm.lightMVP[i];
         #endif
         vec4 tmp = lmvp * pos;
-        vec3 p = (tmp.xyz / tmp.w) * 0.5 + 0.5;
-        gpi.vertexPosLight[i] = vec4(
-        p,
-        p.x >= 0.0 && p.y >= 0.0 && p.x <= 1.0 && p.y <= 1.0 ? 1.0 : 0.0
-        );
+        gpi.vertexPosLight[i] = (tmp.xyz / tmp.w) * 0.5 + 0.5;
     }
 
     gpi.isQuad = a_isQuad;

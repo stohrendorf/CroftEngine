@@ -170,7 +170,9 @@ gsl::not_null<std::shared_ptr<ShaderProgram>> ShaderProgram::createFromSource(co
 {
   static constexpr size_t SHADER_SOURCE_LENGTH = 3;
   std::array<gsl::czstring, SHADER_SOURCE_LENGTH> shaderSource{nullptr};
-  shaderSource[0] = "#version 450 core\n#extension GL_ARB_bindless_texture : require\n";
+  shaderSource[0] = "#version 450 core\n"
+                    "#extension GL_ARB_bindless_texture : require\n"
+                    "#extension GL_ARB_gpu_shader5 : require\n";
 
   std::string vshSourceStr;
   if(!vshPath.empty())
@@ -204,10 +206,13 @@ gsl::not_null<std::shared_ptr<ShaderProgram>> ShaderProgram::createFromSource(co
   shaderProgram->m_handle.attach(fragmentShader);
   shaderProgram->m_handle.link();
 
+  if(const auto log = shaderProgram->m_handle.getInfoLog(); !log.empty())
+    BOOST_LOG_TRIVIAL(debug) << "Shader info log: " << log;
+
   if(!shaderProgram->m_handle.getLinkStatus())
   {
     BOOST_LOG_TRIVIAL(error) << "Linking program failed (" << (vshPath.empty() ? "<none>" : vshPath) << ","
-                             << (fshPath.empty() ? "<none>" : fshPath) << "): " << shaderProgram->m_handle.getInfoLog();
+                             << (fshPath.empty() ? "<none>" : fshPath) << ")";
 
     BOOST_THROW_EXCEPTION(std::runtime_error("Failed to link program"));
   }
