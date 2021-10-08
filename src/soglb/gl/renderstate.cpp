@@ -31,8 +31,10 @@ void RenderState::apply(const bool force) const
   //   - or it is explicitly set and different than the current state
   // NOLINTNEXTLINE(bugprone-macro-parentheses)
 #define RS_CHANGED(m) (force || (m.has_value() && m != getCurrentState().m))
+  bool updateScissorRegion = false;
   if(RS_CHANGED(m_viewport))
   {
+    updateScissorRegion = true;
     GL_ASSERT(api::viewport(0, 0, m_viewport->x, m_viewport->y));
     getCurrentState().m_viewport = m_viewport;
   }
@@ -128,15 +130,19 @@ void RenderState::apply(const bool force) const
   }
   if(RS_CHANGED(m_scissorRegion) && getCurrentState().m_viewport.has_value())
   {
+    getCurrentState().m_scissorRegion = m_scissorRegion;
+    updateScissorRegion = true;
+  }
+  if(updateScissorRegion && getCurrentState().m_scissorRegion.has_value())
+  {
     const auto vp = glm::vec2{*getCurrentState().m_viewport};
-    const auto& [xy, size] = *m_scissorRegion;
+    const auto& [xy, size] = *getCurrentState().m_scissorRegion;
     const auto screenXy = glm::floor(vp * (xy + glm::vec2{1, 1}) * 0.5f);
     const auto screenSize = glm::ceil(vp * size * 0.5f);
     GL_ASSERT(api::scissor(gsl::narrow_cast<int32_t>(screenXy.x),
                            gsl::narrow_cast<int32_t>(screenXy.y),
                            gsl::narrow_cast<api::core::SizeType>(screenSize.x),
                            gsl::narrow_cast<api::core::SizeType>(screenSize.y)));
-    getCurrentState().m_scissorRegion = m_scissorRegion;
   }
   if(RS_CHANGED(m_polygonOffsetFillEnabled) || RS_CHANGED(m_polygonOffset))
   {
