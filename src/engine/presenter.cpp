@@ -121,7 +121,7 @@ void Presenter::renderWorld(const ObjectManager& objectManager,
     m_csm->updateCamera(*m_renderer->getCamera());
 
     for(const auto& texture : m_csm->getDepthTextures())
-      texture->getTexture()->clear(gl::ScalarDepth{1.0f});
+      texture->clear(gl::ScalarDepth{1.0f});
 
     for(size_t i = 0; i < render::scene::CSMBuffer::NSplits; ++i)
     {

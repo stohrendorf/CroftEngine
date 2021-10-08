@@ -38,32 +38,29 @@ namespace render::scene
 {
 void CSM::Split::init(int32_t resolution, size_t idx, MaterialManager& materialManager)
 {
-  auto sampler = gslu::make_nn_unique<gl::Sampler>("csm-texture/" + std::to_string(idx) + "-sampler")
-                 | set(gl::api::TextureMinFilter::Linear) | set(gl::api::TextureMagFilter::Linear)
-                 | set(gl::api::SamplerParameterI::TextureWrapS, gl::api::TextureWrapMode::ClampToBorder)
-                 | set(gl::api::SamplerParameterI::TextureWrapT, gl::api::TextureWrapMode::ClampToBorder);
-  sampler->setBorderColor(glm::vec4{1.0f});
+  depthTextureHandle = std::make_shared<gl::TextureHandle<gl::TextureDepth<float>>>(
+    gslu::make_nn_shared<gl::TextureDepth<float>>(glm::ivec2{resolution, resolution},
+                                                  "csm-texture/" + std::to_string(idx)),
+    gslu::make_nn_unique<gl::Sampler>("csm-texture/" + std::to_string(idx) + "-sampler")
+      | set(gl::api::TextureMinFilter::Nearest) | set(gl::api::TextureMagFilter::Nearest)
+      | set(gl::api::TextureCompareMode::None));
 
-  const auto depthTexture = gslu::make_nn_shared<gl::TextureDepth<float>>(glm::ivec2{resolution, resolution},
-                                                                          "csm-texture/" + std::to_string(idx));
-  depthTextureHandle = std::make_shared<gl::TextureHandle<gl::TextureDepth<float>>>(depthTexture, std::move(sampler));
-
-  depthFramebuffer = gl::FrameBufferBuilder()
-                       .textureNoBlend(gl::api::FramebufferAttachment::DepthAttachment, depthTexture)
-                       .build("csm-split-fb/" + std::to_string(idx));
-
-  const auto squaredTexture = gslu::make_nn_shared<gl::Texture2D<gl::RG16F>>(
-    glm::ivec2{resolution, resolution}, "csm-texture/" + std::to_string(idx) + "/squared");
+  depthFramebuffer
+    = gl::FrameBufferBuilder()
+        .textureNoBlend(gl::api::FramebufferAttachment::DepthAttachment, depthTextureHandle->getTexture())
+        .build("csm-split-fb/" + std::to_string(idx));
 
   squaredTextureHandle = std::make_shared<gl::TextureHandle<gl::Texture2D<gl::RG16F>>>(
-    squaredTexture,
+    gslu::make_nn_shared<gl::Texture2D<gl::RG16F>>(glm::ivec2{resolution, resolution},
+                                                   "csm-texture/" + std::to_string(idx) + "/squared"),
     gslu::make_nn_unique<gl::Sampler>("csm-texture/" + std::to_string(idx) + "/squared-sampler")
       | set(gl::api::TextureMinFilter::Linear) | set(gl::api::TextureMagFilter::Linear)
       | set(gl::api::SamplerParameterI::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge)
       | set(gl::api::SamplerParameterI::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge));
-  squareFramebuffer = gl::FrameBufferBuilder()
-                        .textureNoBlend(gl::api::FramebufferAttachment::ColorAttachment0, squaredTexture)
-                        .build("csm-split-fb/" + std::to_string(idx) + "/square");
+  squareFramebuffer
+    = gl::FrameBufferBuilder()
+        .textureNoBlend(gl::api::FramebufferAttachment::ColorAttachment0, squaredTextureHandle->getTexture())
+        .build("csm-split-fb/" + std::to_string(idx) + "/square");
 
   squareMaterial = materialManager.getVSMSquare();
 
@@ -82,7 +79,8 @@ void CSM::Split::init(int32_t resolution, size_t idx, MaterialManager& materialM
 // NOLINTNEXTLINE(readability-make-member-function-const)
 void CSM::Split::renderSquare()
 {
-  SOGLB_DEBUGGROUP("square-pass");
+  SOGLB_DEBUGGROUP("vsm-square-pass");
+  gl::Framebuffer::unbindAll();
   squareFramebuffer->bind();
 
   RenderContext context{RenderMode::Full, std::nullopt};
@@ -92,8 +90,7 @@ void CSM::Split::renderSquare()
 // NOLINTNEXTLINE(readability-make-member-function-const)
 void CSM::Split::renderBlur()
 {
-  SOGLB_DEBUGGROUP("square-pass");
-  squareFramebuffer->bind();
+  SOGLB_DEBUGGROUP("vsm-blur-pass");
   squareBlur->render();
 }
 
@@ -127,13 +124,13 @@ struct SplitGetter
   }
 
   template<size_t... Is>
-  static std::array<gsl::not_null<std::shared_ptr<gl::TextureHandle<gl::TextureDepth<float>>>>, CSMBuffer::NSplits>
+  static std::array<gsl::not_null<std::shared_ptr<gl::TextureDepth<float>>>, CSMBuffer::NSplits>
     getDepth(const std::array<CSM::Split, CSMBuffer::NSplits>& splits, std::index_sequence<Is...>)
   {
-    return {{gsl::not_null{splits[Is].depthTextureHandle}...}};
+    return {{splits[Is].depthTextureHandle->getTexture()...}};
   }
 
-  static std::array<gsl::not_null<std::shared_ptr<gl::TextureHandle<gl::TextureDepth<float>>>>, CSMBuffer::NSplits>
+  static std::array<gsl::not_null<std::shared_ptr<gl::TextureDepth<float>>>, CSMBuffer::NSplits>
     getDepth(const std::array<CSM::Split, CSMBuffer::NSplits>& splits)
   {
     return getDepth(splits, std::make_index_sequence<CSMBuffer::NSplits>());
@@ -147,8 +144,7 @@ std::array<gsl::not_null<std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::RG1
   return SplitGetter::getBlurred(m_splits);
 }
 
-std::array<gsl::not_null<std::shared_ptr<gl::TextureHandle<gl::TextureDepth<float>>>>, CSMBuffer::NSplits>
-  CSM::getDepthTextures() const
+std::array<gsl::not_null<std::shared_ptr<gl::TextureDepth<float>>>, CSMBuffer::NSplits> CSM::getDepthTextures() const
 {
   return SplitGetter::getDepth(m_splits);
 }
@@ -237,5 +233,20 @@ void CSM::updateCamera(const Camera& camera)
     m_splits[cascadeIterator].vpMatrix
       = glm::ortho(bboxMin.x, bboxMax.x, bboxMin.y, bboxMax.y, -bboxMax.z, -bboxMin.z) * lightViewWS;
   }
+}
+
+void CSM::renderSquare()
+{
+  GL_ASSERT(gl::api::memoryBarrier(gl::api::MemoryBarrierMask::AllBarrierBits));
+
+  m_splits.at(m_activeSplit).renderSquare();
+};
+
+gl::UniformBuffer<CSMBuffer>& CSM::getBuffer(const glm::mat4& modelMatrix)
+{
+  m_bufferData.lightMVP = getMatrices(modelMatrix);
+  m_bufferData.lightDir = glm::vec4{m_lightDir, 0.0f};
+  m_buffer.setData(m_bufferData, gl::api::BufferUsage::DynamicDraw);
+  return m_buffer;
 }
 } // namespace render::scene

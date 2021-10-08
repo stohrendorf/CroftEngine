@@ -46,12 +46,12 @@ float calc_vsm_value(in int splitIdx, in float shadow, in float lightNormDot, in
 float shadow_map_multiplier(in vec3 worldNormal, in float shadow)
 {
     float lightNormDot = dot(normalize(worldNormal), normalize(csm.lightDir));
+    #ifdef ROOM_SHADOWING
     if (lightNormDot > 0) {
         // ceilings are always fully lit
-        #ifdef ROOM_SHADOWING
         return 1.0;
-        #endif
     }
+        #endif
 
     for (int splitIdx = 0; splitIdx<CSMSplits; ++splitIdx) {
         vec3 p = gpi.vertexPosLight[splitIdx];
