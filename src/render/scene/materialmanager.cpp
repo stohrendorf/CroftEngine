@@ -365,10 +365,10 @@ gsl::not_null<std::shared_ptr<Material>> MaterialManager::getVSMSquare()
   if(m_vsmSquare != nullptr)
     return gsl::not_null{m_vsmSquare};
 
-  auto m = std::make_shared<Material>(m_shaderCache->getVSMSquare());
+  auto m = gslu::make_nn_shared<Material>(m_shaderCache->getVSMSquare());
   configureForScreenSpaceEffect(*m, false);
   m_vsmSquare = m;
-  return gsl::not_null{m_vsmSquare};
+  return m;
 }
 
 void MaterialManager::setGeometryTextures(
