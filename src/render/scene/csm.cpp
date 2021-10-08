@@ -38,12 +38,16 @@ namespace render::scene
 {
 void CSM::Split::init(int32_t resolution, size_t idx, MaterialManager& materialManager)
 {
+  auto sampler = gslu::make_nn_unique<gl::Sampler>("csm-texture/" + std::to_string(idx) + "-sampler")
+                 | set(gl::api::TextureMinFilter::Nearest) | set(gl::api::TextureMagFilter::Nearest)
+                 | set(gl::api::SamplerParameterI::TextureWrapS, gl::api::TextureWrapMode::ClampToBorder)
+                 | set(gl::api::SamplerParameterI::TextureWrapT, gl::api::TextureWrapMode::ClampToBorder)
+                 | set(gl::api::TextureCompareMode::None);
+  sampler->setBorderColor(glm::vec4{1.0f});
   depthTextureHandle = std::make_shared<gl::TextureHandle<gl::TextureDepth<float>>>(
     gslu::make_nn_shared<gl::TextureDepth<float>>(glm::ivec2{resolution, resolution},
                                                   "csm-texture/" + std::to_string(idx)),
-    gslu::make_nn_unique<gl::Sampler>("csm-texture/" + std::to_string(idx) + "-sampler")
-      | set(gl::api::TextureMinFilter::Nearest) | set(gl::api::TextureMagFilter::Nearest)
-      | set(gl::api::TextureCompareMode::None));
+    std::move(sampler));
 
   depthFramebuffer
     = gl::FrameBufferBuilder()

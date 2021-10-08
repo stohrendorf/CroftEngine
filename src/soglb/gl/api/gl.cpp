@@ -24,6 +24,11 @@ void clearStencil(int32_t s)
 {
   return glClearStencil(static_cast<GLint>(s));
 }
+SyncStatus clientWaitSync(core::Sync sync, core::Bitfield<SyncObjectMask> flags, uint64_t timeout)
+{
+  return static_cast<SyncStatus>(
+    glClientWaitSync(static_cast<GLsync>(sync), flags.value(), static_cast<GLuint64>(timeout)));
+}
 void colorMask(bool red, bool green, bool blue, bool alpha)
 {
   return glColorMask(static_cast<GLboolean>(red),
@@ -34,6 +39,10 @@ void colorMask(bool red, bool green, bool blue, bool alpha)
 void cullFace(CullFaceMode mode)
 {
   return glCullFace(static_cast<GLenum>(mode));
+}
+void deleteSync(core::Sync sync)
+{
+  return glDeleteSync(static_cast<GLsync>(sync));
 }
 void depthFunc(DepthFunction func)
 {
@@ -58,6 +67,10 @@ void drawBuffer(DrawBufferMode buf)
 void enable(EnableCap cap)
 {
   return glEnable(static_cast<GLenum>(cap));
+}
+core::Sync fenceSync(SyncCondition condition, core::Bitfield<SyncBehaviorFlags> flags)
+{
+  return static_cast<core::Sync>(glFenceSync(static_cast<GLenum>(condition), flags.value()));
 }
 void finish()
 {
@@ -95,6 +108,10 @@ uint64_t getImageHandle(uint32_t texture, int32_t level, bool layered, int32_t l
                                                    static_cast<GLint>(layer),
                                                    static_cast<GLenum>(format)));
 }
+void getInteger64v(GetPName pname, int64_t* data)
+{
+  return glGetInteger64v(static_cast<GLenum>(pname), detail::constAway(reinterpret_cast<GLint64*>(data)));
+}
 void getIntegerv(GetPName pname, int32_t* data)
 {
   return glGetIntegerv(static_cast<GLenum>(pname), detail::constAway(reinterpret_cast<GLint*>(data)));
@@ -102,6 +119,14 @@ void getIntegerv(GetPName pname, int32_t* data)
 const uint8_t* getString(StringName name)
 {
   return static_cast<const uint8_t*>(glGetString(static_cast<GLenum>(name)));
+}
+void getSync(core::Sync sync, SyncParameterName pname, core::SizeType count, core::SizeType* length, int32_t* values)
+{
+  return glGetSynciv(static_cast<GLsync>(sync),
+                     static_cast<GLenum>(pname),
+                     static_cast<GLsizei>(count),
+                     detail::constAway(reinterpret_cast<GLsizei*>(length)),
+                     detail::constAway(reinterpret_cast<GLint*>(values)));
 }
 void getTexImage(TextureTarget target, int32_t level, PixelFormat format, PixelType type, void* pixels)
 {
@@ -160,6 +185,10 @@ bool isEnable(EnableCap cap)
 bool isImageHandleResident(uint64_t handle)
 {
   return static_cast<bool>(glIsImageHandleResidentARB(static_cast<GLuint64>(handle)));
+}
+bool isSync(core::Sync sync)
+{
+  return static_cast<bool>(glIsSync(static_cast<GLsync>(sync)));
 }
 bool isTextureHandleResident(uint64_t handle)
 {
@@ -329,6 +358,10 @@ void viewport(int32_t x, int32_t y, core::SizeType width, core::SizeType height)
 {
   return glViewport(
     static_cast<GLint>(x), static_cast<GLint>(y), static_cast<GLsizei>(width), static_cast<GLsizei>(height));
+}
+void waitSync(core::Sync sync, core::Bitfield<SyncBehaviorFlags> flags, uint64_t timeout)
+{
+  return glWaitSync(static_cast<GLsync>(sync), flags.value(), static_cast<GLuint64>(timeout));
 }
 #if defined(API_LEVEL_GL_VERSION_1_0) || defined(API_LEVEL_GL_VERSION_1_1) || defined(API_LEVEL_GL_VERSION_1_2)  \
   || defined(API_LEVEL_GL_VERSION_1_3) || defined(API_LEVEL_GL_VERSION_1_4) || defined(API_LEVEL_GL_VERSION_1_5) \
@@ -1915,7 +1948,7 @@ void compressedTexSubImage1D(TextureTarget target,
                              int32_t level,
                              int32_t xoffset,
                              core::SizeType width,
-                             PixelFormat format,
+                             InternalFormat format,
                              core::SizeType imageSize,
                              const void* data)
 {
@@ -1933,7 +1966,7 @@ void compressedTexSubImage2D(TextureTarget target,
                              int32_t yoffset,
                              core::SizeType width,
                              core::SizeType height,
-                             PixelFormat format,
+                             InternalFormat format,
                              core::SizeType imageSize,
                              const void* data)
 {
@@ -1955,7 +1988,7 @@ void compressedTexSubImage3D(TextureTarget target,
                              core::SizeType width,
                              core::SizeType height,
                              core::SizeType depth,
-                             PixelFormat format,
+                             InternalFormat format,
                              core::SizeType imageSize,
                              const void* data)
 {
@@ -3634,15 +3667,6 @@ void uniformBlockBinding(uint32_t program, uint32_t uniformBlockIndex, uint32_t 
   || defined(API_LEVEL_GL_VERSION_4_4_core) || defined(API_LEVEL_GL_VERSION_4_5_compatibility) \
   || defined(API_LEVEL_GL_VERSION_4_5_core) || defined(API_LEVEL_GL_VERSION_4_6_compatibility) \
   || defined(API_LEVEL_GL_VERSION_4_6_core)
-SyncStatus clientWaitSync(core::Sync sync, core::Bitfield<SyncObjectMask> flags, uint64_t timeout)
-{
-  return static_cast<SyncStatus>(
-    glClientWaitSync(static_cast<GLsync>(sync), flags.value(), static_cast<GLuint64>(timeout)));
-}
-void deleteSync(core::Sync sync)
-{
-  return glDeleteSync(static_cast<GLsync>(sync));
-}
 void drawElementsBaseVertex(
   PrimitiveType mode, core::SizeType count, DrawElementsType type, const void* indices, int32_t basevertex)
 {
@@ -3699,26 +3723,10 @@ void getInteger64i_v(GetPName target, uint32_t index, int64_t* data)
   return glGetInteger64i_v(
     static_cast<GLenum>(target), static_cast<GLuint>(index), detail::constAway(reinterpret_cast<GLint64*>(data)));
 }
-void getInteger64v(GetPName pname, int64_t* data)
-{
-  return glGetInteger64v(static_cast<GLenum>(pname), detail::constAway(reinterpret_cast<GLint64*>(data)));
-}
 void getMultisample(GetMultisamplePNameNV pname, uint32_t index, float* val)
 {
   return glGetMultisamplefv(
     static_cast<GLenum>(pname), static_cast<GLuint>(index), detail::constAway(reinterpret_cast<GLfloat*>(val)));
-}
-void getSync(core::Sync sync, SyncParameterName pname, core::SizeType count, core::SizeType* length, int32_t* values)
-{
-  return glGetSynciv(static_cast<GLsync>(sync),
-                     static_cast<GLenum>(pname),
-                     static_cast<GLsizei>(count),
-                     detail::constAway(reinterpret_cast<GLsizei*>(length)),
-                     detail::constAway(reinterpret_cast<GLint*>(values)));
-}
-bool isSync(core::Sync sync)
-{
-  return static_cast<bool>(glIsSync(static_cast<GLsync>(sync)));
 }
 void multiDrawElementsBaseVertex(PrimitiveType mode,
                                  const core::SizeType* count,
@@ -5635,7 +5643,7 @@ void compressedTextureSubImage1D(uint32_t texture,
                                  int32_t level,
                                  int32_t xoffset,
                                  core::SizeType width,
-                                 PixelFormat format,
+                                 InternalFormat format,
                                  core::SizeType imageSize,
                                  const void* data)
 {
@@ -5653,7 +5661,7 @@ void compressedTextureSubImage2D(uint32_t texture,
                                  int32_t yoffset,
                                  core::SizeType width,
                                  core::SizeType height,
-                                 PixelFormat format,
+                                 InternalFormat format,
                                  core::SizeType imageSize,
                                  const void* data)
 {
@@ -5675,7 +5683,7 @@ void compressedTextureSubImage3D(uint32_t texture,
                                  core::SizeType width,
                                  core::SizeType height,
                                  core::SizeType depth,
-                                 PixelFormat format,
+                                 InternalFormat format,
                                  core::SizeType imageSize,
                                  const void* data)
 {

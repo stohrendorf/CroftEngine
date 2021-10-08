@@ -32,6 +32,26 @@ namespace gl::api
 // #define API_LEVEL_GL_VERSION_4_6_compatibility
 // #define API_LEVEL_GL_VERSION_4_6_core
 
+// special numbers
+constexpr auto False = 0;
+constexpr auto None = 0;
+constexpr auto NoError = 0;
+constexpr auto One = 1;
+constexpr auto TimeoutIgnored = 0xFFFFFFFFFFFFFFFFull;
+constexpr auto True = 1;
+constexpr auto Zero = 0;
+#if defined(API_LEVEL_GL_VERSION_3_1) || defined(API_LEVEL_GL_VERSION_3_2_core)                \
+  || defined(API_LEVEL_GL_VERSION_3_3_compatibility) || defined(API_LEVEL_GL_VERSION_3_3_core) \
+  || defined(API_LEVEL_GL_VERSION_4_0_compatibility) || defined(API_LEVEL_GL_VERSION_4_0_core) \
+  || defined(API_LEVEL_GL_VERSION_4_1_compatibility) || defined(API_LEVEL_GL_VERSION_4_1_core) \
+  || defined(API_LEVEL_GL_VERSION_4_2_compatibility) || defined(API_LEVEL_GL_VERSION_4_2_core) \
+  || defined(API_LEVEL_GL_VERSION_4_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_3_core) \
+  || defined(API_LEVEL_GL_VERSION_4_4_compatibility) || defined(API_LEVEL_GL_VERSION_4_4_core) \
+  || defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_5_core) \
+  || defined(API_LEVEL_GL_VERSION_4_6_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_core)
+constexpr auto InvalidIndex = 0xFFFFFFFFu;
+#endif
+
 // enums
 #if defined(API_LEVEL_GL_VERSION_1_0) || defined(API_LEVEL_GL_VERSION_1_1) || defined(API_LEVEL_GL_VERSION_1_2)  \
   || defined(API_LEVEL_GL_VERSION_1_3) || defined(API_LEVEL_GL_VERSION_1_4) || defined(API_LEVEL_GL_VERSION_1_5) \
@@ -2098,6 +2118,7 @@ enum class GetPName : core::EnumType
   LineWidthGranularity = 0x0B23,
   LineWidthRange = 0x0B22,
   LogicOpMode = 0x0BF0,
+  MaxServerWaitTimeout = 0x9111,
   MaxTextureSize = 0x0D33,
   MaxViewportDims = 0x0D3A,
   PackAlignment = 0x0D05,
@@ -2563,7 +2584,6 @@ enum class GetPName : core::EnumType
   MaxGeometryUniformComponents = 0x8DDF,
   MaxIntegerSamples = 0x9110,
   MaxSampleMaskWords = 0x8E59,
-  MaxServerWaitTimeout = 0x9111,
   MaxVertexOutputComponents = 0x9122,
   ProgramPointSize = 0x8642,
   ProvokingVertex = 0x8E4F,
@@ -3326,6 +3346,14 @@ enum class InternalFormat : core::EnumType
   || defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_5_core) \
   || defined(API_LEVEL_GL_VERSION_4_6_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_core)
   Rgb10A2ui = 0x906F,
+#endif
+#if defined(API_LEVEL_GL_VERSION_4_1_compatibility) || defined(API_LEVEL_GL_VERSION_4_1_core)  \
+  || defined(API_LEVEL_GL_VERSION_4_2_compatibility) || defined(API_LEVEL_GL_VERSION_4_2_core) \
+  || defined(API_LEVEL_GL_VERSION_4_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_3_core) \
+  || defined(API_LEVEL_GL_VERSION_4_4_compatibility) || defined(API_LEVEL_GL_VERSION_4_4_core) \
+  || defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_5_core) \
+  || defined(API_LEVEL_GL_VERSION_4_6_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_core)
+  Rgb565 = 0x8D62,
 #endif
 #if defined(API_LEVEL_GL_VERSION_4_2_compatibility) || defined(API_LEVEL_GL_VERSION_4_2_core)  \
   || defined(API_LEVEL_GL_VERSION_4_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_3_core) \
@@ -4800,6 +4828,63 @@ enum class ReadBufferMode : core::EnumType
 #endif
 };
 
+enum class RegisterCombinerPname : core::EnumType
+{
+#if defined(API_LEVEL_GL_VERSION_1_3) || defined(API_LEVEL_GL_VERSION_1_4) || defined(API_LEVEL_GL_VERSION_1_5)  \
+  || defined(API_LEVEL_GL_VERSION_2_0) || defined(API_LEVEL_GL_VERSION_2_1) || defined(API_LEVEL_GL_VERSION_3_0) \
+  || defined(API_LEVEL_GL_VERSION_3_1) || defined(API_LEVEL_GL_VERSION_3_3_compatibility)                        \
+  || defined(API_LEVEL_GL_VERSION_4_0_compatibility) || defined(API_LEVEL_GL_VERSION_4_1_compatibility)          \
+  || defined(API_LEVEL_GL_VERSION_4_2_compatibility) || defined(API_LEVEL_GL_VERSION_4_3_compatibility)          \
+  || defined(API_LEVEL_GL_VERSION_4_4_compatibility) || defined(API_LEVEL_GL_VERSION_4_5_compatibility)          \
+  || defined(API_LEVEL_GL_VERSION_4_6_compatibility)
+  AddSigned = 0x8574,
+  Combine = 0x8570,
+  CombineAlpha = 0x8572,
+  CombineRgb = 0x8571,
+  Constant = 0x8576,
+  Interpolate = 0x8575,
+  Operand0Alpha = 0x8598,
+  Operand0Rgb = 0x8590,
+  Operand1Alpha = 0x8599,
+  Operand1Rgb = 0x8591,
+  Operand2Alpha = 0x859A,
+  Operand2Rgb = 0x8592,
+  Previous = 0x8578,
+  PrimaryColor = 0x8577,
+  RgbScale = 0x8573,
+  Source0Alpha = 0x8588,
+  Source0Rgb = 0x8580,
+  Source1Alpha = 0x8589,
+  Source1Rgb = 0x8581,
+  Source2Alpha = 0x858A,
+  Source2Rgb = 0x8582,
+#endif
+#if defined(API_LEVEL_GL_VERSION_1_5) || defined(API_LEVEL_GL_VERSION_2_0) || defined(API_LEVEL_GL_VERSION_2_1)       \
+  || defined(API_LEVEL_GL_VERSION_3_0) || defined(API_LEVEL_GL_VERSION_3_1) || defined(API_LEVEL_GL_VERSION_3_2_core) \
+  || defined(API_LEVEL_GL_VERSION_3_3_compatibility) || defined(API_LEVEL_GL_VERSION_3_3_core)                        \
+  || defined(API_LEVEL_GL_VERSION_4_0_compatibility) || defined(API_LEVEL_GL_VERSION_4_0_core)                        \
+  || defined(API_LEVEL_GL_VERSION_4_1_compatibility) || defined(API_LEVEL_GL_VERSION_4_1_core)                        \
+  || defined(API_LEVEL_GL_VERSION_4_2_compatibility) || defined(API_LEVEL_GL_VERSION_4_2_core)                        \
+  || defined(API_LEVEL_GL_VERSION_4_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_3_core)                        \
+  || defined(API_LEVEL_GL_VERSION_4_4_compatibility) || defined(API_LEVEL_GL_VERSION_4_4_core)                        \
+  || defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_5_core)                        \
+  || defined(API_LEVEL_GL_VERSION_4_6_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_core)
+  Src1Alpha = 0x8589,
+#endif
+#if defined(API_LEVEL_GL_VERSION_1_5) || defined(API_LEVEL_GL_VERSION_2_0) || defined(API_LEVEL_GL_VERSION_2_1) \
+  || defined(API_LEVEL_GL_VERSION_3_0) || defined(API_LEVEL_GL_VERSION_3_1)                                     \
+  || defined(API_LEVEL_GL_VERSION_3_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_0_compatibility)         \
+  || defined(API_LEVEL_GL_VERSION_4_1_compatibility) || defined(API_LEVEL_GL_VERSION_4_2_compatibility)         \
+  || defined(API_LEVEL_GL_VERSION_4_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_4_compatibility)         \
+  || defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_compatibility)
+  Src0Alpha = 0x8588,
+  Src0Rgb = 0x8580,
+  Src1Rgb = 0x8581,
+  Src2Alpha = 0x858A,
+  Src2Rgb = 0x8582,
+#endif
+};
+
 #if defined(API_LEVEL_GL_VERSION_3_0) || defined(API_LEVEL_GL_VERSION_3_1) || defined(API_LEVEL_GL_VERSION_3_2_core) \
   || defined(API_LEVEL_GL_VERSION_3_3_compatibility) || defined(API_LEVEL_GL_VERSION_3_3_core)                       \
   || defined(API_LEVEL_GL_VERSION_4_0_compatibility) || defined(API_LEVEL_GL_VERSION_4_0_core)                       \
@@ -5228,6 +5313,14 @@ enum class SizedInternalFormat : core::EnumType
   || defined(API_LEVEL_GL_VERSION_4_6_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_core)
   Rgb10A2ui = 0x906F,
 #endif
+#if defined(API_LEVEL_GL_VERSION_4_1_compatibility) || defined(API_LEVEL_GL_VERSION_4_1_core)  \
+  || defined(API_LEVEL_GL_VERSION_4_2_compatibility) || defined(API_LEVEL_GL_VERSION_4_2_core) \
+  || defined(API_LEVEL_GL_VERSION_4_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_3_core) \
+  || defined(API_LEVEL_GL_VERSION_4_4_compatibility) || defined(API_LEVEL_GL_VERSION_4_4_core) \
+  || defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_5_core) \
+  || defined(API_LEVEL_GL_VERSION_4_6_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_core)
+  Rgb565 = 0x8D62,
+#endif
 #if defined(API_LEVEL_GL_VERSION_4_2_compatibility) || defined(API_LEVEL_GL_VERSION_4_2_core)  \
   || defined(API_LEVEL_GL_VERSION_4_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_3_core) \
   || defined(API_LEVEL_GL_VERSION_4_4_compatibility) || defined(API_LEVEL_GL_VERSION_4_4_core) \
@@ -5349,30 +5442,11 @@ enum class SyncBehaviorFlags : core::EnumType
   None = 0,
 };
 
-#if defined(API_LEVEL_GL_VERSION_3_2_core) || defined(API_LEVEL_GL_VERSION_3_3_compatibility)  \
-  || defined(API_LEVEL_GL_VERSION_3_3_core) || defined(API_LEVEL_GL_VERSION_4_0_compatibility) \
-  || defined(API_LEVEL_GL_VERSION_4_0_core) || defined(API_LEVEL_GL_VERSION_4_1_compatibility) \
-  || defined(API_LEVEL_GL_VERSION_4_1_core) || defined(API_LEVEL_GL_VERSION_4_2_compatibility) \
-  || defined(API_LEVEL_GL_VERSION_4_2_core) || defined(API_LEVEL_GL_VERSION_4_3_compatibility) \
-  || defined(API_LEVEL_GL_VERSION_4_3_core) || defined(API_LEVEL_GL_VERSION_4_4_compatibility) \
-  || defined(API_LEVEL_GL_VERSION_4_4_core) || defined(API_LEVEL_GL_VERSION_4_5_compatibility) \
-  || defined(API_LEVEL_GL_VERSION_4_5_core) || defined(API_LEVEL_GL_VERSION_4_6_compatibility) \
-  || defined(API_LEVEL_GL_VERSION_4_6_core)
 enum class SyncCondition : core::EnumType
 {
   SyncGpuCommandsComplete = 0x9117,
 };
-#endif
 
-#if defined(API_LEVEL_GL_VERSION_3_2_core) || defined(API_LEVEL_GL_VERSION_3_3_compatibility)  \
-  || defined(API_LEVEL_GL_VERSION_3_3_core) || defined(API_LEVEL_GL_VERSION_4_0_compatibility) \
-  || defined(API_LEVEL_GL_VERSION_4_0_core) || defined(API_LEVEL_GL_VERSION_4_1_compatibility) \
-  || defined(API_LEVEL_GL_VERSION_4_1_core) || defined(API_LEVEL_GL_VERSION_4_2_compatibility) \
-  || defined(API_LEVEL_GL_VERSION_4_2_core) || defined(API_LEVEL_GL_VERSION_4_3_compatibility) \
-  || defined(API_LEVEL_GL_VERSION_4_3_core) || defined(API_LEVEL_GL_VERSION_4_4_compatibility) \
-  || defined(API_LEVEL_GL_VERSION_4_4_core) || defined(API_LEVEL_GL_VERSION_4_5_compatibility) \
-  || defined(API_LEVEL_GL_VERSION_4_5_core) || defined(API_LEVEL_GL_VERSION_4_6_compatibility) \
-  || defined(API_LEVEL_GL_VERSION_4_6_core)
 enum class SyncObjectMask : core::EnumType
 {
   SyncFlushCommandsBit = 0x00000001,
@@ -5381,17 +5455,7 @@ constexpr core::Bitfield<SyncObjectMask> operator|(SyncObjectMask left, SyncObje
 {
   return core::Bitfield<SyncObjectMask>(left) | right;
 }
-#endif
 
-#if defined(API_LEVEL_GL_VERSION_3_2_core) || defined(API_LEVEL_GL_VERSION_3_3_compatibility)  \
-  || defined(API_LEVEL_GL_VERSION_3_3_core) || defined(API_LEVEL_GL_VERSION_4_0_compatibility) \
-  || defined(API_LEVEL_GL_VERSION_4_0_core) || defined(API_LEVEL_GL_VERSION_4_1_compatibility) \
-  || defined(API_LEVEL_GL_VERSION_4_1_core) || defined(API_LEVEL_GL_VERSION_4_2_compatibility) \
-  || defined(API_LEVEL_GL_VERSION_4_2_core) || defined(API_LEVEL_GL_VERSION_4_3_compatibility) \
-  || defined(API_LEVEL_GL_VERSION_4_3_core) || defined(API_LEVEL_GL_VERSION_4_4_compatibility) \
-  || defined(API_LEVEL_GL_VERSION_4_4_core) || defined(API_LEVEL_GL_VERSION_4_5_compatibility) \
-  || defined(API_LEVEL_GL_VERSION_4_5_core) || defined(API_LEVEL_GL_VERSION_4_6_compatibility) \
-  || defined(API_LEVEL_GL_VERSION_4_6_core)
 enum class SyncParameterName : core::EnumType
 {
   ObjectType = 0x9112,
@@ -5399,17 +5463,7 @@ enum class SyncParameterName : core::EnumType
   SyncFlags = 0x9115,
   SyncStatus = 0x9114,
 };
-#endif
 
-#if defined(API_LEVEL_GL_VERSION_3_2_core) || defined(API_LEVEL_GL_VERSION_3_3_compatibility)  \
-  || defined(API_LEVEL_GL_VERSION_3_3_core) || defined(API_LEVEL_GL_VERSION_4_0_compatibility) \
-  || defined(API_LEVEL_GL_VERSION_4_0_core) || defined(API_LEVEL_GL_VERSION_4_1_compatibility) \
-  || defined(API_LEVEL_GL_VERSION_4_1_core) || defined(API_LEVEL_GL_VERSION_4_2_compatibility) \
-  || defined(API_LEVEL_GL_VERSION_4_2_core) || defined(API_LEVEL_GL_VERSION_4_3_compatibility) \
-  || defined(API_LEVEL_GL_VERSION_4_3_core) || defined(API_LEVEL_GL_VERSION_4_4_compatibility) \
-  || defined(API_LEVEL_GL_VERSION_4_4_core) || defined(API_LEVEL_GL_VERSION_4_5_compatibility) \
-  || defined(API_LEVEL_GL_VERSION_4_5_core) || defined(API_LEVEL_GL_VERSION_4_6_compatibility) \
-  || defined(API_LEVEL_GL_VERSION_4_6_core)
 enum class SyncStatus : core::EnumType
 {
   AlreadySignaled = 0x911A,
@@ -5417,7 +5471,6 @@ enum class SyncStatus : core::EnumType
   TimeoutExpired = 0x911B,
   WaitFailed = 0x911D,
 };
-#endif
 
 enum class TangentPointerTypeEXT : core::EnumType
 {
@@ -5783,6 +5836,7 @@ enum class TextureTarget : core::EnumType
   || defined(API_LEVEL_GL_VERSION_4_6_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_core)
   ProxyTexture1dArray = 0x8C19,
   ProxyTexture2dArray = 0x8C1B,
+  Renderbuffer = 0x8D41,
   Texture1dArray = 0x8C18,
   Texture2dArray = 0x8C1A,
 #endif
@@ -6718,14 +6772,17 @@ extern void clear(core::Bitfield<ClearBufferMask> mask);
 extern void clearColor(float red, float green, float blue, float alpha);
 extern void clearDepth(double depth);
 extern void clearStencil(int32_t s);
+extern SyncStatus clientWaitSync(core::Sync sync, core::Bitfield<SyncObjectMask> flags, uint64_t timeout);
 extern void colorMask(bool red, bool green, bool blue, bool alpha);
 extern void cullFace(CullFaceMode mode);
+extern void deleteSync(core::Sync sync);
 extern void depthFunc(DepthFunction func);
 extern void depthMask(bool flag);
 extern void depthRange(double n, double f);
 extern void disable(EnableCap cap);
 extern void drawBuffer(DrawBufferMode buf);
 extern void enable(EnableCap cap);
+extern core::Sync fenceSync(SyncCondition condition, core::Bitfield<SyncBehaviorFlags> flags);
 extern void finish();
 extern void flush();
 extern void frontFace(FrontFaceDirection mode);
@@ -6734,8 +6791,11 @@ extern void getDoublev(GetPName pname, double* data);
 extern ErrorCode getError();
 extern void getFloatv(GetPName pname, float* data);
 extern uint64_t getImageHandle(uint32_t texture, int32_t level, bool layered, int32_t layer, PixelFormat format);
+extern void getInteger64v(GetPName pname, int64_t* data);
 extern void getIntegerv(GetPName pname, int32_t* data);
 extern const uint8_t* getString(StringName name);
+extern void
+  getSync(core::Sync sync, SyncParameterName pname, core::SizeType count, core::SizeType* length, int32_t* values);
 extern void getTexImage(TextureTarget target, int32_t level, PixelFormat format, PixelType type, void* pixels);
 extern void getTexLevelParameter(TextureTarget target, int32_t level, GetTextureParameter pname, float* params);
 extern void getTexLevelParameter(TextureTarget target, int32_t level, GetTextureParameter pname, int32_t* params);
@@ -6747,6 +6807,7 @@ extern void getVertexAttribL(uint32_t index, VertexAttribEnum pname, uint64_t* p
 extern void hint(HintTarget target, HintMode mode);
 extern bool isEnable(EnableCap cap);
 extern bool isImageHandleResident(uint64_t handle);
+extern bool isSync(core::Sync sync);
 extern bool isTextureHandleResident(uint64_t handle);
 extern void lineWidth(float width);
 extern void logicOp(LogicOp opcode);
@@ -6793,6 +6854,7 @@ extern void uniformHandle(int32_t location, core::SizeType count, const uint64_t
 extern void vertexAttribL1(uint32_t index, uint64_t x);
 extern void vertexAttribL1(uint32_t index, const uint64_t* v);
 extern void viewport(int32_t x, int32_t y, core::SizeType width, core::SizeType height);
+extern void waitSync(core::Sync sync, core::Bitfield<SyncBehaviorFlags> flags, uint64_t timeout);
 #if defined(API_LEVEL_GL_VERSION_1_0) || defined(API_LEVEL_GL_VERSION_1_1) || defined(API_LEVEL_GL_VERSION_1_2)  \
   || defined(API_LEVEL_GL_VERSION_1_3) || defined(API_LEVEL_GL_VERSION_1_4) || defined(API_LEVEL_GL_VERSION_1_5) \
   || defined(API_LEVEL_GL_VERSION_2_0) || defined(API_LEVEL_GL_VERSION_2_1) || defined(API_LEVEL_GL_VERSION_3_0) \
@@ -7265,7 +7327,7 @@ extern void compressedTexSubImage1D(TextureTarget target,
                                     int32_t level,
                                     int32_t xoffset,
                                     core::SizeType width,
-                                    PixelFormat format,
+                                    InternalFormat format,
                                     core::SizeType imageSize,
                                     const void* data);
 extern void compressedTexSubImage2D(TextureTarget target,
@@ -7274,7 +7336,7 @@ extern void compressedTexSubImage2D(TextureTarget target,
                                     int32_t yoffset,
                                     core::SizeType width,
                                     core::SizeType height,
-                                    PixelFormat format,
+                                    InternalFormat format,
                                     core::SizeType imageSize,
                                     const void* data);
 extern void compressedTexSubImage3D(TextureTarget target,
@@ -7285,7 +7347,7 @@ extern void compressedTexSubImage3D(TextureTarget target,
                                     core::SizeType width,
                                     core::SizeType height,
                                     core::SizeType depth,
-                                    PixelFormat format,
+                                    InternalFormat format,
                                     core::SizeType imageSize,
                                     const void* data);
 extern void getCompressedTexImage(TextureTarget target, int32_t level, void* img);
@@ -7759,8 +7821,6 @@ extern void uniformBlockBinding(uint32_t program, uint32_t uniformBlockIndex, ui
   || defined(API_LEVEL_GL_VERSION_4_4_core) || defined(API_LEVEL_GL_VERSION_4_5_compatibility) \
   || defined(API_LEVEL_GL_VERSION_4_5_core) || defined(API_LEVEL_GL_VERSION_4_6_compatibility) \
   || defined(API_LEVEL_GL_VERSION_4_6_core)
-extern SyncStatus clientWaitSync(core::Sync sync, core::Bitfield<SyncObjectMask> flags, uint64_t timeout);
-extern void deleteSync(core::Sync sync);
 extern void drawElementsBaseVertex(
   PrimitiveType mode, core::SizeType count, DrawElementsType type, const void* indices, int32_t basevertex);
 extern void drawElementsInstancedBaseVertex(PrimitiveType mode,
@@ -7780,11 +7840,7 @@ extern void
   framebufferTexture(FramebufferTarget target, FramebufferAttachment attachment, uint32_t texture, int32_t level);
 extern void getBufferParameter(BufferTarget target, BufferPName pname, int64_t* params);
 extern void getInteger64i_v(GetPName target, uint32_t index, int64_t* data);
-extern void getInteger64v(GetPName pname, int64_t* data);
 extern void getMultisample(GetMultisamplePNameNV pname, uint32_t index, float* val);
-extern void
-  getSync(core::Sync sync, SyncParameterName pname, core::SizeType count, core::SizeType* length, int32_t* values);
-extern bool isSync(core::Sync sync);
 extern void multiDrawElementsBaseVertex(PrimitiveType mode,
                                         const core::SizeType* count,
                                         DrawElementsType type,
@@ -8310,7 +8366,7 @@ extern void compressedTextureSubImage1D(uint32_t texture,
                                         int32_t level,
                                         int32_t xoffset,
                                         core::SizeType width,
-                                        PixelFormat format,
+                                        InternalFormat format,
                                         core::SizeType imageSize,
                                         const void* data);
 extern void compressedTextureSubImage2D(uint32_t texture,
@@ -8319,7 +8375,7 @@ extern void compressedTextureSubImage2D(uint32_t texture,
                                         int32_t yoffset,
                                         core::SizeType width,
                                         core::SizeType height,
-                                        PixelFormat format,
+                                        InternalFormat format,
                                         core::SizeType imageSize,
                                         const void* data);
 extern void compressedTextureSubImage3D(uint32_t texture,
@@ -8330,7 +8386,7 @@ extern void compressedTextureSubImage3D(uint32_t texture,
                                         core::SizeType width,
                                         core::SizeType height,
                                         core::SizeType depth,
-                                        PixelFormat format,
+                                        InternalFormat format,
                                         core::SizeType imageSize,
                                         const void* data);
 extern void copyNamedBufferSubData(

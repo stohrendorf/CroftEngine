@@ -39,6 +39,7 @@
 #include <cstdlib>
 #include <gl/cimgwrapper.h>
 #include <gl/debuggroup.h>
+#include <gl/fencesync.h>
 #include <gl/font.h>
 #include <gl/framebuffer.h>
 #include <gl/glassert.h>
@@ -122,6 +123,7 @@ void Presenter::renderWorld(const ObjectManager& objectManager,
 
     for(const auto& texture : m_csm->getDepthTextures())
       texture->clear(gl::ScalarDepth{1.0f});
+    gl::FenceSync::block();
 
     for(size_t i = 0; i < render::scene::CSMBuffer::NSplits; ++i)
     {
@@ -146,6 +148,7 @@ void Presenter::renderWorld(const ObjectManager& objectManager,
         }
       }
     }
+    gl::FenceSync::block();
 
     for(size_t i = 0; i < render::scene::CSMBuffer::NSplits; ++i)
     {
@@ -153,12 +156,15 @@ void Presenter::renderWorld(const ObjectManager& objectManager,
       m_csm->setActiveSplit(i);
       m_csm->renderSquare();
     }
+    gl::FenceSync::block();
+
     for(size_t i = 0; i < render::scene::CSMBuffer::NSplits; ++i)
     {
       SOGLB_DEBUGGROUP("csm-pass-blur/" + std::to_string(i));
       m_csm->setActiveSplit(i);
       m_csm->renderBlur();
     }
+    gl::FenceSync::block();
   }
 
   {

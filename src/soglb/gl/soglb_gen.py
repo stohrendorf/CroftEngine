@@ -21,6 +21,7 @@ ENABLED_EXTENSIONS = (
     'GL_ARB_bindless_texture',
     'GL_ARB_texture_filter_anisotropic',
     'GL_EXT_texture_filter_anisotropic',
+    'GL_ARB_sync',
 )
 ENABLED_APIS = ('gl',)
 
@@ -208,7 +209,7 @@ class ConstantsCommands:
 @dataclass
 class Enum:
     name: str
-    constants: Set[str] = field(default_factory=set)
+    constants: Set[Tuple[str, str]] = field(default_factory=set)
     is_bitmask: bool = False
 
 
@@ -242,16 +243,16 @@ def build_guarded_commands(
 
 def build_guarded_constants(versions_profiles: Dict[str, Dict[Optional[str], ConstantsCommands]],
                             enum: Enum,
-                            constants: Dict[str, str]) -> Optional[Dict[Tuple[str, ...], Set[str]]]:
+                            constants: Dict[str, Tuple[str, str]]) -> Optional[Dict[Tuple[str, ...], Set[str]]]:
     constant_guards: Dict[str, Set[str]] = defaultdict(set)
     for version, profiles in versions_profiles.items():
         for profile_name, profile_data in profiles.items():
             constant_guard = _make_version_macro(version, profile_name)
-            for constant_name in enum.constants:
+            for constant_name, constant_type in enum.constants:
                 if not constant_name.startswith('GL_'):
                     constant_name = 'GL_' + constant_name
-                constant_val = constants.get(constant_name)
-                if constant_val is None:
+                constant_val_type = constants.get(constant_name)
+                if constant_val_type is None:
                     logging.warning(
                         'Constant referenced by enum {} not found: {}'.format(enum.name, constant_name))
                     continue
@@ -419,7 +420,7 @@ def load_xml():
                          }
 
     constants = {
-        e.attrib['name']: e.attrib['value']
+        e.attrib['name']: (e.attrib['value'], e.attrib.get('type', ''))
         for e in xml.iterfind('./enums/enum')
         if e.attrib['name'] not in disabled_constants
     }
@@ -435,7 +436,7 @@ def load_xml():
             else:
                 enum = enums[enum_name] = Enum(enum_name)
 
-            enum.constants.add(e.attrib["name"])
+            enum.constants.add((e.attrib["name"], e.attrib.get("type", "")))
             enum.bitmask = any(g for g in xml.iterfind('./enums[@bitmask]') if g.attrib["group"] == enum.name)
 
     for bm in xml.iterfind('./enums[@type="bitmask"]'):
@@ -450,9 +451,6 @@ def load_xml():
         # XXX PATCH
         if cmd.raw_name == "glShaderBinary":
             # there are no default formats available, so the required enum will not be generated
-            continue
-        elif cmd.raw_name in ("glFenceSync", "glWaitSync"):
-            # again, undefined enum
             continue
         commands[cmd.raw_name] = cmd
 
@@ -485,8 +483,44 @@ def load_xml():
             f.write('\n')
             '''
 
+            f.write('// special numbers \n')
+            if "SpecialNumbers" in enums:
+                logging.info('special numbers')
+                enum_data = enums["SpecialNumbers"]
+
+                guards_constants = build_guarded_constants(versions_profiles, enum_data, constants)
+                if guards_constants is None:
+                    logging.warning('Skipping {} - no members'.format(enum_name))
+                    continue
+                written_enumerator = []
+                for guards, constant_names in sorted(guards_constants.items()):
+                    if len(guards) != total_guards:
+                        f.write('#if {}\n'.format(_make_guard(guards)))
+                    for constant_name in sorted(constant_names):
+                        constant_value, constant_type = constants[constant_name]
+                        enumerator_name = normalize_constant_name(constant_name)
+                        if (enumerator_name, constant_value) in written_enumerator:
+                            continue
+                        if any(name == enumerator_name for name, value in written_enumerator if
+                               value != constant_value):
+                            logging.error("Conflicting value for constant {}".format(enumerator_name))
+                        written_enumerator.append((enumerator_name, constant_value))
+                        f.write('constexpr auto {} = {}{};\n'.format(enumerator_name, constant_value, constant_type))
+                    if len(guards) != total_guards:
+                        f.write('#endif\n')
+
+                if enum_data.is_bitmask:
+                    f.write(
+                        'constexpr core::Bitfield<{0}> operator|({0} left, {0} right) {{ return core::Bitfield<{0}>(left) | right;}}\n'.format(
+                            enum_name))
+
+                f.write('\n')
+
             f.write('// enums\n')
             for enum_name, enum_data in sorted(enums.items()):
+                if enum_name == "SpecialNumbers":
+                    continue
+
                 enum_name = strip_ext_suffix(enum_name)
                 logging.info('enum {}'.format(enum_name))
 
@@ -504,7 +538,7 @@ def load_xml():
                     f.write('{\n')
                     written_enumerator = []
                     for constant_name in sorted(constant_names):
-                        constant_value = constants[constant_name]
+                        constant_value, constant_type = constants[constant_name]
                         enumerator_name = normalize_constant_name(constant_name)
                         if (enumerator_name, constant_value) in written_enumerator:
                             continue
@@ -512,7 +546,7 @@ def load_xml():
                                value != constant_value):
                             logging.error("Conflicting value for enumerator {}".format(enumerator_name))
                         written_enumerator.append((enumerator_name, constant_value))
-                        f.write('    {} = {},\n'.format(enumerator_name, constant_value))
+                        f.write('    {} = {}{},\n'.format(enumerator_name, constant_value, constant_type))
                     f.write('};\n')
 
                     if enum_data.is_bitmask:
@@ -530,7 +564,7 @@ def load_xml():
                         if len(guards) != total_guards:
                             f.write('#if {}\n'.format(_make_guard(guards)))
                         for constant_name in sorted(constant_names):
-                            constant_value = constants[constant_name]
+                            constant_value, constant_type = constants[constant_name]
                             enumerator_name = normalize_constant_name(constant_name)
                             if (enumerator_name, constant_value) in written_enumerator:
                                 continue
@@ -538,7 +572,7 @@ def load_xml():
                                    value != constant_value):
                                 logging.error("Conflicting value for enumerator {}".format(enumerator_name))
                             written_enumerator.append((enumerator_name, constant_value))
-                            f.write('    {} = {},\n'.format(enumerator_name, constant_value))
+                            f.write('    {} = {}{},\n'.format(enumerator_name, constant_value, constant_type))
                         if len(guards) != total_guards:
                             f.write('#endif\n')
                     f.write('};\n')

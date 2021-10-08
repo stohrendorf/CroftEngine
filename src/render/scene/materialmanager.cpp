@@ -74,6 +74,7 @@ gsl::not_null<std::shared_ptr<Material>> MaterialManager::getCSMDepthOnly(bool s
     });
   m->getRenderState().setDepthTest(true);
   m->getRenderState().setDepthWrite(true);
+  m->getRenderState().setDepthClamp(true);
   if(auto buffer = m->tryGetBuffer("BoneTransform"))
     buffer->bindBoneTransformBuffer();
 
