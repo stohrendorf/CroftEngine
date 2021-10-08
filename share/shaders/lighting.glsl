@@ -16,7 +16,17 @@ layout(std430, binding=3) readonly restrict buffer b_lights {
 
 float calc_vsm_value(in int splitIdx, in float shadow, in float lightNormDot, in vec3 projCoords)
 {
-    vec2 moments = texture(u_csmVsm[splitIdx], projCoords.xy).xy;
+    vec2 moments = vec2(0);
+    // https://stackoverflow.com/a/32273875
+    #define FETCH_CSM(idx) case idx: moments = texture(u_csmVsm[idx], projCoords.xy).xy; break
+    switch (splitIdx) {
+        FETCH_CSM(0);
+        FETCH_CSM(1);
+        FETCH_CSM(2);
+        FETCH_CSM(3);
+        FETCH_CSM(4);
+    }
+        #undef FETCH_CSM
 
     float currentDepth = clamp(projCoords.z, 0.0, 1.0);
 
