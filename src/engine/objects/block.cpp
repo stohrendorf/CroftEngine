@@ -86,7 +86,8 @@ void Block::collide(CollisionInfo& /*collisionInfo*/)
       d = core::DefaultCollisionRadius;
       vp = &core::TRVec::X;
       break;
-    default: BOOST_THROW_EXCEPTION(std::domain_error("Invalid axis"));
+    default:
+      BOOST_THROW_EXCEPTION(std::domain_error("Invalid axis"));
     }
 
     getWorld().getObjectManager().getLara().m_state.location.position.*vp
@@ -206,11 +207,20 @@ bool Block::canPushBlock(const core::Length& height, const core::Axis axis) cons
   auto location = m_state.location;
   switch(axis)
   {
-  case core::Axis::PosZ: location.position.Z += core::SectorSize; break;
-  case core::Axis::PosX: location.position.X += core::SectorSize; break;
-  case core::Axis::NegZ: location.position.Z -= core::SectorSize; break;
-  case core::Axis::NegX: location.position.X -= core::SectorSize; break;
-  default: break;
+  case core::Axis::PosZ:
+    location.position.Z += core::SectorSize;
+    break;
+  case core::Axis::PosX:
+    location.position.X += core::SectorSize;
+    break;
+  case core::Axis::NegZ:
+    location.position.Z -= core::SectorSize;
+    break;
+  case core::Axis::NegX:
+    location.position.X -= core::SectorSize;
+    break;
+  default:
+    break;
   }
 
   CollisionInfo tmp;
@@ -241,11 +251,20 @@ bool Block::canPullBlock(const core::Length& height, const core::Axis axis) cons
   auto location = m_state.location;
   switch(axis)
   {
-  case core::Axis::Deg0: location.position.Z -= core::SectorSize; break;
-  case core::Axis::Right90: location.position.X -= core::SectorSize; break;
-  case core::Axis::Deg180: location.position.Z += core::SectorSize; break;
-  case core::Axis::Left90: location.position.X += core::SectorSize; break;
-  default: break;
+  case core::Axis::Deg0:
+    location.position.Z -= core::SectorSize;
+    break;
+  case core::Axis::Right90:
+    location.position.X -= core::SectorSize;
+    break;
+  case core::Axis::Deg180:
+    location.position.Z += core::SectorSize;
+    break;
+  case core::Axis::Left90:
+    location.position.X += core::SectorSize;
+    break;
+  default:
+    break;
   }
 
   auto sector = location.updateRoom();
@@ -274,11 +293,20 @@ bool Block::canPullBlock(const core::Length& height, const core::Axis axis) cons
   auto laraLocation = location;
   switch(axis)
   {
-  case core::Axis::PosZ: laraLocation.position.Z -= core::SectorSize; break;
-  case core::Axis::PosX: laraLocation.position.X -= core::SectorSize; break;
-  case core::Axis::NegZ: laraLocation.position.Z += core::SectorSize; break;
-  case core::Axis::NegX: laraLocation.position.X += core::SectorSize; break;
-  default: break;
+  case core::Axis::PosZ:
+    laraLocation.position.Z -= core::SectorSize;
+    break;
+  case core::Axis::PosX:
+    laraLocation.position.X -= core::SectorSize;
+    break;
+  case core::Axis::NegZ:
+    laraLocation.position.Z += core::SectorSize;
+    break;
+  case core::Axis::NegX:
+    laraLocation.position.X += core::SectorSize;
+    break;
+  default:
+    break;
   }
 
   sector = laraLocation.updateRoom();
@@ -313,7 +341,8 @@ bool Block::canPullBlock(const core::Length& height, const core::Axis axis) cons
     laraLocation.position.X += core::SectorSize;
     tmp.facingAxis = core::Axis::Right90;
     break;
-  default: break;
+  default:
+    break;
   }
   tmp.collisionRadius = core::DefaultCollisionRadius;
 

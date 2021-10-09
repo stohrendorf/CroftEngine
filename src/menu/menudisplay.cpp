@@ -69,7 +69,8 @@ void MenuDisplay::drawMenuObjectDescription(ui::Ui& ui, engine::world::World& wo
   case engine::TR1ItemId::Item149:
   case engine::TR1ItemId::ScionPiece5:
   case engine::TR1ItemId::LeadBar:
-  case engine::TR1ItemId::LeadBarSprite: break;
+  case engine::TR1ItemId::LeadBarSprite:
+    break;
   case engine::TR1ItemId::ShotgunAmmo:
   case engine::TR1ItemId::ShotgunAmmoSprite:
     totalItemCount *= 2;
@@ -110,7 +111,8 @@ void MenuDisplay::drawMenuObjectDescription(ui::Ui& ui, engine::world::World& wo
     world.getPresenter().setHealthBarTimeout(40_frame);
     world.getPresenter().drawBars(ui, world.getPalette(), world.getObjectManager());
     break;
-  default: break;
+  default:
+    break;
   }
 
   if(totalItemCount > 1)
@@ -134,8 +136,11 @@ void MenuDisplay::display(ui::Ui& ui, engine::world::World& world)
   core::Angle itemAngle{0_deg};
   const auto& camera = world.getCameraController().getCamera();
   camera->setViewMatrix(ringTransform->getView());
-  const auto resetFov
-    = gsl::finally([oldFOV = camera->getFieldOfViewY(), &camera]() { camera->setFieldOfView(oldFOV); });
+  const auto resetFov = gsl::finally(
+    [oldFOV = camera->getFieldOfViewY(), &camera]()
+    {
+      camera->setFieldOfView(oldFOV);
+    });
   camera->setFieldOfView(engine::Presenter::DefaultFov);
 
   for(auto& menuObject : getCurrentRing().list)
@@ -186,30 +191,54 @@ bool MenuDisplay::doOptions(engine::world::World& world, MenuObject& object)
 {
   switch(object.type)
   {
-  case engine::TR1ItemId::Puzzle4: break;
-  case engine::TR1ItemId::Key1: [[fallthrough]];
-  case engine::TR1ItemId::Key2: [[fallthrough]];
-  case engine::TR1ItemId::Key3: [[fallthrough]];
-  case engine::TR1ItemId::Key4: [[fallthrough]];
-  case engine::TR1ItemId::Item148: [[fallthrough]];
-  case engine::TR1ItemId::Item149: [[fallthrough]];
-  case engine::TR1ItemId::ScionPiece5: [[fallthrough]];
-  case engine::TR1ItemId::SmallMedipack: [[fallthrough]];
-  case engine::TR1ItemId::Explosive: [[fallthrough]];
-  case engine::TR1ItemId::LargeMedipack: [[fallthrough]];
-  case engine::TR1ItemId::Puzzle1: [[fallthrough]];
-  case engine::TR1ItemId::Pistols: [[fallthrough]];
-  case engine::TR1ItemId::Shotgun: [[fallthrough]];
-  case engine::TR1ItemId::Magnums: [[fallthrough]];
-  case engine::TR1ItemId::Uzis: return true;
-  case engine::TR1ItemId::PistolAmmo: [[fallthrough]];
-  case engine::TR1ItemId::ShotgunAmmo: [[fallthrough]];
-  case engine::TR1ItemId::MagnumAmmo: [[fallthrough]];
-  case engine::TR1ItemId::UziAmmo: [[fallthrough]];
-  case engine::TR1ItemId::Sunglasses: [[fallthrough]];
-  case engine::TR1ItemId::CassettePlayer: [[fallthrough]];
-  case engine::TR1ItemId::DirectionKeys: [[fallthrough]];
-  case engine::TR1ItemId::PassportOpening: break;
+  case engine::TR1ItemId::Puzzle4:
+    break;
+  case engine::TR1ItemId::Key1:
+    [[fallthrough]];
+  case engine::TR1ItemId::Key2:
+    [[fallthrough]];
+  case engine::TR1ItemId::Key3:
+    [[fallthrough]];
+  case engine::TR1ItemId::Key4:
+    [[fallthrough]];
+  case engine::TR1ItemId::Item148:
+    [[fallthrough]];
+  case engine::TR1ItemId::Item149:
+    [[fallthrough]];
+  case engine::TR1ItemId::ScionPiece5:
+    [[fallthrough]];
+  case engine::TR1ItemId::SmallMedipack:
+    [[fallthrough]];
+  case engine::TR1ItemId::Explosive:
+    [[fallthrough]];
+  case engine::TR1ItemId::LargeMedipack:
+    [[fallthrough]];
+  case engine::TR1ItemId::Puzzle1:
+    [[fallthrough]];
+  case engine::TR1ItemId::Pistols:
+    [[fallthrough]];
+  case engine::TR1ItemId::Shotgun:
+    [[fallthrough]];
+  case engine::TR1ItemId::Magnums:
+    [[fallthrough]];
+  case engine::TR1ItemId::Uzis:
+    return true;
+  case engine::TR1ItemId::PistolAmmo:
+    [[fallthrough]];
+  case engine::TR1ItemId::ShotgunAmmo:
+    [[fallthrough]];
+  case engine::TR1ItemId::MagnumAmmo:
+    [[fallthrough]];
+  case engine::TR1ItemId::UziAmmo:
+    [[fallthrough]];
+  case engine::TR1ItemId::Sunglasses:
+    [[fallthrough]];
+  case engine::TR1ItemId::CassettePlayer:
+    [[fallthrough]];
+  case engine::TR1ItemId::DirectionKeys:
+    [[fallthrough]];
+  case engine::TR1ItemId::PassportOpening:
+    break;
   case engine::TR1ItemId::Flashlight:
     BOOST_THROW_EXCEPTION(std::runtime_error("Gamma options are not implemented"));
     break;
@@ -285,7 +314,9 @@ std::vector<MenuObject> MenuDisplay::getOptionRingObjects(const engine::world::W
   objects.erase(std::remove_if(objects.begin(),
                                objects.end(),
                                [&world](const MenuObject& obj)
-                               { return world.findAnimatedModelForType(obj.type) == nullptr; }),
+                               {
+                                 return world.findAnimatedModelForType(obj.type) == nullptr;
+                               }),
                 objects.end());
   for(auto& object : objects)
     object.initModel(world);
@@ -420,7 +451,9 @@ std::vector<MenuObject> MenuDisplay::getMainRingObjects(const engine::world::Wor
   objects.erase(std::remove_if(objects.begin(),
                                objects.end(),
                                [&world](const MenuObject& obj)
-                               { return world.findAnimatedModelForType(obj.type) == nullptr; }),
+                               {
+                                 return world.findAnimatedModelForType(obj.type) == nullptr;
+                               }),
                 objects.end());
   for(auto& object : objects)
     object.initModel(world);
@@ -492,7 +525,9 @@ std::vector<MenuObject> MenuDisplay::getKeysRingObjects(const engine::world::Wor
   objects.erase(std::remove_if(objects.begin(),
                                objects.end(),
                                [&world](const MenuObject& obj)
-                               { return world.findAnimatedModelForType(obj.type) == nullptr; }),
+                               {
+                                 return world.findAnimatedModelForType(obj.type) == nullptr;
+                               }),
                 objects.end());
   for(auto& object : objects)
     object.initModel(world);

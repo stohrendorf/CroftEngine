@@ -52,10 +52,14 @@ bool ObjectState::isStalkBox(const world::World& world, const world::Box& target
 
   switch(laraAxis)
   {
-  case core::Axis::PosZ: return laraToBoxAxis == core::Axis::NegZ;
-  case core::Axis::PosX: return laraToBoxAxis == core::Axis::NegX;
-  case core::Axis::NegZ: return laraToBoxAxis == core::Axis::PosZ;
-  case core::Axis::NegX: return laraToBoxAxis == core::Axis::PosX;
+  case core::Axis::PosZ:
+    return laraToBoxAxis == core::Axis::NegZ;
+  case core::Axis::PosX:
+    return laraToBoxAxis == core::Axis::NegX;
+  case core::Axis::NegZ:
+    return laraToBoxAxis == core::Axis::PosZ;
+  case core::Axis::NegX:
+    return laraToBoxAxis == core::Axis::PosX;
   }
 
   BOOST_THROW_EXCEPTION(std::runtime_error("Unreachable code reached"));

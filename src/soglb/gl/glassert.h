@@ -35,4 +35,10 @@ auto glAssertFn(F code, const gsl::czstring codeStr) -> decltype(code())
     ::gl::checkGlError(#gl_code); \
   } while(false)
 
-#define GL_ASSERT_FN(code) ::gl::detail::glAssertFn([&]() { return code; }, #code)
+#define GL_ASSERT_FN(code)  \
+  ::gl::detail::glAssertFn( \
+    [&]()                   \
+    {                       \
+      return code;          \
+    },                      \
+    #code)

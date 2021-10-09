@@ -33,7 +33,13 @@ void SoundEngine::update()
     for(auto& [id, voices] : idsAndVoices)
     {
       auto old = std::move(voices);
-      std::copy_if(old.begin(), old.end(), std::back_inserter(voices), [](const auto& v) { return !v.expired(); });
+      std::copy_if(old.begin(),
+                   old.end(),
+                   std::back_inserter(voices),
+                   [](const auto& v)
+                   {
+                     return !v.expired();
+                   });
 
       if(emitter == nullptr)
         continue;

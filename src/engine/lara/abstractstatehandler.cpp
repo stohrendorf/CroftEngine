@@ -88,62 +88,118 @@ std::unique_ptr<AbstractStateHandler> AbstractStateHandler::create(const LaraSta
 {
   switch(id)
   {
-  case LaraStateId::WalkForward: return std::make_unique<StateHandler_0>(lara);
-  case LaraStateId::RunForward: return std::make_unique<StateHandler_1>(lara);
-  case LaraStateId::Stop: return std::make_unique<StateHandler_2>(lara);
-  case LaraStateId::JumpForward: return std::make_unique<StateHandler_3>(lara);
-  case LaraStateId::Pose: return std::make_unique<StateHandler_4>(lara);
-  case LaraStateId::RunBack: return std::make_unique<StateHandler_5>(lara);
-  case LaraStateId::TurnRightSlow: return std::make_unique<StateHandler_6>(lara);
-  case LaraStateId::TurnLeftSlow: return std::make_unique<StateHandler_7>(lara);
-  case LaraStateId::Death: return std::make_unique<StateHandler_8>(lara);
-  case LaraStateId::FreeFall: return std::make_unique<StateHandler_9>(lara);
-  case LaraStateId::Hang: return std::make_unique<StateHandler_10>(lara);
-  case LaraStateId::Reach: return std::make_unique<StateHandler_11>(lara);
-  case LaraStateId::Unknown12: return std::make_unique<StateHandler_12>(lara);
-  case LaraStateId::UnderwaterStop: return std::make_unique<StateHandler_13>(lara);
-  case LaraStateId::GrabToFall: return std::make_unique<StateHandler_14>(lara);
-  case LaraStateId::JumpPrepare: return std::make_unique<StateHandler_15>(lara);
-  case LaraStateId::WalkBackward: return std::make_unique<StateHandler_16>(lara);
-  case LaraStateId::UnderwaterForward: return std::make_unique<StateHandler_17>(lara);
-  case LaraStateId::UnderwaterInertia: return std::make_unique<StateHandler_18>(lara);
-  case LaraStateId::Climbing: return std::make_unique<StateHandler_19>(lara);
-  case LaraStateId::TurnFast: return std::make_unique<StateHandler_20>(lara);
-  case LaraStateId::StepRight: return std::make_unique<StateHandler_21>(lara);
-  case LaraStateId::StepLeft: return std::make_unique<StateHandler_22>(lara);
-  case LaraStateId::RollBackward: return std::make_unique<StateHandler_23>(lara);
-  case LaraStateId::SlideForward: return std::make_unique<StateHandler_24>(lara);
-  case LaraStateId::JumpBack: return std::make_unique<StateHandler_25>(lara);
-  case LaraStateId::JumpLeft: return std::make_unique<StateHandler_26>(lara);
-  case LaraStateId::JumpRight: return std::make_unique<StateHandler_27>(lara);
-  case LaraStateId::JumpUp: return std::make_unique<StateHandler_28>(lara);
-  case LaraStateId::FallBackward: return std::make_unique<StateHandler_29>(lara);
-  case LaraStateId::ShimmyLeft: return std::make_unique<StateHandler_30>(lara);
-  case LaraStateId::ShimmyRight: return std::make_unique<StateHandler_31>(lara);
-  case LaraStateId::SlideBackward: return std::make_unique<StateHandler_32>(lara);
-  case LaraStateId::OnWaterStop: return std::make_unique<StateHandler_33>(lara);
-  case LaraStateId::OnWaterForward: return std::make_unique<StateHandler_34>(lara);
-  case LaraStateId::UnderwaterDiving: return std::make_unique<StateHandler_35>(lara);
-  case LaraStateId::PushablePush: return std::make_unique<StateHandler_36>(lara);
-  case LaraStateId::PushablePull: return std::make_unique<StateHandler_37>(lara);
-  case LaraStateId::PushableGrab: return std::make_unique<StateHandler_38>(lara);
-  case LaraStateId::PickUp: return std::make_unique<StateHandler_39>(lara);
-  case LaraStateId::SwitchDown: return std::make_unique<StateHandler_40>(lara);
-  case LaraStateId::SwitchUp: return std::make_unique<StateHandler_41>(lara);
-  case LaraStateId::InsertKey: return std::make_unique<StateHandler_42>(lara);
-  case LaraStateId::InsertPuzzle: return std::make_unique<StateHandler_43>(lara);
-  case LaraStateId::WaterDeath: return std::make_unique<StateHandler_44>(lara);
-  case LaraStateId::RollForward: return std::make_unique<StateHandler_45>(lara);
-  case LaraStateId::BoulderDeath: return std::make_unique<StateHandler_46>(lara);
-  case LaraStateId::OnWaterBackward: return std::make_unique<StateHandler_47>(lara);
-  case LaraStateId::OnWaterLeft: return std::make_unique<StateHandler_48>(lara);
-  case LaraStateId::OnWaterRight: return std::make_unique<StateHandler_49>(lara);
-  case LaraStateId::UseMidas: return std::make_unique<StateHandler_50>(lara);
-  case LaraStateId::MidasDeath: return std::make_unique<StateHandler_51>(lara);
-  case LaraStateId::SwandiveBegin: return std::make_unique<StateHandler_52>(lara);
-  case LaraStateId::SwandiveEnd: return std::make_unique<StateHandler_53>(lara);
-  case LaraStateId::Handstand: return std::make_unique<StateHandler_54>(lara);
-  case LaraStateId::OnWaterExit: return std::make_unique<StateHandler_55>(lara);
+  case LaraStateId::WalkForward:
+    return std::make_unique<StateHandler_0>(lara);
+  case LaraStateId::RunForward:
+    return std::make_unique<StateHandler_1>(lara);
+  case LaraStateId::Stop:
+    return std::make_unique<StateHandler_2>(lara);
+  case LaraStateId::JumpForward:
+    return std::make_unique<StateHandler_3>(lara);
+  case LaraStateId::Pose:
+    return std::make_unique<StateHandler_4>(lara);
+  case LaraStateId::RunBack:
+    return std::make_unique<StateHandler_5>(lara);
+  case LaraStateId::TurnRightSlow:
+    return std::make_unique<StateHandler_6>(lara);
+  case LaraStateId::TurnLeftSlow:
+    return std::make_unique<StateHandler_7>(lara);
+  case LaraStateId::Death:
+    return std::make_unique<StateHandler_8>(lara);
+  case LaraStateId::FreeFall:
+    return std::make_unique<StateHandler_9>(lara);
+  case LaraStateId::Hang:
+    return std::make_unique<StateHandler_10>(lara);
+  case LaraStateId::Reach:
+    return std::make_unique<StateHandler_11>(lara);
+  case LaraStateId::Unknown12:
+    return std::make_unique<StateHandler_12>(lara);
+  case LaraStateId::UnderwaterStop:
+    return std::make_unique<StateHandler_13>(lara);
+  case LaraStateId::GrabToFall:
+    return std::make_unique<StateHandler_14>(lara);
+  case LaraStateId::JumpPrepare:
+    return std::make_unique<StateHandler_15>(lara);
+  case LaraStateId::WalkBackward:
+    return std::make_unique<StateHandler_16>(lara);
+  case LaraStateId::UnderwaterForward:
+    return std::make_unique<StateHandler_17>(lara);
+  case LaraStateId::UnderwaterInertia:
+    return std::make_unique<StateHandler_18>(lara);
+  case LaraStateId::Climbing:
+    return std::make_unique<StateHandler_19>(lara);
+  case LaraStateId::TurnFast:
+    return std::make_unique<StateHandler_20>(lara);
+  case LaraStateId::StepRight:
+    return std::make_unique<StateHandler_21>(lara);
+  case LaraStateId::StepLeft:
+    return std::make_unique<StateHandler_22>(lara);
+  case LaraStateId::RollBackward:
+    return std::make_unique<StateHandler_23>(lara);
+  case LaraStateId::SlideForward:
+    return std::make_unique<StateHandler_24>(lara);
+  case LaraStateId::JumpBack:
+    return std::make_unique<StateHandler_25>(lara);
+  case LaraStateId::JumpLeft:
+    return std::make_unique<StateHandler_26>(lara);
+  case LaraStateId::JumpRight:
+    return std::make_unique<StateHandler_27>(lara);
+  case LaraStateId::JumpUp:
+    return std::make_unique<StateHandler_28>(lara);
+  case LaraStateId::FallBackward:
+    return std::make_unique<StateHandler_29>(lara);
+  case LaraStateId::ShimmyLeft:
+    return std::make_unique<StateHandler_30>(lara);
+  case LaraStateId::ShimmyRight:
+    return std::make_unique<StateHandler_31>(lara);
+  case LaraStateId::SlideBackward:
+    return std::make_unique<StateHandler_32>(lara);
+  case LaraStateId::OnWaterStop:
+    return std::make_unique<StateHandler_33>(lara);
+  case LaraStateId::OnWaterForward:
+    return std::make_unique<StateHandler_34>(lara);
+  case LaraStateId::UnderwaterDiving:
+    return std::make_unique<StateHandler_35>(lara);
+  case LaraStateId::PushablePush:
+    return std::make_unique<StateHandler_36>(lara);
+  case LaraStateId::PushablePull:
+    return std::make_unique<StateHandler_37>(lara);
+  case LaraStateId::PushableGrab:
+    return std::make_unique<StateHandler_38>(lara);
+  case LaraStateId::PickUp:
+    return std::make_unique<StateHandler_39>(lara);
+  case LaraStateId::SwitchDown:
+    return std::make_unique<StateHandler_40>(lara);
+  case LaraStateId::SwitchUp:
+    return std::make_unique<StateHandler_41>(lara);
+  case LaraStateId::InsertKey:
+    return std::make_unique<StateHandler_42>(lara);
+  case LaraStateId::InsertPuzzle:
+    return std::make_unique<StateHandler_43>(lara);
+  case LaraStateId::WaterDeath:
+    return std::make_unique<StateHandler_44>(lara);
+  case LaraStateId::RollForward:
+    return std::make_unique<StateHandler_45>(lara);
+  case LaraStateId::BoulderDeath:
+    return std::make_unique<StateHandler_46>(lara);
+  case LaraStateId::OnWaterBackward:
+    return std::make_unique<StateHandler_47>(lara);
+  case LaraStateId::OnWaterLeft:
+    return std::make_unique<StateHandler_48>(lara);
+  case LaraStateId::OnWaterRight:
+    return std::make_unique<StateHandler_49>(lara);
+  case LaraStateId::UseMidas:
+    return std::make_unique<StateHandler_50>(lara);
+  case LaraStateId::MidasDeath:
+    return std::make_unique<StateHandler_51>(lara);
+  case LaraStateId::SwandiveBegin:
+    return std::make_unique<StateHandler_52>(lara);
+  case LaraStateId::SwandiveEnd:
+    return std::make_unique<StateHandler_53>(lara);
+  case LaraStateId::Handstand:
+    return std::make_unique<StateHandler_54>(lara);
+  case LaraStateId::OnWaterExit:
+    return std::make_unique<StateHandler_55>(lara);
   default:
     BOOST_LOG_TRIVIAL(error) << "No state handler for state " << toString(id);
     BOOST_THROW_EXCEPTION(std::runtime_error("Unhandled state"));
@@ -261,10 +317,18 @@ bool AbstractStateHandler::canClimbOnto(const core::Axis axis) const
   auto location = m_lara.m_state.location;
   switch(axis)
   {
-  case core::Axis::PosZ: location.position.Z += core::QuarterSectorSize; break;
-  case core::Axis::PosX: location.position.X += core::QuarterSectorSize; break;
-  case core::Axis::NegZ: location.position.Z -= core::QuarterSectorSize; break;
-  case core::Axis::NegX: location.position.X -= core::QuarterSectorSize; break;
+  case core::Axis::PosZ:
+    location.position.Z += core::QuarterSectorSize;
+    break;
+  case core::Axis::PosX:
+    location.position.X += core::QuarterSectorSize;
+    break;
+  case core::Axis::NegZ:
+    location.position.Z -= core::QuarterSectorSize;
+    break;
+  case core::Axis::NegX:
+    location.position.X -= core::QuarterSectorSize;
+    break;
   }
 
   const auto sector = location.updateRoom();
@@ -440,14 +504,16 @@ bool AbstractStateHandler::checkWallCollision(const CollisionInfo& collisionInfo
     applyShift(collisionInfo);
     m_lara.m_state.rotation.Y -= 5_deg;
     return false;
-  case CollisionInfo::AxisColl::Front: [[fallthrough]];
+  case CollisionInfo::AxisColl::Front:
+    [[fallthrough]];
   case CollisionInfo::AxisColl::TopBottom:
     applyShift(collisionInfo);
     setGoalAnimState(LaraStateId::Stop);
     m_lara.m_state.falling = false;
     m_lara.m_state.speed = 0_spd;
     return true;
-  default: return false;
+  default:
+    return false;
   }
 }
 
@@ -837,15 +903,22 @@ void AbstractStateHandler::jumpAgainstWall(CollisionInfo& collisionInfo)
   applyShift(collisionInfo);
   switch(collisionInfo.collisionType)
   {
-  case CollisionInfo::AxisColl::None: break;
-  case CollisionInfo::AxisColl::Front: break;
-  case CollisionInfo::AxisColl::Left: m_lara.m_state.rotation.Y += 5_deg; break;
-  case CollisionInfo::AxisColl::Right: m_lara.m_state.rotation.Y -= 5_deg; break;
+  case CollisionInfo::AxisColl::None:
+    break;
+  case CollisionInfo::AxisColl::Front:
+    break;
+  case CollisionInfo::AxisColl::Left:
+    m_lara.m_state.rotation.Y += 5_deg;
+    break;
+  case CollisionInfo::AxisColl::Right:
+    m_lara.m_state.rotation.Y -= 5_deg;
+    break;
   case CollisionInfo::AxisColl::Top:
     if(m_lara.m_state.fallspeed <= 0_spd)
       m_lara.m_state.fallspeed = 1_spd;
     break;
-  case CollisionInfo::AxisColl::TopBottom: break;
+  case CollisionInfo::AxisColl::TopBottom:
+    break;
   case CollisionInfo::AxisColl::TopFront:
     m_lara.m_state.location.move(util::pitch(core::DefaultCollisionRadius, m_lara.m_state.rotation.Y));
     m_lara.m_state.speed = 0_spd;
@@ -864,8 +937,10 @@ void AbstractStateHandler::checkJumpWallSmash(CollisionInfo& collisionInfo)
 
   switch(collisionInfo.collisionType)
   {
-  case CollisionInfo::AxisColl::None: break;
-  case CollisionInfo::AxisColl::Front: [[fallthrough]];
+  case CollisionInfo::AxisColl::None:
+    break;
+  case CollisionInfo::AxisColl::Front:
+    [[fallthrough]];
   case CollisionInfo::AxisColl::TopBottom:
     m_lara.m_state.speed /= 4;
     setMovementAngle(getMovementAngle() - 180_deg);
@@ -877,8 +952,12 @@ void AbstractStateHandler::checkJumpWallSmash(CollisionInfo& collisionInfo)
       m_lara.m_state.fallspeed = 1_spd;
     }
     break;
-  case CollisionInfo::AxisColl::Left: m_lara.m_state.rotation.Y += 5_deg; break;
-  case CollisionInfo::AxisColl::Right: m_lara.m_state.rotation.Y -= 5_deg; break;
+  case CollisionInfo::AxisColl::Left:
+    m_lara.m_state.rotation.Y += 5_deg;
+    break;
+  case CollisionInfo::AxisColl::Right:
+    m_lara.m_state.rotation.Y -= 5_deg;
+    break;
   case CollisionInfo::AxisColl::TopFront:
     m_lara.m_state.location.move(util::pitch(core::DefaultCollisionRadius, collisionInfo.facingAngle));
     m_lara.m_state.speed = 0_spd;

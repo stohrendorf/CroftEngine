@@ -49,7 +49,11 @@ void play(const std::filesystem::path& filename,
   stream->setLooping(true);
   stream->play();
 
-  const auto streamFinisher = gsl::finally([&stream, &audioDevice]() { audioDevice.removeStream(stream.get()); });
+  const auto streamFinisher = gsl::finally(
+    [&stream, &audioDevice]()
+    {
+      audioDevice.removeStream(stream.get());
+    });
 
   while(!decoder->stopped)
   {

@@ -143,7 +143,8 @@ void Bear::update()
         require(RoaringStanding);
       }
       break;
-    default: break;
+    default:
+      break;
     }
     rotateCreatureHead(enemyLocation.angleToEnemy);
   }
@@ -153,12 +154,16 @@ void Bear::update()
     switch(m_state.current_anim_state.get())
     {
     case Walking.get():
-    case Running.get(): goal(GettingDown); break;
+    case Running.get():
+      goal(GettingDown);
+      break;
     case GettingDown.get():
       m_hurt = false;
       goal(Dying);
       break;
-    case WalkingTall.get(): goal(RoaringStanding); break;
+    case WalkingTall.get():
+      goal(RoaringStanding);
+      break;
     case RoaringStanding.get():
       m_hurt = true;
       goal(Dying);
@@ -170,7 +175,8 @@ void Bear::update()
         m_hurt = false;
       }
       break;
-    default: break;
+    default:
+      break;
     }
     rotateCreatureHead(0_deg);
   }

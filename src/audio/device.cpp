@@ -73,17 +73,27 @@ void logDeviceInfo(const gsl::not_null<ALCdevice*>& device)
     ALC_ASSERT(device, alcGetIntegerv(device, ALC_HRTF_STATUS_SOFT, 1, &value));
     switch(value)
     {
-    case ALC_HRTF_DISABLED_SOFT: BOOST_LOG_TRIVIAL(info) << "HRTF is disabled"; break;
-    case ALC_HRTF_ENABLED_SOFT: BOOST_LOG_TRIVIAL(info) << "HRTF is enabled"; break;
-    case ALC_HRTF_DENIED_SOFT: BOOST_LOG_TRIVIAL(info) << "HRTF is not allowed on this device"; break;
-    case ALC_HRTF_REQUIRED_SOFT: BOOST_LOG_TRIVIAL(info) << "HRTF is required on this device"; break;
+    case ALC_HRTF_DISABLED_SOFT:
+      BOOST_LOG_TRIVIAL(info) << "HRTF is disabled";
+      break;
+    case ALC_HRTF_ENABLED_SOFT:
+      BOOST_LOG_TRIVIAL(info) << "HRTF is enabled";
+      break;
+    case ALC_HRTF_DENIED_SOFT:
+      BOOST_LOG_TRIVIAL(info) << "HRTF is not allowed on this device";
+      break;
+    case ALC_HRTF_REQUIRED_SOFT:
+      BOOST_LOG_TRIVIAL(info) << "HRTF is required on this device";
+      break;
     case ALC_HRTF_HEADPHONES_DETECTED_SOFT:
       BOOST_LOG_TRIVIAL(info) << "HRTF is enabled because headphones were detected";
       break;
     case ALC_HRTF_UNSUPPORTED_FORMAT_SOFT:
       BOOST_LOG_TRIVIAL(info) << "HRTF is disabled because of an incompatible format";
       break;
-    default: BOOST_LOG_TRIVIAL(warning) << "Unknown HRTF status value #" << value; break;
+    default:
+      BOOST_LOG_TRIVIAL(warning) << "Unknown HRTF status value #" << value;
+      break;
     }
   }
 }
@@ -199,7 +209,12 @@ void Device::update()
         m_streams.emplace(stream);
     }
   }
-  m_allVoices.erase(std::remove_if(m_allVoices.begin(), m_allVoices.end(), [](const auto& v) { return v->done(); }),
+  m_allVoices.erase(std::remove_if(m_allVoices.begin(),
+                                   m_allVoices.end(),
+                                   [](const auto& v)
+                                   {
+                                     return v->done();
+                                   }),
                     m_allVoices.end());
 
   // order voices by non-positional, then by distance

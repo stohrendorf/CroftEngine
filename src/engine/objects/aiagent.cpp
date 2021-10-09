@@ -146,10 +146,14 @@ bool AIAgent::animateCreature(const core::Angle& angle, const core::Angle& tilt)
      || boxFloor - sector->box->floor < pathFinder.drop
      || m_state.getCurrentBox().get()->*zoneRef != sector->box->*zoneRef)
   {
-    static const auto shoveMin
-      = [this](const core::Length& l) { return l / core::SectorSize * core::SectorSize + m_collisionRadius; };
-    static const auto shoveMax
-      = [this](const core::Length& l) { return shoveMin(l) + core::SectorSize - 1_len - m_collisionRadius; };
+    static const auto shoveMin = [this](const core::Length& l)
+    {
+      return l / core::SectorSize * core::SectorSize + m_collisionRadius;
+    };
+    static const auto shoveMax = [this](const core::Length& l)
+    {
+      return shoveMin(l) + core::SectorSize - 1_len - m_collisionRadius;
+    };
 
     const auto oldSectorX = oldLocation.position.X / core::SectorSize;
     const auto newSectorX = m_state.location.position.X / core::SectorSize;
@@ -202,7 +206,9 @@ bool AIAgent::animateCreature(const core::Angle& angle, const core::Angle& tilt)
 
   const auto cannotMoveTo
     = [this, floor = sector->box->floor, nextFloor = nextFloor, &pathFinder](const core::TRVec& pos)
-  { return isPositionOutOfReach(pos, floor, nextFloor, pathFinder); };
+  {
+    return isPositionOutOfReach(pos, floor, nextFloor, pathFinder);
+  };
 
   if(inSectorZ < collisionInterval.min)
   {
@@ -222,10 +228,16 @@ bool AIAgent::animateCreature(const core::Angle& angle, const core::Angle& tilt)
       {
         switch(axisFromAngle(m_state.rotation.Y))
         {
-        case core::Axis::Deg180: [[fallthrough]];
-        case core::Axis::Right90: moveX = xMoveLimit.min; break;
-        case core::Axis::Deg0: [[fallthrough]];
-        case core::Axis::Left90: moveZ = zMoveLimit.min; break;
+        case core::Axis::Deg180:
+          [[fallthrough]];
+        case core::Axis::Right90:
+          moveX = xMoveLimit.min;
+          break;
+        case core::Axis::Deg0:
+          [[fallthrough]];
+        case core::Axis::Left90:
+          moveZ = zMoveLimit.min;
+          break;
         }
       }
     }
@@ -239,10 +251,16 @@ bool AIAgent::animateCreature(const core::Angle& angle, const core::Angle& tilt)
       {
         switch(axisFromAngle(m_state.rotation.Y))
         {
-        case core::Axis::Deg180: [[fallthrough]];
-        case core::Axis::Left90: moveX = xMoveLimit.max; break;
-        case core::Axis::Deg0: [[fallthrough]];
-        case core::Axis::Right90: moveZ = zMoveLimit.min; break;
+        case core::Axis::Deg180:
+          [[fallthrough]];
+        case core::Axis::Left90:
+          moveX = xMoveLimit.max;
+          break;
+        case core::Axis::Deg0:
+          [[fallthrough]];
+        case core::Axis::Right90:
+          moveZ = zMoveLimit.min;
+          break;
         }
       }
     }
@@ -265,10 +283,16 @@ bool AIAgent::animateCreature(const core::Angle& angle, const core::Angle& tilt)
       {
         switch(axisFromAngle(m_state.rotation.Y))
         {
-        case core::Axis::Right90: [[fallthrough]];
-        case core::Axis::Deg0: moveX = xMoveLimit.min; break;
-        case core::Axis::Left90: [[fallthrough]];
-        case core::Axis::Deg180: moveZ = zMoveLimit.max; break;
+        case core::Axis::Right90:
+          [[fallthrough]];
+        case core::Axis::Deg0:
+          moveX = xMoveLimit.min;
+          break;
+        case core::Axis::Left90:
+          [[fallthrough]];
+        case core::Axis::Deg180:
+          moveZ = zMoveLimit.max;
+          break;
         }
       }
     }
@@ -282,10 +306,16 @@ bool AIAgent::animateCreature(const core::Angle& angle, const core::Angle& tilt)
       {
         switch(axisFromAngle(m_state.rotation.Y))
         {
-        case core::Axis::Deg0: [[fallthrough]];
-        case core::Axis::Left90: moveX = xMoveLimit.max; break;
-        case core::Axis::Deg180: [[fallthrough]];
-        case core::Axis::Right90: moveZ = zMoveLimit.max; break;
+        case core::Axis::Deg0:
+          [[fallthrough]];
+        case core::Axis::Left90:
+          moveX = xMoveLimit.max;
+          break;
+        case core::Axis::Deg180:
+          [[fallthrough]];
+        case core::Axis::Right90:
+          moveZ = zMoveLimit.max;
+          break;
         }
       }
     }

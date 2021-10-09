@@ -24,11 +24,21 @@ void checkALError(const gsl::czstring code, const gsl::czstring func, const int 
   gsl::czstring errStr = "<unknown>";
   switch(err)
   {
-  case AL_INVALID_NAME: errStr = "INVALID_NAME"; break;
-  case AL_INVALID_ENUM: errStr = "INVALID_ENUM"; break;
-  case AL_INVALID_OPERATION: errStr = "INVALID_OPERATION"; break;
-  case AL_INVALID_VALUE: errStr = "INVALID_VALUE"; break;
-  case AL_OUT_OF_MEMORY: errStr = "OUT_OF_MEMORY"; break;
+  case AL_INVALID_NAME:
+    errStr = "INVALID_NAME";
+    break;
+  case AL_INVALID_ENUM:
+    errStr = "INVALID_ENUM";
+    break;
+  case AL_INVALID_OPERATION:
+    errStr = "INVALID_OPERATION";
+    break;
+  case AL_INVALID_VALUE:
+    errStr = "INVALID_VALUE";
+    break;
+  case AL_OUT_OF_MEMORY:
+    errStr = "OUT_OF_MEMORY";
+    break;
   default:
     // silence compiler
     break;
@@ -52,11 +62,21 @@ void checkALCError(ALCdevice* device, const gsl::czstring code, const gsl::czstr
   gsl::czstring errStr = "<unknown>";
   switch(err)
   {
-  case ALC_INVALID_DEVICE: errStr = "INVALID_DEVICE"; break;
-  case ALC_INVALID_CONTEXT: errStr = "INVALID_CONTEXT"; break;
-  case ALC_INVALID_ENUM: errStr = "INVALID_ENUM"; break;
-  case ALC_INVALID_VALUE: errStr = "INVALID_VALUE"; break;
-  case ALC_OUT_OF_MEMORY: errStr = "OUT_OF_MEMORY"; break;
+  case ALC_INVALID_DEVICE:
+    errStr = "INVALID_DEVICE";
+    break;
+  case ALC_INVALID_CONTEXT:
+    errStr = "INVALID_CONTEXT";
+    break;
+  case ALC_INVALID_ENUM:
+    errStr = "INVALID_ENUM";
+    break;
+  case ALC_INVALID_VALUE:
+    errStr = "INVALID_VALUE";
+    break;
+  case ALC_OUT_OF_MEMORY:
+    errStr = "OUT_OF_MEMORY";
+    break;
   default:
     // silence compiler
     break;

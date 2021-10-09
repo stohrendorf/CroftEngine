@@ -169,7 +169,8 @@ void Wolf::update()
         require(PrepareToStrike);
       }
       break;
-    default: break;
+    default:
+      break;
     }
   }
   else if(m_state.current_anim_state != Dying)

@@ -148,30 +148,47 @@ int main()
     case Mode::Title:
       switch(runResult.first)
       {
-      case engine::RunResult::ExitApp: return EXIT_SUCCESS;
+      case engine::RunResult::ExitApp:
+        return EXIT_SUCCESS;
       case engine::RunResult::NextLevel:
         levelSequenceIndex = 0;
         mode = Mode::Game;
         break;
-      case engine::RunResult::TitleLevel: mode = Mode::Title; break;
-      case engine::RunResult::LaraHomeLevel: mode = Mode::Gym; break;
-      case engine::RunResult::RequestLoad: processLoadRequest(runResult.second); break;
+      case engine::RunResult::TitleLevel:
+        mode = Mode::Title;
+        break;
+      case engine::RunResult::LaraHomeLevel:
+        mode = Mode::Gym;
+        break;
+      case engine::RunResult::RequestLoad:
+        processLoadRequest(runResult.second);
+        break;
       }
       break;
     case Mode::Gym:
       switch(runResult.first)
       {
-      case engine::RunResult::ExitApp: return EXIT_SUCCESS;
-      case engine::RunResult::NextLevel: mode = Mode::Title; break;
-      case engine::RunResult::TitleLevel: mode = Mode::Title; break;
-      case engine::RunResult::LaraHomeLevel: mode = Mode::Gym; break;
-      case engine::RunResult::RequestLoad: processLoadRequest(runResult.second); break;
+      case engine::RunResult::ExitApp:
+        return EXIT_SUCCESS;
+      case engine::RunResult::NextLevel:
+        mode = Mode::Title;
+        break;
+      case engine::RunResult::TitleLevel:
+        mode = Mode::Title;
+        break;
+      case engine::RunResult::LaraHomeLevel:
+        mode = Mode::Gym;
+        break;
+      case engine::RunResult::RequestLoad:
+        processLoadRequest(runResult.second);
+        break;
       }
       break;
     case Mode::Game:
       switch(runResult.first)
       {
-      case engine::RunResult::ExitApp: return EXIT_SUCCESS;
+      case engine::RunResult::ExitApp:
+        return EXIT_SUCCESS;
       case engine::RunResult::NextLevel:
         ++levelSequenceIndex;
         if(engine.getScriptEngine().getLevelSequenceItem(levelSequenceIndex) == nullptr)
@@ -180,9 +197,15 @@ int main()
           mode = Mode::Title;
         }
         break;
-      case engine::RunResult::TitleLevel: mode = Mode::Title; break;
-      case engine::RunResult::LaraHomeLevel: mode = Mode::Gym; break;
-      case engine::RunResult::RequestLoad: processLoadRequest(runResult.second); break;
+      case engine::RunResult::TitleLevel:
+        mode = Mode::Title;
+        break;
+      case engine::RunResult::LaraHomeLevel:
+        mode = Mode::Gym;
+        break;
+      case engine::RunResult::RequestLoad:
+        processLoadRequest(runResult.second);
+        break;
       }
       break;
     }

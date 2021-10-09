@@ -167,7 +167,9 @@ void Crocodile::updateOnLand()
       }
       switch(getCreatureInfo()->mood)
       {
-      case ai::Mood::Escape: goal(2_as); break;
+      case ai::Mood::Escape:
+        goal(2_as);
+        break;
       case ai::Mood::Attack:
         if((enemyLocation.angleToEnemy >= -90_deg && enemyLocation.angleToEnemy <= 90_deg)
            || enemyLocation.enemyDistance <= util::square(3 * core::SectorSize))
@@ -175,7 +177,9 @@ void Crocodile::updateOnLand()
         else
           goal(4_as);
         break;
-      case ai::Mood::Stalk: goal(3_as); break;
+      case ai::Mood::Stalk:
+        goal(3_as);
+        break;
       default:
         // silence compiler
         break;
@@ -212,7 +216,8 @@ void Crocodile::updateOnLand()
         require(1_as);
       }
       break;
-    default: break;
+    default:
+      break;
     }
   }
   else

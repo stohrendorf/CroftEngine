@@ -138,7 +138,8 @@ void Natla::update()
         require(AimDispatch);
       }
       break;
-    default: break;
+    default:
+      break;
     }
   }
   else
@@ -228,7 +229,8 @@ void Natla::update()
         m_flyTime = 0_frame;
       }
       break;
-    default: break;
+    default:
+      break;
     }
   }
 

@@ -40,8 +40,10 @@ void PuzzleHole::collide(CollisionInfo& /*collisionInfo*/)
   case TR1ItemId::PuzzleDone1:
   case TR1ItemId::PuzzleDone2:
   case TR1ItemId::PuzzleDone3:
-  case TR1ItemId::PuzzleDone4: return;
-  default: break;
+  case TR1ItemId::PuzzleDone4:
+    return;
+  default:
+    break;
   }
 
   static const InteractionLimits limits{core::BoundingBox{{-200_len, 0_len, 312_len}, {200_len, 0_len, 512_len}},
@@ -77,7 +79,8 @@ void PuzzleHole::collide(CollisionInfo& /*collisionInfo*/)
     case TR1ItemId::PuzzleHole4:
       hasPuzzlePiece = getWorld().getPlayer().getInventory().tryTake(TR1ItemId::Puzzle4);
       break;
-    default: break;
+    default:
+      break;
     }
     if(!hasPuzzlePiece)
     {
@@ -126,15 +129,32 @@ void PuzzleHole::swapPuzzleState()
 {
   switch(m_state.type.get_as<TR1ItemId>())
   {
-  case TR1ItemId::PuzzleHole1: m_state.type = TR1ItemId::PuzzleDone1; break;
-  case TR1ItemId::PuzzleHole2: m_state.type = TR1ItemId::PuzzleDone2; break;
-  case TR1ItemId::PuzzleHole3: m_state.type = TR1ItemId::PuzzleDone3; break;
-  case TR1ItemId::PuzzleHole4: m_state.type = TR1ItemId::PuzzleDone4; break;
-  case TR1ItemId::PuzzleDone1: m_state.type = TR1ItemId::PuzzleHole1; break;
-  case TR1ItemId::PuzzleDone2: m_state.type = TR1ItemId::PuzzleHole2; break;
-  case TR1ItemId::PuzzleDone3: m_state.type = TR1ItemId::PuzzleHole3; break;
-  case TR1ItemId::PuzzleDone4: m_state.type = TR1ItemId::PuzzleHole4; break;
-  default: BOOST_THROW_EXCEPTION(std::domain_error("Invalid puzzle ID"));
+  case TR1ItemId::PuzzleHole1:
+    m_state.type = TR1ItemId::PuzzleDone1;
+    break;
+  case TR1ItemId::PuzzleHole2:
+    m_state.type = TR1ItemId::PuzzleDone2;
+    break;
+  case TR1ItemId::PuzzleHole3:
+    m_state.type = TR1ItemId::PuzzleDone3;
+    break;
+  case TR1ItemId::PuzzleHole4:
+    m_state.type = TR1ItemId::PuzzleDone4;
+    break;
+  case TR1ItemId::PuzzleDone1:
+    m_state.type = TR1ItemId::PuzzleHole1;
+    break;
+  case TR1ItemId::PuzzleDone2:
+    m_state.type = TR1ItemId::PuzzleHole2;
+    break;
+  case TR1ItemId::PuzzleDone3:
+    m_state.type = TR1ItemId::PuzzleHole3;
+    break;
+  case TR1ItemId::PuzzleDone4:
+    m_state.type = TR1ItemId::PuzzleHole4;
+    break;
+  default:
+    BOOST_THROW_EXCEPTION(std::domain_error("Invalid puzzle ID"));
   }
 
   initMesh();

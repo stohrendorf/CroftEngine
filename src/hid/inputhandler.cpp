@@ -48,7 +48,9 @@ void keyCallback(GLFWwindow* /*window*/, int key, int /*scancode*/, int action, 
   auto typed = static_cast<GlfwKey>(key);
   switch(action)
   {
-  case GLFW_PRESS: pressedKeys.emplace(typed); recentPressedKey = typed;
+  case GLFW_PRESS:
+    pressedKeys.emplace(typed);
+    recentPressedKey = typed;
 #ifdef PRINT_KEY_INPUT
     if(const auto name = toString(typed))
       BOOST_LOG_TRIVIAL(debug) << "Key pressed: " << name;
@@ -56,9 +58,13 @@ void keyCallback(GLFWwindow* /*window*/, int key, int /*scancode*/, int action, 
       BOOST_LOG_TRIVIAL(debug) << "Key pressed: Code " << key;
 #endif
     break;
-  case GLFW_RELEASE: pressedKeys.erase(typed); break;
-  case GLFW_REPEAT: break;
-  default: Expects(false);
+  case GLFW_RELEASE:
+    pressedKeys.erase(typed);
+    break;
+  case GLFW_REPEAT:
+    break;
+  default:
+    Expects(false);
   }
 }
 
@@ -80,7 +86,8 @@ void joystickCallback(int jid, int event)
     if(connectedGamepads.erase(jid) > 0)
       BOOST_LOG_TRIVIAL(info) << "Gamepad #" << jid << " disconnected";
     break;
-  default: BOOST_THROW_EXCEPTION(std::domain_error("invalid joystick connection event"));
+  default:
+    BOOST_THROW_EXCEPTION(std::domain_error("invalid joystick connection event"));
   }
 }
 

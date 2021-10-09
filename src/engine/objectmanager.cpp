@@ -60,7 +60,10 @@ void ObjectManager::applyScheduledDeletions()
   {
     auto it = std::find_if(m_dynamicObjects.begin(),
                            m_dynamicObjects.end(),
-                           [del](const std::shared_ptr<objects::Object>& i) { return i.get() == del; });
+                           [del](const std::shared_ptr<objects::Object>& i)
+                           {
+                             return i.get() == del;
+                           });
     if(it != m_dynamicObjects.end())
     {
       m_dynamicObjects.erase(it);
@@ -70,7 +73,9 @@ void ObjectManager::applyScheduledDeletions()
     auto it2 = std::find_if(m_objects.begin(),
                             m_objects.end(),
                             [del](const std::pair<uint16_t, gsl::not_null<std::shared_ptr<objects::Object>>>& i)
-                            { return i.second.get().get() == del; });
+                            {
+                              return i.second.get().get() == del;
+                            });
     if(it2 != m_objects.end())
     {
       m_objects.erase(it2);
@@ -97,7 +102,9 @@ std::shared_ptr<objects::Object> ObjectManager::find(const objects::Object* obje
   auto it = std::find_if(m_objects.begin(),
                          m_objects.end(),
                          [object](const std::pair<uint16_t, gsl::not_null<std::shared_ptr<objects::Object>>>& x)
-                         { return x.second.get().get() == object; });
+                         {
+                           return x.second.get().get() == object;
+                         });
 
   if(it == m_objects.end())
     return nullptr;
@@ -174,8 +181,12 @@ void ObjectManager::eraseParticle(const std::shared_ptr<Particle>& particle)
   if(particle == nullptr)
     return;
 
-  const auto it
-    = std::find_if(m_particles.begin(), m_particles.end(), [particle](const auto& p) { return particle == p.get(); });
+  const auto it = std::find_if(m_particles.begin(),
+                               m_particles.end(),
+                               [particle](const auto& p)
+                               {
+                                 return particle == p.get();
+                               });
   if(it != m_particles.end())
     m_particles.erase(it);
 

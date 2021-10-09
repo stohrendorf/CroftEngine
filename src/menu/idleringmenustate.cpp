@@ -90,7 +90,9 @@ std::unique_ptr<MenuState> IdleRingMenuState::onFrame(ui::Ui& ui, engine::world:
     case engine::TR1ItemId::Uzis:
       world.getAudioEngine().playSoundEffect(engine::TR1SoundEffect::MenuOptionSelect1, nullptr);
       break;
-    default: world.getAudioEngine().playSoundEffect(engine::TR1SoundEffect::MenuOptionPopup, nullptr); break;
+    default:
+      world.getAudioEngine().playSoundEffect(engine::TR1SoundEffect::MenuOptionPopup, nullptr);
+      break;
     }
 
     currentObject.goalFrame = currentObject.openFrame;

@@ -18,14 +18,29 @@ void gl::checkGlError(gsl::czstring code)
   gsl::czstring errStr;
   switch(error)
   {
-  case api::ErrorCode::InvalidEnum: errStr = "invalid enum"; break;
-  case api::ErrorCode::InvalidOperation: errStr = "invalid operation"; break;
-  case api::ErrorCode::InvalidValue: errStr = "invalid value"; break;
-  case api::ErrorCode::OutOfMemory: errStr = "out of memory"; break;
-  case api::ErrorCode::StackOverflow: errStr = "stack overflow"; break;
-  case api::ErrorCode::StackUnderflow: errStr = "stack underflow"; break;
-  case api::ErrorCode::InvalidFramebufferOperation: errStr = "invalid framebuffer operation"; break;
-  default: errStr = "<unknown error>";
+  case api::ErrorCode::InvalidEnum:
+    errStr = "invalid enum";
+    break;
+  case api::ErrorCode::InvalidOperation:
+    errStr = "invalid operation";
+    break;
+  case api::ErrorCode::InvalidValue:
+    errStr = "invalid value";
+    break;
+  case api::ErrorCode::OutOfMemory:
+    errStr = "out of memory";
+    break;
+  case api::ErrorCode::StackOverflow:
+    errStr = "stack overflow";
+    break;
+  case api::ErrorCode::StackUnderflow:
+    errStr = "stack underflow";
+    break;
+  case api::ErrorCode::InvalidFramebufferOperation:
+    errStr = "invalid framebuffer operation";
+    break;
+  default:
+    errStr = "<unknown error>";
   }
 
   BOOST_LOG_TRIVIAL(error) << "OpenGL error " << static_cast<api::core::EnumType>(error) << " after evaluation of '"

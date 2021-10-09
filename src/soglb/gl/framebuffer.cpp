@@ -18,7 +18,10 @@ Framebuffer::Framebuffer(Framebuffer::Attachments attachments,
                          RenderState&& renderState,
                          const glm::ivec2& size)
     : BindableResource{api::createFramebuffers,
-                       [](const uint32_t handle) { bindFramebuffer(api::FramebufferTarget::DrawFramebuffer, handle); },
+                       [](const uint32_t handle)
+                       {
+                         bindFramebuffer(api::FramebufferTarget::DrawFramebuffer, handle);
+                       },
                        api::deleteFramebuffers,
                        label}
     , m_attachments{std::move(attachments)}
@@ -78,7 +81,8 @@ bool Framebuffer::isComplete() const
   case api::FramebufferStatus::FramebufferIncompleteLayerTargets:
     BOOST_LOG_TRIVIAL(warning) << "Framebuffer #" << getHandle() << " incomplete: incomplete layer targets";
     break;
-  case api::FramebufferStatus::FramebufferComplete: break;
+  case api::FramebufferStatus::FramebufferComplete:
+    break;
   default:
     BOOST_LOG_TRIVIAL(error) << "Framebuffer #" << getHandle() << " incomplete: unknown code #"
                              << static_cast<api::core::EnumType>(result);
@@ -100,7 +104,10 @@ void Framebuffer::invalidate()
   std::transform(m_attachments.begin(),
                  m_attachments.end(),
                  std::back_inserter(attachments),
-                 [](const auto& src) { return std::get<1>(src); });
+                 [](const auto& src)
+                 {
+                   return std::get<1>(src);
+                 });
   invalidateNamedFramebufferData(getHandle(), gsl::narrow<api::core::SizeType>(attachments.size()), attachments.data());
 }
 

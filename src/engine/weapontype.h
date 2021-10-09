@@ -10,4 +10,4 @@ enum class WeaponType
   Uzis,
   Shotgun
 };
-}
+} // namespace engine

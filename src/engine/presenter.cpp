@@ -88,7 +88,10 @@ void Presenter::playVideo(const std::filesystem::path& path)
                 mesh->bind("u_input",
                            [&textureHandle](const render::scene::Node& /*node*/,
                                             const render::scene::Mesh& /*mesh*/,
-                                            gl::Uniform& uniform) { uniform.set(textureHandle); });
+                                            gl::Uniform& uniform)
+                           {
+                             uniform.set(textureHandle);
+                           });
                 mesh->getMaterialGroup()
                   .get(render::scene::RenderMode::Full)
                   ->getUniformBlock("Camera")
@@ -416,7 +419,9 @@ void Presenter::scaleSplashImage()
   m_splashImageMesh->bind(
     "u_input",
     [this](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
-    { uniform.set(m_splashImage); });
+    {
+      uniform.set(m_splashImage);
+    });
 }
 
 void Presenter::drawLoadingScreen(const std::string& state)

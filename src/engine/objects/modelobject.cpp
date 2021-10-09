@@ -75,10 +75,17 @@ void ModelObject::update()
         cmd += 2;
         break;
         // NOLINTNEXTLINE(bugprone-branch-clone)
-      case AnimCommandOpcode::PlaySound: cmd += 2; break;
-      case AnimCommandOpcode::PlayEffect: cmd += 2; break;
-      case AnimCommandOpcode::Kill: m_state.triggerState = TriggerState::Deactivated; break;
-      default: break;
+      case AnimCommandOpcode::PlaySound:
+        cmd += 2;
+        break;
+      case AnimCommandOpcode::PlayEffect:
+        cmd += 2;
+        break;
+      case AnimCommandOpcode::Kill:
+        m_state.triggerState = TriggerState::Deactivated;
+        break;
+      default:
+        break;
       }
     }
 
@@ -96,8 +103,12 @@ void ModelObject::update()
     ++cmd;
     switch(opcode)
     {
-    case AnimCommandOpcode::SetPosition: cmd += 3; break;
-    case AnimCommandOpcode::StartFalling: cmd += 2; break;
+    case AnimCommandOpcode::SetPosition:
+      cmd += 3;
+      break;
+    case AnimCommandOpcode::StartFalling:
+      cmd += 2;
+      break;
     case AnimCommandOpcode::PlaySound:
       if(getSkeleton()->getFrame().get() == cmd[0])
       {
@@ -112,7 +123,8 @@ void ModelObject::update()
       }
       cmd += 2;
       break;
-    default: break;
+    default:
+      break;
     }
   }
 

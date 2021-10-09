@@ -188,7 +188,11 @@ public:
   void lazy(const LazyCallback<TContext>& lazyCallback) const
   {
     if(loading)
-      m_lazyQueue->emplace([lazyCallback = lazyCallback, ser = *this]() { lazyCallback(ser); });
+      m_lazyQueue->emplace(
+        [lazyCallback = lazyCallback, ser = *this]()
+        {
+          lazyCallback(ser);
+        });
     else
       lazyCallback(*this);
   }
@@ -202,7 +206,11 @@ public:
   template<typename T>
   void lazy(const std::string_view& name, T& data) const
   {
-    lazy([pdata = &data, name = name](const Serializer<TContext>& ser) { ser(name, *pdata); });
+    lazy(
+      [pdata = &data, name = name](const Serializer<TContext>& ser)
+      {
+        ser(name, *pdata);
+      });
   }
 
   template<typename T, typename... Ts>

@@ -40,7 +40,10 @@ public:
         | set(gl::api::TextureMinFilter::Linear) | set(gl::api::TextureMagFilter::Linear));
     m_mesh = createScreenQuad(m_material, m_name + "/blur");
     m_mesh->bind("u_input",
-                 [src](const Node& /*node*/, const Mesh& /*mesh*/, gl::Uniform& uniform) { uniform.set(src); });
+                 [src](const Node& /*node*/, const Mesh& /*mesh*/, gl::Uniform& uniform)
+                 {
+                   uniform.set(src);
+                 });
 
     m_framebuffer = gl::FrameBufferBuilder()
                       .textureNoBlend(gl::api::FramebufferAttachment::ColorAttachment0, m_blurredTexture->getTexture())

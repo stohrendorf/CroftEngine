@@ -25,7 +25,10 @@ void Player::serialize(const serialization::Serializer<world::World>& ser)
       S_NV("timeSpent", timeSpent));
 
   if(ser.loading && ser.context.getObjectManager().getLaraPtr() != nullptr)
-    ser.lazy([](const serialization::Serializer<world::World>& ser)
-             { ser.context.getObjectManager().getLara().initWeaponAnimData(); });
+    ser.lazy(
+      [](const serialization::Serializer<world::World>& ser)
+      {
+        ser.context.getObjectManager().getLara().initWeaponAnimData();
+      });
 }
 } // namespace engine

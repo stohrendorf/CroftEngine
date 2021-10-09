@@ -288,9 +288,12 @@ hid::Action ControlsWidget::getCurrentAction() const
   auto [x, y] = m_controlGroups.at(selectedIdx)->getSelected();
   switch(selectedIdx)
   {
-  case 0: return gameplayActions.at(x / 2).at(y).value();
-  case 1: return shortcutActions.at(x / 2).at(y).value();
-  default: BOOST_THROW_EXCEPTION(std::runtime_error("Invalid control group"));
+  case 0:
+    return gameplayActions.at(x / 2).at(y).value();
+  case 1:
+    return shortcutActions.at(x / 2).at(y).value();
+  default:
+    BOOST_THROW_EXCEPTION(std::runtime_error("Invalid control group"));
   }
 }
 } // namespace menu

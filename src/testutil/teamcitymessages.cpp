@@ -55,12 +55,23 @@ public:
     {
       switch(c)
       {
-      case '\n': result.append("|n"); break;
-      case '\r': result.append("|r"); break;
-      case '\'': result.append("|'"); break;
-      case '|': result.append("||"); break;
-      case ']': result.append("|]"); break;
-      default: result.append(&c, 1);
+      case '\n':
+        result.append("|n");
+        break;
+      case '\r':
+        result.append("|r");
+        break;
+      case '\'':
+        result.append("|'");
+        break;
+      case '|':
+        result.append("||");
+        break;
+      case ']':
+        result.append("|]");
+        break;
+      default:
+        result.append(&c, 1);
       }
     }
 

@@ -49,14 +49,22 @@ std::string toString(const boost::execution_exception::error_code code)
 {
   switch(code)
   {
-  case boost::execution_exception::no_error: return {};
-  case boost::execution_exception::user_error: return "user error";
-  case boost::execution_exception::cpp_exception_error: return "C++ exception error";
-  case boost::execution_exception::system_error: return "system error";
-  case boost::execution_exception::user_fatal_error: return "user fatal error";
-  case boost::execution_exception::system_fatal_error: return "system fatal error";
-  case boost::execution_exception::timeout_error: return "timeout error";
-  default: break;
+  case boost::execution_exception::no_error:
+    return {};
+  case boost::execution_exception::user_error:
+    return "user error";
+  case boost::execution_exception::cpp_exception_error:
+    return "C++ exception error";
+  case boost::execution_exception::system_error:
+    return "system error";
+  case boost::execution_exception::user_fatal_error:
+    return "user fatal error";
+  case boost::execution_exception::system_fatal_error:
+    return "system fatal error";
+  case boost::execution_exception::timeout_error:
+    return "timeout error";
+  default:
+    break;
   }
   return "unknown error";
 }

@@ -22,11 +22,17 @@ SelectionBox::SelectionBox(const std::string& message, const std::vector<std::st
   std::transform(lines.begin(),
                  lines.end(),
                  std::back_inserter(m_messageLines),
-                 [](const std::string& line) { return std::make_shared<Label>(line, Label::Alignment::Center); });
+                 [](const std::string& line)
+                 {
+                   return std::make_shared<Label>(line, Label::Alignment::Center);
+                 });
   std::transform(options.begin(),
                  options.end(),
                  std::back_inserter(m_options),
-                 [](const std::string& label) { return std::make_shared<Label>(label, Label::Alignment::Center); });
+                 [](const std::string& label)
+                 {
+                   return std::make_shared<Label>(label, Label::Alignment::Center);
+                 });
 
   m_container->setExtents(1, m_messageLines.size() + m_options.size());
   for(size_t i = 0; i < m_messageLines.size(); ++i)

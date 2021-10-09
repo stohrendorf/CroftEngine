@@ -103,7 +103,8 @@ void Kold::update()
         require(3_as);
       }
       break;
-    default: break;
+    default:
+      break;
     }
   }
   else if(m_state.current_anim_state != 5_as) // injured/dying

@@ -255,7 +255,9 @@ std::pair<RunResult, std::optional<size_t>> SplashScreen::run(Engine& engine, co
       mesh->bind(
         "u_input",
         [&image](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
-        { uniform.set(image); });
+        {
+          uniform.set(image);
+        });
     }
 
     Ensures(mesh != nullptr);

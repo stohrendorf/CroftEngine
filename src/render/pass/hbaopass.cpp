@@ -51,11 +51,15 @@ HBAOPass::HBAOPass(scene::MaterialManager& materialManager,
   m_renderMesh->bind("u_normals",
                      [buffer = geometryPass.getNormalBuffer()](
                        const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
-                     { uniform.set(buffer); });
+                     {
+                       uniform.set(buffer);
+                     });
   m_renderMesh->bind("u_position",
                      [buffer = geometryPass.getPositionBuffer()](
                        const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
-                     { uniform.set(buffer); });
+                     {
+                       uniform.set(buffer);
+                     });
   m_renderMesh->getRenderState().merge(m_fb->getRenderState());
 
   m_blur.setInput(gsl::not_null{m_aoBufferHandle});

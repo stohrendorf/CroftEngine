@@ -137,7 +137,10 @@ std::shared_ptr<BufferHandle> StreamingSourceHandle::unqueueBuffer()
 
   auto it = std::find_if(m_queuedBuffers.begin(),
                          m_queuedBuffers.end(),
-                         [unqueued](const std::shared_ptr<BufferHandle>& buffer) { return *buffer == unqueued; });
+                         [unqueued](const std::shared_ptr<BufferHandle>& buffer)
+                         {
+                           return *buffer == unqueued;
+                         });
 
   if(it == m_queuedBuffers.end())
     BOOST_THROW_EXCEPTION(std::runtime_error("Unqueued buffer not in queue"));

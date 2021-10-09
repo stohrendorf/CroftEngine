@@ -122,11 +122,16 @@ enum class Axis
 {
   switch(axis)
   {
-  case Axis::Deg0: return 0_deg;
-  case Axis::Right90: return 90_deg;
-  case Axis::Deg180: return -180_deg;
-  case Axis::Left90: return -90_deg;
-  default: return 0_deg;
+  case Axis::Deg0:
+    return 0_deg;
+  case Axis::Right90:
+    return 90_deg;
+  case Axis::Deg180:
+    return -180_deg;
+  case Axis::Left90:
+    return -90_deg;
+  default:
+    return 0_deg;
   }
 }
 

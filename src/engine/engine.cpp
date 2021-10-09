@@ -239,15 +239,20 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
       m_presenter->swapBuffers();
       switch(menu->result)
       {
-      case menu::MenuResult::None: break;
+      case menu::MenuResult::None:
+        break;
       case menu::MenuResult::Closed:
         menu.reset();
         throttler.reset();
         break;
-      case menu::MenuResult::ExitToTitle: return {RunResult::TitleLevel, std::nullopt};
-      case menu::MenuResult::ExitGame: return {RunResult::ExitApp, std::nullopt};
-      case menu::MenuResult::NewGame: return {RunResult::NextLevel, std::nullopt};
-      case menu::MenuResult::LaraHome: return {RunResult::LaraHomeLevel, std::nullopt};
+      case menu::MenuResult::ExitToTitle:
+        return {RunResult::TitleLevel, std::nullopt};
+      case menu::MenuResult::ExitGame:
+        return {RunResult::ExitApp, std::nullopt};
+      case menu::MenuResult::NewGame:
+        return {RunResult::NextLevel, std::nullopt};
+      case menu::MenuResult::LaraHome:
+        return {RunResult::LaraHomeLevel, std::nullopt};
       case menu::MenuResult::RequestLoad:
         Expects(menu->requestLoad.has_value());
         if(getSavegameMeta(menu->requestLoad).has_value())
@@ -406,13 +411,17 @@ std::pair<RunResult, std::optional<size_t>> Engine::runTitleMenu(world::World& w
       backdropMesh->bind(
         "u_input",
         [backdrop](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
-        { uniform.set(backdrop); });
+        {
+          uniform.set(backdrop);
+        });
     }
 
     backdropMesh->bind(
       "u_input",
       [backdrop](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
-      { uniform.set(backdrop); });
+      {
+        uniform.set(backdrop);
+      });
     backdropMesh->render(context);
     menu->display(ui, world);
     m_presenter->renderUi(ui, 1);
@@ -420,12 +429,18 @@ std::pair<RunResult, std::optional<size_t>> Engine::runTitleMenu(world::World& w
     m_presenter->swapBuffers();
     switch(menu->result)
     {
-    case menu::MenuResult::None: break;
-    case menu::MenuResult::Closed: return {RunResult::ExitApp, std::nullopt};
-    case menu::MenuResult::ExitToTitle: return {RunResult::TitleLevel, std::nullopt};
-    case menu::MenuResult::ExitGame: return {RunResult::ExitApp, std::nullopt};
-    case menu::MenuResult::NewGame: return {RunResult::NextLevel, std::nullopt};
-    case menu::MenuResult::LaraHome: return {RunResult::LaraHomeLevel, std::nullopt};
+    case menu::MenuResult::None:
+      break;
+    case menu::MenuResult::Closed:
+      return {RunResult::ExitApp, std::nullopt};
+    case menu::MenuResult::ExitToTitle:
+      return {RunResult::TitleLevel, std::nullopt};
+    case menu::MenuResult::ExitGame:
+      return {RunResult::ExitApp, std::nullopt};
+    case menu::MenuResult::NewGame:
+      return {RunResult::NextLevel, std::nullopt};
+    case menu::MenuResult::LaraHome:
+      return {RunResult::LaraHomeLevel, std::nullopt};
     case menu::MenuResult::RequestLoad:
       Expects(menu->requestLoad.has_value());
       if(getSavegameMeta(menu->requestLoad).has_value())
@@ -474,7 +489,10 @@ std::unique_ptr<loader::trx::Glidos> Engine::loadGlidosPack() const
 
     m_presenter->drawLoadingScreen(_("Loading Glidos texture pack"));
     return std::make_unique<loader::trx::Glidos>(m_userDataPath / m_engineConfig->renderSettings.glidosPack.value(),
-                                                 [this](const std::string& s) { m_presenter->drawLoadingScreen(s); });
+                                                 [this](const std::string& s)
+                                                 {
+                                                   m_presenter->drawLoadingScreen(s);
+                                                 });
   }
 
   return nullptr;

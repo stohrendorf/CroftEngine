@@ -60,9 +60,14 @@ void Label::draw(ui::Ui& ui, const engine::Presenter& presenter) const
   auto x = 0;
   switch(m_alignment)
   {
-  case Alignment::Left: break;
-  case Alignment::Center: x = (m_size.x - m_text->getWidth()) / 2; break;
-  case Alignment::Right: x = m_size.x - m_text->getWidth(); break;
+  case Alignment::Left:
+    break;
+  case Alignment::Center:
+    x = (m_size.x - m_text->getWidth()) / 2;
+    break;
+  case Alignment::Right:
+    x = m_size.x - m_text->getWidth();
+    break;
   }
 
   m_text->draw(ui, presenter.getTrFont(), {m_position.x + x, m_position.y});

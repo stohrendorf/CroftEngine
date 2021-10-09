@@ -76,14 +76,18 @@ bool UniformBlockParameter::bind(const Node& node,
 
 void UniformBlockParameter::bindTransformBuffer()
 {
-  m_bufferBinder
-    = [](const Node& node, const Mesh& /*mesh*/, gl::UniformBlock& ub) { ub.bind(node.getTransformBuffer()); };
+  m_bufferBinder = [](const Node& node, const Mesh& /*mesh*/, gl::UniformBlock& ub)
+  {
+    ub.bind(node.getTransformBuffer());
+  };
 }
 
 void UniformBlockParameter::bindCameraBuffer(const gsl::not_null<std::shared_ptr<Camera>>& camera)
 {
   m_bufferBinder = [camera](const Node& /*node*/, const Mesh& /*mesh*/, gl::UniformBlock& ub)
-  { ub.bind(camera->getMatricesBuffer()); };
+  {
+    ub.bind(camera->getMatricesBuffer());
+  };
 }
 
 gl::UniformBlock*

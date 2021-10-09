@@ -12,8 +12,12 @@ namespace audio
 void VoiceGroup::add(gsl::not_null<std::shared_ptr<Voice>> voice)
 {
   voice->setGroupGain(m_gain);
-  if(std::find_if(
-       m_voices.begin(), m_voices.end(), [&voice](const auto& weakVoice) { return weakVoice.lock() == voice; })
+  if(std::find_if(m_voices.begin(),
+                  m_voices.end(),
+                  [&voice](const auto& weakVoice)
+                  {
+                    return weakVoice.lock() == voice;
+                  })
      == m_voices.end())
     m_voices.emplace_back(voice.get());
 }

@@ -86,7 +86,7 @@ public:
     auto& sync = m_splits.at(m_activeSplit).sync;
     if(sync == nullptr)
       return;
-    
+
     sync->wait();
     sync.reset();
   }

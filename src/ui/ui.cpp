@@ -42,7 +42,10 @@ void createQuad(std::vector<Ui::UiVertex>& vertices,
                 const glm::vec2& bottomRight,
                 const BoxGouraud& colors)
 {
-  static const auto toColor = [](const gl::SRGBA8& c) { return glm::vec4{c.channels} / 255.0f; };
+  static const auto toColor = [](const gl::SRGBA8& c)
+  {
+    return glm::vec4{c.channels} / 255.0f;
+  };
 
   vertices.emplace_back(Ui::UiVertex{
     {topLeft.x, topLeft.y},

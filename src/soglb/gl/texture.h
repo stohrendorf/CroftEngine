@@ -23,8 +23,14 @@ class TextureImpl : public Texture
 {
 protected:
   explicit TextureImpl(const std::string_view& label)
-      : Texture{[](const api::core::SizeType n, api::core::Handle* textures) { createTextures(_Target, n, textures); },
-                [](const uint32_t handle) { bindTexture(_Target, handle); },
+      : Texture{[](const api::core::SizeType n, api::core::Handle* textures)
+                {
+                  createTextures(_Target, n, textures);
+                },
+                [](const uint32_t handle)
+                {
+                  bindTexture(_Target, handle);
+                },
                 api::deleteTextures,
                 label}
   {

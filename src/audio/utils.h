@@ -30,10 +30,25 @@ auto alcAssertFn(ALCdevice* device, F code, gsl::czstring codeStr, gsl::czstring
 }
 } // namespace audio::detail
 
-#define AL_ASSERT_FN(code) ::audio::detail::alAssertFn([&]() { return code; }, #code, BOOST_CURRENT_FUNCTION, __LINE__)
+#define AL_ASSERT_FN(code)     \
+  ::audio::detail::alAssertFn( \
+    [&]()                      \
+    {                          \
+      return code;             \
+    },                         \
+    #code,                     \
+    BOOST_CURRENT_FUNCTION,    \
+    __LINE__)
 #define ALC_ASSERT_FN(device, code) \
   ::audio::detail::alcAssertFn(     \
-    device, [&]() { return code; }, #code, BOOST_CURRENT_FUNCTION, __LINE__)
+    device,                         \
+    [&]()                           \
+    {                               \
+      return code;                  \
+    },                              \
+    #code,                          \
+    BOOST_CURRENT_FUNCTION,         \
+    __LINE__)
 
 #ifndef NDEBUG
 #  define AL_ASSERT(code)                                                     \

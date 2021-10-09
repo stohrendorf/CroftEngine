@@ -104,6 +104,11 @@ template<typename... Args>
 inline gsl::not_null<std::unique_ptr<gl::Sampler>> operator|(gsl::not_null<std::unique_ptr<gl::Sampler>>&& sampler,
                                                              const gl::detail::ArgsHolder<Args...>& setter)
 {
-  std::apply([&sampler](const Args&... args) { sampler->set(args...); }, setter.args);
+  std::apply(
+    [&sampler](const Args&... args)
+    {
+      sampler->set(args...);
+    },
+    setter.args);
   return std::move(sampler);
 }

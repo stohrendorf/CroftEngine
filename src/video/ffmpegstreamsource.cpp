@@ -184,7 +184,8 @@ int64_t FfmpegMemoryStreamSource::ffmpegSeek(void* opaque, int64_t offset, int w
     h->dataPosition = gsl::narrow_cast<size_t>(
       std::clamp(gsl::narrow<int64_t>(h->data.size() - offset), int64_t{0}, gsl::narrow<int64_t>(h->data.size())));
     break;
-  default: BOOST_THROW_EXCEPTION(std::domain_error("invalid whence value"));
+  default:
+    BOOST_THROW_EXCEPTION(std::domain_error("invalid whence value"));
   }
   return gsl::narrow_cast<int64_t>(h->dataPosition);
 }
@@ -245,7 +246,8 @@ int64_t FfmpegSubStreamStreamSource::ffmpegSeek(void* opaque, int64_t offset, in
     h->dataPosition = gsl::narrow_cast<size_t>(
       std::clamp(gsl::narrow<int64_t>(size - offset), int64_t{0}, gsl::narrow<int64_t>(size)));
     break;
-  default: BOOST_THROW_EXCEPTION(std::domain_error("invalid whence value"));
+  default:
+    BOOST_THROW_EXCEPTION(std::domain_error("invalid whence value"));
   }
   return gsl::narrow_cast<int64_t>(h->dataPosition);
 }

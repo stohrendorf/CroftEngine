@@ -253,7 +253,9 @@ bool FlameParticle::update(world::World& world)
           = std::any_of(world.getObjectManager().getParticles().begin(),
                         world.getObjectManager().getParticles().end(),
                         [](const gsl::not_null<std::shared_ptr<Particle>>& particle)
-                        { return particle->object_number == TR1ItemId::Flame && particle->timePerSpriteFrame == -1; });
+                        {
+                          return particle->object_number == TR1ItemId::Flame && particle->timePerSpriteFrame == -1;
+                        });
 
         if(!alreadyAttachedToLara)
         {

@@ -146,7 +146,10 @@ std::pair<bool, Location>
                                                      ? collide(&core::TRVec::Z, &core::TRVec::X)
                                                      : collide(&core::TRVec::X, &core::TRVec::Z);
   const auto invariantCheck = gsl::finally(
-    [&result = result]() { Ensures(result.room->getSectorByAbsolutePosition(result.position) != nullptr); });
+    [&result = result]()
+    {
+      Ensures(result.room->getSectorByAbsolutePosition(result.position) != nullptr);
+    });
 
   if(secondCollision == CollisionType::Wall)
   {

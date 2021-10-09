@@ -147,11 +147,13 @@ void createMipmaps(const std::vector<std::shared_ptr<gl::CImgWrapper>>& images,
     tilesByTexture[sprite.textureId.get()].emplace(sprite.uv0, sprite.uv1);
   }
 
-  size_t totalTiles
-    = std::accumulate(tilesByTexture.begin(),
-                      tilesByTexture.end(),
-                      std::size_t{0},
-                      [](size_t n, const auto& textureAndTiles) { return n + textureAndTiles.second.size(); });
+  size_t totalTiles = std::accumulate(tilesByTexture.begin(),
+                                      tilesByTexture.end(),
+                                      std::size_t{0},
+                                      [](size_t n, const auto& textureAndTiles)
+                                      {
+                                        return n + textureAndTiles.second.size();
+                                      });
   BOOST_LOG_TRIVIAL(debug) << totalTiles << " unique texture tiles";
 
   size_t processedTiles = 0;
@@ -305,7 +307,10 @@ void remapTextures(const loader::file::level::Level& level,
 
   std::sort(tilesOrderedBySize.begin(),
             tilesOrderedBySize.end(),
-            [](AtlasTile* a, AtlasTile* b) { return a->getArea() > b->getArea(); });
+            [](AtlasTile* a, AtlasTile* b)
+            {
+              return a->getArea() > b->getArea();
+            });
 
   for(auto* tile : tilesOrderedBySize)
   {

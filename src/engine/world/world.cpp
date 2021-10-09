@@ -178,7 +178,8 @@ bool evaluateCondition(floordata::SequenceCondition condition,
 {
   switch(condition)
   {
-  case floordata::SequenceCondition::LaraIsHere: return true;
+  case floordata::SequenceCondition::LaraIsHere:
+    return true;
   case floordata::SequenceCondition::LaraOnGround:
   case floordata::SequenceCondition::LaraOnGroundInverted:
     return objectManager.getLara().m_state.location.position.Y == objectManager.getLara().m_state.floor;
@@ -207,8 +208,10 @@ bool evaluateCondition(floordata::SequenceCondition condition,
   case floordata::SequenceCondition::LaraInCombatMode:
     return objectManager.getLara().getHandStatus() == objects::HandStatus::Combat;
   case floordata::SequenceCondition::ItemIsHere:
-  case floordata::SequenceCondition::Dummy: return false;
-  default: return true;
+  case floordata::SequenceCondition::Dummy:
+    return false;
+  default:
+    return true;
   }
 }
 } // namespace
@@ -347,11 +350,17 @@ void World::earthquakeEffect()
     m_audioEngine->playSoundEffect(TR1SoundEffect::Explosion1, nullptr);
     m_cameraController->setBounce(-250_len);
     break;
-  case 3: m_audioEngine->playSoundEffect(TR1SoundEffect::RollingBall, nullptr); break;
-  case 35: m_audioEngine->playSoundEffect(TR1SoundEffect::Explosion1, nullptr); break;
+  case 3:
+    m_audioEngine->playSoundEffect(TR1SoundEffect::RollingBall, nullptr);
+    break;
+  case 35:
+    m_audioEngine->playSoundEffect(TR1SoundEffect::Explosion1, nullptr);
+    break;
   case 20:
   case 50:
-  case 70: m_audioEngine->playSoundEffect(TR1SoundEffect::TRexFootstep, nullptr); break;
+  case 70:
+    m_audioEngine->playSoundEffect(TR1SoundEffect::TRexFootstep, nullptr);
+    break;
   default:
     // silence compiler
     break;
@@ -618,7 +627,10 @@ void World::update(const bool godMode)
 
   m_pickupWidgets.erase(std::remove_if(m_pickupWidgets.begin(),
                                        m_pickupWidgets.end(),
-                                       [](const ui::PickupWidget& w) { return w.expired(); }),
+                                       [](const ui::PickupWidget& w)
+                                       {
+                                         return w.expired();
+                                       }),
                         m_pickupWidgets.end());
   for(auto& w : m_pickupWidgets)
     w.nextFrame();
@@ -631,28 +643,48 @@ void World::runEffect(const size_t id, objects::Object* object)
   BOOST_LOG_TRIVIAL(trace) << "Global effect " << id;
   switch(id)
   {
-  case 0: Expects(object != nullptr); return turn180Effect(*object);
-  case 1: Expects(object != nullptr); return dinoStompEffect(*object);
-  case 2: return laraNormalEffect();
-  case 3: Expects(object != nullptr); return laraBubblesEffect(*object);
-  case 4: return finishLevelEffect();
-  case 5: return earthquakeEffect();
-  case 6: return floodEffect();
-  case 7: return chandelierEffect();
-  case 8: return raisingBlockEffect();
-  case 9: return stairsToSlopeEffect();
-  case 10: return sandEffect();
-  case 11: return explosionEffect();
-  case 12: return laraHandsFreeEffect();
-  case 13: return flipMapEffect();
+  case 0:
+    Expects(object != nullptr);
+    return turn180Effect(*object);
+  case 1:
+    Expects(object != nullptr);
+    return dinoStompEffect(*object);
+  case 2:
+    return laraNormalEffect();
+  case 3:
+    Expects(object != nullptr);
+    return laraBubblesEffect(*object);
+  case 4:
+    return finishLevelEffect();
+  case 5:
+    return earthquakeEffect();
+  case 6:
+    return floodEffect();
+  case 7:
+    return chandelierEffect();
+  case 8:
+    return raisingBlockEffect();
+  case 9:
+    return stairsToSlopeEffect();
+  case 10:
+    return sandEffect();
+  case 11:
+    return explosionEffect();
+  case 12:
+    return laraHandsFreeEffect();
+  case 13:
+    return flipMapEffect();
   case 14:
     Expects(object != nullptr);
     if(const auto m = dynamic_cast<objects::ModelObject*>(object))
       return drawRightWeaponEffect(*m);
     break;
-  case 15: return chainBlockEffect();
-  case 16: return flickerEffect();
-  default: BOOST_LOG_TRIVIAL(warning) << "Unhandled effect: " << id;
+  case 15:
+    return chainBlockEffect();
+  case 16:
+    return flickerEffect();
+  default:
+    BOOST_LOG_TRIVIAL(warning) << "Unhandled effect: " << id;
   }
 }
 
@@ -803,8 +835,12 @@ void World::handleCommandSequence(const floordata::FloorDataValue* floorData, co
       if(m_roomsAreSwapped && m_mapFlipActivationStates[command.parameter].isFullyActivated())
         swapRooms = true;
       break;
-    case floordata::CommandOpcode::FlipEffect: flipEffect = command.parameter; break;
-    case floordata::CommandOpcode::EndLevel: finishLevel(); break;
+    case floordata::CommandOpcode::FlipEffect:
+      flipEffect = command.parameter;
+      break;
+    case floordata::CommandOpcode::EndLevel:
+      finishLevel();
+      break;
     case floordata::CommandOpcode::PlayTrack:
       m_audioEngine->triggerCdTrack(m_engine.getScriptEngine(),
                                     static_cast<TR1TrackId>(command.parameter),
@@ -820,7 +856,8 @@ void World::handleCommandSequence(const floordata::FloorDataValue* floorData, co
         ++m_player->secrets;
       }
       break;
-    default: break;
+    default:
+      break;
     }
 
     if(command.isLast)
@@ -840,7 +877,10 @@ core::TypeId World::find(const SkeletalModelType* model) const
 {
   auto it = std::find_if(m_animatedModels.begin(),
                          m_animatedModels.end(),
-                         [&model](const auto& item) { return item.second.get() == model; });
+                         [&model](const auto& item)
+                         {
+                           return item.second.get() == model;
+                         });
   if(it != m_animatedModels.end())
     return it->first;
 
@@ -852,7 +892,9 @@ core::TypeId World::find(const Sprite* sprite) const
   auto it = std::find_if(m_spriteSequences.begin(),
                          m_spriteSequences.end(),
                          [&sprite](const auto& sequence)
-                         { return !sequence.second->sprites.empty() && &sequence.second->sprites[0] == sprite; });
+                         {
+                           return !sequence.second->sprites.empty() && &sequence.second->sprites[0] == sprite;
+                         });
   if(it != m_spriteSequences.end())
     return it->first;
 
@@ -862,8 +904,13 @@ core::TypeId World::find(const Sprite* sprite) const
 void World::serialize(const serialization::Serializer<World>& ser)
 {
   std::vector<size_t> physicalIds;
-  std::transform(
-    m_rooms.begin(), m_rooms.end(), std::back_inserter(physicalIds), [](const Room& room) { return room.physicalId; });
+  std::transform(m_rooms.begin(),
+                 m_rooms.end(),
+                 std::back_inserter(physicalIds),
+                 [](const Room& room)
+                 {
+                   return room.physicalId;
+                 });
 
   if(ser.loading)
   {
@@ -923,10 +970,18 @@ void World::gameLoop(bool godMode, float waitRatio, float blackAlpha)
     std::string suffix;
     switch(m_player->selectedWeaponType)
     {
-    case WeaponType::Shotgun: suffix = " A"; break;
-    case WeaponType::Magnums: suffix = " B"; break;
-    case WeaponType::Uzis: suffix = " C"; break;
-    default: Expects(false); break;
+    case WeaponType::Shotgun:
+      suffix = " A";
+      break;
+    case WeaponType::Magnums:
+      suffix = " B";
+      break;
+    case WeaponType::Uzis:
+      suffix = " C";
+      break;
+    default:
+      Expects(false);
+      break;
     }
     const auto& ammo = m_player->getInventory().getAmmo(m_player->selectedWeaponType);
     const auto n = ammo.ammo / ammo.roundsPerShot;
@@ -1068,7 +1123,10 @@ World::World(Engine& engine,
                                 atlases,
                                 m_atlasTiles,
                                 m_sprites,
-                                [this](const std::string& s) { getPresenter().drawLoadingScreen(s); });
+                                [this](const std::string& s)
+                                {
+                                  getPresenter().drawLoadingScreen(s);
+                                });
 
   auto sampler = gslu::make_nn_unique<gl::Sampler>("all-textures-sampler")
                  | set(gl::api::TextureMinFilter::NearestMipmapLinear) | set(gl::api::TextureMagFilter::Nearest)
@@ -1190,7 +1248,10 @@ void World::initFromLevel(loader::file::level::Level& level)
   std::transform(level.m_palette->colors.begin(),
                  level.m_palette->colors.end(),
                  m_palette.begin(),
-                 [](const loader::file::ByteColor& color) { return color.toTextureColor(); });
+                 [](const loader::file::ByteColor& color)
+                 {
+                   return color.toTextureColor();
+                 });
 
   m_animations.resize(level.m_animations.size());
   m_transitions.resize(level.m_transitions.size());
@@ -1399,20 +1460,23 @@ void World::initFromLevel(loader::file::level::Level& level)
     std::transform(srcRoom.sectors.begin(),
                    srcRoom.sectors.end(),
                    std::back_inserter(m_rooms[i].sectors),
-                   [this](const loader::file::Sector& sector) {
+                   [this](const loader::file::Sector& sector)
+                   {
                      return Sector{sector, m_rooms, m_boxes, m_floorData};
                    });
     std::transform(srcRoom.lights.begin(),
                    srcRoom.lights.end(),
                    std::back_inserter(m_rooms[i].lights),
-                   [](const loader::file::Light& light) {
+                   [](const loader::file::Light& light)
+                   {
                      return Light{light.position, light.intensity, light.fadeDistance};
                    });
     std::transform(
       srcRoom.staticMeshes.begin(),
       srcRoom.staticMeshes.end(),
       std::back_inserter(m_rooms[i].staticMeshes),
-      [this](const loader::file::RoomStaticMesh& rsm) {
+      [this](const loader::file::RoomStaticMesh& rsm)
+      {
         return RoomStaticMesh{rsm.position, rsm.rotation, rsm.shade, gsl::not_null{findStaticMeshById(rsm.meshId)}};
       });
     m_rooms[i].alternateRoom = srcRoom.alternateRoom.get() >= 0 ? &m_rooms.at(srcRoom.alternateRoom.get()) : nullptr;
@@ -1428,7 +1492,8 @@ void World::initFromLevel(loader::file::level::Level& level)
   std::transform(level.m_cinematicFrames.begin(),
                  level.m_cinematicFrames.end(),
                  std::back_inserter(m_cinematicFrames),
-                 [](const loader::file::CinematicFrame& frame) {
+                 [](const loader::file::CinematicFrame& frame)
+                 {
                    return CinematicFrame{frame.lookAt, frame.position, toRad(frame.fov), toRad(frame.rotZ)};
                  });
 
@@ -1441,7 +1506,8 @@ void World::initFromLevel(loader::file::level::Level& level)
   std::transform(level.m_cameras.begin(),
                  level.m_cameras.end(),
                  std::back_inserter(m_cameraSinks),
-                 [](const loader::file::Camera& camera) {
+                 [](const loader::file::Camera& camera)
+                 {
                    return CameraSink{camera.position, {camera.room}, {camera.flags}};
                  });
 

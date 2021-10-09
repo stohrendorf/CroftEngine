@@ -71,7 +71,11 @@ void Sector::serialize(const serialization::Serializer<World>& ser)
 
   if(ser.loading)
   {
-    ser.lazy([this](const serialization::Serializer<World>& ser) { connect(ser.context.getRooms()); });
+    ser.lazy(
+      [this](const serialization::Serializer<World>& ser)
+      {
+        connect(ser.context.getRooms());
+      });
   }
 }
 } // namespace engine::world

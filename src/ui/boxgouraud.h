@@ -15,7 +15,10 @@ struct BoxGouraud
 
   [[nodiscard]] auto withAlpha(uint8_t alpha) const
   {
-    const auto multiplyAlpha = [alpha](uint8_t& value) { value = value * alpha / 255; };
+    const auto multiplyAlpha = [alpha](uint8_t& value)
+    {
+      value = value * alpha / 255;
+    };
 
     auto result = *this;
     multiplyAlpha(result.topLeft.channels[3]);

@@ -554,9 +554,14 @@ void LaraObject::updateImpl()
           setHandStatus(HandStatus::None);
           break;
           // NOLINTNEXTLINE(bugprone-branch-clone)
-        case AnimCommandOpcode::PlaySound: cmd += 2; break;
-        case AnimCommandOpcode::PlayEffect: cmd += 2; break;
-        default: break;
+        case AnimCommandOpcode::PlaySound:
+          cmd += 2;
+          break;
+        case AnimCommandOpcode::PlayEffect:
+          cmd += 2;
+          break;
+        default:
+          break;
         }
       }
     }
@@ -576,8 +581,12 @@ void LaraObject::updateImpl()
       ++cmd;
       switch(opcode)
       {
-      case AnimCommandOpcode::SetPosition: cmd += 3; break;
-      case AnimCommandOpcode::StartFalling: cmd += 2; break;
+      case AnimCommandOpcode::SetPosition:
+        cmd += 3;
+        break;
+      case AnimCommandOpcode::StartFalling:
+        cmd += 2;
+        break;
       case AnimCommandOpcode::PlaySound:
         if(getSkeleton()->getFrame().get() == cmd[0])
         {
@@ -593,7 +602,8 @@ void LaraObject::updateImpl()
         }
         cmd += 2;
         break;
-      default: break;
+      default:
+        break;
       }
     }
   }
@@ -714,11 +724,20 @@ void LaraObject::handleUnderwaterCurrent(CollisionInfo& collisionInfo)
     else if(m_state.rotation.X < -35_deg)
       m_state.rotation.X -= 2_deg;
     break;
-  case CollisionInfo::AxisColl::Top: m_state.rotation.X -= 2_deg; break;
-  case CollisionInfo::AxisColl::TopBottom: m_state.fallspeed = 0_spd; break;
-  case CollisionInfo::AxisColl::Left: m_state.rotation.Y += 5_deg; break;
-  case CollisionInfo::AxisColl::Right: m_state.rotation.Y -= 5_deg; break;
-  default: break;
+  case CollisionInfo::AxisColl::Top:
+    m_state.rotation.X -= 2_deg;
+    break;
+  case CollisionInfo::AxisColl::TopBottom:
+    m_state.fallspeed = 0_spd;
+    break;
+  case CollisionInfo::AxisColl::Left:
+    m_state.rotation.Y += 5_deg;
+    break;
+  case CollisionInfo::AxisColl::Right:
+    m_state.rotation.Y -= 5_deg;
+    break;
+  default:
+    break;
   }
 
   if(collisionInfo.mid.floor.y < 0_len)
@@ -821,10 +840,16 @@ void LaraObject::updateLarasWeaponsStatus()
 
     switch(getWorld().getPlayer().selectedWeaponType)
     {
-    case WeaponType::Pistols: [[fallthrough]];
-    case WeaponType::Magnums: [[fallthrough]];
-    case WeaponType::Uzis: holsterWeapons(getWorld().getPlayer().selectedWeaponType); break;
-    case WeaponType::Shotgun: holsterShotgun(); break;
+    case WeaponType::Pistols:
+      [[fallthrough]];
+    case WeaponType::Magnums:
+      [[fallthrough]];
+    case WeaponType::Uzis:
+      holsterWeapons(getWorld().getPlayer().selectedWeaponType);
+      break;
+    case WeaponType::Shotgun:
+      holsterShotgun();
+      break;
     }
   }
   else if(m_handStatus == HandStatus::Combat)
@@ -905,7 +930,8 @@ void LaraObject::updateLarasWeaponsStatus()
       }
       updateShotgun();
       break;
-    default: break;
+    default:
+      break;
     }
     getSkeleton()->rebuildMesh();
   }
@@ -1040,8 +1066,10 @@ void LaraObject::initWeaponAnimData()
   case WeaponType::None:
     leftArm.weaponAnimData = rightArm.weaponAnimData = getWorld().findAnimatedModelForType(TR1ItemId::Lara)->frames;
     break;
-  case WeaponType::Pistols: [[fallthrough]];
-  case WeaponType::Magnums: [[fallthrough]];
+  case WeaponType::Pistols:
+    [[fallthrough]];
+  case WeaponType::Magnums:
+    [[fallthrough]];
   case WeaponType::Uzis:
     leftArm.weaponAnimData = rightArm.weaponAnimData
       = getWorld().findAnimatedModelForType(TR1ItemId::LaraPistolsAnim)->frames;
@@ -1200,10 +1228,17 @@ void LaraObject::overrideLaraMeshesDrawWeapons(WeaponType weaponType)
   TR1ItemId id;
   switch(weaponType)
   {
-  case WeaponType::Pistols: id = TR1ItemId::LaraPistolsAnim; break;
-  case WeaponType::Magnums: id = TR1ItemId::LaraMagnumsAnim; break;
-  case WeaponType::Uzis: id = TR1ItemId::LaraUzisAnim; break;
-  default: BOOST_THROW_EXCEPTION(std::domain_error("weaponType"));
+  case WeaponType::Pistols:
+    id = TR1ItemId::LaraPistolsAnim;
+    break;
+  case WeaponType::Magnums:
+    id = TR1ItemId::LaraMagnumsAnim;
+    break;
+  case WeaponType::Uzis:
+    id = TR1ItemId::LaraUzisAnim;
+    break;
+  default:
+    BOOST_THROW_EXCEPTION(std::domain_error("weaponType"));
   }
 
   const auto& src = getWorld().findAnimatedModelForType(id);
@@ -1638,14 +1673,27 @@ void LaraObject::hitTarget(ModelObject& object, const core::TRVec& hitPos, const
   TR1SoundEffect soundEffect;
   switch(object.m_state.type.get_as<TR1ItemId>())
   {
-  case TR1ItemId::Wolf: soundEffect = TR1SoundEffect::WolfHurt; break;
-  case TR1ItemId::Bear: soundEffect = TR1SoundEffect::BearHurt; break;
+  case TR1ItemId::Wolf:
+    soundEffect = TR1SoundEffect::WolfHurt;
+    break;
+  case TR1ItemId::Bear:
+    soundEffect = TR1SoundEffect::BearHurt;
+    break;
   case TR1ItemId::LionMale:
-  case TR1ItemId::LionFemale: soundEffect = TR1SoundEffect::LionHurt; break;
-  case TR1ItemId::RatOnLand: soundEffect = TR1SoundEffect::RatHurt; break;
-  case TR1ItemId::SkateboardKid: soundEffect = TR1SoundEffect::SkateboardKidHurt; break;
-  case TR1ItemId::TorsoBoss: soundEffect = TR1SoundEffect::TorsoBossHurt; break;
-  default: return;
+  case TR1ItemId::LionFemale:
+    soundEffect = TR1SoundEffect::LionHurt;
+    break;
+  case TR1ItemId::RatOnLand:
+    soundEffect = TR1SoundEffect::RatHurt;
+    break;
+  case TR1ItemId::SkateboardKid:
+    soundEffect = TR1SoundEffect::SkateboardKidHurt;
+    break;
+  case TR1ItemId::TorsoBoss:
+    soundEffect = TR1SoundEffect::TorsoBossHurt;
+    break;
+  default:
+    return;
   }
 
   object.playSoundEffect(soundEffect);
@@ -1862,10 +1910,18 @@ void LaraObject::drawRoutine()
   {
     switch(*hit_direction)
     {
-    case core::Axis::PosX: frame = getWorld().getAnimation(AnimationId::AH_LEFT).frames; break;
-    case core::Axis::NegZ: frame = getWorld().getAnimation(AnimationId::AH_BACKWARD).frames; break;
-    case core::Axis::NegX: frame = getWorld().getAnimation(AnimationId::AH_RIGHT).frames; break;
-    default: frame = getWorld().getAnimation(AnimationId::AH_FORWARD).frames; break;
+    case core::Axis::PosX:
+      frame = getWorld().getAnimation(AnimationId::AH_LEFT).frames;
+      break;
+    case core::Axis::NegZ:
+      frame = getWorld().getAnimation(AnimationId::AH_BACKWARD).frames;
+      break;
+    case core::Axis::NegX:
+      frame = getWorld().getAnimation(AnimationId::AH_RIGHT).frames;
+      break;
+    default:
+      frame = getWorld().getAnimation(AnimationId::AH_FORWARD).frames;
+      break;
     }
     frame = frame->next(hit_frame.get());
   }
@@ -1958,7 +2014,8 @@ void LaraObject::drawRoutine()
     armAngleData = leftArm.weaponAnimData->next(leftArm.frame.get())->getAngleData();
     matrixStack.transform({BoneArmR, BoneForeArmR, BoneHandR}, objInfo.bones, armAngleData, getSkeleton());
     break;
-  default: break;
+  default:
+    break;
   }
 }
 
@@ -2057,7 +2114,8 @@ void LaraObject::drawRoutineInterpolated(const InterpolationInfo& interpolationI
     matrixStack.transform(
       {BoneArmR, BoneForeArmR, BoneHandR}, objInfo.bones, armAngleData, armAngleData, getSkeleton());
     break;
-  default: break;
+  default:
+    break;
   }
 }
 
@@ -2093,7 +2151,8 @@ void LaraObject::renderMuzzleFlash(const WeaponType weaponType,
     shade = core::Shade{core::Shade::type{5120}};
     dy = 155_len;
     break;
-  default: BOOST_THROW_EXCEPTION(std::domain_error("WeaponType"));
+  default:
+    BOOST_THROW_EXCEPTION(std::domain_error("WeaponType"));
   }
 
   m = translate(m, core::TRVec{0_len, dy, 55_len}.toRenderSystem());
@@ -2106,7 +2165,10 @@ void LaraObject::renderMuzzleFlash(const WeaponType weaponType,
   muzzleFlashNode->bind("u_lightAmbient",
                         [brightness = toBrightness(shade)](const render::scene::Node& /*node*/,
                                                            const render::scene::Mesh& /*mesh*/,
-                                                           gl::Uniform& uniform) { uniform.set(brightness.get()); });
+                                                           gl::Uniform& uniform)
+                        {
+                          uniform.set(brightness.get());
+                        });
 }
 
 void LaraObject::burnIfAlive()
@@ -2156,8 +2218,11 @@ void LaraObject::serialize(const serialization::Serializer<world::World>& ser)
       S_NV("rightArm", rightArm),
       S_NV("weaponTargetVector", m_weaponTargetVector));
 
-  ser.lazy([this](const serialization::Serializer<world::World>& ser)
-           { ser(S_NV("aimAt", serialization::ObjectReference{aimAt})); });
+  ser.lazy(
+    [this](const serialization::Serializer<world::World>& ser)
+    {
+      ser(S_NV("aimAt", serialization::ObjectReference{aimAt}));
+    });
 
   if(ser.loading)
   {
@@ -2337,10 +2402,17 @@ void LaraObject::AimInfo::overrideHolsterWeaponsMeshes(LaraObject& lara, WeaponT
   TR1ItemId srcId;
   switch(weaponType)
   {
-  case WeaponType::Pistols: srcId = TR1ItemId::LaraPistolsAnim; break;
-  case WeaponType::Magnums: srcId = TR1ItemId::LaraMagnumsAnim; break;
-  case WeaponType::Uzis: srcId = TR1ItemId::LaraUzisAnim; break;
-  default: BOOST_THROW_EXCEPTION(std::domain_error("weaponType"));
+  case WeaponType::Pistols:
+    srcId = TR1ItemId::LaraPistolsAnim;
+    break;
+  case WeaponType::Magnums:
+    srcId = TR1ItemId::LaraMagnumsAnim;
+    break;
+  case WeaponType::Uzis:
+    srcId = TR1ItemId::LaraUzisAnim;
+    break;
+  default:
+    BOOST_THROW_EXCEPTION(std::domain_error("weaponType"));
   }
 
   const auto& src = *lara.getWorld().findAnimatedModelForType(srcId);

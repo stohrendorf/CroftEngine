@@ -49,7 +49,12 @@ std::unique_ptr<WordTexture> WordTexture::read(io::SDLReader& reader)
 
   for(auto& row : texture->pixels)
   {
-    std::generate(row.begin(), row.end(), [&reader]() { return reader.readU16(); });
+    std::generate(row.begin(),
+                  row.end(),
+                  [&reader]()
+                  {
+                    return reader.readU16();
+                  });
   }
 
   return texture;

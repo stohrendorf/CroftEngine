@@ -126,7 +126,8 @@ void TRex::update()
       }
       require(Attack);
       break;
-    default: break;
+    default:
+      break;
     }
   }
   else

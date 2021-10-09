@@ -53,8 +53,11 @@ gsl::not_null<std::shared_ptr<Material>> MaterialManager::getSprite(bool billboa
   m->getUniformBlock("Transform")->bindTransformBuffer();
   m->getUniformBlock("Camera")->bindCameraBuffer(m_renderer->getCamera());
   m->getUniform("u_diffuseTextures")
-    ->bind([this](const Node& /*node*/, const Mesh& /*mesh*/, gl::Uniform& uniform)
-           { uniform.set(gsl::not_null{m_geometryTextures}); });
+    ->bind(
+      [this](const Node& /*node*/, const Mesh& /*mesh*/, gl::Uniform& uniform)
+      {
+        uniform.set(gsl::not_null{m_geometryTextures});
+      });
 
   m_sprite.emplace(billboard, m);
   return m;
@@ -95,8 +98,11 @@ gsl::not_null<std::shared_ptr<Material>> MaterialManager::getDepthOnly(bool skel
   if(auto buffer = m->tryGetBuffer("BoneTransform"))
     buffer->bindBoneTransformBuffer();
   m->getUniform("u_diffuseTextures")
-    ->bind([this](const Node& /*node*/, const Mesh& /*mesh*/, gl::Uniform& uniform)
-           { uniform.set(gsl::not_null{m_geometryTextures}); });
+    ->bind(
+      [this](const Node& /*node*/, const Mesh& /*mesh*/, gl::Uniform& uniform)
+      {
+        uniform.set(gsl::not_null{m_geometryTextures});
+      });
 
   m_depthOnly.emplace(skeletal, m);
   return m;
@@ -111,8 +117,11 @@ gsl::not_null<std::shared_ptr<Material>> MaterialManager::getGeometry(bool inWat
 
   auto m = gslu::make_nn_shared<Material>(m_shaderCache->getGeometry(inWater, skeletal, roomShadowing, 0));
   m->getUniform("u_diffuseTextures")
-    ->bind([this](const Node& /*node*/, const Mesh& /*mesh*/, gl::Uniform& uniform)
-           { uniform.set(gsl::not_null{m_geometryTextures}); });
+    ->bind(
+      [this](const Node& /*node*/, const Mesh& /*mesh*/, gl::Uniform& uniform)
+      {
+        uniform.set(gsl::not_null{m_geometryTextures});
+      });
 
   m->getUniformBlock("Transform")->bindTransformBuffer();
   if(auto buffer = m->tryGetBuffer("BoneTransform"))
@@ -241,8 +250,11 @@ gsl::not_null<std::shared_ptr<Material>> MaterialManager::getUi()
     return gsl::not_null{m_ui};
 
   auto m = std::make_shared<Material>(m_shaderCache->getUi());
-  m->getUniform("u_input")->bind([this](const Node& /*node*/, const Mesh& /*mesh*/, gl::Uniform& uniform)
-                                 { uniform.set(gsl::not_null{m_geometryTextures}); });
+  m->getUniform("u_input")->bind(
+    [this](const Node& /*node*/, const Mesh& /*mesh*/, gl::Uniform& uniform)
+    {
+      uniform.set(gsl::not_null{m_geometryTextures});
+    });
   m->getUniformBlock("Camera")->bindCameraBuffer(m_renderer->getCamera());
   configureForScreenSpaceEffect(*m, true);
   m_ui = m;

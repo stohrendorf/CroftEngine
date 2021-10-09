@@ -41,11 +41,16 @@ inline std::ostream& operator<<(std::ostream& str, const Mood mood)
 {
   switch(mood)
   {
-  case Mood::Bored: return str << "Bored";
-  case Mood::Attack: return str << "Attack";
-  case Mood::Escape: return str << "Escape";
-  case Mood::Stalk: return str << "Stalk";
-  default: BOOST_THROW_EXCEPTION(std::runtime_error("Invalid mood"));
+  case Mood::Bored:
+    return str << "Bored";
+  case Mood::Attack:
+    return str << "Attack";
+  case Mood::Escape:
+    return str << "Escape";
+  case Mood::Stalk:
+    return str << "Stalk";
+  default:
+    BOOST_THROW_EXCEPTION(std::runtime_error("Invalid mood"));
   }
 }
 

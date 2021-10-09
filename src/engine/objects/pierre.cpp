@@ -149,7 +149,8 @@ void Pierre::update()
       if(isEscaping() && util::rand15() > 8192)
         require(1_as);
       break;
-    default: break;
+    default:
+      break;
     }
   }
   else if(m_state.current_anim_state != 5_as) // injured/dying

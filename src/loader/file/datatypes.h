@@ -107,11 +107,16 @@ struct Light
   {
     switch(light_type)
     {
-    case 0: return LightType::Sun;
-    case 1: return LightType::Point;
-    case 2: return LightType::Spotlight;
-    case 3: return LightType::Shadow;
-    default: return LightType::Null;
+    case 0:
+      return LightType::Sun;
+    case 1:
+      return LightType::Point;
+    case 2:
+      return LightType::Spotlight;
+    case 3:
+      return LightType::Shadow;
+    default:
+      return LightType::Null;
     }
   }
 

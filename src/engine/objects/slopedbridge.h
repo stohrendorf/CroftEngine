@@ -77,11 +77,16 @@ private:
 
     switch(*axis)
     {
-    case core::Axis::PosZ: return core::SectorSize - 1_len - (pos.X % core::SectorSize);
-    case core::Axis::PosX: return (pos.Z % core::SectorSize);
-    case core::Axis::NegZ: return (pos.X % core::SectorSize);
-    case core::Axis::NegX: return core::SectorSize - 1_len - (pos.Z % core::SectorSize);
-    default: return 0_len;
+    case core::Axis::PosZ:
+      return core::SectorSize - 1_len - (pos.X % core::SectorSize);
+    case core::Axis::PosX:
+      return (pos.Z % core::SectorSize);
+    case core::Axis::NegZ:
+      return (pos.X % core::SectorSize);
+    case core::Axis::NegX:
+      return core::SectorSize - 1_len - (pos.Z % core::SectorSize);
+    default:
+      return 0_len;
     }
   }
 };

@@ -59,7 +59,8 @@ std::optional<ai::Mood> getNewNonViolentMood(const EnemyLocation& enemyLocation,
 {
   switch(creatureInfo.mood)
   {
-  case Mood::Bored: [[fallthrough]];
+  case Mood::Bored:
+    [[fallthrough]];
   case Mood::Stalk:
     if(isHit && (util::rand15() < 2048 || !enemyLocation.canReachEnemyZone()))
     {

@@ -171,7 +171,10 @@ public:
     std::transform(m_meshParts.begin(),
                    m_meshParts.end(),
                    std::back_inserter(matrices),
-                   [](const auto& part) { return part.poseMatrix; });
+                   [](const auto& part)
+                   {
+                     return part.poseMatrix;
+                   });
     m_meshMatricesBuffer.setData(matrices, gl::api::BufferUsage::DynamicDraw);
     return m_meshMatricesBuffer;
   }

@@ -8,4 +8,4 @@ enum class RenderMode
   CSMDepthOnly,
   DepthOnly
 };
-}
+} // namespace render::scene

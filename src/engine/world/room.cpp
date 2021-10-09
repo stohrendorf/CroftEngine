@@ -340,13 +340,17 @@ void Room::createSceneNode(const loader::file::Room& srcRoom,
   node->setRenderable(resMesh);
   node->bind("u_lightAmbient",
              [](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
-             { uniform.set(1.0f); });
+             {
+               uniform.set(1.0f);
+             });
 
   node->bind("b_lights",
              [emptyBuffer = ShaderLight::getEmptyBuffer()](const render::scene::Node&,
                                                            const render::scene::Mesh& /*mesh*/,
                                                            gl::ShaderStorageBlock& shaderStorageBlock)
-             { shaderStorageBlock.bind(*emptyBuffer); });
+             {
+               shaderStorageBlock.bind(*emptyBuffer);
+             });
 
   for(const RoomStaticMesh& sm : staticMeshes)
   {
@@ -361,12 +365,17 @@ void Room::createSceneNode(const loader::file::Room& srcRoom,
     subNode->bind("u_lightAmbient",
                   [brightness = toBrightness(ambientShade)](
                     const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
-                  { uniform.set(brightness.get()); });
+                  {
+                    uniform.set(brightness.get());
+                  });
 
     subNode->bind("b_lights",
                   [this](const render::scene::Node&,
                          const render::scene::Mesh& /*mesh*/,
-                         gl::ShaderStorageBlock& shaderStorageBlock) { shaderStorageBlock.bind(*lightsBuffer); });
+                         gl::ShaderStorageBlock& shaderStorageBlock)
+                  {
+                    shaderStorageBlock.bind(*lightsBuffer);
+                  });
 
     sceneryNodes.emplace_back(std::move(subNode));
   }
@@ -385,12 +394,16 @@ void Room::createSceneNode(const loader::file::Room& srcRoom,
     spriteNode->bind("u_lightAmbient",
                      [brightness = toBrightness(v.shade)](
                        const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
-                     { uniform.set(brightness.get()); });
+                     {
+                       uniform.set(brightness.get());
+                     });
     spriteNode->bind("b_lights",
                      [emptyLightsBuffer = ShaderLight::getEmptyBuffer()](const render::scene::Node&,
                                                                          const render::scene::Mesh& /*mesh*/,
                                                                          gl::ShaderStorageBlock& shaderStorageBlock)
-                     { shaderStorageBlock.bind(*emptyLightsBuffer); });
+                     {
+                       shaderStorageBlock.bind(*emptyLightsBuffer);
+                     });
 
     sceneryNodes.emplace_back(std::move(spriteNode));
   }

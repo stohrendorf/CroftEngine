@@ -29,7 +29,10 @@ void load(std::vector<T>& data, const Serializer<TContext>& ser)
   std::transform(ser.node.begin(),
                  ser.node.end(),
                  std::back_inserter(data),
-                 [&ser](const ryml::NodeRef& element) { return access<T>::callCreate(ser.withNode(element)); });
+                 [&ser](const ryml::NodeRef& element)
+                 {
+                   return access<T>::callCreate(ser.withNode(element));
+                 });
 }
 
 template<typename T>

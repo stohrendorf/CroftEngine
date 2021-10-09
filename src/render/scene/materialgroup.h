@@ -19,10 +19,14 @@ public:
   {
     switch(mode)
     {
-    case RenderMode::Full: return m_full;
-    case RenderMode::CSMDepthOnly: return m_csmDepthOnly;
-    case RenderMode::DepthOnly: return m_depthOnly;
-    default: BOOST_THROW_EXCEPTION(std::domain_error("Invalid render mode"));
+    case RenderMode::Full:
+      return m_full;
+    case RenderMode::CSMDepthOnly:
+      return m_csmDepthOnly;
+    case RenderMode::DepthOnly:
+      return m_depthOnly;
+    default:
+      BOOST_THROW_EXCEPTION(std::domain_error("Invalid render mode"));
     }
   }
 
@@ -30,10 +34,17 @@ public:
   {
     switch(mode)
     {
-    case RenderMode::Full: m_full = material; break;
-    case RenderMode::CSMDepthOnly: m_csmDepthOnly = material; break;
-    case RenderMode::DepthOnly: m_depthOnly = material; break;
-    default: BOOST_THROW_EXCEPTION(std::domain_error("Invalid render mode"));
+    case RenderMode::Full:
+      m_full = material;
+      break;
+    case RenderMode::CSMDepthOnly:
+      m_csmDepthOnly = material;
+      break;
+    case RenderMode::DepthOnly:
+      m_depthOnly = material;
+      break;
+    default:
+      BOOST_THROW_EXCEPTION(std::domain_error("Invalid render mode"));
     }
     return *this;
   }

@@ -15,10 +15,12 @@ Node::~Node()
 {
   if(auto p = m_parent.lock())
   {
-    const auto it
-      = std::find_if(p->m_children.begin(),
-                     p->m_children.end(),
-                     [this](const gsl::not_null<std::shared_ptr<Node>>& node) { return node.get().get() == this; });
+    const auto it = std::find_if(p->m_children.begin(),
+                                 p->m_children.end(),
+                                 [this](const gsl::not_null<std::shared_ptr<Node>>& node)
+                                 {
+                                   return node.get().get() == this;
+                                 });
     if(it != p->m_children.end())
       p->m_children.erase(it);
   }

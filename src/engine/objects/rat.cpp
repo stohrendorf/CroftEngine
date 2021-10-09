@@ -177,7 +177,8 @@ void Rat::update()
         if(!isBored() || util::rand15() < 256)
           goal(1_as);
         break;
-      default: break;
+      default:
+        break;
       }
     }
     else if(m_state.current_anim_state != 5_as)

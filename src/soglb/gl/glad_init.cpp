@@ -20,13 +20,20 @@ gsl::czstring glDebugSourceToString(const api::DebugSource src)
 {
   switch(src)
   {
-  case api::DebugSource::DebugSourceApi: return "API";
-  case api::DebugSource::DebugSourceApplication: return "Application";
-  case api::DebugSource::DebugSourceOther: return "Other";
-  case api::DebugSource::DebugSourceShaderCompiler: return "Shader Compiler";
-  case api::DebugSource::DebugSourceThirdParty: return "Third Party";
-  case api::DebugSource::DebugSourceWindowSystem: return "Window System";
-  case api::DebugSource::DontCare: return "<don't care>";
+  case api::DebugSource::DebugSourceApi:
+    return "API";
+  case api::DebugSource::DebugSourceApplication:
+    return "Application";
+  case api::DebugSource::DebugSourceOther:
+    return "Other";
+  case api::DebugSource::DebugSourceShaderCompiler:
+    return "Shader Compiler";
+  case api::DebugSource::DebugSourceThirdParty:
+    return "Third Party";
+  case api::DebugSource::DebugSourceWindowSystem:
+    return "Window System";
+  case api::DebugSource::DontCare:
+    return "<don't care>";
   }
   return "<unknown>";
 }
@@ -35,16 +42,26 @@ gsl::czstring glDebugTypeToString(const api::DebugType type)
 {
   switch(type)
   {
-  case api::DebugType::DebugTypeDeprecatedBehavior: return "Deprecated Behavior";
-  case api::DebugType::DebugTypeError: return "Error";
-  case api::DebugType::DebugTypeMarker: return "Marker";
-  case api::DebugType::DebugTypePerformance: return "Performance";
-  case api::DebugType::DebugTypePopGroup: return "Pop Group";
-  case api::DebugType::DebugTypePushGroup: return "Push Group";
-  case api::DebugType::DebugTypePortability: return "Portability";
-  case api::DebugType::DebugTypeOther: return "Other";
-  case api::DebugType::DebugTypeUndefinedBehavior: return "Undefined Behaviour";
-  case api::DebugType::DontCare: return "<don't care>";
+  case api::DebugType::DebugTypeDeprecatedBehavior:
+    return "Deprecated Behavior";
+  case api::DebugType::DebugTypeError:
+    return "Error";
+  case api::DebugType::DebugTypeMarker:
+    return "Marker";
+  case api::DebugType::DebugTypePerformance:
+    return "Performance";
+  case api::DebugType::DebugTypePopGroup:
+    return "Pop Group";
+  case api::DebugType::DebugTypePushGroup:
+    return "Push Group";
+  case api::DebugType::DebugTypePortability:
+    return "Portability";
+  case api::DebugType::DebugTypeOther:
+    return "Other";
+  case api::DebugType::DebugTypeUndefinedBehavior:
+    return "Undefined Behaviour";
+  case api::DebugType::DontCare:
+    return "<don't care>";
   }
   return "<unknown>";
 }
@@ -53,11 +70,16 @@ gsl::czstring glDebugSeverityToString(const api::DebugSeverity severity)
 {
   switch(severity)
   {
-  case api::DebugSeverity::DebugSeverityHigh: return "High";
-  case api::DebugSeverity::DebugSeverityLow: return "Low";
-  case api::DebugSeverity::DebugSeverityMedium: return "Medium";
-  case api::DebugSeverity::DebugSeverityNotification: return "Notification";
-  case api::DebugSeverity::DontCare: return "<don't care>";
+  case api::DebugSeverity::DebugSeverityHigh:
+    return "High";
+  case api::DebugSeverity::DebugSeverityLow:
+    return "Low";
+  case api::DebugSeverity::DebugSeverityMedium:
+    return "Medium";
+  case api::DebugSeverity::DebugSeverityNotification:
+    return "Notification";
+  case api::DebugSeverity::DontCare:
+    return "<don't care>";
   }
   return "<unknown>";
 }

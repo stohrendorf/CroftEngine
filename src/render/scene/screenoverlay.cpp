@@ -64,10 +64,14 @@ void ScreenOverlay::init(MaterialManager& materialManager, const glm::ivec2& vie
   m_mesh = createScreenQuad(materialManager.getFlat(true, true), "screenoverlay");
   m_mesh->bind("u_input",
                [this](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
-               { uniform.set(gsl::not_null{m_texture}); });
+               {
+                 uniform.set(gsl::not_null{m_texture});
+               });
   m_mesh->bind("u_alphaMultiplier",
                [this](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
-               { uniform.set(m_alphaMultiplier); });
+               {
+                 uniform.set(m_alphaMultiplier);
+               });
 
   m_mesh->getRenderState().setBlend(0, true);
 }

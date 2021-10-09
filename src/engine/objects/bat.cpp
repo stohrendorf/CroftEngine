@@ -33,7 +33,9 @@ void Bat::update()
     rotationToMoveTarget = rotateTowardsTarget(20_deg / 1_frame);
     switch(m_state.current_anim_state.get())
     {
-    case StartingToFly: goal(FlyingStraight); break;
+    case StartingToFly:
+      goal(FlyingStraight);
+      break;
     case FlyingStraight:
       if(touched())
         goal(Biting);
@@ -50,7 +52,8 @@ void Bat::update()
         bored();
       }
       break;
-    default: break;
+    default:
+      break;
     }
   }
   else

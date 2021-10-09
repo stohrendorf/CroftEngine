@@ -141,7 +141,8 @@ void ThorHammerHandle::update()
     m_state.triggerState = TriggerState::Deactivated;
     break;
   }
-  default: break;
+  default:
+    break;
   }
   ModelObject::update();
 

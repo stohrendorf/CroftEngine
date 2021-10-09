@@ -73,7 +73,12 @@ public:
 
   [[nodiscard]] bool any() const
   {
-    return std::find_if(m_inventory.begin(), m_inventory.end(), [](const auto& kv) { return kv.second != 0; })
+    return std::find_if(m_inventory.begin(),
+                        m_inventory.end(),
+                        [](const auto& kv)
+                        {
+                          return kv.second != 0;
+                        })
            != m_inventory.end();
   }
 
@@ -95,11 +100,16 @@ public:
 
     switch(weaponType)
     {
-    case WeaponType::Pistols: return m_pistolsAmmo;
-    case WeaponType::Magnums: return m_magnumsAmmo;
-    case WeaponType::Uzis: return m_uzisAmmo;
-    case WeaponType::Shotgun: return m_shotgunAmmo;
-    default: BOOST_THROW_EXCEPTION(std::domain_error("weaponType"));
+    case WeaponType::Pistols:
+      return m_pistolsAmmo;
+    case WeaponType::Magnums:
+      return m_magnumsAmmo;
+    case WeaponType::Uzis:
+      return m_uzisAmmo;
+    case WeaponType::Shotgun:
+      return m_shotgunAmmo;
+    default:
+      BOOST_THROW_EXCEPTION(std::domain_error("weaponType"));
     }
   }
 

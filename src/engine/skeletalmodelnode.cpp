@@ -159,7 +159,9 @@ bool SkeletalModelNode::handleStateTransitions(core::AnimStateId& animState, con
     const auto it = std::find_if(tr.transitionCases.cbegin(),
                                  tr.transitionCases.cend(),
                                  [this](const world::TransitionCase& trc)
-                                 { return m_frame >= trc.firstFrame && m_frame <= trc.lastFrame; });
+                                 {
+                                   return m_frame >= trc.firstFrame && m_frame <= trc.lastFrame;
+                                 });
 
     if(it != tr.transitionCases.cend())
     {
@@ -267,7 +269,12 @@ void SkeletalModelNode::buildMesh(const std::shared_ptr<SkeletalModelNode>& skel
 void SkeletalModelNode::rebuildMesh()
 {
   if(!m_forceMeshRebuild
-     && !std::any_of(m_meshParts.begin(), m_meshParts.end(), [](const auto& part) { return part.meshChanged(); }))
+     && !std::any_of(m_meshParts.begin(),
+                     m_meshParts.end(),
+                     [](const auto& part)
+                     {
+                       return part.meshChanged();
+                     }))
   {
     return;
   }

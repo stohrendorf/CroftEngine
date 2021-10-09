@@ -71,7 +71,9 @@ void CSM::Split::init(int32_t resolution, size_t idx, MaterialManager& materialM
   squareMesh = createScreenQuad(squareMaterial, "csm/" + std::to_string(idx));
   squareMesh->bind("u_shadow",
                    [this](const Node& /*node*/, const Mesh& /*mesh*/, gl::Uniform& uniform)
-                   { uniform.set(gsl::not_null{depthTextureHandle}); });
+                   {
+                     uniform.set(gsl::not_null{depthTextureHandle});
+                   });
   squareMesh->getRenderState().merge(squareFramebuffer->getRenderState());
   squareMesh->getMaterialGroup().set(RenderMode::Full, squareMaterial);
 
@@ -159,7 +161,10 @@ std::array<glm::mat4, CSMBuffer::NSplits> CSM::getMatrices(const glm::mat4& mode
   std::transform(m_splits.begin(),
                  m_splits.end(),
                  result.begin(),
-                 [modelMatrix](const Split& split) { return split.vpMatrix * modelMatrix; });
+                 [modelMatrix](const Split& split)
+                 {
+                   return split.vpMatrix * modelMatrix;
+                 });
   return result;
 }
 

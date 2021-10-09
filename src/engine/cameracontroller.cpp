@@ -182,7 +182,8 @@ Location clampBox(const Location& start,
 
   core::TRVec testPos = result.position;
 
-  const auto testPosInvalid = [&testPos, &result, &objectManager] {
+  const auto testPosInvalid = [&testPos, &result, &objectManager]
+  {
     return isVerticallyOutsideRoom(Location{result.room, testPos}, objectManager);
   };
 
@@ -684,7 +685,10 @@ void CameraController::chaseObject(const objects::Object& object)
                                   const core::Length& e,
                                   const core::Length& f,
                                   const core::Length& g,
-                                  const core::Length& h) { clampToCorners(distSq, a, b, c, d, e, f, g, h); },
+                                  const core::Length& h)
+    {
+      clampToCorners(distSq, a, b, c, d, e, f, g, h);
+    },
     m_world->getObjectManager());
 
   updatePosition(goal, m_isCompletelyFixed ? m_smoothness : 12);
@@ -752,7 +756,10 @@ void CameraController::handleEnemy(objects::Object& object)
                                   const core::Length& e,
                                   const core::Length& f,
                                   const core::Length& g,
-                                  const core::Length& h) { clampToCorners(distSq, a, b, c, d, e, f, g, h); },
+                                  const core::Length& h)
+    {
+      clampToCorners(distSq, a, b, c, d, e, f, g, h);
+    },
     m_world->getObjectManager());
   updatePosition(eye, m_smoothness);
 }

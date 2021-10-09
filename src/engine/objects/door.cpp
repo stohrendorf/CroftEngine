@@ -38,10 +38,18 @@ Door::Door(const std::string& name,
   const auto axis = axisFromAngle(m_state.rotation.Y);
   switch(axis)
   {
-  case core::Axis::PosZ: dz = -core::SectorSize; break;
-  case core::Axis::PosX: dx = -core::SectorSize; break;
-  case core::Axis::NegZ: dz = core::SectorSize; break;
-  case core::Axis::NegX: dx = core::SectorSize; break;
+  case core::Axis::PosZ:
+    dz = -core::SectorSize;
+    break;
+  case core::Axis::PosX:
+    dx = -core::SectorSize;
+    break;
+  case core::Axis::NegZ:
+    dz = core::SectorSize;
+    break;
+  case core::Axis::NegX:
+    dx = core::SectorSize;
+    break;
   }
 
   m_wingsPosition = m_state.location.position + core::TRVec{dx, 0_len, dz};

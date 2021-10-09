@@ -59,61 +59,91 @@ WorldCompositionPass::WorldCompositionPass(scene::MaterialManager& materialManag
   m_noWaterMesh->bind("u_portalPosition",
                       [buffer = portalPass.getPositionBuffer()](
                         const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
-                      { uniform.set(buffer); });
+                      {
+                        uniform.set(buffer);
+                      });
   if(renderSettings.waterDenoise)
     m_noWaterMesh->bind("u_portalPerturb",
                         [texture = portalPass.getBlurredTexture()](const render::scene::Node& /*node*/,
                                                                    const render::scene::Mesh& /*mesh*/,
-                                                                   gl::Uniform& uniform) { uniform.set(texture); });
+                                                                   gl::Uniform& uniform)
+                        {
+                          uniform.set(texture);
+                        });
   else
     m_noWaterMesh->bind("u_portalPerturb",
                         [texture = portalPass.getNoisyTexture()](const render::scene::Node& /*node*/,
                                                                  const render::scene::Mesh& /*mesh*/,
-                                                                 gl::Uniform& uniform) { uniform.set(texture); });
+                                                                 gl::Uniform& uniform)
+                        {
+                          uniform.set(texture);
+                        });
   m_noWaterMesh->bind("u_geometryPosition",
                       [buffer = geometryPass.getInterpolatedPositionBuffer()](
                         const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
-                      { uniform.set(buffer); });
+                      {
+                        uniform.set(buffer);
+                      });
   if(renderSettings.hbao)
     m_noWaterMesh->bind("u_ao",
                         [texture = hbaoPass.getBlurredTexture()](const render::scene::Node& /*node*/,
                                                                  const render::scene::Mesh& /*mesh*/,
-                                                                 gl::Uniform& uniform) { uniform.set(texture); });
+                                                                 gl::Uniform& uniform)
+                        {
+                          uniform.set(texture);
+                        });
   m_noWaterMesh->bind("u_texture",
                       [buffer = geometryPass.getColorBuffer()](
                         const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
-                      { uniform.set(buffer); });
+                      {
+                        uniform.set(buffer);
+                      });
 
   m_noWaterMesh->getRenderState().merge(m_fb->getRenderState());
 
   m_inWaterMesh->bind("u_portalPosition",
                       [buffer = portalPass.getPositionBuffer()](
                         const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
-                      { uniform.set(buffer); });
+                      {
+                        uniform.set(buffer);
+                      });
 
   if(renderSettings.waterDenoise)
     m_inWaterMesh->bind("u_portalPerturb",
                         [texture = portalPass.getBlurredTexture()](const render::scene::Node& /*node*/,
                                                                    const render::scene::Mesh& /*mesh*/,
-                                                                   gl::Uniform& uniform) { uniform.set(texture); });
+                                                                   gl::Uniform& uniform)
+                        {
+                          uniform.set(texture);
+                        });
   else
     m_inWaterMesh->bind("u_portalPerturb",
                         [texture = portalPass.getNoisyTexture()](const render::scene::Node& /*node*/,
                                                                  const render::scene::Mesh& /*mesh*/,
-                                                                 gl::Uniform& uniform) { uniform.set(texture); });
+                                                                 gl::Uniform& uniform)
+                        {
+                          uniform.set(texture);
+                        });
   m_inWaterMesh->bind("u_geometryPosition",
                       [buffer = geometryPass.getInterpolatedPositionBuffer()](
                         const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
-                      { uniform.set(buffer); });
+                      {
+                        uniform.set(buffer);
+                      });
   if(renderSettings.hbao)
     m_inWaterMesh->bind("u_ao",
                         [texture = hbaoPass.getBlurredTexture()](const render::scene::Node& /*node*/,
                                                                  const render::scene::Mesh& /*mesh*/,
-                                                                 gl::Uniform& uniform) { uniform.set(texture); });
+                                                                 gl::Uniform& uniform)
+                        {
+                          uniform.set(texture);
+                        });
   m_inWaterMesh->bind("u_texture",
                       [buffer = geometryPass.getColorBuffer()](
                         const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
-                      { uniform.set(buffer); });
+                      {
+                        uniform.set(buffer);
+                      });
 
   m_inWaterMesh->getRenderState().merge(m_fb->getRenderState());
 }

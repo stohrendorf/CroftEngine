@@ -123,7 +123,9 @@ void MenuObject::initModel(const engine::world::World& world)
   node = std::make_shared<engine::SkeletalModelNode>("menu-object", gsl::not_null{&world}, gsl::not_null{obj.get()});
   node->bind("u_lightAmbient",
              [](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
-             { uniform.set(0.5f); });
+             {
+               uniform.set(0.5f);
+             });
   core::AnimStateId animState{0_as};
   engine::SkeletalModelNode::buildMesh(node, animState);
 }

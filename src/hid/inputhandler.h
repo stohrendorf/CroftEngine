@@ -44,7 +44,10 @@ public:
   {
     return std::any_of(m_inputState.actions.begin(),
                        m_inputState.actions.end(),
-                       [](const std::pair<Action, InputState::Button>& action) { return action.second.current; });
+                       [](const std::pair<Action, InputState::Button>& action)
+                       {
+                         return action.second.current;
+                       });
   }
 
   [[nodiscard]] bool hasDebouncedAction(Action action) const

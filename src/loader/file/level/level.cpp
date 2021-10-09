@@ -99,22 +99,33 @@ std::unique_ptr<Level> Level::createLoader(io::SDLReader&& reader,
 
   switch(game_version)
   {
-  case Game::TR1: result = std::make_unique<TR1Level>(game_version, std::move(reader), filename); break;
+  case Game::TR1:
+    result = std::make_unique<TR1Level>(game_version, std::move(reader), filename);
+    break;
   case Game::TR1Demo:
   case Game::TR1UnfinishedBusiness:
     result = std::make_unique<TR1Level>(game_version, std::move(reader), filename);
     result->m_demoOrUb = true;
     break;
-  case Game::TR2: result = std::make_unique<TR2Level>(game_version, std::move(reader), filename); break;
+  case Game::TR2:
+    result = std::make_unique<TR2Level>(game_version, std::move(reader), filename);
+    break;
   case Game::TR2Demo:
     result = std::make_unique<TR2Level>(game_version, std::move(reader), filename);
     result->m_demoOrUb = true;
     break;
-  case Game::TR3: result = std::make_unique<TR3Level>(game_version, std::move(reader), filename); break;
+  case Game::TR3:
+    result = std::make_unique<TR3Level>(game_version, std::move(reader), filename);
+    break;
   case Game::TR4:
-  case Game::TR4Demo: result = std::make_unique<TR4Level>(game_version, std::move(reader), filename); break;
-  case Game::TR5: result = std::make_unique<TR5Level>(game_version, std::move(reader), filename); break;
-  default: BOOST_THROW_EXCEPTION(std::runtime_error("Invalid game version"));
+  case Game::TR4Demo:
+    result = std::make_unique<TR4Level>(game_version, std::move(reader), filename);
+    break;
+  case Game::TR5:
+    result = std::make_unique<TR5Level>(game_version, std::move(reader), filename);
+    break;
+  default:
+    BOOST_THROW_EXCEPTION(std::runtime_error("Invalid game version"));
   }
 
   result->m_sfxPath = sfxPath;

@@ -106,10 +106,17 @@ std::unique_ptr<MenuState>
   std::shared_ptr<ui::widgets::ProgressBar> selected;
   switch(row)
   {
-  case 0: selected = m_globalVolume; break;
-  case 1: selected = m_musicVolume; break;
-  case 2: selected = m_sfxVolume; break;
-  default: BOOST_THROW_EXCEPTION(std::runtime_error("invalid volume type selection"));
+  case 0:
+    selected = m_globalVolume;
+    break;
+  case 1:
+    selected = m_musicVolume;
+    break;
+  case 2:
+    selected = m_sfxVolume;
+    break;
+  default:
+    BOOST_THROW_EXCEPTION(std::runtime_error("invalid volume type selection"));
   }
   Ensures(selected != nullptr);
   selected->setValue(std::clamp(selected->getValue() + delta, 0.0f, 1.0f));

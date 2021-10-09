@@ -48,7 +48,7 @@ public:
   {
     return m_fb;
   }
-  
+
 private:
   gsl::not_null<std::shared_ptr<scene::Material>> m_noWaterMaterial;
   gsl::not_null<std::shared_ptr<scene::Material>> m_inWaterMaterial;

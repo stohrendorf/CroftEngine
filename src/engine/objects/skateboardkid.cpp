@@ -85,7 +85,8 @@ void SkateboardKid::update()
       else
         goal(1_as);
       break;
-    case 1: [[fallthrough]];
+    case 1:
+      [[fallthrough]];
     case 4:
       if(!m_triedShoot && canShootAtLara(enemyLocation))
       {

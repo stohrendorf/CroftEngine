@@ -50,11 +50,20 @@ void engine::objects::DartGun::update()
 
   switch(axis)
   {
-  case core::Axis::PosZ: d.Z += 412_len; break;
-  case core::Axis::PosX: d.X += 412_len; break;
-  case core::Axis::NegZ: d.Z -= 412_len; break;
-  case core::Axis::NegX: d.X -= 412_len; break;
-  default: break;
+  case core::Axis::PosZ:
+    d.Z += 412_len;
+    break;
+  case core::Axis::PosX:
+    d.X += 412_len;
+    break;
+  case core::Axis::NegZ:
+    d.Z -= 412_len;
+    break;
+  case core::Axis::NegX:
+    d.X -= 412_len;
+    break;
+  default:
+    break;
   }
 
   auto dart = getWorld().createDynamicObject<Dart>(

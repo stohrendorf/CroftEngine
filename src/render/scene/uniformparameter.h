@@ -33,14 +33,19 @@ public:
   template<typename T>
   void set(const T& value)
   {
-    m_valueSetter = [value](const Node& /*node*/, const Mesh& /*mesh*/, gl::Uniform& uniform) { uniform.set(value); };
+    m_valueSetter = [value](const Node& /*node*/, const Mesh& /*mesh*/, gl::Uniform& uniform)
+    {
+      uniform.set(value);
+    };
   }
 
   template<class ClassType, class ValueType>
   void bind(ClassType* classInstance, ValueType (ClassType::*valueMethod)() const)
   {
     m_valueSetter = [classInstance, valueMethod](const Node& /*node*/, gl::Uniform& uniform)
-    { uniform.set((classInstance->*valueMethod)()); };
+    {
+      uniform.set((classInstance->*valueMethod)());
+    };
   }
 
   using UniformValueSetter = void(const Node& node, const Mesh& mesh, gl::Uniform& uniform);
@@ -57,7 +62,9 @@ public:
   {
     m_valueSetter =
       [classInstance, valueMethod, countMethod](const Node& /*node*/, const Mesh& /*mesh*/, const gl::Uniform& uniform)
-    { uniform.set((classInstance->*valueMethod)(), (classInstance->*countMethod)()); };
+    {
+      uniform.set((classInstance->*valueMethod)(), (classInstance->*countMethod)());
+    };
   }
 
   bool bind(const Node& node,
@@ -86,7 +93,9 @@ public:
   void set(const std::shared_ptr<gl::UniformBuffer<T>>& value)
   {
     m_bufferBinder = [value](const Node& /*node*/, const Mesh& /*mesh*/, gl::UniformBlock& uniformBlock)
-    { uniformBlock.bind(*value); };
+    {
+      uniformBlock.bind(*value);
+    };
   }
 
   template<class ClassType, typename T>
@@ -94,7 +103,9 @@ public:
   {
     m_bufferBinder
       = [classInstance, valueMethod](const Node& /*node*/, const Mesh& /*mesh*/, gl::UniformBlock& uniformBlock)
-    { uniformBlock.bind((classInstance->*valueMethod)()); };
+    {
+      uniformBlock.bind((classInstance->*valueMethod)());
+    };
   }
 
   using BufferBinder = void(const Node& node, const Mesh& mesh, gl::UniformBlock& uniformBlock);

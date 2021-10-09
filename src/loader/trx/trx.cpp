@@ -156,8 +156,12 @@ void Equiv::resolve(const std::filesystem::path& root,
 {
   BOOST_LOG_TRIVIAL(info) << "Resolving " << m_equivalentSets.size() << " equiv sets...";
 
-  auto resolved = std::count_if(
-    m_equivalentSets.begin(), m_equivalentSets.end(), [](const EquivalenceSet& set) { return set.isResolved(); });
+  auto resolved = std::count_if(m_equivalentSets.begin(),
+                                m_equivalentSets.end(),
+                                [](const EquivalenceSet& set)
+                                {
+                                  return set.isResolved();
+                                });
 
   statusCallback(_("Glidos - Resolving maps (%1%%%)", resolved * 100 / m_equivalentSets.size()));
 

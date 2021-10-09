@@ -182,8 +182,12 @@ std::unique_ptr<MenuState> PassportMenuState::onFrame(ui::Ui& ui, engine::world:
          world, display, display.mode != InventoryMode::TitleMode && display.mode != InventoryMode::DeathMode))
       return std::move(*tmp);
     break;
-  case ExitGamePage: showExitGamePage(world, display, display.mode != InventoryMode::TitleMode); break;
-  default: Expects(page == -1); break;
+  case ExitGamePage:
+    showExitGamePage(world, display, display.mode != InventoryMode::TitleMode);
+    break;
+  default:
+    Expects(page == -1);
+    break;
   }
 
   if(m_passportText != nullptr)

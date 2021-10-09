@@ -62,12 +62,16 @@ void SpriteObject::createModel()
   m_displayNode->bind("u_lightAmbient",
                       [brightness = m_brightness](
                         const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
-                      { uniform.set(brightness.get()); });
+                      {
+                        uniform.set(brightness.get());
+                      });
   m_displayNode->bind(
     "b_lights",
     [emptyBuffer = std::make_shared<gl::ShaderStorageBuffer<engine::ShaderLight>>("lights-buffer-empty")](
       const render::scene::Node&, const render::scene::Mesh& /*mesh*/, gl::ShaderStorageBlock& shaderStorageBlock)
-    { shaderStorageBlock.bind(*emptyBuffer); });
+    {
+      shaderStorageBlock.bind(*emptyBuffer);
+    });
 
   if(m_sprite->render1.y > 0)
   {

@@ -36,7 +36,9 @@ Framebuffer::Framebuffer(const std::string& name,
 {
   m_mesh->bind("u_input",
                [this](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
-               { uniform.set(m_colorBufferHandle); });
+               {
+                 uniform.set(m_colorBufferHandle);
+               });
   m_mesh->getRenderState().setBlend(0, true);
   m_mesh->getRenderState().setBlendFactors(
     0, gl::api::BlendingFactor::SrcAlpha, gl::api::BlendingFactor::OneMinusSrcAlpha);

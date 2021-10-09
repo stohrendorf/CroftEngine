@@ -28,12 +28,24 @@ std::string unescape(const std::string& escaped)
     {
       switch(c)
       {
-      case 'a': result += "ä"; break;
-      case 'o': result += "ö"; break;
-      case 'u': result += "ü"; break;
-      case 'A': result += "Ä"; break;
-      case 'O': result += "Ö"; break;
-      case 'U': result += "Ü"; break;
+      case 'a':
+        result += "ä";
+        break;
+      case 'o':
+        result += "ö";
+        break;
+      case 'u':
+        result += "ü";
+        break;
+      case 'A':
+        result += "Ä";
+        break;
+      case 'O':
+        result += "Ö";
+        break;
+      case 'U':
+        result += "Ü";
+        break;
       default:
         BOOST_LOG_TRIVIAL(warning) << "Cannot add umlaut dots to character " << c;
         result += c;

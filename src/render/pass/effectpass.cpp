@@ -47,7 +47,9 @@ EffectPass::EffectPass(std::string name,
 {
   m_mesh->bind("u_input",
                [input](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
-               { uniform.set(input); });
+               {
+                 uniform.set(input);
+               });
 
   m_mesh->getRenderState().merge(m_fb->getRenderState());
 }
@@ -61,7 +63,9 @@ void EffectPass::render(bool inWater)
   scene::RenderContext context{scene::RenderMode::Full, std::nullopt};
   m_mesh->bind("u_inWater",
                [inWater](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
-               { uniform.set(inWater ? 1.0f : 0.0f); });
+               {
+                 uniform.set(inWater ? 1.0f : 0.0f);
+               });
   m_mesh->render(context);
 
   if constexpr(FlushPasses)

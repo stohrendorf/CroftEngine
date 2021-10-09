@@ -47,7 +47,9 @@ UIPass::UIPass(scene::MaterialManager& materialManager,
 {
   m_mesh->bind("u_input",
                [this](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
-               { uniform.set(gsl::not_null{m_colorBufferHandle}); });
+               {
+                 uniform.set(gsl::not_null{m_colorBufferHandle});
+               });
 
   m_mesh->getRenderState().merge(m_fb->getRenderState());
   m_mesh->getRenderState().setViewport(displayViewport);
@@ -68,7 +70,9 @@ void UIPass::render(float alpha)
 
   m_mesh->bind("u_alphaMultiplier",
                [alpha](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
-               { uniform.set(alpha); });
+               {
+                 uniform.set(alpha);
+               });
   scene::RenderContext context{scene::RenderMode::Full, std::nullopt};
   m_mesh->render(context);
 

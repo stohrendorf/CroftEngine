@@ -52,7 +52,8 @@ std::unique_ptr<MenuState> DoneMenuState::onFrame(ui::Ui& /*ui*/, engine::world:
   case engine::TR1ItemId::LargeMedipack:
     world.getPlayer().getInventory().tryUse(world.getObjectManager().getLara(), engine::TR1ItemId::LargeMedipack);
     break;
-  default: break;
+  default:
+    break;
   }
 
   return nullptr;

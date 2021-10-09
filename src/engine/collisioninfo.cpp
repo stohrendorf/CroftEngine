@@ -205,12 +205,14 @@ void CollisionInfo::initHeightInfo(const core::TRVec& laraPos, const world::Worl
     collisionType = AxisColl::Front;
     switch(facingAxis)
     {
-    case core::Axis::Deg0: [[fallthrough]];
+    case core::Axis::Deg0:
+      [[fallthrough]];
     case core::Axis::Deg180:
       shift.X = initialPosition.X - laraPos.X;
       shift.Z = reflectAtSectorBoundary(frontZ + laraPos.Z, laraPos.Z);
       break;
-    case core::Axis::Left90: [[fallthrough]];
+    case core::Axis::Left90:
+      [[fallthrough]];
     case core::Axis::Right90:
       shift.X = reflectAtSectorBoundary(frontX + laraPos.X, laraPos.X);
       shift.Z = initialPosition.Z - laraPos.Z;
@@ -231,10 +233,16 @@ void CollisionInfo::initHeightInfo(const core::TRVec& laraPos, const world::Worl
     collisionType = AxisColl::Left;
     switch(facingAxis)
     {
-    case core::Axis::Deg0: [[fallthrough]];
-    case core::Axis::Deg180: shift.X = reflectAtSectorBoundary(frontLeftX + laraPos.X, frontX + laraPos.X); break;
-    case core::Axis::Left90: [[fallthrough]];
-    case core::Axis::Right90: shift.Z = reflectAtSectorBoundary(frontLeftZ + laraPos.Z, frontZ + laraPos.Z); break;
+    case core::Axis::Deg0:
+      [[fallthrough]];
+    case core::Axis::Deg180:
+      shift.X = reflectAtSectorBoundary(frontLeftX + laraPos.X, frontX + laraPos.X);
+      break;
+    case core::Axis::Left90:
+      [[fallthrough]];
+    case core::Axis::Right90:
+      shift.Z = reflectAtSectorBoundary(frontLeftZ + laraPos.Z, frontZ + laraPos.Z);
+      break;
     }
     return;
   }
@@ -244,10 +252,16 @@ void CollisionInfo::initHeightInfo(const core::TRVec& laraPos, const world::Worl
     collisionType = AxisColl::Right;
     switch(facingAxis)
     {
-    case core::Axis::Deg0: [[fallthrough]];
-    case core::Axis::Deg180: shift.X = reflectAtSectorBoundary(frontRightX + laraPos.X, frontX + laraPos.X); break;
-    case core::Axis::Left90: [[fallthrough]];
-    case core::Axis::Right90: shift.Z = reflectAtSectorBoundary(frontRightZ + laraPos.Z, frontZ + laraPos.Z); break;
+    case core::Axis::Deg0:
+      [[fallthrough]];
+    case core::Axis::Deg180:
+      shift.X = reflectAtSectorBoundary(frontRightX + laraPos.X, frontX + laraPos.X);
+      break;
+    case core::Axis::Left90:
+      [[fallthrough]];
+    case core::Axis::Right90:
+      shift.Z = reflectAtSectorBoundary(frontRightZ + laraPos.Z, frontZ + laraPos.Z);
+      break;
     }
   }
 }

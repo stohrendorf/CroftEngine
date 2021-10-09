@@ -76,28 +76,38 @@ struct SoundEffectProperties
     {
       switch(sampleCountAndLoopType & 3u)
       {
-      case 1: return PlaybackType::Restart;
-      case 2: return PlaybackType::Looping;
-      default: return PlaybackType::Wait;
+      case 1:
+        return PlaybackType::Restart;
+      case 2:
+        return PlaybackType::Looping;
+      default:
+        return PlaybackType::Wait;
       }
     }
     else if(engine == level::Engine::TR2)
     {
       switch(sampleCountAndLoopType & 3u)
       {
-      case 1: return PlaybackType::Restart;
-      case 3: return PlaybackType::Looping;
-      default: return PlaybackType::None;
+      case 1:
+        return PlaybackType::Restart;
+      case 3:
+        return PlaybackType::Looping;
+      default:
+        return PlaybackType::None;
       }
     }
     else
     {
       switch(sampleCountAndLoopType & 3u)
       {
-      case 1: return PlaybackType::Wait;
-      case 2: return PlaybackType::Restart;
-      case 3: return PlaybackType::Looping;
-      default: return PlaybackType::None;
+      case 1:
+        return PlaybackType::Wait;
+      case 2:
+        return PlaybackType::Restart;
+      case 3:
+        return PlaybackType::Looping;
+      default:
+        return PlaybackType::None;
       }
     }
   }

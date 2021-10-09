@@ -16,8 +16,13 @@ public:
   static constexpr api::BufferTarget Target = _Target;
 
   explicit Buffer(const std::string_view& label)
-      : BindableResource{
-        api::createBuffers, [](const uint32_t handle) { bindBuffer(Target, handle); }, api::deleteBuffers, label}
+      : BindableResource{api::createBuffers,
+                         [](const uint32_t handle)
+                         {
+                           bindBuffer(Target, handle);
+                         },
+                         api::deleteBuffers,
+                         label}
   {
   }
 

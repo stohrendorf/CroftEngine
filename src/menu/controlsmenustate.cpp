@@ -106,27 +106,34 @@ std::function<std::shared_ptr<ui::widgets::Widget>(const engine::InputMappingCon
       {
         switch(ref.second.value)
         {
-        case hid::GlfwAxisDir::Positive: return positiveName;
-        case hid::GlfwAxisDir::Negative: return negativeName;
-        default: BOOST_THROW_EXCEPTION(std::domain_error("axis direction"));
+        case hid::GlfwAxisDir::Positive:
+          return positiveName;
+        case hid::GlfwAxisDir::Negative:
+          return negativeName;
+        default:
+          BOOST_THROW_EXCEPTION(std::domain_error("axis direction"));
         }
       };
 
       std::string axisName;
       switch(ref.first.value)
       {
-      case hid::GlfwAxis::LeftX: [[fallthrough]];
+      case hid::GlfwAxis::LeftX:
+        [[fallthrough]];
       case hid::GlfwAxis::RightX:
         axisName = makeDirName(/* translators: TR charcmap encoding */ pgettext("GamepadAxis", "Left"),
                                /* translators: TR charcmap encoding */ pgettext("GamepadAxis", "Right"));
         break;
-      case hid::GlfwAxis::LeftY: [[fallthrough]];
+      case hid::GlfwAxis::LeftY:
+        [[fallthrough]];
       case hid::GlfwAxis::RightY:
         axisName = makeDirName(/* translators: TR charcmap encoding */ pgettext("GamepadAxis", "Up"),
                                /* translators: TR charcmap encoding */ pgettext("GamepadAxis", "Down"));
         break;
-      case hid::GlfwAxis::LeftTrigger: [[fallthrough]];
-      case hid::GlfwAxis::RightTrigger: break;
+      case hid::GlfwAxis::LeftTrigger:
+        [[fallthrough]];
+      case hid::GlfwAxis::RightTrigger:
+        break;
       }
 
       auto grid = std::make_shared<ui::widgets::GridBox>(glm::ivec2{0, 0});
@@ -240,15 +247,24 @@ std::unique_ptr<MenuState> ControlsMenuState::onFrame(ui::Ui& ui, engine::world:
 
   switch(m_mode)
   {
-  case Mode::Display: handleDisplayInput(world); break;
-  case Mode::ChangeKey: handleChangeKeyInput(world); break;
-  case Mode::ConfirmApply: handleConfirmInput(world); break;
+  case Mode::Display:
+    handleDisplayInput(world);
+    break;
+  case Mode::ChangeKey:
+    handleChangeKeyInput(world);
+    break;
+  case Mode::ConfirmApply:
+    handleConfirmInput(world);
+    break;
   case Mode::Apply:
     world.getEngine().getEngineConfig()->inputMappings = m_editing;
     world.getEngine().getPresenter().getInputHandler().setMappings(m_editing);
     return std::move(m_previous);
-  case Mode::Discard: return std::move(m_previous);
-  case Mode::Error: handleErrorInput(world); break;
+  case Mode::Discard:
+    return std::move(m_previous);
+  case Mode::Error:
+    handleErrorInput(world);
+    break;
   }
 
   m_controls->fitToContent();
@@ -282,8 +298,10 @@ std::unique_ptr<MenuState> ControlsMenuState::onFrame(ui::Ui& ui, engine::world:
     m_layout->draw(ui, world.getPresenter());
     m_error->draw(ui, world.getPresenter());
     break;
-  case Mode::Apply: [[fallthrough]];
-  case Mode::Discard: break;
+  case Mode::Apply:
+    [[fallthrough]];
+  case Mode::Discard:
+    break;
   }
 
   return nullptr;
@@ -411,10 +429,17 @@ void ControlsMenuState::handleConfirmInput(engine::world::World& world)
   {
     switch(m_confirm->getSelected())
     {
-    case 0: m_mode = Mode::Apply; break;
-    case 1: m_mode = Mode::Discard; break;
-    case 2: m_mode = Mode::Display; break;
-    default: BOOST_THROW_EXCEPTION(std::domain_error("invalid selection"));
+    case 0:
+      m_mode = Mode::Apply;
+      break;
+    case 1:
+      m_mode = Mode::Discard;
+      break;
+    case 2:
+      m_mode = Mode::Display;
+      break;
+    default:
+      BOOST_THROW_EXCEPTION(std::domain_error("invalid selection"));
     }
   }
 }
@@ -433,9 +458,14 @@ void ControlsMenuState::handleErrorInput(engine::world::World& world)
   {
     switch(m_error->getSelected())
     {
-    case 0: m_mode = Mode::Display; break;
-    case 1: m_mode = Mode::Discard; break;
-    default: BOOST_THROW_EXCEPTION(std::domain_error("invalid selection"));
+    case 0:
+      m_mode = Mode::Display;
+      break;
+    case 1:
+      m_mode = Mode::Discard;
+      break;
+    default:
+      BOOST_THROW_EXCEPTION(std::domain_error("invalid selection"));
     }
   }
 }

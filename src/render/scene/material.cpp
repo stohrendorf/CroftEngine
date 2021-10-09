@@ -68,8 +68,12 @@ void Material::bind(const Node& node, const Mesh& mesh) const
 
 std::shared_ptr<UniformParameter> Material::tryGetUniform(const std::string& name) const
 {
-  auto it = std::find_if(
-    m_uniforms.begin(), m_uniforms.end(), [&name](const auto& param) { return param->getName() == name; });
+  auto it = std::find_if(m_uniforms.begin(),
+                         m_uniforms.end(),
+                         [&name](const auto& param)
+                         {
+                           return param->getName() == name;
+                         });
   if(it != m_uniforms.end())
     return *it;
 
@@ -83,8 +87,12 @@ std::shared_ptr<UniformParameter> Material::tryGetUniform(const std::string& nam
 
 std::shared_ptr<UniformBlockParameter> Material::tryGetUniformBlock(const std::string& name) const
 {
-  auto it = std::find_if(
-    m_uniformBlocks.begin(), m_uniformBlocks.end(), [&name](const auto& param) { return param->getName() == name; });
+  auto it = std::find_if(m_uniformBlocks.begin(),
+                         m_uniformBlocks.end(),
+                         [&name](const auto& param)
+                         {
+                           return param->getName() == name;
+                         });
   if(it != m_uniformBlocks.end())
     return *it;
 
@@ -97,8 +105,12 @@ std::shared_ptr<UniformBlockParameter> Material::tryGetUniformBlock(const std::s
 
 std::shared_ptr<BufferParameter> Material::tryGetBuffer(const std::string& name) const
 {
-  auto it
-    = std::find_if(m_buffers.begin(), m_buffers.end(), [&name](const auto& param) { return param->getName() == name; });
+  auto it = std::find_if(m_buffers.begin(),
+                         m_buffers.end(),
+                         [&name](const auto& param)
+                         {
+                           return param->getName() == name;
+                         });
   if(it != m_buffers.end())
     return *it;
 

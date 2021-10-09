@@ -8,4 +8,4 @@ enum class TrackType
   Interception,
   AmbientEffect
 };
-}
+} // namespace audio

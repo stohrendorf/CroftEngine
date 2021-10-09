@@ -70,8 +70,12 @@ std::unique_ptr<Room> Room::readTr1(io::SDLReader& reader)
   reader.seek(position + num_data_words * 2);
 
   room->portals.resize(reader.readU16());
-  std::generate(
-    room->portals.begin(), room->portals.end(), [&reader, &room]() { return Portal::read(reader, room->position); });
+  std::generate(room->portals.begin(),
+                room->portals.end(),
+                [&reader, &room]()
+                {
+                  return Portal::read(reader, room->position);
+                });
 
   room->sectorCountZ = reader.readU16();
   room->sectorCountX = reader.readU16();
@@ -443,7 +447,12 @@ std::unique_ptr<Room> Room::readTr5(io::SDLReader& reader)
   if(reader.readU32() != 0xCDCDCDCD)
     BOOST_LOG_TRIVIAL(warning) << "TR5 Room: separator18 has wrong value";
 
-  std::generate(room->lights.begin(), room->lights.end(), [&reader]() { return Light::readTr5(reader); });
+  std::generate(room->lights.begin(),
+                room->lights.end(),
+                [&reader]()
+                {
+                  return Light::readTr5(reader);
+                });
 
   reader.seek(position + std::streamoff(208) + sector_data_offset);
 
@@ -455,12 +464,21 @@ std::unique_ptr<Room> Room::readTr5(io::SDLReader& reader)
 
   reader.seek(position + std::streamoff(208) + static_meshes_offset);
 
-  std::generate(
-    room->staticMeshes.begin(), room->staticMeshes.end(), [&reader]() { return RoomStaticMesh::readTr4(reader); });
+  std::generate(room->staticMeshes.begin(),
+                room->staticMeshes.end(),
+                [&reader]()
+                {
+                  return RoomStaticMesh::readTr4(reader);
+                });
 
   reader.seek(position + std::streamoff(208) + layer_offset);
 
-  std::generate(room->layers.begin(), room->layers.end(), [&reader]() { return Layer::read(reader); });
+  std::generate(room->layers.begin(),
+                room->layers.end(),
+                [&reader]()
+                {
+                  return Layer::read(reader);
+                });
 
   reader.seek(position + std::streamoff(208) + poly_offset);
 

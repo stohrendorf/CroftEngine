@@ -260,7 +260,9 @@ void FlyingMutant::update()
         emitParticle({51_len, 213_len, 0_len}, 14, &createMutantGrenade);
       }
       break;
-    case 12: goal(DoPrepareAttack); break;
+    case 12:
+      goal(DoPrepareAttack);
+      break;
     case DoFly.get():
       if(!m_flying && m_state.location.position.Y == m_state.floor)
       {
@@ -360,7 +362,8 @@ void CentaurMutant::update()
         }
       }
       break;
-    default: break;
+    default:
+      break;
     }
   }
   else if(m_state.current_anim_state != 5_as)
@@ -541,7 +544,8 @@ void TorsoBoss::update()
       getWorld().getCameraController().setDistance(2048_len);
       getWorld().getCameraController().setMode(CameraMode::FixedPosition);
       break;
-    default: break;
+    default:
+      break;
     }
   }
   else
