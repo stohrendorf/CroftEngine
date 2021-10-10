@@ -129,56 +129,6 @@ void remap(Sprite& sprite, size_t atlas, const glm::vec2& replacementUvPos, cons
   remapRange(sprite.uv1, a, b, replacementUvPos, replacementUvMax);
 }
 
-void createMipmaps(const std::vector<std::shared_ptr<gl::CImgWrapper>>& images,
-                   size_t nMips,
-                   gl::Texture2DArray<gl::SRGBA8>& allTextures,
-                   const std::vector<AtlasTile>& atlasTiles,
-                   const std::vector<Sprite>& sprites,
-                   const std::function<void(const std::string&)>& drawLoadingScreen)
-{
-  std::map<int, std::set<UVRect>> tilesByTexture;
-  BOOST_LOG_TRIVIAL(debug) << atlasTiles.size() << " total atlas tiles";
-  for(const auto& tile : atlasTiles)
-  {
-    tilesByTexture[tile.textureKey.tileAndFlag & loader::file::TextureIndexMask].emplace(tile.uvCoordinates);
-  }
-  for(const auto& sprite : sprites)
-  {
-    tilesByTexture[sprite.textureId.get()].emplace(sprite.uv0, sprite.uv1);
-  }
-
-  size_t totalTiles = std::accumulate(tilesByTexture.begin(),
-                                      tilesByTexture.end(),
-                                      std::size_t{0},
-                                      [](size_t n, const auto& textureAndTiles)
-                                      {
-                                        return n + textureAndTiles.second.size();
-                                      });
-  BOOST_LOG_TRIVIAL(debug) << totalTiles << " unique texture tiles";
-
-  size_t processedTiles = 0;
-  for(const auto& [texture, tiles] : tilesByTexture)
-  {
-    auto src = *images.at(texture);
-    Expects(src.width() == src.height());
-
-    BOOST_LOG_TRIVIAL(debug) << "Mipmapping texture " << texture;
-
-    auto dstSize = src.width() / 2;
-    auto margin = render::MultiTextureAtlas::BoundaryMargin / 2;
-    for(int mipmapLevel = 1; static_cast<size_t>(mipmapLevel) < nMips; dstSize /= 2, margin /= 2, ++mipmapLevel)
-    {
-      drawLoadingScreen(_("Creating mipmaps (%1%%%)", processedTiles * 100 / (totalTiles * (nMips - 1))));
-      processedTiles += tiles.size();
-
-      BOOST_LOG_TRIVIAL(debug) << "Mipmap level " << mipmapLevel << " (size " << dstSize << ", " << tiles.size()
-                               << " tiles)";
-      src.resizePow2Mipmap(1);
-      allTextures.assign(src.pixels(), texture, mipmapLevel);
-    }
-  }
-}
-
 void processGlidosPack(const loader::file::level::Level& level,
                        const loader::trx::Glidos& glidos,
                        render::MultiTextureAtlas& atlases,
@@ -444,7 +394,7 @@ std::unique_ptr<gl::Texture2DArray<gl::SRGBA8>>
 
   for(size_t i = 0; i < images.size(); ++i)
     allTextures->assign(images[i]->pixels(), gsl::narrow_cast<int>(i));
-  createMipmaps(images, textureLevels, *allTextures, atlasTiles, sprites, drawLoadingScreen);
+  allTextures->generateMipmaps();
 
   return allTextures;
 }

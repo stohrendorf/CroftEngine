@@ -127,16 +127,6 @@ int CImgWrapper::height() const
   return m_interleaved ? m_image->depth() : m_image->height();
 }
 
-void CImgWrapper::resizePow2Mipmap(const uint8_t n)
-{
-  unshare();
-  const int d = 1 << n;
-  if(!m_interleaved)
-    m_image->resize(width() / d, height() / d, 1, 4, 6, 1);
-  else
-    m_image->resize(4, width() / d, height() / d, 1, 6, 1);
-}
-
 void CImgWrapper::resize(const glm::ivec2& size)
 {
   unshare();

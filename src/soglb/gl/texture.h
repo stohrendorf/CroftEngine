@@ -15,6 +15,12 @@ protected:
       : BindableResource{std::move(allocator), std::move(binder), std::move(deleter), label}
   {
   }
+
+public:
+  void generateMipmaps()
+  {
+    GL_ASSERT(gl::api::generateTextureMipmap(getHandle()));
+  }
 };
 
 // NOLINTNEXTLINE(bugprone-reserved-identifier)
