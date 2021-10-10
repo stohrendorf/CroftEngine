@@ -56,7 +56,7 @@ namespace loader::trx
 Rectangle::Rectangle(const std::string& serialized)
 {
   // Format: (x0--x1)(y0--y1)
-  const std::regex fmt(R"(\(([0-9]+)--([0-9]+)\)\(([0-9]+)--([0-9]+)\).*)");
+  static const std::regex fmt(R"(\(([0-9]+)--([0-9]+)\)\(([0-9]+)--([0-9]+)\).*)");
   std::smatch matches;
   if(!std::regex_match(serialized, matches, fmt))
   {
