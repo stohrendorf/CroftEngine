@@ -8,6 +8,11 @@ namespace gl
 class FenceSync final
 {
 public:
+  FenceSync(const FenceSync&) = delete;
+  FenceSync(FenceSync&&) = delete;
+  void operator=(const FenceSync&) = delete;
+  void operator=(FenceSync&&) = delete;
+
   explicit FenceSync()
       : m_sync{GL_ASSERT_FN(api::fenceSync(api::SyncCondition::SyncGpuCommandsComplete, api::SyncBehaviorFlags::None))}
   {
@@ -27,14 +32,6 @@ public:
   api::SyncStatus clientWait() const
   {
     return GL_ASSERT_FN(api::clientWaitSync(m_sync, api::SyncObjectMask::SyncFlushCommandsBit, api::TimeoutIgnored));
-  }
-
-  // NOLINTNEXTLINE(modernize-use-nodiscard)
-  static api::SyncStatus block()
-  {
-    FenceSync sync{};
-    sync.wait();
-    return sync.clientWait();
   }
 
 private:

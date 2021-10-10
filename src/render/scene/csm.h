@@ -50,7 +50,9 @@ public:
     std::shared_ptr<Material> squareMaterial{};
     std::shared_ptr<Mesh> squareMesh{};
     std::shared_ptr<SeparableBlur<gl::RG16F>> squareBlur;
-    mutable std::unique_ptr<gl::FenceSync> sync;
+    mutable std::unique_ptr<gl::FenceSync> depthSync;
+    mutable std::unique_ptr<gl::FenceSync> squareSync;
+    mutable std::unique_ptr<gl::FenceSync> blurSync;
 
     void init(int32_t resolution, size_t idx, MaterialManager& materialManager);
     void renderSquare();
@@ -76,19 +78,46 @@ public:
     return m_splits.at(m_activeSplit).depthFramebuffer;
   }
 
-  void beginActiveSync() const
+  void beginActiveDepthSync() const
   {
-    m_splits.at(m_activeSplit).sync = std::make_unique<gl::FenceSync>();
+    m_splits.at(m_activeSplit).depthSync = std::make_unique<gl::FenceSync>();
   }
 
-  void waitActiveSync() const
+  void waitActiveDepthSync() const
   {
-    auto& sync = m_splits.at(m_activeSplit).sync;
+    auto& sync = m_splits.at(m_activeSplit).depthSync;
     if(sync == nullptr)
       return;
 
     sync->wait();
-    sync.reset();
+  }
+
+  void beginActiveSquareSync() const
+  {
+    m_splits.at(m_activeSplit).squareSync = std::make_unique<gl::FenceSync>();
+  }
+
+  void waitActiveSquareSync() const
+  {
+    auto& sync = m_splits.at(m_activeSplit).squareSync;
+    if(sync == nullptr)
+      return;
+
+    sync->wait();
+  }
+
+  void beginActiveBlurSync() const
+  {
+    m_splits.at(m_activeSplit).blurSync = std::make_unique<gl::FenceSync>();
+  }
+
+  void waitActiveBlurSync() const
+  {
+    auto& sync = m_splits.at(m_activeSplit).blurSync;
+    if(sync == nullptr)
+      return;
+
+    sync->wait();
   }
 
   void setActiveSplit(size_t idx)

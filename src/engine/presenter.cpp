@@ -148,31 +148,40 @@ void Presenter::renderWorld(const ObjectManager& objectManager,
           visitor.visit(*child);
         }
       }
-      m_csm->beginActiveSync();
+      m_csm->beginActiveDepthSync();
     }
+
+    // ensure sync commands are flushed to the command queue
+    GL_ASSERT(gl::api::flush());
 
     for(size_t i = 0; i < render::scene::CSMBuffer::NSplits; ++i)
     {
       SOGLB_DEBUGGROUP("csm-pass-square/" + std::to_string(i));
       m_csm->setActiveSplit(i);
-      m_csm->waitActiveSync();
+      m_csm->waitActiveDepthSync();
       m_csm->renderSquare();
-      m_csm->beginActiveSync();
+      m_csm->beginActiveSquareSync();
     }
+
+    // ensure sync commands are flushed to the command queue
+    GL_ASSERT(gl::api::flush());
 
     for(size_t i = 0; i < render::scene::CSMBuffer::NSplits; ++i)
     {
       SOGLB_DEBUGGROUP("csm-pass-blur/" + std::to_string(i));
       m_csm->setActiveSplit(i);
-      m_csm->waitActiveSync();
+      m_csm->waitActiveSquareSync();
       m_csm->renderBlur();
-      m_csm->beginActiveSync();
+      m_csm->beginActiveBlurSync();
     }
+
+    // ensure sync commands are flushed to the command queue
+    GL_ASSERT(gl::api::flush());
 
     for(size_t i = 0; i < render::scene::CSMBuffer::NSplits; ++i)
     {
       m_csm->setActiveSplit(i);
-      m_csm->waitActiveSync();
+      m_csm->waitActiveBlurSync();
     }
   }
 
