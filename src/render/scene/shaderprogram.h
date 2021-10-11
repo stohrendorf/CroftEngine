@@ -14,7 +14,12 @@ namespace render::scene
 class ShaderProgram
 {
 public:
-  explicit ShaderProgram(const std::string_view& label);
+  template<gl::api::ShaderType... Types>
+  explicit ShaderProgram(const std::string_view& label, const gl::Shader<Types>&... shaders)
+      : m_handle{label, shaders...}
+      , m_id{label}
+  {
+  }
 
   ShaderProgram(const ShaderProgram&) = delete;
   ShaderProgram(ShaderProgram&&) = delete;
@@ -83,7 +88,7 @@ private:
                                                                         const std::vector<std::string>& defines = {});
 
   gl::Program m_handle;
-  std::string m_id;
+  const std::string m_id;
 
   boost::container::flat_map<std::string, gl::ProgramInput> m_vertexAttributes;
   boost::container::flat_map<std::string, gl::Uniform> m_uniforms;

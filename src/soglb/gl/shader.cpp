@@ -11,6 +11,7 @@
 
 namespace gl
 {
+// NOLINTNEXTLINE(bugprone-reserved-identifier)
 template<api::ShaderType _Type>
 Shader<_Type>::Shader(const gsl::span<gsl::czstring>& src, const std::string_view& label)
     : m_handle{GL_ASSERT_FN(api::createShader(Type))}
@@ -19,26 +20,14 @@ Shader<_Type>::Shader(const gsl::span<gsl::czstring>& src, const std::string_vie
   GL_ASSERT(api::shaderSource(m_handle, gsl::narrow<api::core::SizeType>(src.size()), src.data(), nullptr));
   GL_ASSERT(api::compileShader(m_handle));
 
+  if(const auto log = getInfoLog(); !log.empty())
+    BOOST_LOG_TRIVIAL(debug) << "Shader info log: " << log;
+
   auto success = static_cast<int>(api::Boolean::False);
   GL_ASSERT(api::getShader(m_handle, api::ShaderParameterName::CompileStatus, &success));
   if(success != static_cast<int>(api::Boolean::True))
   {
     BOOST_LOG_TRIVIAL(error) << "Failed to compile shader program " << label;
-
-    int32_t length = 0;
-    GL_ASSERT(api::getShader(m_handle, api::ShaderParameterName::InfoLogLength, &length));
-    if(length == 0)
-    {
-      length = 4096;
-    }
-    if(length > 0)
-    {
-      std::vector<char> infoLog(length, '\0');
-      GL_ASSERT(api::getShaderInfoLog(m_handle, length, nullptr, infoLog.data()));
-      infoLog.back() = '\0';
-      BOOST_LOG_TRIVIAL(error) << infoLog.data();
-    }
-
     BOOST_THROW_EXCEPTION(std::runtime_error("Failed to compile shader program"));
   }
 
@@ -47,6 +36,25 @@ Shader<_Type>::Shader(const gsl::span<gsl::czstring>& src, const std::string_vie
     GL_ASSERT(api::objectLabel(
       api::ObjectIdentifier::Shader, m_handle, gsl::narrow<api::core::SizeType>(label.size()), label.data()));
   }
+}
+
+// NOLINTNEXTLINE(bugprone-reserved-identifier)
+template<api::ShaderType _Type>
+std::string Shader<_Type>::getInfoLog() const
+{
+  int32_t length = 0;
+  GL_ASSERT(api::getShader(m_handle, api::ShaderParameterName::InfoLogLength, &length));
+  if(length == 0)
+  {
+    length = 4096;
+  }
+  if(length <= 0)
+    return {};
+
+  std::vector<char> infoLog(length, '\0');
+  GL_ASSERT(api::getShaderInfoLog(m_handle, length, nullptr, infoLog.data()));
+  infoLog.back() = '\0';
+  return infoLog.data();
 }
 
 template class Shader<api::ShaderType::FragmentShader>;

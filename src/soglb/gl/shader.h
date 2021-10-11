@@ -34,6 +34,8 @@ public:
     return m_handle;
   }
 
+  [[nodiscard]] std::string getInfoLog() const;
+
 private:
   const uint32_t m_handle;
 };

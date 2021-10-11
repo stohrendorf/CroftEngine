@@ -125,12 +125,6 @@ void replaceIncludes(const std::filesystem::path& filepath,
 }
 } // namespace
 
-ShaderProgram::ShaderProgram(const std::string_view& label)
-    : m_handle{label}
-    , m_id{label}
-{
-}
-
 ShaderProgram::~ShaderProgram() = default;
 
 gsl::not_null<std::shared_ptr<ShaderProgram>> ShaderProgram::createFromFile(const std::string& programId,
@@ -202,13 +196,10 @@ gsl::not_null<std::shared_ptr<ShaderProgram>> ShaderProgram::createFromSource(co
   shaderSource[1] = definesStr.c_str();
   gl::FragmentShader fragmentShader{shaderSource, fshId};
 
-  auto shaderProgram = gslu::make_nn_shared<ShaderProgram>(programId);
-  shaderProgram->m_handle.attach(vertexShader);
-  shaderProgram->m_handle.attach(fragmentShader);
-  shaderProgram->m_handle.link();
+  auto shaderProgram = gslu::make_nn_shared<ShaderProgram>(programId, vertexShader, fragmentShader);
 
   if(const auto log = shaderProgram->m_handle.getInfoLog(); !log.empty())
-    BOOST_LOG_TRIVIAL(debug) << "Shader info log: " << log;
+    BOOST_LOG_TRIVIAL(debug) << "Shader program info log: " << log;
 
   if(!shaderProgram->m_handle.getLinkStatus())
   {

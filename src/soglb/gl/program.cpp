@@ -117,27 +117,6 @@ void Uniform::set(const std::vector<glm::vec4>& values)
       ));
 }
 
-Program::Program(const std::string_view& label)
-    : BindableResource{[]([[maybe_unused]] const api::core::SizeType n, uint32_t* handle)
-                       {
-                         BOOST_ASSERT(n == 1 && handle != nullptr);
-                         *handle = api::createProgram();
-                       },
-                       api::useProgram,
-                       []([[maybe_unused]] const api::core::SizeType n, const uint32_t* handle)
-                       {
-                         BOOST_ASSERT(n == 1 && handle != nullptr);
-                         api::deleteProgram(*handle);
-                       },
-                       label}
-{
-}
-
-void Program::link()
-{
-  GL_ASSERT(api::linkProgram(getHandle()));
-}
-
 bool Program::getLinkStatus() const
 {
   auto success = static_cast<int32_t>(api::Boolean::False);

@@ -266,15 +266,29 @@ private:
 class Program final : public BindableResource<api::ObjectIdentifier::Program>
 {
 public:
-  explicit Program(const std::string_view& label);
-
-  template<api::ShaderType _Type> // NOLINT(bugprone-reserved-identifier)
-  void attach(const Shader<_Type>& shader)
+  // NOLINTNEXTLINE(bugprone-reserved-identifier)
+  template<api::ShaderType... _Types>
+  explicit Program(const std::string_view& label, const Shader<_Types>&... shaders)
+      : BindableResource{[]([[maybe_unused]] const api::core::SizeType n, uint32_t* handle)
+                         {
+                           BOOST_ASSERT(n == 1 && handle != nullptr);
+                           *handle = api::createProgram();
+                         },
+                         api::useProgram,
+                         []([[maybe_unused]] const api::core::SizeType n, const uint32_t* handle)
+                         {
+                           BOOST_ASSERT(n == 1 && handle != nullptr);
+                           api::deleteProgram(*handle);
+                         },
+                         label}
   {
-    GL_ASSERT(api::attachShader(getHandle(), shader.getHandle()));
+    (...,
+     [this, &shaders]()
+     {
+       GL_ASSERT(api::attachShader(getHandle(), shaders.getHandle()));
+     }());
+    GL_ASSERT(api::linkProgram(getHandle()));
   }
-
-  void link();
 
   [[nodiscard]] bool getLinkStatus() const;
 
