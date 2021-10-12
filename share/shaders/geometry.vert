@@ -21,7 +21,7 @@ void main()
     mv[2].xyz = vec3(0, 0, 1);
     #endif
 
-    vec4 tmp = mv * vec4(a_position, 1);
+    vec4 tmp = mv * vec4(a_position, 1.0);
     gpi.vertexPos = tmp.xyz;
     gpi.vertexPosWorld = vec3(mm * vec4(a_position, 1.0));
     gl_Position = camera.projection * tmp;
@@ -30,8 +30,7 @@ void main()
 
     gpi.vertexNormalWorld = normalize(mat3(mm) * a_normal);
     gpi.hbaoNormal = normalize(mat3(mv) * a_normal);
-    float dist = 16 * clamp(1.0 - dot(normalize(csm.lightDir), gpi.vertexNormalWorld), 0.0, 1.0);
-    vec4 pos = vec4(a_position + dist * gpi.vertexNormalWorld, 1.0);
+    vec4 pos = vec4(a_position, 1.0);
     for (int i=0; i<CSMSplits; ++i)
     {
         #ifdef SKELETAL
