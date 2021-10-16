@@ -44,7 +44,7 @@ core::Angle AIAgent::rotateTowardsTarget(core::RotationSpeed maxRotationSpeed)
   const auto dx = m_creatureInfo->target.X - m_state.location.position.X;
   const auto dz = m_creatureInfo->target.Z - m_state.location.position.Z;
   auto turnAngle = angleFromAtan(dx, dz) - m_state.rotation.Y;
-  if(turnAngle < -90_deg || turnAngle > 90_deg)
+  if(abs(turnAngle) > 90_deg)
   {
     // the target is behind the current object, so we need a U-turn
     const auto relativeSpeed = m_state.speed * 90_deg / maxRotationSpeed;
@@ -102,7 +102,7 @@ bool AIAgent::anyMovingEnabledObjectInReach() const
   return false;
 }
 
-bool AIAgent::animateCreature(const core::Angle& angle, const core::Angle& tilt)
+bool AIAgent::animateCreature(const core::Angle& deltaRotationY, const core::Angle& tilt)
 {
   if(m_creatureInfo == nullptr)
     return false;
@@ -123,6 +123,13 @@ bool AIAgent::animateCreature(const core::Angle& angle, const core::Angle& tilt)
   const auto zoneRef = world::Box::getZoneRef(
     getWorld().roomsAreSwapped(), m_creatureInfo->pathFinder.isFlying(), m_creatureInfo->pathFinder.step);
   ModelObject::update();
+
+  // Moving to a different sector is basically a wall glitch, as the collision check always moves the entity away
+  // from the sector boundaries if it detects a collision. As the max norm is always greater than or equal to the
+  // euclidean norm, checking that the max norm of movement is less than or equal to the collision radius means that
+  // the movement did not cause a wall glitch, assuming that the position before applying the movement was valid.
+  BOOST_ASSERT(abs(m_skeleton->calculateFloorSpeed() * 1_frame) <= m_collisionRadius);
+
   if(m_state.triggerState == TriggerState::Deactivated)
   {
     if(!m_state.location.isValid())
@@ -184,25 +191,16 @@ bool AIAgent::animateCreature(const core::Angle& angle, const core::Angle& tilt)
     nextFloor = sector->box->floor;
   }
 
-  const auto basePosX = m_state.location.position.X;
-  const auto basePosZ = m_state.location.position.Z;
+  const auto inSectorX = m_state.location.position.X % core::SectorSize;
+  const auto inSectorZ = m_state.location.position.Z % core::SectorSize;
 
-  const auto inSectorX = basePosX % core::SectorSize;
-  const auto inSectorZ = basePosZ % core::SectorSize;
-
-  core::Length moveX = 0_len;
-  core::Length moveZ = 0_len;
-
-  // in-sector coordinate limits incorporating collision radius
-  const auto collisionInterval = core::Interval{0_len, core::SectorSize - 1_len}.narrowed(m_collisionRadius);
-  Expects(collisionInterval.isValid());
-  const core::TRVec bottom{basePosX, bboxMaxY, basePosZ};
+  // in-sector coordinate bounds incorporating collision radius
+  const auto collisionBounds = core::Interval{0_len, core::SectorSize - 1_len}.narrowed(m_collisionRadius);
+  gsl_Assert(collisionBounds.isValid());
+  const core::TRVec origin{m_state.location.position.X, bboxMaxY, m_state.location.position.Z};
   // relative bounding box collision test coordinates
-  const core::TRVec testX{m_collisionRadius, 0_len, 0_len};
-  const core::TRVec testZ{0_len, 0_len, m_collisionRadius};
-  // how much we can move until we leave the sector
-  const auto xMoveLimit = collisionInterval - inSectorX;
-  const auto zMoveLimit = collisionInterval - inSectorZ;
+  const core::TRVec testDx{m_collisionRadius, 0_len, 0_len};
+  const core::TRVec testDz{0_len, 0_len, m_collisionRadius};
 
   const auto cannotMoveTo
     = [this, floor = sector->box->floor, nextFloor = nextFloor, &pathFinder](const core::TRVec& pos)
@@ -210,111 +208,112 @@ bool AIAgent::animateCreature(const core::Angle& angle, const core::Angle& tilt)
     return isPositionOutOfReach(pos, floor, nextFloor, pathFinder);
   };
 
-  if(inSectorZ < collisionInterval.min)
+  core::Length moveX = 0_len;
+  core::Length moveZ = 0_len;
+
+  if(inSectorZ < collisionBounds.min)
   {
-    const auto testBase = bottom - testZ;
-    if(cannotMoveTo(testBase))
+    if(cannotMoveTo(origin - testDz))
     {
-      moveZ = zMoveLimit.min;
+      moveZ = collisionBounds.min - inSectorZ;
     }
 
-    if(inSectorX < collisionInterval.min)
+    if(inSectorX < collisionBounds.min)
     {
-      if(cannotMoveTo(bottom - testX))
+      if(cannotMoveTo(origin - testDx))
       {
-        moveX = xMoveLimit.min;
+        moveX = collisionBounds.min - inSectorX;
       }
-      else if(moveZ == 0_len && cannotMoveTo(testBase - testX))
+      else if(moveZ == 0_len && cannotMoveTo(origin - testDz - testDx))
       {
         switch(axisFromAngle(m_state.rotation.Y))
         {
         case core::Axis::Deg180:
           [[fallthrough]];
         case core::Axis::Right90:
-          moveX = xMoveLimit.min;
+          moveX = collisionBounds.min - inSectorX;
           break;
         case core::Axis::Deg0:
           [[fallthrough]];
         case core::Axis::Left90:
-          moveZ = zMoveLimit.min;
+          moveZ = collisionBounds.min - inSectorZ;
           break;
         }
       }
     }
-    else if(inSectorX > collisionInterval.max)
+    else if(inSectorX > collisionBounds.max)
     {
-      if(cannotMoveTo(bottom + testX))
+      if(cannotMoveTo(origin + testDx))
       {
-        moveX = xMoveLimit.max;
+        moveX = collisionBounds.max - inSectorX;
       }
-      else if(moveZ == 0_len && cannotMoveTo(testBase + testX))
+      else if(moveZ == 0_len && cannotMoveTo(origin - testDz + testDx))
       {
         switch(axisFromAngle(m_state.rotation.Y))
         {
         case core::Axis::Deg180:
           [[fallthrough]];
         case core::Axis::Left90:
-          moveX = xMoveLimit.max;
+          moveX = collisionBounds.max - inSectorX;
           break;
         case core::Axis::Deg0:
           [[fallthrough]];
         case core::Axis::Right90:
-          moveZ = zMoveLimit.min;
+          moveZ = collisionBounds.min - inSectorZ;
           break;
         }
       }
     }
   }
-  else if(inSectorZ > collisionInterval.max)
+  else if(inSectorZ > collisionBounds.max)
   {
-    const auto testBase = bottom + testZ;
-    if(cannotMoveTo(testBase))
+    if(cannotMoveTo(origin + testDz))
     {
-      moveZ = zMoveLimit.max;
+      moveZ = collisionBounds.max - inSectorZ;
     }
 
-    if(inSectorX < collisionInterval.min)
+    if(inSectorX < collisionBounds.min)
     {
-      if(cannotMoveTo(bottom - testX))
+      if(cannotMoveTo(origin - testDx))
       {
-        moveX = xMoveLimit.min;
+        moveX = collisionBounds.min - inSectorX;
       }
-      else if(moveZ == 0_len && cannotMoveTo(testBase - testX))
+      else if(moveZ == 0_len && cannotMoveTo(origin + testDz - testDx))
       {
         switch(axisFromAngle(m_state.rotation.Y))
         {
         case core::Axis::Right90:
           [[fallthrough]];
         case core::Axis::Deg0:
-          moveX = xMoveLimit.min;
+          moveX = collisionBounds.min - inSectorX;
           break;
         case core::Axis::Left90:
           [[fallthrough]];
         case core::Axis::Deg180:
-          moveZ = zMoveLimit.max;
+          moveZ = collisionBounds.max - inSectorZ;
           break;
         }
       }
     }
-    else if(inSectorX > collisionInterval.max)
+    else if(inSectorX > collisionBounds.max)
     {
-      if(cannotMoveTo(bottom + testX))
+      if(cannotMoveTo(origin + testDx))
       {
-        moveX = xMoveLimit.max;
+        moveX = collisionBounds.max - inSectorX;
       }
-      else if(moveZ == 0_len && cannotMoveTo(testBase + testX))
+      else if(moveZ == 0_len && cannotMoveTo(origin + testDz + testDx))
       {
         switch(axisFromAngle(m_state.rotation.Y))
         {
         case core::Axis::Deg0:
           [[fallthrough]];
         case core::Axis::Left90:
-          moveX = xMoveLimit.max;
+          moveX = collisionBounds.max - inSectorX;
           break;
         case core::Axis::Deg180:
           [[fallthrough]];
         case core::Axis::Right90:
-          moveZ = zMoveLimit.max;
+          moveZ = collisionBounds.max - inSectorZ;
           break;
         }
       }
@@ -322,18 +321,18 @@ bool AIAgent::animateCreature(const core::Angle& angle, const core::Angle& tilt)
   }
   else
   {
-    if(inSectorX < collisionInterval.min)
+    if(inSectorX < collisionBounds.min)
     {
-      if(cannotMoveTo(bottom - testX))
+      if(cannotMoveTo(origin - testDx))
       {
-        moveX = xMoveLimit.min;
+        moveX = collisionBounds.min - inSectorX;
       }
     }
-    else if(inSectorX > collisionInterval.max)
+    else if(inSectorX > collisionBounds.max)
     {
-      if(cannotMoveTo(bottom + testX))
+      if(cannotMoveTo(origin + testDx))
       {
-        moveX = xMoveLimit.max;
+        moveX = collisionBounds.max - inSectorX;
       }
     }
   }
@@ -346,7 +345,7 @@ bool AIAgent::animateCreature(const core::Angle& angle, const core::Angle& tilt)
     bboxMaxYLocation.position.Y = bboxMaxY;
     sector = bboxMaxYLocation.updateRoom();
 
-    m_state.rotation.Y += angle;
+    m_state.rotation.Y += deltaRotationY;
     m_state.rotation.Z += std::clamp(8 * tilt - m_state.rotation.Z, -3_deg, +3_deg);
   }
 

@@ -78,8 +78,7 @@ protected:
   void rotateCreatureTilt(const core::Angle& angle)
   {
     const auto dz = 4 * angle - m_state.rotation.Z;
-    const core::Angle z = std::clamp(dz, -3_deg, +3_deg);
-    m_state.rotation.Z += z;
+    m_state.rotation.Z += std::clamp(dz, -3_deg, +3_deg);
   }
 
   void rotateCreatureHead(const core::Angle& angle)
@@ -87,7 +86,7 @@ protected:
     m_creatureInfo->rotateHead(angle);
   }
 
-  bool animateCreature(const core::Angle& angle, const core::Angle& tilt);
+  bool animateCreature(const core::Angle& deltaRotationY, const core::Angle& tilt);
 
   core::Angle rotateTowardsTarget(core::RotationSpeed maxRotationSpeed);
 
