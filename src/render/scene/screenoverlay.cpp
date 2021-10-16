@@ -25,11 +25,7 @@ class Node;
 
 namespace render::scene
 {
-ScreenOverlay::ScreenOverlay(MaterialManager& materialManager, const glm::ivec2& viewport)
-{
-  init(materialManager, viewport);
-}
-
+ScreenOverlay::ScreenOverlay() = default;
 ScreenOverlay::~ScreenOverlay() = default;
 
 bool ScreenOverlay::render(RenderContext& context)

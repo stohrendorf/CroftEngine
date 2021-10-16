@@ -24,7 +24,7 @@ public:
   ScreenOverlay& operator=(ScreenOverlay&&) = delete;
   ScreenOverlay& operator=(const ScreenOverlay&) = delete;
 
-  explicit ScreenOverlay(MaterialManager& materialManager, const glm::ivec2& viewport);
+  explicit ScreenOverlay();
 
   void init(MaterialManager& materialManager, const glm::ivec2& viewport);
 

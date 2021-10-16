@@ -240,7 +240,9 @@ void Presenter::renderWorld(const ObjectManager& objectManager,
   if(m_showDebugInfo)
   {
     if(m_screenOverlay == nullptr)
-      m_screenOverlay = std::make_unique<render::scene::ScreenOverlay>(*m_materialManager, getRenderViewport());
+      m_screenOverlay = std::make_unique<render::scene::ScreenOverlay>();
+    if(m_screenOverlay->getImage()->getSize() != getRenderViewport())
+      m_screenOverlay->init(*m_materialManager, getRenderViewport());
     m_debugFont->drawText(
       *m_screenOverlay->getImage(),
       std::to_string(waitRatio).c_str(),
@@ -439,7 +441,7 @@ void Presenter::drawLoadingScreen(const std::string& state)
     return;
 
   if(m_screenOverlay == nullptr)
-    m_screenOverlay = std::make_unique<render::scene::ScreenOverlay>(*m_materialManager, getRenderViewport());
+    m_screenOverlay = std::make_unique<render::scene::ScreenOverlay>();
 
   if(getRenderViewport() != m_screenOverlay->getImage()->getSize())
   {
