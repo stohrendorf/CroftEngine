@@ -1,4 +1,4 @@
-# EdisonEngine
+# ![EdisonEngine logo](./share/logo_32.png) EdisonEngine
 
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fstohrendorf%2FEdisonEngine.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fstohrendorf%2FEdisonEngine?ref=badge_shield)
 [![Total alerts](https://img.shields.io/lgtm/alerts/g/stohrendorf/EdisonEngine.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/stohrendorf/EdisonEngine/alerts/)
@@ -6,6 +6,8 @@
 [![Language grade: C/C++](https://img.shields.io/lgtm/grade/cpp/g/stohrendorf/EdisonEngine.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/stohrendorf/EdisonEngine/context:cpp)
 
 An open-source Tomb Raider 1 engine remake.
+
+![EdisonEngine logo](./share/splash.png)
 
 ## Licensing
 
@@ -17,7 +19,8 @@ must be open-source as well.
 ## Usage
 
 **Important**: If you're not technically inclined, i.e. you don't know what 7z archives are, or how to use cmd or
-powershell, this is *not* for you. As EdisonEngine is still in beta stage, there's no easy plug-and-play solution yet - but it's planned.
+powershell, this is *not* for you. As EdisonEngine is still in beta stage, there's no easy plug-and-play solution yet -
+but it's planned.
 
 Now, if you're still here, here's how to set up EdisonEngine and get it running.
 
