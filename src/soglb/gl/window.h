@@ -5,13 +5,14 @@
 #include <filesystem>
 #include <glm/vec2.hpp>
 #include <gsl/gsl-lite.hpp>
+#include <vector>
 
 namespace gl
 {
 class Window final
 {
 public:
-  explicit Window(const std::filesystem::path& logoPath, const glm::ivec2& windowSize = {1280, 800});
+  explicit Window(const std::vector<std::filesystem::path>& logoPaths, const glm::ivec2& windowSize = {1280, 800});
   ~Window();
 
   [[nodiscard]] bool isVsync() const;

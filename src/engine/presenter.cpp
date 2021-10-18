@@ -57,6 +57,7 @@
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
 #include <gslu.h>
+#include <initializer_list>
 #include <optional>
 #include <set>
 #include <utility>
@@ -391,8 +392,22 @@ void Presenter::drawBars(ui::Ui& ui, const std::array<gl::SRGBA8, 256>& palette,
           });
 }
 
+namespace
+{
+std::vector<std::filesystem::path> getIconPaths(const std::filesystem::path& base, const std::vector<int>& sizes)
+{
+  std::vector<std::filesystem::path> result;
+  result.reserve(sizes.size());
+  for(const auto size : sizes)
+  {
+    result.emplace_back(util::ensureFileExists(base / ("logo_" + std::to_string(size) + ".png")));
+  }
+  return result;
+}
+} // namespace
+
 Presenter::Presenter(const std::filesystem::path& engineDataPath, const glm::ivec2& resolution)
-    : m_window{std::make_unique<gl::Window>(engineDataPath / "logo.png", resolution)}
+    : m_window{std::make_unique<gl::Window>(getIconPaths(engineDataPath, {24, 32, 64, 128, 256, 512}), resolution)}
     , m_soundEngine{std::make_shared<audio::SoundEngine>()}
     , m_renderer{std::make_shared<render::scene::Renderer>(gslu::make_nn_shared<render::scene::Camera>(
         DefaultFov, getRenderViewport(), DefaultNearPlane, DefaultFarPlane))}

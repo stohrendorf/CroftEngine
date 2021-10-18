@@ -40,7 +40,7 @@ add_subdirectory( src )
 
 if( UNIX )
     install(
-            FILES share/logo.png
+            FILES share/logo_256.png
             DESTINATION ${CMAKE_INSTALL_FULL_DATADIR}/pixmaps
             RENAME edisonengine.png
     )

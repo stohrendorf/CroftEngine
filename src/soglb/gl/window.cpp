@@ -4,6 +4,7 @@
 #include "glad_init.h"
 #include "glassert.h"
 
+#include <algorithm>
 #include <boost/log/trivial.hpp>
 #include <boost/throw_exception.hpp>
 #include <cstdlib>
@@ -22,7 +23,7 @@ void glErrorCallback(const int err, const gsl::czstring msg)
 }
 } // namespace
 
-Window::Window(const std::filesystem::path& logoPath, const glm::ivec2& windowSize)
+Window::Window(const std::vector<std::filesystem::path>& logoPaths, const glm::ivec2& windowSize)
     : m_windowPos{0, 0}
     , m_windowSize{windowSize}
 {
@@ -62,13 +63,32 @@ Window::Window(const std::filesystem::path& logoPath, const glm::ivec2& windowSi
     BOOST_THROW_EXCEPTION(std::runtime_error("Failed to create window"));
   }
 
-  CImgWrapper imgWrapper{std::filesystem::path{logoPath}};
-  imgWrapper.interleave();
-  GLFWimage img;
-  img.width = imgWrapper.width();
-  img.height = imgWrapper.height();
-  img.pixels = const_cast<unsigned char*>(imgWrapper.data()); // NOLINT(cppcoreguidelines-pro-type-const-cast)
-  glfwSetWindowIcon(m_window, 1, &img);
+  {
+    std::vector<CImgWrapper> imgWrappers;
+    std::transform(logoPaths.begin(),
+                   logoPaths.end(),
+                   std::back_inserter(imgWrappers),
+                   [](const std::filesystem::path& p)
+                   {
+                     auto tmp = CImgWrapper{p};
+                     tmp.interleave();
+                     return tmp;
+                   });
+    std::vector<GLFWimage> glfwImages;
+    std::transform(imgWrappers.begin(),
+                   imgWrappers.end(),
+                   std::back_inserter(glfwImages),
+                   [](const CImgWrapper& srcImg)
+                   {
+                     GLFWimage img;
+                     img.width = srcImg.width();
+                     img.height = srcImg.height();
+                     img.pixels
+                       = const_cast<unsigned char*>(srcImg.data()); // NOLINT(cppcoreguidelines-pro-type-const-cast)
+                     return img;
+                   });
+    glfwSetWindowIcon(m_window, gsl::narrow<int>(glfwImages.size()), glfwImages.data());
+  }
 
   glfwMakeContextCurrent(m_window);
 
