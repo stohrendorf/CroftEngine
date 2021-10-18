@@ -1,5 +1,6 @@
 # ![EdisonEngine logo](./share/logo_32.png) EdisonEngine
 
+[![EdisonEngine-CI](https://github.com/stohrendorf/EdisonEngine/actions/workflows/repo-sync.yml/badge.svg)](https://github.com/stohrendorf/EdisonEngine/actions/workflows/repo-sync.yml)
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fstohrendorf%2FEdisonEngine.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fstohrendorf%2FEdisonEngine?ref=badge_shield)
 [![Total alerts](https://img.shields.io/lgtm/alerts/g/stohrendorf/EdisonEngine.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/stohrendorf/EdisonEngine/alerts/)
 [![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/stohrendorf/EdisonEngine.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/stohrendorf/EdisonEngine/context:python)
