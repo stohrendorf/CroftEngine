@@ -57,7 +57,7 @@ public:
   void serialize(const serialization::Serializer<world::World>& ser) override;
 
 private:
-  QS_COMBINE_UNITS(core::Angle, /, core::Frame) m_rotateSpeed;
+  core::RotationSpeed m_rotateSpeed;
   core::Speed m_dropSpeedX{0_spd};
   core::Speed m_dropSpeedZ{0_spd};
 };
