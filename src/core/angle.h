@@ -63,6 +63,11 @@ using RotationSpeed = QS_COMBINE_UNITS(Angle, /, Frame);
   return a.get<float>() / AngleStorageScale * glm::pi<float>() * 2 / FullRotation;
 }
 
+[[nodiscard]] inline auto toAu(const Angle& a) noexcept
+{
+  return a.get() / AngleStorageScale;
+}
+
 [[nodiscard]] inline float sin(const Angle& a) noexcept
 {
   return std::sin(toRad(a));

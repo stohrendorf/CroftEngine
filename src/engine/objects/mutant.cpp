@@ -529,8 +529,8 @@ void TorsoBoss::update()
       }
       break;
     case Approach.get():
-      // TODO this is just weird, but it's just like the original...
-      goal(m_state.goal_anim_state.get() + std::clamp(angleToTarget, -3_deg, 3_deg).get());
+      // TODO this is just weird, but it's just like the original... seems to be a copy-pasta error
+      goal(m_state.goal_anim_state.get() + core::toAu(std::clamp(angleToTarget, -3_deg, 3_deg)));
 
       if(abs(angleToTarget) > 45_deg || enemyLocation.enemyDistance < util::square(2600_len))
         goal(Think);
