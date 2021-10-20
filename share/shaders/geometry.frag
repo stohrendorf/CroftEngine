@@ -82,5 +82,5 @@ void main()
     finalColor *= water_multiplier(gpi.vertexPosWorld);
     #endif
 
-    out_color = vec4(finalColor * calc_positional_lighting(gpi.vertexNormalWorld, gpi.vertexPosWorld) * shadow_map_multiplier(gpi.vertexNormalWorld), 1.0);
+    out_color = vec4(finalColor * calc_positional_lighting() * shadow_map_multiplier(), 1.0);
 }
