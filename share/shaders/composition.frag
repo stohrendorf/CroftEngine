@@ -46,12 +46,13 @@ void main()
     float pDepth = -texture(u_portalPosition, uv).z;
     float geomDepth = -texture(u_geometryPosition, uv).z;
     float whiteness = 0;
+    vec3 dUvSpecular = texture(u_portalPerturb, uv).xyz;
+    vec2 pUv = uv + dUvSpecular.xy;
+    float pUvD = -texture(u_geometryPosition, pUv).z;
     if (geomDepth > pDepth)
     {
         // camera ray goes through water surface; apply perturb
-        vec3 dUvSpecular = texture(u_portalPerturb, uv).xyz;
-        vec2 pUv = uv + dUvSpecular.xy;
-        if (-texture(u_geometryPosition, pUv).z > pDepth) {
+        if (pUvD > pDepth) {
             // ...but only apply it if the source pixel's geometry is behind the water surface.
             uv = pUv;
             #ifdef IN_WATER
