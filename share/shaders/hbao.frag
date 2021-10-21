@@ -19,9 +19,9 @@ void main()
 {
     const float Radius = 16;
     const float Bias = 0.025;
-    const int Dirs = 5;
+    const int Dirs = 4;
     const float DirRotation = 2*PI/Dirs;
-    const int Steps = 5;
+    const int Steps = 4;
 
     vec3 fragPos = texture(u_position, fpi.texCoord).xyz;
     float stepSize = Radius / (fragPos.z*0.0001) / float(Steps+1);
