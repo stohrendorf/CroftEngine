@@ -14,8 +14,6 @@ const float DofBlurRange = 3;
 
 vec2 dof_texel = 1.0 / vec2(textureSize(u_texture, 0));
 
-#include "util.glsl"
-
 vec3 dof_color(in vec2 uv, in float blur_amount)//processing the sample
 {
     const float fringe = 0.7;//bokeh chromatic aberration/fringing
@@ -24,9 +22,9 @@ vec3 dof_color(in vec2 uv, in float blur_amount)//processing the sample
     vec2 db = vec2(0.866, -0.5)*dof_texel*fringe*blur_amount;
 
     vec3 col;
-    col.r = shaded_texel(u_texture, uv+dr, -texture(u_geometryPosition, uv+dr).z).r;
-    col.g = shaded_texel(u_texture, uv+dg, -texture(u_geometryPosition, uv+dg).z).g;
-    col.b = shaded_texel(u_texture, uv+db, -texture(u_geometryPosition, uv+db).z).b;
+    col.r = texture(u_texture, uv+dr).r;
+    col.g = texture(u_texture, uv+dg).g;
+    col.b = texture(u_texture, uv+db).b;
     return col;
 }
 
@@ -42,7 +40,7 @@ vec3 do_dof(in vec2 uv)
     const float BokehBias = 0.5;//bokeh edge bias
     vec2 blur_radius = dof_texel * blur_amount + noise;
 
-    vec3 col = shaded_texel(u_texture, uv, -texture(u_geometryPosition, uv).z);
+    vec3 col = texture(u_texture, uv).rgb;
     float weight_sum = 1.0;
 
     const int Rings = 3;

@@ -40,11 +40,13 @@ void main()
     vec2 pUv = uv + dUvSpecular.xy;
     float pUvD = -texture(u_geometryPosition, pUv).z;
     float whiteness = 0;
+    float shadeDepth = geomDepth;
     if (min(geomDepth, pUvD) > pDepth)
     {
         // camera ray goes through water surface; apply perturb
         // ...but only apply it if the source pixel's geometry is behind the water surface.
         uv = pUv;
+        shadeDepth = pUvD;
         #ifdef IN_WATER
         finalColor = vec3(1.0);
         #else
@@ -54,7 +56,7 @@ void main()
     }
 
         #ifndef DOF
-    finalColor *= shaded_texel(u_texture, uv, -texture(u_portalPosition, uv).z);
+    finalColor *= texture(u_texture, uv).rgb;
     #else
     finalColor *= do_dof(uv);
     #endif
@@ -71,5 +73,6 @@ void main()
     // light scatter
     finalColor = mix(finalColor, WaterColor, d/30.0);
 
+    finalColor = shade_texel(finalColor, shadeDepth);
     out_color = vec4(finalColor, 1.0);
 }
