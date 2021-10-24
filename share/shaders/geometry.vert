@@ -21,10 +21,10 @@ void main()
     mv[2].xyz = vec3(0, 0, 1);
     #endif
 
-    vec4 tmp = mv * vec4(a_position, 1.0);
-    gpi.vertexPos = tmp.xyz;
+    vec4 mvPos = mv * vec4(a_position, 1.0);
+    gpi.vertexPos = mvPos.xyz;
     gpi.vertexPosWorld = vec3(mm * vec4(a_position, 1.0));
-    gl_Position = camera.projection * tmp;
+    gl_Position = camera.projection * mvPos;
     gpi.texCoord = a_texCoord;
     gpi.color = a_color;
 
@@ -42,9 +42,9 @@ void main()
         gpi.vertexPosLight[i] = (tmp.xyz / tmp.w) * 0.5 + 0.5;
     }
 
-    gpi.isQuad = a_isQuad;
-    if (a_isQuad != 0)
     {
+        gpi.isQuad = a_isQuad;
+
         mat4 mvp = camera.projection * mv;
 
         vec4 tmp = mvp * vec4(a_quadVert1, 1);

@@ -6,9 +6,8 @@ float voronoi(in vec3 p)
     vec3 i_st = floor(p);
     vec3 f_st = fract(p);
 
-    float m_dist = 1.;// minimum distance
-    const float Epsilon = 1.0/255.0;
     const float Offset = 0.5;
+    float m_dist = 1.0 - Offset;
     const vec3 Time = vec3(u_time*0.005);
 
     for (float fy = -1; fy <= 1; fy += 1.0) {
@@ -24,9 +23,6 @@ float voronoi(in vec3 p)
                 // Vector between the sample and the point
                 vec3 diff = neighbor + point - f_st;
                 float dist = dot(diff, diff);
-                if (dist < Epsilon) {
-                    return Offset;
-                }
                 m_dist = min(m_dist, dist);
             }
         }
@@ -39,6 +35,5 @@ float water_multiplier(in vec3 vpos)
 {
     const float Scale1 = 0.003;
     const float Scale2 = 0.0011;
-    float result = clamp(voronoi(vpos * Scale1) * voronoi(vpos * Scale2), 0, 1);
-    return result;
+    return voronoi(vpos * Scale1) * voronoi(vpos * Scale2);
 }
