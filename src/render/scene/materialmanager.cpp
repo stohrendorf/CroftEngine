@@ -220,12 +220,12 @@ MaterialManager::MaterialManager(gsl::not_null<std::shared_ptr<ShaderCache>> sha
       | set(gl::api::TextureMinFilter::Linear) | set(gl::api::TextureMagFilter::Linear));
 }
 
-gsl::not_null<std::shared_ptr<Material>> MaterialManager::getWorldComposition(bool inWater, bool dof, bool hbao)
+gsl::not_null<std::shared_ptr<Material>> MaterialManager::getWorldComposition(bool inWater, bool dof)
 {
-  const std::tuple key{inWater, dof, hbao};
+  const std::tuple key{inWater, dof};
   if(auto it = m_composition.find(key); it != m_composition.end())
     return it->second;
-  auto m = gslu::make_nn_shared<Material>(m_shaderCache->getWorldComposition(inWater, dof, hbao));
+  auto m = gslu::make_nn_shared<Material>(m_shaderCache->getWorldComposition(inWater, dof));
 
   if(auto uniform = m->tryGetUniform("u_time"))
   {
@@ -358,6 +358,16 @@ gsl::not_null<std::shared_ptr<Material>> MaterialManager::getLensDistortion()
   m->getUniformBlock("Camera")->bindCameraBuffer(m_renderer->getCamera());
 
   m_lensDistortion = m;
+  return m;
+}
+
+gsl::not_null<std::shared_ptr<Material>> MaterialManager::getHBAOFx()
+{
+  if(m_hbaoFx != nullptr)
+    return gsl::not_null{m_hbaoFx};
+
+  auto m = gslu::make_nn_shared<Material>(m_shaderCache->getHBAOFx());
+  m_hbaoFx = m;
   return m;
 }
 

@@ -2,7 +2,6 @@
 
 #include "config.h"
 #include "geometrypass.h"
-#include "hbaopass.h"
 #include "portalpass.h"
 #include "render/rendersettings.h"
 #include "render/scene/material.h"
@@ -39,10 +38,9 @@ WorldCompositionPass::WorldCompositionPass(scene::MaterialManager& materialManag
                                            const RenderSettings& renderSettings,
                                            const glm::ivec2& viewport,
                                            const GeometryPass& geometryPass,
-                                           const PortalPass& portalPass,
-                                           const HBAOPass& hbaoPass)
-    : m_noWaterMaterial{materialManager.getWorldComposition(false, renderSettings.dof, renderSettings.hbao)}
-    , m_inWaterMaterial{materialManager.getWorldComposition(true, renderSettings.dof, renderSettings.hbao)}
+                                           const PortalPass& portalPass)
+    : m_noWaterMaterial{materialManager.getWorldComposition(false, renderSettings.dof)}
+    , m_inWaterMaterial{materialManager.getWorldComposition(true, renderSettings.dof)}
     , m_noWaterMesh{scene::createScreenQuad(m_noWaterMaterial, "composition-nowater")}
     , m_inWaterMesh{scene::createScreenQuad(m_inWaterMaterial, "composition-water")}
     , m_colorBuffer{std::make_shared<gl::Texture2D<gl::SRGB8>>(viewport, "composition-color")}
@@ -84,14 +82,6 @@ WorldCompositionPass::WorldCompositionPass(scene::MaterialManager& materialManag
                       {
                         uniform.set(buffer);
                       });
-  if(renderSettings.hbao)
-    m_noWaterMesh->bind("u_ao",
-                        [texture = hbaoPass.getBlurredTexture()](const render::scene::Node& /*node*/,
-                                                                 const render::scene::Mesh& /*mesh*/,
-                                                                 gl::Uniform& uniform)
-                        {
-                          uniform.set(texture);
-                        });
   m_noWaterMesh->bind("u_texture",
                       [buffer = geometryPass.getColorBuffer()](
                         const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
@@ -130,14 +120,6 @@ WorldCompositionPass::WorldCompositionPass(scene::MaterialManager& materialManag
                       {
                         uniform.set(buffer);
                       });
-  if(renderSettings.hbao)
-    m_inWaterMesh->bind("u_ao",
-                        [texture = hbaoPass.getBlurredTexture()](const render::scene::Node& /*node*/,
-                                                                 const render::scene::Mesh& /*mesh*/,
-                                                                 gl::Uniform& uniform)
-                        {
-                          uniform.set(texture);
-                        });
   m_inWaterMesh->bind("u_texture",
                       [buffer = geometryPass.getColorBuffer()](
                         const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)

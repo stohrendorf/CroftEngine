@@ -2,9 +2,6 @@ layout(bindless_sampler) uniform sampler2D u_texture;
 layout(bindless_sampler) uniform sampler2D u_geometryPosition;
 layout(bindless_sampler) uniform sampler2D u_portalPosition;
 layout(bindless_sampler) uniform sampler2D u_portalPerturb;
-#ifdef HBAO
-layout(bindless_sampler) uniform sampler2D u_ao;
-#endif
 
 #include "flat_pipeline_interface.glsl"
 #include "camera_interface.glsl"
@@ -73,10 +70,6 @@ void main()
     finalColor *= mix(vec3(1), WaterColor, d);
     // light scatter
     finalColor = mix(finalColor, WaterColor, d/30.0);
-
-    #ifdef HBAO
-    finalColor *= texture(u_ao, uv).r;
-    #endif
 
     out_color = vec4(finalColor, 1.0);
 }

@@ -74,7 +74,7 @@ void RenderPipeline::resize(scene::MaterialManager& materialManager,
   m_portalPass = std::make_shared<pass::PortalPass>(materialManager, m_geometryPass->getDepthBuffer(), m_renderSize);
   m_hbaoPass = std::make_shared<pass::HBAOPass>(materialManager, m_renderSize, *m_geometryPass);
   m_worldCompositionPass = std::make_shared<pass::WorldCompositionPass>(
-    materialManager, m_renderSettings, m_renderSize, *m_geometryPass, *m_portalPass, *m_hbaoPass);
+    materialManager, m_renderSettings, m_renderSize, *m_geometryPass, *m_portalPass);
 
   auto fxSource = m_worldCompositionPass->getColorBuffer();
   auto addEffect =
@@ -83,9 +83,20 @@ void RenderPipeline::resize(scene::MaterialManager& materialManager,
     auto fx = std::make_shared<pass::EffectPass>("fx:" + name, material, fxSource);
     m_effects.emplace_back(fx);
     fxSource = fx->getOutput();
+    return fx;
   };
 
   m_effects.clear();
+  if(m_renderSettings.hbao)
+  {
+    auto fx = addEffect("hbao", materialManager.getHBAOFx());
+    fx->bind("u_ao",
+             [texture = m_hbaoPass->getBlurredTexture()](
+               const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
+             {
+               uniform.set(texture);
+             });
+  }
   if(m_renderSettings.fxaa)
     addEffect("fxaa", materialManager.getFXAA());
   if(m_renderSettings.lensDistortion)

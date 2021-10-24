@@ -105,6 +105,11 @@ public:
     return get("flat.vert", "fx_lens_distortion.frag");
   }
 
+  [[nodiscard]] auto getHBAOFx()
+  {
+    return get("flat.vert", "fx_hbao.frag");
+  }
+
   [[nodiscard]] auto getHBAO()
   {
     return get("flat.vert", "hbao.frag");
@@ -133,15 +138,13 @@ public:
     return get("flat.vert", "vsm_square.frag");
   }
 
-  [[nodiscard]] auto getWorldComposition(bool inWater, bool dof, bool hbao)
+  [[nodiscard]] auto getWorldComposition(bool inWater, bool dof)
   {
     std::vector<std::string> defines;
     if(inWater)
       defines.emplace_back("IN_WATER");
     if(dof)
       defines.emplace_back("DOF");
-    if(hbao)
-      defines.emplace_back("HBAO");
     return get("flat.vert", "composition.frag", defines);
   }
 

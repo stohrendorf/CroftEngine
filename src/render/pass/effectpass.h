@@ -5,6 +5,7 @@
 #include <gsl/gsl-lite.hpp>
 #include <memory>
 #include <string>
+#include <utility>
 
 namespace render::scene
 {
@@ -31,6 +32,12 @@ public:
   [[nodiscard]] const auto& getFramebuffer() const
   {
     return m_fb;
+  }
+
+  template<typename... Args>
+  void bind(Args&&... args)
+  {
+    m_mesh->bind(std::forward<Args>(args)...);
   }
 
 private:

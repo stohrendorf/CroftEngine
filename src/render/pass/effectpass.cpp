@@ -56,7 +56,7 @@ EffectPass::EffectPass(std::string name,
 
 void EffectPass::render(bool inWater)
 {
-  SOGLB_DEBUGGROUP("fx:" + m_name);
+  SOGLB_DEBUGGROUP(m_name + "-pass");
 
   m_fb->bind();
 

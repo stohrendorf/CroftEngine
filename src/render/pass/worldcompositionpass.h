@@ -22,7 +22,6 @@ class Mesh;
 namespace render::pass
 {
 class PortalPass;
-class HBAOPass;
 class GeometryPass;
 
 class WorldCompositionPass
@@ -32,8 +31,7 @@ public:
                                 const RenderSettings& renderSettings,
                                 const glm::ivec2& viewport,
                                 const GeometryPass& geometryPass,
-                                const PortalPass& portalPass,
-                                const HBAOPass& hbaoPass);
+                                const PortalPass& portalPass);
 
   void updateCamera(const gsl::not_null<std::shared_ptr<scene::Camera>>& camera);
 

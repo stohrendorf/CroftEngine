@@ -32,7 +32,7 @@ public:
 
   [[nodiscard]] gsl::not_null<std::shared_ptr<Material>> getLightning();
 
-  [[nodiscard]] gsl::not_null<std::shared_ptr<Material>> getWorldComposition(bool inWater, bool dof, bool hbao);
+  [[nodiscard]] gsl::not_null<std::shared_ptr<Material>> getWorldComposition(bool inWater, bool dof);
 
   [[nodiscard]] gsl::not_null<std::shared_ptr<Material>> getUi();
 
@@ -41,6 +41,7 @@ public:
   [[nodiscard]] gsl::not_null<std::shared_ptr<Material>> getVelvia();
   [[nodiscard]] gsl::not_null<std::shared_ptr<Material>> getFilmGrain();
   [[nodiscard]] gsl::not_null<std::shared_ptr<Material>> getLensDistortion();
+  [[nodiscard]] gsl::not_null<std::shared_ptr<Material>> getHBAOFx();
 
   [[nodiscard]] gsl::not_null<std::shared_ptr<Material>>
     getFlat(bool withAlpha, bool invertY = false, bool withAspectRatio = false);
@@ -69,6 +70,7 @@ private:
   std::shared_ptr<Material> m_velvia{nullptr};
   std::shared_ptr<Material> m_filmGrain{nullptr};
   std::shared_ptr<Material> m_lensDistortion{nullptr};
+  std::shared_ptr<Material> m_hbaoFx{nullptr};
 
   std::map<bool, gsl::not_null<std::shared_ptr<Material>>> m_sprite{};
   std::map<bool, gsl::not_null<std::shared_ptr<Material>>> m_csmDepthOnly{};
@@ -76,7 +78,7 @@ private:
   std::map<std::tuple<bool, bool, bool>, gsl::not_null<std::shared_ptr<Material>>> m_geometry{};
   std::shared_ptr<Material> m_waterSurface{nullptr};
   std::shared_ptr<Material> m_lightning{nullptr};
-  std::map<std::tuple<bool, bool, bool>, gsl::not_null<std::shared_ptr<Material>>> m_composition{};
+  std::map<std::tuple<bool, bool>, gsl::not_null<std::shared_ptr<Material>>> m_composition{};
   std::shared_ptr<Material> m_ui{nullptr};
   std::map<std::tuple<bool, bool, bool>, gsl::not_null<std::shared_ptr<Material>>> m_flat{};
   std::map<std::tuple<uint8_t, uint8_t, uint8_t>, gsl::not_null<std::shared_ptr<Material>>> m_fastGaussBlur{};
