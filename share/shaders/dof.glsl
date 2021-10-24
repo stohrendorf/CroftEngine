@@ -14,20 +14,6 @@ const float DofBlurRange = 3;
 
 vec2 dof_texel = 1.0 / vec2(textureSize(u_texture, 0));
 
-vec3 dof_color(in vec2 uv, in float blur_amount)//processing the sample
-{
-    const float fringe = 0.7;//bokeh chromatic aberration/fringing
-    vec2 dr = vec2(0.0, 1.0)*dof_texel*fringe*blur_amount;
-    vec2 dg = vec2(-0.866, -0.5)*dof_texel*fringe*blur_amount;
-    vec2 db = vec2(0.866, -0.5)*dof_texel*fringe*blur_amount;
-
-    vec3 col;
-    col.r = texture(u_texture, uv+dr).r;
-    col.g = texture(u_texture, uv+dg).g;
-    col.b = texture(u_texture, uv+db).b;
-    return col;
-}
-
 vec3 do_dof(in vec2 uv)
 {
     float depth = -texture(u_geometryPosition, uv).z * InvFarPlane;
@@ -56,7 +42,7 @@ vec3 do_dof(in vec2 uv)
         {
             vec2 dxy = vec2(cos(angle), sin(angle)) * float(i);
             float weight = mix(1.0, bokehFactor, BokehBias);
-            col += dof_color(dxy*blur_radius + uv, blur_amount) * weight;
+            col = texture(u_texture, dxy*blur_radius + uv).rgb * weight + col;
             weight_sum += weight;
             angle += angleDelta;
         }
