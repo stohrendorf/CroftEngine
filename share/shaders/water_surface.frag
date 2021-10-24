@@ -4,7 +4,6 @@
 
 #include "noise.glsl"
 #include "constants.glsl"
-#include "util.glsl"
 
 layout(location=0) out vec3 out_perturb;
 layout(location=1) out vec3 out_position;
@@ -20,7 +19,7 @@ float fbm(in vec2 st) {
     float amplitude = .5;
     st *= 0.0064;
     for (int i = 0; i < 3; i++) {
-        value += amplitude * noise(st);
+        value = amplitude * noise(st) + value;
         st *= 1.4;
         amplitude *= .5;
     }
@@ -33,10 +32,10 @@ float bumpTex(in vec2 uv, in float time) {
     vec2 coords1 = rotate2d(.9*PI) * uv + time*vec2(0.1, -0.3)*TimeMult;
     vec2 coords2 = rotate2d(.06*PI) * uv - time*vec2(0.1, 0.2)*TimeMult;
 
-    float wave1 = fbm(coords1*vec2(30.0, 20.0));
-    float wave2 = fbm(coords2*vec2(30.0, 20.0));
-
-    return pow((wave1 + wave2) * 0.5, 2.0);
+    float wave1 = fbm(coords1*vec2(30.0, 20.0)) * 0.5;
+    float wave2 = fbm(coords2*vec2(30.0, 20.0)) * 0.5;
+    float x = wave1 + wave2;
+    return x*x;
 }
 
 
@@ -74,7 +73,7 @@ void main()
     const vec3 L = vec3(0, 1, 0);
     vec3 H = normalize(V+L);
     float cosTheta = clamp(dot(specN, H), 0.0, 1.0);
-    float specular = texel_shade(-viewVertexPos.z) * pow(cosTheta, 40) * 0.7;
+    float specular = pow(cosTheta, 40) * 0.7;
 
     vec4 orig = camera.projection * viewVertexPos;
     orig /= orig.w;
