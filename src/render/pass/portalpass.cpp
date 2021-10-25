@@ -9,6 +9,7 @@
 #include <gl/texturehandle.h>
 #include <glm/fwd.hpp>
 #include <gslu.h>
+#include <limits>
 #include <memory>
 #include <utility>
 
@@ -22,13 +23,13 @@ namespace render::pass
 PortalPass::PortalPass(scene::MaterialManager& materialManager,
                        const gsl::not_null<std::shared_ptr<gl::TextureDepth<float>>>& depthBuffer,
                        const glm::vec2& viewport)
-    : m_positionBuffer{std::make_shared<gl::Texture2D<gl::RGB32F>>(viewport, "portal-position")}
-    , m_positionBufferHandle{std::make_shared<gl::TextureHandle<gl::Texture2D<gl::RGB32F>>>(
+    : m_positionBuffer{std::make_shared<gl::Texture2D<gl::Scalar32F>>(viewport, "portal-position")}
+    , m_positionBufferHandle{std::make_shared<gl::TextureHandle<gl::Texture2D<gl::Scalar32F>>>(
         m_positionBuffer,
         gslu::make_nn_unique<gl::Sampler>("portal-position-sampler")
           | set(gl::api::SamplerParameterI::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge)
           | set(gl::api::SamplerParameterI::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge)
-          | set(gl::api::TextureMinFilter::Linear) | set(gl::api::TextureMagFilter::Linear))}
+          | set(gl::api::TextureMinFilter::Nearest) | set(gl::api::TextureMagFilter::Nearest))}
     , m_perturbBuffer{std::make_shared<gl::Texture2D<gl::RGB32F>>(viewport, "portal-perturb")}
     , m_perturbBufferHandle{std::make_shared<gl::TextureHandle<gl::Texture2D<gl::RGB32F>>>(
         m_perturbBuffer,
@@ -45,9 +46,9 @@ PortalPass::PortalPass(scene::MaterialManager& materialManager,
 }
 
 // NOLINTNEXTLINE(readability-make-member-function-const)
-gl::RenderState PortalPass::bind(const gl::TextureHandle<gl::Texture2D<gl::RGB32F>>& position)
+gl::RenderState PortalPass::bind()
 {
-  m_positionBuffer->copyFrom(*position.getTexture());
+  m_positionBuffer->clear(gl::Scalar32F{-std::numeric_limits<float>::infinity()});
   m_fb->bind();
   return m_fb->getRenderState();
 }

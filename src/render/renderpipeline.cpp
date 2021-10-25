@@ -113,8 +113,7 @@ void RenderPipeline::resize(scene::MaterialManager& materialManager,
 gl::RenderState RenderPipeline::bindPortalFrameBuffer()
 {
   BOOST_ASSERT(m_portalPass != nullptr);
-  BOOST_ASSERT(m_geometryPass != nullptr);
-  return m_portalPass->bind(*m_geometryPass->getPositionBuffer());
+  return m_portalPass->bind();
 }
 
 void RenderPipeline::bindUiFrameBuffer()

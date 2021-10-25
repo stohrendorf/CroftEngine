@@ -77,7 +77,7 @@ WorldCompositionPass::WorldCompositionPass(scene::MaterialManager& materialManag
                           uniform.set(texture);
                         });
   m_noWaterMesh->bind("u_geometryPosition",
-                      [buffer = geometryPass.getInterpolatedPositionBuffer()](
+                      [buffer = geometryPass.getPositionBuffer()](
                         const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
                       {
                         uniform.set(buffer);
@@ -115,7 +115,7 @@ WorldCompositionPass::WorldCompositionPass(scene::MaterialManager& materialManag
                           uniform.set(texture);
                         });
   m_inWaterMesh->bind("u_geometryPosition",
-                      [buffer = geometryPass.getInterpolatedPositionBuffer()](
+                      [buffer = geometryPass.getPositionBuffer()](
                         const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
                       {
                         uniform.set(buffer);

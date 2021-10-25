@@ -28,12 +28,6 @@ GeometryPass::GeometryPass(const glm::ivec2& viewport)
           | set(gl::api::SamplerParameterI::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge)
           | set(gl::api::SamplerParameterI::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge)
           | set(gl::api::TextureMinFilter::Nearest) | set(gl::api::TextureMagFilter::Nearest))}
-    , m_interpolatedPositionBufferHandle{std::make_shared<gl::TextureHandle<gl::Texture2D<gl::RGB32F>>>(
-        m_positionBuffer,
-        gslu::make_nn_unique<gl::Sampler>("geometry-position-interpolated-sampler")
-          | set(gl::api::SamplerParameterI::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge)
-          | set(gl::api::SamplerParameterI::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge)
-          | set(gl::api::TextureMinFilter::Linear) | set(gl::api::TextureMagFilter::Linear))}
     , m_normalBuffer{std::make_shared<gl::Texture2D<gl::RGB16F>>(viewport, "geometry-normal")}
     , m_normalBufferHandle{std::make_shared<gl::TextureHandle<gl::Texture2D<gl::RGB16F>>>(
         m_normalBuffer,

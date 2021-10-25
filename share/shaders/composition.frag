@@ -34,7 +34,7 @@ void main()
     vec3 finalColor = vec3(1.0);
     #endif
 
-    float pDepth = -texture(u_portalPosition, uv).z;
+    float pDepth = -texture(u_portalPosition, uv).x;
     float geomDepth = -texture(u_geometryPosition, uv).z;
     vec3 dUvSpecular = texture(u_portalPerturb, uv).xyz;
     vec2 pUv = uv + dUvSpecular.xy;

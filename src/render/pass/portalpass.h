@@ -22,7 +22,7 @@ public:
                       const gsl::not_null<std::shared_ptr<gl::TextureDepth<float>>>& depthBuffer,
                       const glm::vec2& viewport);
 
-  [[nodiscard]] gl::RenderState bind(const gl::TextureHandle<gl::Texture2D<gl::RGB32F>>& position);
+  [[nodiscard]] gl::RenderState bind();
 
   void renderBlur()
   {
@@ -45,8 +45,8 @@ public:
   }
 
 private:
-  gsl::not_null<std::shared_ptr<gl::Texture2D<gl::RGB32F>>> m_positionBuffer;
-  gsl::not_null<std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::RGB32F>>>> m_positionBufferHandle;
+  gsl::not_null<std::shared_ptr<gl::Texture2D<gl::Scalar32F>>> m_positionBuffer;
+  gsl::not_null<std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::Scalar32F>>>> m_positionBufferHandle;
   gsl::not_null<std::shared_ptr<gl::Texture2D<gl::RGB32F>>> m_perturbBuffer;
   gsl::not_null<std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::RGB32F>>>> m_perturbBufferHandle;
   scene::SeparableBlur<gl::RGB32F> m_blur;

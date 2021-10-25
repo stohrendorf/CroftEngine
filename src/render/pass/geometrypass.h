@@ -26,11 +26,6 @@ public:
     return m_positionBufferHandle;
   }
 
-  [[nodiscard]] const auto& getInterpolatedPositionBuffer() const
-  {
-    return m_interpolatedPositionBufferHandle;
-  }
-
   [[nodiscard]] const auto& getColorBuffer() const
   {
     return m_colorBufferHandle;
@@ -47,7 +42,6 @@ private:
   gsl::not_null<std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::SRGB8>>>> m_colorBufferHandle;
   gsl::not_null<std::shared_ptr<gl::Texture2D<gl::RGB32F>>> m_positionBuffer;
   gsl::not_null<std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::RGB32F>>>> m_positionBufferHandle;
-  gsl::not_null<std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::RGB32F>>>> m_interpolatedPositionBufferHandle;
   gsl::not_null<std::shared_ptr<gl::Texture2D<gl::RGB16F>>> m_normalBuffer;
   gsl::not_null<std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::RGB16F>>>> m_normalBufferHandle;
   gsl::not_null<std::shared_ptr<gl::Framebuffer>> m_fb;

@@ -6,7 +6,7 @@
 #include "constants.glsl"
 
 layout(location=0) out vec3 out_perturb;
-layout(location=1) out vec3 out_position;
+layout(location=1) out float out_position;
 
 mat2 rotate2d(in float a){
     float ca = cos(a);
@@ -15,15 +15,15 @@ mat2 rotate2d(in float a){
 }
 
 float fbm(in vec2 st) {
-    float value = 0.0;
-    float amplitude = .5;
+    float value = 0.5;
+    float amplitude = 0.25;
     st *= 0.0064;
     for (int i = 0; i < 3; i++) {
         value = amplitude * noise(st) + value;
         st *= 1.4;
-        amplitude *= .5;
+        amplitude *= 0.5;
     }
-    return value * .5 + .5;
+    return value;
 }
 const float TimeMult = 0.0002;
 const float TexScale = 2048;
@@ -82,5 +82,5 @@ void main()
     surface /= surface.w;
 
     out_perturb = vec3((surface-orig).xy, specular);
-    out_position = ppi.vertexPosView;
+    out_position = ppi.vertexPosView.z;
 }
