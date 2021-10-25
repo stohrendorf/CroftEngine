@@ -8,29 +8,21 @@
 layout(location=0) out vec3 out_perturb;
 layout(location=1) out float out_position;
 
-mat2 rotate2d(in float a){
-    float ca = cos(a);
-    float sa = sin(a);
-    return mat2(ca, -sa, sa, ca);
-}
+#define ROT_2D(a) \
+    mat2(cos(a), -sin(a), sin(a), cos(a))
 
 float fbm(in vec2 st) {
-    float value = 0.5;
-    float amplitude = 0.25;
-    st *= 0.0064;
-    for (int i = 0; i < 3; i++) {
-        value = amplitude * noise(st) + value;
-        st *= 1.4;
-        amplitude *= 0.5;
-    }
-    return value;
+    return 0.25 * noise(st * 0.0064) + 0.5;
 }
+
 const float TimeMult = 0.0002;
 const float TexScale = 2048;
+const mat2 rot1 = ROT_2D(.9*PI);
+const mat2 rot2 = ROT_2D(.06*PI);
 
 float bumpTex(in vec2 uv, in float time) {
-    vec2 coords1 = rotate2d(.9*PI) * uv + time*vec2(0.1, -0.3)*TimeMult;
-    vec2 coords2 = rotate2d(.06*PI) * uv - time*vec2(0.1, 0.2)*TimeMult;
+    vec2 coords1 = rot1 * uv + time*vec2(0.1, -0.3)*TimeMult;
+    vec2 coords2 = rot2 * uv - time*vec2(0.1, 0.2)*TimeMult;
 
     float wave1 = fbm(coords1*vec2(30.0, 20.0)) * 0.5;
     float wave2 = fbm(coords2*vec2(30.0, 20.0)) * 0.5;
