@@ -95,6 +95,7 @@ Window::Window(const std::vector<std::filesystem::path>& logoPaths, const glm::i
   initializeGl(
     [](const char* procName) -> void*
     {
+      // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
       return reinterpret_cast<void*>(glfwGetProcAddress(procName));
     });
 
@@ -110,11 +111,6 @@ void Window::setVsync(const bool enable)
 {
   m_vsync = enable;
   glfwSwapInterval(enable ? 1 : 0);
-}
-
-bool Window::isVsync() const
-{
-  return m_vsync;
 }
 
 void Window::updateWindowSize()

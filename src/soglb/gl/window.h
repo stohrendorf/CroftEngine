@@ -15,8 +15,6 @@ public:
   explicit Window(const std::vector<std::filesystem::path>& logoPaths, const glm::ivec2& windowSize = {1280, 800});
   ~Window();
 
-  [[nodiscard]] bool isVsync() const;
-
   void setVsync(bool enable);
 
   void updateWindowSize();
