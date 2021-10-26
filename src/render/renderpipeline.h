@@ -2,6 +2,7 @@
 
 #include "rendersettings.h"
 
+#include <chrono>
 #include <gl/soglb_fwd.h>
 #include <glm/vec2.hpp>
 #include <memory>
@@ -33,6 +34,8 @@ class EffectPass;
 class RenderPipeline
 {
 private:
+  const std::chrono::high_resolution_clock::time_point m_creationTime = std::chrono::high_resolution_clock::now();
+
   RenderSettings m_renderSettings{};
   glm::ivec2 m_renderSize{-1};
   glm::ivec2 m_displaySize{-1};
@@ -63,5 +66,11 @@ public:
               bool force = false);
 
   void apply(const RenderSettings& renderSettings, scene::MaterialManager& materialManager);
+
+  [[nodiscard]] auto getLocalTime() const
+  {
+    return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now()
+                                                                 - m_creationTime);
+  }
 };
 } // namespace render

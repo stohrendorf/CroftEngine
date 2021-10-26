@@ -80,7 +80,7 @@ void RenderPipeline::resize(scene::MaterialManager& materialManager,
   auto addEffect =
     [this, &fxSource](const std::string& name, const gsl::not_null<std::shared_ptr<render::scene::Material>>& material)
   {
-    auto fx = std::make_shared<pass::EffectPass>("fx:" + name, material, fxSource);
+    auto fx = std::make_shared<pass::EffectPass>(gsl::not_null{this}, "fx:" + name, material, fxSource);
     m_effects.emplace_back(fx);
     fxSource = fx->getOutput();
     return fx;

@@ -1,6 +1,7 @@
 #include "effectpass.h"
 
 #include "config.h"
+#include "render/renderpipeline.h"
 #include "render/scene/mesh.h"
 #include "render/scene/rendercontext.h"
 #include "render/scene/rendermode.h"
@@ -28,10 +29,12 @@ class Node;
 
 namespace render::pass
 {
-EffectPass::EffectPass(std::string name,
+EffectPass::EffectPass(gsl::not_null<const RenderPipeline*> renderPipeline,
+                       std::string name,
                        gsl::not_null<std::shared_ptr<scene::Material>> material,
                        const gsl::not_null<std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::SRGB8>>>>& input)
-    : m_name{std::move(name)}
+    : m_renderPipeline{std::move(renderPipeline)}
+    , m_name{std::move(name)}
     , m_material{std::move(material)}
     , m_mesh{scene::createScreenQuad(m_material, m_name)}
     , m_colorBuffer{std::make_shared<gl::Texture2D<gl::SRGB8>>(input->getTexture()->size(), m_name + "-color")}
@@ -69,8 +72,7 @@ void EffectPass::render(bool inWater)
   m_mesh->bind("u_time",
                [this](const scene::Node&, const scene::Mesh& /*mesh*/, gl::Uniform& uniform)
                {
-                 const auto now = std::chrono::duration_cast<std::chrono::milliseconds>(
-                   std::chrono::high_resolution_clock::now() - m_creationTime);
+                 const auto now = m_renderPipeline->getLocalTime();
                  uniform.set(gsl::narrow_cast<float>(now.count()));
                });
   m_mesh->render(context);
