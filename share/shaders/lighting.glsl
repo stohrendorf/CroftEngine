@@ -28,7 +28,6 @@ float calc_vsm_value(in int splitIdx, in vec3 projCoords)
         FETCH_CSM(1);
         FETCH_CSM(2);
         FETCH_CSM(3);
-        FETCH_CSM(4);
     }
         #undef FETCH_CSM
 

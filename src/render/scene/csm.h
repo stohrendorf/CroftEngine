@@ -30,7 +30,7 @@ class SeparableBlur;
 
 struct CSMBuffer
 {
-  static constexpr size_t NSplits = 5;
+  static constexpr size_t NSplits = 4;
 
   std::array<glm::mat4, NSplits> lightMVP{};
   glm::vec4 lightDir{};

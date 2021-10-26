@@ -549,8 +549,8 @@ void Presenter::apply(const render::RenderSettings& renderSettings, const AudioS
   setFullscreen(renderSettings.fullscreen);
   if(m_csm->getResolution() != renderSettings.getCSMResolution())
   {
-    m_csm = std::make_shared<render::scene::CSM>(renderSettings.getCSMResolution(), *m_materialManager);
-    m_materialManager->setCSM(gsl::not_null{m_csm});
+    m_csm = gslu::make_nn_shared<render::scene::CSM>(renderSettings.getCSMResolution(), *m_materialManager);
+    m_materialManager->setCSM(m_csm);
   }
   m_renderPipeline->apply(renderSettings, *m_materialManager);
   m_materialManager->setFiltering(renderSettings.bilinearFiltering, gsl::narrow<float>(renderSettings.anisotropyLevel));

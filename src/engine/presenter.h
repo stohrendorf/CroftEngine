@@ -186,7 +186,7 @@ private:
 
   const gsl::not_null<std::shared_ptr<render::scene::ShaderCache>> m_shaderCache;
   const gsl::not_null<std::unique_ptr<render::scene::MaterialManager>> m_materialManager;
-  std::shared_ptr<render::scene::CSM> m_csm{};
+  gsl::not_null<std::shared_ptr<render::scene::CSM>> m_csm;
 
   const gsl::not_null<std::unique_ptr<render::RenderPipeline>> m_renderPipeline;
   std::unique_ptr<render::scene::ScreenOverlay> m_screenOverlay;
