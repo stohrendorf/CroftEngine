@@ -488,10 +488,19 @@ std::unique_ptr<loader::trx::Glidos> Engine::loadGlidosPack() const
       return nullptr;
 
     m_presenter->drawLoadingScreen(_("Loading Glidos texture pack"));
+    auto lastUpdate = std::chrono::high_resolution_clock::now();
+    static constexpr auto TimePerFrame
+      = std::chrono::duration_cast<std::chrono::high_resolution_clock::duration>(std::chrono::seconds{1})
+        / core::FrameRate.get();
     return std::make_unique<loader::trx::Glidos>(m_userDataPath / m_engineConfig->renderSettings.glidosPack.value(),
-                                                 [this](const std::string& s)
+                                                 [this, &lastUpdate](const std::string& s)
                                                  {
-                                                   m_presenter->drawLoadingScreen(s);
+                                                   const auto now = std::chrono::high_resolution_clock::now();
+                                                   if(lastUpdate + TimePerFrame < now)
+                                                   {
+                                                     lastUpdate = now;
+                                                     m_presenter->drawLoadingScreen(s);
+                                                   }
                                                  });
   }
 
