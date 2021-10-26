@@ -97,6 +97,7 @@ void RenderPipeline::resize(scene::MaterialManager& materialManager,
                uniform.set(texture);
              });
   }
+  addEffect("underwater-movement", materialManager.getUnderwaterMovement());
   if(m_renderSettings.fxaa)
     addEffect("fxaa", materialManager.getFXAA());
   if(m_renderSettings.lensDistortion)

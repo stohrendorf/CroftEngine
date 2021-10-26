@@ -307,12 +307,6 @@ gsl::not_null<std::shared_ptr<Material>> MaterialManager::getCRT()
     return gsl::not_null{m_crt};
 
   auto m = gslu::make_nn_shared<Material>(m_shaderCache->getCRT());
-  m->getUniform("u_time")->bind(
-    [renderer = m_renderer](const Node&, const Mesh& /*mesh*/, gl::Uniform& uniform)
-    {
-      const auto now = std::chrono::time_point_cast<std::chrono::milliseconds>(renderer->getGameTime());
-      uniform.set(gsl::narrow_cast<float>(now.time_since_epoch().count()));
-    });
   m->getUniform("u_noise")->set(gsl::not_null{m_noiseTexture});
   configureForScreenSpaceEffect(*m, false);
   m_crt = m;
@@ -337,12 +331,6 @@ gsl::not_null<std::shared_ptr<Material>> MaterialManager::getFilmGrain()
     return gsl::not_null{m_filmGrain};
 
   auto m = gslu::make_nn_shared<Material>(m_shaderCache->getFilmGrain());
-  m->getUniform("u_time")->bind(
-    [renderer = m_renderer](const Node&, const Mesh& /*mesh*/, gl::Uniform& uniform)
-    {
-      const auto now = std::chrono::time_point_cast<std::chrono::milliseconds>(renderer->getGameTime());
-      uniform.set(gsl::narrow_cast<float>(now.time_since_epoch().count()));
-    });
   m->getUniform("u_noise")->set(gsl::not_null{m_noiseTexture});
   configureForScreenSpaceEffect(*m, false);
   m_filmGrain = m;
@@ -368,6 +356,16 @@ gsl::not_null<std::shared_ptr<Material>> MaterialManager::getHBAOFx()
 
   auto m = gslu::make_nn_shared<Material>(m_shaderCache->getHBAOFx());
   m_hbaoFx = m;
+  return m;
+}
+
+gsl::not_null<std::shared_ptr<Material>> MaterialManager::getUnderwaterMovement()
+{
+  if(m_underwaterMovement != nullptr)
+    return gsl::not_null{m_underwaterMovement};
+
+  auto m = gslu::make_nn_shared<Material>(m_shaderCache->getUnderwaterMovement());
+  m_underwaterMovement = m;
   return m;
 }
 

@@ -12,10 +12,6 @@ layout(location=0) out vec4 out_color;
 #include "util.glsl"
 #include "constants.glsl"
 
-#ifdef IN_WATER
-#include "water_deform.glsl"
-#endif
-
 #ifdef DOF
 #include "noise.glsl"
 #include "dof.glsl"
@@ -26,14 +22,12 @@ void main()
     const vec3 WaterColor = vec3(149.0 / 255.0, 229.0 / 255.0, 229.0 / 255.0);
 
     #ifdef IN_WATER
-    vec2 uv = (fpi.texCoord - vec2(0.5)) * 0.9 + vec2(0.5);// scale a bit to avoid edge clamping when underwater
-    do_water_distortion(uv);
     vec3 finalColor = WaterColor;
     #else
-    vec2 uv = fpi.texCoord;
     vec3 finalColor = vec3(1.0);
     #endif
 
+    vec2 uv = fpi.texCoord;
     float pDepth = -texture(u_portalPosition, uv).x;
     float geomDepth = -texture(u_geometryPosition, uv).z;
     vec3 dUvSpecular = texture(u_portalPerturb, uv).xyz;

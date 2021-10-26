@@ -42,6 +42,7 @@ public:
   [[nodiscard]] gsl::not_null<std::shared_ptr<Material>> getFilmGrain();
   [[nodiscard]] gsl::not_null<std::shared_ptr<Material>> getLensDistortion();
   [[nodiscard]] gsl::not_null<std::shared_ptr<Material>> getHBAOFx();
+  [[nodiscard]] gsl::not_null<std::shared_ptr<Material>> getUnderwaterMovement();
 
   [[nodiscard]] gsl::not_null<std::shared_ptr<Material>>
     getFlat(bool withAlpha, bool invertY = false, bool withAspectRatio = false);
@@ -71,6 +72,7 @@ private:
   std::shared_ptr<Material> m_filmGrain{nullptr};
   std::shared_ptr<Material> m_lensDistortion{nullptr};
   std::shared_ptr<Material> m_hbaoFx{nullptr};
+  std::shared_ptr<Material> m_underwaterMovement{nullptr};
 
   std::map<bool, gsl::not_null<std::shared_ptr<Material>>> m_sprite{};
   std::map<bool, gsl::not_null<std::shared_ptr<Material>>> m_csmDepthOnly{};
@@ -85,7 +87,6 @@ private:
   std::map<std::tuple<uint8_t, uint8_t, uint8_t>, gsl::not_null<std::shared_ptr<Material>>> m_fastBoxBlur{};
   std::shared_ptr<Material> m_backdrop{nullptr};
   std::shared_ptr<Material> m_hbao{nullptr};
-  std::shared_ptr<Material> m_linearDepth{nullptr};
   std::shared_ptr<Material> m_vsmSquare{nullptr};
 
   std::shared_ptr<CSM> m_csm;

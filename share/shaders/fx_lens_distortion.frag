@@ -1,10 +1,8 @@
 #include "flat_pipeline_interface.glsl"
 #include "camera_interface.glsl"
+#include "time_uniform.glsl"
+#include "fx_input.glsl"
 
-layout(bindless_sampler) uniform sampler2D u_input;
-layout(location=0) out vec3 out_color;
-
-uniform float u_inWater;
 float distortionPower = u_inWater != 0.0 ? -2.0 : -1.0;
 float absDistortionPower = abs(distortionPower);
 

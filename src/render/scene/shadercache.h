@@ -110,6 +110,11 @@ public:
     return get("flat.vert", "fx_hbao.frag");
   }
 
+  [[nodiscard]] auto getUnderwaterMovement()
+  {
+    return get("flat.vert", "fx_underwater_movement.frag");
+  }
+
   [[nodiscard]] auto getHBAO()
   {
     return get("flat.vert", "hbao.frag");

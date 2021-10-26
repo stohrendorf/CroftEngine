@@ -1,5 +1,6 @@
 #pragma once
 
+#include <chrono>
 #include <gl/pixel.h>
 #include <gl/soglb_fwd.h>
 #include <gsl/gsl-lite.hpp>
@@ -47,5 +48,6 @@ private:
   gsl::not_null<std::shared_ptr<gl::Texture2D<gl::SRGB8>>> m_colorBuffer;
   gsl::not_null<std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::SRGB8>>>> m_colorBufferHandle;
   gsl::not_null<std::shared_ptr<gl::Framebuffer>> m_fb;
+  const std::chrono::high_resolution_clock::time_point m_creationTime = std::chrono::high_resolution_clock::now();
 };
 } // namespace render::pass

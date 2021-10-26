@@ -46,7 +46,7 @@ EffectPass::EffectPass(std::string name,
              .build(m_name + "-fb")}
 {
   m_mesh->bind("u_input",
-               [input](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
+               [input](const scene::Node& /*node*/, const scene::Mesh& /*mesh*/, gl::Uniform& uniform)
                {
                  uniform.set(input);
                });
@@ -62,9 +62,16 @@ void EffectPass::render(bool inWater)
 
   scene::RenderContext context{scene::RenderMode::Full, std::nullopt};
   m_mesh->bind("u_inWater",
-               [inWater](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
+               [inWater](const scene::Node& /*node*/, const scene::Mesh& /*mesh*/, gl::Uniform& uniform)
                {
                  uniform.set(inWater ? 1.0f : 0.0f);
+               });
+  m_mesh->bind("u_time",
+               [this](const scene::Node&, const scene::Mesh& /*mesh*/, gl::Uniform& uniform)
+               {
+                 const auto now = std::chrono::duration_cast<std::chrono::milliseconds>(
+                   std::chrono::high_resolution_clock::now() - m_creationTime);
+                 uniform.set(gsl::narrow_cast<float>(now.count()));
                });
   m_mesh->render(context);
 

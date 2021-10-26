@@ -1,8 +1,7 @@
 #include "flat_pipeline_interface.glsl"
+#include "fx_input.glsl"
 
-layout(bindless_sampler) uniform sampler2D u_input;
 layout(bindless_sampler) uniform sampler2D u_ao;
-layout(location=0) out vec3 out_color;
 
 void main()
 {
