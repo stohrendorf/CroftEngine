@@ -23,7 +23,7 @@ layout(location=0) out vec4 out_color;
 
 void main()
 {
-    const vec3 WaterColor = vec3(149.0f / 255.0f, 229.0f / 255.0f, 229.0f / 255.0f);
+    const vec3 WaterColor = vec3(149.0 / 255.0, 229.0 / 255.0, 229.0 / 255.0);
 
     #ifdef IN_WATER
     vec2 uv = (fpi.texCoord - vec2(0.5)) * 0.9 + vec2(0.5);// scale a bit to avoid edge clamping when underwater
@@ -63,15 +63,15 @@ void main()
     finalColor = mix(finalColor, vec3(1), whiteness);
 
     #ifdef IN_WATER
-    float inVolumeRay = pDepth;
+    float inVolumeRay = min(geomDepth, pDepth);
     #else
     float inVolumeRay = geomDepth - pDepth;
     #endif
-    float d = clamp(inVolumeRay * 2 * InvFarPlane, 0, 1);
+    float d = clamp(inVolumeRay * InvFarPlane, 0, 1);
     // light absorbtion
-    finalColor *= mix(vec3(1), WaterColor, d);
+    finalColor *= mix(vec3(1), WaterColor*0.5, d);
     // light scatter
-    finalColor = mix(finalColor, WaterColor, d/30.0);
+    finalColor = mix(finalColor, WaterColor*0.5, d*d);
 
     finalColor = shade_texel(finalColor, shadeDepth);
     out_color = vec4(finalColor, 1.0);
