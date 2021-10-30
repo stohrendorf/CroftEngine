@@ -50,11 +50,11 @@ void main()
     }
 
         #ifndef DOF
-    finalColor *= texture(u_texture, uv).rgb;
+    finalColor *= texture(u_texture, uv).rgb * texel_shade(shadeDepth);
     #else
     finalColor *= do_dof(uv);
     #endif
-    finalColor = mix(finalColor, vec3(1), whiteness);
+    finalColor = mix(finalColor, vec3(1) * texel_shade(shadeDepth), whiteness);
 
     #ifdef IN_WATER
     float inVolumeRay = min(geomDepth, pDepth);
@@ -65,8 +65,7 @@ void main()
     // light absorbtion
     finalColor *= mix(vec3(1), WaterColor*0.5, d);
     // light scatter
-    finalColor = mix(finalColor, WaterColor*0.5, d*d);
+    finalColor = mix(finalColor, shade_texel(WaterColor*0.5, shadeDepth), d*d);
 
-    finalColor = shade_texel(finalColor, shadeDepth);
     out_color = vec4(finalColor, 1.0);
 }
