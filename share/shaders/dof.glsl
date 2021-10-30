@@ -19,14 +19,14 @@ vec3 do_dof(in vec2 uv)
     float depth = -texture(u_geometryPosition, uv).z * InvFarPlane;
     float blur_amount = clamp((abs(depth-dof_focal_depth) - dof_start) / dof_dist, -DofBlurRange, DofBlurRange);
 
-    const float NAmount = 0.0001;//dither amount
+    const float NAmount = 0.001;//dither amount
     vec2 noise = noise2(uv) * NAmount * blur_amount;
 
     const int Samples = 3;//samples on the first ring
     const float BokehBias = 0.5;//bokeh edge bias
     vec2 blur_radius = dof_texel * blur_amount + noise;
 
-    vec3 col = texture(u_texture, uv).rgb;
+    vec3 col = shaded_texel(u_texture, uv, -texture(u_geometryPosition, uv).z);
     float weight_sum = 1.0;
 
     const int Rings = 3;
@@ -42,7 +42,8 @@ vec3 do_dof(in vec2 uv)
         {
             vec2 dxy = vec2(cos(angle), sin(angle)) * float(i);
             float weight = mix(1.0, bokehFactor, BokehBias);
-            col = texture(u_texture, dxy*blur_radius + uv).rgb * weight + col;
+            vec2 sampleUv = dxy*blur_radius + uv;
+            col = shaded_texel(u_texture, sampleUv, -texture(u_geometryPosition, sampleUv).z) * weight + col;
             weight_sum += weight;
             angle += angleDelta;
         }
