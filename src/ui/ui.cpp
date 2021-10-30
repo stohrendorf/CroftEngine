@@ -113,6 +113,7 @@ gsl::not_null<std::shared_ptr<gl::VertexBuffer<Ui::UiVertex>>> Ui::UiVertex::cre
     {VERTEX_ATTRIBUTE_COLOR_TOP_RIGHT_NAME, &UiVertex::topRight},
     {VERTEX_ATTRIBUTE_COLOR_BOTTOM_LEFT_NAME, &UiVertex::bottomLeft},
     {VERTEX_ATTRIBUTE_COLOR_BOTTOM_RIGHT_NAME, &UiVertex::bottomRight},
+    {VERTEX_ATTRIBUTE_COLOR_NAME, &UiVertex::color},
   };
   return gslu::make_nn_shared<gl::VertexBuffer<UiVertex>>(layout, "ui-vbo");
 }
@@ -215,15 +216,39 @@ void Ui::render()
   m_vertices.clear();
 }
 
-void Ui::draw(const engine::world::Sprite& sprite, const glm::ivec2& xy)
+void Ui::draw(const engine::world::Sprite& sprite, const glm::ivec2& xy, float scale, float alpha)
 {
-  const auto a = sprite.render0 + xy;
-  const auto b = sprite.render1 + xy;
+  const auto a = glm::ivec2{glm::vec2{sprite.render0} * scale} + xy;
+  const auto b = glm::ivec2{glm::vec2{sprite.render1} * scale} + xy;
   const auto ta = sprite.uv0;
   const auto tb = sprite.uv1;
-  m_vertices.emplace_back(UiVertex{{a.x, a.y}, {ta.x, ta.y, sprite.textureId.get()}});
-  m_vertices.emplace_back(UiVertex{{a.x, b.y}, {ta.x, tb.y, sprite.textureId.get()}});
-  m_vertices.emplace_back(UiVertex{{b.x, b.y}, {tb.x, tb.y, sprite.textureId.get()}});
-  m_vertices.emplace_back(UiVertex{{b.x, a.y}, {tb.x, ta.y, sprite.textureId.get()}});
+  m_vertices.emplace_back(UiVertex{{a.x, a.y},
+                                   {ta.x, ta.y, sprite.textureId.get()},
+                                   glm::vec4{0},
+                                   glm::vec4{0},
+                                   glm::vec4{0},
+                                   glm::vec4{0},
+                                   {1, 1, 1, alpha}});
+  m_vertices.emplace_back(UiVertex{{a.x, b.y},
+                                   {ta.x, tb.y, sprite.textureId.get()},
+                                   glm::vec4{0},
+                                   glm::vec4{0},
+                                   glm::vec4{0},
+                                   glm::vec4{0},
+                                   {1, 1, 1, alpha}});
+  m_vertices.emplace_back(UiVertex{{b.x, b.y},
+                                   {tb.x, tb.y, sprite.textureId.get()},
+                                   glm::vec4{0},
+                                   glm::vec4{0},
+                                   glm::vec4{0},
+                                   glm::vec4{0},
+                                   {1, 1, 1, alpha}});
+  m_vertices.emplace_back(UiVertex{{b.x, a.y},
+                                   {tb.x, ta.y, sprite.textureId.get()},
+                                   glm::vec4{0},
+                                   glm::vec4{0},
+                                   glm::vec4{0},
+                                   glm::vec4{0},
+                                   {1, 1, 1, alpha}});
 }
 } // namespace ui

@@ -31,6 +31,7 @@ struct Ammo
   const size_t roundsPerShot;
   const TR1ItemId ammoType;
   const TR1ItemId weaponType;
+  const char iconChar;
   size_t ammo = 0;
   uint32_t hits = 0;
   uint32_t misses = 0;
@@ -41,6 +42,16 @@ struct Ammo
   }
 
   void serialize(const serialization::Serializer<world::World>& ser);
+
+  [[nodiscard]] auto getShots() const
+  {
+    return ammo / roundsPerShot;
+  }
+
+  [[nodiscard]] auto getDisplayString() const
+  {
+    return std::to_string(getShots()) + " " + iconChar;
+  }
 };
 
 class Inventory
@@ -48,10 +59,10 @@ class Inventory
 private:
   std::map<TR1ItemId, size_t> m_inventory;
 
-  Ammo m_pistolsAmmo{1, 1, TR1ItemId::Lara, TR1ItemId::Pistols};
-  Ammo m_magnumsAmmo{50, 1, TR1ItemId::MagnumAmmo, TR1ItemId::Magnums};
-  Ammo m_uzisAmmo{100, 1, TR1ItemId::UziAmmo, TR1ItemId::Uzis};
-  Ammo m_shotgunAmmo{12, 6, TR1ItemId::ShotgunAmmo, TR1ItemId::Shotgun};
+  Ammo m_pistolsAmmo{1, 1, TR1ItemId::Lara, TR1ItemId::Pistols, '\0'};
+  Ammo m_magnumsAmmo{50, 1, TR1ItemId::MagnumAmmo, TR1ItemId::Magnums, 'B'};
+  Ammo m_uzisAmmo{100, 1, TR1ItemId::UziAmmo, TR1ItemId::Uzis, 'C'};
+  Ammo m_shotgunAmmo{12, 6, TR1ItemId::ShotgunAmmo, TR1ItemId::Shotgun, 'A'};
 
 public:
   explicit Inventory() = default;

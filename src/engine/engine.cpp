@@ -30,6 +30,7 @@
 #include "serialization/serialization.h"
 #include "serialization/yamldocument.h"
 #include "throttler.h"
+#include "ui/core.h"
 #include "ui/levelstats.h"
 #include "ui/ui.h"
 #include "util/helpers.h"
@@ -156,6 +157,8 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
 
   core::Frame runtime = 0_frame;
   static constexpr core::Frame BlendInDuration = 60_frame;
+  core::Frame ammoDisplayDuration = 0_frame;
+
   while(true)
   {
     if(m_presenter->shouldClose())
@@ -328,7 +331,56 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
         runtime += 1_frame;
         blackAlpha = 1 - runtime.cast<float>() / BlendInDuration.cast<float>();
       }
-      world.gameLoop(godMode, throttler.getAverageWaitRatio(), blackAlpha);
+
+      ui::Ui ui{world.getPresenter().getMaterialManager()->getUi(),
+                world.getPalette(),
+                world.getPresenter().getRenderViewport()};
+
+      if(const auto handStatus = world.getObjectManager().getLara().getHandStatus();
+         handStatus != engine::objects::HandStatus::Combat)
+      {
+        ammoDisplayDuration = 0_frame;
+      }
+      else
+      {
+        static constexpr auto StaticDuration = 20_frame;
+        static constexpr auto TransitionDuration = 15_frame;
+
+        ammoDisplayDuration = std::min(ammoDisplayDuration + 1_frame, StaticDuration + TransitionDuration);
+
+        auto drawAmmoText = [this, &ui, &world](float bias)
+        {
+          const auto& ammo = world.getPlayer().getInventory().getAmmo(world.getPlayer().selectedWeaponType);
+          auto text = ui::Text{ui::makeAmmoString(ammo.getDisplayString())};
+          const auto margin = ui::FontHeight / 2 + glm::mix(ui::FontHeight, 0, bias);
+          const auto targetPos
+            = glm::ivec2{ui.getSize().x - ui::FontHeight - 1 - margin - text.getWidth(), ui::FontHeight * 2 + margin};
+          const auto center = (ui.getSize() - glm::ivec2{text.getWidth(), ui::FontHeight}) / 2;
+          const auto pos = glm::mix(center, targetPos, bias);
+          ui.drawBox(pos + glm::ivec2{-margin, margin},
+                     {text.getWidth() + 2 * margin, -ui::FontHeight - 2 * margin - 2},
+                     gl::SRGBA8{0, 0, 0, glm::mix(128, 224, bias)});
+          text.draw(ui, getPresenter().getTrFont(), pos, 1, glm::mix(0.75f, 1.0f, bias));
+        };
+
+        switch(world.getPlayer().selectedWeaponType)
+        {
+        case engine::WeaponType::None:
+        case engine::WeaponType::Pistols:
+          break;
+        case engine::WeaponType::Shotgun:
+        case engine::WeaponType::Magnums:
+        case engine::WeaponType::Uzis:
+          drawAmmoText(glm::smoothstep(
+            0.0f,
+            1.0f,
+            std::clamp(
+              (ammoDisplayDuration - StaticDuration).cast<float>() / TransitionDuration.cast<float>(), 0.0f, 1.0f)));
+          break;
+        }
+      }
+
+      world.gameLoop(godMode, throttler.getAverageWaitRatio(), blackAlpha, ui);
     }
     else
     {

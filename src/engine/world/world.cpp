@@ -72,6 +72,7 @@
 #include "staticsoundeffect.h"
 #include "texturing.h"
 #include "transition.h"
+#include "ui/core.h"
 #include "ui/text.h"
 #include "ui/ui.h"
 #include "util/fsutil.h"
@@ -954,40 +955,14 @@ void World::serialize(const serialization::Serializer<World>& ser)
   }
 }
 
-void World::gameLoop(bool godMode, float waitRatio, float blackAlpha)
+void World::gameLoop(bool godMode, float waitRatio, float blackAlpha, ui::Ui& ui)
 {
-  ui::Ui ui{getPresenter().getMaterialManager()->getUi(), getPalette(), getPresenter().getRenderViewport()};
-
   update(godMode);
   m_player->laraHealth = m_objectManager.getLara().m_state.health;
 
   const auto waterEntryPortals = m_cameraController->update();
   doGlobalEffect();
   getPresenter().drawBars(ui, m_palette, getObjectManager());
-  if(getObjectManager().getLara().getHandStatus() == engine::objects::HandStatus::Combat
-     && m_player->selectedWeaponType != WeaponType::Pistols)
-  {
-    std::string suffix;
-    switch(m_player->selectedWeaponType)
-    {
-    case WeaponType::Shotgun:
-      suffix = " A";
-      break;
-    case WeaponType::Magnums:
-      suffix = " B";
-      break;
-    case WeaponType::Uzis:
-      suffix = " C";
-      break;
-    default:
-      Expects(false);
-      break;
-    }
-    const auto& ammo = m_player->getInventory().getAmmo(m_player->selectedWeaponType);
-    const auto n = ammo.ammo / ammo.roundsPerShot;
-    auto text = ui::Text{ui::makeAmmoString(std::to_string(n) + suffix)};
-    text.draw(ui, getPresenter().getTrFont(), glm::ivec2{ui.getSize().x - 17 - text.getWidth(), 22});
-  }
 
   drawPickupWidgets(ui);
   getPresenter().renderWorld(getObjectManager(), getRooms(), getCameraController(), waterEntryPortals, waitRatio);

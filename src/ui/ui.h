@@ -36,6 +36,7 @@ public:
     glm::vec4 topRight{0};
     glm::vec4 bottomLeft{0};
     glm::vec4 bottomRight{0};
+    glm::vec4 color{1, 1, 1, 1};
 
     static gsl::not_null<std::shared_ptr<gl::VertexBuffer<Ui::UiVertex>>> createVertexBuffer();
     static gsl::not_null<std::shared_ptr<gl::ElementArrayBuffer<uint16_t>>> createIndexBuffer();
@@ -55,7 +56,7 @@ public:
 
   void drawHLine(const glm::ivec2& xy, int length, const gl::SRGBA8& color);
   void drawVLine(const glm::ivec2& xy, int length, const gl::SRGBA8& color);
-  void draw(const engine::world::Sprite& sprite, const glm::ivec2& xy);
+  void draw(const engine::world::Sprite& sprite, const glm::ivec2& xy, float scale = 1, float alpha = 1);
 
   void render();
 

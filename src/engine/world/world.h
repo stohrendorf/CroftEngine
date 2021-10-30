@@ -240,7 +240,7 @@ public:
   core::TypeId find(const SkeletalModelType* model) const;
   core::TypeId find(const Sprite* sprite) const;
   void serialize(const serialization::Serializer<World>& ser);
-  void gameLoop(bool godMode, float waitRatio, float blackAlpha);
+  void gameLoop(bool godMode, float waitRatio, float blackAlpha, ui::Ui& ui);
   bool cinematicLoop();
   void load(const std::optional<size_t>& slot);
   void save(const std::optional<size_t>& slot);

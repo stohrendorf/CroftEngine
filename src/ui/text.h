@@ -26,7 +26,7 @@ public:
   {
   }
 
-  void draw(ui::Ui& ui, size_t sprite, const glm::ivec2& xy) const;
+  void draw(ui::Ui& ui, size_t sprite, const glm::ivec2& xy, float scale, float alpha) const;
 };
 
 class Text
@@ -34,7 +34,7 @@ class Text
 public:
   explicit Text(const std::string& text);
 
-  void draw(Ui& ui, const TRFont& font, const glm::ivec2& position) const;
+  void draw(Ui& ui, const TRFont& font, const glm::ivec2& position, float scale = 1, float alpha = 1) const;
 
   [[nodiscard]] auto getWidth() const noexcept
   {

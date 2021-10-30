@@ -47,6 +47,14 @@ void MenuDisplay::drawMenuObjectDescription(ui::Ui& ui, engine::world::World& wo
   size_t totalItemCount = world.getPlayer().getInventory().count(object.type);
   std::string suffix;
 
+  const auto drawAmmo = [&ui, &world](const engine::Ammo& ammo)
+  {
+    ui::Text text{ui::makeAmmoString(ammo.getDisplayString())};
+    text.draw(ui,
+              world.getPresenter().getTrFont(),
+              {(ui.getSize().x - text.getWidth()) / 2, ui.getSize().y - RingInfoYMargin - 2 * ui::FontHeight});
+  };
+
   switch(object.type)
   {
   case engine::TR1ItemId::Puzzle1:
@@ -74,36 +82,30 @@ void MenuDisplay::drawMenuObjectDescription(ui::Ui& ui, engine::world::World& wo
   case engine::TR1ItemId::ShotgunAmmo:
   case engine::TR1ItemId::ShotgunAmmoSprite:
     totalItemCount *= 2;
-    suffix = " A";
+    suffix = std::string{" "} + world.getPlayer().getInventory().getAmmo(engine::WeaponType::Shotgun).iconChar;
     break;
   case engine::TR1ItemId::MagnumAmmo:
   case engine::TR1ItemId::MagnumAmmoSprite:
     totalItemCount *= 2;
-    suffix = " B";
+    suffix = std::string{" "} + world.getPlayer().getInventory().getAmmo(engine::WeaponType::Magnums).iconChar;
     break;
   case engine::TR1ItemId::UziAmmo:
   case engine::TR1ItemId::UziAmmoSprite:
     totalItemCount *= 2;
-    suffix = " C";
+    suffix = std::string{" "} + world.getPlayer().getInventory().getAmmo(engine::WeaponType::Uzis).iconChar;
     break;
   case engine::TR1ItemId::Shotgun:
   case engine::TR1ItemId::ShotgunSprite:
-  {
-    const auto& ammo = world.getPlayer().getInventory().getAmmo(engine::WeaponType::Shotgun);
-    totalItemCount = ammo.ammo / ammo.roundsPerShot;
-    suffix = " A";
-    break;
-  }
+    drawAmmo(world.getPlayer().getInventory().getAmmo(engine::WeaponType::Shotgun));
+    return;
   case engine::TR1ItemId::Magnums:
   case engine::TR1ItemId::MagnumsSprite:
-    totalItemCount = world.getPlayer().getInventory().getAmmo(engine::WeaponType::Magnums).ammo;
-    suffix = " B";
-    break;
+    drawAmmo(world.getPlayer().getInventory().getAmmo(engine::WeaponType::Magnums));
+    return;
   case engine::TR1ItemId::Uzis:
   case engine::TR1ItemId::UzisSprite:
-    totalItemCount = world.getPlayer().getInventory().getAmmo(engine::WeaponType::Uzis).ammo;
-    suffix = " C";
-    break;
+    drawAmmo(world.getPlayer().getInventory().getAmmo(engine::WeaponType::Uzis));
+    return;
   case engine::TR1ItemId::SmallMedipack:
   case engine::TR1ItemId::SmallMedipackSprite:
   case engine::TR1ItemId::LargeMedipack:

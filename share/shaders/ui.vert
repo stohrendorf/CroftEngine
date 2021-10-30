@@ -28,4 +28,5 @@ void main()
     upi.topRight = toLinear(a_colorTopRight);
     upi.bottomLeft = toLinear(a_colorBottomLeft);
     upi.bottomRight = toLinear(a_colorBottomRight);
+    upi.alpha = a_color.a;
 }

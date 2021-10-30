@@ -114,9 +114,9 @@ std::string makeAmmoString(const std::string& str)
   return result;
 }
 
-void TRFont::draw(ui::Ui& ui, size_t sprite, const glm::ivec2& xy) const
+void TRFont::draw(ui::Ui& ui, size_t sprite, const glm::ivec2& xy, float scale, float alpha) const
 {
-  ui.draw(m_sprites[sprite], xy);
+  ui.draw(m_sprites[sprite], xy, scale, alpha);
 }
 
 Text::Text(const std::string& text)
@@ -125,11 +125,11 @@ Text::Text(const std::string& text)
   Ensures(m_width >= 0);
 }
 
-void Text::draw(Ui& ui, const TRFont& font, const glm::ivec2& position) const
+void Text::draw(Ui& ui, const TRFont& font, const glm::ivec2& position, float scale, float alpha) const
 {
   for(const auto& [xy, sprite] : m_layout)
   {
-    font.draw(ui, sprite, xy + position);
+    font.draw(ui, sprite, xy + position, scale, alpha);
   }
 }
 } // namespace ui
