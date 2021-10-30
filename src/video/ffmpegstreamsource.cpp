@@ -162,7 +162,7 @@ int FfmpegMemoryStreamSource::ffmpegRead(void* opaque, uint8_t* buf, int bufSize
 
   std::copy_n(&h->data[h->dataPosition], n, buf);
   h->dataPosition += n;
-  return n;
+  return gsl::narrow<int>(n);
 }
 
 int64_t FfmpegMemoryStreamSource::ffmpegSeek(void* opaque, int64_t offset, int whence)
@@ -223,7 +223,7 @@ int FfmpegSubStreamStreamSource::ffmpegRead(void* opaque, uint8_t* buf, int bufS
   h->istream->seekg(h->dataStart + h->dataPosition);
   h->istream->read(reinterpret_cast<char*>(buf), n);
   h->dataPosition += n;
-  return n;
+  return gsl::narrow<int>(n);
 }
 
 int64_t FfmpegSubStreamStreamSource::ffmpegSeek(void* opaque, int64_t offset, int whence)
