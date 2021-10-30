@@ -333,6 +333,14 @@ public:
     void overrideHolsterWeaponsMeshes(LaraObject& lara, WeaponType weaponType);
 
     void serialize(const serialization::Serializer<world::World>& ser);
+
+    void reset()
+    {
+      frame = 0_frame;
+      aiming = false;
+      aimRotation.X = 0_deg;
+      aimRotation.Y = 0_deg;
+    }
   };
 
   AimInfo leftArm{13, 1};

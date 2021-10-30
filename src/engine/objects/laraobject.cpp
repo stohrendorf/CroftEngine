@@ -1050,14 +1050,9 @@ void LaraObject::updateAimingState(const Weapon& weapon)
 
 void LaraObject::initWeaponAnimData()
 {
-  rightArm.frame = 0_frame;
-  leftArm.frame = 0_frame;
-  leftArm.aimRotation.Y = 0_deg;
-  leftArm.aimRotation.X = 0_deg;
-  rightArm.aimRotation.Y = 0_deg;
-  rightArm.aimRotation.X = 0_deg;
-  rightArm.aiming = false;
-  leftArm.aiming = false;
+  leftArm.reset();
+  rightArm.reset();
+
   rightArm.flashTimeout = 0_frame;
   leftArm.flashTimeout = 0_frame;
   aimAt = nullptr;
@@ -1183,15 +1178,10 @@ void LaraObject::findTarget(const Weapon& weapon)
 
 void LaraObject::initAimInfoPistol()
 {
+  leftArm.reset();
+  rightArm.reset();
+
   m_handStatus = HandStatus::Combat;
-  leftArm.aimRotation.Y = 0_deg;
-  leftArm.aimRotation.X = 0_deg;
-  rightArm.aimRotation.Y = 0_deg;
-  rightArm.aimRotation.X = 0_deg;
-  rightArm.frame = 0_frame;
-  leftArm.frame = 0_frame;
-  rightArm.aiming = false;
-  leftArm.aiming = false;
   m_torsoRotation.Y = 0_deg;
   m_torsoRotation.X = 0_deg;
   m_headRotation.Y = 0_deg;
@@ -1204,15 +1194,10 @@ void LaraObject::initAimInfoPistol()
 
 void LaraObject::initAimInfoShotgun()
 {
+  leftArm.reset();
+  rightArm.reset();
+
   m_handStatus = HandStatus::Combat;
-  leftArm.aimRotation.Y = 0_deg;
-  leftArm.aimRotation.X = 0_deg;
-  rightArm.aimRotation.Y = 0_deg;
-  rightArm.aimRotation.X = 0_deg;
-  rightArm.frame = 0_frame;
-  leftArm.frame = 0_frame;
-  rightArm.aiming = false;
-  leftArm.aiming = false;
   m_torsoRotation.Y = 0_deg;
   m_torsoRotation.X = 0_deg;
   m_headRotation.Y = 0_deg;
