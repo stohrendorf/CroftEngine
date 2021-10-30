@@ -17,7 +17,7 @@ vec3 angleAxis(vec3 v, vec3 axis, float theta)
 
 void main()
 {
-    const float Radius = 16;
+    const float Radius = 32;
     const float Bias = 0.025;
     const int Dirs = 4;
     const float DirRotation = 2*PI/Dirs;
@@ -60,5 +60,5 @@ void main()
             occlusion += w * max(dot(vk, normal) * lvk - Bias, 0);
         }
     }
-    out_ao = pow(1 - occlusion / (Steps*Dirs), 2);
+    out_ao = pow(1 - occlusion / (Steps*Dirs), 1.5);
 }
