@@ -7,7 +7,7 @@ include( ./dl_unpack )
 if( VCPKG_TOOLCHAIN )
     find_package( CImg REQUIRED )
 else()
-    set( _cimg_version "v.2.9.6" )
+    set( _cimg_version "v.2.9.9" )
     dl_unpack(
             URL https://github.com/dtschump/CImg/archive/${_cimg_version}.tar.gz
             FILENAME CImg-${_cimg_version}.tar.gz
