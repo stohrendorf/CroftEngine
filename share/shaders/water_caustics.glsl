@@ -8,7 +8,7 @@ float voronoi(in vec3 p)
 
     const float Offset = 0.5;
     float m_dist = 1.0 - Offset;
-    const vec3 Time = vec3(u_time*0.005);
+    const vec3 Time = vec3(time_seconds() * 5);
 
     for (float fy = -1; fy <= 1; fy += 1.0) {
         for (float fx = -1; fx <= 1; fx += 1.0) {
@@ -35,5 +35,8 @@ float water_multiplier(in vec3 vpos)
 {
     const float Scale1 = 0.003;
     const float Scale2 = 0.0011;
-    return voronoi(vpos * Scale1) * voronoi(vpos * Scale2);
+    float phase0 = snoise3(vpos*10).x;
+    float s = sin(phase0 + time_seconds() * 0.5);
+    s = (1-s*s*0.75) + 0.25;
+    return voronoi(vpos * Scale1) * voronoi(vpos * Scale2) * s;
 }
