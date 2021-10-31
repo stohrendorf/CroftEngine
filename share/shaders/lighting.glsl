@@ -77,24 +77,25 @@ float shadow_map_multiplier()
     return 1.0;
 }
 
-float calc_positional_lighting()
+vec3 calc_positional_lighting()
 {
     if (lights.length() <= 0 || gpi.vertexNormalWorld == vec3(0))
     {
-        return u_lightAmbient;
+        return vec3(u_lightAmbient);
     }
 
-    float sum = u_lightAmbient;
+    vec3 sum = vec3(u_lightAmbient);
     for (int i=0; i<lights.length(); ++i)
     {
         vec3 d = gpi.vertexPosWorld - lights[i].position.xyz;
         float ld = length(d);
         float r = ld / lights[i].fadeDistance;
-        float intensity = lights[i].brightness / (r*r + 1.0);
+        float intensity = 1.0 / (r*r + 1.0);
+        vec3 color = vec3(lights[i].brightness);
         #if SPRITEMODE == 0
-        sum += intensity * clamp(-dot(d/ld, gpi.vertexNormalWorld), 0, 1);
+        sum += intensity * clamp(-dot(d/ld, gpi.vertexNormalWorld), 0, 1) * color;
         #else
-        sum += intensity;
+        sum += intensity * color;
         #endif
     }
 
