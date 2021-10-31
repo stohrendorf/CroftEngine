@@ -5,6 +5,6 @@
 
 void main()
 {
-    float grain = noise(fpi.texCoord * time_seconds())*0.5 + 1.0;
+    float grain = noise(fpi.texCoord * TimeSeconds)*0.5 + 1.0;
     out_color = texture(u_input, fpi.texCoord).rgb * grain;
 }
