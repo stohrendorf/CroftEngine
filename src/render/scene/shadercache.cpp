@@ -4,6 +4,8 @@
 
 #include <algorithm>
 #include <boost/algorithm/string/join.hpp>
+#include <gl/shader.h>
+#include <gslu.h>
 
 namespace render::scene
 {
@@ -39,8 +41,9 @@ gsl::not_null<std::shared_ptr<ShaderProgram>> ShaderCache::get(const std::filesy
   if(it != m_programs.end())
     return it->second;
 
-  auto shader = ShaderProgram::createFromFile(
-    programId, makeId(vshPath, defines), m_root / vshPath, makeId(fshPath, defines), m_root / fshPath, defines);
+  auto vert = gl::VertexShader::create(m_root / vshPath, defines, makeId(vshPath, defines));
+  auto frag = gl::FragmentShader::create(m_root / fshPath, defines, makeId(fshPath, defines));
+  auto shader = gslu::make_nn_shared<ShaderProgram>(programId, vert, frag);
   m_programs.emplace(programId, shader);
   return shader;
 }

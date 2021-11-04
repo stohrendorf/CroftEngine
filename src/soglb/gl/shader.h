@@ -4,6 +4,7 @@
 #include "glassert.h"
 
 #include <cstdint>
+#include <filesystem>
 #include <gsl/gsl-lite.hpp>
 #include <string>
 #include <string_view>
@@ -35,6 +36,15 @@ public:
   }
 
   [[nodiscard]] std::string getInfoLog() const;
+
+  [[nodiscard]] static Shader<_Type> create(const std::filesystem::path& sourcePath,
+                                            const std::vector<std::string>& defines,
+                                            const std::string_view& label);
+
+  [[nodiscard]] static Shader<_Type> create(const std::filesystem::path& path,
+                                            const std::string& source,
+                                            const std::vector<std::string>& defines,
+                                            const std::string_view& label);
 
 private:
   const uint32_t m_handle;

@@ -2,6 +2,7 @@
 
 #include <boost/container/flat_map.hpp>
 #include <boost/container/vector.hpp>
+#include <boost/log/trivial.hpp>
 #include <filesystem>
 #include <gl/program.h>
 #include <gsl/gsl-lite.hpp>
@@ -19,6 +20,18 @@ public:
       : m_handle{label, shaders...}
       , m_id{label}
   {
+    static_assert(sizeof...(Types) > 0);
+
+    if(const auto log = m_handle.getInfoLog(); !log.empty())
+      BOOST_LOG_TRIVIAL(debug) << "Shader program info log: " << log;
+
+    if(!m_handle.getLinkStatus())
+    {
+      BOOST_LOG_TRIVIAL(error) << "Failed to link program";
+      BOOST_THROW_EXCEPTION(std::runtime_error("Failed to link program"));
+    }
+
+    initInterface();
   }
 
   ShaderProgram(const ShaderProgram&) = delete;
@@ -27,13 +40,6 @@ public:
   ShaderProgram& operator=(ShaderProgram&&) = delete;
 
   ~ShaderProgram();
-
-  static gsl::not_null<std::shared_ptr<ShaderProgram>> createFromFile(const std::string& programId,
-                                                                      const std::string& vshId,
-                                                                      const std::filesystem::path& vshPath,
-                                                                      const std::string& fshId,
-                                                                      const std::filesystem::path& fshPath,
-                                                                      const std::vector<std::string>& defines);
 
   [[nodiscard]] const std::string& getId() const
   {
@@ -94,6 +100,8 @@ private:
   boost::container::flat_map<std::string, gl::Uniform> m_uniforms;
   boost::container::flat_map<std::string, gl::ShaderStorageBlock> m_shaderStorageBlocks;
   boost::container::flat_map<std::string, gl::UniformBlock> m_uniformBlocks;
+
+  void initInterface();
 
   template<typename T>
   static const T* find(const boost::container::flat_map<std::string, T>& map, const std::string& needle)
