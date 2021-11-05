@@ -1,5 +1,7 @@
 layout(bindless_sampler) uniform sampler2D u_noise;
 
+// noise functions return values in the range -1..1
+
 vec3 gauss_noise(vec2 p)
 {
     vec3 a = texture(u_noise, p*2.1).xyz;

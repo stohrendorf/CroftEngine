@@ -171,6 +171,12 @@ struct Room
     std::make_shared<gl::ShaderStorageBuffer<engine::ShaderLight>>("lights-buffer")};
 
   void collectShaderLights(size_t depth);
+
+private:
+  void createParticleMesh(const std::string& labe,
+                          const glm::vec3& min,
+                          const glm::vec3& max,
+                          render::scene::MaterialManager& materialManager);
 };
 
 extern void patchHeightsForBlock(const engine::objects::Object& object, const core::Length& height);

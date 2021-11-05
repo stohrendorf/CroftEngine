@@ -52,4 +52,5 @@ private:
 
 using FragmentShader = Shader<api::ShaderType::FragmentShader>;
 using VertexShader = Shader<api::ShaderType::VertexShader>;
+using GeometryShader = Shader<api::ShaderType::GeometryShader>;
 } // namespace gl

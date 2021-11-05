@@ -447,4 +447,24 @@ gsl::not_null<std::shared_ptr<Material>>
   m_fastBoxBlur.emplace(key, m);
   return m;
 }
+
+gsl::not_null<std::shared_ptr<Material>> MaterialManager::getDustParticle()
+{
+  if(m_dustParticle != nullptr)
+    return gsl::not_null{m_dustParticle};
+
+  auto m = gslu::make_nn_shared<Material>(m_shaderCache->getDustParticle());
+  m->getRenderState().setCullFace(false);
+  m->getUniformBlock("Camera")->bindCameraBuffer(m_renderer->getCamera());
+  m->getUniformBlock("Transform")->bindTransformBuffer();
+  m->getUniform("u_noise")->set(gsl::not_null{m_noiseTexture});
+  m->getUniform("u_time")->bind(
+    [renderer = m_renderer](const Node&, const Mesh& /*mesh*/, gl::Uniform& uniform)
+    {
+      const auto now = std::chrono::time_point_cast<std::chrono::milliseconds>(renderer->getGameTime());
+      uniform.set(gsl::narrow_cast<float>(now.time_since_epoch().count()));
+    });
+  m_dustParticle = m;
+  return m;
+}
 } // namespace render::scene

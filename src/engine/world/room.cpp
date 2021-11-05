@@ -53,6 +53,7 @@
 #include <iosfwd>
 #include <iterator>
 #include <limits>
+#include <random>
 #include <set>
 #include <string>
 #include <tuple>
@@ -425,6 +426,19 @@ void Room::createSceneNode(const loader::file::Room& srcRoom,
                  });
 
   collectShaderLights(world.getEngine().getEngineConfig()->renderSettings.getLightCollectionDepth());
+
+  {
+    glm::vec3 min{std::numeric_limits<float>::max()};
+    glm::vec3 max{std::numeric_limits<float>::lowest()};
+    for(const auto& v : srcRoom.vertices)
+    {
+      const auto vv = v.position.toRenderSystem();
+      min = glm::min(min, vv);
+      max = glm::max(max, vv);
+    }
+    createParticleMesh(label, min, max, materialManager);
+  }
+
   resetScenery();
 }
 
@@ -560,5 +574,52 @@ void Room::collectShaderLights(size_t depth)
   }
 
   lightsBuffer->setData(bufferLights, gl::api::BufferUsage::StaticDraw);
+}
+
+void Room::createParticleMesh(const std::string& label,
+                              const glm::vec3& min,
+                              const glm::vec3& max,
+                              render::scene::MaterialManager& materialManager)
+{
+  std::vector<glm::vec3> vertices;
+  std::vector<uint32_t> indices;
+
+  static const constexpr auto Resolution = (core::SectorSize / 4).cast<float>().get();
+  std::uniform_real_distribution<float> rdist{-Resolution / 2, Resolution / 2};
+  std::random_device rd; // Will be used to obtain a seed for the random number engine
+  std::default_random_engine gen{rd()};
+  for(float x = min.x + Resolution; x < max.x - Resolution; x += Resolution)
+  {
+    for(float y = min.y + Resolution; y < max.y - Resolution; y += Resolution)
+    {
+      for(float z = min.z + Resolution; z < max.z - Resolution; z += Resolution)
+      {
+        glm::vec3 p0 = glm::vec3{x, y, z};
+        glm::vec3 offset{rdist(gen), rdist(gen), rdist(gen)};
+        vertices.emplace_back(p0 + offset);
+        indices.emplace_back(gsl::narrow_cast<uint32_t>(vertices.size()));
+      }
+    }
+  }
+
+  static const gl::VertexLayout<glm::vec3> layout{
+    {VERTEX_ATTRIBUTE_POSITION_NAME, gl::VertexAttribute<glm::vec3>::Trivial{}}};
+
+  auto vbuf = gslu::make_nn_shared<gl::VertexBuffer<glm::vec3>>(layout, label + "-particles");
+  vbuf->setData(vertices, gl::api::BufferUsage::StaticDraw);
+  auto indexBuffer = gslu::make_nn_shared<gl::ElementArrayBuffer<uint32_t>>(label + "-particles");
+  indexBuffer->setData(indices, gl::api::BufferUsage::StaticDraw);
+
+  const auto particleMaterial = materialManager.getDustParticle();
+
+  auto vao = gslu::make_nn_shared<gl::VertexArray<uint32_t, glm::vec3>>(
+    indexBuffer, vbuf, std::vector{&particleMaterial->getShaderProgram()->getHandle()}, label + "-particles");
+  auto mesh = std::make_shared<render::scene::MeshImpl<uint32_t, glm::vec3>>(vao, gl::api::PrimitiveType::Points);
+  mesh->getMaterialGroup().set(render::scene::RenderMode::Full, particleMaterial);
+
+  auto particles = std::make_shared<render::scene::Node>(label + "-particles");
+  particles->setRenderable(mesh);
+  particles->setVisible(true);
+  sceneryNodes.emplace_back(particles);
 }
 } // namespace engine::world

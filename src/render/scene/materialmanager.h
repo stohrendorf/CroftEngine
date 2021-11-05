@@ -36,6 +36,8 @@ public:
 
   [[nodiscard]] gsl::not_null<std::shared_ptr<Material>> getUi();
 
+  [[nodiscard]] gsl::not_null<std::shared_ptr<Material>> getDustParticle();
+
   [[nodiscard]] gsl::not_null<std::shared_ptr<Material>> getFXAA();
   [[nodiscard]] gsl::not_null<std::shared_ptr<Material>> getCRT();
   [[nodiscard]] gsl::not_null<std::shared_ptr<Material>> getVelvia();
@@ -88,6 +90,8 @@ private:
   std::shared_ptr<Material> m_backdrop{nullptr};
   std::shared_ptr<Material> m_hbao{nullptr};
   std::shared_ptr<Material> m_vsmSquare{nullptr};
+
+  std::shared_ptr<Material> m_dustParticle{nullptr};
 
   std::shared_ptr<CSM> m_csm;
   const gsl::not_null<std::shared_ptr<Renderer>> m_renderer;

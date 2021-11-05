@@ -29,6 +29,11 @@ public:
                                                                   const std::filesystem::path& fshPath,
                                                                   const std::vector<std::string>& defines = {});
 
+  [[nodiscard]] gsl::not_null<std::shared_ptr<ShaderProgram>> get(const std::filesystem::path& vshPath,
+                                                                  const std::filesystem::path& fshPath,
+                                                                  const std::filesystem::path& geomPath,
+                                                                  const std::vector<std::string>& defines = {});
+
   [[nodiscard]] auto getFlat(bool withAlphaMultiplier, bool invertY, bool withAspectRatio)
   {
     std::vector<std::string> defines;
@@ -161,6 +166,11 @@ public:
   [[nodiscard]] auto getUi()
   {
     return get("ui.vert", "ui.frag");
+  }
+
+  [[nodiscard]] auto getDustParticle()
+  {
+    return get("dust.vert", "dust.frag", "dust.geom");
   }
 };
 } // namespace render::scene
