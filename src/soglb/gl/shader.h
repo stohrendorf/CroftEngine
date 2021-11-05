@@ -8,6 +8,7 @@
 #include <gsl/gsl-lite.hpp>
 #include <string>
 #include <string_view>
+#include <vector>
 
 namespace gl
 {

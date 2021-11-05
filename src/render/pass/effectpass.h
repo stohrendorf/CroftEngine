@@ -1,5 +1,7 @@
 #pragma once
 
+#include "render/scene/mesh.h"
+
 #include <gl/pixel.h>
 #include <gl/soglb_fwd.h>
 #include <gsl/gsl-lite.hpp>
