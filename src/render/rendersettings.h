@@ -29,6 +29,7 @@ struct RenderSettings
   bool velvia = true;
   bool fxaa = true;
   bool moreLights = true;
+  bool dust = true;
   bool highQualityShadows = true;
   bool halfResRender = false;
   std::optional<std::string> glidosPack = std::nullopt;

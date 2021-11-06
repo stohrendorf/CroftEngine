@@ -273,6 +273,16 @@ RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingT
       toggle(engine, engine.getEngineConfig()->renderSettings.fullscreen);
     });
   listBox->addSetting(
+    /* translators: TR charmap encoding */ _("Dust"),
+    [&engine]()
+    {
+      return engine.getEngineConfig()->renderSettings.dust;
+    },
+    [&engine]()
+    {
+      toggle(engine, engine.getEngineConfig()->renderSettings.dust);
+    });
+  listBox->addSetting(
     /* translators: TR charmap encoding */ _("More Lights"),
     [&engine]()
     {

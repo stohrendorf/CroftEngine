@@ -22,6 +22,7 @@ void RenderSettings::serialize(const serialization::Serializer<engine::EngineCon
       S_NVO("velvia", velvia),
       S_NVO("fxaa", fxaa),
       S_NVO("moreLights", moreLights),
+      S_NVO("dust", dust),
       S_NVO("highQualityShadows", highQualityShadows),
       S_NVO("anisotropyLevel", anisotropyLevel),
       S_NVO("halfResRender", halfResRender),

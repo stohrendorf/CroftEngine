@@ -104,6 +104,8 @@ struct Room
   std::shared_ptr<render::scene::Node> node = nullptr;
   std::vector<gsl::not_null<std::shared_ptr<render::scene::Node>>> sceneryNodes{};
 
+  std::shared_ptr<render::scene::Node> dust = nullptr;
+
   void createSceneNode(const loader::file::Room& srcRoom,
                        size_t roomId,
                        World&,

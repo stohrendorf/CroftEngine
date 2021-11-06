@@ -584,7 +584,11 @@ void Engine::applySettings()
     world->getAudioEngine().setMusicGain(m_engineConfig->audioSettings.musicVolume);
     world->getAudioEngine().setSfxGain(m_engineConfig->audioSettings.sfxVolume);
     for(auto& room : world->getRooms())
+    {
       room.collectShaderLights(m_engineConfig->renderSettings.getLightCollectionDepth());
+      gsl_Assert(room.dust != nullptr);
+      room.dust->setVisible(m_engineConfig->renderSettings.dust);
+    }
   }
 }
 

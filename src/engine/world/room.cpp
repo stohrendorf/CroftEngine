@@ -618,9 +618,9 @@ void Room::createParticleMesh(const std::string& label,
   mesh->getMaterialGroup().set(render::scene::RenderMode::Full, particleMaterial);
   mesh->getRenderState().setDepthWrite(false);
 
-  auto particles = std::make_shared<render::scene::Node>(label + "-particles");
-  particles->setRenderable(mesh);
-  particles->setVisible(true);
-  sceneryNodes.emplace_back(particles);
+  dust = std::make_shared<render::scene::Node>(label + "-particles");
+  dust->setRenderable(mesh);
+  dust->setVisible(true);
+  sceneryNodes.emplace_back(dust);
 }
 } // namespace engine::world
