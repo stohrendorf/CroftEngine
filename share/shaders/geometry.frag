@@ -58,7 +58,7 @@ void main()
     out_normal = gpi.hbaoNormal;
     out_position = gpi.vertexPos;
 
-    vec3 finalColor = gpi.color.rgb;
+    vec4 finalColor = gpi.color;
     if (gpi.texCoord.z >= 0) {
         vec2 uv;
         if (gpi.isQuad == 0) {
@@ -67,19 +67,15 @@ void main()
         else {
             uv = barycentricUv();
         }
-        vec4 texColor = texture(u_diffuseTextures, vec3(uv, gpi.texCoord.z));
-        if (texColor.a < 0.5) {
-            discard;
-        }
-        finalColor *= texColor.rgb;
+        finalColor = texture(u_diffuseTextures, vec3(uv, gpi.texCoord.z));
     }
     else {
-        finalColor *= finalColor;
+        finalColor.rgb *= finalColor.rgb;
     }
 
         #ifdef IN_WATER
-    finalColor *= water_multiplier(gpi.vertexPosWorld);
+    finalColor.rgb *= water_multiplier(gpi.vertexPosWorld);
     #endif
 
-    out_color = vec4(finalColor * calc_positional_lighting() * shadow_map_multiplier(), 1.0);
+    out_color = vec4(finalColor.rgb * calc_positional_lighting() * shadow_map_multiplier(), finalColor.a);
 }

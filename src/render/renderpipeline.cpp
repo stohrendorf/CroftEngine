@@ -126,7 +126,7 @@ void RenderPipeline::bindUiFrameBuffer()
 void RenderPipeline::bindGeometryFrameBuffer(float farPlane)
 {
   BOOST_ASSERT(m_geometryPass != nullptr);
-  m_geometryPass->getColorBuffer()->getTexture()->clear({0, 0, 0});
+  m_geometryPass->getColorBuffer()->getTexture()->clear({0, 0, 0, 1});
   m_geometryPass->getPositionBuffer()->getTexture()->clear({0.0f, 0.0f, -farPlane});
   m_geometryPass->getDepthBuffer()->clear(gl::ScalarDepth{1.0f});
   m_geometryPass->bind();

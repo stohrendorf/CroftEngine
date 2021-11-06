@@ -616,6 +616,7 @@ void Room::createParticleMesh(const std::string& label,
     indexBuffer, vbuf, std::vector{&particleMaterial->getShaderProgram()->getHandle()}, label + "-particles");
   auto mesh = std::make_shared<render::scene::MeshImpl<uint32_t, glm::vec3>>(vao, gl::api::PrimitiveType::Points);
   mesh->getMaterialGroup().set(render::scene::RenderMode::Full, particleMaterial);
+  mesh->getRenderState().setDepthWrite(false);
 
   auto particles = std::make_shared<render::scene::Node>(label + "-particles");
   particles->setRenderable(mesh);

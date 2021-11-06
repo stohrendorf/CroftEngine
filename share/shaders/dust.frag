@@ -5,11 +5,11 @@ in DustFSInterface {
 } fs;
 
 const vec3 BaseColor = vec3(1, 0.9, 0.8);
-const vec3 Color0 = 0.1 * BaseColor;
-const vec3 Color1 = 0.3 * BaseColor;
+const float Alpha0 = 0.1;
+const float Alpha1 = 0.3;
 
 void main()
 {
-    float a = min(min(fs.lifetime, 1-fs.lifetime) * 4, 1);
-    out_color = vec4(mix(Color0, Color1, a), 1.0);
+    float a = min(min(fs.lifetime, 1-fs.lifetime) * 3, 1);
+    out_color = vec4(BaseColor, a * 0.3);
 }
