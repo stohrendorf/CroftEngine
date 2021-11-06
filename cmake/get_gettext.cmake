@@ -13,7 +13,7 @@ if( VCPKG_TOOLCHAIN )
             WORKING_DIRECTORY gettext
     )
     dl_unpack(
-            URL https://mirror.msys2.org/mingw/mingw64/mmingw-w64-x86_64-libwinpthread-git-9.0.0.6327.f29c1101f-1-any.pkg.tar.zst
+            URL https://mirror.msys2.org/mingw/mingw64/mingw-w64-x86_64-libwinpthread-git-9.0.0.6327.f29c1101f-1-any.pkg.tar.zst
             FILENAME mingw-w64-x86_64-libwinpthread-git-9.0.0.6246.ae63cde27-1-any.pkg.tar.zst
             TEST_FILE mingw64/bin/libwinpthread-1.dll
             WORKING_DIRECTORY gettext
