@@ -12,7 +12,7 @@ public:
   {
   }
 
-  void handleInput(CollisionInfo& /*collisionInfo*/) override
+  void handleInput(CollisionInfo& /*collisionInfo*/, bool /*doPhysics*/) override
   {
     if(getLara().isDead())
     {
@@ -20,16 +20,16 @@ public:
       return;
     }
 
-    setSwimToDiveKeypressDuration(0_frame);
+    setSwimToDiveKeypressDuration(0_rframe);
 
     const auto& inputHandler = getWorld().getPresenter().getInputHandler();
     if(inputHandler.getInputState().xMovement == hid::AxisMovement::Left)
     {
-      getLara().m_state.rotation.Y -= core::OnWaterTurnSpeed * 1_frame;
+      getLara().m_state.rotation.Y -= core::OnWaterTurnSpeed * 1_rframe;
     }
     else if(inputHandler.getInputState().xMovement == hid::AxisMovement::Right)
     {
-      getLara().m_state.rotation.Y += core::OnWaterTurnSpeed * 1_frame;
+      getLara().m_state.rotation.Y += core::OnWaterTurnSpeed * 1_rframe;
     }
 
     if(inputHandler.getInputState().zMovement != hid::AxisMovement::Forward)
@@ -42,14 +42,17 @@ public:
       setGoalAnimState(LaraStateId::OnWaterStop);
     }
 
-    getLara().m_state.fallspeed
-      = std::min(core::OnWaterMaxSpeed, getLara().m_state.fallspeed + core::OnWaterAcceleration * 1_frame);
+    getLara().m_state.fallspeed += core::OnWaterAcceleration;
+    if(getLara().m_state.fallspeed >= core::OnWaterMaxSpeed)
+      getLara().m_state.fallspeed.stop(core::OnWaterMaxSpeed);
   }
 
-  void postprocessFrame(CollisionInfo& collisionInfo) override
+  void postprocessFrame(CollisionInfo& collisionInfo, bool doPhysics) override
   {
-    setMovementAngle(getLara().m_state.rotation.Y);
-    commonOnWaterHandling(collisionInfo);
+    if(doPhysics)
+      setMovementAngle(getLara().m_state.rotation.Y);
+
+    commonOnWaterHandling(collisionInfo, doPhysics);
   }
 };
 } // namespace engine::lara

@@ -43,9 +43,9 @@ RotateLeftRightMenuState::RotateLeftRightMenuState(const std::shared_ptr<MenuRin
 std::unique_ptr<MenuState>
   RotateLeftRightMenuState::onFrame(ui::Ui& /*ui*/, engine::world::World& /*world*/, MenuDisplay& display)
 {
-  m_ringTransform->ringRotation += m_rotSpeed * 1_frame;
-  m_duration -= 1_frame;
-  if(m_duration != 0_frame)
+  m_ringTransform->ringRotation += m_rotSpeed * 1_rframe;
+  m_duration -= 1_rframe;
+  if(m_duration != 0_rframe)
     return nullptr;
 
   display.getCurrentRing().currentObject = m_targetObject;

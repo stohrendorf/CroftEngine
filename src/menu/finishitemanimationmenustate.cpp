@@ -20,7 +20,7 @@ std::unique_ptr<MenuState>
   if(object.type == engine::TR1ItemId::PassportOpening)
   {
     object.type = engine::TR1ItemId::PassportClosed;
-    object.meshAnimFrame = 0_frame;
+    object.meshAnimFrame = 0_rframe;
     object.initModel(world, display.getLightsBuffer());
   }
 

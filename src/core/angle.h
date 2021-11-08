@@ -4,6 +4,7 @@
 #include "serialization/serialization_fwd.h"
 #include "units.h"
 
+#include <boost/assert.hpp>
 #include <cmath>
 #include <cstdint>
 #include <cstdlib>
@@ -24,7 +25,7 @@ namespace core
 {
 [[nodiscard]] inline Angle angleFromRad(const float r)
 {
-  return Angle{gsl::narrow_cast<Angle::type>(r / 2 / glm::pi<float>() * FullRotation * AngleStorageScale)};
+  return Angle{gsl::narrow_cast<Angle::type>(r / 2 / glm::pi<float>() * FullRotation)};
 }
 
 [[nodiscard]] inline Angle angleFromAtan(const float dx, const float dz)
@@ -34,7 +35,7 @@ namespace core
 
 [[nodiscard]] inline Angle angleFromDegrees(const float value)
 {
-  return Angle{gsl::narrow_cast<Angle::type>(std::lround(value / 360 * FullRotation * AngleStorageScale))};
+  return Angle{gsl::narrow_cast<Angle::type>(std::lround(value / 360 * FullRotation))};
 }
 
 [[nodiscard]] inline Angle angleFromAtan(const Length& dx, const Length& dz)
@@ -44,17 +45,17 @@ namespace core
 
 [[nodiscard]] constexpr float toDegrees(const Angle& a) noexcept
 {
-  return a.get<float>() / AngleStorageScale * 360 / FullRotation;
+  return a.get<float>() * 360 / FullRotation;
 }
 
 [[nodiscard]] inline float toRad(const Angle& a) noexcept
 {
-  return a.get<float>() / AngleStorageScale * glm::pi<float>() * 2 / FullRotation;
+  return a.get<float>() * glm::pi<float>() * 2 / FullRotation;
 }
 
 [[nodiscard]] inline auto toAu(const Angle& a) noexcept
 {
-  return a.get() / AngleStorageScale;
+  return a.get();
 }
 
 [[nodiscard]] inline float sin(const Angle& a) noexcept
@@ -65,16 +66,6 @@ namespace core
 [[nodiscard]] inline float cos(const Angle& a) noexcept
 {
   return std::cos(toRad(a));
-}
-
-[[nodiscard]] inline Angle abs(const Angle& a)
-{
-  const auto tmp = Angle{std::abs(a.get())};
-  if(tmp >= 0_deg)
-    return tmp;
-
-  // abs(-180_deg) == -180_deg unfortunately
-  return Angle{std::numeric_limits<int>::max()};
 }
 
 enum class Axis
@@ -89,9 +80,27 @@ enum class Axis
   NegX = Left90
 };
 
-[[nodiscard]] inline std::optional<Axis> axisFromAngle(const Angle& angle, const Angle& margin)
+/**
+ * Normalize an angle to be in range -180°..180°.
+ */
+[[nodiscard]] constexpr inline Angle normalizeAngle(Angle angle)
+{
+  angle = angle % 360_deg;
+  if(angle < -180_deg)
+    return angle + 360_deg;
+  else if(angle > 180_deg)
+    return angle - 360_deg;
+  else
+  {
+    BOOST_ASSERT(angle >= -180_deg && angle <= 180_deg);
+    return angle;
+  }
+}
+
+[[nodiscard]] constexpr inline std::optional<Axis> axisFromAngle(Angle angle, const Angle& margin)
 {
   Expects(margin >= 0_deg && margin <= 45_deg);
+  angle = normalizeAngle(angle);
   if(angle < +0_deg + margin && angle >= +0_deg - margin)
     return Axis::Deg0;
   if(angle < +90_deg + margin && angle >= +90_deg - margin)
@@ -104,9 +113,9 @@ enum class Axis
   return std::nullopt;
 }
 
-[[nodiscard]] inline Axis axisFromAngle(Angle angle)
+[[nodiscard]] constexpr inline Axis axisFromAngle(Angle angle)
 {
-  angle += 45_deg;
+  angle = normalizeAngle(angle + 45_deg);
   if(angle < -90_deg)
     return Axis::Deg180;
   else if(angle < 0_deg)
@@ -179,6 +188,11 @@ public:
   [[nodiscard]] TRRotation operator-() const
   {
     return TRRotation{-X, -Y, -Z};
+  }
+
+  [[nodiscard]] auto normalized() const
+  {
+    return TRRotation{normalizeAngle(X), normalizeAngle(Y), normalizeAngle(Z)};
   }
 
   void serialize(const serialization::Serializer<engine::world::World>& ser);

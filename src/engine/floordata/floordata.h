@@ -69,9 +69,9 @@ public:
   {
     auto timeout = core::Seconds{static_cast<core::Seconds::type>(fd.get() & TimeoutMask)};
     if(timeout.get() == 1)
-      m_timeout = 1_frame;
+      m_timeout = 1_rframe;
     else
-      m_timeout = timeout * core::FrameRate;
+      m_timeout = (timeout * core::RenderFrameRate).cast<core::RenderFrame>();
   }
 
   [[nodiscard]] bool isOneshot() const noexcept
@@ -144,7 +144,7 @@ public:
     return m_activationSet.test(i);
   }
 
-  [[nodiscard]] core::Frame getTimeout() const noexcept
+  [[nodiscard]] const auto& getTimeout() const noexcept
   {
     return m_timeout;
   }
@@ -160,7 +160,7 @@ private:
   bool m_inverted = false;
   bool m_locked = false;
   ActivationSet m_activationSet{};
-  core::Frame m_timeout = 0_frame;
+  core::RenderFrame m_timeout = 0_rframe;
 };
 
 struct CameraParameters

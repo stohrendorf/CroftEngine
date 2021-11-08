@@ -51,7 +51,7 @@ void Natla::update()
   auto tiltRot = 0_deg;
   auto angle = 0_deg;
   auto neckRot = 0_deg;
-  auto headRot = getCreatureInfo()->headRotation * 7 / 8;
+  auto headRot = getCreatureInfo()->headRotation * 0.875f;
   if(m_state.health <= 0_hp && m_state.health > core::DeadHealth)
   {
     goal(Dying);
@@ -91,12 +91,12 @@ void Natla::update()
     if(m_state.current_anim_state != AimFlying || m_attemptToFly)
       ai::updateMood(*this, enemyLocation, false);
 
-    m_state.rotation.Y -= m_pitchDelta;
+    m_state.rotation.Y -= toRenderUnit(m_pitchDelta / 1_frame) * 1_rframe;
     angle = rotateTowardsTarget(5_deg / 1_frame);
     if(m_state.current_anim_state == AimFlying)
     {
-      m_pitchDelta += std::clamp(enemyLocation.angleToEnemy, -5_deg, 5_deg);
-      m_state.rotation.Y += m_pitchDelta;
+      m_pitchDelta += toRenderUnit(std::clamp(enemyLocation.angleToEnemy, -5_deg, 5_deg) / 1_frame) * 1_rframe;
+      m_state.rotation.Y += toRenderUnit(m_pitchDelta / 1_frame) * 1_rframe;
     }
     else
     {
@@ -106,20 +106,20 @@ void Natla::update()
     switch(m_state.current_anim_state.get())
     {
     case AimDispatch.get():
-      m_flyTime = 0_frame;
+      m_flyTime = 0_rframe;
       goal(m_attemptToFly ? AimFlying : AimWalking);
       break;
     case AimFlying.get():
       if(!m_attemptToFly && m_state.location.position.Y == m_state.floor)
         goal(AimDispatch);
 
-      if(m_flyTime >= 1_sec * core::FrameRate)
+      if(m_flyTime >= 1_sec * core::RenderFrameRate)
       {
         auto particle = emitParticle(bulletEmissionPos, bulletEmissionBoneIdx, &createMutantGrenade);
         headRot = particle->angle.X;
         getWorld().getAudioEngine().playSoundEffect(TR1SoundEffect::MutantShootingBullet,
                                                     particle->location.position.toRenderSystem());
-        m_flyTime = 0_frame;
+        m_flyTime = 0_rframe;
       }
       break;
     case AimWalking.get():
@@ -165,32 +165,32 @@ void Natla::update()
     case Shoot.get():
       goal(Injured);
       m_state.activationState.fullyDeactivate();
-      m_flyTime = 0_frame;
+      m_flyTime = 0_rframe;
       break;
     case AimFlying.get():
       goal(Falling);
-      m_flyTime = 0_frame;
+      m_flyTime = 0_rframe;
       break;
     case Running.get():
       tiltRot = angle;
-      if(m_flyTime >= 1_sec * core::FrameRate * 2 / 3)
+      if(m_flyTime >= 1_sec * core::RenderFrameRate * 2 / 3)
       {
         auto particle = emitParticle(bulletEmissionPos, bulletEmissionBoneIdx, &createMutantBullet);
         headRot = particle->angle.X;
         getWorld().getAudioEngine().playSoundEffect(TR1SoundEffect::MutantShootingBullet,
                                                     particle->location.position.toRenderSystem());
-        m_flyTime = 0_frame;
+        m_flyTime = 0_rframe;
       }
 
       if(canShoot)
         goal(Standing);
       break;
     case Injured.get():
-      if(m_flyTime == 16_sec * core::FrameRate)
+      if(m_flyTime == 16_sec * core::RenderFrameRate)
       {
         goal(Standing);
         m_attemptToFly = false;
-        m_flyTime = 0_frame;
+        m_flyTime = 0_rframe;
         m_state.health = 200_hp;
         getWorld().getAudioEngine().playStopCdTrack(
           getWorld().getEngine().getScriptEngine().getGameflow(), TR1TrackId::LaraTalk28, false);
@@ -206,7 +206,7 @@ void Natla::update()
         m_state.falling = false;
         goal(Injured);
         m_state.location.position.Y = m_state.floor;
-        m_flyTime = 0_frame;
+        m_flyTime = 0_rframe;
       }
       else
       {
@@ -218,13 +218,13 @@ void Natla::update()
       if(!canShoot)
         goal(Running);
 
-      if(m_flyTime >= 1_sec * core::FrameRate * 2 / 3)
+      if(m_flyTime >= 1_sec * core::RenderFrameRate * 2 / 3)
       {
         auto particle = emitParticle(bulletEmissionPos, bulletEmissionBoneIdx, &createMutantBullet);
         headRot = particle->angle.X;
         getWorld().getAudioEngine().playSoundEffect(TR1SoundEffect::MutantShootingBullet,
                                                     particle->location.position.toRenderSystem());
-        m_flyTime = 0_frame;
+        m_flyTime = 0_rframe;
       }
       break;
     default:
@@ -236,7 +236,7 @@ void Natla::update()
   getCreatureInfo()->neckRotation = -neckRot;
   if(headRot != 0_deg)
     getCreatureInfo()->headRotation = headRot;
-  m_flyTime += 1_frame;
+  m_flyTime += 1_rframe;
   m_state.rotation.Y -= m_pitchDelta;
   animateCreature(angle, 0_deg);
   m_state.rotation.Y += m_pitchDelta;

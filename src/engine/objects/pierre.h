@@ -28,6 +28,6 @@ public:
   void serialize(const serialization::Serializer<world::World>& ser) override;
 
 private:
-  core::Frame m_fleeTime = 0_frame;
+  core::RenderFrame m_fleeTime = 0_rframe;
 };
 } // namespace engine::objects

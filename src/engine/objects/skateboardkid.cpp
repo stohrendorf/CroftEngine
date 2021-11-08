@@ -155,7 +155,7 @@ void SkateboardKid::update()
   const auto animIdx = std::distance(getWorld().findAnimatedModelForType(TR1ItemId::SkateboardKid)->animations,
                                      getSkeleton()->getAnim());
   const auto& skateboardAnim = getWorld().findAnimatedModelForType(TR1ItemId::Skateboard)->animations[animIdx];
-  const auto animFrame = skateboardAnim.firstFrame + getSkeleton()->getLocalFrame();
+  const auto animFrame = skateboardAnim.firstFrame + toRenderUnit(getSkeleton()->getLocalFrame());
   m_skateboard->setAnim(gsl::not_null{&skateboardAnim}, std::min(skateboardAnim.lastFrame, animFrame));
   m_skateboard->updatePose();
   setParent(gsl::not_null{m_skateboard}, getNode());

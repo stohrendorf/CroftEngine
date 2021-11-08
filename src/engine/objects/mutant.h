@@ -76,7 +76,7 @@ public:
 
 private:
   bool m_hasHitLara = false;
-  core::Frame m_turnStartFrame = 0_frame;
+  core::RenderFrame m_turnStartFrame = 0_rframe;
 };
 
 } // namespace engine::objects

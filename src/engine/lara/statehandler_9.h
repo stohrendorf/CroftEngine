@@ -15,22 +15,26 @@ public:
   {
   }
 
-  void handleInput(CollisionInfo& /*collisionInfo*/) override
+  void handleInput(CollisionInfo& /*collisionInfo*/, bool doPhysics) override
   {
     if(getLara().m_state.fallspeed >= core::DeadlyFallSpeedThreshold)
     {
       getLara().playSoundEffect(TR1SoundEffect::LaraScream);
     }
-    dampenHorizontalSpeed(0.05f);
+    if(doPhysics)
+      dampenHorizontalSpeed(0.05f);
   }
 
-  void postprocessFrame(CollisionInfo& collisionInfo) override
+  void postprocessFrame(CollisionInfo& collisionInfo, bool doPhysics) override
   {
     auto& laraState = getLara().m_state;
     collisionInfo.validFloorHeight = {-core::ClimbLimit2ClickMin, core::HeightLimit};
     collisionInfo.validCeilingHeightMin = 192_len;
     collisionInfo.facingAngle = getMovementAngle();
     collisionInfo.initHeightInfo(laraState.location.position, getWorld(), core::LaraWalkHeight);
+
+    if(!doPhysics)
+      return;
 
     laraState.falling = true;
 

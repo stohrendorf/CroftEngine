@@ -14,7 +14,7 @@ public:
   {
   }
 
-  void handleInput(CollisionInfo& /*collisionInfo*/) override
+  void handleInput(CollisionInfo& /*collisionInfo*/, bool /*doPhysics*/) override
   {
     setGoalAnimState(LaraStateId::Stop);
 
@@ -29,7 +29,7 @@ public:
     }
   }
 
-  void postprocessFrame(CollisionInfo& collisionInfo) override
+  void postprocessFrame(CollisionInfo& collisionInfo, bool /*doPhysics*/) override
   {
     auto& laraState = getLara().m_state;
     collisionInfo.validFloorHeight = {-core::ClimbLimit2ClickMin, core::HeightLimit};

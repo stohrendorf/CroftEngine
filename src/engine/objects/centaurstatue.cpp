@@ -71,7 +71,7 @@ void CentaurStatue::update()
   if(abs(d.Y) >= core::SectorSize)
     return;
 
-  static constexpr auto Radius = core::SectorSize * 7 / 2;
+  static constexpr auto Radius = core::SectorSize * 3.5f;
   if(util::square(d.X) + util::square(d.Z) >= util::square(Radius))
     return;
 

@@ -42,41 +42,42 @@ void AimInfo::updateAnimTwoWeapons(LaraObject& lara, const Weapon& weapon)
   if(!aiming
      && (lara.aimAt != nullptr || !lara.getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action)))
   {
-    if(frame >= TwoWeaponsRecoilAnimStart)
+    if(frame >= toAnimUnit(TwoWeaponsRecoilAnimStart))
     {
-      frame += 1_frame;
-      if(frame == weapon.recoilDuration + TwoWeaponsRecoilAnimStart)
+      frame += 1_rframe;
+      if(frame == toAnimUnit(weapon.recoilDuration + TwoWeaponsRecoilAnimStart))
       {
-        frame = TwoWeaponsAiming;
+        frame = toAnimUnit(TwoWeaponsAiming);
       }
     }
-    else if(frame > TwoWeaponsIdle && frame <= TwoWeaponsAiming)
+    else if(frame > toAnimUnit(TwoWeaponsIdle) && frame <= toAnimUnit(TwoWeaponsAiming))
     {
-      frame -= 1_frame;
+      frame -= 1_rframe;
     }
   }
-  else if(frame >= TwoWeaponsIdle && frame < TwoWeaponsAiming)
+  else if(frame >= toAnimUnit(TwoWeaponsIdle) && frame < toAnimUnit(TwoWeaponsAiming))
   {
-    frame += 1_frame;
+    frame += 1_rframe;
   }
-  else if(frame == TwoWeaponsAiming && lara.getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action))
+  else if(frame == toAnimUnit(TwoWeaponsAiming)
+          && lara.getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action))
   {
     core::TRRotationXY aimAngle;
     aimAngle.X = aimRotation.X;
     aimAngle.Y = lara.m_state.rotation.Y + aimRotation.Y;
     if(lara.shootBullet(weapon.type, lara.aimAt, lara, aimAngle))
     {
-      flashTimeout = weapon.flashTime;
+      flashTimeout = toAnimUnit(weapon.flashTime);
       lara.playSoundEffect(weapon.shotSound);
     }
-    frame = TwoWeaponsRecoilAnimStart;
+    frame = toAnimUnit(TwoWeaponsRecoilAnimStart);
   }
-  else if(frame >= TwoWeaponsRecoilAnimStart)
+  else if(frame >= toAnimUnit(TwoWeaponsRecoilAnimStart))
   {
-    frame += 1_frame;
-    if(frame == weapon.recoilDuration + TwoWeaponsRecoilAnimStart)
+    frame += 1_rframe;
+    if(frame == toAnimUnit(weapon.recoilDuration + TwoWeaponsRecoilAnimStart))
     {
-      frame = TwoWeaponsAiming;
+      frame = toAnimUnit(TwoWeaponsAiming);
     }
   }
 }
@@ -85,147 +86,152 @@ void AimInfo::updateAnimShotgun(LaraObject& lara)
 {
   if(aiming)
   {
-    if(frame >= ShotgunIdle && frame <= ShotgunIdleToAimAnimEnd)
+    if(frame >= toAnimUnit(ShotgunIdle) && frame <= toAnimUnit(ShotgunIdleToAimAnimEnd))
     {
-      if(frame == ShotgunIdleToAimAnimEnd)
+      if(frame == toAnimUnit(ShotgunIdleToAimAnimEnd))
       {
-        frame = ShotgunReadyToShoot;
+        frame = toAnimUnit(ShotgunReadyToShoot);
       }
       else
       {
-        frame += 1_frame;
+        frame += 1_rframe;
       }
     }
-    else if(frame == ShotgunReadyToShoot)
+    else if(frame == toAnimUnit(ShotgunReadyToShoot))
     {
       if(lara.getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action))
       {
         lara.tryShootShotgun();
-        frame += 1_frame;
+        frame += 1_rframe;
       }
     }
-    else if(frame >= ShotgunAfterShotAnimStart && frame <= ShotgunAfterShotAnimEnd)
+    else if(frame >= toAnimUnit(ShotgunAfterShotAnimStart) && frame <= toAnimUnit(ShotgunAfterShotAnimEnd))
     {
-      if(frame == ShotgunAfterShotAnimEnd)
+      if(frame == toAnimUnit(ShotgunAfterShotAnimEnd))
       {
-        frame = ShotgunReadyToShoot;
+        frame = toAnimUnit(ShotgunReadyToShoot);
       }
-      else if(frame == ShotgunReload)
+      else if(frame == toAnimUnit(ShotgunReload))
       {
-        frame += 1_frame;
+        frame += 1_rframe;
         lara.playSoundEffect(TR1SoundEffect::LaraHolsterWeapons);
       }
       else
       {
-        frame += 1_frame;
+        frame += 1_rframe;
       }
     }
-    else if(frame >= ShotgunAimToIdleAnimStart && frame <= ShotgunAimToIdleAnimEnd)
+    else if(frame >= toAnimUnit(ShotgunAimToIdleAnimStart) && frame <= toAnimUnit(ShotgunAimToIdleAnimEnd))
     {
-      if(frame == ShotgunAimToIdleAnimEnd)
+      if(frame == toAnimUnit(ShotgunAimToIdleAnimEnd))
       {
-        frame = ShotgunIdle;
+        frame = toAnimUnit(ShotgunIdle);
       }
       else
       {
-        frame += 1_frame;
+        frame += 1_rframe;
       }
     }
 
     return;
   }
 
-  if(frame == ShotgunIdle && lara.getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action))
+  if(frame == toAnimUnit(ShotgunIdle)
+     && lara.getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action))
   {
-    frame += 1_frame;
+    frame += 1_rframe;
     return;
   }
 
-  if(frame > ShotgunIdle && frame <= ShotgunIdleToAimAnimEnd)
+  if(frame > toAnimUnit(ShotgunIdle) && frame <= toAnimUnit(ShotgunIdleToAimAnimEnd))
   {
-    if(frame == ShotgunIdleToAimAnimEnd)
+    if(frame == toAnimUnit(ShotgunIdleToAimAnimEnd))
     {
       if(lara.getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action))
       {
-        frame = ShotgunReadyToShoot;
+        frame = toAnimUnit(ShotgunReadyToShoot);
       }
       else
       {
-        frame = ShotgunAimToIdleAnimStart;
+        frame = toAnimUnit(ShotgunAimToIdleAnimStart);
       }
     }
     else
     {
-      frame += 1_frame;
+      frame += 1_rframe;
     }
   }
-  else if(frame == ShotgunReadyToShoot)
+  else if(frame == toAnimUnit(ShotgunReadyToShoot))
   {
     if(lara.getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action))
     {
       lara.tryShootShotgun();
-      frame += 1_frame;
+      frame += 1_rframe;
     }
     else
     {
-      frame = ShotgunAimToIdleAnimStart;
+      frame = toAnimUnit(ShotgunAimToIdleAnimStart);
     }
   }
-  else if(frame >= ShotgunAfterShotAnimStart && frame <= ShotgunAfterShotAnimEnd)
+  else if(frame >= toAnimUnit(ShotgunAfterShotAnimStart) && frame <= toAnimUnit(ShotgunAfterShotAnimEnd))
   {
-    if(frame == ShotgunAfterShotIdle)
+    if(frame == toAnimUnit(ShotgunAfterShotIdle))
     {
-      frame = ShotgunIdle;
+      frame = toAnimUnit(ShotgunIdle);
     }
-    else if(frame == ShotgunAfterShotAnimEnd)
+    else if(frame == toAnimUnit(ShotgunAfterShotAnimEnd))
     {
-      frame = ShotgunAimToIdleAnimStart;
+      frame = toAnimUnit(ShotgunAimToIdleAnimStart);
     }
-    else if(frame == ShotgunReload)
+    else if(frame == toAnimUnit(ShotgunReload))
     {
       lara.playSoundEffect(TR1SoundEffect::LaraHolsterWeapons);
-      frame += 1_frame;
+      frame += 1_rframe;
     }
     else
     {
-      frame += 1_frame;
+      frame += 1_rframe;
     }
   }
-  else if(frame >= ShotgunAimToIdleAnimStart && frame <= ShotgunAimToIdleAnimEnd)
+  else if(frame >= toAnimUnit(ShotgunAimToIdleAnimStart) && frame <= toAnimUnit(ShotgunAimToIdleAnimEnd))
   {
-    if(frame == ShotgunAimToIdleAnimEnd)
+    if(frame == toAnimUnit(ShotgunAimToIdleAnimEnd))
     {
-      frame = ShotgunIdle;
+      frame = toAnimUnit(ShotgunIdle);
     }
     else
     {
-      frame += 1_frame;
+      frame += 1_rframe;
     }
+  }
+  else
+  {
+    frame += 1_rframe;
   }
 }
 
 void AimInfo::holsterTwoWeapons(LaraObject& lara, WeaponType weaponType)
 {
-  if(frame >= TwoWeaponsRecoilAnimStart)
+  if(frame >= toAnimUnit(TwoWeaponsRecoilAnimStart))
   {
-    frame = TwoWeaponsAiming;
+    frame = toAnimUnit(TwoWeaponsAiming);
   }
-  else if(frame > TwoWeaponsIdle && frame <= TwoWeaponsAiming)
+  else if(frame > toAnimUnit(TwoWeaponsIdle) && frame < toAnimUnit(TwoWeaponsAiming + 1_frame))
   {
-    aimRotation.X -= aimRotation.X / frame * 1_frame;
-    aimRotation.Y -= aimRotation.Y / frame * 1_frame;
-    frame -= 1_frame;
+    aimRotation.X -= aimRotation.X / frame * 1_rframe;
+    aimRotation.Y -= aimRotation.Y / frame * 1_rframe;
+    frame -= 1_rframe;
   }
-  else if(frame == TwoWeaponsIdle)
+  else if(frame == toAnimUnit(TwoWeaponsIdle))
   {
     aimRotation.X = 0_deg;
     aimRotation.Y = 0_deg;
-    frame = DrawTwoWeaponsAnimEnd;
+    frame = toAnimUnit(DrawTwoWeaponsAnimEnd);
   }
-  else if(frame > DrawTwoWeaponsAnimStart && frame <= DrawTwoWeaponsAnimEnd)
+  else if(frame > toAnimUnit(DrawTwoWeaponsAnimStart) && frame < toAnimUnit(DrawTwoWeaponsAnimEnd + 1_frame))
   {
-    frame -= 1_frame;
-    if(frame == TwoWeaponsTouchingHolsters)
+    frame -= 1_rframe;
+    if(frame == toAnimUnit(TwoWeaponsTouchingHolsters))
     {
       overrideHolsterTwoWeaponsMeshes(lara, weaponType);
       lara.playSoundEffect(TR1SoundEffect::LaraHolster);
@@ -235,68 +241,68 @@ void AimInfo::holsterTwoWeapons(LaraObject& lara, WeaponType weaponType)
 
 void AimInfo::holsterShotgun(LaraObject& lara)
 {
-  if(frame == ShotgunIdle)
+  if(frame == toAnimUnit(ShotgunIdle))
   {
-    frame = HolsterShotgunAnimStart;
+    frame = toAnimUnit(HolsterShotgunAnimStart);
   }
-  else if(frame >= ShotgunIdle && frame <= ShotgunIdleToAimAnimEnd)
+  else if(frame >= toAnimUnit(ShotgunIdle) && frame < toAnimUnit(ShotgunIdleToAimAnimEnd + 1_frame))
   {
-    if(frame == ShotgunIdleToAimAnimEnd)
+    if(frame == toAnimUnit(ShotgunIdleToAimAnimEnd))
     {
-      frame = ShotgunAimToIdleAnimStart;
+      frame = toAnimUnit(ShotgunAimToIdleAnimStart);
     }
     else
     {
-      frame += 1_frame;
+      frame += 1_rframe;
     }
   }
-  else if(frame == ShotgunReadyToShoot)
+  else if(frame == toAnimUnit(ShotgunReadyToShoot))
   {
-    frame = ShotgunAimToIdleAnimStart;
+    frame = toAnimUnit(ShotgunAimToIdleAnimStart);
   }
-  else if(frame >= ShotgunReadyToShoot && frame <= ShotgunAfterShotAnimEnd)
+  else if(frame >= toAnimUnit(ShotgunReadyToShoot) && frame < toAnimUnit(ShotgunAfterShotAnimEnd + 1_frame))
   {
-    if(frame == ShotgunAfterShotIdle)
+    if(frame == toAnimUnit(ShotgunAfterShotIdle))
     {
-      frame = ShotgunIdle;
+      frame = toAnimUnit(ShotgunIdle);
     }
-    else if(frame == ShotgunAfterShotAnimEnd)
+    else if(frame == toAnimUnit(ShotgunAfterShotAnimEnd))
     {
-      frame = ShotgunAimToIdleAnimStart;
+      frame = toAnimUnit(ShotgunAimToIdleAnimStart);
     }
     else
     {
-      frame += 1_frame;
+      frame += 1_rframe;
     }
   }
-  else if(frame >= ShotgunAimToIdleAnimStart && frame <= ShotgunAimToIdleAnimEnd)
+  else if(frame >= toAnimUnit(ShotgunAimToIdleAnimStart) && frame < toAnimUnit(ShotgunAimToIdleAnimEnd + 1_frame))
   {
-    if(frame == ShotgunAimToIdleAnimEnd)
+    if(frame == toAnimUnit(ShotgunAimToIdleAnimEnd))
     {
-      frame = HolsterShotgunAnimStart;
+      frame = toAnimUnit(HolsterShotgunAnimStart);
     }
     else
     {
-      frame += 1_frame;
+      frame += 1_rframe;
     }
   }
-  else if(frame >= HolsterShotgunAnimStart && frame <= HolsterShotgunAnimEnd)
+  else if(frame >= toAnimUnit(HolsterShotgunAnimStart) && frame < toAnimUnit(HolsterShotgunAnimEnd + 1_frame))
   {
-    if(frame == ShotgunPutHolster)
+    if(frame == toAnimUnit(ShotgunPutHolster))
     {
       lara.overrideLaraMeshesHolsterShotgun();
-      frame += 1_frame;
+      frame += 1_rframe;
     }
-    else if(frame == HolsterShotgunAnimEnd)
+    else if(frame == toAnimUnit(HolsterShotgunAnimEnd))
     {
-      frame = ShotgunIdle;
+      frame = toAnimUnit(ShotgunIdle);
       aiming = false;
       lara.setHandStatus(HandStatus::None);
       lara.aimAt = nullptr;
     }
     else
     {
-      frame += 1_frame;
+      frame += 1_rframe;
     }
   }
 }

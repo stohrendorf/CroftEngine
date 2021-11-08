@@ -14,7 +14,7 @@ public:
   {
   }
 
-  void handleInput(CollisionInfo& collisionInfo) override
+  void handleInput(CollisionInfo& collisionInfo, bool /*doPhysics*/) override
   {
     collisionInfo.policies &= ~CollisionInfo::SpazPushPolicy;
     getWorld().getCameraController().setRotationAroundLara(-60_deg, 0_deg);
@@ -26,10 +26,10 @@ public:
     }
   }
 
-  void postprocessFrame(CollisionInfo& collisionInfo) override
+  void postprocessFrame(CollisionInfo& collisionInfo, bool doPhysics) override
   {
     setMovementAngle(getLara().m_state.rotation.Y - 90_deg);
-    commonEdgeHangHandling(collisionInfo);
+    commonEdgeHangHandling(collisionInfo, doPhysics);
     setMovementAngle(getLara().m_state.rotation.Y - 90_deg);
   }
 };

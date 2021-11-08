@@ -4,6 +4,7 @@
 #include "core/angle.h"
 #include "core/id.h"
 #include "core/units.h"
+#include "core/verlet.h"
 #include "engine/floordata/floordata.h"
 #include "engine/location.h"
 #include "qs/quantity.h"
@@ -78,14 +79,14 @@ public:
   core::TypeId type = core::TypeId{uint16_t(-1)};
   Location location;
   core::TRRotation rotation;
-  core::Speed speed = 0_spd;
-  core::Speed fallspeed = 0_spd;
+  core::Verlet speed{};
+  core::Verlet fallspeed{};
   core::AnimStateId current_anim_state = 0_as;
   core::AnimStateId goal_anim_state = 0_as;
   core::AnimStateId required_anim_state = 0_as;
   core::Health health = 0_hp;
   TriggerState triggerState = TriggerState::Inactive;
-  core::Frame timer = 0_frame;
+  core::RenderFrame timer = 0_rframe;
   floordata::ActivationState activationState;
   core::Length floor = 0_len;
   std::bitset<32> touch_bits;
@@ -104,15 +105,15 @@ public:
       return activationState.isInverted();
     }
 
-    if(timer == 0_frame)
+    if(timer == 0_rframe)
       return !activationState.isInverted();
 
-    if(timer < 0_frame)
+    if(timer < 0_rframe)
       return activationState.isInverted();
 
-    timer -= 1_frame;
-    if(timer == 0_frame)
-      timer = -1_frame;
+    timer -= 1_rframe;
+    if(timer == 0_rframe)
+      timer = -1_rframe;
 
     return !activationState.isInverted();
   }

@@ -13,12 +13,12 @@ public:
   {
   }
 
-  void handleInput(CollisionInfo& collisionInfo) override
+  void handleInput(CollisionInfo& collisionInfo, bool /*doPhysics*/) override
   {
     collisionInfo.policies &= ~CollisionInfo::SpazPushPolicy;
   }
 
-  void postprocessFrame(CollisionInfo& collisionInfo) override
+  void postprocessFrame(CollisionInfo& collisionInfo, bool /*doPhysics*/) override
   {
     collisionInfo.validFloorHeight = {-core::ClimbLimit2ClickMin, core::ClimbLimit2ClickMin};
     collisionInfo.validCeilingHeightMin = 0_len;
@@ -29,7 +29,7 @@ public:
     placeOnFloor(collisionInfo);
     collisionInfo.initHeightInfo(getLara().m_state.location.position, getWorld(), core::LaraWalkHeight);
     getLara().m_state.health = core::DeadHealth;
-    setAir(-1_frame);
+    setAir(-1_rframe);
   }
 };
 } // namespace engine::lara

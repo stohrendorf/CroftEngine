@@ -77,10 +77,10 @@ void TrapDoorDown::patchCeiling(const core::TRVec& pos, core::Length& y)
 
 bool TrapDoorDown::possiblyOnTrapdoor(const core::TRVec& pos) const
 {
-  const auto trapdoorSectorX = m_state.location.position.X / core::SectorSize;
-  const auto trapdoorSectorZ = m_state.location.position.Z / core::SectorSize;
-  const auto posSectorX = pos.X / core::SectorSize;
-  const auto posSectorZ = pos.Z / core::SectorSize;
+  const auto trapdoorSectorX = gsl::narrow_cast<int>(m_state.location.position.X / core::SectorSize);
+  const auto trapdoorSectorZ = gsl::narrow_cast<int>(m_state.location.position.Z / core::SectorSize);
+  const auto posSectorX = gsl::narrow_cast<int>(pos.X / core::SectorSize);
+  const auto posSectorZ = gsl::narrow_cast<int>(pos.Z / core::SectorSize);
   auto trapdoorAxis = axisFromAngle(m_state.rotation.Y, 1_au);
   BOOST_ASSERT(trapdoorAxis.has_value());
 

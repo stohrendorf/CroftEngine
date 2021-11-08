@@ -30,13 +30,13 @@ void ApplyItemTransformMenuState::handleObject(ui::Ui& /*ui*/,
   {
     if(const auto dy = object.selectedRotationY - object.rotationY; dy > 0_deg && dy < 180_deg)
     {
-      object.rotationY += 1024_au;
+      object.rotationY += toRenderUnit(1024_au / 1_frame) * 1_rframe;
     }
     else
     {
-      object.rotationY -= 1024_au;
+      object.rotationY -= toRenderUnit(1024_au / 1_frame) * 1_rframe;
     }
-    object.rotationY -= object.rotationY % 1024_au;
+    object.rotationY -= object.rotationY % (toRenderUnit(1024_au / 1_frame) * 1_rframe);
   }
 }
 
@@ -45,7 +45,7 @@ std::unique_ptr<MenuState>
 {
   if(m_duration != Duration)
   {
-    m_duration += 1_frame;
+    m_duration += 1_rframe;
     return nullptr;
   }
 

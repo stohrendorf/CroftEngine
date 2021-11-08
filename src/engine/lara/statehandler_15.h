@@ -30,7 +30,7 @@ public:
     return h.y;
   }
 
-  void handleInput(CollisionInfo& /*collisionInfo*/) override
+  void handleInput(CollisionInfo& /*collisionInfo*/, bool /*doPhysics*/) override
   {
     if(getWorld().getPresenter().getInputHandler().getInputState().zMovement == hid::AxisMovement::Forward
        && getRelativeHeightAtDirection(getLara().m_state.rotation.Y, 256_len) >= -core::ClimbLimit2ClickMin)
@@ -66,7 +66,7 @@ public:
     }
   }
 
-  void postprocessFrame(CollisionInfo& collisionInfo) override
+  void postprocessFrame(CollisionInfo& collisionInfo, bool doPhysics) override
   {
     collisionInfo.validFloorHeight = {-core::HeightLimit, core::HeightLimit};
     collisionInfo.validCeilingHeightMin = 0_len;
@@ -75,6 +75,9 @@ public:
 
     getLara().m_state.fallspeed = 0_spd;
     getLara().m_state.falling = false;
+
+    if(!doPhysics)
+      return;
 
     if(collisionInfo.mid.ceiling.y <= -core::DefaultCollisionRadius)
     {

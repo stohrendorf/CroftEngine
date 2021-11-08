@@ -66,7 +66,7 @@ void Doppelganger::update()
     const auto laraSector = lara.m_state.location.moved({}).updateRoom();
     const auto laraHeight
       = HeightInfo::fromFloor(laraSector, lara.m_state.location.position, getWorld().getObjectManager().getObjects()).y;
-    getSkeleton()->setAnim(gsl::not_null{lara.getSkeleton()->getAnim()}, lara.getSkeleton()->getFrame());
+    getSkeleton()->setAnim(gsl::not_null{lara.getSkeleton()->getAnim()}, lara.getSkeleton()->getAnimFrame());
 
     if(laraHeight + core::SectorSize <= m_state.floor && !lara.m_state.falling)
     {

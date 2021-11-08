@@ -111,11 +111,13 @@ public:
 
   void applyTransform();
 
-  void rotate(const core::RotationSpeed& dx, const core::RotationSpeed& dy, const core::RotationSpeed& dz)
+  void rotate(const core::RenderRotationSpeed& dx,
+              const core::RenderRotationSpeed& dy,
+              const core::RenderRotationSpeed& dz)
   {
-    m_state.rotation.X += dx * 1_frame;
-    m_state.rotation.Y += dy * 1_frame;
-    m_state.rotation.Z += dz * 1_frame;
+    m_state.rotation.X += dx * 1_rframe;
+    m_state.rotation.Y += dy * 1_rframe;
+    m_state.rotation.Z += dz * 1_rframe;
   }
 
   void moveLocal(const core::TRVec& d);
@@ -132,7 +134,7 @@ public:
 
   void dampenHorizontalSpeed(const float f)
   {
-    m_state.speed -= (m_state.speed.cast<float>() * f).cast<core::Speed>();
+    m_state.speed.velocity += -m_state.speed.velocity * f;
   }
 
   virtual void patchFloor(const core::TRVec& /*pos*/, core::Length& /*y*/)
@@ -147,7 +149,7 @@ public:
 
   void deactivate();
 
-  virtual bool triggerSwitch(const core::Frame& timeout) = 0;
+  virtual bool triggerSwitch(const core::RenderFrame& timeout) = 0;
 
   std::shared_ptr<audio::Voice> playSoundEffect(const core::SoundEffectId& id);
 
@@ -160,7 +162,7 @@ public:
     return m_state.rotation.Y;
   }
 
-  bool alignTransform(const core::GenericVec<core::Speed>& speed, const Object& target)
+  bool alignTransform(const core::GenericVec<core::RenderSpeed>& speed, const Object& target)
   {
     auto targetPos = target.m_state.location.position.toRenderSystem();
     targetPos += glm::vec3{target.m_state.rotation.toMatrix() * glm::vec4{speed.toRenderSystem(), 1.0f}};

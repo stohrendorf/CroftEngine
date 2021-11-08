@@ -71,14 +71,14 @@ public:
     return m_skeleton;
   }
 
-  bool triggerSwitch(const core::Frame& timeout) override
+  bool triggerSwitch(const core::RenderFrame& timeout) override
   {
     if(m_state.triggerState != TriggerState::Deactivated)
     {
       return false;
     }
 
-    if(m_state.current_anim_state == 0_as && timeout > 0_frame)
+    if(m_state.current_anim_state == 0_as && timeout > 0_rframe)
     {
       // switch has a timer
       m_state.timer = timeout;

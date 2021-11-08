@@ -13,7 +13,7 @@ public:
   {
   }
 
-  void handleInput(CollisionInfo& /*collisionInfo*/) override
+  void handleInput(CollisionInfo& /*collisionInfo*/, bool /*doPhysics*/) override
   {
     if(getLara().isDead())
     {
@@ -22,7 +22,7 @@ public:
     }
 
     const auto& inputHandler = getWorld().getPresenter().getInputHandler();
-    if(getYRotationSpeed() >= 0_deg / 1_frame)
+    if(getYRotationSpeed() >= 0_deg / 1_rframe)
     {
       setYRotationSpeed(core::FastTurnSpeed);
       if(inputHandler.getInputState().xMovement == hid::AxisMovement::Right)

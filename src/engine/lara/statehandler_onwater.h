@@ -16,12 +16,16 @@ public:
   }
 
 protected:
-  void commonOnWaterHandling(CollisionInfo& collisionInfo)
+  void commonOnWaterHandling(CollisionInfo& collisionInfo, bool doPhysics)
   {
     collisionInfo.facingAngle = getMovementAngle();
     collisionInfo.initHeightInfo(getLara().m_state.location.position + core::TRVec(0_len, core::LaraSwimHeight, 0_len),
                                  getWorld(),
                                  core::LaraSwimHeight);
+
+    if(!doPhysics)
+      return;
+
     applyShift(collisionInfo);
     if(collisionInfo.mid.floor.y < 0_len)
     {
@@ -40,10 +44,10 @@ protected:
         getLara().m_state.location.position = collisionInfo.initialPosition;
         break;
       case CollisionInfo::AxisColl::FrontLeft:
-        getLara().m_state.rotation.Y += core::WaterCollisionRotationSpeedY * 1_frame;
+        getLara().m_state.rotation.Y += core::WaterCollisionRotationSpeedY * 1_rframe;
         break;
       case CollisionInfo::AxisColl::FrontRight:
-        getLara().m_state.rotation.Y -= core::WaterCollisionRotationSpeedY * 1_frame;
+        getLara().m_state.rotation.Y -= core::WaterCollisionRotationSpeedY * 1_rframe;
         break;
       default:
         break;
@@ -121,19 +125,19 @@ private:
     switch(*axis)
     {
     case core::Axis::Deg0:
-      d.Z = (getLara().m_state.location.position.Z / core::SectorSize + 1) * core::SectorSize
+      d.Z = (std::trunc(getLara().m_state.location.position.Z / core::SectorSize) + 1) * core::SectorSize
             + core::DefaultCollisionRadius;
       break;
     case core::Axis::Deg180:
-      d.Z = (getLara().m_state.location.position.Z / core::SectorSize + 0) * core::SectorSize
+      d.Z = (std::trunc(getLara().m_state.location.position.Z / core::SectorSize) + 0) * core::SectorSize
             - core::DefaultCollisionRadius;
       break;
     case core::Axis::Left90:
-      d.X = (getLara().m_state.location.position.X / core::SectorSize + 0) * core::SectorSize
+      d.X = (std::trunc(getLara().m_state.location.position.X / core::SectorSize) + 0) * core::SectorSize
             - core::DefaultCollisionRadius;
       break;
     case core::Axis::Right90:
-      d.X = (getLara().m_state.location.position.X / core::SectorSize + 1) * core::SectorSize
+      d.X = (std::trunc(getLara().m_state.location.position.X / core::SectorSize) + 1) * core::SectorSize
             + core::DefaultCollisionRadius;
       break;
     default:

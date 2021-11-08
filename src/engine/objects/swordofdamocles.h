@@ -48,7 +48,7 @@ public:
   {
     m_state.rotation.Y += util::rand15s(180_deg) + util::rand15s(180_deg);
     m_state.fallspeed = 50_spd;
-    m_rotateSpeed = util::rand15s(2048_au / 1_frame);
+    m_rotateSpeed = toRenderUnit(util::rand15s(2048_au / 1_frame));
   }
 
   void update() override;
@@ -57,8 +57,8 @@ public:
   void serialize(const serialization::Serializer<world::World>& ser) override;
 
 private:
-  core::RotationSpeed m_rotateSpeed;
-  core::Speed m_dropSpeedX{0_spd};
-  core::Speed m_dropSpeedZ{0_spd};
+  core::RenderRotationSpeed m_rotateSpeed;
+  core::RenderSpeed m_dropSpeedX{0_rspd};
+  core::RenderSpeed m_dropSpeedZ{0_rspd};
 };
 } // namespace engine::objects

@@ -186,7 +186,7 @@ bool evaluateCondition(floordata::SequenceCondition condition,
     return true;
   case floordata::SequenceCondition::LaraOnGround:
   case floordata::SequenceCondition::LaraOnGroundInverted:
-    return objectManager.getLara().m_state.location.position.Y == objectManager.getLara().m_state.floor;
+    return abs(objectManager.getLara().m_state.location.position.Y - objectManager.getLara().m_state.floor) < 0.5_len;
   case floordata::SequenceCondition::ItemActivated:
   {
     auto swtch = objectManager.getObject(floordata::Command{*floorData++}.parameter);
@@ -348,7 +348,7 @@ void World::finishLevelEffect()
 
 void World::earthquakeEffect()
 {
-  switch(m_effectTimer.get())
+  switch(m_effectTimer.cast<int>().get())
   {
   case 0:
     m_audioEngine->playSoundEffect(TR1SoundEffect::Explosion1, nullptr);
@@ -370,8 +370,8 @@ void World::earthquakeEffect()
     break;
   }
 
-  m_effectTimer += 1_frame;
-  if(m_effectTimer == 105_frame)
+  m_effectTimer += 1_rframe;
+  if(m_effectTimer == toAnimUnit(105_frame))
   {
     m_activeEffect.reset();
   }
@@ -379,19 +379,20 @@ void World::earthquakeEffect()
 
 void World::floodEffect()
 {
-  if(m_effectTimer <= core::FrameRate * 4_sec)
+  if(m_effectTimer <= core::RenderFrameRate * 4_sec)
   {
     auto pos = m_objectManager.getLara().m_state.location.position;
-    core::Frame mul = 0_frame;
-    if(m_effectTimer >= core::FrameRate * 1_sec)
+    core::RenderFrame mul = 0_rframe;
+    if(m_effectTimer >= core::RenderFrameRate * 1_sec)
     {
-      mul = m_effectTimer - (core::FrameRate * 1_sec).cast<core::Frame>();
+      mul = m_effectTimer - (core::RenderFrameRate * 1_sec).cast<core::RenderFrame>();
     }
     else
     {
-      mul = core::FrameRate * 1_sec - m_effectTimer;
+      mul = (core::RenderFrameRate * 1_sec).cast<core::RenderFrame>() - m_effectTimer;
     }
-    pos.Y = 100_len * mul / 1_frame + m_cameraController->getLookAt().position.Y;
+    // TODO 60 fps
+    pos.Y = 100_len * mul / 1_rframe + m_cameraController->getLookAt().position.Y;
     if(m_globalSoundEffect == nullptr)
       m_globalSoundEffect = m_audioEngine->playSoundEffect(TR1SoundEffect::WaterFlow3, pos.toRenderSystem());
     else
@@ -403,7 +404,7 @@ void World::floodEffect()
     m_globalSoundEffect->stop();
     m_globalSoundEffect.reset();
   }
-  m_effectTimer += 1_frame;
+  m_effectTimer += 1_rframe;
 }
 
 void World::chandelierEffect()
@@ -414,8 +415,8 @@ void World::chandelierEffect()
 
 void World::raisingBlockEffect()
 {
-  m_effectTimer += 1_frame;
-  if(m_effectTimer == 5_frame)
+  m_effectTimer += 1_rframe;
+  if(m_effectTimer == toAnimUnit(5_frame))
   {
     m_audioEngine->playSoundEffect(TR1SoundEffect::Clank, nullptr);
     m_activeEffect.reset();
@@ -424,26 +425,27 @@ void World::raisingBlockEffect()
 
 void World::stairsToSlopeEffect()
 {
-  if(m_effectTimer > core::FrameRate * 4_sec)
+  if(m_effectTimer > core::RenderFrameRate * 4_sec)
   {
     m_activeEffect.reset();
   }
   else
   {
-    if(m_effectTimer == 0_frame)
+    if(m_effectTimer == 0_rframe)
     {
       m_audioEngine->playSoundEffect(TR1SoundEffect::HeavyDoorSlam, nullptr);
     }
     auto pos = m_cameraController->getLookAt().position;
-    pos.Y += 100_spd * m_effectTimer;
+    // TODO 60 fps
+    pos.Y += 100_spd * toRenderUnit(m_effectTimer);
     m_audioEngine->playSoundEffect(TR1SoundEffect::FlowingAir, pos.toRenderSystem());
   }
-  m_effectTimer += 1_frame;
+  m_effectTimer += 1_rframe;
 }
 
 void World::sandEffect()
 {
-  if(m_effectTimer <= core::FrameRate * 4_sec)
+  if(m_effectTimer <= core::RenderFrameRate * 4_sec)
   {
     m_audioEngine->playSoundEffect(TR1SoundEffect::LowHum, nullptr);
   }
@@ -451,7 +453,7 @@ void World::sandEffect()
   {
     m_activeEffect.reset();
   }
-  m_effectTimer += 1_frame;
+  m_effectTimer += 1_rframe;
 }
 
 void World::explosionEffect()
@@ -473,12 +475,12 @@ void World::flipMapEffect()
 
 void World::chainBlockEffect()
 {
-  if(m_effectTimer == 0_frame)
+  if(m_effectTimer == 0_rframe)
   {
     m_audioEngine->playSoundEffect(TR1SoundEffect::SecretFound, nullptr);
   }
-  m_effectTimer += 1_frame;
-  if(m_effectTimer == 55_frame)
+  m_effectTimer += 1_rframe;
+  if(m_effectTimer == toAnimUnit(55_frame))
   {
     m_audioEngine->playSoundEffect(TR1SoundEffect::LaraFallIntoWater, nullptr);
     m_activeEffect.reset();
@@ -487,16 +489,17 @@ void World::chainBlockEffect()
 
 void World::flickerEffect()
 {
-  if(m_effectTimer == 90_frame || m_effectTimer == 92_frame || m_effectTimer == 105_frame || m_effectTimer == 107_frame)
+  if(m_effectTimer == toAnimUnit(90_frame) || m_effectTimer == toAnimUnit(92_frame)
+     || m_effectTimer == toAnimUnit(105_frame) || m_effectTimer == toAnimUnit(107_frame))
   {
     swapAllRooms();
   }
-  else if(m_effectTimer > 125_frame)
+  else if(m_effectTimer > toAnimUnit(125_frame))
   {
     swapAllRooms();
     m_activeEffect.reset();
   }
-  m_effectTimer += 1_frame;
+  m_effectTimer += 1_rframe;
 }
 
 void World::swapWithAlternate(Room& orig, Room& alternate)
@@ -626,9 +629,9 @@ void World::update(const bool godMode)
 {
   m_objectManager.update(*this, godMode);
 
-  static constexpr auto UVAnimTime = core::FrameRate * 1_sec / 3;
+  static constexpr auto UVAnimTime = (core::RenderFrameRate * 1_sec / 3).cast<core::RenderFrame>();
 
-  m_uvAnimTime += 1_frame;
+  m_uvAnimTime += 1_rframe;
   if(m_uvAnimTime >= UVAnimTime)
   {
     m_textureAnimator->updateCoordinates(m_atlasTiles);
@@ -759,7 +762,7 @@ void World::handleCommandSequence(const floordata::FloorDataValue* floorData, co
   {
     if(!fromHeavy)
     {
-      if(m_objectManager.getLara().m_state.location.position.Y == m_objectManager.getLara().m_state.floor)
+      if(abs(m_objectManager.getLara().m_state.location.position.Y - m_objectManager.getLara().m_state.floor) < 0.5_len)
       {
         m_objectManager.getLara().burnIfAlive();
       }
@@ -991,14 +994,14 @@ void World::gameLoop(bool godMode, float waitRatio, float blackAlpha, ui::Ui& ui
 
 bool World::cinematicLoop()
 {
-  m_cameraController->m_cinematicFrame += 1_frame;
-  if(m_cameraController->m_cinematicFrame.get() >= m_cinematicFrames.size())
+  m_cameraController->m_cinematicFrame += 1_rframe;
+  const auto idx = toRenderUnit(m_cameraController->m_cinematicFrame).cast<size_t>().get();
+  if(idx >= m_cinematicFrames.size())
     return false;
 
   update(false);
 
-  const auto waterEntryPortals
-    = m_cameraController->updateCinematic(m_cinematicFrames.at(m_cameraController->m_cinematicFrame.get()), false);
+  const auto waterEntryPortals = m_cameraController->updateCinematic(m_cinematicFrames.at(idx), false);
   doGlobalEffect();
 
   ui::Ui ui{getPresenter().getMaterialManager()->getUi(), getPalette(), getPresenter().getUiViewport()};
@@ -1396,8 +1399,8 @@ void World::initFromLevel(loader::file::level::Level& level)
                  m_boxes.begin(),
                  [&getOverlaps](const loader::file::Box& box)
                  {
-                   return Box{{box.xmin, box.xmax},
-                              {box.zmin, box.zmax},
+                   return Box{{box.xmin, box.xmax + 1_len},
+                              {box.zmin, box.zmax + 1_len},
                               box.floor,
                               box.blocked,
                               box.blockable,

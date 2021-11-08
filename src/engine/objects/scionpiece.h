@@ -42,7 +42,7 @@ public:
   void update() override;
 
 private:
-  core::Frame m_deadTime = 0_frame;
+  core::RenderFrame m_deadTime = 0_rframe;
 };
 
 class ScionPiece4 final : public ModelObject

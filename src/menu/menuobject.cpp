@@ -2,6 +2,7 @@
 
 #include "core/angle.h"
 #include "core/id.h"
+#include "core/magic.h"
 #include "core/vec.h"
 #include "engine/objectmanager.h"
 #include "engine/objects/laraobject.h"
@@ -46,7 +47,7 @@ bool MenuObject::animate()
 {
   for(int i = 0; i < 2; ++i)
   {
-    if(meshAnimFrame == goalFrame)
+    if(meshAnimFrame == toAnimUnit(goalFrame))
     {
       updateMeshRenderMask();
       return false;
@@ -60,13 +61,13 @@ bool MenuObject::animate()
     {
       animStretchCounter = animStretch;
       meshAnimFrame += animDirection;
-      if(meshAnimFrame >= lastMeshAnimFrame)
+      if(meshAnimFrame >= toAnimUnit(lastMeshAnimFrame))
       {
-        meshAnimFrame = 0_frame;
+        meshAnimFrame = 0_rframe;
       }
-      else if(meshAnimFrame < 0_frame)
+      else if(meshAnimFrame < 0_rframe)
       {
-        meshAnimFrame = lastMeshAnimFrame - 1_frame;
+        meshAnimFrame = toAnimUnit(lastMeshAnimFrame) - 1_rframe;
       }
     }
     updateMeshRenderMask();
@@ -90,32 +91,33 @@ void MenuObject::updateMeshRenderMask()
 
   if(type == engine::TR1ItemId::PassportOpening)
   {
-    if(meshAnimFrame <= 14_frame)
+    if(meshAnimFrame <= toAnimUnit(14_frame))
     {
       setMask(0x57);
     }
-    else if(meshAnimFrame <= 18_frame)
+    else if(meshAnimFrame <= toAnimUnit(18_frame))
     {
       setMask(0x5f);
     }
-    else if(meshAnimFrame == 19_frame)
+    else if(meshAnimFrame == toAnimUnit(19_frame))
     {
       setMask(0x5b);
     }
-    else if(meshAnimFrame <= 23_frame)
+    else if(meshAnimFrame <= toAnimUnit(23_frame))
     {
       setMask(0x7b);
     }
-    else if(meshAnimFrame <= 28_frame)
+    else if(meshAnimFrame <= toAnimUnit(28_frame))
     {
       setMask(0x3b);
     }
-    else if(meshAnimFrame == 29_frame)
+    else if(meshAnimFrame == toAnimUnit(29_frame))
     {
       setMask(0x13);
     }
   }
-  else if(type == engine::TR1ItemId::Compass && (meshAnimFrame == 0_frame || meshAnimFrame >= 18_frame))
+  else if(type == engine::TR1ItemId::Compass
+          && (meshAnimFrame == toAnimUnit(0_frame) || meshAnimFrame >= toAnimUnit(18_frame)))
   {
     setMask(defaultMeshRenderMask.to_ulong());
   }
@@ -170,7 +172,7 @@ void MenuObject::draw(const engine::world::World& world,
   {
     node->setLocalMatrix(nodeMatrix);
     core::AnimStateId animState{0_as};
-    node->setAnimation(animState, gsl::not_null{&obj->animations[0]}, meshAnimFrame);
+    node->setAnimation(animState, gsl::not_null{&obj->animations[0]}, toRenderUnit(meshAnimFrame));
 
     if(type == engine::TR1ItemId::Compass)
     {

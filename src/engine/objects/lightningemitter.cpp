@@ -187,7 +187,7 @@ void LightningEmitter::update()
   m_chargeTimeout = 20;
   m_laraHit = false;
 
-  const auto radius = m_poles == 0 ? core::SectorSize : core::SectorSize * 5 / 2;
+  const auto radius = m_poles == 0 ? core::SectorSize : core::SectorSize * 2.5f;
   if(getWorld().getObjectManager().getLara().isNearInexact(m_state.location.position, radius))
   {
     // target at lara
@@ -232,9 +232,9 @@ void LightningEmitter::collide(CollisionInfo& /*info*/)
 
   auto& lara = getWorld().getObjectManager().getLara();
   lara.hit_direction = static_cast<core::Axis>(util::rand15(4));
-  lara.hit_frame += 1_frame;
-  if(lara.hit_frame > 34_frame)
-    lara.hit_frame = 34_frame;
+  lara.hit_frame += 1_rframe;
+  if(lara.hit_frame > toAnimUnit(34_frame))
+    lara.hit_frame = toAnimUnit(34_frame);
 }
 
 void LightningEmitter::prepareRender()

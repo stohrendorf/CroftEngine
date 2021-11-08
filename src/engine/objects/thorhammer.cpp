@@ -95,7 +95,7 @@ void ThorHammerHandle::update()
     }
     break;
   case Falling.get():
-    if(getSkeleton()->getLocalFrame() > 30_frame)
+    if(getSkeleton()->getLocalFrame() > toAnimUnit(30_frame))
     {
       const auto pos = m_state.location.position + util::pitch(3 * core::SectorSize, m_state.rotation.Y);
 
@@ -152,7 +152,7 @@ void ThorHammerHandle::update()
                                      getSkeleton()->getAnim());
   m_block->getSkeleton()->replaceAnim(
     gsl::not_null{&getWorld().findAnimatedModelForType(TR1ItemId::ThorHammerBlock)->animations[animIdx]},
-    getSkeleton()->getLocalFrame());
+    toRenderUnit(getSkeleton()->getLocalFrame()));
   m_block->m_state.current_anim_state = m_state.current_anim_state;
 }
 

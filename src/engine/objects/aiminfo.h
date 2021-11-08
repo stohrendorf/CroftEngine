@@ -54,10 +54,10 @@ struct AimInfo
   const size_t thighBoneId;
 
   const loader::file::AnimFrame* weaponAnimData = nullptr;
-  core::Frame frame = 0_frame;
+  core::RenderFrame frame = 0_rframe;
   bool aiming = false;
   core::TRRotationXY aimRotation{};
-  core::Frame flashTimeout = 0_frame;
+  core::RenderFrame flashTimeout = 0_rframe;
 
   void updateAnimTwoWeapons(LaraObject& lara, const Weapon& weapon);
   void updateAnimShotgun(LaraObject& lara);
@@ -72,7 +72,7 @@ struct AimInfo
 
   void reset()
   {
-    frame = 0_frame;
+    frame = 0_rframe;
     aiming = false;
     aimRotation.X = 0_deg;
     aimRotation.Y = 0_deg;

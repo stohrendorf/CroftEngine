@@ -1,5 +1,7 @@
 #pragma once
 
+#include "core/angle.h"
+#include "core/magic.h"
 #include "core/units.h"
 #include "menustate.h"
 #include "qs/qs.h"
@@ -25,8 +27,8 @@ struct MenuRingTransform;
 class DeflateRingMenuState : public MenuState
 {
 private:
-  static constexpr core::Frame Duration = 32_frame / 2;
-  core::Frame m_duration{Duration};
+  static constexpr core::RenderFrame Duration = toAnimUnit(32_frame / 2);
+  core::RenderFrame m_duration{Duration};
   std::unique_ptr<MenuState> m_next;
   core::Length m_initialRadius{};
   core::Angle m_initialCameraRotX{};

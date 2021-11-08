@@ -13,17 +13,21 @@ public:
   {
   }
 
-  void handleInput(CollisionInfo& /*collisionInfo*/) override
+  void handleInput(CollisionInfo& /*collisionInfo*/, bool /*doPhysics*/) override
   {
   }
 
-  void postprocessFrame(CollisionInfo& collisionInfo) override
+  void postprocessFrame(CollisionInfo& collisionInfo, bool doPhysics) override
   {
     collisionInfo.validFloorHeight = {-core::ClimbLimit2ClickMin, core::ClimbLimit2ClickMin};
     collisionInfo.validCeilingHeightMin = 0_len;
     collisionInfo.facingAngle = getMovementAngle();
     collisionInfo.policies |= CollisionInfo::SlopeBlockingPolicy;
     collisionInfo.initHeightInfo(getLara().m_state.location.position, getWorld(), core::LaraWalkHeight);
+
+    if(!doPhysics)
+      return;
+
     applyShift(collisionInfo);
   }
 };

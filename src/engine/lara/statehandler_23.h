@@ -13,11 +13,11 @@ public:
   {
   }
 
-  void handleInput(CollisionInfo& /*collisionInfo*/) override
+  void handleInput(CollisionInfo& /*collisionInfo*/, bool /*doPhysics*/) override
   {
   }
 
-  void postprocessFrame(CollisionInfo& collisionInfo) override
+  void postprocessFrame(CollisionInfo& collisionInfo, bool /*doPhysics*/) override
   {
     auto& laraState = getLara().m_state;
     collisionInfo.facingAngle = laraState.rotation.Y + 180_deg;

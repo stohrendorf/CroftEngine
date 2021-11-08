@@ -30,8 +30,8 @@ namespace
 {
 [[nodiscard]] core::Length reflectAtSectorBoundary(const core::Length& target, const core::Length& current)
 {
-  const auto targetSector = target / core::SectorSize;
-  const auto currentSector = current / core::SectorSize;
+  const auto targetSector = gsl::narrow_cast<int>(target / core::SectorSize);
+  const auto currentSector = gsl::narrow_cast<int>(current / core::SectorSize);
   if(targetSector == currentSector)
     return 0_len;
 

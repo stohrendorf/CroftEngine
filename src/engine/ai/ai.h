@@ -58,7 +58,7 @@ struct EnemyLocation
   uint32_t zoneId = 0;
   uint32_t enemyZoneId = 0;
   bool enemyUnreachable = false;
-  core::Area enemyDistance{0};
+  core::Area enemyDistance{0.0f};
   bool enemyAhead = false;
   bool canAttackForward = false;
   core::Angle angleToEnemy = 0_deg;
@@ -88,8 +88,8 @@ struct CreatureInfo
 
   void rotateHead(const core::Angle& angle)
   {
-    const auto delta = std::clamp(angle - headRotation, -5_deg, +5_deg);
-    headRotation = std::clamp(delta + headRotation, -90_deg, +90_deg);
+    const auto delta = std::clamp(normalizeAngle(angle - headRotation), -5_deg, +5_deg);
+    headRotation = std::clamp(normalizeAngle(delta + headRotation), -90_deg, +90_deg);
   }
 
   void serialize(const serialization::Serializer<world::World>& ser);

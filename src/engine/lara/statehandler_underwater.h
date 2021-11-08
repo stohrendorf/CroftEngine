@@ -14,10 +14,10 @@ public:
   {
   }
 
-  void postprocessFrame(CollisionInfo& collisionInfo) override
+  void postprocessFrame(CollisionInfo& collisionInfo, bool doPhysics) override
   {
     collisionInfo.facingAngle = getLara().m_state.rotation.Y;
-    if(abs(getLara().m_state.rotation.X) > 90_deg)
+    if(normalizeAngle(abs(getLara().m_state.rotation.X)) > 90_deg)
     {
       collisionInfo.facingAngle += 180_deg;
     }
@@ -26,6 +26,9 @@ public:
                                  getWorld(),
                                  core::LaraDiveHeight);
 
+    if(!doPhysics)
+      return;
+
     setMovementAngle(collisionInfo.facingAngle);
 
     applyShift(collisionInfo);
@@ -33,10 +36,10 @@ public:
     switch(collisionInfo.collisionType)
     {
     case CollisionInfo::AxisColl::FrontLeft:
-      getLara().m_state.rotation.Y += core::WaterCollisionRotationSpeedY * 1_frame;
+      getLara().m_state.rotation.Y += core::WaterCollisionRotationSpeedY * 1_rframe;
       break;
     case CollisionInfo::AxisColl::FrontRight:
-      getLara().m_state.rotation.Y -= core::WaterCollisionRotationSpeedY * 1_frame;
+      getLara().m_state.rotation.Y -= core::WaterCollisionRotationSpeedY * 1_rframe;
       break;
     case CollisionInfo::AxisColl::Jammed:
       getLara().m_state.fallspeed = 0_spd;
@@ -47,17 +50,17 @@ public:
     case CollisionInfo::AxisColl::Top:
       if(getLara().m_state.rotation.X > -45_deg)
       {
-        getLara().m_state.rotation.X -= core::WaterCollisionRotationSpeedX * 1_frame;
+        getLara().m_state.rotation.X -= core::WaterCollisionRotationSpeedX * 1_rframe;
       }
       break;
     case CollisionInfo::AxisColl::Front:
       if(getLara().m_state.rotation.X > 35_deg)
       {
-        getLara().m_state.rotation.X += core::WaterCollisionRotationSpeedX * 1_frame;
+        getLara().m_state.rotation.X += core::WaterCollisionRotationSpeedX * 1_rframe;
       }
       else if(getLara().m_state.rotation.X < -35_deg)
       {
-        getLara().m_state.rotation.X -= core::WaterCollisionRotationSpeedX * 1_frame;
+        getLara().m_state.rotation.X -= core::WaterCollisionRotationSpeedX * 1_rframe;
       }
       else
       {
@@ -74,7 +77,7 @@ public:
     }
 
     placeOnFloor(collisionInfo);
-    getLara().m_state.rotation.X += core::WaterCollisionRotationSpeedX * 1_frame;
+    getLara().m_state.rotation.X += core::WaterCollisionRotationSpeedX * 1_rframe;
   }
 
 protected:
@@ -83,22 +86,22 @@ protected:
     const auto& inputHandler = getWorld().getPresenter().getInputHandler();
     if(inputHandler.getInputState().zMovement == hid::AxisMovement::Forward)
     {
-      getLara().m_state.rotation.X -= core::DiveRotationSpeedX * 1_frame;
+      getLara().m_state.rotation.X -= core::DiveRotationSpeedX * 1_rframe;
     }
     else if(inputHandler.getInputState().zMovement == hid::AxisMovement::Backward)
     {
-      getLara().m_state.rotation.X += core::DiveRotationSpeedX * 1_frame;
+      getLara().m_state.rotation.X += core::DiveRotationSpeedX * 1_rframe;
     }
 
     if(inputHandler.getInputState().xMovement == hid::AxisMovement::Left)
     {
-      getLara().m_state.rotation.Y -= core::DiveRotationSpeedY * 1_frame;
-      getLara().m_state.rotation.Z -= core::DiveRotationSpeedZ * 1_frame;
+      getLara().m_state.rotation.Y -= core::DiveRotationSpeedY * 1_rframe;
+      getLara().m_state.rotation.Z -= core::DiveRotationSpeedZ * 1_rframe;
     }
     else if(inputHandler.getInputState().xMovement == hid::AxisMovement::Right)
     {
-      getLara().m_state.rotation.Y += core::DiveRotationSpeedY * 1_frame;
-      getLara().m_state.rotation.Z += core::DiveRotationSpeedZ * 1_frame;
+      getLara().m_state.rotation.Y += core::DiveRotationSpeedY * 1_rframe;
+      getLara().m_state.rotation.Z += core::DiveRotationSpeedZ * 1_rframe;
     }
   }
 };

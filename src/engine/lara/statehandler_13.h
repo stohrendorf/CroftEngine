@@ -12,7 +12,7 @@ public:
   {
   }
 
-  void handleInput(CollisionInfo& /*collisionInfo*/) override
+  void handleInput(CollisionInfo& /*collisionInfo*/, bool doPhysics) override
   {
     if(getLara().isDead())
     {
@@ -27,7 +27,11 @@ public:
       setGoalAnimState(LaraStateId::UnderwaterForward);
     }
 
-    getLara().m_state.fallspeed = std::max(0_spd, getLara().m_state.fallspeed - core::Gravity * 1_frame);
+    getLara().m_state.fallspeed += -core::Gravity;
+    if(doPhysics && getLara().m_state.fallspeed <= core::Gravity * 1_frame)
+    {
+      getLara().m_state.fallspeed.stop();
+    }
   }
 };
 } // namespace engine::lara

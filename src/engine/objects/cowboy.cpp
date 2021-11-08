@@ -82,7 +82,7 @@ void Cowboy::update()
       }
       break;
     case 4:
-      m_aimTime = 0_frame;
+      m_aimTime = 0_rframe;
       if(m_state.required_anim_state != 0_as || !canShootAtLara(enemyLocation))
       {
         goal(1_as);
@@ -93,14 +93,14 @@ void Cowboy::update()
       }
       break;
     case 6:
-      if(m_aimTime == 0_frame)
+      if(m_aimTime == 0_rframe)
       {
         if(tryShootAtLara(*this, enemyLocation.enemyDistance, {1_len, 200_len, 41_len}, 5, headRot))
         {
           hitLara(70_hp);
         }
       }
-      else if(m_aimTime == 6_frame)
+      else if(m_aimTime == toAnimUnit(6_frame))
       {
         if(canShootAtLara(enemyLocation))
         {
@@ -115,7 +115,7 @@ void Cowboy::update()
           p->angle.Y += headRot;
         }
       }
-      m_aimTime += 1_frame;
+      m_aimTime += 1_rframe;
       if(getCreatureInfo()->mood == ai::Mood::Escape)
       {
         require(3_as);

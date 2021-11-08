@@ -42,8 +42,8 @@ void SlammingDoors::update()
       const auto emitBlood = [&objectSpheres, this](const core::TRVec& bitePos, size_t boneId)
       {
         const auto position = core::TRVec{objectSpheres.at(boneId).relative(bitePos.toRenderSystem())};
-        auto blood
-          = createBloodSplat(getWorld(), Location{m_state.location.room, position}, m_state.speed, m_state.rotation.Y);
+        auto blood = createBloodSplat(
+          getWorld(), Location{m_state.location.room, position}, m_state.speed.velocity, m_state.rotation.Y);
         getWorld().getObjectManager().registerParticle(std::move(blood));
       };
 

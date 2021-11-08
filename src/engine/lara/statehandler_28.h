@@ -13,7 +13,7 @@ public:
   {
   }
 
-  void handleInput(CollisionInfo& /*collisionInfo*/) override
+  void handleInput(CollisionInfo& /*collisionInfo*/, bool /*doPhysics*/) override
   {
     if(getLara().m_state.fallspeed > core::FreeFallSpeedThreshold)
     {
@@ -21,12 +21,15 @@ public:
     }
   }
 
-  void postprocessFrame(CollisionInfo& collisionInfo) override
+  void postprocessFrame(CollisionInfo& collisionInfo, bool doPhysics) override
   {
     collisionInfo.validFloorHeight = {-core::ClimbLimit2ClickMin, core::HeightLimit};
     collisionInfo.validCeilingHeightMin = 192_len;
     collisionInfo.facingAngle = getLara().m_state.rotation.Y;
     collisionInfo.initHeightInfo(getLara().m_state.location.position, getWorld(), core::LaraHangingHeight);
+
+    if(!doPhysics)
+      return;
 
     setMovementAngle(collisionInfo.facingAngle);
 
@@ -74,11 +77,11 @@ public:
     }
 
     const auto spaceToReach = collisionInfo.front.floor.y - getLara().getBoundingBox().y.min;
-    if(spaceToReach < 0_len && spaceToReach + getLara().m_state.fallspeed * 1_frame < 0_len)
+    if(spaceToReach < 0_len && spaceToReach + getLara().m_state.fallspeed.velocity * 1_frame < 0_len)
     {
       return false;
     }
-    if(spaceToReach > 0_len && spaceToReach + getLara().m_state.fallspeed * 1_frame > 0_len)
+    if(spaceToReach > 0_len && spaceToReach + getLara().m_state.fallspeed.velocity * 1_frame > 0_len)
     {
       return false;
     }

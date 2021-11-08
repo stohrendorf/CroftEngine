@@ -1,5 +1,6 @@
 #pragma once
 
+#include "core/magic.h"
 #include "core/units.h"
 #include "menustate.h"
 #include "qs/qs.h"
@@ -26,8 +27,8 @@ struct MenuRingTransform;
 class ResetItemTransformMenuState : public MenuState
 {
 private:
-  static constexpr core::Frame Duration = 16_frame / 2;
-  core::Frame m_duration{Duration};
+  static constexpr core::RenderFrame Duration = toAnimUnit(16_frame / 2);
+  core::RenderFrame m_duration{Duration};
   std::unique_ptr<MenuState> m_next;
 
 public:

@@ -78,7 +78,7 @@ protected:
   void rotateCreatureTilt(const core::Angle& angle)
   {
     const auto dz = 4 * angle - m_state.rotation.Z;
-    m_state.rotation.Z += std::clamp(dz, -3_deg, +3_deg);
+    m_state.rotation.Z += toRenderUnit(std::clamp(dz, -3_deg, +3_deg) / 1_frame) * 1_rframe;
   }
 
   void rotateCreatureHead(const core::Angle& angle)
@@ -176,6 +176,7 @@ protected:
   {
     m_state.location.position.Y = m_state.floor;
     m_state.falling = false;
+    m_state.fallspeed = 0_spd;
   }
 
   void activateAi()

@@ -38,7 +38,7 @@ void engine::objects::DartGun::update()
     m_state.goal_anim_state = 0_as;
   }
 
-  if(m_state.current_anim_state != 1_as || getSkeleton()->getLocalFrame() != 0_frame)
+  if(m_state.current_anim_state != 1_as || getSkeleton()->getLocalFrame() != 0_rframe)
   {
     ModelObject::update();
     return;

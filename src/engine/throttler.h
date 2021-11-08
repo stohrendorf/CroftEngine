@@ -27,7 +27,7 @@ public:
 
     if(wait > 0)
     {
-      std::this_thread::sleep_until(m_nextFrameTime);
+      //std::this_thread::sleep_until(m_nextFrameTime);
       m_nextFrameTime += FrameDuration;
     }
     else
@@ -50,9 +50,9 @@ public:
 
 private:
   using TimeType = std::chrono::microseconds;
-  static constexpr TimeType FrameDuration
-    = std::chrono::duration_cast<TimeType>(std::chrono::seconds(1)) / core::FrameRate.get();
-  static constexpr size_t AverageSamples = 30;
+  static constexpr TimeType FrameDuration = std::chrono::duration_cast<TimeType>(std::chrono::seconds(1))
+                                            / gsl::narrow_cast<int>(core::RenderFrameRate.get());
+  static constexpr size_t AverageSamples = gsl::narrow_cast<int>(core::RenderFrameRate.get());
 
   std::chrono::high_resolution_clock::time_point m_nextFrameTime{};
   size_t m_waitRatioIdx{0};

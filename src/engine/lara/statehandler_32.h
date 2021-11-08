@@ -15,7 +15,7 @@ public:
   {
   }
 
-  void handleInput(CollisionInfo& /*collisionInfo*/) override
+  void handleInput(CollisionInfo& /*collisionInfo*/, bool /*doPhysics*/) override
   {
     if(getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Jump))
     {
@@ -24,10 +24,12 @@ public:
     }
   }
 
-  void postprocessFrame(CollisionInfo& collisionInfo) override
+  void postprocessFrame(CollisionInfo& collisionInfo, bool doPhysics) override
   {
-    setMovementAngle(getLara().m_state.rotation.Y + 180_deg);
-    commonSlideHandling(collisionInfo);
+    if(doPhysics)
+      setMovementAngle(getLara().m_state.rotation.Y + 180_deg);
+    
+    commonSlideHandling(collisionInfo, doPhysics);
   }
 };
 } // namespace engine::lara

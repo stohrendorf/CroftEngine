@@ -2,6 +2,7 @@
 
 #include "angle.h"
 #include "boundingbox.h"
+#include "verlet.h"
 
 #include <boost/test/unit_test.hpp>
 
@@ -42,6 +43,16 @@ BOOST_AUTO_TEST_CASE(test_angle_axis_with_margin)
   BOOST_CHECK_EQUAL(core::axisFromAngle(-175_deg, 10_deg), core::Axis::Deg180);
   BOOST_CHECK(!core::axisFromAngle(-130_deg, 10_deg).has_value());
   BOOST_CHECK(!core::axisFromAngle(-40_deg, 10_deg).has_value());
+}
+
+BOOST_AUTO_TEST_CASE(test_normalize_angle)
+{
+  BOOST_CHECK_EQUAL(core::normalizeAngle(10_deg), 10_deg);
+  BOOST_CHECK_EQUAL(core::normalizeAngle(-10_deg), -10_deg);
+  BOOST_CHECK_EQUAL(core::normalizeAngle(-190_deg), 170_deg + 1_au);
+  BOOST_CHECK_EQUAL(core::normalizeAngle(190_deg), -170_deg - 1_au);
+  BOOST_CHECK_LE(abs(core::normalizeAngle(420_deg) - 60_deg), 0.0001_deg);
+  BOOST_CHECK_LE(abs(core::normalizeAngle(-420_deg) + 60_deg), 0.0001_deg);
 }
 
 BOOST_AUTO_TEST_CASE(test_interval_construction)
@@ -180,6 +191,33 @@ BOOST_AUTO_TEST_CASE(test_bounding_box_intersects)
   BOOST_CHECK(a.intersectsExclusive(e));
   core::BoundingBox f{{1_len, 2_len, 3_len}, {1_len, 2_len, 3_len}};
   BOOST_CHECK(!f.intersectsExclusive(f));
+}
+
+BOOST_AUTO_TEST_CASE(test_verlet)
+{
+  static_assert(core::RenderFrameRate.get() == 60.0f);
+
+  core::Verlet verlet{};
+  for(const auto& expected : {3_len, 9_len, 15_len, 21_len})
+  {
+    auto x = 0_len;
+    verlet += 6_spd / 1_frame;
+    x += verlet.nextFrame();
+    verlet += 6_spd / 1_frame;
+    x += verlet.nextFrame();
+    BOOST_CHECK_EQUAL(x, expected);
+  }
+
+  verlet.velocity = 100_spd;
+  for(const auto& expected : {103_len, 109_len, 115_len, 121_len})
+  {
+    auto x = 0_len;
+    verlet += 6_spd / 1_frame;
+    x += verlet.nextFrame();
+    verlet += 6_spd / 1_frame;
+    x += verlet.nextFrame();
+    BOOST_CHECK_EQUAL(x, expected);
+  }
 }
 
 BOOST_AUTO_TEST_SUITE_END()

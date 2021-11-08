@@ -28,12 +28,12 @@ ClosePassportMenuState::ClosePassportMenuState(const std::shared_ptr<MenuRingTra
   if(page == PassportMenuState::ExitGamePage)
   {
     passport.goalFrame = passport.lastMeshAnimFrame - 1_frame;
-    passport.animDirection = 1_frame;
+    passport.animDirection = 1_rframe;
   }
   else
   {
     passport.goalFrame = 0_frame;
-    passport.animDirection = -1_frame;
+    passport.animDirection = -1_rframe;
   }
 }
 

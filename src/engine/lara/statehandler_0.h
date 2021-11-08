@@ -18,7 +18,7 @@ public:
   {
   }
 
-  void handleInput(CollisionInfo& /*collisionInfo*/) override
+  void handleInput(CollisionInfo& /*collisionInfo*/, bool /*doPhysics*/) override
   {
     if(getLara().isDead())
     {
@@ -52,7 +52,7 @@ public:
     }
   }
 
-  void postprocessFrame(CollisionInfo& collisionInfo) override
+  void postprocessFrame(CollisionInfo& collisionInfo, bool /*doPhysics*/) override
   {
     auto& laraState = getLara().m_state;
     collisionInfo.facingAngle = laraState.rotation.Y;
@@ -78,7 +78,7 @@ public:
 
     if(checkWallCollision(collisionInfo))
     {
-      const auto fr = getLara().getSkeleton()->getFrame();
+      const auto fr = getLara().getSkeleton()->getAnimFrame();
       if(fr >= 29_frame && fr <= 47_frame)
       {
         setAnimation(AnimationId::END_WALK_LEFT);
@@ -104,7 +104,7 @@ public:
 
     if(collisionInfo.mid.floor.y > core::SteppableHeight)
     {
-      const auto fr = getLara().getSkeleton()->getFrame();
+      const auto fr = getLara().getSkeleton()->getAnimFrame();
       if(fr < 28_frame || fr > 45_frame)
       {
         setAnimation(AnimationId::WALK_DOWN_RIGHT);
@@ -117,7 +117,7 @@ public:
 
     if(collisionInfo.mid.floor.y >= -core::ClimbLimit2ClickMin && collisionInfo.mid.floor.y < -core::SteppableHeight)
     {
-      const auto fr = getLara().getSkeleton()->getFrame();
+      const auto fr = getLara().getSkeleton()->getAnimFrame();
       if(fr < 27_frame || fr > 44_frame)
       {
         setAnimation(AnimationId::WALK_UP_STEP_RIGHT);

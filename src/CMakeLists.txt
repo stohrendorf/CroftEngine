@@ -549,6 +549,8 @@ set( EDISONENGINE_SRCS
         core/units.h
         core/vec.h
         core/vec.cpp
+        core/verlet.h
+        core/verlet.cpp
 
         qs/mult_div.h
         qs/qs.h

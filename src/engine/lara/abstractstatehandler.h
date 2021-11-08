@@ -48,9 +48,9 @@ public:
   AbstractStateHandler& operator=(const AbstractStateHandler&) = delete;
   AbstractStateHandler& operator=(AbstractStateHandler&&) = delete;
 
-  virtual void postprocessFrame(CollisionInfo& collisionInfo) = 0;
+  virtual void postprocessFrame(CollisionInfo& collisionInfo, bool doPhysics) = 0;
 
-  virtual void handleInput(CollisionInfo& collisionInfo) = 0;
+  virtual void handleInput(CollisionInfo& collisionInfo, bool doPhysics) = 0;
 
   static std::unique_ptr<AbstractStateHandler> create(LaraStateId id, objects::LaraObject& lara);
 
@@ -76,7 +76,7 @@ protected:
     return m_lara;
   }
 
-  void setAir(const core::Frame& a) noexcept;
+  void setAir(const core::RenderFrame& a) noexcept;
 
   void setMovementAngle(const core::Angle& angle) noexcept;
 
@@ -96,13 +96,15 @@ protected:
 
   void placeOnFloor(const CollisionInfo& collisionInfo);
 
-  void setYRotationSpeed(const core::RotationSpeed& spd);
+  void setYRotationSpeed(const core::RenderRotationSpeed& spd);
 
-  [[nodiscard]] core::RotationSpeed getYRotationSpeed() const;
+  [[nodiscard]] core::RenderRotationSpeed getYRotationSpeed() const;
 
-  void subYRotationSpeed(const core::RotationAcceleration& val, const core::RotationSpeed& limit = -32768_au / 1_frame);
+  void subYRotationSpeed(const core::RenderRotationAcceleration& val,
+                         const core::RenderRotationSpeed& limit = -32768_au / 1_rframe);
 
-  void addYRotationSpeed(const core::RotationAcceleration& val, const core::RotationSpeed& limit = 32767_au / 1_frame);
+  void addYRotationSpeed(const core::RenderRotationAcceleration& val,
+                         const core::RenderRotationSpeed& limit = 32767_au / 1_rframe);
 
   void setFallSpeedOverride(const core::Speed& v);
 
@@ -131,19 +133,19 @@ protected:
 
   void applyShift(const CollisionInfo& collisionInfo);
 
-  void commonJumpHandling(CollisionInfo& collisionInfo);
+  void commonJumpHandling(CollisionInfo& collisionInfo, bool doPhysics);
 
-  void commonSlideHandling(CollisionInfo& collisionInfo);
+  void commonSlideHandling(CollisionInfo& collisionInfo, bool doPhysics);
 
-  void commonEdgeHangHandling(CollisionInfo& collisionInfo);
+  void commonEdgeHangHandling(CollisionInfo& collisionInfo, bool doPhysics);
 
   bool applyLandingDamage();
 
-  void addSwimToDiveKeypressDuration(const core::Frame& n) noexcept;
+  void addSwimToDiveKeypressDuration(const core::RenderFrame& n) noexcept;
 
-  void setSwimToDiveKeypressDuration(const core::Frame& n) noexcept;
+  void setSwimToDiveKeypressDuration(const core::RenderFrame& n) noexcept;
 
-  [[nodiscard]] core::Frame getSwimToDiveKeypressDuration() const;
+  [[nodiscard]] core::RenderFrame getSwimToDiveKeypressDuration() const;
 
   void setUnderwaterState(objects::UnderwaterState u) noexcept;
 

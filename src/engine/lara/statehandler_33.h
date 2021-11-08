@@ -13,9 +13,11 @@ public:
   {
   }
 
-  void handleInput(CollisionInfo& /*collisionInfo*/) override
+  void handleInput(CollisionInfo& /*collisionInfo*/, bool /*doPhysics*/) override
   {
-    getLara().m_state.fallspeed = std::max(0_spd, getLara().m_state.fallspeed - 4_spd);
+    getLara().m_state.fallspeed += -4_spd / 1_frame;
+    if(getLara().m_state.fallspeed <= 4_spd)
+      getLara().m_state.fallspeed.stop();
 
     if(getLara().isDead())
     {
@@ -62,11 +64,11 @@ public:
 
     if(inputHandler.getInputState().xMovement == hid::AxisMovement::Left)
     {
-      getLara().m_state.rotation.Y -= core::OnWaterTurnSpeed * 1_frame;
+      getLara().m_state.rotation.Y -= core::OnWaterTurnSpeed * 1_rframe;
     }
     else if(inputHandler.getInputState().xMovement == hid::AxisMovement::Right)
     {
-      getLara().m_state.rotation.Y += core::OnWaterTurnSpeed * 1_frame;
+      getLara().m_state.rotation.Y += core::OnWaterTurnSpeed * 1_rframe;
     }
 
     if(inputHandler.getInputState().zMovement == hid::AxisMovement::Forward)
@@ -89,12 +91,12 @@ public:
 
     if(!inputHandler.hasAction(hid::Action::Jump))
     {
-      setSwimToDiveKeypressDuration(0_frame);
+      setSwimToDiveKeypressDuration(0_rframe);
       return;
     }
 
-    addSwimToDiveKeypressDuration(1_frame);
-    if(getSwimToDiveKeypressDuration() != core::FrameRate * 1_sec / 3)
+    addSwimToDiveKeypressDuration(1_rframe);
+    if(getSwimToDiveKeypressDuration() != (core::RenderFrameRate * 1_sec / 3).cast<core::RenderFrame>())
     {
       // not yet allowed to dive; not that the keypress duration is always >10 when coming up from diving
       return;
@@ -108,10 +110,12 @@ public:
     setUnderwaterState(objects::UnderwaterState::Diving);
   }
 
-  void postprocessFrame(CollisionInfo& collisionInfo) override
+  void postprocessFrame(CollisionInfo& collisionInfo, bool doPhysics) override
   {
-    setMovementAngle(getLara().m_state.rotation.Y);
-    commonOnWaterHandling(collisionInfo);
+    if(doPhysics)
+      setMovementAngle(getLara().m_state.rotation.Y);
+
+    commonOnWaterHandling(collisionInfo, doPhysics);
   }
 };
 } // namespace engine::lara

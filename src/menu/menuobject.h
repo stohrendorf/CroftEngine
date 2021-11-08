@@ -36,9 +36,9 @@ struct MenuObject
   std::bitset<32> defaultMeshRenderMask{0xffffffffull};
   std::bitset<32> meshRenderMask{0xffffffffull};
 
-  core::Frame meshAnimFrame{0_frame};
+  core::RenderFrame meshAnimFrame{0_rframe};
   core::Frame goalFrame{0_frame};
-  core::Frame animDirection{1_frame};
+  core::RenderFrame animDirection{1_rframe};
   core::Frame animStretch{1_frame};
   core::Frame animStretchCounter{0_frame};
   core::Angle baseRotationX{0_deg};

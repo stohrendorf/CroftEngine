@@ -68,7 +68,8 @@ public:
   static const constexpr float DefaultNearPlane = 20.0f;
   static const constexpr float DefaultFarPlane = 20480.0f;
   static const constexpr float DefaultFov = glm::radians(60.0f);
-  static const constexpr core::Frame DefaultHealthBarTimeout = core::FrameRate * 1_sec * 4 / 3;
+  static const constexpr core::RenderFrame DefaultHealthBarTimeout
+    = (core::RenderFrameRate * 1_sec * 4 / 3).cast<core::RenderFrame>();
 
   explicit Presenter(const std::filesystem::path& engineDataPath, const glm::ivec2& resolution);
   ~Presenter();
@@ -184,7 +185,7 @@ private:
   const gsl::not_null<std::unique_ptr<gl::Font>> m_trTTFFont;
   const gsl::not_null<std::unique_ptr<gl::Font>> m_debugFont;
   core::Health m_drawnHealth = core::LaraHealth;
-  core::Frame m_healthBarTimeout = -DefaultHealthBarTimeout;
+  core::RenderFrame m_healthBarTimeout = -DefaultHealthBarTimeout;
   const gsl::not_null<std::unique_ptr<hid::InputHandler>> m_inputHandler;
   std::unique_ptr<ui::TRFont> m_trFont;
 

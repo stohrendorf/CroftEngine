@@ -256,7 +256,7 @@ bool MenuDisplay::doOptions(engine::world::World& world, MenuObject& object)
     if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Menu)
        || world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Action))
     {
-      object.animDirection = 1_frame;
+      object.animDirection = 1_rframe;
       object.goalFrame = object.lastMeshAnimFrame - 1_frame;
     }
     break;
@@ -264,7 +264,7 @@ bool MenuDisplay::doOptions(engine::world::World& world, MenuObject& object)
     if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Menu)
        || world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Action))
     {
-      object.animDirection = -1_frame;
+      object.animDirection = -1_rframe;
       object.goalFrame = 0_frame;
     }
     break;

@@ -36,18 +36,18 @@ namespace engine::objects
 {
 core::Angle AIAgent::rotateTowardsTarget(core::RotationSpeed maxRotationSpeed)
 {
-  if(m_state.speed == 0_spd || maxRotationSpeed == 0_au / 1_frame)
+  if(m_state.speed.velocity == 0_spd || maxRotationSpeed == 0_au / 1_frame)
   {
     return 0_au;
   }
 
   const auto dx = m_creatureInfo->target.X - m_state.location.position.X;
   const auto dz = m_creatureInfo->target.Z - m_state.location.position.Z;
-  auto turnAngle = angleFromAtan(dx, dz) - m_state.rotation.Y;
+  auto turnAngle = normalizeAngle(angleFromAtan(dx, dz) - m_state.rotation.Y);
   if(abs(turnAngle) > 90_deg)
   {
     // the target is behind the current object, so we need a U-turn
-    const auto relativeSpeed = m_state.speed.cast<float>() * 90_deg / maxRotationSpeed;
+    const auto relativeSpeed = m_state.speed.velocity.cast<float>() * 90_deg / maxRotationSpeed;
     if(util::square(dx) + util::square(dz) < util::square(relativeSpeed))
     {
       maxRotationSpeed /= 2;
@@ -55,9 +55,8 @@ core::Angle AIAgent::rotateTowardsTarget(core::RotationSpeed maxRotationSpeed)
   }
 
   const auto turnSpeed = std::clamp(turnAngle / 1_frame, -maxRotationSpeed, maxRotationSpeed);
-
-  m_state.rotation.Y += turnSpeed * 1_frame;
-  return turnSpeed * 1_frame;
+  m_state.rotation.Y += toRenderUnit(turnSpeed) * 1_rframe;
+  return toRenderUnit(turnSpeed) * 1_rframe;
 }
 
 bool AIAgent::isPositionOutOfReach(const core::TRVec& testPosition,
@@ -93,7 +92,7 @@ bool AIAgent::anyMovingEnabledObjectInReach() const
     if(!object->m_isActive || object.get().get() == &getWorld().getObjectManager().getLara())
       continue;
 
-    if(object->m_state.triggerState == TriggerState::Active && object->m_state.speed != 0_spd
+    if(object->m_state.triggerState == TriggerState::Active && object->m_state.speed.velocity != 0_spd
        && distanceTo(object->m_state.location.position, m_state.location.position) < m_collisionRadius)
     {
       return true;
@@ -155,22 +154,22 @@ bool AIAgent::animateCreature(const core::Angle& deltaRotationY, const core::Ang
   {
     static const auto shoveMin = [this](const core::Length& l)
     {
-      return l / core::SectorSize * core::SectorSize + m_collisionRadius;
+      return std::trunc(l / core::SectorSize) * core::SectorSize + m_collisionRadius;
     };
     static const auto shoveMax = [this](const core::Length& l)
     {
       return shoveMin(l) + core::SectorSize - 1_len - m_collisionRadius;
     };
 
-    const auto oldSectorX = oldLocation.position.X / core::SectorSize;
-    const auto newSectorX = m_state.location.position.X / core::SectorSize;
+    const auto oldSectorX = gsl::narrow_cast<int>(oldLocation.position.X / core::SectorSize);
+    const auto newSectorX = gsl::narrow_cast<int>(m_state.location.position.X / core::SectorSize);
     if(newSectorX < oldSectorX)
       m_state.location.position.X = shoveMin(oldLocation.position.X);
     else if(newSectorX > oldSectorX)
       m_state.location.position.X = shoveMax(oldLocation.position.X);
 
-    const auto oldSectorZ = oldLocation.position.Z / core::SectorSize;
-    const auto newSectorZ = m_state.location.position.Z / core::SectorSize;
+    const auto oldSectorZ = gsl::narrow_cast<int>(oldLocation.position.Z / core::SectorSize);
+    const auto newSectorZ = gsl::narrow_cast<int>(m_state.location.position.Z / core::SectorSize);
     if(newSectorZ < oldSectorZ)
       m_state.location.position.Z = shoveMin(oldLocation.position.Z);
     else if(newSectorZ > oldSectorZ)
@@ -345,8 +344,8 @@ bool AIAgent::animateCreature(const core::Angle& deltaRotationY, const core::Ang
     bboxMaxYLocation.position.Y = bboxMaxY;
     sector = bboxMaxYLocation.updateRoom();
 
-    m_state.rotation.Y += deltaRotationY;
-    m_state.rotation.Z += std::clamp(8 * tilt - m_state.rotation.Z, -3_deg, +3_deg);
+    m_state.rotation.Y += toRenderUnit(deltaRotationY / 1_frame) * 1_rframe;
+    m_state.rotation.Z += toRenderUnit(std::clamp(8 * tilt - m_state.rotation.Z, -3_deg, +3_deg) / 1_frame) * 1_rframe;
   }
 
   if(anyMovingEnabledObjectInReach())
@@ -425,13 +424,13 @@ bool AIAgent::animateCreature(const core::Angle& deltaRotationY, const core::Ang
           .y;
 
     core::Angle yaw{0_deg};
-    if(m_state.speed != 0_spd)
-      yaw = angleFromAtan(-moveY, m_state.speed * 1_frame);
+    if(m_state.speed.velocity != 0_spd)
+      yaw = angleFromAtan(-toAnimUnit(moveY / 1_rframe) * 1_frame, m_state.speed.velocity * 1_frame);
 
     if(yaw < m_state.rotation.X - 1_deg)
-      m_state.rotation.X -= 1_deg;
+      m_state.rotation.X -= toRenderUnit(1_deg / 1_frame) * 1_rframe;
     else if(yaw > m_state.rotation.X + 1_deg)
-      m_state.rotation.X += 1_deg;
+      m_state.rotation.X += toRenderUnit(1_deg / 1_frame) * 1_rframe;
     else
       m_state.rotation.X = yaw;
 
@@ -474,8 +473,7 @@ AIAgent::AIAgent(const std::string& name,
     : ModelObject{name, world, room, item, true, animatedModel, true}
 {
   m_state.collidable = true;
-  const core::Angle v = util::rand15s(90_deg);
-  m_state.rotation.Y += v;
+  m_state.rotation.Y += toRenderUnit(util::rand15s(90_deg) / 1_frame) * 1_rframe;
 
   loadObjectInfo(false);
 }

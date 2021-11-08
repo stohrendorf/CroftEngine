@@ -43,7 +43,8 @@ void serialize(TRVec& v, const serialization::Serializer<engine::world::World>& 
 {
   const auto aSector = a / SectorSize;
   const auto bSector = b / SectorSize;
-  return aSector.X == bSector.X && aSector.Z == bSector.Z;
+  return gsl::narrow_cast<int>(aSector.X) == gsl::narrow_cast<int>(bSector.X)
+         && gsl::narrow_cast<int>(aSector.Z) == gsl::narrow_cast<int>(bSector.Z);
 }
 
 extern std::ostream& operator<<(std::ostream& stream, const TRVec& rhs);

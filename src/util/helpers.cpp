@@ -140,7 +140,7 @@ core::Length cos(const core::Length& len, const core::Angle& rot)
 {
   auto tmp = len.cast<float>() * cos(rot);
   if(tmp.get() < -BitShiftHackThreshold)
-    tmp -= (1_len).cast<float>();
+    tmp -= (toRenderUnit(1_len / 1_frame) * 1_rframe).cast<float>();
   return tmp.cast<core::Length>();
 }
 
@@ -148,7 +148,7 @@ core::Length sin(const core::Length& len, const core::Angle& rot)
 {
   auto tmp = len.cast<float>() * sin(rot);
   if(tmp.get() < -BitShiftHackThreshold)
-    tmp -= (1_len).cast<float>();
+    tmp -= (toRenderUnit(1_len / 1_frame) * 1_rframe).cast<float>();
   return tmp.cast<core::Length>();
 }
 

@@ -120,7 +120,7 @@ void TRex::update()
         getWorld().getCameraController().setModifier(CameraModifier::FollowCenter);
         getWorld().getCameraController().setRotationAroundLara(-25_deg, 170_deg);
         getWorld().useAlternativeLaraAppearance(true);
-        lara.setAir(-1_frame);
+        lara.setAir(-1_rframe);
         lara.m_state.health = core::DeadHealth;
         lara.m_state.is_hit = true;
       }

@@ -270,9 +270,9 @@ void Presenter::renderWorld(const std::vector<world::Room>& rooms,
 namespace
 {
 constexpr size_t BarColors = 5;
-constexpr int BarScale = 3;
-constexpr int BarWidth = 100 * BarScale;
-constexpr int BarHeight = 5 * BarScale;
+constexpr float BarScale = 3;
+constexpr float BarWidth = 100 * BarScale;
+constexpr float BarHeight = 5 * BarScale;
 
 gl::SRGBA8 getBarColor(float x, const std::array<gl::SRGBA8, BarColors>& barColors)
 {
@@ -316,7 +316,7 @@ void Presenter::drawBars(ui::Ui& ui, const std::array<gl::SRGBA8, 256>& palette,
   {
     drawBar(ui,
             {ui.getSize().x - BarWidth - 10, 8},
-            std::clamp(objectManager.getLara().getAir() * BarWidth / core::LaraAir, 0, BarWidth),
+            std::clamp(objectManager.getLara().getAir() * BarWidth / core::LaraAir, 0.0f, BarWidth),
             palette[0],
             palette[17],
             palette[19],
@@ -335,14 +335,15 @@ void Presenter::drawBars(ui::Ui& ui, const std::array<gl::SRGBA8, 256>& palette,
   if(std::exchange(m_drawnHealth, objectManager.getLara().m_state.health) != objectManager.getLara().m_state.health)
     m_healthBarTimeout = DefaultHealthBarTimeout;
 
-  m_healthBarTimeout -= 1_frame;
+  m_healthBarTimeout -= 1_rframe;
   if(m_healthBarTimeout <= -DefaultHealthBarTimeout)
     return;
 
   uint8_t alpha = 255;
-  if(m_healthBarTimeout < 0_frame)
+  if(m_healthBarTimeout < 0_rframe)
   {
-    alpha = gsl::narrow_cast<uint8_t>(std::clamp(255 - std::abs(255 * m_healthBarTimeout / 40_frame), 0, 255));
+    alpha = gsl::narrow_cast<uint8_t>(
+      std::clamp(255 - std::abs(255 * m_healthBarTimeout / DefaultHealthBarTimeout), 0, 255));
   }
 
   static const auto withAlpha = [](gl::SRGBA8 color, uint8_t alpha)
@@ -353,7 +354,7 @@ void Presenter::drawBars(ui::Ui& ui, const std::array<gl::SRGBA8, 256>& palette,
 
   drawBar(ui,
           {8, 8},
-          std::clamp(objectManager.getLara().m_state.health * BarWidth / core::LaraHealth, 0, BarWidth),
+          std::clamp(objectManager.getLara().m_state.health * BarWidth / core::LaraHealth, 0.0f, BarWidth),
           withAlpha(palette[0], alpha),
           withAlpha(palette[17], alpha),
           withAlpha(palette[19], alpha),

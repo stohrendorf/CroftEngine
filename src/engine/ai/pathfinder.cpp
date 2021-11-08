@@ -25,11 +25,12 @@ namespace engine::ai
 namespace
 {
 template<typename T>
-[[nodiscard]] constexpr const auto& uncheckedClamp(const T& x, const core::Interval<T>& interval)
+[[nodiscard]] constexpr const auto& uncheckedClamp(const T& x, const core::HalfOpenInterval<T>& interval)
 {
   if(x < interval.min)
     return interval.min;
   else if(x > interval.max)
+    // this is usually not valid, luckily then supplied interval has already been narrowed
     return interval.max;
   else
     return x;
@@ -51,8 +52,8 @@ bool PathFinder::calculateTarget(const world::World& world,
   moveTarget = startPos;
 
   auto here = startBox;
-  core::Interval<core::Length> xRange{0_len, 0_len};
-  core::Interval<core::Length> zRange{0_len, 0_len};
+  core::HalfOpenInterval<core::Length> xRange{0_len, 0_len};
+  core::HalfOpenInterval<core::Length> zRange{0_len, 0_len};
 
   static constexpr uint8_t CanMoveXPos = 0x01u;
   static constexpr uint8_t CanMoveXNeg = 0x02u;

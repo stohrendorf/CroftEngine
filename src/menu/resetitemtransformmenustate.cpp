@@ -31,9 +31,9 @@ void ResetItemTransformMenuState::handleObject(ui::Ui& /*ui*/,
 std::unique_ptr<MenuState>
   ResetItemTransformMenuState::onFrame(ui::Ui& /*ui*/, engine::world::World& /*world*/, MenuDisplay& /*display*/)
 {
-  if(m_duration != 0_frame)
+  if(m_duration != 0_rframe)
   {
-    m_duration -= 1_frame;
+    m_duration -= 1_rframe;
     return nullptr;
   }
 

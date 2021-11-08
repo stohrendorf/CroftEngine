@@ -174,15 +174,18 @@ Location clampBox(const Location& start,
   // align to the closest border of the next sector
   static const auto alignMin = [](core::Length& x)
   {
-    x = (x / core::SectorSize) * core::SectorSize - 1_len;
+    x = std::trunc(x / core::SectorSize) * core::SectorSize - 1_len;
     BOOST_ASSERT(x % core::SectorSize == core::SectorSize - 1_len);
   };
   static const auto alignMax = [](core::Length& x)
   {
-    x = (x / core::SectorSize + 1) * core::SectorSize;
+    x = (std::trunc(x / core::SectorSize) + 1) * core::SectorSize;
     BOOST_ASSERT(x % core::SectorSize == 0_len);
   };
 
+  result.position.X = result.position.X.cast<int>().cast<core::Length::type>();
+  result.position.Y = result.position.Y.cast<int>().cast<core::Length::type>();
+  result.position.Z = result.position.Z.cast<int>().cast<core::Length::type>();
   core::TRVec testPos = result.position;
 
   const auto testPosInvalid = [&testPos, &result, &objectManager]
@@ -311,7 +314,7 @@ void CameraController::setCamOverride(const floordata::CameraParameters& camPara
                                       const uint16_t camId,
                                       const floordata::SequenceCondition condition,
                                       const bool fromHeavy,
-                                      const core::Frame& timeout,
+                                      const core::RenderFrame& timeout,
                                       const bool switchIsOn)
 {
   if(m_world->getCameraSinks().at(camId).isActive())
@@ -322,16 +325,16 @@ void CameraController::setCamOverride(const floordata::CameraParameters& camPara
      || condition == floordata::SequenceCondition::LaraInCombatMode)
     return;
 
-  if(condition == floordata::SequenceCondition::ItemActivated && timeout != 0_frame && switchIsOn)
+  if(condition == floordata::SequenceCondition::ItemActivated && timeout != 0_rframe && switchIsOn)
     return;
 
   if(condition != floordata::SequenceCondition::ItemActivated && m_fixedCameraId == m_currentFixedCameraId)
     return;
 
   if(camParams.timeout != 1_sec)
-    m_camOverrideTimeout = camParams.timeout * core::FrameRate;
+    m_camOverrideTimeout = (camParams.timeout * core::RenderFrameRate).cast<core::RenderFrame>();
   else
-    m_camOverrideTimeout = 1_frame;
+    m_camOverrideTimeout = 1_rframe;
 
   if(camParams.oneshot)
     m_world->getCameraSinks()[camId].setActive(true);
@@ -376,7 +379,7 @@ void CameraController::handleCommandSequence(const floordata::FloorDataValue* cm
       else
       {
         m_fixedCameraId = m_currentFixedCameraId;
-        if(m_camOverrideTimeout >= 0_frame && m_mode != CameraMode::FreeLook && m_mode != CameraMode::Combat)
+        if(m_camOverrideTimeout >= 0_rframe && m_mode != CameraMode::FreeLook && m_mode != CameraMode::Combat)
         {
           type = Type::FixedCamChange;
           m_mode = CameraMode::FixedPosition;
@@ -384,7 +387,7 @@ void CameraController::handleCommandSequence(const floordata::FloorDataValue* cm
         else
         {
           type = Type::Invalid;
-          m_camOverrideTimeout = -1_frame;
+          m_camOverrideTimeout = -1_rframe;
         }
       }
     }
@@ -420,11 +423,11 @@ std::unordered_set<const world::Portal*> CameraController::update()
 
   if(m_mode == CameraMode::Cinematic)
   {
-    m_cinematicFrame
-      = std::min(m_cinematicFrame + 1_frame,
-                 core::Frame{gsl::narrow_cast<core::Frame::type>(m_world->getCinematicFrames().size() - 1)});
+    m_cinematicFrame = std::min(
+      m_cinematicFrame + 1_rframe,
+      toAnimUnit(core::Frame{gsl::narrow_cast<core::Frame::type>(m_world->getCinematicFrames().size() - 1)}));
 
-    updateCinematic(m_world->getCinematicFrames()[gsl::narrow_cast<size_t>(m_cinematicFrame.get())], true);
+    updateCinematic(m_world->getCinematicFrames()[toRenderUnit(m_cinematicFrame).cast<size_t>().get()], true);
     return tracePortals();
   }
 
@@ -442,7 +445,7 @@ std::unordered_set<const world::Portal*> CameraController::update()
   if(isCompletelyFixed)
     focusY += focusBBox.y.mid();
   else
-    focusY += focusBBox.y.max - focusBBox.y.size() * 3 / 4;
+    focusY += focusBBox.y.max - focusBBox.y.size() * 0.75f;
 
   if(m_lookAtObject != nullptr && !isCompletelyFixed)
   {
@@ -453,23 +456,24 @@ std::unordered_set<const world::Portal*> CameraController::update()
     const auto& focusedPosition = focusedObject->m_state.location.position;
     const auto& lookAtPosition = m_lookAtObject->m_state.location.position;
     const auto distToFocused = distanceTo(lookAtPosition, focusedPosition);
-    auto eyeRotY = angleFromAtan(lookAtPosition.X - focusedPosition.X, lookAtPosition.Z - focusedPosition.Z)
-                   - focusedObject->m_state.rotation.Y;
-    eyeRotY /= 2;
+    auto eyeRotY
+      = normalizeAngle(angleFromAtan(lookAtPosition.X - focusedPosition.X, lookAtPosition.Z - focusedPosition.Z)
+                       - focusedObject->m_state.rotation.Y);
+    eyeRotY /= 2.0f;
     focusBBox = m_lookAtObject->getBoundingBox();
-    auto eyeRotX
-      = angleFromAtan(focusY - (focusBBox.y.mid() + m_lookAtObject->m_state.location.position.Y), distToFocused);
-    eyeRotX /= 2;
+    auto eyeRotX = normalizeAngle(
+      angleFromAtan(focusY - (focusBBox.y.mid() + m_lookAtObject->m_state.location.position.Y), distToFocused));
+    eyeRotX /= 2.0f;
 
     if(abs(eyeRotY) < 50_deg && abs(eyeRotX) < 85_deg)
     {
       auto& lara = m_world->getObjectManager().getLara();
       eyeRotY -= lara.m_headRotation.Y;
-      lara.m_headRotation.Y += std::clamp(eyeRotY, -4_deg, +4_deg);
+      lara.m_headRotation.Y += toRenderUnit(std::clamp(eyeRotY, -4_deg, +4_deg) / 1_frame) * 1_rframe;
       lara.m_torsoRotation.Y = lara.m_headRotation.Y;
 
       eyeRotX -= lara.m_headRotation.X;
-      lara.m_headRotation.X += std::clamp(eyeRotX, -4_deg, +4_deg);
+      lara.m_headRotation.X += toRenderUnit(std::clamp(eyeRotX, -4_deg, +4_deg) / 1_frame) * 1_rframe;
       lara.m_torsoRotation.X = lara.m_headRotation.X;
 
       m_mode = CameraMode::FreeLook;
@@ -488,7 +492,7 @@ std::unordered_set<const world::Portal*> CameraController::update()
     }
     else
     {
-      m_lookAt.position.Y += (focusY - m_lookAt.position.Y) / 4;
+      m_lookAt.position.Y += (focusY - m_lookAt.position.Y) / 4.0f;
       if(m_mode == CameraMode::FreeLook)
         m_smoothness = 4_frame;
       else
@@ -513,7 +517,7 @@ std::unordered_set<const world::Portal*> CameraController::update()
 
     if(m_isCompletelyFixed == isCompletelyFixed)
     {
-      m_lookAt.position.Y += (focusY - m_lookAt.position.Y) / 4;
+      m_lookAt.position.Y += (focusY - m_lookAt.position.Y) / 4.0f;
       m_isCompletelyFixed = false;
     }
     else
@@ -538,7 +542,7 @@ std::unordered_set<const world::Portal*> CameraController::update()
 
   m_isCompletelyFixed = isCompletelyFixed;
   m_currentFixedCameraId = m_fixedCameraId;
-  if(m_mode != CameraMode::HeavyFixedPosition || m_camOverrideTimeout < 0_frame)
+  if(m_mode != CameraMode::HeavyFixedPosition || m_camOverrideTimeout < 0_rframe)
   {
     m_modifier = CameraModifier::None;
     m_mode = CameraMode::Chase;
@@ -566,11 +570,11 @@ void CameraController::handleFixedCamera()
   m_isCompletelyFixed = true;
   updatePosition(goal, m_smoothness);
 
-  if(m_camOverrideTimeout != 0_frame)
+  if(m_camOverrideTimeout != 0_rframe)
   {
-    m_camOverrideTimeout -= 1_frame;
-    if(m_camOverrideTimeout == 0_frame)
-      m_camOverrideTimeout = -1_frame;
+    m_camOverrideTimeout -= 1_rframe;
+    if(m_camOverrideTimeout == 0_rframe)
+      m_camOverrideTimeout = -1_rframe;
   }
 }
 
@@ -610,7 +614,7 @@ core::Length CameraController::moveIntoBox(Location& goal, const core::Length& m
   auto floor = HeightInfo::fromFloor(sector, goal.position, m_world->getObjectManager().getObjects()).y - margin;
   auto ceiling = HeightInfo::fromCeiling(sector, goal.position, m_world->getObjectManager().getObjects()).y + margin;
   if(floor < ceiling)
-    ceiling = floor = (floor + ceiling) / 2;
+    ceiling = floor = (floor + ceiling) / 2.0f;
 
   if(goal.position.Y > floor)
     return floor - goal.position.Y;
@@ -622,7 +626,7 @@ core::Length CameraController::moveIntoBox(Location& goal, const core::Length& m
 
 void CameraController::updatePosition(const Location& goal, const core::Frame& smoothFactor)
 {
-  m_location.position += (goal.position - m_location.position) / smoothFactor * 1_frame;
+  m_location.position += toRenderUnit((goal.position - m_location.position) / smoothFactor) * 1_rframe;
   m_location.room = goal.room;
   HeightInfo::skipSteepSlants = false;
   auto sector = m_location.updateRoom();
@@ -640,7 +644,7 @@ void CameraController::updatePosition(const Location& goal, const core::Frame& s
                  + core::QuarterSectorSize;
   if(floor < ceiling)
   {
-    floor = ceiling = (floor + ceiling) / 2;
+    floor = ceiling = (floor + ceiling) / 2.0f;
   }
 
   if(m_bounce < 0_len)
@@ -648,7 +652,7 @@ void CameraController::updatePosition(const Location& goal, const core::Frame& s
     const core::TRVec tmp{util::rand15s(m_bounce), util::rand15s(m_bounce), util::rand15s(m_bounce)};
     m_location.position += tmp;
     m_lookAt.position += tmp;
-    m_bounce += 5_len;
+    m_bounce += toRenderUnit(5_len / 1_frame) * 1_rframe;
   }
   else if(m_bounce > 0_len)
   {
@@ -730,8 +734,10 @@ void CameraController::handleFreeLook()
                              &freeLookClamp,
                              m_world->getObjectManager());
 
-  m_lookAt.position.X = originalLookAt.X + (m_lookAt.position.X - originalLookAt.X) / m_smoothness * 1_frame;
-  m_lookAt.position.Z = originalLookAt.Z + (m_lookAt.position.Z - originalLookAt.Z) / m_smoothness * 1_frame;
+  m_lookAt.position.X
+    = originalLookAt.X + core::toRenderUnit((m_lookAt.position.X - originalLookAt.X) / m_smoothness) * 1_rframe;
+  m_lookAt.position.Z
+    = originalLookAt.Z + core::toRenderUnit((m_lookAt.position.Z - originalLookAt.Z) / m_smoothness) * 1_rframe;
 
   updatePosition(goal, m_smoothness);
 }

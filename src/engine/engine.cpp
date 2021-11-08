@@ -82,19 +82,22 @@ namespace
 {
 const gsl::czstring QuicksaveFilename = "quicksave.yaml";
 
-void drawAmmoWidget(ui::Ui& ui, const ui::TRFont& trFont, const world::World& world, core::Frame& ammoDisplayDuration)
+void drawAmmoWidget(ui::Ui& ui,
+                    const ui::TRFont& trFont,
+                    const world::World& world,
+                    core::RenderFrame& ammoDisplayDuration)
 {
   if(const auto handStatus = world.getObjectManager().getLara().getHandStatus();
      handStatus != engine::objects::HandStatus::Combat)
   {
-    ammoDisplayDuration = 0_frame;
+    ammoDisplayDuration = 0_rframe;
   }
   else
   {
-    static constexpr auto StaticDuration = (core::FrameRate * 1_sec * 2 / 3).cast<core::Frame>();
-    static constexpr auto TransitionDuration = (core::FrameRate * 1_sec / 2).cast<core::Frame>();
+    static constexpr auto StaticDuration = (core::RenderFrameRate * 1_sec * 2 / 3).cast<core::RenderFrame>();
+    static constexpr auto TransitionDuration = (core::RenderFrameRate * 1_sec / 2).cast<core::RenderFrame>();
 
-    ammoDisplayDuration = std::min(ammoDisplayDuration + 1_frame, StaticDuration + TransitionDuration);
+    ammoDisplayDuration = std::min(ammoDisplayDuration + 1_rframe, StaticDuration + TransitionDuration);
 
     auto drawAmmoText = [&ui, &world, &trFont](float bias)
     {
@@ -326,7 +329,7 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
   applySettings();
   std::shared_ptr<menu::MenuDisplay> menu;
   Throttler throttler;
-  core::Frame laraDeadTime = 0_frame;
+  core::RenderFrame laraDeadTime = 0_rframe;
 
   std::optional<std::chrono::high_resolution_clock::time_point> gameSessionStart;
   auto updateTimeSpent = [&gameSessionStart, &world]()
@@ -339,9 +342,9 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
     }
   };
 
-  core::Frame runtime = 0_frame;
-  static constexpr auto BlendInDuration = (core::FrameRate * 2_sec).cast<core::Frame>();
-  core::Frame ammoDisplayDuration = 0_frame;
+  core::RenderFrame runtime = 0_rframe;
+  static constexpr auto BlendInDuration = (core::RenderFrameRate * 2_sec).cast<core::RenderFrame>();
+  core::RenderFrame ammoDisplayDuration = 0_rframe;
 
   std::filesystem::create_directories(m_userDataPath / "ghosts");
   GhostManager ghostManager{m_userDataPath / "ghosts" / (world.getLevelFilename().stem().replace_extension(".rec")),
@@ -454,9 +457,9 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
       {
         world.getAudioEngine().setMusicGain(0);
         updateTimeSpent();
-        laraDeadTime += 1_frame;
-        if(laraDeadTime >= core::FrameRate * 10_sec
-           || (laraDeadTime >= core::FrameRate * 2_sec && m_presenter->getInputHandler().hasAnyAction()))
+        laraDeadTime += 1_rframe;
+        if(laraDeadTime >= core::RenderFrameRate * 10_sec
+           || (laraDeadTime >= core::RenderFrameRate * 2_sec && m_presenter->getInputHandler().hasAnyAction()))
         {
           menu = std::make_shared<menu::MenuDisplay>(
             menu::InventoryMode::DeathMode, world, m_presenter->getRenderViewport());
@@ -501,7 +504,7 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
       float blackAlpha = 0;
       if(runtime < BlendInDuration)
       {
-        runtime += 1_frame;
+        runtime += 1_rframe;
         blackAlpha = 1 - runtime.cast<float>() / BlendInDuration.cast<float>();
       }
 
@@ -694,7 +697,7 @@ std::unique_ptr<loader::trx::Glidos> Engine::loadGlidosPack() const
     auto lastUpdate = std::chrono::high_resolution_clock::now();
     static constexpr auto TimePerFrame
       = std::chrono::duration_cast<std::chrono::high_resolution_clock::duration>(std::chrono::seconds{1})
-        / core::FrameRate.get();
+        / core::RenderFrameRate.get();
     return std::make_unique<loader::trx::Glidos>(m_userDataPath / m_engineConfig->renderSettings.glidosPack.value(),
                                                  [this, &lastUpdate](const std::string& s)
                                                  {

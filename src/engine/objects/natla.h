@@ -29,7 +29,7 @@ public:
 
 private:
   bool m_attemptToFly = false;
-  core::Frame m_flyTime = 0_frame;
+  core::RenderFrame m_flyTime = 0_rframe;
   core::Angle m_pitchDelta = 0_deg;
 };
 } // namespace engine::objects

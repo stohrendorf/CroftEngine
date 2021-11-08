@@ -149,7 +149,7 @@ public:
   void setGlobalEffect(size_t fx)
   {
     m_activeEffect = fx;
-    m_effectTimer = 0_frame;
+    m_effectTimer = 0_rframe;
   }
 
   template<typename T>
@@ -369,7 +369,7 @@ private:
 
   std::unique_ptr<CameraController> m_cameraController;
 
-  core::Frame m_effectTimer = 0_frame;
+  core::RenderFrame m_effectTimer = 0_rframe;
   std::optional<size_t> m_activeEffect{};
   std::shared_ptr<audio::Voice> m_globalSoundEffect{};
 
@@ -406,7 +406,7 @@ private:
   std::unordered_map<std::string, std::unordered_map<TR1ItemId, std::string>> m_itemTitles{};
   std::shared_ptr<gl::Texture2DArray<gl::SRGBA8>> m_allTextures;
   std::shared_ptr<gl::TextureHandle<gl::Texture2DArray<gl::SRGBA8>>> m_allTexturesHandle;
-  core::Frame m_uvAnimTime = 0_frame;
+  core::RenderFrame m_uvAnimTime = 0_rframe;
   std::unique_ptr<render::TextureAnimator> m_textureAnimator;
 
   std::vector<ui::PickupWidget> m_pickupWidgets{};

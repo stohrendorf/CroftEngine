@@ -34,8 +34,8 @@ gsl::not_null<const world::Sector*> Location::updateRoom()
   const world::Sector* sector;
   while(true)
   {
-    sector = room->getBoundarySectorByIndex((position.X - room->position.X) / core::SectorSize,
-                                            (position.Z - room->position.Z) / core::SectorSize);
+    sector = room->getBoundarySectorByIndex(gsl::narrow_cast<int>((position.X - room->position.X) / core::SectorSize),
+                                            gsl::narrow_cast<int>((position.Z - room->position.Z) / core::SectorSize));
     if(sector->boundaryRoom == nullptr)
     {
       break;

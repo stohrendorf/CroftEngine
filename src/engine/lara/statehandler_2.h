@@ -14,7 +14,7 @@ public:
   {
   }
 
-  void handleInput(CollisionInfo& collisionInfo) override
+  void handleInput(CollisionInfo& collisionInfo, bool doPhysics) override
   {
     if(getLara().isDead())
     {
@@ -90,18 +90,18 @@ public:
     {
       if(inputHandler.hasAction(hid::Action::Walk))
       {
-        create(LaraStateId::WalkForward, getLara())->handleInput(collisionInfo);
+        create(LaraStateId::WalkForward, getLara())->handleInput(collisionInfo, doPhysics);
       }
       else
       {
-        create(LaraStateId::RunForward, getLara())->handleInput(collisionInfo);
+        create(LaraStateId::RunForward, getLara())->handleInput(collisionInfo, doPhysics);
       }
     }
     else if(inputHandler.getInputState().zMovement == hid::AxisMovement::Backward)
     {
       if(inputHandler.hasAction(hid::Action::Walk))
       {
-        create(LaraStateId::WalkBackward, getLara())->handleInput(collisionInfo);
+        create(LaraStateId::WalkBackward, getLara())->handleInput(collisionInfo, doPhysics);
       }
       else
       {

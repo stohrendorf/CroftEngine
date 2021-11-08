@@ -69,12 +69,12 @@ void ScionPiece::collide(CollisionInfo& /*collisionInfo*/)
       lara.setHandStatus(HandStatus::Grabbing);
       auto& cameraController = getWorld().getCameraController();
       cameraController.setMode(CameraMode::Cinematic);
-      cameraController.m_cinematicFrame = 0_frame;
+      cameraController.m_cinematicFrame = 0_rframe;
       cameraController.m_cinematicPos = lara.m_state.location.position;
       cameraController.m_cinematicRot = lara.m_state.rotation;
     }
   }
-  else if(lara.getSkeleton()->getLocalFrame() == 44_frame)
+  else if(lara.getSkeleton()->getLocalFrame() == toAnimUnit(44_frame))
   {
     m_state.triggerState = TriggerState::Invisible;
     ++getWorld().getPlayer().pickups;
@@ -104,12 +104,12 @@ void ScionPiece3::update()
 {
   if(!m_state.isDead())
   {
-    m_deadTime = 0_frame;
+    m_deadTime = 0_rframe;
     ModelObject::update();
     return;
   }
 
-  if(m_deadTime == 0_frame)
+  if(m_deadTime == 0_rframe)
   {
     m_state.triggerState = TriggerState::Invisible;
     m_state.health = core::DeadHealth;
@@ -120,7 +120,7 @@ void ScionPiece3::update()
     getWorld().handleCommandSequence(hi.lastCommandSequenceOrDeath, true);
   }
 
-  if(m_deadTime % 10_frame == 0_frame)
+  if(m_deadTime % toAnimUnit(10_frame) == 0_rframe)
   {
     const auto pos = m_state.location.position
                      + core::TRVec{util::rand15s(512_len), util::rand15s(64_len) - 500_len, util::rand15s(512_len)};
@@ -133,8 +133,8 @@ void ScionPiece3::update()
     getWorld().getCameraController().setBounce(-200_len);
   }
 
-  m_deadTime += 1_frame;
-  if(m_deadTime == 90_frame)
+  m_deadTime += 1_rframe;
+  if(m_deadTime == toAnimUnit(90_frame))
   {
     deactivate();
   }
@@ -154,7 +154,7 @@ void ScionPiece4::collide(CollisionInfo& /*info*/)
      || lara.getCurrentAnimState() != loader::file::LaraStateId::Stop || !limits.canInteract(m_state, lara.m_state))
     return;
 
-  static const core::GenericVec<core::Speed> alignSpeed{0_spd, 280_spd, -407_spd};
+  static const core::GenericVec<core::RenderSpeed> alignSpeed{0_rspd, toRenderUnit(280_spd), toRenderUnit(-407_spd)};
 
   lara.alignTransform(alignSpeed, *this);
   lara.getSkeleton()->setAnim(
@@ -163,7 +163,7 @@ void ScionPiece4::collide(CollisionInfo& /*info*/)
   lara.setGoalAnimState(loader::file::LaraStateId::PickUp);
   lara.setHandStatus(HandStatus::Grabbing);
   auto& cameraController = getWorld().getCameraController();
-  cameraController.m_cinematicFrame = 0_frame;
+  cameraController.m_cinematicFrame = 0_rframe;
   cameraController.setMode(CameraMode::Cinematic);
   cameraController.m_cinematicPos = lara.m_state.location.position;
   cameraController.m_cinematicRot = lara.m_state.rotation - core::TRRotation{0_deg, 90_deg, 0_deg};

@@ -136,7 +136,7 @@ void RollingBall::collide(CollisionInfo& collisionInfo)
                        + core::TRVec{util::rand15s(128_len), -util::rand15s(512_len), util::rand15s(128_len)};
       auto fx = createBloodSplat(getWorld(),
                                  Location{m_state.location.room, tmp},
-                                 2 * m_state.speed,
+                                 2 * m_state.speed.velocity,
                                  util::rand15s(22.5_deg) + m_state.rotation.Y);
       getWorld().getObjectManager().registerParticle(fx);
     }
@@ -160,7 +160,7 @@ void RollingBall::collide(CollisionInfo& collisionInfo)
              core::TRVec{x * core::SectorSize / 2 / xyz + m_state.location.position.X,
                          y * core::SectorSize / 2 / xyz + m_state.location.position.Y - 2 * core::QuarterSectorSize,
                          z * core::SectorSize / 2 / xyz + m_state.location.position.Z}},
-    m_state.speed,
+    m_state.speed.velocity,
     m_state.rotation.Y);
   getWorld().getObjectManager().registerParticle(fx);
 }

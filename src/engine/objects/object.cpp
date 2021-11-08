@@ -144,7 +144,7 @@ bool Object::triggerPickUp()
 
 bool InteractionLimits::canInteract(const ObjectState& objectState, const ObjectState& laraState) const
 {
-  const auto angle = laraState.rotation - objectState.rotation;
+  const auto angle = (laraState.rotation - objectState.rotation).normalized();
   if(angle.X < minAngle.X || angle.X > maxAngle.X || angle.Y < minAngle.Y || angle.Y > maxAngle.Y
      || angle.Z < minAngle.Z || angle.Z > maxAngle.Z)
   {
@@ -185,12 +185,12 @@ bool Object::alignTransformClamped(const core::TRVec& targetPos,
     m_state.location.position = targetPos;
   }
 
-  core::TRRotation phi = targetRot - m_state.rotation;
-  m_state.rotation.X += std::clamp(phi.X, -maxAngle, maxAngle);
-  m_state.rotation.Y += std::clamp(phi.Y, -maxAngle, maxAngle);
-  m_state.rotation.Z += std::clamp(phi.Z, -maxAngle, maxAngle);
+  core::TRRotation phi = (targetRot - m_state.rotation).normalized();
+  m_state.rotation.X += toRenderUnit(std::clamp(phi.X, -maxAngle, maxAngle) / 1_frame) * 1_rframe;
+  m_state.rotation.Y += toRenderUnit(std::clamp(phi.Y, -maxAngle, maxAngle) / 1_frame) * 1_rframe;
+  m_state.rotation.Z += toRenderUnit(std::clamp(phi.Z, -maxAngle, maxAngle) / 1_frame) * 1_rframe;
 
-  phi = targetRot - m_state.rotation;
+  phi = (targetRot - m_state.rotation).normalized();
   d = targetPos - m_state.location.position;
 
   return abs(phi.X) < 1_au && abs(phi.Y) < 1_au && abs(phi.Z) < 1_au && d.X == 0_len && d.Y == 0_len && d.Z == 0_len;

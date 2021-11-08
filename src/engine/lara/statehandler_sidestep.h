@@ -19,7 +19,7 @@ public:
   {
   }
 
-  void handleInput(CollisionInfo& /*collisionInfo*/) final
+  void handleInput(CollisionInfo& /*collisionInfo*/, bool /*doPhysics*/) final
   {
     if(getLara().isDead())
     {
@@ -43,7 +43,7 @@ public:
     }
   }
 
-  void postprocessFrame(CollisionInfo& collisionInfo) final
+  void postprocessFrame(CollisionInfo& collisionInfo, bool /*doPhysics*/) final
   {
     auto& laraState = getLara().m_state;
     collisionInfo.validFloorHeight = {-core::SteppableHeight, core::SteppableHeight};

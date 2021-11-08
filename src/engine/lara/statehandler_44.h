@@ -13,19 +13,21 @@ public:
   {
   }
 
-  void handleInput(CollisionInfo& /*collisionInfo*/) override
+  void handleInput(CollisionInfo& /*collisionInfo*/, bool /*doPhysics*/) override
   {
     auto& laraState = getLara().m_state;
-    laraState.fallspeed = std::max(0_spd, laraState.fallspeed - core::OnWaterAcceleration * 1_frame);
+    laraState.fallspeed += -core::OnWaterAcceleration;
+    if(laraState.fallspeed < core::OnWaterMaxSpeed)
+      laraState.fallspeed.stop();
 
-    static constexpr auto UprightDelta = 2_deg / 1_frame;
-    if(laraState.rotation.X > UprightDelta * 1_frame)
+    static constexpr auto UprightDelta = toRenderUnit(2_deg / 1_frame) * 1_rframe;
+    if(laraState.rotation.X > UprightDelta)
     {
-      laraState.rotation.X -= UprightDelta * 1_frame;
+      laraState.rotation.X -= UprightDelta;
     }
-    else if(laraState.rotation.X < -UprightDelta * 1_frame)
+    else if(laraState.rotation.X < -UprightDelta)
     {
-      laraState.rotation.X += UprightDelta * 1_frame;
+      laraState.rotation.X += UprightDelta;
     }
     else
     {
@@ -33,18 +35,18 @@ public:
     }
   }
 
-  void postprocessFrame(CollisionInfo& collisionInfo) override
+  void postprocessFrame(CollisionInfo& collisionInfo, bool doPhysics) override
   {
     getLara().m_state.health = core::DeadHealth;
-    setAir(-1_frame);
+    setAir(-1_rframe);
     setHandStatus(objects::HandStatus::Grabbing);
     auto h = getLara().getWaterSurfaceHeight();
     if(h.has_value() && *h < getLara().m_state.location.position.Y - core::DefaultCollisionRadius)
     {
-      getLara().m_state.location.position.Y -= 5_len;
+      getLara().m_state.location.position.Y -= toRenderUnit(5_spd) * 1_rframe;
     }
 
-    StateHandler_Underwater::postprocessFrame(collisionInfo);
+    StateHandler_Underwater::postprocessFrame(collisionInfo, doPhysics);
   }
 };
 } // namespace engine::lara

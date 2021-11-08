@@ -43,7 +43,7 @@ void UnderwaterSwitch::collide(CollisionInfo& /*collisionInfo*/)
   if(m_state.current_anim_state != 0_as && m_state.current_anim_state != 1_as)
     return;
 
-  static const core::GenericVec<core::Speed> alignSpeed{0_spd, 0_spd, 108_spd};
+  static const core::GenericVec<core::RenderSpeed> alignSpeed{0_rspd, 0_rspd, toRenderUnit(108_spd)};
   if(!getWorld().getObjectManager().getLara().alignTransform(alignSpeed, *this))
     return;
 

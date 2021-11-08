@@ -52,8 +52,8 @@ void TallBlock::update()
   m_state.triggerState = TriggerState::Active;
   world::patchHeightsForBlock(*this, -2 * core::SectorSize);
   auto pos = m_state.location.position;
-  pos.X = (pos.X / core::SectorSize) * core::SectorSize + core::SectorSize / 2;
-  pos.Z = (pos.Z / core::SectorSize) * core::SectorSize + core::SectorSize / 2;
+  pos.X = std::trunc(pos.X / core::SectorSize) * core::SectorSize + core::SectorSize / 2;
+  pos.Z = std::trunc(pos.Z / core::SectorSize) * core::SectorSize + core::SectorSize / 2;
   m_state.location.position = pos;
 }
 

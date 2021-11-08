@@ -114,14 +114,14 @@ void ModelObject::update()
       cmd += 2;
       break;
     case AnimCommandOpcode::PlaySound:
-      if(getSkeleton()->getFrame().get() == cmd[0])
+      if(getSkeleton()->getFrame() == toAnimUnit(core::Frame{gsl::narrow_cast<core::Frame::type>(cmd[0])}))
       {
         playSoundEffect(static_cast<TR1SoundEffect>(cmd[1]));
       }
       cmd += 2;
       break;
     case AnimCommandOpcode::PlayEffect:
-      if(getSkeleton()->getFrame().get() == cmd[0])
+      if(getSkeleton()->getFrame() == toAnimUnit(core::Frame{gsl::narrow_cast<core::Frame::type>(cmd[0])}))
       {
         getWorld().runEffect(cmd[1], this);
       }
@@ -145,21 +145,22 @@ void ModelObject::applyMovement(const bool forLara)
   {
     if(m_state.fallspeed >= core::TerminalSpeed)
     {
-      m_state.fallspeed += core::TerminalGravity * 1_frame;
+      m_state.fallspeed += core::TerminalGravity;
     }
     else
     {
-      m_state.fallspeed += core::Gravity * 1_frame;
+      m_state.fallspeed += core::Gravity;
     }
 
     if(forLara)
     {
-      m_state.speed += m_skeleton->getAcceleration() * 1_frame;
+      m_state.speed += m_skeleton->getAcceleration();
     }
   }
 
-  m_state.location.move(util::pitch(m_state.speed * 1_frame, getMovementAngle())
-                        + core::TRVec{0_len, (m_state.falling ? m_state.fallspeed : 0_spd) * 1_frame, 0_len});
+  const auto dy = m_state.fallspeed.nextFrame();
+  m_state.location.move(util::pitch(m_state.speed.nextFrame(), getMovementAngle())
+                        + core::TRVec{0_len, (m_state.falling ? dy : 0_len), 0_len});
   if(!forLara)
   {
     m_state.location.updateRoom();
@@ -268,14 +269,14 @@ void ModelObject::enemyPush(CollisionInfo& collisionInfo, const bool enableSpaz,
     const auto tmp = enemyToLara - util::pitch(core::TRVec{bbox.x.mid(), 0_len, bbox.z.mid()}, m_state.rotation.Y);
     const auto a = angleFromAtan(tmp.X, tmp.Z) - 180_deg;
     lara.hit_direction = axisFromAngle(lara.m_state.rotation.Y - a);
-    if(lara.hit_frame == 0_frame)
+    if(lara.hit_frame == 0_rframe)
     {
       lara.playSoundEffect(TR1SoundEffect::LaraOof);
     }
-    lara.hit_frame += 1_frame;
-    if(lara.hit_frame > 34_frame)
+    lara.hit_frame += 1_rframe;
+    if(lara.hit_frame > toAnimUnit(34_frame))
     {
-      lara.hit_frame = 34_frame;
+      lara.hit_frame = toAnimUnit(34_frame);
     }
   }
   collisionInfo.validFloorHeight = {-core::ClimbLimit2ClickMin, core::HeightLimit};
@@ -340,7 +341,7 @@ gsl::not_null<std::shared_ptr<Particle>>
 
   auto location = m_state.location;
   location.position = core::TRVec{boneSpheres.at(boneIndex).relative(localPosition.toRenderSystem())};
-  auto particle = generate(getWorld(), location, m_state.speed, m_state.rotation.Y);
+  auto particle = generate(getWorld(), location, m_state.speed.velocity, m_state.rotation.Y);
   getWorld().getObjectManager().registerParticle(particle);
 
   return particle;

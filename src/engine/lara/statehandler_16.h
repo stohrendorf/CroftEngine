@@ -14,7 +14,7 @@ public:
   {
   }
 
-  void handleInput(CollisionInfo& /*collisionInfo*/) override
+  void handleInput(CollisionInfo& /*collisionInfo*/, bool /*doPhysics*/) override
   {
     if(getLara().isDead())
     {
@@ -43,7 +43,7 @@ public:
     }
   }
 
-  void postprocessFrame(CollisionInfo& collisionInfo) override
+  void postprocessFrame(CollisionInfo& collisionInfo, bool doPhysics) override
   {
     auto& laraState = getLara().m_state;
     collisionInfo.validFloorHeight = {-core::ClimbLimit2ClickMin, core::ClimbLimit2ClickMin};
@@ -68,7 +68,7 @@ public:
 
     if(collisionInfo.mid.floor.y > core::QuarterSectorSize && collisionInfo.mid.floor.y < core::ClimbLimit2ClickMin)
     {
-      if(getLara().getSkeleton()->getFrame() < 964_frame || getLara().getSkeleton()->getFrame() > 993_frame)
+      if(getLara().getSkeleton()->getAnimFrame() < 964_frame || getLara().getSkeleton()->getAnimFrame() > 993_frame)
       {
         setAnimation(AnimationId::WALK_DOWN_BACK_LEFT);
       }

@@ -51,11 +51,11 @@ void PickupObject::collide(CollisionInfo& /*collisionInfo*/)
       return;
     }
 
-    static const core::GenericVec<core::Speed> aimSpeed{0_spd, -200_spd, -350_spd};
+    static const core::GenericVec<core::RenderSpeed> aimSpeed{0_rspd, toRenderUnit(-200_spd), toRenderUnit(-350_spd)};
 
     if(getWorld().getObjectManager().getLara().getCurrentAnimState() == loader::file::LaraStateId::PickUp)
     {
-      if(getWorld().getObjectManager().getLara().getSkeleton()->getFrame() == 2970_frame)
+      if(getWorld().getObjectManager().getLara().getSkeleton()->getAnimFrame() == 2970_frame)
       {
         m_state.triggerState = TriggerState::Invisible;
         ++getWorld().getPlayer().pickups;
@@ -115,7 +115,7 @@ void PickupObject::collide(CollisionInfo& /*collisionInfo*/)
         getWorld().getObjectManager().getLara().setHandStatus(HandStatus::Grabbing);
       }
     }
-    else if(getWorld().getObjectManager().getLara().getSkeleton()->getFrame() == 3443_frame)
+    else if(getWorld().getObjectManager().getLara().getSkeleton()->getAnimFrame() == 3443_frame)
     {
       if(m_state.type == TR1ItemId::ShotgunSprite)
       {

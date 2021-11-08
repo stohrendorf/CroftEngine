@@ -96,7 +96,7 @@ std::unique_ptr<MenuState> IdleRingMenuState::onFrame(ui::Ui& ui, engine::world:
     }
 
     currentObject.goalFrame = currentObject.openFrame;
-    currentObject.animDirection = 1_frame;
+    currentObject.animDirection = 1_rframe;
     return create<ApplyItemTransformMenuState>();
   }
 

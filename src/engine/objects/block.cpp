@@ -91,7 +91,8 @@ void Block::collide(CollisionInfo& /*collisionInfo*/)
     }
 
     getWorld().getObjectManager().getLara().m_state.location.position.*vp
-      = (getWorld().getObjectManager().getLara().m_state.location.position.*vp / core::SectorSize) * core::SectorSize
+      = std::trunc(getWorld().getObjectManager().getLara().m_state.location.position.*vp / core::SectorSize)
+          * core::SectorSize
         + d;
 
     getWorld().getObjectManager().getLara().setGoalAnimState(loader::file::LaraStateId::PushableGrab);
@@ -104,7 +105,7 @@ void Block::collide(CollisionInfo& /*collisionInfo*/)
   }
 
   if(getWorld().getObjectManager().getLara().getCurrentAnimState() != loader::file::LaraStateId::PushableGrab
-     || getWorld().getObjectManager().getLara().getSkeleton()->getFrame() != 2091_frame
+     || getWorld().getObjectManager().getLara().getSkeleton()->getFrame() != toAnimUnit(2091_frame)
      || !limits.canInteract(m_state, getWorld().getObjectManager().getLara().m_state))
   {
     return;

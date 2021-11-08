@@ -14,7 +14,7 @@ protected:
   }
 
 public:
-  void postprocessFrame(CollisionInfo& collisionInfo) final
+  void postprocessFrame(CollisionInfo& collisionInfo, bool doPhysics) final
   {
     auto& laraState = getLara().m_state;
     collisionInfo.facingAngle = laraState.rotation.Y;
@@ -22,6 +22,9 @@ public:
     collisionInfo.validCeilingHeightMin = 0_len;
     collisionInfo.policies |= CollisionInfo::SlopeBlockingPolicy;
     collisionInfo.initHeightInfo(laraState.location.position, getWorld(), core::LaraWalkHeight);
+
+    if(!doPhysics)
+      return;
 
     setMovementAngle(collisionInfo.facingAngle);
     laraState.fallspeed = 0_spd;

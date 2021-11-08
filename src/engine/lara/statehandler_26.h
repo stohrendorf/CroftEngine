@@ -13,7 +13,7 @@ public:
   {
   }
 
-  void handleInput(CollisionInfo& /*collisionInfo*/) override
+  void handleInput(CollisionInfo& /*collisionInfo*/, bool /*doPhysics*/) override
   {
     if(getLara().m_state.fallspeed > core::FreeFallSpeedThreshold)
     {
@@ -21,10 +21,11 @@ public:
     }
   }
 
-  void postprocessFrame(CollisionInfo& collisionInfo) override
+  void postprocessFrame(CollisionInfo& collisionInfo, bool doPhysics) override
   {
-    setMovementAngle(getLara().m_state.rotation.Y + 90_deg);
-    commonJumpHandling(collisionInfo);
+    if(doPhysics)
+      setMovementAngle(getLara().m_state.rotation.Y + 90_deg);
+    commonJumpHandling(collisionInfo, doPhysics);
   }
 };
 } // namespace engine::lara

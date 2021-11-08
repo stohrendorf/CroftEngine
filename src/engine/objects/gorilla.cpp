@@ -50,11 +50,13 @@ void Gorilla::update()
       // standing
       if(m_turnedRight)
       {
+        // TODO 60 fps fix?
         m_state.rotation.Y -= 90_deg;
         m_turnedRight = false;
       }
       else if(m_turnedLeft)
       {
+        // TODO 60 fps fix?
         m_state.rotation.Y += 90_deg;
         m_turnedLeft = false;
       }
@@ -182,10 +184,10 @@ void Gorilla::update()
     if(old.Y - 384_len < m_state.location.position.Y)
       return;
 
-    const auto xSectorOld = old.X / core::SectorSize;
-    const auto zSectorOld = old.Z / core::SectorSize;
-    const auto xSectorNew = m_state.location.position.X / core::SectorSize;
-    const auto zSectorNew = m_state.location.position.Z / core::SectorSize;
+    const auto xSectorOld = std::trunc(old.X / core::SectorSize);
+    const auto zSectorOld = std::trunc(old.Z / core::SectorSize);
+    const auto xSectorNew = std::trunc(m_state.location.position.X / core::SectorSize);
+    const auto zSectorNew = std::trunc(m_state.location.position.Z / core::SectorSize);
     if(zSectorOld == zSectorNew)
     {
       if(xSectorOld == xSectorNew)

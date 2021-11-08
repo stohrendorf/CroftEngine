@@ -428,7 +428,7 @@ void TorsoBoss::update()
       }
 
       m_hasHitLara = false;
-      m_turnStartFrame = 0_frame;
+      m_turnStartFrame = 0_rframe;
       if(angleToTarget > 45_deg)
       {
         goal(TurnRight);
@@ -460,16 +460,16 @@ void TorsoBoss::update()
       }
       break;
     case TurnLeft.get():
-      if(m_turnStartFrame == 0_frame)
+      if(m_turnStartFrame == 0_rframe)
       {
         m_turnStartFrame = getSkeleton()->getFrame();
       }
       else
       {
         const auto frameDelta = getSkeleton()->getFrame() - m_turnStartFrame;
-        if(frameDelta > 13_frame && frameDelta < 23_frame)
+        if(frameDelta > toAnimUnit(13_frame) && frameDelta < toAnimUnit(23_frame))
         {
-          m_state.rotation.Y -= 9_deg;
+          m_state.rotation.Y -= toRenderUnit(9_deg / 1_frame) * 1_rframe;
         }
       }
 
@@ -477,16 +477,16 @@ void TorsoBoss::update()
         goal(Think);
       break;
     case TurnRight.get():
-      if(m_turnStartFrame == 0_frame)
+      if(m_turnStartFrame == 0_rframe)
       {
         m_turnStartFrame = getSkeleton()->getFrame();
       }
       else
       {
         const auto frameDelta = getSkeleton()->getFrame() - m_turnStartFrame;
-        if(frameDelta > 16_frame && frameDelta < 23_frame)
+        if(frameDelta > toAnimUnit(16_frame) && frameDelta < toAnimUnit(23_frame))
         {
-          m_state.rotation.Y += 14_deg;
+          m_state.rotation.Y += toRenderUnit(14_deg / 1_frame) * 1_rframe;
         }
       }
 
@@ -520,7 +520,7 @@ void TorsoBoss::update()
         lara.m_state.location = m_state.location;
         lara.m_state.rotation = {0_deg, m_state.rotation.Y, 0_deg};
         lara.m_state.health = core::DeadHealth;
-        lara.setAir(-1_frame);
+        lara.setAir(-1_rframe);
         getWorld().getPlayer().selectedWeaponType = WeaponType::None;
         lara.setHandStatus(HandStatus::Grabbing);
         lara.m_state.falling = false;

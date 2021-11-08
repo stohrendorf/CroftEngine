@@ -306,7 +306,7 @@ EnemyLocation::EnemyLocation(objects::AIAgent& aiAgent)
                       - (aiAgent.m_state.location.position + util::pitch(pivotLength, aiAgent.m_state.rotation.Y));
   const auto angleToLara = core::angleFromAtan(toLara.X, toLara.Z);
   enemyDistance = util::square(toLara.X) + util::square(toLara.Z);
-  angleToEnemy = angleToLara - aiAgent.m_state.rotation.Y;
+  angleToEnemy = normalizeAngle(angleToLara - aiAgent.m_state.rotation.Y);
   enemyAngleToSelf = angleToLara - 180_deg - lara.m_state.rotation.Y;
   enemyAhead = angleToEnemy > -90_deg && angleToEnemy < 90_deg;
   if(enemyAhead)

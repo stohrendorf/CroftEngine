@@ -51,7 +51,7 @@ class AudioEngine
   std::vector<loader::file::SoundEffectProperties> m_soundEffectProperties{};
   boost::container::flat_map<int, const loader::file::SoundEffectProperties*> m_soundEffects{};
   std::map<TR1TrackId, engine::floordata::ActivationState> m_cdTrackActivationStates;
-  core::Frame m_cdTrack50time = 0_frame;
+  core::RenderFrame m_cdTrack50time = 0_rframe;
   std::shared_ptr<audio::Voice> m_underwaterAmbience;
   std::map<size_t, StreamInfo> m_streams;
   std::optional<TR1TrackId> m_currentTrack;

@@ -15,7 +15,7 @@ namespace menu
 std::unique_ptr<MenuState>
   InflateRingMenuState::onFrame(ui::Ui& /*ui*/, engine::world::World& /*world*/, MenuDisplay& display)
 {
-  if(m_duration == 0_frame)
+  if(m_duration == 0_rframe)
   {
     bool doAutoSelect = false;
     if(display.rings.size() == 1 && !display.passOpen && display.mode != InventoryMode::TitleMode)
@@ -26,7 +26,7 @@ std::unique_ptr<MenuState>
     return create<IdleRingMenuState>(doAutoSelect);
   }
 
-  m_duration -= 1_frame;
+  m_duration -= 1_rframe;
   m_ringTransform->ringRotation
     = display.getCurrentRing().getCurrentObjectAngle() - exactScale(90_deg, m_duration, Duration);
   m_ringTransform->cameraRotX = exactScale(m_initialCameraRotX, m_duration, Duration);
@@ -61,8 +61,8 @@ InflateRingMenuState::InflateRingMenuState(const std::shared_ptr<MenuRingTransfo
 void InflateRingMenuState::begin(engine::world::World& /*world*/)
 {
   m_initialCameraRotX = m_ringTransform->cameraRotX;
-  m_radiusSpeed = (MenuRingTransform::IdleCameraZPosOffset - m_ringTransform->radius) / Duration * 1_frame;
-  m_cameraSpeedY = (MenuRingTransform::IdleCameraYPosOffset - m_ringTransform->cameraPos.Y) / Duration * 1_frame;
+  m_radiusSpeed = (MenuRingTransform::IdleCameraZPosOffset - m_ringTransform->radius) / Duration * 1_rframe;
+  m_cameraSpeedY = (MenuRingTransform::IdleCameraYPosOffset - m_ringTransform->cameraPos.Y) / Duration * 1_rframe;
   m_ringTransform->cameraPos.Z = m_targetPosZ + MenuRingTransform::CameraZPosOffset + m_ringTransform->radius;
 }
 } // namespace menu

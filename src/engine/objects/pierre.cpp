@@ -60,7 +60,7 @@ void Pierre::update()
   if(m_state.health <= 40_hp && !m_state.activationState.isOneshot())
   {
     m_state.health = 40_hp;
-    m_fleeTime += 1_frame;
+    m_fleeTime += 1_rframe;
   }
   if(alive())
   {
@@ -69,7 +69,7 @@ void Pierre::update()
     {
       headRot = enemyLocation.angleToEnemy;
     }
-    if(m_fleeTime != 0_frame)
+    if(m_fleeTime != 0_rframe)
     {
       enemyLocation.enemyZoneId = -1;
       enemyLocation.enemyUnreachable = true;
@@ -165,16 +165,16 @@ void Pierre::update()
   rotateCreatureHead(headRot);
   getSkeleton()->patchBone(7, core::TRRotation{0_deg, getCreatureInfo()->headRotation, 0_deg}.toMatrix());
   animateCreature(creatureTurn, 0_deg);
-  if(m_fleeTime != 0_frame)
+  if(m_fleeTime != 0_rframe)
   {
     if(raycastLineOfSight(getWorld().getCameraController().getTRLocation(),
                           m_state.location.position - core::TRVec{0_len, core::SectorSize, 0_len},
                           getWorld().getObjectManager())
          .first)
     {
-      m_fleeTime = 1_frame;
+      m_fleeTime = 1_rframe;
     }
-    else if(m_fleeTime > 10_frame)
+    else if(m_fleeTime > core::RenderFrameRate * 1_sec / 3)
     {
       m_state.health = core::DeadHealth;
       freeCreatureInfo();

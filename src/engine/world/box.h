@@ -17,8 +17,8 @@ using ZoneId = uint32_t;
 
 struct Box
 {
-  core::Interval<core::Length> xInterval{0_len, 0_len};
-  core::Interval<core::Length> zInterval{0_len, 0_len};
+  core::HalfOpenInterval<core::Length> xInterval{0_len, 0_len};
+  core::HalfOpenInterval<core::Length> zInterval{0_len, 0_len};
 
   core::Length floor = 0_len;
 

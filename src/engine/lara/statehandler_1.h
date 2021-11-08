@@ -15,7 +15,7 @@ public:
   {
   }
 
-  void handleInput(CollisionInfo& /*collisionInfo*/) override
+  void handleInput(CollisionInfo& /*collisionInfo*/, bool /*doPhysics*/) override
   {
     if(getLara().isDead())
     {
@@ -36,14 +36,14 @@ public:
     {
       subYRotationSpeed(core::SlowTurnSpeedAcceleration, -core::FastTurnSpeed);
       const core::Angle z
-        = std::max(-core::MaxRunTilt, getLara().m_state.rotation.Z - core::RunTiltAcceleration * 1_frame);
+        = std::max(-core::MaxRunTilt, getLara().m_state.rotation.Z - core::RunTiltAcceleration * 1_rframe);
       getLara().m_state.rotation.Z = z;
     }
     else if(inputHandler.getInputState().xMovement == hid::AxisMovement::Right)
     {
       addYRotationSpeed(core::SlowTurnSpeedAcceleration, core::FastTurnSpeed);
       const core::Angle z
-        = std::min(core::MaxRunTilt, getLara().m_state.rotation.Z + core::RunTiltAcceleration * 1_frame);
+        = std::min(core::MaxRunTilt, getLara().m_state.rotation.Z + core::RunTiltAcceleration * 1_rframe);
       getLara().m_state.rotation.Z = z;
     }
 
@@ -69,7 +69,7 @@ public:
     }
   }
 
-  void postprocessFrame(CollisionInfo& collisionInfo) override
+  void postprocessFrame(CollisionInfo& collisionInfo, bool /*doPhysics*/) override
   {
     collisionInfo.facingAngle = getLara().m_state.rotation.Y;
     collisionInfo.validFloorHeight = {-core::ClimbLimit2ClickMin, core::HeightLimit};
@@ -95,13 +95,13 @@ public:
       if(collisionInfo.front.floor.slantClass == SlantClass::None
          && collisionInfo.front.floor.y < -core::ClimbLimit2ClickMax)
       {
-        if(getLara().getSkeleton()->getFrame() < 10_frame)
+        if(getLara().getSkeleton()->getAnimFrame() < 10_frame)
         {
           setAnimation(AnimationId::WALL_SMASH_LEFT);
           setCurrentAnimState(LaraStateId::Unknown12);
           return;
         }
-        if(getLara().getSkeleton()->getFrame() >= 10_frame && getLara().getSkeleton()->getFrame() < 22_frame)
+        if(getLara().getSkeleton()->getAnimFrame() >= 10_frame && getLara().getSkeleton()->getAnimFrame() < 22_frame)
         {
           setAnimation(AnimationId::WALL_SMASH_RIGHT);
           setCurrentAnimState(LaraStateId::Unknown12);
@@ -124,7 +124,7 @@ public:
 
     if(collisionInfo.mid.floor.y >= -core::ClimbLimit2ClickMin && collisionInfo.mid.floor.y < -core::SteppableHeight)
     {
-      if(getLara().getSkeleton()->getFrame() >= 3_frame && getLara().getSkeleton()->getFrame() <= 14_frame)
+      if(getLara().getSkeleton()->getAnimFrame() >= 3_frame && getLara().getSkeleton()->getAnimFrame() <= 14_frame)
       {
         setAnimation(AnimationId::RUN_UP_STEP_LEFT);
       }

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "core/id.h"
+#include "core/magic.h"
 #include "core/units.h"
 #include "core/vec.h"
 #include "render/scene/node.h"
@@ -211,7 +212,12 @@ public:
     return m_frame;
   }
 
-  [[nodiscard]] core::Frame getLocalFrame() const;
+  [[nodiscard]] core::Frame getAnimFrame() const
+  {
+    return toRenderUnit(getFrame());
+  }
+
+  [[nodiscard]] core::RenderFrame getLocalFrame() const;
 
   [[nodiscard]] const auto& getAnim() const
   {
@@ -252,7 +258,7 @@ private:
   bool m_forceMeshRebuild = false;
 
   const world::Animation* m_anim = nullptr;
-  core::Frame m_frame = 0_frame;
+  core::RenderFrame m_frame = 0_rframe;
 
   void updatePose(const InterpolationInfo& framePair);
 

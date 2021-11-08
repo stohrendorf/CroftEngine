@@ -13,7 +13,7 @@ public:
   {
   }
 
-  void handleInput(CollisionInfo& collisionInfo) override
+  void handleInput(CollisionInfo& collisionInfo, bool /*doPhysics*/) override
   {
     collisionInfo.policies.reset(CollisionInfo::PolicyFlags::EnableSpaz);
     collisionInfo.policies.set(CollisionInfo::PolicyFlags::EnableBaddiePush);
@@ -23,12 +23,15 @@ public:
     }
   }
 
-  void postprocessFrame(CollisionInfo& collisionInfo) override
+  void postprocessFrame(CollisionInfo& collisionInfo, bool doPhysics) override
   {
     collisionInfo.validFloorHeight = {-core::ClimbLimit2ClickMin, core::HeightLimit};
     collisionInfo.validCeilingHeightMin = 192_len;
     collisionInfo.facingAngle = getLara().m_state.rotation.Y;
     collisionInfo.initHeightInfo(getLara().m_state.location.position, getWorld(), core::LaraWalkHeight);
+
+    if(!doPhysics)
+      return;
 
     setMovementAngle(collisionInfo.facingAngle);
 

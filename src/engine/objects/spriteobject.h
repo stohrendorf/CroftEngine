@@ -67,7 +67,7 @@ public:
     setParent(m_objectNode, nullptr);
   }
 
-  bool triggerSwitch(const core::Frame&) override
+  bool triggerSwitch(const core::RenderFrame&) override
   {
     BOOST_THROW_EXCEPTION(std::runtime_error("triggerSwitch called on sprite"));
   }

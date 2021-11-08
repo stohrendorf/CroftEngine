@@ -19,7 +19,7 @@ extern void idleRotation(engine::world::World& world, MenuObject& object, bool f
 extern void zeroRotation(MenuObject& object, const core::Angle& speed);
 
 template<typename Unit, typename Type>
-auto exactScale(const qs::quantity<Unit, Type>& value, const core::Frame& x, const core::Frame& max)
+auto exactScale(const qs::quantity<Unit, Type>& value, const core::RenderFrame& x, const core::RenderFrame& max)
 {
   const auto f = x.cast<float>() / max.cast<float>();
   return (value.template cast<float>() * f).template cast<Type>();

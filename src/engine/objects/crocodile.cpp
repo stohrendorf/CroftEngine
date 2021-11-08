@@ -48,7 +48,7 @@ void Crocodile::updateInWater()
     }
     else if(m_state.current_anim_state == 2_as)
     {
-      if(getSkeleton()->getLocalFrame() == 0_frame)
+      if(getSkeleton()->getLocalFrame() == 0_rframe)
       {
         require(0_as);
       }
@@ -151,7 +151,7 @@ void Crocodile::updateOnLand()
     updateMood(*this, enemyLocation, true);
     if(m_state.current_anim_state == 4_as)
     {
-      m_state.rotation.Y += 6_deg;
+      m_state.rotation.Y += toRenderUnit(6_deg / 1_frame) * 1_rframe;
     }
     else
     {
@@ -171,7 +171,7 @@ void Crocodile::updateOnLand()
         goal(2_as);
         break;
       case ai::Mood::Attack:
-        if(abs(enemyLocation.angleToEnemy) <= 90_deg
+        if(normalizeAngle(abs(enemyLocation.angleToEnemy)) <= 90_deg
            || enemyLocation.enemyDistance <= util::square(3 * core::SectorSize))
           goal(2_as);
         else
@@ -193,7 +193,7 @@ void Crocodile::updateOnLand()
       else if(isBored())
         goal(1_as);
       else if(isAttacking() && enemyLocation.enemyDistance > util::square(3 * core::SectorSize)
-              && abs(enemyLocation.angleToEnemy) > 90_deg)
+              && normalizeAngle(abs(enemyLocation.angleToEnemy)) > 90_deg)
         goal(1_as);
       break;
     case 3:
@@ -205,7 +205,7 @@ void Crocodile::updateOnLand()
         goal(1_as);
       break;
     case 4:
-      if(abs(enemyLocation.angleToEnemy) < 90_deg)
+      if(normalizeAngle(abs(enemyLocation.angleToEnemy)) < 90_deg)
         goal(3_as);
       break;
     case 5:

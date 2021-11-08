@@ -48,7 +48,7 @@ SkeletalModelNode::SkeletalModelNode(const std::string& id,
 
 core::Speed SkeletalModelNode::calculateFloorSpeed() const
 {
-  const auto scaled = m_anim->speed + m_anim->acceleration * getLocalFrame();
+  const auto scaled = m_anim->speed + m_anim->acceleration * toRenderUnit(getLocalFrame());
   // NOLINTNEXTLINE(hicpp-signed-bitwise)
   return scaled / gsl::narrow_cast<core::Speed::type>(1 << 16);
 }
@@ -64,20 +64,19 @@ InterpolationInfo SkeletalModelNode::getInterpolationInfo() const
 {
   Expects(m_anim != nullptr);
 
-  Expects(m_frame >= m_anim->firstFrame && m_frame <= m_anim->lastFrame);
-  const auto firstLocalKeyframeIndex = getLocalFrame() / m_anim->segmentLength;
+  Expects(m_frame >= toAnimUnit(m_anim->firstFrame) && m_frame < toAnimUnit(m_anim->lastFrame + 1_frame));
+  const auto firstLocalKeyframeIndex = gsl::narrow_cast<size_t>(getLocalFrame() / toAnimUnit(m_anim->segmentLength));
 
   auto firstKeyframe = m_anim->frames->next(firstLocalKeyframeIndex);
   Expects(m_world->isValid(firstKeyframe));
 
-  auto segmentDuration = m_anim->segmentLength;
-  const auto segmentFrame = getLocalFrame() % m_anim->segmentLength;
-  if(segmentFrame == 0_frame)
+  const auto segmentFrame = getLocalFrame() % toAnimUnit(m_anim->segmentLength);
+  if(segmentFrame == 0_rframe || m_frame == toAnimUnit(m_anim->lastFrame + 1_frame) - 1_rframe)
   {
     return InterpolationInfo{firstKeyframe, firstKeyframe, 0.0f};
   }
 
-  const auto bias = segmentFrame.cast<float>() / segmentDuration.cast<float>();
+  const auto bias = segmentFrame.cast<float>() / toAnimUnit(m_anim->segmentLength).cast<float>();
   BOOST_ASSERT(bias >= 0 && bias <= 1);
 
   const auto secondKeyframe = firstKeyframe->next();
@@ -165,12 +164,13 @@ bool SkeletalModelNode::handleStateTransitions(core::AnimStateId& animState, con
     if(tr.stateId != goal)
       continue;
 
-    const auto it = std::find_if(tr.transitionCases.cbegin(),
-                                 tr.transitionCases.cend(),
-                                 [this](const world::TransitionCase& trc)
-                                 {
-                                   return m_frame >= trc.firstFrame && m_frame <= trc.lastFrame;
-                                 });
+    const auto it
+      = std::find_if(tr.transitionCases.cbegin(),
+                     tr.transitionCases.cend(),
+                     [this](const world::TransitionCase& trc)
+                     {
+                       return m_frame >= toAnimUnit(trc.firstFrame) && m_frame < toAnimUnit(trc.lastFrame + 1_frame);
+                     });
 
     if(it != tr.transitionCases.cend())
     {
@@ -192,13 +192,13 @@ void SkeletalModelNode::setAnimation(core::AnimStateId& animState,
     frame = animation->firstFrame;
 
   m_anim = animation;
-  m_frame = frame;
+  m_frame = toAnimUnit(frame);
   animState = m_anim->state_id;
 }
 
 bool SkeletalModelNode::advanceFrame(objects::ObjectState& state)
 {
-  m_frame += 1_frame;
+  m_frame += 1_rframe;
   if(handleStateTransitions(state.current_anim_state, state.goal_anim_state))
   {
     state.current_anim_state = m_anim->state_id;
@@ -206,7 +206,7 @@ bool SkeletalModelNode::advanceFrame(objects::ObjectState& state)
       state.required_anim_state = 0_as;
   }
 
-  return m_frame > m_anim->lastFrame;
+  return toRenderUnit(m_frame) > m_anim->lastFrame;
 }
 
 std::vector<SkeletalModelNode::Sphere> SkeletalModelNode::getBoneCollisionSpheres()
@@ -338,12 +338,12 @@ void SkeletalModelNode::setAnim(const gsl::not_null<const world::Animation*>& an
                                 const std::optional<core::Frame>& frame)
 {
   m_anim = anim;
-  m_frame = frame.value_or(anim->firstFrame);
+  m_frame = toAnimUnit(frame.value_or(anim->firstFrame));
 }
 
-core::Frame SkeletalModelNode::getLocalFrame() const
+core::RenderFrame SkeletalModelNode::getLocalFrame() const
 {
-  return m_frame - m_anim->firstFrame;
+  return m_frame - toAnimUnit(m_anim->firstFrame);
 }
 
 void SkeletalModelNode::replaceAnim(const gsl::not_null<const world::Animation*>& anim, const core::Frame& localFrame)

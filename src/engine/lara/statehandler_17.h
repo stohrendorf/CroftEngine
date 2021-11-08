@@ -12,7 +12,7 @@ public:
   {
   }
 
-  void handleInput(CollisionInfo& /*collisionInfo*/) override
+  void handleInput(CollisionInfo& /*collisionInfo*/, bool /*doPhysics*/) override
   {
     if(getLara().isDead())
     {
@@ -27,7 +27,8 @@ public:
       setGoalAnimState(LaraStateId::UnderwaterInertia);
     }
 
-    getLara().m_state.fallspeed = std::min(getLara().m_state.fallspeed + 8_spd, 200_spd);
+    getLara().m_state.fallspeed += 8_spd / 1_frame;
+    getLara().m_state.fallspeed = std::min(getLara().m_state.fallspeed.velocity, 200_spd);
   }
 };
 } // namespace engine::lara

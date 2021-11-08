@@ -80,7 +80,7 @@ std::pair<CollisionType, Location> clampSteps(const Location& start,
 
   auto result = start;
   // align the result to the sector boundary, adjust other axes as necessary
-  result.position.*stepAxis = (result.position.*stepAxis / core::SectorSize) * core::SectorSize;
+  result.position.*stepAxis = std::trunc(result.position.*stepAxis / core::SectorSize) * core::SectorSize;
   if(dir > 0)
     result.position.*stepAxis += core::SectorSize - 1_len;
 
@@ -114,7 +114,8 @@ std::pair<CollisionType, Location> clampSteps(const Location& start,
 
     auto nextSector = result;
     nextSector.position.*stepAxis += dir * 1_len;
-    BOOST_ASSERT(result.position.*stepAxis / core::SectorSize != nextSector.position.*stepAxis / core::SectorSize);
+    BOOST_ASSERT(std::trunc(result.position.*stepAxis / core::SectorSize)
+                 != std::trunc(nextSector.position.*stepAxis / core::SectorSize));
     if(testVerticalHit(nextSector))
     {
       return {CollisionType::Wall, result};

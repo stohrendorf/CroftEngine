@@ -12,11 +12,11 @@ public:
   {
   }
 
-  void handleInput(CollisionInfo& /*collisionInfo*/) override
+  void handleInput(CollisionInfo& /*collisionInfo*/, bool /*doPhysics*/) override
   {
     if(getWorld().getPresenter().getInputHandler().getInputState().zMovement == hid::AxisMovement::Forward)
     {
-      getLara().m_state.rotation.X -= 1_deg;
+      getLara().m_state.rotation.X -= toRenderUnit(1_deg / 1_frame) * 1_rframe;
     }
   }
 };

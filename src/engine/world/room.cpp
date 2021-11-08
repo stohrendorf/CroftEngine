@@ -144,7 +144,7 @@ template<size_t N>
 core::TRVec getCenter(const std::array<loader::file::VertexIndex, N>& faceVertices,
                       const std::vector<loader::file::RoomVertex>& roomVertices)
 {
-  static_assert(N <= static_cast<size_t>(std::numeric_limits<core::Length::type>::max()));
+  // FIXME static_assert(N <= static_cast<size_t>(std::numeric_limits<core::Length::type>::max()));
 
   core::TRVec s{0_len, 0_len, 0_len};
   for(const auto& v : faceVertices)

@@ -14,7 +14,7 @@ public:
   {
   }
 
-  void handleInput(CollisionInfo& collisionInfo) override
+  void handleInput(CollisionInfo& collisionInfo, bool doPhysics) override
   {
     getLara().m_state.falling = false;
     collisionInfo.policies &= ~CollisionInfo::SpazPushPolicy;
@@ -23,7 +23,7 @@ public:
       return;
 
     const auto skeleton = getLara().getSkeleton();
-    switch(skeleton->getLocalFrame().get())
+    switch(toRenderUnit(skeleton->getLocalFrame()).cast<int>().get())
     {
     case 5:
       skeleton->setMeshPart(3, alternateLara->bones[3].mesh);
@@ -72,16 +72,23 @@ public:
       break;
     }
     skeleton->rebuildMesh();
-    StateHandler_50::emitSparkles(getWorld());
+
+    if(doPhysics)
+    {
+      StateHandler_50::emitSparkles(getWorld());
+    }
   }
 
-  void postprocessFrame(CollisionInfo& collisionInfo) override
+  void postprocessFrame(CollisionInfo& collisionInfo, bool doPhysics) override
   {
     collisionInfo.validFloorHeight = {-core::ClimbLimit2ClickMin, core::ClimbLimit2ClickMin};
     collisionInfo.validCeilingHeightMin = 0_len;
     collisionInfo.policies |= CollisionInfo::SlopeBlockingPolicy;
     collisionInfo.facingAngle = getLara().m_state.rotation.Y;
     collisionInfo.initHeightInfo(getLara().m_state.location.position, getWorld(), core::LaraWalkHeight);
+
+    if(!doPhysics)
+      return;
 
     setMovementAngle(collisionInfo.facingAngle);
   }

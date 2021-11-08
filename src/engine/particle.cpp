@@ -133,7 +133,7 @@ void Particle::applyTransform()
 
 bool BloodSplatterParticle::update(world::World& world)
 {
-  location.position += util::pitch(speed * 1_frame, angle.Y);
+  location.position += util::pitch(speed.nextFrame(), angle.Y);
   ++timePerSpriteFrame;
   if(timePerSpriteFrame != 4)
   {
@@ -159,7 +159,7 @@ bool SplashParticle::update(world::World& world)
     return false;
   }
 
-  location.position += util::pitch(speed * 1_frame, angle.Y);
+  location.position += util::pitch(speed.nextFrame(), angle.Y);
 
   applyTransform();
   return true;
@@ -185,7 +185,7 @@ bool BubbleParticle::update(world::World& world)
 {
   angle.X += 13_deg;
   angle.Y += 9_deg;
-  location.position += util::pitch(11_len, angle.Y, -speed * 1_frame);
+  location.position += util::pitch(11_len, angle.Y, -speed.nextFrame());
   auto sector = location.updateRoom();
   if(!location.room->isWaterRoom)
   {
@@ -297,18 +297,18 @@ bool FlameParticle::update(world::World& world)
 
 bool MeshShrapnelParticle::update(world::World& world)
 {
-  angle.X += 5_deg;
-  angle.Z += 10_deg;
-  fall_speed += core::Gravity * 1_frame;
+  angle.X += toRenderUnit(5_deg / 1_frame) * 1_rframe;
+  angle.Z += toRenderUnit(10_deg / 1_frame) * 1_rframe;
+  fall_speed += core::Gravity;
 
-  location.position += util::pitch(speed * 1_frame, angle.Y, fall_speed * 1_frame);
+  location.position += util::pitch(speed.nextFrame(), angle.Y, fall_speed.nextFrame());
 
   const auto sector = location.updateRoom();
   const auto ceiling = HeightInfo::fromCeiling(sector, location.position, world.getObjectManager().getObjects()).y;
   if(ceiling > location.position.Y)
   {
     location.position.Y = ceiling;
-    fall_speed = -fall_speed;
+    fall_speed = -fall_speed.velocity;
   }
 
   const auto floor = HeightInfo::fromFloor(sector, location.position, world.getObjectManager().getObjects()).y;
@@ -332,7 +332,7 @@ bool MeshShrapnelParticle::update(world::World& world)
     explode = true;
 
     lara.forceSourcePosition = &location.position;
-    lara.explosionStumblingDuration = 5_frame;
+    lara.explosionStumblingDuration = toAnimUnit(5_frame);
   }
 
   setParent(this, location.room->node);
@@ -341,7 +341,7 @@ bool MeshShrapnelParticle::update(world::World& world)
   if(!explode)
     return true;
 
-  const auto particle = gslu::make_nn_shared<ExplosionParticle>(location, world, fall_speed, angle);
+  const auto particle = gslu::make_nn_shared<ExplosionParticle>(location, world, fall_speed.velocity, angle);
   setParent(particle, location.room->node);
   world.getObjectManager().registerParticle(particle);
   world.getAudioEngine().playSoundEffect(TR1SoundEffect::Explosion2, particle.get().get());
@@ -358,13 +358,13 @@ MeshShrapnelParticle::MeshShrapnelParticle(const Location& location,
 {
   clearRenderables();
 
-  angle.Y = core::Angle{util::rand15s() * 2};
+  angle.Y = util::rand15s(360_deg);
   speed = util::rand15(256_spd);
   fall_speed = util::rand15(-256_spd);
   if(!torsoBoss)
   {
-    speed /= 2;
-    fall_speed /= 2;
+    speed.velocity /= 2;
+    fall_speed.velocity /= 2;
   }
 }
 
@@ -373,13 +373,13 @@ void MutantAmmoParticle::aimLaraChest(world::World& world)
   const auto d = world.getObjectManager().getLara().m_state.location.position - location.position;
   const auto bbox = world.getObjectManager().getLara().getSkeleton()->getBoundingBox();
   angle.X = util::rand15s(256_au)
-            - angleFromAtan(bbox.y.max - bbox.y.size() * 3 / 4 + d.Y, sqrt(util::square(d.X) + util::square(d.Z)));
+            - angleFromAtan(bbox.y.max - bbox.y.size() * 0.75f + d.Y, sqrt(util::square(d.X) + util::square(d.Z)));
   angle.Y = util::rand15s(256_au) + angleFromAtan(d.X, d.Z);
 }
 
 bool MutantBulletParticle::update(world::World& world)
 {
-  location.position += util::yawPitch(speed * 1_frame, angle);
+  location.position += util::yawPitch(speed.nextFrame(), angle);
   const auto sector = location.updateRoom();
   setParent(this, location.room->node);
   if(HeightInfo::fromFloor(sector, location.position, world.getObjectManager().getObjects()).y <= location.position.Y
@@ -397,13 +397,13 @@ bool MutantBulletParticle::update(world::World& world)
   {
     auto& laraState = world.getObjectManager().getLara().m_state;
     laraState.health -= 30_hp;
-    auto particle = gslu::make_nn_shared<BloodSplatterParticle>(location, speed, angle.Y, world);
+    auto particle = gslu::make_nn_shared<BloodSplatterParticle>(location, speed.velocity, angle.Y, world);
     setParent(particle, location.room->node);
     world.getObjectManager().registerParticle(particle);
     world.getAudioEngine().playSoundEffect(TR1SoundEffect::BulletHitsLara, particle.get().get());
     laraState.is_hit = true;
     angle.Y = laraState.rotation.Y;
-    speed = laraState.speed;
+    speed = laraState.speed.velocity;
     timePerSpriteFrame = 0;
     negSpriteFrameId = 0;
     return false;
@@ -415,14 +415,14 @@ bool MutantBulletParticle::update(world::World& world)
 
 bool MutantGrenadeParticle::update(world::World& world)
 {
-  location.position += util::yawPitch(speed * 1_frame, angle);
+  location.position += util::yawPitch(speed.nextFrame(), angle);
   const auto sector = location.updateRoom();
   setParent(this, location.room->node);
   if(HeightInfo::fromFloor(sector, location.position, world.getObjectManager().getObjects()).y <= location.position.Y
      || HeightInfo::fromCeiling(sector, location.position, world.getObjectManager().getObjects()).y
           >= location.position.Y)
   {
-    auto particle = gslu::make_nn_shared<ExplosionParticle>(location, world, fall_speed, angle);
+    auto particle = gslu::make_nn_shared<ExplosionParticle>(location, world, fall_speed.velocity, angle);
     setParent(particle, location.room->node);
     world.getObjectManager().registerParticle(particle);
     world.getAudioEngine().playSoundEffect(TR1SoundEffect::Explosion2, particle.get().get());
@@ -441,7 +441,7 @@ bool MutantGrenadeParticle::update(world::World& world)
   else if(world.getObjectManager().getLara().isNearInexact(location.position, 200_len))
   {
     world.getObjectManager().getLara().m_state.health -= 100_hp;
-    auto particle = gslu::make_nn_shared<ExplosionParticle>(location, world, fall_speed, angle);
+    auto particle = gslu::make_nn_shared<ExplosionParticle>(location, world, fall_speed.velocity, angle);
     setParent(particle, location.room->node);
     world.getObjectManager().registerParticle(particle);
     world.getAudioEngine().playSoundEffect(TR1SoundEffect::Explosion2, particle.get().get());
@@ -450,12 +450,12 @@ bool MutantGrenadeParticle::update(world::World& world)
     {
       world.getObjectManager().getLara().playSoundEffect(TR1SoundEffect::LaraHurt);
       world.getObjectManager().getLara().forceSourcePosition = &particle->location.position;
-      world.getObjectManager().getLara().explosionStumblingDuration = 5_frame;
+      world.getObjectManager().getLara().explosionStumblingDuration = toAnimUnit(5_frame);
     }
 
     world.getObjectManager().getLara().m_state.is_hit = true;
     angle.Y = world.getObjectManager().getLara().m_state.rotation.Y;
-    speed = world.getObjectManager().getLara().m_state.speed;
+    speed = world.getObjectManager().getLara().m_state.speed.velocity;
     timePerSpriteFrame = 0;
     negSpriteFrameId = 0;
     return false;
@@ -467,8 +467,8 @@ bool MutantGrenadeParticle::update(world::World& world)
 
 bool LavaParticle::update(world::World& world)
 {
-  fall_speed += core::Gravity * 1_frame;
-  location.position += util::pitch(speed * 1_frame, angle.Y, fall_speed * 1_frame);
+  fall_speed += core::Gravity;
+  location.position += util::pitch(speed.nextFrame(), angle.Y, fall_speed.nextFrame());
 
   const auto sector = location.updateRoom();
   setParent(this, location.room->node);

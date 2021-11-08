@@ -13,7 +13,7 @@ public:
   {
   }
 
-  void handleInput(CollisionInfo& /*collisionInfo*/) override
+  void handleInput(CollisionInfo& /*collisionInfo*/, bool /*doPhysics*/) override
   {
     getWorld().getCameraController().setRotationAroundLaraY(85_deg);
     if(getLara().m_state.fallspeed > core::FreeFallSpeedThreshold)
@@ -68,11 +68,11 @@ public:
     }
 
     const auto spaceToReach = collisionInfo.front.floor.y - getLara().getBoundingBox().y.min;
-    if(spaceToReach < 0_len && spaceToReach + getLara().m_state.fallspeed * 1_frame < 0_len)
+    if(spaceToReach < 0_len && spaceToReach + getLara().m_state.fallspeed.velocity * 1_frame < 0_len)
     {
       return false;
     }
-    if(spaceToReach > 0_len && spaceToReach + getLara().m_state.fallspeed * 1_frame > 0_len)
+    if(spaceToReach > 0_len && spaceToReach + getLara().m_state.fallspeed.velocity * 1_frame > 0_len)
     {
       return false;
     }
@@ -103,7 +103,7 @@ public:
     return true;
   }
 
-  void postprocessFrame(CollisionInfo& collisionInfo) override
+  void postprocessFrame(CollisionInfo& collisionInfo, bool doPhysics) override
   {
     collisionInfo.facingAngle = getLara().m_state.rotation.Y;
     collisionInfo.validFloorHeight = {0_len, core::HeightLimit};
@@ -119,6 +119,10 @@ public:
     }
 
     jumpAgainstWall(collisionInfo);
+
+    if(!doPhysics)
+      return;
+
     if(getLara().m_state.fallspeed <= 0_spd || collisionInfo.mid.floor.y > 0_len)
     {
       return;

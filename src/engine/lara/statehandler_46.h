@@ -13,13 +13,13 @@ public:
   {
   }
 
-  void handleInput(CollisionInfo& /*collisionInfo*/) override
+  void handleInput(CollisionInfo& /*collisionInfo*/, bool /*doPhysics*/) override
   {
     getWorld().getCameraController().setModifier(CameraModifier::FollowCenter);
     getWorld().getCameraController().setEyeRotation(-25_deg, 170_deg);
   }
 
-  void postprocessFrame(CollisionInfo& /*collisionInfo*/) override
+  void postprocessFrame(CollisionInfo& /*collisionInfo*/, bool /*doPhysics*/) override
   {
   }
 };

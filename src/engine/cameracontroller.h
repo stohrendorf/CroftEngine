@@ -98,7 +98,7 @@ private:
   core::Frame m_smoothness = 8_frame;
   int m_fixedCameraId = -1;
   int m_currentFixedCameraId = -1;
-  core::Frame m_camOverrideTimeout{-1_frame};
+  core::RenderFrame m_camOverrideTimeout{-1_rframe};
 
 public:
   explicit CameraController(const gsl::not_null<world::World*>& world,
@@ -144,7 +144,7 @@ public:
                       uint16_t camId,
                       floordata::SequenceCondition condition,
                       bool fromHeavy,
-                      const core::Frame& timeout,
+                      const core::RenderFrame& timeout,
                       bool switchIsOn);
 
   void setLookAtObject(const gsl::not_null<std::shared_ptr<objects::Object>>& object)
@@ -211,7 +211,7 @@ public:
 
   void serialize(const serialization::Serializer<world::World>& ser);
 
-  core::Frame m_cinematicFrame = 0_frame;
+  core::RenderFrame m_cinematicFrame = 0_rframe;
   core::TRVec m_cinematicPos{0_len, 0_len, 0_len};
   core::TRRotation m_cinematicRot{};
 

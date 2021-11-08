@@ -119,20 +119,22 @@ struct Room
 
   [[nodiscard]] const Sector* getSectorByRelativePosition(const core::TRVec& localPos) const
   {
-    return getSectorByIndex(localPos.X / core::SectorSize, localPos.Z / core::SectorSize);
+    return getSectorByIndex(gsl::narrow_cast<int>(localPos.X / core::SectorSize),
+                            gsl::narrow_cast<int>(localPos.Z / core::SectorSize));
   }
 
   [[nodiscard]] gsl::not_null<const Sector*> getInnerSectorByAbsolutePosition(core::TRVec worldPos) const
   {
     worldPos -= position;
-    return getInnerSectorByIndex(worldPos.X / core::SectorSize, worldPos.Z / core::SectorSize);
+    return getInnerSectorByIndex(gsl::narrow_cast<int>(worldPos.X / core::SectorSize),
+                                 gsl::narrow_cast<int>(worldPos.Z / core::SectorSize));
   }
 
   [[nodiscard]] bool isInnerPositionXZ(core::TRVec worldPos) const
   {
     worldPos -= position;
-    const auto sx = worldPos.X / core::SectorSize;
-    const auto sz = worldPos.Z / core::SectorSize;
+    const auto sx = gsl::narrow_cast<int>(worldPos.X / core::SectorSize);
+    const auto sz = gsl::narrow_cast<int>(worldPos.Z / core::SectorSize);
     return sx > 0 && sx < sectorCountX - 1 && sz > 0 && sz < sectorCountZ - 1;
   }
 

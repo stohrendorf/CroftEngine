@@ -101,7 +101,7 @@ void PassportMenuState::showExitGamePage(engine::world::World& world, MenuDispla
 void PassportMenuState::prevPage(const core::Frame& minFrame, MenuObject& passport, engine::world::World& world)
 {
   passport.goalFrame -= FramesPerPage;
-  passport.animDirection = -1_frame;
+  passport.animDirection = -1_rframe;
   if(const auto firstFrame = passport.openFrame + minFrame; passport.goalFrame < firstFrame)
   {
     passport.goalFrame = firstFrame;
@@ -116,7 +116,7 @@ void PassportMenuState::prevPage(const core::Frame& minFrame, MenuObject& passpo
 void PassportMenuState::nextPage(MenuObject& passport, engine::world::World& world)
 {
   passport.goalFrame += FramesPerPage;
-  passport.animDirection = 1_frame;
+  passport.animDirection = 1_rframe;
   if(const auto lastFrame = passport.lastMeshAnimFrame - FramesPerPage - 1_frame; passport.goalFrame > lastFrame)
   {
     passport.goalFrame = lastFrame;
@@ -140,7 +140,7 @@ std::unique_ptr<MenuState> PassportMenuState::onFrame(ui::Ui& ui, engine::world:
   const bool hasSavedGames = world.hasSavedGames();
 
   const auto localFrame = passport.goalFrame - passport.openFrame;
-  auto page = localFrame / FramesPerPage;
+  auto page = localFrame.cast<int>() / FramesPerPage.cast<int>();
   hid::AxisMovement forcePageTurn = hid::AxisMovement::Null;
   if(localFrame % FramesPerPage != 0_frame)
   {
@@ -172,7 +172,7 @@ std::unique_ptr<MenuState> PassportMenuState::onFrame(ui::Ui& ui, engine::world:
     if(!m_allowSave && display.mode != InventoryMode::TitleMode)
     {
       // can't save when dead, so just skip this page
-      if(passport.animDirection == -1_frame)
+      if(passport.animDirection == -1_rframe)
         forcePageTurn = hid::AxisMovement::Left;
       else
         forcePageTurn = hid::AxisMovement::Right;

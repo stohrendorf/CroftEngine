@@ -1,6 +1,7 @@
 #pragma once
 
 #include "core/angle.h"
+#include "core/magic.h"
 #include "core/units.h"
 #include "menustate.h"
 #include "qs/qs.h"
@@ -28,11 +29,11 @@ struct MenuRingTransform;
 class RotateLeftRightMenuState : public MenuState
 {
 private:
-  static constexpr core::Frame Duration = 24_frame / 2;
+  static constexpr core::RenderFrame Duration = toAnimUnit(24_frame / 2);
   size_t m_targetObject{0};
-  core::Frame m_duration{Duration};
+  core::RenderFrame m_duration{Duration};
   // cppcheck-suppress syntaxError
-  core::RotationSpeed m_rotSpeed;
+  core::RenderRotationSpeed m_rotSpeed;
   std::unique_ptr<MenuState> m_prev;
 
 public:

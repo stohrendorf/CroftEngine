@@ -1,5 +1,7 @@
 #pragma once
 
+#include "core/angle.h"
+#include "core/magic.h"
 #include "core/units.h"
 #include "menustate.h"
 #include "qs/qs.h"
@@ -26,9 +28,9 @@ struct MenuRingTransform;
 class SwitchRingMenuState : public MenuState
 {
 private:
-  static constexpr core::Frame Duration = 24_frame / 2;
+  static constexpr core::RenderFrame Duration = toAnimUnit(24_frame / 2);
 
-  core::Frame m_duration{Duration};
+  core::RenderFrame m_duration{Duration};
   core::Length m_radiusSpeed{};
   core::Angle m_targetCameraRotX{};
   size_t m_next;
