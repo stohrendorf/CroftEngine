@@ -50,13 +50,13 @@ HBAOPass::HBAOPass(scene::MaterialManager& materialManager,
 {
   m_renderMesh->bind("u_normals",
                      [buffer = geometryPass.getNormalBuffer()](
-                       const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
+                       const render::scene::Node* /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
                      {
                        uniform.set(buffer);
                      });
   m_renderMesh->bind("u_position",
                      [buffer = geometryPass.getPositionBuffer()](
-                       const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
+                       const render::scene::Node* /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
                      {
                        uniform.set(buffer);
                      });
@@ -76,7 +76,7 @@ void HBAOPass::render()
   m_fb->bind();
 
   scene::RenderContext context{scene::RenderMode::Full, std::nullopt};
-  m_renderMesh->render(context);
+  m_renderMesh->render(nullptr, context);
   m_blur.render();
 
   if constexpr(FlushPasses)

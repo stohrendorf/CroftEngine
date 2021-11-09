@@ -44,7 +44,7 @@ public:
     return m_materialGroup;
   }
 
-  bool render(RenderContext& context) final;
+  bool render(const Node* node, RenderContext& context) final;
 
 private:
   MaterialGroup m_materialGroup{};

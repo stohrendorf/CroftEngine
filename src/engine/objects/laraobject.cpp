@@ -2148,7 +2148,7 @@ void LaraObject::renderMuzzleFlash(const WeaponType weaponType,
   muzzleFlashNode->setLocalMatrix(getNode()->getLocalMatrix() * m);
 
   muzzleFlashNode->bind("u_lightAmbient",
-                        [brightness = toBrightness(shade)](const render::scene::Node& /*node*/,
+                        [brightness = toBrightness(shade)](const render::scene::Node* /*node*/,
                                                            const render::scene::Mesh& /*mesh*/,
                                                            gl::Uniform& uniform)
                         {

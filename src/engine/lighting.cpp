@@ -29,14 +29,14 @@ void Lighting::update(const core::Shade& shade, const world::Room& baseRoom)
 void Lighting::bind(render::scene::Node& node) const
 {
   node.bind("u_lightAmbient",
-            [this](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
+            [this](const render::scene::Node* /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
             {
               uniform.set(ambient.get());
             });
 
   node.bind(
     "b_lights",
-    [this](const render::scene::Node&, const render::scene::Mesh& /*mesh*/, gl::ShaderStorageBlock& shaderStorageBlock)
+    [this](const render::scene::Node*, const render::scene::Mesh& /*mesh*/, gl::ShaderStorageBlock& shaderStorageBlock)
     {
       shaderStorageBlock.bind(*m_buffer);
     });

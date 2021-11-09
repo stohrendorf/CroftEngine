@@ -9,7 +9,7 @@
 
 namespace render::scene
 {
-void Visitor::visit(Node& node)
+void Visitor::visit(const Node& node)
 {
   if(!node.isVisible())
     return;

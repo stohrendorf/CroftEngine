@@ -30,7 +30,7 @@ public:
 
   ~ScreenOverlay() override;
 
-  bool render(RenderContext& context) override;
+  bool render(const Node* node, RenderContext& context) override;
 
   [[nodiscard]] const auto& getImage() const
   {

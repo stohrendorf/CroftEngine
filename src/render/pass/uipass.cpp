@@ -46,7 +46,7 @@ UIPass::UIPass(scene::MaterialManager& materialManager,
              .build("ui-fb")}
 {
   m_mesh->bind("u_input",
-               [this](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
+               [this](const render::scene::Node* /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
                {
                  uniform.set(gsl::not_null{m_colorBufferHandle});
                });
@@ -69,12 +69,12 @@ void UIPass::render(float alpha)
   gl::Framebuffer::unbindAll();
 
   m_mesh->bind("u_alphaMultiplier",
-               [alpha](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
+               [alpha](const render::scene::Node* /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
                {
                  uniform.set(alpha);
                });
   scene::RenderContext context{scene::RenderMode::Full, std::nullopt};
-  m_mesh->render(context);
+  m_mesh->render(nullptr, context);
 
   if constexpr(FlushPasses)
     GL_ASSERT(gl::api::finish());

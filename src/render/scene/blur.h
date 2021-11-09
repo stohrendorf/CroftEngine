@@ -40,7 +40,7 @@ public:
         | set(gl::api::TextureMinFilter::Linear) | set(gl::api::TextureMagFilter::Linear));
     m_mesh = createScreenQuad(m_material, m_name + "/blur");
     m_mesh->bind("u_input",
-                 [src](const Node& /*node*/, const Mesh& /*mesh*/, gl::Uniform& uniform)
+                 [src](const Node* /*node*/, const Mesh& /*mesh*/, gl::Uniform& uniform)
                  {
                    uniform.set(src);
                  });
@@ -56,7 +56,7 @@ public:
     SOGLB_DEBUGGROUP(m_name + "/blur-pass");
     RenderContext context{RenderMode::Full, std::nullopt};
     m_framebuffer->bind();
-    m_mesh->render(context);
+    m_mesh->render(nullptr, context);
   }
 
   [[nodiscard]] gsl::not_null<std::shared_ptr<TextureHandle>> getBlurredTexture() const

@@ -33,7 +33,7 @@ public:
   template<typename T>
   void set(const T& value)
   {
-    m_valueSetter = [value](const Node& /*node*/, const Mesh& /*mesh*/, gl::Uniform& uniform)
+    m_valueSetter = [value](const Node* /*node*/, const Mesh& /*mesh*/, gl::Uniform& uniform)
     {
       uniform.set(value);
     };
@@ -48,7 +48,7 @@ public:
     };
   }
 
-  using UniformValueSetter = void(const Node& node, const Mesh& mesh, gl::Uniform& uniform);
+  using UniformValueSetter = void(const Node* node, const Mesh& mesh, gl::Uniform& uniform);
 
   void bind(std::function<UniformValueSetter>&& setter)
   {
@@ -67,7 +67,7 @@ public:
     };
   }
 
-  bool bind(const Node& node,
+  bool bind(const Node* node,
             const Mesh& mesh,
             const gsl::not_null<std::shared_ptr<ShaderProgram>>& shaderProgram) override;
 
@@ -108,14 +108,14 @@ public:
     };
   }
 
-  using BufferBinder = void(const Node& node, const Mesh& mesh, gl::UniformBlock& uniformBlock);
+  using BufferBinder = void(const Node* node, const Mesh& mesh, gl::UniformBlock& uniformBlock);
 
   void bind(std::function<BufferBinder>&& setter)
   {
     m_bufferBinder = std::move(setter);
   }
 
-  bool bind(const Node& node,
+  bool bind(const Node* node,
             const Mesh& mesh,
             const gsl::not_null<std::shared_ptr<ShaderProgram>>& shaderProgram) override;
 

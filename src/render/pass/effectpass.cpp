@@ -49,7 +49,7 @@ EffectPass::EffectPass(gsl::not_null<const RenderPipeline*> renderPipeline,
              .build(m_name + "-fb")}
 {
   m_mesh->bind("u_input",
-               [input](const scene::Node& /*node*/, const scene::Mesh& /*mesh*/, gl::Uniform& uniform)
+               [input](const scene::Node* /*node*/, const scene::Mesh& /*mesh*/, gl::Uniform& uniform)
                {
                  uniform.set(input);
                });
@@ -65,17 +65,17 @@ void EffectPass::render(bool inWater)
 
   scene::RenderContext context{scene::RenderMode::Full, std::nullopt};
   m_mesh->bind("u_inWater",
-               [inWater](const scene::Node& /*node*/, const scene::Mesh& /*mesh*/, gl::Uniform& uniform)
+               [inWater](const scene::Node* /*node*/, const scene::Mesh& /*mesh*/, gl::Uniform& uniform)
                {
                  uniform.set(inWater ? 1.0f : 0.0f);
                });
   m_mesh->bind("u_time",
-               [this](const scene::Node&, const scene::Mesh& /*mesh*/, gl::Uniform& uniform)
+               [this](const scene::Node*, const scene::Mesh& /*mesh*/, gl::Uniform& uniform)
                {
                  const auto now = m_renderPipeline->getLocalTime();
                  uniform.set(gsl::narrow_cast<float>(now.count()));
                });
-  m_mesh->render(context);
+  m_mesh->render(nullptr, context);
 
   if constexpr(FlushPasses)
     GL_ASSERT(gl::api::finish());

@@ -462,7 +462,7 @@ std::pair<RunResult, std::optional<size_t>> Engine::runTitleMenu(world::World& w
         sourceOffset, scaledSourceSize, m_presenter->getMaterialManager()->getBackdrop(), "backdrop");
       backdropMesh->bind(
         "u_input",
-        [backdrop](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
+        [backdrop](const render::scene::Node* /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
         {
           uniform.set(backdrop);
         });
@@ -470,11 +470,11 @@ std::pair<RunResult, std::optional<size_t>> Engine::runTitleMenu(world::World& w
 
     backdropMesh->bind(
       "u_input",
-      [backdrop](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
+      [backdrop](const render::scene::Node* /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
       {
         uniform.set(backdrop);
       });
-    backdropMesh->render(context);
+    backdropMesh->render(nullptr, context);
     menu->display(ui, world);
     m_presenter->renderUi(ui, 1);
     m_presenter->updateSoundEngine();

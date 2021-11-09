@@ -47,14 +47,14 @@ public:
     };
   }
 
-  using BufferBinder = void(const Node& node, const Mesh& mesh, gl::ShaderStorageBlock& shaderStorageBlock);
+  using BufferBinder = void(const Node* node, const Mesh& mesh, gl::ShaderStorageBlock& shaderStorageBlock);
 
   void bind(std::function<BufferBinder>&& setter)
   {
     m_bufferBinder = std::move(setter);
   }
 
-  bool bind(const Node& node,
+  bool bind(const Node* node,
             const Mesh& mesh,
             const gsl::not_null<std::shared_ptr<ShaderProgram>>& shaderProgram) override;
   void bindBoneTransformBuffer();

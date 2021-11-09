@@ -122,7 +122,7 @@ void MenuObject::initModel(const engine::world::World& world)
   Expects(obj != nullptr);
   node = std::make_shared<engine::SkeletalModelNode>("menu-object", gsl::not_null{&world}, gsl::not_null{obj.get()});
   node->bind("u_lightAmbient",
-             [](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
+             [](const render::scene::Node* /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
              {
                uniform.set(0.5f);
              });
@@ -165,8 +165,7 @@ void MenuObject::draw(const engine::world::World& world,
     node->updatePose();
 
     render::scene::RenderContext context{render::scene::RenderMode::Full, std::nullopt};
-    context.setCurrentNode(node.get());
-    node->getRenderable()->render(context);
+    node->getRenderable()->render(node.get(), context);
   }
   else
   {

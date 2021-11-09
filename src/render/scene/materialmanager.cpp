@@ -54,7 +54,7 @@ gsl::not_null<std::shared_ptr<Material>> MaterialManager::getSprite(bool billboa
   m->getUniformBlock("Camera")->bindCameraBuffer(m_renderer->getCamera());
   m->getUniform("u_diffuseTextures")
     ->bind(
-      [this](const Node& /*node*/, const Mesh& /*mesh*/, gl::Uniform& uniform)
+      [this](const Node* /*node*/, const Mesh& /*mesh*/, gl::Uniform& uniform)
       {
         uniform.set(gsl::not_null{m_geometryTextures});
       });
@@ -70,10 +70,11 @@ gsl::not_null<std::shared_ptr<Material>> MaterialManager::getCSMDepthOnly(bool s
 
   auto m = gslu::make_nn_shared<Material>(m_shaderCache->getCSMDepthOnly(skeletal));
   m->getUniform("u_mvp")->bind(
-    [this](const Node& node, const Mesh& /*mesh*/, gl::Uniform& uniform)
+    [this](const Node* node, const Mesh& /*mesh*/, gl::Uniform& uniform)
     {
+      BOOST_ASSERT(node != nullptr);
       BOOST_ASSERT(m_csm != nullptr);
-      uniform.set(m_csm->getActiveMatrix(node.getModelMatrix()));
+      uniform.set(m_csm->getActiveMatrix(node->getModelMatrix()));
     });
   m->getRenderState().setDepthTest(true);
   m->getRenderState().setDepthWrite(true);
@@ -99,7 +100,7 @@ gsl::not_null<std::shared_ptr<Material>> MaterialManager::getDepthOnly(bool skel
     buffer->bindBoneTransformBuffer();
   m->getUniform("u_diffuseTextures")
     ->bind(
-      [this](const Node& /*node*/, const Mesh& /*mesh*/, gl::Uniform& uniform)
+      [this](const Node* /*node*/, const Mesh& /*mesh*/, gl::Uniform& uniform)
       {
         uniform.set(gsl::not_null{m_geometryTextures});
       });
@@ -118,7 +119,7 @@ gsl::not_null<std::shared_ptr<Material>> MaterialManager::getGeometry(bool inWat
   auto m = gslu::make_nn_shared<Material>(m_shaderCache->getGeometry(inWater, skeletal, roomShadowing, 0));
   m->getUniform("u_diffuseTextures")
     ->bind(
-      [this](const Node& /*node*/, const Mesh& /*mesh*/, gl::Uniform& uniform)
+      [this](const Node* /*node*/, const Mesh& /*mesh*/, gl::Uniform& uniform)
       {
         uniform.set(gsl::not_null{m_geometryTextures});
       });
@@ -128,15 +129,16 @@ gsl::not_null<std::shared_ptr<Material>> MaterialManager::getGeometry(bool inWat
     buffer->bindBoneTransformBuffer();
   m->getUniformBlock("Camera")->bindCameraBuffer(m_renderer->getCamera());
   m->getUniformBlock("CSM")->bind(
-    [this](const Node& node, const Mesh& /*mesh*/, gl::UniformBlock& ub)
+    [this](const Node* node, const Mesh& /*mesh*/, gl::UniformBlock& ub)
     {
+      BOOST_ASSERT(node != nullptr);
       BOOST_ASSERT(m_csm != nullptr);
-      ub.bind(m_csm->getBuffer(node.getModelMatrix()));
+      ub.bind(m_csm->getBuffer(node->getModelMatrix()));
     });
 
   m->getUniform("u_csmVsm[0]")
     ->bind(
-      [this](const Node& /*node*/, const Mesh& /*mesh*/, gl::Uniform& uniform)
+      [this](const Node* /*node*/, const Mesh& /*mesh*/, gl::Uniform& uniform)
       {
         BOOST_ASSERT(m_csm != nullptr);
         uniform.set(gsl::make_span(m_csm->getTextures()));
@@ -148,7 +150,7 @@ gsl::not_null<std::shared_ptr<Material>> MaterialManager::getGeometry(bool inWat
   if(auto uniform = m->tryGetUniform("u_time"))
   {
     uniform->bind(
-      [renderer = m_renderer](const Node&, const Mesh& /*mesh*/, gl::Uniform& uniform)
+      [renderer = m_renderer](const Node*, const Mesh& /*mesh*/, gl::Uniform& uniform)
       {
         const auto now = std::chrono::time_point_cast<std::chrono::milliseconds>(renderer->getGameTime());
         uniform.set(gsl::narrow_cast<float>(now.time_since_epoch().count()));
@@ -171,7 +173,7 @@ gsl::not_null<std::shared_ptr<Material>> MaterialManager::getWaterSurface()
 
   m_waterSurface->getUniformBlock("Camera")->bindCameraBuffer(m_renderer->getCamera());
   m_waterSurface->getUniform("u_time")->bind(
-    [renderer = m_renderer](const Node&, const Mesh& /*mesh*/, gl::Uniform& uniform)
+    [renderer = m_renderer](const Node*, const Mesh& /*mesh*/, gl::Uniform& uniform)
     {
       const auto now = std::chrono::time_point_cast<std::chrono::milliseconds>(renderer->getGameTime());
       uniform.set(gsl::narrow_cast<float>(now.time_since_epoch().count()));
@@ -230,7 +232,7 @@ gsl::not_null<std::shared_ptr<Material>> MaterialManager::getWorldComposition(bo
   if(auto uniform = m->tryGetUniform("u_time"))
   {
     uniform->bind(
-      [renderer = m_renderer](const Node&, const Mesh& /*mesh*/, gl::Uniform& uniform)
+      [renderer = m_renderer](const Node*, const Mesh& /*mesh*/, gl::Uniform& uniform)
       {
         const auto now = std::chrono::time_point_cast<std::chrono::milliseconds>(renderer->getGameTime());
         uniform.set(gsl::narrow_cast<float>(now.time_since_epoch().count()));
@@ -251,7 +253,7 @@ gsl::not_null<std::shared_ptr<Material>> MaterialManager::getUi()
 
   auto m = std::make_shared<Material>(m_shaderCache->getUi());
   m->getUniform("u_input")->bind(
-    [this](const Node& /*node*/, const Mesh& /*mesh*/, gl::Uniform& uniform)
+    [this](const Node* /*node*/, const Mesh& /*mesh*/, gl::Uniform& uniform)
     {
       uniform.set(gsl::not_null{m_geometryTextures});
     });
@@ -459,7 +461,7 @@ gsl::not_null<std::shared_ptr<Material>> MaterialManager::getDustParticle()
   m->getUniformBlock("Transform")->bindTransformBuffer();
   m->getUniform("u_noise")->set(gsl::not_null{m_noiseTexture});
   m->getUniform("u_time")->bind(
-    [renderer = m_renderer](const Node&, const Mesh& /*mesh*/, gl::Uniform& uniform)
+    [renderer = m_renderer](const Node*, const Mesh& /*mesh*/, gl::Uniform& uniform)
     {
       const auto now = std::chrono::time_point_cast<std::chrono::milliseconds>(renderer->getGameTime());
       uniform.set(gsl::narrow_cast<float>(now.time_since_epoch().count()));

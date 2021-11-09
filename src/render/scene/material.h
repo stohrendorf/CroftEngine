@@ -32,7 +32,7 @@ public:
     return m_shaderProgram;
   }
 
-  void bind(const Node& node, const Mesh& mesh) const;
+  void bind(const Node* node, const Mesh& mesh) const;
 
   std::shared_ptr<UniformParameter> tryGetUniform(const std::string& name) const;
   gsl::not_null<std::shared_ptr<UniformParameter>> getUniform(const std::string& name) const

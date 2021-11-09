@@ -15,21 +15,10 @@ class RenderContext final
 {
 public:
   explicit RenderContext(RenderMode renderMode, const std::optional<glm::mat4>& viewProjection)
-      : m_currentNode{&m_dummyNode}
-      , m_renderMode{renderMode}
+      : m_renderMode{renderMode}
       , m_viewProjection{viewProjection}
   {
     m_renderStates.push(gl::RenderState::getWantedState());
-  }
-
-  [[nodiscard]] Node* getCurrentNode() const noexcept
-  {
-    return m_currentNode;
-  }
-
-  void setCurrentNode(Node* n) noexcept
-  {
-    m_currentNode = n;
   }
 
   void pushState(const gl::RenderState& state)
@@ -67,8 +56,6 @@ public:
   }
 
 private:
-  Node m_dummyNode{""};
-  Node* m_currentNode;
   std::stack<gl::RenderState> m_renderStates{};
   const RenderMode m_renderMode;
   const std::optional<glm::mat4> m_viewProjection;

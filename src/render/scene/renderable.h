@@ -5,6 +5,7 @@
 namespace render::scene
 {
 class RenderContext;
+class Node;
 
 class Renderable
 {
@@ -17,7 +18,7 @@ public:
   Renderable& operator=(Renderable&&) = delete;
   Renderable& operator=(const Renderable&) = delete;
 
-  virtual bool render(RenderContext& context) = 0;
+  virtual bool render(const Node* node, RenderContext& context) = 0;
 
   gl::RenderState& getRenderState()
   {

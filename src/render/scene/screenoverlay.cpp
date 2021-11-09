@@ -28,14 +28,14 @@ namespace render::scene
 ScreenOverlay::ScreenOverlay() = default;
 ScreenOverlay::~ScreenOverlay() = default;
 
-bool ScreenOverlay::render(RenderContext& context)
+bool ScreenOverlay::render(const Node* node, RenderContext& context)
 {
   if(context.getRenderMode() != RenderMode::Full)
     return false;
 
   context.pushState(getRenderState());
   m_texture->getTexture()->assign(m_image->getData());
-  m_mesh->render(context);
+  m_mesh->render(node, context);
   context.popState();
   return true;
 }
@@ -59,12 +59,12 @@ void ScreenOverlay::init(MaterialManager& materialManager, const glm::ivec2& vie
 
   m_mesh = createScreenQuad(materialManager.getFlat(true, true), "screenoverlay");
   m_mesh->bind("u_input",
-               [this](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
+               [this](const render::scene::Node* /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
                {
                  uniform.set(gsl::not_null{m_texture});
                });
   m_mesh->bind("u_alphaMultiplier",
-               [this](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
+               [this](const render::scene::Node* /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
                {
                  uniform.set(m_alphaMultiplier);
                });

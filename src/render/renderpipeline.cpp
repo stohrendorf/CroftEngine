@@ -92,7 +92,7 @@ void RenderPipeline::resize(scene::MaterialManager& materialManager,
     auto fx = addEffect("hbao", materialManager.getHBAOFx());
     fx->bind("u_ao",
              [texture = m_hbaoPass->getBlurredTexture()](
-               const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
+               const render::scene::Node* /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
              {
                uniform.set(texture);
              });

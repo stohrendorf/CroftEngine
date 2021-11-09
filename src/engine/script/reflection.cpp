@@ -254,7 +254,7 @@ std::pair<RunResult, std::optional<size_t>> SplashScreen::run(Engine& engine, co
         sourceOffset, scaledSourceSize, presenter.getMaterialManager()->getBackdrop(), m_path.string());
       mesh->bind(
         "u_input",
-        [&image](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
+        [&image](const render::scene::Node* /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
         {
           uniform.set(image);
         });
@@ -265,7 +265,7 @@ std::pair<RunResult, std::optional<size_t>> SplashScreen::run(Engine& engine, co
     gl::Framebuffer::unbindAll();
     presenter.getRenderer().clear(
       gl::api::ClearBufferMask::ColorBufferBit | gl::api::ClearBufferMask::DepthBufferBit, {0, 0, 0, 0}, 1);
-    mesh->render(context);
+    mesh->render(nullptr, context);
     presenter.updateSoundEngine();
     presenter.swapBuffers();
 

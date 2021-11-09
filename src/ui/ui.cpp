@@ -211,7 +211,7 @@ void Ui::render()
   mesh->getRenderState().setDepthWrite(false);
 
   render::scene::RenderContext ctx{render::scene::RenderMode::Full, std::nullopt};
-  mesh->render(ctx);
+  mesh->render(nullptr, ctx);
 
   m_vertices.clear();
 }

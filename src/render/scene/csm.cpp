@@ -70,7 +70,7 @@ void CSM::Split::init(int32_t resolution, size_t idx, MaterialManager& materialM
 
   squareMesh = createScreenQuad(squareMaterial, "csm/" + std::to_string(idx));
   squareMesh->bind("u_shadow",
-                   [this](const Node& /*node*/, const Mesh& /*mesh*/, gl::Uniform& uniform)
+                   [this](const Node* /*node*/, const Mesh& /*mesh*/, gl::Uniform& uniform)
                    {
                      uniform.set(gsl::not_null{depthTextureHandle});
                    });
@@ -90,7 +90,7 @@ void CSM::Split::renderSquare()
   squareFramebuffer->bind();
 
   RenderContext context{RenderMode::Full, std::nullopt};
-  squareMesh->render(context);
+  squareMesh->render(nullptr, context);
 }
 
 // NOLINTNEXTLINE(readability-make-member-function-const)

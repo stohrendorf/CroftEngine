@@ -35,7 +35,7 @@ Framebuffer::Framebuffer(const std::string& name,
              .build(name + "-fb")}
 {
   m_mesh->bind("u_input",
-               [this](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
+               [this](const render::scene::Node* /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
                {
                  uniform.set(m_colorBufferHandle);
                });
@@ -54,6 +54,6 @@ void Framebuffer::bind()
 void Framebuffer::render()
 {
   scene::RenderContext context{scene::RenderMode::Full, std::nullopt};
-  m_mesh->render(context);
+  m_mesh->render(nullptr, context);
 }
 } // namespace render::pass

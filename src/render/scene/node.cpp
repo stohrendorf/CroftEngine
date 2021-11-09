@@ -41,7 +41,7 @@ void Node::transformChanged()
   }
 }
 
-void Node::accept(Visitor& visitor)
+void Node::accept(Visitor& visitor) const
 {
   SOGLB_DEBUGGROUP(getName());
 
@@ -51,10 +51,9 @@ void Node::accept(Visitor& visitor)
   state.setScissorRegion(xy, size);
   visitor.getContext().pushState(state);
 
-  visitor.getContext().setCurrentNode(this);
   if(m_renderable != nullptr)
   {
-    [[maybe_unused]] const bool rendered = m_renderable->render(visitor.getContext());
+    [[maybe_unused]] const bool rendered = m_renderable->render(this, visitor.getContext());
     if constexpr(Visitor::FlushAfterEachRender)
     {
       if(rendered)
@@ -69,7 +68,5 @@ void Node::accept(Visitor& visitor)
     visitor.visit(*node);
   }
   visitor.getContext().popState();
-
-  visitor.getContext().setCurrentNode(nullptr);
 }
 } // namespace render::scene

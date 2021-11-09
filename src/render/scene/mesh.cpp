@@ -59,19 +59,17 @@ gsl::not_null<std::shared_ptr<Mesh>> createScreenQuad(const glm::vec2& xy,
 
 Mesh::~Mesh() = default;
 
-bool Mesh::render(RenderContext& context)
+bool Mesh::render(const Node* node, RenderContext& context)
 {
   std::shared_ptr<Material> material = m_materialGroup.get(context.getRenderMode());
   if(material == nullptr)
     return false;
 
-  BOOST_ASSERT(context.getCurrentNode() != nullptr);
-
   context.pushState(material->getRenderState());
   context.pushState(getRenderState());
   context.bindState();
 
-  material->bind(*context.getCurrentNode(), *this);
+  material->bind(node, *this);
 
   drawIndexBuffer(m_primitiveType);
 

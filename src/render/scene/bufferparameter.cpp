@@ -11,14 +11,15 @@
 
 namespace render::scene
 {
-bool BufferParameter::bind(const Node& node,
+bool BufferParameter::bind(const Node* node,
                            const Mesh& mesh,
                            const gsl::not_null<std::shared_ptr<ShaderProgram>>& shaderProgram)
 {
   auto binder = mesh.findShaderStorageBlockBinder(getName());
   if(!m_bufferBinder && binder == nullptr)
   {
-    binder = node.findShaderStorageBlockBinder(getName());
+    if(node != nullptr)
+      binder = node->findShaderStorageBlockBinder(getName());
     if(!m_bufferBinder && binder == nullptr)
     {
       // don't have an explicit binder present on material, node or mesh level, assuming it's set on shader level
@@ -40,9 +41,9 @@ bool BufferParameter::bind(const Node& node,
 
 void BufferParameter::bindBoneTransformBuffer()
 {
-  m_bufferBinder = [](const Node& node, const Mesh& /*mesh*/, gl::ShaderStorageBlock& ssb)
+  m_bufferBinder = [](const Node* node, const Mesh& /*mesh*/, gl::ShaderStorageBlock& ssb)
   {
-    if(const auto* mo = dynamic_cast<const engine::SkeletalModelNode*>(&node))
+    if(const auto* mo = dynamic_cast<const engine::SkeletalModelNode*>(node))
       ssb.bind(mo->getMeshMatricesBuffer());
   };
 }

@@ -340,13 +340,13 @@ void Room::createSceneNode(const loader::file::Room& srcRoom,
   node = std::make_shared<render::scene::Node>("Room:" + std::to_string(roomId));
   node->setRenderable(resMesh);
   node->bind("u_lightAmbient",
-             [](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
+             [](const render::scene::Node* /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
              {
                uniform.set(1.0f);
              });
 
   node->bind("b_lights",
-             [emptyBuffer = ShaderLight::getEmptyBuffer()](const render::scene::Node&,
+             [emptyBuffer = ShaderLight::getEmptyBuffer()](const render::scene::Node*,
                                                            const render::scene::Mesh& /*mesh*/,
                                                            gl::ShaderStorageBlock& shaderStorageBlock)
              {
@@ -365,13 +365,13 @@ void Room::createSceneNode(const loader::file::Room& srcRoom,
 
     subNode->bind("u_lightAmbient",
                   [brightness = toBrightness(ambientShade)](
-                    const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
+                    const render::scene::Node* /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
                   {
                     uniform.set(brightness.get());
                   });
 
     subNode->bind("b_lights",
-                  [this](const render::scene::Node&,
+                  [this](const render::scene::Node*,
                          const render::scene::Mesh& /*mesh*/,
                          gl::ShaderStorageBlock& shaderStorageBlock)
                   {
@@ -394,12 +394,12 @@ void Room::createSceneNode(const loader::file::Room& srcRoom,
     spriteNode->setLocalMatrix(translate(glm::mat4{1.0f}, v.position.toRenderSystem()));
     spriteNode->bind("u_lightAmbient",
                      [brightness = toBrightness(v.shade)](
-                       const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
+                       const render::scene::Node* /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
                      {
                        uniform.set(brightness.get());
                      });
     spriteNode->bind("b_lights",
-                     [emptyLightsBuffer = ShaderLight::getEmptyBuffer()](const render::scene::Node&,
+                     [emptyLightsBuffer = ShaderLight::getEmptyBuffer()](const render::scene::Node*,
                                                                          const render::scene::Mesh& /*mesh*/,
                                                                          gl::ShaderStorageBlock& shaderStorageBlock)
                      {

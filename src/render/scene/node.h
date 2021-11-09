@@ -131,7 +131,7 @@ public:
     transformChanged();
   }
 
-  void accept(Visitor& visitor);
+  void accept(Visitor& visitor) const;
 
   [[nodiscard]] std::shared_ptr<Node> findChild(const Node* node) const
   {
@@ -207,6 +207,11 @@ public:
   }
 
   gl::RenderState& getRenderState()
+  {
+    return m_renderState;
+  }
+
+  const gl::RenderState& getRenderState() const
   {
     return m_renderState;
   }

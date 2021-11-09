@@ -87,7 +87,7 @@ void Presenter::playVideo(const std::filesystem::path& path)
 
                 m_renderer->getCamera()->setViewport(getRenderViewport());
                 mesh->bind("u_input",
-                           [&textureHandle](const render::scene::Node& /*node*/,
+                           [&textureHandle](const render::scene::Node* /*node*/,
                                             const render::scene::Mesh& /*mesh*/,
                                             gl::Uniform& uniform)
                            {
@@ -103,7 +103,7 @@ void Presenter::playVideo(const std::filesystem::path& path)
 
                 m_renderer->clear(gl::api::ClearBufferMask::ColorBufferBit, {0, 0, 0, 255}, 1);
                 render::scene::RenderContext context{render::scene::RenderMode::Full, std::nullopt};
-                mesh->render(context);
+                mesh->render(nullptr, context);
                 updateSoundEngine();
                 swapBuffers();
                 m_inputHandler->update();
@@ -200,13 +200,12 @@ void Presenter::renderWorld(const ObjectManager& objectManager,
           continue;
 
         SOGLB_DEBUGGROUP(room.node->getName());
-        context.setCurrentNode(room.node.get());
         auto state = context.getCurrentState();
         state.setScissorTest(true);
         const auto [xy, size] = room.node->getCombinedScissors();
         state.setScissorRegion(xy, size);
         context.pushState(state);
-        room.node->getRenderable()->render(context);
+        room.node->getRenderable()->render(room.node.get(), context);
         context.popState();
       }
       if constexpr(render::pass::FlushPasses)
@@ -229,7 +228,7 @@ void Presenter::renderWorld(const ObjectManager& objectManager,
     context.pushState(m_renderPipeline->bindPortalFrameBuffer());
     for(const auto& portal : waterEntryPortals)
     {
-      portal->mesh->render(context);
+      portal->mesh->render(nullptr, context);
     }
     if constexpr(render::pass::FlushPasses)
       GL_ASSERT(gl::api::finish());
@@ -443,7 +442,7 @@ void Presenter::scaleSplashImage()
     = render::scene::createScreenQuad(sourceOffset, scaledSourceSize, m_materialManager->getBackdrop(), "backdrop");
   m_splashImageMesh->bind(
     "u_input",
-    [this](const render::scene::Node& /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
+    [this](const render::scene::Node* /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
     {
       uniform.set(m_splashImage);
     });
@@ -476,9 +475,9 @@ void Presenter::drawLoadingScreen(const std::string& state)
   m_renderer->clear(
     gl::api::ClearBufferMask::ColorBufferBit | gl::api::ClearBufferMask::DepthBufferBit, {0, 0, 0, 0}, 1);
   render::scene::RenderContext context{render::scene::RenderMode::Full, std::nullopt};
-  m_splashImageMesh->render(context);
+  m_splashImageMesh->render(nullptr, context);
   m_screenOverlay->setAlphaMultiplier(0.8f);
-  m_screenOverlay->render(context);
+  m_screenOverlay->render(nullptr, context);
   updateSoundEngine();
   swapBuffers();
 }
@@ -579,7 +578,7 @@ void Presenter::renderScreenOverlay()
 
   SOGLB_DEBUGGROUP("screen-overlay-pass");
   gl::RenderState::resetWantedState();
-  m_screenOverlay->render(context);
+  m_screenOverlay->render(nullptr, context);
 }
 
 void Presenter::renderUi(ui::Ui& ui, float alpha)

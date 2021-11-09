@@ -23,7 +23,7 @@ public:
 
   virtual ~Visitor() = default;
 
-  virtual void visit(Node& node);
+  virtual void visit(const Node& node);
 
   RenderContext& getContext()
   {

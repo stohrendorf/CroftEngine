@@ -10,14 +10,15 @@
 
 namespace render::scene
 {
-bool UniformParameter::bind(const Node& node,
+bool UniformParameter::bind(const Node* node,
                             const Mesh& mesh,
                             const gsl::not_null<std::shared_ptr<ShaderProgram>>& shaderProgram)
 {
   auto setter = mesh.findUniformSetter(getName());
   if(!m_valueSetter && setter == nullptr)
   {
-    setter = node.findUniformSetter(getName());
+    if(node != nullptr)
+      setter = node->findUniformSetter(getName());
     if(!m_valueSetter && setter == nullptr)
     {
       // don't have an explicit setter present on material, node or mesh level, assuming it's set on shader level
@@ -47,14 +48,15 @@ gl::Uniform* UniformParameter::findUniform(const gsl::not_null<std::shared_ptr<S
   return nullptr;
 }
 
-bool UniformBlockParameter::bind(const Node& node,
+bool UniformBlockParameter::bind(const Node* node,
                                  const Mesh& mesh,
                                  const gsl::not_null<std::shared_ptr<ShaderProgram>>& shaderProgram)
 {
   auto binder = mesh.findUniformBlockBinder(getName());
   if(!m_bufferBinder && binder == nullptr)
   {
-    binder = node.findUniformBlockBinder(getName());
+    if(node != nullptr)
+      binder = node->findUniformBlockBinder(getName());
     if(!m_bufferBinder && binder == nullptr)
     {
       // don't have an explicit binder present on material, node or mesh level, assuming it's set on shader level
@@ -76,15 +78,16 @@ bool UniformBlockParameter::bind(const Node& node,
 
 void UniformBlockParameter::bindTransformBuffer()
 {
-  m_bufferBinder = [](const Node& node, const Mesh& /*mesh*/, gl::UniformBlock& ub)
+  m_bufferBinder = [](const Node* node, const Mesh& /*mesh*/, gl::UniformBlock& ub)
   {
-    ub.bind(node.getTransformBuffer());
+    Expects(node != nullptr);
+    ub.bind(node->getTransformBuffer());
   };
 }
 
 void UniformBlockParameter::bindCameraBuffer(const gsl::not_null<std::shared_ptr<Camera>>& camera)
 {
-  m_bufferBinder = [camera](const Node& /*node*/, const Mesh& /*mesh*/, gl::UniformBlock& ub)
+  m_bufferBinder = [camera](const Node* /*node*/, const Mesh& /*mesh*/, gl::UniformBlock& ub)
   {
     ub.bind(camera->getMatricesBuffer());
   };

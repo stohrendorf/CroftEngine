@@ -28,7 +28,7 @@ Material::Material(gsl::not_null<std::shared_ptr<ShaderProgram>> shaderProgram)
 
 Material::~Material() = default;
 
-void Material::bind(const Node& node, const Mesh& mesh) const
+void Material::bind(const Node* node, const Mesh& mesh) const
 {
   for(const auto& param : m_uniforms)
   {
