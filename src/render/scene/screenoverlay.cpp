@@ -28,16 +28,15 @@ namespace render::scene
 ScreenOverlay::ScreenOverlay() = default;
 ScreenOverlay::~ScreenOverlay() = default;
 
-bool ScreenOverlay::render(const Node* node, RenderContext& context)
+void ScreenOverlay::render(const Node* node, RenderContext& context)
 {
   if(context.getRenderMode() != RenderMode::Full)
-    return false;
+    return;
 
   context.pushState(getRenderState());
   m_texture->getTexture()->assign(m_image->getData());
   m_mesh->render(node, context);
   context.popState();
-  return true;
 }
 
 void ScreenOverlay::init(MaterialManager& materialManager, const glm::ivec2& viewport)

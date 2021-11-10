@@ -59,11 +59,11 @@ gsl::not_null<std::shared_ptr<Mesh>> createScreenQuad(const glm::vec2& xy,
 
 Mesh::~Mesh() = default;
 
-bool Mesh::render(const Node* node, RenderContext& context)
+void Mesh::render(const Node* node, RenderContext& context)
 {
   std::shared_ptr<Material> material = m_materialGroup.get(context.getRenderMode());
   if(material == nullptr)
-    return false;
+    return;
 
   context.pushState(material->getRenderState());
   context.pushState(getRenderState());
@@ -75,6 +75,5 @@ bool Mesh::render(const Node* node, RenderContext& context)
 
   context.popState();
   context.popState();
-  return true;
 }
 } // namespace render::scene

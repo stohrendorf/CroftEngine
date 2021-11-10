@@ -225,7 +225,6 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
     {
       updateTimeSpent();
 
-      render::scene::RenderContext context{render::scene::RenderMode::Full, std::nullopt};
       m_presenter->renderWorld(world.getObjectManager(),
                                world.getRooms(),
                                world.getCameraController(),
@@ -448,7 +447,6 @@ std::pair<RunResult, std::optional<size_t>> Engine::runTitleMenu(world::World& w
       continue;
 
     ui::Ui ui{m_presenter->getMaterialManager()->getUi(), world.getPalette(), m_presenter->getRenderViewport()};
-    render::scene::RenderContext context{render::scene::RenderMode::Full, std::nullopt};
 
     std::shared_ptr<render::scene::Mesh> backdropMesh;
     {
@@ -474,7 +472,10 @@ std::pair<RunResult, std::optional<size_t>> Engine::runTitleMenu(world::World& w
       {
         uniform.set(backdrop);
       });
-    backdropMesh->render(nullptr, context);
+    {
+      render::scene::RenderContext context{render::scene::RenderMode::Full, std::nullopt};
+      backdropMesh->render(nullptr, context);
+    }
     menu->display(ui, world);
     m_presenter->renderUi(ui, 1);
     m_presenter->updateSoundEngine();

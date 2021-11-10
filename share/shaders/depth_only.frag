@@ -6,7 +6,7 @@ void main()
 {
     if (gpi.texCoord.z >= 0) {
         vec4 baseColor = texture(u_diffuseTextures, gpi.texCoord);
-        if (baseColor.a < 0.5) {
+        if (baseColor.a != 1) {
             discard;
         }
     }

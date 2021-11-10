@@ -1,5 +1,6 @@
 #include "renderer.h"
 
+#include "camera.h"
 #include "node.h"
 #include "rendercontext.h"
 #include "rendermode.h"
@@ -29,9 +30,12 @@ Renderer::~Renderer() = default;
 
 void Renderer::render()
 {
-  RenderContext context{RenderMode::Full, std::nullopt};
-  Visitor visitor{context};
-  m_rootNode->accept(visitor);
+  {
+    RenderContext context{RenderMode::Full, std::nullopt};
+    Visitor visitor{context};
+    m_rootNode->accept(visitor);
+    visitor.render(m_camera->getPosition());
+  }
 
   const auto t = std::chrono::high_resolution_clock::now();
   const auto dt = t - m_lastLogTime;

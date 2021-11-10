@@ -102,8 +102,10 @@ void Presenter::playVideo(const std::filesystem::path& path)
                   return true;
 
                 m_renderer->clear(gl::api::ClearBufferMask::ColorBufferBit, {0, 0, 0, 255}, 1);
-                render::scene::RenderContext context{render::scene::RenderMode::Full, std::nullopt};
-                mesh->render(nullptr, context);
+                {
+                  render::scene::RenderContext context{render::scene::RenderMode::Full, std::nullopt};
+                  mesh->render(nullptr, context);
+                }
                 updateSoundEngine();
                 swapBuffers();
                 m_inputHandler->update();
@@ -138,7 +140,6 @@ void Presenter::renderWorld(const ObjectManager& objectManager,
       render::scene::RenderContext context{render::scene::RenderMode::CSMDepthOnly,
                                            m_csm->getActiveMatrix(glm::mat4{1.0f})};
       render::scene::Visitor visitor{context, false};
-
       for(const auto& room : rooms)
       {
         if(!room.node->isVisible())
@@ -149,6 +150,7 @@ void Presenter::renderWorld(const ObjectManager& objectManager,
           visitor.visit(*child);
         }
       }
+      visitor.render(glm::vec3{0.0f, 0.0f, std::numeric_limits<float>::lowest()});
       m_csm->beginActiveDepthSync();
     }
 
@@ -192,20 +194,32 @@ void Presenter::renderWorld(const ObjectManager& objectManager,
 
     {
       SOGLB_DEBUGGROUP("depth-prefill-pass");
-      render::scene::RenderContext context{render::scene::RenderMode::DepthOnly,
-                                           cameraController.getCamera()->getViewProjectionMatrix()};
+
+      // collect rooms and sort front-to-back
+      std::vector<const world::Room*> renderRooms;
       for(const auto& room : rooms)
       {
-        if(!room.node->isVisible())
-          continue;
+        if(room.node->isVisible())
+          renderRooms.emplace_back(&room);
+      }
+      std::sort(renderRooms.begin(),
+                renderRooms.end(),
+                [](const world::Room* a, const world::Room* b)
+                {
+                  return a->node->getRenderOrder() > b->node->getRenderOrder();
+                });
 
-        SOGLB_DEBUGGROUP(room.node->getName());
+      render::scene::RenderContext context{render::scene::RenderMode::DepthOnly,
+                                           cameraController.getCamera()->getViewProjectionMatrix()};
+      for(const auto& room : renderRooms)
+      {
+        SOGLB_DEBUGGROUP(room->node->getName());
         auto state = context.getCurrentState();
         state.setScissorTest(true);
-        const auto [xy, size] = room.node->getCombinedScissors();
+        const auto [xy, size] = room->node->getCombinedScissors();
         state.setScissorRegion(xy, size);
         context.pushState(state);
-        room.node->getRenderable()->render(room.node.get(), context);
+        room->node->getRenderable()->render(room->node.get(), context);
         context.popState();
       }
       if constexpr(render::pass::FlushPasses)
@@ -574,10 +588,9 @@ void Presenter::renderScreenOverlay()
   if(m_screenOverlay == nullptr)
     return;
 
-  render::scene::RenderContext context{render::scene::RenderMode::Full, std::nullopt};
-
   SOGLB_DEBUGGROUP("screen-overlay-pass");
   gl::RenderState::resetWantedState();
+  render::scene::RenderContext context{render::scene::RenderMode::Full, std::nullopt};
   m_screenOverlay->render(nullptr, context);
 }
 

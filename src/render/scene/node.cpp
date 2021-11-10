@@ -43,8 +43,6 @@ void Node::transformChanged()
 
 void Node::accept(Visitor& visitor) const
 {
-  SOGLB_DEBUGGROUP(getName());
-
   auto state = visitor.getContext().getCurrentState();
   state.setScissorTest(visitor.withScissors() && m_renderState.getScissorTest().value_or(true));
   const auto [xy, size] = getCombinedScissors();
@@ -53,19 +51,12 @@ void Node::accept(Visitor& visitor) const
 
   if(m_renderable != nullptr)
   {
-    [[maybe_unused]] const bool rendered = m_renderable->render(this, visitor.getContext());
-    if constexpr(Visitor::FlushAfterEachRender)
-    {
-      if(rendered)
-      {
-        GL_ASSERT(gl::api::finish());
-      }
-    }
+    visitor.add(gsl::not_null{this}, getTranslationWorld());
   }
 
-  for(const auto& node : m_children)
+  for(const auto& child : m_children)
   {
-    visitor.visit(*node);
+    visitor.visit(*child);
   }
   visitor.getContext().popState();
 }

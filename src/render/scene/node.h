@@ -216,6 +216,16 @@ public:
     return m_renderState;
   }
 
+  [[nodiscard]] auto getRenderOrder() const
+  {
+    return m_renderOrder;
+  }
+
+  void setRenderOrder(int order)
+  {
+    m_renderOrder = order;
+  }
+
 private:
   void transformChanged();
 
@@ -233,6 +243,8 @@ private:
   mutable gl::UniformBuffer<Transform> m_transformBuffer;
 
   std::vector<std::tuple<glm::vec2, glm::vec2>> m_scissors;
+
+  int m_renderOrder = 0;
 
   friend void setParent(gsl::not_null<std::shared_ptr<Node>> node, const std::shared_ptr<Node>& newParent);
   friend void setParent(Node* node, const std::shared_ptr<Node>& newParent);

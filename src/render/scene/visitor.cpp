@@ -1,10 +1,11 @@
 #include "visitor.h"
 
 #include "node.h"
+#include "renderable.h"
 #include "rendercontext.h"
 
+#include <algorithm>
 #include <gl/debuggroup.h>
-#include <optional>
 #include <string>
 
 namespace render::scene
@@ -14,13 +15,44 @@ void Visitor::visit(const Node& node)
   if(!node.isVisible())
     return;
   if(const auto& vp = m_context.getViewProjection(); vp.has_value() && node.canBeCulled(vp.value()))
-  {
-    SOGLB_DEBUGGROUP(node.getName() + " <culled>");
     return;
-  }
 
   m_context.pushState(node.getRenderState());
   node.accept(*this);
   m_context.popState();
 }
+
+void Visitor::add(const gsl::not_null<const Node*>& node, const glm::vec3& position)
+{
+  if(node->getRenderable() != nullptr)
+    m_nodes.emplace_back(node, m_context.getCurrentState(), position);
+}
+
+void Visitor::render(const glm::vec3& camera) const
+{
+  // logic: first order by render order, then order by distance to camera back-to-front
+  std::sort(m_nodes.begin(),
+            m_nodes.end(),
+            [camera](const RenderableInfo& a, const RenderableInfo& b)
+            {
+              if(auto aOrder = std::get<0>(a)->getRenderOrder(), bOrder = std::get<0>(b)->getRenderOrder();
+                 aOrder != bOrder)
+              {
+                return aOrder < bOrder;
+              }
+
+              auto da = glm::distance(std::get<2>(a), camera);
+              auto db = glm::distance(std::get<2>(b), camera);
+              return da > db;
+            });
+  for(const auto& [node, state, position] : m_nodes)
+  {
+    SOGLB_DEBUGGROUP(node->getName());
+    m_context.pushState(state);
+    node->getRenderable()->render(node.get(), m_context);
+    m_context.popState();
+  }
+}
+
+Visitor::~Visitor() = default;
 } // namespace render::scene

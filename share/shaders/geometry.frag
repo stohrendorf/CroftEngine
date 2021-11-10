@@ -68,6 +68,9 @@ void main()
             uv = barycentricUv();
         }
         vec4 texColor = texture(u_diffuseTextures, vec3(uv, gpi.texCoord.z));
+        if (texColor.a == 0) {
+            discard;
+        }
         finalColor.rgb *= texColor.rgb;
         finalColor.a = texColor.a;
     }

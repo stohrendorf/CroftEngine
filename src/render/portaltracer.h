@@ -42,7 +42,8 @@ struct PortalTracer
                         std::vector<const engine::world::Room*>& seenRooms,
                         bool inWater,
                         std::unordered_set<const engine::world::Portal*>& waterSurfacePortals,
-                        bool startFromWater);
+                        bool startFromWater,
+                        int depth);
 
   static std::optional<CullBox> narrowCullBox(const CullBox& parentCullBox,
                                               const engine::world::Portal& portal,

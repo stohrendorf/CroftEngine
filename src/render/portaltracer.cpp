@@ -155,13 +155,15 @@ bool PortalTracer::traceRoom(const engine::world::Room& room,
                              std::vector<const engine::world::Room*>& seenRooms,
                              const bool inWater,
                              std::unordered_set<const engine::world::Portal*>& waterSurfacePortals,
-                             const bool startFromWater)
+                             const bool startFromWater,
+                             int depth)
 {
   if(std::find(seenRooms.rbegin(), seenRooms.rend(), &room) != seenRooms.rend())
     return false;
   seenRooms.emplace_back(&room);
 
   room.node->setVisible(true);
+  room.node->setRenderOrder(-depth);
   for(const auto& portal : room.portals)
   {
     if(const auto narrowedCullBox = narrowCullBox(roomCullBox, portal, world.getCameraController()))
@@ -175,7 +177,8 @@ bool PortalTracer::traceRoom(const engine::world::Room& room,
                    seenRooms,
                    inWater || childRoom->isWaterRoom,
                    waterSurfacePortals,
-                   startFromWater)
+                   startFromWater,
+                   depth + 1)
          && waterChanged)
       {
         waterSurfacePortals.emplace(&portal);
@@ -193,7 +196,7 @@ std::unordered_set<const engine::world::Portal*> PortalTracer::trace(const engin
   seenRooms.reserve(32);
   std::unordered_set<const engine::world::Portal*> waterSurfacePortals;
   traceRoom(
-    startRoom, {-1, -1, 1, 1}, world, seenRooms, startRoom.isWaterRoom, waterSurfacePortals, startRoom.isWaterRoom);
+    startRoom, {-1, -1, 1, 1}, world, seenRooms, startRoom.isWaterRoom, waterSurfacePortals, startRoom.isWaterRoom, 1);
   Expects(seenRooms.empty());
   return waterSurfacePortals;
 }
