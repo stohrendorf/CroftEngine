@@ -21,6 +21,7 @@
 #include "objectstate.h"
 #include "qs/quantity.h"
 #include "render/scene/node.h"
+#include "serialization/serialization.h"
 
 #include <boost/assert.hpp>
 #include <gsl/gsl-lite.hpp>
@@ -124,7 +125,25 @@ void PickupObject::collide(CollisionInfo& /*collisionInfo*/)
       ++getWorld().getPlayer().pickups;
       getWorld().addPickupWidget(getSprite());
       setParent(gsl::not_null{getNode()}, nullptr);
+      m_state.collidable = false;
     }
   }
+}
+void PickupObject::serialize(const serialization::Serializer<world::World>& ser)
+{
+  SpriteObject::serialize(ser);
+  // need a double-dispatch because the node is already lazily associated with its room
+  ser.lazy(
+    [this](const serialization::Serializer<world::World>& ser)
+    {
+      ser.lazy(
+        [this](const serialization::Serializer<world::World>& ser)
+        {
+          bool hasNode = !getNode()->getParent().expired();
+          ser(S_NV("hasNode", hasNode));
+          if(ser.loading && !hasNode)
+            setParent(gsl::not_null{getNode()}, nullptr);
+        });
+    });
 }
 } // namespace engine::objects

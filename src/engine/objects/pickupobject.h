@@ -1,5 +1,6 @@
 #pragma once
 
+#include "serialization/serialization_fwd.h"
 #include "spriteobject.h"
 
 namespace engine
@@ -32,5 +33,7 @@ public:
   SPRITEOBJECT_DEFAULT_CONSTRUCTORS(PickupObject, true)
 
   void collide(CollisionInfo& collisionInfo) override;
+
+  void serialize(const serialization::Serializer<world::World>& ser) override;
 };
 } // namespace engine::objects
