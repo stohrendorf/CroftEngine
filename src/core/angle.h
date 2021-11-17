@@ -21,18 +21,6 @@ class World;
 
 namespace core
 {
-constexpr int32_t FullRotation = 1u << 16u;
-constexpr int32_t AngleStorageScale = 1u << 16u;
-
-QS_DECLARE_QUANTITY(Angle, int32_t, "au");
-using RotationSpeed = QS_COMBINE_UNITS(Angle, /, Frame);
-
-[[nodiscard]] constexpr Angle auToAngle(int16_t value) noexcept;
-
-[[nodiscard]] constexpr Angle operator"" _deg(unsigned long long value) noexcept;
-
-[[nodiscard]] constexpr Angle operator"" _deg(long double value) noexcept;
-
 [[nodiscard]] inline Angle angleFromRad(const float r)
 {
   return Angle{gsl::narrow_cast<Angle::type>(r / 2 / glm::pi<float>() * FullRotation * AngleStorageScale)};
@@ -203,27 +191,4 @@ struct TRRotationXY
 };
 
 [[nodiscard]] extern TRRotationXY getVectorAngles(const Length& dx, const Length& dy, const Length& dz);
-
-[[nodiscard]] constexpr Angle auToAngle(int16_t value) noexcept
-{
-  return Angle{static_cast<Angle::type>(value) * AngleStorageScale};
-}
-
-[[nodiscard]] constexpr Angle operator"" _au(const unsigned long long value) noexcept
-{
-  return auToAngle(static_cast<int16_t>(value));
-}
-
-[[nodiscard]] constexpr Angle operator"" _deg(const unsigned long long value) noexcept
-{
-  return Angle{static_cast<Angle::type>(value * FullRotation / 360 * AngleStorageScale)};
-}
-
-[[nodiscard]] constexpr Angle operator"" _deg(const long double value) noexcept
-{
-  return Angle{static_cast<Angle::type>(value * FullRotation / 360 * AngleStorageScale)};
-}
 } // namespace core
-
-using core::operator""_au;
-using core::operator""_deg;

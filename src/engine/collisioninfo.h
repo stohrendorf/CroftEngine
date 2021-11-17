@@ -1,6 +1,7 @@
 #pragma once
 
 #include "core/angle.h"
+#include "core/interval.h"
 #include "core/units.h"
 #include "core/vec.h"
 #include "heightinfo.h"
@@ -24,11 +25,11 @@ struct CollisionInfo
   {
     None,
     Front,
-    Left,
-    Right,
+    FrontLeft,
+    FrontRight,
     Top,
-    TopBottom,
-    TopFront
+    FrontTop,
+    Jammed //!< Not enough space between floor and ceiling
   };
 
   enum class PolicyFlags
@@ -50,13 +51,12 @@ struct CollisionInfo
   AxisColl collisionType = AxisColl::None;
   mutable core::TRVec shift;
   core::Axis facingAxis = core::Axis::PosZ;
-  core::Angle facingAngle = 0_deg;               // external
-  core::Length collisionRadius = 0_len;          // external
-  PolicyFlagSet policies;                        // external
-  core::TRVec initialPosition;                   // external
-  core::Length floorCollisionRangeMin = 0_len;   // external
-  core::Length floorCollisionRangeMax = 0_len;   // external
-  core::Length ceilingCollisionRangeMin = 0_len; // external
+  core::Angle facingAngle = 0_deg;                             // external
+  core::Length collisionRadius = 0_len;                        // external
+  PolicyFlagSet policies;                                      // external
+  core::TRVec initialPosition;                                 // external
+  core::Interval<core::Length> validFloorHeight{0_len, 0_len}; // external
+  core::Length validCeilingHeightMin = 0_len;                  // external
 
   VerticalDistances mid;
   VerticalDistances front;

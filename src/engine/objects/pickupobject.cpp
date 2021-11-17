@@ -49,7 +49,7 @@ void PickupObject::collide(CollisionInfo& /*collisionInfo*/)
       return;
     }
 
-    static const core::TRVec aimSpeed{0_len, -200_len, -350_len};
+    static const core::GenericVec<core::Speed> aimSpeed{0_spd, -200_spd, -350_spd};
 
     if(getWorld().getObjectManager().getLara().getCurrentAnimState() == loader::file::LaraStateId::PickUp)
     {
@@ -129,6 +129,7 @@ void PickupObject::collide(CollisionInfo& /*collisionInfo*/)
     }
   }
 }
+
 void PickupObject::serialize(const serialization::Serializer<world::World>& ser)
 {
   SpriteObject::serialize(ser);

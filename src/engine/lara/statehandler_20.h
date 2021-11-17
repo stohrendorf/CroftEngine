@@ -20,9 +20,9 @@ public:
       return;
     }
 
-    if(getYRotationSpeed() >= 0_deg)
+    if(getYRotationSpeed() >= 0_deg / 1_frame)
     {
-      setYRotationSpeed(8_deg);
+      setYRotationSpeed(core::FastTurnSpeed);
       if(getWorld().getPresenter().getInputHandler().getInputState().xMovement == hid::AxisMovement::Right)
       {
         return;
@@ -30,7 +30,7 @@ public:
     }
     else
     {
-      setYRotationSpeed(-8_deg);
+      setYRotationSpeed(-core::FastTurnSpeed);
       if(getWorld().getPresenter().getInputHandler().getInputState().xMovement == hid::AxisMovement::Left)
       {
         return;

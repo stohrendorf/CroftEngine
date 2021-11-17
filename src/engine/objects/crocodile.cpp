@@ -171,7 +171,7 @@ void Crocodile::updateOnLand()
         goal(2_as);
         break;
       case ai::Mood::Attack:
-        if((enemyLocation.angleToEnemy >= -90_deg && enemyLocation.angleToEnemy <= 90_deg)
+        if(abs(enemyLocation.angleToEnemy) <= 90_deg
            || enemyLocation.enemyDistance <= util::square(3 * core::SectorSize))
           goal(2_as);
         else
@@ -193,7 +193,7 @@ void Crocodile::updateOnLand()
       else if(isBored())
         goal(1_as);
       else if(isAttacking() && enemyLocation.enemyDistance > util::square(3 * core::SectorSize)
-              && (enemyLocation.angleToEnemy < -90_deg || enemyLocation.angleToEnemy > 90_deg))
+              && abs(enemyLocation.angleToEnemy) > 90_deg)
         goal(1_as);
       break;
     case 3:
@@ -205,7 +205,7 @@ void Crocodile::updateOnLand()
         goal(1_as);
       break;
     case 4:
-      if(enemyLocation.angleToEnemy > -90_deg && enemyLocation.angleToEnemy < 90_deg)
+      if(abs(enemyLocation.angleToEnemy) < 90_deg)
         goal(3_as);
       break;
     case 5:

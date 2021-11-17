@@ -59,6 +59,33 @@ QS_DECLARE_QUANTITY(Brightness, float, "brightness");
 {
   return Brightness{intensity.get<float>() / 4096.0f};
 }
+
+QS_DECLARE_QUANTITY(Angle, int32_t, "au");
+using RotationSpeed = QS_COMBINE_UNITS(Angle, /, Frame);
+using RotationAcceleration = QS_COMBINE_UNITS(RotationSpeed, /, Frame);
+
+constexpr int32_t FullRotation = 1u << 16u;
+constexpr int32_t AngleStorageScale = 1u << 16u;
+
+[[nodiscard]] constexpr Angle auToAngle(int16_t value) noexcept
+{
+  return Angle{static_cast<Angle::type>(value) * AngleStorageScale};
+}
+
+[[nodiscard]] constexpr Angle operator"" _au(const unsigned long long value) noexcept
+{
+  return auToAngle(static_cast<int16_t>(value));
+}
+
+[[nodiscard]] constexpr Angle operator"" _deg(const unsigned long long value) noexcept
+{
+  return Angle{static_cast<Angle::type>(value * FullRotation / 360 * AngleStorageScale)};
+}
+
+[[nodiscard]] constexpr Angle operator"" _deg(const long double value) noexcept
+{
+  return Angle{static_cast<Angle::type>(value * FullRotation / 360 * AngleStorageScale)};
+}
 } // namespace core
 
 using core::operator""_frame;
@@ -66,3 +93,5 @@ using core::operator""_hp;
 using core::operator""_len;
 using core::operator""_sec;
 using core::operator""_spd;
+using core::operator""_au;
+using core::operator""_deg;

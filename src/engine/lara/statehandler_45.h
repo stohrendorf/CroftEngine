@@ -20,14 +20,13 @@ public:
   void postprocessFrame(CollisionInfo& collisionInfo) override
   {
     auto& laraState = getLara().m_state;
-    laraState.falling = false;
     laraState.fallspeed = 0_spd;
+    laraState.falling = false;
     collisionInfo.facingAngle = laraState.rotation.Y;
     setMovementAngle(collisionInfo.facingAngle);
     collisionInfo.policies |= CollisionInfo::PolicyFlags::SlopesAreWalls;
-    collisionInfo.floorCollisionRangeMin = core::HeightLimit;
-    collisionInfo.floorCollisionRangeMax = -core::ClimbLimit2ClickMin;
-    collisionInfo.ceilingCollisionRangeMin = 0_len;
+    collisionInfo.validFloorHeight = {-core::ClimbLimit2ClickMin, core::HeightLimit};
+    collisionInfo.validCeilingHeightMin = 0_len;
     collisionInfo.initHeightInfo(laraState.location.position, getWorld(), core::LaraWalkHeight);
 
     if(stopIfCeilingBlocked(collisionInfo))

@@ -150,9 +150,7 @@ void ModelObject::applyMovement(const bool forLara)
 
     if(forLara)
     {
-      // we only add acceleration here
-      m_state.speed
-        = m_state.speed + m_skeleton->calculateFloorSpeed(0_frame) - m_skeleton->calculateFloorSpeed(-1_frame);
+      m_state.speed += m_skeleton->getAcceleration() * 1_frame;
     }
   }
 
@@ -261,9 +259,8 @@ void ModelObject::enemyPush(CollisionInfo& collisionInfo, const bool enableSpaz,
       lara.hit_frame = 34_frame;
     }
   }
-  collisionInfo.floorCollisionRangeMin = core::HeightLimit;
-  collisionInfo.floorCollisionRangeMax = -384_len;
-  collisionInfo.ceilingCollisionRangeMin = 0_len;
+  collisionInfo.validFloorHeight = {-core::ClimbLimit2ClickMin, core::HeightLimit};
+  collisionInfo.validCeilingHeightMin = 0_len;
   const auto facingAngle = collisionInfo.facingAngle;
   collisionInfo.facingAngle = angleFromAtan(lara.m_state.location.position.X - collisionInfo.initialPosition.X,
                                             lara.m_state.location.position.Z - collisionInfo.initialPosition.Z);

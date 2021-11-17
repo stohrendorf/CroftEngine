@@ -20,17 +20,17 @@ public:
       return;
     }
 
-    addYRotationSpeed(2.25_deg);
+    addYRotationSpeed(core::SlowTurnSpeedAcceleration);
 
     if(getHandStatus() == objects::HandStatus::Combat)
     {
       setGoalAnimState(LaraStateId::TurnFast);
     }
-    else if(getYRotationSpeed() > 4_deg)
+    else if(getYRotationSpeed() > core::SlowTurnSpeed)
     {
       if(getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Walk))
       {
-        setYRotationSpeed(4_deg);
+        setYRotationSpeed(core::SlowTurnSpeed);
       }
       else
       {

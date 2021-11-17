@@ -97,8 +97,7 @@ void Natla::update()
     }
     else
     {
-      m_state.rotation.Y += m_pitchDelta - angle;
-      m_pitchDelta = 0_deg;
+      m_state.rotation.Y += std::exchange(m_pitchDelta, 0_deg) - angle;
     }
 
     switch(m_state.current_anim_state.get())
@@ -155,11 +154,7 @@ void Natla::update()
     ai::updateMood(*this, enemyLocation, true);
     angle = rotateTowardsTarget(6_deg / 1_frame);
     const auto canShoot = abs(enemyLocation.angleToEnemy) < 30_deg && canShootAtLara(enemyLocation);
-    if(m_pitchDelta != 0_deg)
-    {
-      m_state.rotation.Y += m_pitchDelta;
-      m_pitchDelta = 0_deg;
-    }
+    m_state.rotation.Y += std::exchange(m_pitchDelta, 0_deg);
     switch(m_state.current_anim_state.get())
     {
     case AimDispatch.get():

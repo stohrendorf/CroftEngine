@@ -24,11 +24,11 @@ public:
 
     if(getWorld().getPresenter().getInputHandler().getInputState().xMovement == hid::AxisMovement::Left)
     {
-      getLara().m_state.rotation.Y -= 2_deg;
+      getLara().m_state.rotation.Y -= core::OnWaterMovementTurnSpeed * 1_frame;
     }
     else if(getWorld().getPresenter().getInputHandler().getInputState().xMovement == hid::AxisMovement::Right)
     {
-      getLara().m_state.rotation.Y += 2_deg;
+      getLara().m_state.rotation.Y += core::OnWaterMovementTurnSpeed * 1_frame;
     }
 
     if(getWorld().getPresenter().getInputHandler().getInputState().zMovement != hid::AxisMovement::Backward)
@@ -36,7 +36,8 @@ public:
       setGoalAnimState(LaraStateId::OnWaterStop);
     }
 
-    getLara().m_state.fallspeed = std::min(60_spd, getLara().m_state.fallspeed + 8_spd);
+    getLara().m_state.fallspeed
+      = std::min(core::OnWaterMaxSpeed, getLara().m_state.fallspeed + core::OnWaterAcceleration * 1_frame);
   }
 
   void postprocessFrame(CollisionInfo& collisionInfo) override

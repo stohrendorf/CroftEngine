@@ -2,6 +2,7 @@
 
 #include "core/magic.h"
 #include "core/units.h"
+#include "core/vec.h"
 #include "engine/floordata/types.h"
 #include "qs/qs.h"
 
@@ -9,11 +10,6 @@
 #include <gsl/gsl-lite.hpp>
 #include <map>
 #include <memory>
-
-namespace core
-{
-struct TRVec;
-}
 
 namespace engine::world
 {
@@ -55,7 +51,9 @@ struct HeightInfo
 
 struct VerticalDistances
 {
+  //! Floor distance relative to the object
   HeightInfo floor;
+  //! Ceiling distance relative to the object's top
   HeightInfo ceiling;
 
   void init(const gsl::not_null<const world::Sector*>& roomSector,

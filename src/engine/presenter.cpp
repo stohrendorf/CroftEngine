@@ -368,13 +368,13 @@ void Presenter::drawBars(ui::Ui& ui, const std::array<gl::SRGBA8, 256>& palette,
   }
 
   if(objectManager.getLara().getHandStatus() == objects::HandStatus::Combat || objectManager.getLara().isDead())
-    m_healthBarTimeout = 40_frame;
+    m_healthBarTimeout = DefaultHealthBarTimeout;
 
   if(std::exchange(m_drawnHealth, objectManager.getLara().m_state.health) != objectManager.getLara().m_state.health)
-    m_healthBarTimeout = 40_frame;
+    m_healthBarTimeout = DefaultHealthBarTimeout;
 
   m_healthBarTimeout -= 1_frame;
-  if(m_healthBarTimeout <= -40_frame)
+  if(m_healthBarTimeout <= -DefaultHealthBarTimeout)
     return;
 
   uint8_t alpha = 255;

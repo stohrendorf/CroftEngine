@@ -34,11 +34,11 @@ public:
 
     if(getWorld().getPresenter().getInputHandler().getInputState().xMovement == hid::AxisMovement::Left)
     {
-      subYRotationSpeed(2.25_deg, -4_deg);
+      subYRotationSpeed(core::SlowTurnSpeedAcceleration, -core::SlowTurnSpeed);
     }
     else if(getWorld().getPresenter().getInputHandler().getInputState().xMovement == hid::AxisMovement::Right)
     {
-      addYRotationSpeed(2.25_deg, 4_deg);
+      addYRotationSpeed(core::SlowTurnSpeedAcceleration, core::SlowTurnSpeed);
     }
   }
 
@@ -47,9 +47,8 @@ public:
     auto& laraState = getLara().m_state;
     laraState.fallspeed = 0_spd;
     laraState.falling = false;
-    collisionInfo.floorCollisionRangeMin = core::ClimbLimit2ClickMin;
-    collisionInfo.floorCollisionRangeMax = -core::ClimbLimit2ClickMin;
-    collisionInfo.ceilingCollisionRangeMin = 0_len;
+    collisionInfo.validFloorHeight = {-core::ClimbLimit2ClickMin, core::ClimbLimit2ClickMin};
+    collisionInfo.validCeilingHeightMin = 0_len;
     collisionInfo.facingAngle = laraState.rotation.Y + 180_deg;
     setMovementAngle(collisionInfo.facingAngle);
     collisionInfo.policies |= CollisionInfo::SlopeBlockingPolicy;

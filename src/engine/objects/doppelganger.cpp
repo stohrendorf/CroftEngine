@@ -78,8 +78,8 @@ void Doppelganger::update()
       m_state.goal_anim_state = loader::file::LaraStateId::FreeFall;
       m_state.current_anim_state = loader::file::LaraStateId::FreeFall;
       m_state.fallspeed = 0_spd;
-      m_state.speed = 0_spd;
       m_state.falling = true;
+      m_state.speed = 0_spd;
       m_state.location.position.Y += 50_len;
     }
   }
@@ -101,9 +101,9 @@ void Doppelganger::update()
       = HeightInfo::fromFloor(sector2, m_state.location.position, getWorld().getObjectManager().getObjects());
     getWorld().handleCommandSequence(hi2.lastCommandSequenceOrDeath, true);
     m_state.fallspeed = 0_spd;
+    m_state.falling = false;
     m_state.goal_anim_state = loader::file::LaraStateId::Death;
     m_state.required_anim_state = loader::file::LaraStateId::Death;
-    m_state.falling = false;
   }
   else
   {

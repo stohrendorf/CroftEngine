@@ -96,7 +96,7 @@ private:
   std::shared_ptr<objects::Object> m_previousLookAtObject = nullptr;
   std::shared_ptr<objects::Object> m_enemy = nullptr;
   //! @brief Movement smoothness for adjusting the pivot position.
-  int m_smoothness = 8;
+  core::Frame m_smoothness = 8_frame;
   int m_fixedCameraId = -1;
   int m_currentFixedCameraId = -1;
   core::Frame m_camOverrideTimeout{-1_frame};
@@ -212,7 +212,7 @@ public:
 
   void serialize(const serialization::Serializer<world::World>& ser);
 
-  size_t m_cinematicFrame = 0;
+  core::Frame m_cinematicFrame = 0_frame;
   core::TRVec m_cinematicPos{0_len, 0_len, 0_len};
   core::TRRotation m_cinematicRot{};
 
@@ -223,7 +223,7 @@ private:
 
   core::Length moveIntoBox(Location& goal, const core::Length& margin) const;
 
-  void updatePosition(const Location& goal, int smoothFactor);
+  void updatePosition(const Location& goal, const core::Frame& smoothFactor);
 
   void chaseObject(const objects::Object& object);
 

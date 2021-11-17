@@ -8,9 +8,9 @@
 
 namespace core
 {
-void TRVec::serialize(const serialization::Serializer<engine::world::World>& ser)
+void serialize(TRVec& v, const serialization::Serializer<engine::world::World>& ser)
 {
-  ser(S_NV("x", X), S_NV("y", Y), S_NV("z", Z));
+  ser(S_NV("x", v.X), S_NV("y", v.Y), S_NV("z", v.Z));
 }
 
 std::ostream& operator<<(std::ostream& stream, const TRVec& rhs)

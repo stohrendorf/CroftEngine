@@ -77,7 +77,8 @@ public:
                     const gsl::not_null<const world::Animation*>& animation,
                     core::Frame frame);
 
-  [[nodiscard]] core::Speed calculateFloorSpeed(const core::Frame& frameOffset = 0_frame) const;
+  [[nodiscard]] core::Speed calculateFloorSpeed() const;
+  [[nodiscard]] core::Acceleration getAcceleration() const;
 
   [[nodiscard]] core::BoundingBox getBoundingBox() const;
 

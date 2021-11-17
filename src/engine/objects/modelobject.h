@@ -14,11 +14,6 @@
 #include <memory>
 #include <string>
 
-namespace core
-{
-struct TRVec;
-}
-
 namespace engine
 {
 class Particle;

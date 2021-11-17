@@ -282,7 +282,8 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
         world.getAudioEngine().setMusicGain(0);
         updateTimeSpent();
         laraDeadTime += 1_frame;
-        if(laraDeadTime >= 300_frame || (laraDeadTime >= 60_frame && m_presenter->getInputHandler().hasAnyAction()))
+        if(laraDeadTime >= core::FrameRate * 10_sec
+           || (laraDeadTime >= core::FrameRate * 2_sec && m_presenter->getInputHandler().hasAnyAction()))
         {
           menu = std::make_shared<menu::MenuDisplay>(
             menu::InventoryMode::DeathMode, world, m_presenter->getRenderViewport());

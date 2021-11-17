@@ -333,7 +333,7 @@ void CameraController::setCamOverride(const floordata::CameraParameters& camPara
   if(camParams.oneshot)
     m_world->getCameraSinks()[camId].setActive(true);
 
-  m_smoothness = 1 + (camParams.smoothness * 4);
+  m_smoothness = 1_frame + gsl::narrow_cast<core::Frame::type>(camParams.smoothness) * 4_frame;
   if(fromHeavy)
     m_mode = CameraMode::HeavyFixedPosition;
   else
@@ -417,12 +417,11 @@ std::unordered_set<const world::Portal*> CameraController::update()
 
   if(m_mode == CameraMode::Cinematic)
   {
-    if(++m_cinematicFrame >= m_world->getCinematicFrames().size())
-    {
-      m_cinematicFrame = m_world->getCinematicFrames().size() - 1;
-    }
+    m_cinematicFrame
+      = std::min(m_cinematicFrame + 1_frame,
+                 core::Frame{gsl::narrow_cast<core::Frame::type>(m_world->getCinematicFrames().size() - 1)});
 
-    updateCinematic(m_world->getCinematicFrames()[m_cinematicFrame], true);
+    updateCinematic(m_world->getCinematicFrames()[gsl::narrow_cast<size_t>(m_cinematicFrame.get())], true);
     return tracePortals();
   }
 
@@ -450,7 +449,7 @@ std::unordered_set<const world::Portal*> CameraController::update()
     BOOST_ASSERT(m_lookAtObject.get() != focusedObject);
     const auto& focusedPosition = focusedObject->m_state.location.position;
     const auto& lookAtPosition = m_lookAtObject->m_state.location.position;
-    const auto distToFocused = lookAtPosition.distanceTo(focusedPosition);
+    const auto distToFocused = distanceTo(lookAtPosition, focusedPosition);
     auto eyeRotY = angleFromAtan(lookAtPosition.X - focusedPosition.X, lookAtPosition.Z - focusedPosition.Z)
                    - focusedObject->m_state.rotation.Y;
     eyeRotY /= 2;
@@ -482,15 +481,15 @@ std::unordered_set<const world::Portal*> CameraController::update()
     if(m_isCompletelyFixed)
     {
       m_lookAt.position.Y = focusY;
-      m_smoothness = 1;
+      m_smoothness = 1_frame;
     }
     else
     {
       m_lookAt.position.Y += (focusY - m_lookAt.position.Y) / 4;
       if(m_mode == CameraMode::FreeLook)
-        m_smoothness = 4;
+        m_smoothness = 4_frame;
       else
-        m_smoothness = 8;
+        m_smoothness = 8_frame;
     }
     m_isCompletelyFixed = false;
     if(m_mode == CameraMode::FreeLook)
@@ -517,7 +516,7 @@ std::unordered_set<const world::Portal*> CameraController::update()
     else
     {
       // switching between fixed cameras, so we're not doing any smoothing
-      m_smoothness = 1;
+      m_smoothness = 1_frame;
       m_lookAt.position.Y = focusY;
       m_isCompletelyFixed = true;
     }
@@ -612,9 +611,9 @@ core::Length CameraController::moveIntoBox(Location& goal, const core::Length& m
     return 0_len;
 }
 
-void CameraController::updatePosition(const Location& goal, const int smoothFactor)
+void CameraController::updatePosition(const Location& goal, const core::Frame& smoothFactor)
 {
-  m_location.position += (goal.position - m_location.position) / smoothFactor;
+  m_location.position += (goal.position - m_location.position) / smoothFactor * 1_frame;
   m_location.room = goal.room;
   HeightInfo::skipSteepSlants = false;
   auto sector = m_location.updateRoom();
@@ -691,7 +690,7 @@ void CameraController::chaseObject(const objects::Object& object)
     },
     m_world->getObjectManager());
 
-  updatePosition(goal, m_isCompletelyFixed ? m_smoothness : 12);
+  updatePosition(goal, m_isCompletelyFixed ? m_smoothness : 12_frame);
 }
 
 void CameraController::handleFreeLook(const objects::Object& object)
@@ -719,8 +718,8 @@ void CameraController::handleFreeLook(const objects::Object& object)
     &freeLookClamp,
     m_world->getObjectManager());
 
-  m_lookAt.position.X = originalLookAt.X + (m_lookAt.position.X - originalLookAt.X) / m_smoothness;
-  m_lookAt.position.Z = originalLookAt.Z + (m_lookAt.position.Z - originalLookAt.Z) / m_smoothness;
+  m_lookAt.position.X = originalLookAt.X + (m_lookAt.position.X - originalLookAt.X) / m_smoothness * 1_frame;
+  m_lookAt.position.Z = originalLookAt.Z + (m_lookAt.position.Z - originalLookAt.Z) / m_smoothness * 1_frame;
 
   updatePosition(goal, m_smoothness);
 }

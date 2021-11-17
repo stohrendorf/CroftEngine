@@ -56,5 +56,25 @@ constexpr auto Gravity = 6_spd / 1_frame;
 constexpr auto TerminalGravity = 1_spd / 1_frame;
 constexpr auto TerminalSpeed = 128_spd;
 
+constexpr auto SlowTurnSpeedAcceleration = 2.25_deg / 1_frame / 1_frame;
+constexpr auto TurnSpeedDeceleration = 2_deg / 1_frame / 1_frame;
+constexpr auto SlowTurnSpeed = 4_deg / 1_frame;
+constexpr auto OnWaterTurnSpeed = 4_deg / 1_frame;
+constexpr auto OnWaterMovementTurnSpeed = 2_deg / 1_frame;
+constexpr auto OnWaterMaxSpeed = 60_spd;
+constexpr auto OnWaterAcceleration = 8_spd / 1_frame;
+constexpr auto FastTurnSpeed = 8_deg / 1_frame;
+constexpr auto JumpTurnSpeed = 3_deg / 1_frame;
+constexpr auto RunBackTurnSpeed = 6_deg / 1_frame;
+constexpr auto RunTiltAcceleration = 1.5_deg / 1_frame;
+constexpr auto MaxRunTilt = 11_deg;
+constexpr auto WaterCollisionRotationSpeedX = 2_deg / 1_frame;
+constexpr auto WaterCollisionRotationSpeedY = 5_deg / 1_frame;
+constexpr auto DiveRotationSpeedX = 2_deg / 1_frame;
+constexpr auto DiveRotationSpeedY = 6_deg / 1_frame;
+constexpr auto DiveRotationSpeedZ = 3_deg / 1_frame;
+
+constexpr auto FreeLookHeadTurnSpeed = 2_deg / 1_frame;
+
 constexpr size_t SavegameSlots = 20;
 } // namespace core

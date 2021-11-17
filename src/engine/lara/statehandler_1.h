@@ -33,14 +33,16 @@ public:
 
     if(getWorld().getPresenter().getInputHandler().getInputState().xMovement == hid::AxisMovement::Left)
     {
-      subYRotationSpeed(2.25_deg, -8_deg);
-      const core::Angle z = std::max(-11_deg, getLara().m_state.rotation.Z - 1.5_deg);
+      subYRotationSpeed(core::SlowTurnSpeedAcceleration, -core::FastTurnSpeed);
+      const core::Angle z
+        = std::max(-core::MaxRunTilt, getLara().m_state.rotation.Z - core::RunTiltAcceleration * 1_frame);
       getLara().m_state.rotation.Z = z;
     }
     else if(getWorld().getPresenter().getInputHandler().getInputState().xMovement == hid::AxisMovement::Right)
     {
-      addYRotationSpeed(2.25_deg, 8_deg);
-      const core::Angle z = std::min(+11_deg, getLara().m_state.rotation.Z + 1.5_deg);
+      addYRotationSpeed(core::SlowTurnSpeedAcceleration, core::FastTurnSpeed);
+      const core::Angle z
+        = std::min(core::MaxRunTilt, getLara().m_state.rotation.Z + core::RunTiltAcceleration * 1_frame);
       getLara().m_state.rotation.Z = z;
     }
 
@@ -70,9 +72,8 @@ public:
   {
     collisionInfo.facingAngle = getLara().m_state.rotation.Y;
     setMovementAngle(collisionInfo.facingAngle);
-    collisionInfo.floorCollisionRangeMin = core::HeightLimit;
-    collisionInfo.floorCollisionRangeMax = -core::ClimbLimit2ClickMin;
-    collisionInfo.ceilingCollisionRangeMin = 0_len;
+    collisionInfo.validFloorHeight = {-core::ClimbLimit2ClickMin, core::HeightLimit};
+    collisionInfo.validCeilingHeightMin = 0_len;
     collisionInfo.policies.set(CollisionInfo::PolicyFlags::SlopesAreWalls);
     collisionInfo.initHeightInfo(getLara().m_state.location.position, getWorld(), core::LaraWalkHeight);
 
@@ -114,8 +115,8 @@ public:
       setAnimation(AnimationId::FREE_FALL_FORWARD);
       setGoalAnimState(LaraStateId::JumpForward);
       setCurrentAnimState(LaraStateId::JumpForward);
-      getLara().m_state.falling = true;
       getLara().m_state.fallspeed = 0_spd;
+      getLara().m_state.falling = true;
       return;
     }
 

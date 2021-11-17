@@ -23,9 +23,8 @@ public:
 
   void postprocessFrame(CollisionInfo& collisionInfo) override
   {
-    collisionInfo.floorCollisionRangeMin = core::HeightLimit;
-    collisionInfo.floorCollisionRangeMax = -core::ClimbLimit2ClickMin;
-    collisionInfo.ceilingCollisionRangeMin = 192_len;
+    collisionInfo.validFloorHeight = {-core::ClimbLimit2ClickMin, core::HeightLimit};
+    collisionInfo.validCeilingHeightMin = 192_len;
     collisionInfo.facingAngle = getLara().m_state.rotation.Y;
     setMovementAngle(collisionInfo.facingAngle);
     collisionInfo.initHeightInfo(getLara().m_state.location.position, getWorld(), core::LaraHangingHeight);
@@ -50,8 +49,61 @@ public:
       setGoalAnimState(LaraStateId::Stop);
     }
     getLara().m_state.fallspeed = 0_spd;
-    placeOnFloor(collisionInfo);
     getLara().m_state.falling = false;
+    placeOnFloor(collisionInfo);
+  }
+
+  bool tryGrabEdge(const CollisionInfo& collisionInfo)
+  {
+    if(collisionInfo.collisionType != CollisionInfo::AxisColl::Front
+       || !getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action)
+       || getHandStatus() != objects::HandStatus::None)
+    {
+      return false;
+    }
+
+    const auto floorGradient = abs(collisionInfo.frontLeft.floor.y - collisionInfo.frontRight.floor.y);
+    if(floorGradient >= core::MaxGrabbableGradient)
+    {
+      return false;
+    }
+
+    if(collisionInfo.front.ceiling.y > 0_len || collisionInfo.mid.ceiling.y > -core::ClimbLimit2ClickMin)
+    {
+      return false;
+    }
+
+    const auto relativeEdgeHeight = collisionInfo.front.floor.y - getBoundingBox().y.min;
+    const auto relativeEdgeHeightNextFrame = relativeEdgeHeight + getLara().m_state.fallspeed * 1_frame;
+
+    if(relativeEdgeHeight < 0_len && relativeEdgeHeightNextFrame < 0_len)
+    {
+      return false;
+    }
+    if(relativeEdgeHeight > 0_len && relativeEdgeHeightNextFrame > 0_len)
+    {
+      return false;
+    }
+
+    auto alignedRotation = snapRotation(getLara().m_state.rotation.Y, 35_deg);
+    if(!alignedRotation)
+    {
+      return false;
+    }
+
+    setAnimation(AnimationId::HANG_IDLE, getWorld().getAnimation(AnimationId::HANG_IDLE).firstFrame + 12_frame);
+    setGoalAnimState(LaraStateId::Hang);
+    setCurrentAnimState(LaraStateId::Hang);
+
+    getLara().m_state.location.position.Y += collisionInfo.front.floor.y - getBoundingBox().y.min;
+    applyShift(collisionInfo);
+    getLara().m_state.speed = 0_spd;
+    getLara().m_state.fallspeed = 0_spd;
+    getLara().m_state.falling = false;
+    setHandStatus(objects::HandStatus::Grabbing);
+    getLara().m_state.rotation.Y = *alignedRotation;
+
+    return true;
   }
 };
 } // namespace engine::lara

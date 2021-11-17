@@ -1,11 +1,8 @@
 #pragma once
 
-#include <utility>
+#include "core/vec.h"
 
-namespace core
-{
-struct TRVec;
-} // namespace core
+#include <utility>
 
 namespace engine
 {

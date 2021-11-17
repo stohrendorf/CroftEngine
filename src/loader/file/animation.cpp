@@ -46,12 +46,12 @@ std::unique_ptr<Animation> Animation::read(io::SDLReader& reader, const bool wit
   animation->poseDataSize = reader.readU8();
   animation->state_id = core::AnimStateId{reader.readU16()};
 
-  animation->speed = core::Speed{reader.readI32()};
-  animation->acceleration = core::Acceleration{reader.readI32()};
+  animation->speed = core::Speed{gsl::narrow_cast<core::Speed::type>(reader.readI32())};
+  animation->acceleration = core::Acceleration{gsl::narrow_cast<core::Acceleration::type>(reader.readI32())};
   if(withLateral)
   {
-    animation->lateralSpeed = core::Speed{reader.readI32()};
-    animation->lateralAcceleration = core::Acceleration{reader.readI32()};
+    animation->lateralSpeed = core::Speed{gsl::narrow_cast<core::Speed::type>(reader.readI32())};
+    animation->lateralAcceleration = core::Acceleration{gsl::narrow_cast<core::Acceleration::type>(reader.readI32())};
   }
 
   animation->firstFrame = core::Frame{static_cast<core::Frame::type>(reader.readU16())};

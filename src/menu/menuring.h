@@ -44,7 +44,7 @@ struct MenuRing
 
   [[nodiscard]] core::Angle getCurrentObjectAngle() const
   {
-    return getAnglePerItem() * gsl::narrow_cast<int>(currentObject);
+    return getAnglePerItem() * gsl::narrow_cast<core::Angle::type>(currentObject);
   }
 };
 } // namespace menu

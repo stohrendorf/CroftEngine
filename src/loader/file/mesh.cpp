@@ -14,7 +14,7 @@ std::unique_ptr<Mesh> Mesh::readTr1(io::SDLReader& reader)
 {
   auto mesh = std::make_unique<Mesh>();
   mesh->collision_center = readCoordinates16(reader);
-  mesh->collision_radius = core::Length{core::Length::type{reader.readI16()}};
+  mesh->collision_radius = core::Length{gsl::narrow_cast<core::Length::type>(reader.readI16())};
   mesh->flags = reader.readU16();
 
   reader.readVector(mesh->vertices, reader.readU16(), &io::readCoordinates16);
@@ -43,7 +43,7 @@ std::unique_ptr<Mesh> Mesh::readTr4(io::SDLReader& reader)
 {
   auto mesh = std::make_unique<Mesh>();
   mesh->collision_center = readCoordinates16(reader);
-  mesh->collision_radius = core::Length{reader.readI32()};
+  mesh->collision_radius = core::Length{gsl::narrow_cast<core::Length::type>(reader.readI32())};
 
   reader.readVector(mesh->vertices, reader.readU16(), &io::readCoordinates16);
 

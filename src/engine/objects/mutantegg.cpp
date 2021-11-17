@@ -118,7 +118,7 @@ void MutantEgg::update()
   if(m_state.goal_anim_state != 1_as)
   {
     if(m_state.activationState.isOneshot() || m_state.type == TR1ItemId::MutantEggBig
-       || (getWorld().getObjectManager().getLara().m_state.location.position - m_state.location.position).absMax()
+       || absMax(getWorld().getObjectManager().getLara().m_state.location.position - m_state.location.position)
             < 4096_len)
     {
       BOOST_LOG_TRIVIAL(debug) << getSkeleton()->getName() << ": Hatching " << m_childObject->getNode()->getName();

@@ -53,9 +53,9 @@ void CollapsibleFloor::update()
   // settle
   m_state.goal_anim_state = 3_as;
   m_state.fallspeed = 0_spd;
+  m_state.falling = false;
   auto pos = m_state.location.position;
   pos.Y = m_state.floor;
   m_state.location.position = pos;
-  m_state.falling = false;
 }
 } // namespace engine::objects

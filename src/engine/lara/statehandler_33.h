@@ -29,20 +29,20 @@ public:
 
       if(getWorld().getPresenter().getInputHandler().getInputState().xMovement == hid::AxisMovement::Left)
       {
-        getLara().addHeadRotationY(-2_deg, -50_deg, 50_deg);
+        getLara().addHeadRotationY(-core::FreeLookHeadTurnSpeed, -50_deg, 50_deg);
       }
       else if(getWorld().getPresenter().getInputHandler().getInputState().xMovement == hid::AxisMovement::Right)
       {
-        getLara().addHeadRotationY(2_deg, -50_deg, 50_deg);
+        getLara().addHeadRotationY(core::FreeLookHeadTurnSpeed, -50_deg, 50_deg);
       }
 
       if(getWorld().getPresenter().getInputHandler().getInputState().zMovement == hid::AxisMovement::Forward)
       {
-        getLara().addHeadRotationX(-2_deg, -40_deg, 40_deg);
+        getLara().addHeadRotationX(-core::FreeLookHeadTurnSpeed, -40_deg, 40_deg);
       }
       else if(getWorld().getPresenter().getInputHandler().getInputState().zMovement == hid::AxisMovement::Backward)
       {
-        getLara().addHeadRotationX(2_deg, -40_deg, 40_deg);
+        getLara().addHeadRotationX(core::FreeLookHeadTurnSpeed, -40_deg, 40_deg);
       }
 
       auto torsoRot = getLara().getTorsoRotation();
@@ -61,11 +61,11 @@ public:
 
     if(getWorld().getPresenter().getInputHandler().getInputState().xMovement == hid::AxisMovement::Left)
     {
-      getLara().m_state.rotation.Y -= 4_deg;
+      getLara().m_state.rotation.Y -= core::OnWaterTurnSpeed * 1_frame;
     }
     else if(getWorld().getPresenter().getInputHandler().getInputState().xMovement == hid::AxisMovement::Right)
     {
-      getLara().m_state.rotation.Y += 4_deg;
+      getLara().m_state.rotation.Y += core::OnWaterTurnSpeed * 1_frame;
     }
 
     if(getWorld().getPresenter().getInputHandler().getInputState().zMovement == hid::AxisMovement::Forward)
@@ -93,7 +93,7 @@ public:
     }
 
     addSwimToDiveKeypressDuration(1_frame);
-    if(getSwimToDiveKeypressDuration() != 10_frame)
+    if(getSwimToDiveKeypressDuration() != core::FrameRate * 1_sec / 3)
     {
       // not yet allowed to dive; not that the keypress duration is always >10 when coming up from diving
       return;

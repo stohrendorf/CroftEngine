@@ -27,9 +27,8 @@ public:
   void postprocessFrame(CollisionInfo& collisionInfo) override
   {
     auto& laraState = getLara().m_state;
-    collisionInfo.floorCollisionRangeMin = core::HeightLimit;
-    collisionInfo.floorCollisionRangeMax = -core::ClimbLimit2ClickMin;
-    collisionInfo.ceilingCollisionRangeMin = 192_len;
+    collisionInfo.validFloorHeight = {-core::ClimbLimit2ClickMin, core::HeightLimit};
+    collisionInfo.validCeilingHeightMin = 192_len;
     collisionInfo.facingAngle = getMovementAngle();
     laraState.falling = true;
     collisionInfo.initHeightInfo(laraState.location.position, getWorld(), core::LaraWalkHeight);
@@ -51,8 +50,8 @@ public:
     }
     getWorld().getAudioEngine().stopSoundEffect(TR1SoundEffect::LaraScream, &getLara().m_state);
     getLara().m_state.fallspeed = 0_spd;
-    placeOnFloor(collisionInfo);
     getLara().m_state.falling = false;
+    placeOnFloor(collisionInfo);
   }
 };
 } // namespace engine::lara

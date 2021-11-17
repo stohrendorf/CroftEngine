@@ -3,14 +3,10 @@
 #include "core/containeroffset.h"
 #include "core/id.h"
 #include "core/units.h"
+#include "core/vec.h"
 
 #include <array>
 #include <cstdint>
-
-namespace core
-{
-struct TRVec;
-}
 
 namespace loader::file
 {

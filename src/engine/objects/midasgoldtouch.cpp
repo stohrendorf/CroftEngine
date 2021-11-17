@@ -48,7 +48,7 @@ void MidasGoldTouch::collide(CollisionInfo& /*info*/)
     lara.m_state.falling = false;
     auto& cameraController = getWorld().getCameraController();
     cameraController.setMode(CameraMode::Cinematic);
-    cameraController.m_cinematicFrame = 0;
+    cameraController.m_cinematicFrame = 0_frame;
     cameraController.m_cinematicPos = lara.m_state.location.position;
     cameraController.m_cinematicRot = lara.m_state.rotation;
     return;

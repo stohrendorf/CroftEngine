@@ -69,6 +69,7 @@ public:
   static const constexpr float DefaultNearPlane = 20.0f;
   static const constexpr float DefaultFarPlane = 20480.0f;
   static const constexpr float DefaultFov = glm::radians(60.0f);
+  static const constexpr core::Frame DefaultHealthBarTimeout = core::FrameRate * 1_sec * 4 / 3;
 
   explicit Presenter(const std::filesystem::path& engineDataPath, const glm::ivec2& resolution);
   ~Presenter();
@@ -96,9 +97,9 @@ public:
     return m_materialManager;
   }
 
-  void setHealthBarTimeout(const core::Frame& f)
+  void initHealthBarTimeout()
   {
-    m_healthBarTimeout = f;
+    m_healthBarTimeout = DefaultHealthBarTimeout;
   }
 
   [[nodiscard]] const hid::InputHandler& getInputHandler() const
@@ -180,7 +181,7 @@ private:
   const gsl::not_null<std::unique_ptr<gl::Font>> m_trTTFFont;
   const gsl::not_null<std::unique_ptr<gl::Font>> m_debugFont;
   core::Health m_drawnHealth = core::LaraHealth;
-  core::Frame m_healthBarTimeout = -40_frame;
+  core::Frame m_healthBarTimeout = -DefaultHealthBarTimeout;
   const gsl::not_null<std::unique_ptr<hid::InputHandler>> m_inputHandler;
   std::unique_ptr<ui::TRFont> m_trFont;
 

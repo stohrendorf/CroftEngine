@@ -68,16 +68,10 @@ core::TRRotationXY getVectorAngles(const core::TRVec& co)
 
 namespace engine::objects
 {
-struct Range
-{
-  core::Angle min = 0_deg;
-  core::Angle max = 0_deg;
-};
-
 struct RangeXY
 {
-  Range y{};
-  Range x{};
+  core::Interval<core::Angle> y{};
+  core::Interval<core::Angle> x{};
 };
 
 struct Weapon
@@ -86,7 +80,7 @@ struct Weapon
   RangeXY lockAngles{};
   RangeXY leftAngles{};
   RangeXY rightAngles{};
-  core::Angle aimSpeed = 0_deg;
+  core::RotationSpeed aimSpeed = 0_deg / 1_frame;
   core::Angle shotInaccuracy = 0_deg;
   core::Length weaponHeight = 0_len;
   core::Health damage = 0_hp;
@@ -104,7 +98,7 @@ const std::unordered_map<WeaponType, Weapon> weapons{{WeaponType::None, Weapon{}
                                                              {{-60_deg, +60_deg}, {-60_deg, +60_deg}},
                                                              {{-170_deg, +60_deg}, {-80_deg, +80_deg}},
                                                              {{-60_deg, +170_deg}, {-80_deg, +80_deg}},
-                                                             +10_deg,
+                                                             +10_deg / 1_frame,
                                                              +4_deg,
                                                              650_len,
                                                              1_hp,
@@ -117,7 +111,7 @@ const std::unordered_map<WeaponType, Weapon> weapons{{WeaponType::None, Weapon{}
                                                              {{-60_deg, +60_deg}, {-60_deg, +60_deg}},
                                                              {{-170_deg, +60_deg}, {-80_deg, +80_deg}},
                                                              {{-60_deg, +170_deg}, {-80_deg, +80_deg}},
-                                                             +10_deg,
+                                                             +10_deg / 1_frame,
                                                              +4_deg,
                                                              650_len,
                                                              2_hp,
@@ -130,7 +124,7 @@ const std::unordered_map<WeaponType, Weapon> weapons{{WeaponType::None, Weapon{}
                                                              {{-60_deg, +60_deg}, {-60_deg, +60_deg}},
                                                              {{-170_deg, +60_deg}, {-80_deg, +80_deg}},
                                                              {{-60_deg, +170_deg}, {-80_deg, +80_deg}},
-                                                             +10_deg,
+                                                             +10_deg / 1_frame,
                                                              +4_deg,
                                                              650_len,
                                                              1_hp,
@@ -143,7 +137,7 @@ const std::unordered_map<WeaponType, Weapon> weapons{{WeaponType::None, Weapon{}
                                                              {{-60_deg, +60_deg}, {-55_deg, +55_deg}},
                                                              {{-80_deg, +80_deg}, {-65_deg, +65_deg}},
                                                              {{-80_deg, +80_deg}, {-65_deg, +65_deg}},
-                                                             +10_deg,
+                                                             +10_deg / 1_frame,
                                                              0_deg,
                                                              500_len,
                                                              4_hp,
@@ -187,7 +181,7 @@ void LaraObject::handleLaraStateOnLand()
   if(getWorld().getCameraController().getMode() != CameraMode::FreeLook)
   {
     const auto headX = m_headRotation.X;
-    if(headX <= -2_deg || headX >= 2_deg)
+    if(abs(headX) >= 2_deg)
     {
       m_headRotation.X = headX - headX / 8;
     }
@@ -196,7 +190,7 @@ void LaraObject::handleLaraStateOnLand()
       m_headRotation.X = 0_deg;
     }
     const auto headY = m_headRotation.Y;
-    if(headY <= -2_deg || headY >= 2_deg)
+    if(abs(headY) >= 2_deg)
     {
       m_headRotation.Y = headY - headY / 8;
     }
@@ -229,20 +223,20 @@ void LaraObject::handleLaraStateOnLand()
     m_state.rotation.Z = 0_deg;
   }
 
-  if(m_yRotationSpeed > 2_deg)
+  if(m_yRotationSpeed > core::TurnSpeedDeceleration * 1_frame)
   {
-    m_yRotationSpeed -= 2_deg;
+    m_yRotationSpeed -= core::TurnSpeedDeceleration * 1_frame;
   }
-  else if(m_yRotationSpeed < -2_deg)
+  else if(m_yRotationSpeed < -core::TurnSpeedDeceleration * 1_frame)
   {
-    m_yRotationSpeed += 2_deg;
+    m_yRotationSpeed += core::TurnSpeedDeceleration * 1_frame;
   }
   else
   {
-    m_yRotationSpeed = 0_deg;
+    m_yRotationSpeed = 0_deg / 1_frame;
   }
 
-  m_state.rotation.Y += m_yRotationSpeed;
+  m_state.rotation.Y += m_yRotationSpeed * 1_frame;
 
   updateImpl();
 
@@ -265,9 +259,8 @@ void LaraObject::handleLaraStateDiving()
   collisionInfo.initialPosition = m_state.location.position;
   collisionInfo.collisionRadius = core::DefaultCollisionRadiusUnderwater;
   collisionInfo.policies.reset_all();
-  collisionInfo.ceilingCollisionRangeMin = core::LaraDiveHeight;
-  collisionInfo.floorCollisionRangeMin = core::HeightLimit;
-  collisionInfo.floorCollisionRangeMax = -core::LaraDiveHeight;
+  collisionInfo.validCeilingHeightMin = core::LaraDiveHeight;
+  collisionInfo.validFloorHeight = {-core::LaraDiveHeight, core::HeightLimit};
 
   lara::AbstractStateHandler::create(getCurrentAnimState(), *this)->handleInput(collisionInfo);
 
@@ -316,9 +309,8 @@ void LaraObject::handleLaraStateSwimming()
   collisionInfo.initialPosition = m_state.location.position;
   collisionInfo.collisionRadius = core::DefaultCollisionRadius;
   collisionInfo.policies.reset_all();
-  collisionInfo.ceilingCollisionRangeMin = core::DefaultCollisionRadius;
-  collisionInfo.floorCollisionRangeMin = core::HeightLimit;
-  collisionInfo.floorCollisionRangeMax = -core::DefaultCollisionRadius;
+  collisionInfo.validCeilingHeightMin = core::DefaultCollisionRadius;
+  collisionInfo.validFloorHeight = {-core::DefaultCollisionRadius, core::HeightLimit};
 
   setCameraRotationAroundLaraX(-22_deg);
 
@@ -508,7 +500,7 @@ void LaraObject::update()
   {
     if(!isDead())
     {
-      m_air = std::min(m_air + 10_frame, core::LaraAir);
+      m_air = std::min(m_air + core::FrameRate * 1_sec / 3, core::LaraAir);
     }
     handleLaraStateSwimming();
   }
@@ -727,13 +719,13 @@ void LaraObject::handleUnderwaterCurrent(CollisionInfo& collisionInfo)
   case CollisionInfo::AxisColl::Top:
     m_state.rotation.X -= 2_deg;
     break;
-  case CollisionInfo::AxisColl::TopBottom:
+  case CollisionInfo::AxisColl::FrontTop:
     m_state.fallspeed = 0_spd;
     break;
-  case CollisionInfo::AxisColl::Left:
+  case CollisionInfo::AxisColl::FrontLeft:
     m_state.rotation.Y += 5_deg;
     break;
-  case CollisionInfo::AxisColl::Right:
+  case CollisionInfo::AxisColl::FrontRight:
     m_state.rotation.Y -= 5_deg;
     break;
   default:
@@ -1020,21 +1012,18 @@ void LaraObject::updateAimingState(const Weapon& weapon)
     rightArm.aiming = false;
     leftArm.aiming = false;
   }
-  else if(targetVector.Y < weapon.lockAngles.y.min || targetVector.Y > weapon.lockAngles.y.max
-          || targetVector.X < weapon.lockAngles.x.min || targetVector.X > weapon.lockAngles.x.max)
+  else if(!weapon.lockAngles.y.contains(targetVector.Y) || !weapon.lockAngles.x.contains(targetVector.X))
   {
     if(leftArm.aiming)
     {
-      if(targetVector.Y < weapon.leftAngles.y.min || targetVector.Y > weapon.leftAngles.y.max
-         || targetVector.X < weapon.leftAngles.x.min || targetVector.X > weapon.leftAngles.x.max)
+      if(!weapon.leftAngles.y.contains(targetVector.Y) || !weapon.leftAngles.x.contains(targetVector.X))
       {
         leftArm.aiming = false;
       }
     }
     if(rightArm.aiming)
     {
-      if(targetVector.Y < weapon.rightAngles.y.min || targetVector.Y > weapon.rightAngles.y.max
-         || targetVector.X < weapon.rightAngles.x.min || targetVector.X > weapon.rightAngles.x.max)
+      if(!weapon.rightAngles.y.contains(targetVector.Y) || !weapon.rightAngles.x.contains(targetVector.X))
       {
         rightArm.aiming = false;
       }
@@ -1162,8 +1151,7 @@ void LaraObject::findTarget(const Weapon& weapon)
     auto aimAngle = getVectorAngles(enemyPos.position - weaponLocation.position);
     aimAngle.X -= m_torsoRotation.X + m_state.rotation.X;
     aimAngle.Y -= m_torsoRotation.Y + m_state.rotation.Y;
-    if(aimAngle.Y < weapon.lockAngles.y.min || aimAngle.Y > weapon.lockAngles.y.max
-       || aimAngle.X < weapon.lockAngles.x.min || aimAngle.X > weapon.lockAngles.x.max)
+    if(!weapon.lockAngles.y.contains(aimAngle.Y) || !weapon.lockAngles.x.contains(aimAngle.X))
       continue;
 
     const auto absY = abs(aimAngle.Y);
@@ -1281,30 +1269,32 @@ void LaraObject::updateAimAngles(const Weapon& weapon, AimInfo& aimInfo) const
     targetRot = m_weaponTargetVector;
   }
 
-  if(aimInfo.aimRotation.X >= targetRot.X - weapon.aimSpeed && aimInfo.aimRotation.X <= targetRot.X + weapon.aimSpeed)
+  if(aimInfo.aimRotation.X >= targetRot.X - weapon.aimSpeed * 1_frame
+     && aimInfo.aimRotation.X <= targetRot.X + weapon.aimSpeed * 1_frame)
   {
     aimInfo.aimRotation.X = targetRot.X;
   }
   else if(aimInfo.aimRotation.X >= targetRot.X)
   {
-    aimInfo.aimRotation.X -= weapon.aimSpeed;
+    aimInfo.aimRotation.X -= weapon.aimSpeed * 1_frame;
   }
   else
   {
-    aimInfo.aimRotation.X += weapon.aimSpeed;
+    aimInfo.aimRotation.X += weapon.aimSpeed * 1_frame;
   }
 
-  if(aimInfo.aimRotation.Y >= targetRot.Y - weapon.aimSpeed && aimInfo.aimRotation.Y <= weapon.aimSpeed + targetRot.Y)
+  if(aimInfo.aimRotation.Y >= targetRot.Y - weapon.aimSpeed * 1_frame
+     && aimInfo.aimRotation.Y <= weapon.aimSpeed * 1_frame + targetRot.Y)
   {
     aimInfo.aimRotation.Y = targetRot.Y;
   }
   else if(aimInfo.aimRotation.Y >= targetRot.Y)
   {
-    aimInfo.aimRotation.Y -= weapon.aimSpeed;
+    aimInfo.aimRotation.Y -= weapon.aimSpeed * 1_frame;
   }
   else
   {
-    aimInfo.aimRotation.Y += weapon.aimSpeed;
+    aimInfo.aimRotation.Y += weapon.aimSpeed * 1_frame;
   }
 }
 
@@ -1313,56 +1303,49 @@ void LaraObject::updateAnimShotgun()
   auto aimingFrame = leftArm.frame;
   if(leftArm.aiming)
   {
-    if(leftArm.frame < 0_frame || leftArm.frame >= 13_frame)
-    {
-      const auto nextFrame = leftArm.frame + 1_frame;
-      if(leftArm.frame == 47_frame)
-      {
-        if(getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action))
-        {
-          tryShootShotgun();
-          rightArm.frame = nextFrame;
-          leftArm.frame = nextFrame;
-          return;
-        }
-      }
-      else if(leftArm.frame <= 47_frame || leftArm.frame >= 80_frame)
-      {
-        if(leftArm.frame >= 114_frame && leftArm.frame < 127_frame)
-        {
-          aimingFrame = leftArm.frame + 1_frame;
-          if(leftArm.frame == 126_frame)
-          {
-            rightArm.frame = 0_frame;
-            leftArm.frame = 0_frame;
-            return;
-          }
-        }
-      }
-      else
-      {
-        aimingFrame = leftArm.frame + 1_frame;
-        if(nextFrame == 80_frame)
-        {
-          rightArm.frame = 47_frame;
-          leftArm.frame = 47_frame;
-          return;
-        }
-        if(nextFrame == 57_frame)
-        {
-          playSoundEffect(TR1SoundEffect::LaraHolsterWeapons);
-          rightArm.frame = aimingFrame;
-          leftArm.frame = aimingFrame;
-          return;
-        }
-      }
-    }
-    else
+    if(leftArm.frame >= 0_frame && leftArm.frame < 13_frame)
     {
       aimingFrame = leftArm.frame + 1_frame;
       if(leftArm.frame == 12_frame)
       {
         aimingFrame = 47_frame;
+      }
+    }
+    else if(leftArm.frame == 47_frame)
+    {
+      if(getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action))
+      {
+        tryShootShotgun();
+        rightArm.frame = leftArm.frame + 1_frame;
+        leftArm.frame = leftArm.frame + 1_frame;
+        return;
+      }
+    }
+    else if(leftArm.frame > 47_frame && leftArm.frame < 80_frame)
+    {
+      aimingFrame = leftArm.frame + 1_frame;
+      if(leftArm.frame == 79_frame)
+      {
+        rightArm.frame = 47_frame;
+        leftArm.frame = 47_frame;
+        return;
+      }
+      if(leftArm.frame == 56_frame)
+      {
+        playSoundEffect(TR1SoundEffect::LaraHolsterWeapons);
+        rightArm.frame = aimingFrame;
+        leftArm.frame = aimingFrame;
+        return;
+      }
+    }
+    else if(leftArm.frame >= 114_frame && leftArm.frame <= 128_frame)
+    {
+      aimingFrame = leftArm.frame + 1_frame;
+      if(leftArm.frame == 126_frame)
+      {
+        rightArm.frame = 0_frame;
+        leftArm.frame = 0_frame;
+        return;
       }
     }
 
@@ -1378,59 +1361,7 @@ void LaraObject::updateAnimShotgun()
     return;
   }
 
-  if(leftArm.frame <= 0_frame || leftArm.frame >= 13_frame)
-  {
-    const auto nextFrame = leftArm.frame + 1_frame;
-    if(leftArm.frame == 47_frame)
-    {
-      if(getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action))
-      {
-        tryShootShotgun();
-        rightArm.frame = aimingFrame + 1_frame;
-        leftArm.frame = aimingFrame + 1_frame;
-        return;
-      }
-
-      rightArm.frame = 114_frame;
-      leftArm.frame = 114_frame;
-      return;
-    }
-    if(leftArm.frame <= 47_frame || leftArm.frame >= 80_frame)
-    {
-      if(leftArm.frame >= 114_frame && leftArm.frame < 127_frame)
-      {
-        aimingFrame = leftArm.frame + 1_frame;
-        if(leftArm.frame == 126_frame)
-        {
-          aimingFrame = 0_frame;
-        }
-      }
-    }
-    else
-    {
-      aimingFrame = leftArm.frame + 1_frame;
-      if(nextFrame == 60_frame)
-      {
-        rightArm.frame = 0_frame;
-        leftArm.frame = 0_frame;
-        return;
-      }
-      if(nextFrame == 80_frame)
-      {
-        rightArm.frame = 114_frame;
-        leftArm.frame = 114_frame;
-        return;
-      }
-      if(nextFrame == 57_frame)
-      {
-        playSoundEffect(TR1SoundEffect::LaraHolsterWeapons);
-        rightArm.frame = aimingFrame;
-        leftArm.frame = aimingFrame;
-        return;
-      }
-    }
-  }
-  else
+  if(leftArm.frame > 0_frame && leftArm.frame < 13_frame)
   {
     aimingFrame = leftArm.frame + 1_frame;
     if(leftArm.frame == 12_frame)
@@ -1445,6 +1376,51 @@ void LaraObject::updateAnimShotgun()
       rightArm.frame = 114_frame;
       leftArm.frame = 114_frame;
       return;
+    }
+  }
+  else if(leftArm.frame == 47_frame)
+  {
+    if(getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action))
+    {
+      tryShootShotgun();
+      rightArm.frame = aimingFrame + 1_frame;
+      leftArm.frame = aimingFrame + 1_frame;
+      return;
+    }
+
+    rightArm.frame = 114_frame;
+    leftArm.frame = 114_frame;
+    return;
+  }
+  else if(leftArm.frame > 47_frame && leftArm.frame < 80_frame)
+  {
+    aimingFrame = leftArm.frame + 1_frame;
+    if(leftArm.frame == 59_frame)
+    {
+      rightArm.frame = 0_frame;
+      leftArm.frame = 0_frame;
+      return;
+    }
+    if(leftArm.frame == 79_frame)
+    {
+      rightArm.frame = 114_frame;
+      leftArm.frame = 114_frame;
+      return;
+    }
+    else if(leftArm.frame == 56_frame)
+    {
+      playSoundEffect(TR1SoundEffect::LaraHolsterWeapons);
+      rightArm.frame = aimingFrame;
+      leftArm.frame = aimingFrame;
+      return;
+    }
+  }
+  else if(leftArm.frame >= 114_frame && leftArm.frame < 127_frame)
+  {
+    aimingFrame = leftArm.frame + 1_frame;
+    if(leftArm.frame == 126_frame)
+    {
+      aimingFrame = 0_frame;
     }
   }
 

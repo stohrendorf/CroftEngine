@@ -28,19 +28,19 @@ std::unique_ptr<StaticMesh> StaticMesh::read(io::SDLReader& reader)
   mesh->id = reader.readU32();
   mesh->mesh = reader.readU16();
 
-  mesh->visibility_box.x.min = core::Length{static_cast<core::Length::type>(reader.readI16())};
-  mesh->visibility_box.x.max = core::Length{static_cast<core::Length::type>(reader.readI16())};
-  mesh->visibility_box.y.min = core::Length{static_cast<core::Length::type>(reader.readI16())};
-  mesh->visibility_box.y.max = core::Length{static_cast<core::Length::type>(reader.readI16())};
-  mesh->visibility_box.z.min = core::Length{static_cast<core::Length::type>(reader.readI16())};
-  mesh->visibility_box.z.max = core::Length{static_cast<core::Length::type>(reader.readI16())};
+  mesh->visibility_box.x.min = core::Length{gsl::narrow_cast<core::Length::type>(reader.readI16())};
+  mesh->visibility_box.x.max = core::Length{gsl::narrow_cast<core::Length::type>(reader.readI16())};
+  mesh->visibility_box.y.min = core::Length{gsl::narrow_cast<core::Length::type>(reader.readI16())};
+  mesh->visibility_box.y.max = core::Length{gsl::narrow_cast<core::Length::type>(reader.readI16())};
+  mesh->visibility_box.z.min = core::Length{gsl::narrow_cast<core::Length::type>(reader.readI16())};
+  mesh->visibility_box.z.max = core::Length{gsl::narrow_cast<core::Length::type>(reader.readI16())};
 
-  mesh->collision_box.x.min = core::Length{static_cast<core::Length::type>(reader.readI16())};
-  mesh->collision_box.x.max = core::Length{static_cast<core::Length::type>(reader.readI16())};
-  mesh->collision_box.y.min = core::Length{static_cast<core::Length::type>(reader.readI16())};
-  mesh->collision_box.y.max = core::Length{static_cast<core::Length::type>(reader.readI16())};
-  mesh->collision_box.z.min = core::Length{static_cast<core::Length::type>(reader.readI16())};
-  mesh->collision_box.z.max = core::Length{static_cast<core::Length::type>(reader.readI16())};
+  mesh->collision_box.x.min = core::Length{gsl::narrow_cast<core::Length::type>(reader.readI16())};
+  mesh->collision_box.x.max = core::Length{gsl::narrow_cast<core::Length::type>(reader.readI16())};
+  mesh->collision_box.y.min = core::Length{gsl::narrow_cast<core::Length::type>(reader.readI16())};
+  mesh->collision_box.y.max = core::Length{gsl::narrow_cast<core::Length::type>(reader.readI16())};
+  mesh->collision_box.z.min = core::Length{gsl::narrow_cast<core::Length::type>(reader.readI16())};
+  mesh->collision_box.z.max = core::Length{gsl::narrow_cast<core::Length::type>(reader.readI16())};
 
   mesh->flags = reader.readU16();
   return mesh;
@@ -51,11 +51,11 @@ std::unique_ptr<Room> Room::readTr1(io::SDLReader& reader)
   auto room = std::make_unique<Room>();
 
   // read and change coordinate system
-  room->position.X = core::Length{reader.readI32()};
+  room->position.X = core::Length{gsl::narrow_cast<core::Length::type>(reader.readI32())};
   room->position.Y = 0_len;
-  room->position.Z = core::Length{reader.readI32()};
-  room->lowestHeight = core::Length{reader.readI32()};
-  room->greatestHeight = core::Length{reader.readI32()};
+  room->position.Z = core::Length{gsl::narrow_cast<core::Length::type>(reader.readI32())};
+  room->lowestHeight = core::Length{gsl::narrow_cast<core::Length::type>(reader.readI32())};
+  room->greatestHeight = core::Length{gsl::narrow_cast<core::Length::type>(reader.readI32())};
 
   const std::streamsize num_data_words = reader.readU32();
 
@@ -108,11 +108,11 @@ std::unique_ptr<Room> Room::readTr2(io::SDLReader& reader)
 {
   auto room = std::make_unique<Room>();
   // read and change coordinate system
-  room->position.X = core::Length{reader.readI32()};
+  room->position.X = core::Length{gsl::narrow_cast<core::Length::type>(reader.readI32())};
   room->position.Y = 0_len;
-  room->position.Z = core::Length{reader.readI32()};
-  room->lowestHeight = core::Length{reader.readI32()};
-  room->greatestHeight = core::Length{reader.readI32()};
+  room->position.Z = core::Length{gsl::narrow_cast<core::Length::type>(reader.readI32())};
+  room->lowestHeight = core::Length{gsl::narrow_cast<core::Length::type>(reader.readI32())};
+  room->greatestHeight = core::Length{gsl::narrow_cast<core::Length::type>(reader.readI32())};
 
   const std::streamsize num_data_words = reader.readU32();
 
@@ -168,11 +168,11 @@ std::unique_ptr<Room> Room::readTr3(io::SDLReader& reader)
   auto room = std::make_unique<Room>();
 
   // read and change coordinate system
-  room->position.X = core::Length{static_cast<core::Length::type>(reader.readI32())};
+  room->position.X = core::Length{gsl::narrow_cast<core::Length::type>(reader.readI32())};
   room->position.Y = 0_len;
-  room->position.Z = core::Length{static_cast<core::Length::type>(reader.readI32())};
-  room->lowestHeight = core::Length{reader.readI32()};
-  room->greatestHeight = core::Length{reader.readI32()};
+  room->position.Z = core::Length{gsl::narrow_cast<core::Length::type>(reader.readI32())};
+  room->lowestHeight = core::Length{gsl::narrow_cast<core::Length::type>(reader.readI32())};
+  room->greatestHeight = core::Length{gsl::narrow_cast<core::Length::type>(reader.readI32())};
 
   const std::streamsize num_data_words = reader.readU32();
 
@@ -232,11 +232,11 @@ std::unique_ptr<Room> Room::readTr4(io::SDLReader& reader)
 {
   auto room = std::make_unique<Room>();
   // read and change coordinate system
-  room->position.X = core::Length{static_cast<core::Length::type>(reader.readI32())};
+  room->position.X = core::Length{gsl::narrow_cast<core::Length::type>(reader.readI32())};
   room->position.Y = 0_len;
-  room->position.Z = core::Length{static_cast<core::Length::type>(reader.readI32())};
-  room->lowestHeight = core::Length{reader.readI32()};
-  room->greatestHeight = core::Length{reader.readI32()};
+  room->position.Z = core::Length{gsl::narrow_cast<core::Length::type>(reader.readI32())};
+  room->lowestHeight = core::Length{gsl::narrow_cast<core::Length::type>(reader.readI32())};
+  room->greatestHeight = core::Length{gsl::narrow_cast<core::Length::type>(reader.readI32())};
 
   const std::streamsize num_data_words = reader.readU32();
 
@@ -315,11 +315,11 @@ std::unique_ptr<Room> Room::readTr5(io::SDLReader& reader)
   const std::streampos static_meshes_offset = reader.readU32(); // endPortalOffset
   // static_meshes_offset or room_layer_offset
   // read and change coordinate system
-  room->position.X = core::Length{reader.readI32()};
-  room->position.Y = core::Length{reader.readI32()};
-  room->position.Z = core::Length{reader.readI32()};
-  room->lowestHeight = core::Length{reader.readI32()};
-  room->greatestHeight = core::Length{reader.readI32()};
+  room->position.X = core::Length{gsl::narrow_cast<core::Length::type>(reader.readI32())};
+  room->position.Y = core::Length{gsl::narrow_cast<core::Length::type>(reader.readI32())};
+  room->position.Z = core::Length{gsl::narrow_cast<core::Length::type>(reader.readI32())};
+  room->lowestHeight = core::Length{gsl::narrow_cast<core::Length::type>(reader.readI32())};
+  room->greatestHeight = core::Length{gsl::narrow_cast<core::Length::type>(reader.readI32())};
 
   room->sectorCountZ = reader.readU16();
   room->sectorCountX = reader.readU16();
@@ -558,9 +558,9 @@ Sector Sector::read(io::SDLReader& reader)
   sector.floorDataIndex = reader.readU16();
   sector.boxIndex = reader.readI16();
   sector.roomIndexBelow = reader.readU8();
-  sector.floorHeight = core::QuarterSectorSize * static_cast<core::Length::type>(reader.readI8());
+  sector.floorHeight = core::QuarterSectorSize * gsl::narrow_cast<core::Length::type>(reader.readI8());
   sector.roomIndexAbove = reader.readU8();
-  sector.ceilingHeight = core::QuarterSectorSize * static_cast<core::Length::type>(reader.readI8());
+  sector.ceilingHeight = core::QuarterSectorSize * gsl::narrow_cast<core::Length::type>(reader.readI8());
   return sector;
 }
 
@@ -569,7 +569,7 @@ Light Light::readTr1(io::SDLReader& reader)
   Light light;
   light.position = readCoordinates32(reader);
   light.intensity = core::Intensity{reader.readI16()};
-  light.fadeDistance = core::Length{reader.readI32()};
+  light.fadeDistance = core::Length{gsl::narrow_cast<core::Length::type>(reader.readI32())};
   return light;
 }
 
@@ -579,8 +579,8 @@ Light Light::readTr2(io::SDLReader& reader)
   light.position = readCoordinates32(reader);
   light.intensity = core::Intensity{reader.readI16()};
   light.intensity2 = core::Intensity{reader.readI16()};
-  light.fadeDistance = core::Length{reader.readI32()};
-  light.fade2 = core::Length{reader.readI32()};
+  light.fadeDistance = core::Length{gsl::narrow_cast<core::Length::type>(reader.readI32())};
+  light.fade2 = core::Length{gsl::narrow_cast<core::Length::type>(reader.readI32())};
 
   light.r_outer = light.fadeDistance;
   light.r_inner = light.fadeDistance / 2;
@@ -602,8 +602,8 @@ Light Light::readTr3(io::SDLReader& reader)
   light.color.g = reader.readU8();
   light.color.b = reader.readU8();
   light.color.a = reader.readU8();
-  light.fadeDistance = core::Length{reader.readI32()};
-  light.fade2 = core::Length{reader.readI32()};
+  light.fadeDistance = core::Length{gsl::narrow_cast<core::Length::type>(reader.readI32())};
+  light.fade2 = core::Length{gsl::narrow_cast<core::Length::type>(reader.readI32())};
 
   light.r_outer = light.fadeDistance;
   light.r_inner = light.fadeDistance / 2;
@@ -849,11 +849,11 @@ std::unique_ptr<SpriteSequence> SpriteSequence::read(io::SDLReader& reader)
 std::unique_ptr<Box> Box::readTr1(io::SDLReader& reader)
 {
   auto box = std::make_unique<Box>();
-  box->zmin = 1_len * reader.readI32();
-  box->zmax = 1_len * reader.readI32();
-  box->xmin = 1_len * reader.readI32();
-  box->xmax = 1_len * reader.readI32();
-  box->floor = 1_len * static_cast<core::Length::type>(reader.readI16());
+  box->zmin = 1_len * gsl::narrow_cast<core::Length::type>(reader.readI32());
+  box->zmax = 1_len * gsl::narrow_cast<core::Length::type>(reader.readI32());
+  box->xmin = 1_len * gsl::narrow_cast<core::Length::type>(reader.readI32());
+  box->xmax = 1_len * gsl::narrow_cast<core::Length::type>(reader.readI32());
+  box->floor = 1_len * gsl::narrow_cast<core::Length::type>(reader.readI16());
   const auto tmp = reader.readU16();
   box->overlap_index = tmp & ((1u << 14u) - 1u);
   box->blocked = (tmp & 0x4000u) != 0;
@@ -868,11 +868,11 @@ std::unique_ptr<Box> Box::readTr1(io::SDLReader& reader)
 std::unique_ptr<Box> Box::readTr2(io::SDLReader& reader)
 {
   auto box = std::make_unique<Box>();
-  box->zmin = core::SectorSize * static_cast<core::Length::type>(reader.readI8());
-  box->zmax = core::SectorSize * static_cast<core::Length::type>(reader.readI8());
-  box->xmin = core::SectorSize * static_cast<core::Length::type>(reader.readI8());
-  box->xmax = core::SectorSize * static_cast<core::Length::type>(reader.readI8());
-  box->floor = core::Length{static_cast<core::Length::type>(reader.readI16())};
+  box->zmin = core::SectorSize * gsl::narrow_cast<core::Length::type>(reader.readI8());
+  box->zmax = core::SectorSize * gsl::narrow_cast<core::Length::type>(reader.readI8());
+  box->xmin = core::SectorSize * gsl::narrow_cast<core::Length::type>(reader.readI8());
+  box->xmax = core::SectorSize * gsl::narrow_cast<core::Length::type>(reader.readI8());
+  box->floor = core::Length{gsl::narrow_cast<core::Length::type>(reader.readI16())};
   const auto tmp = reader.readU16();
   box->overlap_index = tmp & ((1u << 14u) - 1u);
   box->blocked = (tmp & 0x4000u) != 0;

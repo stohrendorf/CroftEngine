@@ -465,7 +465,7 @@ struct CinematicFrame
 
 struct LightMap
 {
-  std::array<uint8_t, 32 * 256> map;
+  std::array<uint8_t, 32u * 256u> map;
 
   /// \brief reads the lightmap.
   static std::unique_ptr<LightMap> read(io::SDLReader& reader);

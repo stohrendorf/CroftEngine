@@ -169,7 +169,10 @@ struct BoneTreeEntry
 
   [[nodiscard]] glm::vec3 toGl() const noexcept
   {
-    return core::TRVec(core::Length{x}, core::Length{y}, core::Length{z}).toRenderSystem();
+    return core::TRVec(core::Length{gsl::narrow_cast<core::Length::type>(x)},
+                       core::Length{gsl::narrow_cast<core::Length::type>(y)},
+                       core::Length{gsl::narrow_cast<core::Length::type>(z)})
+      .toRenderSystem();
   }
 };
 

@@ -94,7 +94,7 @@ bool AIAgent::anyMovingEnabledObjectInReach() const
       continue;
 
     if(object->m_state.triggerState == TriggerState::Active && object->m_state.speed != 0_spd
-       && object->m_state.location.position.distanceTo(m_state.location.position) < m_collisionRadius)
+       && distanceTo(object->m_state.location.position, m_state.location.position) < m_collisionRadius)
     {
       return true;
     }
@@ -371,7 +371,7 @@ bool AIAgent::animateCreature(const core::Angle& deltaRotationY, const core::Ang
 
       if(m_state.location.position.Y > currentFloor)
       {
-        // we're already below the floor, so fix it
+        // we're already below the floor or inside a wall, so fix it
         m_state.location.position.X = oldLocation.position.X;
         m_state.location.position.Z = oldLocation.position.Z;
         moveY = -pathFinder.fly;
@@ -390,6 +390,7 @@ bool AIAgent::animateCreature(const core::Angle& deltaRotationY, const core::Ang
                                   getWorld().getObjectManager().getObjects())
             .y;
 
+      // TODO nah... why, core, why?
       const auto y = m_state.type == TR1ItemId::CrocodileInWater ? 0_len : bbox.y.max;
 
       if(m_state.location.position.Y + y + moveY < ceiling)

@@ -2,6 +2,7 @@
 
 #include "core/angle.h"
 #include "core/boundingbox.h"
+#include "core/genericvec.h"
 #include "core/id.h"
 #include "core/units.h"
 #include "core/vec.h"
@@ -110,11 +111,11 @@ public:
 
   void applyTransform();
 
-  void rotate(const core::Angle& dx, const core::Angle& dy, const core::Angle& dz)
+  void rotate(const core::RotationSpeed& dx, const core::RotationSpeed& dy, const core::RotationSpeed& dz)
   {
-    m_state.rotation.X += dx;
-    m_state.rotation.Y += dy;
-    m_state.rotation.Z += dz;
+    m_state.rotation.X += dx * 1_frame;
+    m_state.rotation.Y += dy * 1_frame;
+    m_state.rotation.Z += dz * 1_frame;
   }
 
   void moveLocal(const core::TRVec& d);
@@ -159,7 +160,7 @@ public:
     return m_state.rotation.Y;
   }
 
-  bool alignTransform(const core::TRVec& speed, const Object& target)
+  bool alignTransform(const core::GenericVec<core::Speed>& speed, const Object& target)
   {
     auto targetPos = target.m_state.location.position.toRenderSystem();
     targetPos += glm::vec3{target.m_state.rotation.toMatrix() * glm::vec4{speed.toRenderSystem(), 1.0f}};

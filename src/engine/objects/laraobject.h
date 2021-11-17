@@ -75,7 +75,7 @@ class LaraObject final : public ModelObject
 
 private:
   //! @brief Additional rotation per TR Engine Frame
-  core::Angle m_yRotationSpeed{0_deg};
+  core::RotationSpeed m_yRotationSpeed{0_deg / 1_frame};
   core::Speed m_fallSpeedOverride = 0_spd;
   core::Angle m_movementAngle{0_deg};
   core::Frame m_air{core::LaraAir};
@@ -126,7 +126,7 @@ public:
     return m_underwaterState == UnderwaterState::OnLand;
   }
 
-  core::Frame getAir() const
+  auto getAir() const
   {
     return m_air;
   }
@@ -177,24 +177,24 @@ public:
 
   void placeOnFloor(const CollisionInfo& collisionInfo);
 
-  void setYRotationSpeed(const core::Angle& spd)
+  void setYRotationSpeed(const core::RotationSpeed& spd)
   {
     m_yRotationSpeed = spd;
   }
 
-  core::Angle getYRotationSpeed() const
+  auto getYRotationSpeed() const
   {
     return m_yRotationSpeed;
   }
 
-  void subYRotationSpeed(const core::Angle& val, const core::Angle& limit = -32768_au)
+  void subYRotationSpeed(const core::RotationAcceleration& val, const core::RotationSpeed& limit = -32768_au / 1_frame)
   {
-    m_yRotationSpeed = std::max(m_yRotationSpeed - val, limit);
+    m_yRotationSpeed = std::max(m_yRotationSpeed - val * 1_frame, limit);
   }
 
-  void addYRotationSpeed(const core::Angle& val, const core::Angle& limit = 32767_au)
+  void addYRotationSpeed(const core::RotationAcceleration& val, const core::RotationSpeed& limit = 32767_au / 1_frame)
   {
-    m_yRotationSpeed = std::min(m_yRotationSpeed + val, limit);
+    m_yRotationSpeed = std::min(m_yRotationSpeed + val * 1_frame, limit);
   }
 
   void setFallSpeedOverride(const core::Speed& v)
@@ -271,14 +271,14 @@ public:
 
   void setCameraModifier(CameraModifier k);
 
-  void addHeadRotationX(const core::Angle& x, const core::Angle& minX, const core::Angle& maxX)
+  void addHeadRotationX(const core::RotationSpeed& x, const core::Angle& minX, const core::Angle& maxX)
   {
-    m_headRotation.X = std::clamp(m_headRotation.X + x, minX, maxX);
+    m_headRotation.X = std::clamp(m_headRotation.X + x * 1_frame, minX, maxX);
   }
 
-  void addHeadRotationY(const core::Angle& y, const core::Angle& minY, const core::Angle& maxY)
+  void addHeadRotationY(const core::RotationSpeed& y, const core::Angle& minY, const core::Angle& maxY)
   {
-    m_headRotation.Y = std::clamp(m_headRotation.Y + y, minY, maxY);
+    m_headRotation.Y = std::clamp(m_headRotation.Y + y * 1_frame, minY, maxY);
   }
 
   const core::TRRotation& getHeadRotation() const noexcept
@@ -392,7 +392,7 @@ public:
 
   void updateAnimNotShotgun(WeaponType weaponType);
 
-  bool shootBullet(const WeaponType weaponType,
+  bool shootBullet(WeaponType weaponType,
                    const std::shared_ptr<ModelObject>& targetObject,
                    const ModelObject& weaponHolder,
                    const core::TRRotationXY& aimAngle);

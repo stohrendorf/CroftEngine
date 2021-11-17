@@ -22,28 +22,26 @@ public:
       setMovementAngle(getLara().m_state.rotation.Y);
       setGoalAnimState(LaraStateId::JumpForward);
     }
-    else
+    else if(getWorld().getPresenter().getInputHandler().getInputState().xMovement == hid::AxisMovement::Left
+            && getRelativeHeightAtDirection(getLara().m_state.rotation.Y - 90_deg, 256_len)
+                 >= -core::ClimbLimit2ClickMin)
     {
-      if(getWorld().getPresenter().getInputHandler().getInputState().xMovement == hid::AxisMovement::Left
-         && getRelativeHeightAtDirection(getLara().m_state.rotation.Y - 90_deg, 256_len) >= -core::ClimbLimit2ClickMin)
-      {
-        setMovementAngle(getLara().m_state.rotation.Y - 90_deg);
-        setGoalAnimState(LaraStateId::JumpRight);
-      }
-      else if(getWorld().getPresenter().getInputHandler().getInputState().xMovement == hid::AxisMovement::Right
-              && getRelativeHeightAtDirection(getLara().m_state.rotation.Y + 90_deg, 256_len)
-                   >= -core::ClimbLimit2ClickMin)
-      {
-        setMovementAngle(getLara().m_state.rotation.Y + 90_deg);
-        setGoalAnimState(LaraStateId::JumpLeft);
-      }
-      else if(getWorld().getPresenter().getInputHandler().getInputState().zMovement == hid::AxisMovement::Backward
-              && getRelativeHeightAtDirection(getLara().m_state.rotation.Y + 180_deg, 256_len)
-                   >= -core::ClimbLimit2ClickMin)
-      {
-        setMovementAngle(getLara().m_state.rotation.Y + 180_deg);
-        setGoalAnimState(LaraStateId::JumpBack);
-      }
+      setMovementAngle(getLara().m_state.rotation.Y - 90_deg);
+      setGoalAnimState(LaraStateId::JumpRight);
+    }
+    else if(getWorld().getPresenter().getInputHandler().getInputState().xMovement == hid::AxisMovement::Right
+            && getRelativeHeightAtDirection(getLara().m_state.rotation.Y + 90_deg, 256_len)
+                 >= -core::ClimbLimit2ClickMin)
+    {
+      setMovementAngle(getLara().m_state.rotation.Y + 90_deg);
+      setGoalAnimState(LaraStateId::JumpLeft);
+    }
+    else if(getWorld().getPresenter().getInputHandler().getInputState().zMovement == hid::AxisMovement::Backward
+            && getRelativeHeightAtDirection(getLara().m_state.rotation.Y + 180_deg, 256_len)
+                 >= -core::ClimbLimit2ClickMin)
+    {
+      setMovementAngle(getLara().m_state.rotation.Y + 180_deg);
+      setGoalAnimState(LaraStateId::JumpBack);
     }
 
     if(getLara().m_state.fallspeed > core::FreeFallSpeedThreshold)
@@ -56,9 +54,8 @@ public:
   {
     getLara().m_state.fallspeed = 0_spd;
     getLara().m_state.falling = false;
-    collisionInfo.floorCollisionRangeMin = core::HeightLimit;
-    collisionInfo.floorCollisionRangeMax = -core::HeightLimit;
-    collisionInfo.ceilingCollisionRangeMin = 0_len;
+    collisionInfo.validFloorHeight = {-core::HeightLimit, core::HeightLimit};
+    collisionInfo.validCeilingHeightMin = 0_len;
     collisionInfo.facingAngle = getMovementAngle();
     collisionInfo.initHeightInfo(getLara().m_state.location.position, getWorld(), core::LaraWalkHeight);
 

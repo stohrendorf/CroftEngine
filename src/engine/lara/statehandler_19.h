@@ -20,9 +20,8 @@ public:
 
   void postprocessFrame(CollisionInfo& collisionInfo) override
   {
-    collisionInfo.floorCollisionRangeMin = core::ClimbLimit2ClickMin;
-    collisionInfo.floorCollisionRangeMax = -core::ClimbLimit2ClickMin;
-    collisionInfo.ceilingCollisionRangeMin = 0_len;
+    collisionInfo.validFloorHeight = {-core::ClimbLimit2ClickMin, core::ClimbLimit2ClickMin};
+    collisionInfo.validCeilingHeightMin = 0_len;
     collisionInfo.policies |= CollisionInfo::SlopeBlockingPolicy;
     setMovementAngle(collisionInfo.facingAngle);
     collisionInfo.facingAngle = getLara().m_state.rotation.Y;

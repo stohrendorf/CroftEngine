@@ -16,22 +16,20 @@ public:
   void handleInput(CollisionInfo& /*collisionInfo*/) override
   {
     auto& laraState = getLara().m_state;
-    laraState.fallspeed = std::max(0_spd, laraState.fallspeed - 8_spd);
+    laraState.fallspeed = std::max(0_spd, laraState.fallspeed - core::OnWaterAcceleration * 1_frame);
 
-    if(laraState.rotation.X > 2_deg)
+    static constexpr auto UprightDelta = 2_deg / 1_frame;
+    if(laraState.rotation.X > UprightDelta * 1_frame)
     {
-      laraState.rotation.X -= 2_deg;
+      laraState.rotation.X -= UprightDelta * 1_frame;
+    }
+    else if(laraState.rotation.X < -UprightDelta * 1_frame)
+    {
+      laraState.rotation.X += UprightDelta * 1_frame;
     }
     else
     {
-      if(laraState.rotation.X < -2_deg)
-      {
-        laraState.rotation.X += 2_deg;
-      }
-      else
-      {
-        laraState.rotation.X = 0_deg;
-      }
+      laraState.rotation.X = 0_deg;
     }
   }
 

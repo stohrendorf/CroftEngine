@@ -96,13 +96,13 @@ protected:
 
   void placeOnFloor(const CollisionInfo& collisionInfo);
 
-  void setYRotationSpeed(const core::Angle& spd);
+  void setYRotationSpeed(const core::RotationSpeed& spd);
 
-  [[nodiscard]] core::Angle getYRotationSpeed() const;
+  [[nodiscard]] core::RotationSpeed getYRotationSpeed() const;
 
-  void subYRotationSpeed(const core::Angle& val, const core::Angle& limit = -32768_au);
+  void subYRotationSpeed(const core::RotationAcceleration& val, const core::RotationSpeed& limit = -32768_au / 1_frame);
 
-  void addYRotationSpeed(const core::Angle& val, const core::Angle& limit = 32767_au);
+  void addYRotationSpeed(const core::RotationAcceleration& val, const core::RotationSpeed& limit = 32767_au / 1_frame);
 
   void setFallSpeedOverride(const core::Speed& v);
 
@@ -124,8 +124,6 @@ protected:
   bool checkWallCollision(const CollisionInfo& collisionInfo);
 
   bool tryStartSlide(const CollisionInfo& collisionInfo);
-
-  bool tryGrabEdge(const CollisionInfo& collisionInfo);
 
   void jumpAgainstWall(CollisionInfo& collisionInfo);
 

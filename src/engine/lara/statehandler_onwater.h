@@ -23,21 +23,31 @@ protected:
                                  getWorld(),
                                  core::LaraSwimHeight);
     applyShift(collisionInfo);
-    if(collisionInfo.mid.floor.y < 0_len || collisionInfo.collisionType == CollisionInfo::AxisColl::TopFront
-       || collisionInfo.collisionType == CollisionInfo::AxisColl::TopBottom
-       || collisionInfo.collisionType == CollisionInfo::AxisColl::Top
-       || collisionInfo.collisionType == CollisionInfo::AxisColl::Front)
+    if(collisionInfo.mid.floor.y < 0_len)
     {
       getLara().m_state.fallspeed = 0_spd;
       getLara().m_state.location.position = collisionInfo.initialPosition;
     }
-    else if(collisionInfo.collisionType == CollisionInfo::AxisColl::Left)
+    else
     {
-      getLara().m_state.rotation.Y += 5_deg;
-    }
-    else if(collisionInfo.collisionType == CollisionInfo::AxisColl::Right)
-    {
-      getLara().m_state.rotation.Y -= 5_deg;
+      switch(collisionInfo.collisionType)
+      {
+      case CollisionInfo::AxisColl::Front:
+      case CollisionInfo::AxisColl::Top:
+      case CollisionInfo::AxisColl::FrontTop:
+      case CollisionInfo::AxisColl::Jammed:
+        getLara().m_state.fallspeed = 0_spd;
+        getLara().m_state.location.position = collisionInfo.initialPosition;
+        break;
+      case CollisionInfo::AxisColl::FrontLeft:
+        getLara().m_state.rotation.Y += core::WaterCollisionRotationSpeedY * 1_frame;
+        break;
+      case CollisionInfo::AxisColl::FrontRight:
+        getLara().m_state.rotation.Y -= core::WaterCollisionRotationSpeedY * 1_frame;
+        break;
+      default:
+        break;
+      }
     }
 
     auto wsh = getLara().getWaterSurfaceHeight();
@@ -99,8 +109,8 @@ private:
       return;
     }
 
-    const auto yRot = snapRotation(getLara().m_state.rotation.Y, 35_deg);
-    if(!yRot.has_value())
+    const auto axis = axisFromAngle(getLara().m_state.rotation.Y, 35_deg);
+    if(!axis.has_value())
     {
       return;
     }
@@ -108,29 +118,26 @@ private:
     getLara().m_state.location.move(core::TRVec(0_len, 695_len + collisionInfo.front.floor.y, 0_len));
     getLara().updateFloorHeight(-381_len);
     core::TRVec d = getLara().m_state.location.position;
-    if(*yRot == 0_deg)
+    switch(*axis)
     {
+    case core::Axis::Deg0:
       d.Z = (getLara().m_state.location.position.Z / core::SectorSize + 1) * core::SectorSize
             + core::DefaultCollisionRadius;
-    }
-    else if(*yRot == 180_deg)
-    {
+      break;
+    case core::Axis::Deg180:
       d.Z = (getLara().m_state.location.position.Z / core::SectorSize + 0) * core::SectorSize
             - core::DefaultCollisionRadius;
-    }
-    else if(*yRot == -90_deg)
-    {
+      break;
+    case core::Axis::Left90:
       d.X = (getLara().m_state.location.position.X / core::SectorSize + 0) * core::SectorSize
             - core::DefaultCollisionRadius;
-    }
-    else if(*yRot == 90_deg)
-    {
+      break;
+    case core::Axis::Right90:
       d.X = (getLara().m_state.location.position.X / core::SectorSize + 1) * core::SectorSize
             + core::DefaultCollisionRadius;
-    }
-    else
-    {
-      throw std::runtime_error("Unexpected angle value");
+      break;
+    default:
+      BOOST_THROW_EXCEPTION(std::runtime_error("Unexpected angle value"));
     }
 
     getLara().m_state.location.position = d;
@@ -142,7 +149,7 @@ private:
     getLara().m_state.fallspeed = 0_spd;
     getLara().m_state.falling = false;
     getLara().m_state.rotation.X = 0_deg;
-    getLara().m_state.rotation.Y = *yRot;
+    getLara().m_state.rotation.Y = snapRotation(*axis);
     getLara().m_state.rotation.Z = 0_deg;
     setHandStatus(objects::HandStatus::Grabbing);
     setUnderwaterState(objects::UnderwaterState::OnLand);

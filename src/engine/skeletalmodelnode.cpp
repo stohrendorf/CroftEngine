@@ -44,11 +44,18 @@ SkeletalModelNode::SkeletalModelNode(const std::string& id,
 {
 }
 
-core::Speed SkeletalModelNode::calculateFloorSpeed(const core::Frame& frameOffset) const
+core::Speed SkeletalModelNode::calculateFloorSpeed() const
 {
-  const auto scaled = m_anim->speed + m_anim->acceleration * (getLocalFrame() + frameOffset);
+  const auto scaled = m_anim->speed + m_anim->acceleration * getLocalFrame();
   // NOLINTNEXTLINE(hicpp-signed-bitwise)
-  return scaled / (1 << 16);
+  return scaled / gsl::narrow_cast<core::Speed::type>(1 << 16);
+}
+
+core::Acceleration SkeletalModelNode::getAcceleration() const
+{
+  const auto scaled = m_anim->acceleration;
+  // NOLINTNEXTLINE(hicpp-signed-bitwise)
+  return scaled / gsl::narrow_cast<core::Speed::type>(1 << 16);
 }
 
 InterpolationInfo SkeletalModelNode::getInterpolationInfo() const

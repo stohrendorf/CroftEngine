@@ -380,13 +380,13 @@ void World::floodEffect()
   {
     auto pos = m_objectManager.getLara().m_state.location.position;
     core::Frame mul = 0_frame;
-    if(m_effectTimer >= 30_frame)
+    if(m_effectTimer >= core::FrameRate * 1_sec)
     {
-      mul = m_effectTimer - 30_frame;
+      mul = m_effectTimer - core::FrameRate * 1_sec;
     }
     else
     {
-      mul = 30_frame - m_effectTimer;
+      mul = core::FrameRate * 1_sec - m_effectTimer;
     }
     pos.Y = 100_len * mul / 1_frame + m_cameraController->getLookAt().position.Y;
     if(m_globalSoundEffect == nullptr)
@@ -421,7 +421,7 @@ void World::raisingBlockEffect()
 
 void World::stairsToSlopeEffect()
 {
-  if(m_effectTimer > 120_frame)
+  if(m_effectTimer > core::FrameRate * 4_sec)
   {
     m_activeEffect.reset();
   }
@@ -440,7 +440,7 @@ void World::stairsToSlopeEffect()
 
 void World::sandEffect()
 {
-  if(m_effectTimer <= 120_frame)
+  if(m_effectTimer <= core::FrameRate * 4_sec)
   {
     m_audioEngine->playSoundEffect(TR1SoundEffect::LowHum, nullptr);
   }
@@ -617,7 +617,7 @@ void World::update(const bool godMode)
 {
   m_objectManager.update(*this, godMode);
 
-  static constexpr auto UVAnimTime = 10_frame;
+  static constexpr auto UVAnimTime = core::FrameRate * 1_sec / 3;
 
   m_uvAnimTime += 1_frame;
   if(m_uvAnimTime >= UVAnimTime)
@@ -981,13 +981,14 @@ void World::gameLoop(bool godMode, float waitRatio, float blackAlpha, ui::Ui& ui
 
 bool World::cinematicLoop()
 {
-  if(++m_cameraController->m_cinematicFrame >= m_cinematicFrames.size())
+  m_cameraController->m_cinematicFrame += 1_frame;
+  if(m_cameraController->m_cinematicFrame.get() >= m_cinematicFrames.size())
     return false;
 
   update(false);
 
   const auto waterEntryPortals
-    = m_cameraController->updateCinematic(m_cinematicFrames.at(m_cameraController->m_cinematicFrame), false);
+    = m_cameraController->updateCinematic(m_cinematicFrames.at(m_cameraController->m_cinematicFrame.get()), false);
   doGlobalEffect();
 
   ui::Ui ui{getPresenter().getMaterialManager()->getUi(), getPalette(), getPresenter().getRenderViewport()};

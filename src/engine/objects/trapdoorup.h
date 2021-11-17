@@ -7,11 +7,6 @@
 #include <gsl/gsl-lite.hpp>
 #include <string>
 
-namespace core
-{
-struct TRVec;
-}
-
 namespace engine
 {
 struct Location;

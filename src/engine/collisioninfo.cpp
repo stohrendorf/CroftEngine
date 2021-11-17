@@ -35,7 +35,7 @@ namespace
     return 0_len;
 
   const auto targetInSector = target % core::SectorSize;
-  if(currentSector <= targetSector)
+  if(currentSector < targetSector)
     return -(targetInSector + 1_len);
   return core::SectorSize - (targetInSector - 1_len);
 }
@@ -162,13 +162,18 @@ void CollisionInfo::initHeightInfo(const core::TRVec& laraPos, const world::Worl
     {
       vd.floor.y = -32767_len; // This is not a typo, it is really -32767
     }
-    else if(vd.floor.y > 0_len
-            && ((policyFlags.is_set(PolicyFlags::SlopesArePits) && vd.floor.slantClass == SlantClass::Steep)
-                || (policyFlags.is_set(PolicyFlags::LavaIsPit) && vd.floor.lastCommandSequenceOrDeath != nullptr
-                    && floordata::FloorDataChunk::extractType(*vd.floor.lastCommandSequenceOrDeath)
-                         == floordata::FloorDataChunkType::Death)))
+    else if(vd.floor.y > 0_len)
     {
-      vd.floor.y = core::SectorSize / 2;
+      if((policyFlags.is_set(PolicyFlags::SlopesArePits) && vd.floor.slantClass == SlantClass::Steep))
+      {
+        vd.floor.y = core::SectorSize / 2;
+      }
+      else if(policyFlags.is_set(PolicyFlags::LavaIsPit) && vd.floor.lastCommandSequenceOrDeath != nullptr
+              && floordata::FloorDataChunk::extractType(*vd.floor.lastCommandSequenceOrDeath)
+                   == floordata::FloorDataChunkType::Death)
+      {
+        vd.floor.y = core::SectorSize / 2;
+      }
     }
   };
 
@@ -186,9 +191,9 @@ void CollisionInfo::initHeightInfo(const core::TRVec& laraPos, const world::Worl
     return;
   }
 
-  if(mid.floor.y <= mid.ceiling.y)
+  if(mid.floor.y - mid.ceiling.y <= 0_len)
   {
-    collisionType = AxisColl::TopFront;
+    collisionType = AxisColl::Jammed;
     shift = initialPosition - laraPos;
     return;
   }
@@ -199,8 +204,7 @@ void CollisionInfo::initHeightInfo(const core::TRVec& laraPos, const world::Worl
     shift.Y = mid.ceiling.y;
   }
 
-  if(front.floor.y > floorCollisionRangeMin || front.floor.y < floorCollisionRangeMax
-     || front.ceiling.y > ceilingCollisionRangeMin)
+  if(!validFloorHeight.contains(front.floor.y) || front.ceiling.y > validCeilingHeightMin)
   {
     collisionType = AxisColl::Front;
     switch(facingAxis)
@@ -221,16 +225,16 @@ void CollisionInfo::initHeightInfo(const core::TRVec& laraPos, const world::Worl
     return;
   }
 
-  if(front.ceiling.y >= ceilingCollisionRangeMin)
+  if(front.ceiling.y >= validCeilingHeightMin)
   {
-    collisionType = AxisColl::TopBottom;
+    collisionType = AxisColl::FrontTop;
     shift = initialPosition - laraPos;
     return;
   }
 
-  if(frontLeft.floor.y > floorCollisionRangeMin || frontLeft.floor.y < floorCollisionRangeMax)
+  if(!validFloorHeight.contains(frontLeft.floor.y))
   {
-    collisionType = AxisColl::Left;
+    collisionType = AxisColl::FrontLeft;
     switch(facingAxis)
     {
     case core::Axis::Deg0:
@@ -247,9 +251,9 @@ void CollisionInfo::initHeightInfo(const core::TRVec& laraPos, const world::Worl
     return;
   }
 
-  if(frontRight.floor.y > floorCollisionRangeMin || frontRight.floor.y < floorCollisionRangeMax)
+  if(!validFloorHeight.contains(frontRight.floor.y))
   {
-    collisionType = AxisColl::Right;
+    collisionType = AxisColl::FrontRight;
     switch(facingAxis)
     {
     case core::Axis::Deg0:
@@ -331,7 +335,7 @@ bool CollisionInfo::checkStaticMeshCollisions(const core::TRVec& pokePosition,
         }
         else
         {
-          collisionType = shift.X > 0_len ? AxisColl::Left : AxisColl::Right;
+          collisionType = shift.X > 0_len ? AxisColl::FrontLeft : AxisColl::FrontRight;
         }
         break;
       case core::Axis::Deg180:
@@ -343,7 +347,7 @@ bool CollisionInfo::checkStaticMeshCollisions(const core::TRVec& pokePosition,
         else
         {
           shift.Z = 0_len;
-          collisionType = shift.X > 0_len ? AxisColl::Right : AxisColl::Left;
+          collisionType = shift.X > 0_len ? AxisColl::FrontRight : AxisColl::FrontLeft;
         }
         break;
       case core::Axis::Right90:
@@ -355,7 +359,7 @@ bool CollisionInfo::checkStaticMeshCollisions(const core::TRVec& pokePosition,
         else
         {
           shift.X = 0_len;
-          collisionType = shift.Z > 0_len ? AxisColl::Right : AxisColl::Left;
+          collisionType = shift.Z > 0_len ? AxisColl::FrontRight : AxisColl::FrontLeft;
         }
         break;
       case core::Axis::Left90:
@@ -367,7 +371,7 @@ bool CollisionInfo::checkStaticMeshCollisions(const core::TRVec& pokePosition,
         else
         {
           shift.X = 0_len;
-          collisionType = shift.Z > 0_len ? AxisColl::Left : AxisColl::Right;
+          collisionType = shift.Z > 0_len ? AxisColl::FrontLeft : AxisColl::FrontRight;
         }
         break;
       }
