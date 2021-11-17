@@ -139,9 +139,7 @@ void PickupObject::serialize(const serialization::Serializer<world::World>& ser)
       ser.lazy(
         [this](const serialization::Serializer<world::World>& ser)
         {
-          bool hasNode = !getNode()->getParent().expired();
-          ser(S_NV("hasNode", hasNode));
-          if(ser.loading && !hasNode)
+          if(ser.loading && !m_state.collidable)
             setParent(gsl::not_null{getNode()}, nullptr);
         });
     });
