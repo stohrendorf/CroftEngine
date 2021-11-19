@@ -1057,7 +1057,7 @@ void LaraObject::initWeaponAnimData()
   case WeaponType::Uzis:
     leftArm.weaponAnimData = rightArm.weaponAnimData
       = getWorld().findAnimatedModelForType(TR1ItemId::LaraPistolsAnim)->frames;
-    if(m_handStatus != HandStatus::None)
+    if(m_handStatus != HandStatus::None && m_handStatus != HandStatus::Grabbing)
     {
       overrideLaraMeshesDrawWeapons(getWorld().getPlayer().selectedWeaponType);
     }
@@ -1065,7 +1065,7 @@ void LaraObject::initWeaponAnimData()
   case WeaponType::Shotgun:
     leftArm.weaponAnimData = rightArm.weaponAnimData
       = getWorld().findAnimatedModelForType(TR1ItemId::LaraShotgunAnim)->frames;
-    if(m_handStatus != HandStatus::None)
+    if(m_handStatus != HandStatus::None && m_handStatus != HandStatus::Grabbing)
     {
       overrideLaraMeshesDrawShotgun();
     }
