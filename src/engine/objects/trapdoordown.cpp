@@ -48,9 +48,10 @@ void TrapDoorDown::update()
     if(m_state.current_anim_state == 0_as)
       m_state.goal_anim_state = 1_as;
   }
-  else if(m_state.current_anim_state == 1_as)
+  else
   {
-    m_state.goal_anim_state = 0_as;
+    if(m_state.current_anim_state == 1_as)
+      m_state.goal_anim_state = 0_as;
   }
 
   ModelObject::update();
