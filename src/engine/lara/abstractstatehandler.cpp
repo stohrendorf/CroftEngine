@@ -357,14 +357,12 @@ bool AbstractStateHandler::tryReach(CollisionInfo& collisionInfo)
     return false;
   }
 
-  const auto bbox = getBoundingBox();
-  const auto spaceToReach = collisionInfo.front.floor.y - bbox.y.min;
-
-  if(spaceToReach < 0_len && m_lara.m_state.fallspeed * 1_frame + spaceToReach < 0_len)
+  const auto spaceToReach = collisionInfo.front.floor.y - getBoundingBox().y.min;
+  if(spaceToReach < 0_len && spaceToReach - getLara().m_state.fallspeed * 1_frame < 0_len)
   {
     return false;
   }
-  if(spaceToReach > 0_len && m_lara.m_state.fallspeed * 1_frame + spaceToReach > 0_len)
+  if(spaceToReach > 0_len && spaceToReach - getLara().m_state.fallspeed * 1_frame > 0_len)
   {
     return false;
   }

@@ -73,18 +73,16 @@ public:
       return false;
     }
 
-    const auto relativeEdgeHeight = collisionInfo.front.floor.y - getBoundingBox().y.min;
-    const auto relativeEdgeHeightNextFrame = relativeEdgeHeight + getLara().m_state.fallspeed * 1_frame;
-
-    if(relativeEdgeHeight < 0_len && relativeEdgeHeightNextFrame < 0_len)
+    const auto spaceToReach = collisionInfo.front.floor.y - getBoundingBox().y.min;
+    if(spaceToReach < 0_len && spaceToReach - getLara().m_state.fallspeed * 1_frame < 0_len)
     {
       return false;
     }
-    if(relativeEdgeHeight > 0_len && relativeEdgeHeightNextFrame > 0_len)
+    if(spaceToReach > 0_len && spaceToReach - getLara().m_state.fallspeed * 1_frame > 0_len)
     {
       return false;
     }
-
+    
     auto alignedRotation = snapRotation(getLara().m_state.rotation.Y, 35_deg);
     if(!alignedRotation)
     {
