@@ -68,7 +68,12 @@ namespace core
 
 [[nodiscard]] inline Angle abs(const Angle& a)
 {
-  return Angle{std::abs(a.get())};
+  const auto tmp = Angle{std::abs(a.get())};
+  if(tmp >= 0_deg)
+    return tmp;
+
+  // abs(-180_deg) == -180_deg unfortunately
+  return Angle{std::numeric_limits<int>::max()};
 }
 
 enum class Axis

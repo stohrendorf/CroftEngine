@@ -462,7 +462,7 @@ bool AbstractStateHandler::tryStartSlide(const CollisionInfo& collisionInfo)
 
   const core::Angle dy = abs(targetAngle - m_lara.m_state.rotation.Y);
   applyShift(collisionInfo);
-  if(abs(dy) > 90_deg)
+  if(dy > 90_deg)
   {
     if(getCurrentAnimState() != LaraStateId::SlideBackward || targetAngle != getCurrentSlideAngle())
     {
