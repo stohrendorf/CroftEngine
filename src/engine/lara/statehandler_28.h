@@ -73,7 +73,7 @@ public:
       return false;
     }
 
-    const auto spaceToReach = collisionInfo.front.floor.y - getBoundingBox().y.min;
+    const auto spaceToReach = collisionInfo.front.floor.y - getLara().getBoundingBox().y.min;
     if(spaceToReach < 0_len && spaceToReach - getLara().m_state.fallspeed * 1_frame < 0_len)
     {
       return false;
@@ -82,7 +82,7 @@ public:
     {
       return false;
     }
-    
+
     auto alignedRotation = snapRotation(getLara().m_state.rotation.Y, 35_deg);
     if(!alignedRotation)
     {
@@ -93,7 +93,7 @@ public:
     setGoalAnimState(LaraStateId::Hang);
     setCurrentAnimState(LaraStateId::Hang);
 
-    getLara().m_state.location.position.Y += collisionInfo.front.floor.y - getBoundingBox().y.min;
+    getLara().m_state.location.position.Y += collisionInfo.front.floor.y - getLara().getBoundingBox().y.min;
     applyShift(collisionInfo);
     getLara().m_state.speed = 0_spd;
     getLara().m_state.fallspeed = 0_spd;

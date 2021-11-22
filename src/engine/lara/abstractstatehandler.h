@@ -71,7 +71,12 @@ private:
   friend class StateHandler_2;
 
 protected:
-  objects::LaraObject& getLara()
+  [[nodiscard]] objects::LaraObject& getLara()
+  {
+    return m_lara;
+  }
+
+  [[nodiscard]] const objects::LaraObject& getLara() const
   {
     return m_lara;
   }
@@ -92,7 +97,7 @@ protected:
 
   [[nodiscard]] const world::World& getWorld() const;
 
-  world::World& getWorld();
+  [[nodiscard]] world::World& getWorld();
 
   void placeOnFloor(const CollisionInfo& collisionInfo);
 
@@ -131,21 +136,13 @@ protected:
 
   void applyShift(const CollisionInfo& collisionInfo);
 
-  [[nodiscard]] core::Length getRelativeHeightAtDirection(const core::Angle& angle, const core::Length& dist) const;
-
   void commonJumpHandling(CollisionInfo& collisionInfo);
 
   void commonSlideHandling(CollisionInfo& collisionInfo);
 
   void commonEdgeHangHandling(CollisionInfo& collisionInfo);
 
-  bool tryReach(CollisionInfo& collisionInfo);
-
-  [[nodiscard]] bool canClimbOnto(core::Axis axis) const;
-
   bool applyLandingDamage();
-
-  [[nodiscard]] core::BoundingBox getBoundingBox() const;
 
   void addSwimToDiveKeypressDuration(const core::Frame& n) noexcept;
 

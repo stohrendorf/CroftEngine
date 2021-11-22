@@ -3,6 +3,7 @@
 #include "abstractstatehandler.h"
 #include "engine/collisioninfo.h"
 #include "hid/inputstate.h"
+#include "util/helpers.h"
 
 namespace engine::lara
 {
@@ -12,6 +13,21 @@ public:
   explicit StateHandler_15(objects::LaraObject& lara)
       : AbstractStateHandler{lara, LaraStateId::JumpPrepare}
   {
+  }
+
+  [[nodiscard]] core::Length getRelativeHeightAtDirection(const core::Angle& angle, const core::Length& dist) const
+  {
+    auto location = getLara().m_state.location.moved(util::pitch(dist, angle));
+    location.position.Y -= core::LaraWalkHeight;
+    const auto sector = location.updateRoom();
+
+    HeightInfo h = HeightInfo::fromFloor(sector, location.position, getWorld().getObjectManager().getObjects());
+    if(h.y != core::InvalidHeight)
+    {
+      h.y -= getLara().m_state.location.position.Y;
+    }
+
+    return h.y;
   }
 
   void handleInput(CollisionInfo& /*collisionInfo*/) override

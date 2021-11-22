@@ -312,89 +312,6 @@ LaraStateId AbstractStateHandler::getGoalAnimState() const
   return m_lara.getGoalAnimState();
 }
 
-bool AbstractStateHandler::canClimbOnto(const core::Axis axis) const
-{
-  auto location = m_lara.m_state.location;
-  switch(axis)
-  {
-  case core::Axis::PosZ:
-    location.position.Z += core::QuarterSectorSize;
-    break;
-  case core::Axis::PosX:
-    location.position.X += core::QuarterSectorSize;
-    break;
-  case core::Axis::NegZ:
-    location.position.Z -= core::QuarterSectorSize;
-    break;
-  case core::Axis::NegX:
-    location.position.X -= core::QuarterSectorSize;
-    break;
-  }
-
-  const auto sector = location.updateRoom();
-  VerticalDistances distances;
-  distances.init(sector, location.position, getWorld().getObjectManager().getObjects(), location.position.Y, 400_len);
-  return distances.floor.y != core::InvalidHeight && distances.floor.y > 0_len && distances.ceiling.y < 0_len;
-}
-
-bool AbstractStateHandler::tryReach(CollisionInfo& collisionInfo)
-{
-  if(collisionInfo.collisionType != CollisionInfo::AxisColl::Front
-     || !getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action)
-     || getHandStatus() != objects::HandStatus::None)
-  {
-    return false;
-  }
-
-  if(abs(collisionInfo.frontLeft.floor.y - collisionInfo.frontRight.floor.y) >= core::MaxGrabbableGradient)
-  {
-    return false;
-  }
-
-  if(collisionInfo.front.ceiling.y > 0_len || collisionInfo.mid.ceiling.y > -core::ClimbLimit2ClickMin
-     || collisionInfo.mid.floor.y < 200_len)
-  {
-    return false;
-  }
-
-  const auto spaceToReach = collisionInfo.front.floor.y - getBoundingBox().y.min;
-  if(spaceToReach < 0_len && spaceToReach - getLara().m_state.fallspeed * 1_frame < 0_len)
-  {
-    return false;
-  }
-  if(spaceToReach > 0_len && spaceToReach - getLara().m_state.fallspeed * 1_frame > 0_len)
-  {
-    return false;
-  }
-
-  auto alignedRotation = snapRotation(m_lara.m_state.rotation.Y, 35_deg);
-  if(!alignedRotation)
-  {
-    return false;
-  }
-
-  if(canClimbOnto(*axisFromAngle(m_lara.m_state.rotation.Y, 35_deg)))
-  {
-    setAnimation(AnimationId::OSCILLATE_HANG_ON);
-  }
-  else
-  {
-    setAnimation(AnimationId::HANG_IDLE);
-  }
-
-  setGoalAnimState(LaraStateId::Hang);
-  setCurrentAnimState(LaraStateId::Hang);
-  const core::TRVec& pos
-    = m_lara.m_state.location.position + core::TRVec(collisionInfo.shift.X, spaceToReach, collisionInfo.shift.Z);
-  m_lara.m_state.location.position = pos;
-  m_lara.m_state.speed = 0_spd;
-  m_lara.m_state.rotation.Y = *alignedRotation;
-  m_lara.m_state.falling = false;
-  m_lara.m_state.fallspeed = 0_spd;
-  setHandStatus(objects::HandStatus::Grabbing);
-  return true;
-}
-
 bool AbstractStateHandler::stopIfCeilingBlocked(const CollisionInfo& collisionInfo)
 {
   if(collisionInfo.collisionType != CollisionInfo::AxisColl::Top
@@ -572,22 +489,6 @@ bool AbstractStateHandler::tryStartSlide(const CollisionInfo& collisionInfo)
   return true;
 }
 
-core::Length AbstractStateHandler::getRelativeHeightAtDirection(const core::Angle& angle,
-                                                                const core::Length& dist) const
-{
-  auto location = m_lara.m_state.location.moved(util::pitch(dist, angle));
-  location.position.Y -= core::LaraWalkHeight;
-  const auto sector = location.updateRoom();
-
-  HeightInfo h = HeightInfo::fromFloor(sector, location.position, getWorld().getObjectManager().getObjects());
-  if(h.y != core::InvalidHeight)
-  {
-    h.y -= m_lara.m_state.location.position.Y;
-  }
-
-  return h.y;
-}
-
 void AbstractStateHandler::commonJumpHandling(CollisionInfo& collisionInfo)
 {
   collisionInfo.validFloorHeight = {-core::ClimbLimit2ClickMin, core::HeightLimit};
@@ -704,7 +605,7 @@ void AbstractStateHandler::commonEdgeHangHandling(CollisionInfo& collisionInfo)
     setGoalAnimState(LaraStateId::JumpUp);
     setCurrentAnimState(LaraStateId::JumpUp);
     setHandStatus(objects::HandStatus::None);
-    const auto bbox = getBoundingBox();
+    const auto bbox = getLara().getBoundingBox();
     const auto hangDistance = collisionInfo.front.floor.y - bbox.y.min + 2_len;
     const core::TRVec& pos
       = m_lara.m_state.location.position + core::TRVec(collisionInfo.shift.X, hangDistance, collisionInfo.shift.Z);
@@ -749,9 +650,7 @@ void AbstractStateHandler::commonEdgeHangHandling(CollisionInfo& collisionInfo)
   break;
   }
 
-  const auto bbox = getBoundingBox();
-  const auto spaceToReach = collisionInfo.front.floor.y - bbox.y.min;
-
+  const auto spaceToReach = collisionInfo.front.floor.y - getLara().getBoundingBox().y.min;
   if(spaceToReach >= -core::QuarterSectorSize && spaceToReach <= core::QuarterSectorSize)
   {
     const core::TRVec& pos = m_lara.m_state.location.position + core::TRVec(0_len, spaceToReach, 0_len);
@@ -787,11 +686,6 @@ bool AbstractStateHandler::applyLandingDamage()
     m_lara.m_state.health = core::DeadHealth;
   }
   return m_lara.isDead();
-}
-
-core::BoundingBox AbstractStateHandler::getBoundingBox() const
-{
-  return m_lara.getBoundingBox();
 }
 
 void AbstractStateHandler::addSwimToDiveKeypressDuration(const core::Frame& n) noexcept
