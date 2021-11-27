@@ -15,15 +15,16 @@ void rotateForSelection(MenuObject& object)
   if(object.rotationY == object.selectedRotationY)
     return;
 
-  if(const auto dy = object.selectedRotationY - object.rotationY; dy > 0_deg && dy < 180_deg)
+  static constexpr auto Speed = 1024_au * 2;
+  if(object.selectedRotationY - object.rotationY > 0_deg)
   {
-    object.rotationY += 1024_au * 2;
+    object.rotationY += Speed;
   }
   else
   {
-    object.rotationY -= 1024_au * 2;
+    object.rotationY -= Speed;
   }
-  object.rotationY -= object.rotationY % (1024_au * 2);
+  object.rotationY -= object.rotationY % Speed;
 }
 
 void idleRotation(engine::world::World& world, MenuObject& object, bool force)

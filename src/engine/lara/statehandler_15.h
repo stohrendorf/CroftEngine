@@ -68,12 +68,13 @@ public:
 
   void postprocessFrame(CollisionInfo& collisionInfo) override
   {
-    getLara().m_state.fallspeed = 0_spd;
-    getLara().m_state.falling = false;
     collisionInfo.validFloorHeight = {-core::HeightLimit, core::HeightLimit};
     collisionInfo.validCeilingHeightMin = 0_len;
     collisionInfo.facingAngle = getMovementAngle();
     collisionInfo.initHeightInfo(getLara().m_state.location.position, getWorld(), core::LaraWalkHeight);
+
+    getLara().m_state.fallspeed = 0_spd;
+    getLara().m_state.falling = false;
 
     if(collisionInfo.mid.ceiling.y <= -core::DefaultCollisionRadius)
     {

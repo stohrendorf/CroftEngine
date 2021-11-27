@@ -31,10 +31,5 @@ struct Animation
 
   const Animation* nextAnimation = nullptr;
   gsl::span<const Transitions> transitions{};
-
-  [[nodiscard]] constexpr core::Frame getFrameCount() const
-  {
-    return lastFrame - firstFrame + 1_frame;
-  }
 };
 } // namespace engine::world

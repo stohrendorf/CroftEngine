@@ -23,11 +23,12 @@ public:
   void postprocessFrame(CollisionInfo& collisionInfo) override
   {
     collisionInfo.facingAngle = getLara().m_state.rotation.Y;
-    setMovementAngle(collisionInfo.facingAngle);
     collisionInfo.validFloorHeight = {-core::ClimbLimit2ClickMin, core::ClimbLimit2ClickMin};
     collisionInfo.validCeilingHeightMin = 0_len;
     collisionInfo.policies |= CollisionInfo::SlopeBlockingPolicy;
     collisionInfo.initHeightInfo(getLara().m_state.location.position, getWorld(), core::LaraWalkHeight);
+
+    setMovementAngle(collisionInfo.facingAngle);
   }
 };
 } // namespace engine::lara

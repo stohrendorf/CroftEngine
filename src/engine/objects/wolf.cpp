@@ -105,8 +105,8 @@ void Wolf::update()
       {
         if(isAttacking())
         {
-          if(!enemyLocation.enemyAhead || enemyLocation.enemyDistance > util::square(3 * core::SectorSize / 2)
-             || (enemyLocation.enemyAngleToSelf < 90_deg && enemyLocation.enemyAngleToSelf > -90_deg))
+          if(!enemyLocation.enemyAhead || enemyLocation.enemyDistance > util::square(1.5f * core::SectorSize)
+             || abs(enemyLocation.enemyAngleToSelf) < 90_deg)
           {
             goal(Jumping);
           }
@@ -129,10 +129,10 @@ void Wolf::update()
     case Jumping.get():
       getCreatureInfo()->maxTurnSpeed = 5_deg / 1_frame;
       roll = rotationToMoveTarget;
-      if(enemyLocation.enemyAhead && enemyLocation.enemyDistance < util::square(3 * core::SectorSize / 2))
+      if(enemyLocation.enemyAhead && enemyLocation.enemyDistance < util::square(1.5f * core::SectorSize))
       {
-        if(enemyLocation.enemyDistance <= util::square(3 * core::SectorSize / 2) / 2
-           || (enemyLocation.enemyAngleToSelf <= 90_deg && enemyLocation.enemyAngleToSelf >= -90_deg))
+        if(enemyLocation.enemyDistance <= util::square(1.5f * core::SectorSize) / 2
+           || abs(enemyLocation.enemyAngleToSelf) <= 90_deg)
         {
           goal(JumpAttack, 0_as);
         }

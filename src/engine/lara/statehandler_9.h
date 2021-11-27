@@ -30,8 +30,10 @@ public:
     collisionInfo.validFloorHeight = {-core::ClimbLimit2ClickMin, core::HeightLimit};
     collisionInfo.validCeilingHeightMin = 192_len;
     collisionInfo.facingAngle = getMovementAngle();
-    laraState.falling = true;
     collisionInfo.initHeightInfo(laraState.location.position, getWorld(), core::LaraWalkHeight);
+
+    laraState.falling = true;
+
     jumpAgainstWall(collisionInfo);
     if(collisionInfo.mid.floor.y > 0_len)
     {

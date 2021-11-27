@@ -83,12 +83,12 @@ struct Interval final
 
   [[nodiscard]] constexpr bool intersects(const Interval<T>& rhs) const
   {
-    return min <= rhs.max && max >= rhs.min;
+    return min <= rhs.max && rhs.min <= max;
   }
 
   [[nodiscard]] constexpr bool intersectsExclusive(const Interval<T>& rhs) const
   {
-    return min < rhs.max && max > rhs.min;
+    return min < rhs.max && rhs.min < max;
   }
 
   [[nodiscard]] constexpr auto narrowed(const T& value) const

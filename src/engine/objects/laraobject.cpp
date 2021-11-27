@@ -180,19 +180,17 @@ void LaraObject::handleLaraStateOnLand()
 
   if(getWorld().getCameraController().getMode() != CameraMode::FreeLook)
   {
-    const auto headX = m_headRotation.X;
-    if(abs(headX) >= 2_deg)
+    if(abs(m_headRotation.X) >= 2_deg)
     {
-      m_headRotation.X = headX - headX / 8;
+      m_headRotation.X -= m_headRotation.X / 8;
     }
     else
     {
       m_headRotation.X = 0_deg;
     }
-    const auto headY = m_headRotation.Y;
-    if(abs(headY) >= 2_deg)
+    if(abs(m_headRotation.Y) >= 2_deg)
     {
-      m_headRotation.Y = headY - headY / 8;
+      m_headRotation.Y -= m_headRotation.Y / 8;
     }
     else
     {

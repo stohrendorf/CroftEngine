@@ -376,13 +376,13 @@ void World::earthquakeEffect()
 
 void World::floodEffect()
 {
-  if(m_effectTimer <= 120_frame)
+  if(m_effectTimer <= core::FrameRate * 4_sec)
   {
     auto pos = m_objectManager.getLara().m_state.location.position;
     core::Frame mul = 0_frame;
     if(m_effectTimer >= core::FrameRate * 1_sec)
     {
-      mul = m_effectTimer - core::FrameRate * 1_sec;
+      mul = m_effectTimer - (core::FrameRate * 1_sec).cast<core::Frame>();
     }
     else
     {

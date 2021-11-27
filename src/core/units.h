@@ -15,6 +15,7 @@ QS_LITERAL_OP_ULL(Health, _hp)
 
 QS_DECLARE_QUANTITY(Length, int32_t, "u");
 QS_LITERAL_OP_ULL(Length, _len)
+QS_LITERAL_OP_LD(Length, _len)
 
 using Area = QS_COMBINE_UNITS(Length, *, Length);
 
@@ -27,10 +28,6 @@ using Area = QS_COMBINE_UNITS(Length, *, Length);
 {
   return Length{static_cast<Length::type>(a.get() * (1 - bias) + b.get() * bias)};
 }
-
-using LengthF = Length::as_type<float>;
-
-QS_LITERAL_OP_LD(LengthF, _len)
 
 QS_DECLARE_QUANTITY(Seconds, int32_t, "s");
 QS_LITERAL_OP_ULL(Seconds, _sec)

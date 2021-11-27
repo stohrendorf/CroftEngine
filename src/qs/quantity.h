@@ -25,8 +25,11 @@ template<typename T>
 inline constexpr bool is_quantity_v = detail::is_quantity<T>::value;
 
 template<typename Unit, typename Type>
-struct quantity // NOLINT: performance-unnecessary-value-param
+struct quantity
 {
+  template<typename, typename>
+  friend struct quantity;
+
   using unit = Unit;
   using type = Type;
   using self_type = quantity<unit, type>;
@@ -46,8 +49,7 @@ struct quantity // NOLINT: performance-unnecessary-value-param
 
   constexpr quantity<unit, type>& operator=(const self_type& rhs) noexcept
   {
-    if(&rhs != this)
-      value = rhs.value;
+    value = rhs.value;
     return *this;
   }
 
@@ -66,7 +68,7 @@ struct quantity // NOLINT: performance-unnecessary-value-param
   }
 
   template<typename T = type>
-  [[nodiscard]] constexpr auto get() const noexcept
+  [[nodiscard]] constexpr auto get() const noexcept(noexcept(static_cast<T>(std::declval<type>())))
   {
     return static_cast<T>(value);
   }
@@ -85,41 +87,40 @@ struct quantity // NOLINT: performance-unnecessary-value-param
     }
   }
 
-  constexpr auto& operator+=(self_type r) noexcept
+  template<typename T>
+  constexpr auto& operator+=(const quantity<Unit, T>& r) noexcept(noexcept(std::declval<type&>() += r.value))
   {
     value += r.value;
     return *this;
   }
 
-  constexpr auto& operator-=(self_type r) noexcept
+  template<typename T>
+  constexpr auto& operator-=(const quantity<Unit, T>& r) noexcept(noexcept(std::declval<type&>() -= r.value))
   {
     value -= r.value;
     return *this;
   }
 
-  constexpr auto& operator%=(self_type r) noexcept
+  template<typename T>
+  constexpr auto& operator%=(const quantity<Unit, T>& r) noexcept(noexcept(std::declval<type&>() %= r.value))
   {
     value %= r.value;
     return *this;
   }
 
-  constexpr auto operator*=(type r) noexcept
+  template<typename T>
+  constexpr auto& operator*=(const T& r) noexcept(noexcept(std::declval<type&>() *= r))
   {
     value *= r;
     return *this;
   }
 
   template<typename T>
-  constexpr auto& operator*=(T r) = delete;
-
-  constexpr auto operator/=(type r) noexcept
+  constexpr auto operator/=(const T& r) noexcept(noexcept(std::declval<type&>() /= r))
   {
     value /= r;
     return *this;
   }
-
-  template<typename T>
-  constexpr auto& operator/=(T r) = delete;
 
   // unary operator +
   constexpr auto operator+() const noexcept
@@ -128,32 +129,38 @@ struct quantity // NOLINT: performance-unnecessary-value-param
   }
 
   // comparison operators
-  constexpr bool operator<(self_type r) const noexcept
+  template<typename T>
+  constexpr bool operator<(const quantity<Unit, T>& r) const noexcept(noexcept(std::declval<type>() < r.value))
   {
     return value < r.value;
   }
 
-  constexpr bool operator<=(self_type r) const noexcept
+  template<typename T>
+  constexpr bool operator<=(const quantity<Unit, T>& r) const noexcept(noexcept(std::declval<type>() <= r.value))
   {
     return value <= r.value;
   }
 
-  constexpr bool operator==(self_type r) const noexcept
+  template<typename T>
+  constexpr bool operator==(const quantity<Unit, T>& r) const noexcept(noexcept(std::declval<type>() == r.value))
   {
     return value == r.value;
   }
 
-  constexpr bool operator>(self_type r) const noexcept
+  template<typename T>
+  constexpr bool operator>(const quantity<Unit, T>& r) const noexcept(noexcept(std::declval<type>() > r.value))
   {
     return value > r.value;
   }
 
-  constexpr bool operator>=(self_type r) const noexcept
+  template<typename T>
+  constexpr bool operator>=(const quantity<Unit, T>& r) const noexcept(noexcept(std::declval<type>() >= r.value))
   {
     return value >= r.value;
   }
 
-  constexpr bool operator!=(self_type r) const noexcept
+  template<typename T>
+  constexpr bool operator!=(const quantity<Unit, T>& r) const noexcept(noexcept(std::declval<type>() != r.value))
   {
     return value != r.value;
   }
@@ -163,20 +170,15 @@ private:
 };
 
 template<typename Unit, typename Type>
-constexpr std::enable_if_t<std::is_signed_v<Type>, quantity<Unit, Type>> operator-(quantity<Unit, Type> l) noexcept
+constexpr std::enable_if_t<std::is_signed_v<Type>, quantity<Unit, Type>>
+  operator-(quantity<Unit, Type> l) noexcept(noexcept(-l.get()))
 {
   return quantity<Unit, Type>{static_cast<Type>(-l.get())};
 }
 
-template<typename Unit, typename Type>
-constexpr auto operator*(Type l, quantity<Unit, Type> r) noexcept
-{
-  return quantity<Unit, Type>{static_cast<Type>(l * r.get())};
-}
-
 // abs
 template<typename Unit, typename Type>
-constexpr quantity<Unit, Type> abs(const quantity<Unit, Type>& v) noexcept
+constexpr quantity<Unit, Type> abs(const quantity<Unit, Type>& v) noexcept(noexcept(v.get() >= 0 ? v : -v))
 {
   if constexpr(std::is_signed_v<Type>)
     return v.get() >= 0 ? v : -v;

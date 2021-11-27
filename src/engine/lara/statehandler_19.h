@@ -23,9 +23,10 @@ public:
     collisionInfo.validFloorHeight = {-core::ClimbLimit2ClickMin, core::ClimbLimit2ClickMin};
     collisionInfo.validCeilingHeightMin = 0_len;
     collisionInfo.policies |= CollisionInfo::SlopeBlockingPolicy;
-    setMovementAngle(collisionInfo.facingAngle);
     collisionInfo.facingAngle = getLara().m_state.rotation.Y;
     collisionInfo.initHeightInfo(getLara().m_state.location.position, getWorld(), core::LaraWalkHeight);
+
+    setMovementAngle(collisionInfo.facingAngle);
   }
 };
 } // namespace engine::lara

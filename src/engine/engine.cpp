@@ -156,7 +156,7 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
   };
 
   core::Frame runtime = 0_frame;
-  static constexpr core::Frame BlendInDuration = 60_frame;
+  static constexpr auto BlendInDuration = (core::FrameRate * 2_sec).cast<core::Frame>();
   core::Frame ammoDisplayDuration = 0_frame;
 
   while(true)
@@ -343,8 +343,8 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
       }
       else
       {
-        static constexpr auto StaticDuration = 20_frame;
-        static constexpr auto TransitionDuration = 15_frame;
+        static constexpr auto StaticDuration = (core::FrameRate * 1_sec * 2 / 3).cast<core::Frame>();
+        static constexpr auto TransitionDuration = (core::FrameRate * 1_sec / 2).cast<core::Frame>();
 
         ammoDisplayDuration = std::min(ammoDisplayDuration + 1_frame, StaticDuration + TransitionDuration);
 

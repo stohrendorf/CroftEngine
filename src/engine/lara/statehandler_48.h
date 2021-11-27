@@ -24,11 +24,11 @@ public:
 
     if(getWorld().getPresenter().getInputHandler().getInputState().xMovement == hid::AxisMovement::Left)
     {
-      getLara().m_state.rotation.Y -= 2_deg;
+      getLara().m_state.rotation.Y -= core::OnWaterMovementTurnSpeed * 1_frame;
     }
     else if(getWorld().getPresenter().getInputHandler().getInputState().xMovement == hid::AxisMovement::Right)
     {
-      getLara().m_state.rotation.Y += 2_deg;
+      getLara().m_state.rotation.Y += core::OnWaterMovementTurnSpeed * 1_frame;
     }
 
     if(getWorld().getPresenter().getInputHandler().getInputState().stepMovement != hid::AxisMovement::Left)

@@ -26,8 +26,9 @@ public:
     collisionInfo.validFloorHeight = {-core::ClimbLimit2ClickMin, core::HeightLimit};
     collisionInfo.validCeilingHeightMin = 192_len;
     collisionInfo.facingAngle = getLara().m_state.rotation.Y;
-    setMovementAngle(collisionInfo.facingAngle);
     collisionInfo.initHeightInfo(getLara().m_state.location.position, getWorld(), core::LaraHangingHeight);
+
+    setMovementAngle(collisionInfo.facingAngle);
 
     if(tryGrabEdge(collisionInfo))
     {
@@ -53,7 +54,7 @@ public:
     placeOnFloor(collisionInfo);
   }
 
-  bool tryGrabEdge(const CollisionInfo& collisionInfo)
+  [[nodiscard]] bool tryGrabEdge(const CollisionInfo& collisionInfo)
   {
     if(collisionInfo.collisionType != CollisionInfo::AxisColl::Front
        || !getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action)

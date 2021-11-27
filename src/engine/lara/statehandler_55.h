@@ -25,8 +25,9 @@ public:
     collisionInfo.validCeilingHeightMin = 0_len;
     collisionInfo.policies |= CollisionInfo::SlopeBlockingPolicy;
     collisionInfo.facingAngle = getLara().m_state.rotation.Y;
-    setMovementAngle(collisionInfo.facingAngle);
     collisionInfo.initHeightInfo(getLara().m_state.location.position, getWorld(), core::LaraWalkHeight);
+
+    setMovementAngle(collisionInfo.facingAngle);
   }
 };
 } // namespace engine::lara

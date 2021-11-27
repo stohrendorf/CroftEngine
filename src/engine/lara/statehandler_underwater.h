@@ -21,11 +21,12 @@ public:
     {
       collisionInfo.facingAngle += 180_deg;
     }
-    setMovementAngle(collisionInfo.facingAngle);
     collisionInfo.initHeightInfo(getLara().m_state.location.position
                                    + core::TRVec{0_len, core::LaraDiveGroundElevation, 0_len},
                                  getWorld(),
                                  core::LaraDiveHeight);
+
+    setMovementAngle(collisionInfo.facingAngle);
 
     applyShift(collisionInfo);
 

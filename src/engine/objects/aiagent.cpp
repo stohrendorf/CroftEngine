@@ -54,10 +54,10 @@ core::Angle AIAgent::rotateTowardsTarget(core::RotationSpeed maxRotationSpeed)
     }
   }
 
-  turnAngle = std::clamp(turnAngle, -maxRotationSpeed * 1_frame, maxRotationSpeed * 1_frame);
+  const auto turnSpeed = std::clamp(turnAngle / 1_frame, -maxRotationSpeed, maxRotationSpeed);
 
-  m_state.rotation.Y += turnAngle;
-  return turnAngle;
+  m_state.rotation.Y += turnSpeed * 1_frame;
+  return turnSpeed * 1_frame;
 }
 
 bool AIAgent::isPositionOutOfReach(const core::TRVec& testPosition,
@@ -128,7 +128,7 @@ bool AIAgent::animateCreature(const core::Angle& deltaRotationY, const core::Ang
   // from the sector boundaries if it detects a collision. As the max norm is always greater than or equal to the
   // euclidean norm, checking that the max norm of movement is less than or equal to the collision radius means that
   // the movement did not cause a wall glitch, assuming that the position before applying the movement was valid.
-  BOOST_ASSERT(abs(m_skeleton->calculateFloorSpeed() * 1_frame) <= m_collisionRadius);
+  BOOST_ASSERT(abs(m_skeleton->calculateFloorSpeed()) <= m_collisionRadius / 1_frame);
 
   if(m_state.triggerState == TriggerState::Deactivated)
   {

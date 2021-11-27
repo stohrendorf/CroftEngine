@@ -44,12 +44,12 @@ struct GenericVec
 
   constexpr GenericVec<T>& operator=(GenericVec<T>&&) noexcept = default;
 
-  [[nodiscard]] constexpr GenericVec<T> operator-(const GenericVec<T>& rhs) const noexcept
+  [[nodiscard]] constexpr GenericVec<T> operator-(const GenericVec<T>& rhs) const noexcept(noexcept(X - rhs.X))
   {
     return {X - rhs.X, Y - rhs.Y, Z - rhs.Z};
   }
 
-  GenericVec<T>& operator-=(const GenericVec<T>& rhs) noexcept
+  GenericVec<T>& operator-=(const GenericVec<T>& rhs) noexcept(noexcept(X -= rhs.X))
   {
     X -= rhs.X;
     Y -= rhs.Y;
@@ -58,23 +58,23 @@ struct GenericVec
   }
 
   template<typename U>
-  [[nodiscard]] constexpr auto operator/(const U& n) const noexcept
+  [[nodiscard]] constexpr auto operator/(const U& n) const noexcept(noexcept(X / n))
   {
     return GenericVec<decltype(X / n)>{X / n, Y / n, Z / n};
   }
 
-  template<typename U>
-  [[nodiscard]] constexpr auto operator*(const U& n) const noexcept
+  template<typename U, typename V>
+  [[nodiscard]] constexpr auto operator*(const U& n) const noexcept(noexcept(X* n))
   {
     return GenericVec<decltype(X * n)>{X * n, Y * n, Z * n};
   }
 
-  [[nodiscard]] constexpr GenericVec<T> operator+(const GenericVec<T>& rhs) const noexcept
+  [[nodiscard]] constexpr GenericVec<T> operator+(const GenericVec<T>& rhs) const noexcept(noexcept(X + rhs.X))
   {
     return {X + rhs.X, Y + rhs.Y, Z + rhs.Z};
   }
 
-  GenericVec<T>& operator+=(const GenericVec<T>& rhs) noexcept
+  GenericVec<T>& operator+=(const GenericVec<T>& rhs) noexcept(noexcept(X += rhs.X))
   {
     X += rhs.X;
     Y += rhs.Y;
@@ -88,8 +88,15 @@ struct GenericVec
   }
 };
 
+template<typename T, typename U, typename V>
+[[nodiscard]] inline constexpr auto operator*(const GenericVec<T>& v,
+                                              const qs::quantity<U, V>& n) noexcept(noexcept(v.X* n))
+{
+  return GenericVec<decltype(v.X * n)>{v.X * n, v.Y * n, v.Z * n};
+}
+
 template<typename T>
-inline constexpr bool operator==(const GenericVec<T>& lhs, const GenericVec<T>& rhs) noexcept
+inline constexpr bool operator==(const GenericVec<T>& lhs, const GenericVec<T>& rhs) noexcept(noexcept(lhs.X == rhs.X))
 {
   return lhs.X == rhs.X && lhs.Y == rhs.Y && lhs.Z == rhs.Z;
 }

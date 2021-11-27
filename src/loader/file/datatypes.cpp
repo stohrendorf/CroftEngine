@@ -787,8 +787,8 @@ std::unique_ptr<Sprite> Sprite::readTr1(io::SDLReader& reader)
   sprite->uv0.x = UVCoordinates::Component{gsl::narrow_cast<UVCoordinates::Component::type>(reader.readU8() * 256)};
   sprite->uv0.y = UVCoordinates::Component{gsl::narrow_cast<UVCoordinates::Component::type>(reader.readU8() * 256)};
   auto uvSize = UVCoordinates::read(reader);
-  sprite->uv1.x = sprite->uv0.x + uvSize.x;
-  sprite->uv1.y = sprite->uv0.y + uvSize.y;
+  sprite->uv1.x = (sprite->uv0.x + uvSize.x).cast<UVCoordinates::Component>();
+  sprite->uv1.y = (sprite->uv0.y + uvSize.y).cast<UVCoordinates::Component>();
 
   sprite->render0.x = reader.readI16();
   sprite->render0.y = reader.readI16();

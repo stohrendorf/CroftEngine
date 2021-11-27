@@ -17,14 +17,15 @@ public:
   void postprocessFrame(CollisionInfo& collisionInfo) final
   {
     auto& laraState = getLara().m_state;
-    laraState.fallspeed = 0_spd;
-    laraState.falling = false;
     collisionInfo.facingAngle = laraState.rotation.Y;
-    setMovementAngle(collisionInfo.facingAngle);
     collisionInfo.validFloorHeight = {-core::ClimbLimit2ClickMin, core::ClimbLimit2ClickMin};
     collisionInfo.validCeilingHeightMin = 0_len;
     collisionInfo.policies |= CollisionInfo::SlopeBlockingPolicy;
     collisionInfo.initHeightInfo(laraState.location.position, getWorld(), core::LaraWalkHeight);
+
+    setMovementAngle(collisionInfo.facingAngle);
+    laraState.fallspeed = 0_spd;
+    laraState.falling = false;
 
     if(collisionInfo.mid.floor.y <= core::DefaultCollisionRadius)
     {

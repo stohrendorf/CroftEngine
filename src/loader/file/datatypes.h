@@ -254,8 +254,8 @@ struct Room
   static constexpr uint16_t TR_ROOM_FLAG_POISON = 0x1000; ///< @FIXME: Is it really poison (P)?
 
   core::TRVec position{};
-  core::Length lowestHeight{0};
-  core::Length greatestHeight{0};
+  core::Length lowestHeight = 0_len;
+  core::Length greatestHeight = 0_len;
   std::vector<Layer> layers{};
   std::vector<RoomVertex> vertices{};
   std::vector<QuadFace> rectangles{};
