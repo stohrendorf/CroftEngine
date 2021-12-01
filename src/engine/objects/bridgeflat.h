@@ -11,12 +11,20 @@ public:
 
   void patchFloor(const core::TRVec& pos, core::Length& y) override
   {
-    if(pos.Y <= m_state.location.position.Y)
-      y = m_state.location.position.Y;
+    if(!core::isSameSector(pos, m_state.location.position))
+      return;
+
+    if(pos.Y > m_state.location.position.Y)
+      return;
+    
+    y = m_state.location.position.Y;
   }
 
   void patchCeiling(const core::TRVec& pos, core::Length& y) override
   {
+    if(!core::isSameSector(pos, m_state.location.position))
+      return;
+
     if(pos.Y <= m_state.location.position.Y)
       return;
 

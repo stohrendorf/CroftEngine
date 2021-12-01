@@ -8,8 +8,10 @@
 #include "modelobject.h"
 #include "objectstate.h"
 #include "qs/qs.h"
+#include "render/scene/node.h"
 #include "serialization/serialization_fwd.h"
 
+#include <boost/log/trivial.hpp>
 #include <gsl/gsl-lite.hpp>
 #include <optional>
 #include <string>
@@ -53,13 +55,21 @@ public:
 
   void patchFloor(const core::TRVec& pos, core::Length& y) final
   {
+    if(!core::isSameSector(pos, m_state.location.position))
+      return;
+
     const auto tmp = m_state.location.position.Y + getBridgeSlopeHeight(pos) / m_flatness;
-    if(pos.Y <= tmp)
-      y = tmp;
+    if(pos.Y > tmp)
+      return;
+    
+    y = tmp;
   }
 
   void patchCeiling(const core::TRVec& pos, core::Length& y) final
   {
+    if(!core::isSameSector(pos, m_state.location.position))
+      return;
+
     const auto tmp = m_state.location.position.Y + getBridgeSlopeHeight(pos) / m_flatness;
     if(pos.Y <= tmp)
       return;
@@ -77,13 +87,13 @@ private:
 
     switch(*axis)
     {
-    case core::Axis::PosZ:
+    case core::Axis::Deg0:
       return core::SectorSize - 1_len - (pos.X % core::SectorSize);
-    case core::Axis::PosX:
+    case core::Axis::Right90:
       return (pos.Z % core::SectorSize);
-    case core::Axis::NegZ:
+    case core::Axis::Deg180:
       return (pos.X % core::SectorSize);
-    case core::Axis::NegX:
+    case core::Axis::Left90:
       return core::SectorSize - 1_len - (pos.Z % core::SectorSize);
     default:
       return 0_len;

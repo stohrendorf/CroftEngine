@@ -1,6 +1,7 @@
 #pragma once
 
 #include "genericvec.h"
+#include "magic.h"
 #include "qs/qs.h"
 #include "serialization/serialization_fwd.h"
 #include "units.h"
@@ -37,6 +38,13 @@ void serialize(TRVec& v, const serialization::Serializer<engine::world::World>& 
 [[nodiscard]] inline Length length(const TRVec& v)
 {
   return sqrt(v.X * v.X + v.Y * v.Y + v.Z * v.Z);
+}
+
+[[nodiscard]] constexpr bool isSameSector(const TRVec& a, const TRVec& b)
+{
+  const auto aSector = a / SectorSize;
+  const auto bSector = b / SectorSize;
+  return aSector.X == bSector.X && aSector.Z == bSector.Z;
 }
 
 extern std::ostream& operator<<(std::ostream& stream, const TRVec& rhs);

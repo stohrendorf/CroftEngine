@@ -568,16 +568,16 @@ void AbstractStateHandler::commonEdgeHangHandling(CollisionInfo& collisionInfo)
   const auto axis = axisFromAngle(getMovementAngle());
   switch(axis)
   {
-  case core::Axis::PosZ:
+  case core::Axis::Deg0:
     m_lara.m_state.location.position.Z += 2_len;
     break;
-  case core::Axis::PosX:
+  case core::Axis::Right90:
     m_lara.m_state.location.position.X += 2_len;
     break;
-  case core::Axis::NegZ:
+  case core::Axis::Deg180:
     m_lara.m_state.location.position.Z -= 2_len;
     break;
-  case core::Axis::NegX:
+  case core::Axis::Left90:
     m_lara.m_state.location.position.X -= 2_len;
     break;
   }
