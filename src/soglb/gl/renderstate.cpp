@@ -158,7 +158,7 @@ void RenderState::apply(const bool force) const
     {
       GL_ASSERT(api::disable(api::EnableCap::PolygonOffsetFill));
       GL_ASSERT(api::polygonOffset(0, 0));
-      getCurrentState().m_polygonOffset = {0, 0};
+      getCurrentState().m_polygonOffset = {0.0f, 0.0f};
     }
     getCurrentState().m_polygonOffsetFillEnabled = m_polygonOffsetFillEnabled;
   }

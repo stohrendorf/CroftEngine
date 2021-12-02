@@ -23,7 +23,8 @@ public:
       return;
     }
 
-    if(getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Roll))
+    const auto& inputHandler = getWorld().getPresenter().getInputHandler();
+    if(inputHandler.hasAction(hid::Action::Roll))
     {
       setAnimation(AnimationId::ROLL_BEGIN, getWorld().getAnimation(AnimationId::ROLL_BEGIN).firstFrame + 2_frame);
       setGoalAnimState(LaraStateId::Stop);
@@ -31,14 +32,14 @@ public:
       return;
     }
 
-    if(getWorld().getPresenter().getInputHandler().getInputState().xMovement == hid::AxisMovement::Left)
+    if(inputHandler.getInputState().xMovement == hid::AxisMovement::Left)
     {
       subYRotationSpeed(core::SlowTurnSpeedAcceleration, -core::FastTurnSpeed);
       const core::Angle z
         = std::max(-core::MaxRunTilt, getLara().m_state.rotation.Z - core::RunTiltAcceleration * 1_frame);
       getLara().m_state.rotation.Z = z;
     }
-    else if(getWorld().getPresenter().getInputHandler().getInputState().xMovement == hid::AxisMovement::Right)
+    else if(inputHandler.getInputState().xMovement == hid::AxisMovement::Right)
     {
       addYRotationSpeed(core::SlowTurnSpeedAcceleration, core::FastTurnSpeed);
       const core::Angle z
@@ -46,19 +47,19 @@ public:
       getLara().m_state.rotation.Z = z;
     }
 
-    if(getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Jump) && !getLara().m_state.falling)
+    if(inputHandler.hasAction(hid::Action::Jump) && !getLara().m_state.falling)
     {
       setGoalAnimState(LaraStateId::JumpForward);
       return;
     }
 
-    if(getWorld().getPresenter().getInputHandler().getInputState().zMovement != hid::AxisMovement::Forward)
+    if(inputHandler.getInputState().zMovement != hid::AxisMovement::Forward)
     {
       setGoalAnimState(LaraStateId::Stop);
       return;
     }
 
-    if(getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Walk))
+    if(inputHandler.hasAction(hid::Action::Walk))
     {
       setGoalAnimState(LaraStateId::WalkForward);
     }

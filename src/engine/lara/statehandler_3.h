@@ -21,16 +21,15 @@ public:
       setGoalAnimState(LaraStateId::JumpForward);
     }
 
+    const auto& inputHandler = getWorld().getPresenter().getInputHandler();
     if(getGoalAnimState() != LaraStateId::Death && getGoalAnimState() != LaraStateId::Stop)
     {
-      if(getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action)
-         && getHandStatus() == objects::HandStatus::None)
+      if(inputHandler.hasAction(hid::Action::Action) && getHandStatus() == objects::HandStatus::None)
       {
         setGoalAnimState(LaraStateId::Reach);
       }
 
-      if(getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Walk)
-         && getHandStatus() == objects::HandStatus::None)
+      if(inputHandler.hasAction(hid::Action::Walk) && getHandStatus() == objects::HandStatus::None)
       {
         setGoalAnimState(LaraStateId::SwandiveBegin);
       }
@@ -41,11 +40,11 @@ public:
       }
     }
 
-    if(getWorld().getPresenter().getInputHandler().getInputState().xMovement == hid::AxisMovement::Left)
+    if(inputHandler.getInputState().xMovement == hid::AxisMovement::Left)
     {
       subYRotationSpeed(core::SlowTurnSpeedAcceleration, -core::JumpTurnSpeed);
     }
-    else if(getWorld().getPresenter().getInputHandler().getInputState().xMovement == hid::AxisMovement::Right)
+    else if(inputHandler.getInputState().xMovement == hid::AxisMovement::Right)
     {
       addYRotationSpeed(core::SlowTurnSpeedAcceleration, core::JumpTurnSpeed);
     }

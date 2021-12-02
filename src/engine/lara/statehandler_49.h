@@ -22,16 +22,17 @@ public:
 
     setSwimToDiveKeypressDuration(0_frame);
 
-    if(getWorld().getPresenter().getInputHandler().getInputState().xMovement == hid::AxisMovement::Left)
+    const auto& inputHandler = getWorld().getPresenter().getInputHandler();
+    if(inputHandler.getInputState().xMovement == hid::AxisMovement::Left)
     {
       getLara().m_state.rotation.Y -= core::OnWaterMovementTurnSpeed * 1_frame;
     }
-    else if(getWorld().getPresenter().getInputHandler().getInputState().xMovement == hid::AxisMovement::Right)
+    else if(inputHandler.getInputState().xMovement == hid::AxisMovement::Right)
     {
       getLara().m_state.rotation.Y += core::OnWaterMovementTurnSpeed * 1_frame;
     }
 
-    if(getWorld().getPresenter().getInputHandler().getInputState().stepMovement != hid::AxisMovement::Right)
+    if(inputHandler.getInputState().stepMovement != hid::AxisMovement::Right)
     {
       setGoalAnimState(LaraStateId::OnWaterStop);
     }

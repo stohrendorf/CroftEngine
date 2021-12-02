@@ -22,13 +22,14 @@ public:
 
     subYRotationSpeed(core::SlowTurnSpeedAcceleration);
 
+    const auto& inputHandler = getWorld().getPresenter().getInputHandler();
     if(getHandStatus() == objects::HandStatus::Combat)
     {
       setGoalAnimState(LaraStateId::TurnFast);
     }
     else if(getYRotationSpeed() < -core::SlowTurnSpeed)
     {
-      if(getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Walk))
+      if(inputHandler.hasAction(hid::Action::Walk))
       {
         setYRotationSpeed(-core::SlowTurnSpeed);
       }
@@ -38,16 +39,16 @@ public:
       }
     }
 
-    if(getWorld().getPresenter().getInputHandler().getInputState().zMovement != hid::AxisMovement::Forward)
+    if(inputHandler.getInputState().zMovement != hid::AxisMovement::Forward)
     {
-      if(getWorld().getPresenter().getInputHandler().getInputState().xMovement != hid::AxisMovement::Left)
+      if(inputHandler.getInputState().xMovement != hid::AxisMovement::Left)
       {
         setGoalAnimState(LaraStateId::Stop);
       }
       return;
     }
 
-    if(getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Walk))
+    if(inputHandler.hasAction(hid::Action::Walk))
     {
       setGoalAnimState(LaraStateId::WalkForward);
     }

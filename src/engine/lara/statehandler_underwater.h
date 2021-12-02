@@ -80,21 +80,22 @@ public:
 protected:
   void handleDiveRotationInput()
   {
-    if(getWorld().getPresenter().getInputHandler().getInputState().zMovement == hid::AxisMovement::Forward)
+    const auto& inputHandler = getWorld().getPresenter().getInputHandler();
+    if(inputHandler.getInputState().zMovement == hid::AxisMovement::Forward)
     {
       getLara().m_state.rotation.X -= core::DiveRotationSpeedX * 1_frame;
     }
-    else if(getWorld().getPresenter().getInputHandler().getInputState().zMovement == hid::AxisMovement::Backward)
+    else if(inputHandler.getInputState().zMovement == hid::AxisMovement::Backward)
     {
       getLara().m_state.rotation.X += core::DiveRotationSpeedX * 1_frame;
     }
 
-    if(getWorld().getPresenter().getInputHandler().getInputState().xMovement == hid::AxisMovement::Left)
+    if(inputHandler.getInputState().xMovement == hid::AxisMovement::Left)
     {
       getLara().m_state.rotation.Y -= core::DiveRotationSpeedY * 1_frame;
       getLara().m_state.rotation.Z -= core::DiveRotationSpeedZ * 1_frame;
     }
-    else if(getWorld().getPresenter().getInputHandler().getInputState().xMovement == hid::AxisMovement::Right)
+    else if(inputHandler.getInputState().xMovement == hid::AxisMovement::Right)
     {
       getLara().m_state.rotation.Y += core::DiveRotationSpeedY * 1_frame;
       getLara().m_state.rotation.Z += core::DiveRotationSpeedZ * 1_frame;

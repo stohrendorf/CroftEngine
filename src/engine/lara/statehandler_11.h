@@ -22,7 +22,7 @@ public:
     }
   }
 
-  [[nodiscard]] bool canClimbOnto(const core::Axis axis) const
+  [[nodiscard]] bool canSwing(const core::Axis axis) const
   {
     auto location = getLara().m_state.location;
     switch(axis)
@@ -47,7 +47,7 @@ public:
     return distances.floor.y != core::InvalidHeight && distances.floor.y > 0_len && distances.ceiling.y < 0_len;
   }
 
-  [[nodiscard]] bool tryReach(CollisionInfo& collisionInfo)
+  [[nodiscard]] bool tryHang(CollisionInfo& collisionInfo)
   {
     if(collisionInfo.collisionType != CollisionInfo::AxisColl::Front
        || !getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action)
@@ -78,12 +78,12 @@ public:
     }
 
     auto alignedRotation = snapRotation(getLara().m_state.rotation.Y, 35_deg);
-    if(!alignedRotation)
+    if(!alignedRotation.has_value())
     {
       return false;
     }
 
-    if(canClimbOnto(*axisFromAngle(getLara().m_state.rotation.Y, 35_deg)))
+    if(canSwing(*axisFromAngle(getLara().m_state.rotation.Y, 35_deg)))
     {
       setAnimation(AnimationId::OSCILLATE_HANG_ON);
     }
@@ -94,9 +94,7 @@ public:
 
     setGoalAnimState(LaraStateId::Hang);
     setCurrentAnimState(LaraStateId::Hang);
-    const core::TRVec& pos
-      = getLara().m_state.location.position + core::TRVec(collisionInfo.shift.X, spaceToReach, collisionInfo.shift.Z);
-    getLara().m_state.location.position = pos;
+    getLara().m_state.location.position += core::TRVec(collisionInfo.shift.X, spaceToReach, collisionInfo.shift.Z);
     getLara().m_state.speed = 0_spd;
     getLara().m_state.rotation.Y = *alignedRotation;
     getLara().m_state.falling = false;
@@ -115,7 +113,7 @@ public:
     setMovementAngle(collisionInfo.facingAngle);
     getLara().m_state.falling = true;
 
-    if(tryReach(collisionInfo))
+    if(tryHang(collisionInfo))
     {
       return;
     }

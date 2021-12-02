@@ -719,8 +719,8 @@ void AbstractStateHandler::jumpAgainstWall(CollisionInfo& collisionInfo)
   switch(collisionInfo.collisionType)
   {
   case CollisionInfo::AxisColl::None:
-    break;
   case CollisionInfo::AxisColl::Front:
+  case CollisionInfo::AxisColl::FrontTop:
     break;
   case CollisionInfo::AxisColl::FrontLeft:
     m_lara.m_state.rotation.Y += 5_deg;
@@ -733,8 +733,6 @@ void AbstractStateHandler::jumpAgainstWall(CollisionInfo& collisionInfo)
     {
       m_lara.m_state.fallspeed = 1_spd;
     }
-    break;
-  case CollisionInfo::AxisColl::FrontTop:
     break;
   case CollisionInfo::AxisColl::Jammed:
     m_lara.m_state.location.move(util::pitch(core::DefaultCollisionRadius, m_lara.m_state.rotation.Y));

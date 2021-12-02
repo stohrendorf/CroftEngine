@@ -18,8 +18,9 @@ public:
   {
     collisionInfo.policies &= ~CollisionInfo::SpazPushPolicy;
     setCameraRotationAroundLara(-60_deg, 0_deg);
-    if(getWorld().getPresenter().getInputHandler().getInputState().xMovement != hid::AxisMovement::Left
-       && getWorld().getPresenter().getInputHandler().getInputState().stepMovement != hid::AxisMovement::Left)
+    const auto& inputHandler = getWorld().getPresenter().getInputHandler();
+    if(inputHandler.getInputState().xMovement != hid::AxisMovement::Left
+       && inputHandler.getInputState().stepMovement != hid::AxisMovement::Left)
     {
       setGoalAnimState(LaraStateId::Hang);
     }

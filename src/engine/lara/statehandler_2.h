@@ -22,7 +22,8 @@ public:
       return;
     }
 
-    if(getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Roll))
+    const auto& inputHandler = getWorld().getPresenter().getInputHandler();
+    if(inputHandler.hasAction(hid::Action::Roll))
     {
       setAnimation(AnimationId::ROLL_BEGIN);
       setGoalAnimState(LaraStateId::Stop);
@@ -32,23 +33,23 @@ public:
 
     setGoalAnimState(LaraStateId::Stop);
 
-    if(getWorld().getPresenter().getInputHandler().hasAction(hid::Action::FreeLook))
+    if(inputHandler.hasAction(hid::Action::FreeLook))
     {
       getWorld().getCameraController().setMode(CameraMode::FreeLook);
-      if(getWorld().getPresenter().getInputHandler().getInputState().xMovement == hid::AxisMovement::Left)
+      if(inputHandler.getInputState().xMovement == hid::AxisMovement::Left)
       {
         getLara().addHeadRotationY(-core::FreeLookHeadTurnSpeed, -44_deg, 44_deg);
       }
-      else if(getWorld().getPresenter().getInputHandler().getInputState().xMovement == hid::AxisMovement::Right)
+      else if(inputHandler.getInputState().xMovement == hid::AxisMovement::Right)
       {
         getLara().addHeadRotationY(core::FreeLookHeadTurnSpeed, -44_deg, 44_deg);
       }
 
-      if(getWorld().getPresenter().getInputHandler().getInputState().zMovement == hid::AxisMovement::Forward)
+      if(inputHandler.getInputState().zMovement == hid::AxisMovement::Forward)
       {
         getLara().addHeadRotationX(-core::FreeLookHeadTurnSpeed, -42_deg, 22_deg);
       }
-      else if(getWorld().getPresenter().getInputHandler().getInputState().zMovement == hid::AxisMovement::Backward)
+      else if(inputHandler.getInputState().zMovement == hid::AxisMovement::Backward)
       {
         getLara().addHeadRotationX(core::FreeLookHeadTurnSpeed, -42_deg, 22_deg);
       }
@@ -63,31 +64,31 @@ public:
       getWorld().getCameraController().setMode(CameraMode::Chase);
     }
 
-    if(getWorld().getPresenter().getInputHandler().getInputState().stepMovement == hid::AxisMovement::Left)
+    if(inputHandler.getInputState().stepMovement == hid::AxisMovement::Left)
     {
       setGoalAnimState(LaraStateId::StepLeft);
     }
-    else if(getWorld().getPresenter().getInputHandler().getInputState().stepMovement == hid::AxisMovement::Right)
+    else if(inputHandler.getInputState().stepMovement == hid::AxisMovement::Right)
     {
       setGoalAnimState(LaraStateId::StepRight);
     }
 
-    if(getWorld().getPresenter().getInputHandler().getInputState().xMovement == hid::AxisMovement::Left)
+    if(inputHandler.getInputState().xMovement == hid::AxisMovement::Left)
     {
       setGoalAnimState(LaraStateId::TurnLeftSlow);
     }
-    else if(getWorld().getPresenter().getInputHandler().getInputState().xMovement == hid::AxisMovement::Right)
+    else if(inputHandler.getInputState().xMovement == hid::AxisMovement::Right)
     {
       setGoalAnimState(LaraStateId::TurnRightSlow);
     }
 
-    if(getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Jump))
+    if(inputHandler.hasAction(hid::Action::Jump))
     {
       setGoalAnimState(LaraStateId::JumpPrepare);
     }
-    else if(getWorld().getPresenter().getInputHandler().getInputState().zMovement == hid::AxisMovement::Forward)
+    else if(inputHandler.getInputState().zMovement == hid::AxisMovement::Forward)
     {
-      if(getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Walk))
+      if(inputHandler.hasAction(hid::Action::Walk))
       {
         create(LaraStateId::WalkForward, getLara())->handleInput(collisionInfo);
       }
@@ -96,9 +97,9 @@ public:
         create(LaraStateId::RunForward, getLara())->handleInput(collisionInfo);
       }
     }
-    else if(getWorld().getPresenter().getInputHandler().getInputState().zMovement == hid::AxisMovement::Backward)
+    else if(inputHandler.getInputState().zMovement == hid::AxisMovement::Backward)
     {
-      if(getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Walk))
+      if(inputHandler.hasAction(hid::Action::Walk))
       {
         create(LaraStateId::WalkBackward, getLara())->handleInput(collisionInfo);
       }

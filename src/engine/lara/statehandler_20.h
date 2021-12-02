@@ -1,5 +1,6 @@
 #pragma once
 
+#include "hid/inputhandler.h"
 #include "statehandler_standing.h"
 
 namespace engine::lara
@@ -20,10 +21,11 @@ public:
       return;
     }
 
+    const auto& inputHandler = getWorld().getPresenter().getInputHandler();
     if(getYRotationSpeed() >= 0_deg / 1_frame)
     {
       setYRotationSpeed(core::FastTurnSpeed);
-      if(getWorld().getPresenter().getInputHandler().getInputState().xMovement == hid::AxisMovement::Right)
+      if(inputHandler.getInputState().xMovement == hid::AxisMovement::Right)
       {
         return;
       }
@@ -31,7 +33,7 @@ public:
     else
     {
       setYRotationSpeed(-core::FastTurnSpeed);
-      if(getWorld().getPresenter().getInputHandler().getInputState().xMovement == hid::AxisMovement::Left)
+      if(inputHandler.getInputState().xMovement == hid::AxisMovement::Left)
       {
         return;
       }

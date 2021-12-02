@@ -22,8 +22,9 @@ public:
       return;
     }
 
-    if(getWorld().getPresenter().getInputHandler().getInputState().zMovement == hid::AxisMovement::Backward
-       && getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Walk))
+    const auto& inputHandler = getWorld().getPresenter().getInputHandler();
+    if(inputHandler.getInputState().zMovement == hid::AxisMovement::Backward
+       && inputHandler.hasAction(hid::Action::Walk))
     {
       setGoalAnimState(LaraStateId::WalkBackward);
     }
@@ -32,11 +33,11 @@ public:
       setGoalAnimState(LaraStateId::Stop);
     }
 
-    if(getWorld().getPresenter().getInputHandler().getInputState().xMovement == hid::AxisMovement::Left)
+    if(inputHandler.getInputState().xMovement == hid::AxisMovement::Left)
     {
       subYRotationSpeed(core::SlowTurnSpeedAcceleration, -core::SlowTurnSpeed);
     }
-    else if(getWorld().getPresenter().getInputHandler().getInputState().xMovement == hid::AxisMovement::Right)
+    else if(inputHandler.getInputState().xMovement == hid::AxisMovement::Right)
     {
       addYRotationSpeed(core::SlowTurnSpeedAcceleration, core::SlowTurnSpeed);
     }

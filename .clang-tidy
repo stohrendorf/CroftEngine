@@ -74,6 +74,7 @@ Checks: >
   -readability-braces-around-statements,
   -readability-else-after-return,
   -readability-function-size,
+  -readability-identifier-length,
   -readability-identifier-naming,
   -readability-implicit-bool-conversion,
   -readability-isolate-declaration,

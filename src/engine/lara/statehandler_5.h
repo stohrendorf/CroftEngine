@@ -18,11 +18,12 @@ public:
   {
     setGoalAnimState(LaraStateId::Stop);
 
-    if(getWorld().getPresenter().getInputHandler().getInputState().xMovement == hid::AxisMovement::Left)
+    const auto& inputHandler = getWorld().getPresenter().getInputHandler();
+    if(inputHandler.getInputState().xMovement == hid::AxisMovement::Left)
     {
       subYRotationSpeed(core::SlowTurnSpeedAcceleration, -core::RunBackTurnSpeed);
     }
-    else if(getWorld().getPresenter().getInputHandler().getInputState().xMovement == hid::AxisMovement::Right)
+    else if(inputHandler.getInputState().xMovement == hid::AxisMovement::Right)
     {
       addYRotationSpeed(core::SlowTurnSpeedAcceleration, core::RunBackTurnSpeed);
     }

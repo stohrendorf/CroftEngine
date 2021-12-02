@@ -63,8 +63,7 @@ public:
       return false;
     }
 
-    const auto floorGradient = abs(collisionInfo.frontLeft.floor.y - collisionInfo.frontRight.floor.y);
-    if(floorGradient >= core::MaxGrabbableGradient)
+    if(abs(collisionInfo.frontLeft.floor.y - collisionInfo.frontRight.floor.y) >= core::MaxGrabbableGradient)
     {
       return false;
     }
@@ -85,7 +84,7 @@ public:
     }
 
     auto alignedRotation = snapRotation(getLara().m_state.rotation.Y, 35_deg);
-    if(!alignedRotation)
+    if(!alignedRotation.has_value())
     {
       return false;
     }
@@ -97,10 +96,10 @@ public:
     getLara().m_state.location.position.Y += collisionInfo.front.floor.y - getLara().getBoundingBox().y.min;
     applyShift(collisionInfo);
     getLara().m_state.speed = 0_spd;
-    getLara().m_state.fallspeed = 0_spd;
-    getLara().m_state.falling = false;
-    setHandStatus(objects::HandStatus::Grabbing);
     getLara().m_state.rotation.Y = *alignedRotation;
+    getLara().m_state.falling = false;
+    getLara().m_state.fallspeed = 0_spd;
+    setHandStatus(objects::HandStatus::Grabbing);
 
     return true;
   }
