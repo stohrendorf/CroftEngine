@@ -74,11 +74,11 @@ public:
     }
 
     const auto spaceToReach = collisionInfo.front.floor.y - getLara().getBoundingBox().y.min;
-    if(spaceToReach < 0_len && spaceToReach - getLara().m_state.fallspeed * 1_frame < 0_len)
+    if(spaceToReach < 0_len && spaceToReach + getLara().m_state.fallspeed * 1_frame < 0_len)
     {
       return false;
     }
-    if(spaceToReach > 0_len && spaceToReach - getLara().m_state.fallspeed * 1_frame > 0_len)
+    if(spaceToReach > 0_len && spaceToReach + getLara().m_state.fallspeed * 1_frame > 0_len)
     {
       return false;
     }
