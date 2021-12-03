@@ -8,24 +8,45 @@
 
 namespace core
 {
+namespace detail
+{
+template<typename T>
+struct UnderlyingType
+{
+  using type = T;
+};
+
+template<typename T, typename U>
+struct UnderlyingType<qs::quantity<T, U>>
+{
+  using type = typename qs::quantity<T, U>::type;
+};
+
+template<typename T, typename U>
+constexpr auto underlyingCast(const U& v)
+{
+  return gsl::narrow_cast<typename UnderlyingType<T>::type>(v);
+}
+} // namespace detail
+
 template<typename T>
 struct GenericVec
 {
-  T X{static_cast<typename T::type>(0)};
-  T Y{static_cast<typename T::type>(0)};
-  T Z{static_cast<typename T::type>(0)};
+  T X{};
+  T Y{};
+  T Z{};
 
   explicit constexpr GenericVec(const glm::vec3& v) noexcept
-      : X{gsl::narrow_cast<typename T::type>(v.x)}
-      , Y{-gsl::narrow_cast<typename T::type>(v.y)}
-      , Z{-gsl::narrow_cast<typename T::type>(v.z)}
+      : X{detail::underlyingCast<T>(v.x)}
+      , Y{-detail::underlyingCast<T>(v.y)}
+      , Z{-detail::underlyingCast<T>(v.z)}
   {
   }
 
   constexpr explicit GenericVec(const glm::ivec3& v) noexcept
-      : X{gsl::narrow_cast<typename T::type>(v.x)}
-      , Y{-gsl::narrow_cast<typename T::type>(v.y)}
-      , Z{-gsl::narrow_cast<typename T::type>(v.z)}
+      : X{detail::underlyingCast<T>(v.x)}
+      , Y{-detail::underlyingCast<T>(v.y)}
+      , Z{-detail::underlyingCast<T>(v.z)}
   {
   }
 
