@@ -33,12 +33,14 @@ SpriteObject::SpriteObject(const std::string& name,
                            const gsl::not_null<const world::Room*>& room,
                            const loader::file::Item& item,
                            const bool hasUpdateFunction,
-                           const gsl::not_null<const world::Sprite*>& sprite)
+                           const gsl::not_null<const world::Sprite*>& sprite,
+                           bool billboard)
     : Object{world, room, item, hasUpdateFunction}
     , m_objectNode{std::make_shared<render::scene::Node>(name)}
     , m_displayNode{std::make_shared<render::scene::Node>(name + "-display")}
     , m_sprite{sprite}
     , m_brightness{toBrightness(item.shade)}
+    , m_billboard{billboard}
 {
   createModel();
   addChild(gsl::not_null{room->node}, m_objectNode);
@@ -46,10 +48,14 @@ SpriteObject::SpriteObject(const std::string& name,
   applyTransform();
 }
 
-SpriteObject::SpriteObject(const std::string& name, const gsl::not_null<world::World*>& world, const Location& location)
+SpriteObject::SpriteObject(const std::string& name,
+                           const gsl::not_null<world::World*>& world,
+                           const Location& location,
+                           bool billboard)
     : Object{world, location}
     , m_objectNode{std::make_shared<render::scene::Node>(name)}
     , m_displayNode{std::make_shared<render::scene::Node>(name + "-display")}
+    , m_billboard{billboard}
 {
   addChild(m_objectNode, m_displayNode);
 }
@@ -58,7 +64,7 @@ void SpriteObject::createModel()
 {
   Expects(m_sprite != nullptr);
 
-  m_displayNode->setRenderable(m_sprite->yBoundMesh);
+  m_displayNode->setRenderable(m_billboard ? m_sprite->billboardMesh : m_sprite->yBoundMesh);
   m_displayNode->bind("u_lightAmbient",
                       [brightness = m_brightness](
                         const render::scene::Node* /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)

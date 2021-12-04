@@ -28,7 +28,7 @@ namespace engine::objects
 class ScionPiece final : public SpriteObject
 {
 public:
-  SPRITEOBJECT_DEFAULT_CONSTRUCTORS(ScionPiece, true)
+  SPRITEOBJECT_DEFAULT_CONSTRUCTORS(ScionPiece, true, false)
 
   void collide(CollisionInfo& collisionInfo) override;
 };

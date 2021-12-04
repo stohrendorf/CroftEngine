@@ -30,7 +30,7 @@ namespace engine::objects
 class PickupObject final : public SpriteObject
 {
 public:
-  SPRITEOBJECT_DEFAULT_CONSTRUCTORS(PickupObject, true)
+  SPRITEOBJECT_DEFAULT_CONSTRUCTORS(PickupObject, true, true)
 
   void collide(CollisionInfo& collisionInfo) override;
 

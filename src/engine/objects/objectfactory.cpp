@@ -411,7 +411,8 @@ std::shared_ptr<Object> createObject(world::World& world, loader::file::Item& it
                                           room,
                                           item,
                                           true,
-                                          gsl::not_null{&sprite});
+                                          gsl::not_null{&sprite},
+                                          false);
   }
 
   BOOST_LOG_TRIVIAL(error) << "Failed to find an appropriate animated model for object type " << int(item.type.get());

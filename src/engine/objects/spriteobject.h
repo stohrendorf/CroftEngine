@@ -37,11 +37,15 @@ private:
   gsl::not_null<std::shared_ptr<render::scene::Node>> m_displayNode;
   const world::Sprite* m_sprite = nullptr;
   core::Brightness m_brightness{0.5f};
+  const bool m_billboard;
 
   void createModel();
 
 protected:
-  SpriteObject(const std::string& name, const gsl::not_null<world::World*>& world, const Location& location);
+  SpriteObject(const std::string& name,
+               const gsl::not_null<world::World*>& world,
+               const Location& location,
+               bool billboard);
 
 public:
   SpriteObject(const std::string& name,
@@ -49,7 +53,8 @@ public:
                const gsl::not_null<const world::Room*>& room,
                const loader::file::Item& item,
                bool hasUpdateFunction,
-               const gsl::not_null<const world::Sprite*>& sprite);
+               const gsl::not_null<const world::Sprite*>& sprite,
+               bool billboard);
 
   SpriteObject(const SpriteObject&) = delete;
   SpriteObject(SpriteObject&&) = delete;
@@ -93,9 +98,9 @@ public:
   void serialize(const serialization::Serializer<world::World>& ser) override;
 };
 
-#define SPRITEOBJECT_DEFAULT_CONSTRUCTORS(CLASS, HAS_UPDATE_FUNCTION)                                 \
+#define SPRITEOBJECT_DEFAULT_CONSTRUCTORS(CLASS, HAS_UPDATE_FUNCTION, BILLBOARD)                      \
   CLASS(const std::string& name, const gsl::not_null<world::World*>& world, const Location& location) \
-      : SpriteObject{name, world, location}                                                           \
+      : SpriteObject{name, world, location, BILLBOARD}                                                \
   {                                                                                                   \
   }                                                                                                   \
                                                                                                       \
@@ -104,7 +109,7 @@ public:
         const gsl::not_null<const world::Room*>& room,                                                \
         const loader::file::Item& item,                                                               \
         const gsl::not_null<const world::Sprite*>& sprite)                                            \
-      : SpriteObject{name, world, room, item, HAS_UPDATE_FUNCTION, sprite}                            \
+      : SpriteObject{name, world, room, item, HAS_UPDATE_FUNCTION, sprite, BILLBOARD}                 \
   {                                                                                                   \
   }
 
