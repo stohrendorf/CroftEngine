@@ -28,7 +28,7 @@ Now, if you're still here, here's how to set up EdisonEngine and get it running.
 1. Get the most recent release from [here](https://github.com/stohrendorf/EdisonEngine/releases).
 2. Extract it. Be aware that there is *no* dedicated subfolder for all files, i.e. make sure you extract the files in a
    dedicated subfolder.
-3. You will probably encounter bugs or strange oddities. Please don't think too much, report them immediately in
+3. You will possibly encounter bugs or strange oddities. Please don't think too much, report them immediately in
    the [issue tracker](https://github.com/stohrendorf/EdisonEngine/issues) here. I can't fix things I'm not aware of. If
    possible, attach screenshots (which are by default bound to F12) and instructions how to toggle that bug. If you
    can't reproduce the bug, at least try to be as specific as you can when describing the bug. Any information I can
@@ -110,13 +110,12 @@ necessary, e.g. `vcpkg install boost:x64-windows`):
 * openal-soft
 * opengl
 * freetype
-* cimg
 * ffmpeg
 * utfcpp
 * gettext
 
 ...or use this, and adjust the triplet:
-> `vcpkg install --triplet x64-windows boost glfw3 libpng openal-soft opengl freetype cimg ffmpeg utfcpp gettext`
+> `vcpkg install --triplet x64-windows boost glfw3 libpng openal-soft opengl freetype ffmpeg utfcpp gettext`
 
 ## Generating Glad OpenGL bindings
 
