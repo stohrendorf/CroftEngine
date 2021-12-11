@@ -67,7 +67,6 @@ struct InputState
     {Action::Roll, Button{false}},
     {Action::Action, Button{false}},
     {Action::FreeLook, Button{false}},
-    {Action::Debug, Button{false}},
     {Action::Holster, Button{false}},
     {Action::Menu, Button{false}},
     {Action::DrawPistols, Button{false}},

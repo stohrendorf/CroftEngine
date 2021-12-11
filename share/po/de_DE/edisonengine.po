@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EdisonEngine\n"
 "Report-Msgid-Bugs-To: https://github.com/stohrendorf/EdisonEngine/issues\n"
-"POT-Creation-Date: 2021-11-06 12:58+0100\n"
+"POT-Creation-Date: 2021-12-11 17:53+0100\n"
 "Last-Translator: Steffen Ohrendorf\n"
 "Language-Team: none\n"
 "Language: de_DE\n"
@@ -129,7 +129,7 @@ msgid "B"
 msgstr "B"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:348
+#: hid/names.cpp:346
 msgctxt "Action"
 msgid "Back"
 msgstr "R~uckw~arts"
@@ -151,7 +151,7 @@ msgctxt "Keyboard|Key"
 msgid "Bksp"
 msgstr "R~ucktaste"
 
-#: engine/presenter.cpp:428
+#: engine/presenter.cpp:407
 msgid "Booting"
 msgstr "Starte"
 
@@ -177,7 +177,7 @@ msgid "CapsLk"
 msgstr "Feststelltaste"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:354
+#: hid/names.cpp:352
 msgctxt "Action"
 msgid "Cheat Dive"
 msgstr "Cheat Tauchen"
@@ -209,12 +209,6 @@ msgstr "Strg"
 msgctxt "Keyboard|Key"
 msgid "D"
 msgstr "D"
-
-#. translators: TR charmap encoding
-#: hid/names.cpp:320
-msgctxt "Action"
-msgid "Debug"
-msgstr "Debug"
 
 #. translators: TR charmap encoding
 #: hid/names.cpp:125
@@ -250,31 +244,31 @@ msgid "Down"
 msgstr "Runter"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:332
+#: hid/names.cpp:330
 msgctxt "Action"
 msgid "Draw Magnums"
 msgstr "Magnums ziehen"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:326
+#: hid/names.cpp:324
 msgctxt "Action"
 msgid "Draw Pistols"
 msgstr "Pistolen ziehen"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:328
+#: hid/names.cpp:326
 msgctxt "Action"
 msgid "Draw Shotgun"
 msgstr "Schrotflinte ziehen"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:330
+#: hid/names.cpp:328
 msgctxt "Action"
 msgid "Draw Uzis"
 msgstr "Uzis ziehen"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:322
+#: hid/names.cpp:320
 msgctxt "Action"
 msgid "Draw Weapon"
 msgstr "Waffe ziehen"
@@ -371,7 +365,7 @@ msgstr "Ende des Spiels"
 msgid "Game"
 msgstr "Spiel"
 
-#: engine/engineconfig.cpp:61
+#: engine/engineconfig.cpp:60
 msgctxt "Input|MappingName"
 msgid "Gamepad"
 msgstr "Gamepad"
@@ -471,7 +465,7 @@ msgid "Ins"
 msgstr "Einfg"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:324
+#: hid/names.cpp:322
 msgctxt "Action"
 msgid "Inventory"
 msgstr "Inventar"
@@ -523,13 +517,13 @@ msgid "Large Medi Pack"
 msgstr "Gro=es Medi-Pack"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:336
+#: hid/names.cpp:334
 msgctxt "Action"
 msgid "Large Medipack"
 msgstr "Gro=es Medi-Pack"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:342
+#: hid/names.cpp:340
 msgctxt "Action"
 msgid "Left"
 msgstr "Links"
@@ -552,7 +546,7 @@ msgid "Lens Distortion"
 msgstr "Linsenverzerrung"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:340
+#: hid/names.cpp:338
 msgctxt "Action"
 msgid "Load"
 msgstr "Spiel laden"
@@ -567,11 +561,11 @@ msgstr "Spiel laden"
 msgid "Loading %1%"
 msgstr "Lade %1%"
 
-#: engine/engine.cpp:542
+#: engine/engine.cpp:536
 msgid "Loading Glidos texture pack"
 msgstr "Lade Glidos Textur Paket"
 
-#: engine/world/world.cpp:1004
+#: engine/world/world.cpp:1005
 msgid "Loading..."
 msgstr "Lade..."
 
@@ -876,7 +870,7 @@ msgid "Return"
 msgstr "Zur~uck"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:344
+#: hid/names.cpp:342
 msgctxt "Action"
 msgid "Right"
 msgstr "Rechts"
@@ -900,7 +894,7 @@ msgid "Roll"
 msgstr "Rollen"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:346
+#: hid/names.cpp:344
 msgctxt "Action"
 msgid "Run"
 msgstr "Laufen"
@@ -918,7 +912,7 @@ msgid "SECRETS %1% of %2%"
 msgstr "Geheimnisse %1% von %2%"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:338
+#: hid/names.cpp:336
 msgctxt "Action"
 msgid "Save"
 msgstr "Spiel sichern"
@@ -928,12 +922,12 @@ msgstr "Spiel sichern"
 msgid "Save Game"
 msgstr "Spiel sichern"
 
-#: engine/world/world.cpp:1025
+#: engine/world/world.cpp:1026
 msgid "Saving..."
 msgstr "Speichere..."
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:356
+#: hid/names.cpp:354
 msgctxt "Action"
 msgid "Screenshot"
 msgstr "Bildschirmaufnahme"
@@ -971,7 +965,7 @@ msgid "Small Medi Pack"
 msgstr "Kleines Medi-Pack"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:334
+#: hid/names.cpp:332
 msgctxt "Action"
 msgid "Small Medipack"
 msgstr "Kleines Medi-Pack"
@@ -994,13 +988,13 @@ msgid "Start"
 msgstr "Start"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:350
+#: hid/names.cpp:348
 msgctxt "Action"
 msgid "Step Left"
 msgstr "Schritt links"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:352
+#: hid/names.cpp:350
 msgctxt "Action"
 msgid "Step Right"
 msgstr "Schritt rechts"

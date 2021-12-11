@@ -38,7 +38,6 @@ std::vector<NamedInputMappingConfig> getDefaultMappings()
         {GlfwKey::X, Action::Roll},
         {GlfwKey::Kp0, Action::FreeLook},
         {GlfwKey::Escape, Action::Menu},
-        {GlfwKey::F11, Action::Debug},
         {GlfwKey::Num1, Action::DrawPistols},
         {GlfwKey::Num2, Action::DrawShotgun},
         {GlfwKey::Num3, Action::DrawUzis},

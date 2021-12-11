@@ -316,8 +316,6 @@ std::string getName(Action action)
     return /* translators: TR charmap encoding */ pgettext("Action", "Action");
   case Action::FreeLook:
     return /* translators: TR charmap encoding */ pgettext("Action", "Look");
-  case Action::Debug:
-    return /* translators: TR charmap encoding */ pgettext("Action", "Debug");
   case Action::Holster:
     return /* translators: TR charmap encoding */ pgettext("Action", "Draw Weapon");
   case Action::Menu:

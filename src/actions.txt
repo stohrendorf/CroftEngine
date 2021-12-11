@@ -3,7 +3,6 @@ Walk
 Roll
 Action
 FreeLook
-Debug
 Holster
 Menu
 DrawPistols

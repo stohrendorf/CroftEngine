@@ -113,11 +113,9 @@ void Presenter::playVideo(const std::filesystem::path& path)
               });
 }
 
-void Presenter::renderWorld(const ObjectManager& objectManager,
-                            const std::vector<world::Room>& rooms,
+void Presenter::renderWorld(const std::vector<world::Room>& rooms,
                             const CameraController& cameraController,
-                            const std::unordered_set<const world::Portal*>& waterEntryPortals,
-                            float waitRatio)
+                            const std::unordered_set<const world::Portal*>& waterEntryPortals)
 {
   m_renderPipeline->updateCamera(m_renderer->getCamera());
 
@@ -270,60 +268,7 @@ void Presenter::renderWorld(const ObjectManager& objectManager,
   }
 
   m_renderPipeline->worldCompositionPass(cameraController.getCurrentRoom()->isWaterRoom);
-
-  if(m_showDebugInfo)
-  {
-    if(m_screenOverlay == nullptr)
-      m_screenOverlay = std::make_unique<render::scene::ScreenOverlay>();
-    if(m_screenOverlay->getImage()->getSize() != getRenderViewport())
-      m_screenOverlay->init(*m_materialManager, getRenderViewport());
-    m_debugFont->drawText(
-      *m_screenOverlay->getImage(),
-      std::to_string(waitRatio).c_str(),
-      glm::ivec2{m_screenOverlay->getImage()->getSize().x - 80, m_screenOverlay->getImage()->getSize().y - 40},
-      gl::SRGBA8{255},
-      DebugTextFontSize);
-
-    const auto drawObjectName = [this](const std::shared_ptr<objects::Object>& object, const gl::SRGBA8& color)
-    {
-      const auto vertex
-        = glm::vec3{m_renderer->getCamera()->getViewMatrix() * glm::vec4(object->getNode()->getTranslationWorld(), 1)};
-
-      if(vertex.z > -m_renderer->getCamera()->getNearPlane() || vertex.z < -m_renderer->getCamera()->getFarPlane())
-      {
-        return;
-      }
-
-      glm::vec4 projVertex{vertex, 1};
-      projVertex = m_renderer->getCamera()->getProjectionMatrix() * projVertex;
-      projVertex /= projVertex.w;
-
-      if(std::abs(projVertex.x) > 1 || std::abs(projVertex.y) > 1)
-        return;
-
-      projVertex.x = (projVertex.x / 2 + 0.5f) * getRenderViewport().x;
-      projVertex.y = (1 - (projVertex.y / 2 + 0.5f)) * getRenderViewport().y;
-
-      m_debugFont->drawText(*m_screenOverlay->getImage(),
-                            object->getNode()->getName().c_str(),
-                            glm::ivec2{static_cast<int>(projVertex.x), static_cast<int>(projVertex.y)},
-                            color,
-                            DebugTextFontSize);
-    };
-
-    for(const auto& object : objectManager.getObjects() | boost::adaptors::map_values)
-    {
-      drawObjectName(object, gl::SRGBA8{255});
-    }
-    for(const auto& object : objectManager.getDynamicObjects())
-    {
-      drawObjectName(object, gl::SRGBA8{0, 255, 0, 255});
-    }
-  }
-  else
-  {
-    m_screenOverlay.reset();
-  }
+  m_screenOverlay.reset();
 }
 
 namespace
@@ -536,11 +481,6 @@ bool Presenter::preFrame()
   }
 
   m_inputHandler->update();
-
-  if(m_inputHandler->hasDebouncedAction(hid::Action::Debug))
-  {
-    m_showDebugInfo = !m_showDebugInfo;
-  }
 
   m_renderer->clear(
     gl::api::ClearBufferMask::ColorBufferBit | gl::api::ClearBufferMask::DepthBufferBit, {0, 0, 0, 0}, 1);

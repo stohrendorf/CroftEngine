@@ -965,7 +965,7 @@ void World::gameLoop(bool godMode, float waitRatio, float blackAlpha, ui::Ui& ui
   getPresenter().drawBars(ui, m_palette, getObjectManager());
 
   drawPickupWidgets(ui);
-  getPresenter().renderWorld(getObjectManager(), getRooms(), getCameraController(), waterEntryPortals, waitRatio);
+  getPresenter().renderWorld(getRooms(), getCameraController(), waterEntryPortals);
   getPresenter().renderScreenOverlay();
   if(blackAlpha > 0)
   {
@@ -992,7 +992,7 @@ bool World::cinematicLoop()
   doGlobalEffect();
 
   ui::Ui ui{getPresenter().getMaterialManager()->getUi(), getPalette(), getPresenter().getRenderViewport()};
-  getPresenter().renderWorld(getObjectManager(), getRooms(), getCameraController(), waterEntryPortals, 0);
+  getPresenter().renderWorld(getRooms(), getCameraController(), waterEntryPortals);
   getPresenter().renderScreenOverlay();
   getPresenter().renderUi(ui, 1);
   getPresenter().updateSoundEngine();

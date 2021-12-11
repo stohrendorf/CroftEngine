@@ -76,11 +76,9 @@ public:
 
   void playVideo(const std::filesystem::path& path);
 
-  void renderWorld(const ObjectManager& objectManager,
-                   const std::vector<world::Room>& rooms,
+  void renderWorld(const std::vector<world::Room>& rooms,
                    const CameraController& cameraController,
-                   const std::unordered_set<const world::Portal*>& waterEntryPortals,
-                   float waitRatio);
+                   const std::unordered_set<const world::Portal*>& waterEntryPortals);
 
   [[nodiscard]] const auto& getSoundEngine() const
   {
@@ -192,7 +190,6 @@ private:
   const gsl::not_null<std::unique_ptr<render::RenderPipeline>> m_renderPipeline;
   std::unique_ptr<render::scene::ScreenOverlay> m_screenOverlay;
 
-  bool m_showDebugInfo = false;
   bool m_halfRes = false;
 
   void scaleSplashImage();

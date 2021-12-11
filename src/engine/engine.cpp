@@ -192,11 +192,7 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
           ui::LevelStats stats{world.getTitle(), world.getTotalSecrets(), world.getPlayerPtr(), m_presenter};
           stats.draw(ui);
 
-          m_presenter->renderWorld(world.getObjectManager(),
-                                   world.getRooms(),
-                                   world.getCameraController(),
-                                   world.getCameraController().update(),
-                                   throttler.getAverageWaitRatio());
+          m_presenter->renderWorld(world.getRooms(), world.getCameraController(), world.getCameraController().update());
           m_presenter->renderScreenOverlay();
 
           if(currentBlendDuration < BlendDuration)
@@ -225,11 +221,7 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
     {
       updateTimeSpent();
 
-      m_presenter->renderWorld(world.getObjectManager(),
-                               world.getRooms(),
-                               world.getCameraController(),
-                               world.getCameraController().update(),
-                               throttler.getAverageWaitRatio());
+      m_presenter->renderWorld(world.getRooms(), world.getCameraController(), world.getCameraController().update());
       m_presenter->updateSoundEngine();
       m_presenter->renderScreenOverlay();
       ui::Ui ui{m_presenter->getMaterialManager()->getUi(), world.getPalette(), m_presenter->getRenderViewport()};
