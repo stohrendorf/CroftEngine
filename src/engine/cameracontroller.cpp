@@ -576,37 +576,44 @@ core::Length CameraController::moveIntoBox(Location& goal, const core::Length& m
   const auto sector = goal.updateRoom();
   Expects(sector->box != nullptr);
 
-  if(goal.position.Z < sector->box->zInterval.min + margin
-     && isVerticallyOutsideRoom(goal.moved(0_len, 0_len, -margin), m_world->getObjectManager()))
   {
-    goal.position.Z = sector->box->zInterval.min + margin;
-  }
-  else if(goal.position.Z > sector->box->zInterval.max - margin
-          && isVerticallyOutsideRoom(goal.moved(0_len, 0_len, margin), m_world->getObjectManager()))
-  {
-    goal.position.Z = sector->box->zInterval.max - margin;
-  }
-
-  if(goal.position.X < sector->box->xInterval.min + margin
-     && isVerticallyOutsideRoom(goal.moved(-margin, 0_len, 0_len), m_world->getObjectManager()))
-  {
-    goal.position.X = sector->box->xInterval.min + margin;
-  }
-  else if(goal.position.X > sector->box->xInterval.max - margin
-          && isVerticallyOutsideRoom(goal.moved(margin, 0_len, 0_len), m_world->getObjectManager()))
-  {
-    goal.position.X = sector->box->xInterval.max - margin;
+    const auto narrowed = sector->box->zInterval.narrowed(margin);
+    if(narrowed.min < goal.position.Z
+       && isVerticallyOutsideRoom(goal.moved(0_len, 0_len, -margin), m_world->getObjectManager()))
+    {
+      goal.position.Z = narrowed.min;
+    }
+    else if(goal.position.Z > narrowed.max
+            && isVerticallyOutsideRoom(goal.moved(0_len, 0_len, margin), m_world->getObjectManager()))
+    {
+      goal.position.Z = narrowed.max;
+    }
   }
 
-  auto bottom = HeightInfo::fromFloor(sector, goal.position, m_world->getObjectManager().getObjects()).y - margin;
-  auto top = HeightInfo::fromCeiling(sector, goal.position, m_world->getObjectManager().getObjects()).y + margin;
-  if(bottom < top)
-    top = bottom = (bottom + top) / 2;
+  {
+    const auto narrowed = sector->box->xInterval.narrowed(margin);
+    if(goal.position.X < narrowed.min
+       && isVerticallyOutsideRoom(goal.moved(-margin, 0_len, 0_len), m_world->getObjectManager()))
+    {
+      goal.position.X = narrowed.min;
+    }
+    else if(goal.position.X > narrowed.max
+            && isVerticallyOutsideRoom(goal.moved(margin, 0_len, 0_len), m_world->getObjectManager()))
+    {
+      goal.position.X = narrowed.max;
+    };
+    ;
+  }
 
-  if(goal.position.Y > bottom)
-    return bottom - goal.position.Y;
-  else if(goal.position.Y < top)
-    return top - goal.position.Y;
+  auto floor = HeightInfo::fromFloor(sector, goal.position, m_world->getObjectManager().getObjects()).y - margin;
+  auto ceiling = HeightInfo::fromCeiling(sector, goal.position, m_world->getObjectManager().getObjects()).y + margin;
+  if(floor < ceiling)
+    ceiling = floor = (floor + ceiling) / 2;
+
+  if(goal.position.Y > floor)
+    return floor - goal.position.Y;
+  else if(goal.position.Y < ceiling)
+    return ceiling - goal.position.Y;
   else
     return 0_len;
 }
@@ -703,7 +710,7 @@ void CameraController::handleFreeLook(const objects::Object& object)
   m_rotationAroundLara.X = lara.m_torsoRotation.X + lara.m_headRotation.X + object.m_state.rotation.X;
   m_rotationAroundLara.Y = lara.m_torsoRotation.Y + lara.m_headRotation.Y + object.m_state.rotation.Y;
   m_distance = core::DefaultCameraLaraDistance;
-  m_lookAt.position += util::pitch(-util::sin(core::SectorSize / 2, m_rotationAroundLara.X), object.m_state.rotation.Y);
+  m_lookAt.position += util::pitch(util::sin(-core::SectorSize / 2, m_rotationAroundLara.X), object.m_state.rotation.Y);
 
   if(isVerticallyOutsideRoom(m_lookAt, m_world->getObjectManager()))
   {
@@ -712,11 +719,13 @@ void CameraController::handleFreeLook(const objects::Object& object)
   }
   m_lookAt.position.Y += moveIntoBox(m_lookAt, core::CameraWallDistance);
 
-  const auto goal = clampBox(
-    m_lookAt,
-    m_lookAt.position - util::pitch(m_distance, m_rotationAroundLara.Y, -util::sin(m_distance, m_rotationAroundLara.X)),
-    &freeLookClamp,
-    m_world->getObjectManager());
+  const auto goal = clampBox(m_lookAt,
+                             m_lookAt.position
+                               - util::pitch(util::cos(m_distance, m_rotationAroundLara.X),
+                                             m_rotationAroundLara.Y,
+                                             -util::sin(m_distance, m_rotationAroundLara.X)),
+                             &freeLookClamp,
+                             m_world->getObjectManager());
 
   m_lookAt.position.X = originalLookAt.X + (m_lookAt.position.X - originalLookAt.X) / m_smoothness * 1_frame;
   m_lookAt.position.Z = originalLookAt.Z + (m_lookAt.position.Z - originalLookAt.Z) / m_smoothness * 1_frame;
