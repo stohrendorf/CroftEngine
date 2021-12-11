@@ -4,7 +4,7 @@ endif()
 
 include( ./dl_unpack )
 
-set( _gsl_lite_version "0.39.0" )
+set( _gsl_lite_version "0.40.0" )
 dl_unpack(
         URL https://github.com/gsl-lite/gsl-lite/archive/refs/tags/v${_gsl_lite_version}.tar.gz
         FILENAME gsl-lite-v${_gsl_lite_version}.tar.gz
