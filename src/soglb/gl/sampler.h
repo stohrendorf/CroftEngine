@@ -96,10 +96,6 @@ private:
 };
 } // namespace gl
 
-namespace gl::detail
-{
-} // namespace gl::detail
-
 template<typename... Args>
 inline gsl::not_null<std::unique_ptr<gl::Sampler>> operator|(gsl::not_null<std::unique_ptr<gl::Sampler>>&& sampler,
                                                              const gl::detail::ArgsHolder<Args...>& setter)
