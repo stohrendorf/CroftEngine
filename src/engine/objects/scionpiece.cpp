@@ -29,6 +29,7 @@
 #include "objectstate.h"
 #include "qs/qs.h"
 #include "render/scene/node.h"
+#include "serialization/serialization.h"
 #include "util/helpers.h"
 
 #include <gsl/gsl-lite.hpp>
@@ -79,6 +80,22 @@ void ScionPiece::collide(CollisionInfo& /*collisionInfo*/)
     setParent(gsl::not_null{getNode()}, nullptr);
     m_state.collidable = false;
   }
+}
+
+void ScionPiece::serialize(const serialization::Serializer<world::World>& ser)
+{
+  SpriteObject::serialize(ser);
+  // need a double-dispatch because the node is already lazily associated with its room
+  ser.lazy(
+    [this](const serialization::Serializer<world::World>& ser)
+    {
+      ser.lazy(
+        [this](const serialization::Serializer<world::World>& ser)
+        {
+          if(ser.loading && !m_state.collidable)
+            setParent(gsl::not_null{getNode()}, nullptr);
+        });
+    });
 }
 
 void ScionPiece3::update()

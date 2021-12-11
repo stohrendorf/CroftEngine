@@ -31,6 +31,7 @@ public:
   SPRITEOBJECT_DEFAULT_CONSTRUCTORS(ScionPiece, true, false)
 
   void collide(CollisionInfo& collisionInfo) override;
+  void serialize(const serialization::Serializer<world::World>& ser) override;
 };
 
 class ScionPiece3 final : public ModelObject
