@@ -56,7 +56,7 @@ std::filesystem::path getEngineDataDir()
     return std::filesystem::is_regular_file(path / "trfont.ttf");
   };
 
-  if(auto cwd = std::filesystem::current_path() / "share"; isEngineDataDir(cwd))
+  if(auto cwd = std::filesystem::current_path() / "share" / "edisonengine"; isEngineDataDir(cwd))
   {
     BOOST_LOG_TRIVIAL(info) << "Engine data dir: " << cwd;
     return cwd;

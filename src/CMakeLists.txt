@@ -697,8 +697,8 @@ foreach( _file ${_shared_files} )
             COMMENT "Copy ${_file}"
             OUTPUT ${_bin_dir}/share/${_file}
             MAIN_DEPENDENCY ${CMAKE_SOURCE_DIR}/share/${_file}
-            COMMAND ${CMAKE_COMMAND} -E make_directory ${_bin_dir}/share/${_dirname}
-            COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/share/${_file} ${_bin_dir}/share/${_dirname}/
+            COMMAND ${CMAKE_COMMAND} -E make_directory ${_bin_dir}/share/edisonengine/${_dirname}
+            COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/share/${_file} ${_bin_dir}/share/edisonengine/${_dirname}/
     )
     set_source_files_properties(
             ${_bin_dir}/share/${_file}
@@ -710,10 +710,22 @@ foreach( _file ${_shared_files} )
     )
     install(
             FILES ${CMAKE_SOURCE_DIR}/share/${_file}
-            DESTINATION ${CMAKE_INSTALL_FULL_DATAROOTDIR}/edisonengine/${_dirname}
+            DESTINATION ${CMAKE_INSTALL_DATADIR}/edisonengine/${_dirname}
     )
 endforeach()
 
 if( WIN32 AND NOT DEFINED ENV{WSLENV} )
     copy_python3_deps( edisonengine )
+
+    file(
+            GLOB _dlls
+            RELATIVE ${_bin_dir}
+            ${_bin_dir}/*.dll
+    )
+    foreach( _dll ${_dlls} )
+        install(
+                FILES ${_bin_dir}/${_dll}
+                DESTINATION ${CMAKE_INSTALL_BINDIR}
+        )
+    endforeach()
 endif()

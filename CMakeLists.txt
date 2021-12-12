@@ -1,7 +1,7 @@
 cmake_minimum_required( VERSION 3.16 )
 list( APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake )
 
-project( EdisonEngine )
+project( EdisonEngine VERSION 8.0 )
 
 cmake_policy( SET CMP0069 NEW )
 cmake_policy( SET CMP0094 NEW )
@@ -20,6 +20,9 @@ function( group_files )
 endfunction()
 
 include( GNUInstallDirs )
+if( WIN32 )
+    set( CMAKE_INSTALL_BINDIR "." )
+endif()
 
 include( get_opengl )
 include( get_glm )
@@ -56,4 +59,26 @@ if( WIN32 )
             COMMENT Building release dependencies...
             DEPENDS edisonengine edisonengine-python3-deps edisonengine-runtime-deps
     )
+
+    if( CMAKE_SIZEOF_VOID_P EQUAL 8 )
+        set( _archive_bitness "-x64" )
+    else()
+        set( _archive_bitness "" )
+    endif()
+
+    set( CPACK_GENERATOR NSIS )
+    set( CPACK_PACKAGE_NAME EdisonEngine )
+    set( CPACK_PACKAGE_INSTALL_DIRECTORY EdisonEngine )
+    set( CPACK_PACKAGE_VENDOR stohrendorf )
+    set( CPACK_PACKAGE_DESCRIPTION_SUMMARY "An open-source Tomb Raider 1 engine remake" )
+    set( CPACK_PACKAGE_HOMEPAGE_URL https://github.com/stohrendorf/EdisonEngine/ )
+    set( CPACK_RESOURCE_FILE_LICENSE ${CMAKE_CURRENT_SOURCE_DIR}/share/LICENSE )
+    set( CPACK_MONOLITHIC_INSTALL ON )
+    set( CPACK_PACKAGE_EXECUTABLES "edisonengine;EdisonEngine" )
+
+    set( CPACK_SOURCE_GENERATOR "7Z" )
+    set( CPACK_NSIS_EXECUTABLES_DIRECTORY . )
+    set( CPACK_NSIS_ENABLE_UNINSTALL_BEFORE_INSTALL ON )
+
+    include( CPack )
 endif()

@@ -151,6 +151,10 @@ function( copy_python3_deps target )
                     COMMAND ${CMAKE_COMMAND} -E make_directory ${_bin_dir}/${_dirname}
                     COMMAND ${CMAKE_COMMAND} -E copy ${Python3_INSTALLED_BASE}/${_file} ${_bin_dir}/${_dirname}/
             )
+            install(
+                    FILES ${_bin_dir}/${_file}
+                    DESTINATION ${CMAKE_INSTALL_BINDIR}/${_dirname}
+            )
         endforeach()
     endif()
 endfunction()
