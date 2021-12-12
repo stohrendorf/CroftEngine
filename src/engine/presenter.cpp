@@ -439,6 +439,8 @@ void Presenter::drawLoadingScreen(const std::string& state)
   if(getRenderViewport() != m_screenOverlay->getImage()->getSize())
   {
     m_renderer->getCamera()->setViewport(getRenderViewport());
+    gl::RenderState::getWantedState().setViewport(getRenderViewport());
+
     m_screenOverlay->init(*m_materialManager, getRenderViewport());
     scaleSplashImage();
   }
@@ -452,6 +454,7 @@ void Presenter::drawLoadingScreen(const std::string& state)
 
   gl::Framebuffer::unbindAll();
 
+  gl::RenderState::applyWantedState();
   m_renderer->clear(
     gl::api::ClearBufferMask::ColorBufferBit | gl::api::ClearBufferMask::DepthBufferBit, {0, 0, 0, 0}, 1);
   render::scene::RenderContext context{render::scene::RenderMode::Full, std::nullopt};
