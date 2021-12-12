@@ -1,7 +1,9 @@
 #pragma once
 
+#include "core.h"
 #include "core/units.h"
 #include "loader/file/datatypes.h"
+#include "text.h"
 #include "ui/ui.h"
 
 namespace ui
@@ -9,9 +11,10 @@ namespace ui
 class PickupWidget
 {
 public:
-  explicit PickupWidget(const core::Frame& duration, engine::world::Sprite sprite)
+  explicit PickupWidget(const core::Frame& duration, engine::world::Sprite sprite, size_t count)
       : m_duration{duration}
       , m_sprite{std::move(sprite)}
+      , m_count{count}
   {
   }
 
@@ -20,9 +23,14 @@ public:
     return m_duration <= 0_frame;
   }
 
-  void draw(ui::Ui& ui, int x, int y) const
+  void draw(ui::Ui& ui, int x, int y, const TRFont& font) const
   {
     ui.draw(m_sprite, {x, y});
+    if(m_count <= 1)
+      return;
+    
+    const auto txt = Text{std::to_string(m_count)};
+    txt.draw(ui, font, {x, y}, 1.5f);
   }
 
   void nextFrame()
@@ -33,5 +41,6 @@ public:
 private:
   core::Frame m_duration;
   mutable engine::world::Sprite m_sprite;
+  size_t m_count;
 };
 } // namespace ui

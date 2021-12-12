@@ -18,7 +18,7 @@
 
 namespace engine
 {
-void Inventory::put(const core::TypeId& id, const size_t quantity)
+size_t Inventory::put(const core::TypeId& id, const size_t quantity)
 {
   BOOST_LOG_TRIVIAL(debug) << "Object " << toString(id.get_as<TR1ItemId>()) << " added to inventory";
 
@@ -44,115 +44,80 @@ void Inventory::put(const core::TypeId& id, const size_t quantity)
     [[fallthrough]];
   case TR1ItemId::Pistols:
     m_inventory[TR1ItemId::Pistols] = 1;
-    break;
+    return 1;
   case TR1ItemId::ShotgunSprite:
-    [[fallthrough]];
   case TR1ItemId::Shotgun:
     addWeapon(m_shotgunAmmo, quantity);
     // TODO replaceItems( ShotgunSprite, ShotgunAmmoSprite );
-    break;
+    return m_shotgunAmmo.ammo;
   case TR1ItemId::MagnumsSprite:
-    [[fallthrough]];
   case TR1ItemId::Magnums:
     addWeapon(m_magnumsAmmo, quantity);
     // TODO replaceItems( MagnumsSprite, MagnumAmmoSprite );
-    break;
+    return m_magnumsAmmo.ammo;
   case TR1ItemId::UzisSprite:
-    [[fallthrough]];
   case TR1ItemId::Uzis:
     addWeapon(m_uzisAmmo, quantity);
     // TODO replaceItems( UzisSprite, UziAmmoSprite );
-    break;
+    return m_uzisAmmo.ammo;
   case TR1ItemId::ShotgunAmmoSprite:
-    [[fallthrough]];
   case TR1ItemId::ShotgunAmmo:
     addAmmoClips(m_shotgunAmmo, quantity);
-    break;
+    return m_shotgunAmmo.ammo;
   case TR1ItemId::MagnumAmmoSprite:
-    [[fallthrough]];
   case TR1ItemId::MagnumAmmo:
     addAmmoClips(m_magnumsAmmo, quantity);
-    break;
+    return m_magnumsAmmo.ammo;
   case TR1ItemId::UziAmmoSprite:
-    [[fallthrough]];
   case TR1ItemId::UziAmmo:
     addAmmoClips(m_uzisAmmo, quantity);
-    break;
+    return m_uzisAmmo.ammo;
   case TR1ItemId::SmallMedipackSprite:
-    [[fallthrough]];
   case TR1ItemId::SmallMedipack:
-    m_inventory[TR1ItemId::SmallMedipack] += quantity;
-    break;
+    return m_inventory[TR1ItemId::SmallMedipack] += quantity;
   case TR1ItemId::LargeMedipackSprite:
-    [[fallthrough]];
   case TR1ItemId::LargeMedipack:
-    m_inventory[TR1ItemId::LargeMedipack] += quantity;
-    break;
+    return m_inventory[TR1ItemId::LargeMedipack] += quantity;
   case TR1ItemId::Puzzle1Sprite:
-    [[fallthrough]];
   case TR1ItemId::Puzzle1:
-    m_inventory[TR1ItemId::Puzzle1] += quantity;
-    break;
+    return m_inventory[TR1ItemId::Puzzle1] += quantity;
   case TR1ItemId::Puzzle2Sprite:
-    [[fallthrough]];
   case TR1ItemId::Puzzle2:
-    m_inventory[TR1ItemId::Puzzle2] += quantity;
-    break;
+    return m_inventory[TR1ItemId::Puzzle2] += quantity;
   case TR1ItemId::Puzzle3Sprite:
-    [[fallthrough]];
   case TR1ItemId::Puzzle3:
-    m_inventory[TR1ItemId::Puzzle3] += quantity;
-    break;
+    return m_inventory[TR1ItemId::Puzzle3] += quantity;
   case TR1ItemId::Puzzle4Sprite:
-    [[fallthrough]];
   case TR1ItemId::Puzzle4:
-    m_inventory[TR1ItemId::Puzzle4] += quantity;
-    break;
+    return m_inventory[TR1ItemId::Puzzle4] += quantity;
   case TR1ItemId::LeadBarSprite:
-    [[fallthrough]];
   case TR1ItemId::LeadBar:
-    m_inventory[TR1ItemId::LeadBar] += quantity;
-    break;
+    return m_inventory[TR1ItemId::LeadBar] += quantity;
   case TR1ItemId::Key1Sprite:
-    [[fallthrough]];
   case TR1ItemId::Key1:
-    m_inventory[TR1ItemId::Key1] += quantity;
-    break;
+    return m_inventory[TR1ItemId::Key1] += quantity;
   case TR1ItemId::Key2Sprite:
-    [[fallthrough]];
   case TR1ItemId::Key2:
-    m_inventory[TR1ItemId::Key2] += quantity;
-    break;
+    return m_inventory[TR1ItemId::Key2] += quantity;
   case TR1ItemId::Key3Sprite:
-    [[fallthrough]];
   case TR1ItemId::Key3:
-    m_inventory[TR1ItemId::Key3] += quantity;
-    break;
+    return m_inventory[TR1ItemId::Key3] += quantity;
   case TR1ItemId::Key4Sprite:
-    [[fallthrough]];
   case TR1ItemId::Key4:
-    m_inventory[TR1ItemId::Key4] += quantity;
-    break;
+    return m_inventory[TR1ItemId::Key4] += quantity;
   case TR1ItemId::Item141:
-    [[fallthrough]];
   case TR1ItemId::Item148:
-    m_inventory[TR1ItemId::Item148] += quantity;
-    break;
+    return m_inventory[TR1ItemId::Item148] += quantity;
   case TR1ItemId::Item142:
-    [[fallthrough]];
   case TR1ItemId::Item149:
-    m_inventory[TR1ItemId::Item149] += quantity;
-    break;
+    return m_inventory[TR1ItemId::Item149] += quantity;
   case TR1ItemId::ScionPiece1:
-    [[fallthrough]];
   case TR1ItemId::ScionPiece2:
-    [[fallthrough]];
   case TR1ItemId::ScionPiece5:
-    m_inventory[TR1ItemId::ScionPiece5] += quantity;
-    break;
+    return m_inventory[TR1ItemId::ScionPiece5] += quantity;
   default:
     BOOST_LOG_TRIVIAL(warning) << "Cannot add object " << toString(id.get_as<TR1ItemId>()) << " to inventory";
-    return;
+    return 0;
   }
 }
 

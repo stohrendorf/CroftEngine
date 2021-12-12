@@ -33,8 +33,8 @@ namespace engine::objects
 class SpriteObject : public Object
 {
 private:
-  gsl::not_null<std::shared_ptr<render::scene::Node>> m_objectNode;
-  gsl::not_null<std::shared_ptr<render::scene::Node>> m_displayNode;
+  const gsl::not_null<std::shared_ptr<render::scene::Node>> m_objectNode;
+  const gsl::not_null<std::shared_ptr<render::scene::Node>> m_displayNode;
   const world::Sprite* m_sprite = nullptr;
   core::Brightness m_brightness{0.5f};
   const bool m_billboard;

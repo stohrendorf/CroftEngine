@@ -1178,7 +1178,7 @@ void World::drawPickupWidgets(ui::Ui& ui)
     if(widget.expired())
       continue;
 
-    widget.draw(ui, x, y);
+    widget.draw(ui, x, y, m_engine.getPresenter().getTrFont());
     x -= widthPerWidget;
   }
 }

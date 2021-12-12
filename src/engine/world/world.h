@@ -290,21 +290,9 @@ public:
     return m_totalSecrets;
   }
 
-  [[nodiscard]] const auto& getTextureAnimator() const
+  void addPickupWidget(Sprite sprite, size_t count)
   {
-    BOOST_ASSERT(m_textureAnimator != nullptr);
-    return *m_textureAnimator;
-  }
-
-  [[nodiscard]] auto& getTextureAnimator()
-  {
-    BOOST_ASSERT(m_textureAnimator != nullptr);
-    return *m_textureAnimator;
-  }
-
-  void addPickupWidget(Sprite sprite)
-  {
-    m_pickupWidgets.emplace_back(75_frame, std::move(sprite));
+    m_pickupWidgets.emplace_back(75_frame, std::move(sprite), count);
   }
 
   [[nodiscard]] std::optional<std::string> getItemTitle(TR1ItemId id) const;
