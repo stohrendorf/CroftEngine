@@ -49,3 +49,11 @@ if( UNIX )
             DESTINATION ${CMAKE_INSTALL_FULL_DATADIR}/applications
     )
 endif()
+
+if( WIN32 )
+    add_custom_target(
+            prepare-release
+            COMMENT Building release dependencies...
+            DEPENDS edisonengine edisonengine-python3-deps edisonengine-runtime-deps
+    )
+endif()
