@@ -145,6 +145,7 @@ LightningEmitter::LightningEmitter(const std::string& name,
   }
 
   init(*world);
+  prepareRender();
 }
 
 void LightningEmitter::update()
@@ -292,6 +293,11 @@ void LightningEmitter::serialize(const serialization::Serializer<world::World>& 
   if(ser.loading)
   {
     init(ser.context);
+    ser.lazy(
+      [this](const serialization::Serializer<world::World>& /*ser*/)
+      {
+        prepareRender();
+      });
   }
 }
 } // namespace engine::objects
