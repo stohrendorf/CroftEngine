@@ -123,7 +123,7 @@ public:
 class SplashParticle final : public Particle
 {
 public:
-  explicit SplashParticle(const Location& location, world::World& world, const bool waterfall);
+  explicit SplashParticle(const Location& location, world::World& world, bool waterfall);
 
   bool update(world::World& world) override;
 };
@@ -215,7 +215,7 @@ public:
   explicit MeshShrapnelParticle(const Location& location,
                                 world::World& world,
                                 const gsl::not_null<std::shared_ptr<render::scene::Renderable>>& renderable,
-                                const bool torsoBoss,
+                                bool torsoBoss,
                                 const core::Length& damageRadius);
 
   bool update(world::World& world) override;

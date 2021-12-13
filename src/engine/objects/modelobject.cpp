@@ -201,6 +201,21 @@ bool ModelObject::isNear(const Particle& other, const core::Length& radius) cons
   return bbox.x.broadened(radius).contains(xz.X) && bbox.z.broadened(radius).contains(xz.Z);
 }
 
+bool ModelObject::isNearInexact(const core::TRVec& other, const core::Length& radius) const
+{
+  const auto d = other - m_state.location.position;
+  if(abs(d.X) > radius || abs(d.Z) > radius || abs(d.Y) > 3 * core::SectorSize)
+  {
+    return false;
+  }
+  if(util::square(d.X) + util::square(d.Z) > util::square(radius))
+  {
+    return false;
+  }
+  const auto bbox = getSkeleton()->getInterpolationInfo().getNearestFrame()->bbox.toBBox();
+  return d.Y >= bbox.y.min && d.Y <= bbox.y.max + 100_len;
+}
+
 void ModelObject::enemyPush(CollisionInfo& collisionInfo, const bool enableSpaz, const bool withXZCollRadius)
 {
   auto& lara = getWorld().getObjectManager().getLara();

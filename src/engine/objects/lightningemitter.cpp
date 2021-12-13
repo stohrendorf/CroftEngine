@@ -184,7 +184,7 @@ void LightningEmitter::update()
   m_laraHit = false;
 
   const auto radius = m_poles == 0 ? core::SectorSize : core::SectorSize * 5 / 2;
-  if(getWorld().getObjectManager().getLara().isNear(*this, radius))
+  if(getWorld().getObjectManager().getLara().isNearInexact(m_state.location.position, radius))
   {
     // target at lara
     m_mainBoltEnd = getWorld().getObjectManager().getLara().m_state.location.position - m_state.location.position;

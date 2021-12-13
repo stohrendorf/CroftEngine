@@ -102,8 +102,9 @@ public:
   core::BoundingBox getBoundingBox() const override;
 
   bool isNear(const ModelObject& other, const core::Length& radius) const;
-
   bool isNear(const Particle& other, const core::Length& radius) const;
+
+  bool isNearInexact(const core::TRVec& other, const core::Length& radius) const;
 
   bool testBoneCollision(const ModelObject& other);
 
