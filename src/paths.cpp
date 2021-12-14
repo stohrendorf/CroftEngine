@@ -62,6 +62,13 @@ std::filesystem::path getEngineDataDir()
     return cwd;
   }
 
+  // when running locally for development
+  if(auto cwd = std::filesystem::current_path() / "share"; isEngineDataDir(cwd))
+  {
+    BOOST_LOG_TRIVIAL(info) << "Engine data dir: " << cwd;
+    return cwd;
+  }
+
   if(auto cwd = getSysEngineDataDir(); isEngineDataDir(cwd))
   {
     BOOST_LOG_TRIVIAL(info) << "Engine data dir: " << cwd;
