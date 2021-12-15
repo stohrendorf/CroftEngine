@@ -728,4 +728,16 @@ if( WIN32 AND NOT DEFINED ENV{WSLENV} )
                 DESTINATION ${CMAKE_INSTALL_BINDIR}
         )
     endforeach()
+
+    file(
+            GLOB _pdbs
+            RELATIVE ${_bin_dir}
+            ${_bin_dir}/*.pdb
+    )
+    foreach( _pdb ${_pdbs} )
+        install(
+                FILES ${_bin_dir}/${_pdb}
+                DESTINATION ${CMAKE_INSTALL_BINDIR}
+        )
+    endforeach()
 endif()
