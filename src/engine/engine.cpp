@@ -35,6 +35,7 @@
 #include "ui/core.h"
 #include "ui/levelstats.h"
 #include "ui/ui.h"
+#include "ui/widgets/messagebox.h"
 #include "util/helpers.h"
 #include "world/world.h"
 
@@ -165,15 +166,15 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
 
   std::filesystem::create_directories(getUserDataPath() / "ghosts");
 
-  const auto CurrentGhostRecordingPath
+  const auto currentGhostRecordingPath
     = getUserDataPath() / "ghosts" / (world.getLevelFilename().stem().replace_extension(".rec"));
-  const auto ExistingGhostRecordingPath
+  const auto existingGhostRecordingPath
     = getUserDataPath() / "ghosts" / (world.getLevelFilename().stem().replace_extension(".bin"));
 
-  auto ghostWriter = std::make_unique<ghosting::GhostDataWriter>(CurrentGhostRecordingPath);
+  auto ghostWriter = std::make_unique<ghosting::GhostDataWriter>(currentGhostRecordingPath);
 
   std::unique_ptr<ghosting::GhostDataReader> ghostReader;
-  if(const auto ghostPath = ExistingGhostRecordingPath; std::filesystem::is_regular_file(ghostPath))
+  if(const auto ghostPath = existingGhostRecordingPath; std::filesystem::is_regular_file(ghostPath))
   {
     ghostReader = std::make_unique<ghosting::GhostDataReader>(ghostPath);
     for(auto i = 0_frame; i < world.getGhostFrame(); i += 1_frame)
@@ -182,17 +183,65 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
     }
   }
 
-  const auto overwriteGhostAction = gsl::finally(
+  auto saveRecordedGhost = [&]()
+  {
+    ghostReader.reset();
+    ghostWriter.reset();
+
+    std::error_code ec;
+    std::filesystem::remove(existingGhostRecordingPath, ec);
+
+    std::filesystem::rename(currentGhostRecordingPath, existingGhostRecordingPath, ec);
+  };
+
+  const auto deleteCurrentGhost = gsl::finally(
     [&]()
     {
-      ghostReader.reset();
       ghostWriter.reset();
-
       std::error_code ec;
-      std::filesystem::remove(ExistingGhostRecordingPath, ec);
-
-      std::filesystem::rename(CurrentGhostRecordingPath, ExistingGhostRecordingPath, ec);
+      std::filesystem::rename(currentGhostRecordingPath, existingGhostRecordingPath, ec);
     });
+
+  auto askGhostSave = [this, &world, &throttler]() -> std::optional<bool>
+  {
+    const auto msgBox = std::make_shared<ui::widgets::MessageBox>(
+      /* translators: TR charmap encoding */ _("Save recorded ghost?"));
+    msgBox->fitToContent();
+    msgBox->setConfirmed(false);
+    while(true)
+    {
+      throttler.wait();
+
+      if(m_presenter->shouldClose())
+      {
+        return std::nullopt;
+      }
+
+      if(!m_presenter->preFrame())
+      {
+        continue;
+      }
+
+      if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Left)
+         || world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Right))
+      {
+        msgBox->setConfirmed(!msgBox->isConfirmed());
+      }
+
+      ui::Ui ui{m_presenter->getMaterialManager()->getUi(), world.getPalette(), m_presenter->getRenderViewport()};
+
+      msgBox->setPosition({(ui.getSize().x - msgBox->getSize().x) / 2, (ui.getSize().y - msgBox->getSize().y) / 2});
+      msgBox->update(true);
+      msgBox->draw(ui, world.getPresenter());
+      m_presenter->renderWorld(world.getRooms(), world.getCameraController(), world.getCameraController().update());
+      m_presenter->renderScreenOverlay();
+      m_presenter->renderUi(ui, 1.0f);
+      m_presenter->updateSoundEngine();
+      m_presenter->swapBuffers();
+      if(m_presenter->getInputHandler().hasDebouncedAction(hid::Action::Action))
+        return msgBox->isConfirmed();
+    }
+  };
 
   while(true)
   {
@@ -242,6 +291,11 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
           if(m_presenter->getInputHandler().hasDebouncedAction(hid::Action::Action))
             break;
         }
+
+        if(auto tmp = askGhostSave(); !tmp.has_value())
+          return {RunResult::ExitApp, std::nullopt};
+        else
+          saveRecordedGhost();
       }
 
       return {RunResult::NextLevel, std::nullopt};
@@ -277,10 +331,31 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
         throttler.reset();
         break;
       case menu::MenuResult::ExitToTitle:
+        if(allowSave)
+        {
+          if(auto tmp = askGhostSave(); !tmp.has_value())
+            return {RunResult::ExitApp, std::nullopt};
+          else
+            saveRecordedGhost();
+        }
         return {RunResult::TitleLevel, std::nullopt};
       case menu::MenuResult::ExitGame:
+        if(allowSave)
+        {
+          if(auto tmp = askGhostSave(); !tmp.has_value())
+            return {RunResult::ExitApp, std::nullopt};
+          else
+            saveRecordedGhost();
+        }
         return {RunResult::ExitApp, std::nullopt};
       case menu::MenuResult::NewGame:
+        if(allowSave)
+        {
+          if(auto tmp = askGhostSave(); !tmp.has_value())
+            return {RunResult::ExitApp, std::nullopt};
+          else
+            saveRecordedGhost();
+        }
         return {RunResult::NextLevel, std::nullopt};
       case menu::MenuResult::LaraHome:
         return {RunResult::LaraHomeLevel, std::nullopt};
@@ -288,6 +363,13 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
         Expects(menu->requestLoad.has_value());
         if(getSavegameMeta(menu->requestLoad).has_value())
         {
+          if(allowSave)
+          {
+            if(auto tmp = askGhostSave(); !tmp.has_value())
+              return {RunResult::ExitApp, std::nullopt};
+            else
+              saveRecordedGhost();
+          }
           return {RunResult::RequestLoad, menu->requestLoad};
         }
       }

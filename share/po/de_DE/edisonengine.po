@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EdisonEngine\n"
 "Report-Msgid-Bugs-To: https://github.com/stohrendorf/EdisonEngine/issues\n"
-"POT-Creation-Date: 2021-12-18 21:24+0100\n"
+"POT-Creation-Date: 2021-12-18 21:48+0100\n"
 "Last-Translator: Steffen Ohrendorf\n"
 "Language-Team: none\n"
 "Language: de_DE\n"
@@ -566,7 +566,7 @@ msgstr "Spiel laden"
 msgid "Loading %1%"
 msgstr "Lade %1%"
 
-#: engine/engine.cpp:587
+#: engine/engine.cpp:669
 msgid "Loading Glidos texture pack"
 msgstr "Lade Glidos Textur Paket"
 
@@ -926,6 +926,11 @@ msgstr "Spiel sichern"
 #: menu/passportmenustate.cpp:63
 msgid "Save Game"
 msgstr "Spiel sichern"
+
+#. translators: TR charmap encoding
+#: engine/engine.cpp:208
+msgid "Save recorded ghost?"
+msgstr "Aufgenommenen Geist speichern?"
 
 #: engine/world/world.cpp:1028
 msgid "Saving..."
