@@ -105,7 +105,7 @@ public:
 
   bool tryUse(objects::LaraObject& lara, TR1ItemId id);
 
-  Ammo& getAmmo(WeaponType weaponType)
+  [[nodiscard]] Ammo& getAmmo(WeaponType weaponType)
   {
     m_pistolsAmmo.ammo = 1000;
 
@@ -122,6 +122,12 @@ public:
     default:
       BOOST_THROW_EXCEPTION(std::domain_error("weaponType"));
     }
+  }
+
+  [[nodiscard]] const Ammo& getAmmo(WeaponType weaponType) const
+  {
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
+    return const_cast<Inventory*>(this)->getAmmo(weaponType);
   }
 
   void fillAllAmmo()

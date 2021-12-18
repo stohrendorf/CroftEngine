@@ -28,7 +28,7 @@ void GhostFrame::read(std::istream& s)
 {
   BOOST_ASSERT(!s.eof());
 
-  uint32_t size;
+  uint32_t size = 0;
   // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
   s.read(reinterpret_cast<char*>(&size), sizeof(size));
   bones.resize(size);

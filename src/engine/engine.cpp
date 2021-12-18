@@ -78,6 +78,186 @@ namespace engine
 namespace
 {
 const gsl::czstring QuicksaveFilename = "quicksave.yaml";
+
+void drawAmmoWidget(ui::Ui& ui, const ui::TRFont& trFont, const world::World& world, core::Frame& ammoDisplayDuration)
+{
+  if(const auto handStatus = world.getObjectManager().getLara().getHandStatus();
+     handStatus != engine::objects::HandStatus::Combat)
+  {
+    ammoDisplayDuration = 0_frame;
+  }
+  else
+  {
+    static constexpr auto StaticDuration = (core::FrameRate * 1_sec * 2 / 3).cast<core::Frame>();
+    static constexpr auto TransitionDuration = (core::FrameRate * 1_sec / 2).cast<core::Frame>();
+
+    ammoDisplayDuration = std::min(ammoDisplayDuration + 1_frame, StaticDuration + TransitionDuration);
+
+    auto drawAmmoText = [&ui, &world, &trFont](float bias)
+    {
+      const auto& ammo = world.getPlayer().getInventory().getAmmo(world.getPlayer().selectedWeaponType);
+      auto text = ui::Text{ui::makeAmmoString(ammo.getDisplayString())};
+      const auto margin = ui::FontHeight / 2 + glm::mix(ui::FontHeight, 0, bias);
+      const auto targetPos
+        = glm::ivec2{ui.getSize().x - ui::FontHeight - 1 - margin - text.getWidth(), ui::FontHeight * 2 + margin};
+      const auto center = (ui.getSize() - glm::ivec2{text.getWidth(), ui::FontHeight}) / 2;
+      const auto pos = glm::mix(center, targetPos, bias);
+      ui.drawBox(pos + glm::ivec2{-margin, margin},
+                 {text.getWidth() + 2 * margin, -ui::FontHeight - 2 * margin - 2},
+                 gl::SRGBA8{0, 0, 0, glm::mix(128, 224, bias)});
+      text.draw(ui, trFont, pos, 1, glm::mix(0.75f, 1.0f, bias));
+    };
+
+    switch(world.getPlayer().selectedWeaponType)
+    {
+    case engine::WeaponType::None:
+    case engine::WeaponType::Pistols:
+      break;
+    case engine::WeaponType::Shotgun:
+    case engine::WeaponType::Magnums:
+    case engine::WeaponType::Uzis:
+      drawAmmoText(glm::smoothstep(
+        0.0f,
+        1.0f,
+        std::clamp(
+          (ammoDisplayDuration - StaticDuration).cast<float>() / TransitionDuration.cast<float>(), 0.0f, 1.0f)));
+      break;
+    }
+  }
+}
+
+bool showLevelStats(const std::shared_ptr<Presenter>& presenter, world::World& world)
+{
+  static constexpr const auto BlendDuration = 30_frame;
+  auto currentBlendDuration = 0_frame;
+
+  Throttler throttler;
+  while(true)
+  {
+    throttler.wait();
+    if(presenter->shouldClose())
+    {
+      return false;
+    }
+
+    if(!presenter->preFrame())
+    {
+      continue;
+    }
+
+    ui::Ui ui{presenter->getMaterialManager()->getUi(), world.getPalette(), presenter->getRenderViewport()};
+    ui::LevelStats stats{world.getTitle(), world.getTotalSecrets(), world.getPlayerPtr(), presenter};
+    stats.draw(ui);
+
+    presenter->renderWorld(world.getRooms(), world.getCameraController(), world.getCameraController().update());
+    presenter->renderScreenOverlay();
+
+    if(currentBlendDuration < BlendDuration)
+      currentBlendDuration += 1_frame;
+
+    presenter->renderUi(ui, currentBlendDuration.cast<float>() / BlendDuration.cast<float>());
+    presenter->updateSoundEngine();
+    presenter->swapBuffers();
+
+    if(presenter->getInputHandler().hasDebouncedAction(hid::Action::Action))
+      break;
+  }
+
+  return true;
+}
+
+struct GhostManager
+{
+  GhostManager(const std::filesystem::path& recordingPath, world::World& world)
+      : writerPath{recordingPath}
+      , writer{std::make_unique<ghosting::GhostDataWriter>(recordingPath)}
+      , readerPath{std::filesystem::path{recordingPath}.replace_extension(".bin")}
+  {
+    if(std::filesystem::is_regular_file(readerPath))
+    {
+      reader = std::make_unique<ghosting::GhostDataReader>(readerPath);
+      for(auto i = 0_frame; i < world.getGhostFrame(); i += 1_frame)
+      {
+        writer->append(reader->read());
+      }
+    }
+    else
+    {
+      for(auto i = 0_frame; i < world.getGhostFrame(); i += 1_frame)
+      {
+        writer->append({});
+      }
+    }
+  }
+
+  ~GhostManager()
+  {
+    writer.reset();
+    std::error_code ec;
+    std::filesystem::remove(writerPath, ec);
+  }
+
+  bool askGhostSave(Presenter& presenter, world::World& world)
+  {
+    const auto msgBox = std::make_shared<ui::widgets::MessageBox>(
+      /* translators: TR charmap encoding */ _("Save recorded ghost?"));
+    msgBox->fitToContent();
+    msgBox->setConfirmed(false);
+
+    Throttler throttler;
+    while(true)
+    {
+      throttler.wait();
+
+      if(presenter.shouldClose())
+      {
+        return false;
+      }
+
+      if(!presenter.preFrame())
+      {
+        continue;
+      }
+
+      if(presenter.getInputHandler().hasDebouncedAction(hid::Action::Left)
+         || presenter.getInputHandler().hasDebouncedAction(hid::Action::Right))
+      {
+        msgBox->setConfirmed(!msgBox->isConfirmed());
+      }
+
+      ui::Ui ui{presenter.getMaterialManager()->getUi(), world.getPalette(), presenter.getRenderViewport()};
+
+      msgBox->setPosition({(ui.getSize().x - msgBox->getSize().x) / 2, (ui.getSize().y - msgBox->getSize().y) / 2});
+      msgBox->update(true);
+      msgBox->draw(ui, presenter);
+      presenter.renderWorld(world.getRooms(), world.getCameraController(), world.getCameraController().update());
+      presenter.renderScreenOverlay();
+      presenter.renderUi(ui, 1.0f);
+      presenter.updateSoundEngine();
+      presenter.swapBuffers();
+      if(presenter.getInputHandler().hasDebouncedAction(hid::Action::Action))
+      {
+        if(msgBox->isConfirmed())
+        {
+          reader.reset();
+          writer.reset();
+
+          std::error_code ec;
+          std::filesystem::remove(readerPath, ec);
+
+          std::filesystem::rename(writerPath, readerPath, ec);
+        }
+        return true;
+      }
+    }
+  }
+
+  std::shared_ptr<ghosting::GhostModel> model = std::make_shared<ghosting::GhostModel>();
+  const std::filesystem::path readerPath;
+  std::unique_ptr<ghosting::GhostDataReader> reader;
+  const std::filesystem::path writerPath;
+  std::unique_ptr<ghosting::GhostDataWriter> writer;
+};
 } // namespace
 
 Engine::Engine(std::filesystem::path userDataPath,
@@ -162,90 +342,13 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
   static constexpr auto BlendInDuration = (core::FrameRate * 2_sec).cast<core::Frame>();
   core::Frame ammoDisplayDuration = 0_frame;
 
-  const auto ghostModel = std::make_shared<ghosting::GhostModel>();
-
   std::filesystem::create_directories(getUserDataPath() / "ghosts");
-
-  const auto currentGhostRecordingPath
-    = getUserDataPath() / "ghosts" / (world.getLevelFilename().stem().replace_extension(".rec"));
-  const auto existingGhostRecordingPath
-    = getUserDataPath() / "ghosts" / (world.getLevelFilename().stem().replace_extension(".bin"));
-
-  auto ghostWriter = std::make_unique<ghosting::GhostDataWriter>(currentGhostRecordingPath);
-
-  std::unique_ptr<ghosting::GhostDataReader> ghostReader;
-  if(const auto ghostPath = existingGhostRecordingPath; std::filesystem::is_regular_file(ghostPath))
-  {
-    ghostReader = std::make_unique<ghosting::GhostDataReader>(ghostPath);
-    for(auto i = 0_frame; i < world.getGhostFrame(); i += 1_frame)
-    {
-      ghostWriter->append(ghostReader->read());
-    }
-  }
-
-  auto saveRecordedGhost = [&]()
-  {
-    ghostReader.reset();
-    ghostWriter.reset();
-
-    std::error_code ec;
-    std::filesystem::remove(existingGhostRecordingPath, ec);
-
-    std::filesystem::rename(currentGhostRecordingPath, existingGhostRecordingPath, ec);
-  };
-
-  const auto deleteCurrentGhost = gsl::finally(
-    [&]()
-    {
-      ghostWriter.reset();
-      std::error_code ec;
-      std::filesystem::rename(currentGhostRecordingPath, existingGhostRecordingPath, ec);
-    });
-
-  auto askGhostSave = [this, &world, &throttler]() -> std::optional<bool>
-  {
-    const auto msgBox = std::make_shared<ui::widgets::MessageBox>(
-      /* translators: TR charmap encoding */ _("Save recorded ghost?"));
-    msgBox->fitToContent();
-    msgBox->setConfirmed(false);
-    while(true)
-    {
-      throttler.wait();
-
-      if(m_presenter->shouldClose())
-      {
-        return std::nullopt;
-      }
-
-      if(!m_presenter->preFrame())
-      {
-        continue;
-      }
-
-      if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Left)
-         || world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Right))
-      {
-        msgBox->setConfirmed(!msgBox->isConfirmed());
-      }
-
-      ui::Ui ui{m_presenter->getMaterialManager()->getUi(), world.getPalette(), m_presenter->getRenderViewport()};
-
-      msgBox->setPosition({(ui.getSize().x - msgBox->getSize().x) / 2, (ui.getSize().y - msgBox->getSize().y) / 2});
-      msgBox->update(true);
-      msgBox->draw(ui, world.getPresenter());
-      m_presenter->renderWorld(world.getRooms(), world.getCameraController(), world.getCameraController().update());
-      m_presenter->renderScreenOverlay();
-      m_presenter->renderUi(ui, 1.0f);
-      m_presenter->updateSoundEngine();
-      m_presenter->swapBuffers();
-      if(m_presenter->getInputHandler().hasDebouncedAction(hid::Action::Action))
-        return msgBox->isConfirmed();
-    }
-  };
+  GhostManager ghostManager{getUserDataPath() / "ghosts" / (world.getLevelFilename().stem().replace_extension(".rec")),
+                            world};
 
   while(true)
   {
-    ghostModel->setVisible(m_engineConfig->displaySettings.ghost);
+    ghostManager.model->setVisible(m_engineConfig->displaySettings.ghost);
 
     if(m_presenter->shouldClose())
     {
@@ -258,44 +361,11 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
 
       if(!isCutscene && allowSave)
       {
-        static constexpr const auto BlendDuration = 30_frame;
-        auto currentBlendDuration = 0_frame;
-
-        while(true)
-        {
-          throttler.wait();
-          if(m_presenter->shouldClose())
-          {
-            return {RunResult::ExitApp, std::nullopt};
-          }
-
-          if(!m_presenter->preFrame())
-          {
-            continue;
-          }
-
-          ui::Ui ui{m_presenter->getMaterialManager()->getUi(), world.getPalette(), m_presenter->getRenderViewport()};
-          ui::LevelStats stats{world.getTitle(), world.getTotalSecrets(), world.getPlayerPtr(), m_presenter};
-          stats.draw(ui);
-
-          m_presenter->renderWorld(world.getRooms(), world.getCameraController(), world.getCameraController().update());
-          m_presenter->renderScreenOverlay();
-
-          if(currentBlendDuration < BlendDuration)
-            currentBlendDuration += 1_frame;
-
-          m_presenter->renderUi(ui, currentBlendDuration.cast<float>() / BlendDuration.cast<float>());
-          m_presenter->updateSoundEngine();
-          m_presenter->swapBuffers();
-
-          if(m_presenter->getInputHandler().hasDebouncedAction(hid::Action::Action))
-            break;
-        }
-
-        if(auto tmp = askGhostSave(); !tmp.has_value())
+        if(!showLevelStats(m_presenter, world))
           return {RunResult::ExitApp, std::nullopt};
-        else
-          saveRecordedGhost();
+
+        if(!ghostManager.askGhostSave(*m_presenter, world))
+          return {RunResult::ExitApp, std::nullopt};
       }
 
       return {RunResult::NextLevel, std::nullopt};
@@ -333,28 +403,22 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
       case menu::MenuResult::ExitToTitle:
         if(allowSave)
         {
-          if(auto tmp = askGhostSave(); !tmp.has_value())
+          if(!ghostManager.askGhostSave(*m_presenter, world))
             return {RunResult::ExitApp, std::nullopt};
-          else
-            saveRecordedGhost();
         }
         return {RunResult::TitleLevel, std::nullopt};
       case menu::MenuResult::ExitGame:
         if(allowSave)
         {
-          if(auto tmp = askGhostSave(); !tmp.has_value())
+          if(!ghostManager.askGhostSave(*m_presenter, world))
             return {RunResult::ExitApp, std::nullopt};
-          else
-            saveRecordedGhost();
         }
         return {RunResult::ExitApp, std::nullopt};
       case menu::MenuResult::NewGame:
         if(allowSave)
         {
-          if(auto tmp = askGhostSave(); !tmp.has_value())
+          if(!ghostManager.askGhostSave(*m_presenter, world))
             return {RunResult::ExitApp, std::nullopt};
-          else
-            saveRecordedGhost();
         }
         return {RunResult::NextLevel, std::nullopt};
       case menu::MenuResult::LaraHome:
@@ -365,10 +429,8 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
         {
           if(allowSave)
           {
-            if(auto tmp = askGhostSave(); !tmp.has_value())
+            if(!ghostManager.askGhostSave(*m_presenter, world))
               return {RunResult::ExitApp, std::nullopt};
-            else
-              saveRecordedGhost();
           }
           return {RunResult::RequestLoad, menu->requestLoad};
         }
@@ -442,69 +504,25 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
         blackAlpha = 1 - runtime.cast<float>() / BlendInDuration.cast<float>();
       }
 
-      ui::Ui ui{world.getPresenter().getMaterialManager()->getUi(),
-                world.getPalette(),
-                world.getPresenter().getRenderViewport()};
+      ui::Ui ui{m_presenter->getMaterialManager()->getUi(), world.getPalette(), m_presenter->getRenderViewport()};
 
-      if(const auto handStatus = world.getObjectManager().getLara().getHandStatus();
-         handStatus != engine::objects::HandStatus::Combat)
+      drawAmmoWidget(ui, getPresenter().getTrFont(), world, ammoDisplayDuration);
+
+      if(ghostManager.reader != nullptr)
       {
-        ammoDisplayDuration = 0_frame;
-      }
-      else
-      {
-        static constexpr auto StaticDuration = (core::FrameRate * 1_sec * 2 / 3).cast<core::Frame>();
-        static constexpr auto TransitionDuration = (core::FrameRate * 1_sec / 2).cast<core::Frame>();
-
-        ammoDisplayDuration = std::min(ammoDisplayDuration + 1_frame, StaticDuration + TransitionDuration);
-
-        auto drawAmmoText = [this, &ui, &world](float bias)
-        {
-          const auto& ammo = world.getPlayer().getInventory().getAmmo(world.getPlayer().selectedWeaponType);
-          auto text = ui::Text{ui::makeAmmoString(ammo.getDisplayString())};
-          const auto margin = ui::FontHeight / 2 + glm::mix(ui::FontHeight, 0, bias);
-          const auto targetPos
-            = glm::ivec2{ui.getSize().x - ui::FontHeight - 1 - margin - text.getWidth(), ui::FontHeight * 2 + margin};
-          const auto center = (ui.getSize() - glm::ivec2{text.getWidth(), ui::FontHeight}) / 2;
-          const auto pos = glm::mix(center, targetPos, bias);
-          ui.drawBox(pos + glm::ivec2{-margin, margin},
-                     {text.getWidth() + 2 * margin, -ui::FontHeight - 2 * margin - 2},
-                     gl::SRGBA8{0, 0, 0, glm::mix(128, 224, bias)});
-          text.draw(ui, getPresenter().getTrFont(), pos, 1, glm::mix(0.75f, 1.0f, bias));
-        };
-
-        switch(world.getPlayer().selectedWeaponType)
-        {
-        case engine::WeaponType::None:
-        case engine::WeaponType::Pistols:
-          break;
-        case engine::WeaponType::Shotgun:
-        case engine::WeaponType::Magnums:
-        case engine::WeaponType::Uzis:
-          drawAmmoText(glm::smoothstep(
-            0.0f,
-            1.0f,
-            std::clamp(
-              (ammoDisplayDuration - StaticDuration).cast<float>() / TransitionDuration.cast<float>(), 0.0f, 1.0f)));
-          break;
-        }
-      }
-
-      if(ghostReader != nullptr)
-      {
-        ghostModel->apply(world, ghostReader->read());
+        ghostManager.model->apply(world, ghostManager.reader->read());
         for(const auto& room : world.getRooms())
         {
-          if(room.physicalId == ghostModel->getRoomId())
+          if(room.physicalId == ghostManager.model->getRoomId())
           {
-            setParent(gsl::not_null{ghostModel}, room.node);
+            setParent(gsl::not_null{ghostManager.model}, room.node);
           }
         }
       }
 
       world.gameLoop(godMode, throttler.getAverageWaitRatio(), blackAlpha, ui);
 
-      ghostWriter->append(world.getObjectManager().getLara().getGhostFrame());
+      ghostManager.writer->append(world.getObjectManager().getLara().getGhostFrame());
       world.nextGhostFrame();
     }
     else
