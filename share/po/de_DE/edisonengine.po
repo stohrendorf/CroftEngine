@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EdisonEngine\n"
 "Report-Msgid-Bugs-To: https://github.com/stohrendorf/EdisonEngine/issues\n"
-"POT-Creation-Date: 2021-12-11 17:53+0100\n"
+"POT-Creation-Date: 2021-12-18 21:24+0100\n"
 "Last-Translator: Steffen Ohrendorf\n"
 "Language-Team: none\n"
 "Language: de_DE\n"
@@ -24,7 +24,7 @@ msgid "%1% - %2%"
 msgstr "%1% - %2%"
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:314
+#: menu/rendersettingsmenustate.cpp:325
 #, boost-format
 msgid "%1%x Anisotropic Filtering"
 msgstr "%1%x Anisotropische Filterung"
@@ -375,6 +375,11 @@ msgstr "Gamepad"
 msgid "Gameplay"
 msgstr "Spiel"
 
+#. translators: TR charmap encoding
+#: menu/rendersettingsmenustate.cpp:307
+msgid "Ghost"
+msgstr "Geist"
+
 #: loader/trx/trx.cpp:349
 #, boost-format
 msgid "Glidos - Loading %1%"
@@ -561,11 +566,11 @@ msgstr "Spiel laden"
 msgid "Loading %1%"
 msgstr "Lade %1%"
 
-#: engine/engine.cpp:536
+#: engine/engine.cpp:587
 msgid "Loading Glidos texture pack"
 msgstr "Lade Glidos Textur Paket"
 
-#: engine/world/world.cpp:1005
+#: engine/world/world.cpp:1007
 msgid "Loading..."
 msgstr "Lade..."
 
@@ -922,7 +927,7 @@ msgstr "Spiel sichern"
 msgid "Save Game"
 msgstr "Spiel sichern"
 
-#: engine/world/world.cpp:1026
+#: engine/world/world.cpp:1028
 msgid "Saving..."
 msgstr "Speichere..."
 

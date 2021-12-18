@@ -303,6 +303,17 @@ RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingT
       auto& b = engine.getEngineConfig()->displaySettings.performanceMeter;
       b = !b;
     });
+  listBox->addSetting(
+    /* translators: TR charmap encoding */ _("Ghost"),
+    [&engine]()
+    {
+      return engine.getEngineConfig()->displaySettings.ghost;
+    },
+    [&engine]()
+    {
+      auto& b = engine.getEngineConfig()->displaySettings.ghost;
+      b = !b;
+    });
 }
 
 std::unique_ptr<MenuState>

@@ -196,6 +196,8 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
 
   while(true)
   {
+    ghostModel->setVisible(m_engineConfig->displaySettings.ghost);
+
     if(m_presenter->shouldClose())
     {
       return {RunResult::ExitApp, std::nullopt};
