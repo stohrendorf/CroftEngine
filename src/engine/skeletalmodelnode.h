@@ -140,6 +140,16 @@ public:
     return m_meshParts.at(idx).mesh;
   }
 
+  [[nodiscard]] const auto& getCurrentMeshPart(size_t idx) const
+  {
+    return m_meshParts.at(idx).currentMesh;
+  }
+
+  [[nodiscard]] const auto& getPoseMatrix(size_t idx) const
+  {
+    return m_meshParts.at(idx).poseMatrix;
+  }
+
   [[nodiscard]] glm::vec3 getMeshPartTranslationWorld(size_t idx) const
   {
     auto m = getModelMatrix() * m_meshParts.at(idx).poseMatrix;

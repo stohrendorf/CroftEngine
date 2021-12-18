@@ -1,5 +1,6 @@
 #include "bufferparameter.h"
 
+#include "engine/ghosting/ghostmodel.h"
 #include "engine/skeletalmodelnode.h"
 #include "mesh.h"
 #include "node.h"
@@ -45,6 +46,8 @@ void BufferParameter::bindBoneTransformBuffer()
   {
     if(const auto* mo = dynamic_cast<const engine::SkeletalModelNode*>(node))
       ssb.bind(mo->getMeshMatricesBuffer());
+    else if(const auto* go = dynamic_cast<const engine::ghosting::GhostModel*>(node))
+      ssb.bind(go->getMeshMatricesBuffer());
   };
 }
 

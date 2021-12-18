@@ -8,10 +8,12 @@
 #include "engine/audiosettings.h"
 #include "engine/cameracontroller.h"
 #include "engine/engineconfig.h"
+#include "engine/ghosting/ghostmodel.h"
 #include "engine/inventory.h"
 #include "engine/objectmanager.h"
 #include "engine/objects/objectstate.h"
 #include "engine/world/room.h"
+#include "ghosting/ghost.h"
 #include "hid/actions.h"
 #include "hid/inputhandler.h"
 #include "loader/trx/trx.h"
@@ -159,6 +161,39 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
   static constexpr auto BlendInDuration = (core::FrameRate * 2_sec).cast<core::Frame>();
   core::Frame ammoDisplayDuration = 0_frame;
 
+  const auto ghostModel = std::make_shared<ghosting::GhostModel>();
+
+  std::filesystem::create_directories(getUserDataPath() / "ghosts");
+
+  const auto CurrentGhostRecordingPath
+    = getUserDataPath() / "ghosts" / (world.getLevelFilename().stem().replace_extension(".rec"));
+  const auto ExistingGhostRecordingPath
+    = getUserDataPath() / "ghosts" / (world.getLevelFilename().stem().replace_extension(".bin"));
+
+  auto ghostWriter = std::make_unique<ghosting::GhostDataWriter>(CurrentGhostRecordingPath);
+
+  std::unique_ptr<ghosting::GhostDataReader> ghostReader;
+  if(const auto ghostPath = ExistingGhostRecordingPath; std::filesystem::is_regular_file(ghostPath))
+  {
+    ghostReader = std::make_unique<ghosting::GhostDataReader>(ghostPath);
+    for(auto i = 0_frame; i < world.getGhostFrame(); i += 1_frame)
+    {
+      ghostWriter->append(ghostReader->read());
+    }
+  }
+
+  const auto overwriteGhostAction = gsl::finally(
+    [&]()
+    {
+      ghostReader.reset();
+      ghostWriter.reset();
+
+      std::error_code ec;
+      std::filesystem::remove(ExistingGhostRecordingPath, ec);
+
+      std::filesystem::rename(CurrentGhostRecordingPath, ExistingGhostRecordingPath, ec);
+    });
+
   while(true)
   {
     if(m_presenter->shouldClose())
@@ -263,7 +298,6 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
           return {RunResult::RequestLoad, std::nullopt};
         }
       }
-
       continue;
     }
 
@@ -372,7 +406,22 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
         }
       }
 
+      if(ghostReader != nullptr)
+      {
+        ghostModel->apply(world, ghostReader->read());
+        for(const auto& room : world.getRooms())
+        {
+          if(room.physicalId == ghostModel->getRoomId())
+          {
+            setParent(gsl::not_null{ghostModel}, room.node);
+          }
+        }
+      }
+
       world.gameLoop(godMode, throttler.getAverageWaitRatio(), blackAlpha, ui);
+
+      ghostWriter->append(world.getObjectManager().getLara().getGhostFrame());
+      world.nextGhostFrame();
     }
     else
     {

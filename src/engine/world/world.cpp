@@ -62,6 +62,7 @@
 #include "serialization/array.h"
 #include "serialization/bitset.h"
 #include "serialization/optional.h"
+#include "serialization/optional_value.h"
 #include "serialization/quantity.h"
 #include "serialization/serialization.h"
 #include "serialization/vector.h"
@@ -947,7 +948,8 @@ void World::serialize(const serialization::Serializer<World>& ser)
       S_NV("roomPhysicalIds", physicalIds),
       S_NV("rooms", serialization::FrozenVector{m_rooms}),
       S_NV("boxes", serialization::FrozenVector{m_boxes}),
-      S_NV("audioEngine", *m_audioEngine));
+      S_NV("audioEngine", *m_audioEngine),
+      S_NVO("ghostFrame", m_ghostFrame));
 
   if(ser.loading)
   {

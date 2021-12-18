@@ -161,6 +161,19 @@ gsl::not_null<std::shared_ptr<Material>> MaterialManager::getGeometry(bool inWat
   return m;
 }
 
+gsl::not_null<std::shared_ptr<Material>> MaterialManager::getGhost()
+{
+  if(m_ghost != nullptr)
+    return gsl::not_null{m_ghost};
+
+  auto m = gslu::make_nn_shared<Material>(m_shaderCache->getGhost());
+  m->getUniformBlock("Transform")->bindTransformBuffer();
+  m->getBuffer("BoneTransform")->bindBoneTransformBuffer();
+  m->getUniformBlock("Camera")->bindCameraBuffer(m_renderer->getCamera());
+  m_ghost = m;
+  return m;
+}
+
 gsl::not_null<std::shared_ptr<Material>> MaterialManager::getWaterSurface()
 {
   if(m_waterSurface != nullptr)

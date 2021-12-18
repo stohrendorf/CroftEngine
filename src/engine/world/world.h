@@ -346,6 +346,21 @@ public:
     return m_mapFlipActivationStates;
   }
 
+  [[nodiscard]] const auto& getLevelFilename() const
+  {
+    return m_levelFilename;
+  }
+
+  [[nodiscard]] const auto& getGhostFrame() const
+  {
+    return m_ghostFrame;
+  }
+
+  void nextGhostFrame()
+  {
+    m_ghostFrame += 1_frame;
+  }
+
 private:
   void drawPickupWidgets(ui::Ui& ui);
 
@@ -422,6 +437,8 @@ private:
   std::vector<StaticSoundEffect> m_staticSoundEffects;
 
   ControllerLayouts m_controllerLayouts;
+
+  core::Frame m_ghostFrame = 0_frame;
 
   void initTextureDependentDataFromLevel(const loader::file::level::Level& level);
   void initFromLevel(loader::file::level::Level& level);

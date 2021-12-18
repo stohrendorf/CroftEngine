@@ -4,6 +4,7 @@
 #include "core/interval.h"
 #include "engine/audioengine.h"
 #include "engine/cameracontroller.h"
+#include "engine/ghosting/ghost.h"
 #include "engine/heightinfo.h"
 #include "engine/inventory.h"
 #include "engine/items_tr1.h"
@@ -2274,6 +2275,31 @@ void LaraObject::updateExplosionStumbling()
     hit_frame = 34_frame;
   }
   explosionStumblingDuration -= 1_frame;
+}
+
+ghosting::GhostFrame LaraObject::getGhostFrame() const
+{
+  ghosting::GhostFrame frame;
+  frame.roomId = gsl::narrow_cast<uint32_t>(m_state.location.room->physicalId);
+  frame.modelMatrix = getSkeleton()->getLocalMatrix();
+  for(size_t i = 0; i < getSkeleton()->getBoneCount(); ++i)
+  {
+    const auto& mesh = getSkeleton()->getCurrentMeshPart(i);
+    uint32_t idx = 0;
+    for(const auto& existing : getWorld().getMeshes())
+    {
+      if(existing.meshData == mesh)
+      {
+        break;
+      }
+      ++idx;
+    }
+
+    frame.bones.emplace_back(ghosting::GhostFrame::BoneData{
+      getSkeleton()->getPoseMatrix(i), gsl::narrow_cast<uint32_t>(idx), getSkeleton()->isVisible(i)});
+  }
+
+  return frame;
 }
 
 void LaraObject::AimInfo::serialize(const serialization::Serializer<world::World>& ser)

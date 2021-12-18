@@ -27,6 +27,7 @@ public:
   [[nodiscard]] gsl::not_null<std::shared_ptr<Material>> getDepthOnly(bool skeletal);
 
   [[nodiscard]] gsl::not_null<std::shared_ptr<Material>> getGeometry(bool inWater, bool skeletal, bool roomShadowing);
+  [[nodiscard]] gsl::not_null<std::shared_ptr<Material>> getGhost();
 
   [[nodiscard]] gsl::not_null<std::shared_ptr<Material>> getWaterSurface();
 
@@ -80,6 +81,7 @@ private:
   std::map<bool, gsl::not_null<std::shared_ptr<Material>>> m_csmDepthOnly{};
   std::map<bool, gsl::not_null<std::shared_ptr<Material>>> m_depthOnly{};
   std::map<std::tuple<bool, bool, bool>, gsl::not_null<std::shared_ptr<Material>>> m_geometry{};
+  std::shared_ptr<Material> m_ghost{nullptr};
   std::shared_ptr<Material> m_waterSurface{nullptr};
   std::shared_ptr<Material> m_lightning{nullptr};
   std::map<std::tuple<bool, bool>, gsl::not_null<std::shared_ptr<Material>>> m_composition{};

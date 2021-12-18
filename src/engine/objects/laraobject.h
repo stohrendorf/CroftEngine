@@ -48,6 +48,11 @@ struct AnimFrame;
 struct Item;
 } // namespace loader::file
 
+namespace engine::ghosting
+{
+struct GhostFrame;
+}
+
 namespace engine::objects
 {
 enum class UnderwaterState
@@ -424,6 +429,8 @@ public:
   {
     return m_state.isDead();
   }
+
+  [[nodiscard]] ghosting::GhostFrame getGhostFrame() const;
 
 private:
   void initMuzzleFlashes();

@@ -437,6 +437,11 @@ set( EDISONENGINE_SRCS
         engine/floordata/floordata.cpp
         engine/floordata/types.h
 
+        engine/ghosting/ghost.h
+        engine/ghosting/ghost.cpp
+        engine/ghosting/ghostmodel.h
+        engine/ghosting/ghostmodel.cpp
+
         render/portaltracer.h
         render/portaltracer.cpp
         render/renderpipeline.h

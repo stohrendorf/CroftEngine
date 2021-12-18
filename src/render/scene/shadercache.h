@@ -172,5 +172,10 @@ public:
   {
     return get("dust.vert", "dust.frag", "dust.geom");
   }
+
+  [[nodiscard]] auto getGhost()
+  {
+    return get("ghost.vert", "ghost.frag", std::vector<std::string>{"SKELETAL"});
+  }
 };
 } // namespace render::scene
