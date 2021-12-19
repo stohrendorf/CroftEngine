@@ -364,7 +364,7 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
         if(!showLevelStats(m_presenter, world))
           return {RunResult::ExitApp, std::nullopt};
 
-        if(!ghostManager.askGhostSave(*m_presenter, world))
+        if(m_engineConfig->displaySettings.ghost && !ghostManager.askGhostSave(*m_presenter, world))
           return {RunResult::ExitApp, std::nullopt};
       }
 
@@ -403,21 +403,21 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
       case menu::MenuResult::ExitToTitle:
         if(allowSave)
         {
-          if(!ghostManager.askGhostSave(*m_presenter, world))
+          if(m_engineConfig->displaySettings.ghost && !ghostManager.askGhostSave(*m_presenter, world))
             return {RunResult::ExitApp, std::nullopt};
         }
         return {RunResult::TitleLevel, std::nullopt};
       case menu::MenuResult::ExitGame:
         if(allowSave)
         {
-          if(!ghostManager.askGhostSave(*m_presenter, world))
+          if(m_engineConfig->displaySettings.ghost && !ghostManager.askGhostSave(*m_presenter, world))
             return {RunResult::ExitApp, std::nullopt};
         }
         return {RunResult::ExitApp, std::nullopt};
       case menu::MenuResult::NewGame:
         if(allowSave)
         {
-          if(!ghostManager.askGhostSave(*m_presenter, world))
+          if(m_engineConfig->displaySettings.ghost && !ghostManager.askGhostSave(*m_presenter, world))
             return {RunResult::ExitApp, std::nullopt};
         }
         return {RunResult::NextLevel, std::nullopt};
@@ -429,7 +429,7 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
         {
           if(allowSave)
           {
-            if(!ghostManager.askGhostSave(*m_presenter, world))
+            if(m_engineConfig->displaySettings.ghost && !ghostManager.askGhostSave(*m_presenter, world))
               return {RunResult::ExitApp, std::nullopt};
           }
           return {RunResult::RequestLoad, menu->requestLoad};
