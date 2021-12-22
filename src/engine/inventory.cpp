@@ -49,29 +49,29 @@ size_t Inventory::put(const core::TypeId& id, const size_t quantity)
   case TR1ItemId::Shotgun:
     addWeapon(m_shotgunAmmo, quantity);
     // TODO replaceItems( ShotgunSprite, ShotgunAmmoSprite );
-    return m_shotgunAmmo.ammo;
+    return m_shotgunAmmo.ammo / m_shotgunAmmo.roundsPerClip;
   case TR1ItemId::MagnumsSprite:
   case TR1ItemId::Magnums:
     addWeapon(m_magnumsAmmo, quantity);
     // TODO replaceItems( MagnumsSprite, MagnumAmmoSprite );
-    return m_magnumsAmmo.ammo;
+    return m_magnumsAmmo.ammo / m_magnumsAmmo.roundsPerClip;
   case TR1ItemId::UzisSprite:
   case TR1ItemId::Uzis:
     addWeapon(m_uzisAmmo, quantity);
     // TODO replaceItems( UzisSprite, UziAmmoSprite );
-    return m_uzisAmmo.ammo;
+    return m_uzisAmmo.ammo / m_uzisAmmo.roundsPerClip;
   case TR1ItemId::ShotgunAmmoSprite:
   case TR1ItemId::ShotgunAmmo:
     addAmmoClips(m_shotgunAmmo, quantity);
-    return m_shotgunAmmo.ammo;
+    return m_shotgunAmmo.ammo / m_shotgunAmmo.roundsPerClip;
   case TR1ItemId::MagnumAmmoSprite:
   case TR1ItemId::MagnumAmmo:
     addAmmoClips(m_magnumsAmmo, quantity);
-    return m_magnumsAmmo.ammo;
+    return m_magnumsAmmo.ammo / m_magnumsAmmo.roundsPerClip;
   case TR1ItemId::UziAmmoSprite:
   case TR1ItemId::UziAmmo:
     addAmmoClips(m_uzisAmmo, quantity);
-    return m_uzisAmmo.ammo;
+    return m_uzisAmmo.ammo / m_uzisAmmo.roundsPerClip;
   case TR1ItemId::SmallMedipackSprite:
   case TR1ItemId::SmallMedipack:
     return m_inventory[TR1ItemId::SmallMedipack] += quantity;
