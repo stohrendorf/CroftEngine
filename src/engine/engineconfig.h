@@ -51,6 +51,7 @@ struct EngineConfig
   DisplaySettings displaySettings{};
   AudioSettings audioSettings{};
   std::vector<NamedInputMappingConfig> inputMappings{};
+  bool restoreHealth = false;
 
   explicit EngineConfig();
 

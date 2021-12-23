@@ -5,6 +5,7 @@
 #include "engine/displaysettings.h"
 #include "serialization/default.h"
 #include "serialization/map.h"
+#include "serialization/optional_value.h"
 #include "serialization/pair.h"
 #include "serialization/serialization.h"
 #include "serialization/variant.h"
@@ -96,7 +97,8 @@ void EngineConfig::serialize(const serialization::Serializer<EngineConfig>& ser)
   ser(S_NVD("renderSettings", renderSettings, render::RenderSettings{}),
       S_NVD("displaySettings", displaySettings, DisplaySettings{}),
       S_NVD("audioSettings", audioSettings, AudioSettings{}),
-      S_NVD("inputMappings", inputMappings, getDefaultMappings()));
+      S_NVD("inputMappings", inputMappings, getDefaultMappings()),
+      S_NVO("restoreHealth", restoreHealth));
 }
 
 EngineConfig::EngineConfig()

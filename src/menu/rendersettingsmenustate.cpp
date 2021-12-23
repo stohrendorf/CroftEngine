@@ -314,6 +314,17 @@ RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingT
       auto& b = engine.getEngineConfig()->displaySettings.ghost;
       b = !b;
     });
+  listBox->addSetting(
+    /* translators: TR charmap encoding */ _("Restore Health on Level Start"),
+    [&engine]()
+    {
+      return engine.getEngineConfig()->restoreHealth;
+    },
+    [&engine]()
+    {
+      auto& b = engine.getEngineConfig()->restoreHealth;
+      b = !b;
+    });
 }
 
 std::unique_ptr<MenuState>

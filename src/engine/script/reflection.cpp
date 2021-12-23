@@ -175,6 +175,10 @@ std::pair<RunResult, std::optional<size_t>> Level::run(Engine& engine, const std
 {
   player->requestedWeaponType = m_defaultWeapon;
   player->selectedWeaponType = m_defaultWeapon;
+
+  if(engine.getEngineConfig()->restoreHealth)
+    player->laraHealth = core::LaraHealth;
+
   auto world = loadWorld(engine, player);
   return engine.run(*world, false, m_allowSave);
 }

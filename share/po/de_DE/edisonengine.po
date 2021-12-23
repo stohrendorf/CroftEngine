@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EdisonEngine\n"
 "Report-Msgid-Bugs-To: https://github.com/stohrendorf/EdisonEngine/issues\n"
-"POT-Creation-Date: 2021-12-18 21:48+0100\n"
+"POT-Creation-Date: 2021-12-23 10:28+0100\n"
 "Last-Translator: Steffen Ohrendorf\n"
 "Language-Team: none\n"
 "Language: de_DE\n"
@@ -24,7 +24,7 @@ msgid "%1% - %2%"
 msgstr "%1% - %2%"
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:325
+#: menu/rendersettingsmenustate.cpp:336
 #, boost-format
 msgid "%1%x Anisotropic Filtering"
 msgstr "%1%x Anisotropische Filterung"
@@ -365,7 +365,7 @@ msgstr "Ende des Spiels"
 msgid "Game"
 msgstr "Spiel"
 
-#: engine/engineconfig.cpp:60
+#: engine/engineconfig.cpp:61
 msgctxt "Input|MappingName"
 msgid "Gamepad"
 msgstr "Gamepad"
@@ -499,7 +499,7 @@ msgstr "K"
 msgid "KILLS %1%"
 msgstr "Besiegte Gegner %1%"
 
-#: engine/engineconfig.cpp:31
+#: engine/engineconfig.cpp:32
 msgctxt "Input|MappingName"
 msgid "Keyboard"
 msgstr "Tastatur"
@@ -566,7 +566,7 @@ msgstr "Spiel laden"
 msgid "Loading %1%"
 msgstr "Lade %1%"
 
-#: engine/engine.cpp:669
+#: engine/engine.cpp:687
 msgid "Loading Glidos texture pack"
 msgstr "Lade Glidos Textur Paket"
 
@@ -864,6 +864,11 @@ msgid "RThumb"
 msgstr "RStick"
 
 #. translators: TR charmap encoding
+#: menu/rendersettingsmenustate.cpp:318
+msgid "Restore Health on Level Start"
+msgstr "Gesundheit bei Levelanfang wiederherstellen"
+
+#. translators: TR charmap encoding
 #: hid/names.cpp:117
 msgctxt "Keyboard|Key"
 msgid "Ret"
@@ -928,7 +933,7 @@ msgid "Save Game"
 msgstr "Spiel sichern"
 
 #. translators: TR charmap encoding
-#: engine/engine.cpp:208
+#: engine/engine.cpp:203
 msgid "Save recorded ghost?"
 msgstr "Aufgenommenen Geist speichern?"
 
