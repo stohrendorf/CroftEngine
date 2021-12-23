@@ -1434,8 +1434,8 @@ void LaraObject::tryShootShotgun()
   for(size_t i = 0; i < rounds; ++i)
   {
     core::TRRotationXY aimAngle;
-    aimAngle.Y = util::rand15s(+20_deg) + m_state.rotation.Y + leftArm.aimRotation.Y;
-    aimAngle.X = util::rand15s(+20_deg) + leftArm.aimRotation.X;
+    aimAngle.Y = util::rand15s(+10_deg) + m_state.rotation.Y + leftArm.aimRotation.Y;
+    aimAngle.X = util::rand15s(+10_deg) + leftArm.aimRotation.X;
     if(shootBullet(WeaponType::Shotgun, aimAt, *this, aimAngle))
     {
       fireShotgun = true;

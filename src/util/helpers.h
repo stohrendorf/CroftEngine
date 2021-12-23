@@ -21,6 +21,9 @@ constexpr auto square(T value)
 
 constexpr int Rand15Max = 1u << 15u;
 
+/**
+ * Random number in range 0..32767.
+ */
 extern int16_t rand15();
 
 template<typename T>
@@ -35,8 +38,14 @@ inline auto rand15(qs::quantity<T, U> max)
   return (max.template cast<float>() * static_cast<float>(rand15()) / static_cast<float>(Rand15Max)).template cast<U>();
 }
 
+/**
+ * Random number in range -16384..16383.
+ */
 extern int16_t rand15s();
 
+/**
+ * Random number in range -max/2..max/2
+ */
 template<typename T, typename U>
 inline auto rand15s(qs::quantity<T, U> max)
 {
