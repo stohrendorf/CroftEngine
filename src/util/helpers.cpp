@@ -93,12 +93,18 @@ core::TRVec pitch(const core::Length& len, const core::Angle& rot, const core::L
 
 core::Length cos(const core::Length& len, const core::Angle& rot)
 {
-  return (len.cast<float>() * cos(rot)).cast<core::Length>();
+  auto tmp = len.cast<float>() * cos(rot);
+  if(tmp.get() < 0)
+    tmp -= (1_len).cast<float>();
+  return tmp.cast<core::Length>();
 }
 
 core::Length sin(const core::Length& len, const core::Angle& rot)
 {
-  return (len.cast<float>() * sin(rot)).cast<core::Length>();
+  auto tmp = len.cast<float>() * sin(rot);
+  if(tmp.get() < 0)
+    tmp -= (1_len).cast<float>();
+  return tmp.cast<core::Length>();
 }
 
 glm::mat4 mix(const glm::mat4& a, const glm::mat4& b, const float bias)
