@@ -76,7 +76,7 @@ std::unique_ptr<MenuState> IdleRingMenuState::onFrame(ui::Ui& ui, engine::world:
     switch(currentObject.type)
     {
     case engine::TR1ItemId::Compass:
-      world.getAudioEngine().playSoundEffect(engine::TR1SoundEffect::MenuOptionSelect2, nullptr);
+      world.getAudioEngine().playSoundEffect(engine::TR1SoundEffect::MenuOptionSelect1, nullptr);
       break;
     case engine::TR1ItemId::LarasHomePolaroid:
       world.getAudioEngine().playSoundEffect(engine::TR1SoundEffect::MenuHome, nullptr);
@@ -88,7 +88,7 @@ std::unique_ptr<MenuState> IdleRingMenuState::onFrame(ui::Ui& ui, engine::world:
     case engine::TR1ItemId::Shotgun:
     case engine::TR1ItemId::Magnums:
     case engine::TR1ItemId::Uzis:
-      world.getAudioEngine().playSoundEffect(engine::TR1SoundEffect::MenuOptionSelect1, nullptr);
+      world.getAudioEngine().playSoundEffect(engine::TR1SoundEffect::MenuOptionSelect2, nullptr);
       break;
     default:
       world.getAudioEngine().playSoundEffect(engine::TR1SoundEffect::MenuOptionPopup, nullptr);
