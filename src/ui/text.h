@@ -4,6 +4,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <gl/pixel.h>
 #include <glm/vec2.hpp>
 #include <gsl/gsl-lite.hpp>
 #include <string>
@@ -45,4 +46,7 @@ private:
   int m_width = 0;
   std::vector<std::tuple<glm::ivec2, uint8_t>> m_layout;
 };
+
+extern void
+  drawBox(const Text& text, Ui& ui, const glm::ivec2& pos, int padding, const gl::SRGBA8& color, float scale = 1);
 } // namespace ui

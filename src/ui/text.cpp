@@ -1,5 +1,6 @@
 #include "text.h"
 
+#include "core.h"
 #include "ui.h"
 #include "util.h"
 
@@ -131,5 +132,12 @@ void Text::draw(Ui& ui, const TRFont& font, const glm::ivec2& position, float sc
   {
     font.draw(ui, sprite, xy + position, scale, alpha);
   }
+}
+
+void drawBox(const Text& text, Ui& ui, const glm::ivec2& pos, int padding, const gl::SRGBA8& color, float scale)
+{
+  ui.drawBox(pos + glm::ivec2{-padding, padding},
+             glm::ivec2{text.getWidth() * scale + 2 * padding, -FontHeight * scale - 2 * padding - 2},
+             color);
 }
 } // namespace ui

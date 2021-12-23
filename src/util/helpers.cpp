@@ -125,7 +125,7 @@ int16_t rand15s()
 
 int16_t rand15()
 {
-  // NOLINTNEXTLINE(cert-msc50-cpp)
+  // NOLINTNEXTLINE(cert-msc50-cpp, concurrency-mt-unsafe)
   return gsl::narrow_cast<int16_t>(std::rand() % Rand15Max);
 }
 } // namespace util

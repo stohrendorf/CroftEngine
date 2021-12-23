@@ -28,9 +28,10 @@ public:
     ui.draw(m_sprite, {x, y});
     if(m_count <= 1)
       return;
-    
+
     const auto txt = Text{std::to_string(m_count)};
-    txt.draw(ui, font, {x, y}, 1.5f);
+    drawBox(txt, ui, {x, y}, FontHeight / 4, gl::SRGBA8{0, 0, 0, 192});
+    txt.draw(ui, font, {x, y});
   }
 
   void nextFrame()
