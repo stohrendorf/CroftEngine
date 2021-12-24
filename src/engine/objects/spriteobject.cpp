@@ -98,4 +98,11 @@ void SpriteObject::serialize(const serialization::Serializer<world::World>& ser)
     m_objectNode->setVisible(m_state.triggerState != TriggerState::Invisible);
   }
 }
+
+void SpriteObject::replace(const TR1ItemId& itemId, const gsl::not_null<const world::Sprite*>& sprite)
+{
+  m_sprite = sprite;
+  m_state.type = itemId;
+  createModel();
+}
 } // namespace engine::objects

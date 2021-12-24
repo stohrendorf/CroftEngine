@@ -149,21 +149,34 @@ std::unique_ptr<world::World> Level::loadWorld(Engine& engine, const std::shared
 
   player->resetStats();
   for(const auto& [type, qty] : m_inventory)
-    player->getInventory().put(type, qty);
+    player->getInventory().put(type, nullptr, qty);
   for(const auto& type : m_dropInventory)
     player->getInventory().drop(type);
 
   for(const auto& [type, qty] : engine.getScriptEngine().getCheatInventory())
-    player->getInventory().put(type.cast<TR1ItemId>(), qty.cast<size_t>());
+    player->getInventory().put(type.cast<TR1ItemId>(), nullptr, qty.cast<size_t>());
 
-  return std::make_unique<world::World>(engine,
-                                        loadLevel(engine, m_name, util::unescape(title)),
-                                        title,
-                                        m_secrets,
-                                        m_track,
-                                        m_useAlternativeLara,
-                                        m_itemTitles,
-                                        player);
+  auto world = std::make_unique<world::World>(engine,
+                                              loadLevel(engine, m_name, util::unescape(title)),
+                                              title,
+                                              m_secrets,
+                                              m_track,
+                                              m_useAlternativeLara,
+                                              m_itemTitles,
+                                              player);
+
+  auto replace = [&world, &player](TR1ItemId meshType, TR1ItemId spriteType, TR1ItemId replacement)
+  {
+    if(player->getInventory().count(meshType) > 0 || player->getInventory().count(spriteType))
+    {
+      world->getObjectManager().replaceItems(spriteType, replacement, *world);
+    }
+  };
+  replace(TR1ItemId::Shotgun, TR1ItemId::ShotgunSprite, TR1ItemId::ShotgunAmmoSprite);
+  replace(TR1ItemId::Uzis, TR1ItemId::UzisSprite, TR1ItemId::UziAmmoSprite);
+  replace(TR1ItemId::Magnums, TR1ItemId::MagnumsSprite, TR1ItemId::MagnumAmmoSprite);
+
+  return world;
 }
 
 bool Level::isLevel(const std::filesystem::path& path) const

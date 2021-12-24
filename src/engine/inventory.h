@@ -18,13 +18,13 @@ namespace engine::world
 class World;
 }
 
-namespace engine
-{
-namespace objects
+namespace engine::objects
 {
 class LaraObject;
 }
 
+namespace engine
+{
 struct Ammo
 {
   const size_t roundsPerClip;
@@ -69,7 +69,7 @@ public:
 
   void serialize(const serialization::Serializer<world::World>& ser);
 
-  size_t put(const core::TypeId& id, size_t quantity = 1);
+  size_t put(const core::TypeId& id, world::World* world, size_t quantity = 1);
 
   bool tryTake(TR1ItemId id, size_t quantity = 1);
 

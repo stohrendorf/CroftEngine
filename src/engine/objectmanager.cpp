@@ -10,6 +10,7 @@
 #include "objects/object.h"
 #include "objects/objectfactory.h"
 #include "objects/objectstate.h"
+#include "objects/pickupobject.h"
 #include "particle.h"
 #include "render/scene/node.h"
 #include "serialization/map.h"
@@ -191,5 +192,20 @@ void ObjectManager::eraseParticle(const std::shared_ptr<Particle>& particle)
     m_particles.erase(it);
 
   setParent(gsl::not_null{particle}, nullptr);
+}
+
+void ObjectManager::replaceItems(const TR1ItemId& oldId, const TR1ItemId& newId, const world::World& world)
+{
+  for(const auto& [_, obj] : m_objects)
+  {
+    if(obj->m_state.type != oldId)
+      continue;
+
+    const gsl::not_null pickup{std::dynamic_pointer_cast<objects::PickupObject>(obj.get())};
+    const auto& spriteSequence = world.findSpriteSequenceForType(newId);
+    Expects(spriteSequence != nullptr);
+    Expects(!spriteSequence->sprites.empty());
+    pickup->replace(newId, gsl::not_null{&spriteSequence->sprites[0]});
+  }
 }
 } // namespace engine

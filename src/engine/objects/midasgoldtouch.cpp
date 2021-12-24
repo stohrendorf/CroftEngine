@@ -70,7 +70,7 @@ void MidasGoldTouch::collide(CollisionInfo& /*info*/)
     return;
 
   Expects(getWorld().getPlayer().getInventory().tryTake(TR1ItemId::LeadBar));
-  getWorld().getPlayer().getInventory().put(TR1ItemId::Puzzle1Sprite);
+  getWorld().getPlayer().getInventory().put(TR1ItemId::Puzzle1Sprite, &getWorld());
   lara.getSkeleton()->setAnim(
     gsl::not_null{&getWorld().findAnimatedModelForType(TR1ItemId::AlternativeLara)->animations[0]});
   lara.setCurrentAnimState(loader::file::LaraStateId::UseMidas);

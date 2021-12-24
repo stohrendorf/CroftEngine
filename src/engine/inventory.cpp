@@ -18,7 +18,7 @@
 
 namespace engine
 {
-size_t Inventory::put(const core::TypeId& id, const size_t quantity)
+size_t Inventory::put(const core::TypeId& id, world::World* world, const size_t quantity)
 {
   BOOST_LOG_TRIVIAL(debug) << "Object " << toString(id.get_as<TR1ItemId>()) << " added to inventory";
 
@@ -48,30 +48,33 @@ size_t Inventory::put(const core::TypeId& id, const size_t quantity)
   case TR1ItemId::ShotgunSprite:
   case TR1ItemId::Shotgun:
     addWeapon(m_shotgunAmmo, quantity);
-    // TODO replaceItems( ShotgunSprite, ShotgunAmmoSprite );
-    return m_shotgunAmmo.ammo / m_shotgunAmmo.roundsPerClip;
+    if(world != nullptr)
+      world->getObjectManager().replaceItems(TR1ItemId::ShotgunSprite, TR1ItemId::ShotgunAmmoSprite, *world);
+    return m_shotgunAmmo.getShots();
   case TR1ItemId::MagnumsSprite:
   case TR1ItemId::Magnums:
     addWeapon(m_magnumsAmmo, quantity);
-    // TODO replaceItems( MagnumsSprite, MagnumAmmoSprite );
-    return m_magnumsAmmo.ammo / m_magnumsAmmo.roundsPerClip;
+    if(world != nullptr)
+      world->getObjectManager().replaceItems(TR1ItemId::MagnumsSprite, TR1ItemId::MagnumAmmoSprite, *world);
+    return m_magnumsAmmo.getShots();
   case TR1ItemId::UzisSprite:
   case TR1ItemId::Uzis:
     addWeapon(m_uzisAmmo, quantity);
-    // TODO replaceItems( UzisSprite, UziAmmoSprite );
-    return m_uzisAmmo.ammo / m_uzisAmmo.roundsPerClip;
+    if(world != nullptr)
+      world->getObjectManager().replaceItems(TR1ItemId::UzisSprite, TR1ItemId::UziAmmoSprite, *world);
+    return m_uzisAmmo.getShots();
   case TR1ItemId::ShotgunAmmoSprite:
   case TR1ItemId::ShotgunAmmo:
     addAmmoClips(m_shotgunAmmo, quantity);
-    return m_shotgunAmmo.ammo / m_shotgunAmmo.roundsPerClip;
+    return m_shotgunAmmo.getShots();
   case TR1ItemId::MagnumAmmoSprite:
   case TR1ItemId::MagnumAmmo:
     addAmmoClips(m_magnumsAmmo, quantity);
-    return m_magnumsAmmo.ammo / m_magnumsAmmo.roundsPerClip;
+    return m_magnumsAmmo.getShots();
   case TR1ItemId::UziAmmoSprite:
   case TR1ItemId::UziAmmo:
     addAmmoClips(m_uzisAmmo, quantity);
-    return m_uzisAmmo.ammo / m_uzisAmmo.roundsPerClip;
+    return m_uzisAmmo.getShots();
   case TR1ItemId::SmallMedipackSprite:
   case TR1ItemId::SmallMedipack:
     return m_inventory[TR1ItemId::SmallMedipack] += quantity;

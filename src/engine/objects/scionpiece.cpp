@@ -75,7 +75,7 @@ void ScionPiece::collide(CollisionInfo& /*collisionInfo*/)
   {
     m_state.triggerState = TriggerState::Invisible;
     ++getWorld().getPlayer().pickups;
-    getWorld().addPickupWidget(getSprite(), getWorld().getPlayer().getInventory().put(m_state.type));
+    getWorld().addPickupWidget(getSprite(), getWorld().getPlayer().getInventory().put(m_state.type, &getWorld()));
     setParent(gsl::not_null{getNode()}, nullptr);
     m_state.collidable = false;
   }

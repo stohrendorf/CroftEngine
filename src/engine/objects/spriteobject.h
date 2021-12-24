@@ -96,6 +96,8 @@ public:
   }
 
   void serialize(const serialization::Serializer<world::World>& ser) override;
+
+  void replace(const TR1ItemId& itemId, const gsl::not_null<const world::Sprite*>& sprite);
 };
 
 #define SPRITEOBJECT_DEFAULT_CONSTRUCTORS(CLASS, HAS_UPDATE_FUNCTION, BILLBOARD)                      \

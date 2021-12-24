@@ -20,14 +20,15 @@ namespace engine::world
 class World;
 }
 
-namespace engine
-{
-namespace objects
+namespace engine::objects
 {
 class Object;
 class LaraObject;
-} // namespace objects
+} // namespace engine::objects
 
+namespace engine
+{
+enum class TR1ItemId;
 class Particle;
 
 using ObjectId = uint16_t;
@@ -116,6 +117,8 @@ public:
     return m_objectCounter;
   }
   void update(world::World& world, bool godMode);
+
+  void replaceItems(const TR1ItemId& oldId, const TR1ItemId& newId, const world::World& world);
 
   void serialize(const serialization::Serializer<world::World>& ser);
 };
