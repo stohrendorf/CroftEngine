@@ -1,7 +1,7 @@
 cmake_minimum_required( VERSION 3.16 )
 list( APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake )
 
-project( EdisonEngine VERSION 0.9 )
+project( EdisonEngine VERSION 0.10 )
 
 cmake_policy( SET CMP0069 NEW )
 cmake_policy( SET CMP0094 NEW )
