@@ -286,13 +286,25 @@ void PathFinder::searchPath(const world::World& world)
         // propagate "reachable" to all connected boxes if their reachability hasn't been determined yet
         // OR they were previously determined to be unreachable
         if(initialized && it->second)
-          continue; // already visited and marked reachable
+        {
+          // already visited and marked reachable, but path might be shorter
+          auto& successorDistance = m_distances[successorBox];
+          auto currentDistance = m_distances[currentBox] + 1;
+          if(successorDistance > currentDistance)
+          {
+            successorDistance = currentDistance;
+            m_edges.erase(currentBox);
+            m_edges.emplace(currentBox, successorBox);
+          }
+          continue;
+        }
 
         const auto reachable = canVisit(*successorBox);
         if(reachable)
         {
           BOOST_ASSERT_MSG(m_edges.count(successorBox) == 0, "cycle in pathfinder graph detected");
           m_edges.emplace(successorBox, currentBox); // success! connect both boxes
+          m_distances[successorBox] = m_distances[currentBox] + 1;
         }
 
         setReachable(successorBox, reachable);
@@ -306,6 +318,7 @@ void PathFinder::serialize(const serialization::Serializer<world::World>& ser)
   ser(S_NV("edges", m_edges),
       S_NV("boxes", m_boxes),
       S_NV("expansions", m_expansions),
+      S_NV("distances", m_distances),
       S_NV("reachable", m_reachable),
       S_NV("cannotVisitBlockable", cannotVisitBlockable),
       S_NV("cannotVisitBlocked", cannotVisitBlocked),
@@ -366,6 +379,8 @@ void PathFinder::setTargetBox(const gsl::not_null<const world::Box*>& box)
 
   m_expansions.clear();
   m_expansions.emplace_back(m_targetBox);
+  m_distances.clear();
+  m_distances[box] = 0;
   m_reachable.clear();
   m_reachable[box] = true;
   m_edges.clear();

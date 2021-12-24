@@ -82,6 +82,7 @@ private:
   std::vector<gsl::not_null<const world::Box*>> m_boxes;
   std::deque<gsl::not_null<const world::Box*>> m_expansions;
   std::unordered_map<gsl::not_null<const world::Box*>, bool> m_reachable;
+  std::unordered_map<gsl::not_null<const world::Box*>, size_t> m_distances;
   std::unordered_map<gsl::not_null<const world::Box*>, gsl::not_null<const world::Box*>> m_edges;
   //! @brief The target box we need to reach
   const world::Box* m_targetBox = nullptr;
