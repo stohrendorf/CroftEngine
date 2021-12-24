@@ -47,7 +47,7 @@ core::Angle AIAgent::rotateTowardsTarget(core::RotationSpeed maxRotationSpeed)
   if(abs(turnAngle) > 90_deg)
   {
     // the target is behind the current object, so we need a U-turn
-    const auto relativeSpeed = m_state.speed * 90_deg / maxRotationSpeed;
+    const auto relativeSpeed = m_state.speed.cast<float>() * 90_deg / maxRotationSpeed;
     if(util::square(dx) + util::square(dz) < util::square(relativeSpeed))
     {
       maxRotationSpeed /= 2;
