@@ -26,6 +26,7 @@ macro( add_boost_test name )
             gsl-lite::gsl-lite
             Threads::Threads
             glm::glm
+            shared
             ${CMAKE_DL_LIBS}
     )
     target_compile_definitions(

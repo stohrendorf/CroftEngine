@@ -167,9 +167,9 @@ bool showLevelStats(const std::shared_ptr<Presenter>& presenter, world::World& w
 struct GhostManager
 {
   GhostManager(const std::filesystem::path& recordingPath, world::World& world)
-      : writerPath{recordingPath}
+      : readerPath{std::filesystem::path{recordingPath}.replace_extension(".bin")}
+      , writerPath{recordingPath}
       , writer{std::make_unique<ghosting::GhostDataWriter>(recordingPath)}
-      , readerPath{std::filesystem::path{recordingPath}.replace_extension(".bin")}
   {
     if(std::filesystem::is_regular_file(readerPath))
     {
