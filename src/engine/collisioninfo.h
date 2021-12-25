@@ -75,8 +75,8 @@ struct CollisionInfo
                                                                           const core::Length& height,
                                                                           const world::World& world);
 
-  bool checkStaticMeshCollisions(const core::TRVec& pokePosition,
-                                 const core::Length& pokeHeight,
+  bool checkStaticMeshCollisions(const core::TRVec& objectPos,
+                                 const core::Length& objectHeight,
                                  const world::World& world);
 };
 } // namespace engine

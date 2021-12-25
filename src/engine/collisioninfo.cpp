@@ -71,9 +71,9 @@ namespace
   return result;
 }
 
-[[nodiscard]] core::Length absMin(const core::Length& a, const core::Length& b)
+[[nodiscard]] core::Length minShift(const core::Length& min, const core::Length& max)
 {
-  return abs(a) < abs(b) ? a : b;
+  return min < max ? -min : max;
 }
 
 std::tuple<int8_t, int8_t> getFloorSlantInfo(gsl::not_null<const world::Sector*> sector, const core::TRVec& position)
@@ -297,16 +297,16 @@ std::set<gsl::not_null<const world::Room*>> CollisionInfo::collectTouchingRooms(
   return result;
 }
 
-bool CollisionInfo::checkStaticMeshCollisions(const core::TRVec& pokePosition,
-                                              const core::Length& pokeHeight,
+bool CollisionInfo::checkStaticMeshCollisions(const core::TRVec& objectPos,
+                                              const core::Length& objectHeight,
                                               const world::World& world)
 {
-  const auto rooms = collectTouchingRooms(pokePosition, collisionRadius + 50_len, pokeHeight + 50_len, world);
+  const auto rooms = collectTouchingRooms(objectPos, collisionRadius + 50_len, objectHeight + 50_len, world);
 
   // no need to worry about rotation here, this is a square box
-  const core::BoundingBox pokeBox{
-    {pokePosition.X - collisionRadius, pokePosition.Y - pokeHeight, pokePosition.Z - collisionRadius},
-    {pokePosition.X + collisionRadius, pokePosition.Y, pokePosition.Z + collisionRadius}};
+  const core::BoundingBox objectBox{
+    {objectPos.X - collisionRadius, objectPos.Y - objectHeight, objectPos.Z - collisionRadius},
+    {objectPos.X + collisionRadius, objectPos.Y, objectPos.Z + collisionRadius}};
 
   hasStaticMeshCollision = false;
 
@@ -318,30 +318,31 @@ bool CollisionInfo::checkStaticMeshCollisions(const core::TRVec& pokePosition,
         continue;
 
       const auto meshBox = rotateTranslate(rsm.staticMesh->collisionBox, rsm.position, rsm.rotation);
-      if(!meshBox.intersectsExclusive(pokeBox))
+      if(!meshBox.intersectsExclusive(objectBox))
         continue;
 
       // both collision boxes are in world space
-      shift.X = absMin(meshBox.x.min - pokeBox.x.max, meshBox.x.max - pokeBox.x.min);
-      shift.Z = absMin(meshBox.z.min - pokeBox.z.max, meshBox.z.max - pokeBox.z.min);
+      shift.X = minShift(objectBox.x.max - meshBox.x.min, meshBox.x.max - objectBox.x.min);
+      shift.Z = minShift(objectBox.z.max - meshBox.z.min, meshBox.z.max - objectBox.z.min);
 
       switch(facingAxis)
       {
       case core::Axis::Deg0:
         if(abs(shift.X) > collisionRadius)
         {
-          shift.X = initialPosition.X - pokePosition.X;
+          shift.X = initialPosition.X - objectPos.X;
           collisionType = AxisColl::Front;
         }
         else
         {
+          shift.Z = 0_len;
           collisionType = shift.X > 0_len ? AxisColl::FrontLeft : AxisColl::FrontRight;
         }
         break;
       case core::Axis::Deg180:
         if(abs(shift.X) > collisionRadius)
         {
-          shift.X = initialPosition.X - pokePosition.X;
+          shift.X = initialPosition.X - objectPos.X;
           collisionType = AxisColl::Front;
         }
         else
@@ -353,7 +354,7 @@ bool CollisionInfo::checkStaticMeshCollisions(const core::TRVec& pokePosition,
       case core::Axis::Right90:
         if(abs(shift.Z) > collisionRadius)
         {
-          shift.Z = initialPosition.Z - pokePosition.Z;
+          shift.Z = initialPosition.Z - objectPos.Z;
           collisionType = AxisColl::Front;
         }
         else
@@ -365,7 +366,7 @@ bool CollisionInfo::checkStaticMeshCollisions(const core::TRVec& pokePosition,
       case core::Axis::Left90:
         if(abs(shift.Z) > collisionRadius)
         {
-          shift.Z = initialPosition.Z - pokePosition.Z;
+          shift.Z = initialPosition.Z - objectPos.Z;
           collisionType = AxisColl::Front;
         }
         else
