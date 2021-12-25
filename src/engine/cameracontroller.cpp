@@ -493,9 +493,9 @@ std::unordered_set<const world::Portal*> CameraController::update()
     }
     m_isCompletelyFixed = false;
     if(m_mode == CameraMode::FreeLook)
-      handleFreeLook(*focusedObject);
+      handleFreeLook();
     else
-      handleEnemy(*focusedObject);
+      handleEnemy();
   }
   else
   {
@@ -601,8 +601,7 @@ core::Length CameraController::moveIntoBox(Location& goal, const core::Length& m
             && isVerticallyOutsideRoom(goal.moved(margin, 0_len, 0_len), m_world->getObjectManager()))
     {
       goal.position.X = narrowed.max;
-    };
-    ;
+    }
   }
 
   auto floor = HeightInfo::fromFloor(sector, goal.position, m_world->getObjectManager().getObjects()).y - margin;
@@ -700,22 +699,23 @@ void CameraController::chaseObject(const objects::Object& object)
   updatePosition(goal, m_isCompletelyFixed ? m_smoothness : 12_frame);
 }
 
-void CameraController::handleFreeLook(const objects::Object& object)
+void CameraController::handleFreeLook()
 {
   const auto originalLookAt = m_lookAt.position;
-  m_lookAt.position.X = object.m_state.location.position.X;
-  m_lookAt.position.Z = object.m_state.location.position.Z;
-
   const auto& lara = m_world->getObjectManager().getLara();
-  m_rotationAroundLara.X = lara.m_torsoRotation.X + lara.m_headRotation.X + object.m_state.rotation.X;
-  m_rotationAroundLara.Y = lara.m_torsoRotation.Y + lara.m_headRotation.Y + object.m_state.rotation.Y;
+
+  m_lookAt.position.X = lara.m_state.location.position.X;
+  m_lookAt.position.Z = lara.m_state.location.position.Z;
+
+  m_rotationAroundLara.X = lara.m_torsoRotation.X + lara.m_headRotation.X + lara.m_state.rotation.X;
+  m_rotationAroundLara.Y = lara.m_torsoRotation.Y + lara.m_headRotation.Y + lara.m_state.rotation.Y;
   m_distance = core::DefaultCameraLaraDistance;
-  m_lookAt.position += util::pitch(util::sin(-core::SectorSize / 2, m_rotationAroundLara.X), object.m_state.rotation.Y);
+  m_lookAt.position += util::pitch(util::sin(-core::SectorSize / 2, m_rotationAroundLara.X), lara.m_state.rotation.Y);
 
   if(isVerticallyOutsideRoom(m_lookAt, m_world->getObjectManager()))
   {
-    m_lookAt.position.X = object.m_state.location.position.X;
-    m_lookAt.position.Z = object.m_state.location.position.Z;
+    m_lookAt.position.X = lara.m_state.location.position.X;
+    m_lookAt.position.Z = lara.m_state.location.position.Z;
   }
   m_lookAt.position.Y += moveIntoBox(m_lookAt, core::CameraWallDistance);
 
@@ -733,23 +733,21 @@ void CameraController::handleFreeLook(const objects::Object& object)
   updatePosition(goal, m_smoothness);
 }
 
-void CameraController::handleEnemy(objects::Object& object)
+void CameraController::handleEnemy()
 {
-  m_lookAt.position.X = object.m_state.location.position.X;
-  m_lookAt.position.Z = object.m_state.location.position.Z;
+  const auto& lara = m_world->getObjectManager().getLara();
+  m_lookAt.position.X = lara.m_state.location.position.X;
+  m_lookAt.position.Z = lara.m_state.location.position.Z;
 
   if(m_enemy != nullptr)
   {
-    m_rotationAroundLara.X
-      = getWorld()->getObjectManager().getLara().m_weaponTargetVector.X + object.m_state.rotation.X;
-    m_rotationAroundLara.Y
-      = getWorld()->getObjectManager().getLara().m_weaponTargetVector.Y + object.m_state.rotation.Y;
+    m_rotationAroundLara.X = lara.m_weaponTargetVector.X + lara.m_state.rotation.X;
+    m_rotationAroundLara.Y = lara.m_weaponTargetVector.Y + lara.m_state.rotation.Y;
   }
   else
   {
-    auto& lara = m_world->getObjectManager().getLara();
-    m_rotationAroundLara.X = lara.m_torsoRotation.X + lara.m_headRotation.X + object.m_state.rotation.X;
-    m_rotationAroundLara.Y = lara.m_torsoRotation.Y + lara.m_headRotation.Y + object.m_state.rotation.Y;
+    m_rotationAroundLara.X = lara.m_torsoRotation.X + lara.m_headRotation.X + lara.m_state.rotation.X;
+    m_rotationAroundLara.Y = lara.m_torsoRotation.Y + lara.m_headRotation.Y + lara.m_state.rotation.Y;
   }
 
   m_distance = core::CombatCameraLaraDistance;

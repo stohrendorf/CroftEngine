@@ -227,8 +227,7 @@ private:
 
   void chaseObject(const objects::Object& object);
 
-  void handleFreeLook(const objects::Object& object);
-
-  void handleEnemy(objects::Object& object);
+  void handleFreeLook();
+  void handleEnemy();
 };
 } // namespace engine
