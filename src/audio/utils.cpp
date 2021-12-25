@@ -1,9 +1,10 @@
 #include "utils.h"
 
+#include "stacktrace.h"
+
 #include <AL/al.h>
 #include <AL/alc.h>
 #include <boost/log/trivial.hpp>
-#include <boost/stacktrace/stacktrace.hpp>
 #include <boost/throw_exception.hpp>
 #include <gsl/gsl-lite.hpp>
 #include <ios>
@@ -46,7 +47,7 @@ void checkALError(const gsl::czstring code, const gsl::czstring func, const int 
 
   BOOST_LOG_TRIVIAL(warning) << "OpenAL error 0x" << std::hex << err << std::dec << " (in " << func << ":" << line
                              << ") in statement '" << code << "': " << errStr;
-  BOOST_LOG_TRIVIAL(warning) << "Stacktrace:\n" << boost::stacktrace::stacktrace();
+  stacktrace::logStacktrace();
   BOOST_THROW_EXCEPTION(std::runtime_error(std::string{"OpenAL error: "} + errStr));
 }
 
@@ -84,7 +85,7 @@ void checkALCError(ALCdevice* device, const gsl::czstring code, const gsl::czstr
 
   BOOST_LOG_TRIVIAL(warning) << "OpenAL error 0x" << std::hex << err << std::dec << " (in " << func << ":" << line
                              << ") in statement '" << code << "': " << errStr;
-  BOOST_LOG_TRIVIAL(warning) << "Stacktrace:\n" << boost::stacktrace::stacktrace();
+  stacktrace::logStacktrace();
   BOOST_THROW_EXCEPTION(std::runtime_error(std::string{"OpenAL error: "} + errStr));
 }
 } // namespace audio::detail

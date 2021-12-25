@@ -1,5 +1,6 @@
+#include "stacktrace.h"
+
 #include <boost/log/trivial.hpp>
-#include <boost/stacktrace.hpp>
 #include <boost/throw_exception.hpp>
 #include <gsl/gsl-lite.hpp>
 
@@ -8,9 +9,9 @@
                                                     char const* const file,
                                                     int line)
 {
-  BOOST_LOG_TRIVIAL(error) << "Expectation failed at " << file << ":" << line;
-  BOOST_LOG_TRIVIAL(error) << "  - expression " << expression;
-  BOOST_LOG_TRIVIAL(error) << "  - message " << message;
-  BOOST_LOG_TRIVIAL(error) << "Stacktrace:\n" << boost::stacktrace::stacktrace();
+  BOOST_LOG_TRIVIAL(fatal) << "Expectation failed at " << file << ":" << line;
+  BOOST_LOG_TRIVIAL(fatal) << "  - expression " << expression;
+  BOOST_LOG_TRIVIAL(fatal) << "  - message " << message;
+  stacktrace::logStacktrace();
   BOOST_THROW_EXCEPTION(gsl::fail_fast(message));
 }

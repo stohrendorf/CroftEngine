@@ -1,6 +1,11 @@
+include( get_boost )
+
 add_library(
         shared
-        INTERFACE
+        STATIC
+        stacktrace.cpp
 )
 
-target_include_directories( shared INTERFACE . )
+target_include_directories( shared PUBLIC . )
+
+target_link_libraries( shared PRIVATE Boost::stacktrace Boost::log )
