@@ -10,6 +10,16 @@ An open-source Tomb Raider 1 engine remake.
 
 ![EdisonEngine logo](./share/splash.png)
 
+> These videos are kindly provided by Raina Audron.
+>
+> *Showcase Trailer*
+>
+> [![Edison Engine Showcase Trailer](https://img.youtube.com/vi/IAA6ILvQ4Uw/0.jpg)](https://www.youtube.com/watch?v=IAA6ILvQ4Uw)
+>
+> *The Lost Valley Playthrough*
+>
+> [![The Lost Valley Playthrough in Edison Engine](https://img.youtube.com/vi/o8FEo1QU1QM/0.jpg)](https://www.youtube.com/watch?v=o8FEo1QU1QM)
+
 ## Licensing
 
 EdisonEngine is an open-source engine distributed under LGPLv3 license, which means that ANY part of the source code
@@ -19,50 +29,58 @@ must be open-source as well.
 
 ## Usage
 
-**Important**: If you're not technically inclined, i.e. you don't know what 7z archives are, or how to use cmd or
-powershell, this is *not* for you. As EdisonEngine is still in beta stage, there's no easy plug-and-play solution yet -
-but it's planned.
+> *A user manual has been kindly provided by Raina Audron [here](https://drive.google.com/file/d/1iRz4Svdi_dhmlDNFYeZqyP-wfApWhDoN/view)*.
 
-Now, if you're still here, here's how to set up EdisonEngine and get it running.
-
-1. Get the most recent release from [here](https://github.com/stohrendorf/EdisonEngine/releases).
-2. Extract it. Be aware that there is *no* dedicated subfolder for all files, i.e. make sure you extract the files in a
-   dedicated subfolder.
-3. You will possibly encounter bugs or strange oddities. Please don't think too much, report them immediately in
+1. Get the most recent release from [here](https://github.com/stohrendorf/EdisonEngine/releases). It is recommended to
+   use the installer in Windows. For openSUSE users, the engine is available for most distribution versions in the
+   "Games" repository.
+2. You will possibly encounter bugs or strange oddities. Please don't think too much, report them immediately in
    the [issue tracker](https://github.com/stohrendorf/EdisonEngine/issues) here. I can't fix things I'm not aware of. If
    possible, attach screenshots (which are by default bound to F12) and instructions how to toggle that bug. If you
    can't reproduce the bug, at least try to be as specific as you can when describing the bug. Any information I can
    gather is in fact helpful to nail that bug down.
-4. You need soundtrack files, grab them from [here](https://opentomb.earvillage.net/).
-5. Ensure your data layout looks something like this:
+3. You need soundtrack files, grab them from [here](https://opentomb.earvillage.net/).
+4. On Windows, navigate to `%LOCALAPPDATA%` and create a directory `edisonengine` there; on Linux, navigate
+   to `~/.local/share` and create a directory `edisonengine` there.
+5. Ensure your the files in the newly created directory look something like this:
    ```
-   edisonengine.exe
-   (... and other files from the release archive ...)
-   data\
-     tr1\
-       AUDIO\
-         002.ogg
-         003.ogg
-         ...
-       DATA\
-         CUT1.PHD
-         CUT2.PHD
-         ...
-       FMV\
-         CAFE.RPL
-         CANYON.RPL
-         ...
+   edisonengine
+   └ data
+     └ tr1
+       ├ AUDIO
+       │ ├ 002.ogg
+       │ ├ 003.ogg
+       │ └ ...
+       ├ DATA
+       │ ├ CUT1.PHD
+       │ ├ CUT2.PHD
+       │ └ ...
+       └ FMV
+         ├ CAFE.RPL
+         ├ CANYON.RPL
+         └ ...
    ```
-6. You should now be able to run `edisonengine.exe`. If something bad happens as mentioned above, or something doesn't
-   work as expected, make a copy of `edisonengine.log`, and attach the file to the issue. You may also get help by
-   [joining Discord](https://discord.gg/ndBqb5BmkH), I'll be there in the #edisonengine channel and chat with you as
-   soon as I can, there are also other members already involved enough to give you some guidance.
+6. You should now be able to run EdisonEngine. If something bad happens as mentioned above, or something doesn't work as
+   expected, make a copy of `edisonengine.log` located in the data directory, and attach the file to the issue. You may
+   also get help by [joining Discord](https://discord.gg/ndBqb5BmkH), I'll be there in the #edisonengine channel and
+   chat with you as soon as I can, there are also other members already involved enough to give you some guidance.
 7. The default keybindings are WASD for movement Q and E for stepping left and right, Space for jump, Shift for walking,
    X for rolling, Ctrl for Action, 1 for drawing pistols, 2 for shotguns, 3 for uzis and 4 for magnums. You can consume
    small medi packs by pressing 5, and large ones by pressing 6. Quicksaves and loading them can be done using F5 and
    F6. You can take screenshots by pressing F12. The menu can be opened using Esc, and videos can be skipped using Esc.
 
 ## Credits
+
+The following people deserve some noteworthy credit.
+
+* Raina Audron for creating the first YouTube videos and writing the user manual.
+* [Dirk Stoecker](https://build.opensuse.org/users/dstoecker) for being the package maintainer of the openSUSE packages.
+* [Liinx86](https://www.twitch.tv/liinx86) for being the world's first streamer streaming EdisonEngine on twitch; also
+  gave the idea for the Ghost feature.
+* [Tomb_of_Ash](https://www.twitch.tv/tomb_of_ash) for being the second streamer.
+* All testers reporting bugs.
+* Every contributor.
+* All players.
 
 The following people did extensive work on the [OpenTomb engine](http://opentomb.github.io/), which was the starting
 point for EdisonEngine. Although EdisonEngine is a complete re-write with negligible remnants of OpenTomb's code base
