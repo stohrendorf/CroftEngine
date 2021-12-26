@@ -301,6 +301,8 @@ set( EDISONENGINE_SRCS
         util/md5.h
         util/md5.cpp
 
+        engine/objects/aiminfo.h
+        engine/objects/aiminfo.cpp
         engine/objects/objectfactory.h
         engine/objects/objectfactory.cpp
         engine/objects/animating.h
@@ -427,6 +429,8 @@ set( EDISONENGINE_SRCS
         engine/objects/slopedbridge.cpp
         engine/objects/stubobject.h
         engine/objects/trapdoordown.h
+        engine/objects/weapon.h
+        engine/objects/weapon.cpp
 
         engine/ai/ai.h
         engine/ai/ai.cpp

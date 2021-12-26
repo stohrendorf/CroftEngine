@@ -1,5 +1,6 @@
 #pragma once
 
+#include "aiminfo.h"
 #include "core/angle.h"
 #include "core/id.h"
 #include "core/magic.h"
@@ -322,32 +323,6 @@ public:
 
   void updateExplosionStumbling();
 
-  struct AimInfo
-  {
-    const size_t handBoneId;
-    const size_t thighBoneId;
-
-    const loader::file::AnimFrame* weaponAnimData = nullptr;
-    core::Frame frame = 0_frame;
-    bool aiming = false;
-    core::TRRotationXY aimRotation{};
-    core::Frame flashTimeout = 0_frame;
-
-    void update(LaraObject& lara, const Weapon& weapon);
-    void holsterWeapons(LaraObject& lara, WeaponType weaponType);
-    void overrideHolsterWeaponsMeshes(LaraObject& lara, WeaponType weaponType);
-
-    void serialize(const serialization::Serializer<world::World>& ser);
-
-    void reset()
-    {
-      frame = 0_frame;
-      aiming = false;
-      aimRotation.X = 0_deg;
-      aimRotation.Y = 0_deg;
-    }
-  };
-
   AimInfo leftArm{13, 1};
   AimInfo rightArm{10, 4};
 
@@ -363,7 +338,7 @@ public:
 
   void updateShotgun();
 
-  void updateWeapons(WeaponType weaponType);
+  void updateTwoWeapons(WeaponType weaponType);
 
   void updateAimingState(const Weapon& weapon);
 
@@ -371,15 +346,13 @@ public:
 
   static Location getUpperThirdBBoxCtr(const ModelObject& object);
 
-  void drawWeapons(WeaponType weaponType);
+  void drawTwoWeapons(WeaponType weaponType);
 
   void findTarget(const Weapon& weapon);
 
-  void initAimInfoPistol();
+  void initAimInfoTwoWeapons();
 
   void initAimInfoShotgun();
-
-  void overrideLaraMeshesDrawWeapons(WeaponType weaponType);
 
   void overrideLaraMeshesDrawShotgun();
 
@@ -393,9 +366,9 @@ public:
 
   void holsterShotgun();
 
-  void holsterWeapons(WeaponType weaponType);
+  void holsterTwoWeapons(WeaponType weaponType);
 
-  void updateAnimNotShotgun(WeaponType weaponType);
+  void updateAnimTwoWeapons(const WeaponType weaponType);
 
   bool shootBullet(WeaponType weaponType,
                    const std::shared_ptr<ModelObject>& targetObject,
