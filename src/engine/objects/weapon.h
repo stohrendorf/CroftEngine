@@ -24,7 +24,7 @@ struct Weapon
   core::Length weaponHeight = 0_len;
   core::Health damage = 0_hp;
   core::Length targetDist = 0_len;
-  core::Frame recoilFrame = 0_frame;
+  core::Frame recoilDuration = 0_frame;
   core::Frame flashTime = 0_frame;
   TR1SoundEffect shotSound = TR1SoundEffect::LaraFootstep;
 

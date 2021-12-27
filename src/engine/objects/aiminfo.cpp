@@ -24,14 +24,18 @@ void AimInfo::serialize(const serialization::Serializer<world::World>& ser)
   weaponAnimData = reinterpret_cast<const loader::file::AnimFrame*>(ptr);
 }
 
-void AimInfo::update(LaraObject& lara, const Weapon& weapon)
+void AimInfo::updateAnimTwoWeapons(LaraObject& lara, const Weapon& weapon)
 {
   if(!aiming
      && (lara.aimAt != nullptr || !lara.getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action)))
   {
     if(frame >= TwoWeaponsRecoilAnimStart)
     {
-      frame = TwoWeaponsAiming;
+      frame += 1_frame;
+      if(frame == weapon.recoilDuration + TwoWeaponsRecoilAnimStart)
+      {
+        frame = TwoWeaponsAiming;
+      }
     }
     else if(frame > TwoWeaponsIdle && frame <= TwoWeaponsAiming)
     {
@@ -57,9 +61,132 @@ void AimInfo::update(LaraObject& lara, const Weapon& weapon)
   else if(frame >= TwoWeaponsRecoilAnimStart)
   {
     frame += 1_frame;
-    if(frame == weapon.recoilFrame + TwoWeaponsRecoilAnimStart)
+    if(frame == weapon.recoilDuration + TwoWeaponsRecoilAnimStart)
     {
       frame = TwoWeaponsAiming;
+    }
+  }
+}
+
+void AimInfo::updateAnimShotgun(LaraObject& lara)
+{
+  if(aiming)
+  {
+    if(frame >= ShotgunIdle && frame <= ShotgunIdleToAimAnimEnd)
+    {
+      if(frame == ShotgunIdleToAimAnimEnd)
+      {
+        frame = ShotgunReadyToShoot;
+      }
+      else
+      {
+        frame += 1_frame;
+      }
+    }
+    else if(frame == ShotgunReadyToShoot)
+    {
+      if(lara.getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action))
+      {
+        lara.tryShootShotgun();
+        frame += 1_frame;
+      }
+    }
+    else if(frame >= ShotgunAfterShotAnimStart && frame <= ShotgunAfterShotAnimEnd)
+    {
+      if(frame == ShotgunAfterShotAnimEnd)
+      {
+        frame = ShotgunReadyToShoot;
+      }
+      else if(frame == ShotgunReload)
+      {
+        frame += 1_frame;
+        lara.playSoundEffect(TR1SoundEffect::LaraHolsterWeapons);
+      }
+      else
+      {
+        frame += 1_frame;
+      }
+    }
+    else if(frame >= ShotgunAimToIdleAnimStart && frame <= ShotgunAimToIdleAnimEnd)
+    {
+      if(frame == ShotgunAimToIdleAnimEnd)
+      {
+        frame = ShotgunIdle;
+      }
+      else
+      {
+        frame += 1_frame;
+      }
+    }
+
+    return;
+  }
+
+  if(frame == ShotgunIdle && lara.getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action))
+  {
+    frame += 1_frame;
+    return;
+  }
+
+  if(frame > ShotgunIdle && frame <= ShotgunIdleToAimAnimEnd)
+  {
+    if(frame == ShotgunIdleToAimAnimEnd)
+    {
+      if(lara.getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action))
+      {
+        frame = ShotgunReadyToShoot;
+      }
+      else
+      {
+        frame = ShotgunAimToIdleAnimStart;
+      }
+    }
+    else
+    {
+      frame += 1_frame;
+    }
+  }
+  else if(frame == ShotgunReadyToShoot)
+  {
+    if(lara.getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action))
+    {
+      lara.tryShootShotgun();
+      frame += 1_frame;
+    }
+    else
+    {
+      frame = ShotgunAimToIdleAnimStart;
+    }
+  }
+  else if(frame >= ShotgunAfterShotAnimStart && frame <= ShotgunAfterShotAnimEnd)
+  {
+    if(frame == ShotgunAfterShotIdle)
+    {
+      frame = ShotgunIdle;
+    }
+    else if(frame == ShotgunAfterShotAnimEnd)
+    {
+      frame = ShotgunAimToIdleAnimStart;
+    }
+    else if(frame == ShotgunReload)
+    {
+      lara.playSoundEffect(TR1SoundEffect::LaraHolsterWeapons);
+      frame += 1_frame;
+    }
+    else
+    {
+      frame += 1_frame;
+    }
+  }
+  else if(frame >= ShotgunAimToIdleAnimStart && frame <= ShotgunAimToIdleAnimEnd)
+  {
+    if(frame == ShotgunAimToIdleAnimEnd)
+    {
+      frame = ShotgunIdle;
+    }
+    else
+    {
+      frame += 1_frame;
     }
   }
 }
@@ -145,5 +272,42 @@ void AimInfo::overrideDrawTwoWeaponsMeshes(LaraObject& lara, WeaponType weaponTy
   BOOST_ASSERT(normalLara.bones.size() == lara.getSkeleton()->getBoneCount());
   lara.getSkeleton()->setMeshPart(handBoneId, src->bones[handBoneId].mesh);
   lara.getSkeleton()->setMeshPart(thighBoneId, normalLara.bones[thighBoneId].mesh);
+}
+
+void AimInfo::updateAimAngles(const Weapon& weapon, const core::TRRotationXY& weaponTargetVector)
+{
+  core::TRRotationXY targetRot{};
+  if(aiming)
+  {
+    targetRot = weaponTargetVector;
+  }
+
+  if(aimRotation.X >= targetRot.X - weapon.aimSpeed * 1_frame
+     && aimRotation.X <= targetRot.X + weapon.aimSpeed * 1_frame)
+  {
+    aimRotation.X = targetRot.X;
+  }
+  else if(aimRotation.X >= targetRot.X)
+  {
+    aimRotation.X -= weapon.aimSpeed * 1_frame;
+  }
+  else
+  {
+    aimRotation.X += weapon.aimSpeed * 1_frame;
+  }
+
+  if(aimRotation.Y >= targetRot.Y - weapon.aimSpeed * 1_frame
+     && aimRotation.Y <= weapon.aimSpeed * 1_frame + targetRot.Y)
+  {
+    aimRotation.Y = targetRot.Y;
+  }
+  else if(aimRotation.Y >= targetRot.Y)
+  {
+    aimRotation.Y -= weapon.aimSpeed * 1_frame;
+  }
+  else
+  {
+    aimRotation.Y += weapon.aimSpeed * 1_frame;
+  }
 }
 } // namespace engine::objects

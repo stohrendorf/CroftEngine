@@ -358,8 +358,6 @@ public:
 
   void drawShotgun();
 
-  void updateAimAngles(const Weapon& weapon, AimInfo& aimInfo) const;
-
   void updateAnimShotgun();
 
   void tryShootShotgun();
@@ -368,7 +366,7 @@ public:
 
   void holsterTwoWeapons(WeaponType weaponType);
 
-  void updateAnimTwoWeapons(const WeaponType weaponType);
+  void updateAnimTwoWeapons(WeaponType weaponType);
 
   bool shootBullet(WeaponType weaponType,
                    const std::shared_ptr<ModelObject>& targetObject,

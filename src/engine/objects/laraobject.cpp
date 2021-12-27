@@ -870,7 +870,7 @@ void LaraObject::updateShotgun()
   {
     findTarget(Weapon::get(WeaponType::Shotgun));
   }
-  updateAimAngles(Weapon::get(WeaponType::Shotgun), leftArm);
+  leftArm.updateAimAngles(Weapon::get(WeaponType::Shotgun), m_weaponTargetVector);
   if(leftArm.aiming)
   {
     m_torsoRotation.X = leftArm.aimRotation.X / 2;
@@ -896,8 +896,8 @@ void LaraObject::updateTwoWeapons(WeaponType weaponType)
   {
     findTarget(weapon);
   }
-  updateAimAngles(weapon, leftArm);
-  updateAimAngles(weapon, rightArm);
+  leftArm.updateAimAngles(weapon, m_weaponTargetVector);
+  rightArm.updateAimAngles(weapon, m_weaponTargetVector);
   if(leftArm.aiming && !rightArm.aiming)
   {
     m_headRotation.Y = m_torsoRotation.Y = leftArm.aimRotation.Y / 2;
@@ -941,20 +941,8 @@ void LaraObject::updateAimingState(const Weapon& weapon)
   }
   else if(!weapon.lockAngles.y.contains(targetVector.Y) || !weapon.lockAngles.x.contains(targetVector.X))
   {
-    if(leftArm.aiming)
-    {
-      if(!weapon.leftAngles.y.contains(targetVector.Y) || !weapon.leftAngles.x.contains(targetVector.X))
-      {
-        leftArm.aiming = false;
-      }
-    }
-    if(rightArm.aiming)
-    {
-      if(!weapon.rightAngles.y.contains(targetVector.Y) || !weapon.rightAngles.x.contains(targetVector.X))
-      {
-        rightArm.aiming = false;
-      }
-    }
+    leftArm.aiming &= !weapon.leftAngles.y.contains(targetVector.Y) || !weapon.leftAngles.x.contains(targetVector.X);
+    rightArm.aiming &= !weapon.rightAngles.y.contains(targetVector.Y) || !weapon.rightAngles.x.contains(targetVector.X);
   }
   else
   {
@@ -1036,14 +1024,13 @@ void LaraObject::drawTwoWeapons(WeaponType weaponType)
     nextFrame = TwoWeaponsIdle;
   }
 
-  leftArm.frame = nextFrame;
-  rightArm.frame = nextFrame;
+  leftArm.frame = rightArm.frame = nextFrame;
 }
 
 void LaraObject::findTarget(const Weapon& weapon)
 {
   Location weaponLocation{m_state.location};
-  weaponLocation.position.Y -= Weapon::get(WeaponType::Shotgun).weaponHeight;
+  weaponLocation.position.Y -= weapon.weaponHeight;
   aimAt.reset();
   core::Angle bestYAngle{std::numeric_limits<core::Angle::type>::max()};
   for(const auto& currentEnemy : getWorld().getObjectManager().getObjects() | boost::adaptors::map_values)
@@ -1075,8 +1062,7 @@ void LaraObject::findTarget(const Weapon& weapon)
       continue;
 
     auto enemyPos = getUpperThirdBBoxCtr(*std::dynamic_pointer_cast<const ModelObject>(currentEnemy.get()));
-    const auto canShoot = raycastLineOfSight(weaponLocation, enemyPos.position, getWorld().getObjectManager()).first;
-    if(!canShoot)
+    if(!raycastLineOfSight(weaponLocation, enemyPos.position, getWorld().getObjectManager()).first)
       continue;
 
     auto aimAngle = getVectorAngles(enemyPos.position - weaponLocation.position);
@@ -1164,164 +1150,10 @@ void LaraObject::drawShotgun()
   rightArm.frame = nextFrame;
 }
 
-void LaraObject::updateAimAngles(const Weapon& weapon, AimInfo& aimInfo) const
-{
-  core::TRRotationXY targetRot{};
-  if(aimInfo.aiming)
-  {
-    targetRot = m_weaponTargetVector;
-  }
-
-  if(aimInfo.aimRotation.X >= targetRot.X - weapon.aimSpeed * 1_frame
-     && aimInfo.aimRotation.X <= targetRot.X + weapon.aimSpeed * 1_frame)
-  {
-    aimInfo.aimRotation.X = targetRot.X;
-  }
-  else if(aimInfo.aimRotation.X >= targetRot.X)
-  {
-    aimInfo.aimRotation.X -= weapon.aimSpeed * 1_frame;
-  }
-  else
-  {
-    aimInfo.aimRotation.X += weapon.aimSpeed * 1_frame;
-  }
-
-  if(aimInfo.aimRotation.Y >= targetRot.Y - weapon.aimSpeed * 1_frame
-     && aimInfo.aimRotation.Y <= weapon.aimSpeed * 1_frame + targetRot.Y)
-  {
-    aimInfo.aimRotation.Y = targetRot.Y;
-  }
-  else if(aimInfo.aimRotation.Y >= targetRot.Y)
-  {
-    aimInfo.aimRotation.Y -= weapon.aimSpeed * 1_frame;
-  }
-  else
-  {
-    aimInfo.aimRotation.Y += weapon.aimSpeed * 1_frame;
-  }
-}
-
 void LaraObject::updateAnimShotgun()
 {
-  auto aimingFrame = leftArm.frame;
-  if(leftArm.aiming)
-  {
-    if(leftArm.frame >= ShotgunIdle && leftArm.frame <= ShotgunIdleToAimAnimEnd)
-    {
-      aimingFrame = leftArm.frame + 1_frame;
-      if(leftArm.frame == ShotgunIdleToAimAnimEnd)
-      {
-        aimingFrame = ShotgunReadyToShoot;
-      }
-    }
-    else if(leftArm.frame == ShotgunReadyToShoot)
-    {
-      if(getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action))
-      {
-        tryShootShotgun();
-        rightArm.frame = leftArm.frame + 1_frame;
-        leftArm.frame = leftArm.frame + 1_frame;
-        return;
-      }
-    }
-    else if(leftArm.frame >= ShotgunAfterShotAnimStart && leftArm.frame <= ShotgunAfterShotAnimEnd)
-    {
-      aimingFrame = leftArm.frame + 1_frame;
-      if(leftArm.frame == ShotgunAfterShotAnimEnd)
-      {
-        aimingFrame = ShotgunReadyToShoot;
-      }
-      else if(leftArm.frame == ShotgunReload)
-      {
-        playSoundEffect(TR1SoundEffect::LaraHolsterWeapons);
-      }
-    }
-    else if(leftArm.frame >= ShotgunAimToIdleAnimStart && leftArm.frame <= ShotgunAimToIdleAnimEnd)
-    {
-      aimingFrame = leftArm.frame + 1_frame;
-      if(leftArm.frame == ShotgunAimToIdleAnimEnd)
-      {
-        aimingFrame = ShotgunIdle;
-      }
-    }
-
-    rightArm.frame = aimingFrame;
-    leftArm.frame = aimingFrame;
-    return;
-  }
-
-  if(leftArm.frame == ShotgunIdle && getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action))
-  {
-    leftArm.frame += 1_frame;
-    rightArm.frame += 1_frame;
-    return;
-  }
-
-  if(leftArm.frame > ShotgunIdle && leftArm.frame <= ShotgunIdleToAimAnimEnd)
-  {
-    aimingFrame = leftArm.frame + 1_frame;
-    if(leftArm.frame == ShotgunIdleToAimAnimEnd)
-    {
-      if(getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action))
-      {
-        rightArm.frame = ShotgunReadyToShoot;
-        leftArm.frame = ShotgunReadyToShoot;
-        return;
-      }
-
-      rightArm.frame = ShotgunAimToIdleAnimStart;
-      leftArm.frame = ShotgunAimToIdleAnimStart;
-      return;
-    }
-  }
-  else if(leftArm.frame == ShotgunReadyToShoot)
-  {
-    if(getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action))
-    {
-      tryShootShotgun();
-      rightArm.frame = aimingFrame + 1_frame;
-      leftArm.frame = aimingFrame + 1_frame;
-      return;
-    }
-
-    rightArm.frame = ShotgunAimToIdleAnimStart;
-    leftArm.frame = ShotgunAimToIdleAnimStart;
-    return;
-  }
-  else if(leftArm.frame >= ShotgunAfterShotAnimStart && leftArm.frame <= ShotgunAfterShotAnimEnd)
-  {
-    aimingFrame = leftArm.frame + 1_frame;
-    if(leftArm.frame == ShotgunAfterShotIdle)
-    {
-      rightArm.frame = ShotgunIdle;
-      leftArm.frame = ShotgunIdle;
-      return;
-    }
-    else if(leftArm.frame == ShotgunAfterShotAnimEnd)
-    {
-      rightArm.frame = ShotgunAimToIdleAnimStart;
-      leftArm.frame = ShotgunAimToIdleAnimStart;
-      return;
-    }
-    else if(leftArm.frame == ShotgunReload)
-    {
-      playSoundEffect(TR1SoundEffect::LaraHolsterWeapons);
-      rightArm.frame = aimingFrame;
-      leftArm.frame = aimingFrame;
-      return;
-    }
-  }
-  else if(leftArm.frame >= ShotgunAimToIdleAnimStart && leftArm.frame <= ShotgunAimToIdleAnimEnd)
-  {
-    aimingFrame = leftArm.frame + 1_frame;
-    if(leftArm.frame == ShotgunAimToIdleAnimEnd)
-    {
-      aimingFrame = ShotgunIdle;
-    }
-  }
-
-  rightArm.frame = aimingFrame;
-  leftArm.frame = aimingFrame;
+  leftArm.updateAnimShotgun(*this);
+  rightArm.frame = leftArm.frame;
 }
 
 void LaraObject::tryShootShotgun()
@@ -1443,8 +1275,8 @@ void LaraObject::updateAnimTwoWeapons(const WeaponType weaponType)
 {
   const auto& weapon = Weapon::get(weaponType);
 
-  rightArm.update(*this, weapon);
-  leftArm.update(*this, weapon);
+  rightArm.updateAnimTwoWeapons(*this, weapon);
+  leftArm.updateAnimTwoWeapons(*this, weapon);
 }
 
 bool LaraObject::shootBullet(const WeaponType weaponType,

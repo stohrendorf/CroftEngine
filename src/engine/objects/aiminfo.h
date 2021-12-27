@@ -52,10 +52,13 @@ struct AimInfo
   core::TRRotationXY aimRotation{};
   core::Frame flashTimeout = 0_frame;
 
-  void update(LaraObject& lara, const Weapon& weapon);
+  void updateAnimTwoWeapons(LaraObject& lara, const Weapon& weapon);
+  void updateAnimShotgun(LaraObject& lara);
   void holsterTwoWeapons(LaraObject& lara, WeaponType weaponType);
   void overrideHolsterTwoWeaponsMeshes(LaraObject& lara, WeaponType weaponType);
   void overrideDrawTwoWeaponsMeshes(LaraObject& lara, WeaponType weaponType);
+
+  void updateAimAngles(const Weapon& weapon, const core::TRRotationXY& weaponTargetVector);
 
   void serialize(const serialization::Serializer<world::World>& ser);
 
