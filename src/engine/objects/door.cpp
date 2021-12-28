@@ -34,25 +34,24 @@ Door::Door(const std::string& name,
     : ModelObject{name, world, room, item, true, animatedModel}
 {
 #ifndef NO_DOOR_BLOCK
+  // door wings are behind the door
   core::Length dx = 0_len, dz = 0_len;
-  const auto axis = axisFromAngle(m_state.rotation.Y);
-  switch(axis)
+  m_wingsPosition = m_state.location.position;
+  switch(axisFromAngle(m_state.rotation.Y))
   {
   case core::Axis::PosZ:
-    dz = -core::SectorSize;
+    m_wingsPosition.Z -= core::SectorSize;
     break;
   case core::Axis::PosX:
-    dx = -core::SectorSize;
+    m_wingsPosition.X -= core::SectorSize;
     break;
   case core::Axis::NegZ:
-    dz = core::SectorSize;
+    m_wingsPosition.Z += core::SectorSize;
     break;
   case core::Axis::NegX:
-    dx = core::SectorSize;
+    m_wingsPosition.X += core::SectorSize;
     break;
   }
-
-  m_wingsPosition = m_state.location.position + core::TRVec{dx, 0_len, dz};
 
   m_info.init(*m_state.location.room, m_wingsPosition);
   if(m_state.location.room->alternateRoom != nullptr)
@@ -66,10 +65,10 @@ Door::Door(const std::string& name,
   if(m_info.originalSector.boundaryRoom != nullptr)
   {
     m_target.init(*m_info.originalSector.boundaryRoom, m_state.location.position);
-    if(m_state.location.room->alternateRoom != nullptr)
+    if(m_info.originalSector.boundaryRoom->alternateRoom != nullptr)
     {
       Expects(m_alternateInfo.originalSector.boundaryRoom != nullptr);
-      m_alternateTarget.init(*m_alternateInfo.originalSector.boundaryRoom, m_state.location.position);
+      m_alternateTarget.init(*m_info.originalSector.boundaryRoom->alternateRoom, m_state.location.position);
     }
 
     m_target.close();
