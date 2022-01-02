@@ -688,31 +688,6 @@ void AbstractStateHandler::setUnderwaterState(const objects::UnderwaterState u) 
   m_lara.setUnderwaterState(u);
 }
 
-void AbstractStateHandler::setCameraRotationAroundLara(const core::Angle& x, const core::Angle& y)
-{
-  m_lara.setCameraRotationAroundLara(x, y);
-}
-
-void AbstractStateHandler::setCameraRotationAroundLaraX(const core::Angle& x)
-{
-  m_lara.setCameraRotationAroundLaraX(x);
-}
-
-void AbstractStateHandler::setCameraRotationAroundLaraY(const core::Angle& y)
-{
-  m_lara.setCameraRotationAroundLaraY(y);
-}
-
-void AbstractStateHandler::setCameraDistance(const core::Length& d)
-{
-  m_lara.setCameraDistance(d);
-}
-
-void AbstractStateHandler::setCameraModifier(const CameraModifier k)
-{
-  m_lara.setCameraModifier(k);
-}
-
 void AbstractStateHandler::jumpAgainstWall(CollisionInfo& collisionInfo)
 {
   applyShift(collisionInfo);

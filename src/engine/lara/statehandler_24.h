@@ -16,8 +16,8 @@ public:
 
   void handleInput(CollisionInfo& /*collisionInfo*/) override
   {
-    setCameraModifier(CameraModifier::AllowSteepSlants);
-    setCameraRotationAroundLaraX(-45_deg);
+    getWorld().getCameraController().setModifier(CameraModifier::AllowSteepSlants);
+    getWorld().getCameraController().setRotationAroundLaraX(-45_deg);
     if(getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Jump))
     {
       setGoalAnimState(LaraStateId::JumpForward);

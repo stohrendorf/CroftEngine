@@ -152,16 +152,6 @@ protected:
 
   void setUnderwaterState(objects::UnderwaterState u) noexcept;
 
-  void setCameraRotationAroundLara(const core::Angle& x, const core::Angle& y);
-
-  void setCameraRotationAroundLaraX(const core::Angle& x);
-
-  void setCameraRotationAroundLaraY(const core::Angle& y);
-
-  void setCameraDistance(const core::Length& d);
-
-  void setCameraModifier(CameraModifier k);
-
   void laraUpdateImpl();
 };
 } // namespace engine::lara

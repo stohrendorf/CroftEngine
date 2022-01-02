@@ -17,7 +17,7 @@ public:
 
   void handleInput(CollisionInfo& collisionInfo) override
   {
-    setCameraRotationAroundLara(-60_deg, 0_deg);
+    getWorld().getCameraController().setRotationAroundLara(-60_deg, 0_deg);
     collisionInfo.policies &= ~CollisionInfo::SpazPushPolicy;
     const auto& inputState = getWorld().getPresenter().getInputHandler().getInputState();
     if(inputState.xMovement == hid::AxisMovement::Left || inputState.stepMovement == hid::AxisMovement::Left)

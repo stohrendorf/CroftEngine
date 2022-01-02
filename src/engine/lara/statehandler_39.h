@@ -16,8 +16,8 @@ public:
   void handleInput(CollisionInfo& collisionInfo) override
   {
     collisionInfo.policies &= ~CollisionInfo::SpazPushPolicy;
-    setCameraRotationAroundLara(-15_deg, -130_deg);
-    setCameraDistance(1024_len);
+    getWorld().getCameraController().setRotationAroundLara(-15_deg, -130_deg);
+    getWorld().getCameraController().setDistance(1024_len);
   }
 
   void postprocessFrame(CollisionInfo& collisionInfo) override

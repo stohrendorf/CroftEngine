@@ -267,16 +267,6 @@ public:
     m_underwaterState = u;
   }
 
-  void setCameraRotationAroundLara(const core::Angle& x, const core::Angle& y);
-
-  void setCameraRotationAroundLaraX(const core::Angle& x);
-
-  void setCameraRotationAroundLaraY(const core::Angle& y);
-
-  void setCameraDistance(const core::Length& d);
-
-  void setCameraModifier(CameraModifier k);
-
   void addHeadRotationX(const core::RotationSpeed& x, const core::Angle& minX, const core::Angle& maxX)
   {
     m_headRotation.X = std::clamp(m_headRotation.X + x * 1_frame, minX, maxX);

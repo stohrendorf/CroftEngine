@@ -16,7 +16,7 @@ public:
   void handleInput(CollisionInfo& collisionInfo) override
   {
     collisionInfo.policies &= ~CollisionInfo::SpazPushPolicy;
-    setCameraModifier(CameraModifier::FollowCenter);
+    getWorld().getCameraController().setModifier(CameraModifier::FollowCenter);
   }
 
   void postprocessFrame(CollisionInfo& collisionInfo) override

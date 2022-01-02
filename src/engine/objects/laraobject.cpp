@@ -236,7 +236,7 @@ void LaraObject::handleLaraStateSwimming()
   collisionInfo.validCeilingHeightMin = core::DefaultCollisionRadius;
   collisionInfo.validFloorHeight = {-core::DefaultCollisionRadius, core::HeightLimit};
 
-  setCameraRotationAroundLaraX(-22_deg);
+  getWorld().getCameraController().setRotationAroundLaraX(-22_deg);
 
   lara::AbstractStateHandler::create(getCurrentAnimState(), *this)->handleInput(collisionInfo);
 
@@ -539,31 +539,6 @@ void LaraObject::updateFloorHeight(const core::Length& dy)
   setCurrentRoom(location.room);
 }
 
-void LaraObject::setCameraRotationAroundLara(const core::Angle& x, const core::Angle& y)
-{
-  getWorld().getCameraController().setRotationAroundLara(x, y);
-}
-
-void LaraObject::setCameraRotationAroundLaraY(const core::Angle& y)
-{
-  getWorld().getCameraController().setRotationAroundLaraY(y);
-}
-
-void LaraObject::setCameraRotationAroundLaraX(const core::Angle& x)
-{
-  getWorld().getCameraController().setRotationAroundLaraX(x);
-}
-
-void LaraObject::setCameraDistance(const core::Length& d)
-{
-  getWorld().getCameraController().setDistance(d);
-}
-
-void LaraObject::setCameraModifier(const CameraModifier k)
-{
-  getWorld().getCameraController().setModifier(k);
-}
-
 void LaraObject::testInteractions(CollisionInfo& collisionInfo)
 {
   m_state.is_hit = false;
@@ -608,7 +583,6 @@ void LaraObject::testInteractions(CollisionInfo& collisionInfo)
   {
     lara.hit_frame = 0_frame;
   }
-  // TODO selectedPuzzleKey = -1;
 }
 
 void LaraObject::handleUnderwaterCurrent(CollisionInfo& collisionInfo)
@@ -1146,8 +1120,7 @@ void LaraObject::drawShotgun()
     nextFrame = ShotgunIdleToAimAnimStart;
   }
 
-  leftArm.frame = nextFrame;
-  rightArm.frame = nextFrame;
+  leftArm.frame = rightArm.frame = nextFrame;
 }
 
 void LaraObject::updateAnimShotgun()
@@ -1178,46 +1151,56 @@ void LaraObject::tryShootShotgun()
 
 void LaraObject::holsterShotgun()
 {
-  auto aimFrame = leftArm.frame;
   if(leftArm.frame == ShotgunIdle)
   {
-    aimFrame = HolsterShotgunAnimStart;
+    leftArm.frame = rightArm.frame = HolsterShotgunAnimStart;
   }
   else if(leftArm.frame >= ShotgunIdle && leftArm.frame <= ShotgunIdleToAimAnimEnd)
   {
-    aimFrame = leftArm.frame + 1_frame;
     if(leftArm.frame == ShotgunIdleToAimAnimEnd)
     {
-      aimFrame = ShotgunAimToIdleAnimStart;
+      leftArm.frame = rightArm.frame = ShotgunAimToIdleAnimStart;
+    }
+    else
+    {
+      leftArm.frame += 1_frame;
+      rightArm.frame = leftArm.frame;
     }
   }
   else if(leftArm.frame == ShotgunReadyToShoot)
   {
-    aimFrame = ShotgunAimToIdleAnimStart;
+    leftArm.frame = rightArm.frame = ShotgunAimToIdleAnimStart;
   }
   else if(leftArm.frame >= ShotgunReadyToShoot && leftArm.frame <= ShotgunAfterShotAnimEnd)
   {
-    aimFrame = leftArm.frame + 1_frame;
     if(leftArm.frame == ShotgunAfterShotIdle)
     {
-      aimFrame = ShotgunIdle;
+      leftArm.frame = rightArm.frame = ShotgunIdle;
     }
     else if(leftArm.frame == ShotgunAfterShotAnimEnd)
     {
-      aimFrame = ShotgunAimToIdleAnimStart;
+      leftArm.frame = rightArm.frame = ShotgunAimToIdleAnimStart;
+    }
+    else
+    {
+      leftArm.frame += 1_frame;
+      rightArm.frame = leftArm.frame;
     }
   }
   else if(leftArm.frame >= ShotgunAimToIdleAnimStart && leftArm.frame <= ShotgunAimToIdleAnimEnd)
   {
-    aimFrame = leftArm.frame + 1_frame;
     if(leftArm.frame == ShotgunAimToIdleAnimEnd)
     {
-      aimFrame = HolsterShotgunAnimStart;
+      leftArm.frame = rightArm.frame = HolsterShotgunAnimStart;
+    }
+    else
+    {
+      leftArm.frame += 1_frame;
+      rightArm.frame = leftArm.frame;
     }
   }
   else if(leftArm.frame >= HolsterShotgunAnimStart && leftArm.frame <= HolsterShotgunAnimEnd)
   {
-    aimFrame = leftArm.frame + 1_frame;
     if(leftArm.frame == ShotgunPutHolster)
     {
       const auto& src = *getWorld().findAnimatedModelForType(TR1ItemId::LaraShotgunAnim);
@@ -1233,16 +1216,17 @@ void LaraObject::holsterShotgun()
     }
     else if(leftArm.frame == HolsterShotgunAnimEnd)
     {
-      aimFrame = ShotgunIdle;
+      leftArm.frame = rightArm.frame = ShotgunIdle;
+      leftArm.aiming = rightArm.aiming = false;
       m_handStatus = HandStatus::None;
       aimAt = nullptr;
-      rightArm.aiming = false;
-      leftArm.aiming = false;
+    }
+    else
+    {
+      leftArm.frame += 1_frame;
+      rightArm.frame = leftArm.frame;
     }
   }
-
-  rightArm.frame = aimFrame;
-  leftArm.frame = aimFrame;
 
   m_torsoRotation.X /= 2;
   m_torsoRotation.Y /= 2;
