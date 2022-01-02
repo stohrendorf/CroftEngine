@@ -87,6 +87,20 @@ constexpr size_t BoneArmR = 11;
 constexpr size_t BoneForeArmR = 12;
 constexpr size_t BoneHandR = 13;
 constexpr size_t BoneHead = 14;
+
+Location getUpperThirdBBoxCtr(const ModelObject& object)
+{
+  const auto kf = object.getSkeleton()->getInterpolationInfo().getNearestFrame();
+  const auto bbox = kf->bbox.toBBox();
+
+  const auto ctrX = bbox.x.mid();
+  const auto ctrZ = bbox.z.mid();
+  const auto ctrY3 = bbox.y.size() / 3 + bbox.y.min;
+
+  Location result{object.m_state.location};
+  result.position += util::pitch(core::TRVec{ctrX, ctrY3, ctrZ}, object.m_state.rotation.Y);
+  return result;
+}
 } // namespace
 
 void LaraObject::setAnimation(AnimationId anim, const std::optional<core::Frame>& firstFrame)
@@ -964,20 +978,6 @@ void LaraObject::initWeaponAnimData()
   }
 }
 
-Location LaraObject::getUpperThirdBBoxCtr(const ModelObject& object)
-{
-  const auto kf = object.getSkeleton()->getInterpolationInfo().getNearestFrame();
-  const auto bbox = kf->bbox.toBBox();
-
-  const auto ctrX = bbox.x.mid();
-  const auto ctrZ = bbox.z.mid();
-  const auto ctrY3 = bbox.y.size() / 3 + bbox.y.min;
-
-  Location result{object.m_state.location};
-  result.position += util::pitch(core::TRVec{ctrX, ctrY3, ctrZ}, object.m_state.rotation.Y);
-  return result;
-}
-
 void LaraObject::drawTwoWeapons(WeaponType weaponType)
 {
   auto nextFrame = leftArm.frame + 1_frame;
@@ -1099,6 +1099,20 @@ void LaraObject::overrideLaraMeshesDrawShotgun()
   getSkeleton()->rebuildMesh();
 }
 
+void LaraObject::overrideLaraMeshesHolsterShotgun()
+{
+  const auto& src = *getWorld().findAnimatedModelForType(TR1ItemId::LaraShotgunAnim);
+  BOOST_ASSERT(src.bones.size() == getSkeleton()->getBoneCount());
+  const auto& normalLara = *getWorld().findAnimatedModelForType(TR1ItemId::Lara);
+  BOOST_ASSERT(normalLara.bones.size() == getSkeleton()->getBoneCount());
+  getSkeleton()->setMeshPart(BoneTorso, src.bones[BoneTorso].mesh);
+  getSkeleton()->setMeshPart(BoneHandL, normalLara.bones[BoneHandL].mesh);
+  getSkeleton()->setMeshPart(BoneHandR, normalLara.bones[BoneHandR].mesh);
+  getSkeleton()->rebuildMesh();
+
+  playSoundEffect(TR1SoundEffect::LaraDrawWeapon);
+}
+
 void LaraObject::drawShotgun()
 {
   auto nextFrame = leftArm.frame + 1_frame;
@@ -1151,82 +1165,9 @@ void LaraObject::tryShootShotgun()
 
 void LaraObject::holsterShotgun()
 {
-  if(leftArm.frame == ShotgunIdle)
-  {
-    leftArm.frame = rightArm.frame = HolsterShotgunAnimStart;
-  }
-  else if(leftArm.frame >= ShotgunIdle && leftArm.frame <= ShotgunIdleToAimAnimEnd)
-  {
-    if(leftArm.frame == ShotgunIdleToAimAnimEnd)
-    {
-      leftArm.frame = rightArm.frame = ShotgunAimToIdleAnimStart;
-    }
-    else
-    {
-      leftArm.frame += 1_frame;
-      rightArm.frame = leftArm.frame;
-    }
-  }
-  else if(leftArm.frame == ShotgunReadyToShoot)
-  {
-    leftArm.frame = rightArm.frame = ShotgunAimToIdleAnimStart;
-  }
-  else if(leftArm.frame >= ShotgunReadyToShoot && leftArm.frame <= ShotgunAfterShotAnimEnd)
-  {
-    if(leftArm.frame == ShotgunAfterShotIdle)
-    {
-      leftArm.frame = rightArm.frame = ShotgunIdle;
-    }
-    else if(leftArm.frame == ShotgunAfterShotAnimEnd)
-    {
-      leftArm.frame = rightArm.frame = ShotgunAimToIdleAnimStart;
-    }
-    else
-    {
-      leftArm.frame += 1_frame;
-      rightArm.frame = leftArm.frame;
-    }
-  }
-  else if(leftArm.frame >= ShotgunAimToIdleAnimStart && leftArm.frame <= ShotgunAimToIdleAnimEnd)
-  {
-    if(leftArm.frame == ShotgunAimToIdleAnimEnd)
-    {
-      leftArm.frame = rightArm.frame = HolsterShotgunAnimStart;
-    }
-    else
-    {
-      leftArm.frame += 1_frame;
-      rightArm.frame = leftArm.frame;
-    }
-  }
-  else if(leftArm.frame >= HolsterShotgunAnimStart && leftArm.frame <= HolsterShotgunAnimEnd)
-  {
-    if(leftArm.frame == ShotgunPutHolster)
-    {
-      const auto& src = *getWorld().findAnimatedModelForType(TR1ItemId::LaraShotgunAnim);
-      BOOST_ASSERT(src.bones.size() == getSkeleton()->getBoneCount());
-      const auto& normalLara = *getWorld().findAnimatedModelForType(TR1ItemId::Lara);
-      BOOST_ASSERT(normalLara.bones.size() == getSkeleton()->getBoneCount());
-      getSkeleton()->setMeshPart(BoneTorso, src.bones[BoneTorso].mesh);
-      getSkeleton()->setMeshPart(BoneHandL, normalLara.bones[BoneHandL].mesh);
-      getSkeleton()->setMeshPart(BoneHandR, normalLara.bones[BoneHandR].mesh);
-      getSkeleton()->rebuildMesh();
-
-      playSoundEffect(TR1SoundEffect::LaraDrawWeapon);
-    }
-    else if(leftArm.frame == HolsterShotgunAnimEnd)
-    {
-      leftArm.frame = rightArm.frame = ShotgunIdle;
-      leftArm.aiming = rightArm.aiming = false;
-      m_handStatus = HandStatus::None;
-      aimAt = nullptr;
-    }
-    else
-    {
-      leftArm.frame += 1_frame;
-      rightArm.frame = leftArm.frame;
-    }
-  }
+  leftArm.holsterShotgun(*this);
+  rightArm.frame = leftArm.frame;
+  rightArm.aiming = leftArm.aiming;
 
   m_torsoRotation.X /= 2;
   m_torsoRotation.Y /= 2;

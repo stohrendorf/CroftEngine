@@ -334,8 +334,6 @@ public:
 
   void initWeaponAnimData();
 
-  static Location getUpperThirdBBoxCtr(const ModelObject& object);
-
   void drawTwoWeapons(WeaponType weaponType);
 
   void findTarget(const Weapon& weapon);
@@ -345,6 +343,7 @@ public:
   void initAimInfoShotgun();
 
   void overrideLaraMeshesDrawShotgun();
+  void overrideLaraMeshesHolsterShotgun();
 
   void drawShotgun();
 

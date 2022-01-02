@@ -55,6 +55,7 @@ struct AimInfo
   void updateAnimTwoWeapons(LaraObject& lara, const Weapon& weapon);
   void updateAnimShotgun(LaraObject& lara);
   void holsterTwoWeapons(LaraObject& lara, WeaponType weaponType);
+  void holsterShotgun(LaraObject& lara);
   void overrideHolsterTwoWeaponsMeshes(LaraObject& lara, WeaponType weaponType);
   void overrideDrawTwoWeaponsMeshes(LaraObject& lara, WeaponType weaponType);
 

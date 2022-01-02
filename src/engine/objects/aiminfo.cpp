@@ -220,6 +220,73 @@ void AimInfo::holsterTwoWeapons(LaraObject& lara, WeaponType weaponType)
   }
 }
 
+void AimInfo::holsterShotgun(LaraObject& lara)
+{
+  if(frame == ShotgunIdle)
+  {
+    frame = HolsterShotgunAnimStart;
+  }
+  else if(frame >= ShotgunIdle && frame <= ShotgunIdleToAimAnimEnd)
+  {
+    if(frame == ShotgunIdleToAimAnimEnd)
+    {
+      frame = ShotgunAimToIdleAnimStart;
+    }
+    else
+    {
+      frame += 1_frame;
+    }
+  }
+  else if(frame == ShotgunReadyToShoot)
+  {
+    frame = ShotgunAimToIdleAnimStart;
+  }
+  else if(frame >= ShotgunReadyToShoot && frame <= ShotgunAfterShotAnimEnd)
+  {
+    if(frame == ShotgunAfterShotIdle)
+    {
+      frame = ShotgunIdle;
+    }
+    else if(frame == ShotgunAfterShotAnimEnd)
+    {
+      frame = ShotgunAimToIdleAnimStart;
+    }
+    else
+    {
+      frame += 1_frame;
+    }
+  }
+  else if(frame >= ShotgunAimToIdleAnimStart && frame <= ShotgunAimToIdleAnimEnd)
+  {
+    if(frame == ShotgunAimToIdleAnimEnd)
+    {
+      frame = HolsterShotgunAnimStart;
+    }
+    else
+    {
+      frame += 1_frame;
+    }
+  }
+  else if(frame >= HolsterShotgunAnimStart && frame <= HolsterShotgunAnimEnd)
+  {
+    if(frame == ShotgunPutHolster)
+    {
+      lara.overrideLaraMeshesHolsterShotgun();
+    }
+    else if(frame == HolsterShotgunAnimEnd)
+    {
+      frame = ShotgunIdle;
+      aiming = false;
+      lara.setHandStatus(HandStatus::None);
+      lara.aimAt = nullptr;
+    }
+    else
+    {
+      frame += 1_frame;
+    }
+  }
+}
+
 void AimInfo::overrideHolsterTwoWeaponsMeshes(LaraObject& lara, WeaponType weaponType)
 {
   TR1ItemId srcId;
