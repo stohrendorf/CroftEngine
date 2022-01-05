@@ -67,7 +67,7 @@ Door::Door(const std::string& name,
     m_target.init(*m_info.originalSector.boundaryRoom, m_state.location.position);
     if(m_info.originalSector.boundaryRoom->alternateRoom != nullptr)
     {
-      Expects(m_alternateInfo.originalSector.boundaryRoom != nullptr);
+      Expects(m_info.originalSector.boundaryRoom != nullptr);
       m_alternateTarget.init(*m_info.originalSector.boundaryRoom->alternateRoom, m_state.location.position);
     }
 
