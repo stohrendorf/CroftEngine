@@ -272,6 +272,7 @@ void AimInfo::holsterShotgun(LaraObject& lara)
     if(frame == ShotgunPutHolster)
     {
       lara.overrideLaraMeshesHolsterShotgun();
+      frame += 1_frame;
     }
     else if(frame == HolsterShotgunAnimEnd)
     {
