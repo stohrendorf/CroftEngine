@@ -58,7 +58,7 @@ private:
 
     void open();
     void close();
-    void init(const world::Room& room, const core::TRVec& wingsPosition);
+    void init(const world::Room& room, const core::TRVec& position);
     void serialize(const serialization::Serializer<world::World>& ser);
   };
 

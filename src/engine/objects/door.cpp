@@ -34,8 +34,6 @@ Door::Door(const std::string& name,
     : ModelObject{name, world, room, item, true, animatedModel}
 {
 #ifndef NO_DOOR_BLOCK
-  // door wings are behind the door
-  core::Length dx = 0_len, dz = 0_len;
   m_wingsPosition = m_state.location.position;
   switch(axisFromAngle(m_state.rotation.Y))
   {
@@ -59,16 +57,19 @@ Door::Door(const std::string& name,
     m_alternateInfo.init(*m_state.location.room->alternateRoom, m_wingsPosition);
   }
 
+  // close() modifies the sector data, so we need to save it before closing the door
+  gsl_Assert(m_info.wingsSector != nullptr);
+  const auto wingsBoundaryRoom = m_info.wingsSector->boundaryRoom;
+
   m_info.close();
   m_alternateInfo.close();
 
-  if(m_info.originalSector.boundaryRoom != nullptr)
+  if(wingsBoundaryRoom != nullptr)
   {
-    m_target.init(*m_info.originalSector.boundaryRoom, m_state.location.position);
-    if(m_info.originalSector.boundaryRoom->alternateRoom != nullptr)
+    m_target.init(*wingsBoundaryRoom, m_state.location.position);
+    if(wingsBoundaryRoom->alternateRoom != nullptr)
     {
-      Expects(m_info.originalSector.boundaryRoom != nullptr);
-      m_alternateTarget.init(*m_info.originalSector.boundaryRoom->alternateRoom, m_state.location.position);
+      m_alternateTarget.init(*wingsBoundaryRoom->alternateRoom, m_state.location.position);
     }
 
     m_target.close();
@@ -203,9 +204,9 @@ void Door::Info::close() // NOLINT(readability-make-member-function-const)
     wingsBox->blocked = true;
 }
 
-void Door::Info::init(const world::Room& room, const core::TRVec& wingsPosition)
+void Door::Info::init(const world::Room& room, const core::TRVec& position)
 {
-  wingsSector = const_cast<world::Sector*>(room.getSectorByAbsolutePosition(wingsPosition));
+  wingsSector = const_cast<world::Sector*>(room.getSectorByAbsolutePosition(position));
   Expects(wingsSector != nullptr);
   originalSector = *wingsSector;
 
@@ -215,7 +216,7 @@ void Door::Info::init(const world::Room& room, const core::TRVec& wingsPosition)
   }
   else
   {
-    wingsBox = const_cast<world::Box*>(wingsSector->boundaryRoom->getSectorByAbsolutePosition(wingsPosition)->box);
+    wingsBox = const_cast<world::Box*>(wingsSector->boundaryRoom->getSectorByAbsolutePosition(position)->box);
   }
   if(wingsBox != nullptr && !wingsBox->blockable)
   {
