@@ -359,7 +359,7 @@ MeshShrapnelParticle::MeshShrapnelParticle(const Location& location,
 
   angle.Y = core::Angle{util::rand15s() * 2};
   speed = util::rand15(256_spd);
-  fall_speed = util::rand15(256_spd);
+  fall_speed = util::rand15(-256_spd);
   if(!torsoBoss)
   {
     speed /= 2;
