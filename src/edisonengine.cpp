@@ -65,6 +65,8 @@ int main()
                            boost::log::keywords::format = logFormat,
                            boost::log::keywords::auto_flush = true);
 
+  BOOST_LOG_TRIVIAL(info) << "Running EdisonEngine " << EE_VERSION;
+
   try
   {
     engine::Engine engine{getUserDataDir(), getEngineDataDir()};

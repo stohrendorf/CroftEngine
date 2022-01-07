@@ -631,6 +631,11 @@ configure_gettext(
 
 add_executable( edisonengine ${EDISONENGINE_SRCS} )
 
+set_property(
+        SOURCE edisonengine.cpp
+        PROPERTY COMPILE_DEFINITIONS EE_VERSION="${CMAKE_PROJECT_VERSION}"
+)
+
 group_files( ${EDISONENGINE_SRCS} )
 
 target_include_directories( edisonengine PRIVATE . ${Intl_INCLUDE_DIRS} )
