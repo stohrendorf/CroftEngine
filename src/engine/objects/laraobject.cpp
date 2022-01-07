@@ -929,8 +929,8 @@ void LaraObject::updateAimingState(const Weapon& weapon)
   }
   else if(!weapon.lockAngles.y.contains(targetVector.Y) || !weapon.lockAngles.x.contains(targetVector.X))
   {
-    leftArm.aiming &= !weapon.leftAngles.y.contains(targetVector.Y) || !weapon.leftAngles.x.contains(targetVector.X);
-    rightArm.aiming &= !weapon.rightAngles.y.contains(targetVector.Y) || !weapon.rightAngles.x.contains(targetVector.X);
+    leftArm.aiming &= weapon.leftAngles.y.contains(targetVector.Y) && weapon.leftAngles.x.contains(targetVector.X);
+    rightArm.aiming &= weapon.rightAngles.y.contains(targetVector.Y) && weapon.rightAngles.x.contains(targetVector.X);
   }
   else
   {
