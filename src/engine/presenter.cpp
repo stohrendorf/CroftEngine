@@ -74,8 +74,6 @@ void Presenter::playVideo(const std::filesystem::path& path)
 {
   util::ensureFileExists(path);
 
-  m_soundEngine->setListenerGain(1.0f);
-
   auto mesh = createScreenQuad(m_materialManager->getFlat(false, true, true), "video");
 
   video::play(path,
