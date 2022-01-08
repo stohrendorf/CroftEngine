@@ -1,6 +1,7 @@
 #pragma once
 
 #include "abstractstatehandler.h"
+#include "engine/audioengine.h"
 #include "engine/collisioninfo.h"
 #include "hid/inputstate.h"
 
@@ -18,6 +19,7 @@ public:
   {
     if(getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Jump))
     {
+      getWorld().getAudioEngine().stopSoundEffect(TR1SoundEffect::LaraSliding, &getLara().m_state);
       setGoalAnimState(LaraStateId::JumpBack);
     }
   }

@@ -82,7 +82,7 @@ public:
                       const floordata::ActivationState& activationRequest,
                       floordata::SequenceCondition triggerType);
 
-  void stopSoundEffect(const core::SoundEffectId& id, audio::Emitter* emitter);
+  void stopSoundEffect(const core::SoundEffectId& id, const audio::Emitter* emitter);
 
   void setUnderwater(bool underwater);
 

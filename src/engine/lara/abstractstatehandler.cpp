@@ -523,6 +523,7 @@ void AbstractStateHandler::commonSlideHandling(CollisionInfo& collisionInfo)
 
   if(stopIfCeilingBlocked(collisionInfo))
   {
+    getWorld().getAudioEngine().stopSoundEffect(TR1SoundEffect::LaraSliding, &getLara().m_state);
     return;
   }
 
@@ -533,11 +534,13 @@ void AbstractStateHandler::commonSlideHandling(CollisionInfo& collisionInfo)
     placeOnFloor(collisionInfo);
     if(std::labs(collisionInfo.floorSlantX) <= 2 && std::labs(collisionInfo.floorSlantZ) <= 2)
     {
+      getWorld().getAudioEngine().stopSoundEffect(TR1SoundEffect::LaraSliding, &getLara().m_state);
       setGoalAnimState(LaraStateId::Stop);
     }
     return;
   }
 
+  getWorld().getAudioEngine().stopSoundEffect(TR1SoundEffect::LaraSliding, &getLara().m_state);
   if(getCurrentAnimState() == LaraStateId::SlideForward)
   {
     setAnimation(AnimationId::FREE_FALL_FORWARD);

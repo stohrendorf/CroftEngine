@@ -306,7 +306,7 @@ std::shared_ptr<audio::Voice> AudioEngine::playSoundEffect(const core::SoundEffe
   }
 }
 
-void AudioEngine::stopSoundEffect(const core::SoundEffectId& id, audio::Emitter* emitter)
+void AudioEngine::stopSoundEffect(const core::SoundEffectId& id, const audio::Emitter* emitter)
 {
   const auto soundEffectIt = m_soundEffects.find(id.get());
   if(soundEffectIt == m_soundEffects.end())

@@ -74,7 +74,7 @@ std::vector<gsl::not_null<std::shared_ptr<Voice>>> SoundEngine::getVoicesForBuff
   return result;
 }
 
-bool SoundEngine::stopBuffer(size_t bufferId, Emitter* emitter)
+bool SoundEngine::stopBuffer(size_t bufferId, const Emitter* emitter)
 {
   auto it1 = m_voices.find(emitter);
   if(it1 == m_voices.end())
@@ -119,7 +119,7 @@ gsl::not_null<std::shared_ptr<BufferVoice>>
   return v;
 }
 
-void SoundEngine::dropEmitter(Emitter* emitter)
+void SoundEngine::dropEmitter(const Emitter* emitter)
 {
   const auto it = m_voices.find(emitter);
   if(it == m_voices.end())

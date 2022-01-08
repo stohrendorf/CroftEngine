@@ -39,7 +39,7 @@ public:
                                                          ALfloat volume,
                                                          Emitter* emitter = nullptr);
 
-  bool stopBuffer(size_t bufferId, Emitter* emitter);
+  bool stopBuffer(size_t bufferId, const Emitter* emitter);
 
   std::vector<gsl::not_null<std::shared_ptr<Voice>>> getVoicesForBuffer(Emitter* emitter, size_t buffer) const;
 
@@ -62,16 +62,16 @@ public:
 
   void update();
 
-  void dropEmitter(Emitter* emitter);
+  void dropEmitter(const Emitter* emitter);
 
   void reset();
 
 private:
   const gsl::not_null<std::unique_ptr<Device>> m_device;
-  std::unordered_map<Emitter*, std::unordered_map<size_t, std::vector<std::weak_ptr<Voice>>>> m_voices;
+  std::unordered_map<const Emitter*, std::unordered_map<size_t, std::vector<std::weak_ptr<Voice>>>> m_voices;
   const Listener* m_listener = nullptr;
 
-  std::unordered_set<Emitter*> m_emitters;
+  std::unordered_set<const Emitter*> m_emitters;
   std::unordered_set<Listener*> m_listeners;
 };
 } // namespace audio
