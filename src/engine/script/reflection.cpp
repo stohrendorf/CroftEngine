@@ -148,10 +148,6 @@ std::unique_ptr<world::World> Level::loadWorld(Engine& engine, const std::shared
   const auto title = titleIt == m_titles.end() ? "NO TRANSLATION - " + m_name : titleIt->second;
 
   player->resetStats();
-  for(const auto& [type, qty] : m_inventory)
-    player->getInventory().put(type, nullptr, qty);
-  for(const auto& type : m_dropInventory)
-    player->getInventory().drop(type);
 
   for(const auto& [type, qty] : engine.getScriptEngine().getCheatInventory())
     player->getInventory().put(type.cast<TR1ItemId>(), nullptr, qty.cast<size_t>());
@@ -217,10 +213,8 @@ TitleMenu::TitleMenu(const std::string& name,
                      bool useAlternativeLara,
                      const std::unordered_map<std::string, std::string>& titles,
                      const std::unordered_map<std::string, std::unordered_map<TR1ItemId, std::string>>& itemTitles,
-                     const std::unordered_map<TR1ItemId, size_t>& inventory,
-                     const std::unordered_set<TR1ItemId>& dropInventory,
                      std::optional<TR1TrackId> track)
-    : Level{name, 0, useAlternativeLara, titles, itemTitles, inventory, dropInventory, track, false, WeaponType::None}
+    : Level{name, 0, useAlternativeLara, titles, itemTitles, track, false, WeaponType::None}
 {
 }
 
@@ -297,5 +291,15 @@ std::pair<RunResult, std::optional<size_t>>
 {
   BOOST_LOG_TRIVIAL(error) << "Cannot run from save";
   BOOST_THROW_EXCEPTION(std::runtime_error("Cannot run from save"));
+}
+
+std::pair<RunResult, std::optional<size_t>> ModifyInventory::run(Engine& /*engine*/,
+                                                                 const std::shared_ptr<Player>& player)
+{
+  for(const auto& [type, qty] : m_addInventory)
+    player->getInventory().put(type, nullptr, qty);
+  for(const auto& type : m_dropInventory)
+    player->getInventory().drop(type);
+  return {RunResult::NextLevel, std::nullopt};
 }
 } // namespace engine::script

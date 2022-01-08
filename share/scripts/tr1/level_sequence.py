@@ -1,4 +1,4 @@
-from engine import TR1TrackId, TR1ItemId, Video, Cutscene, Level, TitleMenu, SplashScreen, WeaponType
+from engine import TR1TrackId, TR1ItemId, Video, Cutscene, Level, TitleMenu, SplashScreen, WeaponType, ModifyInventory
 
 early_boot = [
     Video("CORE.RPL"),
@@ -31,6 +31,9 @@ lara_home = [
 
 level_sequence = [
     Video("SNOW.RPL"),
+    ModifyInventory(
+        add_inventory={TR1ItemId.Pistols: 1},
+    ),
     Level(
         name="LEVEL1",
         titles={
@@ -39,7 +42,6 @@ level_sequence = [
         },
         track=TR1TrackId.Ambience1,
         secrets=3,
-        inventory={TR1ItemId.Pistols: 1},
     ),
     Level(
         name="LEVEL2",
@@ -49,7 +51,6 @@ level_sequence = [
         },
         track=TR1TrackId.Ambience1,
         secrets=3,
-        inventory={TR1ItemId.Pistols: 1},
         item_titles={
             "en_GB": {
                 TR1ItemId.Puzzle1: "Gold Idol",
@@ -69,7 +70,6 @@ level_sequence = [
         },
         track=TR1TrackId.Ambience1,
         secrets=5,
-        inventory={TR1ItemId.Pistols: 1},
         item_titles={
             "en_GB": {
                 TR1ItemId.Puzzle1: "Machine Cog",
@@ -87,7 +87,6 @@ level_sequence = [
         },
         track=TR1TrackId.Ambience1,
         secrets=3,
-        inventory={TR1ItemId.Pistols: 1},
         item_titles={
             "en_GB": {
                 TR1ItemId.ScionPiece5: "Scion",
@@ -113,7 +112,6 @@ level_sequence = [
         },
         track=TR1TrackId.Ambience3,
         secrets=4,
-        inventory={TR1ItemId.Pistols: 1},
         item_titles={
             "en_GB": {
                 TR1ItemId.Key1: "Neptune Key",
@@ -139,7 +137,6 @@ level_sequence = [
         },
         track=TR1TrackId.Ambience3,
         secrets=3,
-        inventory={TR1ItemId.Pistols: 1},
         item_titles={
             "en_GB": {
                 TR1ItemId.Key1: "Rusty Key",
@@ -159,7 +156,6 @@ level_sequence = [
         },
         track=TR1TrackId.Ambience3,
         secrets=3,
-        inventory={TR1ItemId.Pistols: 1},
         item_titles={
             "en_GB": {
                 TR1ItemId.Puzzle1: "Gold Bar",
@@ -179,7 +175,6 @@ level_sequence = [
         },
         track=TR1TrackId.Ambience2,
         secrets=3,
-        inventory={TR1ItemId.Pistols: 1},
         item_titles={
             "en_GB": {
                 TR1ItemId.Key1: "Gold Key",
@@ -203,7 +198,6 @@ level_sequence = [
         },
         track=TR1TrackId.Ambience2,
         secrets=2,
-        inventory={TR1ItemId.Pistols: 1},
         item_titles={
             "en_GB": {
                 TR1ItemId.Key1: "Gold Key",
@@ -236,7 +230,6 @@ level_sequence = [
         },
         track=TR1TrackId.Ambience3,
         secrets=3,
-        inventory={TR1ItemId.Pistols: 1},
         item_titles={
             "en_GB": {
                 TR1ItemId.Key1: "Saphire Key",
@@ -256,7 +249,6 @@ level_sequence = [
         },
         track=TR1TrackId.Ambience3,
         secrets=3,
-        inventory={TR1ItemId.Pistols: 1},
         item_titles={
             "en_GB": {
                 TR1ItemId.Puzzle1: "Eye of Horus",
@@ -284,7 +276,6 @@ level_sequence = [
         },
         track=TR1TrackId.Ambience3,
         secrets=1,
-        inventory={TR1ItemId.Pistols: 1},
         item_titles={
             "en_GB": {
                 TR1ItemId.Puzzle1: "Ankh",
@@ -301,14 +292,7 @@ level_sequence = [
         },
     ),
     Video("CANYON.RPL"),
-    Level(
-        name="LEVEL10A",
-        titles={
-            "en_GB": "Natla's Mines",
-            "de_DE": "Natlas Katakomben",
-        },
-        track=TR1TrackId.Ambience2,
-        secrets=3,
+    ModifyInventory(
         drop_inventory={
             TR1ItemId.Pistols,
             TR1ItemId.Magnums,
@@ -320,6 +304,15 @@ level_sequence = [
             TR1ItemId.ScionPiece4,
             TR1ItemId.ScionPiece5,
         },
+    ),
+    Level(
+        name="LEVEL10A",
+        titles={
+            "en_GB": "Natla's Mines",
+            "de_DE": "Natlas Katakomben",
+        },
+        track=TR1TrackId.Ambience2,
+        secrets=3,
         item_titles={
             "en_GB": {
                 TR1ItemId.Puzzle1: "Fuse",
@@ -351,7 +344,6 @@ level_sequence = [
         },
         track=TR1TrackId.Ambience4,
         secrets=3,
-        inventory={TR1ItemId.Pistols: 1},
         item_titles={
             "en_GB": {
                 TR1ItemId.ScionPiece5: "Scion",
@@ -373,7 +365,6 @@ level_sequence = [
         },
         track=TR1TrackId.Ambience4,
         secrets=3,
-        inventory={TR1ItemId.Pistols: 1},
         item_titles={
             "en_GB": {
                 TR1ItemId.ScionPiece5: "Scion",

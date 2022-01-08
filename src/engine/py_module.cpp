@@ -90,8 +90,6 @@ PYBIND11_EMBEDDED_MODULE(engine, m)
                   bool,
                   std::unordered_map<std::string, std::string>,
                   std::unordered_map<std::string, std::unordered_map<engine::TR1ItemId, std::string>>,
-                  std::unordered_map<engine::TR1ItemId, size_t>,
-                  std::unordered_set<engine::TR1ItemId>,
                   std::optional<engine::TR1TrackId>,
                   bool,
                   engine::WeaponType>(),
@@ -101,11 +99,17 @@ PYBIND11_EMBEDDED_MODULE(engine, m)
          py::arg("use_alternative_lara") = false,
          py::arg("titles"),
          py::arg("item_titles") = py::dict{},
-         py::arg("inventory") = py::dict{},
-         py::arg("drop_inventory") = py::set{},
          py::arg("track") = std::nullopt,
          py::arg("allow_save") = true,
          py::arg("default_weapon") = engine::WeaponType::Pistols);
+
+  py::class_<engine::script::ModifyInventory,
+             engine::script::LevelSequenceItem,
+             std::shared_ptr<engine::script::ModifyInventory>>(m, "ModifyInventory", py::is_final{})
+    .def(py::init<std::unordered_map<engine::TR1ItemId, size_t>, std::unordered_set<engine::TR1ItemId>>(),
+         py::kw_only{},
+         py::arg("add_inventory") = py::dict{},
+         py::arg("drop_inventory") = py::set{});
 
   py::class_<engine::script::TitleMenu, engine::script::Level, std::shared_ptr<engine::script::TitleMenu>>(
     m, "TitleMenu", py::is_final{})
@@ -113,16 +117,12 @@ PYBIND11_EMBEDDED_MODULE(engine, m)
                   bool,
                   std::unordered_map<std::string, std::string>,
                   std::unordered_map<std::string, std::unordered_map<engine::TR1ItemId, std::string>>,
-                  std::unordered_map<engine::TR1ItemId, size_t>,
-                  std::unordered_set<engine::TR1ItemId>,
                   std::optional<engine::TR1TrackId>>(),
          py::kw_only{},
          py::arg("name"),
          py::arg("use_alternative_lara") = false,
          py::arg("titles"),
          py::arg("item_titles") = py::dict{},
-         py::arg("inventory") = py::dict{},
-         py::arg("drop_inventory") = py::set{},
          py::arg("track") = std::nullopt);
 
   py::class_<engine::script::SplashScreen,

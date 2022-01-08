@@ -78,8 +78,6 @@ private:
   const bool m_useAlternativeLara;
   const std::unordered_map<std::string, std::string> m_titles;
   const std::unordered_map<std::string, std::unordered_map<TR1ItemId, std::string>> m_itemTitles;
-  const std::unordered_map<TR1ItemId, size_t> m_inventory;
-  const std::unordered_set<TR1ItemId> m_dropInventory;
   const std::optional<TR1TrackId> m_track;
   const bool m_allowSave;
   const WeaponType m_defaultWeapon;
@@ -93,8 +91,6 @@ public:
                  bool useAlternativeLara,
                  std::unordered_map<std::string, std::string> titles,
                  std::unordered_map<std::string, std::unordered_map<TR1ItemId, std::string>> itemTitles,
-                 std::unordered_map<TR1ItemId, size_t> inventory,
-                 std::unordered_set<TR1ItemId> dropInventory,
                  std::optional<TR1TrackId> track,
                  bool allowSave,
                  WeaponType defaultWeapon)
@@ -103,8 +99,6 @@ public:
       , m_useAlternativeLara{useAlternativeLara}
       , m_titles{std::move(titles)}
       , m_itemTitles{std::move(itemTitles)}
-      , m_inventory{std::move(inventory)}
-      , m_dropInventory{std::move(dropInventory)}
       , m_track{track}
       , m_allowSave{allowSave}
       , m_defaultWeapon{defaultWeapon}
@@ -118,6 +112,28 @@ public:
   [[nodiscard]] bool isLevel(const std::filesystem::path& path) const override;
 };
 
+class ModifyInventory : public LevelSequenceItem
+{
+private:
+  const std::unordered_map<TR1ItemId, size_t> m_addInventory;
+  const std::unordered_set<TR1ItemId> m_dropInventory;
+
+public:
+  explicit ModifyInventory(std::unordered_map<TR1ItemId, size_t> addInventory,
+                           std::unordered_set<TR1ItemId> dropInventory)
+      : m_addInventory{std::move(addInventory)}
+      , m_dropInventory{std::move(dropInventory)}
+  {
+  }
+
+  std::pair<RunResult, std::optional<size_t>> run(Engine& engine, const std::shared_ptr<Player>& player) override;
+
+  [[nodiscard]] bool isLevel(const std::filesystem::path& /*path*/) const override
+  {
+    return false;
+  }
+};
+
 class TitleMenu : public Level
 {
 public:
@@ -125,8 +141,6 @@ public:
             bool useAlternativeLara,
             const std::unordered_map<std::string, std::string>& titles,
             const std::unordered_map<std::string, std::unordered_map<TR1ItemId, std::string>>& itemTitles,
-            const std::unordered_map<TR1ItemId, size_t>& inventory,
-            const std::unordered_set<TR1ItemId>& dropInventory,
             std::optional<TR1TrackId> track);
 
   std::pair<RunResult, std::optional<size_t>> run(Engine& engine, const std::shared_ptr<Player>& player) override;
