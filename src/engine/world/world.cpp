@@ -517,7 +517,13 @@ void World::swapWithAlternate(Room& orig, Room& alternate)
   }
 
   // now swap the rooms and patch the alternate room ids
-  std::swap(orig, alternate);
+  {
+    std::swap(orig, alternate);
+    const auto origVisible = orig.node->isVisible();
+    const auto alternateVisible = alternate.node->isVisible();
+    orig.node->setVisible(alternateVisible);
+    alternate.node->setVisible(origVisible);
+  }
   orig.alternateRoom = std::exchange(alternate.alternateRoom, nullptr);
 
   // patch heights in the new room, and swap object ownerships.
