@@ -10,15 +10,17 @@ An open-source Tomb Raider 1 engine remake.
 
 ![EdisonEngine logo](./share/splash.png)
 
-> These videos are kindly provided by Raina Audron.
->
-> *Showcase Trailer*
+> *Showcase Trailer* (Raina Audron)
 >
 > [![Edison Engine Showcase Trailer](https://img.youtube.com/vi/IAA6ILvQ4Uw/0.jpg)](https://www.youtube.com/watch?v=IAA6ILvQ4Uw)
 >
-> *The Lost Valley Playthrough*
+> *The Lost Valley Playthrough* (Raina Audron)
 >
 > [![The Lost Valley Playthrough in Edison Engine](https://img.youtube.com/vi/o8FEo1QU1QM/0.jpg)](https://www.youtube.com/watch?v=o8FEo1QU1QM)
+>
+> *EdisonEngine - Tomb Raider, Enhanced! w/ developer commentary \[Beta 10\] \[PC\] \[Stream Archive\]* (Dfactor Longplays)
+>
+> [![EdisonEngine - Tomb Raider, Enhanced! w/ developer commentary \[Beta 10\] \[PC\] \[Stream Archive\]](https://img.youtube.com/vi/ayMPVAKTMWI/0.jpg)](https://www.youtube.com/watch?v=ayMPVAKTMWI)
 
 ## Licensing
 
@@ -78,6 +80,7 @@ The following people deserve some noteworthy credit.
 * [Liinx86](https://www.twitch.tv/liinx86) for being the world's first streamer streaming EdisonEngine on twitch; also
   gave the idea for the Ghost feature.
 * [Tomb_of_Ash](https://www.twitch.tv/tomb_of_ash) for being the second streamer.
+* [Dfactor Longplays](https://www.youtube.com/channel/UCwLhYb4QDAzQfzbhAHGKjgQ) for showing that the Corner Bug works.
 * All testers reporting bugs.
 * Every contributor.
 * All players.
