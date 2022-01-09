@@ -18,6 +18,7 @@
 #include "ui/widgets/label.h"
 #include "ui/widgets/listbox.h"
 #include "ui/widgets/messagebox.h"
+#include "util/helpers.h"
 
 #include <boost/format.hpp>
 #include <chrono>
@@ -79,7 +80,7 @@ SavegameListMenuState::SavegameListMenuState(const std::shared_ptr<MenuRingTrans
       name = _("- EMPTY SLOT %1%", i + 1);
       m_hasSavegame.emplace_back(false);
     }
-    auto label = gslu::make_nn_shared<ui::widgets::Label>(name);
+    auto label = gslu::make_nn_shared<ui::widgets::Label>(util::escape(name));
     label->fitToContent();
     append(label);
   }

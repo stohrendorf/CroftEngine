@@ -67,6 +67,49 @@ std::string unescape(const std::string& escaped)
   return result;
 }
 
+std::string escape(const std::string& unescaped)
+{
+  std::string result;
+  for(uint8_t c : unescaped)
+  {
+    switch(c)
+    {
+    case 0xE4:
+      result += ui::UmlautDots;
+      result += 'a';
+      break;
+    case 0xC4:
+      result += ui::UmlautDots;
+      result += 'A';
+      break;
+    case 0xF6:
+      result += ui::UmlautDots;
+      result += 'o';
+      break;
+    case 0xD6:
+      result += ui::UmlautDots;
+      result += 'O';
+      break;
+    case 0xFC:
+      result += ui::UmlautDots;
+      result += 'u';
+      break;
+    case 0xDC:
+      result += ui::UmlautDots;
+      result += 'U';
+      break;
+    case 0xDF:
+      result += ui::SzLig;
+      break;
+    default:
+      result += (char)c;
+      break;
+    }
+  }
+
+  return result;
+}
+
 std::filesystem::path ensureFileExists(const std::filesystem::path& path)
 {
   if(!std::filesystem::is_regular_file(path))
