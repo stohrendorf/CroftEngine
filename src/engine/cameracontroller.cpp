@@ -578,7 +578,7 @@ core::Length CameraController::moveIntoBox(Location& goal, const core::Length& m
 
   {
     const auto narrowed = sector->box->zInterval.narrowed(margin);
-    if(narrowed.min < goal.position.Z
+    if(goal.position.Z < narrowed.min
        && isVerticallyOutsideRoom(goal.moved(0_len, 0_len, -margin), m_world->getObjectManager()))
     {
       goal.position.Z = narrowed.min;
