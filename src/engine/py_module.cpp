@@ -137,8 +137,7 @@ PYBIND11_EMBEDDED_MODULE(engine, m)
 
   py::enum_<audio::TrackType>(m, "TrackType")
     .value("AMBIENT", audio::TrackType::Ambient)
-    .value("INTERCEPTION", audio::TrackType::Interception)
-    .value("AMBIENT_EFFECT", audio::TrackType::AmbientEffect);
+    .value("INTERCEPTION", audio::TrackType::Interception);
 
   {
     auto e = py::enum_<engine::TR1SoundEffect>(m, "TR1SoundEffect");

@@ -140,18 +140,6 @@ void AudioEngine::playStopCdTrack(const script::ScriptEngine& scriptEngine, cons
 
   switch(trackInfo.type)
   {
-  case audio::TrackType::AmbientEffect:
-    if(!stop)
-    {
-      BOOST_LOG_TRIVIAL(debug) << "playStopCdTrack - play sound effect " << toString(trackId);
-      playSoundEffect(core::SoundEffectId{trackInfo.id}, nullptr);
-    }
-    else
-    {
-      BOOST_LOG_TRIVIAL(debug) << "playStopCdTrack - stop effect " << toString(trackId);
-      stopSoundEffect(core::SoundEffectId{trackInfo.id}, nullptr);
-    }
-    break;
   case audio::TrackType::Ambient:
     m_soundEngine->getDevice().removeStream(m_ambientStream);
     m_ambientStreamId.reset();

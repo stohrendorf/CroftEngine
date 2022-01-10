@@ -5,7 +5,6 @@ namespace audio
 enum class TrackType
 {
   Ambient,
-  Interception,
-  AmbientEffect
+  Interception
 };
 } // namespace audio
