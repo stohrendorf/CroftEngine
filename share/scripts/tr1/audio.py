@@ -28,7 +28,7 @@ tracks = {
     TR1TrackId.MainThemeReprise: TrackInfo(25, TrackType.INTERCEPTION),  # Main theme, reprise
     TR1TrackId.Mummy: TrackInfo(26, TrackType.INTERCEPTION),  # Mummy
     TR1TrackId.MidasReprise: TrackInfo(27, TrackType.INTERCEPTION),  # Midas, reprise
-    TR1TrackId.Secret: TrackInfo(int(TR1SoundEffect.SecretFound), TrackType.AMBIENT_EFFECT),  # Secret theme
+    TR1TrackId.Secret: TrackInfo(60, TrackType.INTERCEPTION),  # Secret theme
     **{
         TR1TrackId(int(TR1TrackId.LaraTalk0) + i): TrackInfo(29 + i, TrackType.INTERCEPTION)
         for i in range(int(TR1TrackId.LaraTalk30) - int(TR1TrackId.LaraTalk0) + 1)
