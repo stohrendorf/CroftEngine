@@ -57,14 +57,8 @@ Door::Door(const std::string& name,
     m_alternateInfo.init(*m_state.location.room->alternateRoom, m_wingsPosition);
   }
 
-  // close() modifies the sector data, so we need to save it before closing the door
   gsl_Assert(m_info.wingsSector != nullptr);
-  const auto wingsBoundaryRoom = m_info.wingsSector->boundaryRoom;
-
-  m_info.close();
-  m_alternateInfo.close();
-
-  if(wingsBoundaryRoom != nullptr)
+  if(const auto wingsBoundaryRoom = m_info.wingsSector->boundaryRoom; wingsBoundaryRoom != nullptr)
   {
     m_target.init(*wingsBoundaryRoom, m_state.location.position);
     if(wingsBoundaryRoom->alternateRoom != nullptr)
@@ -75,6 +69,9 @@ Door::Door(const std::string& name,
     m_target.close();
     m_alternateTarget.close();
   }
+
+  m_info.close();
+  m_alternateInfo.close();
 #endif
 
   getSkeleton()->getRenderState().setScissorTest(false);
@@ -164,20 +161,20 @@ void Door::serialize(const serialization::Serializer<world::World>& ser)
       {
         m_info.wingsSector
           = const_cast<world::Sector*>(m_state.location.room->getSectorByAbsolutePosition(m_wingsPosition));
-        if(m_info.originalSector.boundaryRoom != nullptr)
-        {
-          m_target.wingsSector = const_cast<world::Sector*>(
-            m_info.originalSector.boundaryRoom->getSectorByAbsolutePosition(m_state.location.position));
-        }
-
         if(m_state.location.room->alternateRoom != nullptr)
         {
           m_alternateInfo.wingsSector = const_cast<world::Sector*>(
             m_state.location.room->alternateRoom->getSectorByAbsolutePosition(m_wingsPosition));
-          if(m_alternateInfo.originalSector.boundaryRoom != nullptr)
+        }
+
+        if(const auto wingsBoundaryRoom = m_info.originalSector.boundaryRoom; wingsBoundaryRoom != nullptr)
+        {
+          m_target.wingsSector
+            = const_cast<world::Sector*>(wingsBoundaryRoom->getSectorByAbsolutePosition(m_state.location.position));
+          if(wingsBoundaryRoom->alternateRoom != nullptr)
           {
             m_alternateTarget.wingsSector = const_cast<world::Sector*>(
-              m_alternateInfo.originalSector.boundaryRoom->getSectorByAbsolutePosition(m_state.location.position));
+              wingsBoundaryRoom->alternateRoom->getSectorByAbsolutePosition(m_state.location.position));
           }
         }
       });
