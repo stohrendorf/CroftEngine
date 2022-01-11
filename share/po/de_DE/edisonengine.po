@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EdisonEngine\n"
 "Report-Msgid-Bugs-To: https://github.com/stohrendorf/EdisonEngine/issues\n"
-"POT-Creation-Date: 2021-12-23 10:28+0100\n"
+"POT-Creation-Date: 2022-01-11 07:03+0100\n"
 "Last-Translator: Steffen Ohrendorf\n"
 "Language-Team: none\n"
 "Language: de_DE\n"
@@ -17,20 +17,20 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #. translators: TR charmap encoding
-#: menu/savegamelistmenustate.cpp:71
+#: menu/savegamelistmenustate.cpp:72
 #, boost-format
 msgctxt "SavegameTitle"
 msgid "%1% - %2%"
 msgstr "%1% - %2%"
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:336
+#: menu/rendersettingsmenustate.cpp:346
 #, boost-format
 msgid "%1%x Anisotropic Filtering"
 msgstr "%1%x Anisotropische Filterung"
 
 #. translators: TR charmap encoding
-#: menu/savegamelistmenustate.cpp:70
+#: menu/savegamelistmenustate.cpp:71
 msgctxt "SavegameTime"
 msgid "%d %B %Y %X"
 msgstr "%d. %B %Y %X"
@@ -59,7 +59,7 @@ msgctxt "Keyboard|Key"
 msgid "-"
 msgstr "="
 
-#: menu/savegamelistmenustate.cpp:79
+#: menu/savegamelistmenustate.cpp:80
 #, boost-format
 msgid "- EMPTY SLOT %1%"
 msgstr "- LEERER SLOT %1%"
@@ -151,7 +151,7 @@ msgctxt "Keyboard|Key"
 msgid "Bksp"
 msgstr "R~ucktaste"
 
-#: engine/presenter.cpp:407
+#: engine/presenter.cpp:405
 msgid "Booting"
 msgstr "Starte"
 
@@ -231,6 +231,11 @@ msgstr "Grafik"
 msgid "Discard changes"
 msgstr "Anpassungen verwerfen"
 
+#. translators: TR charmap encoding
+#: menu/rendersettingsmenustate.cpp:263
+msgid "Double UI Scale"
+msgstr "Doppelte UI Aufl~osung"
+
 #. translators: TR charcmap encoding
 #: menu/controlsmenustate.cpp:131
 msgctxt "GamepadAxis"
@@ -274,7 +279,7 @@ msgid "Draw Weapon"
 msgstr "Waffe ziehen"
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:276
+#: menu/rendersettingsmenustate.cpp:286
 msgid "Dust"
 msgstr "Staub"
 
@@ -345,7 +350,7 @@ msgid "Film Grain"
 msgstr "Filmrauschen"
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:266
+#: menu/rendersettingsmenustate.cpp:276
 msgid "Fullscreen"
 msgstr "Vollbild"
 
@@ -376,7 +381,7 @@ msgid "Gameplay"
 msgstr "Spiel"
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:307
+#: menu/rendersettingsmenustate.cpp:317
 msgid "Ghost"
 msgstr "Geist"
 
@@ -566,11 +571,11 @@ msgstr "Spiel laden"
 msgid "Loading %1%"
 msgstr "Lade %1%"
 
-#: engine/engine.cpp:687
+#: engine/engine.cpp:685
 msgid "Loading Glidos texture pack"
 msgstr "Lade Glidos Textur Paket"
 
-#: engine/world/world.cpp:1007
+#: engine/world/world.cpp:1013
 msgid "Loading..."
 msgstr "Lade..."
 
@@ -603,7 +608,7 @@ msgid "Menu"
 msgstr "Men~u"
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:286
+#: menu/rendersettingsmenustate.cpp:296
 msgid "More Lights"
 msgstr "Mehr Lichter"
 
@@ -658,12 +663,12 @@ msgid "OPTION"
 msgstr "Optionen"
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:263
+#: menu/rendersettingsmenustate.cpp:273
 msgid "Other"
 msgstr "Anderes"
 
 #. translators: TR charmap encoding
-#: menu/savegamelistmenustate.cpp:98
+#: menu/savegamelistmenustate.cpp:99
 #, boost-format
 msgid "Overwrite slot %1%?"
 msgstr "Slot %1% ~uberschreiben?"
@@ -789,7 +794,7 @@ msgid "Pause"
 msgstr "Pause"
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:296
+#: menu/rendersettingsmenustate.cpp:306
 msgid "Performance Meter"
 msgstr "Leistungsanzeige"
 
@@ -864,7 +869,7 @@ msgid "RThumb"
 msgstr "RStick"
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:318
+#: menu/rendersettingsmenustate.cpp:328
 msgid "Restore Health on Level Start"
 msgstr "Gesundheit bei Levelanfang wiederherstellen"
 
@@ -933,11 +938,11 @@ msgid "Save Game"
 msgstr "Spiel sichern"
 
 #. translators: TR charmap encoding
-#: engine/engine.cpp:203
+#: engine/engine.cpp:201
 msgid "Save recorded ghost?"
 msgstr "Aufgenommenen Geist speichern?"
 
-#: engine/world/world.cpp:1028
+#: engine/world/world.cpp:1034
 msgid "Saving..."
 msgstr "Speichere..."
 

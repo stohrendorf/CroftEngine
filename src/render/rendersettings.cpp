@@ -4,9 +4,6 @@
 #include "serialization/optional_value.h"
 #include "serialization/serialization.h"
 
-#include <exception>
-#include <gsl/gsl-lite.hpp>
-
 namespace render
 {
 void RenderSettings::serialize(const serialization::Serializer<engine::EngineConfig>& ser)
@@ -26,6 +23,7 @@ void RenderSettings::serialize(const serialization::Serializer<engine::EngineCon
       S_NVO("highQualityShadows", highQualityShadows),
       S_NVO("anisotropyLevel", anisotropyLevel),
       S_NVO("halfResRender", halfResRender),
+      S_NVO("doubleUiScale", doubleUiScale),
       S_NVO("glidosPack", glidosPack));
 }
 } // namespace render

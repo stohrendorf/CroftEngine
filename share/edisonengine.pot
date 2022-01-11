@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: EdisonEngine 0.9\n"
+"Project-Id-Version: EdisonEngine 0.11.3\n"
 "Report-Msgid-Bugs-To: https://github.com/stohrendorf/EdisonEngine/issues\n"
-"POT-Creation-Date: 2021-12-23 10:28+0100\n"
+"POT-Creation-Date: 2022-01-11 07:03+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,20 +18,20 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 
 #. translators: TR charmap encoding
-#: menu/savegamelistmenustate.cpp:71
+#: menu/savegamelistmenustate.cpp:72
 #, boost-format
 msgctxt "SavegameTitle"
 msgid "%1% - %2%"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:336
+#: menu/rendersettingsmenustate.cpp:346
 #, boost-format
 msgid "%1%x Anisotropic Filtering"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/savegamelistmenustate.cpp:70
+#: menu/savegamelistmenustate.cpp:71
 msgctxt "SavegameTime"
 msgid "%d %B %Y %X"
 msgstr ""
@@ -60,7 +60,7 @@ msgctxt "Keyboard|Key"
 msgid "-"
 msgstr ""
 
-#: menu/savegamelistmenustate.cpp:79
+#: menu/savegamelistmenustate.cpp:80
 #, boost-format
 msgid "- EMPTY SLOT %1%"
 msgstr ""
@@ -152,7 +152,7 @@ msgctxt "Keyboard|Key"
 msgid "Bksp"
 msgstr ""
 
-#: engine/presenter.cpp:407
+#: engine/presenter.cpp:405
 msgid "Booting"
 msgstr ""
 
@@ -232,6 +232,11 @@ msgstr ""
 msgid "Discard changes"
 msgstr ""
 
+#. translators: TR charmap encoding
+#: menu/rendersettingsmenustate.cpp:263
+msgid "Double UI Scale"
+msgstr ""
+
 #. translators: TR charcmap encoding
 #: menu/controlsmenustate.cpp:131
 msgctxt "GamepadAxis"
@@ -275,7 +280,7 @@ msgid "Draw Weapon"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:276
+#: menu/rendersettingsmenustate.cpp:286
 msgid "Dust"
 msgstr ""
 
@@ -343,7 +348,7 @@ msgid "Film Grain"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:266
+#: menu/rendersettingsmenustate.cpp:276
 msgid "Fullscreen"
 msgstr ""
 
@@ -374,7 +379,7 @@ msgid "Gameplay"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:307
+#: menu/rendersettingsmenustate.cpp:317
 msgid "Ghost"
 msgstr ""
 
@@ -564,11 +569,11 @@ msgstr ""
 msgid "Loading %1%"
 msgstr ""
 
-#: engine/engine.cpp:687
+#: engine/engine.cpp:685
 msgid "Loading Glidos texture pack"
 msgstr ""
 
-#: engine/world/world.cpp:1007
+#: engine/world/world.cpp:1013
 msgid "Loading..."
 msgstr ""
 
@@ -601,7 +606,7 @@ msgid "Menu"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:286
+#: menu/rendersettingsmenustate.cpp:296
 msgid "More Lights"
 msgstr ""
 
@@ -656,12 +661,12 @@ msgid "OPTION"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:263
+#: menu/rendersettingsmenustate.cpp:273
 msgid "Other"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/savegamelistmenustate.cpp:98
+#: menu/savegamelistmenustate.cpp:99
 #, boost-format
 msgid "Overwrite slot %1%?"
 msgstr ""
@@ -787,7 +792,7 @@ msgid "Pause"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:296
+#: menu/rendersettingsmenustate.cpp:306
 msgid "Performance Meter"
 msgstr ""
 
@@ -862,7 +867,7 @@ msgid "RThumb"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:318
+#: menu/rendersettingsmenustate.cpp:328
 msgid "Restore Health on Level Start"
 msgstr ""
 
@@ -931,11 +936,11 @@ msgid "Save Game"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: engine/engine.cpp:203
+#: engine/engine.cpp:201
 msgid "Save recorded ghost?"
 msgstr ""
 
-#: engine/world/world.cpp:1028
+#: engine/world/world.cpp:1034
 msgid "Saving..."
 msgstr ""
 

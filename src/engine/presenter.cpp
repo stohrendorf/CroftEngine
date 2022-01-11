@@ -397,8 +397,8 @@ Presenter::Presenter(const std::filesystem::path& engineDataPath, const glm::ive
     , m_shaderCache{std::make_shared<render::scene::ShaderCache>(engineDataPath / "shaders")}
     , m_materialManager{std::make_unique<render::scene::MaterialManager>(m_shaderCache, m_renderer)}
     , m_csm{std::make_shared<render::scene::CSM>(1024, *m_materialManager)}
-    , m_renderPipeline{
-        std::make_unique<render::RenderPipeline>(*m_materialManager, getRenderViewport(), getDisplayViewport())}
+    , m_renderPipeline{std::make_unique<render::RenderPipeline>(
+        *m_materialManager, getRenderViewport(), getUiViewport(), getDisplayViewport())}
 {
   m_materialManager->setCSM(gsl::not_null{m_csm});
   scaleSplashImage();
@@ -434,12 +434,9 @@ void Presenter::drawLoadingScreen(const std::string& state)
   if(m_screenOverlay == nullptr)
     m_screenOverlay = std::make_unique<render::scene::ScreenOverlay>();
 
-  if(getRenderViewport() != m_screenOverlay->getImage()->getSize())
+  if(getUiViewport() != m_screenOverlay->getImage()->getSize())
   {
-    m_renderer->getCamera()->setViewport(getRenderViewport());
-    gl::RenderState::getWantedState().setViewport(getRenderViewport());
-
-    m_screenOverlay->init(*m_materialManager, getRenderViewport());
+    m_screenOverlay->init(*m_materialManager, getUiViewport());
     scaleSplashImage();
   }
 
@@ -452,6 +449,8 @@ void Presenter::drawLoadingScreen(const std::string& state)
 
   gl::Framebuffer::unbindAll();
 
+  m_renderer->getCamera()->setViewport(getRenderViewport());
+  gl::RenderState::getWantedState().setViewport(getRenderViewport());
   gl::RenderState::applyWantedState();
   m_renderer->clear(
     gl::api::ClearBufferMask::ColorBufferBit | gl::api::ClearBufferMask::DepthBufferBit, {0, 0, 0, 0}, 1);
@@ -470,12 +469,12 @@ bool Presenter::preFrame()
     return false;
 
   m_renderer->getCamera()->setViewport(getRenderViewport());
-  m_renderPipeline->resize(*m_materialManager, getRenderViewport(), getDisplayViewport());
+  m_renderPipeline->resize(*m_materialManager, getRenderViewport(), getUiViewport(), getDisplayViewport());
   if(m_screenOverlay != nullptr)
   {
-    if(m_screenOverlay->getImage()->getSize() != getRenderViewport())
+    if(m_screenOverlay->getImage()->getSize() != getUiViewport())
     {
-      m_screenOverlay->init(*m_materialManager, getRenderViewport());
+      m_screenOverlay->init(*m_materialManager, getUiViewport());
     }
 
     m_screenOverlay->getImage()->fill({0, 0, 0, 0});
@@ -518,7 +517,8 @@ void Presenter::debounceInput()
 
 void Presenter::apply(const render::RenderSettings& renderSettings, const AudioSettings& audioSettings)
 {
-  m_halfRes = renderSettings.halfResRender;
+  m_halfResRender = renderSettings.halfResRender;
+  m_doubleUiScale = renderSettings.doubleUiScale;
   m_renderer->getCamera()->setViewport(getRenderViewport());
   setFullscreen(renderSettings.fullscreen);
   if(m_csm->getResolution() != renderSettings.getCSMResolution())
@@ -552,6 +552,8 @@ void Presenter::renderScreenOverlay()
 
   SOGLB_DEBUGGROUP("screen-overlay-pass");
   gl::RenderState::resetWantedState();
+  m_renderer->getCamera()->setViewport(getRenderViewport());
+  gl::RenderState::getWantedState().setViewport(getRenderViewport());
   render::scene::RenderContext context{render::scene::RenderMode::Full, std::nullopt};
   m_screenOverlay->render(nullptr, context);
 }
@@ -559,6 +561,7 @@ void Presenter::renderScreenOverlay()
 void Presenter::renderUi(ui::Ui& ui, float alpha)
 {
   m_renderPipeline->bindUiFrameBuffer();
+  m_renderer->getCamera()->setViewport(getUiViewport());
   ui.render();
   m_renderPipeline->renderUiFrameBuffer(alpha);
 }

@@ -259,6 +259,16 @@ RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingT
     {
       toggle(engine, engine.getEngineConfig()->renderSettings.halfResRender);
     });
+  listBox->addSetting(
+    /* translators: TR charmap encoding */ _("Double UI Scale"),
+    [&engine]()
+    {
+      return engine.getEngineConfig()->renderSettings.doubleUiScale;
+    },
+    [&engine]()
+    {
+      toggle(engine, engine.getEngineConfig()->renderSettings.doubleUiScale);
+    });
 
   listBox = std::make_shared<CheckListBox>(/* translators: TR charmap encoding */ _("Other"));
   m_listBoxes.emplace_back(listBox);

@@ -143,7 +143,7 @@ bool showLevelStats(const std::shared_ptr<Presenter>& presenter, world::World& w
       continue;
     }
 
-    ui::Ui ui{presenter->getMaterialManager()->getUi(), world.getPalette(), presenter->getRenderViewport()};
+    ui::Ui ui{presenter->getMaterialManager()->getUi(), world.getPalette(), presenter->getUiViewport()};
     ui::LevelStats stats{world.getTitle(), world.getTotalSecrets(), world.getPlayerPtr(), presenter};
     stats.draw(ui);
 
@@ -223,7 +223,7 @@ struct GhostManager
         msgBox->setConfirmed(!msgBox->isConfirmed());
       }
 
-      ui::Ui ui{presenter.getMaterialManager()->getUi(), world.getPalette(), presenter.getRenderViewport()};
+      ui::Ui ui{presenter.getMaterialManager()->getUi(), world.getPalette(), presenter.getUiViewport()};
 
       msgBox->setPosition({(ui.getSize().x - msgBox->getSize().x) / 2, (ui.getSize().y - msgBox->getSize().y) / 2});
       msgBox->update(true);
@@ -383,7 +383,7 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
       m_presenter->renderWorld(world.getRooms(), world.getCameraController(), world.getCameraController().update());
       m_presenter->updateSoundEngine();
       m_presenter->renderScreenOverlay();
-      ui::Ui ui{m_presenter->getMaterialManager()->getUi(), world.getPalette(), m_presenter->getRenderViewport()};
+      ui::Ui ui{m_presenter->getMaterialManager()->getUi(), world.getPalette(), m_presenter->getUiViewport()};
       ui.drawBox({0, 0}, ui.getSize(), gl::SRGBA8{0, 0, 0, 224});
       world.drawPerformanceBar(ui, throttler.getAverageWaitRatio());
       m_presenter->renderUi(ui, 1);
@@ -502,7 +502,7 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
         blackAlpha = 1 - runtime.cast<float>() / BlendInDuration.cast<float>();
       }
 
-      ui::Ui ui{m_presenter->getMaterialManager()->getUi(), world.getPalette(), m_presenter->getRenderViewport()};
+      ui::Ui ui{m_presenter->getMaterialManager()->getUi(), world.getPalette(), m_presenter->getUiViewport()};
 
       drawAmmoWidget(ui, getPresenter().getTrFont(), world, ammoDisplayDuration);
 
@@ -588,7 +588,7 @@ std::pair<RunResult, std::optional<size_t>> Engine::runTitleMenu(world::World& w
     if(!m_presenter->preFrame())
       continue;
 
-    ui::Ui ui{m_presenter->getMaterialManager()->getUi(), world.getPalette(), m_presenter->getRenderViewport()};
+    ui::Ui ui{m_presenter->getMaterialManager()->getUi(), world.getPalette(), m_presenter->getUiViewport()};
 
     std::shared_ptr<render::scene::Mesh> backdropMesh;
     {

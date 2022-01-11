@@ -32,6 +32,7 @@ struct RenderSettings
   bool dust = true;
   bool highQualityShadows = true;
   bool halfResRender = false;
+  bool doubleUiScale = false;
   std::optional<std::string> glidosPack = std::nullopt;
 
   [[nodiscard]] size_t getLightCollectionDepth() const

@@ -38,6 +38,7 @@ private:
 
   RenderSettings m_renderSettings{};
   glm::ivec2 m_renderSize{-1};
+  glm::ivec2 m_uiSize{-1};
   glm::ivec2 m_displaySize{-1};
   std::shared_ptr<pass::PortalPass> m_portalPass;
   std::shared_ptr<pass::GeometryPass> m_geometryPass;
@@ -50,6 +51,7 @@ private:
 public:
   explicit RenderPipeline(scene::MaterialManager& materialManager,
                           const glm::ivec2& renderViewport,
+                          const glm::ivec2& uiViewport,
                           const glm::ivec2& displayViewport);
 
   void bindGeometryFrameBuffer(float farPlane);
@@ -62,6 +64,7 @@ public:
 
   void resize(scene::MaterialManager& materialManager,
               const glm::ivec2& renderViewport,
+              const glm::ivec2& uiViewport,
               const glm::ivec2& displayViewport,
               bool force = false);
 

@@ -157,8 +157,14 @@ public:
 
   [[nodiscard]] auto getRenderViewport() const
   {
-    const int divisor = m_halfRes ? 2 : 1;
+    const int divisor = m_halfResRender ? 2 : 1;
     return m_window->getViewport() / divisor;
+  }
+
+  [[nodiscard]] auto getUiViewport() const
+  {
+    const int divisor = m_doubleUiScale ? 2 : 1;
+    return getRenderViewport() / divisor;
   }
 
   [[nodiscard]] gl::CImgWrapper takeScreenshot() const;
@@ -190,7 +196,8 @@ private:
   const gsl::not_null<std::unique_ptr<render::RenderPipeline>> m_renderPipeline;
   std::unique_ptr<render::scene::ScreenOverlay> m_screenOverlay;
 
-  bool m_halfRes = false;
+  bool m_halfResRender = false;
+  bool m_doubleUiScale = false;
 
   void scaleSplashImage();
 };

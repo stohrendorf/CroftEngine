@@ -17,9 +17,10 @@ namespace render
 {
 RenderPipeline::RenderPipeline(scene::MaterialManager& materialManager,
                                const glm::ivec2& renderViewport,
+                               const glm::ivec2& uiViewport,
                                const glm::ivec2& displayViewport)
 {
-  resize(materialManager, renderViewport, displayViewport, true);
+  resize(materialManager, renderViewport, uiViewport, displayViewport, true);
 }
 
 void RenderPipeline::worldCompositionPass(const bool inWater)
@@ -54,20 +55,22 @@ void RenderPipeline::updateCamera(const gsl::not_null<std::shared_ptr<scene::Cam
 void RenderPipeline::apply(const RenderSettings& renderSettings, scene::MaterialManager& materialManager)
 {
   m_renderSettings = renderSettings;
-  resize(materialManager, m_renderSize, m_displaySize, true);
+  resize(materialManager, m_renderSize, m_uiSize, m_displaySize, true);
 }
 
 void RenderPipeline::resize(scene::MaterialManager& materialManager,
                             const glm::ivec2& renderViewport,
+                            const glm::ivec2& uiViewport,
                             const glm::ivec2& displayViewport,
                             bool force)
 {
-  if(!force && m_renderSize == renderViewport && m_displaySize == displayViewport)
+  if(!force && m_renderSize == renderViewport && m_uiSize == uiViewport && m_displaySize == displayViewport)
   {
     return;
   }
 
   m_renderSize = renderViewport;
+  m_uiSize = uiViewport;
   m_displaySize = displayViewport;
 
   m_geometryPass = std::make_shared<pass::GeometryPass>(m_renderSize);
@@ -108,7 +111,7 @@ void RenderPipeline::resize(scene::MaterialManager& materialManager,
     addEffect("filmGrain", materialManager.getFilmGrain());
   if(m_renderSettings.crt)
     addEffect("crt", materialManager.getCRT());
-  m_uiPass = std::make_shared<pass::UIPass>(materialManager, m_renderSize, m_displaySize);
+  m_uiPass = std::make_shared<pass::UIPass>(materialManager, m_uiSize, m_displaySize);
 }
 
 gl::RenderState RenderPipeline::bindPortalFrameBuffer()

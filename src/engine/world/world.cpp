@@ -999,7 +999,7 @@ bool World::cinematicLoop()
     = m_cameraController->updateCinematic(m_cinematicFrames.at(m_cameraController->m_cinematicFrame.get()), false);
   doGlobalEffect();
 
-  ui::Ui ui{getPresenter().getMaterialManager()->getUi(), getPalette(), getPresenter().getRenderViewport()};
+  ui::Ui ui{getPresenter().getMaterialManager()->getUi(), getPalette(), getPresenter().getUiViewport()};
   getPresenter().renderWorld(getRooms(), getCameraController(), waterEntryPortals);
   getPresenter().renderScreenOverlay();
   getPresenter().renderUi(ui, 1);
