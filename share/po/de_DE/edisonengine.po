@@ -234,7 +234,7 @@ msgstr "Anpassungen verwerfen"
 #. translators: TR charmap encoding
 #: menu/rendersettingsmenustate.cpp:263
 msgid "Double UI Scale"
-msgstr "Doppelte UI Aufl~osung"
+msgstr "Doppelte UI Skalierung"
 
 #. translators: TR charcmap encoding
 #: menu/controlsmenustate.cpp:131
