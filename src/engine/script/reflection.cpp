@@ -66,17 +66,17 @@ namespace engine::script
 {
 namespace
 {
-std::filesystem::path getLocalLevelPath(const std::string& basename)
+std::filesystem::path getAssetPath(const Engine& engine, const std::filesystem::path& localPath)
 {
-  return std::filesystem::path{"data"} / "tr1" / "DATA" / (basename + ".PHD");
+  return engine.getUserDataPath() / "data" / "tr1" / localPath;
 }
 
 std::unique_ptr<loader::file::level::Level>
-  loadLevel(Engine& engine, const std::string& basename, const std::string& title)
+  loadLevel(Engine& engine, const std::string& localPath, const std::string& title)
 {
   engine.getPresenter().drawLoadingScreen(_("Loading %1%", title));
-  auto level = loader::file::level::Level::createLoader(engine.getUserDataPath() / getLocalLevelPath(basename),
-                                                        loader::file::level::Game::Unknown);
+  auto level
+    = loader::file::level::Level::createLoader(getAssetPath(engine, localPath), loader::file::level::Game::Unknown);
   level->loadFileData();
   return level;
 }
@@ -84,7 +84,7 @@ std::unique_ptr<loader::file::level::Level>
 
 std::pair<RunResult, std::optional<size_t>> Video::run(Engine& engine, const std::shared_ptr<Player>& /*player*/)
 {
-  engine.getPresenter().playVideo(engine.getUserDataPath() / "data" / "tr1" / "FMV" / m_name);
+  engine.getPresenter().playVideo(getAssetPath(engine, m_name));
   return {RunResult::NextLevel, std::nullopt};
 }
 
@@ -178,7 +178,7 @@ std::unique_ptr<world::World> Level::loadWorld(Engine& engine, const std::shared
 
 bool Level::isLevel(const std::filesystem::path& path) const
 {
-  return util::preferredEqual(getLocalLevelPath(m_name), path);
+  return util::preferredEqual(std::filesystem::path(m_name), path);
 }
 
 std::pair<RunResult, std::optional<size_t>> Level::run(Engine& engine, const std::shared_ptr<Player>& player)
@@ -235,8 +235,7 @@ std::pair<RunResult, std::optional<size_t>> SplashScreen::run(Engine& engine, co
 
   glm::ivec2 size{-1, -1};
   auto image = gslu::make_nn_shared<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>>(
-    gl::CImgWrapper{util::ensureFileExists(engine.getUserDataPath() / "data" / "tr1" / "DATA" / m_path)}.toTexture(
-      m_path.string()),
+    gl::CImgWrapper{util::ensureFileExists(getAssetPath(engine, m_path))}.toTexture(m_path.string()),
     gslu::make_nn_unique<gl::Sampler>(m_path.string() + "-sampler"));
   std::shared_ptr<render::scene::Mesh> mesh;
 

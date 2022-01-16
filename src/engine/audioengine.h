@@ -48,9 +48,9 @@ class AudioEngine
   core::Frame m_cdTrack50time = 0_frame;
   std::shared_ptr<audio::Voice> m_underwaterAmbience;
   std::weak_ptr<audio::StreamVoice> m_ambientStream;
-  std::optional<size_t> m_ambientStreamId{};
+  std::optional<std::filesystem::path> m_ambientStreamName{};
   std::weak_ptr<audio::StreamVoice> m_interceptStream;
-  std::optional<size_t> m_interceptStreamId{};
+  std::optional<std::filesystem::path> m_interceptStreamName{};
   std::optional<TR1TrackId> m_currentTrack;
   std::vector<gsl::not_null<std::shared_ptr<audio::BufferHandle>>> m_samples;
   audio::VoiceGroup m_music{0.8f};
@@ -67,8 +67,9 @@ public:
   std::shared_ptr<audio::Voice> playSoundEffect(const core::SoundEffectId& id, audio::Emitter* emitter);
   std::shared_ptr<audio::Voice> playSoundEffect(const core::SoundEffectId& id, const glm::vec3& pos);
 
-  gsl::not_null<std::shared_ptr<audio::StreamVoice>>
-    playStream(size_t trackId, const std::chrono::milliseconds& initialPosition = std::chrono::milliseconds{0});
+  gsl::not_null<std::shared_ptr<audio::StreamVoice>> playStream(const std::filesystem::path& path,
+                                                                const std::chrono::milliseconds& initialPosition
+                                                                = std::chrono::milliseconds{0});
 
   void playStopCdTrack(const script::Gameflow& gameflow, TR1TrackId trackId, bool stop);
 

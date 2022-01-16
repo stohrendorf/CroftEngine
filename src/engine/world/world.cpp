@@ -1016,7 +1016,8 @@ void World::load(const std::optional<size_t>& slot)
   serialization::YAMLDocument<true> doc{filename};
   SavegameMeta meta{};
   doc.load("meta", meta, meta);
-  if(!util::preferredEqual(meta.filename, std::filesystem::relative(m_levelFilename, m_engine.getUserDataPath())))
+  if(!util::preferredEqual(meta.filename,
+                           std::filesystem::relative(m_levelFilename, m_engine.getUserDataPath() / "data" / "tr1")))
   {
     BOOST_LOG_TRIVIAL(error) << "Savegame mismatch. File is for " << meta.filename << ", but current level is "
                              << m_levelFilename;
@@ -1083,7 +1084,7 @@ World::World(Engine& engine,
     : m_engine{engine}
     , m_levelFilename{level->getFilename()}
     , m_audioEngine{std::make_unique<AudioEngine>(
-        *this, engine.getUserDataPath() / "data" / "tr1" / "AUDIO", engine.getPresenter().getSoundEngine())}
+        *this, engine.getUserDataPath() / "data" / "tr1", engine.getPresenter().getSoundEngine())}
     , m_title{std::move(title)}
     , m_totalSecrets{totalSecrets}
     , m_itemTitles{std::move(itemTitles)}

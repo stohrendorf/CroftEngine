@@ -13,6 +13,7 @@
 #include "serialization/chrono.h"
 #include "serialization/map.h"
 #include "serialization/optional.h"
+#include "serialization/path.h"
 #include "serialization/serialization.h"
 #include "tracks_tr1.h"
 #include "util/helpers.h"
@@ -142,33 +143,33 @@ void AudioEngine::playStopCdTrack(const script::Gameflow& gameflow, const TR1Tra
   {
   case audio::TrackType::Ambient:
     m_soundEngine->getDevice().removeStream(m_ambientStream);
-    m_ambientStreamId.reset();
+    m_ambientStreamName.reset();
     m_currentTrack.reset();
 
     if(!stop)
     {
       BOOST_LOG_TRIVIAL(debug) << "playStopCdTrack - play ambient " << toString(trackId);
-      const auto stream = playStream(trackInfo->id.get());
+      const auto stream = playStream(trackInfo->name);
       stream->setLooping(true);
       m_ambientStream = stream.get();
-      m_ambientStreamId = trackInfo->id.get();
+      m_ambientStreamName = trackInfo->name;
       m_soundEngine->getDevice().removeStream(m_interceptStream);
-      m_interceptStreamId.reset();
+      m_interceptStreamName.reset();
       m_currentTrack = trackId;
     }
     break;
   case audio::TrackType::Interception:
     m_soundEngine->getDevice().removeStream(m_interceptStream);
-    m_interceptStreamId.reset();
+    m_interceptStreamName.reset();
     m_currentTrack.reset();
 
     if(!stop)
     {
       BOOST_LOG_TRIVIAL(debug) << "playStopCdTrack - play interception " << toString(trackId);
-      auto stream = playStream(trackInfo->id.get());
+      auto stream = playStream(trackInfo->name);
       stream->setLooping(false);
       m_interceptStream = stream.get();
-      m_interceptStreamId = trackInfo->id.get();
+      m_interceptStreamName = trackInfo->name;
       m_currentTrack = trackId;
     }
     break;
@@ -176,33 +177,19 @@ void AudioEngine::playStopCdTrack(const script::Gameflow& gameflow, const TR1Tra
 }
 
 gsl::not_null<std::shared_ptr<audio::StreamVoice>>
-  AudioEngine::playStream(size_t trackId, const std::chrono::milliseconds& initialPosition)
+  AudioEngine::playStream(const std::filesystem::path& path, const std::chrono::milliseconds& initialPosition)
 {
   static constexpr size_t DefaultBufferSize = 8192;
   static constexpr size_t DefaultBufferCount = 4;
 
-  if(std::filesystem::is_regular_file(m_rootPath / "CDAUDIO.WAD"))
-  {
-    auto stream = m_soundEngine->getDevice().createStream(audio::createWadStream(m_rootPath / "CDAUDIO.WAD", trackId),
-                                                          DefaultBufferSize,
-                                                          DefaultBufferCount,
-                                                          initialPosition);
-    m_music.add(stream);
-    stream->play();
-    return stream;
-  }
-  else
-  {
-    auto stream
-      = m_soundEngine->getDevice().createStream(std::make_unique<video::FfmpegStreamSource>(util::ensureFileExists(
-                                                  m_rootPath / (boost::format("%03d.ogg") % trackId).str())),
-                                                DefaultBufferSize,
-                                                DefaultBufferCount,
-                                                initialPosition);
-    m_music.add(stream);
-    stream->play();
-    return stream;
-  }
+  auto stream = m_soundEngine->getDevice().createStream(
+    std::make_unique<video::FfmpegStreamSource>(util::ensureFileExists(m_rootPath / path)),
+    DefaultBufferSize,
+    DefaultBufferCount,
+    initialPosition);
+  m_music.add(stream);
+  stream->play();
+  return stream;
 }
 
 std::shared_ptr<audio::Voice> AudioEngine::playSoundEffect(const core::SoundEffectId& id, audio::Emitter* emitter)
@@ -362,9 +349,9 @@ void AudioEngine::serialize(const serialization::Serializer<world::World>& ser)
   if(!ser.loading)
   {
     if(const auto stream = m_ambientStream.lock(); stream == nullptr || stream->isStopped())
-      m_ambientStreamId.reset();
+      m_ambientStreamName.reset();
     if(const auto stream = m_interceptStream.lock(); stream == nullptr || stream->isStopped())
-      m_interceptStreamId.reset();
+      m_interceptStreamName.reset();
   }
 
   std::chrono::milliseconds ambientPosition = getStreamPos(m_ambientStream);
@@ -372,27 +359,27 @@ void AudioEngine::serialize(const serialization::Serializer<world::World>& ser)
 
   ser(S_NV("currentTrack", m_currentTrack),
       S_NV("cdTrackActivationStates", m_cdTrackActivationStates),
-      S_NV("ambientStreamId", m_ambientStreamId),
+      S_NV("ambientStreamName", m_ambientStreamName),
       S_NV("ambientStreamPosition", ambientPosition),
-      S_NV("interceptStreamId", m_interceptStreamId),
+      S_NV("interceptStreamName", m_interceptStreamName),
       S_NV("interceptStreamPosition", interceptPosition));
 
   if(ser.loading)
   {
     m_soundEngine->getDevice().removeStream(m_ambientStream);
 
-    if(m_ambientStreamId.has_value())
+    if(m_ambientStreamName.has_value())
     {
-      const auto stream = playStream(*m_ambientStreamId, ambientPosition);
+      const auto stream = playStream(*m_ambientStreamName, ambientPosition);
       stream->setLooping(true);
       m_ambientStream = stream.get();
     }
 
     m_soundEngine->getDevice().removeStream(m_interceptStream);
 
-    if(m_interceptStreamId.has_value())
+    if(m_interceptStreamName.has_value())
     {
-      m_interceptStream = playStream(*m_interceptStreamId, interceptPosition).get();
+      m_interceptStream = playStream(*m_interceptStreamName, interceptPosition).get();
     }
   }
 }
@@ -422,9 +409,9 @@ void AudioEngine::init(const std::vector<loader::file::SoundEffectProperties>& s
   m_cdTrack50time = 0_frame;
   m_underwaterAmbience.reset();
   m_soundEngine->getDevice().removeStream(m_ambientStream);
-  m_ambientStreamId.reset();
+  m_ambientStreamName.reset();
   m_soundEngine->getDevice().removeStream(m_interceptStream);
-  m_interceptStreamId.reset();
+  m_interceptStreamName.reset();
   m_currentTrack.reset();
 }
 } // namespace engine

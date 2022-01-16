@@ -31,7 +31,7 @@ PYBIND11_EMBEDDED_MODULE(engine, m)
   m.doc() = "edisonengine engine module";
   engine::ai::initAiModule(m.def_submodule("ai"));
 
-  py::class_<engine::script::TrackInfo>(m, "TrackInfo").def(py::init<core::SoundEffectId::type, audio::TrackType>());
+  py::class_<engine::script::TrackInfo>(m, "TrackInfo").def(py::init<std::string, audio::TrackType>());
 
   {
     auto e = py::enum_<engine::WeaponType>(m, "WeaponType");

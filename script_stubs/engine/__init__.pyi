@@ -52,7 +52,7 @@ class TR1ItemId(Enum):
 
 
 class TrackInfo:
-    def __init__(self, soundid: int, tracktype: TrackType, /):
+    def __init__(self, name: str, tracktype: TrackType, /):
         ...
 
 

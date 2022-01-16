@@ -50,13 +50,13 @@ struct ObjectInfo
 
 struct TrackInfo
 {
-  TrackInfo(core::SoundEffectId::type id, audio::TrackType type)
-      : id{id}
+  TrackInfo(const std::string& name, audio::TrackType type)
+      : name{name}
       , type{type}
   {
   }
 
-  core::SoundEffectId id;
+  std::filesystem::path name;
   audio::TrackType type;
 };
 

@@ -1,13 +1,13 @@
 from engine import TR1TrackId, TR1ItemId, Video, Cutscene, Level, TitleMenu, SplashScreen, WeaponType, ModifyInventory
 
 early_boot = [
-    Video("CORE.RPL"),
-    Video("ESCAPE.RPL"),
-    Video("CAFE.RPL"),
+    Video("FMV/CORE.RPL"),
+    Video("FMV/ESCAPE.RPL"),
+    Video("FMV/CAFE.RPL"),
 ]
 
 title_menu = TitleMenu(
-    name="TITLE",
+    name="DATA/TITLE.PHD",
     titles={
         "en_GB": "Tomb Raider",
         "de_DE": "Tomb Raider",
@@ -16,9 +16,9 @@ title_menu = TitleMenu(
 )
 
 lara_home = [
-    Video("MANSION.RPL"),
+    Video("FMV/MANSION.RPL"),
     Level(
-        name="GYM",
+        name="DATA/GYM.PHD",
         titles={
             "en_GB": "Lara's home",
             "de_DE": "Laras Haus",
@@ -30,12 +30,12 @@ lara_home = [
 ]
 
 level_sequence = [
-    Video("SNOW.RPL"),
+    Video("FMV/SNOW.RPL"),
     ModifyInventory(
         add_inventory={TR1ItemId.Pistols: 1},
     ),
     Level(
-        name="LEVEL1",
+        name="DATA/LEVEL1.PHD",
         titles={
             "en_GB": "Caves",
             "de_DE": "Die Kavernen",
@@ -44,7 +44,7 @@ level_sequence = [
         secrets=3,
     ),
     Level(
-        name="LEVEL2",
+        name="DATA/LEVEL2.PHD",
         titles={
             "en_GB": "City of Vilcabamba",
             "de_DE": "Die Stadt Vilcabamba",
@@ -63,7 +63,7 @@ level_sequence = [
         },
     ),
     Level(
-        name="LEVEL3A",
+        name="DATA/LEVEL3A.PHD",
         titles={
             "en_GB": "Lost Valley",
             "de_DE": "Das Verlorene Tal",
@@ -80,7 +80,7 @@ level_sequence = [
         },
     ),
     Level(
-        name="LEVEL3B",
+        name="DATA/LEVEL3B.PHD",
         titles={
             "en_GB": "Tomb of Qualopec",
             "de_DE": "Das Grab von Qualopec",
@@ -97,15 +97,15 @@ level_sequence = [
         },
     ),
     Cutscene(
-        name="CUT1",
+        name="DATA/CUT1.PHD",
         track=TR1TrackId.Cutscene2,
         camera_pos_x=36668,
         camera_pos_z=63180,
         camera_rot=-128.0,
     ),
-    Video("LIFT.RPL"),
+    Video("FMV/LIFT.RPL"),
     Level(
-        name="LEVEL4",
+        name="DATA/LEVEL4.PHD",
         titles={
             "en_GB": "St. Francis' Folly",
             "de_DE": "St. Francis' Folly",
@@ -130,7 +130,7 @@ level_sequence = [
         },
     ),
     Level(
-        name="LEVEL5",
+        name="DATA/LEVEL5.PHD",
         titles={
             "en_GB": "Colosseum",
             "de_DE": "Das Kolosseum",
@@ -149,7 +149,7 @@ level_sequence = [
         },
     ),
     Level(
-        name="LEVEL6",
+        name="DATA/LEVEL6.PHD",
         titles={
             "en_GB": "Palace Midas",
             "de_DE": "Der Palast des Midas",
@@ -168,7 +168,7 @@ level_sequence = [
         },
     ),
     Level(
-        name="LEVEL7A",
+        name="DATA/LEVEL7A.PHD",
         titles={
             "en_GB": "The Cistern",
             "de_DE": "Die Zisterne",
@@ -191,7 +191,7 @@ level_sequence = [
         },
     ),
     Level(
-        name="LEVEL7B",
+        name="DATA/LEVEL7B.PHD",
         titles={
             "en_GB": "Tomb of Tihocan",
             "de_DE": "Das Grab des Tihocan",
@@ -214,16 +214,16 @@ level_sequence = [
         },
     ),
     Cutscene(
-        name="CUT2",
+        name="DATA/CUT2.PHD",
         track=TR1TrackId.Cutscene4,
         camera_pos_x=51962,
         camera_pos_z=53760,
         camera_rot=90.0,
         weapon_swap=True,
     ),
-    Video("VISION.RPL"),
+    Video("FMV/VISION.RPL"),
     Level(
-        name="LEVEL8A",
+        name="DATA/LEVEL8A.PHD",
         titles={
             "en_GB": "City of Khamoon",
             "de_DE": "Die Stadt Khamoon",
@@ -242,7 +242,7 @@ level_sequence = [
         },
     ),
     Level(
-        name="LEVEL8B",
+        name="DATA/LEVEL8B.PHD",
         titles={
             "en_GB": "Obelisk of Khamoon",
             "de_DE": "Der Obelisk von Khamoon",
@@ -269,7 +269,7 @@ level_sequence = [
         },
     ),
     Level(
-        name="LEVEL8C",
+        name="DATA/LEVEL8C.PHD",
         titles={
             "en_GB": "Sanctuary of the Scion",
             "de_DE": "Das Heiligtum des Scion",
@@ -291,7 +291,7 @@ level_sequence = [
             },
         },
     ),
-    Video("CANYON.RPL"),
+    Video("FMV/CANYON.RPL"),
     ModifyInventory(
         drop_inventory={
             TR1ItemId.Pistols,
@@ -306,7 +306,7 @@ level_sequence = [
         },
     ),
     Level(
-        name="LEVEL10A",
+        name="DATA/LEVEL10A.PHD",
         titles={
             "en_GB": "Natla's Mines",
             "de_DE": "Natlas Katakomben",
@@ -330,14 +330,14 @@ level_sequence = [
         default_weapon=WeaponType.None_,
     ),
     Cutscene(
-        name="CUT3",
+        name="DATA/CUT3.PHD",
         track=TR1TrackId.Cutscene3,
         flip_rooms=True,
         camera_rot=90.0,
     ),
-    Video("PYRAMID.RPL"),
+    Video("FMV/PYRAMID.RPL"),
     Level(
-        name="LEVEL10B",
+        name="DATA/LEVEL10B.PHD",
         titles={
             "en_GB": "Atlantis",
             "de_DE": "Atlantis",
@@ -350,15 +350,15 @@ level_sequence = [
             },
         },
     ),
-    Video("PRISON.RPL"),
+    Video("FMV/PRISON.RPL"),
     Cutscene(
-        name="CUT4",
+        name="DATA/CUT4.PHD",
         track=TR1TrackId.Cutscene1,
         camera_rot=90.0,
         weapon_swap=True,
     ),
     Level(
-        name="LEVEL10C",
+        name="DATA/LEVEL10C.PHD",
         titles={
             "en_GB": "The Great Pyramid",
             "de_DE": "Die Gro=e Pyramide",
@@ -371,10 +371,10 @@ level_sequence = [
             },
         },
     ),
-    Video("END.RPL"),
+    Video("FMV/END.RPL"),
     *(
         SplashScreen(
-            path=f"{name}.PCX",
+            path=f"DATA/{name}.PCX",
             duration_seconds=15,
         )
         for name in ("END", "CRED1", "CRED2", "CRED3")
