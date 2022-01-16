@@ -317,8 +317,8 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
     world.getObjectManager().getLara().initWeaponAnimData();
   }
 
-  const bool godMode = m_scriptEngine.isGodMode();
-  const bool allAmmoCheat = m_scriptEngine.hasAllAmmoCheat();
+  const bool godMode = m_scriptEngine.getGameflow()->isGodMode();
+  const bool allAmmoCheat = m_scriptEngine.getGameflow()->hasAllAmmoCheat();
 
   applySettings();
   std::shared_ptr<menu::MenuDisplay> menu;

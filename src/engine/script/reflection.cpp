@@ -27,6 +27,7 @@
 #include "render/scene/renderer.h"
 #include "render/scene/rendermode.h"
 #include "scriptengine.h"
+#include "util.h"
 #include "util/fsutil.h"
 #include "util/helpers.h"
 
@@ -149,7 +150,7 @@ std::unique_ptr<world::World> Level::loadWorld(Engine& engine, const std::shared
 
   player->resetStats();
 
-  for(const auto& [type, qty] : engine.getScriptEngine().getCheatInventory())
+  for(const auto& [type, qty] : engine.getScriptEngine().getGameflow()->getCheatInventory())
     player->getInventory().put(type.cast<TR1ItemId>(), nullptr, qty.cast<size_t>());
 
   auto world = std::make_unique<world::World>(engine,
@@ -301,5 +302,20 @@ std::pair<RunResult, std::optional<size_t>> ModifyInventory::run(Engine& /*engin
   for(const auto& type : m_dropInventory)
     player->getInventory().drop(type);
   return {RunResult::NextLevel, std::nullopt};
+}
+
+bool Gameflow::isGodMode() const
+{
+  return get<bool>(m_cheats, "godMode").value_or(false);
+}
+
+bool Gameflow::hasAllAmmoCheat() const
+{
+  return get<bool>(m_cheats, "allAmmoCheat").value_or(false);
+}
+
+pybind11::dict Gameflow::getCheatInventory() const
+{
+  return get<pybind11::dict>(m_cheats, "inventory").value_or(pybind11::dict{});
 }
 } // namespace engine::script

@@ -59,7 +59,7 @@ inline T rand15s(T max)
   return static_cast<T>(static_cast<float>(max) * static_cast<float>(rand15s()) / static_cast<float>(Rand15Max));
 }
 
-extern glm::mat4 mix(const glm::mat4& a, const glm::mat4& b, const float bias);
+extern glm::mat4 mix(const glm::mat4& a, const glm::mat4& b, float bias);
 
 extern core::Length sin(const core::Length& len, const core::Angle& rot);
 

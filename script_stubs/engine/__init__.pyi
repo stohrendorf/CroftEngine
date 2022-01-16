@@ -1,5 +1,5 @@
 from enum import Enum, auto
-from typing import Optional, Dict, Set
+from typing import Optional, Dict, Set, List
 
 
 class ObjectInfo:
@@ -113,4 +113,17 @@ class SplashScreen(LevelSequenceItem):
             path: str,
             duration_seconds: int,
     ):
+        ...
+
+
+class Gameflow:
+    def __init__(self, *,
+                 object_infos: Dict[TR1ItemId, ObjectInfo],
+                 tracks: Dict[TR1ItemId, TrackInfo],
+                 level_sequence: List[LevelSequenceItem],
+                 title_menu: LevelSequenceItem,
+                 lara_home: List[LevelSequenceItem],
+                 early_boot: List[LevelSequenceItem],
+                 cheats: dict,
+                 ):
         ...

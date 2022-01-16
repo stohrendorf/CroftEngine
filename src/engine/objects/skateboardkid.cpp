@@ -71,7 +71,7 @@ void SkateboardKid::update()
     if(m_state.health < 120_hp && getWorld().getAudioEngine().getCurrentTrack() != TR1TrackId::LaraTalk30)
     {
       getWorld().getAudioEngine().playStopCdTrack(
-        getWorld().getEngine().getScriptEngine(), TR1TrackId::LaraTalk30, false);
+        *getWorld().getEngine().getScriptEngine().getGameflow(), TR1TrackId::LaraTalk30, false);
     }
 
     switch(m_state.current_anim_state.get())

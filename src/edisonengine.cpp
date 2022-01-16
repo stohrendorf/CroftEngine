@@ -82,18 +82,18 @@ int main()
     std::optional<size_t> loadSlot;
     bool doLoad = false;
 
+    const auto& gameflow = engine.getScriptEngine().getGameflow();
     auto processLoadRequest
-      = [&engine, &levelSequenceIndex, &mode, &loadSlot, &doLoad](const std::optional<size_t>& slot) -> void
+      = [&engine, &levelSequenceIndex, &mode, &loadSlot, &doLoad, &gameflow](const std::optional<size_t>& slot) -> void
     {
       const auto meta = engine.getSavegameMeta(slot);
       Expects(meta.has_value());
       for(levelSequenceIndex = 0; true; ++levelSequenceIndex)
       {
-        auto item = engine.getScriptEngine().getLevelSequenceItem(levelSequenceIndex);
-        if(item == nullptr || item->isLevel(meta->filename))
+        if(levelSequenceIndex >= gameflow->getLevelSequence().size()
+           || gameflow->getLevelSequence().at(levelSequenceIndex)->isLevel(meta->filename))
           break;
       }
-      Expects(engine.getScriptEngine().getLevelSequenceItem(levelSequenceIndex) != nullptr);
       loadSlot = slot;
       doLoad = true;
       mode = Mode::Game;
@@ -109,18 +109,18 @@ int main()
       case Mode::Boot:
         Expects(!doLoad);
         player = std::make_shared<engine::Player>();
-        for(const auto& item : engine.getScriptEngine().getEarlyBoot())
+        for(const auto& item : gameflow->getEarlyBoot())
           runResult = engine.runLevelSequenceItem(*item, player);
         break;
       case Mode::Title:
         Expects(!doLoad);
         player = std::make_shared<engine::Player>();
-        runResult = engine.runLevelSequenceItem(*engine.getScriptEngine().getTitleMenu(), player);
+        runResult = engine.runLevelSequenceItem(*gameflow->getTitleMenu(), player);
         break;
       case Mode::Gym:
         Expects(!doLoad);
         player = std::make_shared<engine::Player>();
-        for(const auto& item : engine.getScriptEngine().getLaraHome())
+        for(const auto& item : gameflow->getLaraHome())
           runResult = engine.runLevelSequenceItem(*item, player);
         break;
       case Mode::Game:
@@ -128,15 +128,15 @@ int main()
         {
           player = std::make_shared<engine::Player>();
           runResult = engine.runLevelSequenceItemFromSave(
-            *gsl::not_null{engine.getScriptEngine().getLevelSequenceItem(levelSequenceIndex)}, loadSlot, player);
+            *gsl::not_null{gameflow->getLevelSequence().at(levelSequenceIndex)}, loadSlot, player);
         }
         else
         {
           if(player == nullptr || levelSequenceIndex == 0)
             player = std::make_shared<engine::Player>();
 
-          runResult = engine.runLevelSequenceItem(
-            *gsl::not_null{engine.getScriptEngine().getLevelSequenceItem(levelSequenceIndex)}, player);
+          runResult
+            = engine.runLevelSequenceItem(*gsl::not_null{gameflow->getLevelSequence().at(levelSequenceIndex)}, player);
         }
         break;
       }
@@ -197,7 +197,7 @@ int main()
           return EXIT_SUCCESS;
         case engine::RunResult::NextLevel:
           ++levelSequenceIndex;
-          if(engine.getScriptEngine().getLevelSequenceItem(levelSequenceIndex) == nullptr)
+          if(levelSequenceIndex >= gameflow->getLevelSequence().size())
           {
             levelSequenceIndex = 0;
             mode = Mode::Title;

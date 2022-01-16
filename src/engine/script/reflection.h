@@ -13,6 +13,7 @@
 #include <filesystem>
 #include <memory>
 #include <optional>
+#include <pybind11/pytypes.h>
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
@@ -235,5 +236,69 @@ public:
   {
     return false;
   }
+};
+
+class Gameflow final
+{
+public:
+  explicit Gameflow(std::map<TR1ItemId, ObjectInfo*> objectInfos,
+                    std::map<TR1TrackId, TrackInfo*> tracks,
+                    std::vector<LevelSequenceItem*> levelSequence,
+                    LevelSequenceItem* titleMenu,
+                    std::vector<LevelSequenceItem*> laraHome,
+                    std::vector<LevelSequenceItem*> earlyBoot,
+                    pybind11::dict cheats)
+      : m_objectInfos{std::move(objectInfos)}
+      , m_tracks{std::move(tracks)}
+      , m_levelSequence{std::move(levelSequence)}
+      , m_titleMenu{titleMenu}
+      , m_laraHome{std::move(laraHome)}
+      , m_earlyBoot{std::move(earlyBoot)}
+      , m_cheats{std::move(cheats)}
+  {
+  }
+
+  [[nodiscard]] const auto& getObjectInfos() const
+  {
+    return m_objectInfos;
+  }
+
+  [[nodiscard]] const auto& getLevelSequence() const
+  {
+    return m_levelSequence;
+  }
+
+  [[nodiscard]] const auto& getEarlyBoot() const
+  {
+    return m_earlyBoot;
+  }
+
+  [[nodiscard]] const auto& getTitleMenu() const
+  {
+    return m_titleMenu;
+  }
+
+  [[nodiscard]] const auto& getLaraHome() const
+  {
+    return m_laraHome;
+  }
+
+  [[nodiscard]] const auto& getTracks() const
+  {
+    return m_tracks;
+  }
+
+  [[nodiscard]] bool isGodMode() const;
+  [[nodiscard]] bool hasAllAmmoCheat() const;
+  [[nodiscard]] pybind11::dict getCheatInventory() const;
+
+private:
+  std::map<TR1ItemId, ObjectInfo*> m_objectInfos;
+  std::map<TR1TrackId, TrackInfo*> m_tracks;
+  std::vector<LevelSequenceItem*> m_levelSequence;
+  LevelSequenceItem* m_titleMenu;
+  std::vector<LevelSequenceItem*> m_laraHome;
+  std::vector<LevelSequenceItem*> m_earlyBoot;
+  pybind11::dict m_cheats;
 };
 } // namespace engine::script

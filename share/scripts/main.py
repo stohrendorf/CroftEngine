@@ -1,12 +1,19 @@
 # locale_override = "en_GB.utf8"
 from engine import TR1ItemId
 
-from scripts.tr1.object_infos import object_infos  # lgtm [py/unused-import]
-from scripts.tr1.audio import tracks  # lgtm [py/unused-import]
-from scripts.tr1.level_sequence import level_sequence, title_menu, lara_home, early_boot  # lgtm [py/unused-import]
+from scripts.tr1.object_infos import object_infos
+from scripts.tr1.audio import tracks
+from scripts.tr1.level_sequence import level_sequence, title_menu, lara_home, early_boot
+from engine import Gameflow
 
-if False:
-    cheats = {  # lgtm [py/unreachable-statement]
+gameflow = Gameflow(
+    object_infos=object_infos,
+    tracks=tracks,
+    level_sequence=level_sequence,
+    title_menu=title_menu,
+    lara_home=lara_home,
+    early_boot=early_boot,
+    cheats={
         "godMode": True,
         "allAmmoCheat": True,
         "inventory": {
@@ -22,8 +29,7 @@ if False:
             TR1ItemId.MagnumsSprite: 1,
             TR1ItemId.ShotgunSprite: 1,
         }
-    }
-else:
-    cheats = {}
+    } if False else {}
+)
 
 print("Yay! Main script loaded.")

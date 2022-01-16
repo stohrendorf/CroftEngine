@@ -30,7 +30,7 @@ struct Room;
 
 namespace engine::script
 {
-class ScriptEngine;
+class Gameflow;
 }
 
 namespace engine::objects
@@ -123,7 +123,7 @@ public:
 
   const world::Sector* getCurrentSector() const;
 
-  void loadObjectInfo(const script::ScriptEngine& scriptEngine);
+  void loadObjectInfo(const script::Gameflow& gameflow);
 
   bool isDead() const
   {

@@ -539,10 +539,16 @@ bool AIAgent::tryShootAtLara(ModelObject& object,
 
 void AIAgent::loadObjectInfo(bool withoutGameState)
 {
-  m_collisionRadius = core::Length{getWorld().getEngine().getScriptEngine().getObjectInfo(m_state.type).radius};
+  m_collisionRadius = core::Length{getWorld()
+                                     .getEngine()
+                                     .getScriptEngine()
+                                     .getGameflow()
+                                     ->getObjectInfos()
+                                     .at(m_state.type.get_as<TR1ItemId>())
+                                     ->radius};
 
   if(!withoutGameState)
-    m_state.loadObjectInfo(getWorld().getEngine().getScriptEngine());
+    m_state.loadObjectInfo(*getWorld().getEngine().getScriptEngine().getGameflow());
 }
 
 void AIAgent::hitLara(const core::Health& strength)

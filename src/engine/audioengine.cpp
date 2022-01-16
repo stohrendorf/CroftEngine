@@ -23,7 +23,7 @@
 
 namespace engine
 {
-void AudioEngine::triggerCdTrack(const script::ScriptEngine& scriptEngine,
+void AudioEngine::triggerCdTrack(const script::Gameflow& gameflow,
                                  TR1TrackId trackId,
                                  const floordata::ActivationState& activationRequest,
                                  const floordata::SequenceCondition triggerType)
@@ -34,7 +34,7 @@ void AudioEngine::triggerCdTrack(const script::ScriptEngine& scriptEngine,
   if(trackId < TR1TrackId::LaraTalk2)
   { // NOLINT(bugprone-branch-clone)
     // 1..27
-    triggerNormalCdTrack(scriptEngine, trackId, activationRequest, triggerType);
+    triggerNormalCdTrack(gameflow, trackId, activationRequest, triggerType);
   }
   else if(trackId == TR1TrackId::LaraTalk2)
   {
@@ -44,38 +44,38 @@ void AudioEngine::triggerCdTrack(const script::ScriptEngine& scriptEngine,
     {
       trackId = TR1TrackId::LaraTalk3;
     }
-    triggerNormalCdTrack(scriptEngine, trackId, activationRequest, triggerType);
+    triggerNormalCdTrack(gameflow, trackId, activationRequest, triggerType);
   }
   else if(trackId < TR1TrackId::LaraTalk15)
   {
     // 29..40
     if(trackId != TR1TrackId::LaraTalk11)
-      triggerNormalCdTrack(scriptEngine, trackId, activationRequest, triggerType);
+      triggerNormalCdTrack(gameflow, trackId, activationRequest, triggerType);
   }
   else if(trackId == TR1TrackId::LaraTalk15)
   { // NOLINT(bugprone-branch-clone)
     // 41
     if(m_world.getObjectManager().getLara().getCurrentAnimState() == loader::file::LaraStateId::Hang)
-      triggerNormalCdTrack(scriptEngine, trackId, activationRequest, triggerType);
+      triggerNormalCdTrack(gameflow, trackId, activationRequest, triggerType);
   }
   else if(trackId == TR1TrackId::LaraTalk16)
   {
     // 42
     if(m_world.getObjectManager().getLara().getCurrentAnimState() == loader::file::LaraStateId::Hang)
-      triggerNormalCdTrack(scriptEngine, TR1TrackId::LaraTalk17, activationRequest, triggerType);
+      triggerNormalCdTrack(gameflow, TR1TrackId::LaraTalk17, activationRequest, triggerType);
     else
-      triggerNormalCdTrack(scriptEngine, trackId, activationRequest, triggerType);
+      triggerNormalCdTrack(gameflow, trackId, activationRequest, triggerType);
   }
   else if(trackId < TR1TrackId::LaraTalk23)
   {
     // 43..48
-    triggerNormalCdTrack(scriptEngine, trackId, activationRequest, triggerType);
+    triggerNormalCdTrack(gameflow, trackId, activationRequest, triggerType);
   }
   else if(trackId == TR1TrackId::LaraTalk23)
   {
     // 49
     if(m_world.getObjectManager().getLara().getCurrentAnimState() == loader::file::LaraStateId::OnWaterStop)
-      triggerNormalCdTrack(scriptEngine, trackId, activationRequest, triggerType);
+      triggerNormalCdTrack(gameflow, trackId, activationRequest, triggerType);
   }
   else if(trackId == TR1TrackId::LaraTalk24)
   {
@@ -87,22 +87,22 @@ void AudioEngine::triggerCdTrack(const script::ScriptEngine& scriptEngine,
       {
         m_world.finishLevel();
         m_cdTrack50time = 0_frame;
-        triggerNormalCdTrack(scriptEngine, trackId, activationRequest, triggerType);
+        triggerNormalCdTrack(gameflow, trackId, activationRequest, triggerType);
       }
     }
     else if(m_world.getObjectManager().getLara().getCurrentAnimState() == loader::file::LaraStateId::OnWaterExit)
     {
-      triggerNormalCdTrack(scriptEngine, trackId, activationRequest, triggerType);
+      triggerNormalCdTrack(gameflow, trackId, activationRequest, triggerType);
     }
   }
   else
   {
     // 51..64
-    triggerNormalCdTrack(scriptEngine, trackId, activationRequest, triggerType);
+    triggerNormalCdTrack(gameflow, trackId, activationRequest, triggerType);
   }
 }
 
-void AudioEngine::triggerNormalCdTrack(const script::ScriptEngine& scriptEngine,
+void AudioEngine::triggerNormalCdTrack(const script::Gameflow& gameflow,
                                        const TR1TrackId trackId,
                                        const floordata::ActivationState& activationRequest,
                                        const floordata::SequenceCondition triggerType)
@@ -123,7 +123,7 @@ void AudioEngine::triggerNormalCdTrack(const script::ScriptEngine& scriptEngine,
 
   if(!trackState.isFullyActivated())
   {
-    playStopCdTrack(scriptEngine, trackId, true);
+    playStopCdTrack(gameflow, trackId, true);
     return;
   }
 
@@ -131,14 +131,14 @@ void AudioEngine::triggerNormalCdTrack(const script::ScriptEngine& scriptEngine,
     trackState.setOneshot(true);
 
   if(!m_currentTrack.has_value() || *m_currentTrack != trackId)
-    playStopCdTrack(scriptEngine, trackId, false);
+    playStopCdTrack(gameflow, trackId, false);
 }
 
-void AudioEngine::playStopCdTrack(const script::ScriptEngine& scriptEngine, const TR1TrackId trackId, bool stop)
+void AudioEngine::playStopCdTrack(const script::Gameflow& gameflow, const TR1TrackId trackId, bool stop)
 {
-  const auto trackInfo = scriptEngine.getTrackInfo(trackId);
+  const auto trackInfo = gameflow.getTracks().at(trackId);
 
-  switch(trackInfo.type)
+  switch(trackInfo->type)
   {
   case audio::TrackType::Ambient:
     m_soundEngine->getDevice().removeStream(m_ambientStream);
@@ -148,10 +148,10 @@ void AudioEngine::playStopCdTrack(const script::ScriptEngine& scriptEngine, cons
     if(!stop)
     {
       BOOST_LOG_TRIVIAL(debug) << "playStopCdTrack - play ambient " << toString(trackId);
-      const auto stream = playStream(trackInfo.id.get());
+      const auto stream = playStream(trackInfo->id.get());
       stream->setLooping(true);
       m_ambientStream = stream.get();
-      m_ambientStreamId = trackInfo.id.get();
+      m_ambientStreamId = trackInfo->id.get();
       m_soundEngine->getDevice().removeStream(m_interceptStream);
       m_interceptStreamId.reset();
       m_currentTrack = trackId;
@@ -165,10 +165,10 @@ void AudioEngine::playStopCdTrack(const script::ScriptEngine& scriptEngine, cons
     if(!stop)
     {
       BOOST_LOG_TRIVIAL(debug) << "playStopCdTrack - play interception " << toString(trackId);
-      auto stream = playStream(trackInfo.id.get());
+      auto stream = playStream(trackInfo->id.get());
       stream->setLooping(false);
       m_interceptStream = stream.get();
-      m_interceptStreamId = trackInfo.id.get();
+      m_interceptStreamId = trackInfo->id.get();
       m_currentTrack = trackId;
     }
     break;

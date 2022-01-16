@@ -156,4 +156,21 @@ PYBIND11_EMBEDDED_MODULE(engine, m)
     for(const auto& [key, value] : engine::EnumUtil<engine::TR1ItemId>::all())
       e.value(value.c_str(), key);
   }
+
+  py::class_<engine::script::Gameflow>(m, "Gameflow", py::is_final{})
+    .def(py::init<std::map<engine::TR1ItemId, engine::script::ObjectInfo*>,
+                  std::map<engine::TR1TrackId, engine::script::TrackInfo*>,
+                  std::vector<engine::script::LevelSequenceItem*>,
+                  engine::script::LevelSequenceItem*,
+                  std::vector<engine::script::LevelSequenceItem*>,
+                  std::vector<engine::script::LevelSequenceItem*>,
+                  pybind11::dict>(),
+         py::kw_only{},
+         py::arg("object_infos"),
+         py::arg("tracks"),
+         py::arg("level_sequence"),
+         py::arg("title_menu"),
+         py::arg("lara_home"),
+         py::arg("early_boot"),
+         py::arg("cheats"));
 }

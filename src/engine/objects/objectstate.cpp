@@ -84,9 +84,9 @@ glm::vec3 ObjectState::getPosition() const
   return location.position.toRenderSystem();
 }
 
-void ObjectState::loadObjectInfo(const script::ScriptEngine& scriptEngine)
+void ObjectState::loadObjectInfo(const script::Gameflow& gameflow)
 {
-  health = core::Health{scriptEngine.getObjectInfo(type).hit_points};
+  health = core::Health{gameflow.getObjectInfos().at(type.get_as<TR1ItemId>())->hit_points};
 }
 
 void ObjectState::serialize(const serialization::Serializer<world::World>& ser)

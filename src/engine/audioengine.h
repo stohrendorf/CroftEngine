@@ -19,7 +19,7 @@ class World;
 
 namespace engine::script
 {
-class ScriptEngine;
+class Gameflow;
 }
 
 namespace audio
@@ -70,14 +70,14 @@ public:
   gsl::not_null<std::shared_ptr<audio::StreamVoice>>
     playStream(size_t trackId, const std::chrono::milliseconds& initialPosition = std::chrono::milliseconds{0});
 
-  void playStopCdTrack(const script::ScriptEngine& scriptEngine, TR1TrackId trackId, bool stop);
+  void playStopCdTrack(const script::Gameflow& gameflow, TR1TrackId trackId, bool stop);
 
-  void triggerNormalCdTrack(const script::ScriptEngine& scriptEngine,
+  void triggerNormalCdTrack(const script::Gameflow& gameflow,
                             TR1TrackId trackId,
                             const floordata::ActivationState& activationRequest,
                             floordata::SequenceCondition triggerType);
 
-  void triggerCdTrack(const script::ScriptEngine& scriptEngine,
+  void triggerCdTrack(const script::Gameflow& gameflow,
                       TR1TrackId trackId,
                       const floordata::ActivationState& activationRequest,
                       floordata::SequenceCondition triggerType);

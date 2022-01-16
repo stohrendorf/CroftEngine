@@ -850,7 +850,7 @@ void World::handleCommandSequence(const floordata::FloorDataValue* floorData, co
       finishLevel();
       break;
     case floordata::CommandOpcode::PlayTrack:
-      m_audioEngine->triggerCdTrack(m_engine.getScriptEngine(),
+      m_audioEngine->triggerCdTrack(*m_engine.getScriptEngine().getGameflow(),
                                     static_cast<TR1TrackId>(command.parameter),
                                     activationRequest,
                                     chunkHeader.sequenceCondition);
@@ -860,7 +860,7 @@ void World::handleCommandSequence(const floordata::FloorDataValue* floorData, co
       if(!m_secretsFoundBitmask.test(command.parameter))
       {
         m_secretsFoundBitmask.set(command.parameter);
-        m_audioEngine->playStopCdTrack(m_engine.getScriptEngine(), TR1TrackId::Secret, false);
+        m_audioEngine->playStopCdTrack(*m_engine.getScriptEngine().getGameflow(), TR1TrackId::Secret, false);
         ++m_player->secrets;
       }
       break;
@@ -1167,7 +1167,7 @@ World::World(Engine& engine,
   getPresenter().getSoundEngine()->setListener(m_cameraController.get());
   getPresenter().setTrFont(std::make_unique<ui::TRFont>(*m_spriteSequences.at(TR1ItemId::FontGraphics)));
   if(track.has_value())
-    m_audioEngine->playStopCdTrack(m_engine.getScriptEngine(), *track, false);
+    m_audioEngine->playStopCdTrack(*m_engine.getScriptEngine().getGameflow(), *track, false);
   getPresenter().disableScreenOverlay();
 }
 

@@ -190,7 +190,7 @@ void Natla::update()
         m_flyTime = 0_frame;
         m_state.health = 200_hp;
         getWorld().getAudioEngine().playStopCdTrack(
-          getWorld().getEngine().getScriptEngine(), TR1TrackId::LaraTalk28, false);
+          *getWorld().getEngine().getScriptEngine().getGameflow(), TR1TrackId::LaraTalk28, false);
       }
       else
       {
