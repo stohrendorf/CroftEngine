@@ -340,8 +340,8 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
   static constexpr auto BlendInDuration = (core::FrameRate * 2_sec).cast<core::Frame>();
   core::Frame ammoDisplayDuration = 0_frame;
 
-  std::filesystem::create_directories(getUserDataPath() / "ghosts");
-  GhostManager ghostManager{getUserDataPath() / "ghosts" / (world.getLevelFilename().stem().replace_extension(".rec")),
+  std::filesystem::create_directories(m_userDataPath / "ghosts");
+  GhostManager ghostManager{m_userDataPath / "ghosts" / (world.getLevelFilename().stem().replace_extension(".rec")),
                             world};
 
   while(true)
@@ -571,7 +571,7 @@ std::pair<RunResult, std::optional<size_t>> Engine::runTitleMenu(world::World& w
     stream->setLooping(true);
 
   const auto backdrop = gslu::make_nn_shared<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>>(
-    gl::CImgWrapper{util::ensureFileExists(m_userDataPath / "data" / "tr1" / "DATA" / "TITLEH.PCX")}.toTexture("title"),
+    gl::CImgWrapper{util::ensureFileExists(getAssetDataPath() / "DATA" / "TITLEH.PCX")}.toTexture("title"),
     gslu::make_nn_unique<gl::Sampler>("title-sampler"));
   const auto menu
     = std::make_shared<menu::MenuDisplay>(menu::InventoryMode::TitleMode, world, m_presenter->getRenderViewport());

@@ -117,9 +117,9 @@ public:
   [[nodiscard]] std::filesystem::path getSavegameRootPath() const;
   [[nodiscard]] std::filesystem::path getSavegamePath(const std::optional<size_t>& slot) const;
 
-  [[nodiscard]] const std::filesystem::path& getUserDataPath() const
+  [[nodiscard]] std::filesystem::path getAssetDataPath() const
   {
-    return m_userDataPath;
+    return m_userDataPath / "data" / "tr1";
   }
 
   [[nodiscard]] const std::filesystem::path& getEngineDataPath() const

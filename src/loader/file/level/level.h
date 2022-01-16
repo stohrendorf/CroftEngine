@@ -104,7 +104,7 @@ public:
 
   virtual void loadFileData() = 0;
 
-  const auto& getFilename() const
+  [[nodiscard]] const auto& getFilename() const
   {
     return m_filename;
   }

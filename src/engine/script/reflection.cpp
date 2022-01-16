@@ -68,7 +68,7 @@ namespace
 {
 std::filesystem::path getAssetPath(const Engine& engine, const std::filesystem::path& localPath)
 {
-  return engine.getUserDataPath() / "data" / "tr1" / localPath;
+  return engine.getAssetDataPath() / localPath;
 }
 
 std::unique_ptr<loader::file::level::Level>
