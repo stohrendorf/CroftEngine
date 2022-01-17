@@ -567,8 +567,12 @@ std::pair<RunResult, std::optional<size_t>> Engine::runTitleMenu(world::World& w
 
   applySettings();
 
-  if(const auto stream = world.getAudioEngine().getInterceptStream().lock())
-    stream->setLooping(true);
+  if(const auto streamInfoIt = world.getAudioEngine().getStreams().find(0);
+     streamInfoIt != world.getAudioEngine().getStreams().end())
+  {
+    if(const auto stream = streamInfoIt->second.stream.lock())
+      stream->setLooping(true);
+  }
 
   const auto backdrop = gslu::make_nn_shared<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>>(
     gl::CImgWrapper{util::ensureFileExists(

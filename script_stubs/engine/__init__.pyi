@@ -25,12 +25,6 @@ class ActivationState(Enum):
     INVISIBLE = auto()
 
 
-class TrackType(Enum):
-    AMBIENT = auto()
-    INTERCEPTION = auto()
-    AMBIENT_EFFECT = auto()
-
-
 class WeaponType(Enum):
     None_ = auto()
     Pistols = auto()
@@ -52,7 +46,7 @@ class TR1ItemId(Enum):
 
 
 class TrackInfo:
-    def __init__(self, name: str, tracktype: TrackType, /):
+    def __init__(self, name: str, slot: int, looping: bool, /):
         ...
 
 

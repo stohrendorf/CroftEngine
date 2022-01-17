@@ -36,6 +36,12 @@ namespace engine
 {
 enum class TR1TrackId;
 
+struct StreamInfo
+{
+  std::weak_ptr<audio::StreamVoice> stream{};
+  std::filesystem::path name;
+};
+
 class AudioEngine
 {
   world::World& m_world;
@@ -47,10 +53,7 @@ class AudioEngine
   std::map<TR1TrackId, engine::floordata::ActivationState> m_cdTrackActivationStates;
   core::Frame m_cdTrack50time = 0_frame;
   std::shared_ptr<audio::Voice> m_underwaterAmbience;
-  std::weak_ptr<audio::StreamVoice> m_ambientStream;
-  std::optional<std::filesystem::path> m_ambientStreamName{};
-  std::weak_ptr<audio::StreamVoice> m_interceptStream;
-  std::optional<std::filesystem::path> m_interceptStreamName{};
+  std::map<size_t, StreamInfo> m_streams;
   std::optional<TR1TrackId> m_currentTrack;
   std::vector<gsl::not_null<std::shared_ptr<audio::BufferHandle>>> m_samples;
   audio::VoiceGroup m_music{0.8f};
@@ -109,9 +112,9 @@ public:
     return m_sfx.getGain();
   }
 
-  [[nodiscard]] const auto& getInterceptStream() const
+  [[nodiscard]] const auto& getStreams() const
   {
-    return m_interceptStream;
+    return m_streams;
   }
 
   [[nodiscard]] const auto& getCurrentTrack() const

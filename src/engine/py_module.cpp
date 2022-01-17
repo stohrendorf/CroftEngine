@@ -1,6 +1,5 @@
 #include "ai/py_module.h"
 
-#include "audio/tracktype.h"
 #include "core/id.h"
 #include "items_tr1.h"
 #include "objects/objectstate.h"
@@ -31,7 +30,7 @@ PYBIND11_EMBEDDED_MODULE(engine, m)
   m.doc() = "edisonengine engine module";
   engine::ai::initAiModule(m.def_submodule("ai"));
 
-  py::class_<engine::script::TrackInfo>(m, "TrackInfo").def(py::init<std::string, audio::TrackType>());
+  py::class_<engine::script::TrackInfo>(m, "TrackInfo").def(py::init<std::string, size_t, bool>());
 
   {
     auto e = py::enum_<engine::WeaponType>(m, "WeaponType");
@@ -134,10 +133,6 @@ PYBIND11_EMBEDDED_MODULE(engine, m)
     .value("INACTIVE", engine::objects::TriggerState::Inactive)
     .value("DEACTIVATED", engine::objects::TriggerState::Deactivated)
     .value("INVISIBLE", engine::objects::TriggerState::Invisible);
-
-  py::enum_<audio::TrackType>(m, "TrackType")
-    .value("AMBIENT", audio::TrackType::Ambient)
-    .value("INTERCEPTION", audio::TrackType::Interception);
 
   {
     auto e = py::enum_<engine::TR1SoundEffect>(m, "TR1SoundEffect");

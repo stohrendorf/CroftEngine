@@ -139,40 +139,17 @@ void AudioEngine::playStopCdTrack(const script::Gameflow& gameflow, const TR1Tra
 {
   const auto trackInfo = gameflow.getTracks().at(trackId);
 
-  switch(trackInfo->type)
+  m_soundEngine->getDevice().removeStream(m_streams[trackInfo->slot].stream);
+  m_streams.erase(trackInfo->slot);
+  m_currentTrack.reset();
+
+  if(!stop)
   {
-  case audio::TrackType::Ambient:
-    m_soundEngine->getDevice().removeStream(m_ambientStream);
-    m_ambientStreamName.reset();
-    m_currentTrack.reset();
-
-    if(!stop)
-    {
-      BOOST_LOG_TRIVIAL(debug) << "playStopCdTrack - play ambient " << toString(trackId);
-      const auto stream = playStream(trackInfo->name);
-      stream->setLooping(true);
-      m_ambientStream = stream.get();
-      m_ambientStreamName = trackInfo->name;
-      m_soundEngine->getDevice().removeStream(m_interceptStream);
-      m_interceptStreamName.reset();
-      m_currentTrack = trackId;
-    }
-    break;
-  case audio::TrackType::Interception:
-    m_soundEngine->getDevice().removeStream(m_interceptStream);
-    m_interceptStreamName.reset();
-    m_currentTrack.reset();
-
-    if(!stop)
-    {
-      BOOST_LOG_TRIVIAL(debug) << "playStopCdTrack - play interception " << toString(trackId);
-      auto stream = playStream(trackInfo->name);
-      stream->setLooping(false);
-      m_interceptStream = stream.get();
-      m_interceptStreamName = trackInfo->name;
-      m_currentTrack = trackId;
-    }
-    break;
+    BOOST_LOG_TRIVIAL(debug) << "playStopCdTrack - play ambient " << toString(trackId);
+    const auto stream = playStream(trackInfo->name);
+    stream->setLooping(trackInfo->looping);
+    m_streams.emplace(trackInfo->slot, StreamInfo{stream.get(), trackInfo->name});
+    m_currentTrack = trackId;
   }
 }
 
@@ -346,40 +323,41 @@ void AudioEngine::serialize(const serialization::Serializer<world::World>& ser)
     return locked == nullptr ? std::chrono::milliseconds{0} : locked->getStreamPosition();
   };
 
+  std::map<size_t, std::chrono::milliseconds> positions;
+  std::map<size_t, std::filesystem::path> names;
+  std::map<size_t, bool> looping;
   if(!ser.loading)
   {
-    if(const auto stream = m_ambientStream.lock(); stream == nullptr || stream->isStopped())
-      m_ambientStreamName.reset();
-    if(const auto stream = m_interceptStream.lock(); stream == nullptr || stream->isStopped())
-      m_interceptStreamName.reset();
+    auto tmp = std::exchange(m_streams, {});
+    for(const auto& [streamId, streamInfo] : tmp)
+    {
+      if(auto stream = streamInfo.stream.lock(); stream != nullptr && !stream->isStopped())
+      {
+        m_streams.emplace(streamId, streamInfo);
+        positions.emplace(streamId, stream->getStreamPosition());
+        names.emplace(streamId, streamInfo.name);
+        looping.emplace(streamId, stream->isLooping());
+      }
+    }
   }
-
-  std::chrono::milliseconds ambientPosition = getStreamPos(m_ambientStream);
-  std::chrono::milliseconds interceptPosition = getStreamPos(m_interceptStream);
+  else
+  {
+    for(const auto& [streamId, streamInfo] : m_streams)
+      m_soundEngine->getDevice().removeStream(streamInfo.stream);
+  }
 
   ser(S_NV("currentTrack", m_currentTrack),
       S_NV("cdTrackActivationStates", m_cdTrackActivationStates),
-      S_NV("ambientStreamName", m_ambientStreamName),
-      S_NV("ambientStreamPosition", ambientPosition),
-      S_NV("interceptStreamName", m_interceptStreamName),
-      S_NV("interceptStreamPosition", interceptPosition));
+      S_NV("streamNames", names),
+      S_NV("streamPositions", positions),
+      S_NV("streamLooping", looping));
 
   if(ser.loading)
   {
-    m_soundEngine->getDevice().removeStream(m_ambientStream);
-
-    if(m_ambientStreamName.has_value())
+    for(auto& [streamId, streamName] : names)
     {
-      const auto stream = playStream(*m_ambientStreamName, ambientPosition);
-      stream->setLooping(true);
-      m_ambientStream = stream.get();
-    }
-
-    m_soundEngine->getDevice().removeStream(m_interceptStream);
-
-    if(m_interceptStreamName.has_value())
-    {
-      m_interceptStream = playStream(*m_interceptStreamName, interceptPosition).get();
+      const auto stream = playStream(streamName, positions.at(streamId));
+      stream->setLooping(looping.at(streamId));
     }
   }
 }
@@ -408,10 +386,9 @@ void AudioEngine::init(const std::vector<loader::file::SoundEffectProperties>& s
   m_cdTrackActivationStates.clear();
   m_cdTrack50time = 0_frame;
   m_underwaterAmbience.reset();
-  m_soundEngine->getDevice().removeStream(m_ambientStream);
-  m_ambientStreamName.reset();
-  m_soundEngine->getDevice().removeStream(m_interceptStream);
-  m_interceptStreamName.reset();
+  for(const auto& [streamId, streamInfo] : m_streams)
+    m_soundEngine->getDevice().removeStream(streamInfo.stream);
+  m_streams.clear();
   m_currentTrack.reset();
 }
 } // namespace engine

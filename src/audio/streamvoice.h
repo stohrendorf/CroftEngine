@@ -35,6 +35,11 @@ public:
     m_looping = looping;
   }
 
+  [[nodiscard]] auto isLooping() const
+  {
+    return m_looping;
+  }
+
   [[nodiscard]] std::chrono::milliseconds getStreamPosition() const;
   void seek(const std::chrono::milliseconds& position);
 

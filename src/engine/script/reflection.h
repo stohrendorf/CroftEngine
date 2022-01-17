@@ -1,6 +1,5 @@
 #pragma once
 
-#include "audio/tracktype.h"
 #include "core/angle.h"
 #include "core/id.h"
 #include "core/magic.h"
@@ -50,14 +49,16 @@ struct ObjectInfo
 
 struct TrackInfo
 {
-  TrackInfo(const std::string& name, audio::TrackType type)
+  TrackInfo(const std::string& name, size_t slot, bool looping)
       : name{name}
-      , type{type}
+      , slot{slot}
+      , looping{looping}
   {
   }
 
   std::filesystem::path name;
-  audio::TrackType type;
+  size_t slot;
+  bool looping;
 };
 
 class LevelSequenceItem
