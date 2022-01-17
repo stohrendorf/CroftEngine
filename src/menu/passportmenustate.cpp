@@ -132,7 +132,7 @@ std::unique_ptr<MenuState> PassportMenuState::onFrame(ui::Ui& ui, engine::world:
 {
   auto& passport = display.getCurrentRing().getSelectedObject();
   passport.type = engine::TR1ItemId::PassportOpening;
-  passport.initModel(world);
+  passport.initModel(world, display.getLightsBuffer());
 
   if(passport.selectedRotationY == passport.rotationY && passport.animate())
     return nullptr;

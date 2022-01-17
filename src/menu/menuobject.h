@@ -3,8 +3,10 @@
 #include "core/angle.h"
 #include "core/units.h"
 #include "engine/items_tr1.h"
+#include "engine/lighting.h"
 
 #include <bitset>
+#include <gl/buffer.h>
 #include <memory>
 #include <string>
 
@@ -47,7 +49,8 @@ struct MenuObject
   mutable core::Angle compassNeedleRotationMomentum = 0_deg;
 
   std::shared_ptr<engine::SkeletalModelNode> node{nullptr};
-  void initModel(const engine::world::World& world);
+  void initModel(const engine::world::World& world,
+                 const gsl::not_null<std::shared_ptr<gl::ShaderStorageBuffer<engine::ShaderLight>>>& lights);
 
   bool animate();
 

@@ -21,7 +21,7 @@ void SetItemTypeMenuState::handleObject(ui::Ui& /*ui*/,
   if(&object == &display.getCurrentRing().getSelectedObject())
   {
     object.type = m_type;
-    object.initModel(world);
+    object.initModel(world, display.getLightsBuffer());
   }
 }
 } // namespace menu

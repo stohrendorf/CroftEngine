@@ -321,7 +321,7 @@ std::vector<MenuObject> MenuDisplay::getOptionRingObjects(const engine::world::W
                                }),
                 objects.end());
   for(auto& object : objects)
-    object.initModel(world);
+    object.initModel(world, m_lightsBuffer);
 
   return objects;
 }
@@ -458,7 +458,7 @@ std::vector<MenuObject> MenuDisplay::getMainRingObjects(const engine::world::Wor
                                }),
                 objects.end());
   for(auto& object : objects)
-    object.initModel(world);
+    object.initModel(world, m_lightsBuffer);
 
   return objects;
 }
@@ -532,7 +532,7 @@ std::vector<MenuObject> MenuDisplay::getKeysRingObjects(const engine::world::Wor
                                }),
                 objects.end());
   for(auto& object : objects)
-    object.initModel(world);
+    object.initModel(world, m_lightsBuffer);
 
   return objects;
 }
@@ -546,6 +546,9 @@ MenuDisplay::MenuDisplay(InventoryMode mode, engine::world::World& world, const 
     , m_material{world.getPresenter().getMaterialManager()->getFlat(false, false, false)}
     , m_fb{gslu::make_nn_shared<render::pass::Framebuffer>("menu", m_material, viewport)}
 {
+  engine::ShaderLight light{glm::vec4{-500, 50, -5000, 0}, 1.0f, 8192.0f};
+  m_lightsBuffer->setData(light, gl::api::BufferUsage::StaticDraw);
+
   if(mode == InventoryMode::GameMode)
   {
     rings.emplace_back(std::make_unique<MenuRing>(

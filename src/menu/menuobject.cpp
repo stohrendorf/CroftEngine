@@ -116,7 +116,8 @@ void MenuObject::updateMeshRenderMask()
   }
 }
 
-void MenuObject::initModel(const engine::world::World& world)
+void MenuObject::initModel(const engine::world::World& world,
+                           const gsl::not_null<std::shared_ptr<gl::ShaderStorageBuffer<engine::ShaderLight>>>& lights)
 {
   const auto& obj = world.findAnimatedModelForType(type);
   Expects(obj != nullptr);
@@ -124,7 +125,14 @@ void MenuObject::initModel(const engine::world::World& world)
   node->bind("u_lightAmbient",
              [](const render::scene::Node* /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
              {
-               uniform.set(0.5f);
+               uniform.set(0.1f);
+             });
+  node->bind("b_lights",
+             [lights](const render::scene::Node*,
+                      const render::scene::Mesh& /*mesh*/,
+                      gl::ShaderStorageBlock& shaderStorageBlock)
+             {
+               shaderStorageBlock.bind(*lights);
              });
   core::AnimStateId animState{0_as};
   engine::SkeletalModelNode::buildMesh(node, animState);

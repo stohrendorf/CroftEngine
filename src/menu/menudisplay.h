@@ -1,10 +1,12 @@
 #pragma once
 
 #include "engine/items_tr1.h"
+#include "engine/lighting.h"
 #include "menuringtransform.h"
 #include "ui/text.h"
 
 #include <cstddef>
+#include <gl/buffer.h>
 #include <gsl/gsl-lite.hpp>
 #include <memory>
 #include <optional>
@@ -91,16 +93,23 @@ struct MenuDisplay
 
   void setViewport(const glm::ivec2& viewport);
 
+  [[nodiscard]] const auto& getLightsBuffer() const
+  {
+    return m_lightsBuffer;
+  }
+
 private:
-  [[nodiscard]] static std::vector<MenuObject> getOptionRingObjects(const engine::world::World& world,
-                                                                    bool withHomePolaroid);
-  [[nodiscard]] static std::vector<MenuObject> getMainRingObjects(const engine::world::World& world);
-  [[nodiscard]] static std::vector<MenuObject> getKeysRingObjects(const engine::world::World& world);
+  [[nodiscard]] std::vector<MenuObject> getOptionRingObjects(const engine::world::World& world, bool withHomePolaroid);
+  [[nodiscard]] std::vector<MenuObject> getMainRingObjects(const engine::world::World& world);
+  [[nodiscard]] std::vector<MenuObject> getKeysRingObjects(const engine::world::World& world);
 
   ui::Text m_upArrow;
   ui::Text m_downArrow;
 
   const gsl::not_null<std::shared_ptr<render::scene::Material>> m_material;
   gsl::not_null<std::shared_ptr<render::pass::Framebuffer>> m_fb;
+
+  gsl::not_null<std::shared_ptr<gl::ShaderStorageBuffer<engine::ShaderLight>>> m_lightsBuffer{
+    std::make_shared<gl::ShaderStorageBuffer<engine::ShaderLight>>("lights-buffer")};
 };
 } // namespace menu

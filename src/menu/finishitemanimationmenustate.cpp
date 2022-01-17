@@ -22,7 +22,7 @@ std::unique_ptr<MenuState>
   {
     object.type = engine::TR1ItemId::PassportClosed;
     object.meshAnimFrame = 0_frame;
-    object.initModel(world);
+    object.initModel(world, display.getLightsBuffer());
   }
 
   return std::move(m_next);
