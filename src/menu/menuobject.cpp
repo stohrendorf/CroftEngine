@@ -136,6 +136,8 @@ void MenuObject::initModel(const engine::world::World& world,
              });
   core::AnimStateId animState{0_as};
   engine::SkeletalModelNode::buildMesh(node, animState);
+  node->getRenderable()->getRenderState().setCullFace(true);
+  node->getRenderable()->getRenderState().setFrontFace(gl::api::FrontFaceDirection::Cw);
 }
 
 void MenuObject::draw(const engine::world::World& world,
