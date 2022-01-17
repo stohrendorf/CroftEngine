@@ -288,7 +288,6 @@ set( EDISONENGINE_SRCS
         audio/streamvoice.cpp
         audio/streamsource.h
         audio/wadstreamsource.cpp
-        audio/tracktype.h
         audio/utils.h
         audio/utils.cpp
         audio/voice.h
