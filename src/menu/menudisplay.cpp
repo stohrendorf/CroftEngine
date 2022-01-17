@@ -135,6 +135,8 @@ void MenuDisplay::display(ui::Ui& ui, engine::world::World& world)
   m_fb->getDepthBuffer()->clear(gl::ScalarDepth32F{1.0f});
   m_fb->bind();
 
+  world.getCameraController().getCamera()->setViewport(m_fb->getOutput()->getTexture()->size());
+
   core::Angle itemAngle{0_deg};
   const auto& camera = world.getCameraController().getCamera();
   camera->setViewMatrix(ringTransform->getView());
