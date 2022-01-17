@@ -9,9 +9,9 @@
 namespace engine::script
 {
 // NOLINTNEXTLINE(readability-convert-member-functions-to-static)
-gsl::not_null<Gameflow*> ScriptEngine::getGameflow() const
+const Gameflow& ScriptEngine::getGameflow() const
 {
-  return gsl::not_null{pybind11::globals()["gameflow"].cast<Gameflow*>()};
+  return *gsl::not_null{pybind11::globals()["gameflow"].cast<Gameflow*>()};
 }
 
 // NOLINTNEXTLINE(readability-convert-member-functions-to-static)

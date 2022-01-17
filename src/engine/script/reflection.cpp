@@ -150,7 +150,7 @@ std::unique_ptr<world::World> Level::loadWorld(Engine& engine, const std::shared
 
   player->resetStats();
 
-  for(const auto& [type, qty] : engine.getScriptEngine().getGameflow()->getCheatInventory())
+  for(const auto& [type, qty] : engine.getScriptEngine().getGameflow().getCheatInventory())
     player->getInventory().put(type.cast<TR1ItemId>(), nullptr, qty.cast<size_t>());
 
   auto world = std::make_unique<world::World>(engine,

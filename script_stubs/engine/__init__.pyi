@@ -122,6 +122,7 @@ class Gameflow:
                  tracks: Dict[TR1ItemId, TrackInfo],
                  level_sequence: List[LevelSequenceItem],
                  title_menu: LevelSequenceItem,
+                 title_menu_backdrop: str,
                  lara_home: List[LevelSequenceItem],
                  early_boot: List[LevelSequenceItem],
                  cheats: dict,

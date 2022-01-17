@@ -543,12 +543,12 @@ void AIAgent::loadObjectInfo(bool withoutGameState)
                                      .getEngine()
                                      .getScriptEngine()
                                      .getGameflow()
-                                     ->getObjectInfos()
+                                     .getObjectInfos()
                                      .at(m_state.type.get_as<TR1ItemId>())
                                      ->radius};
 
   if(!withoutGameState)
-    m_state.loadObjectInfo(*getWorld().getEngine().getScriptEngine().getGameflow());
+    m_state.loadObjectInfo(getWorld().getEngine().getScriptEngine().getGameflow());
 }
 
 void AIAgent::hitLara(const core::Health& strength)

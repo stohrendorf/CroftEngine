@@ -317,8 +317,8 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
     world.getObjectManager().getLara().initWeaponAnimData();
   }
 
-  const bool godMode = m_scriptEngine.getGameflow()->isGodMode();
-  const bool allAmmoCheat = m_scriptEngine.getGameflow()->hasAllAmmoCheat();
+  const bool godMode = m_scriptEngine.getGameflow().isGodMode();
+  const bool allAmmoCheat = m_scriptEngine.getGameflow().hasAllAmmoCheat();
 
   applySettings();
   std::shared_ptr<menu::MenuDisplay> menu;
@@ -571,7 +571,9 @@ std::pair<RunResult, std::optional<size_t>> Engine::runTitleMenu(world::World& w
     stream->setLooping(true);
 
   const auto backdrop = gslu::make_nn_shared<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>>(
-    gl::CImgWrapper{util::ensureFileExists(getAssetDataPath() / "DATA" / "TITLEH.PCX")}.toTexture("title"),
+    gl::CImgWrapper{util::ensureFileExists(
+                      getAssetDataPath() / std::filesystem::path{m_scriptEngine.getGameflow().getTitleMenuBackdrop()})}
+      .toTexture("title"),
     gslu::make_nn_unique<gl::Sampler>("title-sampler"));
   const auto menu
     = std::make_shared<menu::MenuDisplay>(menu::InventoryMode::TitleMode, world, m_presenter->getRenderViewport());

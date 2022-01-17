@@ -90,8 +90,8 @@ int main()
       Expects(meta.has_value());
       for(levelSequenceIndex = 0; true; ++levelSequenceIndex)
       {
-        if(levelSequenceIndex >= gameflow->getLevelSequence().size()
-           || gameflow->getLevelSequence().at(levelSequenceIndex)->isLevel(meta->filename))
+        if(levelSequenceIndex >= gameflow.getLevelSequence().size()
+           || gameflow.getLevelSequence().at(levelSequenceIndex)->isLevel(meta->filename))
           break;
       }
       loadSlot = slot;
@@ -109,18 +109,18 @@ int main()
       case Mode::Boot:
         Expects(!doLoad);
         player = std::make_shared<engine::Player>();
-        for(const auto& item : gameflow->getEarlyBoot())
+        for(const auto& item : gameflow.getEarlyBoot())
           runResult = engine.runLevelSequenceItem(*item, player);
         break;
       case Mode::Title:
         Expects(!doLoad);
         player = std::make_shared<engine::Player>();
-        runResult = engine.runLevelSequenceItem(*gameflow->getTitleMenu(), player);
+        runResult = engine.runLevelSequenceItem(*gameflow.getTitleMenu(), player);
         break;
       case Mode::Gym:
         Expects(!doLoad);
         player = std::make_shared<engine::Player>();
-        for(const auto& item : gameflow->getLaraHome())
+        for(const auto& item : gameflow.getLaraHome())
           runResult = engine.runLevelSequenceItem(*item, player);
         break;
       case Mode::Game:
@@ -128,7 +128,7 @@ int main()
         {
           player = std::make_shared<engine::Player>();
           runResult = engine.runLevelSequenceItemFromSave(
-            *gsl::not_null{gameflow->getLevelSequence().at(levelSequenceIndex)}, loadSlot, player);
+            *gsl::not_null{gameflow.getLevelSequence().at(levelSequenceIndex)}, loadSlot, player);
         }
         else
         {
@@ -136,7 +136,7 @@ int main()
             player = std::make_shared<engine::Player>();
 
           runResult
-            = engine.runLevelSequenceItem(*gsl::not_null{gameflow->getLevelSequence().at(levelSequenceIndex)}, player);
+            = engine.runLevelSequenceItem(*gsl::not_null{gameflow.getLevelSequence().at(levelSequenceIndex)}, player);
         }
         break;
       }
@@ -197,7 +197,7 @@ int main()
           return EXIT_SUCCESS;
         case engine::RunResult::NextLevel:
           ++levelSequenceIndex;
-          if(levelSequenceIndex >= gameflow->getLevelSequence().size())
+          if(levelSequenceIndex >= gameflow.getLevelSequence().size())
           {
             levelSequenceIndex = 0;
             mode = Mode::Title;

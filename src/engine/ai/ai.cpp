@@ -160,7 +160,7 @@ void updateMood(const objects::AIAgent& aiAgent, const EnemyLocation& enemyLocat
                            .getEngine()
                            .getScriptEngine()
                            .getGameflow()
-                           ->getObjectInfos()
+                           .getObjectInfos()
                            .at(aiAgent.m_state.type.get_as<TR1ItemId>())
                            ->target_update_chance)
       break;
@@ -295,7 +295,7 @@ EnemyLocation::EnemyLocation(objects::AIAgent& aiAgent)
   enemyUnreachable = !aiAgent.getCreatureInfo()->pathFinder.canVisit(*lara.m_state.getCurrentBox())
                      || aiAgent.getCreatureInfo()->pathFinder.isUnreachable(aiAgent.m_state.getCurrentBox());
 
-  auto objectInfo = aiAgent.getWorld().getEngine().getScriptEngine().getGameflow()->getObjectInfos().at(
+  auto objectInfo = aiAgent.getWorld().getEngine().getScriptEngine().getGameflow().getObjectInfos().at(
     aiAgent.m_state.type.get_as<TR1ItemId>());
   const core::Length pivotLength{objectInfo->pivot_length};
   const auto toLara = lara.m_state.location.position
@@ -317,7 +317,7 @@ CreatureInfo::CreatureInfo(const world::World& world,
                            const core::TypeId& type,
                            const gsl::not_null<const world::Box*>& initialBox)
 {
-  auto objectInfo = *world.getEngine().getScriptEngine().getGameflow()->getObjectInfos().at(type.get_as<TR1ItemId>());
+  auto objectInfo = *world.getEngine().getScriptEngine().getGameflow().getObjectInfos().at(type.get_as<TR1ItemId>());
   pathFinder.step = core::Length{objectInfo.step_limit};
   pathFinder.drop = core::Length{objectInfo.drop_limit};
   pathFinder.fly = core::Length{objectInfo.fly_limit};

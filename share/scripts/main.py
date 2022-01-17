@@ -11,6 +11,7 @@ gameflow = Gameflow(
     tracks=tracks,
     level_sequence=level_sequence,
     title_menu=title_menu,
+    title_menu_backdrop="DATA/TITLEH.PCX",
     lara_home=lara_home,
     early_boot=early_boot,
     cheats={

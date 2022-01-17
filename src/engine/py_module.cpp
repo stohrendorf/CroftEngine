@@ -162,6 +162,7 @@ PYBIND11_EMBEDDED_MODULE(engine, m)
                   std::map<engine::TR1TrackId, engine::script::TrackInfo*>,
                   std::vector<engine::script::LevelSequenceItem*>,
                   engine::script::LevelSequenceItem*,
+                  std::string,
                   std::vector<engine::script::LevelSequenceItem*>,
                   std::vector<engine::script::LevelSequenceItem*>,
                   pybind11::dict>(),
@@ -170,6 +171,7 @@ PYBIND11_EMBEDDED_MODULE(engine, m)
          py::arg("tracks"),
          py::arg("level_sequence"),
          py::arg("title_menu"),
+         py::arg("title_menu_backdrop"),
          py::arg("lara_home"),
          py::arg("early_boot"),
          py::arg("cheats"));

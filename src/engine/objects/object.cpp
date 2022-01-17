@@ -51,7 +51,7 @@ Object::Object(const gsl::not_null<world::World*>& world,
 
   BOOST_ASSERT(room->isInnerPositionXZ(item.position));
 
-  m_state.loadObjectInfo(*world->getEngine().getScriptEngine().getGameflow());
+  m_state.loadObjectInfo(world->getEngine().getScriptEngine().getGameflow());
 
   m_state.rotation.Y = item.rotation;
   m_state.activationState = floordata::ActivationState(item.activationState);

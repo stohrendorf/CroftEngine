@@ -29,7 +29,7 @@ public:
       std::filesystem::absolute(rootPath).string());
   }
 
-  [[nodiscard]] gsl::not_null<Gameflow*> getGameflow() const;
+  [[nodiscard]] const Gameflow& getGameflow() const;
   [[nodiscard]] std::optional<std::string> getLocaleOverride() const;
 
 private:

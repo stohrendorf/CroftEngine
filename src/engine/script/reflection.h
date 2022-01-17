@@ -245,6 +245,7 @@ public:
                     std::map<TR1TrackId, TrackInfo*> tracks,
                     std::vector<LevelSequenceItem*> levelSequence,
                     LevelSequenceItem* titleMenu,
+                    std::string titleMenuBackdrop,
                     std::vector<LevelSequenceItem*> laraHome,
                     std::vector<LevelSequenceItem*> earlyBoot,
                     pybind11::dict cheats)
@@ -252,6 +253,7 @@ public:
       , m_tracks{std::move(tracks)}
       , m_levelSequence{std::move(levelSequence)}
       , m_titleMenu{titleMenu}
+      , m_titleMenuBackdrop{std::move(titleMenuBackdrop)}
       , m_laraHome{std::move(laraHome)}
       , m_earlyBoot{std::move(earlyBoot)}
       , m_cheats{std::move(cheats)}
@@ -278,6 +280,11 @@ public:
     return m_titleMenu;
   }
 
+  [[nodiscard]] const auto& getTitleMenuBackdrop() const
+  {
+    return m_titleMenuBackdrop;
+  }
+
   [[nodiscard]] const auto& getLaraHome() const
   {
     return m_laraHome;
@@ -297,6 +304,7 @@ private:
   std::map<TR1TrackId, TrackInfo*> m_tracks;
   std::vector<LevelSequenceItem*> m_levelSequence;
   LevelSequenceItem* m_titleMenu;
+  std::string m_titleMenuBackdrop;
   std::vector<LevelSequenceItem*> m_laraHome;
   std::vector<LevelSequenceItem*> m_earlyBoot;
   pybind11::dict m_cheats;
