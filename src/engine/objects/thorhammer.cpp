@@ -1,6 +1,7 @@
 #include "thorhammer.h"
 
 #include "core/angle.h"
+#include "core/genericvec.h"
 #include "core/id.h"
 #include "core/magic.h"
 #include "core/units.h"

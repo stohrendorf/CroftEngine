@@ -9,9 +9,9 @@
 #include <boost/throw_exception.hpp>
 #include <cstddef>
 #include <cstdint>
-#include <gsl/gsl-lite.hpp>
 #include <map>
 #include <stdexcept>
+#include <string>
 
 namespace engine::world
 {

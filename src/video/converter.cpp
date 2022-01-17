@@ -13,7 +13,6 @@
 #include <gsl/gsl-lite.hpp>
 #include <gslu.h>
 #include <stdexcept>
-#include <utility>
 #include <vector>
 
 extern "C"

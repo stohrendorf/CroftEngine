@@ -2,7 +2,6 @@
 
 #include <gl/pixel.h>
 #include <gl/soglb_fwd.h>
-#include <gl/texture2d.h>
 #include <glm/vec2.hpp>
 #include <gsl/gsl-lite.hpp>
 #include <memory>

@@ -3,12 +3,16 @@
 #include "api/gl.hpp"
 #include "glassert.h"
 
+#include <algorithm>
+#include <array>
 #include <boost/algorithm/string/join.hpp>
 #include <boost/log/trivial.hpp>
 #include <boost/throw_exception.hpp>
+#include <cstddef>
 #include <fstream>
-#include <iosfwd>
+#include <iterator>
 #include <set>
+#include <sstream>
 #include <stdexcept>
 #include <vector>
 
@@ -42,6 +46,7 @@ std::string replaceDefines(const std::vector<std::string>& defines, bool isInput
   return out;
 }
 
+// NOLINTNEXTLINE(misc-no-recursion)
 void replaceIncludes(const std::filesystem::path& filepath,
                      const std::string& source,
                      std::string& out,

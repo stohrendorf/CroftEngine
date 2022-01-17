@@ -317,12 +317,6 @@ std::shared_ptr<audio::Voice> AudioEngine::playSoundEffect(const core::SoundEffe
 
 void AudioEngine::serialize(const serialization::Serializer<world::World>& ser)
 {
-  static const auto getStreamPos = [](const std::weak_ptr<audio::StreamVoice>& stream)
-  {
-    const auto locked = stream.lock();
-    return locked == nullptr ? std::chrono::milliseconds{0} : locked->getStreamPosition();
-  };
-
   std::map<size_t, std::chrono::milliseconds> positions;
   std::map<size_t, std::filesystem::path> names;
   std::map<size_t, bool> looping;

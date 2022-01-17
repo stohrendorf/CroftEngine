@@ -1,7 +1,6 @@
 #include "idleringmenustate.h"
 
 #include "applyitemtransformmenustate.h"
-#include "core/angle.h"
 #include "core/units.h"
 #include "deflateringmenustate.h"
 #include "donemenustate.h"
@@ -21,6 +20,7 @@
 #include "switchringmenustate.h"
 #include "ui/core.h"
 #include "ui/text.h"
+#include "ui/ui.h"
 #include "util.h"
 
 #include <glm/vec2.hpp>

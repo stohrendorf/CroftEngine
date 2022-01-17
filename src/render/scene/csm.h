@@ -3,14 +3,12 @@
 #include "core/units.h"
 #include "core/vec.h"
 
-#include <algorithm>
 #include <array>
 #include <cstddef>
 #include <cstdint>
 #include <gl/buffer.h>
 #include <gl/fencesync.h>
 #include <gl/pixel.h>
-#include <gl/renderstate.h>
 #include <gl/soglb_fwd.h>
 #include <glm/fwd.hpp>
 #include <glm/mat4x4.hpp>

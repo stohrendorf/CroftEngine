@@ -8,7 +8,6 @@
 #include "hid/inputhandler.h"
 #include "objectmanager.h"
 #include "objects/laraobject.h"
-#include "objects/object.h"
 #include "objects/objectstate.h"
 #include "qs/qs.h"
 #include "render/pass/config.h"
@@ -17,6 +16,7 @@
 #include "render/scene/camera.h"
 #include "render/scene/csm.h"
 #include "render/scene/material.h"
+#include "render/scene/materialgroup.h"
 #include "render/scene/materialmanager.h"
 #include "render/scene/mesh.h"
 #include "render/scene/node.h"
@@ -26,6 +26,7 @@
 #include "render/scene/rendermode.h"
 #include "render/scene/screenoverlay.h"
 #include "render/scene/shadercache.h"
+#include "render/scene/uniformparameter.h"
 #include "render/scene/visitor.h"
 #include "ui/text.h"
 #include "ui/ui.h"
@@ -34,12 +35,10 @@
 #include "world/room.h"
 
 #include <algorithm>
-#include <boost/range/adaptor/map.hpp>
 #include <cstdint>
 #include <cstdlib>
 #include <gl/cimgwrapper.h>
 #include <gl/debuggroup.h>
-#include <gl/fencesync.h>
 #include <gl/font.h>
 #include <gl/framebuffer.h>
 #include <gl/glassert.h>
@@ -48,6 +47,7 @@
 #include <gl/pixel.h>
 #include <gl/program.h>
 #include <gl/renderstate.h>
+#include <gl/sampler.h>
 #include <gl/texture2d.h>
 #include <gl/texturedepth.h>
 #include <gl/texturehandle.h>
@@ -57,15 +57,13 @@
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
 #include <gslu.h>
-#include <initializer_list>
+#include <limits>
 #include <optional>
-#include <set>
 #include <utility>
 
 namespace
 {
 constexpr int StatusLineFontSize = 40;
-constexpr int DebugTextFontSize = 12;
 } // namespace
 
 namespace engine

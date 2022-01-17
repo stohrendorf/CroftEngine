@@ -1,6 +1,5 @@
 #include "applyitemtransformmenustate.h"
 
-#include "core/angle.h"
 #include "menu/menuobject.h"
 #include "menudisplay.h"
 #include "menuring.h"

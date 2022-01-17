@@ -1,22 +1,8 @@
 #include "shaderprogram.h"
 
-#include "util/helpers.h"
-
-#include <algorithm>
-#include <array>
-#include <boost/algorithm/string/join.hpp>
 #include <boost/log/trivial.hpp>
-#include <boost/throw_exception.hpp>
-#include <cstddef>
-#include <fstream>
 #include <gl/program.h>
 #include <gl/renderstate.h>
-#include <gl/shader.h>
-#include <gslu.h>
-#include <iterator>
-#include <set>
-#include <sstream>
-#include <stdexcept>
 #include <utility>
 
 namespace render::scene

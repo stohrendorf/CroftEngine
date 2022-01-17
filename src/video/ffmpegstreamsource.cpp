@@ -5,9 +5,11 @@
 #include <algorithm>
 #include <boost/log/trivial.hpp>
 #include <boost/throw_exception.hpp>
+#include <cstdio>
 #include <gsl/gsl-lite.hpp>
 #include <stdexcept>
 #include <string>
+#include <vector>
 
 extern "C"
 {

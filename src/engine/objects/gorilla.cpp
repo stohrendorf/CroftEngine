@@ -2,6 +2,7 @@
 
 #include "aiagent.h"
 #include "core/angle.h"
+#include "core/genericvec.h"
 #include "core/id.h"
 #include "core/magic.h"
 #include "core/units.h"
@@ -20,7 +21,6 @@
 #include "util/helpers.h"
 
 #include <exception>
-#include <gsl/gsl-lite.hpp>
 #include <memory>
 
 namespace engine::objects

@@ -3,15 +3,18 @@
 #include "audio/soundengine.h"
 #include "audio/streamvoice.h"
 #include "core/i18n.h"
+#include "core/magic.h"
 #include "core/units.h"
 #include "engine/audioengine.h"
 #include "engine/audiosettings.h"
 #include "engine/cameracontroller.h"
+#include "engine/displaysettings.h"
 #include "engine/engineconfig.h"
 #include "engine/ghosting/ghostmodel.h"
 #include "engine/inventory.h"
 #include "engine/objectmanager.h"
 #include "engine/objects/objectstate.h"
+#include "engine/weapontype.h"
 #include "engine/world/room.h"
 #include "ghosting/ghost.h"
 #include "hid/actions.h"
@@ -25,6 +28,7 @@
 #include "render/rendersettings.h"
 #include "render/scene/materialmanager.h"
 #include "render/scene/mesh.h"
+#include "render/scene/node.h"
 #include "render/scene/rendercontext.h"
 #include "render/scene/rendermode.h"
 #include "script/reflection.h"
@@ -34,6 +38,7 @@
 #include "throttler.h"
 #include "ui/core.h"
 #include "ui/levelstats.h"
+#include "ui/text.h"
 #include "ui/ui.h"
 #include "ui/widgets/messagebox.h"
 #include "util/helpers.h"
@@ -56,8 +61,10 @@
 #include <gl/glad_init.h>
 #include <gl/pixel.h>
 #include <gl/program.h>
+#include <gl/sampler.h>
 #include <gl/texture2d.h>
 #include <gl/texturehandle.h>
+#include <glm/common.hpp>
 #include <glm/fwd.hpp>
 #include <glm/mat4x4.hpp>
 #include <gslu.h>
@@ -65,13 +72,9 @@
 #include <locale>
 #include <pybind11/eval.h>
 #include <stdexcept>
+#include <system_error>
 #include <utility>
 #include <vector>
-
-namespace render::scene
-{
-class Node;
-}
 
 namespace engine
 {

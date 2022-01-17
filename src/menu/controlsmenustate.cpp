@@ -16,6 +16,7 @@
 #include "menu/selectedmenustate.h"
 #include "menustate.h"
 #include "serialization/named_enum.h"
+#include "ui/ui.h"
 #include "ui/widgets/gridbox.h"
 #include "ui/widgets/label.h"
 #include "ui/widgets/selectionbox.h"

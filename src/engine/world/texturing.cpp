@@ -13,7 +13,6 @@
 #include <algorithm>
 #include <array>
 #include <boost/assert.hpp>
-#include <boost/format.hpp>
 #include <boost/log/trivial.hpp>
 #include <cstddef>
 #include <cstdint>
@@ -28,8 +27,6 @@
 #include <iosfwd>
 #include <map>
 #include <memory>
-#include <numeric>
-#include <set>
 #include <type_traits>
 #include <unordered_set>
 #include <utility>

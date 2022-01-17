@@ -5,11 +5,11 @@
 #include <algorithm>
 #include <array>
 #include <cstdint>
+#include <gl/api/gl.hpp>
 #include <gl/pixel.h>
 #include <gl/vertexbuffer.h>
 #include <glm/ext/scalar_int_sized.hpp>
 #include <glm/fwd.hpp>
-#include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
 #include <gsl/gsl-lite.hpp>

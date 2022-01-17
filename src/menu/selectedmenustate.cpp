@@ -2,7 +2,7 @@
 
 #include "audiosettingsmenustate.h"
 #include "controlsmenustate.h"
-#include "core/angle.h"
+#include "core/units.h"
 #include "deflateringmenustate.h"
 #include "deselectingmenustate.h"
 #include "donemenustate.h"
@@ -21,6 +21,7 @@
 #include "rendersettingsmenustate.h"
 #include "resetitemtransformmenustate.h"
 #include "ui/text.h"
+#include "ui/ui.h"
 #include "util.h"
 
 #include <glm/vec2.hpp>

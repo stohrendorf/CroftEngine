@@ -1,11 +1,12 @@
 #include "objectstate.h"
 
+#include "core/genericvec.h"
 #include "core/interval.h"
 #include "core/magic.h"
 #include "core/vec.h"
+#include "engine/items_tr1.h"
 #include "engine/objectmanager.h"
 #include "engine/script/reflection.h"
-#include "engine/script/scriptengine.h"
 #include "engine/world/box.h"
 #include "engine/world/room.h"
 #include "engine/world/sector.h"
@@ -18,6 +19,7 @@
 
 #include <boost/throw_exception.hpp>
 #include <exception>
+#include <map>
 #include <stdexcept>
 
 namespace engine::objects

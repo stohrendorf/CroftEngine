@@ -1,5 +1,6 @@
 #include "collapsiblefloor.h"
 
+#include "core/genericvec.h"
 #include "engine/heightinfo.h"
 #include "engine/objectmanager.h"
 #include "engine/world/world.h"

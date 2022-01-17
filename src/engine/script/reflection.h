@@ -1,7 +1,6 @@
 #pragma once
 
 #include "core/angle.h"
-#include "core/id.h"
 #include "core/magic.h"
 #include "core/units.h"
 #include "engine/items_tr1.h"
@@ -10,6 +9,7 @@
 
 #include <cstddef>
 #include <filesystem>
+#include <map>
 #include <memory>
 #include <optional>
 #include <pybind11/pytypes.h>
@@ -17,6 +17,7 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <utility>
+#include <vector>
 
 namespace engine
 {

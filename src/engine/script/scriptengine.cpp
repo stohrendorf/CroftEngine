@@ -1,9 +1,9 @@
 #include "scriptengine.h"
 
-#include "engine/items_tr1.h"
 #include "reflection.h"
 #include "util.h"
 
+#include <gsl/gsl-lite.hpp>
 #include <pybind11/stl.h> // IWYU pragma: keep
 
 namespace engine::script

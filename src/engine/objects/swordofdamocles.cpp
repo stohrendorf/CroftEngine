@@ -1,5 +1,6 @@
 #include "swordofdamocles.h"
 
+#include "core/genericvec.h"
 #include "core/magic.h"
 #include "core/vec.h"
 #include "engine/collisioninfo.h"

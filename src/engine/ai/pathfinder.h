@@ -6,6 +6,7 @@
 #include "qs/qs.h"
 #include "serialization/serialization_fwd.h"
 
+#include <cstddef>
 #include <deque>
 #include <gsl/gsl-lite.hpp>
 #include <map>

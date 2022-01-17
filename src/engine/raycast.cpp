@@ -1,5 +1,6 @@
 #include "raycast.h"
 
+#include "core/genericvec.h"
 #include "core/magic.h"
 #include "core/units.h"
 #include "core/vec.h"

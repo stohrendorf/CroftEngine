@@ -7,7 +7,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <gl/soglb_fwd.h>
-#include <glm/fwd.hpp>
+#include <glm/ext/scalar_int_sized.hpp>
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
 #include <gsl/gsl-lite.hpp>

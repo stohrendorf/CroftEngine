@@ -4,8 +4,10 @@
 
 #include <algorithm>
 #include <boost/algorithm/string/join.hpp>
+#include <boost/log/trivial.hpp>
 #include <gl/shader.h>
 #include <gslu.h>
+#include <iosfwd>
 
 namespace render::scene
 {

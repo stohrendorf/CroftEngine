@@ -6,7 +6,7 @@
 #include "render/scene/rendercontext.h"
 #include "render/scene/rendermode.h"
 
-#include <algorithm>
+#include <chrono>
 #include <gl/debuggroup.h>
 #include <gl/framebuffer.h>
 #include <gl/glassert.h>

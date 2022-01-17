@@ -1,5 +1,6 @@
 #include "mummy.h"
 
+#include "core/angle.h"
 #include "core/id.h"
 #include "core/magic.h"
 #include "core/units.h"

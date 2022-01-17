@@ -2,7 +2,9 @@
 
 #include "atlastile.h"
 #include "box.h"
+#include "core/angle.h"
 #include "core/containeroffset.h"
+#include "core/genericvec.h"
 #include "core/id.h"
 #include "engine/engine.h"
 #include "engine/engineconfig.h"
@@ -41,12 +43,12 @@
 #include <gl/renderstate.h>
 #include <gl/vertexarray.h>
 #include <gl/vertexbuffer.h>
-#include <glm/ext/scalar_int_sized.hpp>
-#include <glm/fwd.hpp>
+#include <glm/common.hpp>
 #include <glm/geometric.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/mat4x4.hpp>
 #include <glm/vec2.hpp>
+#include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
 #include <gslu.h>
 #include <initializer_list>

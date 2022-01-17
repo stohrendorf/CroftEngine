@@ -11,6 +11,7 @@
 #include "engine/items_tr1.h"
 #include "engine/lighting.h"
 #include "engine/location.h"
+#include "engine/script/scriptengine.h"
 #include "engine/skeletalmodelnode.h"
 #include "engine/tracks_tr1.h"
 #include "engine/world/animation.h"

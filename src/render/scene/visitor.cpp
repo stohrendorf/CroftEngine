@@ -6,7 +6,12 @@
 
 #include <algorithm>
 #include <gl/debuggroup.h>
+#include <glm/geometric.hpp>
+#include <memory>
+#include <optional>
 #include <string>
+#include <type_traits>
+#include <utility>
 
 namespace render::scene
 {

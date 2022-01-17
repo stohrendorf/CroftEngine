@@ -7,7 +7,9 @@
 #include "box.h"
 #include "camerasink.h"
 #include "cinematicframe.h"
+#include "core/angle.h"
 #include "core/containeroffset.h"
+#include "core/genericvec.h"
 #include "core/i18n.h"
 #include "core/interval.h"
 #include "core/magic.h"
@@ -19,7 +21,6 @@
 #include "engine/engine.h"
 #include "engine/engineconfig.h"
 #include "engine/floordata/floordata.h"
-#include "engine/inventory.h"
 #include "engine/location.h"
 #include "engine/objects/aiagent.h"
 #include "engine/objects/block.h" // IWYU pragma: keep
@@ -31,10 +32,10 @@
 #include "engine/particle.h"
 #include "engine/player.h"
 #include "engine/presenter.h"
+#include "engine/script/scriptengine.h"
 #include "engine/skeletalmodelnode.h"
 #include "engine/soundeffects_tr1.h"
 #include "engine/tracks_tr1.h"
-#include "engine/weapontype.h"
 #include "loader/file/animation.h"
 #include "loader/file/animationid.h"
 #include "loader/file/audio.h"
@@ -73,13 +74,13 @@
 #include "staticsoundeffect.h"
 #include "texturing.h"
 #include "transition.h"
-#include "ui/core.h"
 #include "ui/text.h"
 #include "ui/ui.h"
 #include "util/fsutil.h"
 #include "util/helpers.h"
 
 #include <algorithm>
+#include <boost/assert.hpp>
 #include <boost/log/trivial.hpp>
 #include <boost/range/adaptor/map.hpp>
 #include <boost/throw_exception.hpp>
@@ -87,6 +88,7 @@
 #include <exception>
 #include <gl/glad_init.h>
 #include <gl/pixel.h>
+#include <gl/renderstate.h>
 #include <gl/sampler.h>
 #include <gl/texture2darray.h>
 #include <gl/texturehandle.h>

@@ -1,11 +1,8 @@
 #include "node.h"
 
-#include "renderable.h"
 #include "rendercontext.h"
 #include "visitor.h"
 
-#include <gl/debuggroup.h>
-#include <gl/glassert.h>
 #include <gl/renderstate.h>
 #include <optional>
 

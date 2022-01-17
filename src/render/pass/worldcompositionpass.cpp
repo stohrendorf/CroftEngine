@@ -25,7 +25,6 @@
 #include <gsl/gsl-lite.hpp>
 #include <gslu.h>
 #include <optional>
-#include <utility>
 
 namespace render::scene
 {

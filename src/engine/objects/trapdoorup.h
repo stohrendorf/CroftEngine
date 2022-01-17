@@ -1,6 +1,7 @@
 #pragma once
 
 #include "core/units.h"
+#include "core/vec.h"
 #include "modelobject.h"
 #include "serialization/serialization_fwd.h"
 

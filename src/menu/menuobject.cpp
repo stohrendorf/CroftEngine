@@ -1,11 +1,13 @@
 #include "menuobject.h"
 
+#include "core/angle.h"
 #include "core/id.h"
 #include "core/vec.h"
 #include "engine/objectmanager.h"
 #include "engine/objects/laraobject.h"
 #include "engine/objects/objectstate.h"
 #include "engine/skeletalmodelnode.h"
+#include "engine/world/animation.h"
 #include "engine/world/skeletalmodeltype.h"
 #include "engine/world/world.h"
 #include "menuringtransform.h"
@@ -19,12 +21,19 @@
 #include <boost/log/trivial.hpp>
 #include <cstddef>
 #include <cstdint>
+#include <gl/buffer.h>
 #include <gl/program.h>
+#include <gl/renderstate.h>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/mat4x4.hpp>
 #include <gsl/gsl-lite.hpp>
 #include <optional>
 #include <utility>
+
+namespace engine
+{
+struct ShaderLight;
+}
 
 namespace render::scene
 {

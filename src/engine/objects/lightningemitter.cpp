@@ -1,6 +1,7 @@
 #include "lightningemitter.h"
 
 #include "core/angle.h"
+#include "core/genericvec.h"
 #include "core/magic.h"
 #include "core/units.h"
 #include "engine/heightinfo.h"

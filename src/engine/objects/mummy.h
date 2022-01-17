@@ -1,8 +1,7 @@
 #pragma once
 
-#include "core/angle.h"
+#include "core/units.h"
 #include "modelobject.h"
-#include "serialization/serialization_fwd.h"
 
 #include <gsl/gsl-lite.hpp>
 #include <string>

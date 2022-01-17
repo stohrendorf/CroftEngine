@@ -1,15 +1,28 @@
 #include "aiminfo.h"
 
+#include "engine/items_tr1.h"
+#include "engine/objects/objectstate.h"
 #include "engine/presenter.h"
 #include "engine/skeletalmodelnode.h"
+#include "engine/soundeffects_tr1.h"
 #include "engine/world/skeletalmodeltype.h"
 #include "engine/world/world.h"
+#include "hid/actions.h"
 #include "hid/inputhandler.h"
 #include "laraobject.h"
 #include "serialization/quantity.h"
 #include "serialization/serialization.h"
 #include "serialization/vector_element.h"
 #include "weapon.h"
+
+#include <boost/assert.hpp>
+#include <boost/throw_exception.hpp>
+#include <cstdint>
+#include <exception>
+#include <gsl/gsl-lite.hpp>
+#include <memory>
+#include <stdexcept>
+#include <vector>
 
 namespace engine::objects
 {

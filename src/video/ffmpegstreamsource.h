@@ -8,7 +8,9 @@
 #include <cstdint>
 #include <filesystem>
 #include <gsl/gsl-lite.hpp>
+#include <istream>
 #include <memory>
+#include <utility>
 
 extern "C"
 {

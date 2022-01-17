@@ -5,6 +5,7 @@
 #include "soglb_fwd.h"
 
 #include <array>
+#include <boost/assert.hpp>
 #include <cstddef>
 #include <cstdint>
 #include <glm/fwd.hpp>

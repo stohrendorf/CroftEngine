@@ -2,10 +2,10 @@
 
 #include "aiagent.h"
 #include "core/angle.h"
+#include "core/genericvec.h"
 #include "core/id.h"
 #include "core/magic.h"
 #include "core/units.h"
-#include "core/vec.h"
 #include "engine/floordata/floordata.h"
 #include "engine/items_tr1.h"
 #include "engine/location.h"

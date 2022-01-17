@@ -1,6 +1,5 @@
 #pragma once
 
-#include "core/angle.h"
 #include "core/magic.h"
 #include "core/units.h"
 #include "core/vec.h"
@@ -13,10 +12,11 @@
 #include <array>
 #include <cstddef>
 #include <gl/buffer.h>
-#include <glm/vec3.hpp>
+#include <glm/fwd.hpp>
 #include <gsl/gsl-lite.hpp>
 #include <memory>
 #include <optional>
+#include <string>
 #include <vector>
 
 namespace engine::world

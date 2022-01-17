@@ -1,6 +1,7 @@
 #include "boulder.h"
 
 #include "core/angle.h"
+#include "core/genericvec.h"
 #include "core/id.h"
 #include "core/magic.h"
 #include "core/units.h"
@@ -11,6 +12,7 @@
 #include "engine/objectmanager.h"
 #include "engine/particle.h"
 #include "engine/skeletalmodelnode.h"
+#include "engine/world/animation.h"
 #include "engine/world/skeletalmodeltype.h"
 #include "engine/world/world.h"
 #include "laraobject.h"

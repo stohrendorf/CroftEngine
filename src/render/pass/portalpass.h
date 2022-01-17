@@ -6,6 +6,7 @@
 #include <gl/soglb_fwd.h>
 #include <gl/texture2d.h> // IWYU pragma: keep
 #include <glm/fwd.hpp>
+#include <gsl/gsl-lite.hpp>
 #include <memory>
 
 namespace render::scene

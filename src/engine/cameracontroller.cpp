@@ -1,6 +1,7 @@
 #include "cameracontroller.h"
 
 #include "core/boundingbox.h"
+#include "core/genericvec.h"
 #include "core/interval.h"
 #include "engine/floordata/floordata.h"
 #include "engine/floordata/types.h"
@@ -29,12 +30,14 @@
 
 #include <algorithm>
 #include <boost/assert.hpp>
+#include <cstddef>
 #include <exception>
 #include <functional>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/mat4x4.hpp>
 #include <glm/vec3.hpp>
 #include <map>
+#include <type_traits>
 #include <utility>
 #include <vector>
 

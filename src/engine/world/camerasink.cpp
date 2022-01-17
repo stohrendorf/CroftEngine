@@ -3,7 +3,6 @@
 #include "serialization/serialization.h"
 
 #include <exception>
-#include <gsl/gsl-lite.hpp>
 
 namespace engine::world
 {

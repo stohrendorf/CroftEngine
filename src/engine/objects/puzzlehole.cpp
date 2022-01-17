@@ -27,7 +27,6 @@
 #include "render/scene/node.h"
 
 #include <boost/throw_exception.hpp>
-#include <gslu.h>
 #include <memory>
 #include <stdexcept>
 

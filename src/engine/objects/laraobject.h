@@ -7,7 +7,6 @@
 #include "core/units.h"
 #include "core/vec.h"
 #include "engine/ai/pathfinder.h"
-#include "engine/cameracontroller.h"
 #include "engine/collisioninfo.h"
 #include "engine/location.h"
 #include "engine/weapontype.h"
@@ -20,7 +19,6 @@
 #include "serialization/serialization_fwd.h"
 
 #include <algorithm>
-#include <cstddef>
 #include <cstdint>
 #include <glm/fwd.hpp>
 #include <glm/mat4x4.hpp>
@@ -30,6 +28,7 @@
 #include <memory>
 #include <optional>
 #include <string>
+#include <type_traits>
 
 namespace engine::world
 {
@@ -45,7 +44,6 @@ struct InterpolationInfo;
 
 namespace loader::file
 {
-struct AnimFrame;
 struct Item;
 } // namespace loader::file
 

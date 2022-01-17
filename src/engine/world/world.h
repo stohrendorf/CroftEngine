@@ -6,7 +6,6 @@
 #include "box.h"
 #include "camerasink.h"
 #include "cinematicframe.h"
-#include "core/angle.h"
 #include "core/id.h"
 #include "core/units.h"
 #include "core/vec.h"
@@ -27,7 +26,6 @@
 
 #include <array>
 #include <bitset>
-#include <boost/assert.hpp>
 #include <cstddef>
 #include <cstdint>
 #include <filesystem>

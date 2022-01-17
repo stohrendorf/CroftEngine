@@ -18,6 +18,7 @@
 #include "serialization/objectreference.h" // IWYU pragma: keep
 #include "serialization/serialization.h"
 #include "world/room.h"
+#include "world/sprite.h"
 #include "world/world.h"
 
 #include <algorithm>
@@ -27,6 +28,7 @@
 #include <exception>
 #include <limits>
 #include <stdexcept>
+#include <type_traits>
 
 namespace engine
 {

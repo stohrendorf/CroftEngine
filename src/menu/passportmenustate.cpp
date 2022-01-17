@@ -1,7 +1,6 @@
 #include "passportmenustate.h"
 
 #include "closepassportmenustate.h"
-#include "core/angle.h"
 #include "core/i18n.h"
 #include "donemenustate.h"
 #include "engine/audioengine.h"
@@ -19,6 +18,7 @@
 #include "menuring.h"
 #include "qs/qs.h"
 #include "savegamelistmenustate.h"
+#include "ui/ui.h"
 #include "util.h"
 
 #include <glm/vec2.hpp>

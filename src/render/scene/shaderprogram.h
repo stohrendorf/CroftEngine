@@ -3,11 +3,15 @@
 #include <boost/container/flat_map.hpp>
 #include <boost/container/vector.hpp>
 #include <boost/log/trivial.hpp>
+#include <boost/throw_exception.hpp>
 #include <filesystem>
 #include <gl/program.h>
 #include <gsl/gsl-lite.hpp>
+#include <iosfwd>
 #include <memory>
+#include <stdexcept>
 #include <string>
+#include <string_view>
 #include <vector>
 
 namespace render::scene

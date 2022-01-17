@@ -1,5 +1,6 @@
 #include "geometrypass.h"
 
+#include <algorithm>
 #include <gl/framebuffer.h>
 #include <gl/pixel.h>
 #include <gl/renderstate.h>
@@ -8,7 +9,6 @@
 #include <gl/texturedepth.h>
 #include <gl/texturehandle.h>
 #include <gslu.h>
-#include <utility>
 
 namespace render::pass
 {

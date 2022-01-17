@@ -2,6 +2,7 @@
 
 #include "core/boundingbox.h"
 #include "core/units.h"
+#include "engine/items_tr1.h"
 #include "object.h"
 #include "render/scene/node.h"
 

@@ -4,10 +4,10 @@
 #include "video/ffmpegstreamsource.h"
 
 #include <AL/al.h>
-#include <boost/assert.hpp>
-#include <boost/log/trivial.hpp>
 #include <cstring>
 #include <gsl/gsl-lite.hpp>
+#include <iterator>
+#include <memory>
 #include <vector>
 
 namespace audio

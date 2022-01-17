@@ -2,7 +2,9 @@
 
 #include "core/magic.h"
 
+#include <algorithm>
 #include <boost/throw_exception.hpp>
+#include <map>
 #include <stdexcept>
 #include <unordered_map>
 

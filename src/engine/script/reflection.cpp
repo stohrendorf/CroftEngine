@@ -1,9 +1,11 @@
 #include "reflection.h"
 
+#include "core/genericvec.h"
 #include "core/i18n.h"
-#include "core/vec.h"
+#include "core/id.h"
 #include "engine/cameracontroller.h"
 #include "engine/engine.h"
+#include "engine/engineconfig.h"
 #include "engine/inventory.h"
 #include "engine/location.h"
 #include "engine/objectmanager.h"
@@ -41,6 +43,7 @@
 #include <gl/framebuffer.h>
 #include <gl/pixel.h>
 #include <gl/program.h>
+#include <gl/sampler.h>
 #include <gl/texture2d.h>
 #include <gl/texturehandle.h>
 #include <glm/mat4x4.hpp>
@@ -53,7 +56,6 @@
 #include <pybind11/pytypes.h>
 #include <pybind11/stl.h> // IWYU pragma: keep
 #include <stdexcept>
-#include <system_error>
 #include <type_traits>
 #include <vector>
 

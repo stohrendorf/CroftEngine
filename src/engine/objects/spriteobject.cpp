@@ -1,5 +1,6 @@
 #include "spriteobject.h"
 
+#include "core/id.h"
 #include "engine/world/room.h"
 #include "engine/world/sprite.h"
 #include "engine/world/world.h"
@@ -24,6 +25,11 @@
 namespace engine
 {
 struct ShaderLight;
+}
+
+namespace render::scene
+{
+class Mesh;
 }
 
 namespace engine::objects

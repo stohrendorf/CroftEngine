@@ -17,7 +17,6 @@
 
 #include <bitset>
 #include <gsl/gsl-lite.hpp>
-#include <memory>
 
 namespace engine::objects
 {

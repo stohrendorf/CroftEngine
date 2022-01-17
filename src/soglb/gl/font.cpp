@@ -2,11 +2,20 @@
 
 #include "image.h"
 
+#include <algorithm>
 #include <boost/log/trivial.hpp>
+#include <boost/throw_exception.hpp>
+#include <cstdlib>
+#include <cstring>
+#include <gl/pixel.h>
 #include <gsl/gsl-lite.hpp>
+#include <iterator>
 #include <optional>
+#include <sstream>
+#include <stdexcept>
 #include <utf8.h> // IWYU pragma: keep
 #include <utility>
+#include <vector>
 
 namespace gl
 {

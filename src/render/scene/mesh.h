@@ -16,6 +16,7 @@ namespace render::scene
 {
 class RenderContext;
 class Material;
+class Node;
 
 class Mesh
     : public Renderable

@@ -16,7 +16,6 @@
 #include <gl/buffer.h>
 #include <gl/debuggroup.h>
 #include <gl/pixel.h>
-#include <gl/program.h>
 #include <gl/renderstate.h>
 #include <gl/vertexarray.h>
 #include <gl/vertexbuffer.h>
@@ -27,11 +26,6 @@
 #include <optional>
 #include <string>
 #include <utility>
-
-namespace render::scene
-{
-class Node;
-}
 
 namespace ui
 {

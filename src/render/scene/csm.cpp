@@ -8,8 +8,11 @@
 #include "rendercontext.h"
 #include "rendermode.h"
 
+#include <algorithm>
+#include <gl/buffer.h>
 #include <gl/debuggroup.h>
 #include <gl/framebuffer.h>
+#include <gl/glassert.h>
 #include <gl/pixel.h>
 #include <gl/program.h>
 #include <gl/renderstate.h>
@@ -19,8 +22,8 @@
 #include <gl/texturehandle.h>
 #include <glm/common.hpp>
 #include <glm/ext/matrix_clip_space.hpp>
-#include <glm/geometric.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
 #include <gslu.h>
 #include <limits>

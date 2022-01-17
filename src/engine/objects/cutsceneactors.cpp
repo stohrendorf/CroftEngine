@@ -1,6 +1,7 @@
 #include "cutsceneactors.h"
 
 #include "core/angle.h"
+#include "core/units.h"
 #include "core/vec.h"
 #include "engine/cameracontroller.h"
 #include "engine/location.h"

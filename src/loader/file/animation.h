@@ -5,6 +5,7 @@
 #include "core/id.h"
 #include "core/units.h"
 #include "core/vec.h"
+#include "qs/quantity.h"
 
 #include <boost/assert.hpp>
 #include <cstddef>

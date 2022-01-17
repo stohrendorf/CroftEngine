@@ -7,7 +7,6 @@
 #include "units.h"
 
 #include <algorithm>
-#include <glm/vec3.hpp>
 #include <gsl/gsl-lite.hpp>
 #include <iosfwd>
 

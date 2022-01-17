@@ -16,7 +16,6 @@
 #include <glm/vec2.hpp>
 #include <gslu.h>
 #include <stdexcept>
-#include <utility>
 
 namespace render::scene
 {

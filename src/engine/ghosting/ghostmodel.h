@@ -1,7 +1,11 @@
 #pragma once
 
-#include "engine/skeletalmodelnode.h"
-#include "engine/world/rendermeshdata.h"
+#include "render/scene/node.h"
+
+#include <cstdint>
+#include <gl/buffer.h>
+#include <glm/mat4x4.hpp>
+#include <string>
 
 namespace engine::world
 {
@@ -15,7 +19,10 @@ struct GhostFrame;
 class GhostModel final : public render::scene::Node
 {
 public:
-  GhostModel() : render::scene::Node{"ghost"}{}
+  GhostModel()
+      : render::scene::Node{"ghost"}
+  {
+  }
 
   void apply(const engine::world::World& world, const GhostFrame& frame);
 

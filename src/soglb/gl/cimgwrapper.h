@@ -3,6 +3,7 @@
 #include "pixel.h"
 #include "soglb_fwd.h"
 
+#include <cstddef>
 #include <cstdint>
 #include <filesystem>
 #include <glm/vec2.hpp>

@@ -1,6 +1,5 @@
 #include "bat.h"
 
-#include "core/angle.h"
 #include "core/id.h"
 #include "core/units.h"
 #include "core/vec.h"

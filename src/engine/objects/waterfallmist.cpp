@@ -1,7 +1,7 @@
 #include "waterfallmist.h"
 
+#include "core/genericvec.h"
 #include "core/magic.h"
-#include "core/vec.h"
 #include "engine/floordata/floordata.h"
 #include "engine/location.h"
 #include "engine/objectmanager.h"

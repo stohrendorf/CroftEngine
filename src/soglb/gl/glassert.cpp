@@ -6,7 +6,6 @@
 #ifdef SOGLB_DEBUGGING
 #  include <boost/log/trivial.hpp>
 #  include <boost/throw_exception.hpp>
-#  include <iosfwd>
 #  include <stdexcept>
 
 void gl::checkGlError(gsl::czstring code)

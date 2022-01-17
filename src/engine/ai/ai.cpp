@@ -1,9 +1,12 @@
 #include "ai.h"
 
+#include "core/angle.h"
 #include "core/boundingbox.h"
+#include "core/genericvec.h"
 #include "core/interval.h"
 #include "core/magic.h"
 #include "engine/engine.h"
+#include "engine/items_tr1.h"
 #include "engine/location.h"
 #include "engine/objectmanager.h"
 #include "engine/objects/aiagent.h"
@@ -21,6 +24,7 @@
 #include "util/helpers.h"
 
 #include <exception>
+#include <map>
 #include <optional>
 
 namespace engine::ai

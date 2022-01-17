@@ -1,6 +1,7 @@
 #include "natla.h"
 
 #include "aiagent.h"
+#include "core/angle.h"
 #include "core/id.h"
 #include "core/magic.h"
 #include "core/vec.h"
@@ -11,6 +12,7 @@
 #include "engine/floordata/floordata.h"
 #include "engine/location.h"
 #include "engine/particle.h"
+#include "engine/script/scriptengine.h"
 #include "engine/soundeffects_tr1.h"
 #include "engine/tracks_tr1.h"
 #include "engine/world/world.h"
@@ -25,6 +27,7 @@
 #include <exception>
 #include <gsl/gsl-lite.hpp>
 #include <memory>
+#include <utility>
 
 namespace engine::objects
 {

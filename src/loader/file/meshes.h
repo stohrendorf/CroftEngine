@@ -1,7 +1,6 @@
 #pragma once
 
 #include "color.h"
-#include "core/angle.h"
 #include "core/boundingbox.h"
 #include "core/id.h"
 #include "core/units.h"

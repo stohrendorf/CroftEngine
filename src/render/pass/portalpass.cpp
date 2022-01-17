@@ -2,6 +2,8 @@
 
 #include "render/scene/blur.h"
 
+#include <algorithm>
+#include <gl/framebuffer.h>
 #include <gl/pixel.h>
 #include <gl/sampler.h>
 #include <gl/texture2d.h>
@@ -11,7 +13,6 @@
 #include <gslu.h>
 #include <limits>
 #include <memory>
-#include <utility>
 
 namespace render::scene
 {

@@ -6,12 +6,25 @@
 #include "pass/portalpass.h"
 #include "pass/uipass.h"
 #include "pass/worldcompositionpass.h"
+#include "render/scene/materialmanager.h"
 #include "rendersettings.h"
 
 #include <boost/assert.hpp>
+#include <gl/framebuffer.h>
+#include <gl/program.h>
+#include <gl/texture2d.h>
 #include <gl/texturedepth.h>
+#include <gl/texturehandle.h>
 #include <glm/vec2.hpp>
 #include <gsl/gsl-lite.hpp>
+#include <string>
+
+namespace render::scene
+{
+class Material;
+class Mesh;
+class Node;
+} // namespace render::scene
 
 namespace render
 {

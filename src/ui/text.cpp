@@ -5,6 +5,7 @@
 #include "util.h"
 
 #include <array>
+#include <gl/pixel.h>
 #include <utility>
 
 namespace ui

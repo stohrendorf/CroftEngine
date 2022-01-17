@@ -1,5 +1,6 @@
 #include "serialization.h"
 
+#include <iosfwd>
 #include <stdexcept>
 
 namespace serialization

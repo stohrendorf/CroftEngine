@@ -5,15 +5,23 @@
 #include "serialization_fwd.h" // IWYU pragma: export
 
 #include <boost/algorithm/string/replace.hpp>
+#include <boost/assert.hpp>
 #include <boost/log/trivial.hpp>
+#include <cstdint>
 #include <exception>
+#include <functional>
 #include <gsl/gsl-lite.hpp>
+#include <iterator>
+#include <memory>
 #include <optional>
 #include <queue>
 #include <ryml.hpp>     // IWYU pragma: export
 #include <ryml_std.hpp> // IWYU pragma: export
+#include <string>
 #include <string_view>
+#include <type_traits>
 #include <typeinfo>
+#include <utility>
 
 // #define SERIALIZATION_TRACE
 

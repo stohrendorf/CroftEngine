@@ -1,10 +1,19 @@
 #include "ghostmodel.h"
 
 #include "engine/presenter.h"
+#include "engine/world/rendermeshdata.h"
 #include "engine/world/world.h"
 #include "ghost.h"
+#include "render/scene/materialgroup.h"
 #include "render/scene/materialmanager.h"
 #include "render/scene/mesh.h"
+#include "render/scene/rendermode.h"
+
+#include <gl/buffer.h>
+#include <gl/renderstate.h>
+#include <gsl/gsl-lite.hpp>
+#include <memory>
+#include <vector>
 
 namespace engine::ghosting
 {

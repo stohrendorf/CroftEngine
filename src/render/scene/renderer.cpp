@@ -8,7 +8,6 @@
 
 #include <array>
 #include <boost/log/trivial.hpp>
-#include <cstdint>
 #include <gl/api/gl.hpp>
 #include <gl/api/gl_api_provider.hpp>
 #include <gl/glassert.h>

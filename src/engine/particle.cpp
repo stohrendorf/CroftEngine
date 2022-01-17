@@ -2,6 +2,7 @@
 
 #include "audioengine.h"
 #include "core/boundingbox.h"
+#include "core/genericvec.h"
 #include "core/interval.h"
 #include "core/magic.h"
 #include "core/vec.h"

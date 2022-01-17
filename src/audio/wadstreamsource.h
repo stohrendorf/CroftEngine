@@ -1,15 +1,13 @@
 #pragma once
 
-#include "core.h"
-#include "streamsource.h"
-#include "video/ffmpegstreamsource.h"
-
-#include <chrono>
 #include <cstddef>
-#include <cstdint>
 #include <filesystem>
-#include <fstream>
 #include <memory>
+
+namespace video
+{
+class FfmpegSubStreamStreamSource;
+}
 
 namespace audio
 {

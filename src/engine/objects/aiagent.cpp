@@ -1,6 +1,7 @@
 #include "aiagent.h"
 
 #include "core/boundingbox.h"
+#include "core/genericvec.h"
 #include "core/interval.h"
 #include "core/magic.h"
 #include "engine/ai/pathfinder.h"
@@ -30,7 +31,6 @@
 #include <boost/range/adaptor/map.hpp>
 #include <exception>
 #include <map>
-#include <type_traits>
 
 namespace engine::objects
 {

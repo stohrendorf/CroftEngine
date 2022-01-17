@@ -15,6 +15,7 @@
 #include "menuring.h"
 #include "menustate.h"
 #include "requestloadmenustate.h"
+#include "ui/ui.h"
 #include "ui/widgets/label.h"
 #include "ui/widgets/listbox.h"
 #include "ui/widgets/messagebox.h"

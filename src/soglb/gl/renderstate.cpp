@@ -1,5 +1,6 @@
 #include "renderstate.h"
 
+#include "api/gl.hpp"
 #include "glassert.h"
 
 #include <glm/common.hpp>
@@ -8,6 +9,7 @@
 
 namespace gl
 {
+// NOLINTNEXTLINE(misc-no-recursion)
 inline RenderState& getCurrentState()
 {
   static RenderState currentState{};
@@ -24,6 +26,7 @@ inline RenderState& getCurrentState()
   return currentState;
 }
 
+// NOLINTNEXTLINE(misc-no-recursion)
 void RenderState::apply(const bool force) const
 {
   // Update any state if...
@@ -197,6 +200,7 @@ RenderState& RenderState::getWantedState()
   return wantedState;
 }
 
+// NOLINTNEXTLINE(misc-no-recursion)
 void RenderState::applyWantedState()
 {
   getWantedState().apply();

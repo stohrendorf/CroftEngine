@@ -11,6 +11,7 @@
 #include <glm/fwd.hpp>
 #include <glm/vec3.hpp>
 #include <gsl/gsl-lite.hpp>
+#include <limits>
 #include <optional>
 #include <type_traits>
 

@@ -1,8 +1,8 @@
 #pragma once
 
 #include "color.h"
-#include "core/angle.h"
 #include "core/containeroffset.h"
+#include "core/genericvec.h"
 #include "core/id.h"
 #include "core/magic.h"
 #include "core/units.h"
@@ -18,6 +18,7 @@
 #include <cstdint>
 #include <glm/vec2.hpp>
 #include <glm/vec4.hpp>
+#include <gsl/gsl-lite.hpp>
 #include <memory>
 #include <vector>
 

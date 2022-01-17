@@ -5,7 +5,6 @@
 #include "qs/quantity.h"
 
 #include <array>
-#include <boost/assert.hpp>
 #include <filesystem>
 #include <gl/cimgwrapper.h>
 #include <gl/pixel.h>

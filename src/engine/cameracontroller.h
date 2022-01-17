@@ -10,7 +10,6 @@
 #include "qs/quantity.h"
 #include "serialization/serialization_fwd.h"
 
-#include <cstddef>
 #include <cstdint>
 #include <glm/fwd.hpp>
 #include <gsl/gsl-lite.hpp>

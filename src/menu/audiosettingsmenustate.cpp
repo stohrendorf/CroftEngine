@@ -13,6 +13,7 @@
 #include "hid/inputhandler.h"
 #include "menu/selectedmenustate.h"
 #include "ui/core.h"
+#include "ui/ui.h"
 #include "ui/widgets/gridbox.h"
 #include "ui/widgets/groupbox.h"
 #include "ui/widgets/label.h"

@@ -6,6 +6,7 @@
 #include "engine/objectmanager.h"
 #include "engine/particle.h"
 #include "engine/presenter.h"
+#include "engine/script/scriptengine.h"
 #include "engine/soundeffects_tr1.h"
 #include "engine/world/room.h"
 #include "engine/world/sector.h"

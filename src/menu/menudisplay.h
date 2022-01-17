@@ -1,12 +1,12 @@
 #pragma once
 
 #include "engine/items_tr1.h"
-#include "engine/lighting.h"
 #include "menuringtransform.h"
 #include "ui/text.h"
 
 #include <cstddef>
 #include <gl/buffer.h>
+#include <glm/vec2.hpp>
 #include <gsl/gsl-lite.hpp>
 #include <memory>
 #include <optional>
@@ -15,6 +15,11 @@
 namespace engine::world
 {
 class World;
+}
+
+namespace engine
+{
+struct ShaderLight;
 }
 
 namespace ui

@@ -8,7 +8,6 @@
 #include "shaderprogram.h"
 
 #include <array>
-#include <boost/assert.hpp>
 #include <cstdint>
 #include <gl/buffer.h>
 #include <gl/renderstate.h>
@@ -19,6 +18,8 @@
 
 namespace render::scene
 {
+class Node;
+
 gsl::not_null<std::shared_ptr<Mesh>> createScreenQuad(const glm::vec2& xy,
                                                       const glm::vec2& size,
                                                       const std::shared_ptr<Material>& material,

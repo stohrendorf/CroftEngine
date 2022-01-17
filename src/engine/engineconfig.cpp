@@ -12,7 +12,6 @@
 #include "serialization/vector.h"
 
 #include <exception>
-#include <gsl/gsl-lite.hpp>
 #include <stdexcept>
 
 namespace engine

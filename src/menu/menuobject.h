@@ -1,12 +1,11 @@
 #pragma once
 
-#include "core/angle.h"
 #include "core/units.h"
 #include "engine/items_tr1.h"
-#include "engine/lighting.h"
 
 #include <bitset>
 #include <gl/buffer.h>
+#include <gsl/gsl-lite.hpp>
 #include <memory>
 #include <string>
 
@@ -18,7 +17,8 @@ class World;
 namespace engine
 {
 class SkeletalModelNode;
-}
+struct ShaderLight;
+} // namespace engine
 
 namespace menu
 {

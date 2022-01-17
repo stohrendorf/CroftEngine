@@ -2,6 +2,7 @@
 
 #include "core/magic.h"
 #include "core/units.h"
+#include "engine/objectmanager.h"
 #include "items_tr1.h"
 #include "objects/laraobject.h"
 #include "objects/objectstate.h"

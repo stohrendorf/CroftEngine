@@ -1,9 +1,11 @@
 #pragma once
 
+#include <cstddef>
 #include <cstdint>
 #include <filesystem>
-#include <glm/matrix.hpp>
+#include <glm/mat4x4.hpp>
 #include <iosfwd>
+#include <memory>
 #include <vector>
 
 namespace engine::ghosting

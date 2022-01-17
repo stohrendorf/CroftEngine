@@ -5,13 +5,9 @@
 #include <chrono>
 #include <gl/soglb_fwd.h>
 #include <glm/vec2.hpp>
+#include <gsl/gsl-lite.hpp>
 #include <memory>
-
-namespace gsl
-{
-template<class T>
-class not_null;
-}
+#include <vector>
 
 namespace render::scene
 {

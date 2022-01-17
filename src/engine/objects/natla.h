@@ -1,7 +1,6 @@
 #pragma once
 
 #include "aiagent.h"
-#include "core/angle.h"
 #include "core/units.h"
 #include "serialization/serialization_fwd.h"
 

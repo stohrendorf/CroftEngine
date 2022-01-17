@@ -9,6 +9,7 @@
 #include "render/scene/rendermode.h"
 #include "render/scene/uniformparameter.h"
 
+#include <algorithm>
 #include <gl/debuggroup.h>
 #include <gl/framebuffer.h>
 #include <gl/glassert.h>
@@ -22,7 +23,6 @@
 #include <gsl/gsl-lite.hpp>
 #include <gslu.h>
 #include <optional>
-#include <utility>
 
 namespace render::scene
 {

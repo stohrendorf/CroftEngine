@@ -18,7 +18,6 @@
 #include "util/helpers.h"
 
 #include <exception>
-#include <gsl/gsl-lite.hpp>
 #include <memory>
 
 namespace engine::objects

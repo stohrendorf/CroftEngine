@@ -1,6 +1,5 @@
 #include "resetitemtransformmenustate.h"
 
-#include "core/angle.h"
 #include "engine/audioengine.h"
 #include "engine/soundeffects_tr1.h"
 #include "engine/world/world.h"

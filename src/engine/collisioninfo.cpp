@@ -1,6 +1,7 @@
 #include "collisioninfo.h"
 
 #include "core/boundingbox.h"
+#include "core/genericvec.h"
 #include "core/interval.h"
 #include "core/magic.h"
 #include "engine/floordata/floordata.h"

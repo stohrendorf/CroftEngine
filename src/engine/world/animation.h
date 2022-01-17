@@ -2,6 +2,7 @@
 
 #include "core/id.h"
 #include "core/units.h"
+#include "qs/quantity.h"
 
 namespace loader::file
 {

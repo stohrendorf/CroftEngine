@@ -1,6 +1,7 @@
 #pragma once
 
 #include "abstractstatehandler.h"
+#include "engine/cameracontroller.h"
 #include "engine/collisioninfo.h"
 #include "engine/world/world.h"
 #include "hid/inputstate.h"

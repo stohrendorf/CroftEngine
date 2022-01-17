@@ -1,6 +1,7 @@
 #include "laraobject.h"
 
 #include "core/boundingbox.h"
+#include "core/genericvec.h"
 #include "core/interval.h"
 #include "engine/audioengine.h"
 #include "engine/cameracontroller.h"
@@ -10,6 +11,7 @@
 #include "engine/items_tr1.h"
 #include "engine/lara/abstractstatehandler.h"
 #include "engine/objectmanager.h"
+#include "engine/objects/aiminfo.h"
 #include "engine/particle.h"
 #include "engine/player.h"
 #include "engine/presenter.h"
@@ -17,6 +19,7 @@
 #include "engine/skeletalmodelnode.h"
 #include "engine/soundeffects_tr1.h"
 #include "engine/world/animation.h"
+#include "engine/world/mesh.h"
 #include "engine/world/rendermeshdata.h"
 #include "engine/world/room.h"
 #include "engine/world/skeletalmodeltype.h"
@@ -32,7 +35,6 @@
 #include "serialization/optional.h"
 #include "serialization/quantity.h"
 #include "serialization/serialization.h"
-#include "serialization/vector_element.h"
 #include "util/helpers.h"
 #include "weapon.h"
 
@@ -40,6 +42,7 @@
 #include <boost/log/trivial.hpp>
 #include <boost/range/adaptor/map.hpp>
 #include <boost/throw_exception.hpp>
+#include <cstddef>
 #include <cstdlib>
 #include <exception>
 #include <gl/api/gl.hpp>
@@ -56,7 +59,6 @@
 #include <stack>
 #include <stdexcept>
 #include <type_traits>
-#include <unordered_map>
 #include <utility>
 #include <vector>
 

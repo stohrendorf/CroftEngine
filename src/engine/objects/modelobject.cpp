@@ -1,5 +1,7 @@
 #include "modelobject.h"
 
+#include "core/angle.h"
+#include "core/genericvec.h"
 #include "core/interval.h"
 #include "core/magic.h"
 #include "core/vec.h"

@@ -1,6 +1,5 @@
 #include "finishitemanimationmenustate.h"
 
-#include "core/angle.h"
 #include "core/units.h"
 #include "engine/items_tr1.h"
 #include "menudisplay.h"

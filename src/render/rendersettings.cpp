@@ -4,6 +4,8 @@
 #include "serialization/optional_value.h"
 #include "serialization/serialization.h"
 
+#include <exception>
+
 namespace render
 {
 void RenderSettings::serialize(const serialization::Serializer<engine::EngineConfig>& ser)

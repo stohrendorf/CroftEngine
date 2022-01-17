@@ -5,9 +5,16 @@
 #include "engine/weapontype.h"
 #include "serialization/serialization_fwd.h"
 
+#include <cstddef>
+
 namespace loader::file
 {
 struct AnimFrame;
+}
+
+namespace engine::world
+{
+class World;
 }
 
 namespace engine::objects

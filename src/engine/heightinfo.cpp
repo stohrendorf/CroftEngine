@@ -8,6 +8,7 @@
 #include "util/helpers.h"
 
 #include <cstdlib>
+#include <type_traits>
 
 namespace engine
 {

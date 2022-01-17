@@ -12,6 +12,7 @@
 #include "menustate.h"
 #include "render/rendersettings.h"
 #include "selectedmenustate.h"
+#include "ui/ui.h"
 #include "ui/widgets/checkbox.h"
 #include "ui/widgets/groupbox.h"
 #include "ui/widgets/listbox.h"

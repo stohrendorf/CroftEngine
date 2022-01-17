@@ -1,6 +1,5 @@
 #pragma once
 
-#include "core/angle.h"
 #include "core/units.h"
 #include "qs/qs.h"
 

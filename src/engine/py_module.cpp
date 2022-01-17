@@ -1,6 +1,5 @@
 #include "ai/py_module.h"
 
-#include "core/id.h"
 #include "items_tr1.h"
 #include "objects/objectstate.h"
 #include "qs/quantity.h"
@@ -21,6 +20,7 @@
 #include <type_traits>
 #include <unordered_map>
 #include <unordered_set>
+#include <vector>
 
 namespace py = pybind11;
 

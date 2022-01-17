@@ -2,17 +2,27 @@
 
 #include "render/scene/mesh.h"
 #include "render/scene/rendercontext.h"
+#include "render/scene/rendermode.h"
 
 #include <algorithm>
 #include <gl/framebuffer.h>
 #include <gl/pixel.h>
+#include <gl/program.h>
 #include <gl/renderstate.h>
 #include <gl/sampler.h>
 #include <gl/texture2d.h>
 #include <gl/texturedepth.h>
 #include <gl/texturehandle.h>
+#include <glm/mat4x4.hpp>
+#include <glm/vec2.hpp>
 #include <gslu.h>
+#include <optional>
 #include <utility>
+
+namespace render::scene
+{
+class Node;
+}
 
 namespace render::pass
 {

@@ -7,6 +7,7 @@
 #include "hid/inputstate.h"
 #include "menustate.h"
 #include "selectedmenustate.h"
+#include "ui/ui.h"
 #include "ui/widgets/groupbox.h"
 #include "ui/widgets/listbox.h"
 

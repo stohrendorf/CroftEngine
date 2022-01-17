@@ -1,11 +1,11 @@
 #include "menudisplay.h"
 
-#include "core/angle.h"
 #include "core/i18n.h"
 #include "core/units.h"
 #include "engine/audioengine.h"
 #include "engine/cameracontroller.h"
 #include "engine/inventory.h"
+#include "engine/lighting.h"
 #include "engine/player.h"
 #include "engine/presenter.h"
 #include "engine/soundeffects_tr1.h"
@@ -24,18 +24,24 @@
 #include "render/scene/materialmanager.h"
 #include "ui/core.h"
 #include "ui/text.h"
+#include "ui/ui.h"
 #include "ui/util.h"
 #include "util.h"
 
 #include <algorithm>
 #include <bitset>
 #include <boost/throw_exception.hpp>
+#include <gl/buffer.h>
 #include <gl/debuggroup.h>
 #include <gl/framebuffer.h>
+#include <gl/pixel.h>
+#include <gl/renderstate.h>
 #include <gl/texture2d.h>
 #include <gl/texturedepth.h>
 #include <gl/texturehandle.h>
 #include <glm/vec2.hpp>
+#include <glm/vec4.hpp>
+#include <gslu.h>
 #include <stdexcept>
 #include <string>
 #include <utility>

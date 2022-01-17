@@ -1,6 +1,6 @@
 #include "deselectingmenustate.h"
 
-#include "core/angle.h"
+#include "core/units.h"
 #include "idleringmenustate.h"
 #include "menudisplay.h"
 #include "menuring.h"

@@ -4,6 +4,7 @@
 #include "audio/streamsource.h"
 #include "audio/streamvoice.h"
 #include "avdecoder.h"
+#include "avframeptr.h"
 #include "converter.h"
 #include "filtergraph.h"
 

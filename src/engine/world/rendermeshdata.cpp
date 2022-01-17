@@ -1,6 +1,7 @@
 #include "rendermeshdata.h"
 
 #include "core/containeroffset.h"
+#include "core/genericvec.h"
 #include "core/id.h"
 #include "core/units.h"
 #include "core/vec.h"
@@ -24,6 +25,7 @@
 #include <gl/renderstate.h>
 #include <gl/vertexarray.h>
 #include <gl/vertexbuffer.h>
+#include <glm/vec2.hpp>
 #include <gslu.h>
 #include <initializer_list>
 

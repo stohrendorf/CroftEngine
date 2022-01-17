@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <gl/pixel.h>
 #include <gl/soglb_fwd.h>
+#include <gsl/gsl-lite.hpp>
 #include <memory>
 
 struct AVFilterLink;
