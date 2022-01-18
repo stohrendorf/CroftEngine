@@ -266,16 +266,16 @@ Engine::Engine(std::filesystem::path userDataPath,
                const glm::ivec2& resolution)
     : m_userDataPath{std::move(userDataPath)}
     , m_engineDataPath{engineDataPath}
-    , m_scriptEngine{engineDataPath}
+    , m_scriptEngine{engineDataPath / "gameflows" / "tr1"}
 {
   try
   {
-    pybind11::eval_file(util::ensureFileExists(m_engineDataPath / "scripts" / "main.py").string());
+    pybind11::eval_file(util::ensureFileExists(m_engineDataPath / "gameflows" / "tr1" / "__init__.py").string());
   }
   catch(std::exception& e)
   {
-    BOOST_LOG_TRIVIAL(fatal) << "Failed to load main.py: " << e.what();
-    BOOST_THROW_EXCEPTION(std::runtime_error("Failed to load main.py"));
+    BOOST_LOG_TRIVIAL(fatal) << "Failed to load __init__.py: " << e.what();
+    BOOST_THROW_EXCEPTION(std::runtime_error("Failed to load __init__.py"));
   }
 
   m_locale = std::use_facet<boost::locale::info>(boost::locale::generator()("")).name();

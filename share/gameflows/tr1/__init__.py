@@ -1,10 +1,9 @@
 # locale_override = "en_GB.utf8"
-from engine import TR1ItemId
+from engine import TR1ItemId, Gameflow
 
-from scripts.tr1.object_infos import object_infos
-from scripts.tr1.audio import tracks
-from scripts.tr1.level_sequence import level_sequence, title_menu, lara_home, early_boot
-from engine import Gameflow
+from object_infos import object_infos
+from audio import tracks
+from level_sequence import level_sequence, title_menu, lara_home, early_boot
 
 gameflow = Gameflow(
     object_infos=object_infos,
@@ -32,5 +31,3 @@ gameflow = Gameflow(
         }
     } if False else {}
 )
-
-print("Yay! Main script loaded.")
