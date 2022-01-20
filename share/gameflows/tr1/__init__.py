@@ -29,5 +29,5 @@ gameflow = Gameflow(
             TR1ItemId.MagnumsSprite: 1,
             TR1ItemId.ShotgunSprite: 1,
         }
-    } if False else {}
+    } if False else {}  # lgtm [py/constant-conditional-expression]
 )
