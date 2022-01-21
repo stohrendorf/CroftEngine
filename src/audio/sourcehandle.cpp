@@ -109,7 +109,7 @@ void SourceHandle::setLooping(const bool isLooping)
 
 void SourceHandle::setGain(const ALfloat gain)
 {
-  set(AL_GAIN, std::clamp(gain, 0.0f, 1.0f));
+  set(AL_GAIN, std::max(gain, 0.0f));
 }
 
 void SourceHandle::setPosition(const glm::vec3& position)

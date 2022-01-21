@@ -70,9 +70,9 @@ public:
   std::shared_ptr<audio::Voice> playSoundEffect(const core::SoundEffectId& id, audio::Emitter* emitter);
   std::shared_ptr<audio::Voice> playSoundEffect(const core::SoundEffectId& id, const glm::vec3& pos);
 
-  gsl::not_null<std::shared_ptr<audio::StreamVoice>> playStream(const std::filesystem::path& path,
-                                                                const std::chrono::milliseconds& initialPosition
-                                                                = std::chrono::milliseconds{0});
+  gsl::not_null<std::shared_ptr<audio::StreamVoice>> createStream(const std::filesystem::path& path,
+                                                                  const std::chrono::milliseconds& initialPosition
+                                                                  = std::chrono::milliseconds{0});
 
   void playStopCdTrack(const script::Gameflow& gameflow, TR1TrackId trackId, bool stop);
 

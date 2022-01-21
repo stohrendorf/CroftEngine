@@ -20,6 +20,7 @@ public:
 
   void setGroupGain(ALfloat groupGain);
   void setLocalGain(ALfloat localGain);
+  [[nodiscard]] ALfloat getLocalGain() const;
 
   void play();
   void rewind();

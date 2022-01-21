@@ -50,16 +50,18 @@ struct ObjectInfo
 
 struct TrackInfo
 {
-  TrackInfo(const std::string& name, size_t slot, bool looping)
+  TrackInfo(const std::string& name, size_t slot, bool looping, uint32_t fadeDurationSeconds)
       : name{name}
       , slot{slot}
       , looping{looping}
+      , fadeDurationSeconds{fadeDurationSeconds}
   {
   }
 
   std::filesystem::path name;
   size_t slot;
   bool looping;
+  uint32_t fadeDurationSeconds;
 };
 
 class LevelSequenceItem

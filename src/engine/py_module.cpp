@@ -30,7 +30,12 @@ PYBIND11_EMBEDDED_MODULE(engine, m)
   m.doc() = "edisonengine engine module";
   engine::ai::initAiModule(m.def_submodule("ai"));
 
-  py::class_<engine::script::TrackInfo>(m, "TrackInfo").def(py::init<std::string, size_t, bool>());
+  py::class_<engine::script::TrackInfo>(m, "TrackInfo")
+    .def(py::init<std::string, size_t, bool, uint32_t>(),
+         py::arg("name"),
+         py::arg("slot"),
+         py::arg("looping"),
+         py::arg("fade_duration_seconds") = 0);
 
   {
     auto e = py::enum_<engine::WeaponType>(m, "WeaponType");

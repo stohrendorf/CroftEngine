@@ -3,6 +3,7 @@
 #include "audio/bufferhandle.h"
 #include "audio/buffervoice.h"
 #include "audio/device.h"
+#include "audio/fadevolumecallback.h"
 #include "audio/soundengine.h"
 #include "audio/streamsource.h"
 #include "audio/streamvoice.h"
@@ -132,30 +133,41 @@ void AudioEngine::triggerNormalCdTrack(const script::Gameflow& gameflow,
     trackState.setOneshot(true);
 
   if(!m_currentTrack.has_value() || *m_currentTrack != trackId)
+  {
     playStopCdTrack(gameflow, trackId, false);
+  }
 }
 
 void AudioEngine::playStopCdTrack(const script::Gameflow& gameflow, const TR1TrackId trackId, bool stop)
 {
-  const auto trackInfo = gameflow.getTracks().at(trackId);
+  const gsl::not_null trackInfo{gameflow.getTracks().at(trackId)};
 
   m_soundEngine->getDevice().removeStream(m_streams[trackInfo->slot].stream);
   m_streams.erase(trackInfo->slot);
   m_currentTrack.reset();
 
-  if(!stop)
+  if(stop)
+    return;
+
+  BOOST_LOG_TRIVIAL(debug) << "playStopCdTrack - play " << toString(trackId) << ", slot " << trackInfo->slot
+                           << ", looping " << trackInfo->looping;
+  const auto stream = createStream(trackInfo->name);
+  stream->setLooping(trackInfo->looping);
+  m_streams.emplace(trackInfo->slot, StreamInfo{stream.get(), trackInfo->name});
+  m_currentTrack = trackId;
+
+  if(trackInfo->fadeDurationSeconds > 0)
   {
-    BOOST_LOG_TRIVIAL(debug) << "playStopCdTrack - play " << toString(trackId) << ", slot " << trackInfo->slot
-                             << ", looping " << trackInfo->looping;
-    const auto stream = playStream(trackInfo->name);
-    stream->setLooping(trackInfo->looping);
-    m_streams.emplace(trackInfo->slot, StreamInfo{stream.get(), trackInfo->name});
-    m_currentTrack = trackId;
+    stream->setLocalGain(0.0f);
+    m_soundEngine->getDevice().registerUpdateCallback(
+      audio::FadeVolumeCallback{1.0f, std::chrono::seconds{trackInfo->fadeDurationSeconds}, stream});
   }
+
+  stream->play();
 }
 
 gsl::not_null<std::shared_ptr<audio::StreamVoice>>
-  AudioEngine::playStream(const std::filesystem::path& path, const std::chrono::milliseconds& initialPosition)
+  AudioEngine::createStream(const std::filesystem::path& path, const std::chrono::milliseconds& initialPosition)
 {
   static constexpr size_t DefaultBufferSize = 8192;
   static constexpr size_t DefaultBufferCount = 4;
@@ -166,7 +178,6 @@ gsl::not_null<std::shared_ptr<audio::StreamVoice>>
     DefaultBufferCount,
     initialPosition);
   m_music.add(stream);
-  stream->play();
   return stream;
 }
 
@@ -351,8 +362,9 @@ void AudioEngine::serialize(const serialization::Serializer<world::World>& ser)
   {
     for(auto& [streamId, streamName] : names)
     {
-      const auto stream = playStream(streamName, positions.at(streamId));
+      const auto stream = createStream(streamName, positions.at(streamId));
       stream->setLooping(looping.at(streamId));
+      stream->play();
     }
   }
 }

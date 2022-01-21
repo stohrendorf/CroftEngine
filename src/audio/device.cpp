@@ -181,6 +181,9 @@ Device::Device()
 void Device::reset()
 {
   std::lock_guard lock{m_streamsLock};
+
+  m_updateCallbacks.clear();
+
   for(const auto& stream : m_streams)
   {
     stream->setLooping(false);
@@ -277,6 +280,14 @@ void Device::updateStreams()
   std::lock_guard lock{m_streamsLock};
   for(const auto& stream : m_streams)
     stream->update();
+  auto tmp = std::move(m_updateCallbacks);
+  for(auto& [fn, t] : tmp)
+  {
+    if(fn(std::chrono::high_resolution_clock::now() - t))
+    {
+      m_updateCallbacks.emplace_back(fn, t);
+    }
+  }
 }
 
 void Device::removeStream(const gsl::not_null<std::shared_ptr<StreamVoice>>& stream)
@@ -301,5 +312,11 @@ void Device::setListenerGain(float gain)
 {
   Expects(gain >= 0);
   AL_ASSERT(alListenerf(AL_GAIN, gain));
+}
+
+void Device::registerUpdateCallback(const std::function<UpdateCallback>& fn)
+{
+  std::lock_guard lock{m_streamsLock};
+  m_updateCallbacks.emplace_back(fn, std::chrono::high_resolution_clock::now());
 }
 } // namespace audio

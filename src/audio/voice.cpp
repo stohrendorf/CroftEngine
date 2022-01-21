@@ -20,6 +20,11 @@ void Voice::setLocalGain(const ALfloat localGain)
   updateGain();
 }
 
+ALfloat Voice::getLocalGain() const
+{
+  return m_localGain;
+}
+
 void Voice::play()
 {
   if(m_source != nullptr)

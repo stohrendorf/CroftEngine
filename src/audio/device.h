@@ -3,6 +3,7 @@
 #include <AL/alc.h>
 #include <chrono>
 #include <cstddef>
+#include <functional>
 #include <glm/vec3.hpp>
 #include <gsl/gsl-lite.hpp>
 #include <memory>
@@ -22,6 +23,7 @@ class Device final
 {
 public:
   static constexpr size_t SourceHandleSlots = 32;
+  using UpdateCallback = bool(const std::chrono::high_resolution_clock::duration& dt);
 
   explicit Device();
 
@@ -68,6 +70,8 @@ public:
     m_allVoices.emplace_back(voice);
   }
 
+  void registerUpdateCallback(const std::function<UpdateCallback>& fn);
+
 private:
   ALCdevice* m_device = nullptr;
   ALCcontext* m_context = nullptr;
@@ -75,6 +79,8 @@ private:
   std::vector<gsl::not_null<std::shared_ptr<Voice>>> m_allVoices;
   std::set<gsl::not_null<std::shared_ptr<StreamVoice>>> m_streams;
   std::thread m_streamUpdater;
+  std::vector<std::pair<std::function<UpdateCallback>, std::chrono::high_resolution_clock::time_point>>
+    m_updateCallbacks;
   std::recursive_mutex m_streamsLock;
   bool m_shutdown = false;
   std::shared_ptr<FilterHandle> m_filter{nullptr};

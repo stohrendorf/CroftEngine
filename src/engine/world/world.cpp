@@ -1169,7 +1169,9 @@ World::World(Engine& engine,
   getPresenter().getSoundEngine()->setListener(m_cameraController.get());
   getPresenter().setTrFont(std::make_unique<ui::TRFont>(*m_spriteSequences.at(TR1ItemId::FontGraphics)));
   if(track.has_value())
+  {
     m_audioEngine->playStopCdTrack(m_engine.getScriptEngine().getGameflow(), *track, false);
+  }
   getPresenter().disableScreenOverlay();
 }
 
