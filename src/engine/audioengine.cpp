@@ -145,7 +145,8 @@ void AudioEngine::playStopCdTrack(const script::Gameflow& gameflow, const TR1Tra
 
   if(!stop)
   {
-    BOOST_LOG_TRIVIAL(debug) << "playStopCdTrack - play ambient " << toString(trackId);
+    BOOST_LOG_TRIVIAL(debug) << "playStopCdTrack - play " << toString(trackId) << ", slot " << trackInfo->slot
+                             << ", looping " << trackInfo->looping;
     const auto stream = playStream(trackInfo->name);
     stream->setLooping(trackInfo->looping);
     m_streams.emplace(trackInfo->slot, StreamInfo{stream.get(), trackInfo->name});
