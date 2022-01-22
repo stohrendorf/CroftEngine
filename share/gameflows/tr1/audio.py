@@ -6,11 +6,11 @@ _EFFECT = (2, False)
 
 tracks = {
     TR1TrackId.MainTheme: TrackInfo("AUDIO/002.ogg", *_INTERCEPTION),  # Main theme
-    TR1TrackId.Ambience0: TrackInfo("AUDIO/003.ogg", *_AMBIENT, 60),  # Caves ambience
-    TR1TrackId.Ambience1: TrackInfo("AUDIO/003.ogg", *_AMBIENT, 60),  # Silence
-    TR1TrackId.Ambience2: TrackInfo("AUDIO/004.ogg", *_AMBIENT, 60),  # PC ONLY: Water ambience
-    TR1TrackId.Ambience3: TrackInfo("AUDIO/005.ogg", *_AMBIENT, 60),  # PC ONLY: Wind  ambience
-    TR1TrackId.Ambience4: TrackInfo("AUDIO/006.ogg", *_AMBIENT, 60),  # PC ONLY: Pulse ambience
+    TR1TrackId.Ambience0: TrackInfo("AUDIO/003.ogg", *_AMBIENT, 30),  # Caves ambience
+    TR1TrackId.Ambience1: TrackInfo("AUDIO/003.ogg", *_AMBIENT, 30),  # Silence
+    TR1TrackId.Ambience2: TrackInfo("AUDIO/004.ogg", *_AMBIENT, 30),  # PC ONLY: Water ambience
+    TR1TrackId.Ambience3: TrackInfo("AUDIO/005.ogg", *_AMBIENT, 30),  # PC ONLY: Wind  ambience
+    TR1TrackId.Ambience4: TrackInfo("AUDIO/006.ogg", *_AMBIENT, 30),  # PC ONLY: Pulse ambience
     TR1TrackId.Cutscene1: TrackInfo("AUDIO/007.ogg", *_AMBIENT),  # Natla cutscene
     TR1TrackId.Cutscene2: TrackInfo("AUDIO/008.ogg", *_AMBIENT),  # Larson cutscene
     TR1TrackId.Cutscene3: TrackInfo("AUDIO/009.ogg", *_AMBIENT),  # Natla scion cutscene

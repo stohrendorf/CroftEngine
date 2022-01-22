@@ -19,7 +19,9 @@ public:
   virtual ~Voice();
 
   void setGroupGain(ALfloat groupGain);
+  void setGroupGainLogarithmic(ALfloat groupGain);
   void setLocalGain(ALfloat localGain);
+  void setLocalGainLogarithmic(ALfloat localGain);
   [[nodiscard]] ALfloat getLocalGain() const;
 
   void play();

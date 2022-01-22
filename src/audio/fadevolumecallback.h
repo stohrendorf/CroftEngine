@@ -31,12 +31,12 @@ public:
 
     if(t > m_duration)
     {
-      voice->setLocalGain(m_to);
+      voice->setLocalGainLogarithmic(m_to);
       return false;
     }
 
     const auto value = m_from + (m_to - m_from) * t / m_duration;
-    voice->setLocalGain(value);
+    voice->setLocalGainLogarithmic(value);
     return true;
   }
 

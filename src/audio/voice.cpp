@@ -2,6 +2,7 @@
 
 #include "core.h"
 #include "sourcehandle.h"
+#include "volume.h"
 
 #include <AL/al.h>
 #include <utility>
@@ -14,10 +15,20 @@ void Voice::setGroupGain(const ALfloat groupGain)
   updateGain();
 }
 
+void Voice::setGroupGainLogarithmic(ALfloat groupGain)
+{
+  setGroupGain(toLogarithmicVolumeExact(groupGain));
+}
+
 void Voice::setLocalGain(const ALfloat localGain)
 {
   m_localGain = localGain;
   updateGain();
+}
+
+void Voice::setLocalGainLogarithmic(ALfloat localGain)
+{
+  setLocalGain(toLogarithmicVolumeExact(localGain));
 }
 
 ALfloat Voice::getLocalGain() const

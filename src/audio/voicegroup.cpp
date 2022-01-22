@@ -11,7 +11,7 @@ namespace audio
 {
 void VoiceGroup::add(gsl::not_null<std::shared_ptr<Voice>> voice)
 {
-  voice->setGroupGain(m_gain);
+  voice->setGroupGainLogarithmic(m_gain);
   if(std::find_if(m_voices.begin(),
                   m_voices.end(),
                   [&voice](const auto& weakVoice)
@@ -60,7 +60,7 @@ void VoiceGroup::setGain(ALfloat gain)
   for(const auto& weakVoice : m_voices)
   {
     if(auto v = weakVoice.lock())
-      v->setGroupGain(gain);
+      v->setGroupGainLogarithmic(gain);
   }
 }
 } // namespace audio
