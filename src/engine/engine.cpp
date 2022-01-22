@@ -570,10 +570,9 @@ std::pair<RunResult, std::optional<size_t>> Engine::runTitleMenu(world::World& w
 
   applySettings();
 
-  if(const auto streamInfoIt = world.getAudioEngine().getStreams().find(0);
-     streamInfoIt != world.getAudioEngine().getStreams().end())
+  for(const auto& streamInfo : world.getAudioEngine().getStreams())
   {
-    if(const auto stream = streamInfoIt->second.stream.lock())
+    if(const auto stream = streamInfo.second.stream.lock())
       stream->setLooping(true);
   }
 
