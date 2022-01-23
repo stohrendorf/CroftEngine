@@ -685,6 +685,7 @@ void LaraObject::updateLarasWeaponsStatus()
     else if(player.requestedWeaponType == player.selectedWeaponType)
     {
       if(getWorld().getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Holster)
+         && player.selectedWeaponType != WeaponType::None
          && getWorld().getPlayer().getInventory().count(
               getWorld().getPlayer().getInventory().getAmmo(player.selectedWeaponType).weaponType)
               > 0)
