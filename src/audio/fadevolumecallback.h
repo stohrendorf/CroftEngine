@@ -4,20 +4,26 @@
 
 #include <AL/al.h>
 #include <chrono>
+#include <functional>
 #include <gsl/gsl-lite.hpp>
+#include <utility>
 
 namespace audio
 {
 class FadeVolumeCallback final
 {
 public:
+  using FinalCallback = std::function<void()>;
+
   explicit FadeVolumeCallback(ALfloat to,
                               const std::chrono::high_resolution_clock::duration& duration,
-                              const gsl::not_null<std::shared_ptr<Voice>>& voice)
+                              const gsl::not_null<std::shared_ptr<Voice>>& voice,
+                              FinalCallback finalCallback)
       : m_from{voice->getLocalGain()}
       , m_to{to}
       , m_duration{duration}
       , m_voice{voice}
+      , m_finalCallback{std::move(finalCallback)}
   {
   }
 
@@ -26,12 +32,16 @@ public:
     auto voice = m_voice.lock();
     if(voice == nullptr)
     {
+      if(static_cast<bool>(m_finalCallback))
+        m_finalCallback();
       return false;
     }
 
     if(t > m_duration)
     {
       voice->setLocalGainLogarithmic(m_to);
+      if(static_cast<bool>(m_finalCallback))
+        m_finalCallback();
       return false;
     }
 
@@ -45,5 +55,6 @@ private:
   const float m_to;
   const std::chrono::high_resolution_clock::duration m_duration;
   const std::weak_ptr<Voice> m_voice;
+  FinalCallback m_finalCallback;
 };
 } // namespace audio
