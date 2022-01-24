@@ -1235,22 +1235,29 @@ bool LaraObject::shootBullet(const WeaponType weaponType,
   {
     spheres = targetObject->getSkeleton()->getBoneCollisionSpheres();
   }
-  bool hasHit = false;
-  glm::vec3 hitPos;
   const auto bulletDir = normalize(glm::vec3(shootVector.toMatrix()[2])); // +Z is our shooting direction
+  std::optional<glm::vec3> bestHitPos;
+  float bestHitDistance = std::numeric_limits<float>::max();
   for(const auto& sphere : spheres)
   {
-    hitPos = weaponPosition.toRenderSystem()
-             + bulletDir * dot(sphere.getCollisionPosition() - weaponPosition.toRenderSystem(), bulletDir);
+    // https://viclw17.github.io/2018/07/16/raytracing-ray-sphere-intersection/
+    const auto oc = weaponPosition.toRenderSystem() - sphere.getCollisionPosition();
+    const auto b = glm::dot(oc, bulletDir) * 2;
+    const auto c = glm::dot(oc, oc) - util::square(sphere.radius).get<float>();
+    const auto discriminant = b * b - 4 * c;
+    if(discriminant < 0)
+      continue;
 
-    if(core::Length{static_cast<core::Length::type>(length(hitPos - sphere.getPosition()))} <= sphere.radius)
-    {
-      hasHit = true;
-      break;
-    }
+    const auto t = (-b - glm::sqrt(discriminant)) / 2;
+    if(bestHitPos.has_value() && t > bestHitDistance)
+      continue;
+
+    const auto hitPos = weaponPosition.toRenderSystem() + t * bulletDir;
+    bestHitDistance = t;
+    bestHitPos = hitPos;
   }
 
-  if(!hasHit)
+  if(!bestHitPos.has_value())
   {
     ++ammo.misses;
 
@@ -1267,7 +1274,7 @@ bool LaraObject::shootBullet(const WeaponType weaponType,
   {
     BOOST_ASSERT(targetObject != nullptr);
     ++ammo.hits;
-    hitTarget(*targetObject, core::TRVec{hitPos}, weapon->damage);
+    hitTarget(*targetObject, core::TRVec{*bestHitPos}, weapon->damage);
   }
 
   return true;

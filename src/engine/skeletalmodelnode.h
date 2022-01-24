@@ -120,6 +120,9 @@ public:
     }
   };
 
+  /**
+   * Bone collision spheres in world space.
+   */
   [[nodiscard]] std::vector<Sphere> getBoneCollisionSpheres();
 
   void serialize(const serialization::Serializer<world::World>& ser);
