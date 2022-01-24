@@ -391,6 +391,11 @@ public:
   [[nodiscard]] ghosting::GhostFrame getGhostFrame() const;
 
 private:
+  uint8_t m_cheatIdx = 0;
+  core::Angle m_cheatLastRotation = 0_deg;
+  float m_cheatTotalRotation = 0;
+
   void initMuzzleFlashes();
+  void updateCheats();
 };
 } // namespace engine::objects

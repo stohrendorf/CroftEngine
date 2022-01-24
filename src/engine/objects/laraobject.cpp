@@ -305,6 +305,8 @@ LaraObject::~LaraObject() = default;
 
 void LaraObject::update()
 {
+  updateCheats();
+
   if(getWorld().getPresenter().getInputHandler().hasDebouncedAction(hid::Action::DrawPistols))
     getWorld().getPlayer().getInventory().tryUse(*this, TR1ItemId::Pistols);
   else if(getWorld().getPresenter().getInputHandler().hasDebouncedAction(hid::Action::DrawShotgun))
@@ -1964,5 +1966,119 @@ ghosting::GhostFrame LaraObject::getGhostFrame() const
   }
 
   return frame;
+}
+
+void LaraObject::updateCheats()
+{
+  static constexpr uint8_t WaitWalkFwd = 0;
+  static constexpr uint8_t WaitStop = 1;
+  static constexpr uint8_t WaitStop2 = 2;
+  static constexpr uint8_t WaitWalkBack = 3;
+  static constexpr uint8_t WaitTurnL = 4;
+  static constexpr uint8_t WaitTurnR = 5;
+  static constexpr uint8_t WaitTurn = 6;
+  static constexpr uint8_t WaitJump = 7;
+  static constexpr uint8_t CheckJumpDir = 8;
+
+  switch(m_cheatIdx)
+  {
+  case WaitWalkFwd:
+    if(getCurrentAnimState() == LaraStateId::WalkForward)
+    {
+      m_cheatIdx = WaitStop;
+    }
+    break;
+  case WaitStop:
+    if(getCurrentAnimState() != LaraStateId::WalkForward)
+    {
+      m_cheatIdx = getCurrentAnimState() == LaraStateId::Stop ? WaitWalkBack : WaitWalkFwd;
+    }
+    break;
+  case WaitWalkBack:
+    if(getCurrentAnimState() != LaraStateId::Stop)
+    {
+      m_cheatIdx = getCurrentAnimState() == LaraStateId::WalkBackward ? WaitStop2 : WaitWalkFwd;
+    }
+    break;
+  case WaitStop2:
+    if(getCurrentAnimState() != LaraStateId::WalkBackward)
+    {
+      m_cheatIdx = getCurrentAnimState() == LaraStateId::Stop ? WaitTurn : WaitWalkFwd;
+    }
+    break;
+  case WaitTurn:
+    if(getCurrentAnimState() != LaraStateId::Stop)
+    {
+      m_cheatTotalRotation = 0;
+      m_cheatLastRotation = m_state.rotation.Y;
+      switch(getCurrentAnimState())
+      {
+      case LaraStateId::TurnLeftSlow:
+        m_cheatIdx = WaitTurnL;
+        break;
+      case LaraStateId::TurnRightSlow:
+        m_cheatIdx = WaitTurnR;
+        break;
+      default:
+        m_cheatIdx = WaitWalkFwd;
+        break;
+      }
+    }
+    break;
+  case WaitTurnL:
+    if(getCurrentAnimState() == LaraStateId::TurnLeftSlow || getCurrentAnimState() == LaraStateId::TurnFast)
+    {
+      m_cheatTotalRotation += toDegrees(m_state.rotation.Y - m_cheatLastRotation);
+      m_cheatLastRotation = m_state.rotation.Y;
+    }
+    else
+    {
+      m_cheatIdx = m_cheatTotalRotation < -517.5f ? WaitJump : WaitWalkFwd;
+    }
+    break;
+  case WaitTurnR:
+    if(getCurrentAnimState() == LaraStateId::TurnRightSlow || getCurrentAnimState() == LaraStateId::TurnFast)
+    {
+      m_cheatTotalRotation += toDegrees(m_state.rotation.Y - m_cheatLastRotation);
+      m_cheatLastRotation = m_state.rotation.Y;
+    }
+    else
+    {
+      m_cheatIdx = m_cheatTotalRotation > 517.5f ? WaitJump : WaitWalkFwd;
+    }
+    break;
+  case WaitJump:
+    if(getCurrentAnimState() != LaraStateId::Stop)
+    {
+      m_cheatIdx = getCurrentAnimState() == LaraStateId::JumpPrepare ? CheckJumpDir : WaitWalkFwd;
+    }
+    break;
+  case CheckJumpDir:
+    if(m_state.fallspeed <= 0_spd)
+      break;
+
+    if(getCurrentAnimState() == LaraStateId::JumpForward)
+    {
+      getWorld().finishLevel();
+    }
+    else if(getCurrentAnimState() == LaraStateId::JumpBack)
+    {
+      getWorld().getPlayer().getInventory().put(TR1ItemId::ShotgunSprite, &getWorld());
+      getWorld().getPlayer().getInventory().getAmmo(WeaponType::Shotgun).ammo = 500;
+
+      getWorld().getPlayer().getInventory().put(TR1ItemId::MagnumsSprite, &getWorld());
+      getWorld().getPlayer().getInventory().getAmmo(WeaponType::Magnums).ammo = 500;
+
+      getWorld().getPlayer().getInventory().put(TR1ItemId::UzisSprite, &getWorld());
+      getWorld().getPlayer().getInventory().getAmmo(WeaponType::Uzis).ammo = 5000;
+
+      playSoundEffect(TR1SoundEffect::LaraHolster);
+    }
+    m_cheatIdx = WaitWalkFwd;
+    break;
+  default:
+    m_cheatIdx = WaitWalkFwd;
+    break;
+  }
 }
 } // namespace engine::objects
