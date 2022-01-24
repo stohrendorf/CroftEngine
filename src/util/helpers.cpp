@@ -134,10 +134,12 @@ core::TRVec pitch(const core::Length& len, const core::Angle& rot, const core::L
   return core::TRVec{sin(len, rot), dy, cos(len, rot)};
 }
 
+constexpr float BitShiftHackThreshold = 1.0f / (1u << 14u);
+
 core::Length cos(const core::Length& len, const core::Angle& rot)
 {
   auto tmp = len.cast<float>() * cos(rot);
-  if(tmp.get() < 0)
+  if(tmp.get() < -BitShiftHackThreshold)
     tmp -= (1_len).cast<float>();
   return tmp.cast<core::Length>();
 }
@@ -145,7 +147,7 @@ core::Length cos(const core::Length& len, const core::Angle& rot)
 core::Length sin(const core::Length& len, const core::Angle& rot)
 {
   auto tmp = len.cast<float>() * sin(rot);
-  if(tmp.get() < 0)
+  if(tmp.get() < -BitShiftHackThreshold)
     tmp -= (1_len).cast<float>();
   return tmp.cast<core::Length>();
 }
