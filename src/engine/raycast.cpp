@@ -23,11 +23,9 @@ namespace engine
 {
 namespace
 {
-bool clampY(const core::TRVec& start,
-            Location& goal,
-            const gsl::not_null<const world::Sector*>& sector,
-            const ObjectManager& objectManager)
+bool clampY(const core::TRVec& start, Location& goal, const ObjectManager& objectManager)
 {
+  const auto sector = goal.updateRoom();
   const auto delta = goal.position - start;
 
   const auto goalFloor = HeightInfo::fromFloor(sector, goal.position, objectManager.getObjects()).y;
@@ -117,10 +115,9 @@ std::pair<CollisionType, Location> clampSteps(const Location& start,
     auto nextSector = result;
     nextSector.position.*stepAxis += dir * 1_len;
     BOOST_ASSERT(result.position.*stepAxis / core::SectorSize != nextSector.position.*stepAxis / core::SectorSize);
-    const auto oldResult = result;
     if(testVerticalHit(nextSector))
     {
-      return {CollisionType::Wall, oldResult};
+      return {CollisionType::Wall, result};
     }
 
     result.room = nextSector.room;
@@ -157,9 +154,12 @@ std::pair<bool, Location>
     return {false, result};
   }
 
-  const auto sector = result.updateRoom();
-  bool success = clampY(start.position, result, sector, objectManager) && firstCollision == CollisionType::None
+  bool success = clampY(start.position, result, objectManager) && firstCollision == CollisionType::None
                  && secondCollision == CollisionType::None;
+  // redo raycasting to properly calculate the correct room, possibly fixes EE-432
+  result = abs(result.position.Z - start.position.Z) <= abs(result.position.X - start.position.X)
+             ? std::get<2>(collide(&core::TRVec::Z, &core::TRVec::X))
+             : std::get<2>(collide(&core::TRVec::X, &core::TRVec::Z));
   return {success, result};
 }
 } // namespace engine
