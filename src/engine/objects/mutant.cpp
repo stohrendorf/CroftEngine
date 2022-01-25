@@ -103,8 +103,8 @@ void FlyingMutant::update()
           updateMood(*this, enemyLocation, true);
         }
         getCreatureInfo()->pathFinder.step = 30720_len;
-        getCreatureInfo()->pathFinder.fly = 0_len;
         getCreatureInfo()->pathFinder.drop = -30720_len;
+        getCreatureInfo()->pathFinder.fly = 32_len;
         enemyLocation = ai::EnemyLocation{*this};
       }
       else if(isEscaping()
