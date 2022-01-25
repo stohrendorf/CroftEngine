@@ -2063,6 +2063,8 @@ void LaraObject::updateCheats()
     }
     else if(getCurrentAnimState() == LaraStateId::JumpBack)
     {
+      getWorld().getPlayer().getInventory().put(TR1ItemId::PistolsSprite, &getWorld());
+
       getWorld().getPlayer().getInventory().put(TR1ItemId::ShotgunSprite, &getWorld());
       getWorld().getPlayer().getInventory().getAmmo(WeaponType::Shotgun).ammo = 500;
 
