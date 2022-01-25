@@ -97,6 +97,9 @@ public:
     return m_widgets;
   }
 
+  [[nodiscard]] size_t getCurrentPage() const;
+  [[nodiscard]] size_t getTotalPages() const;
+
 private:
   glm::ivec2 m_position{0, 0};
   glm::ivec2 m_size{0, 0};

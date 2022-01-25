@@ -68,6 +68,12 @@ inline const char* pgettext(const char* msg_ctxt, const char* msgid)
   return dpgettext(textdomain(nullptr), msg_ctxt, msgid);
 }
 
+template<typename... Args>
+inline std::string pgettext(const char* msg_ctxt, const char* msgid, Args&&... args)
+{
+  return (boost::format(pgettext(msg_ctxt, msgid)) % ... % std::forward<Args>(args)).str();
+}
+
 inline const char* dcnpgettext(
   const char* domain, const char* msg_ctxt, const char* msgid, const char* msgid_plural, unsigned long n, int category)
 {

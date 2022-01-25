@@ -5,6 +5,7 @@
 #include "widget.h"
 
 #include <algorithm>
+#include <boost/assert.hpp>
 #include <gl/pixel.h>
 #include <glm/fwd.hpp>
 
@@ -24,7 +25,7 @@ void ListBox::draw(ui::Ui& ui, const engine::Presenter& presenter) const
 
   if(m_pageSize != 0)
   {
-    const auto page = m_selected / m_pageSize;
+    const auto page = getCurrentPage();
     first = page * m_pageSize;
     last = std::min(first + m_pageSize, m_widgets.size());
   }
@@ -132,5 +133,17 @@ void ListBox::fitToContent()
   }
 
   m_size = {maxWidth, maxHeight};
+}
+
+size_t ListBox::getCurrentPage() const
+{
+  BOOST_ASSERT(m_pageSize > 0);
+  return m_selected / m_pageSize;
+}
+
+size_t ListBox::getTotalPages() const
+{
+  BOOST_ASSERT(m_pageSize > 0);
+  return (m_widgets.size() + m_pageSize - 1) / m_pageSize;
 }
 } // namespace ui::widgets

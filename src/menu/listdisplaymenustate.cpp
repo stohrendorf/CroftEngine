@@ -1,5 +1,6 @@
 #include "listdisplaymenustate.h"
 
+#include "core/i18n.h"
 #include "engine/presenter.h"
 #include "engine/world/world.h"
 #include "hid/actions.h"
@@ -9,6 +10,7 @@
 #include "selectedmenustate.h"
 #include "ui/ui.h"
 #include "ui/widgets/groupbox.h"
+#include "ui/widgets/label.h"
 #include "ui/widgets/listbox.h"
 
 #include <cstddef>
@@ -77,5 +79,19 @@ void ListDisplayMenuState::draw(ui::Ui& ui, engine::world::World& world, MenuDis
 
   m_groupBox.update(true);
   m_groupBox.draw(ui, world.getPresenter());
+
+  ui::widgets::Label pageLabel{pgettext("PagedList",
+                                        /* translators: TR charmap encoding */ "Page %1% of %2%",
+                                        m_listBox->getCurrentPage() + 1,
+                                        m_listBox->getTotalPages()),
+                               ui::widgets::Label::Alignment::Center};
+  pageLabel.fitToContent();
+  const auto s = m_groupBox.getSize();
+  pageLabel.setPosition(m_groupBox.getPosition() + glm::ivec2{0, s.y});
+  pageLabel.setSize({s.x, ui::FontHeight});
+  ui.drawBox(pageLabel.getPosition() - glm::ivec2{0, ui::FontHeight},
+             pageLabel.getSize() + glm::ivec2{0, 4},
+             gl::SRGBA8{0, 0, 0, 192});
+  pageLabel.draw(ui, world.getPresenter());
 }
 } // namespace menu
