@@ -142,7 +142,7 @@ void TRex::update()
     }
   }
 
-  rotateCreatureHead(creatureHead);
+  rotateCreatureHead(creatureHead / 2);
   getCreatureInfo()->neckRotation = getCreatureInfo()->headRotation;
   getSkeleton()->patchBone(11, core::TRRotation{0_deg, getCreatureInfo()->headRotation, 0_deg}.toMatrix());
   getSkeleton()->patchBone(12, core::TRRotation{0_deg, getCreatureInfo()->headRotation, 0_deg}.toMatrix());
