@@ -25,6 +25,7 @@ gameflow = Gameflow(
             TR1ItemId.Puzzle2: 10,
             TR1ItemId.Puzzle3: 10,
             TR1ItemId.Puzzle4: 10,
+            TR1ItemId.PistolsSprite: 1,
             TR1ItemId.UzisSprite: 1,
             TR1ItemId.MagnumsSprite: 1,
             TR1ItemId.ShotgunSprite: 1,
