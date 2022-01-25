@@ -252,6 +252,24 @@ void PathFinder::searchPath(const world::World& world)
       m_expansions.emplace_back(box);
   };
 
+  auto sortPriority = [this]()
+  {
+    std::sort(m_expansions.begin(),
+              m_expansions.end(),
+              [this](const gsl::not_null<const world::Box*>& lhs, const gsl::not_null<const world::Box*>& rhs)
+              {
+                const auto lhsIt = m_distances.find(lhs);
+                const auto rhsIt = m_distances.find(rhs);
+
+                if(lhsIt == m_distances.end())
+                  return false;
+                if(rhsIt == m_distances.end())
+                  return true;
+
+                return lhsIt->second < rhsIt->second;
+              });
+  };
+
   for(uint8_t i = 0; i < MaxExpansions && !m_expansions.empty(); ++i)
   {
     const auto currentBox = m_expansions.front();
@@ -296,6 +314,7 @@ void PathFinder::searchPath(const world::World& world)
             m_edges.erase(currentBox);
             m_edges.emplace(currentBox, successorBox);
             m_expansions.emplace_back(successorBox);
+            sortPriority();
           }
           continue;
         }
@@ -306,6 +325,7 @@ void PathFinder::searchPath(const world::World& world)
           BOOST_ASSERT_MSG(m_edges.count(successorBox) == 0, "cycle in pathfinder graph detected");
           m_edges.emplace(successorBox, currentBox); // success! connect both boxes
           m_distances[successorBox] = m_distances[currentBox] + 1;
+          sortPriority();
         }
 
         setReachable(successorBox, reachable);
