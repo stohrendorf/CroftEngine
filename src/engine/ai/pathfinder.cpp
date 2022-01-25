@@ -271,12 +271,12 @@ void PathFinder::searchPath(const world::World& world)
         continue;
 
       const auto it = m_reachable.find(successorBox);
-      const bool initialized = it != m_reachable.end();
+      const bool successorInitialized = it != m_reachable.end();
 
       if(!m_reachable.at(currentBox))
       {
         // propagate "unreachable" to all connected boxes if their reachability hasn't been determined yet
-        if(!initialized)
+        if(!successorInitialized)
         {
           setReachable(successorBox, false);
         }
@@ -285,7 +285,7 @@ void PathFinder::searchPath(const world::World& world)
       {
         // propagate "reachable" to all connected boxes if their reachability hasn't been determined yet
         // OR they were previously determined to be unreachable
-        if(initialized && it->second)
+        if(successorInitialized && it->second)
         {
           // already visited and marked reachable, but path might be shorter
           auto& successorDistance = m_distances[successorBox];
@@ -295,6 +295,7 @@ void PathFinder::searchPath(const world::World& world)
             successorDistance = currentDistance;
             m_edges.erase(currentBox);
             m_edges.emplace(currentBox, successorBox);
+            m_expansions.emplace_back(successorBox);
           }
           continue;
         }
@@ -360,7 +361,7 @@ void PathFinder::setRandomSearchTarget(const gsl::not_null<const world::Box*>& b
   target.X = util::rand15(xSize) + box->xInterval.min + Margin;
   const auto zSize = box->zInterval.size() - 2 * Margin;
   target.Z = util::rand15(zSize) + box->zInterval.min + Margin;
-  if(fly != 0_len)
+  if(isFlying())
   {
     target.Y = box->floor - 384_len;
   }
