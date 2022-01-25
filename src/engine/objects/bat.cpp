@@ -59,7 +59,7 @@ void Bat::update()
   {
     if(m_state.location.position.Y >= m_state.floor)
     {
-      goal(Dying);
+      goal(m_state.current_anim_state != Circling ? Circling : Dying);
       settle();
     }
     else
