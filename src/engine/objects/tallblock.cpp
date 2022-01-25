@@ -71,7 +71,7 @@ TallBlock::TallBlock(const std::string& name,
                      const gsl::not_null<const world::Room*>& room,
                      const loader::file::Item& item,
                      const gsl::not_null<const world::SkeletalModelType*>& animatedModel)
-    : ModelObject{name, world, room, item, true, animatedModel}
+    : ModelObject{name, world, room, item, true, animatedModel, false}
 {
   world::patchHeightsForBlock(*this, -2 * core::SectorSize);
   getSkeleton()->getRenderState().setScissorTest(false);

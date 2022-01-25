@@ -33,7 +33,7 @@ class MutantEgg final : public ModelObject
 {
 public:
   MutantEgg(const gsl::not_null<world::World*>& world, const Location& location)
-      : ModelObject{world, location}
+      : ModelObject{world, location, false}
   {
   }
 

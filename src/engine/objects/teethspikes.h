@@ -25,7 +25,7 @@ namespace engine::objects
 class TeethSpikes final : public ModelObject
 {
 public:
-  MODELOBJECT_DEFAULT_CONSTRUCTORS(TeethSpikes, true)
+  MODELOBJECT_DEFAULT_CONSTRUCTORS(TeethSpikes, true, false)
 
   void collide(CollisionInfo& collisionInfo) override;
 };

@@ -7,7 +7,7 @@ namespace engine::objects
 class BridgeFlat final : public ModelObject
 {
 public:
-  MODELOBJECT_DEFAULT_CONSTRUCTORS(BridgeFlat, false)
+  MODELOBJECT_DEFAULT_CONSTRUCTORS(BridgeFlat, false, false)
 
   void patchFloor(const core::TRVec& pos, core::Length& y) override
   {
@@ -16,7 +16,7 @@ public:
 
     if(pos.Y > m_state.location.position.Y)
       return;
-    
+
     y = m_state.location.position.Y;
   }
 

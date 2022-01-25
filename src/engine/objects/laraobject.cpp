@@ -1862,7 +1862,7 @@ LaraObject::LaraObject(const std::string& name,
                        const gsl::not_null<const world::Room*>& room,
                        const loader::file::Item& item,
                        const gsl::not_null<const world::SkeletalModelType*>& animatedModel)
-    : ModelObject(name, world, room, item, false, animatedModel)
+    : ModelObject(name, world, room, item, false, animatedModel, true)
 {
   m_underwaterRoute.step = core::SectorSize * 20;
   m_underwaterRoute.drop = -core::SectorSize * 20;
@@ -1914,7 +1914,7 @@ void LaraObject::initMuzzleFlashes()
 
   world::RenderMeshDataCompositor compositor;
   compositor.append(*muzzleFlashModel->bones[0].mesh);
-  auto mdl = compositor.toMesh(*getWorld().getPresenter().getMaterialManager(), false, {});
+  auto mdl = compositor.toMesh(*getWorld().getPresenter().getMaterialManager(), false, false, {});
 
   m_muzzleFlashLeft->setRenderable(mdl);
   m_muzzleFlashLeft->setVisible(false);

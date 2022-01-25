@@ -24,7 +24,7 @@ namespace engine::objects
 class DartGun final : public ModelObject
 {
 public:
-  MODELOBJECT_DEFAULT_CONSTRUCTORS(DartGun, true)
+  MODELOBJECT_DEFAULT_CONSTRUCTORS(DartGun, true, false)
 
   void update() override;
 };

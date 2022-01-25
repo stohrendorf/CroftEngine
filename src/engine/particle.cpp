@@ -48,7 +48,7 @@ void Particle::initRenderables(world::World& world, bool billboard)
     {
       world::RenderMeshDataCompositor compositor;
       compositor.append(*bone.mesh);
-      m_renderables.emplace_back(compositor.toMesh(*world.getPresenter().getMaterialManager(), false, {}));
+      m_renderables.emplace_back(compositor.toMesh(*world.getPresenter().getMaterialManager(), false, false, {}));
     }
   }
   else if(const auto& spriteSequence = world.findSpriteSequenceForType(object_number))

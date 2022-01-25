@@ -28,7 +28,9 @@
 #include <bitset>
 #include <memory>
 
-void engine::objects::RollingBall::update()
+namespace engine::objects
+{
+void RollingBall::update()
 {
   if(m_state.triggerState == TriggerState::Active)
   {
@@ -92,7 +94,7 @@ void engine::objects::RollingBall::update()
   }
 }
 
-void engine::objects::RollingBall::collide(CollisionInfo& collisionInfo)
+void RollingBall::collide(CollisionInfo& collisionInfo)
 {
   auto& lara = getWorld().getObjectManager().getLara();
 
@@ -161,12 +163,13 @@ void engine::objects::RollingBall::collide(CollisionInfo& collisionInfo)
   getWorld().getObjectManager().registerParticle(fx);
 }
 
-engine::objects::RollingBall::RollingBall(const std::string& name,
-                                          const gsl::not_null<world::World*>& world,
-                                          const gsl::not_null<const world::Room*>& room,
-                                          const loader::file::Item& item,
-                                          const gsl::not_null<const world::SkeletalModelType*>& animatedModel)
-    : ModelObject{name, world, room, item, true, animatedModel}
+RollingBall::RollingBall(const std::string& name,
+                         const gsl::not_null<world::World*>& world,
+                         const gsl::not_null<const world::Room*>& room,
+                         const loader::file::Item& item,
+                         const gsl::not_null<const world::SkeletalModelType*>& animatedModel)
+    : ModelObject{name, world, room, item, true, animatedModel, true}
     , m_location{room, item.position}
 {
 }
+} // namespace engine::objects

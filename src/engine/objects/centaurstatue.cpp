@@ -39,7 +39,7 @@ CentaurStatue::CentaurStatue(const std::string& name,
                              const gsl::not_null<const world::Room*>& room,
                              loader::file::Item item,
                              const gsl::not_null<const world::SkeletalModelType*>& animatedModel)
-    : ModelObject{name, world, room, item, true, animatedModel}
+    : ModelObject{name, world, room, item, true, animatedModel, true}
 {
   if(const auto& model = world->findAnimatedModelForType(TR1ItemId::CentaurMutant); model != nullptr)
   {

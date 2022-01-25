@@ -37,7 +37,7 @@ public:
 class ScionPiece3 final : public ModelObject
 {
 public:
-  MODELOBJECT_DEFAULT_CONSTRUCTORS(ScionPiece3, true)
+  MODELOBJECT_DEFAULT_CONSTRUCTORS(ScionPiece3, true, false)
 
   void update() override;
 
@@ -48,7 +48,7 @@ private:
 class ScionPiece4 final : public ModelObject
 {
 public:
-  MODELOBJECT_DEFAULT_CONSTRUCTORS(ScionPiece4, true)
+  MODELOBJECT_DEFAULT_CONSTRUCTORS(ScionPiece4, true, false)
 
   void collide(CollisionInfo& info) override;
 };
@@ -56,7 +56,7 @@ public:
 class ScionHolder final : public ModelObject
 {
 public:
-  MODELOBJECT_DEFAULT_CONSTRUCTORS(ScionHolder, true)
+  MODELOBJECT_DEFAULT_CONSTRUCTORS(ScionHolder, true, false)
 
   void collide(CollisionInfo& info) override;
 };

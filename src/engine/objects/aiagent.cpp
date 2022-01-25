@@ -463,7 +463,7 @@ AIAgent::AIAgent(const std::string& name,
                  const gsl::not_null<const world::Room*>& room,
                  const loader::file::Item& item,
                  const gsl::not_null<const world::SkeletalModelType*>& animatedModel)
-    : ModelObject{name, world, room, item, true, animatedModel}
+    : ModelObject{name, world, room, item, true, animatedModel, true}
 {
   m_state.collidable = true;
   const core::Angle v = util::rand15s(90_deg);

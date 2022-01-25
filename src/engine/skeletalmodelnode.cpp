@@ -37,10 +37,12 @@ namespace engine
 {
 SkeletalModelNode::SkeletalModelNode(const std::string& id,
                                      gsl::not_null<const world::World*> world,
-                                     gsl::not_null<const world::SkeletalModelType*> model)
+                                     gsl::not_null<const world::SkeletalModelType*> model,
+                                     bool shadowCaster)
     : Node{id}
     , m_world{std::move(world)}
     , m_model{std::move(model)}
+    , m_shadowCaster{shadowCaster}
 {
 }
 
@@ -228,7 +230,8 @@ void SkeletalModelNode::serialize(const serialization::Serializer<world::World>&
       S_NV("model", m_model),
       S_NV("parts", m_meshParts),
       S_NV_VECTOR_ELEMENT("anim", ser.context.getAnimations(), m_anim),
-      S_NV("frame", m_frame));
+      S_NV("frame", m_frame),
+      S_NV("shadowCaster", m_shadowCaster));
 
   if(ser.loading)
     ser.lazy(
@@ -245,9 +248,12 @@ void serialize(std::shared_ptr<SkeletalModelNode>& data, const serialization::Se
   if(ser.loading)
   {
     const world::SkeletalModelType* model = nullptr;
-    ser(S_NV("model", model));
-    data = std::make_shared<SkeletalModelNode>(
-      create(serialization::TypeId<std::string>{}, ser["id"]), gsl::not_null{&ser.context}, gsl::not_null{model});
+    bool shadowCaster;
+    ser(S_NV("model", model), S_NV("shadowCaster", shadowCaster));
+    data = std::make_shared<SkeletalModelNode>(create(serialization::TypeId<std::string>{}, ser["id"]),
+                                               gsl::not_null{&ser.context},
+                                               gsl::not_null{model},
+                                               shadowCaster);
   }
   else
   {
@@ -303,7 +309,7 @@ void SkeletalModelNode::rebuildMesh()
   if(compositor.empty())
     setRenderable(nullptr);
   else
-    setRenderable(compositor.toMesh(*m_world->getPresenter().getMaterialManager(), true, getName()));
+    setRenderable(compositor.toMesh(*m_world->getPresenter().getMaterialManager(), true, m_shadowCaster, getName()));
 }
 
 bool SkeletalModelNode::canBeCulled(const glm::mat4& viewProjection) const

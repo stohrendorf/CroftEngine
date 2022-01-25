@@ -38,9 +38,11 @@ ModelObject::ModelObject(const std::string& name,
                          const gsl::not_null<const world::Room*>& room,
                          const loader::file::Item& item,
                          const bool hasUpdateFunction,
-                         const gsl::not_null<const world::SkeletalModelType*>& model)
+                         const gsl::not_null<const world::SkeletalModelType*>& model,
+                         bool shadowCaster)
     : Object{world, room, item, hasUpdateFunction}
-    , m_skeleton{std::make_shared<SkeletalModelNode>(name, world, model)}
+    , m_skeleton{std::make_shared<SkeletalModelNode>(name, world, model, shadowCaster)}
+    , m_shadowCaster{shadowCaster}
 {
   SkeletalModelNode::buildMesh(m_skeleton, m_state.current_anim_state);
   m_lighting.bind(*m_skeleton);
@@ -362,7 +364,7 @@ void ModelObject::serialize(const serialization::Serializer<world::World>& ser)
 
 std::shared_ptr<ModelObject> ModelObject::create(serialization::Serializer<world::World>& ser)
 {
-  auto result = std::make_shared<ModelObject>(gsl::not_null{&ser.context}, Location::create(ser["@location"]));
+  auto result = std::make_shared<ModelObject>(gsl::not_null{&ser.context}, Location::create(ser["@location"]), false);
   result->serialize(ser);
   return result;
 }
@@ -431,7 +433,7 @@ NullRenderModelObject::NullRenderModelObject(const std::string& name,
                                              const loader::file::Item& item,
                                              bool hasUpdateFunction,
                                              const gsl::not_null<const world::SkeletalModelType*>& model)
-    : ModelObject{name, world, room, item, hasUpdateFunction, model}
+    : ModelObject{name, world, room, item, hasUpdateFunction, model, false}
 {
   getSkeleton()->setRenderable(nullptr);
   getSkeleton()->removeAllChildren();

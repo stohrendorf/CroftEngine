@@ -29,7 +29,7 @@ namespace engine::objects
 class Switch : public ModelObject
 {
 public:
-  MODELOBJECT_DEFAULT_CONSTRUCTORS(Switch, true)
+  MODELOBJECT_DEFAULT_CONSTRUCTORS(Switch, true, false)
 
   void collide(CollisionInfo& collisionInfo) override;
 

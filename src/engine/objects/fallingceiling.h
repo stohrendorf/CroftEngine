@@ -29,7 +29,7 @@ namespace engine::objects
 class FallingCeiling final : public ModelObject
 {
 public:
-  MODELOBJECT_DEFAULT_CONSTRUCTORS(FallingCeiling, true)
+  MODELOBJECT_DEFAULT_CONSTRUCTORS(FallingCeiling, true, false)
 
   void update() override;
 

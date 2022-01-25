@@ -114,7 +114,7 @@ void PuzzleHole::initMesh()
   const auto parent = m_skeleton->getParent().lock();
   setParent(gsl::not_null{m_skeleton}, nullptr);
   m_skeleton = std::make_shared<SkeletalModelNode>(
-    toString(m_state.type.get_as<TR1ItemId>()), gsl::not_null{&getWorld()}, gsl::not_null{model.get()});
+    toString(m_state.type.get_as<TR1ItemId>()), gsl::not_null{&getWorld()}, gsl::not_null{model.get()}, false);
   m_skeleton->setAnimation(
     m_state.current_anim_state, gsl::not_null{&model->animations[0]}, model->animations->firstFrame);
   setParent(gsl::not_null{m_skeleton}, parent);
@@ -164,13 +164,13 @@ PuzzleHole::PuzzleHole(const std::string& name,
                        const gsl::not_null<const world::Room*>& room,
                        const loader::file::Item& item,
                        const gsl::not_null<const world::SkeletalModelType*>& animatedModel)
-    : ModelObject{name, world, room, item, false, animatedModel}
+    : ModelObject{name, world, room, item, false, animatedModel, false}
 {
   initMesh();
 }
 
 PuzzleHole::PuzzleHole(const gsl::not_null<world::World*>& world, const Location& location)
-    : ModelObject{world, location}
+    : ModelObject{world, location, false}
 {
 }
 } // namespace engine::objects

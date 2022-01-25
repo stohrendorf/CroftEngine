@@ -25,7 +25,7 @@ namespace engine::objects
 class SlammingDoors final : public ModelObject
 {
 public:
-  MODELOBJECT_DEFAULT_CONSTRUCTORS(SlammingDoors, true)
+  MODELOBJECT_DEFAULT_CONSTRUCTORS(SlammingDoors, true, false)
 
   void update() override;
 

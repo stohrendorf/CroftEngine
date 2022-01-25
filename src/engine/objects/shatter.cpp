@@ -58,7 +58,7 @@ bool shatterModel(ModelObject& object, const std::bitset<32>& meshMask, const co
     auto particle = gslu::make_nn_shared<MeshShrapnelParticle>(
       Location{object.m_state.location.room, core::TRVec{object.getSkeleton()->getMeshPartTranslationWorld(i)}},
       object.getWorld(),
-      compositor.toMesh(*object.getWorld().getPresenter().getMaterialManager(), false, {}),
+      compositor.toMesh(*object.getWorld().getPresenter().getMaterialManager(), false, true, {}),
       isTorsoBoss,
       damageRadius);
     particle->negSpriteFrameId = gsl::narrow<int16_t>((modelType->meshBaseIndex + i).index);

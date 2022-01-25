@@ -24,7 +24,7 @@ namespace engine::objects
 class AtlanteanLava final : public ModelObject
 {
 public:
-  MODELOBJECT_DEFAULT_CONSTRUCTORS(AtlanteanLava, true)
+  MODELOBJECT_DEFAULT_CONSTRUCTORS(AtlanteanLava, true, false)
 
   void update() override;
 };

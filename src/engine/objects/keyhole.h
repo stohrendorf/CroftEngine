@@ -29,7 +29,7 @@ namespace engine::objects
 class KeyHole final : public ModelObject
 {
 public:
-  MODELOBJECT_DEFAULT_CONSTRUCTORS(KeyHole, false)
+  MODELOBJECT_DEFAULT_CONSTRUCTORS(KeyHole, false, false)
 
   void collide(CollisionInfo& collisionInfo) override;
 };

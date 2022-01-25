@@ -119,7 +119,7 @@ public:
   }
 
   gsl::not_null<std::shared_ptr<render::scene::Mesh>>
-    toMesh(render::scene::MaterialManager& materialManager, bool skeletal, const std::string& label);
+    toMesh(render::scene::MaterialManager& materialManager, bool skeletal, bool shadowCaster, const std::string& label);
 
   [[nodiscard]] bool empty() const
   {

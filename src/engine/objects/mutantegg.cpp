@@ -42,7 +42,7 @@ MutantEgg::MutantEgg(const std::string& name,
                      const gsl::not_null<const world::Room*>& room,
                      loader::file::Item item,
                      const gsl::not_null<const world::SkeletalModelType*>& animatedModel)
-    : ModelObject{name, world, room, item, true, animatedModel}
+    : ModelObject{name, world, room, item, true, animatedModel, false}
 {
   m_state.activationState = floordata::ActivationState(uint16_t(item.activationState & ~0x3e00u));
 

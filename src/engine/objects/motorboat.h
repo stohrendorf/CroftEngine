@@ -24,7 +24,7 @@ namespace engine::objects
 class Motorboat final : public ModelObject
 {
 public:
-  MODELOBJECT_DEFAULT_CONSTRUCTORS(Motorboat, true);
+  MODELOBJECT_DEFAULT_CONSTRUCTORS(Motorboat, true, false);
 
   void update() override;
 };

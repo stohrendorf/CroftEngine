@@ -208,7 +208,7 @@ RenderMeshData::RenderMeshData(const loader::file::Mesh& mesh,
 }
 
 gsl::not_null<std::shared_ptr<render::scene::Mesh>> RenderMeshDataCompositor::toMesh(
-  render::scene::MaterialManager& materialManager, bool skeletal, const std::string& label)
+  render::scene::MaterialManager& materialManager, bool skeletal, bool shadowCaster, const std::string& label)
 {
   auto vb = gslu::make_nn_shared<gl::VertexBuffer<RenderMeshData::RenderVertex>>(
     RenderMeshData::RenderVertex::getLayout(), label);
@@ -236,10 +236,15 @@ gsl::not_null<std::shared_ptr<render::scene::Mesh>> RenderMeshDataCompositor::to
     label);
   auto mesh = gslu::make_nn_shared<render::scene::MeshImpl<RenderMeshData::IndexType, RenderMeshData::RenderVertex>>(
     va, gl::api::PrimitiveType::Triangles);
+
   mesh->getMaterialGroup()
     .set(render::scene::RenderMode::Full, material)
-    .set(render::scene::RenderMode::DepthOnly, materialDepthOnly)
-    .set(render::scene::RenderMode::CSMDepthOnly, materialCSMDepthOnly);
+    .set(render::scene::RenderMode::DepthOnly, materialDepthOnly);
+  if(shadowCaster)
+  {
+    mesh->getMaterialGroup().set(render::scene::RenderMode::CSMDepthOnly, materialCSMDepthOnly);
+  }
+
   mesh->getRenderState().setDepthTest(true);
   mesh->getRenderState().setDepthWrite(true);
   mesh->getRenderState().setDepthFunction(gl::api::DepthFunction::Less);

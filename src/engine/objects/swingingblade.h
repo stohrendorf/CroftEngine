@@ -25,7 +25,7 @@ namespace engine::objects
 class SwingingBlade final : public ModelObject
 {
 public:
-  MODELOBJECT_DEFAULT_CONSTRUCTORS(SwingingBlade, true)
+  MODELOBJECT_DEFAULT_CONSTRUCTORS(SwingingBlade, true, true)
 
   void update() override;
 

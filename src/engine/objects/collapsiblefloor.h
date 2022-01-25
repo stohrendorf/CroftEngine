@@ -25,7 +25,7 @@ namespace engine::objects
 class CollapsibleFloor final : public ModelObject
 {
 public:
-  MODELOBJECT_DEFAULT_CONSTRUCTORS(CollapsibleFloor, true)
+  MODELOBJECT_DEFAULT_CONSTRUCTORS(CollapsibleFloor, true, false)
 
   void update() override;
 

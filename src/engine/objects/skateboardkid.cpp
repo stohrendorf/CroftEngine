@@ -33,7 +33,7 @@ namespace engine::objects
 SkateboardKid::SkateboardKid(const gsl::not_null<world::World*>& world, const Location& location)
     : AIAgent{world, location}
     , m_skateboard{std::make_shared<SkeletalModelNode>(
-        "skateboard", world, gsl::not_null{world->findAnimatedModelForType(TR1ItemId::Skateboard).get()})}
+        "skateboard", world, gsl::not_null{world->findAnimatedModelForType(TR1ItemId::Skateboard).get()}, true)}
 {
 }
 
@@ -44,7 +44,7 @@ SkateboardKid::SkateboardKid(const std::string& name,
                              const gsl::not_null<const world::SkeletalModelType*>& animatedModel)
     : AIAgent{name, world, room, item, animatedModel}
     , m_skateboard{std::make_shared<SkeletalModelNode>(
-        "skateboard", world, gsl::not_null{world->findAnimatedModelForType(TR1ItemId::Skateboard).get()})}
+        "skateboard", world, gsl::not_null{world->findAnimatedModelForType(TR1ItemId::Skateboard).get()}, true)}
 {
   m_state.current_anim_state = 2_as;
   SkeletalModelNode::buildMesh(m_skateboard, m_state.current_anim_state);

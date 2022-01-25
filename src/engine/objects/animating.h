@@ -28,7 +28,7 @@ namespace engine::objects
 class Animating final : public ModelObject
 {
 public:
-  MODELOBJECT_DEFAULT_CONSTRUCTORS(Animating, true)
+  MODELOBJECT_DEFAULT_CONSTRUCTORS(Animating, true, true)
 
   void update() override;
 };

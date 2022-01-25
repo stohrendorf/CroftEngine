@@ -1425,7 +1425,7 @@ void World::initFromLevel(loader::file::level::Level& level)
     RenderMeshDataCompositor compositor;
     if(staticMesh.isVisible())
       compositor.append(*meshesDirect.at(staticMesh.mesh)->meshData);
-    auto mesh = compositor.toMesh(*getPresenter().getMaterialManager(), false, {});
+    auto mesh = compositor.toMesh(*getPresenter().getMaterialManager(), false, false, {});
     mesh->getRenderState().setScissorTest(false);
     const bool distinct
       = m_staticMeshes.emplace(staticMesh.id, StaticMesh{staticMesh.collision_box, staticMesh.doNotCollide(), mesh})

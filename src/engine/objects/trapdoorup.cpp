@@ -39,7 +39,7 @@ TrapDoorUp::TrapDoorUp(const std::string& name,
                        const gsl::not_null<const world::Room*>& room,
                        const loader::file::Item& item,
                        const gsl::not_null<const world::SkeletalModelType*>& animatedModel)
-    : ModelObject{name, world, room, item, true, animatedModel}
+    : ModelObject{name, world, room, item, true, animatedModel, false}
 {
   getSkeleton()->getRenderState().setScissorTest(false);
   getSkeleton()->getRenderState().setPolygonOffsetFill(true);

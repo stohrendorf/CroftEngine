@@ -35,7 +35,7 @@ private:
 
 public:
   SlopedBridge(const gsl::not_null<world::World*>& world, const Location& location)
-      : ModelObject{world, location}
+      : ModelObject{world, location, false}
       , m_flatness{0}
   {
   }
@@ -46,7 +46,7 @@ public:
                const loader::file::Item& item,
                const gsl::not_null<const world::SkeletalModelType*>& animatedModel,
                const int flatness)
-      : ModelObject{name, world, room, item, false, animatedModel}
+      : ModelObject{name, world, room, item, false, animatedModel, false}
       , m_flatness{flatness}
   {
   }

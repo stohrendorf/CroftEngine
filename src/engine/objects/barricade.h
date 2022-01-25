@@ -29,7 +29,7 @@ namespace engine::objects
 class Barricade final : public ModelObject
 {
 public:
-  MODELOBJECT_DEFAULT_CONSTRUCTORS(Barricade, true)
+  MODELOBJECT_DEFAULT_CONSTRUCTORS(Barricade, true, false)
 
   void update() override;
 

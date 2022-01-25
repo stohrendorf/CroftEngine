@@ -43,13 +43,10 @@ namespace engine::objects
 {
 class ModelObject : public Object
 {
-protected:
-  std::shared_ptr<SkeletalModelNode> m_skeleton;
-  Lighting m_lighting;
-
 public:
-  ModelObject(const gsl::not_null<world::World*>& world, const Location& location)
+  ModelObject(const gsl::not_null<world::World*>& world, const Location& location, bool shadowCaster)
       : Object{world, location}
+      , m_shadowCaster{shadowCaster}
   {
   }
 
@@ -58,7 +55,8 @@ public:
               const gsl::not_null<const world::Room*>& room,
               const loader::file::Item& item,
               bool hasUpdateFunction,
-              const gsl::not_null<const world::SkeletalModelType*>& model);
+              const gsl::not_null<const world::SkeletalModelType*>& model,
+              bool shadowCaster);
 
   ModelObject(const ModelObject&) = delete;
   ModelObject& operator=(const ModelObject&) = delete;
@@ -125,28 +123,35 @@ public:
   void serialize(const serialization::Serializer<world::World>& ser) override;
 
   static std::shared_ptr<ModelObject> create(serialization::Serializer<world::World>& ser);
+
+protected:
+  std::shared_ptr<SkeletalModelNode> m_skeleton;
+  Lighting m_lighting;
+
+private:
+  bool m_shadowCaster;
 };
 
-#define MODELOBJECT_DEFAULT_CONSTRUCTORS(CLASS, HAS_UPDATE_FUNCTION)             \
-  CLASS(const gsl::not_null<world::World*>& world, const Location& location)     \
-      : ModelObject{world, location}                                             \
-  {                                                                              \
-  }                                                                              \
-                                                                                 \
-  CLASS(const std::string& name,                                                 \
-        const gsl::not_null<world::World*>& world,                               \
-        const gsl::not_null<const world::Room*>& room,                           \
-        const loader::file::Item& item,                                          \
-        const gsl::not_null<const world::SkeletalModelType*>& animatedModel)     \
-      : ModelObject{name, world, room, item, HAS_UPDATE_FUNCTION, animatedModel} \
-  {                                                                              \
+#define MODELOBJECT_DEFAULT_CONSTRUCTORS(CLASS, HAS_UPDATE_FUNCTION, SHADOW_CASTER)             \
+  CLASS(const gsl::not_null<world::World*>& world, const Location& location)                    \
+      : ModelObject{world, location, SHADOW_CASTER}                                             \
+  {                                                                                             \
+  }                                                                                             \
+                                                                                                \
+  CLASS(const std::string& name,                                                                \
+        const gsl::not_null<world::World*>& world,                                              \
+        const gsl::not_null<const world::Room*>& room,                                          \
+        const loader::file::Item& item,                                                         \
+        const gsl::not_null<const world::SkeletalModelType*>& animatedModel)                    \
+      : ModelObject{name, world, room, item, HAS_UPDATE_FUNCTION, animatedModel, SHADOW_CASTER} \
+  {                                                                                             \
   }
 
 class NullRenderModelObject : public ModelObject
 {
 public:
   NullRenderModelObject(const gsl::not_null<world::World*>& world, const Location& location)
-      : ModelObject{world, location}
+      : ModelObject{world, location, false}
   {
   }
 

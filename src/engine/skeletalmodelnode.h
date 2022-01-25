@@ -69,7 +69,8 @@ class SkeletalModelNode : public render::scene::Node
 public:
   explicit SkeletalModelNode(const std::string& id,
                              gsl::not_null<const world::World*> world,
-                             gsl::not_null<const world::SkeletalModelType*> model);
+                             gsl::not_null<const world::SkeletalModelType*> model,
+                             bool shadowCaster);
 
   void updatePose();
 
@@ -254,6 +255,8 @@ private:
   core::Frame m_frame = 0_frame;
 
   void updatePose(const InterpolationInfo& framePair);
+
+  bool m_shadowCaster;
 };
 
 void serialize(std::shared_ptr<SkeletalModelNode>& data, const serialization::Serializer<world::World>& ser);

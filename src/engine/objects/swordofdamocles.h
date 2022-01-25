@@ -35,7 +35,7 @@ class SwordOfDamocles final : public ModelObject
 {
 public:
   SwordOfDamocles(const gsl::not_null<world::World*>& world, const Location& location)
-      : ModelObject{world, location}
+      : ModelObject{world, location, true}
   {
   }
 
@@ -44,7 +44,7 @@ public:
                   const gsl::not_null<const world::Room*>& room,
                   const loader::file::Item& item,
                   const gsl::not_null<const world::SkeletalModelType*>& animatedModel)
-      : ModelObject{name, world, room, item, true, animatedModel}
+      : ModelObject{name, world, room, item, true, animatedModel, true}
   {
     m_state.rotation.Y += util::rand15s(180_deg) + util::rand15s(180_deg);
     m_state.fallspeed = 50_spd;
