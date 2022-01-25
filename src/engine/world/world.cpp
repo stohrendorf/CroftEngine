@@ -1182,16 +1182,15 @@ World::~World()
 
 void World::drawPickupWidgets(ui::Ui& ui)
 {
-  auto x = ui.getSize().x * 9 / 10;
+  auto x = ui.getSize().x;
   auto y = ui.getSize().y * 9 / 10;
-  auto widthPerWidget = ui.getSize().x / 10 * 4 / 3;
   for(const auto& widget : m_pickupWidgets)
   {
     if(widget.expired())
       continue;
 
+    x -= widget.getWidth();
     widget.draw(ui, x, y, m_engine.getPresenter().getTrFont());
-    x -= widthPerWidget;
   }
 }
 

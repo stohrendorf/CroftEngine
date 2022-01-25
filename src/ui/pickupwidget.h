@@ -39,6 +39,11 @@ public:
     m_duration -= 1_frame;
   }
 
+  [[nodiscard]] auto getWidth() const
+  {
+    return m_sprite.render1.x - m_sprite.render0.x;
+  }
+
 private:
   core::Frame m_duration;
   mutable engine::world::Sprite m_sprite;
