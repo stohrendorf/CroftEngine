@@ -59,7 +59,12 @@ void PickupObject::collide(CollisionInfo& /*collisionInfo*/)
       {
         m_state.triggerState = TriggerState::Invisible;
         ++getWorld().getPlayer().pickups;
-        getWorld().addPickupWidget(getSprite(), getWorld().getPlayer().getInventory().put(m_state.type, &getWorld()));
+        const auto oldType = m_state.type;
+        const auto oldSprite = getSprite();
+        const auto count = getWorld().getPlayer().getInventory().put(m_state.type, &getWorld());
+        getWorld().addPickupWidget(getSprite(), count);
+        if(oldType != m_state.type)
+          getWorld().addPickupWidget(oldSprite, 1);
         setParent(gsl::not_null{getNode()}, nullptr);
         m_state.collidable = false;
         return;
@@ -123,7 +128,12 @@ void PickupObject::collide(CollisionInfo& /*collisionInfo*/)
 
       m_state.triggerState = TriggerState::Invisible;
       ++getWorld().getPlayer().pickups;
-      getWorld().addPickupWidget(getSprite(), getWorld().getPlayer().getInventory().put(m_state.type, &getWorld()));
+      const auto oldType = m_state.type;
+      const auto oldSprite = getSprite();
+      const auto count = getWorld().getPlayer().getInventory().put(m_state.type, &getWorld());
+      getWorld().addPickupWidget(getSprite(), count);
+      if(oldType != m_state.type)
+        getWorld().addPickupWidget(oldSprite, 1);
       setParent(gsl::not_null{getNode()}, nullptr);
       m_state.collidable = false;
     }
