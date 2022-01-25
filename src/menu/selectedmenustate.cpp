@@ -7,7 +7,9 @@
 #include "deselectingmenustate.h"
 #include "donemenustate.h"
 #include "engine/items_tr1.h"
+#include "engine/objects/laraobject.h"
 #include "engine/presenter.h"
+#include "engine/soundeffects_tr1.h"
 #include "engine/world/world.h"
 #include "finishitemanimationmenustate.h"
 #include "hid/actions.h"
@@ -76,6 +78,28 @@ std::unique_ptr<MenuState> SelectedMenuState::onFrame(ui::Ui& ui, engine::world:
     }
     else
     {
+      switch(currentObject.type)
+      {
+      case engine::TR1ItemId::Puzzle1:
+      case engine::TR1ItemId::Puzzle1Sprite:
+      case engine::TR1ItemId::Puzzle2:
+      case engine::TR1ItemId::Puzzle2Sprite:
+      case engine::TR1ItemId::Puzzle3:
+      case engine::TR1ItemId::Puzzle3Sprite:
+      case engine::TR1ItemId::Puzzle4:
+      case engine::TR1ItemId::Puzzle4Sprite:
+      case engine::TR1ItemId::Key1:
+      case engine::TR1ItemId::Key1Sprite:
+      case engine::TR1ItemId::Key2:
+      case engine::TR1ItemId::Key2Sprite:
+      case engine::TR1ItemId::Key3:
+      case engine::TR1ItemId::Key3Sprite:
+      case engine::TR1ItemId::Key4:
+      case engine::TR1ItemId::Key4Sprite:
+        if(auto lara = world.getObjectManager().getLaraPtr())
+          lara->playSoundEffect(engine::TR1SoundEffect::LaraNo);
+        break;
+      }
       const auto result
         = currentObject.type == engine::TR1ItemId::LarasHomePolaroid ? MenuResult::LaraHome : MenuResult::Closed;
       return create<FinishItemAnimationMenuState>(create<ResetItemTransformMenuState>(
