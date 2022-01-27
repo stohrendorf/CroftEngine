@@ -374,8 +374,15 @@ bool AIAgent::animateCreature(const core::Angle& deltaRotationY, const core::Ang
         // we're already below the floor or inside a wall, so fix it
         m_state.location.position.X = oldLocation.position.X;
         m_state.location.position.Z = oldLocation.position.Z;
-        // TODO this causes bats to "flicker" when falling and dying, should better be placed exactly on floor here
-        moveY = -pathFinder.fly;
+
+        auto tmp = m_state.location;
+        const auto floor
+          = HeightInfo::fromFloor(tmp.updateRoom(),
+                                  core::TRVec{m_state.location.position.X, bboxMaxY, m_state.location.position.Z},
+                                  getWorld().getObjectManager().getObjects())
+              .y;
+
+        moveY = floor - m_state.location.position.Y; // -pathFinder.fly;
       }
       else
       {
