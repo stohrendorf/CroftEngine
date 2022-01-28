@@ -60,8 +60,10 @@ int main()
 #endif
 
   boost::log::add_common_attributes();
+#ifndef NDEBUG
   boost::log::add_console_log(std::cout, boost::log::keywords::format = logFormat)
     ->set_filter(boost::log::trivial::severity >= consoleMinSeverity);
+#endif
   boost::log::add_file_log(boost::log::keywords::file_name = (getUserDataDir() / "edisonengine.log").string(),
                            boost::log::keywords::format = logFormat,
                            boost::log::keywords::auto_flush = true);
