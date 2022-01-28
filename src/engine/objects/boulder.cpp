@@ -92,6 +92,8 @@ void RollingBall::update()
     m_state.required_anim_state = 0_as;
     deactivate();
   }
+  
+  applyTransform();
 }
 
 void RollingBall::collide(CollisionInfo& collisionInfo)
