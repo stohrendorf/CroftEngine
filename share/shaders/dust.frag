@@ -4,7 +4,7 @@ in DustFSInterface {
     flat float lifetime;
 } fs;
 
-const vec3 BaseColor = vec3(1, 0.9, 0.8);
+const vec3 BaseColor = vec3(1, 0.9, 0.8)*0.5;
 const float Alpha0 = 0.1;
 const float Alpha1 = 0.3;
 
