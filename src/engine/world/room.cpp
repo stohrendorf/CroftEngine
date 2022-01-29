@@ -77,8 +77,6 @@ struct RenderVertex
   glm::vec3 quadVert2{};
   glm::vec3 quadVert3{};
   glm::vec3 quadVert4{};
-  glm::vec4 quadUv12{};
-  glm::vec4 quadUv34{};
 
   static const gl::VertexLayout<RenderVertex>& getLayout()
   {
@@ -91,8 +89,6 @@ struct RenderVertex
       {VERTEX_ATTRIBUTE_QUAD_VERT2, &RenderVertex::quadVert2},
       {VERTEX_ATTRIBUTE_QUAD_VERT3, &RenderVertex::quadVert3},
       {VERTEX_ATTRIBUTE_QUAD_VERT4, &RenderVertex::quadVert4},
-      {VERTEX_ATTRIBUTE_QUAD_UV12, &RenderVertex::quadUv12},
-      {VERTEX_ATTRIBUTE_QUAD_UV34, &RenderVertex::quadUv34},
     };
 
     return layout;
@@ -210,6 +206,8 @@ void Room::createSceneNode(const loader::file::Room& srcRoom,
 
   static const gl::VertexLayout<render::TextureAnimator::AnimatedUV> uvAttribs{
     {VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, gl::VertexAttribute{&render::TextureAnimator::AnimatedUV::uv}},
+    {VERTEX_ATTRIBUTE_QUAD_UV12, &render::TextureAnimator::AnimatedUV::quadUv12},
+    {VERTEX_ATTRIBUTE_QUAD_UV34, &render::TextureAnimator::AnimatedUV::quadUv34},
   };
   auto uvCoords = gslu::make_nn_shared<gl::VertexBuffer<render::TextureAnimator::AnimatedUV>>(uvAttribs, label + "-uv");
 
@@ -252,8 +250,11 @@ void Room::createSceneNode(const loader::file::Room& srcRoom,
       RenderVertex iv;
       iv.position = quad.vertices[i].from(srcRoom.vertices).position.toRenderSystem();
       iv.color = quad.vertices[i].from(srcRoom.vertices).color;
-      uvCoordsData.emplace_back(tile.textureKey.tileAndFlag & loader::file::TextureIndexMask, tile.uvCoordinates[i]);
 
+      uvCoordsData.emplace_back(tile.textureKey.tileAndFlag & loader::file::TextureIndexMask,
+                                tile.uvCoordinates[i],
+                                glm::vec4{tile.uvCoordinates[0], tile.uvCoordinates[1]},
+                                glm::vec4{tile.uvCoordinates[2], tile.uvCoordinates[3]});
       if(useQuadHandling)
       {
         iv.isQuad = 1;
@@ -261,8 +262,6 @@ void Room::createSceneNode(const loader::file::Room& srcRoom,
         iv.quadVert2 = quad.vertices[1].from(srcRoom.vertices).position.toRenderSystem();
         iv.quadVert3 = quad.vertices[2].from(srcRoom.vertices).position.toRenderSystem();
         iv.quadVert4 = quad.vertices[3].from(srcRoom.vertices).position.toRenderSystem();
-        iv.quadUv12 = glm::vec4{tile.uvCoordinates[0], tile.uvCoordinates[1]};
-        iv.quadUv34 = glm::vec4{tile.uvCoordinates[2], tile.uvCoordinates[3]};
       }
 
       if(i <= 2)
@@ -318,7 +317,10 @@ void Room::createSceneNode(const loader::file::Room& srcRoom,
       RenderVertex iv;
       iv.position = tri.vertices[i].from(srcRoom.vertices).position.toRenderSystem();
       iv.color = tri.vertices[i].from(srcRoom.vertices).color;
-      uvCoordsData.emplace_back(tile.textureKey.tileAndFlag & loader::file::TextureIndexMask, tile.uvCoordinates[i]);
+      uvCoordsData.emplace_back(tile.textureKey.tileAndFlag & loader::file::TextureIndexMask,
+                                tile.uvCoordinates[i],
+                                glm::vec4{tile.uvCoordinates[0], tile.uvCoordinates[1]},
+                                glm::vec4{tile.uvCoordinates[2], tile.uvCoordinates[3]});
 
       static const std::array<int, 3> indices{0, 1, 2};
       iv.normal = generateNormal(tri.vertices[indices[(i + 0) % 3]].from(srcRoom.vertices).position,

@@ -52,6 +52,8 @@ void TextureAnimator::Sequence::updateCoordinates(const std::vector<engine::worl
 
       uvArray[vref.bufferIndex].uv
         = glm::vec3{tile.uvCoordinates[vref.sourceIndex], tile.textureKey.tileAndFlag & loader::file::TextureIndexMask};
+      uvArray[vref.bufferIndex].quadUv12 = glm::vec4{tile.uvCoordinates[0], tile.uvCoordinates[1]};
+      uvArray[vref.bufferIndex].quadUv34 = glm::vec4{tile.uvCoordinates[2], tile.uvCoordinates[3]};
     }
 
     buffer->flush();

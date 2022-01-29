@@ -10,6 +10,7 @@
 #include <glm/ext/scalar_int_sized.hpp>
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
+#include <glm/vec4.hpp>
 #include <gsl/gsl-lite.hpp>
 #include <iterator>
 #include <map>
@@ -30,10 +31,14 @@ public:
   struct AnimatedUV
   {
     glm::vec3 uv{0, 0, -1};
+    glm::vec4 quadUv12{};
+    glm::vec4 quadUv34{};
 
     explicit AnimatedUV() = default;
-    explicit AnimatedUV(glm::int32 index, const glm::vec2& uv)
+    explicit AnimatedUV(glm::int32 index, const glm::vec2& uv, const glm::vec4& quadUv12, const glm::vec4& quadUv34)
         : uv{uv, index}
+        , quadUv12{quadUv12}
+        , quadUv34{quadUv34}
     {
     }
   };
