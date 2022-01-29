@@ -5,6 +5,7 @@
 
 out DustVSInterface {
     float lifetime;
+    float size;
 } vs;
 
 const float MaxLifetime = 8;
@@ -14,6 +15,10 @@ void main()
 {
     vec3 n = snoise3(a_position.xyz);
     vec3 n2 = snoise3(a_position.zxy);
+
+    float randS = pow(0.5, 0.5 * n.y + 1) * pow(0.5, 1 - (0.5 * n.y + 1));
+    vs.size = 0.5 + randS*4;
+
     float particleMaxLifetime = (n2.x * 0.5 + 1) * MaxLifetime;
 
     float t = mod(TimeSeconds, particleMaxLifetime);

@@ -586,7 +586,7 @@ void Room::createParticleMesh(const std::string& label,
   std::vector<glm::vec3> vertices;
   std::vector<uint32_t> indices;
 
-  static const constexpr auto Resolution = (core::SectorSize / 4).cast<float>().get();
+  static const constexpr auto Resolution = (core::SectorSize / 8).cast<float>().get();
   std::uniform_real_distribution<float> rdist{-Resolution / 2, Resolution / 2};
   std::random_device rd; // Will be used to obtain a seed for the random number engine
   std::default_random_engine gen{rd()};
