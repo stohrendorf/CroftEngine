@@ -3,10 +3,12 @@
 #include "core/genericvec.h"
 #include "engine/heightinfo.h"
 #include "engine/objectmanager.h"
+#include "engine/skeletalmodelnode.h"
 #include "engine/world/world.h"
 #include "laraobject.h"
 #include "modelobject.h"
 #include "objectstate.h"
+#include "serialization/serialization.h"
 
 namespace engine::objects
 {
@@ -58,5 +60,30 @@ void CollapsibleFloor::update()
   auto pos = m_state.location.position;
   pos.Y = m_state.floor;
   m_state.location.position = pos;
+}
+
+CollapsibleFloor::CollapsibleFloor(const gsl::not_null<world::World*>& world, const Location& location)
+    : ModelObject{world, location, false}
+{
+}
+
+CollapsibleFloor::CollapsibleFloor(const std::string& name,
+                                   const gsl::not_null<world::World*>& world,
+                                   const gsl::not_null<const world::Room*>& room,
+                                   const loader::file::Item& item,
+                                   const gsl::not_null<const world::SkeletalModelType*>& animatedModel)
+    : ModelObject{name, world, room, item, true, animatedModel, false}
+{
+  getSkeleton()->getRenderState().setScissorTest(false);
+}
+
+void CollapsibleFloor::serialize(const serialization::Serializer<world::World>& ser)
+{
+  ModelObject::serialize(ser);
+
+  if(ser.loading)
+  {
+    getSkeleton()->getRenderState().setScissorTest(false);
+  }
 }
 } // namespace engine::objects
