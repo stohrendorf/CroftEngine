@@ -31,10 +31,22 @@ struct MenuRingTransform;
 class SavegameListMenuState : public ListDisplayMenuState
 {
 private:
+  class SavegameEntry;
+
   std::unique_ptr<MenuState> m_previous;
   std::vector<bool> m_hasSavegame;
+  std::vector<gsl::not_null<std::shared_ptr<SavegameEntry>>> m_entries;
   const bool m_loading;
   std::shared_ptr<ui::widgets::MessageBox> m_confirmOverwrite;
+  enum class Order
+  {
+    Slot,
+    DateAsc,
+    DateDesc
+  };
+  Order m_order = Order::Slot;
+
+  void sortEntries();
 
 public:
   explicit SavegameListMenuState(const std::shared_ptr<MenuRingTransform>& ringTransform,

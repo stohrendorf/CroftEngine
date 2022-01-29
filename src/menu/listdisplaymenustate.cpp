@@ -94,4 +94,9 @@ void ListDisplayMenuState::draw(ui::Ui& ui, engine::world::World& world, MenuDis
              gl::SRGBA8{0, 0, 0, 192});
   pageLabel.draw(ui, world.getPresenter());
 }
+
+void ListDisplayMenuState::clear()
+{
+  m_listBox->clear();
+}
 } // namespace menu

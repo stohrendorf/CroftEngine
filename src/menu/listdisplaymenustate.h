@@ -46,6 +46,8 @@ public:
 
   size_t append(const gsl::not_null<std::shared_ptr<ui::widgets::Widget>>& widget);
 
+  void clear();
+
   [[nodiscard]] const auto& getListBox() const
   {
     return m_listBox;

@@ -37,6 +37,70 @@
 
 namespace menu
 {
+class SavegameListMenuState::SavegameEntry final : public ui::widgets::Widget
+{
+public:
+  explicit SavegameEntry(size_t slot,
+                         const std::string& label,
+                         const std::optional<std::filesystem::file_time_type>& time)
+      : m_slot{slot}
+      , m_label{util::escape(label)}
+      , m_time{time}
+  {
+    m_label.fitToContent();
+  }
+
+  [[nodiscard]] glm::ivec2 getPosition() const override
+  {
+    return m_label.getPosition();
+  }
+
+  [[nodiscard]] glm::ivec2 getSize() const override
+  {
+    return m_label.getSize();
+  }
+
+  void setPosition(const glm::ivec2& position) override
+  {
+    m_label.setPosition(position);
+  }
+
+  void setSize(const glm::ivec2& size) override
+  {
+    m_label.setSize(size);
+  }
+
+  void update(bool hasFocus) override
+  {
+    m_label.update(hasFocus);
+  }
+
+  void fitToContent() override
+  {
+    m_label.fitToContent();
+  }
+
+  void draw(ui::Ui& ui, const engine::Presenter& presenter) const override
+  {
+    m_label.draw(ui, presenter);
+  }
+
+  [[nodiscard]] auto getSlot() const
+  {
+    return m_slot;
+  }
+
+  [[nodiscard]] const auto& getTime() const
+  {
+    return m_time;
+  }
+
+private:
+  size_t m_slot;
+  ui::widgets::Label m_label;
+  std::optional<std::filesystem::file_time_type> m_time;
+};
+
 SavegameListMenuState::SavegameListMenuState(const std::shared_ptr<MenuRingTransform>& ringTransform,
                                              std::unique_ptr<MenuState> previous,
                                              const std::string& heading,
@@ -52,7 +116,6 @@ SavegameListMenuState::SavegameListMenuState(const std::shared_ptr<MenuRingTrans
   size_t mostRecentSlot = 0;
   for(size_t i = 0; i < core::SavegameSlots; ++i)
   {
-    std::string name;
     if(auto it = savedGames.find(i); it != savedGames.end())
     {
       if(it->second.saveTime > mostRecentTime)
@@ -70,46 +133,50 @@ SavegameListMenuState::SavegameListMenuState(const std::shared_ptr<MenuRingTrans
       timeStr.imbue(std::locale(world.getEngine().getLocale()));
       timeStr << std::put_time(localTime,
                                /* translators: TR charmap encoding */ pgettext("SavegameTime", "%d %B %Y %X"));
-      name = (boost::format(/* translators: TR charmap encoding */ pgettext("SavegameTitle", "%1% - %2%"))
-              % timeStr.str() % it->second.meta.title)
-               .str();
 
       m_hasSavegame.emplace_back(true);
+
+      const auto name = (boost::format(/* translators: TR charmap encoding */ pgettext("SavegameTitle", "%1% - %2%"))
+                         % timeStr.str() % it->second.meta.title)
+                          .str();
+      auto label = gslu::make_nn_shared<SavegameEntry>(i, name, it->second.saveTime);
+      append(label);
+      m_entries.emplace_back(label);
     }
     else
     {
-      name = _("- EMPTY SLOT %1%", i + 1);
       m_hasSavegame.emplace_back(false);
+      auto label = gslu::make_nn_shared<SavegameEntry>(i, _("- EMPTY SLOT %1%", i + 1), std::nullopt);
+      append(label);
+      m_entries.emplace_back(label);
     }
-    auto label = gslu::make_nn_shared<ui::widgets::Label>(util::escape(name));
-    label->fitToContent();
-    append(label);
   }
 
   getListBox()->setSelected(mostRecentSlot);
 }
 
 std::unique_ptr<MenuState>
-  SavegameListMenuState::onSelected(size_t idx, engine::world::World& world, MenuDisplay& display)
+  SavegameListMenuState::onSelected(size_t selectedIdx, engine::world::World& world, MenuDisplay& display)
 {
+  const auto slot = m_entries.at(selectedIdx)->getSlot();
   if(!m_loading)
   {
-    if(m_hasSavegame.at(idx))
+    if(m_hasSavegame.at(slot))
     {
       m_confirmOverwrite = std::make_shared<ui::widgets::MessageBox>(
-        /* translators: TR charmap encoding */ _("Overwrite slot %1%?", idx + 1));
+        /* translators: TR charmap encoding */ _("Overwrite slot %1%?", slot + 1));
       return nullptr;
     }
-    world.save(idx);
+    world.save(slot);
     return create<ClosePassportMenuState>(display.getCurrentRing().getSelectedObject(),
                                           create<DeflateRingMenuState>(DeflateRingMenuState::Direction::Backpack,
                                                                        create<DoneMenuState>(MenuResult::Closed)));
   }
-  else if(m_hasSavegame.at(idx))
+  else if(m_hasSavegame.at(slot))
   {
     return create<ClosePassportMenuState>(
       display.getCurrentRing().getSelectedObject(),
-      create<DeflateRingMenuState>(DeflateRingMenuState::Direction::Backpack, create<RequestLoadMenuState>(idx)));
+      create<DeflateRingMenuState>(DeflateRingMenuState::Direction::Backpack, create<RequestLoadMenuState>(slot)));
   }
   return std::move(m_previous);
 }
@@ -122,7 +189,42 @@ std::unique_ptr<MenuState> SavegameListMenuState::onAborted()
 std::unique_ptr<MenuState> SavegameListMenuState::onFrame(ui::Ui& ui, engine::world::World& world, MenuDisplay& display)
 {
   if(m_confirmOverwrite == nullptr)
+  {
+    if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::StepLeft))
+    {
+      switch(m_order)
+      {
+      case Order::Slot:
+        m_order = Order::DateDesc;
+        break;
+      case Order::DateAsc:
+        m_order = Order::Slot;
+        break;
+      case Order::DateDesc:
+        m_order = Order::DateAsc;
+        break;
+      }
+      sortEntries();
+    }
+    else if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::StepRight))
+    {
+      switch(m_order)
+      {
+      case Order::Slot:
+        m_order = Order::DateAsc;
+        break;
+      case Order::DateAsc:
+        m_order = Order::DateDesc;
+        break;
+      case Order::DateDesc:
+        m_order = Order::Slot;
+        break;
+      }
+      sortEntries();
+    }
+
     return ListDisplayMenuState::onFrame(ui, world, display);
+  }
 
   draw(ui, world, display);
   m_confirmOverwrite->fitToContent();
@@ -153,5 +255,46 @@ std::unique_ptr<MenuState> SavegameListMenuState::onFrame(ui::Ui& ui, engine::wo
   m_confirmOverwrite->update(true);
   m_confirmOverwrite->draw(ui, world.getPresenter());
   return nullptr;
+}
+
+void SavegameListMenuState::sortEntries()
+{
+  clear();
+
+  std::sort(m_entries.begin(),
+            m_entries.end(),
+            [this](const auto& lhs, const auto& rhs)
+            {
+              const auto& lhsT = lhs->getTime();
+              const auto& rhsT = rhs->getTime();
+              switch(m_order)
+              {
+              case Order::Slot:
+                break;
+              case Order::DateAsc:
+                if(!lhsT.has_value() && !rhsT.has_value())
+                  break;
+                else if(lhsT.has_value() && !rhsT.has_value())
+                  return true;
+                else if(!lhsT.has_value() && rhsT.has_value())
+                  return false;
+                else if(*lhsT != *rhsT)
+                  return *lhsT < *rhsT;
+              case Order::DateDesc:
+                if(!lhsT.has_value() && !rhsT.has_value())
+                  break;
+                else if(lhsT.has_value() && !rhsT.has_value())
+                  return true;
+                else if(!lhsT.has_value() && rhsT.has_value())
+                  return false;
+                else if(*lhsT != *rhsT)
+                  return *lhsT > *rhsT;
+              }
+
+              return lhs->getSlot() < rhs->getSlot();
+            });
+
+  for(const auto& l : m_entries)
+    append(l);
 }
 } // namespace menu

@@ -18,7 +18,7 @@ void RequestLoadMenuState::handleObject(ui::Ui& /*ui*/,
 std::unique_ptr<MenuState>
   RequestLoadMenuState::onFrame(ui::Ui& /*ui*/, engine::world::World& /*world*/, MenuDisplay& display)
 {
-  display.requestLoad = m_index;
+  display.requestLoad = m_slot;
   display.result = MenuResult::RequestLoad;
   return nullptr;
 }

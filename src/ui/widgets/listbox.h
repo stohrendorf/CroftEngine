@@ -100,6 +100,11 @@ public:
   [[nodiscard]] size_t getCurrentPage() const;
   [[nodiscard]] size_t getTotalPages() const;
 
+  void clear()
+  {
+    m_widgets.clear();
+  }
+
 private:
   glm::ivec2 m_position{0, 0};
   glm::ivec2 m_size{0, 0};
