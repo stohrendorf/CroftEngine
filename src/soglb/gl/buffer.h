@@ -26,11 +26,17 @@ public:
   {
   }
 
-  [[nodiscard]] gsl::span<T> map(const api::BufferAccess access = api::BufferAccess::ReadOnly)
+  [[nodiscard]] gsl::span<T> map(const api::core::Bitfield<api::MapBufferAccessMask>& access
+                                 = api::MapBufferAccessMask::MapReadBit)
   {
-    const void* data = GL_ASSERT_FN(api::mapNamedBuffer(getHandle(), access));
+    const void* data = GL_ASSERT_FN(api::mapNamedBufferRange(getHandle(), 0, m_size * sizeof(T), access));
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
     return gsl::span{static_cast<T*>(const_cast<void*>(data)), m_size};
+  }
+
+  void flush()
+  {
+    GL_ASSERT(api::flushMappedNamedBufferRange(getHandle(), 0, m_size * sizeof(T)));
   }
 
   void unmap()

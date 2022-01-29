@@ -14,11 +14,10 @@ namespace render
 {
 TextureAnimator::TextureAnimator(const std::vector<uint16_t>& data)
 {
+  Expects(!data.empty());
+
   const uint16_t* ptr = data.data();
   const auto sequenceCount = *ptr++;
-  if(sequenceCount == 0)
-    return;
-
   for(size_t i = 0; i < sequenceCount; ++i)
   {
     Sequence sequence;
@@ -32,6 +31,8 @@ TextureAnimator::TextureAnimator(const std::vector<uint16_t>& data)
     }
     m_sequences.emplace_back(std::move(sequence));
   }
+
+  BOOST_ASSERT(ptr == &data.back() + 1);
 }
 
 void TextureAnimator::Sequence::updateCoordinates(const std::vector<engine::world::AtlasTile>& tiles)
@@ -40,7 +41,8 @@ void TextureAnimator::Sequence::updateCoordinates(const std::vector<engine::worl
 
   for(const auto& [buffer, vertices] : affectedVertices)
   {
-    auto uvArray = buffer->map(gl::api::BufferAccess::ReadWrite);
+    auto uvArray
+      = buffer->map(gl::api::MapBufferAccessMask::MapWriteBit | gl::api::MapBufferAccessMask::MapFlushExplicitBit);
 
     for(const VertexReference& vref : vertices)
     {
@@ -52,6 +54,7 @@ void TextureAnimator::Sequence::updateCoordinates(const std::vector<engine::worl
         = glm::vec3{tile.uvCoordinates[vref.sourceIndex], tile.textureKey.tileAndFlag & loader::file::TextureIndexMask};
     }
 
+    buffer->flush();
     buffer->unmap();
   }
 }

@@ -45,11 +45,11 @@ public:
                       const int sourceIndex,
                       const size_t bufferIndex)
   {
-    if(m_sequenceByTileId.find(tileId) == m_sequenceByTileId.end())
+    auto it = m_sequenceByTileId.find(tileId);
+    if(it == m_sequenceByTileId.end())
       return;
 
-    const size_t sequenceId = m_sequenceByTileId[tileId];
-    m_sequences.at(sequenceId).registerVertex(buffer, Sequence::VertexReference(bufferIndex, sourceIndex), tileId);
+    m_sequences.at(it->second).registerVertex(buffer, Sequence::VertexReference(bufferIndex, sourceIndex), tileId);
   }
 
   void updateCoordinates(const std::vector<engine::world::AtlasTile>& tiles)
@@ -95,9 +95,7 @@ private:
     void rotate()
     {
       BOOST_ASSERT(!tileIds.empty());
-      auto first = tileIds.front();
-      tileIds.erase(tileIds.begin(), std::next(tileIds.begin()));
-      tileIds.emplace_back(first);
+      std::rotate(tileIds.begin(), std::next(tileIds.begin()), tileIds.end());
     }
 
     void registerVertex(const std::shared_ptr<gl::VertexBuffer<AnimatedUV>>& buffer,

@@ -285,8 +285,11 @@ void Room::createSceneNode(const loader::file::Room& srcRoom,
 
     for(int i : {0, 1, 2, 0, 2, 3})
     {
-      animator.registerVertex(quad.tileId, uvCoords, i, firstVertex + i);
       renderMesh.m_indices.emplace_back(gsl::narrow<RenderMesh::IndexType>(firstVertex + i));
+    }
+    for(int i : {0, 1, 2, 3})
+    {
+      animator.registerVertex(quad.tileId, uvCoords, i, firstVertex + i);
     }
   }
   for(const loader::file::Triangle& tri : srcRoom.triangles)
@@ -327,8 +330,11 @@ void Room::createSceneNode(const loader::file::Room& srcRoom,
 
     for(int i : {0, 1, 2})
     {
-      animator.registerVertex(tri.tileId, uvCoords, i, firstVertex + i);
       renderMesh.m_indices.emplace_back(gsl::narrow<RenderMesh::IndexType>(firstVertex + i));
+    }
+    for(int i : {0, 1, 2})
+    {
+      animator.registerVertex(tri.tileId, uvCoords, i, firstVertex + i);
     }
   }
 
