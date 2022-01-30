@@ -15,8 +15,6 @@ public:
   explicit Window(const std::vector<std::filesystem::path>& logoPaths, const glm::ivec2& windowSize = {1280, 800});
   ~Window();
 
-  void setVsync(bool enable);
-
   void updateWindowSize();
 
   [[nodiscard]] bool windowShouldClose() const
@@ -56,7 +54,6 @@ public:
 
 private:
   GLFWwindow* m_window = nullptr;
-  bool m_vsync = false;
   glm::ivec2 m_windowPos{0};
   glm::ivec2 m_windowSize{0};
   glm::ivec2 m_viewport{0};

@@ -105,13 +105,7 @@ Window::Window(const std::vector<std::filesystem::path>& logoPaths, const glm::i
 #ifdef NDEBUG
   glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 #endif
-  setVsync(true);
-}
-
-void Window::setVsync(const bool enable)
-{
-  m_vsync = enable;
-  glfwSwapInterval(enable ? 1 : 0);
+  glfwSwapInterval(1);
 }
 
 void Window::updateWindowSize()
