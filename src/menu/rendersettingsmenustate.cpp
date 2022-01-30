@@ -304,17 +304,6 @@ RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingT
       toggle(engine, engine.getEngineConfig()->renderSettings.moreLights);
     });
   listBox->addSetting(
-    /* translators: TR charmap encoding */ _("Performance Meter"),
-    [&engine]()
-    {
-      return engine.getEngineConfig()->displaySettings.performanceMeter;
-    },
-    [&engine]()
-    {
-      auto& b = engine.getEngineConfig()->displaySettings.performanceMeter;
-      b = !b;
-    });
-  listBox->addSetting(
     /* translators: TR charmap encoding */ _("Ghost"),
     [&engine]()
     {

@@ -8,7 +8,6 @@ struct EngineConfig;
 
 struct DisplaySettings
 {
-  bool performanceMeter = false;
   bool ghost = false;
 
   void serialize(const serialization::Serializer<engine::EngineConfig>& ser);

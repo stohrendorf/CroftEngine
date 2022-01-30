@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: EdisonEngine 0.12\n"
+"Project-Id-Version: EdisonEngine 0.13\n"
 "Report-Msgid-Bugs-To: https://github.com/stohrendorf/EdisonEngine/issues\n"
-"POT-Creation-Date: 2022-01-25 17:53+0100\n"
+"POT-Creation-Date: 2022-01-30 20:59+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,20 +18,20 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 
 #. translators: TR charmap encoding
-#: menu/savegamelistmenustate.cpp:73
+#: menu/savegamelistmenustate.cpp:139
 #, boost-format
 msgctxt "SavegameTitle"
 msgid "%1% - %2%"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:347
+#: menu/rendersettingsmenustate.cpp:336
 #, boost-format
 msgid "%1%x Anisotropic Filtering"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/savegamelistmenustate.cpp:72
+#: menu/savegamelistmenustate.cpp:135
 msgctxt "SavegameTime"
 msgid "%d %B %Y %X"
 msgstr ""
@@ -60,7 +60,7 @@ msgctxt "Keyboard|Key"
 msgid "-"
 msgstr ""
 
-#: menu/savegamelistmenustate.cpp:81
+#: menu/savegamelistmenustate.cpp:149
 #, boost-format
 msgid "- EMPTY SLOT %1%"
 msgstr ""
@@ -379,7 +379,7 @@ msgid "Gameplay"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:318
+#: menu/rendersettingsmenustate.cpp:307
 msgid "Ghost"
 msgstr ""
 
@@ -569,11 +569,11 @@ msgstr ""
 msgid "Loading %1%"
 msgstr ""
 
-#: engine/engine.cpp:693
+#: engine/engine.cpp:692
 msgid "Loading Glidos texture pack"
 msgstr ""
 
-#: engine/world/world.cpp:1015
+#: engine/world/world.cpp:1013
 msgid "Loading..."
 msgstr ""
 
@@ -666,7 +666,7 @@ msgid "Other"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/savegamelistmenustate.cpp:100
+#: menu/savegamelistmenustate.cpp:167
 #, boost-format
 msgid "Overwrite slot %1%?"
 msgstr ""
@@ -799,11 +799,6 @@ msgid "Pause"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:307
-msgid "Performance Meter"
-msgstr ""
-
-#. translators: TR charmap encoding
 #: hid/names.cpp:137
 msgctxt "Keyboard|Key"
 msgid "PgDn"
@@ -874,7 +869,7 @@ msgid "RThumb"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:329
+#: menu/rendersettingsmenustate.cpp:318
 msgid "Restore Health on Level Start"
 msgstr ""
 
@@ -947,7 +942,7 @@ msgstr ""
 msgid "Save recorded ghost?"
 msgstr ""
 
-#: engine/world/world.cpp:1036
+#: engine/world/world.cpp:1034
 msgid "Saving..."
 msgstr ""
 

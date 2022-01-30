@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EdisonEngine\n"
 "Report-Msgid-Bugs-To: https://github.com/stohrendorf/EdisonEngine/issues\n"
-"POT-Creation-Date: 2022-01-25 17:53+0100\n"
+"POT-Creation-Date: 2022-01-30 20:59+0100\n"
 "Last-Translator: Steffen Ohrendorf\n"
 "Language-Team: none\n"
 "Language: de_DE\n"
@@ -17,20 +17,20 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #. translators: TR charmap encoding
-#: menu/savegamelistmenustate.cpp:73
+#: menu/savegamelistmenustate.cpp:139
 #, boost-format
 msgctxt "SavegameTitle"
 msgid "%1% - %2%"
 msgstr "%1% - %2%"
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:347
+#: menu/rendersettingsmenustate.cpp:336
 #, boost-format
 msgid "%1%x Anisotropic Filtering"
 msgstr "%1%x Anisotropische Filterung"
 
 #. translators: TR charmap encoding
-#: menu/savegamelistmenustate.cpp:72
+#: menu/savegamelistmenustate.cpp:135
 msgctxt "SavegameTime"
 msgid "%d %B %Y %X"
 msgstr "%d. %B %Y %X"
@@ -59,7 +59,7 @@ msgctxt "Keyboard|Key"
 msgid "-"
 msgstr "="
 
-#: menu/savegamelistmenustate.cpp:81
+#: menu/savegamelistmenustate.cpp:149
 #, boost-format
 msgid "- EMPTY SLOT %1%"
 msgstr "- LEERER SLOT %1%"
@@ -381,7 +381,7 @@ msgid "Gameplay"
 msgstr "Spiel"
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:318
+#: menu/rendersettingsmenustate.cpp:307
 msgid "Ghost"
 msgstr "Geist"
 
@@ -571,11 +571,11 @@ msgstr "Spiel laden"
 msgid "Loading %1%"
 msgstr "Lade %1%"
 
-#: engine/engine.cpp:693
+#: engine/engine.cpp:692
 msgid "Loading Glidos texture pack"
 msgstr "Lade Glidos Textur Paket"
 
-#: engine/world/world.cpp:1015
+#: engine/world/world.cpp:1013
 msgid "Loading..."
 msgstr "Lade..."
 
@@ -668,7 +668,7 @@ msgid "Other"
 msgstr "Anderes"
 
 #. translators: TR charmap encoding
-#: menu/savegamelistmenustate.cpp:100
+#: menu/savegamelistmenustate.cpp:167
 #, boost-format
 msgid "Overwrite slot %1%?"
 msgstr "Slot %1% ~uberschreiben?"
@@ -789,7 +789,7 @@ msgstr "Numx"
 
 #. translators: TR charmap encoding
 #: menu/listdisplaymenustate.cpp:84
-#, fuzzy, boost-format
+#, boost-format
 msgctxt "PagedList"
 msgid "Page %1% of %2%"
 msgstr "Seite %1% von %2%"
@@ -799,11 +799,6 @@ msgstr "Seite %1% von %2%"
 msgctxt "Keyboard|Key"
 msgid "Pause"
 msgstr "Pause"
-
-#. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:307
-msgid "Performance Meter"
-msgstr "Leistungsanzeige"
 
 #. translators: TR charmap encoding
 #: hid/names.cpp:137
@@ -876,7 +871,7 @@ msgid "RThumb"
 msgstr "RStick"
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:329
+#: menu/rendersettingsmenustate.cpp:318
 msgid "Restore Health on Level Start"
 msgstr "Gesundheit bei Levelanfang wiederherstellen"
 
@@ -949,7 +944,7 @@ msgstr "Spiel sichern"
 msgid "Save recorded ghost?"
 msgstr "Aufgenommenen Geist speichern?"
 
-#: engine/world/world.cpp:1036
+#: engine/world/world.cpp:1034
 msgid "Saving..."
 msgstr "Speichere..."
 

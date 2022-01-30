@@ -388,7 +388,6 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
       m_presenter->renderScreenOverlay();
       ui::Ui ui{m_presenter->getMaterialManager()->getUi(), world.getPalette(), m_presenter->getUiViewport()};
       ui.drawBox({0, 0}, ui.getSize(), gl::SRGBA8{0, 0, 0, 224});
-      world.drawPerformanceBar(ui, throttler.getAverageWaitRatio());
       m_presenter->renderUi(ui, 1);
       menu->display(ui, world);
       m_presenter->renderUi(ui, 1);
@@ -521,7 +520,7 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
         }
       }
 
-      world.gameLoop(godMode, throttler.getAverageWaitRatio(), blackAlpha, ui);
+      world.gameLoop(godMode, blackAlpha, ui);
 
       ghostManager.writer->append(world.getObjectManager().getLara().getGhostFrame());
       world.nextGhostFrame();

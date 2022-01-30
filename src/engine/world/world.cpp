@@ -965,7 +965,7 @@ void World::serialize(const serialization::Serializer<World>& ser)
   }
 }
 
-void World::gameLoop(bool godMode, float waitRatio, float blackAlpha, ui::Ui& ui)
+void World::gameLoop(bool godMode, float blackAlpha, ui::Ui& ui)
 {
   update(godMode);
   m_player->laraHealth = m_objectManager.getLara().m_state.health;
@@ -981,8 +981,6 @@ void World::gameLoop(bool godMode, float waitRatio, float blackAlpha, ui::Ui& ui
   {
     ui.drawBox({0, 0}, ui.getSize(), gl::SRGBA8{0, 0, 0, gsl::narrow_cast<uint8_t>(255 * blackAlpha)});
   }
-
-  drawPerformanceBar(ui, waitRatio);
 
   getPresenter().renderUi(ui, 1);
   getPresenter().updateSoundEngine();
@@ -1580,23 +1578,6 @@ void World::initTextureDependentDataFromLevel(const loader::file::level::Level& 
     *seq = SpriteSequence{sequence->type, gsl::make_span(&m_sprites.at(sequence->offset), -sequence->length)};
     const bool distinct = m_spriteSequences.emplace(sequenceId, std::move(seq)).second;
     Expects(distinct);
-  }
-}
-
-void World::drawPerformanceBar(ui::Ui& ui, float waitRatio) const
-{
-  if(!getEngine().getEngineConfig()->displaySettings.performanceMeter)
-    return;
-
-  ui.drawBox({0, ui.getSize().y}, {ui.getSize().x, -20}, gl::SRGBA8{0, 0, 0, 224});
-  const auto w = gsl::narrow_cast<int>(waitRatio * gsl::narrow_cast<float>(ui.getSize().x));
-  if(w > 0)
-  {
-    ui.drawBox({0, ui.getSize().y}, {w, -20}, gl::SRGBA8{0, 255, 0, 128});
-  }
-  else
-  {
-    ui.drawBox({ui.getSize().x, ui.getSize().y}, {w, -20}, gl::SRGBA8{255, 0, 0, 128});
   }
 }
 
