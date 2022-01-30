@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <boost/log/trivial.hpp>
 #include <boost/throw_exception.hpp>
+#include <cmath>
 #include <cstdlib>
 #include <GLFW/glfw3.h>
 #include <glm/fwd.hpp>
@@ -24,7 +25,7 @@ void glErrorCallback(const int err, const gsl::czstring msg)
 }
 } // namespace
 
-Window::Window(const std::vector<std::filesystem::path>& logoPaths, const glm::ivec2& windowSize)
+Window::Window(int targetFramerate, const std::vector<std::filesystem::path>& logoPaths, const glm::ivec2& windowSize)
     : m_windowPos{0, 0}
     , m_windowSize{windowSize}
 {
@@ -39,6 +40,7 @@ Window::Window(const std::vector<std::filesystem::path>& logoPaths, const glm::i
   atexit(&glfwTerminate);
 
   glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_TRUE);
+  glfwWindowHint(GLFW_REFRESH_RATE, targetFramerate);
   glfwWindowHint(GLFW_DEPTH_BITS, 32);
   glfwWindowHint(GLFW_RED_BITS, 8);
   glfwWindowHint(GLFW_GREEN_BITS, 8);
@@ -105,7 +107,35 @@ Window::Window(const std::vector<std::filesystem::path>& logoPaths, const glm::i
 #ifdef NDEBUG
   glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 #endif
-  glfwSwapInterval(1);
+
+  {
+    glfwSwapInterval(1);
+    glfwSwapBuffers(m_window);
+
+    std::vector<std::chrono::system_clock::time_point> samples;
+    static constexpr size_t NSamples = 20;
+    samples.reserve(NSamples + 1);
+    for(int i = 0; i <= NSamples; ++i)
+    {
+      glfwSwapBuffers(m_window);
+      samples.emplace_back(std::chrono::system_clock::now());
+    }
+
+    std::vector<long> swapIntervals;
+    swapIntervals.reserve(NSamples);
+    for(int i = 0; i < NSamples; ++i)
+    {
+      const auto d = samples[i + 1] - samples[i];
+      const auto fps = std::chrono::seconds{1} / d;
+      const auto interval = std::lround(static_cast<float>(fps) / static_cast<float>(targetFramerate));
+      BOOST_LOG_TRIVIAL(debug) << "sampled " << fps << " fps, swap interval " << interval;
+      swapIntervals.emplace_back(interval);
+    }
+    std::sort(swapIntervals.begin(), swapIntervals.end());
+
+    BOOST_LOG_TRIVIAL(debug) << "assuming " << targetFramerate * swapIntervals[NSamples / 2] << " fps monitor";
+    glfwSwapInterval(std::max(1L, swapIntervals[NSamples / 2]));
+  }
 }
 
 void Window::updateWindowSize()

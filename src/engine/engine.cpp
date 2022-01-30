@@ -35,7 +35,6 @@
 #include "script/scriptengine.h"
 #include "serialization/serialization.h"
 #include "serialization/yamldocument.h"
-#include "throttler.h"
 #include "ui/core.h"
 #include "ui/levelstats.h"
 #include "ui/text.h"
@@ -132,10 +131,8 @@ bool showLevelStats(const std::shared_ptr<Presenter>& presenter, world::World& w
   static constexpr const auto BlendDuration = 30_frame;
   auto currentBlendDuration = 0_frame;
 
-  Throttler throttler;
   while(true)
   {
-    throttler.wait();
     if(presenter->shouldClose())
     {
       return false;
@@ -205,11 +202,8 @@ struct GhostManager
     msgBox->fitToContent();
     msgBox->setConfirmed(false);
 
-    Throttler throttler;
     while(true)
     {
-      throttler.wait();
-
       if(presenter.shouldClose())
       {
         return false;
@@ -325,7 +319,6 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
 
   applySettings();
   std::shared_ptr<menu::MenuDisplay> menu;
-  Throttler throttler;
   core::Frame laraDeadTime = 0_frame;
 
   std::optional<std::chrono::high_resolution_clock::time_point> gameSessionStart;
@@ -372,7 +365,6 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
       return {RunResult::NextLevel, std::nullopt};
     }
 
-    throttler.wait();
     if(!m_presenter->preFrame())
     {
       updateTimeSpent();
@@ -398,7 +390,6 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
         break;
       case menu::MenuResult::Closed:
         menu.reset();
-        throttler.reset();
         break;
       case menu::MenuResult::ExitToTitle:
         if(allowSave)
@@ -460,7 +451,6 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
           menu = std::make_shared<menu::MenuDisplay>(
             menu::InventoryMode::DeathMode, world, m_presenter->getRenderViewport());
           menu->allowSave = false;
-          throttler.reset();
           continue;
         }
       }
@@ -472,7 +462,6 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
         menu
           = std::make_shared<menu::MenuDisplay>(menu::InventoryMode::GameMode, world, m_presenter->getRenderViewport());
         menu->allowSave = allowSave;
-        throttler.reset();
         continue;
       }
 
@@ -480,7 +469,6 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
       {
         updateTimeSpent();
         world.save(std::nullopt);
-        throttler.reset();
       }
       else if(m_presenter->getInputHandler().hasDebouncedAction(hid::Action::Load))
       {
@@ -535,7 +523,6 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
     {
       updateTimeSpent();
       makeScreenshot();
-      throttler.reset();
     }
   }
 }
@@ -582,15 +569,12 @@ std::pair<RunResult, std::optional<size_t>> Engine::runTitleMenu(world::World& w
     gslu::make_nn_unique<gl::Sampler>("title-sampler"));
   const auto menu
     = std::make_shared<menu::MenuDisplay>(menu::InventoryMode::TitleMode, world, m_presenter->getRenderViewport());
-  Throttler throttler;
   while(true)
   {
     if(m_presenter->shouldClose())
     {
       return {RunResult::ExitApp, std::nullopt};
     }
-
-    throttler.wait();
 
     if(!m_presenter->preFrame())
       continue;
