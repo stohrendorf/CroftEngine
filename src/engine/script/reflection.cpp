@@ -15,6 +15,7 @@
 #include "engine/player.h"
 #include "engine/presenter.h"
 #include "engine/skeletalmodelnode.h"
+#include "engine/throttler.h"
 #include "engine/weapontype.h"
 #include "engine/world/skeletalmodeltype.h"
 #include "engine/world/world.h"
@@ -232,6 +233,7 @@ SplashScreen::~SplashScreen() = default;
 std::pair<RunResult, std::optional<size_t>> SplashScreen::run(Engine& engine, const std::shared_ptr<Player>& /*player*/)
 {
   const auto end = std::chrono::high_resolution_clock::now() + std::chrono::seconds{m_durationSeconds};
+  Throttler throttler{};
 
   glm::ivec2 size{-1, -1};
   auto image = gslu::make_nn_shared<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>>(
@@ -279,6 +281,8 @@ std::pair<RunResult, std::optional<size_t>> SplashScreen::run(Engine& engine, co
     mesh->render(nullptr, context);
     presenter.updateSoundEngine();
     presenter.swapBuffers();
+
+    throttler.wait();
   }
 
   return {RunResult::NextLevel, std::nullopt};

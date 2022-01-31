@@ -12,9 +12,7 @@ namespace gl
 class Window final
 {
 public:
-  explicit Window(int targetFramerate,
-                  const std::vector<std::filesystem::path>& logoPaths,
-                  const glm::ivec2& windowSize = {1280, 800});
+  explicit Window(const std::vector<std::filesystem::path>& logoPaths, const glm::ivec2& windowSize = {1280, 800});
   ~Window();
 
   void updateWindowSize();
