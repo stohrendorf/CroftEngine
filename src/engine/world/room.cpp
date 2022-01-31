@@ -55,7 +55,6 @@
 #include <iosfwd>
 #include <iterator>
 #include <limits>
-#include <random>
 #include <set>
 #include <string>
 #include <tuple>
@@ -591,13 +590,24 @@ void Room::createParticleMesh(const std::string& label,
                               const glm::vec3& max,
                               render::scene::MaterialManager& materialManager)
 {
-  std::vector<glm::vec3> vertices;
-  std::vector<uint32_t> indices;
-
   static const constexpr auto Resolution = (core::SectorSize / 8).cast<float>().get();
-  std::uniform_real_distribution<float> rdist{-Resolution / 2, Resolution / 2};
-  std::random_device rd; // Will be used to obtain a seed for the random number engine
-  std::default_random_engine gen{rd()};
+
+  // https://stackoverflow.com/a/3747462
+  static const auto fastrand = []()
+  {
+    static uint32_t seed = 12345;
+    seed = (214013 * seed + 2531011);
+    return static_cast<float>(seed >> 16u) / 0x8000 - 0.5f;
+  };
+
+  std::vector<glm::vec3> vertices;
+  vertices.reserve(std::lround(std::max(0.0f,
+                                        ((max.x - min.x) / Resolution - 2) * ((max.y - min.y) / Resolution - 2)
+                                          * ((max.z - min.z) / Resolution - 2))));
+  std::vector<uint32_t> indices;
+  indices.reserve(vertices.capacity());
+  BOOST_LOG_TRIVIAL(debug) << "generating " << vertices.capacity() << " particles for " << label;
+
   for(float x = min.x + Resolution; x < max.x - Resolution; x += Resolution)
   {
     for(float y = min.y + Resolution; y < max.y - Resolution; y += Resolution)
@@ -605,7 +615,7 @@ void Room::createParticleMesh(const std::string& label,
       for(float z = min.z + Resolution; z < max.z - Resolution; z += Resolution)
       {
         glm::vec3 p0 = glm::vec3{x, y, z};
-        glm::vec3 offset{rdist(gen), rdist(gen), rdist(gen)};
+        glm::vec3 offset{fastrand() * Resolution, fastrand() * Resolution, fastrand() * Resolution};
         vertices.emplace_back(p0 + offset);
         indices.emplace_back(gsl::narrow_cast<uint32_t>(vertices.size()));
       }
