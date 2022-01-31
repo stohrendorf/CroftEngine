@@ -150,7 +150,12 @@ bool showLevelStats(const std::shared_ptr<Presenter>& presenter, world::World& w
     ui::LevelStats stats{world.getTitle(), world.getTotalSecrets(), world.getPlayerPtr(), presenter};
     stats.draw(ui);
 
-    presenter->renderWorld(world.getRooms(), world.getCameraController(), world.getCameraController().update());
+    {
+      const auto portals = world.getCameraController().update();
+      if(const auto lara = world.getObjectManager().getLaraPtr())
+        lara->m_state.location.room->node->setVisible(true);
+      presenter->renderWorld(world.getRooms(), world.getCameraController(), portals);
+    }
     presenter->renderScreenOverlay();
 
     if(currentBlendDuration < BlendDuration)
@@ -231,7 +236,12 @@ struct GhostManager
       msgBox->setPosition({(ui.getSize().x - msgBox->getSize().x) / 2, (ui.getSize().y - msgBox->getSize().y) / 2});
       msgBox->update(true);
       msgBox->draw(ui, presenter);
-      presenter.renderWorld(world.getRooms(), world.getCameraController(), world.getCameraController().update());
+      {
+        const auto portals = world.getCameraController().update();
+        if(const auto lara = world.getObjectManager().getLaraPtr())
+          lara->m_state.location.room->node->setVisible(true);
+        presenter.renderWorld(world.getRooms(), world.getCameraController(), portals);
+      }
       presenter.renderScreenOverlay();
       presenter.renderUi(ui, 1.0f);
       presenter.updateSoundEngine();
@@ -383,7 +393,12 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
     {
       updateTimeSpent();
 
-      m_presenter->renderWorld(world.getRooms(), world.getCameraController(), world.getCameraController().update());
+      {
+        const auto portals = world.getCameraController().update();
+        if(const auto lara = world.getObjectManager().getLaraPtr())
+          lara->m_state.location.room->node->setVisible(true);
+        m_presenter->renderWorld(world.getRooms(), world.getCameraController(), portals);
+      }
       m_presenter->updateSoundEngine();
       m_presenter->renderScreenOverlay();
       ui::Ui ui{m_presenter->getMaterialManager()->getUi(), world.getPalette(), m_presenter->getUiViewport()};

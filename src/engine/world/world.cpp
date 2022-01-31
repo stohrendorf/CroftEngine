@@ -975,6 +975,8 @@ void World::gameLoop(bool godMode, float blackAlpha, ui::Ui& ui)
   getPresenter().drawBars(ui, m_palette, getObjectManager());
 
   drawPickupWidgets(ui);
+  if(const auto lara = getObjectManager().getLaraPtr())
+    lara->m_state.location.room->node->setVisible(true);
   getPresenter().renderWorld(getRooms(), getCameraController(), waterEntryPortals);
   getPresenter().renderScreenOverlay();
   if(blackAlpha > 0)
