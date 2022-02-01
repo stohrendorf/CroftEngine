@@ -39,7 +39,7 @@ function( dl_unpack )
     cmake_parse_arguments(
             DL_UNPACK
             "" # no options
-            "URL;FILENAME;TEST_DIR;TEST_FILE;WORKING_DIRECTORY;PATCH"
+            "URL;FILENAME;TEST_DIR;TEST_FILE;WORKING_DIRECTORY"
             ""
             ${ARGN}
     )
@@ -72,27 +72,5 @@ function( dl_unpack )
         endif()
     else()
         message( STATUS "Already extracted ${DL_UNPACK_FILENAME}" )
-    endif()
-
-    if( DL_UNPACK_PATCH )
-        if( NOT DL_UNPACK_TEST_DIR )
-            message( FATAL_ERROR "PATCH required DL_UNPACK_TEST_DIR" )
-        endif()
-
-        include( get_git )
-
-        message( STATUS "Apply patch ${DL_UNPACK_PATCH} to ${DL_UNPACK_FILENAME}..." )
-        execute_process(
-                COMMAND
-                ${GIT_EXECUTABLE}
-                apply
-                --unsafe-paths
-                -p1
-                "--directory=${DL_UNPACK_TEST_DIR}"
-                -v
-                --reject
-                "${EXTERNAL_SRC_ROOT}/${DL_UNPACK_PATCH}"
-                WORKING_DIRECTORY "${EXTERNAL_SRC_ROOT}"
-        )
     endif()
 endfunction()
