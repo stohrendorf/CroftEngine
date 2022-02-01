@@ -13,10 +13,4 @@ const Gameflow& ScriptEngine::getGameflow() const
 {
   return *gsl::not_null{pybind11::globals()["gameflow"].cast<Gameflow*>()};
 }
-
-// NOLINTNEXTLINE(readability-convert-member-functions-to-static)
-std::optional<std::string> ScriptEngine::getLocaleOverride() const
-{
-  return get<std::string>(pybind11::globals(), "locale_override");
-}
 } // namespace engine::script

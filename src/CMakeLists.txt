@@ -612,12 +612,13 @@ file(
         *.h
         *.hpp
 )
+set( EE_ADDITIONAL_LANGUAGES de_DE )
 configure_gettext(
         TARGET_NAME i18n
         DOMAIN edisonengine
         SOURCES ${ALL_SRCS}
         POTFILE_DESTINATION "${CMAKE_SOURCE_DIR}/share"
-        LANGUAGES de_DE
+        LANGUAGES ${EE_ADDITIONAL_LANGUAGES}
         XGETTEXT_ARGS
         "--keyword=_"
         "--keyword=N_"
@@ -654,6 +655,7 @@ target_link_libraries(
         Boost::disable_autolinking
         Boost::headers
         Boost::stacktrace
+        Boost::program_options
         OpenAL::OpenAL
         ryml
         PNG::PNG

@@ -273,6 +273,7 @@ struct GhostManager
 
 Engine::Engine(std::filesystem::path userDataPath,
                const std::filesystem::path& engineDataPath,
+               const std::optional<std::string>& localOverride,
                const glm::ivec2& resolution)
     : m_userDataPath{std::move(userDataPath)}
     , m_engineDataPath{engineDataPath}
@@ -298,9 +299,9 @@ Engine::Engine(std::filesystem::path userDataPath,
 
   m_locale = std::use_facet<boost::locale::info>(boost::locale::generator()("")).name();
   BOOST_LOG_TRIVIAL(info) << "Detected user's locale is " << m_locale;
-  if(const auto overrideLocale = m_scriptEngine.getLocaleOverride())
+  if(localOverride.has_value())
   {
-    m_locale = *overrideLocale;
+    m_locale = *localOverride;
     BOOST_LOG_TRIVIAL(info) << "Locale override is " << m_locale;
   }
 

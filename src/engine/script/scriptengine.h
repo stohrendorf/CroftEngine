@@ -24,7 +24,6 @@ public:
   }
 
   [[nodiscard]] const Gameflow& getGameflow() const;
-  [[nodiscard]] std::optional<std::string> getLocaleOverride() const;
 
 private:
   std::unique_ptr<pybind11::scoped_interpreter> m_interpreter;

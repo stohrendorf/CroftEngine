@@ -83,6 +83,7 @@ private:
 public:
   explicit Engine(std::filesystem::path userDataPath,
                   const std::filesystem::path& engineDataPath,
+                  const std::optional<std::string>& localOverride,
                   const glm::ivec2& resolution = {1280, 800});
 
   ~Engine();

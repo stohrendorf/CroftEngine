@@ -73,6 +73,17 @@ if( WIN32 )
     set( CPACK_RESOURCE_FILE_LICENSE ${CMAKE_CURRENT_SOURCE_DIR}/share/LICENSE )
     set( CPACK_MONOLITHIC_INSTALL ON )
     set( CPACK_PACKAGE_EXECUTABLES "edisonengine;EdisonEngine" )
+    set( CPACK_NSIS_EXTRA_INSTALL_COMMANDS
+            "CreateShortCut \\\"$SMPROGRAMS\\\\$STARTMENU_FOLDER\\\\EdisonEngine (English).lnk\\\" \\\"$INSTDIR\\\\.\\\\edisonengine.exe\\\" \\\"--locale en_GB.utf8\\\""
+            "CreateShortCut \\\"$SMPROGRAMS\\\\$STARTMENU_FOLDER\\\\EdisonEngine (Deutsch).lnk\\\" \\\"$INSTDIR\\\\.\\\\edisonengine.exe\\\" \\\"--locale de_DE.utf8\\\""
+            )
+    set( CPACK_NSIS_EXTRA_UNINSTALL_COMMANDS
+            "Delete \\\"$SMPROGRAMS\\\\$START_MENU\\\\EdisonEngine (English).lnk\\\""
+            "Delete \\\"$SMPROGRAMS\\\\$START_MENU\\\\EdisonEngine (Deutsch).lnk\\\""
+            )
+
+    string( REPLACE ";" "\n" CPACK_NSIS_EXTRA_INSTALL_COMMANDS "${CPACK_NSIS_EXTRA_INSTALL_COMMANDS}" )
+    string( REPLACE ";" "\n" CPACK_NSIS_EXTRA_UNINSTALL_COMMANDS "${CPACK_NSIS_EXTRA_UNINSTALL_COMMANDS}" )
 
     set( CPACK_SOURCE_GENERATOR "7Z" )
     set( CPACK_NSIS_EXECUTABLES_DIRECTORY . )

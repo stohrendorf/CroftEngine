@@ -1,4 +1,3 @@
-# locale_override = "en_GB.utf8"
 from engine import TR1ItemId, Gameflow
 
 from object_infos import object_infos

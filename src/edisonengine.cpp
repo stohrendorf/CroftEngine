@@ -12,6 +12,7 @@
 #include <boost/log/utility/setup/common_attributes.hpp>
 #include <boost/log/utility/setup/console.hpp>
 #include <boost/log/utility/setup/file.hpp>
+#include <boost/program_options.hpp>
 #include <csignal>
 #include <cstdlib>
 #include <exception>
@@ -46,7 +47,7 @@ void terminateHandler()
 }
 } // namespace
 
-int main()
+int main(int argc, const char** argv)
 {
   std::signal(SIGSEGV, &stacktrace_handler);
   std::signal(SIGABRT, &stacktrace_handler);
@@ -70,9 +71,26 @@ int main()
 
   BOOST_LOG_TRIVIAL(info) << "Running EdisonEngine " << EE_VERSION;
 
+  std::optional<std::string> localeOverride;
+  {
+    boost::program_options::options_description desc("Allowed options");
+    desc.add_options()("locale,l",
+                       boost::program_options::value<std::string>()->default_value(""),
+                       "set locale override, e.g. de_DE.utf8");
+
+    boost::program_options::variables_map vm;
+    boost::program_options::store(boost::program_options::parse_command_line(argc, argv, desc), vm);
+    boost::program_options::notify(vm);
+
+    if(auto it = vm.find("locale"); it != vm.end() && !it->second.as<std::string>().empty())
+    {
+      localeOverride = it->second.as<std::string>();
+    }
+  }
+
   try
   {
-    engine::Engine engine{getUserDataDir(), getEngineDataDir()};
+    engine::Engine engine{getUserDataDir(), getEngineDataDir(), localeOverride};
     size_t levelSequenceIndex = 0;
     enum class Mode
     {
