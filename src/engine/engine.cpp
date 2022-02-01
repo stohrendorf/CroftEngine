@@ -288,6 +288,14 @@ Engine::Engine(std::filesystem::path userDataPath,
     BOOST_THROW_EXCEPTION(std::runtime_error("Failed to load __init__.py"));
   }
 
+  {
+    const auto invalid = m_scriptEngine.getGameflow().getInvalidFilepaths(*this);
+    for(const auto& path : invalid)
+      BOOST_LOG_TRIVIAL(fatal) << "Missing required game file " << path;
+    if(!invalid.empty())
+      BOOST_THROW_EXCEPTION(std::runtime_error("Missing required game file(s)"));
+  }
+
   m_locale = std::use_facet<boost::locale::info>(boost::locale::generator()("")).name();
   BOOST_LOG_TRIVIAL(info) << "Detected user's locale is " << m_locale;
   if(const auto overrideLocale = m_scriptEngine.getLocaleOverride())

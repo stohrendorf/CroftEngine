@@ -62,6 +62,8 @@ struct TrackInfo
   size_t slot;
   bool looping;
   uint32_t fadeDurationSeconds;
+
+  [[nodiscard]] std::optional<std::filesystem::path> getFilepathIfInvalid(const Engine& engine) const;
 };
 
 class LevelSequenceItem
@@ -73,6 +75,7 @@ public:
     runFromSave(Engine& /*engine*/, const std::optional<size_t>& /*slot*/, const std::shared_ptr<Player>& /*player*/);
 
   [[nodiscard]] virtual bool isLevel(const std::filesystem::path& path) const = 0;
+  [[nodiscard]] virtual std::optional<std::filesystem::path> getFilepathIfInvalid(const Engine& engine) const = 0;
 };
 
 class Level : public LevelSequenceItem
@@ -115,6 +118,8 @@ public:
     runFromSave(Engine& engine, const std::optional<size_t>& slot, const std::shared_ptr<Player>& player) override;
 
   [[nodiscard]] bool isLevel(const std::filesystem::path& path) const override;
+
+  [[nodiscard]] std::optional<std::filesystem::path> getFilepathIfInvalid(const Engine& engine) const override;
 };
 
 class ModifyInventory : public LevelSequenceItem
@@ -136,6 +141,11 @@ public:
   [[nodiscard]] bool isLevel(const std::filesystem::path& /*path*/) const override
   {
     return false;
+  }
+
+  [[nodiscard]] std::optional<std::filesystem::path> getFilepathIfInvalid(const Engine& /*engine*/) const override
+  {
+    return std::nullopt;
   }
 };
 
@@ -173,6 +183,8 @@ public:
   {
     return false;
   }
+
+  [[nodiscard]] std::optional<std::filesystem::path> getFilepathIfInvalid(const Engine& engine) const override;
 };
 
 class Cutscene : public LevelSequenceItem
@@ -221,6 +233,8 @@ public:
   {
     return false;
   }
+
+  [[nodiscard]] std::optional<std::filesystem::path> getFilepathIfInvalid(const Engine& engine) const override;
 };
 
 class SplashScreen : public LevelSequenceItem
@@ -240,6 +254,8 @@ public:
   {
     return false;
   }
+
+  [[nodiscard]] std::optional<std::filesystem::path> getFilepathIfInvalid(const Engine& engine) const override;
 };
 
 class Gameflow final
@@ -302,6 +318,8 @@ public:
   [[nodiscard]] bool isGodMode() const;
   [[nodiscard]] bool hasAllAmmoCheat() const;
   [[nodiscard]] pybind11::dict getCheatInventory() const;
+
+  [[nodiscard]] std::vector<std::filesystem::path> getInvalidFilepaths(const Engine& engine) const;
 
 private:
   std::map<TR1ItemId, ObjectInfo*> m_objectInfos;

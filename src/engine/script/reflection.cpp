@@ -90,6 +90,13 @@ std::pair<RunResult, std::optional<size_t>> Video::run(Engine& engine, const std
   return {RunResult::NextLevel, std::nullopt};
 }
 
+std::optional<std::filesystem::path> Video::getFilepathIfInvalid(const Engine& engine) const
+{
+  if(std::filesystem::is_regular_file(getAssetPath(engine, m_name)))
+    return std::nullopt;
+  return std::filesystem::path{m_name};
+}
+
 std::pair<RunResult, std::optional<size_t>> Cutscene::run(Engine& engine, const std::shared_ptr<Player>& player)
 {
   auto world
@@ -132,6 +139,13 @@ std::pair<RunResult, std::optional<size_t>> Cutscene::run(Engine& engine, const 
   }
 
   return engine.run(*world, true, false);
+}
+
+std::optional<std::filesystem::path> Cutscene::getFilepathIfInvalid(const Engine& engine) const
+{
+  if(std::filesystem::is_regular_file(getAssetPath(engine, m_name)))
+    return std::nullopt;
+  return std::filesystem::path{m_name};
 }
 
 std::unique_ptr<world::World> Level::loadWorld(Engine& engine, const std::shared_ptr<Player>& player)
@@ -203,6 +217,13 @@ std::pair<RunResult, std::optional<size_t>>
   auto world = loadWorld(engine, player);
   world->load(slot);
   return engine.run(*world, false, m_allowSave);
+}
+
+std::optional<std::filesystem::path> Level::getFilepathIfInvalid(const Engine& engine) const
+{
+  if(std::filesystem::is_regular_file(getAssetPath(engine, m_name)))
+    return std::nullopt;
+  return std::filesystem::path{m_name};
 }
 
 std::pair<RunResult, std::optional<size_t>> TitleMenu::run(Engine& engine, const std::shared_ptr<Player>& player)
@@ -288,6 +309,13 @@ std::pair<RunResult, std::optional<size_t>> SplashScreen::run(Engine& engine, co
   return {RunResult::NextLevel, std::nullopt};
 }
 
+std::optional<std::filesystem::path> SplashScreen::getFilepathIfInvalid(const Engine& engine) const
+{
+  if(std::filesystem::is_regular_file(getAssetPath(engine, m_path)))
+    return std::nullopt;
+  return std::filesystem::path{m_path};
+}
+
 std::pair<RunResult, std::optional<size_t>>
   LevelSequenceItem::runFromSave(Engine&, const std::optional<size_t>&, const std::shared_ptr<Player>&)
 {
@@ -318,5 +346,44 @@ bool Gameflow::hasAllAmmoCheat() const
 pybind11::dict Gameflow::getCheatInventory() const
 {
   return get<pybind11::dict>(m_cheats, "inventory").value_or(pybind11::dict{});
+}
+
+std::vector<std::filesystem::path> Gameflow::getInvalidFilepaths(const Engine& engine) const
+{
+  std::vector<std::filesystem::path> result;
+  for(const auto& track : m_tracks)
+    if(const auto invalid = track.second->getFilepathIfInvalid(engine); invalid.has_value())
+      result.emplace_back(*invalid);
+  for(const auto& levelSequenceItem : m_levelSequence)
+  {
+    Expects(levelSequenceItem != nullptr);
+    if(const auto invalid = levelSequenceItem->getFilepathIfInvalid(engine); invalid.has_value())
+      result.emplace_back(*invalid);
+  }
+  Expects(m_titleMenu != nullptr);
+  if(const auto invalid = m_titleMenu->getFilepathIfInvalid(engine); invalid.has_value())
+    result.emplace_back(*invalid);
+  for(const auto& levelSequenceItem : m_laraHome)
+  {
+    Expects(levelSequenceItem != nullptr);
+    if(const auto invalid = levelSequenceItem->getFilepathIfInvalid(engine); invalid.has_value())
+      result.emplace_back(*invalid);
+  }
+  for(const auto& levelSequenceItem : m_earlyBoot)
+  {
+    Expects(levelSequenceItem != nullptr);
+    if(const auto invalid = levelSequenceItem->getFilepathIfInvalid(engine); invalid.has_value())
+      result.emplace_back(*invalid);
+  }
+  if(!std::filesystem::is_regular_file(getAssetPath(engine, m_titleMenuBackdrop)))
+    result.emplace_back(m_titleMenuBackdrop);
+  return result;
+}
+
+std::optional<std::filesystem::path> TrackInfo::getFilepathIfInvalid(const Engine& engine) const
+{
+  if(std::filesystem::is_regular_file(getAssetPath(engine, name)))
+    return std::nullopt;
+  return std::filesystem::path{name};
 }
 } // namespace engine::script
