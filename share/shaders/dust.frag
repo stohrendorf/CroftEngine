@@ -5,9 +5,6 @@ in DustFSInterface {
     flat float lifetime;
 } fs;
 
-const float Alpha0 = 0.1;
-const float Alpha1 = 0.3;
-
 void main()
 {
     float a = min(min(fs.lifetime, 1-fs.lifetime) * 3, 1);

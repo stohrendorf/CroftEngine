@@ -643,7 +643,7 @@ void Room::createParticleMesh(const std::string& label,
              {
                uniform.set(isWaterRoom ? glm::vec3{0.0f, 0.3f, 0.05f} : glm::vec3{0.5f, 0.45f, 0.4f});
              });
-  
+
   dust = std::make_shared<render::scene::Node>(label + "-particles");
   dust->setLocalMatrix(translate(glm::mat4{1.0f}, position.toRenderSystem()));
   dust->setRenderable(mesh);
