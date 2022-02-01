@@ -12,9 +12,7 @@
 
 namespace render::scene
 {
-bool BufferParameter::bind(const Node* node,
-                           const Mesh& mesh,
-                           const gsl::not_null<std::shared_ptr<ShaderProgram>>& shaderProgram)
+bool BufferParameter::bind(const Node* node, const Mesh& mesh, const gslu::nn_shared<ShaderProgram>& shaderProgram)
 {
   auto binder = mesh.findShaderStorageBlockBinder(getName());
   if(!m_bufferBinder && binder == nullptr)
@@ -52,7 +50,7 @@ void BufferParameter::bindBoneTransformBuffer()
 }
 
 gl::ShaderStorageBlock*
-  BufferParameter::findShaderStorageBlock(const gsl::not_null<std::shared_ptr<ShaderProgram>>& shaderProgram) const
+  BufferParameter::findShaderStorageBlock(const gslu::nn_shared<ShaderProgram>& shaderProgram) const
 {
   if(const auto block = shaderProgram->findShaderStorageBlock(getName()))
     return block;

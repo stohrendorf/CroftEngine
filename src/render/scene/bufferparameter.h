@@ -6,6 +6,7 @@
 #include <gl/buffer.h>
 #include <gl/program.h>
 #include <gsl/gsl-lite.hpp>
+#include <gslu.h>
 #include <memory>
 #include <string>
 #include <utility>
@@ -54,14 +55,12 @@ public:
     m_bufferBinder = std::move(setter);
   }
 
-  bool bind(const Node* node,
-            const Mesh& mesh,
-            const gsl::not_null<std::shared_ptr<ShaderProgram>>& shaderProgram) override;
+  bool bind(const Node* node, const Mesh& mesh, const gslu::nn_shared<ShaderProgram>& shaderProgram) override;
   void bindBoneTransformBuffer();
 
 private:
   [[nodiscard]] gl::ShaderStorageBlock*
-    findShaderStorageBlock(const gsl::not_null<std::shared_ptr<ShaderProgram>>& shaderProgram) const;
+    findShaderStorageBlock(const gslu::nn_shared<ShaderProgram>& shaderProgram) const;
 
   std::function<BufferBinder> m_bufferBinder;
 };

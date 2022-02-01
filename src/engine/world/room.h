@@ -14,6 +14,7 @@
 #include <gl/buffer.h>
 #include <glm/fwd.hpp>
 #include <gsl/gsl-lite.hpp>
+#include <gslu.h>
 #include <memory>
 #include <optional>
 #include <string>
@@ -65,8 +66,7 @@ struct Portal
   std::array<glm::vec3, 4> vertices;
   std::shared_ptr<render::scene::Mesh> mesh;
 
-  void buildMesh(const loader::file::Portal& srcPortal,
-                 const gsl::not_null<std::shared_ptr<render::scene::Material>>& material);
+  void buildMesh(const loader::file::Portal& srcPortal, const gslu::nn_shared<render::scene::Material>& material);
 };
 
 struct Light
@@ -102,7 +102,7 @@ struct Room
   Room* alternateRoom{nullptr};
 
   std::shared_ptr<render::scene::Node> node = nullptr;
-  std::vector<gsl::not_null<std::shared_ptr<render::scene::Node>>> sceneryNodes{};
+  std::vector<gslu::nn_shared<render::scene::Node>> sceneryNodes{};
 
   std::shared_ptr<render::scene::Node> dust = nullptr;
 
@@ -169,7 +169,7 @@ struct Room
   void serialize(const serialization::Serializer<World>& ser);
 
   std::vector<engine::ShaderLight> bufferLights{};
-  gsl::not_null<std::shared_ptr<gl::ShaderStorageBuffer<engine::ShaderLight>>> lightsBuffer{
+  gslu::nn_shared<gl::ShaderStorageBuffer<engine::ShaderLight>> lightsBuffer{
     std::make_shared<gl::ShaderStorageBuffer<engine::ShaderLight>>("lights-buffer")};
 
   void collectShaderLights(size_t depth);

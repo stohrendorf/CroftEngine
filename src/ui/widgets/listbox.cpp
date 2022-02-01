@@ -86,7 +86,7 @@ void ListBox::draw(ui::Ui& ui, const engine::Presenter& presenter) const
   }
 }
 
-size_t ListBox::append(const gsl::not_null<std::shared_ptr<Widget>>& widget)
+size_t ListBox::append(const gslu::nn_shared<Widget>& widget)
 {
   m_widgets.emplace_back(widget);
   return m_widgets.size() - 1;

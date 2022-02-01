@@ -14,6 +14,7 @@
 #include <glm/mat4x4.hpp>
 #include <glm/vec4.hpp>
 #include <gsl/gsl-lite.hpp>
+#include <gslu.h>
 #include <memory>
 
 namespace render::scene
@@ -59,11 +60,9 @@ public:
 
   explicit CSM(int32_t resolution, MaterialManager& materialManager);
 
-  [[nodiscard]] std::array<gsl::not_null<std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::RG16F>>>>,
-                           CSMBuffer::NSplits>
+  [[nodiscard]] std::array<gslu::nn_shared<gl::TextureHandle<gl::Texture2D<gl::RG16F>>>, CSMBuffer::NSplits>
     getTextures() const;
-  [[nodiscard]] std::array<gsl::not_null<std::shared_ptr<gl::TextureDepth<float>>>, CSMBuffer::NSplits>
-    getDepthTextures() const;
+  [[nodiscard]] std::array<gslu::nn_shared<gl::TextureDepth<float>>, CSMBuffer::NSplits> getDepthTextures() const;
   [[nodiscard]] std::array<glm::mat4, CSMBuffer::NSplits> getMatrices(const glm::mat4& modelMatrix) const;
 
   [[nodiscard]] auto getActiveMatrix(const glm::mat4& modelMatrix) const

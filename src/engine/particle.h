@@ -17,6 +17,7 @@
 #include <deque>
 #include <glm/fwd.hpp>
 #include <gsl/gsl-lite.hpp>
+#include <gslu.h>
 #include <memory>
 #include <optional>
 #include <string>
@@ -48,7 +49,7 @@ public:
   int16_t timePerSpriteFrame = 0;
 
 private:
-  std::deque<gsl::not_null<std::shared_ptr<render::scene::Renderable>>> m_renderables{};
+  std::deque<gslu::nn_shared<render::scene::Renderable>> m_renderables{};
   Lighting m_lighting;
   std::optional<core::Shade> m_shade{std::nullopt};
 
@@ -214,7 +215,7 @@ class MeshShrapnelParticle final : public Particle
 public:
   explicit MeshShrapnelParticle(const Location& location,
                                 world::World& world,
-                                const gsl::not_null<std::shared_ptr<render::scene::Renderable>>& renderable,
+                                const gslu::nn_shared<render::scene::Renderable>& renderable,
                                 bool torsoBoss,
                                 const core::Length& damageRadius);
 
@@ -291,21 +292,21 @@ public:
   bool update(world::World& /*world*/) override;
 };
 
-extern gsl::not_null<std::shared_ptr<Particle>>
+extern gslu::nn_shared<Particle>
   createBloodSplat(world::World& world, const Location& location, const core::Speed& speed, const core::Angle& angle);
 
-extern gsl::not_null<std::shared_ptr<Particle>> createMuzzleFlash(world::World& world,
-                                                                  const Location& location,
-                                                                  const core::Speed& /*speed*/,
-                                                                  const core::Angle& angle);
+extern gslu::nn_shared<Particle> createMuzzleFlash(world::World& world,
+                                                   const Location& location,
+                                                   const core::Speed& /*speed*/,
+                                                   const core::Angle& angle);
 
-extern gsl::not_null<std::shared_ptr<Particle>> createMutantBullet(world::World& world,
-                                                                   const Location& location,
-                                                                   const core::Speed& /*speed*/,
-                                                                   const core::Angle& angle);
+extern gslu::nn_shared<Particle> createMutantBullet(world::World& world,
+                                                    const Location& location,
+                                                    const core::Speed& /*speed*/,
+                                                    const core::Angle& angle);
 
-extern gsl::not_null<std::shared_ptr<Particle>> createMutantGrenade(world::World& world,
-                                                                    const Location& location,
-                                                                    const core::Speed& /*speed*/,
-                                                                    const core::Angle& angle);
+extern gslu::nn_shared<Particle> createMutantGrenade(world::World& world,
+                                                     const Location& location,
+                                                     const core::Speed& /*speed*/,
+                                                     const core::Angle& angle);
 } // namespace engine

@@ -120,26 +120,26 @@ namespace
 struct SplitGetter
 {
   template<size_t... Is>
-  static std::array<gsl::not_null<std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::RG16F>>>>, CSMBuffer::NSplits>
+  static std::array<gslu::nn_shared<gl::TextureHandle<gl::Texture2D<gl::RG16F>>>, CSMBuffer::NSplits>
     getBlurred(const std::array<CSM::Split, CSMBuffer::NSplits>& splits, std::index_sequence<Is...>)
   {
     return {{splits[Is].squareBlur->getBlurredTexture()...}};
   }
 
-  static std::array<gsl::not_null<std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::RG16F>>>>, CSMBuffer::NSplits>
+  static std::array<gslu::nn_shared<gl::TextureHandle<gl::Texture2D<gl::RG16F>>>, CSMBuffer::NSplits>
     getBlurred(const std::array<CSM::Split, CSMBuffer::NSplits>& splits)
   {
     return getBlurred(splits, std::make_index_sequence<CSMBuffer::NSplits>());
   }
 
   template<size_t... Is>
-  static std::array<gsl::not_null<std::shared_ptr<gl::TextureDepth<float>>>, CSMBuffer::NSplits>
+  static std::array<gslu::nn_shared<gl::TextureDepth<float>>, CSMBuffer::NSplits>
     getDepth(const std::array<CSM::Split, CSMBuffer::NSplits>& splits, std::index_sequence<Is...>)
   {
     return {{splits[Is].depthTextureHandle->getTexture()...}};
   }
 
-  static std::array<gsl::not_null<std::shared_ptr<gl::TextureDepth<float>>>, CSMBuffer::NSplits>
+  static std::array<gslu::nn_shared<gl::TextureDepth<float>>, CSMBuffer::NSplits>
     getDepth(const std::array<CSM::Split, CSMBuffer::NSplits>& splits)
   {
     return getDepth(splits, std::make_index_sequence<CSMBuffer::NSplits>());
@@ -147,13 +147,12 @@ struct SplitGetter
 };
 } // namespace
 
-std::array<gsl::not_null<std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::RG16F>>>>, CSMBuffer::NSplits>
-  CSM::getTextures() const
+std::array<gslu::nn_shared<gl::TextureHandle<gl::Texture2D<gl::RG16F>>>, CSMBuffer::NSplits> CSM::getTextures() const
 {
   return SplitGetter::getBlurred(m_splits);
 }
 
-std::array<gsl::not_null<std::shared_ptr<gl::TextureDepth<float>>>, CSMBuffer::NSplits> CSM::getDepthTextures() const
+std::array<gslu::nn_shared<gl::TextureDepth<float>>, CSMBuffer::NSplits> CSM::getDepthTextures() const
 {
   return SplitGetter::getDepth(m_splits);
 }

@@ -207,8 +207,10 @@ RenderMeshData::RenderMeshData(const loader::file::Mesh& mesh,
   }
 }
 
-gsl::not_null<std::shared_ptr<render::scene::Mesh>> RenderMeshDataCompositor::toMesh(
-  render::scene::MaterialManager& materialManager, bool skeletal, bool shadowCaster, const std::string& label)
+gslu::nn_shared<render::scene::Mesh> RenderMeshDataCompositor::toMesh(render::scene::MaterialManager& materialManager,
+                                                                      bool skeletal,
+                                                                      bool shadowCaster,
+                                                                      const std::string& label)
 {
   auto vb = gslu::make_nn_shared<gl::VertexBuffer<RenderMeshData::RenderVertex>>(
     RenderMeshData::RenderVertex::getLayout(), label);

@@ -5,6 +5,7 @@
 
 #include <cstddef>
 #include <gsl/gsl-lite.hpp>
+#include <gslu.h>
 #include <memory>
 #include <string>
 
@@ -33,7 +34,7 @@ struct MenuRingTransform;
 class ListDisplayMenuState : public SelectedMenuState
 {
 private:
-  gsl::not_null<std::shared_ptr<ui::widgets::ListBox>> m_listBox;
+  gslu::nn_shared<ui::widgets::ListBox> m_listBox;
   ui::widgets::GroupBox m_groupBox;
 
 public:
@@ -44,7 +45,7 @@ public:
   virtual std::unique_ptr<MenuState> onSelected(size_t idx, engine::world::World& world, MenuDisplay& display) = 0;
   virtual std::unique_ptr<MenuState> onAborted() = 0;
 
-  size_t append(const gsl::not_null<std::shared_ptr<ui::widgets::Widget>>& widget);
+  size_t append(const gslu::nn_shared<ui::widgets::Widget>& widget);
 
   void clear();
 

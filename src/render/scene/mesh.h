@@ -8,6 +8,7 @@
 #include <gl/soglb_fwd.h>
 #include <glm/vec2.hpp>
 #include <gsl/gsl-lite.hpp>
+#include <gslu.h>
 #include <memory>
 #include <string>
 #include <utility>
@@ -58,7 +59,7 @@ template<typename IndexT, typename... VertexTs>
 class MeshImpl : public Mesh
 {
 public:
-  explicit MeshImpl(gsl::not_null<std::shared_ptr<gl::VertexArray<IndexT, VertexTs...>>> vao,
+  explicit MeshImpl(gslu::nn_shared<gl::VertexArray<IndexT, VertexTs...>> vao,
                     gl::api::PrimitiveType primitiveType = gl::api::PrimitiveType::Triangles)
       : Mesh{primitiveType}
       , m_vao{std::move(vao)}
@@ -73,7 +74,7 @@ public:
   MeshImpl& operator=(const MeshImpl&) = delete;
 
 private:
-  gsl::not_null<std::shared_ptr<gl::VertexArray<IndexT, VertexTs...>>> m_vao;
+  gslu::nn_shared<gl::VertexArray<IndexT, VertexTs...>> m_vao;
 
   void drawIndexBuffer(gl::api::PrimitiveType primitiveType) override
   {
@@ -81,19 +82,18 @@ private:
   }
 };
 
-extern gsl::not_null<std::shared_ptr<Mesh>> createScreenQuad(const glm::vec2& xy,
-                                                             const glm::vec2& size,
-                                                             const std::shared_ptr<Material>& material,
-                                                             const std::string& label);
+extern gslu::nn_shared<Mesh> createScreenQuad(const glm::vec2& xy,
+                                              const glm::vec2& size,
+                                              const std::shared_ptr<Material>& material,
+                                              const std::string& label);
 
-inline gsl::not_null<std::shared_ptr<Mesh>>
+inline gslu::nn_shared<Mesh>
   createScreenQuad(const glm::vec2& size, const std::shared_ptr<Material>& material, const std::string& label)
 {
   return createScreenQuad({0, 0}, size, material, label);
 }
 
-inline gsl::not_null<std::shared_ptr<Mesh>> createScreenQuad(const std::shared_ptr<Material>& material,
-                                                             const std::string& label)
+inline gslu::nn_shared<Mesh> createScreenQuad(const std::shared_ptr<Material>& material, const std::string& label)
 {
   return createScreenQuad({0, 0}, {0, 0}, material, label);
 }

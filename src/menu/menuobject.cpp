@@ -126,7 +126,7 @@ void MenuObject::updateMeshRenderMask()
 }
 
 void MenuObject::initModel(const engine::world::World& world,
-                           const gsl::not_null<std::shared_ptr<gl::ShaderStorageBuffer<engine::ShaderLight>>>& lights)
+                           const gslu::nn_shared<gl::ShaderStorageBuffer<engine::ShaderLight>>& lights)
 {
   const auto& obj = world.findAnimatedModelForType(type);
   Expects(obj != nullptr);

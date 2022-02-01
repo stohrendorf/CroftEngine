@@ -31,8 +31,8 @@ namespace render::pass
 {
 EffectPass::EffectPass(gsl::not_null<const RenderPipeline*> renderPipeline,
                        std::string name,
-                       gsl::not_null<std::shared_ptr<scene::Material>> material,
-                       const gsl::not_null<std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::SRGB8>>>>& input)
+                       gslu::nn_shared<scene::Material> material,
+                       const gslu::nn_shared<gl::TextureHandle<gl::Texture2D<gl::SRGB8>>>& input)
     : m_renderPipeline{std::move(renderPipeline)}
     , m_name{std::move(name)}
     , m_material{std::move(material)}

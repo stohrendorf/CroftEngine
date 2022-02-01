@@ -253,7 +253,7 @@ bool FlameParticle::update(world::World& world)
         const auto alreadyAttachedToLara
           = std::any_of(world.getObjectManager().getParticles().begin(),
                         world.getObjectManager().getParticles().end(),
-                        [](const gsl::not_null<std::shared_ptr<Particle>>& particle)
+                        [](const gslu::nn_shared<Particle>& particle)
                         {
                           return particle->object_number == TR1ItemId::Flame && particle->timePerSpriteFrame == -1;
                         });
@@ -350,7 +350,7 @@ bool MeshShrapnelParticle::update(world::World& world)
 
 MeshShrapnelParticle::MeshShrapnelParticle(const Location& location,
                                            world::World& world,
-                                           const gsl::not_null<std::shared_ptr<render::scene::Renderable>>& renderable,
+                                           const gslu::nn_shared<render::scene::Renderable>& renderable,
                                            const bool torsoBoss,
                                            const core::Length& damageRadius)
     : Particle{"meshShrapnel", TR1ItemId::MeshShrapnel, location, world, false, renderable}
@@ -552,37 +552,37 @@ bool RicochetParticle::update(world::World&)
   return timePerSpriteFrame != 0;
 }
 
-gsl::not_null<std::shared_ptr<Particle>> createMuzzleFlash(world::World& world,
-                                                           const Location& location,
-                                                           const core::Speed& /*speed*/,
-                                                           const core::Angle& angle)
+gslu::nn_shared<Particle> createMuzzleFlash(world::World& world,
+                                            const Location& location,
+                                            const core::Speed& /*speed*/,
+                                            const core::Angle& angle)
 {
   auto particle = gslu::make_nn_shared<MuzzleFlashParticle>(location, world, angle);
   setParent(particle, location.room->node);
   return particle;
 }
 
-gsl::not_null<std::shared_ptr<Particle>> createMutantBullet(world::World& world,
-                                                            const Location& location,
-                                                            const core::Speed& /*speed*/,
-                                                            const core::Angle& angle)
+gslu::nn_shared<Particle> createMutantBullet(world::World& world,
+                                             const Location& location,
+                                             const core::Speed& /*speed*/,
+                                             const core::Angle& angle)
 {
   auto particle = gslu::make_nn_shared<MutantBulletParticle>(location, world, angle);
   setParent(particle, location.room->node);
   return particle;
 }
 
-gsl::not_null<std::shared_ptr<Particle>> createMutantGrenade(world::World& world,
-                                                             const Location& location,
-                                                             const core::Speed& /*speed*/,
-                                                             const core::Angle& angle)
+gslu::nn_shared<Particle> createMutantGrenade(world::World& world,
+                                              const Location& location,
+                                              const core::Speed& /*speed*/,
+                                              const core::Angle& angle)
 {
   auto particle = gslu::make_nn_shared<MutantGrenadeParticle>(location, world, angle);
   setParent(particle, location.room->node);
   return particle;
 }
 
-gsl::not_null<std::shared_ptr<Particle>>
+gslu::nn_shared<Particle>
   createBloodSplat(world::World& world, const Location& location, const core::Speed& speed, const core::Angle& angle)
 {
   auto particle = gslu::make_nn_shared<BloodSplatterParticle>(location, speed, angle, world);

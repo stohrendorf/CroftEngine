@@ -8,6 +8,7 @@
 #include <gl/soglb_fwd.h>
 #include <glm/fwd.hpp>
 #include <gsl/gsl-lite.hpp>
+#include <gslu.h>
 #include <memory>
 
 namespace render::scene
@@ -49,7 +50,7 @@ public:
   }
 
 private:
-  const gsl::not_null<std::shared_ptr<gl::Image<gl::SRGBA8>>> m_image{std::make_shared<gl::Image<gl::SRGBA8>>()};
+  const gslu::nn_shared<gl::Image<gl::SRGBA8>> m_image{std::make_shared<gl::Image<gl::SRGBA8>>()};
   std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>> m_texture;
   std::shared_ptr<Mesh> m_mesh{nullptr};
   float m_alphaMultiplier{1.0f};

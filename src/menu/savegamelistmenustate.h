@@ -4,6 +4,7 @@
 #include "menustate.h"
 
 #include <cstddef>
+#include <gslu.h>
 #include <memory>
 #include <string>
 #include <vector>
@@ -35,7 +36,7 @@ private:
 
   std::unique_ptr<MenuState> m_previous;
   std::vector<bool> m_hasSavegame;
-  std::vector<gsl::not_null<std::shared_ptr<SavegameEntry>>> m_entries;
+  std::vector<gslu::nn_shared<SavegameEntry>> m_entries;
   const bool m_loading;
   std::shared_ptr<ui::widgets::MessageBox> m_confirmOverwrite;
   enum class Order

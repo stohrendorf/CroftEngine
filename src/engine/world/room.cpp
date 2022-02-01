@@ -105,8 +105,8 @@ struct RenderMesh
   std::shared_ptr<render::scene::Material> m_materialDepthOnly;
 
   std::shared_ptr<render::scene::Mesh>
-    toMesh(const gsl::not_null<std::shared_ptr<gl::VertexBuffer<RenderVertex>>>& vbuf,
-           const gsl::not_null<std::shared_ptr<gl::VertexBuffer<render::TextureAnimator::AnimatedUV>>>& uvBuf,
+    toMesh(const gslu::nn_shared<gl::VertexBuffer<RenderVertex>>& vbuf,
+           const gslu::nn_shared<gl::VertexBuffer<render::TextureAnimator::AnimatedUV>>& uvBuf,
            const std::string& label)
   {
 #ifndef NDEBUG
@@ -156,8 +156,7 @@ core::TRVec getCenter(const std::array<loader::file::VertexIndex, N>& faceVertic
 }
 } // namespace
 
-void Portal::buildMesh(const loader::file::Portal& srcPortal,
-                       const gsl::not_null<std::shared_ptr<render::scene::Material>>& material)
+void Portal::buildMesh(const loader::file::Portal& srcPortal, const gslu::nn_shared<render::scene::Material>& material)
 {
   struct Vertex
   {

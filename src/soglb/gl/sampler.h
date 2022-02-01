@@ -5,6 +5,7 @@
 #include "glassert.h"
 
 #include <glm/gtc/type_ptr.hpp>
+#include <gslu.h>
 #include <string_view>
 #include <tuple>
 #include <utility>
@@ -97,8 +98,8 @@ private:
 } // namespace gl
 
 template<typename... Args>
-inline gsl::not_null<std::unique_ptr<gl::Sampler>> operator|(gsl::not_null<std::unique_ptr<gl::Sampler>>&& sampler,
-                                                             const gl::detail::ArgsHolder<Args...>& setter)
+inline gslu::nn_unique<gl::Sampler> operator|(gslu::nn_unique<gl::Sampler>&& sampler,
+                                              const gl::detail::ArgsHolder<Args...>& setter)
 {
   std::apply(
     [&sampler](const Args&... args)

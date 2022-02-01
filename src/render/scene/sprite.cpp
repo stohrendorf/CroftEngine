@@ -35,14 +35,14 @@ std::array<SpriteVertex, 4> createSpriteVertices(const float x0,
   return vertices;
 }
 
-gsl::not_null<std::shared_ptr<gl::VertexBuffer<SpriteVertex>>> createSpriteVertexBuffer(float x0,
-                                                                                        float y0,
-                                                                                        float x1,
-                                                                                        float y1,
-                                                                                        const glm::vec2& t0,
-                                                                                        const glm::vec2& t1,
-                                                                                        int textureIdx,
-                                                                                        const std::string& label)
+gslu::nn_shared<gl::VertexBuffer<SpriteVertex>> createSpriteVertexBuffer(float x0,
+                                                                         float y0,
+                                                                         float x1,
+                                                                         float y1,
+                                                                         const glm::vec2& t0,
+                                                                         const glm::vec2& t1,
+                                                                         int textureIdx,
+                                                                         const std::string& label)
 {
   const auto vertices = createSpriteVertices(x0, y0, x1, y1, t0, t1, textureIdx);
   auto vb = gslu::make_nn_shared<gl::VertexBuffer<SpriteVertex>>(SpriteVertex::getLayout(), label);
@@ -50,15 +50,15 @@ gsl::not_null<std::shared_ptr<gl::VertexBuffer<SpriteVertex>>> createSpriteVerte
   return vb;
 }
 
-gsl::not_null<std::shared_ptr<Mesh>> createSpriteMesh(const float x0,
-                                                      const float y0,
-                                                      const float x1,
-                                                      const float y1,
-                                                      const glm::vec2& t0,
-                                                      const glm::vec2& t1,
-                                                      const gsl::not_null<std::shared_ptr<Material>>& materialFull,
-                                                      const int textureIdx,
-                                                      const std::string& label)
+gslu::nn_shared<Mesh> createSpriteMesh(const float x0,
+                                       const float y0,
+                                       const float x1,
+                                       const float y1,
+                                       const glm::vec2& t0,
+                                       const glm::vec2& t1,
+                                       const gslu::nn_shared<Material>& materialFull,
+                                       const int textureIdx,
+                                       const std::string& label)
 {
   auto vb = createSpriteVertexBuffer(x0, y0, x1, y1, t0, t1, textureIdx, label);
   static const std::array<uint16_t, 6> indices{0, 1, 2, 0, 2, 3};

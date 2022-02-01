@@ -4,6 +4,7 @@
 #include <gl/soglb_fwd.h>
 #include <glm/vec2.hpp>
 #include <gsl/gsl-lite.hpp>
+#include <gslu.h>
 #include <memory>
 
 namespace render::scene
@@ -31,10 +32,10 @@ public:
   void render(float alpha);
 
 private:
-  const gsl::not_null<std::shared_ptr<scene::Material>> m_material;
-  gsl::not_null<std::shared_ptr<scene::Mesh>> m_mesh;
-  gsl::not_null<std::shared_ptr<gl::Texture2D<gl::SRGBA8>>> m_colorBuffer;
-  gsl::not_null<std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>>> m_colorBufferHandle;
-  gsl::not_null<std::shared_ptr<gl::Framebuffer>> m_fb;
+  const gslu::nn_shared<scene::Material> m_material;
+  gslu::nn_shared<scene::Mesh> m_mesh;
+  gslu::nn_shared<gl::Texture2D<gl::SRGBA8>> m_colorBuffer;
+  gslu::nn_shared<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>> m_colorBufferHandle;
+  gslu::nn_shared<gl::Framebuffer> m_fb;
 };
 } // namespace render::pass

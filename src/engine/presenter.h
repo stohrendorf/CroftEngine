@@ -13,6 +13,7 @@
 #include <glm/trigonometric.hpp>
 #include <glm/vec2.hpp>
 #include <gsl/gsl-lite.hpp>
+#include <gslu.h>
 #include <memory>
 #include <string>
 #include <unordered_set>
@@ -178,21 +179,21 @@ private:
   const std::unique_ptr<gl::Window> m_window;
 
   std::shared_ptr<audio::SoundEngine> m_soundEngine;
-  const gsl::not_null<std::shared_ptr<render::scene::Renderer>> m_renderer;
-  const gsl::not_null<std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>>> m_splashImage;
+  const gslu::nn_shared<render::scene::Renderer> m_renderer;
+  const gslu::nn_shared<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>> m_splashImage;
   std::shared_ptr<render::scene::Mesh> m_splashImageMesh;
-  const gsl::not_null<std::unique_ptr<gl::Font>> m_trTTFFont;
-  const gsl::not_null<std::unique_ptr<gl::Font>> m_debugFont;
+  const gslu::nn_unique<gl::Font> m_trTTFFont;
+  const gslu::nn_unique<gl::Font> m_debugFont;
   core::Health m_drawnHealth = core::LaraHealth;
   core::Frame m_healthBarTimeout = -DefaultHealthBarTimeout;
-  const gsl::not_null<std::unique_ptr<hid::InputHandler>> m_inputHandler;
+  const gslu::nn_unique<hid::InputHandler> m_inputHandler;
   std::unique_ptr<ui::TRFont> m_trFont;
 
-  const gsl::not_null<std::shared_ptr<render::scene::ShaderCache>> m_shaderCache;
-  const gsl::not_null<std::unique_ptr<render::scene::MaterialManager>> m_materialManager;
-  gsl::not_null<std::shared_ptr<render::scene::CSM>> m_csm;
+  const gslu::nn_shared<render::scene::ShaderCache> m_shaderCache;
+  const gslu::nn_unique<render::scene::MaterialManager> m_materialManager;
+  gslu::nn_shared<render::scene::CSM> m_csm;
 
-  const gsl::not_null<std::unique_ptr<render::RenderPipeline>> m_renderPipeline;
+  const gslu::nn_unique<render::RenderPipeline> m_renderPipeline;
   std::unique_ptr<render::scene::ScreenOverlay> m_screenOverlay;
 
   bool m_halfResRender = false;

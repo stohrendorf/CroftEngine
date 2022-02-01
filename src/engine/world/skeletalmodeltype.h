@@ -5,25 +5,25 @@
 #include "loader/file/animation.h"
 
 #include <gsl/gsl-lite.hpp>
+#include <gslu.h>
 
 namespace engine::world
 {
 struct SkeletalModelType
 {
   core::TypeId type{uint16_t(0)};
-  core::ContainerIndex<uint16_t, gsl::not_null<const Mesh*>, gsl::not_null<std::shared_ptr<render::scene::Mesh>>>
-    meshBaseIndex;
+  core::ContainerIndex<uint16_t, gsl::not_null<const Mesh*>, gslu::nn_shared<render::scene::Mesh>> meshBaseIndex;
 
   struct Bone
   {
-    const gsl::not_null<std::shared_ptr<RenderMeshData>> mesh;
+    const gslu::nn_shared<RenderMeshData> mesh;
     const core::TRVec collisionCenter;
     const core::Length collisionSize;
     const glm::vec3 position;
     const bool pushMatrix;
     const bool popMatrix;
 
-    explicit Bone(gsl::not_null<std::shared_ptr<RenderMeshData>> mesh,
+    explicit Bone(gslu::nn_shared<RenderMeshData> mesh,
                   core::TRVec collisionCenter,
                   const core::Length& collision_size,
                   const std::optional<loader::file::BoneTreeEntry>& boneTreeEntry)

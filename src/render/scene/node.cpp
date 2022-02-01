@@ -14,7 +14,7 @@ Node::~Node()
   {
     const auto it = std::find_if(p->m_children.begin(),
                                  p->m_children.end(),
-                                 [this](const gsl::not_null<std::shared_ptr<Node>>& node)
+                                 [this](const gslu::nn_shared<Node>& node)
                                  {
                                    return node.get().get() == this;
                                  });

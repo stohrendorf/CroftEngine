@@ -4,6 +4,7 @@
 #include "voice.h"
 
 #include <gsl/gsl-lite.hpp>
+#include <gslu.h>
 #include <memory>
 
 namespace audio
@@ -14,10 +15,10 @@ class SourceHandle;
 class BufferVoice final : public Voice
 {
 private:
-  gsl::not_null<std::shared_ptr<BufferHandle>> m_buffer;
+  gslu::nn_shared<BufferHandle> m_buffer;
 
 public:
-  explicit BufferVoice(gsl::not_null<std::shared_ptr<BufferHandle>> buffer);
+  explicit BufferVoice(gslu::nn_shared<BufferHandle> buffer);
 
   ~BufferVoice() override;
 

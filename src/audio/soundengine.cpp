@@ -55,8 +55,7 @@ void SoundEngine::update()
   }
 }
 
-std::vector<gsl::not_null<std::shared_ptr<Voice>>> SoundEngine::getVoicesForBuffer(Emitter* emitter,
-                                                                                   size_t buffer) const
+std::vector<gslu::nn_shared<Voice>> SoundEngine::getVoicesForBuffer(Emitter* emitter, size_t buffer) const
 {
   const auto it1 = m_voices.find(emitter);
   if(it1 == m_voices.end())
@@ -66,7 +65,7 @@ std::vector<gsl::not_null<std::shared_ptr<Voice>>> SoundEngine::getVoicesForBuff
   if(it2 == it1->second.end())
     return {};
 
-  std::vector<gsl::not_null<std::shared_ptr<Voice>>> result;
+  std::vector<gslu::nn_shared<Voice>> result;
   for(const auto& v : it2->second)
     if(auto locked = v.lock())
       result.emplace_back(std::move(locked));
@@ -99,12 +98,8 @@ bool SoundEngine::stopBuffer(size_t bufferId, const Emitter* emitter)
   return any;
 }
 
-gsl::not_null<std::shared_ptr<BufferVoice>>
-  SoundEngine::playBuffer(const gsl::not_null<std::shared_ptr<BufferHandle>>& buffer,
-                          size_t bufferId,
-                          ALfloat pitch,
-                          ALfloat volume,
-                          Emitter* emitter)
+gslu::nn_shared<BufferVoice> SoundEngine::playBuffer(
+  const gslu::nn_shared<BufferHandle>& buffer, size_t bufferId, ALfloat pitch, ALfloat volume, Emitter* emitter)
 {
   auto v = gslu::make_nn_shared<BufferVoice>(buffer);
   v->setPitch(pitch);
@@ -152,12 +147,8 @@ SoundEngine::~SoundEngine()
     listener->m_engine = nullptr;
 }
 
-gsl::not_null<std::shared_ptr<BufferVoice>>
-  SoundEngine::playBuffer(const gsl::not_null<std::shared_ptr<BufferHandle>>& buffer,
-                          size_t bufferId,
-                          ALfloat pitch,
-                          ALfloat volume,
-                          const glm::vec3& pos)
+gslu::nn_shared<BufferVoice> SoundEngine::playBuffer(
+  const gslu::nn_shared<BufferHandle>& buffer, size_t bufferId, ALfloat pitch, ALfloat volume, const glm::vec3& pos)
 {
   auto voice = playBuffer(buffer, bufferId, pitch, volume, nullptr);
   voice->setPosition(pos);

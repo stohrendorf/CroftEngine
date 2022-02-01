@@ -222,14 +222,14 @@ public:
   void chainBlockEffect();
   void flickerEffect();
   void doGlobalEffect();
-  gsl::not_null<std::shared_ptr<objects::PickupObject>>
+  gslu::nn_shared<objects::PickupObject>
     createPickup(const core::TypeId& type, const gsl::not_null<const Room*>& room, const core::TRVec& position);
   void useAlternativeLaraAppearance(bool withHead = false);
   void runEffect(size_t id, objects::Object* object);
   [[nodiscard]] const std::unique_ptr<SkeletalModelType>& findAnimatedModelForType(const core::TypeId& type) const;
   [[nodiscard]] const std::vector<Animation>& getAnimations() const;
   [[nodiscard]] const std::vector<int16_t>& getPoseFrames() const;
-  [[nodiscard]] gsl::not_null<std::shared_ptr<RenderMeshData>> getRenderMesh(size_t idx) const;
+  [[nodiscard]] gslu::nn_shared<RenderMeshData> getRenderMesh(size_t idx) const;
   [[nodiscard]] const std::vector<Mesh>& getMeshes() const;
   void turn180Effect(objects::Object& object);
   void drawRightWeaponEffect(const objects::ModelObject& object);

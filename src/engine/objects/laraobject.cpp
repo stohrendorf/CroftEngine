@@ -1747,7 +1747,7 @@ void LaraObject::drawRoutineInterpolated(const InterpolationInfo& interpolationI
 
 void LaraObject::renderMuzzleFlash(const WeaponType weaponType,
                                    glm::mat4 m,
-                                   const gsl::not_null<std::shared_ptr<render::scene::Node>>& muzzleFlashNode,
+                                   const gslu::nn_shared<render::scene::Node>& muzzleFlashNode,
                                    const bool visible) const
 {
   if(!visible)

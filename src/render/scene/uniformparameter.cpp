@@ -10,9 +10,7 @@
 
 namespace render::scene
 {
-bool UniformParameter::bind(const Node* node,
-                            const Mesh& mesh,
-                            const gsl::not_null<std::shared_ptr<ShaderProgram>>& shaderProgram)
+bool UniformParameter::bind(const Node* node, const Mesh& mesh, const gslu::nn_shared<ShaderProgram>& shaderProgram)
 {
   auto setter = mesh.findUniformSetter(getName());
   if(!m_valueSetter && setter == nullptr)
@@ -38,7 +36,7 @@ bool UniformParameter::bind(const Node* node,
   return true;
 }
 
-gl::Uniform* UniformParameter::findUniform(const gsl::not_null<std::shared_ptr<ShaderProgram>>& shaderProgram) const
+gl::Uniform* UniformParameter::findUniform(const gslu::nn_shared<ShaderProgram>& shaderProgram) const
 {
   if(const auto uniform = shaderProgram->findUniform(getName()))
     return uniform;
@@ -50,7 +48,7 @@ gl::Uniform* UniformParameter::findUniform(const gsl::not_null<std::shared_ptr<S
 
 bool UniformBlockParameter::bind(const Node* node,
                                  const Mesh& mesh,
-                                 const gsl::not_null<std::shared_ptr<ShaderProgram>>& shaderProgram)
+                                 const gslu::nn_shared<ShaderProgram>& shaderProgram)
 {
   auto binder = mesh.findUniformBlockBinder(getName());
   if(!m_bufferBinder && binder == nullptr)
@@ -85,7 +83,7 @@ void UniformBlockParameter::bindTransformBuffer()
   };
 }
 
-void UniformBlockParameter::bindCameraBuffer(const gsl::not_null<std::shared_ptr<Camera>>& camera)
+void UniformBlockParameter::bindCameraBuffer(const gslu::nn_shared<Camera>& camera)
 {
   m_bufferBinder = [camera](const Node* /*node*/, const Mesh& /*mesh*/, gl::UniformBlock& ub)
   {
@@ -93,8 +91,7 @@ void UniformBlockParameter::bindCameraBuffer(const gsl::not_null<std::shared_ptr
   };
 }
 
-gl::UniformBlock*
-  UniformBlockParameter::findUniformBlock(const gsl::not_null<std::shared_ptr<ShaderProgram>>& shaderProgram) const
+gl::UniformBlock* UniformBlockParameter::findUniformBlock(const gslu::nn_shared<ShaderProgram>& shaderProgram) const
 {
   if(const auto block = shaderProgram->findUniformBlock(getName()))
     return block;

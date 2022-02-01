@@ -233,7 +233,7 @@ void CImgWrapper::fromScreenshot()
   interleave();
 }
 
-gsl::not_null<std::shared_ptr<gl::Texture2D<gl::SRGBA8>>> CImgWrapper::toTexture(const std::string_view& label)
+gslu::nn_shared<gl::Texture2D<gl::SRGBA8>> CImgWrapper::toTexture(const std::string_view& label)
 {
   auto result = gslu::make_nn_shared<gl::Texture2D<gl::SRGBA8>>(glm::ivec2{width(), height()}, label);
   result->assign(pixels());

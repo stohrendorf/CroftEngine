@@ -7,6 +7,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <gsl/gsl-lite.hpp>
+#include <gslu.h>
 #include <memory>
 #include <vector>
 
@@ -50,7 +51,7 @@ public:
 private:
   gsl::not_null<StreamingSourceHandle*> m_streamSource;
   std::unique_ptr<AbstractStreamSource> m_stream;
-  std::vector<gsl::not_null<std::shared_ptr<BufferHandle>>> m_buffers{};
+  std::vector<gslu::nn_shared<BufferHandle>> m_buffers{};
   std::vector<int16_t> m_sampleBuffer;
   bool m_looping = false;
 

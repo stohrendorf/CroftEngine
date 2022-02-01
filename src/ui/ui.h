@@ -9,6 +9,7 @@
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
 #include <gsl/gsl-lite.hpp>
+#include <gslu.h>
 #include <memory>
 #include <vector>
 
@@ -39,8 +40,8 @@ public:
     glm::vec4 bottomRight{0};
     glm::vec4 color{1, 1, 1, 1};
 
-    static gsl::not_null<std::shared_ptr<gl::VertexBuffer<Ui::UiVertex>>> createVertexBuffer();
-    static gsl::not_null<std::shared_ptr<gl::ElementArrayBuffer<uint16_t>>> createIndexBuffer();
+    static gslu::nn_shared<gl::VertexBuffer<Ui::UiVertex>> createVertexBuffer();
+    static gslu::nn_shared<gl::ElementArrayBuffer<uint16_t>> createIndexBuffer();
   };
 
   explicit Ui(std::shared_ptr<render::scene::Material> material,

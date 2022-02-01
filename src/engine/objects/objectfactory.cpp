@@ -89,9 +89,9 @@ struct ObjectFactory
 {
   virtual ~ObjectFactory() = default;
 
-  [[nodiscard]] virtual gsl::not_null<std::shared_ptr<Object>>
+  [[nodiscard]] virtual gslu::nn_shared<Object>
     createNew(world::World& world, loader::file::Item& item, size_t id) const = 0;
-  [[nodiscard]] virtual gsl::not_null<std::shared_ptr<Object>>
+  [[nodiscard]] virtual gslu::nn_shared<Object>
     createFromSave(const Location& location, const serialization::Serializer<world::World>& ser) const = 0;
 };
 
@@ -100,7 +100,7 @@ struct UnsupportedObjectFactory : public ObjectFactory
 {
   ~UnsupportedObjectFactory() override = default;
 
-  [[nodiscard]] [[noreturn]] gsl::not_null<std::shared_ptr<Object>>
+  [[nodiscard]] [[noreturn]] gslu::nn_shared<Object>
     createNew(world::World& /*world*/, loader::file::Item& item, size_t /*id*/) const override
   {
     BOOST_LOG_TRIVIAL(fatal) << "Object type " << toString(item.type.get_as<engine::TR1ItemId>())
@@ -108,7 +108,7 @@ struct UnsupportedObjectFactory : public ObjectFactory
     BOOST_THROW_EXCEPTION(std::runtime_error("unsupported object type"));
   }
 
-  [[nodiscard]] [[noreturn]] gsl::not_null<std::shared_ptr<Object>>
+  [[nodiscard]] [[noreturn]] gslu::nn_shared<Object>
     createFromSave(const Location& /*location*/, const serialization::Serializer<world::World>& /*ser*/) const override
   {
     BOOST_LOG_TRIVIAL(fatal) << "Object type is not supported";
@@ -120,7 +120,7 @@ template<typename T>
 /* NOLINTNEXTLINE(altera-struct-pack-align) */
 struct ModelFactory : public ObjectFactory
 {
-  [[nodiscard]] gsl::not_null<std::shared_ptr<Object>>
+  [[nodiscard]] gslu::nn_shared<Object>
     createNew(world::World& world, loader::file::Item& item, size_t id) const override
   {
     const auto room = gsl::not_null{&world.getRooms().at(item.room.get())};
@@ -133,7 +133,7 @@ struct ModelFactory : public ObjectFactory
     return object;
   }
 
-  [[nodiscard]] gsl::not_null<std::shared_ptr<Object>>
+  [[nodiscard]] gslu::nn_shared<Object>
     createFromSave(const Location& location, const serialization::Serializer<world::World>& ser) const override
   {
     auto object = gslu::make_nn_shared<T>(gsl::not_null{&ser.context}, location);
@@ -146,7 +146,7 @@ template<typename T>
 /* NOLINTNEXTLINE(altera-struct-pack-align) */
 struct SpriteFactory : public ObjectFactory
 {
-  [[nodiscard]] gsl::not_null<std::shared_ptr<Object>>
+  [[nodiscard]] gslu::nn_shared<Object>
     createNew(world::World& world, loader::file::Item& item, size_t id) const override
   {
     const auto room = gsl::not_null{&world.getRooms().at(item.room.get())};
@@ -160,7 +160,7 @@ struct SpriteFactory : public ObjectFactory
       makeObjectName(item.type.get_as<TR1ItemId>(), id), gsl::not_null{&world}, room, item, gsl::not_null{&sprite});
   }
 
-  [[nodiscard]] gsl::not_null<std::shared_ptr<Object>>
+  [[nodiscard]] gslu::nn_shared<Object>
     createFromSave(const Location& location, const serialization::Serializer<world::World>& ser) const override
   {
     std::string spriteName;
@@ -191,7 +191,7 @@ struct SpriteFactory : public ObjectFactory
 /* NOLINTNEXTLINE(altera-struct-pack-align) */
 struct WalkingMutantFactory : public ObjectFactory
 {
-  [[nodiscard]] gsl::not_null<std::shared_ptr<Object>>
+  [[nodiscard]] gslu::nn_shared<Object>
     createNew(world::World& world, loader::file::Item& item, size_t id) const override
   {
     const auto room = gsl::not_null{&world.getRooms().at(item.room.get())};
@@ -204,7 +204,7 @@ struct WalkingMutantFactory : public ObjectFactory
     return object;
   }
 
-  [[nodiscard]] gsl::not_null<std::shared_ptr<Object>>
+  [[nodiscard]] gslu::nn_shared<Object>
     createFromSave(const Location& location, const serialization::Serializer<world::World>& ser) const override
   {
     auto object = gslu::make_nn_shared<WalkingMutant>(gsl::not_null{&ser.context}, location);
@@ -216,7 +216,7 @@ struct WalkingMutantFactory : public ObjectFactory
 /* NOLINTNEXTLINE(altera-struct-pack-align) */
 struct HiddenModelFactory : public ModelFactory<StubObject>
 {
-  [[nodiscard]] gsl::not_null<std::shared_ptr<Object>>
+  [[nodiscard]] gslu::nn_shared<Object>
     createNew(world::World& world, loader::file::Item& item, size_t id) const override
   {
     auto object = gslu::static_pointer_cast<StubObject>(ModelFactory<StubObject>::createNew(world, item, id));
@@ -225,7 +225,7 @@ struct HiddenModelFactory : public ModelFactory<StubObject>
     return object;
   }
 
-  [[nodiscard]] gsl::not_null<std::shared_ptr<Object>>
+  [[nodiscard]] gslu::nn_shared<Object>
     createFromSave(const Location& location, const serialization::Serializer<world::World>& ser) const override
   {
     auto object = gslu::static_pointer_cast<StubObject>(ModelFactory<StubObject>::createFromSave(location, ser));
@@ -419,8 +419,8 @@ std::shared_ptr<Object> createObject(world::World& world, loader::file::Item& it
   return nullptr;
 }
 
-gsl::not_null<std::shared_ptr<Object>> create(const serialization::TypeId<gsl::not_null<std::shared_ptr<Object>>>&,
-                                              const serialization::Serializer<world::World>& ser)
+gslu::nn_shared<Object> create(const serialization::TypeId<gslu::nn_shared<Object>>&,
+                               const serialization::Serializer<world::World>& ser)
 {
   const auto type = core::TypeId::create(ser["@type"]);
   const auto position = Location::create(ser["@location"]);

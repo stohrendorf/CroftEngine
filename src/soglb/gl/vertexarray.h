@@ -4,6 +4,7 @@
 #include "renderstate.h"
 #include "soglb_fwd.h"
 
+#include <gslu.h>
 #include <string_view>
 #include <tuple>
 #include <utility>
@@ -43,10 +44,10 @@ private:
 
 public:
   template<typename T>
-  using VertexBufferPtr = gsl::not_null<std::shared_ptr<VertexBuffer<T>>>;
+  using VertexBufferPtr = gslu::nn_shared<VertexBuffer<T>>;
   using VertexBuffers = std::tuple<VertexBufferPtr<VertexT0>, VertexBufferPtr<VertexTs>...>;
 
-  using IndexBufferPtr = gsl::not_null<std::shared_ptr<ElementArrayBuffer<IndexT>>>;
+  using IndexBufferPtr = gslu::nn_shared<ElementArrayBuffer<IndexT>>;
 
   explicit VertexArray(IndexBufferPtr indexBuffer,
                        VertexBuffers vertexBuffers,

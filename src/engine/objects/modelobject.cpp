@@ -326,11 +326,10 @@ bool ModelObject::testBoneCollision(const ModelObject& other)
   return m_state.touch_bits.any();
 }
 
-gsl::not_null<std::shared_ptr<Particle>>
-  ModelObject::emitParticle(const core::TRVec& localPosition,
-                            const size_t boneIndex,
-                            gsl::not_null<std::shared_ptr<Particle>> (*generate)(
-                              world::World& world, const Location&, const core::Speed&, const core::Angle&))
+gslu::nn_shared<Particle> ModelObject::emitParticle(
+  const core::TRVec& localPosition,
+  const size_t boneIndex,
+  gslu::nn_shared<Particle> (*generate)(world::World& world, const Location&, const core::Speed&, const core::Angle&))
 {
   BOOST_ASSERT(generate != nullptr);
   BOOST_ASSERT(boneIndex < m_skeleton->getBoneCount());

@@ -75,7 +75,7 @@ void ObjectManager::applyScheduledDeletions()
 
     auto it2 = std::find_if(m_objects.begin(),
                             m_objects.end(),
-                            [del](const std::pair<uint16_t, gsl::not_null<std::shared_ptr<objects::Object>>>& i)
+                            [del](const std::pair<uint16_t, gslu::nn_shared<objects::Object>>& i)
                             {
                               return i.second.get().get() == del;
                             });
@@ -89,7 +89,7 @@ void ObjectManager::applyScheduledDeletions()
   m_scheduledDeletions.clear();
 }
 
-void ObjectManager::registerObject(const gsl::not_null<std::shared_ptr<objects::Object>>& object)
+void ObjectManager::registerObject(const gslu::nn_shared<objects::Object>& object)
 {
   if(m_objectCounter == std::numeric_limits<ObjectId>::max())
     BOOST_THROW_EXCEPTION(std::runtime_error("Artificial object counter exceeded"));
@@ -104,7 +104,7 @@ std::shared_ptr<objects::Object> ObjectManager::find(const objects::Object* obje
 
   auto it = std::find_if(m_objects.begin(),
                          m_objects.end(),
-                         [object](const std::pair<uint16_t, gsl::not_null<std::shared_ptr<objects::Object>>>& x)
+                         [object](const std::pair<uint16_t, gslu::nn_shared<objects::Object>>& x)
                          {
                            return x.second.get().get() == object;
                          });

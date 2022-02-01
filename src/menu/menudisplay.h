@@ -8,6 +8,7 @@
 #include <gl/buffer.h>
 #include <glm/vec2.hpp>
 #include <gsl/gsl-lite.hpp>
+#include <gslu.h>
 #include <memory>
 #include <optional>
 #include <vector>
@@ -80,7 +81,7 @@ struct MenuDisplay
   MenuResult result = MenuResult::None;
   std::optional<size_t> requestLoad;
 
-  std::vector<gsl::not_null<std::unique_ptr<MenuRing>>> rings;
+  std::vector<gslu::nn_unique<MenuRing>> rings;
   size_t currentRingIndex = 0;
   bool passOpen = false;
   static bool doOptions(engine::world::World& world, MenuObject& object);
@@ -111,10 +112,10 @@ private:
   ui::Text m_upArrow;
   ui::Text m_downArrow;
 
-  const gsl::not_null<std::shared_ptr<render::scene::Material>> m_material;
-  gsl::not_null<std::shared_ptr<render::pass::Framebuffer>> m_fb;
+  const gslu::nn_shared<render::scene::Material> m_material;
+  gslu::nn_shared<render::pass::Framebuffer> m_fb;
 
-  gsl::not_null<std::shared_ptr<gl::ShaderStorageBuffer<engine::ShaderLight>>> m_lightsBuffer{
+  gslu::nn_shared<gl::ShaderStorageBuffer<engine::ShaderLight>> m_lightsBuffer{
     std::make_shared<gl::ShaderStorageBuffer<engine::ShaderLight>>("lights-buffer")};
 };
 } // namespace menu

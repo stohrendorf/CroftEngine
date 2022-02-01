@@ -98,7 +98,7 @@ void createVLine(std::vector<Ui::UiVertex>& vertices, const glm::vec2& a, int le
 }
 } // namespace
 
-gsl::not_null<std::shared_ptr<gl::VertexBuffer<Ui::UiVertex>>> Ui::UiVertex::createVertexBuffer()
+gslu::nn_shared<gl::VertexBuffer<Ui::UiVertex>> Ui::UiVertex::createVertexBuffer()
 {
   static const gl::VertexLayout<UiVertex> layout{
     {VERTEX_ATTRIBUTE_POSITION_NAME, &UiVertex::pos},
@@ -112,7 +112,7 @@ gsl::not_null<std::shared_ptr<gl::VertexBuffer<Ui::UiVertex>>> Ui::UiVertex::cre
   return gslu::make_nn_shared<gl::VertexBuffer<UiVertex>>(layout, "ui-vbo");
 }
 
-gsl::not_null<std::shared_ptr<gl::ElementArrayBuffer<uint16_t>>> Ui::UiVertex::createIndexBuffer()
+gslu::nn_shared<gl::ElementArrayBuffer<uint16_t>> Ui::UiVertex::createIndexBuffer()
 {
   return gslu::make_nn_shared<gl::ElementArrayBuffer<uint16_t>>("ui-indices");
 }

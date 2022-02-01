@@ -6,6 +6,7 @@
 #include <chrono>
 #include <functional>
 #include <gsl/gsl-lite.hpp>
+#include <gslu.h>
 #include <utility>
 
 namespace audio
@@ -17,7 +18,7 @@ public:
 
   explicit FadeVolumeCallback(ALfloat to,
                               const std::chrono::high_resolution_clock::duration& duration,
-                              const gsl::not_null<std::shared_ptr<Voice>>& voice,
+                              const gslu::nn_shared<Voice>& voice,
                               FinalCallback finalCallback)
       : m_from{voice->getLocalGain()}
       , m_to{to}

@@ -7,6 +7,7 @@
 #include <filesystem>
 #include <gl/program.h>
 #include <gsl/gsl-lite.hpp>
+#include <gslu.h>
 #include <iosfwd>
 #include <memory>
 #include <stdexcept>
@@ -88,14 +89,14 @@ public:
   }
 
 private:
-  static gsl::not_null<std::shared_ptr<ShaderProgram>> createFromSource(const std::string& programId,
-                                                                        const std::string& vshId,
-                                                                        const std::filesystem::path& vshPath,
-                                                                        const std::string& vshSource,
-                                                                        const std::string& fshId,
-                                                                        const std::filesystem::path& fshPath,
-                                                                        const std::string& fshSource,
-                                                                        const std::vector<std::string>& defines = {});
+  static gslu::nn_shared<ShaderProgram> createFromSource(const std::string& programId,
+                                                         const std::string& vshId,
+                                                         const std::filesystem::path& vshPath,
+                                                         const std::string& vshSource,
+                                                         const std::string& fshId,
+                                                         const std::filesystem::path& fshPath,
+                                                         const std::string& fshSource,
+                                                         const std::vector<std::string>& defines = {});
 
   gl::Program m_handle;
   const std::string m_id;

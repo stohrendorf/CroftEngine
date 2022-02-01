@@ -6,6 +6,7 @@
 #include <gl/soglb_fwd.h>
 #include <glm/vec2.hpp>
 #include <gsl/gsl-lite.hpp>
+#include <gslu.h>
 #include <memory>
 #include <vector>
 
@@ -42,7 +43,7 @@ private:
   std::shared_ptr<pass::WorldCompositionPass> m_worldCompositionPass;
   std::shared_ptr<pass::UIPass> m_uiPass;
 
-  std::vector<gsl::not_null<std::shared_ptr<pass::EffectPass>>> m_effects{};
+  std::vector<gslu::nn_shared<pass::EffectPass>> m_effects{};
 
 public:
   explicit RenderPipeline(scene::MaterialManager& materialManager,
@@ -56,7 +57,7 @@ public:
   void renderUiFrameBuffer(float alpha);
   void worldCompositionPass(bool inWater);
 
-  void updateCamera(const gsl::not_null<std::shared_ptr<scene::Camera>>& camera);
+  void updateCamera(const gslu::nn_shared<scene::Camera>& camera);
 
   void resize(scene::MaterialManager& materialManager,
               const glm::ivec2& renderViewport,

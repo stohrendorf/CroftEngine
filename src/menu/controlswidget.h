@@ -6,6 +6,7 @@
 #include <functional>
 #include <glm/fwd.hpp>
 #include <gsl/gsl-lite.hpp>
+#include <gslu.h>
 #include <memory>
 #include <vector>
 
@@ -51,7 +52,7 @@ public:
 
   void draw(ui::Ui& ui, const engine::Presenter& presenter) const override;
 
-  [[nodiscard]] const gsl::not_null<std::shared_ptr<ui::widgets::GridBox>>& getCurrentGridBox() const;
+  [[nodiscard]] const gslu::nn_shared<ui::widgets::GridBox>& getCurrentGridBox() const;
 
   void nextRow();
 
@@ -68,8 +69,8 @@ public:
   [[nodiscard]] hid::Action getCurrentAction() const;
 
 private:
-  gsl::not_null<std::shared_ptr<ui::widgets::GridBox>> m_content;
-  gsl::not_null<std::shared_ptr<ui::widgets::GroupBox>> m_container;
-  std::vector<gsl::not_null<std::shared_ptr<ui::widgets::GridBox>>> m_controlGroups;
+  gslu::nn_shared<ui::widgets::GridBox> m_content;
+  gslu::nn_shared<ui::widgets::GroupBox> m_container;
+  std::vector<gslu::nn_shared<ui::widgets::GridBox>> m_controlGroups;
 };
 } // namespace menu

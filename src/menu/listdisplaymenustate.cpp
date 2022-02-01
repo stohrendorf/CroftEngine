@@ -62,7 +62,7 @@ std::unique_ptr<MenuState> ListDisplayMenuState::onFrame(ui::Ui& ui, engine::wor
   return nullptr;
 }
 
-size_t ListDisplayMenuState::append(const gsl::not_null<std::shared_ptr<ui::widgets::Widget>>& widget)
+size_t ListDisplayMenuState::append(const gslu::nn_shared<ui::widgets::Widget>& widget)
 {
   return m_listBox->append(widget);
 }

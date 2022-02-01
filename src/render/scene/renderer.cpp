@@ -19,7 +19,7 @@
 
 namespace render::scene
 {
-Renderer::Renderer(gsl::not_null<std::shared_ptr<Camera>> camera)
+Renderer::Renderer(gslu::nn_shared<Camera> camera)
     : m_rootNode{std::make_shared<Node>("<rootnode>")}
     , m_camera{std::move(camera)}
 {

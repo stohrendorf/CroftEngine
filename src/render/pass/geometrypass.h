@@ -4,6 +4,7 @@
 #include <gl/soglb_fwd.h>
 #include <glm/vec2.hpp>
 #include <gsl/gsl-lite.hpp>
+#include <gslu.h>
 #include <memory>
 
 namespace render::pass
@@ -36,13 +37,13 @@ public:
   }
 
 private:
-  gsl::not_null<std::shared_ptr<gl::TextureDepth<float>>> m_depthBuffer;
-  gsl::not_null<std::shared_ptr<gl::Texture2D<gl::SRGBA8>>> m_colorBuffer;
-  gsl::not_null<std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>>> m_colorBufferHandle;
-  gsl::not_null<std::shared_ptr<gl::Texture2D<gl::RGB32F>>> m_positionBuffer;
-  gsl::not_null<std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::RGB32F>>>> m_positionBufferHandle;
-  gsl::not_null<std::shared_ptr<gl::Texture2D<gl::RGB16F>>> m_normalBuffer;
-  gsl::not_null<std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::RGB16F>>>> m_normalBufferHandle;
-  gsl::not_null<std::shared_ptr<gl::Framebuffer>> m_fb;
+  gslu::nn_shared<gl::TextureDepth<float>> m_depthBuffer;
+  gslu::nn_shared<gl::Texture2D<gl::SRGBA8>> m_colorBuffer;
+  gslu::nn_shared<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>> m_colorBufferHandle;
+  gslu::nn_shared<gl::Texture2D<gl::RGB32F>> m_positionBuffer;
+  gslu::nn_shared<gl::TextureHandle<gl::Texture2D<gl::RGB32F>>> m_positionBufferHandle;
+  gslu::nn_shared<gl::Texture2D<gl::RGB16F>> m_normalBuffer;
+  gslu::nn_shared<gl::TextureHandle<gl::Texture2D<gl::RGB16F>>> m_normalBufferHandle;
+  gslu::nn_shared<gl::Framebuffer> m_fb;
 };
 } // namespace render::pass

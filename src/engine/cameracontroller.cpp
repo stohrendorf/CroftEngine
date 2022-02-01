@@ -278,7 +278,7 @@ Location clampBox(const Location& start,
 } // namespace
 
 CameraController::CameraController(const gsl::not_null<world::World*>& world,
-                                   gsl::not_null<std::shared_ptr<render::scene::Camera>> camera)
+                                   gslu::nn_shared<render::scene::Camera> camera)
     : Listener{gsl::not_null{world->getPresenter().getSoundEngine().get()}}
     , m_camera{std::move(camera)}
     , m_world{world}
@@ -811,7 +811,7 @@ std::unordered_set<const world::Portal*> CameraController::updateCinematic(const
 }
 
 CameraController::CameraController(const gsl::not_null<world::World*>& world,
-                                   gsl::not_null<std::shared_ptr<render::scene::Camera>> camera,
+                                   gslu::nn_shared<render::scene::Camera> camera,
                                    bool /*noLaraTag*/)
     : Listener{gsl::not_null{world->getPresenter().getSoundEngine().get()}}
     , m_camera{std::move(camera)}

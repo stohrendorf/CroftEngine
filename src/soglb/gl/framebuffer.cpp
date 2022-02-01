@@ -143,7 +143,7 @@ void Framebuffer::blit(const glm::ivec2& backbufferSize, gl::api::BlitFramebuffe
                                           filter));
 }
 
-gsl::not_null<std::shared_ptr<Framebuffer>> FrameBufferBuilder::build(const std::string_view& label)
+gslu::nn_shared<Framebuffer> FrameBufferBuilder::build(const std::string_view& label)
 {
   Expects(!m_attachments.empty());
 

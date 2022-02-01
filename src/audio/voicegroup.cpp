@@ -9,7 +9,7 @@
 
 namespace audio
 {
-void VoiceGroup::add(gsl::not_null<std::shared_ptr<Voice>> voice)
+void VoiceGroup::add(gslu::nn_shared<Voice> voice)
 {
   voice->setGroupGainLogarithmic(m_gain);
   if(std::find_if(m_voices.begin(),
@@ -22,7 +22,7 @@ void VoiceGroup::add(gsl::not_null<std::shared_ptr<Voice>> voice)
     m_voices.emplace_back(voice.get());
 }
 
-void VoiceGroup::remove(const gsl::not_null<std::shared_ptr<Voice>>& voice)
+void VoiceGroup::remove(const gslu::nn_shared<Voice>& voice)
 {
   decltype(m_voices) cleaned;
   std::copy_if(m_voices.begin(),

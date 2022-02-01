@@ -5,6 +5,7 @@
 #include <gl/pixel.h>
 #include <gl/soglb_fwd.h>
 #include <gsl/gsl-lite.hpp>
+#include <gslu.h>
 #include <memory>
 #include <string>
 #include <utility>
@@ -27,8 +28,8 @@ class EffectPass final
 public:
   explicit EffectPass(gsl::not_null<const RenderPipeline*> renderPipeline,
                       std::string name,
-                      gsl::not_null<std::shared_ptr<scene::Material>> material,
-                      const gsl::not_null<std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::SRGB8>>>>& input);
+                      gslu::nn_shared<scene::Material> material,
+                      const gslu::nn_shared<gl::TextureHandle<gl::Texture2D<gl::SRGB8>>>& input);
 
   void render(bool inWater);
 
@@ -51,10 +52,10 @@ public:
 private:
   const gsl::not_null<const RenderPipeline*> m_renderPipeline;
   const std::string m_name;
-  const gsl::not_null<std::shared_ptr<scene::Material>> m_material;
-  gsl::not_null<std::shared_ptr<scene::Mesh>> m_mesh;
-  gsl::not_null<std::shared_ptr<gl::Texture2D<gl::SRGB8>>> m_colorBuffer;
-  gsl::not_null<std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::SRGB8>>>> m_colorBufferHandle;
-  gsl::not_null<std::shared_ptr<gl::Framebuffer>> m_fb;
+  const gslu::nn_shared<scene::Material> m_material;
+  gslu::nn_shared<scene::Mesh> m_mesh;
+  gslu::nn_shared<gl::Texture2D<gl::SRGB8>> m_colorBuffer;
+  gslu::nn_shared<gl::TextureHandle<gl::Texture2D<gl::SRGB8>>> m_colorBufferHandle;
+  gslu::nn_shared<gl::Framebuffer> m_fb;
 };
 } // namespace render::pass

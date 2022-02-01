@@ -56,7 +56,7 @@ void RenderPipeline::worldCompositionPass(const bool inWater)
   finalOutput->blit(m_displaySize);
 }
 
-void RenderPipeline::updateCamera(const gsl::not_null<std::shared_ptr<scene::Camera>>& camera)
+void RenderPipeline::updateCamera(const gslu::nn_shared<scene::Camera>& camera)
 {
   BOOST_ASSERT(m_worldCompositionPass != nullptr);
   m_worldCompositionPass->updateCamera(camera);
@@ -93,8 +93,7 @@ void RenderPipeline::resize(scene::MaterialManager& materialManager,
     materialManager, m_renderSettings, m_renderSize, *m_geometryPass, *m_portalPass);
 
   auto fxSource = m_worldCompositionPass->getColorBuffer();
-  auto addEffect =
-    [this, &fxSource](const std::string& name, const gsl::not_null<std::shared_ptr<render::scene::Material>>& material)
+  auto addEffect = [this, &fxSource](const std::string& name, const gslu::nn_shared<render::scene::Material>& material)
   {
     auto fx = std::make_shared<pass::EffectPass>(gsl::not_null{this}, "fx:" + name, material, fxSource);
     m_effects.emplace_back(fx);

@@ -19,7 +19,7 @@ constexpr int InnerMargin = 10;
 constexpr int WidgetOffsetTop = ui::FontHeight / 2 + InnerMargin + ui::OutlineBorderWidth;
 constexpr int TotalVerticalMargin = WidgetOffsetTop + InnerMargin + 2 * ui::OutlineBorderWidth;
 
-GroupBox::GroupBox(const std::string& title, gsl::not_null<std::shared_ptr<Widget>> widget)
+GroupBox::GroupBox(const std::string& title, gslu::nn_shared<Widget> widget)
     : m_title{std::make_unique<ui::Text>(title)}
     , m_widget{std::move(widget)}
 {

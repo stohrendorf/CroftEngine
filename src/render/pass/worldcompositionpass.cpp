@@ -130,7 +130,7 @@ WorldCompositionPass::WorldCompositionPass(scene::MaterialManager& materialManag
 }
 
 // NOLINTNEXTLINE(readability-make-member-function-const)
-void WorldCompositionPass::updateCamera(const gsl::not_null<std::shared_ptr<scene::Camera>>& camera)
+void WorldCompositionPass::updateCamera(const gslu::nn_shared<scene::Camera>& camera)
 {
   m_noWaterMaterial->getUniformBlock("Camera")->bindCameraBuffer(camera);
   m_inWaterMaterial->getUniformBlock("Camera")->bindCameraBuffer(camera);

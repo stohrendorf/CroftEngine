@@ -6,6 +6,7 @@
 #include <gl/buffer.h>
 #include <gl/program.h>
 #include <gsl/gsl-lite.hpp>
+#include <gslu.h>
 #include <iosfwd>
 #include <memory>
 #include <string>
@@ -67,12 +68,10 @@ public:
     };
   }
 
-  bool bind(const Node* node,
-            const Mesh& mesh,
-            const gsl::not_null<std::shared_ptr<ShaderProgram>>& shaderProgram) override;
+  bool bind(const Node* node, const Mesh& mesh, const gslu::nn_shared<ShaderProgram>& shaderProgram) override;
 
 private:
-  [[nodiscard]] gl::Uniform* findUniform(const gsl::not_null<std::shared_ptr<ShaderProgram>>& shaderProgram) const;
+  [[nodiscard]] gl::Uniform* findUniform(const gslu::nn_shared<ShaderProgram>& shaderProgram) const;
 
   std::function<UniformValueSetter> m_valueSetter;
 };
@@ -115,16 +114,13 @@ public:
     m_bufferBinder = std::move(setter);
   }
 
-  bool bind(const Node* node,
-            const Mesh& mesh,
-            const gsl::not_null<std::shared_ptr<ShaderProgram>>& shaderProgram) override;
+  bool bind(const Node* node, const Mesh& mesh, const gslu::nn_shared<ShaderProgram>& shaderProgram) override;
 
   void bindTransformBuffer();
-  void bindCameraBuffer(const gsl::not_null<std::shared_ptr<Camera>>& camera);
+  void bindCameraBuffer(const gslu::nn_shared<Camera>& camera);
 
 private:
-  [[nodiscard]] gl::UniformBlock*
-    findUniformBlock(const gsl::not_null<std::shared_ptr<ShaderProgram>>& shaderProgram) const;
+  [[nodiscard]] gl::UniformBlock* findUniformBlock(const gslu::nn_shared<ShaderProgram>& shaderProgram) const;
 
   std::function<BufferBinder> m_bufferBinder;
 };

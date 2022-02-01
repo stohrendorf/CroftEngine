@@ -12,7 +12,7 @@
 
 namespace render::scene
 {
-Material::Material(gsl::not_null<std::shared_ptr<ShaderProgram>> shaderProgram)
+Material::Material(gslu::nn_shared<ShaderProgram> shaderProgram)
     : m_shaderProgram{std::move(shaderProgram)}
 {
   for(const auto& u : m_shaderProgram->getHandle().getUniforms())

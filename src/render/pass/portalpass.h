@@ -7,6 +7,7 @@
 #include <gl/texture2d.h> // IWYU pragma: keep
 #include <glm/fwd.hpp>
 #include <gsl/gsl-lite.hpp>
+#include <gslu.h>
 #include <memory>
 
 namespace render::scene
@@ -20,7 +21,7 @@ class PortalPass
 {
 public:
   explicit PortalPass(scene::MaterialManager& materialManager,
-                      const gsl::not_null<std::shared_ptr<gl::TextureDepth<float>>>& depthBuffer,
+                      const gslu::nn_shared<gl::TextureDepth<float>>& depthBuffer,
                       const glm::vec2& viewport);
 
   [[nodiscard]] gl::RenderState bind();
@@ -46,11 +47,11 @@ public:
   }
 
 private:
-  gsl::not_null<std::shared_ptr<gl::Texture2D<gl::Scalar32F>>> m_positionBuffer;
-  gsl::not_null<std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::Scalar32F>>>> m_positionBufferHandle;
-  gsl::not_null<std::shared_ptr<gl::Texture2D<gl::RGB32F>>> m_perturbBuffer;
-  gsl::not_null<std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::RGB32F>>>> m_perturbBufferHandle;
+  gslu::nn_shared<gl::Texture2D<gl::Scalar32F>> m_positionBuffer;
+  gslu::nn_shared<gl::TextureHandle<gl::Texture2D<gl::Scalar32F>>> m_positionBufferHandle;
+  gslu::nn_shared<gl::Texture2D<gl::RGB32F>> m_perturbBuffer;
+  gslu::nn_shared<gl::TextureHandle<gl::Texture2D<gl::RGB32F>>> m_perturbBufferHandle;
   scene::SeparableBlur<gl::RGB32F> m_blur;
-  gsl::not_null<std::shared_ptr<gl::Framebuffer>> m_fb;
+  gslu::nn_shared<gl::Framebuffer> m_fb;
 };
 } // namespace render::pass

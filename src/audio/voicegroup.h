@@ -2,6 +2,7 @@
 
 #include <AL/al.h>
 #include <gsl/gsl-lite.hpp>
+#include <gslu.h>
 #include <memory>
 #include <vector>
 
@@ -21,9 +22,9 @@ public:
   {
   }
 
-  void add(gsl::not_null<std::shared_ptr<Voice>> voice);
+  void add(gslu::nn_shared<Voice> voice);
 
-  void remove(const gsl::not_null<std::shared_ptr<Voice>>& voice);
+  void remove(const gslu::nn_shared<Voice>& voice);
 
   void cleanup();
 

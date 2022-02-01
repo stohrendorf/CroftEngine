@@ -5,6 +5,7 @@
 #include <gl/pixel.h>
 #include <gl/soglb_fwd.h>
 #include <gsl/gsl-lite.hpp>
+#include <gslu.h>
 #include <memory>
 
 struct AVFilterLink;
@@ -20,7 +21,7 @@ struct Converter final
   SwsContext* context;
   std::array<uint8_t*, 4> dstVideoData{nullptr};
   std::array<int, 4> dstVideoLinesize{0};
-  gsl::not_null<std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>>> textureHandle;
+  gslu::nn_shared<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>> textureHandle;
 
   explicit Converter(AVFilterLink* filter);
 

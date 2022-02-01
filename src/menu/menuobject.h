@@ -6,6 +6,7 @@
 #include <bitset>
 #include <gl/buffer.h>
 #include <gsl/gsl-lite.hpp>
+#include <gslu.h>
 #include <memory>
 #include <string>
 
@@ -50,7 +51,7 @@ struct MenuObject
 
   std::shared_ptr<engine::SkeletalModelNode> node{nullptr};
   void initModel(const engine::world::World& world,
-                 const gsl::not_null<std::shared_ptr<gl::ShaderStorageBuffer<engine::ShaderLight>>>& lights);
+                 const gslu::nn_shared<gl::ShaderStorageBuffer<engine::ShaderLight>>& lights);
 
   bool animate();
 

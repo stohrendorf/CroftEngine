@@ -5,6 +5,7 @@
 #include "sampler.h"
 #include "texture.h"
 
+#include <gslu.h>
 #include <type_traits>
 #include <utility>
 
@@ -18,8 +19,7 @@ public:
   using Texture = _Texture;
   static_assert(std::is_base_of_v<::gl::Texture, Texture>);
 
-  explicit TextureHandle(gsl::not_null<std::shared_ptr<Texture>> texture,
-                         gsl::not_null<std::unique_ptr<Sampler>>&& sampler)
+  explicit TextureHandle(gslu::nn_shared<Texture> texture, gslu::nn_unique<Sampler>&& sampler)
       : m_texture{std::move(texture)}
       , m_sampler{std::move(sampler)}
       , m_handle{GL_ASSERT_FN(api::getTextureSamplerHandle(m_texture->getHandle(), m_sampler->getHandle()))}
@@ -44,8 +44,8 @@ public:
   }
 
 private:
-  const gsl::not_null<std::shared_ptr<Texture>> m_texture;
-  const gsl::not_null<std::unique_ptr<Sampler>> m_sampler;
+  const gslu::nn_shared<Texture> m_texture;
+  const gslu::nn_unique<Sampler> m_sampler;
   const uint64_t m_handle;
 };
 } // namespace gl

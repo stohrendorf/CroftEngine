@@ -16,7 +16,7 @@ bool HeightInfo::skipSteepSlants = false;
 
 HeightInfo HeightInfo::fromFloor(gsl::not_null<const world::Sector*> roomSector,
                                  const core::TRVec& pos,
-                                 const std::map<uint16_t, gsl::not_null<std::shared_ptr<objects::Object>>>& objects)
+                                 const std::map<uint16_t, gslu::nn_shared<objects::Object>>& objects)
 {
   HeightInfo hi;
 
@@ -126,7 +126,7 @@ HeightInfo HeightInfo::fromFloor(gsl::not_null<const world::Sector*> roomSector,
 
 HeightInfo HeightInfo::fromCeiling(gsl::not_null<const world::Sector*> roomSector,
                                    const core::TRVec& pos,
-                                   const std::map<uint16_t, gsl::not_null<std::shared_ptr<objects::Object>>>& objects)
+                                   const std::map<uint16_t, gslu::nn_shared<objects::Object>>& objects)
 {
   HeightInfo hi;
 

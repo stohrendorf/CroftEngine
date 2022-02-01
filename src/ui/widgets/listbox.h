@@ -5,6 +5,7 @@
 #include <cstddef>
 #include <glm/vec2.hpp>
 #include <gsl/gsl-lite.hpp>
+#include <gslu.h>
 #include <memory>
 #include <vector>
 
@@ -27,7 +28,7 @@ public:
   ~ListBox() override;
   void draw(ui::Ui& ui, const engine::Presenter& presenter) const override;
 
-  size_t append(const gsl::not_null<std::shared_ptr<Widget>>& widget);
+  size_t append(const gslu::nn_shared<Widget>& widget);
 
   [[nodiscard]] size_t getSelected() const
   {
@@ -110,6 +111,6 @@ private:
   glm::ivec2 m_size{0, 0};
   const size_t m_pageSize;
   size_t m_selected = 0;
-  std::vector<gsl::not_null<std::shared_ptr<Widget>>> m_widgets;
+  std::vector<gslu::nn_shared<Widget>> m_widgets;
 };
 } // namespace ui::widgets

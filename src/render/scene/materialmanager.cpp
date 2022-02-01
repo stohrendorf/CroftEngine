@@ -42,7 +42,7 @@ void configureForScreenSpaceEffect(Material& m, bool enableBlend)
 }
 } // namespace
 
-gsl::not_null<std::shared_ptr<Material>> MaterialManager::getSprite(bool billboard)
+gslu::nn_shared<Material> MaterialManager::getSprite(bool billboard)
 {
   if(auto it = m_sprite.find(billboard); it != m_sprite.end())
     return it->second;
@@ -63,7 +63,7 @@ gsl::not_null<std::shared_ptr<Material>> MaterialManager::getSprite(bool billboa
   return m;
 }
 
-gsl::not_null<std::shared_ptr<Material>> MaterialManager::getCSMDepthOnly(bool skeletal)
+gslu::nn_shared<Material> MaterialManager::getCSMDepthOnly(bool skeletal)
 {
   if(auto it = m_csmDepthOnly.find(skeletal); it != m_csmDepthOnly.end())
     return it->second;
@@ -86,7 +86,7 @@ gsl::not_null<std::shared_ptr<Material>> MaterialManager::getCSMDepthOnly(bool s
   return m;
 }
 
-gsl::not_null<std::shared_ptr<Material>> MaterialManager::getDepthOnly(bool skeletal)
+gslu::nn_shared<Material> MaterialManager::getDepthOnly(bool skeletal)
 {
   if(auto it = m_depthOnly.find(skeletal); it != m_depthOnly.end())
     return it->second;
@@ -109,7 +109,7 @@ gsl::not_null<std::shared_ptr<Material>> MaterialManager::getDepthOnly(bool skel
   return m;
 }
 
-gsl::not_null<std::shared_ptr<Material>> MaterialManager::getGeometry(bool inWater, bool skeletal, bool roomShadowing)
+gslu::nn_shared<Material> MaterialManager::getGeometry(bool inWater, bool skeletal, bool roomShadowing)
 {
   Expects(m_geometryTextures != nullptr);
   const std::tuple key{inWater, skeletal, roomShadowing};
@@ -161,7 +161,7 @@ gsl::not_null<std::shared_ptr<Material>> MaterialManager::getGeometry(bool inWat
   return m;
 }
 
-gsl::not_null<std::shared_ptr<Material>> MaterialManager::getGhost()
+gslu::nn_shared<Material> MaterialManager::getGhost()
 {
   if(m_ghost != nullptr)
     return gsl::not_null{m_ghost};
@@ -174,7 +174,7 @@ gsl::not_null<std::shared_ptr<Material>> MaterialManager::getGhost()
   return m;
 }
 
-gsl::not_null<std::shared_ptr<Material>> MaterialManager::getWaterSurface()
+gslu::nn_shared<Material> MaterialManager::getWaterSurface()
 {
   if(m_waterSurface != nullptr)
     return gsl::not_null{m_waterSurface};
@@ -197,7 +197,7 @@ gsl::not_null<std::shared_ptr<Material>> MaterialManager::getWaterSurface()
   return gsl::not_null{m_waterSurface};
 }
 
-gsl::not_null<std::shared_ptr<Material>> MaterialManager::getLightning()
+gslu::nn_shared<Material> MaterialManager::getLightning()
 {
   if(m_lightning != nullptr)
     return gsl::not_null{m_lightning};
@@ -209,8 +209,7 @@ gsl::not_null<std::shared_ptr<Material>> MaterialManager::getLightning()
   return gsl::not_null{m_lightning};
 }
 
-MaterialManager::MaterialManager(gsl::not_null<std::shared_ptr<ShaderCache>> shaderCache,
-                                 gsl::not_null<std::shared_ptr<Renderer>> renderer)
+MaterialManager::MaterialManager(gslu::nn_shared<ShaderCache> shaderCache, gslu::nn_shared<Renderer> renderer)
     : m_shaderCache{std::move(shaderCache)}
     , m_renderer{std::move(renderer)}
 {
@@ -235,7 +234,7 @@ MaterialManager::MaterialManager(gsl::not_null<std::shared_ptr<ShaderCache>> sha
       | set(gl::api::TextureMinFilter::Linear) | set(gl::api::TextureMagFilter::Linear));
 }
 
-gsl::not_null<std::shared_ptr<Material>> MaterialManager::getWorldComposition(bool inWater, bool dof)
+gslu::nn_shared<Material> MaterialManager::getWorldComposition(bool inWater, bool dof)
 {
   const std::tuple key{inWater, dof};
   if(auto it = m_composition.find(key); it != m_composition.end())
@@ -259,7 +258,7 @@ gsl::not_null<std::shared_ptr<Material>> MaterialManager::getWorldComposition(bo
   return m;
 }
 
-gsl::not_null<std::shared_ptr<Material>> MaterialManager::getUi()
+gslu::nn_shared<Material> MaterialManager::getUi()
 {
   if(m_ui != nullptr)
     return gsl::not_null{m_ui};
@@ -276,7 +275,7 @@ gsl::not_null<std::shared_ptr<Material>> MaterialManager::getUi()
   return gsl::not_null{m_ui};
 }
 
-gsl::not_null<std::shared_ptr<Material>> MaterialManager::getFlat(bool withAlpha, bool invertY, bool withAspectRatio)
+gslu::nn_shared<Material> MaterialManager::getFlat(bool withAlpha, bool invertY, bool withAspectRatio)
 {
   const std::tuple key{withAlpha, invertY, withAspectRatio};
   if(auto it = m_flat.find(key); it != m_flat.end())
@@ -304,7 +303,7 @@ const std::shared_ptr<Material>& MaterialManager::getBackdrop()
   return m_backdrop;
 }
 
-gsl::not_null<std::shared_ptr<Material>> MaterialManager::getFXAA()
+gslu::nn_shared<Material> MaterialManager::getFXAA()
 {
   if(m_fxaa != nullptr)
     return gsl::not_null{m_fxaa};
@@ -316,7 +315,7 @@ gsl::not_null<std::shared_ptr<Material>> MaterialManager::getFXAA()
   return m;
 }
 
-gsl::not_null<std::shared_ptr<Material>> MaterialManager::getCRT()
+gslu::nn_shared<Material> MaterialManager::getCRT()
 {
   if(m_crt != nullptr)
     return gsl::not_null{m_crt};
@@ -328,7 +327,7 @@ gsl::not_null<std::shared_ptr<Material>> MaterialManager::getCRT()
   return m;
 }
 
-gsl::not_null<std::shared_ptr<Material>> MaterialManager::getVelvia()
+gslu::nn_shared<Material> MaterialManager::getVelvia()
 {
   if(m_velvia != nullptr)
     return gsl::not_null{m_velvia};
@@ -340,7 +339,7 @@ gsl::not_null<std::shared_ptr<Material>> MaterialManager::getVelvia()
   return m;
 }
 
-gsl::not_null<std::shared_ptr<Material>> MaterialManager::getFilmGrain()
+gslu::nn_shared<Material> MaterialManager::getFilmGrain()
 {
   if(m_filmGrain != nullptr)
     return gsl::not_null{m_filmGrain};
@@ -352,7 +351,7 @@ gsl::not_null<std::shared_ptr<Material>> MaterialManager::getFilmGrain()
   return m;
 }
 
-gsl::not_null<std::shared_ptr<Material>> MaterialManager::getLensDistortion()
+gslu::nn_shared<Material> MaterialManager::getLensDistortion()
 {
   if(m_lensDistortion != nullptr)
     return gsl::not_null{m_lensDistortion};
@@ -364,7 +363,7 @@ gsl::not_null<std::shared_ptr<Material>> MaterialManager::getLensDistortion()
   return m;
 }
 
-gsl::not_null<std::shared_ptr<Material>> MaterialManager::getHBAOFx()
+gslu::nn_shared<Material> MaterialManager::getHBAOFx()
 {
   if(m_hbaoFx != nullptr)
     return gsl::not_null{m_hbaoFx};
@@ -374,7 +373,7 @@ gsl::not_null<std::shared_ptr<Material>> MaterialManager::getHBAOFx()
   return m;
 }
 
-gsl::not_null<std::shared_ptr<Material>> MaterialManager::getUnderwaterMovement()
+gslu::nn_shared<Material> MaterialManager::getUnderwaterMovement()
 {
   if(m_underwaterMovement != nullptr)
     return gsl::not_null{m_underwaterMovement};
@@ -384,7 +383,7 @@ gsl::not_null<std::shared_ptr<Material>> MaterialManager::getUnderwaterMovement(
   return m;
 }
 
-gsl::not_null<std::shared_ptr<Material>> MaterialManager::getHBAO()
+gslu::nn_shared<Material> MaterialManager::getHBAO()
 {
   if(m_hbao != nullptr)
     return gsl::not_null{m_hbao};
@@ -396,7 +395,7 @@ gsl::not_null<std::shared_ptr<Material>> MaterialManager::getHBAO()
   return m;
 }
 
-gsl::not_null<std::shared_ptr<Material>> MaterialManager::getVSMSquare()
+gslu::nn_shared<Material> MaterialManager::getVSMSquare()
 {
   if(m_vsmSquare != nullptr)
     return gsl::not_null{m_vsmSquare};
@@ -435,8 +434,7 @@ void MaterialManager::setFiltering(bool bilinear, float anisotropyLevel)
     m_geometryTextures->getTexture(), std::move(sampler));
 }
 
-gsl::not_null<std::shared_ptr<Material>>
-  MaterialManager::getFastGaussBlur(uint8_t extent, uint8_t blurDir, uint8_t blurDim)
+gslu::nn_shared<Material> MaterialManager::getFastGaussBlur(uint8_t extent, uint8_t blurDir, uint8_t blurDim)
 {
   const std::tuple key{extent, blurDir, blurDim};
   if(auto it = m_fastGaussBlur.find(key); it != m_fastGaussBlur.end())
@@ -449,8 +447,7 @@ gsl::not_null<std::shared_ptr<Material>>
   return m;
 }
 
-gsl::not_null<std::shared_ptr<Material>>
-  MaterialManager::getFastBoxBlur(uint8_t extent, uint8_t blurDir, uint8_t blurDim)
+gslu::nn_shared<Material> MaterialManager::getFastBoxBlur(uint8_t extent, uint8_t blurDir, uint8_t blurDim)
 {
   const std::tuple key{extent, blurDir, blurDim};
   if(auto it = m_fastBoxBlur.find(key); it != m_fastBoxBlur.end())
@@ -463,7 +460,7 @@ gsl::not_null<std::shared_ptr<Material>>
   return m;
 }
 
-gsl::not_null<std::shared_ptr<Material>> MaterialManager::getDustParticle()
+gslu::nn_shared<Material> MaterialManager::getDustParticle()
 {
   if(m_dustParticle != nullptr)
     return gsl::not_null{m_dustParticle};

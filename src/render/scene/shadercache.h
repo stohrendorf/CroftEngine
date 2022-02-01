@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <filesystem>
 #include <gsl/gsl-lite.hpp>
+#include <gslu.h>
 #include <memory>
 #include <string>
 #include <unordered_map>
@@ -15,7 +16,7 @@ class ShaderProgram;
 
 class ShaderCache final
 {
-  std::unordered_map<std::string, gsl::not_null<std::shared_ptr<ShaderProgram>>> m_programs{};
+  std::unordered_map<std::string, gslu::nn_shared<ShaderProgram>> m_programs{};
 
   const std::filesystem::path m_root;
 
@@ -25,14 +26,14 @@ public:
   {
   }
 
-  [[nodiscard]] gsl::not_null<std::shared_ptr<ShaderProgram>> get(const std::filesystem::path& vshPath,
-                                                                  const std::filesystem::path& fshPath,
-                                                                  const std::vector<std::string>& defines = {});
+  [[nodiscard]] gslu::nn_shared<ShaderProgram> get(const std::filesystem::path& vshPath,
+                                                   const std::filesystem::path& fshPath,
+                                                   const std::vector<std::string>& defines = {});
 
-  [[nodiscard]] gsl::not_null<std::shared_ptr<ShaderProgram>> get(const std::filesystem::path& vshPath,
-                                                                  const std::filesystem::path& fshPath,
-                                                                  const std::filesystem::path& geomPath,
-                                                                  const std::vector<std::string>& defines = {});
+  [[nodiscard]] gslu::nn_shared<ShaderProgram> get(const std::filesystem::path& vshPath,
+                                                   const std::filesystem::path& fshPath,
+                                                   const std::filesystem::path& geomPath,
+                                                   const std::vector<std::string>& defines = {});
 
   [[nodiscard]] auto getFlat(bool withAlphaMultiplier, bool invertY, bool withAspectRatio)
   {

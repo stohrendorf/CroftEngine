@@ -4,6 +4,7 @@
 
 #include <glm/vec2.hpp>
 #include <gsl/gsl-lite.hpp>
+#include <gslu.h>
 #include <memory>
 #include <string>
 
@@ -23,7 +24,7 @@ namespace ui::widgets
 class GroupBox : public Widget
 {
 public:
-  explicit GroupBox(const std::string& title, gsl::not_null<std::shared_ptr<Widget>> widget);
+  explicit GroupBox(const std::string& title, gslu::nn_shared<Widget> widget);
   ~GroupBox() override;
   void draw(ui::Ui& ui, const engine::Presenter& presenter) const override;
 
@@ -44,7 +45,7 @@ public:
 private:
   glm::ivec2 m_position{0, 0};
   glm::ivec2 m_size{0, 0};
-  gsl::not_null<std::unique_ptr<ui::Text>> m_title;
-  gsl::not_null<std::shared_ptr<Widget>> m_widget;
+  gslu::nn_unique<ui::Text> m_title;
+  gslu::nn_shared<Widget> m_widget;
 };
 } // namespace ui::widgets

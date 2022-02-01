@@ -11,7 +11,7 @@
 
 namespace audio
 {
-BufferVoice::BufferVoice(gsl::not_null<std::shared_ptr<BufferHandle>> buffer)
+BufferVoice::BufferVoice(gslu::nn_shared<BufferHandle> buffer)
     : m_buffer{std::move(buffer)}
 {
 }

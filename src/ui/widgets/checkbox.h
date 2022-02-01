@@ -4,6 +4,7 @@
 
 #include <glm/vec2.hpp>
 #include <gsl/gsl-lite.hpp>
+#include <gslu.h>
 #include <memory>
 #include <string>
 
@@ -45,7 +46,7 @@ public:
 
 private:
   glm::ivec2 m_size{0, 0};
-  gsl::not_null<std::unique_ptr<Label>> m_label;
+  gslu::nn_unique<Label> m_label;
   bool m_checked = false;
 };
 } // namespace ui::widgets

@@ -2,6 +2,7 @@
 
 #include <gl/renderstate.h>
 #include <gsl/gsl-lite.hpp>
+#include <gslu.h>
 #include <memory>
 #include <string>
 #include <vector>
@@ -18,7 +19,7 @@ class UniformParameter;
 class Material final
 {
 public:
-  explicit Material(gsl::not_null<std::shared_ptr<ShaderProgram>> shaderProgram);
+  explicit Material(gslu::nn_shared<ShaderProgram> shaderProgram);
 
   ~Material();
 
@@ -27,7 +28,7 @@ public:
   Material& operator=(const Material&) = delete;
   Material& operator=(Material&&) = delete;
 
-  const gsl::not_null<std::shared_ptr<ShaderProgram>>& getShaderProgram() const
+  const gslu::nn_shared<ShaderProgram>& getShaderProgram() const
   {
     return m_shaderProgram;
   }
@@ -35,19 +36,19 @@ public:
   void bind(const Node* node, const Mesh& mesh) const;
 
   std::shared_ptr<UniformParameter> tryGetUniform(const std::string& name) const;
-  gsl::not_null<std::shared_ptr<UniformParameter>> getUniform(const std::string& name) const
+  gslu::nn_shared<UniformParameter> getUniform(const std::string& name) const
   {
     return gsl::not_null{tryGetUniform(name)};
   }
 
   std::shared_ptr<UniformBlockParameter> tryGetUniformBlock(const std::string& name) const;
-  gsl::not_null<std::shared_ptr<UniformBlockParameter>> getUniformBlock(const std::string& name) const
+  gslu::nn_shared<UniformBlockParameter> getUniformBlock(const std::string& name) const
   {
     return gsl::not_null{tryGetUniformBlock(name)};
   }
 
   std::shared_ptr<BufferParameter> tryGetBuffer(const std::string& name) const;
-  gsl::not_null<std::shared_ptr<BufferParameter>> getBuffer(const std::string& name) const
+  gslu::nn_shared<BufferParameter> getBuffer(const std::string& name) const
   {
     return gsl::not_null{tryGetBuffer(name)};
   }
@@ -58,11 +59,11 @@ public:
   }
 
 private:
-  gsl::not_null<std::shared_ptr<ShaderProgram>> m_shaderProgram;
+  gslu::nn_shared<ShaderProgram> m_shaderProgram;
 
-  mutable std::vector<gsl::not_null<std::shared_ptr<UniformParameter>>> m_uniforms;
-  mutable std::vector<gsl::not_null<std::shared_ptr<UniformBlockParameter>>> m_uniformBlocks;
-  mutable std::vector<gsl::not_null<std::shared_ptr<BufferParameter>>> m_buffers;
+  mutable std::vector<gslu::nn_shared<UniformParameter>> m_uniforms;
+  mutable std::vector<gslu::nn_shared<UniformBlockParameter>> m_uniformBlocks;
+  mutable std::vector<gslu::nn_shared<BufferParameter>> m_buffers;
 
   gl::RenderState m_renderState{};
 };

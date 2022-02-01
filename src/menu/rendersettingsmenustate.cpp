@@ -37,7 +37,7 @@ namespace menu
 class RenderSettingsMenuState::CheckListBox : public ui::widgets::Widget
 {
 private:
-  gsl::not_null<std::shared_ptr<ui::widgets::ListBox>> m_listBox;
+  gslu::nn_shared<ui::widgets::ListBox> m_listBox;
   ui::widgets::GroupBox m_groupBox;
   std::vector<std::tuple<std::function<bool()>, std::function<void()>, std::shared_ptr<ui::widgets::Checkbox>>>
     m_checkboxes;

@@ -11,6 +11,7 @@
 
 #include <cstddef>
 #include <gsl/gsl-lite.hpp>
+#include <gslu.h>
 #include <memory>
 #include <string>
 
@@ -108,11 +109,12 @@ public:
 
   void enemyPush(CollisionInfo& collisionInfo, bool enableSpaz, bool withXZCollRadius);
 
-  gsl::not_null<std::shared_ptr<Particle>>
-    emitParticle(const core::TRVec& localPosition,
-                 size_t boneIndex,
-                 gsl::not_null<std::shared_ptr<Particle>> (*generate)(
-                   world::World& world, const Location& location, const core::Speed& speed, const core::Angle& angle));
+  gslu::nn_shared<Particle> emitParticle(const core::TRVec& localPosition,
+                                         size_t boneIndex,
+                                         gslu::nn_shared<Particle> (*generate)(world::World& world,
+                                                                               const Location& location,
+                                                                               const core::Speed& speed,
+                                                                               const core::Angle& angle));
 
   void updateLighting() override;
 

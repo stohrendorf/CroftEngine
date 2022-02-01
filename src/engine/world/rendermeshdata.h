@@ -13,6 +13,7 @@
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
 #include <gsl/gsl-lite.hpp>
+#include <gslu.h>
 #include <memory>
 #include <string>
 #include <vector>
@@ -118,7 +119,7 @@ public:
     ++m_boneIndex;
   }
 
-  gsl::not_null<std::shared_ptr<render::scene::Mesh>>
+  gslu::nn_shared<render::scene::Mesh>
     toMesh(render::scene::MaterialManager& materialManager, bool skeletal, bool shadowCaster, const std::string& label);
 
   [[nodiscard]] bool empty() const

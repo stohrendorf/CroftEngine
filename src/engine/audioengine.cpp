@@ -181,8 +181,8 @@ void AudioEngine::playStopCdTrack(const script::Gameflow& gameflow, const TR1Tra
   stream->play();
 }
 
-gsl::not_null<std::shared_ptr<audio::StreamVoice>>
-  AudioEngine::createStream(const std::filesystem::path& path, const std::chrono::milliseconds& initialPosition)
+gslu::nn_shared<audio::StreamVoice> AudioEngine::createStream(const std::filesystem::path& path,
+                                                              const std::chrono::milliseconds& initialPosition)
 {
   static constexpr size_t DefaultBufferSize = 8192;
   static constexpr size_t DefaultBufferCount = 4;

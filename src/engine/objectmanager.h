@@ -4,6 +4,7 @@
 
 #include <cstdint>
 #include <gsl/gsl-lite.hpp>
+#include <gslu.h>
 #include <map>
 #include <memory>
 #include <set>
@@ -37,9 +38,9 @@ class ObjectManager
 {
   std::set<objects::Object*> m_scheduledDeletions;
   ObjectId m_objectCounter = 0;
-  std::map<ObjectId, gsl::not_null<std::shared_ptr<objects::Object>>> m_objects;
-  std::set<gsl::not_null<std::shared_ptr<objects::Object>>> m_dynamicObjects;
-  std::vector<gsl::not_null<std::shared_ptr<Particle>>> m_particles;
+  std::map<ObjectId, gslu::nn_shared<objects::Object>> m_objects;
+  std::set<gslu::nn_shared<objects::Object>> m_dynamicObjects;
+  std::vector<gslu::nn_shared<Particle>> m_particles;
   std::shared_ptr<objects::LaraObject> m_lara = nullptr;
 
 public:
@@ -80,7 +81,7 @@ public:
     m_scheduledDeletions.insert(object);
   }
 
-  void registerDynamicObject(const gsl::not_null<std::shared_ptr<objects::Object>>& object)
+  void registerDynamicObject(const gslu::nn_shared<objects::Object>& object)
   {
     m_dynamicObjects.emplace(object);
   }
@@ -90,12 +91,12 @@ public:
     return m_dynamicObjects.size();
   }
 
-  void registerParticle(const gsl::not_null<std::shared_ptr<Particle>>& particle)
+  void registerParticle(const gslu::nn_shared<Particle>& particle)
   {
     m_particles.emplace_back(particle);
   }
 
-  void registerParticle(gsl::not_null<std::shared_ptr<Particle>>&& particle)
+  void registerParticle(gslu::nn_shared<Particle>&& particle)
   {
     m_particles.emplace_back(std::move(particle));
   }
@@ -108,7 +109,7 @@ public:
   void eraseParticle(const std::shared_ptr<Particle>& particle);
 
   void applyScheduledDeletions();
-  void registerObject(const gsl::not_null<std::shared_ptr<objects::Object>>& object);
+  void registerObject(const gslu::nn_shared<objects::Object>& object);
   std::shared_ptr<objects::Object> find(const objects::Object* object) const;
   void createObjects(world::World& world, std::vector<loader::file::Item>& items);
   [[nodiscard]] std::shared_ptr<objects::Object> getObject(ObjectId id) const;

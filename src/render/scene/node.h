@@ -12,6 +12,7 @@
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
 #include <gsl/gsl-lite.hpp>
+#include <gslu.h>
 #include <memory>
 #include <stdexcept>
 #include <string>
@@ -37,7 +38,7 @@ public:
   Node& operator=(Node&&) = delete;
   Node& operator=(const Node&) = delete;
 
-  using List = std::vector<gsl::not_null<std::shared_ptr<Node>>>;
+  using List = std::vector<gslu::nn_shared<Node>>;
 
   explicit Node(std::string name)
       : m_name{std::move(name)}
@@ -137,7 +138,7 @@ public:
   {
     const auto it = std::find_if(m_children.begin(),
                                  m_children.end(),
-                                 [node](const gsl::not_null<std::shared_ptr<Node>>& ptr)
+                                 [node](const gslu::nn_shared<Node>& ptr)
                                  {
                                    return ptr.get().get() == node;
                                  });
@@ -246,11 +247,11 @@ private:
 
   int m_renderOrder = 0;
 
-  friend void setParent(gsl::not_null<std::shared_ptr<Node>> node, const std::shared_ptr<Node>& newParent);
+  friend void setParent(gslu::nn_shared<Node> node, const std::shared_ptr<Node>& newParent);
   friend void setParent(Node* node, const std::shared_ptr<Node>& newParent);
 };
 
-inline void setParent(gsl::not_null<std::shared_ptr<Node>> node, // NOLINT(performance-unnecessary-value-param)
+inline void setParent(gslu::nn_shared<Node> node, // NOLINT(performance-unnecessary-value-param)
                       const std::shared_ptr<Node>& newParent)
 {
   // first remove from hierarchy
@@ -289,8 +290,7 @@ inline void setParent(Node* node, const std::shared_ptr<Node>& newParent)
   BOOST_THROW_EXCEPTION(std::runtime_error("Cannot initially assign parents to raw node pointers"));
 }
 
-inline void addChild(const gsl::not_null<std::shared_ptr<Node>>& node,
-                     const gsl::not_null<std::shared_ptr<Node>>& child)
+inline void addChild(const gslu::nn_shared<Node>& node, const gslu::nn_shared<Node>& child)
 {
   if(child->getParent().lock() == node.get())
   {

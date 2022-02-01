@@ -4,6 +4,7 @@
 
 #include <cstddef>
 #include <gsl/gsl-lite.hpp>
+#include <gslu.h>
 #include <memory>
 
 namespace loader::file
@@ -20,9 +21,8 @@ namespace engine::objects
 {
 class Object;
 extern std::shared_ptr<Object> createObject(world::World& world, loader::file::Item& item, size_t id);
-extern gsl::not_null<std::shared_ptr<Object>>
-  create(const serialization::TypeId<gsl::not_null<std::shared_ptr<Object>>>&,
-         const serialization::Serializer<world::World>& ser);
+extern gslu::nn_shared<Object> create(const serialization::TypeId<gslu::nn_shared<Object>>&,
+                                      const serialization::Serializer<world::World>& ser);
 } // namespace engine::objects
 
 namespace serialization

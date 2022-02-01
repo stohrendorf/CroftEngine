@@ -15,6 +15,7 @@
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
 #include <gsl/gsl-lite.hpp>
+#include <gslu.h>
 #include <limits>
 #include <memory>
 #include <string>
@@ -200,7 +201,7 @@ public:
 
   // NOLINTNEXTLINE(bugprone-reserved-identifier)
   template<typename _Texture>
-  void set(const gsl::not_null<std::shared_ptr<TextureHandle<_Texture>>>& textureHandle)
+  void set(const gslu::nn_shared<TextureHandle<_Texture>>& textureHandle)
   {
     Expects(m_program != InvalidProgram);
     if(changeValue(textureHandle->getHandle()))
@@ -226,7 +227,7 @@ public:
 
   // NOLINTNEXTLINE(bugprone-reserved-identifier)
   template<typename _Texture>
-  void set(const gsl::span<const gsl::not_null<std::shared_ptr<TextureHandle<_Texture>>>>& textureHandles)
+  void set(const gsl::span<const gslu::nn_shared<TextureHandle<_Texture>>>& textureHandles)
   {
     setTextures(textureHandles.begin(), textureHandles.end());
   }

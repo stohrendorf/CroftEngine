@@ -8,6 +8,7 @@
 #include <filesystem>
 #include <glm/vec2.hpp>
 #include <gsl/gsl-lite.hpp>
+#include <gslu.h>
 #include <memory>
 #include <string>
 #include <string_view>
@@ -94,7 +95,7 @@ public:
 
   void fromScreenshot();
 
-  gsl::not_null<std::shared_ptr<gl::Texture2D<gl::SRGBA8>>> toTexture(const std::string_view& label);
+  gslu::nn_shared<gl::Texture2D<gl::SRGBA8>> toTexture(const std::string_view& label);
 
 private:
   void unshare();

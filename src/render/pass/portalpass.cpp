@@ -22,7 +22,7 @@ class MaterialManager;
 namespace render::pass
 {
 PortalPass::PortalPass(scene::MaterialManager& materialManager,
-                       const gsl::not_null<std::shared_ptr<gl::TextureDepth<float>>>& depthBuffer,
+                       const gslu::nn_shared<gl::TextureDepth<float>>& depthBuffer,
                        const glm::vec2& viewport)
     : m_positionBuffer{std::make_shared<gl::Texture2D<gl::Scalar32F>>(viewport, "portal-position")}
     , m_positionBufferHandle{std::make_shared<gl::TextureHandle<gl::Texture2D<gl::Scalar32F>>>(

@@ -65,7 +65,7 @@ HBAOPass::HBAOPass(scene::MaterialManager& materialManager,
   m_blur.setInput(gsl::not_null{m_aoBufferHandle});
 }
 
-void HBAOPass::updateCamera(const gsl::not_null<std::shared_ptr<scene::Camera>>& camera)
+void HBAOPass::updateCamera(const gslu::nn_shared<scene::Camera>& camera)
 {
   m_material->getUniformBlock("Camera")->bindCameraBuffer(camera);
 }

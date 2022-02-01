@@ -40,7 +40,7 @@ struct ShaderLight
     return !(*this == rhs);
   }
 
-  static gsl::not_null<std::shared_ptr<gl::ShaderStorageBuffer<ShaderLight>>> getEmptyBuffer()
+  static gslu::nn_shared<gl::ShaderStorageBuffer<ShaderLight>> getEmptyBuffer()
   {
     static std::weak_ptr<gl::ShaderStorageBuffer<ShaderLight>> instance;
     if(auto tmp = instance.lock())
@@ -73,6 +73,6 @@ private:
       ambient += (targetAmbient - ambient) / 50.0f;
   }
 
-  gsl::not_null<std::shared_ptr<gl::ShaderStorageBuffer<ShaderLight>>> m_buffer{ShaderLight::getEmptyBuffer()};
+  gslu::nn_shared<gl::ShaderStorageBuffer<ShaderLight>> m_buffer{ShaderLight::getEmptyBuffer()};
 };
 } // namespace engine

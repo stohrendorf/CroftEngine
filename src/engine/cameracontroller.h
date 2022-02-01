@@ -13,6 +13,7 @@
 #include <cstdint>
 #include <glm/fwd.hpp>
 #include <gsl/gsl-lite.hpp>
+#include <gslu.h>
 #include <memory>
 #include <unordered_set>
 
@@ -62,7 +63,7 @@ enum class CameraModifier
 class CameraController final : public audio::Listener
 {
 private:
-  gsl::not_null<std::shared_ptr<render::scene::Camera>> m_camera;
+  gslu::nn_shared<render::scene::Camera> m_camera;
 
   const gsl::not_null<world::World*> m_world;
 
@@ -101,11 +102,10 @@ private:
   core::Frame m_camOverrideTimeout{-1_frame};
 
 public:
-  explicit CameraController(const gsl::not_null<world::World*>& world,
-                            gsl::not_null<std::shared_ptr<render::scene::Camera>> camera);
+  explicit CameraController(const gsl::not_null<world::World*>& world, gslu::nn_shared<render::scene::Camera> camera);
 
   explicit CameraController(const gsl::not_null<world::World*>& world,
-                            gsl::not_null<std::shared_ptr<render::scene::Camera>> camera,
+                            gslu::nn_shared<render::scene::Camera> camera,
                             bool noLaraTag);
 
   const gsl::not_null<world::World*>& getWorld() const noexcept
@@ -147,7 +147,7 @@ public:
                       const core::Frame& timeout,
                       bool switchIsOn);
 
-  void setLookAtObject(const gsl::not_null<std::shared_ptr<objects::Object>>& object)
+  void setLookAtObject(const gslu::nn_shared<objects::Object>& object)
   {
     m_lookAtObject = object;
   }

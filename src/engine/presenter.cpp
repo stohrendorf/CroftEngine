@@ -76,7 +76,7 @@ void Presenter::playVideo(const std::filesystem::path& path)
 
   video::play(path,
               m_soundEngine->getDevice(),
-              [&](const gsl::not_null<std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>>>& textureHandle)
+              [&](const gslu::nn_shared<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>>& textureHandle)
               {
                 if(update())
                   return true;

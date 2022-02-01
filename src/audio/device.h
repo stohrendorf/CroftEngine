@@ -6,6 +6,7 @@
 #include <functional>
 #include <glm/vec3.hpp>
 #include <gsl/gsl-lite.hpp>
+#include <gslu.h>
 #include <memory>
 #include <mutex>
 #include <set>
@@ -41,7 +42,7 @@ public:
     return m_underwaterFilter;
   }
 
-  void removeStream(const gsl::not_null<std::shared_ptr<StreamVoice>>& stream);
+  void removeStream(const gslu::nn_shared<StreamVoice>& stream);
   void removeStream(const std::weak_ptr<StreamVoice>& stream)
   {
     if(const auto locked = stream.lock())
@@ -57,11 +58,10 @@ public:
     m_filter = filter;
   }
 
-  [[nodiscard]] gsl::not_null<std::shared_ptr<StreamVoice>>
-    createStream(std::unique_ptr<AbstractStreamSource>&& src,
-                 size_t bufferSize,
-                 size_t bufferCount,
-                 const std::chrono::milliseconds& initialPosition);
+  [[nodiscard]] gslu::nn_shared<StreamVoice> createStream(std::unique_ptr<AbstractStreamSource>&& src,
+                                                          size_t bufferSize,
+                                                          size_t bufferCount,
+                                                          const std::chrono::milliseconds& initialPosition);
 
   void reset();
 
@@ -76,8 +76,8 @@ private:
   ALCdevice* m_device = nullptr;
   ALCcontext* m_context = nullptr;
   std::shared_ptr<FilterHandle> m_underwaterFilter = nullptr;
-  std::vector<gsl::not_null<std::shared_ptr<Voice>>> m_allVoices;
-  std::set<gsl::not_null<std::shared_ptr<StreamVoice>>> m_streams;
+  std::vector<gslu::nn_shared<Voice>> m_allVoices;
+  std::set<gslu::nn_shared<StreamVoice>> m_streams;
   std::thread m_streamUpdater;
   std::vector<std::pair<std::function<UpdateCallback>, std::chrono::high_resolution_clock::time_point>>
     m_updateCallbacks;

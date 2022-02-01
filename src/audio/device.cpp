@@ -262,10 +262,10 @@ void Device::update()
   }
 }
 
-gsl::not_null<std::shared_ptr<StreamVoice>> Device::createStream(std::unique_ptr<AbstractStreamSource>&& src,
-                                                                 const size_t bufferSize,
-                                                                 const size_t bufferCount,
-                                                                 const std::chrono::milliseconds& initialPosition)
+gslu::nn_shared<StreamVoice> Device::createStream(std::unique_ptr<AbstractStreamSource>&& src,
+                                                  const size_t bufferSize,
+                                                  const size_t bufferCount,
+                                                  const std::chrono::milliseconds& initialPosition)
 {
   auto r = gslu::make_nn_shared<StreamVoice>(
     std::make_unique<StreamingSourceHandle>(), std::move(src), bufferSize, bufferCount, initialPosition);
@@ -290,7 +290,7 @@ void Device::updateStreams()
   }
 }
 
-void Device::removeStream(const gsl::not_null<std::shared_ptr<StreamVoice>>& stream)
+void Device::removeStream(const gslu::nn_shared<StreamVoice>& stream)
 {
   stream->setLooping(false);
   stream->stop();

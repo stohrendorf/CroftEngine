@@ -8,6 +8,7 @@
 
 #include <cstdint>
 #include <gsl/gsl-lite.hpp>
+#include <gslu.h>
 #include <map>
 #include <memory>
 
@@ -40,11 +41,11 @@ struct HeightInfo
 
   static HeightInfo fromFloor(gsl::not_null<const world::Sector*> roomSector,
                               const core::TRVec& pos,
-                              const std::map<uint16_t, gsl::not_null<std::shared_ptr<objects::Object>>>& objects);
+                              const std::map<uint16_t, gslu::nn_shared<objects::Object>>& objects);
 
   static HeightInfo fromCeiling(gsl::not_null<const world::Sector*> roomSector,
                                 const core::TRVec& pos,
-                                const std::map<uint16_t, gsl::not_null<std::shared_ptr<objects::Object>>>& objects);
+                                const std::map<uint16_t, gslu::nn_shared<objects::Object>>& objects);
 
   HeightInfo() = default;
 };
@@ -58,7 +59,7 @@ struct VerticalDistances
 
   void init(const gsl::not_null<const world::Sector*>& roomSector,
             const core::TRVec& position,
-            const std::map<uint16_t, gsl::not_null<std::shared_ptr<objects::Object>>>& objects,
+            const std::map<uint16_t, gslu::nn_shared<objects::Object>>& objects,
             const core::Length& objectY,
             const core::Length& objectHeight)
   {

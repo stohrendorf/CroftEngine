@@ -8,6 +8,7 @@
 
 #include <boost/container/flat_map.hpp>
 #include <filesystem>
+#include <gslu.h>
 #include <map>
 #include <optional>
 #include <utility>
@@ -46,7 +47,7 @@ class AudioEngine
 {
   world::World& m_world;
   const std::filesystem::path m_rootPath;
-  const gsl::not_null<std::shared_ptr<audio::SoundEngine>> m_soundEngine;
+  const gslu::nn_shared<audio::SoundEngine> m_soundEngine;
 
   std::vector<loader::file::SoundEffectProperties> m_soundEffectProperties{};
   boost::container::flat_map<int, const loader::file::SoundEffectProperties*> m_soundEffects{};
@@ -55,7 +56,7 @@ class AudioEngine
   std::shared_ptr<audio::Voice> m_underwaterAmbience;
   std::map<size_t, StreamInfo> m_streams;
   std::optional<TR1TrackId> m_currentTrack;
-  std::vector<gsl::not_null<std::shared_ptr<audio::BufferHandle>>> m_samples;
+  std::vector<gslu::nn_shared<audio::BufferHandle>> m_samples;
   audio::VoiceGroup m_music{0.8f};
   audio::VoiceGroup m_sfx{0.8f};
 
@@ -70,9 +71,9 @@ public:
   std::shared_ptr<audio::Voice> playSoundEffect(const core::SoundEffectId& id, audio::Emitter* emitter);
   std::shared_ptr<audio::Voice> playSoundEffect(const core::SoundEffectId& id, const glm::vec3& pos);
 
-  gsl::not_null<std::shared_ptr<audio::StreamVoice>> createStream(const std::filesystem::path& path,
-                                                                  const std::chrono::milliseconds& initialPosition
-                                                                  = std::chrono::milliseconds{0});
+  gslu::nn_shared<audio::StreamVoice> createStream(const std::filesystem::path& path,
+                                                   const std::chrono::milliseconds& initialPosition
+                                                   = std::chrono::milliseconds{0});
 
   void playStopCdTrack(const script::Gameflow& gameflow, TR1TrackId trackId, bool stop);
 

@@ -5,6 +5,7 @@
 #include <gl/api/gl.hpp>
 #include <gl/pixel.h>
 #include <gsl/gsl-lite.hpp>
+#include <gslu.h>
 #include <memory>
 
 namespace render::scene
@@ -20,7 +21,7 @@ public:
   Renderer& operator=(const Renderer&) = delete;
   Renderer& operator=(Renderer&&) = delete;
 
-  explicit Renderer(gsl::not_null<std::shared_ptr<Camera>> camera);
+  explicit Renderer(gslu::nn_shared<Camera> camera);
 
   ~Renderer();
 
@@ -65,6 +66,6 @@ private:
   float m_clearDepth = 1;
 
   std::shared_ptr<Node> m_rootNode;
-  gsl::not_null<std::shared_ptr<Camera>> m_camera;
+  gslu::nn_shared<Camera> m_camera;
 };
 } // namespace render::scene

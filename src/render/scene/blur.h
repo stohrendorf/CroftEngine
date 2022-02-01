@@ -30,7 +30,7 @@ public:
     Expects(extent > 0);
   }
 
-  void setInput(const gsl::not_null<std::shared_ptr<TextureHandle>>& src)
+  void setInput(const gslu::nn_shared<TextureHandle>& src)
   {
     m_blurredTexture = std::make_shared<TextureHandle>(
       gslu::make_nn_shared<gl::Texture2D<PixelT>>(src->getTexture()->size(), m_name + "/blurred"),
@@ -59,7 +59,7 @@ public:
     m_mesh->render(nullptr, context);
   }
 
-  [[nodiscard]] gsl::not_null<std::shared_ptr<TextureHandle>> getBlurredTexture() const
+  [[nodiscard]] gslu::nn_shared<TextureHandle> getBlurredTexture() const
   {
     return gsl::not_null{m_blurredTexture};
   }
@@ -84,7 +84,7 @@ public:
   {
   }
 
-  void setInput(const gsl::not_null<std::shared_ptr<TextureHandle>>& src)
+  void setInput(const gslu::nn_shared<TextureHandle>& src)
   {
     m_blur1.setInput(src);
     m_blur2.setInput(m_blur1.getBlurredTexture());

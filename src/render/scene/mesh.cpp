@@ -20,10 +20,10 @@ namespace render::scene
 {
 class Node;
 
-gsl::not_null<std::shared_ptr<Mesh>> createScreenQuad(const glm::vec2& xy,
-                                                      const glm::vec2& size,
-                                                      const std::shared_ptr<Material>& material,
-                                                      const std::string& label)
+gslu::nn_shared<Mesh> createScreenQuad(const glm::vec2& xy,
+                                       const glm::vec2& size,
+                                       const std::shared_ptr<Material>& material,
+                                       const std::string& label)
 {
   struct Vertex
   {

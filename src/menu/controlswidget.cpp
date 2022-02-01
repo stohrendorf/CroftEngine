@@ -167,7 +167,7 @@ void ControlsWidget::draw(ui::Ui& ui, const engine::Presenter& presenter) const
   m_container->draw(ui, presenter);
 }
 
-const gsl::not_null<std::shared_ptr<ui::widgets::GridBox>>& ControlsWidget::getCurrentGridBox() const
+const gslu::nn_shared<ui::widgets::GridBox>& ControlsWidget::getCurrentGridBox() const
 {
   return m_controlGroups.at(std::get<1>(m_content->getSelected()) - 1);
 }

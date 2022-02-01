@@ -4,6 +4,7 @@
 #include <gl/pixel.h>
 #include <gl/soglb_fwd.h>
 #include <gsl/gsl-lite.hpp>
+#include <gslu.h>
 #include <map>
 #include <memory>
 #include <tuple>
@@ -18,55 +19,51 @@ class ShaderCache;
 class MaterialManager final
 {
 public:
-  explicit MaterialManager(gsl::not_null<std::shared_ptr<ShaderCache>> shaderCache,
-                           gsl::not_null<std::shared_ptr<Renderer>> renderer);
+  explicit MaterialManager(gslu::nn_shared<ShaderCache> shaderCache, gslu::nn_shared<Renderer> renderer);
 
-  [[nodiscard]] gsl::not_null<std::shared_ptr<Material>> getSprite(bool billboard);
+  [[nodiscard]] gslu::nn_shared<Material> getSprite(bool billboard);
 
-  [[nodiscard]] gsl::not_null<std::shared_ptr<Material>> getCSMDepthOnly(bool skeletal);
-  [[nodiscard]] gsl::not_null<std::shared_ptr<Material>> getDepthOnly(bool skeletal);
+  [[nodiscard]] gslu::nn_shared<Material> getCSMDepthOnly(bool skeletal);
+  [[nodiscard]] gslu::nn_shared<Material> getDepthOnly(bool skeletal);
 
-  [[nodiscard]] gsl::not_null<std::shared_ptr<Material>> getGeometry(bool inWater, bool skeletal, bool roomShadowing);
-  [[nodiscard]] gsl::not_null<std::shared_ptr<Material>> getGhost();
+  [[nodiscard]] gslu::nn_shared<Material> getGeometry(bool inWater, bool skeletal, bool roomShadowing);
+  [[nodiscard]] gslu::nn_shared<Material> getGhost();
 
-  [[nodiscard]] gsl::not_null<std::shared_ptr<Material>> getWaterSurface();
+  [[nodiscard]] gslu::nn_shared<Material> getWaterSurface();
 
-  [[nodiscard]] gsl::not_null<std::shared_ptr<Material>> getLightning();
+  [[nodiscard]] gslu::nn_shared<Material> getLightning();
 
-  [[nodiscard]] gsl::not_null<std::shared_ptr<Material>> getWorldComposition(bool inWater, bool dof);
+  [[nodiscard]] gslu::nn_shared<Material> getWorldComposition(bool inWater, bool dof);
 
-  [[nodiscard]] gsl::not_null<std::shared_ptr<Material>> getUi();
+  [[nodiscard]] gslu::nn_shared<Material> getUi();
 
-  [[nodiscard]] gsl::not_null<std::shared_ptr<Material>> getDustParticle();
+  [[nodiscard]] gslu::nn_shared<Material> getDustParticle();
 
-  [[nodiscard]] gsl::not_null<std::shared_ptr<Material>> getFXAA();
-  [[nodiscard]] gsl::not_null<std::shared_ptr<Material>> getCRT();
-  [[nodiscard]] gsl::not_null<std::shared_ptr<Material>> getVelvia();
-  [[nodiscard]] gsl::not_null<std::shared_ptr<Material>> getFilmGrain();
-  [[nodiscard]] gsl::not_null<std::shared_ptr<Material>> getLensDistortion();
-  [[nodiscard]] gsl::not_null<std::shared_ptr<Material>> getHBAOFx();
-  [[nodiscard]] gsl::not_null<std::shared_ptr<Material>> getUnderwaterMovement();
+  [[nodiscard]] gslu::nn_shared<Material> getFXAA();
+  [[nodiscard]] gslu::nn_shared<Material> getCRT();
+  [[nodiscard]] gslu::nn_shared<Material> getVelvia();
+  [[nodiscard]] gslu::nn_shared<Material> getFilmGrain();
+  [[nodiscard]] gslu::nn_shared<Material> getLensDistortion();
+  [[nodiscard]] gslu::nn_shared<Material> getHBAOFx();
+  [[nodiscard]] gslu::nn_shared<Material> getUnderwaterMovement();
 
-  [[nodiscard]] gsl::not_null<std::shared_ptr<Material>>
-    getFlat(bool withAlpha, bool invertY = false, bool withAspectRatio = false);
+  [[nodiscard]] gslu::nn_shared<Material> getFlat(bool withAlpha, bool invertY = false, bool withAspectRatio = false);
   [[nodiscard]] const std::shared_ptr<Material>& getBackdrop();
-  [[nodiscard]] gsl::not_null<std::shared_ptr<Material>> getHBAO();
-  [[nodiscard]] gsl::not_null<std::shared_ptr<Material>> getVSMSquare();
-  [[nodiscard]] gsl::not_null<std::shared_ptr<Material>>
-    getFastGaussBlur(uint8_t extent, uint8_t blurDir, uint8_t blurDim);
-  [[nodiscard]] gsl::not_null<std::shared_ptr<Material>>
-    getFastBoxBlur(uint8_t extent, uint8_t blurDir, uint8_t blurDim);
+  [[nodiscard]] gslu::nn_shared<Material> getHBAO();
+  [[nodiscard]] gslu::nn_shared<Material> getVSMSquare();
+  [[nodiscard]] gslu::nn_shared<Material> getFastGaussBlur(uint8_t extent, uint8_t blurDir, uint8_t blurDim);
+  [[nodiscard]] gslu::nn_shared<Material> getFastBoxBlur(uint8_t extent, uint8_t blurDir, uint8_t blurDim);
 
   void setGeometryTextures(std::shared_ptr<gl::TextureHandle<gl::Texture2DArray<gl::SRGBA8>>> geometryTextures);
   void setFiltering(bool bilinear, float anisotropyLevel);
 
-  void setCSM(const gsl::not_null<std::shared_ptr<CSM>>& csm)
+  void setCSM(const gslu::nn_shared<CSM>& csm)
   {
     m_csm = csm;
   }
 
 private:
-  const gsl::not_null<std::shared_ptr<ShaderCache>> m_shaderCache;
+  const gslu::nn_shared<ShaderCache> m_shaderCache;
   std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::RGB8>>> m_noiseTexture;
 
   std::shared_ptr<Material> m_fxaa{nullptr};
@@ -77,18 +74,18 @@ private:
   std::shared_ptr<Material> m_hbaoFx{nullptr};
   std::shared_ptr<Material> m_underwaterMovement{nullptr};
 
-  std::map<bool, gsl::not_null<std::shared_ptr<Material>>> m_sprite{};
-  std::map<bool, gsl::not_null<std::shared_ptr<Material>>> m_csmDepthOnly{};
-  std::map<bool, gsl::not_null<std::shared_ptr<Material>>> m_depthOnly{};
-  std::map<std::tuple<bool, bool, bool>, gsl::not_null<std::shared_ptr<Material>>> m_geometry{};
+  std::map<bool, gslu::nn_shared<Material>> m_sprite{};
+  std::map<bool, gslu::nn_shared<Material>> m_csmDepthOnly{};
+  std::map<bool, gslu::nn_shared<Material>> m_depthOnly{};
+  std::map<std::tuple<bool, bool, bool>, gslu::nn_shared<Material>> m_geometry{};
   std::shared_ptr<Material> m_ghost{nullptr};
   std::shared_ptr<Material> m_waterSurface{nullptr};
   std::shared_ptr<Material> m_lightning{nullptr};
-  std::map<std::tuple<bool, bool>, gsl::not_null<std::shared_ptr<Material>>> m_composition{};
+  std::map<std::tuple<bool, bool>, gslu::nn_shared<Material>> m_composition{};
   std::shared_ptr<Material> m_ui{nullptr};
-  std::map<std::tuple<bool, bool, bool>, gsl::not_null<std::shared_ptr<Material>>> m_flat{};
-  std::map<std::tuple<uint8_t, uint8_t, uint8_t>, gsl::not_null<std::shared_ptr<Material>>> m_fastGaussBlur{};
-  std::map<std::tuple<uint8_t, uint8_t, uint8_t>, gsl::not_null<std::shared_ptr<Material>>> m_fastBoxBlur{};
+  std::map<std::tuple<bool, bool, bool>, gslu::nn_shared<Material>> m_flat{};
+  std::map<std::tuple<uint8_t, uint8_t, uint8_t>, gslu::nn_shared<Material>> m_fastGaussBlur{};
+  std::map<std::tuple<uint8_t, uint8_t, uint8_t>, gslu::nn_shared<Material>> m_fastBoxBlur{};
   std::shared_ptr<Material> m_backdrop{nullptr};
   std::shared_ptr<Material> m_hbao{nullptr};
   std::shared_ptr<Material> m_vsmSquare{nullptr};
@@ -96,7 +93,7 @@ private:
   std::shared_ptr<Material> m_dustParticle{nullptr};
 
   std::shared_ptr<CSM> m_csm;
-  const gsl::not_null<std::shared_ptr<Renderer>> m_renderer;
+  const gslu::nn_shared<Renderer> m_renderer;
   std::shared_ptr<gl::TextureHandle<gl::Texture2DArray<gl::SRGBA8>>> m_geometryTextures;
 };
 } // namespace render::scene

@@ -50,9 +50,8 @@ namespace engine::objects
 {
 namespace
 {
-std::tuple<gsl::not_null<std::shared_ptr<render::scene::Mesh>>,
-           gsl::not_null<std::shared_ptr<gl::VertexBuffer<glm::vec3>>>>
-  createBolt(const gsl::not_null<std::shared_ptr<render::scene::Material>>& material, float lineWidth)
+std::tuple<gslu::nn_shared<render::scene::Mesh>, gslu::nn_shared<gl::VertexBuffer<glm::vec3>>>
+  createBolt(const gslu::nn_shared<render::scene::Material>& material, float lineWidth)
 {
   std::array<glm::vec3, LightningEmitter::ControlPoints> vertices{};
 

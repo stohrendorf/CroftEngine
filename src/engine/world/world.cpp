@@ -571,7 +571,7 @@ void World::swapWithAlternate(Room& orig, Room& alternate)
   }
 }
 
-gsl::not_null<std::shared_ptr<objects::PickupObject>>
+gslu::nn_shared<objects::PickupObject>
   World::createPickup(const core::TypeId& type, const gsl::not_null<const Room*>& room, const core::TRVec& position)
 {
   loader::file::Item item;
@@ -718,7 +718,7 @@ const std::unique_ptr<SkeletalModelType>& World::findAnimatedModelForType(const 
   return none;
 }
 
-gsl::not_null<std::shared_ptr<RenderMeshData>> World::getRenderMesh(const size_t idx) const
+gslu::nn_shared<RenderMeshData> World::getRenderMesh(const size_t idx) const
 {
   return m_meshes.at(idx).meshData;
 }

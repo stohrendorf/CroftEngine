@@ -49,9 +49,9 @@ std::string makeId(const std::filesystem::path& shaderPath, std::vector<std::str
 }
 } // namespace
 
-gsl::not_null<std::shared_ptr<ShaderProgram>> ShaderCache::get(const std::filesystem::path& vshPath,
-                                                               const std::filesystem::path& fshPath,
-                                                               const std::vector<std::string>& defines)
+gslu::nn_shared<ShaderProgram> ShaderCache::get(const std::filesystem::path& vshPath,
+                                                const std::filesystem::path& fshPath,
+                                                const std::vector<std::string>& defines)
 {
   const auto programId = makeId(vshPath, fshPath, defines);
   BOOST_LOG_TRIVIAL(debug) << "Loading shader program " << programId;
@@ -66,10 +66,10 @@ gsl::not_null<std::shared_ptr<ShaderProgram>> ShaderCache::get(const std::filesy
   return shader;
 }
 
-gsl::not_null<std::shared_ptr<ShaderProgram>> ShaderCache::get(const std::filesystem::path& vshPath,
-                                                               const std::filesystem::path& fshPath,
-                                                               const std::filesystem::path& geomPath,
-                                                               const std::vector<std::string>& defines)
+gslu::nn_shared<ShaderProgram> ShaderCache::get(const std::filesystem::path& vshPath,
+                                                const std::filesystem::path& fshPath,
+                                                const std::filesystem::path& geomPath,
+                                                const std::vector<std::string>& defines)
 {
   const auto programId = makeId(vshPath, fshPath, geomPath, defines);
   BOOST_LOG_TRIVIAL(debug) << "Loading shader program " << programId;

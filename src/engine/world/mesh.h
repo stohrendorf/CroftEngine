@@ -4,6 +4,7 @@
 #include "core/vec.h"
 
 #include <gsl/gsl-lite.hpp>
+#include <gslu.h>
 
 namespace engine::world
 {
@@ -13,6 +14,6 @@ struct Mesh
 {
   core::TRVec collisionCenter;
   core::Length collisionRadius;
-  gsl::not_null<std::shared_ptr<RenderMeshData>> meshData;
+  gslu::nn_shared<RenderMeshData> meshData;
 };
 } // namespace engine::world

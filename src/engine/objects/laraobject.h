@@ -25,6 +25,7 @@
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
 #include <gsl/gsl-lite.hpp>
+#include <gslu.h>
 #include <memory>
 #include <optional>
 #include <string>
@@ -317,10 +318,8 @@ public:
   std::shared_ptr<ModelObject> aimAt{nullptr};
 
   core::TRRotationXY m_weaponTargetVector;
-  gsl::not_null<std::shared_ptr<render::scene::Node>> m_muzzleFlashLeft{
-    std::make_shared<render::scene::Node>("muzzle flash left")};
-  gsl::not_null<std::shared_ptr<render::scene::Node>> m_muzzleFlashRight{
-    std::make_shared<render::scene::Node>("muzzle flash right")};
+  gslu::nn_shared<render::scene::Node> m_muzzleFlashLeft{std::make_shared<render::scene::Node>("muzzle flash left")};
+  gslu::nn_shared<render::scene::Node> m_muzzleFlashRight{std::make_shared<render::scene::Node>("muzzle flash right")};
 
   void updateLarasWeaponsStatus();
 
@@ -364,7 +363,7 @@ public:
 
   void renderMuzzleFlash(WeaponType weaponType,
                          glm::mat4 m,
-                         const gsl::not_null<std::shared_ptr<render::scene::Node>>& muzzleFlashNode,
+                         const gslu::nn_shared<render::scene::Node>& muzzleFlashNode,
                          bool visible) const;
 
   void drawRoutine();
