@@ -139,14 +139,14 @@ SavegameListMenuState::SavegameListMenuState(const std::shared_ptr<MenuRingTrans
       const auto name = (boost::format(/* translators: TR charmap encoding */ pgettext("SavegameTitle", "%1% - %2%"))
                          % timeStr.str() % it->second.meta.title)
                           .str();
-      auto label = gslu::make_nn_shared<SavegameEntry>(i, name, it->second.saveTime);
+      auto label = gsl::make_shared<SavegameEntry>(i, name, it->second.saveTime);
       append(label);
       m_entries.emplace_back(label);
     }
     else
     {
       m_hasSavegame.emplace_back(false);
-      auto label = gslu::make_nn_shared<SavegameEntry>(i, _("- EMPTY SLOT %1%", i + 1), std::nullopt);
+      auto label = gsl::make_shared<SavegameEntry>(i, _("- EMPTY SLOT %1%", i + 1), std::nullopt);
       append(label);
       m_entries.emplace_back(label);
     }

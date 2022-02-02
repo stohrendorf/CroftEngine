@@ -80,7 +80,7 @@ ControlsWidget::ControlsWidget(const engine::NamedInputMappingConfig& mappingCon
 {
   m_content->setExtents(1, 3);
 
-  auto gridBox = gslu::make_nn_shared<ui::widgets::GridBox>(glm::ivec2{10, ui::OutlineBorderWidth});
+  auto gridBox = gsl::make_shared<ui::widgets::GridBox>(glm::ivec2{10, ui::OutlineBorderWidth});
   gridBox->setExtents(2 * gameplayActions.size(), gameplayActions[0].size());
   gridBox->setSelected({1, 0});
   m_controlGroups.emplace_back(gridBox);
@@ -89,7 +89,7 @@ ControlsWidget::ControlsWidget(const engine::NamedInputMappingConfig& mappingCon
     /* translators: TR charmap encoding */ _("Gameplay"), gridBox);
   m_content->set(0, 1, groupBox);
 
-  gridBox = gslu::make_nn_shared<ui::widgets::GridBox>(glm::ivec2{10, ui::OutlineBorderWidth});
+  gridBox = gsl::make_shared<ui::widgets::GridBox>(glm::ivec2{10, ui::OutlineBorderWidth});
   gridBox->setExtents(2 * shortcutActions.size(), shortcutActions[0].size());
   m_controlGroups.emplace_back(gridBox);
 

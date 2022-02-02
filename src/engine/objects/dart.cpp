@@ -58,7 +58,7 @@ void Dart::update()
   const auto [success, ricochetPos]
     = raycastLineOfSight(oldLocation, m_state.location.position, getWorld().getObjectManager());
 
-  auto particle = gslu::make_nn_shared<RicochetParticle>(ricochetPos, getWorld());
+  auto particle = gsl::make_shared<RicochetParticle>(ricochetPos, getWorld());
   setParent(particle, ricochetPos.room->node);
   particle->angle = m_state.rotation;
   particle->timePerSpriteFrame = 6;

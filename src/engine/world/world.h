@@ -171,12 +171,12 @@ public:
     item.shade = core::Shade{core::Shade::type{0}};
     item.activationState = activationState;
 
-    auto object = gslu::make_nn_shared<T>(
-      objects::makeObjectName(type.get_as<TR1ItemId>(), m_objectManager.getDynamicObjectCount()),
-      gsl::not_null{this},
-      room,
-      item,
-      gsl::not_null{model.get()});
+    auto object
+      = gsl::make_shared<T>(objects::makeObjectName(type.get_as<TR1ItemId>(), m_objectManager.getDynamicObjectCount()),
+                            gsl::not_null{this},
+                            room,
+                            item,
+                            gsl::not_null{model.get()});
 
     m_objectManager.registerDynamicObject(object);
     addChild(gsl::not_null{room->node}, gsl::not_null{object->getNode()});

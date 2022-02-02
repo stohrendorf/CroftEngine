@@ -89,7 +89,7 @@ public:
 
   auto addSetting(const std::string& name, std::function<bool()>&& getter, std::function<void()>&& toggler)
   {
-    auto checkbox = gslu::make_nn_shared<ui::widgets::Checkbox>(name);
+    auto checkbox = gsl::make_shared<ui::widgets::Checkbox>(name);
     checkbox->setChecked(getter());
     checkbox->fitToContent();
     m_listBox->append(checkbox);

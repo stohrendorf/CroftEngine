@@ -33,8 +33,8 @@ public:
   void setInput(const gslu::nn_shared<TextureHandle>& src)
   {
     m_blurredTexture = std::make_shared<TextureHandle>(
-      gslu::make_nn_shared<gl::Texture2D<PixelT>>(src->getTexture()->size(), m_name + "/blurred"),
-      gslu::make_nn_unique<gl::Sampler>(m_name + "/blurred-sampler")
+      gsl::make_shared<gl::Texture2D<PixelT>>(src->getTexture()->size(), m_name + "/blurred"),
+      gsl::make_unique<gl::Sampler>(m_name + "/blurred-sampler")
         | set(gl::api::SamplerParameterI::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge)
         | set(gl::api::SamplerParameterI::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge)
         | set(gl::api::TextureMinFilter::Linear) | set(gl::api::TextureMagFilter::Linear));

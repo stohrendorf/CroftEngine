@@ -78,6 +78,6 @@ void GroupBox::fitToContent()
 
 void GroupBox::setTitle(const std::string& title)
 {
-  m_title = gslu::make_nn_unique<ui::Text>(title);
+  m_title = gsl::make_unique<ui::Text>(title);
 }
 } // namespace ui::widgets

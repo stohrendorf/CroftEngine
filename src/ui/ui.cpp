@@ -109,12 +109,12 @@ gslu::nn_shared<gl::VertexBuffer<Ui::UiVertex>> Ui::UiVertex::createVertexBuffer
     {VERTEX_ATTRIBUTE_COLOR_BOTTOM_RIGHT_NAME, &UiVertex::bottomRight},
     {VERTEX_ATTRIBUTE_COLOR_NAME, &UiVertex::color},
   };
-  return gslu::make_nn_shared<gl::VertexBuffer<UiVertex>>(layout, "ui-vbo");
+  return gsl::make_shared<gl::VertexBuffer<UiVertex>>(layout, "ui-vbo");
 }
 
 gslu::nn_shared<gl::ElementArrayBuffer<uint16_t>> Ui::UiVertex::createIndexBuffer()
 {
-  return gslu::make_nn_shared<gl::ElementArrayBuffer<uint16_t>>("ui-indices");
+  return gsl::make_shared<gl::ElementArrayBuffer<uint16_t>>("ui-indices");
 }
 
 Ui::Ui(std::shared_ptr<render::scene::Material> material,
@@ -190,7 +190,7 @@ void Ui::render()
     vbo->setData(m_vertices, gl::api::BufferUsage::StaticDraw);
   }
 
-  const auto vao = gslu::make_nn_shared<gl::VertexArray<uint16_t, UiVertex>>(
+  const auto vao = gsl::make_shared<gl::VertexArray<uint16_t, UiVertex>>(
     indexBuffer, std::tuple{vbo}, std::vector{&m_material->getShaderProgram()->getHandle()}, "ui-vao");
   auto mesh = std::make_shared<render::scene::MeshImpl<uint16_t, UiVertex>>(vao);
   mesh->getMaterialGroup().set(render::scene::RenderMode::Full, m_material);

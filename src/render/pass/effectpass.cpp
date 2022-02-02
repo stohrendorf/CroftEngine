@@ -40,7 +40,7 @@ EffectPass::EffectPass(gsl::not_null<const RenderPipeline*> renderPipeline,
     , m_colorBuffer{std::make_shared<gl::Texture2D<gl::SRGB8>>(input->getTexture()->size(), m_name + "-color")}
     , m_colorBufferHandle{std::make_shared<gl::TextureHandle<gl::Texture2D<gl::SRGB8>>>(
         m_colorBuffer,
-        gslu::make_nn_unique<gl::Sampler>(m_name + "-color-sampler")
+        gsl::make_unique<gl::Sampler>(m_name + "-color-sampler")
           | set(gl::api::SamplerParameterI::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge)
           | set(gl::api::SamplerParameterI::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge)
           | set(gl::api::TextureMinFilter::Linear) | set(gl::api::TextureMagFilter::Linear))}

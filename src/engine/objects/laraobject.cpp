@@ -370,7 +370,7 @@ void LaraObject::update()
         surfaceLocation.position.Y = *waterSurfaceHeight;
         surfaceLocation.position.Z = m_state.location.position.Z;
 
-        auto particle = gslu::make_nn_shared<SplashParticle>(surfaceLocation, getWorld(), false);
+        auto particle = gsl::make_shared<SplashParticle>(surfaceLocation, getWorld(), false);
         setParent(particle, surfaceLocation.room->node);
         getWorld().getObjectManager().registerParticle(particle);
       }
@@ -1815,7 +1815,7 @@ void LaraObject::burnIfAlive()
 
   for(size_t i = 0; i < 10; ++i)
   {
-    auto particle = gslu::make_nn_shared<FlameParticle>(m_state.location, getWorld(), true);
+    auto particle = gsl::make_shared<FlameParticle>(m_state.location, getWorld(), true);
     setParent(particle, m_state.location.room->node);
     getWorld().getObjectManager().registerParticle(particle);
   }

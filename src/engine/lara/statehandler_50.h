@@ -50,8 +50,8 @@ public:
       p.X += util::rand15s(r);
       p.Y += util::rand15s(r);
       p.Z += util::rand15s(r);
-      auto fx = gslu::make_nn_shared<SparkleParticle>(
-        Location{world.getObjectManager().getLara().m_state.location.room, p}, world);
+      auto fx = gsl::make_shared<SparkleParticle>(Location{world.getObjectManager().getLara().m_state.location.room, p},
+                                                  world);
       world.getObjectManager().registerParticle(fx);
     }
   }

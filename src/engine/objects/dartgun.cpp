@@ -72,7 +72,7 @@ void engine::objects::DartGun::update()
   auto& dartState = dart->m_state;
   dartState.triggerState = TriggerState::Active;
 
-  auto particle = gslu::make_nn_shared<SmokeParticle>(dartState.location, getWorld(), dartState.rotation);
+  auto particle = gsl::make_shared<SmokeParticle>(dartState.location, getWorld(), dartState.rotation);
   setParent(particle, dartState.location.room->node);
   getWorld().getObjectManager().registerParticle(std::move(particle));
 

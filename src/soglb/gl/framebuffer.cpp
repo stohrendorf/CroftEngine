@@ -158,6 +158,6 @@ gslu::nn_shared<Framebuffer> FrameBufferBuilder::build(const std::string_view& l
   }
 
   m_renderState.setViewport(size);
-  return gslu::make_nn_shared<Framebuffer>(std::move(m_attachments), label, std::move(m_renderState), size);
+  return gsl::make_shared<Framebuffer>(std::move(m_attachments), label, std::move(m_renderState), size);
 }
 } // namespace gl

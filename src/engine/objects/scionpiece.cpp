@@ -124,7 +124,7 @@ void ScionPiece3::update()
   {
     const auto pos = m_state.location.position
                      + core::TRVec{util::rand15s(512_len), util::rand15s(64_len) - 500_len, util::rand15s(512_len)};
-    const auto particle = gslu::make_nn_shared<ExplosionParticle>(
+    const auto particle = gsl::make_shared<ExplosionParticle>(
       Location{m_state.location.room, pos}, getWorld(), 0_spd, core::TRRotation{});
     setParent(particle, m_state.location.room->node);
     getWorld().getObjectManager().registerParticle(particle);

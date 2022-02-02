@@ -39,7 +39,7 @@ HBAOPass::HBAOPass(scene::MaterialManager& materialManager,
     , m_aoBuffer{std::make_shared<gl::Texture2D<gl::ScalarByte>>(viewport, "hbao-ao")}
     , m_aoBufferHandle{std::make_shared<gl::TextureHandle<gl::Texture2D<gl::ScalarByte>>>(
         m_aoBuffer,
-        gslu::make_nn_unique<gl::Sampler>("hbao-ao-sampler")
+        gsl::make_unique<gl::Sampler>("hbao-ao-sampler")
           | set(gl::api::SamplerParameterI::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge)
           | set(gl::api::SamplerParameterI::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge)
           | set(gl::api::TextureMinFilter::Linear) | set(gl::api::TextureMagFilter::Linear))}

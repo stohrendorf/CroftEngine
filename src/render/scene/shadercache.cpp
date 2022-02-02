@@ -61,7 +61,7 @@ gslu::nn_shared<ShaderProgram> ShaderCache::get(const std::filesystem::path& vsh
 
   auto vert = gl::VertexShader::create(m_root / vshPath, defines, makeId(vshPath, defines));
   auto frag = gl::FragmentShader::create(m_root / fshPath, defines, makeId(fshPath, defines));
-  auto shader = gslu::make_nn_shared<ShaderProgram>(programId, vert, frag);
+  auto shader = gsl::make_shared<ShaderProgram>(programId, vert, frag);
   m_programs.emplace(programId, shader);
   return shader;
 }
@@ -80,7 +80,7 @@ gslu::nn_shared<ShaderProgram> ShaderCache::get(const std::filesystem::path& vsh
   auto vert = gl::VertexShader::create(m_root / vshPath, defines, makeId(vshPath, defines));
   auto frag = gl::FragmentShader::create(m_root / fshPath, defines, makeId(fshPath, defines));
   auto geom = gl::GeometryShader::create(m_root / geomPath, defines, makeId(geomPath, defines));
-  auto shader = gslu::make_nn_shared<ShaderProgram>(programId, vert, frag, geom);
+  auto shader = gsl::make_shared<ShaderProgram>(programId, vert, frag, geom);
   m_programs.emplace(programId, shader);
   return shader;
 }

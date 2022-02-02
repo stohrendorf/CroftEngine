@@ -335,7 +335,7 @@ void World::laraBubblesEffect(objects::Object& object)
 
   while(bubbleCount-- > 0)
   {
-    auto particle = gslu::make_nn_shared<BubbleParticle>(Location{object.m_state.location.room, position}, *this);
+    auto particle = gsl::make_shared<BubbleParticle>(Location{object.m_state.location.room, position}, *this);
     setParent(particle, object.m_state.location.room->node);
     m_objectManager.registerParticle(particle);
   }
@@ -586,7 +586,7 @@ gslu::nn_shared<objects::PickupObject>
   Expects(spriteSequence != nullptr && !spriteSequence->sprites.empty());
   const Sprite& sprite = spriteSequence->sprites[0];
 
-  auto object = gslu::make_nn_shared<objects::PickupObject>(
+  auto object = gsl::make_shared<objects::PickupObject>(
     objects::makeObjectName(item.type.get_as<TR1ItemId>(), m_objectManager.getDynamicObjectCount()),
     gsl::not_null{this},
     room,
@@ -1114,7 +1114,7 @@ World::World(Engine& engine,
                                   getPresenter().drawLoadingScreen(s);
                                 });
 
-  auto sampler = gslu::make_nn_unique<gl::Sampler>("all-textures-sampler")
+  auto sampler = gsl::make_unique<gl::Sampler>("all-textures-sampler")
                  | set(gl::api::TextureMinFilter::NearestMipmapLinear) | set(gl::api::TextureMagFilter::Nearest)
                  | set(gl::api::SamplerParameterI::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge)
                  | set(gl::api::SamplerParameterI::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge);
@@ -1290,7 +1290,7 @@ void World::initFromLevel(loader::file::level::Level& level)
                  {
                    return Mesh{mesh.collision_center,
                                mesh.collision_radius,
-                               gslu::make_nn_shared<RenderMeshData>(mesh, m_atlasTiles, m_palette)};
+                               gsl::make_shared<RenderMeshData>(mesh, m_atlasTiles, m_palette)};
                  });
 
   std::vector<gsl::not_null<const Mesh*>> meshesDirect;

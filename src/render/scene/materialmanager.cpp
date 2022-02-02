@@ -47,7 +47,7 @@ gslu::nn_shared<Material> MaterialManager::getSprite(bool billboard)
   if(auto it = m_sprite.find(billboard); it != m_sprite.end())
     return it->second;
 
-  auto m = gslu::make_nn_shared<Material>(m_shaderCache->getGeometry(false, false, true, billboard ? 2 : 1));
+  auto m = gsl::make_shared<Material>(m_shaderCache->getGeometry(false, false, true, billboard ? 2 : 1));
   m->getRenderState().setCullFace(false);
 
   m->getUniformBlock("Transform")->bindTransformBuffer();
@@ -68,7 +68,7 @@ gslu::nn_shared<Material> MaterialManager::getCSMDepthOnly(bool skeletal)
   if(auto it = m_csmDepthOnly.find(skeletal); it != m_csmDepthOnly.end())
     return it->second;
 
-  auto m = gslu::make_nn_shared<Material>(m_shaderCache->getCSMDepthOnly(skeletal));
+  auto m = gsl::make_shared<Material>(m_shaderCache->getCSMDepthOnly(skeletal));
   m->getUniform("u_mvp")->bind(
     [this](const Node* node, const Mesh& /*mesh*/, gl::Uniform& uniform)
     {
@@ -91,7 +91,7 @@ gslu::nn_shared<Material> MaterialManager::getDepthOnly(bool skeletal)
   if(auto it = m_depthOnly.find(skeletal); it != m_depthOnly.end())
     return it->second;
 
-  auto m = gslu::make_nn_shared<Material>(m_shaderCache->getDepthOnly(skeletal));
+  auto m = gsl::make_shared<Material>(m_shaderCache->getDepthOnly(skeletal));
   m->getRenderState().setDepthTest(true);
   m->getRenderState().setDepthWrite(true);
   m->getUniformBlock("Transform")->bindTransformBuffer();
@@ -116,7 +116,7 @@ gslu::nn_shared<Material> MaterialManager::getGeometry(bool inWater, bool skelet
   if(auto it = m_geometry.find(key); it != m_geometry.end())
     return it->second;
 
-  auto m = gslu::make_nn_shared<Material>(m_shaderCache->getGeometry(inWater, skeletal, roomShadowing, 0));
+  auto m = gsl::make_shared<Material>(m_shaderCache->getGeometry(inWater, skeletal, roomShadowing, 0));
   m->getUniform("u_diffuseTextures")
     ->bind(
       [this](const Node* /*node*/, const Mesh& /*mesh*/, gl::Uniform& uniform)
@@ -166,7 +166,7 @@ gslu::nn_shared<Material> MaterialManager::getGhost()
   if(m_ghost != nullptr)
     return gsl::not_null{m_ghost};
 
-  auto m = gslu::make_nn_shared<Material>(m_shaderCache->getGhost());
+  auto m = gsl::make_shared<Material>(m_shaderCache->getGhost());
   m->getUniformBlock("Transform")->bindTransformBuffer();
   m->getBuffer("BoneTransform")->bindBoneTransformBuffer();
   m->getUniformBlock("Camera")->bindCameraBuffer(m_renderer->getCamera());
@@ -224,11 +224,11 @@ MaterialManager::MaterialManager(gslu::nn_shared<ShaderCache> shaderCache, gslu:
     i = gl::RGB8{gsl::narrow_cast<uint8_t>(value), gsl::narrow_cast<uint8_t>(value), gsl::narrow_cast<uint8_t>(value)};
   }
 
-  auto noiseTexture = gslu::make_nn_shared<gl::Texture2D<gl::RGB8>>(glm::ivec2{NoiseTextureSize}, "noise");
+  auto noiseTexture = gsl::make_shared<gl::Texture2D<gl::RGB8>>(glm::ivec2{NoiseTextureSize}, "noise");
   noiseTexture->assign(noiseData);
   m_noiseTexture = std::make_shared<gl::TextureHandle<gl::Texture2D<gl::RGB8>>>(
     noiseTexture,
-    gslu::make_nn_unique<gl::Sampler>("noise-sampler")
+    gsl::make_unique<gl::Sampler>("noise-sampler")
       | set(gl::api::SamplerParameterI::TextureWrapS, gl::api::TextureWrapMode::MirroredRepeat)
       | set(gl::api::SamplerParameterI::TextureWrapT, gl::api::TextureWrapMode::MirroredRepeat)
       | set(gl::api::TextureMinFilter::Linear) | set(gl::api::TextureMagFilter::Linear));
@@ -239,7 +239,7 @@ gslu::nn_shared<Material> MaterialManager::getWorldComposition(bool inWater, boo
   const std::tuple key{inWater, dof};
   if(auto it = m_composition.find(key); it != m_composition.end())
     return it->second;
-  auto m = gslu::make_nn_shared<Material>(m_shaderCache->getWorldComposition(inWater, dof));
+  auto m = gsl::make_shared<Material>(m_shaderCache->getWorldComposition(inWater, dof));
 
   if(auto uniform = m->tryGetUniform("u_time"))
   {
@@ -281,7 +281,7 @@ gslu::nn_shared<Material> MaterialManager::getFlat(bool withAlpha, bool invertY,
   if(auto it = m_flat.find(key); it != m_flat.end())
     return it->second;
 
-  auto m = gslu::make_nn_shared<Material>(m_shaderCache->getFlat(withAlpha, invertY, withAspectRatio));
+  auto m = gsl::make_shared<Material>(m_shaderCache->getFlat(withAlpha, invertY, withAspectRatio));
   m->getRenderState().setBlend(0, withAlpha);
   m->getRenderState().setBlendFactors(0, gl::api::BlendingFactor::SrcAlpha, gl::api::BlendingFactor::OneMinusSrcAlpha);
   if(const auto uniformBlock = m->tryGetUniformBlock("Camera"))
@@ -308,7 +308,7 @@ gslu::nn_shared<Material> MaterialManager::getFXAA()
   if(m_fxaa != nullptr)
     return gsl::not_null{m_fxaa};
 
-  auto m = gslu::make_nn_shared<Material>(m_shaderCache->getFXAA());
+  auto m = gsl::make_shared<Material>(m_shaderCache->getFXAA());
   configureForScreenSpaceEffect(*m, false);
   configureForScreenSpaceEffect(*m, false);
   m_fxaa = m;
@@ -320,7 +320,7 @@ gslu::nn_shared<Material> MaterialManager::getCRT()
   if(m_crt != nullptr)
     return gsl::not_null{m_crt};
 
-  auto m = gslu::make_nn_shared<Material>(m_shaderCache->getCRT());
+  auto m = gsl::make_shared<Material>(m_shaderCache->getCRT());
   m->getUniform("u_noise")->set(gsl::not_null{m_noiseTexture});
   configureForScreenSpaceEffect(*m, false);
   m_crt = m;
@@ -332,7 +332,7 @@ gslu::nn_shared<Material> MaterialManager::getVelvia()
   if(m_velvia != nullptr)
     return gsl::not_null{m_velvia};
 
-  auto m = gslu::make_nn_shared<Material>(m_shaderCache->getVelvia());
+  auto m = gsl::make_shared<Material>(m_shaderCache->getVelvia());
   configureForScreenSpaceEffect(*m, false);
   configureForScreenSpaceEffect(*m, false);
   m_velvia = m;
@@ -344,7 +344,7 @@ gslu::nn_shared<Material> MaterialManager::getFilmGrain()
   if(m_filmGrain != nullptr)
     return gsl::not_null{m_filmGrain};
 
-  auto m = gslu::make_nn_shared<Material>(m_shaderCache->getFilmGrain());
+  auto m = gsl::make_shared<Material>(m_shaderCache->getFilmGrain());
   m->getUniform("u_noise")->set(gsl::not_null{m_noiseTexture});
   configureForScreenSpaceEffect(*m, false);
   m_filmGrain = m;
@@ -356,7 +356,7 @@ gslu::nn_shared<Material> MaterialManager::getLensDistortion()
   if(m_lensDistortion != nullptr)
     return gsl::not_null{m_lensDistortion};
 
-  auto m = gslu::make_nn_shared<Material>(m_shaderCache->getLensDistortion());
+  auto m = gsl::make_shared<Material>(m_shaderCache->getLensDistortion());
   m->getUniformBlock("Camera")->bindCameraBuffer(m_renderer->getCamera());
 
   m_lensDistortion = m;
@@ -368,7 +368,7 @@ gslu::nn_shared<Material> MaterialManager::getHBAOFx()
   if(m_hbaoFx != nullptr)
     return gsl::not_null{m_hbaoFx};
 
-  auto m = gslu::make_nn_shared<Material>(m_shaderCache->getHBAOFx());
+  auto m = gsl::make_shared<Material>(m_shaderCache->getHBAOFx());
   m_hbaoFx = m;
   return m;
 }
@@ -378,7 +378,7 @@ gslu::nn_shared<Material> MaterialManager::getUnderwaterMovement()
   if(m_underwaterMovement != nullptr)
     return gsl::not_null{m_underwaterMovement};
 
-  auto m = gslu::make_nn_shared<Material>(m_shaderCache->getUnderwaterMovement());
+  auto m = gsl::make_shared<Material>(m_shaderCache->getUnderwaterMovement());
   m_underwaterMovement = m;
   return m;
 }
@@ -388,7 +388,7 @@ gslu::nn_shared<Material> MaterialManager::getHBAO()
   if(m_hbao != nullptr)
     return gsl::not_null{m_hbao};
 
-  auto m = gslu::make_nn_shared<Material>(m_shaderCache->getHBAO());
+  auto m = gsl::make_shared<Material>(m_shaderCache->getHBAO());
   m->getUniform("u_noise")->set(gsl::not_null{m_noiseTexture});
   configureForScreenSpaceEffect(*m, false);
   m_hbao = m;
@@ -400,7 +400,7 @@ gslu::nn_shared<Material> MaterialManager::getVSMSquare()
   if(m_vsmSquare != nullptr)
     return gsl::not_null{m_vsmSquare};
 
-  auto m = gslu::make_nn_shared<Material>(m_shaderCache->getVSMSquare());
+  auto m = gsl::make_shared<Material>(m_shaderCache->getVSMSquare());
   configureForScreenSpaceEffect(*m, false);
   m_vsmSquare = m;
   return m;
@@ -417,7 +417,7 @@ void MaterialManager::setFiltering(bool bilinear, float anisotropyLevel)
   if(m_geometryTextures == nullptr)
     return;
 
-  auto sampler = gslu::make_nn_unique<gl::Sampler>("geometry-sampler");
+  auto sampler = gsl::make_unique<gl::Sampler>("geometry-sampler");
   if(bilinear)
   {
     sampler->set(gl::api::TextureMinFilter::LinearMipmapLinear).set(gl::api::TextureMagFilter::Linear);
@@ -440,7 +440,7 @@ gslu::nn_shared<Material> MaterialManager::getFastGaussBlur(uint8_t extent, uint
   if(auto it = m_fastGaussBlur.find(key); it != m_fastGaussBlur.end())
     return it->second;
 
-  auto m = gslu::make_nn_shared<Material>(m_shaderCache->getFastGaussBlur(extent, blurDim));
+  auto m = gsl::make_shared<Material>(m_shaderCache->getFastGaussBlur(extent, blurDim));
   configureForScreenSpaceEffect(*m, false);
   m->getUniform("u_blurDir")->set(int(blurDir));
   m_fastGaussBlur.emplace(key, m);
@@ -453,7 +453,7 @@ gslu::nn_shared<Material> MaterialManager::getFastBoxBlur(uint8_t extent, uint8_
   if(auto it = m_fastBoxBlur.find(key); it != m_fastBoxBlur.end())
     return it->second;
 
-  auto m = gslu::make_nn_shared<Material>(m_shaderCache->getFastBoxBlur(extent, blurDim));
+  auto m = gsl::make_shared<Material>(m_shaderCache->getFastBoxBlur(extent, blurDim));
   configureForScreenSpaceEffect(*m, false);
   m->getUniform("u_blurDir")->set(int(blurDir));
   m_fastBoxBlur.emplace(key, m);
@@ -465,7 +465,7 @@ gslu::nn_shared<Material> MaterialManager::getDustParticle()
   if(m_dustParticle != nullptr)
     return gsl::not_null{m_dustParticle};
 
-  auto m = gslu::make_nn_shared<Material>(m_shaderCache->getDustParticle());
+  auto m = gsl::make_shared<Material>(m_shaderCache->getDustParticle());
   m->getRenderState().setCullFace(false);
   m->getUniformBlock("Camera")->bindCameraBuffer(m_renderer->getCamera());
   m->getUniformBlock("Transform")->bindTransformBuffer();

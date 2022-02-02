@@ -16,7 +16,7 @@ namespace engine::objects
 {
 void LavaParticleEmitter::update()
 {
-  auto particle = gslu::make_nn_shared<LavaParticle>(m_state.location, getWorld());
+  auto particle = gsl::make_shared<LavaParticle>(m_state.location, getWorld());
   setParent(particle, m_state.location.room->node);
   getWorld().getObjectManager().registerParticle(particle);
 

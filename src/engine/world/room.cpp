@@ -116,13 +116,13 @@ struct RenderMesh
     }
 #endif
 
-    auto indexBuffer = gslu::make_nn_shared<gl::ElementArrayBuffer<IndexType>>(label);
+    auto indexBuffer = gsl::make_shared<gl::ElementArrayBuffer<IndexType>>(label);
     indexBuffer->setData(m_indices, gl::api::BufferUsage::StaticDraw);
 
     auto vBufs = std::make_tuple(vbuf, uvBuf);
 
     auto mesh = std::make_shared<render::scene::MeshImpl<IndexType, RenderVertex, render::TextureAnimator::AnimatedUV>>(
-      gslu::make_nn_shared<gl::VertexArray<IndexType, RenderVertex, render::TextureAnimator::AnimatedUV>>(
+      gsl::make_shared<gl::VertexArray<IndexType, RenderVertex, render::TextureAnimator::AnimatedUV>>(
         indexBuffer,
         vBufs,
         std::vector{&m_materialFull->getShaderProgram()->getHandle(),
@@ -171,15 +171,15 @@ void Portal::buildMesh(const loader::file::Portal& srcPortal, const gslu::nn_sha
     glVertices[i].pos = srcPortal.vertices[i].toRenderSystem() - offset;
 
   gl::VertexLayout<Vertex> layout{{VERTEX_ATTRIBUTE_POSITION_NAME, &Vertex::pos}};
-  auto vb = gslu::make_nn_shared<gl::VertexBuffer<Vertex>>(layout, "portal");
+  auto vb = gsl::make_shared<gl::VertexBuffer<Vertex>>(layout, "portal");
   vb->setData(glVertices, gl::api::BufferUsage::StaticDraw);
 
   static const std::array<uint16_t, 6> indices{0, 1, 2, 0, 2, 3};
 
-  auto indexBuffer = gslu::make_nn_shared<gl::ElementArrayBuffer<uint16_t>>("portal");
+  auto indexBuffer = gsl::make_shared<gl::ElementArrayBuffer<uint16_t>>("portal");
   indexBuffer->setData(indices, gl::api::BufferUsage::StaticDraw);
 
-  auto vao = gslu::make_nn_shared<gl::VertexArray<uint16_t, Vertex>>(
+  auto vao = gsl::make_shared<gl::VertexArray<uint16_t, Vertex>>(
     indexBuffer, vb, std::vector{&material->getShaderProgram()->getHandle()}, "portal");
   mesh = std::make_shared<render::scene::MeshImpl<uint16_t, Vertex>>(vao);
   mesh->getMaterialGroup().set(render::scene::RenderMode::DepthOnly, material);
@@ -200,14 +200,14 @@ void Room::createSceneNode(const loader::file::Room& srcRoom,
   std::vector<render::TextureAnimator::AnimatedUV> uvCoordsData;
 
   const auto label = "Room:" + std::to_string(roomId);
-  auto vbuf = gslu::make_nn_shared<gl::VertexBuffer<RenderVertex>>(RenderVertex::getLayout(), label);
+  auto vbuf = gsl::make_shared<gl::VertexBuffer<RenderVertex>>(RenderVertex::getLayout(), label);
 
   static const gl::VertexLayout<render::TextureAnimator::AnimatedUV> uvAttribs{
     {VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, gl::VertexAttribute{&render::TextureAnimator::AnimatedUV::uv}},
     {VERTEX_ATTRIBUTE_QUAD_UV12, &render::TextureAnimator::AnimatedUV::quadUv12},
     {VERTEX_ATTRIBUTE_QUAD_UV34, &render::TextureAnimator::AnimatedUV::quadUv34},
   };
-  auto uvCoords = gslu::make_nn_shared<gl::VertexBuffer<render::TextureAnimator::AnimatedUV>>(uvAttribs, label + "-uv");
+  auto uvCoords = gsl::make_shared<gl::VertexBuffer<render::TextureAnimator::AnimatedUV>>(uvAttribs, label + "-uv");
 
   for(const loader::file::QuadFace& quad : srcRoom.rectangles)
   {
@@ -624,14 +624,14 @@ void Room::createParticleMesh(const std::string& label,
   static const gl::VertexLayout<glm::vec3> layout{
     {VERTEX_ATTRIBUTE_POSITION_NAME, gl::VertexAttribute<glm::vec3>::Trivial{}}};
 
-  auto vbuf = gslu::make_nn_shared<gl::VertexBuffer<glm::vec3>>(layout, label + "-particles");
+  auto vbuf = gsl::make_shared<gl::VertexBuffer<glm::vec3>>(layout, label + "-particles");
   vbuf->setData(vertices, gl::api::BufferUsage::StaticDraw);
-  auto indexBuffer = gslu::make_nn_shared<gl::ElementArrayBuffer<uint32_t>>(label + "-particles");
+  auto indexBuffer = gsl::make_shared<gl::ElementArrayBuffer<uint32_t>>(label + "-particles");
   indexBuffer->setData(indices, gl::api::BufferUsage::StaticDraw);
 
   const auto particleMaterial = materialManager.getDustParticle();
 
-  auto vao = gslu::make_nn_shared<gl::VertexArray<uint32_t, glm::vec3>>(
+  auto vao = gsl::make_shared<gl::VertexArray<uint32_t, glm::vec3>>(
     indexBuffer, vbuf, std::vector{&particleMaterial->getShaderProgram()->getHandle()}, label + "-particles");
   auto mesh = std::make_shared<render::scene::MeshImpl<uint32_t, glm::vec3>>(vao, gl::api::PrimitiveType::Points);
   mesh->getMaterialGroup().set(render::scene::RenderMode::Full, particleMaterial);

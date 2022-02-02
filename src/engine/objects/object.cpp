@@ -158,7 +158,7 @@ bool InteractionLimits::canInteract(const ObjectState& objectState, const Object
 
 void Object::emitRicochet(const Location& location)
 {
-  const auto particle = gslu::make_nn_shared<RicochetParticle>(location, getWorld());
+  const auto particle = gsl::make_shared<RicochetParticle>(location, getWorld());
   setParent(particle, m_state.location.room->node);
   getWorld().getObjectManager().registerParticle(particle);
   getWorld().getAudioEngine().playSoundEffect(TR1SoundEffect::Ricochet, gsl::not_null{particle.get().get()});

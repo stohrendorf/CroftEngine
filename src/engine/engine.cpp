@@ -599,11 +599,11 @@ std::pair<RunResult, std::optional<size_t>> Engine::runTitleMenu(world::World& w
       stream->setLooping(true);
   }
 
-  const auto backdrop = gslu::make_nn_shared<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>>(
+  const auto backdrop = gsl::make_shared<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>>(
     gl::CImgWrapper{util::ensureFileExists(
                       getAssetDataPath() / std::filesystem::path{m_scriptEngine.getGameflow().getTitleMenuBackdrop()})}
       .toTexture("title"),
-    gslu::make_nn_unique<gl::Sampler>("title-sampler"));
+    gsl::make_unique<gl::Sampler>("title-sampler"));
   const auto menu
     = std::make_shared<menu::MenuDisplay>(menu::InventoryMode::TitleMode, world, m_presenter->getRenderViewport());
   Throttler throttler;

@@ -257,9 +257,9 @@ std::pair<RunResult, std::optional<size_t>> SplashScreen::run(Engine& engine, co
   Throttler throttler{};
 
   glm::ivec2 size{-1, -1};
-  auto image = gslu::make_nn_shared<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>>(
+  auto image = gsl::make_shared<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>>(
     gl::CImgWrapper{util::ensureFileExists(getAssetPath(engine, m_path))}.toTexture(m_path.string()),
-    gslu::make_nn_unique<gl::Sampler>(m_path.string() + "-sampler"));
+    gsl::make_unique<gl::Sampler>(m_path.string() + "-sampler"));
   std::shared_ptr<render::scene::Mesh> mesh;
 
   render::scene::RenderContext context{render::scene::RenderMode::Full, std::nullopt};

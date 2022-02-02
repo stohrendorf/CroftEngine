@@ -74,7 +74,7 @@
 #include <boost/log/trivial.hpp>
 #include <boost/throw_exception.hpp>
 #include <exception>
-#include <gslu.h>
+#include <gsl/gsl-lite.hpp>
 #include <map>
 #include <stdexcept>
 #include <string>
@@ -126,7 +126,7 @@ struct ModelFactory : public ObjectFactory
     const auto room = gsl::not_null{&world.getRooms().at(item.room.get())};
     const auto& model = world.findAnimatedModelForType(item.type);
     Expects(model != nullptr);
-    auto object = gslu::make_nn_shared<T>(
+    auto object = gsl::make_shared<T>(
       makeObjectName(item.type.get_as<TR1ItemId>(), id), gsl::not_null{&world}, room, item, gsl::not_null{model.get()});
     addChild(gsl::not_null{room->node}, gsl::not_null{object->getNode()});
     object->applyTransform();
@@ -136,7 +136,7 @@ struct ModelFactory : public ObjectFactory
   [[nodiscard]] gslu::nn_shared<Object>
     createFromSave(const Location& location, const serialization::Serializer<world::World>& ser) const override
   {
-    auto object = gslu::make_nn_shared<T>(gsl::not_null{&ser.context}, location);
+    auto object = gsl::make_shared<T>(gsl::not_null{&ser.context}, location);
     object->serialize(ser);
     return object;
   }
@@ -156,7 +156,7 @@ struct SpriteFactory : public ObjectFactory
     Expects(!spriteSequence->sprites.empty());
 
     const world::Sprite& sprite = spriteSequence->sprites[0];
-    return gslu::make_nn_shared<T>(
+    return gsl::make_shared<T>(
       makeObjectName(item.type.get_as<TR1ItemId>(), id), gsl::not_null{&world}, room, item, gsl::not_null{&sprite});
   }
 
@@ -165,7 +165,7 @@ struct SpriteFactory : public ObjectFactory
   {
     std::string spriteName;
     ser(S_NV("@name", spriteName));
-    auto object = gslu::make_nn_shared<T>(spriteName, gsl::not_null{&ser.context}, location);
+    auto object = gsl::make_shared<T>(spriteName, gsl::not_null{&ser.context}, location);
     object->serialize(ser);
     return object;
   }
@@ -197,7 +197,7 @@ struct WalkingMutantFactory : public ObjectFactory
     const auto room = gsl::not_null{&world.getRooms().at(item.room.get())};
     const auto& model = world.findAnimatedModelForType(TR1ItemId::FlyingMutant);
     Expects(model != nullptr);
-    auto object = gslu::make_nn_shared<WalkingMutant>(
+    auto object = gsl::make_shared<WalkingMutant>(
       makeObjectName(item.type.get_as<TR1ItemId>(), id), gsl::not_null{&world}, room, item, gsl::not_null{model.get()});
     addChild(gsl::not_null{room->node}, gsl::not_null{object->getNode()});
     object->applyTransform();
@@ -207,7 +207,7 @@ struct WalkingMutantFactory : public ObjectFactory
   [[nodiscard]] gslu::nn_shared<Object>
     createFromSave(const Location& location, const serialization::Serializer<world::World>& ser) const override
   {
-    auto object = gslu::make_nn_shared<WalkingMutant>(gsl::not_null{&ser.context}, location);
+    auto object = gsl::make_shared<WalkingMutant>(gsl::not_null{&ser.context}, location);
     object->serialize(ser);
     return object;
   }

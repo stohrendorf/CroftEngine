@@ -101,7 +101,7 @@ bool SoundEngine::stopBuffer(size_t bufferId, const Emitter* emitter)
 gslu::nn_shared<BufferVoice> SoundEngine::playBuffer(
   const gslu::nn_shared<BufferHandle>& buffer, size_t bufferId, ALfloat pitch, ALfloat volume, Emitter* emitter)
 {
-  auto v = gslu::make_nn_shared<BufferVoice>(buffer);
+  auto v = gsl::make_shared<BufferVoice>(buffer);
   v->setPitch(pitch);
   v->setLocalGain(volume);
   if(emitter != nullptr)

@@ -57,7 +57,7 @@ core::Acceleration SkeletalModelNode::getAcceleration() const
 {
   const auto scaled = m_anim->acceleration;
   // NOLINTNEXTLINE(hicpp-signed-bitwise)
-  return scaled / gsl::narrow_cast<core::Acceleration ::type>(1 << 16);
+  return scaled / gsl::narrow_cast<core::Acceleration::type>(1 << 16);
 }
 
 InterpolationInfo SkeletalModelNode::getInterpolationInfo() const

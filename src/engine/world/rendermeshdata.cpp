@@ -212,8 +212,8 @@ gslu::nn_shared<render::scene::Mesh> RenderMeshDataCompositor::toMesh(render::sc
                                                                       bool shadowCaster,
                                                                       const std::string& label)
 {
-  auto vb = gslu::make_nn_shared<gl::VertexBuffer<RenderMeshData::RenderVertex>>(
-    RenderMeshData::RenderVertex::getLayout(), label);
+  auto vb = gsl::make_shared<gl::VertexBuffer<RenderMeshData::RenderVertex>>(RenderMeshData::RenderVertex::getLayout(),
+                                                                             label);
   vb->setData(m_vertices, gl::api::BufferUsage::StaticDraw);
 
 #ifndef NDEBUG
@@ -222,21 +222,21 @@ gslu::nn_shared<render::scene::Mesh> RenderMeshDataCompositor::toMesh(render::sc
     BOOST_ASSERT(idx < m_vertices.size());
   }
 #endif
-  auto indexBuffer = gslu::make_nn_shared<gl::ElementArrayBuffer<RenderMeshData::IndexType>>(label);
+  auto indexBuffer = gsl::make_shared<gl::ElementArrayBuffer<RenderMeshData::IndexType>>(label);
   indexBuffer->setData(m_indices, gl::api::BufferUsage::StaticDraw);
 
   const auto material = materialManager.getGeometry(false, skeletal, false);
   const auto materialCSMDepthOnly = materialManager.getCSMDepthOnly(skeletal);
   const auto materialDepthOnly = materialManager.getDepthOnly(skeletal);
 
-  auto va = gslu::make_nn_shared<gl::VertexArray<RenderMeshData::IndexType, RenderMeshData::RenderVertex>>(
+  auto va = gsl::make_shared<gl::VertexArray<RenderMeshData::IndexType, RenderMeshData::RenderVertex>>(
     indexBuffer,
     vb,
     std::vector<const gl::Program*>{&material->getShaderProgram()->getHandle(),
                                     &materialDepthOnly->getShaderProgram()->getHandle(),
                                     &materialCSMDepthOnly->getShaderProgram()->getHandle()},
     label);
-  auto mesh = gslu::make_nn_shared<render::scene::MeshImpl<RenderMeshData::IndexType, RenderMeshData::RenderVertex>>(
+  auto mesh = gsl::make_shared<render::scene::MeshImpl<RenderMeshData::IndexType, RenderMeshData::RenderVertex>>(
     va, gl::api::PrimitiveType::Triangles);
 
   mesh->getMaterialGroup()

@@ -552,7 +552,7 @@ MenuDisplay::MenuDisplay(InventoryMode mode, engine::world::World& world, const 
     , m_upArrow{ui::getSpriteSelector(ui::ArrowUpSprite)}
     , m_downArrow{ui::getSpriteSelector(ui::ArrowDownSprite)}
     , m_material{world.getPresenter().getMaterialManager()->getFlat(false, false, false)}
-    , m_fb{gslu::make_nn_shared<render::pass::Framebuffer>("menu", m_material, viewport)}
+    , m_fb{gsl::make_shared<render::pass::Framebuffer>("menu", m_material, viewport)}
 {
   engine::ShaderLight light{glm::vec4{-500, 50, -5000, 0}, 1.0f, 8192.0f};
   m_lightsBuffer->setData(light, gl::api::BufferUsage::StaticDraw);
@@ -589,7 +589,7 @@ MenuDisplay::MenuDisplay(InventoryMode mode, engine::world::World& world, const 
 void MenuDisplay::setViewport(const glm::ivec2& viewport)
 {
   if(m_fb->getOutput()->getTexture()->size() != viewport)
-    m_fb = gslu::make_nn_shared<render::pass::Framebuffer>("menu", m_material, viewport);
+    m_fb = gsl::make_shared<render::pass::Framebuffer>("menu", m_material, viewport);
 }
 
 MenuDisplay::~MenuDisplay() = default;
