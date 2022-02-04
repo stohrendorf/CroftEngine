@@ -63,6 +63,7 @@ if( WIN32 )
     set( CPACK_GENERATOR NSIS 7Z )
     set( CPACK_BINARY_7Z ON )
     set( CPACK_BINARY_NSIS ON )
+    set( CPACK_NSIS_COMPRESSOR "/SOLID lzma" )
 
     set( CPACK_PACKAGE_NAME EdisonEngine )
     set( CPACK_PACKAGE_INSTALL_DIRECTORY EdisonEngine )
@@ -74,10 +75,12 @@ if( WIN32 )
     set( CPACK_MONOLITHIC_INSTALL ON )
     set( CPACK_PACKAGE_EXECUTABLES "edisonengine;EdisonEngine" )
     set( CPACK_NSIS_EXTRA_INSTALL_COMMANDS
+            "CreateShortCut \\\"$SMPROGRAMS\\\\$STARTMENU_FOLDER\\\\EdisonEngine Configuration.lnk\\\" \\\"$INSTDIR\\\\.\\\\edisonengine.exe\\\" \\\"--configure\\\""
             "CreateShortCut \\\"$SMPROGRAMS\\\\$STARTMENU_FOLDER\\\\EdisonEngine (English).lnk\\\" \\\"$INSTDIR\\\\.\\\\edisonengine.exe\\\" \\\"--locale en_GB.utf8\\\""
             "CreateShortCut \\\"$SMPROGRAMS\\\\$STARTMENU_FOLDER\\\\EdisonEngine (Deutsch).lnk\\\" \\\"$INSTDIR\\\\.\\\\edisonengine.exe\\\" \\\"--locale de_DE.utf8\\\""
             )
     set( CPACK_NSIS_EXTRA_UNINSTALL_COMMANDS
+            "Delete \\\"$SMPROGRAMS\\\\$START_MENU\\\\EdisonEngine Configuration.lnk\\\""
             "Delete \\\"$SMPROGRAMS\\\\$START_MENU\\\\EdisonEngine (English).lnk\\\""
             "Delete \\\"$SMPROGRAMS\\\\$START_MENU\\\\EdisonEngine (Deutsch).lnk\\\""
             )

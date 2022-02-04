@@ -1,3 +1,5 @@
+#include "paths.h"
+
 #include <boost/log/trivial.hpp>
 #include <boost/throw_exception.hpp>
 #include <cstdlib>
@@ -7,7 +9,7 @@
 #include <stdexcept>
 #include <string>
 
-std::filesystem::path getSysUserDataDir()
+std::filesystem::path getExpectedSysUserDataDir()
 {
 #ifdef WIN32
   const char* appData = getenv("LOCALAPPDATA");
@@ -20,38 +22,49 @@ std::filesystem::path getSysUserDataDir()
 #endif
 }
 
-#define EE_STRINGIFY2(x) #x
-#define EE_STRINGIFY(x) EE_STRINGIFY2(x)
-
-std::filesystem::path getSysEngineDataDir()
+std::filesystem::path getExpectedLocalUserDataDir()
 {
-  return std::filesystem::path{EE_STRINGIFY(EE_DATAROOT_DIR)};
+  return std::filesystem::current_path();
 }
 
-std::filesystem::path getUserDataDir()
+std::filesystem::path getExpectedSysEngineDataDir()
+{
+#define EE_STRINGIFY2(x) #x
+#define EE_STRINGIFY(x) EE_STRINGIFY2(x)
+  return std::filesystem::path{EE_STRINGIFY(EE_DATAROOT_DIR)};
+#undef EE_STRINGIFY
+#undef EE_STRINGIFY2
+}
+
+std::filesystem::path getExpectedLocalEngineDataDir()
+{
+  return std::filesystem::current_path() / "share" / "edisonengine";
+}
+
+std::optional<std::filesystem::path> findUserDataDir()
 {
   static const auto isUserDataDir = [](const std::filesystem::path& path)
   {
     BOOST_LOG_TRIVIAL(info) << "Check user data dir: " << path;
-    return std::filesystem::is_regular_file(path / "data" / "tr1" / "DATA" / "TITLEH.PCX");
+    return std::filesystem::is_directory(path / "data");
   };
 
-  if(auto cwd = std::filesystem::current_path(); isUserDataDir(cwd))
+  if(auto cwd = getExpectedLocalUserDataDir(); isUserDataDir(cwd))
   {
     BOOST_LOG_TRIVIAL(info) << "User data dir: " << cwd;
     return cwd;
   }
 
-  if(auto cwd = getSysUserDataDir(); isUserDataDir(cwd))
+  if(auto cwd = getExpectedSysUserDataDir(); isUserDataDir(cwd))
   {
     BOOST_LOG_TRIVIAL(info) << "User data dir: " << cwd;
     return cwd;
   }
 
-  BOOST_THROW_EXCEPTION(std::runtime_error("Failed to determine user data dir"));
+  return std::nullopt;
 }
 
-std::filesystem::path getEngineDataDir()
+std::optional<std::filesystem::path> findEngineDataDir()
 {
   static const auto isEngineDataDir = [](const std::filesystem::path& path)
   {
@@ -59,7 +72,7 @@ std::filesystem::path getEngineDataDir()
     return std::filesystem::is_regular_file(path / "trfont.ttf");
   };
 
-  if(auto cwd = std::filesystem::current_path() / "share" / "edisonengine"; isEngineDataDir(cwd))
+  if(auto cwd = getExpectedLocalEngineDataDir(); isEngineDataDir(cwd))
   {
     BOOST_LOG_TRIVIAL(info) << "Engine data dir: " << cwd;
     return cwd;
@@ -72,11 +85,11 @@ std::filesystem::path getEngineDataDir()
     return cwd;
   }
 
-  if(auto cwd = getSysEngineDataDir(); isEngineDataDir(cwd))
+  if(auto cwd = getExpectedSysEngineDataDir(); isEngineDataDir(cwd))
   {
     BOOST_LOG_TRIVIAL(info) << "Engine data dir: " << cwd;
     return cwd;
   }
 
-  BOOST_THROW_EXCEPTION(std::runtime_error("Failed to determine engine data dir"));
+  return std::nullopt;
 }

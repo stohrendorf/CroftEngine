@@ -89,7 +89,6 @@ wrap_enum(
 set( EDISONENGINE_SRCS
         edisonengine.cpp
         gslfailhandler.cpp
-        paths.cpp
 
         engine/lara/abstractstatehandler.h
         engine/lara/abstractstatehandler.cpp
@@ -644,6 +643,8 @@ add_subdirectory( shared )
 add_subdirectory( soglb )
 add_subdirectory( qs )
 add_subdirectory( core )
+add_subdirectory( setup )
+add_subdirectory( dosbox-cdrom )
 
 target_link_libraries(
         edisonengine
@@ -671,6 +672,7 @@ target_link_libraries(
         Threads::Threads
         ${Intl_LIBRARIES}
         shared
+        setup_screen
 )
 
 install(
@@ -687,12 +689,6 @@ if(( LINUX OR UNIX ) AND CMAKE_COMPILER_IS_GNUCC )
 endif()
 
 get_target_property( _bin_dir edisonengine BINARY_DIR )
-
-target_compile_definitions(
-        edisonengine
-        PRIVATE
-        -DEE_DATAROOT_DIR=${CMAKE_INSTALL_FULL_DATAROOTDIR}/edisonengine
-)
 
 add_custom_target( edisonengine-runtime-deps )
 add_dependencies( edisonengine edisonengine-runtime-deps )
@@ -753,6 +749,19 @@ if( WIN32 AND NOT DEFINED ENV{WSLENV} )
         install(
                 FILES ${_bin_dir}/${_pdb}
                 DESTINATION ${CMAKE_INSTALL_BINDIR}
+        )
+    endforeach()
+
+    file(
+            GLOB_RECURSE _qt5_plugins
+            RELATIVE ${_bin_dir}
+            ${_bin_dir}/plugins/**/*.*
+    )
+    foreach( _file ${_qt5_plugins} )
+        get_filename_component( _dirname ${_file} DIRECTORY )
+        install(
+                FILES ${_bin_dir}/${_file}
+                DESTINATION ${CMAKE_INSTALL_BINDIR}/${_dirname}
         )
     endforeach()
 endif()

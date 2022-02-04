@@ -18,7 +18,7 @@ jobs:
         uses: lukka/get-cmake@latest
       - name: "Install dependencies"
         run: |
-          sudo apt-get update && sudo apt-get install -y libboost-all-dev libglfw3-dev libpng++-dev libopenal-dev libglvnd-dev libfreetype6-dev cimg-dev ffmpeg libutfcpp-dev gettext libavcodec-dev libavformat-dev libavfilter-dev
+          sudo apt-get update && sudo apt-get install -y libboost-all-dev libglfw3-dev libpng++-dev libopenal-dev libglvnd-dev libfreetype6-dev cimg-dev ffmpeg libutfcpp-dev gettext libavcodec-dev libavformat-dev libavfilter-dev qt5-default qtbase5-dev qtbase5-dev-tools libarchive-dev
           sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-10 100 --slave /usr/bin/g++ g++ /usr/bin/g++-10
       - name: "Run cmake"
         run: |

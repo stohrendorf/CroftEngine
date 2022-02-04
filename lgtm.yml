@@ -33,6 +33,10 @@ extraction:
         - g++-8
         - build-essential
         - gettext
+        - qt5-default
+        - qtbase5-dev
+        - qtbase5-dev-tools
+        - libarchive-dev
     after_prepare:
       - "mkdir custom_cmake"
       - "wget --quiet -O - https://github.com/Kitware/CMake/releases/download/v3.21.2/cmake-3.21.2-linux-x86_64.tar.gz | tar --strip-components=1 -xz -C custom_cmake"
