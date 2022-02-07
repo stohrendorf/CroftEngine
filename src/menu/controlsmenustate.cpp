@@ -393,6 +393,24 @@ void ControlsMenuState::handleChangeKeyInput(engine::world::World& world)
 {
   auto setMapping = [&](const auto& button)
   {
+    // it's fine to assign the same button to the same action in different profiles;
+    // otherwise, remove the mapped button from all profiles before assigning it to the new action
+    bool hasDifferentAssignments
+      = std::any_of(m_editing.begin(),
+                    m_editing.end(),
+                    [this, &button](const engine::NamedInputMappingConfig& mapping)
+                    {
+                      auto it = mapping.mappings.find(button);
+                      return it != mapping.mappings.end() && it->second != m_controls->getCurrentAction();
+                    });
+    if(hasDifferentAssignments)
+    {
+      for(auto& mapping : m_editing)
+      {
+        mapping.mappings.erase(button);
+      }
+    }
+
     auto& mapping = m_editing.at(m_editingIndex);
     auto keys = getKeys(mapping.mappings, engine::NamedAction{m_controls->getCurrentAction()});
     for(auto key : keys)
