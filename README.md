@@ -33,6 +33,8 @@ must be open-source as well.
 
 > *A user manual has been kindly provided by Raina Audron [here](https://drive.google.com/file/d/1iRz4Svdi_dhmlDNFYeZqyP-wfApWhDoN/view)*.
 
+> ***Please note that as of Beta 15 a setup assistant is included that should start if anything is missing.***
+
 1. Get the most recent release from [here](https://github.com/stohrendorf/EdisonEngine/releases). It is recommended to
    use the installer in Windows. For openSUSE users, the engine is available for most distribution versions in the
    "Games" repository.
