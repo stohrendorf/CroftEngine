@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EdisonEngine\n"
 "Report-Msgid-Bugs-To: https://github.com/stohrendorf/EdisonEngine/issues\n"
-"POT-Creation-Date: 2022-01-30 20:59+0100\n"
+"POT-Creation-Date: 2022-03-06 01:29+0100\n"
 "Last-Translator: Steffen Ohrendorf\n"
 "Language-Team: none\n"
 "Language: de_DE\n"
@@ -215,6 +215,11 @@ msgstr "D"
 msgctxt "Keyboard|Key"
 msgid "Del"
 msgstr "Entf"
+
+#. translators: TR charmap encoding
+#: menu/rendersettingsmenustate.cpp:214
+msgid "Denoise Water Surface"
+msgstr "Wasseroberfl~ache gl~atten"
 
 #. translators: TR charmap encoding
 #: menu/rendersettingsmenustate.cpp:141
@@ -571,11 +576,11 @@ msgstr "Spiel laden"
 msgid "Loading %1%"
 msgstr "Lade %1%"
 
-#: engine/engine.cpp:692
+#: engine/engine.cpp:716
 msgid "Loading Glidos texture pack"
 msgstr "Lade Glidos Textur Paket"
 
-#: engine/world/world.cpp:1013
+#: engine/world/world.cpp:1015
 msgid "Loading..."
 msgstr "Lade..."
 
@@ -940,11 +945,11 @@ msgid "Save Game"
 msgstr "Spiel sichern"
 
 #. translators: TR charmap encoding
-#: engine/engine.cpp:204
+#: engine/engine.cpp:209
 msgid "Save recorded ghost?"
 msgstr "Aufgenommenen Geist speichern?"
 
-#: engine/world/world.cpp:1034
+#: engine/world/world.cpp:1036
 msgid "Saving..."
 msgstr "Speichere..."
 
@@ -1131,11 +1136,6 @@ msgstr "W"
 msgctxt "Action"
 msgid "Walk"
 msgstr "Gehen"
-
-#. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:214
-msgid "Water Denoise"
-msgstr "Wassergl~attung"
 
 #. translators: TR charmap encoding
 #: hid/names.cpp:247

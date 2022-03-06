@@ -211,7 +211,7 @@ RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingT
       });
   }
   listBox->addSetting(
-    /* translators: TR charmap encoding */ _("Water Denoise"),
+    /* translators: TR charmap encoding */ _("Denoise Water Surface"),
     [&engine]()
     {
       return engine.getEngineConfig()->renderSettings.waterDenoise;
