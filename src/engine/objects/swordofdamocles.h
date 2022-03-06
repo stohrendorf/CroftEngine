@@ -34,22 +34,13 @@ namespace engine::objects
 class SwordOfDamocles final : public ModelObject
 {
 public:
-  SwordOfDamocles(const gsl::not_null<world::World*>& world, const Location& location)
-      : ModelObject{world, location, true}
-  {
-  }
+  SwordOfDamocles(const gsl::not_null<world::World*>& world, const Location& location);
 
   SwordOfDamocles(const std::string& name,
                   const gsl::not_null<world::World*>& world,
                   const gsl::not_null<const world::Room*>& room,
                   const loader::file::Item& item,
-                  const gsl::not_null<const world::SkeletalModelType*>& animatedModel)
-      : ModelObject{name, world, room, item, true, animatedModel, true}
-  {
-    m_state.rotation.Y += util::rand15s(180_deg) + util::rand15s(180_deg);
-    m_state.fallspeed = 50_spd;
-    m_rotateSpeed = util::rand15s(2048_au / 1_frame);
-  }
+                  const gsl::not_null<const world::SkeletalModelType*>& animatedModel);
 
   void update() override;
   void collide(CollisionInfo& collisionInfo) override;

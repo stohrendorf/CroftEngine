@@ -7,6 +7,7 @@
 #include "engine/location.h"
 #include "engine/objectmanager.h"
 #include "engine/particle.h"
+#include "engine/skeletalmodelnode.h"
 #include "engine/soundeffects_tr1.h"
 #include "engine/world/world.h"
 #include "laraobject.h"
@@ -84,5 +85,25 @@ void SwordOfDamocles::serialize(const serialization::Serializer<world::World>& s
 {
   ModelObject::serialize(ser);
   ser(S_NV("rotateSpeed", m_rotateSpeed), S_NV("dropSpeedX", m_dropSpeedX), S_NV("dropSpeedZ", m_dropSpeedZ));
+  if(ser.loading)
+    getSkeleton()->getRenderState().setScissorTest(false);
+}
+
+SwordOfDamocles::SwordOfDamocles(const gsl::not_null<world::World*>& world, const Location& location)
+    : ModelObject{world, location, true}
+{
+}
+
+SwordOfDamocles::SwordOfDamocles(const std::string& name,
+                                 const gsl::not_null<world::World*>& world,
+                                 const gsl::not_null<const world::Room*>& room,
+                                 const loader::file::Item& item,
+                                 const gsl::not_null<const world::SkeletalModelType*>& animatedModel)
+    : ModelObject{name, world, room, item, true, animatedModel, true}
+{
+  m_state.rotation.Y += util::rand15s(180_deg) + util::rand15s(180_deg);
+  m_state.fallspeed = 50_spd;
+  m_rotateSpeed = util::rand15s(2048_au / 1_frame);
+  getSkeleton()->getRenderState().setScissorTest(false);
 }
 } // namespace engine::objects
