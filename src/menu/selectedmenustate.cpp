@@ -1,6 +1,7 @@
 #include "selectedmenustate.h"
 
 #include "audiosettingsmenustate.h"
+#include "compassmenustate.h"
 #include "controlsmenustate.h"
 #include "core/units.h"
 #include "deflateringmenustate.h"
@@ -35,19 +36,27 @@ namespace menu
 std::unique_ptr<MenuState> SelectedMenuState::onFrame(ui::Ui& ui, engine::world::World& world, MenuDisplay& display)
 {
   auto& currentObject = display.getCurrentRing().getSelectedObject();
-  if(currentObject.type == engine::TR1ItemId::PassportClosed)
+  switch(currentObject.type)
+  {
+  case engine::TR1ItemId::PassportClosed:
     return create<PassportMenuState>(display.mode, display.allowSave);
-  else if(currentObject.type == engine::TR1ItemId::Sunglasses)
+  case engine::TR1ItemId::Sunglasses:
     return create<RenderSettingsMenuState>(
       create<FinishItemAnimationMenuState>(create<ResetItemTransformMenuState>(create<DeselectingMenuState>())),
       world.getEngine());
-  else if(currentObject.type == engine::TR1ItemId::DirectionKeys)
+  case engine::TR1ItemId::DirectionKeys:
     return create<ControlsMenuState>(
       create<FinishItemAnimationMenuState>(create<ResetItemTransformMenuState>(create<DeselectingMenuState>())), world);
-  else if(currentObject.type == engine::TR1ItemId::CassettePlayer)
+  case engine::TR1ItemId::CassettePlayer:
     return create<AudioSettingsMenuState>(
+      create<FinishItemAnimationMenuState>(create<ResetItemTransformMenuState>(create<DeselectingMenuState>())));
+  case engine::TR1ItemId::Compass:
+    return create<FinishItemAnimationMenuState>(create<CompassMenuState>(
       create<FinishItemAnimationMenuState>(create<ResetItemTransformMenuState>(create<DeselectingMenuState>())),
-      display);
+      world));
+  default:
+    break;
+  }
 
   if(currentObject.selectedRotationY == currentObject.rotationY && currentObject.animate())
     return nullptr;

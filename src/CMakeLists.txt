@@ -579,6 +579,8 @@ set( EDISONENGINE_SRCS
         menu/audiosettingsmenustate.cpp
         menu/applyitemtransformmenustate.cpp
         menu/closepassportmenustate.cpp
+        menu/compassmenustate.h
+        menu/compassmenustate.cpp
         menu/controlsmenustate.cpp
         menu/controlswidget.cpp
         menu/deflateringmenustate.cpp

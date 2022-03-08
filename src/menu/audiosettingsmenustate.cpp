@@ -32,8 +32,7 @@
 namespace menu
 {
 AudioSettingsMenuState::AudioSettingsMenuState(const std::shared_ptr<MenuRingTransform>& ringTransform,
-                                               std::unique_ptr<MenuState> previous,
-                                               const MenuDisplay& /*display*/)
+                                               std::unique_ptr<MenuState> previous)
     : SelectedMenuState{ringTransform}
     , m_previous{std::move(previous)}
     , m_grid{std::make_shared<ui::widgets::GridBox>(2 * glm::ivec2{ui::OutlineBorderWidth, ui::OutlineBorderWidth})}

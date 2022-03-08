@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EdisonEngine\n"
 "Report-Msgid-Bugs-To: https://github.com/stohrendorf/EdisonEngine/issues\n"
-"POT-Creation-Date: 2022-03-06 01:29+0100\n"
+"POT-Creation-Date: 2022-03-08 08:10+0100\n"
 "Last-Translator: Steffen Ohrendorf\n"
 "Language-Team: none\n"
 "Language: de_DE\n"
@@ -17,11 +17,35 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #. translators: TR charmap encoding
+#: menu/compassmenustate.cpp:84
+#, c-format, boost-format
+msgid "%1$02d:%2$02d"
+msgstr "%1$02d:%2$02d"
+
+#. translators: TR charmap encoding
 #: menu/savegamelistmenustate.cpp:139
 #, boost-format
 msgctxt "SavegameTitle"
 msgid "%1% - %2%"
 msgstr "%1% - %2%"
+
+#. translators: TR charmap encoding
+#: menu/compassmenustate.cpp:98
+#, boost-format
+msgid "%1% Hits"
+msgstr "%1% Treffer"
+
+#. translators: TR charmap encoding
+#: menu/compassmenustate.cpp:105
+#, boost-format
+msgid "%1% Misses"
+msgstr "%1% Fehlsch~usse"
+
+#. translators: TR charmap encoding
+#: menu/compassmenustate.cpp:77
+#, boost-format
+msgid "%1%:%2$02d:%3$02d"
+msgstr "%1%:%2$02d:%3$02d"
 
 #. translators: TR charmap encoding
 #: menu/rendersettingsmenustate.cpp:336
@@ -118,7 +142,7 @@ msgid "Apply changes?"
 msgstr "Zuordnung anwenden?"
 
 #. translators: TR charmap encoding
-#: menu/audiosettingsmenustate.cpp:40
+#: menu/audiosettingsmenustate.cpp:39
 msgid "Audio Settings"
 msgstr "Audio Einstellungen"
 
@@ -295,7 +319,7 @@ msgid "E"
 msgstr "E"
 
 #. translators: TR charmap encoding
-#: menu/audiosettingsmenustate.cpp:65 menu/rendersettingsmenustate.cpp:128
+#: menu/audiosettingsmenustate.cpp:64 menu/rendersettingsmenustate.cpp:128
 msgid "Effects"
 msgstr "Effekte"
 
@@ -410,7 +434,7 @@ msgid "Glidos - Resolving maps (100%)"
 msgstr "Glidos - Löse Zuordnungen auf (100%)"
 
 #. translators: TR charmap encoding
-#: menu/audiosettingsmenustate.cpp:55
+#: menu/audiosettingsmenustate.cpp:54
 msgid "Global"
 msgstr "Global"
 
@@ -515,6 +539,11 @@ msgid "Keyboard"
 msgstr "Tastatur"
 
 #. translators: TR charmap encoding
+#: menu/compassmenustate.cpp:60
+msgid "Kills"
+msgstr "Besiegte Gegner"
+
+#. translators: TR charmap encoding
 #: hid/names.cpp:77
 msgctxt "Keyboard|Key"
 msgid "L"
@@ -580,7 +609,7 @@ msgstr "Lade %1%"
 msgid "Loading Glidos texture pack"
 msgstr "Lade Glidos Textur Paket"
 
-#: engine/world/world.cpp:1015
+#: engine/world/world.cpp:1025
 msgid "Loading..."
 msgstr "Lade..."
 
@@ -602,7 +631,7 @@ msgid "Magnum Clips"
 msgstr "Magnum-Munition"
 
 #. translators: TR charmap encoding
-#: menu/menudisplay.cpp:374
+#: menu/compassmenustate.cpp:135 menu/menudisplay.cpp:374
 msgid "Magnums"
 msgstr "Magnums"
 
@@ -618,7 +647,7 @@ msgid "More Lights"
 msgstr "Mehr Lichter"
 
 #. translators: TR charmap encoding
-#: menu/audiosettingsmenustate.cpp:60
+#: menu/audiosettingsmenustate.cpp:59
 msgid "Music"
 msgstr "Musik"
 
@@ -818,7 +847,12 @@ msgid "PgUp"
 msgstr "BildHoch"
 
 #. translators: TR charmap encoding
-#: menu/menudisplay.cpp:352
+#: menu/compassmenustate.cpp:46
+msgid "Pickups"
+msgstr "Gegenst~ande"
+
+#. translators: TR charmap encoding
+#: menu/compassmenustate.cpp:117 menu/menudisplay.cpp:352
 msgid "Pistols"
 msgstr "Pistolen"
 
@@ -949,7 +983,7 @@ msgstr "Spiel sichern"
 msgid "Save recorded ghost?"
 msgstr "Aufgenommenen Geist speichern?"
 
-#: engine/world/world.cpp:1036
+#: engine/world/world.cpp:1046
 msgid "Saving..."
 msgstr "Speichere..."
 
@@ -966,6 +1000,11 @@ msgid "ScrlLk"
 msgstr "Rollen"
 
 #. translators: TR charmap encoding
+#: menu/compassmenustate.cpp:53
+msgid "Secrets"
+msgstr "Geheimnisse"
+
+#. translators: TR charmap encoding
 #: hid/names.cpp:235
 msgctxt "Keyboard|Key"
 msgid "Shift"
@@ -977,7 +1016,7 @@ msgid "Shortcuts"
 msgstr "Schnellzugriff"
 
 #. translators: TR charmap encoding
-#: menu/menudisplay.cpp:363
+#: menu/compassmenustate.cpp:123 menu/menudisplay.cpp:363
 msgid "Shotgun"
 msgstr "Schrotflinte"
 
@@ -1008,11 +1047,21 @@ msgctxt "Keyboard|Key"
 msgid "Space"
 msgstr "Leertaste"
 
+#. translators: TR charmap encoding
+#: menu/compassmenustate.cpp:67
+msgid "Spielzeit"
+msgstr ""
+
 #. translators: TR charmap encoding, gamepad
 #: hid/names.cpp:283
 msgctxt "Gamepad|Button"
 msgid "Start"
 msgstr "Start"
+
+#. translators: TR charmap encoding
+#: menu/compassmenustate.cpp:37
+msgid "Statistics"
+msgstr "Statistiken"
 
 #. translators: TR charmap encoding
 #: hid/names.cpp:348
@@ -1110,7 +1159,7 @@ msgid "Uzi Clips"
 msgstr "Uzi-Munition"
 
 #. translators: TR charmap encoding
-#: menu/menudisplay.cpp:385
+#: menu/compassmenustate.cpp:129 menu/menudisplay.cpp:385
 msgid "Uzis"
 msgstr "Uzis"
 
