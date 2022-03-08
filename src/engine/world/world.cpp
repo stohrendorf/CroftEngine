@@ -791,6 +791,7 @@ void World::handleCommandSequence(const floordata::FloorDataValue* floorData, co
 
   bool swapRooms = false;
   std::optional<size_t> flipEffect;
+  std::shared_ptr<objects::Object> lookAtObject{};
   while(true)
   {
     const floordata::Command command{*floorData++};
@@ -813,7 +814,7 @@ void World::handleCommandSequence(const floordata::FloorDataValue* floorData, co
     }
     break;
     case floordata::CommandOpcode::LookAt:
-      m_cameraController->setLookAtObject(gsl::not_null{m_objectManager.getObject(command.parameter)});
+      lookAtObject = m_objectManager.getObject(command.parameter);
       break;
     case floordata::CommandOpcode::UnderwaterCurrent:
     {
@@ -872,6 +873,15 @@ void World::handleCommandSequence(const floordata::FloorDataValue* floorData, co
 
     if(command.isLast)
       break;
+  }
+
+  if(lookAtObject != nullptr)
+  {
+    if(m_cameraController->getMode() == CameraMode::FixedPosition
+       || m_cameraController->getMode() == CameraMode::HeavyFixedPosition)
+    {
+      m_cameraController->setLookAtObject(gsl::not_null{lookAtObject});
+    }
   }
 
   if(!swapRooms)
