@@ -84,7 +84,7 @@ int main(int argc, char** argv)
     }
 
     if(auto it = vm.find("configure"); (it != vm.end() && it->second.as<bool>()) || !findUserDataDir().has_value()
-                                       || !std::filesystem::is_directory(*findUserDataDir() / "tr1"))
+                                       || !std::filesystem::is_directory(*findUserDataDir() / "data" / "tr1"))
     {
       setup::showSetupScreen(argc, argv);
       return EXIT_SUCCESS;
