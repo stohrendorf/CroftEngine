@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EdisonEngine\n"
 "Report-Msgid-Bugs-To: https://github.com/stohrendorf/EdisonEngine/issues\n"
-"POT-Creation-Date: 2022-03-08 20:54+0100\n"
+"POT-Creation-Date: 2022-03-08 21:50+0100\n"
 "Last-Translator: Steffen Ohrendorf\n"
 "Language-Team: none\n"
 "Language: de_DE\n"
@@ -410,16 +410,6 @@ msgstr "Ende des Spiels"
 #: menu/menudisplay.cpp:278
 msgid "Game"
 msgstr "Spiel"
-
-#. translators: TR charmap encoding
-#: menu/compassmenustate.cpp:88
-msgid "Game Time"
-msgstr "Spielzeit gesamt"
-
-#. translators: TR charmap encoding
-#: menu/compassmenustate.cpp:115
-msgid "Game Time Total"
-msgstr ""
 
 #: engine/engineconfig.cpp:60
 msgctxt "Input|MappingName"
@@ -1136,6 +1126,16 @@ msgstr "Ben~otigte Zeit %1%:%2$02d:%3$02d"
 msgctxt "Keyboard|Key"
 msgid "Tab"
 msgstr "Tab"
+
+#. translators: TR charmap encoding
+#: menu/compassmenustate.cpp:88
+msgid "Time Taken"
+msgstr "Ben~otigte Zeit"
+
+#. translators: TR charmap encoding
+#: menu/compassmenustate.cpp:115
+msgid "Time Taken Total"
+msgstr "Ben~otigte Zeit gesamt"
 
 #. translators: TR charmap encoding
 #: menu/controlsmenustate.cpp:195

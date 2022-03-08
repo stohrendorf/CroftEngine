@@ -85,7 +85,7 @@ CompassMenuState::CompassMenuState(const std::shared_ptr<MenuRingTransform>& rin
   label->fitToContent();
   m_grid->set(1, 5, std::move(label));
 
-  label = std::make_shared<ui::widgets::Label>(/* translators: TR charmap encoding */ _("Game Time"));
+  label = std::make_shared<ui::widgets::Label>(/* translators: TR charmap encoding */ _("Time Taken"));
   label->fitToContent();
   m_grid->set(0, 6, std::move(label));
 
@@ -112,7 +112,7 @@ CompassMenuState::CompassMenuState(const std::shared_ptr<MenuRingTransform>& rin
     m_grid->set(1, 6, std::move(label));
   }
 
-  label = std::make_shared<ui::widgets::Label>(/* translators: TR charmap encoding */ _("Game Time Total"));
+  label = std::make_shared<ui::widgets::Label>(/* translators: TR charmap encoding */ _("Time Taken Total"));
   label->fitToContent();
   m_grid->set(0, 7, std::move(label));
 
