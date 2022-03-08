@@ -9,6 +9,7 @@
 #include "player.h"
 #include "qs/qs.h"
 #include "serialization/map.h"
+#include "serialization/optional_value.h"
 #include "serialization/serialization.h"
 #include "soundeffects_tr1.h"
 #include "weapontype.h"
@@ -224,6 +225,10 @@ void Inventory::serialize(const serialization::Serializer<world::World>& ser)
 
 void Ammo::serialize(const serialization::Serializer<world::World>& ser)
 {
-  ser(S_NV("ammo", ammo), S_NV("hits", hits), S_NV("misses", misses));
+  ser(S_NV("ammo", ammo),
+      S_NV("hits", hits),
+      S_NVO("hitsTotal", hitsTotal),
+      S_NV("misses", misses),
+      S_NVO("missesTotal", missesTotal));
 }
 } // namespace engine

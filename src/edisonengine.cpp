@@ -163,7 +163,25 @@ int main(int argc, char** argv)
         else
         {
           if(player == nullptr || levelSequenceIndex == 0)
+          {
             player = std::make_shared<engine::Player>();
+          }
+          else
+          {
+            player->killsTotal += player->kills;
+            player->pickupsTotal += player->pickups;
+            player->secretsTotal += player->secrets;
+            player->timeSpentTotal += player->timeSpent;
+            for(auto ammoType : {engine::WeaponType::Pistols,
+                                 engine::WeaponType::Shotgun,
+                                 engine::WeaponType::Uzis,
+                                 engine::WeaponType::Magnums})
+            {
+              auto& ammo = player->getInventory().getAmmo(ammoType);
+              ammo.hitsTotal += ammo.hits;
+              ammo.missesTotal += ammo.misses;
+            }
+          }
 
           runResult
             = engine.runLevelSequenceItem(*gsl::not_null{gameflow.getLevelSequence().at(levelSequenceIndex)}, player);

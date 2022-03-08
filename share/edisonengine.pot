@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EdisonEngine 0.14\n"
 "Report-Msgid-Bugs-To: https://github.com/stohrendorf/EdisonEngine/issues\n"
-"POT-Creation-Date: 2022-03-08 08:10+0100\n"
+"POT-Creation-Date: 2022-03-08 20:54+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 
 #. translators: TR charmap encoding
-#: menu/compassmenustate.cpp:84
+#: menu/compassmenustate.cpp:107 menu/compassmenustate.cpp:134
 #, c-format, boost-format
 msgid "%1$02d:%2$02d"
 msgstr ""
@@ -31,19 +31,31 @@ msgid "%1% - %2%"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/compassmenustate.cpp:98
+#: menu/compassmenustate.cpp:154
 #, boost-format
 msgid "%1% Hits"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/compassmenustate.cpp:105
+#: menu/compassmenustate.cpp:162
+#, boost-format
+msgid "%1% Hits Total"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/compassmenustate.cpp:169
 #, boost-format
 msgid "%1% Misses"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/compassmenustate.cpp:77
+#: menu/compassmenustate.cpp:177
+#, boost-format
+msgid "%1% Misses Total"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/compassmenustate.cpp:99 menu/compassmenustate.cpp:126
 #, boost-format
 msgid "%1%:%2$02d:%3$02d"
 msgstr ""
@@ -397,6 +409,16 @@ msgstr ""
 msgid "Game"
 msgstr ""
 
+#. translators: TR charmap encoding
+#: menu/compassmenustate.cpp:88
+msgid "Game Time"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/compassmenustate.cpp:115
+msgid "Game Time Total"
+msgstr ""
+
 #: engine/engineconfig.cpp:60
 msgctxt "Input|MappingName"
 msgid "Gamepad"
@@ -537,8 +559,13 @@ msgid "Keyboard"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/compassmenustate.cpp:60
+#: menu/compassmenustate.cpp:74
 msgid "Kills"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/compassmenustate.cpp:81
+msgid "Kills Total"
 msgstr ""
 
 #. translators: TR charmap encoding
@@ -629,7 +656,7 @@ msgid "Magnum Clips"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/compassmenustate.cpp:135 menu/menudisplay.cpp:374
+#: menu/compassmenustate.cpp:191 menu/menudisplay.cpp:374
 msgid "Magnums"
 msgstr ""
 
@@ -850,7 +877,12 @@ msgid "Pickups"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/compassmenustate.cpp:117 menu/menudisplay.cpp:352
+#: menu/compassmenustate.cpp:53
+msgid "Pickups Total"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/compassmenustate.cpp:188 menu/menudisplay.cpp:352
 msgid "Pistols"
 msgstr ""
 
@@ -998,8 +1030,13 @@ msgid "ScrlLk"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/compassmenustate.cpp:53
+#: menu/compassmenustate.cpp:60
 msgid "Secrets"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/compassmenustate.cpp:67
+msgid "Secrets Total"
 msgstr ""
 
 #. translators: TR charmap encoding
@@ -1014,7 +1051,7 @@ msgid "Shortcuts"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/compassmenustate.cpp:123 menu/menudisplay.cpp:363
+#: menu/compassmenustate.cpp:189 menu/menudisplay.cpp:363
 msgid "Shotgun"
 msgstr ""
 
@@ -1043,11 +1080,6 @@ msgstr ""
 #: hid/names.cpp:19
 msgctxt "Keyboard|Key"
 msgid "Space"
-msgstr ""
-
-#. translators: TR charmap encoding
-#: menu/compassmenustate.cpp:67
-msgid "Spielzeit"
 msgstr ""
 
 #. translators: TR charmap encoding, gamepad
@@ -1157,7 +1189,7 @@ msgid "Uzi Clips"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/compassmenustate.cpp:129 menu/menudisplay.cpp:385
+#: menu/compassmenustate.cpp:190 menu/menudisplay.cpp:385
 msgid "Uzis"
 msgstr ""
 

@@ -34,7 +34,9 @@ struct Ammo
   const char iconChar;
   size_t ammo = 0;
   uint32_t hits = 0;
+  uint32_t hitsTotal = 0;
   uint32_t misses = 0;
+  uint32_t missesTotal = 0;
 
   void addClips(size_t n)
   {

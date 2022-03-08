@@ -37,9 +37,13 @@ public:
   WeaponType selectedWeaponType = WeaponType::None;
   WeaponType requestedWeaponType = WeaponType::None;
   size_t pickups = 0;
+  size_t pickupsTotal = 0;
   size_t kills = 0;
+  size_t killsTotal = 0;
   size_t secrets = 0;
+  size_t secretsTotal = 0;
   std::chrono::milliseconds timeSpent{0};
+  std::chrono::milliseconds timeSpentTotal{0};
 
   void resetStats()
   {
