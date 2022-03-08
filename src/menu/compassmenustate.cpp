@@ -181,7 +181,7 @@ CompassMenuState::CompassMenuState(const std::shared_ptr<MenuRingTransform>& rin
     label->fitToContent();
     m_grid->set(1, y0 + 3, std::move(label));
 
-    y0 += 2;
+    y0 += 4;
   };
 
   size_t row = 8;
