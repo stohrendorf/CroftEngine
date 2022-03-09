@@ -14,6 +14,7 @@
 #include "ui/widgets/gridbox.h"
 #include "ui/widgets/groupbox.h"
 #include "ui/widgets/label.h"
+#include "util/helpers.h"
 
 #include <algorithm>
 #include <boost/throw_exception.hpp>
@@ -36,26 +37,28 @@ CompassMenuState::CompassMenuState(const std::shared_ptr<MenuRingTransform>& rin
     , m_container{
         std::make_shared<ui::widgets::GroupBox>(/* translators: TR charmap encoding */ _("Statistics"), m_grid)}
 {
-  static constexpr int Width = 200;
-
   const auto& player = world.getPlayer();
 
-  m_grid->setExtents(2, 8);
-  m_grid->setSelected({0, 0});
+  m_grid->setExtents(4, 5);
 
-  auto label = std::make_shared<ui::widgets::Label>(/* translators: TR charmap encoding */ _("Pickups"));
-  label->fitToContent();
-  m_grid->set(0, 0, std::move(label));
-  label = std::make_shared<ui::widgets::Label>(std::to_string(player.pickups));
+  auto label = std::make_shared<ui::widgets::Label>(util::escape(world.getTitle()));
   label->fitToContent();
   m_grid->set(1, 0, std::move(label));
 
-  label = std::make_shared<ui::widgets::Label>(/* translators: TR charmap encoding */ _("Pickups Total"));
+  label = std::make_shared<ui::widgets::Label>(/* translators: TR charmap encoding */ pgettext("gamestats", "Total"));
+  label->fitToContent();
+  m_grid->set(3, 0, std::move(label));
+
+  label = std::make_shared<ui::widgets::Label>(/* translators: TR charmap encoding */ _("Pickups"));
   label->fitToContent();
   m_grid->set(0, 1, std::move(label));
-  label = std::make_shared<ui::widgets::Label>(std::to_string(player.pickupsTotal + player.pickups));
+  label = std::make_shared<ui::widgets::Label>(std::to_string(player.pickups));
   label->fitToContent();
   m_grid->set(1, 1, std::move(label));
+
+  label = std::make_shared<ui::widgets::Label>(std::to_string(player.pickupsTotal + player.pickups));
+  label->fitToContent();
+  m_grid->set(3, 1, std::move(label));
 
   label = std::make_shared<ui::widgets::Label>(/* translators: TR charmap encoding */ _("Secrets"));
   label->fitToContent();
@@ -64,30 +67,24 @@ CompassMenuState::CompassMenuState(const std::shared_ptr<MenuRingTransform>& rin
   label->fitToContent();
   m_grid->set(1, 2, std::move(label));
 
-  label = std::make_shared<ui::widgets::Label>(/* translators: TR charmap encoding */ _("Secrets Total"));
-  label->fitToContent();
-  m_grid->set(0, 3, std::move(label));
   label = std::make_shared<ui::widgets::Label>(std::to_string(player.secretsTotal + player.secrets));
   label->fitToContent();
-  m_grid->set(1, 3, std::move(label));
+  m_grid->set(3, 2, std::move(label));
 
   label = std::make_shared<ui::widgets::Label>(/* translators: TR charmap encoding */ _("Kills"));
   label->fitToContent();
-  m_grid->set(0, 4, std::move(label));
+  m_grid->set(0, 3, std::move(label));
   label = std::make_shared<ui::widgets::Label>(std::to_string(player.kills));
   label->fitToContent();
-  m_grid->set(1, 4, std::move(label));
+  m_grid->set(1, 3, std::move(label));
 
-  label = std::make_shared<ui::widgets::Label>(/* translators: TR charmap encoding */ _("Kills Total"));
-  label->fitToContent();
-  m_grid->set(0, 5, std::move(label));
   label = std::make_shared<ui::widgets::Label>(std::to_string(player.killsTotal + player.kills));
   label->fitToContent();
-  m_grid->set(1, 5, std::move(label));
+  m_grid->set(3, 3, std::move(label));
 
   label = std::make_shared<ui::widgets::Label>(/* translators: TR charmap encoding */ _("Time Taken"));
   label->fitToContent();
-  m_grid->set(0, 6, std::move(label));
+  m_grid->set(0, 4, std::move(label));
 
   {
     const auto seconds = std::chrono::duration_cast<std::chrono::seconds>(player.timeSpent);
@@ -109,12 +106,8 @@ CompassMenuState::CompassMenuState(const std::shared_ptr<MenuRingTransform>& rin
 
     label = std::make_shared<ui::widgets::Label>(text);
     label->fitToContent();
-    m_grid->set(1, 6, std::move(label));
+    m_grid->set(1, 4, std::move(label));
   }
-
-  label = std::make_shared<ui::widgets::Label>(/* translators: TR charmap encoding */ _("Time Taken Total"));
-  label->fitToContent();
-  m_grid->set(0, 7, std::move(label));
 
   {
     const auto seconds = std::chrono::duration_cast<std::chrono::seconds>(player.timeSpentTotal + player.timeSpent);
@@ -136,7 +129,7 @@ CompassMenuState::CompassMenuState(const std::shared_ptr<MenuRingTransform>& rin
 
     label = std::make_shared<ui::widgets::Label>(text);
     label->fitToContent();
-    m_grid->set(1, 7, std::move(label));
+    m_grid->set(3, 4, std::move(label));
   }
 
   const auto& inv = player.getInventory();
@@ -149,7 +142,7 @@ CompassMenuState::CompassMenuState(const std::shared_ptr<MenuRingTransform>& rin
       return;
     }
 
-    m_grid->setExtents(2, y0 + 4);
+    m_grid->setExtents(5, y0 + 2);
 
     auto label = std::make_shared<ui::widgets::Label>(/* translators: TR charmap encoding */ _("%1% Hits", weaponName));
     label->fitToContent();
@@ -158,33 +151,25 @@ CompassMenuState::CompassMenuState(const std::shared_ptr<MenuRingTransform>& rin
     label->fitToContent();
     m_grid->set(1, y0, std::move(label));
 
-    label
-      = std::make_shared<ui::widgets::Label>(/* translators: TR charmap encoding */ _("%1% Hits Total", weaponName));
-    label->fitToContent();
-    m_grid->set(0, y0 + 1, std::move(label));
     label = std::make_shared<ui::widgets::Label>(std::to_string(ammo.hitsTotal + ammo.hits));
     label->fitToContent();
-    m_grid->set(1, y0 + 1, std::move(label));
+    m_grid->set(3, y0, std::move(label));
 
     label = std::make_shared<ui::widgets::Label>(/* translators: TR charmap encoding */ _("%1% Misses", weaponName));
     label->fitToContent();
-    m_grid->set(0, y0 + 2, std::move(label));
+    m_grid->set(0, y0 + 1, std::move(label));
     label = std::make_shared<ui::widgets::Label>(std::to_string(ammo.misses));
     label->fitToContent();
-    m_grid->set(1, y0 + 2, std::move(label));
+    m_grid->set(1, y0 + 1, std::move(label));
 
-    label
-      = std::make_shared<ui::widgets::Label>(/* translators: TR charmap encoding */ _("%1% Misses Total", weaponName));
-    label->fitToContent();
-    m_grid->set(0, y0 + 3, std::move(label));
     label = std::make_shared<ui::widgets::Label>(std::to_string(ammo.missesTotal + ammo.misses));
     label->fitToContent();
-    m_grid->set(1, y0 + 3, std::move(label));
+    m_grid->set(3, y0 + 1, std::move(label));
 
-    y0 += 4;
+    y0 += 2;
   };
 
-  size_t row = 8;
+  size_t row = 5;
   addAmmoStats(/* translators: TR charmap encoding */ _("Pistols"), engine::WeaponType::Pistols, row);
   addAmmoStats(/* translators: TR charmap encoding */ _("Shotgun"), engine::WeaponType::Shotgun, row);
   addAmmoStats(/* translators: TR charmap encoding */ _("Uzis"), engine::WeaponType::Uzis, row);

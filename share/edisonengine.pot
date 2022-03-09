@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EdisonEngine 0.14\n"
 "Report-Msgid-Bugs-To: https://github.com/stohrendorf/EdisonEngine/issues\n"
-"POT-Creation-Date: 2022-03-08 21:50+0100\n"
+"POT-Creation-Date: 2022-03-09 08:20+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 
 #. translators: TR charmap encoding
-#: menu/compassmenustate.cpp:107 menu/compassmenustate.cpp:134
+#: menu/compassmenustate.cpp:106 menu/compassmenustate.cpp:129
 #, c-format, boost-format
 msgid "%1$02d:%2$02d"
 msgstr ""
@@ -31,31 +31,19 @@ msgid "%1% - %2%"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/compassmenustate.cpp:154
+#: menu/compassmenustate.cpp:149
 #, boost-format
 msgid "%1% Hits"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/compassmenustate.cpp:162
-#, boost-format
-msgid "%1% Hits Total"
-msgstr ""
-
-#. translators: TR charmap encoding
-#: menu/compassmenustate.cpp:169
+#: menu/compassmenustate.cpp:160
 #, boost-format
 msgid "%1% Misses"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/compassmenustate.cpp:177
-#, boost-format
-msgid "%1% Misses Total"
-msgstr ""
-
-#. translators: TR charmap encoding
-#: menu/compassmenustate.cpp:99 menu/compassmenustate.cpp:126
+#: menu/compassmenustate.cpp:98 menu/compassmenustate.cpp:121
 #, boost-format
 msgid "%1%:%2$02d:%3$02d"
 msgstr ""
@@ -549,13 +537,8 @@ msgid "Keyboard"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/compassmenustate.cpp:74
+#: menu/compassmenustate.cpp:76
 msgid "Kills"
-msgstr ""
-
-#. translators: TR charmap encoding
-#: menu/compassmenustate.cpp:81
-msgid "Kills Total"
 msgstr ""
 
 #. translators: TR charmap encoding
@@ -646,7 +629,7 @@ msgid "Magnum Clips"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/compassmenustate.cpp:191 menu/menudisplay.cpp:374
+#: menu/compassmenustate.cpp:178 menu/menudisplay.cpp:374
 msgid "Magnums"
 msgstr ""
 
@@ -862,17 +845,12 @@ msgid "PgUp"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/compassmenustate.cpp:46
+#: menu/compassmenustate.cpp:54
 msgid "Pickups"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/compassmenustate.cpp:53
-msgid "Pickups Total"
-msgstr ""
-
-#. translators: TR charmap encoding
-#: menu/compassmenustate.cpp:188 menu/menudisplay.cpp:352
+#: menu/compassmenustate.cpp:175 menu/menudisplay.cpp:352
 msgid "Pistols"
 msgstr ""
 
@@ -1020,13 +998,8 @@ msgid "ScrlLk"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/compassmenustate.cpp:60
+#: menu/compassmenustate.cpp:65
 msgid "Secrets"
-msgstr ""
-
-#. translators: TR charmap encoding
-#: menu/compassmenustate.cpp:67
-msgid "Secrets Total"
 msgstr ""
 
 #. translators: TR charmap encoding
@@ -1041,7 +1014,7 @@ msgid "Shortcuts"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/compassmenustate.cpp:189 menu/menudisplay.cpp:363
+#: menu/compassmenustate.cpp:176 menu/menudisplay.cpp:363
 msgid "Shotgun"
 msgstr ""
 
@@ -1079,7 +1052,7 @@ msgid "Start"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/compassmenustate.cpp:37
+#: menu/compassmenustate.cpp:38
 msgid "Statistics"
 msgstr ""
 
@@ -1126,13 +1099,8 @@ msgid "Tab"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/compassmenustate.cpp:88
+#: menu/compassmenustate.cpp:87
 msgid "Time Taken"
-msgstr ""
-
-#. translators: TR charmap encoding
-#: menu/compassmenustate.cpp:115
-msgid "Time Taken Total"
 msgstr ""
 
 #. translators: TR charmap encoding
@@ -1157,6 +1125,12 @@ msgstr ""
 #: menu/controlsmenustate.cpp:210
 #, boost-format
 msgid "To reset all mappings, hold %1% for %2% seconds."
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/compassmenustate.cpp:50
+msgctxt "gamestats"
+msgid "Total"
 msgstr ""
 
 #. translators: TR charmap encoding
@@ -1189,7 +1163,7 @@ msgid "Uzi Clips"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/compassmenustate.cpp:190 menu/menudisplay.cpp:385
+#: menu/compassmenustate.cpp:177 menu/menudisplay.cpp:385
 msgid "Uzis"
 msgstr ""
 
