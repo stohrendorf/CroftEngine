@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EdisonEngine\n"
 "Report-Msgid-Bugs-To: https://github.com/stohrendorf/EdisonEngine/issues\n"
-"POT-Creation-Date: 2022-03-10 08:13+0100\n"
+"POT-Creation-Date: 2022-03-10 16:51+0100\n"
 "Last-Translator: Steffen Ohrendorf\n"
 "Language-Team: none\n"
 "Language: de_DE\n"
@@ -212,11 +212,10 @@ msgctxt "Action"
 msgid "Cheat Dive"
 msgstr "Cheat Tauchen"
 
-#. translators: TR charmap encoding
-#: menu/compassmenustate.cpp:205
-#, fuzzy
-msgid "Cheated"
-msgstr "Getcheatet"
+#. translators: TR charmap encoding; in the sense of "cheats are used"
+#: menu/compassmenustate.cpp:206
+msgid "Cheats Used"
+msgstr "Cheats benutzt"
 
 #. translators: TR charmap encoding
 #: menu/menudisplay.cpp:339

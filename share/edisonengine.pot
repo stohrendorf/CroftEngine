@@ -3,12 +3,11 @@
 # This file is distributed under the same license as the EdisonEngine package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: EdisonEngine 0.14\n"
 "Report-Msgid-Bugs-To: https://github.com/stohrendorf/EdisonEngine/issues\n"
-"POT-Creation-Date: 2022-03-10 08:13+0100\n"
+"POT-Creation-Date: 2022-03-10 16:51+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -213,9 +212,9 @@ msgctxt "Action"
 msgid "Cheat Dive"
 msgstr ""
 
-#. translators: TR charmap encoding
-#: menu/compassmenustate.cpp:205
-msgid "Cheated"
+#. translators: TR charmap encoding; in the sense of "cheats are used"
+#: menu/compassmenustate.cpp:206
+msgid "Cheats Used"
 msgstr ""
 
 #. translators: TR charmap encoding

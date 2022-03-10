@@ -202,7 +202,8 @@ CompassMenuState::CompassMenuState(const std::shared_ptr<MenuRingTransform>& rin
   if(player.usedCheats)
   {
     m_grid->setExtents(3, row + 1);
-    label = std::make_shared<ui::widgets::Label>(/* translators: TR charmap encoding */ _("Cheated"));
+    label = std::make_shared<ui::widgets::Label>(
+      /* translators: TR charmap encoding; in the sense of "cheats are used" */ _("Cheats Used"));
     label->fitToContent();
     m_grid->set(0, row, std::move(label));
   }
