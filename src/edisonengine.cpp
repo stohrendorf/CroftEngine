@@ -172,14 +172,16 @@ int main(int argc, char** argv)
             player->pickupsTotal += player->pickups;
             player->secretsTotal += player->secrets;
             player->timeSpentTotal += player->timeSpent;
+            player->smallMedipacksTotal += player->smallMedipacks;
+            player->largeMedipacksTotal += player->largeMedipacks;
             for(auto ammoType : {engine::WeaponType::Pistols,
                                  engine::WeaponType::Shotgun,
                                  engine::WeaponType::Uzis,
                                  engine::WeaponType::Magnums})
             {
               auto& ammo = player->getInventory().getAmmo(ammoType);
-              ammo.hitsTotal += ammo.hits;
-              ammo.missesTotal += ammo.misses;
+              ammo.hitsTotal += std::exchange(ammo.hits, 0);
+              ammo.missesTotal += std::exchange(ammo.misses, 0);
             }
           }
 

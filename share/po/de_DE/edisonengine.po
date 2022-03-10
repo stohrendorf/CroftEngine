@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EdisonEngine\n"
 "Report-Msgid-Bugs-To: https://github.com/stohrendorf/EdisonEngine/issues\n"
-"POT-Creation-Date: 2022-03-09 08:20+0100\n"
+"POT-Creation-Date: 2022-03-10 08:13+0100\n"
 "Last-Translator: Steffen Ohrendorf\n"
 "Language-Team: none\n"
 "Language: de_DE\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #. translators: TR charmap encoding
-#: menu/compassmenustate.cpp:106 menu/compassmenustate.cpp:129
+#: menu/compassmenustate.cpp:128 menu/compassmenustate.cpp:151
 #, c-format, boost-format
 msgid "%1$02d:%2$02d"
 msgstr "%1$02d:%2$02d"
@@ -30,19 +30,19 @@ msgid "%1% - %2%"
 msgstr "%1% - %2%"
 
 #. translators: TR charmap encoding
-#: menu/compassmenustate.cpp:149
+#: menu/compassmenustate.cpp:171
 #, boost-format
 msgid "%1% Hits"
 msgstr "%1% Treffer"
 
 #. translators: TR charmap encoding
-#: menu/compassmenustate.cpp:160
+#: menu/compassmenustate.cpp:182
 #, boost-format
 msgid "%1% Misses"
 msgstr "%1% Fehlsch~usse"
 
 #. translators: TR charmap encoding
-#: menu/compassmenustate.cpp:98 menu/compassmenustate.cpp:121
+#: menu/compassmenustate.cpp:120 menu/compassmenustate.cpp:143
 #, boost-format
 msgid "%1%:%2$02d:%3$02d"
 msgstr "%1%:%2$02d:%3$02d"
@@ -195,6 +195,12 @@ msgid "CRT"
 msgstr "CRT"
 
 #. translators: TR charmap encoding
+#: menu/compassmenustate.cpp:46
+msgctxt "gamestats"
+msgid "CURRENT"
+msgstr "AKTUELL"
+
+#. translators: TR charmap encoding
 #: hid/names.cpp:143
 msgctxt "Keyboard|Key"
 msgid "CapsLk"
@@ -205,6 +211,12 @@ msgstr "Feststelltaste"
 msgctxt "Action"
 msgid "Cheat Dive"
 msgstr "Cheat Tauchen"
+
+#. translators: TR charmap encoding
+#: menu/compassmenustate.cpp:205
+#, fuzzy
+msgid "Cheated"
+msgstr "Getcheatet"
 
 #. translators: TR charmap encoding
 #: menu/menudisplay.cpp:339
@@ -561,6 +573,11 @@ msgid "Large Medi Pack"
 msgstr "Gro=es Medi-Pack"
 
 #. translators: TR charmap encoding
+#: menu/compassmenustate.cpp:98
+msgid "Large Medi Packs"
+msgstr "Gro=e Medi-Packs"
+
+#. translators: TR charmap encoding
 #: hid/names.cpp:334
 msgctxt "Action"
 msgid "Large Medipack"
@@ -631,7 +648,7 @@ msgid "Magnum Clips"
 msgstr "Magnum-Munition"
 
 #. translators: TR charmap encoding
-#: menu/compassmenustate.cpp:178 menu/menudisplay.cpp:374
+#: menu/compassmenustate.cpp:200 menu/menudisplay.cpp:374
 msgid "Magnums"
 msgstr "Magnums"
 
@@ -852,7 +869,7 @@ msgid "Pickups"
 msgstr "Gegenst~ande"
 
 #. translators: TR charmap encoding
-#: menu/compassmenustate.cpp:175 menu/menudisplay.cpp:352
+#: menu/compassmenustate.cpp:197 menu/menudisplay.cpp:352
 msgid "Pistols"
 msgstr "Pistolen"
 
@@ -1016,7 +1033,7 @@ msgid "Shortcuts"
 msgstr "Schnellzugriff"
 
 #. translators: TR charmap encoding
-#: menu/compassmenustate.cpp:176 menu/menudisplay.cpp:363
+#: menu/compassmenustate.cpp:198 menu/menudisplay.cpp:363
 msgid "Shotgun"
 msgstr "Schrotflinte"
 
@@ -1029,6 +1046,11 @@ msgstr "Schrot-Munition"
 #: menu/menudisplay.cpp:451
 msgid "Small Medi Pack"
 msgstr "Kleines Medi-Pack"
+
+#. translators: TR charmap encoding
+#: menu/compassmenustate.cpp:87
+msgid "Small Medi Packs"
+msgstr "Kleine Medi-Packs"
 
 #. translators: TR charmap encoding
 #: hid/names.cpp:332
@@ -1052,11 +1074,6 @@ msgstr "Leertaste"
 msgctxt "Gamepad|Button"
 msgid "Start"
 msgstr "Start"
-
-#. translators: TR charmap encoding
-#: menu/compassmenustate.cpp:38
-msgid "Statistics"
-msgstr "Statistiken"
 
 #. translators: TR charmap encoding
 #: hid/names.cpp:348
@@ -1095,13 +1112,19 @@ msgid "TIME TAKEN %1%:%2$02d:%3$02d"
 msgstr "Ben~otigte Zeit %1%:%2$02d:%3$02d"
 
 #. translators: TR charmap encoding
+#: menu/compassmenustate.cpp:50
+msgctxt "gamestats"
+msgid "TOTAL"
+msgstr "GESAMT"
+
+#. translators: TR charmap encoding
 #: hid/names.cpp:119
 msgctxt "Keyboard|Key"
 msgid "Tab"
 msgstr "Tab"
 
 #. translators: TR charmap encoding
-#: menu/compassmenustate.cpp:87
+#: menu/compassmenustate.cpp:109
 msgid "Time Taken"
 msgstr "Ben~otigte Zeit"
 
@@ -1128,12 +1151,6 @@ msgstr "Zum Zur~ucksetzen einer Zuordnung, %1% f~ur %2% Sekunden halten."
 #, boost-format
 msgid "To reset all mappings, hold %1% for %2% seconds."
 msgstr "Zum Zur~ucksetzen aller Zuordnungen, %1% f~ur %2% Sekunden halten."
-
-#. translators: TR charmap encoding
-#: menu/compassmenustate.cpp:50
-msgctxt "gamestats"
-msgid "Total"
-msgstr "Gesamt"
 
 #. translators: TR charmap encoding
 #: hid/names.cpp:95
@@ -1165,7 +1182,7 @@ msgid "Uzi Clips"
 msgstr "Uzi-Munition"
 
 #. translators: TR charmap encoding
-#: menu/compassmenustate.cpp:177 menu/menudisplay.cpp:385
+#: menu/compassmenustate.cpp:199 menu/menudisplay.cpp:385
 msgid "Uzis"
 msgstr "Uzis"
 

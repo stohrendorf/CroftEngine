@@ -316,9 +316,15 @@ void LaraObject::update()
   else if(getWorld().getPresenter().getInputHandler().hasDebouncedAction(hid::Action::DrawMagnums))
     getWorld().getPlayer().getInventory().tryUse(*this, TR1ItemId::Magnums);
   else if(getWorld().getPresenter().getInputHandler().hasDebouncedAction(hid::Action::ConsumeSmallMedipack))
-    getWorld().getPlayer().getInventory().tryUse(*this, TR1ItemId::SmallMedipack);
+  {
+    if(getWorld().getPlayer().getInventory().tryUse(*this, TR1ItemId::SmallMedipack))
+      ++getWorld().getPlayer().smallMedipacks;
+  }
   else if(getWorld().getPresenter().getInputHandler().hasDebouncedAction(hid::Action::ConsumeLargeMedipack))
-    getWorld().getPlayer().getInventory().tryUse(*this, TR1ItemId::LargeMedipack);
+  {
+    if(getWorld().getPlayer().getInventory().tryUse(*this, TR1ItemId::LargeMedipack))
+      ++getWorld().getPlayer().largeMedipacks;
+  }
 
 #ifndef NDEBUG
   if(getWorld().getPresenter().getInputHandler().hasDebouncedAction(hid::Action::CheatDive))
@@ -2059,10 +2065,12 @@ void LaraObject::updateCheats()
 
     if(getCurrentAnimState() == LaraStateId::JumpForward)
     {
+      getWorld().getPlayer().usedCheats = true;
       getWorld().finishLevel();
     }
     else if(getCurrentAnimState() == LaraStateId::JumpBack)
     {
+      getWorld().getPlayer().usedCheats = true;
       getWorld().getPlayer().getInventory().put(TR1ItemId::PistolsSprite, &getWorld());
 
       getWorld().getPlayer().getInventory().put(TR1ItemId::ShotgunSprite, &getWorld());

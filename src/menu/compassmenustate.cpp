@@ -33,21 +33,23 @@ CompassMenuState::CompassMenuState(const std::shared_ptr<MenuRingTransform>& rin
                                    engine::world::World& world)
     : SelectedMenuState{ringTransform}
     , m_previous{std::move(previous)}
-    , m_grid{std::make_shared<ui::widgets::GridBox>(2 * glm::ivec2{ui::OutlineBorderWidth, ui::OutlineBorderWidth})}
-    , m_container{
-        std::make_shared<ui::widgets::GroupBox>(/* translators: TR charmap encoding */ _("Statistics"), m_grid)}
+    , m_grid{std::make_shared<ui::widgets::GridBox>(glm::ivec2{ui::FontHeight, 2 * ui::OutlineBorderWidth})}
+    , m_container{std::make_shared<ui::widgets::GroupBox>(util::escape(world.getTitle()), m_grid)}
 {
   const auto& player = world.getPlayer();
 
-  m_grid->setExtents(4, 5);
+  m_grid->setExtents(3, 7);
+  m_grid->setAlignRight(1, true);
+  m_grid->setAlignRight(2, true);
 
-  auto label = std::make_shared<ui::widgets::Label>(util::escape(world.getTitle()));
+  auto label
+    = std::make_shared<ui::widgets::Label>(/* translators: TR charmap encoding */ pgettext("gamestats", "CURRENT"));
   label->fitToContent();
   m_grid->set(1, 0, std::move(label));
 
-  label = std::make_shared<ui::widgets::Label>(/* translators: TR charmap encoding */ pgettext("gamestats", "Total"));
+  label = std::make_shared<ui::widgets::Label>(/* translators: TR charmap encoding */ pgettext("gamestats", "TOTAL"));
   label->fitToContent();
-  m_grid->set(3, 0, std::move(label));
+  m_grid->set(2, 0, std::move(label));
 
   label = std::make_shared<ui::widgets::Label>(/* translators: TR charmap encoding */ _("Pickups"));
   label->fitToContent();
@@ -58,7 +60,7 @@ CompassMenuState::CompassMenuState(const std::shared_ptr<MenuRingTransform>& rin
 
   label = std::make_shared<ui::widgets::Label>(std::to_string(player.pickupsTotal + player.pickups));
   label->fitToContent();
-  m_grid->set(3, 1, std::move(label));
+  m_grid->set(2, 1, std::move(label));
 
   label = std::make_shared<ui::widgets::Label>(/* translators: TR charmap encoding */ _("Secrets"));
   label->fitToContent();
@@ -69,7 +71,7 @@ CompassMenuState::CompassMenuState(const std::shared_ptr<MenuRingTransform>& rin
 
   label = std::make_shared<ui::widgets::Label>(std::to_string(player.secretsTotal + player.secrets));
   label->fitToContent();
-  m_grid->set(3, 2, std::move(label));
+  m_grid->set(2, 2, std::move(label));
 
   label = std::make_shared<ui::widgets::Label>(/* translators: TR charmap encoding */ _("Kills"));
   label->fitToContent();
@@ -80,11 +82,33 @@ CompassMenuState::CompassMenuState(const std::shared_ptr<MenuRingTransform>& rin
 
   label = std::make_shared<ui::widgets::Label>(std::to_string(player.killsTotal + player.kills));
   label->fitToContent();
-  m_grid->set(3, 3, std::move(label));
+  m_grid->set(2, 3, std::move(label));
+
+  label = std::make_shared<ui::widgets::Label>(/* translators: TR charmap encoding */ _("Small Medi Packs"));
+  label->fitToContent();
+  m_grid->set(0, 4, std::move(label));
+  label = std::make_shared<ui::widgets::Label>(std::to_string(player.smallMedipacks));
+  label->fitToContent();
+  m_grid->set(1, 4, std::move(label));
+
+  label = std::make_shared<ui::widgets::Label>(std::to_string(player.smallMedipacksTotal + player.smallMedipacks));
+  label->fitToContent();
+  m_grid->set(2, 4, std::move(label));
+
+  label = std::make_shared<ui::widgets::Label>(/* translators: TR charmap encoding */ _("Large Medi Packs"));
+  label->fitToContent();
+  m_grid->set(0, 5, std::move(label));
+  label = std::make_shared<ui::widgets::Label>(std::to_string(player.largeMedipacks));
+  label->fitToContent();
+  m_grid->set(1, 5, std::move(label));
+
+  label = std::make_shared<ui::widgets::Label>(std::to_string(player.largeMedipacksTotal + player.largeMedipacks));
+  label->fitToContent();
+  m_grid->set(2, 5, std::move(label));
 
   label = std::make_shared<ui::widgets::Label>(/* translators: TR charmap encoding */ _("Time Taken"));
   label->fitToContent();
-  m_grid->set(0, 4, std::move(label));
+  m_grid->set(0, 6, std::move(label));
 
   {
     const auto seconds = std::chrono::duration_cast<std::chrono::seconds>(player.timeSpent);
@@ -106,7 +130,7 @@ CompassMenuState::CompassMenuState(const std::shared_ptr<MenuRingTransform>& rin
 
     label = std::make_shared<ui::widgets::Label>(text);
     label->fitToContent();
-    m_grid->set(1, 4, std::move(label));
+    m_grid->set(1, 6, std::move(label));
   }
 
   {
@@ -129,7 +153,7 @@ CompassMenuState::CompassMenuState(const std::shared_ptr<MenuRingTransform>& rin
 
     label = std::make_shared<ui::widgets::Label>(text);
     label->fitToContent();
-    m_grid->set(3, 4, std::move(label));
+    m_grid->set(2, 6, std::move(label));
   }
 
   const auto& inv = player.getInventory();
@@ -142,7 +166,7 @@ CompassMenuState::CompassMenuState(const std::shared_ptr<MenuRingTransform>& rin
       return;
     }
 
-    m_grid->setExtents(5, y0 + 2);
+    m_grid->setExtents(3, y0 + 2);
 
     auto label = std::make_shared<ui::widgets::Label>(/* translators: TR charmap encoding */ _("%1% Hits", weaponName));
     label->fitToContent();
@@ -153,7 +177,7 @@ CompassMenuState::CompassMenuState(const std::shared_ptr<MenuRingTransform>& rin
 
     label = std::make_shared<ui::widgets::Label>(std::to_string(ammo.hitsTotal + ammo.hits));
     label->fitToContent();
-    m_grid->set(3, y0, std::move(label));
+    m_grid->set(2, y0, std::move(label));
 
     label = std::make_shared<ui::widgets::Label>(/* translators: TR charmap encoding */ _("%1% Misses", weaponName));
     label->fitToContent();
@@ -164,16 +188,24 @@ CompassMenuState::CompassMenuState(const std::shared_ptr<MenuRingTransform>& rin
 
     label = std::make_shared<ui::widgets::Label>(std::to_string(ammo.missesTotal + ammo.misses));
     label->fitToContent();
-    m_grid->set(3, y0 + 1, std::move(label));
+    m_grid->set(2, y0 + 1, std::move(label));
 
     y0 += 2;
   };
 
-  size_t row = 5;
+  size_t row = 7;
   addAmmoStats(/* translators: TR charmap encoding */ _("Pistols"), engine::WeaponType::Pistols, row);
   addAmmoStats(/* translators: TR charmap encoding */ _("Shotgun"), engine::WeaponType::Shotgun, row);
   addAmmoStats(/* translators: TR charmap encoding */ _("Uzis"), engine::WeaponType::Uzis, row);
   addAmmoStats(/* translators: TR charmap encoding */ _("Magnums"), engine::WeaponType::Magnums, row);
+
+  if(player.usedCheats)
+  {
+    m_grid->setExtents(3, row + 1);
+    label = std::make_shared<ui::widgets::Label>(/* translators: TR charmap encoding */ _("Cheated"));
+    label->fitToContent();
+    m_grid->set(0, row, std::move(label));
+  }
 
   m_grid->fitToContent();
   m_container->fitToContent();

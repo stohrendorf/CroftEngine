@@ -42,8 +42,13 @@ public:
   size_t killsTotal = 0;
   size_t secrets = 0;
   size_t secretsTotal = 0;
+  size_t smallMedipacks = 0;
+  size_t smallMedipacksTotal = 0;
+  size_t largeMedipacks = 0;
+  size_t largeMedipacksTotal = 0;
   std::chrono::milliseconds timeSpent{0};
   std::chrono::milliseconds timeSpentTotal{0};
+  bool usedCheats = false;
 
   void resetStats()
   {

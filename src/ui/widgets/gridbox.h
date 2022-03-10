@@ -107,6 +107,7 @@ public:
   void setExtents(size_t x, size_t y)
   {
     m_widgets.resize(boost::extents[x][y]);
+    m_alignRight.resize(x, false);
     m_columnSizes.resize(x, 0);
     m_rowSizes.resize(y, 0);
     recalculateTotalSize();
@@ -150,6 +151,11 @@ public:
     return getWidget(x, y);
   }
 
+  void setAlignRight(size_t column, bool right)
+  {
+    m_alignRight.at(column) = right;
+  }
+
 private:
   void recalculateTotalSize();
 
@@ -159,6 +165,7 @@ private:
   WidgetArray m_widgets{};
   std::tuple<size_t, size_t> m_selected{0, 0};
   glm::ivec2 m_separation;
+  std::vector<bool> m_alignRight{};
   std::vector<int> m_columnSizes{};
   std::vector<int> m_rowSizes{};
 };

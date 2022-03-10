@@ -25,8 +25,13 @@ void Player::serialize(const serialization::Serializer<world::World>& ser)
       S_NVO("killsTotal", killsTotal),
       S_NV("secrets", secrets),
       S_NVO("secretsTotal", secretsTotal),
+      S_NVO("smallMedipacks", smallMedipacks),
+      S_NVO("smallMedipacksTotal", smallMedipacksTotal),
+      S_NVO("largeMedipacks", largeMedipacks),
+      S_NVO("largeMedipacksTotal", largeMedipacksTotal),
       S_NV("timeSpent", timeSpent),
-      S_NVO("timeSpentTotal", timeSpentTotal));
+      S_NVO("timeSpentTotal", timeSpentTotal),
+      S_NVO("usedCheats", usedCheats));
 
   if(ser.loading && ser.context.getObjectManager().getLaraPtr() != nullptr)
     ser.lazy(

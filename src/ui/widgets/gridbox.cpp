@@ -19,8 +19,9 @@ GridBox::~GridBox() = default;
 
 void GridBox::draw(ui::Ui& ui, const engine::Presenter& presenter) const
 {
-  Expects(m_columnSizes.size() == m_widgets.shape()[0]);
-  Expects(m_rowSizes.size() == m_widgets.shape()[1]);
+  gsl_Assert(m_columnSizes.size() == m_widgets.shape()[0]);
+  gsl_Assert(m_alignRight.size() == m_widgets.shape()[0]);
+  gsl_Assert(m_rowSizes.size() == m_widgets.shape()[1]);
 
   int xPos = m_position.x;
   for(size_t x = 0; x < m_widgets.shape()[0]; ++x)
@@ -31,7 +32,10 @@ void GridBox::draw(ui::Ui& ui, const engine::Presenter& presenter) const
       const auto& widget = m_widgets[x][y];
       if(widget != nullptr)
       {
-        widget->setPosition({xPos, yPos});
+        int alignment = 0;
+        if(m_alignRight[x])
+          alignment = m_columnSizes[x] - widget->getSize().x;
+        widget->setPosition({xPos + alignment, yPos});
         widget->draw(ui, presenter);
       }
 
@@ -80,8 +84,9 @@ void GridBox::setSize(const glm::ivec2& size)
 
 void GridBox::fitToContent()
 {
-  Expects(m_columnSizes.size() == m_widgets.shape()[0]);
-  Expects(m_rowSizes.size() == m_widgets.shape()[1]);
+  gsl_Assert(m_columnSizes.size() == m_widgets.shape()[0]);
+  gsl_Assert(m_alignRight.size() == m_widgets.shape()[0]);
+  gsl_Assert(m_rowSizes.size() == m_widgets.shape()[1]);
 
   for(size_t x = 0; x < m_widgets.shape()[0]; ++x)
   {

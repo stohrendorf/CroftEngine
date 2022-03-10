@@ -47,10 +47,12 @@ std::unique_ptr<MenuState> DoneMenuState::onFrame(ui::Ui& /*ui*/, engine::world:
     world.getPlayer().getInventory().tryUse(world.getObjectManager().getLara(), engine::TR1ItemId::Uzis);
     break;
   case engine::TR1ItemId::SmallMedipack:
-    world.getPlayer().getInventory().tryUse(world.getObjectManager().getLara(), engine::TR1ItemId::SmallMedipack);
+    if(world.getPlayer().getInventory().tryUse(world.getObjectManager().getLara(), engine::TR1ItemId::SmallMedipack))
+      ++world.getPlayer().smallMedipacks;
     break;
   case engine::TR1ItemId::LargeMedipack:
-    world.getPlayer().getInventory().tryUse(world.getObjectManager().getLara(), engine::TR1ItemId::LargeMedipack);
+    if(world.getPlayer().getInventory().tryUse(world.getObjectManager().getLara(), engine::TR1ItemId::LargeMedipack))
+      ++world.getPlayer().largeMedipacks;
     break;
   default:
     break;
