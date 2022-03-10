@@ -49,10 +49,10 @@ private:
   struct Track
   {
     int number = 0;
-    int start = 0;
-    int length = 0;
-    int skip = 0;
-    int sectorSize = 0;
+    size_t start = 0;
+    size_t length = 0;
+    size_t skip = 0;
+    size_t sectorSize = 0;
     bool mode2 = false;
     std::shared_ptr<BinaryFile> file{};
   };
@@ -69,7 +69,7 @@ private:
 
   bool loadIsoFile(const std::filesystem::path& filename);
   bool loadCueSheet(const std::filesystem::path& cuefile);
-  bool addTrack(Track& curr, int& shift, int prestart, int& totalPregap, int currPregap);
+  bool addTrack(Track& curr, size_t& shift, size_t prestart, size_t& totalPregap, size_t currPregap);
 
   std::vector<Track> m_tracks;
 };

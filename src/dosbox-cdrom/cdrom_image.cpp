@@ -26,13 +26,12 @@
 #include <fstream>
 #include <vector>
 
-#define MAX_LINE_LENGTH 512
-#define MAX_FILENAME_LENGTH 256
-#define COOKED_SECTOR_SIZE 2048
-#define RAW_SECTOR_SIZE 2352
+#define MAX_FILENAME_LENGTH 256u
+#define COOKED_SECTOR_SIZE 2048u
+#define RAW_SECTOR_SIZE 2352u
 
-#define CD_FPS 75
-#define MSF_TO_FRAMES(M, S, F) ((M)*60 * CD_FPS + (S)*CD_FPS + (F))
+#define CD_FPS 75u
+#define MSF_TO_FRAMES(M, S, F) ((M)*60u * CD_FPS + (S)*CD_FPS + (F))
 
 namespace cdrom
 {
@@ -42,10 +41,10 @@ void getCueKeyword(std::string& keyword, std::istream& in)
 {
   in >> keyword;
   for(char& i : keyword)
-    i = std::toupper(i);
+    i = gsl::narrow<char>(std::toupper(i));
 }
 
-bool getCueFrame(int& frames, std::istream& in)
+bool getCueFrame(size_t& frames, std::istream& in)
 {
   std::string msf;
   in >> msf;
@@ -55,14 +54,14 @@ bool getCueFrame(int& frames, std::istream& in)
   {
     BOOST_LOG_TRIVIAL(error) << "could not parse cue frame " << msf;
   }
-  frames = MSF_TO_FRAMES(min, sec, fr);
+  frames = gsl::narrow<size_t>(MSF_TO_FRAMES(min, sec, fr));
 
   return success;
 }
 
 void getCueString(std::string& str, std::istream& in)
 {
-  int pos = (int)in.tellg();
+  const auto pos = in.tellg();
   in >> str;
   if(str[0] != '\"')
     return;
@@ -74,22 +73,22 @@ void getCueString(std::string& str, std::istream& in)
   }
 
   in.seekg(pos, std::ios::beg);
-  std::array<char, MAX_FILENAME_LENGTH> buffer;
-  in.getline(buffer.data(), MAX_FILENAME_LENGTH, '\"'); // skip
-  in.getline(buffer.data(), MAX_FILENAME_LENGTH, '\"');
+  std::array<char, MAX_FILENAME_LENGTH> buffer{};
+  in.getline(buffer.data(), buffer.size() - 1, '\"'); // skip
+  in.getline(buffer.data(), buffer.size() - 1, '\"');
   str = buffer.data();
 }
 
 bool canReadPVD(BinaryFile& file, int sectorSize, bool mode2)
 {
-  std::array<uint8_t, COOKED_SECTOR_SIZE> pvd;
+  std::array<uint8_t, COOKED_SECTOR_SIZE> pvd{};
   int seek = 16 * sectorSize; // first vd is located at sector 16
   if(sectorSize == RAW_SECTOR_SIZE && !mode2)
     seek += 16;
   if(mode2)
     seek += 24;
-  if(!file.read(pvd.data(), seek, COOKED_SECTOR_SIZE))
-    BOOST_LOG_TRIVIAL(error) << "failed to read " << COOKED_SECTOR_SIZE << " bytes from " << seek;
+  if(!file.read(pvd.data(), seek, pvd.size() - 1))
+    BOOST_LOG_TRIVIAL(error) << "failed to read " << pvd.size() - 1 << " bytes from " << seek;
   // pvd[0] = descriptor type, pvd[1..5] = standard identifier, pvd[6] = iso version (+8 for High Sierra)
   return ((pvd[0] == 1 && !strncmp((char*)(&pvd[1]), "CD001", 5) && pvd[6] == 1)
           || (pvd[8] == 1 && !strncmp((char*)(&pvd[9]), "CDROM", 5) && pvd[14] == 1));
@@ -145,7 +144,7 @@ bool CdImage::readSectors(std::vector<uint8_t>& buffer, size_t sector, size_t nu
 
 bool CdImage::read(std::vector<uint8_t>& buffer, size_t sector, std::streamsize size)
 {
-  const auto numSectors = (size + COOKED_SECTOR_SIZE - 1) / COOKED_SECTOR_SIZE;
+  const size_t numSectors = (size + COOKED_SECTOR_SIZE - 1) / COOKED_SECTOR_SIZE;
   buffer.resize(numSectors * COOKED_SECTOR_SIZE);
 
   for(size_t i = 0; i < numSectors; i++)
@@ -180,7 +179,7 @@ bool CdImage::readSector(const gsl::span<uint8_t>& buffer, size_t sector)
   if(track < 0)
     return false;
 
-  int seek = m_tracks[track].skip + (sector - m_tracks[track].start) * m_tracks[track].sectorSize;
+  size_t seek = m_tracks[track].skip + (sector - m_tracks[track].start) * m_tracks[track].sectorSize;
   if(m_tracks[track].sectorSize == RAW_SECTOR_SIZE && !m_tracks[track].mode2)
     seek += 16;
   if(m_tracks[track].mode2)
@@ -242,10 +241,10 @@ bool CdImage::loadCueSheet(const std::filesystem::path& cuefile)
 {
   Track track{};
   m_tracks.clear();
-  int shift = 0;
-  int currPregap = 0;
-  int totalPregap = 0;
-  int prestart = 0;
+  size_t shift = 0;
+  size_t currPregap = 0;
+  size_t totalPregap = 0;
+  size_t prestart = 0;
   bool success;
   bool canAddTrack = false;
   std::ifstream in;
@@ -259,8 +258,8 @@ bool CdImage::loadCueSheet(const std::filesystem::path& cuefile)
   while(!in.eof())
   {
     // get next line
-    std::array<char, MAX_LINE_LENGTH> buf;
-    in.getline(buf.data(), MAX_LINE_LENGTH);
+    std::array<char, 512> buf{};
+    in.getline(buf.data(), buf.size() - 1);
     if(in.fail() && !in.eof())
       return false; // probably a binary file
     std::istringstream line(buf.data());
@@ -321,7 +320,7 @@ bool CdImage::loadCueSheet(const std::filesystem::path& cuefile)
     {
       int index;
       line >> index;
-      int frame;
+      size_t frame;
       success = getCueFrame(frame, line);
 
       if(index == 1)
@@ -395,10 +394,10 @@ bool CdImage::loadCueSheet(const std::filesystem::path& cuefile)
   return true;
 }
 
-bool CdImage::addTrack(Track& curr, int& shift, int prestart, int& totalPregap, int currPregap)
+bool CdImage::addTrack(Track& curr, size_t& shift, size_t prestart, size_t& totalPregap, size_t currPregap)
 {
   // frames between index 0(prestart) and 1(curr.start) must be skipped
-  int skip = 0;
+  size_t skip = 0;
   if(prestart > 0)
   {
     if(prestart > curr.start)
@@ -421,7 +420,7 @@ bool CdImage::addTrack(Track& curr, int& shift, int prestart, int& totalPregap, 
     return true;
   }
 
-  Track& prev = *(m_tracks.end() - 1);
+  Track& prev = m_tracks.back();
 
   // current track consumes data from the same file as the previous
   if(prev.file == curr.file)

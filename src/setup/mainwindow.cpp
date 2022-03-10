@@ -207,9 +207,9 @@ void MainWindow::importGameData()
     return;
 
   const auto srcPath = QFileInfo{imageOrTombExe}.path();
-  if(QFileInfo{imageOrTombExe}.fileName().toLower() != "tomb.exe")
+  if(QFileInfo{imageOrTombExe}.fileName().toLower() == "game.dat")
   {
-    extractImage(*gameDatPath, findUserDataDir().value() / "data" / "tr1");
+    extractImage(imageOrTombExe.toStdString(), findUserDataDir().value() / "data" / "tr1");
   }
   else
   {

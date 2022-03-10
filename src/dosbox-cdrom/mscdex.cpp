@@ -28,24 +28,24 @@ uint32_t mem_readd(const void* address)
 // ECMA 119 7.3.3
 struct BothByteOrders
 {
-  uint32_t le;
-  uint32_t be;
+  uint32_t le = 0;
+  uint32_t be = 0;
 };
 
 // ECMA 119 9.1
 struct DirectoryRecord
 {
-  uint8_t LEN_DR;
-  uint8_t extendedAttributeLength;
-  BothByteOrders extentLocation;
-  BothByteOrders dataLength;
-  uint8_t dateTime[7];
-  uint8_t fileFlags;
-  uint8_t fileUnitSize;
-  uint8_t interleaveGapSize;
-  uint32_t volumeSequenceNumber;
-  uint8_t LEN_FI;
-  char identifierStart;
+  uint8_t LEN_DR = 0;
+  uint8_t extendedAttributeLength = 0;
+  BothByteOrders extentLocation{};
+  BothByteOrders dataLength{};
+  uint8_t dateTime[7]{};
+  uint8_t fileFlags = 0;
+  uint8_t fileUnitSize = 0;
+  uint8_t interleaveGapSize = 0;
+  uint32_t volumeSequenceNumber = 0;
+  uint8_t LEN_FI = 0;
+  char identifierStart = 0;
 };
 #pragma pack(pop)
 

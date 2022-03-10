@@ -14,10 +14,11 @@ DownloadProgress::DownloadProgress(QUrl url, std::filesystem::path target, QWidg
     , ui(new Ui::DownloadProgress)
     , m_url{std::move(url)}
     , m_target{std::move(target)}
+    , m_accessManager{new QNetworkAccessManager{this}}
 {
   ui->setupUi(this);
   ui->url->setText(m_url.toString());
-  connect(&m_accessManager, &QNetworkAccessManager::finished, this, &DownloadProgress::finished);
+  connect(m_accessManager, &QNetworkAccessManager::finished, this, &DownloadProgress::finished);
   setWindowFlag(Qt::WindowType::Dialog);
 }
 
@@ -25,6 +26,9 @@ DownloadProgress::~DownloadProgress()
 {
   delete ui;
   m_reply->deleteLater();
+  m_reply = nullptr;
+  m_accessManager->deleteLater();
+  m_accessManager = nullptr;
 }
 
 void DownloadProgress::downloadProgress(qint64 bytesReceived, qint64 bytesTotal)
@@ -57,7 +61,8 @@ void DownloadProgress::start()
   if(m_reply != nullptr)
     return;
 
-  m_reply = m_accessManager.get(QNetworkRequest(m_url));
+  gsl_Assert(m_accessManager != nullptr);
+  m_reply = m_accessManager->get(QNetworkRequest(m_url));
   connect(m_reply, &QNetworkReply::downloadProgress, this, &DownloadProgress::downloadProgress);
 #if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
   connect(m_reply, &QNetworkReply::errorOccurred, this, &DownloadProgress::errorOccurred);
@@ -69,6 +74,7 @@ void DownloadProgress::start()
 
 void DownloadProgress::errorOccurred(QNetworkReply::NetworkError /*error*/)
 {
+  gsl_Assert(m_reply != nullptr);
   QMessageBox::critical(
     this, "Download Failed", QString("The download failed with an error: %1").arg(m_reply->errorString()));
 }
