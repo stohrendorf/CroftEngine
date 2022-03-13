@@ -1194,13 +1194,16 @@ void World::drawPickupWidgets(ui::Ui& ui)
 {
   auto x = ui.getSize().x;
   auto y = ui.getSize().y * 9 / 10;
+
+  static constexpr float WidgetScale = 0.5f;
+
   for(const auto& widget : m_pickupWidgets)
   {
     if(widget.expired())
       continue;
 
-    x -= widget.getWidth();
-    widget.draw(ui, x, y, m_engine.getPresenter().getTrFont());
+    x -= std::lround(gsl::narrow_cast<float>(widget.getWidth()) * WidgetScale);
+    widget.draw(ui, x, y, m_engine.getPresenter().getTrFont(), WidgetScale);
   }
 }
 

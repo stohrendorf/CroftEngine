@@ -23,9 +23,9 @@ public:
     return m_duration <= 0_frame;
   }
 
-  void draw(ui::Ui& ui, int x, int y, const TRFont& font) const
+  void draw(ui::Ui& ui, int x, int y, const TRFont& font, float scale) const
   {
-    ui.draw(m_sprite, {x, y});
+    ui.draw(m_sprite, {x, y}, scale);
     if(m_count <= 1)
       return;
 
