@@ -34,7 +34,9 @@ void GhostModel::apply(const world::World& world, const GhostFrame& frame)
   }
 
   if(compositor.empty())
+  {
     setRenderable(nullptr);
+  }
   else
   {
     auto mesh = compositor.toMesh(*world.getPresenter().getMaterialManager(), true, false, getName());
@@ -42,6 +44,7 @@ void GhostModel::apply(const world::World& world, const GhostFrame& frame)
                                  world.getPresenter().getMaterialManager()->getGhost());
     mesh->getMaterialGroup().set(render::scene::RenderMode::DepthOnly, nullptr);
     mesh->getRenderState().setDepthWrite(false);
+    mesh->getRenderState().setScissorTest(false);
     setRenderable(mesh);
   }
 
