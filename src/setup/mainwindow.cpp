@@ -145,7 +145,9 @@ void MainWindow::onOpenDataLocationClicked()
 
 void MainWindow::onImportClicked()
 {
-  importGameData();
+  if(!importGameData())
+    return;
+  
   QMessageBox::information(this, "Data Imported", "Game Data has been imported.");
 
   if(!std::filesystem::is_regular_file(findUserDataDir().value() / "data" / "tr1" / "AUDIO" / "002.ogg"))
@@ -258,7 +260,7 @@ std::optional<std::filesystem::path> tryGetSteamImagePath()
 #endif
 } // namespace
 
-void MainWindow::importGameData()
+bool MainWindow::importGameData()
 {
   std::optional<std::filesystem::path> gameDatPath;
 #ifdef WIN32
@@ -281,14 +283,14 @@ void MainWindow::importGameData()
     if(askUseFoundImage.clickedButton() == useFoundImageButton)
     {
       extractImage(*gameDatPath, findUserDataDir().value() / "data" / "tr1");
-      return;
+      return true;
     }
   }
 
   const auto imageOrTombExe
     = QFileDialog::getOpenFileName(this, "Select Tomb Raider 1 Data", QString{}, "Game Data Files (tomb.exe GAME.DAT)");
   if(imageOrTombExe.isEmpty())
-    return;
+    return false;
 
   const auto srcPath = QFileInfo{imageOrTombExe}.path();
   if(QFileInfo{imageOrTombExe}.fileName().toLower() == "game.dat")
@@ -303,7 +305,9 @@ void MainWindow::importGameData()
       copyDir(srcPath, targetDir, subDirName, true);
     }
   }
+  return true;
 }
+
 void MainWindow::copyDir(const QString& srcPath,
                          const std::filesystem::path& targetDir,
                          const std::string& subDirName,

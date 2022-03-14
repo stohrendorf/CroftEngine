@@ -28,7 +28,7 @@ private slots:
 
 private:
   Ui::MainWindow* ui;
-  void importGameData();
+  bool importGameData();
   void copyDir(const QString& srcPath,
                const std::filesystem::path& targetDir,
                const std::string& subDirName,
