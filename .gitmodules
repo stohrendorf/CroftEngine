@@ -4,3 +4,6 @@
 [submodule "3rdparty/type_safe"]
 	path = 3rdparty/type_safe
 	url = https://github.com/foonathan/type_safe.git
+[submodule "3rdparty/ValveFileVDF"]
+	path = 3rdparty/ValveFileVDF
+	url = https://github.com/TinyTinni/ValveFileVDF

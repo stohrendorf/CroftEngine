@@ -1,6 +1,7 @@
 include( get_qt )
 include( get_boost )
 include( get_libarchive )
+include( get_valvefilevdf )
 
 add_library(
         setup_screen
@@ -30,4 +31,5 @@ target_link_libraries(
         dosbox-cdrom
         dosbox-cdrom
         LibArchive::LibArchive
+        valve-file-vdf::valve-file-vdf
 )

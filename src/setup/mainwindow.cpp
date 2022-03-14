@@ -17,6 +17,8 @@
 
 #ifdef WIN32
 #  define WIN32_LEAN_AND_MEAN
+#  include "vdf_parser.hpp"
+
 #  include <windows.h>
 #endif
 
@@ -157,28 +159,110 @@ void MainWindow::onImportClicked()
   }
 }
 
+namespace
+{
+#ifdef WIN32
+std::optional<std::filesystem::path> tryGetSteamImagePath()
+{
+  const auto tryGetLibraryFolders = [](const std::wstring& path) -> std::vector<std::filesystem::path>
+  {
+    const auto installPath = readRegistryPath(HKEY_LOCAL_MACHINE, path, L"InstallPath");
+    if(!installPath.has_value())
+    {
+      qDebug() << "Steam InstallPath not found in registry";
+      return {};
+    }
+
+    const auto libraryFolderVdfPath = *installPath / "steamapps" / "libraryfolders.vdf";
+    if(!std::filesystem::is_regular_file(libraryFolderVdfPath))
+    {
+      qDebug() << "libraryfolders.vdf not found";
+      return {};
+    }
+
+    std::ifstream vdf{libraryFolderVdfPath};
+    auto root = tyti::vdf::read(vdf);
+    if(root.name != "libraryfolders")
+    {
+      qDebug() << "Invalid libraryfolders.vdf";
+      return {};
+    }
+
+    std::vector<std::filesystem::path> paths;
+    for(const auto& [entryId, entryContent] : root.childs)
+    {
+      if(std::any_of(entryId.begin(),
+                     entryId.end(),
+                     [](auto c)
+                     {
+                       return c < '0' || c > '9';
+                     }))
+      {
+        qDebug() << "Invalid library folder entry key";
+        continue;
+      }
+
+      if(auto it = entryContent->attribs.find("path"); it != entryContent->attribs.end())
+      {
+        qDebug() << "Found library folder" << it->second.c_str();
+        paths.emplace_back(it->second);
+      }
+      else
+      {
+        qDebug() << "Incomplete libraryfolders entry content";
+      }
+    }
+
+    return paths;
+  };
+
+  auto libraryFolders = tryGetLibraryFolders(LR"(SOFTWARE\WOW6432Node\Valve\Steam)");
+  if(libraryFolders.empty())
+    libraryFolders = tryGetLibraryFolders(LR"(SOFTWARE\Valve\Steam)");
+  if(libraryFolders.empty())
+    return {};
+
+  for(const auto& libFolder : libraryFolders)
+  {
+    const auto appManifestPath = libFolder / "steamapps" / "appmanifest_224960.acf";
+    qDebug() << "Check manifest:" << appManifestPath.string().c_str();
+    if(!std::filesystem::is_regular_file(appManifestPath))
+    {
+      qDebug() << "appmanifest not found:" << appManifestPath.string().c_str();
+      continue;
+    }
+
+    std::ifstream acf{appManifestPath};
+    auto root = tyti::vdf::read(acf);
+    if(root.name != "AppState")
+    {
+      qDebug() << "Invalid appmanifest";
+      continue;
+    }
+
+    if(auto it = root.attribs.find("installdir"); it != root.attribs.end())
+    {
+      const auto imagePath = libFolder / "steamapps" / "common" / it->second / "GAME.DAT";
+      if(!std::filesystem::is_regular_file(imagePath))
+      {
+        qDebug() << "Image not found:" << imagePath.string().c_str();
+        continue;
+      }
+
+      return imagePath;
+    }
+  }
+
+  return std::nullopt;
+}
+#endif
+} // namespace
+
 void MainWindow::importGameData()
 {
   std::optional<std::filesystem::path> gameDatPath;
 #ifdef WIN32
-  {
-    const auto tryGetImagePath = [](const std::wstring& path) -> std::optional<std::filesystem::path>
-    {
-      const auto installPath = readRegistryPath(HKEY_LOCAL_MACHINE, path, L"InstallPath");
-      if(!installPath.has_value())
-        return std::nullopt;
-
-      const auto img = *installPath / "steamapps" / "common" / "Tomb Raider (I)" / "GAME.DAT";
-      if(!std::filesystem::is_regular_file(img))
-        return std::nullopt;
-
-      return img;
-    };
-
-    gameDatPath = tryGetImagePath(LR"(SOFTWARE\WOW6432Node\Valve\Steam)");
-    if(!gameDatPath.has_value())
-      gameDatPath = tryGetImagePath(LR"(SOFTWARE\Valve\Steam)");
-  }
+  gameDatPath = tryGetSteamImagePath();
 #endif
 
   if(gameDatPath.has_value())
