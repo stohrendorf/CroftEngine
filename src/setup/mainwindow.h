@@ -3,6 +3,7 @@
 #include <QMainWindow>
 // https://bugreports.qt.io/browse/QTBUG-73263
 #include <filesystem>
+#include <optional>
 
 namespace Ui
 {
@@ -24,6 +25,7 @@ private slots:
   void onMigrateClicked();
   void onImportClicked();
   void onSelectGlidosClicked();
+  void onDisableGlidosClicked();
   void extractSoundtrackZip(std::filesystem::path target);
   void resetConfig();
 
@@ -34,5 +36,7 @@ private:
                const std::filesystem::path& targetDir,
                const std::string& subDirName,
                bool overwriteExisting);
+
+  void setGlidosPath(const std::optional<std::string>& path);
 };
 } // namespace setup

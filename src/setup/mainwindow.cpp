@@ -137,6 +137,7 @@ MainWindow::MainWindow(QWidget* parent)
   QObject::connect(ui->importBtn, &QPushButton::clicked, this, &MainWindow::onImportClicked);
   QObject::connect(ui->resetConfig, &QPushButton::clicked, this, &MainWindow::resetConfig);
   QObject::connect(ui->selectGlidos, &QPushButton::clicked, this, &MainWindow::onSelectGlidosClicked);
+  QObject::connect(ui->disableGlidos, &QPushButton::clicked, this, &MainWindow::onDisableGlidosClicked);
 }
 
 MainWindow::~MainWindow()
@@ -489,48 +490,67 @@ void MainWindow::onSelectGlidosClicked()
     return;
 
   const auto path = QFileInfo{texturePack}.absolutePath().toStdString();
+  setGlidosPath(path);
+}
+
+void MainWindow::setGlidosPath(const std::optional<std::string>& path)
+{
+  const auto userDataPath = findUserDataDir();
+
+  std::string oldLocale = gsl::not_null{setlocale(LC_NUMERIC, nullptr)}.get();
+  setlocale(LC_NUMERIC, "C");
+
+  std::string buffer;
   {
-    std::string oldLocale = gsl::not_null{setlocale(LC_NUMERIC, nullptr)}.get();
-    setlocale(LC_NUMERIC, "C");
+    std::ifstream file{*userDataPath / "config.yaml", std::ios::in};
+    Expects(file.is_open());
+    file.seekg(0, std::ios::end);
+    const auto size = static_cast<std::size_t>(file.tellg());
+    file.seekg(0, std::ios::beg);
 
-    std::string buffer;
-    {
-      std::ifstream file{*userDataPath / "config.yaml", std::ios::in};
-      Expects(file.is_open());
-      file.seekg(0, std::ios::end);
-      const auto size = static_cast<std::size_t>(file.tellg());
-      file.seekg(0, std::ios::beg);
-
-      buffer.resize(size);
-      file.read(&buffer[0], size);
-    }
-
-    setlocale(LC_NUMERIC, oldLocale.c_str());
-
-    auto tree = ryml::parse(c4::to_csubstr((*userDataPath / "config.yaml").string()), c4::to_csubstr(buffer));
-    auto root = tree.rootref();
-    if(!root["config"].is_map() || !root["config"]["renderSettings"].is_map())
-    {
-      QMessageBox::critical(this, "Invalid Config", "Your configuration file is invalid. Reset your configuration.");
-      return;
-    }
-
-    {
-      auto node = root["config"]["renderSettings"];
-      node.remove_child("glidosPack");
-      node[tree.copy_to_arena(c4::to_csubstr("glidosPack"))] << path;
-    }
-
-    oldLocale = gsl::not_null{setlocale(LC_NUMERIC, nullptr)}.get();
-    setlocale(LC_NUMERIC, "C");
-
-    {
-      std::ofstream file{*userDataPath / "config.yaml", std::ios::out | std::ios::trunc};
-      Expects(file.is_open());
-      file << tree.rootref();
-    }
-
-    setlocale(LC_NUMERIC, oldLocale.c_str());
+    buffer.resize(size);
+    file.read(&buffer[0], size);
   }
+
+  setlocale(LC_NUMERIC, oldLocale.c_str());
+
+  auto tree = ryml::parse(c4::to_csubstr((*userDataPath / "config.yaml").string()), c4::to_csubstr(buffer));
+  auto root = tree.rootref();
+  if(!root["config"].is_map() || !root["config"]["renderSettings"].is_map())
+  {
+    QMessageBox::critical(this, "Invalid Config", "Your configuration file is invalid. Reset your configuration.");
+    return;
+  }
+
+  {
+    auto node = root["config"]["renderSettings"];
+    node.remove_child("glidosPack");
+    auto glidosPack = node[tree.copy_to_arena(c4::to_csubstr("glidosPack"))];
+    if(path.has_value())
+    {
+      glidosPack << *path;
+    }
+    else
+    {
+      glidosPack << "~";
+      glidosPack.set_val_tag(tree.copy_to_arena(c4::to_csubstr("!!null")));
+    }
+  }
+
+  oldLocale = gsl::not_null{setlocale(LC_NUMERIC, nullptr)}.get();
+  setlocale(LC_NUMERIC, "C");
+
+  {
+    std::ofstream file{*userDataPath / "config.yaml", std::ios::out | std::ios::trunc};
+    Expects(file.is_open());
+    file << tree.rootref();
+  }
+
+  setlocale(LC_NUMERIC, oldLocale.c_str());
+}
+
+void MainWindow::onDisableGlidosClicked()
+{
+  setGlidosPath(std::nullopt);
 }
 } // namespace setup

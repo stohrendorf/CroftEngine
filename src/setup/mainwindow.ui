@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>672</width>
-    <height>245</height>
+    <height>247</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -18,17 +18,17 @@
   </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QGridLayout" name="gridLayout">
-    <item row="7" column="1">
+    <item row="8" column="1">
      <widget class="QPushButton" name="closeBtn">
       <property name="text">
        <string>Close</string>
       </property>
      </widget>
     </item>
-    <item row="2" column="1">
-     <widget class="QPushButton" name="importBtn">
+    <item row="4" column="1">
+     <widget class="QPushButton" name="openDataLocation">
       <property name="text">
-       <string>Import Tomb Raider 1 Data</string>
+       <string>Show Data Location</string>
       </property>
      </widget>
     </item>
@@ -39,10 +39,10 @@
       </property>
      </widget>
     </item>
-    <item row="3" column="1">
-     <widget class="QPushButton" name="migrateBtn">
+    <item row="2" column="1">
+     <widget class="QPushButton" name="importBtn">
       <property name="text">
-       <string>Migrate from other installation</string>
+       <string>Import Tomb Raider 1 Data</string>
       </property>
      </widget>
     </item>
@@ -92,19 +92,30 @@
       </item>
      </layout>
     </item>
-    <item row="4" column="1">
-     <widget class="QPushButton" name="openDataLocation">
+    <item row="3" column="1">
+     <widget class="QPushButton" name="migrateBtn">
       <property name="text">
-       <string>Show Data Location</string>
+       <string>Migrate from other installation</string>
       </property>
      </widget>
     </item>
     <item row="6" column="1">
-     <widget class="QPushButton" name="selectGlidos">
-      <property name="text">
-       <string>Select Glidos Texture Pack</string>
-      </property>
-     </widget>
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <item>
+       <widget class="QPushButton" name="selectGlidos">
+        <property name="text">
+         <string>Select Glidos Texture Pack</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="disableGlidos">
+        <property name="text">
+         <string>Disable Glidos Texture Pack</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </item>
    </layout>
   </widget>
