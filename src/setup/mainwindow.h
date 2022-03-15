@@ -23,6 +23,7 @@ private slots:
   void onOpenDataLocationClicked();
   void onMigrateClicked();
   void onImportClicked();
+  void onSelectGlidosClicked();
   void extractSoundtrackZip(std::filesystem::path target);
   void resetConfig();
 

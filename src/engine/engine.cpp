@@ -718,7 +718,7 @@ std::unique_ptr<loader::trx::Glidos> Engine::loadGlidosPack() const
     static constexpr auto TimePerFrame
       = std::chrono::duration_cast<std::chrono::high_resolution_clock::duration>(std::chrono::seconds{1})
         / core::FrameRate.get();
-    return std::make_unique<loader::trx::Glidos>(m_userDataPath / m_engineConfig->renderSettings.glidosPack.value(),
+    return std::make_unique<loader::trx::Glidos>(m_engineConfig->renderSettings.glidosPack.value(),
                                                  [this, &lastUpdate](const std::string& s)
                                                  {
                                                    const auto now = std::chrono::high_resolution_clock::now();

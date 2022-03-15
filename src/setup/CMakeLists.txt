@@ -32,4 +32,5 @@ target_link_libraries(
         dosbox-cdrom
         LibArchive::LibArchive
         valve-file-vdf::valve-file-vdf
+        ryml
 )

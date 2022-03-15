@@ -1,4 +1,9 @@
+// --- FIXME: for whatever reason, compilation fails if this isn't included before mainwindow.h
+#include <ryml.hpp>
+#include <ryml_std.hpp>
+// ---
 #include "mainwindow.h"
+// ---
 
 #include "cdrom.h"
 #include "downloadprogress.h"
@@ -131,6 +136,7 @@ MainWindow::MainWindow(QWidget* parent)
   QObject::connect(ui->migrateBtn, &QPushButton::clicked, this, &MainWindow::onMigrateClicked);
   QObject::connect(ui->importBtn, &QPushButton::clicked, this, &MainWindow::onImportClicked);
   QObject::connect(ui->resetConfig, &QPushButton::clicked, this, &MainWindow::resetConfig);
+  QObject::connect(ui->selectGlidos, &QPushButton::clicked, this, &MainWindow::onSelectGlidosClicked);
 }
 
 MainWindow::~MainWindow()
@@ -147,7 +153,7 @@ void MainWindow::onImportClicked()
 {
   if(!importGameData())
     return;
-  
+
   QMessageBox::information(this, "Data Imported", "Game Data has been imported.");
 
   if(!std::filesystem::is_regular_file(findUserDataDir().value() / "data" / "tr1" / "AUDIO" / "002.ogg"))
@@ -462,5 +468,69 @@ void MainWindow::resetConfig()
 {
   const auto configPath = findUserDataDir().value() / "config.yaml";
   QFile::remove(configPath.string().c_str());
+}
+
+void MainWindow::onSelectGlidosClicked()
+{
+  const auto userDataPath = findUserDataDir();
+  if(!userDataPath.has_value() || !std::filesystem::is_regular_file(*userDataPath / "config.yaml"))
+  {
+    QMessageBox::warning(
+      this, "Not Configured", "To be able to configure a texture pack, you need to start the engine once.");
+    return;
+  }
+
+  QMessageBox::information(this,
+                           "Texture Pack Main File",
+                           "In the following dialog, select a file from the top-most directory of the texture pack.");
+  const auto texturePack = QFileDialog::getOpenFileName(
+    this, "Select Glidos Texture Pack Main File", QString{}, "Texture Pack Main File (*.txt)");
+  if(texturePack.isEmpty())
+    return;
+
+  const auto path = QFileInfo{texturePack}.absolutePath().toStdString();
+  {
+    std::string oldLocale = gsl::not_null{setlocale(LC_NUMERIC, nullptr)}.get();
+    setlocale(LC_NUMERIC, "C");
+
+    std::string buffer;
+    {
+      std::ifstream file{*userDataPath / "config.yaml", std::ios::in};
+      Expects(file.is_open());
+      file.seekg(0, std::ios::end);
+      const auto size = static_cast<std::size_t>(file.tellg());
+      file.seekg(0, std::ios::beg);
+
+      buffer.resize(size);
+      file.read(&buffer[0], size);
+    }
+
+    setlocale(LC_NUMERIC, oldLocale.c_str());
+
+    auto tree = ryml::parse(c4::to_csubstr((*userDataPath / "config.yaml").string()), c4::to_csubstr(buffer));
+    auto root = tree.rootref();
+    if(!root["config"].is_map() || !root["config"]["renderSettings"].is_map())
+    {
+      QMessageBox::critical(this, "Invalid Config", "Your configuration file is invalid. Reset your configuration.");
+      return;
+    }
+
+    {
+      auto node = root["config"]["renderSettings"];
+      node.remove_child("glidosPack");
+      node[tree.copy_to_arena(c4::to_csubstr("glidosPack"))] << path;
+    }
+
+    oldLocale = gsl::not_null{setlocale(LC_NUMERIC, nullptr)}.get();
+    setlocale(LC_NUMERIC, "C");
+
+    {
+      std::ofstream file{*userDataPath / "config.yaml", std::ios::out | std::ios::trunc};
+      Expects(file.is_open());
+      file << tree.rootref();
+    }
+
+    setlocale(LC_NUMERIC, oldLocale.c_str());
+  }
 }
 } // namespace setup

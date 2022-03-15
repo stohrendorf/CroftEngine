@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>672</width>
-    <height>216</height>
+    <height>245</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -18,17 +18,10 @@
   </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QGridLayout" name="gridLayout">
-    <item row="3" column="1">
-     <widget class="QPushButton" name="migrateBtn">
+    <item row="7" column="1">
+     <widget class="QPushButton" name="closeBtn">
       <property name="text">
-       <string>Migrate from other installation</string>
-      </property>
-     </widget>
-    </item>
-    <item row="4" column="1">
-     <widget class="QPushButton" name="openDataLocation">
-      <property name="text">
-       <string>Show Data Location</string>
+       <string>Close</string>
       </property>
      </widget>
     </item>
@@ -39,10 +32,17 @@
       </property>
      </widget>
     </item>
-    <item row="6" column="1">
-     <widget class="QPushButton" name="closeBtn">
+    <item row="5" column="1">
+     <widget class="QPushButton" name="resetConfig">
       <property name="text">
-       <string>Close</string>
+       <string>Clear config</string>
+      </property>
+     </widget>
+    </item>
+    <item row="3" column="1">
+     <widget class="QPushButton" name="migrateBtn">
+      <property name="text">
+       <string>Migrate from other installation</string>
       </property>
      </widget>
     </item>
@@ -92,10 +92,17 @@
       </item>
      </layout>
     </item>
-    <item row="5" column="1">
-     <widget class="QPushButton" name="resetConfig">
+    <item row="4" column="1">
+     <widget class="QPushButton" name="openDataLocation">
       <property name="text">
-       <string>Reset config</string>
+       <string>Show Data Location</string>
+      </property>
+     </widget>
+    </item>
+    <item row="6" column="1">
+     <widget class="QPushButton" name="selectGlidos">
+      <property name="text">
+       <string>Select Glidos Texture Pack</string>
       </property>
      </widget>
     </item>
