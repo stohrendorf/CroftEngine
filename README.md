@@ -25,6 +25,9 @@ An open-source Tomb Raider 1 engine remake.
 *Extensive Statistics*
 ![Extensive Statistics](./readme-assets/stats.jpg)
 
+*New Immersive Water*
+![New Immersive Water](./readme-assets/water.jpg)
+
 *Ghosts - Race Against Yourself!*
 ![Ghosts - Race Against Yourself!](./readme-assets/ghost.jpg)
 
