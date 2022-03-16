@@ -10,6 +10,24 @@ An open-source Tomb Raider 1 engine remake.
 
 ![EdisonEngine logo](./share/splash.png)
 
+*Native Controller Support*
+![Native Controller Support](./readme-assets/controller-config.jpg)
+
+*Native Glidos Texture Pack Support*
+![Native Glidos Texture Pack Support](./readme-assets/glidos-pack.jpg)
+
+*Easy Setup Wizard*
+![Easy Setup Wizard](./readme-assets/setup-wizard.jpg)
+
+*Customisable Graphics*
+![Customisable Graphics](./readme-assets/graphics-settings.jpg)
+
+*Extensive Statistics*
+![Extensive Statistics](./readme-assets/stats.jpg)
+
+*Ghosts - Race Against Yourself!*
+![Ghosts - Race Against Yourself!](./readme-assets/ghost.jpg)
+
 > *Showcase Trailer* (Raina Audron)
 >
 > [![Edison Engine Showcase Trailer](https://img.youtube.com/vi/IAA6ILvQ4Uw/0.jpg)](https://www.youtube.com/watch?v=IAA6ILvQ4Uw)
@@ -81,6 +99,9 @@ The following people deserve some noteworthy credit.
 * [Dirk Stoecker](https://build.opensuse.org/users/dstoecker) for being the package maintainer of the openSUSE packages.
 * [Liinx86](https://www.twitch.tv/liinx86) for being the world's first streamer streaming EdisonEngine on twitch; also
   gave the idea for the Ghost feature.
+* Liinx86 *again* for being the first person of playing from start to finish. A summary of the stream can be
+  found [here](https://www.youtube.com/watch?v=P20YoVw2W6E), courtesy
+  of [jaaystation](https://www.twitch.tv/jaaystation).
 * [Tomb_of_Ash](https://www.twitch.tv/tomb_of_ash) for being the second streamer.
 * [Dfactor Longplays](https://www.youtube.com/channel/UCwLhYb4QDAzQfzbhAHGKjgQ) for showing that the Corner Bug works.
 * All testers reporting bugs.
