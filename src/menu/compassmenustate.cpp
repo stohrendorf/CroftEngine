@@ -9,6 +9,8 @@
 #include "hid/actions.h"
 #include "hid/inputhandler.h"
 #include "menu/selectedmenustate.h"
+#include "menudisplay.h"
+#include "menuring.h"
 #include "ui/core.h"
 #include "ui/ui.h"
 #include "ui/widgets/gridbox.h"
@@ -212,11 +214,16 @@ CompassMenuState::CompassMenuState(const std::shared_ptr<MenuRingTransform>& rin
   m_container->fitToContent();
 }
 
-std::unique_ptr<MenuState> CompassMenuState::onFrame(ui::Ui& ui, engine::world::World& world, MenuDisplay& /*display*/)
+std::unique_ptr<MenuState> CompassMenuState::onFrame(ui::Ui& ui, engine::world::World& world, MenuDisplay& display)
 {
   const auto& inputHandler = world.getEngine().getPresenter().getInputHandler();
   if(inputHandler.hasDebouncedAction(hid::Action::Menu))
+  {
+    auto& object = display.getCurrentRing().getSelectedObject();
+    object.animDirection = -1_frame;
+    object.goalFrame = 0_frame;
     return std::move(m_previous);
+  }
 
   m_grid->fitToContent();
   m_container->fitToContent();
