@@ -448,7 +448,6 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
       case menu::MenuResult::LaraHome:
         return {RunResult::LaraHomeLevel, std::nullopt};
       case menu::MenuResult::RequestLoad:
-        Expects(menu->requestLoad.has_value());
         if(getSavegameMeta(menu->requestLoad).has_value())
         {
           if(allowSave)
@@ -668,7 +667,6 @@ std::pair<RunResult, std::optional<size_t>> Engine::runTitleMenu(world::World& w
     case menu::MenuResult::LaraHome:
       return {RunResult::LaraHomeLevel, std::nullopt};
     case menu::MenuResult::RequestLoad:
-      Expects(menu->requestLoad.has_value());
       if(getSavegameMeta(menu->requestLoad).has_value())
       {
         return {RunResult::RequestLoad, menu->requestLoad};

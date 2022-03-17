@@ -35,6 +35,7 @@ private:
   class SavegameEntry;
 
   std::unique_ptr<MenuState> m_previous;
+  bool m_hasQuicksave = false;
   std::vector<bool> m_hasSavegame;
   std::vector<gslu::nn_shared<SavegameEntry>> m_entries;
   const bool m_loading;

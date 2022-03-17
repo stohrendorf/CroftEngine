@@ -4,6 +4,7 @@
 
 #include <cstddef>
 #include <memory>
+#include <optional>
 
 namespace engine::world
 {
@@ -25,7 +26,8 @@ struct MenuRingTransform;
 class RequestLoadMenuState : public MenuState
 {
 public:
-  explicit RequestLoadMenuState(const std::shared_ptr<MenuRingTransform>& ringTransform, size_t slot)
+  explicit RequestLoadMenuState(const std::shared_ptr<MenuRingTransform>& ringTransform,
+                                const std::optional<size_t>& slot)
       : MenuState{ringTransform}
       , m_slot{slot}
   {
@@ -35,6 +37,6 @@ public:
   std::unique_ptr<MenuState> onFrame(ui::Ui& ui, engine::world::World& world, MenuDisplay& display) override;
 
 private:
-  const size_t m_slot;
+  const std::optional<size_t> m_slot;
 };
 } // namespace menu

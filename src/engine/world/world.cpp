@@ -1047,28 +1047,35 @@ void World::save(const std::optional<size_t>& slot)
   const auto filename = m_engine.getSavegamePath(slot);
   BOOST_LOG_TRIVIAL(info) << "Save " << filename;
   serialization::YAMLDocument<false> doc{filename};
-  SavegameMeta meta{std::filesystem::relative(m_levelFilename, m_engine.getAssetDataPath()).string(), m_title};
+  SavegameMeta meta{std::filesystem::relative(m_levelFilename, m_engine.getAssetDataPath()).string(),
+                    slot.has_value() ? m_title : _("Quicksave")};
   doc.save("meta", meta, meta);
   doc.save("data", *this, *this);
   doc.write();
   getPresenter().disableScreenOverlay();
 }
 
-std::map<size_t, SavegameInfo> World::getSavedGames() const
+std::tuple<std::optional<SavegameInfo>, std::map<size_t, SavegameInfo>> World::getSavedGames() const
 {
-  std::map<size_t, SavegameInfo> result;
-  for(size_t i = 0; i < core::SavegameSlots; ++i)
+  auto getSavegameInfo = [](const std::filesystem::path& path) -> std::optional<SavegameInfo>
   {
-    const auto path = m_engine.getSavegamePath(i);
     if(!std::filesystem::is_regular_file(path))
-      continue;
+      return std::nullopt;
 
     serialization::YAMLDocument<true> doc{path};
     SavegameMeta meta{};
     doc.load("meta", meta, meta);
-    result.emplace(i, SavegameInfo{std::move(meta), std::filesystem::last_write_time(path)});
+    return SavegameInfo{std::move(meta), std::filesystem::last_write_time(path)};
+  };
+
+  std::map<size_t, SavegameInfo> result;
+  for(size_t i = 0; i < core::SavegameSlots; ++i)
+  {
+    const auto path = m_engine.getSavegamePath(i);
+    if(auto info = getSavegameInfo(path); info.has_value())
+      result.emplace(i, *info);
   }
-  return result;
+  return {getSavegameInfo(m_engine.getSavegamePath(std::nullopt)), result};
 }
 
 bool World::hasSavedGames() const

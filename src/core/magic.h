@@ -76,5 +76,5 @@ constexpr auto DiveRotationSpeedZ = 3_deg / 1_frame;
 
 constexpr auto FreeLookHeadTurnSpeed = 2_deg / 1_frame;
 
-constexpr size_t SavegameSlots = 100;
+constexpr size_t SavegameSlots = 99;
 } // namespace core

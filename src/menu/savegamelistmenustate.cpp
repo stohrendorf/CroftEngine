@@ -40,7 +40,7 @@ namespace menu
 class SavegameListMenuState::SavegameEntry final : public ui::widgets::Widget
 {
 public:
-  explicit SavegameEntry(size_t slot,
+  explicit SavegameEntry(const std::optional<size_t>& slot,
                          const std::string& label,
                          const std::optional<std::filesystem::file_time_type>& time)
       : m_slot{slot}
@@ -96,7 +96,7 @@ public:
   }
 
 private:
-  size_t m_slot;
+  std::optional<size_t> m_slot;
   ui::widgets::Label m_label;
   std::optional<std::filesystem::file_time_type> m_time;
 };
@@ -110,10 +110,43 @@ SavegameListMenuState::SavegameListMenuState(const std::shared_ptr<MenuRingTrans
     , m_previous{std::move(previous)}
     , m_loading{loading}
 {
-  const auto savedGames = world.getSavedGames();
+  auto addSavegameEntry = [this, &world](const std::optional<size_t>& i, const engine::SavegameInfo& info)
+  {
+    const auto timePoint
+      = std::chrono::system_clock::to_time_t(std::chrono::time_point_cast<std::chrono::system_clock::duration>(
+        info.saveTime - std::filesystem::file_time_type::clock::now() + std::chrono::system_clock::now()));
+    const auto localTime = localtime(&timePoint);
+    Expects(localTime != nullptr);
+    std::stringstream timeStr;
+    timeStr.imbue(std::locale(world.getEngine().getLocale()));
+    timeStr << std::put_time(localTime,
+                             /* translators: TR charmap encoding */ pgettext("SavegameTime", "%d %B %Y %X"));
 
-  std::filesystem::file_time_type mostRecentTime = std::filesystem::file_time_type ::min();
-  size_t mostRecentSlot = 0;
+    const auto name = (boost::format(/* translators: TR charmap encoding */ pgettext("SavegameTitle", "%1% - %2%"))
+                       % timeStr.str() % info.meta.title)
+                        .str();
+    auto label = gsl::make_shared<SavegameEntry>(i, name, info.saveTime);
+    append(label);
+    m_entries.emplace_back(label);
+  };
+
+  const auto [quicksaveInfo, savedGames] = world.getSavedGames();
+  m_hasQuicksave = quicksaveInfo.has_value();
+
+  if(quicksaveInfo.has_value())
+  {
+    addSavegameEntry(std::nullopt, *quicksaveInfo);
+  }
+  else
+  {
+    auto label = gsl::make_shared<SavegameEntry>(
+      std::nullopt, /* translators: TR charmap encoding */ pgettext("SavegameTitle", "- NO QUICKSAVE"), std::nullopt);
+    append(label);
+    m_entries.emplace_back(label);
+  }
+
+  std::filesystem::file_time_type mostRecentTime = std::filesystem::file_time_type::min();
+  size_t mostRecentSlot = 1;
   for(size_t i = 0; i < core::SavegameSlots; ++i)
   {
     if(auto it = savedGames.find(i); it != savedGames.end())
@@ -121,34 +154,19 @@ SavegameListMenuState::SavegameListMenuState(const std::shared_ptr<MenuRingTrans
       if(it->second.saveTime > mostRecentTime)
       {
         mostRecentTime = it->second.saveTime;
-        mostRecentSlot = i;
+        mostRecentSlot = i + 1;
       }
 
-      const auto timePoint
-        = std::chrono::system_clock::to_time_t(std::chrono::time_point_cast<std::chrono::system_clock::duration>(
-          it->second.saveTime - std::filesystem::file_time_type::clock::now() + std::chrono::system_clock::now()));
-      const auto localTime = localtime(&timePoint);
-      Expects(localTime != nullptr);
-      std::stringstream timeStr;
-      timeStr.imbue(std::locale(world.getEngine().getLocale()));
-      timeStr << std::put_time(localTime,
-                               /* translators: TR charmap encoding */ pgettext("SavegameTime", "%d %B %Y %X"));
-
+      addSavegameEntry(i, it->second);
       m_hasSavegame.emplace_back(true);
-
-      const auto name = (boost::format(/* translators: TR charmap encoding */ pgettext("SavegameTitle", "%1% - %2%"))
-                         % timeStr.str() % it->second.meta.title)
-                          .str();
-      auto label = gsl::make_shared<SavegameEntry>(i, name, it->second.saveTime);
-      append(label);
-      m_entries.emplace_back(label);
     }
     else
     {
-      m_hasSavegame.emplace_back(false);
-      auto label = gsl::make_shared<SavegameEntry>(i, _("- EMPTY SLOT %1%", i + 1), std::nullopt);
+      auto label = gsl::make_shared<SavegameEntry>(
+        i, /* translators: TR charmap encoding */ pgettext("SavegameTitle", "- EMPTY SLOT %1%", i + 1), std::nullopt);
       append(label);
       m_entries.emplace_back(label);
+      m_hasSavegame.emplace_back(false);
     }
   }
 
@@ -161,10 +179,13 @@ std::unique_ptr<MenuState>
   const auto slot = m_entries.at(selectedIdx)->getSlot();
   if(!m_loading)
   {
-    if(m_hasSavegame.at(slot))
+    if(!slot.has_value())
+      return nullptr;
+
+    if(m_hasSavegame.at(*slot))
     {
       m_confirmOverwrite = std::make_shared<ui::widgets::MessageBox>(
-        /* translators: TR charmap encoding */ _("Overwrite slot %1%?", slot + 1));
+        /* translators: TR charmap encoding */ _("Overwrite slot %1%?", *slot + 1));
       return nullptr;
     }
     world.save(slot);
@@ -172,7 +193,7 @@ std::unique_ptr<MenuState>
                                           create<DeflateRingMenuState>(DeflateRingMenuState::Direction::Backpack,
                                                                        create<DoneMenuState>(MenuResult::Closed)));
   }
-  else if(m_hasSavegame.at(slot))
+  else if((slot.has_value() && m_hasSavegame.at(*slot)) || (!slot.has_value() && m_hasQuicksave))
   {
     return create<ClosePassportMenuState>(
       display.getCurrentRing().getSelectedObject(),
