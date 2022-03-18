@@ -112,51 +112,15 @@ CompassMenuState::CompassMenuState(const std::shared_ptr<MenuRingTransform>& rin
   label->fitToContent();
   m_grid->set(0, 6, std::move(label));
 
-  {
-    const auto seconds = std::chrono::duration_cast<std::chrono::seconds>(player.timeSpent);
-    static constexpr auto Minute = std::chrono::seconds{60};
-    static constexpr auto Hour = 60 * Minute;
-    std::string text;
-    if(seconds >= std::chrono::hours{1})
-    {
-      text = /* translators: TR charmap encoding */ _("%1%:%2$02d:%3$02d",
-                                                      seconds.count() / Hour.count(),
-                                                      (seconds.count() / Minute.count()) % Hour.count(),
-                                                      seconds.count() % Minute.count());
-    }
-    else
-    {
-      text = /* translators: TR charmap encoding */ _(
-        "%1$02d:%2$02d", seconds.count() / Minute.count(), seconds.count() % Minute.count());
-    }
+  label = std::make_shared<ui::widgets::Label>(
+    util::toTimeStr(std::chrono::duration_cast<std::chrono::seconds>(player.timeSpent)));
+  label->fitToContent();
+  m_grid->set(1, 6, std::move(label));
 
-    label = std::make_shared<ui::widgets::Label>(text);
-    label->fitToContent();
-    m_grid->set(1, 6, std::move(label));
-  }
-
-  {
-    const auto seconds = std::chrono::duration_cast<std::chrono::seconds>(player.timeSpentTotal + player.timeSpent);
-    static constexpr auto Minute = std::chrono::seconds{60};
-    static constexpr auto Hour = 60 * Minute;
-    std::string text;
-    if(seconds >= std::chrono::hours{1})
-    {
-      text = /* translators: TR charmap encoding */ _("%1%:%2$02d:%3$02d",
-                                                      seconds.count() / Hour.count(),
-                                                      (seconds.count() / Minute.count()) % Hour.count(),
-                                                      seconds.count() % Minute.count());
-    }
-    else
-    {
-      text = /* translators: TR charmap encoding */ _(
-        "%1$02d:%2$02d", seconds.count() / Minute.count(), seconds.count() % Minute.count());
-    }
-
-    label = std::make_shared<ui::widgets::Label>(text);
-    label->fitToContent();
-    m_grid->set(2, 6, std::move(label));
-  }
+  label = std::make_shared<ui::widgets::Label>(
+    util::toTimeStr(std::chrono::duration_cast<std::chrono::seconds>(player.timeSpentTotal + player.timeSpent)));
+  label->fitToContent();
+  m_grid->set(2, 6, std::move(label));
 
   const auto& inv = player.getInventory();
 

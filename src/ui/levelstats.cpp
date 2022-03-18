@@ -5,6 +5,7 @@
 #include "engine/presenter.h"
 #include "text.h"
 #include "ui/ui.h"
+#include "util/helpers.h"
 
 #include <boost/format.hpp>
 #include <chrono>
@@ -24,21 +25,9 @@ void LevelStats::draw(Ui& ui) const
     text.draw(ui, m_presenter->getTrFont(), center - glm::ivec2{text.getWidth() / 2, 50});
   }
 
-  const auto seconds = std::chrono::duration_cast<std::chrono::seconds>(m_player->timeSpent);
-  static constexpr auto Minute = std::chrono::seconds{60};
-  static constexpr auto Hour = 60 * Minute;
-  if(seconds >= std::chrono::hours{1})
-  {
-    Text text{/* translators: TR charmap encoding */ _("TIME TAKEN %1%:%2$02d:%3$02d",
-                                                       seconds.count() / Hour.count(),
-                                                       (seconds.count() / Minute.count()) % Hour.count(),
-                                                       seconds.count() % Minute.count())};
-    text.draw(ui, m_presenter->getTrFont(), center - glm::ivec2{text.getWidth() / 2, -70});
-  }
-  else
   {
     Text text{/* translators: TR charmap encoding */ _(
-      "TIME TAKEN %1$02d:%2$02d", seconds.count() / Minute.count(), seconds.count() % Minute.count())};
+      "TIME TAKEN %1%", util::toTimeStr(std::chrono::duration_cast<std::chrono::seconds>(m_player->timeSpent)))};
     text.draw(ui, m_presenter->getTrFont(), center - glm::ivec2{text.getWidth() / 2, -70});
   }
 

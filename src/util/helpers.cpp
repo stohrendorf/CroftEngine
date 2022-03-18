@@ -1,5 +1,6 @@
 #include "helpers.h"
 
+#include "core/i18n.h"
 #include "ui/util.h"
 
 #include <boost/log/trivial.hpp>
@@ -172,5 +173,23 @@ int16_t rand15()
 {
   // NOLINTNEXTLINE(cert-msc50-cpp, concurrency-mt-unsafe)
   return gsl::narrow_cast<int16_t>(std::rand() % Rand15Max);
+}
+std::string toTimeStr(const std::chrono::seconds& t)
+{
+  static constexpr auto Minute = std::chrono::seconds{60};
+  static constexpr auto Hour = 60 * Minute;
+  if(t >= std::chrono::hours{1})
+  {
+    return /* translators: TR charmap encoding */ _("%1%:%2$02d:%3$02d",
+                                                    t.count() / Hour.count(),
+                                                    (t.count() / Minute.count())
+                                                      % std::chrono::duration_cast<std::chrono::minutes>(Hour).count(),
+                                                    t.count() % Minute.count());
+  }
+  else
+  {
+    return /* translators: TR charmap encoding */ _(
+      "%1$02d:%2$02d", t.count() / Minute.count(), t.count() % Minute.count());
+  }
 }
 } // namespace util

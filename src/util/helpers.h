@@ -5,6 +5,7 @@
 #include "core/vec.h"
 #include "qs/qs.h"
 
+#include <chrono>
 #include <cstdint>
 #include <filesystem>
 #include <glm/mat4x4.hpp>
@@ -85,4 +86,6 @@ extern std::string unescape(const std::string& escaped);
 extern std::string escape(const std::string& escaped);
 
 extern std::filesystem::path ensureFileExists(const std::filesystem::path& path);
+
+extern std::string toTimeStr(const std::chrono::seconds& t);
 } // namespace util

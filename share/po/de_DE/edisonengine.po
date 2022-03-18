@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EdisonEngine\n"
 "Report-Msgid-Bugs-To: https://github.com/stohrendorf/EdisonEngine/issues\n"
-"POT-Creation-Date: 2022-03-17 16:41+0100\n"
+"POT-Creation-Date: 2022-03-18 07:51+0100\n"
 "Last-Translator: Steffen Ohrendorf\n"
 "Language-Team: none\n"
 "Language: de_DE\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #. translators: TR charmap encoding
-#: menu/compassmenustate.cpp:130 menu/compassmenustate.cpp:153
+#: util/helpers.cpp:192
 #, c-format, boost-format
 msgid "%1$02d:%2$02d"
 msgstr "%1$02d:%2$02d"
@@ -30,19 +30,19 @@ msgid "%1% - %2%"
 msgstr "%1% - %2%"
 
 #. translators: TR charmap encoding
-#: menu/compassmenustate.cpp:173
+#: menu/compassmenustate.cpp:137
 #, boost-format
 msgid "%1% Hits"
 msgstr "%1% Treffer"
 
 #. translators: TR charmap encoding
-#: menu/compassmenustate.cpp:184
+#: menu/compassmenustate.cpp:148
 #, boost-format
 msgid "%1% Misses"
 msgstr "%1% Fehlsch~usse"
 
 #. translators: TR charmap encoding
-#: menu/compassmenustate.cpp:122 menu/compassmenustate.cpp:145
+#: util/helpers.cpp:183
 #, boost-format
 msgid "%1%:%2$02d:%3$02d"
 msgstr "%1%:%2$02d:%3$02d"
@@ -221,7 +221,7 @@ msgid "Cheat Dive"
 msgstr "Cheat Tauchen"
 
 #. translators: TR charmap encoding; in the sense of "cheats are used"
-#: menu/compassmenustate.cpp:208
+#: menu/compassmenustate.cpp:172
 msgid "Cheats Used"
 msgstr "Cheats benutzt"
 
@@ -547,7 +547,7 @@ msgid "K"
 msgstr "K"
 
 #. translators: TR charmap encoding
-#: ui/levelstats.cpp:56
+#: ui/levelstats.cpp:45
 #, boost-format
 msgid "KILLS %1%"
 msgstr "Besiegte Gegner %1%"
@@ -655,7 +655,7 @@ msgid "Magnum Clips"
 msgstr "Magnum-Munition"
 
 #. translators: TR charmap encoding
-#: menu/compassmenustate.cpp:202 menu/menudisplay.cpp:374
+#: menu/compassmenustate.cpp:166 menu/menudisplay.cpp:374
 msgid "Magnums"
 msgstr "Magnums"
 
@@ -738,7 +738,7 @@ msgid "P"
 msgstr "P"
 
 #. translators: TR charmap encoding
-#: ui/levelstats.cpp:51
+#: ui/levelstats.cpp:40
 #, boost-format
 msgid "PICKUPS %1%"
 msgstr "Gegenst~ande %1%"
@@ -876,7 +876,7 @@ msgid "Pickups"
 msgstr "Gegenst~ande"
 
 #. translators: TR charmap encoding
-#: menu/compassmenustate.cpp:199 menu/menudisplay.cpp:352
+#: menu/compassmenustate.cpp:163 menu/menudisplay.cpp:352
 msgid "Pistols"
 msgstr "Pistolen"
 
@@ -990,7 +990,7 @@ msgid "S"
 msgstr "S"
 
 #. translators: TR charmap encoding
-#: ui/levelstats.cpp:46
+#: ui/levelstats.cpp:35
 #, boost-format
 msgid "SECRETS %1% of %2%"
 msgstr "Geheimnisse %1% von %2%"
@@ -1044,7 +1044,7 @@ msgid "Shortcuts"
 msgstr "Schnellzugriff"
 
 #. translators: TR charmap encoding
-#: menu/compassmenustate.cpp:200 menu/menudisplay.cpp:363
+#: menu/compassmenustate.cpp:164 menu/menudisplay.cpp:363
 msgid "Shotgun"
 msgstr "Schrotflinte"
 
@@ -1111,16 +1111,10 @@ msgid "T"
 msgstr "T"
 
 #. translators: TR charmap encoding
-#: ui/levelstats.cpp:41
-#, c-format, boost-format
-msgid "TIME TAKEN %1$02d:%2$02d"
-msgstr "Ben~otigte Zeit %1$02d:%2$02d"
-
-#. translators: TR charmap encoding
-#: ui/levelstats.cpp:32
+#: ui/levelstats.cpp:30
 #, boost-format
-msgid "TIME TAKEN %1%:%2$02d:%3$02d"
-msgstr "Ben~otigte Zeit %1%:%2$02d:%3$02d"
+msgid "TIME TAKEN %1%"
+msgstr "Ben~otigte Zeit %1%"
 
 #. translators: TR charmap encoding
 #: menu/compassmenustate.cpp:52
@@ -1193,7 +1187,7 @@ msgid "Uzi Clips"
 msgstr "Uzi-Munition"
 
 #. translators: TR charmap encoding
-#: menu/compassmenustate.cpp:201 menu/menudisplay.cpp:385
+#: menu/compassmenustate.cpp:165 menu/menudisplay.cpp:385
 msgid "Uzis"
 msgstr "Uzis"
 
