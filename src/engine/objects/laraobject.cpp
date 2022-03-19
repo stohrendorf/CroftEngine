@@ -241,6 +241,9 @@ void LaraObject::handleLaraStateDiving()
   updateFloorHeight(0_len);
   updateLarasWeaponsStatus();
   getWorld().handleCommandSequence(collisionInfo.mid.floor.lastCommandSequenceOrDeath, false);
+
+  drawRoutine();
+  applyTransform();
 }
 
 void LaraObject::handleLaraStateSwimming()
@@ -294,6 +297,9 @@ void LaraObject::handleLaraStateSwimming()
   updateFloorHeight(core::DefaultCollisionRadius);
   updateLarasWeaponsStatus();
   getWorld().handleCommandSequence(collisionInfo.mid.floor.lastCommandSequenceOrDeath, false);
+
+  drawRoutine();
+  applyTransform();
 }
 
 void LaraObject::placeOnFloor(const CollisionInfo& collisionInfo)
