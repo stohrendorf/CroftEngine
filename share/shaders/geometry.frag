@@ -74,9 +74,6 @@ void main()
         finalColor.rgb *= texColor.rgb;
         finalColor.a = texColor.a;
     }
-    else {
-        finalColor.rgb *= finalColor.rgb;
-    }
 
         #ifdef IN_WATER
     finalColor.rgb *= water_multiplier(gpi.vertexPosWorld);

@@ -3,6 +3,8 @@
 #include "geometry_pipeline_interface.glsl"
 #include "camera_interface.glsl"
 
+#include "util.glsl"
+
 void main()
 {
     #ifdef SKELETAL
@@ -26,7 +28,7 @@ void main()
     gpi.vertexPosWorld = vec3(mm * vec4(a_position, 1.0));
     gl_Position = camera.projection * mvPos;
     gpi.texCoord = a_texCoord;
-    gpi.color = a_color;
+    gpi.color = gpi.texCoord.z >= 0 ? a_color : toLinear(a_color);
 
     gpi.vertexNormalWorld = normalize(mat3(mm) * a_normal);
     gpi.hbaoNormal = normalize(mat3(mv) * a_normal);
