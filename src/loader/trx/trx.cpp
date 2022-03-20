@@ -13,7 +13,6 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/log/trivial.hpp>
 #include <boost/throw_exception.hpp>
-#include <chrono>
 #include <deque>
 #include <fstream>
 #include <gsl/gsl-lite.hpp>
@@ -27,9 +26,7 @@
 namespace
 {
 // NOLINTNEXTLINE(misc-no-recursion)
-std::filesystem::path readSymlink(const std::filesystem::path& root,
-                                  const std::filesystem::path& ref,
-                                  std::filesystem::file_time_type& srcTimestamp)
+std::filesystem::path readSymlink(const std::filesystem::path& root, const std::filesystem::path& ref)
 {
   if(ref.extension() != ".txt")
     return root / ref;
@@ -46,8 +43,7 @@ std::filesystem::path readSymlink(const std::filesystem::path& root,
   head.erase(0, head.find(':') + 1);
   boost::algorithm::trim(head);
   boost::algorithm::replace_all(head, "\\", "/");
-  srcTimestamp = std::max(srcTimestamp, last_write_time(root / ref));
-  return readSymlink(root, head, srcTimestamp);
+  return readSymlink(root, head);
 }
 } // namespace
 
@@ -149,8 +145,6 @@ Equiv::Equiv(const std::filesystem::path& filename, const std::function<void(con
 }
 
 void Equiv::resolve(const std::filesystem::path& root,
-                    std::map<std::string, std::filesystem::file_time_type>& timestamps,
-                    const std::filesystem::file_time_type& rootTimestamp,
                     std::map<TexturePart, std::filesystem::path>& filesByPart,
                     const std::function<void(const std::string&)>& statusCallback) const
 {
@@ -196,9 +190,7 @@ void Equiv::resolve(const std::filesystem::path& root,
     // now map the found part to all other parts, i.e. make them actually equivalent
     for(const auto& part : set.getParts())
     {
-      auto& ts = timestamps[part.getId()];
-      ts = std::max(ts, rootTimestamp);
-      const auto linked = readSymlink(root, relative(partFile, root), ts).lexically_normal();
+      const auto linked = readSymlink(root, relative(partFile, root)).lexically_normal();
       auto& existing = filesByPart[part];
       if(!existing.empty() && existing != linked)
       {
@@ -218,10 +210,7 @@ void Equiv::resolve(const std::filesystem::path& root,
   }
 }
 
-PathMap::PathMap(const std::filesystem::path& baseTxtName,
-                 std::map<std::string, std::filesystem::file_time_type>& timestamps,
-                 const std::filesystem::file_time_type& rootTimestamp,
-                 std::map<TexturePart, std::filesystem::path>& filesByPart)
+PathMap::PathMap(const std::filesystem::path& baseTxtName, std::map<TexturePart, std::filesystem::path>& filesByPart)
 {
   std::ifstream txt{util::ensureFileExists(baseTxtName)};
   const auto baseTxtDir = baseTxtName.parent_path();
@@ -308,9 +297,7 @@ PathMap::PathMap(const std::filesystem::path& baseTxtName,
 
       try
       {
-        auto& ts = timestamps[texturePath.first];
-        ts = std::max(ts, rootTimestamp);
-        const auto link = readSymlink(m_root, relative(it->path(), m_root), ts).lexically_normal();
+        const auto link = readSymlink(m_root, relative(it->path(), m_root)).lexically_normal();
         filesByPart[TexturePart(texturePath.first, r)] = link;
       }
       catch(std::runtime_error& ex)
@@ -330,10 +317,8 @@ Glidos::Glidos(std::filesystem::path baseDir, const std::function<void(const std
 
   BOOST_LOG_TRIVIAL(debug) << "Loading Glidos texture pack from " << m_baseDir;
 
-  m_rootTimestamp = last_write_time(util::ensureFileExists(m_baseDir / "equiv.txt"));
-
   BOOST_LOG_TRIVIAL(debug) << "Loading equiv.txt";
-  const Equiv equiv{m_baseDir / "equiv.txt", statusCallback};
+  const Equiv equiv{util::ensureFileExists(m_baseDir / "equiv.txt"), statusCallback};
 
   std::vector<PathMap> maps;
 
@@ -348,13 +333,13 @@ Glidos::Glidos(std::filesystem::path baseDir, const std::function<void(const std
 
     statusCallback(_("Glidos - Loading %1%", it->path().filename().string()));
     BOOST_LOG_TRIVIAL(debug) << "Loading part map " << it->path();
-    maps.emplace_back(it->path(), m_newestTextureSourceTimestamps, m_rootTimestamp, m_filesByPart);
+    maps.emplace_back(it->path(), m_filesByPart);
   }
 
   BOOST_LOG_TRIVIAL(debug) << "Resolving links and equiv sets for " << maps.size() << " mappings";
   for(const auto& map : maps)
   {
-    equiv.resolve(map.getRoot(), m_newestTextureSourceTimestamps, m_rootTimestamp, m_filesByPart, statusCallback);
+    equiv.resolve(map.getRoot(), m_filesByPart, statusCallback);
   }
   statusCallback(_("Glidos - Resolving maps (100%)"));
 }
@@ -362,7 +347,6 @@ Glidos::Glidos(std::filesystem::path baseDir, const std::function<void(const std
 Glidos::TileMap Glidos::getMappingsForTexture(const std::string& textureId) const
 {
   TileMap result;
-  result.newestSource = std::max(m_newestTextureSourceTimestamps[textureId], m_rootTimestamp);
   result.baseDir = m_baseDir;
 
   for(const auto& [part, file] : m_filesByPart)

@@ -152,8 +152,6 @@ public:
   explicit Equiv(const std::filesystem::path& filename, const std::function<void(const std::string&)>& statusCallback);
 
   void resolve(const std::filesystem::path& root,
-               std::map<std::string, std::filesystem::file_time_type>& timestamps,
-               const std::filesystem::file_time_type& rootTimestamp,
                std::map<TexturePart, std::filesystem::path>& filesByPart,
                const std::function<void(const std::string&)>& statusCallback) const;
 
@@ -164,10 +162,7 @@ private:
 class PathMap
 {
 public:
-  explicit PathMap(const std::filesystem::path& baseTxtName,
-                   std::map<std::string, std::filesystem::file_time_type>& timestamps,
-                   const std::filesystem::file_time_type& rootTimestamp,
-                   std::map<TexturePart, std::filesystem::path>& filesByPart);
+  explicit PathMap(const std::filesystem::path& baseTxtName, std::map<TexturePart, std::filesystem::path>& filesByPart);
 
   [[nodiscard]] const std::filesystem::path& getRoot() const
   {
@@ -186,13 +181,12 @@ public:
   struct TileMap
   {
     std::map<Rectangle, std::filesystem::path> tiles;
-    std::filesystem::file_time_type newestSource;
     std::filesystem::path baseDir;
   };
 
-  TileMap getMappingsForTexture(const std::string& textureId) const;
+  [[nodiscard]] TileMap getMappingsForTexture(const std::string& textureId) const;
 
-  const auto& getBaseDir() const noexcept
+  [[nodiscard]] const auto& getBaseDir() const noexcept
   {
     return m_baseDir;
   }
@@ -200,7 +194,5 @@ public:
 private:
   std::map<TexturePart, std::filesystem::path> m_filesByPart;
   const std::filesystem::path m_baseDir;
-  mutable std::map<std::string, std::filesystem::file_time_type> m_newestTextureSourceTimestamps;
-  std::filesystem::file_time_type m_rootTimestamp;
 };
 } // namespace loader::trx
