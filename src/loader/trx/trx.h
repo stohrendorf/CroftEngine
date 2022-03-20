@@ -178,11 +178,7 @@ class Glidos
 public:
   explicit Glidos(std::filesystem::path baseDir, const std::function<void(const std::string&)>& statusCallback);
 
-  struct TileMap
-  {
-    std::map<Rectangle, std::filesystem::path> tiles;
-    std::filesystem::path baseDir;
-  };
+  using TileMap = std::map<Rectangle, std::filesystem::path>;
 
   [[nodiscard]] TileMap getMappingsForTexture(const std::string& textureId) const;
 

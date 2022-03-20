@@ -139,7 +139,7 @@ void processGlidosPack(const loader::file::level::Level& level,
     const auto& texture = level.m_textures[texIdx];
     const auto mappings = glidos.getMappingsForTexture(texture.md5);
 
-    for(const auto& [tile, path] : mappings.tiles)
+    for(const auto& [tile, path] : mappings)
     {
       std::unique_ptr<gl::CImgWrapper> replacementImg;
       if(path.empty() || !std::filesystem::is_regular_file(path))

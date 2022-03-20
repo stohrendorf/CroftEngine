@@ -481,16 +481,42 @@ void MainWindow::onSelectGlidosClicked()
     return;
   }
 
-  QMessageBox::information(this,
-                           "Texture Pack Main File",
-                           "In the following dialog, select a file from the top-most directory of the texture pack.");
-  const auto texturePack = QFileDialog::getOpenFileName(
-    this, "Select Glidos Texture Pack Main File", QString{}, "Texture Pack Main File (*.txt)");
-  if(texturePack.isEmpty())
-    return;
+  {
+    QMessageBox askPackType;
+    askPackType.setWindowTitle("Texture Pack Type");
+    askPackType.setText("Please select Texture Pack Type");
+    askPackType.setInformativeText(
+      "Please select what type of texture pack you want to activate. If your texture pack contains a equiv.txt file, "
+      "use the first option. If your texture pack contains a series of folders which are made of 32 numbers and "
+      "letters, use the second one.");
+    const auto useEquiv = askPackType.addButton("equiv.txt", QMessageBox::ButtonRole::AcceptRole);
+    const auto useFolders = askPackType.addButton("Folders", QMessageBox::ButtonRole::AcceptRole);
+    askPackType.setIcon(QMessageBox::Icon::Question);
+    askPackType.exec();
+    if(askPackType.clickedButton() == useEquiv)
+    {
+      QMessageBox::information(
+        this,
+        "Texture Pack Main File",
+        "In the following dialog, select a file from the top-most directory of the texture pack.");
+      const auto texturePack = QFileDialog::getOpenFileName(
+        this, "Select Glidos Texture Pack Main File", QString{}, "Texture Pack Main File (equiv.txt)");
+      if(texturePack.isEmpty())
+        return;
 
-  const auto path = QFileInfo{texturePack}.absolutePath().toStdString();
-  setGlidosPath(path);
+      const QFileInfo info{texturePack};
+      setGlidosPath(info.absolutePath().toStdString());
+    }
+    else
+    {
+      const auto texturePack = QFileDialog::getExistingDirectory(this, "Select Glidos Texture Pack Main File");
+      if(texturePack.isEmpty())
+        return;
+
+      const QFileInfo info{texturePack};
+      setGlidosPath(info.absoluteFilePath().toStdString());
+    }
+  }
 }
 
 void MainWindow::setGlidosPath(const std::optional<std::string>& path)

@@ -56,11 +56,13 @@ Rectangle::Rectangle(const std::string& serialized)
   std::smatch matches;
   if(!std::regex_match(serialized, matches, fmt))
   {
+    BOOST_LOG_TRIVIAL(error) << "Failed to parse Glidos texture coordinates: " << serialized;
     BOOST_THROW_EXCEPTION(std::runtime_error("Failed to parse Glidos texture coordinates"));
   }
 
   if(matches.size() != 5)
   {
+    BOOST_LOG_TRIVIAL(error) << "Failed to parse Glidos texture coordinates: " << serialized;
     BOOST_THROW_EXCEPTION(std::runtime_error("Failed to parse Glidos texture coordinates"));
   }
 
@@ -317,44 +319,74 @@ Glidos::Glidos(std::filesystem::path baseDir, const std::function<void(const std
 
   BOOST_LOG_TRIVIAL(debug) << "Loading Glidos texture pack from " << m_baseDir;
 
-  BOOST_LOG_TRIVIAL(debug) << "Loading equiv.txt";
-  const Equiv equiv{util::ensureFileExists(m_baseDir / "equiv.txt"), statusCallback};
-
-  std::vector<PathMap> maps;
-
-  const std::filesystem::directory_iterator end{};
-  for(std::filesystem::directory_iterator it{m_baseDir}; it != end; ++it)
+  if(is_regular_file(m_baseDir / "equiv.txt"))
   {
-    if(!is_regular_file(it->path()))
-      continue;
+    BOOST_LOG_TRIVIAL(debug) << "Loading equiv.txt";
+    const Equiv equiv{util::ensureFileExists(m_baseDir / "equiv.txt"), statusCallback};
 
-    if(it->path().filename() == "equiv.txt")
-      continue;
+    std::vector<PathMap> maps;
 
-    statusCallback(_("Glidos - Loading %1%", it->path().filename().string()));
-    BOOST_LOG_TRIVIAL(debug) << "Loading part map " << it->path();
-    maps.emplace_back(it->path(), m_filesByPart);
+    for(const auto& entry : std::filesystem::directory_iterator{m_baseDir})
+    {
+      if(!is_regular_file(entry))
+        continue;
+
+      if(entry.path().filename() == "equiv.txt")
+        continue;
+
+      statusCallback(_("Glidos - Loading %1%", entry.path().filename().string()));
+      BOOST_LOG_TRIVIAL(debug) << "Loading part map " << entry.path();
+      maps.emplace_back(entry, m_filesByPart);
+    }
+
+    BOOST_LOG_TRIVIAL(debug) << "Resolving links and equiv sets for " << maps.size() << " mappings";
+    for(const auto& map : maps)
+    {
+      equiv.resolve(map.getRoot(), m_filesByPart, statusCallback);
+    }
+    statusCallback(_("Glidos - Resolving maps (100%)"));
   }
-
-  BOOST_LOG_TRIVIAL(debug) << "Resolving links and equiv sets for " << maps.size() << " mappings";
-  for(const auto& map : maps)
+  else
   {
-    equiv.resolve(map.getRoot(), m_filesByPart, statusCallback);
+    static const std::regex md5Expr{"[a-zA-Z0-9]{32}"};
+    for(const auto& entry : std::filesystem::directory_iterator{m_baseDir})
+    {
+      if(!std::filesystem::is_directory(entry))
+      {
+        continue;
+      }
+
+      const std::string& textureId = entry.path().filename().string();
+      if(!std::regex_match(textureId, md5Expr))
+      {
+        continue;
+      }
+
+      for(const auto& subEntry : std::filesystem::directory_iterator{entry.path()})
+      {
+        try
+        {
+          m_filesByPart.emplace(TexturePart{textureId, Rectangle{subEntry.path().filename().string()}}, subEntry);
+        }
+        catch(std::runtime_error&)
+        {
+          // ignore invalid file names
+        }
+      }
+    }
   }
-  statusCallback(_("Glidos - Resolving maps (100%)"));
 }
 
 Glidos::TileMap Glidos::getMappingsForTexture(const std::string& textureId) const
 {
   TileMap result;
-  result.baseDir = m_baseDir;
 
   for(const auto& [part, file] : m_filesByPart)
   {
     if(part.getId() != textureId)
       continue;
 
-    result.tiles[part.getRectangle()] = file;
+    result[part.getRectangle()] = file;
   }
 
   return result;
