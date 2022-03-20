@@ -1,23 +1,7 @@
 #include "vtx_input.glsl"
 #include "ui_pipeline_interface.glsl"
 #include "camera_interface.glsl"
-
-float toLinear(in float srgb)
-{
-    return srgb <= 0.04045
-    ? srgb / 12.92
-    : pow((srgb + 0.055) / 1.055, 2.4);
-}
-
-vec4 toLinear(in vec4 srgb)
-{
-    return vec4(
-    toLinear(srgb.r),
-    toLinear(srgb.g),
-    toLinear(srgb.b),
-    srgb.a
-    );
-}
+#include "util.glsl"
 
 void main()
 {
