@@ -348,6 +348,9 @@ level_sequence = [
             "en_GB": {
                 TR1ItemId.ScionPiece5: "Scion",
             },
+            "de_DE": {
+                TR1ItemId.ScionPiece5: "Scion",
+            },
         },
     ),
     Video("FMV/PRISON.RPL"),
@@ -370,6 +373,9 @@ level_sequence = [
         secrets=3,
         item_titles={
             "en_GB": {
+                TR1ItemId.ScionPiece5: "Scion",
+            },
+            "de_DE": {
                 TR1ItemId.ScionPiece5: "Scion",
             },
         },
