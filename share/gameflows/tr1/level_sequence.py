@@ -357,6 +357,9 @@ level_sequence = [
         camera_rot=90.0,
         weapon_swap=True,
     ),
+    ModifyInventory(
+        add_inventory={TR1ItemId.Pistols: 1},
+    ),
     Level(
         name="DATA/LEVEL10C.PHD",
         titles={
