@@ -640,7 +640,7 @@ void Room::createParticleMesh(const std::string& label,
   mesh->bind("u_baseColor",
              [this](const render::scene::Node* /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
              {
-               uniform.set(isWaterRoom ? glm::vec3{0.0f, 0.3f, 0.05f} : glm::vec3{0.5f, 0.45f, 0.4f});
+               uniform.set(isWaterRoom ? glm::vec3{0.0f, 0.5f, 0.05f} : glm::vec3{0.5f, 0.45f, 0.4f});
              });
 
   dust = std::make_shared<render::scene::Node>(label + "-particles");
