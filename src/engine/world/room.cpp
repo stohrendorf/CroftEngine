@@ -589,7 +589,7 @@ void Room::createParticleMesh(const std::string& label,
                               const glm::vec3& max,
                               render::scene::MaterialManager& materialManager)
 {
-  static const constexpr auto Resolution = (core::SectorSize / 8).cast<float>().get();
+  static const constexpr auto Resolution = (core::SectorSize / 12).cast<float>().get();
 
   // https://stackoverflow.com/a/3747462
   static const auto fastrand = []()

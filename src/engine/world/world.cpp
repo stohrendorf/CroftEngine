@@ -1471,6 +1471,7 @@ void World::initFromLevel(loader::file::level::Level& level)
                    {
                      return Sector{sector, m_rooms, m_boxes, m_floorData};
                    });
+    gsl_Assert(srcRoom.sectors.size() == m_rooms[i].sectors.size());
     std::transform(srcRoom.lights.begin(),
                    srcRoom.lights.end(),
                    std::back_inserter(m_rooms[i].lights),
