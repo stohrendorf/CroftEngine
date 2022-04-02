@@ -50,13 +50,12 @@ public:
 
   [[nodiscard]] GhostFrame read();
 
-  [[nodiscard]] size_t tell() const
+  [[nodiscard]] bool isOpen() const
   {
-    return m_position;
+    return m_file != nullptr;
   }
 
 private:
   std::unique_ptr<std::istream> m_file;
-  size_t m_position = 0;
 };
 } // namespace engine::ghosting

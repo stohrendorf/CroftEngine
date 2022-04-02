@@ -130,7 +130,6 @@ GhostFrame GhostDataReader::read()
   if(m_file != nullptr && !m_file->eof())
   {
     result.read(*m_file);
-    ++m_position;
   }
   return result;
 }

@@ -182,6 +182,11 @@ struct GhostManager
     if(std::filesystem::is_regular_file(readerPath))
     {
       reader = std::make_unique<ghosting::GhostDataReader>(readerPath);
+      if(!reader->isOpen())
+        reader.reset();
+    }
+    if(reader != nullptr)
+    {
       for(auto i = 0_frame; i < world.getGhostFrame(); i += 1_frame)
       {
         writer->append(reader->read());
