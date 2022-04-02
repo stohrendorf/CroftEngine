@@ -1958,7 +1958,7 @@ void LaraObject::updateExplosionStumbling()
 ghosting::GhostFrame LaraObject::getGhostFrame() const
 {
   ghosting::GhostFrame frame;
-  frame.roomId = gsl::narrow_cast<uint32_t>(m_state.location.room->physicalId);
+  frame.roomId = gsl::narrow<uint16_t>(m_state.location.room->physicalId);
   frame.modelMatrix = getSkeleton()->getLocalMatrix();
   for(size_t i = 0; i < getSkeleton()->getBoneCount(); ++i)
   {
@@ -1974,7 +1974,7 @@ ghosting::GhostFrame LaraObject::getGhostFrame() const
     }
 
     frame.bones.emplace_back(ghosting::GhostFrame::BoneData{
-      getSkeleton()->getPoseMatrix(i), gsl::narrow_cast<uint32_t>(idx), getSkeleton()->isVisible(i)});
+      getSkeleton()->getPoseMatrix(i), gsl::narrow<uint16_t>(idx), getSkeleton()->isVisible(i)});
   }
 
   return frame;

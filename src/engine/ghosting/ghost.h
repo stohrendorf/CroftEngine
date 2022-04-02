@@ -14,14 +14,17 @@ struct GhostFrame
 {
   struct BoneData
   {
-    glm::mat4 matrix;
-    uint32_t meshIdx;
-    bool visible;
+    glm::mat4 matrix{1.0f};
+    uint16_t meshIdx = 0;
+    bool visible = false;
+
+    void write(std::ostream& s) const;
+    void read(std::istream& s);
   };
 
-  uint32_t roomId;
-  glm::mat4 modelMatrix;
-  std::vector<BoneData> bones;
+  uint16_t roomId = 0;
+  glm::mat4 modelMatrix{1.0f};
+  std::vector<BoneData> bones{};
 
   void write(std::ostream& s) const;
   void read(std::istream& s);
