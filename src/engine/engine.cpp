@@ -262,6 +262,25 @@ struct GhostManager
           std::filesystem::remove(readerPath, ec);
 
           std::filesystem::rename(writerPath, readerPath, ec);
+
+          ghosting::GhostMeta ghostMeta;
+          ghostMeta.duration = world.getGhostFrame();
+          if(world.levelFinished())
+          {
+            ghostMeta.finishState = world.getObjectManager().getLara().m_state.isDead()
+                                      ? ghosting::GhostFinishState::Death
+                                      : ghosting::GhostFinishState::Completed;
+          }
+          else
+          {
+            ghostMeta.finishState = world.getObjectManager().getLara().m_state.isDead()
+                                      ? ghosting::GhostFinishState::Death
+                                      : ghosting::GhostFinishState::Unfinished;
+          }
+
+          serialization::YAMLDocument<false> metaDoc{std::filesystem::path{readerPath}.replace_extension(".yml")};
+          metaDoc.save("ghost", ghostMeta, ghostMeta);
+          metaDoc.write();
         }
         return true;
       }

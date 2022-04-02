@@ -1,5 +1,8 @@
 #pragma once
 
+#include "core/units.h"
+#include "serialization/serialization_fwd.h"
+
 #include <cstddef>
 #include <cstdint>
 #include <filesystem>
@@ -10,6 +13,21 @@
 
 namespace engine::ghosting
 {
+enum class GhostFinishState
+{
+  Unfinished,
+  Death,
+  Completed
+};
+
+struct GhostMeta
+{
+  core::Frame duration = 0_frame;
+  GhostFinishState finishState = GhostFinishState::Unfinished;
+
+  void serialize(const serialization::Serializer<GhostMeta>& ser);
+};
+
 struct GhostFrame
 {
   struct BoneData

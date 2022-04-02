@@ -1,5 +1,8 @@
 #include "ghost.h"
 
+#include "serialization/quantity.h"
+#include "serialization/serialization.h"
+
 #include <boost/assert.hpp>
 #include <fstream>
 #include <gsl/gsl-lite.hpp>
@@ -155,5 +158,10 @@ void GhostFrame::BoneData::read(std::istream& s)
   // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
   s.read(reinterpret_cast<char*>(&tmp), sizeof(tmp));
   visible = tmp != 0;
+}
+
+void GhostMeta::serialize(const serialization::Serializer<GhostMeta>& ser)
+{
+  ser(S_NV("duration", duration), S_NV("finishState", finishState));
 }
 } // namespace engine::ghosting
