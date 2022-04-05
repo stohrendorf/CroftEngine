@@ -1,5 +1,6 @@
 #include "ghost.h"
 
+#include "serialization/path.h"
 #include "serialization/quantity.h"
 #include "serialization/serialization.h"
 
@@ -162,6 +163,6 @@ void GhostFrame::BoneData::read(std::istream& s)
 
 void GhostMeta::serialize(const serialization::Serializer<GhostMeta>& ser)
 {
-  ser(S_NV("duration", duration), S_NV("finishState", finishState));
+  ser(S_NV("duration", duration), S_NV("finishState", finishState), S_NV("level", level));
 }
 } // namespace engine::ghosting

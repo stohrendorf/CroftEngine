@@ -265,6 +265,7 @@ struct GhostManager
 
           ghosting::GhostMeta ghostMeta;
           ghostMeta.duration = world.getGhostFrame();
+          ghostMeta.level = world.getLevelFilename().stem();
           if(world.levelFinished())
           {
             ghostMeta.finishState = world.getObjectManager().getLara().m_state.isDead()
