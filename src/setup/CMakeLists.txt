@@ -1,6 +1,5 @@
 include( get_qt )
 include( get_boost )
-include( get_libarchive )
 include( get_valvefilevdf )
 
 add_library(

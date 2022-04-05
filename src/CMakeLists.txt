@@ -178,6 +178,8 @@ set( EDISONENGINE_SRCS
         engine/engine.cpp
         engine/engineconfig.h
         engine/engineconfig.cpp
+        engine/ghostmanager.h
+        engine/ghostmanager.cpp
         engine/heightinfo.h
         engine/heightinfo.cpp
         engine/inventory.h
@@ -683,6 +685,7 @@ target_link_libraries(
         Python3::Python
         Threads::Threads
         ${Intl_LIBRARIES}
+        LibArchive::LibArchive
         shared
         setup_screen
 )
