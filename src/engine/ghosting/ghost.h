@@ -1,6 +1,8 @@
 #pragma once
 
 #include "core/units.h"
+#include "ghostfinishstate.h"
+#include "serialization/named_enum.h"
 #include "serialization/serialization_fwd.h"
 
 #include <cstddef>
@@ -13,17 +15,12 @@
 
 namespace engine::ghosting
 {
-enum class GhostFinishState
-{
-  Unfinished,
-  Death,
-  Completed
-};
+using NamedGhostFinishState = serialization::NamedEnum<GhostFinishState, EnumUtil<GhostFinishState>>;
 
 struct GhostMeta
 {
   core::Frame duration = 0_frame;
-  GhostFinishState finishState = GhostFinishState::Unfinished;
+  NamedGhostFinishState finishState = GhostFinishState::Unfinished;
 
   void serialize(const serialization::Serializer<GhostMeta>& ser);
 };

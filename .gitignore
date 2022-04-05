@@ -40,6 +40,7 @@ src/hid/glfw_gamepad_buttons.*
 src/hid/glfw_axes.*
 src/hid/glfw_axis_dirs.*
 src/hid/actions.*
+src/engine/ghosting/ghostfinishstate.*
 
 share/**/*.mo
 

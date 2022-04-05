@@ -85,6 +85,14 @@ wrap_enum(
         DEST ${CMAKE_CURRENT_SOURCE_DIR}/hid/actions.h
         DEST_IMPL ${CMAKE_CURRENT_SOURCE_DIR}/hid/actions.cpp
 )
+wrap_enum(
+        NAMESPACE engine::ghosting
+        NAME GhostFinishState
+        TYPE int32_t
+        SOURCE ${CMAKE_CURRENT_SOURCE_DIR}/ghostfinishstate.txt
+        DEST ${CMAKE_CURRENT_SOURCE_DIR}/engine/ghosting/ghostfinishstate.h
+        DEST_IMPL ${CMAKE_CURRENT_SOURCE_DIR}/engine/ghosting/ghostfinishstate.cpp
+)
 
 set( EDISONENGINE_SRCS
         edisonengine.cpp
@@ -443,6 +451,8 @@ set( EDISONENGINE_SRCS
         engine/ghosting/ghost.cpp
         engine/ghosting/ghostmodel.h
         engine/ghosting/ghostmodel.cpp
+        engine/ghosting/ghostfinishstate.h
+        engine/ghosting/ghostfinishstate.cpp
 
         render/portaltracer.h
         render/portaltracer.cpp
