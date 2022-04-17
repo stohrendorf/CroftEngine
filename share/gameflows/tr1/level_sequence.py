@@ -336,6 +336,9 @@ level_sequence = [
         camera_rot=90.0,
     ),
     Video("FMV/PYRAMID.RPL"),
+    ModifyInventory(
+        add_inventory={TR1ItemId.Pistols: 1},
+    ),
     Level(
         name="DATA/LEVEL10B.PHD",
         titles={
@@ -359,9 +362,6 @@ level_sequence = [
         track=TR1TrackId.Cutscene1,
         camera_rot=90.0,
         weapon_swap=True,
-    ),
-    ModifyInventory(
-        add_inventory={TR1ItemId.Pistols: 1},
     ),
     Level(
         name="DATA/LEVEL10C.PHD",
