@@ -118,10 +118,9 @@ int main(int argc, char** argv)
     {
       const auto meta = engine.getSavegameMeta(slot);
       Expects(meta.has_value());
-      for(levelSequenceIndex = 0; true; ++levelSequenceIndex)
+      for(levelSequenceIndex = 0; levelSequenceIndex < gameflow.getLevelSequence().size(); ++levelSequenceIndex)
       {
-        if(levelSequenceIndex >= gameflow.getLevelSequence().size()
-           || gameflow.getLevelSequence().at(levelSequenceIndex)->isLevel(meta->filename))
+        if(gameflow.getLevelSequence().at(levelSequenceIndex)->isLevel(meta->filename))
           break;
       }
       loadSlot = slot;
@@ -165,24 +164,6 @@ int main(int argc, char** argv)
           if(player == nullptr || levelSequenceIndex == 0)
           {
             player = std::make_shared<engine::Player>();
-          }
-          else
-          {
-            player->killsTotal += player->kills;
-            player->pickupsTotal += player->pickups;
-            player->secretsTotal += player->secrets;
-            player->timeSpentTotal += player->timeSpent;
-            player->smallMedipacksTotal += player->smallMedipacks;
-            player->largeMedipacksTotal += player->largeMedipacks;
-            for(auto ammoType : {engine::WeaponType::Pistols,
-                                 engine::WeaponType::Shotgun,
-                                 engine::WeaponType::Uzis,
-                                 engine::WeaponType::Magnums})
-            {
-              auto& ammo = player->getInventory().getAmmo(ammoType);
-              ammo.hitsTotal += std::exchange(ammo.hits, 0);
-              ammo.missesTotal += std::exchange(ammo.misses, 0);
-            }
           }
 
           runResult

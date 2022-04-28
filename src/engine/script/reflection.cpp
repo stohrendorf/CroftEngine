@@ -164,7 +164,7 @@ std::unique_ptr<world::World> Level::loadWorld(Engine& engine, const std::shared
 
   const auto title = titleIt == m_titles.end() ? "NO TRANSLATION - " + m_name : titleIt->second;
 
-  player->resetStats();
+  player->accumulateStats();
 
   for(const auto& [type, qty] : engine.getScriptEngine().getGameflow().getCheatInventory())
     player->getInventory().put(type.cast<TR1ItemId>(), nullptr, qty.cast<size_t>());

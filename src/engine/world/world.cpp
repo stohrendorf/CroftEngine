@@ -343,7 +343,7 @@ void World::laraBubblesEffect(objects::Object& object)
 
 void World::finishLevelEffect()
 {
-  m_levelFinished = true;
+  finishLevel();
 }
 
 void World::earthquakeEffect()

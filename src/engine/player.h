@@ -50,13 +50,7 @@ public:
   std::chrono::milliseconds timeSpentTotal{0};
   bool usedCheats = false;
 
-  void resetStats()
-  {
-    pickups = 0;
-    kills = 0;
-    secrets = 0;
-    timeSpent = std::chrono::milliseconds{0};
-  }
+  void accumulateStats();
 
 private:
   Inventory m_inventory{};

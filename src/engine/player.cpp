@@ -10,6 +10,7 @@
 
 #include <exception>
 #include <memory>
+#include <utility>
 
 namespace engine
 {
@@ -39,5 +40,21 @@ void Player::serialize(const serialization::Serializer<world::World>& ser)
       {
         ser.context.getObjectManager().getLara().initWeaponAnimData();
       });
+}
+
+void Player::accumulateStats()
+{
+  pickupsTotal += std::exchange(pickups, 0);
+  killsTotal += std::exchange(kills, 0);
+  secretsTotal += std::exchange(secrets, 0);
+  smallMedipacksTotal += std::exchange(smallMedipacks, 0);
+  largeMedipacksTotal += std::exchange(largeMedipacks, 0);
+  timeSpentTotal += std::exchange(timeSpent, std::chrono::milliseconds{0});
+  for(auto ammoType : {WeaponType::Pistols, WeaponType::Shotgun, WeaponType::Uzis, WeaponType::Magnums})
+  {
+    auto& ammo = getInventory().getAmmo(ammoType);
+    ammo.hitsTotal += std::exchange(ammo.hits, 0);
+    ammo.missesTotal += std::exchange(ammo.misses, 0);
+  }
 }
 } // namespace engine
