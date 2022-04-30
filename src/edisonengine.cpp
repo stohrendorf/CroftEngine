@@ -233,6 +233,11 @@ int main(int argc, char** argv)
             levelSequenceIndex = 0;
             mode = Mode::Title;
           }
+          else
+          {
+            BOOST_ASSERT(player != nullptr);
+            player->accumulateStats();
+          }
           break;
         case engine::RunResult::TitleLevel:
           mode = Mode::Title;
