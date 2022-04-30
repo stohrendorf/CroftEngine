@@ -36,6 +36,7 @@
 #include "script/scriptengine.h"
 #include "serialization/serialization.h"
 #include "serialization/yamldocument.h"
+#include "stopwatch.h"
 #include "throttler.h"
 #include "ui/core.h"
 #include "ui/levelstats.h"
@@ -250,16 +251,7 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
   Throttler throttler;
   core::Frame laraDeadTime = 0_frame;
 
-  std::optional<std::chrono::high_resolution_clock::time_point> gameSessionStart;
-  auto updateTimeSpent = [&gameSessionStart, &world]()
-  {
-    if(gameSessionStart.has_value())
-    {
-      world.getPlayer().timeSpent += std::chrono::duration_cast<std::chrono::milliseconds>(
-        std::chrono::high_resolution_clock::now() - gameSessionStart.value());
-      gameSessionStart.reset();
-    }
-  };
+  Stopwatch stopwatch{};
 
   core::Frame runtime = 0_frame;
   static constexpr auto BlendInDuration = (core::FrameRate * 2_sec).cast<core::Frame>();
@@ -280,7 +272,7 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
 
     if(world.levelFinished())
     {
-      updateTimeSpent();
+      world.getPlayer().timeSpent += stopwatch.stop();
 
       if(!isCutscene && allowSave)
       {
@@ -297,13 +289,13 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
     throttler.wait();
     if(!m_presenter->preFrame())
     {
-      updateTimeSpent();
+      world.getPlayer().timeSpent += stopwatch.stop();
       continue;
     }
 
     if(menu != nullptr)
     {
-      updateTimeSpent();
+      world.getPlayer().timeSpent += stopwatch.stop();
 
       {
         const auto portals = world.getCameraController().update();
@@ -366,7 +358,7 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
       {
         if(getSavegameMeta(std::nullopt).has_value())
         {
-          updateTimeSpent();
+          world.getPlayer().timeSpent += stopwatch.stop();
           return {RunResult::RequestLoad, std::nullopt};
         }
       }
@@ -378,7 +370,7 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
       if(world.getObjectManager().getLara().isDead())
       {
         world.getAudioEngine().setMusicGain(0);
-        updateTimeSpent();
+        world.getPlayer().timeSpent += stopwatch.stop();
         laraDeadTime += 1_frame;
         if(laraDeadTime >= core::FrameRate * 10_sec
            || (laraDeadTime >= core::FrameRate * 2_sec && m_presenter->getInputHandler().hasAnyAction()))
@@ -394,7 +386,7 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
       if(world.getCameraController().getMode() != CameraMode::Cinematic
          && m_presenter->getInputHandler().hasDebouncedAction(hid::Action::Menu))
       {
-        updateTimeSpent();
+        world.getPlayer().timeSpent += stopwatch.stop();
         menu
           = std::make_shared<menu::MenuDisplay>(menu::InventoryMode::GameMode, world, m_presenter->getRenderViewport());
         menu->allowSave = allowSave;
@@ -404,7 +396,7 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
 
       if(allowSave && m_presenter->getInputHandler().hasDebouncedAction(hid::Action::Save))
       {
-        updateTimeSpent();
+        world.getPlayer().timeSpent += stopwatch.stop();
         world.save(std::nullopt);
         throttler.reset();
       }
@@ -412,7 +404,7 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
       {
         if(getSavegameMeta(std::nullopt).has_value())
         {
-          updateTimeSpent();
+          world.getPlayer().timeSpent += stopwatch.stop();
           return {RunResult::RequestLoad, std::nullopt};
         }
       }
@@ -420,8 +412,8 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
       if(allAmmoCheat)
         world.getPlayer().getInventory().fillAllAmmo();
 
-      if(!gameSessionStart.has_value())
-        gameSessionStart = std::chrono::high_resolution_clock::now();
+      if(!stopwatch.running())
+        stopwatch.start();
 
       float blackAlpha = 0;
       if(runtime < BlendInDuration)
@@ -459,7 +451,7 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
 
     if(m_presenter->getInputHandler().hasDebouncedAction(hid::Action::Screenshot))
     {
-      updateTimeSpent();
+      world.getPlayer().timeSpent += stopwatch.stop();
       makeScreenshot();
       throttler.reset();
     }
