@@ -502,7 +502,7 @@ bool AIAgent::canShootAtLara(const ai::EnemyLocation& enemyLocation) const
     return false;
   }
 
-  return raycastLineOfSight(m_state.location,
+  return raycastLineOfSight(m_state.location.moved(0_len, -768_len, 0_len),
                             getWorld().getObjectManager().getLara().m_state.location.position
                               - core::TRVec{0_len, 768_len, 0_len},
                             getWorld().getObjectManager())
@@ -522,15 +522,17 @@ bool AIAgent::tryShootAtLara(ModelObject& object,
     if(util::rand15() < (util::square(7 * core::SectorSize) - distance) / util::square(40_len) - 8192)
     {
       isHit = true;
-
-      lara.emitParticle(core::TRVec{}, util::rand15(lara.getSkeleton()->getBoneCount()), &createBloodSplat);
-
-      if(!lara.isInWater())
-        lara.playSoundEffect(TR1SoundEffect::BulletHitsLara);
     }
   }
 
-  if(!isHit)
+  if(isHit)
+  {
+    lara.emitParticle(core::TRVec{}, util::rand15(lara.getSkeleton()->getBoneCount()), &createBloodSplat);
+
+    if(!lara.isInWater())
+      lara.playSoundEffect(TR1SoundEffect::BulletHitsLara);
+  }
+  else
   {
     auto location = lara.m_state.location;
     location.position.X += util::rand15s(core::SectorSize / 2);
