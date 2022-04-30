@@ -112,13 +112,12 @@ CompassMenuState::CompassMenuState(const std::shared_ptr<MenuRingTransform>& rin
   label->fitToContent();
   m_grid->set(0, 6, std::move(label));
 
-  label = std::make_shared<ui::widgets::Label>(
-    util::toTimeStr(std::chrono::duration_cast<std::chrono::seconds>(player.timeSpent)));
+  label = std::make_shared<ui::widgets::Label>(util::toTimeStr(player.timeSpent / core::FrameRate));
   label->fitToContent();
   m_grid->set(1, 6, std::move(label));
 
   label = std::make_shared<ui::widgets::Label>(
-    util::toTimeStr(std::chrono::duration_cast<std::chrono::seconds>(player.timeSpentTotal + player.timeSpent)));
+    util::toTimeStr((player.timeSpentTotal + player.timeSpent) / core::FrameRate));
   label->fitToContent();
   m_grid->set(2, 6, std::move(label));
 

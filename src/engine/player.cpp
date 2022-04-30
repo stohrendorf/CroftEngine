@@ -49,7 +49,7 @@ void Player::accumulateStats()
   secretsTotal += std::exchange(secrets, 0);
   smallMedipacksTotal += std::exchange(smallMedipacks, 0);
   largeMedipacksTotal += std::exchange(largeMedipacks, 0);
-  timeSpentTotal += std::exchange(timeSpent, std::chrono::milliseconds{0});
+  timeSpentTotal += std::exchange(timeSpent, 0_frame);
   for(auto ammoType : {WeaponType::Pistols, WeaponType::Shotgun, WeaponType::Uzis, WeaponType::Magnums})
   {
     auto& ammo = getInventory().getAmmo(ammoType);

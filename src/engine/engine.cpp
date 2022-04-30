@@ -36,7 +36,6 @@
 #include "script/scriptengine.h"
 #include "serialization/serialization.h"
 #include "serialization/yamldocument.h"
-#include "stopwatch.h"
 #include "throttler.h"
 #include "ui/core.h"
 #include "ui/levelstats.h"
@@ -251,8 +250,6 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
   Throttler throttler;
   core::Frame laraDeadTime = 0_frame;
 
-  Stopwatch stopwatch{};
-
   core::Frame runtime = 0_frame;
   static constexpr auto BlendInDuration = (core::FrameRate * 2_sec).cast<core::Frame>();
   core::Frame ammoDisplayDuration = 0_frame;
@@ -272,8 +269,6 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
 
     if(world.levelFinished())
     {
-      world.getPlayer().timeSpent += stopwatch.stop();
-
       if(!isCutscene && allowSave)
       {
         if(!showLevelStats(m_presenter, world))
@@ -289,14 +284,11 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
     throttler.wait();
     if(!m_presenter->preFrame())
     {
-      world.getPlayer().timeSpent += stopwatch.stop();
       continue;
     }
 
     if(menu != nullptr)
     {
-      world.getPlayer().timeSpent += stopwatch.stop();
-
       {
         const auto portals = world.getCameraController().update();
         if(const auto lara = world.getObjectManager().getLaraPtr())
@@ -358,7 +350,6 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
       {
         if(getSavegameMeta(std::nullopt).has_value())
         {
-          world.getPlayer().timeSpent += stopwatch.stop();
           return {RunResult::RequestLoad, std::nullopt};
         }
       }
@@ -370,7 +361,6 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
       if(world.getObjectManager().getLara().isDead())
       {
         world.getAudioEngine().setMusicGain(0);
-        world.getPlayer().timeSpent += stopwatch.stop();
         laraDeadTime += 1_frame;
         if(laraDeadTime >= core::FrameRate * 10_sec
            || (laraDeadTime >= core::FrameRate * 2_sec && m_presenter->getInputHandler().hasAnyAction()))
@@ -386,7 +376,6 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
       if(world.getCameraController().getMode() != CameraMode::Cinematic
          && m_presenter->getInputHandler().hasDebouncedAction(hid::Action::Menu))
       {
-        world.getPlayer().timeSpent += stopwatch.stop();
         menu
           = std::make_shared<menu::MenuDisplay>(menu::InventoryMode::GameMode, world, m_presenter->getRenderViewport());
         menu->allowSave = allowSave;
@@ -396,7 +385,6 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
 
       if(allowSave && m_presenter->getInputHandler().hasDebouncedAction(hid::Action::Save))
       {
-        world.getPlayer().timeSpent += stopwatch.stop();
         world.save(std::nullopt);
         throttler.reset();
       }
@@ -404,16 +392,12 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
       {
         if(getSavegameMeta(std::nullopt).has_value())
         {
-          world.getPlayer().timeSpent += stopwatch.stop();
           return {RunResult::RequestLoad, std::nullopt};
         }
       }
 
       if(allAmmoCheat)
         world.getPlayer().getInventory().fillAllAmmo();
-
-      if(!stopwatch.running())
-        stopwatch.start();
 
       float blackAlpha = 0;
       if(runtime < BlendInDuration)
@@ -438,6 +422,7 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
         }
       }
 
+      world.getPlayer().timeSpent += 1_frame;
       world.gameLoop(godMode, blackAlpha, ui);
 
       ghostManager.writer->append(world.getObjectManager().getLara().getGhostFrame());
@@ -451,7 +436,6 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
 
     if(m_presenter->getInputHandler().hasDebouncedAction(hid::Action::Screenshot))
     {
-      world.getPlayer().timeSpent += stopwatch.stop();
       makeScreenshot();
       throttler.reset();
     }

@@ -174,22 +174,22 @@ int16_t rand15()
   // NOLINTNEXTLINE(cert-msc50-cpp, concurrency-mt-unsafe)
   return gsl::narrow_cast<int16_t>(std::rand() % Rand15Max);
 }
-std::string toTimeStr(const std::chrono::seconds& t)
+std::string toTimeStr(const core::Seconds& t)
 {
-  static constexpr auto Minute = std::chrono::seconds{60};
-  static constexpr auto Hour = 60 * Minute;
-  if(t >= std::chrono::hours{1})
+  static constexpr std::chrono::seconds Minute = std::chrono::seconds{60};
+  static constexpr std::chrono::seconds Hour = 60 * Minute;
+  if(t.get() >= Hour.count())
   {
     return /* translators: TR charmap encoding */ _("%1%:%2$02d:%3$02d",
-                                                    t.count() / Hour.count(),
-                                                    (t.count() / Minute.count())
+                                                    t.get() / Hour.count(),
+                                                    (t.get() / Minute.count())
                                                       % std::chrono::duration_cast<std::chrono::minutes>(Hour).count(),
-                                                    t.count() % Minute.count());
+                                                    t.get() % Minute.count());
   }
   else
   {
     return /* translators: TR charmap encoding */ _(
-      "%1$02d:%2$02d", t.count() / Minute.count(), t.count() % Minute.count());
+      "%1$02d:%2$02d", t.get() / Minute.count(), t.get() % Minute.count());
   }
 }
 } // namespace util

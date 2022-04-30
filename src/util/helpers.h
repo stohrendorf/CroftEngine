@@ -87,5 +87,5 @@ extern std::string escape(const std::string& escaped);
 
 extern std::filesystem::path ensureFileExists(const std::filesystem::path& path);
 
-extern std::string toTimeStr(const std::chrono::seconds& t);
+extern std::string toTimeStr(const core::Seconds& t);
 } // namespace util

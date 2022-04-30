@@ -26,8 +26,8 @@ void LevelStats::draw(Ui& ui) const
   }
 
   {
-    Text text{/* translators: TR charmap encoding */ _(
-      "TIME TAKEN %1%", util::toTimeStr(std::chrono::duration_cast<std::chrono::seconds>(m_player->timeSpent)))};
+    Text text{/* translators: TR charmap encoding */ _("TIME TAKEN %1%",
+                                                       util::toTimeStr(m_player->timeSpent / core::FrameRate))};
     text.draw(ui, m_presenter->getTrFont(), center - glm::ivec2{text.getWidth() / 2, -70});
   }
 

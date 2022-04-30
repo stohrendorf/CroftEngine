@@ -46,8 +46,8 @@ public:
   size_t smallMedipacksTotal = 0;
   size_t largeMedipacks = 0;
   size_t largeMedipacksTotal = 0;
-  std::chrono::milliseconds timeSpent{0};
-  std::chrono::milliseconds timeSpentTotal{0};
+  core::Frame timeSpent = 0_frame;
+  core::Frame timeSpentTotal = 0_frame;
   bool usedCheats = false;
 
   void accumulateStats();
