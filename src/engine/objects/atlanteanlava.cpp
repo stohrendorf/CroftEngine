@@ -27,25 +27,24 @@ void AtlanteanLava::update()
   if(m_state.triggerState != TriggerState::Deactivated)
   {
     auto location = m_state.location;
-    if(m_state.rotation.Y == 0_deg)
+    switch(core::axisFromAngle(m_state.rotation.Y))
     {
+    case core::Axis::Deg0:
       location.position.Z += 2048_len;
       m_state.location.position.Z += 25_len;
-    }
-    else if(m_state.rotation.Y == -180_deg)
-    {
-      location.position.Z -= 2048_len;
-      m_state.location.position.Z -= 25_len;
-    }
-    else if(m_state.rotation.Y == 90_deg)
-    {
+      break;
+    case core::Axis::Right90:
       location.position.X += 2048_len;
       m_state.location.position.X += 25_len;
-    }
-    else
-    {
+      break;
+    case core::Axis::Deg180:
+      location.position.Z -= 2048_len;
+      m_state.location.position.Z -= 25_len;
+      break;
+    case core::Axis::Left90:
       location.position.X -= 2048_len;
       m_state.location.position.X -= 25_len;
+      break;
     }
 
     const auto sector = location.updateRoom();
@@ -67,5 +66,20 @@ void AtlanteanLava::update()
     cameraController.setDistance(3 * core::SectorSize);
     cameraController.setRotationAroundLaraY(-180_deg);
   }
+}
+
+void AtlanteanLava::collide(CollisionInfo& collisionInfo)
+{
+  if(!isNear(getWorld().getObjectManager().getLara(), collisionInfo.collisionRadius))
+    return;
+
+  if(!testBoneCollision(getWorld().getObjectManager().getLara()))
+    return;
+
+  if(!collisionInfo.policies.is_set(CollisionInfo::PolicyFlags::EnableBaddiePush))
+    return;
+
+  const bool enableSpaz = !m_state.isDead() && collisionInfo.policies.is_set(CollisionInfo::PolicyFlags::EnableSpaz);
+  enemyPush(collisionInfo, enableSpaz, false);
 }
 } // namespace engine::objects

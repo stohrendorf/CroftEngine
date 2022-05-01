@@ -27,5 +27,7 @@ public:
   MODELOBJECT_DEFAULT_CONSTRUCTORS(AtlanteanLava, true, false)
 
   void update() override;
+
+  void collide(CollisionInfo& collisionInfo) override;
 };
 } // namespace engine::objects
