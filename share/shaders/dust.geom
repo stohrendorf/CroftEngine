@@ -14,12 +14,23 @@ out DustFSInterface {
 } fs;
 
 const float ParticleRadius = 0.25;
+const float MaxSizeEnd = 2*1024;
+const float VanishEnd = 3*1024;
 
 void main()
 {
     vec3 pos = gl_in[0].gl_Position.xyz;
 
+    mat4 v = camera.view;
     mat4 mv = camera.view * modelTransform.m;
+
+    float distance = length(vec3(v * vec4(pos, 1.0)));
+    if (distance > VanishEnd) {
+        return;
+    }
+
+    float f = clamp(1-(distance-MaxSizeEnd)/(VanishEnd-MaxSizeEnd), 0, 1);
+
     mat4 vp = camera.viewProjection;
 
     vec3 dx = vec3(mv[0].x, mv[1].x, mv[2].x) * ParticleRadius * vs[0].size;
