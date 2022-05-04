@@ -9,6 +9,6 @@ in DustFSInterface {
 
 void main()
 {
-    float a = min(min(fs.lifetime, 1-fs.lifetime) * 3, 1);
-    out_color = vec4(toLinear(u_baseColor), a * 0.3);
+    float a = clamp(min(fs.lifetime, 1-fs.lifetime) * 3, 0, 1);
+    out_color = vec4(toLinear(u_baseColor), a * 0.6);
 }
