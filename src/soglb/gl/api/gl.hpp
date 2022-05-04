@@ -1379,6 +1379,12 @@ enum class DepthFunction : core::EnumType
   Notequal = 0x0205,
 };
 
+enum class DepthStencilTextureMode : core::EnumType
+{
+  DepthComponent = 0x1902,
+  StencilIndex = 0x1901,
+};
+
 enum class DrawBufferMode : core::EnumType
 {
   Back = 0x0405,
@@ -1585,6 +1591,7 @@ enum class EnableCap : core::EnumType
   SampleAlphaToCoverage = 0x809E,
   SampleAlphaToOne = 0x809F,
   SampleCoverage = 0x80A0,
+  TextureCubeMap = 0x8513,
 #endif
 #if defined(API_LEVEL_GL_VERSION_3_0) || defined(API_LEVEL_GL_VERSION_3_1) || defined(API_LEVEL_GL_VERSION_3_2_core) \
   || defined(API_LEVEL_GL_VERSION_3_3_compatibility) || defined(API_LEVEL_GL_VERSION_3_3_core)                       \
@@ -1616,6 +1623,7 @@ enum class EnableCap : core::EnumType
   || defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_5_core) \
   || defined(API_LEVEL_GL_VERSION_4_6_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_core)
   PrimitiveRestart = 0x8F9D,
+  TextureRectangle = 0x84F5,
 #endif
 #if defined(API_LEVEL_GL_VERSION_3_2_core) || defined(API_LEVEL_GL_VERSION_3_3_compatibility)  \
   || defined(API_LEVEL_GL_VERSION_3_3_core) || defined(API_LEVEL_GL_VERSION_4_0_compatibility) \
@@ -1912,6 +1920,7 @@ enum class FramebufferAttachment : core::EnumType
   ColorAttachment8 = 0x8CE8,
   ColorAttachment9 = 0x8CE9,
   DepthAttachment = 0x8D00,
+  DepthStencilAttachment = 0x821A,
   StencilAttachment = 0x8D20,
 };
 #endif
@@ -2522,6 +2531,7 @@ enum class GetPName : core::EnumType
   MajorVersion = 0x821B,
   MaxArrayTextureLayers = 0x88FF,
   MaxClipDistances = 0x0D32,
+  MaxColorAttachments = 0x8CDF,
   MaxProgramTexelOffset = 0x8905,
   MaxRenderbufferSize = 0x84E8,
   MaxVaryingComponents = 0x8B4B,
@@ -5655,6 +5665,7 @@ enum class TextureParameterName : core::EnumType
   TextureBorderColor = 0x1004,
   TextureHeight = 0x1001,
   TextureMagFilter = 0x2800,
+  TextureMaxAnisotropy = 0x84FE,
   TextureMinFilter = 0x2801,
   TextureWidth = 0x1000,
   TextureWrapS = 0x2802,
