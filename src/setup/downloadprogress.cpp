@@ -13,8 +13,8 @@ DownloadProgress::DownloadProgress(QUrl url, std::filesystem::path target, QWidg
     : QWidget(parent)
     , ui(new Ui::DownloadProgress)
     , m_url{std::move(url)}
-    , m_target{std::move(target)}
     , m_accessManager{new QNetworkAccessManager{this}}
+    , m_target{std::move(target)}
 {
   ui->setupUi(this);
   ui->url->setText(m_url.toString());
