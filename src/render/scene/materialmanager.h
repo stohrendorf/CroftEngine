@@ -42,6 +42,7 @@ public:
   [[nodiscard]] gslu::nn_shared<Material> getFXAA();
   [[nodiscard]] gslu::nn_shared<Material> getCRT();
   [[nodiscard]] gslu::nn_shared<Material> getVelvia();
+  [[nodiscard]] gslu::nn_shared<Material> getDeath();
   [[nodiscard]] gslu::nn_shared<Material> getFilmGrain();
   [[nodiscard]] gslu::nn_shared<Material> getLensDistortion();
   [[nodiscard]] gslu::nn_shared<Material> getHBAOFx();
@@ -62,6 +63,8 @@ public:
     m_csm = csm;
   }
 
+  void setDeathStrength(float strength);
+
 private:
   const gslu::nn_shared<ShaderCache> m_shaderCache;
   std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::RGB8>>> m_noiseTexture;
@@ -69,6 +72,7 @@ private:
   std::shared_ptr<Material> m_fxaa{nullptr};
   std::shared_ptr<Material> m_crt{nullptr};
   std::shared_ptr<Material> m_velvia{nullptr};
+  std::shared_ptr<Material> m_death{nullptr};
   std::shared_ptr<Material> m_filmGrain{nullptr};
   std::shared_ptr<Material> m_lensDistortion{nullptr};
   std::shared_ptr<Material> m_hbaoFx{nullptr};

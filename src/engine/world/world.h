@@ -436,6 +436,10 @@ private:
 
   core::Frame m_ghostFrame = 0_frame;
 
+  static constexpr auto DeathStrengthFadeDuration = 1_sec * core::FrameRate;
+  static constexpr auto DeathStrengthFadeDeltaPerFrame = 1_frame / DeathStrengthFadeDuration.cast<float>();
+  float m_currentDeathStrength = 0;
+
   void initTextureDependentDataFromLevel(const loader::file::level::Level& level);
   void initFromLevel(loader::file::level::Level& level);
   void connectSectors();

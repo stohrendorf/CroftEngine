@@ -64,6 +64,14 @@
 namespace
 {
 constexpr int StatusLineFontSize = 40;
+
+constexpr auto HealthChangeDuration = 1_sec * core::FrameRate;
+constexpr auto HealthChangeDeltaPerFrame = core::LaraHealth * 1_frame / HealthChangeDuration;
+
+constexpr auto HealthPulseDurationSlow = 3_sec * core::FrameRate;
+constexpr auto HealthPulseDurationFast = 1_sec * core::FrameRate / 2;
+constexpr auto HealthPulseMinHealth = core::LaraHealth / 5;
+constexpr auto HealthPulseMaxHealth = core::LaraHealth / 2;
 } // namespace
 
 namespace engine
@@ -310,7 +318,10 @@ void drawBar(ui::Ui& ui,
 }
 } // namespace
 
-void Presenter::drawBars(ui::Ui& ui, const std::array<gl::SRGBA8, 256>& palette, const ObjectManager& objectManager)
+void Presenter::drawBars(ui::Ui& ui,
+                         const std::array<gl::SRGBA8, 256>& palette,
+                         const ObjectManager& objectManager,
+                         bool pulse)
 {
   if(objectManager.getLara().isInWater())
   {
@@ -332,17 +343,58 @@ void Presenter::drawBars(ui::Ui& ui, const std::array<gl::SRGBA8, 256>& palette,
   if(objectManager.getLara().getHandStatus() == objects::HandStatus::Combat || objectManager.getLara().isDead())
     m_healthBarTimeout = DefaultHealthBarTimeout;
 
-  if(std::exchange(m_drawnHealth, objectManager.getLara().m_state.health) != objectManager.getLara().m_state.health)
-    m_healthBarTimeout = DefaultHealthBarTimeout;
+  {
+    const auto laraHealth = objectManager.getLara().m_state.health;
+    auto newHealth = m_drawnHealth;
+    if(laraHealth < m_drawnHealth)
+      newHealth = std::max(m_drawnHealth - HealthChangeDeltaPerFrame, laraHealth);
+    else if(laraHealth > m_drawnHealth)
+      newHealth = std::min(m_drawnHealth + HealthChangeDeltaPerFrame, laraHealth);
+
+    if(std::exchange(m_drawnHealth, newHealth) != objectManager.getLara().m_state.health)
+      m_healthBarTimeout = DefaultHealthBarTimeout;
+  }
 
   m_healthBarTimeout -= 1_frame;
-  if(m_healthBarTimeout <= -DefaultHealthBarTimeout)
-    return;
+
+  if(pulse)
+  {
+    if(m_drawnHealth > HealthPulseMaxHealth && m_healthBarTimeout <= -DefaultHealthBarTimeout)
+      return;
+  }
+  else
+  {
+    if(m_healthBarTimeout <= -DefaultHealthBarTimeout)
+      return;
+  }
 
   uint8_t alpha = 255;
   if(m_healthBarTimeout < 0_frame)
   {
     alpha = gsl::narrow_cast<uint8_t>(std::clamp(255 - std::abs(255 * m_healthBarTimeout / 40_frame), 0, 255));
+  }
+
+  if(pulse && m_drawnHealth <= HealthPulseMaxHealth)
+  {
+    const auto pulseStrength = 1
+                               - std::clamp((m_drawnHealth - HealthPulseMinHealth).cast<float>()
+                                              / (HealthPulseMaxHealth - HealthPulseMinHealth),
+                                            0.0f,
+                                            1.0f);
+    const auto pulseInterval
+      = std::max(1_frame,
+                 (HealthPulseDurationFast
+                  + (HealthPulseDurationSlow - HealthPulseDurationFast).cast<float>() * (1 - pulseStrength))
+                   .cast<int>());
+    m_healthPulseTime = (m_healthPulseTime + 1_frame) % pulseInterval;
+    float currentPulseEffectStrength = 0;
+    if(m_healthPulseTime <= pulseInterval / 2)
+      currentPulseEffectStrength = m_healthPulseTime.cast<float>() / (pulseInterval.cast<float>() / 2);
+    else
+      currentPulseEffectStrength
+        = (pulseInterval - m_healthPulseTime).cast<float>() / (pulseInterval.cast<float>() / 2);
+    static constexpr uint8_t PulseTargetAlpha = 128;
+    alpha = glm::mix(alpha, PulseTargetAlpha, currentPulseEffectStrength);
   }
 
   static const auto withAlpha = [](gl::SRGBA8 color, uint8_t alpha)

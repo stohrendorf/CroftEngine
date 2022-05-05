@@ -119,6 +119,7 @@ void RenderPipeline::resize(scene::MaterialManager& materialManager,
     addEffect("lens", materialManager.getLensDistortion());
   if(m_renderSettings.velvia)
     addEffect("velvia", materialManager.getVelvia());
+  addEffect("death", materialManager.getDeath());
   if(m_renderSettings.filmGrain)
     addEffect("filmGrain", materialManager.getFilmGrain());
   if(m_renderSettings.crt)

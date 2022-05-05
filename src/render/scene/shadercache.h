@@ -101,6 +101,11 @@ public:
     return get("flat.vert", "fx_velvia.frag");
   }
 
+  [[nodiscard]] auto getDeath()
+  {
+    return get("flat.vert", "fx_death.frag");
+  }
+
   [[nodiscard]] auto getFilmGrain()
   {
     return get("flat.vert", "fx_film_grain.frag");

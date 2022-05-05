@@ -97,7 +97,9 @@ void EngineConfig::serialize(const serialization::Serializer<EngineConfig>& ser)
       S_NVD("displaySettings", displaySettings, DisplaySettings{}),
       S_NVD("audioSettings", audioSettings, AudioSettings{}),
       S_NVD("inputMappings", inputMappings, getDefaultMappings()),
-      S_NVO("restoreHealth", restoreHealth));
+      S_NVO("restoreHealth", restoreHealth),
+      S_NVO("pulseLowHealthHealthBar", pulseLowHealthHealthBar),
+      S_NVO("lowHealthMonochrome", lowHealthMonochrome));
 }
 
 EngineConfig::EngineConfig()

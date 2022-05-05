@@ -625,6 +625,21 @@ const std::vector<int16_t>& World::getAnimCommands() const
 void World::update(const bool godMode)
 {
   m_objectManager.update(*this, godMode);
+  if(const auto lara = m_objectManager.getLaraPtr();
+     getEngine().getEngineConfig()->lowHealthMonochrome && lara != nullptr)
+  {
+    const auto newStrength = lara->m_state.health.cast<float>() / core::LaraHealth * 5;
+    if(newStrength < m_currentDeathStrength)
+      m_currentDeathStrength = std::max(m_currentDeathStrength - DeathStrengthFadeDeltaPerFrame, newStrength);
+    else if(newStrength > m_currentDeathStrength)
+      m_currentDeathStrength = std::min(m_currentDeathStrength + DeathStrengthFadeDeltaPerFrame, newStrength);
+    m_currentDeathStrength = std::clamp(m_currentDeathStrength, 0.0f, 1.0f);
+  }
+  else
+  {
+    m_currentDeathStrength = 0;
+  }
+  getPresenter().getMaterialManager()->setDeathStrength(m_currentDeathStrength);
 
   static constexpr auto UVAnimTime = core::FrameRate * 1_sec / 3;
 
@@ -982,7 +997,7 @@ void World::gameLoop(bool godMode, float blackAlpha, ui::Ui& ui)
 
   const auto waterEntryPortals = m_cameraController->update();
   doGlobalEffect();
-  getPresenter().drawBars(ui, m_palette, getObjectManager());
+  getPresenter().drawBars(ui, m_palette, getObjectManager(), getEngine().getEngineConfig()->pulseLowHealthHealthBar);
 
   drawPickupWidgets(ui);
   if(const auto lara = getObjectManager().getLaraPtr())
@@ -1001,6 +1016,7 @@ void World::gameLoop(bool godMode, float blackAlpha, ui::Ui& ui)
 
 bool World::cinematicLoop()
 {
+  getPresenter().getMaterialManager()->setDeathStrength(0);
   m_cameraController->m_cinematicFrame += 1_frame;
   if(gsl::narrow<size_t>(m_cameraController->m_cinematicFrame.get()) >= m_cinematicFrames.size())
     return false;

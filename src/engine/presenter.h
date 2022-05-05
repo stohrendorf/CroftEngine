@@ -110,7 +110,7 @@ public:
     return *m_inputHandler;
   }
 
-  void drawBars(ui::Ui& ui, const std::array<gl::SRGBA8, 256>& palette, const ObjectManager& objectManager);
+  void drawBars(ui::Ui& ui, const std::array<gl::SRGBA8, 256>& palette, const ObjectManager& objectManager, bool pulse);
 
   [[nodiscard]] const ui::TRFont& getTrFont() const
   {
@@ -185,6 +185,7 @@ private:
   const gslu::nn_unique<gl::Font> m_trTTFFont;
   const gslu::nn_unique<gl::Font> m_debugFont;
   core::Health m_drawnHealth = core::LaraHealth;
+  core::Frame m_healthPulseTime = 0_frame;
   core::Frame m_healthBarTimeout = -DefaultHealthBarTimeout;
   const gslu::nn_unique<hid::InputHandler> m_inputHandler;
   std::unique_ptr<ui::TRFont> m_trFont;

@@ -310,7 +310,6 @@ gslu::nn_shared<Material> MaterialManager::getFXAA()
 
   auto m = gsl::make_shared<Material>(m_shaderCache->getFXAA());
   configureForScreenSpaceEffect(*m, false);
-  configureForScreenSpaceEffect(*m, false);
   m_fxaa = m;
   return m;
 }
@@ -334,8 +333,18 @@ gslu::nn_shared<Material> MaterialManager::getVelvia()
 
   auto m = gsl::make_shared<Material>(m_shaderCache->getVelvia());
   configureForScreenSpaceEffect(*m, false);
-  configureForScreenSpaceEffect(*m, false);
   m_velvia = m;
+  return m;
+}
+
+gslu::nn_shared<Material> MaterialManager::getDeath()
+{
+  if(m_death != nullptr)
+    return gsl::not_null{m_death};
+
+  auto m = gsl::make_shared<Material>(m_shaderCache->getDeath());
+  configureForScreenSpaceEffect(*m, false);
+  m_death = m;
   return m;
 }
 
@@ -478,5 +487,11 @@ gslu::nn_shared<Material> MaterialManager::getDustParticle()
     });
   m_dustParticle = m;
   return m;
+}
+
+void MaterialManager::setDeathStrength(float strength)
+{
+  auto m = getDeath();
+  m->getUniform("u_strength")->set(strength);
 }
 } // namespace render::scene

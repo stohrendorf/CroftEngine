@@ -117,7 +117,7 @@ void MenuDisplay::drawMenuObjectDescription(ui::Ui& ui, engine::world::World& wo
   case engine::TR1ItemId::LargeMedipack:
   case engine::TR1ItemId::LargeMedipackSprite:
     world.getPresenter().initHealthBarTimeout();
-    world.getPresenter().drawBars(ui, world.getPalette(), world.getObjectManager());
+    world.getPresenter().drawBars(ui, world.getPalette(), world.getObjectManager(), false);
     break;
   default:
     break;

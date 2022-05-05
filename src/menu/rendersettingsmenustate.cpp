@@ -325,6 +325,28 @@ RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingT
       auto& b = engine.getEngineConfig()->restoreHealth;
       b = !b;
     });
+  listBox->addSetting(
+    /* translators: TR charmap encoding */ _("Low Health: Pulse Health Bar"),
+    [&engine]()
+    {
+      return engine.getEngineConfig()->pulseLowHealthHealthBar;
+    },
+    [&engine]()
+    {
+      auto& b = engine.getEngineConfig()->pulseLowHealthHealthBar;
+      b = !b;
+    });
+  listBox->addSetting(
+    /* translators: TR charmap encoding */ _("Low Health: Reduce Color"),
+    [&engine]()
+    {
+      return engine.getEngineConfig()->lowHealthMonochrome;
+    },
+    [&engine]()
+    {
+      auto& b = engine.getEngineConfig()->lowHealthMonochrome;
+      b = !b;
+    });
 }
 
 std::unique_ptr<MenuState>

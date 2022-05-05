@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EdisonEngine\n"
 "Report-Msgid-Bugs-To: https://github.com/stohrendorf/EdisonEngine/issues\n"
-"POT-Creation-Date: 2022-03-18 07:51+0100\n"
+"POT-Creation-Date: 2022-05-05 20:19+0200\n"
 "Last-Translator: Steffen Ohrendorf\n"
 "Language-Team: none\n"
 "Language: de_DE\n"
@@ -48,7 +48,7 @@ msgid "%1%:%2$02d:%3$02d"
 msgstr "%1%:%2$02d:%3$02d"
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:336
+#: menu/rendersettingsmenustate.cpp:358
 #, boost-format
 msgid "%1%x Anisotropic Filtering"
 msgstr "%1%x Anisotropische Filterung"
@@ -183,7 +183,7 @@ msgctxt "Keyboard|Key"
 msgid "Bksp"
 msgstr "R~ucktaste"
 
-#: engine/presenter.cpp:403
+#: engine/presenter.cpp:455
 msgid "Booting"
 msgstr "Starte"
 
@@ -433,22 +433,22 @@ msgstr "Spiel"
 msgid "Ghost"
 msgstr "Geist"
 
-#: loader/trx/trx.cpp:349
+#: loader/trx/trx.cpp:337
 #, boost-format
 msgid "Glidos - Loading %1%"
 msgstr "Glidos - Lade %1%"
 
-#: loader/trx/trx.cpp:141
+#: loader/trx/trx.cpp:139
 #, boost-format
 msgid "Glidos - Loading equiv.txt (%1%%%)"
 msgstr "Glidos - Lade equiv.txt (%1%%%)"
 
-#: loader/trx/trx.cpp:166 loader/trx/trx.cpp:216
+#: loader/trx/trx.cpp:162 loader/trx/trx.cpp:210
 #, boost-format
 msgid "Glidos - Resolving maps (%1%%%)"
 msgstr "Glidos - Löse Zuordnungen auf (%1%%%)"
 
-#: loader/trx/trx.cpp:359
+#: loader/trx/trx.cpp:347
 msgid "Glidos - Resolving maps (100%)"
 msgstr "Glidos - Löse Zuordnungen auf (100%)"
 
@@ -629,11 +629,11 @@ msgstr "Spiel laden"
 msgid "Loading %1%"
 msgstr "Lade %1%"
 
-#: engine/engine.cpp:714
+#: engine/engine.cpp:593
 msgid "Loading Glidos texture pack"
 msgstr "Lade Glidos Textur Paket"
 
-#: engine/world/world.cpp:1025
+#: engine/world/world.cpp:1041
 msgid "Loading..."
 msgstr "Lade..."
 
@@ -642,6 +642,16 @@ msgstr "Lade..."
 msgctxt "Action"
 msgid "Look"
 msgstr "Umsehen"
+
+#. translators: TR charmap encoding
+#: menu/rendersettingsmenustate.cpp:329
+msgid "Low Health: Pulse Health Bar"
+msgstr "Niedrige Gesundheit: Gesundheitsanzeige pulsieren"
+
+#. translators: TR charmap encoding
+#: menu/rendersettingsmenustate.cpp:340
+msgid "Low Health: Reduce Color"
+msgstr "Niedrige Gesundheit: Farben reduzieren"
 
 #. translators: TR charmap encoding
 #: hid/names.cpp:79
@@ -655,7 +665,7 @@ msgid "Magnum Clips"
 msgstr "Magnum-Munition"
 
 #. translators: TR charmap encoding
-#: menu/compassmenustate.cpp:166 menu/menudisplay.cpp:374
+#: menu/compassmenustate.cpp:165 menu/menudisplay.cpp:374
 msgid "Magnums"
 msgstr "Magnums"
 
@@ -897,7 +907,7 @@ msgstr "Q"
 msgid "Quality"
 msgstr "Qualit~at"
 
-#: engine/world/world.cpp:1051
+#: engine/world/world.cpp:1067
 msgid "Quicksave"
 msgstr "Schnellspeicherung"
 
@@ -1007,11 +1017,11 @@ msgid "Save Game"
 msgstr "Spiel sichern"
 
 #. translators: TR charmap encoding
-#: engine/engine.cpp:209
+#: engine/ghostmanager.cpp:61
 msgid "Save recorded ghost?"
 msgstr "Aufgenommenen Geist speichern?"
 
-#: engine/world/world.cpp:1046
+#: engine/world/world.cpp:1062
 msgid "Saving..."
 msgstr "Speichere..."
 
@@ -1111,7 +1121,7 @@ msgid "T"
 msgstr "T"
 
 #. translators: TR charmap encoding
-#: ui/levelstats.cpp:30
+#: ui/levelstats.cpp:29
 #, boost-format
 msgid "TIME TAKEN %1%"
 msgstr "Ben~otigte Zeit %1%"
@@ -1187,7 +1197,7 @@ msgid "Uzi Clips"
 msgstr "Uzi-Munition"
 
 #. translators: TR charmap encoding
-#: menu/compassmenustate.cpp:165 menu/menudisplay.cpp:385
+#: menu/compassmenustate.cpp:166 menu/menudisplay.cpp:385
 msgid "Uzis"
 msgstr "Uzis"
 

@@ -52,6 +52,8 @@ struct EngineConfig
   AudioSettings audioSettings{};
   std::vector<NamedInputMappingConfig> inputMappings{};
   bool restoreHealth = false;
+  bool pulseLowHealthHealthBar = true;
+  bool lowHealthMonochrome = true;
 
   explicit EngineConfig();
 
