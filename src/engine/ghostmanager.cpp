@@ -21,10 +21,10 @@
 namespace engine
 {
 GhostManager::GhostManager(const std::filesystem::path& recordingPath, world::World& world)
-    : readerPath{std::filesystem::path{recordingPath}.replace_extension(".bin")}
+    : model{std::make_shared<ghosting::GhostModel>()}
+    , readerPath{std::filesystem::path{recordingPath}.replace_extension(".bin")}
     , writerPath{recordingPath}
     , writer{std::make_unique<ghosting::GhostDataWriter>(recordingPath)}
-    , model{std::make_shared<ghosting::GhostModel>()}
 {
   if(std::filesystem::is_regular_file(readerPath))
   {
