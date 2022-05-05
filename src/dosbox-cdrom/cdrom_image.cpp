@@ -460,11 +460,6 @@ bool CdImage::addTrack(Track& curr, size_t& shift, size_t prestart, size_t& tota
     BOOST_LOG_TRIVIAL(error) << "overlapping tracks";
     return false;
   }
-  if(curr.length < 0)
-  {
-    BOOST_LOG_TRIVIAL(error) << "negativ track length";
-    return false;
-  }
 
   m_tracks.push_back(curr);
   return true;
