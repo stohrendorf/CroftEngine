@@ -1002,7 +1002,7 @@ void World::gameLoop(bool godMode, float blackAlpha, ui::Ui& ui)
 bool World::cinematicLoop()
 {
   m_cameraController->m_cinematicFrame += 1_frame;
-  if(m_cameraController->m_cinematicFrame.get() >= m_cinematicFrames.size())
+  if(gsl::narrow<size_t>(m_cameraController->m_cinematicFrame.get()) >= m_cinematicFrames.size())
     return false;
 
   update(false);
