@@ -8,12 +8,12 @@ layout (points) in;
 layout (triangle_strip, max_vertices = N) out;
 
 in DustVSInterface {
-    float lifetime;
+    float alpha;
     float size;
 } vs[];
 
 out DustFSInterface {
-    flat float lifetime;
+    float alpha;
 } fs;
 
 const float ParticleRadius = 0.4;
@@ -36,18 +36,18 @@ void main()
 
     mat4 vp = camera.viewProjection;
 
-    // points of the circle are r*f(2*pi*i/N) with f=cos/sin
-
     float r = ParticleRadius * vs[0].size;
+    float alpha = vs[0].alpha;
     for (int i=0; i<N/2; ++i) {
         vec3 dx = vec3(mv[0].x, mv[1].x, mv[2].x) * r * cos(2*PI*(i+0.5)/N);
         vec3 dy = vec3(mv[0].y, mv[1].y, mv[2].y) * r * sin(2*PI*(i+0.5)/N);
 
         gl_Position = vp * vec4(pos + dx + dy, 1);
-        fs.lifetime = vs[0].lifetime;
+        fs.alpha = alpha;
         EmitVertex();
+
         gl_Position = vp * vec4(pos + dx - dy, 1);
-        fs.lifetime = vs[0].lifetime;
+        fs.alpha = alpha;
         EmitVertex();
     }
     EndPrimitive();

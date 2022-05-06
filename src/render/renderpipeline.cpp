@@ -1,5 +1,6 @@
 #include "renderpipeline.h"
 
+#include "engine/world/room.h"
 #include "pass/effectpass.h"
 #include "pass/geometrypass.h"
 #include "pass/hbaopass.h"
@@ -7,6 +8,7 @@
 #include "pass/uipass.h"
 #include "pass/worldcompositionpass.h"
 #include "render/scene/materialmanager.h"
+#include "render/scene/visitor.h"
 #include "rendersettings.h"
 
 #include <boost/assert.hpp>
@@ -36,17 +38,41 @@ RenderPipeline::RenderPipeline(scene::MaterialManager& materialManager,
   resize(materialManager, renderViewport, uiViewport, displayViewport, true);
 }
 
-void RenderPipeline::worldCompositionPass(const bool inWater)
+void RenderPipeline::worldCompositionPass(const std::vector<engine::world::Room>& rooms, const bool inWater)
 {
   BOOST_ASSERT(m_portalPass != nullptr);
   if(m_renderSettings.waterDenoise)
     m_portalPass->renderBlur();
+
   BOOST_ASSERT(m_hbaoPass != nullptr);
   if(m_renderSettings.hbao)
     m_hbaoPass->render();
-  BOOST_ASSERT(m_worldCompositionPass != nullptr);
 
+  BOOST_ASSERT(m_worldCompositionPass != nullptr);
   m_worldCompositionPass->render(inWater);
+
+  {
+    render::scene::RenderContext context{render::scene::RenderMode::Full, std::nullopt};
+    for(const auto& room : rooms)
+    {
+      if(!room.node->isVisible() || !room.dust->isVisible())
+        continue;
+
+      SOGLB_DEBUGGROUP(room.node->getName() + ":dust");
+      auto state = context.getCurrentState();
+      state.setScissorTest(true);
+      const auto [xy, size] = room.node->getCombinedScissors();
+      state.setScissorRegion(xy, size);
+      context.pushState(state);
+
+      render::scene::Visitor visitor{context};
+      room.dust->accept(visitor);
+      visitor.render(std::nullopt);
+
+      context.popState();
+    }
+  }
+
   auto finalOutput = m_worldCompositionPass->getFramebuffer();
   for(const auto& effect : m_effects)
   {

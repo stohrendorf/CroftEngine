@@ -3,6 +3,7 @@
 #include <gl/soglb_fwd.h>
 #include <glm/vec3.hpp>
 #include <gsl/gsl-lite.hpp>
+#include <optional>
 #include <tuple>
 #include <vector>
 
@@ -41,7 +42,7 @@ public:
 
   void add(const gsl::not_null<const Node*>& node, const glm::vec3& position);
 
-  void render(const glm::vec3& camera) const;
+  void render(const std::optional<glm::vec3>& camera) const;
 
 private:
   RenderContext& m_context;

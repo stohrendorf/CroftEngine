@@ -33,23 +33,27 @@ void Visitor::add(const gsl::not_null<const Node*>& node, const glm::vec3& posit
     m_nodes.emplace_back(node, m_context.getCurrentState(), position);
 }
 
-void Visitor::render(const glm::vec3& camera) const
+void Visitor::render(const std::optional<glm::vec3>& camera) const
 {
-  // logic: first order by render order, then order by distance to camera back-to-front
-  std::sort(m_nodes.begin(),
-            m_nodes.end(),
-            [camera](const RenderableInfo& a, const RenderableInfo& b)
-            {
-              if(auto aOrder = std::get<0>(a)->getRenderOrder(), bOrder = std::get<0>(b)->getRenderOrder();
-                 aOrder != bOrder)
+  if(camera.has_value())
+  {
+    // logic: first order by render order, then order by distance to camera back-to-front
+    std::sort(m_nodes.begin(),
+              m_nodes.end(),
+              [camera](const RenderableInfo& a, const RenderableInfo& b)
               {
-                return aOrder < bOrder;
-              }
+                if(auto aOrder = std::get<0>(a)->getRenderOrder(), bOrder = std::get<0>(b)->getRenderOrder();
+                   aOrder != bOrder)
+                {
+                  return aOrder < bOrder;
+                }
 
-              auto da = glm::distance(std::get<2>(a), camera);
-              auto db = glm::distance(std::get<2>(b), camera);
-              return da > db;
-            });
+                auto da = glm::distance(std::get<2>(a), *camera);
+                auto db = glm::distance(std::get<2>(b), *camera);
+                return da > db;
+              });
+  }
+
   for(const auto& [node, state, position] : m_nodes)
   {
     SOGLB_DEBUGGROUP(node->getName());

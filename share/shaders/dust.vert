@@ -4,7 +4,7 @@
 #include "noise.glsl"
 
 out DustVSInterface {
-    float lifetime;
+    float alpha;
     float size;
 } vs;
 
@@ -19,7 +19,7 @@ void main()
     float randS = pow(0.5, 0.5 * n.y + 1) * pow(0.5, 1 - (0.5 * n.y + 1));
     vs.size = 0.5 + randS*4;
 
-    float particleMaxLifetime = (n2.x * 0.5 + 1) * MaxLifetime;
+    float particleMaxLifetime = (n2.x * 0.5 + 1.2) * MaxLifetime;
 
     float t = mod(TimeSeconds, particleMaxLifetime);
     float t0 = TimeSeconds - t;
@@ -27,7 +27,8 @@ void main()
     vec3 normal = snoise3(a_position.zyx + pnoise);
     float distance = snoise3(a_position.zyx - pnoise).x * MaxDistance;
 
-    vs.lifetime = t / particleMaxLifetime;
+    float lifetime = t / particleMaxLifetime;
+    vs.alpha = clamp(min(lifetime, 1.0-lifetime) * 3.0, 0.0, 1.0) * 0.3;
     vec3 pos = a_position + normal * distance * (t+pnoise.y) / particleMaxLifetime;
     gl_Position = modelTransform.m * vec4(pos, 1);
 }

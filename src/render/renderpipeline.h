@@ -16,9 +16,12 @@ class MaterialManager;
 class Camera;
 } // namespace render::scene
 
-namespace render
+namespace engine::world
 {
-namespace pass
+struct Room;
+}
+
+namespace render::pass
 {
 class PortalPass;
 class GeometryPass;
@@ -26,8 +29,10 @@ class HBAOPass;
 class WorldCompositionPass;
 class UIPass;
 class EffectPass;
-} // namespace pass
+} // namespace render::pass
 
+namespace render
+{
 class RenderPipeline
 {
 private:
@@ -55,7 +60,7 @@ public:
   [[nodiscard]] gl::RenderState bindPortalFrameBuffer();
   void bindUiFrameBuffer();
   void renderUiFrameBuffer(float alpha);
-  void worldCompositionPass(bool inWater);
+  void worldCompositionPass(const std::vector<engine::world::Room>& rooms, bool inWater);
 
   void updateCamera(const gslu::nn_shared<scene::Camera>& camera);
 

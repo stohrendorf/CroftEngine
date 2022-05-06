@@ -476,6 +476,8 @@ gslu::nn_shared<Material> MaterialManager::getDustParticle()
 
   auto m = gsl::make_shared<Material>(m_shaderCache->getDustParticle());
   m->getRenderState().setCullFace(false);
+  m->getRenderState().setBlend(0, true);
+  m->getRenderState().setBlendFactors(0, gl::api::BlendingFactor::SrcAlpha, gl::api::BlendingFactor::OneMinusSrcAlpha);
   m->getUniformBlock("Camera")->bindCameraBuffer(m_renderer->getCamera());
   m->getUniformBlock("Transform")->bindTransformBuffer();
   m->getUniform("u_noise")->set(gsl::not_null{m_noiseTexture});

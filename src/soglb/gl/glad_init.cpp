@@ -160,6 +160,11 @@ void gl::initializeGl(void* (*loadProc)(const char* name))
   else
     BOOST_LOG_TRIVIAL(info) << "Anisotropic filtering is supported on this platform, max level "
                             << getMaxAnisotropyLevel();
+
+  GL_ASSERT(api::enable(api::EnableCap::Multisample));
+  GL_ASSERT(api::enable(api::EnableCap::SampleShading));
+  GL_ASSERT(api::enable(api::EnableCap::Dither));
+  GL_ASSERT(api::minSampleShading(1.0f));
 }
 
 bool gl::hasAnisotropicFilteringExtension()
