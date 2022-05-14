@@ -16,5 +16,5 @@ void main()
 
     vec3 monochrome = vec3(lum, lum, lum);
 
-    out_color = mix(monochrome, col, clamp(u_strength, 0, 1));
+    out_color = mix(col, monochrome, clamp(u_strength, 0, 1));
 }

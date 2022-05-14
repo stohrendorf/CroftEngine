@@ -628,7 +628,7 @@ void World::update(const bool godMode)
   if(const auto lara = m_objectManager.getLaraPtr();
      getEngine().getEngineConfig()->lowHealthMonochrome && lara != nullptr)
   {
-    const auto newStrength = lara->m_state.health.cast<float>() / core::LaraHealth * 5;
+    const auto newStrength = 1 - lara->m_state.health.cast<float>() / core::LaraHealth * 5;
     if(newStrength < m_currentDeathStrength)
       m_currentDeathStrength = std::max(m_currentDeathStrength - DeathStrengthFadeDeltaPerFrame, newStrength);
     else if(newStrength > m_currentDeathStrength)
@@ -1016,12 +1016,12 @@ void World::gameLoop(bool godMode, float blackAlpha, ui::Ui& ui)
 
 bool World::cinematicLoop()
 {
-  getPresenter().getMaterialManager()->setDeathStrength(0);
   m_cameraController->m_cinematicFrame += 1_frame;
   if(gsl::narrow<size_t>(m_cameraController->m_cinematicFrame.get()) >= m_cinematicFrames.size())
     return false;
 
   update(false);
+  getPresenter().getMaterialManager()->setDeathStrength(0);
 
   const auto waterEntryPortals
     = m_cameraController->updateCinematic(m_cinematicFrames.at(m_cameraController->m_cinematicFrame.get()), false);
