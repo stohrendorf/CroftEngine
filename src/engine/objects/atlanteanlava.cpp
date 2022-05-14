@@ -47,6 +47,8 @@ void AtlanteanLava::update()
       break;
     }
 
+    applyTransform();
+
     const auto sector = location.updateRoom();
     if(HeightInfo::fromFloor(sector, location.position, getWorld().getObjectManager().getObjects()).y
        != m_state.location.position.Y)
