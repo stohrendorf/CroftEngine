@@ -22,6 +22,7 @@
 #include "modelobject.h"
 #include "objectstate.h"
 #include "qs/qs.h"
+#include "serialization/serialization.h"
 #include "util/helpers.h"
 
 #include <algorithm>
@@ -92,7 +93,7 @@ void RollingBall::update()
     m_state.required_anim_state = 0_as;
     deactivate();
   }
-  
+
   applyTransform();
 }
 
@@ -173,5 +174,16 @@ RollingBall::RollingBall(const std::string& name,
     : ModelObject{name, world, room, item, true, animatedModel, true}
     , m_location{room, item.position}
 {
+  getSkeleton()->getRenderState().setScissorTest(false);
+}
+
+void RollingBall::serialize(const serialization::Serializer<world::World>& ser)
+{
+  ModelObject::serialize(ser);
+
+  if(ser.loading)
+  {
+    getSkeleton()->getRenderState().setScissorTest(false);
+  }
 }
 } // namespace engine::objects

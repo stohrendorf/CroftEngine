@@ -44,6 +44,8 @@ public:
 
   void collide(CollisionInfo& collisionInfo) override;
 
+  void serialize(const serialization::Serializer<world::World>& ser) override;
+
 private:
   Location m_location;
 };
