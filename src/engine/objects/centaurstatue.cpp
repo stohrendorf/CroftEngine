@@ -57,11 +57,13 @@ CentaurStatue::CentaurStatue(const std::string& name,
       childState.current_anim_state, gsl::not_null{&model->animations[7]}, model->animations[7].firstFrame + 36_frame);
     childState.goal_anim_state = childState.current_anim_state = model->animations[7].state_id;
     childState.rotation.Y = m_state.rotation.Y;
+    m_childObject->getSkeleton()->updatePose();
+    m_childObject->m_state.triggerState = TriggerState::Invisible;
     getWorld().getObjectManager().registerObject(gsl::not_null{m_childObject});
   }
   else
   {
-    BOOST_LOG_TRIVIAL(warning) << "Mutant egg does not have an object to hatch";
+    BOOST_LOG_TRIVIAL(warning) << "Centaur statue does not have an object to hatch";
   }
 }
 
