@@ -971,6 +971,7 @@ void World::serialize(const serialization::Serializer<World>& ser)
 
   ser(S_NV("objectManager", m_objectManager),
       S_NV("player", *m_player),
+      S_NVO("initialLevelStartPlayer", *m_levelStartPlayer),
       S_NV("mapFlipActivationStates", m_mapFlipActivationStates),
       S_NV("cameras", serialization::FrozenVector{m_cameraSinks}),
       S_NV("activeEffect", m_activeEffect),
@@ -1114,7 +1115,8 @@ World::World(Engine& engine,
              const std::optional<TR1TrackId>& track,
              bool useAlternativeLara,
              std::unordered_map<std::string, std::unordered_map<TR1ItemId, std::string>> itemTitles,
-             std::shared_ptr<Player> player)
+             std::shared_ptr<Player> player,
+             std::shared_ptr<Player> levelStartPlayer)
     : m_engine{engine}
     , m_levelFilename{level->getFilename()}
     , m_audioEngine{std::make_unique<AudioEngine>(
@@ -1124,6 +1126,7 @@ World::World(Engine& engine,
     , m_itemTitles{std::move(itemTitles)}
     , m_textureAnimator{std::make_unique<render::TextureAnimator>(level->m_animatedTextures)}
     , m_player{std::move(player)}
+    , m_levelStartPlayer{std::move(levelStartPlayer)}
     , m_samplesData{std::move(level->m_samplesData)}
 {
   m_engine.registerWorld(this);

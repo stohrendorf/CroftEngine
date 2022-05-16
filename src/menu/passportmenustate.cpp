@@ -48,8 +48,7 @@ std::optional<std::unique_ptr<MenuState>> PassportMenuState::showLoadGamePage(en
     m_passportText = std::make_unique<ui::Text>(title);
   }
 
-  if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Action)
-     || display.mode == InventoryMode::LoadMode)
+  if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Action))
   {
     return create<SavegameListMenuState>(std::move(display.m_currentState), title, world, true);
   }
@@ -57,11 +56,25 @@ std::optional<std::unique_ptr<MenuState>> PassportMenuState::showLoadGamePage(en
   return std::nullopt;
 }
 
-std::optional<std::unique_ptr<MenuState>>
-  PassportMenuState::showSaveGamePage(engine::world::World& world, MenuDisplay& display, bool isInGame)
+std::optional<std::unique_ptr<MenuState>> PassportMenuState::showSaveGamePage(engine::world::World& world,
+                                                                              MenuDisplay& display)
 {
-  const auto title = m_allowSave && isInGame ? /* translators: TR charmap encoding */ _("Save Game")
-                                             : /* translators: TR charmap encoding */ _("New Game");
+  const char* title = nullptr;
+  switch(m_saveGamePageMode)
+  {
+  case SaveGamePageMode::Skip:
+    BOOST_ASSERT(false);
+    return nullptr;
+  case SaveGamePageMode::NewGame:
+    title = /* translators: TR charmap encoding */ _("New Game");
+    break;
+  case SaveGamePageMode::Save:
+    title = /* translators: TR charmap encoding */ _("Save Game");
+    break;
+  case SaveGamePageMode::Restart:
+    title = /* translators: TR charmap encoding */ _("Restart Level");
+    break;
+  }
 
   if(m_passportText == nullptr)
   {
@@ -70,13 +83,14 @@ std::optional<std::unique_ptr<MenuState>>
 
   if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Action))
   {
-    if(display.mode == InventoryMode::SaveMode || (m_allowSave && isInGame))
+    if(m_saveGamePageMode == SaveGamePageMode::Save)
     {
       return create<SavegameListMenuState>(std::move(display.m_currentState), title, world, false);
     }
     else
     {
-      return create<DoneMenuState>(MenuResult::NewGame);
+      return create<DoneMenuState>(m_saveGamePageMode == SaveGamePageMode::NewGame ? MenuResult::NewGame
+                                                                                   : MenuResult::RestartLevel);
     }
   }
 
@@ -88,13 +102,13 @@ void PassportMenuState::showExitGamePage(engine::world::World& world, MenuDispla
   if(m_passportText == nullptr)
   {
     m_passportText
-      = std::make_unique<ui::Text>(!returnToTitle ? /* translators: TR charmap encoding */ _("Exit Game")
-                                                  : /* translators: TR charmap encoding */ _("Exit to Title"));
+      = std::make_unique<ui::Text>(returnToTitle ? /* translators: TR charmap encoding */ _("Exit to Title")
+                                                 : /* translators: TR charmap encoding */ _("Exit Game"));
   }
 
   if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Action))
   {
-    display.result = !returnToTitle ? MenuResult::ExitGame : MenuResult::ExitToTitle;
+    display.result = returnToTitle ? MenuResult::ExitToTitle : MenuResult::ExitGame;
   }
 }
 
@@ -160,7 +174,7 @@ std::unique_ptr<MenuState> PassportMenuState::onFrame(ui::Ui& ui, engine::world:
   switch(page)
   {
   case LoadGamePage:
-    if(!hasSavedGames || display.mode == InventoryMode::SaveMode)
+    if(!hasSavedGames)
     {
       forcePageTurn = hid::AxisMovement::Right;
       break;
@@ -169,17 +183,15 @@ std::unique_ptr<MenuState> PassportMenuState::onFrame(ui::Ui& ui, engine::world:
       return std::move(*tmp);
     break;
   case SaveGamePage:
-    if(!m_allowSave && display.mode != InventoryMode::TitleMode)
+    if(m_saveGamePageMode == SaveGamePageMode::Skip)
     {
-      // can't save when dead, so just skip this page
       if(passport.animDirection == -1_frame)
         forcePageTurn = hid::AxisMovement::Left;
       else
         forcePageTurn = hid::AxisMovement::Right;
       break;
     }
-    if(auto tmp = showSaveGamePage(
-         world, display, display.mode != InventoryMode::TitleMode && display.mode != InventoryMode::DeathMode))
+    if(auto tmp = showSaveGamePage(world, display))
       return std::move(*tmp);
     break;
   case ExitGamePage:
@@ -202,10 +214,13 @@ std::unique_ptr<MenuState> PassportMenuState::onFrame(ui::Ui& ui, engine::world:
       prevPage(0_frame, passport, world);
       return nullptr;
     }
-    else if(m_allowSave || display.mode == InventoryMode::TitleMode)
+    else
     {
-      prevPage(FramesPerPage, passport, world);
-      return nullptr;
+      if(m_saveGamePageMode == SaveGamePageMode::Save || display.mode == InventoryMode::TitleMode)
+      {
+        prevPage(SaveGamePage * FramesPerPage, passport, world);
+        return nullptr;
+      }
     }
   }
   else if(forcePageTurn == hid::AxisMovement::Right
@@ -230,14 +245,11 @@ std::unique_ptr<MenuState> PassportMenuState::onFrame(ui::Ui& ui, engine::world:
 }
 
 PassportMenuState::PassportMenuState(const std::shared_ptr<MenuRingTransform>& ringTransform,
-                                     InventoryMode mode,
-                                     bool allowSave)
+                                     bool allowExit,
+                                     SaveGamePageMode saveGamePageMode)
     : MenuState{ringTransform}
-    , m_allowExit{mode != InventoryMode::DeathMode && mode != InventoryMode::TitleMode}
-    , m_allowSave{allowSave && (mode != InventoryMode::DeathMode && mode != InventoryMode::TitleMode)}
-    , m_forcePage{mode == InventoryMode::LoadMode   ? std::optional<int>{0}
-                  : mode == InventoryMode::SaveMode ? std::optional<int>{1}
-                                                    : std::nullopt}
+    , m_allowExit{allowExit}
+    , m_saveGamePageMode{saveGamePageMode}
 {
 }
 } // namespace menu

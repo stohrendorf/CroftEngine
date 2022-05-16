@@ -42,6 +42,7 @@ enum class RunResult
   LaraHomeLevel,
   ExitApp,
   RequestLoad,
+  RestartLevel
 };
 
 struct SavegameMeta
@@ -129,10 +130,13 @@ public:
   }
 
   std::pair<RunResult, std::optional<size_t>> runLevelSequenceItem(script::LevelSequenceItem& item,
-                                                                   const std::shared_ptr<Player>& player);
-  std::pair<RunResult, std::optional<size_t>> runLevelSequenceItemFromSave(script::LevelSequenceItem& item,
-                                                                           const std::optional<size_t>& slot,
-                                                                           const std::shared_ptr<Player>& player);
+                                                                   const std::shared_ptr<Player>& player,
+                                                                   const std::shared_ptr<Player>& levelStartPlayer);
+  std::pair<RunResult, std::optional<size_t>>
+    runLevelSequenceItemFromSave(script::LevelSequenceItem& item,
+                                 const std::optional<size_t>& slot,
+                                 const std::shared_ptr<Player>& player,
+                                 const std::shared_ptr<Player>& levelStartPlayer);
 
   [[nodiscard]] const auto& getGlidos() const noexcept
   {

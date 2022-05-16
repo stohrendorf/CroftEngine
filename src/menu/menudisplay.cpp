@@ -545,9 +545,15 @@ std::vector<MenuObject> MenuDisplay::getKeysRingObjects(const engine::world::Wor
   return objects;
 }
 
-MenuDisplay::MenuDisplay(InventoryMode mode, engine::world::World& world, const glm::ivec2& viewport)
+MenuDisplay::MenuDisplay(InventoryMode mode,
+                         SaveGamePageMode saveGamePageMode,
+                         bool allowPassportExit,
+                         engine::world::World& world,
+                         const glm::ivec2& viewport)
     : mode{mode}
     , allowMenuClose{mode != InventoryMode::TitleMode && mode != InventoryMode::DeathMode}
+    , saveGamePageMode{saveGamePageMode}
+    , allowPassportExit{allowPassportExit}
     , m_currentState{std::make_unique<InflateRingMenuState>(ringTransform, true)}
     , m_upArrow{ui::getSpriteSelector(ui::ArrowUpSprite)}
     , m_downArrow{ui::getSpriteSelector(ui::ArrowDownSprite)}
@@ -567,10 +573,8 @@ MenuDisplay::MenuDisplay(InventoryMode mode, engine::world::World& world, const 
     }
 
     currentRingIndex = rings.size();
-    rings.emplace_back(
-
-      std::make_unique<MenuRing>(
-        MenuRing::Type::Inventory, /* translators: TR charmap encoding */ _("INVENTORY"), getMainRingObjects(world)));
+    rings.emplace_back(std::make_unique<MenuRing>(
+      MenuRing::Type::Inventory, /* translators: TR charmap encoding */ _("INVENTORY"), getMainRingObjects(world)));
   }
 
   rings.emplace_back(std::make_unique<MenuRing>(MenuRing::Type::Options,

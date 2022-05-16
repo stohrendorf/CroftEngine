@@ -129,6 +129,7 @@ int main(int argc, char** argv)
     };
 
     std::shared_ptr<engine::Player> player;
+    std::shared_ptr<engine::Player> levelStartPlayer;
 
     while(true)
     {
@@ -139,35 +140,40 @@ int main(int argc, char** argv)
         Expects(!doLoad);
         player = std::make_shared<engine::Player>();
         for(const auto& item : gameflow.getEarlyBoot())
-          runResult = engine.runLevelSequenceItem(*item, player);
+          runResult = engine.runLevelSequenceItem(*item, player, levelStartPlayer);
         break;
       case Mode::Title:
         Expects(!doLoad);
         player = std::make_shared<engine::Player>();
-        runResult = engine.runLevelSequenceItem(*gameflow.getTitleMenu(), player);
+        runResult = engine.runLevelSequenceItem(*gameflow.getTitleMenu(), player, levelStartPlayer);
         break;
       case Mode::Gym:
         Expects(!doLoad);
         player = std::make_shared<engine::Player>();
         for(const auto& item : gameflow.getLaraHome())
-          runResult = engine.runLevelSequenceItem(*item, player);
+          runResult = engine.runLevelSequenceItem(*item, player, levelStartPlayer);
         break;
       case Mode::Game:
         if(doLoad)
         {
           player = std::make_shared<engine::Player>();
+          levelStartPlayer = std::make_shared<engine::Player>();
           runResult = engine.runLevelSequenceItemFromSave(
-            *gsl::not_null{gameflow.getLevelSequence().at(levelSequenceIndex)}, loadSlot, player);
+            *gsl::not_null{gameflow.getLevelSequence().at(levelSequenceIndex)}, loadSlot, player, levelStartPlayer);
         }
         else
         {
           if(player == nullptr || levelSequenceIndex == 0)
           {
-            player = std::make_shared<engine::Player>();
+            if(levelStartPlayer == nullptr)
+              player = std::make_shared<engine::Player>();
+            else
+              player = std::make_shared<engine::Player>(*levelStartPlayer);
           }
+          levelStartPlayer = std::make_shared<engine::Player>(*player);
 
-          runResult
-            = engine.runLevelSequenceItem(*gsl::not_null{gameflow.getLevelSequence().at(levelSequenceIndex)}, player);
+          runResult = engine.runLevelSequenceItem(
+            *gsl::not_null{gameflow.getLevelSequence().at(levelSequenceIndex)}, player, levelStartPlayer);
         }
         break;
       }
@@ -190,6 +196,7 @@ int main(int argc, char** argv)
         case engine::RunResult::NextLevel:
           levelSequenceIndex = 0;
           mode = Mode::Game;
+          levelStartPlayer.reset();
           break;
         case engine::RunResult::TitleLevel:
           mode = Mode::Title;
@@ -200,6 +207,8 @@ int main(int argc, char** argv)
         case engine::RunResult::RequestLoad:
           processLoadRequest(runResult.second);
           break;
+        case engine::RunResult::RestartLevel:
+          BOOST_THROW_EXCEPTION(std::runtime_error("level restart request while running title menu"));
         }
         break;
       case Mode::Gym:
@@ -219,6 +228,8 @@ int main(int argc, char** argv)
         case engine::RunResult::RequestLoad:
           processLoadRequest(runResult.second);
           break;
+        case engine::RunResult::RestartLevel:
+          BOOST_THROW_EXCEPTION(std::runtime_error("level restart request while running title menu"));
         }
         break;
       case Mode::Game:
@@ -247,6 +258,10 @@ int main(int argc, char** argv)
           break;
         case engine::RunResult::RequestLoad:
           processLoadRequest(runResult.second);
+          break;
+        case engine::RunResult::RestartLevel:
+          BOOST_ASSERT(player != nullptr);
+          player = std::make_shared<engine::Player>(*levelStartPlayer);
           break;
         }
         break;

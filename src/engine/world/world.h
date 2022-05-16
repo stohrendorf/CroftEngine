@@ -107,7 +107,8 @@ public:
                  const std::optional<TR1TrackId>& track,
                  bool useAlternativeLara,
                  std::unordered_map<std::string, std::unordered_map<TR1ItemId, std::string>> itemTitles,
-                 std::shared_ptr<Player> player);
+                 std::shared_ptr<Player> player,
+                 std::shared_ptr<Player> levelStartPlayer);
 
   ~World();
 
@@ -409,6 +410,7 @@ private:
 
   std::vector<ui::PickupWidget> m_pickupWidgets{};
   const std::shared_ptr<Player> m_player;
+  const std::shared_ptr<Player> m_levelStartPlayer;
 
   std::vector<int16_t> m_poseFrames;
   std::vector<int16_t> m_animCommands;

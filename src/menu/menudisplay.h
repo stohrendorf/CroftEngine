@@ -42,10 +42,11 @@ namespace menu
 {
 enum class InventoryMode
 {
+  /// adds "items" and "inventory" rings
   GameMode,
+  /// disallows menu closing, adds home polaroid
   TitleMode,
-  SaveMode,
-  LoadMode,
+  /// disallows menu closing, uses "game over" label instead of "option" for menu
   DeathMode
 };
 
@@ -60,19 +61,33 @@ enum class MenuResult
   ExitToTitle,
   ExitGame,
   NewGame,
+  RestartLevel,
   LaraHome,
   RequestLoad
 };
 
+enum class SaveGamePageMode
+{
+  Skip,
+  NewGame,
+  Save,
+  Restart
+};
+
 struct MenuDisplay
 {
-  explicit MenuDisplay(InventoryMode mode, engine::world::World& world, const glm::ivec2& viewport);
+  explicit MenuDisplay(InventoryMode mode,
+                       SaveGamePageMode saveGamePageMode,
+                       bool allowPassportExit,
+                       engine::world::World& world,
+                       const glm::ivec2& viewport);
   ~MenuDisplay();
 
   const InventoryMode mode;
   std::optional<engine::TR1ItemId> inventoryChosen{};
   bool allowMenuClose = true;
-  bool allowSave = true;
+  const SaveGamePageMode saveGamePageMode;
+  const bool allowPassportExit;
 
   std::shared_ptr<MenuRingTransform> ringTransform = std::make_shared<MenuRingTransform>();
   std::unique_ptr<MenuState> m_currentState;

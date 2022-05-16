@@ -332,6 +332,8 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
             return {RunResult::ExitApp, std::nullopt};
         }
         return {RunResult::NextLevel, std::nullopt};
+      case menu::MenuResult::RestartLevel:
+        return {RunResult::RestartLevel, std::nullopt};
       case menu::MenuResult::LaraHome:
         return {RunResult::LaraHomeLevel, std::nullopt};
       case menu::MenuResult::RequestLoad:
@@ -365,9 +367,11 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
         if(laraDeadTime >= core::FrameRate * 10_sec
            || (laraDeadTime >= core::FrameRate * 2_sec && m_presenter->getInputHandler().hasAnyAction()))
         {
-          menu = std::make_shared<menu::MenuDisplay>(
-            menu::InventoryMode::DeathMode, world, m_presenter->getRenderViewport());
-          menu->allowSave = false;
+          menu = std::make_shared<menu::MenuDisplay>(menu::InventoryMode::DeathMode,
+                                                     menu::SaveGamePageMode::Restart,
+                                                     false,
+                                                     world,
+                                                     m_presenter->getRenderViewport());
           throttler.reset();
           continue;
         }
@@ -377,8 +381,11 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
          && m_presenter->getInputHandler().hasDebouncedAction(hid::Action::Menu))
       {
         menu
-          = std::make_shared<menu::MenuDisplay>(menu::InventoryMode::GameMode, world, m_presenter->getRenderViewport());
-        menu->allowSave = allowSave;
+          = std::make_shared<menu::MenuDisplay>(menu::InventoryMode::GameMode,
+                                                allowSave ? menu::SaveGamePageMode::Save : menu::SaveGamePageMode::Skip,
+                                                true,
+                                                world,
+                                                m_presenter->getRenderViewport());
         throttler.reset();
         continue;
       }
@@ -482,8 +489,8 @@ std::pair<RunResult, std::optional<size_t>> Engine::runTitleMenu(world::World& w
                       getAssetDataPath() / std::filesystem::path{m_scriptEngine.getGameflow().getTitleMenuBackdrop()})}
       .toTexture("title"),
     gsl::make_unique<gl::Sampler>("title-sampler"));
-  const auto menu
-    = std::make_shared<menu::MenuDisplay>(menu::InventoryMode::TitleMode, world, m_presenter->getRenderViewport());
+  const auto menu = std::make_shared<menu::MenuDisplay>(
+    menu::InventoryMode::TitleMode, menu::SaveGamePageMode::NewGame, false, world, m_presenter->getRenderViewport());
   Throttler throttler;
   while(true)
   {
@@ -564,23 +571,27 @@ std::pair<RunResult, std::optional<size_t>> Engine::runTitleMenu(world::World& w
   }
 }
 
-std::pair<RunResult, std::optional<size_t>> Engine::runLevelSequenceItem(script::LevelSequenceItem& item,
-                                                                         const std::shared_ptr<Player>& player)
+std::pair<RunResult, std::optional<size_t>>
+  Engine::runLevelSequenceItem(script::LevelSequenceItem& item,
+                               const std::shared_ptr<Player>& player,
+                               const std::shared_ptr<Player>& levelStartPlayer)
 {
   m_presenter->getSoundEngine()->reset();
   m_presenter->clear();
   applySettings();
-  return item.run(*this, player);
+  return item.run(*this, player, levelStartPlayer);
 }
 
-std::pair<RunResult, std::optional<size_t>> Engine::runLevelSequenceItemFromSave(script::LevelSequenceItem& item,
-                                                                                 const std::optional<size_t>& slot,
-                                                                                 const std::shared_ptr<Player>& player)
+std::pair<RunResult, std::optional<size_t>>
+  Engine::runLevelSequenceItemFromSave(script::LevelSequenceItem& item,
+                                       const std::optional<size_t>& slot,
+                                       const std::shared_ptr<Player>& player,
+                                       const std::shared_ptr<Player>& levelStartPlayer)
 {
   m_presenter->getSoundEngine()->reset();
   m_presenter->clear();
   applySettings();
-  return item.runFromSave(*this, slot, player);
+  return item.runFromSave(*this, slot, player, levelStartPlayer);
 }
 
 std::unique_ptr<loader::trx::Glidos> Engine::loadGlidosPack() const

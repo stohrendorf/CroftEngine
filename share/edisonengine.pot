@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: EdisonEngine 1.2.1\n"
+"Project-Id-Version: EdisonEngine 1.3\n"
 "Report-Msgid-Bugs-To: https://github.com/stohrendorf/EdisonEngine/issues\n"
-"POT-Creation-Date: 2022-05-05 20:19+0200\n"
+"POT-Creation-Date: 2022-05-16 03:47+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -184,7 +184,7 @@ msgctxt "Keyboard|Key"
 msgid "Bksp"
 msgstr ""
 
-#: engine/presenter.cpp:455
+#: engine/presenter.cpp:434
 msgid "Booting"
 msgstr ""
 
@@ -370,12 +370,12 @@ msgid "Esc"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/passportmenustate.cpp:91
+#: menu/passportmenustate.cpp:106
 msgid "Exit Game"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/passportmenustate.cpp:92
+#: menu/passportmenustate.cpp:105
 msgid "Exit to Title"
 msgstr ""
 
@@ -407,7 +407,7 @@ msgid "G"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/menudisplay.cpp:578
+#: menu/menudisplay.cpp:582
 msgid "GAME OVER"
 msgstr ""
 
@@ -505,12 +505,12 @@ msgid "I"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/menudisplay.cpp:573
+#: menu/menudisplay.cpp:577
 msgid "INVENTORY"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/menudisplay.cpp:563
+#: menu/menudisplay.cpp:569
 msgid "ITEMS"
 msgstr ""
 
@@ -627,11 +627,11 @@ msgstr ""
 msgid "Loading %1%"
 msgstr ""
 
-#: engine/engine.cpp:593
+#: engine/engine.cpp:604
 msgid "Loading Glidos texture pack"
 msgstr ""
 
-#: engine/world/world.cpp:1041
+#: engine/world/world.cpp:1042
 msgid "Loading..."
 msgstr ""
 
@@ -697,7 +697,7 @@ msgid "N/A"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/passportmenustate.cpp:64
+#: menu/passportmenustate.cpp:69
 msgid "New Game"
 msgstr ""
 
@@ -724,7 +724,7 @@ msgid "OK"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/menudisplay.cpp:579
+#: menu/menudisplay.cpp:583
 msgid "OPTION"
 msgstr ""
 
@@ -905,7 +905,7 @@ msgstr ""
 msgid "Quality"
 msgstr ""
 
-#: engine/world/world.cpp:1067
+#: engine/world/world.cpp:1068
 msgid "Quicksave"
 msgstr ""
 
@@ -943,6 +943,11 @@ msgstr ""
 #: hid/names.cpp:300
 msgctxt "Gamepad|Button"
 msgid "RThumb"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/passportmenustate.cpp:75
+msgid "Restart Level"
 msgstr ""
 
 #. translators: TR charmap encoding
@@ -1010,7 +1015,7 @@ msgid "Save"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/passportmenustate.cpp:63
+#: menu/passportmenustate.cpp:72
 msgid "Save Game"
 msgstr ""
 
@@ -1019,7 +1024,7 @@ msgstr ""
 msgid "Save recorded ghost?"
 msgstr ""
 
-#: engine/world/world.cpp:1062
+#: engine/world/world.cpp:1063
 msgid "Saving..."
 msgstr ""
 

@@ -84,7 +84,9 @@ std::unique_ptr<loader::file::level::Level>
 }
 } // namespace
 
-std::pair<RunResult, std::optional<size_t>> Video::run(Engine& engine, const std::shared_ptr<Player>& /*player*/)
+std::pair<RunResult, std::optional<size_t>> Video::run(Engine& engine,
+                                                       const std::shared_ptr<Player>& /*player*/,
+                                                       const std::shared_ptr<Player>& /*levelStartPlayer*/)
 {
   engine.getPresenter().playVideo(getAssetPath(engine, m_name));
   return {RunResult::NextLevel, std::nullopt};
@@ -97,7 +99,8 @@ std::optional<std::filesystem::path> Video::getFilepathIfInvalid(const Engine& e
   return std::filesystem::path{m_name};
 }
 
-std::pair<RunResult, std::optional<size_t>> Cutscene::run(Engine& engine, const std::shared_ptr<Player>& player)
+std::pair<RunResult, std::optional<size_t>>
+  Cutscene::run(Engine& engine, const std::shared_ptr<Player>& player, const std::shared_ptr<Player>& levelStartPlayer)
 {
   auto world
     = std::make_unique<world::World>(engine,
@@ -107,7 +110,8 @@ std::pair<RunResult, std::optional<size_t>> Cutscene::run(Engine& engine, const 
                                      m_track,
                                      false,
                                      std::unordered_map<std::string, std::unordered_map<TR1ItemId, std::string>>{},
-                                     player);
+                                     player,
+                                     levelStartPlayer);
 
   world->getCameraController().setEyeRotation(0_deg, m_cameraRot);
   auto pos = world->getCameraController().getTRLocation().position;
@@ -148,7 +152,9 @@ std::optional<std::filesystem::path> Cutscene::getFilepathIfInvalid(const Engine
   return std::filesystem::path{m_name};
 }
 
-std::unique_ptr<world::World> Level::loadWorld(Engine& engine, const std::shared_ptr<Player>& player)
+std::unique_ptr<world::World> Level::loadWorld(Engine& engine,
+                                               const std::shared_ptr<Player>& player,
+                                               const std::shared_ptr<Player>& levelStartPlayer)
 {
   engine.getPresenter().debounceInput();
 
@@ -174,7 +180,8 @@ std::unique_ptr<world::World> Level::loadWorld(Engine& engine, const std::shared
                                               m_track,
                                               m_useAlternativeLara,
                                               m_itemTitles,
-                                              player);
+                                              player,
+                                              levelStartPlayer);
 
   auto replace = [&world, &player](TR1ItemId meshType, TR1ItemId spriteType, TR1ItemId replacement)
   {
@@ -195,7 +202,8 @@ bool Level::isLevel(const std::filesystem::path& path) const
   return util::preferredEqual(std::filesystem::path(m_name), path);
 }
 
-std::pair<RunResult, std::optional<size_t>> Level::run(Engine& engine, const std::shared_ptr<Player>& player)
+std::pair<RunResult, std::optional<size_t>>
+  Level::run(Engine& engine, const std::shared_ptr<Player>& player, const std::shared_ptr<Player>& levelStartPlayer)
 {
   player->requestedWeaponType = m_defaultWeapon;
   player->selectedWeaponType = m_defaultWeapon;
@@ -203,16 +211,18 @@ std::pair<RunResult, std::optional<size_t>> Level::run(Engine& engine, const std
   if(engine.getEngineConfig()->restoreHealth)
     player->laraHealth = core::LaraHealth;
 
-  auto world = loadWorld(engine, player);
+  auto world = loadWorld(engine, player, levelStartPlayer);
   return engine.run(*world, false, m_allowSave);
 }
 
-std::pair<RunResult, std::optional<size_t>>
-  Level::runFromSave(Engine& engine, const std::optional<size_t>& slot, const std::shared_ptr<Player>& player)
+std::pair<RunResult, std::optional<size_t>> Level::runFromSave(Engine& engine,
+                                                               const std::optional<size_t>& slot,
+                                                               const std::shared_ptr<Player>& player,
+                                                               const std::shared_ptr<Player>& levelStartPlayer)
 {
   Expects(m_allowSave);
   player->getInventory().clear();
-  auto world = loadWorld(engine, player);
+  auto world = loadWorld(engine, player, levelStartPlayer);
   world->load(slot);
   return engine.run(*world, false, m_allowSave);
 }
@@ -224,10 +234,11 @@ std::optional<std::filesystem::path> Level::getFilepathIfInvalid(const Engine& e
   return std::filesystem::path{m_name};
 }
 
-std::pair<RunResult, std::optional<size_t>> TitleMenu::run(Engine& engine, const std::shared_ptr<Player>& player)
+std::pair<RunResult, std::optional<size_t>>
+  TitleMenu::run(Engine& engine, const std::shared_ptr<Player>& player, const std::shared_ptr<Player>& levelStartPlayer)
 {
   player->getInventory().clear();
-  auto world = loadWorld(engine, player);
+  auto world = loadWorld(engine, player, levelStartPlayer);
   return engine.runTitleMenu(*world);
 }
 
@@ -249,7 +260,9 @@ SplashScreen::SplashScreen(std::string path, int durationSeconds)
 
 SplashScreen::~SplashScreen() = default;
 
-std::pair<RunResult, std::optional<size_t>> SplashScreen::run(Engine& engine, const std::shared_ptr<Player>& /*player*/)
+std::pair<RunResult, std::optional<size_t>> SplashScreen::run(Engine& engine,
+                                                              const std::shared_ptr<Player>& /*player*/,
+                                                              const std::shared_ptr<Player>& /*levelStartPlayer*/)
 {
   const auto end = std::chrono::high_resolution_clock::now() + std::chrono::seconds{m_durationSeconds};
   Throttler throttler{};
@@ -314,15 +327,18 @@ std::optional<std::filesystem::path> SplashScreen::getFilepathIfInvalid(const En
   return std::filesystem::path{m_path};
 }
 
-std::pair<RunResult, std::optional<size_t>>
-  LevelSequenceItem::runFromSave(Engine&, const std::optional<size_t>&, const std::shared_ptr<Player>&)
+std::pair<RunResult, std::optional<size_t>> LevelSequenceItem::runFromSave(Engine&,
+                                                                           const std::optional<size_t>&,
+                                                                           const std::shared_ptr<Player>&,
+                                                                           const std::shared_ptr<Player>&)
 {
   BOOST_LOG_TRIVIAL(error) << "Cannot run from save";
   BOOST_THROW_EXCEPTION(std::runtime_error("Cannot run from save"));
 }
 
 std::pair<RunResult, std::optional<size_t>> ModifyInventory::run(Engine& /*engine*/,
-                                                                 const std::shared_ptr<Player>& player)
+                                                                 const std::shared_ptr<Player>& player,
+                                                                 const std::shared_ptr<Player>& /*levelStartPlayer*/)
 {
   for(const auto& [type, qty] : m_addInventory)
     player->getInventory().put(type, nullptr, qty);

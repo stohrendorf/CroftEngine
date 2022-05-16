@@ -39,7 +39,7 @@ std::unique_ptr<MenuState> SelectedMenuState::onFrame(ui::Ui& ui, engine::world:
   switch(currentObject.type)
   {
   case engine::TR1ItemId::PassportClosed:
-    return create<PassportMenuState>(display.mode, display.allowSave);
+    return create<PassportMenuState>(display.allowPassportExit, display.saveGamePageMode);
   case engine::TR1ItemId::Sunglasses:
     return create<RenderSettingsMenuState>(
       create<FinishItemAnimationMenuState>(create<ResetItemTransformMenuState>(create<DeselectingMenuState>())),
@@ -85,35 +85,33 @@ std::unique_ptr<MenuState> SelectedMenuState::onFrame(ui::Ui& ui, engine::world:
     {
       return create<FinishItemAnimationMenuState>(create<ResetItemTransformMenuState>(create<DeselectingMenuState>()));
     }
-    else
+
+    switch(currentObject.type)
     {
-      switch(currentObject.type)
-      {
-      case engine::TR1ItemId::Puzzle1:
-      case engine::TR1ItemId::Puzzle1Sprite:
-      case engine::TR1ItemId::Puzzle2:
-      case engine::TR1ItemId::Puzzle2Sprite:
-      case engine::TR1ItemId::Puzzle3:
-      case engine::TR1ItemId::Puzzle3Sprite:
-      case engine::TR1ItemId::Puzzle4:
-      case engine::TR1ItemId::Puzzle4Sprite:
-      case engine::TR1ItemId::Key1:
-      case engine::TR1ItemId::Key1Sprite:
-      case engine::TR1ItemId::Key2:
-      case engine::TR1ItemId::Key2Sprite:
-      case engine::TR1ItemId::Key3:
-      case engine::TR1ItemId::Key3Sprite:
-      case engine::TR1ItemId::Key4:
-      case engine::TR1ItemId::Key4Sprite:
-        if(auto lara = world.getObjectManager().getLaraPtr())
-          lara->playSoundEffect(engine::TR1SoundEffect::LaraNo);
-        break;
-      }
-      const auto result
-        = currentObject.type == engine::TR1ItemId::LarasHomePolaroid ? MenuResult::LaraHome : MenuResult::Closed;
-      return create<FinishItemAnimationMenuState>(create<ResetItemTransformMenuState>(
-        create<DeflateRingMenuState>(DeflateRingMenuState::Direction::Backpack, create<DoneMenuState>(result))));
+    case engine::TR1ItemId::Puzzle1:
+    case engine::TR1ItemId::Puzzle1Sprite:
+    case engine::TR1ItemId::Puzzle2:
+    case engine::TR1ItemId::Puzzle2Sprite:
+    case engine::TR1ItemId::Puzzle3:
+    case engine::TR1ItemId::Puzzle3Sprite:
+    case engine::TR1ItemId::Puzzle4:
+    case engine::TR1ItemId::Puzzle4Sprite:
+    case engine::TR1ItemId::Key1:
+    case engine::TR1ItemId::Key1Sprite:
+    case engine::TR1ItemId::Key2:
+    case engine::TR1ItemId::Key2Sprite:
+    case engine::TR1ItemId::Key3:
+    case engine::TR1ItemId::Key3Sprite:
+    case engine::TR1ItemId::Key4:
+    case engine::TR1ItemId::Key4Sprite:
+      if(auto lara = world.getObjectManager().getLaraPtr())
+        lara->playSoundEffect(engine::TR1SoundEffect::LaraNo);
+      break;
     }
+    const auto result
+      = currentObject.type == engine::TR1ItemId::LarasHomePolaroid ? MenuResult::LaraHome : MenuResult::Closed;
+    return create<FinishItemAnimationMenuState>(create<ResetItemTransformMenuState>(
+      create<DeflateRingMenuState>(DeflateRingMenuState::Direction::Backpack, create<DoneMenuState>(result))));
   }
 
   if(m_itemTitle == nullptr)

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EdisonEngine\n"
 "Report-Msgid-Bugs-To: https://github.com/stohrendorf/EdisonEngine/issues\n"
-"POT-Creation-Date: 2022-05-05 20:19+0200\n"
+"POT-Creation-Date: 2022-05-16 03:47+0200\n"
 "Last-Translator: Steffen Ohrendorf\n"
 "Language-Team: none\n"
 "Language: de_DE\n"
@@ -183,7 +183,7 @@ msgctxt "Keyboard|Key"
 msgid "Bksp"
 msgstr "R~ucktaste"
 
-#: engine/presenter.cpp:455
+#: engine/presenter.cpp:434
 msgid "Booting"
 msgstr "Starte"
 
@@ -372,12 +372,12 @@ msgid "Esc"
 msgstr "Esc"
 
 #. translators: TR charmap encoding
-#: menu/passportmenustate.cpp:91
+#: menu/passportmenustate.cpp:106
 msgid "Exit Game"
 msgstr "Spiel beenden"
 
 #. translators: TR charmap encoding
-#: menu/passportmenustate.cpp:92
+#: menu/passportmenustate.cpp:105
 msgid "Exit to Title"
 msgstr "Zur~uck zum Hauptmen~u"
 
@@ -409,7 +409,7 @@ msgid "G"
 msgstr "G"
 
 #. translators: TR charmap encoding
-#: menu/menudisplay.cpp:578
+#: menu/menudisplay.cpp:582
 msgid "GAME OVER"
 msgstr "Ende des Spiels"
 
@@ -507,12 +507,12 @@ msgid "I"
 msgstr "I"
 
 #. translators: TR charmap encoding
-#: menu/menudisplay.cpp:573
+#: menu/menudisplay.cpp:577
 msgid "INVENTORY"
 msgstr "Inventar"
 
 #. translators: TR charmap encoding
-#: menu/menudisplay.cpp:563
+#: menu/menudisplay.cpp:569
 msgid "ITEMS"
 msgstr "Gegenst~ande"
 
@@ -629,11 +629,11 @@ msgstr "Spiel laden"
 msgid "Loading %1%"
 msgstr "Lade %1%"
 
-#: engine/engine.cpp:593
+#: engine/engine.cpp:604
 msgid "Loading Glidos texture pack"
 msgstr "Lade Glidos Textur Paket"
 
-#: engine/world/world.cpp:1041
+#: engine/world/world.cpp:1042
 msgid "Loading..."
 msgstr "Lade..."
 
@@ -699,7 +699,7 @@ msgid "N/A"
 msgstr "N/V"
 
 #. translators: TR charmap encoding
-#: menu/passportmenustate.cpp:64
+#: menu/passportmenustate.cpp:69
 msgid "New Game"
 msgstr "Spiel starten"
 
@@ -726,7 +726,7 @@ msgid "OK"
 msgstr "OK"
 
 #. translators: TR charmap encoding
-#: menu/menudisplay.cpp:579
+#: menu/menudisplay.cpp:583
 msgid "OPTION"
 msgstr "Optionen"
 
@@ -907,7 +907,7 @@ msgstr "Q"
 msgid "Quality"
 msgstr "Qualit~at"
 
-#: engine/world/world.cpp:1067
+#: engine/world/world.cpp:1068
 msgid "Quicksave"
 msgstr "Schnellspeicherung"
 
@@ -946,6 +946,12 @@ msgstr ""
 msgctxt "Gamepad|Button"
 msgid "RThumb"
 msgstr "RStick"
+
+#. translators: TR charmap encoding
+#: menu/passportmenustate.cpp:75
+#, fuzzy
+msgid "Restart Level"
+msgstr "Level neu starten"
 
 #. translators: TR charmap encoding
 #: menu/rendersettingsmenustate.cpp:318
@@ -1012,7 +1018,7 @@ msgid "Save"
 msgstr "Spiel sichern"
 
 #. translators: TR charmap encoding
-#: menu/passportmenustate.cpp:63
+#: menu/passportmenustate.cpp:72
 msgid "Save Game"
 msgstr "Spiel sichern"
 
@@ -1021,7 +1027,7 @@ msgstr "Spiel sichern"
 msgid "Save recorded ghost?"
 msgstr "Aufgenommenen Geist speichern?"
 
-#: engine/world/world.cpp:1062
+#: engine/world/world.cpp:1063
 msgid "Saving..."
 msgstr "Speichere..."
 
