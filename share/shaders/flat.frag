@@ -11,6 +11,6 @@ void main()
 {
     out_color = texture(u_input, fpi.texCoord);
     #ifdef ALPHA_MULTIPLIER
-    out_color.a *= u_alphaMultiplier;
+    out_color *= u_alphaMultiplier;
     #endif
 }

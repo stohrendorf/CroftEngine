@@ -1157,7 +1157,7 @@ World::World(Engine& engine,
   if(const auto anisotropyLevel = getEngine().getEngineConfig()->renderSettings.anisotropyLevel;
      anisotropyLevel != 0 && gl::hasAnisotropicFilteringExtension())
     sampler->set(gl::api::SamplerParameterF::TextureMaxAnisotropy, gsl::narrow<float>(anisotropyLevel));
-  m_allTexturesHandle = std::make_shared<gl::TextureHandle<gl::Texture2DArray<gl::SRGBA8>>>(
+  m_allTexturesHandle = std::make_shared<gl::TextureHandle<gl::Texture2DArray<gl::PremultipliedSRGBA8>>>(
     gsl::not_null{m_allTextures}, std::move(sampler));
   getPresenter().getMaterialManager()->setGeometryTextures(m_allTexturesHandle);
 

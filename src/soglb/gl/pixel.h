@@ -13,7 +13,9 @@ template<typename T,
          // NOLINTNEXTLINE(bugprone-reserved-identifier)
          api::PixelFormat _PixelFormat,
          // NOLINTNEXTLINE(bugprone-reserved-identifier)
-         api::SizedInternalFormat _SizedInternalFormat>
+         api::SizedInternalFormat _SizedInternalFormat,
+         // NOLINTNEXTLINE(bugprone-reserved-identifier)
+         bool _Premultiplied>
 struct Pixel
 {
   static_assert(std::is_integral_v<T> || std::is_floating_point_v<T> || std::is_same_v<T, api::core::Half>,
@@ -21,7 +23,7 @@ struct Pixel
 
   static_assert(_Channels > 0, "Pixel must contain at least one channel");
 
-  using Self = Pixel<T, _Channels, _PixelFormat, _SizedInternalFormat>;
+  using Self = Pixel<T, _Channels, _PixelFormat, _SizedInternalFormat, _Premultiplied>;
 
   using Type = T;
 
@@ -29,6 +31,7 @@ struct Pixel
   static constexpr api::PixelFormat PixelFormat = _PixelFormat;
   static constexpr api::SizedInternalFormat SizedInternalFormat = _SizedInternalFormat;
   static constexpr api::PixelType PixelType = ::gl::PixelType<T>;
+  static constexpr bool Premultiplied = _Premultiplied;
   using Vec = glm::vec<Channels, Type, glm::qualifier::defaultp>;
 
   Vec channels;
@@ -87,13 +90,15 @@ template<typename T,
          // NOLINTNEXTLINE(bugprone-reserved-identifier)
          api::PixelFormat _PixelFormat,
          // NOLINTNEXTLINE(bugprone-reserved-identifier)
-         api::SizedInternalFormat _SizedInternalFormat>
-auto imix(const Pixel<T, _Channels, _PixelFormat, _SizedInternalFormat>& lhs,
-          const Pixel<T, _Channels, _PixelFormat, _SizedInternalFormat>& rhs,
+         api::SizedInternalFormat _SizedInternalFormat,
+         // NOLINTNEXTLINE(bugprone-reserved-identifier)
+         bool _Premultiplied>
+auto imix(const Pixel<T, _Channels, _PixelFormat, _SizedInternalFormat, _Premultiplied>& lhs,
+          const Pixel<T, _Channels, _PixelFormat, _SizedInternalFormat, _Premultiplied>& rhs,
           U bias,
           U biasMax = std::numeric_limits<U>::max())
   -> std::enable_if_t<std::is_unsigned_v<T> == std::is_unsigned_v<U>, // lgtm [cpp/comparison-of-identical-expressions]
-                      Pixel<T, _Channels, _PixelFormat, _SizedInternalFormat>>
+                      Pixel<T, _Channels, _PixelFormat, _SizedInternalFormat, _Premultiplied>>
 {
   if(bias >= biasMax)
     return rhs;
@@ -109,42 +114,86 @@ auto imix(const Pixel<T, _Channels, _PixelFormat, _SizedInternalFormat>& lhs,
   return tmp;
 }
 
-// NOLINTNEXTLINE(bugprone-reserved-identifier)
-template<typename T, api::PixelFormat _PixelFormat, api::SizedInternalFormat _SizedInternalFormat>
-Pixel<T, 4, _PixelFormat, _SizedInternalFormat> mixAlpha(const Pixel<T, 4, _PixelFormat, _SizedInternalFormat>& lhs,
-                                                         const Pixel<T, 4, _PixelFormat, _SizedInternalFormat>& rhs)
+template<typename T,
+         // NOLINTNEXTLINE(bugprone-reserved-identifier)
+         api::PixelFormat _PixelFormat,
+         // NOLINTNEXTLINE(bugprone-reserved-identifier)
+         api::SizedInternalFormat _SizedInternalFormat,
+         // NOLINTNEXTLINE(bugprone-reserved-identifier)
+         bool _Premultiplied>
+Pixel<T, 4, _PixelFormat, _SizedInternalFormat, _Premultiplied>
+  mixAlpha(const Pixel<T, 4, _PixelFormat, _SizedInternalFormat, _Premultiplied>& lhs,
+           const Pixel<T, 4, _PixelFormat, _SizedInternalFormat, _Premultiplied>& rhs)
 {
   return imix(lhs, rhs, rhs.channels[3]);
 }
 
 template<typename T>
-using SRGBA = Pixel<T, 4, api::PixelFormat::Rgba, SrgbaSizedInternalFormat<T>>;
+using SRGBA = Pixel<T, 4, api::PixelFormat::Rgba, SrgbaSizedInternalFormat<T>, false>;
 using SRGBA8 = SRGBA<uint8_t>;
 
 template<typename T>
-using SRGB = Pixel<T, 3, api::PixelFormat::Rgb, SrgbSizedInternalFormat<T>>;
+using PremultipliedSRGBA = Pixel<T, 4, api::PixelFormat::Rgba, SrgbaSizedInternalFormat<T>, true>;
+using PremultipliedSRGBA8 = PremultipliedSRGBA<uint8_t>;
+
+template<typename T>
+using SRGB = Pixel<T, 3, api::PixelFormat::Rgb, SrgbSizedInternalFormat<T>, false>;
 using SRGB8 = SRGB<uint8_t>;
 // using SRGB16F = SRGB<api::core::Half>;
 // using SRGB32F = SRGB<float>;
 
 template<typename T>
-using RGB = Pixel<T, 3, api::PixelFormat::Rgb, RgbSizedInternalFormat<T>>;
+using RGB = Pixel<T, 3, api::PixelFormat::Rgb, RgbSizedInternalFormat<T>, false>;
 using RGB8 = RGB<uint8_t>;
 using RGB16F = RGB<api::core::Half>;
 using RGB32 = RGB<int32_t>;
 using RGB32F = RGB<float>;
 
 template<typename T>
-using RG = Pixel<T, 2, api::PixelFormat::Rg, RgSizedInternalFormat<T>>;
+using RG = Pixel<T, 2, api::PixelFormat::Rg, RgSizedInternalFormat<T>, false>;
 using RG8 = RG<uint8_t>;
 using RG16F = RG<api::core::Half>;
 using RG32F = RG<float>;
 
 template<typename T>
-using Scalar = Pixel<T, 1, api::PixelFormat::Red, RSizedInternalFormat<T>>;
+using Scalar = Pixel<T, 1, api::PixelFormat::Red, RSizedInternalFormat<T>, false>;
 using ScalarByte = Scalar<uint8_t>;
 using Scalar32F = Scalar<float>;
 using Scalar16F = Scalar<api::core::Half>;
+
+namespace detail
+{
+template<typename T>
+constexpr T premultiply(T value, T alpha) noexcept
+{
+  return value * alpha / std::numeric_limits<T>::max();
+}
+
+constexpr float premultiply(float value, float alpha) noexcept
+{
+  return value * alpha;
+}
+} // namespace detail
+
+constexpr PremultipliedSRGBA8 premultiply(const SRGBA8& color)
+{
+  return PremultipliedSRGBA8{
+    detail::premultiply(color.channels[0], color.channels[3]),
+    detail::premultiply(color.channels[1], color.channels[3]),
+    detail::premultiply(color.channels[2], color.channels[3]),
+    color.channels[3],
+  };
+}
+
+constexpr glm::vec4 premultiply(const glm::vec4& color)
+{
+  return glm::vec4{
+    detail::premultiply(color[0], color[3]),
+    detail::premultiply(color[1], color[3]),
+    detail::premultiply(color[2], color[3]),
+    color[3],
+  };
+}
 
 template<typename T>
 struct ScalarDepth final

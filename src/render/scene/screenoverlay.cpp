@@ -40,15 +40,15 @@ void ScreenOverlay::render(const Node* node, RenderContext& context)
 
 void ScreenOverlay::init(MaterialManager& materialManager, const glm::ivec2& viewport)
 {
-  *m_image = gl::Image<gl::SRGBA8>(viewport);
+  *m_image = gl::Image<gl::PremultipliedSRGBA8>(viewport);
   if(viewport.x == 0 || viewport.y == 0)
   {
     BOOST_THROW_EXCEPTION(std::runtime_error("Cannot create screen overlay because the viewport is empty"));
   }
 
-  auto texture = gsl::make_shared<gl::Texture2D<gl::SRGBA8>>(m_image->getSize(), "screenoverlay");
+  auto texture = gsl::make_shared<gl::Texture2D<gl::PremultipliedSRGBA8>>(m_image->getSize(), "screenoverlay");
   texture->assign(m_image->getData());
-  m_texture = std::make_shared<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>>(
+  m_texture = std::make_shared<gl::TextureHandle<gl::Texture2D<gl::PremultipliedSRGBA8>>>(
     texture,
     gsl::make_unique<gl::Sampler>("screenoverlay-sampler") | set(gl::api::TextureMinFilter::Nearest)
       | set(gl::api::TextureMagFilter::Nearest)

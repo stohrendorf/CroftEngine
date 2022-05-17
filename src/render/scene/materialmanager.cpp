@@ -38,7 +38,7 @@ void configureForScreenSpaceEffect(Material& m, bool enableBlend)
   m.getRenderState().setDepthWrite(false);
   m.getRenderState().setBlend(0, enableBlend);
   if(enableBlend)
-    m.getRenderState().setBlendFactors(0, gl::api::BlendingFactor::SrcAlpha, gl::api::BlendingFactor::OneMinusSrcAlpha);
+    m.getRenderState().setBlendFactors(0, gl::api::BlendingFactor::One, gl::api::BlendingFactor::OneMinusSrcAlpha);
 }
 } // namespace
 
@@ -283,7 +283,7 @@ gslu::nn_shared<Material> MaterialManager::getFlat(bool withAlpha, bool invertY,
 
   auto m = gsl::make_shared<Material>(m_shaderCache->getFlat(withAlpha, invertY, withAspectRatio));
   m->getRenderState().setBlend(0, withAlpha);
-  m->getRenderState().setBlendFactors(0, gl::api::BlendingFactor::SrcAlpha, gl::api::BlendingFactor::OneMinusSrcAlpha);
+  m->getRenderState().setBlendFactors(0, gl::api::BlendingFactor::One, gl::api::BlendingFactor::OneMinusSrcAlpha);
   if(const auto uniformBlock = m->tryGetUniformBlock("Camera"))
     uniformBlock->bindCameraBuffer(m_renderer->getCamera());
   configureForScreenSpaceEffect(*m, withAlpha);
@@ -416,7 +416,7 @@ gslu::nn_shared<Material> MaterialManager::getVSMSquare()
 }
 
 void MaterialManager::setGeometryTextures(
-  std::shared_ptr<gl::TextureHandle<gl::Texture2DArray<gl::SRGBA8>>> geometryTextures)
+  std::shared_ptr<gl::TextureHandle<gl::Texture2DArray<gl::PremultipliedSRGBA8>>> geometryTextures)
 {
   m_geometryTextures = std::move(geometryTextures);
 }
@@ -439,7 +439,7 @@ void MaterialManager::setFiltering(bool bilinear, float anisotropyLevel)
   if(anisotropyLevel != 0 && gl::hasAnisotropicFilteringExtension())
     sampler->set(gl::api::SamplerParameterF::TextureMaxAnisotropy, anisotropyLevel);
 
-  m_geometryTextures = std::make_shared<gl::TextureHandle<gl::Texture2DArray<gl::SRGBA8>>>(
+  m_geometryTextures = std::make_shared<gl::TextureHandle<gl::Texture2DArray<gl::PremultipliedSRGBA8>>>(
     m_geometryTextures->getTexture(), std::move(sampler));
 }
 
@@ -477,7 +477,7 @@ gslu::nn_shared<Material> MaterialManager::getDustParticle()
   auto m = gsl::make_shared<Material>(m_shaderCache->getDustParticle());
   m->getRenderState().setCullFace(false);
   m->getRenderState().setBlend(0, true);
-  m->getRenderState().setBlendFactors(0, gl::api::BlendingFactor::SrcAlpha, gl::api::BlendingFactor::OneMinusSrcAlpha);
+  m->getRenderState().setBlendFactors(0, gl::api::BlendingFactor::One, gl::api::BlendingFactor::OneMinusSrcAlpha);
   m->getUniformBlock("Camera")->bindCameraBuffer(m_renderer->getCamera());
   m->getUniformBlock("Transform")->bindTransformBuffer();
   m->getUniform("u_noise")->set(gsl::not_null{m_noiseTexture});

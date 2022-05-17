@@ -13,5 +13,5 @@ void main()
         vec4 bottom = mix(upi.bottomLeft, upi.bottomRight, upi.texCoord.x);
         out_color = mix(top, bottom, upi.texCoord.y);
     }
-    out_color.a *= upi.alpha;
+    out_color *= upi.alpha;
 }

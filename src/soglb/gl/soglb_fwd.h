@@ -36,7 +36,9 @@ template<typename T,
          // NOLINTNEXTLINE(bugprone-reserved-identifier)
          api::PixelFormat _PixelFormat,
          // NOLINTNEXTLINE(bugprone-reserved-identifier)
-         api::SizedInternalFormat _SizedInternalFormat>
+         api::SizedInternalFormat _SizedInternalFormat,
+         // NOLINTNEXTLINE(bugprone-reserved-identifier)
+         bool _Premultiplied>
 struct Pixel;
 // NOLINTNEXTLINE(bugprone-reserved-identifier)
 template<api::ProgramInterface _Type>

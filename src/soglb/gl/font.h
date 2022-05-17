@@ -23,8 +23,9 @@ public:
   Font& operator=(const Font&) = delete;
   Font& operator=(Font&&) = delete;
 
-  void drawText(Image<SRGBA8>& img, gsl::czstring text, glm::ivec2 xy, const SRGBA8& color, int size);
-  void drawText(Image<SRGBA8>& img,
+  void drawText(
+    Image<PremultipliedSRGBA8>& img, gsl::czstring text, glm::ivec2 xy, const PremultipliedSRGBA8& color, int size);
+  void drawText(Image<PremultipliedSRGBA8>& img,
                 const std::string& text,
                 const glm::ivec2& xy,
                 uint8_t red,

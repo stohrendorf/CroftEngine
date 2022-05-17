@@ -48,8 +48,7 @@ Framebuffer::Framebuffer(const std::string& name, gslu::nn_shared<scene::Materia
                  uniform.set(m_colorBufferHandle);
                });
   m_mesh->getRenderState().setBlend(0, true);
-  m_mesh->getRenderState().setBlendFactors(
-    0, gl::api::BlendingFactor::SrcAlpha, gl::api::BlendingFactor::OneMinusSrcAlpha);
+  m_mesh->getRenderState().setBlendFactors(0, gl::api::BlendingFactor::One, gl::api::BlendingFactor::OneMinusSrcAlpha);
 }
 
 void Framebuffer::bind()

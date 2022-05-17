@@ -436,7 +436,7 @@ Presenter::Presenter(const std::filesystem::path& engineDataPath, const glm::ive
     , m_soundEngine{std::make_shared<audio::SoundEngine>()}
     , m_renderer{std::make_shared<render::scene::Renderer>(
         gsl::make_shared<render::scene::Camera>(DefaultFov, getRenderViewport(), DefaultNearPlane, DefaultFarPlane))}
-    , m_splashImage{gsl::make_shared<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>>(
+    , m_splashImage{gsl::make_shared<gl::TextureHandle<gl::Texture2D<gl::PremultipliedSRGBA8>>>(
         gl::CImgWrapper{util::ensureFileExists(engineDataPath / "splash.png")}.toTexture("splash"),
         gsl::make_unique<gl::Sampler>("splash-sampler"))}
     , m_trTTFFont{std::make_unique<gl::Font>(util::ensureFileExists(engineDataPath / "trfont.ttf"))}
@@ -489,11 +489,11 @@ void Presenter::drawLoadingScreen(const std::string& state)
     scaleSplashImage();
   }
 
-  m_screenOverlay->getImage()->fill(gl::SRGBA8{0, 0, 0, 0});
+  m_screenOverlay->getImage()->fill(gl::PremultipliedSRGBA8{0, 0, 0, 0});
   m_trTTFFont->drawText(*m_screenOverlay->getImage(),
                         state.c_str(),
                         glm::ivec2{40, m_screenOverlay->getImage()->getSize().y - 100},
-                        gl::SRGBA8{255, 255, 255, 255},
+                        gl::PremultipliedSRGBA8{255, 255, 255, 255},
                         StatusLineFontSize);
 
   gl::Framebuffer::unbindAll();

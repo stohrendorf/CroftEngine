@@ -9,5 +9,5 @@ void main()
     out_normal = gpi.hbaoNormal;
     out_position = gpi.vertexPos;
     float y = abs(mod(out_position.y, 16.0)-8.0) / 8.0;
-    out_color = vec4(0.2, 0.2, 0.8, 0.8*y);
+    out_color = vec4(0.2, 0.2, 0.8, 1) * 0.8 * y;
 }

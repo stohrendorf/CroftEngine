@@ -126,7 +126,8 @@ Font::~Font()
   m_cache = nullptr;
 }
 
-void Font::drawText(Image<SRGBA8>& img, const gsl::czstring text, glm::ivec2 xy, const SRGBA8& color, int size)
+void Font::drawText(
+  Image<PremultipliedSRGBA8>& img, const gsl::czstring text, glm::ivec2 xy, const PremultipliedSRGBA8& color, int size)
 {
   Expects(text);
   Expects(size > 0);
@@ -187,7 +188,7 @@ void Font::drawText(Image<SRGBA8>& img, const gsl::czstring text, glm::ivec2 xy,
   }
 }
 
-void Font::drawText(Image<SRGBA8>& img,
+void Font::drawText(Image<PremultipliedSRGBA8>& img,
                     const std::string& text,
                     const glm::ivec2& xy,
                     const uint8_t red,
@@ -196,7 +197,7 @@ void Font::drawText(Image<SRGBA8>& img,
                     const uint8_t alpha,
                     const int size)
 {
-  drawText(img, text.c_str(), xy, SRGBA8{red, green, blue, alpha}, size);
+  drawText(img, text.c_str(), xy, premultiply(SRGBA8{red, green, blue, alpha}), size);
 }
 
 FT_Face Font::getFace() const

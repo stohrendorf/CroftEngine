@@ -635,7 +635,6 @@ void Room::createParticleMesh(const std::string& label,
     indexBuffer, vbuf, std::vector{&particleMaterial->getShaderProgram()->getHandle()}, label + "-particles");
   auto mesh = std::make_shared<render::scene::MeshImpl<uint32_t, glm::vec3>>(vao, gl::api::PrimitiveType::Points);
   mesh->getMaterialGroup().set(render::scene::RenderMode::Full, particleMaterial);
-  mesh->getRenderState().setDepthWrite(false);
 
   mesh->bind("u_baseColor",
              [this](const render::scene::Node* /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)

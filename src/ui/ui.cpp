@@ -38,7 +38,7 @@ void createQuad(std::vector<Ui::UiVertex>& vertices,
 {
   static const auto toColor = [](const gl::SRGBA8& c)
   {
-    return glm::vec4{c.channels} / 255.0f;
+    return gl::premultiply(glm::vec4{c.channels} / 255.0f);
   };
 
   vertices.emplace_back(Ui::UiVertex{
@@ -78,7 +78,7 @@ void createQuad(std::vector<Ui::UiVertex>& vertices,
 
 void createQuad(std::vector<Ui::UiVertex>& vertices, const glm::vec2& a, const glm::vec2& dxy, const gl::SRGBA8& color)
 {
-  const auto glColor = glm::vec4{color.channels} / 255.0f;
+  const auto glColor = gl::premultiply(glm::vec4{color.channels} / 255.0f);
   const auto b = a + dxy;
 
   vertices.emplace_back(Ui::UiVertex{{a.x, a.y}, {0, 0, -1}, glColor, glColor, glColor, glColor});
@@ -197,7 +197,7 @@ void Ui::render()
   mesh->getRenderState().setViewport(m_size);
   mesh->getRenderState().setBlend(0, true);
   mesh->getRenderState().setBlendFactors(0,
-                                         gl::api::BlendingFactor::SrcAlpha,
+                                         gl::api::BlendingFactor::One,
                                          gl::api::BlendingFactor::One,
                                          gl::api::BlendingFactor::OneMinusSrcAlpha,
                                          gl::api::BlendingFactor::One);
@@ -222,27 +222,27 @@ void Ui::draw(const engine::world::Sprite& sprite, const glm::ivec2& xy, float s
                                    glm::vec4{0},
                                    glm::vec4{0},
                                    glm::vec4{0},
-                                   {1, 1, 1, alpha}});
+                                   gl::premultiply(glm::vec4{1, 1, 1, alpha})});
   m_vertices.emplace_back(UiVertex{{a.x, b.y},
                                    {ta.x, tb.y, sprite.textureId.get()},
                                    glm::vec4{0},
                                    glm::vec4{0},
                                    glm::vec4{0},
                                    glm::vec4{0},
-                                   {1, 1, 1, alpha}});
+                                   gl::premultiply(glm::vec4{1, 1, 1, alpha})});
   m_vertices.emplace_back(UiVertex{{b.x, b.y},
                                    {tb.x, tb.y, sprite.textureId.get()},
                                    glm::vec4{0},
                                    glm::vec4{0},
                                    glm::vec4{0},
                                    glm::vec4{0},
-                                   {1, 1, 1, alpha}});
+                                   gl::premultiply(glm::vec4{1, 1, 1, alpha})});
   m_vertices.emplace_back(UiVertex{{b.x, a.y},
                                    {tb.x, ta.y, sprite.textureId.get()},
                                    glm::vec4{0},
                                    glm::vec4{0},
                                    glm::vec4{0},
                                    glm::vec4{0},
-                                   {1, 1, 1, alpha}});
+                                   gl::premultiply(glm::vec4{1, 1, 1, alpha})});
 }
 } // namespace ui

@@ -180,7 +180,7 @@ private:
 
   std::shared_ptr<audio::SoundEngine> m_soundEngine;
   const gslu::nn_shared<render::scene::Renderer> m_renderer;
-  const gslu::nn_shared<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>> m_splashImage;
+  const gslu::nn_shared<gl::TextureHandle<gl::Texture2D<gl::PremultipliedSRGBA8>>> m_splashImage;
   std::shared_ptr<render::scene::Mesh> m_splashImageMesh;
   const gslu::nn_unique<gl::Font> m_trTTFFont;
   const gslu::nn_unique<gl::Font> m_debugFont;

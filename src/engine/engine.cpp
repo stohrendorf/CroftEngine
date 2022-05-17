@@ -484,7 +484,7 @@ std::pair<RunResult, std::optional<size_t>> Engine::runTitleMenu(world::World& w
       stream->setLooping(true);
   }
 
-  const auto backdrop = gsl::make_shared<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>>(
+  const auto backdrop = gsl::make_shared<gl::TextureHandle<gl::Texture2D<gl::PremultipliedSRGBA8>>>(
     gl::CImgWrapper{util::ensureFileExists(
                       getAssetDataPath() / std::filesystem::path{m_scriptEngine.getGameflow().getTitleMenuBackdrop()})}
       .toTexture("title"),

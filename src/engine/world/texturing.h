@@ -27,7 +27,7 @@ namespace engine::world
 struct AtlasTile;
 struct Sprite;
 
-extern std::unique_ptr<gl::Texture2DArray<gl::SRGBA8>>
+extern std::unique_ptr<gl::Texture2DArray<gl::PremultipliedSRGBA8>>
   buildTextures(const loader::file::level::Level& level,
                 const std::unique_ptr<loader::trx::Glidos>& glidos,
                 render::MultiTextureAtlas& atlases,

@@ -9,5 +9,5 @@ in DustFSInterface {
 
 void main()
 {
-    out_color = vec4(toLinear(u_baseColor), fs.alpha);
+    out_color = vec4(toLinear(u_baseColor)*fs.alpha, fs.alpha);
 }

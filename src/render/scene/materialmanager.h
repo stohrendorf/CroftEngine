@@ -55,7 +55,8 @@ public:
   [[nodiscard]] gslu::nn_shared<Material> getFastGaussBlur(uint8_t extent, uint8_t blurDir, uint8_t blurDim);
   [[nodiscard]] gslu::nn_shared<Material> getFastBoxBlur(uint8_t extent, uint8_t blurDir, uint8_t blurDim);
 
-  void setGeometryTextures(std::shared_ptr<gl::TextureHandle<gl::Texture2DArray<gl::SRGBA8>>> geometryTextures);
+  void setGeometryTextures(
+    std::shared_ptr<gl::TextureHandle<gl::Texture2DArray<gl::PremultipliedSRGBA8>>> geometryTextures);
   void setFiltering(bool bilinear, float anisotropyLevel);
 
   void setCSM(const gslu::nn_shared<CSM>& csm)
@@ -98,6 +99,6 @@ private:
 
   std::shared_ptr<CSM> m_csm;
   const gslu::nn_shared<Renderer> m_renderer;
-  std::shared_ptr<gl::TextureHandle<gl::Texture2DArray<gl::SRGBA8>>> m_geometryTextures;
+  std::shared_ptr<gl::TextureHandle<gl::Texture2DArray<gl::PremultipliedSRGBA8>>> m_geometryTextures;
 };
 } // namespace render::scene

@@ -12,6 +12,7 @@
 #include <memory>
 #include <string>
 #include <string_view>
+#include <vector>
 
 namespace cimg_library
 {
@@ -82,6 +83,17 @@ public:
                           gsl::narrow<size_t>(width()) * gsl::narrow<size_t>(height()));
   }
 
+  [[nodiscard]] std::vector<gl::PremultipliedSRGBA8> premultipliedPixels()
+  {
+    std::vector<gl::PremultipliedSRGBA8> premultiplied;
+    premultiplied.reserve(pixels().size());
+    for(const auto& px : pixels())
+    {
+      premultiplied.emplace_back(premultiply(px));
+    }
+    return premultiplied;
+  }
+
   void savePng(const std::string& filename);
 
   void savePng(const std::filesystem::path& filename)
@@ -95,7 +107,7 @@ public:
 
   void fromScreenshot();
 
-  gslu::nn_shared<gl::Texture2D<gl::SRGBA8>> toTexture(const std::string_view& label);
+  gslu::nn_shared<gl::Texture2D<gl::PremultipliedSRGBA8>> toTexture(const std::string_view& label);
 
 private:
   void unshare();

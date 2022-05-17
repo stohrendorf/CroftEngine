@@ -356,7 +356,7 @@ void remapTextures(const loader::file::level::Level& level,
 }
 } // namespace
 
-std::unique_ptr<gl::Texture2DArray<gl::SRGBA8>>
+std::unique_ptr<gl::Texture2DArray<gl::PremultipliedSRGBA8>>
   buildTextures(const loader::file::level::Level& level,
                 const std::unique_ptr<loader::trx::Glidos>& glidos,
                 render::MultiTextureAtlas& atlases,
@@ -386,11 +386,11 @@ std::unique_ptr<gl::Texture2DArray<gl::SRGBA8>>
   const int textureLevels = static_cast<int>(std::log2(atlases.getSize()) + 1) / 2;
   auto images = atlases.takeImages();
 
-  auto allTextures = std::make_unique<gl::Texture2DArray<gl::SRGBA8>>(
+  auto allTextures = std::make_unique<gl::Texture2DArray<gl::PremultipliedSRGBA8>>(
     glm::ivec3{atlases.getSize(), atlases.getSize(), gsl::narrow<int>(images.size())}, "all-textures", textureLevels);
 
   for(size_t i = 0; i < images.size(); ++i)
-    allTextures->assign(images[i]->pixels(), gsl::narrow_cast<int>(i));
+    allTextures->assign(images[i]->premultipliedPixels(), gsl::narrow_cast<int>(i));
   allTextures->generateMipmaps();
 
   return allTextures;
