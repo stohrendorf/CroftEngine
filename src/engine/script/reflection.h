@@ -52,19 +52,19 @@ struct ObjectInfo
 
 struct TrackInfo
 {
-  TrackInfo(const std::vector<std::string>& names, size_t slot, bool looping, uint32_t fadeDurationSeconds)
+  TrackInfo(const std::vector<std::string>& paths, size_t slot, bool looping, uint32_t fadeDurationSeconds)
       : slot{slot}
       , looping{looping}
       , fadeDurationSeconds{fadeDurationSeconds}
   {
-    if(names.empty())
+    if(paths.empty())
       BOOST_THROW_EXCEPTION(std::invalid_argument("names is empty"));
 
-    for(const auto& name : names)
-      this->names.emplace_back(name);
+    for(const auto& path : paths)
+      this->paths.emplace_back(path);
   }
 
-  std::vector<std::filesystem::path> names;
+  std::vector<std::filesystem::path> paths;
   size_t slot;
   bool looping;
   uint32_t fadeDurationSeconds;

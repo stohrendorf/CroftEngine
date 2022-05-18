@@ -32,7 +32,7 @@ PYBIND11_EMBEDDED_MODULE(engine, m)
 
   py::class_<engine::script::TrackInfo>(m, "TrackInfo")
     .def(py::init<std::vector<std::string>, size_t, bool, uint32_t>(),
-         py::arg("names"),
+         py::arg("paths"),
          py::arg("slot"),
          py::arg("looping"),
          py::arg("fade_duration_seconds") = 0);

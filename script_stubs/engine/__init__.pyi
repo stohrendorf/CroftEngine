@@ -46,7 +46,7 @@ class TR1ItemId(Enum):
 
 
 class TrackInfo:
-    def __init__(self, names: List[str], slot: int, looping: bool, fade_duration_seconds: int):
+    def __init__(self, paths: List[str], slot: int, looping: bool, fade_duration_seconds: int):
         ...
 
 
