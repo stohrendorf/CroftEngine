@@ -7,8 +7,8 @@ _EFFECT = (2, False)
 
 def _tracks(n: int):
     return [
-        f"AUDIO/{n:>03}.ogg",
         f"Music/Track{n:>02}.flac",
+        f"AUDIO/{n:>03}.ogg",
     ]
 
 
