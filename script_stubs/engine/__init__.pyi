@@ -83,7 +83,7 @@ class TitleMenu(Level):
 
 
 class Video(LevelSequenceItem):
-    def __init__(self, name: str):
+    def __init__(self, paths: List[str]):
         ...
 
 

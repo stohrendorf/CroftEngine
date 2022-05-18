@@ -88,15 +88,20 @@ std::pair<RunResult, std::optional<size_t>> Video::run(Engine& engine,
                                                        const std::shared_ptr<Player>& /*player*/,
                                                        const std::shared_ptr<Player>& /*levelStartPlayer*/)
 {
-  engine.getPresenter().playVideo(getAssetPath(engine, m_name));
+  for(const auto& path : m_paths)
+  {
+    if(auto asset = getAssetPath(engine, path); std::filesystem::is_regular_file(asset))
+      engine.getPresenter().playVideo(getAssetPath(engine, asset));
+  }
   return {RunResult::NextLevel, std::nullopt};
 }
 
-std::optional<std::filesystem::path> Video::getFilepathIfInvalid(const Engine& engine) const
+std::vector<std::filesystem::path> Video::getFilepathsIfInvalid(const Engine& engine) const
 {
-  if(std::filesystem::is_regular_file(getAssetPath(engine, m_name)))
-    return std::nullopt;
-  return std::filesystem::path{m_name};
+  for(const auto& path : m_paths)
+    if(std::filesystem::is_regular_file(getAssetPath(engine, path)))
+      return {};
+  return m_paths;
 }
 
 std::pair<RunResult, std::optional<size_t>>
@@ -145,11 +150,11 @@ std::pair<RunResult, std::optional<size_t>>
   return engine.run(*world, true, false);
 }
 
-std::optional<std::filesystem::path> Cutscene::getFilepathIfInvalid(const Engine& engine) const
+std::vector<std::filesystem::path> Cutscene::getFilepathsIfInvalid(const Engine& engine) const
 {
   if(std::filesystem::is_regular_file(getAssetPath(engine, m_name)))
-    return std::nullopt;
-  return std::filesystem::path{m_name};
+    return {};
+  return {std::filesystem::path{m_name}};
 }
 
 std::unique_ptr<world::World> Level::loadWorld(Engine& engine,
@@ -227,11 +232,11 @@ std::pair<RunResult, std::optional<size_t>> Level::runFromSave(Engine& engine,
   return engine.run(*world, false, m_allowSave);
 }
 
-std::optional<std::filesystem::path> Level::getFilepathIfInvalid(const Engine& engine) const
+std::vector<std::filesystem::path> Level::getFilepathsIfInvalid(const Engine& engine) const
 {
   if(std::filesystem::is_regular_file(getAssetPath(engine, m_name)))
-    return std::nullopt;
-  return std::filesystem::path{m_name};
+    return {};
+  return {std::filesystem::path{m_name}};
 }
 
 std::pair<RunResult, std::optional<size_t>>
@@ -320,11 +325,11 @@ std::pair<RunResult, std::optional<size_t>> SplashScreen::run(Engine& engine,
   return {RunResult::NextLevel, std::nullopt};
 }
 
-std::optional<std::filesystem::path> SplashScreen::getFilepathIfInvalid(const Engine& engine) const
+std::vector<std::filesystem::path> SplashScreen::getFilepathsIfInvalid(const Engine& engine) const
 {
   if(std::filesystem::is_regular_file(getAssetPath(engine, m_path)))
-    return std::nullopt;
-  return std::filesystem::path{m_path};
+    return {};
+  return {std::filesystem::path{m_path}};
 }
 
 std::pair<RunResult, std::optional<size_t>> LevelSequenceItem::runFromSave(Engine&,
@@ -371,23 +376,23 @@ std::vector<std::filesystem::path> Gameflow::getInvalidFilepaths(const Engine& e
   for(const auto& levelSequenceItem : m_levelSequence)
   {
     Expects(levelSequenceItem != nullptr);
-    if(const auto invalid = levelSequenceItem->getFilepathIfInvalid(engine); invalid.has_value())
-      result.emplace_back(*invalid);
+    for(const auto& invalid : levelSequenceItem->getFilepathsIfInvalid(engine))
+      result.emplace_back(invalid);
   }
   Expects(m_titleMenu != nullptr);
-  if(const auto invalid = m_titleMenu->getFilepathIfInvalid(engine); invalid.has_value())
-    result.emplace_back(*invalid);
+  for(const auto& invalid : m_titleMenu->getFilepathsIfInvalid(engine))
+    result.emplace_back(invalid);
   for(const auto& levelSequenceItem : m_laraHome)
   {
     Expects(levelSequenceItem != nullptr);
-    if(const auto invalid = levelSequenceItem->getFilepathIfInvalid(engine); invalid.has_value())
-      result.emplace_back(*invalid);
+    for(const auto& invalid : levelSequenceItem->getFilepathsIfInvalid(engine))
+      result.emplace_back(invalid);
   }
   for(const auto& levelSequenceItem : m_earlyBoot)
   {
     Expects(levelSequenceItem != nullptr);
-    if(const auto invalid = levelSequenceItem->getFilepathIfInvalid(engine); invalid.has_value())
-      result.emplace_back(*invalid);
+    for(const auto& invalid : levelSequenceItem->getFilepathsIfInvalid(engine))
+      result.emplace_back(invalid);
   }
   if(!std::filesystem::is_regular_file(getAssetPath(engine, m_titleMenuBackdrop)))
     result.emplace_back(m_titleMenuBackdrop);

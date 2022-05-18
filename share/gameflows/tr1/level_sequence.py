@@ -1,9 +1,17 @@
 from engine import TR1TrackId, TR1ItemId, Video, Cutscene, Level, TitleMenu, SplashScreen, WeaponType, ModifyInventory
 
+
+def _fmv(basename: str):
+    return [
+        f"FMV/{basename}.AVI",
+        f"FMV/{basename}.RPL",
+    ]
+
+
 early_boot = [
-    Video("FMV/CORE.RPL"),
-    Video("FMV/ESCAPE.RPL"),
-    Video("FMV/CAFE.RPL"),
+    Video(_fmv("CORE")),
+    Video(_fmv("ESCAPE")),
+    Video(_fmv("CAFE")),
 ]
 
 title_menu = TitleMenu(
@@ -16,7 +24,7 @@ title_menu = TitleMenu(
 )
 
 lara_home = [
-    Video("FMV/MANSION.RPL"),
+    Video(_fmv("MANSION")),
     Level(
         name="DATA/GYM.PHD",
         titles={
@@ -30,7 +38,7 @@ lara_home = [
 ]
 
 level_sequence = [
-    Video("FMV/SNOW.RPL"),
+    Video(_fmv("SNOW")),
     ModifyInventory(
         add_inventory={TR1ItemId.Pistols: 1},
     ),
@@ -103,7 +111,7 @@ level_sequence = [
         camera_pos_z=63180,
         camera_rot=-128.0,
     ),
-    Video("FMV/LIFT.RPL"),
+    Video(_fmv("LIFT")),
     Level(
         name="DATA/LEVEL4.PHD",
         titles={
@@ -221,7 +229,7 @@ level_sequence = [
         camera_rot=90.0,
         weapon_swap=True,
     ),
-    Video("FMV/VISION.RPL"),
+    Video(_fmv("VISION")),
     Level(
         name="DATA/LEVEL8A.PHD",
         titles={
@@ -291,7 +299,7 @@ level_sequence = [
             },
         },
     ),
-    Video("FMV/CANYON.RPL"),
+    Video(_fmv("CANYON")),
     ModifyInventory(
         drop_inventory={
             TR1ItemId.Pistols,
@@ -335,7 +343,7 @@ level_sequence = [
         flip_rooms=True,
         camera_rot=90.0,
     ),
-    Video("FMV/PYRAMID.RPL"),
+    Video(_fmv("PYRAMID")),
     ModifyInventory(
         add_inventory={TR1ItemId.Pistols: 1},
     ),
@@ -356,7 +364,7 @@ level_sequence = [
             },
         },
     ),
-    Video("FMV/PRISON.RPL"),
+    Video(_fmv("PRISON")),
     Cutscene(
         name="DATA/CUT4.PHD",
         track=TR1TrackId.Cutscene1,
@@ -380,7 +388,7 @@ level_sequence = [
             },
         },
     ),
-    Video("FMV/END.RPL"),
+    Video(_fmv("END")),
     *(
         SplashScreen(
             path=f"DATA/{name}.PCX",

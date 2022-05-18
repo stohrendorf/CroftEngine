@@ -58,7 +58,7 @@ struct TrackInfo
       , fadeDurationSeconds{fadeDurationSeconds}
   {
     if(paths.empty())
-      BOOST_THROW_EXCEPTION(std::invalid_argument("names is empty"));
+      BOOST_THROW_EXCEPTION(std::invalid_argument("paths is empty"));
 
     for(const auto& path : paths)
       this->paths.emplace_back(path);
@@ -85,7 +85,7 @@ public:
                                                                   const std::shared_ptr<Player>& /*levelStartPlayer*/);
 
   [[nodiscard]] virtual bool isLevel(const std::filesystem::path& path) const = 0;
-  [[nodiscard]] virtual std::optional<std::filesystem::path> getFilepathIfInvalid(const Engine& engine) const = 0;
+  [[nodiscard]] virtual std::vector<std::filesystem::path> getFilepathsIfInvalid(const Engine& engine) const = 0;
 };
 
 class Level : public LevelSequenceItem
@@ -134,7 +134,7 @@ public:
 
   [[nodiscard]] bool isLevel(const std::filesystem::path& path) const override;
 
-  [[nodiscard]] std::optional<std::filesystem::path> getFilepathIfInvalid(const Engine& engine) const override;
+  [[nodiscard]] std::vector<std::filesystem::path> getFilepathsIfInvalid(const Engine& engine) const override;
 };
 
 class ModifyInventory : public LevelSequenceItem
@@ -160,9 +160,9 @@ public:
     return false;
   }
 
-  [[nodiscard]] std::optional<std::filesystem::path> getFilepathIfInvalid(const Engine& /*engine*/) const override
+  [[nodiscard]] std::vector<std::filesystem::path> getFilepathsIfInvalid(const Engine& /*engine*/) const override
   {
-    return std::nullopt;
+    return {};
   }
 };
 
@@ -188,12 +188,16 @@ public:
 class Video : public LevelSequenceItem
 {
 private:
-  const std::string m_name;
+  std::vector<std::filesystem::path> m_paths;
 
 public:
-  explicit Video(std::string name)
-      : m_name{std::move(name)}
+  explicit Video(const std::vector<std::string>& paths)
   {
+    if(paths.empty())
+      BOOST_THROW_EXCEPTION(std::invalid_argument("paths is empty"));
+
+    for(const auto& path : paths)
+      m_paths.emplace_back(path);
   }
 
   std::pair<RunResult, std::optional<size_t>> run(Engine& engine,
@@ -205,7 +209,7 @@ public:
     return false;
   }
 
-  [[nodiscard]] std::optional<std::filesystem::path> getFilepathIfInvalid(const Engine& engine) const override;
+  [[nodiscard]] std::vector<std::filesystem::path> getFilepathsIfInvalid(const Engine& engine) const override;
 };
 
 class Cutscene : public LevelSequenceItem
@@ -257,7 +261,7 @@ public:
     return false;
   }
 
-  [[nodiscard]] std::optional<std::filesystem::path> getFilepathIfInvalid(const Engine& engine) const override;
+  [[nodiscard]] std::vector<std::filesystem::path> getFilepathsIfInvalid(const Engine& engine) const override;
 };
 
 class SplashScreen : public LevelSequenceItem
@@ -280,7 +284,7 @@ public:
     return false;
   }
 
-  [[nodiscard]] std::optional<std::filesystem::path> getFilepathIfInvalid(const Engine& engine) const override;
+  [[nodiscard]] std::vector<std::filesystem::path> getFilepathsIfInvalid(const Engine& engine) const override;
 };
 
 class Gameflow final
