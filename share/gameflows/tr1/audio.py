@@ -4,37 +4,45 @@ _AMBIENT = (0, True)
 _INTERCEPTION = (1, False)
 _EFFECT = (2, False)
 
+
+def _tracks(n: int):
+    return [
+        f"AUDIO/{n:>03}.ogg",
+        f"Music/Track{n:>02}.flac",
+    ]
+
+
 tracks = {
-    TR1TrackId.MainTheme: TrackInfo("AUDIO/002.ogg", *_INTERCEPTION),  # Main theme
-    TR1TrackId.Ambience0: TrackInfo("AUDIO/003.ogg", *_AMBIENT, 30),  # Caves ambience
-    TR1TrackId.Ambience1: TrackInfo("AUDIO/003.ogg", *_AMBIENT, 30),  # Silence
-    TR1TrackId.Ambience2: TrackInfo("AUDIO/004.ogg", *_AMBIENT, 30),  # PC ONLY: Water ambience
-    TR1TrackId.Ambience3: TrackInfo("AUDIO/005.ogg", *_AMBIENT, 30),  # PC ONLY: Wind  ambience
-    TR1TrackId.Ambience4: TrackInfo("AUDIO/006.ogg", *_AMBIENT, 30),  # PC ONLY: Pulse ambience
-    TR1TrackId.Cutscene1: TrackInfo("AUDIO/007.ogg", *_AMBIENT),  # Natla cutscene
-    TR1TrackId.Cutscene2: TrackInfo("AUDIO/008.ogg", *_AMBIENT),  # Larson cutscene
-    TR1TrackId.Cutscene3: TrackInfo("AUDIO/009.ogg", *_AMBIENT),  # Natla scion cutscene
-    TR1TrackId.Cutscene4: TrackInfo("AUDIO/010.ogg", *_AMBIENT),  # Tihocan cutscene
-    TR1TrackId.Poseidon: TrackInfo("AUDIO/011.ogg", *_INTERCEPTION),  # Poseidon
-    TR1TrackId.MainThemeShort: TrackInfo("AUDIO/012.ogg", *_INTERCEPTION),  # Main theme, short
-    TR1TrackId.Thor: TrackInfo("AUDIO/013.ogg", *_INTERCEPTION),  # Thor
-    TR1TrackId.SaintFrancis: TrackInfo("AUDIO/014.ogg", *_INTERCEPTION),  # St. Francis
-    TR1TrackId.Danger: TrackInfo("AUDIO/015.ogg", *_INTERCEPTION),  # Danger
-    TR1TrackId.Stairs: TrackInfo("AUDIO/016.ogg", *_INTERCEPTION),  # Stairs
-    TR1TrackId.Midas: TrackInfo("AUDIO/017.ogg", *_INTERCEPTION),  # Midas
-    TR1TrackId.Level: TrackInfo("AUDIO/018.ogg", *_INTERCEPTION),  # Lever
-    TR1TrackId.Hmm: TrackInfo("AUDIO/019.ogg", *_INTERCEPTION),  # Hmm...
-    TR1TrackId.BigSecret: TrackInfo("AUDIO/020.ogg", *_INTERCEPTION),  # Big secret theme
-    TR1TrackId.Raiders: TrackInfo("AUDIO/021.ogg", *_INTERCEPTION),  # Raiders
-    TR1TrackId.Wolf: TrackInfo("AUDIO/022.ogg", *_INTERCEPTION),  # Wolf
-    TR1TrackId.Awe: TrackInfo("AUDIO/023.ogg", *_INTERCEPTION),  # Awe
-    TR1TrackId.Gods: TrackInfo("AUDIO/024.ogg", *_INTERCEPTION),  # Gods
-    TR1TrackId.MainThemeReprise: TrackInfo("AUDIO/025.ogg", *_INTERCEPTION),  # Main theme, reprise
-    TR1TrackId.Mummy: TrackInfo("AUDIO/026.ogg", *_INTERCEPTION),  # Mummy
-    TR1TrackId.MidasReprise: TrackInfo("AUDIO/027.ogg", *_INTERCEPTION),  # Midas, reprise
-    TR1TrackId.Secret: TrackInfo("AUDIO/060.ogg", *_EFFECT),  # Secret theme
+    TR1TrackId.MainTheme: TrackInfo(_tracks(2), *_INTERCEPTION),  # Main theme
+    TR1TrackId.Ambience0: TrackInfo(_tracks(3), *_AMBIENT, 30),  # Caves ambience
+    TR1TrackId.Ambience1: TrackInfo(_tracks(3), *_AMBIENT, 30),  # Silence
+    TR1TrackId.Ambience2: TrackInfo(_tracks(4), *_AMBIENT, 30),  # PC ONLY: Water ambience
+    TR1TrackId.Ambience3: TrackInfo(_tracks(5), *_AMBIENT, 30),  # PC ONLY: Wind  ambience
+    TR1TrackId.Ambience4: TrackInfo(_tracks(6), *_AMBIENT, 30),  # PC ONLY: Pulse ambience
+    TR1TrackId.Cutscene1: TrackInfo(_tracks(7), *_AMBIENT),  # Natla cutscene
+    TR1TrackId.Cutscene2: TrackInfo(_tracks(8), *_AMBIENT),  # Larson cutscene
+    TR1TrackId.Cutscene3: TrackInfo(_tracks(9), *_AMBIENT),  # Natla scion cutscene
+    TR1TrackId.Cutscene4: TrackInfo(_tracks(10), *_AMBIENT),  # Tihocan cutscene
+    TR1TrackId.Poseidon: TrackInfo(_tracks(11), *_INTERCEPTION),  # Poseidon
+    TR1TrackId.MainThemeShort: TrackInfo(_tracks(12), *_INTERCEPTION),  # Main theme, short
+    TR1TrackId.Thor: TrackInfo(_tracks(13), *_INTERCEPTION),  # Thor
+    TR1TrackId.SaintFrancis: TrackInfo(_tracks(14), *_INTERCEPTION),  # St. Francis
+    TR1TrackId.Danger: TrackInfo(_tracks(15), *_INTERCEPTION),  # Danger
+    TR1TrackId.Stairs: TrackInfo(_tracks(16), *_INTERCEPTION),  # Stairs
+    TR1TrackId.Midas: TrackInfo(_tracks(17), *_INTERCEPTION),  # Midas
+    TR1TrackId.Level: TrackInfo(_tracks(18), *_INTERCEPTION),  # Lever
+    TR1TrackId.Hmm: TrackInfo(_tracks(19), *_INTERCEPTION),  # Hmm...
+    TR1TrackId.BigSecret: TrackInfo(_tracks(20), *_INTERCEPTION),  # Big secret theme
+    TR1TrackId.Raiders: TrackInfo(_tracks(21), *_INTERCEPTION),  # Raiders
+    TR1TrackId.Wolf: TrackInfo(_tracks(22), *_INTERCEPTION),  # Wolf
+    TR1TrackId.Awe: TrackInfo(_tracks(23), *_INTERCEPTION),  # Awe
+    TR1TrackId.Gods: TrackInfo(_tracks(24), *_INTERCEPTION),  # Gods
+    TR1TrackId.MainThemeReprise: TrackInfo(_tracks(25), *_INTERCEPTION),  # Main theme, reprise
+    TR1TrackId.Mummy: TrackInfo(_tracks(26), *_INTERCEPTION),  # Mummy
+    TR1TrackId.MidasReprise: TrackInfo(_tracks(27), *_INTERCEPTION),  # Midas, reprise
+    TR1TrackId.Secret: TrackInfo(_tracks(60), *_EFFECT),  # Secret theme
     **{
-        TR1TrackId(int(TR1TrackId.LaraTalk0) + i): TrackInfo(f"AUDIO/{29 + i:>03}.ogg", *_INTERCEPTION)
+        TR1TrackId(int(TR1TrackId.LaraTalk0) + i): TrackInfo(_tracks(29 + i), *_INTERCEPTION)
         for i in range(int(TR1TrackId.LaraTalk30) - int(TR1TrackId.LaraTalk0) + 1)
     },
 }

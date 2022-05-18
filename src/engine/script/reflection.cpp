@@ -366,8 +366,8 @@ std::vector<std::filesystem::path> Gameflow::getInvalidFilepaths(const Engine& e
 {
   std::vector<std::filesystem::path> result;
   for(const auto& track : m_tracks)
-    if(const auto invalid = track.second->getFilepathIfInvalid(engine); invalid.has_value())
-      result.emplace_back(*invalid);
+    for(const auto invalid : track.second->getFilepathsIfInvalid(engine))
+      result.emplace_back(invalid);
   for(const auto& levelSequenceItem : m_levelSequence)
   {
     Expects(levelSequenceItem != nullptr);
@@ -394,10 +394,25 @@ std::vector<std::filesystem::path> Gameflow::getInvalidFilepaths(const Engine& e
   return result;
 }
 
-std::optional<std::filesystem::path> TrackInfo::getFilepathIfInvalid(const Engine& engine) const
+std::vector<std::filesystem::path> TrackInfo::getFilepathsIfInvalid(const Engine& engine) const
 {
-  if(std::filesystem::is_regular_file(getAssetPath(engine, name)))
-    return std::nullopt;
-  return std::filesystem::path{name};
+  for(const auto& name : names)
+  {
+    if(std::filesystem::is_regular_file(getAssetPath(engine, name)))
+      return {};
+  }
+
+  return names;
+}
+
+std::filesystem::path TrackInfo::getFirstValidAlternative(const std::filesystem::path& rootPath) const
+{
+  for(const auto& name : names)
+  {
+    if(std::filesystem::is_regular_file(rootPath / name))
+      return name;
+  }
+
+  BOOST_THROW_EXCEPTION(std::runtime_error("no valid alternative found"));
 }
 } // namespace engine::script

@@ -166,9 +166,9 @@ void AudioEngine::playStopCdTrack(const script::Gameflow& gameflow, const TR1Tra
 
   BOOST_LOG_TRIVIAL(debug) << "playStopCdTrack - play " << toString(trackId) << ", slot " << trackInfo->slot
                            << ", looping " << trackInfo->looping;
-  const auto stream = createStream(trackInfo->name);
+  const auto stream = createStream(trackInfo->getFirstValidAlternative(m_rootPath));
   stream->setLooping(trackInfo->looping);
-  m_streams.emplace(trackInfo->slot, StreamInfo{stream.get(), trackInfo->name});
+  m_streams.emplace(trackInfo->slot, StreamInfo{stream.get(), trackInfo->getFirstValidAlternative(m_rootPath)});
   m_currentTrack = trackId;
 
   if(trackInfo->fadeDurationSeconds > 0)

@@ -157,21 +157,22 @@ void MainWindow::onImportClicked()
 
   QMessageBox::information(this, "Data Imported", "Game Data has been imported.");
 
-  if(!std::filesystem::is_regular_file(findUserDataDir().value() / "data" / "tr1" / "AUDIO" / "002.ogg"))
-  {
-    auto downloader = new DownloadProgress(QUrl{"https://opentomb.earvillage.net/edisonengine-audio-tr1.zip"},
-                                           findUserDataDir().value() / "data" / "tr1" / "AUDIO" / "tracks.zip",
-                                           this);
-    connect(downloader, &DownloadProgress::downloaded, this, &MainWindow::extractSoundtrackZip);
-    downloader->show();
-    downloader->start();
-  }
+  if(std::filesystem::is_regular_file(findUserDataDir().value() / "data" / "tr1" / "AUDIO" / "002.ogg")
+     || std::filesystem::is_regular_file(findUserDataDir().value() / "data" / "tr1" / "Music" / "Track02.flac"))
+    return;
+
+  auto downloader = new DownloadProgress(QUrl{"https://opentomb.earvillage.net/edisonengine-audio-tr1.zip"},
+                                         findUserDataDir().value() / "data" / "tr1" / "AUDIO" / "tracks.zip",
+                                         this);
+  connect(downloader, &DownloadProgress::downloaded, this, &MainWindow::extractSoundtrackZip);
+  downloader->show();
+  downloader->start();
 }
 
 namespace
 {
 #ifdef WIN32
-std::optional<std::filesystem::path> tryGetSteamImagePath()
+std::optional<std::filesystem::path> tryGetSteamGamePath(const std::filesystem::path& testPath)
 {
   const auto tryGetLibraryFolders = [](const std::wstring& path) -> std::vector<std::filesystem::path>
   {
@@ -251,14 +252,14 @@ std::optional<std::filesystem::path> tryGetSteamImagePath()
 
     if(auto it = root.attribs.find("installdir"); it != root.attribs.end())
     {
-      const auto imagePath = libFolder / "steamapps" / "common" / it->second / "GAME.DAT";
-      if(!std::filesystem::is_regular_file(imagePath))
+      const auto fullTestPath = libFolder / "steamapps" / "common" / it->second / testPath;
+      if(!std::filesystem::is_regular_file(fullTestPath))
       {
-        qDebug() << "Image not found:" << imagePath.string().c_str();
+        qDebug() << "File not found:" << fullTestPath.string().c_str();
         continue;
       }
 
-      return imagePath;
+      return fullTestPath;
     }
   }
 
@@ -270,8 +271,10 @@ std::optional<std::filesystem::path> tryGetSteamImagePath()
 bool MainWindow::importGameData()
 {
   std::optional<std::filesystem::path> gameDatPath;
+  std::optional<std::filesystem::path> tombAtiExePath;
 #ifdef WIN32
-  gameDatPath = tryGetSteamImagePath();
+  gameDatPath = tryGetSteamGamePath("GAME.DAT");
+  tombAtiExePath = tryGetSteamGamePath("tombati.exe");
 #endif
 
   if(gameDatPath.has_value())
@@ -294,8 +297,33 @@ bool MainWindow::importGameData()
     }
   }
 
-  const auto imageOrTombExe
-    = QFileDialog::getOpenFileName(this, "Select Tomb Raider 1 Data", QString{}, "Game Data Files (tomb.exe GAME.DAT)");
+  if(tombAtiExePath.has_value())
+  {
+    QMessageBox askUseFoundExe;
+    askUseFoundExe.setWindowTitle("TombATI Found");
+    askUseFoundExe.setText("Import from found TombATI installation?");
+    askUseFoundExe.setInformativeText(
+      QString("A TombATI installation has been found at %1. Do you want to use this installation or continue manually?")
+        .arg(tombAtiExePath->parent_path().string().c_str()));
+    const auto useFoundExeButton = askUseFoundExe.addButton("Use TombATI installation", QMessageBox::AcceptRole);
+    askUseFoundExe.addButton("Continue Manually", QMessageBox::RejectRole);
+    askUseFoundExe.setIcon(QMessageBox::Question);
+
+    askUseFoundExe.exec();
+    if(askUseFoundExe.clickedButton() == useFoundExeButton)
+    {
+      const auto targetDir = findUserDataDir().value() / "data" / "tr1";
+      const auto srcPath = QFileInfo{QString::fromUtf8(tombAtiExePath->string().c_str())}.path();
+      for(const auto& subDirName : {"FMV", "DATA", "Music"})
+      {
+        copyDir(srcPath, targetDir, subDirName, true);
+      }
+      return true;
+    }
+  }
+
+  const auto imageOrTombExe = QFileDialog::getOpenFileName(
+    this, "Select Tomb Raider 1 Data", QString{}, "Game Data Files (tomb.exe tombati.exe GAME.DAT)");
   if(imageOrTombExe.isEmpty())
     return false;
 
@@ -307,7 +335,7 @@ bool MainWindow::importGameData()
   else
   {
     const auto targetDir = findUserDataDir().value() / "data" / "tr1";
-    for(const auto& subDirName : {"FMV", "DATA"})
+    for(const auto& subDirName : {"FMV", "DATA", "Music"})
     {
       copyDir(srcPath, targetDir, subDirName, true);
     }

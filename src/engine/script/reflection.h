@@ -7,12 +7,14 @@
 #include "engine/tracks_tr1.h"
 #include "qs/quantity.h"
 
+#include <boost/throw_exception.hpp>
 #include <cstddef>
 #include <filesystem>
 #include <map>
 #include <memory>
 #include <optional>
 #include <pybind11/pytypes.h>
+#include <stdexcept>
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
@@ -50,20 +52,25 @@ struct ObjectInfo
 
 struct TrackInfo
 {
-  TrackInfo(const std::string& name, size_t slot, bool looping, uint32_t fadeDurationSeconds)
-      : name{name}
-      , slot{slot}
+  TrackInfo(const std::vector<std::string>& names, size_t slot, bool looping, uint32_t fadeDurationSeconds)
+      : slot{slot}
       , looping{looping}
       , fadeDurationSeconds{fadeDurationSeconds}
   {
+    if(names.empty())
+      BOOST_THROW_EXCEPTION(std::invalid_argument("names is empty"));
+
+    for(const auto& name : names)
+      this->names.emplace_back(name);
   }
 
-  std::filesystem::path name;
+  std::vector<std::filesystem::path> names;
   size_t slot;
   bool looping;
   uint32_t fadeDurationSeconds;
 
-  [[nodiscard]] std::optional<std::filesystem::path> getFilepathIfInvalid(const Engine& engine) const;
+  [[nodiscard]] std::vector<std::filesystem::path> getFilepathsIfInvalid(const Engine& engine) const;
+  [[nodiscard]] std::filesystem::path getFirstValidAlternative(const std::filesystem::path& rootPath) const;
 };
 
 class LevelSequenceItem
