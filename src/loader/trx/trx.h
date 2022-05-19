@@ -72,7 +72,7 @@ public:
 
   [[nodiscard]] bool contains(uint32_t x, uint32_t y) const
   {
-    return x >= m_x0 && x <= m_x1 && y >= m_y0 && y <= m_y1;
+    return x >= m_x0 && x < m_x1 && y >= m_y0 && y < m_y1;
   }
 
 private:

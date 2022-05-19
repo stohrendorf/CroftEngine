@@ -150,7 +150,7 @@ void processGlidosPack(const loader::file::level::Level& level,
           256,
           256,
           true);
-        replacementImg->crop(tile.getX0(), tile.getY0(), tile.getX1(), tile.getY1());
+        replacementImg->crop(tile.getX0(), tile.getY0(), tile.getX1() - 1, tile.getY1() - 1);
       }
       else
       {

@@ -71,8 +71,8 @@ Rectangle::Rectangle(const std::string& serialized)
   m_y0 = boost::lexical_cast<uint32_t>(matches[3].str());
   m_y1 = boost::lexical_cast<uint32_t>(matches[4].str());
 
-  Expects(m_x0 <= m_x1);
-  Expects(m_y0 <= m_y1);
+  Expects(m_x0 < m_x1);
+  Expects(m_y0 < m_y1);
 }
 
 TexturePart::TexturePart(const std::string& serialized)
