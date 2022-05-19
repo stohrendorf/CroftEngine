@@ -1,6 +1,7 @@
 from engine import TR1TrackId, TrackInfo
 
 _AMBIENT = (0, True)
+_CUTSCENE = (0, False)
 _INTERCEPTION = (1, False)
 _EFFECT = (2, False)
 
@@ -21,10 +22,10 @@ tracks = {
     **_track(TR1TrackId.Ambience2, 4, *_AMBIENT, 30),  # PC ONLY: Water ambience
     **_track(TR1TrackId.Ambience3, 5, *_AMBIENT, 30),  # PC ONLY: Wind  ambience
     **_track(TR1TrackId.Ambience4, 6, *_AMBIENT, 30),  # PC ONLY: Pulse ambience
-    **_track(TR1TrackId.Cutscene1, 7, *_AMBIENT),  # Natla cutscene
-    **_track(TR1TrackId.Cutscene2, 8, *_AMBIENT),  # Larson cutscene
-    **_track(TR1TrackId.Cutscene3, 9, *_AMBIENT),  # Natla scion cutscene
-    **_track(TR1TrackId.Cutscene4, 10, *_AMBIENT),  # Tihocan cutscene
+    **_track(TR1TrackId.Cutscene1, 7, *_CUTSCENE),  # Natla cutscene
+    **_track(TR1TrackId.Cutscene2, 8, *_CUTSCENE),  # Larson cutscene
+    **_track(TR1TrackId.Cutscene3, 9, *_CUTSCENE),  # Natla scion cutscene
+    **_track(TR1TrackId.Cutscene4, 10, *_CUTSCENE),  # Tihocan cutscene
     **_track(TR1TrackId.Poseidon, 11, *_INTERCEPTION),  # Poseidon
     **_track(TR1TrackId.MainThemeShort, 12, *_INTERCEPTION),  # Main theme, short
     **_track(TR1TrackId.Thor, 13, *_INTERCEPTION),  # Thor
