@@ -1644,6 +1644,7 @@ void World::updateStaticSoundEffects()
     else
     {
       voice->setLooping(false);
+      voice->stop();
     }
   }
 }
