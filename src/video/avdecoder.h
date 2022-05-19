@@ -57,8 +57,6 @@ struct AVDecoder final : public audio::AbstractStreamSource
 
   [[nodiscard]] int getSampleRate() const override;
 
-  size_t audioFrameSize = 0;
-  size_t audioFrameOffset = 0;
   std::atomic<size_t> totalAudioFrames = 0;
 
   [[nodiscard]] std::chrono::milliseconds getPosition() const override
@@ -71,5 +69,8 @@ struct AVDecoder final : public audio::AbstractStreamSource
   }
 
   [[nodiscard]] audio::Clock::duration getDuration() const override;
+
+private:
+  [[nodiscard]] double getVideoTs(bool lock);
 };
 } // namespace video

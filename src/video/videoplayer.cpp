@@ -45,8 +45,8 @@ void play(const std::filesystem::path& filename,
   Converter converter{decoder->filterGraph.graph->sink_links[0]};
   decoderPtr->fillQueues();
 
-  auto stream
-    = audioDevice.createStream(std::move(decoderPtr), decoder->audioFrameSize, 30, std::chrono::milliseconds{0});
+  auto stream = audioDevice.createStream(
+    std::move(decoderPtr), audioDevice.getSampleRate() / 30, 4, std::chrono::milliseconds{0});
   stream->setLooping(true);
   stream->play();
 

@@ -157,6 +157,8 @@ Device::Device()
 
   logDeviceInfo(gsl::not_null{m_device});
 
+  ALC_ASSERT(m_device, alcGetIntegerv(m_device, ALC_FREQUENCY, 1, &m_frq));
+
   m_underwaterFilter = std::make_shared<FilterHandle>();
 
   AL_ASSERT(alFilteri(*m_underwaterFilter, AL_FILTER_TYPE, AL_FILTER_LOWPASS));

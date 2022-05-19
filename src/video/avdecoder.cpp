@@ -60,10 +60,6 @@ AVDecoder::AVDecoder(const std::string& filename)
 
   filterGraph.init(*videoStream);
 
-  Expects(videoStream->stream->time_base.den != 0);
-  audioFrameSize
-    = audioDecoder->getSampleRate() * videoStream->stream->time_base.num / videoStream->stream->time_base.den;
-
   Expects(av_new_packet(&packet, 0) == 0);
   fillQueues();
 }
@@ -122,9 +118,8 @@ std::optional<AVFramePtr> AVDecoder::takeFrame()
   {
     img = std::move(imgQueue.front());
     imgQueue.pop();
-    const auto& tb = videoStream->stream->time_base;
-    const auto audioTs = static_cast<double>(totalAudioFrames) / static_cast<double>(audioFrameSize);
-    const auto videoTs = static_cast<double>(img->frame->pts) * tb.num / tb.den;
+    const auto audioTs = static_cast<double>(totalAudioFrames) / static_cast<double>(audioDecoder->getSampleRate());
+    const auto videoTs = getVideoTs(false);
     if(audioTs < videoTs)
     {
       lock.unlock();
@@ -212,17 +207,7 @@ size_t AVDecoder::read(int16_t* buffer, size_t bufferSize, bool /*looping*/)
   bufferSize -= written;
   buffer += audioDecoder->getChannels() * written;
   totalAudioFrames += written;
-  audioFrameOffset += written;
-  Expects(audioFrameSize > 0);
-  while(audioFrameOffset >= audioFrameSize)
-  {
-    audioFrameOffset -= audioFrameSize;
-    std::unique_lock lock{imgQueueMutex};
-    frameReady = true;
-    frameReadyCondition.notify_one();
-  }
-
-  if(written == 0)
+  if(written == 0 || static_cast<double>(totalAudioFrames) / audioDecoder->getSampleRate() >= getVideoTs(true))
   {
     std::unique_lock lock{imgQueueMutex};
     frameReady = true;
@@ -246,5 +231,18 @@ int AVDecoder::getSampleRate() const
 int AVDecoder::getChannels() const
 {
   return audioDecoder->getChannels();
+}
+
+double AVDecoder::getVideoTs(bool lock)
+{
+  std::optional<std::unique_lock<std::mutex>> guard;
+  if(lock)
+    guard = std::unique_lock{imgQueueMutex};
+
+  if(imgQueue.empty())
+    return std::numeric_limits<double>::max();
+
+  const auto& tb = videoStream->stream->time_base;
+  return static_cast<double>(imgQueue.front().frame->pts) * tb.num / tb.den;
 }
 } // namespace video

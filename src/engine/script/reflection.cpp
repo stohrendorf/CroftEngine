@@ -91,7 +91,10 @@ std::pair<RunResult, std::optional<size_t>> Video::run(Engine& engine,
   for(const auto& path : m_paths)
   {
     if(auto asset = getAssetPath(engine, path); std::filesystem::is_regular_file(asset))
+    {
       engine.getPresenter().playVideo(getAssetPath(engine, asset));
+      break;
+    }
   }
   return {RunResult::NextLevel, std::nullopt};
 }

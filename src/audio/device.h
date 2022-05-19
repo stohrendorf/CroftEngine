@@ -72,6 +72,11 @@ public:
 
   void registerUpdateCallback(const std::function<UpdateCallback>& fn);
 
+  [[nodiscard]] ALCint getSampleRate() const
+  {
+    return m_frq;
+  }
+
 private:
   ALCdevice* m_device = nullptr;
   ALCcontext* m_context = nullptr;
@@ -85,6 +90,7 @@ private:
   bool m_shutdown = false;
   std::shared_ptr<FilterHandle> m_filter{nullptr};
   std::chrono::system_clock::time_point m_lastLogTime = std::chrono::system_clock::now();
+  ALCint m_frq = 0;
 
   void updateStreams();
 };
