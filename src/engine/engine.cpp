@@ -182,16 +182,6 @@ Engine::Engine(std::filesystem::path userDataPath,
     , m_engineDataPath{engineDataPath}
     , m_scriptEngine{engineDataPath / "gameflows" / "tr1"}
 {
-  try
-  {
-    pybind11::eval_file(util::ensureFileExists(m_engineDataPath / "gameflows" / "tr1" / "__init__.py").string());
-  }
-  catch(std::exception& e)
-  {
-    BOOST_LOG_TRIVIAL(fatal) << "Failed to load __init__.py: " << e.what();
-    BOOST_THROW_EXCEPTION(std::runtime_error("Failed to load __init__.py"));
-  }
-
   {
     const auto invalid = m_scriptEngine.getGameflow().getInvalidFilepaths(*this);
     for(const auto& path : invalid)

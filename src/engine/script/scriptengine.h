@@ -16,12 +16,7 @@ class Gameflow;
 class ScriptEngine
 {
 public:
-  explicit ScriptEngine(const std::filesystem::path& rootPath)
-      : m_interpreter{std::make_unique<pybind11::scoped_interpreter>()}
-  {
-    pybind11::module::import("sys").attr("path").cast<pybind11::list>().append(
-      std::filesystem::absolute(rootPath).string());
-  }
+  explicit ScriptEngine(const std::filesystem::path& rootPath);
 
   [[nodiscard]] const Gameflow& getGameflow() const;
 
