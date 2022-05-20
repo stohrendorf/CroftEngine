@@ -230,26 +230,6 @@ void Presenter::renderWorld(const std::vector<world::Room>& rooms,
 
     m_renderer->render();
 
-    render::scene::RenderContext context{render::scene::RenderMode::Full, std::nullopt};
-    for(const auto& room : rooms)
-    {
-      if(!room.node->isVisible() || !room.dust->isVisible())
-        continue;
-
-      SOGLB_DEBUGGROUP(room.node->getName() + ":dust");
-      auto state = context.getCurrentState();
-      state.setScissorTest(true);
-      const auto [xy, size] = room.node->getCombinedScissors();
-      state.setScissorRegion(xy, size);
-      context.pushState(state);
-
-      render::scene::Visitor visitor{context};
-      room.dust->accept(visitor);
-      visitor.render(std::nullopt);
-
-      context.popState();
-    }
-
     if constexpr(render::pass::FlushPasses)
       GL_ASSERT(gl::api::finish());
   }
@@ -270,7 +250,7 @@ void Presenter::renderWorld(const std::vector<world::Room>& rooms,
       GL_ASSERT(gl::api::finish());
   }
 
-  m_renderPipeline->worldCompositionPass(cameraController.getCurrentRoom()->isWaterRoom);
+  m_renderPipeline->worldCompositionPass(rooms, cameraController.getCurrentRoom()->isWaterRoom);
   m_screenOverlay.reset();
 }
 
