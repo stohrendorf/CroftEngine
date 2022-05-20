@@ -54,6 +54,7 @@ struct EngineConfig
   bool restoreHealth = false;
   bool pulseLowHealthHealthBar = true;
   bool lowHealthMonochrome = true;
+  bool buttBubbles = false;
 
   explicit EngineConfig();
 

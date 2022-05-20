@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EdisonEngine\n"
 "Report-Msgid-Bugs-To: https://github.com/stohrendorf/EdisonEngine/issues\n"
-"POT-Creation-Date: 2022-05-16 03:47+0200\n"
+"POT-Creation-Date: 2022-05-20 22:20+0200\n"
 "Last-Translator: Steffen Ohrendorf\n"
 "Language-Team: none\n"
 "Language: de_DE\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #. translators: TR charmap encoding
-#: util/helpers.cpp:192
+#: util/helpers.cpp:193
 #, c-format, boost-format
 msgid "%1$02d:%2$02d"
 msgstr "%1$02d:%2$02d"
@@ -42,13 +42,13 @@ msgid "%1% Misses"
 msgstr "%1% Fehlsch~usse"
 
 #. translators: TR charmap encoding
-#: util/helpers.cpp:183
+#: util/helpers.cpp:184
 #, boost-format
 msgid "%1%:%2$02d:%3$02d"
 msgstr "%1%:%2$02d:%3$02d"
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:358
+#: menu/rendersettingsmenustate.cpp:369
 #, boost-format
 msgid "%1%x Anisotropic Filtering"
 msgstr "%1%x Anisotropische Filterung"
@@ -190,6 +190,11 @@ msgstr "Starte"
 #: engine/world/texturing.cpp:367
 msgid "Building textures"
 msgstr "Erstelle Texturen"
+
+#. translators: TR charmap encoding
+#: menu/rendersettingsmenustate.cpp:351
+msgid "Butt Bubbles"
+msgstr "Po-Blasen"
 
 #. translators: TR charmap encoding
 #: hid/names.cpp:59
@@ -629,7 +634,7 @@ msgstr "Spiel laden"
 msgid "Loading %1%"
 msgstr "Lade %1%"
 
-#: engine/engine.cpp:604
+#: engine/engine.cpp:594
 msgid "Loading Glidos texture pack"
 msgstr "Lade Glidos Textur Paket"
 

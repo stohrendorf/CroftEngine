@@ -174,6 +174,7 @@ int16_t rand15()
   // NOLINTNEXTLINE(cert-msc50-cpp, concurrency-mt-unsafe)
   return gsl::narrow_cast<int16_t>(std::rand() % Rand15Max);
 }
+
 std::string toTimeStr(const core::Seconds& t)
 {
   static constexpr std::chrono::seconds Minute = std::chrono::seconds{60};

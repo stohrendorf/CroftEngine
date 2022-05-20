@@ -187,7 +187,7 @@ bool BubbleParticle::update(world::World& world)
   angle.Y += 9_deg;
   location.position += util::pitch(11_len, angle.Y, -speed * 1_frame);
   auto sector = location.updateRoom();
-  if(!location.room->isWaterRoom)
+  if(m_onlyInWater && !location.room->isWaterRoom)
   {
     return false;
   }

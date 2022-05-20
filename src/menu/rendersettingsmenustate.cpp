@@ -347,6 +347,17 @@ RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingT
       auto& b = engine.getEngineConfig()->lowHealthMonochrome;
       b = !b;
     });
+  listBox->addSetting(
+    /* translators: TR charmap encoding */ _("Butt Bubbles"),
+    [&engine]()
+    {
+      return engine.getEngineConfig()->buttBubbles;
+    },
+    [&engine]()
+    {
+      auto& b = engine.getEngineConfig()->buttBubbles;
+      b = !b;
+    });
 }
 
 std::unique_ptr<MenuState>

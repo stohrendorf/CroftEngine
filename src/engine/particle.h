@@ -148,8 +148,9 @@ public:
 class BubbleParticle final : public Particle
 {
 public:
-  explicit BubbleParticle(const Location& location, world::World& world)
+  explicit BubbleParticle(const Location& location, world::World& world, bool onlyInWater = true)
       : Particle{"bubble", TR1ItemId::Bubbles, location, world, true, nullptr}
+      , m_onlyInWater{onlyInWater}
   {
     speed = 10_spd + util::rand15(6_spd);
 
@@ -159,6 +160,9 @@ public:
   }
 
   bool update(world::World& world) override;
+
+private:
+  const bool m_onlyInWater;
 };
 
 class SparkleParticle final : public Particle

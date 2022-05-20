@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EdisonEngine 1.3\n"
 "Report-Msgid-Bugs-To: https://github.com/stohrendorf/EdisonEngine/issues\n"
-"POT-Creation-Date: 2022-05-16 03:47+0200\n"
+"POT-Creation-Date: 2022-05-20 22:20+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 
 #. translators: TR charmap encoding
-#: util/helpers.cpp:192
+#: util/helpers.cpp:193
 #, c-format, boost-format
 msgid "%1$02d:%2$02d"
 msgstr ""
@@ -43,13 +43,13 @@ msgid "%1% Misses"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: util/helpers.cpp:183
+#: util/helpers.cpp:184
 #, boost-format
 msgid "%1%:%2$02d:%3$02d"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:358
+#: menu/rendersettingsmenustate.cpp:369
 #, boost-format
 msgid "%1%x Anisotropic Filtering"
 msgstr ""
@@ -190,6 +190,11 @@ msgstr ""
 
 #: engine/world/texturing.cpp:367
 msgid "Building textures"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/rendersettingsmenustate.cpp:351
+msgid "Butt Bubbles"
 msgstr ""
 
 #. translators: TR charmap encoding
@@ -627,7 +632,7 @@ msgstr ""
 msgid "Loading %1%"
 msgstr ""
 
-#: engine/engine.cpp:604
+#: engine/engine.cpp:594
 msgid "Loading Glidos texture pack"
 msgstr ""
 

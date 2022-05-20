@@ -99,7 +99,8 @@ void EngineConfig::serialize(const serialization::Serializer<EngineConfig>& ser)
       S_NVD("inputMappings", inputMappings, getDefaultMappings()),
       S_NVO("restoreHealth", restoreHealth),
       S_NVO("pulseLowHealthHealthBar", pulseLowHealthHealthBar),
-      S_NVO("lowHealthMonochrome", lowHealthMonochrome));
+      S_NVO("lowHealthMonochrome", lowHealthMonochrome),
+      S_NVO("buttBubbles", buttBubbles));
 }
 
 EngineConfig::EngineConfig()
