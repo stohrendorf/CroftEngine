@@ -20,6 +20,7 @@
 #include <gl/renderstate.h>
 #include <gl/sampler.h>
 #include <gl/texture2d.h>
+#include <gl/texturedepth.h>
 #include <gl/texturehandle.h>
 #include <glm/mat4x4.hpp>
 #include <gsl/gsl-lite.hpp>
@@ -51,6 +52,7 @@ WorldCompositionPass::WorldCompositionPass(scene::MaterialManager& materialManag
           | set(gl::api::TextureMinFilter::Linear) | set(gl::api::TextureMagFilter::Linear))}
     , m_fb{gl::FrameBufferBuilder()
              .textureNoBlend(gl::api::FramebufferAttachment::ColorAttachment0, m_colorBuffer)
+             .textureNoBlend(gl::api::FramebufferAttachment::DepthAttachment, geometryPass.getDepthBuffer())
              .build("composition-fb")}
 {
   m_noWaterMesh->bind("u_portalPosition",

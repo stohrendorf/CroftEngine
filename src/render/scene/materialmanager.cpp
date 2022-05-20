@@ -254,6 +254,8 @@ gslu::nn_shared<Material> MaterialManager::getWorldComposition(bool inWater, boo
   if(auto uniform = m->tryGetUniform("u_noise"))
     uniform->set(gsl::not_null{m_noiseTexture});
 
+  configureForScreenSpaceEffect(*m, false);
+
   m_composition.emplace(key, m);
   return m;
 }
@@ -478,6 +480,8 @@ gslu::nn_shared<Material> MaterialManager::getDustParticle()
   m->getRenderState().setCullFace(false);
   m->getRenderState().setBlend(0, true);
   m->getRenderState().setBlendFactors(0, gl::api::BlendingFactor::One, gl::api::BlendingFactor::OneMinusSrcAlpha);
+  m->getRenderState().setDepthTest(true);
+  m->getRenderState().setDepthWrite(false);
   m->getUniformBlock("Camera")->bindCameraBuffer(m_renderer->getCamera());
   m->getUniformBlock("Transform")->bindTransformBuffer();
   m->getUniform("u_noise")->set(gsl::not_null{m_noiseTexture});
