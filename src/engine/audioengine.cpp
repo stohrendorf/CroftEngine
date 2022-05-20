@@ -148,12 +148,15 @@ void AudioEngine::playStopCdTrack(const script::Gameflow& gameflow, const TR1Tra
   {
     if(auto currentlyPlaying = slotIt->second.stream.lock(); currentlyPlaying != nullptr)
     {
+      BOOST_LOG_TRIVIAL(debug) << "playStopCdTrack - fade out slot " << trackInfo->slot;
       m_soundEngine->getDevice().registerUpdateCallback(audio::FadeVolumeCallback{
         0.0f,
         std::chrono::seconds{2},
         gsl::not_null{currentlyPlaying},
-        audio::FadeVolumeCallback::FinalCallback{[currentlyPlaying, this]()
+        audio::FadeVolumeCallback::FinalCallback{[currentlyPlaying, slot = trackInfo->slot, this]()
                                                  {
+                                                   BOOST_LOG_TRIVIAL(debug) << "playStopCdTrack - fade out slot "
+                                                                            << slot << " done, removing stream";
                                                    m_soundEngine->getDevice().removeStream(currentlyPlaying);
                                                  }}});
     }
