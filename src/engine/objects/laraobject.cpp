@@ -433,6 +433,20 @@ void LaraObject::update()
     resetHeadTorsoRotation();
   }
 
+  if(getWorld().getEngine().getEngineConfig()->buttBubbles)
+  {
+    const auto boneSpheres = getSkeleton()->getBoneCollisionSpheres();
+    const auto position
+      = core::TRVec{boneSpheres.at(BoneHips).relative(core::TRVec{0_len, 20_len, -50_len}.toRenderSystem())};
+    auto bubbleCount = util::rand15(2);
+    while(bubbleCount-- > 0)
+    {
+      auto particle = gsl::make_shared<BubbleParticle>(Location{m_state.location.room, position}, getWorld(), false);
+      setParent(particle, m_state.location.room->node);
+      getWorld().getObjectManager().registerParticle(particle);
+    }
+  }
+  
   if(m_underwaterState == UnderwaterState::OnLand)
   {
     m_air = core::LaraAir;
@@ -458,20 +472,6 @@ void LaraObject::update()
       m_air = std::min(m_air + core::FrameRate * 1_sec / 3, core::LaraAir);
     }
     handleLaraStateSwimming();
-  }
-
-  if(getWorld().getEngine().getEngineConfig()->buttBubbles)
-  {
-    const auto boneSpheres = getSkeleton()->getBoneCollisionSpheres();
-    const auto position
-      = core::TRVec{boneSpheres.at(BoneHips).relative(core::TRVec{0_len, 20_len, -50_len}.toRenderSystem())};
-    auto bubbleCount = util::rand15(2);
-    while(bubbleCount-- > 0)
-    {
-      auto particle = gsl::make_shared<BubbleParticle>(Location{m_state.location.room, position}, getWorld(), false);
-      setParent(particle, m_state.location.room->node);
-      getWorld().getObjectManager().registerParticle(particle);
-    }
   }
 }
 
