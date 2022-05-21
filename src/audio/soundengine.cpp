@@ -101,17 +101,17 @@ bool SoundEngine::stopBuffer(size_t bufferId, const Emitter* emitter)
 gslu::nn_shared<BufferVoice> SoundEngine::playBuffer(
   const gslu::nn_shared<BufferHandle>& buffer, size_t bufferId, ALfloat pitch, ALfloat volume, Emitter* emitter)
 {
-  auto v = gsl::make_shared<BufferVoice>(buffer);
-  v->setPitch(pitch);
-  v->setLocalGain(volume);
+  auto voice = gsl::make_shared<BufferVoice>(buffer);
+  voice->setPitch(pitch);
+  voice->setLocalGain(volume);
   if(emitter != nullptr)
-    v->setPosition(emitter->getPosition());
-  v->play();
+    voice->setPosition(emitter->getPosition());
+  voice->play();
 
-  m_voices[emitter][bufferId].emplace_back(v.get());
-  m_device->registerVoice(v);
+  m_voices[emitter][bufferId].emplace_back(voice.get());
+  m_device->registerVoice(voice);
 
-  return v;
+  return voice;
 }
 
 void SoundEngine::dropEmitter(const Emitter* emitter)
@@ -120,16 +120,16 @@ void SoundEngine::dropEmitter(const Emitter* emitter)
   if(it == m_voices.end())
     return;
 
-  for(const auto& [id, handles] : it->second)
-    for(const auto& src : handles)
-      if(const auto locked = src.lock())
+  for(const auto& [id, voices] : it->second)
+    for(const auto& voice : voices)
+      if(const auto locked = voice.lock())
         locked->stop();
 
   m_voices.erase(it);
 }
 
 SoundEngine::SoundEngine()
-    : m_device{std::make_unique<Device>()}
+    : m_device{gsl::make_unique<Device>()}
 {
 }
 

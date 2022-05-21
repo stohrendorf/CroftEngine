@@ -269,12 +269,12 @@ gslu::nn_shared<StreamVoice> Device::createStream(std::unique_ptr<AbstractStream
                                                   const size_t bufferCount,
                                                   const std::chrono::milliseconds& initialPosition)
 {
-  auto r = gsl::make_shared<StreamVoice>(
+  auto stream = gsl::make_shared<StreamVoice>(
     std::make_unique<StreamingSourceHandle>(), std::move(src), bufferSize, bufferCount, initialPosition);
 
   std::lock_guard lock{m_streamsLock};
-  m_streams.emplace(r);
-  return r;
+  m_streams.emplace(stream);
+  return stream;
 }
 
 void Device::updateStreams()
