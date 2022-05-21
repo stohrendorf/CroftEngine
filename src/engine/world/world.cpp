@@ -1643,8 +1643,8 @@ void World::updateStaticSoundEffects()
     }
     else
     {
+      voice->pause();
       voice->setLooping(false);
-      voice->stop();
     }
   }
 }
