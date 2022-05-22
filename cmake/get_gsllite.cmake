@@ -20,4 +20,5 @@ target_compile_definitions(
         -Dgsl_FEATURE_BYTE_SPAN_TO_STD=${CMAKE_CXX_STANDARD}
         -Dgsl_CONFIG_NOT_NULL_EXPLICIT_CTOR=1
         -Dgsl_CONFIG_CONTRACT_VIOLATION_CALLS_HANDLER
+        -Dgsl_CPLUSPLUS=201703L
 )
