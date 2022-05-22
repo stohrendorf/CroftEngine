@@ -524,8 +524,8 @@ void TorsoBoss::update()
         getWorld().getPlayer().selectedWeaponType = WeaponType::None;
         lara.setHandStatus(HandStatus::Grabbing);
         lara.m_state.falling = false;
-        getWorld().getCameraController().setMode(CameraMode::FixedPosition);
         getWorld().getCameraController().setDistance(2048_len);
+        getWorld().getCameraController().setModifier(CameraModifier::FollowCenter);
       }
       break;
     case Approach.get():
@@ -542,7 +542,7 @@ void TorsoBoss::update()
       break;
     case LaraKilled.get():
       getWorld().getCameraController().setDistance(2048_len);
-      getWorld().getCameraController().setMode(CameraMode::FixedPosition);
+      getWorld().getCameraController().setModifier(CameraModifier::FollowCenter);
       break;
     default:
       break;
