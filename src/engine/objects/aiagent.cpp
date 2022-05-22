@@ -128,7 +128,11 @@ bool AIAgent::animateCreature(const core::Angle& deltaRotationY, const core::Ang
   // from the sector boundaries if it detects a collision. As the max norm is always greater than or equal to the
   // euclidean norm, checking that the max norm of movement is less than or equal to the collision radius means that
   // the movement did not cause a wall glitch, assuming that the position before applying the movement was valid.
-  BOOST_ASSERT(abs(m_skeleton->calculateFloorSpeed()) <= m_collisionRadius / 1_frame);
+  if(const auto speed = abs(m_skeleton->calculateFloorSpeed()); speed > m_collisionRadius / 1_frame)
+  {
+    BOOST_LOG_TRIVIAL(warning) << m_skeleton->getName() << " movement speed of " << speed
+                               << " exceeds collision radius of " << m_collisionRadius;
+  }
 
   if(m_state.triggerState == TriggerState::Deactivated)
   {
