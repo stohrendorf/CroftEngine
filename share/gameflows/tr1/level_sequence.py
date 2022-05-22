@@ -292,7 +292,7 @@ level_sequence = [
                 TR1ItemId.ScionPiece5: "Scion",
             },
             "de_DE": {
-                TR1ItemId.Puzzle1: "Ankh-kreuz",
+                TR1ItemId.Puzzle1: "Ankh-Kreuz",
                 TR1ItemId.Puzzle2: "Scarab~aus",
                 TR1ItemId.Key1: "Goldener Schl~ussel",
                 TR1ItemId.ScionPiece5: "Scion",
