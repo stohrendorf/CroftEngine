@@ -63,4 +63,6 @@ void main()
         gpi.quadUvs[2] = a_quadUv34.xy;
         gpi.quadUvs[3] = a_quadUv34.zw;
     }
+
+    gpi.reflective = a_reflective;
 }

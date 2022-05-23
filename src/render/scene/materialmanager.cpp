@@ -394,6 +394,17 @@ gslu::nn_shared<Material> MaterialManager::getUnderwaterMovement()
   return m;
 }
 
+gslu::nn_shared<Material> MaterialManager::getReflective()
+{
+  if(m_reflective != nullptr)
+    return gsl::not_null{m_reflective};
+
+  auto m = gsl::make_shared<Material>(m_shaderCache->getReflective());
+  configureForScreenSpaceEffect(*m, false);
+  m_reflective = m;
+  return m;
+}
+
 gslu::nn_shared<Material> MaterialManager::getHBAO()
 {
   if(m_hbao != nullptr)

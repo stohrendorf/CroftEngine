@@ -30,7 +30,7 @@ class Dart final : public ModelObject
 {
 public:
   Dart(const gsl::not_null<world::World*>& world, const Location& location)
-      : ModelObject{world, location, true}
+      : ModelObject{world, location}
   {
   }
 

@@ -76,9 +76,12 @@ gslu::nn_shared<Mesh> createSpriteMesh(const float x0,
 
 gl::VertexLayout<SpriteVertex> SpriteVertex::getLayout()
 {
-  return {{VERTEX_ATTRIBUTE_POSITION_NAME, &SpriteVertex::pos},
-          {VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, &SpriteVertex::uv},
-          {VERTEX_ATTRIBUTE_COLOR_NAME, &SpriteVertex::color},
-          {VERTEX_ATTRIBUTE_NORMAL_NAME, &SpriteVertex::normal}};
+  return {
+    {VERTEX_ATTRIBUTE_POSITION_NAME, &SpriteVertex::pos},
+    {VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, &SpriteVertex::uv},
+    {VERTEX_ATTRIBUTE_COLOR_NAME, &SpriteVertex::color},
+    {VERTEX_ATTRIBUTE_NORMAL_NAME, &SpriteVertex::normal},
+    {VERTEX_ATTRIBUTE_REFLECTIVE_NAME, &SpriteVertex::reflective},
+  };
 }
 } // namespace render::scene

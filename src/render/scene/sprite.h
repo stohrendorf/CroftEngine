@@ -21,6 +21,7 @@ struct SpriteVertex
   glm::vec3 uv;
   glm::vec4 color{1.0f};
   glm::vec3 normal{0, 0, 1};
+  glm::vec4 reflective{0, 0, 0, 0};
 
   [[nodiscard]] static gl::VertexLayout<SpriteVertex> getLayout();
 };

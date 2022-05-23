@@ -139,6 +139,21 @@ void RenderPipeline::resize(scene::MaterialManager& materialManager,
              });
   }
   addEffect("underwater-movement", materialManager.getUnderwaterMovement());
+  {
+    auto fx = addEffect("reflective", materialManager.getReflective());
+    fx->bind("u_normal",
+             [texture = m_geometryPass->getNormalBuffer()](
+               const render::scene::Node* /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
+             {
+               uniform.set(texture);
+             });
+    fx->bind("u_reflective",
+             [texture = m_geometryPass->getReflectiveBuffer()](
+               const render::scene::Node* /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
+             {
+               uniform.set(texture);
+             });
+  }
   if(m_renderSettings.fxaa)
     addEffect("fxaa", materialManager.getFXAA());
   if(m_renderSettings.lensDistortion)
@@ -170,6 +185,7 @@ void RenderPipeline::bindGeometryFrameBuffer(float farPlane)
   BOOST_ASSERT(m_geometryPass != nullptr);
   m_geometryPass->getColorBuffer()->getTexture()->clear({0, 0, 0, 1});
   m_geometryPass->getPositionBuffer()->getTexture()->clear({0.0f, 0.0f, -farPlane});
+  m_geometryPass->getReflectiveBuffer()->getTexture()->clear({0, 0, 0, 0});
   m_geometryPass->getDepthBuffer()->clear(gl::ScalarDepth{1.0f});
   m_geometryPass->bind();
 }

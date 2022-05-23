@@ -9,6 +9,7 @@
 #include <algorithm>
 #include <cstddef>
 #include <gl/buffer.h>
+#include <gl/pixel.h>
 #include <glm/fwd.hpp>
 #include <glm/mat4x4.hpp>
 #include <glm/vec4.hpp>
@@ -170,6 +171,11 @@ public:
     m_meshParts.at(idx).poseMatrix = m;
   }
 
+  void setMeshReflective(size_t idx, const gl::SRGBA8& reflective)
+  {
+    m_meshParts.at(idx).reflective = reflective;
+  }
+
   void setVisible(size_t idx, bool visible)
   {
     m_meshParts.at(idx).visible = visible;
@@ -235,10 +241,12 @@ private:
     std::shared_ptr<world::RenderMeshData> currentMesh{nullptr};
     bool visible = true;
     bool currentVisible = true;
+    gl::SRGBA8 reflective{0, 0, 0, 0};
+    gl::SRGBA8 currentReflective{0, 0, 0, 0};
 
     [[nodiscard]] bool meshChanged() const
     {
-      return visible != currentVisible || mesh != currentMesh;
+      return visible != currentVisible || mesh != currentMesh || reflective != currentReflective;
     }
 
     void serialize(const serialization::Serializer<world::World>& ser);

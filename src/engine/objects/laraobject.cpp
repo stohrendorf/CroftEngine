@@ -446,7 +446,7 @@ void LaraObject::update()
       getWorld().getObjectManager().registerParticle(particle);
     }
   }
-  
+
   if(m_underwaterState == UnderwaterState::OnLand)
   {
     m_air = core::LaraAir;
@@ -1940,7 +1940,7 @@ void LaraObject::initMuzzleFlashes()
     return;
 
   world::RenderMeshDataCompositor compositor;
-  compositor.append(*muzzleFlashModel->bones[0].mesh);
+  compositor.append(*muzzleFlashModel->bones[0].mesh, gl::SRGBA8{0, 0, 0, 0});
   auto mdl = compositor.toMesh(*getWorld().getPresenter().getMaterialManager(), false, false, {});
 
   m_muzzleFlashLeft->setRenderable(mdl);

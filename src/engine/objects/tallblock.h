@@ -29,7 +29,7 @@ class TallBlock final : public ModelObject
 {
 public:
   TallBlock(const gsl::not_null<world::World*>& world, const Location& location)
-      : ModelObject{world, location, false}
+      : ModelObject{world, location}
   {
   }
 

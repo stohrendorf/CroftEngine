@@ -21,6 +21,13 @@ GeometryPass::GeometryPass(const glm::ivec2& viewport)
           | set(gl::api::SamplerParameterI::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge)
           | set(gl::api::SamplerParameterI::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge)
           | set(gl::api::TextureMinFilter::Linear) | set(gl::api::TextureMagFilter::Linear))}
+    , m_reflectiveBuffer{std::make_shared<gl::Texture2D<gl::SRGBA8>>(viewport, "geometry-reflective")}
+    , m_reflectiveBufferHandle{std::make_shared<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>>(
+        m_reflectiveBuffer,
+        gsl::make_unique<gl::Sampler>("geometry-reflective-sampler")
+          | set(gl::api::SamplerParameterI::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge)
+          | set(gl::api::SamplerParameterI::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge)
+          | set(gl::api::TextureMinFilter::Linear) | set(gl::api::TextureMagFilter::Linear))}
     , m_positionBuffer{std::make_shared<gl::Texture2D<gl::RGB32F>>(viewport, "geometry-position")}
     , m_positionBufferHandle{std::make_shared<gl::TextureHandle<gl::Texture2D<gl::RGB32F>>>(
         m_positionBuffer,
@@ -39,6 +46,7 @@ GeometryPass::GeometryPass(const glm::ivec2& viewport)
              .texture(gl::api::FramebufferAttachment::ColorAttachment0, m_colorBuffer)
              .textureNoBlend(gl::api::FramebufferAttachment::ColorAttachment1, m_normalBuffer)
              .textureNoBlend(gl::api::FramebufferAttachment::ColorAttachment2, m_positionBuffer)
+             .textureNoBlend(gl::api::FramebufferAttachment::ColorAttachment3, m_reflectiveBuffer)
              .textureNoBlend(gl::api::FramebufferAttachment::DepthAttachment, m_depthBuffer)
              .build("geometry-fb")}
 {

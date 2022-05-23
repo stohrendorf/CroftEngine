@@ -45,9 +45,8 @@ namespace engine::objects
 class ModelObject : public Object
 {
 public:
-  ModelObject(const gsl::not_null<world::World*>& world, const Location& location, bool shadowCaster)
+  ModelObject(const gsl::not_null<world::World*>& world, const Location& location)
       : Object{world, location}
-      , m_shadowCaster{shadowCaster}
   {
   }
 
@@ -129,14 +128,11 @@ public:
 protected:
   std::shared_ptr<SkeletalModelNode> m_skeleton;
   Lighting m_lighting;
-
-private:
-  bool m_shadowCaster;
 };
 
 #define MODELOBJECT_DEFAULT_CONSTRUCTORS(CLASS, HAS_UPDATE_FUNCTION, SHADOW_CASTER)             \
   CLASS(const gsl::not_null<world::World*>& world, const Location& location)                    \
-      : ModelObject{world, location, SHADOW_CASTER}                                             \
+      : ModelObject{world, location}                                                            \
   {                                                                                             \
   }                                                                                             \
                                                                                                 \
@@ -153,7 +149,7 @@ class NullRenderModelObject : public ModelObject
 {
 public:
   NullRenderModelObject(const gsl::not_null<world::World*>& world, const Location& location)
-      : ModelObject{world, location, false}
+      : ModelObject{world, location}
   {
   }
 

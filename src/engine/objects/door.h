@@ -33,7 +33,7 @@ class Door final : public ModelObject
 {
 public:
   Door(const gsl::not_null<world::World*>& world, const Location& location)
-      : ModelObject{world, location, false}
+      : ModelObject{world, location}
   {
   }
 

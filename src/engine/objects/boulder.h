@@ -29,7 +29,7 @@ class RollingBall final : public ModelObject
 {
 public:
   RollingBall(const gsl::not_null<world::World*>& world, const Location& location)
-      : ModelObject{world, location, true}
+      : ModelObject{world, location}
       , m_location{location}
   {
   }

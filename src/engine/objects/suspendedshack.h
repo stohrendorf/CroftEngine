@@ -30,7 +30,7 @@ class SuspendedShack final : public ModelObject
 {
 public:
   SuspendedShack(const gsl::not_null<world::World*>& world, const Location& location)
-      : ModelObject{world, location, false}
+      : ModelObject{world, location}
   {
   }
 

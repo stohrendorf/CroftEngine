@@ -131,6 +131,11 @@ public:
     return get("flat.vert", "hbao.frag");
   }
 
+  [[nodiscard]] auto getReflective()
+  {
+    return get("flat.vert", "fx_reflective.frag");
+  }
+
   [[nodiscard]] auto getFastGaussBlur(const uint8_t extent, uint8_t blurDim)
   {
     Expects(extent > 0);

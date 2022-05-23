@@ -98,7 +98,7 @@ private:
 
 public:
   LaraObject(const gsl::not_null<world::World*>& world, const Location& location)
-      : ModelObject{world, location, true}
+      : ModelObject{world, location}
   {
     initMuzzleFlashes();
   }

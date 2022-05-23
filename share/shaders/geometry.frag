@@ -11,6 +11,7 @@ layout(bindless_sampler) uniform sampler2DArray u_diffuseTextures;
 layout(location=0) out vec4 out_color;
 layout(location=1) out vec3 out_normal;
 layout(location=2) out vec3 out_position;
+layout(location=3) out vec4 out_reflective;
 
 // from https://core.ac.uk/download/pdf/53544051.pdf
 // "A Quadrilateral Rendering Primitive" by Kai Hormann and Marco Tarini
@@ -57,6 +58,7 @@ void main()
 {
     out_normal = gpi.hbaoNormal;
     out_position = gpi.vertexPos;
+    out_reflective = gpi.reflective;
 
     vec4 finalColor = gpi.color;
     if (gpi.texCoord.z >= 0) {

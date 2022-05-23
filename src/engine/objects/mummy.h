@@ -30,7 +30,7 @@ class Mummy final : public ModelObject
 {
 public:
   Mummy(const gsl::not_null<world::World*>& world, const Location& location)
-      : ModelObject{world, location, true}
+      : ModelObject{world, location}
   {
   }
 

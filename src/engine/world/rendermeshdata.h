@@ -52,6 +52,7 @@ public:
     glm::vec3 quadVert4;
     glm::vec4 quadUv12;
     glm::vec4 quadUv34;
+    glm::vec4 reflective{0, 0, 0, 0};
 
     static const gl::VertexLayout<RenderVertex>& getLayout()
     {
@@ -68,6 +69,7 @@ public:
         {VERTEX_ATTRIBUTE_QUAD_VERT4, &RenderVertex::quadVert4},
         {VERTEX_ATTRIBUTE_QUAD_UV12, &RenderVertex::quadUv12},
         {VERTEX_ATTRIBUTE_QUAD_UV34, &RenderVertex::quadUv34},
+        {VERTEX_ATTRIBUTE_REFLECTIVE_NAME, &RenderVertex::reflective},
       };
 
       return layout;
@@ -96,12 +98,13 @@ private:
 class RenderMeshDataCompositor final
 {
 public:
-  void append(const RenderMeshData& data)
+  void append(const RenderMeshData& data, const gl::SRGBA8& reflective)
   {
     const auto vertexOffset = gsl::narrow<RenderMeshData::IndexType>(m_vertices.size());
     for(auto v : data.getVertices())
     {
       v.boneIndex = m_boneIndex;
+      v.reflective = glm::vec4(reflective.channels) / 255.0f;
       m_vertices.emplace_back(v);
     }
 

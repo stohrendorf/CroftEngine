@@ -170,7 +170,7 @@ PuzzleHole::PuzzleHole(const std::string& name,
 }
 
 PuzzleHole::PuzzleHole(const gsl::not_null<world::World*>& world, const Location& location)
-    : ModelObject{world, location, false}
+    : ModelObject{world, location}
 {
 }
 } // namespace engine::objects

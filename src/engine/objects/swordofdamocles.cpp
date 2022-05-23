@@ -90,7 +90,7 @@ void SwordOfDamocles::serialize(const serialization::Serializer<world::World>& s
 }
 
 SwordOfDamocles::SwordOfDamocles(const gsl::not_null<world::World*>& world, const Location& location)
-    : ModelObject{world, location, true}
+    : ModelObject{world, location}
 {
 }
 

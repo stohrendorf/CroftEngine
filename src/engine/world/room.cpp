@@ -76,6 +76,7 @@ struct RenderVertex
   glm::vec3 quadVert2{};
   glm::vec3 quadVert3{};
   glm::vec3 quadVert4{};
+  glm::vec4 reflective{};
 
   static const gl::VertexLayout<RenderVertex>& getLayout()
   {
@@ -88,6 +89,7 @@ struct RenderVertex
       {VERTEX_ATTRIBUTE_QUAD_VERT2, &RenderVertex::quadVert2},
       {VERTEX_ATTRIBUTE_QUAD_VERT3, &RenderVertex::quadVert3},
       {VERTEX_ATTRIBUTE_QUAD_VERT4, &RenderVertex::quadVert4},
+      {VERTEX_ATTRIBUTE_REFLECTIVE_NAME, &RenderVertex::reflective},
     };
 
     return layout;

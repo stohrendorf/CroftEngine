@@ -54,7 +54,7 @@ bool shatterModel(ModelObject& object, const std::bitset<32>& meshMask, const co
     object.getSkeleton()->setVisible(i, false);
     object.getSkeleton()->rebuildMesh();
     world::RenderMeshDataCompositor compositor;
-    compositor.append(*modelType->bones[i].mesh);
+    compositor.append(*modelType->bones[i].mesh, gl::SRGBA8{0, 0, 0, 0});
     auto particle = gsl::make_shared<MeshShrapnelParticle>(
       Location{object.m_state.location.room, core::TRVec{object.getSkeleton()->getMeshPartTranslationWorld(i)}},
       object.getWorld(),

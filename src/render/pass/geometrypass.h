@@ -36,10 +36,17 @@ public:
     return m_depthBuffer;
   }
 
+  [[nodiscard]] const auto& getReflectiveBuffer() const
+  {
+    return m_reflectiveBufferHandle;
+  }
+
 private:
   gslu::nn_shared<gl::TextureDepth<float>> m_depthBuffer;
   gslu::nn_shared<gl::Texture2D<gl::SRGBA8>> m_colorBuffer;
   gslu::nn_shared<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>> m_colorBufferHandle;
+  gslu::nn_shared<gl::Texture2D<gl::SRGBA8>> m_reflectiveBuffer;
+  gslu::nn_shared<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>> m_reflectiveBufferHandle;
   gslu::nn_shared<gl::Texture2D<gl::RGB32F>> m_positionBuffer;
   gslu::nn_shared<gl::TextureHandle<gl::Texture2D<gl::RGB32F>>> m_positionBufferHandle;
   gslu::nn_shared<gl::Texture2D<gl::RGB16F>> m_normalBuffer;

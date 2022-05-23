@@ -30,7 +30,13 @@ public:
 
   ~TextureHandle()
   {
+//#define NVIDIA_NSIGHT_HACK
+#ifdef NVIDIA_NSIGHT_HACK
+    api::makeTextureHandleNonResident(m_handle);
+    api::getError();
+#else
     GL_ASSERT(api::makeTextureHandleNonResident(m_handle));
+#endif
   }
 
   [[nodiscard]] auto getHandle() const

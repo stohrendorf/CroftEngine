@@ -19,3 +19,5 @@ layout(location=12) in vec4 a_colorTopLeft;
 layout(location=13) in vec4 a_colorTopRight;
 layout(location=14) in vec4 a_colorBottomLeft;
 layout(location=15) in vec4 a_colorBottomRight;
+
+layout(location=16) in vec4 a_reflective;

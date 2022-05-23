@@ -1463,7 +1463,7 @@ void World::initFromLevel(loader::file::level::Level& level)
   {
     RenderMeshDataCompositor compositor;
     if(staticMesh.isVisible())
-      compositor.append(*meshesDirect.at(staticMesh.mesh)->meshData);
+      compositor.append(*meshesDirect.at(staticMesh.mesh)->meshData, gl::SRGBA8{0, 0, 0, 0});
     auto mesh = compositor.toMesh(*getPresenter().getMaterialManager(), false, false, {});
     mesh->getRenderState().setScissorTest(false);
     const bool distinct

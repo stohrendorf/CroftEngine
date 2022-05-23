@@ -42,7 +42,6 @@ ModelObject::ModelObject(const std::string& name,
                          bool shadowCaster)
     : Object{world, room, item, hasUpdateFunction}
     , m_skeleton{std::make_shared<SkeletalModelNode>(name, world, model, shadowCaster)}
-    , m_shadowCaster{shadowCaster}
 {
   SkeletalModelNode::buildMesh(m_skeleton, m_state.current_anim_state);
   m_lighting.bind(*m_skeleton);
@@ -363,7 +362,7 @@ void ModelObject::serialize(const serialization::Serializer<world::World>& ser)
 
 std::shared_ptr<ModelObject> ModelObject::create(serialization::Serializer<world::World>& ser)
 {
-  auto result = std::make_shared<ModelObject>(gsl::not_null{&ser.context}, Location::create(ser["@location"]), false);
+  auto result = std::make_shared<ModelObject>(gsl::not_null{&ser.context}, Location::create(ser["@location"]));
   result->serialize(ser);
   return result;
 }

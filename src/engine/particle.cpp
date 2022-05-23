@@ -47,7 +47,7 @@ void Particle::initRenderables(world::World& world, bool billboard)
     for(const auto& bone : modelType->bones)
     {
       world::RenderMeshDataCompositor compositor;
-      compositor.append(*bone.mesh);
+      compositor.append(*bone.mesh, gl::SRGBA8{0, 0, 0, 0});
       m_renderables.emplace_back(compositor.toMesh(*world.getPresenter().getMaterialManager(), false, false, {}));
     }
   }

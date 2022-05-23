@@ -33,7 +33,7 @@ class CentaurStatue final : public ModelObject
 {
 public:
   CentaurStatue(const gsl::not_null<world::World*>& world, const Location& location)
-      : ModelObject{world, location, true}
+      : ModelObject{world, location}
   {
   }
 

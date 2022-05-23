@@ -65,7 +65,7 @@ ThorHammerHandle::ThorHammerHandle(const std::string& name,
 }
 
 ThorHammerHandle::ThorHammerHandle(const gsl::not_null<world::World*>& world, const Location& location)
-    : ModelObject{world, location, false}
+    : ModelObject{world, location}
 {
 }
 
