@@ -85,6 +85,7 @@ public:
   explicit Engine(std::filesystem::path userDataPath,
                   const std::filesystem::path& engineDataPath,
                   const std::optional<std::string>& localOverride,
+                  const std::string& gameflowRoot,
                   const glm::ivec2& resolution = {1280, 800});
 
   ~Engine();
@@ -119,10 +120,7 @@ public:
   [[nodiscard]] std::filesystem::path getSavegameRootPath() const;
   [[nodiscard]] std::filesystem::path getSavegamePath(const std::optional<size_t>& slot) const;
 
-  [[nodiscard]] std::filesystem::path getAssetDataPath() const
-  {
-    return m_userDataPath / "data" / "tr1";
-  }
+  [[nodiscard]] std::filesystem::path getAssetDataPath() const;
 
   [[nodiscard]] const std::filesystem::path& getEngineDataPath() const
   {

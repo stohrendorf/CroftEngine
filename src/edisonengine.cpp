@@ -67,12 +67,14 @@ int main(int argc, char** argv)
     ->set_filter(boost::log::trivial::severity >= consoleMinSeverity);
 #endif
   std::optional<std::string> localeOverride;
+  std::string gameflowRoot;
   {
     boost::program_options::options_description desc("Allowed options");
     desc.add_options()("locale,l",
                        boost::program_options::value<std::string>()->default_value(""),
                        "set locale override, e.g. de_DE.utf8");
     desc.add_options()("configure,c", boost::program_options::bool_switch(), "start configuration ui");
+    desc.add_options()("gameflow,g", boost::program_options::value<std::string>()->default_value("tr1"), "gameflow id");
 
     boost::program_options::variables_map vm;
     boost::program_options::store(boost::program_options::parse_command_line(argc, argv, desc), vm);
@@ -84,11 +86,13 @@ int main(int argc, char** argv)
     }
 
     if(auto it = vm.find("configure"); (it != vm.end() && it->second.as<bool>()) || !findUserDataDir().has_value()
-                                       || !std::filesystem::is_directory(*findUserDataDir() / "data" / "tr1"))
+                                       || !std::filesystem::is_directory(*findUserDataDir() / "data"))
     {
       setup::showSetupScreen(argc, argv);
       return EXIT_SUCCESS;
     }
+
+    gameflowRoot = vm["gameflow"].as<std::string>();
   }
 
   boost::log::add_file_log(boost::log::keywords::file_name = (findUserDataDir().value() / "edisonengine.log").string(),
@@ -99,7 +103,7 @@ int main(int argc, char** argv)
 
   try
   {
-    engine::Engine engine{findUserDataDir().value(), findEngineDataDir().value(), localeOverride};
+    engine::Engine engine{findUserDataDir().value(), findEngineDataDir().value(), localeOverride, gameflowRoot};
     size_t levelSequenceIndex = 0;
     enum class Mode
     {

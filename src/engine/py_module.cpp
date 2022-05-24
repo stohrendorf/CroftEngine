@@ -165,7 +165,8 @@ PYBIND11_EMBEDDED_MODULE(engine, m)
                   std::string,
                   std::vector<engine::script::LevelSequenceItem*>,
                   std::vector<engine::script::LevelSequenceItem*>,
-                  pybind11::dict>(),
+                  pybind11::dict,
+                  std::string>(),
          py::kw_only{},
          py::arg("object_infos"),
          py::arg("tracks"),
@@ -174,5 +175,6 @@ PYBIND11_EMBEDDED_MODULE(engine, m)
          py::arg("title_menu_backdrop"),
          py::arg("lara_home"),
          py::arg("early_boot"),
-         py::arg("cheats"));
+         py::arg("cheats"),
+         py::arg("asset_root"));
 }

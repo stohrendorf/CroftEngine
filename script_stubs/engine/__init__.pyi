@@ -121,5 +121,6 @@ class Gameflow:
             lara_home: List[LevelSequenceItem],
             early_boot: List[LevelSequenceItem],
             cheats: dict,
+            asset_root: str,
     ):
         ...

@@ -177,10 +177,11 @@ bool showLevelStats(const std::shared_ptr<Presenter>& presenter, world::World& w
 Engine::Engine(std::filesystem::path userDataPath,
                const std::filesystem::path& engineDataPath,
                const std::optional<std::string>& localOverride,
+               const std::string& gameflowRoot,
                const glm::ivec2& resolution)
     : m_userDataPath{std::move(userDataPath)}
     , m_engineDataPath{engineDataPath}
-    , m_scriptEngine{engineDataPath / "gameflows" / "tr1"}
+    , m_scriptEngine{engineDataPath / "gameflows" / gameflowRoot}
 {
   {
     const auto invalid = m_scriptEngine.getGameflow().getInvalidFilepaths(*this);
@@ -659,6 +660,11 @@ std::filesystem::path Engine::getSavegamePath(const std::optional<size_t>& slot)
     return root / makeSavegameFilename(*slot);
   else
     return root / QuicksaveFilename;
+}
+
+std::filesystem::path Engine::getAssetDataPath() const
+{
+  return m_userDataPath / "data" / m_scriptEngine.getGameflow().getAssetRoot();
 }
 
 void SavegameMeta::serialize(const serialization::Serializer<SavegameMeta>& ser)

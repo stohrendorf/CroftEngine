@@ -297,7 +297,8 @@ public:
                     std::string titleMenuBackdrop,
                     std::vector<LevelSequenceItem*> laraHome,
                     std::vector<LevelSequenceItem*> earlyBoot,
-                    pybind11::dict cheats)
+                    pybind11::dict cheats,
+                    std::string assetRoot)
       : m_objectInfos{std::move(objectInfos)}
       , m_tracks{std::move(tracks)}
       , m_levelSequence{std::move(levelSequence)}
@@ -306,6 +307,7 @@ public:
       , m_laraHome{std::move(laraHome)}
       , m_earlyBoot{std::move(earlyBoot)}
       , m_cheats{std::move(cheats)}
+      , m_assetRoot{assetRoot}
   {
   }
 
@@ -344,6 +346,11 @@ public:
     return m_tracks;
   }
 
+  [[nodiscard]] const auto& getAssetRoot() const
+  {
+    return m_assetRoot;
+  }
+
   [[nodiscard]] bool isGodMode() const;
   [[nodiscard]] bool hasAllAmmoCheat() const;
   [[nodiscard]] pybind11::dict getCheatInventory() const;
@@ -359,5 +366,6 @@ private:
   std::vector<LevelSequenceItem*> m_laraHome;
   std::vector<LevelSequenceItem*> m_earlyBoot;
   pybind11::dict m_cheats;
+  std::string m_assetRoot;
 };
 } // namespace engine::script
