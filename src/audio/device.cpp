@@ -35,7 +35,7 @@ constexpr auto identityCompileCheck(T, const char* s)
 }
 } // namespace
 
-#define EE_STRINGIFY(x) identityCompileCheck(x, #x)
+#define CE_STRINGIFY(x) identityCompileCheck(x, #x)
 
 namespace audio
 {
@@ -63,7 +63,7 @@ void logDeviceInfo(const gsl::not_null<ALCdevice*>& device)
     BOOST_LOG_TRIVIAL(info) << "OpenAL: Frequency " << frq << ", stereo sources " << stereoSources;
   }
 
-  if(alcIsExtensionPresent(device, EE_STRINGIFY(ALC_SOFT_HRTF)) != ALC_TRUE)
+  if(alcIsExtensionPresent(device, CE_STRINGIFY(ALC_SOFT_HRTF)) != ALC_TRUE)
   {
     BOOST_LOG_TRIVIAL(info) << "ALC_SOFT_HRTF extension not present";
   }

@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=CroftEngine
+Type=Application
+Exec=croftengine
+Icon=croftengine
+Categories=Game;ActionGame;AdventureGame;
+
+GenericName=A Tomb Raider 1 game engine
+GenericName[de]=Eine Tomb Raider 1 Spiel-Engine

@@ -10,7 +10,7 @@ add_library(
 target_compile_definitions(
         shared
         PRIVATE
-        -DEE_DATAROOT_DIR=${CMAKE_INSTALL_FULL_DATAROOTDIR}/edisonengine
+        -DCE_DATAROOT_DIR=${CMAKE_INSTALL_FULL_DATAROOTDIR}/croftengine
 )
 
 target_include_directories(

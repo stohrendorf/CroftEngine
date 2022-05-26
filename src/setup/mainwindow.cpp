@@ -101,7 +101,7 @@ MainWindow::MainWindow(QWidget* parent)
       askDataLocation.setWindowTitle("Initial Setup");
       askDataLocation.setText("Data Folder Not Found");
       askDataLocation.setInformativeText(
-        "It seems you're running EdisonEngine for the first time. Please select where you want to store your game "
+        "It seems you're running CroftEngine for the first time. Please select where you want to store your game "
         "data.");
       const auto usePortableBtn = askDataLocation.addButton("Portable", QMessageBox::ButtonRole::AcceptRole);
       const auto useHomeDirBtn = askDataLocation.addButton("In my Home Directory", QMessageBox::ButtonRole::AcceptRole);
@@ -128,7 +128,7 @@ MainWindow::MainWindow(QWidget* parent)
     }
   }
 
-  ui->engineVersion->setText(QString::fromLatin1(EE_VERSION));
+  ui->engineVersion->setText(QString::fromLatin1(CE_VERSION));
   ui->dataLocation->setText(QString::fromUtf8(findUserDataDir().value().string().c_str()));
   ui->engineDataLocation->setText(QString::fromLatin1(findEngineDataDir().value().string().c_str()));
 
@@ -161,7 +161,7 @@ void MainWindow::onImportClicked()
      || std::filesystem::is_regular_file(findUserDataDir().value() / "data" / "tr1" / "Music" / "Track02.flac"))
     return;
 
-  auto downloader = new DownloadProgress(QUrl{"https://opentomb.earvillage.net/edisonengine-audio-tr1.zip"},
+  auto downloader = new DownloadProgress(QUrl{"https://opentomb.earvillage.net/croftengine-audio-tr1.zip"},
                                          findUserDataDir().value() / "data" / "tr1" / "AUDIO" / "tracks.zip",
                                          this);
   connect(downloader, &DownloadProgress::downloaded, this, &MainWindow::extractSoundtrackZip);
@@ -383,8 +383,11 @@ void MainWindow::copyDir(const QString& srcPath,
 
 void MainWindow::onMigrateClicked()
 {
-  const auto fileName = QFileDialog::getOpenFileName(
-    this, "Select Other EdisonEngine Installation", QString{}, "EdisonEngine files (edisonengine.exe config.yaml)");
+  const auto fileName
+    = QFileDialog::getOpenFileName(this,
+                                   "Select Other CroftEngine/EdisonEngine Installation",
+                                   QString{},
+                                   "CroftEngine/EdisonEngine files (croftengine.exe edisonengine.exe config.yaml)");
   if(fileName.isEmpty())
     return;
 

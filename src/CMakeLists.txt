@@ -94,8 +94,8 @@ wrap_enum(
         DEST_IMPL ${CMAKE_CURRENT_SOURCE_DIR}/engine/ghosting/ghostfinishstate.cpp
 )
 
-set( EDISONENGINE_SRCS
-        edisonengine.cpp
+set( CROFTENGINE_SRCS
+        croftengine.cpp
         gslfailhandler.cpp
 
         engine/lara/abstractstatehandler.h
@@ -615,7 +615,7 @@ set( EDISONENGINE_SRCS
         )
 
 if( MSVC )
-    list( APPEND EDISONENGINE_SRCS edisonengine.rc )
+    list( APPEND CROFTENGINE_SRCS croftengine.rc )
 endif()
 
 file(
@@ -625,13 +625,13 @@ file(
         *.h
         *.hpp
 )
-set( EE_ADDITIONAL_LANGUAGES de_DE )
+set( CE_ADDITIONAL_LANGUAGES de_DE )
 configure_gettext(
         TARGET_NAME i18n
-        DOMAIN edisonengine
+        DOMAIN croftengine
         SOURCES ${ALL_SRCS}
         POTFILE_DESTINATION "${CMAKE_SOURCE_DIR}/share"
-        LANGUAGES ${EE_ADDITIONAL_LANGUAGES}
+        LANGUAGES ${CE_ADDITIONAL_LANGUAGES}
         XGETTEXT_ARGS
         "--keyword=_"
         "--keyword=N_"
@@ -639,19 +639,19 @@ configure_gettext(
         "--package-name=${PROJECT_NAME}"
         "--package-version=${PROJECT_VERSION}"
         "--copyright-holder=Steffen Ohrendorf"
-        "--msgid-bugs-address=https://github.com/stohrendorf/EdisonEngine/issues"
+        "--msgid-bugs-address=https://github.com/stohrendorf/CroftEngine/issues"
 )
 
-add_executable( edisonengine ${EDISONENGINE_SRCS} )
+add_executable( croftengine ${CROFTENGINE_SRCS} )
 
 set_property(
-        SOURCE edisonengine.cpp
-        PROPERTY COMPILE_DEFINITIONS EE_VERSION="${CMAKE_PROJECT_VERSION}"
+        SOURCE croftengine.cpp
+        PROPERTY COMPILE_DEFINITIONS CE_VERSION="${CMAKE_PROJECT_VERSION}"
 )
 
-group_files( ${EDISONENGINE_SRCS} )
+group_files( ${CROFTENGINE_SRCS} )
 
-target_include_directories( edisonengine PRIVATE . ${Intl_INCLUDE_DIRS} )
+target_include_directories( croftengine PRIVATE . ${Intl_INCLUDE_DIRS} )
 
 add_subdirectory( shared )
 add_subdirectory( soglb )
@@ -661,7 +661,7 @@ add_subdirectory( setup )
 add_subdirectory( dosbox-cdrom )
 
 target_link_libraries(
-        edisonengine
+        croftengine
         PRIVATE
         Boost::system
         Boost::locale
@@ -691,22 +691,22 @@ target_link_libraries(
 )
 
 install(
-        TARGETS edisonengine
+        TARGETS croftengine
         DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
 
 if(( LINUX OR UNIX ) AND CMAKE_COMPILER_IS_GNUCC )
     target_link_libraries(
-            edisonengine
+            croftengine
             PRIVATE
             stdc++fs
     )
 endif()
 
-get_target_property( _bin_dir edisonengine BINARY_DIR )
+get_target_property( _bin_dir croftengine BINARY_DIR )
 
-add_custom_target( edisonengine-runtime-deps )
-add_dependencies( edisonengine edisonengine-runtime-deps )
+add_custom_target( croftengine-runtime-deps )
+add_dependencies( croftengine croftengine-runtime-deps )
 
 file(
         GLOB_RECURSE _shared_files
@@ -723,25 +723,25 @@ foreach( _file ${_shared_files} )
             COMMENT "Copy ${_file}"
             OUTPUT ${_bin_dir}/share/${_file}
             MAIN_DEPENDENCY ${CMAKE_SOURCE_DIR}/share/${_file}
-            COMMAND ${CMAKE_COMMAND} -E make_directory ${_bin_dir}/share/edisonengine/${_dirname}
-            COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/share/${_file} ${_bin_dir}/share/edisonengine/${_dirname}/
+            COMMAND ${CMAKE_COMMAND} -E make_directory ${_bin_dir}/share/croftengine/${_dirname}
+            COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/share/${_file} ${_bin_dir}/share/croftengine/${_dirname}/
     )
     set_source_files_properties(
             ${_bin_dir}/share/${_file}
             PROPERTIES GENERATED TRUE
     )
     set_property(
-            TARGET edisonengine-runtime-deps
+            TARGET croftengine-runtime-deps
             APPEND PROPERTY SOURCES ${_bin_dir}/share/${_file}
     )
     install(
             FILES ${CMAKE_SOURCE_DIR}/share/${_file}
-            DESTINATION ${CMAKE_INSTALL_DATADIR}/edisonengine/${_dirname}
+            DESTINATION ${CMAKE_INSTALL_DATADIR}/croftengine/${_dirname}
     )
 endforeach()
 
 if( WIN32 AND NOT DEFINED ENV{WSLENV} )
-    copy_python3_deps( edisonengine )
+    copy_python3_deps( croftengine )
 
     file(
             GLOB _dlls

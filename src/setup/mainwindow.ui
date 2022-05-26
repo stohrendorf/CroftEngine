@@ -1,131 +1,131 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>MainWindow</class>
- <widget class="QMainWindow" name="MainWindow">
-  <property name="geometry">
-   <rect>
-    <x>0</x>
-    <y>0</y>
-    <width>672</width>
-    <height>247</height>
-   </rect>
-  </property>
-  <property name="windowTitle">
-   <string>EdisonEngine</string>
-  </property>
-  <property name="locale">
-   <locale language="English" country="UnitedKingdom"/>
-  </property>
-  <widget class="QWidget" name="centralWidget">
-   <layout class="QGridLayout" name="gridLayout">
-    <item row="8" column="1">
-     <widget class="QPushButton" name="closeBtn">
-      <property name="text">
-       <string>Close</string>
-      </property>
-     </widget>
-    </item>
-    <item row="4" column="1">
-     <widget class="QPushButton" name="openDataLocation">
-      <property name="text">
-       <string>Show Data Location</string>
-      </property>
-     </widget>
-    </item>
-    <item row="5" column="1">
-     <widget class="QPushButton" name="resetConfig">
-      <property name="text">
-       <string>Clear config</string>
-      </property>
-     </widget>
-    </item>
-    <item row="2" column="1">
-     <widget class="QPushButton" name="importBtn">
-      <property name="text">
-       <string>Import Tomb Raider 1 Data</string>
-      </property>
-     </widget>
-    </item>
-    <item row="1" column="1">
-     <layout class="QGridLayout" name="gridLayout_2" columnstretch="0,1">
-      <item row="0" column="1">
-       <widget class="QLabel" name="engineVersion">
-        <property name="text">
-         <string/>
+    <class>MainWindow</class>
+    <widget class="QMainWindow" name="MainWindow">
+        <property name="geometry">
+            <rect>
+                <x>0</x>
+                <y>0</y>
+                <width>672</width>
+                <height>247</height>
+            </rect>
         </property>
-       </widget>
-      </item>
-      <item row="2" column="0">
-       <widget class="QLabel" name="label_7">
-        <property name="text">
-         <string>Engine Data Location</string>
+        <property name="windowTitle">
+            <string>CroftEngine</string>
         </property>
-       </widget>
-      </item>
-      <item row="0" column="0">
-       <widget class="QLabel" name="label_6">
-        <property name="text">
-         <string>Engine Version</string>
+        <property name="locale">
+            <locale language="English" country="UnitedKingdom"/>
         </property>
-       </widget>
-      </item>
-      <item row="1" column="1">
-       <widget class="QLabel" name="dataLocation">
-        <property name="text">
-         <string/>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0">
-       <widget class="QLabel" name="label_5">
-        <property name="text">
-         <string>Data Location</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="1">
-       <widget class="QLabel" name="engineDataLocation">
-        <property name="text">
-         <string/>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </item>
-    <item row="3" column="1">
-     <widget class="QPushButton" name="migrateBtn">
-      <property name="text">
-       <string>Migrate from other installation</string>
-      </property>
-     </widget>
-    </item>
-    <item row="6" column="1">
-     <layout class="QHBoxLayout" name="horizontalLayout">
-      <item>
-       <widget class="QPushButton" name="selectGlidos">
-        <property name="text">
-         <string>Select Glidos Texture Pack</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="disableGlidos">
-        <property name="text">
-         <string>Disable Glidos Texture Pack</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </item>
-   </layout>
-  </widget>
-  <action name="actionExit">
-   <property name="text">
-    <string>E&amp;xit</string>
-   </property>
-  </action>
- </widget>
- <layoutdefault spacing="6" margin="11"/>
- <resources/>
- <connections/>
+        <widget class="QWidget" name="centralWidget">
+            <layout class="QGridLayout" name="gridLayout">
+                <item row="8" column="1">
+                    <widget class="QPushButton" name="closeBtn">
+                        <property name="text">
+                            <string>Close</string>
+                        </property>
+                    </widget>
+                </item>
+                <item row="4" column="1">
+                    <widget class="QPushButton" name="openDataLocation">
+                        <property name="text">
+                            <string>Show Data Location</string>
+                        </property>
+                    </widget>
+                </item>
+                <item row="5" column="1">
+                    <widget class="QPushButton" name="resetConfig">
+                        <property name="text">
+                            <string>Clear config</string>
+                        </property>
+                    </widget>
+                </item>
+                <item row="2" column="1">
+                    <widget class="QPushButton" name="importBtn">
+                        <property name="text">
+                            <string>Import Tomb Raider 1 Data</string>
+                        </property>
+                    </widget>
+                </item>
+                <item row="1" column="1">
+                    <layout class="QGridLayout" name="gridLayout_2" columnstretch="0,1">
+                        <item row="0" column="1">
+                            <widget class="QLabel" name="engineVersion">
+                                <property name="text">
+                                    <string/>
+                                </property>
+                            </widget>
+                        </item>
+                        <item row="2" column="0">
+                            <widget class="QLabel" name="label_7">
+                                <property name="text">
+                                    <string>Engine Data Location</string>
+                                </property>
+                            </widget>
+                        </item>
+                        <item row="0" column="0">
+                            <widget class="QLabel" name="label_6">
+                                <property name="text">
+                                    <string>Engine Version</string>
+                                </property>
+                            </widget>
+                        </item>
+                        <item row="1" column="1">
+                            <widget class="QLabel" name="dataLocation">
+                                <property name="text">
+                                    <string/>
+                                </property>
+                            </widget>
+                        </item>
+                        <item row="1" column="0">
+                            <widget class="QLabel" name="label_5">
+                                <property name="text">
+                                    <string>Data Location</string>
+                                </property>
+                            </widget>
+                        </item>
+                        <item row="2" column="1">
+                            <widget class="QLabel" name="engineDataLocation">
+                                <property name="text">
+                                    <string/>
+                                </property>
+                            </widget>
+                        </item>
+                    </layout>
+                </item>
+                <item row="3" column="1">
+                    <widget class="QPushButton" name="migrateBtn">
+                        <property name="text">
+                            <string>Migrate from other installation</string>
+                        </property>
+                    </widget>
+                </item>
+                <item row="6" column="1">
+                    <layout class="QHBoxLayout" name="horizontalLayout">
+                        <item>
+                            <widget class="QPushButton" name="selectGlidos">
+                                <property name="text">
+                                    <string>Select Glidos Texture Pack</string>
+                                </property>
+                            </widget>
+                        </item>
+                        <item>
+                            <widget class="QPushButton" name="disableGlidos">
+                                <property name="text">
+                                    <string>Disable Glidos Texture Pack</string>
+                                </property>
+                            </widget>
+                        </item>
+                    </layout>
+                </item>
+            </layout>
+        </widget>
+        <action name="actionExit">
+            <property name="text">
+                <string>E&amp;xit</string>
+            </property>
+        </action>
+    </widget>
+    <layoutdefault spacing="6" margin="11"/>
+    <resources/>
+    <connections/>
 </ui>

@@ -16,7 +16,7 @@ add_library(
 
 set_property(
         SOURCE mainwindow.cpp
-        PROPERTY COMPILE_DEFINITIONS EE_VERSION="${CMAKE_PROJECT_VERSION}"
+        PROPERTY COMPILE_DEFINITIONS CE_VERSION="${CMAKE_PROJECT_VERSION}"
 )
 
 target_link_libraries(

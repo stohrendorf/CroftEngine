@@ -1,7 +1,7 @@
 cmake_minimum_required( VERSION 3.16 )
 list( APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake )
 
-project( EdisonEngine VERSION 1.4.1 )
+project( CroftEngine VERSION 1.4.1 )
 
 cmake_policy( SET CMP0069 NEW )
 cmake_policy( SET CMP0094 NEW )
@@ -46,10 +46,10 @@ if( UNIX )
     install(
             FILES share/logo_256.png
             DESTINATION ${CMAKE_INSTALL_FULL_DATADIR}/pixmaps
-            RENAME edisonengine.png
+            RENAME croftengine.png
     )
     install(
-            FILES share/edisonengine.desktop
+            FILES share/croftengine.desktop
             DESTINATION ${CMAKE_INSTALL_FULL_DATADIR}/applications
     )
 endif()
@@ -58,7 +58,7 @@ if( WIN32 )
     add_custom_target(
             prepare-release
             COMMENT Building release dependencies...
-            DEPENDS edisonengine edisonengine-python3-deps edisonengine-runtime-deps
+            DEPENDS croftengine croftengine-python3-deps croftengine-runtime-deps
     )
 
     set( CPACK_GENERATOR NSIS 7Z )
@@ -66,24 +66,24 @@ if( WIN32 )
     set( CPACK_BINARY_NSIS ON )
     set( CPACK_NSIS_COMPRESSOR "/SOLID lzma" )
 
-    set( CPACK_PACKAGE_NAME EdisonEngine )
-    set( CPACK_PACKAGE_INSTALL_DIRECTORY EdisonEngine )
+    set( CPACK_PACKAGE_NAME CroftEngine )
+    set( CPACK_PACKAGE_INSTALL_DIRECTORY CroftEngine )
     set( CPACK_PACKAGE_VENDOR stohrendorf )
     set( CPACK_PACKAGE_DESCRIPTION_SUMMARY "An open-source Tomb Raider 1 engine remake" )
-    set( CPACK_PACKAGE_HOMEPAGE_URL https://github.com/stohrendorf/EdisonEngine/ )
+    set( CPACK_PACKAGE_HOMEPAGE_URL https://github.com/stohrendorf/CroftEngine/ )
     set( CPACK_NSIS_URL_INFO_ABOUT ${CPACK_PACKAGE_HOMEPAGE_URL} )
     set( CPACK_RESOURCE_FILE_LICENSE ${CMAKE_CURRENT_SOURCE_DIR}/share/LICENSE )
     set( CPACK_MONOLITHIC_INSTALL ON )
-    set( CPACK_PACKAGE_EXECUTABLES "edisonengine;EdisonEngine" )
+    set( CPACK_PACKAGE_EXECUTABLES "croftengine;CroftEngine" )
     set( CPACK_NSIS_EXTRA_INSTALL_COMMANDS
-            "CreateShortCut \\\"$SMPROGRAMS\\\\$STARTMENU_FOLDER\\\\EdisonEngine Configuration.lnk\\\" \\\"$INSTDIR\\\\.\\\\edisonengine.exe\\\" \\\"--configure\\\""
-            "CreateShortCut \\\"$SMPROGRAMS\\\\$STARTMENU_FOLDER\\\\EdisonEngine (English).lnk\\\" \\\"$INSTDIR\\\\.\\\\edisonengine.exe\\\" \\\"--locale en_GB.utf8\\\""
-            "CreateShortCut \\\"$SMPROGRAMS\\\\$STARTMENU_FOLDER\\\\EdisonEngine (Deutsch).lnk\\\" \\\"$INSTDIR\\\\.\\\\edisonengine.exe\\\" \\\"--locale de_DE.utf8\\\""
+            "CreateShortCut \\\"$SMPROGRAMS\\\\$STARTMENU_FOLDER\\\\CroftEngine Configuration.lnk\\\" \\\"$INSTDIR\\\\.\\\\croftengine.exe\\\" \\\"--configure\\\""
+            "CreateShortCut \\\"$SMPROGRAMS\\\\$STARTMENU_FOLDER\\\\CroftEngine (English).lnk\\\" \\\"$INSTDIR\\\\.\\\\croftengine.exe\\\" \\\"--locale en_GB.utf8\\\""
+            "CreateShortCut \\\"$SMPROGRAMS\\\\$STARTMENU_FOLDER\\\\CroftEngine (Deutsch).lnk\\\" \\\"$INSTDIR\\\\.\\\\croftengine.exe\\\" \\\"--locale de_DE.utf8\\\""
             )
     set( CPACK_NSIS_EXTRA_UNINSTALL_COMMANDS
-            "Delete \\\"$SMPROGRAMS\\\\$START_MENU\\\\EdisonEngine Configuration.lnk\\\""
-            "Delete \\\"$SMPROGRAMS\\\\$START_MENU\\\\EdisonEngine (English).lnk\\\""
-            "Delete \\\"$SMPROGRAMS\\\\$START_MENU\\\\EdisonEngine (Deutsch).lnk\\\""
+            "Delete \\\"$SMPROGRAMS\\\\$START_MENU\\\\CroftEngine Configuration.lnk\\\""
+            "Delete \\\"$SMPROGRAMS\\\\$START_MENU\\\\CroftEngine (English).lnk\\\""
+            "Delete \\\"$SMPROGRAMS\\\\$START_MENU\\\\CroftEngine (Deutsch).lnk\\\""
             )
 
     string( REPLACE ";" "\n" CPACK_NSIS_EXTRA_INSTALL_COMMANDS "${CPACK_NSIS_EXTRA_INSTALL_COMMANDS}" )

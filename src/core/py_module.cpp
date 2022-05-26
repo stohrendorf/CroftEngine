@@ -13,7 +13,7 @@ namespace py = pybind11;
 // NOLINTNEXTLINE(cert-err58-cpp)
 PYBIND11_EMBEDDED_MODULE(core, m)
 {
-  m.doc() = "edisonengine core module";
+  m.doc() = "croftengine core module";
 
   py::class_<core::Length>(m, "Length")
     .def(py::init<core::Length::type>())

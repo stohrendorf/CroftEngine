@@ -1,14 +1,14 @@
-# ![EdisonEngine logo](./share/logo_32.png) EdisonEngine
+# ![CroftEngine logo](./share/logo_32.png) CroftEngine
 
-[![EdisonEngine-CI](https://github.com/stohrendorf/EdisonEngine/actions/workflows/repo-sync.yml/badge.svg)](https://github.com/stohrendorf/EdisonEngine/actions/workflows/repo-sync.yml)
-[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fstohrendorf%2FEdisonEngine.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fstohrendorf%2FEdisonEngine?ref=badge_shield)
-[![Total alerts](https://img.shields.io/lgtm/alerts/g/stohrendorf/EdisonEngine.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/stohrendorf/EdisonEngine/alerts/)
-[![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/stohrendorf/EdisonEngine.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/stohrendorf/EdisonEngine/context:python)
-[![Language grade: C/C++](https://img.shields.io/lgtm/grade/cpp/g/stohrendorf/EdisonEngine.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/stohrendorf/EdisonEngine/context:cpp)
+[![CroftEngine-CI](https://github.com/stohrendorf/CroftEngine/actions/workflows/repo-sync.yml/badge.svg)](https://github.com/stohrendorf/CroftEngine/actions/workflows/repo-sync.yml)
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fstohrendorf%2FCroftEngine.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fstohrendorf%2FCroftEngine?ref=badge_shield)
+[![Total alerts](https://img.shields.io/lgtm/alerts/g/stohrendorf/CroftEngine.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/stohrendorf/CroftEngine/alerts/)
+[![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/stohrendorf/CroftEngine.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/stohrendorf/CroftEngine/context:python)
+[![Language grade: C/C++](https://img.shields.io/lgtm/grade/cpp/g/stohrendorf/CroftEngine.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/stohrendorf/CroftEngine/context:cpp)
 
 An open-source Tomb Raider 1 engine remake.
 
-![EdisonEngine logo](./share/splash.png)
+![CroftEngine logo](./share/splash.png)
 
 *Native Controller Support*
 ![Native Controller Support](./readme-assets/controller-config.jpg)
@@ -39,37 +39,39 @@ An open-source Tomb Raider 1 engine remake.
 >
 > [![The Lost Valley Playthrough in Edison Engine](https://img.youtube.com/vi/o8FEo1QU1QM/0.jpg)](https://www.youtube.com/watch?v=o8FEo1QU1QM)
 >
-> *EdisonEngine - Tomb Raider, Enhanced! w/ developer commentary \[Beta 10\] \[PC\] \[Stream Archive\]* (Dfactor Longplays)
+> *EdisonEngine - Tomb Raider, Enhanced! w/ developer commentary \[Beta 10\] \[PC\] \[Stream Archive\]* (Dfactor
+> Longplays)
 >
 > [![EdisonEngine - Tomb Raider, Enhanced! w/ developer commentary \[Beta 10\] \[PC\] \[Stream Archive\]](https://img.youtube.com/vi/ayMPVAKTMWI/0.jpg)](https://www.youtube.com/watch?v=ayMPVAKTMWI)
 
 ## Licensing
 
-EdisonEngine is an open-source engine distributed under LGPLv3 license, which means that ANY part of the source code
+CroftEngine is an open-source engine distributed under LGPLv3 license, which means that ANY part of the source code
 must be open-source as well.
 
-[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fstohrendorf%2FEdisonEngine.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fstohrendorf%2FEdisonEngine?ref=badge_large)
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fstohrendorf%2FCroftEngine.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fstohrendorf%2FCroftEngine?ref=badge_large)
 
 ## Usage
 
-> *A user manual has been kindly provided by Raina Audron [here](https://drive.google.com/file/d/1iRz4Svdi_dhmlDNFYeZqyP-wfApWhDoN/view)*.
+> *A user manual has been kindly provided by Raina
+Audron [here](https://drive.google.com/file/d/1iRz4Svdi_dhmlDNFYeZqyP-wfApWhDoN/view)*.
 
 > ***Please note that as of Beta 15 a setup assistant is included that should start if anything is missing.***
 
-1. Get the most recent release from [here](https://github.com/stohrendorf/EdisonEngine/releases). It is recommended to
+1. Get the most recent release from [here](https://github.com/stohrendorf/CroftEngine/releases). It is recommended to
    use the installer in Windows. For openSUSE users, the engine is available for most distribution versions in the
    "Games" repository.
 2. You will possibly encounter bugs or strange oddities. Please don't think too much, report them immediately in
-   the [issue tracker](https://github.com/stohrendorf/EdisonEngine/issues) here. I can't fix things I'm not aware of. If
+   the [issue tracker](https://github.com/stohrendorf/CroftEngine/issues) here. I can't fix things I'm not aware of. If
    possible, attach screenshots (which are by default bound to F12) and instructions how to toggle that bug. If you
    can't reproduce the bug, at least try to be as specific as you can when describing the bug. Any information I can
    gather is in fact helpful to nail that bug down.
 3. You need soundtrack files, grab them from [here](https://opentomb.earvillage.net/).
-4. On Windows, navigate to `%LOCALAPPDATA%` and create a directory `edisonengine` there; on Linux, navigate
-   to `~/.local/share` and create a directory `edisonengine` there.
+4. On Windows, navigate to `%LOCALAPPDATA%` and create a directory `croftengine` there; on Linux, navigate
+   to `~/.local/share` and create a directory `croftengine` there.
 5. Ensure your the files in the newly created directory look something like this:
    ```
-   edisonengine
+   croftengine
    └ data
      └ tr1
        ├ AUDIO
@@ -85,9 +87,9 @@ must be open-source as well.
          ├ CANYON.RPL
          └ ...
    ```
-6. You should now be able to run EdisonEngine. If something bad happens as mentioned above, or something doesn't work as
-   expected, make a copy of `edisonengine.log` located in the data directory, and attach the file to the issue. You may
-   also get help by [joining Discord](https://discord.gg/ndBqb5BmkH), I'll be there in the #edisonengine channel and
+6. You should now be able to run CroftEngine. If something bad happens as mentioned above, or something doesn't work as
+   expected, make a copy of `croftengine.log` located in the data directory, and attach the file to the issue. You may
+   also get help by [joining Discord](https://discord.gg/ndBqb5BmkH), I'll be there in the #croftengine channel and
    chat with you as soon as I can, there are also other members already involved enough to give you some guidance.
 7. The default keybindings are WASD for movement Q and E for stepping left and right, Space for jump, Shift for walking,
    X for rolling, Ctrl for Action, 1 for drawing pistols, 2 for shotguns, 3 for uzis and 4 for magnums. You can consume
@@ -100,7 +102,7 @@ The following people deserve some noteworthy credit.
 
 * Raina Audron for creating the first YouTube videos and writing the user manual.
 * [Dirk Stoecker](https://build.opensuse.org/users/dstoecker) for being the package maintainer of the openSUSE packages.
-* [Liinx86](https://www.twitch.tv/liinx86) for being the world's first streamer streaming EdisonEngine on twitch; also
+* [Liinx86](https://www.twitch.tv/liinx86) for being the world's first streamer streaming CroftEngine on twitch; also
   gave the idea for the Ghost feature.
 * Liinx86 *again* for being the first person of playing from start to finish. A summary of the stream can be
   found [here](https://www.youtube.com/watch?v=P20YoVw2W6E), courtesy
@@ -112,7 +114,7 @@ The following people deserve some noteworthy credit.
 * All players.
 
 The following people did extensive work on the [OpenTomb engine](http://opentomb.github.io/), which was the starting
-point for EdisonEngine. Although EdisonEngine is a complete re-write with negligible remnants of OpenTomb's code base
+point for CroftEngine. Although CroftEngine is a complete re-write with negligible remnants of OpenTomb's code base
 and pretty much different goals, you can see the commit history of OpenTomb in this repository. Because of that - and
 because I want to be grateful - I'd like to give credit to the OpenTomb contributors.
 
@@ -144,7 +146,7 @@ Translations by: Joey79100 (French), Nickotte (Italian), Lwmte (Russian), SuiKaz
 
 Do a `git submodule update --init --recursive`.
 
-EdisonEngine uses [vcpkg](https://github.com/Microsoft/vcpkg); refer to its documentation for basic usage, but the only
+CroftEngine uses [vcpkg](https://github.com/Microsoft/vcpkg); refer to its documentation for basic usage, but the only
 thing you need is to call cmake with
 `-DCMAKE_TOOLCHAIN_FILE=C:/devel/vcpkg/scripts/buildsystems/vcpkg.cmake` (adjust path as necessary).
 

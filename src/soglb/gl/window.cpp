@@ -54,7 +54,7 @@ Window::Window(const std::vector<std::filesystem::path>& logoPaths, const glm::i
 #endif
 
   glfwWindowHint(GLFW_MAXIMIZED, GLFW_TRUE);
-  m_window = glfwCreateWindow(windowSize.x, windowSize.y, "EdisonEngine", nullptr, nullptr);
+  m_window = glfwCreateWindow(windowSize.x, windowSize.y, "CroftEngine", nullptr, nullptr);
 
   if(m_window == nullptr)
   {

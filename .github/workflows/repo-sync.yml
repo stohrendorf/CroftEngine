@@ -1,4 +1,4 @@
-name: EdisonEngine-CI
+name: CroftEngine-CI
 
 on:
   schedule:

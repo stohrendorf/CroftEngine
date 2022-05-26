@@ -14,11 +14,11 @@ std::filesystem::path getExpectedSysUserDataDir()
 #ifdef WIN32
   const char* appData = getenv("LOCALAPPDATA");
   Expects(appData != nullptr && std::filesystem::is_directory(appData));
-  return std::filesystem::path{appData} / "edisonengine";
+  return std::filesystem::path{appData} / "croftengine";
 #else
   const char* home = getenv("HOME");
   Expects(home != nullptr && std::filesystem::is_directory(home));
-  return std::filesystem::path{home} / ".local" / "share" / "edisonengine";
+  return std::filesystem::path{home} / ".local" / "share" / "croftengine";
 #endif
 }
 
@@ -29,16 +29,16 @@ std::filesystem::path getExpectedLocalUserDataDir()
 
 std::filesystem::path getExpectedSysEngineDataDir()
 {
-#define EE_STRINGIFY2(x) #x
-#define EE_STRINGIFY(x) EE_STRINGIFY2(x)
-  return std::filesystem::path{EE_STRINGIFY(EE_DATAROOT_DIR)};
-#undef EE_STRINGIFY
-#undef EE_STRINGIFY2
+#define CE_STRINGIFY2(x) #x
+#define CE_STRINGIFY(x) CE_STRINGIFY2(x)
+  return std::filesystem::path{CE_STRINGIFY(CE_DATAROOT_DIR)};
+#undef CE_STRINGIFY
+#undef CE_STRINGIFY2
 }
 
 std::filesystem::path getExpectedLocalEngineDataDir()
 {
-  return std::filesystem::current_path() / "share" / "edisonengine";
+  return std::filesystem::current_path() / "share" / "croftengine";
 }
 
 std::optional<std::filesystem::path> findUserDataDir()

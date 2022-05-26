@@ -1,0 +1,1279 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR Steffen Ohrendorf
+# This file is distributed under the same license as the CroftEngine package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: CroftEngine 1.4.1\n"
+"Report-Msgid-Bugs-To: https://github.com/stohrendorf/CroftEngine/issues\n"
+"POT-Creation-Date: 2022-05-26 22:30+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. translators: TR charmap encoding
+#: util/helpers.cpp:193
+#, c-format, boost-format
+msgid "%1$02d:%2$02d"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/savegamelistmenustate.cpp:125
+#, boost-format
+msgctxt "SavegameTitle"
+msgid "%1% - %2%"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/compassmenustate.cpp:137
+#, boost-format
+msgid "%1% Hits"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/compassmenustate.cpp:148
+#, boost-format
+msgid "%1% Misses"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: util/helpers.cpp:184
+#, boost-format
+msgid "%1%:%2$02d:%3$02d"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/rendersettingsmenustate.cpp:369
+#, boost-format
+msgid "%1%x Anisotropic Filtering"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/savegamelistmenustate.cpp:123
+msgctxt "SavegameTime"
+msgid "%d %B %Y %X"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: hid/names.cpp:21
+msgctxt "Keyboard|Key"
+msgid "'"
+msgstr ""
+
+#. translators: TR charmap encoding (grave accent)
+#: hid/names.cpp:113
+msgctxt "Keyboard|Key"
+msgid "( "
+msgstr ""
+
+#. translators: TR charmap encoding
+#: hid/names.cpp:23
+msgctxt "Keyboard|Key"
+msgid ","
+msgstr ""
+
+#. translators: TR charmap encoding
+#: hid/names.cpp:25
+msgctxt "Keyboard|Key"
+msgid "-"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/savegamelistmenustate.cpp:166
+#, boost-format
+msgctxt "SavegameTitle"
+msgid "- EMPTY SLOT %1%"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/savegamelistmenustate.cpp:143
+msgctxt "SavegameTitle"
+msgid "- NO QUICKSAVE"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: hid/names.cpp:27
+msgctxt "Keyboard|Key"
+msgid "."
+msgstr ""
+
+#. translators: TR charmap encoding
+#: hid/names.cpp:29
+msgctxt "Keyboard|Key"
+msgid "/"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: hid/names.cpp:51
+msgctxt "Keyboard|Key"
+msgid ";"
+msgstr ""
+
+#. translators: TR charmap encoding (square bracket left)
+#: hid/names.cpp:107
+msgctxt "Keyboard|Key"
+msgid "<"
+msgstr ""
+
+#. translators: TR charmap encoding (square bracket right)
+#: hid/names.cpp:111
+msgctxt "Keyboard|Key"
+msgid ">"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: hid/names.cpp:55
+msgctxt "Keyboard|Key"
+msgid "A"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: hid/names.cpp:316
+msgctxt "Action"
+msgid "Action"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: hid/names.cpp:239
+msgctxt "Keyboard|Key"
+msgid "Alt"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/controlsmenustate.cpp:170
+msgid "Apply changes?"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/audiosettingsmenustate.cpp:39
+msgid "Audio Settings"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: hid/names.cpp:57
+msgctxt "Keyboard|Key"
+msgid "B"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: hid/names.cpp:346
+msgctxt "Action"
+msgid "Back"
+msgstr ""
+
+#. translators: TR charmap encoding, gamepad
+#: hid/names.cpp:280
+msgctxt "Gamepad|Button"
+msgid "Back"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/rendersettingsmenustate.cpp:184
+msgid "Bilinear Filtering"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: hid/names.cpp:121
+msgctxt "Keyboard|Key"
+msgid "Bksp"
+msgstr ""
+
+#: engine/presenter.cpp:434
+msgid "Booting"
+msgstr ""
+
+#: engine/world/texturing.cpp:367
+msgid "Building textures"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/rendersettingsmenustate.cpp:351
+msgid "Butt Bubbles"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: hid/names.cpp:59
+msgctxt "Keyboard|Key"
+msgid "C"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/rendersettingsmenustate.cpp:131
+msgid "CRT"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/compassmenustate.cpp:48
+msgctxt "gamestats"
+msgid "CURRENT"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: hid/names.cpp:143
+msgctxt "Keyboard|Key"
+msgid "CapsLk"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: hid/names.cpp:352
+msgctxt "Action"
+msgid "Cheat Dive"
+msgstr ""
+
+#. translators: TR charmap encoding; in the sense of "cheats are used"
+#: menu/compassmenustate.cpp:172
+msgid "Cheats Used"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/menudisplay.cpp:339
+msgid "Compass"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/controlswidget.cpp:247
+#, boost-format
+msgid "Controller Type: %1%"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/menudisplay.cpp:288
+msgid "Controls"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: hid/names.cpp:237
+msgctxt "Keyboard|Key"
+msgid "Ctrl"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: hid/names.cpp:61
+msgctxt "Keyboard|Key"
+msgid "D"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: hid/names.cpp:125
+msgctxt "Keyboard|Key"
+msgid "Del"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/rendersettingsmenustate.cpp:214
+msgid "Denoise Water Surface"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/rendersettingsmenustate.cpp:141
+msgid "Depth-of-Field"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/menudisplay.cpp:304
+msgid "Detail Levels"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/controlsmenustate.cpp:179
+msgid "Discard changes"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/rendersettingsmenustate.cpp:264
+msgid "Double UI Scale"
+msgstr ""
+
+#. translators: TR charcmap encoding
+#: menu/controlsmenustate.cpp:132
+msgctxt "GamepadAxis"
+msgid "Down"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: hid/names.cpp:131
+msgctxt "Keyboard|Key"
+msgid "Down"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: hid/names.cpp:330
+msgctxt "Action"
+msgid "Draw Magnums"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: hid/names.cpp:324
+msgctxt "Action"
+msgid "Draw Pistols"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: hid/names.cpp:326
+msgctxt "Action"
+msgid "Draw Shotgun"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: hid/names.cpp:328
+msgctxt "Action"
+msgid "Draw Uzis"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: hid/names.cpp:320
+msgctxt "Action"
+msgid "Draw Weapon"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/rendersettingsmenustate.cpp:287
+msgid "Dust"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: hid/names.cpp:63
+msgctxt "Keyboard|Key"
+msgid "E"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/audiosettingsmenustate.cpp:64 menu/rendersettingsmenustate.cpp:128
+msgid "Effects"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: hid/names.cpp:141
+msgctxt "Keyboard|Key"
+msgid "End"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/controlsmenustate.cpp:175
+#, boost-format
+msgid ""
+"Ensure your mapping contains all\n"
+"movement directions, %1% and %2%."
+msgstr ""
+
+#. translators: TR charmap encoding
+#: hid/names.cpp:53
+msgctxt "Keyboard|Key"
+msgid "Equal"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: hid/names.cpp:115
+msgctxt "Keyboard|Key"
+msgid "Esc"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/passportmenustate.cpp:106
+msgid "Exit Game"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/passportmenustate.cpp:105
+msgid "Exit to Title"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: hid/names.cpp:65
+msgctxt "Keyboard|Key"
+msgid "F"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/rendersettingsmenustate.cpp:234
+msgid "FXAA"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/rendersettingsmenustate.cpp:161
+msgid "Film Grain"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/rendersettingsmenustate.cpp:277
+msgid "Fullscreen"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: hid/names.cpp:67
+msgctxt "Keyboard|Key"
+msgid "G"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/menudisplay.cpp:582
+msgid "GAME OVER"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/menudisplay.cpp:278
+msgid "Game"
+msgstr ""
+
+#: engine/engineconfig.cpp:60
+msgctxt "Input|MappingName"
+msgid "Gamepad"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/controlswidget.cpp:89
+msgid "Gameplay"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/rendersettingsmenustate.cpp:307
+msgid "Ghost"
+msgstr ""
+
+#: loader/trx/trx.cpp:337
+#, boost-format
+msgid "Glidos - Loading %1%"
+msgstr ""
+
+#: loader/trx/trx.cpp:139
+#, boost-format
+msgid "Glidos - Loading equiv.txt (%1%%%)"
+msgstr ""
+
+#: loader/trx/trx.cpp:162 loader/trx/trx.cpp:210
+#, boost-format
+msgid "Glidos - Resolving maps (%1%%%)"
+msgstr ""
+
+#: loader/trx/trx.cpp:347
+msgid "Glidos - Resolving maps (100%)"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/audiosettingsmenustate.cpp:54
+msgid "Global"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/menudisplay.cpp:429
+msgid "Grenade"
+msgstr ""
+
+#. translators: TR charmap encoding, gamepad
+#: hid/names.cpp:286
+msgctxt "Gamepad|Button"
+msgid "Guide"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/menudisplay.cpp:314
+msgid "Gym"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: hid/names.cpp:69
+msgctxt "Keyboard|Key"
+msgid "H"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/rendersettingsmenustate.cpp:224
+msgid "HBAO"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/rendersettingsmenustate.cpp:254
+msgid "Half Resolution"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/rendersettingsmenustate.cpp:244
+msgid "High Quality Shadows"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: hid/names.cpp:139
+msgctxt "Keyboard|Key"
+msgid "Home"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: hid/names.cpp:71
+msgctxt "Keyboard|Key"
+msgid "I"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/menudisplay.cpp:577
+msgid "INVENTORY"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/menudisplay.cpp:569
+msgid "ITEMS"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: hid/names.cpp:123
+msgctxt "Keyboard|Key"
+msgid "Ins"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: hid/names.cpp:322
+msgctxt "Action"
+msgid "Inventory"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: hid/names.cpp:73
+msgctxt "Keyboard|Key"
+msgid "J"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: hid/names.cpp:310
+msgctxt "Action"
+msgid "Jump"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: hid/names.cpp:75
+msgctxt "Keyboard|Key"
+msgid "K"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: ui/levelstats.cpp:45
+#, boost-format
+msgid "KILLS %1%"
+msgstr ""
+
+#: engine/engineconfig.cpp:31
+msgctxt "Input|MappingName"
+msgid "Keyboard"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/compassmenustate.cpp:78
+msgid "Kills"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: hid/names.cpp:77
+msgctxt "Keyboard|Key"
+msgid "L"
+msgstr ""
+
+#. translators: TR charmap encoding, gamepad
+#: hid/names.cpp:297
+msgctxt "Gamepad|Button"
+msgid "LThumb"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/menudisplay.cpp:440
+msgid "Large Medi Pack"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/compassmenustate.cpp:100
+msgid "Large Medi Packs"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: hid/names.cpp:334
+msgctxt "Action"
+msgid "Large Medipack"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: hid/names.cpp:340
+msgctxt "Action"
+msgid "Left"
+msgstr ""
+
+#. translators: TR charcmap encoding
+#: menu/controlsmenustate.cpp:125
+msgctxt "GamepadAxis"
+msgid "Left"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: hid/names.cpp:129
+msgctxt "Keyboard|Key"
+msgid "Left"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/rendersettingsmenustate.cpp:151
+msgid "Lens Distortion"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: hid/names.cpp:338
+msgctxt "Action"
+msgid "Load"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/passportmenustate.cpp:44
+msgid "Load Game"
+msgstr ""
+
+#: engine/script/reflection.cpp:79
+#, boost-format
+msgid "Loading %1%"
+msgstr ""
+
+#: engine/engine.cpp:595
+msgid "Loading Glidos texture pack"
+msgstr ""
+
+#: engine/world/world.cpp:1042
+msgid "Loading..."
+msgstr ""
+
+#. translators: TR charmap encoding
+#: hid/names.cpp:318
+msgctxt "Action"
+msgid "Look"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/rendersettingsmenustate.cpp:329
+msgid "Low Health: Pulse Health Bar"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/rendersettingsmenustate.cpp:340
+msgid "Low Health: Reduce Color"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: hid/names.cpp:79
+msgctxt "Keyboard|Key"
+msgid "M"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/menudisplay.cpp:407
+msgid "Magnum Clips"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/compassmenustate.cpp:165 menu/menudisplay.cpp:374
+msgid "Magnums"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: hid/names.cpp:257
+msgctxt "Keyboard|Key"
+msgid "Menu"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/rendersettingsmenustate.cpp:297
+msgid "More Lights"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/audiosettingsmenustate.cpp:59
+msgid "Music"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: hid/names.cpp:81
+msgctxt "Keyboard|Key"
+msgid "N"
+msgstr ""
+
+#. translators: TR charcmap encoding
+#: menu/controlsmenustate.cpp:77 menu/controlsmenustate.cpp:92
+#: menu/controlsmenustate.cpp:104
+msgctxt "ButtonAssignment"
+msgid "N/A"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/passportmenustate.cpp:69
+msgid "New Game"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: hid/names.cpp:147
+msgctxt "Keyboard|Key"
+msgid "NmLk"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/controlsmenustate.cpp:172 ui/widgets/messagebox.cpp:15
+msgid "No"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: hid/names.cpp:83
+msgctxt "Keyboard|Key"
+msgid "O"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/controlsmenustate.cpp:178
+msgid "OK"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/menudisplay.cpp:583
+msgid "OPTION"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/rendersettingsmenustate.cpp:274
+msgid "Other"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/savegamelistmenustate.cpp:188
+#, boost-format
+msgid "Overwrite slot %1%?"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: hid/names.cpp:85
+msgctxt "Keyboard|Key"
+msgid "P"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: ui/levelstats.cpp:40
+#, boost-format
+msgid "PICKUPS %1%"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: hid/names.cpp:231
+msgctxt "Keyboard|Key"
+msgid "Pad+"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: hid/names.cpp:229
+msgctxt "Keyboard|Key"
+msgid "Pad-"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: hid/names.cpp:223
+msgctxt "Keyboard|Key"
+msgid "Pad."
+msgstr ""
+
+#. translators: TR charmap encoding
+#: hid/names.cpp:225
+msgctxt "Keyboard|Key"
+msgid "Pad/"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: hid/names.cpp:203
+msgctxt "Keyboard|Key"
+msgid "Pad0"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: hid/names.cpp:205
+msgctxt "Keyboard|Key"
+msgid "Pad1"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: hid/names.cpp:207
+msgctxt "Keyboard|Key"
+msgid "Pad2"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: hid/names.cpp:209
+msgctxt "Keyboard|Key"
+msgid "Pad3"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: hid/names.cpp:211
+msgctxt "Keyboard|Key"
+msgid "Pad4"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: hid/names.cpp:213
+msgctxt "Keyboard|Key"
+msgid "Pad5"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: hid/names.cpp:215
+msgctxt "Keyboard|Key"
+msgid "Pad6"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: hid/names.cpp:217
+msgctxt "Keyboard|Key"
+msgid "Pad7"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: hid/names.cpp:219
+msgctxt "Keyboard|Key"
+msgid "Pad8"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: hid/names.cpp:221
+msgctxt "Keyboard|Key"
+msgid "Pad9"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: hid/names.cpp:233
+msgctxt "Keyboard|Key"
+msgid "PadEnter"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: hid/names.cpp:251
+msgctxt "Keyboard|Key"
+msgid "PadEq"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: hid/names.cpp:227
+msgctxt "Keyboard|Key"
+msgid "Padx"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/listdisplaymenustate.cpp:84
+#, boost-format
+msgctxt "PagedList"
+msgid "Page %1% of %2%"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: hid/names.cpp:151
+msgctxt "Keyboard|Key"
+msgid "Pause"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: hid/names.cpp:137
+msgctxt "Keyboard|Key"
+msgid "PgDn"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: hid/names.cpp:135
+msgctxt "Keyboard|Key"
+msgid "PgUp"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/compassmenustate.cpp:56
+msgid "Pickups"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/compassmenustate.cpp:163 menu/menudisplay.cpp:352
+msgid "Pistols"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: hid/names.cpp:149
+msgctxt "Keyboard|Key"
+msgid "PrtScrn"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: hid/names.cpp:87
+msgctxt "Keyboard|Key"
+msgid "Q"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/rendersettingsmenustate.cpp:181
+msgid "Quality"
+msgstr ""
+
+#: engine/world/world.cpp:1068
+msgid "Quicksave"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: hid/names.cpp:89
+msgctxt "Keyboard|Key"
+msgid "R"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: hid/names.cpp:245
+msgctxt "Keyboard|Key"
+msgid "RAlt"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: hid/names.cpp:243
+msgctxt "Keyboard|Key"
+msgid "RCtrl"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: hid/names.cpp:241
+msgctxt "Keyboard|Key"
+msgid "RShift"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: hid/names.cpp:255
+msgctxt "Keyboard|Key"
+msgid "RSuper"
+msgstr ""
+
+#. translators: TR charmap encoding, gamepad
+#: hid/names.cpp:300
+msgctxt "Gamepad|Button"
+msgid "RThumb"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/passportmenustate.cpp:75
+msgid "Restart Level"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/rendersettingsmenustate.cpp:318
+msgid "Restore Health on Level Start"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: hid/names.cpp:117
+msgctxt "Keyboard|Key"
+msgid "Ret"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/controlsmenustate.cpp:173
+msgid "Return"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: hid/names.cpp:342
+msgctxt "Action"
+msgid "Right"
+msgstr ""
+
+#. translators: TR charcmap encoding
+#: menu/controlsmenustate.cpp:126
+msgctxt "GamepadAxis"
+msgid "Right"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: hid/names.cpp:127
+msgctxt "Keyboard|Key"
+msgid "Right"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: hid/names.cpp:314
+msgctxt "Action"
+msgid "Roll"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: hid/names.cpp:344
+msgctxt "Action"
+msgid "Run"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: hid/names.cpp:91
+msgctxt "Keyboard|Key"
+msgid "S"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: ui/levelstats.cpp:35
+#, boost-format
+msgid "SECRETS %1% of %2%"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: hid/names.cpp:336
+msgctxt "Action"
+msgid "Save"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/passportmenustate.cpp:72
+msgid "Save Game"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: engine/ghostmanager.cpp:61
+msgid "Save recorded ghost?"
+msgstr ""
+
+#: engine/world/world.cpp:1063
+msgid "Saving..."
+msgstr ""
+
+#. translators: TR charmap encoding
+#: hid/names.cpp:354
+msgctxt "Action"
+msgid "Screenshot"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: hid/names.cpp:145
+msgctxt "Keyboard|Key"
+msgid "ScrlLk"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/compassmenustate.cpp:67
+msgid "Secrets"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: hid/names.cpp:235
+msgctxt "Keyboard|Key"
+msgid "Shift"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/controlswidget.cpp:96
+msgid "Shortcuts"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/compassmenustate.cpp:164 menu/menudisplay.cpp:363
+msgid "Shotgun"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/menudisplay.cpp:396
+msgid "Shotgun Cells"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/menudisplay.cpp:451
+msgid "Small Medi Pack"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/compassmenustate.cpp:89
+msgid "Small Medi Packs"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: hid/names.cpp:332
+msgctxt "Action"
+msgid "Small Medipack"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/menudisplay.cpp:296
+msgid "Sound"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: hid/names.cpp:19
+msgctxt "Keyboard|Key"
+msgid "Space"
+msgstr ""
+
+#. translators: TR charmap encoding, gamepad
+#: hid/names.cpp:283
+msgctxt "Gamepad|Button"
+msgid "Start"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: hid/names.cpp:348
+msgctxt "Action"
+msgid "Step Left"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: hid/names.cpp:350
+msgctxt "Action"
+msgid "Step Right"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: hid/names.cpp:253
+msgctxt "Keyboard|Key"
+msgid "Super"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: hid/names.cpp:93
+msgctxt "Keyboard|Key"
+msgid "T"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: ui/levelstats.cpp:29
+#, boost-format
+msgid "TIME TAKEN %1%"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/compassmenustate.cpp:52
+msgctxt "gamestats"
+msgid "TOTAL"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: hid/names.cpp:119
+msgctxt "Keyboard|Key"
+msgid "Tab"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/compassmenustate.cpp:111
+msgid "Time Taken"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/controlsmenustate.cpp:195
+#, boost-format
+msgid "To change a mapping, use %1%."
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/controlsmenustate.cpp:199
+#, boost-format
+msgid "To change the controller type, use %1%."
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/controlsmenustate.cpp:204
+#, boost-format
+msgid "To remove a mapping, hold %1% for %2% seconds."
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/controlsmenustate.cpp:210
+#, boost-format
+msgid "To reset all mappings, hold %1% for %2% seconds."
+msgstr ""
+
+#. translators: TR charmap encoding
+#: hid/names.cpp:95
+msgctxt "Keyboard|Key"
+msgid "U"
+msgstr ""
+
+#. translators: TR charcmap encoding
+#: menu/controlsmenustate.cpp:131
+msgctxt "GamepadAxis"
+msgid "Up"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: hid/names.cpp:133
+msgctxt "Keyboard|Key"
+msgid "Up"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/controlsmenustate.cpp:189
+#, boost-format
+msgid "Use %1% and %2% to edit other profiles."
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/menudisplay.cpp:418
+msgid "Uzi Clips"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/compassmenustate.cpp:166 menu/menudisplay.cpp:385
+msgid "Uzis"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: hid/names.cpp:97
+msgctxt "Keyboard|Key"
+msgid "V"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/rendersettingsmenustate.cpp:171
+msgid "Velvia"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: hid/names.cpp:99
+msgctxt "Keyboard|Key"
+msgid "W"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: hid/names.cpp:312
+msgctxt "Action"
+msgid "Walk"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: hid/names.cpp:247
+msgctxt "Keyboard|Key"
+msgid "World1"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: hid/names.cpp:249
+msgctxt "Keyboard|Key"
+msgid "World2"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: hid/names.cpp:101
+msgctxt "Keyboard|Key"
+msgid "X"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: hid/names.cpp:103
+msgctxt "Keyboard|Key"
+msgid "Y"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/controlsmenustate.cpp:171 ui/widgets/messagebox.cpp:14
+msgid "Yes"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: hid/names.cpp:105
+msgctxt "Keyboard|Key"
+msgid "Z"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: hid/names.cpp:109
+msgctxt "Keyboard|Key"
+msgid "\\"
+msgstr ""
+
+#. translators: insert the locale here, this is an internal check if valid translations exist
+#: core/i18n.cpp:53
+msgid "translation-test-message"
+msgstr ""
