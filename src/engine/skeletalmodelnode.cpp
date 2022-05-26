@@ -355,11 +355,7 @@ void SkeletalModelNode::replaceAnim(const gsl::not_null<const world::Animation*>
 
 void SkeletalModelNode::MeshPart::serialize(const serialization::Serializer<world::World>& ser)
 {
-  ser(S_NV("patch", patch),
-      S_NV("poseMatrix", poseMatrix),
-      S_NV("mesh", mesh),
-      S_NV("visible", visible),
-      S_NV("reflective", reflective));
+  ser(S_NV("patch", patch), S_NV("poseMatrix", poseMatrix), S_NV("mesh", mesh), S_NV("visible", visible));
 }
 
 SkeletalModelNode::MeshPart SkeletalModelNode::MeshPart::create(const serialization::Serializer<world::World>& ser)
