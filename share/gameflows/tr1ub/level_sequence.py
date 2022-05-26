@@ -37,7 +37,6 @@ lara_home = [
 ]
 
 level_sequence = [
-    Video(_fmv("SNOW")),
     ModifyInventory(
         add_inventory={TR1ItemId.Pistols: 1},
     ),
