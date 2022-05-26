@@ -114,7 +114,7 @@ void RenderPipeline::resize(scene::MaterialManager& materialManager,
 
   m_geometryPass = std::make_shared<pass::GeometryPass>(m_renderSize);
   m_portalPass = std::make_shared<pass::PortalPass>(materialManager, m_geometryPass->getDepthBuffer(), m_renderSize);
-  m_hbaoPass = std::make_shared<pass::HBAOPass>(materialManager, m_renderSize, *m_geometryPass);
+  m_hbaoPass = std::make_shared<pass::HBAOPass>(materialManager, m_renderSize / 4, *m_geometryPass);
   m_worldCompositionPass = std::make_shared<pass::WorldCompositionPass>(
     materialManager, m_renderSettings, m_renderSize, *m_geometryPass, *m_portalPass);
 
