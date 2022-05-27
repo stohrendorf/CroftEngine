@@ -15,9 +15,11 @@ layout(location=9) in vec3 a_quadVert4;
 layout(location=10) in vec4 a_quadUv12;
 layout(location=11) in vec4 a_quadUv34;
 
+// warning: location is re-used
 layout(location=12) in vec4 a_colorTopLeft;
 layout(location=13) in vec4 a_colorTopRight;
 layout(location=14) in vec4 a_colorBottomLeft;
 layout(location=15) in vec4 a_colorBottomRight;
 
-layout(location=16) in vec4 a_reflective;
+// warning: re-uses location
+layout(location=12) in vec4 a_reflective;
