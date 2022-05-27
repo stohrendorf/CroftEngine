@@ -101,7 +101,7 @@ Audron [here](https://drive.google.com/file/d/1iRz4Svdi_dhmlDNFYeZqyP-wfApWhDoN/
 The following people deserve some noteworthy credit.
 
 * Raina Audron for creating the first YouTube videos and writing the user manual.
-* [Dirk Stoecker](https://build.opensuse.org/users/dstoecker) for being the package maintainer of the openSUSE packages.
+* [Martin Hauke](https://build.opensuse.org/users/mnhauke) for being the package maintainer of the openSUSE packages.
 * [Liinx86](https://www.twitch.tv/liinx86) for being the world's first streamer streaming CroftEngine on twitch; also
   gave the idea for the Ghost feature.
 * Liinx86 *again* for being the first person of playing from start to finish. A summary of the stream can be
