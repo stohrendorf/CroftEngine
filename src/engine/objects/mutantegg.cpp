@@ -105,6 +105,7 @@ MutantEgg::MutantEgg(const std::string& name,
   else
   {
     getWorld().getObjectManager().registerObject(gsl::not_null{m_childObject});
+    m_childObject->m_state.triggerState = TriggerState::Invisible;
   }
 
   for(size_t i = 0; i < getSkeleton()->getBoneCount(); ++i)
