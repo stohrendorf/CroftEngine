@@ -44,10 +44,19 @@ std::optional<PortalTracer::CullBox> PortalTracer::narrowCullBox(const PortalTra
   const auto toScreen = [&camera](const glm::vec3& v) -> std::optional<glm::vec2>
   {
     const auto tmp = camera.getCamera()->getProjectionMatrix() * glm::vec4{v, 1.0f};
-    if(tmp.w > std::numeric_limits<float>::epsilon())
-      return glm::vec2{tmp} / tmp.w;
-    else
+    if(tmp.w <= std::numeric_limits<float>::epsilon())
       return std::nullopt;
+
+    const auto projected = glm::vec2{tmp} / tmp.w;
+
+    static constexpr auto Margin = 50.0f;
+    if(abs(v.z) >= Margin)
+      return projected;
+    
+    return glm::vec2{
+      projected.x > 0 ? 1 : -1,
+      projected.y > 0 ? 1 : -1,
+    };
   };
 
   // 1. determine the screen cull box of the current portal
