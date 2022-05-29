@@ -53,6 +53,10 @@ must be open-source as well.
 
 ## Usage
 
+**Avoid installing in the same folder as the original game.** Otherwise, weird stuff may happen. CroftEngine
+pull in the data it needs from your original game data location. After you can confirm CroftEngine works, it
+is safe to delete the original Tomb Raider installation, as CroftEngine doesn't need that anymore to run.
+
 > *A user manual has been kindly provided by Raina
 Audron [here](https://drive.google.com/file/d/1iRz4Svdi_dhmlDNFYeZqyP-wfApWhDoN/view)*.
 
