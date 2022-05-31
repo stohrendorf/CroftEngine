@@ -502,7 +502,6 @@ void World::flickerEffect()
 void World::swapWithAlternate(Room& orig, Room& alternate)
 {
   // find any blocks in the original room and un-patch the floor heights
-
   for(const auto& object : m_objectManager.getObjects() | boost::adaptors::map_values)
   {
     if(object->m_state.location.room != &orig)

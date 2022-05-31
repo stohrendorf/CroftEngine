@@ -122,12 +122,6 @@ struct Room
     return getSectorByIndex(localPos.X / core::SectorSize, localPos.Z / core::SectorSize);
   }
 
-  [[nodiscard]] gsl::not_null<const Sector*> getInnerSectorByAbsolutePosition(core::TRVec worldPos) const
-  {
-    worldPos -= position;
-    return getInnerSectorByIndex(worldPos.X / core::SectorSize, worldPos.Z / core::SectorSize);
-  }
-
   [[nodiscard]] bool isInnerPositionXZ(core::TRVec worldPos) const
   {
     worldPos -= position;
@@ -137,13 +131,6 @@ struct Room
   }
 
   [[nodiscard]] const Sector* getSectorByIndex(int dx, int dz) const;
-
-  [[nodiscard]] gsl::not_null<const Sector*> getInnerSectorByIndex(int dx, int dz) const
-  {
-    dx = std::clamp(dx, 1, sectorCountX - 2);
-    dz = std::clamp(dz, 1, sectorCountZ - 2);
-    return gsl::not_null{&sectors[sectorCountZ * dx + dz]};
-  }
 
   [[nodiscard]] gsl::not_null<const Sector*> getBoundarySectorByIndex(int dx, int dz) const
   {
