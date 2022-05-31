@@ -13,6 +13,7 @@
 #include "engine/world/world.h"
 #include "objectstate.h"
 #include "qs/qs.h"
+#include "serialization/serialization.h"
 #include "util/helpers.h"
 
 #include <memory>
@@ -131,5 +132,22 @@ void Raptor::update()
   rotateCreatureHead(animHead);
   getSkeleton()->patchBone(20, core::TRRotation{0_deg, getCreatureInfo()->headRotation, 0_deg}.toMatrix());
   animateCreature(animAngle, animTilt);
+}
+
+void Raptor::serialize(const serialization::Serializer<world::World>& ser)
+{
+  AIAgent::serialize(ser);
+  if(ser.loading)
+    getSkeleton()->getRenderState().setScissorTest(false);
+}
+
+Raptor::Raptor(const std::string& name,
+               const gsl::not_null<world::World*>& world,
+               const gsl::not_null<const world::Room*>& room,
+               const loader::file::Item& item,
+               const gsl::not_null<const world::SkeletalModelType*>& animatedModel)
+    : AIAgent{name, world, room, item, animatedModel}
+{
+  getSkeleton()->getRenderState().setScissorTest(false);
 }
 } // namespace engine::objects
