@@ -49,8 +49,9 @@ Object::Object(const gsl::not_null<world::World*>& world,
 {
   m_hasUpdateFunction = hasUpdateFunction;
   m_state.type = item.type;
+  m_state.location.updateRoom(); // TODO: this may break other things, but at least it allows loading some custom levels
 
-  // TODO Sabatu's TR1 will break on this: BOOST_ASSERT(room->isInnerPositionXZ(item.position));
+  BOOST_ASSERT(m_state.location.room->isInnerPositionXZ(item.position));
 
   m_state.loadObjectInfo(world->getEngine().getScriptEngine().getGameflow());
 
@@ -58,7 +59,7 @@ Object::Object(const gsl::not_null<world::World*>& world,
   m_state.activationState = floordata::ActivationState(item.activationState);
   m_state.timer = m_state.activationState.getTimeout();
 
-  m_state.floor = room->getSectorByAbsolutePosition(item.position)->floorHeight;
+  m_state.floor = m_state.location.room->getSectorByAbsolutePosition(item.position)->floorHeight;
 
   if(m_state.activationState.isOneshot())
   {
