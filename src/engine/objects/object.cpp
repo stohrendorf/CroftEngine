@@ -50,7 +50,7 @@ Object::Object(const gsl::not_null<world::World*>& world,
   m_hasUpdateFunction = hasUpdateFunction;
   m_state.type = item.type;
 
-  BOOST_ASSERT(room->isInnerPositionXZ(item.position));
+  // TODO Sabatu's TR1 will break on this: BOOST_ASSERT(room->isInnerPositionXZ(item.position));
 
   m_state.loadObjectInfo(world->getEngine().getScriptEngine().getGameflow());
 

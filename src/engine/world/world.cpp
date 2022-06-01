@@ -1497,14 +1497,18 @@ void World::initFromLevel(loader::file::level::Level& level)
                    {
                      return Light{light.position, light.intensity, light.fadeDistance};
                    });
-    std::transform(
-      srcRoom.staticMeshes.begin(),
-      srcRoom.staticMeshes.end(),
-      std::back_inserter(m_rooms[i].staticMeshes),
-      [this](const loader::file::RoomStaticMesh& rsm)
+    for(const auto& rsm : srcRoom.staticMeshes)
+    {
+      if(const auto mesh = findStaticMeshById(rsm.meshId); mesh != nullptr)
       {
-        return RoomStaticMesh{rsm.position, rsm.rotation, rsm.shade, gsl::not_null{findStaticMeshById(rsm.meshId)}};
-      });
+        m_rooms[i].staticMeshes.emplace_back(
+          RoomStaticMesh{rsm.position, rsm.rotation, rsm.shade, gsl::not_null{mesh}});
+      }
+      else
+      {
+        BOOST_LOG_TRIVIAL(warning) << "No static mesh found for id " << rsm.meshId.get();
+      }
+    }
     m_rooms[i].alternateRoom = srcRoom.alternateRoom.get() >= 0 ? &m_rooms.at(srcRoom.alternateRoom.get()) : nullptr;
   }
 
