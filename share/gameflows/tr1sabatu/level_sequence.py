@@ -10,6 +10,10 @@ def _fmv(basename: str):
 
 early_boot = [
     Video(_fmv("CAFE")),
+    SplashScreen(
+        path=f"DATA/eidospc.png",
+        duration_seconds=5,
+    )
 ]
 
 title_menu = TitleMenu(
