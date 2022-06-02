@@ -9,8 +9,6 @@ def _fmv(basename: str):
 
 
 early_boot = [
-    Video(_fmv("CORE")),
-    Video(_fmv("ESCAPE")),
     Video(_fmv("CAFE")),
 ]
 

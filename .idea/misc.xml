@@ -3,8 +3,8 @@
   <component name="CMakeWorkspace" PROJECT_DIR="$PROJECT_DIR$" />
   <component name="CidrRootsConfiguration">
     <sourceRoots>
-      <file path="$PROJECT_DIR$/share/gameflows/sabatu" />
       <file path="$PROJECT_DIR$/share/gameflows/tr1" />
+      <file path="$PROJECT_DIR$/share/gameflows/tr1sabatu" />
       <file path="$PROJECT_DIR$/share/gameflows/tr1ub" />
       <file path="$PROJECT_DIR$/src" />
     </sourceRoots>

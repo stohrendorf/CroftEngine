@@ -30,5 +30,5 @@ gameflow = Gameflow(
             TR1ItemId.ShotgunSprite: 1,
         }
     } if False else {},  # lgtm [py/constant-conditional-expression]
-    asset_root="tr1",
+    asset_root="tr1sabatu",
 )
