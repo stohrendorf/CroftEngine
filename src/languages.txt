@@ -1,0 +1,2 @@
+en_GB English
+de_DE Deutsch

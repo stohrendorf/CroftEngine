@@ -625,7 +625,25 @@ file(
         *.h
         *.hpp
 )
-set( CE_ADDITIONAL_LANGUAGES de_DE )
+
+set( CE_ADDITIONAL_LANGUAGES )
+
+file( STRINGS languages.txt _languages )
+foreach( _language IN LISTS _languages )
+    if( NOT _language MATCHES ".+ .+" )
+        continue()
+    endif()
+
+    string( REGEX REPLACE " .+\$" "" _lang_id "${_language}" )
+
+    if( _lang_id STREQUAL "en_GB" )
+        continue()
+    endif()
+
+    list( APPEND CE_ADDITIONAL_LANGUAGES ${_lang_id} )
+endforeach()
+
+
 configure_gettext(
         TARGET_NAME i18n
         DOMAIN croftengine

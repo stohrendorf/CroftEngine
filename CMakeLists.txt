@@ -75,16 +75,25 @@ if( WIN32 )
     set( CPACK_RESOURCE_FILE_LICENSE ${CMAKE_CURRENT_SOURCE_DIR}/share/LICENSE )
     set( CPACK_MONOLITHIC_INSTALL ON )
     set( CPACK_PACKAGE_EXECUTABLES "croftengine;CroftEngine" )
+
     set( CPACK_NSIS_EXTRA_INSTALL_COMMANDS
             "CreateShortCut \\\"$SMPROGRAMS\\\\$STARTMENU_FOLDER\\\\CroftEngine Configuration.lnk\\\" \\\"$INSTDIR\\\\.\\\\croftengine.exe\\\" \\\"--configure\\\""
-            "CreateShortCut \\\"$SMPROGRAMS\\\\$STARTMENU_FOLDER\\\\CroftEngine (English).lnk\\\" \\\"$INSTDIR\\\\.\\\\croftengine.exe\\\" \\\"--locale en_GB.utf8\\\""
-            "CreateShortCut \\\"$SMPROGRAMS\\\\$STARTMENU_FOLDER\\\\CroftEngine (Deutsch).lnk\\\" \\\"$INSTDIR\\\\.\\\\croftengine.exe\\\" \\\"--locale de_DE.utf8\\\""
             )
     set( CPACK_NSIS_EXTRA_UNINSTALL_COMMANDS
             "Delete \\\"$SMPROGRAMS\\\\$START_MENU\\\\CroftEngine Configuration.lnk\\\""
-            "Delete \\\"$SMPROGRAMS\\\\$START_MENU\\\\CroftEngine (English).lnk\\\""
-            "Delete \\\"$SMPROGRAMS\\\\$START_MENU\\\\CroftEngine (Deutsch).lnk\\\""
             )
+
+    file( STRINGS src/languages.txt _languages )
+    foreach( _language IN LISTS _languages )
+        if( NOT _language MATCHES ".+ .+" )
+            continue()
+        endif()
+
+        string( REGEX REPLACE " .+\$" "" _lang_id "${_language}" )
+        string( REGEX REPLACE "^[^ ]+ " "" _lang_name "${_language}" )
+        list( APPEND CPACK_NSIS_EXTRA_INSTALL_COMMANDS "CreateShortCut \\\"$SMPROGRAMS\\\\$STARTMENU_FOLDER\\\\CroftEngine (${_lang_name}).lnk\\\" \\\"$INSTDIR\\\\.\\\\croftengine.exe\\\" \\\"--locale ${_lang_id}.utf8\\\"" )
+        list( APPEND CPACK_NSIS_EXTRA_UNINSTALL_COMMANDS "Delete \\\"$SMPROGRAMS\\\\$START_MENU\\\\CroftEngine (${_lang_name}).lnk\\\"" )
+    endforeach()
 
     string( REPLACE ";" "\n" CPACK_NSIS_EXTRA_INSTALL_COMMANDS "${CPACK_NSIS_EXTRA_INSTALL_COMMANDS}" )
     string( REPLACE ";" "\n" CPACK_NSIS_EXTRA_UNINSTALL_COMMANDS "${CPACK_NSIS_EXTRA_UNINSTALL_COMMANDS}" )
