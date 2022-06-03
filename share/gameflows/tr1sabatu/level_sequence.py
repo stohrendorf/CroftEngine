@@ -36,6 +36,7 @@ lara_home = [
         secrets=0,
         use_alternative_lara=True,
         allow_save=False,
+        default_weapon=WeaponType.None_,
     ),
 ]
 

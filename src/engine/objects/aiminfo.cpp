@@ -319,9 +319,9 @@ void AimInfo::overrideHolsterTwoWeaponsMeshes(LaraObject& lara, WeaponType weapo
     BOOST_THROW_EXCEPTION(std::domain_error("weaponType"));
   }
 
-  const auto& src = *lara.getWorld().findAnimatedModelForType(srcId);
+  const auto& src = *gsl::not_null{lara.getWorld().findAnimatedModelForType(srcId).get()};
   BOOST_ASSERT(src.bones.size() == lara.getSkeleton()->getBoneCount());
-  const auto& normalLara = *lara.getWorld().findAnimatedModelForType(TR1ItemId::Lara);
+  const auto& normalLara = *gsl::not_null{lara.getWorld().findAnimatedModelForType(TR1ItemId::Lara).get()};
   BOOST_ASSERT(normalLara.bones.size() == lara.getSkeleton()->getBoneCount());
   lara.getSkeleton()->setMeshPart(handBoneId, normalLara.bones[handBoneId].mesh);
   lara.getSkeleton()->setMeshPart(thighBoneId, src.bones[thighBoneId].mesh);
