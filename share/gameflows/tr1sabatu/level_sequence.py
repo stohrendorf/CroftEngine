@@ -37,6 +37,20 @@ lara_home = [
         use_alternative_lara=True,
         allow_save=False,
         default_weapon=WeaponType.None_,
+        item_titles={
+            "en_GB": {
+                TR1ItemId.Key1: "Key",
+                TR1ItemId.Key2: "Key",
+                TR1ItemId.Key3: "Key",
+                TR1ItemId.Key4: "Key",
+            },
+            "de_DE": {
+                TR1ItemId.Key1: "Schl~ussel",
+                TR1ItemId.Key2: "Schl~ussel",
+                TR1ItemId.Key3: "Schl~ussel",
+                TR1ItemId.Key4: "Schl~ussel",
+            },
+        },
     ),
 ]
 
