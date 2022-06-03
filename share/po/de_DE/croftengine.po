@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CroftEngine\n"
 "Report-Msgid-Bugs-To: https://github.com/stohrendorf/CroftEngine/issues\n"
-"POT-Creation-Date: 2022-05-26 22:30+0200\n"
+"POT-Creation-Date: 2022-06-03 18:04+0200\n"
 "Last-Translator: Steffen Ohrendorf\n"
 "Language-Team: none\n"
 "Language: de_DE\n"
@@ -638,7 +638,7 @@ msgstr "Lade %1%"
 msgid "Loading Glidos texture pack"
 msgstr "Lade Glidos Textur Paket"
 
-#: engine/world/world.cpp:1042
+#: engine/world/world.cpp:1041
 msgid "Loading..."
 msgstr "Lade..."
 
@@ -912,7 +912,7 @@ msgstr "Q"
 msgid "Quality"
 msgstr "Qualit~at"
 
-#: engine/world/world.cpp:1068
+#: engine/world/world.cpp:1067
 msgid "Quicksave"
 msgstr "Schnellspeicherung"
 
@@ -1032,7 +1032,7 @@ msgstr "Spiel sichern"
 msgid "Save recorded ghost?"
 msgstr "Aufgenommenen Geist speichern?"
 
-#: engine/world/world.cpp:1063
+#: engine/world/world.cpp:1062
 msgid "Saving..."
 msgstr "Speichere..."
 

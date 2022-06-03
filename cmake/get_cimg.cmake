@@ -4,7 +4,7 @@ endif()
 
 include( ./dl_unpack )
 
-set( _cimg_version "v.2.9.9" )
+set( _cimg_version "v.3.1.2" )
 dl_unpack(
         URL https://github.com/dtschump/CImg/archive/${_cimg_version}.tar.gz
         FILENAME CImg-${_cimg_version}.tar.gz
