@@ -177,11 +177,12 @@ bool showLevelStats(const std::shared_ptr<Presenter>& presenter, world::World& w
 Engine::Engine(std::filesystem::path userDataPath,
                const std::filesystem::path& engineDataPath,
                const std::optional<std::string>& localOverride,
-               const std::string& gameflowRoot,
+               const std::string& gameflowId,
                const glm::ivec2& resolution)
     : m_userDataPath{std::move(userDataPath)}
     , m_engineDataPath{engineDataPath}
-    , m_scriptEngine{engineDataPath / "gameflows" / gameflowRoot}
+    , m_gameflowId{gameflowId}
+    , m_scriptEngine{engineDataPath / "gameflows" / gameflowId}
 {
   {
     const auto invalid = m_scriptEngine.getGameflow().getInvalidFilepaths(*this);
@@ -245,9 +246,9 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
   static constexpr auto BlendInDuration = (core::FrameRate * 2_sec).cast<core::Frame>();
   core::Frame ammoDisplayDuration = 0_frame;
 
-  std::filesystem::create_directories(m_userDataPath / "ghosts");
-  GhostManager ghostManager{m_userDataPath / "ghosts" / (world.getLevelFilename().stem().replace_extension(".rec")),
-                            world};
+  const auto ghostRoot = m_userDataPath / "ghosts" / m_gameflowId;
+  std::filesystem::create_directories(ghostRoot);
+  GhostManager ghostManager{ghostRoot / (world.getLevelFilename().stem().replace_extension(".rec")), world};
 
   while(true)
   {
@@ -647,9 +648,8 @@ void Engine::applySettings()
 
 std::filesystem::path Engine::getSavegameRootPath() const
 {
-  auto p = m_userDataPath / "saves";
-  if(!std::filesystem::is_directory(p))
-    std::filesystem::create_directory(p);
+  auto p = m_userDataPath / "saves" / m_gameflowId;
+  std::filesystem::create_directories(p);
   return p;
 }
 

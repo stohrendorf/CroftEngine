@@ -69,6 +69,7 @@ class Engine
 private:
   const std::filesystem::path m_userDataPath;
   const std::filesystem::path m_engineDataPath;
+  const std::string m_gameflowId;
   script::ScriptEngine m_scriptEngine;
   std::unique_ptr<EngineConfig> m_engineConfig;
   std::shared_ptr<Presenter> m_presenter;
@@ -85,7 +86,7 @@ public:
   explicit Engine(std::filesystem::path userDataPath,
                   const std::filesystem::path& engineDataPath,
                   const std::optional<std::string>& localOverride,
-                  const std::string& gameflowRoot,
+                  const std::string& gameflowId,
                   const glm::ivec2& resolution = {1280, 800});
 
   ~Engine();
