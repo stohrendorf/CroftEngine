@@ -5,7 +5,7 @@
 #include <cstdint>
 #include <glm/fwd.hpp>
 
-#if GLM_VERSION < 98
+#if GLM_VERSION < 98 && !defined(__cppcheck__)
 #  error "Your GLM version is too old, upgrade to 0.9.8 or higher"
 #endif
 

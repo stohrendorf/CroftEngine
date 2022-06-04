@@ -64,7 +64,7 @@ public:
 
       m_buffer.resize(size);
       file.read(&m_buffer[0], size);
-      m_tree = ryml::parse(c4::to_csubstr(filename.string()), c4::to_csubstr(m_buffer));
+      m_tree = ryml::parse_in_arena(c4::to_csubstr(filename.string()), c4::to_csubstr(m_buffer));
     }
     else
     {

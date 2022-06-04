@@ -84,9 +84,9 @@ struct InputState
 
   void setXAxisMovement(const bool left, const bool right)
   {
-    if(left < right)
+    if(!left && right)
       xMovement = AxisMovement::Right;
-    else if(left > right)
+    else if(left && !right)
       xMovement = AxisMovement::Left;
     else
       xMovement = AxisMovement::Null;
@@ -94,9 +94,9 @@ struct InputState
 
   void setStepMovement(const bool left, const bool right)
   {
-    if(left < right)
+    if(!left && right)
       stepMovement = AxisMovement::Right;
-    else if(left > right)
+    else if(left && !right)
       stepMovement = AxisMovement::Left;
     else
       stepMovement = AxisMovement::Null;
@@ -104,9 +104,9 @@ struct InputState
 
   void setZAxisMovement(const bool back, const bool forward)
   {
-    if(back < forward)
+    if(!back && forward)
       zMovement = AxisMovement::Forward;
-    else if(back > forward)
+    else if(back && !forward)
       zMovement = AxisMovement::Backward;
     else
       zMovement = AxisMovement::Null;

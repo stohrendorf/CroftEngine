@@ -399,7 +399,7 @@ void MainWindow::onMigrateClicked()
     "existing files, the data will be lost.");
   const auto overwriteBtn = askDataOverwrite.addButton("Overwrite", QMessageBox::ButtonRole::YesRole);
   const auto keepBtn = askDataOverwrite.addButton("Don't overwrite", QMessageBox::ButtonRole::NoRole);
-  const auto abortBtn = askDataOverwrite.addButton("Abort", QMessageBox::ButtonRole::RejectRole);
+  /*const auto abortBtn = */ askDataOverwrite.addButton("Abort", QMessageBox::ButtonRole::RejectRole);
   askDataOverwrite.setDefaultButton(QMessageBox::StandardButton::No);
   askDataOverwrite.setIcon(QMessageBox::Icon::Question);
 
@@ -521,7 +521,7 @@ void MainWindow::onSelectGlidosClicked()
       "use the first option. If your texture pack contains a series of folders which are made of 32 numbers and "
       "letters, use the second one.");
     const auto useEquiv = askPackType.addButton("equiv.txt", QMessageBox::ButtonRole::AcceptRole);
-    const auto useFolders = askPackType.addButton("Folders", QMessageBox::ButtonRole::AcceptRole);
+    /*const auto useFolders = */ askPackType.addButton("Folders", QMessageBox::ButtonRole::AcceptRole);
     askPackType.setIcon(QMessageBox::Icon::Question);
     askPackType.exec();
     if(askPackType.clickedButton() == useEquiv)
@@ -571,7 +571,7 @@ void MainWindow::setGlidosPath(const std::optional<std::string>& path)
 
   setlocale(LC_NUMERIC, oldLocale.c_str());
 
-  auto tree = ryml::parse(c4::to_csubstr((*userDataPath / "config.yaml").string()), c4::to_csubstr(buffer));
+  auto tree = ryml::parse_in_arena(c4::to_csubstr((*userDataPath / "config.yaml").string()), c4::to_csubstr(buffer));
   auto root = tree.rootref();
   if(!root["config"].is_map() || !root["config"]["renderSettings"].is_map())
   {

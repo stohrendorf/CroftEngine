@@ -1,12 +1,10 @@
 #include "paths.h"
 
 #include <boost/log/trivial.hpp>
-#include <boost/throw_exception.hpp>
 #include <cstdlib>
 #include <filesystem>
 #include <gsl/gsl-lite.hpp>
 #include <sstream>
-#include <stdexcept>
 #include <string>
 
 std::filesystem::path getExpectedSysUserDataDir()

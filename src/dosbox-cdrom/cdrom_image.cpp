@@ -37,11 +37,13 @@ namespace cdrom
 {
 namespace
 {
-void getCueKeyword(std::string& keyword, std::istream& in)
+std::string getCueKeyword(std::istream& in)
 {
+  std::string keyword;
   in >> keyword;
   for(char& i : keyword)
     i = gsl::narrow<char>(std::toupper(i));
+  return keyword;
 }
 
 bool getCueFrame(size_t& frames, std::istream& in)
@@ -59,24 +61,25 @@ bool getCueFrame(size_t& frames, std::istream& in)
   return success;
 }
 
-void getCueString(std::string& str, std::istream& in)
+std::string getCueString(std::istream& in)
 {
   const auto pos = in.tellg();
+  std::string str;
   in >> str;
   if(str[0] != '\"')
-    return;
+    return str;
 
   if(str[str.size() - 1] == '\"')
   {
     str.assign(str, 1, str.size() - 2);
-    return;
+    return str;
   }
 
   in.seekg(pos, std::ios::beg);
   std::array<char, MAX_FILENAME_LENGTH> buffer{};
   in.getline(buffer.data(), buffer.size() - 1, '\"'); // skip
   in.getline(buffer.data(), buffer.size() - 1, '\"');
-  str = buffer.data();
+  return buffer.data();
 }
 
 bool canReadPVD(BinaryFile& file, int sectorSize, bool mode2)
@@ -264,8 +267,7 @@ bool CdImage::loadCueSheet(const std::filesystem::path& cuefile)
       return false; // probably a binary file
     std::istringstream line(buf.data());
 
-    std::string command;
-    getCueKeyword(command, line);
+    auto command = getCueKeyword(line);
 
     if(command == "TRACK")
     {
@@ -280,8 +282,7 @@ bool CdImage::loadCueSheet(const std::filesystem::path& cuefile)
       prestart = 0;
 
       line >> track.number;
-      std::string type;
-      getCueKeyword(type, line);
+      auto type = getCueKeyword(line);
 
       if(type == "AUDIO")
       {
@@ -337,11 +338,9 @@ bool CdImage::loadCueSheet(const std::filesystem::path& cuefile)
         success = true;
       canAddTrack = false;
 
-      std::string filename;
-      getCueString(filename, line);
+      auto filename = getCueString(line);
       getRealFileName(filename, cuefile.parent_path());
-      std::string type;
-      getCueKeyword(type, line);
+      auto type = getCueKeyword(line);
 
       track.file = nullptr;
       if(type == "BINARY" || type == "MP3")
@@ -359,8 +358,7 @@ bool CdImage::loadCueSheet(const std::filesystem::path& cuefile)
     }
     else if(command == "CATALOG")
     {
-      std::string mcn;
-      getCueString(mcn, line);
+      auto mcn = getCueString(line);
       success = true;
     }
     // ignored commands

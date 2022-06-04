@@ -19,7 +19,7 @@ bool BufferParameter::bind(const Node* node, const Mesh& mesh, const gslu::nn_sh
   {
     if(node != nullptr)
       binder = node->findShaderStorageBlockBinder(getName());
-    if(!m_bufferBinder && binder == nullptr)
+    if(binder == nullptr)
     {
       // don't have an explicit binder present on material, node or mesh level, assuming it's set on shader level
       return true;

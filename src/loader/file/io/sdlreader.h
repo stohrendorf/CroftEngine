@@ -71,15 +71,15 @@ public:
   {
     std::vector<char> uncomp_buffer(uncompressedSize);
 
-    auto size = static_cast<uLongf>(uncompressedSize);
+    auto actuallyUncompressedSize = static_cast<uLongf>(uncompressedSize);
     if(uncompress(reinterpret_cast<Bytef*>(uncomp_buffer.data()), // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
-                  &size,
+                  &actuallyUncompressedSize,
                   compressed.data(),
                   static_cast<uLong>(compressed.size()))
        != Z_OK)
       BOOST_THROW_EXCEPTION(std::runtime_error("Decompression failed"));
 
-    if(size != uncompressedSize)
+    if(actuallyUncompressedSize != uncompressedSize)
       BOOST_THROW_EXCEPTION(std::runtime_error("Decompressed size mismatch"));
 
     SDLReader reader(move(uncomp_buffer));

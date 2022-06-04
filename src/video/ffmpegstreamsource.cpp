@@ -87,9 +87,9 @@ size_t BasicFfmpegStreamSource::read(int16_t* buffer, size_t bufferSize, bool lo
   size_t written = 0;
   while(written < bufferSize)
   {
-    const auto read = m_decoder->read(buffer, bufferSize - written);
-    written += read;
-    buffer += getChannels() * read;
+    const auto consumed = m_decoder->read(buffer, bufferSize - written);
+    written += consumed;
+    buffer += getChannels() * consumed;
     if(written < bufferSize)
     {
       if(!looping)

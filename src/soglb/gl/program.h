@@ -160,7 +160,7 @@ public:
   {
     Expects(m_program != InvalidProgram);
     if(changeValue(value))
-      GL_ASSERT(api::programUniform1(m_program, getLocation(), value));
+      GL_ASSERT(api::programUniform1(m_program, getLocation(), value)); // cppcheck-suppress missingReturn
   }
 
   template<typename T>

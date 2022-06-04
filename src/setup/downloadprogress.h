@@ -3,6 +3,7 @@
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QNetworkRequest>
+#include <QObject>
 #include <QWidget>
 // https://bugreports.qt.io/browse/QTBUG-73263
 #include <filesystem>

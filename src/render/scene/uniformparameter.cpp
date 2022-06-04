@@ -17,7 +17,7 @@ bool UniformParameter::bind(const Node* node, const Mesh& mesh, const gslu::nn_s
   {
     if(node != nullptr)
       setter = node->findUniformSetter(getName());
-    if(!m_valueSetter && setter == nullptr)
+    if(setter == nullptr)
     {
       // don't have an explicit setter present on material, node or mesh level, assuming it's set on shader level
       return true;
@@ -55,7 +55,7 @@ bool UniformBlockParameter::bind(const Node* node,
   {
     if(node != nullptr)
       binder = node->findUniformBlockBinder(getName());
-    if(!m_bufferBinder && binder == nullptr)
+    if(binder == nullptr)
     {
       // don't have an explicit binder present on material, node or mesh level, assuming it's set on shader level
       return true;
