@@ -98,9 +98,11 @@ level_sequence = [
         item_titles={
             "en_GB": {
                 TR1ItemId.Puzzle1: "Machine Cog",
+                TR1ItemId.Key1: "Bone Key",
             },
             "de_DE": {
                 TR1ItemId.Puzzle1: "Zahnrad",
+                TR1ItemId.Key1: "Knochiger Schl~ussel",
             },
         },
     ),
