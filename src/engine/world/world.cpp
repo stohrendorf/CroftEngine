@@ -21,6 +21,7 @@
 #include "engine/engine.h"
 #include "engine/engineconfig.h"
 #include "engine/floordata/floordata.h"
+#include "engine/floordata/secrets.h"
 #include "engine/location.h"
 #include "engine/objects/aiagent.h"
 #include "engine/objects/block.h" // IWYU pragma: keep
@@ -1110,7 +1111,6 @@ bool World::hasSavedGames() const
 World::World(Engine& engine,
              std::unique_ptr<loader::file::level::Level>&& level,
              std::string title,
-             size_t totalSecrets,
              const std::optional<TR1TrackId>& track,
              bool useAlternativeLara,
              std::unordered_map<std::string, std::unordered_map<TR1ItemId, std::string>> itemTitles,
@@ -1121,7 +1121,6 @@ World::World(Engine& engine,
     , m_audioEngine{std::make_unique<AudioEngine>(
         *this, engine.getAssetDataPath(), engine.getPresenter().getSoundEngine())}
     , m_title{std::move(title)}
-    , m_totalSecrets{totalSecrets}
     , m_itemTitles{std::move(itemTitles)}
     , m_textureAnimator{std::make_unique<render::TextureAnimator>(level->m_animatedTextures)}
     , m_player{std::move(player)}
@@ -1577,6 +1576,18 @@ void World::initFromLevel(loader::file::level::Level& level)
   }
   m_audioEngine->getSoundEngine().setListenerGain(1.0f);
   updateStaticSoundEffects();
+
+  BOOST_LOG_TRIVIAL(info) << "Counting secrets...";
+  std::bitset<16> secretsMask;
+  for(const auto& room : m_rooms)
+  {
+    for(const auto& sector : room.sectors)
+    {
+      secretsMask |= floordata::getSecretsMask(sector.floorData);
+    }
+  }
+  m_totalSecrets = secretsMask.count();
+  BOOST_LOG_TRIVIAL(info) << "Found " << m_totalSecrets << " secrets";
 }
 
 void World::connectSectors()

@@ -448,6 +448,8 @@ set( CROFTENGINE_SRCS
         engine/floordata/floordata.h
         engine/floordata/floordata.cpp
         engine/floordata/types.h
+        engine/floordata/secrets.h
+        engine/floordata/secrets.cpp
 
         engine/ghosting/ghost.h
         engine/ghosting/ghost.cpp

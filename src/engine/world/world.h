@@ -103,7 +103,6 @@ public:
   explicit World(Engine& engine,
                  std::unique_ptr<loader::file::level::Level>&& level,
                  std::string title,
-                 size_t totalSecrets,
                  const std::optional<TR1TrackId>& track,
                  bool useAlternativeLara,
                  std::unordered_map<std::string, std::unordered_map<TR1ItemId, std::string>> itemTitles,

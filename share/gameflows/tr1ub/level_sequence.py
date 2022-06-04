@@ -30,7 +30,6 @@ lara_home = [
             "en_GB": "Lara's home",
             "de_DE": "Laras Haus",
         },
-        secrets=0,
         use_alternative_lara=True,
         allow_save=False,
         default_weapon=WeaponType.None_,
@@ -48,7 +47,6 @@ level_sequence = [
             "de_DE": "R~uckkehr nach ~Agypten",
         },
         track=TR1TrackId.Ambience0,
-        secrets=3,
         item_titles={
             "en_GB": {
                 TR1ItemId.Key1: "Gold Key",
@@ -65,7 +63,6 @@ level_sequence = [
             "de_DE": "Tempel der Katze",
         },
         track=TR1TrackId.Ambience0,
-        secrets=4,
         item_titles={
             "en_GB": {
                 TR1ItemId.Key1: "Ornate Key",
@@ -82,7 +79,6 @@ level_sequence = [
             "de_DE": "Atlantische Festung",
         },
         track=TR1TrackId.Ambience2,
-        secrets=2,
     ),
     Level(
         name="DATA/END2.PHD",
@@ -91,7 +87,6 @@ level_sequence = [
             "de_DE": "Der Bienenstock",
         },
         track=TR1TrackId.Ambience2,
-        secrets=1,
     ),
     *(
         SplashScreen(

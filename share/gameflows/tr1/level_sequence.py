@@ -31,7 +31,6 @@ lara_home = [
             "en_GB": "Lara's home",
             "de_DE": "Laras Haus",
         },
-        secrets=0,
         use_alternative_lara=True,
         allow_save=False,
         default_weapon=WeaponType.None_,
@@ -50,7 +49,6 @@ level_sequence = [
             "de_DE": "Die Kavernen",
         },
         track=TR1TrackId.Ambience1,
-        secrets=3,
     ),
     Level(
         name="DATA/LEVEL2.PHD",
@@ -59,7 +57,6 @@ level_sequence = [
             "de_DE": "Die Stadt Vilcabamba",
         },
         track=TR1TrackId.Ambience1,
-        secrets=3,
         item_titles={
             "en_GB": {
                 TR1ItemId.Puzzle1: "Gold Idol",
@@ -78,7 +75,6 @@ level_sequence = [
             "de_DE": "Das Verlorene Tal",
         },
         track=TR1TrackId.Ambience1,
-        secrets=5,
         item_titles={
             "en_GB": {
                 TR1ItemId.Puzzle1: "Machine Cog",
@@ -95,7 +91,6 @@ level_sequence = [
             "de_DE": "Das Grab von Qualopec",
         },
         track=TR1TrackId.Ambience1,
-        secrets=3,
         item_titles={
             "en_GB": {
                 TR1ItemId.ScionPiece5: "Scion",
@@ -120,7 +115,6 @@ level_sequence = [
             "de_DE": "St. Francis' Folly",
         },
         track=TR1TrackId.Ambience3,
-        secrets=4,
         item_titles={
             "en_GB": {
                 TR1ItemId.Key1: "Neptune Key",
@@ -145,7 +139,6 @@ level_sequence = [
             "de_DE": "Das Kolosseum",
         },
         track=TR1TrackId.Ambience3,
-        secrets=3,
         item_titles={
             "en_GB": {
                 TR1ItemId.Key1: "Rusty Key",
@@ -164,7 +157,6 @@ level_sequence = [
             "de_DE": "Der Palast des Midas",
         },
         track=TR1TrackId.Ambience3,
-        secrets=3,
         item_titles={
             "en_GB": {
                 TR1ItemId.Puzzle1: "Gold Bar",
@@ -183,7 +175,6 @@ level_sequence = [
             "de_DE": "Die Zisterne",
         },
         track=TR1TrackId.Ambience2,
-        secrets=3,
         item_titles={
             "en_GB": {
                 TR1ItemId.Key1: "Gold Key",
@@ -206,7 +197,6 @@ level_sequence = [
             "de_DE": "Das Grab des Tihocan",
         },
         track=TR1TrackId.Ambience2,
-        secrets=2,
         item_titles={
             "en_GB": {
                 TR1ItemId.Key1: "Gold Key",
@@ -238,7 +228,6 @@ level_sequence = [
             "de_DE": "Die Stadt Khamoon",
         },
         track=TR1TrackId.Ambience3,
-        secrets=3,
         item_titles={
             "en_GB": {
                 TR1ItemId.Key1: "Saphire Key",
@@ -257,7 +246,6 @@ level_sequence = [
             "de_DE": "Der Obelisk von Khamoon",
         },
         track=TR1TrackId.Ambience3,
-        secrets=3,
         item_titles={
             "en_GB": {
                 TR1ItemId.Puzzle1: "Eye of Horus",
@@ -284,7 +272,6 @@ level_sequence = [
             "de_DE": "Das Heiligtum des Scion",
         },
         track=TR1TrackId.Ambience3,
-        secrets=1,
         item_titles={
             "en_GB": {
                 TR1ItemId.Puzzle1: "Ankh",
@@ -321,7 +308,6 @@ level_sequence = [
             "de_DE": "Natlas Katakomben",
         },
         track=TR1TrackId.Ambience2,
-        secrets=3,
         item_titles={
             "en_GB": {
                 TR1ItemId.Puzzle1: "Fuse",
@@ -355,7 +341,6 @@ level_sequence = [
             "de_DE": "Atlantis",
         },
         track=TR1TrackId.Ambience4,
-        secrets=3,
         item_titles={
             "en_GB": {
                 TR1ItemId.ScionPiece5: "Scion",
@@ -379,7 +364,6 @@ level_sequence = [
             "de_DE": "Die Gro=e Pyramide",
         },
         track=TR1TrackId.Ambience4,
-        secrets=3,
         item_titles={
             "en_GB": {
                 TR1ItemId.ScionPiece5: "Scion",

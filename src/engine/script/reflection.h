@@ -92,7 +92,6 @@ class Level : public LevelSequenceItem
 {
 private:
   const std::string m_name;
-  const size_t m_secrets;
   const bool m_useAlternativeLara;
   const std::unordered_map<std::string, std::string> m_titles;
   const std::unordered_map<std::string, std::unordered_map<TR1ItemId, std::string>> m_itemTitles;
@@ -106,7 +105,6 @@ protected:
 
 public:
   explicit Level(std::string name,
-                 size_t secrets,
                  bool useAlternativeLara,
                  std::unordered_map<std::string, std::string> titles,
                  std::unordered_map<std::string, std::unordered_map<TR1ItemId, std::string>> itemTitles,
@@ -114,7 +112,6 @@ public:
                  bool allowSave,
                  WeaponType defaultWeapon)
       : m_name{std::move(name)}
-      , m_secrets{secrets}
       , m_useAlternativeLara{useAlternativeLara}
       , m_titles{std::move(titles)}
       , m_itemTitles{std::move(itemTitles)}

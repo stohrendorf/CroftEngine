@@ -114,7 +114,6 @@ std::pair<RunResult, std::optional<size_t>>
     = std::make_unique<world::World>(engine,
                                      loadLevel(engine, m_name, m_name),
                                      std::string{},
-                                     0,
                                      m_track,
                                      false,
                                      std::unordered_map<std::string, std::unordered_map<TR1ItemId, std::string>>{},
@@ -184,7 +183,6 @@ std::unique_ptr<world::World> Level::loadWorld(Engine& engine,
   auto world = std::make_unique<world::World>(engine,
                                               loadLevel(engine, m_name, util::unescape(title)),
                                               title,
-                                              m_secrets,
                                               m_track,
                                               m_useAlternativeLara,
                                               m_itemTitles,
@@ -255,7 +253,7 @@ TitleMenu::TitleMenu(const std::string& name,
                      const std::unordered_map<std::string, std::string>& titles,
                      const std::unordered_map<std::string, std::unordered_map<TR1ItemId, std::string>>& itemTitles,
                      std::optional<TR1TrackId> track)
-    : Level{name, 0, useAlternativeLara, titles, itemTitles, track, false, WeaponType::None}
+    : Level{name, useAlternativeLara, titles, itemTitles, track, false, WeaponType::None}
 {
 }
 

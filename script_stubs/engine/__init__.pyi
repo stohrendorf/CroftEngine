@@ -58,7 +58,6 @@ class Level(LevelSequenceItem):
     def __init__(
             self, *,
             name: str,
-            secrets: int,
             titles: Dict[str, str],
             track: Optional[TR1TrackId] = None,
             item_titles: Dict[str, Dict[TR1ItemId, str]] = {},

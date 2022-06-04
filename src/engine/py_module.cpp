@@ -90,7 +90,6 @@ PYBIND11_EMBEDDED_MODULE(engine, m)
   py::class_<engine::script::Level, engine::script::LevelSequenceItem, std::shared_ptr<engine::script::Level>>(
     m, "Level", py::is_final{})
     .def(py::init<std::string,
-                  size_t,
                   bool,
                   std::unordered_map<std::string, std::string>,
                   std::unordered_map<std::string, std::unordered_map<engine::TR1ItemId, std::string>>,
@@ -99,7 +98,6 @@ PYBIND11_EMBEDDED_MODULE(engine, m)
                   engine::WeaponType>(),
          py::kw_only{},
          py::arg("name"),
-         py::arg("secrets"),
          py::arg("use_alternative_lara") = false,
          py::arg("titles"),
          py::arg("item_titles") = py::dict{},
