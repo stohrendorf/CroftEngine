@@ -183,7 +183,10 @@ void AudioStreamDecoder::seek(const std::chrono::milliseconds& position)
 {
   std::unique_lock lock{mutex};
   const auto ts = fromDuration(position, stream->stream->time_base);
-  Expects(av_seek_frame(fmtContext, stream->index, ts, 0) >= 0);
+  if(av_seek_frame(fmtContext, stream->index, ts, 0) < 0)
+  {
+    BOOST_LOG_TRIVIAL(warning) << "failed to seek audio stream to " << position.count() << "ms";
+  }
   queue = {};
 }
 
