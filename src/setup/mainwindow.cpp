@@ -98,13 +98,14 @@ MainWindow::MainWindow(QWidget* parent)
     if(canWriteLocalDir)
     {
       QMessageBox askDataLocation;
-      askDataLocation.setWindowTitle("Initial Setup");
-      askDataLocation.setText("Data Folder Not Found");
+      askDataLocation.setWindowTitle(tr("Initial Setup"));
+      askDataLocation.setText(tr("Data Folder Not Found"));
       askDataLocation.setInformativeText(
-        "It seems you're running CroftEngine for the first time. Please select where you want to store your game "
-        "data.");
-      const auto usePortableBtn = askDataLocation.addButton("Portable", QMessageBox::ButtonRole::AcceptRole);
-      const auto useHomeDirBtn = askDataLocation.addButton("In my Home Directory", QMessageBox::ButtonRole::AcceptRole);
+        tr("It seems you're running CroftEngine for the first time. Please select where you want to store your game "
+           "data."));
+      const auto usePortableBtn = askDataLocation.addButton(tr("Portable"), QMessageBox::ButtonRole::AcceptRole);
+      const auto useHomeDirBtn
+        = askDataLocation.addButton(tr("In my Home Directory"), QMessageBox::ButtonRole::AcceptRole);
       askDataLocation.addButton("Abort", QMessageBox::ButtonRole::RejectRole);
       askDataLocation.setIcon(QMessageBox::Icon::Question);
       askDataLocation.exec();
@@ -124,7 +125,8 @@ MainWindow::MainWindow(QWidget* parent)
     else
     {
       std::filesystem::create_directories(getExpectedSysUserDataDir() / "data");
-      QMessageBox::information(this, "Data Folder Created", "A game data folder was created in your home directory.");
+      QMessageBox::information(
+        this, tr("Data Folder Created"), tr("A game data folder was created in your home directory."));
     }
   }
 
@@ -155,7 +157,7 @@ void MainWindow::onImportClicked()
   if(!importGameData())
     return;
 
-  QMessageBox::information(this, "Data Imported", "Game Data has been imported.");
+  QMessageBox::information(this, tr("Data Imported"), tr("Game Data has been imported."));
 
   if(std::filesystem::is_regular_file(findUserDataDir().value() / "data" / "tr1" / "AUDIO" / "002.ogg")
      || std::filesystem::is_regular_file(findUserDataDir().value() / "data" / "tr1" / "Music" / "Track02.flac"))
@@ -280,12 +282,12 @@ bool MainWindow::importGameData()
   if(gameDatPath.has_value())
   {
     QMessageBox askUseFoundImage;
-    askUseFoundImage.setWindowTitle("Image Found");
-    askUseFoundImage.setText("Import from found image?");
+    askUseFoundImage.setWindowTitle(tr("Image Found"));
+    askUseFoundImage.setText(tr("Import from found image?"));
     askUseFoundImage.setInformativeText(
-      QString("A game data image has been found at %1. Do you want to use this image or continue manually?")
+      tr("A game data image has been found at %1. Do you want to use this image or continue manually?")
         .arg(gameDatPath->string().c_str()));
-    const auto useFoundImageButton = askUseFoundImage.addButton("Use Image", QMessageBox::AcceptRole);
+    const auto useFoundImageButton = askUseFoundImage.addButton(tr("Use Image"), QMessageBox::AcceptRole);
     askUseFoundImage.addButton("Continue Manually", QMessageBox::RejectRole);
     askUseFoundImage.setIcon(QMessageBox::Question);
 
@@ -300,13 +302,13 @@ bool MainWindow::importGameData()
   if(tombAtiExePath.has_value())
   {
     QMessageBox askUseFoundExe;
-    askUseFoundExe.setWindowTitle("TombATI Found");
-    askUseFoundExe.setText("Import from found TombATI installation?");
+    askUseFoundExe.setWindowTitle(tr("TombATI Found"));
+    askUseFoundExe.setText(tr("Import from found TombATI installation?"));
     askUseFoundExe.setInformativeText(
-      QString("A TombATI installation has been found at %1. Do you want to use this installation or continue manually?")
+      tr("A TombATI installation has been found at %1. Do you want to use this installation or continue manually?")
         .arg(tombAtiExePath->parent_path().string().c_str()));
-    const auto useFoundExeButton = askUseFoundExe.addButton("Use TombATI installation", QMessageBox::AcceptRole);
-    askUseFoundExe.addButton("Continue Manually", QMessageBox::RejectRole);
+    const auto useFoundExeButton = askUseFoundExe.addButton(tr("Use TombATI installation"), QMessageBox::AcceptRole);
+    askUseFoundExe.addButton(tr("Continue Manually"), QMessageBox::RejectRole);
     askUseFoundExe.setIcon(QMessageBox::Question);
 
     askUseFoundExe.exec();
@@ -323,7 +325,7 @@ bool MainWindow::importGameData()
   }
 
   const auto imageOrTombExe = QFileDialog::getOpenFileName(
-    this, "Select Tomb Raider 1 Data", QString{}, "Game Data Files (tomb.exe tombati.exe GAME.DAT)");
+    this, tr("Select Tomb Raider 1 Data"), QString{}, tr("Game Data Files (tomb.exe tombati.exe GAME.DAT)"));
   if(imageOrTombExe.isEmpty())
     return false;
 
@@ -367,7 +369,7 @@ void MainWindow::copyDir(const QString& srcPath,
       qInfo() << QString("Delete %1").arg(dstFilename);
       if(!QFile::remove(dstFilename))
       {
-        QMessageBox::critical(this, "Copy Failed", QString("Failed to delete %1").arg(dstFilename));
+        QMessageBox::critical(this, tr("Copy Failed"), tr("Failed to delete %1").arg(dstFilename));
         return;
       }
     }
@@ -375,7 +377,7 @@ void MainWindow::copyDir(const QString& srcPath,
     qInfo() << QString("Copy %1 to %2").arg(srcFilename, dstFilename);
     if(!QFile::copy(srcFilename, dstFilename))
     {
-      QMessageBox::critical(this, "Copy Failed", QString("Failed to copy %1 to %2").arg(srcFilename, dstFilename));
+      QMessageBox::critical(this, tr("Copy Failed"), tr("Failed to copy %1 to %2").arg(srcFilename, dstFilename));
       return;
     }
   }
@@ -385,20 +387,20 @@ void MainWindow::onMigrateClicked()
 {
   const auto fileName
     = QFileDialog::getOpenFileName(this,
-                                   "Select Other CroftEngine/EdisonEngine Installation",
+                                   tr("Select Other CroftEngine/EdisonEngine Installation"),
                                    QString{},
-                                   "CroftEngine/EdisonEngine files (croftengine.exe edisonengine.exe config.yaml)");
+                                   tr("CroftEngine/EdisonEngine files (croftengine.exe edisonengine.exe config.yaml)"));
   if(fileName.isEmpty())
     return;
 
   QMessageBox askDataOverwrite;
-  askDataOverwrite.setWindowTitle("Data Migration");
-  askDataOverwrite.setText("Overwrite Existing Data?");
+  askDataOverwrite.setWindowTitle(tr("Data Migration"));
+  askDataOverwrite.setText(tr("Overwrite Existing Data?"));
   askDataOverwrite.setInformativeText(
-    "Decide to keep already existing ghosts, savegames, etc. in this installation. If you decide to overwrite already "
-    "existing files, the data will be lost.");
-  const auto overwriteBtn = askDataOverwrite.addButton("Overwrite", QMessageBox::ButtonRole::YesRole);
-  const auto keepBtn = askDataOverwrite.addButton("Don't overwrite", QMessageBox::ButtonRole::NoRole);
+    tr("Decide to keep already existing ghosts, savegames, etc. in this installation. If you decide to overwrite "
+       "already existing files, the data will be lost."));
+  const auto overwriteBtn = askDataOverwrite.addButton(tr("Overwrite"), QMessageBox::ButtonRole::YesRole);
+  const auto keepBtn = askDataOverwrite.addButton(tr("Don't overwrite"), QMessageBox::ButtonRole::NoRole);
   /*const auto abortBtn = */ askDataOverwrite.addButton("Abort", QMessageBox::ButtonRole::RejectRole);
   askDataOverwrite.setDefaultButton(QMessageBox::StandardButton::No);
   askDataOverwrite.setIcon(QMessageBox::Icon::Question);
@@ -431,12 +433,12 @@ void MainWindow::onMigrateClicked()
        !QFile::copy(oldConfig, newConfig.string().c_str()))
     {
       QMessageBox::critical(
-        this, "Copy Failed", QString("Failed to copy %1 to %2").arg(oldConfig, newConfig.string().c_str()));
+        this, tr("Copy Failed"), tr("Failed to copy %1 to %2").arg(oldConfig, newConfig.string().c_str()));
       return;
     }
   }
 
-  QMessageBox::information(this, "Data Migrated", "Your old data has been migrated.");
+  QMessageBox::information(this, tr("Data Migrated"), tr("Your old data has been migrated."));
 }
 
 void MainWindow::extractSoundtrackZip(std::filesystem::path target)
@@ -448,8 +450,8 @@ void MainWindow::extractSoundtrackZip(std::filesystem::path target)
   {
     QMessageBox::critical(
       this,
-      "Extraction Error",
-      QString("Could not open %1 as an archive: %2").arg(target.string().c_str(), archive_error_string(a)));
+      tr("Extraction Error"),
+      tr("Could not open %1 as an archive: %2").arg(target.string().c_str(), archive_error_string(a)));
     return;
   }
 
@@ -473,8 +475,8 @@ void MainWindow::extractSoundtrackZip(std::filesystem::path target)
     {
       QMessageBox::critical(
         this,
-        "Extraction Error",
-        QString("Could not extract from archive %1: %2").arg(target.string().c_str(), archive_error_string(a)));
+        tr("Extraction Error"),
+        tr("Could not extract from archive %1: %2").arg(target.string().c_str(), archive_error_string(a)));
       return;
     }
     const auto dstName = dataRoot / archive_entry_pathname(entry);
@@ -493,7 +495,7 @@ void MainWindow::extractSoundtrackZip(std::filesystem::path target)
   archive_read_close(a);
   archive_read_free(a);
 
-  QMessageBox::information(this, "Soundtrack Downloaded", "The Soundtrack has been downloaded successfully.");
+  QMessageBox::information(this, tr("Soundtrack Downloaded"), tr("The Soundtrack has been downloaded successfully."));
 }
 
 void MainWindow::resetConfig()
@@ -508,30 +510,30 @@ void MainWindow::onSelectGlidosClicked()
   if(!userDataPath.has_value() || !std::filesystem::is_regular_file(*userDataPath / "config.yaml"))
   {
     QMessageBox::warning(
-      this, "Not Configured", "To be able to configure a texture pack, you need to start the engine once.");
+      this, tr("Not Configured"), tr("To be able to configure a texture pack, you need to start the engine once."));
     return;
   }
 
   {
     QMessageBox askPackType;
-    askPackType.setWindowTitle("Texture Pack Type");
-    askPackType.setText("Please select Texture Pack Type");
+    askPackType.setWindowTitle(tr("Texture Pack Type"));
+    askPackType.setText(tr("Please select Texture Pack Type"));
     askPackType.setInformativeText(
-      "Please select what type of texture pack you want to activate. If your texture pack contains a equiv.txt file, "
-      "use the first option. If your texture pack contains a series of folders which are made of 32 numbers and "
-      "letters, use the second one.");
+      tr("Please select what type of texture pack you want to activate. If your texture pack contains a equiv.txt "
+         "file, use the first option. If your texture pack contains a series of folders which are made of 32 numbers "
+         "and letters, use the second one."));
     const auto useEquiv = askPackType.addButton("equiv.txt", QMessageBox::ButtonRole::AcceptRole);
-    /*const auto useFolders = */ askPackType.addButton("Folders", QMessageBox::ButtonRole::AcceptRole);
+    /*const auto useFolders = */ askPackType.addButton(tr("Folders"), QMessageBox::ButtonRole::AcceptRole);
     askPackType.setIcon(QMessageBox::Icon::Question);
     askPackType.exec();
     if(askPackType.clickedButton() == useEquiv)
     {
       QMessageBox::information(
         this,
-        "Texture Pack Main File",
-        "In the following dialog, select a file from the top-most directory of the texture pack.");
+        tr("Texture Pack Main File"),
+        tr("In the following dialog, select a file from the top-most directory of the texture pack."));
       const auto texturePack = QFileDialog::getOpenFileName(
-        this, "Select Glidos Texture Pack Main File", QString{}, "Texture Pack Main File (equiv.txt)");
+        this, tr("Select Glidos Texture Pack Main File"), QString{}, tr("Texture Pack Main File (equiv.txt)"));
       if(texturePack.isEmpty())
         return;
 
@@ -540,7 +542,7 @@ void MainWindow::onSelectGlidosClicked()
     }
     else
     {
-      const auto texturePack = QFileDialog::getExistingDirectory(this, "Select Glidos Texture Pack Main File");
+      const auto texturePack = QFileDialog::getExistingDirectory(this, tr("Select Glidos Texture Pack Main File"));
       if(texturePack.isEmpty())
         return;
 
@@ -575,7 +577,8 @@ void MainWindow::setGlidosPath(const std::optional<std::string>& path)
   auto root = tree.rootref();
   if(!root["config"].is_map() || !root["config"]["renderSettings"].is_map())
   {
-    QMessageBox::critical(this, "Invalid Config", "Your configuration file is invalid. Reset your configuration.");
+    QMessageBox::critical(
+      this, tr("Invalid Config"), tr("Your configuration file is invalid. Reset your configuration."));
     return;
   }
 

@@ -4,6 +4,6 @@ set( CMAKE_AUTOUIC ON )
 
 find_package(
         Qt5
-        COMPONENTS Core Gui Widgets Network
+        COMPONENTS Core Gui Widgets Network LinguistTools
         REQUIRED
 )

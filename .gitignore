@@ -62,3 +62,5 @@ __pycache__
 # mesa dumps
 /shader_*.frag
 /shader_*.vert
+
+*.qm

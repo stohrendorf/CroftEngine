@@ -173,7 +173,8 @@ necessary, e.g. `vcpkg install boost:x64-windows`):
 
 Additionally, an installation of [Qt 5](https://www.qt.io) is necessary; as manually downloading and installing this
 package is usually faster than letting it build through vcpkg, it is not included in the above list. If you don't want
-to register for a Qt online account, you have to build it yourself, though, by installing the `qt5` vcpkg package.
+to register for a Qt online account, you have to build it yourself, though, by installing the `qt5` and
+`qt5-translations` vcpkg packages.
 
 ## Generating Glad OpenGL bindings
 

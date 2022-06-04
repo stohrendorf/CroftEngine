@@ -76,6 +76,6 @@ void DownloadProgress::errorOccurred(QNetworkReply::NetworkError /*error*/)
 {
   gsl_Assert(m_reply != nullptr);
   QMessageBox::critical(
-    this, "Download Failed", QString("The download failed with an error: %1").arg(m_reply->errorString()));
+    this, tr("Download Failed"), tr("The download failed with an error: %1").arg(m_reply->errorString()));
 }
 } // namespace setup
