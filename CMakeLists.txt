@@ -54,6 +54,22 @@ if( UNIX )
     )
 endif()
 
+file( STRINGS src/languages.txt _languages )
+foreach( _language IN LISTS _languages )
+    if( NOT _language MATCHES ".+ .+" )
+        continue()
+    endif()
+
+    string( REGEX REPLACE " .+\$" "" _lang_id "${_language}" )
+    if( _lang_id STREQUAL "en_GB" )
+        continue()
+    endif()
+    install(
+            FILES share/i18n/croftengine_${_lang_id}.qm
+            DESTINATION ${CMAKE_INSTALL_DATADIR}/croftengine/i18n
+    )
+endforeach()
+
 if( WIN32 )
     add_custom_target(
             prepare-release
@@ -83,7 +99,6 @@ if( WIN32 )
             "Delete \\\"$SMPROGRAMS\\\\$START_MENU\\\\CroftEngine Configuration.lnk\\\""
             )
 
-    file( STRINGS src/languages.txt _languages )
     foreach( _language IN LISTS _languages )
         if( NOT _language MATCHES ".+ .+" )
             continue()
