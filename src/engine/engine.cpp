@@ -544,6 +544,8 @@ std::pair<RunResult, std::optional<size_t>> Engine::runTitleMenu(world::World& w
       return {RunResult::NextLevel, std::nullopt};
     case menu::MenuResult::LaraHome:
       return {RunResult::LaraHomeLevel, std::nullopt};
+    case menu::MenuResult::RestartLevel:
+      return {RunResult::RestartLevel, std::nullopt};
     case menu::MenuResult::RequestLoad:
       if(getSavegameMeta(menu->requestLoad).has_value())
       {
