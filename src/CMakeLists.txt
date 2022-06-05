@@ -120,6 +120,7 @@ target_link_libraries(
         serialization
         PUBLIC
         Boost::headers
+        Boost::log
         ryml
         gsl-lite::gsl-lite
 )
