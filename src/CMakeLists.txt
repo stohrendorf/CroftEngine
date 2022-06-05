@@ -94,6 +94,36 @@ wrap_enum(
         DEST_IMPL ${CMAKE_CURRENT_SOURCE_DIR}/engine/ghosting/ghostfinishstate.cpp
 )
 
+add_library(
+        serialization
+        STATIC
+        serialization/array.h
+        serialization/bitset.h
+        serialization/deque.h
+        serialization/glm.h
+        serialization/map.h
+        serialization/not_null.h
+        serialization/objectreference.h
+        serialization/optional.h
+        serialization/ptr.h
+        serialization/quantity.h
+        serialization/serialization.h
+        serialization/serialization.cpp
+        serialization/serialization_fwd.h
+        serialization/skeletalmodeltype_ptr.h
+        serialization/unordered_map.h
+        serialization/unordered_set.h
+        serialization/vector.h
+)
+target_include_directories( serialization PUBLIC . )
+target_link_libraries(
+        serialization
+        PUBLIC
+        Boost::headers
+        ryml
+        gsl-lite::gsl-lite
+)
+
 set( CROFTENGINE_SRCS
         croftengine.cpp
         gslfailhandler.cpp
@@ -570,24 +600,6 @@ set( CROFTENGINE_SRCS
         qs/string_util.h
         qs/tuple_util.h
 
-        serialization/array.h
-        serialization/bitset.h
-        serialization/deque.h
-        serialization/glm.h
-        serialization/map.h
-        serialization/not_null.h
-        serialization/objectreference.h
-        serialization/optional.h
-        serialization/ptr.h
-        serialization/quantity.h
-        serialization/serialization.h
-        serialization/serialization.cpp
-        serialization/serialization_fwd.h
-        serialization/skeletalmodeltype_ptr.h
-        serialization/unordered_map.h
-        serialization/unordered_set.h
-        serialization/vector.h
-
         menu/menudisplay.cpp
         menu/menuobject.cpp
         menu/audiosettingsmenustate.cpp
@@ -708,6 +720,7 @@ target_link_libraries(
         LibArchive::LibArchive
         shared
         setup_screen
+        serialization
 )
 
 install(
