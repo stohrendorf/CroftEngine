@@ -124,6 +124,19 @@ target_link_libraries(
         gsl-lite::gsl-lite
 )
 
+add_library(
+        gameflow
+        STATIC
+        gameflow/meta.h
+        gameflow/meta.cpp
+)
+target_include_directories( gameflow PUBLIC . )
+target_link_libraries(
+        gameflow
+        PUBLIC
+        serialization
+)
+
 set( CROFTENGINE_SRCS
         croftengine.cpp
         gslfailhandler.cpp
@@ -689,7 +702,7 @@ add_subdirectory( shared )
 add_subdirectory( soglb )
 add_subdirectory( qs )
 add_subdirectory( core )
-add_subdirectory( setup )
+add_subdirectory( launcher )
 add_subdirectory( dosbox-cdrom )
 
 target_link_libraries(
@@ -702,7 +715,6 @@ target_link_libraries(
         Boost::disable_autolinking
         Boost::headers
         Boost::stacktrace
-        Boost::program_options
         OpenAL::OpenAL
         ryml
         PNG::PNG
@@ -719,7 +731,7 @@ target_link_libraries(
         ${Intl_LIBRARIES}
         LibArchive::LibArchive
         shared
-        setup_screen
+        launcher
         serialization
 )
 

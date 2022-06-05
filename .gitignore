@@ -41,6 +41,7 @@ src/hid/glfw_axes.*
 src/hid/glfw_axis_dirs.*
 src/hid/actions.*
 src/engine/ghosting/ghostfinishstate.*
+src/launcher/languages.h
 
 share/**/*.mo
 

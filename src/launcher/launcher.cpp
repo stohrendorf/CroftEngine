@@ -1,4 +1,4 @@
-#include "setup.h"
+#include "launcher.h"
 
 #include "mainwindow.h"
 #include "paths.h"
@@ -7,13 +7,17 @@
 #include <QDebug>
 #include <QTranslator>
 
-namespace setup
+namespace launcher
 {
-void showSetupScreen(int argc, char** argv)
+std::optional<std::tuple<std::string, std::string>> showLauncher(int argc, char** argv)
 {
 #ifdef WIN32
   putenv(("QT_PLUGIN_PATH=" + std::filesystem::current_path().string() + "/plugins").c_str());
 #endif
+
+  QCoreApplication::setOrganizationName("stohrendorf");
+  QCoreApplication::setOrganizationDomain("earvillage.net");
+  QCoreApplication::setApplicationName("CroftEngine");
 
   QApplication app{argc, argv};
 
@@ -31,5 +35,6 @@ void showSetupScreen(int argc, char** argv)
   MainWindow w;
   w.show();
   QApplication::exec();
+  return w.getLaunchRequest();
 }
-} // namespace setup
+} // namespace launcher

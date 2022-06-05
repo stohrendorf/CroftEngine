@@ -7,7 +7,7 @@ if( MSVC )
     add_definitions( -DHAVE_SNPRINTF )
 endif()
 
-find_package( Boost COMPONENTS system log log_setup locale program_options REQUIRED )
+find_package( Boost COMPONENTS system log log_setup locale REQUIRED )
 
 add_library(
         Boost::stacktrace INTERFACE IMPORTED

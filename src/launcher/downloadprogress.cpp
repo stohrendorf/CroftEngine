@@ -7,7 +7,7 @@
 #include <QMessageBox>
 #include <utility>
 
-namespace setup
+namespace launcher
 {
 DownloadProgress::DownloadProgress(QUrl url, std::filesystem::path target, QWidget* parent)
     : QWidget(parent)
@@ -78,4 +78,4 @@ void DownloadProgress::errorOccurred(QNetworkReply::NetworkError /*error*/)
   QMessageBox::critical(
     this, tr("Download Failed"), tr("The download failed with an error: %1").arg(m_reply->errorString()));
 }
-} // namespace setup
+} // namespace launcher

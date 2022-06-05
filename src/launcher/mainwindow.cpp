@@ -2,7 +2,11 @@
 #include <ryml.hpp>
 #include <ryml_std.hpp>
 // ---
+#include "gameflow/meta.h"
+#include "languages.h"
 #include "mainwindow.h"
+#include "serialization/serialization.h"
+#include "serialization/yamldocument.h"
 // ---
 
 #include "cdrom.h"
@@ -27,10 +31,14 @@
 #  include <windows.h>
 #endif
 
-namespace setup
+namespace launcher
 {
 namespace
 {
+const char* const LanguageConfigKey = "launcher-language";
+const char* const GameflowConfigKey = "launcher-gameflow";
+const int IdRole = Qt::UserRole + 1;
+
 void extractImage(const std::filesystem::path& cueFile, const std::filesystem::path& targetDir)
 {
   auto img = std::make_unique<cdrom::CdImage>(cueFile);
@@ -82,7 +90,60 @@ MainWindow::MainWindow(QWidget* parent)
 {
   ui->setupUi(this);
 
+  QSettings settings;
+
+  {
+    const auto language = settings.value(LanguageConfigKey, QVariant{QString{"en_GB"}}).toString();
+
+    ui->languages->setModel(&m_languages);
+    m_languages.insertRows(0, gsl::narrow<int>(getSupportedLanguages().size()));
+    int i = 0;
+    for(const auto& [languageId, languageName] : getSupportedLanguages())
+    {
+      auto item = new QStandardItem{QString::fromLatin1(languageName.c_str())};
+      item->setData(QVariant{QString::fromLatin1(languageId.c_str())}, IdRole);
+      m_languages.setItem(i, item);
+
+      if(language == QString::fromLatin1(languageId.c_str()))
+        ui->languages->setCurrentIndex(m_languages.index(i, 0));
+      ++i;
+    }
+  }
+
+  {
+    const auto gameflow = settings.value(GameflowConfigKey, QVariant{QString{"tr1"}}).toString();
+
+    ui->gameflows->setModel(&m_gameflows);
+
+    std::vector<std::tuple<std::string, gameflow::Meta>> metas;
+    const std::filesystem::directory_iterator end{};
+    for(std::filesystem::directory_iterator it{findEngineDataDir().value() / "gameflows"}; it != end; ++it)
+    {
+      if(!std::filesystem::is_regular_file(it->path() / "meta.yml"))
+        continue;
+
+      serialization::YAMLDocument<true> doc{it->path() / "meta.yml"};
+      gameflow::Meta meta{};
+      doc.load("meta", meta, meta);
+      metas.emplace_back(it->path().stem().string(), meta);
+    }
+
+    m_gameflows.insertRows(0, gsl::narrow<int>(metas.size()));
+    int i = 0;
+    for(const auto& [gameflowId, gameflowMeta] : metas)
+    {
+      auto item = new QStandardItem{QString::fromLatin1(gameflowMeta.title.c_str())};
+      item->setData(QVariant{QString::fromLatin1(gameflowId.c_str())}, IdRole);
+      m_gameflows.setItem(i, item);
+
+      if(gameflow == QString::fromLatin1(gameflowId.c_str()))
+        ui->gameflows->setCurrentIndex(m_gameflows.index(i, 0));
+      ++i;
+    }
+  }
+
   connect(ui->closeBtn, &QPushButton::clicked, this, &MainWindow::close);
+  connect(ui->btnLaunch, &QPushButton::clicked, this, &MainWindow::onLaunchClicked);
 
   if(!findUserDataDir().has_value())
   {
@@ -613,4 +674,21 @@ void MainWindow::onDisableGlidosClicked()
 {
   setGlidosPath(std::nullopt);
 }
-} // namespace setup
+
+void MainWindow::onLaunchClicked()
+{
+  QSettings settings;
+  const auto languageId = ui->languages->currentIndex().data(IdRole).toString();
+  qInfo() << "language id" << languageId;
+  settings.setValue(LanguageConfigKey, QVariant{languageId});
+  const auto gameflowId = ui->gameflows->currentIndex().data(IdRole).toString();
+  qInfo() << "gameflow id" << gameflowId;
+  settings.setValue(GameflowConfigKey, QVariant{gameflowId});
+  const auto languageIdData = languageId.toUtf8();
+  const auto gameflowIdData = gameflowId.toUtf8();
+  m_launchRequest = std::tuple<std::string, std::string>{
+    std::string{languageIdData.data(), gsl::narrow<size_t>(languageIdData.size())},
+    std::string{gameflowIdData.data(), gsl::narrow<size_t>(gameflowIdData.size())}};
+  close();
+}
+} // namespace launcher

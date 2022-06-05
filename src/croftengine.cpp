@@ -2,8 +2,8 @@
 #include "engine/player.h"
 #include "engine/script/reflection.h"
 #include "engine/script/scriptengine.h"
+#include "launcher/launcher.h"
 #include "paths.h"
-#include "setup/setup.h"
 #include "stacktrace.h"
 
 #include <boost/exception/diagnostic_information.hpp>
@@ -13,7 +13,6 @@
 #include <boost/log/utility/setup/common_attributes.hpp>
 #include <boost/log/utility/setup/console.hpp>
 #include <boost/log/utility/setup/file.hpp>
-#include <boost/program_options.hpp>
 #include <csignal>
 #include <cstdlib>
 #include <exception>
@@ -66,33 +65,17 @@ int main(int argc, char** argv)
   boost::log::add_console_log(std::cout, boost::log::keywords::format = logFormat)
     ->set_filter(boost::log::trivial::severity >= consoleMinSeverity);
 #endif
-  std::optional<std::string> localeOverride;
-  std::string gameflowRoot;
+  std::string localeOverride;
+  std::string gameflowId;
   {
-    boost::program_options::options_description desc("Allowed options");
-    desc.add_options()("locale,l",
-                       boost::program_options::value<std::string>()->default_value(""),
-                       "set locale override, e.g. de_DE.utf8");
-    desc.add_options()("configure,c", boost::program_options::bool_switch(), "start configuration ui");
-    desc.add_options()("gameflow,g", boost::program_options::value<std::string>()->default_value("tr1"), "gameflow id");
-
-    boost::program_options::variables_map vm;
-    boost::program_options::store(boost::program_options::parse_command_line(argc, argv, desc), vm);
-    boost::program_options::notify(vm);
-
-    if(auto it = vm.find("locale"); it != vm.end() && !it->second.as<std::string>().empty())
+    const auto launcherResult = launcher::showLauncher(argc, argv);
+    if(!launcherResult.has_value())
     {
-      localeOverride = it->second.as<std::string>();
-    }
-
-    if(auto it = vm.find("configure"); (it != vm.end() && it->second.as<bool>()) || !findUserDataDir().has_value()
-                                       || !std::filesystem::is_directory(*findUserDataDir() / "data"))
-    {
-      setup::showSetupScreen(argc, argv);
       return EXIT_SUCCESS;
     }
 
-    gameflowRoot = vm["gameflow"].as<std::string>();
+    localeOverride = std::get<0>(*launcherResult);
+    gameflowId = std::get<1>(*launcherResult);
   }
 
   boost::log::add_file_log(boost::log::keywords::file_name = (findUserDataDir().value() / "croftengine.log").string(),
@@ -103,7 +86,7 @@ int main(int argc, char** argv)
 
   try
   {
-    engine::Engine engine{findUserDataDir().value(), findEngineDataDir().value(), localeOverride, gameflowRoot};
+    engine::Engine engine{findUserDataDir().value(), findEngineDataDir().value(), localeOverride, gameflowId};
     size_t levelSequenceIndex = 0;
     enum class Mode
     {

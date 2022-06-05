@@ -13,7 +13,7 @@ namespace Ui
 class DownloadProgress;
 }
 
-namespace setup
+namespace launcher
 {
 class DownloadProgress : public QWidget
 {

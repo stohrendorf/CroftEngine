@@ -92,24 +92,6 @@ if( WIN32 )
     set( CPACK_MONOLITHIC_INSTALL ON )
     set( CPACK_PACKAGE_EXECUTABLES "croftengine;CroftEngine" )
 
-    set( CPACK_NSIS_EXTRA_INSTALL_COMMANDS
-            "CreateShortCut \\\"$SMPROGRAMS\\\\$STARTMENU_FOLDER\\\\CroftEngine Configuration.lnk\\\" \\\"$INSTDIR\\\\.\\\\croftengine.exe\\\" \\\"--configure\\\""
-            )
-    set( CPACK_NSIS_EXTRA_UNINSTALL_COMMANDS
-            "Delete \\\"$SMPROGRAMS\\\\$START_MENU\\\\CroftEngine Configuration.lnk\\\""
-            )
-
-    foreach( _language IN LISTS _languages )
-        if( NOT _language MATCHES ".+ .+" )
-            continue()
-        endif()
-
-        string( REGEX REPLACE " .+\$" "" _lang_id "${_language}" )
-        string( REGEX REPLACE "^[^ ]+ " "" _lang_name "${_language}" )
-        list( APPEND CPACK_NSIS_EXTRA_INSTALL_COMMANDS "CreateShortCut \\\"$SMPROGRAMS\\\\$STARTMENU_FOLDER\\\\CroftEngine (${_lang_name}).lnk\\\" \\\"$INSTDIR\\\\.\\\\croftengine.exe\\\" \\\"--locale ${_lang_id}.utf8\\\"" )
-        list( APPEND CPACK_NSIS_EXTRA_UNINSTALL_COMMANDS "Delete \\\"$SMPROGRAMS\\\\$START_MENU\\\\CroftEngine (${_lang_name}).lnk\\\"" )
-    endforeach()
-
     string( REPLACE ";" "\n" CPACK_NSIS_EXTRA_INSTALL_COMMANDS "${CPACK_NSIS_EXTRA_INSTALL_COMMANDS}" )
     string( REPLACE ";" "\n" CPACK_NSIS_EXTRA_UNINSTALL_COMMANDS "${CPACK_NSIS_EXTRA_UNINSTALL_COMMANDS}" )
 
