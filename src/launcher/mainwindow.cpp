@@ -142,7 +142,6 @@ MainWindow::MainWindow(QWidget* parent)
     }
   }
 
-  connect(ui->closeBtn, &QPushButton::clicked, this, &MainWindow::close);
   connect(ui->btnLaunch, &QPushButton::clicked, this, &MainWindow::onLaunchClicked);
 
   if(!findUserDataDir().has_value())

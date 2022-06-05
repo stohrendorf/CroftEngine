@@ -22,9 +22,8 @@
         <translation>CroftEngine</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="150"/>
         <source>Close</source>
-        <translation>Schließen</translation>
+        <translation type="vanished">Schließen</translation>
     </message>
     <message>
         <location filename="mainwindow.ui" line="118"/>
@@ -87,7 +86,7 @@
         <translation>Glidos Textur Paket deaktivieren</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="162"/>
+        <location filename="mainwindow.ui" line="155"/>
         <source>E&amp;xit</source>
         <translation>Beenden</translation>
     </message>
@@ -97,265 +96,265 @@
     <message>
         <location filename="downloadprogress.cpp" line="79"/>
         <source>Download Failed</source>
-        <translation type="unfinished">Download fehlgeschlagen</translation>
+        <translation>Download fehlgeschlagen</translation>
     </message>
     <message>
         <location filename="downloadprogress.cpp" line="79"/>
         <source>The download failed with an error: %1</source>
-        <translation type="unfinished">Der Download ist mit einem Fehler abgebrochen: %1</translation>
+        <translation>Der Download ist mit einem Fehler abgebrochen: %1</translation>
     </message>
 </context>
 <context>
     <name>launcher::MainWindow</name>
     <message>
-        <location filename="mainwindow.cpp" line="162"/>
+        <location filename="mainwindow.cpp" line="161"/>
         <source>Initial Setup</source>
-        <translation type="unfinished">Initiales Setup</translation>
+        <translation>Initiales Setup</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="163"/>
+        <location filename="mainwindow.cpp" line="162"/>
         <source>Data Folder Not Found</source>
-        <translation type="unfinished">Datenorder nicht gefunden</translation>
+        <translation>Datenorder nicht gefunden</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="165"/>
+        <location filename="mainwindow.cpp" line="164"/>
         <source>It seems you&apos;re running CroftEngine for the first time. Please select where you want to store your game data.</source>
-        <translation type="unfinished">Es scheint, als würden Sie CroftEngine zum ersten mal ausführen. Bitte wählen Sie, wo die Spieldaten gespeichert werden sollen.</translation>
+        <translation>Es scheint, als würden Sie CroftEngine zum ersten mal ausführen. Bitte wählen Sie, wo die Spieldaten gespeichert werden sollen.</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="167"/>
+        <location filename="mainwindow.cpp" line="166"/>
         <source>Portable</source>
-        <translation type="unfinished">Portabel</translation>
+        <translation>Portabel</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="169"/>
+        <location filename="mainwindow.cpp" line="168"/>
         <source>In my Home Directory</source>
-        <translation type="unfinished">In meinem Heimordner</translation>
+        <translation>In meinem Heimordner</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="190"/>
+        <location filename="mainwindow.cpp" line="189"/>
         <source>Data Folder Created</source>
-        <translation type="unfinished">Datenordner erstellt</translation>
+        <translation>Datenordner erstellt</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="190"/>
+        <location filename="mainwindow.cpp" line="189"/>
         <source>A game data folder was created in your home directory.</source>
-        <translation type="unfinished">Ein Datenordner wurde in Ihrem Heimordner erstellt.</translation>
+        <translation>Ein Datenordner wurde in Ihrem Heimordner erstellt.</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="221"/>
+        <location filename="mainwindow.cpp" line="220"/>
         <source>Data Imported</source>
-        <translation type="unfinished">Daten importiert</translation>
+        <translation>Daten importiert</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="221"/>
+        <location filename="mainwindow.cpp" line="220"/>
         <source>Game Data has been imported.</source>
-        <translation type="unfinished">Spieldaten wurden importiert.</translation>
+        <translation>Spieldaten wurden importiert.</translation>
+    </message>
+    <message>
+        <location filename="mainwindow.cpp" line="345"/>
+        <source>Image Found</source>
+        <translation>Datenträgerabbild gefunden</translation>
     </message>
     <message>
         <location filename="mainwindow.cpp" line="346"/>
-        <source>Image Found</source>
-        <translation type="unfinished">Datenträgerabbild gefunden</translation>
-    </message>
-    <message>
-        <location filename="mainwindow.cpp" line="347"/>
         <source>Import from found image?</source>
-        <translation type="unfinished">Von gefundenem Datenträgerabbild importieren?</translation>
+        <translation>Von gefundenem Datenträgerabbild importieren?</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="349"/>
+        <location filename="mainwindow.cpp" line="348"/>
         <source>A game data image has been found at %1. Do you want to use this image or continue manually?</source>
-        <translation type="unfinished">Ein Datenträgerabbild der Spieldaten wurde bei %1 gefunden. Möchten Sie dieses Abbild verwenden, oder manuell fortfahren?</translation>
+        <translation>Ein Datenträgerabbild der Spieldaten wurde bei %1 gefunden. Möchten Sie dieses Abbild verwenden, oder manuell fortfahren?</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="351"/>
+        <location filename="mainwindow.cpp" line="350"/>
         <source>Use Image</source>
-        <translation type="unfinished">Abbild benutzen</translation>
+        <translation>Abbild benutzen</translation>
+    </message>
+    <message>
+        <location filename="mainwindow.cpp" line="365"/>
+        <source>TombATI Found</source>
+        <translation>TombATI gefunden</translation>
     </message>
     <message>
         <location filename="mainwindow.cpp" line="366"/>
-        <source>TombATI Found</source>
-        <translation type="unfinished">TombATI gefunden</translation>
-    </message>
-    <message>
-        <location filename="mainwindow.cpp" line="367"/>
         <source>Import from found TombATI installation?</source>
-        <translation type="unfinished">Von TombATI Installation importieren?</translation>
+        <translation>Von TombATI Installation importieren?</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="369"/>
+        <location filename="mainwindow.cpp" line="368"/>
         <source>A TombATI installation has been found at %1. Do you want to use this installation or continue manually?</source>
-        <translation type="unfinished">Eine TombATI Installation wurde bei %1 gefunden. Möchten Sie diese Installation verwenden oder manuell fortfahren?</translation>
+        <translation>Eine TombATI Installation wurde bei %1 gefunden. Möchten Sie diese Installation verwenden oder manuell fortfahren?</translation>
+    </message>
+    <message>
+        <location filename="mainwindow.cpp" line="370"/>
+        <source>Use TombATI installation</source>
+        <translation>TombATI Installation benutzen</translation>
     </message>
     <message>
         <location filename="mainwindow.cpp" line="371"/>
-        <source>Use TombATI installation</source>
-        <translation type="unfinished">TombATI Installation benutzen</translation>
-    </message>
-    <message>
-        <location filename="mainwindow.cpp" line="372"/>
         <source>Continue Manually</source>
-        <translation type="unfinished">Manuell fortfahren</translation>
+        <translation>Manuell fortfahren</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="389"/>
+        <location filename="mainwindow.cpp" line="388"/>
         <source>Select Tomb Raider 1 Data</source>
-        <translation type="unfinished">Tomb Raider 1 Daten wählen</translation>
+        <translation>Tomb Raider 1 Daten wählen</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="389"/>
+        <location filename="mainwindow.cpp" line="388"/>
         <source>Game Data Files (tomb.exe tombati.exe GAME.DAT)</source>
-        <translation type="unfinished">Spieldatendateien (tomb.exe tombati.exe GAME.DAT)</translation>
+        <translation>Spieldatendateien (tomb.exe tombati.exe GAME.DAT)</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="433"/>
-        <location filename="mainwindow.cpp" line="441"/>
-        <location filename="mainwindow.cpp" line="497"/>
+        <location filename="mainwindow.cpp" line="432"/>
+        <location filename="mainwindow.cpp" line="440"/>
+        <location filename="mainwindow.cpp" line="496"/>
         <source>Copy Failed</source>
-        <translation type="unfinished">Kopieren fehlgeschlagen</translation>
+        <translation>Kopieren fehlgeschlagen</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="433"/>
+        <location filename="mainwindow.cpp" line="432"/>
         <source>Failed to delete %1</source>
-        <translation type="unfinished">Konnte %1 nicht löschen</translation>
+        <translation>Konnte %1 nicht löschen</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="441"/>
-        <location filename="mainwindow.cpp" line="497"/>
+        <location filename="mainwindow.cpp" line="440"/>
+        <location filename="mainwindow.cpp" line="496"/>
         <source>Failed to copy %1 to %2</source>
-        <translation type="unfinished">Konnte %1 nicht nach %2 kopieren</translation>
+        <translation>Konnte %1 nicht nach %2 kopieren</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="451"/>
+        <location filename="mainwindow.cpp" line="450"/>
         <source>Select Other CroftEngine/EdisonEngine Installation</source>
-        <translation type="unfinished">Andere CroftEngine/EdisonEngine Installation wählen</translation>
+        <translation>Andere CroftEngine/EdisonEngine Installation wählen</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="453"/>
+        <location filename="mainwindow.cpp" line="452"/>
         <source>CroftEngine/EdisonEngine files (croftengine.exe edisonengine.exe config.yaml)</source>
-        <translation type="unfinished">CroftEngine/EdisonEngine Dateien (croftengine.exe edisonengine.exe config.yaml)</translation>
+        <translation>CroftEngine/EdisonEngine Dateien (croftengine.exe edisonengine.exe config.yaml)</translation>
+    </message>
+    <message>
+        <location filename="mainwindow.cpp" line="457"/>
+        <source>Data Migration</source>
+        <translation>Datenmigration</translation>
     </message>
     <message>
         <location filename="mainwindow.cpp" line="458"/>
-        <source>Data Migration</source>
-        <translation type="unfinished">Datenmigration</translation>
-    </message>
-    <message>
-        <location filename="mainwindow.cpp" line="459"/>
         <source>Overwrite Existing Data?</source>
-        <translation type="unfinished">Existierende Daten überschreiben?</translation>
+        <translation>Existierende Daten überschreiben?</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="461"/>
+        <location filename="mainwindow.cpp" line="460"/>
         <source>Decide to keep already existing ghosts, savegames, etc. in this installation. If you decide to overwrite already existing files, the data will be lost.</source>
-        <translation type="unfinished">Entscheiden Sie, ob existierende Geister, Spielstände, etc. beibehalten werden sollen. Wenn Sie sich für ein Überschreiben entscheiden, gehen die Daten verloren.</translation>
+        <translation>Entscheiden Sie, ob existierende Geister, Spielstände, etc. beibehalten werden sollen. Wenn Sie sich für ein Überschreiben entscheiden, gehen die Daten verloren.</translation>
+    </message>
+    <message>
+        <location filename="mainwindow.cpp" line="462"/>
+        <source>Overwrite</source>
+        <translation>Überschreiben</translation>
     </message>
     <message>
         <location filename="mainwindow.cpp" line="463"/>
-        <source>Overwrite</source>
-        <translation type="unfinished">Überschreiben</translation>
-    </message>
-    <message>
-        <location filename="mainwindow.cpp" line="464"/>
         <source>Don&apos;t overwrite</source>
-        <translation type="unfinished">Nicht überschreiben</translation>
+        <translation>Nicht überschreiben</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="502"/>
+        <location filename="mainwindow.cpp" line="501"/>
         <source>Data Migrated</source>
-        <translation type="unfinished">Daten migriert</translation>
+        <translation>Daten migriert</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="502"/>
+        <location filename="mainwindow.cpp" line="501"/>
         <source>Your old data has been migrated.</source>
-        <translation type="unfinished">Ihre alten Daten wurden migriert</translation>
+        <translation>Ihre alten Daten wurden migriert</translation>
+    </message>
+    <message>
+        <location filename="mainwindow.cpp" line="513"/>
+        <location filename="mainwindow.cpp" line="538"/>
+        <source>Extraction Error</source>
+        <translation>Extraktionsfehler</translation>
     </message>
     <message>
         <location filename="mainwindow.cpp" line="514"/>
-        <location filename="mainwindow.cpp" line="539"/>
-        <source>Extraction Error</source>
-        <translation type="unfinished">Extraktionsfehler</translation>
-    </message>
-    <message>
-        <location filename="mainwindow.cpp" line="515"/>
         <source>Could not open %1 as an archive: %2</source>
-        <translation type="unfinished">Konnte %1 nicht als Archiv öffnen: %2</translation>
+        <translation>Konnte %1 nicht als Archiv öffnen: %2</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="540"/>
+        <location filename="mainwindow.cpp" line="539"/>
         <source>Could not extract from archive %1: %2</source>
-        <translation type="unfinished">Konnte nicht von Archiv %1 extrahieren: %2</translation>
+        <translation>Konnte nicht von Archiv %1 extrahieren: %2</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="559"/>
+        <location filename="mainwindow.cpp" line="558"/>
         <source>Soundtrack Downloaded</source>
-        <translation type="unfinished">Soundtrack heruntergeladen</translation>
+        <translation>Soundtrack heruntergeladen</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="559"/>
+        <location filename="mainwindow.cpp" line="558"/>
         <source>The Soundtrack has been downloaded successfully.</source>
-        <translation type="unfinished">Der Soundtrack wurde erfolgreich heruntergeladen.</translation>
+        <translation>Der Soundtrack wurde erfolgreich heruntergeladen.</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="574"/>
+        <location filename="mainwindow.cpp" line="573"/>
         <source>Not Configured</source>
-        <translation type="unfinished">Nicht konfiguriert</translation>
+        <translation>Nicht konfiguriert</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="574"/>
+        <location filename="mainwindow.cpp" line="573"/>
         <source>To be able to configure a texture pack, you need to start the engine once.</source>
-        <translation type="unfinished">Um ein Textur Paket konfigurieren zu können, müssen Sie die Engine einmal starten.</translation>
+        <translation>Um ein Textur Paket konfigurieren zu können, müssen Sie die Engine einmal starten.</translation>
+    </message>
+    <message>
+        <location filename="mainwindow.cpp" line="579"/>
+        <source>Texture Pack Type</source>
+        <translation>Textur Paket Typ</translation>
     </message>
     <message>
         <location filename="mainwindow.cpp" line="580"/>
-        <source>Texture Pack Type</source>
-        <translation type="unfinished">Textur Paket Typ</translation>
-    </message>
-    <message>
-        <location filename="mainwindow.cpp" line="581"/>
         <source>Please select Texture Pack Type</source>
-        <translation type="unfinished">Bitte wählen Sie den Typ des Textur Pakets</translation>
+        <translation>Bitte wählen Sie den Typ des Textur Pakets</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="583"/>
+        <location filename="mainwindow.cpp" line="582"/>
         <source>Please select what type of texture pack you want to activate. If your texture pack contains a equiv.txt file, use the first option. If your texture pack contains a series of folders which are made of 32 numbers and letters, use the second one.</source>
-        <translation type="unfinished">Bitte wählen Sie, welchen Typ von Textur Paket Sie aktivieren möchten. Wenn das Textur Paket eine equiv.txt Datei enthält, wählen Sie die erste Option. Wenn Ihr Textur Paket eine Reihe von Ordnern enthält, bestehend aus 32 Zahlen und Buchstaben, wählen Sie die zweite Option.</translation>
+        <translation>Bitte wählen Sie, welchen Typ von Textur Paket Sie aktivieren möchten. Wenn das Textur Paket eine equiv.txt Datei enthält, wählen Sie die erste Option. Wenn Ihr Textur Paket eine Reihe von Ordnern enthält, bestehend aus 32 Zahlen und Buchstaben, wählen Sie die zweite Option.</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="587"/>
+        <location filename="mainwindow.cpp" line="586"/>
         <source>Folders</source>
-        <translation type="unfinished">Ordner</translation>
+        <translation>Ordner</translation>
+    </message>
+    <message>
+        <location filename="mainwindow.cpp" line="593"/>
+        <source>Texture Pack Main File</source>
+        <translation>Textur Paket Hauptdatei</translation>
     </message>
     <message>
         <location filename="mainwindow.cpp" line="594"/>
-        <source>Texture Pack Main File</source>
-        <translation type="unfinished">Textur Paket Hauptdatei</translation>
-    </message>
-    <message>
-        <location filename="mainwindow.cpp" line="595"/>
         <source>In the following dialog, select a file from the top-most directory of the texture pack.</source>
-        <translation type="unfinished">Wählen Sie im folgenden Dialog eine Datei aus dem obersten Ordner des Textur Pakets.</translation>
+        <translation>Wählen Sie im folgenden Dialog eine Datei aus dem obersten Ordner des Textur Pakets.</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="597"/>
-        <location filename="mainwindow.cpp" line="606"/>
+        <location filename="mainwindow.cpp" line="596"/>
+        <location filename="mainwindow.cpp" line="605"/>
         <source>Select Glidos Texture Pack Main File</source>
-        <translation type="unfinished">Glidos Textur Paket Hauptdatei wählen</translation>
+        <translation>Glidos Textur Paket Hauptdatei wählen</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="597"/>
+        <location filename="mainwindow.cpp" line="596"/>
         <source>Texture Pack Main File (equiv.txt)</source>
-        <translation type="unfinished">Textur Paket Hauptdatei (equiv.txt)</translation>
+        <translation>Textur Paket Hauptdatei (equiv.txt)</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="642"/>
+        <location filename="mainwindow.cpp" line="641"/>
         <source>Invalid Config</source>
-        <translation type="unfinished">Ungültige Konfiguration</translation>
+        <translation>Ungültige Konfiguration</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="642"/>
+        <location filename="mainwindow.cpp" line="641"/>
         <source>Your configuration file is invalid. Reset your configuration.</source>
-        <translation type="unfinished">Ihre Konfigurationsdatei ist ungültig. Setzen Sie Ihre Konfiguration zurück.</translation>
+        <translation>Ihre Konfigurationsdatei ist ungültig. Setzen Sie Ihre Konfiguration zurück.</translation>
     </message>
 </context>
 <context>
