@@ -37,6 +37,7 @@ private slots:
   void extractSoundtrackZip(std::filesystem::path target);
   void resetConfig();
   void onLaunchClicked();
+  void onGameflowSelected(const QModelIndex& index);
 
 private:
   Ui::MainWindow* ui;

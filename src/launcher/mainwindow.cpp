@@ -38,6 +38,8 @@ namespace
 const char* const LanguageConfigKey = "launcher-language";
 const char* const GameflowConfigKey = "launcher-gameflow";
 const int IdRole = Qt::UserRole + 1;
+const int AuthorRole = Qt::UserRole + 2;
+const int UrlsRole = Qt::UserRole + 3;
 
 void extractImage(const std::filesystem::path& cueFile, const std::filesystem::path& targetDir)
 {
@@ -105,12 +107,15 @@ MainWindow::MainWindow(QWidget* parent)
       m_languages.setItem(i, item);
 
       if(language == QString::fromLatin1(languageId.c_str()))
-        ui->languages->setCurrentIndex(m_languages.index(i, 0));
+        ui->languages->setCurrentIndex(i);
       ++i;
     }
+    m_languages.sort(0);
   }
 
   {
+    connect(ui->gameflows, &QListView::clicked, this, &MainWindow::onGameflowSelected);
+
     const auto gameflow = settings.value(GameflowConfigKey, QVariant{QString{"tr1"}}).toString();
 
     ui->gameflows->setModel(&m_gameflows);
@@ -134,11 +139,29 @@ MainWindow::MainWindow(QWidget* parent)
     {
       auto item = new QStandardItem{QString::fromLatin1(gameflowMeta.title.c_str())};
       item->setData(QVariant{QString::fromLatin1(gameflowId.c_str())}, IdRole);
+      item->setData(QVariant{QString::fromLatin1(gameflowMeta.author.c_str())}, AuthorRole);
+
+      QStringList urls;
+      for(const auto& url : gameflowMeta.urls)
+        urls << QString::fromLatin1(url.c_str());
+
+      item->setData(QVariant{urls}, UrlsRole);
       m_gameflows.setItem(i, item);
 
-      if(gameflow == QString::fromLatin1(gameflowId.c_str()))
-        ui->gameflows->setCurrentIndex(m_gameflows.index(i, 0));
       ++i;
+    }
+
+    m_gameflows.sort(0);
+
+    for(i = 0; i < m_gameflows.rowCount(); ++i)
+    {
+      const QModelIndex& index = m_gameflows.index(i, 0);
+      if(gameflow == m_gameflows.data(index, IdRole).toString())
+      {
+        ui->gameflows->setCurrentIndex(index);
+        onGameflowSelected(index);
+        break;
+      }
     }
   }
 
@@ -677,11 +700,9 @@ void MainWindow::onDisableGlidosClicked()
 void MainWindow::onLaunchClicked()
 {
   QSettings settings;
-  const auto languageId = ui->languages->currentIndex().data(IdRole).toString();
-  qInfo() << "language id" << languageId;
+  const auto languageId = m_languages.data(m_languages.index(ui->languages->currentIndex(), 0), IdRole).toString();
   settings.setValue(LanguageConfigKey, QVariant{languageId});
   const auto gameflowId = ui->gameflows->currentIndex().data(IdRole).toString();
-  qInfo() << "gameflow id" << gameflowId;
   settings.setValue(GameflowConfigKey, QVariant{gameflowId});
   const auto languageIdData = languageId.toUtf8();
   const auto gameflowIdData = gameflowId.toUtf8();
@@ -689,5 +710,30 @@ void MainWindow::onLaunchClicked()
     std::string{languageIdData.data(), gsl::narrow<size_t>(languageIdData.size())},
     std::string{gameflowIdData.data(), gsl::narrow<size_t>(gameflowIdData.size())}};
   close();
+}
+
+void MainWindow::onGameflowSelected(const QModelIndex& index)
+{
+  while(!ui->gameflowMeta->isEmpty())
+  {
+    const auto child = ui->gameflowMeta->takeAt(0);
+    delete child->widget();
+    delete child;
+  }
+
+  ui->gameflowMeta->addWidget(new QLabel(tr("By %1").arg(m_gameflows.data(index, AuthorRole).toString())));
+  ui->gameflowMeta->setStretch(0, 0);
+  for(const auto& url : m_gameflows.data(index, UrlsRole).toStringList())
+  {
+    auto lbl = new QLabel();
+    lbl->setText(QString("<a href=\"%1\">%1</a>").arg(url));
+    lbl->setTextInteractionFlags(Qt::LinksAccessibleByMouse | Qt::LinksAccessibleByKeyboard);
+    lbl->setOpenExternalLinks(true);
+
+    ui->gameflowMeta->addWidget(lbl);
+    ui->gameflowMeta->setStretchFactor(lbl, 0);
+  }
+
+  ui->gameflowMeta->addStretch(1);
 }
 } // namespace launcher

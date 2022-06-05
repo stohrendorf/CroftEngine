@@ -29,21 +29,28 @@
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_2">
         <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_2">
+         <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="1,1">
           <item>
            <widget class="QListView" name="gameflows"/>
           </item>
           <item>
-           <widget class="QListView" name="languages"/>
+           <layout class="QVBoxLayout" name="gameflowMeta"/>
           </item>
          </layout>
         </item>
         <item>
-         <widget class="QPushButton" name="btnLaunch">
-          <property name="text">
-           <string>Launch</string>
-          </property>
-         </widget>
+         <layout class="QHBoxLayout" name="horizontalLayout_3">
+          <item>
+           <widget class="QPushButton" name="btnLaunch">
+            <property name="text">
+             <string>Launch</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QComboBox" name="languages"/>
+          </item>
+         </layout>
         </item>
        </layout>
       </widget>
