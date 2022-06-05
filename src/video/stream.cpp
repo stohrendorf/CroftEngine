@@ -34,7 +34,8 @@ Stream::Stream(AVFormatContext* fmtContext, AVMediaType type, bool rplFakeAudioH
   const auto decoder = avcodec_find_decoder(stream->codecpar->codec_id);
   if(decoder == nullptr)
   {
-    BOOST_THROW_EXCEPTION(std::runtime_error("Failed to find codec"));
+    BOOST_THROW_EXCEPTION(
+      std::runtime_error(std::string{"Failed to find codec: "} + avcodec_get_name(stream->codecpar->codec_id)));
   }
 
   context = avcodec_alloc_context3(decoder);
