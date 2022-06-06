@@ -470,9 +470,7 @@ void patchHeightsForBlock(const engine::objects::Object& object, const core::Len
       groundSector->floorHeight = core::InvalidHeight;
   }
 
-  Expects(groundSector->box != nullptr);
-
-  if(groundSector->box->blockable)
+  if(groundSector->box != nullptr && groundSector->box->blockable)
     groundSector->box->blocked = (height < 0_len);
 }
 
