@@ -446,5 +446,18 @@ private:
   void initFromLevel(loader::file::level::Level& level, bool fromSave);
   void connectSectors();
   void updateStaticSoundEffects();
+
+  void initAnimationData(const loader::file::level::Level& level);
+  void initMeshes(const loader::file::level::Level& level);
+  std::vector<gsl::not_null<const Mesh*>> initAnimatedModels(const loader::file::level::Level& level);
+  void initBoxes(const loader::file::level::Level& level);
+  void initStaticMeshes(const loader::file::level::Level& level,
+                        const std::vector<gsl::not_null<const Mesh*>>& meshesDirect);
+  void initRooms(const loader::file::level::Level& level);
+  void initCinematicFrames(const loader::file::level::Level& level);
+  void initCameras(const loader::file::level::Level& level);
+  void countSecrets();
+  void initCameraController();
+  void initStaticSoundEffects(const loader::file::level::Level& level);
 };
 } // namespace engine::world
