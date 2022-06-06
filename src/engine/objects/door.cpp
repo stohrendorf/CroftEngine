@@ -80,11 +80,14 @@ Door::Door(const std::string& name,
 
 void Door::update()
 {
+  static const constexpr auto Closed = 0_as;
+  static const constexpr auto Opened = 1_as;
+
   if(m_state.updateActivationTimeout())
   {
-    if(m_state.current_anim_state == 0_as)
+    if(m_state.current_anim_state == Closed)
     {
-      m_state.goal_anim_state = 1_as;
+      m_state.goal_anim_state = Opened;
     }
     else
     {
@@ -98,9 +101,9 @@ void Door::update()
   }
   else
   {
-    if(m_state.current_anim_state == 1_as)
+    if(m_state.current_anim_state == Opened)
     {
-      m_state.goal_anim_state = 0_as;
+      m_state.goal_anim_state = Closed;
     }
     else
     {

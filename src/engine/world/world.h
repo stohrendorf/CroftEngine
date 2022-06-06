@@ -107,7 +107,8 @@ public:
                  bool useAlternativeLara,
                  std::unordered_map<std::string, std::unordered_map<TR1ItemId, std::string>> itemTitles,
                  std::shared_ptr<Player> player,
-                 std::shared_ptr<Player> levelStartPlayer);
+                 std::shared_ptr<Player> levelStartPlayer,
+                 bool fromSave);
 
   ~World();
 
@@ -442,7 +443,7 @@ private:
   float m_currentDeathStrength = 0;
 
   void initTextureDependentDataFromLevel(const loader::file::level::Level& level);
-  void initFromLevel(loader::file::level::Level& level);
+  void initFromLevel(loader::file::level::Level& level, bool fromSave);
   void connectSectors();
   void updateStaticSoundEffects();
 };

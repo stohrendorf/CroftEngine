@@ -66,6 +66,7 @@ private:
   Info m_alternateInfo;
   Info m_target;
   Info m_alternateTarget;
+  // this is the "blocking" position, where floor data will be modified to add an artificial wall
   core::TRVec m_wingsPosition;
 };
 } // namespace engine::objects

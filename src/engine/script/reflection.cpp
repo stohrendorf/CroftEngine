@@ -118,7 +118,8 @@ std::pair<RunResult, std::optional<size_t>>
                                      false,
                                      std::unordered_map<std::string, std::unordered_map<TR1ItemId, std::string>>{},
                                      player,
-                                     levelStartPlayer);
+                                     levelStartPlayer,
+                                     false);
 
   world->getCameraController().setEyeRotation(0_deg, m_cameraRot);
   auto pos = world->getCameraController().getTRLocation().position;
@@ -161,7 +162,8 @@ std::vector<std::filesystem::path> Cutscene::getFilepathsIfInvalid(const Engine&
 
 std::unique_ptr<world::World> Level::loadWorld(Engine& engine,
                                                const std::shared_ptr<Player>& player,
-                                               const std::shared_ptr<Player>& levelStartPlayer)
+                                               const std::shared_ptr<Player>& levelStartPlayer,
+                                               bool fromSave)
 {
   engine.getPresenter().debounceInput();
 
@@ -187,7 +189,8 @@ std::unique_ptr<world::World> Level::loadWorld(Engine& engine,
                                               m_useAlternativeLara,
                                               m_itemTitles,
                                               player,
-                                              levelStartPlayer);
+                                              levelStartPlayer,
+                                              fromSave);
 
   auto replace = [&world, &player](TR1ItemId meshType, TR1ItemId spriteType, TR1ItemId replacement)
   {
@@ -217,7 +220,7 @@ std::pair<RunResult, std::optional<size_t>>
   if(engine.getEngineConfig()->restoreHealth)
     player->laraHealth = core::LaraHealth;
 
-  auto world = loadWorld(engine, player, levelStartPlayer);
+  auto world = loadWorld(engine, player, levelStartPlayer, false);
   return engine.run(*world, false, m_allowSave);
 }
 
@@ -228,7 +231,7 @@ std::pair<RunResult, std::optional<size_t>> Level::runFromSave(Engine& engine,
 {
   Expects(m_allowSave);
   player->getInventory().clear();
-  auto world = loadWorld(engine, player, levelStartPlayer);
+  auto world = loadWorld(engine, player, levelStartPlayer, true);
   world->load(slot);
   return engine.run(*world, false, m_allowSave);
 }
@@ -244,7 +247,7 @@ std::pair<RunResult, std::optional<size_t>>
   TitleMenu::run(Engine& engine, const std::shared_ptr<Player>& player, const std::shared_ptr<Player>& levelStartPlayer)
 {
   player->getInventory().clear();
-  auto world = loadWorld(engine, player, levelStartPlayer);
+  auto world = loadWorld(engine, player, levelStartPlayer, false);
   return engine.runTitleMenu(*world);
 }
 

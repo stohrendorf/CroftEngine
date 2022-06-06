@@ -1115,7 +1115,8 @@ World::World(Engine& engine,
              bool useAlternativeLara,
              std::unordered_map<std::string, std::unordered_map<TR1ItemId, std::string>> itemTitles,
              std::shared_ptr<Player> player,
-             std::shared_ptr<Player> levelStartPlayer)
+             std::shared_ptr<Player> levelStartPlayer,
+             bool fromSave)
     : m_engine{engine}
     , m_levelFilename{level->getFilename()}
     , m_audioEngine{std::make_unique<AudioEngine>(
@@ -1193,7 +1194,7 @@ World::World(Engine& engine,
 
   getPresenter().drawLoadingScreen(util::unescape(m_title));
 
-  initFromLevel(*level);
+  initFromLevel(*level, fromSave);
 
   if(useAlternativeLara)
   {
@@ -1261,7 +1262,7 @@ std::optional<std::string> World::getItemTitle(TR1ItemId id) const
   return std::nullopt;
 }
 
-void World::initFromLevel(loader::file::level::Level& level)
+void World::initFromLevel(loader::file::level::Level& level, bool fromSave)
 {
   BOOST_LOG_TRIVIAL(info) << "Post-processing data structures";
 
@@ -1540,7 +1541,11 @@ void World::initFromLevel(loader::file::level::Level& level)
                    return CameraSink{camera.position, {camera.room}, {camera.flags}};
                  });
 
-  m_objectManager.createObjects(*this, level.m_items);
+  if(!fromSave)
+  {
+    m_objectManager.createObjects(*this, level.m_items);
+  }
+
   if(m_objectManager.getLaraPtr() == nullptr)
   {
     m_cameraController

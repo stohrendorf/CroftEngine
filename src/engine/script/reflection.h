@@ -100,8 +100,10 @@ private:
   const WeaponType m_defaultWeapon;
 
 protected:
-  [[nodiscard]] std::unique_ptr<world::World>
-    loadWorld(Engine& engine, const std::shared_ptr<Player>& player, const std::shared_ptr<Player>& levelStartPlayer);
+  [[nodiscard]] std::unique_ptr<world::World> loadWorld(Engine& engine,
+                                                        const std::shared_ptr<Player>& player,
+                                                        const std::shared_ptr<Player>& levelStartPlayer,
+                                                        bool fromSave);
 
 public:
   explicit Level(std::string name,
