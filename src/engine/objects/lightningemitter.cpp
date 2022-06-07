@@ -74,6 +74,7 @@ std::tuple<gslu::nn_shared<render::scene::Mesh>, gslu::nn_shared<gl::VertexBuffe
 
   mesh->getRenderState().setLineSmooth(true);
   mesh->getRenderState().setLineWidth(lineWidth);
+  mesh->getRenderState().setScissorTest(false);
 
   mesh->getMaterialGroup().set(render::scene::RenderMode::Full, material);
 
@@ -147,6 +148,7 @@ LightningEmitter::LightningEmitter(const std::string& name,
 
   init(*world);
   prepareRender();
+  getSkeleton()->getRenderState().setScissorTest(false);
 }
 
 void LightningEmitter::update()
@@ -299,6 +301,8 @@ void LightningEmitter::serialize(const serialization::Serializer<world::World>& 
       {
         prepareRender();
       });
+
+    getSkeleton()->getRenderState().setScissorTest(false);
   }
 }
 } // namespace engine::objects
