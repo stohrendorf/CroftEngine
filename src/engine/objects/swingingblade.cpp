@@ -8,11 +8,13 @@
 #include "engine/location.h"
 #include "engine/objectmanager.h"
 #include "engine/particle.h"
+#include "engine/skeletalmodelnode.h"
 #include "engine/world/world.h"
 #include "laraobject.h"
 #include "modelobject.h"
 #include "objectstate.h"
 #include "qs/qs.h"
+#include "serialization/serialization.h"
 #include "util/helpers.h"
 
 #include <bitset>
@@ -63,5 +65,22 @@ void SwingingBlade::update()
 void SwingingBlade::collide(CollisionInfo& collisionInfo)
 {
   trapCollideWithLara(collisionInfo);
+}
+
+void SwingingBlade::serialize(const serialization::Serializer<world::World>& ser)
+{
+  ModelObject::serialize(ser);
+  if(ser.loading)
+    getSkeleton()->getRenderState().setScissorTest(false);
+}
+
+SwingingBlade::SwingingBlade(const std::string& name,
+                             const gsl::not_null<world::World*>& world,
+                             const gsl::not_null<const world::Room*>& room,
+                             const loader::file::Item& item,
+                             const gsl::not_null<const world::SkeletalModelType*>& animatedModel)
+    : ModelObject{name, world, room, item, true, animatedModel, true}
+{
+  getSkeleton()->getRenderState().setScissorTest(false);
 }
 } // namespace engine::objects
