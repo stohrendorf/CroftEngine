@@ -86,7 +86,7 @@ public:
     SetPosition = 1,
     StartFalling = 2,
     EmptyHands = 3,
-    Kill = 4,
+    Deactivate = 4,
     PlaySound = 5,
     PlayEffect = 6,
     Interact = 7

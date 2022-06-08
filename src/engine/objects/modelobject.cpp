@@ -84,7 +84,7 @@ void ModelObject::update()
       case AnimCommandOpcode::PlayEffect:
         cmd += 2;
         break;
-      case AnimCommandOpcode::Kill:
+      case AnimCommandOpcode::Deactivate:
         m_state.triggerState = TriggerState::Deactivated;
         break;
       default:
