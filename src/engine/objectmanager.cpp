@@ -24,6 +24,7 @@
 #include <algorithm>
 #include <boost/range/adaptor/indexed.hpp>
 #include <boost/range/adaptor/map.hpp>
+#include <boost/range/adaptor/reversed.hpp>
 #include <boost/throw_exception.hpp>
 #include <exception>
 #include <limits>
@@ -126,11 +127,8 @@ std::shared_ptr<objects::Object> ObjectManager::getObject(ObjectId id) const
 
 void ObjectManager::update(world::World& world, bool godMode)
 {
-  for(const auto& object : m_objects | boost::adaptors::map_values)
+  for(const auto& object : m_dynamicObjects | boost::adaptors::reversed)
   {
-    if(object.get() == m_lara) // Lara is special and needs to be updated last
-      continue;
-
     if(object->m_isActive)
       object->update();
 
@@ -138,8 +136,11 @@ void ObjectManager::update(world::World& world, bool godMode)
     object->getNode()->setVisible(object->m_state.triggerState != objects::TriggerState::Invisible);
   }
 
-  for(const auto& object : m_dynamicObjects)
+  for(const auto& object : m_objects | boost::adaptors::reversed | boost::adaptors::map_values)
   {
+    if(object.get() == m_lara) // Lara is special and needs to be updated last
+      continue;
+
     if(object->m_isActive)
       object->update();
 
