@@ -153,6 +153,7 @@ void ObjectManager::update(world::World& world, bool godMode)
 
   for(const auto& object : m_objects | boost::adaptors::map_values)
   {
+    object->getNode()->setVisible(object->m_state.triggerState != objects::TriggerState::Invisible);
     object->updateLighting();
     if(object.get() == m_lara) // Lara is special and needs to be updated last
       continue;
