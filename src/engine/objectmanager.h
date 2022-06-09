@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <gsl/gsl-lite.hpp>
 #include <gslu.h>
+#include <list>
 #include <map>
 #include <memory>
 #include <set>
@@ -39,6 +40,7 @@ class ObjectManager
   std::set<objects::Object*> m_scheduledDeletions;
   ObjectId m_objectCounter = 0;
   std::map<ObjectId, gslu::nn_shared<objects::Object>> m_objects;
+  std::list<gslu::nn_shared<objects::Object>> m_activeObjects;
   std::set<gslu::nn_shared<objects::Object>> m_dynamicObjects;
   std::vector<gslu::nn_shared<Particle>> m_particles;
   std::shared_ptr<objects::LaraObject> m_lara = nullptr;
@@ -110,7 +112,7 @@ public:
 
   void applyScheduledDeletions();
   void registerObject(const gslu::nn_shared<objects::Object>& object);
-  std::shared_ptr<objects::Object> find(const objects::Object* object) const;
+  std::shared_ptr<objects::Object> find(const objects::Object* object, bool includeDynamicObjects = false) const;
   void createObjects(world::World& world, std::vector<loader::file::Item>& items);
   [[nodiscard]] std::shared_ptr<objects::Object> getObject(ObjectId id) const;
   [[nodiscard]] auto getObjectCounter() const
@@ -122,5 +124,9 @@ public:
   void replaceItems(const TR1ItemId& oldId, const TR1ItemId& newId, const world::World& world);
 
   void serialize(const serialization::Serializer<world::World>& ser);
+
+  void activate(const engine::objects::Object* object);
+
+  void deactivate(const engine::objects::Object* object);
 };
 } // namespace engine

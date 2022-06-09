@@ -69,8 +69,8 @@ void RollingBall::update()
     // let's see if we hit a wall, and if that's the case, stop.
     auto testPos = m_state.location.moved(util::pitch(core::SectorSize / 2, m_state.rotation.Y));
     sector = testPos.updateRoom();
-    if(HeightInfo::fromFloor(sector, testPos.position, getWorld().getObjectManager().getObjects()).y
-       < m_state.location.position.Y)
+    if(const auto y = HeightInfo::fromFloor(sector, testPos.position, getWorld().getObjectManager().getObjects()).y;
+       y < m_state.location.position.Y)
     {
       m_state.fallspeed = 0_spd;
       m_state.touch_bits.reset();

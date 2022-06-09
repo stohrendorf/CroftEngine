@@ -71,7 +71,7 @@ Object::Object(const gsl::not_null<world::World*>& world,
   {
     m_state.activationState.fullyDeactivate();
     m_state.activationState.setInverted(true);
-    activate();
+    m_isActive = true;
     m_state.triggerState = TriggerState::Active;
   }
 }
@@ -93,11 +93,13 @@ void Object::activate()
   }
 
   m_isActive = true;
+  m_world->getObjectManager().activate(this);
 }
 
 void Object::deactivate()
 {
   m_isActive = false;
+  m_world->getObjectManager().deactivate(this);
 }
 
 std::shared_ptr<audio::Voice> Object::playSoundEffect(const core::SoundEffectId& id)
@@ -129,7 +131,7 @@ void Object::kill()
   }
   getWorld().getObjectManager().scheduleDeletion(this);
   m_state.activationState.setLocked(true);
-  m_isActive = false;
+  deactivate();
 }
 
 bool Object::triggerPickUp()

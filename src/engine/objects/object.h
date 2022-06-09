@@ -78,7 +78,6 @@ protected:
 
 public:
   ObjectState m_state;
-  bool m_isActive = false;
   bool m_hasUpdateFunction;
 
   enum class AnimCommandOpcode : uint16_t
@@ -184,11 +183,19 @@ public:
 
   std::optional<core::Length> getWaterSurfaceHeight() const;
 
+  [[nodiscard]] constexpr bool isActive() const noexcept
+  {
+    return m_isActive;
+  }
+
 protected:
   bool alignTransformClamped(const core::TRVec& targetPos,
                              const core::TRRotation& targetRot,
                              const core::Length& maxDistance,
                              const core::Angle& maxAngle);
+
+private:
+  bool m_isActive = false;
 };
 
 extern std::string makeObjectName(TR1ItemId type, size_t id);

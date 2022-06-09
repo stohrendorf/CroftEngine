@@ -131,7 +131,7 @@ void activateCommand(objects::Object& object,
   if(activationRequest.isOneshot())
     object.m_state.activationState.setOneshot(true);
 
-  if(object.m_isActive)
+  if(object.isActive())
     return;
 
   if(object.m_state.triggerState == objects::TriggerState::Inactive

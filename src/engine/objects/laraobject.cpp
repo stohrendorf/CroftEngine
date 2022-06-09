@@ -1051,7 +1051,7 @@ void LaraObject::findTarget(const Weapon& weapon)
       continue;
     }
 
-    if(!modelEnemy->getNode()->isVisible() || !modelEnemy->m_isActive)
+    if(!modelEnemy->getNode()->isVisible() || !modelEnemy->isActive())
       continue;
 
     const auto d = currentEnemy->m_state.location.position - weaponLocation.position;

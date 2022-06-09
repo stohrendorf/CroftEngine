@@ -56,10 +56,17 @@ Door::Door(const std::string& name,
     m_alternateInfo.init(*m_state.location.room->alternateRoom, m_wingsPosition);
   }
 
-  gsl_Assert(m_info.wingsSector != nullptr);
-  if(const auto wingsBoundaryRoom = m_info.wingsSector->boundaryRoom; wingsBoundaryRoom != nullptr)
+  const auto wingsSector = m_info.wingsSector;
+  gsl_Assert(wingsSector != nullptr);
+  const auto wingsBoundaryRoom = wingsSector->boundaryRoom;
+
+  m_info.close();
+  m_alternateInfo.close();
+
+  if(wingsBoundaryRoom != nullptr)
   {
     m_target.init(*wingsBoundaryRoom, m_state.location.position);
+    gsl_Assert(m_target.wingsSector != nullptr);
     if(wingsBoundaryRoom->alternateRoom != nullptr)
     {
       m_alternateTarget.init(*wingsBoundaryRoom->alternateRoom, m_state.location.position);
@@ -68,9 +75,6 @@ Door::Door(const std::string& name,
     m_target.close();
     m_alternateTarget.close();
   }
-
-  m_info.close();
-  m_alternateInfo.close();
 #endif
 
   getSkeleton()->getRenderState().setScissorTest(false);

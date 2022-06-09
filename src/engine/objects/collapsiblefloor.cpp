@@ -14,7 +14,7 @@ namespace engine::objects
 {
 void CollapsibleFloor::update()
 {
-  if(!m_isActive)
+  if(!isActive())
     return;
 
   if(m_state.current_anim_state == 0_as) // stationary

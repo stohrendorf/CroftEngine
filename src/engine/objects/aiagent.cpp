@@ -90,7 +90,7 @@ bool AIAgent::anyMovingEnabledObjectInReach() const
     if(object.get().get() == this)
       break;
 
-    if(!object->m_isActive || object.get().get() == &getWorld().getObjectManager().getLara())
+    if(!object->isActive() || object.get().get() == &getWorld().getObjectManager().getLara())
       continue;
 
     if(object->m_state.triggerState == TriggerState::Active && object->m_state.speed != 0_spd
