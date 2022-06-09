@@ -303,7 +303,7 @@ void World::dinoStompEffect(objects::Object& object)
   const auto d = object.m_state.location.position.toRenderSystem() - m_cameraController->getPosition();
   const auto absD = glm::abs(d);
 
-  static constexpr auto MaxD = 16 * core::SectorSize.get<float>();
+  static constexpr auto MaxD = (16_sectors).get<float>();
   if(absD.x > MaxD || absD.y > MaxD || absD.z > MaxD)
     return;
 
@@ -512,11 +512,11 @@ void World::swapWithAlternate(Room& orig, Room& alternate)
 
     if(const auto tmp = std::dynamic_pointer_cast<objects::Block>(object.get()))
     {
-      patchHeightsForBlock(*tmp, core::SectorSize);
+      patchHeightsForBlock(*tmp, 1_sectors);
     }
     else if(const auto tmp2 = std::dynamic_pointer_cast<objects::TallBlock>(object.get()))
     {
-      patchHeightsForBlock(*tmp2, core::SectorSize * 2);
+      patchHeightsForBlock(*tmp2, 2_sectors);
     }
   }
 
@@ -552,11 +552,11 @@ void World::swapWithAlternate(Room& orig, Room& alternate)
 
     if(const auto tmp = std::dynamic_pointer_cast<objects::Block>(object.get()))
     {
-      patchHeightsForBlock(*tmp, -core::SectorSize);
+      patchHeightsForBlock(*tmp, -1_sectors);
     }
     else if(const auto tmp2 = std::dynamic_pointer_cast<objects::TallBlock>(object.get()))
     {
-      patchHeightsForBlock(*tmp2, -core::SectorSize * 2);
+      patchHeightsForBlock(*tmp2, -2_sectors);
     }
   }
 

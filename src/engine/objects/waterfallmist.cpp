@@ -24,7 +24,7 @@ void WaterfallMist::update()
     return;
 
   const auto d = m_state.location.position - getWorld().getObjectManager().getLara().m_state.location.position;
-  if(abs(d.X) > 20 * core::SectorSize || abs(d.Y) > 20 * core::SectorSize || abs(d.Z) > 20 * core::SectorSize)
+  if(abs(d.X) > 20_sectors || abs(d.Y) > 20_sectors || abs(d.Z) > 20_sectors)
     return;
 
   auto particle = gsl::make_shared<SplashParticle>(m_state.location, getWorld(), true);

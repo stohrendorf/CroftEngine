@@ -175,8 +175,8 @@ SplashParticle::SplashParticle(const Location& location, world::World& world, co
   }
   else
   {
-    this->location.position.X += util::rand15s(core::SectorSize);
-    this->location.position.Z += util::rand15s(core::SectorSize);
+    this->location.position.X += util::rand15s(1_sectors);
+    this->location.position.Z += util::rand15s(1_sectors);
   }
   getRenderState().setScissorTest(false);
 }
@@ -432,7 +432,7 @@ bool MutantGrenadeParticle::update(world::World& world)
     if(d < util::square(1024_len))
     {
       world.getObjectManager().getLara().m_state.health
-        -= 100_hp * (util::square(core::SectorSize) - d) / util::square(core::SectorSize);
+        -= 100_hp * (util::square(1_sectors) - d) / util::square(1_sectors);
       world.getObjectManager().getLara().m_state.is_hit = true;
     }
 

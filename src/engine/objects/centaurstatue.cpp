@@ -70,10 +70,10 @@ CentaurStatue::CentaurStatue(const std::string& name,
 void CentaurStatue::update()
 {
   const auto d = getWorld().getObjectManager().getLara().m_state.location.position - m_state.location.position;
-  if(abs(d.Y) >= core::SectorSize)
+  if(abs(d.Y) >= 1_sectors)
     return;
 
-  static constexpr auto Radius = core::SectorSize * 7 / 2;
+  static constexpr auto Radius = 7_sectors / 2;
   if(util::square(d.X) + util::square(d.Z) >= util::square(Radius))
     return;
 

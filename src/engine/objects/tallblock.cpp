@@ -27,7 +27,7 @@ void TallBlock::update()
   {
     if(m_state.current_anim_state == 0_as)
     {
-      world::patchHeightsForBlock(*this, 2 * core::SectorSize);
+      world::patchHeightsForBlock(*this, 2_sectors);
       m_state.goal_anim_state = 1_as;
     }
   }
@@ -35,7 +35,7 @@ void TallBlock::update()
   {
     if(m_state.current_anim_state == 1_as)
     {
-      world::patchHeightsForBlock(*this, 2 * core::SectorSize);
+      world::patchHeightsForBlock(*this, 2_sectors);
       m_state.goal_anim_state = 0_as;
     }
   }
@@ -50,18 +50,18 @@ void TallBlock::update()
   }
 
   m_state.triggerState = TriggerState::Active;
-  world::patchHeightsForBlock(*this, -2 * core::SectorSize);
+  world::patchHeightsForBlock(*this, -2_sectors);
   auto pos = m_state.location.position;
-  pos.X = (pos.X / core::SectorSize) * core::SectorSize + core::SectorSize / 2;
-  pos.Z = (pos.Z / core::SectorSize) * core::SectorSize + core::SectorSize / 2;
+  pos.X = sectorOf(pos.X) * 1_sectors + 1_sectors / 2;
+  pos.Z = sectorOf(pos.Z) * 1_sectors + 1_sectors / 2;
   m_state.location.position = pos;
 }
 
 void TallBlock::serialize(const serialization::Serializer<world::World>& ser)
 {
-  world::patchHeightsForBlock(*this, 2 * core::SectorSize);
+  world::patchHeightsForBlock(*this, 2_sectors);
   ModelObject::serialize(ser);
-  world::patchHeightsForBlock(*this, -2 * core::SectorSize);
+  world::patchHeightsForBlock(*this, -2_sectors);
   if(ser.loading)
     getSkeleton()->getRenderState().setScissorTest(false);
 }
@@ -73,7 +73,7 @@ TallBlock::TallBlock(const std::string& name,
                      const gsl::not_null<const world::SkeletalModelType*>& animatedModel)
     : ModelObject{name, world, room, item, true, animatedModel, false}
 {
-  world::patchHeightsForBlock(*this, -2 * core::SectorSize);
+  world::patchHeightsForBlock(*this, -2_sectors);
   getSkeleton()->getRenderState().setScissorTest(false);
 }
 } // namespace engine::objects

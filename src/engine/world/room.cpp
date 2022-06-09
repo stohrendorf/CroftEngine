@@ -457,7 +457,7 @@ void patchHeightsForBlock(const engine::objects::Object& object, const core::Len
   auto tmp = object.m_state.location;
   // TODO Ugly const_cast
   const auto groundSector = gsl::not_null{const_cast<Sector*>(tmp.updateRoom().get())};
-  const auto topSector = tmp.moved(0_len, height - core::SectorSize, 0_len).updateRoom();
+  const auto topSector = tmp.moved(0_len, height - 1_sectors, 0_len).updateRoom();
 
   if(groundSector->floorHeight == core::InvalidHeight)
   {
@@ -589,7 +589,7 @@ void Room::createParticleMesh(const std::string& label,
                               const glm::vec3& max,
                               render::scene::MaterialManager& materialManager)
 {
-  static const constexpr auto Resolution = (core::SectorSize / 12).cast<float>().get();
+  static const constexpr auto Resolution = (1_sectors / 12).cast<float>().get();
 
   // https://stackoverflow.com/a/3747462
   static const auto fastrand = []()

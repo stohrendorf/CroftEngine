@@ -97,7 +97,7 @@ void ThorHammerHandle::update()
   case Falling.get():
     if(getSkeleton()->getLocalFrame() > 30_frame)
     {
-      const auto pos = m_state.location.position + util::pitch(3 * core::SectorSize, m_state.rotation.Y);
+      const auto pos = m_state.location.position + util::pitch(3 * 1_sectors, m_state.rotation.Y);
 
       if(auto& lara = getWorld().getObjectManager().getLara(); !lara.isDead())
       {
@@ -125,16 +125,16 @@ void ThorHammerHandle::update()
     const auto oldPosX = m_state.location.position.X;
     const auto oldPosZ = m_state.location.position.Z;
     if(m_state.rotation.Y == 0_deg)
-      m_state.location.position.Z += 3 * core::SectorSize;
+      m_state.location.position.Z += 3_sectors;
     else if(m_state.rotation.Y == 90_deg)
-      m_state.location.position.X += 3 * core::SectorSize;
+      m_state.location.position.X += 3_sectors;
     else if(m_state.rotation.Y == 180_deg)
-      m_state.location.position.Z -= 3 * core::SectorSize;
+      m_state.location.position.Z -= 3_sectors;
     else if(m_state.rotation.Y == -90_deg)
-      m_state.location.position.X -= 3 * core::SectorSize;
+      m_state.location.position.X -= 3_sectors;
     if(!getWorld().getObjectManager().getLara().isDead())
     {
-      world::patchHeightsForBlock(*this, -2 * core::SectorSize);
+      world::patchHeightsForBlock(*this, -2_sectors);
     }
     m_state.location.position.X = oldPosX;
     m_state.location.position.Z = oldPosZ;

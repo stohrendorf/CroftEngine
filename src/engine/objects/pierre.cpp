@@ -110,7 +110,7 @@ void Pierre::update()
         goal(1_as, 3_as);
       else if(canShootAtLara(enemyLocation))
         goal(1_as, 4_as);
-      else if(!enemyLocation.enemyAhead || enemyLocation.enemyDistance > util::square(3 * core::SectorSize))
+      else if(!enemyLocation.enemyAhead || enemyLocation.enemyDistance > util::square(3_sectors))
         goal(1_as, 3_as);
       break;
     case 3:
@@ -120,7 +120,7 @@ void Pierre::update()
         goal(1_as, 6_as);
       else if(canShootAtLara(enemyLocation))
         goal(1_as, 4_as);
-      else if(enemyLocation.enemyAhead && enemyLocation.enemyDistance < util::square(3 * core::SectorSize))
+      else if(enemyLocation.enemyAhead && enemyLocation.enemyDistance < util::square(3_sectors))
         goal(1_as, 2_as);
       break;
     case 4:
@@ -168,7 +168,7 @@ void Pierre::update()
   if(m_fleeTime != 0_frame)
   {
     if(raycastLineOfSight(getWorld().getCameraController().getTRLocation(),
-                          m_state.location.position - core::TRVec{0_len, core::SectorSize, 0_len},
+                          m_state.location.position - core::TRVec{0_len, 1_sectors, 0_len},
                           getWorld().getObjectManager())
          .first)
     {

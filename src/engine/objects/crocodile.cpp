@@ -171,8 +171,7 @@ void Crocodile::updateOnLand()
         goal(2_as);
         break;
       case ai::Mood::Attack:
-        if(abs(enemyLocation.angleToEnemy) <= 90_deg
-           || enemyLocation.enemyDistance <= util::square(3 * core::SectorSize))
+        if(abs(enemyLocation.angleToEnemy) <= 90_deg || enemyLocation.enemyDistance <= util::square(3_sectors))
           goal(2_as);
         else
           goal(4_as);
@@ -192,7 +191,7 @@ void Crocodile::updateOnLand()
         goal(3_as);
       else if(isBored())
         goal(1_as);
-      else if(isAttacking() && enemyLocation.enemyDistance > util::square(3 * core::SectorSize)
+      else if(isAttacking() && enemyLocation.enemyDistance > util::square(3_sectors)
               && abs(enemyLocation.angleToEnemy) > 90_deg)
         goal(1_as);
       break;
@@ -242,8 +241,8 @@ void Crocodile::updateOnLand()
     m_state.type = TR1ItemId::CrocodileInWater;
     if(getCreatureInfo() != nullptr)
     {
-      getCreatureInfo()->pathFinder.step = 20 * core::SectorSize;
-      getCreatureInfo()->pathFinder.drop = -20 * core::SectorSize;
+      getCreatureInfo()->pathFinder.step = 20_sectors;
+      getCreatureInfo()->pathFinder.drop = -20_sectors;
       getCreatureInfo()->pathFinder.fly = 16_len;
     }
 

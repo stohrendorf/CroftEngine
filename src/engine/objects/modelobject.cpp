@@ -207,7 +207,7 @@ bool ModelObject::isNear(const Particle& other, const core::Length& radius) cons
 bool ModelObject::isNearInexact(const core::TRVec& other, const core::Length& radius) const
 {
   const auto d = other - m_state.location.position;
-  if(abs(d.X) > radius || abs(d.Z) > radius || abs(d.Y) > 3 * core::SectorSize)
+  if(abs(d.X) > radius || abs(d.Z) > radius || abs(d.Y) > 3_sectors)
   {
     return false;
   }

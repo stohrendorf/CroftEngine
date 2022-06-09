@@ -72,8 +72,8 @@ void Natla::update()
       if(!m_attemptToFly)
         ai::updateMood(*this, enemyLocation, true);
 
-      getCreatureInfo()->pathFinder.step = 20 * core::SectorSize;
-      getCreatureInfo()->pathFinder.drop = -20 * core::SectorSize;
+      getCreatureInfo()->pathFinder.step = 20_sectors;
+      getCreatureInfo()->pathFinder.drop = -20_sectors;
       getCreatureInfo()->pathFinder.fly = 32_len;
       enemyLocation = ai::EnemyLocation{*this};
     }

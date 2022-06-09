@@ -40,7 +40,7 @@ void Gorilla::update()
     updateMood(*this, enemyLocation, false);
 
     turn = rotateTowardsTarget(getCreatureInfo()->maxTurnSpeed);
-    if(m_state.is_hit || enemyLocation.enemyDistance < util::square(2 * core::SectorSize))
+    if(m_state.is_hit || enemyLocation.enemyDistance < util::square(2_sectors))
     {
       m_wantAttack = true;
     }
@@ -182,10 +182,10 @@ void Gorilla::update()
     if(old.Y - 384_len < m_state.location.position.Y)
       return;
 
-    const auto xSectorOld = old.X / core::SectorSize;
-    const auto zSectorOld = old.Z / core::SectorSize;
-    const auto xSectorNew = m_state.location.position.X / core::SectorSize;
-    const auto zSectorNew = m_state.location.position.Z / core::SectorSize;
+    const auto xSectorOld = sectorOf(old.X);
+    const auto zSectorOld = sectorOf(old.Z);
+    const auto xSectorNew = sectorOf(m_state.location.position.X);
+    const auto zSectorNew = sectorOf(m_state.location.position.Z);
     if(zSectorOld == zSectorNew)
     {
       if(xSectorOld == xSectorNew)
@@ -195,12 +195,12 @@ void Gorilla::update()
       if(xSectorOld >= xSectorNew)
       {
         m_state.rotation.Y = -90_deg;
-        m_state.location.position.X = xSectorOld * core::SectorSize + 75_len;
+        m_state.location.position.X = xSectorOld * 1_sectors + 75_len;
       }
       else
       {
         m_state.rotation.Y = 90_deg;
-        m_state.location.position.X = xSectorNew * core::SectorSize - 75_len;
+        m_state.location.position.X = xSectorNew * 1_sectors - 75_len;
       }
     }
     else if(xSectorOld == xSectorNew)
@@ -208,12 +208,12 @@ void Gorilla::update()
       if(zSectorOld >= zSectorNew)
       {
         m_state.rotation.Y = -180_deg;
-        m_state.location.position.Z = zSectorOld * core::SectorSize + 75_len;
+        m_state.location.position.Z = zSectorOld * 1_sectors + 75_len;
       }
       else
       {
         m_state.rotation.Y = 0_deg;
-        m_state.location.position.Z = zSectorNew * core::SectorSize - 75_len;
+        m_state.location.position.Z = zSectorNew * 1_sectors - 75_len;
       }
     }
 

@@ -30,15 +30,15 @@ namespace
 {
 [[nodiscard]] core::Length reflectAtSectorBoundary(const core::Length& target, const core::Length& current)
 {
-  const auto targetSector = target / core::SectorSize;
-  const auto currentSector = current / core::SectorSize;
+  const auto targetSector = sectorOf(target);
+  const auto currentSector = sectorOf(current);
   if(targetSector == currentSector)
     return 0_len;
 
-  const auto targetInSector = target % core::SectorSize;
+  const auto targetInSector = toSectorLocal(target);
   if(currentSector < targetSector)
     return -(targetInSector + 1_len);
-  return core::SectorSize - (targetInSector - 1_len);
+  return 1_sectors - (targetInSector - 1_len);
 }
 
 [[nodiscard]] core::BoundingBox
@@ -167,13 +167,13 @@ void CollisionInfo::initHeightInfo(const core::TRVec& laraPos, const world::Worl
     {
       if((policyFlags.is_set(PolicyFlags::SlopesArePits) && vd.floor.slantClass == SlantClass::Steep))
       {
-        vd.floor.y = core::SectorSize / 2;
+        vd.floor.y = 1_sectors / 2;
       }
       else if(policyFlags.is_set(PolicyFlags::LavaIsPit) && vd.floor.lastCommandSequenceOrDeath != nullptr
               && floordata::FloorDataChunk::extractType(*vd.floor.lastCommandSequenceOrDeath)
                    == floordata::FloorDataChunkType::Death)
       {
-        vd.floor.y = core::SectorSize / 2;
+        vd.floor.y = 1_sectors / 2;
       }
     }
   };

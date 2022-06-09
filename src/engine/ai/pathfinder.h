@@ -23,7 +23,7 @@ namespace engine::ai
 {
 struct PathFinder
 {
-  static constexpr auto Margin = core::SectorSize / 2;
+  static constexpr auto Margin = 1_sectors / 2;
 
   bool cannotVisitBlocked = true;
   bool cannotVisitBlockable = false;

@@ -53,9 +53,8 @@ void Doppelganger::update()
   if(!m_killed)
   {
     m_state.location = lara.m_state.location;
-    m_state.location.position = core::TRVec{72 * core::SectorSize - m_state.location.position.X,
-                                            m_state.location.position.Y,
-                                            120 * core::SectorSize - m_state.location.position.Z};
+    m_state.location.position = core::TRVec{
+      72_sectors - m_state.location.position.X, m_state.location.position.Y, 120_sectors - m_state.location.position.Z};
     m_state.rotation = lara.m_state.rotation - core::TRRotation{0_deg, 180_deg, 0_deg};
 
     const auto sector = m_state.location.updateRoom();
@@ -68,7 +67,7 @@ void Doppelganger::update()
       = HeightInfo::fromFloor(laraSector, lara.m_state.location.position, getWorld().getObjectManager().getObjects()).y;
     getSkeleton()->setAnim(gsl::not_null{lara.getSkeleton()->getAnim()}, lara.getSkeleton()->getFrame());
 
-    if(laraHeight + core::SectorSize <= m_state.floor && !lara.m_state.falling)
+    if(laraHeight + 1_sectors <= m_state.floor && !lara.m_state.falling)
     {
       m_killed = true;
 

@@ -86,13 +86,13 @@ private:
     switch(*axis)
     {
     case core::Axis::Deg0:
-      return core::SectorSize - 1_len - (pos.X % core::SectorSize);
+      return 1_sectors - 1_len - toSectorLocal(pos.X);
     case core::Axis::Right90:
-      return (pos.Z % core::SectorSize);
+      return toSectorLocal(pos.Z);
     case core::Axis::Deg180:
-      return (pos.X % core::SectorSize);
+      return toSectorLocal(pos.X);
     case core::Axis::Left90:
-      return core::SectorSize - 1_len - (pos.Z % core::SectorSize);
+      return 1_sectors - 1_len - toSectorLocal(pos.Z);
     default:
       return 0_len;
     }

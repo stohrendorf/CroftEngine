@@ -39,11 +39,14 @@ void serialize(TRVec& v, const serialization::Serializer<engine::world::World>& 
   return sqrt(v.X * v.X + v.Y * v.Y + v.Z * v.Z);
 }
 
+[[nodiscard]] constexpr auto sectorOf(const TRVec& v)
+{
+  return std::tuple{sectorOf(v.X), sectorOf(v.Z)};
+}
+
 [[nodiscard]] constexpr bool isSameSector(const TRVec& a, const TRVec& b)
 {
-  const auto aSector = a / SectorSize;
-  const auto bSector = b / SectorSize;
-  return aSector.X == bSector.X && aSector.Z == bSector.Z;
+  return sectorOf(a) == sectorOf(b);
 }
 
 extern std::ostream& operator<<(std::ostream& stream, const TRVec& rhs);

@@ -22,7 +22,7 @@ SourceHandle::SourceHandle(bool positional)
 {
   if(positional)
   {
-    set(AL_REFERENCE_DISTANCE, 3 * core::SectorSize.get());
+    set(AL_REFERENCE_DISTANCE, (3_sectors).get());
     set(AL_ROLLOFF_FACTOR, 4);
     set(AL_AIR_ABSORPTION_FACTOR, 1.0f);
   }

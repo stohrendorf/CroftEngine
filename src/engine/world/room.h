@@ -119,14 +119,14 @@ struct Room
 
   [[nodiscard]] const Sector* getSectorByRelativePosition(const core::TRVec& localPos) const
   {
-    return getSectorByIndex(localPos.X / core::SectorSize, localPos.Z / core::SectorSize);
+    return getSectorByIndex(sectorOf(localPos.X), sectorOf(localPos.Z));
   }
 
   [[nodiscard]] bool isInnerPositionXZ(core::TRVec worldPos) const
   {
     worldPos -= position;
-    const auto sx = worldPos.X / core::SectorSize;
-    const auto sz = worldPos.Z / core::SectorSize;
+    const auto sx = sectorOf(worldPos.X);
+    const auto sz = sectorOf(worldPos.Z);
     return sx > 0 && sx < sectorCountX - 1 && sz > 0 && sz < sectorCountZ - 1;
   }
 

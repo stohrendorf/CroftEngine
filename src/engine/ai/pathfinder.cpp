@@ -68,7 +68,7 @@ bool PathFinder::calculateTarget(const world::World& world,
   {
     if(isFlying())
     {
-      moveTarget.Y = std::min(moveTarget.Y, here->floor - core::SectorSize);
+      moveTarget.Y = std::min(moveTarget.Y, here->floor - 1_sectors);
     }
     else
     {

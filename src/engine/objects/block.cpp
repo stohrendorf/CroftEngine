@@ -71,11 +71,11 @@ void Block::collide(CollisionInfo& /*collisionInfo*/)
     switch(axis)
     {
     case core::Axis::PosZ:
-      d = core::SectorSize - core::DefaultCollisionRadius;
+      d = 1_sectors - core::DefaultCollisionRadius;
       vp = &core::TRVec::Z;
       break;
     case core::Axis::PosX:
-      d = core::SectorSize - core::DefaultCollisionRadius;
+      d = 1_sectors - core::DefaultCollisionRadius;
       vp = &core::TRVec::X;
       break;
     case core::Axis::NegZ:
@@ -91,8 +91,7 @@ void Block::collide(CollisionInfo& /*collisionInfo*/)
     }
 
     getWorld().getObjectManager().getLara().m_state.location.position.*vp
-      = (getWorld().getObjectManager().getLara().m_state.location.position.*vp / core::SectorSize) * core::SectorSize
-        + d;
+      = sectorOf(getWorld().getObjectManager().getLara().m_state.location.position.*vp) * 1_sectors + d;
 
     getWorld().getObjectManager().getLara().setGoalAnimState(loader::file::LaraStateId::PushableGrab);
     getWorld().getObjectManager().getLara().updateImpl();
@@ -112,7 +111,7 @@ void Block::collide(CollisionInfo& /*collisionInfo*/)
 
   if(getWorld().getPresenter().getInputHandler().getInputState().zMovement == hid::AxisMovement::Forward)
   {
-    if(!canPushBlock(core::SectorSize, axis))
+    if(!canPushBlock(1_sectors, axis))
     {
       return;
     }
@@ -122,7 +121,7 @@ void Block::collide(CollisionInfo& /*collisionInfo*/)
   }
   else if(getWorld().getPresenter().getInputHandler().getInputState().zMovement == hid::AxisMovement::Backward)
   {
-    if(!canPullBlock(core::SectorSize, axis))
+    if(!canPullBlock(1_sectors, axis))
     {
       return;
     }
@@ -137,7 +136,7 @@ void Block::collide(CollisionInfo& /*collisionInfo*/)
 
   // start moving the block, remove it from the floordata
   activate();
-  world::patchHeightsForBlock(*this, core::SectorSize);
+  world::patchHeightsForBlock(*this, 1_sectors);
   m_state.triggerState = TriggerState::Active;
 
   ModelObject::update();
@@ -148,7 +147,7 @@ void Block::update()
 {
   if(m_state.activationState.isOneshot())
   {
-    world::patchHeightsForBlock(*this, core::SectorSize);
+    world::patchHeightsForBlock(*this, 1_sectors);
     kill();
     return;
   }
@@ -182,7 +181,7 @@ void Block::update()
 
   m_state.triggerState = TriggerState::Inactive;
   deactivate();
-  world::patchHeightsForBlock(*this, -core::SectorSize);
+  world::patchHeightsForBlock(*this, -1_sectors);
   location = m_state.location;
   sector = location.updateRoom();
   getWorld().handleCommandSequence(
@@ -208,16 +207,16 @@ bool Block::canPushBlock(const core::Length& height, const core::Axis axis) cons
   switch(axis)
   {
   case core::Axis::PosZ:
-    location.position.Z += core::SectorSize;
+    location.position.Z += 1_sectors;
     break;
   case core::Axis::PosX:
-    location.position.X += core::SectorSize;
+    location.position.X += 1_sectors;
     break;
   case core::Axis::NegZ:
-    location.position.Z -= core::SectorSize;
+    location.position.Z -= 1_sectors;
     break;
   case core::Axis::NegX:
-    location.position.X -= core::SectorSize;
+    location.position.X -= 1_sectors;
     break;
   default:
     break;
@@ -252,16 +251,16 @@ bool Block::canPullBlock(const core::Length& height, const core::Axis axis) cons
   switch(axis)
   {
   case core::Axis::Deg0:
-    location.position.Z -= core::SectorSize;
+    location.position.Z -= 1_sectors;
     break;
   case core::Axis::Right90:
-    location.position.X -= core::SectorSize;
+    location.position.X -= 1_sectors;
     break;
   case core::Axis::Deg180:
-    location.position.Z += core::SectorSize;
+    location.position.Z += 1_sectors;
     break;
   case core::Axis::Left90:
-    location.position.X += core::SectorSize;
+    location.position.X += 1_sectors;
     break;
   default:
     break;
@@ -294,16 +293,16 @@ bool Block::canPullBlock(const core::Length& height, const core::Axis axis) cons
   switch(axis)
   {
   case core::Axis::PosZ:
-    laraLocation.position.Z -= core::SectorSize;
+    laraLocation.position.Z -= 1_sectors;
     break;
   case core::Axis::PosX:
-    laraLocation.position.X -= core::SectorSize;
+    laraLocation.position.X -= 1_sectors;
     break;
   case core::Axis::NegZ:
-    laraLocation.position.Z += core::SectorSize;
+    laraLocation.position.Z += 1_sectors;
     break;
   case core::Axis::NegX:
-    laraLocation.position.X += core::SectorSize;
+    laraLocation.position.X += 1_sectors;
     break;
   default:
     break;
@@ -326,19 +325,19 @@ bool Block::canPullBlock(const core::Length& height, const core::Axis axis) cons
   switch(axis)
   {
   case core::Axis::Deg0:
-    laraLocation.position.Z -= core::SectorSize;
+    laraLocation.position.Z -= 1_sectors;
     tmp.facingAxis = core::Axis::Deg180;
     break;
   case core::Axis::Right90:
-    laraLocation.position.X -= core::SectorSize;
+    laraLocation.position.X -= 1_sectors;
     tmp.facingAxis = core::Axis::Left90;
     break;
   case core::Axis::Deg180:
-    laraLocation.position.Z += core::SectorSize;
+    laraLocation.position.Z += 1_sectors;
     tmp.facingAxis = core::Axis::Deg0;
     break;
   case core::Axis::Left90:
-    laraLocation.position.X += core::SectorSize;
+    laraLocation.position.X += 1_sectors;
     tmp.facingAxis = core::Axis::Right90;
     break;
   default:
@@ -364,7 +363,7 @@ Block::Block(const std::string& name,
 {
   if(m_state.triggerState != TriggerState::Invisible)
   {
-    world::patchHeightsForBlock(*this, -core::SectorSize);
+    world::patchHeightsForBlock(*this, -1_sectors);
   }
   getSkeleton()->getRenderState().setScissorTest(false);
 }

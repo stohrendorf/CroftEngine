@@ -65,7 +65,7 @@ void AtlanteanLava::update()
     cameraController.setLookAtObject(gsl::not_null{getWorld().getObjectManager().find(this)});
     cameraController.setMode(CameraMode::FixedPosition);
     cameraController.setModifier(CameraModifier::Chase);
-    cameraController.setDistance(3 * core::SectorSize);
+    cameraController.setDistance(3_sectors);
     cameraController.setRotationAroundLaraY(-180_deg);
   }
 }

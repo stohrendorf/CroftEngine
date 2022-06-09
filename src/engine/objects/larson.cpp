@@ -68,7 +68,7 @@ void Larson::update()
         goal(1_as, 3_as);
       else if(canShootAtLara(enemyLocation))
         goal(1_as, 4_as);
-      else if(!enemyLocation.enemyAhead || enemyLocation.enemyDistance > util::square(3 * core::SectorSize))
+      else if(!enemyLocation.enemyAhead || enemyLocation.enemyDistance > util::square(3_sectors))
         goal(1_as, 3_as);
       break;
     case 3: // running
@@ -78,7 +78,7 @@ void Larson::update()
         goal(1_as, 6_as);
       else if(canShootAtLara(enemyLocation))
         goal(1_as, 4_as);
-      else if(enemyLocation.enemyAhead && enemyLocation.enemyDistance < util::square(3 * core::SectorSize))
+      else if(enemyLocation.enemyAhead && enemyLocation.enemyDistance < util::square(3_sectors))
         goal(1_as, 2_as);
       break;
     case 4: // aiming

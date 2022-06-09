@@ -64,7 +64,7 @@ void TRex::update()
 
     m_wantAttack = !isEscaping() && !enemyLocation.enemyAhead && abs(enemyLocation.enemyAngleToSelf) < 90_deg;
     if(!m_wantAttack && enemyLocation.enemyDistance > util::square(1500_len)
-       && enemyLocation.enemyDistance < util::square(4 * core::SectorSize) && enemyLocation.canAttackForward)
+       && enemyLocation.enemyDistance < util::square(4_sectors) && enemyLocation.canAttackForward)
     {
       m_wantAttack = true;
     }
@@ -90,7 +90,7 @@ void TRex::update()
       break;
     case RunningAttack.get():
       getCreatureInfo()->maxTurnSpeed = 4_deg / 1_frame;
-      if(enemyLocation.enemyDistance < util::square(5 * core::SectorSize) && enemyLocation.canAttackForward)
+      if(enemyLocation.enemyDistance < util::square(5_sectors) && enemyLocation.canAttackForward)
         goal(Think); // NOLINT(bugprone-branch-clone)
       else if(m_wantAttack)
         goal(Think);

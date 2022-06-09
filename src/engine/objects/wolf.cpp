@@ -101,11 +101,11 @@ void Wolf::update()
       {
         goal(Biting);
       }
-      else if(enemyLocation.enemyDistance <= util::square(3 * core::SectorSize))
+      else if(enemyLocation.enemyDistance <= util::square(3_sectors))
       {
         if(isAttacking())
         {
-          if(!enemyLocation.enemyAhead || enemyLocation.enemyDistance > util::square(1.5f * core::SectorSize)
+          if(!enemyLocation.enemyAhead || enemyLocation.enemyDistance > util::square(1.5f * 1_sectors)
              || abs(enemyLocation.enemyAngleToSelf) < 90_deg)
           {
             goal(Jumping);
@@ -129,9 +129,9 @@ void Wolf::update()
     case Jumping.get():
       getCreatureInfo()->maxTurnSpeed = 5_deg / 1_frame;
       roll = rotationToMoveTarget;
-      if(enemyLocation.enemyAhead && enemyLocation.enemyDistance < util::square(1.5f * core::SectorSize))
+      if(enemyLocation.enemyAhead && enemyLocation.enemyDistance < util::square(1.5f * 1_sectors))
       {
-        if(enemyLocation.enemyDistance <= util::square(1.5f * core::SectorSize) / 2
+        if(enemyLocation.enemyDistance <= util::square(1.5f * 1_sectors) / 2
            || abs(enemyLocation.enemyAngleToSelf) <= 90_deg)
         {
           goal(JumpAttack, 0_as);
@@ -141,7 +141,7 @@ void Wolf::update()
           goal(PrepareToStrike, Stalking);
         }
       }
-      else if(isStalking() || enemyLocation.enemyDistance >= util::square(3 * core::SectorSize))
+      else if(isStalking() || enemyLocation.enemyDistance >= util::square(3_sectors))
       {
         if(isBored())
           goal(PrepareToStrike);

@@ -33,10 +33,10 @@ void MidasGoldTouch::collide(CollisionInfo& /*info*/)
 {
   auto& lara = getWorld().getObjectManager().getLara();
   if(!lara.m_state.falling && lara.getCurrentAnimState() == loader::file::LaraStateId::Stop
-     && m_state.location.position.X - core::SectorSize / 2 < lara.m_state.location.position.X
-     && m_state.location.position.X + core::SectorSize / 2 > lara.m_state.location.position.X
-     && m_state.location.position.Z - core::SectorSize / 2 < lara.m_state.location.position.Z
-     && m_state.location.position.Z + core::SectorSize / 2 > lara.m_state.location.position.Z)
+     && m_state.location.position.X - 1_sectors / 2 < lara.m_state.location.position.X
+     && m_state.location.position.X + 1_sectors / 2 > lara.m_state.location.position.X
+     && m_state.location.position.Z - 1_sectors / 2 < lara.m_state.location.position.Z
+     && m_state.location.position.Z + 1_sectors / 2 > lara.m_state.location.position.Z)
   {
     lara.getSkeleton()->setAnim(
       gsl::not_null{&getWorld().findAnimatedModelForType(TR1ItemId::AlternativeLara)->animations[1]});

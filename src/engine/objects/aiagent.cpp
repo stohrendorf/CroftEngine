@@ -151,55 +151,55 @@ bool AIAgent::animateCreature(const core::Angle& deltaRotationY, const core::Ang
   const auto bbox = getSkeleton()->getBoundingBox();
   const auto bboxMaxY = m_state.location.position.Y + bbox.y.max;
 
-  auto sector = m_state.location.moved(0_len, bbox.y.max, 0_len).updateRoom();
+  auto currentSector = m_state.location.moved(0_len, bbox.y.max, 0_len).updateRoom();
 
-  if(sector->box == nullptr || boxFloor - sector->box->floor > pathFinder.step
-     || boxFloor - sector->box->floor < pathFinder.drop
-     || m_state.getCurrentBox().get()->*zoneRef != sector->box->*zoneRef)
+  if(currentSector->box == nullptr || boxFloor - currentSector->box->floor > pathFinder.step
+     || boxFloor - currentSector->box->floor < pathFinder.drop
+     || m_state.getCurrentBox().get()->*zoneRef != currentSector->box->*zoneRef)
   {
     static const auto shoveMin = [this](const core::Length& l)
     {
-      return l / core::SectorSize * core::SectorSize + m_collisionRadius;
+      return sectorOf(l) * 1_sectors + m_collisionRadius;
     };
     static const auto shoveMax = [this](const core::Length& l)
     {
       return shoveMin(l) + core::SectorSize - 1_len - m_collisionRadius;
     };
 
-    const auto oldSectorX = oldLocation.position.X / core::SectorSize;
-    const auto newSectorX = m_state.location.position.X / core::SectorSize;
+    const auto oldSectorX = sectorOf(oldLocation.position.X);
+    const auto newSectorX = sectorOf(m_state.location.position.X);
     if(newSectorX < oldSectorX)
       m_state.location.position.X = shoveMin(oldLocation.position.X);
     else if(newSectorX > oldSectorX)
       m_state.location.position.X = shoveMax(oldLocation.position.X);
 
-    const auto oldSectorZ = oldLocation.position.Z / core::SectorSize;
-    const auto newSectorZ = m_state.location.position.Z / core::SectorSize;
+    const auto oldSectorZ = sectorOf(oldLocation.position.Z);
+    const auto newSectorZ = sectorOf(m_state.location.position.Z);
     if(newSectorZ < oldSectorZ)
       m_state.location.position.Z = shoveMin(oldLocation.position.Z);
     else if(newSectorZ > oldSectorZ)
       m_state.location.position.Z = shoveMax(oldLocation.position.Z);
 
-    sector = m_state.location.moved(0_len, bbox.y.max, 0_len).updateRoom();
+    currentSector = m_state.location.moved(0_len, bbox.y.max, 0_len).updateRoom();
   }
 
-  Expects(sector->box != nullptr);
+  Expects(currentSector->box != nullptr);
 
   core::Length nextFloor;
-  if(const auto& exitBox = pathFinder.getNextPathBox(gsl::not_null{sector->box}); exitBox != nullptr)
+  if(const auto& exitBox = pathFinder.getNextPathBox(gsl::not_null{currentSector->box}); exitBox != nullptr)
   {
     nextFloor = exitBox->floor;
   }
   else
   {
-    nextFloor = sector->box->floor;
+    nextFloor = currentSector->box->floor;
   }
 
-  const auto inSectorX = m_state.location.position.X % core::SectorSize;
-  const auto inSectorZ = m_state.location.position.Z % core::SectorSize;
+  const auto inSectorX = toSectorLocal(m_state.location.position.X);
+  const auto inSectorZ = toSectorLocal(m_state.location.position.Z);
 
   // in-sector coordinate bounds incorporating collision radius
-  const auto collisionBounds = core::Interval{0_len, core::SectorSize - 1_len}.narrowed(m_collisionRadius);
+  const auto collisionBounds = core::Interval{0_len, 1_sectors - 1_len}.narrowed(m_collisionRadius);
   gsl_Assert(collisionBounds.isValid());
   const core::TRVec origin{m_state.location.position.X, bboxMaxY, m_state.location.position.Z};
   // relative bounding box collision test coordinates
@@ -207,7 +207,7 @@ bool AIAgent::animateCreature(const core::Angle& deltaRotationY, const core::Ang
   const core::TRVec testDz{0_len, 0_len, m_collisionRadius};
 
   const auto cannotMoveTo
-    = [this, floor = sector->box->floor, nextFloor = nextFloor, &pathFinder](const core::TRVec& pos)
+    = [this, floor = currentSector->box->floor, nextFloor = nextFloor, &pathFinder](const core::TRVec& pos)
   {
     return isPositionOutOfReach(pos, floor, nextFloor, pathFinder);
   };
@@ -347,7 +347,7 @@ bool AIAgent::animateCreature(const core::Angle& deltaRotationY, const core::Ang
   {
     auto bboxMaxYLocation = m_state.location;
     bboxMaxYLocation.position.Y = bboxMaxY;
-    sector = bboxMaxYLocation.updateRoom();
+    currentSector = bboxMaxYLocation.updateRoom();
 
     m_state.rotation.Y += deltaRotationY;
     m_state.rotation.Z += std::clamp(8 * tilt - m_state.rotation.Z, -3_deg, +3_deg);
@@ -364,7 +364,7 @@ bool AIAgent::animateCreature(const core::Angle& deltaRotationY, const core::Ang
     auto moveY = std::clamp(m_creatureInfo->target.Y - m_state.location.position.Y, -pathFinder.fly, pathFinder.fly);
 
     const auto currentFloor
-      = HeightInfo::fromFloor(sector,
+      = HeightInfo::fromFloor(currentSector,
                               core::TRVec{m_state.location.position.X, bboxMaxY, m_state.location.position.Z},
                               getWorld().getObjectManager().getObjects())
           .y;
@@ -397,7 +397,7 @@ bool AIAgent::animateCreature(const core::Angle& deltaRotationY, const core::Ang
     else
     {
       const auto ceiling
-        = HeightInfo::fromCeiling(sector,
+        = HeightInfo::fromCeiling(currentSector,
                                   core::TRVec{m_state.location.position.X, bboxMaxY, m_state.location.position.Z},
                                   getWorld().getObjectManager().getObjects())
             .y;
@@ -421,9 +421,9 @@ bool AIAgent::animateCreature(const core::Angle& deltaRotationY, const core::Ang
     m_state.location.position.Y += moveY;
     auto bboxMaxYLocation = m_state.location;
     bboxMaxYLocation.position.Y = bboxMaxY;
-    sector = bboxMaxYLocation.updateRoom();
+    currentSector = bboxMaxYLocation.updateRoom();
     m_state.floor
-      = HeightInfo::fromFloor(sector,
+      = HeightInfo::fromFloor(currentSector,
                               core::TRVec{m_state.location.position.X, bboxMaxY, m_state.location.position.Z},
                               getWorld().getObjectManager().getObjects())
           .y;
@@ -461,11 +461,11 @@ bool AIAgent::animateCreature(const core::Angle& deltaRotationY, const core::Ang
 
   m_state.rotation.X = 0_au;
 
-  sector = m_state.location.updateRoom();
+  currentSector = m_state.location.updateRoom();
   BOOST_ASSERT(m_state.location.isValid());
   setCurrentRoom(m_state.location.room);
   m_state.floor
-    = HeightInfo::fromFloor(sector, m_state.location.position, getWorld().getObjectManager().getObjects()).y;
+    = HeightInfo::fromFloor(currentSector, m_state.location.position, getWorld().getObjectManager().getObjects()).y;
 
   return true;
 }
@@ -501,7 +501,7 @@ void AIAgent::collide(CollisionInfo& collisionInfo)
 
 bool AIAgent::canShootAtLara(const ai::EnemyLocation& enemyLocation) const
 {
-  if(!enemyLocation.enemyAhead || enemyLocation.enemyDistance >= util::square(7 * core::SectorSize))
+  if(!enemyLocation.enemyAhead || enemyLocation.enemyDistance >= util::square(7_sectors))
   {
     return false;
   }
@@ -521,9 +521,9 @@ bool AIAgent::tryShootAtLara(ModelObject& object,
 {
   auto& lara = getWorld().getObjectManager().getLara();
   bool isHit = false;
-  if(distance <= util::square(7 * core::SectorSize))
+  if(distance <= util::square(7_sectors))
   {
-    if(util::rand15() < (util::square(7 * core::SectorSize) - distance) / util::square(40_len) - 8192)
+    if(util::rand15() < (util::square(7_sectors) - distance) / util::square(40_len) - 8192)
     {
       isHit = true;
     }
@@ -539,9 +539,9 @@ bool AIAgent::tryShootAtLara(ModelObject& object,
   else
   {
     auto location = lara.m_state.location;
-    location.position.X += util::rand15s(core::SectorSize / 2);
+    location.position.X += util::rand15s(1_sectors / 2);
     location.position.Y = lara.m_state.floor;
-    location.position.Z += util::rand15s(core::SectorSize / 2);
+    location.position.Z += util::rand15s(1_sectors / 2);
     lara.emitRicochet(location);
   }
 

@@ -608,7 +608,7 @@ void LaraObject::testInteractions(CollisionInfo& collisionInfo)
         continue;
 
       const auto d = m_state.location.position - object->m_state.location.position;
-      if(abs(d.X) >= 4 * core::SectorSize || abs(d.Y) >= 4 * core::SectorSize || abs(d.Z) >= 4 * core::SectorSize)
+      if(abs(d.X) >= 4_sectors || abs(d.Y) >= 4_sectors || abs(d.Z) >= 4_sectors)
         continue;
 
       object->collide(collisionInfo);
@@ -1891,8 +1891,8 @@ LaraObject::LaraObject(const std::string& name,
                        const gsl::not_null<const world::SkeletalModelType*>& animatedModel)
     : ModelObject(name, world, room, item, false, animatedModel, true)
 {
-  m_underwaterRoute.step = core::SectorSize * 20;
-  m_underwaterRoute.drop = -core::SectorSize * 20;
+  m_underwaterRoute.step = 20_sectors;
+  m_underwaterRoute.drop = -20_sectors;
   m_underwaterRoute.fly = core::QuarterSectorSize;
 
   m_state.health = core::LaraHealth;

@@ -67,7 +67,7 @@ void RollingBall::update()
     }
 
     // let's see if we hit a wall, and if that's the case, stop.
-    auto testPos = m_state.location.moved(util::pitch(core::SectorSize / 2, m_state.rotation.Y));
+    auto testPos = m_state.location.moved(util::pitch(1_sectors / 2, m_state.rotation.Y));
     sector = testPos.updateRoom();
     if(const auto y = HeightInfo::fromFloor(sector, testPos.position, getWorld().getObjectManager().getObjects()).y;
        y < m_state.location.position.Y)
@@ -153,14 +153,14 @@ void RollingBall::collide(CollisionInfo& collisionInfo)
   const auto y
     = lara.m_state.location.position.Y - 350_len - (m_state.location.position.Y - 2 * core::QuarterSectorSize);
   const auto z = lara.m_state.location.position.Z - m_state.location.position.Z;
-  const auto xyz = std::max(2 * core::QuarterSectorSize, sqrt(util::square(x) + util::square(y) + util::square(z)));
+  const auto xyz = std::max(1_sectors / 2, sqrt(util::square(x) + util::square(y) + util::square(z)));
 
   auto fx = createBloodSplat(
     getWorld(),
     Location{m_state.location.room,
-             core::TRVec{x * core::SectorSize / 2 / xyz + m_state.location.position.X,
-                         y * core::SectorSize / 2 / xyz + m_state.location.position.Y - 2 * core::QuarterSectorSize,
-                         z * core::SectorSize / 2 / xyz + m_state.location.position.Z}},
+             core::TRVec{x * 1_sectors / 2 / xyz + m_state.location.position.X,
+                         y * 1_sectors / 2 / xyz + m_state.location.position.Y - 2 * core::QuarterSectorSize,
+                         z * 1_sectors / 2 / xyz + m_state.location.position.Z}},
     m_state.speed,
     m_state.rotation.Y);
   getWorld().getObjectManager().registerParticle(fx);

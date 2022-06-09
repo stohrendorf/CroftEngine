@@ -859,8 +859,8 @@ std::unique_ptr<Box> Box::readTr1(io::SDLReader& reader)
   box->blocked = (tmp & 0x4000u) != 0;
   box->blockable = (tmp & 0x8000u) != 0;
 
-  Expects(box->xmax - box->xmin + 1_len >= core::SectorSize);
-  Expects(box->zmax - box->zmin + 1_len >= core::SectorSize);
+  Expects(box->xmax - box->xmin + 1_len >= 1_sectors);
+  Expects(box->zmax - box->zmin + 1_len >= 1_sectors);
 
   return box;
 }
@@ -868,10 +868,10 @@ std::unique_ptr<Box> Box::readTr1(io::SDLReader& reader)
 std::unique_ptr<Box> Box::readTr2(io::SDLReader& reader)
 {
   auto box = std::make_unique<Box>();
-  box->zmin = core::SectorSize * gsl::narrow_cast<core::Length::type>(reader.readI8());
-  box->zmax = core::SectorSize * gsl::narrow_cast<core::Length::type>(reader.readI8());
-  box->xmin = core::SectorSize * gsl::narrow_cast<core::Length::type>(reader.readI8());
-  box->xmax = core::SectorSize * gsl::narrow_cast<core::Length::type>(reader.readI8());
+  box->zmin = 1_sectors * gsl::narrow_cast<core::Length::type>(reader.readI8());
+  box->zmax = 1_sectors * gsl::narrow_cast<core::Length::type>(reader.readI8());
+  box->xmin = 1_sectors * gsl::narrow_cast<core::Length::type>(reader.readI8());
+  box->xmax = 1_sectors * gsl::narrow_cast<core::Length::type>(reader.readI8());
   box->floor = core::Length{gsl::narrow_cast<core::Length::type>(reader.readI16())};
   const auto tmp = reader.readU16();
   box->overlap_index = tmp & ((1u << 14u) - 1u);

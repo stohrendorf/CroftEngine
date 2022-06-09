@@ -53,12 +53,12 @@ HeightInfo HeightInfo::fromFloor(gsl::not_null<const world::Sector*> roomSector,
         else
           hi.slantClass = SlantClass::Steep;
 
-        const auto localX = pos.X % core::SectorSize;
-        const auto localZ = pos.Z % core::SectorSize;
+        const auto localX = toSectorLocal(pos.X);
+        const auto localZ = toSectorLocal(pos.Z);
 
         if(zSlant > 0) // lower edge at -Z
         {
-          const core::Length dist = core::SectorSize - localZ;
+          const auto dist = 1_sectors - localZ;
           hi.y += dist * zSlant * core::QuarterSectorSize / core::SectorSize;
         }
         else if(zSlant < 0) // lower edge at +Z
@@ -69,7 +69,7 @@ HeightInfo HeightInfo::fromFloor(gsl::not_null<const world::Sector*> roomSector,
 
         if(xSlant > 0) // lower edge at -X
         {
-          const auto dist = core::SectorSize - localX;
+          const auto dist = 1_sectors - localX;
           hi.y += dist * xSlant * core::QuarterSectorSize / core::SectorSize;
         }
         else if(xSlant < 0) // lower edge at +X
@@ -159,12 +159,12 @@ HeightInfo HeightInfo::fromCeiling(gsl::not_null<const world::Sector*> roomSecto
       const core::Length::type absZ = std::abs(zSlant);
       if(!skipSteepSlants || (absX <= 2 && absZ <= 2))
       {
-        const auto localX = pos.X % core::SectorSize;
-        const auto localZ = pos.Z % core::SectorSize;
+        const auto localX = toSectorLocal(pos.X);
+        const auto localZ = toSectorLocal(pos.Z);
 
         if(zSlant > 0) // lower edge at -Z
         {
-          const auto dist = core::SectorSize - localZ;
+          const auto dist = 1_sectors - localZ;
           hi.y -= dist * zSlant * core::QuarterSectorSize / core::SectorSize;
         }
         else if(zSlant < 0) // lower edge at +Z
@@ -180,7 +180,7 @@ HeightInfo HeightInfo::fromCeiling(gsl::not_null<const world::Sector*> roomSecto
         }
         else if(xSlant < 0) // lower edge at +X
         {
-          const auto dist = core::SectorSize - localX;
+          const auto dist = 1_sectors - localX;
           hi.y += dist * xSlant * core::QuarterSectorSize / core::SectorSize;
         }
       }

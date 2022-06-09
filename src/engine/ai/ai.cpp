@@ -72,8 +72,7 @@ std::optional<ai::Mood> getNewNonViolentMood(const EnemyLocation& enemyLocation,
     }
     else if(enemyLocation.canReachEnemyZone())
     {
-      if(enemyLocation.enemyDistance >= util::square(3 * core::SectorSize)
-         && (creatureInfo.mood != Mood::Stalk || hasTargetBox))
+      if(enemyLocation.enemyDistance >= util::square(3_sectors) && (creatureInfo.mood != Mood::Stalk || hasTargetBox))
       {
         return Mood::Stalk;
       }

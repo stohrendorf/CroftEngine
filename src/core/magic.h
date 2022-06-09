@@ -77,4 +77,24 @@ constexpr auto DiveRotationSpeedZ = 3_deg / 1_frame;
 constexpr auto FreeLookHeadTurnSpeed = 2_deg / 1_frame;
 
 constexpr size_t SavegameSlots = 99;
+
+constexpr Length operator"" _sectors(unsigned long long value) noexcept
+{
+  return gsl::narrow_cast<Length::type>(value) * SectorSize;
+}
+
+[[nodiscard]] constexpr auto sectorOf(const Length& l)
+{
+  return l / 1_sectors;
+}
+
+[[nodiscard]] constexpr auto toSectorLocal(const Length& l)
+{
+  if(l < 0_len)
+    return 1_sectors - (-l) % 1_sectors;
+  else
+    return l % 1_sectors;
+}
 } // namespace core
+
+using core::operator""_sectors;

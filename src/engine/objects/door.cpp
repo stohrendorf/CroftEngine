@@ -37,16 +37,16 @@ Door::Door(const std::string& name,
   switch(axisFromAngle(m_state.rotation.Y))
   {
   case core::Axis::PosZ:
-    m_wingsPosition.Z -= core::SectorSize;
+    m_wingsPosition.Z -= 1_sectors;
     break;
   case core::Axis::PosX:
-    m_wingsPosition.X -= core::SectorSize;
+    m_wingsPosition.X -= 1_sectors;
     break;
   case core::Axis::NegZ:
-    m_wingsPosition.Z += core::SectorSize;
+    m_wingsPosition.Z += 1_sectors;
     break;
   case core::Axis::NegX:
-    m_wingsPosition.X += core::SectorSize;
+    m_wingsPosition.X += 1_sectors;
     break;
   }
 

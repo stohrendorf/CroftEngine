@@ -187,7 +187,7 @@ void LightningEmitter::update()
   m_chargeTimeout = 20;
   m_laraHit = false;
 
-  const auto radius = m_poles == 0 ? core::SectorSize : core::SectorSize * 5 / 2;
+  const auto radius = m_poles == 0 ? 1_sectors : 5_sectors / 2;
   if(getWorld().getObjectManager().getLara().isNearInexact(m_state.location.position, radius))
   {
     // target at lara

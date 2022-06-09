@@ -74,15 +74,15 @@ std::pair<CollisionType, Location> clampSteps(const Location& start,
 
   const auto dir = delta.*stepAxis < 0_len ? -1 : 1;
   core::TRVec sectorStep;
-  sectorStep.*stepAxis = dir * core::SectorSize;
+  sectorStep.*stepAxis = dir * 1_sectors;
   sectorStep.*secondaryAxis = delta.*secondaryAxis * sectorStep.*stepAxis / delta.*stepAxis;
   sectorStep.Y = delta.Y * sectorStep.*stepAxis / delta.*stepAxis;
 
   auto result = start;
   // align the result to the sector boundary, adjust other axes as necessary
-  result.position.*stepAxis = (result.position.*stepAxis / core::SectorSize) * core::SectorSize;
+  result.position.*stepAxis = sectorOf(result.position.*stepAxis) * 1_sectors;
   if(dir > 0)
-    result.position.*stepAxis += core::SectorSize - 1_len;
+    result.position.*stepAxis += 1_sectors - 1_len;
 
   const auto deltaStep = result.position.*stepAxis - start.position.*stepAxis;
   result.position.*secondaryAxis += sectorStep.*secondaryAxis * deltaStep / sectorStep.*stepAxis;
@@ -114,7 +114,7 @@ std::pair<CollisionType, Location> clampSteps(const Location& start,
 
     auto nextSector = result;
     nextSector.position.*stepAxis += dir * 1_len;
-    BOOST_ASSERT(result.position.*stepAxis / core::SectorSize != nextSector.position.*stepAxis / core::SectorSize);
+    BOOST_ASSERT(sectorOf(result.position.*stepAxis) != sectorOf(nextSector.position.*stepAxis));
     if(testVerticalHit(nextSector))
     {
       return {CollisionType::Wall, result};

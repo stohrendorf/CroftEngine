@@ -174,13 +174,13 @@ Location clampBox(const Location& start,
   // align to the closest border of the next sector
   static const auto alignMin = [](core::Length& x)
   {
-    x = (x / core::SectorSize) * core::SectorSize - 1_len;
-    BOOST_ASSERT(x % core::SectorSize == core::SectorSize - 1_len);
+    x = sectorOf(x) * 1_sectors - 1_len;
+    BOOST_ASSERT(toSectorLocal(x) == 1_sectors - 1_len);
   };
   static const auto alignMax = [](core::Length& x)
   {
-    x = (x / core::SectorSize + 1) * core::SectorSize;
-    BOOST_ASSERT(x % core::SectorSize == 0_len);
+    x = (sectorOf(x) + 1) * 1_sectors;
+    BOOST_ASSERT(toSectorLocal(x) == 0_len);
   };
 
   core::TRVec testPos = result.position;
@@ -191,7 +191,7 @@ Location clampBox(const Location& start,
   };
 
   alignMin(testPos.Z);
-  BOOST_ASSERT(abs(testPos.Z - result.position.Z) <= core::SectorSize);
+  BOOST_ASSERT(abs(testPos.Z - result.position.Z) <= 1_sectors);
   auto minZ = box->zInterval.min;
   const bool invalidMinZ = testPosInvalid();
   if(!invalidMinZ)
@@ -203,7 +203,7 @@ Location clampBox(const Location& start,
 
   testPos = result.position;
   alignMax(testPos.Z);
-  BOOST_ASSERT(abs(testPos.Z - result.position.Z) <= core::SectorSize);
+  BOOST_ASSERT(abs(testPos.Z - result.position.Z) <= 1_sectors);
   auto maxZ = box->zInterval.max;
   const bool invalidMaxZ = testPosInvalid();
   if(!invalidMaxZ)
@@ -215,7 +215,7 @@ Location clampBox(const Location& start,
 
   testPos = result.position;
   alignMin(testPos.X);
-  BOOST_ASSERT(abs(testPos.X - result.position.X) <= core::SectorSize);
+  BOOST_ASSERT(abs(testPos.X - result.position.X) <= 1_sectors);
   auto minX = box->xInterval.min;
   const bool invalidMinX = testPosInvalid();
   if(!invalidMinX)
@@ -227,7 +227,7 @@ Location clampBox(const Location& start,
 
   testPos = result.position;
   alignMax(testPos.X);
-  BOOST_ASSERT(abs(testPos.X - result.position.X) <= core::SectorSize);
+  BOOST_ASSERT(abs(testPos.X - result.position.X) <= 1_sectors);
   auto maxX = box->xInterval.max;
   const bool invalidMaxX = testPosInvalid();
   if(!invalidMaxX)
@@ -285,7 +285,7 @@ CameraController::CameraController(const gsl::not_null<world::World*>& world,
     , m_location{world->getObjectManager().getLara().m_state.location}
     , m_lookAt{world->getObjectManager().getLara().m_state.location}
 {
-  const auto yOffset = world->getObjectManager().getLara().m_state.location.position.Y - core::SectorSize;
+  const auto yOffset = world->getObjectManager().getLara().m_state.location.position.Y - 1_sectors;
   m_lookAt.position.Y -= yOffset;
   m_location.position.Y -= yOffset;
   m_location.position.Z -= 100_len;
@@ -713,7 +713,7 @@ void CameraController::handleFreeLook()
   m_rotationAroundLara.X = lara.m_torsoRotation.X + lara.m_headRotation.X + lara.m_state.rotation.X;
   m_rotationAroundLara.Y = lara.m_torsoRotation.Y + lara.m_headRotation.Y + lara.m_state.rotation.Y;
   m_distance = core::DefaultCameraLaraDistance;
-  m_lookAt.position += util::pitch(util::sin(-core::SectorSize / 2, m_rotationAroundLara.X), lara.m_state.rotation.Y);
+  m_lookAt.position += util::pitch(util::sin(-1_sectors / 2, m_rotationAroundLara.X), lara.m_state.rotation.Y);
 
   if(isVerticallyOutsideRoom(m_lookAt, m_world->getObjectManager()))
   {
