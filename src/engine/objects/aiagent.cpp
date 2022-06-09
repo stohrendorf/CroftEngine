@@ -163,7 +163,7 @@ bool AIAgent::animateCreature(const core::Angle& deltaRotationY, const core::Ang
     };
     static const auto shoveMax = [this](const core::Length& l)
     {
-      return shoveMin(l) + core::SectorSize - 1_len - m_collisionRadius;
+      return (sectorOf(l) + 1) * 1_sectors - 1_len - m_collisionRadius;
     };
 
     const auto oldSectorX = sectorOf(oldLocation.position.X);
