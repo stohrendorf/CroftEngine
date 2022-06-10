@@ -482,6 +482,7 @@ AIAgent::AIAgent(const std::string& name,
   m_state.rotation.Y += v;
 
   loadObjectInfo(false);
+  getSkeleton()->getRenderState().setScissorTest(false);
 }
 
 void AIAgent::collide(CollisionInfo& collisionInfo)
@@ -575,6 +576,8 @@ void AIAgent::serialize(const serialization::Serializer<world::World>& ser)
 {
   ModelObject::serialize(ser);
   ser(S_NV("collisionRadius", m_collisionRadius), S_NV("creatureInfo", m_creatureInfo));
+  if(ser.loading)
+    getSkeleton()->getRenderState().setScissorTest(false);
 }
 
 void AIAgent::initCreatureInfo()

@@ -3,6 +3,7 @@
 #include "core/containeroffset.h"
 #include "core/id.h"
 #include "loader/file/animation.h"
+#include "rendermeshdata.h"
 
 #include <gsl/gsl-lite.hpp>
 #include <gslu.h>

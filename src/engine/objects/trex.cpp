@@ -154,17 +154,5 @@ void TRex::serialize(const serialization::Serializer<world::World>& ser)
 {
   AIAgent::serialize(ser);
   ser(S_NV("wantAttack", m_wantAttack));
-  if(ser.loading)
-    getSkeleton()->getRenderState().setScissorTest(false);
-}
-
-TRex::TRex(const std::string& name,
-           const gsl::not_null<world::World*>& world,
-           const gsl::not_null<const world::Room*>& room,
-           const loader::file::Item& item,
-           const gsl::not_null<const world::SkeletalModelType*>& animatedModel)
-    : AIAgent{name, world, room, item, animatedModel}
-{
-  getSkeleton()->getRenderState().setScissorTest(false);
 }
 } // namespace engine::objects
