@@ -235,5 +235,12 @@ public:
   {
     return get("ghost.vert", "ghost.frag", std::vector<std::string>{"SKELETAL"});
   }
+
+  [[nodiscard]] auto getGhostName()
+  {
+    std::vector<std::string> defines;
+    defines.emplace_back("SPRITEMODE 2");
+    return get("geometry.vert", "ghost_name.frag", defines);
+  }
 };
 } // namespace render::material

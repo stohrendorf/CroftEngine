@@ -579,6 +579,23 @@ gslu::nn_shared<Material> MaterialManager::getDustParticle()
   return m;
 }
 
+gslu::nn_shared<Material> MaterialManager::getGhostName()
+{
+  if(m_ghostName != nullptr)
+    return gsl::not_null{m_ghostName};
+
+  auto m = gsl::make_shared<Material>(m_shaderCache->getGhostName());
+  m->getRenderState().setCullFace(false);
+  m->getRenderState().setBlend(0, true);
+  m->getRenderState().setBlendFactors(0, gl::api::BlendingFactor::One, gl::api::BlendingFactor::OneMinusSrcAlpha);
+  m->getRenderState().setDepthTest(true);
+  m->getRenderState().setDepthWrite(false);
+  m->getUniformBlock("Camera")->bindCameraBuffer(m_renderer->getCamera());
+  m->getUniformBlock("Transform")->bindTransformBuffer();
+  m_ghostName = m;
+  return m;
+}
+
 void MaterialManager::setDeathStrength(float strength)
 {
   auto m = getDeath();

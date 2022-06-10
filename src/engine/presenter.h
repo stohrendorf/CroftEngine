@@ -182,6 +182,11 @@ public:
   void setSplashImageTextureOverride(const std::filesystem::path& imagePath);
   void clearSplashImageTextureOverride();
 
+  [[nodiscard]] auto& getGhostNameFont() const
+  {
+    return *m_ghostNameFont;
+  }
+
 private:
   const gslu::nn_shared<gl::Window> m_window;
   uint8_t m_renderResolutionDivisor = 1;
@@ -194,7 +199,7 @@ private:
   std::shared_ptr<render::scene::Mesh> m_splashImageMesh;
   std::shared_ptr<render::scene::Mesh> m_splashImageMeshOverride{};
   const gslu::nn_unique<gl::Font> m_trTTFFont;
-  const gslu::nn_unique<gl::Font> m_debugFont;
+  const gslu::nn_unique<gl::Font> m_ghostNameFont;
   core::Health m_drawnHealth = core::LaraHealth;
   core::Frame m_healthPulseTime = 0_frame;
   core::Frame m_healthBarTimeout = -DefaultHealthBarTimeout;

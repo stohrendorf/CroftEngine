@@ -50,6 +50,8 @@ public:
 
   [[nodiscard]] gslu::nn_shared<Material> getDustParticle();
 
+  [[nodiscard]] gslu::nn_shared<Material> getGhostName();
+
   [[nodiscard]] gslu::nn_shared<Material> getFXAA(uint8_t preset);
   [[nodiscard]] gslu::nn_shared<Material> getCRTV0();
   [[nodiscard]] gslu::nn_shared<Material> getCRTV1();
@@ -119,6 +121,7 @@ private:
   std::shared_ptr<Material> m_vsmSquare{nullptr};
 
   std::shared_ptr<Material> m_dustParticle{nullptr};
+  std::shared_ptr<Material> m_ghostName{nullptr};
 
   std::shared_ptr<scene::CSM> m_csm;
   const gslu::nn_shared<scene::Renderer> m_renderer;

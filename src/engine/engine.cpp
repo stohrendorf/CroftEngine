@@ -22,6 +22,7 @@
 #include "hid/inputhandler.h"
 #include "loader/trx/trx.h"
 #include "menu/menudisplay.h"
+#include "network/hauntedcoopclient.h"
 #include "objects/laraobject.h"
 #include "player.h"
 #include "presenter.h"
@@ -32,6 +33,7 @@
 #include "render/scene/mesh.h"
 #include "render/scene/node.h"
 #include "render/scene/rendercontext.h"
+#include "render/scene/sprite.h"
 #include "script/reflection.h"
 #include "script/scriptengine.h"
 #include "serialization/serialization.h"
@@ -60,6 +62,7 @@
 #include <exception>
 #include <filesystem>
 #include <gl/cimgwrapper.h>
+#include <gl/font.h>
 #include <gl/framebuffer.h>
 #include <gl/glad_init.h>
 #include <gl/pixel.h>
@@ -74,6 +77,7 @@
 #include <iosfwd>
 #include <locale>
 #include <pybind11/eval.h>
+#include <sstream>
 #include <stdexcept>
 #include <system_error>
 #include <utility>
@@ -209,6 +213,135 @@ std::string getCurrentHumanReadableTimestamp()
           % localTime->tm_mday % localTime->tm_hour % localTime->tm_min % localTime->tm_sec)
     .str();
 }
+
+void updateGhostRoom(const std::vector<world::Room>& rooms,
+                     const gsl::not_null<std::shared_ptr<ghosting::GhostModel>>& ghost)
+{
+  for(const auto& room : rooms)
+  {
+    if(room.physicalId != ghost->getRoomId())
+      continue;
+
+    setParent(ghost, room.node);
+
+    if(room.node->isVisible())
+    {
+      // valid room selected
+    }
+    else if(room.alternateRoom != nullptr && room.alternateRoom->node->isVisible())
+    {
+      setParent(ghost, room.alternateRoom->node);
+    }
+    else
+    {
+      for(const auto& altRoom : rooms)
+      {
+        if(altRoom.alternateRoom != &room || !altRoom.node->isVisible())
+          continue;
+
+        setParent(ghost, altRoom.node);
+        break;
+      }
+    }
+    break;
+  }
+}
+
+void updateRemoteGhosts(world::World& world, GhostManager& ghostManager, const network::HauntedCoopClient& coop)
+{
+  const auto states = coop.getStates();
+  for(const auto& state : states)
+  {
+    const auto peerId = std::get<0>(state);
+
+    ghosting::GhostFrame ghostFrame;
+    std::string tmp;
+    const auto& dataVec = std::get<1>(state);
+    if(dataVec.empty())
+      continue;
+
+    for(const auto v : dataVec)
+      tmp += (char)v;
+    std::istringstream stateDataStream{tmp, std::ios::in | std::ios::binary};
+    ghostFrame.read(stateDataStream);
+
+    gsl_Assert(tmp.size() - stateDataStream.tellg() >= 3);
+    std::array<uint8_t, 3> ghostColor{};
+    stateDataStream.read(reinterpret_cast<char*>(ghostColor.data()), ghostColor.size());
+    const auto glColor = gl::SRGB8(ghostColor[0], ghostColor[1], ghostColor[2]);
+
+    auto ghostUsername = network::io::readPascalString(stateDataStream);
+
+    auto it = ghostManager.remoteModels.find(peerId);
+    if(it == ghostManager.remoteModels.end())
+    {
+      it = ghostManager.remoteModels.emplace(peerId, std::make_shared<ghosting::GhostModel>()).first;
+
+      static constexpr const glm::ivec2 nameTextureSize{512, 128};
+      static constexpr const int nameFontSize = 48;
+
+      gl::Image<gl::ScalarByte> img{nameTextureSize, nullptr};
+
+      const auto fontMeasurement = world.getPresenter().getGhostNameFont().measure(ghostUsername, nameFontSize);
+      BOOST_LOG_TRIVIAL(debug) << "Font measurement x=" << fontMeasurement.first.x << ", y=" << fontMeasurement.first.y
+                               << " / x=" << fontMeasurement.second.x << ", y=" << fontMeasurement.second.y;
+      world.getPresenter().getGhostNameFont().drawText(
+        img,
+        ghostUsername,
+        {(nameTextureSize.x - fontMeasurement.second.x) / 2, nameTextureSize.y - 1 + fontMeasurement.first.y},
+        nameFontSize);
+
+      auto texture = gsl::make_shared<gl::Texture2D<gl::ScalarByte>>(nameTextureSize, 8, "ghost-name");
+      texture->assign(img.getData());
+      texture->generateMipmaps();
+      auto nameHandle = gsl::make_shared<gl::TextureHandle<gl::Texture2D<gl::ScalarByte>>>(
+        texture,
+        gsl::make_unique<gl::Sampler>("ghost-name-sampler") | set(gl::api::TextureMagFilter::Linear)
+          | set(gl::api::TextureMinFilter::Linear));
+
+      auto mesh = render::scene::createSpriteMesh(-nameTextureSize.x / 2,
+                                                  0,
+                                                  nameTextureSize.x / 2,
+                                                  nameTextureSize.y,
+                                                  {0.0f, 1.0f},
+                                                  {1.0f, 0.0f},
+                                                  world.getPresenter().getMaterialManager()->getGhostName(),
+                                                  0,
+                                                  "ghost-name");
+      auto nameNode = gsl::make_shared<render::scene::Node>("ghost-name");
+      nameNode->setRenderable(mesh);
+      nameNode->setLocalMatrix(glm::translate(glm::mat4{1.0f}, glm::vec3{0.0f, core::LaraWalkHeight.get(), 0.0f}));
+      nameNode->bind("u_color",
+                     [color = glm::vec3{glColor.channels} / 255.0f](
+                       const render::scene::Node*, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
+                     {
+                       uniform.set(color);
+                     });
+      nameNode->bind("u_texture",
+                     [nameHandle](const render::scene::Node*, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
+                     {
+                       uniform.set(nameHandle);
+                     });
+      setParent(nameNode, it->second);
+    }
+
+    gsl::not_null remoteGhost{it->second};
+    remoteGhost->apply(world, ghostFrame);
+    remoteGhost->setColor(glColor);
+    updateGhostRoom(world.getRooms(), remoteGhost);
+  }
+
+  std::set<uint64_t> ghostsToDrop;
+  for(const auto& [id, _] : ghostManager.remoteModels)
+    ghostsToDrop.emplace(id);
+  for(const auto& [id, _] : states)
+    ghostsToDrop.erase(id);
+  for(const auto& id : ghostsToDrop)
+  {
+    setParent(gsl::not_null{ghostManager.remoteModels.at(id)}, nullptr);
+    ghostManager.remoteModels.erase(id);
+  }
+}
 } // namespace
 
 Engine::Engine(std::filesystem::path userDataPath,
@@ -290,9 +423,18 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
   std::filesystem::create_directories(ghostRoot);
   GhostManager ghostManager{ghostRoot / (world.getLevelFilename().stem().replace_extension(".rec")), world};
 
+  network::HauntedCoopClient coop{world.getEngine().getGameflowId(), world.getLevelFilename().stem().string()};
+  coop.start();
+  const auto coopStop = gsl::final_action(
+    [&coop]()
+    {
+      coop.stop();
+    });
+
   while(true)
   {
     ghostManager.model->setVisible(m_engineConfig->displaySettings.ghost);
+    updateRemoteGhosts(world, ghostManager, coop);
 
     if(m_presenter->shouldClose())
     {
@@ -395,7 +537,12 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
       continue;
     }
 
-    if(!isCutscene)
+    if(isCutscene)
+    {
+      if(m_presenter->getInputHandler().hasDebouncedAction(hid::Action::Menu) || !world.cinematicLoop())
+        return {RunResult::NextLevel, std::nullopt};
+    }
+    else
     {
       if(world.getObjectManager().getLara().isDead())
       {
@@ -462,46 +609,22 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
       if(ghostManager.reader != nullptr)
       {
         ghostManager.model->apply(world, ghostManager.reader->read());
-        for(const auto& room : world.getRooms())
-        {
-          if(room.physicalId != ghostManager.model->getRoomId())
-            continue;
-
-          setParent(gsl::not_null{ghostManager.model}, room.node);
-
-          if(room.node->isVisible())
-          {
-            // valid room selected
-          }
-          else if(room.alternateRoom != nullptr && room.alternateRoom->node->isVisible())
-          {
-            setParent(gsl::not_null{ghostManager.model}, room.alternateRoom->node);
-          }
-          else
-          {
-            for(const auto& altRoom : world.getRooms())
-            {
-              if(altRoom.alternateRoom != &room || !altRoom.node->isVisible())
-                continue;
-
-              setParent(gsl::not_null{ghostManager.model}, altRoom.node);
-              break;
-            }
-          }
-          break;
-        }
+        updateGhostRoom(world.getRooms(), gsl::not_null{ghostManager.model});
       }
 
       world.getPlayer().timeSpent += 1_frame;
       world.gameLoop(godMode, blackAlpha, ui);
 
-      ghostManager.writer->append(world.getObjectManager().getLara().getGhostFrame());
+      const auto frame = world.getObjectManager().getLara().getGhostFrame();
+
+      std::ostringstream stateDataStream{std::ios::out | std::ios::binary};
+      frame.write(stateDataStream);
+      std::vector<uint8_t> stateData;
+      for(const auto c : stateDataStream.str())
+        stateData.emplace_back(c);
+      coop.sendState(stateData);
+      ghostManager.writer->append(frame);
       world.nextGhostFrame();
-    }
-    else
-    {
-      if(m_presenter->getInputHandler().hasDebouncedAction(hid::Action::Menu) || !world.cinematicLoop())
-        return {RunResult::NextLevel, std::nullopt};
     }
 
     if(m_presenter->getInputHandler().hasDebouncedAction(hid::Action::Screenshot))

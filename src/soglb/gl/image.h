@@ -157,7 +157,7 @@ public:
     return m_data[xy.y * m_size.x + xy.x];
   }
 
-  void set(const glm::ivec2& xy, const StorageType& pixel, const bool blend = false)
+  void set(const glm::ivec2& xy, const StorageType& pixel, const bool blend)
   {
     if(xy.x < 0 || xy.x >= m_size.x || xy.y < 0 || xy.y >= m_size.y)
       return;
@@ -172,6 +172,16 @@ public:
     {
       m_data[o] = mixAlpha(m_data[o], pixel);
     }
+  }
+
+  void set(const glm::ivec2& xy, const StorageType& pixel)
+  {
+    if(xy.x < 0 || xy.x >= m_size.x || xy.y < 0 || xy.y >= m_size.y)
+      return;
+
+    const auto o = gsl::narrow_cast<size_t>(xy.y * m_size.x + xy.x);
+
+    m_data[o] = pixel;
   }
 
   [[nodiscard]] const StorageType& at(const glm::ivec2& xy) const
