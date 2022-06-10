@@ -229,7 +229,7 @@ void ObjectManager::serialize(const serialization::Serializer<world::World>& ser
                              });
       if(it != m_objects.end())
       {
-        activeObjectIds.emplace_back(gsl::narrow<ObjectId>(std::distance(m_objects.begin(), it)));
+        activeObjectIds.emplace_back(it->first);
       }
     }
     ser(S_NV("activeObjects", activeObjectIds));
