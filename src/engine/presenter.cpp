@@ -323,14 +323,14 @@ void Presenter::drawBars(ui::Ui& ui,
     m_healthBarTimeout = DefaultHealthBarTimeout;
 
   {
-    const auto laraHealth = objectManager.getLara().m_state.health;
+    const auto laraHealth = std::max(0_hp, objectManager.getLara().m_state.health);
     auto newHealth = m_drawnHealth;
     if(laraHealth < m_drawnHealth)
       newHealth = std::max(m_drawnHealth - HealthChangeDeltaPerFrame, laraHealth);
     else if(laraHealth > m_drawnHealth)
       newHealth = std::min(m_drawnHealth + HealthChangeDeltaPerFrame, laraHealth);
 
-    if(std::exchange(m_drawnHealth, newHealth) != objectManager.getLara().m_state.health)
+    if(std::exchange(m_drawnHealth, newHealth) != laraHealth)
       m_healthBarTimeout = DefaultHealthBarTimeout;
   }
 
@@ -384,7 +384,7 @@ void Presenter::drawBars(ui::Ui& ui,
 
   drawBar(ui,
           {8, 8},
-          std::clamp(objectManager.getLara().m_state.health * BarWidth / core::LaraHealth, 0, BarWidth),
+          std::clamp(m_drawnHealth * BarWidth / core::LaraHealth, 0, BarWidth),
           withAlpha(palette[0], alpha),
           withAlpha(palette[17], alpha),
           withAlpha(palette[19], alpha),
