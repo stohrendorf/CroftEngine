@@ -223,12 +223,18 @@ void InputHandler::update()
 
   for(const auto& [action, state] : states)
   {
-    auto it = states.find(action);
-    m_inputState.actions[action] = it->second;
+    const auto it = states.find(action);
+    if(it != states.end())
+      m_inputState.actions[action] = it->second;
   }
   m_inputState.setXAxisMovement(m_inputState.actions[Action::Left], m_inputState.actions[Action::Right]);
   m_inputState.setZAxisMovement(m_inputState.actions[Action::Backward], m_inputState.actions[Action::Forward]);
   m_inputState.setStepMovement(m_inputState.actions[Action::StepLeft], m_inputState.actions[Action::StepRight]);
+
+  if(m_inputState.actions[Action::Backward] && m_inputState.actions[Action::Forward])
+  {
+    m_inputState.actions[Action::Roll] = true;
+  }
 }
 
 void InputHandler::setMappings(const std::vector<engine::NamedInputMappingConfig>& inputMappings)
