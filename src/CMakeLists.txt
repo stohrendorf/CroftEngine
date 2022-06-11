@@ -576,6 +576,7 @@ set( CROFTENGINE_SRCS
         ui/widgets/progressbar.cpp
         ui/widgets/selectionbox.cpp
         ui/widgets/sprite.cpp
+        ui/widgets/tabbox.cpp
 
         video/audiostreamdecoder.h
         video/audiostreamdecoder.cpp

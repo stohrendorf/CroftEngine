@@ -16,6 +16,7 @@
 #include "ui/widgets/checkbox.h"
 #include "ui/widgets/groupbox.h"
 #include "ui/widgets/listbox.h"
+#include "ui/widgets/tabbox.h"
 #include "ui/widgets/widget.h"
 
 #include <algorithm>
@@ -38,39 +39,37 @@ class RenderSettingsMenuState::CheckListBox : public ui::widgets::Widget
 {
 private:
   gslu::nn_shared<ui::widgets::ListBox> m_listBox;
-  ui::widgets::GroupBox m_groupBox;
   std::vector<std::tuple<std::function<bool()>, std::function<void()>, std::shared_ptr<ui::widgets::Checkbox>>>
     m_checkboxes;
 
 public:
-  explicit CheckListBox(const std::string& title)
+  explicit CheckListBox()
       : m_listBox{std::make_shared<ui::widgets::ListBox>()}
-      , m_groupBox{title, m_listBox}
   {
   }
 
   [[nodiscard]] glm::ivec2 getPosition() const override
   {
-    return m_groupBox.getPosition();
+    return m_listBox->getPosition();
   }
 
   [[nodiscard]] glm::ivec2 getSize() const override
   {
-    return m_groupBox.getSize();
+    return m_listBox->getSize();
   }
   void setPosition(const glm::ivec2& position) override
   {
-    m_groupBox.setPosition(position);
+    m_listBox->setPosition(position);
   }
 
   void setSize(const glm::ivec2& size) override
   {
-    m_groupBox.setSize(size);
+    m_listBox->setSize(size);
   }
 
   void update(bool hasFocus) override
   {
-    m_groupBox.update(hasFocus);
+    m_listBox->update(hasFocus);
   }
 
   void fitToContent() override
@@ -79,12 +78,11 @@ public:
       checkbox->fitToContent();
 
     m_listBox->fitToContent();
-    m_groupBox.fitToContent();
   }
 
   void draw(ui::Ui& ui, const engine::Presenter& presenter) const override
   {
-    m_groupBox.draw(ui, presenter);
+    m_listBox->draw(ui, presenter);
   }
 
   auto addSetting(const std::string& name, std::function<bool()>&& getter, std::function<void()>&& toggler)
@@ -100,6 +98,16 @@ public:
   [[nodiscard]] const auto& getSelected() const
   {
     return m_checkboxes.at(m_listBox->getSelected());
+  }
+
+  [[nodiscard]] size_t getEntryCount() const
+  {
+    return m_listBox->getWidgets().size();
+  }
+
+  void setSelectedEntry(size_t selected)
+  {
+    m_listBox->setSelected(selected);
   }
 
   bool nextEntry()
@@ -118,6 +126,8 @@ RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingT
                                                  engine::Engine& engine)
     : SelectedMenuState{ringTransform}
     , m_previous{std::move(previous)}
+    , m_tabs{gsl::make_unique<ui::widgets::TabBox>()}
+
 {
   static const auto toggle = [](engine::Engine& engine, bool& value)
   {
@@ -125,8 +135,12 @@ RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingT
     engine.applySettings();
   };
 
-  auto listBox = std::make_shared<CheckListBox>(/* translators: TR charmap encoding */ _("Effects"));
+  auto tab = gsl::make_shared<ui::widgets::Tab>(/* translators: TR charmap encoding */ _("Effects"));
+
+  auto listBox = gsl::make_shared<CheckListBox>();
   m_listBoxes.emplace_back(listBox);
+  m_tabs->addTab(tab, listBox);
+
   listBox->addSetting(
     /* translators: TR charmap encoding */ _("CRT"),
     [&engine]()
@@ -178,8 +192,12 @@ RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingT
       toggle(engine, engine.getEngineConfig()->renderSettings.velvia);
     });
 
-  listBox = std::make_shared<CheckListBox>(/* translators: TR charmap encoding */ _("Quality"));
+  listBox = gsl::make_shared<CheckListBox>();
   m_listBoxes.emplace_back(listBox);
+  tab = gsl::make_shared<ui::widgets::Tab>(/* translators: TR charmap encoding */ _("Quality"));
+
+  m_tabs->addTab(tab, listBox);
+
   listBox->addSetting(
     /* translators: TR charmap encoding */ _("Bilinear Filtering"),
     [&engine]()
@@ -281,8 +299,11 @@ RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingT
       toggle(engine, engine.getEngineConfig()->renderSettings.doubleUiScale);
     });
 
-  listBox = std::make_shared<CheckListBox>(/* translators: TR charmap encoding */ _("Other"));
+  listBox = gsl::make_shared<CheckListBox>();
   m_listBoxes.emplace_back(listBox);
+  tab = gsl::make_shared<ui::widgets::Tab>(/* translators: TR charmap encoding */ _("Other"));
+  m_tabs->addTab(tab, listBox);
+
   listBox->addSetting(
     /* translators: TR charmap encoding */ _("Fullscreen"),
     [&engine]()
@@ -379,54 +400,38 @@ std::unique_ptr<MenuState>
       "%1%x Anisotropic Filtering", world.getEngine().getEngineConfig()->renderSettings.anisotropyLevel));
   }
 
-  {
-    int maxW = 0;
-    int totalH = 0;
-    static constexpr int Separation = 10;
-    for(const auto& listBox : m_listBoxes)
-    {
-      listBox->fitToContent();
-      maxW = std::max(maxW, listBox->getSize().x);
-      totalH += listBox->getSize().y + Separation;
-    }
-
-    int y = ui.getSize().y - totalH - 90;
-    for(const auto& listBox : m_listBoxes)
-    {
-      const auto height = listBox->getSize().y;
-      listBox->setSize({maxW, height});
-      listBox->setPosition({(ui.getSize().x - maxW) / 2, y});
-      y += height + Separation;
-    }
-  }
+  m_tabs->fitToContent();
+  m_tabs->setPosition({(ui.getSize().x - m_tabs->getSize().x) / 2, ui.getSize().y - m_tabs->getSize().y - 90});
 
   for(size_t i = 0; i < m_listBoxes.size(); ++i)
   {
-    const auto& listBox = m_listBoxes[i];
-    listBox->update(i == m_currentListBox);
-    listBox->draw(ui, world.getPresenter());
+    m_listBoxes[i]->update(i == m_tabs->getSelectedTab());
   }
+  m_tabs->update(true);
+  m_tabs->draw(ui, world.getPresenter());
 
-  const auto& listBox = m_listBoxes[m_currentListBox];
+  const auto& listBox = m_listBoxes[m_tabs->getSelectedTab()];
   if(world.getPresenter().getInputHandler().getInputState().zMovement.justChangedTo(hid::AxisMovement::Forward))
   {
-    if(!listBox->prevEntry() && m_currentListBox > 0)
-      --m_currentListBox;
+    if(!listBox->prevEntry())
+    {
+      listBox->setSelectedEntry(listBox->getEntryCount() - 1);
+    }
   }
   else if(world.getPresenter().getInputHandler().getInputState().zMovement.justChangedTo(hid::AxisMovement::Backward))
   {
-    if(!listBox->nextEntry() && m_currentListBox < m_listBoxes.size() - 1)
-      ++m_currentListBox;
+    if(!listBox->nextEntry())
+    {
+      listBox->setSelectedEntry(0);
+    }
   }
-  if(world.getPresenter().getInputHandler().getInputState().xMovement.justChangedTo(hid::AxisMovement::Left))
+  else if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::StepLeft))
   {
-    if(m_currentListBox > 0)
-      --m_currentListBox;
+    m_tabs->prevTab();
   }
-  else if(world.getPresenter().getInputHandler().getInputState().xMovement.justChangedTo(hid::AxisMovement::Right))
+  else if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::StepRight))
   {
-    if(m_currentListBox < m_listBoxes.size() - 1)
-      ++m_currentListBox;
+    m_tabs->nextTab();
   }
   else if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Action))
   {
@@ -441,4 +446,5 @@ std::unique_ptr<MenuState>
 
   return nullptr;
 }
+RenderSettingsMenuState::~RenderSettingsMenuState() = default;
 } // namespace menu
