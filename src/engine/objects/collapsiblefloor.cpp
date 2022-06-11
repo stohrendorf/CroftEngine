@@ -47,19 +47,17 @@ void CollapsibleFloor::update()
   const auto sector = m_state.location.updateRoom();
   setCurrentRoom(m_state.location.room);
 
-  const HeightInfo h
-    = HeightInfo::fromFloor(sector, m_state.location.position, getWorld().getObjectManager().getObjects());
-  m_state.floor = h.y;
-  if(m_state.current_anim_state != 2_as || m_state.location.position.Y < h.y)
+  m_state.floor
+    = HeightInfo::fromFloor(sector, m_state.location.position, getWorld().getObjectManager().getObjects()).y;
+
+  if(m_state.current_anim_state != 2_as || m_state.location.position.Y < m_state.floor)
     return;
 
   // settle
   m_state.goal_anim_state = 3_as;
+  m_state.location.position.Y = m_state.floor;
   m_state.fallspeed = 0_spd;
   m_state.falling = false;
-  auto pos = m_state.location.position;
-  pos.Y = m_state.floor;
-  m_state.location.position = pos;
 }
 
 CollapsibleFloor::CollapsibleFloor(const gsl::not_null<world::World*>& world, const Location& location)

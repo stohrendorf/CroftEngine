@@ -33,14 +33,23 @@ void FallingCeiling::update()
   if(m_state.triggerState == TriggerState::Deactivated)
   {
     deactivate();
+    return;
   }
-  else if(m_state.current_anim_state == 1_as && m_state.location.position.Y >= m_state.floor)
-  {
-    m_state.goal_anim_state = 2_as;
-    m_state.location.position.Y = m_state.floor;
-    m_state.fallspeed = 0_spd;
-    m_state.falling = false;
-  }
+
+  const auto sector = m_state.location.updateRoom();
+  setCurrentRoom(m_state.location.room);
+
+  m_state.floor
+    = HeightInfo::fromFloor(sector, m_state.location.position, getWorld().getObjectManager().getObjects()).y;
+
+  if(m_state.current_anim_state != 1_as || m_state.location.position.Y < m_state.floor)
+    return;
+
+  // settle
+  m_state.goal_anim_state = 2_as;
+  m_state.location.position.Y = m_state.floor;
+  m_state.fallspeed = 0_spd;
+  m_state.falling = false;
 }
 
 void FallingCeiling::collide(CollisionInfo& collisionInfo)
