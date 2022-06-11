@@ -36,6 +36,7 @@ extraction:
         - qt5-default
         - qtbase5-dev
         - qtbase5-dev-tools
+        - qttools5-dev
         - libarchive-dev
     after_prepare:
       - "mkdir custom_cmake"
