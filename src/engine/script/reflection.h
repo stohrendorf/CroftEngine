@@ -268,9 +268,11 @@ class SplashScreen : public LevelSequenceItem
 private:
   const std::filesystem::path m_path;
   const int m_durationSeconds;
+  const int m_fadeInDurationSeconds;
+  const int m_fadeOutDurationSeconds;
 
 public:
-  explicit SplashScreen(std::string path, int durationSeconds);
+  explicit SplashScreen(std::string path, int durationSeconds, int fadeInDurationSeconds, int fadeOutDurationSeconds);
 
   ~SplashScreen() override;
 

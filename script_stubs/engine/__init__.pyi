@@ -105,6 +105,8 @@ class SplashScreen(LevelSequenceItem):
             self, *,
             path: str,
             duration_seconds: int,
+            fade_in_duration_seconds: int,
+            fade_out_duration_seconds: int,
     ):
         ...
 

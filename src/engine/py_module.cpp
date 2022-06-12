@@ -130,7 +130,12 @@ PYBIND11_EMBEDDED_MODULE(engine, m)
   py::class_<engine::script::SplashScreen,
              engine::script::LevelSequenceItem,
              std::shared_ptr<engine::script::SplashScreen>>(m, "SplashScreen", py::is_final{})
-    .def(py::init<std::string, int>(), py::kw_only{}, py::arg("path"), py::arg("duration_seconds"));
+    .def(py::init<std::string, int, int, int>(),
+         py::kw_only{},
+         py::arg("path"),
+         py::arg("duration_seconds"),
+         py::arg("fade_in_duration_seconds"),
+         py::arg("fade_out_duration_seconds"));
 
   py::enum_<engine::objects::TriggerState>(m, "ActivationState")
     .value("INACTIVE", engine::objects::TriggerState::Inactive)

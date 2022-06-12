@@ -260,11 +260,15 @@ TitleMenu::TitleMenu(const std::string& name,
 {
 }
 
-SplashScreen::SplashScreen(std::string path, int durationSeconds)
+SplashScreen::SplashScreen(std::string path, int durationSeconds, int fadeInDurationSeconds, int fadeOutDurationSeconds)
     : m_path{std::move(path)}
     , m_durationSeconds{durationSeconds}
+    , m_fadeInDurationSeconds{fadeInDurationSeconds}
+    , m_fadeOutDurationSeconds{fadeOutDurationSeconds}
 {
   Expects(m_durationSeconds > 0);
+  Expects(m_fadeInDurationSeconds >= 0);
+  Expects(m_fadeOutDurationSeconds >= 0);
 }
 
 SplashScreen::~SplashScreen() = default;
@@ -273,7 +277,6 @@ std::pair<RunResult, std::optional<size_t>> SplashScreen::run(Engine& engine,
                                                               const std::shared_ptr<Player>& /*player*/,
                                                               const std::shared_ptr<Player>& /*levelStartPlayer*/)
 {
-  const auto end = std::chrono::high_resolution_clock::now() + std::chrono::seconds{m_durationSeconds};
   Throttler throttler{};
 
   glm::ivec2 size{-1, -1};
@@ -282,39 +285,49 @@ std::pair<RunResult, std::optional<size_t>> SplashScreen::run(Engine& engine,
     gsl::make_unique<gl::Sampler>(m_path.string() + "-sampler"));
   std::shared_ptr<render::scene::Mesh> mesh;
 
-  render::scene::RenderContext context{render::scene::RenderMode::Full, std::nullopt};
-  while(std::chrono::high_resolution_clock::now() < end)
+  auto& presenter = engine.getPresenter();
+  float alpha = 0;
+  auto updateSize = [this, &size, &presenter, &mesh, &image, &alpha]()
   {
-    auto& presenter = engine.getPresenter();
+    if(size == presenter.getRenderViewport())
+      return;
+
+    size = presenter.getRenderViewport();
+
+    // scale splash image so that its aspect ratio is preserved, but is completely visible
+    const auto targetSize = glm::vec2{size};
+    const auto sourceSize = glm::vec2{image->getTexture()->size()};
+    const float splashScale = std::min(targetSize.x / sourceSize.x, targetSize.y / sourceSize.y);
+
+    auto scaledSourceSize = sourceSize * splashScale;
+    auto sourceOffset = (targetSize - scaledSourceSize) / 2.0f;
+    mesh = render::scene::createScreenQuad(
+      sourceOffset, scaledSourceSize, presenter.getMaterialManager()->getBackdrop(true), m_path.string());
+    mesh->bind("u_input",
+               [&image](const render::scene::Node* /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
+               {
+                 uniform.set(image);
+               });
+    mesh->bind("u_alphaMultiplier",
+               [&alpha](const render::scene::Node* /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
+               {
+                 uniform.set(alpha);
+               });
+  };
+
+  render::scene::RenderContext context{render::scene::RenderMode::Full, std::nullopt};
+
+  auto renderFrame = [&presenter, &updateSize, &mesh, &throttler, &context]() -> bool
+  {
     if(presenter.update() || presenter.shouldClose())
-      break;
+      return false;
 
     presenter.getInputHandler().update();
     if(presenter.getInputHandler().hasDebouncedAction(hid::Action::Menu))
-      break;
+      return false;
 
-    if(size != presenter.getRenderViewport())
-    {
-      size = presenter.getRenderViewport();
-
-      // scale splash image so that its aspect ratio is preserved, but is completely visible
-      const auto targetSize = glm::vec2{size};
-      const auto sourceSize = glm::vec2{image->getTexture()->size()};
-      const float splashScale = std::min(targetSize.x / sourceSize.x, targetSize.y / sourceSize.y);
-
-      auto scaledSourceSize = sourceSize * splashScale;
-      auto sourceOffset = (targetSize - scaledSourceSize) / 2.0f;
-      mesh = render::scene::createScreenQuad(
-        sourceOffset, scaledSourceSize, presenter.getMaterialManager()->getBackdrop(false), m_path.string());
-      mesh->bind(
-        "u_input",
-        [&image](const render::scene::Node* /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
-        {
-          uniform.set(image);
-        });
-    }
-
-    Ensures(mesh != nullptr);
+    updateSize();
+    gsl_Assert(mesh != nullptr);
 
     gl::Framebuffer::unbindAll();
     presenter.getRenderer().clear(
@@ -324,6 +337,41 @@ std::pair<RunResult, std::optional<size_t>> SplashScreen::run(Engine& engine,
     presenter.swapBuffers();
 
     throttler.wait();
+    return true;
+  };
+
+  for(const auto end = std::chrono::high_resolution_clock::now() + std::chrono::seconds{m_fadeInDurationSeconds};
+      std::chrono::high_resolution_clock::now() < end;)
+  {
+    const auto time = gsl::narrow_cast<float>(
+      std::chrono::duration_cast<std::chrono::milliseconds>(end - std::chrono::high_resolution_clock::now()).count());
+    const auto duration = gsl::narrow_cast<float>(
+      std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::seconds{m_fadeInDurationSeconds}).count());
+    alpha = std::clamp(1 - time / duration, 0.0f, 1.0f);
+    BOOST_LOG_TRIVIAL(debug) << "time=" << time << ", duration=" << duration << ", alpha=" << alpha;
+    if(!renderFrame())
+      return {RunResult::NextLevel, std::nullopt};
+  }
+
+  alpha = 1;
+
+  for(const auto end = std::chrono::high_resolution_clock::now() + std::chrono::seconds{m_durationSeconds};
+      std::chrono::high_resolution_clock::now() < end;)
+  {
+    if(!renderFrame())
+      return {RunResult::NextLevel, std::nullopt};
+  }
+
+  for(const auto end = std::chrono::high_resolution_clock::now() + std::chrono::seconds{m_fadeOutDurationSeconds};
+      std::chrono::high_resolution_clock::now() < end;)
+  {
+    const auto time = gsl::narrow_cast<float>(
+      std::chrono::duration_cast<std::chrono::milliseconds>(end - std::chrono::high_resolution_clock::now()).count());
+    const auto duration = gsl::narrow_cast<float>(
+      std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::seconds{m_fadeOutDurationSeconds}).count());
+    alpha = std::clamp(time / duration, 0.0f, 1.0f);
+    if(!renderFrame())
+      return {RunResult::NextLevel, std::nullopt};
   }
 
   return {RunResult::NextLevel, std::nullopt};

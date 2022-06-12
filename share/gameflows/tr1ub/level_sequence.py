@@ -91,7 +91,9 @@ level_sequence = [
     *(
         SplashScreen(
             path=f"DATA/{name}.PCX",
-            duration_seconds=15,
+            duration_seconds=11,
+            fade_in_duration_seconds=2,
+            fade_out_duration_seconds=2,
         )
         for name in ("END",)
     ),

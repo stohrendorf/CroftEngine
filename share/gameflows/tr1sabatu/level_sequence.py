@@ -12,7 +12,9 @@ early_boot = [
     Video(_fmv("CAFE")),
     SplashScreen(
         path=f"DATA/eidospc.png",
-        duration_seconds=5,
+        duration_seconds=3,
+        fade_in_duration_seconds=1,
+        fade_out_duration_seconds=1,
     )
 ]
 
@@ -368,7 +370,9 @@ level_sequence = [
     *(
         SplashScreen(
             path=f"DATA/{name}.PCX",
-            duration_seconds=15,
+            duration_seconds=11,
+            fade_in_duration_seconds=2,
+            fade_out_duration_seconds=2,
         )
         for name in ("END", "CRED1", "CRED2", "CRED3")
     ),
