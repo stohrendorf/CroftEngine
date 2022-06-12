@@ -49,7 +49,6 @@ Object::Object(const gsl::not_null<world::World*>& world,
 {
   m_hasUpdateFunction = hasUpdateFunction;
   m_state.type = item.type;
-  m_state.location.updateRoom(); // TODO: this may break other things, but at least it allows loading some custom levels
 
   BOOST_ASSERT(m_state.location.room->isInnerPositionXZ(item.position));
 

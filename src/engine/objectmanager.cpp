@@ -155,13 +155,13 @@ void ObjectManager::update(world::World& world, bool godMode)
   {
     object->getNode()->setVisible(object->m_state.triggerState != objects::TriggerState::Invisible);
     object->updateLighting();
-    if(object.get() == m_lara) // Lara is special and needs to be updated last
-      continue;
   }
 
   const auto activeObjects = m_activeObjects; // need to work on a copy because update() may modify the collection
   for(const auto& object : activeObjects)
   {
+    if(object.get() == m_lara) // Lara is special and needs to be updated last
+      continue;
     object->update();
   }
 

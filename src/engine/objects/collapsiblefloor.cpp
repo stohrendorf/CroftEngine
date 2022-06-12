@@ -14,9 +14,6 @@ namespace engine::objects
 {
 void CollapsibleFloor::update()
 {
-  if(!isActive())
-    return;
-
   if(m_state.current_anim_state == 0_as) // stationary
   {
     if(m_state.location.position.Y - 512_len != getWorld().getObjectManager().getLara().m_state.location.position.Y)
