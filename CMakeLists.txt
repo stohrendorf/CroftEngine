@@ -3,6 +3,18 @@ list( APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake )
 
 project( CroftEngine VERSION 1.7 )
 
+file( STRINGS deprecations.txt _deprecations )
+foreach( _deprecation IN LISTS _deprecations )
+    if( NOT _deprecation MATCHES ".+ .+" )
+        continue()
+    endif()
+
+    string( REGEX REPLACE " .+\$" "" _version "${_deprecation}" )
+    if( ${_version} VERSION_LESS_EQUAL ${CMAKE_PROJECT_VERSION} )
+        message( FATAL_ERROR "Deprecation messages found in deprecations.txt (deprecated since ${_version}, current engine version is ${CMAKE_PROJECT_VERSION})" )
+    endif()
+endforeach()
+
 cmake_policy( SET CMP0069 NEW )
 cmake_policy( SET CMP0094 NEW )
 
