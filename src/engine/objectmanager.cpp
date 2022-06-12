@@ -285,7 +285,11 @@ void ObjectManager::deactivate(const engine::objects::Object* object)
 void ObjectManager::activate(const engine::objects::Object* object)
 {
   const auto ob = find(object, true);
-  gsl_Assert(ob != nullptr);
+  if(ob == nullptr)
+  {
+    return;
+  }
+  
   const auto it = std::find(m_activeObjects.begin(), m_activeObjects.end(), gsl::not_null{ob});
   if(it == m_activeObjects.end())
   {
