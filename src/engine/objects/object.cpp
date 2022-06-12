@@ -50,7 +50,11 @@ Object::Object(const gsl::not_null<world::World*>& world,
   m_hasUpdateFunction = hasUpdateFunction;
   m_state.type = item.type;
 
-  BOOST_ASSERT(m_state.location.room->isInnerPositionXZ(item.position));
+  if(!m_state.location.room->isInnerPositionXZ(item.position))
+  {
+    BOOST_LOG_TRIVIAL(warning) << "patching location for " << toString(item.type.get_as<TR1ItemId>());
+    m_state.location.updateRoom();
+  }
 
   m_state.loadObjectInfo(world->getEngine().getScriptEngine().getGameflow());
 
