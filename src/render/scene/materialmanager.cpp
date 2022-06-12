@@ -293,16 +293,16 @@ gslu::nn_shared<Material> MaterialManager::getFlat(bool withAlpha, bool invertY,
   return m;
 }
 
-const std::shared_ptr<Material>& MaterialManager::getBackdrop()
+gslu::nn_shared<Material> MaterialManager::getBackdrop(bool withAlphaMultiplier)
 {
-  if(m_backdrop != nullptr)
-    return m_backdrop;
+  if(auto it = m_backdrop.find(withAlphaMultiplier); it != m_backdrop.end())
+    return it->second;
 
-  auto m = std::make_shared<Material>(m_shaderCache->getBackdrop());
+  auto m = gsl::make_shared<Material>(m_shaderCache->getBackdrop(withAlphaMultiplier));
   m->getUniformBlock("Camera")->bindCameraBuffer(m_renderer->getCamera());
-  configureForScreenSpaceEffect(*m, false);
-  m_backdrop = m;
-  return m_backdrop;
+  configureForScreenSpaceEffect(*m, withAlphaMultiplier);
+  m_backdrop.emplace(withAlphaMultiplier, m);
+  return m;
 }
 
 gslu::nn_shared<Material> MaterialManager::getFXAA()

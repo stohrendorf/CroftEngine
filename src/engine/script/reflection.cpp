@@ -305,7 +305,7 @@ std::pair<RunResult, std::optional<size_t>> SplashScreen::run(Engine& engine,
       auto scaledSourceSize = sourceSize * splashScale;
       auto sourceOffset = (targetSize - scaledSourceSize) / 2.0f;
       mesh = render::scene::createScreenQuad(
-        sourceOffset, scaledSourceSize, presenter.getMaterialManager()->getBackdrop(), m_path.string());
+        sourceOffset, scaledSourceSize, presenter.getMaterialManager()->getBackdrop(false), m_path.string());
       mesh->bind(
         "u_input",
         [&image](const render::scene::Node* /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)

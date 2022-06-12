@@ -445,8 +445,8 @@ void Presenter::scaleSplashImage()
 
   auto scaledSourceSize = sourceSize * splashScale;
   auto sourceOffset = (viewport - scaledSourceSize) / 2.0f;
-  m_splashImageMesh
-    = render::scene::createScreenQuad(sourceOffset, scaledSourceSize, m_materialManager->getBackdrop(), "backdrop");
+  m_splashImageMesh = render::scene::createScreenQuad(
+    sourceOffset, scaledSourceSize, m_materialManager->getBackdrop(false), "backdrop");
   m_splashImageMesh->bind(
     "u_input",
     [this](const render::scene::Node* /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)

@@ -47,9 +47,12 @@ public:
     return get("flat.vert", "flat.frag", defines);
   }
 
-  [[nodiscard]] auto getBackdrop()
+  [[nodiscard]] auto getBackdrop(bool withAlphaMultiplier)
   {
-    return get("backdrop.vert", "flat.frag");
+    std::vector<std::string> defines;
+    if(withAlphaMultiplier)
+      defines.emplace_back("ALPHA_MULTIPLIER");
+    return get("backdrop.vert", "flat.frag", defines);
   }
 
   [[nodiscard]] auto getGeometry(bool inWater, bool skeletal, bool roomShadowing, uint8_t spriteMode)

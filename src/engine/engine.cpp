@@ -507,7 +507,7 @@ std::pair<RunResult, std::optional<size_t>> Engine::runTitleMenu(world::World& w
       auto scaledSourceSize = sourceSize * splashScale;
       auto sourceOffset = (viewport - scaledSourceSize) / 2.0f;
       backdropMesh = render::scene::createScreenQuad(
-        sourceOffset, scaledSourceSize, m_presenter->getMaterialManager()->getBackdrop(), "backdrop");
+        sourceOffset, scaledSourceSize, m_presenter->getMaterialManager()->getBackdrop(false), "backdrop");
       backdropMesh->bind(
         "u_input",
         [backdrop](const render::scene::Node* /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)

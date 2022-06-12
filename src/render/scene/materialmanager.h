@@ -50,7 +50,7 @@ public:
   [[nodiscard]] gslu::nn_shared<Material> getReflective();
 
   [[nodiscard]] gslu::nn_shared<Material> getFlat(bool withAlpha, bool invertY = false, bool withAspectRatio = false);
-  [[nodiscard]] const std::shared_ptr<Material>& getBackdrop();
+  [[nodiscard]] gslu::nn_shared<Material> getBackdrop(bool withAlphaMultiplier);
   [[nodiscard]] gslu::nn_shared<Material> getHBAO();
   [[nodiscard]] gslu::nn_shared<Material> getVSMSquare();
   [[nodiscard]] gslu::nn_shared<Material> getFastGaussBlur(uint8_t extent, uint8_t blurDir, uint8_t blurDim);
@@ -93,7 +93,7 @@ private:
   std::map<std::tuple<bool, bool, bool>, gslu::nn_shared<Material>> m_flat{};
   std::map<std::tuple<uint8_t, uint8_t, uint8_t>, gslu::nn_shared<Material>> m_fastGaussBlur{};
   std::map<std::tuple<uint8_t, uint8_t, uint8_t>, gslu::nn_shared<Material>> m_fastBoxBlur{};
-  std::shared_ptr<Material> m_backdrop{nullptr};
+  std::map<bool, gslu::nn_shared<Material>> m_backdrop{};
   std::shared_ptr<Material> m_hbao{nullptr};
   std::shared_ptr<Material> m_vsmSquare{nullptr};
 
