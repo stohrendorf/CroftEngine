@@ -43,6 +43,7 @@ WorldCompositionPass::WorldCompositionPass(scene::MaterialManager& materialManag
     , m_inWaterMaterial{materialManager.getWorldComposition(true, renderSettings.dof)}
     , m_noWaterMesh{scene::createScreenQuad(m_noWaterMaterial, "composition-nowater")}
     , m_inWaterMesh{scene::createScreenQuad(m_inWaterMaterial, "composition-water")}
+    , m_bloomMesh{scene::createScreenQuad(materialManager.getBloom(), "composition-bloom")}
     , m_colorBuffer{std::make_shared<gl::Texture2D<gl::SRGB8>>(viewport, "composition-color")}
     , m_colorBufferHandle{std::make_shared<gl::TextureHandle<gl::Texture2D<gl::SRGB8>>>(
         m_colorBuffer,
@@ -50,10 +51,23 @@ WorldCompositionPass::WorldCompositionPass(scene::MaterialManager& materialManag
           | set(gl::api::SamplerParameterI::TextureWrapS, gl::api::TextureWrapMode::Repeat)
           | set(gl::api::SamplerParameterI::TextureWrapT, gl::api::TextureWrapMode::Repeat)
           | set(gl::api::TextureMinFilter::Linear) | set(gl::api::TextureMagFilter::Linear))}
+    , m_bloomedBuffer{std::make_shared<gl::Texture2D<gl::SRGB8>>(viewport, "composition-bloomed")}
+    , m_bloomedBufferHandle{std::make_shared<gl::TextureHandle<gl::Texture2D<gl::SRGB8>>>(
+        m_bloomedBuffer,
+        gsl::make_unique<gl::Sampler>("composition-bloomed-sampler")
+          | set(gl::api::SamplerParameterI::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge)
+          | set(gl::api::SamplerParameterI::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge)
+          | set(gl::api::TextureMinFilter::Linear) | set(gl::api::TextureMagFilter::Linear))}
     , m_fb{gl::FrameBufferBuilder()
              .textureNoBlend(gl::api::FramebufferAttachment::ColorAttachment0, m_colorBuffer)
              .textureNoBlend(gl::api::FramebufferAttachment::DepthAttachment, geometryPass.getDepthBuffer())
              .build("composition-fb")}
+    , m_fbBloom{gl::FrameBufferBuilder()
+                  .textureNoBlend(gl::api::FramebufferAttachment::ColorAttachment0, m_bloomedBuffer)
+                  .build("composition-fb-bloom")}
+    , m_bloomBlur1{"bloom-1", materialManager, 4, true, 2}
+    , m_bloomBlur2{"bloom-2", materialManager, 4, true, 1}
+    , m_bloom{renderSettings.bloom}
 {
   m_noWaterMesh->bind("u_portalPosition",
                       [buffer = portalPass.getPositionBuffer()](
@@ -129,6 +143,22 @@ WorldCompositionPass::WorldCompositionPass(scene::MaterialManager& materialManag
                       });
 
   m_inWaterMesh->getRenderState().merge(m_fb->getRenderState());
+
+  m_bloomBlur1.setInput(m_colorBufferHandle);
+  m_bloomBlur2.setInput(m_bloomBlur1.getBlurredTexture());
+  m_bloomMesh->bind(
+    "u_input",
+    [this](const render::scene::Node* /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
+    {
+      uniform.set(m_colorBufferHandle);
+    });
+  m_bloomMesh->bind(
+    "u_bloom",
+    [this](const render::scene::Node* /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
+    {
+      uniform.set(m_bloomBlur2.getBlurredTexture());
+    });
+  m_bloomMesh->getRenderState().merge(m_fbBloom->getRenderState());
 }
 
 // NOLINTNEXTLINE(readability-make-member-function-const)
@@ -149,6 +179,14 @@ void WorldCompositionPass::render(bool inWater)
     m_inWaterMesh->render(nullptr, context);
   else
     m_noWaterMesh->render(nullptr, context);
+
+  if(m_bloom)
+  {
+    m_bloomBlur1.render();
+    m_bloomBlur2.render();
+    m_fbBloom->bind();
+    m_bloomMesh->render(nullptr, context);
+  }
 
   if constexpr(FlushPasses)
     GL_ASSERT(gl::api::finish());

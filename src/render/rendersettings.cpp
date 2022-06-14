@@ -20,6 +20,7 @@ void RenderSettings::serialize(const serialization::Serializer<engine::EngineCon
       S_NVO("hbao", hbao),
       S_NVO("velvia", velvia),
       S_NVO("fxaa", fxaa),
+      S_NVO("bloom", bloom),
       S_NVO("moreLights", moreLights),
       S_NVO("dust", dust),
       S_NVO("highQualityShadows", highQualityShadows),

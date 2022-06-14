@@ -28,7 +28,7 @@ class EffectPass final
 public:
   explicit EffectPass(gsl::not_null<const RenderPipeline*> renderPipeline,
                       std::string name,
-                      gslu::nn_shared<scene::Material> material,
+                      const gslu::nn_shared<scene::Material>& material,
                       const gslu::nn_shared<gl::TextureHandle<gl::Texture2D<gl::SRGB8>>>& input);
 
   void render(bool inWater);
@@ -52,7 +52,6 @@ public:
 private:
   const gsl::not_null<const RenderPipeline*> m_renderPipeline;
   const std::string m_name;
-  const gslu::nn_shared<scene::Material> m_material;
   gslu::nn_shared<scene::Mesh> m_mesh;
   gslu::nn_shared<gl::Texture2D<gl::SRGB8>> m_colorBuffer;
   gslu::nn_shared<gl::TextureHandle<gl::Texture2D<gl::SRGB8>>> m_colorBufferHandle;

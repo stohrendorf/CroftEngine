@@ -405,6 +405,17 @@ gslu::nn_shared<Material> MaterialManager::getReflective()
   return m;
 }
 
+gslu::nn_shared<Material> MaterialManager::getBloom()
+{
+  if(m_bloom != nullptr)
+    return gsl::not_null{m_bloom};
+
+  auto m = gsl::make_shared<Material>(m_shaderCache->getBloom());
+  configureForScreenSpaceEffect(*m, false);
+  m_bloom = m;
+  return m;
+}
+
 gslu::nn_shared<Material> MaterialManager::getHBAO()
 {
   if(m_hbao != nullptr)

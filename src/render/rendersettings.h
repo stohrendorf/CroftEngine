@@ -28,6 +28,7 @@ struct RenderSettings
   bool hbao = true;
   bool velvia = true;
   bool fxaa = true;
+  bool bloom = true;
   bool moreLights = true;
   bool dust = true;
   bool highQualityShadows = true;

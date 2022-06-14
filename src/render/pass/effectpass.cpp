@@ -31,12 +31,11 @@ namespace render::pass
 {
 EffectPass::EffectPass(gsl::not_null<const RenderPipeline*> renderPipeline,
                        std::string name,
-                       gslu::nn_shared<scene::Material> material,
+                       const gslu::nn_shared<scene::Material>& material,
                        const gslu::nn_shared<gl::TextureHandle<gl::Texture2D<gl::SRGB8>>>& input)
     : m_renderPipeline{std::move(renderPipeline)}
     , m_name{std::move(name)}
-    , m_material{std::move(material)}
-    , m_mesh{scene::createScreenQuad(m_material, m_name)}
+    , m_mesh{scene::createScreenQuad(material, m_name)}
     , m_colorBuffer{std::make_shared<gl::Texture2D<gl::SRGB8>>(input->getTexture()->size(), m_name + "-color")}
     , m_colorBufferHandle{std::make_shared<gl::TextureHandle<gl::Texture2D<gl::SRGB8>>>(
         m_colorBuffer,

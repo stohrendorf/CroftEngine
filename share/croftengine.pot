@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: CroftEngine 1.5.1\n"
+"Project-Id-Version: CroftEngine 1.7.1\n"
 "Report-Msgid-Bugs-To: https://github.com/stohrendorf/CroftEngine/issues\n"
-"POT-Creation-Date: 2022-06-03 18:20+0200\n"
+"POT-Creation-Date: 2022-06-14 19:31+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -49,7 +49,7 @@ msgid "%1%:%2$02d:%3$02d"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:369
+#: menu/rendersettingsmenustate.cpp:379
 #, boost-format
 msgid "%1%x Anisotropic Filtering"
 msgstr ""
@@ -184,6 +184,11 @@ msgctxt "Keyboard|Key"
 msgid "Bksp"
 msgstr ""
 
+#. translators: TR charmap encoding
+#: menu/rendersettingsmenustate.cpp:244
+msgid "Bloom"
+msgstr ""
+
 #: engine/presenter.cpp:434
 msgid "Booting"
 msgstr ""
@@ -193,7 +198,7 @@ msgid "Building textures"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:351
+#: menu/rendersettingsmenustate.cpp:361
 msgid "Butt Bubbles"
 msgstr ""
 
@@ -286,7 +291,7 @@ msgid "Discard changes"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:264
+#: menu/rendersettingsmenustate.cpp:274
 msgid "Double UI Scale"
 msgstr ""
 
@@ -333,7 +338,7 @@ msgid "Draw Weapon"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:287
+#: menu/rendersettingsmenustate.cpp:297
 msgid "Dust"
 msgstr ""
 
@@ -401,7 +406,7 @@ msgid "Film Grain"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:277
+#: menu/rendersettingsmenustate.cpp:287
 msgid "Fullscreen"
 msgstr ""
 
@@ -432,7 +437,7 @@ msgid "Gameplay"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:307
+#: menu/rendersettingsmenustate.cpp:317
 msgid "Ghost"
 msgstr ""
 
@@ -488,12 +493,12 @@ msgid "HBAO"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:254
+#: menu/rendersettingsmenustate.cpp:264
 msgid "Half Resolution"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:244
+#: menu/rendersettingsmenustate.cpp:254
 msgid "High Quality Shadows"
 msgstr ""
 
@@ -632,11 +637,11 @@ msgstr ""
 msgid "Loading %1%"
 msgstr ""
 
-#: engine/engine.cpp:595
+#: engine/engine.cpp:598
 msgid "Loading Glidos texture pack"
 msgstr ""
 
-#: engine/world/world.cpp:1041
+#: engine/world/world.cpp:1044
 msgid "Loading..."
 msgstr ""
 
@@ -647,12 +652,12 @@ msgid "Look"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:329
+#: menu/rendersettingsmenustate.cpp:339
 msgid "Low Health: Pulse Health Bar"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:340
+#: menu/rendersettingsmenustate.cpp:350
 msgid "Low Health: Reduce Color"
 msgstr ""
 
@@ -679,7 +684,7 @@ msgid "Menu"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:297
+#: menu/rendersettingsmenustate.cpp:307
 msgid "More Lights"
 msgstr ""
 
@@ -734,7 +739,7 @@ msgid "OPTION"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:274
+#: menu/rendersettingsmenustate.cpp:284
 msgid "Other"
 msgstr ""
 
@@ -910,7 +915,7 @@ msgstr ""
 msgid "Quality"
 msgstr ""
 
-#: engine/world/world.cpp:1067
+#: engine/world/world.cpp:1070
 msgid "Quicksave"
 msgstr ""
 
@@ -956,7 +961,7 @@ msgid "Restart Level"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:318
+#: menu/rendersettingsmenustate.cpp:328
 msgid "Restore Health on Level Start"
 msgstr ""
 
@@ -1029,7 +1034,7 @@ msgstr ""
 msgid "Save recorded ghost?"
 msgstr ""
 
-#: engine/world/world.cpp:1062
+#: engine/world/world.cpp:1065
 msgid "Saving..."
 msgstr ""
 

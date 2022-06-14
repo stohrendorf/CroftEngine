@@ -241,6 +241,16 @@ RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingT
       toggle(engine, engine.getEngineConfig()->renderSettings.fxaa);
     });
   listBox->addSetting(
+    /* translators: TR charmap encoding */ _("Bloom"),
+    [&engine]()
+    {
+      return engine.getEngineConfig()->renderSettings.bloom;
+    },
+    [&engine]()
+    {
+      toggle(engine, engine.getEngineConfig()->renderSettings.bloom);
+    });
+  listBox->addSetting(
     /* translators: TR charmap encoding */ _("High Quality Shadows"),
     [&engine]()
     {

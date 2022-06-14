@@ -48,6 +48,7 @@ public:
   [[nodiscard]] gslu::nn_shared<Material> getHBAOFx();
   [[nodiscard]] gslu::nn_shared<Material> getUnderwaterMovement();
   [[nodiscard]] gslu::nn_shared<Material> getReflective();
+  [[nodiscard]] gslu::nn_shared<Material> getBloom();
 
   [[nodiscard]] gslu::nn_shared<Material> getFlat(bool withAlpha, bool invertY = false, bool withAspectRatio = false);
   [[nodiscard]] gslu::nn_shared<Material> getBackdrop(bool withAlphaMultiplier);
@@ -80,6 +81,7 @@ private:
   std::shared_ptr<Material> m_hbaoFx{nullptr};
   std::shared_ptr<Material> m_underwaterMovement{nullptr};
   std::shared_ptr<Material> m_reflective{nullptr};
+  std::shared_ptr<Material> m_bloom{nullptr};
 
   std::map<bool, gslu::nn_shared<Material>> m_sprite{};
   std::map<bool, gslu::nn_shared<Material>> m_csmDepthOnly{};
