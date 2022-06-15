@@ -7,7 +7,8 @@ from typing import Iterable, Tuple, List
 def read_enum_txt(name: Path) -> Iterable[Tuple[str, str]]:
     for line in name.read_text().splitlines():
         if re.fullmatch(r"(\s*//.+)?", line):
-            pass
+            continue
+
         matches = re.fullmatch(r"(.+?)\s*=\s*(.+?)(\s*//.+)?", line)
         if matches:
             yield matches.group(1), matches.group(2)
