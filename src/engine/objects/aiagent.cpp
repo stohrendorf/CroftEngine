@@ -157,11 +157,11 @@ bool AIAgent::animateCreature(const core::Angle& deltaRotationY, const core::Ang
      || boxFloor - currentSector->box->floor < pathFinder.drop
      || m_state.getCurrentBox().get()->*zoneRef != currentSector->box->*zoneRef)
   {
-    static const auto shoveMin = [this](const core::Length& l)
+    const auto shoveMin = [this](const core::Length& l)
     {
       return sectorOf(l) * 1_sectors + m_collisionRadius;
     };
-    static const auto shoveMax = [this](const core::Length& l)
+    const auto shoveMax = [this](const core::Length& l)
     {
       return (sectorOf(l) + 1) * 1_sectors - 1_len - m_collisionRadius;
     };
