@@ -577,7 +577,11 @@ void CameraController::handleFixedCamera()
 core::Length CameraController::moveIntoBox(Location& goal, const core::Length& margin) const
 {
   const auto sector = goal.updateRoom();
-  Expects(sector->box != nullptr);
+  if(sector->box == nullptr)
+  {
+    BOOST_LOG_TRIVIAL(warning) << "Invalid camera goal: " << goal;
+    return 0_len;
+  }
 
   {
     const auto narrowed = sector->box->zInterval.narrowed(margin);
