@@ -191,6 +191,16 @@ RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingT
     {
       toggle(engine, engine.getEngineConfig()->renderSettings.velvia);
     });
+  listBox->addSetting(
+    /* translators: TR charmap encoding */ _("Bloom"),
+    [&engine]()
+    {
+      return engine.getEngineConfig()->renderSettings.bloom;
+    },
+    [&engine]()
+    {
+      toggle(engine, engine.getEngineConfig()->renderSettings.bloom);
+    });
 
   listBox = gsl::make_shared<CheckListBox>();
   m_listBoxes.emplace_back(listBox);
@@ -257,16 +267,6 @@ RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingT
     [&engine]()
     {
       toggle(engine, engine.getEngineConfig()->renderSettings.fxaa);
-    });
-  listBox->addSetting(
-    /* translators: TR charmap encoding */ _("Bloom"),
-    [&engine]()
-    {
-      return engine.getEngineConfig()->renderSettings.bloom;
-    },
-    [&engine]()
-    {
-      toggle(engine, engine.getEngineConfig()->renderSettings.bloom);
     });
   listBox->addSetting(
     /* translators: TR charmap encoding */ _("High Quality Shadows"),
