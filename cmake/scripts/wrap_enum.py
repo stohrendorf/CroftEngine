@@ -6,11 +6,15 @@ from typing import Iterable, Tuple, List
 
 def read_enum_txt(name: Path) -> Iterable[Tuple[str, str]]:
     for line in name.read_text().splitlines():
-        if matches := re.fullmatch(r"(\s*//.+)?", line):
+        if re.fullmatch(r"(\s*//.+)?", line):
             pass
-        elif matches := re.fullmatch(r"(.+?)\s*=\s*(.+?)(\s*//.+)?", line):
+        matches = re.fullmatch(r"(.+?)\s*=\s*(.+?)(\s*//.+)?", line)
+        if matches:
             yield matches.group(1), matches.group(2)
-        elif matches := re.fullmatch(r"(.+?)(\s*//.+)?", line):
+            continue
+
+        matches = re.fullmatch(r"(.+?)(\s*//.+)?", line)
+        if matches:
             yield matches.group(1), None
 
 
