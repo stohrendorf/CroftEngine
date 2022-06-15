@@ -67,7 +67,7 @@ constexpr const std::array<std::array<std::optional<hid::Action>, 4>, Columns> s
     hid::Action::Save,
     hid::Action::Load,
     hid::Action::Screenshot,
-    std::nullopt,
+    hid::Action::BugReport,
   },
 }};
 

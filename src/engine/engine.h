@@ -81,6 +81,7 @@ private:
   [[nodiscard]] std::unique_ptr<loader::trx::Glidos> loadGlidosPack() const;
 
   void makeScreenshot();
+  void takeBugReport(world::World& world);
 
 public:
   explicit Engine(std::filesystem::path userDataPath,

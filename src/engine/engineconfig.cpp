@@ -53,6 +53,7 @@ std::vector<NamedInputMappingConfig> getDefaultMappings()
         {GlfwKey::Q, Action::StepLeft},
         {GlfwKey::E, Action::StepRight},
         {GlfwKey::F12, Action::Screenshot},
+        {GlfwKey::F1, Action::BugReport},
         {GlfwKey::F10, Action::CheatDive} // only available in debug builds
       },
     },
