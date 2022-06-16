@@ -24,6 +24,7 @@
 /data
 /assets
 /screenshots
+/bugreports
 /config.yaml
 /runtime-asset-src/*.blend?*
 
