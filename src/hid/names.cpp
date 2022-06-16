@@ -352,6 +352,8 @@ std::string getName(Action action)
     return /* translators: TR charmap encoding */ pgettext("Action", "Cheat Dive");
   case Action::Screenshot:
     return /* translators: TR charmap encoding */ pgettext("Action", "Screenshot");
+  case Action::BugReport: 
+    return /* translators: TR charmap encoding */ pgettext("Action", "Bug Report");
   }
   BOOST_THROW_EXCEPTION(std::domain_error("action"));
 }

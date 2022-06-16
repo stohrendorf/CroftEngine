@@ -128,6 +128,13 @@ void drawAmmoWidget(ui::Ui& ui, const ui::TRFont& trFont, const world::World& wo
   }
 }
 
+void drawBugReportMessage(ui::Ui& ui, const ui::TRFont& trFont)
+{
+    auto text = ui::Text{/* translators: TR charmap encoding */ _("Bug Report Saved")};
+    const auto pos = glm::ivec2{(ui.getSize().x - text.getWidth()) / 2, ui.getSize().y / 2 - ui::FontHeight};
+    text.draw(ui, trFont, pos);
+}
+
 bool showLevelStats(const std::shared_ptr<Presenter>& presenter, world::World& world)
 {
   static constexpr const auto BlendDuration = 30_frame;
@@ -171,6 +178,24 @@ bool showLevelStats(const std::shared_ptr<Presenter>& presenter, world::World& w
   }
 
   return true;
+}
+
+std::string getCurrentHumanReadableTimestamp()
+{
+  auto time = std::time(nullptr);
+#ifdef WIN32
+  struct tm localTimeData
+  {
+  };
+  Expects(localtime_s(&localTimeData, &time) == 0);
+  auto localTime = &localTimeData;
+#else
+  // NOLINTNEXTLINE(concurrency-mt-unsafe)
+  auto localTime = std::localtime(&time);
+#endif
+  return (boost::format("%04d-%02d-%02d %02d-%02d-%02d") % (localTime->tm_year + 1900) % (localTime->tm_mon + 1)
+          % localTime->tm_mday % localTime->tm_hour % localTime->tm_min % localTime->tm_sec)
+    .str();
 }
 } // namespace
 
@@ -245,6 +270,7 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
   core::Frame runtime = 0_frame;
   static constexpr auto BlendInDuration = (core::FrameRate * 2_sec).cast<core::Frame>();
   core::Frame ammoDisplayDuration = 0_frame;
+  core::Frame bugReportSavedDuration = 0_frame;
 
   const auto ghostRoot = m_userDataPath / "ghosts" / m_gameflowId;
   std::filesystem::create_directories(ghostRoot);
@@ -408,6 +434,11 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
       ui::Ui ui{m_presenter->getMaterialManager()->getUi(), world.getPalette(), m_presenter->getUiViewport()};
 
       drawAmmoWidget(ui, getPresenter().getTrFont(), world, ammoDisplayDuration);
+      if(bugReportSavedDuration != 0_frame)
+      {
+        drawBugReportMessage(ui, getPresenter().getTrFont());
+        bugReportSavedDuration -= 1_frame;
+      }
 
       if(ghostManager.reader != nullptr)
       {
@@ -438,6 +469,14 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
       makeScreenshot();
       throttler.reset();
     }
+
+    if(m_presenter->getInputHandler().hasDebouncedAction(hid::Action::BugReport))
+    {
+      takeBugReport(world);
+      bugReportSavedDuration = core::FrameRate * 5_sec;
+      throttler.reset();
+    }
+   
   }
 }
 
@@ -447,21 +486,30 @@ void Engine::makeScreenshot()
   if(!std::filesystem::is_directory(m_userDataPath / "screenshots"))
     std::filesystem::create_directories(m_userDataPath / "screenshots");
 
-  auto time = std::time(nullptr);
-#ifdef WIN32
-  struct tm localTimeData
+  auto filename = getCurrentHumanReadableTimestamp() + ".png";
+  img.savePng(m_userDataPath / "screenshots" / filename);
+}
+
+void Engine::takeBugReport(world::World& world)
+{
+
+  if(!std::filesystem::is_directory(m_userDataPath / "bugreports"))
   {
-  };
-  Expects(localtime_s(&localTimeData, &time) == 0);
-  auto localTime = &localTimeData;
-#else
-  // NOLINTNEXTLINE(concurrency-mt-unsafe)
-  auto localTime = std::localtime(&time);
-#endif
-  auto filename = boost::format("%04d-%02d-%02d %02d-%02d-%02d.png") % (localTime->tm_year + 1900)
-                  % (localTime->tm_mon + 1) % localTime->tm_mday % localTime->tm_hour % localTime->tm_min
-                  % localTime->tm_sec;
-  img.savePng(m_userDataPath / "screenshots" / filename.str());
+    std::filesystem::create_directory(m_userDataPath / "bugreports");
+  }
+  
+  const auto dirName = getCurrentHumanReadableTimestamp();
+  if(!std::filesystem::is_directory(m_userDataPath / "bugreports" / dirName))
+  {
+    std::filesystem::create_directory(m_userDataPath / "bugreports" / dirName);
+  }
+
+  std::filesystem::copy_file(m_userDataPath / "croftengine.log", m_userDataPath / "bugreports" / dirName / "croftengine.log");
+
+  auto img = m_presenter->takeScreenshot();
+  img.savePng(m_userDataPath / "bugreports" / dirName / "screenshot.png");
+
+  world.save(m_userDataPath / "bugreports" / dirName / "save.yaml",false);
 }
 
 std::pair<RunResult, std::optional<size_t>> Engine::runTitleMenu(world::World& world)

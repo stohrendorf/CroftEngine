@@ -1060,17 +1060,22 @@ void World::load(const std::optional<size_t>& slot)
   getPresenter().disableScreenOverlay();
 }
 
+void World::save(const std::filesystem::path& filename,bool isQuicksave)
+{
+  BOOST_LOG_TRIVIAL(info) << "Save " << filename;
+  serialization::YAMLDocument<false> doc{filename};
+  SavegameMeta meta{std::filesystem::relative(m_levelFilename, m_engine.getAssetDataPath()).string(),
+                    isQuicksave ? _("Quicksave") : m_title};
+  doc.save("meta", meta, meta);
+  doc.save("data", *this, *this);
+  doc.write();
+}
+
 void World::save(const std::optional<size_t>& slot)
 {
   getPresenter().drawLoadingScreen(_("Saving..."));
   const auto filename = m_engine.getSavegamePath(slot);
-  BOOST_LOG_TRIVIAL(info) << "Save " << filename;
-  serialization::YAMLDocument<false> doc{filename};
-  SavegameMeta meta{std::filesystem::relative(m_levelFilename, m_engine.getAssetDataPath()).string(),
-                    slot.has_value() ? m_title : _("Quicksave")};
-  doc.save("meta", meta, meta);
-  doc.save("data", *this, *this);
-  doc.write();
+  save(filename, !slot.has_value());
   getPresenter().disableScreenOverlay();
 }
 
