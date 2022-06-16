@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: CroftEngine 1.7.1\n"
+"Project-Id-Version: CroftEngine 1.7.2\n"
 "Report-Msgid-Bugs-To: https://github.com/stohrendorf/CroftEngine/issues\n"
-"POT-Creation-Date: 2022-06-14 19:31+0200\n"
+"POT-Creation-Date: 2022-06-17 01:04+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -49,7 +49,7 @@ msgid "%1%:%2$02d:%3$02d"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:379
+#: menu/rendersettingsmenustate.cpp:400
 #, boost-format
 msgid "%1%x Anisotropic Filtering"
 msgstr ""
@@ -174,7 +174,7 @@ msgid "Back"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:184
+#: menu/rendersettingsmenustate.cpp:212
 msgid "Bilinear Filtering"
 msgstr ""
 
@@ -185,7 +185,7 @@ msgid "Bksp"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:244
+#: menu/rendersettingsmenustate.cpp:195
 msgid "Bloom"
 msgstr ""
 
@@ -193,12 +193,23 @@ msgstr ""
 msgid "Booting"
 msgstr ""
 
+#. translators: TR charmap encoding
+#: hid/names.cpp:356
+msgctxt "Action"
+msgid "Bug Report"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: engine/engine.cpp:133
+msgid "Bug Report Saved"
+msgstr ""
+
 #: engine/world/texturing.cpp:367
 msgid "Building textures"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:361
+#: menu/rendersettingsmenustate.cpp:382
 msgid "Butt Bubbles"
 msgstr ""
 
@@ -209,7 +220,7 @@ msgid "C"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:131
+#: menu/rendersettingsmenustate.cpp:145
 msgid "CRT"
 msgstr ""
 
@@ -271,12 +282,12 @@ msgid "Del"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:214
+#: menu/rendersettingsmenustate.cpp:242
 msgid "Denoise Water Surface"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:141
+#: menu/rendersettingsmenustate.cpp:155
 msgid "Depth-of-Field"
 msgstr ""
 
@@ -291,7 +302,7 @@ msgid "Discard changes"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:274
+#: menu/rendersettingsmenustate.cpp:292
 msgid "Double UI Scale"
 msgstr ""
 
@@ -338,7 +349,7 @@ msgid "Draw Weapon"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:297
+#: menu/rendersettingsmenustate.cpp:318
 msgid "Dust"
 msgstr ""
 
@@ -349,7 +360,7 @@ msgid "E"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/audiosettingsmenustate.cpp:64 menu/rendersettingsmenustate.cpp:128
+#: menu/audiosettingsmenustate.cpp:64 menu/rendersettingsmenustate.cpp:138
 msgid "Effects"
 msgstr ""
 
@@ -396,17 +407,17 @@ msgid "F"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:234
+#: menu/rendersettingsmenustate.cpp:262
 msgid "FXAA"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:161
+#: menu/rendersettingsmenustate.cpp:175
 msgid "Film Grain"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:287
+#: menu/rendersettingsmenustate.cpp:308
 msgid "Fullscreen"
 msgstr ""
 
@@ -426,7 +437,7 @@ msgstr ""
 msgid "Game"
 msgstr ""
 
-#: engine/engineconfig.cpp:60
+#: engine/engineconfig.cpp:61
 msgctxt "Input|MappingName"
 msgid "Gamepad"
 msgstr ""
@@ -437,7 +448,7 @@ msgid "Gameplay"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:317
+#: menu/rendersettingsmenustate.cpp:338
 msgid "Ghost"
 msgstr ""
 
@@ -488,17 +499,17 @@ msgid "H"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:224
+#: menu/rendersettingsmenustate.cpp:252
 msgid "HBAO"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:264
+#: menu/rendersettingsmenustate.cpp:282
 msgid "Half Resolution"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:254
+#: menu/rendersettingsmenustate.cpp:272
 msgid "High Quality Shadows"
 msgstr ""
 
@@ -617,7 +628,7 @@ msgid "Left"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:151
+#: menu/rendersettingsmenustate.cpp:165
 msgid "Lens Distortion"
 msgstr ""
 
@@ -637,7 +648,7 @@ msgstr ""
 msgid "Loading %1%"
 msgstr ""
 
-#: engine/engine.cpp:598
+#: engine/engine.cpp:646
 msgid "Loading Glidos texture pack"
 msgstr ""
 
@@ -652,12 +663,12 @@ msgid "Look"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:339
+#: menu/rendersettingsmenustate.cpp:360
 msgid "Low Health: Pulse Health Bar"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:350
+#: menu/rendersettingsmenustate.cpp:371
 msgid "Low Health: Reduce Color"
 msgstr ""
 
@@ -684,7 +695,7 @@ msgid "Menu"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:307
+#: menu/rendersettingsmenustate.cpp:328
 msgid "More Lights"
 msgstr ""
 
@@ -739,7 +750,7 @@ msgid "OPTION"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:284
+#: menu/rendersettingsmenustate.cpp:304
 msgid "Other"
 msgstr ""
 
@@ -911,11 +922,11 @@ msgid "Q"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:181
+#: menu/rendersettingsmenustate.cpp:207
 msgid "Quality"
 msgstr ""
 
-#: engine/world/world.cpp:1070
+#: engine/world/world.cpp:1068
 msgid "Quicksave"
 msgstr ""
 
@@ -961,7 +972,7 @@ msgid "Restart Level"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:328
+#: menu/rendersettingsmenustate.cpp:349
 msgid "Restore Health on Level Start"
 msgstr ""
 
@@ -1034,7 +1045,7 @@ msgstr ""
 msgid "Save recorded ghost?"
 msgstr ""
 
-#: engine/world/world.cpp:1065
+#: engine/world/world.cpp:1076
 msgid "Saving..."
 msgstr ""
 
@@ -1221,7 +1232,7 @@ msgid "V"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:171
+#: menu/rendersettingsmenustate.cpp:185
 msgid "Velvia"
 msgstr ""
 
