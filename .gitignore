@@ -52,8 +52,13 @@ share/**/*.mo
 *.trace
 *.7z
 *.gz
+*.xz
 *.user
 *.cap
+*.zip
+*.drawio
+*.dmp
+*.bin
 
 share/shaders/*.err
 share/shaders/*.full.glsl
