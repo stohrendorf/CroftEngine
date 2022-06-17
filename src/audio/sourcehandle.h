@@ -57,7 +57,7 @@ public:
   [[nodiscard]] bool isStopped() const override;
 
   void gracefullyStop(const std::chrono::milliseconds& sleep);
-  void stop() override;
+  void stop() final;
 
   [[nodiscard]] ALint getBuffersProcessed() const;
 
