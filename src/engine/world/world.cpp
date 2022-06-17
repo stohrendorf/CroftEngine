@@ -85,6 +85,7 @@
 #include <algorithm>
 #include <boost/assert.hpp>
 #include <boost/log/trivial.hpp>
+#include <boost/range/adaptor/indexed.hpp>
 #include <boost/range/adaptor/map.hpp>
 #include <boost/throw_exception.hpp>
 #include <cstdint>
@@ -1060,7 +1061,7 @@ void World::load(const std::optional<size_t>& slot)
   getPresenter().disableScreenOverlay();
 }
 
-void World::save(const std::filesystem::path& filename,bool isQuicksave)
+void World::save(const std::filesystem::path& filename, bool isQuicksave)
 {
   BOOST_LOG_TRIVIAL(info) << "Save " << filename;
   serialization::YAMLDocument<false> doc{filename};
@@ -1271,7 +1272,40 @@ std::optional<std::string> World::getItemTitle(TR1ItemId id) const
 
 void World::initFromLevel(loader::file::level::Level& level, bool fromSave)
 {
-  BOOST_LOG_TRIVIAL(info) << "Post-processing data structures";
+  BOOST_LOG_TRIVIAL(info) << "Pre-flight checks for " << m_levelFilename.stem();
+  for(const auto& idItem : level.m_items | boost::adaptors::indexed())
+  {
+    const auto i = idItem.index();
+    const auto& item = idItem.value();
+
+    if(item.room.get() >= level.m_rooms.size())
+    {
+      BOOST_LOG_TRIVIAL(fatal) << "invalid item #" << i << "(" << toString(item.type.get_as<TR1ItemId>())
+                               << "): invalid room " << item.room.get();
+      continue;
+    }
+    const auto& room = level.m_rooms[item.room.get()];
+    const auto inRoom = item.position - room.position;
+    const auto sectorX = sectorOf(inRoom.X);
+    const auto sectorZ = sectorOf(inRoom.Z);
+    if(sectorX < 1 || sectorX >= room.sectorCountX - 1 || sectorZ < 1 || sectorZ >= room.sectorCountZ - 1)
+    {
+      BOOST_LOG_TRIVIAL(warning) << "invalid item #" << i << "(" << toString(item.type.get_as<TR1ItemId>())
+                                 << "): horizontally out of bounds";
+    }
+    if(item.position.Y > room.lowestHeight)
+    {
+      BOOST_LOG_TRIVIAL(warning) << "invalid item #" << i << "(" << toString(item.type.get_as<TR1ItemId>())
+                                 << "): vertically too low - " << item.position.Y << " > " << room.lowestHeight;
+    }
+    if(item.position.Y < room.greatestHeight)
+    {
+      BOOST_LOG_TRIVIAL(warning) << "invalid item #" << i << "(" << toString(item.type.get_as<TR1ItemId>())
+                                 << "): vertically too high - " << item.position.Y << " < " << room.greatestHeight;
+    }
+  }
+
+  BOOST_LOG_TRIVIAL(info) << "Post-processing data structures for " << m_levelFilename.stem();
 
   m_poseFrames = std::move(level.m_poseFrames);
   m_animCommands = std::move(level.m_animCommands);
