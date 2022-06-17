@@ -301,6 +301,7 @@ void SavegameListMenuState::sortEntries()
                   return false;
                 else if(*lhsT != *rhsT)
                   return *lhsT < *rhsT;
+                break;
               case Order::DateDesc:
                 if(!lhsT.has_value() && !rhsT.has_value())
                   break;
@@ -310,6 +311,7 @@ void SavegameListMenuState::sortEntries()
                   return false;
                 else if(*lhsT != *rhsT)
                   return *lhsT > *rhsT;
+                break;
               }
 
               return lhs->getSlot() < rhs->getSlot();

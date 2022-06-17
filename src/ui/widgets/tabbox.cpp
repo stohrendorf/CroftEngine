@@ -73,7 +73,7 @@ void TabBox::fitToContent()
 
 void TabBox::update(bool /*hasFocus*/)
 {
-  for(int i = 0; i < m_tabs.size(); i++)
+  for(size_t i = 0; i < m_tabs.size(); i++)
   {
     const auto& [container, content] = m_tabs[i];
     container->update(i == m_selectedTabIndex);
@@ -113,5 +113,4 @@ void TabBox::addTab(const gslu::nn_shared<Tab>& tab, const gslu::nn_shared<Widge
 {
   m_tabs.emplace_back(tab, content);
 }
-
 } //namespace ui::widgets
