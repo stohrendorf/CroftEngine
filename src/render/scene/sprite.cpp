@@ -17,6 +17,8 @@
 
 namespace render::scene
 {
+namespace
+{
 std::array<SpriteVertex, 4> createSpriteVertices(const float x0,
                                                  const float y0,
                                                  const float x1,
@@ -49,6 +51,7 @@ gslu::nn_shared<gl::VertexBuffer<SpriteVertex>> createSpriteVertexBuffer(float x
   vb->setData(vertices, gl::api::BufferUsage::StaticDraw);
   return vb;
 }
+} // namespace
 
 gslu::nn_shared<Mesh> createSpriteMesh(const float x0,
                                        const float y0,
@@ -70,6 +73,7 @@ gslu::nn_shared<Mesh> createSpriteMesh(const float x0,
     indexBuffer, vb, std::vector{&materialFull->getShaderProgram()->getHandle()}, label);
   auto mesh = gsl::make_shared<MeshImpl<uint16_t, SpriteVertex>>(vao);
   mesh->getMaterialGroup().set(RenderMode::Full, materialFull);
+  mesh->getRenderState().setScissorTest(false);
 
   return mesh;
 }

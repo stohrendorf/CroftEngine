@@ -26,18 +26,6 @@ struct SpriteVertex
   [[nodiscard]] static gl::VertexLayout<SpriteVertex> getLayout();
 };
 
-extern std::array<SpriteVertex, 4> createSpriteVertices(
-  float x0, float y0, float x1, float y1, const glm::vec2& t0, const glm::vec2& t1, int textureIdx);
-
-extern gslu::nn_shared<gl::VertexBuffer<SpriteVertex>> createSpriteVertexBuffer(float x0,
-                                                                                float y0,
-                                                                                float x1,
-                                                                                float y1,
-                                                                                const glm::vec2& t0,
-                                                                                const glm::vec2& t1,
-                                                                                int textureIdx,
-                                                                                const std::string& label);
-
 extern gslu::nn_shared<Mesh> createSpriteMesh(float x0,
                                               float y0,
                                               float x1,
