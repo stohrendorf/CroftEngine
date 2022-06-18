@@ -155,11 +155,7 @@ public:
     return m_window->getViewport();
   }
 
-  [[nodiscard]] auto getRenderViewport() const
-  {
-    const int divisor = m_halfResRender ? 2 : 1;
-    return m_window->getViewport() / divisor;
-  }
+  [[nodiscard]] glm::ivec2 getRenderViewport() const;
 
   [[nodiscard]] auto getUiViewport() const
   {
@@ -197,7 +193,7 @@ private:
   const gslu::nn_unique<render::RenderPipeline> m_renderPipeline;
   std::unique_ptr<render::scene::ScreenOverlay> m_screenOverlay;
 
-  bool m_halfResRender = false;
+  uint8_t m_renderResolutionDivisor = 1;
   bool m_doubleUiScale = false;
 
   void scaleSplashImage();

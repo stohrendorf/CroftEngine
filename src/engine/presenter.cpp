@@ -546,7 +546,7 @@ void Presenter::debounceInput()
 
 void Presenter::apply(const render::RenderSettings& renderSettings, const AudioSettings& audioSettings)
 {
-  m_halfResRender = renderSettings.halfResRender;
+  m_renderResolutionDivisor = renderSettings.renderResolutionDivisorActive ? renderSettings.renderResolutionDivisor : 1;
   m_doubleUiScale = renderSettings.doubleUiScale;
   m_renderer->getCamera()->setViewport(getRenderViewport());
   setFullscreen(renderSettings.fullscreen);
@@ -613,5 +613,11 @@ bool Presenter::update()
 void Presenter::updateSoundEngine()
 {
   m_soundEngine->update();
+}
+
+glm::ivec2 Presenter::getRenderViewport() const
+{
+  BOOST_ASSERT(m_renderResolutionDivisor > 0);
+  return m_window->getViewport() / static_cast<int>(m_renderResolutionDivisor);
 }
 } // namespace engine
