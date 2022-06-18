@@ -55,7 +55,7 @@ void RenderPipeline::worldCompositionPass(const std::vector<engine::world::Room>
     render::scene::RenderContext context{render::scene::RenderMode::Full, std::nullopt};
     for(const auto& room : rooms)
     {
-      if(!room.node->isVisible() || !room.dust->isVisible())
+      if(!room.node->isVisible() || room.dust == nullptr)
         continue;
 
       SOGLB_DEBUGGROUP(room.node->getName() + ":dust");

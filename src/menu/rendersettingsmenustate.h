@@ -46,6 +46,7 @@ private:
   std::shared_ptr<ui::widgets::ValueSelector<uint32_t>> m_anisotropySelector;
   std::shared_ptr<ui::widgets::ValueSelector<uint8_t>> m_uiScaleSelector;
   std::shared_ptr<ui::widgets::ValueSelector<uint8_t>> m_renderResolutionDivisorSelector;
+  std::shared_ptr<ui::widgets::ValueSelector<uint8_t>> m_dustDensitySelector;
   gslu::nn_unique<ui::widgets::TabBox> m_tabs;
 
 public:
