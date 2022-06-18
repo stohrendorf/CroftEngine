@@ -319,10 +319,9 @@ std::pair<RunResult, std::optional<size_t>> SplashScreen::run(Engine& engine,
 
   auto renderFrame = [&presenter, &updateSize, &mesh, &throttler, &context]() -> bool
   {
-    if(presenter.update() || presenter.shouldClose())
+    if(!presenter.preFrame() || presenter.shouldClose())
       return false;
 
-    presenter.getInputHandler().update();
     if(presenter.getInputHandler().hasDebouncedAction(hid::Action::Menu))
       return false;
 

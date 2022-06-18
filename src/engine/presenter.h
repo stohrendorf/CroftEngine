@@ -167,8 +167,6 @@ public:
 
   void disableScreenOverlay();
 
-  bool update();
-
   void updateSoundEngine();
 
 private:

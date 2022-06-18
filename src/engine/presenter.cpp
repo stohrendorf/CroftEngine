@@ -460,7 +460,7 @@ void Presenter::scaleSplashImage()
 
 void Presenter::drawLoadingScreen(const std::string& state)
 {
-  if(update())
+  if(!preFrame())
     return;
 
   if(m_screenOverlay == nullptr)
@@ -604,13 +604,6 @@ void Presenter::renderUi(ui::Ui& ui, float alpha)
 void Presenter::disableScreenOverlay()
 {
   m_screenOverlay.reset();
-}
-
-bool Presenter::update()
-{
-  glfwPollEvents();
-  m_window->updateWindowSize();
-  return m_window->isMinimized();
 }
 
 void Presenter::updateSoundEngine()
