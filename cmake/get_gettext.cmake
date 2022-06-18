@@ -132,6 +132,7 @@ function( configure_gettext )
             "--language=C++"
             "--from-code=UTF-8"
             "--sort-output"
+            "--escape"
             WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
             COMMENT "Generating ${_pot}"
     )
@@ -161,6 +162,7 @@ function( configure_gettext )
                 "${_po}"
                 "${_pot}"
                 "--output-file=${_po}"
+                "--escape"
                 DEPENDS "${_pot}"
                 WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
                 COMMENT "Updating the ${lang} .po file from the .pot file" )

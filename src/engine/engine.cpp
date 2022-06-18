@@ -130,9 +130,9 @@ void drawAmmoWidget(ui::Ui& ui, const ui::TRFont& trFont, const world::World& wo
 
 void drawBugReportMessage(ui::Ui& ui, const ui::TRFont& trFont)
 {
-    auto text = ui::Text{/* translators: TR charmap encoding */ _("Bug Report Saved")};
-    const auto pos = glm::ivec2{(ui.getSize().x - text.getWidth()) / 2, ui.getSize().y / 2 - ui::FontHeight};
-    text.draw(ui, trFont, pos);
+  auto text = ui::Text{/* translators: TR charmap encoding */ _("Bug Report Saved")};
+  const auto pos = glm::ivec2{(ui.getSize().x - text.getWidth()) / 2, ui.getSize().y / 2 - ui::FontHeight};
+  text.draw(ui, trFont, pos);
 }
 
 bool showLevelStats(const std::shared_ptr<Presenter>& presenter, world::World& world)
@@ -237,7 +237,10 @@ Engine::Engine(std::filesystem::path userDataPath,
   m_presenter = std::make_shared<Presenter>(m_engineDataPath, resolution);
   if(gl::hasAnisotropicFilteringExtension()
      && m_engineConfig->renderSettings.anisotropyLevel > gl::getMaxAnisotropyLevel())
+  {
     m_engineConfig->renderSettings.anisotropyLevel = gsl::narrow<uint32_t>(std::llround(gl::getMaxAnisotropyLevel()));
+  }
+
   applySettings();
   m_presenter->getInputHandler().setMappings(m_engineConfig->inputMappings);
   m_glidos = loadGlidosPack();
@@ -476,7 +479,6 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
       bugReportSavedDuration = core::FrameRate * 5_sec;
       throttler.reset();
     }
-   
   }
 }
 
@@ -492,24 +494,24 @@ void Engine::makeScreenshot()
 
 void Engine::takeBugReport(world::World& world)
 {
-
   if(!std::filesystem::is_directory(m_userDataPath / "bugreports"))
   {
     std::filesystem::create_directory(m_userDataPath / "bugreports");
   }
-  
+
   const auto dirName = getCurrentHumanReadableTimestamp();
   if(!std::filesystem::is_directory(m_userDataPath / "bugreports" / dirName))
   {
     std::filesystem::create_directory(m_userDataPath / "bugreports" / dirName);
   }
 
-  std::filesystem::copy_file(m_userDataPath / "croftengine.log", m_userDataPath / "bugreports" / dirName / "croftengine.log");
+  std::filesystem::copy_file(m_userDataPath / "croftengine.log",
+                             m_userDataPath / "bugreports" / dirName / "croftengine.log");
 
   auto img = m_presenter->takeScreenshot();
   img.savePng(m_userDataPath / "bugreports" / dirName / "screenshot.png");
 
-  world.save(m_userDataPath / "bugreports" / dirName / "save.yaml",false);
+  world.save(m_userDataPath / "bugreports" / dirName / "save.yaml", false);
 }
 
 std::pair<RunResult, std::optional<size_t>> Engine::runTitleMenu(world::World& world)

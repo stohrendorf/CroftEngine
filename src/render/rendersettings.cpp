@@ -25,6 +25,7 @@ void RenderSettings::serialize(const serialization::Serializer<engine::EngineCon
       S_NVO("dust", dust),
       S_NVO("highQualityShadows", highQualityShadows),
       S_NVO("anisotropyLevel", anisotropyLevel),
+      S_NVO("anisotropyActive", anisotropyActive),
       S_NVO("halfResRender", halfResRender),
       S_NVO("doubleUiScale", doubleUiScale),
       S_NVO("glidosPack", glidosPack));

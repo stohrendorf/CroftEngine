@@ -4,12 +4,19 @@
 #include "ui/core.h"
 #include "ui/ui.h"
 
+#include <utility>
+
 namespace ui::widgets
 {
-constexpr int TextOffset = 20;
+constexpr int ContentOffset = 20;
 
 Checkbox::Checkbox(const std::string& label)
-    : m_label{std::make_unique<Label>(label)}
+    : m_content{gsl::make_shared<Label>(label)}
+{
+}
+
+Checkbox::Checkbox(gslu::nn_shared<Widget> content)
+    : m_content{std::move(content)}
 {
 }
 
@@ -17,18 +24,18 @@ Checkbox::~Checkbox() = default;
 
 void Checkbox::draw(ui::Ui& ui, const engine::Presenter& presenter) const
 {
-  m_label->setSize({m_size.x - TextOffset, m_size.y});
-  m_label->draw(ui, presenter);
+  m_content->setSize({m_size.x - ContentOffset, m_size.y});
+  m_content->draw(ui, presenter);
 
   static constexpr int BoxSize = ui::FontHeight - 2 * ui::OutlineBorderWidth;
   static constexpr int InnerOffset = 3;
   static constexpr int InnerSize = BoxSize - 2 * InnerOffset + 1;
-  ui.drawOutlineBox(m_label->getPosition() + glm::ivec2{ui::OutlineBorderWidth - TextOffset, 3 - ui::FontHeight},
+  ui.drawOutlineBox(m_content->getPosition() + glm::ivec2{ui::OutlineBorderWidth - ContentOffset, 3 - ui::FontHeight},
                     {BoxSize, BoxSize});
   if(m_checked)
   {
-    ui.drawBox(m_label->getPosition()
-                 + glm::ivec2{ui::OutlineBorderWidth + InnerOffset - TextOffset, 3 + InnerOffset - ui::FontHeight},
+    ui.drawBox(m_content->getPosition()
+                 + glm::ivec2{ui::OutlineBorderWidth + InnerOffset - ContentOffset, 3 + InnerOffset - ui::FontHeight},
                {InnerSize, InnerSize},
                15);
   }
@@ -36,17 +43,17 @@ void Checkbox::draw(ui::Ui& ui, const engine::Presenter& presenter) const
 
 void Checkbox::update(bool hasFocus)
 {
-  m_label->update(hasFocus);
+  m_content->update(hasFocus);
 }
 
 void Checkbox::setPosition(const glm::ivec2& position)
 {
-  m_label->setPosition(position + glm::ivec2{TextOffset, 0});
+  m_content->setPosition(position + glm::ivec2{ContentOffset, 0});
 }
 
 glm::ivec2 Checkbox::getPosition() const
 {
-  return m_label->getPosition() - glm::ivec2{TextOffset, 0};
+  return m_content->getPosition() - glm::ivec2{ContentOffset, 0};
 }
 
 glm::ivec2 Checkbox::getSize() const
@@ -61,12 +68,7 @@ void Checkbox::setSize(const glm::ivec2& size)
 
 void Checkbox::fitToContent()
 {
-  m_label->fitToContent();
-  m_size = m_label->getSize() + glm::ivec2{TextOffset, 0};
-}
-
-void Checkbox::setLabel(const std::string& label)
-{
-  m_label->setText(label);
+  m_content->fitToContent();
+  m_size = m_content->getSize() + glm::ivec2{ContentOffset, 0};
 }
 } // namespace ui::widgets

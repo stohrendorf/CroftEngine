@@ -20,12 +20,11 @@ class Presenter;
 
 namespace ui::widgets
 {
-class Label;
-
 class Checkbox : public Widget
 {
 public:
   explicit Checkbox(const std::string& label);
+  explicit Checkbox(gslu::nn_shared<Widget> content);
   ~Checkbox() override;
   void update(bool hasFocus) override;
   void draw(ui::Ui& ui, const engine::Presenter& presenter) const override;
@@ -42,11 +41,14 @@ public:
   void setSize(const glm::ivec2& size) override;
   void fitToContent() override;
 
-  void setLabel(const std::string& label);
+  [[nodiscard]] const auto& getContent() const
+  {
+    return m_content;
+  }
 
 private:
   glm::ivec2 m_size{0, 0};
-  gslu::nn_unique<Label> m_label;
+  gslu::nn_shared<Widget> m_content;
   bool m_checked = false;
 };
 } // namespace ui::widgets
