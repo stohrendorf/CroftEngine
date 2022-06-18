@@ -296,16 +296,27 @@ RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingT
     {
       toggle(engine, engine.getEngineConfig()->renderSettings.highQualityShadows);
     });
+  m_renderResolutionDivisorSelector = std::make_shared<ui::widgets::ValueSelector<uint8_t>>(
+    [](uint32_t value)
+    {
+      return /* translators: TR charmap encoding */ _("\x1f\x6c 1/%1% \x1f\x6d Render Scale",
+                                                      static_cast<uint32_t>(value));
+    },
+    std::vector<uint8_t>{2, 3, 4, 5, 6, 7, 8});
   listBox->addSetting(
-    /* translators: TR charmap encoding */ _("Half Resolution"),
+    gslu::nn_shared<ui::widgets::Widget>{m_renderResolutionDivisorSelector},
     [&engine]()
     {
-      return engine.getEngineConfig()->renderSettings.halfResRender;
+      return engine.getEngineConfig()->renderSettings.renderResolutionDivisorActive;
     },
     [&engine]()
     {
-      toggle(engine, engine.getEngineConfig()->renderSettings.halfResRender);
+      toggle(engine, engine.getEngineConfig()->renderSettings.renderResolutionDivisorActive);
     });
+  while(m_renderResolutionDivisorSelector->getSelectedValue()
+        != engine.getEngineConfig()->renderSettings.renderResolutionDivisor)
+    m_renderResolutionDivisorSelector->selectNext();
+
   listBox->addSetting(
     /* translators: TR charmap encoding */ _("Double UI Scale"),
     [&engine]()
@@ -462,6 +473,16 @@ std::unique_ptr<MenuState>
     else if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Right))
       m_anisotropySelector->selectNext();
     world.getEngine().getEngineConfig()->renderSettings.anisotropyLevel = m_anisotropySelector->getSelectedValue();
+    world.getEngine().applySettings();
+  }
+  else if(std::get<2>(listBox->getSelected())->getContent() == m_renderResolutionDivisorSelector)
+  {
+    if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Left))
+      m_renderResolutionDivisorSelector->selectPrev();
+    else if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Right))
+      m_renderResolutionDivisorSelector->selectNext();
+    world.getEngine().getEngineConfig()->renderSettings.renderResolutionDivisor
+      = m_renderResolutionDivisorSelector->getSelectedValue();
     world.getEngine().applySettings();
   }
 

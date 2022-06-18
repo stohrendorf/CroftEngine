@@ -33,7 +33,8 @@ struct RenderSettings
   bool moreLights = true;
   bool dust = true;
   bool highQualityShadows = true;
-  bool halfResRender = false;
+  uint8_t renderResolutionDivisor = 2;
+  bool renderResolutionDivisorActive = false;
   bool doubleUiScale = false;
   std::optional<std::string> glidosPack = std::nullopt;
 
