@@ -7,6 +7,7 @@
 #include <gslu.h>
 #include <map>
 #include <memory>
+#include <optional>
 #include <tuple>
 
 namespace render::scene
@@ -59,7 +60,7 @@ public:
 
   void setGeometryTextures(
     std::shared_ptr<gl::TextureHandle<gl::Texture2DArray<gl::PremultipliedSRGBA8>>> geometryTextures);
-  void setFiltering(bool bilinear, float anisotropyLevel);
+  void setFiltering(bool bilinear, const std::optional<float>& anisotropyLevel);
 
   void setCSM(const gslu::nn_shared<CSM>& csm)
   {

@@ -556,7 +556,10 @@ void Presenter::apply(const render::RenderSettings& renderSettings, const AudioS
     m_materialManager->setCSM(m_csm);
   }
   m_renderPipeline->apply(renderSettings, *m_materialManager);
-  m_materialManager->setFiltering(renderSettings.bilinearFiltering, gsl::narrow<float>(renderSettings.anisotropyLevel));
+  m_materialManager->setFiltering(renderSettings.bilinearFiltering,
+                                  !renderSettings.anisotropyActive
+                                    ? std::nullopt
+                                    : std::optional{gsl::narrow<float>(renderSettings.anisotropyLevel)});
   m_soundEngine->setListenerGain(audioSettings.globalVolume);
 }
 

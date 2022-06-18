@@ -15,8 +15,10 @@
 #include "ui/ui.h"
 #include "ui/widgets/checkbox.h"
 #include "ui/widgets/groupbox.h"
+#include "ui/widgets/label.h"
 #include "ui/widgets/listbox.h"
 #include "ui/widgets/tabbox.h"
+#include "ui/widgets/valueselector.h"
 #include "ui/widgets/widget.h"
 
 #include <algorithm>
@@ -85,14 +87,21 @@ public:
     m_listBox->draw(ui, presenter);
   }
 
-  auto addSetting(const std::string& name, std::function<bool()>&& getter, std::function<void()>&& toggler)
+  auto addSetting(const gslu::nn_shared<ui::widgets::Widget>& content,
+                  std::function<bool()>&& getter,
+                  std::function<void()>&& toggler)
   {
-    auto checkbox = gsl::make_shared<ui::widgets::Checkbox>(name);
+    auto checkbox = gsl::make_shared<ui::widgets::Checkbox>(content);
     checkbox->setChecked(getter());
     checkbox->fitToContent();
     m_listBox->append(checkbox);
     m_checkboxes.emplace_back(std::move(getter), std::move(toggler), checkbox);
     return checkbox;
+  }
+
+  auto addSetting(const std::string& label, std::function<bool()>&& getter, std::function<void()>&& toggler)
+  {
+    return addSetting(gsl::make_shared<ui::widgets::Label>(label), std::move(getter), std::move(toggler));
   }
 
   [[nodiscard]] const auto& getSelected() const
@@ -220,22 +229,31 @@ RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingT
     });
   if(gl::hasAnisotropicFilteringExtension())
   {
-    m_anisotropyCheckbox = listBox->addSetting(
-      "",
+    const auto maxLevel = gsl::narrow<uint32_t>(std::lround(gl::getMaxAnisotropyLevel()));
+    std::vector<uint32_t> levels;
+    for(uint32_t i = 1; i <= maxLevel; i *= 2)
+    {
+      levels.emplace_back(i);
+    }
+
+    m_anisotropySelector = std::make_shared<ui::widgets::ValueSelector<uint32_t>>(
+      [](uint32_t level)
+      {
+        return /* translators: TR charmap encoding */ _("\x1f\x6c %1%x \x1f\x6d Anisotropic Filtering", level);
+      },
+      std::move(levels));
+    while(m_anisotropySelector->getSelectedValue() != engine.getEngineConfig()->renderSettings.anisotropyLevel)
+      m_anisotropySelector->selectNext();
+
+    listBox->addSetting(
+      gslu::nn_shared<ui::widgets::Widget>{m_anisotropySelector},
       [&engine]()
       {
-        return engine.getEngineConfig()->renderSettings.anisotropyLevel != 0;
+        return engine.getEngineConfig()->renderSettings.anisotropyActive;
       },
       [&engine, maxLevel = gsl::narrow<uint32_t>(std::lround(gl::getMaxAnisotropyLevel()))]()
       {
-        auto& level = engine.getEngineConfig()->renderSettings.anisotropyLevel;
-        if(level == 0)
-          level = 2;
-        else
-          level *= 2;
-        if(level > maxLevel)
-          level = 0;
-        engine.applySettings();
+        toggle(engine, engine.getEngineConfig()->renderSettings.anisotropyActive);
       });
   }
   listBox->addSetting(
@@ -394,12 +412,6 @@ RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingT
 std::unique_ptr<MenuState>
   RenderSettingsMenuState::onFrame(ui::Ui& ui, engine::world::World& world, MenuDisplay& /*display*/)
 {
-  if(m_anisotropyCheckbox != nullptr)
-  {
-    m_anisotropyCheckbox->setLabel(/* translators: TR charmap encoding */ _(
-      "%1%x Anisotropic Filtering", world.getEngine().getEngineConfig()->renderSettings.anisotropyLevel));
-  }
-
   m_tabs->fitToContent();
   m_tabs->setPosition({(ui.getSize().x - m_tabs->getSize().x) / 2, ui.getSize().y - m_tabs->getSize().y - 90});
 
@@ -442,6 +454,15 @@ std::unique_ptr<MenuState>
   else if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Menu))
   {
     return std::move(m_previous);
+  }
+  else if(std::get<2>(listBox->getSelected())->getContent() == m_anisotropySelector)
+  {
+    if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Left))
+      m_anisotropySelector->selectPrev();
+    else if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Right))
+      m_anisotropySelector->selectNext();
+    world.getEngine().getEngineConfig()->renderSettings.anisotropyLevel = m_anisotropySelector->getSelectedValue();
+    world.getEngine().applySettings();
   }
 
   return nullptr;

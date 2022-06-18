@@ -445,7 +445,7 @@ void MaterialManager::setGeometryTextures(
   m_geometryTextures = std::move(geometryTextures);
 }
 
-void MaterialManager::setFiltering(bool bilinear, float anisotropyLevel)
+void MaterialManager::setFiltering(bool bilinear, const std::optional<float>& anisotropyLevel)
 {
   if(m_geometryTextures == nullptr)
     return;
@@ -460,8 +460,8 @@ void MaterialManager::setFiltering(bool bilinear, float anisotropyLevel)
     sampler->set(gl::api::TextureMinFilter::NearestMipmapLinear).set(gl::api::TextureMagFilter::Nearest);
   }
 
-  if(anisotropyLevel != 0 && gl::hasAnisotropicFilteringExtension())
-    sampler->set(gl::api::SamplerParameterF::TextureMaxAnisotropy, anisotropyLevel);
+  if(anisotropyLevel.has_value() && gl::hasAnisotropicFilteringExtension())
+    sampler->set(gl::api::SamplerParameterF::TextureMaxAnisotropy, *anisotropyLevel);
 
   m_geometryTextures = std::make_shared<gl::TextureHandle<gl::Texture2DArray<gl::PremultipliedSRGBA8>>>(
     m_geometryTextures->getTexture(), std::move(sampler));

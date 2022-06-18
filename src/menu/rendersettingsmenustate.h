@@ -23,6 +23,8 @@ namespace ui::widgets
 class Checkbox;
 class Tab;
 class TabBox;
+template<typename T>
+class ValueSelector;
 } // namespace ui::widgets
 
 namespace engine
@@ -41,7 +43,7 @@ private:
   class CheckListBox;
   std::vector<std::shared_ptr<CheckListBox>> m_listBoxes{};
   std::unique_ptr<MenuState> m_previous;
-  std::shared_ptr<ui::widgets::Checkbox> m_anisotropyCheckbox;
+  std::shared_ptr<ui::widgets::ValueSelector<uint32_t>> m_anisotropySelector;
   gslu::nn_unique<ui::widgets::TabBox> m_tabs;
 
 public:
