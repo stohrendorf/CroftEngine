@@ -82,11 +82,16 @@ void Presenter::playVideo(const std::filesystem::path& path)
 
   auto mesh = createScreenQuad(m_materialManager->getFlat(false, true, true), "video");
 
+  auto colorBuffer = gsl::make_shared<gl::Texture2D<gl::SRGB8>>(getRenderViewport(), "ui-color");
+  auto fb = gl::FrameBufferBuilder()
+              .textureNoBlend(gl::api::FramebufferAttachment::ColorAttachment0, colorBuffer)
+              .build("video-fb");
+
   video::play(path,
               m_soundEngine->getDevice(),
               [&](const gslu::nn_shared<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>>& textureHandle)
               {
-                if(update())
+                if(!preFrame())
                   return true;
 
                 m_renderer->getCamera()->setViewport(getRenderViewport());
@@ -101,18 +106,16 @@ void Presenter::playVideo(const std::filesystem::path& path)
                   .get(render::scene::RenderMode::Full)
                   ->getUniformBlock("Camera")
                   ->bindCameraBuffer(m_renderer->getCamera());
+                mesh->getRenderState().setViewport(getRenderViewport());
 
-                if(m_window->isMinimized())
-                  return true;
-
-                m_renderer->clear(gl::api::ClearBufferMask::ColorBufferBit, {0, 0, 0, 255}, 1);
+                fb->bind();
                 {
                   render::scene::RenderContext context{render::scene::RenderMode::Full, std::nullopt};
                   mesh->render(nullptr, context);
                 }
                 updateSoundEngine();
+                fb->blit(getDisplayViewport());
                 swapBuffers();
-                m_inputHandler->update();
                 return !m_window->windowShouldClose() && !m_inputHandler->hasDebouncedAction(hid::Action::Menu);
               });
 }
