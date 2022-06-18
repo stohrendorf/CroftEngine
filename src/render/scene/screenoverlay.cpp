@@ -68,5 +68,6 @@ void ScreenOverlay::init(MaterialManager& materialManager, const glm::ivec2& vie
                });
 
   m_mesh->getRenderState().setBlend(0, true);
+  m_mesh->getRenderState().setViewport(viewport);
 }
 } // namespace render::scene

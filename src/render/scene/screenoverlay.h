@@ -39,11 +39,6 @@ public:
     return m_image;
   }
 
-  [[nodiscard]] const auto& getTexture() const
-  {
-    return m_texture;
-  }
-
   void setAlphaMultiplier(float value)
   {
     m_alphaMultiplier = value;
