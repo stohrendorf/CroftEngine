@@ -28,7 +28,8 @@ void RenderSettings::serialize(const serialization::Serializer<engine::EngineCon
       S_NVO("anisotropyActive", anisotropyActive),
       S_NVO("renderResolutionDivisor", renderResolutionDivisor),
       S_NVO("renderResolutionDivisorActive", renderResolutionDivisorActive),
-      S_NVO("doubleUiScale", doubleUiScale),
+      S_NVO("uiScaleMultiplier", uiScaleMultiplier),
+      S_NVO("uiScaleActive", uiScaleActive),
       S_NVO("glidosPack", glidosPack));
 }
 } // namespace render

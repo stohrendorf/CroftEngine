@@ -296,6 +296,7 @@ RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingT
     {
       toggle(engine, engine.getEngineConfig()->renderSettings.highQualityShadows);
     });
+
   m_renderResolutionDivisorSelector = std::make_shared<ui::widgets::ValueSelector<uint8_t>>(
     [](uint32_t value)
     {
@@ -317,16 +318,24 @@ RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingT
         != engine.getEngineConfig()->renderSettings.renderResolutionDivisor)
     m_renderResolutionDivisorSelector->selectNext();
 
+  m_uiScaleSelector = std::make_shared<ui::widgets::ValueSelector<uint8_t>>(
+    [](uint32_t value)
+    {
+      return /* translators: TR charmap encoding */ _("\x1f\x6c %1%x \x1f\x6d UI Scale", static_cast<uint32_t>(value));
+    },
+    std::vector<uint8_t>{2, 3, 4, 5, 6, 7, 8});
   listBox->addSetting(
-    /* translators: TR charmap encoding */ _("Double UI Scale"),
+    gslu::nn_shared<ui::widgets::Widget>{m_uiScaleSelector},
     [&engine]()
     {
-      return engine.getEngineConfig()->renderSettings.doubleUiScale;
+      return engine.getEngineConfig()->renderSettings.uiScaleActive;
     },
     [&engine]()
     {
-      toggle(engine, engine.getEngineConfig()->renderSettings.doubleUiScale);
+      toggle(engine, engine.getEngineConfig()->renderSettings.uiScaleActive);
     });
+  while(m_uiScaleSelector->getSelectedValue() != engine.getEngineConfig()->renderSettings.uiScaleMultiplier)
+    m_uiScaleSelector->selectNext();
 
   listBox = gsl::make_shared<CheckListBox>();
   m_listBoxes.emplace_back(listBox);
@@ -483,6 +492,15 @@ std::unique_ptr<MenuState>
       m_renderResolutionDivisorSelector->selectNext();
     world.getEngine().getEngineConfig()->renderSettings.renderResolutionDivisor
       = m_renderResolutionDivisorSelector->getSelectedValue();
+    world.getEngine().applySettings();
+  }
+  else if(std::get<2>(listBox->getSelected())->getContent() == m_uiScaleSelector)
+  {
+    if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Left))
+      m_uiScaleSelector->selectPrev();
+    else if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Right))
+      m_uiScaleSelector->selectNext();
+    world.getEngine().getEngineConfig()->renderSettings.uiScaleMultiplier = m_uiScaleSelector->getSelectedValue();
     world.getEngine().applySettings();
   }
 
