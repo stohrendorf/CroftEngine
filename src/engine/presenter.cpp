@@ -442,7 +442,7 @@ Presenter::~Presenter() = default;
 void Presenter::scaleSplashImage()
 {
   // scale splash image so that its aspect ratio is preserved, but the boundaries match
-  const auto viewport = glm::vec2{getRenderViewport()};
+  const auto viewport = glm::vec2{getDisplayViewport()};
   const auto sourceSize = glm::vec2{m_splashImage->getTexture()->size()};
   const float splashScale = std::max(viewport.x / sourceSize.x, viewport.y / sourceSize.y);
 
@@ -466,9 +466,9 @@ void Presenter::drawLoadingScreen(const std::string& state)
   if(m_screenOverlay == nullptr)
     m_screenOverlay = std::make_unique<render::scene::ScreenOverlay>();
 
-  if(getUiViewport() != m_screenOverlay->getImage()->getSize())
+  if(m_screenOverlay->getImage()->getSize() != getDisplayViewport())
   {
-    m_screenOverlay->init(*m_materialManager, getUiViewport());
+    m_screenOverlay->init(*m_materialManager, getDisplayViewport());
     scaleSplashImage();
   }
 
@@ -481,12 +481,9 @@ void Presenter::drawLoadingScreen(const std::string& state)
 
   gl::Framebuffer::unbindAll();
 
-  m_renderer->getCamera()->setViewport(getRenderViewport());
-  gl::RenderState::getWantedState().setViewport(getRenderViewport());
-  gl::RenderState::applyWantedState();
-  m_renderer->clear(
-    gl::api::ClearBufferMask::ColorBufferBit | gl::api::ClearBufferMask::DepthBufferBit, {0, 0, 0, 0}, 1);
+  m_renderer->getCamera()->setViewport(getDisplayViewport());
   render::scene::RenderContext context{render::scene::RenderMode::Full, std::nullopt};
+  m_splashImageMesh->getRenderState().setViewport(getDisplayViewport());
   m_splashImageMesh->render(nullptr, context);
   m_screenOverlay->setAlphaMultiplier(0.8f);
   m_screenOverlay->render(nullptr, context);
@@ -504,9 +501,9 @@ bool Presenter::preFrame()
   m_renderPipeline->resize(*m_materialManager, getRenderViewport(), getUiViewport(), getDisplayViewport());
   if(m_screenOverlay != nullptr)
   {
-    if(m_screenOverlay->getImage()->getSize() != getUiViewport())
+    if(m_screenOverlay->getImage()->getSize() != getDisplayViewport())
     {
-      m_screenOverlay->init(*m_materialManager, getUiViewport());
+      m_screenOverlay->init(*m_materialManager, getDisplayViewport());
     }
 
     m_screenOverlay->getImage()->fill({0, 0, 0, 0});
@@ -587,8 +584,8 @@ void Presenter::renderScreenOverlay()
 
   SOGLB_DEBUGGROUP("screen-overlay-pass");
   gl::RenderState::resetWantedState();
-  m_renderer->getCamera()->setViewport(getRenderViewport());
-  gl::RenderState::getWantedState().setViewport(getRenderViewport());
+  m_renderer->getCamera()->setViewport(getDisplayViewport());
+  gl::RenderState::getWantedState().setViewport(getDisplayViewport());
   render::scene::RenderContext context{render::scene::RenderMode::Full, std::nullopt};
   m_screenOverlay->render(nullptr, context);
 }

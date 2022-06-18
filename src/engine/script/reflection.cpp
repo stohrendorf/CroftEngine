@@ -329,8 +329,7 @@ std::pair<RunResult, std::optional<size_t>> SplashScreen::run(Engine& engine,
     gsl_Assert(mesh != nullptr);
 
     gl::Framebuffer::unbindAll();
-    presenter.getRenderer().clear(
-      gl::api::ClearBufferMask::ColorBufferBit | gl::api::ClearBufferMask::DepthBufferBit, {0, 0, 0, 0}, 1);
+    mesh->getRenderState().setViewport(presenter.getDisplayViewport());
     mesh->render(nullptr, context);
     presenter.updateSoundEngine();
     presenter.swapBuffers();
