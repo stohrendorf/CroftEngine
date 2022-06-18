@@ -692,8 +692,10 @@ void Engine::applySettings()
     for(auto& room : world->getRooms())
     {
       room.collectShaderLights(m_engineConfig->renderSettings.getLightCollectionDepth());
-      gsl_Assert(room.dust != nullptr);
-      room.dust->setVisible(m_engineConfig->renderSettings.dust);
+      room.regenerateDust(m_presenter,
+                          m_presenter->getMaterialManager()->getDustParticle(),
+                          m_engineConfig->renderSettings.dustActive,
+                          m_engineConfig->renderSettings.dustDensity);
     }
   }
 }

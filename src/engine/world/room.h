@@ -15,6 +15,7 @@
 #include <glm/fwd.hpp>
 #include <gsl/gsl-lite.hpp>
 #include <gslu.h>
+#include <map>
 #include <memory>
 #include <optional>
 #include <string>
@@ -52,7 +53,8 @@ struct Room;
 namespace engine
 {
 struct Location;
-}
+class Presenter;
+} // namespace engine
 
 namespace engine::world
 {
@@ -104,6 +106,9 @@ struct Room
   std::shared_ptr<render::scene::Node> node = nullptr;
   std::vector<gslu::nn_shared<render::scene::Node>> sceneryNodes{};
 
+  std::map<uint8_t, std::shared_ptr<render::scene::Node>> dustCache{};
+  glm::vec3 verticesBBoxMin{std::numeric_limits<float>::max()};
+  glm::vec3 verticesBBoxMax{std::numeric_limits<float>::lowest()};
   std::shared_ptr<render::scene::Node> dust = nullptr;
 
   void createSceneNode(const loader::file::Room& srcRoom,
@@ -160,12 +165,17 @@ struct Room
     std::make_shared<gl::ShaderStorageBuffer<engine::ShaderLight>>("lights-buffer")};
 
   void collectShaderLights(size_t depth);
+  void regenerateDust(const std::shared_ptr<engine::Presenter>& presenter,
+                      const gslu::nn_shared<render::scene::Material>& dustMaterial,
+                      bool isDustEnabled,
+                      uint8_t dustResolutionDivisor);
 
 private:
-  void createParticleMesh(const std::string& labe,
-                          const glm::vec3& min,
-                          const glm::vec3& max,
-                          render::scene::MaterialManager& materialManager);
+  std::shared_ptr<render::scene::Node> createParticleMesh(const std::string& label,
+                                                          const glm::vec3& min,
+                                                          const glm::vec3& max,
+                                                          const gslu::nn_shared<render::scene::Material>& dustMaterial,
+                                                          uint8_t dustDensity);
 };
 
 extern void patchHeightsForBlock(const engine::objects::Object& object, const core::Length& height);

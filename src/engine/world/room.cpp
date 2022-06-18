@@ -5,6 +5,7 @@
 #include "core/angle.h"
 #include "core/containeroffset.h"
 #include "core/genericvec.h"
+#include "core/i18n.h"
 #include "core/id.h"
 #include "engine/engine.h"
 #include "engine/engineconfig.h"
@@ -12,6 +13,7 @@
 #include "engine/location.h"
 #include "engine/objects/object.h"
 #include "engine/objects/objectstate.h"
+#include "engine/presenter.h"
 #include "loader/file/datatypes.h"
 #include "loader/file/primitives.h"
 #include "loader/file/texture.h"
@@ -437,17 +439,17 @@ void Room::createSceneNode(const loader::file::Room& srcRoom,
 
   collectShaderLights(world.getEngine().getEngineConfig()->renderSettings.getLightCollectionDepth());
 
+  for(const auto& v : srcRoom.vertices)
   {
-    glm::vec3 min{std::numeric_limits<float>::max()};
-    glm::vec3 max{std::numeric_limits<float>::lowest()};
-    for(const auto& v : srcRoom.vertices)
-    {
-      const auto vv = v.position.toRenderSystem();
-      min = glm::min(min, vv);
-      max = glm::max(max, vv);
-    }
-    createParticleMesh(label, min, max, materialManager);
+    const auto vv = v.position.toRenderSystem();
+    verticesBBoxMin = glm::min(verticesBBoxMin, vv);
+    verticesBBoxMax = glm::max(verticesBBoxMax, vv);
   }
+
+  regenerateDust(nullptr,
+                 materialManager.getDustParticle(),
+                 world.getEngine().getEngineConfig()->renderSettings.dustActive,
+                 world.getEngine().getEngineConfig()->renderSettings.dustDensity);
 
   resetScenery();
 }
@@ -584,12 +586,39 @@ void Room::collectShaderLights(size_t depth)
   lightsBuffer->setData(bufferLights, gl::api::BufferUsage::StaticDraw);
 }
 
-void Room::createParticleMesh(const std::string& label,
-                              const glm::vec3& min,
-                              const glm::vec3& max,
-                              render::scene::MaterialManager& materialManager)
+void Room::regenerateDust(const std::shared_ptr<engine::Presenter>& presenter,
+                          const gslu::nn_shared<render::scene::Material>& dustMaterial,
+                          bool isDustEnabled,
+                          uint8_t dustDensityDivisor)
 {
-  static const constexpr auto Resolution = (1_sectors / 12).cast<float>().get();
+  if(!isDustEnabled)
+  {
+    dust = nullptr;
+    return;
+  }
+
+  if(const auto it = dustCache.find(dustDensityDivisor); it != dustCache.end())
+  {
+    dust = it->second;
+    return;
+  }
+  if(presenter != nullptr)
+    presenter->drawLoadingScreen(_("Generating Dust Particles..."));
+  auto dustNode
+    = createParticleMesh(node->getName() + "/dust", verticesBBoxMin, verticesBBoxMax, dustMaterial, dustDensityDivisor);
+  dustCache.emplace(dustDensityDivisor, dustNode);
+  dust = dustNode;
+}
+
+std::shared_ptr<render::scene::Node>
+  Room::createParticleMesh(const std::string& label,
+                           const glm::vec3& min,
+                           const glm::vec3& max,
+                           const gslu::nn_shared<render::scene::Material>& dustMaterial,
+                           uint8_t dustDensityDivisor)
+{
+  static const constexpr auto BaseGridAxisSubdivision = 12;
+  static const auto resolution = (cbrt(dustDensityDivisor) / BaseGridAxisSubdivision * 1_sectors).cast<float>().get();
 
   // https://stackoverflow.com/a/3747462
   static const auto fastrand = []()
@@ -601,20 +630,20 @@ void Room::createParticleMesh(const std::string& label,
 
   std::vector<glm::vec3> vertices;
   vertices.reserve(std::lround(std::max(0.0f,
-                                        ((max.x - min.x) / Resolution - 2) * ((max.y - min.y) / Resolution - 2)
-                                          * ((max.z - min.z) / Resolution - 2))));
+                                        ((max.x - min.x) / resolution - 2) * ((max.y - min.y) / resolution - 2)
+                                          * ((max.z - min.z) / resolution - 2))));
   std::vector<uint32_t> indices;
   indices.reserve(vertices.capacity());
   BOOST_LOG_TRIVIAL(debug) << "generating " << vertices.capacity() << " particles for " << label;
 
-  for(float x = min.x + Resolution; x < max.x - Resolution; x += Resolution)
+  for(float x = min.x + resolution; x < max.x - resolution; x += resolution)
   {
-    for(float y = min.y + Resolution; y < max.y - Resolution; y += Resolution)
+    for(float y = min.y + resolution; y < max.y - resolution; y += resolution)
     {
-      for(float z = min.z + Resolution; z < max.z - Resolution; z += Resolution)
+      for(float z = min.z + resolution; z < max.z - resolution; z += resolution)
       {
         glm::vec3 p0 = glm::vec3{x, y, z};
-        glm::vec3 offset{fastrand() * Resolution, fastrand() * Resolution, fastrand() * Resolution};
+        glm::vec3 offset{fastrand() * resolution, fastrand() * resolution, fastrand() * resolution};
         vertices.emplace_back(p0 + offset);
         indices.emplace_back(gsl::narrow_cast<uint32_t>(vertices.size()));
       }
@@ -629,12 +658,10 @@ void Room::createParticleMesh(const std::string& label,
   auto indexBuffer = gsl::make_shared<gl::ElementArrayBuffer<uint32_t>>(label + "-particles");
   indexBuffer->setData(indices, gl::api::BufferUsage::StaticDraw);
 
-  const auto particleMaterial = materialManager.getDustParticle();
-
   auto vao = gsl::make_shared<gl::VertexArray<uint32_t, glm::vec3>>(
-    indexBuffer, vbuf, std::vector{&particleMaterial->getShaderProgram()->getHandle()}, label + "-particles");
+    indexBuffer, vbuf, std::vector{&dustMaterial->getShaderProgram()->getHandle()}, label + "-particles");
   auto mesh = std::make_shared<render::scene::MeshImpl<uint32_t, glm::vec3>>(vao, gl::api::PrimitiveType::Points);
-  mesh->getMaterialGroup().set(render::scene::RenderMode::Full, particleMaterial);
+  mesh->getMaterialGroup().set(render::scene::RenderMode::Full, dustMaterial);
 
   mesh->bind("u_baseColor",
              [color = isWaterRoom ? glm::vec3{0.126f, 0.693f, 0.356f} : glm::vec3{0.431f, 0.386f, 0.375f}](
@@ -643,9 +670,11 @@ void Room::createParticleMesh(const std::string& label,
                uniform.set(color);
              });
 
-  dust = std::make_shared<render::scene::Node>(label + "-particles");
-  dust->setLocalMatrix(translate(glm::mat4{1.0f}, position.toRenderSystem()));
-  dust->setRenderable(mesh);
-  dust->setVisible(true);
+  auto dustNode = std::make_shared<render::scene::Node>(label + "-particles");
+  dustNode->setLocalMatrix(translate(glm::mat4{1.0f}, position.toRenderSystem()));
+  dustNode->setRenderable(mesh);
+  dustNode->setVisible(true);
+
+  return dustNode;
 }
 } // namespace engine::world

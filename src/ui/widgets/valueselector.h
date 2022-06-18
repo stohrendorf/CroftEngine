@@ -3,12 +3,12 @@
 #include "label.h"
 #include "widget.h"
 
+#include <algorithm>
 #include <functional>
 #include <glm/vec2.hpp>
 #include <gsl/gsl-lite.hpp>
 #include <utility>
 #include <vector>
-
 namespace engine
 {
 class Presenter;
@@ -96,6 +96,13 @@ public:
   [[nodiscard]] auto getSelectedValue() const
   {
     return m_values.at(m_selectedValue);
+  }
+
+  void selectValue(const T& value)
+  {
+    if(const auto it = std::find(m_values.begin(), m_values.end(), value); it != m_values.end())
+      m_selectedValue = std::distance(m_values.begin(), it);
+    m_label.setText(m_displayTextProvider(m_values[m_selectedValue]));
   }
 
 private:

@@ -31,7 +31,8 @@ struct RenderSettings
   bool fxaa = true;
   bool bloom = true;
   bool moreLights = true;
-  bool dust = true;
+  bool dustActive = true;
+  uint8_t dustDensity = 1;
   bool highQualityShadows = true;
   uint8_t renderResolutionDivisor = 2;
   bool renderResolutionDivisorActive = false;
