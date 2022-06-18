@@ -79,6 +79,8 @@ void RenderPipeline::worldCompositionPass(const std::vector<engine::world::Room>
     effect->render(inWater);
     finalOutput = effect->getFramebuffer();
   }
+  gl::RenderState::getWantedState().setViewport(m_displaySize);
+  gl::RenderState::applyWantedState();
   finalOutput->blit(m_displaySize);
 }
 
