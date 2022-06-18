@@ -157,11 +157,7 @@ public:
 
   [[nodiscard]] glm::ivec2 getRenderViewport() const;
 
-  [[nodiscard]] auto getUiViewport() const
-  {
-    const int divisor = m_doubleUiScale ? 2 : 1;
-    return getRenderViewport() / divisor;
-  }
+  [[nodiscard]] glm::ivec2 getUiViewport() const;
 
   [[nodiscard]] gl::CImgWrapper takeScreenshot() const;
 
@@ -171,6 +167,8 @@ public:
 
 private:
   const std::unique_ptr<gl::Window> m_window;
+  uint8_t m_renderResolutionDivisor = 1;
+  uint8_t m_uiScale = 1;
 
   std::shared_ptr<audio::SoundEngine> m_soundEngine;
   const gslu::nn_shared<render::scene::Renderer> m_renderer;
@@ -190,9 +188,6 @@ private:
 
   const gslu::nn_unique<render::RenderPipeline> m_renderPipeline;
   std::unique_ptr<render::scene::ScreenOverlay> m_screenOverlay;
-
-  uint8_t m_renderResolutionDivisor = 1;
-  bool m_doubleUiScale = false;
 
   void scaleSplashImage();
 };

@@ -35,7 +35,8 @@ struct RenderSettings
   bool highQualityShadows = true;
   uint8_t renderResolutionDivisor = 2;
   bool renderResolutionDivisorActive = false;
-  bool doubleUiScale = false;
+  uint8_t uiScaleMultiplier = 2;
+  bool uiScaleActive = false;
   std::optional<std::string> glidosPack = std::nullopt;
 
   [[nodiscard]] size_t getLightCollectionDepth() const
