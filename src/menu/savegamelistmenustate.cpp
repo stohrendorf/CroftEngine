@@ -110,7 +110,7 @@ SavegameListMenuState::SavegameListMenuState(const std::shared_ptr<MenuRingTrans
     , m_previous{std::move(previous)}
     , m_loading{loading}
 {
-  auto addSavegameEntry = [this, &world](const std::optional<size_t>& i, const engine::SavegameInfo& info)
+  auto addSavegameEntry = [this, &world](const std::optional<size_t>& slot, const engine::SavegameInfo& info)
   {
     const auto timePoint
       = std::chrono::system_clock::to_time_t(std::chrono::time_point_cast<std::chrono::system_clock::duration>(
@@ -122,12 +122,12 @@ SavegameListMenuState::SavegameListMenuState(const std::shared_ptr<MenuRingTrans
     timeStr << std::put_time(localTime,
                              /* translators: TR charmap encoding */ pgettext("SavegameTime", "%d %B %Y %X"));
 
-    const auto name = (boost::format(/* translators: TR charmap encoding */ pgettext("SavegameTitle", "%1% - %2%"))
-                       % timeStr.str() % info.meta.title)
-                        .str();
-    auto label = gsl::make_shared<SavegameEntry>(i, name, info.saveTime);
-    append(label);
-    m_entries.emplace_back(label);
+    const auto title = (boost::format(/* translators: TR charmap encoding */ pgettext("SavegameTitle", "%1% - %2%"))
+                        % timeStr.str() % info.meta.title)
+                         .str();
+    const auto entry = gsl::make_shared<SavegameEntry>(slot, title, info.saveTime);
+    append(entry);
+    m_entries.emplace_back(entry);
   };
 
   const auto [quicksaveInfo, savedGames] = world.getSavedGames();
@@ -139,31 +139,33 @@ SavegameListMenuState::SavegameListMenuState(const std::shared_ptr<MenuRingTrans
   }
   else
   {
-    auto label = gsl::make_shared<SavegameEntry>(
+    const auto entry = gsl::make_shared<SavegameEntry>(
       std::nullopt, /* translators: TR charmap encoding */ pgettext("SavegameTitle", "- NO QUICKSAVE"), std::nullopt);
-    append(label);
-    m_entries.emplace_back(label);
+    append(entry);
+    m_entries.emplace_back(entry);
   }
 
   std::filesystem::file_time_type mostRecentTime = std::filesystem::file_time_type::min();
   size_t mostRecentSlot = 1;
-  for(size_t i = 0; i < core::SavegameSlots; ++i)
+  for(size_t slot = 0; slot < core::SavegameSlots; ++slot)
   {
-    if(auto it = savedGames.find(i); it != savedGames.end())
+    if(auto it = savedGames.find(slot); it != savedGames.end())
     {
       if(it->second.saveTime > mostRecentTime)
       {
         mostRecentTime = it->second.saveTime;
-        mostRecentSlot = i + 1;
+        mostRecentSlot = slot + 1;
       }
 
-      addSavegameEntry(i, it->second);
+      addSavegameEntry(slot, it->second);
       m_hasSavegame.emplace_back(true);
     }
     else
     {
       auto label = gsl::make_shared<SavegameEntry>(
-        i, /* translators: TR charmap encoding */ pgettext("SavegameTitle", "- EMPTY SLOT %1%", i + 1), std::nullopt);
+        slot,
+        /* translators: TR charmap encoding */ pgettext("SavegameTitle", "- EMPTY SLOT %1%", slot + 1),
+        std::nullopt);
       append(label);
       m_entries.emplace_back(label);
       m_hasSavegame.emplace_back(false);
@@ -184,7 +186,7 @@ std::unique_ptr<MenuState>
 
     if(m_hasSavegame.at(*slot))
     {
-      m_confirmOverwrite = std::make_shared<ui::widgets::MessageBox>(
+      m_overwriteConfirmation = std::make_shared<ui::widgets::MessageBox>(
         /* translators: TR charmap encoding */ _("Overwrite slot %1%?", *slot + 1));
       return nullptr;
     }
@@ -209,36 +211,36 @@ std::unique_ptr<MenuState> SavegameListMenuState::onAborted()
 
 std::unique_ptr<MenuState> SavegameListMenuState::onFrame(ui::Ui& ui, engine::world::World& world, MenuDisplay& display)
 {
-  if(m_confirmOverwrite == nullptr)
+  if(m_overwriteConfirmation == nullptr)
   {
     if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::StepLeft))
     {
-      switch(m_order)
+      switch(m_ordering)
       {
-      case Order::Slot:
-        m_order = Order::DateDesc;
+      case Ordering::Slot:
+        m_ordering = Ordering::DateDesc;
         break;
-      case Order::DateAsc:
-        m_order = Order::Slot;
+      case Ordering::DateAsc:
+        m_ordering = Ordering::Slot;
         break;
-      case Order::DateDesc:
-        m_order = Order::DateAsc;
+      case Ordering::DateDesc:
+        m_ordering = Ordering::DateAsc;
         break;
       }
       sortEntries();
     }
     else if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::StepRight))
     {
-      switch(m_order)
+      switch(m_ordering)
       {
-      case Order::Slot:
-        m_order = Order::DateAsc;
+      case Ordering::Slot:
+        m_ordering = Ordering::DateAsc;
         break;
-      case Order::DateAsc:
-        m_order = Order::DateDesc;
+      case Ordering::DateAsc:
+        m_ordering = Ordering::DateDesc;
         break;
-      case Order::DateDesc:
-        m_order = Order::Slot;
+      case Ordering::DateDesc:
+        m_ordering = Ordering::Slot;
         break;
       }
       sortEntries();
@@ -248,18 +250,18 @@ std::unique_ptr<MenuState> SavegameListMenuState::onFrame(ui::Ui& ui, engine::wo
   }
 
   draw(ui, world, display);
-  m_confirmOverwrite->fitToContent();
-  m_confirmOverwrite->setPosition(
-    {(ui.getSize().x - m_confirmOverwrite->getSize().x) / 2, ui.getSize().y - m_confirmOverwrite->getSize().y - 90});
+  m_overwriteConfirmation->fitToContent();
+  m_overwriteConfirmation->setPosition({(ui.getSize().x - m_overwriteConfirmation->getSize().x) / 2,
+                                        ui.getSize().y - m_overwriteConfirmation->getSize().y - 90});
 
   if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Left)
      || world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Right))
   {
-    m_confirmOverwrite->setConfirmed(!m_confirmOverwrite->isConfirmed());
+    m_overwriteConfirmation->setConfirmed(!m_overwriteConfirmation->isConfirmed());
   }
   else if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Action))
   {
-    if(m_confirmOverwrite->isConfirmed())
+    if(m_overwriteConfirmation->isConfirmed())
     {
       world.save(getListBox()->getSelected());
       return create<ClosePassportMenuState>(display.getCurrentRing().getSelectedObject(),
@@ -268,13 +270,13 @@ std::unique_ptr<MenuState> SavegameListMenuState::onFrame(ui::Ui& ui, engine::wo
     }
     else
     {
-      m_confirmOverwrite.reset();
+      m_overwriteConfirmation.reset();
       return nullptr;
     }
   }
 
-  m_confirmOverwrite->update(true);
-  m_confirmOverwrite->draw(ui, world.getPresenter());
+  m_overwriteConfirmation->update(true);
+  m_overwriteConfirmation->draw(ui, world.getPresenter());
   return nullptr;
 }
 
@@ -288,11 +290,11 @@ void SavegameListMenuState::sortEntries()
             {
               const auto& lhsT = lhs->getTime();
               const auto& rhsT = rhs->getTime();
-              switch(m_order)
+              switch(m_ordering)
               {
-              case Order::Slot:
+              case Ordering::Slot:
                 break;
-              case Order::DateAsc:
+              case Ordering::DateAsc:
                 if(!lhsT.has_value() && !rhsT.has_value())
                   break;
                 else if(lhsT.has_value() && !rhsT.has_value())
@@ -302,7 +304,7 @@ void SavegameListMenuState::sortEntries()
                 else if(*lhsT != *rhsT)
                   return *lhsT < *rhsT;
                 break;
-              case Order::DateDesc:
+              case Ordering::DateDesc:
                 if(!lhsT.has_value() && !rhsT.has_value())
                   break;
                 else if(lhsT.has_value() && !rhsT.has_value())
@@ -317,7 +319,7 @@ void SavegameListMenuState::sortEntries()
               return lhs->getSlot() < rhs->getSlot();
             });
 
-  for(const auto& l : m_entries)
-    append(l);
+  for(const auto& entry : m_entries)
+    append(entry);
 }
 } // namespace menu

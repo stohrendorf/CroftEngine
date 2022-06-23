@@ -39,19 +39,19 @@ private:
   std::vector<bool> m_hasSavegame;
   std::vector<gslu::nn_shared<SavegameEntry>> m_entries;
   const bool m_loading;
-  std::shared_ptr<ui::widgets::MessageBox> m_confirmOverwrite;
-  enum class Order
+  std::shared_ptr<ui::widgets::MessageBox> m_overwriteConfirmation;
+  enum class Ordering
   {
     Slot,
     DateAsc,
     DateDesc
   };
-  Order m_order = Order::Slot;
+  Ordering m_ordering = Ordering::Slot;
 
   void sortEntries();
 
 public:
-  explicit SavegameListMenuState(const std::shared_ptr<MenuRingTransform>& ringTransform,
+  explicit SavegameListMenuState(const std::shared_ptr<MenuRingTransform>& slot,
                                  std::unique_ptr<MenuState> previous,
                                  const std::string& heading,
                                  const engine::world::World& world,
