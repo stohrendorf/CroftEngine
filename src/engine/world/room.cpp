@@ -618,7 +618,7 @@ std::shared_ptr<render::scene::Node>
                            uint8_t dustDensityDivisor)
 {
   static const constexpr auto BaseGridAxisSubdivision = 12;
-  static const auto resolution = (cbrt(dustDensityDivisor) / BaseGridAxisSubdivision * 1_sectors).cast<float>().get();
+  const auto resolution = (cbrt(dustDensityDivisor) / BaseGridAxisSubdivision * 1_sectors).cast<float>().get();
 
   // https://stackoverflow.com/a/3747462
   static const auto fastrand = []()
