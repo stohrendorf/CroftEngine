@@ -640,29 +640,27 @@ std::pair<RunResult, std::optional<size_t>>
 
 std::unique_ptr<loader::trx::Glidos> Engine::loadGlidosPack() const
 {
-  if(m_engineConfig->renderSettings.glidosPack.has_value())
-  {
-    if(!std::filesystem::is_directory(m_engineConfig->renderSettings.glidosPack.value()))
-      return nullptr;
+  if(!m_engineConfig->renderSettings.glidosPack.has_value())
+    return nullptr;
 
-    m_presenter->drawLoadingScreen(_("Loading Glidos texture pack"));
-    auto lastUpdate = std::chrono::high_resolution_clock::now();
-    static constexpr auto TimePerFrame
-      = std::chrono::duration_cast<std::chrono::high_resolution_clock::duration>(std::chrono::seconds{1})
-        / core::FrameRate.get();
-    return std::make_unique<loader::trx::Glidos>(m_engineConfig->renderSettings.glidosPack.value(),
-                                                 [this, &lastUpdate](const std::string& s)
+  if(!std::filesystem::is_directory(m_engineConfig->renderSettings.glidosPack.value()))
+    return nullptr;
+
+  m_presenter->drawLoadingScreen(_("Loading Glidos texture pack"));
+  auto lastUpdate = std::chrono::high_resolution_clock::now();
+  static constexpr auto TimePerFrame
+    = std::chrono::duration_cast<std::chrono::high_resolution_clock::duration>(std::chrono::seconds{1})
+      / core::FrameRate.get();
+  return std::make_unique<loader::trx::Glidos>(m_engineConfig->renderSettings.glidosPack.value(),
+                                               [this, &lastUpdate](const std::string& s)
+                                               {
+                                                 const auto now = std::chrono::high_resolution_clock::now();
+                                                 if(lastUpdate + TimePerFrame < now)
                                                  {
-                                                   const auto now = std::chrono::high_resolution_clock::now();
-                                                   if(lastUpdate + TimePerFrame < now)
-                                                   {
-                                                     lastUpdate = now;
-                                                     m_presenter->drawLoadingScreen(s);
-                                                   }
-                                                 });
-  }
-
-  return nullptr;
+                                                   lastUpdate = now;
+                                                   m_presenter->drawLoadingScreen(s);
+                                                 }
+                                               });
 }
 
 std::optional<SavegameMeta> Engine::getSavegameMeta(const std::filesystem::path& filename) const
