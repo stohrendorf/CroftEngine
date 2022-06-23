@@ -445,13 +445,13 @@ void LaraObject::update()
     }
   }
 
-  if(m_underwaterState == UnderwaterState::OnLand)
+  switch(m_underwaterState)
   {
+  case UnderwaterState::OnLand:
     m_air = core::LaraAir;
     handleLaraStateOnLand();
-  }
-  else if(m_underwaterState == UnderwaterState::Diving)
-  {
+    break;
+  case UnderwaterState::Diving:
     if(!isDead() && !m_cheatDive)
     {
       m_air -= 1_frame;
@@ -462,14 +462,14 @@ void LaraObject::update()
       }
     }
     handleLaraStateDiving();
-  }
-  else if(m_underwaterState == UnderwaterState::Swimming)
-  {
+    break;
+  case UnderwaterState::Swimming:
     if(!isDead())
     {
       m_air = std::min(m_air + core::FrameRate * 1_sec / 3, core::LaraAir);
     }
     handleLaraStateSwimming();
+    break;
   }
 }
 
