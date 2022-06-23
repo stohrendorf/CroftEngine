@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CroftEngine\n"
 "Report-Msgid-Bugs-To: https://github.com/stohrendorf/CroftEngine/issues\n"
-"POT-Creation-Date: 2022-06-18 22:38+0200\n"
+"POT-Creation-Date: 2022-06-23 02:02+0200\n"
 "Last-Translator: Steffen Ohrendorf\n"
 "Language-Team: none\n"
 "Language: de_DE\n"
@@ -17,19 +17,25 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #. translators: TR charmap encoding
+#: menu/rendersettingsmenustate.cpp:355
+#, boost-format
+msgid "\037l %1% \037m Percent Dust Particles"
+msgstr "\037l %1% \037m Prozent Staubpartikel"
+
+#. translators: TR charmap encoding
 #: menu/rendersettingsmenustate.cpp:242
 #, boost-format
 msgid "\037l %1%x \037m Anisotropic Filtering"
 msgstr "\037l %1%x \037m Anisotropische Filterung"
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:324
+#: menu/rendersettingsmenustate.cpp:321
 #, boost-format
 msgid "\037l %1%x \037m UI Scale"
 msgstr "\037l %1%x \037m UI Skalierung"
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:303
+#: menu/rendersettingsmenustate.cpp:302
 #, boost-format
 msgid "\037l 1/%1% \037m Render Scale"
 msgstr "\037l 1/%1% \037m Render Aufl~osung"
@@ -220,7 +226,7 @@ msgid "Building textures"
 msgstr "Erstelle Texturen"
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:420
+#: menu/rendersettingsmenustate.cpp:425
 msgid "Butt Bubbles"
 msgstr "Po-Blasen"
 
@@ -293,7 +299,7 @@ msgid "Del"
 msgstr "Entf"
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:260
+#: menu/rendersettingsmenustate.cpp:259
 msgid "Denoise Water Surface"
 msgstr "Wasseroberfl~ache gl~atten"
 
@@ -355,11 +361,6 @@ msgid "Draw Weapon"
 msgstr "Waffe ziehen"
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:356
-msgid "Dust"
-msgstr "Staub"
-
-#. translators: TR charmap encoding
 #: hid/names.cpp:63
 msgctxt "Keyboard|Key"
 msgid "E"
@@ -416,7 +417,7 @@ msgid "F"
 msgstr "F"
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:280
+#: menu/rendersettingsmenustate.cpp:279
 msgid "FXAA"
 msgstr "FXAA"
 
@@ -426,7 +427,7 @@ msgid "Film Grain"
 msgstr "Filmrauschen"
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:346
+#: menu/rendersettingsmenustate.cpp:342
 msgid "Fullscreen"
 msgstr "Vollbild"
 
@@ -456,8 +457,12 @@ msgstr "Gamepad"
 msgid "Gameplay"
 msgstr "Spiel"
 
+#: engine/world/room.cpp:606
+msgid "Generating Dust Particles..."
+msgstr "Generiere Staubpartikel..."
+
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:376
+#: menu/rendersettingsmenustate.cpp:381
 msgid "Ghost"
 msgstr "Geist"
 
@@ -508,12 +513,12 @@ msgid "H"
 msgstr "H"
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:270
+#: menu/rendersettingsmenustate.cpp:269
 msgid "HBAO"
 msgstr "HBAO"
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:290
+#: menu/rendersettingsmenustate.cpp:289
 msgid "High Quality Shadows"
 msgstr "Schatten mit hoher Qualit~at"
 
@@ -667,12 +672,12 @@ msgid "Look"
 msgstr "Umsehen"
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:398
+#: menu/rendersettingsmenustate.cpp:403
 msgid "Low Health: Pulse Health Bar"
 msgstr "Niedrige Gesundheit: Gesundheitsanzeige pulsieren"
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:409
+#: menu/rendersettingsmenustate.cpp:414
 msgid "Low Health: Reduce Color"
 msgstr "Niedrige Gesundheit: Farben reduzieren"
 
@@ -699,7 +704,7 @@ msgid "Menu"
 msgstr "Men~u"
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:366
+#: menu/rendersettingsmenustate.cpp:371
 msgid "More Lights"
 msgstr "Mehr Lichter"
 
@@ -754,7 +759,7 @@ msgid "OPTION"
 msgstr "Optionen"
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:342
+#: menu/rendersettingsmenustate.cpp:338
 msgid "Other"
 msgstr "Anderes"
 
@@ -976,7 +981,7 @@ msgid "Restart Level"
 msgstr "Level neu starten"
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:387
+#: menu/rendersettingsmenustate.cpp:392
 msgid "Restore Health on Level Start"
 msgstr "Gesundheit bei Levelanfang wiederherstellen"
 
