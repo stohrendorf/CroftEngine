@@ -123,22 +123,7 @@ void LaraObject::handleLaraStateOnLand()
 
   if(getWorld().getCameraController().getMode() != CameraMode::FreeLook)
   {
-    if(abs(m_headRotation.X) >= 2_deg)
-    {
-      m_headRotation.X -= m_headRotation.X / 8;
-    }
-    else
-    {
-      m_headRotation.X = 0_deg;
-    }
-    if(abs(m_headRotation.Y) >= 2_deg)
-    {
-      m_headRotation.Y -= m_headRotation.Y / 8;
-    }
-    else
-    {
-      m_headRotation.Y = 0_deg;
-    }
+    smoothlyRevertHeadRotation();
     m_torsoRotation = m_headRotation;
   }
 
@@ -194,6 +179,18 @@ void LaraObject::handleLaraStateOnLand()
   applyTransform();
 }
 
+void LaraObject::smoothlyRevertHeadRotation()
+{
+  if(abs(m_headRotation.X) >= 8_au)
+    m_headRotation.X -= m_headRotation.X / 8;
+  else
+    m_headRotation.X = 0_deg;
+  if(abs(m_headRotation.Y) >= 8_au)
+    m_headRotation.Y -= m_headRotation.Y / 8;
+  else
+    m_headRotation.Y = 0_deg;
+}
+
 void LaraObject::handleLaraStateDiving()
 {
   CollisionInfo collisionInfo;
@@ -221,15 +218,17 @@ void LaraObject::handleLaraStateDiving()
       m_state.rotation.Z = 0_deg;
     }
   }
-  const core::Angle x = std::clamp(m_state.rotation.X, -100_deg, +100_deg);
-  m_state.rotation.X = x;
-  const core::Angle z = std::clamp(m_state.rotation.Z, -22_deg, +22_deg);
-  m_state.rotation.Z = z;
+  m_state.rotation.X = std::clamp(m_state.rotation.X, -100_deg, +100_deg);
+  m_state.rotation.Z = std::clamp(m_state.rotation.Z, -22_deg, +22_deg);
 
   if(m_underwaterCurrentStrength != 0_len)
   {
     handleUnderwaterCurrent(collisionInfo);
   }
+
+  smoothlyRevertHeadRotation();
+  m_torsoRotation.X /= 2;
+  m_torsoRotation.Y /= 2;
 
   updateImpl();
 
@@ -276,8 +275,7 @@ void LaraObject::handleLaraStateSwimming()
 
   if(getWorld().getCameraController().getMode() != CameraMode::FreeLook)
   {
-    m_headRotation.X -= m_headRotation.X / 8;
-    m_headRotation.Y -= m_headRotation.Y / 8;
+    smoothlyRevertHeadRotation();
     m_torsoRotation.X = 0_deg;
     m_torsoRotation.Y /= 2;
   }
@@ -447,13 +445,13 @@ void LaraObject::update()
     }
   }
 
-  if(m_underwaterState == UnderwaterState::OnLand)
+  switch(m_underwaterState)
   {
+  case UnderwaterState::OnLand:
     m_air = core::LaraAir;
     handleLaraStateOnLand();
-  }
-  else if(m_underwaterState == UnderwaterState::Diving)
-  {
+    break;
+  case UnderwaterState::Diving:
     if(!isDead() && !m_cheatDive)
     {
       m_air -= 1_frame;
@@ -464,14 +462,14 @@ void LaraObject::update()
       }
     }
     handleLaraStateDiving();
-  }
-  else if(m_underwaterState == UnderwaterState::Swimming)
-  {
+    break;
+  case UnderwaterState::Swimming:
     if(!isDead())
     {
       m_air = std::min(m_air + core::FrameRate * 1_sec / 3, core::LaraAir);
     }
     handleLaraStateSwimming();
+    break;
   }
 }
 

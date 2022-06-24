@@ -396,5 +396,6 @@ private:
 
   void initMuzzleFlashes();
   void updateCheats();
+  void smoothlyRevertHeadRotation();
 };
 } // namespace engine::objects
