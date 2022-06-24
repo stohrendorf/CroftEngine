@@ -198,22 +198,12 @@ void ObjectManager::serialize(const serialization::Serializer<world::World>& ser
 
   if(ser.loading)
   {
-    const auto activeObjectsNode = ser.node["activeObjects"];
-    if(activeObjectsNode.is_seed() || !activeObjectsNode.valid() || activeObjectsNode.type() == ryml::NOTYPE)
+    std::vector<ObjectId> activeObjectIds;
+    ser(S_NV("activeObjects", activeObjectIds));
+    m_activeObjects.clear();
+    for(const auto id : activeObjectIds)
     {
-      for(const auto& obj : m_objects | boost::adaptors::map_values)
-        if(obj->isActive())
-          m_activeObjects.push_front(obj);
-    }
-    else
-    {
-      std::vector<ObjectId> activeObjectIds;
-      ser(S_NV("activeObjects", activeObjectIds));
-      m_activeObjects.clear();
-      for(const auto id : activeObjectIds)
-      {
-        m_activeObjects.emplace_back(m_objects.at(id));
-      }
+      m_activeObjects.emplace_back(m_objects.at(id));
     }
   }
   else
@@ -289,7 +279,7 @@ void ObjectManager::activate(const engine::objects::Object* object)
   {
     return;
   }
-  
+
   const auto it = std::find(m_activeObjects.begin(), m_activeObjects.end(), gsl::not_null{ob});
   if(it == m_activeObjects.end())
   {
