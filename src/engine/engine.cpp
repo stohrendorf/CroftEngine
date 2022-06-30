@@ -82,7 +82,6 @@ namespace engine
 namespace
 {
 const gsl::czstring QuicksaveFilename = "quicksave.yaml";
-const gsl::czstring QuicksaveMetaFilename = "quicksave.meta.yaml";
 
 void drawAmmoWidget(ui::Ui& ui, const ui::TRFont& trFont, const world::World& world, core::Frame& ammoDisplayDuration)
 {
@@ -512,7 +511,7 @@ void Engine::takeBugReport(world::World& world)
   auto img = m_presenter->takeScreenshot();
   img.savePng(m_userDataPath / "bugreports" / dirName / "screenshot.png");
 
-  world.save(m_userDataPath / "bugreports" / dirName / "save.yaml", std::nullopt, false);
+  world.save(m_userDataPath / "bugreports" / dirName / "save.yaml", false);
 }
 
 std::pair<RunResult, std::optional<size_t>> Engine::runTitleMenu(world::World& world)
@@ -713,15 +712,6 @@ std::filesystem::path Engine::getSavegamePath(const std::optional<size_t>& slot)
     return root / makeSavegameFilename(*slot);
   else
     return root / QuicksaveFilename;
-}
-
-std::filesystem::path Engine::getSavegameMetaPath(const std::optional<size_t>& slot) const
-{
-  const auto root = getSavegameRootPath();
-  if(slot.has_value())
-    return root / makeSavegameMetaFilename(*slot);
-  else
-    return root / QuicksaveMetaFilename;
 }
 
 std::filesystem::path Engine::getAssetDataPath() const

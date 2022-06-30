@@ -1061,9 +1061,7 @@ void World::load(const std::optional<size_t>& slot)
   getPresenter().disableScreenOverlay();
 }
 
-void World::save(const std::filesystem::path& filename,
-                 const std::optional<std::filesystem::path> metaPath,
-                 bool isQuicksave)
+void World::save(const std::filesystem::path& filename, bool isQuicksave)
 {
   BOOST_LOG_TRIVIAL(info) << "Save " << filename;
   serialization::YAMLDocument<false> doc{filename};
@@ -1073,31 +1071,27 @@ void World::save(const std::filesystem::path& filename,
   doc.save("data", *this, *this);
   doc.write();
 
-  if(metaPath.has_value())
-  {
-    serialization::YAMLDocument<false> metaCacheDoc{metaPath.value()};
-    metaCacheDoc.save("meta", meta, meta);
-    metaCacheDoc.write();
-  }
+  serialization::YAMLDocument<false> metaCacheDoc{makeMetaFilepath(filename)};
+  metaCacheDoc.save("meta", meta, meta);
+  metaCacheDoc.write();
 }
 
 void World::save(const std::optional<size_t>& slot)
 {
   getPresenter().drawLoadingScreen(_("Saving..."));
   const auto filename = m_engine.getSavegamePath(slot);
-  const auto metaCachePath = m_engine.getSavegameMetaPath(slot);
-  save(filename, metaCachePath, !slot.has_value());
+  save(filename, !slot.has_value());
   getPresenter().disableScreenOverlay();
 }
 
 std::tuple<std::optional<SavegameInfo>, std::map<size_t, SavegameInfo>> World::getSavedGames() const
 {
-  auto getSavegameInfo
-    = [](const std::filesystem::path& path, const std::filesystem::path& metaPath) -> std::optional<SavegameInfo>
+  auto getSavegameInfo = [](const std::filesystem::path& path) -> std::optional<SavegameInfo>
   {
     if(!std::filesystem::is_regular_file(path))
       return std::nullopt;
 
+    auto metaPath = makeMetaFilepath(path);
     if(std::filesystem::is_regular_file(metaPath))
     {
       serialization::YAMLDocument<true> metaCacheDoc{metaPath};
@@ -1119,11 +1113,10 @@ std::tuple<std::optional<SavegameInfo>, std::map<size_t, SavegameInfo>> World::g
   for(size_t i = 0; i < core::SavegameSlots; ++i)
   {
     const auto path = m_engine.getSavegamePath(i);
-    const auto metaPath = m_engine.getSavegameMetaPath(i);
-    if(auto info = getSavegameInfo(path, metaPath); info.has_value())
+    if(auto info = getSavegameInfo(path); info.has_value())
       result.emplace(i, *info);
   }
-  return {getSavegameInfo(m_engine.getSavegamePath(std::nullopt), m_engine.getSavegameMetaPath(std::nullopt)), result};
+  return {getSavegameInfo(m_engine.getSavegamePath(std::nullopt)), result};
 }
 
 bool World::hasSavedGames() const
