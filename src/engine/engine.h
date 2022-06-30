@@ -64,6 +64,13 @@ inline std::string makeSavegameFilename(size_t n)
   return "save_" + std::to_string(n) + ".yaml";
 }
 
+inline std::filesystem::path makeMetaFilepath(const std::filesystem::path& path)
+{
+  auto metaPath = path;
+  metaPath.replace_extension(".meta.yaml");
+  return metaPath;
+}
+
 class Engine
 {
 private:
@@ -121,7 +128,6 @@ public:
 
   [[nodiscard]] std::filesystem::path getSavegameRootPath() const;
   [[nodiscard]] std::filesystem::path getSavegamePath(const std::optional<size_t>& slot) const;
-
   [[nodiscard]] std::filesystem::path getAssetDataPath() const;
 
   [[nodiscard]] const std::filesystem::path& getEngineDataPath() const
