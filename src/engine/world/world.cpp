@@ -1061,7 +1061,9 @@ void World::load(const std::optional<size_t>& slot)
   getPresenter().disableScreenOverlay();
 }
 
-void World::save(const std::filesystem::path& filename, bool isQuicksave)
+void World::save(const std::filesystem::path& filename,
+                 const std::optional<std::filesystem::path> metaPath,
+                 bool isQuicksave)
 {
   BOOST_LOG_TRIVIAL(info) << "Save " << filename;
   serialization::YAMLDocument<false> doc{filename};
@@ -1070,26 +1072,46 @@ void World::save(const std::filesystem::path& filename, bool isQuicksave)
   doc.save("meta", meta, meta);
   doc.save("data", *this, *this);
   doc.write();
+
+  if(metaPath.has_value())
+  {
+    serialization::YAMLDocument<false> metaCacheDoc{metaPath.value()};
+    metaCacheDoc.save("meta", meta, meta);
+    metaCacheDoc.write();
+  }
 }
 
 void World::save(const std::optional<size_t>& slot)
 {
   getPresenter().drawLoadingScreen(_("Saving..."));
   const auto filename = m_engine.getSavegamePath(slot);
-  save(filename, !slot.has_value());
+  const auto metaCachePath = m_engine.getSavegameMetaPath(slot);
+  save(filename, metaCachePath, !slot.has_value());
   getPresenter().disableScreenOverlay();
 }
 
 std::tuple<std::optional<SavegameInfo>, std::map<size_t, SavegameInfo>> World::getSavedGames() const
 {
-  auto getSavegameInfo = [](const std::filesystem::path& path) -> std::optional<SavegameInfo>
+  auto getSavegameInfo
+    = [](const std::filesystem::path& path, const std::filesystem::path& metaPath) -> std::optional<SavegameInfo>
   {
     if(!std::filesystem::is_regular_file(path))
       return std::nullopt;
 
+    if(std::filesystem::is_regular_file(metaPath))
+    {
+      serialization::YAMLDocument<true> metaCacheDoc{metaPath};
+      SavegameMeta meta{};
+      metaCacheDoc.load("meta", meta, meta);
+      return SavegameInfo{std::move(meta), std::filesystem::last_write_time(path)};
+    }
+
     serialization::YAMLDocument<true> doc{path};
     SavegameMeta meta{};
     doc.load("meta", meta, meta);
+    serialization::YAMLDocument<false> newMetaCacheDoc{metaPath};
+    newMetaCacheDoc.save("meta", meta, meta);
+    newMetaCacheDoc.write();
     return SavegameInfo{std::move(meta), std::filesystem::last_write_time(path)};
   };
 
@@ -1097,10 +1119,11 @@ std::tuple<std::optional<SavegameInfo>, std::map<size_t, SavegameInfo>> World::g
   for(size_t i = 0; i < core::SavegameSlots; ++i)
   {
     const auto path = m_engine.getSavegamePath(i);
-    if(auto info = getSavegameInfo(path); info.has_value())
+    const auto metaPath = m_engine.getSavegameMetaPath(i);
+    if(auto info = getSavegameInfo(path, metaPath); info.has_value())
       result.emplace(i, *info);
   }
-  return {getSavegameInfo(m_engine.getSavegamePath(std::nullopt)), result};
+  return {getSavegameInfo(m_engine.getSavegamePath(std::nullopt), m_engine.getSavegameMetaPath(std::nullopt)), result};
 }
 
 bool World::hasSavedGames() const
