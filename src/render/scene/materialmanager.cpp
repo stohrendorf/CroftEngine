@@ -316,15 +316,26 @@ gslu::nn_shared<Material> MaterialManager::getFXAA()
   return m;
 }
 
-gslu::nn_shared<Material> MaterialManager::getCRT()
+gslu::nn_shared<Material> MaterialManager::getCRTV0()
 {
-  if(m_crt != nullptr)
-    return gsl::not_null{m_crt};
+  if(m_crtV0 != nullptr)
+    return gsl::not_null{m_crtV0};
 
-  auto m = gsl::make_shared<Material>(m_shaderCache->getCRT());
+  auto m = gsl::make_shared<Material>(m_shaderCache->getCRTV0());
   m->getUniform("u_noise")->set(gsl::not_null{m_noiseTexture});
   configureForScreenSpaceEffect(*m, false);
-  m_crt = m;
+  m_crtV0 = m;
+  return m;
+}
+
+gslu::nn_shared<Material> MaterialManager::getCRTV1()
+{
+  if(m_crtV1 != nullptr)
+    return gsl::not_null{m_crtV1};
+
+  auto m = gsl::make_shared<Material>(m_shaderCache->getCRTV1());
+  configureForScreenSpaceEffect(*m, false);
+  m_crtV1 = m;
   return m;
 }
 

@@ -10,7 +10,8 @@ namespace render
 {
 void RenderSettings::serialize(const serialization::Serializer<engine::EngineConfig>& ser)
 {
-  ser(S_NVO("crt", crt),
+  ser(S_NVO("crtActive", crtActive),
+      S_NVO("crtVersion", crtVersion),
       S_NVO("dof", dof),
       S_NVO("lensDistortion", lensDistortion),
       S_NVO("filmGrain", filmGrain),

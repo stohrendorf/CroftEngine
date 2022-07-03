@@ -47,6 +47,7 @@ private:
   std::shared_ptr<ui::widgets::ValueSelector<uint8_t>> m_uiScaleSelector;
   std::shared_ptr<ui::widgets::ValueSelector<uint8_t>> m_renderResolutionDivisorSelector;
   std::shared_ptr<ui::widgets::ValueSelector<uint8_t>> m_dustDensitySelector;
+  std::shared_ptr<ui::widgets::ValueSelector<uint8_t>> m_crtVersionSelector;
   gslu::nn_unique<ui::widgets::TabBox> m_tabs;
 
 public:

@@ -150,16 +150,24 @@ RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingT
   m_listBoxes.emplace_back(listBox);
   m_tabs->addTab(tab, listBox);
 
+  m_crtVersionSelector = std::make_shared<ui::widgets::ValueSelector<uint8_t>>(
+    [](uint32_t value)
+    {
+      return /* translators: TR charmap encoding */ _("CRT Version \x1f\x6c %1% \x1f\x6d", value + 1);
+    },
+    std::vector<uint8_t>{0, 1});
   listBox->addSetting(
-    /* translators: TR charmap encoding */ _("CRT"),
+    gslu::nn_shared<ui::widgets::Widget>{m_crtVersionSelector},
     [&engine]()
     {
-      return engine.getEngineConfig()->renderSettings.crt;
+      return engine.getEngineConfig()->renderSettings.crtActive;
     },
     [&engine]()
     {
-      toggle(engine, engine.getEngineConfig()->renderSettings.crt);
+      toggle(engine, engine.getEngineConfig()->renderSettings.crtActive);
     });
+  m_crtVersionSelector->selectValue(engine.getEngineConfig()->renderSettings.crtVersion);
+
   listBox->addSetting(
     /* translators: TR charmap encoding */ _("Depth-of-Field"),
     [&engine]()
@@ -515,6 +523,15 @@ std::unique_ptr<MenuState>
     else if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Right))
       m_dustDensitySelector->selectNext();
     world.getEngine().getEngineConfig()->renderSettings.dustDensity = m_dustDensitySelector->getSelectedValue();
+    world.getEngine().applySettings();
+  }
+  else if(std::get<2>(listBox->getSelected())->getContent() == m_crtVersionSelector)
+  {
+    if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Left))
+      m_crtVersionSelector->selectPrev();
+    else if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Right))
+      m_crtVersionSelector->selectNext();
+    world.getEngine().getEngineConfig()->renderSettings.crtVersion = m_crtVersionSelector->getSelectedValue();
     world.getEngine().applySettings();
   }
 

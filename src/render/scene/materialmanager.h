@@ -41,7 +41,8 @@ public:
   [[nodiscard]] gslu::nn_shared<Material> getDustParticle();
 
   [[nodiscard]] gslu::nn_shared<Material> getFXAA();
-  [[nodiscard]] gslu::nn_shared<Material> getCRT();
+  [[nodiscard]] gslu::nn_shared<Material> getCRTV0();
+  [[nodiscard]] gslu::nn_shared<Material> getCRTV1();
   [[nodiscard]] gslu::nn_shared<Material> getVelvia();
   [[nodiscard]] gslu::nn_shared<Material> getDeath();
   [[nodiscard]] gslu::nn_shared<Material> getFilmGrain();
@@ -74,7 +75,8 @@ private:
   std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::RGB8>>> m_noiseTexture;
 
   std::shared_ptr<Material> m_fxaa{nullptr};
-  std::shared_ptr<Material> m_crt{nullptr};
+  std::shared_ptr<Material> m_crtV0{nullptr};
+  std::shared_ptr<Material> m_crtV1{nullptr};
   std::shared_ptr<Material> m_velvia{nullptr};
   std::shared_ptr<Material> m_death{nullptr};
   std::shared_ptr<Material> m_filmGrain{nullptr};

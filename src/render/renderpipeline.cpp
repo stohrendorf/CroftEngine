@@ -165,8 +165,21 @@ void RenderPipeline::resize(scene::MaterialManager& materialManager,
   addEffect("death", materialManager.getDeath());
   if(m_renderSettings.filmGrain)
     addEffect("filmGrain", materialManager.getFilmGrain());
-  if(m_renderSettings.crt)
-    addEffect("crt", materialManager.getCRT());
+  if(m_renderSettings.crtActive)
+  {
+    switch(m_renderSettings.crtVersion)
+    {
+    case 0:
+      addEffect("crt0", materialManager.getCRTV0());
+      break;
+    case 1:
+      addEffect("crt1", materialManager.getCRTV1());
+      break;
+    default:
+      BOOST_THROW_EXCEPTION(std::out_of_range("invalid crt version"));
+    }
+  }
+
   m_uiPass = std::make_shared<pass::UIPass>(materialManager, m_uiSize, m_displaySize);
 }
 

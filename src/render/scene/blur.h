@@ -83,10 +83,20 @@ class SeparableBlur
 public:
   using TextureHandle = gl::TextureHandle<gl::Texture2D<PixelT>>;
 
+  explicit SeparableBlur(const std::string& name,
+                         MaterialManager& materialManager,
+                         uint8_t extentX,
+                         uint8_t extentY,
+                         bool gauss,
+                         int downscale = 1)
+      : m_blur1{name + "/blur-1", materialManager, 1, extentX, gauss, downscale}
+      , m_blur2{name + "/blur-2", materialManager, 2, extentY, gauss, 1}
+  {
+  }
+
   explicit SeparableBlur(
     const std::string& name, MaterialManager& materialManager, uint8_t extent, bool gauss, int downscale = 1)
-      : m_blur1{name + "/blur-1", materialManager, 1, extent, gauss, downscale}
-      , m_blur2{name + "/blur-2", materialManager, 2, extent, gauss, 1}
+      : SeparableBlur{name, materialManager, extent, extent, gauss, downscale}
   {
   }
 

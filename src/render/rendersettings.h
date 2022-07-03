@@ -17,7 +17,8 @@ namespace render
 {
 struct RenderSettings
 {
-  bool crt = true;
+  bool crtActive = false;
+  uint8_t crtVersion = 1;
   bool dof = true;
   bool lensDistortion = true;
   bool filmGrain = true;

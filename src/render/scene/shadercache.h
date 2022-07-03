@@ -94,9 +94,14 @@ public:
     return get("flat.vert", "fx_fxaa.frag");
   }
 
-  [[nodiscard]] auto getCRT()
+  [[nodiscard]] auto getCRTV0()
   {
-    return get("flat.vert", "fx_crt.frag");
+    return get("flat.vert", "fx_crt_v0.frag");
+  }
+
+  [[nodiscard]] auto getCRTV1()
+  {
+    return get("flat.vert", "fx_crt_v1.frag");
   }
 
   [[nodiscard]] auto getVelvia()
