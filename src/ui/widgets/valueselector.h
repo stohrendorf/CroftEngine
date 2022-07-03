@@ -9,6 +9,7 @@
 #include <gsl/gsl-lite.hpp>
 #include <utility>
 #include <vector>
+
 namespace engine
 {
 class Presenter;
@@ -21,20 +22,31 @@ class Ui;
 
 namespace ui::widgets
 {
+class ValueSelectorBase : public Widget
+{
+public:
+  virtual void selectPrev() = 0;
+  virtual void selectNext() = 0;
+};
+
 template<typename T>
-class ValueSelector : public Widget
+class ValueSelector : public ValueSelectorBase
 {
 public:
   using DisplayTextProvider = std::function<std::string(const T&)>;
+  using SelectionChangeHandler = std::function<void(const T&)>;
 
   explicit ValueSelector(DisplayTextProvider&& displayTextProvider,
+                         SelectionChangeHandler&& selectionChangeHandler,
                          std::vector<T> values,
                          Label::Alignment alignment = Label::Alignment::Left)
       : m_label{{}, alignment}
       , m_values{std::move(values)}
       , m_displayTextProvider{std::move(displayTextProvider)}
+      , m_selectionChangeHandler{std::move(selectionChangeHandler)}
   {
     Expects(m_displayTextProvider);
+    Expects(m_selectionChangeHandler);
     if(!m_values.empty())
       m_label.setText(m_displayTextProvider(m_values[0]));
   }
@@ -75,22 +87,24 @@ public:
     m_label.fitToContent();
   }
 
-  void selectPrev()
+  void selectPrev() override
   {
     if(m_selectedValue == 0)
       return;
 
     --m_selectedValue;
     m_label.setText(m_displayTextProvider(m_values[m_selectedValue]));
+    m_selectionChangeHandler(getSelectedValue());
   }
 
-  void selectNext()
+  void selectNext() override
   {
     if(m_values.empty() || m_selectedValue == m_values.size() - 1)
       return;
 
     ++m_selectedValue;
     m_label.setText(m_displayTextProvider(m_values[m_selectedValue]));
+    m_selectionChangeHandler(getSelectedValue());
   }
 
   [[nodiscard]] auto getSelectedValue() const
@@ -103,6 +117,7 @@ public:
     if(const auto it = std::find(m_values.begin(), m_values.end(), value); it != m_values.end())
       m_selectedValue = std::distance(m_values.begin(), it);
     m_label.setText(m_displayTextProvider(m_values[m_selectedValue]));
+    m_selectionChangeHandler(getSelectedValue());
   }
 
 private:
@@ -110,5 +125,6 @@ private:
   std::vector<T> m_values;
   size_t m_selectedValue = 0;
   DisplayTextProvider m_displayTextProvider;
+  SelectionChangeHandler m_selectionChangeHandler;
 };
 } // namespace ui::widgets

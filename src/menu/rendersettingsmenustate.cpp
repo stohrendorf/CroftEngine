@@ -150,23 +150,30 @@ RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingT
   m_listBoxes.emplace_back(listBox);
   m_tabs->addTab(tab, listBox);
 
-  m_crtVersionSelector = std::make_shared<ui::widgets::ValueSelector<uint8_t>>(
-    [](uint32_t value)
-    {
-      return /* translators: TR charmap encoding */ _("CRT Version \x1f\x6c %1% \x1f\x6d", value + 1);
-    },
-    std::vector<uint8_t>{0, 1});
-  listBox->addSetting(
-    gslu::nn_shared<ui::widgets::Widget>{m_crtVersionSelector},
-    [&engine]()
-    {
-      return engine.getEngineConfig()->renderSettings.crtActive;
-    },
-    [&engine]()
-    {
-      toggle(engine, engine.getEngineConfig()->renderSettings.crtActive);
-    });
-  m_crtVersionSelector->selectValue(engine.getEngineConfig()->renderSettings.crtVersion);
+  {
+    auto tmp = std::make_shared<ui::widgets::ValueSelector<uint8_t>>(
+      [](uint32_t value)
+      {
+        return /* translators: TR charmap encoding */ _("CRT Version \x1f\x6c %1% \x1f\x6d", value + 1);
+      },
+      [&engine](uint32_t value)
+      {
+        engine.getEngineConfig()->renderSettings.crtVersion = value;
+        engine.applySettings();
+      },
+      std::vector<uint8_t>{0, 1});
+    listBox->addSetting(
+      gslu::nn_shared<ui::widgets::Widget>{tmp},
+      [&engine]()
+      {
+        return engine.getEngineConfig()->renderSettings.crtActive;
+      },
+      [&engine]()
+      {
+        toggle(engine, engine.getEngineConfig()->renderSettings.crtActive);
+      });
+    tmp->selectValue(engine.getEngineConfig()->renderSettings.crtVersion);
+  }
 
   listBox->addSetting(
     /* translators: TR charmap encoding */ _("Depth-of-Field"),
@@ -244,24 +251,31 @@ RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingT
       levels.emplace_back(i);
     }
 
-    m_anisotropySelector = std::make_shared<ui::widgets::ValueSelector<uint32_t>>(
-      [](uint32_t level)
-      {
-        return /* translators: TR charmap encoding */ _("\x1f\x6c %1%x \x1f\x6d Anisotropic Filtering", level);
-      },
-      std::move(levels));
-    m_anisotropySelector->selectValue(engine.getEngineConfig()->renderSettings.anisotropyLevel);
+    {
+      auto tmp = std::make_shared<ui::widgets::ValueSelector<uint32_t>>(
+        [](uint32_t level)
+        {
+          return /* translators: TR charmap encoding */ _("\x1f\x6c %1%x \x1f\x6d Anisotropic Filtering", level);
+        },
+        [&engine](uint32_t value)
+        {
+          engine.getEngineConfig()->renderSettings.anisotropyLevel = value;
+          engine.applySettings();
+        },
+        std::move(levels));
+      tmp->selectValue(engine.getEngineConfig()->renderSettings.anisotropyLevel);
 
-    listBox->addSetting(
-      gslu::nn_shared<ui::widgets::Widget>{m_anisotropySelector},
-      [&engine]()
-      {
-        return engine.getEngineConfig()->renderSettings.anisotropyActive;
-      },
-      [&engine, maxLevel = gsl::narrow<uint32_t>(std::lround(gl::getMaxAnisotropyLevel()))]()
-      {
-        toggle(engine, engine.getEngineConfig()->renderSettings.anisotropyActive);
-      });
+      listBox->addSetting(
+        gslu::nn_shared<ui::widgets::Widget>{tmp},
+        [&engine]()
+        {
+          return engine.getEngineConfig()->renderSettings.anisotropyActive;
+        },
+        [&engine, maxLevel = gsl::narrow<uint32_t>(std::lround(gl::getMaxAnisotropyLevel()))]()
+        {
+          toggle(engine, engine.getEngineConfig()->renderSettings.anisotropyActive);
+        });
+    }
   }
   listBox->addSetting(
     /* translators: TR charmap encoding */ _("Denoise Water Surface"),
@@ -304,42 +318,57 @@ RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingT
       toggle(engine, engine.getEngineConfig()->renderSettings.highQualityShadows);
     });
 
-  m_renderResolutionDivisorSelector = std::make_shared<ui::widgets::ValueSelector<uint8_t>>(
-    [](uint32_t value)
-    {
-      return /* translators: TR charmap encoding */ _("\x1f\x6c 1/%1% \x1f\x6d Render Scale",
-                                                      static_cast<uint32_t>(value));
-    },
-    std::vector<uint8_t>{2, 3, 4, 5, 6, 7, 8});
-  listBox->addSetting(
-    gslu::nn_shared<ui::widgets::Widget>{m_renderResolutionDivisorSelector},
-    [&engine]()
-    {
-      return engine.getEngineConfig()->renderSettings.renderResolutionDivisorActive;
-    },
-    [&engine]()
-    {
-      toggle(engine, engine.getEngineConfig()->renderSettings.renderResolutionDivisorActive);
-    });
-  m_renderResolutionDivisorSelector->selectValue(engine.getEngineConfig()->renderSettings.renderResolutionDivisor);
+  {
+    auto tmp = std::make_shared<ui::widgets::ValueSelector<uint8_t>>(
+      [](uint32_t value)
+      {
+        return /* translators: TR charmap encoding */ _("\x1f\x6c 1/%1% \x1f\x6d Render Scale",
+                                                        static_cast<uint32_t>(value));
+      },
+      [&engine](uint32_t value)
+      {
+        engine.getEngineConfig()->renderSettings.renderResolutionDivisor = value;
+        engine.applySettings();
+      },
+      std::vector<uint8_t>{2, 3, 4, 5, 6, 7, 8});
+    listBox->addSetting(
+      gslu::nn_shared<ui::widgets::Widget>{tmp},
+      [&engine]()
+      {
+        return engine.getEngineConfig()->renderSettings.renderResolutionDivisorActive;
+      },
+      [&engine]()
+      {
+        toggle(engine, engine.getEngineConfig()->renderSettings.renderResolutionDivisorActive);
+      });
+    tmp->selectValue(engine.getEngineConfig()->renderSettings.renderResolutionDivisor);
+  }
 
-  m_uiScaleSelector = std::make_shared<ui::widgets::ValueSelector<uint8_t>>(
-    [](uint32_t value)
-    {
-      return /* translators: TR charmap encoding */ _("\x1f\x6c %1%x \x1f\x6d UI Scale", static_cast<uint32_t>(value));
-    },
-    std::vector<uint8_t>{2, 3, 4, 5, 6, 7, 8});
-  listBox->addSetting(
-    gslu::nn_shared<ui::widgets::Widget>{m_uiScaleSelector},
-    [&engine]()
-    {
-      return engine.getEngineConfig()->renderSettings.uiScaleActive;
-    },
-    [&engine]()
-    {
-      toggle(engine, engine.getEngineConfig()->renderSettings.uiScaleActive);
-    });
-  m_uiScaleSelector->selectValue(engine.getEngineConfig()->renderSettings.uiScaleMultiplier);
+  {
+    auto tmp = std::make_shared<ui::widgets::ValueSelector<uint8_t>>(
+      [](uint32_t value)
+      {
+        return /* translators: TR charmap encoding */ _("\x1f\x6c %1%x \x1f\x6d UI Scale",
+                                                        static_cast<uint32_t>(value));
+      },
+      [&engine](uint32_t value)
+      {
+        engine.getEngineConfig()->renderSettings.uiScaleMultiplier = value;
+        engine.applySettings();
+      },
+      std::vector<uint8_t>{2, 3, 4, 5, 6, 7, 8});
+    listBox->addSetting(
+      gslu::nn_shared<ui::widgets::Widget>{tmp},
+      [&engine]()
+      {
+        return engine.getEngineConfig()->renderSettings.uiScaleActive;
+      },
+      [&engine]()
+      {
+        toggle(engine, engine.getEngineConfig()->renderSettings.uiScaleActive);
+      });
+    tmp->selectValue(engine.getEngineConfig()->renderSettings.uiScaleMultiplier);
+  }
 
   listBox = gsl::make_shared<CheckListBox>();
   m_listBoxes.emplace_back(listBox);
@@ -357,23 +386,30 @@ RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingT
       toggle(engine, engine.getEngineConfig()->renderSettings.fullscreen);
     });
 
-  m_dustDensitySelector = std::make_shared<ui::widgets::ValueSelector<uint8_t>>(
-    [](uint32_t value)
-    {
-      return /* translators: TR charmap encoding */ _("\x1f\x6c %1% \x1f\x6d Percent Dust Particles", 100 / value);
-    },
-    std::vector<uint8_t>{10, 5, 4, 3, 2, 1});
-  listBox->addSetting(
-    gslu::nn_shared<ui::widgets::Widget>{m_dustDensitySelector},
-    [&engine]()
-    {
-      return engine.getEngineConfig()->renderSettings.dustActive;
-    },
-    [&engine]()
-    {
-      toggle(engine, engine.getEngineConfig()->renderSettings.dustActive);
-    });
-  m_dustDensitySelector->selectValue(engine.getEngineConfig()->renderSettings.dustDensity);
+  {
+    auto tmp = std::make_shared<ui::widgets::ValueSelector<uint8_t>>(
+      [](uint32_t value)
+      {
+        return /* translators: TR charmap encoding */ _("\x1f\x6c %1% \x1f\x6d Percent Dust Particles", 100 / value);
+      },
+      [&engine](uint32_t value)
+      {
+        engine.getEngineConfig()->renderSettings.dustDensity = value;
+        engine.applySettings();
+      },
+      std::vector<uint8_t>{10, 5, 4, 3, 2, 1});
+    listBox->addSetting(
+      gslu::nn_shared<ui::widgets::Widget>{tmp},
+      [&engine]()
+      {
+        return engine.getEngineConfig()->renderSettings.dustActive;
+      },
+      [&engine]()
+      {
+        toggle(engine, engine.getEngineConfig()->renderSettings.dustActive);
+      });
+    tmp->selectValue(engine.getEngineConfig()->renderSettings.dustDensity);
+  }
 
   listBox->addSetting(
     /* translators: TR charmap encoding */ _("More Lights"),
@@ -488,51 +524,14 @@ std::unique_ptr<MenuState>
   {
     return std::move(m_previous);
   }
-  else if(std::get<2>(listBox->getSelected())->getContent() == m_anisotropySelector)
+  else if(auto tmp = gslu::dynamic_pointer_cast<ui::widgets::ValueSelectorBase>(
+            std::get<2>(listBox->getSelected())->getContent());
+          tmp != nullptr)
   {
     if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Left))
-      m_anisotropySelector->selectPrev();
+      tmp->selectPrev();
     else if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Right))
-      m_anisotropySelector->selectNext();
-    world.getEngine().getEngineConfig()->renderSettings.anisotropyLevel = m_anisotropySelector->getSelectedValue();
-    world.getEngine().applySettings();
-  }
-  else if(std::get<2>(listBox->getSelected())->getContent() == m_renderResolutionDivisorSelector)
-  {
-    if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Left))
-      m_renderResolutionDivisorSelector->selectPrev();
-    else if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Right))
-      m_renderResolutionDivisorSelector->selectNext();
-    world.getEngine().getEngineConfig()->renderSettings.renderResolutionDivisor
-      = m_renderResolutionDivisorSelector->getSelectedValue();
-    world.getEngine().applySettings();
-  }
-  else if(std::get<2>(listBox->getSelected())->getContent() == m_uiScaleSelector)
-  {
-    if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Left))
-      m_uiScaleSelector->selectPrev();
-    else if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Right))
-      m_uiScaleSelector->selectNext();
-    world.getEngine().getEngineConfig()->renderSettings.uiScaleMultiplier = m_uiScaleSelector->getSelectedValue();
-    world.getEngine().applySettings();
-  }
-  else if(std::get<2>(listBox->getSelected())->getContent() == m_dustDensitySelector)
-  {
-    if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Left))
-      m_dustDensitySelector->selectPrev();
-    else if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Right))
-      m_dustDensitySelector->selectNext();
-    world.getEngine().getEngineConfig()->renderSettings.dustDensity = m_dustDensitySelector->getSelectedValue();
-    world.getEngine().applySettings();
-  }
-  else if(std::get<2>(listBox->getSelected())->getContent() == m_crtVersionSelector)
-  {
-    if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Left))
-      m_crtVersionSelector->selectPrev();
-    else if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Right))
-      m_crtVersionSelector->selectNext();
-    world.getEngine().getEngineConfig()->renderSettings.crtVersion = m_crtVersionSelector->getSelectedValue();
-    world.getEngine().applySettings();
+      tmp->selectNext();
   }
 
   return nullptr;

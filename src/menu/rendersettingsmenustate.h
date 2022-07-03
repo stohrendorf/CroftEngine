@@ -43,11 +43,6 @@ private:
   class CheckListBox;
   std::vector<std::shared_ptr<CheckListBox>> m_listBoxes{};
   std::unique_ptr<MenuState> m_previous;
-  std::shared_ptr<ui::widgets::ValueSelector<uint32_t>> m_anisotropySelector;
-  std::shared_ptr<ui::widgets::ValueSelector<uint8_t>> m_uiScaleSelector;
-  std::shared_ptr<ui::widgets::ValueSelector<uint8_t>> m_renderResolutionDivisorSelector;
-  std::shared_ptr<ui::widgets::ValueSelector<uint8_t>> m_dustDensitySelector;
-  std::shared_ptr<ui::widgets::ValueSelector<uint8_t>> m_crtVersionSelector;
   gslu::nn_unique<ui::widgets::TabBox> m_tabs;
 
 public:
