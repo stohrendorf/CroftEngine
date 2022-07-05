@@ -317,13 +317,13 @@ level_sequence = [
             "en_GB": {
                 TR1ItemId.Puzzle1: "Fuse",
                 TR1ItemId.Puzzle2: "Pyramid Key",
-                TR1ItemId.Key1: "Gold Key",
+                TR1ItemId.Key1: "Rusty Key",
                 TR1ItemId.ScionPiece5: "Scion",
             },
             "de_DE": {
                 TR1ItemId.Puzzle1: "Sicherung",
                 TR1ItemId.Puzzle2: "Schl~ussel der Pyramide",
-                TR1ItemId.Key1: "Goldener Schl~ussel",
+                TR1ItemId.Key1: "Rostiger Schl~ussel",
                 TR1ItemId.ScionPiece5: "Scion",
             },
         },
