@@ -27,12 +27,12 @@ namespace engine
 {
 struct Ammo
 {
-  const size_t roundsPerClip;
+  const size_t shotsPerClip;
   const size_t roundsPerShot;
   const TR1ItemId ammoType;
   const TR1ItemId weaponType;
   const char iconChar;
-  size_t ammo = 0;
+  size_t shots = 0;
   uint32_t hits = 0;
   uint32_t hitsTotal = 0;
   uint32_t misses = 0;
@@ -40,19 +40,19 @@ struct Ammo
 
   void addClips(size_t n)
   {
-    ammo += roundsPerClip * n;
+    shots += shotsPerClip * n;
+  }
+
+  [[nodiscard]] size_t getClips() const
+  {
+    return shots / shotsPerClip;
   }
 
   void serialize(const serialization::Serializer<world::World>& ser);
 
-  [[nodiscard]] auto getShots() const
-  {
-    return ammo / roundsPerShot;
-  }
-
   [[nodiscard]] auto getDisplayString() const
   {
-    return std::to_string(getShots()) + " " + iconChar;
+    return std::to_string(shots) + " " + iconChar;
   }
 };
 
@@ -64,7 +64,7 @@ private:
   Ammo m_pistolsAmmo{1, 1, TR1ItemId::Lara, TR1ItemId::Pistols, '\0'};
   Ammo m_magnumsAmmo{50, 1, TR1ItemId::MagnumAmmo, TR1ItemId::Magnums, 'B'};
   Ammo m_uzisAmmo{100, 1, TR1ItemId::UziAmmo, TR1ItemId::Uzis, 'C'};
-  Ammo m_shotgunAmmo{12, 6, TR1ItemId::ShotgunAmmo, TR1ItemId::Shotgun, 'A'};
+  Ammo m_shotgunAmmo{2, 6, TR1ItemId::ShotgunAmmo, TR1ItemId::Shotgun, 'A'};
 
 public:
   explicit Inventory() = default;
@@ -109,7 +109,7 @@ public:
 
   [[nodiscard]] Ammo& getAmmo(WeaponType weaponType)
   {
-    m_pistolsAmmo.ammo = 1000;
+    m_pistolsAmmo.shots = 1000;
 
     switch(weaponType)
     {
@@ -134,10 +134,10 @@ public:
 
   void fillAllAmmo()
   {
-    m_pistolsAmmo.ammo = 1000;
-    m_magnumsAmmo.ammo = 1000;
-    m_uzisAmmo.ammo = 1000;
-    m_shotgunAmmo.ammo = 1000;
+    m_pistolsAmmo.shots = 1000;
+    m_magnumsAmmo.shots = 1000;
+    m_uzisAmmo.shots = 1000;
+    m_shotgunAmmo.shots = 1000;
   }
 };
 } // namespace engine

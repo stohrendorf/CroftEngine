@@ -800,7 +800,7 @@ void LaraObject::updateLarasWeaponsStatus()
     switch(getWorld().getPlayer().selectedWeaponType)
     {
     case WeaponType::Pistols:
-      if(getWorld().getPlayer().getInventory().getAmmo(WeaponType::Pistols).ammo != 0)
+      if(getWorld().getPlayer().getInventory().getAmmo(WeaponType::Pistols).shots != 0)
       {
         if(getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action))
         {
@@ -817,7 +817,7 @@ void LaraObject::updateLarasWeaponsStatus()
       updateTwoWeapons(getWorld().getPlayer().selectedWeaponType);
       break;
     case WeaponType::Magnums:
-      if(getWorld().getPlayer().getInventory().getAmmo(WeaponType::Magnums).ammo != 0)
+      if(getWorld().getPlayer().getInventory().getAmmo(WeaponType::Magnums).shots != 0)
       {
         if(getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action))
         {
@@ -834,7 +834,7 @@ void LaraObject::updateLarasWeaponsStatus()
       updateTwoWeapons(getWorld().getPlayer().selectedWeaponType);
       break;
     case WeaponType::Uzis:
-      if(getWorld().getPlayer().getInventory().getAmmo(WeaponType::Uzis).ammo != 0)
+      if(getWorld().getPlayer().getInventory().getAmmo(WeaponType::Uzis).shots != 0)
       {
         if(getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action))
         {
@@ -851,7 +851,7 @@ void LaraObject::updateLarasWeaponsStatus()
       updateTwoWeapons(getWorld().getPlayer().selectedWeaponType);
       break;
     case WeaponType::Shotgun:
-      if(getWorld().getPlayer().getInventory().getAmmo(WeaponType::Shotgun).ammo != 0)
+      if(getWorld().getPlayer().getInventory().getAmmo(WeaponType::Shotgun).shots != 0)
       {
         if(getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action))
         {
@@ -1175,22 +1175,20 @@ void LaraObject::updateAnimShotgun()
 
 void LaraObject::tryShootShotgun()
 {
-  bool fireShotgun = false;
+  if(getWorld().getPlayer().getInventory().getAmmo(WeaponType::Shotgun).shots == 0)
+    return;
+  --getWorld().getPlayer().getInventory().getAmmo(WeaponType::Shotgun).shots;
+
   const auto rounds = getWorld().getPlayer().getInventory().getAmmo(WeaponType::Shotgun).roundsPerShot;
   for(size_t i = 0; i < rounds; ++i)
   {
     core::TRRotationXY aimAngle;
     aimAngle.Y = util::rand15s(+10_deg) + m_state.rotation.Y + leftArm.aimRotation.Y;
     aimAngle.X = util::rand15s(+10_deg) + leftArm.aimRotation.X;
-    if(shootBullet(WeaponType::Shotgun, aimAt, *this, aimAngle))
-    {
-      fireShotgun = true;
-    }
+    hitscanSingleRound(WeaponType::Shotgun, aimAt, *this, aimAngle);
   }
-  if(fireShotgun)
-  {
-    playSoundEffect(Weapon::get(WeaponType::Shotgun).shotSound);
-  }
+
+  playSoundEffect(Weapon::get(WeaponType::Shotgun).shotSound);
 }
 
 void LaraObject::holsterShotgun()
@@ -1234,23 +1232,34 @@ void LaraObject::updateAnimTwoWeapons(const WeaponType weaponType)
   leftArm.updateAnimTwoWeapons(*this, weapon);
 }
 
-bool LaraObject::shootBullet(const WeaponType weaponType,
-                             const std::shared_ptr<ModelObject>& targetObject,
-                             const ModelObject& weaponHolder,
-                             const core::TRRotationXY& aimAngle)
+bool LaraObject::tryShootShot(const WeaponType weaponType,
+                              const std::shared_ptr<ModelObject>& targetObject,
+                              const ModelObject& weaponHolder,
+                              const core::TRRotationXY& aimAngle)
 {
-  Expects(weaponType != WeaponType::None);
-
   auto& ammo = getWorld().getPlayer().getInventory().getAmmo(weaponType);
 
-  if(ammo.ammo == 0)
+  if(ammo.shots == 0)
   {
     playSoundEffect(TR1SoundEffect::EmptyAmmo);
     getWorld().getPlayer().requestedWeaponType = WeaponType::Pistols;
     return false;
   }
 
-  --ammo.ammo;
+  --ammo.shots;
+  hitscanSingleRound(weaponType, targetObject, weaponHolder, aimAngle);
+  return true;
+}
+
+void LaraObject::hitscanSingleRound(const WeaponType weaponType,
+                                    const std::shared_ptr<ModelObject>& targetObject,
+                                    const ModelObject& weaponHolder,
+                                    const core::TRRotationXY& aimAngle)
+{
+  Expects(weaponType != WeaponType::None);
+
+  auto& ammo = getWorld().getPlayer().getInventory().getAmmo(weaponType);
+
   const auto weapon = &Weapon::get(weaponType);
   core::TRVec weaponPosition = weaponHolder.m_state.location.position;
   weaponPosition.Y -= weapon->weaponHeight;
@@ -1303,8 +1312,6 @@ bool LaraObject::shootBullet(const WeaponType weaponType,
     ++ammo.hits;
     hitTarget(*targetObject, core::TRVec{*bestHitPos}, weapon->damage);
   }
-
-  return true;
 }
 
 void LaraObject::hitTarget(ModelObject& object, const core::TRVec& hitPos, const core::Health& damage)
@@ -2093,13 +2100,13 @@ void LaraObject::updateCheats()
       getWorld().getPlayer().getInventory().put(TR1ItemId::PistolsSprite, &getWorld());
 
       getWorld().getPlayer().getInventory().put(TR1ItemId::ShotgunSprite, &getWorld());
-      getWorld().getPlayer().getInventory().getAmmo(WeaponType::Shotgun).ammo = 500;
+      getWorld().getPlayer().getInventory().getAmmo(WeaponType::Shotgun).shots = 500;
 
       getWorld().getPlayer().getInventory().put(TR1ItemId::MagnumsSprite, &getWorld());
-      getWorld().getPlayer().getInventory().getAmmo(WeaponType::Magnums).ammo = 500;
+      getWorld().getPlayer().getInventory().getAmmo(WeaponType::Magnums).shots = 500;
 
       getWorld().getPlayer().getInventory().put(TR1ItemId::UzisSprite, &getWorld());
-      getWorld().getPlayer().getInventory().getAmmo(WeaponType::Uzis).ammo = 5000;
+      getWorld().getPlayer().getInventory().getAmmo(WeaponType::Uzis).shots = 5000;
 
       playSoundEffect(TR1SoundEffect::LaraHolster);
     }

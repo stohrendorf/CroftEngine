@@ -87,17 +87,17 @@ void MenuDisplay::drawMenuObjectDescription(ui::Ui& ui, engine::world::World& wo
     break;
   case engine::TR1ItemId::ShotgunAmmo:
   case engine::TR1ItemId::ShotgunAmmoSprite:
-    totalItemCount *= 2;
+    totalItemCount = world.getPlayer().getInventory().getAmmo(engine::WeaponType::Shotgun).getClips() * 2;
     suffix = std::string{" "} + world.getPlayer().getInventory().getAmmo(engine::WeaponType::Shotgun).iconChar;
     break;
   case engine::TR1ItemId::MagnumAmmo:
   case engine::TR1ItemId::MagnumAmmoSprite:
-    totalItemCount *= 2;
+    totalItemCount = world.getPlayer().getInventory().getAmmo(engine::WeaponType::Magnums).getClips() * 2;
     suffix = std::string{" "} + world.getPlayer().getInventory().getAmmo(engine::WeaponType::Magnums).iconChar;
     break;
   case engine::TR1ItemId::UziAmmo:
   case engine::TR1ItemId::UziAmmoSprite:
-    totalItemCount *= 2;
+    totalItemCount = world.getPlayer().getInventory().getAmmo(engine::WeaponType::Uzis).getClips() * 2;
     suffix = std::string{" "} + world.getPlayer().getInventory().getAmmo(engine::WeaponType::Uzis).iconChar;
     break;
   case engine::TR1ItemId::Shotgun:
@@ -369,6 +369,18 @@ std::vector<MenuObject> MenuDisplay::getMainRingObjects(const engine::world::Wor
                                     -45_deg,
                                     296_len});
   }
+  else if(world.getPlayer().getInventory().getAmmo(engine::WeaponType::Shotgun).getClips() > 0)
+  {
+    objects.emplace_back(MenuObject{/* translators: TR charmap encoding */ _("Shotgun Cells"),
+                                    engine::TR1ItemId::ShotgunAmmo,
+                                    1_frame,
+                                    0_frame,
+                                    18_deg,
+                                    -20_deg,
+                                    0_deg,
+                                    296_len});
+  }
+
   if(world.getPlayer().getInventory().count(engine::TR1ItemId::Magnums) > 0)
   {
     objects.emplace_back(MenuObject{/* translators: TR charmap encoding */ _("Magnums"),
@@ -380,6 +392,18 @@ std::vector<MenuObject> MenuDisplay::getMainRingObjects(const engine::world::Wor
                                     0_deg,
                                     296_len});
   }
+  else if(world.getPlayer().getInventory().getAmmo(engine::WeaponType::Magnums).getClips() > 0)
+  {
+    objects.emplace_back(MenuObject{/* translators: TR charmap encoding */ _("Magnum Clips"),
+                                    engine::TR1ItemId::MagnumAmmo,
+                                    1_frame,
+                                    0_frame,
+                                    18_deg,
+                                    -20_deg,
+                                    0_deg,
+                                    296_len});
+  }
+
   if(world.getPlayer().getInventory().count(engine::TR1ItemId::Uzis) > 0)
   {
     objects.emplace_back(MenuObject{/* translators: TR charmap encoding */ _("Uzis"),
@@ -391,29 +415,7 @@ std::vector<MenuObject> MenuDisplay::getMainRingObjects(const engine::world::Wor
                                     0_deg,
                                     296_len});
   }
-  if(world.getPlayer().getInventory().count(engine::TR1ItemId::ShotgunAmmo) > 0)
-  {
-    objects.emplace_back(MenuObject{/* translators: TR charmap encoding */ _("Shotgun Cells"),
-                                    engine::TR1ItemId::ShotgunAmmo,
-                                    1_frame,
-                                    0_frame,
-                                    18_deg,
-                                    -20_deg,
-                                    0_deg,
-                                    296_len});
-  }
-  if(world.getPlayer().getInventory().count(engine::TR1ItemId::MagnumAmmo) > 0)
-  {
-    objects.emplace_back(MenuObject{/* translators: TR charmap encoding */ _("Magnum Clips"),
-                                    engine::TR1ItemId::MagnumAmmo,
-                                    1_frame,
-                                    0_frame,
-                                    18_deg,
-                                    -20_deg,
-                                    0_deg,
-                                    296_len});
-  }
-  if(world.getPlayer().getInventory().count(engine::TR1ItemId::UziAmmo) > 0)
+  else if(world.getPlayer().getInventory().getAmmo(engine::WeaponType::Uzis).getClips() > 0)
   {
     objects.emplace_back(MenuObject{/* translators: TR charmap encoding */ _("Uzi Clips"),
                                     engine::TR1ItemId::UziAmmo,
