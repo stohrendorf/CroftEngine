@@ -346,6 +346,11 @@ public:
 
   void updateAnimShotgun();
 
+  bool tryShootShot(WeaponType weaponType,
+                    const std::shared_ptr<ModelObject>& targetObject,
+                    const ModelObject& weaponHolder,
+                    const core::TRRotationXY& aimAngle);
+
   void tryShootShotgun();
 
   void holsterShotgun();
@@ -353,11 +358,6 @@ public:
   void holsterTwoWeapons(WeaponType weaponType);
 
   void updateAnimTwoWeapons(WeaponType weaponType);
-
-  bool shootBullet(WeaponType weaponType,
-                   const std::shared_ptr<ModelObject>& targetObject,
-                   const ModelObject& weaponHolder,
-                   const core::TRRotationXY& aimAngle);
 
   void hitTarget(ModelObject& object, const core::TRVec& hitPos, const core::Health& damage);
 
@@ -397,5 +397,9 @@ private:
   void initMuzzleFlashes();
   void updateCheats();
   void smoothlyRevertHeadRotation();
+  void hitscanSingleRound(WeaponType weaponType,
+                          const std::shared_ptr<ModelObject>& targetObject,
+                          const ModelObject& weaponHolder,
+                          const core::TRRotationXY& aimAngle);
 };
 } // namespace engine::objects

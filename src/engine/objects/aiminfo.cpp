@@ -64,7 +64,7 @@ void AimInfo::updateAnimTwoWeapons(LaraObject& lara, const Weapon& weapon)
     core::TRRotationXY aimAngle;
     aimAngle.X = aimRotation.X;
     aimAngle.Y = lara.m_state.rotation.Y + aimRotation.Y;
-    if(lara.shootBullet(weapon.type, lara.aimAt, lara, aimAngle))
+    if(lara.tryShootShot(weapon.type, lara.aimAt, lara, aimAngle))
     {
       flashTimeout = weapon.flashTime;
       lara.playSoundEffect(weapon.shotSound);

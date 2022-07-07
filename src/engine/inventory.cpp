@@ -24,20 +24,9 @@ size_t Inventory::put(const core::TypeId& id, world::World* world, const size_t 
 {
   BOOST_LOG_TRIVIAL(debug) << "Object " << toString(id.get_as<TR1ItemId>()) << " added to inventory";
 
-  auto addWeapon = [this](Ammo& ammo, size_t n)
+  auto addWeapon = [this](const Ammo& ammo)
   {
-    // convert existing ammo clips to ammo
-    ammo.addClips(count(ammo.ammoType) + n);
-    m_inventory.erase(ammo.ammoType);
     m_inventory[ammo.weaponType] = 1;
-  };
-
-  auto addAmmoClips = [this](Ammo& ammo, size_t n)
-  {
-    if(count(ammo.weaponType) > 0)
-      ammo.addClips(n);
-    else
-      m_inventory[ammo.ammoType] += n;
   };
 
   switch(id.get_as<TR1ItemId>())
@@ -49,34 +38,34 @@ size_t Inventory::put(const core::TypeId& id, world::World* world, const size_t 
     return 1;
   case TR1ItemId::ShotgunSprite:
   case TR1ItemId::Shotgun:
-    addWeapon(m_shotgunAmmo, quantity);
+    addWeapon(m_shotgunAmmo);
     if(world != nullptr)
       world->getObjectManager().replaceItems(TR1ItemId::ShotgunSprite, TR1ItemId::ShotgunAmmoSprite, *world);
-    return m_shotgunAmmo.getShots();
+    return m_shotgunAmmo.shots;
   case TR1ItemId::MagnumsSprite:
   case TR1ItemId::Magnums:
-    addWeapon(m_magnumsAmmo, quantity);
+    addWeapon(m_magnumsAmmo);
     if(world != nullptr)
       world->getObjectManager().replaceItems(TR1ItemId::MagnumsSprite, TR1ItemId::MagnumAmmoSprite, *world);
-    return m_magnumsAmmo.getShots();
+    return m_magnumsAmmo.shots;
   case TR1ItemId::UzisSprite:
   case TR1ItemId::Uzis:
-    addWeapon(m_uzisAmmo, quantity);
+    addWeapon(m_uzisAmmo);
     if(world != nullptr)
       world->getObjectManager().replaceItems(TR1ItemId::UzisSprite, TR1ItemId::UziAmmoSprite, *world);
-    return m_uzisAmmo.getShots();
+    return m_uzisAmmo.shots;
   case TR1ItemId::ShotgunAmmoSprite:
   case TR1ItemId::ShotgunAmmo:
-    addAmmoClips(m_shotgunAmmo, quantity);
-    return m_shotgunAmmo.getShots();
+    m_shotgunAmmo.addClips(quantity);
+    return m_shotgunAmmo.shots;
   case TR1ItemId::MagnumAmmoSprite:
   case TR1ItemId::MagnumAmmo:
-    addAmmoClips(m_magnumsAmmo, quantity);
-    return m_magnumsAmmo.getShots();
+    m_magnumsAmmo.addClips(quantity);
+    return m_magnumsAmmo.shots;
   case TR1ItemId::UziAmmoSprite:
   case TR1ItemId::UziAmmo:
-    addAmmoClips(m_uzisAmmo, quantity);
-    return m_uzisAmmo.getShots();
+    m_uzisAmmo.addClips(quantity);
+    return m_uzisAmmo.shots;
   case TR1ItemId::SmallMedipackSprite:
   case TR1ItemId::SmallMedipack:
     return m_inventory[TR1ItemId::SmallMedipack] += quantity;
@@ -225,10 +214,24 @@ void Inventory::serialize(const serialization::Serializer<world::World>& ser)
 
 void Ammo::serialize(const serialization::Serializer<world::World>& ser)
 {
-  ser(S_NV("ammo", ammo),
+  size_t ammo = std::numeric_limits<size_t>::max();
+
+  // TODO remove in 1.11
+  if(ser.loading)
+  {
+    ser(S_NVO("ammo", ammo));
+  }
+
+  ser(S_NVO("shots", shots),
       S_NV("hits", hits),
       S_NVO("hitsTotal", hitsTotal),
       S_NV("misses", misses),
       S_NVO("missesTotal", missesTotal));
+
+  // TODO remove in 1.11
+  if(ser.loading && ammo != std::numeric_limits<size_t>::max())
+  {
+    shots = std::exchange(ammo, std::numeric_limits<size_t>::max()) / roundsPerShot;
+  }
 }
 } // namespace engine
