@@ -164,7 +164,7 @@ void LaraObject::handleLaraStateOnLand()
 
   m_state.rotation.Y += m_yRotationSpeed * 1_frame;
 
-  updateImpl();
+  advanceFrame();
 
   testInteractions(collisionInfo);
 
@@ -230,7 +230,7 @@ void LaraObject::handleLaraStateDiving()
   m_torsoRotation.X /= 2;
   m_torsoRotation.Y /= 2;
 
-  updateImpl();
+  advanceFrame();
 
   m_state.location.move(util::yawPitch(m_state.fallspeed * 1_frame / 4, m_state.rotation));
 
@@ -285,7 +285,7 @@ void LaraObject::handleLaraStateSwimming()
     handleUnderwaterCurrent(collisionInfo);
   }
 
-  updateImpl();
+  advanceFrame();
 
   m_state.location.move(util::pitch(m_state.fallspeed * 1_frame / 4, getMovementAngle()).toRenderSystem());
 
@@ -348,14 +348,14 @@ void LaraObject::update()
     {
       m_state.rotation.X = -45_deg;
       setGoalAnimState(LaraStateId::UnderwaterDiving);
-      updateImpl();
+      advanceFrame();
       m_state.fallspeed *= 2;
     }
     else if(getCurrentAnimState() == LaraStateId::SwandiveEnd)
     {
       m_state.rotation.X = -85_deg;
       setGoalAnimState(LaraStateId::UnderwaterDiving);
-      updateImpl();
+      advanceFrame();
       m_state.fallspeed *= 2;
     }
     else
@@ -473,7 +473,7 @@ void LaraObject::update()
   }
 }
 
-void LaraObject::updateImpl()
+void LaraObject::advanceFrame()
 {
   const auto endOfAnim = getSkeleton()->advanceFrame(m_state);
 

@@ -51,7 +51,7 @@ void UnderwaterSwitch::collide(CollisionInfo& /*collisionInfo*/)
   do
   {
     getWorld().getObjectManager().getLara().setGoalAnimState(loader::file::LaraStateId::SwitchDown);
-    getWorld().getObjectManager().getLara().updateImpl();
+    getWorld().getObjectManager().getLara().advanceFrame();
   } while(getWorld().getObjectManager().getLara().getCurrentAnimState() != loader::file::LaraStateId::SwitchDown);
   getWorld().getObjectManager().getLara().setGoalAnimState(loader::file::LaraStateId::UnderwaterStop);
   getWorld().getObjectManager().getLara().setHandStatus(HandStatus::Grabbing);

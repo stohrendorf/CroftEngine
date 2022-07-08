@@ -136,7 +136,7 @@ public:
     return m_air;
   }
 
-  void updateImpl();
+  void advanceFrame();
 
   void update() override;
 

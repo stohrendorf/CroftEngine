@@ -78,7 +78,7 @@ void PickupObject::collide(CollisionInfo& /*collisionInfo*/)
       getWorld().getObjectManager().getLara().setGoalAnimState(loader::file::LaraStateId::PickUp);
       do
       {
-        getWorld().getObjectManager().getLara().updateImpl();
+        getWorld().getObjectManager().getLara().advanceFrame();
       } while(getWorld().getObjectManager().getLara().getCurrentAnimState() != loader::file::LaraStateId::PickUp);
       getWorld().getObjectManager().getLara().setGoalAnimState(loader::file::LaraStateId::UnderwaterStop);
     }
@@ -109,7 +109,7 @@ void PickupObject::collide(CollisionInfo& /*collisionInfo*/)
         getWorld().getObjectManager().getLara().setGoalAnimState(loader::file::LaraStateId::PickUp);
         do
         {
-          getWorld().getObjectManager().getLara().updateImpl();
+          getWorld().getObjectManager().getLara().advanceFrame();
         } while(getWorld().getObjectManager().getLara().getCurrentAnimState() != loader::file::LaraStateId::PickUp);
         getWorld().getObjectManager().getLara().setGoalAnimState(loader::file::LaraStateId::Stop);
         getWorld().getObjectManager().getLara().setHandStatus(HandStatus::Grabbing);

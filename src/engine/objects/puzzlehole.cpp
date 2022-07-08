@@ -92,7 +92,7 @@ void PuzzleHole::collide(CollisionInfo& /*collisionInfo*/)
     do
     {
       lara.setGoalAnimState(loader::file::LaraStateId::InsertPuzzle);
-      lara.updateImpl();
+      lara.advanceFrame();
     } while(lara.getCurrentAnimState() != loader::file::LaraStateId::InsertPuzzle);
 
     lara.setGoalAnimState(loader::file::LaraStateId::Stop);

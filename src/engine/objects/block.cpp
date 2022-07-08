@@ -94,7 +94,7 @@ void Block::collide(CollisionInfo& /*collisionInfo*/)
       = sectorOf(getWorld().getObjectManager().getLara().m_state.location.position.*vp) * 1_sectors + d;
 
     getWorld().getObjectManager().getLara().setGoalAnimState(loader::file::LaraStateId::PushableGrab);
-    getWorld().getObjectManager().getLara().updateImpl();
+    getWorld().getObjectManager().getLara().advanceFrame();
     if(getWorld().getObjectManager().getLara().getCurrentAnimState() == loader::file::LaraStateId::PushableGrab)
     {
       getWorld().getObjectManager().getLara().setHandStatus(HandStatus::Grabbing);
@@ -140,7 +140,7 @@ void Block::collide(CollisionInfo& /*collisionInfo*/)
   m_state.triggerState = TriggerState::Active;
 
   ModelObject::update();
-  getWorld().getObjectManager().getLara().updateImpl();
+  getWorld().getObjectManager().getLara().advanceFrame();
 }
 
 void Block::update()

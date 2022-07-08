@@ -71,7 +71,7 @@ void KeyHole::collide(CollisionInfo& /*collisionInfo*/)
   do
   {
     lara.setGoalAnimState(loader::file::LaraStateId::InsertKey);
-    lara.updateImpl();
+    lara.advanceFrame();
   } while(lara.getCurrentAnimState() != loader::file::LaraStateId::InsertKey);
 
   lara.setGoalAnimState(loader::file::LaraStateId::Stop);

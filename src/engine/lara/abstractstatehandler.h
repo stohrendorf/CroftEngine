@@ -147,6 +147,6 @@ protected:
 
   void setUnderwaterState(objects::UnderwaterState u) noexcept;
 
-  void laraUpdateImpl();
+  void laraAdvanceFrame();
 };
 } // namespace engine::lara

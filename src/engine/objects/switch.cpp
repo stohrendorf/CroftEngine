@@ -47,7 +47,7 @@ void Switch::collide(CollisionInfo& /*collisionInfo*/)
     do
     {
       getWorld().getObjectManager().getLara().setGoalAnimState(loader::file::LaraStateId::SwitchDown);
-      getWorld().getObjectManager().getLara().updateImpl();
+      getWorld().getObjectManager().getLara().advanceFrame();
     } while(getWorld().getObjectManager().getLara().getCurrentAnimState() != loader::file::LaraStateId::SwitchDown);
     getWorld().getObjectManager().getLara().setGoalAnimState(loader::file::LaraStateId::Stop);
     m_state.goal_anim_state = 0_as;
@@ -61,7 +61,7 @@ void Switch::collide(CollisionInfo& /*collisionInfo*/)
     do
     {
       getWorld().getObjectManager().getLara().setGoalAnimState(loader::file::LaraStateId::SwitchUp);
-      getWorld().getObjectManager().getLara().updateImpl();
+      getWorld().getObjectManager().getLara().advanceFrame();
     } while(getWorld().getObjectManager().getLara().getCurrentAnimState() != loader::file::LaraStateId::SwitchUp);
     getWorld().getObjectManager().getLara().setGoalAnimState(loader::file::LaraStateId::Stop);
     m_state.goal_anim_state = 1_as;

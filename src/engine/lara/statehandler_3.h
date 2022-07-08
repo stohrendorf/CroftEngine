@@ -85,7 +85,7 @@ public:
     getLara().m_state.speed = 0_spd;
     placeOnFloor(collisionInfo);
 
-    laraUpdateImpl();
+    laraAdvanceFrame();
   }
 };
 } // namespace engine::lara
