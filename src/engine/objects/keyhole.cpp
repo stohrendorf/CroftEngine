@@ -24,6 +24,11 @@ namespace engine::objects
 {
 void KeyHole::collide(CollisionInfo& /*collisionInfo*/)
 {
+  if(m_state.triggerState == TriggerState::Active)
+  {
+    return;
+  }
+
   static const InteractionLimits limits{core::BoundingBox{{-200_len, 0_len, 312_len}, {200_len, 0_len, 512_len}},
                                         core::TRRotation{-10_deg, -30_deg, -10_deg},
                                         core::TRRotation{10_deg, 30_deg, 10_deg}};
