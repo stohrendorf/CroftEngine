@@ -24,7 +24,7 @@ namespace engine::objects
 {
 void KeyHole::collide(CollisionInfo& /*collisionInfo*/)
 {
-  if(m_state.triggerState == TriggerState::Active)
+  if(m_state.triggerState == TriggerState::Deactivated)
   {
     return;
   }
