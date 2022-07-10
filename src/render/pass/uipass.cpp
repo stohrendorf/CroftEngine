@@ -65,7 +65,6 @@ void UIPass::bind()
 void UIPass::render(float alpha)
 {
   SOGLB_DEBUGGROUP("ui-pass");
-  gl::Framebuffer::unbindAll();
 
   m_mesh->bind("u_alphaMultiplier",
                [alpha](const render::scene::Node* /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)

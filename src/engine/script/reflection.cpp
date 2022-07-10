@@ -328,7 +328,7 @@ std::pair<RunResult, std::optional<size_t>> SplashScreen::run(Engine& engine,
     updateSize();
     gsl_Assert(mesh != nullptr);
 
-    gl::Framebuffer::unbindAll();
+    presenter.bindBackbuffer();
     mesh->getRenderState().setViewport(presenter.getDisplayViewport());
     mesh->render(nullptr, context);
     presenter.updateSoundEngine();

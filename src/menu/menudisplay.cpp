@@ -192,7 +192,7 @@ void MenuDisplay::display(ui::Ui& ui, engine::world::World& world)
     title.draw(ui, world.getPresenter().getTrFont(), {(ui.getSize().x - title.getWidth()) / 2, RingInfoYMargin});
   }
 
-  gl::Framebuffer::unbindAll();
+  world.getPresenter().bindBackbuffer();
   gl::RenderState::getWantedState().setViewport(world.getPresenter().getDisplayViewport());
   m_fb->render();
 }

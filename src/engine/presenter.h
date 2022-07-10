@@ -165,6 +165,8 @@ public:
 
   void updateSoundEngine();
 
+  void bindBackbuffer();
+
 private:
   const std::unique_ptr<gl::Window> m_window;
   uint8_t m_renderResolutionDivisor = 1;
