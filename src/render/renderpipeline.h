@@ -3,6 +3,7 @@
 #include "rendersettings.h"
 
 #include <chrono>
+#include <gl/pixel.h>
 #include <gl/soglb_fwd.h>
 #include <glm/vec2.hpp>
 #include <gsl/gsl-lite.hpp>
@@ -28,6 +29,7 @@ class GeometryPass;
 class HBAOPass;
 class WorldCompositionPass;
 class UIPass;
+template<typename TPixel>
 class EffectPass;
 } // namespace render::pass
 
@@ -47,8 +49,14 @@ private:
   std::shared_ptr<pass::HBAOPass> m_hbaoPass;
   std::shared_ptr<pass::WorldCompositionPass> m_worldCompositionPass;
   std::shared_ptr<pass::UIPass> m_uiPass;
+  std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::SRGB8>>> m_backbufferTextureHandle;
+  std::shared_ptr<gl::Framebuffer> m_backbuffer;
 
-  std::vector<gslu::nn_shared<pass::EffectPass>> m_effects{};
+  std::vector<gslu::nn_shared<pass::EffectPass<gl::SRGB8>>> m_effects{};
+  std::vector<gslu::nn_shared<pass::EffectPass<gl::SRGB8>>> m_backbufferEffects{};
+
+  void initBackbufferEffects(scene::MaterialManager& materialManager);
+  void initWorldEffects(scene::MaterialManager& materialManager);
 
 public:
   explicit RenderPipeline(scene::MaterialManager& materialManager,
@@ -77,5 +85,15 @@ public:
     return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now()
                                                                  - m_creationTime);
   }
+
+  void clearBackbuffer();
+  void bindBackbuffer();
+
+  const auto& getBackbuffer() const
+  {
+    return m_backbuffer;
+  }
+
+  void renderBackbufferEffects();
 };
 } // namespace render

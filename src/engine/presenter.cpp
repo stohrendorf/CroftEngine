@@ -114,7 +114,7 @@ void Presenter::playVideo(const std::filesystem::path& path)
                   mesh->render(nullptr, context);
                 }
                 updateSoundEngine();
-                fb->blit(getDisplayViewport());
+                fb->blit(*m_renderPipeline->getBackbuffer());
                 swapBuffers();
                 return !m_window->windowShouldClose() && !m_inputHandler->hasDebouncedAction(hid::Action::Menu);
               });
@@ -479,7 +479,7 @@ void Presenter::drawLoadingScreen(const std::string& state)
                         gl::PremultipliedSRGBA8{255, 255, 255, 255},
                         StatusLineFontSize);
 
-  gl::Framebuffer::unbindAll();
+  m_renderPipeline->bindBackbuffer();
 
   m_renderer->getCamera()->setViewport(getDisplayViewport());
   render::scene::RenderContext context{render::scene::RenderMode::Full, std::nullopt};
@@ -513,6 +513,7 @@ bool Presenter::preFrame()
 
   m_renderer->clear(
     gl::api::ClearBufferMask::ColorBufferBit | gl::api::ClearBufferMask::DepthBufferBit, {0, 0, 0, 0}, 1);
+  m_renderPipeline->clearBackbuffer();
 
   return true;
 }
@@ -529,6 +530,7 @@ void Presenter::setTrFont(std::unique_ptr<ui::TRFont>&& font)
 
 void Presenter::swapBuffers()
 {
+  m_renderPipeline->renderBackbufferEffects();
   m_window->swapBuffers();
 }
 
@@ -618,5 +620,10 @@ glm::ivec2 Presenter::getUiViewport() const
 {
   BOOST_ASSERT(m_uiScale > 0);
   return getRenderViewport() / static_cast<int>(m_uiScale);
+}
+
+void Presenter::bindBackbuffer()
+{
+  m_renderPipeline->bindBackbuffer();
 }
 } // namespace engine

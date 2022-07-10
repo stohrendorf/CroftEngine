@@ -255,7 +255,6 @@ Engine::~Engine()
 
 std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, bool isCutscene, bool allowSave)
 {
-  gl::Framebuffer::unbindAll();
   if(!isCutscene)
   {
     world.getObjectManager().getLara().m_state.health = world.getPlayer().laraHealth;
@@ -516,8 +515,6 @@ void Engine::takeBugReport(world::World& world)
 
 std::pair<RunResult, std::optional<size_t>> Engine::runTitleMenu(world::World& world)
 {
-  gl::Framebuffer::unbindAll();
-
   applySettings();
 
   for(const auto& streamInfo : world.getAudioEngine().getStreams())
@@ -572,6 +569,7 @@ std::pair<RunResult, std::optional<size_t>> Engine::runTitleMenu(world::World& w
       {
         uniform.set(backdrop);
       });
+    m_presenter->bindBackbuffer();
     {
       render::scene::RenderContext context{render::scene::RenderMode::Full, std::nullopt};
       backdropMesh->render(nullptr, context);

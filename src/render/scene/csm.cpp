@@ -88,7 +88,6 @@ void CSM::Split::init(int32_t resolution, size_t idx, MaterialManager& materialM
 void CSM::Split::renderSquare()
 {
   SOGLB_DEBUGGROUP("vsm-square-pass");
-  gl::Framebuffer::unbindAll();
   squareFramebuffer->bind();
 
   RenderContext context{RenderMode::Full, std::nullopt};
