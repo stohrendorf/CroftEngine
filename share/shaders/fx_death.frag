@@ -9,7 +9,7 @@ layout(location=1) uniform float u_strength;
 void main()
 {
     vec3 col = texture(u_input, fpi.texCoord).rgb;
-    float lum = luminance(col);
+    float lum = luminanceRgb(col);
 
     float vig = fpi.texCoord.x * fpi.texCoord.y * (1.0-fpi.texCoord.x) * (1.0-fpi.texCoord.y);
     lum *= sqrt(vig*2);

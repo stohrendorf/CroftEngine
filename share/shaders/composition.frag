@@ -7,7 +7,7 @@ layout(bindless_sampler) uniform sampler2D u_portalPerturb;
 #include "camera_interface.glsl"
 #include "time_uniform.glsl"
 
-layout(location=0) out vec4 out_color;
+layout(location=0) out vec3 out_color;
 
 #include "util.glsl"
 #include "constants.glsl"
@@ -67,5 +67,5 @@ void main()
     // light scatter
     finalColor = mix(finalColor, shade_texel(WaterColor*0.5, shadeDepth), d*d);
 
-    out_color = vec4(finalColor, 1.0);
+    out_color = finalColor;
 }

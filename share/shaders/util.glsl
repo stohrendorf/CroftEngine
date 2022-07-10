@@ -16,16 +16,6 @@ vec3 shaded_texel(in sampler2D tex, in vec2 uv, in float depth)
     return shade_texel(texture(tex, uv).rgb, depth);
 }
 
-float luminance(in vec3 color)
-{
-    return dot(color, vec3(0.212656, 0.715158, 0.072186));
-}
-
-float luminance(in vec4 color)
-{
-    return dot(vec3(color), vec3(0.212656, 0.715158, 0.072186));
-}
-
 // https://www.khronos.org/registry/OpenGL/extensions/EXT/EXT_texture_sRGB.txt
 float toSrgb(float cl)
 {
@@ -73,4 +63,24 @@ vec3 toLinear(vec3 cs) {
 vec4 toLinear(vec4 cs)
 {
     return vec4(toLinear(cs.rgb), cs.a);
+}
+
+float luminanceLinear(in vec3 color)
+{
+    return dot(color, vec3(0.212656, 0.715158, 0.072186));
+}
+
+float luminanceLinear(in vec4 color)
+{
+    return dot(vec3(color), vec3(0.212656, 0.715158, 0.072186));
+}
+
+float luminanceRgb(in vec3 color)
+{
+    return luminanceLinear(toLinear(color));
+}
+
+float luminanceRgb(in vec4 color)
+{
+    return luminanceLinear(toLinear(color));
 }
