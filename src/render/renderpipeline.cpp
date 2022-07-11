@@ -157,9 +157,9 @@ void RenderPipeline::initWorldEffects(scene::MaterialManager& materialManager)
              });
   }
 
-  if(m_renderSettings.fxaa)
+  if(m_renderSettings.fxaaActive)
   {
-    addEffect("fxaa", materialManager.getFXAA());
+    addEffect("fxaa", materialManager.getFXAA(m_renderSettings.fxaaPreset));
   }
 
   addEffect("underwater-movement", materialManager.getUnderwaterMovement());

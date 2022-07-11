@@ -297,16 +297,50 @@ RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingT
     {
       toggle(engine, engine.getEngineConfig()->renderSettings.hbao);
     });
-  listBox->addSetting(
-    /* translators: TR charmap encoding */ _("FXAA"),
-    [&engine]()
-    {
-      return engine.getEngineConfig()->renderSettings.fxaa;
-    },
-    [&engine]()
-    {
-      toggle(engine, engine.getEngineConfig()->renderSettings.fxaa);
-    });
+
+  {
+    auto tmp = std::make_shared<ui::widgets::ValueSelector<uint8_t>>(
+      [](uint8_t value)
+      {
+        const char* quality = nullptr;
+        switch(value)
+        {
+        case 10:
+          quality = pgettext("FXAA", "Low");
+          break;
+        case 15:
+          quality = pgettext("FXAA", "Medium");
+          break;
+        case 29:
+          quality = pgettext("FXAA", "High");
+          break;
+        case 39:
+          quality = pgettext("FXAA", "Extreme");
+          break;
+        default:
+          BOOST_THROW_EXCEPTION(std::out_of_range("invalid fxaa preset"));
+        }
+        return /* translators: TR charmap encoding */ _("FXAA \x1f\x6c %1% \x1f\x6d", quality);
+      },
+      [&engine](uint8_t value)
+      {
+        engine.getEngineConfig()->renderSettings.fxaaPreset = value;
+        engine.applySettings();
+      },
+      std::vector<uint8_t>{10, 15, 29, 39});
+    listBox->addSetting(
+      gslu::nn_shared<ui::widgets::Widget>{tmp},
+      [&engine]()
+      {
+        return engine.getEngineConfig()->renderSettings.fxaaActive;
+      },
+      [&engine]()
+      {
+        toggle(engine, engine.getEngineConfig()->renderSettings.fxaaActive);
+      });
+    tmp->selectValue(engine.getEngineConfig()->renderSettings.fxaaPreset);
+  }
+
   listBox->addSetting(
     /* translators: TR charmap encoding */ _("High Quality Shadows"),
     [&engine]()

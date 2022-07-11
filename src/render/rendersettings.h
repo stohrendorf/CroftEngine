@@ -29,7 +29,8 @@ struct RenderSettings
   bool waterDenoise = false;
   bool hbao = true;
   bool velvia = true;
-  bool fxaa = true;
+  bool fxaaActive = true;
+  uint8_t fxaaPreset = 39;
   bool bloom = true;
   bool moreLights = true;
   bool dustActive = true;

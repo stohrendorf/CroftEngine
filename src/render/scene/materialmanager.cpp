@@ -305,14 +305,14 @@ gslu::nn_shared<Material> MaterialManager::getBackdrop(bool withAlphaMultiplier)
   return m;
 }
 
-gslu::nn_shared<Material> MaterialManager::getFXAA()
+gslu::nn_shared<Material> MaterialManager::getFXAA(uint8_t preset)
 {
-  if(m_fxaa != nullptr)
-    return gsl::not_null{m_fxaa};
+  if(auto it = m_fxaa.find(preset); it != m_fxaa.end())
+    return it->second;
 
-  auto m = gsl::make_shared<Material>(m_shaderCache->getFXAA());
+  auto m = gsl::make_shared<Material>(m_shaderCache->getFXAA(preset));
   configureForScreenSpaceEffect(*m, false);
-  m_fxaa = m;
+  m_fxaa.emplace(preset, m);
   return m;
 }
 
