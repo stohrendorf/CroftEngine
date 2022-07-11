@@ -40,7 +40,7 @@ public:
 
   [[nodiscard]] gslu::nn_shared<Material> getDustParticle();
 
-  [[nodiscard]] gslu::nn_shared<Material> getFXAA();
+  [[nodiscard]] gslu::nn_shared<Material> getFXAA(uint8_t preset);
   [[nodiscard]] gslu::nn_shared<Material> getCRTV0();
   [[nodiscard]] gslu::nn_shared<Material> getCRTV1();
   [[nodiscard]] gslu::nn_shared<Material> getVelvia();
@@ -74,7 +74,7 @@ private:
   const gslu::nn_shared<ShaderCache> m_shaderCache;
   std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::RGB8>>> m_noiseTexture;
 
-  std::shared_ptr<Material> m_fxaa{nullptr};
+  std::map<uint8_t, gslu::nn_shared<Material>> m_fxaa{};
   std::shared_ptr<Material> m_crtV0{nullptr};
   std::shared_ptr<Material> m_crtV1{nullptr};
   std::shared_ptr<Material> m_velvia{nullptr};

@@ -89,9 +89,10 @@ public:
     return get("water_surface.vert", "water_surface.frag");
   }
 
-  [[nodiscard]] auto getFXAA()
+  [[nodiscard]] auto getFXAA(uint8_t preset)
   {
-    return get("flat.vert", "fx_fxaa.frag");
+    return get(
+      "flat.vert", "fx_fxaa.frag", std::vector<std::string>{"FXAA_QUALITY__PRESET " + std::to_string(int(preset))});
   }
 
   [[nodiscard]] auto getCRTV0()
