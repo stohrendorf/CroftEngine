@@ -688,7 +688,7 @@ configure_gettext(
         "--msgid-bugs-address=https://github.com/stohrendorf/CroftEngine/issues"
 )
 
-add_executable( croftengine ${CROFTENGINE_SRCS} )
+add_executable( croftengine WIN32 ${CROFTENGINE_SRCS} )
 
 set_property(
         SOURCE croftengine.cpp
