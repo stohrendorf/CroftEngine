@@ -35,24 +35,30 @@ public:
                       std::string name,
                       const gslu::nn_shared<scene::Material>& material,
                       const gslu::nn_shared<gl::TextureHandle<gl::Texture2D<TPixel>>>& input)
-      : m_renderPipeline{std::move(renderPipeline)}
-      , m_name{std::move(name)}
+      : m_name{std::move(name)}
       , m_mesh{scene::createScreenQuad(material, m_name)}
-      , m_colorBuffer{std::make_shared<gl::Texture2D<TPixel>>(input->getTexture()->size(), m_name + "-color")}
-      , m_colorBufferHandle{std::make_shared<gl::TextureHandle<gl::Texture2D<TPixel>>>(
-          m_colorBuffer,
+      , m_output{std::make_shared<gl::Texture2D<TPixel>>(input->getTexture()->size(), m_name + "-color")}
+      , m_outputHandle{std::make_shared<gl::TextureHandle<gl::Texture2D<TPixel>>>(
+          m_output,
           gsl::make_unique<gl::Sampler>(m_name + "-color-sampler")
             | set(gl::api::SamplerParameterI::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge)
             | set(gl::api::SamplerParameterI::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge)
             | set(gl::api::TextureMinFilter::Linear) | set(gl::api::TextureMagFilter::Linear))}
       , m_fb{gl::FrameBufferBuilder()
-               .textureNoBlend(gl::api::FramebufferAttachment::ColorAttachment0, m_colorBuffer)
+               .textureNoBlend(gl::api::FramebufferAttachment::ColorAttachment0, m_output)
                .build(m_name + "-fb")}
   {
     m_mesh->bind("u_input",
                  [input](const scene::Node* /*node*/, const scene::Mesh& /*mesh*/, gl::Uniform& uniform)
                  {
                    uniform.set(input);
+                 });
+    m_mesh->bind("u_time",
+                 [renderPipeline
+                  = std::move(renderPipeline)](const scene::Node*, const scene::Mesh& /*mesh*/, gl::Uniform& uniform)
+                 {
+                   const auto now = renderPipeline->getLocalTime();
+                   uniform.set(gsl::narrow_cast<float>(now.count()));
                  });
 
     m_mesh->getRenderState().merge(m_fb->getRenderState());
@@ -70,12 +76,6 @@ public:
                  {
                    uniform.set(inWater ? 1.0f : 0.0f);
                  });
-    m_mesh->bind("u_time",
-                 [this](const scene::Node*, const scene::Mesh& /*mesh*/, gl::Uniform& uniform)
-                 {
-                   const auto now = m_renderPipeline->getLocalTime();
-                   uniform.set(gsl::narrow_cast<float>(now.count()));
-                 });
     m_mesh->render(nullptr, context);
 
     if constexpr(FlushPasses)
@@ -84,7 +84,7 @@ public:
 
   [[nodiscard]] const auto& getOutput() const
   {
-    return m_colorBufferHandle;
+    return m_outputHandle;
   }
 
   [[nodiscard]] const auto& getFramebuffer() const
@@ -99,11 +99,10 @@ public:
   }
 
 private:
-  const gsl::not_null<const RenderPipeline*> m_renderPipeline;
   const std::string m_name;
   gslu::nn_shared<scene::Mesh> m_mesh;
-  gslu::nn_shared<gl::Texture2D<TPixel>> m_colorBuffer;
-  gslu::nn_shared<gl::TextureHandle<gl::Texture2D<TPixel>>> m_colorBufferHandle;
+  gslu::nn_shared<gl::Texture2D<TPixel>> m_output;
+  gslu::nn_shared<gl::TextureHandle<gl::Texture2D<TPixel>>> m_outputHandle;
   gslu::nn_shared<gl::Framebuffer> m_fb;
 };
 } // namespace render::pass
