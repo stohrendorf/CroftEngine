@@ -46,6 +46,7 @@
 #include "world/world.h"
 
 #include <algorithm>
+#include <boost/algorithm/string/predicate.hpp>
 #include <boost/format.hpp>
 #include <boost/locale/generator.hpp>
 #include <boost/locale/info.hpp>
@@ -504,8 +505,15 @@ void Engine::takeBugReport(world::World& world)
     std::filesystem::create_directory(m_userDataPath / "bugreports" / dirName);
   }
 
-  std::filesystem::copy_file(m_userDataPath / "croftengine.log",
-                             m_userDataPath / "bugreports" / dirName / "croftengine.log");
+  for(std::filesystem::directory_iterator it{m_userDataPath}; it != std::filesystem::directory_iterator{}; ++it)
+  {
+    BOOST_LOG_TRIVIAL(info) << it->path() << "; " << it->path().filename().string();
+    if(!it->is_regular_file() || !boost::algorithm::starts_with(it->path().filename().string(), "croftengine.")
+       || !boost::algorithm::ends_with(it->path().filename().string(), ".log"))
+      continue;
+
+    std::filesystem::copy_file(it->path(), m_userDataPath / "bugreports" / dirName / it->path().filename());
+  }
 
   auto img = m_presenter->takeScreenshot();
   img.savePng(m_userDataPath / "bugreports" / dirName / "screenshot.png");
