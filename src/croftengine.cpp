@@ -25,6 +25,10 @@
 #include <string>
 #include <vector>
 
+#ifdef WIN32
+#  include <windows.h>
+#endif
+
 namespace
 {
 void stacktrace_handler(int signum)
@@ -45,6 +49,23 @@ void terminateHandler()
   if(oldTerminateHandler != nullptr)
     oldTerminateHandler();
 }
+
+const gsl::czstring logFormat = "[%TimeStamp% %Severity% %ThreadID%] %Message%";
+
+void initConsole(boost::log::trivial::severity_level level)
+{
+#ifdef WIN32
+  AllocConsole();
+
+  // https://stackoverflow.com/a/57241985
+  FILE* fDummy;
+  freopen_s(&fDummy, "CONIN$", "r", stdin);
+  freopen_s(&fDummy, "CONOUT$", "w", stderr);
+  freopen_s(&fDummy, "CONOUT$", "w", stdout);
+#endif
+  boost::log::add_console_log(std::cout, boost::log::keywords::format = logFormat)
+    ->set_filter(boost::log::trivial::severity >= level);
+}
 } // namespace
 
 int main(int argc, char** argv)
@@ -52,19 +73,27 @@ int main(int argc, char** argv)
   std::signal(SIGSEGV, &stacktrace_handler);
   std::signal(SIGABRT, &stacktrace_handler);
 
-  static const gsl::czstring logFormat = "[%TimeStamp% %Severity% %ThreadID%] %Message%";
-
-#ifndef NDEBUG
-  static const auto consoleMinSeverity = boost::log::trivial::trace;
-#else
-  static const auto consoleMinSeverity = boost::log::trivial::info;
-#endif
-
   boost::log::add_common_attributes();
 #ifndef NDEBUG
-  boost::log::add_console_log(std::cout, boost::log::keywords::format = logFormat)
-    ->set_filter(boost::log::trivial::severity >= consoleMinSeverity);
+  initConsole(boost::log::trivial::trace);
 #endif
+
+  bool fileLogAdded = false;
+  if(const auto userDataDir = findUserDataDir(); userDataDir.has_value())
+  {
+    boost::log::add_file_log(boost::log::keywords::file_name = (findUserDataDir().value() / "croftengine.log").string(),
+                             boost::log::keywords::format = logFormat,
+                             boost::log::keywords::auto_flush = true);
+    fileLogAdded = true;
+  }
+  else
+  {
+#ifdef NDEBUG
+    initConsole(boost::log::trivial::info);
+#endif
+    BOOST_LOG_TRIVIAL(warning) << "Could not determine the user data dir";
+  }
+
   std::string localeOverride;
   std::string gameflowId;
   {
@@ -78,9 +107,12 @@ int main(int argc, char** argv)
     gameflowId = std::get<1>(*launcherResult);
   }
 
-  boost::log::add_file_log(boost::log::keywords::file_name = (findUserDataDir().value() / "croftengine.log").string(),
-                           boost::log::keywords::format = logFormat,
-                           boost::log::keywords::auto_flush = true);
+  if(!fileLogAdded)
+  {
+    boost::log::add_file_log(boost::log::keywords::file_name = (findUserDataDir().value() / "croftengine.log").string(),
+                             boost::log::keywords::format = logFormat,
+                             boost::log::keywords::auto_flush = true);
+  }
 
   BOOST_LOG_TRIVIAL(info) << "Running CroftEngine " << CE_VERSION;
 
