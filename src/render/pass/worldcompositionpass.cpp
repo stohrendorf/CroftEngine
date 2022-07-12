@@ -3,6 +3,7 @@
 #include "config.h"
 #include "geometrypass.h"
 #include "portalpass.h"
+#include "render/renderpipeline.h"
 #include "render/rendersettings.h"
 #include "render/scene/material.h"
 #include "render/scene/materialmanager.h"
@@ -26,6 +27,7 @@
 #include <gsl/gsl-lite.hpp>
 #include <gslu.h>
 #include <optional>
+#include <utility>
 
 namespace render::scene
 {
@@ -34,7 +36,8 @@ class Node;
 
 namespace render::pass
 {
-WorldCompositionPass::WorldCompositionPass(scene::MaterialManager& materialManager,
+WorldCompositionPass::WorldCompositionPass(gsl::not_null<const RenderPipeline*> renderPipeline,
+                                           scene::MaterialManager& materialManager,
                                            const RenderSettings& renderSettings,
                                            const glm::ivec2& viewport,
                                            const GeometryPass& geometryPass,
@@ -62,6 +65,7 @@ WorldCompositionPass::WorldCompositionPass(scene::MaterialManager& materialManag
              .textureNoBlend(gl::api::FramebufferAttachment::ColorAttachment0, m_colorBuffer)
              .textureNoBlend(gl::api::FramebufferAttachment::DepthAttachment, geometryPass.getDepthBuffer())
              .build("composition-fb")}
+    , m_bloomFilter{std::move(renderPipeline), "bloomfilter", materialManager.getBloomFilter(), m_colorBufferHandle}
     , m_fbBloom{gl::FrameBufferBuilder()
                   .textureNoBlend(gl::api::FramebufferAttachment::ColorAttachment0, m_bloomedBuffer)
                   .build("composition-fb-bloom")}
@@ -144,7 +148,7 @@ WorldCompositionPass::WorldCompositionPass(scene::MaterialManager& materialManag
 
   m_inWaterMesh->getRenderState().merge(m_fb->getRenderState());
 
-  m_bloomBlur1.setInput(m_colorBufferHandle);
+  m_bloomBlur1.setInput(m_bloomFilter.getOutput());
   m_bloomBlur2.setInput(m_bloomBlur1.getBlurredTexture());
   m_bloomMesh->bind(
     "u_input",
@@ -182,6 +186,7 @@ void WorldCompositionPass::render(bool inWater)
 
   if(m_bloom)
   {
+    m_bloomFilter.render(false);
     m_bloomBlur1.render();
     m_bloomBlur2.render();
     m_fbBloom->bind();

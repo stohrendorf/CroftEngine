@@ -119,7 +119,7 @@ void RenderPipeline::resize(scene::MaterialManager& materialManager,
   m_portalPass = std::make_shared<pass::PortalPass>(materialManager, m_geometryPass->getDepthBuffer(), m_renderSize);
   m_hbaoPass = std::make_shared<pass::HBAOPass>(materialManager, m_renderSize / 4, *m_geometryPass);
   m_worldCompositionPass = std::make_shared<pass::WorldCompositionPass>(
-    materialManager, m_renderSettings, m_renderSize, *m_geometryPass, *m_portalPass);
+    gsl::not_null{this}, materialManager, m_renderSettings, m_renderSize, *m_geometryPass, *m_portalPass);
   m_uiPass = std::make_shared<pass::UIPass>(materialManager, m_uiSize, m_displaySize);
 
   m_backbufferTextureHandle = std::make_shared<gl::TextureHandle<gl::Texture2D<gl::SRGB8>>>(

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "render/pass/effectpass.h"
 #include "render/scene/blur.h"
 
 #include <gl/pixel.h>
@@ -30,7 +31,8 @@ class GeometryPass;
 class WorldCompositionPass
 {
 public:
-  explicit WorldCompositionPass(scene::MaterialManager& materialManager,
+  explicit WorldCompositionPass(gsl::not_null<const RenderPipeline*> renderPipeline,
+                                scene::MaterialManager& materialManager,
                                 const RenderSettings& renderSettings,
                                 const glm::ivec2& viewport,
                                 const GeometryPass& geometryPass,
@@ -62,6 +64,8 @@ private:
   gslu::nn_shared<gl::Texture2D<gl::SRGB8>> m_bloomedBuffer;
   gslu::nn_shared<gl::TextureHandle<gl::Texture2D<gl::SRGB8>>> m_bloomedBufferHandle;
   gslu::nn_shared<gl::Framebuffer> m_fb;
+
+  EffectPass<gl::SRGB8> m_bloomFilter;
   gslu::nn_shared<gl::Framebuffer> m_fbBloom;
   render::scene::SeparableBlur<gl::SRGB8> m_bloomBlur1;
   render::scene::SeparableBlur<gl::SRGB8> m_bloomBlur2;
