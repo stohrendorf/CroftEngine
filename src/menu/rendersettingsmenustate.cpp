@@ -152,11 +152,11 @@ RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingT
 
   {
     auto tmp = std::make_shared<ui::widgets::ValueSelector<uint8_t>>(
-      [](uint32_t value)
+      [](uint8_t value)
       {
         return /* translators: TR charmap encoding */ _("CRT Version \x1f\x6c %1% \x1f\x6d", value + 1);
       },
-      [&engine](uint32_t value)
+      [&engine](uint8_t value)
       {
         engine.getEngineConfig()->renderSettings.crtVersion = value;
         engine.applySettings();
@@ -354,12 +354,12 @@ RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingT
 
   {
     auto tmp = std::make_shared<ui::widgets::ValueSelector<uint8_t>>(
-      [](uint32_t value)
+      [](uint8_t value)
       {
         return /* translators: TR charmap encoding */ _("\x1f\x6c 1/%1% \x1f\x6d Render Scale",
                                                         static_cast<uint32_t>(value));
       },
-      [&engine](uint32_t value)
+      [&engine](uint8_t value)
       {
         engine.getEngineConfig()->renderSettings.renderResolutionDivisor = value;
         engine.applySettings();
@@ -380,12 +380,12 @@ RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingT
 
   {
     auto tmp = std::make_shared<ui::widgets::ValueSelector<uint8_t>>(
-      [](uint32_t value)
+      [](uint8_t value)
       {
         return /* translators: TR charmap encoding */ _("\x1f\x6c %1%x \x1f\x6d UI Scale",
                                                         static_cast<uint32_t>(value));
       },
-      [&engine](uint32_t value)
+      [&engine](uint8_t value)
       {
         engine.getEngineConfig()->renderSettings.uiScaleMultiplier = value;
         engine.applySettings();
@@ -422,11 +422,11 @@ RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingT
 
   {
     auto tmp = std::make_shared<ui::widgets::ValueSelector<uint8_t>>(
-      [](uint32_t value)
+      [](uint8_t value)
       {
         return /* translators: TR charmap encoding */ _("\x1f\x6c %1% \x1f\x6d Percent Dust Particles", 100 / value);
       },
-      [&engine](uint32_t value)
+      [&engine](uint8_t value)
       {
         engine.getEngineConfig()->renderSettings.dustDensity = value;
         engine.applySettings();
