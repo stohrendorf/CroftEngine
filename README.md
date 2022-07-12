@@ -92,9 +92,11 @@ Audron [here](https://drive.google.com/file/d/1iRz4Svdi_dhmlDNFYeZqyP-wfApWhDoN/
          └ ...
    ```
 6. You should now be able to run CroftEngine. If something bad happens as mentioned above, or something doesn't work as
-   expected, make a copy of `croftengine.log` located in the data directory, and attach the file to the issue. You may
-   also get help by [joining Discord](https://discord.gg/ndBqb5BmkH), I'll be there in the #croftengine channel and
-   chat with you as soon as I can, there are also other members already involved enough to give you some guidance.
+   expected, use the "Bug Report" action, usually bound to F1. This will create a time-stamped folder in your user data
+   dir, including a screenshot, a save of your game when you used that action, and a series of log files. Have these
+   files ready when you want help, as they greatly improve chances of diagnosing the problem. Feel free to
+   [join Discord](https://discord.gg/ndBqb5BmkH) to ask for help in the `#croftengine` channel, or
+   [create an issue](https://github.com/stohrendorf/CroftEngine/issues).
 7. The default keybindings are WASD for movement Q and E for stepping left and right, Space for jump, Shift for walking,
    X for rolling, Ctrl for Action, 1 for drawing pistols, 2 for shotguns, 3 for uzis and 4 for magnums. You can consume
    small medi packs by pressing 5, and large ones by pressing 6. Quicksaves and loading them can be done using F5 and
