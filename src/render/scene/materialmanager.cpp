@@ -427,6 +427,17 @@ gslu::nn_shared<Material> MaterialManager::getBloom()
   return m;
 }
 
+gslu::nn_shared<Material> MaterialManager::getBloomFilter()
+{
+  if(m_bloomFilter != nullptr)
+    return gsl::not_null{m_bloomFilter};
+
+  auto m = gsl::make_shared<Material>(m_shaderCache->getBloomFilter());
+  configureForScreenSpaceEffect(*m, false);
+  m_bloomFilter = m;
+  return m;
+}
+
 gslu::nn_shared<Material> MaterialManager::getHBAO()
 {
   if(m_hbao != nullptr)
