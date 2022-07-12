@@ -81,9 +81,12 @@ int main(int argc, char** argv)
   bool fileLogAdded = false;
   if(const auto userDataDir = findUserDataDir(); userDataDir.has_value())
   {
-    boost::log::add_file_log(boost::log::keywords::file_name = (findUserDataDir().value() / "croftengine.log").string(),
+    boost::log::add_file_log(boost::log::keywords::target = *userDataDir,
+                             boost::log::keywords::file_name = "croftengine.log",
+                             boost::log::keywords::target_file_name = "croftengine.%N.log",
                              boost::log::keywords::format = logFormat,
-                             boost::log::keywords::auto_flush = true);
+                             boost::log::keywords::auto_flush = true,
+                             boost::log::keywords::max_files = 10);
     fileLogAdded = true;
   }
   else
@@ -109,9 +112,12 @@ int main(int argc, char** argv)
 
   if(!fileLogAdded)
   {
-    boost::log::add_file_log(boost::log::keywords::file_name = (findUserDataDir().value() / "croftengine.log").string(),
+    boost::log::add_file_log(boost::log::keywords::target = findUserDataDir().value(),
+                             boost::log::keywords::file_name = "croftengine.log",
+                             boost::log::keywords::target_file_name = "croftengine.%N.log",
                              boost::log::keywords::format = logFormat,
-                             boost::log::keywords::auto_flush = true);
+                             boost::log::keywords::auto_flush = true,
+                             boost::log::keywords::max_files = 10);
   }
 
   BOOST_LOG_TRIVIAL(info) << "Running CroftEngine " << CE_VERSION;
