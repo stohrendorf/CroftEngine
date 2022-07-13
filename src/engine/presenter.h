@@ -167,6 +167,11 @@ public:
 
   void bindBackbuffer();
 
+  [[nodiscard]] bool renderSettingsChanged() const
+  {
+    return m_renderSettingsChanged;
+  }
+
 private:
   const std::unique_ptr<gl::Window> m_window;
   uint8_t m_renderResolutionDivisor = 1;
@@ -190,6 +195,8 @@ private:
 
   const gslu::nn_unique<render::RenderPipeline> m_renderPipeline;
   std::unique_ptr<render::scene::ScreenOverlay> m_screenOverlay;
+
+  bool m_renderSettingsChanged = false;
 
   void scaleSplashImage();
 };

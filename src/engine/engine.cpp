@@ -322,6 +322,11 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
       ui.drawBox({0, 0}, ui.getSize(), gl::SRGBA8{0, 0, 0, 224});
       m_presenter->renderUi(ui, 1);
       menu->display(ui, world);
+      if(m_presenter->renderSettingsChanged())
+      {
+        continue;
+      }
+
       m_presenter->renderUi(ui, 1);
       m_presenter->swapBuffers();
       switch(menu->result)
@@ -583,6 +588,11 @@ std::pair<RunResult, std::optional<size_t>> Engine::runTitleMenu(world::World& w
       backdropMesh->render(nullptr, context);
     }
     menu->display(ui, world);
+    if(m_presenter->renderSettingsChanged())
+    {
+      continue;
+    }
+
     m_presenter->renderUi(ui, 1);
     m_presenter->updateSoundEngine();
     m_presenter->swapBuffers();
