@@ -292,7 +292,18 @@ public:
 
   void addPickupWidget(Sprite sprite, size_t count)
   {
-    m_pickupWidgets.emplace_back(75_frame, std::move(sprite), count);
+    static auto constexpr widgetLifetime = 75_frame;
+    auto isSameVirginItem = [&sprite](const ui::PickupWidget& item) -> bool
+    {
+      return item.getSprite().textureId == sprite.textureId && item.getDuration() == widgetLifetime;
+    };
+    if(auto it = std::find_if(m_pickupWidgets.begin(), m_pickupWidgets.end(), isSameVirginItem);
+       it != m_pickupWidgets.end())
+    {
+      it->setCount(it->getCount() + count);
+      return;
+    }
+    m_pickupWidgets.emplace_back(widgetLifetime, std::move(sprite), count);
   }
 
   [[nodiscard]] std::optional<std::string> getItemTitle(TR1ItemId id) const;
