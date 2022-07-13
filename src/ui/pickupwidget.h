@@ -44,6 +44,26 @@ public:
     return m_sprite.render1.x - m_sprite.render0.x;
   }
 
+  [[nodiscard]] auto getDuration() const
+  {
+    return m_duration;
+  }
+
+  [[nodiscard]] const auto& getSprite() const
+  {
+    return m_sprite;
+  }
+
+  void setCount(size_t val)
+  {
+    m_count = val;
+  }
+
+  [[nodiscard]] auto getCount() const
+  {
+    return m_count;
+  }
+
 private:
   core::Frame m_duration;
   mutable engine::world::Sprite m_sprite;
