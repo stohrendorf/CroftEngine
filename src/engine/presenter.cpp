@@ -515,6 +515,8 @@ bool Presenter::preFrame()
     gl::api::ClearBufferMask::ColorBufferBit | gl::api::ClearBufferMask::DepthBufferBit, {0, 0, 0, 0}, 1);
   m_renderPipeline->clearBackbuffer();
 
+  m_renderSettingsChanged = false;
+
   return true;
 }
 
@@ -563,6 +565,7 @@ void Presenter::apply(const render::RenderSettings& renderSettings, const AudioS
                                     ? std::nullopt
                                     : std::optional{gsl::narrow<float>(renderSettings.anisotropyLevel)});
   m_soundEngine->setListenerGain(audioSettings.globalVolume);
+  m_renderSettingsChanged = true;
 }
 
 gl::CImgWrapper Presenter::takeScreenshot() const
