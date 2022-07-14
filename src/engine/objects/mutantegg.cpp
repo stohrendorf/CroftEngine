@@ -123,7 +123,10 @@ void MutantEgg::update()
        || absMax(getWorld().getObjectManager().getLara().m_state.location.position - m_state.location.position)
             < 4096_len)
     {
-      BOOST_LOG_TRIVIAL(debug) << getSkeleton()->getName() << ": Hatching " << m_childObject->getNode()->getName();
+      if(m_childObject != nullptr)
+        BOOST_LOG_TRIVIAL(debug) << getSkeleton()->getName() << ": Hatching " << m_childObject->getNode()->getName();
+      else
+        BOOST_LOG_TRIVIAL(debug) << getSkeleton()->getName() << ": Hatching";
       m_state.goal_anim_state = 1_as;
       m_state.collidable = false;
       for(size_t i = 0; i < getSkeleton()->getBoneCount(); ++i)
@@ -160,6 +163,10 @@ void MutantEgg::collide(CollisionInfo& info)
 void MutantEgg::serialize(const serialization::Serializer<world::World>& ser)
 {
   ModelObject::serialize(ser);
-  ser(S_NV("childObject", serialization::ObjectReference{m_childObject}));
+  ser.lazy(
+    [this](const serialization::Serializer<world::World>& ser)
+    {
+      ser(S_NV("childObject", serialization::ObjectReference{m_childObject}));
+    });
 }
 } // namespace engine::objects
