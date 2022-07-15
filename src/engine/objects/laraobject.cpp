@@ -1176,7 +1176,11 @@ void LaraObject::updateAnimShotgun()
 void LaraObject::tryShootShotgun()
 {
   if(getWorld().getPlayer().getInventory().getAmmo(WeaponType::Shotgun).shots == 0)
+  {
+    getWorld().getPlayer().requestedWeaponType = WeaponType::Pistols;
     return;
+  }
+    
   --getWorld().getPlayer().getInventory().getAmmo(WeaponType::Shotgun).shots;
 
   const auto rounds = getWorld().getPlayer().getInventory().getAmmo(WeaponType::Shotgun).roundsPerShot;
