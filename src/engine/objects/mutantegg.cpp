@@ -113,6 +113,7 @@ MutantEgg::MutantEgg(const std::string& name,
     getSkeleton()->setVisible(i, (0xff0001ffu >> i) & 1u);
   }
   getSkeleton()->rebuildMesh();
+  getSkeleton()->getRenderState().setScissorTest(false);
 }
 
 void MutantEgg::update()
@@ -163,6 +164,11 @@ void MutantEgg::collide(CollisionInfo& info)
 void MutantEgg::serialize(const serialization::Serializer<world::World>& ser)
 {
   ModelObject::serialize(ser);
+  if(ser.loading)
+  {
+    getSkeleton()->getRenderState().setScissorTest(false);
+  }
+  
   ser.lazy(
     [this](const serialization::Serializer<world::World>& ser)
     {
