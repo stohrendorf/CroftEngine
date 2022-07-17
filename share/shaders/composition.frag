@@ -19,10 +19,11 @@ layout(location=0) out vec3 out_color;
 
 void main()
 {
-    const vec3 WaterColor = vec3(149.0 / 255.0, 229.0 / 255.0, 229.0 / 255.0);
+    const vec3 WaterColor = vec3(0.0, 118.0, 126.0) / 255.0;
+    const float WaterSurfaceMultiplier = 0.6;
 
     #ifdef IN_WATER
-    vec3 finalColor = WaterColor;
+    vec3 finalColor = vec3(WaterSurfaceMultiplier);
     #else
     vec3 finalColor = vec3(1.0);
     #endif
@@ -44,7 +45,7 @@ void main()
         #ifdef IN_WATER
         finalColor = vec3(1.0);
         #else
-        finalColor = WaterColor;
+        finalColor = vec3(WaterSurfaceMultiplier);
         whiteness = dUvSpecular.z;
         #endif
     }
@@ -61,11 +62,10 @@ void main()
     #else
     float inVolumeRay = geomDepth - pDepth;
     #endif
-    float d = clamp(inVolumeRay * InvFarPlane, 0, 1);
-    // light absorbtion
-    finalColor *= mix(vec3(1), WaterColor*0.5, d);
-    // light scatter
-    finalColor = mix(finalColor, shade_texel(WaterColor*0.5, shadeDepth), d*d);
+    float inVolumeRayNorm = clamp(inVolumeRay * InvFarPlane, 0, 1);
+
+    const float WaterDensity = 0.2;
+    finalColor = mix(WaterColor, finalColor, exp(-inVolumeRayNorm * WaterDensity));
 
     out_color = finalColor;
 }
