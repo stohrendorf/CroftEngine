@@ -49,10 +49,10 @@ level_sequence = [
         track=TR1TrackId.Ambience0,
         item_titles={
             "en_GB": {
-                TR1ItemId.Key1: "Gold Key",
+                TR1ItemId.Key1: "Saphire Key",
             },
             "de_DE": {
-                TR1ItemId.Key1: "Goldener Schl~ussel",
+                TR1ItemId.Key1: "Saphir-Schl~ussel",
             },
         },
     ),
