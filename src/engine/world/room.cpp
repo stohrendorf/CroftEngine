@@ -664,7 +664,7 @@ std::shared_ptr<render::scene::Node>
   mesh->getMaterialGroup().set(render::scene::RenderMode::Full, dustMaterial);
 
   mesh->bind("u_baseColor",
-             [color = isWaterRoom ? glm::vec3{0.126f, 0.693f, 0.356f} : glm::vec3{0.431f, 0.386f, 0.375f}](
+             [color = isWaterRoom ? glm::vec3{0.146f, 0.485f, 0.216f} : glm::vec3{0.431f, 0.386f, 0.375f}](
                const render::scene::Node* /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
              {
                uniform.set(color);
