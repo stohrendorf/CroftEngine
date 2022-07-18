@@ -53,6 +53,7 @@ private:
   const gl::api::PrimitiveType m_primitiveType{};
 
   virtual void drawIndexBuffer(gl::api::PrimitiveType primitiveType) = 0;
+  virtual void drawIndexBuffer(gl::api::PrimitiveType primitiveType, gl::api::core::SizeType instanceCount) = 0;
 };
 
 template<typename IndexT, typename... VertexTs>
@@ -79,6 +80,11 @@ private:
   void drawIndexBuffer(gl::api::PrimitiveType primitiveType) override
   {
     m_vao->drawIndexBuffer(primitiveType);
+  }
+
+  void drawIndexBuffer(gl::api::PrimitiveType primitiveType, gl::api::core::SizeType instanceCount) override
+  {
+    m_vao->drawIndexBuffer(primitiveType, instanceCount);
   }
 };
 

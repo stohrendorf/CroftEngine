@@ -1735,6 +1735,27 @@ enum class FeedbackType : core::EnumType
 };
 #endif
 
+enum class FogCoordSrc : core::EnumType
+{
+#if defined(API_LEVEL_GL_VERSION_1_4) || defined(API_LEVEL_GL_VERSION_1_5) || defined(API_LEVEL_GL_VERSION_2_0)  \
+  || defined(API_LEVEL_GL_VERSION_2_1) || defined(API_LEVEL_GL_VERSION_3_0) || defined(API_LEVEL_GL_VERSION_3_1) \
+  || defined(API_LEVEL_GL_VERSION_3_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_0_compatibility)          \
+  || defined(API_LEVEL_GL_VERSION_4_1_compatibility) || defined(API_LEVEL_GL_VERSION_4_2_compatibility)          \
+  || defined(API_LEVEL_GL_VERSION_4_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_4_compatibility)          \
+  || defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_compatibility)
+  FogCoordinate = 0x8451,
+  FragmentDepth = 0x8452,
+#endif
+#if defined(API_LEVEL_GL_VERSION_1_5) || defined(API_LEVEL_GL_VERSION_2_0) || defined(API_LEVEL_GL_VERSION_2_1) \
+  || defined(API_LEVEL_GL_VERSION_3_0) || defined(API_LEVEL_GL_VERSION_3_1)                                     \
+  || defined(API_LEVEL_GL_VERSION_3_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_0_compatibility)         \
+  || defined(API_LEVEL_GL_VERSION_4_1_compatibility) || defined(API_LEVEL_GL_VERSION_4_2_compatibility)         \
+  || defined(API_LEVEL_GL_VERSION_4_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_4_compatibility)         \
+  || defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_compatibility)
+  FogCoord = 0x8451,
+#endif
+};
+
 enum class FogCoordinatePointerType : core::EnumType
 {
   Float = 0x1406,
@@ -3648,6 +3669,18 @@ enum class LightParameter : core::EnumType
 };
 #endif
 
+#if defined(API_LEVEL_GL_VERSION_1_4) || defined(API_LEVEL_GL_VERSION_1_5) || defined(API_LEVEL_GL_VERSION_2_0)  \
+  || defined(API_LEVEL_GL_VERSION_2_1) || defined(API_LEVEL_GL_VERSION_3_0) || defined(API_LEVEL_GL_VERSION_3_1) \
+  || defined(API_LEVEL_GL_VERSION_3_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_0_compatibility)          \
+  || defined(API_LEVEL_GL_VERSION_4_1_compatibility) || defined(API_LEVEL_GL_VERSION_4_2_compatibility)          \
+  || defined(API_LEVEL_GL_VERSION_4_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_4_compatibility)          \
+  || defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_compatibility)
+enum class LightTextureModeEXT : core::EnumType
+{
+  FragmentDepth = 0x8452,
+};
+#endif
+
 #if defined(API_LEVEL_GL_VERSION_1_0) || defined(API_LEVEL_GL_VERSION_1_1) || defined(API_LEVEL_GL_VERSION_1_2)  \
   || defined(API_LEVEL_GL_VERSION_1_3) || defined(API_LEVEL_GL_VERSION_1_4) || defined(API_LEVEL_GL_VERSION_1_5) \
   || defined(API_LEVEL_GL_VERSION_2_0) || defined(API_LEVEL_GL_VERSION_2_1) || defined(API_LEVEL_GL_VERSION_3_0) \
@@ -4328,11 +4361,18 @@ enum class PixelType : core::EnumType
   || defined(API_LEVEL_GL_VERSION_4_4_compatibility) || defined(API_LEVEL_GL_VERSION_4_4_core)                        \
   || defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_5_core)                        \
   || defined(API_LEVEL_GL_VERSION_4_6_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_core)
+  UnsignedByte233Rev = 0x8362,
   UnsignedByte332 = 0x8032,
   UnsignedInt1010102 = 0x8036,
+  UnsignedInt2101010Rev = 0x8368,
   UnsignedInt8888 = 0x8035,
+  UnsignedInt8888Rev = 0x8367,
+  UnsignedShort1555Rev = 0x8366,
   UnsignedShort4444 = 0x8033,
+  UnsignedShort4444Rev = 0x8365,
   UnsignedShort5551 = 0x8034,
+  UnsignedShort565 = 0x8363,
+  UnsignedShort565Rev = 0x8364,
 #endif
 };
 
@@ -7803,8 +7843,8 @@ extern void copyBufferSubData(CopyBufferSubDataTarget readTarget,
                               std::intptr_t readOffset,
                               std::intptr_t writeOffset,
                               std::size_t size);
-extern void drawArraysInstance(PrimitiveType mode, int32_t first, core::SizeType count, core::SizeType instancecount);
-extern void drawElementsInstance(
+extern void drawArraysInstanced(PrimitiveType mode, int32_t first, core::SizeType count, core::SizeType instancecount);
+extern void drawElementsInstanced(
   PrimitiveType mode, core::SizeType count, DrawElementsType type, const void* indices, core::SizeType instancecount);
 extern void getActiveUniformBlockName(
   uint32_t program, uint32_t uniformBlockIndex, core::SizeType bufSize, core::SizeType* length, char* uniformBlockName);
@@ -8146,9 +8186,9 @@ extern void drawElementsInstancedBaseVertexBaseInstance(PrimitiveType mode,
                                                         core::SizeType instancecount,
                                                         int32_t basevertex,
                                                         uint32_t baseinstance);
-extern void drawTransformFeedbackInstance(PrimitiveType mode, uint32_t id, core::SizeType instancecount);
+extern void drawTransformFeedbackInstanced(PrimitiveType mode, uint32_t id, core::SizeType instancecount);
 extern void
-  drawTransformFeedbackStreamInstance(PrimitiveType mode, uint32_t id, uint32_t stream, core::SizeType instancecount);
+  drawTransformFeedbackStreamInstanced(PrimitiveType mode, uint32_t id, uint32_t stream, core::SizeType instancecount);
 extern void
   getActiveAtomicCounterBuffer(uint32_t program, uint32_t bufferIndex, AtomicCounterBufferPName pname, int32_t* params);
 extern void getInternalformat(TextureTarget target,

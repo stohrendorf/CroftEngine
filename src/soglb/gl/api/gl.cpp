@@ -3579,14 +3579,14 @@ void copyBufferSubData(CopyBufferSubDataTarget readTarget,
                              static_cast<GLintptr>(writeOffset),
                              static_cast<GLsizeiptr>(size));
 }
-void drawArraysInstance(PrimitiveType mode, int32_t first, core::SizeType count, core::SizeType instancecount)
+void drawArraysInstanced(PrimitiveType mode, int32_t first, core::SizeType count, core::SizeType instancecount)
 {
   return glDrawArraysInstanced(static_cast<GLenum>(mode),
                                static_cast<GLint>(first),
                                static_cast<GLsizei>(count),
                                static_cast<GLsizei>(instancecount));
 }
-void drawElementsInstance(
+void drawElementsInstanced(
   PrimitiveType mode, core::SizeType count, DrawElementsType type, const void* indices, core::SizeType instancecount)
 {
   return glDrawElementsInstanced(static_cast<GLenum>(mode),
@@ -4978,12 +4978,15 @@ void drawElementsInstancedBaseVertexBaseInstance(PrimitiveType mode,
                                                        static_cast<GLint>(basevertex),
                                                        static_cast<GLuint>(baseinstance));
 }
-void drawTransformFeedbackInstance(PrimitiveType mode, uint32_t id, core::SizeType instancecount)
+void drawTransformFeedbackInstanced(PrimitiveType mode, uint32_t id, core::SizeType instancecount)
 {
   return glDrawTransformFeedbackInstanced(
     static_cast<GLenum>(mode), static_cast<GLuint>(id), static_cast<GLsizei>(instancecount));
 }
-void drawTransformFeedbackStreamInstance(PrimitiveType mode, uint32_t id, uint32_t stream, core::SizeType instancecount)
+void drawTransformFeedbackStreamInstanced(PrimitiveType mode,
+                                          uint32_t id,
+                                          uint32_t stream,
+                                          core::SizeType instancecount)
 {
   return glDrawTransformFeedbackStreamInstanced(static_cast<GLenum>(mode),
                                                 static_cast<GLuint>(id),

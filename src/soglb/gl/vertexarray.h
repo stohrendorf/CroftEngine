@@ -93,11 +93,11 @@ public:
     unbind();
   }
 
-  void drawIndexBuffer(api::PrimitiveType primitiveType, api::core::SizeType instances)
+  void drawIndexBuffer(api::PrimitiveType primitiveType, api::core::SizeType instanceCount)
   {
     RenderState::applyWantedState();
     bind();
-    m_indexBuffer->drawElements(primitiveType, instances);
+    m_indexBuffer->drawElements(primitiveType, instanceCount);
     unbind();
   }
 

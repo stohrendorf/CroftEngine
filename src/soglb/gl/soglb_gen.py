@@ -52,7 +52,7 @@ def normalize_fn_name(name: str) -> str:
     name = strip_ext_suffix(name[:1].lower() + name[1:])
 
     if not any(name.lower().endswith(x)
-               for x in ('buffers', 'elements', 'shaders', 'textures', 'status', 'arrays', 'attrib')):
+               for x in ('buffers', 'elements', 'shaders', 'textures', 'status', 'arrays', 'attrib', 'instanced')):
         # remove type specs
         if not name.startswith('getQueryBufferObject'):
             name = re.sub(r'([1-9]?)(u?(b|s|i|i64)|f|d)(v?)$', r'\1', name)
