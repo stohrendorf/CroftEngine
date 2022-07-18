@@ -184,7 +184,7 @@ public:
   void serialize(const serialization::Serializer<engine::world::World>& ser);
 };
 
-[[nodiscard]] extern glm::mat4 fromPackedAngles(uint32_t angleData);
+[[nodiscard]] extern glm::mat4 fromPackedAngles(const uint8_t* angleData);
 
 struct TRRotationXY
 {

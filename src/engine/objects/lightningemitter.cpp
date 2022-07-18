@@ -252,7 +252,7 @@ void LightningEmitter::prepareRender()
 
   const auto nearestFrame = getSkeleton()->getInterpolationInfo().getNearestFrame();
   const auto segmentStart
-    = glm::vec3(core::fromPackedAngles(nearestFrame->getAngleData()[0]) * glm::vec4(nearestFrame->pos.toGl(), 1.0f));
+    = glm::vec3(core::fromPackedAngles(&nearestFrame->getAngleData()[0]) * glm::vec4(nearestFrame->pos.toGl(), 1.0f));
 
   const Bolt mainBolt = updateBolt(segmentStart, m_mainBoltEnd.toRenderSystem(), m_mainVb);
 

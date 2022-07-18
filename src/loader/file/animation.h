@@ -54,7 +54,7 @@ struct BoundingBoxIO
   }
 };
 
-struct alignas(4) AnimFrame
+struct AnimFrame
 {
   struct Vec
   {
@@ -77,20 +77,19 @@ struct alignas(4) AnimFrame
   Vec pos{};
   uint16_t numValues = 0;
 
-  [[nodiscard]] gsl::span<const uint32_t> getAngleData() const noexcept
+  [[nodiscard]] gsl::span<const uint8_t> getAngleData() const noexcept
   {
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-    const auto begin = reinterpret_cast<const uint32_t*>(this + 1);
-    return {begin, numValues};
+    const auto begin = reinterpret_cast<const uint8_t*>(this + 1);
+    return {begin, gsl::narrow_cast<std::size_t>(numValues) * sizeof(uint32_t)};
   }
 
   [[nodiscard]] gsl::not_null<const AnimFrame*> next() const
   {
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-    const auto begin = reinterpret_cast<const uint32_t*>(this + 1);
-    const auto end = begin + numValues;
+    const auto end = reinterpret_cast<const AnimFrame*>(&*getAngleData().end());
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-    auto next = gsl::not_null{reinterpret_cast<const AnimFrame*>(end)};
+    auto next = gsl::not_null{end};
     Expects(next->numValues == numValues);
     return next;
   }
