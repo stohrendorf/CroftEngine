@@ -1180,7 +1180,7 @@ void LaraObject::tryShootShotgun()
     getWorld().getPlayer().requestedWeaponType = WeaponType::Pistols;
     return;
   }
-    
+
   --getWorld().getPlayer().getInventory().getAmmo(WeaponType::Shotgun).shots;
 
   const auto rounds = getWorld().getPlayer().getInventory().getAmmo(WeaponType::Shotgun).roundsPerShot;
@@ -1416,7 +1416,7 @@ public:
     top()[2] = glm::vec4{0, 0, 1, 0};
   }
 
-  void rotate(const uint32_t packed)
+  void rotate(const uint8_t* packed)
   {
     m_stack.top() *= core::fromPackedAngles(packed);
   }
@@ -1428,7 +1428,7 @@ public:
 
   void transform(const std::initializer_list<size_t>& indices,
                  const std::vector<world::SkeletalModelType::Bone>& bones,
-                 const gsl::span<const uint32_t>& angleData,
+                 const gsl::span<const uint8_t>& angleData,
                  const std::shared_ptr<SkeletalModelNode>& skeleton)
   {
     for(auto idx : indices)
@@ -1437,12 +1437,12 @@ public:
 
   void transform(const size_t idx,
                  const std::vector<world::SkeletalModelType::Bone>& bones,
-                 const gsl::span<const uint32_t>& angleData,
+                 const gsl::span<const uint8_t>& angleData,
                  const std::shared_ptr<SkeletalModelNode>& skeleton)
   {
     BOOST_ASSERT(idx > 0);
     translate(bones.at(idx).position);
-    rotate(angleData[idx]);
+    rotate(&angleData[sizeof(uint32_t) * idx]);
     apply(skeleton, idx);
   }
 
@@ -1499,7 +1499,7 @@ public:
     rotate(r.toMatrix());
   }
 
-  void rotate(const uint32_t packed1, const uint32_t packed2)
+  void rotate(const uint8_t* packed1, const uint8_t* packed2)
   {
     m_stack1.top() *= core::fromPackedAngles(packed1);
     m_stack2.top() *= core::fromPackedAngles(packed2);
@@ -1524,8 +1524,8 @@ public:
 
   void transform(const std::initializer_list<size_t>& indices,
                  const std::vector<world::SkeletalModelType::Bone>& bones,
-                 const gsl::span<const uint32_t>& angleData1,
-                 const gsl::span<const uint32_t>& angleData2,
+                 const gsl::span<const uint8_t>& angleData1,
+                 const gsl::span<const uint8_t>& angleData2,
                  const std::shared_ptr<SkeletalModelNode>& skeleton)
   {
     for(auto idx : indices)
@@ -1534,13 +1534,13 @@ public:
 
   void transform(const size_t idx,
                  const std::vector<world::SkeletalModelType::Bone>& bones,
-                 const gsl::span<const uint32_t>& angleData1,
-                 const gsl::span<const uint32_t>& angleData2,
+                 const gsl::span<const uint8_t>& angleData1,
+                 const gsl::span<const uint8_t>& angleData2,
                  const std::shared_ptr<SkeletalModelNode>& skeleton)
   {
     BOOST_ASSERT(idx > 0);
     translate(bones.at(idx).position);
-    rotate(angleData1[idx], angleData2[idx]);
+    rotate(&angleData1[sizeof(uint32_t) * idx], &angleData2[sizeof(uint32_t) * idx]);
     apply(skeleton, idx);
   }
 
@@ -1593,7 +1593,7 @@ void LaraObject::drawRoutine()
   matrixStack.push();
   matrixStack.translate(frame->pos.toGl());
   const auto angleData = frame->getAngleData();
-  matrixStack.rotate(angleData[BoneHips]);
+  matrixStack.rotate(&angleData[sizeof(uint32_t) * BoneHips]);
   matrixStack.apply(getSkeleton(), BoneHips);
 
   matrixStack.push();
@@ -1605,13 +1605,13 @@ void LaraObject::drawRoutine()
 
   matrixStack.pop();
   matrixStack.translate(objInfo.bones[BoneTorso].position);
-  matrixStack.rotate(angleData[BoneTorso]);
+  matrixStack.rotate(&angleData[sizeof(uint32_t) * BoneTorso]);
   matrixStack.rotate(m_torsoRotation);
   matrixStack.apply(getSkeleton(), BoneTorso);
 
   matrixStack.push();
   matrixStack.translate(objInfo.bones[BoneHead].position);
-  matrixStack.rotate(angleData[BoneHead]);
+  matrixStack.rotate(&angleData[sizeof(uint32_t) * BoneHead]);
   matrixStack.rotate(m_headRotation);
   matrixStack.apply(getSkeleton(), BoneHead);
 
@@ -1623,7 +1623,7 @@ void LaraObject::drawRoutine()
   }
 
   matrixStack.pop();
-  gsl::span<const uint32_t> armAngleData;
+  gsl::span<const uint8_t> armAngleData;
   switch(activeWeaponType)
   {
   case WeaponType::None:
@@ -1646,7 +1646,7 @@ void LaraObject::drawRoutine()
     matrixStack.rotate(rightArm.aimRotation);
 
     armAngleData = rightArm.weaponAnimData->next(rightArm.frame.get())->getAngleData();
-    matrixStack.rotate(armAngleData[BoneArmL]);
+    matrixStack.rotate(&armAngleData[sizeof(uint32_t) * BoneArmL]);
     matrixStack.apply(getSkeleton(), BoneArmL);
 
     matrixStack.transform(BoneForeArmL, objInfo.bones, armAngleData, getSkeleton());
@@ -1659,7 +1659,7 @@ void LaraObject::drawRoutine()
     matrixStack.resetRotation();
     matrixStack.rotate(leftArm.aimRotation);
     armAngleData = leftArm.weaponAnimData->next(leftArm.frame.get())->getAngleData();
-    matrixStack.rotate(armAngleData[BoneArmR]);
+    matrixStack.rotate(&armAngleData[sizeof(uint32_t) * BoneArmR]);
     matrixStack.apply(getSkeleton(), BoneArmR);
 
     matrixStack.transform({BoneForeArmR, BoneHandR}, objInfo.bones, armAngleData, getSkeleton());
@@ -1691,7 +1691,7 @@ void LaraObject::drawRoutineInterpolated(const InterpolationInfo& interpolationI
   matrixStack.translate(interpolationInfo.firstFrame->pos.toGl(), interpolationInfo.secondFrame->pos.toGl());
   const auto angleDataA = interpolationInfo.firstFrame->getAngleData();
   const auto angleDataB = interpolationInfo.secondFrame->getAngleData();
-  matrixStack.rotate(angleDataA[BoneHips], angleDataB[BoneHips]);
+  matrixStack.rotate(&angleDataA[sizeof(uint32_t) * BoneHips], &angleDataB[sizeof(uint32_t) * BoneHips]);
   matrixStack.apply(getSkeleton(), 0);
 
   matrixStack.push();
@@ -1703,13 +1703,13 @@ void LaraObject::drawRoutineInterpolated(const InterpolationInfo& interpolationI
 
   matrixStack.pop();
   matrixStack.translate(objInfo.bones[BoneTorso].position);
-  matrixStack.rotate(angleDataA[BoneTorso], angleDataB[BoneTorso]);
+  matrixStack.rotate(&angleDataA[sizeof(uint32_t) * BoneTorso], &angleDataB[sizeof(uint32_t) * BoneTorso]);
   matrixStack.rotate(m_torsoRotation);
   matrixStack.apply(getSkeleton(), BoneTorso);
 
   matrixStack.push();
   matrixStack.translate(objInfo.bones[14].position);
-  matrixStack.rotate(angleDataA[BoneHead], angleDataB[BoneHead]);
+  matrixStack.rotate(&angleDataA[sizeof(uint32_t) * BoneHead], &angleDataB[sizeof(uint32_t) * BoneHead]);
   matrixStack.rotate(m_headRotation);
   matrixStack.apply(getSkeleton(), BoneHead);
 
@@ -1721,7 +1721,7 @@ void LaraObject::drawRoutineInterpolated(const InterpolationInfo& interpolationI
   }
 
   matrixStack.pop();
-  gsl::span<const uint32_t> armAngleData;
+  gsl::span<const uint8_t> armAngleData;
   switch(activeWeaponType)
   {
   case WeaponType::None:
@@ -1744,7 +1744,7 @@ void LaraObject::drawRoutineInterpolated(const InterpolationInfo& interpolationI
     matrixStack.rotate(rightArm.aimRotation);
 
     armAngleData = rightArm.weaponAnimData->next(rightArm.frame.get())->getAngleData();
-    matrixStack.rotate(armAngleData[BoneArmL], armAngleData[8]);
+    matrixStack.rotate(&armAngleData[sizeof(uint32_t) * BoneArmL], &armAngleData[sizeof(uint32_t) * BoneArmL]);
     matrixStack.apply(getSkeleton(), BoneArmL);
 
     matrixStack.transform(BoneForeArmL, objInfo.bones, armAngleData, armAngleData, getSkeleton());
@@ -1757,7 +1757,7 @@ void LaraObject::drawRoutineInterpolated(const InterpolationInfo& interpolationI
     matrixStack.resetRotation();
     matrixStack.rotate(leftArm.aimRotation);
     armAngleData = leftArm.weaponAnimData->next(leftArm.frame.get())->getAngleData();
-    matrixStack.rotate(armAngleData[BoneArmR], armAngleData[BoneArmR]);
+    matrixStack.rotate(&armAngleData[sizeof(uint32_t) * BoneArmR], &armAngleData[sizeof(uint32_t) * BoneArmR]);
     matrixStack.apply(getSkeleton(), BoneArmR);
 
     matrixStack.transform({BoneForeArmR, BoneHandR}, objInfo.bones, armAngleData, armAngleData, getSkeleton());

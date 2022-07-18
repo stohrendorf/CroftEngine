@@ -106,12 +106,12 @@ void SkeletalModelNode::updatePose(const InterpolationInfo& framePair)
   const auto angleDataFirst = framePair.firstFrame->getAngleData();
   std::stack<glm::mat4> transformsFirst;
   transformsFirst.push(glm::translate(glm::mat4{1.0f}, framePair.firstFrame->pos.toGl())
-                       * core::fromPackedAngles(angleDataFirst[0]) * m_meshParts[0].patch);
+                       * core::fromPackedAngles(&angleDataFirst[0]) * m_meshParts[0].patch);
 
   const auto angleDataSecond = framePair.secondFrame->getAngleData();
   std::stack<glm::mat4> transformsSecond;
   transformsSecond.push(translate(glm::mat4{1.0f}, framePair.secondFrame->pos.toGl())
-                        * core::fromPackedAngles(angleDataSecond[0]) * m_meshParts[0].patch);
+                        * core::fromPackedAngles(&angleDataSecond[0]) * m_meshParts[0].patch);
 
   m_meshParts[0].poseMatrix = util::mix(transformsFirst.top(), transformsSecond.top(), framePair.bias);
 
@@ -135,13 +135,13 @@ void SkeletalModelNode::updatePose(const InterpolationInfo& framePair)
       transformsFirst.top() *= translate(glm::mat4{1.0f}, m_model->bones[i].position) * m_meshParts[i].patch;
     else
       transformsFirst.top() *= translate(glm::mat4{1.0f}, m_model->bones[i].position)
-                               * core::fromPackedAngles(angleDataFirst[i]) * m_meshParts[i].patch;
+                               * core::fromPackedAngles(&angleDataFirst[sizeof(uint32_t) * i]) * m_meshParts[i].patch;
 
     if(framePair.firstFrame->numValues < i)
       transformsSecond.top() *= translate(glm::mat4{1.0f}, m_model->bones[i].position) * m_meshParts[i].patch;
     else
       transformsSecond.top() *= translate(glm::mat4{1.0f}, m_model->bones[i].position)
-                                * core::fromPackedAngles(angleDataSecond[i]) * m_meshParts[i].patch;
+                                * core::fromPackedAngles(&angleDataSecond[sizeof(uint32_t) * i]) * m_meshParts[i].patch;
 
     m_meshParts[i].poseMatrix = util::mix(transformsFirst.top(), transformsSecond.top(), framePair.bias);
   }

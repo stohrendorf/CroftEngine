@@ -3,6 +3,7 @@
 #include "serialization/quantity.h"
 #include "serialization/serialization.h"
 #include "units.h"
+#include "util/memaccess.h"
 
 #include <boost/assert.hpp>
 #include <exception>
@@ -42,12 +43,12 @@ TRRotationXY getVectorAngles(const Length& dx, const Length& dy, const Length& d
   return TRRotationXY{x, y};
 }
 
-glm::mat4 fromPackedAngles(uint32_t angleData)
+glm::mat4 fromPackedAngles(const uint8_t* angleData)
 {
-  const auto getAngle = [angleData](const uint8_t n) -> Angle
+  const auto getAngle = [value = util::readUnaligned32LE(angleData)](const uint8_t n) -> Angle
   {
     BOOST_ASSERT(n < 3);
-    return auToAngle(((angleData >> (10u * n)) & 0x3ffu) * 64);
+    return auToAngle(((value >> (10u * n)) & 0x3ffu) * 64);
   };
 
   const TRRotation r{getAngle(2), getAngle(1), getAngle(0)};
