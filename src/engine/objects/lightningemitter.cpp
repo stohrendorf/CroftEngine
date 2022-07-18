@@ -56,7 +56,7 @@ std::tuple<gslu::nn_shared<render::scene::Mesh>, gslu::nn_shared<gl::VertexBuffe
   std::array<glm::vec3, LightningEmitter::ControlPoints> vertices{};
 
   static const gl::VertexLayout<glm::vec3> layout{
-    {VERTEX_ATTRIBUTE_POSITION_NAME, gl::VertexAttribute<glm::vec3>::Trivial{}}};
+    {VERTEX_ATTRIBUTE_POSITION_NAME, gl::VertexAttribute<glm::vec3>::Single{}}};
 
   std::vector<uint16_t> indices;
   for(uint16_t i = 0; i < LightningEmitter::ControlPoints; ++i)

@@ -17,7 +17,7 @@ template<typename T>
 class VertexAttribute final
 {
 public:
-  struct Trivial
+  struct Single
   {
   };
 
@@ -36,7 +36,7 @@ public:
 
   // cppcheck-suppress noExplicitConstructor
   // NOLINTNEXTLINE(google-explicit-constructor)
-  VertexAttribute(const Trivial&, const bool normalized = false)
+  VertexAttribute(const Single&, const bool normalized = false)
       : m_type{VertexAttribType<T>}
       , m_relativeOffset{0}
       , m_size{ElementCount<T>}

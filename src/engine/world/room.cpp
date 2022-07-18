@@ -651,7 +651,7 @@ std::shared_ptr<render::scene::Node>
   }
 
   static const gl::VertexLayout<glm::vec3> layout{
-    {VERTEX_ATTRIBUTE_POSITION_NAME, gl::VertexAttribute<glm::vec3>::Trivial{}}};
+    {VERTEX_ATTRIBUTE_POSITION_NAME, gl::VertexAttribute<glm::vec3>::Single{}}};
 
   auto vbuf = gsl::make_shared<gl::VertexBuffer<glm::vec3>>(layout, label + "-particles");
   vbuf->setData(vertices, gl::api::BufferUsage::StaticDraw);
