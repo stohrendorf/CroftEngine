@@ -3,6 +3,13 @@ list( APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake )
 
 project( CroftEngine VERSION 1.9.1 )
 
+if (WIN32) 
+    set(CMAKE_CONFIGURATION_TYPES Debug RelWithDebInfo CACHE TYPE INTERNAL FORCE )
+    if( CMAKE_BUILD_TYPE STREQUAL "Release" )
+        message( FATAL_ERROR "Use RelWithDebInfo instead of Release on Windows to allow debugging minidumps.")
+    endif()
+endif()
+
 file( STRINGS deprecations.txt _deprecations )
 foreach( _deprecation IN LISTS _deprecations )
     if( _deprecation STREQUAL "" )
