@@ -65,6 +65,7 @@ include( get_libarchive )
 
 add_subdirectory( 3rdparty/rapidyaml EXCLUDE_FROM_ALL )
 add_subdirectory( 3rdparty/type_safe EXCLUDE_FROM_ALL )
+add_subdirectory( 3rdparty/chillout EXCLUDE_FROM_ALL )
 add_subdirectory( src )
 
 if( UNIX )

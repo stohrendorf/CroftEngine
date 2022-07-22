@@ -12,6 +12,5 @@
   BOOST_LOG_TRIVIAL(fatal) << "Expectation failed at " << file << ":" << line;
   BOOST_LOG_TRIVIAL(fatal) << "  - expression " << expression;
   BOOST_LOG_TRIVIAL(fatal) << "  - message " << message;
-  stacktrace::logStacktrace();
   BOOST_THROW_EXCEPTION(gsl::fail_fast(message));
 }
