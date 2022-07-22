@@ -7,3 +7,6 @@
 [submodule "3rdparty/ValveFileVDF"]
 	path = 3rdparty/ValveFileVDF
 	url = https://github.com/TinyTinni/ValveFileVDF
+[submodule "3rdparty/chillout"]
+	path = 3rdparty/chillout
+	url = https://gitlab.com/ribtoks/chillout.git
