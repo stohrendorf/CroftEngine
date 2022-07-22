@@ -13,6 +13,7 @@
 #include <boost/log/utility/setup/common_attributes.hpp>
 #include <boost/log/utility/setup/console.hpp>
 #include <boost/log/utility/setup/file.hpp>
+#include <chillout.h>
 #include <csignal>
 #include <cstdlib>
 #include <exception>
@@ -31,24 +32,6 @@
 
 namespace
 {
-void stacktrace_handler(int signum)
-{
-  std::signal(signum, SIG_DFL);
-  std::cerr << "Signal " << signum << " caught";
-  stacktrace::logStacktrace();
-  std::raise(SIGABRT);
-}
-
-void terminateHandler();
-const std::terminate_handler oldTerminateHandler = std::set_terminate(&terminateHandler);
-void terminateHandler()
-{
-  BOOST_LOG_TRIVIAL(fatal) << "Abnormal termination";
-  stacktrace::logStacktrace();
-
-  if(oldTerminateHandler != nullptr)
-    oldTerminateHandler();
-}
 
 const gsl::czstring logFormat = "[%TimeStamp% %Severity% %ThreadID%] %Message%";
 
@@ -76,13 +59,49 @@ void initFileLogging(const std::filesystem::path& userDataDir)
                            boost::log::keywords::auto_flush = true,
                            boost::log::keywords::max_files = 10);
 }
+
+bool initCrashReporting()
+{
+  auto& chillout = Debug::Chillout::getInstance();
+
+  if(const auto userDataDir = findUserDataDir(); userDataDir.has_value())
+  {
+    auto crashdumpDir = userDataDir.value() / "crashdumps";
+    if(!std::filesystem::is_directory(crashdumpDir))
+    {
+      std::filesystem::create_directory(crashdumpDir);
+    }
+#ifdef WIN32
+    chillout.init(L"croftengine", crashdumpDir);
+#else
+    chillout.init("croftengine", crashdumpDir);
+#endif
+    chillout.setBacktraceCallback(
+      [](const char* stackTraceEntry)
+      {
+        BOOST_LOG_TRIVIAL(error) << stackTraceEntry;
+      });
+    chillout.setCrashCallback(
+      [&chillout]()
+      {
+        BOOST_LOG_TRIVIAL(error) << "Croft engine has crashed, writing minidump";
+        chillout.backtrace();
+#ifdef WIN32
+        chillout.createCrashDump();
+#endif
+      });
+    return true;
+  }
+  return false;
+}
+
 } // namespace
 
 int main(int argc, char** argv)
 {
-  std::signal(SIGSEGV, &stacktrace_handler);
-  std::signal(SIGABRT, &stacktrace_handler);
-
+#ifdef NDEBUG
+  bool crashReportInitSuccess = initCrashReporting();
+#endif
   boost::log::add_common_attributes();
 #ifndef NDEBUG
   initConsole(boost::log::trivial::trace);
@@ -101,6 +120,13 @@ int main(int argc, char** argv)
 #endif
     BOOST_LOG_TRIVIAL(warning) << "Could not determine the user data dir";
   }
+
+#ifdef NDEBUG
+  if(!crashReportInitSuccess)
+  {
+    BOOST_LOG_TRIVIAL(warning) << "Crash report initalization failed (nowhere to write dumps)";
+  }
+#endif
 
   std::string localeOverride;
   std::string gameflowId;
@@ -122,181 +148,172 @@ int main(int argc, char** argv)
 
   BOOST_LOG_TRIVIAL(info) << "Running CroftEngine " << CE_VERSION;
 
-  try
+  engine::Engine engine{findUserDataDir().value(), findEngineDataDir().value(), localeOverride, gameflowId};
+  size_t levelSequenceIndex = 0;
+  enum class Mode
   {
-    engine::Engine engine{findUserDataDir().value(), findEngineDataDir().value(), localeOverride, gameflowId};
-    size_t levelSequenceIndex = 0;
-    enum class Mode
-    {
-      Boot,
-      Title,
-      Gym,
-      Game
-    };
-    auto mode = Mode::Boot;
-    std::optional<size_t> loadSlot;
-    bool doLoad = false;
+    Boot,
+    Title,
+    Gym,
+    Game
+  };
+  auto mode = Mode::Boot;
+  std::optional<size_t> loadSlot;
+  bool doLoad = false;
 
-    const auto& gameflow = engine.getScriptEngine().getGameflow();
-    auto processLoadRequest
-      = [&engine, &levelSequenceIndex, &mode, &loadSlot, &doLoad, &gameflow](const std::optional<size_t>& slot) -> void
+  const auto& gameflow = engine.getScriptEngine().getGameflow();
+  auto processLoadRequest
+    = [&engine, &levelSequenceIndex, &mode, &loadSlot, &doLoad, &gameflow](const std::optional<size_t>& slot) -> void
+  {
+    const auto meta = engine.getSavegameMeta(slot);
+    Expects(meta.has_value());
+    for(levelSequenceIndex = 0; levelSequenceIndex < gameflow.getLevelSequence().size(); ++levelSequenceIndex)
     {
-      const auto meta = engine.getSavegameMeta(slot);
-      Expects(meta.has_value());
-      for(levelSequenceIndex = 0; levelSequenceIndex < gameflow.getLevelSequence().size(); ++levelSequenceIndex)
+      if(gameflow.getLevelSequence().at(levelSequenceIndex)->isLevel(meta->filename))
+        break;
+    }
+    loadSlot = slot;
+    doLoad = true;
+    mode = Mode::Game;
+  };
+
+  std::shared_ptr<engine::Player> player;
+  std::shared_ptr<engine::Player> levelStartPlayer;
+
+  while(true)
+  {
+    std::pair<engine::RunResult, std::optional<size_t>> runResult;
+    switch(mode)
+    {
+    case Mode::Boot:
+      Expects(!doLoad);
+      player = std::make_shared<engine::Player>();
+      for(const auto& item : gameflow.getEarlyBoot())
+        runResult = engine.runLevelSequenceItem(*item, player, levelStartPlayer);
+      break;
+    case Mode::Title:
+      Expects(!doLoad);
+      player = std::make_shared<engine::Player>();
+      runResult = engine.runLevelSequenceItem(*gameflow.getTitleMenu(), player, levelStartPlayer);
+      break;
+    case Mode::Gym:
+      Expects(!doLoad);
+      player = std::make_shared<engine::Player>();
+      for(const auto& item : gameflow.getLaraHome())
+        runResult = engine.runLevelSequenceItem(*item, player, levelStartPlayer);
+      break;
+    case Mode::Game:
+      if(doLoad)
       {
-        if(gameflow.getLevelSequence().at(levelSequenceIndex)->isLevel(meta->filename))
-          break;
+        player = std::make_shared<engine::Player>();
+        levelStartPlayer = std::make_shared<engine::Player>();
+        runResult = engine.runLevelSequenceItemFromSave(
+          *gsl::not_null{gameflow.getLevelSequence().at(levelSequenceIndex)}, loadSlot, player, levelStartPlayer);
       }
-      loadSlot = slot;
-      doLoad = true;
-      mode = Mode::Game;
-    };
-
-    std::shared_ptr<engine::Player> player;
-    std::shared_ptr<engine::Player> levelStartPlayer;
-
-    while(true)
-    {
-      std::pair<engine::RunResult, std::optional<size_t>> runResult;
-      switch(mode)
+      else
       {
-      case Mode::Boot:
-        Expects(!doLoad);
-        player = std::make_shared<engine::Player>();
-        for(const auto& item : gameflow.getEarlyBoot())
-          runResult = engine.runLevelSequenceItem(*item, player, levelStartPlayer);
-        break;
-      case Mode::Title:
-        Expects(!doLoad);
-        player = std::make_shared<engine::Player>();
-        runResult = engine.runLevelSequenceItem(*gameflow.getTitleMenu(), player, levelStartPlayer);
-        break;
-      case Mode::Gym:
-        Expects(!doLoad);
-        player = std::make_shared<engine::Player>();
-        for(const auto& item : gameflow.getLaraHome())
-          runResult = engine.runLevelSequenceItem(*item, player, levelStartPlayer);
-        break;
-      case Mode::Game:
-        if(doLoad)
+        if(player == nullptr || levelSequenceIndex == 0)
         {
-          player = std::make_shared<engine::Player>();
-          levelStartPlayer = std::make_shared<engine::Player>();
-          runResult = engine.runLevelSequenceItemFromSave(
-            *gsl::not_null{gameflow.getLevelSequence().at(levelSequenceIndex)}, loadSlot, player, levelStartPlayer);
+          if(levelStartPlayer == nullptr)
+            player = std::make_shared<engine::Player>();
+          else
+            player = std::make_shared<engine::Player>(*levelStartPlayer);
+        }
+        levelStartPlayer = std::make_shared<engine::Player>(*player);
+
+        runResult = engine.runLevelSequenceItem(
+          *gsl::not_null{gameflow.getLevelSequence().at(levelSequenceIndex)}, player, levelStartPlayer);
+      }
+      break;
+    }
+
+    loadSlot.reset();
+    doLoad = false;
+
+    switch(mode)
+    {
+    case Mode::Boot:
+      if(runResult.first == engine::RunResult::ExitApp)
+        return EXIT_SUCCESS;
+      mode = Mode::Title;
+      break;
+    case Mode::Title:
+      switch(runResult.first)
+      {
+      case engine::RunResult::ExitApp:
+        return EXIT_SUCCESS;
+      case engine::RunResult::NextLevel:
+        levelSequenceIndex = 0;
+        mode = Mode::Game;
+        levelStartPlayer.reset();
+        break;
+      case engine::RunResult::TitleLevel:
+        mode = Mode::Title;
+        break;
+      case engine::RunResult::LaraHomeLevel:
+        mode = Mode::Gym;
+        break;
+      case engine::RunResult::RequestLoad:
+        processLoadRequest(runResult.second);
+        break;
+      case engine::RunResult::RestartLevel:
+        BOOST_THROW_EXCEPTION(std::runtime_error("level restart request while running title menu"));
+      }
+      break;
+    case Mode::Gym:
+      switch(runResult.first)
+      {
+      case engine::RunResult::ExitApp:
+        return EXIT_SUCCESS;
+      case engine::RunResult::NextLevel:
+        mode = Mode::Title;
+        break;
+      case engine::RunResult::TitleLevel:
+        mode = Mode::Title;
+        break;
+      case engine::RunResult::LaraHomeLevel:
+        mode = Mode::Gym;
+        break;
+      case engine::RunResult::RequestLoad:
+        processLoadRequest(runResult.second);
+        break;
+      case engine::RunResult::RestartLevel:
+        BOOST_THROW_EXCEPTION(std::runtime_error("level restart request while running title menu"));
+      }
+      break;
+    case Mode::Game:
+      switch(runResult.first)
+      {
+      case engine::RunResult::ExitApp:
+        return EXIT_SUCCESS;
+      case engine::RunResult::NextLevel:
+        ++levelSequenceIndex;
+        if(levelSequenceIndex >= gameflow.getLevelSequence().size())
+        {
+          levelSequenceIndex = 0;
+          mode = Mode::Title;
         }
         else
         {
-          if(player == nullptr || levelSequenceIndex == 0)
-          {
-            if(levelStartPlayer == nullptr)
-              player = std::make_shared<engine::Player>();
-            else
-              player = std::make_shared<engine::Player>(*levelStartPlayer);
-          }
-          levelStartPlayer = std::make_shared<engine::Player>(*player);
-
-          runResult = engine.runLevelSequenceItem(
-            *gsl::not_null{gameflow.getLevelSequence().at(levelSequenceIndex)}, player, levelStartPlayer);
+          BOOST_ASSERT(player != nullptr);
+          player->accumulateStats();
         }
         break;
-      }
-
-      loadSlot.reset();
-      doLoad = false;
-
-      switch(mode)
-      {
-      case Mode::Boot:
-        if(runResult.first == engine::RunResult::ExitApp)
-          return EXIT_SUCCESS;
+      case engine::RunResult::TitleLevel:
         mode = Mode::Title;
         break;
-      case Mode::Title:
-        switch(runResult.first)
-        {
-        case engine::RunResult::ExitApp:
-          return EXIT_SUCCESS;
-        case engine::RunResult::NextLevel:
-          levelSequenceIndex = 0;
-          mode = Mode::Game;
-          levelStartPlayer.reset();
-          break;
-        case engine::RunResult::TitleLevel:
-          mode = Mode::Title;
-          break;
-        case engine::RunResult::LaraHomeLevel:
-          mode = Mode::Gym;
-          break;
-        case engine::RunResult::RequestLoad:
-          processLoadRequest(runResult.second);
-          break;
-        case engine::RunResult::RestartLevel:
-          BOOST_THROW_EXCEPTION(std::runtime_error("level restart request while running title menu"));
-        }
+      case engine::RunResult::LaraHomeLevel:
+        mode = Mode::Gym;
         break;
-      case Mode::Gym:
-        switch(runResult.first)
-        {
-        case engine::RunResult::ExitApp:
-          return EXIT_SUCCESS;
-        case engine::RunResult::NextLevel:
-          mode = Mode::Title;
-          break;
-        case engine::RunResult::TitleLevel:
-          mode = Mode::Title;
-          break;
-        case engine::RunResult::LaraHomeLevel:
-          mode = Mode::Gym;
-          break;
-        case engine::RunResult::RequestLoad:
-          processLoadRequest(runResult.second);
-          break;
-        case engine::RunResult::RestartLevel:
-          BOOST_THROW_EXCEPTION(std::runtime_error("level restart request while running title menu"));
-        }
+      case engine::RunResult::RequestLoad:
+        processLoadRequest(runResult.second);
         break;
-      case Mode::Game:
-        switch(runResult.first)
-        {
-        case engine::RunResult::ExitApp:
-          return EXIT_SUCCESS;
-        case engine::RunResult::NextLevel:
-          ++levelSequenceIndex;
-          if(levelSequenceIndex >= gameflow.getLevelSequence().size())
-          {
-            levelSequenceIndex = 0;
-            mode = Mode::Title;
-          }
-          else
-          {
-            BOOST_ASSERT(player != nullptr);
-            player->accumulateStats();
-          }
-          break;
-        case engine::RunResult::TitleLevel:
-          mode = Mode::Title;
-          break;
-        case engine::RunResult::LaraHomeLevel:
-          mode = Mode::Gym;
-          break;
-        case engine::RunResult::RequestLoad:
-          processLoadRequest(runResult.second);
-          break;
-        case engine::RunResult::RestartLevel:
-          BOOST_ASSERT(player != nullptr);
-          player = std::make_shared<engine::Player>(*levelStartPlayer);
-          break;
-        }
+      case engine::RunResult::RestartLevel:
+        BOOST_ASSERT(player != nullptr);
+        player = std::make_shared<engine::Player>(*levelStartPlayer);
         break;
       }
+      break;
     }
-  }
-  catch(...)
-  {
-    BOOST_LOG_TRIVIAL(fatal) << boost::current_exception_diagnostic_information();
-    stacktrace::logStacktrace();
-    return EXIT_FAILURE;
   }
 }
