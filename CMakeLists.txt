@@ -1,7 +1,7 @@
 cmake_minimum_required( VERSION 3.16 )
 list( APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake )
 
-project( CroftEngine VERSION 1.9 )
+project( CroftEngine VERSION 1.9.1 )
 
 file( STRINGS deprecations.txt _deprecations )
 foreach( _deprecation IN LISTS _deprecations )
