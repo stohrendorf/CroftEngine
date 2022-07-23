@@ -1,7 +1,6 @@
 #include "glassert.h"
 
 #include "api/gl.hpp"
-#include "stacktrace.h"
 
 #ifdef SOGLB_DEBUGGING
 #  include <boost/log/trivial.hpp>
@@ -44,7 +43,6 @@ void gl::checkGlError(gsl::czstring code)
 
   BOOST_LOG_TRIVIAL(error) << "OpenGL error " << static_cast<api::core::EnumType>(error) << " after evaluation of '"
                            << code << "': " << errStr;
-  stacktrace::logStacktrace();
   BOOST_THROW_EXCEPTION(std::runtime_error("OpenAL error, see logs"));
 }
 #endif

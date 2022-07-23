@@ -3,7 +3,6 @@ include( get_boost )
 add_library(
         shared
         STATIC
-        stacktrace.cpp
         paths.cpp
 )
 
