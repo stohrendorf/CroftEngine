@@ -4,7 +4,6 @@
 #include "engine/script/scriptengine.h"
 #include "launcher/launcher.h"
 #include "paths.h"
-#include "stacktrace.h"
 
 #include <boost/exception/diagnostic_information.hpp>
 #include <boost/log/core.hpp>
@@ -35,6 +34,9 @@ namespace
 
 const gsl::czstring logFormat = "[%TimeStamp% %Severity% %ThreadID%] %Message%";
 
+using sink_t = boost::log::sinks::synchronous_sink<boost::log::sinks::text_file_backend>;
+boost::shared_ptr<sink_t> logFileSink;
+
 void initConsole(boost::log::trivial::severity_level level)
 {
 #ifdef WIN32
@@ -52,47 +54,53 @@ void initConsole(boost::log::trivial::severity_level level)
 
 void initFileLogging(const std::filesystem::path& userDataDir)
 {
-  boost::log::add_file_log(boost::log::keywords::target = userDataDir,
-                           boost::log::keywords::target_file_name = "croftengine.%N.log",
-                           boost::log::keywords::file_name = userDataDir / "croftengine.log",
-                           boost::log::keywords::format = logFormat,
-                           boost::log::keywords::auto_flush = true,
-                           boost::log::keywords::max_files = 10);
+  logFileSink = boost::log::add_file_log(boost::log::keywords::target = userDataDir,
+                                         boost::log::keywords::target_file_name = "croftengine.%N.log",
+                                         boost::log::keywords::file_name = userDataDir / "croftengine.log",
+                                         boost::log::keywords::format = logFormat,
+                                         boost::log::keywords::auto_flush = true,
+                                         boost::log::keywords::max_files = 10);
 }
 
 bool initCrashReporting()
 {
   auto& chillout = Debug::Chillout::getInstance();
-
-  if(const auto userDataDir = findUserDataDir(); userDataDir.has_value())
+  const auto userDataDir = findUserDataDir();
+  if(!userDataDir.has_value())
   {
-    auto crashdumpDir = userDataDir.value() / "crashdumps";
-    if(!std::filesystem::is_directory(crashdumpDir))
-    {
-      std::filesystem::create_directory(crashdumpDir);
-    }
-#ifdef WIN32
-    chillout.init(L"croftengine", crashdumpDir);
-#else
-    chillout.init("croftengine", crashdumpDir);
-#endif
-    chillout.setBacktraceCallback(
-      [](const char* stackTraceEntry)
-      {
-        BOOST_LOG_TRIVIAL(error) << stackTraceEntry;
-      });
-    chillout.setCrashCallback(
-      [&chillout]()
-      {
-        BOOST_LOG_TRIVIAL(error) << "Croft engine has crashed, writing minidump";
-        chillout.backtrace();
-#ifdef WIN32
-        chillout.createCrashDump();
-#endif
-      });
-    return true;
+    return false;
   }
-  return false;
+
+  auto crashdumpDir = userDataDir.value() / "crashdumps";
+  if(!std::filesystem::is_directory(crashdumpDir))
+  {
+    std::filesystem::create_directory(crashdumpDir);
+  }
+#ifdef WIN32
+  chillout.init(L"croftengine", crashdumpDir);
+#else
+  chillout.init("croftengine", crashdumpDir);
+#endif
+  chillout.setBacktraceCallback(
+    [](const char* stackTraceEntry)
+    {
+      BOOST_LOG_TRIVIAL(fatal) << stackTraceEntry;
+    });
+  chillout.setCrashCallback(
+    [&chillout]()
+    {
+      BOOST_LOG_TRIVIAL(fatal) << "Croft engine has crashed, writing minidump";
+      chillout.backtrace();
+#ifdef WIN32
+      chillout.createCrashDump();
+#endif
+      if(logFileSink != nullptr)
+      {
+        // https://stackoverflow.com/questions/41419957/boostlog-close-log-file-and-open-a-new-one/41420226#41420226
+        logFileSink->locked_backend()->rotate_file();
+      }
+    });
+  return true;
 }
 
 } // namespace
