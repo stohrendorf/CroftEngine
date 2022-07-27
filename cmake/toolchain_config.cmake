@@ -1,6 +1,14 @@
 set( CMAKE_CXX_STANDARD 17 )
 set( CMAKE_CXX_STANDARD_REQUIRED ON )
 
+include( CheckPIESupported )
+check_pie_supported( OUTPUT_VARIABLE _pie_error )
+if( CMAKE_CXX_LINK_PIE_SUPPORTED )
+    set( CMAKE_POSITION_INDEPENDENT_CODE ON )
+elseif( NOT MSVC )
+    message( WARNING "PIE is not supported: ${_pie_error}" )
+endif()
+
 option( PERMISSIVE_BUILD "Disable a few compiler flags which are not strictly relevant for releases" OFF )
 
 enable_testing()

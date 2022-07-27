@@ -3,10 +3,14 @@ list( APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake )
 
 project( CroftEngine VERSION 1.9.1 )
 
-if (WIN32) 
-    set(CMAKE_CONFIGURATION_TYPES Debug RelWithDebInfo CACHE TYPE INTERNAL FORCE )
+cmake_policy( SET CMP0069 NEW )
+cmake_policy( SET CMP0083 NEW )
+cmake_policy( SET CMP0094 NEW )
+
+if( WIN32 )
+    set( CMAKE_CONFIGURATION_TYPES Debug RelWithDebInfo CACHE TYPE INTERNAL FORCE )
     if( CMAKE_BUILD_TYPE STREQUAL "Release" )
-        message( FATAL_ERROR "Use RelWithDebInfo instead of Release on Windows to allow debugging minidumps.")
+        message( FATAL_ERROR "Use RelWithDebInfo instead of Release on Windows to allow debugging minidumps." )
     endif()
 endif()
 
@@ -27,9 +31,6 @@ foreach( _deprecation IN LISTS _deprecations )
         message( WARNING "Deprecation message found in deprecations.txt (planned for removal in ${_version}), see https://croftengine.youtrack.cloud/issue/${_issue_id}: ${_message}" )
     endif()
 endforeach()
-
-cmake_policy( SET CMP0069 NEW )
-cmake_policy( SET CMP0094 NEW )
 
 include( toolchain_config )
 
