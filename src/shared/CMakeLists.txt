@@ -21,7 +21,6 @@ target_include_directories(
 target_link_libraries(
         shared
         PRIVATE
-        Boost::stacktrace
         Boost::log
 )
 

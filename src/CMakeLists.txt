@@ -696,7 +696,7 @@ set_property(
 )
 
 group_files( ${CROFTENGINE_SRCS} )
-set (CHILLOUT_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/3rdparty/chillout/src/chillout)
+set( CHILLOUT_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/3rdparty/chillout/src/chillout )
 target_include_directories( croftengine PRIVATE . ${Intl_INCLUDE_DIRS} ${CHILLOUT_INCLUDE_DIR} )
 
 add_subdirectory( shared )
@@ -706,10 +706,10 @@ add_subdirectory( core )
 add_subdirectory( launcher )
 add_subdirectory( dosbox-cdrom )
 
-if (WIN32) 
-        set( WIN32_SPECIFIC_LIBS dbghelp)
+if( WIN32 )
+    set( WIN32_SPECIFIC_LIBS dbghelp )
 elseif()
-        set( WIN32_SPECIFIC_LIBS )
+    set( WIN32_SPECIFIC_LIBS )
 endif()
 
 target_link_libraries(
@@ -721,7 +721,6 @@ target_link_libraries(
         Boost::log_setup
         Boost::disable_autolinking
         Boost::headers
-        Boost::stacktrace
         OpenAL::OpenAL
         ryml
         PNG::PNG
@@ -740,7 +739,7 @@ target_link_libraries(
         shared
         launcher
         serialization
-        chillout 
+        chillout
         ${WIN32_SPECIFIC_LIBS}
 )
 
