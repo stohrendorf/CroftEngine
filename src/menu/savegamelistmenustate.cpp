@@ -263,7 +263,7 @@ std::unique_ptr<MenuState> SavegameListMenuState::onFrame(ui::Ui& ui, engine::wo
   {
     if(m_overwriteConfirmation->isConfirmed())
     {
-      world.save(getListBox()->getSelected());
+      world.save(m_entries.at(getListBox()->getSelected())->getSlot().value());
       return create<ClosePassportMenuState>(display.getCurrentRing().getSelectedObject(),
                                             create<DeflateRingMenuState>(DeflateRingMenuState::Direction::Backpack,
                                                                          create<DoneMenuState>(MenuResult::Closed)));
