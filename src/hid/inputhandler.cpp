@@ -223,9 +223,7 @@ void InputHandler::update()
 
   for(const auto& [action, state] : states)
   {
-    const auto it = states.find(action);
-    if(it != states.end())
-      m_inputState.actions[action] = it->second;
+    m_inputState.actions[action] = state;
   }
   m_inputState.setXAxisMovement(m_inputState.actions[Action::Left], m_inputState.actions[Action::Right]);
   m_inputState.setZAxisMovement(m_inputState.actions[Action::Backward], m_inputState.actions[Action::Forward]);
