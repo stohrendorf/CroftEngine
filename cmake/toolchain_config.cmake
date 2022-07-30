@@ -13,7 +13,7 @@ option( PERMISSIVE_BUILD "Disable a few compiler flags which are not strictly re
 
 enable_testing()
 
-if( CMAKE_BUILD_TYPE STREQUAL "Release" )
+if( CMAKE_BUILD_TYPE STREQUAL "Release" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo" )
     include( CheckIPOSupported )
     check_ipo_supported()
     set( CMAKE_INTERPROCEDURAL_OPTIMIZATION ON )
