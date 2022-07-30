@@ -171,25 +171,23 @@ void InputHandler::update()
     gamepadStates.emplace_back(state);
   }
 
-  boost::container::flat_map<Action, bool> states{};
-
   const auto prevPressedButtons = std::exchange(pressedButtons, {});
-  for(const auto& [button, _] : hid::EnumUtil<GlfwGamepadButton>::all())
+  for(const auto& [button, _] : EnumUtil<GlfwGamepadButton>::all())
   {
     for(const auto& state : gamepadStates)
     {
-      if(state.buttons[static_cast<int>(button)] != 0)
-      {
-        pressedButtons.emplace(button);
-        if(prevPressedButtons.count(button) == 0)
-          recentPressedButton = button;
-        break;
-      }
+      if(state.buttons[static_cast<int>(button)] == GLFW_RELEASE)
+        continue;
+
+      pressedButtons.emplace(button);
+      if(prevPressedButtons.count(button) == 0)
+        recentPressedButton = button;
+      break;
     }
   }
 
   const auto prevPressedAxes = std::exchange(pressedAxes, {});
-  for(const auto& [axis, _] : hid::EnumUtil<GlfwAxis>::all())
+  for(const auto& [axis, _] : EnumUtil<GlfwAxis>::all())
   {
     for(const auto& state : gamepadStates)
     {
@@ -204,35 +202,38 @@ void InputHandler::update()
     }
   }
 
+  boost::container::flat_map<Action, bool> newActionStates{};
+  newActionStates.reserve(m_mergedInputMappings.size());
+
   for(const auto& [input, action] : m_mergedInputMappings)
   {
     if(std::holds_alternative<engine::NamedGlfwGamepadButton>(input))
     {
-      states[action] |= pressedButtons.count(std::get<engine::NamedGlfwGamepadButton>(input).value) != 0;
+      newActionStates[action] |= pressedButtons.count(std::get<engine::NamedGlfwGamepadButton>(input).value) != 0;
     }
     else if(std::holds_alternative<engine::NamedGlfwKey>(input))
     {
-      states[action] |= isKeyPressed(std::get<engine::NamedGlfwKey>(input).value);
+      newActionStates[action] |= isKeyPressed(std::get<engine::NamedGlfwKey>(input).value);
     }
     else
     {
       const auto mapped = std::get<engine::NamedAxisDir>(input);
-      states[action] |= pressedAxes.count({mapped.first.value, mapped.second.value}) != 0;
+      newActionStates[action] |= pressedAxes.count({mapped.first.value, mapped.second.value}) != 0;
     }
   }
 
-  for(const auto& [action, state] : states)
+  for(const auto& [action, state] : newActionStates)
   {
     m_inputState.actions[action] = state;
   }
-  m_inputState.setXAxisMovement(m_inputState.actions[Action::Left], m_inputState.actions[Action::Right]);
-  m_inputState.setZAxisMovement(m_inputState.actions[Action::Backward], m_inputState.actions[Action::Forward]);
-  m_inputState.setStepMovement(m_inputState.actions[Action::StepLeft], m_inputState.actions[Action::StepRight]);
-
   if(m_inputState.actions[Action::Backward] && m_inputState.actions[Action::Forward])
   {
     m_inputState.actions[Action::Roll] = true;
   }
+
+  m_inputState.setXAxisMovement(m_inputState.actions[Action::Left], m_inputState.actions[Action::Right]);
+  m_inputState.setZAxisMovement(m_inputState.actions[Action::Backward], m_inputState.actions[Action::Forward]);
+  m_inputState.setStepMovement(m_inputState.actions[Action::StepLeft], m_inputState.actions[Action::StepRight]);
 }
 
 void InputHandler::setMappings(const std::vector<engine::NamedInputMappingConfig>& inputMappings)
