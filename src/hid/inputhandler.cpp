@@ -160,7 +160,7 @@ void InputHandler::update()
   std::lock_guard lock{glfwStateMutex};
 
   std::vector<GLFWgamepadstate> gamepadStates;
-  gamepadStates.resize(connectedGamepads.size());
+  gamepadStates.reserve(connectedGamepads.size());
   for(auto jid : connectedGamepads)
   {
     if(glfwJoystickPresent(jid) != GLFW_TRUE)
