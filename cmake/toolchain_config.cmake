@@ -57,6 +57,8 @@ if( WIN32 )
     add_definitions( -DNOMINMAX -DNOGDI -DNOBITMAP -DNOMB )
 endif()
 
+option( SANITIZE_ADDRESS "Use -fsanitize=address" OFF )
+
 if( CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU" )
     message( STATUS "GCC or Clang detected" )
 
@@ -66,7 +68,6 @@ if( CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GN
         set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wa,-mbig-obj" )
     endif()
 
-    option( SANITIZE_ADDRESS "Use -fsanitize=address" OFF )
     if( SANITIZE_ADDRESS )
         set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address" )
     endif()
@@ -83,5 +84,12 @@ if( CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GN
         else()
             set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wcast-align" )
         endif()
+    endif()
+elseif( MSVC )
+    if( SANITIZE_ADDRESS )
+        get_filename_component( _linker_path "${CMAKE_LINKER}" DIRECTORY )
+        file( GLOB _clang_rt "${_linker_path}/clang_rt.*.dll" )
+        file( COPY ${_clang_rt} DESTINATION ${PROJECT_BINARY_DIR}/src )
+        set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /fsanitize=address" )
     endif()
 endif()
