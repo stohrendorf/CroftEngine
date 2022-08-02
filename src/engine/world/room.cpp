@@ -452,6 +452,8 @@ void Room::createSceneNode(const loader::file::Room& srcRoom,
                  world.getEngine().getEngineConfig()->renderSettings.dustDensity);
 
   resetScenery();
+
+  particles.setAmbient(*this);
 }
 
 void patchHeightsForBlock(const engine::objects::Object& object, const core::Length& height)

@@ -4,6 +4,7 @@
 #include "core/units.h"
 #include "core/vec.h"
 #include "engine/lighting.h"
+#include "engine/particlecollection.h"
 #include "qs/qs.h"
 #include "sector.h"
 #include "serialization/serialization_fwd.h"
@@ -110,6 +111,7 @@ struct Room
   glm::vec3 verticesBBoxMin{std::numeric_limits<float>::max()};
   glm::vec3 verticesBBoxMax{std::numeric_limits<float>::lowest()};
   std::shared_ptr<render::scene::Node> dust = nullptr;
+  mutable engine::InstancedParticleCollection particles;
 
   void createSceneNode(const loader::file::Room& srcRoom,
                        size_t roomId,
