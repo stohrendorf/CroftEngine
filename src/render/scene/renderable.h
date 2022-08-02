@@ -19,6 +19,7 @@ public:
   Renderable& operator=(const Renderable&) = delete;
 
   virtual void render(const Node* node, RenderContext& context) = 0;
+  virtual void render(const Node* node, RenderContext& context, gl::api::core::SizeType instanceCount) = 0;
 
   gl::RenderState& getRenderState()
   {

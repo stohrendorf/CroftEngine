@@ -72,7 +72,25 @@ void Mesh::render(const Node* node, RenderContext& context)
 
   material->bind(node, *this);
 
-  drawIndexBuffer(m_primitiveType);
+  drawIndexBuffer();
+
+  context.popState();
+  context.popState();
+}
+
+void Mesh::render(const Node* node, RenderContext& context, gl::api::core::SizeType instanceCount)
+{
+  std::shared_ptr<Material> material = m_materialGroup.get(context.getRenderMode());
+  if(material == nullptr)
+    return;
+
+  context.pushState(material->getRenderState());
+  context.pushState(getRenderState());
+  context.bindState();
+
+  material->bind(node, *this);
+
+  drawIndexBuffer(instanceCount);
 
   context.popState();
   context.popState();

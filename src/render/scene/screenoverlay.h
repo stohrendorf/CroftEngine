@@ -33,6 +33,7 @@ public:
   ~ScreenOverlay() override;
 
   void render(const Node* node, RenderContext& context) final;
+  void render(const Node* node, RenderContext& context, gl::api::core::SizeType instanceCount) override;
 
   [[nodiscard]] const auto& getImage() const
   {
