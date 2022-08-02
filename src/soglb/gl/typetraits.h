@@ -46,8 +46,11 @@ inline constexpr api::VertexAttribType VertexAttribType<float> = api::VertexAttr
 template<>
 inline constexpr api::VertexAttribType VertexAttribType<api::core::Half> = api::VertexAttribType::HalfFloat;
 template<int N>
-inline constexpr api::VertexAttribType
-  VertexAttribType<glm::vec<N, float, glm::defaultp>> = api::VertexAttribType::Float;
+inline constexpr api::VertexAttribType VertexAttribType<glm::vec<N, float, glm::defaultp>>
+  = api::VertexAttribType::Float;
+template<int C, int R>
+inline constexpr api::VertexAttribType VertexAttribType<glm::mat<C, R, float, glm::defaultp>>
+  = api::VertexAttribType::Float;
 
 template<typename>
 inline constexpr auto PixelType = detail::InvalidValue{};
@@ -90,6 +93,8 @@ template<>
 inline constexpr api::core::SizeType ElementCount<api::core::Half> = 1;
 template<int N>
 inline constexpr api::core::SizeType ElementCount<glm::vec<N, float, glm::defaultp>> = N;
+template<int C, int R>
+inline constexpr api::core::SizeType ElementCount<glm::mat<C, R, float, glm::defaultp>> = C * R;
 
 template<typename>
 inline constexpr auto SrgbaSizedInternalFormat = detail::InvalidValue{};
