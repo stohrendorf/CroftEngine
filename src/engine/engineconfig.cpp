@@ -101,7 +101,8 @@ void EngineConfig::serialize(const serialization::Serializer<EngineConfig>& ser)
       S_NVO("restoreHealth", restoreHealth),
       S_NVO("pulseLowHealthHealthBar", pulseLowHealthHealthBar),
       S_NVO("lowHealthMonochrome", lowHealthMonochrome),
-      S_NVO("buttBubbles", buttBubbles));
+      S_NVO("buttBubbles", buttBubbles),
+      S_NVO("waterBedBubbles", waterBedBubbles));
 }
 
 EngineConfig::EngineConfig()
