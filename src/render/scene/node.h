@@ -227,6 +227,12 @@ public:
     m_renderOrder = order;
   }
 
+  const auto& getTransform() const
+  {
+    (void)getModelMatrix(); // update data if dirty
+    return m_transform;
+  }
+
 private:
   void transformChanged();
 
