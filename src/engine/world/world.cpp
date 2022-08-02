@@ -1159,10 +1159,10 @@ World::World(Engine& engine,
   initTextureDependentDataFromLevel(*level);
 
   render::MultiTextureAtlas atlases{2048};
-  m_controllerLayouts
-    = loadControllerButtonIcons(atlases,
-                                util::ensureFileExists(m_engine.getEngineDataPath() / "button-icons" / "buttons.yaml"),
-                                getPresenter().getMaterialManager()->getSprite(true));
+  m_controllerLayouts = loadControllerButtonIcons(
+    atlases,
+    util::ensureFileExists(m_engine.getEngineDataPath() / "button-icons" / "buttons.yaml"),
+    getPresenter().getMaterialManager()->getSprite(render::scene::SpriteMaterialMode::Billboard));
   m_allTextures = buildTextures(*level,
                                 m_engine.getGlidos(),
                                 atlases,
@@ -1187,24 +1187,36 @@ World::World(Engine& engine,
   for(size_t i = 0; i < m_sprites.size(); ++i)
   {
     auto& sprite = m_sprites[i];
-    sprite.yBoundMesh = render::scene::createSpriteMesh(static_cast<float>(sprite.render0.x),
-                                                        static_cast<float>(-sprite.render0.y),
-                                                        static_cast<float>(sprite.render1.x),
-                                                        static_cast<float>(-sprite.render1.y),
-                                                        sprite.uv0,
-                                                        sprite.uv1,
-                                                        getPresenter().getMaterialManager()->getSprite(false),
-                                                        sprite.textureId.get_as<int32_t>(),
-                                                        "sprite-" + std::to_string(i));
-    sprite.billboardMesh = render::scene::createSpriteMesh(static_cast<float>(sprite.render0.x),
-                                                           static_cast<float>(-sprite.render0.y),
-                                                           static_cast<float>(sprite.render1.x),
-                                                           static_cast<float>(-sprite.render1.y),
-                                                           sprite.uv0,
-                                                           sprite.uv1,
-                                                           getPresenter().getMaterialManager()->getSprite(true),
-                                                           sprite.textureId.get_as<int32_t>(),
-                                                           "sprite-" + std::to_string(i));
+    sprite.yBoundMesh = render::scene::createSpriteMesh(
+      static_cast<float>(sprite.render0.x),
+      static_cast<float>(-sprite.render0.y),
+      static_cast<float>(sprite.render1.x),
+      static_cast<float>(-sprite.render1.y),
+      sprite.uv0,
+      sprite.uv1,
+      getPresenter().getMaterialManager()->getSprite(render::scene::SpriteMaterialMode::YAxisBound),
+      sprite.textureId.get_as<int32_t>(),
+      "sprite-" + std::to_string(i) + "-ybound");
+    sprite.billboardMesh = render::scene::createSpriteMesh(
+      static_cast<float>(sprite.render0.x),
+      static_cast<float>(-sprite.render0.y),
+      static_cast<float>(sprite.render1.x),
+      static_cast<float>(-sprite.render1.y),
+      sprite.uv0,
+      sprite.uv1,
+      getPresenter().getMaterialManager()->getSprite(render::scene::SpriteMaterialMode::Billboard),
+      sprite.textureId.get_as<int32_t>(),
+      "sprite-" + std::to_string(i) + "-billboard");
+    sprite.instancedBillboardMesh = render::scene::createInstancedSpriteMesh(
+      static_cast<float>(sprite.render0.x),
+      static_cast<float>(-sprite.render0.y),
+      static_cast<float>(sprite.render1.x),
+      static_cast<float>(-sprite.render1.y),
+      sprite.uv0,
+      sprite.uv1,
+      getPresenter().getMaterialManager()->getSprite(render::scene::SpriteMaterialMode::InstancedBillboard),
+      sprite.textureId.get_as<int32_t>(),
+      "sprite-" + std::to_string(i) + "-instanced");
   }
 
   m_audioEngine->init(level->m_soundEffectProperties, level->m_soundEffects);

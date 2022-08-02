@@ -16,13 +16,14 @@ class CSM;
 class Material;
 class Renderer;
 class ShaderCache;
+enum class SpriteMaterialMode : uint8_t;
 
 class MaterialManager final
 {
 public:
   explicit MaterialManager(gslu::nn_shared<ShaderCache> shaderCache, gslu::nn_shared<Renderer> renderer);
 
-  [[nodiscard]] gslu::nn_shared<Material> getSprite(bool billboard);
+  [[nodiscard]] gslu::nn_shared<Material> getSprite(SpriteMaterialMode mode);
 
   [[nodiscard]] gslu::nn_shared<Material> getCSMDepthOnly(bool skeletal);
   [[nodiscard]] gslu::nn_shared<Material> getDepthOnly(bool skeletal);
@@ -88,7 +89,7 @@ private:
   std::shared_ptr<Material> m_bloom{nullptr};
   std::shared_ptr<Material> m_bloomFilter{nullptr};
 
-  std::map<bool, gslu::nn_shared<Material>> m_sprite{};
+  std::map<SpriteMaterialMode, gslu::nn_shared<Material>> m_sprite{};
   std::map<bool, gslu::nn_shared<Material>> m_csmDepthOnly{};
   std::map<bool, gslu::nn_shared<Material>> m_depthOnly{};
   std::map<std::tuple<bool, bool, bool>, gslu::nn_shared<Material>> m_geometry{};
