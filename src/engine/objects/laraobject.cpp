@@ -439,9 +439,11 @@ void LaraObject::update()
     auto bubbleCount = util::rand15(2);
     while(bubbleCount-- > 0)
     {
-      auto particle = gsl::make_shared<BubbleParticle>(Location{m_state.location.room, position}, getWorld(), false);
-      setParent(particle, m_state.location.room->node);
-      getWorld().getObjectManager().registerParticle(particle);
+      auto particle
+        = gsl::make_shared<BubbleParticle>(Location{m_state.location.room, position}, getWorld(), false, true);
+      setParent(particle, nullptr);
+      particle->scale = util::rand15(0.8f) + 0.2f;
+      m_state.location.room->particles.registerParticle(particle);
     }
   }
 
