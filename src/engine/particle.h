@@ -25,7 +25,8 @@
 namespace render::scene
 {
 class Renderable;
-}
+enum class SpriteMaterialMode : uint8_t;
+} // namespace render::scene
 
 namespace engine::world
 {
@@ -47,37 +48,29 @@ public:
   core::Speed fall_speed = 0_spd;
   int16_t negSpriteFrameId = 0;
   int16_t timePerSpriteFrame = 0;
+  float scale = 1.0f;
+
+  std::tuple<std::shared_ptr<render::scene::Mesh>, std::shared_ptr<gl::VertexBuffer<glm::mat4>>> getCurrentMesh() const;
 
 private:
-  std::deque<gslu::nn_shared<render::scene::Renderable>> m_renderables{};
+  std::deque<std::tuple<gslu::nn_shared<render::scene::Mesh>, std::shared_ptr<gl::VertexBuffer<glm::mat4>>>> m_meshes{};
   Lighting m_lighting;
   std::optional<core::Shade> m_shade{std::nullopt};
+  const bool m_withoutParent;
 
-  void initRenderables(world::World& world, bool billboard);
+  void initRenderables(world::World& world, render::scene::SpriteMaterialMode mode);
 
 protected:
-  void nextFrame()
-  {
-    --negSpriteFrameId;
-
-    if(m_renderables.empty())
-      return;
-
-    m_renderables.emplace_back(m_renderables.front());
-    m_renderables.pop_front();
-    setRenderable(m_renderables.front());
-  }
-
-  void applyTransform();
+  void nextFrame();
 
   size_t getLength() const
   {
-    return m_renderables.size();
+    return m_meshes.size();
   }
 
-  void clearRenderables()
+  void clearMeshes()
   {
-    m_renderables.clear();
+    m_meshes.clear();
   }
 
 public:
@@ -85,15 +78,17 @@ public:
                     const core::TypeId& objectNumber,
                     const gsl::not_null<const world::Room*>& room,
                     world::World& world,
-                    bool billboard,
-                    const std::shared_ptr<render::scene::Renderable>& renderable = nullptr);
+                    render::scene::SpriteMaterialMode mode,
+                    bool withoutParent = false,
+                    const std::shared_ptr<render::scene::Mesh>& renderable = nullptr);
 
   explicit Particle(const std::string& id,
                     const core::TypeId& objectNumber,
                     Location location,
                     world::World& world,
-                    bool billboard,
-                    const std::shared_ptr<render::scene::Renderable>& renderable = nullptr);
+                    render::scene::SpriteMaterialMode mode,
+                    bool withoutParent = false,
+                    const std::shared_ptr<render::scene::Mesh>& renderable = nullptr);
 
   void setShade(const core::Shade& shade)
   {
@@ -103,6 +98,13 @@ public:
   virtual bool update(world::World& world) = 0;
 
   glm::vec3 getPosition() const final;
+
+  void applyTransform();
+
+  [[nodiscard]] bool withoutParent() const
+  {
+    return m_withoutParent;
+  }
 };
 
 class BloodSplatterParticle final : public Particle
@@ -111,12 +113,7 @@ public:
   explicit BloodSplatterParticle(const Location& location,
                                  const core::Speed& speed_,
                                  const core::Angle& angle_,
-                                 world::World& world)
-      : Particle{"bloodsplat", TR1ItemId::Blood, location, world, true}
-  {
-    speed = speed_;
-    angle.Y = angle_;
-  }
+                                 world::World& world);
 
   bool update(world::World& world) override;
 };
@@ -132,15 +129,7 @@ public:
 class RicochetParticle final : public Particle
 {
 public:
-  explicit RicochetParticle(const Location& location, world::World& world)
-      : Particle{"ricochet", TR1ItemId::Ricochet, location, world, false}
-  {
-    timePerSpriteFrame = 4;
-
-    const int n = util::rand15(3);
-    for(int i = 0; i < n; ++i)
-      nextFrame();
-  }
+  explicit RicochetParticle(const Location& location, world::World& world);
 
   bool update(world::World& /*world*/) override;
 };
@@ -148,18 +137,14 @@ public:
 class BubbleParticle final : public Particle
 {
 public:
-  explicit BubbleParticle(const Location& location, world::World& world, bool onlyInWater = true)
-      : Particle{"bubble", TR1ItemId::Bubbles, location, world, true, nullptr}
-      , m_onlyInWater{onlyInWater}
-  {
-    speed = 10_spd + util::rand15(6_spd);
-
-    const int n = util::rand15(3);
-    for(int i = 0; i < n; ++i)
-      nextFrame();
-  }
+  explicit BubbleParticle(const Location& location,
+                          world::World& world,
+                          bool onlyInWater = true,
+                          bool instanced = false);
 
   bool update(world::World& world) override;
+
+  core::Length circleRadius = 11_len;
 
 private:
   const bool m_onlyInWater;
@@ -168,10 +153,7 @@ private:
 class SparkleParticle final : public Particle
 {
 public:
-  explicit SparkleParticle(const Location& location, world::World& world)
-      : Particle{"sparkles", TR1ItemId::Sparkles, location, world, true}
-  {
-  }
+  explicit SparkleParticle(const Location& location, world::World& world);
 
   bool update(world::World& /*world*/) override;
 };
@@ -179,13 +161,7 @@ public:
 class MuzzleFlashParticle final : public Particle
 {
 public:
-  explicit MuzzleFlashParticle(const Location& location, world::World& world, const core::Angle& yAngle)
-      : Particle{"muzzleflash", TR1ItemId::MuzzleFlash, location, world, false}
-  {
-    angle.Y = yAngle;
-    timePerSpriteFrame = 3;
-    setShade(core::Shade{core::Shade::type{4096}});
-  }
+  explicit MuzzleFlashParticle(const Location& location, world::World& world, const core::Angle& yAngle);
 
   bool update(world::World& /*world*/) override;
 };
@@ -204,12 +180,7 @@ public:
   explicit ExplosionParticle(const Location& location,
                              world::World& world,
                              const core::Speed& fallSpeed,
-                             const core::TRRotation& angle)
-      : Particle{"explosion", TR1ItemId::Explosion, location, world, true}
-  {
-    fall_speed = fallSpeed;
-    this->angle = angle;
-  }
+                             const core::TRRotation& angle);
 
   bool update(world::World& /*world*/) override;
 };
@@ -219,7 +190,7 @@ class MeshShrapnelParticle final : public Particle
 public:
   explicit MeshShrapnelParticle(const Location& location,
                                 world::World& world,
-                                const gslu::nn_shared<render::scene::Renderable>& renderable,
+                                const gslu::nn_shared<render::scene::Mesh>& renderable,
                                 bool torsoBoss,
                                 const core::Length& damageRadius);
 
@@ -232,10 +203,7 @@ private:
 class MutantAmmoParticle : public Particle
 {
 protected:
-  explicit MutantAmmoParticle(const Location& location, world::World& world, const TR1ItemId itemType)
-      : Particle{"mutantAmmo", itemType, location, world, false}
-  {
-  }
+  explicit MutantAmmoParticle(const Location& location, world::World& world, const TR1ItemId itemType);
 
   void aimLaraChest(world::World& world);
 };
@@ -272,14 +240,7 @@ public:
 class LavaParticle final : public Particle
 {
 public:
-  explicit LavaParticle(const Location& location, world::World& world)
-      : Particle{"lava", TR1ItemId::LavaParticles, location, world, true}
-  {
-    angle.Y = util::rand15(180_deg) * 2;
-    speed = util::rand15(32_spd);
-    fall_speed = -util::rand15(165_spd);
-    negSpriteFrameId = util::rand15(int16_t{-4});
-  }
+  explicit LavaParticle(const Location& location, world::World& world);
 
   bool update(world::World& world) override;
 };
@@ -287,11 +248,7 @@ public:
 class SmokeParticle final : public Particle
 {
 public:
-  explicit SmokeParticle(const Location& location, world::World& world, const core::TRRotation& rotation)
-      : Particle{"smoke", TR1ItemId::Smoke, location, world, false}
-  {
-    angle = rotation;
-  }
+  explicit SmokeParticle(const Location& location, world::World& world, const core::TRRotation& rotation);
 
   bool update(world::World& /*world*/) override;
 };
