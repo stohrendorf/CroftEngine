@@ -165,18 +165,12 @@ void ObjectManager::update(world::World& world, bool godMode)
     object->update();
   }
 
-  auto currentParticles = std::move(m_particles);
-  for(const auto& particle : currentParticles)
+  BOOST_LOG_TRIVIAL(debug) << "object particles";
+  m_particles.update(world);
+  BOOST_LOG_TRIVIAL(debug) << "room particles";
+  for(auto& room : world.getRooms())
   {
-    if(particle->update(world))
-    {
-      setParent(particle, particle->location.room->node);
-      m_particles.emplace_back(particle);
-    }
-    else
-    {
-      setParent(particle, nullptr);
-    }
+    room.particles.update(world);
   }
 
   if(m_lara != nullptr)
@@ -224,23 +218,6 @@ void ObjectManager::serialize(const serialization::Serializer<world::World>& ser
     }
     ser(S_NV("activeObjects", activeObjectIds));
   }
-}
-
-void ObjectManager::eraseParticle(const std::shared_ptr<Particle>& particle)
-{
-  if(particle == nullptr)
-    return;
-
-  const auto it = std::find_if(m_particles.begin(),
-                               m_particles.end(),
-                               [particle](const auto& p)
-                               {
-                                 return particle == p.get();
-                               });
-  if(it != m_particles.end())
-    m_particles.erase(it);
-
-  setParent(gsl::not_null{particle}, nullptr);
 }
 
 void ObjectManager::replaceItems(const TR1ItemId& oldId, const TR1ItemId& newId, const world::World& world)

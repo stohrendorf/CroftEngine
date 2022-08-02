@@ -1,5 +1,6 @@
 #pragma once
 
+#include "particlecollection.h"
 #include "serialization/serialization_fwd.h"
 
 #include <cstdint>
@@ -42,7 +43,7 @@ class ObjectManager
   std::map<ObjectId, gslu::nn_shared<objects::Object>> m_objects;
   std::list<gslu::nn_shared<objects::Object>> m_activeObjects;
   std::set<gslu::nn_shared<objects::Object>> m_dynamicObjects;
-  std::vector<gslu::nn_shared<Particle>> m_particles;
+  ParticleCollection m_particles;
   std::shared_ptr<objects::LaraObject> m_lara = nullptr;
 
 public:
@@ -95,12 +96,12 @@ public:
 
   void registerParticle(const gslu::nn_shared<Particle>& particle)
   {
-    m_particles.emplace_back(particle);
+    m_particles.registerParticle(particle);
   }
 
   void registerParticle(gslu::nn_shared<Particle>&& particle)
   {
-    m_particles.emplace_back(std::move(particle));
+    m_particles.registerParticle(std::move(particle));
   }
 
   [[nodiscard]] const auto& getParticles() const
@@ -108,7 +109,10 @@ public:
     return m_particles;
   }
 
-  void eraseParticle(const std::shared_ptr<Particle>& particle);
+  void eraseParticle(const std::shared_ptr<Particle>& particle)
+  {
+    m_particles.eraseParticle(particle);
+  }
 
   void applyScheduledDeletions();
   void registerObject(const gslu::nn_shared<objects::Object>& object);
