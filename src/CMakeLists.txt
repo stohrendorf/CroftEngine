@@ -236,6 +236,8 @@ set( CROFTENGINE_SRCS
         engine/objectmanager.cpp
         engine/particle.h
         engine/particle.cpp
+        engine/particlecollection.h
+        engine/particlecollection.cpp
         engine/player.h
         engine/player.cpp
         engine/presenter.h
