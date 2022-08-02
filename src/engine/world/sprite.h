@@ -2,6 +2,7 @@
 
 #include "core/id.h"
 
+#include <gl/soglb_fwd.h>
 #include <glm/glm.hpp>
 #include <gsl/gsl-lite.hpp>
 
@@ -24,6 +25,7 @@ struct Sprite
 
   std::shared_ptr<render::scene::Mesh> yBoundMesh;
   std::shared_ptr<render::scene::Mesh> billboardMesh;
+  std::tuple<std::shared_ptr<render::scene::Mesh>, std::shared_ptr<gl::VertexBuffer<glm::mat4>>> instancedBillboardMesh;
 };
 
 struct SpriteSequence
