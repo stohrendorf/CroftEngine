@@ -44,10 +44,7 @@ public:
   {
   }
 
-  void bindVertexAttribute(api::core::Handle vertexArray,
-                           const ProgramInput& input,
-                           uint32_t bindingIndex,
-                           uint32_t divisor) const;
+  void bindVertexAttribute(api::core::Handle vertexArray, const ProgramInput& input, uint32_t bindingIndex) const;
 
 private:
   const api::VertexAttribType m_type;
@@ -80,7 +77,8 @@ public:
       if(it == m_layout.end())
         continue;
 
-      it->second.bindVertexAttribute(vertexArray, input, bindingIndex, m_divisor);
+      it->second.bindVertexAttribute(vertexArray, input, bindingIndex);
+      GL_ASSERT(api::vertexArrayBindingDivisor(vertexArray, bindingIndex, m_divisor));
     }
   }
 
@@ -97,13 +95,18 @@ private:
 template<typename T>
 void VertexAttribute<T>::bindVertexAttribute(const api::core::Handle vertexArray,
                                              const ProgramInput& input,
-                                             const uint32_t bindingIndex,
-                                             const uint32_t divisor) const
+                                             const uint32_t bindingIndex) const
 {
-  GL_ASSERT(api::enableVertexArrayAttrib(vertexArray, input.getLocation()));
-  GL_ASSERT(
-    api::vertexArrayAttribFormat(vertexArray, input.getLocation(), m_size, m_type, m_normalized, m_relativeOffset));
-  GL_ASSERT(api::vertexArrayAttribBinding(vertexArray, input.getLocation(), bindingIndex));
-  GL_ASSERT(api::vertexArrayBindingDivisor(vertexArray, bindingIndex, divisor));
+  for(int32_t dataOffset = 0, locationOffset = 0; dataOffset < m_size; dataOffset += 4, ++locationOffset)
+  {
+    GL_ASSERT(api::enableVertexArrayAttrib(vertexArray, input.getLocation() + locationOffset));
+    GL_ASSERT(api::vertexArrayAttribFormat(vertexArray,
+                                           input.getLocation() + locationOffset,
+                                           std::min(m_size - dataOffset, 4),
+                                           m_type,
+                                           m_normalized,
+                                           m_relativeOffset + sizeof(float) * dataOffset));
+    GL_ASSERT(api::vertexArrayAttribBinding(vertexArray, input.getLocation() + locationOffset, bindingIndex));
+  }
 }
 } // namespace gl
