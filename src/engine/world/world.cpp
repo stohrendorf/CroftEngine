@@ -57,6 +57,7 @@
 #include "render/scene/node.h"
 #include "render/scene/renderer.h"
 #include "render/scene/sprite.h"
+#include "render/scene/spritematerialmode.h"
 #include "render/textureanimator.h"
 #include "render/textureatlas.h"
 #include "rendermeshdata.h"
@@ -220,6 +221,40 @@ bool evaluateCondition(floordata::SequenceCondition condition,
     return false;
   default:
     return true;
+  }
+}
+
+void emitGroundBubbles(const gsl::not_null<Room*>& room, World& world)
+{
+  if(!room->isWaterRoom || !room->node->isVisible())
+    return;
+
+  static constexpr const size_t MaxParticlesPerSector = 3;
+  static constexpr const float EmissionProbability = 0.01f;
+
+  for(int x = 0; x < room->sectorCountX; ++x)
+  {
+    for(int z = 0; z < room->sectorCountZ; ++z)
+    {
+      const gsl::not_null s{room->getSectorByIndex(x, z)};
+      if(s->roomBelow != nullptr)
+        continue;
+
+      for(size_t i = 0; i < MaxParticlesPerSector; ++i)
+      {
+        if(util::rand15(1.0f) > EmissionProbability)
+          continue;
+
+        const auto px = room->position.X + x * core::SectorSize + util::rand15(core::SectorSize);
+        const auto pz = room->position.Z + z * core::SectorSize + util::rand15(core::SectorSize);
+        const auto py = s->floorHeight;
+
+        auto particle = gsl::make_shared<BubbleParticle>(Location{room, core::TRVec{px, py, pz}}, world, true, true);
+        particle->scale = 0.5f;
+        particle->circleRadius = 1_len;
+        room->particles.registerParticle(std::move(particle));
+      }
+    }
   }
 }
 } // namespace
@@ -1032,6 +1067,14 @@ void World::gameLoop(bool godMode, float blackAlpha, ui::Ui& ui)
   getPresenter().renderUi(ui, 1);
   getPresenter().updateSoundEngine();
   getPresenter().swapBuffers();
+
+  if(m_engine.getEngineConfig()->waterBedBubbles)
+  {
+    for(auto& room : m_rooms)
+    {
+      emitGroundBubbles(gsl::not_null{&room}, *this);
+    }
+  }
 }
 
 bool World::cinematicLoop()
