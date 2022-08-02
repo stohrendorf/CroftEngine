@@ -232,6 +232,16 @@ void Presenter::renderWorld(const std::vector<world::Room>& rooms,
     }
 
     m_renderer->render();
+    render::scene::RenderContext context{render::scene::RenderMode::Full, std::nullopt};
+    for(auto& room : rooms)
+    {
+      if(!room.node->isVisible())
+        continue;
+
+      context.pushState(room.node->getRenderState());
+      room.particles.render(context);
+      context.popState();
+    }
 
     if constexpr(render::pass::FlushPasses)
       GL_ASSERT(gl::api::finish());
