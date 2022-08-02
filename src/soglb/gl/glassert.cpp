@@ -43,6 +43,6 @@ void gl::checkGlError(gsl::czstring code)
 
   BOOST_LOG_TRIVIAL(error) << "OpenGL error " << static_cast<api::core::EnumType>(error) << " after evaluation of '"
                            << code << "': " << errStr;
-  BOOST_THROW_EXCEPTION(std::runtime_error("OpenAL error, see logs"));
+  BOOST_THROW_EXCEPTION(std::runtime_error("OpenGL error, see logs"));
 }
 #endif
