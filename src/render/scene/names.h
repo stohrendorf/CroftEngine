@@ -19,3 +19,4 @@
 #define VERTEX_ATTRIBUTE_QUAD_UV34 "a_quadUv34"
 
 #define VERTEX_ATTRIBUTE_REFLECTIVE_NAME "a_reflective"
+#define VERTEX_ATTRIBUTE_MODEL_MATRIX_NAME "a_modelMatrix"
