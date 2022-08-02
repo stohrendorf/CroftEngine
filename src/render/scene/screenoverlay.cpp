@@ -70,4 +70,9 @@ void ScreenOverlay::init(MaterialManager& materialManager, const glm::ivec2& vie
   m_mesh->getRenderState().setBlend(0, true);
   m_mesh->getRenderState().setViewport(viewport);
 }
+
+void ScreenOverlay::render(const Node* /*node*/, RenderContext& /*context*/, gl::api::core::SizeType /*instanceCount*/)
+{
+  BOOST_THROW_EXCEPTION(std::runtime_error("Cannot render instanced ScreenOverlay"));
+}
 } // namespace render::scene

@@ -47,13 +47,19 @@ public:
   }
 
   void render(const Node* node, RenderContext& context) final;
+  void render(const Node* node, RenderContext& context, gl::api::core::SizeType instanceCount) final;
+
+  [[nodiscard]] auto getPrimitiveType() const
+  {
+    return m_primitiveType;
+  }
 
 private:
   MaterialGroup m_materialGroup{};
   const gl::api::PrimitiveType m_primitiveType{};
 
-  virtual void drawIndexBuffer(gl::api::PrimitiveType primitiveType) = 0;
-  virtual void drawIndexBuffer(gl::api::PrimitiveType primitiveType, gl::api::core::SizeType instanceCount) = 0;
+  virtual void drawIndexBuffer() = 0;
+  virtual void drawIndexBuffer(gl::api::core::SizeType instanceCount) = 0;
 };
 
 template<typename IndexT, typename... VertexTs>
@@ -77,14 +83,14 @@ public:
 private:
   gslu::nn_shared<gl::VertexArray<IndexT, VertexTs...>> m_vao;
 
-  void drawIndexBuffer(gl::api::PrimitiveType primitiveType) override
+  void drawIndexBuffer() override
   {
-    m_vao->drawIndexBuffer(primitiveType);
+    m_vao->drawIndexBuffer(getPrimitiveType());
   }
 
-  void drawIndexBuffer(gl::api::PrimitiveType primitiveType, gl::api::core::SizeType instanceCount) override
+  void drawIndexBuffer(gl::api::core::SizeType instanceCount) override
   {
-    m_vao->drawIndexBuffer(primitiveType, instanceCount);
+    m_vao->drawIndexBuffer(getPrimitiveType(), instanceCount);
   }
 };
 
