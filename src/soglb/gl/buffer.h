@@ -65,8 +65,8 @@ public:
 
   void setSubData(const gsl::span<const T>& data, const api::core::SizeType start)
   {
-    GL_ASSERT(
-      api::namedBufferSubData(getHandle(), gsl::narrow<std::intptr_t>(sizeof(T) * start), data.size_byts(), data));
+    GL_ASSERT(api::namedBufferSubData(
+      getHandle(), gsl::narrow<std::intptr_t>(sizeof(T) * start), data.size_bytes(), data.data()));
   }
 
   [[nodiscard]] auto size() const noexcept
