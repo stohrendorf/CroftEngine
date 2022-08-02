@@ -6,6 +6,7 @@
 #include "node.h"
 #include "renderer.h"
 #include "shadercache.h"
+#include "spritematerialmode.h"
 #include "uniformparameter.h"
 
 #include <algorithm>
@@ -42,15 +43,16 @@ void configureForScreenSpaceEffect(Material& m, bool enableBlend)
 }
 } // namespace
 
-gslu::nn_shared<Material> MaterialManager::getSprite(bool billboard)
+gslu::nn_shared<Material> MaterialManager::getSprite(SpriteMaterialMode mode)
 {
-  if(auto it = m_sprite.find(billboard); it != m_sprite.end())
+  if(auto it = m_sprite.find(mode); it != m_sprite.end())
     return it->second;
 
-  auto m = gsl::make_shared<Material>(m_shaderCache->getGeometry(false, false, true, billboard ? 2 : 1));
+  auto m = gsl::make_shared<Material>(m_shaderCache->getGeometry(false, false, true, static_cast<uint8_t>(mode)));
   m->getRenderState().setCullFace(false);
 
-  m->getUniformBlock("Transform")->bindTransformBuffer();
+  if(mode != SpriteMaterialMode::InstancedBillboard)
+    m->getUniformBlock("Transform")->bindTransformBuffer();
   m->getUniformBlock("Camera")->bindCameraBuffer(m_renderer->getCamera());
   m->getUniform("u_diffuseTextures")
     ->bind(
@@ -59,7 +61,7 @@ gslu::nn_shared<Material> MaterialManager::getSprite(bool billboard)
         uniform.set(gsl::not_null{m_geometryTextures});
       });
 
-  m_sprite.emplace(billboard, m);
+  m_sprite.emplace(mode, m);
   return m;
 }
 
