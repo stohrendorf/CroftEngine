@@ -9,18 +9,22 @@ void main()
 {
     #ifdef SKELETAL
     mat4 mm = modelTransform.m * boneTransform.m[int(a_boneIndex)];
+    #elif SPRITEMODE == 3
+    mat4 mm = a_modelMatrix;
     #else
     mat4 mm = modelTransform.m;
     #endif
     mat4 mv = camera.view * mm;
 
     #if SPRITEMODE == 1
-    mv[0].xyz = vec3(1, 0, 0);
-    mv[2].xyz = vec3(0, 0, 1);
-    #elif SPRITEMODE == 2
-    mv[0].xyz = vec3(1, 0, 0);
-    mv[1].xyz = vec3(0, 1, 0);
-    mv[2].xyz = vec3(0, 0, 1);
+    // YAxisBound
+    mv[0].xyz = vec3(1, 0, length(mv[0].xyz));
+    mv[2].xyz = vec3(0, 0, length(mv[2].xyz));
+    #elif SPRITEMODE == 2 || SPRITEMODE == 3
+    // Billboard or InstancedBillboard
+    mv[0].xyz = vec3(length(mv[0].xyz), 0, 0);
+    mv[1].xyz = vec3(0, length(mv[1].xyz), 0);
+    mv[2].xyz = vec3(0, 0, length(mv[2].xyz));
     #endif
 
     vec4 mvPos = mv * vec4(a_position, 1.0);
@@ -64,5 +68,9 @@ void main()
         gpi.quadUvs[3] = a_quadUv34.zw;
     }
 
+        #if SPRITEMODE == 3
+    gpi.reflective = vec4(0.0);
+    #else
     gpi.reflective = a_reflective;
+    #endif
 }
