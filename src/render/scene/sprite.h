@@ -24,6 +24,7 @@ struct SpriteVertex
   glm::vec4 reflective{0, 0, 0, 0};
 
   [[nodiscard]] static gl::VertexLayout<SpriteVertex> getLayout();
+  [[nodiscard]] static gl::VertexLayout<SpriteVertex> getInstancedLayout();
 };
 
 extern gslu::nn_shared<Mesh> createSpriteMesh(float x0,
@@ -35,4 +36,15 @@ extern gslu::nn_shared<Mesh> createSpriteMesh(float x0,
                                               const gslu::nn_shared<Material>& materialFull,
                                               int textureIdx,
                                               const std::string& label);
+
+extern std::tuple<gslu::nn_shared<Mesh>, gslu::nn_shared<gl::VertexBuffer<glm::mat4>>>
+  createInstancedSpriteMesh(float x0,
+                            float y0,
+                            float x1,
+                            float y1,
+                            const glm::vec2& t0,
+                            const glm::vec2& t1,
+                            const gslu::nn_shared<Material>& materialFull,
+                            int textureIdx,
+                            const std::string& label);
 } // namespace render::scene
