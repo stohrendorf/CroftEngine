@@ -500,6 +500,17 @@ RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingT
       b = !b;
     });
   listBox->addSetting(
+    /* translators: TR charmap encoding */ _("Water Bed Bubbles"),
+    [&engine]()
+    {
+      return engine.getEngineConfig()->waterBedBubbles;
+    },
+    [&engine]()
+    {
+      auto& b = engine.getEngineConfig()->waterBedBubbles;
+      b = !b;
+    });
+  listBox->addSetting(
     /* translators: TR charmap encoding */ _("Butt Bubbles"),
     [&engine]()
     {
