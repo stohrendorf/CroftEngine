@@ -1000,6 +1000,22 @@ void World::gameLoop(bool godMode, float blackAlpha, ui::Ui& ui)
   m_player->laraHealth = m_objectManager.getLara().m_state.health;
 
   const auto waterEntryPortals = m_cameraController->update();
+
+  for(const auto& room : m_rooms)
+  {
+    std::vector<std::shared_ptr<Particle>> particlesToErase;
+    for(const auto& particle : room.particles)
+    {
+      if(auto parent = particle->location.room; parent != &room)
+      {
+        particlesToErase.emplace_back(particle);
+        particle->location.room->particles.registerParticle(particle);
+      }
+    }
+    for(const auto& particle : particlesToErase)
+      room.particles.eraseParticle(particle);
+  }
+
   doGlobalEffect();
   getPresenter().drawBars(ui, m_palette, getObjectManager(), getEngine().getEngineConfig()->pulseLowHealthHealthBar);
 
