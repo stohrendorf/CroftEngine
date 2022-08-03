@@ -5,7 +5,6 @@
 #include "render/scene/names.h"
 #include "world/room.h"
 
-#include <boost/log/trivial.hpp>
 #include <gl/debuggroup.h>
 #include <gl/vertexbuffer.h>
 
@@ -43,10 +42,6 @@ void ParticleCollection::update(world::World& world)
     {
       setParent(particle, nullptr);
     }
-  }
-  if(!m_particles.empty())
-  {
-    BOOST_LOG_TRIVIAL(debug) << "particles: " << m_particles.size();
   }
 }
 

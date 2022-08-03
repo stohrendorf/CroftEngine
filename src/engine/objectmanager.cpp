@@ -165,9 +165,7 @@ void ObjectManager::update(world::World& world, bool godMode)
     object->update();
   }
 
-  BOOST_LOG_TRIVIAL(debug) << "object particles";
   m_particles.update(world);
-  BOOST_LOG_TRIVIAL(debug) << "room particles";
   for(auto& room : world.getRooms())
   {
     room.particles.update(world);
