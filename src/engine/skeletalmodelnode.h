@@ -196,8 +196,18 @@ public:
                    {
                      return part.poseMatrix;
                    });
-    m_meshMatricesBuffer.setData(matrices, gl::api::BufferUsage::DynamicDraw);
-    return m_meshMatricesBuffer;
+
+    if(m_meshMatricesBuffer == nullptr || m_meshMatricesBuffer->size() != matrices.size())
+    {
+      m_meshMatricesBuffer = std::make_unique<gl::ShaderStorageBuffer<glm::mat4>>(
+        "mesh-matrices-ssb", gl::api::BufferUsage::DynamicDraw, matrices);
+    }
+    else
+    {
+      m_meshMatricesBuffer->setSubData(matrices, 0);
+    }
+
+    return *m_meshMatricesBuffer;
   }
 
   void clearParts()
@@ -256,7 +266,7 @@ private:
   const gsl::not_null<const world::World*> m_world;
   gsl::not_null<const world::SkeletalModelType*> m_model;
   std::vector<MeshPart> m_meshParts{};
-  mutable gl::ShaderStorageBuffer<glm::mat4> m_meshMatricesBuffer{"mesh-matrices-ssb"};
+  mutable std::unique_ptr<gl::ShaderStorageBuffer<glm::mat4>> m_meshMatricesBuffer;
   bool m_forceMeshRebuild = false;
 
   const world::Animation* m_anim = nullptr;

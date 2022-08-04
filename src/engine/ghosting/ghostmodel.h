@@ -28,7 +28,10 @@ public:
 
   [[nodiscard]] const auto& getMeshMatricesBuffer() const
   {
-    return m_meshMatricesBuffer;
+    if(m_meshMatricesBuffer == nullptr)
+      m_meshMatricesBuffer = std::make_unique<gl::ShaderStorageBuffer<glm::mat4>>(
+        "mesh-matrices-ssb", gl::api::BufferUsage::DynamicDraw, gsl::span<glm::mat4>{});
+    return *m_meshMatricesBuffer;
   }
 
   [[nodiscard]] auto getRoomId() const
@@ -37,7 +40,7 @@ public:
   }
 
 private:
-  mutable gl::ShaderStorageBuffer<glm::mat4> m_meshMatricesBuffer{"mesh-matrices-ssb"};
+  mutable std::unique_ptr<gl::ShaderStorageBuffer<glm::mat4>> m_meshMatricesBuffer;
   uint32_t m_roomId = 0;
 };
 } // namespace engine::ghosting

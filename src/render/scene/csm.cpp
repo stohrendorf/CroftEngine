@@ -103,6 +103,7 @@ void CSM::Split::renderBlur()
 
 CSM::CSM(int32_t resolution, MaterialManager& materialManager)
     : m_resolution{resolution}
+    , m_buffer{"csm-data-ubo", gl::api::BufferUsage::DynamicDraw, m_bufferData}
 {
   static_assert(CSMBuffer::NSplits > 0);
   Expects(resolution > 0);
@@ -255,7 +256,7 @@ gl::UniformBuffer<CSMBuffer>& CSM::getBuffer(const glm::mat4& modelMatrix)
 {
   m_bufferData.lightMVP = getMatrices(modelMatrix);
   m_bufferData.lightDir = glm::vec4{m_lightDir, 0.0f};
-  m_buffer.setData(m_bufferData, gl::api::BufferUsage::DynamicDraw);
+  m_buffer.setSubData(m_bufferData, 0);
   return m_buffer;
 }
 } // namespace render::scene

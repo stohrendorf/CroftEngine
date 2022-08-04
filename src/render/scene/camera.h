@@ -36,6 +36,7 @@ class Camera final
 public:
   Camera(float fieldOfView, const glm::vec2& viewport, float nearPlane, float farPlane)
       : m_fieldOfView{fieldOfView}
+      , m_matricesBuffer{"camera-matrices-ubo", gl::api::BufferUsage::DynamicDraw, m_matrices}
   {
     m_dirty.set_all();
     m_matrices.aspectRatio = viewport.x / viewport.y;
@@ -43,7 +44,7 @@ public:
     m_matrices.nearPlane = nearPlane;
     m_matrices.farPlane = farPlane;
 
-    m_matricesBuffer.setData(m_matrices, gl::api::BufferUsage::DynamicDraw);
+    m_matricesBuffer.setSubData(m_matrices, 0);
   }
 
   Camera(const Camera&) = delete;
@@ -171,7 +172,7 @@ public:
     }
     if(m_dirty.is_set(CameraMatrices::DirtyFlag::BufferData))
     {
-      m_matricesBuffer.setData(m_matrices, gl::api::BufferUsage::DynamicDraw);
+      m_matricesBuffer.setSubData(m_matrices, 0);
       m_dirty.reset(CameraMatrices::DirtyFlag::BufferData);
     }
 
@@ -184,6 +185,6 @@ private:
 
   mutable type_safe::flag_set<CameraMatrices::DirtyFlag> m_dirty;
   mutable CameraMatrices m_matrices{};
-  mutable gl::UniformBuffer<CameraMatrices> m_matricesBuffer{"camera-matrices-ubo"};
+  mutable gl::UniformBuffer<CameraMatrices> m_matricesBuffer;
 };
 } // namespace render::scene

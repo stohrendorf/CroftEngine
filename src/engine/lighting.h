@@ -46,7 +46,8 @@ struct ShaderLight
     if(auto tmp = instance.lock())
       return gsl::not_null{tmp};
 
-    auto tmp = gsl::make_shared<gl::ShaderStorageBuffer<ShaderLight>>("empty-lights-buffer");
+    auto tmp = gsl::make_shared<gl::ShaderStorageBuffer<ShaderLight>>(
+      "empty-lights-buffer", gl::api::BufferUsage::StaticDraw, gsl::span<ShaderLight>{});
     instance = tmp.get();
     return tmp;
   }

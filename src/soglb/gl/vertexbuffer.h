@@ -60,8 +60,21 @@ template<typename T>
 class VertexBuffer final : public ArrayBuffer<T>
 {
 public:
-  explicit VertexBuffer(VertexLayout<T> layout, const std::string_view& label, uint32_t divisor = 0)
-      : ArrayBuffer<T>{label}
+  explicit VertexBuffer(VertexLayout<T> layout,
+                        const std::string_view& label,
+                        api::BufferUsage usage,
+                        const gsl::span<const T>& data,
+                        uint32_t divisor = 0)
+      : ArrayBuffer<T>{label, usage, data}
+      , m_layout{std::move(layout)}
+      , m_divisor{divisor}
+  {
+    BOOST_ASSERT(!m_layout.empty());
+  }
+
+  explicit VertexBuffer(
+    VertexLayout<T> layout, const std::string_view& label, api::BufferUsage usage, const T& data, uint32_t divisor = 0)
+      : ArrayBuffer<T>{label, usage, data}
       , m_layout{std::move(layout)}
       , m_divisor{divisor}
   {

@@ -40,8 +40,10 @@ public:
     glm::vec4 bottomRight{0};
     glm::vec4 color{1, 1, 1, 1};
 
-    static gslu::nn_shared<gl::VertexBuffer<Ui::UiVertex>> createVertexBuffer();
-    static gslu::nn_shared<gl::ElementArrayBuffer<uint16_t>> createIndexBuffer();
+    static gslu::nn_shared<gl::VertexBuffer<Ui::UiVertex>> createVertexBuffer(gl::api::BufferUsage usage,
+                                                                              const gsl::span<Ui::UiVertex>& data);
+    static gslu::nn_shared<gl::ElementArrayBuffer<uint16_t>> createIndexBuffer(gl::api::BufferUsage usage,
+                                                                               const gsl::span<uint16_t>& data);
   };
 
   explicit Ui(std::shared_ptr<render::scene::Material> material,

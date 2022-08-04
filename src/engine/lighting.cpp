@@ -22,7 +22,7 @@ void Lighting::update(const core::Shade& shade, const world::Room& baseRoom)
     return;
   }
 
-  m_buffer = baseRoom.lightsBuffer;
+  m_buffer = gsl::not_null{baseRoom.lightsBuffer};
   fadeAmbient(baseRoom.ambientShade);
 }
 

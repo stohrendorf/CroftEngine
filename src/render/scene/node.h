@@ -42,7 +42,7 @@ public:
 
   explicit Node(std::string name)
       : m_name{std::move(name)}
-      , m_transformBuffer{m_name + "-transform-ubo"}
+      , m_transformBuffer{m_name + "-transform-ubo", gl::api::BufferUsage::StreamDraw, m_transform}
   {
   }
 
@@ -156,7 +156,7 @@ public:
       return m_transformBuffer;
 
     m_bufferDirty = false;
-    m_transformBuffer.setData(m_transform, ::gl::api::BufferUsage::StreamDraw);
+    m_transformBuffer.setSubData(m_transform, 0);
     return m_transformBuffer;
   }
 

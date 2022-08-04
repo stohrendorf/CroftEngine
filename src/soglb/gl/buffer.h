@@ -15,7 +15,7 @@ class Buffer : public BindableResource<api::ObjectIdentifier::Buffer>
 public:
   static constexpr api::BufferTarget Target = _Target;
 
-  explicit Buffer(const std::string_view& label)
+  explicit Buffer(const std::string_view& label, api::BufferUsage usage, const gsl::span<const T>& data)
       : BindableResource{api::createBuffers,
                          [](const uint32_t handle)
                          {
@@ -23,6 +23,13 @@ public:
                          },
                          api::deleteBuffers,
                          label}
+      , m_size{data.size()}
+  {
+    GL_ASSERT(api::namedBufferData(getHandle(), data.size_bytes(), data.data(), usage));
+  }
+
+  explicit Buffer(const std::string_view& label, api::BufferUsage usage, const T& data)
+      : Buffer{label, usage, gsl::span{&data, 1}}
   {
   }
 
@@ -44,29 +51,15 @@ public:
     GL_ASSERT(api::unmapNamedBuffer(getHandle()));
   }
 
-  void setData(const T& data, const api::BufferUsage usage)
-  {
-    setData(gsl::span{&data, 1}, usage);
-  }
-
-  void setData(const gsl::span<const T>& data, const api::BufferUsage usage)
-  {
-    if(m_size == data.size() && m_usage == usage)
-    {
-      GL_ASSERT(api::namedBufferSubData(getHandle(), 0, data.size_bytes(), data.data()));
-    }
-    else
-    {
-      m_usage = usage;
-      m_size = data.size();
-      GL_ASSERT(api::namedBufferData(getHandle(), data.size_bytes(), data.data(), usage));
-    }
-  }
-
   void setSubData(const gsl::span<const T>& data, const api::core::SizeType start)
   {
     GL_ASSERT(api::namedBufferSubData(
       getHandle(), gsl::narrow<std::intptr_t>(sizeof(T) * start), data.size_bytes(), data.data()));
+  }
+
+  void setSubData(const T& data, const api::core::SizeType start)
+  {
+    setSubData(gsl::span{&data, 1}, start);
   }
 
   [[nodiscard]] auto size() const noexcept
@@ -75,8 +68,7 @@ public:
   }
 
 private:
-  size_t m_size = 0;
-  api::BufferUsage m_usage{static_cast<api::BufferUsage>(0)};
+  const size_t m_size;
 };
 
 template<typename T>
@@ -94,8 +86,13 @@ class ElementArrayBuffer final : public Buffer<T, api::BufferTarget::ElementArra
 public:
   using Buffer<T, api::BufferTarget::ElementArrayBuffer>::size;
 
-  explicit ElementArrayBuffer(const std::string_view& label)
-      : Buffer<T, api::BufferTarget::ElementArrayBuffer>{label}
+  explicit ElementArrayBuffer(const std::string_view& label, api::BufferUsage usage, const gsl::span<const T>& data)
+      : Buffer<T, api::BufferTarget::ElementArrayBuffer>{label, usage, data}
+  {
+  }
+
+  explicit ElementArrayBuffer(const std::string_view& label, api::BufferUsage usage, const T& data)
+      : Buffer<T, api::BufferTarget::ElementArrayBuffer>{label, usage, data}
   {
   }
 

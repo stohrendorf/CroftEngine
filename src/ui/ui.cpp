@@ -98,7 +98,8 @@ void createVLine(std::vector<Ui::UiVertex>& vertices, const glm::vec2& a, int le
 }
 } // namespace
 
-gslu::nn_shared<gl::VertexBuffer<Ui::UiVertex>> Ui::UiVertex::createVertexBuffer()
+gslu::nn_shared<gl::VertexBuffer<Ui::UiVertex>> Ui::UiVertex::createVertexBuffer(gl::api::BufferUsage usage,
+                                                                                 const gsl::span<Ui::UiVertex>& data)
 {
   static const gl::VertexLayout<UiVertex> layout{
     {VERTEX_ATTRIBUTE_POSITION_NAME, &UiVertex::pos},
@@ -109,12 +110,13 @@ gslu::nn_shared<gl::VertexBuffer<Ui::UiVertex>> Ui::UiVertex::createVertexBuffer
     {VERTEX_ATTRIBUTE_COLOR_BOTTOM_RIGHT_NAME, &UiVertex::bottomRight},
     {VERTEX_ATTRIBUTE_COLOR_NAME, &UiVertex::color},
   };
-  return gsl::make_shared<gl::VertexBuffer<UiVertex>>(layout, "ui-vbo");
+  return gsl::make_shared<gl::VertexBuffer<UiVertex>>(layout, "ui-vbo", usage, data);
 }
 
-gslu::nn_shared<gl::ElementArrayBuffer<uint16_t>> Ui::UiVertex::createIndexBuffer()
+gslu::nn_shared<gl::ElementArrayBuffer<uint16_t>> Ui::UiVertex::createIndexBuffer(gl::api::BufferUsage usage,
+                                                                                  const gsl::span<uint16_t>& data)
 {
-  return gsl::make_shared<gl::ElementArrayBuffer<uint16_t>>("ui-indices");
+  return gsl::make_shared<gl::ElementArrayBuffer<uint16_t>>("ui-indices", usage, data);
 }
 
 Ui::Ui(std::shared_ptr<render::scene::Material> material,
@@ -171,24 +173,20 @@ void Ui::render()
 {
   SOGLB_DEBUGGROUP("ui");
 
-  const auto indexBuffer = UiVertex::createIndexBuffer();
-  const auto vbo = UiVertex::createVertexBuffer();
+  // rebuild vao and vbo
+  Expects(m_vertices.size() % 4 == 0);
+
+  std::vector<uint16_t> indices;
+  static const std::array<uint16_t, 6> localIndices{0, 1, 2, 0, 2, 3};
+  indices.reserve(m_vertices.size() / 4 * localIndices.size());
+  for(size_t i = 0; i < m_vertices.size(); i += 4)
   {
-    // rebuild vao and vbo
-    Expects(m_vertices.size() % 4 == 0);
-
-    std::vector<uint16_t> indices;
-    static const std::array<uint16_t, 6> localIndices{0, 1, 2, 0, 2, 3};
-    indices.reserve(m_vertices.size() / 4 * localIndices.size());
-    for(size_t i = 0; i < m_vertices.size(); i += 4)
-    {
-      for(auto localIndex : localIndices)
-        indices.emplace_back(gsl::narrow_cast<uint16_t>(i + localIndex));
-    }
-
-    indexBuffer->setData(indices, gl::api::BufferUsage::StaticDraw);
-    vbo->setData(m_vertices, gl::api::BufferUsage::StaticDraw);
+    for(auto localIndex : localIndices)
+      indices.emplace_back(gsl::narrow_cast<uint16_t>(i + localIndex));
   }
+
+  const auto indexBuffer = UiVertex::createIndexBuffer(gl::api::BufferUsage::StaticDraw, indices);
+  const auto vbo = UiVertex::createVertexBuffer(gl::api::BufferUsage::StaticDraw, m_vertices);
 
   const auto vao = gsl::make_shared<gl::VertexArray<uint16_t, UiVertex>>(
     indexBuffer, std::tuple{vbo}, std::vector{&m_material->getShaderProgram()->getHandle()}, "ui-vao");

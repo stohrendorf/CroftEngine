@@ -146,6 +146,6 @@ private:
   std::array<Split, CSMBuffer::NSplits> m_splits;
   size_t m_activeSplit = 0;
   CSMBuffer m_bufferData;
-  gl::UniformBuffer<CSMBuffer> m_buffer{"csm-data-ubo"};
+  gl::UniformBuffer<CSMBuffer> m_buffer;
 };
 } // namespace render::scene

@@ -62,11 +62,10 @@ std::tuple<gslu::nn_shared<render::scene::Mesh>, gslu::nn_shared<gl::VertexBuffe
   for(uint16_t i = 0; i < LightningEmitter::ControlPoints; ++i)
     indices.emplace_back(i);
 
-  auto indexBuffer = gsl::make_shared<gl::ElementArrayBuffer<uint16_t>>("bolt");
-  indexBuffer->setData(indices, gl::api::BufferUsage::StaticDraw);
+  auto indexBuffer
+    = gsl::make_shared<gl::ElementArrayBuffer<uint16_t>>("bolt", gl::api::BufferUsage::StaticDraw, indices);
 
-  auto vb = gsl::make_shared<gl::VertexBuffer<glm::vec3>>(layout, "bolt");
-  vb->setData(vertices, gl::api::BufferUsage::DynamicDraw);
+  auto vb = gsl::make_shared<gl::VertexBuffer<glm::vec3>>(layout, "bolt", gl::api::BufferUsage::DynamicDraw, vertices);
 
   auto vao = gsl::make_shared<gl::VertexArray<uint16_t, glm::vec3>>(
     indexBuffer, vb, std::vector{&material->getShaderProgram()->getHandle()}, "bolt");

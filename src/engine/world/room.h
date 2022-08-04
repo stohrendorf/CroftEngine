@@ -30,7 +30,8 @@ class World;
 namespace render
 {
 class TextureAnimator;
-}
+struct AnimatedUV;
+} // namespace render
 
 namespace render::scene
 {
@@ -112,11 +113,13 @@ struct Room
   glm::vec3 verticesBBoxMax{std::numeric_limits<float>::lowest()};
   std::shared_ptr<render::scene::Node> dust = nullptr;
   mutable engine::InstancedParticleCollection particles;
+  std::unique_ptr<render::TextureAnimator> textureAnimator;
+  std::shared_ptr<gl::VertexBuffer<render::AnimatedUV>> uvCoordsBuffer;
 
   void createSceneNode(const loader::file::Room& srcRoom,
                        size_t roomId,
-                       World&,
-                       render::TextureAnimator& animator,
+                       World& world,
+                       const std::vector<uint16_t>& textureAnimData,
                        render::scene::MaterialManager& materialManager);
 
   [[nodiscard]] const Sector* getSectorByAbsolutePosition(const core::TRVec& worldPos) const
@@ -163,8 +166,7 @@ struct Room
   void serialize(const serialization::Serializer<World>& ser);
 
   std::vector<engine::ShaderLight> bufferLights{};
-  gslu::nn_shared<gl::ShaderStorageBuffer<engine::ShaderLight>> lightsBuffer{
-    std::make_shared<gl::ShaderStorageBuffer<engine::ShaderLight>>("lights-buffer")};
+  std::shared_ptr<gl::ShaderStorageBuffer<engine::ShaderLight>> lightsBuffer;
 
   void collectShaderLights(size_t depth);
   void regenerateDust(const std::shared_ptr<engine::Presenter>& presenter,

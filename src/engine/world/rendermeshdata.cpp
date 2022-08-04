@@ -212,9 +212,8 @@ gslu::nn_shared<render::scene::Mesh> RenderMeshDataCompositor::toMesh(render::sc
                                                                       bool shadowCaster,
                                                                       const std::string& label)
 {
-  auto vb = gsl::make_shared<gl::VertexBuffer<RenderMeshData::RenderVertex>>(RenderMeshData::RenderVertex::getLayout(),
-                                                                             label);
-  vb->setData(m_vertices, gl::api::BufferUsage::StaticDraw);
+  auto vb = gsl::make_shared<gl::VertexBuffer<RenderMeshData::RenderVertex>>(
+    RenderMeshData::RenderVertex::getLayout(), label, gl::api::BufferUsage::StaticDraw, m_vertices);
 
 #ifndef NDEBUG
   for(auto idx : m_indices)
@@ -222,8 +221,8 @@ gslu::nn_shared<render::scene::Mesh> RenderMeshDataCompositor::toMesh(render::sc
     BOOST_ASSERT(idx < m_vertices.size());
   }
 #endif
-  auto indexBuffer = gsl::make_shared<gl::ElementArrayBuffer<RenderMeshData::IndexType>>(label);
-  indexBuffer->setData(m_indices, gl::api::BufferUsage::StaticDraw);
+  auto indexBuffer = gsl::make_shared<gl::ElementArrayBuffer<RenderMeshData::IndexType>>(
+    label, gl::api::BufferUsage::StaticDraw, m_indices);
 
   const auto material = materialManager.getGeometry(false, skeletal, false);
   const auto materialCSMDepthOnly = materialManager.getCSMDepthOnly(skeletal);

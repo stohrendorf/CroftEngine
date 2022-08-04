@@ -48,6 +48,14 @@ void GhostModel::apply(const world::World& world, const GhostFrame& frame)
     setRenderable(mesh);
   }
 
-  m_meshMatricesBuffer.setData(matrices, gl::api::BufferUsage::DynamicDraw);
+  if(m_meshMatricesBuffer == nullptr || m_meshMatricesBuffer->size() != matrices.size())
+  {
+    m_meshMatricesBuffer = std::make_unique<gl::ShaderStorageBuffer<glm::mat4>>(
+      "mesh-matrices-ssb", gl::api::BufferUsage::DynamicDraw, matrices);
+  }
+  else
+  {
+    m_meshMatricesBuffer->setSubData(matrices, 0);
+  }
 }
 } // namespace engine::ghosting

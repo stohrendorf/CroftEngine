@@ -79,7 +79,8 @@ void SpriteObject::createModel()
                       });
   m_displayNode->bind(
     "b_lights",
-    [emptyBuffer = std::make_shared<gl::ShaderStorageBuffer<engine::ShaderLight>>("lights-buffer-empty")](
+    [emptyBuffer = std::make_shared<gl::ShaderStorageBuffer<engine::ShaderLight>>(
+       "lights-buffer-empty", gl::api::BufferUsage::StaticDraw, gsl::span<engine::ShaderLight>{})](
       const render::scene::Node*, const render::scene::Mesh& /*mesh*/, gl::ShaderStorageBlock& shaderStorageBlock)
     {
       shaderStorageBlock.bind(*emptyBuffer);

@@ -35,29 +35,27 @@ TextureAnimator::TextureAnimator(const std::vector<uint16_t>& data)
   BOOST_ASSERT(ptr == &data.back() + 1);
 }
 
-void TextureAnimator::Sequence::updateCoordinates(const std::vector<engine::world::AtlasTile>& tiles)
+void TextureAnimator::Sequence::updateCoordinates(gl::VertexBuffer<AnimatedUV>& buffer,
+                                                  const std::vector<engine::world::AtlasTile>& tiles)
 {
   BOOST_ASSERT(!tileIds.empty());
 
-  for(const auto& [buffer, vertices] : affectedVertices)
+  auto uvArray
+    = buffer.map(gl::api::MapBufferAccessMask::MapWriteBit | gl::api::MapBufferAccessMask::MapFlushExplicitBit);
+
+  for(const VertexReference& vref : affectedVertices)
   {
-    auto uvArray
-      = buffer->map(gl::api::MapBufferAccessMask::MapWriteBit | gl::api::MapBufferAccessMask::MapFlushExplicitBit);
+    BOOST_ASSERT(buffer.size() > 0 && vref.bufferIndex < static_cast<size_t>(buffer.size()));
+    BOOST_ASSERT(vref.queueOffset < tileIds.size());
+    const engine::world::AtlasTile& tile = tiles[tileIds[vref.queueOffset].get()];
 
-    for(const VertexReference& vref : vertices)
-    {
-      BOOST_ASSERT(buffer->size() > 0 && vref.bufferIndex < static_cast<size_t>(buffer->size()));
-      BOOST_ASSERT(vref.queueOffset < tileIds.size());
-      const engine::world::AtlasTile& tile = tiles[tileIds[vref.queueOffset].get()];
-
-      uvArray[vref.bufferIndex].uv
-        = glm::vec3{tile.uvCoordinates[vref.sourceIndex], tile.textureKey.tileAndFlag & loader::file::TextureIndexMask};
-      uvArray[vref.bufferIndex].quadUv12 = glm::vec4{tile.uvCoordinates[0], tile.uvCoordinates[1]};
-      uvArray[vref.bufferIndex].quadUv34 = glm::vec4{tile.uvCoordinates[2], tile.uvCoordinates[3]};
-    }
-
-    buffer->flush();
-    buffer->unmap();
+    uvArray[vref.bufferIndex].uv
+      = glm::vec3{tile.uvCoordinates[vref.sourceIndex], tile.textureKey.tileAndFlag & loader::file::TextureIndexMask};
+    uvArray[vref.bufferIndex].quadUv12 = glm::vec4{tile.uvCoordinates[0], tile.uvCoordinates[1]};
+    uvArray[vref.bufferIndex].quadUv34 = glm::vec4{tile.uvCoordinates[2], tile.uvCoordinates[3]};
   }
+
+  buffer.flush();
+  buffer.unmap();
 }
 } // namespace render

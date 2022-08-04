@@ -684,7 +684,10 @@ void World::update(const bool godMode)
   m_uvAnimTime += 1_frame;
   if(m_uvAnimTime >= UVAnimTime)
   {
-    m_textureAnimator->updateCoordinates(m_atlasTiles);
+    for(const auto& room : m_rooms)
+    {
+      room.textureAnimator->updateCoordinates(*room.uvCoordsBuffer, m_atlasTiles);
+    }
     m_uvAnimTime -= UVAnimTime;
   }
 
@@ -1206,7 +1209,6 @@ World::World(Engine& engine,
         *this, engine.getAssetDataPath(), engine.getPresenter().getSoundEngine())}
     , m_title{std::move(title)}
     , m_itemTitles{std::move(itemTitles)}
-    , m_textureAnimator{std::make_unique<render::TextureAnimator>(level->m_animatedTextures)}
     , m_player{std::move(player)}
     , m_levelStartPlayer{std::move(levelStartPlayer)}
     , m_samplesData{std::move(level->m_samplesData)}
@@ -1549,7 +1551,8 @@ void World::initRooms(const loader::file::level::Level& level)
     }
     m_rooms[i].alternateRoom = srcRoom.alternateRoom.get() >= 0 ? &m_rooms.at(srcRoom.alternateRoom.get()) : nullptr;
 
-    m_rooms[i].createSceneNode(level.m_rooms.at(i), i, *this, *m_textureAnimator, *getPresenter().getMaterialManager());
+    m_rooms[i].createSceneNode(
+      level.m_rooms.at(i), i, *this, level.m_animatedTextures, *getPresenter().getMaterialManager());
     setParent(gsl::not_null{m_rooms[i].node}, getPresenter().getRenderer().getRootNode());
   }
 }

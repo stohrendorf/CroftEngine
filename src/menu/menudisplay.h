@@ -130,7 +130,6 @@ private:
   const gslu::nn_shared<render::scene::Material> m_material;
   gslu::nn_shared<render::pass::Framebuffer> m_fb;
 
-  gslu::nn_shared<gl::ShaderStorageBuffer<engine::ShaderLight>> m_lightsBuffer{
-    std::make_shared<gl::ShaderStorageBuffer<engine::ShaderLight>>("lights-buffer")};
+  gslu::nn_shared<gl::ShaderStorageBuffer<engine::ShaderLight>> m_lightsBuffer;
 };
 } // namespace menu

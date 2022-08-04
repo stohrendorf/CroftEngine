@@ -561,10 +561,11 @@ MenuDisplay::MenuDisplay(InventoryMode mode,
     , m_downArrow{ui::getSpriteSelector(ui::ArrowDownSprite)}
     , m_material{world.getPresenter().getMaterialManager()->getFlat(false, false, false)}
     , m_fb{gsl::make_shared<render::pass::Framebuffer>("menu", m_material, viewport)}
+    , m_lightsBuffer{std::make_shared<gl::ShaderStorageBuffer<engine::ShaderLight>>(
+        "lights-buffer",
+        gl::api::BufferUsage::StaticDraw,
+        engine::ShaderLight{glm::vec4{-500, 50, -5000, 0}, 1.0f, 8192.0f})}
 {
-  engine::ShaderLight light{glm::vec4{-500, 50, -5000, 0}, 1.0f, 8192.0f};
-  m_lightsBuffer->setData(light, gl::api::BufferUsage::StaticDraw);
-
   if(mode == InventoryMode::GameMode)
   {
     rings.emplace_back(std::make_unique<MenuRing>(

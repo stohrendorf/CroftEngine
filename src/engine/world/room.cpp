@@ -108,10 +108,9 @@ struct RenderMesh
   std::shared_ptr<render::scene::Material> m_materialCSMDepthOnly;
   std::shared_ptr<render::scene::Material> m_materialDepthOnly;
 
-  std::shared_ptr<render::scene::Mesh>
-    toMesh(const gslu::nn_shared<gl::VertexBuffer<RenderVertex>>& vbuf,
-           const gslu::nn_shared<gl::VertexBuffer<render::TextureAnimator::AnimatedUV>>& uvBuf,
-           const std::string& label)
+  std::shared_ptr<render::scene::Mesh> toMesh(const gslu::nn_shared<gl::VertexBuffer<RenderVertex>>& vbuf,
+                                              const gslu::nn_shared<gl::VertexBuffer<render::AnimatedUV>>& uvBuf,
+                                              const std::string& label)
   {
 #ifndef NDEBUG
     for(auto idx : m_indices)
@@ -120,13 +119,13 @@ struct RenderMesh
     }
 #endif
 
-    auto indexBuffer = gsl::make_shared<gl::ElementArrayBuffer<IndexType>>(label);
-    indexBuffer->setData(m_indices, gl::api::BufferUsage::StaticDraw);
+    auto indexBuffer
+      = gsl::make_shared<gl::ElementArrayBuffer<IndexType>>(label, gl::api::BufferUsage::StaticDraw, m_indices);
 
     auto vBufs = std::make_tuple(vbuf, uvBuf);
 
-    auto mesh = std::make_shared<render::scene::MeshImpl<IndexType, RenderVertex, render::TextureAnimator::AnimatedUV>>(
-      gsl::make_shared<gl::VertexArray<IndexType, RenderVertex, render::TextureAnimator::AnimatedUV>>(
+    auto mesh = std::make_shared<render::scene::MeshImpl<IndexType, RenderVertex, render::AnimatedUV>>(
+      gsl::make_shared<gl::VertexArray<IndexType, RenderVertex, render::AnimatedUV>>(
         indexBuffer,
         vBufs,
         std::vector{&m_materialFull->getShaderProgram()->getHandle(),
@@ -175,13 +174,12 @@ void Portal::buildMesh(const loader::file::Portal& srcPortal, const gslu::nn_sha
     glVertices[i].pos = srcPortal.vertices[i].toRenderSystem() - offset;
 
   gl::VertexLayout<Vertex> layout{{VERTEX_ATTRIBUTE_POSITION_NAME, &Vertex::pos}};
-  auto vb = gsl::make_shared<gl::VertexBuffer<Vertex>>(layout, "portal");
-  vb->setData(glVertices, gl::api::BufferUsage::StaticDraw);
+  auto vb = gsl::make_shared<gl::VertexBuffer<Vertex>>(layout, "portal", gl::api::BufferUsage::StaticDraw, glVertices);
 
   static const std::array<uint16_t, 6> indices{0, 1, 2, 0, 2, 3};
 
-  auto indexBuffer = gsl::make_shared<gl::ElementArrayBuffer<uint16_t>>("portal");
-  indexBuffer->setData(indices, gl::api::BufferUsage::StaticDraw);
+  auto indexBuffer
+    = gsl::make_shared<gl::ElementArrayBuffer<uint16_t>>("portal", gl::api::BufferUsage::StaticDraw, indices);
 
   auto vao = gsl::make_shared<gl::VertexArray<uint16_t, Vertex>>(
     indexBuffer, vb, std::vector{&material->getShaderProgram()->getHandle()}, "portal");
@@ -192,7 +190,7 @@ void Portal::buildMesh(const loader::file::Portal& srcPortal, const gslu::nn_sha
 void Room::createSceneNode(const loader::file::Room& srcRoom,
                            const size_t roomId,
                            World& world,
-                           render::TextureAnimator& animator,
+                           const std::vector<uint16_t>& textureAnimData,
                            render::scene::MaterialManager& materialManager)
 {
   RenderMesh renderMesh;
@@ -201,17 +199,9 @@ void Room::createSceneNode(const loader::file::Room& srcRoom,
   renderMesh.m_materialFull = materialManager.getGeometry(isWaterRoom, false, true);
 
   std::vector<RenderVertex> vbufData;
-  std::vector<render::TextureAnimator::AnimatedUV> uvCoordsData;
+  std::vector<render::AnimatedUV> uvCoordsData;
 
-  const auto label = "Room:" + std::to_string(roomId);
-  auto vbuf = gsl::make_shared<gl::VertexBuffer<RenderVertex>>(RenderVertex::getLayout(), label);
-
-  static const gl::VertexLayout<render::TextureAnimator::AnimatedUV> uvAttribs{
-    {VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, gl::VertexAttribute{&render::TextureAnimator::AnimatedUV::uv}},
-    {VERTEX_ATTRIBUTE_QUAD_UV12, &render::TextureAnimator::AnimatedUV::quadUv12},
-    {VERTEX_ATTRIBUTE_QUAD_UV34, &render::TextureAnimator::AnimatedUV::quadUv34},
-  };
-  auto uvCoords = gsl::make_shared<gl::VertexBuffer<render::TextureAnimator::AnimatedUV>>(uvAttribs, label + "-uv");
+  textureAnimator = std::make_unique<render::TextureAnimator>(textureAnimData);
 
   for(const loader::file::QuadFace& quad : srcRoom.rectangles)
   {
@@ -290,7 +280,7 @@ void Room::createSceneNode(const loader::file::Room& srcRoom,
     }
     for(int i : {0, 1, 2, 3})
     {
-      animator.registerVertex(quad.tileId, uvCoords, i, firstVertex + i);
+      textureAnimator->registerVertex(quad.tileId, i, firstVertex + i);
     }
   }
   for(const loader::file::Triangle& tri : srcRoom.triangles)
@@ -338,14 +328,23 @@ void Room::createSceneNode(const loader::file::Room& srcRoom,
     }
     for(int i : {0, 1, 2})
     {
-      animator.registerVertex(tri.tileId, uvCoords, i, firstVertex + i);
+      textureAnimator->registerVertex(tri.tileId, i, firstVertex + i);
     }
   }
 
-  vbuf->setData(vbufData, gl::api::BufferUsage::StaticDraw);
-  uvCoords->setData(uvCoordsData, gl::api::BufferUsage::DynamicDraw);
+  const auto label = "Room:" + std::to_string(roomId);
+  auto vbuf = gsl::make_shared<gl::VertexBuffer<RenderVertex>>(
+    RenderVertex::getLayout(), label, gl::api::BufferUsage::StaticDraw, vbufData);
 
-  auto resMesh = renderMesh.toMesh(vbuf, uvCoords, label);
+  static const gl::VertexLayout<render::AnimatedUV> uvAttribs{
+    {VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, gl::VertexAttribute{&render::AnimatedUV::uv}},
+    {VERTEX_ATTRIBUTE_QUAD_UV12, &render::AnimatedUV::quadUv12},
+    {VERTEX_ATTRIBUTE_QUAD_UV34, &render::AnimatedUV::quadUv34},
+  };
+  uvCoordsBuffer = std::make_shared<gl::VertexBuffer<render::AnimatedUV>>(
+    uvAttribs, label + "-uv", gl::api::BufferUsage::DynamicDraw, uvCoordsData);
+
+  auto resMesh = renderMesh.toMesh(vbuf, gsl::not_null{uvCoordsBuffer}, label);
   resMesh->getRenderState().setCullFace(true);
   resMesh->getRenderState().setCullFaceSide(gl::api::CullFaceMode::Back);
 
@@ -548,7 +547,11 @@ void Room::collectShaderLights(size_t depth)
   bufferLights.clear();
   if(lights.empty())
   {
-    lightsBuffer->setData(bufferLights, gl::api::BufferUsage::StaticDraw);
+    if(lightsBuffer == nullptr || lightsBuffer->size() != 0)
+    {
+      lightsBuffer = std::make_shared<gl::ShaderStorageBuffer<engine::ShaderLight>>(
+        "lights-buffer", gl::api::BufferUsage::StaticDraw, bufferLights);
+    }
     return;
   }
 
@@ -585,7 +588,8 @@ void Room::collectShaderLights(size_t depth)
     }
   }
 
-  lightsBuffer->setData(bufferLights, gl::api::BufferUsage::StaticDraw);
+  lightsBuffer = std::make_shared<gl::ShaderStorageBuffer<engine::ShaderLight>>(
+    "lights-buffer", gl::api::BufferUsage::StaticDraw, bufferLights);
 }
 
 void Room::regenerateDust(const std::shared_ptr<engine::Presenter>& presenter,
@@ -655,10 +659,10 @@ std::shared_ptr<render::scene::Node>
   static const gl::VertexLayout<glm::vec3> layout{
     {VERTEX_ATTRIBUTE_POSITION_NAME, gl::VertexAttribute<glm::vec3>::Single{}}};
 
-  auto vbuf = gsl::make_shared<gl::VertexBuffer<glm::vec3>>(layout, label + "-particles");
-  vbuf->setData(vertices, gl::api::BufferUsage::StaticDraw);
-  auto indexBuffer = gsl::make_shared<gl::ElementArrayBuffer<uint32_t>>(label + "-particles");
-  indexBuffer->setData(indices, gl::api::BufferUsage::StaticDraw);
+  auto vbuf = gsl::make_shared<gl::VertexBuffer<glm::vec3>>(
+    layout, label + "-particles", gl::api::BufferUsage::StaticDraw, vertices);
+  auto indexBuffer = gsl::make_shared<gl::ElementArrayBuffer<uint32_t>>(
+    label + "-particles", gl::api::BufferUsage::StaticDraw, indices);
 
   auto vao = gsl::make_shared<gl::VertexArray<uint32_t, glm::vec3>>(
     indexBuffer, vbuf, std::vector{&dustMaterial->getShaderProgram()->getHandle()}, label + "-particles");

@@ -41,13 +41,13 @@ gslu::nn_shared<Mesh> createScreenQuad(const glm::vec2& xy,
   static const gl::VertexLayout<Vertex> layout{{VERTEX_ATTRIBUTE_POSITION_NAME, &Vertex::pos},
                                                {VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, &Vertex::uv}};
 
-  auto vertexBuffer = gsl::make_shared<gl::VertexBuffer<Vertex>>(layout, label + "-vbo");
-  vertexBuffer->setData(vertices, gl::api::BufferUsage::StaticDraw);
+  auto vertexBuffer
+    = gsl::make_shared<gl::VertexBuffer<Vertex>>(layout, label + "-vbo", gl::api::BufferUsage::StaticDraw, vertices);
 
   static const std::array<uint16_t, 6> indices{0, 1, 2, 0, 2, 3};
 
-  auto indexBuffer = gsl::make_shared<gl::ElementArrayBuffer<uint16_t>>(label + "-idx");
-  indexBuffer->setData(indices, gl::api::BufferUsage::StaticDraw);
+  auto indexBuffer
+    = gsl::make_shared<gl::ElementArrayBuffer<uint16_t>>(label + "-idx", gl::api::BufferUsage::StaticDraw, indices);
 
   auto mesh = gsl::make_shared<MeshImpl<uint16_t, Vertex>>(gsl::make_shared<gl::VertexArray<uint16_t, Vertex>>(
     indexBuffer, vertexBuffer, std::vector{&material->getShaderProgram()->getHandle()}, label + "-vtx"));
