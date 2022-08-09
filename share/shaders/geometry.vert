@@ -18,7 +18,7 @@ void main()
 
     #if SPRITEMODE == 1
     // YAxisBound
-    mv[0].xyz = vec3(1, 0, length(mv[0].xyz));
+    mv[0].xyz = vec3(length(mv[0].xyz), 0, 0);
     mv[2].xyz = vec3(0, 0, length(mv[2].xyz));
     #elif SPRITEMODE == 2 || SPRITEMODE == 3
     // Billboard or InstancedBillboard
