@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CroftEngine\n"
 "Report-Msgid-Bugs-To: https://github.com/stohrendorf/CroftEngine/issues\n"
-"POT-Creation-Date: 2022-07-11 19:47+0200\n"
+"POT-Creation-Date: 2022-08-09 08:40+0200\n"
 "Last-Translator: Steffen Ohrendorf\n"
 "Language-Team: none\n"
 "Language: de_DE\n"
@@ -206,7 +206,7 @@ msgstr "R~ucktaste"
 msgid "Bloom"
 msgstr "Sanftes Leuchten"
 
-#: engine/presenter.cpp:437
+#: engine/presenter.cpp:447
 msgid "Booting"
 msgstr "Starte"
 
@@ -217,7 +217,7 @@ msgid "Bug Report"
 msgstr "Fehlerbericht"
 
 #. translators: TR charmap encoding
-#: engine/engine.cpp:133
+#: engine/engine.cpp:134
 msgid "Bug Report Saved"
 msgstr "Fehlerbericht gespeichert"
 
@@ -226,7 +226,7 @@ msgid "Building textures"
 msgstr "Erstelle Texturen"
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:503
+#: menu/rendersettingsmenustate.cpp:514
 msgid "Butt Bubbles"
 msgstr "Po-Blasen"
 
@@ -445,7 +445,7 @@ msgid "G"
 msgstr "G"
 
 #. translators: TR charmap encoding
-#: menu/menudisplay.cpp:584
+#: menu/menudisplay.cpp:585
 msgid "GAME OVER"
 msgstr "Ende des Spiels"
 
@@ -464,7 +464,7 @@ msgstr "Gamepad"
 msgid "Gameplay"
 msgstr "Spiel"
 
-#: engine/world/room.cpp:606
+#: engine/world/room.cpp:612
 msgid "Generating Dust Particles..."
 msgstr "Generiere Staubpartikel..."
 
@@ -547,12 +547,12 @@ msgid "I"
 msgstr "I"
 
 #. translators: TR charmap encoding
-#: menu/menudisplay.cpp:579
+#: menu/menudisplay.cpp:580
 msgid "INVENTORY"
 msgstr "Inventar"
 
 #. translators: TR charmap encoding
-#: menu/menudisplay.cpp:571
+#: menu/menudisplay.cpp:572
 msgid "ITEMS"
 msgstr "Gegenst~ande"
 
@@ -669,11 +669,11 @@ msgstr "Spiel laden"
 msgid "Loading %1%"
 msgstr "Lade %1%"
 
-#: engine/engine.cpp:647
+#: engine/engine.cpp:665
 msgid "Loading Glidos texture pack"
 msgstr "Lade Glidos Textur Paket"
 
-#: engine/world/world.cpp:1045
+#: engine/world/world.cpp:1107
 msgid "Loading..."
 msgstr "Lade..."
 
@@ -776,7 +776,7 @@ msgid "OK"
 msgstr "OK"
 
 #. translators: TR charmap encoding
-#: menu/menudisplay.cpp:585
+#: menu/menudisplay.cpp:586
 msgid "OPTION"
 msgstr "Optionen"
 
@@ -957,7 +957,7 @@ msgstr "Q"
 msgid "Quality"
 msgstr "Qualit~at"
 
-#: engine/world/world.cpp:1069
+#: engine/world/world.cpp:1131
 msgid "Quicksave"
 msgstr "Schnellspeicherung"
 
@@ -1076,7 +1076,7 @@ msgstr "Spiel sichern"
 msgid "Save recorded ghost?"
 msgstr "Aufgenommenen Geist speichern?"
 
-#: engine/world/world.cpp:1081
+#: engine/world/world.cpp:1143
 msgid "Saving..."
 msgstr "Speichere..."
 
@@ -1278,6 +1278,11 @@ msgstr "W"
 msgctxt "Action"
 msgid "Walk"
 msgstr "Gehen"
+
+#. translators: TR charmap encoding
+#: menu/rendersettingsmenustate.cpp:503
+msgid "Water Bed Bubbles"
+msgstr "Wasserbett-Blasen"
 
 #. translators: TR charmap encoding
 #: hid/names.cpp:247
