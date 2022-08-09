@@ -1952,12 +1952,20 @@ void LaraObject::initMuzzleFlashes()
 
   world::RenderMeshDataCompositor compositor;
   compositor.append(*muzzleFlashModel->bones[0].mesh, gl::SRGBA8{0, 0, 0, 0});
-  auto mdl = compositor.toMesh(*getWorld().getPresenter().getMaterialManager(), false, false, {});
+  auto mesh = compositor.toMesh(
+    *getWorld().getPresenter().getMaterialManager(),
+    false,
+    false,
+    [&engine = getWorld().getEngine()]()
+    {
+      return engine.getEngineConfig()->animSmoothing;
+    },
+    "muzzle-flash");
 
-  m_muzzleFlashLeft->setRenderable(mdl);
+  m_muzzleFlashLeft->setRenderable(mesh);
   m_muzzleFlashLeft->setVisible(false);
 
-  m_muzzleFlashRight->setRenderable(mdl);
+  m_muzzleFlashRight->setRenderable(mesh);
   m_muzzleFlashRight->setVisible(false);
 }
 

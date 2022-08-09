@@ -6,6 +6,8 @@
 #include "core/interval.h"
 #include "core/magic.h"
 #include "core/vec.h"
+#include "engine.h"
+#include "engineconfig.h"
 #include "heightinfo.h"
 #include "items_tr1.h"
 #include "location.h"
@@ -49,7 +51,16 @@ void Particle::initRenderables(world::World& world, render::scene::SpriteMateria
     {
       world::RenderMeshDataCompositor compositor;
       compositor.append(*bone.mesh, gl::SRGBA8{0, 0, 0, 0});
-      m_meshes.emplace_back(compositor.toMesh(*world.getPresenter().getMaterialManager(), false, false, {}), nullptr);
+      m_meshes.emplace_back(compositor.toMesh(
+                              *world.getPresenter().getMaterialManager(),
+                              false,
+                              false,
+                              [&world]() -> bool
+                              {
+                                return world.getEngine().getEngineConfig()->animSmoothing;
+                              },
+                              "particle"),
+                            nullptr);
     }
   }
   else if(const auto& spriteSequence = world.findSpriteSequenceForType(object_number))

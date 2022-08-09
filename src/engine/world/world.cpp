@@ -1565,7 +1565,15 @@ void World::initStaticMeshes(const loader::file::level::Level& level,
     RenderMeshDataCompositor compositor;
     if(staticMesh.isVisible())
       compositor.append(*meshesDirect.at(staticMesh.mesh)->meshData, gl::SRGBA8{0, 0, 0, 0});
-    auto mesh = compositor.toMesh(*getPresenter().getMaterialManager(), false, false, {});
+    auto mesh = compositor.toMesh(
+      *getPresenter().getMaterialManager(),
+      false,
+      false,
+      []()
+      {
+        return false;
+      },
+      "static-mesh");
     mesh->getRenderState().setScissorTest(false);
     const bool distinct
       = m_staticMeshes.emplace(staticMesh.id, StaticMesh{staticMesh.collision_box, staticMesh.doNotCollide(), mesh})

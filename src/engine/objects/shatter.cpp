@@ -3,6 +3,8 @@
 #include "core/containeroffset.h"
 #include "core/id.h"
 #include "core/vec.h"
+#include "engine/engine.h"
+#include "engine/engineconfig.h"
 #include "engine/items_tr1.h"
 #include "engine/location.h"
 #include "engine/objectmanager.h"
@@ -58,7 +60,15 @@ bool shatterModel(ModelObject& object, const std::bitset<32>& meshMask, const co
     auto particle = gsl::make_shared<MeshShrapnelParticle>(
       Location{object.m_state.location.room, core::TRVec{object.getSkeleton()->getMeshPartTranslationWorld(i)}},
       object.getWorld(),
-      compositor.toMesh(*object.getWorld().getPresenter().getMaterialManager(), false, true, {}),
+      compositor.toMesh(
+        *object.getWorld().getPresenter().getMaterialManager(),
+        false,
+        true,
+        [&object]() -> bool
+        {
+          return object.getWorld().getEngine().getEngineConfig()->animSmoothing;
+        },
+        "shatter-part:" + std::to_string(i)),
       isTorsoBoss,
       damageRadius);
     particle->negSpriteFrameId = gsl::narrow<int16_t>((modelType->meshBaseIndex + i).index);

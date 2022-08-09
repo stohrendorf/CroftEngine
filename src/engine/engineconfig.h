@@ -56,6 +56,7 @@ struct EngineConfig
   bool lowHealthMonochrome = true;
   bool buttBubbles = false;
   bool waterBedBubbles = true;
+  bool animSmoothing = true;
 
   explicit EngineConfig();
 

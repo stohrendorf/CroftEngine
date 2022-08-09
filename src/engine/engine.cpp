@@ -209,6 +209,7 @@ Engine::Engine(std::filesystem::path userDataPath,
     , m_engineDataPath{engineDataPath}
     , m_gameflowId{gameflowId}
     , m_scriptEngine{engineDataPath / "gameflows" / gameflowId}
+    , m_engineConfig{std::make_unique<EngineConfig>()}
 {
   {
     const auto invalid = m_scriptEngine.getGameflow().getInvalidFilepaths(*this);
@@ -228,7 +229,6 @@ Engine::Engine(std::filesystem::path userDataPath,
 
   core::setLocale(std::filesystem::absolute(m_engineDataPath / "po"), m_locale);
 
-  m_engineConfig = std::make_unique<EngineConfig>();
   if(std::filesystem::is_regular_file(m_userDataPath / "config.yaml"))
   {
     serialization::YAMLDocument<true> doc{m_userDataPath / "config.yaml"};

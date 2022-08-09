@@ -210,6 +210,7 @@ RenderMeshData::RenderMeshData(const loader::file::Mesh& mesh,
 gslu::nn_shared<render::scene::Mesh> RenderMeshDataCompositor::toMesh(render::scene::MaterialManager& materialManager,
                                                                       bool skeletal,
                                                                       bool shadowCaster,
+                                                                      std::function<bool()> smooth,
                                                                       const std::string& label)
 {
   auto vb = gsl::make_shared<gl::VertexBuffer<RenderMeshData::RenderVertex>>(
@@ -224,9 +225,9 @@ gslu::nn_shared<render::scene::Mesh> RenderMeshDataCompositor::toMesh(render::sc
   auto indexBuffer = gsl::make_shared<gl::ElementArrayBuffer<RenderMeshData::IndexType>>(
     label, gl::api::BufferUsage::StaticDraw, m_indices);
 
-  const auto material = materialManager.getGeometry(false, skeletal, false);
-  const auto materialCSMDepthOnly = materialManager.getCSMDepthOnly(skeletal);
-  const auto materialDepthOnly = materialManager.getDepthOnly(skeletal);
+  const auto material = materialManager.getGeometry(false, skeletal, false, smooth);
+  const auto materialCSMDepthOnly = materialManager.getCSMDepthOnly(skeletal, smooth);
+  const auto materialDepthOnly = materialManager.getDepthOnly(skeletal, smooth);
 
   auto va = gsl::make_shared<gl::VertexArray<RenderMeshData::IndexType, RenderMeshData::RenderVertex>>(
     indexBuffer,

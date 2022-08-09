@@ -404,6 +404,17 @@ RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingT
     tmp->selectValue(engine.getEngineConfig()->renderSettings.uiScaleMultiplier);
   }
 
+  listBox->addSetting(
+    /* translators: TR charmap encoding */ _("Smoother Animations"),
+    [&engine]()
+    {
+      return engine.getEngineConfig()->animSmoothing;
+    },
+    [&engine]()
+    {
+      toggle(engine, engine.getEngineConfig()->animSmoothing);
+    });
+
   listBox = gsl::make_shared<CheckListBox>();
   m_listBoxes.emplace_back(listBox);
   tab = gsl::make_shared<ui::widgets::Tab>(/* translators: TR charmap encoding */ _("Other"));
