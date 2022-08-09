@@ -56,7 +56,7 @@ public:
   }
 
   bool bind(const Node* node, const Mesh& mesh, const gslu::nn_shared<ShaderProgram>& shaderProgram) override;
-  void bindBoneTransformBuffer();
+  void bindBoneTransformBuffer(std::function<bool()> smooth);
 
 private:
   [[nodiscard]] gl::ShaderStorageBlock*

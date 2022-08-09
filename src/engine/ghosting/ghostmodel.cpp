@@ -1,5 +1,7 @@
 #include "ghostmodel.h"
 
+#include "engine/engine.h"
+#include "engine/engineconfig.h"
 #include "engine/presenter.h"
 #include "engine/world/rendermeshdata.h"
 #include "engine/world/world.h"
@@ -39,9 +41,21 @@ void GhostModel::apply(const world::World& world, const GhostFrame& frame)
   }
   else
   {
-    auto mesh = compositor.toMesh(*world.getPresenter().getMaterialManager(), true, false, getName());
+    auto mesh = compositor.toMesh(
+      *world.getPresenter().getMaterialManager(),
+      true,
+      false,
+      [&engine = world.getEngine()]()
+      {
+        return engine.getEngineConfig()->animSmoothing;
+      },
+      getName());
     mesh->getMaterialGroup().set(render::scene::RenderMode::Full,
-                                 world.getPresenter().getMaterialManager()->getGhost());
+                                 world.getPresenter().getMaterialManager()->getGhost(
+                                   [&engine = world.getEngine()]()
+                                   {
+                                     return engine.getEngineConfig()->animSmoothing;
+                                   }));
     mesh->getMaterialGroup().set(render::scene::RenderMode::DepthOnly, nullptr);
     mesh->getRenderState().setDepthWrite(false);
     mesh->getRenderState().setScissorTest(false);

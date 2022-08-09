@@ -78,7 +78,7 @@ private:
   const std::filesystem::path m_engineDataPath;
   const std::string m_gameflowId;
   script::ScriptEngine m_scriptEngine;
-  std::unique_ptr<EngineConfig> m_engineConfig;
+  gsl::not_null<std::unique_ptr<EngineConfig>> m_engineConfig;
   std::shared_ptr<Presenter> m_presenter;
   std::set<gsl::not_null<world::World*>> m_worlds;
 

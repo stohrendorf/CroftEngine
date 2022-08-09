@@ -65,11 +65,8 @@ gslu::nn_shared<Material> MaterialManager::getSprite(SpriteMaterialMode mode)
   return m;
 }
 
-gslu::nn_shared<Material> MaterialManager::getCSMDepthOnly(bool skeletal)
+gslu::nn_shared<Material> MaterialManager::getCSMDepthOnly(bool skeletal, std::function<bool()> smooth)
 {
-  if(auto it = m_csmDepthOnly.find(skeletal); it != m_csmDepthOnly.end())
-    return it->second;
-
   auto m = gsl::make_shared<Material>(m_shaderCache->getCSMDepthOnly(skeletal));
   m->getUniform("u_mvp")->bind(
     [this](const Node* node, const Mesh& /*mesh*/, gl::Uniform& uniform)
@@ -82,24 +79,20 @@ gslu::nn_shared<Material> MaterialManager::getCSMDepthOnly(bool skeletal)
   m->getRenderState().setDepthWrite(true);
   m->getRenderState().setDepthClamp(true);
   if(auto buffer = m->tryGetBuffer("BoneTransform"))
-    buffer->bindBoneTransformBuffer();
+    buffer->bindBoneTransformBuffer(smooth);
 
-  m_csmDepthOnly.emplace(skeletal, m);
   return m;
 }
 
-gslu::nn_shared<Material> MaterialManager::getDepthOnly(bool skeletal)
+gslu::nn_shared<Material> MaterialManager::getDepthOnly(bool skeletal, std::function<bool()> smooth)
 {
-  if(auto it = m_depthOnly.find(skeletal); it != m_depthOnly.end())
-    return it->second;
-
   auto m = gsl::make_shared<Material>(m_shaderCache->getDepthOnly(skeletal));
   m->getRenderState().setDepthTest(true);
   m->getRenderState().setDepthWrite(true);
   m->getUniformBlock("Transform")->bindTransformBuffer();
   m->getUniformBlock("Camera")->bindCameraBuffer(m_renderer->getCamera());
   if(auto buffer = m->tryGetBuffer("BoneTransform"))
-    buffer->bindBoneTransformBuffer();
+    buffer->bindBoneTransformBuffer(smooth);
   m->getUniform("u_diffuseTextures")
     ->bind(
       [this](const Node* /*node*/, const Mesh& /*mesh*/, gl::Uniform& uniform)
@@ -107,16 +100,13 @@ gslu::nn_shared<Material> MaterialManager::getDepthOnly(bool skeletal)
         uniform.set(gsl::not_null{m_geometryTextures});
       });
 
-  m_depthOnly.emplace(skeletal, m);
   return m;
 }
 
-gslu::nn_shared<Material> MaterialManager::getGeometry(bool inWater, bool skeletal, bool roomShadowing)
+gslu::nn_shared<Material>
+  MaterialManager::getGeometry(bool inWater, bool skeletal, bool roomShadowing, std::function<bool()> smooth)
 {
   Expects(m_geometryTextures != nullptr);
-  const std::tuple key{inWater, skeletal, roomShadowing};
-  if(auto it = m_geometry.find(key); it != m_geometry.end())
-    return it->second;
 
   auto m = gsl::make_shared<Material>(m_shaderCache->getGeometry(inWater, skeletal, roomShadowing, 0));
   m->getUniform("u_diffuseTextures")
@@ -128,7 +118,7 @@ gslu::nn_shared<Material> MaterialManager::getGeometry(bool inWater, bool skelet
 
   m->getUniformBlock("Transform")->bindTransformBuffer();
   if(auto buffer = m->tryGetBuffer("BoneTransform"))
-    buffer->bindBoneTransformBuffer();
+    buffer->bindBoneTransformBuffer(smooth);
   m->getUniformBlock("Camera")->bindCameraBuffer(m_renderer->getCamera());
   m->getUniformBlock("CSM")->bind(
     [this](const Node* node, const Mesh& /*mesh*/, gl::UniformBlock& ub)
@@ -159,18 +149,17 @@ gslu::nn_shared<Material> MaterialManager::getGeometry(bool inWater, bool skelet
       });
   }
 
-  m_geometry.emplace(key, m);
   return m;
 }
 
-gslu::nn_shared<Material> MaterialManager::getGhost()
+gslu::nn_shared<Material> MaterialManager::getGhost(std::function<bool()> smooth)
 {
   if(m_ghost != nullptr)
     return gsl::not_null{m_ghost};
 
   auto m = gsl::make_shared<Material>(m_shaderCache->getGhost());
   m->getUniformBlock("Transform")->bindTransformBuffer();
-  m->getBuffer("BoneTransform")->bindBoneTransformBuffer();
+  m->getBuffer("BoneTransform")->bindBoneTransformBuffer(smooth);
   m->getUniformBlock("Camera")->bindCameraBuffer(m_renderer->getCamera());
   m_ghost = m;
   return m;

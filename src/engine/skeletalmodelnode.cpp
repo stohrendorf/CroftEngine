@@ -3,6 +3,8 @@
 #include "core/angle.h"
 #include "core/boundingbox.h"
 #include "core/interval.h"
+#include "engine/engine.h"
+#include "engine/engineconfig.h"
 #include "loader/file/animation.h"
 #include "objects/objectstate.h"
 #include "presenter.h"
@@ -311,7 +313,15 @@ void SkeletalModelNode::rebuildMesh()
   if(compositor.empty())
     setRenderable(nullptr);
   else
-    setRenderable(compositor.toMesh(*m_world->getPresenter().getMaterialManager(), true, m_shadowCaster, getName()));
+    setRenderable(compositor.toMesh(
+      *m_world->getPresenter().getMaterialManager(),
+      true,
+      m_shadowCaster,
+      [&engine = m_world->getEngine()]()
+      {
+        return engine.getEngineConfig()->animSmoothing;
+      },
+      getName()));
 }
 
 bool SkeletalModelNode::canBeCulled(const glm::mat4& viewProjection) const
@@ -351,6 +361,42 @@ core::Frame SkeletalModelNode::getLocalFrame() const
 void SkeletalModelNode::replaceAnim(const gsl::not_null<const world::Animation*>& anim, const core::Frame& localFrame)
 {
   setAnim(anim, anim->firstFrame + localFrame);
+}
+
+const gl::ShaderStorageBuffer<glm::mat4>& SkeletalModelNode::getMeshMatricesBuffer(std::function<bool()> smooth) const
+{
+  if(smooth())
+  {
+    for(auto& part : m_meshParts)
+    {
+      static constexpr float Smoothing = 0.2f;
+      if(!part.poseMatrixSmooth.has_value())
+        part.poseMatrixSmooth = part.poseMatrix;
+      else
+        part.poseMatrixSmooth = Smoothing * *part.poseMatrixSmooth + (1 - Smoothing) * part.poseMatrix;
+    }
+  }
+
+  std::vector<glm::mat4> matrices;
+  std::transform(m_meshParts.begin(),
+                 m_meshParts.end(),
+                 std::back_inserter(matrices),
+                 [smooth](const auto& part)
+                 {
+                   return smooth() ? *part.poseMatrixSmooth : part.poseMatrix;
+                 });
+
+  if(m_meshMatricesBuffer == nullptr || m_meshMatricesBuffer->size() != matrices.size())
+  {
+    m_meshMatricesBuffer = std::make_unique<gl::ShaderStorageBuffer<glm::mat4>>(
+      "mesh-matrices-ssb", gl::api::BufferUsage::DynamicDraw, matrices);
+  }
+  else
+  {
+    m_meshMatricesBuffer->setSubData(matrices, 0);
+  }
+
+  return *m_meshMatricesBuffer;
 }
 
 void SkeletalModelNode::MeshPart::serialize(const serialization::Serializer<world::World>& ser)

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <functional>
 #include <gl/pixel.h>
 #include <gl/soglb_fwd.h>
 #include <gsl/gsl-lite.hpp>
@@ -25,11 +26,12 @@ public:
 
   [[nodiscard]] gslu::nn_shared<Material> getSprite(SpriteMaterialMode mode);
 
-  [[nodiscard]] gslu::nn_shared<Material> getCSMDepthOnly(bool skeletal);
-  [[nodiscard]] gslu::nn_shared<Material> getDepthOnly(bool skeletal);
+  [[nodiscard]] gslu::nn_shared<Material> getCSMDepthOnly(bool skeletal, std::function<bool()> smooth);
+  [[nodiscard]] gslu::nn_shared<Material> getDepthOnly(bool skeletal, std::function<bool()> smooth);
 
-  [[nodiscard]] gslu::nn_shared<Material> getGeometry(bool inWater, bool skeletal, bool roomShadowing);
-  [[nodiscard]] gslu::nn_shared<Material> getGhost();
+  [[nodiscard]] gslu::nn_shared<Material>
+    getGeometry(bool inWater, bool skeletal, bool roomShadowing, std::function<bool()> smooth);
+  [[nodiscard]] gslu::nn_shared<Material> getGhost(std::function<bool()> smooth);
 
   [[nodiscard]] gslu::nn_shared<Material> getWaterSurface();
 
@@ -90,9 +92,6 @@ private:
   std::shared_ptr<Material> m_bloomFilter{nullptr};
 
   std::map<SpriteMaterialMode, gslu::nn_shared<Material>> m_sprite{};
-  std::map<bool, gslu::nn_shared<Material>> m_csmDepthOnly{};
-  std::map<bool, gslu::nn_shared<Material>> m_depthOnly{};
-  std::map<std::tuple<bool, bool, bool>, gslu::nn_shared<Material>> m_geometry{};
   std::shared_ptr<Material> m_ghost{nullptr};
   std::shared_ptr<Material> m_waterSurface{nullptr};
   std::shared_ptr<Material> m_lightning{nullptr};

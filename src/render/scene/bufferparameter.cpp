@@ -38,12 +38,12 @@ bool BufferParameter::bind(const Node* node, const Mesh& mesh, const gslu::nn_sh
   return true;
 }
 
-void BufferParameter::bindBoneTransformBuffer()
+void BufferParameter::bindBoneTransformBuffer(std::function<bool()> smooth)
 {
-  m_bufferBinder = [](const Node* node, const Mesh& /*mesh*/, gl::ShaderStorageBlock& ssb)
+  m_bufferBinder = [smooth](const Node* node, const Mesh& /*mesh*/, gl::ShaderStorageBlock& ssb)
   {
     if(const auto* mo = dynamic_cast<const engine::SkeletalModelNode*>(node))
-      ssb.bind(mo->getMeshMatricesBuffer());
+      ssb.bind(mo->getMeshMatricesBuffer(smooth));
     else if(const auto* go = dynamic_cast<const engine::ghosting::GhostModel*>(node))
       ssb.bind(go->getMeshMatricesBuffer());
   };

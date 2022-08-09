@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CroftEngine 1.9.1\n"
 "Report-Msgid-Bugs-To: https://github.com/stohrendorf/CroftEngine/issues\n"
-"POT-Creation-Date: 2022-08-09 08:40+0200\n"
+"POT-Creation-Date: 2022-08-09 09:41+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:427
+#: menu/rendersettingsmenustate.cpp:438
 #, boost-format
 msgid "\037l %1% \037m Percent Dust Particles"
 msgstr ""
@@ -227,7 +227,7 @@ msgid "Building textures"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:514
+#: menu/rendersettingsmenustate.cpp:525
 msgid "Butt Bubbles"
 msgstr ""
 
@@ -432,7 +432,7 @@ msgid "Film Grain"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:413
+#: menu/rendersettingsmenustate.cpp:424
 msgid "Fullscreen"
 msgstr ""
 
@@ -462,12 +462,12 @@ msgstr ""
 msgid "Gameplay"
 msgstr ""
 
-#: engine/world/room.cpp:612
+#: engine/world/room.cpp:622
 msgid "Generating Dust Particles..."
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:459
+#: menu/rendersettingsmenustate.cpp:470
 msgid "Ghost"
 msgstr ""
 
@@ -687,12 +687,12 @@ msgid "Low"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:481
+#: menu/rendersettingsmenustate.cpp:492
 msgid "Low Health: Pulse Health Bar"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:492
+#: menu/rendersettingsmenustate.cpp:503
 msgid "Low Health: Reduce Color"
 msgstr ""
 
@@ -724,7 +724,7 @@ msgid "Menu"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:449
+#: menu/rendersettingsmenustate.cpp:460
 msgid "More Lights"
 msgstr ""
 
@@ -779,7 +779,7 @@ msgid "OPTION"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:409
+#: menu/rendersettingsmenustate.cpp:420
 msgid "Other"
 msgstr ""
 
@@ -1001,7 +1001,7 @@ msgid "Restart Level"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:470
+#: menu/rendersettingsmenustate.cpp:481
 msgid "Restore Health on Level Start"
 msgstr ""
 
@@ -1130,6 +1130,11 @@ msgstr ""
 #: hid/names.cpp:332
 msgctxt "Action"
 msgid "Small Medipack"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/rendersettingsmenustate.cpp:408
+msgid "Smoother Animations"
 msgstr ""
 
 #. translators: TR charmap encoding
@@ -1278,7 +1283,7 @@ msgid "Walk"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:503
+#: menu/rendersettingsmenustate.cpp:514
 msgid "Water Bed Bubbles"
 msgstr ""
 

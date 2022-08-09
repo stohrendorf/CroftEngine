@@ -186,29 +186,7 @@ public:
     return m_meshParts.at(idx).visible;
   }
 
-  [[nodiscard]] const auto& getMeshMatricesBuffer() const
-  {
-    std::vector<glm::mat4> matrices;
-    std::transform(m_meshParts.begin(),
-                   m_meshParts.end(),
-                   std::back_inserter(matrices),
-                   [](const auto& part)
-                   {
-                     return part.poseMatrix;
-                   });
-
-    if(m_meshMatricesBuffer == nullptr || m_meshMatricesBuffer->size() != matrices.size())
-    {
-      m_meshMatricesBuffer = std::make_unique<gl::ShaderStorageBuffer<glm::mat4>>(
-        "mesh-matrices-ssb", gl::api::BufferUsage::DynamicDraw, matrices);
-    }
-    else
-    {
-      m_meshMatricesBuffer->setSubData(matrices, 0);
-    }
-
-    return *m_meshMatricesBuffer;
-  }
+  [[nodiscard]] const gl::ShaderStorageBuffer<glm::mat4>& getMeshMatricesBuffer(std::function<bool()> smooth) const;
 
   void clearParts()
   {
@@ -247,6 +225,7 @@ private:
 
     glm::mat4 patch{1.0f};
     glm::mat4 poseMatrix{1.0f};
+    mutable std::optional<glm::mat4> poseMatrixSmooth;
     std::shared_ptr<world::RenderMeshData> mesh{nullptr};
     std::shared_ptr<world::RenderMeshData> currentMesh{nullptr};
     bool visible = true;

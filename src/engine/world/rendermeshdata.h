@@ -122,8 +122,11 @@ public:
     ++m_boneIndex;
   }
 
-  gslu::nn_shared<render::scene::Mesh>
-    toMesh(render::scene::MaterialManager& materialManager, bool skeletal, bool shadowCaster, const std::string& label);
+  gslu::nn_shared<render::scene::Mesh> toMesh(render::scene::MaterialManager& materialManager,
+                                              bool skeletal,
+                                              bool shadowCaster,
+                                              std::function<bool()> smooth,
+                                              const std::string& label);
 
   [[nodiscard]] bool empty() const
   {
