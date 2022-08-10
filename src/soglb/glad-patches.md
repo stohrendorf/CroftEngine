@@ -1,4 +1,4 @@
-These are the manually applied patches to allow running in [RenderDoc]().
+These are the manually applied patches to allow running in [RenderDoc](https://github.com/baldurk/renderdoc/).
 
 ## `load_GL_ARB_bindless_texture`
 

@@ -100,6 +100,59 @@ void SOGLB_API debugCallback(const api::DebugSource source,
                            << glDebugTypeToString(type) << ", source " << glDebugSourceToString(source) << ": "
                            << message;
 }
+
+const char* amdDebugSeverityToString(GLenum severity)
+{
+  switch(severity)
+  {
+  case GL_DEBUG_SEVERITY_HIGH_AMD:
+    return "high";
+  case GL_DEBUG_SEVERITY_MEDIUM_AMD:
+    return "medium";
+  case GL_DEBUG_SEVERITY_LOW_AMD:
+    return "low";
+  default:
+    return "<unknown>";
+  }
+}
+
+const char* amdDebugCategoryToString(GLenum category)
+{
+  switch(category)
+  {
+  case GL_DEBUG_CATEGORY_API_ERROR_AMD:
+    return "api error";
+  case GL_DEBUG_CATEGORY_WINDOW_SYSTEM_AMD:
+    return "window system";
+  case GL_DEBUG_CATEGORY_DEPRECATION_AMD:
+    return "deprecation";
+  case GL_DEBUG_CATEGORY_UNDEFINED_BEHAVIOR_AMD:
+    return "undefined behavior";
+  case GL_DEBUG_CATEGORY_PERFORMANCE_AMD:
+    return "performance";
+  case GL_DEBUG_CATEGORY_SHADER_COMPILER_AMD:
+    return "shader compiler";
+  case GL_DEBUG_CATEGORY_APPLICATION_AMD:
+    return "application";
+  case GL_DEBUG_CATEGORY_OTHER_AMD:
+    return "other";
+  default:
+    return "<unknown>";
+  }
+}
+
+void SOGLB_API amdDebugCallback(
+  GLuint id, GLenum category, GLenum severity, GLsizei length, const GLchar* message, GLvoid* /*userParam*/)
+{
+  if(category == GL_DEBUG_CATEGORY_APPLICATION_AMD)
+    return;
+
+  Expects(length >= 0);
+
+  BOOST_LOG_TRIVIAL(debug) << "AMD GLDebug #" << id << ", severity " << amdDebugSeverityToString(severity)
+                           << ", category " << amdDebugCategoryToString(category) << ": "
+                           << std::string_view(message, length);
+}
 #endif
 } // namespace
 
@@ -151,6 +204,12 @@ void gl::initializeGl(void* (*loadProc)(const char* name))
   GL_ASSERT(api::enable(api::EnableCap::DebugOutputSynchronous));
 
   GL_ASSERT(api::debugMessageCallback(&debugCallback, nullptr));
+
+  if(GLAD_GL_AMD_debug_output)
+  {
+    GL_ASSERT(glDebugMessageEnableAMD(GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, true));
+    GL_ASSERT(glDebugMessageCallbackAMD(amdDebugCallback, nullptr));
+  }
 #endif
 
   GL_ASSERT(api::enable(api::EnableCap::FramebufferSrgb));
