@@ -1,68 +1,11 @@
-if( VCPKG_TOOLCHAIN )
-    include( dl_unpack )
-    dl_unpack(
-            URL https://mirror.msys2.org/mingw/mingw64/mingw-w64-x86_64-gettext-0.21-3-any.pkg.tar.zst
-            FILENAME mingw-w64-x86_64-gettext-0.21-3-any.pkg.tar.zst
-            TEST_FILE mingw64/bin/msgmerge.exe
-            WORKING_DIRECTORY gettext
-    )
-    dl_unpack(
-            URL https://mirror.msys2.org/mingw/mingw64/mingw-w64-x86_64-libiconv-1.17-1-any.pkg.tar.zst
-            FILENAME mingw-w64-x86_64-libiconv-1.17-1-any.pkg.tar.zst
-            TEST_FILE mingw64/bin/libiconv-2.dll
-            WORKING_DIRECTORY gettext
-    )
-    dl_unpack(
-            URL https://mirror.msys2.org/mingw/mingw64/mingw-w64-x86_64-libwinpthread-git-9.0.0.6454.b4445ee52-1-any.pkg.tar.zst
-            FILENAME mingw-w64-x86_64-libwinpthread-git-9.0.0.6454.b4445ee52-1-any.pkg.tar.zst
-            TEST_FILE mingw64/bin/libwinpthread-1.dll
-            WORKING_DIRECTORY gettext
-    )
-    dl_unpack(
-            URL https://repo.msys2.org/mingw/mingw64/mingw-w64-x86_64-iconv-1.17-1-any.pkg.tar.zst
-            FILENAME mingw-w64-x86_64-iconv-1.17-1-any.pkg.tar.zst
-            TEST_FILE mingw64/bin/libintl-8.dll
-            WORKING_DIRECTORY gettext
-    )
-    dl_unpack(
-            URL https://mirror.msys2.org/mingw/mingw64/mingw-w64-x86_64-gcc-libs-12.1.0-2-any.pkg.tar.zst
-            FILENAME mingw-w64-x86_64-gcc-libs-12.1.0-2-any.pkg.tar.zst
-            TEST_FILE mingw64/bin/libstdc++-6.dll
-            WORKING_DIRECTORY gettext
-    )
-    find_program(
-            GETTEXT_MSGFMT_EXECUTABLE msgfmt
-            PATHS ${EXTERNAL_SRC_ROOT}/gettext/mingw64/bin
-    )
-    if( NOT GETTEXT_MSGFMT_EXECUTABLE )
-        message( FATAL_ERROR "Could not find msgfmt" )
-    endif()
-    find_program(
-            GETTEXT_MSGMERGE_EXECUTABLE msgmerge
-            PATHS ${EXTERNAL_SRC_ROOT}/gettext/mingw64/bin
-    )
-    if( NOT GETTEXT_MSGMERGE_EXECUTABLE )
-        message( FATAL_ERROR "Could not find msgmerge" )
-    endif()
+find_package( Gettext REQUIRED )
 
-    find_program(
-            GETTEXT_XGETTEXT_EXECUTABLE xgettext
-            PATHS ${EXTERNAL_SRC_ROOT}/gettext/mingw64/bin
-    )
-    find_program(
-            GETTEXT_MSGINIT_EXECUTABLE msginit
-            PATHS ${EXTERNAL_SRC_ROOT}/gettext/mingw64/bin
-    )
-else()
-    find_package( Gettext REQUIRED )
-
-    find_program(
-            GETTEXT_XGETTEXT_EXECUTABLE xgettext
-    )
-    find_program(
-            GETTEXT_MSGINIT_EXECUTABLE msginit
-    )
-endif()
+find_program(
+        GETTEXT_XGETTEXT_EXECUTABLE xgettext
+)
+find_program(
+        GETTEXT_MSGINIT_EXECUTABLE msginit
+)
 
 if( NOT GETTEXT_XGETTEXT_EXECUTABLE OR NOT GETTEXT_MSGINIT_EXECUTABLE )
     message( FATAL_ERROR "Could not find required programs!" )

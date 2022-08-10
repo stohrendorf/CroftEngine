@@ -167,11 +167,11 @@ necessary, e.g. `vcpkg install boost:x64-windows`):
 * freetype
 * ffmpeg
 * utfcpp
-* gettext
+* gettext\[tools]
 * libarchive
 
 ...or use this, and adjust the triplet:
-> `vcpkg install --triplet x64-windows boost glfw3 libpng openal-soft opengl freetype ffmpeg utfcpp gettext libarchive`
+> `vcpkg install --triplet x64-windows boost glfw3 libpng openal-soft opengl freetype ffmpeg utfcpp gettext[tools] libarchive`
 
 Additionally, an installation of [Qt 5](https://www.qt.io) is necessary; as manually downloading and installing this
 package is usually faster than letting it build through vcpkg, it is not included in the above list. If you don't want
