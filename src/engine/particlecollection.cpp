@@ -50,8 +50,7 @@ ParticleCollection::~ParticleCollection() = default;
 void InstancedParticleCollection::render(render::scene::RenderContext& context) const
 {
   SOGLB_DEBUGGROUP("bubble instances");
-  std::map<std::shared_ptr<gl::VertexBuffer<glm::mat4>>,
-           std::tuple<std::vector<glm::mat4>, std::shared_ptr<render::scene::Mesh>>>
+  std::map<std::shared_ptr<gl::VertexBuffer<glm::mat4>>, std::tuple<std::vector<glm::mat4>, gslu::nn_shared<Particle>>>
     buffersData;
   for(const auto& particle : *this)
   {
@@ -66,36 +65,27 @@ void InstancedParticleCollection::render(render::scene::RenderContext& context) 
     }
     else
     {
-      buffersData.emplace(gsl::not_null{buffer}, std::tuple{std::vector{particle->getTransform().modelMatrix}, mesh});
+      buffersData.emplace(gsl::not_null{buffer},
+                          std::tuple{std::vector{particle->getTransform().modelMatrix}, particle});
     }
   }
 
   for(const auto& [buffer, dataRenderable] : buffersData)
   {
-    auto [data, mesh] = dataRenderable;
+    auto [data, particle] = dataRenderable;
     if(data.empty())
       continue;
 
+    m_lighting.bind(*particle);
     buffer->setSubData(data, 0);
-    mesh->render(nullptr, context, data.size());
+    auto mesh = std::get<0>(particle->getCurrentMesh());
+    mesh->render(particle.get().get(), context, data.size());
   }
 }
 
 void InstancedParticleCollection::setAmbient(const world::Room& room)
 {
   m_lighting.ambient = toBrightness(room.ambientShade);
-  m_lighting.update(room.ambientShade, room);
-}
-
-void InstancedParticleCollection::registerParticle(const gslu::nn_shared<Particle>& particle)
-{
-  ParticleCollection::registerParticle(particle);
-  m_lighting.bind(*particle);
-}
-
-void InstancedParticleCollection::registerParticle(gslu::nn_shared<Particle>&& particle)
-{
-  ParticleCollection::registerParticle(particle);
-  m_lighting.bind(*particle);
+  m_lighting.update(core::Shade{core::Shade::type(-1)}, room);
 }
 } // namespace engine

@@ -28,12 +28,12 @@ class ParticleCollection
 public:
   virtual ~ParticleCollection();
 
-  virtual void registerParticle(const gslu::nn_shared<Particle>& particle)
+  void registerParticle(const gslu::nn_shared<Particle>& particle)
   {
     m_particles.emplace_back(particle);
   }
 
-  virtual void registerParticle(gslu::nn_shared<Particle>&& particle)
+  void registerParticle(gslu::nn_shared<Particle>&& particle)
   {
     m_particles.emplace_back(std::move(particle));
   }
@@ -61,8 +61,6 @@ class InstancedParticleCollection : public ParticleCollection
 public:
   void render(render::scene::RenderContext& context) const;
   void setAmbient(const world::Room& room);
-  void registerParticle(const gslu::nn_shared<engine::Particle>& particle) override;
-  void registerParticle(gslu::nn_shared<engine::Particle>&& particle) override;
 
 private:
   Lighting m_lighting;
