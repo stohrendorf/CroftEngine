@@ -635,18 +635,17 @@ std::shared_ptr<render::scene::Node>
   };
 
   std::vector<glm::vec3> vertices;
-  vertices.reserve(std::lround(std::max(0.0f,
-                                        ((max.x - min.x) / resolution - 2) * ((max.y - min.y) / resolution - 2)
-                                          * ((max.z - min.z) / resolution - 2))));
+  vertices.reserve(std::lround(
+    std::max(0.0f, ((max.x - min.x) / resolution) * ((max.y - min.y) / resolution) * ((max.z - min.z) / resolution))));
   std::vector<uint32_t> indices;
   indices.reserve(vertices.capacity());
   BOOST_LOG_TRIVIAL(debug) << "generating " << vertices.capacity() << " particles for " << label;
 
-  for(float x = min.x + resolution; x < max.x - resolution; x += resolution)
+  for(float x = min.x + resolution / 2; x <= max.x - resolution / 2; x += resolution)
   {
-    for(float y = min.y + resolution; y < max.y - resolution; y += resolution)
+    for(float y = min.y + resolution / 2; y <= max.y - resolution / 2; y += resolution)
     {
-      for(float z = min.z + resolution; z < max.z - resolution; z += resolution)
+      for(float z = min.z + resolution / 2; z <= max.z - resolution / 2; z += resolution)
       {
         glm::vec3 p0 = glm::vec3{x, y, z};
         glm::vec3 offset{fastrand() * resolution, fastrand() * resolution, fastrand() * resolution};
