@@ -1805,15 +1805,20 @@ void World::initTextureDependentDataFromLevel(const loader::file::level::Level& 
                                      tile.uvCoordinates[3].toGl()}};
                  });
 
-  std::transform(
-    level.m_sprites.begin(),
-    level.m_sprites.end(),
-    std::back_inserter(m_sprites),
-    [](const loader::file::Sprite& sprite)
-    {
-      return Sprite{
-        sprite.texture_id, sprite.uv0.toGl(), sprite.uv1.toGl(), sprite.render0, sprite.render1, nullptr, nullptr};
-    });
+  std::transform(level.m_sprites.begin(),
+                 level.m_sprites.end(),
+                 std::back_inserter(m_sprites),
+                 [](const loader::file::Sprite& sprite)
+                 {
+                   return Sprite{sprite.texture_id,
+                                 sprite.uv0.toGl(),
+                                 sprite.uv1.toGl(),
+                                 sprite.render0,
+                                 sprite.render1,
+                                 nullptr,
+                                 nullptr,
+                                 {nullptr, nullptr}};
+                 });
 
   for(const auto& [sequenceId, sequence] : level.m_spriteSequences)
   {

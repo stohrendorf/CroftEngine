@@ -112,9 +112,9 @@ struct Room
   glm::vec3 verticesBBoxMin{std::numeric_limits<float>::max()};
   glm::vec3 verticesBBoxMax{std::numeric_limits<float>::lowest()};
   std::shared_ptr<render::scene::Node> dust = nullptr;
-  mutable engine::InstancedParticleCollection particles;
-  std::unique_ptr<render::TextureAnimator> textureAnimator;
-  std::shared_ptr<gl::VertexBuffer<render::AnimatedUV>> uvCoordsBuffer;
+  mutable engine::InstancedParticleCollection particles{};
+  std::unique_ptr<render::TextureAnimator> textureAnimator{};
+  std::shared_ptr<gl::VertexBuffer<render::AnimatedUV>> uvCoordsBuffer{};
 
   void createSceneNode(const loader::file::Room& srcRoom,
                        size_t roomId,
@@ -166,7 +166,7 @@ struct Room
   void serialize(const serialization::Serializer<World>& ser);
 
   std::vector<engine::ShaderLight> bufferLights{};
-  std::shared_ptr<gl::ShaderStorageBuffer<engine::ShaderLight>> lightsBuffer;
+  std::shared_ptr<gl::ShaderStorageBuffer<engine::ShaderLight>> lightsBuffer{};
 
   void collectShaderLights(size_t depth);
   void regenerateDust(const std::shared_ptr<engine::Presenter>& presenter,
