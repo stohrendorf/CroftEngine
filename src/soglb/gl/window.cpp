@@ -145,6 +145,7 @@ void Window::setFullscreen()
   glfwGetMonitorPos(monitor, &pos.x, &pos.y);
   Expects(glfwGetError(nullptr) == GLFW_NO_ERROR);
 
+#ifdef WIN32
   glfwSetWindowAttrib(m_window, GLFW_DECORATED, GLFW_FALSE);
   Expects(glfwGetError(nullptr) == GLFW_NO_ERROR);
   glfwSetWindowAttrib(m_window, GLFW_RESIZABLE, GLFW_FALSE);
@@ -153,6 +154,10 @@ void Window::setFullscreen()
   Expects(glfwGetError(nullptr) == GLFW_NO_ERROR);
   glfwSetWindowSize(m_window, mode->width, mode->height);
   Expects(glfwGetError(nullptr) == GLFW_NO_ERROR);
+#else
+  glfwSetWindowMonitor(m_window, monitor, pos.x, pos.y, mode->width, mode->height, 30);
+  Expects(glfwGetError(nullptr) == GLFW_NO_ERROR);
+#endif
   m_isFullscreen = true;
 }
 
