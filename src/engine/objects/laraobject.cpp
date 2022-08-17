@@ -789,6 +789,8 @@ void LaraObject::updateLarasWeaponsStatus()
     case WeaponType::Shotgun:
       holsterShotgun();
       break;
+    default:
+      BOOST_THROW_EXCEPTION(std::domain_error("unexpected weapon type when holstering"));
     }
   }
   else if(m_handStatus == HandStatus::Combat)
