@@ -74,7 +74,8 @@ ControllerLayouts loadControllerButtonIcons(render::MultiTextureAtlas& atlases,
                            {0, 0 + YOffset},
                            {src.width(), src.height() + YOffset},
                            nullptr,
-                           nullptr};
+                           nullptr,
+                           {nullptr, nullptr}};
 
       std::string btnName;
       if(std::holds_alternative<NamedGlfwGamepadButton>(buttonOrAxis))
