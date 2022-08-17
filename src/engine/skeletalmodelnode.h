@@ -212,6 +212,14 @@ public:
     return m_anim;
   }
 
+  void resetInterpolation()
+  {
+    for(auto& part : m_meshParts)
+    {
+      part.poseMatrixSmooth.reset();
+    }
+  }
+
 protected:
   bool handleStateTransitions(core::AnimStateId& animState, const core::AnimStateId& goal);
 

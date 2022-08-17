@@ -137,6 +137,7 @@ void Block::collide(CollisionInfo& /*collisionInfo*/)
   // start moving the block, remove it from the floordata
   activate();
   world::patchHeightsForBlock(*this, 1_sectors);
+  getSkeleton()->resetInterpolation();
   m_state.triggerState = TriggerState::Active;
 
   ModelObject::update();
@@ -148,6 +149,7 @@ void Block::update()
   if(m_state.activationState.isOneshot())
   {
     world::patchHeightsForBlock(*this, 1_sectors);
+    getSkeleton()->resetInterpolation();
     kill();
     return;
   }
@@ -182,6 +184,7 @@ void Block::update()
   m_state.triggerState = TriggerState::Inactive;
   deactivate();
   world::patchHeightsForBlock(*this, -1_sectors);
+  getSkeleton()->resetInterpolation();
   location = m_state.location;
   sector = location.updateRoom();
   getWorld().handleCommandSequence(
@@ -364,6 +367,7 @@ Block::Block(const std::string& name,
   if(m_state.triggerState != TriggerState::Invisible)
   {
     world::patchHeightsForBlock(*this, -1_sectors);
+    getSkeleton()->resetInterpolation();
   }
   getSkeleton()->getRenderState().setScissorTest(false);
 }

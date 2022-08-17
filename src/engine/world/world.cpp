@@ -549,10 +549,12 @@ void World::swapWithAlternate(Room& orig, Room& alternate)
     if(const auto tmp = std::dynamic_pointer_cast<objects::Block>(object.get()))
     {
       patchHeightsForBlock(*tmp, 1_sectors);
+      tmp->getSkeleton()->resetInterpolation();
     }
     else if(const auto tmp2 = std::dynamic_pointer_cast<objects::TallBlock>(object.get()))
     {
       patchHeightsForBlock(*tmp2, 2_sectors);
+      tmp->getSkeleton()->resetInterpolation();
     }
   }
 
@@ -589,10 +591,12 @@ void World::swapWithAlternate(Room& orig, Room& alternate)
     if(const auto tmp = std::dynamic_pointer_cast<objects::Block>(object.get()))
     {
       patchHeightsForBlock(*tmp, -1_sectors);
+      tmp->getSkeleton()->resetInterpolation();
     }
     else if(const auto tmp2 = std::dynamic_pointer_cast<objects::TallBlock>(object.get()))
     {
       patchHeightsForBlock(*tmp2, -2_sectors);
+      tmp->getSkeleton()->resetInterpolation();
     }
   }
 
