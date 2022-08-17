@@ -28,6 +28,7 @@ void TallBlock::update()
     if(m_state.current_anim_state == 0_as)
     {
       world::patchHeightsForBlock(*this, 2_sectors);
+      getSkeleton()->resetInterpolation();
       m_state.goal_anim_state = 1_as;
     }
   }
@@ -36,6 +37,7 @@ void TallBlock::update()
     if(m_state.current_anim_state == 1_as)
     {
       world::patchHeightsForBlock(*this, 2_sectors);
+      getSkeleton()->resetInterpolation();
       m_state.goal_anim_state = 0_as;
     }
   }
@@ -51,6 +53,7 @@ void TallBlock::update()
 
   m_state.triggerState = TriggerState::Active;
   world::patchHeightsForBlock(*this, -2_sectors);
+  getSkeleton()->resetInterpolation();
   auto pos = m_state.location.position;
   pos.X = sectorOf(pos.X) * 1_sectors + 1_sectors / 2;
   pos.Z = sectorOf(pos.Z) * 1_sectors + 1_sectors / 2;
@@ -63,7 +66,10 @@ void TallBlock::serialize(const serialization::Serializer<world::World>& ser)
   ModelObject::serialize(ser);
   world::patchHeightsForBlock(*this, -2_sectors);
   if(ser.loading)
+  {
+    getSkeleton()->resetInterpolation();
     getSkeleton()->getRenderState().setScissorTest(false);
+  }
 }
 
 TallBlock::TallBlock(const std::string& name,
@@ -75,5 +81,6 @@ TallBlock::TallBlock(const std::string& name,
 {
   world::patchHeightsForBlock(*this, -2_sectors);
   getSkeleton()->getRenderState().setScissorTest(false);
+  getSkeleton()->resetInterpolation();
 }
 } // namespace engine::objects
