@@ -57,7 +57,6 @@ void GhostModel::apply(const world::World& world, const GhostFrame& frame)
                                      return engine.getEngineConfig()->animSmoothing;
                                    }));
     mesh->getMaterialGroup().set(render::scene::RenderMode::DepthOnly, nullptr);
-    mesh->getRenderState().setDepthWrite(false);
     mesh->getRenderState().setScissorTest(false);
     setRenderable(mesh);
   }

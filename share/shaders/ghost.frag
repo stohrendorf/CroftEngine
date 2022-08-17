@@ -8,6 +8,6 @@ void main()
 {
     out_normal = gpi.hbaoNormal;
     out_position = gpi.vertexPos;
-    float y = abs(mod(out_position.y, 16.0)-8.0) / 8.0;
-    out_color = vec4(0.2, 0.2, 0.8, 1) * 0.8 * y;
+    vec3 color = vec3(0.2, 0.2, 0.8) * 0.8;
+    out_color = vec4(color, 1.0);
 }
