@@ -9,6 +9,71 @@
 namespace gl
 {
 // NOLINTNEXTLINE(bugprone-reserved-identifier)
+template<typename T, api::BufferTarget Target>
+class Buffer;
+
+// NOLINTNEXTLINE(bugprone-reserved-identifier)
+template<typename T, api::BufferTarget _Target>
+struct MappedBuffer final
+{
+  friend class Buffer<T, _Target>;
+
+public:
+  ~MappedBuffer()
+  {
+    if(!m_span.empty())
+      GL_ASSERT(api::unmapNamedBuffer(m_buffer.getHandle()));
+  }
+
+  [[nodiscard]] auto size() const
+  {
+    return m_span.size();
+  }
+
+  [[nodiscard]] auto begin() const
+  {
+    return m_span.begin();
+  }
+
+  [[nodiscard]] auto end() const
+  {
+    return m_span.end();
+  }
+
+  [[nodiscard]] auto& operator[](size_t idx)
+  {
+    return m_span[idx];
+  }
+
+  [[nodiscard]] const auto& operator[](size_t idx) const
+  {
+    return m_span[idx];
+  }
+
+  void flush()
+  {
+    if(!m_span.empty())
+      GL_ASSERT(api::flushMappedNamedBufferRange(m_buffer.getHandle(), 0, size() * sizeof(T)));
+  }
+
+private:
+  explicit MappedBuffer(Buffer<T, _Target>& buffer, T* ptr, size_t size)
+      : m_buffer{buffer}
+      , m_span{ptr, size}
+  {
+  }
+
+  explicit MappedBuffer(Buffer<T, _Target>& buffer)
+      : m_buffer{buffer}
+      , m_span{}
+  {
+  }
+
+  Buffer<T, _Target>& m_buffer;
+  gsl::span<T> m_span;
+};
+
+// NOLINTNEXTLINE(bugprone-reserved-identifier)
 template<typename T, api::BufferTarget _Target>
 class Buffer : public BindableResource<api::ObjectIdentifier::Buffer>
 {
@@ -33,22 +98,15 @@ public:
   {
   }
 
-  [[nodiscard]] gsl::span<T> map(const api::core::Bitfield<api::MapBufferAccessMask>& access
-                                 = api::MapBufferAccessMask::MapReadBit)
+  [[nodiscard]] MappedBuffer<T, _Target> map(const api::core::Bitfield<api::MapBufferAccessMask>& access
+                                             = api::MapBufferAccessMask::MapReadBit)
   {
+    if(m_size == 0)
+      return MappedBuffer{*this};
+
     const void* data = GL_ASSERT_FN(api::mapNamedBufferRange(getHandle(), 0, m_size * sizeof(T), access));
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
-    return gsl::span{static_cast<T*>(const_cast<void*>(data)), m_size};
-  }
-
-  void flush()
-  {
-    GL_ASSERT(api::flushMappedNamedBufferRange(getHandle(), 0, m_size * sizeof(T)));
-  }
-
-  void unmap()
-  {
-    GL_ASSERT(api::unmapNamedBuffer(getHandle()));
+    return MappedBuffer{*this, static_cast<T*>(const_cast<void*>(data)), m_size};
   }
 
   void setSubData(const gsl::span<const T>& data, const api::core::SizeType start)

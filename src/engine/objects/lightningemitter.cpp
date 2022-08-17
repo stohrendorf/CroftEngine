@@ -120,14 +120,13 @@ Bolt updateBolt(const glm::vec3& start, const glm::vec3& end, const std::shared_
   Expects(gsl::narrow<size_t>(vb->size()) == data.size());
 
   Bolt bolt;
-  const auto boltData
+  auto boltData
     = vb->map(gl::api::MapBufferAccessMask::MapWriteBit | gl::api::MapBufferAccessMask::MapFlushExplicitBit);
   gsl_Assert(boltData.size() == data.size());
   gsl_Assert(boltData.size() == bolt.size());
   std::copy(data.begin(), data.end(), boltData.begin());
   std::copy(data.begin(), data.end(), bolt.begin());
-  vb->flush();
-  vb->unmap();
+  boltData.flush();
 
   return bolt;
 }

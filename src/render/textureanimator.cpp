@@ -55,7 +55,6 @@ void TextureAnimator::Sequence::updateCoordinates(gl::VertexBuffer<AnimatedUV>& 
     uvArray[vref.bufferIndex].quadUv34 = glm::vec4{tile.uvCoordinates[2], tile.uvCoordinates[3]};
   }
 
-  buffer.flush();
-  buffer.unmap();
+  uvArray.flush();
 }
 } // namespace render
