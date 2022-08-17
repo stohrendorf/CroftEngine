@@ -214,24 +214,10 @@ void Inventory::serialize(const serialization::Serializer<world::World>& ser)
 
 void Ammo::serialize(const serialization::Serializer<world::World>& ser)
 {
-  size_t ammo = std::numeric_limits<size_t>::max();
-
-  // TODO remove in 1.11
-  if(ser.loading)
-  {
-    ser(S_NVO("ammo", ammo));
-  }
-
   ser(S_NVO("shots", shots),
       S_NV("hits", hits),
       S_NVO("hitsTotal", hitsTotal),
       S_NV("misses", misses),
       S_NVO("missesTotal", missesTotal));
-
-  // TODO remove in 1.11
-  if(ser.loading && ammo != std::numeric_limits<size_t>::max())
-  {
-    shots = std::exchange(ammo, std::numeric_limits<size_t>::max()) / roundsPerShot;
-  }
 }
 } // namespace engine
