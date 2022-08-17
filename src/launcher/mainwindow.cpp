@@ -528,7 +528,7 @@ void MainWindow::extractSoundtrackZip(std::filesystem::path target)
 {
   const auto a = archive_read_new();
   archive_read_support_format_all(a);
-  archive_read_support_compression_all(a);
+  archive_read_support_compression_all(a); // TODO check replacement: archive_read_support_filter_all
   if(auto r = archive_read_open_filename(a, target.string().c_str(), 10240); r != ARCHIVE_OK)
   {
     QMessageBox::critical(
