@@ -107,6 +107,8 @@ std::unique_ptr<MenuState> SelectedMenuState::onFrame(ui::Ui& ui, engine::world:
       if(auto lara = world.getObjectManager().getLaraPtr())
         lara->playSoundEffect(engine::TR1SoundEffect::LaraNo);
       break;
+    default:
+      break;
     }
     const auto result
       = currentObject.type == engine::TR1ItemId::LarasHomePolaroid ? MenuResult::LaraHome : MenuResult::Closed;
