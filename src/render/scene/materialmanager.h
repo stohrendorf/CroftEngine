@@ -46,6 +46,7 @@ public:
   [[nodiscard]] gslu::nn_shared<Material> getFXAA(uint8_t preset);
   [[nodiscard]] gslu::nn_shared<Material> getCRTV0();
   [[nodiscard]] gslu::nn_shared<Material> getCRTV1();
+  [[nodiscard]] gslu::nn_shared<Material> getBrightnessContrast(int8_t brightness, int8_t contrast);
   [[nodiscard]] gslu::nn_shared<Material> getVelvia();
   [[nodiscard]] gslu::nn_shared<Material> getDeath();
   [[nodiscard]] gslu::nn_shared<Material> getFilmGrain();
@@ -81,6 +82,7 @@ private:
   std::map<uint8_t, gslu::nn_shared<Material>> m_fxaa{};
   std::shared_ptr<Material> m_crtV0{nullptr};
   std::shared_ptr<Material> m_crtV1{nullptr};
+  std::map<std::tuple<int8_t, int8_t>, gslu::nn_shared<Material>> m_brightnessContrast{};
   std::shared_ptr<Material> m_velvia{nullptr};
   std::shared_ptr<Material> m_death{nullptr};
   std::shared_ptr<Material> m_filmGrain{nullptr};
