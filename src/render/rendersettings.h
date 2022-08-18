@@ -32,6 +32,10 @@ struct RenderSettings
   bool fxaaActive = true;
   uint8_t fxaaPreset = 39;
   bool bloom = true;
+  bool brightnessEnabled = false;
+  int8_t brightness = 0;
+  bool contrastEnabled = false;
+  int8_t contrast = 0;
   bool moreLights = true;
   bool dustActive = true;
   uint8_t dustDensity = 1;

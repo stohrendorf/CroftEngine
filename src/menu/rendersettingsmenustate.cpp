@@ -226,6 +226,66 @@ RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingT
       toggle(engine, engine.getEngineConfig()->renderSettings.bloom);
     });
 
+  {
+    std::vector<int8_t> values;
+    for(int8_t v = -100; v <= 100; v += 5)
+      values.emplace_back(v);
+
+    auto tmp = std::make_shared<ui::widgets::ValueSelector<int8_t>>(
+      [](int8_t value)
+      {
+        return /* translators: TR charmap encoding */ _("Brightness \x1f\x6c %1% \x1f\x6d",
+                                                        boost::io::group(std::showpos, static_cast<int32_t>(value)));
+      },
+      [&engine](int8_t value)
+      {
+        engine.getEngineConfig()->renderSettings.brightness = value;
+        engine.applySettings();
+      },
+      values);
+    listBox->addSetting(
+      gslu::nn_shared<ui::widgets::Widget>{tmp},
+      [&engine]()
+      {
+        return engine.getEngineConfig()->renderSettings.brightnessEnabled;
+      },
+      [&engine]()
+      {
+        toggle(engine, engine.getEngineConfig()->renderSettings.brightnessEnabled);
+      });
+    tmp->selectValue(engine.getEngineConfig()->renderSettings.brightness);
+  }
+
+  {
+    std::vector<int8_t> values;
+    for(int8_t v = -100; v <= 100; v += 5)
+      values.emplace_back(v);
+
+    auto tmp = std::make_shared<ui::widgets::ValueSelector<int8_t>>(
+      [](int8_t value)
+      {
+        return /* translators: TR charmap encoding */ _("Contrast \x1f\x6c %1% \x1f\x6d",
+                                                        boost::io::group(std::showpos, static_cast<int32_t>(value)));
+      },
+      [&engine](int8_t value)
+      {
+        engine.getEngineConfig()->renderSettings.contrast = value;
+        engine.applySettings();
+      },
+      values);
+    listBox->addSetting(
+      gslu::nn_shared<ui::widgets::Widget>{tmp},
+      [&engine]()
+      {
+        return engine.getEngineConfig()->renderSettings.contrastEnabled;
+      },
+      [&engine]()
+      {
+        toggle(engine, engine.getEngineConfig()->renderSettings.contrastEnabled);
+      });
+    tmp->selectValue(engine.getEngineConfig()->renderSettings.contrast);
+  }
+
   listBox = gsl::make_shared<CheckListBox>();
   m_listBoxes.emplace_back(listBox);
   tab = gsl::make_shared<ui::widgets::Tab>(/* translators: TR charmap encoding */ _("Quality"));

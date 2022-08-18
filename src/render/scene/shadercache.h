@@ -105,6 +105,14 @@ public:
     return get("flat.vert", "fx_crt_v1.frag");
   }
 
+  [[nodiscard]] auto getBrightnessContrast(int8_t brightness, int8_t contrast)
+  {
+    return get("flat.vert",
+               "fx_brightness_contrast.frag",
+               std::vector<std::string>{"BRIGHTNESS " + std::to_string(int(brightness)),
+                                        "CONTRAST " + std::to_string(int(contrast))});
+  }
+
   [[nodiscard]] auto getVelvia()
   {
     return get("flat.vert", "fx_velvia.frag");

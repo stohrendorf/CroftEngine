@@ -224,6 +224,15 @@ void RenderPipeline::initBackbufferEffects(scene::MaterialManager& materialManag
       BOOST_THROW_EXCEPTION(std::out_of_range("invalid crt version"));
     }
   }
+
+  if((m_renderSettings.brightnessEnabled && m_renderSettings.brightness != 0)
+     || (m_renderSettings.contrastEnabled && m_renderSettings.contrast != 0))
+  {
+    addEffect(
+      "brightness-contrast",
+      materialManager.getBrightnessContrast(m_renderSettings.brightnessEnabled ? m_renderSettings.brightness : 0,
+                                            m_renderSettings.contrastEnabled ? m_renderSettings.contrast : 0));
+  }
 }
 
 gl::RenderState RenderPipeline::bindPortalFrameBuffer()

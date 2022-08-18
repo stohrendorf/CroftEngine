@@ -330,6 +330,18 @@ gslu::nn_shared<Material> MaterialManager::getCRTV1()
   return m;
 }
 
+gslu::nn_shared<Material> MaterialManager::getBrightnessContrast(int8_t brightness, int8_t contrast)
+{
+  std::tuple<int8_t, int8_t> key{brightness, contrast};
+  if(auto it = m_brightnessContrast.find(key); it != m_brightnessContrast.end())
+    return it->second;
+
+  auto m = gsl::make_shared<Material>(m_shaderCache->getBrightnessContrast(brightness, contrast));
+  configureForScreenSpaceEffect(*m, false);
+  m_brightnessContrast.emplace(key, m);
+  return m;
+}
+
 gslu::nn_shared<Material> MaterialManager::getVelvia()
 {
   if(m_velvia != nullptr)
