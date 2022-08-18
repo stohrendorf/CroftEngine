@@ -54,11 +54,11 @@ gslu::nn_shared<ShaderProgram> ShaderCache::get(const std::filesystem::path& vsh
                                                 const std::vector<std::string>& defines)
 {
   const auto programId = makeId(vshPath, fshPath, defines);
-  BOOST_LOG_TRIVIAL(debug) << "Loading shader program " << programId;
   const auto it = m_programs.find(programId);
   if(it != m_programs.end())
     return it->second;
 
+  BOOST_LOG_TRIVIAL(debug) << "Loading shader program " << programId;
   auto vert = gl::VertexShader::create(m_root / vshPath, defines, makeId(vshPath, defines));
   auto frag = gl::FragmentShader::create(m_root / fshPath, defines, makeId(fshPath, defines));
   auto shader = gsl::make_shared<ShaderProgram>(programId, vert, frag);
@@ -72,11 +72,11 @@ gslu::nn_shared<ShaderProgram> ShaderCache::get(const std::filesystem::path& vsh
                                                 const std::vector<std::string>& defines)
 {
   const auto programId = makeId(vshPath, fshPath, geomPath, defines);
-  BOOST_LOG_TRIVIAL(debug) << "Loading shader program " << programId;
   const auto it = m_programs.find(programId);
   if(it != m_programs.end())
     return it->second;
 
+  BOOST_LOG_TRIVIAL(debug) << "Loading shader program " << programId;
   auto vert = gl::VertexShader::create(m_root / vshPath, defines, makeId(vshPath, defines));
   auto frag = gl::FragmentShader::create(m_root / fshPath, defines, makeId(fshPath, defines));
   auto geom = gl::GeometryShader::create(m_root / geomPath, defines, makeId(geomPath, defines));
