@@ -20,6 +20,6 @@
     </excludeRoots>
   </component>
   <component name="TaskProjectConfiguration">
-    <server type="YouTrack" url="https://edisonengine.myjetbrains.com/youtrack" />
+    <server type="YouTrack" url="https://croftengine.youtrack.cloud" />
   </component>
 </project>
