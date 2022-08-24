@@ -14,6 +14,12 @@ namespace render::pass
 {
 GeometryPass::GeometryPass(const glm::ivec2& viewport)
     : m_depthBuffer{std::make_shared<gl::TextureDepth<float>>(viewport, "geometry-depth")}
+    , m_depthBufferHandle{std::make_shared<gl::TextureHandle<gl::TextureDepth<float>>>(
+        m_depthBuffer,
+        gsl::make_unique<gl::Sampler>("depth-sampler")
+          | set(gl::api::SamplerParameterI::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge)
+          | set(gl::api::SamplerParameterI::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge)
+          | set(gl::api::TextureMinFilter::Linear) | set(gl::api::TextureMagFilter::Linear))}
     , m_colorBuffer{std::make_shared<gl::Texture2D<gl::SRGBA8>>(viewport, "geometry-color")}
     , m_colorBufferHandle{std::make_shared<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>>(
         m_colorBuffer,

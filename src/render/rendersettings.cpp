@@ -19,6 +19,7 @@ void RenderSettings::serialize(const serialization::Serializer<engine::EngineCon
       S_NVO("bilinearFiltering", bilinearFiltering),
       S_NVO("waterDenoise", waterDenoise),
       S_NVO("hbao", hbao),
+      S_NVO("edges", edges),
       S_NVO("velvia", velvia),
       S_NVO("fxaaActive", fxaaActive),
       S_NVO("fxaaPreset", fxaaPreset),

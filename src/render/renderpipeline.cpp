@@ -1,6 +1,7 @@
 #include "renderpipeline.h"
 
 #include "engine/world/room.h"
+#include "pass/edgedetectionpass.h"
 #include "pass/effectpass.h"
 #include "pass/geometrypass.h"
 #include "pass/hbaopass.h"
@@ -40,13 +41,24 @@ RenderPipeline::RenderPipeline(scene::MaterialManager& materialManager,
 
 void RenderPipeline::worldCompositionPass(const std::vector<engine::world::Room>& rooms, const bool inWater)
 {
+  // this is important, as we need all previously rendered framebuffers to be complete
+  GL_ASSERT(gl::api::finish());
+
   BOOST_ASSERT(m_portalPass != nullptr);
   if(m_renderSettings.waterDenoise)
     m_portalPass->renderBlur();
 
-  BOOST_ASSERT(m_hbaoPass != nullptr);
   if(m_renderSettings.hbao)
+  {
+    BOOST_ASSERT(m_hbaoPass != nullptr);
     m_hbaoPass->render();
+  }
+
+  if(m_renderSettings.edges)
+  {
+    BOOST_ASSERT(m_edgePass != nullptr);
+    m_edgePass->render();
+  }
 
   BOOST_ASSERT(m_worldCompositionPass != nullptr);
   m_worldCompositionPass->render(inWater);
@@ -118,6 +130,7 @@ void RenderPipeline::resize(scene::MaterialManager& materialManager,
   m_geometryPass = std::make_shared<pass::GeometryPass>(m_renderSize);
   m_portalPass = std::make_shared<pass::PortalPass>(materialManager, m_geometryPass->getDepthBuffer(), m_renderSize);
   m_hbaoPass = std::make_shared<pass::HBAOPass>(materialManager, m_renderSize / 4, *m_geometryPass);
+  m_edgePass = std::make_shared<pass::EdgeDetectionPass>(materialManager, m_renderSize, *m_geometryPass);
   m_worldCompositionPass = std::make_shared<pass::WorldCompositionPass>(
     gsl::not_null{this}, materialManager, m_renderSettings, m_renderSize, *m_geometryPass, *m_portalPass);
   m_uiPass = std::make_shared<pass::UIPass>(materialManager, m_uiSize, m_displaySize);
@@ -146,15 +159,29 @@ void RenderPipeline::initWorldEffects(scene::MaterialManager& materialManager)
     return fx;
   };
 
-  if(m_renderSettings.hbao)
+  if(m_renderSettings.hbao || m_renderSettings.edges)
   {
-    auto fx = addEffect("hbao", materialManager.getHBAOFx());
-    fx->bind("u_ao",
-             [texture = m_hbaoPass->getBlurredTexture()](
-               const scene::Node* /*node*/, const scene::Mesh& /*mesh*/, gl::Uniform& uniform)
-             {
-               uniform.set(texture);
-             });
+    auto fx = addEffect("masking", materialManager.getMasking(m_renderSettings.hbao, m_renderSettings.edges));
+    if(m_renderSettings.hbao)
+    {
+      BOOST_ASSERT(m_hbaoPass != nullptr);
+      fx->bind("u_ao",
+               [texture = m_hbaoPass->getBlurredTexture()](
+                 const scene::Node* /*node*/, const scene::Mesh& /*mesh*/, gl::Uniform& uniform)
+               {
+                 uniform.set(texture);
+               });
+    }
+    if(m_renderSettings.edges)
+    {
+      BOOST_ASSERT(m_edgePass != nullptr);
+      fx->bind("u_edges",
+               [texture = m_edgePass->getTexture()](
+                 const scene::Node* /*node*/, const scene::Mesh& /*mesh*/, gl::Uniform& uniform)
+               {
+                 uniform.set(texture);
+               });
+    }
   }
 
   if(m_renderSettings.fxaaActive)
@@ -166,6 +193,7 @@ void RenderPipeline::initWorldEffects(scene::MaterialManager& materialManager)
 
   {
     auto fx = addEffect("reflective", materialManager.getReflective());
+    BOOST_ASSERT(m_geometryPass != nullptr);
     fx->bind("u_normal",
              [texture = m_geometryPass->getNormalBuffer()](
                const scene::Node* /*node*/, const scene::Mesh& /*mesh*/, gl::Uniform& uniform)

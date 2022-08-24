@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CroftEngine 1.10\n"
 "Report-Msgid-Bugs-To: https://github.com/stohrendorf/CroftEngine/issues\n"
-"POT-Creation-Date: 2022-08-18 08:59+0200\n"
+"POT-Creation-Date: 2022-08-25 01:53+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,25 +18,25 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:498
+#: menu/rendersettingsmenustate.cpp:448
 #, boost-format
 msgid "\037l %1% \037m Percent Dust Particles"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:318
+#: menu/rendersettingsmenustate.cpp:268
 #, boost-format
 msgid "\037l %1%x \037m Anisotropic Filtering"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:445
+#: menu/rendersettingsmenustate.cpp:395
 #, boost-format
 msgid "\037l %1%x \037m UI Scale"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:419
+#: menu/rendersettingsmenustate.cpp:369
 #, boost-format
 msgid "\037l 1/%1% \037m Render Scale"
 msgstr ""
@@ -192,7 +192,7 @@ msgid "Back"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:296
+#: menu/rendersettingsmenustate.cpp:246
 msgid "Bilinear Filtering"
 msgstr ""
 
@@ -233,7 +233,7 @@ msgid "Building textures"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:585
+#: menu/rendersettingsmenustate.cpp:535
 msgid "Butt Bubbles"
 msgstr ""
 
@@ -313,7 +313,7 @@ msgid "Del"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:341
+#: menu/rendersettingsmenustate.cpp:291
 msgid "Denoise Water Surface"
 msgstr ""
 
@@ -381,6 +381,11 @@ msgid "E"
 msgstr ""
 
 #. translators: TR charmap encoding
+#: menu/rendersettingsmenustate.cpp:229
+msgid "Edge Outlines"
+msgstr ""
+
+#. translators: TR charmap encoding
 #: menu/audiosettingsmenustate.cpp:64 menu/rendersettingsmenustate.cpp:147
 msgid "Effects"
 msgstr ""
@@ -421,7 +426,7 @@ msgstr ""
 msgid "Exit to Title"
 msgstr ""
 
-#: menu/rendersettingsmenustate.cpp:378
+#: menu/rendersettingsmenustate.cpp:328
 msgctxt "FXAA"
 msgid "Extreme"
 msgstr ""
@@ -433,7 +438,7 @@ msgid "F"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:383
+#: menu/rendersettingsmenustate.cpp:333
 #, boost-format
 msgid "FXAA \037l %1% \037m"
 msgstr ""
@@ -444,7 +449,7 @@ msgid "Film Grain"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:484
+#: menu/rendersettingsmenustate.cpp:434
 msgid "Fullscreen"
 msgstr ""
 
@@ -479,7 +484,7 @@ msgid "Generating Dust Particles..."
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:530
+#: menu/rendersettingsmenustate.cpp:480
 msgid "Ghost"
 msgstr ""
 
@@ -530,17 +535,17 @@ msgid "H"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:351
+#: menu/rendersettingsmenustate.cpp:301
 msgid "HBAO"
 msgstr ""
 
-#: menu/rendersettingsmenustate.cpp:375
+#: menu/rendersettingsmenustate.cpp:325
 msgctxt "FXAA"
 msgid "High"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:405
+#: menu/rendersettingsmenustate.cpp:355
 msgid "High Quality Shadows"
 msgstr ""
 
@@ -693,18 +698,18 @@ msgctxt "Action"
 msgid "Look"
 msgstr ""
 
-#: menu/rendersettingsmenustate.cpp:369
+#: menu/rendersettingsmenustate.cpp:319
 msgctxt "FXAA"
 msgid "Low"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:552
+#: menu/rendersettingsmenustate.cpp:502
 msgid "Low Health: Pulse Health Bar"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:563
+#: menu/rendersettingsmenustate.cpp:513
 msgid "Low Health: Reduce Color"
 msgstr ""
 
@@ -724,7 +729,7 @@ msgstr ""
 msgid "Magnums"
 msgstr ""
 
-#: menu/rendersettingsmenustate.cpp:372
+#: menu/rendersettingsmenustate.cpp:322
 msgctxt "FXAA"
 msgid "Medium"
 msgstr ""
@@ -736,7 +741,7 @@ msgid "Menu"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:520
+#: menu/rendersettingsmenustate.cpp:470
 msgid "More Lights"
 msgstr ""
 
@@ -791,7 +796,7 @@ msgid "OPTION"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:480
+#: menu/rendersettingsmenustate.cpp:430
 msgid "Other"
 msgstr ""
 
@@ -963,7 +968,7 @@ msgid "Q"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:291
+#: menu/rendersettingsmenustate.cpp:241
 msgid "Quality"
 msgstr ""
 
@@ -1013,7 +1018,7 @@ msgid "Restart Level"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:541
+#: menu/rendersettingsmenustate.cpp:491
 msgid "Restore Health on Level Start"
 msgstr ""
 
@@ -1145,7 +1150,7 @@ msgid "Small Medipack"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:468
+#: menu/rendersettingsmenustate.cpp:418
 msgid "Smoother Animations"
 msgstr ""
 
@@ -1295,7 +1300,7 @@ msgid "Walk"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:574
+#: menu/rendersettingsmenustate.cpp:524
 msgid "Water Bed Bubbles"
 msgstr ""
 

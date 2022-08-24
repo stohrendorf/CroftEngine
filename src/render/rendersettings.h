@@ -28,6 +28,7 @@ struct RenderSettings
   bool anisotropyActive = true;
   bool waterDenoise = false;
   bool hbao = true;
+  bool edges = false;
   bool velvia = true;
   bool fxaaActive = true;
   uint8_t fxaaPreset = 39;

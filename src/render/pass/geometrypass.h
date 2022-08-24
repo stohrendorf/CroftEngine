@@ -2,6 +2,7 @@
 
 #include <gl/pixel.h>
 #include <gl/soglb_fwd.h>
+#include <gl/texturedepth.h>
 #include <glm/vec2.hpp>
 #include <gsl/gsl-lite.hpp>
 #include <gslu.h>
@@ -36,6 +37,11 @@ public:
     return m_depthBuffer;
   }
 
+  [[nodiscard]] const auto& getDepthBufferHandle() const
+  {
+    return m_depthBufferHandle;
+  }
+
   [[nodiscard]] const auto& getReflectiveBuffer() const
   {
     return m_reflectiveBufferHandle;
@@ -43,6 +49,7 @@ public:
 
 private:
   gslu::nn_shared<gl::TextureDepth<float>> m_depthBuffer;
+  gslu::nn_shared<gl::TextureHandle<gl::TextureDepth<float>>> m_depthBufferHandle;
   gslu::nn_shared<gl::Texture2D<gl::SRGBA8>> m_colorBuffer;
   gslu::nn_shared<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>> m_colorBufferHandle;
   gslu::nn_shared<gl::Texture2D<gl::SRGBA8>> m_reflectiveBuffer;
