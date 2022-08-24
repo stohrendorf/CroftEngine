@@ -27,6 +27,7 @@ namespace render::pass
 class PortalPass;
 class GeometryPass;
 class HBAOPass;
+class EdgeDetectionPass;
 class WorldCompositionPass;
 class UIPass;
 template<typename TPixel>
@@ -47,6 +48,7 @@ private:
   std::shared_ptr<pass::PortalPass> m_portalPass;
   std::shared_ptr<pass::GeometryPass> m_geometryPass;
   std::shared_ptr<pass::HBAOPass> m_hbaoPass;
+  std::shared_ptr<pass::EdgeDetectionPass> m_edgePass;
   std::shared_ptr<pass::WorldCompositionPass> m_worldCompositionPass;
   std::shared_ptr<pass::UIPass> m_uiPass;
   std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::SRGB8>>> m_backbufferTextureHandle;

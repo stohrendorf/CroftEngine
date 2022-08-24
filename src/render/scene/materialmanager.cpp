@@ -388,13 +388,14 @@ gslu::nn_shared<Material> MaterialManager::getLensDistortion()
   return m;
 }
 
-gslu::nn_shared<Material> MaterialManager::getHBAOFx()
+gslu::nn_shared<Material> MaterialManager::getMasking(bool ao, bool edges)
 {
-  if(m_hbaoFx != nullptr)
-    return gsl::not_null{m_hbaoFx};
+  std::tuple key{ao, edges};
+  if(auto it = m_masking.find(key); it != m_masking.end())
+    return it->second;
 
-  auto m = gsl::make_shared<Material>(m_shaderCache->getHBAOFx());
-  m_hbaoFx = m;
+  auto m = gsl::make_shared<Material>(m_shaderCache->getMasking(ao, edges));
+  m_masking.emplace(key, m);
   return m;
 }
 
@@ -450,6 +451,28 @@ gslu::nn_shared<Material> MaterialManager::getHBAO()
   m->getUniform("u_noise")->set(gsl::not_null{m_noiseTexture});
   configureForScreenSpaceEffect(*m, false);
   m_hbao = m;
+  return m;
+}
+
+gslu::nn_shared<Material> MaterialManager::getEdgeDetection()
+{
+  if(m_edgeDetection != nullptr)
+    return gsl::not_null{m_edgeDetection};
+
+  auto m = gsl::make_shared<Material>(m_shaderCache->getEdgeDetection());
+  configureForScreenSpaceEffect(*m, false);
+  m_edgeDetection = m;
+  return m;
+}
+
+gslu::nn_shared<Material> MaterialManager::getEdgeDilation()
+{
+  if(m_edgeDilation != nullptr)
+    return gsl::not_null{m_edgeDilation};
+
+  auto m = gsl::make_shared<Material>(m_shaderCache->getEdgeDilation());
+  configureForScreenSpaceEffect(*m, false);
+  m_edgeDilation = m;
   return m;
 }
 

@@ -514,6 +514,8 @@ set( CROFTENGINE_SRCS
         render/textureanimator.cpp
 
         render/pass/effectpass.h
+        render/pass/edgedetectionpass.h
+        render/pass/edgedetectionpass.cpp
         render/pass/framebuffer.h
         render/pass/framebuffer.cpp
         render/pass/geometrypass.h

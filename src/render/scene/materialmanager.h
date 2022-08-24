@@ -51,7 +51,7 @@ public:
   [[nodiscard]] gslu::nn_shared<Material> getDeath();
   [[nodiscard]] gslu::nn_shared<Material> getFilmGrain();
   [[nodiscard]] gslu::nn_shared<Material> getLensDistortion();
-  [[nodiscard]] gslu::nn_shared<Material> getHBAOFx();
+  [[nodiscard]] gslu::nn_shared<Material> getMasking(bool ao, bool edges);
   [[nodiscard]] gslu::nn_shared<Material> getUnderwaterMovement();
   [[nodiscard]] gslu::nn_shared<Material> getReflective();
   [[nodiscard]] gslu::nn_shared<Material> getBloom();
@@ -60,6 +60,8 @@ public:
   [[nodiscard]] gslu::nn_shared<Material> getFlat(bool withAlpha, bool invertY = false, bool withAspectRatio = false);
   [[nodiscard]] gslu::nn_shared<Material> getBackdrop(bool withAlphaMultiplier);
   [[nodiscard]] gslu::nn_shared<Material> getHBAO();
+  [[nodiscard]] gslu::nn_shared<Material> getEdgeDetection();
+  [[nodiscard]] gslu::nn_shared<Material> getEdgeDilation();
   [[nodiscard]] gslu::nn_shared<Material> getVSMSquare();
   [[nodiscard]] gslu::nn_shared<Material> getFastGaussBlur(uint8_t extent, uint8_t blurDir, uint8_t blurDim);
   [[nodiscard]] gslu::nn_shared<Material> getFastBoxBlur(uint8_t extent, uint8_t blurDir, uint8_t blurDim);
@@ -87,7 +89,7 @@ private:
   std::shared_ptr<Material> m_death{nullptr};
   std::shared_ptr<Material> m_filmGrain{nullptr};
   std::shared_ptr<Material> m_lensDistortion{nullptr};
-  std::shared_ptr<Material> m_hbaoFx{nullptr};
+  std::map<std::tuple<bool, bool>, gslu::nn_shared<Material>> m_masking{};
   std::shared_ptr<Material> m_underwaterMovement{nullptr};
   std::shared_ptr<Material> m_reflective{nullptr};
   std::shared_ptr<Material> m_bloom{nullptr};
@@ -104,6 +106,8 @@ private:
   std::map<std::tuple<uint8_t, uint8_t, uint8_t>, gslu::nn_shared<Material>> m_fastBoxBlur{};
   std::map<bool, gslu::nn_shared<Material>> m_backdrop{};
   std::shared_ptr<Material> m_hbao{nullptr};
+  std::shared_ptr<Material> m_edgeDetection{nullptr};
+  std::shared_ptr<Material> m_edgeDilation{nullptr};
   std::shared_ptr<Material> m_vsmSquare{nullptr};
 
   std::shared_ptr<Material> m_dustParticle{nullptr};

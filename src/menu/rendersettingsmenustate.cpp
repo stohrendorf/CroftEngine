@@ -225,6 +225,16 @@ RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingT
     {
       toggle(engine, engine.getEngineConfig()->renderSettings.bloom);
     });
+  listBox->addSetting(
+    /* translators: TR charmap encoding */ _("Edge Outlines"),
+    [&engine]()
+    {
+      return engine.getEngineConfig()->renderSettings.edges;
+    },
+    [&engine]()
+    {
+      toggle(engine, engine.getEngineConfig()->renderSettings.edges);
+    });
 
   {
     std::vector<int8_t> values;

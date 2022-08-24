@@ -133,9 +133,14 @@ public:
     return get("flat.vert", "fx_lens_distortion.frag");
   }
 
-  [[nodiscard]] auto getHBAOFx()
+  [[nodiscard]] auto getMasking(bool ao, bool edges)
   {
-    return get("flat.vert", "fx_hbao.frag");
+    std::vector<std::string> defines;
+    if(ao)
+      defines.emplace_back("AO");
+    if(edges)
+      defines.emplace_back("EDGES");
+    return get("flat.vert", "fx_masking.frag", defines);
   }
 
   [[nodiscard]] auto getUnderwaterMovement()
@@ -146,6 +151,16 @@ public:
   [[nodiscard]] auto getHBAO()
   {
     return get("flat.vert", "hbao.frag");
+  }
+
+  [[nodiscard]] auto getEdgeDetection()
+  {
+    return get("flat.vert", "edge_detection.frag");
+  }
+
+  [[nodiscard]] auto getEdgeDilation()
+  {
+    return get("flat.vert", "edge_dilation.frag");
   }
 
   [[nodiscard]] auto getReflective()
