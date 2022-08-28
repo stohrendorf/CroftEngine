@@ -1187,6 +1187,9 @@ std::tuple<std::optional<SavegameInfo>, std::map<size_t, SavegameInfo>> World::g
 
 bool World::hasSavedGames() const
 {
+  if(std::filesystem::is_regular_file(m_engine.getSavegamePath(std::nullopt)))
+    return true;
+  
   for(size_t i = 0; i < core::SavegameSlots; ++i)
   {
     const auto path = m_engine.getSavegamePath(i);
