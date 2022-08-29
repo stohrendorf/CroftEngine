@@ -140,6 +140,7 @@ MainWindow::MainWindow(QWidget* parent)
       auto item = new QStandardItem{QString::fromLatin1(gameflowMeta.title.c_str())};
       item->setData(QVariant{QString::fromLatin1(gameflowId.c_str())}, IdRole);
       item->setData(QVariant{QString::fromLatin1(gameflowMeta.author.c_str())}, AuthorRole);
+      item->setEditable(false);
 
       QStringList urls;
       for(const auto& url : gameflowMeta.urls)
