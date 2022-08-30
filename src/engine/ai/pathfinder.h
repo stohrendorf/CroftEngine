@@ -30,7 +30,8 @@ struct PathFinder
 
   [[nodiscard]] bool canVisit(const world::Box& box) const noexcept;
 
-  //! @brief Movement limits
+  //! @brief Movement limits.
+  //! @warning Step and drop are negated.
   //! @{
   core::Length step = core::QuarterSectorSize;
   core::Length drop = -core::QuarterSectorSize;
