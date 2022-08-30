@@ -270,6 +270,7 @@ void PathFinder::searchPath(const world::World& world)
               });
   };
 
+  // this does a backwards search from the target (usually Lara) to the source (usually a baddie)
   for(uint8_t i = 0; i < MaxExpansions && !m_expansions.empty(); ++i)
   {
     const auto currentBox = m_expansions.front();
@@ -284,8 +285,9 @@ void PathFinder::searchPath(const world::World& world)
       if(searchZone != successorBox.get()->*zoneRef)
         continue;
 
-      if(const auto boxHeightDiff = successorBox->floor - currentBox->floor;
-         boxHeightDiff > step || boxHeightDiff < drop)
+      // the "successor" here is effectively the predecessor in the final path
+      if(const auto boxHeightDiff = currentBox->floor - successorBox->floor;
+         boxHeightDiff < -step || boxHeightDiff > -drop)
         continue;
 
       const auto it = m_reachable.find(successorBox);

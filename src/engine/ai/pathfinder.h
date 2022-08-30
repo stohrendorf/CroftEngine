@@ -33,8 +33,12 @@ struct PathFinder
   //! @brief Movement limits.
   //! @warning Step and drop are negated.
   //! @{
+  //! @brief Always positive.
   core::Length step = core::QuarterSectorSize;
+  //! @brief Always negative.
   core::Length drop = -core::QuarterSectorSize;
+  //! @brief Always positive.
+
   core::Length fly = 0_len;
   //! @}
 

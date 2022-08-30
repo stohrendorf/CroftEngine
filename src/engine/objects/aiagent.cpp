@@ -96,7 +96,7 @@ bool AIAgent::animateCreature(const core::Angle& collisionRotationY, const core:
 
   const auto oldLocation = m_state.location;
 
-  const auto boxFloor = m_state.getCurrentBox()->floor;
+  const auto currentBoxFloor = m_state.getCurrentBox()->floor;
   const auto zoneRef = world::Box::getZoneRef(
     getWorld().roomsAreSwapped(), m_creatureInfo->pathFinder.isFlying(), m_creatureInfo->pathFinder.step);
   ModelObject::update();
@@ -130,9 +130,10 @@ bool AIAgent::animateCreature(const core::Angle& collisionRotationY, const core:
 
   auto currentSector = m_state.location.moved(0_len, bbox.y.max, 0_len).updateRoom();
 
-  // fix location in case the entity moved to an invalid location, including checks for step/drop limits
-  if(currentSector->box == nullptr || boxFloor > currentSector->box->floor + pathFinder.step
-     || boxFloor < currentSector->box->floor + pathFinder.drop
+  // fix location in case the entity moved to an invalid location, including checks for step/drop limits.
+  // keep in mind that step/drop limits are negated, so they're subtracted here instead of being added.
+  if(currentSector->box == nullptr || currentBoxFloor < currentSector->box->floor - pathFinder.step
+     || currentBoxFloor > currentSector->box->floor - pathFinder.drop
      || m_state.getCurrentBox().get()->*zoneRef != currentSector->box->*zoneRef)
   {
     const auto shoveMin = [this](const core::Length& l)
@@ -185,7 +186,7 @@ bool AIAgent::animateCreature(const core::Angle& collisionRotationY, const core:
   const core::TRVec testDz{0_len, 0_len, m_collisionRadius};
 
   const auto cannotMoveTo
-    = [this, currentFloor = currentSector->box->floor, nextPathFloor = nextPathFloor, &pathFinder](
+    = [this, currentSectorBoxFloor = currentSector->box->floor, nextPathFloor = nextPathFloor, &pathFinder](
         const core::TRVec& testPos)
   {
     const auto testBox = Location{m_state.location.room, testPos}.updateRoom()->box;
@@ -194,9 +195,9 @@ bool AIAgent::animateCreature(const core::Angle& collisionRotationY, const core:
       return true;
     }
 
-    const auto dy = testBox->floor - currentFloor;
+    const auto dy = testBox->floor - currentSectorBoxFloor;
 
-    if(dy > pathFinder.step || dy < pathFinder.drop)
+    if(dy < -pathFinder.step || dy > -pathFinder.drop)
     {
       // height difference doesn't allow stepping up or dropping down
       return true;
@@ -404,24 +405,16 @@ bool AIAgent::animateCreature(const core::Angle& collisionRotationY, const core:
 
     if(m_state.location.position.Y > currentFloor)
     {
-      // we're already below the floor or inside a wall, so fix it
-      m_state.location.position.X = oldLocation.position.X;
-      m_state.location.position.Z = oldLocation.position.Z;
-
-      // originally only moveY = -pathFinder.fly, but that made dying bats bounce off the floor
-      auto tmp = m_state.location;
-      const auto floor
-        = HeightInfo::fromFloor(tmp.updateRoom(),
-                                core::TRVec{m_state.location.position.X, bboxBottom, m_state.location.position.Z},
-                                getWorld().getObjectManager().getObjects())
-            .y;
-
-      moveY = floor - m_state.location.position.Y;
+      // stuck in the floor, need a hard fix
+      m_state.location.position.Y = currentFloor;
+      moveY = 0_len;
     }
     else
     {
-      m_state.location.position.Y = currentFloor;
-      moveY = 0_len;
+      // fly up from the floor
+      m_state.location.position.X = oldLocation.position.X;
+      m_state.location.position.Z = oldLocation.position.Z;
+      moveY = -pathFinder.fly;
     }
   }
   else
@@ -439,14 +432,17 @@ bool AIAgent::animateCreature(const core::Angle& collisionRotationY, const core:
     {
       if(m_state.location.position.Y + collisionBottom < ceiling)
       {
+        // stuck in the ceiling, need a hard fix
+        m_state.location.position.Y = ceiling;
+        moveY = 0_len;
+      }
+      else
+      {
+        // fly down from the ceiling
         m_state.location.position.X = oldLocation.position.X;
         m_state.location.position.Z = oldLocation.position.Z;
         m_state.location.position.Y = ceiling;
         moveY = pathFinder.fly;
-      }
-      else
-      {
-        moveY = 0_len;
       }
     }
   }
