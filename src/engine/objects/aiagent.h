@@ -86,7 +86,7 @@ protected:
     m_creatureInfo->rotateHead(angle);
   }
 
-  bool animateCreature(const core::Angle& deltaRotationY, const core::Angle& tilt);
+  bool animateCreature(const core::Angle& collisionRotationY, const core::Angle& tilt);
 
   core::Angle rotateTowardsTarget(core::RotationSpeed maxRotationSpeed);
 
@@ -195,11 +195,6 @@ protected:
 
 private:
   bool anyMovingEnabledObjectInReach() const;
-
-  bool isPositionOutOfReach(const core::TRVec& testPosition,
-                            const core::Length& currentBoxFloor,
-                            const core::Length& nextBoxFloor,
-                            const ai::PathFinder& pathFinder) const;
 
   core::Length m_collisionRadius = 0_len;
 

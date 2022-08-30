@@ -60,29 +60,6 @@ core::Angle AIAgent::rotateTowardsTarget(core::RotationSpeed maxRotationSpeed)
   return turnSpeed * 1_frame;
 }
 
-bool AIAgent::isPositionOutOfReach(const core::TRVec& testPosition,
-                                   const core::Length& currentBoxFloor,
-                                   const core::Length& nextBoxFloor,
-                                   const ai::PathFinder& pathFinder) const
-{
-  const auto sectorBox = Location{m_state.location.room, testPosition}.updateRoom()->box;
-  if(sectorBox == nullptr)
-    return true;
-
-  if(!pathFinder.canVisit(*sectorBox))
-    return true;
-
-  const auto stepHeight = currentBoxFloor - sectorBox->floor;
-
-  if(stepHeight > pathFinder.step || stepHeight < pathFinder.drop)
-    return true;
-
-  if(stepHeight < -pathFinder.step && sectorBox->floor > nextBoxFloor)
-    return true;
-
-  return pathFinder.isFlying() && testPosition.Y > pathFinder.fly + sectorBox->floor;
-}
-
 bool AIAgent::anyMovingEnabledObjectInReach() const
 {
   for(const auto& object : getWorld().getObjectManager().getObjects() | boost::adaptors::map_values)
@@ -102,7 +79,7 @@ bool AIAgent::anyMovingEnabledObjectInReach() const
   return false;
 }
 
-bool AIAgent::animateCreature(const core::Angle& deltaRotationY, const core::Angle& tilt)
+bool AIAgent::animateCreature(const core::Angle& collisionRotationY, const core::Angle& tilt)
 {
   if(m_creatureInfo == nullptr)
     return false;
@@ -149,12 +126,13 @@ bool AIAgent::animateCreature(const core::Angle& deltaRotationY, const core::Ang
   }
 
   const auto bbox = getSkeleton()->getBoundingBox();
-  const auto bboxMaxY = m_state.location.position.Y + bbox.y.max;
+  const auto bboxBottom = m_state.location.position.Y + bbox.y.max;
 
   auto currentSector = m_state.location.moved(0_len, bbox.y.max, 0_len).updateRoom();
 
-  if(currentSector->box == nullptr || boxFloor - currentSector->box->floor > pathFinder.step
-     || boxFloor - currentSector->box->floor < pathFinder.drop
+  // fix location in case the entity moved to an invalid location, including checks for step/drop limits
+  if(currentSector->box == nullptr || boxFloor > currentSector->box->floor + pathFinder.step
+     || boxFloor < currentSector->box->floor + pathFinder.drop
      || m_state.getCurrentBox().get()->*zoneRef != currentSector->box->*zoneRef)
   {
     const auto shoveMin = [this](const core::Length& l)
@@ -185,139 +163,161 @@ bool AIAgent::animateCreature(const core::Angle& deltaRotationY, const core::Ang
 
   Expects(currentSector->box != nullptr);
 
-  core::Length nextFloor;
+  core::Length nextPathFloor;
   if(const auto& exitBox = pathFinder.getNextPathBox(gsl::not_null{currentSector->box}); exitBox != nullptr)
   {
-    nextFloor = exitBox->floor;
+    nextPathFloor = exitBox->floor;
   }
   else
   {
-    nextFloor = currentSector->box->floor;
+    nextPathFloor = currentSector->box->floor;
   }
 
   const auto inSectorX = toSectorLocal(m_state.location.position.X);
   const auto inSectorZ = toSectorLocal(m_state.location.position.Z);
 
   // in-sector coordinate bounds incorporating collision radius
-  const auto collisionBounds = core::Interval{0_len, 1_sectors - 1_len}.narrowed(m_collisionRadius);
-  gsl_Assert(collisionBounds.isValid());
-  const core::TRVec origin{m_state.location.position.X, bboxMaxY, m_state.location.position.Z};
+  const auto inSectorBounds = core::Interval{0_len, 1_sectors - 1_len}.narrowed(m_collisionRadius);
+  gsl_Assert(inSectorBounds.isValid());
+  const core::TRVec bottom{m_state.location.position.X, bboxBottom, m_state.location.position.Z};
   // relative bounding box collision test coordinates
   const core::TRVec testDx{m_collisionRadius, 0_len, 0_len};
   const core::TRVec testDz{0_len, 0_len, m_collisionRadius};
 
   const auto cannotMoveTo
-    = [this, floor = currentSector->box->floor, nextFloor = nextFloor, &pathFinder](const core::TRVec& pos)
+    = [this, currentFloor = currentSector->box->floor, nextPathFloor = nextPathFloor, &pathFinder](
+        const core::TRVec& testPos)
   {
-    return isPositionOutOfReach(pos, floor, nextFloor, pathFinder);
+    const auto testBox = Location{m_state.location.room, testPos}.updateRoom()->box;
+    if(testBox == nullptr || !pathFinder.canVisit(*testBox))
+    {
+      return true;
+    }
+
+    const auto dy = testBox->floor - currentFloor;
+
+    if(dy > pathFinder.step || dy < pathFinder.drop)
+    {
+      // height difference doesn't allow stepping up or dropping down
+      return true;
+    }
+
+    if(dy < -pathFinder.step && testBox->floor > nextPathFloor)
+    {
+      // height difference would allow stepping down, but the test position isn't on the same level as the wanted path
+      return true;
+    }
+
+    if(!pathFinder.isFlying())
+    {
+      return false;
+    }
+
+    // true if the entity is flying, but the test position is outside the maximum vertical flying speed that would
+    // allow recovery after penetrating the floor
+    return pathFinder.isFlying() && testPos.Y > testBox->floor + pathFinder.fly;
   };
 
   core::Length moveX = 0_len;
   core::Length moveZ = 0_len;
 
-  if(inSectorZ < collisionBounds.min)
+  if(inSectorZ < inSectorBounds.min)
   {
-    if(cannotMoveTo(origin - testDz))
+    if(cannotMoveTo(bottom - testDz))
     {
-      moveZ = collisionBounds.min - inSectorZ;
+      moveZ = inSectorBounds.min - inSectorZ;
     }
 
-    if(inSectorX < collisionBounds.min)
+    if(inSectorX < inSectorBounds.min)
     {
-      if(cannotMoveTo(origin - testDx))
+      if(cannotMoveTo(bottom - testDx))
       {
-        moveX = collisionBounds.min - inSectorX;
+        moveX = inSectorBounds.min - inSectorX;
       }
-      else if(moveZ == 0_len && cannotMoveTo(origin - testDz - testDx))
+      else if(moveZ == 0_len && cannotMoveTo(bottom - testDz - testDx))
       {
         switch(axisFromAngle(m_state.rotation.Y))
         {
         case core::Axis::Deg180:
-          [[fallthrough]];
         case core::Axis::Right90:
-          moveX = collisionBounds.min - inSectorX;
+          moveX = inSectorBounds.min - inSectorX;
           break;
         case core::Axis::Deg0:
-          [[fallthrough]];
         case core::Axis::Left90:
-          moveZ = collisionBounds.min - inSectorZ;
+          moveZ = inSectorBounds.min - inSectorZ;
           break;
         }
       }
     }
-    else if(inSectorX > collisionBounds.max)
+    else if(inSectorX > inSectorBounds.max)
     {
-      if(cannotMoveTo(origin + testDx))
+      if(cannotMoveTo(bottom + testDx))
       {
-        moveX = collisionBounds.max - inSectorX;
+        moveX = inSectorBounds.max - inSectorX;
       }
-      else if(moveZ == 0_len && cannotMoveTo(origin - testDz + testDx))
+      else if(moveZ == 0_len && cannotMoveTo(bottom - testDz + testDx))
       {
         switch(axisFromAngle(m_state.rotation.Y))
         {
         case core::Axis::Deg180:
-          [[fallthrough]];
         case core::Axis::Left90:
-          moveX = collisionBounds.max - inSectorX;
+          moveX = inSectorBounds.max - inSectorX;
           break;
         case core::Axis::Deg0:
-          [[fallthrough]];
         case core::Axis::Right90:
-          moveZ = collisionBounds.min - inSectorZ;
+          moveZ = inSectorBounds.min - inSectorZ;
           break;
         }
       }
     }
   }
-  else if(inSectorZ > collisionBounds.max)
+  else if(inSectorZ > inSectorBounds.max)
   {
-    if(cannotMoveTo(origin + testDz))
+    if(cannotMoveTo(bottom + testDz))
     {
-      moveZ = collisionBounds.max - inSectorZ;
+      moveZ = inSectorBounds.max - inSectorZ;
     }
 
-    if(inSectorX < collisionBounds.min)
+    if(inSectorX < inSectorBounds.min)
     {
-      if(cannotMoveTo(origin - testDx))
+      if(cannotMoveTo(bottom - testDx))
       {
-        moveX = collisionBounds.min - inSectorX;
+        moveX = inSectorBounds.min - inSectorX;
       }
-      else if(moveZ == 0_len && cannotMoveTo(origin + testDz - testDx))
+      else if(moveZ == 0_len && cannotMoveTo(bottom + testDz - testDx))
       {
         switch(axisFromAngle(m_state.rotation.Y))
         {
         case core::Axis::Right90:
-          [[fallthrough]];
         case core::Axis::Deg0:
-          moveX = collisionBounds.min - inSectorX;
+          moveX = inSectorBounds.min - inSectorX;
           break;
         case core::Axis::Left90:
-          [[fallthrough]];
         case core::Axis::Deg180:
-          moveZ = collisionBounds.max - inSectorZ;
+          moveZ = inSectorBounds.max - inSectorZ;
           break;
         }
       }
     }
-    else if(inSectorX > collisionBounds.max)
+    else if(inSectorX > inSectorBounds.max)
     {
-      if(cannotMoveTo(origin + testDx))
+      if(cannotMoveTo(bottom + testDx))
       {
-        moveX = collisionBounds.max - inSectorX;
+        moveX = inSectorBounds.max - inSectorX;
       }
-      else if(moveZ == 0_len && cannotMoveTo(origin + testDz + testDx))
+      else if(moveZ == 0_len && cannotMoveTo(bottom + testDz + testDx))
       {
         switch(axisFromAngle(m_state.rotation.Y))
         {
         case core::Axis::Deg0:
           [[fallthrough]];
         case core::Axis::Left90:
-          moveX = collisionBounds.max - inSectorX;
+          moveX = inSectorBounds.max - inSectorX;
           break;
         case core::Axis::Deg180:
           [[fallthrough]];
         case core::Axis::Right90:
-          moveZ = collisionBounds.max - inSectorZ;
+          moveZ = inSectorBounds.max - inSectorZ;
           break;
         }
       }
@@ -325,18 +325,20 @@ bool AIAgent::animateCreature(const core::Angle& deltaRotationY, const core::Ang
   }
   else
   {
-    if(inSectorX < collisionBounds.min)
+    // in this case, Z is completely valid, so only X needs to be checked
+
+    if(inSectorX < inSectorBounds.min)
     {
-      if(cannotMoveTo(origin - testDx))
+      if(cannotMoveTo(bottom - testDx))
       {
-        moveX = collisionBounds.min - inSectorX;
+        moveX = inSectorBounds.min - inSectorX;
       }
     }
-    else if(inSectorX > collisionBounds.max)
+    else if(inSectorX > inSectorBounds.max)
     {
-      if(cannotMoveTo(origin + testDx))
+      if(cannotMoveTo(bottom + testDx))
       {
-        moveX = collisionBounds.max - inSectorX;
+        moveX = inSectorBounds.max - inSectorX;
       }
     }
   }
@@ -345,127 +347,131 @@ bool AIAgent::animateCreature(const core::Angle& deltaRotationY, const core::Ang
 
   if(moveX != 0_len || moveZ != 0_len)
   {
-    auto bboxMaxYLocation = m_state.location;
-    bboxMaxYLocation.position.Y = bboxMaxY;
-    currentSector = bboxMaxYLocation.updateRoom();
+    auto bboxBottomLocation = m_state.location;
+    bboxBottomLocation.position.Y = bboxBottom;
+    currentSector = bboxBottomLocation.updateRoom();
 
-    m_state.rotation.Y += deltaRotationY;
+    m_state.rotation.Y += collisionRotationY;
     m_state.rotation.Z += std::clamp(8 * tilt - m_state.rotation.Z, -3_deg, +3_deg);
   }
 
   if(anyMovingEnabledObjectInReach())
   {
+    // we would end up colliding with another object
     m_state.location = oldLocation;
     return true;
   }
 
-  if(pathFinder.isFlying())
+  if(!pathFinder.isFlying())
   {
-    auto moveY = std::clamp(m_creatureInfo->target.Y - m_state.location.position.Y, -pathFinder.fly, pathFinder.fly);
+    static constexpr auto FallSpeed = 64_len;
 
-    const auto currentFloor
-      = HeightInfo::fromFloor(currentSector,
-                              core::TRVec{m_state.location.position.X, bboxMaxY, m_state.location.position.Z},
-                              getWorld().getObjectManager().getObjects())
-          .y;
-
-    if(m_state.location.position.Y + moveY > currentFloor)
+    if(m_state.location.position.Y > m_state.floor)
     {
-      // fly target is below floor
-
-      if(m_state.location.position.Y > currentFloor)
-      {
-        // we're already below the floor or inside a wall, so fix it
-        m_state.location.position.X = oldLocation.position.X;
-        m_state.location.position.Z = oldLocation.position.Z;
-
-        auto tmp = m_state.location;
-        const auto floor
-          = HeightInfo::fromFloor(tmp.updateRoom(),
-                                  core::TRVec{m_state.location.position.X, bboxMaxY, m_state.location.position.Z},
-                                  getWorld().getObjectManager().getObjects())
-              .y;
-
-        moveY = floor - m_state.location.position.Y; // -pathFinder.fly;
-      }
-      else
-      {
-        m_state.location.position.Y = currentFloor;
-        moveY = 0_len;
-      }
+      m_state.location.position.Y = m_state.floor;
     }
-    else
+    else if(m_state.floor - m_state.location.position.Y > FallSpeed)
     {
-      const auto ceiling
-        = HeightInfo::fromCeiling(currentSector,
-                                  core::TRVec{m_state.location.position.X, bboxMaxY, m_state.location.position.Z},
-                                  getWorld().getObjectManager().getObjects())
-            .y;
-
-      // TODO nah... why, core, why?
-      const auto y = m_state.type == TR1ItemId::CrocodileInWater ? 0_len : bbox.y.max;
-
-      if(m_state.location.position.Y + y + moveY < ceiling)
-      {
-        if(m_state.location.position.Y + y < ceiling)
-        {
-          m_state.location.position.X = oldLocation.position.X;
-          m_state.location.position.Z = oldLocation.position.Z;
-          moveY = pathFinder.fly;
-        }
-        else
-          moveY = 0_len;
-      }
+      m_state.location.position.Y += FallSpeed;
+    }
+    else if(m_state.location.position.Y < m_state.floor)
+    {
+      m_state.location.position.Y = m_state.floor;
     }
 
-    m_state.location.position.Y += moveY;
-    auto bboxMaxYLocation = m_state.location;
-    bboxMaxYLocation.position.Y = bboxMaxY;
-    currentSector = bboxMaxYLocation.updateRoom();
-    m_state.floor
-      = HeightInfo::fromFloor(currentSector,
-                              core::TRVec{m_state.location.position.X, bboxMaxY, m_state.location.position.Z},
-                              getWorld().getObjectManager().getObjects())
-          .y;
+    m_state.rotation.X = 0_au;
 
-    core::Angle yaw{0_deg};
-    if(m_state.speed != 0_spd)
-      yaw = angleFromAtan(-moveY, m_state.speed * 1_frame);
-
-    if(yaw < m_state.rotation.X - 1_deg)
-      m_state.rotation.X -= 1_deg;
-    else if(yaw > m_state.rotation.X + 1_deg)
-      m_state.rotation.X += 1_deg;
-    else
-      m_state.rotation.X = yaw;
-
-    m_state.location.updateRoom();
+    currentSector = m_state.location.updateRoom();
     BOOST_ASSERT(m_state.location.isValid());
     setCurrentRoom(m_state.location.room);
+    m_state.floor
+      = HeightInfo::fromFloor(currentSector, m_state.location.position, getWorld().getObjectManager().getObjects()).y;
 
     return true;
   }
 
-  if(m_state.location.position.Y > m_state.floor)
+  auto moveY = std::clamp(m_creatureInfo->target.Y - m_state.location.position.Y, -pathFinder.fly, pathFinder.fly);
+
+  const auto currentFloor
+    = HeightInfo::fromFloor(currentSector,
+                            core::TRVec{m_state.location.position.X, bboxBottom, m_state.location.position.Z},
+                            getWorld().getObjectManager().getObjects())
+        .y;
+
+  if(m_state.location.position.Y + moveY > currentFloor)
   {
-    m_state.location.position.Y = m_state.floor;
+    // fly movements ended up penetrating the floor
+
+    if(m_state.location.position.Y > currentFloor)
+    {
+      // we're already below the floor or inside a wall, so fix it
+      m_state.location.position.X = oldLocation.position.X;
+      m_state.location.position.Z = oldLocation.position.Z;
+
+      // originally only moveY = -pathFinder.fly, but that made dying bats bounce off the floor
+      auto tmp = m_state.location;
+      const auto floor
+        = HeightInfo::fromFloor(tmp.updateRoom(),
+                                core::TRVec{m_state.location.position.X, bboxBottom, m_state.location.position.Z},
+                                getWorld().getObjectManager().getObjects())
+            .y;
+
+      moveY = floor - m_state.location.position.Y;
+    }
+    else
+    {
+      m_state.location.position.Y = currentFloor;
+      moveY = 0_len;
+    }
   }
-  else if(m_state.floor - m_state.location.position.Y > 64_len)
+  else
   {
-    m_state.location.position.Y += 64_len;
-  }
-  else if(m_state.location.position.Y < m_state.floor)
-  {
-    m_state.location.position.Y = m_state.floor;
+    const auto ceiling
+      = HeightInfo::fromCeiling(currentSector,
+                                core::TRVec{m_state.location.position.X, bboxBottom, m_state.location.position.Z},
+                                getWorld().getObjectManager().getObjects())
+          .y;
+
+    // TODO nah... why, core, why?
+    const auto collisionBottom = m_state.type == TR1ItemId::CrocodileInWater ? 0_len : bbox.y.max;
+
+    if(m_state.location.position.Y + collisionBottom + moveY < ceiling)
+    {
+      if(m_state.location.position.Y + collisionBottom < ceiling)
+      {
+        m_state.location.position.X = oldLocation.position.X;
+        m_state.location.position.Z = oldLocation.position.Z;
+        m_state.location.position.Y = ceiling;
+        moveY = pathFinder.fly;
+      }
+      else
+      {
+        moveY = 0_len;
+      }
+    }
   }
 
-  m_state.rotation.X = 0_au;
+  m_state.location.position.Y += moveY;
+  auto bboxBottomLocation = m_state.location;
+  bboxBottomLocation.position.Y = bboxBottom;
+  currentSector = bboxBottomLocation.updateRoom();
+  m_state.floor
+    = HeightInfo::fromFloor(currentSector, bboxBottomLocation.position, getWorld().getObjectManager().getObjects()).y;
 
-  currentSector = m_state.location.updateRoom();
+  core::Angle yaw{0_deg};
+  if(m_state.speed != 0_spd)
+    yaw = angleFromAtan(-moveY, m_state.speed * 1_frame);
+
+  if(yaw < m_state.rotation.X - 1_deg)
+    m_state.rotation.X -= 1_deg;
+  else if(yaw > m_state.rotation.X + 1_deg)
+    m_state.rotation.X += 1_deg;
+  else
+    m_state.rotation.X = yaw;
+
+  m_state.location.updateRoom();
   BOOST_ASSERT(m_state.location.isValid());
   setCurrentRoom(m_state.location.room);
-  m_state.floor
-    = HeightInfo::fromFloor(currentSector, m_state.location.position, getWorld().getObjectManager().getObjects()).y;
 
   return true;
 }
