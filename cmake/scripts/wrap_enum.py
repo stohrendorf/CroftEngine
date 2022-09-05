@@ -51,7 +51,7 @@ def generate_header_lines(args, enums: List[Tuple[str, str]]) -> Iterable[str]:
     yield f"template<> struct EnumUtil<{args.name}>"
     yield "{"
     yield f"    static {args.name} fromString(const std::string& value);"
-    yield f"    static std::map<{args.name}, std::string> all();"
+    yield f"    static const std::map<{args.name}, std::string>& all();"
     yield "    static const char* name()"
     yield "    {"
     yield f"        return \"{args.name}\";"
@@ -92,12 +92,13 @@ def generate_impl_lines(args, enums: List[Tuple[str, str]], include_path: Path) 
     yield "}"
 
     yield ""
-    yield f"std::map<{args.name}, std::string> EnumUtil<{args.name}>::all()"
+    yield f"const std::map<{args.name}, std::string>& EnumUtil<{args.name}>::all()"
     yield "{"
-    yield "    return {"
+    yield f"    static const std::map<{args.name}, std::string> instance{{"
     for identifier, value in enums:
         yield f"        {{{args.name}::{identifier}, \"{identifier}\"}},"
     yield "    };"
+    yield "    return instance;"
     yield "}"
     yield f"}} // namespace {args.namespace}"
 
