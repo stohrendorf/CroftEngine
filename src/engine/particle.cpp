@@ -292,7 +292,8 @@ FlameParticle::FlameParticle(const Location& location, world::World& world, bool
 
   if(randomize)
   {
-    timePerSpriteFrame = -int(util::rand15(world.getObjectManager().getLara().getSkeleton()->getBoneCount())) - 1;
+    timePerSpriteFrame
+      = -util::rand15(static_cast<int16_t>(world.getObjectManager().getLara().getSkeleton()->getBoneCount())) - 1;
     for(auto n = util::rand15(getLength()); n != 0; --n)
       nextFrame();
   }

@@ -93,7 +93,7 @@ inline void FF(uint32_t& a,
                const uint32_t c,
                const uint32_t d,
                const uint32_t x,
-               const uint32_t s,
+               const uint8_t s,
                const uint32_t ac)
 {
   a = rotate_left(a + F(b, c, d) + x + ac, s) + b;
@@ -104,7 +104,7 @@ inline void GG(uint32_t& a,
                const uint32_t c,
                const uint32_t d,
                const uint32_t x,
-               const uint32_t s,
+               const uint8_t s,
                const uint32_t ac)
 {
   a = rotate_left(a + G(b, c, d) + x + ac, s) + b;
@@ -115,7 +115,7 @@ inline void HH(uint32_t& a,
                const uint32_t c,
                const uint32_t d,
                const uint32_t x,
-               const uint32_t s,
+               const uint8_t s,
                const uint32_t ac)
 {
   a = rotate_left(a + H(b, c, d) + x + ac, s) + b;
@@ -126,7 +126,7 @@ inline void II(uint32_t& a,
                const uint32_t c,
                const uint32_t d,
                const uint32_t x,
-               const uint32_t s,
+               const uint8_t s,
                const uint32_t ac)
 {
   a = rotate_left(a + I(b, c, d) + x + ac, s) + b;

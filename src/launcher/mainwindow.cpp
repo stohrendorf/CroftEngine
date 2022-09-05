@@ -26,7 +26,15 @@
 
 #ifdef WIN32
 #  define WIN32_LEAN_AND_MEAN
+
+#  ifdef _MSC_VER
+#    pragma warning(push)
+#    pragma warning(disable : 4456)
+#  endif
 #  include "vdf_parser.hpp"
+#  ifdef _MSC_VER
+#    pragma warning(pop)
+#  endif
 
 #  include <windows.h>
 #endif

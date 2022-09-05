@@ -2,9 +2,16 @@
 
 #include "type_safe/integer.hpp"
 
+#ifdef _MSC_VER
+#  pragma warning(push)
+#  pragma warning(disable : 4702)
+#endif
 #include <boost/iostreams/device/array.hpp>
 #include <boost/iostreams/device/file.hpp>
 #include <boost/iostreams/filtering_stream.hpp>
+#ifdef _MSC_VER
+#  pragma warning(pop)
+#endif
 #include <boost/throw_exception.hpp>
 #include <cstdint>
 #include <filesystem>
@@ -41,10 +48,10 @@ public:
   }
 
   SDLReader(SDLReader&& rhs) noexcept
-      : m_memory{move(rhs.m_memory)}
-      , m_file{move(rhs.m_file)}
-      , m_array{move(rhs.m_array)}
-      , m_streamBuf{move(rhs.m_streamBuf)}
+      : m_memory{std::move(rhs.m_memory)}
+      , m_file{std::move(rhs.m_file)}
+      , m_array{std::move(rhs.m_array)}
+      , m_streamBuf{std::move(rhs.m_streamBuf)}
       , m_stream{m_streamBuf.get()}
   {
   }
@@ -82,7 +89,7 @@ public:
     if(actuallyUncompressedSize != uncompressedSize)
       BOOST_THROW_EXCEPTION(std::runtime_error("Decompressed size mismatch"));
 
-    SDLReader reader(move(uncomp_buffer));
+    SDLReader reader(std::move(uncomp_buffer));
     if(!reader.isOpen())
       BOOST_THROW_EXCEPTION(std::runtime_error("Failed to create reader from decompressed memory"));
 
@@ -258,7 +265,7 @@ private:
   {
     static void doSwap(T& /*data*/)
     {
-      //! @todo For now, no endian conversion
+      // TODO For now, no endian conversion
     }
   };
 

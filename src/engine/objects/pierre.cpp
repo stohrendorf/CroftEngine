@@ -71,7 +71,7 @@ void Pierre::update()
     }
     if(m_fleeTime != 0_frame)
     {
-      enemyLocation.enemyZoneId = -1;
+      enemyLocation.enemyZoneId = static_cast<uint32_t>(-1);
       enemyLocation.enemyUnreachable = true;
       m_state.is_hit = true;
     }

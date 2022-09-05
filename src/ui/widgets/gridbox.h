@@ -4,11 +4,19 @@
 #include "widget.h"
 
 #include <algorithm>
+#ifdef _MSC_VER
+#  pragma warning(push)
+#  pragma warning(disable : 4458)
+#  pragma warning(disable : 4459)
+#endif
 #include <boost/multi_array.hpp>
 #include <boost/multi_array/base.hpp>
 #include <boost/multi_array/extent_gen.hpp>
 #include <boost/multi_array/multi_array_ref.hpp>
 #include <boost/multi_array/subarray.hpp>
+#ifdef _MSC_VER
+#  pragma warning(pop)
+#endif
 #include <cstddef>
 #include <glm/vec2.hpp>
 #include <gsl/gsl-lite.hpp>
