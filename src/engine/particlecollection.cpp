@@ -79,7 +79,7 @@ void InstancedParticleCollection::render(render::scene::RenderContext& context) 
     m_lighting.bind(*particle);
     buffer->setSubData(data, 0);
     auto mesh = std::get<0>(particle->getCurrentMesh());
-    mesh->render(particle.get().get(), context, data.size());
+    mesh->render(particle.get().get(), context, gsl::narrow<gl::api::core::SizeType>(data.size()));
   }
 }
 
