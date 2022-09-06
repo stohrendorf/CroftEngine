@@ -1,6 +1,7 @@
 #pragma once
 
 #include "config.h"
+#include "render/renderpipeline.h"
 #include "render/scene/mesh.h"
 #include "render/scene/rendercontext.h"
 
@@ -13,11 +14,6 @@
 #include <memory>
 #include <string>
 #include <utility>
-
-namespace render
-{
-class RenderPipeline;
-}
 
 namespace render::scene
 {

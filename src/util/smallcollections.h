@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>
 #include <boost/throw_exception.hpp>
 #include <optional>
 #include <type_traits>
