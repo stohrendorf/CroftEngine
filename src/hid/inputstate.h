@@ -61,7 +61,7 @@ struct InputState
   Axis zMovement{AxisMovement::Null};
   Axis stepMovement{AxisMovement::Null};
 
-  boost::container::flat_map<Action, Button> actions{
+  std::vector<std::pair<Action, Button>> actions{
     {Action::Jump, Button{false}},
     {Action::Walk, Button{false}},
     {Action::Roll, Button{false}},

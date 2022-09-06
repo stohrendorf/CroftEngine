@@ -705,6 +705,7 @@ add_subdirectory( shared )
 add_subdirectory( soglb )
 add_subdirectory( qs )
 add_subdirectory( core )
+add_subdirectory( util )
 add_subdirectory( launcher )
 add_subdirectory( dosbox-cdrom )
 

@@ -9,8 +9,8 @@
 #include "inputstate.h"
 #include "serialization/named_enum.h"
 #include "util/helpers.h"
+#include "util/smallcollections.h"
 
-#include <boost/container/flat_set.hpp>
 #include <boost/log/trivial.hpp>
 #include <boost/throw_exception.hpp>
 #include <fstream>
@@ -31,14 +31,14 @@ namespace
 
 std::recursive_mutex glfwStateMutex;
 
-boost::container::flat_set<int> connectedGamepads;
-boost::container::flat_set<GlfwGamepadButton> pressedButtons;
+std::vector<int> connectedGamepads;
+std::vector<GlfwGamepadButton> pressedButtons;
 std::optional<GlfwGamepadButton> recentPressedButton;
 
-boost::container::flat_set<GlfwKey> pressedKeys;
+std::vector<GlfwKey> pressedKeys;
 std::optional<GlfwKey> recentPressedKey;
 
-boost::container::flat_set<AxisDir> pressedAxes;
+std::vector<AxisDir> pressedAxes;
 std::optional<AxisDir> recentPressedAxis;
 
 constexpr float AxisDeadZone = 0.4f;
@@ -54,7 +54,7 @@ void keyCallback(GLFWwindow* /*window*/, int key, int /*scancode*/, int action, 
   case GLFW_PRESS:
   {
     std::lock_guard lock{glfwStateMutex};
-    pressedKeys.emplace(typed);
+    util::insertUnique(pressedKeys, typed);
     recentPressedKey = typed;
 #ifdef PRINT_KEY_INPUT
     if(const auto name = toString(typed))
@@ -67,7 +67,7 @@ void keyCallback(GLFWwindow* /*window*/, int key, int /*scancode*/, int action, 
   case GLFW_RELEASE:
   {
     std::lock_guard lock{glfwStateMutex};
-    pressedKeys.erase(typed);
+    util::eraseUnique(pressedKeys, typed);
     break;
   }
   case GLFW_REPEAT:
@@ -90,14 +90,14 @@ void joystickCallback(int jid, int event)
 
     {
       std::lock_guard lock{glfwStateMutex};
-      connectedGamepads.emplace(jid);
+      util::insertUnique(connectedGamepads, jid);
     }
     BOOST_LOG_TRIVIAL(info) << "Gamepad #" << jid << " connected: " << glfwGetGamepadName(jid);
     break;
   case GLFW_DISCONNECTED:
   {
     std::lock_guard lock{glfwStateMutex};
-    if(connectedGamepads.erase(jid) > 0)
+    if(util::eraseUnique(connectedGamepads, jid))
       BOOST_LOG_TRIVIAL(info) << "Gamepad #" << jid << " disconnected";
     break;
   }
@@ -121,7 +121,7 @@ void installHandlers(GLFWwindow* window)
 bool isKeyPressed(GlfwKey key)
 {
   std::lock_guard lock{glfwStateMutex};
-  return pressedKeys.count(key) > 0;
+  return util::containsUnique(pressedKeys, key);
 }
 } // namespace
 
@@ -136,22 +136,23 @@ InputHandler::InputHandler(gsl::not_null<GLFWwindow*> window, const std::filesys
 
   installHandlers(m_window);
 
-  for(auto i = GLFW_JOYSTICK_1; i <= GLFW_JOYSTICK_LAST; ++i)
+  for(auto jid = GLFW_JOYSTICK_1; jid <= GLFW_JOYSTICK_LAST; ++jid)
   {
-    if(glfwJoystickPresent(i) != GLFW_TRUE)
+    if(glfwJoystickPresent(jid) != GLFW_TRUE)
       continue;
 
-    const gsl::czstring name = glfwGetGamepadName(i);
-    if(name == nullptr || glfwJoystickIsGamepad(i) != GLFW_TRUE)
+    const gsl::czstring name = glfwGetGamepadName(jid);
+    if(name == nullptr || glfwJoystickIsGamepad(jid) != GLFW_TRUE)
     {
-      BOOST_LOG_TRIVIAL(info) << "Connected joystick #" << i << " " << glfwGetJoystickName(i) << " is not a gamepad";
+      BOOST_LOG_TRIVIAL(info) << "Connected joystick #" << jid << " " << glfwGetJoystickName(jid)
+                              << " is not a gamepad";
       continue;
     }
 
-    BOOST_LOG_TRIVIAL(info) << "Found gamepad controller #" << i << ": " << name;
+    BOOST_LOG_TRIVIAL(info) << "Found gamepad controller #" << jid << ": " << name;
 
     std::lock_guard lock{glfwStateMutex};
-    connectedGamepads.emplace(i);
+    util::insertUnique(connectedGamepads, jid);
   }
 }
 
@@ -179,8 +180,8 @@ void InputHandler::update()
       if(state.buttons[static_cast<int>(button)] == GLFW_RELEASE)
         continue;
 
-      pressedButtons.emplace(button);
-      if(prevPressedButtons.count(button) == 0)
+      util::insertUnique(pressedButtons, button);
+      if(!util::containsUnique(prevPressedButtons, button))
         recentPressedButton = button;
       break;
     }
@@ -194,46 +195,52 @@ void InputHandler::update()
       if(const auto value = state.axes[static_cast<int>(axis)]; std::abs(value) > AxisDeadZone)
       {
         const AxisDir axisDir{axis, value > 0 ? GlfwAxisDir::Positive : GlfwAxisDir::Negative};
-        pressedAxes.emplace(axisDir);
-        if(prevPressedAxes.count(axisDir) == 0)
+        util::insertUnique(pressedAxes, axisDir);
+        if(!util::containsUnique(prevPressedAxes, axisDir))
           recentPressedAxis = axisDir;
         break;
       }
     }
   }
 
-  boost::container::flat_map<Action, bool> newActionStates{};
+  std::vector<std::pair<Action, bool>> newActionStates{};
   newActionStates.reserve(m_mergedInputMappings.size());
 
   for(const auto& [input, action] : m_mergedInputMappings)
   {
+    auto& state = util::getOrCreate(newActionStates, action.value);
+
     if(std::holds_alternative<engine::NamedGlfwGamepadButton>(input))
     {
-      newActionStates[action] |= pressedButtons.count(std::get<engine::NamedGlfwGamepadButton>(input).value) != 0;
+      state |= util::containsUnique(pressedButtons, std::get<engine::NamedGlfwGamepadButton>(input).value);
     }
     else if(std::holds_alternative<engine::NamedGlfwKey>(input))
     {
-      newActionStates[action] |= isKeyPressed(std::get<engine::NamedGlfwKey>(input).value);
+      state |= isKeyPressed(std::get<engine::NamedGlfwKey>(input).value);
     }
     else
     {
       const auto mapped = std::get<engine::NamedAxisDir>(input);
-      newActionStates[action] |= pressedAxes.count({mapped.first.value, mapped.second.value}) != 0;
+      state |= util::containsUnique(pressedAxes, {mapped.first.value, mapped.second.value});
     }
   }
 
   for(const auto& [action, state] : newActionStates)
   {
-    m_inputState.actions[action] = state;
+    util::getOrCreate(m_inputState.actions, action) = state;
   }
-  if(m_inputState.actions[Action::Backward] && m_inputState.actions[Action::Forward])
+  if(util::getOrCreate(m_inputState.actions, Action::Backward)
+     && util::getOrCreate(m_inputState.actions, Action::Forward))
   {
-    m_inputState.actions[Action::Roll] = true;
+    util::getOrCreate(m_inputState.actions, Action::Roll) = true;
   }
 
-  m_inputState.setXAxisMovement(m_inputState.actions[Action::Left], m_inputState.actions[Action::Right]);
-  m_inputState.setZAxisMovement(m_inputState.actions[Action::Backward], m_inputState.actions[Action::Forward]);
-  m_inputState.setStepMovement(m_inputState.actions[Action::StepLeft], m_inputState.actions[Action::StepRight]);
+  m_inputState.setXAxisMovement(util::getOrCreate(m_inputState.actions, Action::Left),
+                                util::getOrCreate(m_inputState.actions, Action::Right));
+  m_inputState.setZAxisMovement(util::getOrCreate(m_inputState.actions, Action::Backward),
+                                util::getOrCreate(m_inputState.actions, Action::Forward));
+  m_inputState.setStepMovement(util::getOrCreate(m_inputState.actions, Action::StepLeft),
+                               util::getOrCreate(m_inputState.actions, Action::StepRight));
 }
 
 void InputHandler::setMappings(const std::vector<engine::NamedInputMappingConfig>& inputMappings)

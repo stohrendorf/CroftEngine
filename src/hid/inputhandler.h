@@ -4,9 +4,9 @@
 #include "axisdir.h"
 #include "engine/engineconfig.h"
 #include "inputstate.h"
+#include "util/smallcollections.h"
 
 #include <algorithm>
-#include <boost/container/flat_map.hpp>
 #include <boost/container/vector.hpp>
 #include <filesystem>
 #include <gl/glfw.h>
@@ -35,8 +35,9 @@ public:
 
   [[nodiscard]] bool hasAction(Action action) const
   {
-    if(auto it = m_inputState.actions.find(action); it != m_inputState.actions.end())
-      return it->second.current;
+    if(auto tmp = util::tryGet(m_inputState.actions, action); tmp.has_value())
+      return tmp->get();
+
     return false;
   }
 
@@ -52,8 +53,8 @@ public:
 
   [[nodiscard]] bool hasDebouncedAction(Action action) const
   {
-    if(auto it = m_inputState.actions.find(action); it != m_inputState.actions.end())
-      return it->second.justChangedTo(true);
+    if(auto tmp = util::tryGet(m_inputState.actions, action); tmp.has_value())
+      return tmp->get().justChangedTo(true);
     return false;
   }
 
