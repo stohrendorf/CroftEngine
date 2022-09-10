@@ -320,6 +320,11 @@ void SkeletalModelNode::rebuildMesh()
       {
         return engine.getEngineConfig()->animSmoothing;
       },
+      [&engine = m_world->getEngine()]()
+      {
+        const auto& settings = engine.getEngineConfig()->renderSettings;
+        return !settings.lightingModeActive ? 0 : settings.lightingMode;
+      },
       getName()));
 }
 

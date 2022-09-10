@@ -38,7 +38,9 @@ void RenderSettings::serialize(const serialization::Serializer<engine::EngineCon
       S_NVO("renderResolutionDivisorActive", renderResolutionDivisorActive),
       S_NVO("uiScaleMultiplier", uiScaleMultiplier),
       S_NVO("uiScaleActive", uiScaleActive),
-      S_NVO("glidosPack", glidosPack),
-      S_NVO("muzzleFlashLight", muzzleFlashLight));
+      S_NVO("muzzleFlashLight", muzzleFlashLight),
+      S_NVO("lightingMode", lightingMode),
+      S_NVO("lightingModeActive", lightingModeActive),
+      S_NVO("glidosPack", glidosPack));
 }
 } // namespace render

@@ -201,13 +201,19 @@ void Room::createSceneNode(const loader::file::Room& srcRoom,
                                                                   return false;
                                                                 });
   renderMesh.m_materialCSMDepthOnly = nullptr;
-  renderMesh.m_materialFull = materialManager.getGeometry(isWaterRoom,
-                                                          false,
-                                                          true,
-                                                          []()
-                                                          {
-                                                            return false;
-                                                          });
+  renderMesh.m_materialFull = materialManager.getGeometry(
+    isWaterRoom,
+    false,
+    true,
+    []()
+    {
+      return false;
+    },
+    [&world]()
+    {
+      const auto& settings = world.getEngine().getEngineConfig()->renderSettings;
+      return !settings.lightingModeActive ? 0 : settings.lightingMode;
+    });
 
   std::vector<RenderVertex> vbufData;
   std::vector<render::AnimatedUV> uvCoordsData;
@@ -382,11 +388,14 @@ void Room::createSceneNode(const loader::file::Room& srcRoom,
              });
 
   node->bind("b_lights",
-             [emptyBuffer = ShaderLight::getEmptyBuffer()](const render::scene::Node*,
-                                                           const render::scene::Mesh& /*mesh*/,
-                                                           gl::ShaderStorageBlock& shaderStorageBlock)
+             [this, &world, emptyBuffer = ShaderLight::getEmptyBuffer()](const render::scene::Node*,
+                                                                         const render::scene::Mesh& /*mesh*/,
+                                                                         gl::ShaderStorageBlock& shaderStorageBlock)
              {
-               shaderStorageBlock.bind(*emptyBuffer);
+               if(world.getEngine().getEngineConfig()->renderSettings.lightingModeActive)
+                 shaderStorageBlock.bind(*lightsBuffer);
+               else
+                 shaderStorageBlock.bind(*emptyBuffer);
              });
 
   for(const RoomStaticMesh& sm : staticMeshes)
@@ -445,10 +454,13 @@ void Room::createSceneNode(const loader::file::Room& srcRoom,
     const auto& v = srcRoom.vertices.at(spriteInstance.vertex.get());
     spriteNode->setLocalMatrix(translate(glm::mat4{1.0f}, v.position.toRenderSystem()));
     spriteNode->bind("u_lightAmbient",
-                     [brightness = toBrightness(v.shade)](
+                     [this, &world, brightness = toBrightness(v.shade)](
                        const render::scene::Node* /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
                      {
-                       uniform.set(brightness.get());
+                       if(world.getEngine().getEngineConfig()->renderSettings.lightingModeActive)
+                         uniform.set(toBrightness(ambientShade).get() * 0);
+                       else
+                         uniform.set(brightness.get());
                      });
     spriteNode->bind("b_dynLights",
                      [&world, emptyLightsBuffer = ShaderLight::getEmptyBuffer()](const render::scene::Node* /*node*/,
@@ -472,6 +484,16 @@ void Room::createSceneNode(const loader::file::Room& srcRoom,
                      {
                        shaderStorageBlock.bind(*emptyLightsBuffer);
                      });
+    spriteNode->bind(
+      "b_lights",
+      [this, &world, emptyLightsBuffer = ShaderLight::getEmptyBuffer()](
+        const render::scene::Node*, const render::scene::Mesh& /*mesh*/, gl::ShaderStorageBlock& shaderStorageBlock)
+      {
+        if(world.getEngine().getEngineConfig()->renderSettings.lightingModeActive)
+          shaderStorageBlock.bind(*lightsBuffer);
+        else
+          shaderStorageBlock.bind(*emptyLightsBuffer);
+      });
 
     sceneryNodes.emplace_back(std::move(spriteNode));
   }

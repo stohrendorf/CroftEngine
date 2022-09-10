@@ -32,7 +32,16 @@ void main()
     gpi.vertexPosWorld = vec3(mm * vec4(a_position, 1.0));
     gl_Position = camera.projection * mvPos;
     gpi.texCoord = a_texCoord;
+    #ifndef ROOM_SHADOWING
     gpi.color = gpi.texCoord.z >= 0 ? a_color : toLinear(a_color);
+    #else
+    if (u_lightingMode == 0) {
+        gpi.color = gpi.texCoord.z >= 0 ? a_color : toLinear(a_color);
+    }
+    else {
+        gpi.color = vec4(1.0);
+    }
+        #endif
 
     gpi.vertexNormalWorld = normalize(mat3(mm) * a_normal);
     gpi.hbaoNormal = normalize(mat3(mv) * a_normal);

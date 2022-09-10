@@ -64,7 +64,7 @@ float calc_vsm_value(in int splitIdx, in vec3 projCoords)
 float shadow_map_multiplier()
 {
     #ifdef ROOM_SHADOWING
-    if (lightNormDot > 0) {
+    if (u_lightingMode == 0 && lightNormDot > 0) {
         // ceilings are always fully lit
         return 1.0;
     }
@@ -97,7 +97,19 @@ float calc_light_strength(in vec3 pos, in float fadeDistance)
 
 vec3 calc_positional_lighting()
 {
-    vec3 sum = vec3(u_lightAmbient);
+    vec3 sum;
+    if (u_lightingMode == 0) {
+        sum = vec3(u_lightAmbient);
+    }
+    else if (u_lightingMode == 1) {
+        sum = vec3(u_lightAmbient) * 0.5;
+    }
+    else if (u_lightingMode == 2) {
+        sum = vec3(u_lightAmbient) * 0.1;
+    }
+    else {
+        sum = vec3(u_lightAmbient) * 0.03;
+    }
 
     if (gpi.vertexNormalWorld == vec3(0))
     {

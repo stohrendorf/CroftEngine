@@ -1976,6 +1976,11 @@ void LaraObject::initMuzzleFlashes()
     {
       return engine.getEngineConfig()->animSmoothing;
     },
+    [&engine = getWorld().getEngine()]()
+    {
+      const auto& settings = engine.getEngineConfig()->renderSettings;
+      return !settings.lightingModeActive ? 0 : settings.lightingMode;
+    },
     "muzzle-flash");
 
   m_muzzleFlashLeft->setRenderable(mesh);

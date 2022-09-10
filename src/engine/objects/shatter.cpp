@@ -64,9 +64,13 @@ bool shatterModel(ModelObject& object, const std::bitset<32>& meshMask, const co
         *object.getWorld().getPresenter().getMaterialManager(),
         false,
         true,
-        [&object]() -> bool
+        [&settings = object.getWorld().getEngine().getEngineConfig()]()
         {
-          return object.getWorld().getEngine().getEngineConfig()->animSmoothing;
+          return settings->animSmoothing;
+        },
+        [&settings = object.getWorld().getEngine().getEngineConfig()->renderSettings]()
+        {
+          return !settings.lightingModeActive ? 0 : settings.lightingMode;
         },
         "shatter-part:" + std::to_string(i)),
       isTorsoBoss,

@@ -211,6 +211,7 @@ gslu::nn_shared<render::scene::Mesh> RenderMeshDataCompositor::toMesh(render::sc
                                                                       bool skeletal,
                                                                       bool shadowCaster,
                                                                       std::function<bool()> smooth,
+                                                                      std::function<int32_t()> lightingMode,
                                                                       const std::string& label)
 {
   auto vb = gsl::make_shared<gl::VertexBuffer<RenderMeshData::RenderVertex>>(
@@ -225,7 +226,7 @@ gslu::nn_shared<render::scene::Mesh> RenderMeshDataCompositor::toMesh(render::sc
   auto indexBuffer = gsl::make_shared<gl::ElementArrayBuffer<RenderMeshData::IndexType>>(
     label, gl::api::BufferUsage::StaticDraw, m_indices);
 
-  const auto material = materialManager.getGeometry(false, skeletal, false, smooth);
+  const auto material = materialManager.getGeometry(false, skeletal, false, smooth, lightingMode);
   const auto materialCSMDepthOnly = materialManager.getCSMDepthOnly(skeletal, smooth);
   const auto materialDepthOnly = materialManager.getDepthOnly(skeletal, smooth);
 

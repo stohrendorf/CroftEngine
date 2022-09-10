@@ -1,6 +1,8 @@
 #include "spriteobject.h"
 
 #include "core/id.h"
+#include "engine/engine.h"
+#include "engine/engineconfig.h"
 #include "engine/objects/laraobject.h"
 #include "engine/world/room.h"
 #include "engine/world/sprite.h"
@@ -95,11 +97,15 @@ void SpriteObject::createModel()
                       });
   m_displayNode->bind(
     "b_lights",
-    [emptyBuffer = std::make_shared<gl::ShaderStorageBuffer<engine::ShaderLight>>(
+    [this,
+     emptyBuffer = std::make_shared<gl::ShaderStorageBuffer<engine::ShaderLight>>(
        "lights-buffer-empty", gl::api::BufferUsage::StaticDraw, gsl::span<engine::ShaderLight>{})](
       const render::scene::Node*, const render::scene::Mesh& /*mesh*/, gl::ShaderStorageBlock& shaderStorageBlock)
     {
-      shaderStorageBlock.bind(*emptyBuffer);
+      if(getWorld().getEngine().getEngineConfig()->renderSettings.lightingModeActive)
+        shaderStorageBlock.bind(*m_state.location.room->lightsBuffer);
+      else
+        shaderStorageBlock.bind(*emptyBuffer);
     });
 
   if(m_sprite->render1.y > 0)
