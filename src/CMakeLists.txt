@@ -713,7 +713,7 @@ add_subdirectory( dosbox-cdrom )
 
 if( WIN32 )
     set( WIN32_SPECIFIC_LIBS dbghelp )
-elseif()
+else()
     set( WIN32_SPECIFIC_LIBS )
 endif()
 
