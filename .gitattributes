@@ -2,3 +2,4 @@
 
 *.po text=LF
 *.pot text=LF
+*.ts text=LF
