@@ -306,6 +306,48 @@ RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingT
     tmp->selectValue(engine.getEngineConfig()->renderSettings.contrast);
   }
 
+  {
+    std::vector<int32_t> values{1, 2, 3};
+
+    auto tmp = std::make_shared<ui::widgets::ValueSelector<int32_t>>(
+      [](int32_t value)
+      {
+        std::string mode;
+        switch(value)
+        {
+        case 1:
+          mode = /* translators: TR charmap encoding */ pgettext("lighting", "Partially");
+          break;
+        case 2:
+          mode = /* translators: TR charmap encoding */ pgettext("lighting", "Mostly");
+          break;
+        case 3:
+          mode = /* translators: TR charmap encoding */ pgettext("lighting", "Full");
+          break;
+        default:
+          BOOST_THROW_EXCEPTION(std::domain_error("invalid lighting mode"));
+        }
+        return /* translators: TR charmap encoding */ _("\x1f\x6c %1% \x1f\x6d Dynamic Lighting", mode);
+      },
+      [&engine](int32_t value)
+      {
+        engine.getEngineConfig()->renderSettings.lightingMode = value;
+        engine.applySettings();
+      },
+      values);
+    listBox->addSetting(
+      gslu::nn_shared<ui::widgets::Widget>{tmp},
+      [&engine]()
+      {
+        return engine.getEngineConfig()->renderSettings.lightingModeActive;
+      },
+      [&engine]()
+      {
+        toggle(engine, engine.getEngineConfig()->renderSettings.lightingModeActive);
+      });
+    tmp->selectValue(engine.getEngineConfig()->renderSettings.lightingMode);
+  }
+
   listBox = gsl::make_shared<CheckListBox>();
   m_listBoxes.emplace_back(listBox);
   tab = gsl::make_shared<ui::widgets::Tab>(/* translators: TR charmap encoding */ _("Quality"));

@@ -49,6 +49,11 @@ void GhostModel::apply(const world::World& world, const GhostFrame& frame)
       {
         return engine.getEngineConfig()->animSmoothing;
       },
+      [&engine = world.getEngine()]()
+      {
+        const auto& settings = engine.getEngineConfig()->renderSettings;
+        return !settings.lightingModeActive ? 0 : settings.lightingMode;
+      },
       getName());
     mesh->getMaterialGroup().set(render::scene::RenderMode::Full,
                                  world.getPresenter().getMaterialManager()->getGhost(

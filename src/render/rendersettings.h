@@ -45,6 +45,8 @@ struct RenderSettings
   bool renderResolutionDivisorActive = false;
   uint8_t uiScaleMultiplier = 2;
   bool uiScaleActive = false;
+  bool lightingModeActive = true;
+  int32_t lightingMode = 1;
   std::optional<std::string> glidosPack = std::nullopt;
   bool muzzleFlashLight = true;
 

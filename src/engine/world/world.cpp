@@ -1229,7 +1229,11 @@ World::World(Engine& engine,
   m_controllerLayouts = loadControllerButtonIcons(
     atlases,
     util::ensureFileExists(m_engine.getEngineDataPath() / "button-icons" / "buttons.yaml"),
-    getPresenter().getMaterialManager()->getSprite(render::scene::SpriteMaterialMode::Billboard));
+    getPresenter().getMaterialManager()->getSprite(render::scene::SpriteMaterialMode::Billboard,
+                                                   [&engine]()
+                                                   {
+                                                     return engine.getEngineConfig()->renderSettings.lightingMode;
+                                                   }));
   m_allTextures = buildTextures(*level,
                                 m_engine.getGlidos(),
                                 atlases,
@@ -1254,36 +1258,57 @@ World::World(Engine& engine,
   for(size_t i = 0; i < m_sprites.size(); ++i)
   {
     auto& sprite = m_sprites[i];
-    sprite.yBoundMesh = render::scene::createSpriteMesh(
-      static_cast<float>(sprite.render0.x),
-      static_cast<float>(-sprite.render0.y),
-      static_cast<float>(sprite.render1.x),
-      static_cast<float>(-sprite.render1.y),
-      sprite.uv0,
-      sprite.uv1,
-      getPresenter().getMaterialManager()->getSprite(render::scene::SpriteMaterialMode::YAxisBound),
-      sprite.textureId.get_as<int32_t>(),
-      "sprite-" + std::to_string(i) + "-ybound");
-    sprite.billboardMesh = render::scene::createSpriteMesh(
-      static_cast<float>(sprite.render0.x),
-      static_cast<float>(-sprite.render0.y),
-      static_cast<float>(sprite.render1.x),
-      static_cast<float>(-sprite.render1.y),
-      sprite.uv0,
-      sprite.uv1,
-      getPresenter().getMaterialManager()->getSprite(render::scene::SpriteMaterialMode::Billboard),
-      sprite.textureId.get_as<int32_t>(),
-      "sprite-" + std::to_string(i) + "-billboard");
-    sprite.instancedBillboardMesh = render::scene::createInstancedSpriteMesh(
-      static_cast<float>(sprite.render0.x),
-      static_cast<float>(-sprite.render0.y),
-      static_cast<float>(sprite.render1.x),
-      static_cast<float>(-sprite.render1.y),
-      sprite.uv0,
-      sprite.uv1,
-      getPresenter().getMaterialManager()->getSprite(render::scene::SpriteMaterialMode::InstancedBillboard),
-      sprite.textureId.get_as<int32_t>(),
-      "sprite-" + std::to_string(i) + "-instanced");
+    sprite.yBoundMesh
+      = render::scene::createSpriteMesh(static_cast<float>(sprite.render0.x),
+                                        static_cast<float>(-sprite.render0.y),
+                                        static_cast<float>(sprite.render1.x),
+                                        static_cast<float>(-sprite.render1.y),
+                                        sprite.uv0,
+                                        sprite.uv1,
+                                        getPresenter().getMaterialManager()->getSprite(
+                                          render::scene::SpriteMaterialMode::YAxisBound,
+                                          [&engine]()
+                                          {
+                                            return !engine.getEngineConfig()->renderSettings.lightingModeActive
+                                                     ? 0
+                                                     : engine.getEngineConfig()->renderSettings.lightingMode;
+                                          }),
+                                        sprite.textureId.get_as<int32_t>(),
+                                        "sprite-" + std::to_string(i) + "-ybound");
+    sprite.billboardMesh
+      = render::scene::createSpriteMesh(static_cast<float>(sprite.render0.x),
+                                        static_cast<float>(-sprite.render0.y),
+                                        static_cast<float>(sprite.render1.x),
+                                        static_cast<float>(-sprite.render1.y),
+                                        sprite.uv0,
+                                        sprite.uv1,
+                                        getPresenter().getMaterialManager()->getSprite(
+                                          render::scene::SpriteMaterialMode::Billboard,
+                                          [&engine]()
+                                          {
+                                            return !engine.getEngineConfig()->renderSettings.lightingModeActive
+                                                     ? 0
+                                                     : engine.getEngineConfig()->renderSettings.lightingMode;
+                                          }),
+                                        sprite.textureId.get_as<int32_t>(),
+                                        "sprite-" + std::to_string(i) + "-billboard");
+    sprite.instancedBillboardMesh
+      = render::scene::createInstancedSpriteMesh(static_cast<float>(sprite.render0.x),
+                                                 static_cast<float>(-sprite.render0.y),
+                                                 static_cast<float>(sprite.render1.x),
+                                                 static_cast<float>(-sprite.render1.y),
+                                                 sprite.uv0,
+                                                 sprite.uv1,
+                                                 getPresenter().getMaterialManager()->getSprite(
+                                                   render::scene::SpriteMaterialMode::InstancedBillboard,
+                                                   [&engine]()
+                                                   {
+                                                     return !engine.getEngineConfig()->renderSettings.lightingModeActive
+                                                              ? 0
+                                                              : engine.getEngineConfig()->renderSettings.lightingMode;
+                                                   }),
+                                                 sprite.textureId.get_as<int32_t>(),
+                                                 "sprite-" + std::to_string(i) + "-instanced");
   }
 
   m_audioEngine->init(level->m_soundEffectProperties, level->m_soundEffects);
@@ -1578,6 +1603,11 @@ void World::initStaticMeshes(const loader::file::level::Level& level,
       []()
       {
         return false;
+      },
+      [&engine = getEngine()]()
+      {
+        const auto& settings = engine.getEngineConfig()->renderSettings;
+        return !settings.lightingModeActive ? 0 : settings.lightingMode;
       },
       "static-mesh");
     mesh->getRenderState().setScissorTest(false);

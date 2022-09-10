@@ -43,7 +43,7 @@ void configureForScreenSpaceEffect(Material& m, bool enableBlend)
 }
 } // namespace
 
-gslu::nn_shared<Material> MaterialManager::getSprite(SpriteMaterialMode mode)
+gslu::nn_shared<Material> MaterialManager::getSprite(SpriteMaterialMode mode, std::function<int32_t()> lightingMode)
 {
   if(auto it = m_sprite.find(mode); it != m_sprite.end())
     return it->second;
@@ -59,6 +59,12 @@ gslu::nn_shared<Material> MaterialManager::getSprite(SpriteMaterialMode mode)
       [this](const Node* /*node*/, const Mesh& /*mesh*/, gl::Uniform& uniform)
       {
         uniform.set(gsl::not_null{m_geometryTextures});
+      });
+  m->getUniform("u_lightingMode")
+    ->bind(
+      [lightingMode](const Node* /*node*/, const Mesh& /*mesh*/, gl::Uniform& uniform)
+      {
+        uniform.set(lightingMode());
       });
 
   m_sprite.emplace(mode, m);
@@ -103,8 +109,8 @@ gslu::nn_shared<Material> MaterialManager::getDepthOnly(bool skeletal, std::func
   return m;
 }
 
-gslu::nn_shared<Material>
-  MaterialManager::getGeometry(bool inWater, bool skeletal, bool roomShadowing, std::function<bool()> smooth)
+gslu::nn_shared<Material> MaterialManager::getGeometry(
+  bool inWater, bool skeletal, bool roomShadowing, std::function<bool()> smooth, std::function<int32_t()> lightingMode)
 {
   Expects(m_geometryTextures != nullptr);
 
@@ -134,6 +140,13 @@ gslu::nn_shared<Material>
       {
         BOOST_ASSERT(m_csm != nullptr);
         uniform.set(gsl::make_span(m_csm->getTextures()));
+      });
+
+  m->getUniform("u_lightingMode")
+    ->bind(
+      [lightingMode](const Node* /*node*/, const Mesh& /*mesh*/, gl::Uniform& uniform)
+      {
+        uniform.set(lightingMode());
       });
 
   if(auto uniform = m->tryGetUniform("u_noise"))

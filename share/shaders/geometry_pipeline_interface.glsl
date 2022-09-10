@@ -15,3 +15,5 @@ IN_OUT GeometryPipelineInterface {
 
     vec4 reflective;
 } gpi;
+
+layout(location=7) uniform int u_lightingMode;

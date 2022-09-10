@@ -59,6 +59,11 @@ void Particle::initRenderables(world::World& world, render::scene::SpriteMateria
                               {
                                 return world.getEngine().getEngineConfig()->animSmoothing;
                               },
+                              [&world]()
+                              {
+                                const auto& settings = world.getEngine().getEngineConfig()->renderSettings;
+                                return !settings.lightingModeActive ? 0 : settings.lightingMode;
+                              },
                               "particle"),
                             nullptr);
     }
