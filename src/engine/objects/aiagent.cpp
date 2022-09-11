@@ -95,10 +95,10 @@ bool AIAgent::animateCreature(const core::Angle& collisionRotationY, const core:
   const auto& pathFinder = m_creatureInfo->pathFinder;
 
   const auto oldLocation = m_state.location;
-
-  const auto currentBoxFloor = m_state.getCurrentBox()->floor;
+  const auto oldBoxFloor = m_state.getCurrentBox()->floor;
   const auto zoneRef = world::Box::getZoneRef(
     getWorld().roomsAreSwapped(), m_creatureInfo->pathFinder.isFlying(), m_creatureInfo->pathFinder.step);
+
   ModelObject::update();
 
   // Moving to a different sector is basically a wall glitch, as the collision check always moves the entity away
@@ -132,8 +132,8 @@ bool AIAgent::animateCreature(const core::Angle& collisionRotationY, const core:
 
   // fix location in case the entity moved to an invalid location, including checks for step/drop limits.
   // keep in mind that step/drop limits are negated, so they're subtracted here instead of being added.
-  if(currentSector->box == nullptr || currentBoxFloor < currentSector->box->floor - pathFinder.step
-     || currentBoxFloor > currentSector->box->floor - pathFinder.drop
+  if(currentSector->box == nullptr || currentSector->box->floor < oldBoxFloor - pathFinder.step
+     || currentSector->box->floor > oldBoxFloor - pathFinder.drop
      || m_state.getCurrentBox().get()->*zoneRef != currentSector->box->*zoneRef)
   {
     const auto shoveMin = [this](const core::Length& l)
