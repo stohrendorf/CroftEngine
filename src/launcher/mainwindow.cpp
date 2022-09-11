@@ -164,7 +164,7 @@ MainWindow::MainWindow(QWidget* parent)
 
     for(i = 0; i < m_gameflows.rowCount(); ++i)
     {
-      const QModelIndex& index = m_gameflows.index(i, 0);
+      const auto index = m_gameflows.index(i, 0);
       if(gameflow == m_gameflows.data(index, IdRole).toString())
       {
         ui->gameflows->setCurrentIndex(index);
