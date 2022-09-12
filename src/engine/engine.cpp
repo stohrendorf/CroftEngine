@@ -453,10 +453,29 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
         ghostManager.model->apply(world, ghostManager.reader->read());
         for(const auto& room : world.getRooms())
         {
-          if(room.physicalId == ghostManager.model->getRoomId())
+          if(room.physicalId != ghostManager.model->getRoomId())
+            continue;
+
+          if(room.node->isVisible())
           {
             setParent(gsl::not_null{ghostManager.model}, room.node);
           }
+          else if(room.alternateRoom != nullptr && room.alternateRoom->node->isVisible())
+          {
+            setParent(gsl::not_null{ghostManager.model}, room.alternateRoom->node);
+          }
+          else
+          {
+            for(const auto& altRoom : world.getRooms())
+            {
+              if(&altRoom != &room)
+                continue;
+
+              setParent(gsl::not_null{ghostManager.model}, altRoom.node);
+              break;
+            }
+          }
+          break;
         }
       }
 
