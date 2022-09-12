@@ -1,5 +1,6 @@
 #include "laraobject.h"
 
+#include "aiagent.h"
 #include "core/boundingbox.h"
 #include "core/genericvec.h"
 #include "core/interval.h"
@@ -2108,11 +2109,34 @@ void LaraObject::updateCheats()
     if(getCurrentAnimState() == LaraStateId::JumpForward)
     {
       getWorld().getPlayer().usedCheats = true;
+
       getWorld().finishLevel();
+    }
+    else if(getCurrentAnimState() == LaraStateId::JumpLeft)
+    {
+      getWorld().getPlayer().usedCheats = true;
+
+      getWorld().getPlayer().getInventory().put(TR1ItemId::SmallMedipackSprite, &getWorld(), 5);
+      getWorld().getPlayer().getInventory().put(TR1ItemId::LargeMedipackSprite, &getWorld(), 5);
+
+      playSoundEffect(TR1SoundEffect::LaraSigh);
+    }
+    else if(getCurrentAnimState() == LaraStateId::JumpRight)
+    {
+      for(const auto& [objectId, object] : getWorld().getObjectManager().getObjects())
+      {
+        if(auto ai = gslu::dynamic_pointer_cast<objects::AIAgent>(object); ai != nullptr && ai->m_state.health != 0_hp)
+        {
+          ai->m_state.health = std::max(1_hp, ai->m_state.health / 2);
+        }
+      }
+
+      playSoundEffect(TR1SoundEffect::LaraShootShotgun);
     }
     else if(getCurrentAnimState() == LaraStateId::JumpBack)
     {
       getWorld().getPlayer().usedCheats = true;
+
       getWorld().getPlayer().getInventory().put(TR1ItemId::PistolsSprite, &getWorld());
 
       getWorld().getPlayer().getInventory().put(TR1ItemId::ShotgunSprite, &getWorld());
