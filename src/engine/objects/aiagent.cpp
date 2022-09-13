@@ -126,7 +126,6 @@ bool AIAgent::animateCreature(const core::Angle& collisionRotationY, const core:
   }
 
   const auto bbox = getSkeleton()->getBoundingBox();
-  const auto bboxBottom = m_state.location.position.Y + bbox.y.max;
 
   auto currentSector = m_state.location.moved(0_len, bbox.y.max, 0_len).updateRoom();
 
@@ -180,7 +179,7 @@ bool AIAgent::animateCreature(const core::Angle& collisionRotationY, const core:
   // in-sector coordinate bounds incorporating collision radius
   const auto inSectorBounds = core::Interval{0_len, 1_sectors - 1_len}.narrowed(m_collisionRadius);
   gsl_Assert(inSectorBounds.isValid());
-  const core::TRVec bottom{m_state.location.position.X, bboxBottom, m_state.location.position.Z};
+  const auto bottom = m_state.location.position + core::TRVec{0_len, bbox.y.max, 0_len};
   // relative bounding box collision test coordinates
   const core::TRVec testDx{m_collisionRadius, 0_len, 0_len};
   const core::TRVec testDz{0_len, 0_len, m_collisionRadius};
@@ -348,9 +347,7 @@ bool AIAgent::animateCreature(const core::Angle& collisionRotationY, const core:
 
   if(moveX != 0_len || moveZ != 0_len)
   {
-    auto bboxBottomLocation = m_state.location;
-    bboxBottomLocation.position.Y = bboxBottom;
-    currentSector = bboxBottomLocation.updateRoom();
+    currentSector = m_state.location.moved(0_len, bbox.y.max, 0_len).updateRoom();
 
     m_state.rotation.Y += collisionRotationY;
     m_state.rotation.Z += std::clamp(8 * tilt - m_state.rotation.Z, -3_deg, +3_deg);
@@ -393,11 +390,10 @@ bool AIAgent::animateCreature(const core::Angle& collisionRotationY, const core:
 
   auto moveY = std::clamp(m_creatureInfo->target.Y - m_state.location.position.Y, -pathFinder.fly, pathFinder.fly);
 
-  const auto currentFloor
-    = HeightInfo::fromFloor(currentSector,
-                            core::TRVec{m_state.location.position.X, bboxBottom, m_state.location.position.Z},
-                            getWorld().getObjectManager().getObjects())
-        .y;
+  const auto currentFloor = HeightInfo::fromFloor(currentSector,
+                                                  m_state.location.position + core::TRVec{0_len, bbox.y.max, 0_len},
+                                                  getWorld().getObjectManager().getObjects())
+                              .y;
 
   if(m_state.location.position.Y + moveY > currentFloor)
   {
@@ -419,21 +415,21 @@ bool AIAgent::animateCreature(const core::Angle& collisionRotationY, const core:
   }
   else
   {
-    const auto ceiling
+    const auto currentCeiling
       = HeightInfo::fromCeiling(currentSector,
-                                core::TRVec{m_state.location.position.X, bboxBottom, m_state.location.position.Z},
+                                m_state.location.position + core::TRVec{0_len, bbox.y.max, 0_len},
                                 getWorld().getObjectManager().getObjects())
           .y;
 
     // TODO nah... why, core, why?
-    const auto collisionBottom = m_state.type == TR1ItemId::CrocodileInWater ? 0_len : bbox.y.max;
+    const auto bboxTopAdjusted = m_state.type == TR1ItemId::CrocodileInWater ? 0_len : bbox.y.min;
 
-    if(m_state.location.position.Y + collisionBottom + moveY < ceiling)
+    if(m_state.location.position.Y + bboxTopAdjusted + moveY < currentCeiling)
     {
-      if(m_state.location.position.Y + collisionBottom < ceiling)
+      if(m_state.location.position.Y + bboxTopAdjusted < currentCeiling)
       {
         // stuck in the ceiling, need a hard fix
-        m_state.location.position.Y = ceiling;
+        m_state.location.position.Y = currentCeiling - bboxTopAdjusted;
         moveY = 0_len;
       }
       else
@@ -441,15 +437,14 @@ bool AIAgent::animateCreature(const core::Angle& collisionRotationY, const core:
         // fly down from the ceiling
         m_state.location.position.X = oldLocation.position.X;
         m_state.location.position.Z = oldLocation.position.Z;
-        m_state.location.position.Y = ceiling;
+        m_state.location.position.Y = currentCeiling - bboxTopAdjusted;
         moveY = pathFinder.fly;
       }
     }
   }
 
   m_state.location.position.Y += moveY;
-  auto bboxBottomLocation = m_state.location;
-  bboxBottomLocation.position.Y = bboxBottom;
+  auto bboxBottomLocation = m_state.location.moved(0_len, bbox.y.max, 0_len);
   currentSector = bboxBottomLocation.updateRoom();
   m_state.floor
     = HeightInfo::fromFloor(currentSector, bboxBottomLocation.position, getWorld().getObjectManager().getObjects()).y;
