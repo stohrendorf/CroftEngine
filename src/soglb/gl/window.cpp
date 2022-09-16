@@ -12,15 +12,26 @@
 #include <glm/fwd.hpp>
 #include <gsl/gsl-lite.hpp>
 #include <iterator>
+#include <mutex>
 #include <stdexcept>
+#include <unordered_map>
 
 namespace gl
 {
 namespace
 {
+std::mutex focusStatesMutex;
+std::unordered_map<GLFWwindow*, bool> focusStates;
+
 void glErrorCallback(const int err, const gsl::czstring msg)
 {
   BOOST_LOG_TRIVIAL(error) << "glfw Error " << err << ": " << msg;
+}
+
+void windowFocusCallback(GLFWwindow* window, int focused)
+{
+  std::lock_guard guard{focusStatesMutex};
+  focusStates[window] = focused == GLFW_TRUE;
 }
 } // namespace
 
@@ -63,6 +74,9 @@ Window::Window(const std::vector<std::filesystem::path>& logoPaths, const glm::i
     BOOST_LOG_TRIVIAL(fatal) << "Failed to create window: " << message;
     BOOST_THROW_EXCEPTION(std::runtime_error("Failed to create window"));
   }
+
+  glfwSetWindowFocusCallback(m_window, windowFocusCallback);
+  windowFocusCallback(m_window, GLFW_TRUE);
 
   {
     std::vector<CImgWrapper> imgWrappers;
@@ -181,5 +195,15 @@ void Window::setWindowed()
 Window::~Window()
 {
   glfwDestroyWindow(m_window);
+
+  std::lock_guard guard{focusStatesMutex};
+  focusStates.erase(m_window);
 }
+
+bool Window::hasFocus() const
+{
+  std::lock_guard guard{focusStatesMutex};
+  auto it = focusStates.find(m_window);
+  return it != focusStates.end() && it->second;
+};
 } // namespace gl

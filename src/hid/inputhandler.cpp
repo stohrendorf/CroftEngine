@@ -15,6 +15,7 @@
 #include <boost/throw_exception.hpp>
 #include <fstream>
 #include <gl/glfw.h>
+#include <gl/window.h>
 #include <iterator>
 #include <mutex>
 #include <stdexcept>
@@ -125,7 +126,8 @@ bool isKeyPressed(GlfwKey key)
 }
 } // namespace
 
-InputHandler::InputHandler(gsl::not_null<GLFWwindow*> window, const std::filesystem::path& gameControllerDb)
+InputHandler::InputHandler(gsl::not_null<std::shared_ptr<gl::Window>> window,
+                           const std::filesystem::path& gameControllerDb)
     : m_window{std::move(window)}
 {
   std::ifstream gameControllerDbFile{util::ensureFileExists(gameControllerDb), std::ios::in | std::ios::binary};
@@ -134,7 +136,7 @@ InputHandler::InputHandler(gsl::not_null<GLFWwindow*> window, const std::filesys
 
   Expects(glfwUpdateGamepadMappings(gameControllerDbData.c_str()) == GLFW_TRUE);
 
-  installHandlers(m_window);
+  installHandlers(m_window->getWindow());
 
   for(auto jid = GLFW_JOYSTICK_1; jid <= GLFW_JOYSTICK_LAST; ++jid)
   {
@@ -159,6 +161,15 @@ InputHandler::InputHandler(gsl::not_null<GLFWwindow*> window, const std::filesys
 void InputHandler::update()
 {
   std::lock_guard lock{glfwStateMutex};
+  if(!m_window->hasFocus())
+  {
+    for(auto& [action, button] : m_inputState.actions)
+      button = false;
+    m_inputState.setXAxisMovement(false, false);
+    m_inputState.setZAxisMovement(false, false);
+    m_inputState.setStepMovement(false, false);
+    return;
+  }
 
   std::vector<GLFWgamepadstate> gamepadStates;
   gamepadStates.reserve(connectedGamepads.size());

@@ -173,7 +173,7 @@ public:
   }
 
 private:
-  const std::unique_ptr<gl::Window> m_window;
+  const gsl::not_null<std::shared_ptr<gl::Window>> m_window;
   uint8_t m_renderResolutionDivisor = 1;
   uint8_t m_uiScale = 1;
 

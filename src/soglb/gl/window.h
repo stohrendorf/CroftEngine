@@ -52,6 +52,8 @@ public:
     return m_viewport.x <= 0 || m_viewport.y <= 0;
   }
 
+  [[nodiscard]] bool hasFocus() const;
+
 private:
   GLFWwindow* m_window = nullptr;
   glm::ivec2 m_windowPos{0};
