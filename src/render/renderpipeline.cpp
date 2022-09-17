@@ -282,6 +282,7 @@ void RenderPipeline::bindGeometryFrameBuffer(float farPlane)
   m_geometryPass->getPositionBuffer()->getTexture()->clear({0.0f, 0.0f, -farPlane});
   m_geometryPass->getReflectiveBuffer()->getTexture()->clear({0, 0, 0, 0});
   m_geometryPass->getDepthBuffer()->clear(gl::ScalarDepth{1.0f});
+  m_geometryPass->getNormalBuffer()->getTexture()->clear(gl::RGB16F{gl::api::core::Half{}});
   m_geometryPass->bind();
 }
 
