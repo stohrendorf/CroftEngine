@@ -81,7 +81,7 @@ msgstr "%d. %B %Y %X"
 #: hid/names.cpp:21
 msgctxt "Keyboard|Key"
 msgid "'"
-msgstr "~a"
+msgstr "'"
 
 #. translators: TR charmap encoding (grave accent)
 #: hid/names.cpp:113
@@ -124,25 +124,25 @@ msgstr "."
 #: hid/names.cpp:29
 msgctxt "Keyboard|Key"
 msgid "/"
-msgstr "-"
+msgstr "/"
 
 #. translators: TR charmap encoding
 #: hid/names.cpp:51
 msgctxt "Keyboard|Key"
 msgid ";"
-msgstr "~o"
+msgstr ";"
 
 #. translators: TR charmap encoding (square bracket left)
 #: hid/names.cpp:107
 msgctxt "Keyboard|Key"
 msgid "<"
-msgstr "~u"
+msgstr "<"
 
 #. translators: TR charmap encoding (square bracket right)
 #: hid/names.cpp:111
 msgctxt "Keyboard|Key"
 msgid ">"
-msgstr "+"
+msgstr ">"
 
 #. translators: TR charmap encoding
 #: hid/names.cpp:55
