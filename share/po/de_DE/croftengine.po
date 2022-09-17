@@ -99,7 +99,7 @@ msgstr ","
 #: hid/names.cpp:25
 msgctxt "Keyboard|Key"
 msgid "-"
-msgstr "="
+msgstr "-"
 
 #. translators: TR charmap encoding
 #: menu/savegamelistmenustate.cpp:167
