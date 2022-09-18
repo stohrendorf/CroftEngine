@@ -164,7 +164,7 @@ Location clampBox(const Location& start,
   if(const auto goalSector = gsl::not_null{result.room->getSectorByAbsolutePosition(result.position)};
      const auto goalBox = goalSector->box)
   {
-    if(!box->xInterval.contains(result.position.X) || !box->zInterval.contains(result.position.Z))
+    if(box == nullptr || !box->xInterval.contains(result.position.X) || !box->zInterval.contains(result.position.Z))
       box = goalBox;
   }
 
