@@ -65,7 +65,7 @@ void PickupObject::collide(CollisionInfo& /*collisionInfo*/)
         getWorld().addPickupWidget(getSprite(), count);
         if(oldType != m_state.type)
           getWorld().addPickupWidget(oldSprite, 1);
-        setParent(gsl::not_null{getNode()}, nullptr);
+        getNode()->clear();
         m_state.collidable = false;
         return;
       }
@@ -134,7 +134,7 @@ void PickupObject::collide(CollisionInfo& /*collisionInfo*/)
       getWorld().addPickupWidget(getSprite(), count);
       if(oldType != m_state.type)
         getWorld().addPickupWidget(oldSprite, 1);
-      setParent(gsl::not_null{getNode()}, nullptr);
+      getNode()->clear();
       m_state.collidable = false;
     }
   }
@@ -151,7 +151,7 @@ void PickupObject::serialize(const serialization::Serializer<world::World>& ser)
         [this](const serialization::Serializer<world::World>& ser)
         {
           if(ser.loading && !m_state.collidable)
-            setParent(gsl::not_null{getNode()}, nullptr);
+            getNode()->clear();
         });
     });
 }

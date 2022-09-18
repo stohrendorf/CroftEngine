@@ -79,7 +79,7 @@ void ScionPiece::collide(CollisionInfo& /*collisionInfo*/)
     m_state.triggerState = TriggerState::Invisible;
     ++getWorld().getPlayer().pickups;
     getWorld().addPickupWidget(getSprite(), getWorld().getPlayer().getInventory().put(m_state.type, &getWorld()));
-    setParent(gsl::not_null{getNode()}, nullptr);
+    getNode()->clear();
     m_state.collidable = false;
   }
 }
@@ -95,7 +95,7 @@ void ScionPiece::serialize(const serialization::Serializer<world::World>& ser)
         [this](const serialization::Serializer<world::World>& ser)
         {
           if(ser.loading && !m_state.collidable)
-            setParent(gsl::not_null{getNode()}, nullptr);
+            getNode()->clear();
         });
     });
 }
