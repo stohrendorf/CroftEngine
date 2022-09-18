@@ -99,6 +99,14 @@ bool AIAgent::animateCreature(const core::Angle& collisionRotationY, const core:
   const auto zoneRef = world::Box::getZoneRef(
     getWorld().roomsAreSwapped(), m_creatureInfo->pathFinder.isFlying(), m_creatureInfo->pathFinder.step);
 
+#ifndef NDEBUG
+  const auto invariantCheck2 = gsl::finally(
+    [this, oldPos = m_state.location.position]()
+    {
+      gsl_Assert(abs(m_state.location.position.Y - oldPos.Y) < 2_sectors);
+    });
+#endif
+
   ModelObject::update();
 
   // Moving to a different sector is basically a wall glitch, as the collision check always moves the entity away
@@ -401,16 +409,16 @@ bool AIAgent::animateCreature(const core::Angle& collisionRotationY, const core:
 
     if(m_state.location.position.Y > currentFloor)
     {
-      // stuck in the floor, need a hard fix
-      m_state.location.position.Y = currentFloor;
-      moveY = 0_len;
-    }
-    else
-    {
-      // fly up from the floor
+      // current and previous positions penetrate the floor, fly up from the floor
       m_state.location.position.X = oldLocation.position.X;
       m_state.location.position.Z = oldLocation.position.Z;
       moveY = -pathFinder.fly;
+    }
+    else
+    {
+      // transitioning between "above floor" and "penetrating floor", so place on floor
+      m_state.location.position.Y = currentFloor;
+      moveY = 0_len;
     }
   }
   else
@@ -426,19 +434,20 @@ bool AIAgent::animateCreature(const core::Angle& collisionRotationY, const core:
 
     if(m_state.location.position.Y + bboxTopAdjusted + moveY < currentCeiling)
     {
+      // fly movements ended up penetrating the ceiling
+
       if(m_state.location.position.Y + bboxTopAdjusted < currentCeiling)
       {
-        // stuck in the ceiling, need a hard fix
-        m_state.location.position.Y = currentCeiling - bboxTopAdjusted;
-        moveY = 0_len;
+        // current and previous positions penetrate the floor, fly up from the floor
+        m_state.location.position.X = oldLocation.position.X;
+        m_state.location.position.Z = oldLocation.position.Z;
+        moveY = pathFinder.fly;
       }
       else
       {
-        // fly down from the ceiling
-        m_state.location.position.X = oldLocation.position.X;
-        m_state.location.position.Z = oldLocation.position.Z;
+        // transitioning between "below ceiling" and "penetrating ceiling", so place below ceiling
         m_state.location.position.Y = currentCeiling - bboxTopAdjusted;
-        moveY = pathFinder.fly;
+        moveY = 0_len;
       }
     }
   }
