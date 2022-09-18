@@ -1,7 +1,7 @@
 cmake_minimum_required( VERSION 3.16 )
 list( APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake )
 
-project( CroftEngine VERSION 1.10 )
+project( CroftEngine VERSION 1.11 )
 
 cmake_policy( SET CMP0069 NEW )
 cmake_policy( SET CMP0083 NEW )
