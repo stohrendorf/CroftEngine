@@ -55,6 +55,7 @@ namespace engine::world
 {
 struct Room;
 struct Portal;
+class World;
 } // namespace engine::world
 
 namespace engine
@@ -78,7 +79,8 @@ public:
 
   void renderWorld(const std::vector<world::Room>& rooms,
                    const CameraController& cameraController,
-                   const std::unordered_set<const world::Portal*>& waterEntryPortals);
+                   const std::unordered_set<const world::Portal*>& waterEntryPortals,
+                   const engine::world::World& world);
 
   [[nodiscard]] const auto& getSoundEngine() const
   {

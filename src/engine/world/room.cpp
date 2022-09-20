@@ -11,6 +11,7 @@
 #include "engine/engineconfig.h"
 #include "engine/lighting.h"
 #include "engine/location.h"
+#include "engine/objects/laraobject.h"
 #include "engine/objects/object.h"
 #include "engine/objects/objectstate.h"
 #include "engine/presenter.h"
@@ -365,6 +366,20 @@ void Room::createSceneNode(const loader::file::Room& srcRoom,
              {
                uniform.set(1.0f);
              });
+  node->bind("b_dynLights",
+             [&world, emptyLightsBuffer = ShaderLight::getEmptyBuffer()](
+               const render::scene::Node* /*node*/, const render::scene::Mesh& /*mesh*/, gl::ShaderStorageBlock& block)
+             {
+               if(const auto lara = world.getObjectManager().getLaraPtr();
+                  lara != nullptr && !lara->flashLightsBufferData.empty())
+               {
+                 block.bindRange(*lara->flashLightsBuffer, 0, lara->flashLightsBufferData.size());
+               }
+               else
+               {
+                 block.bind(*emptyLightsBuffer);
+               }
+             });
 
   node->bind("b_lights",
              [emptyBuffer = ShaderLight::getEmptyBuffer()](const render::scene::Node*,
@@ -390,6 +405,21 @@ void Room::createSceneNode(const loader::file::Room& srcRoom,
                     const render::scene::Node* /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
                   {
                     uniform.set(brightness.get());
+                  });
+    subNode->bind("b_dynLights",
+                  [&world, emptyLightsBuffer = ShaderLight::getEmptyBuffer()](const render::scene::Node* /*node*/,
+                                                                              const render::scene::Mesh& /*mesh*/,
+                                                                              gl::ShaderStorageBlock& block)
+                  {
+                    if(const auto lara = world.getObjectManager().getLaraPtr();
+                       lara != nullptr && !lara->flashLightsBufferData.empty())
+                    {
+                      block.bindRange(*lara->flashLightsBuffer, 0, lara->flashLightsBufferData.size());
+                    }
+                    else
+                    {
+                      block.bind(*emptyLightsBuffer);
+                    }
                   });
 
     subNode->bind("b_lights",
@@ -419,6 +449,21 @@ void Room::createSceneNode(const loader::file::Room& srcRoom,
                        const render::scene::Node* /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
                      {
                        uniform.set(brightness.get());
+                     });
+    spriteNode->bind("b_dynLights",
+                     [&world, emptyLightsBuffer = ShaderLight::getEmptyBuffer()](const render::scene::Node* /*node*/,
+                                                                                 const render::scene::Mesh& /*mesh*/,
+                                                                                 gl::ShaderStorageBlock& block)
+                     {
+                       if(const auto lara = world.getObjectManager().getLaraPtr();
+                          lara != nullptr && !lara->flashLightsBufferData.empty())
+                       {
+                         block.bindRange(*lara->flashLightsBuffer, 0, lara->flashLightsBufferData.size());
+                       }
+                       else
+                       {
+                         block.bind(*emptyLightsBuffer);
+                       }
                      });
     spriteNode->bind("b_lights",
                      [emptyLightsBuffer = ShaderLight::getEmptyBuffer()](const render::scene::Node*,
@@ -594,7 +639,7 @@ void Room::collectShaderLights(size_t depth)
       if(light.intensity.get() <= 0)
         continue;
       bufferLights.emplace_back(ShaderLight{glm::vec4{light.position.toRenderSystem(), 0.0f},
-                                            toBrightness(light.intensity).get(),
+                                            glm::vec4{toBrightness(light.intensity).get()},
                                             light.fadeDistance.get<float>()});
     }
   }

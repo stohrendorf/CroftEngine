@@ -92,7 +92,7 @@ bool GhostManager::askGhostSave(Presenter& presenter, world::World& world)
       const auto portals = world.getCameraController().update();
       if(const auto lara = world.getObjectManager().getLaraPtr())
         lara->m_state.location.room->node->setVisible(true);
-      presenter.renderWorld(world.getRooms(), world.getCameraController(), portals);
+      presenter.renderWorld(world.getRooms(), world.getCameraController(), portals, world);
     }
     presenter.renderScreenOverlay();
     presenter.renderUi(ui, 1.0f);

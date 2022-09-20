@@ -91,7 +91,7 @@ void Particle::initRenderables(world::World& world, render::scene::SpriteMateria
   if(!m_meshes.empty())
   {
     setRenderable(std::get<0>(m_meshes.front()));
-    m_lighting.bind(*this);
+    m_lighting.bind(*this, world);
   }
 }
 
@@ -121,7 +121,7 @@ Particle::Particle(const std::string& id,
   {
     m_meshes.emplace_back(gsl::not_null{renderable}, nullptr);
     setRenderable(std::get<0>(m_meshes.front()));
-    m_lighting.bind(*this);
+    m_lighting.bind(*this, world);
   }
 }
 
@@ -146,7 +146,7 @@ Particle::Particle(const std::string& id,
   {
     m_meshes.emplace_back(renderable, nullptr);
     setRenderable(std::get<0>(m_meshes.front()));
-    m_lighting.bind(*this);
+    m_lighting.bind(*this, world);
   }
 }
 

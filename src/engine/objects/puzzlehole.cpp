@@ -119,7 +119,7 @@ void PuzzleHole::initMesh()
     m_state.current_anim_state, gsl::not_null{&model->animations[0]}, model->animations->firstFrame);
   setParent(gsl::not_null{m_skeleton}, parent);
   SkeletalModelNode::buildMesh(m_skeleton, m_state.current_anim_state);
-  m_lighting.bind(*m_skeleton);
+  m_lighting.bind(*m_skeleton, getWorld());
 
   ModelObject::update();
 }

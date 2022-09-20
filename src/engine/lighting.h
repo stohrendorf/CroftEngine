@@ -18,21 +18,22 @@ class Node;
 namespace engine::world
 {
 struct Room;
-}
+class World;
+} // namespace engine::world
 
 namespace engine
 {
 struct ShaderLight
 {
   glm::vec4 position{std::numeric_limits<float>::quiet_NaN()};
-  float brightness = 0;
+  glm::vec4 color{0.0f};
   float fadeDistance = 0;
   // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, modernize-avoid-c-arrays)
-  float _pad[2]{0.0f, 0.0f};
+  float _pad[3]{0.0f, 0.0f, 0.0f};
 
   bool operator==(const ShaderLight& rhs) const
   {
-    return position == rhs.position && brightness == rhs.brightness && fadeDistance == rhs.fadeDistance;
+    return position == rhs.position && color == rhs.color && fadeDistance == rhs.fadeDistance;
   }
 
   bool operator!=(const ShaderLight& rhs) const
@@ -52,7 +53,7 @@ struct ShaderLight
     return tmp;
   }
 };
-static_assert(sizeof(ShaderLight) == 32, "Invalid Light struct size");
+static_assert(sizeof(ShaderLight) == 48, "Invalid Light struct size");
 
 struct Lighting
 {
@@ -62,7 +63,7 @@ struct Lighting
 
   void update(const core::Shade& shade, const world::Room& baseRoom);
 
-  void bind(render::scene::Node& node) const;
+  void bind(render::scene::Node& node, const world::World& world) const;
 
 private:
   void fadeAmbient(const core::Shade& shade)

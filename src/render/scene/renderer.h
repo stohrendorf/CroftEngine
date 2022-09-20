@@ -65,7 +65,7 @@ private:
   gl::SRGBA8 m_clearColor;
   float m_clearDepth = 1;
 
-  std::shared_ptr<Node> m_rootNode;
+  gsl::not_null<std::shared_ptr<Node>> m_rootNode;
   gslu::nn_shared<Camera> m_camera;
 };
 } // namespace render::scene

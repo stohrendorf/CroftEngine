@@ -1,6 +1,8 @@
 #include "lighting.h"
 
+#include "engine/objects/laraobject.h"
 #include "engine/world/room.h"
+#include "engine/world/world.h"
 #include "render/scene/node.h"
 
 #include <gl/api/gl.hpp>
@@ -26,12 +28,27 @@ void Lighting::update(const core::Shade& shade, const world::Room& baseRoom)
   fadeAmbient(baseRoom.ambientShade);
 }
 
-void Lighting::bind(render::scene::Node& node) const
+void Lighting::bind(render::scene::Node& node, const world::World& world) const
 {
   node.bind("u_lightAmbient",
             [this](const render::scene::Node* /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
             {
               uniform.set(ambient.get());
+            });
+
+  node.bind("b_dynLights",
+            [&world, emptyLightsBuffer = ShaderLight::getEmptyBuffer()](
+              const render::scene::Node* /*node*/, const render::scene::Mesh& /*mesh*/, gl::ShaderStorageBlock& block)
+            {
+              if(const auto lara = world.getObjectManager().getLaraPtr();
+                 lara != nullptr && !lara->flashLightsBufferData.empty())
+              {
+                block.bindRange(*lara->flashLightsBuffer, 0, lara->flashLightsBufferData.size());
+              }
+              else
+              {
+                block.bind(*emptyLightsBuffer);
+              }
             });
 
   node.bind(

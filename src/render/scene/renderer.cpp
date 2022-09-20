@@ -119,6 +119,6 @@ void Renderer::clear(const gl::api::core::Bitfield<gl::api::ClearBufferMask>& fl
 
 void Renderer::resetRootNode()
 {
-  m_rootNode = std::make_shared<Node>("<rootnode>");
+  m_rootNode = gsl::make_shared<Node>("<rootnode>");
 }
 } // namespace render::scene
