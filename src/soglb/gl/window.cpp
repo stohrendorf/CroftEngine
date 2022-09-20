@@ -3,12 +3,12 @@
 #include "cimgwrapper.h"
 #include "glad_init.h"
 #include "glassert.h"
+#include "glfw.h"
 
 #include <algorithm>
 #include <boost/log/trivial.hpp>
 #include <boost/throw_exception.hpp>
 #include <cstdlib>
-#include <GLFW/glfw3.h>
 #include <glm/fwd.hpp>
 #include <gsl/gsl-lite.hpp>
 #include <iterator>
