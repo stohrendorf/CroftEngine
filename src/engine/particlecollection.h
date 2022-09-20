@@ -59,7 +59,7 @@ private:
 class InstancedParticleCollection : public ParticleCollection
 {
 public:
-  void render(render::scene::RenderContext& context) const;
+  void render(render::scene::RenderContext& context, const world::World& world) const;
   void setAmbient(const world::Room& room);
 
 private:

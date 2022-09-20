@@ -235,6 +235,16 @@ RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingT
     {
       toggle(engine, engine.getEngineConfig()->renderSettings.edges);
     });
+  listBox->addSetting(
+    /* translators: TR charmap encoding */ _("Muzzle Flash Lighting"),
+    [&engine]()
+    {
+      return engine.getEngineConfig()->renderSettings.muzzleFlashLight;
+    },
+    [&engine]()
+    {
+      toggle(engine, engine.getEngineConfig()->renderSettings.muzzleFlashLight);
+    });
 
   {
     std::vector<int8_t> values;

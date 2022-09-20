@@ -564,7 +564,7 @@ MenuDisplay::MenuDisplay(InventoryMode mode,
     , m_lightsBuffer{std::make_shared<gl::ShaderStorageBuffer<engine::ShaderLight>>(
         "lights-buffer",
         gl::api::BufferUsage::StaticDraw,
-        engine::ShaderLight{glm::vec4{-500, 50, -5000, 0}, 1.0f, 8192.0f})}
+        engine::ShaderLight{glm::vec4{-500, 50, -5000, 0}, glm::vec4{1.0f}, 8192.0f})}
 {
   if(mode == InventoryMode::GameMode)
   {

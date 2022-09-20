@@ -1,18 +1,23 @@
 #include "csm_interface.glsl"
 #include "geometry_pipeline_interface.glsl"
+#include "util.glsl"
 
 layout(bindless_sampler) uniform sampler2D u_csmVsm[CSMSplits];
 layout(location=10) uniform float u_lightAmbient;
 
 struct Light {
     vec4 position;
-    float brightness;
+    vec4 color;
     float fadeDistance;
-    float _pad[2];
+    float _pad[3];
 };
 
 layout(std430, binding=3) readonly restrict buffer b_lights {
     Light lights[];
+};
+
+layout(std430, binding=4) readonly restrict buffer b_dynLights {
+    Light dynLights[];
 };
 
 const float CSMShadow = 0.2;
@@ -77,26 +82,36 @@ float shadow_map_multiplier()
     return 1.0;
 }
 
+float calc_light_strength(in vec3 pos, in float fadeDistance)
+{
+    vec3 d = gpi.vertexPosWorld - pos;
+    float ld = length(d);
+    float r = ld / fadeDistance;
+    float result = 1.0 / (r*r + 1.0);
+    #if SPRITEMODE == 0
+    return result * clamp(-dot(d/ld, gpi.vertexNormalWorld), 0.0, 1.0);
+    #else
+    return result;
+    #endif
+}
+
 vec3 calc_positional_lighting()
 {
-    if (lights.length() <= 0 || gpi.vertexNormalWorld == vec3(0))
+    vec3 sum = vec3(u_lightAmbient);
+
+    if (gpi.vertexNormalWorld == vec3(0))
     {
-        return vec3(u_lightAmbient);
+        return sum;
     }
 
-    vec3 sum = vec3(u_lightAmbient);
     for (int i=0; i<lights.length(); ++i)
     {
-        vec3 d = gpi.vertexPosWorld - lights[i].position.xyz;
-        float ld = length(d);
-        float r = ld / lights[i].fadeDistance;
-        float intensity = 1.0 / (r*r + 1.0);
-        vec3 color = vec3(lights[i].brightness);
-        #if SPRITEMODE == 0
-        sum += intensity * clamp(-dot(d/ld, gpi.vertexNormalWorld), 0, 1) * color;
-        #else
-        sum += intensity * color;
-        #endif
+        sum += vec3(calc_light_strength(lights[i].position.xyz, lights[i].fadeDistance)) * toLinear(lights[i].color.xyz);
+    }
+
+    for (int i=0; i<dynLights.length(); ++i)
+    {
+        sum += vec3(calc_light_strength(dynLights[i].position.xyz, dynLights[i].fadeDistance)) * toLinear(dynLights[i].color.xyz);
     }
 
     return sum;

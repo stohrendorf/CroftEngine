@@ -47,7 +47,7 @@ void ParticleCollection::update(world::World& world)
 
 ParticleCollection::~ParticleCollection() = default;
 
-void InstancedParticleCollection::render(render::scene::RenderContext& context) const
+void InstancedParticleCollection::render(render::scene::RenderContext& context, const world::World& world) const
 {
   SOGLB_DEBUGGROUP("bubble instances");
   std::map<std::shared_ptr<gl::VertexBuffer<glm::mat4>>, std::tuple<std::vector<glm::mat4>, gslu::nn_shared<Particle>>>
@@ -76,7 +76,7 @@ void InstancedParticleCollection::render(render::scene::RenderContext& context) 
     if(data.empty())
       continue;
 
-    m_lighting.bind(*particle);
+    m_lighting.bind(*particle, world);
     buffer->setSubData(data, 0);
     auto mesh = std::get<0>(particle->getCurrentMesh());
     mesh->render(particle.get().get(), context, gsl::narrow<gl::api::core::SizeType>(data.size()));

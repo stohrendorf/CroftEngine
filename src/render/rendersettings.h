@@ -46,6 +46,7 @@ struct RenderSettings
   uint8_t uiScaleMultiplier = 2;
   bool uiScaleActive = false;
   std::optional<std::string> glidosPack = std::nullopt;
+  bool muzzleFlashLight = true;
 
   [[nodiscard]] size_t getLightCollectionDepth() const
   {

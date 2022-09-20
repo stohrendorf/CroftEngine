@@ -1064,7 +1064,7 @@ void World::gameLoop(bool godMode, float blackAlpha, ui::Ui& ui)
   drawPickupWidgets(ui);
   if(const auto lara = getObjectManager().getLaraPtr())
     lara->m_state.location.room->node->setVisible(true);
-  getPresenter().renderWorld(getRooms(), getCameraController(), waterEntryPortals);
+  getPresenter().renderWorld(getRooms(), getCameraController(), waterEntryPortals, *this);
   getPresenter().renderScreenOverlay();
   if(blackAlpha > 0)
   {
@@ -1098,7 +1098,7 @@ bool World::cinematicLoop()
   doGlobalEffect();
 
   ui::Ui ui{getPresenter().getMaterialManager()->getUi(), getPalette(), getPresenter().getUiViewport()};
-  getPresenter().renderWorld(getRooms(), getCameraController(), waterEntryPortals);
+  getPresenter().renderWorld(getRooms(), getCameraController(), waterEntryPortals, *this);
   getPresenter().renderScreenOverlay();
   getPresenter().renderUi(ui, 1);
   getPresenter().updateSoundEngine();

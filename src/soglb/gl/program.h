@@ -135,6 +135,17 @@ public:
     GL_ASSERT(api::bindBufferBase(_Target, m_binding, buffer.getHandle()));
   }
 
+  template<typename T, api::BufferTarget LazyTarget = _Target>
+  auto bindRange(const Buffer<T, _Target>& buffer, size_t start, size_t n) -> std::enable_if_t<
+    LazyTarget == api::BufferTarget::AtomicCounterBuffer || LazyTarget == api::BufferTarget::TransformFeedbackBuffer
+      || LazyTarget == api::BufferTarget::UniformBuffer || LazyTarget == api::BufferTarget::ShaderStorageBuffer,
+    void>
+  {
+    Expects(start < buffer.size());
+    Expects(start + n <= buffer.size());
+    GL_ASSERT(api::bindBufferRange(_Target, m_binding, buffer.getHandle(), sizeof(T) * start, sizeof(T) * n));
+  }
+
   [[nodiscard]] auto getBinding() const noexcept
   {
     return m_binding;

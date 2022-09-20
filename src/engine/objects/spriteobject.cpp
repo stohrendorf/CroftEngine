@@ -1,6 +1,7 @@
 #include "spriteobject.h"
 
 #include "core/id.h"
+#include "engine/objects/laraobject.h"
 #include "engine/world/room.h"
 #include "engine/world/sprite.h"
 #include "engine/world/world.h"
@@ -76,6 +77,21 @@ void SpriteObject::createModel()
                         const render::scene::Node* /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
                       {
                         uniform.set(brightness.get());
+                      });
+  m_displayNode->bind("b_dynLights",
+                      [this, emptyLightsBuffer = ShaderLight::getEmptyBuffer()](const render::scene::Node* /*node*/,
+                                                                                const render::scene::Mesh& /*mesh*/,
+                                                                                gl::ShaderStorageBlock& block)
+                      {
+                        if(const auto lara = getWorld().getObjectManager().getLaraPtr();
+                           lara != nullptr && !lara->flashLightsBufferData.empty())
+                        {
+                          block.bindRange(*lara->flashLightsBuffer, 0, lara->flashLightsBufferData.size());
+                        }
+                        else
+                        {
+                          block.bind(*emptyLightsBuffer);
+                        }
                       });
   m_displayNode->bind(
     "b_lights",

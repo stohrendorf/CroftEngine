@@ -48,7 +48,7 @@ SkateboardKid::SkateboardKid(const std::string& name,
 {
   m_state.current_anim_state = 2_as;
   SkeletalModelNode::buildMesh(m_skateboard, m_state.current_anim_state);
-  m_lighting.bind(*m_skateboard);
+  m_lighting.bind(*m_skateboard, *world);
 }
 
 void SkateboardKid::update()

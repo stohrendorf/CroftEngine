@@ -44,7 +44,7 @@ ModelObject::ModelObject(const std::string& name,
     , m_skeleton{std::make_shared<SkeletalModelNode>(name, world, model, shadowCaster)}
 {
   SkeletalModelNode::buildMesh(m_skeleton, m_state.current_anim_state);
-  m_lighting.bind(*m_skeleton);
+  m_lighting.bind(*m_skeleton, *world);
 }
 
 void ModelObject::update()
@@ -356,7 +356,7 @@ void ModelObject::serialize(const serialization::Serializer<world::World>& ser)
   if(ser.loading)
   {
     SkeletalModelNode::buildMesh(m_skeleton, m_state.current_anim_state);
-    m_lighting.bind(*m_skeleton);
+    m_lighting.bind(*m_skeleton, ser.context);
   }
 }
 

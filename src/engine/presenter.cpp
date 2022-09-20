@@ -122,7 +122,8 @@ void Presenter::playVideo(const std::filesystem::path& path)
 
 void Presenter::renderWorld(const std::vector<world::Room>& rooms,
                             const CameraController& cameraController,
-                            const std::unordered_set<const world::Portal*>& waterEntryPortals)
+                            const std::unordered_set<const world::Portal*>& waterEntryPortals,
+                            const engine::world::World& world)
 {
   m_renderPipeline->updateCamera(m_renderer->getCamera());
 
@@ -239,7 +240,7 @@ void Presenter::renderWorld(const std::vector<world::Room>& rooms,
         continue;
 
       context.pushState(room.node->getRenderState());
-      room.particles.render(context);
+      room.particles.render(context, world);
       context.popState();
     }
 

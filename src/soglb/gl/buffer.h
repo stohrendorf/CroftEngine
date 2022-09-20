@@ -93,6 +93,19 @@ public:
     GL_ASSERT(api::namedBufferData(getHandle(), data.size_bytes(), data.data(), usage));
   }
 
+  explicit Buffer(const std::string_view& label, api::BufferUsage usage, size_t size)
+      : BindableResource{api::createBuffers,
+                         [](const uint32_t handle)
+                         {
+                           bindBuffer(Target, handle);
+                         },
+                         api::deleteBuffers,
+                         label}
+      , m_size{size}
+  {
+    GL_ASSERT(api::namedBufferData(getHandle(), sizeof(T) * size, nullptr, usage));
+  }
+
   explicit Buffer(const std::string_view& label, api::BufferUsage usage, const T& data)
       : Buffer{label, usage, gsl::span{&data, 1}}
   {

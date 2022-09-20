@@ -99,6 +99,8 @@ private:
 public:
   LaraObject(const gsl::not_null<world::World*>& world, const Location& location)
       : ModelObject{world, location}
+      , flashLightsBuffer{std::make_shared<gl::ShaderStorageBuffer<engine::ShaderLight>>(
+          "dynamic-lights", gl::api::BufferUsage::DynamicDraw, 2)}
   {
     initMuzzleFlashes();
   }
@@ -388,6 +390,11 @@ public:
   }
 
   [[nodiscard]] ghosting::GhostFrame getGhostFrame() const;
+
+  std::vector<ShaderLight> flashLightsBufferData{};
+  std::shared_ptr<gl::ShaderStorageBuffer<ShaderLight>> flashLightsBuffer{};
+
+  void updateMuzzleFlashLightPosStrength();
 
 private:
   uint8_t m_cheatIdx = 0;

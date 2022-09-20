@@ -163,7 +163,7 @@ bool showLevelStats(const std::shared_ptr<Presenter>& presenter, world::World& w
       const auto portals = world.getCameraController().update();
       if(const auto lara = world.getObjectManager().getLaraPtr())
         lara->m_state.location.room->node->setVisible(true);
-      presenter->renderWorld(world.getRooms(), world.getCameraController(), portals);
+      presenter->renderWorld(world.getRooms(), world.getCameraController(), portals, world);
     }
     presenter->renderScreenOverlay();
 
@@ -314,7 +314,7 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
         const auto portals = world.getCameraController().update();
         if(const auto lara = world.getObjectManager().getLaraPtr())
           lara->m_state.location.room->node->setVisible(true);
-        m_presenter->renderWorld(world.getRooms(), world.getCameraController(), portals);
+        m_presenter->renderWorld(world.getRooms(), world.getCameraController(), portals, world);
       }
       m_presenter->updateSoundEngine();
       m_presenter->renderScreenOverlay();

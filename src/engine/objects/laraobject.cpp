@@ -48,6 +48,7 @@
 #include <cstdlib>
 #include <exception>
 #include <gl/api/gl.hpp>
+#include <gl/buffer.h>
 #include <gl/program.h>
 #include <gl/renderstate.h>
 #include <glm/geometric.hpp>
@@ -1684,6 +1685,8 @@ void LaraObject::drawRoutine()
   default:
     break;
   }
+
+  updateMuzzleFlashLightPosStrength();
 }
 
 void LaraObject::drawRoutineInterpolated(const InterpolationInfo& interpolationInfo)
@@ -1784,6 +1787,8 @@ void LaraObject::drawRoutineInterpolated(const InterpolationInfo& interpolationI
   default:
     break;
   }
+
+  updateMuzzleFlashLightPosStrength();
 }
 
 void LaraObject::renderMuzzleFlash(const WeaponType weaponType,
@@ -1835,6 +1840,13 @@ void LaraObject::renderMuzzleFlash(const WeaponType weaponType,
                                                            gl::Uniform& uniform)
                         {
                           uniform.set(brightness.get());
+                        });
+  muzzleFlashNode->bind("b_dynLights",
+                        [emptyLightsBuffer = ShaderLight::getEmptyBuffer()](const render::scene::Node* /*node*/,
+                                                                            const render::scene::Mesh& /*mesh*/,
+                                                                            gl::ShaderStorageBlock& block)
+                        {
+                          block.bind(*emptyLightsBuffer);
                         });
 }
 
@@ -1903,6 +1915,8 @@ LaraObject::LaraObject(const std::string& name,
                        const loader::file::Item& item,
                        const gsl::not_null<const world::SkeletalModelType*>& animatedModel)
     : ModelObject(name, world, room, item, false, animatedModel, true)
+    , flashLightsBuffer{
+        std::make_shared<gl::ShaderStorageBuffer<ShaderLight>>("dynamic-lights", gl::api::BufferUsage::DynamicDraw, 2)}
 {
   m_underwaterRoute.step = 20_sectors;
   m_underwaterRoute.drop = -20_sectors;
@@ -2155,5 +2169,29 @@ void LaraObject::updateCheats()
     m_cheatIdx = WaitWalkFwd;
     break;
   }
+}
+
+void LaraObject::updateMuzzleFlashLightPosStrength()
+{
+  static constexpr const auto Strength = 2.0f * glm::vec4{1.0f, 0.94f, 0.58f, 0.0f};
+
+  flashLightsBufferData.clear();
+
+  if(!getWorld().getEngine().getEngineConfig()->renderSettings.muzzleFlashLight)
+  {
+    return;
+  }
+
+  if(m_muzzleFlashLeft->isVisible())
+  {
+    flashLightsBufferData.emplace_back(
+      ShaderLight{glm::vec4{m_muzzleFlashLeft->getTranslationWorld(), 0.0f}, Strength, 256.0f});
+  }
+  if(m_muzzleFlashRight->isVisible())
+  {
+    flashLightsBufferData.emplace_back(
+      ShaderLight{glm::vec4{m_muzzleFlashRight->getTranslationWorld(), 0.0f}, Strength, 256.0f});
+  }
+  flashLightsBuffer->setSubData(flashLightsBufferData, 0);
 }
 } // namespace engine::objects
