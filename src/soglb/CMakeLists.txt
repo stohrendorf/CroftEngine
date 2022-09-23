@@ -54,11 +54,6 @@ add_library( soglb STATIC
         gl/cimgwrapper.cpp
         )
 
-set_property(
-        SOURCE gl/cimgwrapper.cpp
-        PROPERTY COMPILE_DEFINITIONS NDEBUG
-)
-
 target_link_libraries( soglb PRIVATE CImg::CImg )
 target_link_libraries(
         soglb
