@@ -1144,7 +1144,6 @@ void World::save(const std::filesystem::path& filename, bool isQuicksave)
 
 void World::save(const std::optional<size_t>& slot)
 {
-  getPresenter().drawLoadingScreen(_("Saving..."));
   const auto filename = m_engine.getSavegamePath(slot);
   save(filename, !slot.has_value());
   getPresenter().disableScreenOverlay();
@@ -1189,7 +1188,7 @@ bool World::hasSavedGames() const
 {
   if(std::filesystem::is_regular_file(m_engine.getSavegamePath(std::nullopt)))
     return true;
-  
+
   for(size_t i = 0; i < core::SavegameSlots; ++i)
   {
     const auto path = m_engine.getSavegamePath(i);
