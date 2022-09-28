@@ -168,11 +168,10 @@ void MutantEgg::serialize(const serialization::Serializer<world::World>& ser)
   {
     getSkeleton()->getRenderState().setScissorTest(false);
   }
-  
-  ser.lazy(
-    [this](const serialization::Serializer<world::World>& ser)
-    {
-      ser(S_NV("childObject", serialization::ObjectReference{m_childObject}));
-    });
+
+  ser << [this](const serialization::Serializer<world::World>& ser)
+  {
+    ser(S_NV("childObject", serialization::ObjectReference{m_childObject}));
+  };
 }
 } // namespace engine::objects

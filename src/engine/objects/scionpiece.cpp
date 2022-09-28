@@ -88,16 +88,14 @@ void ScionPiece::serialize(const serialization::Serializer<world::World>& ser)
 {
   SpriteObject::serialize(ser);
   // need a double-dispatch because the node is already lazily associated with its room
-  ser.lazy(
-    [this](const serialization::Serializer<world::World>& ser)
+  ser << [this](const serialization::Serializer<world::World>& ser)
+  {
+    ser << [this](const serialization::Serializer<world::World>& ser)
     {
-      ser.lazy(
-        [this](const serialization::Serializer<world::World>& ser)
-        {
-          if(ser.loading && !m_state.collidable)
-            getNode()->clear();
-        });
-    });
+      if(ser.loading && !m_state.collidable)
+        getNode()->clear();
+    };
+  };
 }
 
 void ScionPiece3::update()

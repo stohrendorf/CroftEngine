@@ -1885,11 +1885,10 @@ void LaraObject::serialize(const serialization::Serializer<world::World>& ser)
       S_NV("rightArm", rightArm),
       S_NV("weaponTargetVector", m_weaponTargetVector));
 
-  ser.lazy(
-    [this](const serialization::Serializer<world::World>& ser)
-    {
-      ser(S_NV("aimAt", serialization::ObjectReference{aimAt}));
-    });
+  ser << [this](const serialization::Serializer<world::World>& ser)
+  {
+    ser(S_NV("aimAt", serialization::ObjectReference{aimAt}));
+  };
 
   if(ser.loading)
   {

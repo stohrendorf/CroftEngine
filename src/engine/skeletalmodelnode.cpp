@@ -237,13 +237,12 @@ void SkeletalModelNode::serialize(const serialization::Serializer<world::World>&
       S_NV("shadowCaster", m_shadowCaster));
 
   if(ser.loading)
-    ser.lazy(
-      [this](const serialization::Serializer<world::World>&)
-      {
-        m_forceMeshRebuild = true;
-        rebuildMesh();
-        updatePose();
-      });
+    ser << [this](const serialization::Serializer<world::World>&)
+    {
+      m_forceMeshRebuild = true;
+      rebuildMesh();
+      updatePose();
+    };
 }
 
 void serialize(std::shared_ptr<SkeletalModelNode>& data, const serialization::Serializer<world::World>& ser)

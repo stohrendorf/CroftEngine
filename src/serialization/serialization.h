@@ -205,6 +205,12 @@ public:
       lazyCallback(*this);
   }
 
+  auto& operator<<(const LazyCallback<TContext>& lazyCallback) const
+  {
+    lazy(lazyCallback);
+    return *this;
+  }
+
   template<typename T>
   void lazy(T* instance, void (T::*member)(const Serializer<TContext>&)) const
   {

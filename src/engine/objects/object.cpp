@@ -210,18 +210,17 @@ void Object::serialize(const serialization::Serializer<world::World>& ser)
       S_NV("hasUpdateFunction", m_hasUpdateFunction),
       S_NV("isActive", m_isActive));
 
-  ser.lazy(
-    [this](const serialization::Serializer<world::World>& ser)
+  ser << [this](const serialization::Serializer<world::World>& ser)
+  {
+    // FIXME ser(S_NV("renderables", serialization::FrozenVector{getNode()->getChildren()}));
+
+    if(ser.loading)
     {
-      // FIXME ser(S_NV("renderables", serialization::FrozenVector{getNode()->getChildren()}));
+      setParent(gsl::not_null{getNode()}, m_state.location.room->node);
 
-      if(ser.loading)
-      {
-        setParent(gsl::not_null{getNode()}, m_state.location.room->node);
-
-        applyTransform();
-      }
-    });
+      applyTransform();
+    }
+  };
 }
 
 void Object::moveLocal(const core::TRVec& d)

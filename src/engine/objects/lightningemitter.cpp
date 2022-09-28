@@ -294,11 +294,10 @@ void LightningEmitter::serialize(const serialization::Serializer<world::World>& 
   if(ser.loading)
   {
     init(ser.context);
-    ser.lazy(
-      [this](const serialization::Serializer<world::World>& /*ser*/)
-      {
-        prepareRender();
-      });
+    ser << [this](const serialization::Serializer<world::World>& /*ser*/)
+    {
+      prepareRender();
+    };
 
     getSkeleton()->getRenderState().setScissorTest(false);
   }
