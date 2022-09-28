@@ -746,7 +746,7 @@ void CameraController::handleEnemy()
   m_lookAt.position.X = lara.m_state.location.position.X;
   m_lookAt.position.Z = lara.m_state.location.position.Z;
 
-  if(m_enemy != nullptr)
+  if(m_lookAtObject != nullptr)
   {
     m_rotationAroundLara.X = lara.m_weaponTargetVector.X + lara.m_state.rotation.X;
     m_rotationAroundLara.Y = lara.m_weaponTargetVector.Y + lara.m_state.rotation.Y;
@@ -834,7 +834,6 @@ void CameraController::serialize(const serialization::Serializer<world::World>& 
       S_NV("completelyFixed", m_isCompletelyFixed),
       S_NV("lookAtObject", serialization::ObjectReference{m_lookAtObject}),
       S_NV("previousLookAtObject", serialization::ObjectReference{m_previousLookAtObject}),
-      S_NV("enemy", serialization::ObjectReference{m_enemy}),
       S_NV("bounce", m_bounce),
       S_NV("distance", m_distance),
       S_NV("eyeRotation", m_eyeRotation),

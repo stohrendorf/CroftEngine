@@ -94,7 +94,6 @@ private:
   //! @note Also modifies Lara's head and torso rotation.
   std::shared_ptr<objects::Object> m_lookAtObject = nullptr;
   std::shared_ptr<objects::Object> m_previousLookAtObject = nullptr;
-  std::shared_ptr<objects::Object> m_enemy = nullptr;
   //! @brief Movement smoothness for adjusting the pivot position.
   core::Frame m_smoothness = 8_frame;
   int m_fixedCameraId = -1;
