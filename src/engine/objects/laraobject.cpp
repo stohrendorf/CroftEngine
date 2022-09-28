@@ -171,7 +171,7 @@ void LaraObject::handleLaraStateOnLand()
 
   lara::AbstractStateHandler::create(getCurrentAnimState(), *this)->postprocessFrame(collisionInfo);
 
-  updateFloorHeight(-381_len);
+  updateFloorHeight(-core::LaraWalkHeight / 2);
 
   updateLarasWeaponsStatus();
   getWorld().handleCommandSequence(collisionInfo.mid.floor.lastCommandSequenceOrDeath, false);
