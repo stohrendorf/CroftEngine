@@ -131,6 +131,13 @@ void RollingBall::collide(CollisionInfo& collisionInfo)
     lara.m_state.rotation.Z = 0_deg;
     lara.setGoalAnimState(loader::file::LaraStateId::BoulderDeath);
     lara.setCurrentAnimState(loader::file::LaraStateId::BoulderDeath);
+
+    if(!lara.isOnLand())
+    {
+      lara.m_state.speed = 0_spd;
+      lara.m_state.fallspeed = 0_spd;
+    }
+
     for(int i = 0; i < 15; ++i)
     {
       const auto tmp = lara.m_state.location.position
