@@ -298,8 +298,8 @@ EnemyLocation::EnemyLocation(objects::AIAgent& aiAgent)
   enemyUnreachable = !aiAgent.getCreatureInfo()->pathFinder.canVisit(*lara.m_state.getCurrentBox())
                      || aiAgent.getCreatureInfo()->pathFinder.isUnreachable(aiAgent.m_state.getCurrentBox());
 
-  auto objectInfo = aiAgent.getWorld().getEngine().getScriptEngine().getGameflow().getObjectInfos().at(
-    aiAgent.m_state.type.get_as<TR1ItemId>());
+  const gsl::not_null objectInfo{aiAgent.getWorld().getEngine().getScriptEngine().getGameflow().getObjectInfos().at(
+    aiAgent.m_state.type.get_as<TR1ItemId>())};
   const core::Length pivotLength{objectInfo->pivot_length};
   const auto toLara = lara.m_state.location.position
                       - (aiAgent.m_state.location.position + util::pitch(pivotLength, aiAgent.m_state.rotation.Y));

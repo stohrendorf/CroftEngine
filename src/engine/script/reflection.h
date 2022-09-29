@@ -291,13 +291,13 @@ public:
 class Gameflow final
 {
 public:
-  explicit Gameflow(std::map<TR1ItemId, ObjectInfo*> objectInfos,
-                    std::map<TR1TrackId, TrackInfo*> tracks,
-                    std::vector<LevelSequenceItem*> levelSequence,
-                    LevelSequenceItem* titleMenu,
+  explicit Gameflow(std::map<TR1ItemId, std::shared_ptr<ObjectInfo>> objectInfos,
+                    std::map<TR1TrackId, std::shared_ptr<TrackInfo>> tracks,
+                    std::vector<std::shared_ptr<LevelSequenceItem>> levelSequence,
+                    std::shared_ptr<LevelSequenceItem> titleMenu,
                     std::string titleMenuBackdrop,
-                    std::vector<LevelSequenceItem*> laraHome,
-                    std::vector<LevelSequenceItem*> earlyBoot,
+                    std::vector<std::shared_ptr<LevelSequenceItem>> laraHome,
+                    std::vector<std::shared_ptr<LevelSequenceItem>> earlyBoot,
                     pybind11::dict cheats,
                     std::string assetRoot)
       : m_objectInfos{std::move(objectInfos)}
@@ -359,13 +359,13 @@ public:
   [[nodiscard]] std::vector<std::filesystem::path> getInvalidFilepaths(const Engine& engine) const;
 
 private:
-  std::map<TR1ItemId, ObjectInfo*> m_objectInfos;
-  std::map<TR1TrackId, TrackInfo*> m_tracks;
-  std::vector<LevelSequenceItem*> m_levelSequence;
-  LevelSequenceItem* m_titleMenu;
+  std::map<TR1ItemId, std::shared_ptr<ObjectInfo>> m_objectInfos;
+  std::map<TR1TrackId, std::shared_ptr<TrackInfo>> m_tracks;
+  std::vector<std::shared_ptr<LevelSequenceItem>> m_levelSequence;
+  std::shared_ptr<LevelSequenceItem> m_titleMenu;
   std::string m_titleMenuBackdrop;
-  std::vector<LevelSequenceItem*> m_laraHome;
-  std::vector<LevelSequenceItem*> m_earlyBoot;
+  std::vector<std::shared_ptr<LevelSequenceItem>> m_laraHome;
+  std::vector<std::shared_ptr<LevelSequenceItem>> m_earlyBoot;
   pybind11::dict m_cheats;
   std::string m_assetRoot;
 };

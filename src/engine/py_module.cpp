@@ -30,7 +30,7 @@ PYBIND11_EMBEDDED_MODULE(engine, m)
   m.doc() = "croftengine engine module";
   engine::ai::initAiModule(m.def_submodule("ai"));
 
-  py::class_<engine::script::TrackInfo>(m, "TrackInfo")
+  py::class_<engine::script::TrackInfo, std::shared_ptr<engine::script::TrackInfo>>(m, "TrackInfo")
     .def(py::init<std::vector<std::string>, size_t, bool, uint32_t>(),
          py::arg("paths"),
          py::arg("slot"),
@@ -48,7 +48,7 @@ PYBIND11_EMBEDDED_MODULE(engine, m)
 #undef EXPOSE_ENUM_MEMBER
   }
 
-  py::class_<engine::script::ObjectInfo>(m, "ObjectInfo")
+  py::class_<engine::script::ObjectInfo, std::shared_ptr<engine::script::ObjectInfo>>(m, "ObjectInfo")
     .def(py::init<>())
     .def_readwrite("ai_agent", &engine::script::ObjectInfo::ai_agent)
     .def_readwrite("radius", &engine::script::ObjectInfo::radius)
@@ -161,13 +161,13 @@ PYBIND11_EMBEDDED_MODULE(engine, m)
   }
 
   py::class_<engine::script::Gameflow>(m, "Gameflow", py::is_final{})
-    .def(py::init<std::map<engine::TR1ItemId, engine::script::ObjectInfo*>,
-                  std::map<engine::TR1TrackId, engine::script::TrackInfo*>,
-                  std::vector<engine::script::LevelSequenceItem*>,
-                  engine::script::LevelSequenceItem*,
+    .def(py::init<std::map<engine::TR1ItemId, std::shared_ptr<engine::script::ObjectInfo>>,
+                  std::map<engine::TR1TrackId, std::shared_ptr<engine::script::TrackInfo>>,
+                  std::vector<std::shared_ptr<engine::script::LevelSequenceItem>>,
+                  std::shared_ptr<engine::script::LevelSequenceItem>,
                   std::string,
-                  std::vector<engine::script::LevelSequenceItem*>,
-                  std::vector<engine::script::LevelSequenceItem*>,
+                  std::vector<std::shared_ptr<engine::script::LevelSequenceItem>>,
+                  std::vector<std::shared_ptr<engine::script::LevelSequenceItem>>,
                   pybind11::dict,
                   std::string>(),
          py::kw_only{},
