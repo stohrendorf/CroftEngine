@@ -278,7 +278,7 @@ gl::SRGBA8 getBarColor(float x, const std::array<gl::SRGBA8, BarColors>& barColo
 {
   x *= BarColors;
   auto n = static_cast<int>(glm::floor(x));
-  if(n <= 0)
+  if(n < 0)
     return barColors[0];
   else if(static_cast<size_t>(n) >= BarColors - 1)
     return barColors[BarColors - 1];
