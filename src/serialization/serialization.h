@@ -102,7 +102,7 @@ class Serializer final
     if(!loading)
       node |= ryml::MAP;
 
-    Expects(node.is_map());
+    gsl_Ensures(node.is_map());
   }
 #ifdef SERIALIZATION_TRACE
   std::string getQualifiedKey() const
@@ -247,7 +247,7 @@ public:
 #endif
 
     auto ser = createMapMemberSerializer(name, true);
-    Expects(ser.has_value());
+    gsl_Assert(ser.has_value());
     doSerialize(name, data, *ser);
     return *this;
   }

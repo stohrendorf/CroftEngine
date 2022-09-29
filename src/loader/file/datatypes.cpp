@@ -859,8 +859,8 @@ std::unique_ptr<Box> Box::readTr1(io::SDLReader& reader)
   box->blocked = (tmp & 0x4000u) != 0;
   box->blockable = (tmp & 0x8000u) != 0;
 
-  Expects(box->xmax - box->xmin + 1_len >= 1_sectors);
-  Expects(box->zmax - box->zmin + 1_len >= 1_sectors);
+  gsl_Assert(box->xmax - box->xmin + 1_len >= 1_sectors);
+  gsl_Assert(box->zmax - box->zmin + 1_len >= 1_sectors);
 
   return box;
 }

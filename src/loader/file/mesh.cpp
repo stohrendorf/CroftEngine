@@ -22,12 +22,12 @@ std::unique_ptr<Mesh> Mesh::readTr1(io::SDLReader& reader)
   const auto num_normals = reader.readI16();
   if(num_normals >= 0)
   {
-    Expects(static_cast<size_t>(num_normals) == mesh->vertices.size());
+    gsl_Assert(static_cast<size_t>(num_normals) == mesh->vertices.size());
     reader.readVector(mesh->normals, num_normals, &io::readCoordinates16);
   }
   else
   {
-    Expects(static_cast<size_t>(-num_normals) == mesh->vertices.size());
+    gsl_Assert(static_cast<size_t>(-num_normals) == mesh->vertices.size());
     reader.readVector(mesh->vertex_shades, -num_normals);
   }
 

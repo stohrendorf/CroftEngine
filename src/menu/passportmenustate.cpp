@@ -198,7 +198,7 @@ std::unique_ptr<MenuState> PassportMenuState::onFrame(ui::Ui& ui, engine::world:
     showExitGamePage(world, display, display.mode != InventoryMode::TitleMode);
     break;
   default:
-    Expects(page == -1);
+    gsl_Assert(page == -1);
     break;
   }
 

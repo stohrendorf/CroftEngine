@@ -26,8 +26,8 @@ void load(std::unordered_map<T, U>& data, const Serializer<TContext>& ser)
   data = std::unordered_map<T, U>();
   for(const auto& element : ser.node.children())
   {
-    Expects(element.is_map());
-    Expects(element.num_children() == 2);
+    gsl_Assert(element.is_map());
+    gsl_Assert(element.num_children() == 2);
     auto elemSer = ser.withNode(element);
     data.emplace(access<T>::callCreate(elemSer["key"]), access<U>::callCreate(elemSer["value"]));
   }

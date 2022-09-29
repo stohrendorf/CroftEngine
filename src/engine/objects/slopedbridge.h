@@ -81,7 +81,7 @@ private:
   core::Length getBridgeSlopeHeight(const core::TRVec& pos) const
   {
     auto axis = axisFromAngle(m_state.rotation.Y, 1_deg);
-    Expects(axis.has_value());
+    gsl_Assert(axis.has_value());
 
     switch(*axis)
     {

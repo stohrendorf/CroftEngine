@@ -41,7 +41,7 @@ void play(const std::filesystem::path& filename,
                           << std::chrono::duration_cast<std::chrono::seconds>(decoderPtr->getDuration()).count()
                           << " seconds";
   const auto decoder = decoderPtr.get();
-  Expects(decoder->filterGraph.graph->sink_links_count == 1);
+  gsl_Assert(decoder->filterGraph.graph->sink_links_count == 1);
   Converter converter{decoder->filterGraph.graph->sink_links[0]};
   decoderPtr->fillQueues();
 

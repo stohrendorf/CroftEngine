@@ -24,7 +24,7 @@ TextureAnimator::TextureAnimator(const std::vector<uint16_t>& data)
     const auto n = *ptr++;
     for(size_t j = 0; j <= n; ++j)
     {
-      Expects(ptr <= &data.back());
+      gsl_Assert(ptr <= &data.back());
       const auto tileId = *ptr++;
       sequence.tileIds.emplace_back(tileId);
       m_sequenceByTileId.emplace(tileId, m_sequences.size());

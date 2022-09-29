@@ -21,14 +21,14 @@ void setLocale(const std::filesystem::path& poDir, const std::string& locale)
   }
 
 #ifdef _WIN32
-  Expects(_putenv_s("LANG", locale.c_str()) == 0);
+  gsl_Assert(_putenv_s("LANG", locale.c_str()) == 0);
   BOOST_LOG_TRIVIAL(trace) << "gettext text domain: " << textdomain("croftengine");
   if(wbindtextdomain("croftengine", poDir.c_str()) == nullptr)
   {
     BOOST_LOG_TRIVIAL(warning) << "failed to bind text domain";
   }
 #else
-  Expects(setenv("LANG", locale.c_str(), true) == 0);
+  gsl_Assert(setenv("LANG", locale.c_str(), true) == 0);
 #endif
 
   if(auto result = bindtextdomain("croftengine", poDir.string().c_str()); result != nullptr)

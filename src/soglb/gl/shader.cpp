@@ -134,7 +134,7 @@ template<api::ShaderType _Type>
 Shader<_Type>::Shader(const gsl::span<gsl::czstring>& src, const std::string_view& label)
     : m_handle{GL_ASSERT_FN(api::createShader(Type))}
 {
-  Expects(m_handle != 0);
+  gsl_Ensures(m_handle != 0);
   GL_ASSERT(api::shaderSource(m_handle, gsl::narrow<api::core::SizeType>(src.size()), src.data(), nullptr));
   GL_ASSERT(api::compileShader(m_handle));
 

@@ -35,7 +35,7 @@ public:
     const int levelDiv = 1 << level;
     const auto sizeX = glm::max(1, m_size.x / levelDiv);
     const auto sizeY = glm::max(1, m_size.y / levelDiv);
-    Expects(gsl::narrow<size_t>(sizeX * sizeY) == data.size());
+    gsl_Assert(gsl::narrow<size_t>(sizeX * sizeY) == data.size());
 
     GL_ASSERT(api::textureSubImage2D(
       getHandle(), level, 0, 0, sizeX, sizeY, Pixel::PixelFormat, Pixel::PixelType, data.data()));

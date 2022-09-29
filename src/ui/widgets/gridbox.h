@@ -149,7 +149,7 @@ public:
   [[nodiscard]] const auto& getWidget(size_t x, size_t y) const
   {
     auto [sx, sy] = getExtents();
-    Expects(x < sx && y < sy);
+    gsl_Assert(x < sx && y < sy);
     return m_widgets[x][y];
   }
 

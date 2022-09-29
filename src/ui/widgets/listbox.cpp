@@ -29,7 +29,7 @@ void ListBox::draw(ui::Ui& ui, const engine::Presenter& presenter) const
     first = page * m_pageSize;
     last = std::min(first + m_pageSize, m_widgets.size());
   }
-  Expects(first < last);
+  gsl_Assert(first < last);
 
   static const auto outerCorner = gl::SRGBA8{0, 0, 0, 0};
   static const auto center = gl::SRGBA8{128, 64, 64, 128};

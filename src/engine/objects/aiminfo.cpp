@@ -347,7 +347,7 @@ void AimInfo::overrideDrawTwoWeaponsMeshes(LaraObject& lara, WeaponType weaponTy
   }
 
   const auto& src = lara.getWorld().findAnimatedModelForType(id);
-  Expects(src != nullptr);
+  gsl_Assert(src != nullptr);
   BOOST_ASSERT(src->bones.size() == lara.getSkeleton()->getBoneCount());
   const auto& normalLara = *lara.getWorld().findAnimatedModelForType(TR1ItemId::Lara);
   BOOST_ASSERT(normalLara.bones.size() == lara.getSkeleton()->getBoneCount());

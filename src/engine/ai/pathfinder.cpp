@@ -182,7 +182,7 @@ bool PathFinder::calculateTarget(const world::World& world,
       {
         moveTarget.Z = uncheckedClamp(moveTarget.Z, here->zInterval.narrowed(Margin));
       }
-      Ensures(here->zInterval.contains(moveTarget.Z));
+      gsl_Assert(here->zInterval.contains(moveTarget.Z));
 
       // NOLINTNEXTLINE(hicpp-signed-bitwise)
       if(moveDirs & (CanMoveXPos | CanMoveXNeg))
@@ -193,7 +193,7 @@ bool PathFinder::calculateTarget(const world::World& world,
       {
         moveTarget.X = uncheckedClamp(moveTarget.X, here->xInterval.narrowed(Margin));
       }
-      Ensures(here->xInterval.contains(moveTarget.X));
+      gsl_Assert(here->xInterval.contains(moveTarget.X));
 
       moveTarget.Y = target.Y;
 
@@ -217,7 +217,7 @@ bool PathFinder::calculateTarget(const world::World& world,
   {
     moveTarget.Z = uncheckedClamp(moveTarget.Z, here->zInterval.narrowed(Margin));
   }
-  Ensures(here->zInterval.contains(moveTarget.Z));
+  gsl_Assert(here->zInterval.contains(moveTarget.Z));
 
   // NOLINTNEXTLINE(hicpp-signed-bitwise)
   if(moveDirs & (CanMoveXPos | CanMoveXNeg))
@@ -229,7 +229,7 @@ bool PathFinder::calculateTarget(const world::World& world,
   {
     moveTarget.X = uncheckedClamp(moveTarget.X, here->xInterval.narrowed(Margin));
   }
-  Ensures(here->xInterval.contains(moveTarget.X));
+  gsl_Assert(here->xInterval.contains(moveTarget.X));
 
   if(isFlying())
     moveTarget.Y = here->floor - 384_len;

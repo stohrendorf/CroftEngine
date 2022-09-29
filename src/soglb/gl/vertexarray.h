@@ -61,8 +61,8 @@ public:
     std::vector<api::core::Handle> vbos;
     std::vector<int> strides;
     extractBindContextData(vbos, strides);
-    Expects(vbos.size() == strides.size());
-    Expects(vbos.size() == sizeof...(VertexTs) + 1);
+    gsl_Assert(vbos.size() == strides.size());
+    gsl_Assert(vbos.size() == sizeof...(VertexTs) + 1);
     std::vector<intptr_t> offsets;
     offsets.resize(vbos.size(), 0);
     GL_ASSERT(api::vertexArrayVertexBuffers(

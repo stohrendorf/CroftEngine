@@ -52,7 +52,7 @@ std::optional<PortalTracer::CullBox> PortalTracer::narrowCullBox(const PortalTra
     static constexpr auto Margin = 50.0f;
     if(abs(v.z) >= Margin)
       return projected;
-    
+
     return glm::vec2{
       projected.x > 0 ? 1 : -1,
       projected.y > 0 ? 1 : -1,
@@ -206,7 +206,7 @@ std::unordered_set<const engine::world::Portal*> PortalTracer::trace(const engin
   std::unordered_set<const engine::world::Portal*> waterSurfacePortals;
   traceRoom(
     startRoom, {-1, -1, 1, 1}, world, seenRooms, startRoom.isWaterRoom, waterSurfacePortals, startRoom.isWaterRoom, 1);
-  Expects(seenRooms.empty());
+  gsl_Assert(seenRooms.empty());
   return waterSurfacePortals;
 }
 } // namespace render

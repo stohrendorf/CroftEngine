@@ -50,7 +50,7 @@ FT_Library loadFreeTypeLib()
     BOOST_THROW_EXCEPTION(std::runtime_error("Failed to load freetype library"));
   }
 
-  Expects(freeTypeLib != nullptr);
+  gsl_Ensures(freeTypeLib != nullptr);
 
   atexit(
     []()
@@ -116,7 +116,7 @@ Font::Font(std::filesystem::path ttf)
 
   const auto face = getFace();
   const auto h = face->ascender - face->descender;
-  Expects(h != 0);
+  gsl_Assert(h != 0);
   m_lineHeight = gsl::narrow_cast<float>(face->height) / gsl::narrow_cast<float>(h);
 }
 

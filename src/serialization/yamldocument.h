@@ -57,7 +57,7 @@ public:
     if constexpr(Loading)
     {
       std::ifstream file{filename, std::ios::in};
-      Expects(file.is_open());
+      gsl_Assert(file.is_open());
       file.seekg(0, std::ios::end);
       const auto size = static_cast<std::size_t>(file.tellg());
       file.seekg(0, std::ios::beg);
@@ -69,7 +69,7 @@ public:
     else
     {
       std::ofstream file{filename, std::ios::out | std::ios::trunc};
-      Expects(file.is_open());
+      gsl_Assert(file.is_open());
       m_tree.rootref() |= ryml::MAP;
     }
   }
@@ -124,7 +124,7 @@ public:
   auto write() const -> std::enable_if_t<!DelayLoading, void>
   {
     std::ofstream file{m_filename, std::ios::out | std::ios::trunc};
-    Expects(file.is_open());
+    gsl_Assert(file.is_open());
     file << m_tree.rootref();
   }
 

@@ -351,8 +351,8 @@ void remapTextures(const loader::file::level::Level& level,
     sprite->textureId = replacementPos.first;
   }
 
-  Expects(doneTiles.size() == atlasTiles.size());
-  Expects(doneSprites.size() == sprites.size());
+  Ensures(doneTiles.size() == atlasTiles.size());
+  Ensures(doneSprites.size() == sprites.size());
 }
 } // namespace
 

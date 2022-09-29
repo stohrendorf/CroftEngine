@@ -129,7 +129,7 @@ void MenuObject::initModel(const engine::world::World& world,
                            const gslu::nn_shared<gl::ShaderStorageBuffer<engine::ShaderLight>>& lights)
 {
   const auto& obj = world.findAnimatedModelForType(type);
-  Expects(obj != nullptr);
+  gsl_Assert(obj != nullptr);
   node = std::make_shared<engine::SkeletalModelNode>(
     "menu-object", gsl::not_null{&world}, gsl::not_null{obj.get()}, false);
   node->bind("u_lightAmbient",

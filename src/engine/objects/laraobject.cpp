@@ -488,7 +488,7 @@ void LaraObject::advanceFrame()
       const auto* cmd = getSkeleton()->getAnim()->animCommands;
       for(uint16_t i = 0; i < getSkeleton()->getAnim()->animCommandCount; ++i)
       {
-        Expects(cmd < &getWorld().getAnimCommands().back());
+        gsl_Assert(cmd < &getWorld().getAnimCommands().back());
         const auto opcode = static_cast<AnimCommandOpcode>(*cmd);
         ++cmd;
         switch(opcode)
@@ -538,7 +538,7 @@ void LaraObject::advanceFrame()
     const auto* cmd = getSkeleton()->getAnim()->animCommands;
     for(uint16_t i = 0; i < getSkeleton()->getAnim()->animCommandCount; ++i)
     {
-      Expects(cmd < &getWorld().getAnimCommands().back());
+      gsl_Assert(cmd < &getWorld().getAnimCommands().back());
       const auto opcode = static_cast<AnimCommandOpcode>(*cmd);
       ++cmd;
       switch(opcode)
@@ -1977,7 +1977,7 @@ void LaraObject::updateExplosionStumbling()
                                  forceSourcePosition->Z - m_state.location.position.Z)
                    - 180_deg;
   hit_direction = axisFromAngle(m_state.rotation.Y - rot);
-  Expects(hit_direction.has_value());
+  gsl_Assert(hit_direction.has_value());
   if(hit_frame == 0_frame)
   {
     playSoundEffect(TR1SoundEffect::LaraOof);

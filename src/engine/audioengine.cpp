@@ -233,7 +233,7 @@ std::shared_ptr<audio::Voice> AudioEngine::playSoundEffect(const core::SoundEffe
     // BOOST_LOG_TRIVIAL(trace) << "Play looping sound effect " << toString(id.get_as<TR1SoundEffect>());
     if(auto voices = m_soundEngine->getVoicesForBuffer(emitter, sample); !voices.empty())
     {
-      Expects(voices.size() == 1);
+      gsl_Assert(voices.size() == 1);
       return voices[0];
     }
     else
@@ -248,7 +248,7 @@ std::shared_ptr<audio::Voice> AudioEngine::playSoundEffect(const core::SoundEffe
     // BOOST_LOG_TRIVIAL(trace) << "Play restarting sound effect " << toString(id.get_as<TR1SoundEffect>());
     if(auto voices = m_soundEngine->getVoicesForBuffer(emitter, sample); !voices.empty())
     {
-      Expects(voices.size() == 1);
+      gsl_Assert(voices.size() == 1);
       auto voice = voices[0];
       voice->pause();
       voice->setPitch(pitch);

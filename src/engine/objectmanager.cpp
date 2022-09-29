@@ -45,7 +45,7 @@ void ObjectManager::createObjects(world::World& world, std::vector<loader::file:
     if(idItem.value().type == TR1ItemId::Lara)
     {
       m_lara = std::dynamic_pointer_cast<objects::LaraObject>(object);
-      Expects(m_lara != nullptr);
+      gsl_Assert(m_lara != nullptr);
     }
 
     if(object == nullptr)
@@ -227,8 +227,7 @@ void ObjectManager::replaceItems(const TR1ItemId& oldId, const TR1ItemId& newId,
 
     const gsl::not_null pickup{std::dynamic_pointer_cast<objects::PickupObject>(obj.get())};
     const auto& spriteSequence = world.findSpriteSequenceForType(newId);
-    Expects(spriteSequence != nullptr);
-    Expects(!spriteSequence->sprites.empty());
+    gsl_Assert(spriteSequence != nullptr && !spriteSequence->sprites.empty());
     pickup->replace(newId, gsl::not_null{&spriteSequence->sprites[0]});
   }
 }

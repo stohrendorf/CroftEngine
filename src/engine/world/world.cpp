@@ -195,7 +195,7 @@ bool evaluateCondition(floordata::SequenceCondition condition,
   case floordata::SequenceCondition::ItemActivated:
   {
     auto swtch = objectManager.getObject(floordata::Command{*floorData++}.parameter);
-    Expects(swtch != nullptr);
+    gsl_Assert(swtch != nullptr);
     if(!swtch->triggerSwitch(request.getTimeout()))
       return false;
 
@@ -205,13 +205,13 @@ bool evaluateCondition(floordata::SequenceCondition condition,
   case floordata::SequenceCondition::KeyUsed:
   {
     auto key = objectManager.getObject(floordata::Command{*floorData++}.parameter);
-    Expects(key != nullptr);
+    gsl_Assert(key != nullptr);
     return key->triggerKey();
   }
   case floordata::SequenceCondition::ItemPickedUp:
   {
     auto item = objectManager.getObject(floordata::Command{*floorData++}.parameter);
-    Expects(item != nullptr);
+    gsl_Assert(item != nullptr);
     return item->triggerPickUp();
   }
   case floordata::SequenceCondition::LaraInCombatMode:
@@ -625,7 +625,7 @@ gslu::nn_shared<objects::PickupObject>
   item.activationState = 0;
 
   const auto& spriteSequence = findSpriteSequenceForType(type);
-  Expects(spriteSequence != nullptr && !spriteSequence->sprites.empty());
+  gsl_Assert(spriteSequence != nullptr && !spriteSequence->sprites.empty());
   const Sprite& sprite = spriteSequence->sprites[0];
 
   auto object = gsl::make_shared<objects::PickupObject>(
@@ -1011,7 +1011,7 @@ void World::serialize(const serialization::Serializer<World>& ser)
       std::swap(m_rooms[i], m_rooms[physicalIds[i]]);
     }
     for(size_t i = 0; i < m_rooms.size(); ++i)
-      Ensures(physicalIds[i] == m_rooms[i].physicalId);
+      gsl_Assert(physicalIds[i] == m_rooms[i].physicalId);
   }
 
   ser(S_NV("objectManager", m_objectManager),
@@ -1446,7 +1446,7 @@ void World::initStaticSoundEffects(const loader::file::level::Level& level)
     m_positionalEmitters.emplace_back(src.position.toRenderSystem(),
                                       gsl::not_null{getPresenter().getSoundEngine().get()});
     auto voice = m_audioEngine->playSoundEffect(src.sound_effect_id, &m_positionalEmitters.back());
-    Expects(voice != nullptr);
+    gsl_Assert(voice != nullptr);
     voice->pause();
     m_staticSoundEffects.emplace_back(
       StaticSoundEffect{voice,
@@ -1585,7 +1585,7 @@ void World::initStaticMeshes(const loader::file::level::Level& level,
       = m_staticMeshes.emplace(staticMesh.id, StaticMesh{staticMesh.collision_box, staticMesh.doNotCollide(), mesh})
           .second;
 
-    Expects(distinct);
+    gsl_Assert(distinct);
   }
 }
 
@@ -1626,12 +1626,12 @@ void World::initBoxes(const loader::file::level::Level& level)
                  });
   Ensures(m_boxes.size() == level.m_boxes.size());
 
-  Expects(level.m_baseZones.flyZone.size() == m_boxes.size());
-  Expects(level.m_baseZones.groundZone1.size() == m_boxes.size());
-  Expects(level.m_baseZones.groundZone2.size() == m_boxes.size());
-  Expects(level.m_alternateZones.flyZone.size() == m_boxes.size());
-  Expects(level.m_alternateZones.groundZone1.size() == m_boxes.size());
-  Expects(level.m_alternateZones.groundZone2.size() == m_boxes.size());
+  gsl_Assert(level.m_baseZones.flyZone.size() == m_boxes.size());
+  gsl_Assert(level.m_baseZones.groundZone1.size() == m_boxes.size());
+  gsl_Assert(level.m_baseZones.groundZone2.size() == m_boxes.size());
+  gsl_Assert(level.m_alternateZones.flyZone.size() == m_boxes.size());
+  gsl_Assert(level.m_alternateZones.groundZone1.size() == m_boxes.size());
+  gsl_Assert(level.m_alternateZones.groundZone2.size() == m_boxes.size());
   for(size_t i = 0; i < m_boxes.size(); ++i)
   {
     m_boxes[i].zoneFly = level.m_baseZones.flyZone[i];
@@ -1730,17 +1730,17 @@ void World::initAnimationData(const loader::file::level::Level& level)
       frames = reinterpret_cast<const loader::file::AnimFrame*>(&anim.poseDataOffset.from(m_poseFrames));
     }
 
-    Expects(anim.nextAnimationIndex < m_animations.size());
+    gsl_Assert(anim.nextAnimationIndex < m_animations.size());
     auto nextAnimation = &m_animations[anim.nextAnimationIndex];
 
-    Expects((anim.animCommandIndex + anim.animCommandCount).exclusiveIn(m_animCommands));
-    Expects((anim.transitionsIndex + anim.transitionsCount).exclusiveIn(m_transitions));
+    gsl_Assert((anim.animCommandIndex + anim.animCommandCount).exclusiveIn(m_animCommands));
+    gsl_Assert((anim.transitionsIndex + anim.transitionsCount).exclusiveIn(m_transitions));
     gsl::span<const Transitions> transitions;
     if(anim.transitionsCount > 0)
       transitions = gsl::span{&anim.transitionsIndex.from(m_transitions), anim.transitionsCount};
 
-    Expects(anim.segmentLength > 0_frame);
-    Expects(anim.firstFrame <= anim.lastFrame);
+    gsl_Assert(anim.segmentLength > 0_frame);
+    gsl_Assert(anim.firstFrame <= anim.lastFrame);
     m_animations[i] = Animation{frames,
                                 anim.segmentLength,
                                 anim.state_id,
@@ -1770,14 +1770,14 @@ void World::initAnimationData(const loader::file::level::Level& level)
   }
   Ensures(m_transitionCases.size() == level.m_transitionCases.size());
 
-  Expects(m_transitions.size() == level.m_transitions.size());
+  gsl_Assert(m_transitions.size() == level.m_transitions.size());
   std::transform(
     level.m_transitions.begin(),
     level.m_transitions.end(),
     m_transitions.begin(),
     [this](const loader::file::Transitions& transitions)
     {
-      Expects((transitions.firstTransitionCase + transitions.transitionCaseCount).exclusiveIn(m_transitionCases));
+      gsl_Assert((transitions.firstTransitionCase + transitions.transitionCaseCount).exclusiveIn(m_transitionCases));
       if(transitions.transitionCaseCount > 0)
         return Transitions{
           transitions.stateId,
@@ -1828,14 +1828,14 @@ void World::initTextureDependentDataFromLevel(const loader::file::level::Level& 
 
   for(const auto& [sequenceId, sequence] : level.m_spriteSequences)
   {
-    Expects(sequence != nullptr);
-    Expects(sequence->length <= 0);
-    Expects(gsl::narrow<size_t>(sequence->offset - sequence->length) <= m_sprites.size());
+    gsl_Assert(sequence != nullptr);
+    gsl_Assert(sequence->length <= 0);
+    gsl_Assert(gsl::narrow<size_t>(sequence->offset - sequence->length) <= m_sprites.size());
 
     auto seq = std::make_unique<SpriteSequence>();
     *seq = SpriteSequence{sequence->type, gsl::make_span(&m_sprites.at(sequence->offset), -sequence->length)};
     const bool distinct = m_spriteSequences.emplace(sequenceId, std::move(seq)).second;
-    Expects(distinct);
+    gsl_Assert(distinct);
   }
 }
 

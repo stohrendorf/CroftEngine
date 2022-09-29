@@ -26,10 +26,10 @@ void load(std::bitset<N>& data, const Serializer<TContext>& ser)
   data.reset();
   std::string tmp;
   ser.node >> tmp;
-  Expects(tmp.length() == N);
+  gsl_Assert(tmp.length() == N);
   for(size_t i = 0; i < N; ++i)
   {
-    Expects(tmp[i] == '0' || tmp[i] == '1');
+    gsl_Assert(tmp[i] == '0' || tmp[i] == '1');
     if(tmp[i] == '1')
       data.set(i);
   }

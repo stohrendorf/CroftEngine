@@ -74,7 +74,7 @@ void keyCallback(GLFWwindow* /*window*/, int key, int /*scancode*/, int action, 
   case GLFW_REPEAT:
     break;
   default:
-    Expects(false);
+    BOOST_THROW_EXCEPTION(std::domain_error("unexpected key action"));
   }
 }
 
@@ -134,7 +134,7 @@ InputHandler::InputHandler(gsl::not_null<std::shared_ptr<gl::Window>> window,
   std::noskipws(gameControllerDbFile);
   std::string gameControllerDbData{std::istream_iterator<char>{gameControllerDbFile}, std::istream_iterator<char>{}};
 
-  Expects(glfwUpdateGamepadMappings(gameControllerDbData.c_str()) == GLFW_TRUE);
+  gsl_Assert(glfwUpdateGamepadMappings(gameControllerDbData.c_str()) == GLFW_TRUE);
 
   installHandlers(m_window->getWindow());
 
@@ -179,7 +179,7 @@ void InputHandler::update()
       continue;
 
     GLFWgamepadstate state;
-    Expects(glfwGetGamepadState(jid, &state) == GLFW_TRUE);
+    gsl_Assert(glfwGetGamepadState(jid, &state) == GLFW_TRUE);
     gamepadStates.emplace_back(state);
   }
 
@@ -263,7 +263,7 @@ void InputHandler::setMappings(const std::vector<engine::NamedInputMappingConfig
   {
     for(const auto& [input, action] : mapping.mappings)
     {
-      Expects(m_mergedInputMappings.insert({input, action}).second);
+      gsl_Assert(m_mergedInputMappings.insert({input, action}).second);
     }
   }
 }

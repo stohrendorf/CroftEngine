@@ -654,7 +654,7 @@ void MainWindow::setGlidosPath(const std::optional<std::string>& path)
   std::string buffer;
   {
     std::ifstream file{*userDataPath / "config.yaml", std::ios::in};
-    Expects(file.is_open());
+    gsl_Assert(file.is_open());
     file.seekg(0, std::ios::end);
     const auto size = static_cast<std::size_t>(file.tellg());
     file.seekg(0, std::ios::beg);
@@ -694,7 +694,7 @@ void MainWindow::setGlidosPath(const std::optional<std::string>& path)
 
   {
     std::ofstream file{*userDataPath / "config.yaml", std::ios::out | std::ios::trunc};
-    Expects(file.is_open());
+    gsl_Assert(file.is_open());
     file << tree.rootref();
   }
 

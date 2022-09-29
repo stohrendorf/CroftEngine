@@ -182,7 +182,7 @@ void gl::initializeGl(void* (*loadProc)(const char* name))
     int32_t numExts = 0;
     GL_ASSERT(api::getIntegerv(api::GetPName::NumExtensions, &numExts));
     BOOST_LOG_TRIVIAL(info) << "OpenGL extensions: " << numExts;
-    Expects(numExts >= 0);
+    gsl_Assert(numExts >= 0);
     for(int32_t i = 0; i < numExts; ++i)
     {
       BOOST_LOG_TRIVIAL(info) << " - "
@@ -197,7 +197,7 @@ void gl::initializeGl(void* (*loadProc)(const char* name))
     BOOST_LOG_TRIVIAL(info) << "RenderDoc detected";
   }
 
-  Expects(GLAD_GL_ARB_bindless_texture);
+  gsl_Assert(GLAD_GL_ARB_bindless_texture);
 
 #ifdef SOGLB_DEBUGGING
   GL_ASSERT(api::enable(api::EnableCap::DebugOutput));

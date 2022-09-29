@@ -71,7 +71,7 @@ InterpolationInfo SkeletalModelNode::getInterpolationInfo() const
   const auto firstLocalKeyframeIndex = getLocalFrame() / m_anim->segmentLength;
 
   auto firstKeyframe = m_anim->frames->next(firstLocalKeyframeIndex);
-  Expects(m_world->isValid(firstKeyframe));
+  gsl_Assert(m_world->isValid(firstKeyframe));
 
   auto segmentDuration = m_anim->segmentLength;
   const auto segmentFrame = getLocalFrame() % m_anim->segmentLength;
@@ -84,7 +84,7 @@ InterpolationInfo SkeletalModelNode::getInterpolationInfo() const
   BOOST_ASSERT(bias >= 0 && bias <= 1);
 
   const auto secondKeyframe = firstKeyframe->next();
-  Expects(m_world->isValid(secondKeyframe));
+  gsl_Assert(m_world->isValid(secondKeyframe));
   return InterpolationInfo{firstKeyframe, secondKeyframe, bias};
 }
 

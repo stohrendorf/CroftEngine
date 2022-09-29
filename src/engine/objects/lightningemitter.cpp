@@ -117,7 +117,7 @@ Bolt updateBolt(const glm::vec3& start, const glm::vec3& end, const std::shared_
     radius /= 2;
   }
 
-  Expects(gsl::narrow<size_t>(vb->size()) == data.size());
+  gsl_Assert(gsl::narrow<size_t>(vb->size()) == data.size());
 
   Bolt bolt;
   auto boltData

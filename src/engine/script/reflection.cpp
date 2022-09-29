@@ -136,14 +136,14 @@ std::pair<RunResult, std::optional<size_t>>
   if(m_weaponSwap)
   {
     const auto& laraPistol = world->findAnimatedModelForType(TR1ItemId::LaraPistolsAnim);
-    Expects(laraPistol != nullptr);
+    gsl_Assert(laraPistol != nullptr);
     for(const auto& object : world->getObjectManager().getObjects() | boost::adaptors::map_values)
     {
       if(object->m_state.type != TR1ItemId::CutsceneActor1)
         continue;
 
       auto m = std::dynamic_pointer_cast<objects::ModelObject>(object.get());
-      Expects(m != nullptr);
+      gsl_Assert(m != nullptr);
       m->getSkeleton()->setMeshPart(1, laraPistol->bones[1].mesh);
       m->getSkeleton()->setMeshPart(4, laraPistol->bones[4].mesh);
       m->getSkeleton()->rebuildMesh();
@@ -425,7 +425,7 @@ std::vector<std::filesystem::path> Gameflow::getInvalidFilepaths(const Engine& e
       result.emplace_back(invalid);
   for(const auto& levelSequenceItem : m_levelSequence)
   {
-    Expects(levelSequenceItem != nullptr);
+    gsl_Assert(levelSequenceItem != nullptr);
     for(const auto& invalid : levelSequenceItem->getFilepathsIfInvalid(engine))
       result.emplace_back(invalid);
   }
@@ -434,13 +434,13 @@ std::vector<std::filesystem::path> Gameflow::getInvalidFilepaths(const Engine& e
     result.emplace_back(invalid);
   for(const auto& levelSequenceItem : m_laraHome)
   {
-    Expects(levelSequenceItem != nullptr);
+    gsl_Assert(levelSequenceItem != nullptr);
     for(const auto& invalid : levelSequenceItem->getFilepathsIfInvalid(engine))
       result.emplace_back(invalid);
   }
   for(const auto& levelSequenceItem : m_earlyBoot)
   {
-    Expects(levelSequenceItem != nullptr);
+    gsl_Assert(levelSequenceItem != nullptr);
     for(const auto& invalid : levelSequenceItem->getFilepathsIfInvalid(engine))
       result.emplace_back(invalid);
   }

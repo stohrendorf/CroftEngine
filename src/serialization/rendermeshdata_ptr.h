@@ -27,7 +27,7 @@ void save(const std::shared_ptr<engine::world::RenderMeshData>& mesh, const Seri
     }
     ++idx;
   }
-  Expects(false);
+  gsl_Assert(false);
 }
 
 void load(std::shared_ptr<engine::world::RenderMeshData>& data, const Serializer<engine::world::World>& ser)

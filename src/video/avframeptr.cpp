@@ -13,7 +13,7 @@ namespace video
 AVFramePtr::AVFramePtr()
     : frame{av_frame_alloc()}
 {
-  Expects(frame != nullptr);
+  gsl_Ensures(frame != nullptr);
 }
 
 AVFramePtr::AVFramePtr(AVFramePtr&& rhs) noexcept

@@ -24,7 +24,7 @@ public:
       , m_sampler{std::move(sampler)}
       , m_handle{GL_ASSERT_FN(api::getTextureSamplerHandle(m_texture->getHandle(), m_sampler->getHandle()))}
   {
-    Expects(m_handle != 0);
+    gsl_Ensures(m_handle != 0);
     GL_ASSERT(api::makeTextureHandleResident(m_handle));
   }
 

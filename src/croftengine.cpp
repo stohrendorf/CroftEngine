@@ -178,7 +178,7 @@ int main(int argc, char** argv)
     = [&engine, &levelSequenceIndex, &mode, &loadSlot, &doLoad, &gameflow](const std::optional<size_t>& slot) -> void
   {
     const auto meta = engine.getSavegameMeta(slot);
-    Expects(meta.has_value());
+    gsl_Assert(meta.has_value());
     for(levelSequenceIndex = 0; levelSequenceIndex < gameflow.getLevelSequence().size(); ++levelSequenceIndex)
     {
       if(gameflow.getLevelSequence().at(levelSequenceIndex)->isLevel(meta->filename))
@@ -198,18 +198,18 @@ int main(int argc, char** argv)
     switch(mode)
     {
     case Mode::Boot:
-      Expects(!doLoad);
+      gsl_Assert(!doLoad);
       player = std::make_shared<engine::Player>();
       for(const auto& item : gameflow.getEarlyBoot())
         runResult = engine.runLevelSequenceItem(*item, player, levelStartPlayer);
       break;
     case Mode::Title:
-      Expects(!doLoad);
+      gsl_Assert(!doLoad);
       player = std::make_shared<engine::Player>();
       runResult = engine.runLevelSequenceItem(*gameflow.getTitleMenu(), player, levelStartPlayer);
       break;
     case Mode::Gym:
-      Expects(!doLoad);
+      gsl_Assert(!doLoad);
       player = std::make_shared<engine::Player>();
       for(const auto& item : gameflow.getLaraHome())
         runResult = engine.runLevelSequenceItem(*item, player, levelStartPlayer);

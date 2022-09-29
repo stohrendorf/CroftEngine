@@ -77,14 +77,14 @@ std::function<std::shared_ptr<ui::widgets::Widget>(const engine::InputMappingCon
         /* translators: TR charcmap encoding */ pgettext("ButtonAssignment", "N/A"));
     }
 
-    Expects(keys.size() == 1);
+    gsl_Assert(keys.size() == 1);
     if(std::holds_alternative<engine::NamedGlfwKey>(keys[0]))
     {
       return std::make_shared<ui::widgets::Label>(hid::getName(std::get<engine::NamedGlfwKey>(keys[0])));
     }
     else if(std::holds_alternative<engine::NamedGlfwGamepadButton>(keys[0]))
     {
-      Expects(!controllerLayoutName.empty());
+      gsl_Assert(!controllerLayoutName.empty());
       const auto& buttonMap = world.getControllerLayouts().at(controllerLayoutName);
       const auto it = buttonMap.find(std::get<engine::NamedGlfwGamepadButton>(keys[0]).value);
       if(it == buttonMap.end())
@@ -95,7 +95,7 @@ std::function<std::shared_ptr<ui::widgets::Widget>(const engine::InputMappingCon
     }
     else if(std::holds_alternative<engine::NamedAxisDir>(keys[0]))
     {
-      Expects(!controllerLayoutName.empty());
+      gsl_Assert(!controllerLayoutName.empty());
       const auto& buttonMap = world.getControllerLayouts().at(controllerLayoutName);
       const auto ref = std::get<engine::NamedAxisDir>(keys[0]);
       const auto it = buttonMap.find(ref.first.value);
@@ -353,7 +353,7 @@ void ControlsMenuState::handleDisplayInput(engine::world::World& world)
   {
     auto& layouts = world.getControllerLayouts();
     auto layoutIt = layouts.find(m_editing.at(m_editingIndex).controllerType);
-    Expects(layoutIt != layouts.end());
+    gsl_Assert(layoutIt != layouts.end());
     ++layoutIt;
     if(layoutIt == layouts.end())
       m_editing.at(m_editingIndex).controllerType = layouts.begin()->first;

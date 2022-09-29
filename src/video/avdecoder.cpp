@@ -60,7 +60,7 @@ AVDecoder::AVDecoder(const std::string& filename)
 
   filterGraph.init(*videoStream);
 
-  Expects(av_new_packet(&packet, 0) == 0);
+  gsl_Assert(av_new_packet(&packet, 0) == 0);
   fillQueues();
 }
 

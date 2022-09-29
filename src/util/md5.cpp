@@ -346,7 +346,7 @@ struct State
     for(size_t i = 0; i < 16; i++)
     {
 #ifdef WIN32
-      Expects(sprintf_s(buf.data() + i * 2, 3, "%02X", digest[i]) == 2);
+      gsl_Assert(sprintf_s(buf.data() + i * 2, 3, "%02X", digest[i]) == 2);
 #else
       sprintf(buf.data() + i * 2, "%02X", digest[i]);
 #endif

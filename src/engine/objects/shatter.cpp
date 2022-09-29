@@ -41,8 +41,8 @@ bool shatterModel(ModelObject& object, const std::bitset<32>& meshMask, const co
         ? TR1ItemId::FlyingMutant
         : object.m_state.type;
   const auto& modelType = object.getWorld().findAnimatedModelForType(modelSourceType);
-  Expects(modelType != nullptr);
-  Expects(modelType->bones.size() == object.getSkeleton()->getBoneCount());
+  gsl_Assert(modelType != nullptr);
+  gsl_Assert(modelType->bones.size() == object.getSkeleton()->getBoneCount());
   BOOST_LOG_TRIVIAL(trace) << "Shatter model: " << modelType->bones.size() << " meshes";
 
   for(size_t i = 0; i < modelType->bones.size(); ++i)

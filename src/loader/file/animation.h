@@ -90,7 +90,7 @@ struct AnimFrame
     const auto end = reinterpret_cast<const AnimFrame*>(&*getAngleData().end());
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
     auto next = gsl::not_null{end};
-    Expects(next->numValues == numValues);
+    gsl_Assert(next->numValues == numValues);
     return next;
   }
 

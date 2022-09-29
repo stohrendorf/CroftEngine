@@ -64,7 +64,7 @@ void audio::loadALExtFunctions(const gsl::not_null<ALCdevice*>& device)
 #  define GETPROC(name)                                                                             \
     name = reinterpret_cast<decltype(name)>(/*NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)*/ \
                                             AL_ASSERT_FN(alGetProcAddress(#name)));                 \
-    Expects((name) != nullptr)
+    gsl_Assert((name) != nullptr)
 
   GETPROC(alGenEffects);
   GETPROC(alDeleteEffects);

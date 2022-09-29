@@ -27,9 +27,9 @@ void load(std::map<T, U>& data, const Serializer<TContext>& ser)
   data = std::map<T, U>();
   for(const auto& element : ser.node.children())
   {
-    Expects(element.is_map());
-    Expects(element.num_children() == 2);
-    Expects(element["key"].valid() && element["value"].valid());
+    gsl_Assert(element.is_map());
+    gsl_Assert(element.num_children() == 2);
+    gsl_Assert(element["key"].valid() && element["value"].valid());
 
     data.emplace(access<T>::callCreate(ser.withNode(element["key"])),
                  access<U>::callCreate(ser.withNode(element["value"])));

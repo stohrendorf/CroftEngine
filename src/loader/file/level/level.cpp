@@ -60,7 +60,7 @@ void Level::readMeshData(io::SDLReader& reader)
                  [&uniqueOffsets](uint32_t offset)
                  {
                    auto it = uniqueOffsets.find(offset);
-                   Expects(it != uniqueOffsets.end());
+                   gsl_Assert(it != uniqueOffsets.end());
                    return gsl::narrow<uint32_t>(std::distance(uniqueOffsets.begin(), it));
                  });
 

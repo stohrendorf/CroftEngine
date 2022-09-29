@@ -145,7 +145,7 @@ size_t AudioStreamDecoder::read(int16_t* buffer, size_t bufferSize)
     auto& src = queue.front();
     const auto frames = std::min(bufferSize, src.size() / getChannels());
 
-    Expects(bufferSize >= frames);
+    gsl_Assert(bufferSize >= frames);
 
     std::copy_n(src.data(), getChannels() * frames, buffer);
     bufferSize -= frames;

@@ -116,7 +116,7 @@ SavegameListMenuState::SavegameListMenuState(const std::shared_ptr<MenuRingTrans
       = std::chrono::system_clock::to_time_t(std::chrono::time_point_cast<std::chrono::system_clock::duration>(
         info.saveTime - std::filesystem::file_time_type::clock::now() + std::chrono::system_clock::now()));
     const auto localTime = localtime(&timePoint);
-    Expects(localTime != nullptr);
+    gsl_Assert(localTime != nullptr);
     std::stringstream timeStr;
     timeStr.imbue(std::locale(world.getEngine().getLocale()));
     timeStr << std::put_time(localTime,

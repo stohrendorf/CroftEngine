@@ -50,7 +50,7 @@ void DownloadProgress::finished()
   std::filesystem::create_directories(m_target.parent_path(), ec);
   const auto dowloadedData = m_reply->readAll();
   std::ofstream tmp{m_target, std::ios::binary | std::ios::trunc};
-  Expects(tmp.is_open());
+  gsl_Assert(tmp.is_open());
   tmp.write(dowloadedData.data(), dowloadedData.size());
   emit downloaded(m_target);
   close();

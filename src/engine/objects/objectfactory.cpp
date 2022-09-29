@@ -91,8 +91,9 @@ struct ObjectFactory
 
   [[nodiscard]] virtual gslu::nn_shared<Object>
     createNew(world::World& world, loader::file::Item& item, size_t id) const = 0;
-  [[nodiscard]] virtual gslu::nn_shared<Object>
-    createFromSave(const Location& location, const serialization::Serializer<world::World>& ser) const = 0;
+  [[nodiscard]] virtual gslu::nn_shared<Object> createFromSave(const Location& location,
+                                                               const serialization::Serializer<world::World>& ser) const
+    = 0;
 };
 
 /* NOLINTNEXTLINE(altera-struct-pack-align) */
@@ -125,7 +126,7 @@ struct ModelFactory : public ObjectFactory
   {
     const auto room = gsl::not_null{&world.getRooms().at(item.room.get())};
     const auto& model = world.findAnimatedModelForType(item.type);
-    Expects(model != nullptr);
+    gsl_Assert(model != nullptr);
     auto object = gsl::make_shared<T>(
       makeObjectName(item.type.get_as<TR1ItemId>(), id), gsl::not_null{&world}, room, item, gsl::not_null{model.get()});
     addChild(gsl::not_null{room->node}, gsl::not_null{object->getNode()});
@@ -152,8 +153,7 @@ struct SpriteFactory : public ObjectFactory
     const auto room = gsl::not_null{&world.getRooms().at(item.room.get())};
 
     const auto& spriteSequence = world.findSpriteSequenceForType(item.type);
-    Expects(spriteSequence != nullptr);
-    Expects(!spriteSequence->sprites.empty());
+    gsl_Assert(spriteSequence != nullptr && !spriteSequence->sprites.empty());
 
     const world::Sprite& sprite = spriteSequence->sprites[0];
     return gsl::make_shared<T>(
@@ -196,7 +196,7 @@ struct WalkingMutantFactory : public ObjectFactory
   {
     const auto room = gsl::not_null{&world.getRooms().at(item.room.get())};
     const auto& model = world.findAnimatedModelForType(TR1ItemId::FlyingMutant);
-    Expects(model != nullptr);
+    gsl_Assert(model != nullptr);
     auto object = gsl::make_shared<WalkingMutant>(
       makeObjectName(item.type.get_as<TR1ItemId>(), id), gsl::not_null{&world}, room, item, gsl::not_null{model.get()});
     addChild(gsl::not_null{room->node}, gsl::not_null{object->getNode()});

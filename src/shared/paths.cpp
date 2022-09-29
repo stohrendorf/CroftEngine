@@ -11,11 +11,11 @@ std::filesystem::path getExpectedSysUserDataDir()
 {
 #ifdef WIN32
   const char* appData = getenv("LOCALAPPDATA");
-  Expects(appData != nullptr && std::filesystem::is_directory(appData));
+  gsl_Assert(appData != nullptr && std::filesystem::is_directory(appData));
   return std::filesystem::path{appData} / "croftengine";
 #else
   const char* home = getenv("HOME");
-  Expects(home != nullptr && std::filesystem::is_directory(home));
+  gsl_Assert(home != nullptr && std::filesystem::is_directory(home));
   return std::filesystem::path{home} / ".local" / "share" / "croftengine";
 #endif
 }

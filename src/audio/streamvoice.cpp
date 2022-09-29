@@ -54,7 +54,7 @@ void StreamVoice::update()
     return;
 
   ALint processed = m_streamSource->getBuffersProcessed();
-  Expects(processed >= 0 && static_cast<size_t>(processed) <= m_buffers.size());
+  gsl_Assert(processed >= 0 && static_cast<size_t>(processed) <= m_buffers.size());
 
   if(static_cast<size_t>(processed) >= m_buffers.size())
   {

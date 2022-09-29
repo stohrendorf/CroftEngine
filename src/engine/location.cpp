@@ -45,14 +45,14 @@ gsl::not_null<const world::Sector*> Location::updateRoom()
   }
 
   // go up/down until we are in the room that contains our coordinates
-  Expects(sector != nullptr);
+  gsl_Assert(sector != nullptr);
   if(position.Y >= sector->floorHeight)
   {
     while(position.Y >= sector->floorHeight && sector->roomBelow != nullptr)
     {
       room = gsl::not_null{sector->roomBelow};
       sector = room->getSectorByAbsolutePosition(position);
-      Expects(sector != nullptr);
+      gsl_Assert(sector != nullptr);
     }
   }
   else
@@ -61,7 +61,7 @@ gsl::not_null<const world::Sector*> Location::updateRoom()
     {
       room = gsl::not_null{sector->roomAbove};
       sector = room->getSectorByAbsolutePosition(position);
-      Expects(sector != nullptr);
+      gsl_Assert(sector != nullptr);
     }
   }
 

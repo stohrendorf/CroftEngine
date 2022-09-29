@@ -112,7 +112,7 @@ public:
       : ProgramInterface<_Type>{program, index}
       , m_binding{ProgramInterface<_Type>::getProperty(program, index, api::ProgramResourceProperty::BufferBinding)}
   {
-    Expects(m_binding >= 0);
+    gsl_Ensures(m_binding >= 0);
   }
 
   ProgramBlock(ProgramBlock<_Type, _Target>&& rhs) noexcept
@@ -219,7 +219,7 @@ public:
       handles.emplace_back((*it)->getHandle());
     }
 
-    Expects(handles.size() == static_cast<size_t>(m_size));
+    gsl_Assert(handles.size() == static_cast<size_t>(m_size));
     if(changeValue(handles))
       GL_ASSERT(api::programUniformHandle(
         m_program, getLocation(), gsl::narrow_cast<api::core::SizeType>(handles.size()), handles.data()));
@@ -328,7 +328,7 @@ template<api::ProgramInterface _Type>
 ProgramInterface<_Type>::ProgramInterface(const Program& program, const uint32_t index)
 {
   const auto nameLength = getProperty(program, index, api::ProgramResourceProperty::NameLength);
-  Expects(nameLength > 0);
+  gsl_Assert(nameLength > 0);
   std::vector<char> nameData(nameLength, 0);
   GL_ASSERT(api::getProgramResourceName(
     program.getHandle(), Type, index, gsl::narrow<api::core::SizeType>(nameData.size()), nullptr, nameData.data()));

@@ -144,33 +144,33 @@ void Window::setFullscreen()
     return;
 
   const auto monitor = glfwGetPrimaryMonitor();
-  Expects(monitor != nullptr);
-  Expects(glfwGetError(nullptr) == GLFW_NO_ERROR);
+  gsl_Assert(monitor != nullptr);
+  gsl_Assert(glfwGetError(nullptr) == GLFW_NO_ERROR);
   const auto mode = glfwGetVideoMode(monitor);
-  Expects(mode != nullptr);
-  Expects(glfwGetError(nullptr) == GLFW_NO_ERROR);
+  gsl_Assert(mode != nullptr);
+  gsl_Assert(glfwGetError(nullptr) == GLFW_NO_ERROR);
 
   glfwGetWindowPos(m_window, &m_windowPos.x, &m_windowPos.y);
-  Expects(glfwGetError(nullptr) == GLFW_NO_ERROR);
+  gsl_Assert(glfwGetError(nullptr) == GLFW_NO_ERROR);
   glfwGetWindowSize(m_window, &m_windowSize.x, &m_windowSize.y);
-  Expects(glfwGetError(nullptr) == GLFW_NO_ERROR);
+  gsl_Assert(glfwGetError(nullptr) == GLFW_NO_ERROR);
 
   glm::ivec2 pos{0, 0};
   glfwGetMonitorPos(monitor, &pos.x, &pos.y);
-  Expects(glfwGetError(nullptr) == GLFW_NO_ERROR);
+  gsl_Assert(glfwGetError(nullptr) == GLFW_NO_ERROR);
 
 #ifdef WIN32
   glfwSetWindowAttrib(m_window, GLFW_DECORATED, GLFW_FALSE);
-  Expects(glfwGetError(nullptr) == GLFW_NO_ERROR);
+  gsl_Assert(glfwGetError(nullptr) == GLFW_NO_ERROR);
   glfwSetWindowAttrib(m_window, GLFW_RESIZABLE, GLFW_FALSE);
-  Expects(glfwGetError(nullptr) == GLFW_NO_ERROR);
+  gsl_Assert(glfwGetError(nullptr) == GLFW_NO_ERROR);
   glfwSetWindowPos(m_window, pos.x, pos.y);
-  Expects(glfwGetError(nullptr) == GLFW_NO_ERROR);
+  gsl_Assert(glfwGetError(nullptr) == GLFW_NO_ERROR);
   glfwSetWindowSize(m_window, mode->width, mode->height);
-  Expects(glfwGetError(nullptr) == GLFW_NO_ERROR);
+  gsl_Assert(glfwGetError(nullptr) == GLFW_NO_ERROR);
 #else
   glfwSetWindowMonitor(m_window, monitor, pos.x, pos.y, mode->width, mode->height, 30);
-  Expects(glfwGetError(nullptr) == GLFW_NO_ERROR);
+  gsl_Assert(glfwGetError(nullptr) == GLFW_NO_ERROR);
 #endif
   m_isFullscreen = true;
 }
@@ -181,13 +181,13 @@ void Window::setWindowed()
     return;
 
   glfwSetWindowAttrib(m_window, GLFW_DECORATED, GLFW_TRUE);
-  Expects(glfwGetError(nullptr) == GLFW_NO_ERROR);
+  gsl_Assert(glfwGetError(nullptr) == GLFW_NO_ERROR);
   glfwSetWindowAttrib(m_window, GLFW_RESIZABLE, GLFW_TRUE);
-  Expects(glfwGetError(nullptr) == GLFW_NO_ERROR);
+  gsl_Assert(glfwGetError(nullptr) == GLFW_NO_ERROR);
   glfwSetWindowPos(m_window, m_windowPos.x, m_windowPos.y);
-  Expects(glfwGetError(nullptr) == GLFW_NO_ERROR);
+  gsl_Assert(glfwGetError(nullptr) == GLFW_NO_ERROR);
   glfwSetWindowSize(m_window, m_windowSize.x, m_windowSize.y);
-  Expects(glfwGetError(nullptr) == GLFW_NO_ERROR);
+  gsl_Assert(glfwGetError(nullptr) == GLFW_NO_ERROR);
 
   m_isFullscreen = false;
 }

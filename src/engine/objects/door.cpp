@@ -209,7 +209,7 @@ void Door::Info::close() // NOLINT(readability-make-member-function-const)
 void Door::Info::init(const world::Room& room, const core::TRVec& position)
 {
   wingsSector = const_cast<world::Sector*>(room.getSectorByAbsolutePosition(position));
-  Expects(wingsSector != nullptr);
+  gsl_Assert(wingsSector != nullptr);
   originalSector = *wingsSector;
 
   if(wingsSector->boundaryRoom == nullptr)

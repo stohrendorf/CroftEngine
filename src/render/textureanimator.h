@@ -103,7 +103,7 @@ private:
     void registerVertex(VertexReference vertex, const core::TextureTileId& tileId)
     {
       const auto it = std::find(tileIds.begin(), tileIds.end(), tileId);
-      Expects(it != tileIds.end());
+      gsl_Assert(it != tileIds.end());
       vertex.queueOffset = std::distance(tileIds.begin(), it);
       affectedVertices.insert(vertex);
     }

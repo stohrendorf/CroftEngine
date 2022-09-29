@@ -151,7 +151,7 @@ void RenderState::apply(const bool force) const
   {
     if(m_polygonOffsetFillEnabled.value())
     {
-      Expects(m_polygonOffset.has_value());
+      gsl_Assert(m_polygonOffset.has_value());
       GL_ASSERT(api::enable(api::EnableCap::PolygonOffsetFill));
       auto [factor, units] = *m_polygonOffset;
       GL_ASSERT(api::polygonOffset(factor, units));

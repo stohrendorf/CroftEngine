@@ -55,7 +55,7 @@ CImgWrapper::CImgWrapper(const std::string& filename)
     m_image->get_shared_channel(3).fill(255);
   }
 
-  Expects(m_image->spectrum() == 4);
+  gsl_Ensures(m_image->spectrum() == 4);
 }
 
 CImgWrapper::CImgWrapper(const CImgWrapper& other)
@@ -243,39 +243,40 @@ gslu::nn_shared<gl::Texture2D<gl::PremultipliedSRGBA8>> CImgWrapper::toTexture(c
 std::unique_ptr<cimg_library::CImg<uint8_t>> CImgWrapper::loadPcx(const std::filesystem::path& filename)
 {
   std::ifstream stream{filename, std::ios::in | std::ios::binary};
-  Expects(stream.is_open());
+  gsl_Assert(stream.is_open());
 
   PcxHeader header;
   // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
   stream.read(reinterpret_cast<char*>(&header), sizeof(PcxHeader));
 
-  Expects(header.zsoft == 10 && header.version >= 5 && header.bpp == 8 && header.encoding == 1 && header.planes == 1);
-  Expects(header.maxX >= header.minX);
-  Expects(header.maxY >= header.minY);
+  gsl_Assert(header.zsoft == 10 && header.version >= 5 && header.bpp == 8 && header.encoding == 1
+             && header.planes == 1);
+  gsl_Assert(header.maxX >= header.minX);
+  gsl_Assert(header.maxY >= header.minY);
 
   auto img
     = std::make_unique<cimg_library::CImg<uint8_t>>(header.maxX + 1 - header.minX, header.maxY + 1 - header.minY, 1, 4);
   auto remainingPixels = img->width() * img->height();
   img->permute_axes("cxyz");
   auto px = reinterpret_cast<SRGBA8*>(img->data());
-  Expects(px != nullptr);
+  gsl_Assert(px != nullptr);
 
   using Color = uint8_t[3];
   using Palette = Color[256];
   static_assert(sizeof(Palette) == 3 * 256);
   Palette palette;
   stream.seekg(-static_cast<std::ifstream::pos_type>(sizeof(Palette)), std::ios::end);
-  Expects(stream.good());
+  gsl_Assert(stream.good());
   // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
   stream.read(reinterpret_cast<char*>(&palette[0][0]), sizeof(Palette));
-  Expects(stream.good());
+  gsl_Assert(stream.good());
 
   auto readByte = [&stream]()
   {
     uint8_t tmp;
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
     stream.read(reinterpret_cast<char*>(&tmp), 1);
-    Expects(stream.good());
+    gsl_Assert(stream.good());
     return tmp;
   };
 
@@ -295,7 +296,7 @@ std::unique_ptr<cimg_library::CImg<uint8_t>> CImgWrapper::loadPcx(const std::fil
       repeat = 1;
     }
 
-    Expects(repeat <= remainingPixels);
+    gsl_Assert(repeat <= remainingPixels);
     while(repeat > 0)
     {
       *px++ = gl::SRGBA8{(*c)[0], (*c)[1], (*c)[2], 255};

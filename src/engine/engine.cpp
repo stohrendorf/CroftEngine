@@ -188,7 +188,7 @@ std::string getCurrentHumanReadableTimestamp()
   struct tm localTimeData
   {
   };
-  Expects(localtime_s(&localTimeData, &time) == 0);
+  gsl_Assert(localtime_s(&localTimeData, &time) == 0);
   auto localTime = &localTimeData;
 #else
   // NOLINTNEXTLINE(concurrency-mt-unsafe)

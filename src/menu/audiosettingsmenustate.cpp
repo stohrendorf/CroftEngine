@@ -118,7 +118,7 @@ std::unique_ptr<MenuState>
   default:
     BOOST_THROW_EXCEPTION(std::runtime_error("invalid volume type selection"));
   }
-  Ensures(selected != nullptr);
+  gsl_Assert(selected != nullptr);
   selected->setValue(std::clamp(selected->getValue() + delta, 0.0f, 1.0f));
 
   audioSettings.globalVolume = m_globalVolume->getValue();

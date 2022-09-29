@@ -16,8 +16,8 @@ void serialize(std::ratio<N, D>& data, const Serializer<TContext>& ser)
     std::intmax_t n, d;
     ser["n"].node >> n;
     ser["d"].node >> d;
-    Expects(n == N);
-    Expects(d == D);
+    gsl_Assert(n == N);
+    gsl_Assert(d == D);
   }
   else
   {

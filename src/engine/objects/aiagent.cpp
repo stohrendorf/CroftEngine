@@ -88,7 +88,7 @@ bool AIAgent::animateCreature(const core::Angle& collisionRotationY, const core:
     [this]()
     {
       const auto sector = m_state.getCurrentSector();
-      Ensures(sector != nullptr && sector->box != nullptr);
+      gsl_Assert(sector != nullptr && sector->box != nullptr);
       BOOST_ASSERT(m_state.location.isValid());
     });
 
@@ -169,7 +169,7 @@ bool AIAgent::animateCreature(const core::Angle& collisionRotationY, const core:
     currentSector = m_state.location.moved(0_len, bbox.y.max, 0_len).updateRoom();
   }
 
-  Expects(currentSector->box != nullptr);
+  gsl_Assert(currentSector->box != nullptr);
 
   core::Length nextPathFloor;
   if(const auto& exitBox = pathFinder.getNextPathBox(gsl::not_null{currentSector->box}); exitBox != nullptr)

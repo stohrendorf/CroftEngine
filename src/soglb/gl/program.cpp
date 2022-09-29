@@ -12,7 +12,7 @@ Uniform::Uniform(const Program& program, const uint32_t index)
     , m_program{program.getHandle()}
 {
   GL_ASSERT(api::getActiveUniforms(program.getHandle(), 1, &index, api::UniformPName::UniformSize, &m_size));
-  Expects(m_size >= 0);
+  gsl_Ensures(m_size >= 0);
 }
 
 Uniform::Uniform(Uniform&& rhs) noexcept

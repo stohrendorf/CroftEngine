@@ -4,6 +4,7 @@
 #include "util/helpers.h"
 
 #include <boost/assert.hpp>
+#include <boost/throw_exception.hpp>
 
 namespace engine::floordata
 {
@@ -34,7 +35,7 @@ std::bitset<16> getSecretsMask(const FloorDataValue* floorData)
     case FloorDataChunkType::CommandSequence:
       break;
     default:
-      Expects(false);
+      BOOST_THROW_EXCEPTION(std::domain_error("unexpected chunk header type"));
     }
 
     ++floorData;
@@ -61,7 +62,7 @@ std::bitset<16> getSecretsMask(const FloorDataValue* floorData)
         result.set(command.parameter);
         break;
       default:
-        Expects(false);
+        BOOST_THROW_EXCEPTION(std::domain_error("unexpected command opcode"));
       }
 
       if(command.isLast)

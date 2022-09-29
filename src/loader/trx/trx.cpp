@@ -71,8 +71,8 @@ Rectangle::Rectangle(const std::string& serialized)
   m_y0 = boost::lexical_cast<uint32_t>(matches[3].str());
   m_y1 = boost::lexical_cast<uint32_t>(matches[4].str());
 
-  Expects(m_x0 < m_x1);
-  Expects(m_y0 < m_y1);
+  Ensures(m_x0 < m_x1);
+  Ensures(m_y0 < m_y1);
 }
 
 TexturePart::TexturePart(const std::string& serialized)
@@ -260,7 +260,7 @@ PathMap::PathMap(const std::filesystem::path& baseTxtName, std::map<TexturePart,
         BOOST_THROW_EXCEPTION(std::runtime_error("Failed to parse mapping line"));
       }
 
-      Expects(parts[0].size() == 32);
+      gsl_Assert(parts[0].size() == 32);
 
       if(dirByTextureId.find(parts[0]) != dirByTextureId.end())
       {

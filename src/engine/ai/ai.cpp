@@ -150,7 +150,7 @@ void updateMood(const objects::AIAgent& aiAgent, const EnemyLocation& enemyLocat
   {
     if(originalMood == Mood::Attack)
     {
-      Expects(creatureInfo.pathFinder.getTargetBox() != nullptr);
+      gsl_Assert(creatureInfo.pathFinder.getTargetBox() != nullptr);
       creatureInfo.pathFinder.setRandomSearchTarget(gsl::not_null{creatureInfo.pathFinder.getTargetBox()});
     }
     newTargetBox = nullptr;

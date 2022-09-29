@@ -51,7 +51,7 @@ BasicFfmpegStreamSource::BasicFfmpegStreamSource(AVFormatContext* fmtContext, co
   av_dump_format(m_fmtContext, 0, streamName, 0);
 #endif
 
-  Expects(av_new_packet(&m_packet, 0) == 0);
+  gsl_Assert(av_new_packet(&m_packet, 0) == 0);
   fillQueues(false);
 }
 

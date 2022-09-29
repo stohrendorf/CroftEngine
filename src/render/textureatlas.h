@@ -230,7 +230,7 @@ public:
 
     m_atlases.emplace_back(m_pageSize);
     auto position = m_atlases.back().put(extended);
-    Expects(position.has_value());
+    gsl_Assert(position.has_value());
     return {m_atlases.size() - 1, position.value() + glm::ivec2{BoundaryMargin, BoundaryMargin}};
   }
 

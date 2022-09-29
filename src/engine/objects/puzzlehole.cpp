@@ -109,7 +109,7 @@ void PuzzleHole::collide(CollisionInfo& /*collisionInfo*/)
 void PuzzleHole::initMesh()
 {
   const auto& model = getWorld().findAnimatedModelForType(m_state.type);
-  Expects(model != nullptr);
+  gsl_Assert(model != nullptr);
 
   const auto parent = m_skeleton->getParent().lock();
   setParent(gsl::not_null{m_skeleton}, nullptr);
