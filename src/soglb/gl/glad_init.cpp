@@ -96,6 +96,12 @@ void SOGLB_API debugCallback(const api::DebugSource source,
      && (type == api::DebugType::DebugTypePushGroup || type == api::DebugType::DebugTypePopGroup))
     return;
 
+#  ifndef LOG_SPAM
+  if(severity == api::DebugSeverity::DebugSeverityNotification && type == api::DebugType::DebugTypeOther
+     && source == api::DebugSource::DebugSourceApi)
+    return;
+#  endif
+
   BOOST_LOG_TRIVIAL(debug) << "GLDebug #" << id << ", severity " << glDebugSeverityToString(severity) << ", type "
                            << glDebugTypeToString(type) << ", source " << glDebugSourceToString(source) << ": "
                            << message;
