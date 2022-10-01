@@ -68,17 +68,12 @@ namespace engine::script
 {
 namespace
 {
-std::filesystem::path getAssetPath(const Engine& engine, const std::filesystem::path& localPath)
-{
-  return engine.getAssetDataPath() / localPath;
-}
-
 std::unique_ptr<loader::file::level::Level>
   loadLevel(Engine& engine, const std::string& localPath, const std::string& title)
 {
   engine.getPresenter().drawLoadingScreen(_("Loading %1%", title));
-  auto level
-    = loader::file::level::Level::createLoader(getAssetPath(engine, localPath), loader::file::level::Game::Unknown);
+  auto level = loader::file::level::Level::createLoader(engine.getAssetDataPath() / localPath,
+                                                        loader::file::level::Game::Unknown);
   level->loadFileData();
   return level;
 }
@@ -90,19 +85,19 @@ std::pair<RunResult, std::optional<size_t>> Video::run(Engine& engine,
 {
   for(const auto& path : m_paths)
   {
-    if(auto asset = getAssetPath(engine, path); std::filesystem::is_regular_file(asset))
+    if(auto asset = engine.getAssetDataPath() / path; std::filesystem::is_regular_file(asset))
     {
-      engine.getPresenter().playVideo(getAssetPath(engine, asset));
+      engine.getPresenter().playVideo(engine.getAssetDataPath() / asset);
       break;
     }
   }
   return {RunResult::NextLevel, std::nullopt};
 }
 
-std::vector<std::filesystem::path> Video::getFilepathsIfInvalid(const Engine& engine) const
+std::vector<std::filesystem::path> Video::getFilepathsIfInvalid(const std::filesystem::path& dataRoot) const
 {
   for(const auto& path : m_paths)
-    if(std::filesystem::is_regular_file(getAssetPath(engine, path)))
+    if(std::filesystem::is_regular_file(dataRoot / path))
       return {};
   return m_paths;
 }
@@ -153,9 +148,9 @@ std::pair<RunResult, std::optional<size_t>>
   return engine.run(*world, true, false);
 }
 
-std::vector<std::filesystem::path> Cutscene::getFilepathsIfInvalid(const Engine& engine) const
+std::vector<std::filesystem::path> Cutscene::getFilepathsIfInvalid(const std::filesystem::path& dataRoot) const
 {
-  if(std::filesystem::is_regular_file(getAssetPath(engine, m_name)))
+  if(std::filesystem::is_regular_file(dataRoot / m_name))
     return {};
   return {std::filesystem::path{m_name}};
 }
@@ -236,9 +231,9 @@ std::pair<RunResult, std::optional<size_t>> Level::runFromSave(Engine& engine,
   return engine.run(*world, false, m_allowSave);
 }
 
-std::vector<std::filesystem::path> Level::getFilepathsIfInvalid(const Engine& engine) const
+std::vector<std::filesystem::path> Level::getFilepathsIfInvalid(const std::filesystem::path& dataRoot) const
 {
-  if(std::filesystem::is_regular_file(getAssetPath(engine, m_name)))
+  if(std::filesystem::is_regular_file(dataRoot / m_name))
     return {};
   return {std::filesystem::path{m_name}};
 }
@@ -281,7 +276,7 @@ std::pair<RunResult, std::optional<size_t>> SplashScreen::run(Engine& engine,
 
   glm::ivec2 size{-1, -1};
   auto image = gsl::make_shared<gl::TextureHandle<gl::Texture2D<gl::PremultipliedSRGBA8>>>(
-    gl::CImgWrapper{util::ensureFileExists(getAssetPath(engine, m_path))}.toTexture(m_path.string()),
+    gl::CImgWrapper{util::ensureFileExists(engine.getAssetDataPath() / m_path)}.toTexture(m_path.string()),
     gsl::make_unique<gl::Sampler>(m_path.string() + "-sampler"));
   std::shared_ptr<render::scene::Mesh> mesh;
 
@@ -375,9 +370,9 @@ std::pair<RunResult, std::optional<size_t>> SplashScreen::run(Engine& engine,
   return {RunResult::NextLevel, std::nullopt};
 }
 
-std::vector<std::filesystem::path> SplashScreen::getFilepathsIfInvalid(const Engine& engine) const
+std::vector<std::filesystem::path> SplashScreen::getFilepathsIfInvalid(const std::filesystem::path& dataRoot) const
 {
-  if(std::filesystem::is_regular_file(getAssetPath(engine, m_path)))
+  if(std::filesystem::is_regular_file(dataRoot / m_path))
     return {};
   return {std::filesystem::path{m_path}};
 }
@@ -417,54 +412,54 @@ pybind11::dict Gameflow::getCheatInventory() const
   return get<pybind11::dict>(m_cheats, "inventory").value_or(pybind11::dict{});
 }
 
-std::vector<std::filesystem::path> Gameflow::getInvalidFilepaths(const Engine& engine) const
+std::vector<std::filesystem::path> Gameflow::getInvalidFilepaths(const std::filesystem::path& dataRoot) const
 {
   std::vector<std::filesystem::path> result;
   for(const auto& track : m_tracks)
-    for(const auto invalid : track.second->getFilepathsIfInvalid(engine))
+    for(const auto invalid : track.second->getFilepathsIfInvalid(dataRoot))
       result.emplace_back(invalid);
   for(const auto& levelSequenceItem : m_levelSequence)
   {
     gsl_Assert(levelSequenceItem != nullptr);
-    for(const auto& invalid : levelSequenceItem->getFilepathsIfInvalid(engine))
+    for(const auto& invalid : levelSequenceItem->getFilepathsIfInvalid(dataRoot))
       result.emplace_back(invalid);
   }
   Expects(m_titleMenu != nullptr);
-  for(const auto& invalid : m_titleMenu->getFilepathsIfInvalid(engine))
+  for(const auto& invalid : m_titleMenu->getFilepathsIfInvalid(dataRoot))
     result.emplace_back(invalid);
   for(const auto& levelSequenceItem : m_laraHome)
   {
     gsl_Assert(levelSequenceItem != nullptr);
-    for(const auto& invalid : levelSequenceItem->getFilepathsIfInvalid(engine))
+    for(const auto& invalid : levelSequenceItem->getFilepathsIfInvalid(dataRoot))
       result.emplace_back(invalid);
   }
   for(const auto& levelSequenceItem : m_earlyBoot)
   {
     gsl_Assert(levelSequenceItem != nullptr);
-    for(const auto& invalid : levelSequenceItem->getFilepathsIfInvalid(engine))
+    for(const auto& invalid : levelSequenceItem->getFilepathsIfInvalid(dataRoot))
       result.emplace_back(invalid);
   }
-  if(!std::filesystem::is_regular_file(getAssetPath(engine, m_titleMenuBackdrop)))
+  if(!std::filesystem::is_regular_file(dataRoot / m_titleMenuBackdrop))
     result.emplace_back(m_titleMenuBackdrop);
   return result;
 }
 
-std::vector<std::filesystem::path> TrackInfo::getFilepathsIfInvalid(const Engine& engine) const
+std::vector<std::filesystem::path> TrackInfo::getFilepathsIfInvalid(const std::filesystem::path& dataRoot) const
 {
   for(const auto& path : paths)
   {
-    if(std::filesystem::is_regular_file(getAssetPath(engine, path)))
+    if(std::filesystem::is_regular_file(dataRoot / path))
       return {};
   }
 
   return paths;
 }
 
-std::filesystem::path TrackInfo::getFirstValidAlternative(const std::filesystem::path& rootPath) const
+std::filesystem::path TrackInfo::getFirstValidAlternative(const std::filesystem::path& dataRoot) const
 {
   for(const auto& path : paths)
   {
-    if(std::filesystem::is_regular_file(rootPath / path))
+    if(std::filesystem::is_regular_file(dataRoot / path))
       return path;
   }
 

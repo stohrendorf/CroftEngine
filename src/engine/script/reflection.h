@@ -69,8 +69,8 @@ struct TrackInfo
   bool looping;
   uint32_t fadeDurationSeconds;
 
-  [[nodiscard]] std::vector<std::filesystem::path> getFilepathsIfInvalid(const Engine& engine) const;
-  [[nodiscard]] std::filesystem::path getFirstValidAlternative(const std::filesystem::path& rootPath) const;
+  [[nodiscard]] std::vector<std::filesystem::path> getFilepathsIfInvalid(const std::filesystem::path& dataRoot) const;
+  [[nodiscard]] std::filesystem::path getFirstValidAlternative(const std::filesystem::path& dataRoot) const;
 };
 
 class LevelSequenceItem
@@ -85,7 +85,8 @@ public:
                                                                   const std::shared_ptr<Player>& /*levelStartPlayer*/);
 
   [[nodiscard]] virtual bool isLevel(const std::filesystem::path& path) const = 0;
-  [[nodiscard]] virtual std::vector<std::filesystem::path> getFilepathsIfInvalid(const Engine& engine) const = 0;
+  [[nodiscard]] virtual std::vector<std::filesystem::path>
+    getFilepathsIfInvalid(const std::filesystem::path& dataRoot) const = 0;
 };
 
 class Level : public LevelSequenceItem
@@ -133,7 +134,8 @@ public:
 
   [[nodiscard]] bool isLevel(const std::filesystem::path& path) const override;
 
-  [[nodiscard]] std::vector<std::filesystem::path> getFilepathsIfInvalid(const Engine& engine) const override;
+  [[nodiscard]] std::vector<std::filesystem::path>
+    getFilepathsIfInvalid(const std::filesystem::path& dataRoot) const override;
 };
 
 class ModifyInventory : public LevelSequenceItem
@@ -159,7 +161,8 @@ public:
     return false;
   }
 
-  [[nodiscard]] std::vector<std::filesystem::path> getFilepathsIfInvalid(const Engine& /*engine*/) const override
+  [[nodiscard]] std::vector<std::filesystem::path>
+    getFilepathsIfInvalid(const std::filesystem::path& /*dataRoot*/) const override
   {
     return {};
   }
@@ -208,7 +211,8 @@ public:
     return false;
   }
 
-  [[nodiscard]] std::vector<std::filesystem::path> getFilepathsIfInvalid(const Engine& engine) const override;
+  [[nodiscard]] std::vector<std::filesystem::path>
+    getFilepathsIfInvalid(const std::filesystem::path& dataRoot) const override;
 };
 
 class Cutscene : public LevelSequenceItem
@@ -260,7 +264,8 @@ public:
     return false;
   }
 
-  [[nodiscard]] std::vector<std::filesystem::path> getFilepathsIfInvalid(const Engine& engine) const override;
+  [[nodiscard]] std::vector<std::filesystem::path>
+    getFilepathsIfInvalid(const std::filesystem::path& dataRoot) const override;
 };
 
 class SplashScreen : public LevelSequenceItem
@@ -285,7 +290,8 @@ public:
     return false;
   }
 
-  [[nodiscard]] std::vector<std::filesystem::path> getFilepathsIfInvalid(const Engine& engine) const override;
+  [[nodiscard]] std::vector<std::filesystem::path>
+    getFilepathsIfInvalid(const std::filesystem::path& dataRoot) const override;
 };
 
 class Gameflow final
@@ -356,7 +362,7 @@ public:
   [[nodiscard]] bool hasAllAmmoCheat() const;
   [[nodiscard]] pybind11::dict getCheatInventory() const;
 
-  [[nodiscard]] std::vector<std::filesystem::path> getInvalidFilepaths(const Engine& engine) const;
+  [[nodiscard]] std::vector<std::filesystem::path> getInvalidFilepaths(const std::filesystem::path& dataRoot) const;
 
 private:
   std::map<TR1ItemId, std::shared_ptr<ObjectInfo>> m_objectInfos;

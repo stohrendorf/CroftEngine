@@ -212,7 +212,7 @@ Engine::Engine(std::filesystem::path userDataPath,
     , m_engineConfig{std::make_unique<EngineConfig>()}
 {
   {
-    const auto invalid = m_scriptEngine.getGameflow().getInvalidFilepaths(*this);
+    const auto invalid = m_scriptEngine.getGameflow().getInvalidFilepaths(getAssetDataPath());
     for(const auto& path : invalid)
       BOOST_LOG_TRIVIAL(fatal) << "Missing required game file " << path;
     if(!invalid.empty())
