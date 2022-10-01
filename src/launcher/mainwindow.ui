@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>672</width>
-    <height>263</height>
+    <height>234</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -104,13 +104,6 @@
            </widget>
           </item>
          </layout>
-        </item>
-        <item>
-         <widget class="QPushButton" name="importBtn">
-          <property name="text">
-           <string>Import Tomb Raider 1 Data</string>
-          </property>
-         </widget>
         </item>
         <item>
          <widget class="QPushButton" name="migrateBtn">
