@@ -63,8 +63,9 @@ target_link_libraries(
         Boost::log
         dosbox-cdrom
         dosbox-cdrom
-        LibArchive::LibArchive
+        archive
         valve-file-vdf::valve-file-vdf
         ryml
         gameflow
+        archive
 )

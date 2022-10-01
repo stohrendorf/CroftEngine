@@ -62,7 +62,6 @@ include( get_gsllite )
 include( get_openal )
 include( get_utf8cpp )
 include( get_gettext )
-include( get_libarchive )
 
 add_subdirectory( 3rdparty/rapidyaml EXCLUDE_FROM_ALL )
 add_subdirectory( 3rdparty/type_safe EXCLUDE_FROM_ALL )

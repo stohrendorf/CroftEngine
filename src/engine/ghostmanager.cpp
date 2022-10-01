@@ -13,9 +13,8 @@
 #include "throttler.h"
 #include "ui/widgets/messagebox.h"
 #include "world/world.h"
+#include "writeonlyxzarchive.h"
 
-#include <archive.h>
-#include <archive_entry.h>
 #include <boost/log/trivial.hpp>
 
 namespace engine
@@ -98,86 +97,54 @@ bool GhostManager::askGhostSave(Presenter& presenter, world::World& world)
     presenter.renderUi(ui, 1.0f);
     presenter.updateSoundEngine();
     presenter.swapBuffers();
-    if(presenter.getInputHandler().hasDebouncedAction(hid::Action::Action))
-    {
-      if(msgBox->isConfirmed())
-      {
-        reader.reset();
-        writer.reset();
+    if(!presenter.getInputHandler().hasDebouncedAction(hid::Action::Action))
+      continue;
 
-        std::error_code ec;
-        std::filesystem::remove(readerPath, ec);
-
-        std::filesystem::rename(writerPath, readerPath, ec);
-
-        ghosting::GhostMeta ghostMeta;
-        ghostMeta.duration = world.getGhostFrame();
-        ghostMeta.level = world.getLevelFilename().stem();
-        if(world.levelFinished())
-        {
-          ghostMeta.finishState = world.getObjectManager().getLara().m_state.isDead()
-                                    ? ghosting::GhostFinishState::Death
-                                    : ghosting::GhostFinishState::Completed;
-        }
-        else
-        {
-          ghostMeta.finishState = world.getObjectManager().getLara().m_state.isDead()
-                                    ? ghosting::GhostFinishState::Death
-                                    : ghosting::GhostFinishState::Unfinished;
-        }
-
-        const auto ymlFilepath = std::filesystem::path{readerPath}.replace_extension(".yml");
-        serialization::YAMLDocument<false> metaDoc{ymlFilepath};
-        metaDoc.save("ghost", ghostMeta, ghostMeta);
-        metaDoc.write();
-
-        const auto tarXzFilepath = std::filesystem::path{readerPath}.replace_extension(".tar.xz");
-        BOOST_LOG_TRIVIAL(debug) << "Create archive " << tarXzFilepath;
-        auto a = archive_write_new();
-        gsl_Assert(a != nullptr);
-        const auto closeArchive = gsl::finally(
-          [&a]()
-          {
-            gsl_Assert(archive_write_close(a) == ARCHIVE_OK);
-            gsl_Assert(archive_write_free(a) == ARCHIVE_OK);
-          });
-        gsl_Assert(archive_write_set_format_pax_restricted(a) == ARCHIVE_OK);
-        gsl_Assert(archive_write_add_filter_xz(a) == ARCHIVE_OK);
-        gsl_Assert(archive_write_set_options(a, "compression-level=9") == ARCHIVE_OK);
-        gsl_Assert(archive_write_open_filename(a, tarXzFilepath.string().c_str()) == ARCHIVE_OK);
-
-        auto addFile = [&a](const std::filesystem::path& filepath)
-        {
-          BOOST_LOG_TRIVIAL(debug) << "Add archive file " << filepath << " as " << filepath.filename();
-          auto entry = archive_entry_new();
-          gsl_Assert(entry != nullptr);
-          const auto freeEntry = gsl::finally(
-            [&entry]()
-            {
-              archive_entry_free(entry);
-            });
-          archive_entry_copy_pathname(entry, filepath.filename().string().c_str());
-          archive_entry_set_size(entry, std::filesystem::file_size(filepath));
-          archive_entry_set_filetype(entry, AE_IFREG);
-          archive_entry_set_perm(entry, 0644);
-          gsl_Assert(archive_write_header(a, entry) == ARCHIVE_OK);
-
-          std::vector<char> buffer;
-          buffer.resize(1024);
-          std::ifstream f{filepath, std::ios::in | std::ios::binary};
-          gsl_Assert(f.is_open());
-          do
-          {
-            f.read(buffer.data(), buffer.size());
-            gsl_Assert(archive_write_data(a, buffer.data(), f.gcount()) == f.gcount());
-          } while(f.gcount() > 0);
-        };
-
-        addFile(readerPath);
-        addFile(ymlFilepath);
-      }
+    if(!msgBox->isConfirmed())
       return true;
+
+    reader.reset();
+    writer.reset();
+
+    std::error_code ec;
+    std::filesystem::remove(readerPath, ec);
+
+    std::filesystem::rename(writerPath, readerPath, ec);
+
+    ghosting::GhostMeta ghostMeta;
+    ghostMeta.duration = world.getGhostFrame();
+    ghostMeta.level = world.getLevelFilename().stem();
+    if(world.levelFinished())
+    {
+      ghostMeta.finishState = world.getObjectManager().getLara().m_state.isDead()
+                                ? ghosting::GhostFinishState::Death
+                                : ghosting::GhostFinishState::Completed;
     }
+    else
+    {
+      ghostMeta.finishState = world.getObjectManager().getLara().m_state.isDead()
+                                ? ghosting::GhostFinishState::Death
+                                : ghosting::GhostFinishState::Unfinished;
+    }
+
+    const auto ymlFilepath = std::filesystem::path{readerPath}.replace_extension(".yml");
+    serialization::YAMLDocument<false> metaDoc{ymlFilepath};
+    metaDoc.save("ghost", ghostMeta, ghostMeta);
+    metaDoc.write();
+
+    const auto tarXzFilepath = std::filesystem::path{readerPath}.replace_extension(".tar.xz");
+    BOOST_LOG_TRIVIAL(debug) << "Create archive " << tarXzFilepath;
+    WriteOnlyXzArchive archive{tarXzFilepath};
+
+    auto addFile = [&archive](const std::filesystem::path& filepath)
+    {
+      BOOST_LOG_TRIVIAL(debug) << "Add archive file " << filepath << " as " << filepath.filename();
+      archive.addFile(filepath, filepath.filename());
+    };
+
+    addFile(readerPath);
+    addFile(ymlFilepath);
+    return true;
   }
 }
 } // namespace engine

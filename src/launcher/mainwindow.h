@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QMainWindow>
+#include <QPushButton>
 #include <QStandardItemModel>
 // https://bugreports.qt.io/browse/QTBUG-73263
 #include <filesystem>
@@ -41,7 +42,7 @@ private slots:
 
 private:
   Ui::MainWindow* ui;
-  bool importGameData();
+  bool importBaseGameData();
   void copyDir(const QString& srcPath,
                const std::filesystem::path& targetDir,
                const std::string& subDirName,
@@ -52,5 +53,6 @@ private:
   QStandardItemModel m_languages{};
   QStandardItemModel m_gameflows{};
   std::optional<std::tuple<std::string, std::string>> m_launchRequest = std::nullopt;
+  QPushButton* m_importButton = nullptr;
 };
 } // namespace launcher
