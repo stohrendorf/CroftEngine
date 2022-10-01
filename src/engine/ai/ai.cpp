@@ -292,11 +292,20 @@ EnemyLocation::EnemyLocation(objects::AIAgent& aiAgent)
                                               aiAgent.getCreatureInfo()->pathFinder.isFlying(),
                                               aiAgent.getCreatureInfo()->pathFinder.step);
 
-  zoneId = aiAgent.m_state.getCurrentBox().get()->*zoneRef;
+  const auto aiAgentBox = aiAgent.m_state.getCurrentBox();
+  zoneId = aiAgentBox.get()->*zoneRef;
   auto& lara = aiAgent.getWorld().getObjectManager().getLara();
-  enemyZoneId = lara.m_state.getCurrentBox().get()->*zoneRef;
-  enemyUnreachable = !aiAgent.getCreatureInfo()->pathFinder.canVisit(*lara.m_state.getCurrentBox())
-                     || aiAgent.getCreatureInfo()->pathFinder.isUnreachable(aiAgent.m_state.getCurrentBox());
+  const auto laraBox = lara.m_state.tryGetCurrentBox();
+  enemyZoneId = laraBox == nullptr ? InvalidZone : laraBox->*zoneRef;
+  if(laraBox == nullptr)
+  {
+    enemyUnreachable = true;
+  }
+  else
+  {
+    enemyUnreachable = !aiAgent.getCreatureInfo()->pathFinder.canVisit(*laraBox)
+                       || aiAgent.getCreatureInfo()->pathFinder.isUnreachable(aiAgentBox);
+  }
 
   const gsl::not_null objectInfo{aiAgent.getWorld().getEngine().getScriptEngine().getGameflow().getObjectInfos().at(
     aiAgent.m_state.type.get_as<TR1ItemId>())};

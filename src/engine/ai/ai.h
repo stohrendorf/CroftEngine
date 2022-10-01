@@ -55,6 +55,8 @@ inline std::ostream& operator<<(std::ostream& str, const Mood mood)
 
 struct EnemyLocation
 {
+  static constexpr auto InvalidZone = std::numeric_limits<uint32_t>::max();
+
   uint32_t zoneId = 0;
   uint32_t enemyZoneId = 0;
   bool enemyUnreachable = false;
@@ -68,6 +70,9 @@ struct EnemyLocation
 
   [[nodiscard]] bool canReachEnemyZone() const noexcept
   {
+    if(zoneId == InvalidZone)
+      return false;
+
     return !enemyUnreachable && zoneId == enemyZoneId;
   }
 };

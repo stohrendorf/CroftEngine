@@ -131,5 +131,6 @@ public:
   }
 
   gsl::not_null<const world::Box*> getCurrentBox() const;
+  const world::Box* tryGetCurrentBox() const;
 };
 } // namespace engine::objects

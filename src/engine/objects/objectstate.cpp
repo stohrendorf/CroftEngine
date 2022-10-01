@@ -120,7 +120,12 @@ const world::Sector* ObjectState::getCurrentSector() const
 
 gsl::not_null<const world::Box*> ObjectState::getCurrentBox() const
 {
+  return gsl::not_null{tryGetCurrentBox()};
+}
+
+const world::Box* ObjectState::tryGetCurrentBox() const
+{
   gsl::not_null sector{getCurrentSector()};
-  return gsl::not_null{sector->box};
+  return sector->box;
 }
 } // namespace engine::objects
