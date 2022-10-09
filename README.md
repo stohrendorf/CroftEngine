@@ -173,10 +173,16 @@ necessary, e.g. `vcpkg install boost:x64-windows`):
 ...or use this, and adjust the triplet:
 > `vcpkg install --triplet x64-windows boost glfw3 libpng openal-soft opengl freetype ffmpeg utfcpp gettext[tools] libarchive`
 
-Additionally, an installation of [Qt 5](https://www.qt.io) is necessary; as manually downloading and installing this
+An installation of [Qt 5](https://www.qt.io) is also necessary; as manually downloading and installing this
 package is usually faster than letting it build through vcpkg, it is not included in the above list. If you don't want
 to register for a Qt online account, you have to build it yourself, though, by installing the `qt5` and
 `qt5-translations` vcpkg packages.
+
+Finally, you need a [Python 3](https://www.python.org) installation; the one provided by vcpkg does not work. The
+minimum supported version is Python 3.6, the Windows releases ship with Python 3.8. Other versions are not tested. To
+build CroftEngine on Windows with an external Python installation, you need to add the variable `Python3_ROOT` pointing
+to the installation root, e.g. using the command line with `-DPython3_ROOT=E:\Python38` or adding a path variable in the
+ui.
 
 ## Generating Glad OpenGL bindings
 
