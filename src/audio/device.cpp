@@ -20,7 +20,7 @@
 #include <stdexcept>
 #include <utility>
 
-#ifdef _WIN32
+#ifdef WIN32
 #  define WIN32_LEAN_AND_MEAN
 #  include <windows.h>
 #endif
@@ -174,7 +174,7 @@ Device::Device()
                                     std::this_thread::sleep_for(std::chrono::milliseconds(1));
                                   }
                                 }};
-#ifdef _WIN32
+#ifdef WIN32
   if(FAILED(SetThreadDescription(m_streamUpdater.native_handle(), L"device stream updater")))
     BOOST_LOG_TRIVIAL(warning) << "Failed to set thread description for audio updater thread";
 #endif

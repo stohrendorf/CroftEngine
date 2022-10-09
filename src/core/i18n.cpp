@@ -20,7 +20,7 @@ void setLocale(const std::filesystem::path& poDir, const std::string& locale)
     BOOST_LOG_TRIVIAL(warning) << "failed to set gettext locale";
   }
 
-#ifdef _WIN32
+#ifdef WIN32
   gsl_Assert(_putenv_s("LANG", locale.c_str()) == 0);
   BOOST_LOG_TRIVIAL(trace) << "gettext text domain: " << textdomain("croftengine");
   if(wbindtextdomain("croftengine", poDir.c_str()) == nullptr)
