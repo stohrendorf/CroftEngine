@@ -41,9 +41,11 @@ void AudioEngine::triggerCdTrack(const script::Gameflow& gameflow,
   else if(trackId == TR1TrackId::LaraTalk2)
   {
     // 28
+    // OK. Let's do some tumbling
     if(m_cdTrackActivationStates[trackId].isOneshot()
        && m_world.getObjectManager().getLara().getCurrentAnimState() == loader::file::LaraStateId::JumpUp)
     {
+      // Now press it again
       trackId = TR1TrackId::LaraTalk3;
     }
     triggerNormalCdTrack(gameflow, trackId, activationRequest, triggerType);
@@ -51,19 +53,22 @@ void AudioEngine::triggerCdTrack(const script::Gameflow& gameflow,
   else if(trackId < TR1TrackId::LaraTalk15)
   {
     // 29..40
-    if(trackId != TR1TrackId::LaraTalk11)
+    if(trackId != TR1TrackId::LaraTalk11) // Press forward, and I'll climb up
       triggerNormalCdTrack(gameflow, trackId, activationRequest, triggerType);
   }
   else if(trackId == TR1TrackId::LaraTalk15)
   { // NOLINT(bugprone-branch-clone)
     // 41
+    // Nice
     if(m_world.getObjectManager().getLara().getCurrentAnimState() == loader::file::LaraStateId::Hang)
       triggerNormalCdTrack(gameflow, trackId, activationRequest, triggerType);
   }
   else if(trackId == TR1TrackId::LaraTalk16)
   {
     // 42
+    // Try to vault up here
     if(m_world.getObjectManager().getLara().getCurrentAnimState() == loader::file::LaraStateId::Hang)
+      // I can't climb up
       triggerNormalCdTrack(gameflow, TR1TrackId::LaraTalk17, activationRequest, triggerType);
     else
       triggerNormalCdTrack(gameflow, trackId, activationRequest, triggerType);
@@ -76,12 +81,13 @@ void AudioEngine::triggerCdTrack(const script::Gameflow& gameflow,
   else if(trackId == TR1TrackId::LaraTalk23)
   {
     // 49
+    // Wuuh! Ohh! Air!
     if(m_world.getObjectManager().getLara().getCurrentAnimState() == loader::file::LaraStateId::OnWaterStop)
       triggerNormalCdTrack(gameflow, trackId, activationRequest, triggerType);
   }
   else if(trackId == TR1TrackId::LaraTalk24)
   {
-    // LaraTalk24 "Right. Now I better take off these wet clothes"
+    // Right. Now I better take off these wet clothes
     if(m_cdTrackActivationStates[trackId].isOneshot())
     {
       m_cdTrack50time += 1_frame;
