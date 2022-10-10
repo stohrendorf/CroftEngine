@@ -89,7 +89,6 @@ private:
   std::recursive_mutex m_streamsLock;
   bool m_shutdown = false;
   std::shared_ptr<FilterHandle> m_filter{nullptr};
-  std::chrono::system_clock::time_point m_lastLogTime = std::chrono::system_clock::now();
   ALCint m_frq = 0;
 
   void updateStreams();

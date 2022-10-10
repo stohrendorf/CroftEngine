@@ -256,12 +256,6 @@ void Device::update()
       voice->associate(nullptr);
     }
   }
-
-  if(const auto now = std::chrono::system_clock::now(); now - m_lastLogTime >= std::chrono::seconds{5})
-  {
-    m_lastLogTime = now;
-    BOOST_LOG_TRIVIAL(debug) << m_allVoices.size() << " voices registered";
-  }
 }
 
 gslu::nn_shared<StreamVoice> Device::createStream(std::unique_ptr<AbstractStreamSource>&& src,
