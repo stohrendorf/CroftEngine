@@ -11,7 +11,7 @@ struct AVCodecContext;
 struct AVStream;
 struct AVFormatContext;
 
-namespace video
+namespace ffmpeg
 {
 struct Stream final
 {
@@ -23,4 +23,4 @@ struct Stream final
 
   ~Stream();
 };
-} // namespace video
+} // namespace ffmpeg

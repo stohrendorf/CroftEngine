@@ -9,7 +9,7 @@ extern "C"
 #include <libavformat/avformat.h>
 }
 
-namespace video
+namespace ffmpeg
 {
 Stream::Stream(AVFormatContext* fmtContext, AVMediaType type, bool rplFakeAudioHack)
     : index{av_find_best_stream(fmtContext, type, -1, -1, nullptr, 0)}
@@ -61,4 +61,4 @@ Stream::~Stream()
 {
   avcodec_free_context(&context);
 }
-} // namespace video
+} // namespace ffmpeg

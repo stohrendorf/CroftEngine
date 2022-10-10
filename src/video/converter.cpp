@@ -1,6 +1,6 @@
 #include "converter.h"
 
-#include "avframeptr.h"
+#include "ffmpeg/avframeptr.h"
 
 #include <algorithm>
 #include <boost/throw_exception.hpp>
@@ -54,7 +54,7 @@ Converter::~Converter()
   av_freep(dstVideoData.data());
 }
 
-void Converter::update(const AVFramePtr& videoFrame)
+void Converter::update(const ffmpeg::AVFramePtr& videoFrame)
 {
   Expects(videoFrame.frame->width == filter->w && videoFrame.frame->height == filter->h);
   Expects((textureHandle->getTexture()->size() == glm::ivec2{filter->w, filter->h}));

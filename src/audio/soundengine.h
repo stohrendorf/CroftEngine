@@ -1,14 +1,23 @@
 #pragma once
 
+#include "serialization/serialization_fwd.h"
+
 #include <AL/al.h>
 #include <cstddef>
+#include <filesystem>
 #include <glm/vec3.hpp>
 #include <gsl/gsl-lite.hpp>
 #include <gslu.h>
+#include <map>
 #include <memory>
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
+
+namespace engine::world
+{
+class World;
+}
 
 namespace audio
 {
@@ -18,6 +27,14 @@ class BufferVoice;
 class BufferHandle;
 class Listener;
 class Emitter;
+class StreamVoice;
+class VoiceGroup;
+
+struct SlotStream
+{
+  std::weak_ptr<StreamVoice> stream{};
+  std::filesystem::path name;
+};
 
 class SoundEngine final
 {
@@ -39,7 +56,7 @@ public:
 
   bool stopBuffer(size_t bufferId, const Emitter* emitter);
 
-  std::vector<gslu::nn_shared<Voice>> getVoicesForBuffer(Emitter* emitter, size_t buffer) const;
+  [[nodiscard]] std::vector<gslu::nn_shared<Voice>> getVoicesForBuffer(Emitter* emitter, size_t buffer) const;
 
   [[nodiscard]] const auto& getDevice() const noexcept
   {
@@ -64,6 +81,19 @@ public:
 
   void reset();
 
+  void setSlotStream(size_t slot, const gsl::shared_ptr<StreamVoice>& stream, const std::filesystem::path& path);
+  [[nodiscard]] std::shared_ptr<StreamVoice> tryGetStream(size_t slot);
+  void freeSlot(size_t slot);
+  void serializeStreams(const serialization::Serializer<engine::world::World>& ser,
+                        const std::filesystem::path& rootPath,
+                        VoiceGroup& streamGroup);
+  [[nodiscard]] gslu::nn_shared<StreamVoice> createStream(const std::filesystem::path& path,
+                                                          const std::chrono::milliseconds& initialPosition);
+  [[nodiscard]] const auto& getSlots() const
+  {
+    return m_slots;
+  }
+
 private:
   const gslu::nn_unique<Device> m_device;
   std::unordered_map<const Emitter*, std::unordered_map<size_t, std::vector<std::weak_ptr<Voice>>>> m_voices;
@@ -71,5 +101,7 @@ private:
 
   std::unordered_set<const Emitter*> m_emitters;
   std::unordered_set<Listener*> m_listeners;
+
+  std::map<size_t, SlotStream> m_slots;
 };
 } // namespace audio

@@ -11,10 +11,13 @@
 struct AVFilterLink;
 struct SwsContext;
 
-namespace video
+namespace ffmpeg
 {
 struct AVFramePtr;
+}
 
+namespace video
+{
 struct Converter final
 {
   AVFilterLink* filter;
@@ -27,6 +30,6 @@ struct Converter final
 
   ~Converter();
 
-  void update(const AVFramePtr& videoFrame);
+  void update(const ffmpeg::AVFramePtr& videoFrame);
 };
 } // namespace video

@@ -17,7 +17,7 @@ extern "C"
 #include <libavformat/avformat.h>
 }
 
-namespace video
+namespace audio
 {
 struct AudioStreamDecoder;
 
@@ -129,4 +129,4 @@ private:
   static int ffmpegRead(void* opaque, uint8_t* buf, int bufSize);
   static int64_t ffmpegSeek(void* opaque, int64_t offset, int whence);
 };
-} // namespace video
+} // namespace audio

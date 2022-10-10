@@ -549,9 +549,9 @@ std::pair<RunResult, std::optional<size_t>> Engine::runTitleMenu(world::World& w
 {
   applySettings();
 
-  for(const auto& streamInfo : world.getAudioEngine().getStreams())
+  for(const auto& [slot, slotStream] : world.getAudioEngine().getSoundEngine().getSlots())
   {
-    if(const auto stream = streamInfo.second.stream.lock())
+    if(const auto stream = slotStream.stream.lock())
       stream->setLooping(true);
   }
 

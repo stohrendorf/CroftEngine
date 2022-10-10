@@ -4,10 +4,13 @@ struct AVFilterContext;
 struct AVFilterInOut;
 struct AVFilterGraph;
 
-namespace video
+namespace ffmpeg
 {
 struct Stream;
+}
 
+namespace video
+{
 struct FilterGraph final
 {
   AVFilterContext* input = nullptr;
@@ -20,6 +23,6 @@ struct FilterGraph final
 
   ~FilterGraph();
 
-  void init(const Stream& stream);
+  void init(const ffmpeg::Stream& stream);
 };
 } // namespace video
