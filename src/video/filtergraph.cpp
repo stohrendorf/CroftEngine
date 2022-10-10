@@ -1,6 +1,6 @@
 #include "filtergraph.h"
 
-#include "stream.h"
+#include "ffmpeg/stream.h"
 
 #include <array>
 #include <boost/throw_exception.hpp>
@@ -30,7 +30,7 @@ FilterGraph::~FilterGraph()
   avfilter_graph_free(&graph);
 }
 
-void FilterGraph::init(const Stream& stream)
+void FilterGraph::init(const ffmpeg::Stream& stream)
 {
   std::array<char, 512> filterGraphArgs{};
   snprintf(filterGraphArgs.data(),

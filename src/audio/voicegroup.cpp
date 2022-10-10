@@ -19,7 +19,9 @@ void VoiceGroup::add(gslu::nn_shared<Voice> voice)
                     return weakVoice.lock() == voice;
                   })
      == m_voices.end())
+  {
     m_voices.emplace_back(voice.get());
+  }
 }
 
 void VoiceGroup::remove(const gslu::nn_shared<Voice>& voice)

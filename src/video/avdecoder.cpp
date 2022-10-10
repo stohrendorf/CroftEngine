@@ -1,10 +1,10 @@
 #include "avdecoder.h"
 
-#include "audiostreamdecoder.h"
-#include "avframeptr.h"
+#include "audio/audiostreamdecoder.h"
+#include "ffmpeg/avframeptr.h"
+#include "ffmpeg/stream.h"
+#include "ffmpeg/util.h"
 #include "filtergraph.h"
-#include "stream.h"
-#include "util.h"
 
 #include <algorithm>
 #include <boost/log/trivial.hpp>
@@ -51,8 +51,8 @@ AVDecoder::AVDecoder(const std::string& filename)
     BOOST_THROW_EXCEPTION(std::runtime_error("Could not find stream information"));
   }
 
-  videoStream = std::make_unique<Stream>(fmtContext, AVMEDIA_TYPE_VIDEO, false);
-  audioDecoder = std::make_unique<AudioStreamDecoder>(fmtContext, true);
+  videoStream = std::make_unique<ffmpeg::Stream>(fmtContext, AVMEDIA_TYPE_VIDEO, false);
+  audioDecoder = std::make_unique<audio::AudioStreamDecoder>(fmtContext, true);
 
 #ifndef NDEBUG
   av_dump_format(fmtContext, 0, filename.c_str(), 0);
@@ -106,14 +106,14 @@ void AVDecoder::fillQueues()
   }
 }
 
-std::optional<AVFramePtr> AVDecoder::takeFrame()
+std::optional<ffmpeg::AVFramePtr> AVDecoder::takeFrame()
 {
   std::unique_lock lock{imgQueueMutex};
   while(!frameReady)
     frameReadyCondition.wait(lock);
   frameReady = false;
 
-  std::optional<AVFramePtr> img;
+  std::optional<ffmpeg::AVFramePtr> img;
   if(!imgQueue.empty())
   {
     img = std::move(imgQueue.front());
@@ -157,7 +157,7 @@ void AVDecoder::decodeVideoPacket()
     }
   }
 
-  AVFramePtr videoFrame;
+  ffmpeg::AVFramePtr videoFrame;
   int err;
   while((err = avcodec_receive_frame(videoStream->context, videoFrame.frame)) == 0)
   {
@@ -166,11 +166,11 @@ void AVDecoder::decodeVideoPacket()
       BOOST_LOG_TRIVIAL(error) << "Error while feeding the filtergraph: " << getAvError(addFrameErr);
       BOOST_THROW_EXCEPTION(std::runtime_error("Error while feeding the filtergraph"));
     }
-    videoFrame = AVFramePtr();
+    videoFrame = ffmpeg::AVFramePtr();
 
     while(true)
     {
-      AVFramePtr filteredFrame;
+      ffmpeg::AVFramePtr filteredFrame;
       const auto ret = av_buffersink_get_frame(filterGraph.output, filteredFrame.frame);
       // NOLINTNEXTLINE(hicpp-signed-bitwise)
       if(ret == AVERROR(EAGAIN) || ret == AVERROR_EOF)
@@ -220,7 +220,7 @@ size_t AVDecoder::read(int16_t* buffer, size_t bufferSize, bool /*looping*/)
 
 audio::Clock::duration AVDecoder::getDuration() const
 {
-  return toDuration<audio::Clock::duration>(videoStream->stream->duration, videoStream->stream->time_base);
+  return ffmpeg::toDuration<audio::Clock::duration>(videoStream->stream->duration, videoStream->stream->time_base);
 }
 
 int AVDecoder::getSampleRate() const

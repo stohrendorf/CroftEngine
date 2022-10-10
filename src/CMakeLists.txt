@@ -322,8 +322,8 @@ set( CROFTENGINE_SRCS
         loader/trx/trx.h
         loader/trx/trx.cpp
 
-        audio/loadefx.h
-        audio/loadefx.cpp
+        audio/audiostreamdecoder.h
+        audio/audiostreamdecoder.cpp
         audio/bufferhandle.h
         audio/bufferhandle.cpp
         audio/buffervoice.h
@@ -332,9 +332,13 @@ set( CROFTENGINE_SRCS
         audio/device.cpp
         audio/emitter.h
         audio/emitter.cpp
+        audio/ffmpegstreamsource.h
+        audio/ffmpegstreamsource.cpp
         audio/filterhandle.h
         audio/listener.h
         audio/listener.cpp
+        audio/loadefx.h
+        audio/loadefx.cpp
         audio/soundengine.h
         audio/soundengine.cpp
         audio/sourcehandle.h
@@ -349,6 +353,12 @@ set( CROFTENGINE_SRCS
         audio/voice.cpp
         audio/voicegroup.h
         audio/voicegroup.cpp
+
+        ffmpeg/avframeptr.h
+        ffmpeg/avframeptr.cpp
+        ffmpeg/stream.h
+        ffmpeg/stream.cpp
+        ffmpeg/util.h
 
         util/helpers.h
         util/helpers.cpp
@@ -581,22 +591,14 @@ set( CROFTENGINE_SRCS
         ui/widgets/sprite.cpp
         ui/widgets/tabbox.cpp
 
-        video/audiostreamdecoder.h
-        video/audiostreamdecoder.cpp
-        video/ffmpegstreamsource.h
-        video/ffmpegstreamsource.cpp
         video/avdecoder.h
         video/avdecoder.cpp
-        video/avframeptr.h
-        video/avframeptr.cpp
         video/converter.h
         video/converter.cpp
         video/filtergraph.h
         video/filtergraph.cpp
         video/videoplayer.h
         video/videoplayer.cpp
-        video/stream.h
-        video/stream.cpp
 
         core/angle.h
         core/angle.cpp

@@ -10,21 +10,22 @@
 #include "audio/wadstreamsource.h"
 #include "objects/laraobject.h"
 #include "script/reflection.h"
-#include "script/scriptengine.h"
-#include "serialization/chrono.h"
 #include "serialization/map.h"
 #include "serialization/optional.h"
-#include "serialization/path.h"
 #include "serialization/serialization.h"
 #include "tracks_tr1.h"
 #include "util/helpers.h"
-#include "video/ffmpegstreamsource.h"
 #include "world/world.h"
 
 #include <boost/format.hpp>
 
 namespace engine
 {
+namespace
+{
+constexpr auto FadeOutDuration = std::chrono::seconds{2};
+}
+
 void AudioEngine::triggerCdTrack(const script::Gameflow& gameflow,
                                  TR1TrackId trackId,
                                  const floordata::ActivationState& activationRequest,
@@ -150,25 +151,22 @@ void AudioEngine::playStopCdTrack(const script::Gameflow& gameflow, const TR1Tra
 
   m_currentTrack.reset();
 
-  if(auto slotIt = m_streams.find(trackInfo->slot); slotIt != m_streams.end())
+  if(auto currentlyPlaying = m_soundEngine->tryGetStream(trackInfo->slot); currentlyPlaying != nullptr)
   {
-    if(auto currentlyPlaying = slotIt->second.stream.lock(); currentlyPlaying != nullptr)
-    {
-      BOOST_LOG_TRIVIAL(debug) << "playStopCdTrack - fade out slot " << trackInfo->slot;
-      m_soundEngine->getDevice().registerUpdateCallback(audio::FadeVolumeCallback{
-        0.0f,
-        std::chrono::seconds{2},
-        gsl::not_null{currentlyPlaying},
-        audio::FadeVolumeCallback::FinalCallback{[currentlyPlaying, slot = trackInfo->slot, this]()
-                                                 {
-                                                   BOOST_LOG_TRIVIAL(debug) << "playStopCdTrack - fade out slot "
-                                                                            << slot << " done, removing stream";
-                                                   m_soundEngine->getDevice().removeStream(currentlyPlaying);
-                                                 }}});
-    }
-
-    m_streams.erase(slotIt);
+    BOOST_LOG_TRIVIAL(debug) << "playStopCdTrack - fade out slot " << trackInfo->slot;
+    m_soundEngine->getDevice().registerUpdateCallback(audio::FadeVolumeCallback{
+      0.0f,
+      FadeOutDuration,
+      gsl::not_null{currentlyPlaying},
+      audio::FadeVolumeCallback::FinalCallback{[currentlyPlaying, slot = trackInfo->slot, this]()
+                                               {
+                                                 BOOST_LOG_TRIVIAL(debug) << "playStopCdTrack - fade out slot " << slot
+                                                                          << " done, removing stream";
+                                                 m_soundEngine->getDevice().removeStream(currentlyPlaying);
+                                               }}});
   }
+
+  m_soundEngine->freeSlot(trackInfo->slot);
 
   if(stop)
     return;
@@ -177,7 +175,7 @@ void AudioEngine::playStopCdTrack(const script::Gameflow& gameflow, const TR1Tra
                            << ", looping " << trackInfo->looping;
   const auto stream = createStream(trackInfo->getFirstValidAlternative(m_rootPath));
   stream->setLooping(trackInfo->looping);
-  m_streams.emplace(trackInfo->slot, StreamInfo{stream.get(), trackInfo->getFirstValidAlternative(m_rootPath)});
+  m_soundEngine->setSlotStream(trackInfo->slot, stream, trackInfo->getFirstValidAlternative(m_rootPath));
   m_currentTrack = trackId;
 
   if(trackInfo->fadeDurationSeconds > 0)
@@ -193,14 +191,7 @@ void AudioEngine::playStopCdTrack(const script::Gameflow& gameflow, const TR1Tra
 gslu::nn_shared<audio::StreamVoice> AudioEngine::createStream(const std::filesystem::path& path,
                                                               const std::chrono::milliseconds& initialPosition)
 {
-  static constexpr size_t DefaultBufferSize = 8192;
-  static constexpr size_t DefaultBufferCount = 4;
-
-  auto stream = m_soundEngine->getDevice().createStream(
-    std::make_unique<video::FfmpegStreamSource>(util::ensureFileExists(m_rootPath / path)),
-    DefaultBufferSize,
-    DefaultBufferCount,
-    initialPosition);
+  auto stream = m_soundEngine->createStream(m_rootPath / path, initialPosition);
   m_music.add(stream);
   return stream;
 }
@@ -353,44 +344,9 @@ std::shared_ptr<audio::Voice> AudioEngine::playSoundEffect(const core::SoundEffe
 
 void AudioEngine::serialize(const serialization::Serializer<world::World>& ser)
 {
-  std::map<size_t, std::chrono::milliseconds> positions;
-  std::map<size_t, std::filesystem::path> names;
-  std::map<size_t, bool> looping;
-  if(!ser.loading)
-  {
-    auto tmp = std::exchange(m_streams, {});
-    for(const auto& [streamId, streamInfo] : tmp)
-    {
-      if(auto stream = streamInfo.stream.lock(); stream != nullptr && !stream->isStopped())
-      {
-        m_streams.emplace(streamId, streamInfo);
-        positions.emplace(streamId, stream->getStreamPosition());
-        names.emplace(streamId, streamInfo.name);
-        looping.emplace(streamId, stream->isLooping());
-      }
-    }
-  }
-  else
-  {
-    for(const auto& [streamId, streamInfo] : m_streams)
-      m_soundEngine->getDevice().removeStream(streamInfo.stream);
-  }
+  ser(S_NV("currentTrack", m_currentTrack), S_NV("cdTrackActivationStates", m_cdTrackActivationStates));
 
-  ser(S_NV("currentTrack", m_currentTrack),
-      S_NV("cdTrackActivationStates", m_cdTrackActivationStates),
-      S_NV("streamNames", names),
-      S_NV("streamPositions", positions),
-      S_NV("streamLooping", looping));
-
-  if(ser.loading)
-  {
-    for(auto& [streamId, streamName] : names)
-    {
-      const auto stream = createStream(streamName, positions.at(streamId));
-      stream->setLooping(looping.at(streamId));
-      stream->play();
-    }
-  }
+  m_soundEngine->serializeStreams(ser, m_rootPath, m_music);
 }
 
 AudioEngine::AudioEngine(world::World& world,
@@ -417,9 +373,6 @@ void AudioEngine::init(const std::vector<loader::file::SoundEffectProperties>& s
   m_cdTrackActivationStates.clear();
   m_cdTrack50time = 0_frame;
   m_underwaterAmbience.reset();
-  for(const auto& [streamId, streamInfo] : m_streams)
-    m_soundEngine->getDevice().removeStream(streamInfo.stream);
-  m_streams.clear();
   m_currentTrack.reset();
 }
 } // namespace engine

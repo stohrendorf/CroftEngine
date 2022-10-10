@@ -8,7 +8,7 @@ extern "C"
 #include <libavutil/frame.h>
 }
 
-namespace video
+namespace ffmpeg
 {
 AVFramePtr::AVFramePtr()
     : frame{av_frame_alloc()}
@@ -37,4 +37,4 @@ AVFramePtr::~AVFramePtr()
 {
   av_frame_free(&frame);
 }
-} // namespace video
+} // namespace ffmpeg

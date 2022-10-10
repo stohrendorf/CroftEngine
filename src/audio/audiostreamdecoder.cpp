@@ -1,8 +1,8 @@
 #include "audiostreamdecoder.h"
 
-#include "avframeptr.h"
-#include "stream.h"
-#include "util.h"
+#include "ffmpeg/avframeptr.h"
+#include "ffmpeg/stream.h"
+#include "ffmpeg/util.h"
 
 #include <algorithm>
 #include <boost/log/trivial.hpp>
@@ -22,7 +22,7 @@ extern "C"
 #include <libswresample/swresample.h>
 }
 
-namespace video
+namespace audio
 {
 namespace
 {
@@ -38,7 +38,7 @@ std::string getAvError(int err)
 
 AudioStreamDecoder::AudioStreamDecoder(AVFormatContext* fmtContext, bool rplFakeAudioHack)
     : fmtContext{fmtContext}
-    , stream{std::make_unique<Stream>(fmtContext, AVMEDIA_TYPE_AUDIO, rplFakeAudioHack)}
+    , stream{std::make_unique<ffmpeg::Stream>(fmtContext, AVMEDIA_TYPE_AUDIO, rplFakeAudioHack)}
     , swrContext{swr_alloc_set_opts(nullptr,
                                     // NOLINTNEXTLINE(hicpp-signed-bitwise)
                                     stream->context->channels == 1 ? AV_CH_LAYOUT_MONO : AV_CH_LAYOUT_STEREO,
@@ -165,7 +165,7 @@ size_t AudioStreamDecoder::read(int16_t* buffer, size_t bufferSize)
 
 audio::Clock::duration AudioStreamDecoder::getDuration() const
 {
-  return toDuration<audio::Clock::duration>(stream->stream->duration, stream->stream->time_base);
+  return ffmpeg::toDuration<audio::Clock::duration>(stream->stream->duration, stream->stream->time_base);
 }
 
 int AudioStreamDecoder::getSampleRate() const
@@ -176,13 +176,13 @@ int AudioStreamDecoder::getSampleRate() const
 std::chrono::milliseconds AudioStreamDecoder::getPosition() const
 {
   std::unique_lock lock{mutex};
-  return toDuration<std::chrono::milliseconds>(lastPacketPts, stream->stream->time_base);
+  return ffmpeg::toDuration<std::chrono::milliseconds>(lastPacketPts, stream->stream->time_base);
 }
 
 void AudioStreamDecoder::seek(const std::chrono::milliseconds& position)
 {
   std::unique_lock lock{mutex};
-  const auto ts = fromDuration(position, stream->stream->time_base);
+  const auto ts = ffmpeg::fromDuration(position, stream->stream->time_base);
   if(av_seek_frame(fmtContext, stream->index, ts, 0) < 0)
   {
     BOOST_LOG_TRIVIAL(warning) << "failed to seek audio stream to " << position.count() << "ms";
@@ -194,4 +194,4 @@ int AudioStreamDecoder::getChannels() const
 {
   return stream->context->channels;
 }
-} // namespace video
+} // namespace audio

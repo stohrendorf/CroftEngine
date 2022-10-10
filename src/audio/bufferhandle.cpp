@@ -1,7 +1,7 @@
 #include "bufferhandle.h"
 
+#include "ffmpegstreamsource.h"
 #include "utils.h"
-#include "video/ffmpegstreamsource.h"
 
 #include <AL/al.h>
 #include <cstring>
@@ -34,7 +34,7 @@ void BufferHandle::fillFromWav(const uint8_t* data)
   // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
   uint32_t dataSize = 0;
   std::memcpy(&dataSize, data + 4, sizeof(uint32_t));
-  auto tmp = std::make_unique<video::FfmpegMemoryStreamSource>(gsl::span{data, dataSize + 8});
+  auto tmp = std::make_unique<FfmpegMemoryStreamSource>(gsl::span{data, dataSize + 8});
 
   static constexpr size_t ChunkSize = 8192;
   std::vector<int16_t> pcm;

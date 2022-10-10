@@ -2,7 +2,7 @@
 
 #include "audio/core.h"
 #include "audio/streamsource.h"
-#include "avframeptr.h"
+#include "ffmpeg/avframeptr.h"
 #include "filtergraph.h"
 
 #include <atomic>
@@ -21,16 +21,23 @@ extern "C"
 #include <libavformat/avformat.h>
 }
 
-namespace video
+namespace audio
+{
+struct AudioStreamDecoder;
+}
+
+namespace ffmpeg
 {
 struct Stream;
-struct AudioStreamDecoder;
+}
 
+namespace video
+{
 struct AVDecoder final : public audio::AbstractStreamSource
 {
   AVFormatContext* fmtContext = nullptr;
-  std::unique_ptr<AudioStreamDecoder> audioDecoder;
-  std::unique_ptr<Stream> videoStream;
+  std::unique_ptr<audio::AudioStreamDecoder> audioDecoder;
+  std::unique_ptr<ffmpeg::Stream> videoStream;
   FilterGraph filterGraph;
 
   explicit AVDecoder(const std::string& filename);
@@ -41,12 +48,12 @@ struct AVDecoder final : public audio::AbstractStreamSource
 
   void fillQueues();
 
-  std::queue<AVFramePtr> imgQueue;
+  std::queue<ffmpeg::AVFramePtr> imgQueue;
   mutable std::mutex imgQueueMutex;
   std::condition_variable frameReadyCondition;
   bool frameReady = false;
 
-  std::optional<AVFramePtr> takeFrame();
+  std::optional<ffmpeg::AVFramePtr> takeFrame();
 
   static constexpr size_t QueueLimit = 60;
 

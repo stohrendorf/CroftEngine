@@ -1,7 +1,7 @@
 #pragma once
 
 #include "audio/core.h"
-#include "avframeptr.h"
+#include "ffmpeg/avframeptr.h"
 
 #include <chrono>
 #include <cstddef>
@@ -17,10 +17,13 @@ extern "C"
 #include <libswresample/swresample.h>
 }
 
-namespace video
+namespace ffmpeg
 {
 struct Stream;
+}
 
+namespace audio
+{
 struct AudioStreamDecoder final
 {
   static constexpr size_t QueueLimit = 60;
@@ -28,8 +31,8 @@ struct AudioStreamDecoder final
   mutable std::mutex mutex;
 
   AVFormatContext* fmtContext = nullptr;
-  AVFramePtr audioFrame;
-  std::unique_ptr<Stream> stream;
+  ffmpeg::AVFramePtr audioFrame;
+  std::unique_ptr<ffmpeg::Stream> stream;
   SwrContext* swrContext = nullptr;
   std::queue<std::vector<int16_t>> queue;
   int64_t lastPacketPts = 0;
@@ -63,4 +66,4 @@ struct AudioStreamDecoder final
 
   [[nodiscard]] int getChannels() const;
 };
-} // namespace video
+} // namespace audio

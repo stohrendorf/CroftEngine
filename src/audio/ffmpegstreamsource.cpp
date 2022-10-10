@@ -16,7 +16,7 @@ extern "C"
 #include <libavformat/avformat.h>
 }
 
-namespace video
+namespace audio
 {
 namespace
 {
@@ -253,4 +253,4 @@ int64_t FfmpegSubStreamStreamSource::ffmpegSeek(void* opaque, int64_t offset, in
   }
   return gsl::narrow_cast<int64_t>(h->dataPosition);
 }
-} // namespace video
+} // namespace audio

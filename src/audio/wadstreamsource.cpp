@@ -1,6 +1,6 @@
 #include "wadstreamsource.h"
 
-#include "video/ffmpegstreamsource.h"
+#include "ffmpegstreamsource.h"
 
 #include <array>
 #include <boost/log/trivial.hpp>
@@ -22,8 +22,8 @@ constexpr size_t WADStride = 268;
 constexpr size_t WADNameLength = 260;
 constexpr size_t WADCount = 130;
 
-std::unique_ptr<video::FfmpegSubStreamStreamSource> createWadStream(const std::filesystem::path& filename,
-                                                                    const size_t trackIndex)
+std::unique_ptr<FfmpegSubStreamStreamSource> createWadStream(const std::filesystem::path& filename,
+                                                             const size_t trackIndex)
 {
   auto wadFile = std::make_unique<std::ifstream>(filename, std::ios::in | std::ios::binary);
   BOOST_LOG_TRIVIAL(trace) << "Creating WAD stream source from " << filename << ", track " << trackIndex;
@@ -47,6 +47,6 @@ std::unique_ptr<video::FfmpegSubStreamStreamSource> createWadStream(const std::f
   wadFile->read(reinterpret_cast<char*>(&length), 4);
 
   wadFile->seekg(offset, std::ios::beg);
-  return std::make_unique<video::FfmpegSubStreamStreamSource>(std::move(wadFile), offset, offset + length);
+  return std::make_unique<FfmpegSubStreamStreamSource>(std::move(wadFile), offset, offset + length);
 }
 } // namespace audio

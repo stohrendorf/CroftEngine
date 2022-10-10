@@ -8,7 +8,7 @@ extern "C"
 #include <libavutil/rational.h>
 }
 
-namespace video
+namespace ffmpeg
 {
 template<typename T>
 constexpr T toDuration(int64_t ts, const AVRational& timeBase)
@@ -23,4 +23,4 @@ constexpr int64_t fromDuration(const T& ts, const AVRational& timeBase)
   using period = typename T::period;
   return ts.count() * (timeBase.den * period::num) / (timeBase.num * period::den);
 }
-} // namespace video
+} // namespace ffmpeg

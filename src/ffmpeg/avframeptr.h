@@ -2,7 +2,7 @@
 
 struct AVFrame;
 
-namespace video
+namespace ffmpeg
 {
 struct AVFramePtr final
 {
@@ -16,4 +16,4 @@ struct AVFramePtr final
 
   AVFrame* release();
 };
-} // namespace video
+} // namespace ffmpeg
