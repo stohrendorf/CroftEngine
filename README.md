@@ -203,7 +203,5 @@ Use the following settings to generate the bindings:
 * Extensions:
     * GL_ARB_bindless_texture
     * GL_ARB_texture_filter_anisotropic
-    * GL_ATI_meminfo
     * GL_EXT_texture_filter_anisotropic
-    * GL_NVX_gpu_memory_info
     * GL_AMD_debug_output

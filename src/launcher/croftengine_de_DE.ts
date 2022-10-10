@@ -209,7 +209,11 @@
             <source>A TombATI installation has been found at %1. Do you want to use this installation or continue
                 manually?
             </source>
-            <translation>Eine TombATI Installation wurde bei %1 gefunden. Möchten Sie diese Installation verwenden oder
+            <oldsource>A TombATI installation has been found at %1. Do you want to use this installation or continue
+                manually?
+            </oldsource>
+            <translation type="unfinished">Eine TombATI Installation wurde bei %1 gefunden. Möchten Sie diese
+                Installation verwenden oder
                 manuell fortfahren?
             </translation>
         </message>
@@ -218,7 +222,11 @@
             <source>Decide to keep already existing ghosts, savegames, etc. in this installation. If you decide to
                 overwrite already existing files, the data will be lost.
             </source>
-            <translation>Entscheiden Sie, ob existierende Geister, Spielstände, etc. beibehalten werden sollen. Wenn Sie
+            <oldsource>Decide to keep already existing ghosts, savegames, etc. in this installation. If you decide to
+                overwrite already existing files, the data will be lost.
+            </oldsource>
+            <translation type="unfinished">Entscheiden Sie, ob existierende Geister, Spielstände, etc. beibehalten
+                werden sollen. Wenn Sie
                 sich für ein Überschreiben entscheiden, gehen die Daten verloren.
             </translation>
         </message>
@@ -231,15 +239,6 @@
                 Textur Paket
                 eine equiv.txt Datei enthält, wählen Sie die erste Option. Wenn Ihr Textur Paket eine Reihe von Ordnern
                 enthält, bestehend aus 32 Zahlen und Buchstaben, wählen Sie die zweite Option.
-            </translation>
-        </message>
-        <message>
-            <source>A TombATI installation has been found at %1. Do you want to use this installation or continue
-                manually?
-            </source>
-            <translation type="vanished">Eine TombATI Installation wurde bei %1 gefunden. Möchten Sie diese Installation
-                verwenden oder
-                manuell fortfahren?
             </translation>
         </message>
         <message>
@@ -301,15 +300,6 @@
             <translation>Existierende Daten überschreiben?</translation>
         </message>
         <message>
-            <source>Decide to keep already existing ghosts, savegames, etc. in this installation. If you decide to
-                overwrite already existing files, the data will be lost.
-            </source>
-            <translation type="vanished">Entscheiden Sie, ob existierende Geister, Spielstände, etc. beibehalten werden
-                sollen. Wenn Sie
-                sich für ein Überschreiben entscheiden, gehen die Daten verloren.
-            </translation>
-        </message>
-        <message>
             <location filename="mainwindow.cpp" line="609"/>
             <source>Overwrite</source>
             <translation>Überschreiben</translation>
@@ -343,9 +333,7 @@
             <source>It seems you&apos;re running CroftEngine for the first time. Please select where you want to store
                 your game data.
             </source>
-            <translation>Es scheint, als würden Sie CroftEngine zum ersten mal ausführen. Bitte wählen Sie, wo die
-                Spieldaten gespeichert werden sollen.
-            </translation>
+            <translation type="unfinished"></translation>
         </message>
         <message>
             <location filename="mainwindow.cpp" line="282"/>
@@ -395,10 +383,7 @@
                 equiv.txt file, use the first option. If your texture pack contains a series of folders which are made
                 of 32 numbers and letters, use the second one.
             </source>
-            <translation>Bitte wählen Sie, welchen Typ von Textur Paket Sie aktivieren möchten. Wenn das Textur Paket
-                eine equiv.txt Datei enthält, wählen Sie die erste Option. Wenn Ihr Textur Paket eine Reihe von Ordnern
-                enthält, bestehend aus 32 Zahlen und Buchstaben, wählen Sie die zweite Option.
-            </translation>
+            <translation type="unfinished"></translation>
         </message>
         <message>
             <location filename="mainwindow.cpp" line="703"/>

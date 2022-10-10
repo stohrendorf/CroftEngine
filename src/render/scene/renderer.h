@@ -61,7 +61,6 @@ public:
 private:
   const std::chrono::high_resolution_clock::time_point m_constructionTime{std::chrono::high_resolution_clock::now()};
 
-  std::chrono::high_resolution_clock::time_point m_lastLogTime{};
   gl::SRGBA8 m_clearColor;
   float m_clearDepth = 1;
 
