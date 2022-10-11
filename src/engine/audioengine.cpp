@@ -358,8 +358,8 @@ AudioEngine::AudioEngine(world::World& world,
 {
 }
 
-void AudioEngine::init(const std::vector<loader::file::SoundEffectProperties>& soundEffectProperties,
-                       const std::vector<int16_t>& soundEffects)
+void AudioEngine::initForWorld(const std::vector<loader::file::SoundEffectProperties>& soundEffectProperties,
+                               const std::vector<int16_t>& soundEffects)
 {
   m_soundEffectProperties = soundEffectProperties;
   m_soundEffects.clear();

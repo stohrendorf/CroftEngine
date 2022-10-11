@@ -1,4 +1,5 @@
-from engine import TR1TrackId, TR1ItemId, Video, Level, TitleMenu, SplashScreen, WeaponType, ModifyInventory
+from engine import TR1TrackId, TR1ItemId, Video, Level, TitleMenu, SplashScreen, WeaponType, ModifyInventory, \
+    PlayAudioSlot, ResetSoundEngine
 
 
 def _fmv(basename: str):
@@ -367,13 +368,16 @@ level_sequence = [
         },
     ),
     Video(_fmv("END")),
+    ResetSoundEngine(),
+    PlayAudioSlot(slot=0, track=TR1TrackId.LaraTalk24),
     *(
         SplashScreen(
             path=f"DATA/{name}.PCX",
-            duration_seconds=11,
+            duration_seconds=50 // 4 - 4,
             fade_in_duration_seconds=2,
             fade_out_duration_seconds=2,
         )
         for name in ("END", "CRED1", "CRED2", "CRED3")
     ),
+    ResetSoundEngine(),
 ]

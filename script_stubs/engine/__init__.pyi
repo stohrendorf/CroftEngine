@@ -111,6 +111,21 @@ class SplashScreen(LevelSequenceItem):
         ...
 
 
+class StopAudioSlot(LevelSequenceItem):
+    def __init__(self, *, slot: int):
+        ...
+
+
+class PlayAudioSlot(LevelSequenceItem):
+    def __init__(self, *, slot: int, track: TR1TrackId):
+        ...
+
+
+class ResetSoundEngine(LevelSequenceItem):
+    def __init__(self):
+        ...
+
+
 class Gameflow:
     def __init__(
             self, *,

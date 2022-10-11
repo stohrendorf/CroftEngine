@@ -655,7 +655,6 @@ std::pair<RunResult, std::optional<size_t>>
                                const std::shared_ptr<Player>& player,
                                const std::shared_ptr<Player>& levelStartPlayer)
 {
-  m_presenter->getSoundEngine()->reset();
   m_presenter->clear();
   applySettings();
   return item.run(*this, player, levelStartPlayer);
@@ -667,7 +666,6 @@ std::pair<RunResult, std::optional<size_t>>
                                        const std::shared_ptr<Player>& player,
                                        const std::shared_ptr<Player>& levelStartPlayer)
 {
-  m_presenter->getSoundEngine()->reset();
   m_presenter->clear();
   applySettings();
   return item.runFromSave(*this, slot, player, levelStartPlayer);

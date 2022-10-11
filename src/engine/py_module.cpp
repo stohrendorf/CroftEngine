@@ -137,6 +137,21 @@ PYBIND11_EMBEDDED_MODULE(engine, m)
          py::arg("fade_in_duration_seconds"),
          py::arg("fade_out_duration_seconds"));
 
+  py::class_<engine::script::StopAudioSlot,
+             engine::script::LevelSequenceItem,
+             std::shared_ptr<engine::script::StopAudioSlot>>(m, "StopAudioSlot", py::is_final{})
+    .def(py::init<size_t>(), py::kw_only{}, py::arg("slot"));
+
+  py::class_<engine::script::PlayAudioSlot,
+             engine::script::LevelSequenceItem,
+             std::shared_ptr<engine::script::PlayAudioSlot>>(m, "PlayAudioSlot", py::is_final{})
+    .def(py::init<size_t, engine::TR1TrackId>(), py::kw_only{}, py::arg("slot"), py::arg("track"));
+
+  py::class_<engine::script::ResetSoundEngine,
+             engine::script::LevelSequenceItem,
+             std::shared_ptr<engine::script::ResetSoundEngine>>(m, "ResetSoundEngine", py::is_final{})
+    .def(py::init<>());
+
   py::enum_<engine::objects::TriggerState>(m, "ActivationState")
     .value("INACTIVE", engine::objects::TriggerState::Inactive)
     .value("DEACTIVATED", engine::objects::TriggerState::Deactivated)
