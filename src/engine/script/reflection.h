@@ -294,6 +294,91 @@ public:
     getFilepathsIfInvalid(const std::filesystem::path& dataRoot) const override;
 };
 
+class PlayAudioSlot : public LevelSequenceItem
+{
+private:
+  const size_t m_slot;
+  const TR1TrackId m_track;
+
+public:
+  explicit PlayAudioSlot(size_t slot, TR1TrackId track)
+      : m_slot{slot}
+      , m_track{track}
+  {
+  }
+
+  ~PlayAudioSlot() override = default;
+
+  std::pair<RunResult, std::optional<size_t>> run(Engine& engine,
+                                                  const std::shared_ptr<Player>& player,
+                                                  const std::shared_ptr<Player>& levelStartPlayer) override;
+
+  [[nodiscard]] bool isLevel(const std::filesystem::path& /*path*/) const override
+  {
+    return false;
+  }
+
+  [[nodiscard]] std::vector<std::filesystem::path>
+    getFilepathsIfInvalid(const std::filesystem::path& /*dataRoot*/) const override
+  {
+    return {};
+  }
+};
+
+class StopAudioSlot : public LevelSequenceItem
+{
+private:
+  const size_t m_slot;
+
+public:
+  explicit StopAudioSlot(size_t slot)
+      : m_slot{slot}
+  {
+  }
+
+  ~StopAudioSlot() override = default;
+
+  std::pair<RunResult, std::optional<size_t>> run(Engine& engine,
+                                                  const std::shared_ptr<Player>& player,
+                                                  const std::shared_ptr<Player>& levelStartPlayer) override;
+
+  [[nodiscard]] bool isLevel(const std::filesystem::path& /*path*/) const override
+  {
+    return false;
+  }
+
+  [[nodiscard]] std::vector<std::filesystem::path>
+    getFilepathsIfInvalid(const std::filesystem::path& /*dataRoot*/) const override
+  {
+    return {};
+  }
+};
+
+class ResetSoundEngine : public LevelSequenceItem
+{
+public:
+  explicit ResetSoundEngine()
+  {
+  }
+
+  ~ResetSoundEngine() override = default;
+
+  std::pair<RunResult, std::optional<size_t>> run(Engine& engine,
+                                                  const std::shared_ptr<Player>& player,
+                                                  const std::shared_ptr<Player>& levelStartPlayer) override;
+
+  [[nodiscard]] bool isLevel(const std::filesystem::path& /*path*/) const override
+  {
+    return false;
+  }
+
+  [[nodiscard]] std::vector<std::filesystem::path>
+    getFilepathsIfInvalid(const std::filesystem::path& /*dataRoot*/) const override
+  {
+    return {};
+  }
+};
+
 class Gameflow final
 {
 public:

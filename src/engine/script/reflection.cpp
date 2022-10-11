@@ -1,5 +1,7 @@
 #include "reflection.h"
 
+#include "audio/soundengine.h"
+#include "audio/streamvoice.h"
 #include "core/genericvec.h"
 #include "core/i18n.h"
 #include "core/id.h"
@@ -83,6 +85,7 @@ std::pair<RunResult, std::optional<size_t>> Video::run(Engine& engine,
                                                        const std::shared_ptr<Player>& /*player*/,
                                                        const std::shared_ptr<Player>& /*levelStartPlayer*/)
 {
+  engine.getPresenter().getSoundEngine()->reset();
   for(const auto& path : m_paths)
   {
     if(auto asset = engine.getAssetDataPath() / path; std::filesystem::is_regular_file(asset))
@@ -105,6 +108,7 @@ std::vector<std::filesystem::path> Video::getFilepathsIfInvalid(const std::files
 std::pair<RunResult, std::optional<size_t>>
   Cutscene::run(Engine& engine, const std::shared_ptr<Player>& player, const std::shared_ptr<Player>& levelStartPlayer)
 {
+  engine.getPresenter().getSoundEngine()->reset();
   auto world
     = std::make_unique<world::World>(engine,
                                      loadLevel(engine, m_name, m_name),
@@ -209,6 +213,7 @@ bool Level::isLevel(const std::filesystem::path& path) const
 std::pair<RunResult, std::optional<size_t>>
   Level::run(Engine& engine, const std::shared_ptr<Player>& player, const std::shared_ptr<Player>& levelStartPlayer)
 {
+  engine.getPresenter().getSoundEngine()->reset();
   player->requestedWeaponType = m_defaultWeapon;
   player->selectedWeaponType = m_defaultWeapon;
 
@@ -225,6 +230,7 @@ std::pair<RunResult, std::optional<size_t>> Level::runFromSave(Engine& engine,
                                                                const std::shared_ptr<Player>& levelStartPlayer)
 {
   Expects(m_allowSave);
+  engine.getPresenter().getSoundEngine()->reset();
   player->getInventory().clear();
   auto world = loadWorld(engine, player, levelStartPlayer, true);
   world->load(slot);
@@ -241,6 +247,7 @@ std::vector<std::filesystem::path> Level::getFilepathsIfInvalid(const std::files
 std::pair<RunResult, std::optional<size_t>>
   TitleMenu::run(Engine& engine, const std::shared_ptr<Player>& player, const std::shared_ptr<Player>& levelStartPlayer)
 {
+  engine.getPresenter().getSoundEngine()->reset();
   player->getInventory().clear();
   auto world = loadWorld(engine, player, levelStartPlayer, false);
   return engine.runTitleMenu(*world);
@@ -464,5 +471,37 @@ std::filesystem::path TrackInfo::getFirstValidAlternative(const std::filesystem:
   }
 
   BOOST_THROW_EXCEPTION(std::runtime_error("no valid alternative found"));
+}
+
+std::pair<RunResult, std::optional<size_t>> PlayAudioSlot::run(Engine& engine,
+                                                               const std::shared_ptr<Player>& /*player*/,
+                                                               const std::shared_ptr<Player>& /*levelStartPlayer*/)
+{
+  const gsl::not_null trackInfo{engine.getScriptEngine().getGameflow().getTracks().at(m_track)};
+  engine.getPresenter().getSoundEngine()->freeSlot(m_slot);
+  const auto stream = engine.getPresenter().getSoundEngine()->createStream(
+    engine.getAssetDataPath() / trackInfo->getFirstValidAlternative(engine.getAssetDataPath()),
+    std::chrono::milliseconds{0});
+  stream->setLooping(trackInfo->looping);
+  engine.getPresenter().getSoundEngine()->setSlotStream(
+    m_slot, stream, engine.getAssetDataPath() / trackInfo->getFirstValidAlternative(engine.getAssetDataPath()));
+  stream->play();
+  return {RunResult::NextLevel, std::nullopt};
+}
+
+std::pair<RunResult, std::optional<size_t>> StopAudioSlot::run(Engine& engine,
+                                                               const std::shared_ptr<Player>& /*player*/,
+                                                               const std::shared_ptr<Player>& /*levelStartPlayer*/)
+{
+  engine.getPresenter().getSoundEngine()->freeSlot(m_slot);
+  return {RunResult::NextLevel, std::nullopt};
+}
+
+std::pair<RunResult, std::optional<size_t>> ResetSoundEngine::run(Engine& engine,
+                                                                  const std::shared_ptr<Player>& /*player*/,
+                                                                  const std::shared_ptr<Player>& /*levelStartPlayer*/)
+{
+  engine.getPresenter().getSoundEngine()->reset();
+  return {RunResult::NextLevel, std::nullopt};
 }
 } // namespace engine::script

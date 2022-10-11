@@ -1,4 +1,5 @@
-from engine import TR1TrackId, TR1ItemId, Video, Cutscene, Level, TitleMenu, SplashScreen, WeaponType, ModifyInventory
+from engine import TR1TrackId, TR1ItemId, Video, Level, TitleMenu, SplashScreen, WeaponType, ModifyInventory, \
+    ResetSoundEngine
 
 
 def _fmv(basename: str):
@@ -88,6 +89,7 @@ level_sequence = [
         },
         track=TR1TrackId.Ambience2,
     ),
+    ResetSoundEngine(),
     *(
         SplashScreen(
             path=f"DATA/{name}.PCX",

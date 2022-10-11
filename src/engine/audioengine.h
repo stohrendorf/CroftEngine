@@ -58,8 +58,8 @@ public:
                        std::filesystem::path rootPath,
                        std::shared_ptr<audio::SoundEngine> soundEngine);
 
-  void init(const std::vector<loader::file::SoundEffectProperties>& soundEffectProperties,
-            const std::vector<int16_t>& soundEffects);
+  void initForWorld(const std::vector<loader::file::SoundEffectProperties>& soundEffectProperties,
+                    const std::vector<int16_t>& soundEffects);
 
   std::shared_ptr<audio::Voice> playSoundEffect(const core::SoundEffectId& id, audio::Emitter* emitter);
   std::shared_ptr<audio::Voice> playSoundEffect(const core::SoundEffectId& id, const glm::vec3& pos);

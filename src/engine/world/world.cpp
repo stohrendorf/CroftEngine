@@ -1311,7 +1311,7 @@ World::World(Engine& engine,
                                                  "sprite-" + std::to_string(i) + "-instanced");
   }
 
-  m_audioEngine->init(level->m_soundEffectProperties, level->m_soundEffects);
+  m_audioEngine->initForWorld(level->m_soundEffectProperties, level->m_soundEffects);
 
   BOOST_LOG_TRIVIAL(info) << "Loading samples...";
 
