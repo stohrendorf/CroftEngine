@@ -41,16 +41,10 @@ lara_home = [
         default_weapon=WeaponType.None_,
         item_titles={
             "en_GB": {
-                TR1ItemId.Key1: "Key",
-                TR1ItemId.Key2: "Key",
-                TR1ItemId.Key3: "Key",
-                TR1ItemId.Key4: "Key",
+                TR1ItemId.Key3: "Manor Key",
             },
             "de_DE": {
-                TR1ItemId.Key1: "Schl~ussel",
-                TR1ItemId.Key2: "Schl~ussel",
-                TR1ItemId.Key3: "Schl~ussel",
-                TR1ItemId.Key4: "Schl~ussel",
+                TR1ItemId.Key3: "Landsitz Schl~ussel",
             },
         },
     ),
@@ -79,11 +73,11 @@ level_sequence = [
         item_titles={
             "en_GB": {
                 TR1ItemId.Puzzle1: "Gold Idol",
-                TR1ItemId.Key1: "Silver Key",
+                TR1ItemId.Key1: "Skull Key",
             },
             "de_DE": {
                 TR1ItemId.Puzzle1: "Goldener G~otze",
-                TR1ItemId.Key1: "Silberner Schl~ussel",
+                TR1ItemId.Key1: "Sch~adelschl~ussel",
             },
         },
     ),
@@ -97,11 +91,9 @@ level_sequence = [
         item_titles={
             "en_GB": {
                 TR1ItemId.Puzzle1: "Machine Cog",
-                TR1ItemId.Key1: "Bone Key",
             },
             "de_DE": {
                 TR1ItemId.Puzzle1: "Zahnrad",
-                TR1ItemId.Key1: "Knochiger Schl~ussel",
             },
         },
     ),
@@ -155,11 +147,13 @@ level_sequence = [
         track=TR1TrackId.Ambience3,
         item_titles={
             "en_GB": {
-                TR1ItemId.Key1: "Rusty Key",
+                TR1ItemId.Key1: "Flow Machine Key",
+                TR1ItemId.Puzzle1: "Machine Cog",
                 TR1ItemId.ScionPiece5: "Scion",
             },
             "de_DE": {
-                TR1ItemId.Key1: "Rostiger Schl~ussel",
+                TR1ItemId.Key1: "Str~omungsmaschine Schl~ussel",
+                TR1ItemId.Puzzle1: "Zahnrad",
                 TR1ItemId.ScionPiece5: "Scion",
             },
         },
@@ -236,7 +230,7 @@ level_sequence = [
         track=TR1TrackId.Ambience3,
         item_titles={
             "en_GB": {
-                TR1ItemId.Key1: "Saphire Key",
+                TR1ItemId.Key1: "Sapphire Key",
                 TR1ItemId.ScionPiece5: "Scion",
             },
             "de_DE": {
@@ -258,7 +252,7 @@ level_sequence = [
                 TR1ItemId.Puzzle2: "Scarab",
                 TR1ItemId.Puzzle3: "Seal of Anubis",
                 TR1ItemId.Puzzle4: "Ankh",
-                TR1ItemId.Key1: "Saphire Key",
+                TR1ItemId.Key1: "Sapphire Key",
                 TR1ItemId.ScionPiece5: "Scion",
             },
             "de_DE": {
@@ -343,9 +337,11 @@ level_sequence = [
         track=TR1TrackId.Ambience4,
         item_titles={
             "en_GB": {
+                TR1ItemId.Puzzle2: "Pyramid Key",
                 TR1ItemId.ScionPiece5: "Scion",
             },
             "de_DE": {
+                TR1ItemId.Puzzle2: "Schl~ussel der Pyramide",
                 TR1ItemId.ScionPiece5: "Scion",
             },
         },
