@@ -15,13 +15,8 @@ class World;
 namespace ui
 {
 class Ui;
-}
-
-namespace ui::widgets
-{
-class GridBox;
-class GroupBox;
-} // namespace ui::widgets
+class DetailedLevelStats;
+} // namespace ui
 
 namespace menu
 {
@@ -31,8 +26,7 @@ class CompassMenuState : public SelectedMenuState
 {
 private:
   std::unique_ptr<MenuState> m_previous;
-  gslu::nn_shared<ui::widgets::GridBox> m_grid;
-  gslu::nn_shared<ui::widgets::GroupBox> m_container;
+  gslu::nn_shared<ui::DetailedLevelStats> m_stats;
 
 public:
   explicit CompassMenuState(const std::shared_ptr<MenuRingTransform>& ringTransform,

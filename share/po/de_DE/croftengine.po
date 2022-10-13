@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CroftEngine\n"
 "Report-Msgid-Bugs-To: https://github.com/stohrendorf/CroftEngine/issues\n"
-"POT-Creation-Date: 2022-10-01 14:09+0200\n"
+"POT-Creation-Date: 2022-10-13 06:06+0200\n"
 "Last-Translator: Steffen Ohrendorf\n"
 "Language-Team: none\n"
 "Language: de_DE\n"
@@ -60,13 +60,13 @@ msgid "%1% - %2%"
 msgstr "%1% - %2%"
 
 #. translators: TR charmap encoding
-#: menu/compassmenustate.cpp:137
+#: ui/detailedlevelstats.cpp:116
 #, boost-format
 msgid "%1% Hits"
 msgstr "%1% Treffer"
 
 #. translators: TR charmap encoding
-#: menu/compassmenustate.cpp:148
+#: ui/detailedlevelstats.cpp:127
 #, boost-format
 msgid "%1% Misses"
 msgstr "%1% Fehlsch~usse"
@@ -255,7 +255,7 @@ msgid "CRT Version \037l %1% \037m"
 msgstr "CRT Version \037l %1% \037m"
 
 #. translators: TR charmap encoding
-#: menu/compassmenustate.cpp:48
+#: ui/detailedlevelstats.cpp:27
 msgctxt "gamestats"
 msgid "CURRENT"
 msgstr "AKTUELL"
@@ -273,7 +273,7 @@ msgid "Cheat Dive"
 msgstr "Cheat Tauchen"
 
 #. translators: TR charmap encoding; in the sense of "cheats are used"
-#: menu/compassmenustate.cpp:172
+#: ui/detailedlevelstats.cpp:151
 msgid "Cheats Used"
 msgstr "Cheats benutzt"
 
@@ -627,7 +627,7 @@ msgid "Keyboard"
 msgstr "Tastatur"
 
 #. translators: TR charmap encoding
-#: menu/compassmenustate.cpp:78
+#: ui/detailedlevelstats.cpp:57
 msgid "Kills"
 msgstr "Besiegte Gegner"
 
@@ -649,7 +649,7 @@ msgid "Large Medi Pack"
 msgstr "Gro=es Medi-Pack"
 
 #. translators: TR charmap encoding
-#: menu/compassmenustate.cpp:100
+#: ui/detailedlevelstats.cpp:79
 msgid "Large Medi Packs"
 msgstr "Gro=e Medi-Packs"
 
@@ -693,12 +693,12 @@ msgstr "Spiel laden"
 msgid "Load Game"
 msgstr "Spiel laden"
 
-#: engine/script/reflection.cpp:74
+#: engine/script/reflection.cpp:76
 #, boost-format
 msgid "Loading %1%"
 msgstr "Lade %1%"
 
-#: engine/engine.cpp:684
+#: engine/engine.cpp:682
 msgid "Loading Glidos texture pack"
 msgstr "Lade Glidos Textur Paket"
 
@@ -739,7 +739,7 @@ msgid "Magnum Clips"
 msgstr "Magnum-Munition"
 
 #. translators: TR charmap encoding
-#: menu/compassmenustate.cpp:165 menu/menudisplay.cpp:386
+#: menu/menudisplay.cpp:386 ui/detailedlevelstats.cpp:144
 msgid "Magnums"
 msgstr "Magnums"
 
@@ -977,12 +977,12 @@ msgid "PgUp"
 msgstr "BildHoch"
 
 #. translators: TR charmap encoding
-#: menu/compassmenustate.cpp:56
+#: ui/detailedlevelstats.cpp:35
 msgid "Pickups"
 msgstr "Gegenst~ande"
 
 #. translators: TR charmap encoding
-#: menu/compassmenustate.cpp:163 menu/menudisplay.cpp:352
+#: menu/menudisplay.cpp:352 ui/detailedlevelstats.cpp:142
 msgid "Pistols"
 msgstr "Pistolen"
 
@@ -1118,7 +1118,7 @@ msgid "Save Game"
 msgstr "Spiel sichern"
 
 #. translators: TR charmap encoding
-#: engine/ghostmanager.cpp:61
+#: engine/ghostmanager.cpp:60
 msgid "Save recorded ghost?"
 msgstr "Aufgenommenen Geist speichern?"
 
@@ -1135,7 +1135,7 @@ msgid "ScrlLk"
 msgstr "Rollen"
 
 #. translators: TR charmap encoding
-#: menu/compassmenustate.cpp:67
+#: ui/detailedlevelstats.cpp:46
 msgid "Secrets"
 msgstr "Geheimnisse"
 
@@ -1151,7 +1151,7 @@ msgid "Shortcuts"
 msgstr "Schnellzugriff"
 
 #. translators: TR charmap encoding
-#: menu/compassmenustate.cpp:164 menu/menudisplay.cpp:363
+#: menu/menudisplay.cpp:363 ui/detailedlevelstats.cpp:143
 msgid "Shotgun"
 msgstr "Schrotflinte"
 
@@ -1166,7 +1166,7 @@ msgid "Small Medi Pack"
 msgstr "Kleines Medi-Pack"
 
 #. translators: TR charmap encoding
-#: menu/compassmenustate.cpp:89
+#: ui/detailedlevelstats.cpp:68
 msgid "Small Medi Packs"
 msgstr "Kleine Medi-Packs"
 
@@ -1229,7 +1229,7 @@ msgid "TIME TAKEN %1%"
 msgstr "Ben~otigte Zeit %1%"
 
 #. translators: TR charmap encoding
-#: menu/compassmenustate.cpp:52
+#: ui/detailedlevelstats.cpp:31
 msgctxt "gamestats"
 msgid "TOTAL"
 msgstr "GESAMT"
@@ -1241,7 +1241,7 @@ msgid "Tab"
 msgstr "Tab"
 
 #. translators: TR charmap encoding
-#: menu/compassmenustate.cpp:111
+#: ui/detailedlevelstats.cpp:90
 msgid "Time Taken"
 msgstr "Ben~otigte Zeit"
 
@@ -1299,7 +1299,7 @@ msgid "Uzi Clips"
 msgstr "Uzi-Munition"
 
 #. translators: TR charmap encoding
-#: menu/compassmenustate.cpp:166 menu/menudisplay.cpp:409
+#: menu/menudisplay.cpp:409 ui/detailedlevelstats.cpp:145
 msgid "Uzis"
 msgstr "Uzis"
 

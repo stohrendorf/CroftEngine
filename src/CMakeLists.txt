@@ -573,10 +573,12 @@ set( CROFTENGINE_SRCS
         render/scene/visitor.h
         render/scene/visitor.cpp
 
-        ui/text.h
-        ui/text.cpp
+        ui/detailedlevelstats.h
+        ui/detailedlevelstats.cpp
         ui/levelstats.h
         ui/levelstats.cpp
+        ui/text.h
+        ui/text.cpp
         ui/ui.h
         ui/ui.cpp
 
