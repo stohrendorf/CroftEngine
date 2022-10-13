@@ -35,7 +35,7 @@ std::unique_ptr<MenuState> CompassMenuState::onFrame(ui::Ui& ui, engine::world::
     return std::move(m_previous);
   }
 
-  m_stats->draw(ui, world.getPresenter());
+  m_stats->draw(ui, world.getPresenter(), true);
 
   return nullptr;
 }

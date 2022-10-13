@@ -159,14 +159,21 @@ DetailedLevelStats::DetailedLevelStats(const engine::world::World& world)
 
 DetailedLevelStats::~DetailedLevelStats() = default;
 
-void DetailedLevelStats::draw(Ui& ui, const engine::Presenter& presenter) const
+void DetailedLevelStats::draw(Ui& ui, const engine::Presenter& presenter, bool compass) const
 {
   m_grid->fitToContent();
   m_container->fitToContent();
   m_grid->update(false);
 
-  m_container->setPosition(
-    {(ui.getSize().x - m_container->getSize().x) / 2, ui.getSize().y - m_container->getSize().y - 90});
+  if(compass)
+  {
+    m_container->setPosition(
+      {(ui.getSize().x - m_container->getSize().x) / 2, ui.getSize().y - m_container->getSize().y - 90});
+  }
+  else
+  {
+    m_container->setPosition((ui.getSize() - m_container->getSize()) / 2);
+  }
   m_container->draw(ui, presenter);
 }
 } // namespace ui

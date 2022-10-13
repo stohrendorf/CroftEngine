@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CroftEngine 1.11\n"
 "Report-Msgid-Bugs-To: https://github.com/stohrendorf/CroftEngine/issues\n"
-"POT-Creation-Date: 2022-10-13 06:06+0200\n"
+"POT-Creation-Date: 2022-10-13 06:28+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -230,7 +230,7 @@ msgid "Bug Report"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: engine/engine.cpp:134
+#: engine/engine.cpp:135
 msgid "Bug Report Saved"
 msgstr ""
 
@@ -614,7 +614,7 @@ msgid "K"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: ui/levelstats.cpp:45
+#: ui/levelstats.cpp:29
 #, boost-format
 msgid "KILLS %1%"
 msgstr ""
@@ -696,7 +696,7 @@ msgstr ""
 msgid "Loading %1%"
 msgstr ""
 
-#: engine/engine.cpp:682
+#: engine/engine.cpp:693
 msgid "Loading Glidos texture pack"
 msgstr ""
 
@@ -836,7 +836,7 @@ msgid "P"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: ui/levelstats.cpp:40
+#: ui/levelstats.cpp:34
 #, boost-format
 msgid "PICKUPS %1%"
 msgstr ""
@@ -1099,7 +1099,7 @@ msgid "S"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: ui/levelstats.cpp:35
+#: ui/levelstats.cpp:39
 #, boost-format
 msgid "SECRETS %1% of %2%"
 msgstr ""
@@ -1221,7 +1221,7 @@ msgid "T"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: ui/levelstats.cpp:29
+#: ui/levelstats.cpp:44
 #, boost-format
 msgid "TIME TAKEN %1%"
 msgstr ""
@@ -1289,6 +1289,12 @@ msgstr ""
 #: menu/controlsmenustate.cpp:189
 #, boost-format
 msgid "Use %1% and %2% to edit other profiles."
+msgstr ""
+
+#. translators: TR charmap encoding
+#: ui/levelstats.cpp:51
+#, boost-format
+msgid "Use %1% to show detailed stats."
 msgstr ""
 
 #. translators: TR charmap encoding

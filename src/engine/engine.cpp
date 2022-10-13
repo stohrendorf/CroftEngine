@@ -38,6 +38,7 @@
 #include "serialization/yamldocument.h"
 #include "throttler.h"
 #include "ui/core.h"
+#include "ui/detailedlevelstats.h"
 #include "ui/levelstats.h"
 #include "ui/text.h"
 #include "ui/ui.h"
@@ -141,6 +142,10 @@ bool showLevelStats(const std::shared_ptr<Presenter>& presenter, world::World& w
   static constexpr const auto BlendDuration = 30_frame;
   auto currentBlendDuration = 0_frame;
 
+  ui::LevelStats stats{world.getTitle(), world.getTotalSecrets(), world.getPlayerPtr(), presenter};
+  ui::DetailedLevelStats detailedStats{world};
+  bool detailed = false;
+
   Throttler throttler;
   while(true)
   {
@@ -155,9 +160,15 @@ bool showLevelStats(const std::shared_ptr<Presenter>& presenter, world::World& w
       continue;
     }
 
+    if(presenter->getInputHandler().hasDebouncedAction(hid::Action::Holster))
+      detailed = !detailed;
+
     ui::Ui ui{presenter->getMaterialManager()->getUi(), world.getPalette(), presenter->getUiViewport()};
-    ui::LevelStats stats{world.getTitle(), world.getTotalSecrets(), world.getPlayerPtr(), presenter};
-    stats.draw(ui);
+    ui.drawBox({0, 0}, ui.getSize(), gl::SRGBA8{0, 0, 0, 224});
+    if(detailed)
+      detailedStats.draw(ui, *presenter, false);
+    else
+      stats.draw(ui);
 
     {
       const auto portals = world.getCameraController().update();

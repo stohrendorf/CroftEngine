@@ -27,7 +27,7 @@ class DetailedLevelStats final
 public:
   explicit DetailedLevelStats(const engine::world::World& world);
   ~DetailedLevelStats();
-  void draw(Ui& ui, const engine::Presenter& presenter) const;
+  void draw(Ui& ui, const engine::Presenter& presenter, bool compass) const;
 
 private:
   gslu::nn_shared<widgets::GridBox> m_grid;
