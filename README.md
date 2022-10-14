@@ -102,6 +102,16 @@ Audron [here](https://drive.google.com/file/d/1iRz4Svdi_dhmlDNFYeZqyP-wfApWhDoN/
    small medi packs by pressing 5, and large ones by pressing 6. Quicksaves and loading them can be done using F5 and
    F6. You can take screenshots by pressing F12. The menu can be opened using Esc, and videos can be skipped using Esc.
 
+## Additional Cheats
+
+Additionally to the standard cheats (step forward, step backwards, rotate slightly more than 1.5 rotations, and jump
+forward/backward), there are two additional cheats.
+
+1. If the final move is a left jump, you will get 5 small and 5 large medi packs. The successful application of this
+   cheat will be confirmed with Lara sighing.
+2. If the final move is a right jump, every enemy's health in the level will be halved. The successful application of
+   this cheat will be confirmed with a shotgun shooting sound.
+
 ## Credits
 
 The following people deserve some noteworthy credit.
