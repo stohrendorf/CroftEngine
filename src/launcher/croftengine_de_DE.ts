@@ -108,6 +108,11 @@
         <translation>Datenorder nicht gefunden</translation>
     </message>
     <message>
+        <location filename="mainwindow.cpp" line="194"/>
+        <source>It seems you&apos;re running CroftEngine for the first time. Please select where you want to store your game data.</source>
+        <translation>Es scheint, als würden Sie CroftEngine zum ersten mal ausführen. Bitte wählen Sie, wo die Spieldaten gespeichert werden sollen.</translation>
+    </message>
+    <message>
         <location filename="mainwindow.cpp" line="196"/>
         <source>Portable</source>
         <translation>Portabel</translation>
@@ -198,8 +203,9 @@
         <translation>Entscheiden Sie, ob existierende Geister, Spielstände, etc. beibehalten werden sollen. Wenn Sie sich für ein Überschreiben entscheiden, gehen die Daten verloren.</translation>
     </message>
     <message>
+        <location filename="mainwindow.cpp" line="699"/>
         <source>Please select what type of texture pack you want to activate. If your texture pack contains a equiv.txt file, use the first option. If your texture pack contains a series of folders which are made of 32 numbers and letters, use the second one.</source>
-        <translation type="obsolete">Bitte wählen Sie, welchen Typ von Textur Paket Sie aktivieren möchten. Wenn das Textur Paket eine equiv.txt Datei enthält, wählen Sie die erste Option. Wenn Ihr Textur Paket eine Reihe von Ordnern enthält, bestehend aus 32 Zahlen und Buchstaben, wählen Sie die zweite Option.</translation>
+        <translation>Bitte wählen Sie, welchen Typ von Textur Paket Sie aktivieren möchten. Wenn das Textur Paket eine equiv.txt Datei enthält, wählen Sie die erste Option. Wenn Ihr Textur Paket eine Reihe von Ordnern enthält, bestehend aus 32 Zahlen und Buchstaben, wählen Sie die zweite Option.</translation>
     </message>
     <message>
         <location filename="mainwindow.cpp" line="517"/>
@@ -371,9 +377,6 @@
         <source>By %1</source>
         <translation>Von %1</translation>
     </message>
-</context>
-<context>
-    <name>setup::DownloadProgress</name>
 </context>
 <context>
     <name>setup::MainWindow</name>
