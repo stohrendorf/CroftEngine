@@ -27,12 +27,13 @@ namespace render::pass
 {
 class PortalPass;
 class GeometryPass;
+template<uint8_t NSteps, typename TPixel>
+class BloomPass;
 
 class WorldCompositionPass
 {
 public:
-  explicit WorldCompositionPass(gsl::not_null<const RenderPipeline*> renderPipeline,
-                                scene::MaterialManager& materialManager,
+  explicit WorldCompositionPass(scene::MaterialManager& materialManager,
                                 const RenderSettings& renderSettings,
                                 const glm::ivec2& viewport,
                                 const GeometryPass& geometryPass,
@@ -65,10 +66,9 @@ private:
   gslu::nn_shared<gl::TextureHandle<gl::Texture2D<gl::SRGB8>>> m_bloomedBufferHandle;
   gslu::nn_shared<gl::Framebuffer> m_fb;
 
-  EffectPass<gl::SRGB8> m_bloomFilter;
+  std::shared_ptr<BloomPass<5, gl::SRGB8>> m_bloomPass;
+
   gslu::nn_shared<gl::Framebuffer> m_fbBloom;
-  render::scene::SeparableBlur<gl::SRGB8> m_bloomBlur1;
-  render::scene::SeparableBlur<gl::SRGB8> m_bloomBlur2;
   const bool m_bloom;
 };
 } // namespace render::pass

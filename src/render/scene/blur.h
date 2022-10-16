@@ -94,10 +94,16 @@ public:
   {
   }
 
-  explicit SeparableBlur(
-    const std::string& name, MaterialManager& materialManager, uint8_t extent, bool gauss, int downscale = 1)
+  explicit SeparableBlur(const std::string& name,
+                         MaterialManager& materialManager,
+                         uint8_t extent,
+                         bool gauss,
+                         int downscale = 1,
+                         const std::shared_ptr<TextureHandle>& src = nullptr)
       : SeparableBlur{name, materialManager, extent, extent, gauss, downscale}
   {
+    if(src != nullptr)
+      setInput(gsl::not_null{src});
   }
 
   void setInput(const gslu::nn_shared<TextureHandle>& src)

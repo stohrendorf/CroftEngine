@@ -173,11 +173,6 @@ public:
     return get("flat.vert", "fx_bloom.frag");
   }
 
-  [[nodiscard]] auto getBloomFilter()
-  {
-    return get("flat.vert", "fx_bloom_filter.frag");
-  }
-
   [[nodiscard]] auto getFastGaussBlur(const uint8_t extent, uint8_t blurDim)
   {
     Expects(extent > 0);
@@ -191,9 +186,19 @@ public:
   {
     Expects(extent > 0);
     Expects(blurDim > 0);
-    Expects(blurDim < 3);
+    Expects(blurDim <= 3);
     std::vector<std::string> defines{"BLUR_DIM " + std::to_string(blurDim)};
     return get("flat.vert", "blur_fast_box_" + std::to_string(extent * 2 + 1) + ".frag", defines);
+  }
+
+  [[nodiscard]] auto getBloomDownsample()
+  {
+    return get("flat.vert", "bloom_downsample.frag");
+  }
+
+  [[nodiscard]] auto getBloomUpsample()
+  {
+    return get("flat.vert", "bloom_upsample.frag");
   }
 
   [[nodiscard]] auto getVSMSquare()

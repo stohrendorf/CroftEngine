@@ -58,7 +58,6 @@ public:
   [[nodiscard]] gslu::nn_shared<Material> getUnderwaterMovement();
   [[nodiscard]] gslu::nn_shared<Material> getReflective();
   [[nodiscard]] gslu::nn_shared<Material> getBloom();
-  [[nodiscard]] gslu::nn_shared<Material> getBloomFilter();
 
   [[nodiscard]] gslu::nn_shared<Material> getFlat(bool withAlpha, bool invertY = false, bool withAspectRatio = false);
   [[nodiscard]] gslu::nn_shared<Material> getBackdrop(bool withAlphaMultiplier);
@@ -68,6 +67,8 @@ public:
   [[nodiscard]] gslu::nn_shared<Material> getVSMSquare();
   [[nodiscard]] gslu::nn_shared<Material> getFastGaussBlur(uint8_t extent, uint8_t blurDir, uint8_t blurDim);
   [[nodiscard]] gslu::nn_shared<Material> getFastBoxBlur(uint8_t extent, uint8_t blurDir, uint8_t blurDim);
+  [[nodiscard]] gslu::nn_shared<Material> getBloomDownsample();
+  [[nodiscard]] gslu::nn_shared<Material> getBloomUpsample();
 
   void setGeometryTextures(
     std::shared_ptr<gl::TextureHandle<gl::Texture2DArray<gl::PremultipliedSRGBA8>>> geometryTextures);
@@ -96,7 +97,6 @@ private:
   std::shared_ptr<Material> m_underwaterMovement{nullptr};
   std::shared_ptr<Material> m_reflective{nullptr};
   std::shared_ptr<Material> m_bloom{nullptr};
-  std::shared_ptr<Material> m_bloomFilter{nullptr};
 
   std::map<SpriteMaterialMode, gslu::nn_shared<Material>> m_sprite{};
   std::shared_ptr<Material> m_ghost{nullptr};
@@ -107,6 +107,8 @@ private:
   std::map<std::tuple<bool, bool, bool>, gslu::nn_shared<Material>> m_flat{};
   std::map<std::tuple<uint8_t, uint8_t, uint8_t>, gslu::nn_shared<Material>> m_fastGaussBlur{};
   std::map<std::tuple<uint8_t, uint8_t, uint8_t>, gslu::nn_shared<Material>> m_fastBoxBlur{};
+  std::shared_ptr<Material> m_bloomDownsample{};
+  std::shared_ptr<Material> m_bloomUpsample{};
   std::map<bool, gslu::nn_shared<Material>> m_backdrop{};
   std::shared_ptr<Material> m_hbao{nullptr};
   std::shared_ptr<Material> m_edgeDetection{nullptr};

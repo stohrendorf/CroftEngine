@@ -1,5 +1,6 @@
 #include "worldcompositionpass.h"
 
+#include "bloompass.h"
 #include "config.h"
 #include "geometrypass.h"
 #include "portalpass.h"
@@ -36,8 +37,7 @@ class Node;
 
 namespace render::pass
 {
-WorldCompositionPass::WorldCompositionPass(gsl::not_null<const RenderPipeline*> renderPipeline,
-                                           scene::MaterialManager& materialManager,
+WorldCompositionPass::WorldCompositionPass(scene::MaterialManager& materialManager,
                                            const RenderSettings& renderSettings,
                                            const glm::ivec2& viewport,
                                            const GeometryPass& geometryPass,
@@ -65,12 +65,10 @@ WorldCompositionPass::WorldCompositionPass(gsl::not_null<const RenderPipeline*> 
              .textureNoBlend(gl::api::FramebufferAttachment::ColorAttachment0, m_colorBuffer)
              .textureNoBlend(gl::api::FramebufferAttachment::DepthAttachment, geometryPass.getDepthBuffer())
              .build("composition-fb")}
-    , m_bloomFilter{std::move(renderPipeline), "bloomfilter", materialManager.getBloomFilter(), m_colorBufferHandle}
+    , m_bloomPass{std::make_shared<BloomPass<5, gl::SRGB8>>(materialManager, m_colorBufferHandle)}
     , m_fbBloom{gl::FrameBufferBuilder()
                   .textureNoBlend(gl::api::FramebufferAttachment::ColorAttachment0, m_bloomedBuffer)
                   .build("composition-fb-bloom")}
-    , m_bloomBlur1{"bloom-1", materialManager, 4, true, 2}
-    , m_bloomBlur2{"bloom-2", materialManager, 4, true, 1}
     , m_bloom{renderSettings.bloom}
 {
   m_noWaterMesh->bind("u_portalPosition",
@@ -148,8 +146,6 @@ WorldCompositionPass::WorldCompositionPass(gsl::not_null<const RenderPipeline*> 
 
   m_inWaterMesh->getRenderState().merge(m_fb->getRenderState());
 
-  m_bloomBlur1.setInput(m_bloomFilter.getOutput());
-  m_bloomBlur2.setInput(m_bloomBlur1.getBlurredTexture());
   m_bloomMesh->bind(
     "u_input",
     [this](const render::scene::Node* /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
@@ -160,7 +156,7 @@ WorldCompositionPass::WorldCompositionPass(gsl::not_null<const RenderPipeline*> 
     "u_bloom",
     [this](const render::scene::Node* /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
     {
-      uniform.set(m_bloomBlur2.getBlurredTexture());
+      uniform.set(m_bloomPass->getOutput());
     });
   m_bloomMesh->getRenderState().merge(m_fbBloom->getRenderState());
 }
@@ -186,9 +182,7 @@ void WorldCompositionPass::render(bool inWater)
 
   if(m_bloom)
   {
-    m_bloomFilter.render(false);
-    m_bloomBlur1.render();
-    m_bloomBlur2.render();
+    m_bloomPass->render();
     m_fbBloom->bind();
     m_bloomMesh->render(nullptr, context);
   }

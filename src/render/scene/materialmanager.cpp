@@ -444,17 +444,6 @@ gslu::nn_shared<Material> MaterialManager::getBloom()
   return m;
 }
 
-gslu::nn_shared<Material> MaterialManager::getBloomFilter()
-{
-  if(m_bloomFilter != nullptr)
-    return gsl::not_null{m_bloomFilter};
-
-  auto m = gsl::make_shared<Material>(m_shaderCache->getBloomFilter());
-  configureForScreenSpaceEffect(*m, false);
-  m_bloomFilter = m;
-  return m;
-}
-
 gslu::nn_shared<Material> MaterialManager::getHBAO()
 {
   if(m_hbao != nullptr)
@@ -551,6 +540,28 @@ gslu::nn_shared<Material> MaterialManager::getFastBoxBlur(uint8_t extent, uint8_
   configureForScreenSpaceEffect(*m, false);
   m->getUniform("u_blurDir")->set(int(blurDir));
   m_fastBoxBlur.emplace(key, m);
+  return m;
+}
+
+gslu::nn_shared<Material> MaterialManager::getBloomDownsample()
+{
+  if(m_bloomDownsample != nullptr)
+    return gsl::not_null{m_bloomDownsample};
+
+  auto m = gsl::make_shared<Material>(m_shaderCache->getBloomDownsample());
+  configureForScreenSpaceEffect(*m, false);
+  m_bloomDownsample = m;
+  return m;
+}
+
+gslu::nn_shared<Material> MaterialManager::getBloomUpsample()
+{
+  if(m_bloomUpsample != nullptr)
+    return gsl::not_null{m_bloomUpsample};
+
+  auto m = gsl::make_shared<Material>(m_shaderCache->getBloomUpsample());
+  configureForScreenSpaceEffect(*m, false);
+  m_bloomUpsample = m;
   return m;
 }
 
