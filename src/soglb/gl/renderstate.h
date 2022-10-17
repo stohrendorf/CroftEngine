@@ -47,9 +47,9 @@ public:
     m_cullFaceEnabled = enabled;
   }
 
-  void setCullFaceSide(const api::CullFaceMode side)
+  void setCullFaceSide(const api::TriangleFace face)
   {
-    m_cullFaceSide = side;
+    m_cullFaceSide = face;
   }
 
   void setFrontFace(const api::FrontFaceDirection winding)
@@ -149,7 +149,7 @@ private:
     std::optional<std::tuple<api::BlendingFactor, api::BlendingFactor, api::BlendingFactor, api::BlendingFactor>>,
     IndexedCaps>
     m_blendFactors{};
-  std::optional<api::CullFaceMode> m_cullFaceSide{};
+  std::optional<api::TriangleFace> m_cullFaceSide{};
   std::optional<api::FrontFaceDirection> m_frontFace{};
   std::optional<float> m_lineWidth{};
   std::optional<bool> m_lineSmooth{};

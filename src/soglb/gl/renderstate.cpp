@@ -223,7 +223,7 @@ RenderState RenderState::getDefaults()
       defaults.setBlend(i, false);
     for(uint32_t i = 0; i < IndexedCaps; ++i)
       defaults.setBlendFactors(i, api::BlendingFactor::SrcAlpha, api::BlendingFactor::OneMinusSrcAlpha);
-    defaults.setCullFaceSide(api::CullFaceMode::Back);
+    defaults.setCullFaceSide(api::TriangleFace::Back);
     defaults.setFrontFace(api::FrontFaceDirection::Cw);
     defaults.setLineWidth(1.0f);
     defaults.setLineSmooth(true);

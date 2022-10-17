@@ -84,7 +84,7 @@ gslu::nn_shared<Material> MaterialManager::getCSMDepthOnly(bool skeletal, std::f
   m->getRenderState().setDepthTest(true);
   m->getRenderState().setDepthWrite(true);
   m->getRenderState().setDepthClamp(true);
-  m->getRenderState().setCullFaceSide(gl::api::CullFaceMode::Front);
+  m->getRenderState().setCullFaceSide(gl::api::TriangleFace::Front);
   if(auto buffer = m->tryGetBuffer("BoneTransform"))
     buffer->bindBoneTransformBuffer(smooth);
 

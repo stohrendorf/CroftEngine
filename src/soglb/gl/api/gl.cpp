@@ -36,7 +36,7 @@ void colorMask(bool red, bool green, bool blue, bool alpha)
                      static_cast<GLboolean>(blue),
                      static_cast<GLboolean>(alpha));
 }
-void cullFace(CullFaceMode mode)
+void cullFace(TriangleFace mode)
 {
   return glCullFace(static_cast<GLenum>(mode));
 }
@@ -230,7 +230,7 @@ void pointSize(float size)
 {
   return glPointSize(static_cast<GLfloat>(size));
 }
-void polygonMode(MaterialFace face, PolygonMode mode)
+void polygonMode(TriangleFace face, PolygonMode mode)
 {
   return glPolygonMode(static_cast<GLenum>(face), static_cast<GLenum>(mode));
 }
@@ -560,7 +560,7 @@ void color4(const uint16_t* v)
 {
   return glColor4usv(detail::constAway(reinterpret_cast<const GLushort*>(v)));
 }
-void colorMaterial(MaterialFace face, ColorMaterialParameter mode)
+void colorMaterial(TriangleFace face, ColorMaterialParameter mode)
 {
   return glColorMaterial(static_cast<GLenum>(face), static_cast<GLenum>(mode));
 }
@@ -715,12 +715,12 @@ void getMap(MapTarget target, GetMapQuery query, int32_t* v)
   return glGetMapiv(
     static_cast<GLenum>(target), static_cast<GLenum>(query), detail::constAway(reinterpret_cast<GLint*>(v)));
 }
-void getMaterial(MaterialFace face, MaterialParameter pname, float* params)
+void getMaterial(TriangleFace face, MaterialParameter pname, float* params)
 {
   return glGetMaterialfv(
     static_cast<GLenum>(face), static_cast<GLenum>(pname), detail::constAway(reinterpret_cast<GLfloat*>(params)));
 }
-void getMaterial(MaterialFace face, MaterialParameter pname, int32_t* params)
+void getMaterial(TriangleFace face, MaterialParameter pname, int32_t* params)
 {
   return glGetMaterialiv(
     static_cast<GLenum>(face), static_cast<GLenum>(pname), detail::constAway(reinterpret_cast<GLint*>(params)));
@@ -957,20 +957,20 @@ void mapGrid2(int32_t un, float u1, float u2, int32_t vn, float v1, float v2)
                      static_cast<GLfloat>(v1),
                      static_cast<GLfloat>(v2));
 }
-void material(MaterialFace face, MaterialParameter pname, float param)
+void material(TriangleFace face, MaterialParameter pname, float param)
 {
   return glMaterialf(static_cast<GLenum>(face), static_cast<GLenum>(pname), static_cast<GLfloat>(param));
 }
-void material(MaterialFace face, MaterialParameter pname, const float* params)
+void material(TriangleFace face, MaterialParameter pname, const float* params)
 {
   return glMaterialfv(
     static_cast<GLenum>(face), static_cast<GLenum>(pname), detail::constAway(reinterpret_cast<const GLfloat*>(params)));
 }
-void material(MaterialFace face, MaterialParameter pname, int32_t param)
+void material(TriangleFace face, MaterialParameter pname, int32_t param)
 {
   return glMateriali(static_cast<GLenum>(face), static_cast<GLenum>(pname), static_cast<GLint>(param));
 }
-void material(MaterialFace face, MaterialParameter pname, const int32_t* params)
+void material(TriangleFace face, MaterialParameter pname, const int32_t* params)
 {
   return glMaterialiv(
     static_cast<GLenum>(face), static_cast<GLenum>(pname), detail::constAway(reinterpret_cast<const GLint*>(params)));
@@ -2696,16 +2696,16 @@ void shaderSource(uint32_t shader, core::SizeType count, const char* const* stri
                         detail::constAway(reinterpret_cast<const GLchar* const*>(string)),
                         detail::constAway(reinterpret_cast<const GLint*>(length)));
 }
-void stencilFuncSeparate(StencilFaceDirection face, StencilFunction func, int32_t ref, uint32_t mask)
+void stencilFuncSeparate(TriangleFace face, StencilFunction func, int32_t ref, uint32_t mask)
 {
   return glStencilFuncSeparate(
     static_cast<GLenum>(face), static_cast<GLenum>(func), static_cast<GLint>(ref), static_cast<GLuint>(mask));
 }
-void stencilMaskSeparate(StencilFaceDirection face, uint32_t mask)
+void stencilMaskSeparate(TriangleFace face, uint32_t mask)
 {
   return glStencilMaskSeparate(static_cast<GLenum>(face), static_cast<GLuint>(mask));
 }
-void stencilOpSeparate(StencilFaceDirection face, StencilOp sfail, StencilOp dpfail, StencilOp dppass)
+void stencilOpSeparate(TriangleFace face, StencilOp sfail, StencilOp dpfail, StencilOp dppass)
 {
   return glStencilOpSeparate(
     static_cast<GLenum>(face), static_cast<GLenum>(sfail), static_cast<GLenum>(dpfail), static_cast<GLenum>(dppass));

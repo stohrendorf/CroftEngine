@@ -770,23 +770,6 @@ enum class BufferUsage : core::EnumType
 };
 #endif
 
-#if defined(API_LEVEL_GL_VERSION_3_0) || defined(API_LEVEL_GL_VERSION_3_1) || defined(API_LEVEL_GL_VERSION_3_2_core) \
-  || defined(API_LEVEL_GL_VERSION_3_3_compatibility) || defined(API_LEVEL_GL_VERSION_3_3_core)                       \
-  || defined(API_LEVEL_GL_VERSION_4_0_compatibility) || defined(API_LEVEL_GL_VERSION_4_0_core)                       \
-  || defined(API_LEVEL_GL_VERSION_4_1_compatibility) || defined(API_LEVEL_GL_VERSION_4_1_core)                       \
-  || defined(API_LEVEL_GL_VERSION_4_2_compatibility) || defined(API_LEVEL_GL_VERSION_4_2_core)                       \
-  || defined(API_LEVEL_GL_VERSION_4_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_3_core)                       \
-  || defined(API_LEVEL_GL_VERSION_4_4_compatibility) || defined(API_LEVEL_GL_VERSION_4_4_core)                       \
-  || defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_5_core)                       \
-  || defined(API_LEVEL_GL_VERSION_4_6_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_core)
-enum class CheckFramebufferStatusTarget : core::EnumType
-{
-  DrawFramebuffer = 0x8CA9,
-  Framebuffer = 0x8D40,
-  ReadFramebuffer = 0x8CA8,
-};
-#endif
-
 enum class ClampColorMode : core::EnumType
 {
   False = 0,
@@ -976,13 +959,6 @@ enum class ColorBuffer : core::EnumType
   ColorAttachment8 = 0x8CE8,
   ColorAttachment9 = 0x8CE9,
 #endif
-};
-
-enum class ColorMaterialFace : core::EnumType
-{
-  Back = 0x0405,
-  Front = 0x0404,
-  FrontAndBack = 0x0408,
 };
 
 #if defined(API_LEVEL_GL_VERSION_1_0) || defined(API_LEVEL_GL_VERSION_1_1) || defined(API_LEVEL_GL_VERSION_1_2)  \
@@ -1309,13 +1285,6 @@ enum class CopyImageSubDataTarget : core::EnumType
   || defined(API_LEVEL_GL_VERSION_4_6_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_core)
   TextureCubeMapArray = 0x9009,
 #endif
-};
-
-enum class CullFaceMode : core::EnumType
-{
-  Back = 0x0405,
-  Front = 0x0404,
-  FrontAndBack = 0x0408,
 };
 
 enum class DebugSeverity : core::EnumType
@@ -1897,6 +1866,98 @@ enum class FragmentLightParameterSGIX : core::EnumType
 };
 #endif
 
+enum class FragmentShaderDestMaskATI : core::EnumType
+{
+  None = 0,
+};
+constexpr core::Bitfield<FragmentShaderDestMaskATI> operator|(FragmentShaderDestMaskATI left,
+                                                              FragmentShaderDestMaskATI right)
+{
+  return core::Bitfield<FragmentShaderDestMaskATI>(left) | right;
+}
+
+enum class FragmentShaderDestModMaskATI : core::EnumType
+{
+  None = 0,
+};
+constexpr core::Bitfield<FragmentShaderDestModMaskATI> operator|(FragmentShaderDestModMaskATI left,
+                                                                 FragmentShaderDestModMaskATI right)
+{
+  return core::Bitfield<FragmentShaderDestModMaskATI>(left) | right;
+}
+
+enum class FragmentShaderGenericSourceATI : core::EnumType
+{
+  One = 1,
+  Zero = 0,
+#if defined(API_LEVEL_GL_VERSION_1_3) || defined(API_LEVEL_GL_VERSION_1_4) || defined(API_LEVEL_GL_VERSION_1_5)  \
+  || defined(API_LEVEL_GL_VERSION_2_0) || defined(API_LEVEL_GL_VERSION_2_1) || defined(API_LEVEL_GL_VERSION_3_0) \
+  || defined(API_LEVEL_GL_VERSION_3_1) || defined(API_LEVEL_GL_VERSION_3_3_compatibility)                        \
+  || defined(API_LEVEL_GL_VERSION_4_0_compatibility) || defined(API_LEVEL_GL_VERSION_4_1_compatibility)          \
+  || defined(API_LEVEL_GL_VERSION_4_2_compatibility) || defined(API_LEVEL_GL_VERSION_4_3_compatibility)          \
+  || defined(API_LEVEL_GL_VERSION_4_4_compatibility) || defined(API_LEVEL_GL_VERSION_4_5_compatibility)          \
+  || defined(API_LEVEL_GL_VERSION_4_6_compatibility)
+  PrimaryColor = 0x8577,
+#endif
+};
+
+#if defined(API_LEVEL_GL_VERSION_1_3) || defined(API_LEVEL_GL_VERSION_1_4) || defined(API_LEVEL_GL_VERSION_1_5)  \
+  || defined(API_LEVEL_GL_VERSION_2_0) || defined(API_LEVEL_GL_VERSION_2_1) || defined(API_LEVEL_GL_VERSION_3_0) \
+  || defined(API_LEVEL_GL_VERSION_3_1) || defined(API_LEVEL_GL_VERSION_3_2_core)                                 \
+  || defined(API_LEVEL_GL_VERSION_3_3_compatibility) || defined(API_LEVEL_GL_VERSION_3_3_core)                   \
+  || defined(API_LEVEL_GL_VERSION_4_0_compatibility) || defined(API_LEVEL_GL_VERSION_4_0_core)                   \
+  || defined(API_LEVEL_GL_VERSION_4_1_compatibility) || defined(API_LEVEL_GL_VERSION_4_1_core)                   \
+  || defined(API_LEVEL_GL_VERSION_4_2_compatibility) || defined(API_LEVEL_GL_VERSION_4_2_core)                   \
+  || defined(API_LEVEL_GL_VERSION_4_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_3_core)                   \
+  || defined(API_LEVEL_GL_VERSION_4_4_compatibility) || defined(API_LEVEL_GL_VERSION_4_4_core)                   \
+  || defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_5_core)                   \
+  || defined(API_LEVEL_GL_VERSION_4_6_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_core)
+enum class FragmentShaderTextureSourceATI : core::EnumType
+{
+  Texture0 = 0x84C0,
+  Texture1 = 0x84C1,
+  Texture10 = 0x84CA,
+  Texture11 = 0x84CB,
+  Texture12 = 0x84CC,
+  Texture13 = 0x84CD,
+  Texture14 = 0x84CE,
+  Texture15 = 0x84CF,
+  Texture16 = 0x84D0,
+  Texture17 = 0x84D1,
+  Texture18 = 0x84D2,
+  Texture19 = 0x84D3,
+  Texture2 = 0x84C2,
+  Texture20 = 0x84D4,
+  Texture21 = 0x84D5,
+  Texture22 = 0x84D6,
+  Texture23 = 0x84D7,
+  Texture24 = 0x84D8,
+  Texture25 = 0x84D9,
+  Texture26 = 0x84DA,
+  Texture27 = 0x84DB,
+  Texture28 = 0x84DC,
+  Texture29 = 0x84DD,
+  Texture3 = 0x84C3,
+  Texture30 = 0x84DE,
+  Texture31 = 0x84DF,
+  Texture4 = 0x84C4,
+  Texture5 = 0x84C5,
+  Texture6 = 0x84C6,
+  Texture7 = 0x84C7,
+  Texture8 = 0x84C8,
+  Texture9 = 0x84C9,
+};
+#endif
+
+enum class FragmentShaderValueRepATI : core::EnumType
+{
+  Alpha = 0x1906,
+  Blue = 0x1905,
+  Green = 0x1904,
+  None = 0,
+  Red = 0x1903,
+};
+
 #if defined(API_LEVEL_GL_VERSION_3_0) || defined(API_LEVEL_GL_VERSION_3_1) || defined(API_LEVEL_GL_VERSION_3_2_core) \
   || defined(API_LEVEL_GL_VERSION_3_3_compatibility) || defined(API_LEVEL_GL_VERSION_3_3_core)                       \
   || defined(API_LEVEL_GL_VERSION_4_0_compatibility) || defined(API_LEVEL_GL_VERSION_4_0_core)                       \
@@ -2477,10 +2538,21 @@ enum class GetPName : core::EnumType
   BlendColor = 0x8005,
   BlendDstAlpha = 0x80CA,
   BlendDstRgb = 0x80C8,
+  BlendEquation = 0x8009,
   BlendSrcAlpha = 0x80CB,
   BlendSrcRgb = 0x80C9,
   MaxTextureLodBias = 0x84FD,
   PointFadeThresholdSize = 0x8128,
+#endif
+#if defined(API_LEVEL_GL_VERSION_1_4) || defined(API_LEVEL_GL_VERSION_1_5) || defined(API_LEVEL_GL_VERSION_2_0)  \
+  || defined(API_LEVEL_GL_VERSION_2_1) || defined(API_LEVEL_GL_VERSION_3_0) || defined(API_LEVEL_GL_VERSION_3_1) \
+  || defined(API_LEVEL_GL_VERSION_3_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_0_compatibility)          \
+  || defined(API_LEVEL_GL_VERSION_4_1_compatibility) || defined(API_LEVEL_GL_VERSION_4_2_compatibility)          \
+  || defined(API_LEVEL_GL_VERSION_4_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_4_compatibility)          \
+  || defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_compatibility)
+  PointDistanceAttenuation = 0x8129,
+  PointSizeMax = 0x8127,
+  PointSizeMin = 0x8126,
 #endif
 #if defined(API_LEVEL_GL_VERSION_1_5) || defined(API_LEVEL_GL_VERSION_2_0) || defined(API_LEVEL_GL_VERSION_2_1)       \
   || defined(API_LEVEL_GL_VERSION_3_0) || defined(API_LEVEL_GL_VERSION_3_1) || defined(API_LEVEL_GL_VERSION_3_2_core) \
@@ -2723,29 +2795,6 @@ enum class GetPName : core::EnumType
 #endif
 };
 
-#if defined(API_LEVEL_GL_VERSION_1_0) || defined(API_LEVEL_GL_VERSION_1_1) || defined(API_LEVEL_GL_VERSION_1_2)  \
-  || defined(API_LEVEL_GL_VERSION_1_3) || defined(API_LEVEL_GL_VERSION_1_4) || defined(API_LEVEL_GL_VERSION_1_5) \
-  || defined(API_LEVEL_GL_VERSION_2_0) || defined(API_LEVEL_GL_VERSION_2_1) || defined(API_LEVEL_GL_VERSION_3_0) \
-  || defined(API_LEVEL_GL_VERSION_3_1) || defined(API_LEVEL_GL_VERSION_3_3_compatibility)                        \
-  || defined(API_LEVEL_GL_VERSION_4_0_compatibility) || defined(API_LEVEL_GL_VERSION_4_1_compatibility)          \
-  || defined(API_LEVEL_GL_VERSION_4_2_compatibility) || defined(API_LEVEL_GL_VERSION_4_3_compatibility)          \
-  || defined(API_LEVEL_GL_VERSION_4_4_compatibility) || defined(API_LEVEL_GL_VERSION_4_5_compatibility)          \
-  || defined(API_LEVEL_GL_VERSION_4_6_compatibility)
-enum class GetPixelMap : core::EnumType
-{
-  PixelMapAToA = 0x0C79,
-  PixelMapBToB = 0x0C78,
-  PixelMapGToG = 0x0C77,
-  PixelMapIToA = 0x0C75,
-  PixelMapIToB = 0x0C74,
-  PixelMapIToG = 0x0C73,
-  PixelMapIToI = 0x0C70,
-  PixelMapIToR = 0x0C72,
-  PixelMapRToR = 0x0C76,
-  PixelMapSToS = 0x0C71,
-};
-#endif
-
 enum class GetPointervPName : core::EnumType
 {
 #if defined(API_LEVEL_GL_VERSION_1_1) || defined(API_LEVEL_GL_VERSION_1_2) || defined(API_LEVEL_GL_VERSION_1_3)  \
@@ -2823,194 +2872,15 @@ enum class GetTextureParameter : core::EnumType
   TexturePriority = 0x8066,
   TextureResident = 0x8067,
 #endif
-};
-
-enum class GlslTypeToken : core::EnumType
-{
-  Float = 0x1406,
-  Int = 0x1404,
-  UnsignedInt = 0x1405,
-#if defined(API_LEVEL_GL_VERSION_1_1) || defined(API_LEVEL_GL_VERSION_1_2) || defined(API_LEVEL_GL_VERSION_1_3)  \
-  || defined(API_LEVEL_GL_VERSION_1_4) || defined(API_LEVEL_GL_VERSION_1_5) || defined(API_LEVEL_GL_VERSION_2_0) \
-  || defined(API_LEVEL_GL_VERSION_2_1) || defined(API_LEVEL_GL_VERSION_3_0) || defined(API_LEVEL_GL_VERSION_3_1) \
-  || defined(API_LEVEL_GL_VERSION_3_2_core) || defined(API_LEVEL_GL_VERSION_3_3_compatibility)                   \
-  || defined(API_LEVEL_GL_VERSION_3_3_core) || defined(API_LEVEL_GL_VERSION_4_0_compatibility)                   \
-  || defined(API_LEVEL_GL_VERSION_4_0_core) || defined(API_LEVEL_GL_VERSION_4_1_compatibility)                   \
-  || defined(API_LEVEL_GL_VERSION_4_1_core) || defined(API_LEVEL_GL_VERSION_4_2_compatibility)                   \
-  || defined(API_LEVEL_GL_VERSION_4_2_core) || defined(API_LEVEL_GL_VERSION_4_3_compatibility)                   \
-  || defined(API_LEVEL_GL_VERSION_4_3_core) || defined(API_LEVEL_GL_VERSION_4_4_compatibility)                   \
-  || defined(API_LEVEL_GL_VERSION_4_4_core) || defined(API_LEVEL_GL_VERSION_4_5_compatibility)                   \
-  || defined(API_LEVEL_GL_VERSION_4_5_core) || defined(API_LEVEL_GL_VERSION_4_6_compatibility)                   \
-  || defined(API_LEVEL_GL_VERSION_4_6_core)
-  Double = 0x140A,
-#endif
-#if defined(API_LEVEL_GL_VERSION_2_0) || defined(API_LEVEL_GL_VERSION_2_1) || defined(API_LEVEL_GL_VERSION_3_0) \
-  || defined(API_LEVEL_GL_VERSION_3_1) || defined(API_LEVEL_GL_VERSION_3_2_core)                                \
-  || defined(API_LEVEL_GL_VERSION_3_3_compatibility) || defined(API_LEVEL_GL_VERSION_3_3_core)                  \
-  || defined(API_LEVEL_GL_VERSION_4_0_compatibility) || defined(API_LEVEL_GL_VERSION_4_0_core)                  \
-  || defined(API_LEVEL_GL_VERSION_4_1_compatibility) || defined(API_LEVEL_GL_VERSION_4_1_core)                  \
-  || defined(API_LEVEL_GL_VERSION_4_2_compatibility) || defined(API_LEVEL_GL_VERSION_4_2_core)                  \
-  || defined(API_LEVEL_GL_VERSION_4_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_3_core)                  \
-  || defined(API_LEVEL_GL_VERSION_4_4_compatibility) || defined(API_LEVEL_GL_VERSION_4_4_core)                  \
-  || defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_5_core)                  \
-  || defined(API_LEVEL_GL_VERSION_4_6_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_core)
-  Bool = 0x8B56,
-  BoolVec2 = 0x8B57,
-  BoolVec3 = 0x8B58,
-  BoolVec4 = 0x8B59,
-  FloatMat2 = 0x8B5A,
-  FloatMat3 = 0x8B5B,
-  FloatMat4 = 0x8B5C,
-  FloatVec2 = 0x8B50,
-  FloatVec3 = 0x8B51,
-  FloatVec4 = 0x8B52,
-  IntVec2 = 0x8B53,
-  IntVec3 = 0x8B54,
-  IntVec4 = 0x8B55,
-  Sampler1d = 0x8B5D,
-  Sampler1dShadow = 0x8B61,
-  Sampler2d = 0x8B5E,
-  Sampler2dShadow = 0x8B62,
-  Sampler3d = 0x8B5F,
-  SamplerCube = 0x8B60,
-#endif
-#if defined(API_LEVEL_GL_VERSION_2_1) || defined(API_LEVEL_GL_VERSION_3_0) || defined(API_LEVEL_GL_VERSION_3_1) \
-  || defined(API_LEVEL_GL_VERSION_3_2_core) || defined(API_LEVEL_GL_VERSION_3_3_compatibility)                  \
-  || defined(API_LEVEL_GL_VERSION_3_3_core) || defined(API_LEVEL_GL_VERSION_4_0_compatibility)                  \
-  || defined(API_LEVEL_GL_VERSION_4_0_core) || defined(API_LEVEL_GL_VERSION_4_1_compatibility)                  \
-  || defined(API_LEVEL_GL_VERSION_4_1_core) || defined(API_LEVEL_GL_VERSION_4_2_compatibility)                  \
-  || defined(API_LEVEL_GL_VERSION_4_2_core) || defined(API_LEVEL_GL_VERSION_4_3_compatibility)                  \
-  || defined(API_LEVEL_GL_VERSION_4_3_core) || defined(API_LEVEL_GL_VERSION_4_4_compatibility)                  \
-  || defined(API_LEVEL_GL_VERSION_4_4_core) || defined(API_LEVEL_GL_VERSION_4_5_compatibility)                  \
-  || defined(API_LEVEL_GL_VERSION_4_5_core) || defined(API_LEVEL_GL_VERSION_4_6_compatibility)                  \
-  || defined(API_LEVEL_GL_VERSION_4_6_core)
-  FloatMat2x3 = 0x8B65,
-  FloatMat2x4 = 0x8B66,
-  FloatMat3x2 = 0x8B67,
-  FloatMat3x4 = 0x8B68,
-  FloatMat4x2 = 0x8B69,
-  FloatMat4x3 = 0x8B6A,
-#endif
-#if defined(API_LEVEL_GL_VERSION_3_0) || defined(API_LEVEL_GL_VERSION_3_1) || defined(API_LEVEL_GL_VERSION_3_2_core) \
-  || defined(API_LEVEL_GL_VERSION_3_3_compatibility) || defined(API_LEVEL_GL_VERSION_3_3_core)                       \
-  || defined(API_LEVEL_GL_VERSION_4_0_compatibility) || defined(API_LEVEL_GL_VERSION_4_0_core)                       \
-  || defined(API_LEVEL_GL_VERSION_4_1_compatibility) || defined(API_LEVEL_GL_VERSION_4_1_core)                       \
-  || defined(API_LEVEL_GL_VERSION_4_2_compatibility) || defined(API_LEVEL_GL_VERSION_4_2_core)                       \
-  || defined(API_LEVEL_GL_VERSION_4_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_3_core)                       \
-  || defined(API_LEVEL_GL_VERSION_4_4_compatibility) || defined(API_LEVEL_GL_VERSION_4_4_core)                       \
-  || defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_5_core)                       \
-  || defined(API_LEVEL_GL_VERSION_4_6_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_core)
-  IntSampler1d = 0x8DC9,
-  IntSampler1dArray = 0x8DCE,
-  IntSampler2d = 0x8DCA,
-  IntSampler2dArray = 0x8DCF,
-  IntSampler3d = 0x8DCB,
-  IntSamplerCube = 0x8DCC,
-  Sampler1dArray = 0x8DC0,
-  Sampler1dArrayShadow = 0x8DC3,
-  Sampler2dArray = 0x8DC1,
-  Sampler2dArrayShadow = 0x8DC4,
-  SamplerCubeShadow = 0x8DC5,
-  UnsignedIntSampler1d = 0x8DD1,
-  UnsignedIntSampler1dArray = 0x8DD6,
-  UnsignedIntSampler2d = 0x8DD2,
-  UnsignedIntSampler2dArray = 0x8DD7,
-  UnsignedIntSampler3d = 0x8DD3,
-  UnsignedIntSamplerCube = 0x8DD4,
-  UnsignedIntVec2 = 0x8DC6,
-  UnsignedIntVec3 = 0x8DC7,
-  UnsignedIntVec4 = 0x8DC8,
-#endif
-#if defined(API_LEVEL_GL_VERSION_3_1) || defined(API_LEVEL_GL_VERSION_3_2_core)                \
-  || defined(API_LEVEL_GL_VERSION_3_3_compatibility) || defined(API_LEVEL_GL_VERSION_3_3_core) \
-  || defined(API_LEVEL_GL_VERSION_4_0_compatibility) || defined(API_LEVEL_GL_VERSION_4_0_core) \
-  || defined(API_LEVEL_GL_VERSION_4_1_compatibility) || defined(API_LEVEL_GL_VERSION_4_1_core) \
-  || defined(API_LEVEL_GL_VERSION_4_2_compatibility) || defined(API_LEVEL_GL_VERSION_4_2_core) \
-  || defined(API_LEVEL_GL_VERSION_4_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_3_core) \
-  || defined(API_LEVEL_GL_VERSION_4_4_compatibility) || defined(API_LEVEL_GL_VERSION_4_4_core) \
-  || defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_5_core) \
-  || defined(API_LEVEL_GL_VERSION_4_6_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_core)
-  IntSampler2dRect = 0x8DCD,
-  IntSamplerBuffer = 0x8DD0,
-  Sampler2dRect = 0x8B63,
-  Sampler2dRectShadow = 0x8B64,
-  SamplerBuffer = 0x8DC2,
-  UnsignedIntSampler2dRect = 0x8DD5,
-  UnsignedIntSamplerBuffer = 0x8DD8,
-#endif
-#if defined(API_LEVEL_GL_VERSION_3_2_core) || defined(API_LEVEL_GL_VERSION_3_3_compatibility)  \
-  || defined(API_LEVEL_GL_VERSION_3_3_core) || defined(API_LEVEL_GL_VERSION_4_0_compatibility) \
-  || defined(API_LEVEL_GL_VERSION_4_0_core) || defined(API_LEVEL_GL_VERSION_4_1_compatibility) \
-  || defined(API_LEVEL_GL_VERSION_4_1_core) || defined(API_LEVEL_GL_VERSION_4_2_compatibility) \
-  || defined(API_LEVEL_GL_VERSION_4_2_core) || defined(API_LEVEL_GL_VERSION_4_3_compatibility) \
-  || defined(API_LEVEL_GL_VERSION_4_3_core) || defined(API_LEVEL_GL_VERSION_4_4_compatibility) \
-  || defined(API_LEVEL_GL_VERSION_4_4_core) || defined(API_LEVEL_GL_VERSION_4_5_compatibility) \
-  || defined(API_LEVEL_GL_VERSION_4_5_core) || defined(API_LEVEL_GL_VERSION_4_6_compatibility) \
-  || defined(API_LEVEL_GL_VERSION_4_6_core)
-  IntSampler2dMultisample = 0x9109,
-  IntSampler2dMultisampleArray = 0x910C,
-  Sampler2dMultisample = 0x9108,
-  Sampler2dMultisampleArray = 0x910B,
-  UnsignedIntSampler2dMultisample = 0x910A,
-  UnsignedIntSampler2dMultisampleArray = 0x910D,
-#endif
-#if defined(API_LEVEL_GL_VERSION_4_0_compatibility) || defined(API_LEVEL_GL_VERSION_4_0_core)  \
-  || defined(API_LEVEL_GL_VERSION_4_1_compatibility) || defined(API_LEVEL_GL_VERSION_4_1_core) \
-  || defined(API_LEVEL_GL_VERSION_4_2_compatibility) || defined(API_LEVEL_GL_VERSION_4_2_core) \
-  || defined(API_LEVEL_GL_VERSION_4_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_3_core) \
-  || defined(API_LEVEL_GL_VERSION_4_4_compatibility) || defined(API_LEVEL_GL_VERSION_4_4_core) \
-  || defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_5_core) \
-  || defined(API_LEVEL_GL_VERSION_4_6_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_core)
-  DoubleMat2 = 0x8F46,
-  DoubleMat3 = 0x8F47,
-  DoubleMat4 = 0x8F48,
-  DoubleVec2 = 0x8FFC,
-  DoubleVec3 = 0x8FFD,
-  DoubleVec4 = 0x8FFE,
-  IntSamplerCubeMapArray = 0x900E,
-  SamplerCubeMapArray = 0x900C,
-  SamplerCubeMapArrayShadow = 0x900D,
-  UnsignedIntSamplerCubeMapArray = 0x900F,
-#endif
-#if defined(API_LEVEL_GL_VERSION_4_2_compatibility) || defined(API_LEVEL_GL_VERSION_4_2_core)  \
-  || defined(API_LEVEL_GL_VERSION_4_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_3_core) \
-  || defined(API_LEVEL_GL_VERSION_4_4_compatibility) || defined(API_LEVEL_GL_VERSION_4_4_core) \
-  || defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_5_core) \
-  || defined(API_LEVEL_GL_VERSION_4_6_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_core)
-  Image1d = 0x904C,
-  Image1dArray = 0x9052,
-  Image2d = 0x904D,
-  Image2dArray = 0x9053,
-  Image2dMultisample = 0x9055,
-  Image2dMultisampleArray = 0x9056,
-  Image2dRect = 0x904F,
-  Image3d = 0x904E,
-  ImageBuffer = 0x9051,
-  ImageCube = 0x9050,
-  ImageCubeMapArray = 0x9054,
-  IntImage1d = 0x9057,
-  IntImage1dArray = 0x905D,
-  IntImage2d = 0x9058,
-  IntImage2dArray = 0x905E,
-  IntImage2dMultisample = 0x9060,
-  IntImage2dMultisampleArray = 0x9061,
-  IntImage2dRect = 0x905A,
-  IntImage3d = 0x9059,
-  IntImageBuffer = 0x905C,
-  IntImageCube = 0x905B,
-  IntImageCubeMapArray = 0x905F,
-  UnsignedIntAtomicCounter = 0x92DB,
-  UnsignedIntImage1d = 0x9062,
-  UnsignedIntImage1dArray = 0x9068,
-  UnsignedIntImage2d = 0x9063,
-  UnsignedIntImage2dArray = 0x9069,
-  UnsignedIntImage2dMultisample = 0x906B,
-  UnsignedIntImage2dMultisampleArray = 0x906C,
-  UnsignedIntImage2dRect = 0x9065,
-  UnsignedIntImage3d = 0x9064,
-  UnsignedIntImageBuffer = 0x9067,
-  UnsignedIntImageCube = 0x9066,
-  UnsignedIntImageCubeMapArray = 0x906A,
+#if defined(API_LEVEL_GL_VERSION_1_3) || defined(API_LEVEL_GL_VERSION_1_4) || defined(API_LEVEL_GL_VERSION_1_5)  \
+  || defined(API_LEVEL_GL_VERSION_2_0) || defined(API_LEVEL_GL_VERSION_2_1) || defined(API_LEVEL_GL_VERSION_3_0) \
+  || defined(API_LEVEL_GL_VERSION_3_1) || defined(API_LEVEL_GL_VERSION_3_3_compatibility)                        \
+  || defined(API_LEVEL_GL_VERSION_4_0_compatibility) || defined(API_LEVEL_GL_VERSION_4_1_compatibility)          \
+  || defined(API_LEVEL_GL_VERSION_4_2_compatibility) || defined(API_LEVEL_GL_VERSION_4_3_compatibility)          \
+  || defined(API_LEVEL_GL_VERSION_4_4_compatibility) || defined(API_LEVEL_GL_VERSION_4_5_compatibility)          \
+  || defined(API_LEVEL_GL_VERSION_4_6_compatibility)
+  NormalMap = 0x8511,
+  ReflectionMap = 0x8512,
 #endif
 };
 
@@ -3835,13 +3705,6 @@ enum class MapTypeNV : core::EnumType
 #endif
 };
 
-enum class MaterialFace : core::EnumType
-{
-  Back = 0x0405,
-  Front = 0x0404,
-  FrontAndBack = 0x0408,
-};
-
 #if defined(API_LEVEL_GL_VERSION_1_0) || defined(API_LEVEL_GL_VERSION_1_1) || defined(API_LEVEL_GL_VERSION_1_2)  \
   || defined(API_LEVEL_GL_VERSION_1_3) || defined(API_LEVEL_GL_VERSION_1_4) || defined(API_LEVEL_GL_VERSION_1_5) \
   || defined(API_LEVEL_GL_VERSION_2_0) || defined(API_LEVEL_GL_VERSION_2_1) || defined(API_LEVEL_GL_VERSION_3_0) \
@@ -4286,22 +4149,12 @@ enum class PixelStoreParameter : core::EnumType
 #endif
 };
 
-enum class PixelTexGenMode : core::EnumType
+enum class PixelTexGenModeSGIX : core::EnumType
 {
+  Alpha = 0x1906,
   None = 0,
   Rgb = 0x1907,
   Rgba = 0x1908,
-#if defined(API_LEVEL_GL_VERSION_1_0) || defined(API_LEVEL_GL_VERSION_1_1) || defined(API_LEVEL_GL_VERSION_1_2)  \
-  || defined(API_LEVEL_GL_VERSION_1_3) || defined(API_LEVEL_GL_VERSION_1_4) || defined(API_LEVEL_GL_VERSION_1_5) \
-  || defined(API_LEVEL_GL_VERSION_2_0) || defined(API_LEVEL_GL_VERSION_2_1) || defined(API_LEVEL_GL_VERSION_3_0) \
-  || defined(API_LEVEL_GL_VERSION_3_1) || defined(API_LEVEL_GL_VERSION_3_3_compatibility)                        \
-  || defined(API_LEVEL_GL_VERSION_4_0_compatibility) || defined(API_LEVEL_GL_VERSION_4_1_compatibility)          \
-  || defined(API_LEVEL_GL_VERSION_4_2_compatibility) || defined(API_LEVEL_GL_VERSION_4_3_compatibility)          \
-  || defined(API_LEVEL_GL_VERSION_4_4_compatibility) || defined(API_LEVEL_GL_VERSION_4_5_compatibility)          \
-  || defined(API_LEVEL_GL_VERSION_4_6_compatibility)
-  Luminance = 0x1909,
-  LuminanceAlpha = 0x190A,
-#endif
 };
 
 #if defined(API_LEVEL_GL_VERSION_1_0) || defined(API_LEVEL_GL_VERSION_1_1) || defined(API_LEVEL_GL_VERSION_1_2)  \
@@ -4374,26 +4227,24 @@ enum class PixelType : core::EnumType
   UnsignedShort565 = 0x8363,
   UnsignedShort565Rev = 0x8364,
 #endif
-};
-
-#if defined(API_LEVEL_GL_VERSION_1_4) || defined(API_LEVEL_GL_VERSION_1_5) || defined(API_LEVEL_GL_VERSION_2_0)  \
-  || defined(API_LEVEL_GL_VERSION_2_1) || defined(API_LEVEL_GL_VERSION_3_0) || defined(API_LEVEL_GL_VERSION_3_1) \
-  || defined(API_LEVEL_GL_VERSION_3_2_core) || defined(API_LEVEL_GL_VERSION_3_3_compatibility)                   \
-  || defined(API_LEVEL_GL_VERSION_3_3_core) || defined(API_LEVEL_GL_VERSION_4_0_compatibility)                   \
-  || defined(API_LEVEL_GL_VERSION_4_0_core) || defined(API_LEVEL_GL_VERSION_4_1_compatibility)                   \
-  || defined(API_LEVEL_GL_VERSION_4_1_core) || defined(API_LEVEL_GL_VERSION_4_2_compatibility)                   \
-  || defined(API_LEVEL_GL_VERSION_4_2_core) || defined(API_LEVEL_GL_VERSION_4_3_compatibility)                   \
-  || defined(API_LEVEL_GL_VERSION_4_3_core) || defined(API_LEVEL_GL_VERSION_4_4_compatibility)                   \
-  || defined(API_LEVEL_GL_VERSION_4_4_core) || defined(API_LEVEL_GL_VERSION_4_5_compatibility)                   \
-  || defined(API_LEVEL_GL_VERSION_4_5_core) || defined(API_LEVEL_GL_VERSION_4_6_compatibility)                   \
-  || defined(API_LEVEL_GL_VERSION_4_6_core)
-enum class PointParameterName : core::EnumType
-{
-  PointFadeThresholdSize = 0x8128,
-};
+#if defined(API_LEVEL_GL_VERSION_3_0) || defined(API_LEVEL_GL_VERSION_3_1) || defined(API_LEVEL_GL_VERSION_3_2_core) \
+  || defined(API_LEVEL_GL_VERSION_3_3_compatibility) || defined(API_LEVEL_GL_VERSION_3_3_core)                       \
+  || defined(API_LEVEL_GL_VERSION_4_0_compatibility) || defined(API_LEVEL_GL_VERSION_4_0_core)                       \
+  || defined(API_LEVEL_GL_VERSION_4_1_compatibility) || defined(API_LEVEL_GL_VERSION_4_1_core)                       \
+  || defined(API_LEVEL_GL_VERSION_4_2_compatibility) || defined(API_LEVEL_GL_VERSION_4_2_core)                       \
+  || defined(API_LEVEL_GL_VERSION_4_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_3_core)                       \
+  || defined(API_LEVEL_GL_VERSION_4_4_compatibility) || defined(API_LEVEL_GL_VERSION_4_4_core)                       \
+  || defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_5_core)                       \
+  || defined(API_LEVEL_GL_VERSION_4_6_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_core)
+  Float32UnsignedInt248Rev = 0x8DAD,
+  HalfFloat = 0x140B,
+  UnsignedInt10f11f11fRev = 0x8C3B,
+  UnsignedInt248 = 0x84FA,
+  UnsignedInt5999Rev = 0x8C3E,
 #endif
+};
 
-enum class PointParameterNameSGIS : core::EnumType
+enum class PointParameterName : core::EnumType
 {
 #if defined(API_LEVEL_GL_VERSION_1_4) || defined(API_LEVEL_GL_VERSION_1_5) || defined(API_LEVEL_GL_VERSION_2_0)  \
   || defined(API_LEVEL_GL_VERSION_2_1) || defined(API_LEVEL_GL_VERSION_3_0) || defined(API_LEVEL_GL_VERSION_3_1) \
@@ -4878,63 +4729,6 @@ enum class ReadBufferMode : core::EnumType
 #endif
 };
 
-enum class RegisterCombinerPname : core::EnumType
-{
-#if defined(API_LEVEL_GL_VERSION_1_3) || defined(API_LEVEL_GL_VERSION_1_4) || defined(API_LEVEL_GL_VERSION_1_5)  \
-  || defined(API_LEVEL_GL_VERSION_2_0) || defined(API_LEVEL_GL_VERSION_2_1) || defined(API_LEVEL_GL_VERSION_3_0) \
-  || defined(API_LEVEL_GL_VERSION_3_1) || defined(API_LEVEL_GL_VERSION_3_3_compatibility)                        \
-  || defined(API_LEVEL_GL_VERSION_4_0_compatibility) || defined(API_LEVEL_GL_VERSION_4_1_compatibility)          \
-  || defined(API_LEVEL_GL_VERSION_4_2_compatibility) || defined(API_LEVEL_GL_VERSION_4_3_compatibility)          \
-  || defined(API_LEVEL_GL_VERSION_4_4_compatibility) || defined(API_LEVEL_GL_VERSION_4_5_compatibility)          \
-  || defined(API_LEVEL_GL_VERSION_4_6_compatibility)
-  AddSigned = 0x8574,
-  Combine = 0x8570,
-  CombineAlpha = 0x8572,
-  CombineRgb = 0x8571,
-  Constant = 0x8576,
-  Interpolate = 0x8575,
-  Operand0Alpha = 0x8598,
-  Operand0Rgb = 0x8590,
-  Operand1Alpha = 0x8599,
-  Operand1Rgb = 0x8591,
-  Operand2Alpha = 0x859A,
-  Operand2Rgb = 0x8592,
-  Previous = 0x8578,
-  PrimaryColor = 0x8577,
-  RgbScale = 0x8573,
-  Source0Alpha = 0x8588,
-  Source0Rgb = 0x8580,
-  Source1Alpha = 0x8589,
-  Source1Rgb = 0x8581,
-  Source2Alpha = 0x858A,
-  Source2Rgb = 0x8582,
-#endif
-#if defined(API_LEVEL_GL_VERSION_1_5) || defined(API_LEVEL_GL_VERSION_2_0) || defined(API_LEVEL_GL_VERSION_2_1)       \
-  || defined(API_LEVEL_GL_VERSION_3_0) || defined(API_LEVEL_GL_VERSION_3_1) || defined(API_LEVEL_GL_VERSION_3_2_core) \
-  || defined(API_LEVEL_GL_VERSION_3_3_compatibility) || defined(API_LEVEL_GL_VERSION_3_3_core)                        \
-  || defined(API_LEVEL_GL_VERSION_4_0_compatibility) || defined(API_LEVEL_GL_VERSION_4_0_core)                        \
-  || defined(API_LEVEL_GL_VERSION_4_1_compatibility) || defined(API_LEVEL_GL_VERSION_4_1_core)                        \
-  || defined(API_LEVEL_GL_VERSION_4_2_compatibility) || defined(API_LEVEL_GL_VERSION_4_2_core)                        \
-  || defined(API_LEVEL_GL_VERSION_4_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_3_core)                        \
-  || defined(API_LEVEL_GL_VERSION_4_4_compatibility) || defined(API_LEVEL_GL_VERSION_4_4_core)                        \
-  || defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_5_core)                        \
-  || defined(API_LEVEL_GL_VERSION_4_6_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_core)
-  Src1Alpha = 0x8589,
-#endif
-#if defined(API_LEVEL_GL_VERSION_1_5) || defined(API_LEVEL_GL_VERSION_2_0) || defined(API_LEVEL_GL_VERSION_2_1) \
-  || defined(API_LEVEL_GL_VERSION_3_0) || defined(API_LEVEL_GL_VERSION_3_1)                                     \
-  || defined(API_LEVEL_GL_VERSION_3_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_0_compatibility)         \
-  || defined(API_LEVEL_GL_VERSION_4_1_compatibility) || defined(API_LEVEL_GL_VERSION_4_2_compatibility)         \
-  || defined(API_LEVEL_GL_VERSION_4_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_4_compatibility)         \
-  || defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_compatibility)
-  Src0Alpha = 0x8588,
-  Src0Rgb = 0x8580,
-  Src1Rgb = 0x8581,
-  Src2Alpha = 0x858A,
-  Src2Rgb = 0x8582,
-#endif
-};
-
 #if defined(API_LEVEL_GL_VERSION_3_0) || defined(API_LEVEL_GL_VERSION_3_1) || defined(API_LEVEL_GL_VERSION_3_2_core) \
   || defined(API_LEVEL_GL_VERSION_3_3_compatibility) || defined(API_LEVEL_GL_VERSION_3_3_core)                       \
   || defined(API_LEVEL_GL_VERSION_4_0_compatibility) || defined(API_LEVEL_GL_VERSION_4_0_core)                       \
@@ -5398,13 +5192,6 @@ enum class SizedInternalFormat : core::EnumType
 #endif
 };
 
-enum class StencilFaceDirection : core::EnumType
-{
-  Back = 0x0405,
-  Front = 0x0404,
-  FrontAndBack = 0x0408,
-};
-
 enum class StencilFunction : core::EnumType
 {
   Always = 0x0207,
@@ -5623,6 +5410,8 @@ enum class TextureEnvMode : core::EnumType
 #endif
 };
 
+enum class TextureEnvParameter : core::EnumType
+{
 #if defined(API_LEVEL_GL_VERSION_1_0) || defined(API_LEVEL_GL_VERSION_1_1) || defined(API_LEVEL_GL_VERSION_1_2)  \
   || defined(API_LEVEL_GL_VERSION_1_3) || defined(API_LEVEL_GL_VERSION_1_4) || defined(API_LEVEL_GL_VERSION_1_5) \
   || defined(API_LEVEL_GL_VERSION_2_0) || defined(API_LEVEL_GL_VERSION_2_1) || defined(API_LEVEL_GL_VERSION_3_0) \
@@ -5631,12 +5420,63 @@ enum class TextureEnvMode : core::EnumType
   || defined(API_LEVEL_GL_VERSION_4_2_compatibility) || defined(API_LEVEL_GL_VERSION_4_3_compatibility)          \
   || defined(API_LEVEL_GL_VERSION_4_4_compatibility) || defined(API_LEVEL_GL_VERSION_4_5_compatibility)          \
   || defined(API_LEVEL_GL_VERSION_4_6_compatibility)
-enum class TextureEnvParameter : core::EnumType
-{
   TextureEnvColor = 0x2201,
   TextureEnvMode = 0x2200,
-};
 #endif
+#if defined(API_LEVEL_GL_VERSION_1_3) || defined(API_LEVEL_GL_VERSION_1_4) || defined(API_LEVEL_GL_VERSION_1_5)  \
+  || defined(API_LEVEL_GL_VERSION_2_0) || defined(API_LEVEL_GL_VERSION_2_1) || defined(API_LEVEL_GL_VERSION_3_0) \
+  || defined(API_LEVEL_GL_VERSION_3_1) || defined(API_LEVEL_GL_VERSION_3_3_compatibility)                        \
+  || defined(API_LEVEL_GL_VERSION_4_0_compatibility) || defined(API_LEVEL_GL_VERSION_4_1_compatibility)          \
+  || defined(API_LEVEL_GL_VERSION_4_2_compatibility) || defined(API_LEVEL_GL_VERSION_4_3_compatibility)          \
+  || defined(API_LEVEL_GL_VERSION_4_4_compatibility) || defined(API_LEVEL_GL_VERSION_4_5_compatibility)          \
+  || defined(API_LEVEL_GL_VERSION_4_6_compatibility)
+  AddSigned = 0x8574,
+  Combine = 0x8570,
+  CombineAlpha = 0x8572,
+  CombineRgb = 0x8571,
+  Constant = 0x8576,
+  Interpolate = 0x8575,
+  Operand0Alpha = 0x8598,
+  Operand0Rgb = 0x8590,
+  Operand1Alpha = 0x8599,
+  Operand1Rgb = 0x8591,
+  Operand2Alpha = 0x859A,
+  Operand2Rgb = 0x8592,
+  Previous = 0x8578,
+  PrimaryColor = 0x8577,
+  RgbScale = 0x8573,
+  Source0Alpha = 0x8588,
+  Source0Rgb = 0x8580,
+  Source1Alpha = 0x8589,
+  Source1Rgb = 0x8581,
+  Source2Alpha = 0x858A,
+  Source2Rgb = 0x8582,
+#endif
+#if defined(API_LEVEL_GL_VERSION_1_5) || defined(API_LEVEL_GL_VERSION_2_0) || defined(API_LEVEL_GL_VERSION_2_1)       \
+  || defined(API_LEVEL_GL_VERSION_3_0) || defined(API_LEVEL_GL_VERSION_3_1) || defined(API_LEVEL_GL_VERSION_3_2_core) \
+  || defined(API_LEVEL_GL_VERSION_3_3_compatibility) || defined(API_LEVEL_GL_VERSION_3_3_core)                        \
+  || defined(API_LEVEL_GL_VERSION_4_0_compatibility) || defined(API_LEVEL_GL_VERSION_4_0_core)                        \
+  || defined(API_LEVEL_GL_VERSION_4_1_compatibility) || defined(API_LEVEL_GL_VERSION_4_1_core)                        \
+  || defined(API_LEVEL_GL_VERSION_4_2_compatibility) || defined(API_LEVEL_GL_VERSION_4_2_core)                        \
+  || defined(API_LEVEL_GL_VERSION_4_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_3_core)                        \
+  || defined(API_LEVEL_GL_VERSION_4_4_compatibility) || defined(API_LEVEL_GL_VERSION_4_4_core)                        \
+  || defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_5_core)                        \
+  || defined(API_LEVEL_GL_VERSION_4_6_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_core)
+  Src1Alpha = 0x8589,
+#endif
+#if defined(API_LEVEL_GL_VERSION_1_5) || defined(API_LEVEL_GL_VERSION_2_0) || defined(API_LEVEL_GL_VERSION_2_1) \
+  || defined(API_LEVEL_GL_VERSION_3_0) || defined(API_LEVEL_GL_VERSION_3_1)                                     \
+  || defined(API_LEVEL_GL_VERSION_3_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_0_compatibility)         \
+  || defined(API_LEVEL_GL_VERSION_4_1_compatibility) || defined(API_LEVEL_GL_VERSION_4_2_compatibility)         \
+  || defined(API_LEVEL_GL_VERSION_4_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_4_compatibility)         \
+  || defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_compatibility)
+  Src0Alpha = 0x8588,
+  Src0Rgb = 0x8580,
+  Src1Rgb = 0x8581,
+  Src2Alpha = 0x858A,
+  Src2Rgb = 0x8582,
+#endif
+};
 
 #if defined(API_LEVEL_GL_VERSION_1_0) || defined(API_LEVEL_GL_VERSION_1_1) || defined(API_LEVEL_GL_VERSION_1_2)  \
   || defined(API_LEVEL_GL_VERSION_1_3) || defined(API_LEVEL_GL_VERSION_1_4) || defined(API_LEVEL_GL_VERSION_1_5) \
@@ -6072,6 +5912,13 @@ enum class TransformFeedbackPName : core::EnumType
   TransformFeedbackActive = 0x8E24,
   TransformFeedbackPaused = 0x8E23,
 #endif
+};
+
+enum class TriangleFace : core::EnumType
+{
+  Back = 0x0405,
+  Front = 0x0404,
+  FrontAndBack = 0x0408,
 };
 
 enum class UniformBlockPName : core::EnumType
@@ -6667,44 +6514,6 @@ enum class VertexAttribType : core::EnumType
 #endif
 };
 
-enum class VertexBufferObjectParameter : core::EnumType
-{
-#if defined(API_LEVEL_GL_VERSION_1_5) || defined(API_LEVEL_GL_VERSION_2_0) || defined(API_LEVEL_GL_VERSION_2_1)       \
-  || defined(API_LEVEL_GL_VERSION_3_0) || defined(API_LEVEL_GL_VERSION_3_1) || defined(API_LEVEL_GL_VERSION_3_2_core) \
-  || defined(API_LEVEL_GL_VERSION_3_3_compatibility) || defined(API_LEVEL_GL_VERSION_3_3_core)                        \
-  || defined(API_LEVEL_GL_VERSION_4_0_compatibility) || defined(API_LEVEL_GL_VERSION_4_0_core)                        \
-  || defined(API_LEVEL_GL_VERSION_4_1_compatibility) || defined(API_LEVEL_GL_VERSION_4_1_core)                        \
-  || defined(API_LEVEL_GL_VERSION_4_2_compatibility) || defined(API_LEVEL_GL_VERSION_4_2_core)                        \
-  || defined(API_LEVEL_GL_VERSION_4_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_3_core)                        \
-  || defined(API_LEVEL_GL_VERSION_4_4_compatibility) || defined(API_LEVEL_GL_VERSION_4_4_core)                        \
-  || defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_5_core)                        \
-  || defined(API_LEVEL_GL_VERSION_4_6_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_core)
-  BufferAccess = 0x88BB,
-  BufferMapped = 0x88BC,
-  BufferSize = 0x8764,
-  BufferUsage = 0x8765,
-#endif
-#if defined(API_LEVEL_GL_VERSION_3_0) || defined(API_LEVEL_GL_VERSION_3_1) || defined(API_LEVEL_GL_VERSION_3_2_core) \
-  || defined(API_LEVEL_GL_VERSION_3_3_compatibility) || defined(API_LEVEL_GL_VERSION_3_3_core)                       \
-  || defined(API_LEVEL_GL_VERSION_4_0_compatibility) || defined(API_LEVEL_GL_VERSION_4_0_core)                       \
-  || defined(API_LEVEL_GL_VERSION_4_1_compatibility) || defined(API_LEVEL_GL_VERSION_4_1_core)                       \
-  || defined(API_LEVEL_GL_VERSION_4_2_compatibility) || defined(API_LEVEL_GL_VERSION_4_2_core)                       \
-  || defined(API_LEVEL_GL_VERSION_4_3_compatibility) || defined(API_LEVEL_GL_VERSION_4_3_core)                       \
-  || defined(API_LEVEL_GL_VERSION_4_4_compatibility) || defined(API_LEVEL_GL_VERSION_4_4_core)                       \
-  || defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_5_core)                       \
-  || defined(API_LEVEL_GL_VERSION_4_6_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_core)
-  BufferAccessFlags = 0x911F,
-  BufferMapLength = 0x9120,
-  BufferMapOffset = 0x9121,
-#endif
-#if defined(API_LEVEL_GL_VERSION_4_4_compatibility) || defined(API_LEVEL_GL_VERSION_4_4_core)  \
-  || defined(API_LEVEL_GL_VERSION_4_5_compatibility) || defined(API_LEVEL_GL_VERSION_4_5_core) \
-  || defined(API_LEVEL_GL_VERSION_4_6_compatibility) || defined(API_LEVEL_GL_VERSION_4_6_core)
-  BufferImmutableStorage = 0x821F,
-  BufferStorageFlags = 0x8220,
-#endif
-};
-
 #if defined(API_LEVEL_GL_VERSION_1_5) || defined(API_LEVEL_GL_VERSION_2_0) || defined(API_LEVEL_GL_VERSION_2_1)       \
   || defined(API_LEVEL_GL_VERSION_3_0) || defined(API_LEVEL_GL_VERSION_3_1) || defined(API_LEVEL_GL_VERSION_3_2_core) \
   || defined(API_LEVEL_GL_VERSION_3_3_compatibility) || defined(API_LEVEL_GL_VERSION_3_3_core)                        \
@@ -6825,7 +6634,7 @@ extern void clearDepth(double depth);
 extern void clearStencil(int32_t s);
 extern SyncStatus clientWaitSync(core::Sync sync, core::Bitfield<SyncObjectMask> flags, uint64_t timeout);
 extern void colorMask(bool red, bool green, bool blue, bool alpha);
-extern void cullFace(CullFaceMode mode);
+extern void cullFace(TriangleFace mode);
 extern void deleteSync(core::Sync sync);
 extern void depthFunc(DepthFunction func);
 extern void depthMask(bool flag);
@@ -6869,7 +6678,7 @@ extern void makeTextureHandleResident(uint64_t handle);
 extern void pixelStore(PixelStoreParameter pname, float param);
 extern void pixelStore(PixelStoreParameter pname, int32_t param);
 extern void pointSize(float size);
-extern void polygonMode(MaterialFace face, PolygonMode mode);
+extern void polygonMode(TriangleFace face, PolygonMode mode);
 extern void programUniformHandle(uint32_t program, int32_t location, uint64_t value);
 extern void programUniformHandle(uint32_t program, int32_t location, core::SizeType count, const uint64_t* values);
 extern void readBuffer(ReadBufferMode src);
@@ -6961,7 +6770,7 @@ extern void color4(uint32_t red, uint32_t green, uint32_t blue, uint32_t alpha);
 extern void color4(const uint32_t* v);
 extern void color4(uint16_t red, uint16_t green, uint16_t blue, uint16_t alpha);
 extern void color4(const uint16_t* v);
-extern void colorMaterial(MaterialFace face, ColorMaterialParameter mode);
+extern void colorMaterial(TriangleFace face, ColorMaterialParameter mode);
 extern void copyPixel(int32_t x, int32_t y, core::SizeType width, core::SizeType height, PixelCopyType type);
 extern void deleteList(uint32_t list, core::SizeType range);
 extern void
@@ -6995,8 +6804,8 @@ extern void getLight(LightName light, LightParameter pname, int32_t* params);
 extern void getMap(MapTarget target, GetMapQuery query, double* v);
 extern void getMap(MapTarget target, GetMapQuery query, float* v);
 extern void getMap(MapTarget target, GetMapQuery query, int32_t* v);
-extern void getMaterial(MaterialFace face, MaterialParameter pname, float* params);
-extern void getMaterial(MaterialFace face, MaterialParameter pname, int32_t* params);
+extern void getMaterial(TriangleFace face, MaterialParameter pname, float* params);
+extern void getMaterial(TriangleFace face, MaterialParameter pname, int32_t* params);
 extern void getPixelMap(PixelMap map, float* values);
 extern void getPixelMap(PixelMap map, uint32_t* values);
 extern void getPixelMap(PixelMap map, uint16_t* values);
@@ -7057,10 +6866,10 @@ extern void mapGrid1(int32_t un, double u1, double u2);
 extern void mapGrid1(int32_t un, float u1, float u2);
 extern void mapGrid2(int32_t un, double u1, double u2, int32_t vn, double v1, double v2);
 extern void mapGrid2(int32_t un, float u1, float u2, int32_t vn, float v1, float v2);
-extern void material(MaterialFace face, MaterialParameter pname, float param);
-extern void material(MaterialFace face, MaterialParameter pname, const float* params);
-extern void material(MaterialFace face, MaterialParameter pname, int32_t param);
-extern void material(MaterialFace face, MaterialParameter pname, const int32_t* params);
+extern void material(TriangleFace face, MaterialParameter pname, float param);
+extern void material(TriangleFace face, MaterialParameter pname, const float* params);
+extern void material(TriangleFace face, MaterialParameter pname, int32_t param);
+extern void material(TriangleFace face, MaterialParameter pname, const int32_t* params);
 extern void matrixMode(MatrixMode mode);
 extern void multMatrix(const double* m);
 extern void multMatrix(const float* m);
@@ -7607,9 +7416,9 @@ extern bool isProgram(uint32_t program);
 extern bool isShader(uint32_t shader);
 extern void linkProgram(uint32_t program);
 extern void shaderSource(uint32_t shader, core::SizeType count, const char* const* string, const int32_t* length);
-extern void stencilFuncSeparate(StencilFaceDirection face, StencilFunction func, int32_t ref, uint32_t mask);
-extern void stencilMaskSeparate(StencilFaceDirection face, uint32_t mask);
-extern void stencilOpSeparate(StencilFaceDirection face, StencilOp sfail, StencilOp dpfail, StencilOp dppass);
+extern void stencilFuncSeparate(TriangleFace face, StencilFunction func, int32_t ref, uint32_t mask);
+extern void stencilMaskSeparate(TriangleFace face, uint32_t mask);
+extern void stencilOpSeparate(TriangleFace face, StencilOp sfail, StencilOp dpfail, StencilOp dppass);
 extern void uniform1(int32_t location, float v0);
 extern void uniform1(int32_t location, core::SizeType count, const float* value);
 extern void uniform1(int32_t location, int32_t v0);
