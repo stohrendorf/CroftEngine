@@ -27,6 +27,8 @@ ENABLED_APIS = ('gl',)
 
 XML_NAME = os.path.join("api", "gl.xml")
 
+API_LEVEL_FILTER = "API_LEVEL_GL_VERSION_4_5_core"
+
 
 def strip_ext_suffix(name: str) -> str:
     strip_suffixes = ("ARB",)
@@ -462,14 +464,16 @@ def load_xml():
         with open('api/{}.hpp'.format(api_name), 'w') as f:
             f.write('#pragma once\n')
             f.write('#include "soglb_core.hpp" // IWYU pragma: export\n')
-            f.write('#include "{}_enabled_features.hpp"\n'.format(api_name))
             f.write('namespace {}::api\n'.format(api_name))
             f.write('{\n')
 
-            f.write('// API feature levels\n')
-            for version, profiles in sorted(versions_profiles.items()):
-                for profile_name in sorted(profiles.keys()):
-                    f.write('// #define {}\n'.format(_make_version_macro(version, profile_name)))
+            if API_LEVEL_FILTER is None:
+                f.write('// API feature levels\n')
+                for version, profiles in sorted(versions_profiles.items()):
+                    for profile_name in sorted(profiles.keys()):
+                        f.write('// #define {}\n'.format(_make_version_macro(version, profile_name)))
+            else:
+                f.write('// API feature level: {}\n'.format(API_LEVEL_FILTER))
             f.write('\n')
 
             total_guards = sum([len(p) for p in versions_profiles.values()])
@@ -494,7 +498,9 @@ def load_xml():
                     continue
                 written_enumerator = []
                 for guards, constant_names in sorted(guards_constants.items()):
-                    if len(guards) != total_guards:
+                    if API_LEVEL_FILTER is not None and API_LEVEL_FILTER not in guards:
+                        continue
+                    elif API_LEVEL_FILTER is None and len(guards) != total_guards:
                         f.write('#if {}\n'.format(_make_guard(guards)))
                     for constant_name in sorted(constant_names):
                         constant_value, constant_type = constants[constant_name]
@@ -506,7 +512,7 @@ def load_xml():
                             logging.error("Conflicting value for constant {}".format(enumerator_name))
                         written_enumerator.append((enumerator_name, constant_value))
                         f.write('constexpr auto {} = {}{};\n'.format(enumerator_name, constant_value, constant_type))
-                    if len(guards) != total_guards:
+                    if API_LEVEL_FILTER is None and len(guards) != total_guards:
                         f.write('#endif\n')
 
                 if enum_data.is_bitmask:
@@ -532,7 +538,9 @@ def load_xml():
                 if len(guards_constants) == 1:
                     # only one guard around all constants - promote around enum
                     guards, constant_names = next(iter(guards_constants.items()))
-                    if len(guards) != total_guards:
+                    if API_LEVEL_FILTER is not None and API_LEVEL_FILTER not in guards:
+                        continue
+                    elif API_LEVEL_FILTER is None and len(guards) != total_guards:
                         f.write('#if {}\n'.format(_make_guard(guards)))
                     f.write('enum class {} : core::EnumType\n'.format(enum_name))
                     f.write('{\n')
@@ -554,14 +562,16 @@ def load_xml():
                             'constexpr core::Bitfield<{0}> operator|({0} left, {0} right) {{ return core::Bitfield<{0}>(left) | right;}}\n'.format(
                                 enum_name))
 
-                    if len(guards) != total_guards:
+                    if API_LEVEL_FILTER is None and len(guards) != total_guards:
                         f.write('#endif\n')
                 else:
                     f.write('enum class {} : core::EnumType\n'.format(enum_name))
                     f.write('{\n')
                     written_enumerator = []
                     for guards, constant_names in sorted(guards_constants.items()):
-                        if len(guards) != total_guards:
+                        if API_LEVEL_FILTER is not None and API_LEVEL_FILTER not in guards:
+                            continue
+                        elif API_LEVEL_FILTER is None and len(guards) != total_guards:
                             f.write('#if {}\n'.format(_make_guard(guards)))
                         for constant_name in sorted(constant_names):
                             constant_value, constant_type = constants[constant_name]
@@ -573,7 +583,7 @@ def load_xml():
                                 logging.error("Conflicting value for enumerator {}".format(enumerator_name))
                             written_enumerator.append((enumerator_name, constant_value))
                             f.write('    {} = {}{},\n'.format(enumerator_name, constant_value, constant_type))
-                        if len(guards) != total_guards:
+                        if API_LEVEL_FILTER is None and len(guards) != total_guards:
                             f.write('#endif\n')
                     f.write('};\n')
 
@@ -586,13 +596,15 @@ def load_xml():
 
             f.write('// commands\n')
             for guards, command_names in sorted(build_guarded_commands(versions_profiles).items()):
-                if len(guards) != total_guards:
+                if API_LEVEL_FILTER is not None and API_LEVEL_FILTER not in guards:
+                    continue
+                elif API_LEVEL_FILTER is None and len(guards) != total_guards:
                     f.write('#if {}\n'.format(_make_guard(guards)))
                 for command_name in sorted(command_names):
                     if command_name not in commands:
                         continue
                     commands[command_name].print_code(file=f, impl=False)
-                if len(guards) != total_guards:
+                if API_LEVEL_FILTER is None and len(guards) != total_guards:
                     f.write('#endif\n')
             f.write('}\n')  # namespace
 
@@ -603,13 +615,15 @@ def load_xml():
             f.write('namespace {}::api\n'.format(api_name))
             f.write('{\n')
             for guards, command_names in sorted(build_guarded_commands(versions_profiles).items()):
-                if len(guards) != total_guards:
+                if API_LEVEL_FILTER is not None and API_LEVEL_FILTER not in guards:
+                    continue
+                elif API_LEVEL_FILTER is None and len(guards) != total_guards:
                     f.write('#if {}\n'.format(_make_guard(guards)))
                 for command_name in sorted(command_names):
                     if command_name not in commands:
                         continue
                     commands[command_name].print_code(file=f, impl=True)
-                if len(guards) != total_guards:
+                if API_LEVEL_FILTER is None and len(guards) != total_guards:
                     f.write('#endif\n')
             f.write('}\n')  # namespace
 
