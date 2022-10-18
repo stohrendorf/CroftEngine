@@ -99,6 +99,8 @@ private:
   const std::optional<TR1TrackId> m_track;
   const bool m_allowSave;
   const WeaponType m_defaultWeapon;
+  const glm::vec3 m_waterColor;
+  const float m_waterDensity;
 
 protected:
   [[nodiscard]] std::unique_ptr<world::World> loadWorld(Engine& engine,
@@ -107,13 +109,18 @@ protected:
                                                         bool fromSave);
 
 public:
+  static constexpr auto DefaultWaterDensity = 0.2f;
+  static constexpr auto DefaultWaterColor = std::tuple{0.0f, 0.462f, 0.494f};
+
   explicit Level(std::string name,
                  bool useAlternativeLara,
                  std::unordered_map<std::string, std::string> titles,
                  std::unordered_map<std::string, std::unordered_map<TR1ItemId, std::string>> itemTitles,
                  std::optional<TR1TrackId> track,
                  bool allowSave,
-                 WeaponType defaultWeapon)
+                 WeaponType defaultWeapon,
+                 std::tuple<float, float, float> waterColor,
+                 float waterDensity)
       : m_name{std::move(name)}
       , m_useAlternativeLara{useAlternativeLara}
       , m_titles{std::move(titles)}
@@ -121,6 +128,8 @@ public:
       , m_track{track}
       , m_allowSave{allowSave}
       , m_defaultWeapon{defaultWeapon}
+      , m_waterColor{std::get<0>(waterColor), std::get<1>(waterColor), std::get<2>(waterColor)}
+      , m_waterDensity{waterDensity}
   {
   }
 

@@ -1,5 +1,5 @@
 from enum import Enum, auto
-from typing import Optional, Dict, Set, List
+from typing import Optional, Dict, Set, List, Tuple
 
 
 class ObjectInfo:
@@ -64,6 +64,8 @@ class Level(LevelSequenceItem):
             use_alternative_lara: bool = False,
             allow_save: bool = True,
             default_weapon: WeaponType = WeaponType.Pistols,
+            water_color: Tuple[float, float, float] = ...,
+            water_density: float = ...,
     ):
         ...
 

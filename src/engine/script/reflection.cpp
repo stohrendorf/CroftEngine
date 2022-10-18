@@ -25,6 +25,7 @@
 #include "hid/inputhandler.h"
 #include "loader/file/level/game.h"
 #include "loader/file/level/level.h"
+#include "render/scene/material.h"
 #include "render/scene/materialmanager.h"
 #include "render/scene/mesh.h"
 #include "render/scene/rendercontext.h"
@@ -202,6 +203,23 @@ std::unique_ptr<world::World> Level::loadWorld(Engine& engine,
   replace(TR1ItemId::Uzis, TR1ItemId::UzisSprite, TR1ItemId::UziAmmoSprite);
   replace(TR1ItemId::Magnums, TR1ItemId::MagnumsSprite, TR1ItemId::MagnumAmmoSprite);
 
+  for(auto a : {false, true})
+  {
+    for(auto b : {false, true})
+    {
+      engine.getPresenter()
+        .getMaterialManager()
+        ->getWorldComposition(a, b)
+        ->getUniform("u_waterColor")
+        ->set(m_waterColor);
+      engine.getPresenter()
+        .getMaterialManager()
+        ->getWorldComposition(a, b)
+        ->getUniform("u_waterDensity")
+        ->set(m_waterDensity);
+    }
+  }
+
   return world;
 }
 
@@ -258,7 +276,15 @@ TitleMenu::TitleMenu(const std::string& name,
                      const std::unordered_map<std::string, std::string>& titles,
                      const std::unordered_map<std::string, std::unordered_map<TR1ItemId, std::string>>& itemTitles,
                      std::optional<TR1TrackId> track)
-    : Level{name, useAlternativeLara, titles, itemTitles, track, false, WeaponType::None}
+    : Level{name,
+            useAlternativeLara,
+            titles,
+            itemTitles,
+            track,
+            false,
+            WeaponType::None,
+            DefaultWaterColor,
+            DefaultWaterDensity}
 {
 }
 

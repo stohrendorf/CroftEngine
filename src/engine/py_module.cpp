@@ -95,7 +95,9 @@ PYBIND11_EMBEDDED_MODULE(engine, m)
                   std::unordered_map<std::string, std::unordered_map<engine::TR1ItemId, std::string>>,
                   std::optional<engine::TR1TrackId>,
                   bool,
-                  engine::WeaponType>(),
+                  engine::WeaponType,
+                  std::tuple<float, float, float>,
+                  float>(),
          py::kw_only{},
          py::arg("name"),
          py::arg("use_alternative_lara") = false,
@@ -103,7 +105,9 @@ PYBIND11_EMBEDDED_MODULE(engine, m)
          py::arg("item_titles") = py::dict{},
          py::arg("track") = std::nullopt,
          py::arg("allow_save") = true,
-         py::arg("default_weapon") = engine::WeaponType::Pistols);
+         py::arg("default_weapon") = engine::WeaponType::Pistols,
+         py::arg("water_color") = engine::script::Level::DefaultWaterColor,
+         py::arg("water_density") = engine::script::Level::DefaultWaterDensity);
 
   py::class_<engine::script::ModifyInventory,
              engine::script::LevelSequenceItem,

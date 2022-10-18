@@ -345,6 +345,8 @@ level_sequence = [
                 TR1ItemId.ScionPiece5: "Scion",
             },
         },
+        water_color=(0.9, 0.1, 0.1),
+        water_density=0.3,
     ),
     Video(_fmv("PRISON")),
     Level(
@@ -362,6 +364,8 @@ level_sequence = [
                 TR1ItemId.ScionPiece5: "Scion",
             },
         },
+        water_color=(0.9, 0.1, 0.1),
+        water_density=0.3,
     ),
     Video(_fmv("END")),
     ResetSoundEngine(),

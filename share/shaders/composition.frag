@@ -7,6 +7,9 @@ layout(bindless_sampler) uniform sampler2D u_portalPerturb;
 #include "camera_interface.glsl"
 #include "time_uniform.glsl"
 
+layout(location=2) uniform vec3 u_waterColor;
+layout(location=3) uniform float u_waterDensity;
+
 layout(location=0) out vec3 out_color;
 
 #include "util.glsl"
@@ -19,7 +22,6 @@ layout(location=0) out vec3 out_color;
 
 void main()
 {
-    const vec3 WaterColor = vec3(0.0, 118.0, 126.0) / 255.0;
     const float WaterSurfaceMultiplier = 0.6;
 
     #ifdef IN_WATER
@@ -64,8 +66,7 @@ void main()
     #endif
     float inVolumeRayNorm = clamp(inVolumeRay * InvFarPlane, 0, 1);
 
-    const float WaterDensity = 0.2;
-    finalColor = mix(WaterColor, finalColor, exp(-inVolumeRayNorm * WaterDensity));
+    finalColor = mix(u_waterColor, finalColor, exp(-inVolumeRayNorm * u_waterDensity));
 
     out_color = finalColor;
 }
