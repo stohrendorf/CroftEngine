@@ -1203,7 +1203,7 @@ bool World::hasSavedGames() const
 World::World(Engine& engine,
              std::unique_ptr<loader::file::level::Level>&& level,
              std::string title,
-             const std::optional<TR1TrackId>& track,
+             const std::optional<TR1TrackId>& ambient,
              bool useAlternativeLara,
              std::unordered_map<std::string, std::unordered_map<TR1ItemId, std::string>> itemTitles,
              std::shared_ptr<Player> player,
@@ -1331,9 +1331,9 @@ World::World(Engine& engine,
 
   getPresenter().getSoundEngine()->setListener(m_cameraController.get());
   getPresenter().setTrFont(std::make_unique<ui::TRFont>(*m_spriteSequences.at(TR1ItemId::FontGraphics)));
-  if(track.has_value())
+  if(ambient.has_value())
   {
-    m_audioEngine->playStopCdTrack(m_engine.getScriptEngine().getGameflow(), *track, false);
+    m_audioEngine->playStopCdTrack(m_engine.getScriptEngine().getGameflow(), *ambient, false);
   }
   getPresenter().disableScreenOverlay();
 }

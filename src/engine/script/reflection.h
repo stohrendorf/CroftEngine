@@ -96,7 +96,7 @@ private:
   const bool m_useAlternativeLara;
   const std::unordered_map<std::string, std::string> m_titles;
   const std::unordered_map<std::string, std::unordered_map<TR1ItemId, std::string>> m_itemTitles;
-  const std::optional<TR1TrackId> m_track;
+  const std::optional<TR1TrackId> m_ambient;
   const bool m_allowSave;
   const WeaponType m_defaultWeapon;
   const glm::vec3 m_waterColor;
@@ -116,7 +116,7 @@ public:
                  bool useAlternativeLara,
                  std::unordered_map<std::string, std::string> titles,
                  std::unordered_map<std::string, std::unordered_map<TR1ItemId, std::string>> itemTitles,
-                 std::optional<TR1TrackId> track,
+                 std::optional<TR1TrackId> ambient,
                  bool allowSave,
                  WeaponType defaultWeapon,
                  std::tuple<float, float, float> waterColor,
@@ -125,7 +125,7 @@ public:
       , m_useAlternativeLara{useAlternativeLara}
       , m_titles{std::move(titles)}
       , m_itemTitles{std::move(itemTitles)}
-      , m_track{track}
+      , m_ambient{ambient}
       , m_allowSave{allowSave}
       , m_defaultWeapon{defaultWeapon}
       , m_waterColor{std::get<0>(waterColor), std::get<1>(waterColor), std::get<2>(waterColor)}
@@ -184,7 +184,7 @@ public:
             bool useAlternativeLara,
             const std::unordered_map<std::string, std::string>& titles,
             const std::unordered_map<std::string, std::unordered_map<TR1ItemId, std::string>>& itemTitles,
-            std::optional<TR1TrackId> track);
+            std::optional<TR1TrackId> ambient);
 
   std::pair<RunResult, std::optional<size_t>> run(Engine& engine,
                                                   const std::shared_ptr<Player>& player,

@@ -59,7 +59,7 @@ class Level(LevelSequenceItem):
             self, *,
             name: str,
             titles: Dict[str, str],
-            track: Optional[TR1TrackId] = None,
+            ambient: Optional[TR1TrackId] = None,
             item_titles: Dict[str, Dict[TR1ItemId, str]] = {},
             use_alternative_lara: bool = False,
             allow_save: bool = True,

@@ -103,7 +103,7 @@ PYBIND11_EMBEDDED_MODULE(engine, m)
          py::arg("use_alternative_lara") = false,
          py::arg("titles"),
          py::arg("item_titles") = py::dict{},
-         py::arg("track") = std::nullopt,
+         py::arg("ambient") = std::nullopt,
          py::arg("allow_save") = true,
          py::arg("default_weapon") = engine::WeaponType::Pistols,
          py::arg("water_color") = engine::script::Level::DefaultWaterColor,
@@ -129,7 +129,7 @@ PYBIND11_EMBEDDED_MODULE(engine, m)
          py::arg("use_alternative_lara") = false,
          py::arg("titles"),
          py::arg("item_titles") = py::dict{},
-         py::arg("track") = std::nullopt);
+         py::arg("ambient") = std::nullopt);
 
   py::class_<engine::script::SplashScreen,
              engine::script::LevelSequenceItem,

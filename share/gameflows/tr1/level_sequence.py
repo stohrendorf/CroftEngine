@@ -21,7 +21,7 @@ title_menu = TitleMenu(
         "en_GB": "Tomb Raider",
         "de_DE": "Tomb Raider",
     },
-    track=TR1TrackId.MainTheme,
+    ambient=TR1TrackId.MainTheme,
 )
 
 lara_home = [
@@ -49,7 +49,7 @@ level_sequence = [
             "en_GB": "Caves",
             "de_DE": "Die Kavernen",
         },
-        track=TR1TrackId.Ambience1,
+        ambient=TR1TrackId.Ambience1,
     ),
     Level(
         name="DATA/LEVEL2.PHD",
@@ -57,7 +57,7 @@ level_sequence = [
             "en_GB": "City of Vilcabamba",
             "de_DE": "Die Stadt Vilcabamba",
         },
-        track=TR1TrackId.Ambience1,
+        ambient=TR1TrackId.Ambience1,
         item_titles={
             "en_GB": {
                 TR1ItemId.Puzzle1: "Gold Idol",
@@ -75,7 +75,7 @@ level_sequence = [
             "en_GB": "Lost Valley",
             "de_DE": "Das Verlorene Tal",
         },
-        track=TR1TrackId.Ambience1,
+        ambient=TR1TrackId.Ambience1,
         item_titles={
             "en_GB": {
                 TR1ItemId.Puzzle1: "Machine Cog",
@@ -91,7 +91,7 @@ level_sequence = [
             "en_GB": "Tomb of Qualopec",
             "de_DE": "Das Grab von Qualopec",
         },
-        track=TR1TrackId.Ambience1,
+        ambient=TR1TrackId.Ambience1,
         item_titles={
             "en_GB": {
                 TR1ItemId.ScionPiece5: "Scion",
@@ -115,7 +115,7 @@ level_sequence = [
             "en_GB": "St. Francis' Folly",
             "de_DE": "St. Francis' Folly",
         },
-        track=TR1TrackId.Ambience3,
+        ambient=TR1TrackId.Ambience3,
         item_titles={
             "en_GB": {
                 TR1ItemId.Key1: "Neptune Key",
@@ -139,7 +139,7 @@ level_sequence = [
             "en_GB": "Colosseum",
             "de_DE": "Das Kolosseum",
         },
-        track=TR1TrackId.Ambience3,
+        ambient=TR1TrackId.Ambience3,
         item_titles={
             "en_GB": {
                 TR1ItemId.Key1: "Rusty Key",
@@ -157,7 +157,7 @@ level_sequence = [
             "en_GB": "Palace Midas",
             "de_DE": "Der Palast des Midas",
         },
-        track=TR1TrackId.Ambience3,
+        ambient=TR1TrackId.Ambience3,
         item_titles={
             "en_GB": {
                 TR1ItemId.Puzzle1: "Gold Bar",
@@ -175,7 +175,7 @@ level_sequence = [
             "en_GB": "The Cistern",
             "de_DE": "Die Zisterne",
         },
-        track=TR1TrackId.Ambience2,
+        ambient=TR1TrackId.Ambience2,
         item_titles={
             "en_GB": {
                 TR1ItemId.Key1: "Gold Key",
@@ -197,7 +197,7 @@ level_sequence = [
             "en_GB": "Tomb of Tihocan",
             "de_DE": "Das Grab des Tihocan",
         },
-        track=TR1TrackId.Ambience2,
+        ambient=TR1TrackId.Ambience2,
         item_titles={
             "en_GB": {
                 TR1ItemId.Key1: "Gold Key",
@@ -228,7 +228,7 @@ level_sequence = [
             "en_GB": "City of Khamoon",
             "de_DE": "Die Stadt Khamoon",
         },
-        track=TR1TrackId.Ambience3,
+        ambient=TR1TrackId.Ambience3,
         item_titles={
             "en_GB": {
                 TR1ItemId.Key1: "Saphire Key",
@@ -246,7 +246,7 @@ level_sequence = [
             "en_GB": "Obelisk of Khamoon",
             "de_DE": "Der Obelisk von Khamoon",
         },
-        track=TR1TrackId.Ambience3,
+        ambient=TR1TrackId.Ambience3,
         item_titles={
             "en_GB": {
                 TR1ItemId.Puzzle1: "Eye of Horus",
@@ -272,7 +272,7 @@ level_sequence = [
             "en_GB": "Sanctuary of the Scion",
             "de_DE": "Das Heiligtum des Scion",
         },
-        track=TR1TrackId.Ambience3,
+        ambient=TR1TrackId.Ambience3,
         item_titles={
             "en_GB": {
                 TR1ItemId.Puzzle1: "Ankh",
@@ -308,7 +308,7 @@ level_sequence = [
             "en_GB": "Natla's Mines",
             "de_DE": "Natlas Katakomben",
         },
-        track=TR1TrackId.Ambience2,
+        ambient=TR1TrackId.Ambience2,
         item_titles={
             "en_GB": {
                 TR1ItemId.Puzzle1: "Fuse",
@@ -341,7 +341,7 @@ level_sequence = [
             "en_GB": "Atlantis",
             "de_DE": "Atlantis",
         },
-        track=TR1TrackId.Ambience4,
+        ambient=TR1TrackId.Ambience4,
         item_titles={
             "en_GB": {
                 TR1ItemId.ScionPiece5: "Scion",
@@ -364,7 +364,7 @@ level_sequence = [
             "en_GB": "The Great Pyramid",
             "de_DE": "Die Gro=e Pyramide",
         },
-        track=TR1TrackId.Ambience4,
+        ambient=TR1TrackId.Ambience4,
         item_titles={
             "en_GB": {
                 TR1ItemId.ScionPiece5: "Scion",

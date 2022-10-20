@@ -103,7 +103,7 @@ public:
   explicit World(Engine& engine,
                  std::unique_ptr<loader::file::level::Level>&& level,
                  std::string title,
-                 const std::optional<TR1TrackId>& track,
+                 const std::optional<TR1TrackId>& ambient,
                  bool useAlternativeLara,
                  std::unordered_map<std::string, std::unordered_map<TR1ItemId, std::string>> itemTitles,
                  std::shared_ptr<Player> player,

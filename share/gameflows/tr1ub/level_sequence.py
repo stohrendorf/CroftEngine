@@ -20,7 +20,7 @@ title_menu = TitleMenu(
         "en_GB": "Tomb Raider - Unfinished Business",
         "de_DE": "Tomb Raider - Unfinished Business",
     },
-    track=TR1TrackId.MainTheme,
+    ambient=TR1TrackId.MainTheme,
 )
 
 lara_home = [
@@ -47,7 +47,7 @@ level_sequence = [
             "en_GB": "Return to Egypt",
             "de_DE": "R~uckkehr nach ~Agypten",
         },
-        track=TR1TrackId.Ambience0,
+        ambient=TR1TrackId.Ambience0,
         item_titles={
             "en_GB": {
                 TR1ItemId.Key1: "Saphire Key",
@@ -63,7 +63,7 @@ level_sequence = [
             "en_GB": "Temple of the Cat",
             "de_DE": "Tempel der Katze",
         },
-        track=TR1TrackId.Ambience0,
+        ambient=TR1TrackId.Ambience0,
         item_titles={
             "en_GB": {
                 TR1ItemId.Key1: "Ornate Key",
@@ -79,7 +79,7 @@ level_sequence = [
             "en_GB": "Atlantean Stronghold",
             "de_DE": "Atlantische Festung",
         },
-        track=TR1TrackId.Ambience2,
+        ambient=TR1TrackId.Ambience2,
     ),
     Level(
         name="DATA/END2.PHD",
@@ -87,7 +87,7 @@ level_sequence = [
             "en_GB": "The Hive",
             "de_DE": "Der Bienenstock",
         },
-        track=TR1TrackId.Ambience2,
+        ambient=TR1TrackId.Ambience2,
     ),
     ResetSoundEngine(),
     *(
