@@ -15,15 +15,19 @@ namespace render::scene
 Material::Material(gslu::nn_shared<ShaderProgram> shaderProgram)
     : m_shaderProgram{std::move(shaderProgram)}
 {
-  for(const auto& u : m_shaderProgram->getHandle().getUniforms())
+  for(const auto& uniform : m_shaderProgram->getHandle().getUniforms())
+  {
+    // skip all uniforms that are part of a uniform block
+    if(uniform.getName().find('.') != std::string::npos)
+      continue;
+    m_uniforms.emplace_back(std::make_shared<UniformParameter>(uniform.getName()));
+  }
+  for(const auto& block : m_shaderProgram->getHandle().getUniformBlocks())
     // cppcheck-suppress useStlAlgorithm
-    m_uniforms.emplace_back(std::make_shared<UniformParameter>(u.getName()));
-  for(const auto& u : m_shaderProgram->getHandle().getUniformBlocks())
+    m_uniformBlocks.emplace_back(std::make_shared<UniformBlockParameter>(block.getName()));
+  for(const auto& block : m_shaderProgram->getHandle().getShaderStorageBlocks())
     // cppcheck-suppress useStlAlgorithm
-    m_uniformBlocks.emplace_back(std::make_shared<UniformBlockParameter>(u.getName()));
-  for(const auto& u : m_shaderProgram->getHandle().getShaderStorageBlocks())
-    // cppcheck-suppress useStlAlgorithm
-    m_buffers.emplace_back(std::make_shared<BufferParameter>(u.getName()));
+    m_buffers.emplace_back(std::make_shared<BufferParameter>(block.getName()));
 }
 
 Material::~Material() = default;
