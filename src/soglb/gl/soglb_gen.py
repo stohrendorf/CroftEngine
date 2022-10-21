@@ -54,10 +54,20 @@ def normalize_fn_name(name: str) -> str:
     name = strip_ext_suffix(name[:1].lower() + name[1:])
 
     if not any(name.lower().endswith(x)
-               for x in ('buffers', 'elements', 'shaders', 'textures', 'status', 'arrays', 'attrib', 'instanced')):
+               for x in
+               ('buffers', 'elements', 'shaders', 'textures', 'status', 'arrays', 'attrib', 'instanced', 'enabled',
+                'queries', 'indexed', 'indexedv')):
         # remove type specs
         if not name.startswith('getQueryBufferObject'):
             name = re.sub(r'([1-9]?)(u?(b|s|i|i64)|f|d)(v?)$', r'\1', name)
+    if any(name.lower().endswith(s) for s in
+           ('booleanv', 'doublev', 'floatv', 'integerv', 'integer64v', 'pointerv', 'createshaderprogramv', 'arrayv',
+            'indexedv')):
+        name = name[:-1]
+    if name.lower().endswith("i_v"):
+        name = name[:-3] + "I"
+    elif name.lower().endswith("i64_v"):
+        name = name[:-5] + "I"
     if name[:1].isnumeric():
         name = '_' + name
     return name

@@ -84,11 +84,11 @@ void frontFace(FrontFaceDirection mode)
 {
   return glFrontFace(static_cast<GLenum>(mode));
 }
-void getBooleanv(GetPName pname, bool* data)
+void getBoolean(GetPName pname, bool* data)
 {
   return glGetBooleanv(static_cast<GLenum>(pname), detail::constAway(reinterpret_cast<GLboolean*>(data)));
 }
-void getDoublev(GetPName pname, double* data)
+void getDouble(GetPName pname, double* data)
 {
   return glGetDoublev(static_cast<GLenum>(pname), detail::constAway(reinterpret_cast<GLdouble*>(data)));
 }
@@ -96,7 +96,7 @@ ErrorCode getError()
 {
   return static_cast<ErrorCode>(glGetError());
 }
-void getFloatv(GetPName pname, float* data)
+void getFloat(GetPName pname, float* data)
 {
   return glGetFloatv(static_cast<GLenum>(pname), detail::constAway(reinterpret_cast<GLfloat*>(data)));
 }
@@ -108,11 +108,11 @@ uint64_t getImageHandle(uint32_t texture, int32_t level, bool layered, int32_t l
                                                    static_cast<GLint>(layer),
                                                    static_cast<GLenum>(format)));
 }
-void getInteger64v(GetPName pname, int64_t* data)
+void getInteger64(GetPName pname, int64_t* data)
 {
   return glGetInteger64v(static_cast<GLenum>(pname), detail::constAway(reinterpret_cast<GLint64*>(data)));
 }
-void getIntegerv(GetPName pname, int32_t* data)
+void getInteger(GetPName pname, int32_t* data)
 {
   return glGetIntegerv(static_cast<GLenum>(pname), detail::constAway(reinterpret_cast<GLint*>(data)));
 }
@@ -178,7 +178,7 @@ void hint(HintTarget target, HintMode mode)
 {
   return glHint(static_cast<GLenum>(target), static_cast<GLenum>(mode));
 }
-bool isEnable(EnableCap cap)
+bool isEnabled(EnableCap cap)
 {
   return static_cast<bool>(glIsEnabled(static_cast<GLenum>(cap)));
 }
@@ -489,7 +489,7 @@ void texSubImage2D(TextureTarget target,
                          static_cast<GLenum>(type),
                          detail::constAway(pixels));
 }
-void getPointerv(GetPointervPName pname, void** params)
+void getPointer(GetPointervPName pname, void** params)
 {
   return glGetPointerv(static_cast<GLenum>(pname), detail::constAway(params));
 }
@@ -771,7 +771,7 @@ void deleteBuffers(core::SizeType n, const uint32_t* buffers)
 {
   return glDeleteBuffers(static_cast<GLsizei>(n), detail::constAway(reinterpret_cast<const GLuint*>(buffers)));
 }
-void deleteQuerie(core::SizeType n, const uint32_t* ids)
+void deleteQueries(core::SizeType n, const uint32_t* ids)
 {
   return glDeleteQueries(static_cast<GLsizei>(n), detail::constAway(reinterpret_cast<const GLuint*>(ids)));
 }
@@ -783,7 +783,7 @@ void genBuffers(core::SizeType n, uint32_t* buffers)
 {
   return glGenBuffers(static_cast<GLsizei>(n), detail::constAway(reinterpret_cast<GLuint*>(buffers)));
 }
-void genQuerie(core::SizeType n, uint32_t* ids)
+void genQueries(core::SizeType n, uint32_t* ids)
 {
   return glGenQueries(static_cast<GLsizei>(n), detail::constAway(reinterpret_cast<GLuint*>(ids)));
 }
@@ -792,7 +792,7 @@ void getBufferParameter(BufferTarget target, BufferPName pname, int32_t* params)
   return glGetBufferParameteriv(
     static_cast<GLenum>(target), static_cast<GLenum>(pname), detail::constAway(reinterpret_cast<GLint*>(params)));
 }
-void getBufferPointerv(BufferTarget target, BufferPointerName pname, void** params)
+void getBufferPointer(BufferTarget target, BufferPointerName pname, void** params)
 {
   return glGetBufferPointerv(static_cast<GLenum>(target), static_cast<GLenum>(pname), detail::constAway(params));
 }
@@ -971,7 +971,7 @@ void getUniform(uint32_t program, int32_t location, int32_t* params)
   return glGetUniformiv(
     static_cast<GLuint>(program), static_cast<GLint>(location), detail::constAway(reinterpret_cast<GLint*>(params)));
 }
-void getVertexAttribPointerv(uint32_t index, VertexAttribPointerProperty pname, void** pointer)
+void getVertexAttribPointer(uint32_t index, VertexAttribPointerProperty pname, void** pointer)
 {
   return glGetVertexAttribPointerv(static_cast<GLuint>(index), static_cast<GLenum>(pname), detail::constAway(pointer));
 }
@@ -1563,7 +1563,7 @@ void generateMipmap(TextureTarget target)
 {
   return glGenerateMipmap(static_cast<GLenum>(target));
 }
-void getBooleani_v(BufferTarget target, uint32_t index, bool* data)
+void getBooleanI(BufferTarget target, uint32_t index, bool* data)
 {
   return glGetBooleani_v(
     static_cast<GLenum>(target), static_cast<GLuint>(index), detail::constAway(reinterpret_cast<GLboolean*>(data)));
@@ -1583,7 +1583,7 @@ void getFramebufferAttachmentParameter(FramebufferTarget target,
                                                static_cast<GLenum>(pname),
                                                detail::constAway(reinterpret_cast<GLint*>(params)));
 }
-void getIntegeri_v(GetPName target, uint32_t index, int32_t* data)
+void getIntegerI(GetPName target, uint32_t index, int32_t* data)
 {
   return glGetIntegeri_v(
     static_cast<GLenum>(target), static_cast<GLuint>(index), detail::constAway(reinterpret_cast<GLint*>(data)));
@@ -1990,7 +1990,7 @@ void getBufferParameter(BufferTarget target, BufferPName pname, int64_t* params)
   return glGetBufferParameteri64v(
     static_cast<GLenum>(target), static_cast<GLenum>(pname), detail::constAway(reinterpret_cast<GLint64*>(params)));
 }
-void getInteger64i_v(GetPName target, uint32_t index, int64_t* data)
+void getInteger64I(GetPName target, uint32_t index, int64_t* data)
 {
   return glGetInteger64i_v(
     static_cast<GLenum>(target), static_cast<GLuint>(index), detail::constAway(reinterpret_cast<GLint64*>(data)));
@@ -2052,7 +2052,7 @@ void texImage3DMultisample(TextureTarget target,
                                  static_cast<GLsizei>(depth),
                                  static_cast<GLboolean>(fixedsamplelocations));
 }
-void bindFragDataLocationIndexe(uint32_t program, uint32_t colorNumber, uint32_t index, const char* name)
+void bindFragDataLocationIndexed(uint32_t program, uint32_t colorNumber, uint32_t index, const char* name)
 {
   return glBindFragDataLocationIndexed(static_cast<GLuint>(program),
                                        static_cast<GLuint>(colorNumber),
@@ -2204,7 +2204,7 @@ void vertexAttribP4(uint32_t index, VertexAttribPointerType type, bool normalize
                              static_cast<GLboolean>(normalized),
                              detail::constAway(reinterpret_cast<const GLuint*>(value)));
 }
-void beginQueryIndexe(QueryTarget target, uint32_t index, uint32_t id)
+void beginQueryIndexed(QueryTarget target, uint32_t index, uint32_t id)
 {
   return glBeginQueryIndexed(static_cast<GLenum>(target), static_cast<GLuint>(index), static_cast<GLuint>(id));
 }
@@ -2254,7 +2254,7 @@ void drawTransformFeedbackStream(PrimitiveType mode, uint32_t id, uint32_t strea
 {
   return glDrawTransformFeedbackStream(static_cast<GLenum>(mode), static_cast<GLuint>(id), static_cast<GLuint>(stream));
 }
-void endQueryIndexe(QueryTarget target, uint32_t index)
+void endQueryIndexed(QueryTarget target, uint32_t index)
 {
   return glEndQueryIndexed(static_cast<GLenum>(target), static_cast<GLuint>(index));
 }
@@ -2478,7 +2478,7 @@ void clearDepth(float d)
 {
   return glClearDepthf(static_cast<GLfloat>(d));
 }
-uint32_t createShaderProgramv(ShaderType type, core::SizeType count, const char* const* strings)
+uint32_t createShaderProgram(ShaderType type, core::SizeType count, const char* const* strings)
 {
   return static_cast<uint32_t>(
     glCreateShaderProgramv(static_cast<GLenum>(type),
@@ -2490,12 +2490,12 @@ void deleteProgramPipeline(core::SizeType n, const uint32_t* pipelines)
   return glDeleteProgramPipelines(static_cast<GLsizei>(n),
                                   detail::constAway(reinterpret_cast<const GLuint*>(pipelines)));
 }
-void depthRangeArrayv(uint32_t first, core::SizeType count, const double* v)
+void depthRangeArray(uint32_t first, core::SizeType count, const double* v)
 {
   return glDepthRangeArrayv(
     static_cast<GLuint>(first), static_cast<GLsizei>(count), detail::constAway(reinterpret_cast<const GLdouble*>(v)));
 }
-void depthRangeIndexe(uint32_t index, double n, double f)
+void depthRangeIndexed(uint32_t index, double n, double f)
 {
   return glDepthRangeIndexed(static_cast<GLuint>(index), static_cast<GLdouble>(n), static_cast<GLdouble>(f));
 }
@@ -2507,12 +2507,12 @@ void genProgramPipeline(core::SizeType n, uint32_t* pipelines)
 {
   return glGenProgramPipelines(static_cast<GLsizei>(n), detail::constAway(reinterpret_cast<GLuint*>(pipelines)));
 }
-void getDoublei_v(GetPName target, uint32_t index, double* data)
+void getDoubleI(GetPName target, uint32_t index, double* data)
 {
   return glGetDoublei_v(
     static_cast<GLenum>(target), static_cast<GLuint>(index), detail::constAway(reinterpret_cast<GLdouble*>(data)));
 }
-void getFloati_v(GetPName target, uint32_t index, float* data)
+void getFloatI(GetPName target, uint32_t index, float* data)
 {
   return glGetFloati_v(
     static_cast<GLenum>(target), static_cast<GLuint>(index), detail::constAway(reinterpret_cast<GLfloat*>(data)));
@@ -2944,12 +2944,12 @@ void releaseShaderCompiler()
 {
   return glReleaseShaderCompiler();
 }
-void scissorArrayv(uint32_t first, core::SizeType count, const int32_t* v)
+void scissorArray(uint32_t first, core::SizeType count, const int32_t* v)
 {
   return glScissorArrayv(
     static_cast<GLuint>(first), static_cast<GLsizei>(count), detail::constAway(reinterpret_cast<const GLint*>(v)));
 }
-void scissorIndexe(uint32_t index, int32_t left, int32_t bottom, core::SizeType width, core::SizeType height)
+void scissorIndexed(uint32_t index, int32_t left, int32_t bottom, core::SizeType width, core::SizeType height)
 {
   return glScissorIndexed(static_cast<GLuint>(index),
                           static_cast<GLint>(left),
@@ -2957,7 +2957,7 @@ void scissorIndexe(uint32_t index, int32_t left, int32_t bottom, core::SizeType 
                           static_cast<GLsizei>(width),
                           static_cast<GLsizei>(height));
 }
-void scissorIndexe(uint32_t index, const int32_t* v)
+void scissorIndexed(uint32_t index, const int32_t* v)
 {
   return glScissorIndexedv(static_cast<GLuint>(index), detail::constAway(reinterpret_cast<const GLint*>(v)));
 }
@@ -3015,7 +3015,7 @@ void vertexAttribLPointer(
                                 static_cast<GLsizei>(stride),
                                 detail::constAway(pointer));
 }
-void viewportArrayv(uint32_t first, core::SizeType count, const float* v)
+void viewportArray(uint32_t first, core::SizeType count, const float* v)
 {
   return glViewportArrayv(
     static_cast<GLuint>(first), static_cast<GLsizei>(count), detail::constAway(reinterpret_cast<const GLfloat*>(v)));
@@ -3867,7 +3867,7 @@ void createProgramPipeline(core::SizeType n, uint32_t* pipelines)
 {
   return glCreateProgramPipelines(static_cast<GLsizei>(n), detail::constAway(reinterpret_cast<GLuint*>(pipelines)));
 }
-void createQuerie(QueryTarget target, core::SizeType n, uint32_t* ids)
+void createQueries(QueryTarget target, core::SizeType n, uint32_t* ids)
 {
   return glCreateQueries(
     static_cast<GLenum>(target), static_cast<GLsizei>(n), detail::constAway(reinterpret_cast<GLuint*>(ids)));
@@ -3951,7 +3951,7 @@ void getNamedBufferParameter(uint32_t buffer, BufferPName pname, int32_t* params
   return glGetNamedBufferParameteriv(
     static_cast<GLuint>(buffer), static_cast<GLenum>(pname), detail::constAway(reinterpret_cast<GLint*>(params)));
 }
-void getNamedBufferPointerv(uint32_t buffer, BufferPointerName pname, void** params)
+void getNamedBufferPointer(uint32_t buffer, BufferPointerName pname, void** params)
 {
   return glGetNamedBufferPointerv(static_cast<GLuint>(buffer), static_cast<GLenum>(pname), detail::constAway(params));
 }
@@ -4070,14 +4070,14 @@ void getTextureSubImage(uint32_t texture,
                               static_cast<GLsizei>(bufSize),
                               detail::constAway(pixels));
 }
-void getTransformFeedbacki64_v(uint32_t xfb, TransformFeedbackPName pname, uint32_t index, int64_t* param)
+void getTransformFeedbackI(uint32_t xfb, TransformFeedbackPName pname, uint32_t index, int64_t* param)
 {
   return glGetTransformFeedbacki64_v(static_cast<GLuint>(xfb),
                                      static_cast<GLenum>(pname),
                                      static_cast<GLuint>(index),
                                      detail::constAway(reinterpret_cast<GLint64*>(param)));
 }
-void getTransformFeedbacki_v(uint32_t xfb, TransformFeedbackPName pname, uint32_t index, int32_t* param)
+void getTransformFeedbackI(uint32_t xfb, TransformFeedbackPName pname, uint32_t index, int32_t* param)
 {
   return glGetTransformFeedbacki_v(static_cast<GLuint>(xfb),
                                    static_cast<GLenum>(pname),

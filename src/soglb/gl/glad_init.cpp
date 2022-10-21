@@ -186,7 +186,7 @@ void gl::initializeGl(void* (*loadProc)(const char* name))
                           << reinterpret_cast<const char*>(GL_ASSERT_FN(api::getString(api::StringName::Renderer)));
   {
     int32_t numExts = 0;
-    GL_ASSERT(api::getIntegerv(api::GetPName::NumExtensions, &numExts));
+    GL_ASSERT(api::getInteger(api::GetPName::NumExtensions, &numExts));
     BOOST_LOG_TRIVIAL(info) << "OpenGL extensions: " << numExts;
     gsl_Assert(numExts >= 0);
     for(int32_t i = 0; i < numExts; ++i)

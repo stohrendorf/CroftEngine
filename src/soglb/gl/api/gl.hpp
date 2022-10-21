@@ -2631,13 +2631,13 @@ extern core::Sync fenceSync(SyncCondition condition, core::Bitfield<SyncBehavior
 extern void finish();
 extern void flush();
 extern void frontFace(FrontFaceDirection mode);
-extern void getBooleanv(GetPName pname, bool* data);
-extern void getDoublev(GetPName pname, double* data);
+extern void getBoolean(GetPName pname, bool* data);
+extern void getDouble(GetPName pname, double* data);
 extern ErrorCode getError();
-extern void getFloatv(GetPName pname, float* data);
+extern void getFloat(GetPName pname, float* data);
 extern uint64_t getImageHandle(uint32_t texture, int32_t level, bool layered, int32_t layer, PixelFormat format);
-extern void getInteger64v(GetPName pname, int64_t* data);
-extern void getIntegerv(GetPName pname, int32_t* data);
+extern void getInteger64(GetPName pname, int64_t* data);
+extern void getInteger(GetPName pname, int32_t* data);
 extern const uint8_t* getString(StringName name);
 extern void
   getSync(core::Sync sync, SyncParameterName pname, core::SizeType count, core::SizeType* length, int32_t* values);
@@ -2650,7 +2650,7 @@ extern uint64_t getTextureHandle(uint32_t texture);
 extern uint64_t getTextureSamplerHandle(uint32_t texture, uint32_t sampler);
 extern void getVertexAttribL(uint32_t index, VertexAttribEnum pname, uint64_t* params);
 extern void hint(HintTarget target, HintMode mode);
-extern bool isEnable(EnableCap cap);
+extern bool isEnabled(EnableCap cap);
 extern bool isImageHandleResident(uint64_t handle);
 extern bool isSync(core::Sync sync);
 extern bool isTextureHandleResident(uint64_t handle);
@@ -2748,7 +2748,7 @@ extern void texSubImage2D(TextureTarget target,
                           PixelFormat format,
                           PixelType type,
                           const void* pixels);
-extern void getPointerv(GetPointervPName pname, void** params);
+extern void getPointer(GetPointervPName pname, void** params);
 extern void copyTexSubImage3D(TextureTarget target,
                               int32_t level,
                               int32_t xoffset,
@@ -2857,12 +2857,12 @@ extern void bindBuffer(BufferTarget target, uint32_t buffer);
 extern void bufferData(BufferTarget target, std::size_t size, const void* data, BufferUsage usage);
 extern void bufferSubData(BufferTarget target, std::intptr_t offset, std::size_t size, const void* data);
 extern void deleteBuffers(core::SizeType n, const uint32_t* buffers);
-extern void deleteQuerie(core::SizeType n, const uint32_t* ids);
+extern void deleteQueries(core::SizeType n, const uint32_t* ids);
 extern void endQuery(QueryTarget target);
 extern void genBuffers(core::SizeType n, uint32_t* buffers);
-extern void genQuerie(core::SizeType n, uint32_t* ids);
+extern void genQueries(core::SizeType n, uint32_t* ids);
 extern void getBufferParameter(BufferTarget target, BufferPName pname, int32_t* params);
-extern void getBufferPointerv(BufferTarget target, BufferPointerName pname, void** params);
+extern void getBufferPointer(BufferTarget target, BufferPointerName pname, void** params);
 extern void getBufferSubData(BufferTarget target, std::intptr_t offset, std::size_t size, void* data);
 extern void getQueryObject(uint32_t id, QueryObjectParameterName pname, int32_t* params);
 extern void getQueryObject(uint32_t id, QueryObjectParameterName pname, uint32_t* params);
@@ -2907,7 +2907,7 @@ extern void getShader(uint32_t shader, ShaderParameterName pname, int32_t* param
 extern int32_t getUniformLocation(uint32_t program, const char* name);
 extern void getUniform(uint32_t program, int32_t location, float* params);
 extern void getUniform(uint32_t program, int32_t location, int32_t* params);
-extern void getVertexAttribPointerv(uint32_t index, VertexAttribPointerProperty pname, void** pointer);
+extern void getVertexAttribPointer(uint32_t index, VertexAttribPointerProperty pname, void** pointer);
 extern void getVertexAttrib(uint32_t index, VertexAttribProperty pname, double* params);
 extern void getVertexAttrib(uint32_t index, VertexAttribProperty pname, float* params);
 extern void getVertexAttrib(uint32_t index, VertexAttribProperty pname, int32_t* params);
@@ -3041,13 +3041,13 @@ extern void genFramebuffers(core::SizeType n, uint32_t* framebuffers);
 extern void genRenderbuffers(core::SizeType n, uint32_t* renderbuffers);
 extern void genVertexArrays(core::SizeType n, uint32_t* arrays);
 extern void generateMipmap(TextureTarget target);
-extern void getBooleani_v(BufferTarget target, uint32_t index, bool* data);
+extern void getBooleanI(BufferTarget target, uint32_t index, bool* data);
 extern int32_t getFragDataLocation(uint32_t program, const char* name);
 extern void getFramebufferAttachmentParameter(FramebufferTarget target,
                                               FramebufferAttachment attachment,
                                               FramebufferAttachmentParameterName pname,
                                               int32_t* params);
-extern void getIntegeri_v(GetPName target, uint32_t index, int32_t* data);
+extern void getIntegerI(GetPName target, uint32_t index, int32_t* data);
 extern void getRenderbufferParameter(RenderbufferTarget target, RenderbufferParameterName pname, int32_t* params);
 extern const uint8_t* getString(StringName name, uint32_t index);
 extern void getTexParameterI(TextureTarget target, GetTextureParameter pname, int32_t* params);
@@ -3157,7 +3157,7 @@ extern void drawRangeElementsBaseVertex(PrimitiveType mode,
 extern void
   framebufferTexture(FramebufferTarget target, FramebufferAttachment attachment, uint32_t texture, int32_t level);
 extern void getBufferParameter(BufferTarget target, BufferPName pname, int64_t* params);
-extern void getInteger64i_v(GetPName target, uint32_t index, int64_t* data);
+extern void getInteger64I(GetPName target, uint32_t index, int64_t* data);
 extern void getMultisample(GetMultisamplePNameNV pname, uint32_t index, float* val);
 extern void multiDrawElementsBaseVertex(PrimitiveType mode,
                                         const core::SizeType* count,
@@ -3180,7 +3180,7 @@ extern void texImage3DMultisample(TextureTarget target,
                                   core::SizeType height,
                                   core::SizeType depth,
                                   bool fixedsamplelocations);
-extern void bindFragDataLocationIndexe(uint32_t program, uint32_t colorNumber, uint32_t index, const char* name);
+extern void bindFragDataLocationIndexed(uint32_t program, uint32_t colorNumber, uint32_t index, const char* name);
 extern void bindSampler(uint32_t unit, uint32_t sampler);
 extern void deleteSampler(core::SizeType count, const uint32_t* samplers);
 extern void genSampler(core::SizeType count, uint32_t* samplers);
@@ -3208,7 +3208,7 @@ extern void vertexAttribP3(uint32_t index, VertexAttribPointerType type, bool no
 extern void vertexAttribP3(uint32_t index, VertexAttribPointerType type, bool normalized, const uint32_t* value);
 extern void vertexAttribP4(uint32_t index, VertexAttribPointerType type, bool normalized, uint32_t value);
 extern void vertexAttribP4(uint32_t index, VertexAttribPointerType type, bool normalized, const uint32_t* value);
-extern void beginQueryIndexe(QueryTarget target, uint32_t index, uint32_t id);
+extern void beginQueryIndexed(QueryTarget target, uint32_t index, uint32_t id);
 extern void bindTransformFeedback(BindTransformFeedbackTarget target, uint32_t id);
 extern void blendEquationSeparate(uint32_t buf, BlendEquationModeEXT modeRGB, BlendEquationModeEXT modeAlpha);
 extern void blendEquation(uint32_t buf, BlendEquationModeEXT mode);
@@ -3220,7 +3220,7 @@ extern void drawArraysIndirect(PrimitiveType mode, const void* indirect);
 extern void drawElementsIndirect(PrimitiveType mode, DrawElementsType type, const void* indirect);
 extern void drawTransformFeedback(PrimitiveType mode, uint32_t id);
 extern void drawTransformFeedbackStream(PrimitiveType mode, uint32_t id, uint32_t stream);
-extern void endQueryIndexe(QueryTarget target, uint32_t index);
+extern void endQueryIndexed(QueryTarget target, uint32_t index);
 extern void genTransformFeedback(core::SizeType n, uint32_t* ids);
 extern void getActiveSubroutineName(
   uint32_t program, ShaderType shadertype, uint32_t index, core::SizeType bufSize, core::SizeType* length, char* name);
@@ -3261,14 +3261,14 @@ extern void uniformSubroutines(ShaderType shadertype, core::SizeType count, cons
 extern void activeShaderProgram(uint32_t pipeline, uint32_t program);
 extern void bindProgramPipeline(uint32_t pipeline);
 extern void clearDepth(float d);
-extern uint32_t createShaderProgramv(ShaderType type, core::SizeType count, const char* const* strings);
+extern uint32_t createShaderProgram(ShaderType type, core::SizeType count, const char* const* strings);
 extern void deleteProgramPipeline(core::SizeType n, const uint32_t* pipelines);
-extern void depthRangeArrayv(uint32_t first, core::SizeType count, const double* v);
-extern void depthRangeIndexe(uint32_t index, double n, double f);
+extern void depthRangeArray(uint32_t first, core::SizeType count, const double* v);
+extern void depthRangeIndexed(uint32_t index, double n, double f);
 extern void depthRange(float n, float f);
 extern void genProgramPipeline(core::SizeType n, uint32_t* pipelines);
-extern void getDoublei_v(GetPName target, uint32_t index, double* data);
-extern void getFloati_v(GetPName target, uint32_t index, float* data);
+extern void getDoubleI(GetPName target, uint32_t index, double* data);
+extern void getFloatI(GetPName target, uint32_t index, float* data);
 extern void getProgramBinary(
   uint32_t program, core::SizeType bufSize, core::SizeType* length, core::EnumType* binaryFormat, void* binary);
 extern void getProgramPipelineInfoLog(uint32_t pipeline, core::SizeType bufSize, core::SizeType* length, char* infoLog);
@@ -3348,9 +3348,9 @@ extern void programUniformMatrix4x3(
 extern void
   programUniformMatrix4x3(uint32_t program, int32_t location, core::SizeType count, bool transpose, const float* value);
 extern void releaseShaderCompiler();
-extern void scissorArrayv(uint32_t first, core::SizeType count, const int32_t* v);
-extern void scissorIndexe(uint32_t index, int32_t left, int32_t bottom, core::SizeType width, core::SizeType height);
-extern void scissorIndexe(uint32_t index, const int32_t* v);
+extern void scissorArray(uint32_t first, core::SizeType count, const int32_t* v);
+extern void scissorIndexed(uint32_t index, int32_t left, int32_t bottom, core::SizeType width, core::SizeType height);
+extern void scissorIndexed(uint32_t index, const int32_t* v);
 extern void useProgramStage(uint32_t pipeline, core::Bitfield<UseProgramStageMask> stages, uint32_t program);
 extern void validateProgramPipeline(uint32_t pipeline);
 extern void vertexAttribL1(uint32_t index, double x);
@@ -3363,7 +3363,7 @@ extern void vertexAttribL4(uint32_t index, double x, double y, double z, double 
 extern void vertexAttribL4(uint32_t index, const double* v);
 extern void vertexAttribLPointer(
   uint32_t index, int32_t size, VertexAttribLType type, core::SizeType stride, const void* pointer);
-extern void viewportArrayv(uint32_t first, core::SizeType count, const float* v);
+extern void viewportArray(uint32_t first, core::SizeType count, const float* v);
 extern void viewportIndexed(uint32_t index, float x, float y, float w, float h);
 extern void viewportIndexed(uint32_t index, const float* v);
 extern void bindImageTexture(uint32_t unit,
@@ -3654,7 +3654,7 @@ extern void copyTextureSubImage3D(uint32_t texture,
 extern void createBuffers(core::SizeType n, uint32_t* buffers);
 extern void createFramebuffers(core::SizeType n, uint32_t* framebuffers);
 extern void createProgramPipeline(core::SizeType n, uint32_t* pipelines);
-extern void createQuerie(QueryTarget target, core::SizeType n, uint32_t* ids);
+extern void createQueries(QueryTarget target, core::SizeType n, uint32_t* ids);
 extern void createRenderbuffers(core::SizeType n, uint32_t* renderbuffers);
 extern void createSampler(core::SizeType n, uint32_t* samplers);
 extern void createTextures(TextureTarget target, core::SizeType n, uint32_t* textures);
@@ -3678,7 +3678,7 @@ extern void getCompressedTextureSubImage(uint32_t texture,
 extern GraphicsResetStatus getGraphicsResetStatus();
 extern void getNamedBufferParameter(uint32_t buffer, BufferPName pname, int64_t* params);
 extern void getNamedBufferParameter(uint32_t buffer, BufferPName pname, int32_t* params);
-extern void getNamedBufferPointerv(uint32_t buffer, BufferPointerName pname, void** params);
+extern void getNamedBufferPointer(uint32_t buffer, BufferPointerName pname, void** params);
 extern void getNamedBufferSubData(uint32_t buffer, std::intptr_t offset, std::size_t size, void* data);
 extern void getNamedFramebufferAttachmentParameter(uint32_t framebuffer,
                                                    FramebufferAttachment attachment,
@@ -3712,8 +3712,8 @@ extern void getTextureSubImage(uint32_t texture,
                                PixelType type,
                                core::SizeType bufSize,
                                void* pixels);
-extern void getTransformFeedbacki64_v(uint32_t xfb, TransformFeedbackPName pname, uint32_t index, int64_t* param);
-extern void getTransformFeedbacki_v(uint32_t xfb, TransformFeedbackPName pname, uint32_t index, int32_t* param);
+extern void getTransformFeedbackI(uint32_t xfb, TransformFeedbackPName pname, uint32_t index, int64_t* param);
+extern void getTransformFeedbackI(uint32_t xfb, TransformFeedbackPName pname, uint32_t index, int32_t* param);
 extern void getTransformFeedback(uint32_t xfb, TransformFeedbackPName pname, int32_t* param);
 extern void getVertexArrayIndexed64(uint32_t vaobj, uint32_t index, VertexArrayPName pname, int64_t* param);
 extern void getVertexArrayIndexed(uint32_t vaobj, uint32_t index, VertexArrayPName pname, int32_t* param);

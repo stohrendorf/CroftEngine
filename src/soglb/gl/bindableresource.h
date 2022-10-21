@@ -93,7 +93,7 @@ protected:
       return;
 
     int32_t maxLabelLength = 0;
-    GL_ASSERT(api::getIntegerv(api::GetPName::MaxLabelLength, &maxLabelLength));
+    GL_ASSERT(api::getInteger(api::GetPName::MaxLabelLength, &maxLabelLength));
     BOOST_ASSERT(maxLabelLength > 0);
 
     GL_ASSERT(api::objectLabel(
