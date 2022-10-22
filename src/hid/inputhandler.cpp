@@ -126,8 +126,7 @@ bool isKeyPressed(GlfwKey key)
 }
 } // namespace
 
-InputHandler::InputHandler(gsl::not_null<std::shared_ptr<gl::Window>> window,
-                           const std::filesystem::path& gameControllerDb)
+InputHandler::InputHandler(gslu::nn_shared<gl::Window> window, const std::filesystem::path& gameControllerDb)
     : m_window{std::move(window)}
 {
   std::ifstream gameControllerDbFile{util::ensureFileExists(gameControllerDb), std::ios::in | std::ios::binary};

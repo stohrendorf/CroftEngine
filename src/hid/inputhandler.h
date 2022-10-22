@@ -12,6 +12,7 @@
 #include <gl/glfw.h>
 #include <gl/soglb_fwd.h>
 #include <gsl/gsl-lite.hpp>
+#include <gslu.h>
 #include <map>
 #include <optional>
 #include <vector>
@@ -24,8 +25,7 @@ enum class GlfwGamepadButton;
 class InputHandler final
 {
 public:
-  explicit InputHandler(gsl::not_null<std::shared_ptr<gl::Window>> window,
-                        const std::filesystem::path& gameControllerDb);
+  explicit InputHandler(gslu::nn_shared<gl::Window> window, const std::filesystem::path& gameControllerDb);
   void setMappings(const std::vector<engine::NamedInputMappingConfig>& inputMappings);
 
   void update();
@@ -73,7 +73,7 @@ public:
 
 private:
   InputState m_inputState{};
-  const gsl::not_null<std::shared_ptr<gl::Window>> m_window;
+  const gslu::nn_shared<gl::Window> m_window;
   std::vector<engine::NamedInputMappingConfig> m_inputMappings{};
   engine::InputMappingConfig m_mergedInputMappings{};
 };
