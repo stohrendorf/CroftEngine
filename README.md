@@ -1,5 +1,9 @@
 # ![CroftEngine logo](./share/logo_32.png) CroftEngine
 
+# CroftEngine is dead
+
+Please note that because every tool builder or level builder seemingly decided to completely ignore CroftEngine despite offering support, the project is now dead after about 7 years of development.
+
 [![CroftEngine-CI](https://github.com/stohrendorf/CroftEngine/actions/workflows/repo-sync.yml/badge.svg)](https://github.com/stohrendorf/CroftEngine/actions/workflows/repo-sync.yml)
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fstohrendorf%2FCroftEngine.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fstohrendorf%2FCroftEngine?ref=badge_shield)
 [![Total alerts](https://img.shields.io/lgtm/alerts/g/stohrendorf/CroftEngine.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/stohrendorf/CroftEngine/alerts/)
