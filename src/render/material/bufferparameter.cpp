@@ -2,17 +2,19 @@
 
 #include "engine/ghosting/ghostmodel.h"
 #include "engine/skeletalmodelnode.h"
-#include "mesh.h"
-#include "node.h"
+#include "render/scene/mesh.h"
+#include "render/scene/node.h"
 #include "shaderprogram.h"
 
 #include <boost/log/trivial.hpp>
 #include <gl/program.h>
 #include <iosfwd>
 
-namespace render::scene
+namespace render::material
 {
-bool BufferParameter::bind(const Node* node, const Mesh& mesh, const gslu::nn_shared<ShaderProgram>& shaderProgram)
+bool BufferParameter::bind(const scene::Node* node,
+                           const scene::Mesh& mesh,
+                           const gslu::nn_shared<ShaderProgram>& shaderProgram)
 {
   auto binder = mesh.findShaderStorageBlockBinder(getName());
   if(!m_bufferBinder && binder == nullptr)
@@ -40,7 +42,7 @@ bool BufferParameter::bind(const Node* node, const Mesh& mesh, const gslu::nn_sh
 
 void BufferParameter::bindBoneTransformBuffer(std::function<bool()> smooth)
 {
-  m_bufferBinder = [smooth](const Node* node, const Mesh& /*mesh*/, gl::ShaderStorageBlock& ssb)
+  m_bufferBinder = [smooth](const scene::Node* node, const scene::Mesh& /*mesh*/, gl::ShaderStorageBlock& ssb)
   {
     if(const auto* mo = dynamic_cast<const engine::SkeletalModelNode*>(node))
       ssb.bind(mo->getMeshMatricesBuffer(smooth));
@@ -60,4 +62,4 @@ gl::ShaderStorageBlock*
 
   return nullptr;
 }
-} // namespace render::scene
+} // namespace render::material

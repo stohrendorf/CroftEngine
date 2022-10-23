@@ -18,9 +18,13 @@
 #include <string>
 #include <vector>
 
-namespace render::scene
+namespace render::material
 {
 class MaterialManager;
+}
+
+namespace render::scene
+{
 class Mesh;
 } // namespace render::scene
 
@@ -122,7 +126,7 @@ public:
     ++m_boneIndex;
   }
 
-  gslu::nn_shared<render::scene::Mesh> toMesh(render::scene::MaterialManager& materialManager,
+  gslu::nn_shared<render::scene::Mesh> toMesh(render::material::MaterialManager& materialManager,
                                               bool skeletal,
                                               bool shadowCaster,
                                               std::function<bool()> smooth,

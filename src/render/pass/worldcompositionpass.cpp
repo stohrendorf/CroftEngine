@@ -4,14 +4,14 @@
 #include "config.h"
 #include "geometrypass.h"
 #include "portalpass.h"
+#include "render/material/material.h"
+#include "render/material/materialmanager.h"
+#include "render/material/rendermode.h"
+#include "render/material/uniformparameter.h"
 #include "render/renderpipeline.h"
 #include "render/rendersettings.h"
-#include "render/scene/material.h"
-#include "render/scene/materialmanager.h"
 #include "render/scene/mesh.h"
 #include "render/scene/rendercontext.h"
-#include "render/scene/rendermode.h"
-#include "render/scene/uniformparameter.h"
 
 #include <algorithm>
 #include <gl/debuggroup.h>
@@ -37,7 +37,7 @@ class Node;
 
 namespace render::pass
 {
-WorldCompositionPass::WorldCompositionPass(scene::MaterialManager& materialManager,
+WorldCompositionPass::WorldCompositionPass(material::MaterialManager& materialManager,
                                            const RenderSettings& renderSettings,
                                            const glm::ivec2& viewport,
                                            const GeometryPass& geometryPass,
@@ -174,7 +174,7 @@ void WorldCompositionPass::render(bool inWater)
   SOGLB_DEBUGGROUP("world-composition-pass");
   m_fb->bind();
 
-  scene::RenderContext context{scene::RenderMode::Full, std::nullopt};
+  scene::RenderContext context{material::RenderMode::Full, std::nullopt};
   if(inWater)
     m_inWaterMesh->render(nullptr, context);
   else

@@ -30,7 +30,7 @@ namespace engine
 {
 ControllerLayouts loadControllerButtonIcons(render::MultiTextureAtlas& atlases,
                                             const std::filesystem::path& configFile,
-                                            const gslu::nn_shared<render::scene::Material>& material)
+                                            const gslu::nn_shared<render::material::Material>& material)
 {
   struct Layout
   {

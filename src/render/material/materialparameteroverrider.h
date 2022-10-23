@@ -5,7 +5,7 @@
 
 #include <boost/container/flat_map.hpp>
 
-namespace render::scene
+namespace render::material
 {
 template<typename T>
 class SingleMaterialParameterOverrider final
@@ -92,4 +92,4 @@ private:
   SingleMaterialParameterOverrider<UniformBlockParameter::BufferBinder> m_uniformBlockBinders;
   SingleMaterialParameterOverrider<BufferParameter::BufferBinder> m_bufferBinders;
 };
-} // namespace render::scene
+} // namespace render::material

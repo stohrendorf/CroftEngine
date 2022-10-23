@@ -11,11 +11,15 @@
 #include <memory>
 #include <vector>
 
-namespace render::scene
+namespace render::material
 {
 class MaterialManager;
+}
+
+namespace render::scene
+{
 class Camera;
-} // namespace render::scene
+}
 
 namespace engine::world
 {
@@ -57,11 +61,11 @@ private:
   std::vector<gslu::nn_shared<pass::EffectPass<gl::SRGB8>>> m_effects{};
   std::vector<gslu::nn_shared<pass::EffectPass<gl::SRGB8>>> m_backbufferEffects{};
 
-  void initBackbufferEffects(scene::MaterialManager& materialManager);
-  void initWorldEffects(scene::MaterialManager& materialManager);
+  void initBackbufferEffects(material::MaterialManager& materialManager);
+  void initWorldEffects(material::MaterialManager& materialManager);
 
 public:
-  explicit RenderPipeline(scene::MaterialManager& materialManager,
+  explicit RenderPipeline(material::MaterialManager& materialManager,
                           const glm::ivec2& renderViewport,
                           const glm::ivec2& uiViewport,
                           const glm::ivec2& displayViewport);
@@ -74,13 +78,13 @@ public:
 
   void updateCamera(const gslu::nn_shared<scene::Camera>& camera);
 
-  void resize(scene::MaterialManager& materialManager,
+  void resize(material::MaterialManager& materialManager,
               const glm::ivec2& renderViewport,
               const glm::ivec2& uiViewport,
               const glm::ivec2& displayViewport,
               bool force = false);
 
-  void apply(const RenderSettings& renderSettings, scene::MaterialManager& materialManager);
+  void apply(const RenderSettings& renderSettings, material::MaterialManager& materialManager);
 
   [[nodiscard]] auto getLocalTime() const
   {

@@ -17,14 +17,14 @@
 #include "modelobject.h"
 #include "objectstate.h"
 #include "qs/qs.h"
-#include "render/scene/material.h"
-#include "render/scene/materialgroup.h"
-#include "render/scene/materialmanager.h"
+#include "render/material/material.h"
+#include "render/material/materialgroup.h"
+#include "render/material/materialmanager.h"
+#include "render/material/rendermode.h"
+#include "render/material/shaderprogram.h"
 #include "render/scene/mesh.h"
 #include "render/scene/names.h"
 #include "render/scene/node.h"
-#include "render/scene/rendermode.h"
-#include "render/scene/shaderprogram.h"
 #include "serialization/serialization.h"
 #include "util/helpers.h"
 
@@ -51,7 +51,7 @@ namespace engine::objects
 namespace
 {
 std::tuple<gslu::nn_shared<render::scene::Mesh>, gslu::nn_shared<gl::VertexBuffer<glm::vec3>>>
-  createBolt(const gslu::nn_shared<render::scene::Material>& material, float lineWidth)
+  createBolt(const gslu::nn_shared<render::material::Material>& material, float lineWidth)
 {
   std::array<glm::vec3, LightningEmitter::ControlPoints> vertices{};
 
@@ -75,7 +75,7 @@ std::tuple<gslu::nn_shared<render::scene::Mesh>, gslu::nn_shared<gl::VertexBuffe
   mesh->getRenderState().setLineWidth(lineWidth);
   mesh->getRenderState().setScissorTest(false);
 
-  mesh->getMaterialGroup().set(render::scene::RenderMode::Full, material);
+  mesh->getMaterialGroup().set(render::material::RenderMode::Full, material);
 
   return {mesh, vb};
 }

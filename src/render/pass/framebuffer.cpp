@@ -1,8 +1,8 @@
 #include "framebuffer.h"
 
+#include "render/material/rendermode.h"
 #include "render/scene/mesh.h"
 #include "render/scene/rendercontext.h"
-#include "render/scene/rendermode.h"
 
 #include <algorithm>
 #include <gl/framebuffer.h>
@@ -26,7 +26,7 @@ class Node;
 
 namespace render::pass
 {
-Framebuffer::Framebuffer(const std::string& name, gslu::nn_shared<scene::Material> material, const glm::ivec2& size)
+Framebuffer::Framebuffer(const std::string& name, gslu::nn_shared<material::Material> material, const glm::ivec2& size)
     : m_material{std::move(material)}
     , m_mesh{scene::createScreenQuad(m_material, name)}
     , m_depthBuffer{std::make_shared<gl::TextureDepth<float>>(size, name + "-depth")}
@@ -60,7 +60,7 @@ void Framebuffer::bind()
 
 void Framebuffer::render()
 {
-  scene::RenderContext context{scene::RenderMode::Full, std::nullopt};
+  scene::RenderContext context{material::RenderMode::Full, std::nullopt};
   m_mesh->render(nullptr, context);
 }
 } // namespace render::pass

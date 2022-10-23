@@ -2,11 +2,11 @@
 
 #include "blur.h"
 #include "camera.h"
-#include "materialgroup.h"
-#include "materialmanager.h"
 #include "mesh.h"
+#include "render/material/materialgroup.h"
+#include "render/material/materialmanager.h"
+#include "render/material/rendermode.h"
 #include "rendercontext.h"
-#include "rendermode.h"
 
 #include <algorithm>
 #include <gl/buffer.h>
@@ -39,7 +39,7 @@ class Node;
 
 namespace render::scene
 {
-void CSM::Split::init(int32_t resolution, size_t idx, MaterialManager& materialManager)
+void CSM::Split::init(int32_t resolution, size_t idx, material::MaterialManager& materialManager)
 {
   auto sampler = gsl::make_unique<gl::Sampler>("csm-texture/" + std::to_string(idx) + "-sampler")
                  | set(gl::api::TextureMinFilter::Nearest) | set(gl::api::TextureMagFilter::Nearest)
@@ -77,7 +77,7 @@ void CSM::Split::init(int32_t resolution, size_t idx, MaterialManager& materialM
                      uniform.set(gsl::not_null{depthTextureHandle});
                    });
   squareMesh->getRenderState().merge(squareFramebuffer->getRenderState());
-  squareMesh->getMaterialGroup().set(RenderMode::Full, squareMaterial);
+  squareMesh->getMaterialGroup().set(material::RenderMode::Full, squareMaterial);
 
   squareBlur = std::make_shared<SeparableBlur<gl::RG16F>>(
     "squareBlur-" + std::to_string(idx), materialManager, uint8_t{2}, true);
@@ -90,7 +90,7 @@ void CSM::Split::renderSquare()
   SOGLB_DEBUGGROUP("vsm-square-pass");
   squareFramebuffer->bind();
 
-  RenderContext context{RenderMode::Full, std::nullopt};
+  RenderContext context{material::RenderMode::Full, std::nullopt};
   squareMesh->render(nullptr, context);
 }
 
@@ -101,7 +101,7 @@ void CSM::Split::renderBlur()
   squareBlur->render();
 }
 
-CSM::CSM(int32_t resolution, MaterialManager& materialManager)
+CSM::CSM(int32_t resolution, material::MaterialManager& materialManager)
     : m_resolution{resolution}
     , m_buffer{"csm-data-ubo", gl::api::BufferUsage::DynamicDraw, m_bufferData}
 {

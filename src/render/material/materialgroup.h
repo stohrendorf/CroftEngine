@@ -6,7 +6,7 @@
 #include <memory>
 #include <stdexcept>
 
-namespace render::scene
+namespace render::material
 {
 class Material;
 
@@ -54,4 +54,4 @@ private:
   std::shared_ptr<Material> m_csmDepthOnly{nullptr};
   std::shared_ptr<Material> m_depthOnly{nullptr};
 };
-} // namespace render::scene
+} // namespace render::material

@@ -1,16 +1,18 @@
 #include "uniformparameter.h"
 
-#include "camera.h"
-#include "mesh.h"
-#include "node.h"
+#include "render/scene/camera.h"
+#include "render/scene/mesh.h"
+#include "render/scene/node.h"
 #include "shaderprogram.h"
 
 #include <boost/log/trivial.hpp>
 #include <gl/program.h>
 
-namespace render::scene
+namespace render::material
 {
-bool UniformParameter::bind(const Node* node, const Mesh& mesh, const gslu::nn_shared<ShaderProgram>& shaderProgram)
+bool UniformParameter::bind(const scene::Node* node,
+                            const scene::Mesh& mesh,
+                            const gslu::nn_shared<ShaderProgram>& shaderProgram)
 {
   auto setter = mesh.findUniformSetter(getName());
   if(!m_valueSetter && setter == nullptr)
@@ -46,8 +48,8 @@ gl::Uniform* UniformParameter::findUniform(const gslu::nn_shared<ShaderProgram>&
   return nullptr;
 }
 
-bool UniformBlockParameter::bind(const Node* node,
-                                 const Mesh& mesh,
+bool UniformBlockParameter::bind(const scene::Node* node,
+                                 const scene::Mesh& mesh,
                                  const gslu::nn_shared<ShaderProgram>& shaderProgram)
 {
   auto binder = mesh.findUniformBlockBinder(getName());
@@ -76,16 +78,16 @@ bool UniformBlockParameter::bind(const Node* node,
 
 void UniformBlockParameter::bindTransformBuffer()
 {
-  m_bufferBinder = [](const Node* node, const Mesh& /*mesh*/, gl::UniformBlock& ub)
+  m_bufferBinder = [](const scene::Node* node, const scene::Mesh& /*mesh*/, gl::UniformBlock& ub)
   {
     Expects(node != nullptr);
     ub.bind(node->getTransformBuffer());
   };
 }
 
-void UniformBlockParameter::bindCameraBuffer(const gslu::nn_shared<Camera>& camera)
+void UniformBlockParameter::bindCameraBuffer(const gslu::nn_shared<scene::Camera>& camera)
 {
-  m_bufferBinder = [camera](const Node* /*node*/, const Mesh& /*mesh*/, gl::UniformBlock& ub)
+  m_bufferBinder = [camera](const scene::Node* /*node*/, const scene::Mesh& /*mesh*/, gl::UniformBlock& ub)
   {
     ub.bind(camera->getMatricesBuffer());
   };
@@ -101,4 +103,4 @@ gl::UniformBlock* UniformBlockParameter::findUniformBlock(const gslu::nn_shared<
 
   return nullptr;
 }
-} // namespace render::scene
+} // namespace render::material

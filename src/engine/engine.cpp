@@ -26,12 +26,12 @@
 #include "player.h"
 #include "presenter.h"
 #include "qs/qs.h"
+#include "render/material/materialmanager.h"
+#include "render/material/rendermode.h"
 #include "render/rendersettings.h"
-#include "render/scene/materialmanager.h"
 #include "render/scene/mesh.h"
 #include "render/scene/node.h"
 #include "render/scene/rendercontext.h"
-#include "render/scene/rendermode.h"
 #include "script/reflection.h"
 #include "script/scriptengine.h"
 #include "serialization/serialization.h"
@@ -614,7 +614,7 @@ std::pair<RunResult, std::optional<size_t>> Engine::runTitleMenu(world::World& w
       });
     m_presenter->bindBackbuffer();
     {
-      render::scene::RenderContext context{render::scene::RenderMode::Full, std::nullopt};
+      render::scene::RenderContext context{render::material::RenderMode::Full, std::nullopt};
       backdropMesh->render(nullptr, context);
     }
     menu->display(ui, world);

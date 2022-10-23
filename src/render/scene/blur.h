@@ -1,11 +1,11 @@
 #pragma once
 
-#include "material.h"
-#include "materialmanager.h"
 #include "mesh.h"
+#include "render/material/material.h"
+#include "render/material/materialmanager.h"
+#include "render/material/shaderprogram.h"
+#include "render/material/uniformparameter.h"
 #include "rendercontext.h"
-#include "shaderprogram.h"
-#include "uniformparameter.h"
 
 #include <gl/debuggroup.h>
 #include <gl/framebuffer.h>
@@ -21,8 +21,12 @@ class SingleBlur
 public:
   using TextureHandle = gl::TextureHandle<gl::Texture2D<PixelT>>;
 
-  explicit SingleBlur(
-    std::string name, MaterialManager& materialManager, uint8_t dir, uint8_t extent, bool gauss, int downscale)
+  explicit SingleBlur(std::string name,
+                      material::MaterialManager& materialManager,
+                      uint8_t dir,
+                      uint8_t extent,
+                      bool gauss,
+                      int downscale)
       : m_name{std::move(name)}
       , m_material{gauss ? materialManager.getFastGaussBlur(extent, dir, PixelT::Channels)
                          : materialManager.getFastBoxBlur(extent, dir, PixelT::Channels)}
@@ -58,7 +62,7 @@ public:
   void render() const
   {
     SOGLB_DEBUGGROUP(m_name + "/blur-pass");
-    RenderContext context{RenderMode::Full, std::nullopt};
+    RenderContext context{material::RenderMode::Full, std::nullopt};
     m_framebuffer->bind();
     m_mesh->render(nullptr, context);
   }
@@ -72,7 +76,7 @@ private:
   const std::string m_name;
   std::shared_ptr<TextureHandle> m_blurredTexture;
   std::shared_ptr<Mesh> m_mesh;
-  const std::shared_ptr<Material> m_material;
+  const std::shared_ptr<material::Material> m_material;
   std::shared_ptr<gl::Framebuffer> m_framebuffer;
   const int m_downscale;
 };
@@ -84,7 +88,7 @@ public:
   using TextureHandle = gl::TextureHandle<gl::Texture2D<PixelT>>;
 
   explicit SeparableBlur(const std::string& name,
-                         MaterialManager& materialManager,
+                         material::MaterialManager& materialManager,
                          uint8_t extentX,
                          uint8_t extentY,
                          bool gauss,
@@ -95,7 +99,7 @@ public:
   }
 
   explicit SeparableBlur(const std::string& name,
-                         MaterialManager& materialManager,
+                         material::MaterialManager& materialManager,
                          uint8_t extent,
                          bool gauss,
                          int downscale = 1,

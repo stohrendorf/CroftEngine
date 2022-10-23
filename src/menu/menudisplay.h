@@ -28,7 +28,7 @@ namespace ui
 class Ui;
 }
 
-namespace render::scene
+namespace render::material
 {
 class Material;
 }
@@ -127,7 +127,7 @@ private:
   ui::Text m_upArrow;
   ui::Text m_downArrow;
 
-  const gslu::nn_shared<render::scene::Material> m_material;
+  const gslu::nn_shared<render::material::Material> m_material;
   gslu::nn_shared<render::pass::Framebuffer> m_fb;
 
   gslu::nn_shared<gl::ShaderStorageBuffer<engine::ShaderLight>> m_lightsBuffer;

@@ -14,14 +14,14 @@
 #include <limits>
 #include <memory>
 
-namespace render::scene
+namespace render::material
 {
 class MaterialManager;
 }
 
 namespace render::pass
 {
-PortalPass::PortalPass(scene::MaterialManager& materialManager,
+PortalPass::PortalPass(material::MaterialManager& materialManager,
                        const gslu::nn_shared<gl::TextureDepth<float>>& depthBuffer,
                        const glm::vec2& viewport)
     : m_positionBuffer{std::make_shared<gl::Texture2D<gl::Scalar32F>>(viewport, "portal-position")}

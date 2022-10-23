@@ -9,9 +9,13 @@
 
 namespace render::scene
 {
-class BufferParameter;
 class Mesh;
 class Node;
+} // namespace render::scene
+
+namespace render::material
+{
+class BufferParameter;
 class ShaderProgram;
 class UniformBlockParameter;
 class UniformParameter;
@@ -33,7 +37,7 @@ public:
     return m_shaderProgram;
   }
 
-  void bind(const Node* node, const Mesh& mesh) const;
+  void bind(const scene::Node* node, const scene::Mesh& mesh) const;
 
   std::shared_ptr<UniformParameter> tryGetUniform(const std::string& name) const;
   gslu::nn_shared<UniformParameter> getUniform(const std::string& name) const
@@ -67,4 +71,4 @@ private:
 
   gl::RenderState m_renderState{};
 };
-} // namespace render::scene
+} // namespace render::material

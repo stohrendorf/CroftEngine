@@ -7,19 +7,23 @@
 #include <gslu.h>
 #include <memory>
 
+namespace render::material
+{
+class Material;
+class MaterialManager;
+} // namespace render::material
+
 namespace render::scene
 {
 class Mesh;
-class Material;
-class MaterialManager;
-} // namespace render::scene
+}
 
 namespace render::pass
 {
 class UIPass
 {
 public:
-  explicit UIPass(scene::MaterialManager& materialManager,
+  explicit UIPass(material::MaterialManager& materialManager,
                   const glm::ivec2& renderViewport,
                   const glm::ivec2& displayViewport);
   void bind();
@@ -32,7 +36,7 @@ public:
   void render(float alpha);
 
 private:
-  const gslu::nn_shared<scene::Material> m_material;
+  const gslu::nn_shared<material::Material> m_material;
   gslu::nn_shared<scene::Mesh> m_mesh;
   gslu::nn_shared<gl::Texture2D<gl::SRGBA8>> m_colorBuffer;
   gslu::nn_shared<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>> m_colorBufferHandle;

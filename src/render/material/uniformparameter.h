@@ -17,6 +17,10 @@ namespace render::scene
 class Camera;
 class Mesh;
 class Node;
+} // namespace render::scene
+
+namespace render::material
+{
 class ShaderProgram;
 
 class UniformParameter final : public MaterialParameter
@@ -34,7 +38,7 @@ public:
   template<typename T>
   void set(const T& value)
   {
-    m_valueSetter = [value](const Node* /*node*/, const Mesh& /*mesh*/, gl::Uniform& uniform)
+    m_valueSetter = [value](const scene::Node* /*node*/, const scene::Mesh& /*mesh*/, gl::Uniform& uniform)
     {
       uniform.set(value);
     };
@@ -43,13 +47,13 @@ public:
   template<class ClassType, class ValueType>
   void bind(ClassType* classInstance, ValueType (ClassType::*valueMethod)() const)
   {
-    m_valueSetter = [classInstance, valueMethod](const Node& /*node*/, gl::Uniform& uniform)
+    m_valueSetter = [classInstance, valueMethod](const scene::Node& /*node*/, gl::Uniform& uniform)
     {
       uniform.set((classInstance->*valueMethod)());
     };
   }
 
-  using UniformValueSetter = void(const Node* node, const Mesh& mesh, gl::Uniform& uniform);
+  using UniformValueSetter = void(const scene::Node* node, const scene::Mesh& mesh, gl::Uniform& uniform);
 
   void bind(std::function<UniformValueSetter>&& setter)
   {
@@ -61,14 +65,16 @@ public:
             ValueType (ClassType::*valueMethod)() const,
             std::size_t (ClassType::*countMethod)() const)
   {
-    m_valueSetter =
-      [classInstance, valueMethod, countMethod](const Node& /*node*/, const Mesh& /*mesh*/, const gl::Uniform& uniform)
+    m_valueSetter = [classInstance, valueMethod, countMethod](
+                      const scene::Node& /*node*/, const scene::Mesh& /*mesh*/, const gl::Uniform& uniform)
     {
       uniform.set((classInstance->*valueMethod)(), (classInstance->*countMethod)());
     };
   }
 
-  bool bind(const Node* node, const Mesh& mesh, const gslu::nn_shared<ShaderProgram>& shaderProgram) override;
+  bool bind(const scene::Node* node,
+            const scene::Mesh& mesh,
+            const gslu::nn_shared<ShaderProgram>& shaderProgram) override;
 
 private:
   [[nodiscard]] gl::Uniform* findUniform(const gslu::nn_shared<ShaderProgram>& shaderProgram) const;
@@ -91,7 +97,7 @@ public:
   template<typename T>
   void set(const std::shared_ptr<gl::UniformBuffer<T>>& value)
   {
-    m_bufferBinder = [value](const Node& /*node*/, const Mesh& /*mesh*/, gl::UniformBlock& uniformBlock)
+    m_bufferBinder = [value](const scene::Node& /*node*/, const scene::Mesh& /*mesh*/, gl::UniformBlock& uniformBlock)
     {
       uniformBlock.bind(*value);
     };
@@ -100,28 +106,30 @@ public:
   template<class ClassType, typename T>
   void bind(ClassType* classInstance, const gl::UniformBuffer<T>& (ClassType::*valueMethod)() const)
   {
-    m_bufferBinder
-      = [classInstance, valueMethod](const Node& /*node*/, const Mesh& /*mesh*/, gl::UniformBlock& uniformBlock)
+    m_bufferBinder = [classInstance, valueMethod](
+                       const scene::Node& /*node*/, const scene::Mesh& /*mesh*/, gl::UniformBlock& uniformBlock)
     {
       uniformBlock.bind((classInstance->*valueMethod)());
     };
   }
 
-  using BufferBinder = void(const Node* node, const Mesh& mesh, gl::UniformBlock& uniformBlock);
+  using BufferBinder = void(const scene::Node* node, const scene::Mesh& mesh, gl::UniformBlock& uniformBlock);
 
   void bind(std::function<BufferBinder>&& setter)
   {
     m_bufferBinder = std::move(setter);
   }
 
-  bool bind(const Node* node, const Mesh& mesh, const gslu::nn_shared<ShaderProgram>& shaderProgram) override;
+  bool bind(const scene::Node* node,
+            const scene::Mesh& mesh,
+            const gslu::nn_shared<ShaderProgram>& shaderProgram) override;
 
   void bindTransformBuffer();
-  void bindCameraBuffer(const gslu::nn_shared<Camera>& camera);
+  void bindCameraBuffer(const gslu::nn_shared<scene::Camera>& camera);
 
 private:
   [[nodiscard]] gl::UniformBlock* findUniformBlock(const gslu::nn_shared<ShaderProgram>& shaderProgram) const;
 
   std::function<BufferBinder> m_bufferBinder;
 };
-} // namespace render::scene
+} // namespace render::material

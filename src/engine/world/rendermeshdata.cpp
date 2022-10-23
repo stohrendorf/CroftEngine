@@ -11,12 +11,12 @@
 #include "loader/file/mesh.h"
 #include "loader/file/primitives.h"
 #include "loader/file/texture.h"
-#include "render/scene/material.h"
-#include "render/scene/materialgroup.h"
-#include "render/scene/materialmanager.h"
+#include "render/material/material.h"
+#include "render/material/materialgroup.h"
+#include "render/material/materialmanager.h"
+#include "render/material/rendermode.h"
+#include "render/material/shaderprogram.h"
 #include "render/scene/mesh.h"
-#include "render/scene/rendermode.h"
-#include "render/scene/shaderprogram.h"
 
 #include <boost/assert.hpp>
 #include <cstddef>
@@ -207,12 +207,13 @@ RenderMeshData::RenderMeshData(const loader::file::Mesh& mesh,
   }
 }
 
-gslu::nn_shared<render::scene::Mesh> RenderMeshDataCompositor::toMesh(render::scene::MaterialManager& materialManager,
-                                                                      bool skeletal,
-                                                                      bool shadowCaster,
-                                                                      std::function<bool()> smooth,
-                                                                      std::function<int32_t()> lightingMode,
-                                                                      const std::string& label)
+gslu::nn_shared<render::scene::Mesh>
+  RenderMeshDataCompositor::toMesh(render::material::MaterialManager& materialManager,
+                                   bool skeletal,
+                                   bool shadowCaster,
+                                   std::function<bool()> smooth,
+                                   std::function<int32_t()> lightingMode,
+                                   const std::string& label)
 {
   auto vb = gsl::make_shared<gl::VertexBuffer<RenderMeshData::RenderVertex>>(
     RenderMeshData::RenderVertex::getLayout(), label, gl::api::BufferUsage::StaticDraw, m_vertices);
@@ -241,11 +242,11 @@ gslu::nn_shared<render::scene::Mesh> RenderMeshDataCompositor::toMesh(render::sc
     va, gl::api::PrimitiveType::Triangles);
 
   mesh->getMaterialGroup()
-    .set(render::scene::RenderMode::Full, material)
-    .set(render::scene::RenderMode::DepthOnly, materialDepthOnly);
+    .set(render::material::RenderMode::Full, material)
+    .set(render::material::RenderMode::DepthOnly, materialDepthOnly);
   if(shadowCaster)
   {
-    mesh->getMaterialGroup().set(render::scene::RenderMode::CSMDepthOnly, materialCSMDepthOnly);
+    mesh->getMaterialGroup().set(render::material::RenderMode::CSMDepthOnly, materialCSMDepthOnly);
   }
 
   mesh->getRenderState().setDepthTest(true);

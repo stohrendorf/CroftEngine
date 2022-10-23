@@ -3,13 +3,13 @@
 #include "boxgouraud.h"
 #include "core/id.h"
 #include "engine/world/sprite.h"
-#include "render/scene/material.h"
-#include "render/scene/materialgroup.h"
+#include "render/material/material.h"
+#include "render/material/materialgroup.h"
+#include "render/material/rendermode.h"
+#include "render/material/shaderprogram.h"
 #include "render/scene/mesh.h"
 #include "render/scene/names.h"
 #include "render/scene/rendercontext.h"
-#include "render/scene/rendermode.h"
-#include "render/scene/shaderprogram.h"
 
 #include <algorithm>
 #include <cstdint>
@@ -119,7 +119,7 @@ gslu::nn_shared<gl::ElementArrayBuffer<uint16_t>> Ui::UiVertex::createIndexBuffe
   return gsl::make_shared<gl::ElementArrayBuffer<uint16_t>>("ui-indices", usage, data);
 }
 
-Ui::Ui(std::shared_ptr<render::scene::Material> material,
+Ui::Ui(std::shared_ptr<render::material::Material> material,
        const std::array<gl::SRGBA8, 256>& palette,
        const glm::ivec2& size)
     : m_material{std::move(material)}
@@ -191,7 +191,7 @@ void Ui::render()
   const auto vao = gsl::make_shared<gl::VertexArray<uint16_t, UiVertex>>(
     indexBuffer, std::tuple{vbo}, std::vector{&m_material->getShaderProgram()->getHandle()}, "ui-vao");
   auto mesh = std::make_shared<render::scene::MeshImpl<uint16_t, UiVertex>>(vao);
-  mesh->getMaterialGroup().set(render::scene::RenderMode::Full, m_material);
+  mesh->getMaterialGroup().set(render::material::RenderMode::Full, m_material);
   mesh->getRenderState().setViewport(m_size);
   mesh->getRenderState().setBlend(0, true);
   mesh->getRenderState().setBlendFactors(0,
@@ -202,7 +202,7 @@ void Ui::render()
   mesh->getRenderState().setDepthTest(false);
   mesh->getRenderState().setDepthWrite(false);
 
-  render::scene::RenderContext ctx{render::scene::RenderMode::Full, std::nullopt};
+  render::scene::RenderContext ctx{render::material::RenderMode::Full, std::nullopt};
   mesh->render(nullptr, ctx);
 
   m_vertices.clear();

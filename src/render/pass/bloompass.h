@@ -1,9 +1,9 @@
 #pragma once
 
 #include "config.h"
+#include "render/material/materialmanager.h"
 #include "render/renderpipeline.h"
 #include "render/scene/blur.h"
-#include "render/scene/materialmanager.h"
 #include "render/scene/mesh.h"
 #include "render/scene/rendercontext.h"
 
@@ -32,7 +32,7 @@ public:
   using TextureHandle = gl::TextureHandle<gl::Texture2D<TPixel>>;
 
   explicit SingleBloomDownsample(const std::string& name,
-                                 scene::MaterialManager& materialManager,
+                                 material::MaterialManager& materialManager,
                                  const gslu::nn_shared<TextureHandle>& input)
       : m_name{name}
       , m_mesh{scene::createScreenQuad(materialManager.getBloomDownsample(), m_name)}
@@ -62,7 +62,7 @@ public:
 
     m_fb->bind();
 
-    scene::RenderContext context{scene::RenderMode::Full, std::nullopt};
+    scene::RenderContext context{material::RenderMode::Full, std::nullopt};
     m_mesh->render(nullptr, context);
 
     if constexpr(FlushPasses)
@@ -91,7 +91,7 @@ public:
   using TextureHandle = gl::TextureHandle<gl::Texture2D<TPixel>>;
 
   explicit BloomDownsample(const std::string& name,
-                           scene::MaterialManager& materialManager,
+                           material::MaterialManager& materialManager,
                            gslu::nn_shared<TextureHandle> input)
   {
     for(uint8_t i = 0; i < NSteps; ++i)
@@ -124,7 +124,7 @@ public:
   using TextureHandle = gl::TextureHandle<gl::Texture2D<TPixel>>;
 
   explicit SingleBloomUpsample(const std::string& name,
-                               scene::MaterialManager& materialManager,
+                               material::MaterialManager& materialManager,
                                const gslu::nn_shared<TextureHandle>& input)
       : m_name{name}
       , m_mesh{scene::createScreenQuad(materialManager.getBloomUpsample(), m_name)}
@@ -154,7 +154,7 @@ public:
 
     m_fb->bind();
 
-    scene::RenderContext context{scene::RenderMode::Full, std::nullopt};
+    scene::RenderContext context{material::RenderMode::Full, std::nullopt};
     m_mesh->render(nullptr, context);
 
     if constexpr(FlushPasses)
@@ -183,7 +183,7 @@ public:
   using TextureHandle = gl::TextureHandle<gl::Texture2D<TPixel>>;
 
   explicit BloomUpsample(const std::string& name,
-                         scene::MaterialManager& materialManager,
+                         material::MaterialManager& materialManager,
                          gslu::nn_shared<TextureHandle> input)
   {
     for(uint8_t i = 0; i < NSteps; ++i)
@@ -215,7 +215,7 @@ class BloomPass final
 public:
   using TextureHandle = gl::TextureHandle<gl::Texture2D<TPixel>>;
 
-  explicit BloomPass(scene::MaterialManager& materialManager, gslu::nn_shared<TextureHandle> input)
+  explicit BloomPass(material::MaterialManager& materialManager, gslu::nn_shared<TextureHandle> input)
       : m_downsample{"bloom", materialManager, input}
       , m_blur{"bloom-blur", materialManager, 2, false, 1, m_downsample.getOutput()}
       , m_upsample{"bloom", materialManager, m_blur.getBlurredTexture()}

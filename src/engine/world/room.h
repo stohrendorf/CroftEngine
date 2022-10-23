@@ -33,11 +33,15 @@ class TextureAnimator;
 struct AnimatedUV;
 } // namespace render
 
-namespace render::scene
+namespace render::material
 {
 class MaterialManager;
-class Mesh;
 class Material;
+} // namespace render::material
+
+namespace render::scene
+{
+class Mesh;
 class Node;
 } // namespace render::scene
 
@@ -70,7 +74,7 @@ struct Portal
   std::array<glm::vec3, 4> vertices;
   std::shared_ptr<render::scene::Mesh> mesh;
 
-  void buildMesh(const loader::file::Portal& srcPortal, const gslu::nn_shared<render::scene::Material>& material);
+  void buildMesh(const loader::file::Portal& srcPortal, const gslu::nn_shared<render::material::Material>& material);
 };
 
 struct Light
@@ -120,7 +124,7 @@ struct Room
                        size_t roomId,
                        World& world,
                        const std::vector<uint16_t>& textureAnimData,
-                       render::scene::MaterialManager& materialManager);
+                       render::material::MaterialManager& materialManager);
 
   [[nodiscard]] const Sector* getSectorByAbsolutePosition(const core::TRVec& worldPos) const
   {
@@ -170,16 +174,17 @@ struct Room
 
   void collectShaderLights(size_t depth);
   void regenerateDust(const std::shared_ptr<engine::Presenter>& presenter,
-                      const gslu::nn_shared<render::scene::Material>& dustMaterial,
+                      const gslu::nn_shared<render::material::Material>& dustMaterial,
                       bool isDustEnabled,
                       uint8_t dustResolutionDivisor);
 
 private:
-  std::shared_ptr<render::scene::Node> createParticleMesh(const std::string& label,
-                                                          const glm::vec3& min,
-                                                          const glm::vec3& max,
-                                                          const gslu::nn_shared<render::scene::Material>& dustMaterial,
-                                                          uint8_t dustDensity);
+  std::shared_ptr<render::scene::Node>
+    createParticleMesh(const std::string& label,
+                       const glm::vec3& min,
+                       const glm::vec3& max,
+                       const gslu::nn_shared<render::material::Material>& dustMaterial,
+                       uint8_t dustDensity);
 };
 
 extern void patchHeightsForBlock(const engine::objects::Object& object, const core::Length& height);

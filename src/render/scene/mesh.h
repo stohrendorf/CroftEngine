@@ -1,7 +1,7 @@
 #pragma once
 
-#include "materialgroup.h"
-#include "materialparameteroverrider.h"
+#include "render/material/materialgroup.h"
+#include "render/material/materialparameteroverrider.h"
 #include "renderable.h"
 
 #include <gl/api/gl.hpp>
@@ -13,15 +13,19 @@
 #include <string>
 #include <utility>
 
+namespace render::material
+{
+class Material;
+}
+
 namespace render::scene
 {
 class RenderContext;
-class Material;
 class Node;
 
 class Mesh
     : public Renderable
-    , public MaterialParameterOverrider
+    , public material::MaterialParameterOverrider
 {
 public:
   explicit Mesh(gl::api::PrimitiveType primitiveType = gl::api::PrimitiveType::Triangles)
@@ -55,7 +59,7 @@ public:
   }
 
 private:
-  MaterialGroup m_materialGroup{};
+  material::MaterialGroup m_materialGroup{};
   const gl::api::PrimitiveType m_primitiveType{};
 
   virtual void drawIndexBuffer() = 0;
@@ -96,16 +100,17 @@ private:
 
 extern gslu::nn_shared<Mesh> createScreenQuad(const glm::vec2& xy,
                                               const glm::vec2& size,
-                                              const std::shared_ptr<Material>& material,
+                                              const std::shared_ptr<material::Material>& material,
                                               const std::string& label);
 
 inline gslu::nn_shared<Mesh>
-  createScreenQuad(const glm::vec2& size, const std::shared_ptr<Material>& material, const std::string& label)
+  createScreenQuad(const glm::vec2& size, const std::shared_ptr<material::Material>& material, const std::string& label)
 {
   return createScreenQuad({0, 0}, size, material, label);
 }
 
-inline gslu::nn_shared<Mesh> createScreenQuad(const std::shared_ptr<Material>& material, const std::string& label)
+inline gslu::nn_shared<Mesh> createScreenQuad(const std::shared_ptr<material::Material>& material,
+                                              const std::string& label)
 {
   return createScreenQuad({0, 0}, {0, 0}, material, label);
 }

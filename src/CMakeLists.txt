@@ -539,17 +539,26 @@ set( CROFTENGINE_SRCS
         render/pass/worldcompositionpass.h
         render/pass/worldcompositionpass.cpp
 
-        render/scene/bufferparameter.h
-        render/scene/bufferparameter.cpp
+        render/material/bufferparameter.h
+        render/material/bufferparameter.cpp
+        render/material/material.h
+        render/material/material.cpp
+        render/material/materialgroup.h
+        render/material/materialmanager.h
+        render/material/materialmanager.cpp
+        render/material/materialparameter.h
+        render/material/rendermode.h
+        render/material/shadercache.h
+        render/material/shadercache.cpp
+        render/material/shaderprogram.h
+        render/material/shaderprogram.cpp
+        render/material/spritematerialmode.h
+        render/material/uniformparameter.h
+        render/material/uniformparameter.cpp
+
         render/scene/camera.h
         render/scene/csm.h
         render/scene/csm.cpp
-        render/scene/material.h
-        render/scene/material.cpp
-        render/scene/materialgroup.h
-        render/scene/materialmanager.h
-        render/scene/materialmanager.cpp
-        render/scene/materialparameter.h
         render/scene/mesh.h
         render/scene/mesh.cpp
         render/scene/names.h
@@ -559,17 +568,10 @@ set( CROFTENGINE_SRCS
         render/scene/rendercontext.h
         render/scene/renderer.h
         render/scene/renderer.cpp
-        render/scene/rendermode.h
         render/scene/screenoverlay.h
         render/scene/screenoverlay.cpp
-        render/scene/shadercache.h
-        render/scene/shadercache.cpp
-        render/scene/shaderprogram.h
-        render/scene/shaderprogram.cpp
         render/scene/sprite.h
         render/scene/sprite.cpp
-        render/scene/uniformparameter.h
-        render/scene/uniformparameter.cpp
         render/scene/visitor.h
         render/scene/visitor.cpp
 

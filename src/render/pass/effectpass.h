@@ -15,11 +15,15 @@
 #include <string>
 #include <utility>
 
-namespace render::scene
+namespace render::material
 {
 class Material;
+}
+
+namespace render::scene
+{
 class Mesh;
-} // namespace render::scene
+}
 
 namespace render::pass
 {
@@ -29,7 +33,7 @@ class EffectPass final
 public:
   explicit EffectPass(gsl::not_null<const RenderPipeline*> renderPipeline,
                       std::string name,
-                      const gslu::nn_shared<scene::Material>& material,
+                      const gslu::nn_shared<material::Material>& material,
                       const gslu::nn_shared<gl::TextureHandle<gl::Texture2D<TPixel>>>& input)
       : m_name{std::move(name)}
       , m_mesh{scene::createScreenQuad(material, m_name)}
@@ -66,7 +70,7 @@ public:
 
     m_fb->bind();
 
-    scene::RenderContext context{scene::RenderMode::Full, std::nullopt};
+    scene::RenderContext context{material::RenderMode::Full, std::nullopt};
     m_mesh->bind("u_inWater",
                  [inWater](const scene::Node* /*node*/, const scene::Mesh& /*mesh*/, gl::Uniform& uniform)
                  {

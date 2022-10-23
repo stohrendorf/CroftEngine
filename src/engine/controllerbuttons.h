@@ -16,7 +16,7 @@ namespace render
 class MultiTextureAtlas;
 }
 
-namespace render::scene
+namespace render::material
 {
 class Material;
 }
@@ -28,5 +28,5 @@ using ControllerLayouts = std::map<std::string, ControllerLayout>;
 
 extern ControllerLayouts loadControllerButtonIcons(render::MultiTextureAtlas& atlases,
                                                    const std::filesystem::path& configFile,
-                                                   const gslu::nn_shared<render::scene::Material>& material);
+                                                   const gslu::nn_shared<render::material::Material>& material);
 } // namespace engine

@@ -1,9 +1,9 @@
 #include "screenoverlay.h"
 
-#include "materialmanager.h"
 #include "mesh.h"
+#include "render/material/materialmanager.h"
+#include "render/material/rendermode.h"
 #include "rendercontext.h"
-#include "rendermode.h"
 
 #include <boost/throw_exception.hpp>
 #include <gl/image.h>
@@ -29,7 +29,7 @@ ScreenOverlay::~ScreenOverlay() = default;
 
 void ScreenOverlay::render(const Node* node, RenderContext& context)
 {
-  if(context.getRenderMode() != RenderMode::Full)
+  if(context.getRenderMode() != material::RenderMode::Full)
     return;
 
   context.pushState(getRenderState());
@@ -38,7 +38,7 @@ void ScreenOverlay::render(const Node* node, RenderContext& context)
   context.popState();
 }
 
-void ScreenOverlay::init(MaterialManager& materialManager, const glm::ivec2& viewport)
+void ScreenOverlay::init(material::MaterialManager& materialManager, const glm::ivec2& viewport)
 {
   *m_image = gl::Image<gl::PremultipliedSRGBA8>(viewport);
   if(viewport.x == 0 || viewport.y == 0)

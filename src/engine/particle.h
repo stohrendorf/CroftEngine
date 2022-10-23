@@ -22,11 +22,15 @@
 #include <optional>
 #include <string>
 
+namespace render::material
+{
+enum class SpriteMaterialMode : uint8_t;
+}
+
 namespace render::scene
 {
 class Renderable;
-enum class SpriteMaterialMode : uint8_t;
-} // namespace render::scene
+}
 
 namespace engine::world
 {
@@ -58,7 +62,7 @@ private:
   std::optional<core::Shade> m_shade{std::nullopt};
   const bool m_withoutParent;
 
-  void initRenderables(world::World& world, render::scene::SpriteMaterialMode mode);
+  void initRenderables(world::World& world, render::material::SpriteMaterialMode mode);
 
 protected:
   void nextFrame();
@@ -78,7 +82,7 @@ public:
                     const core::TypeId& objectNumber,
                     const gsl::not_null<const world::Room*>& room,
                     world::World& world,
-                    render::scene::SpriteMaterialMode mode,
+                    render::material::SpriteMaterialMode mode,
                     bool withoutParent = false,
                     const std::shared_ptr<render::scene::Mesh>& renderable = nullptr);
 
@@ -86,7 +90,7 @@ public:
                     const core::TypeId& objectNumber,
                     Location location,
                     world::World& world,
-                    render::scene::SpriteMaterialMode mode,
+                    render::material::SpriteMaterialMode mode,
                     bool withoutParent = false,
                     const std::shared_ptr<render::scene::Mesh>& renderable = nullptr);
 

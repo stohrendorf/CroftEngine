@@ -12,10 +12,10 @@
 #include "engine/world/world.h"
 #include "menuringtransform.h"
 #include "qs/qs.h"
+#include "render/material/rendermode.h"
 #include "render/scene/node.h"
 #include "render/scene/renderable.h"
 #include "render/scene/rendercontext.h"
-#include "render/scene/rendermode.h"
 #include "util/helpers.h"
 
 #include <boost/log/trivial.hpp>
@@ -184,7 +184,7 @@ void MenuObject::draw(const engine::world::World& world,
 
     node->updatePose();
 
-    render::scene::RenderContext context{render::scene::RenderMode::Full, std::nullopt};
+    render::scene::RenderContext context{render::material::RenderMode::Full, std::nullopt};
     node->getRenderable()->render(node.get(), context);
   }
   else

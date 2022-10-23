@@ -41,14 +41,18 @@ class RenderPipeline;
 struct RenderSettings;
 } // namespace render
 
+namespace render::material
+{
+class MaterialManager;
+class ShaderCache;
+} // namespace render::material
+
 namespace render::scene
 {
 class CSM;
-class MaterialManager;
 class Mesh;
 class Renderer;
 class ScreenOverlay;
-class ShaderCache;
 } // namespace render::scene
 
 namespace engine::world
@@ -191,8 +195,8 @@ private:
   const gslu::nn_unique<hid::InputHandler> m_inputHandler;
   std::unique_ptr<ui::TRFont> m_trFont;
 
-  const gslu::nn_shared<render::scene::ShaderCache> m_shaderCache;
-  const gslu::nn_unique<render::scene::MaterialManager> m_materialManager;
+  const gslu::nn_shared<render::material::ShaderCache> m_shaderCache;
+  const gslu::nn_unique<render::material::MaterialManager> m_materialManager;
   gslu::nn_shared<render::scene::CSM> m_csm;
 
   const gslu::nn_unique<render::RenderPipeline> m_renderPipeline;

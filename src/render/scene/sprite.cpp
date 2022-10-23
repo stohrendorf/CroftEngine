@@ -1,11 +1,11 @@
 #include "sprite.h"
 
-#include "material.h"
-#include "materialgroup.h"
 #include "mesh.h"
 #include "names.h"
-#include "rendermode.h"
-#include "shaderprogram.h"
+#include "render/material/material.h"
+#include "render/material/materialgroup.h"
+#include "render/material/rendermode.h"
+#include "render/material/shaderprogram.h"
 
 #include <boost/assert.hpp>
 #include <cstdint>
@@ -62,7 +62,7 @@ gslu::nn_shared<Mesh> createSpriteMesh(const float x0,
                                        const float y1,
                                        const glm::vec2& t0,
                                        const glm::vec2& t1,
-                                       const gslu::nn_shared<Material>& materialFull,
+                                       const gslu::nn_shared<material::Material>& materialFull,
                                        const int textureIdx,
                                        const std::string& label)
 {
@@ -75,7 +75,7 @@ gslu::nn_shared<Mesh> createSpriteMesh(const float x0,
   auto vao = gsl::make_shared<gl::VertexArray<uint16_t, SpriteVertex>>(
     indexBuffer, vb, std::vector{&materialFull->getShaderProgram()->getHandle()}, label + ":va");
   auto mesh = gsl::make_shared<MeshImpl<uint16_t, SpriteVertex>>(vao);
-  mesh->getMaterialGroup().set(RenderMode::Full, materialFull);
+  mesh->getMaterialGroup().set(material::RenderMode::Full, materialFull);
   mesh->getRenderState().setScissorTest(false);
 
   return mesh;
@@ -88,7 +88,7 @@ std::tuple<gslu::nn_shared<Mesh>, gslu::nn_shared<gl::VertexBuffer<glm::mat4>>>
                             const float y1,
                             const glm::vec2& t0,
                             const glm::vec2& t1,
-                            const gslu::nn_shared<Material>& materialFull,
+                            const gslu::nn_shared<material::Material>& materialFull,
                             const int textureIdx,
                             const std::string& label)
 {
@@ -109,7 +109,7 @@ std::tuple<gslu::nn_shared<Mesh>, gslu::nn_shared<gl::VertexBuffer<glm::mat4>>>
     std::vector{&materialFull->getShaderProgram()->getHandle()},
     label + ":va");
   auto mesh = gsl::make_shared<MeshImpl<uint16_t, SpriteVertex, glm::mat4>>(vao);
-  mesh->getMaterialGroup().set(RenderMode::Full, materialFull);
+  mesh->getMaterialGroup().set(material::RenderMode::Full, materialFull);
   mesh->getRenderState().setScissorTest(false);
 
   return {mesh, modelMatrices};

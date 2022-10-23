@@ -1,10 +1,10 @@
 #include "uipass.h"
 
 #include "config.h"
-#include "render/scene/materialmanager.h"
+#include "render/material/materialmanager.h"
+#include "render/material/rendermode.h"
 #include "render/scene/mesh.h"
 #include "render/scene/rendercontext.h"
-#include "render/scene/rendermode.h"
 
 #include <algorithm>
 #include <gl/debuggroup.h>
@@ -28,7 +28,7 @@ class Node;
 
 namespace render::pass
 {
-UIPass::UIPass(scene::MaterialManager& materialManager,
+UIPass::UIPass(material::MaterialManager& materialManager,
                const glm::ivec2& renderViewport,
                const glm::ivec2& displayViewport)
     : m_material{materialManager.getFlat(true, false)}
@@ -71,7 +71,7 @@ void UIPass::render(float alpha)
                {
                  uniform.set(alpha);
                });
-  scene::RenderContext context{scene::RenderMode::Full, std::nullopt};
+  scene::RenderContext context{material::RenderMode::Full, std::nullopt};
   m_mesh->render(nullptr, context);
 
   if constexpr(FlushPasses)

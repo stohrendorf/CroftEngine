@@ -7,7 +7,7 @@
 #include "hid/inputhandler.h"
 #include "objects/laraobject.h"
 #include "presenter.h"
-#include "render/scene/materialmanager.h"
+#include "render/material/materialmanager.h"
 #include "serialization/serialization.h"
 #include "serialization/yamldocument.h"
 #include "throttler.h"

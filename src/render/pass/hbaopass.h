@@ -9,11 +9,15 @@
 #include <gslu.h>
 #include <memory>
 
-namespace render::scene
+namespace render::material
 {
 class MaterialManager;
-class Camera;
 class Material;
+} // namespace render::material
+
+namespace render::scene
+{
+class Camera;
 class Mesh;
 } // namespace render::scene
 
@@ -24,7 +28,7 @@ class GeometryPass;
 class HBAOPass
 {
 public:
-  explicit HBAOPass(scene::MaterialManager& materialManager,
+  explicit HBAOPass(material::MaterialManager& materialManager,
                     const glm::ivec2& viewport,
                     const GeometryPass& geometryPass);
   void updateCamera(const gslu::nn_shared<scene::Camera>& camera);
@@ -37,7 +41,7 @@ public:
   }
 
 private:
-  const gslu::nn_shared<scene::Material> m_material;
+  const gslu::nn_shared<material::Material> m_material;
 
   gslu::nn_shared<scene::Mesh> m_renderMesh;
 

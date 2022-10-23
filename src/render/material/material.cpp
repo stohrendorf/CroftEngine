@@ -10,7 +10,7 @@
 #include <iosfwd>
 #include <utility>
 
-namespace render::scene
+namespace render::material
 {
 Material::Material(gslu::nn_shared<ShaderProgram> shaderProgram)
     : m_shaderProgram{std::move(shaderProgram)}
@@ -32,7 +32,7 @@ Material::Material(gslu::nn_shared<ShaderProgram> shaderProgram)
 
 Material::~Material() = default;
 
-void Material::bind(const Node* node, const Mesh& mesh) const
+void Material::bind(const scene::Node* node, const scene::Mesh& mesh) const
 {
   for(const auto& param : m_uniforms)
   {
@@ -124,4 +124,4 @@ std::shared_ptr<BufferParameter> Material::tryGetBuffer(const std::string& name)
   m_buffers.emplace_back(param);
   return param;
 }
-} // namespace render::scene
+} // namespace render::material

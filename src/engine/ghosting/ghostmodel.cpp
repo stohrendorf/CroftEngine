@@ -6,10 +6,10 @@
 #include "engine/world/rendermeshdata.h"
 #include "engine/world/world.h"
 #include "ghost.h"
-#include "render/scene/materialgroup.h"
-#include "render/scene/materialmanager.h"
+#include "render/material/materialgroup.h"
+#include "render/material/materialmanager.h"
+#include "render/material/rendermode.h"
 #include "render/scene/mesh.h"
-#include "render/scene/rendermode.h"
 
 #include <gl/buffer.h>
 #include <gl/renderstate.h>
@@ -55,13 +55,13 @@ void GhostModel::apply(const world::World& world, const GhostFrame& frame)
         return !settings.lightingModeActive ? 0 : settings.lightingMode;
       },
       getName());
-    mesh->getMaterialGroup().set(render::scene::RenderMode::Full,
+    mesh->getMaterialGroup().set(render::material::RenderMode::Full,
                                  world.getPresenter().getMaterialManager()->getGhost(
                                    [&engine = world.getEngine()]()
                                    {
                                      return engine.getEngineConfig()->animSmoothing;
                                    }));
-    mesh->getMaterialGroup().set(render::scene::RenderMode::DepthOnly, nullptr);
+    mesh->getMaterialGroup().set(render::material::RenderMode::DepthOnly, nullptr);
     mesh->getRenderState().setScissorTest(false);
     setRenderable(mesh);
   }

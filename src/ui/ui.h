@@ -13,7 +13,7 @@
 #include <memory>
 #include <vector>
 
-namespace render::scene
+namespace render::material
 {
 class Material;
 }
@@ -46,7 +46,7 @@ public:
                                                                                const gsl::span<uint16_t>& data);
   };
 
-  explicit Ui(std::shared_ptr<render::scene::Material> material,
+  explicit Ui(std::shared_ptr<render::material::Material> material,
               const std::array<gl::SRGBA8, 256>& palette,
               const glm::ivec2& size);
 
@@ -70,7 +70,7 @@ public:
   }
 
 private:
-  const std::shared_ptr<render::scene::Material> m_material;
+  const std::shared_ptr<render::material::Material> m_material;
   const std::array<gl::SRGBA8, 256> m_palette;
   const glm::ivec2 m_size;
   std::vector<UiVertex> m_vertices{};

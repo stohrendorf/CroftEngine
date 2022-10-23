@@ -2,8 +2,8 @@
 
 #include "camera.h"
 #include "node.h"
+#include "render/material/rendermode.h"
 #include "rendercontext.h"
-#include "rendermode.h"
 #include "visitor.h"
 
 #include <array>
@@ -30,7 +30,7 @@ Renderer::~Renderer() = default;
 void Renderer::render()
 {
   {
-    RenderContext context{RenderMode::Full, std::nullopt};
+    RenderContext context{material::RenderMode::Full, std::nullopt};
     Visitor visitor{context};
     m_rootNode->accept(visitor);
     visitor.render(m_camera->getPosition());

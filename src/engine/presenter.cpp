@@ -10,23 +10,23 @@
 #include "objects/laraobject.h"
 #include "objects/objectstate.h"
 #include "qs/qs.h"
+#include "render/material/material.h"
+#include "render/material/materialgroup.h"
+#include "render/material/materialmanager.h"
+#include "render/material/rendermode.h"
+#include "render/material/shadercache.h"
+#include "render/material/uniformparameter.h"
 #include "render/pass/config.h"
 #include "render/renderpipeline.h"
 #include "render/rendersettings.h"
 #include "render/scene/camera.h"
 #include "render/scene/csm.h"
-#include "render/scene/material.h"
-#include "render/scene/materialgroup.h"
-#include "render/scene/materialmanager.h"
 #include "render/scene/mesh.h"
 #include "render/scene/node.h"
 #include "render/scene/renderable.h"
 #include "render/scene/rendercontext.h"
 #include "render/scene/renderer.h"
-#include "render/scene/rendermode.h"
 #include "render/scene/screenoverlay.h"
-#include "render/scene/shadercache.h"
-#include "render/scene/uniformparameter.h"
 #include "render/scene/visitor.h"
 #include "ui/text.h"
 #include "ui/ui.h"
@@ -80,7 +80,7 @@ void Presenter::playVideo(const std::filesystem::path& path)
 {
   util::ensureFileExists(path);
 
-  auto mesh = createScreenQuad(m_materialManager->getFlat(false, true, true), "video");
+  auto mesh = render::scene::createScreenQuad(m_materialManager->getFlat(false, true, true), "video");
 
   auto colorBuffer = gsl::make_shared<gl::Texture2D<gl::SRGB8>>(getRenderViewport(), "ui-color");
   auto fb = gl::FrameBufferBuilder()
@@ -103,14 +103,14 @@ void Presenter::playVideo(const std::filesystem::path& path)
                              uniform.set(textureHandle);
                            });
                 mesh->getMaterialGroup()
-                  .get(render::scene::RenderMode::Full)
+                  .get(render::material::RenderMode::Full)
                   ->getUniformBlock("Camera")
                   ->bindCameraBuffer(m_renderer->getCamera());
                 mesh->getRenderState().setViewport(getRenderViewport());
 
                 fb->bind();
                 {
-                  render::scene::RenderContext context{render::scene::RenderMode::Full, std::nullopt};
+                  render::scene::RenderContext context{render::material::RenderMode::Full, std::nullopt};
                   mesh->render(nullptr, context);
                 }
                 updateSoundEngine();
@@ -143,7 +143,7 @@ void Presenter::renderWorld(const std::vector<world::Room>& rooms,
       m_csm->getActiveFramebuffer()->bind();
       gl::RenderState::getWantedState() = m_csm->getActiveFramebuffer()->getRenderState();
 
-      render::scene::RenderContext context{render::scene::RenderMode::CSMDepthOnly,
+      render::scene::RenderContext context{render::material::RenderMode::CSMDepthOnly,
                                            m_csm->getActiveMatrix(glm::mat4{1.0f})};
       render::scene::Visitor visitor{context, false};
       for(const auto& room : rooms)
@@ -215,7 +215,7 @@ void Presenter::renderWorld(const std::vector<world::Room>& rooms,
                   return a->node->getRenderOrder() > b->node->getRenderOrder();
                 });
 
-      render::scene::RenderContext context{render::scene::RenderMode::DepthOnly,
+      render::scene::RenderContext context{render::material::RenderMode::DepthOnly,
                                            cameraController.getCamera()->getViewProjectionMatrix()};
       for(const auto& room : renderRooms)
       {
@@ -233,7 +233,7 @@ void Presenter::renderWorld(const std::vector<world::Room>& rooms,
     }
 
     m_renderer->render();
-    render::scene::RenderContext context{render::scene::RenderMode::Full, std::nullopt};
+    render::scene::RenderContext context{render::material::RenderMode::Full, std::nullopt};
     for(auto& room : rooms)
     {
       if(!room.node->isVisible())
@@ -252,7 +252,7 @@ void Presenter::renderWorld(const std::vector<world::Room>& rooms,
     SOGLB_DEBUGGROUP("portal-depth-pass");
     gl::RenderState::resetWantedState();
 
-    render::scene::RenderContext context{render::scene::RenderMode::DepthOnly,
+    render::scene::RenderContext context{render::material::RenderMode::DepthOnly,
                                          cameraController.getCamera()->getViewProjectionMatrix()};
 
     context.pushState(m_renderPipeline->bindPortalFrameBuffer());
@@ -436,8 +436,8 @@ Presenter::Presenter(const std::filesystem::path& engineDataPath, const glm::ive
     , m_trTTFFont{std::make_unique<gl::Font>(util::ensureFileExists(engineDataPath / "trfont.ttf"))}
     , m_debugFont{std::make_unique<gl::Font>(util::ensureFileExists(engineDataPath / "DroidSansMono.ttf"))}
     , m_inputHandler{std::make_unique<hid::InputHandler>(m_window, engineDataPath / "gamecontrollerdb.txt")}
-    , m_shaderCache{std::make_shared<render::scene::ShaderCache>(engineDataPath / "shaders")}
-    , m_materialManager{std::make_unique<render::scene::MaterialManager>(m_shaderCache, m_renderer)}
+    , m_shaderCache{std::make_shared<render::material::ShaderCache>(engineDataPath / "shaders")}
+    , m_materialManager{std::make_unique<render::material::MaterialManager>(m_shaderCache, m_renderer)}
     , m_csm{std::make_shared<render::scene::CSM>(1024, *m_materialManager)}
     , m_renderPipeline{std::make_unique<render::RenderPipeline>(
         *m_materialManager, getRenderViewport(), getUiViewport(), getDisplayViewport())}
@@ -492,7 +492,7 @@ void Presenter::drawLoadingScreen(const std::string& state)
   m_renderPipeline->bindBackbuffer();
 
   m_renderer->getCamera()->setViewport(getDisplayViewport());
-  render::scene::RenderContext context{render::scene::RenderMode::Full, std::nullopt};
+  render::scene::RenderContext context{render::material::RenderMode::Full, std::nullopt};
   m_splashImageMesh->getRenderState().setViewport(getDisplayViewport());
   m_splashImageMesh->render(nullptr, context);
   m_screenOverlay->setAlphaMultiplier(0.8f);
@@ -601,7 +601,7 @@ void Presenter::renderScreenOverlay()
   gl::RenderState::resetWantedState();
   m_renderer->getCamera()->setViewport(getDisplayViewport());
   gl::RenderState::getWantedState().setViewport(getDisplayViewport());
-  render::scene::RenderContext context{render::scene::RenderMode::Full, std::nullopt};
+  render::scene::RenderContext context{render::material::RenderMode::Full, std::nullopt};
   m_screenOverlay->render(nullptr, context);
 }
 

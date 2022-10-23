@@ -14,15 +14,19 @@
 namespace render::scene
 {
 class CSM;
-class Material;
 class Renderer;
+} // namespace render::scene
+
+namespace render::material
+{
+class Material;
 class ShaderCache;
 enum class SpriteMaterialMode : uint8_t;
 
 class MaterialManager final
 {
 public:
-  explicit MaterialManager(gslu::nn_shared<ShaderCache> shaderCache, gslu::nn_shared<Renderer> renderer);
+  explicit MaterialManager(gslu::nn_shared<ShaderCache> shaderCache, gslu::nn_shared<scene::Renderer> renderer);
 
   [[nodiscard]] gslu::nn_shared<Material> getSprite(SpriteMaterialMode mode, std::function<int32_t()> lightingMode);
 
@@ -74,7 +78,7 @@ public:
     std::shared_ptr<gl::TextureHandle<gl::Texture2DArray<gl::PremultipliedSRGBA8>>> geometryTextures);
   void setFiltering(bool bilinear, const std::optional<float>& anisotropyLevel);
 
-  void setCSM(const gslu::nn_shared<CSM>& csm)
+  void setCSM(const gslu::nn_shared<scene::CSM>& csm)
   {
     m_csm = csm;
   }
@@ -117,8 +121,8 @@ private:
 
   std::shared_ptr<Material> m_dustParticle{nullptr};
 
-  std::shared_ptr<CSM> m_csm;
-  const gslu::nn_shared<Renderer> m_renderer;
+  std::shared_ptr<scene::CSM> m_csm;
+  const gslu::nn_shared<scene::Renderer> m_renderer;
   std::shared_ptr<gl::TextureHandle<gl::Texture2DArray<gl::PremultipliedSRGBA8>>> m_geometryTextures;
 };
-} // namespace render::scene
+} // namespace render::material

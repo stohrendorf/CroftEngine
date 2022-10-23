@@ -1,6 +1,6 @@
 #pragma once
 
-namespace render::scene
+namespace render::material
 {
 enum class RenderMode
 {
@@ -8,4 +8,4 @@ enum class RenderMode
   CSMDepthOnly,
   DepthOnly
 };
-} // namespace render::scene
+} // namespace render::material

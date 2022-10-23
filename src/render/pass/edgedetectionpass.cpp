@@ -2,12 +2,12 @@
 
 #include "config.h"
 #include "geometrypass.h"
-#include "render/scene/material.h"
-#include "render/scene/materialmanager.h"
+#include "render/material/material.h"
+#include "render/material/materialmanager.h"
+#include "render/material/rendermode.h"
+#include "render/material/uniformparameter.h"
 #include "render/scene/mesh.h"
 #include "render/scene/rendercontext.h"
-#include "render/scene/rendermode.h"
-#include "render/scene/uniformparameter.h"
 
 #include <algorithm>
 #include <gl/debuggroup.h>
@@ -30,7 +30,7 @@ class Node;
 
 namespace render::pass
 {
-EdgeDetectionPass::EdgeDetectionPass(scene::MaterialManager& materialManager,
+EdgeDetectionPass::EdgeDetectionPass(material::MaterialManager& materialManager,
                                      const glm::ivec2& viewport,
                                      const GeometryPass& geometryPass)
     : m_edgeRenderMesh{scene::createScreenQuad(materialManager.getEdgeDetection(), "edge")}
@@ -90,14 +90,14 @@ void EdgeDetectionPass::render()
     SOGLB_DEBUGGROUP("edge-detection");
     m_edgeFb->bind();
 
-    scene::RenderContext context{scene::RenderMode::Full, std::nullopt};
+    scene::RenderContext context{material::RenderMode::Full, std::nullopt};
     m_edgeRenderMesh->render(nullptr, context);
   }
   {
     SOGLB_DEBUGGROUP("edge-dilation");
     m_dilationFb->bind();
 
-    scene::RenderContext context{scene::RenderMode::Full, std::nullopt};
+    scene::RenderContext context{material::RenderMode::Full, std::nullopt};
     m_dilationRenderMesh->render(nullptr, context);
   }
 

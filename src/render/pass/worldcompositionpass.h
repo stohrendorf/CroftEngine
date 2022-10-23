@@ -15,11 +15,15 @@ namespace render
 struct RenderSettings;
 }
 
+namespace render::material
+{
+class MaterialManager;
+class Material;
+} // namespace render::material
+
 namespace render::scene
 {
 class Camera;
-class MaterialManager;
-class Material;
 class Mesh;
 } // namespace render::scene
 
@@ -33,7 +37,7 @@ class BloomPass;
 class WorldCompositionPass
 {
 public:
-  explicit WorldCompositionPass(scene::MaterialManager& materialManager,
+  explicit WorldCompositionPass(material::MaterialManager& materialManager,
                                 const RenderSettings& renderSettings,
                                 const glm::ivec2& viewport,
                                 const GeometryPass& geometryPass,
@@ -54,8 +58,8 @@ public:
   }
 
 private:
-  gslu::nn_shared<scene::Material> m_noWaterMaterial;
-  gslu::nn_shared<scene::Material> m_inWaterMaterial;
+  gslu::nn_shared<material::Material> m_noWaterMaterial;
+  gslu::nn_shared<material::Material> m_inWaterMaterial;
 
   gslu::nn_shared<scene::Mesh> m_noWaterMesh;
   gslu::nn_shared<scene::Mesh> m_inWaterMesh;

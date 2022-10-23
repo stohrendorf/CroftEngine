@@ -18,15 +18,15 @@
 #include "loader/file/datatypes.h"
 #include "loader/file/primitives.h"
 #include "loader/file/texture.h"
+#include "render/material/material.h"
+#include "render/material/materialgroup.h"
+#include "render/material/materialmanager.h"
+#include "render/material/rendermode.h"
+#include "render/material/shaderprogram.h"
 #include "render/rendersettings.h"
-#include "render/scene/material.h"
-#include "render/scene/materialgroup.h"
-#include "render/scene/materialmanager.h"
 #include "render/scene/mesh.h"
 #include "render/scene/names.h"
 #include "render/scene/node.h"
-#include "render/scene/rendermode.h"
-#include "render/scene/shaderprogram.h"
 #include "render/textureanimator.h"
 #include "sector.h"
 #include "serialization/serialization.h"
@@ -105,9 +105,9 @@ struct RenderMesh
 {
   using IndexType = uint16_t;
   std::vector<IndexType> m_indices;
-  std::shared_ptr<render::scene::Material> m_materialFull;
-  std::shared_ptr<render::scene::Material> m_materialCSMDepthOnly;
-  std::shared_ptr<render::scene::Material> m_materialDepthOnly;
+  std::shared_ptr<render::material::Material> m_materialFull;
+  std::shared_ptr<render::material::Material> m_materialCSMDepthOnly;
+  std::shared_ptr<render::material::Material> m_materialDepthOnly;
 
   std::shared_ptr<render::scene::Mesh> toMesh(const gslu::nn_shared<gl::VertexBuffer<RenderVertex>>& vbuf,
                                               const gslu::nn_shared<gl::VertexBuffer<render::AnimatedUV>>& uvBuf,
@@ -135,9 +135,9 @@ struct RenderMesh
                                                       : &m_materialCSMDepthOnly->getShaderProgram()->getHandle()},
         label));
     mesh->getMaterialGroup()
-      .set(render::scene::RenderMode::Full, m_materialFull)
-      .set(render::scene::RenderMode::CSMDepthOnly, m_materialCSMDepthOnly)
-      .set(render::scene::RenderMode::DepthOnly, m_materialDepthOnly);
+      .set(render::material::RenderMode::Full, m_materialFull)
+      .set(render::material::RenderMode::CSMDepthOnly, m_materialCSMDepthOnly)
+      .set(render::material::RenderMode::DepthOnly, m_materialDepthOnly);
 
     return mesh;
   }
@@ -160,7 +160,8 @@ core::TRVec getCenter(const std::array<loader::file::VertexIndex, N>& faceVertic
 }
 } // namespace
 
-void Portal::buildMesh(const loader::file::Portal& srcPortal, const gslu::nn_shared<render::scene::Material>& material)
+void Portal::buildMesh(const loader::file::Portal& srcPortal,
+                       const gslu::nn_shared<render::material::Material>& material)
 {
   struct Vertex
   {
@@ -185,14 +186,14 @@ void Portal::buildMesh(const loader::file::Portal& srcPortal, const gslu::nn_sha
   auto vao = gsl::make_shared<gl::VertexArray<uint16_t, Vertex>>(
     indexBuffer, vb, std::vector{&material->getShaderProgram()->getHandle()}, "portal");
   mesh = std::make_shared<render::scene::MeshImpl<uint16_t, Vertex>>(vao);
-  mesh->getMaterialGroup().set(render::scene::RenderMode::DepthOnly, material);
+  mesh->getMaterialGroup().set(render::material::RenderMode::DepthOnly, material);
 }
 
 void Room::createSceneNode(const loader::file::Room& srcRoom,
                            const size_t roomId,
                            World& world,
                            const std::vector<uint16_t>& textureAnimData,
-                           render::scene::MaterialManager& materialManager)
+                           render::material::MaterialManager& materialManager)
 {
   RenderMesh renderMesh;
   renderMesh.m_materialDepthOnly = materialManager.getDepthOnly(false,
@@ -671,7 +672,7 @@ void Room::collectShaderLights(size_t depth)
 }
 
 void Room::regenerateDust(const std::shared_ptr<engine::Presenter>& presenter,
-                          const gslu::nn_shared<render::scene::Material>& dustMaterial,
+                          const gslu::nn_shared<render::material::Material>& dustMaterial,
                           bool isDustEnabled,
                           uint8_t dustDensityDivisor)
 {
@@ -698,7 +699,7 @@ std::shared_ptr<render::scene::Node>
   Room::createParticleMesh(const std::string& label,
                            const glm::vec3& min,
                            const glm::vec3& max,
-                           const gslu::nn_shared<render::scene::Material>& dustMaterial,
+                           const gslu::nn_shared<render::material::Material>& dustMaterial,
                            uint8_t dustDensityDivisor)
 {
   static const constexpr auto BaseGridAxisSubdivision = 12;
@@ -744,7 +745,7 @@ std::shared_ptr<render::scene::Node>
   auto vao = gsl::make_shared<gl::VertexArray<uint32_t, glm::vec3>>(
     indexBuffer, vbuf, std::vector{&dustMaterial->getShaderProgram()->getHandle()}, label + "-particles");
   auto mesh = std::make_shared<render::scene::MeshImpl<uint32_t, glm::vec3>>(vao, gl::api::PrimitiveType::Points);
-  mesh->getMaterialGroup().set(render::scene::RenderMode::Full, dustMaterial);
+  mesh->getMaterialGroup().set(render::material::RenderMode::Full, dustMaterial);
 
   mesh->bind("u_baseColor",
              [color = isWaterRoom ? glm::vec3{0.146f, 0.485f, 0.216f} : glm::vec3{0.431f, 0.386f, 0.375f}](

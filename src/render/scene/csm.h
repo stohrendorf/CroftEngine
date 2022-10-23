@@ -17,12 +17,16 @@
 #include <gslu.h>
 #include <memory>
 
+namespace render::material
+{
+class Material;
+class MaterialManager;
+} // namespace render::material
+
 namespace render::scene
 {
 class Camera;
-class Material;
 class Mesh;
-class MaterialManager;
 
 template<typename PixelT>
 class SeparableBlur;
@@ -46,19 +50,19 @@ public:
     std::shared_ptr<gl::Framebuffer> depthFramebuffer{};
     std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::RG16F>>> squaredTextureHandle;
     std::shared_ptr<gl::Framebuffer> squareFramebuffer{};
-    std::shared_ptr<Material> squareMaterial{};
+    std::shared_ptr<material::Material> squareMaterial{};
     std::shared_ptr<Mesh> squareMesh{};
     std::shared_ptr<SeparableBlur<gl::RG16F>> squareBlur;
     mutable std::unique_ptr<gl::FenceSync> depthSync;
     mutable std::unique_ptr<gl::FenceSync> squareSync;
     mutable std::unique_ptr<gl::FenceSync> blurSync;
 
-    void init(int32_t resolution, size_t idx, MaterialManager& materialManager);
+    void init(int32_t resolution, size_t idx, material::MaterialManager& materialManager);
     void renderSquare();
     void renderBlur();
   };
 
-  explicit CSM(int32_t resolution, MaterialManager& materialManager);
+  explicit CSM(int32_t resolution, material::MaterialManager& materialManager);
 
   [[nodiscard]] std::array<gslu::nn_shared<gl::TextureHandle<gl::Texture2D<gl::RG16F>>>, CSMBuffer::NSplits>
     getTextures() const;

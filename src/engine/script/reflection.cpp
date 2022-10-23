@@ -25,12 +25,12 @@
 #include "hid/inputhandler.h"
 #include "loader/file/level/game.h"
 #include "loader/file/level/level.h"
-#include "render/scene/material.h"
-#include "render/scene/materialmanager.h"
+#include "render/material/material.h"
+#include "render/material/materialmanager.h"
+#include "render/material/rendermode.h"
 #include "render/scene/mesh.h"
 #include "render/scene/rendercontext.h"
 #include "render/scene/renderer.h"
-#include "render/scene/rendermode.h"
 #include "scriptengine.h"
 #include "util.h"
 #include "util/fsutil.h"
@@ -343,7 +343,7 @@ std::pair<RunResult, std::optional<size_t>> SplashScreen::run(Engine& engine,
                });
   };
 
-  render::scene::RenderContext context{render::scene::RenderMode::Full, std::nullopt};
+  render::scene::RenderContext context{render::material::RenderMode::Full, std::nullopt};
 
   auto renderFrame = [&presenter, &updateSize, &mesh, &throttler, &context]() -> bool
   {

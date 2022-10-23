@@ -15,7 +15,7 @@
 #include <string_view>
 #include <vector>
 
-namespace render::scene
+namespace render::material
 {
 class ShaderProgram
 {
@@ -122,4 +122,4 @@ private:
     return it == map.end() ? nullptr : &it->second;
   }
 };
-} // namespace render::scene
+} // namespace render::material

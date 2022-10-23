@@ -1,6 +1,6 @@
 #pragma once
 
-#include "materialparameteroverrider.h"
+#include "render/material/materialparameteroverrider.h"
 
 #include <algorithm>
 #include <boost/assert.hpp>
@@ -30,7 +30,7 @@ struct Transform
   glm::mat4 modelMatrix{1.0f};
 };
 
-class Node : public MaterialParameterOverrider
+class Node : public material::MaterialParameterOverrider
 {
 public:
   Node(const Node&) = delete;

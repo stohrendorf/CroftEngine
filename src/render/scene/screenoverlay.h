@@ -11,10 +11,14 @@
 #include <gslu.h>
 #include <memory>
 
+namespace render::material
+{
+class MaterialManager;
+}
+
 namespace render::scene
 {
 class Mesh;
-class MaterialManager;
 class Node;
 class RenderContext;
 
@@ -28,7 +32,7 @@ public:
 
   explicit ScreenOverlay();
 
-  void init(MaterialManager& materialManager, const glm::ivec2& viewport);
+  void init(material::MaterialManager& materialManager, const glm::ivec2& viewport);
 
   ~ScreenOverlay() override;
 

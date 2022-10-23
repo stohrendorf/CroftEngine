@@ -9,7 +9,7 @@
 #include <gslu.h>
 #include <iosfwd>
 
-namespace render::scene
+namespace render::material
 {
 namespace
 {
@@ -84,4 +84,4 @@ gslu::nn_shared<ShaderProgram> ShaderCache::get(const std::filesystem::path& vsh
   m_programs.emplace(programId, shader);
   return shader;
 }
-} // namespace render::scene
+} // namespace render::material

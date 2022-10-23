@@ -1,7 +1,7 @@
 #pragma once
 
 #include "node.h"
-#include "rendermode.h"
+#include "render/material/rendermode.h"
 
 #include <gl/renderstate.h>
 #include <glm/glm.hpp>
@@ -14,7 +14,7 @@ namespace render::scene
 class RenderContext final
 {
 public:
-  explicit RenderContext(RenderMode renderMode, const std::optional<glm::mat4>& viewProjection)
+  explicit RenderContext(material::RenderMode renderMode, const std::optional<glm::mat4>& viewProjection)
       : m_renderMode{renderMode}
       , m_viewProjection{viewProjection}
   {
@@ -39,7 +39,7 @@ public:
     m_renderStates.pop();
   }
 
-  [[nodiscard]] RenderMode getRenderMode() const noexcept
+  [[nodiscard]] material::RenderMode getRenderMode() const noexcept
   {
     return m_renderMode;
   }
@@ -57,7 +57,7 @@ public:
 
 private:
   std::stack<gl::RenderState> m_renderStates{};
-  const RenderMode m_renderMode;
+  const material::RenderMode m_renderMode;
   const std::optional<glm::mat4> m_viewProjection;
 };
 } // namespace render::scene

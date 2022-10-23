@@ -1,10 +1,10 @@
 #include "materialmanager.h"
 
 #include "bufferparameter.h"
-#include "csm.h"
 #include "material.h"
-#include "node.h"
-#include "renderer.h"
+#include "render/scene/csm.h"
+#include "render/scene/node.h"
+#include "render/scene/renderer.h"
 #include "shadercache.h"
 #include "spritematerialmode.h"
 #include "uniformparameter.h"
@@ -30,7 +30,10 @@
 namespace render::scene
 {
 class Mesh;
+}
 
+namespace render::material
+{
 namespace
 {
 void configureForScreenSpaceEffect(Material& m, bool enableBlend)
@@ -56,13 +59,13 @@ gslu::nn_shared<Material> MaterialManager::getSprite(SpriteMaterialMode mode, st
   m->getUniformBlock("Camera")->bindCameraBuffer(m_renderer->getCamera());
   m->getUniform("u_diffuseTextures")
     ->bind(
-      [this](const Node* /*node*/, const Mesh& /*mesh*/, gl::Uniform& uniform)
+      [this](const scene::Node* /*node*/, const scene::Mesh& /*mesh*/, gl::Uniform& uniform)
       {
         uniform.set(gsl::not_null{m_geometryTextures});
       });
   m->getUniform("u_lightingMode")
     ->bind(
-      [lightingMode](const Node* /*node*/, const Mesh& /*mesh*/, gl::Uniform& uniform)
+      [lightingMode](const scene::Node* /*node*/, const scene::Mesh& /*mesh*/, gl::Uniform& uniform)
       {
         uniform.set(lightingMode());
       });
@@ -75,7 +78,7 @@ gslu::nn_shared<Material> MaterialManager::getCSMDepthOnly(bool skeletal, std::f
 {
   auto m = gsl::make_shared<Material>(m_shaderCache->getCSMDepthOnly(skeletal));
   m->getUniform("u_mvp")->bind(
-    [this](const Node* node, const Mesh& /*mesh*/, gl::Uniform& uniform)
+    [this](const scene::Node* node, const scene::Mesh& /*mesh*/, gl::Uniform& uniform)
     {
       BOOST_ASSERT(node != nullptr);
       BOOST_ASSERT(m_csm != nullptr);
@@ -102,7 +105,7 @@ gslu::nn_shared<Material> MaterialManager::getDepthOnly(bool skeletal, std::func
     buffer->bindBoneTransformBuffer(smooth);
   m->getUniform("u_diffuseTextures")
     ->bind(
-      [this](const Node* /*node*/, const Mesh& /*mesh*/, gl::Uniform& uniform)
+      [this](const scene::Node* /*node*/, const scene::Mesh& /*mesh*/, gl::Uniform& uniform)
       {
         uniform.set(gsl::not_null{m_geometryTextures});
       });
@@ -118,7 +121,7 @@ gslu::nn_shared<Material> MaterialManager::getGeometry(
   auto m = gsl::make_shared<Material>(m_shaderCache->getGeometry(inWater, skeletal, roomShadowing, 0));
   m->getUniform("u_diffuseTextures")
     ->bind(
-      [this](const Node* /*node*/, const Mesh& /*mesh*/, gl::Uniform& uniform)
+      [this](const scene::Node* /*node*/, const scene::Mesh& /*mesh*/, gl::Uniform& uniform)
       {
         uniform.set(gsl::not_null{m_geometryTextures});
       });
@@ -128,7 +131,7 @@ gslu::nn_shared<Material> MaterialManager::getGeometry(
     buffer->bindBoneTransformBuffer(smooth);
   m->getUniformBlock("Camera")->bindCameraBuffer(m_renderer->getCamera());
   m->getUniformBlock("CSM")->bind(
-    [this](const Node* node, const Mesh& /*mesh*/, gl::UniformBlock& ub)
+    [this](const scene::Node* node, const scene::Mesh& /*mesh*/, gl::UniformBlock& ub)
     {
       BOOST_ASSERT(node != nullptr);
       BOOST_ASSERT(m_csm != nullptr);
@@ -137,7 +140,7 @@ gslu::nn_shared<Material> MaterialManager::getGeometry(
 
   m->getUniform("u_csmVsm[0]")
     ->bind(
-      [this](const Node* /*node*/, const Mesh& /*mesh*/, gl::Uniform& uniform)
+      [this](const scene::Node* /*node*/, const scene::Mesh& /*mesh*/, gl::Uniform& uniform)
       {
         BOOST_ASSERT(m_csm != nullptr);
         uniform.set(gsl::make_span(m_csm->getTextures()));
@@ -145,7 +148,7 @@ gslu::nn_shared<Material> MaterialManager::getGeometry(
 
   m->getUniform("u_lightingMode")
     ->bind(
-      [lightingMode](const Node* /*node*/, const Mesh& /*mesh*/, gl::Uniform& uniform)
+      [lightingMode](const scene::Node* /*node*/, const scene::Mesh& /*mesh*/, gl::Uniform& uniform)
       {
         uniform.set(lightingMode());
       });
@@ -156,7 +159,7 @@ gslu::nn_shared<Material> MaterialManager::getGeometry(
   if(auto uniform = m->tryGetUniform("u_time"))
   {
     uniform->bind(
-      [renderer = m_renderer](const Node*, const Mesh& /*mesh*/, gl::Uniform& uniform)
+      [renderer = m_renderer](const scene::Node*, const scene::Mesh& /*mesh*/, gl::Uniform& uniform)
       {
         const auto now = std::chrono::time_point_cast<std::chrono::milliseconds>(renderer->getGameTime());
         uniform.set(gsl::narrow_cast<float>(now.time_since_epoch().count()));
@@ -191,7 +194,7 @@ gslu::nn_shared<Material> MaterialManager::getWaterSurface()
 
   m_waterSurface->getUniformBlock("Camera")->bindCameraBuffer(m_renderer->getCamera());
   m_waterSurface->getUniform("u_time")->bind(
-    [renderer = m_renderer](const Node*, const Mesh& /*mesh*/, gl::Uniform& uniform)
+    [renderer = m_renderer](const scene::Node*, const scene::Mesh& /*mesh*/, gl::Uniform& uniform)
     {
       const auto now = std::chrono::time_point_cast<std::chrono::milliseconds>(renderer->getGameTime());
       uniform.set(gsl::narrow_cast<float>(now.time_since_epoch().count()));
@@ -207,14 +210,14 @@ gslu::nn_shared<Material> MaterialManager::getLightning()
   if(m_lightning != nullptr)
     return gsl::not_null{m_lightning};
 
-  m_lightning = std::make_shared<render::scene::Material>(m_shaderCache->getLightning());
+  m_lightning = std::make_shared<Material>(m_shaderCache->getLightning());
   m_lightning->getUniformBlock("Transform")->bindTransformBuffer();
   m_lightning->getUniformBlock("Camera")->bindCameraBuffer(m_renderer->getCamera());
 
   return gsl::not_null{m_lightning};
 }
 
-MaterialManager::MaterialManager(gslu::nn_shared<ShaderCache> shaderCache, gslu::nn_shared<Renderer> renderer)
+MaterialManager::MaterialManager(gslu::nn_shared<ShaderCache> shaderCache, gslu::nn_shared<scene::Renderer> renderer)
     : m_shaderCache{std::move(shaderCache)}
     , m_renderer{std::move(renderer)}
 {
@@ -249,7 +252,7 @@ gslu::nn_shared<Material> MaterialManager::getWorldComposition(bool inWater, boo
   if(auto uniform = m->tryGetUniform("u_time"))
   {
     uniform->bind(
-      [renderer = m_renderer](const Node*, const Mesh& /*mesh*/, gl::Uniform& uniform)
+      [renderer = m_renderer](const scene::Node*, const scene::Mesh& /*mesh*/, gl::Uniform& uniform)
       {
         const auto now = std::chrono::time_point_cast<std::chrono::milliseconds>(renderer->getGameTime());
         uniform.set(gsl::narrow_cast<float>(now.time_since_epoch().count()));
@@ -272,7 +275,7 @@ gslu::nn_shared<Material> MaterialManager::getUi()
 
   auto m = std::make_shared<Material>(m_shaderCache->getUi());
   m->getUniform("u_input")->bind(
-    [this](const Node* /*node*/, const Mesh& /*mesh*/, gl::Uniform& uniform)
+    [this](const scene::Node* /*node*/, const scene::Mesh& /*mesh*/, gl::Uniform& uniform)
     {
       uniform.set(gsl::not_null{m_geometryTextures});
     });
@@ -581,7 +584,7 @@ gslu::nn_shared<Material> MaterialManager::getDustParticle()
   m->getUniformBlock("Transform")->bindTransformBuffer();
   m->getUniform("u_noise")->set(gsl::not_null{m_noiseTexture});
   m->getUniform("u_time")->bind(
-    [renderer = m_renderer](const Node*, const Mesh& /*mesh*/, gl::Uniform& uniform)
+    [renderer = m_renderer](const scene::Node*, const scene::Mesh& /*mesh*/, gl::Uniform& uniform)
     {
       const auto now = std::chrono::time_point_cast<std::chrono::milliseconds>(renderer->getGameTime());
       uniform.set(gsl::narrow_cast<float>(now.time_since_epoch().count()));
@@ -595,4 +598,4 @@ void MaterialManager::setDeathStrength(float strength)
   auto m = getDeath();
   m->getUniform("u_strength")->set(strength);
 }
-} // namespace render::scene
+} // namespace render::material

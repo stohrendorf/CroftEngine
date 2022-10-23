@@ -1,11 +1,11 @@
 #include "mesh.h"
 
-#include "material.h"
-#include "materialgroup.h"
 #include "names.h"
+#include "render/material/material.h"
+#include "render/material/materialgroup.h"
+#include "render/material/rendermode.h"
+#include "render/material/shaderprogram.h"
 #include "rendercontext.h"
-#include "rendermode.h"
-#include "shaderprogram.h"
 
 #include <array>
 #include <cstdint>
@@ -22,7 +22,7 @@ class Node;
 
 gslu::nn_shared<Mesh> createScreenQuad(const glm::vec2& xy,
                                        const glm::vec2& size,
-                                       const std::shared_ptr<Material>& material,
+                                       const std::shared_ptr<material::Material>& material,
                                        const std::string& label)
 {
   struct Vertex
@@ -54,7 +54,7 @@ gslu::nn_shared<Mesh> createScreenQuad(const glm::vec2& xy,
   mesh->getRenderState().setCullFace(false);
   mesh->getRenderState().setDepthWrite(false);
   mesh->getRenderState().setDepthTest(false);
-  mesh->getMaterialGroup().set(RenderMode::Full, material);
+  mesh->getMaterialGroup().set(material::RenderMode::Full, material);
   return mesh;
 }
 
@@ -62,7 +62,7 @@ Mesh::~Mesh() = default;
 
 void Mesh::render(const Node* node, RenderContext& context)
 {
-  std::shared_ptr<Material> material = m_materialGroup.get(context.getRenderMode());
+  std::shared_ptr<material::Material> material = m_materialGroup.get(context.getRenderMode());
   if(material == nullptr)
     return;
 
@@ -80,7 +80,7 @@ void Mesh::render(const Node* node, RenderContext& context)
 
 void Mesh::render(const Node* node, RenderContext& context, gl::api::core::SizeType instanceCount)
 {
-  std::shared_ptr<Material> material = m_materialGroup.get(context.getRenderMode());
+  std::shared_ptr<material::Material> material = m_materialGroup.get(context.getRenderMode());
   if(material == nullptr)
     return;
 

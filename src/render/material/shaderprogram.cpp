@@ -5,7 +5,7 @@
 #include <gl/renderstate.h>
 #include <utility>
 
-namespace render::scene
+namespace render::material
 {
 ShaderProgram::~ShaderProgram() = default;
 
@@ -53,4 +53,4 @@ void ShaderProgram::initInterface()
     BOOST_LOG_TRIVIAL(debug) << "  output " << output.getName() << ", location=" << output.getLocation();
   }
 }
-} // namespace render::scene
+} // namespace render::material

@@ -50,14 +50,14 @@
 #include "loader/file/texture.h"
 #include "mesh.h"
 #include "qs/qs.h"
+#include "render/material/materialmanager.h"
+#include "render/material/spritematerialmode.h"
 #include "render/rendersettings.h"
 #include "render/scene/camera.h"
-#include "render/scene/materialmanager.h"
 #include "render/scene/mesh.h"
 #include "render/scene/node.h"
 #include "render/scene/renderer.h"
 #include "render/scene/sprite.h"
-#include "render/scene/spritematerialmode.h"
 #include "render/textureanimator.h"
 #include "render/textureatlas.h"
 #include "rendermeshdata.h"
@@ -1229,7 +1229,7 @@ World::World(Engine& engine,
   m_controllerLayouts = loadControllerButtonIcons(
     atlases,
     util::ensureFileExists(m_engine.getEngineDataPath() / "button-icons" / "buttons.yaml"),
-    getPresenter().getMaterialManager()->getSprite(render::scene::SpriteMaterialMode::Billboard,
+    getPresenter().getMaterialManager()->getSprite(render::material::SpriteMaterialMode::Billboard,
                                                    [&engine]()
                                                    {
                                                      return engine.getEngineConfig()->renderSettings.lightingMode;
@@ -1266,7 +1266,7 @@ World::World(Engine& engine,
                                         sprite.uv0,
                                         sprite.uv1,
                                         getPresenter().getMaterialManager()->getSprite(
-                                          render::scene::SpriteMaterialMode::YAxisBound,
+                                          render::material::SpriteMaterialMode::YAxisBound,
                                           [&engine]()
                                           {
                                             return !engine.getEngineConfig()->renderSettings.lightingModeActive
@@ -1283,7 +1283,7 @@ World::World(Engine& engine,
                                         sprite.uv0,
                                         sprite.uv1,
                                         getPresenter().getMaterialManager()->getSprite(
-                                          render::scene::SpriteMaterialMode::Billboard,
+                                          render::material::SpriteMaterialMode::Billboard,
                                           [&engine]()
                                           {
                                             return !engine.getEngineConfig()->renderSettings.lightingModeActive
@@ -1300,7 +1300,7 @@ World::World(Engine& engine,
                                                  sprite.uv0,
                                                  sprite.uv1,
                                                  getPresenter().getMaterialManager()->getSprite(
-                                                   render::scene::SpriteMaterialMode::InstancedBillboard,
+                                                   render::material::SpriteMaterialMode::InstancedBillboard,
                                                    [&engine]()
                                                    {
                                                      return !engine.getEngineConfig()->renderSettings.lightingModeActive

@@ -8,7 +8,7 @@
 #include "pass/portalpass.h"
 #include "pass/uipass.h"
 #include "pass/worldcompositionpass.h"
-#include "render/scene/materialmanager.h"
+#include "render/material/materialmanager.h"
 #include "render/scene/visitor.h"
 #include "rendersettings.h"
 
@@ -22,16 +22,20 @@
 #include <gsl/gsl-lite.hpp>
 #include <string>
 
-namespace render::scene
+namespace render::material
 {
 class Material;
+}
+
+namespace render::scene
+{
 class Mesh;
 class Node;
 } // namespace render::scene
 
 namespace render
 {
-RenderPipeline::RenderPipeline(scene::MaterialManager& materialManager,
+RenderPipeline::RenderPipeline(material::MaterialManager& materialManager,
                                const glm::ivec2& renderViewport,
                                const glm::ivec2& uiViewport,
                                const glm::ivec2& displayViewport)
@@ -64,7 +68,7 @@ void RenderPipeline::worldCompositionPass(const std::vector<engine::world::Room>
   m_worldCompositionPass->render(inWater);
 
   {
-    render::scene::RenderContext context{render::scene::RenderMode::Full, std::nullopt};
+    render::scene::RenderContext context{render::material::RenderMode::Full, std::nullopt};
     for(const auto& room : rooms)
     {
       if(!room.node->isVisible() || room.dust == nullptr)
@@ -106,13 +110,13 @@ void RenderPipeline::updateCamera(const gslu::nn_shared<scene::Camera>& camera)
     m_hbaoPass->updateCamera(camera);
 }
 
-void RenderPipeline::apply(const RenderSettings& renderSettings, scene::MaterialManager& materialManager)
+void RenderPipeline::apply(const RenderSettings& renderSettings, material::MaterialManager& materialManager)
 {
   m_renderSettings = renderSettings;
   resize(materialManager, m_renderSize, m_uiSize, m_displaySize, true);
 }
 
-void RenderPipeline::resize(scene::MaterialManager& materialManager,
+void RenderPipeline::resize(material::MaterialManager& materialManager,
                             const glm::ivec2& renderViewport,
                             const glm::ivec2& uiViewport,
                             const glm::ivec2& displayViewport,
@@ -146,12 +150,12 @@ void RenderPipeline::resize(scene::MaterialManager& materialManager,
   initBackbufferEffects(materialManager);
 }
 
-void RenderPipeline::initWorldEffects(scene::MaterialManager& materialManager)
+void RenderPipeline::initWorldEffects(material::MaterialManager& materialManager)
 {
   m_effects.clear();
 
   auto fxSource = m_worldCompositionPass->getColorBuffer();
-  auto addEffect = [this, &fxSource](const std::string& name, const gslu::nn_shared<scene::Material>& material)
+  auto addEffect = [this, &fxSource](const std::string& name, const gslu::nn_shared<material::Material>& material)
   {
     auto fx = std::make_shared<pass::EffectPass<gl::SRGB8>>(gsl::not_null{this}, "fx:" + name, material, fxSource);
     m_effects.emplace_back(fx);
@@ -225,12 +229,12 @@ void RenderPipeline::initWorldEffects(scene::MaterialManager& materialManager)
     addEffect("filmGrain", materialManager.getFilmGrain());
   }
 }
-void RenderPipeline::initBackbufferEffects(scene::MaterialManager& materialManager)
+void RenderPipeline::initBackbufferEffects(material::MaterialManager& materialManager)
 {
   m_backbufferEffects.clear();
 
   auto fxSource = gsl::not_null{m_backbufferTextureHandle};
-  auto addEffect = [this, &fxSource](const std::string& name, const gslu::nn_shared<scene::Material>& material)
+  auto addEffect = [this, &fxSource](const std::string& name, const gslu::nn_shared<material::Material>& material)
   {
     auto fx = std::make_shared<pass::EffectPass<gl::SRGB8>>(gsl::not_null{this}, "postfx:" + name, material, fxSource);
     m_backbufferEffects.emplace_back(fx);

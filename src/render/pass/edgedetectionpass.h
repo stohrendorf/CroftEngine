@@ -9,11 +9,15 @@
 #include <gslu.h>
 #include <memory>
 
-namespace render::scene
+namespace render::material
 {
 class MaterialManager;
-class Camera;
 class Material;
+} // namespace render::material
+
+namespace render::scene
+{
+class Camera;
 class Mesh;
 } // namespace render::scene
 
@@ -24,7 +28,7 @@ class GeometryPass;
 class EdgeDetectionPass
 {
 public:
-  explicit EdgeDetectionPass(scene::MaterialManager& materialManager,
+  explicit EdgeDetectionPass(material::MaterialManager& materialManager,
                              const glm::ivec2& viewport,
                              const GeometryPass& geometryPass);
 

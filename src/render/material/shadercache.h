@@ -10,7 +10,7 @@
 #include <utility>
 #include <vector>
 
-namespace render::scene
+namespace render::material
 {
 class ShaderProgram;
 
@@ -236,4 +236,4 @@ public:
     return get("ghost.vert", "ghost.frag", std::vector<std::string>{"SKELETAL"});
   }
 };
-} // namespace render::scene
+} // namespace render::material

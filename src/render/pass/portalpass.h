@@ -10,7 +10,7 @@
 #include <gslu.h>
 #include <memory>
 
-namespace render::scene
+namespace render::material
 {
 class MaterialManager;
 }
@@ -20,7 +20,7 @@ namespace render::pass
 class PortalPass
 {
 public:
-  explicit PortalPass(scene::MaterialManager& materialManager,
+  explicit PortalPass(material::MaterialManager& materialManager,
                       const gslu::nn_shared<gl::TextureDepth<float>>& depthBuffer,
                       const glm::vec2& viewport);
 

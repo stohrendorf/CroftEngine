@@ -2,7 +2,7 @@
 
 #include <cstdint>
 
-namespace render::scene
+namespace render::material
 {
 enum class SpriteMaterialMode : uint8_t
 {
@@ -10,4 +10,4 @@ enum class SpriteMaterialMode : uint8_t
   Billboard = 2,
   InstancedBillboard = 3,
 };
-} // namespace render::scene
+} // namespace render::material
