@@ -728,8 +728,8 @@ std::shared_ptr<render::scene::Node>
       {
         glm::vec3 p0 = glm::vec3{x, y, z};
         glm::vec3 offset{fastrand() * resolution, fastrand() * resolution, fastrand() * resolution};
-        vertices.emplace_back(p0 + offset);
         indices.emplace_back(gsl::narrow_cast<uint32_t>(vertices.size()));
+        vertices.emplace_back(p0 + offset);
       }
     }
   }
