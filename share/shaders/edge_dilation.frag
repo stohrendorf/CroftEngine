@@ -8,20 +8,14 @@ void main()
 {
     vec2 texel = 1.0 / vec2(textureSize(u_edges, 0).xy);
 
-    // average every somwhat significant masking value
-    float sum = 1.0;
-    int n = 0;
+    float value = 1.0;
     for (int x=-1; x<=1; ++x)
     {
         for (int y=-1; y<=1; ++y)
         {
             float e = texture(u_edges, fpi.texCoord + vec2(x, y)*texel).x;
-            if (e < 1.0)
-            {
-                sum = max(sum, e);
-                ++n;
-            }
+            value = min(value, e);
         }
     }
-    out_dilated = n == 0 ? 1.0 : sum / n;
+    out_dilated = value < 0.9 ? 0.0 : (value-0.9) * 10.0;
 }
