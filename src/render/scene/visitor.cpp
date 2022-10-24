@@ -27,10 +27,10 @@ void Visitor::visit(const Node& node)
   m_context.popState();
 }
 
-void Visitor::add(const gsl::not_null<const Node*>& node, const glm::vec3& position)
+void Visitor::add(const gsl::not_null<const Node*>& node)
 {
   if(node->getRenderable() != nullptr)
-    m_nodes.emplace_back(node, m_context.getCurrentState(), position);
+    m_nodes.emplace_back(node, m_context.getCurrentState());
 }
 
 void Visitor::render(const std::optional<glm::vec3>& camera) const
@@ -48,13 +48,13 @@ void Visitor::render(const std::optional<glm::vec3>& camera) const
                   return aOrder < bOrder;
                 }
 
-                auto da = glm::distance(std::get<2>(a), *camera);
-                auto db = glm::distance(std::get<2>(b), *camera);
+                auto da = glm::distance(std::get<0>(a)->getTranslationWorld(), *camera);
+                auto db = glm::distance(std::get<0>(b)->getTranslationWorld(), *camera);
                 return da > db;
               });
   }
 
-  for(const auto& [node, state, position] : m_nodes)
+  for(const auto& [node, state] : m_nodes)
   {
     SOGLB_DEBUGGROUP(node->getName());
     m_context.pushState(state);

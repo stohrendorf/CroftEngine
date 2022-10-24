@@ -48,7 +48,7 @@ void Node::accept(Visitor& visitor) const
 
   if(m_renderable != nullptr)
   {
-    visitor.add(gsl::not_null{this}, getTranslationWorld());
+    visitor.add(gsl::not_null{this});
   }
 
   for(const auto& child : m_children)

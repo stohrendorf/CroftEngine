@@ -40,14 +40,14 @@ public:
     return m_withScissors;
   }
 
-  void add(const gsl::not_null<const Node*>& node, const glm::vec3& position);
+  void add(const gsl::not_null<const Node*>& node);
 
   void render(const std::optional<glm::vec3>& camera) const;
 
 private:
   RenderContext& m_context;
   const bool m_withScissors;
-  using RenderableInfo = std::tuple<gsl::not_null<const Node*>, gl::RenderState, glm::vec3>;
+  using RenderableInfo = std::tuple<gsl::not_null<const Node*>, gl::RenderState>;
   mutable std::vector<RenderableInfo> m_nodes;
 };
 } // namespace render::scene
