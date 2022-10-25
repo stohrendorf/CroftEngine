@@ -179,12 +179,8 @@ struct Room
                       uint8_t dustResolutionDivisor);
 
 private:
-  std::shared_ptr<render::scene::Node>
-    createParticleMesh(const std::string& label,
-                       const glm::vec3& min,
-                       const glm::vec3& max,
-                       const gslu::nn_shared<render::material::Material>& dustMaterial,
-                       uint8_t dustDensity);
+  std::shared_ptr<render::scene::Node> createParticleMesh(
+    const std::string& label, const gslu::nn_shared<render::material::Material>& dustMaterial, uint8_t dustDensity);
 };
 
 extern void patchHeightsForBlock(const engine::objects::Object& object, const core::Length& height);

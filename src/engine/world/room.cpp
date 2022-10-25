@@ -689,18 +689,13 @@ void Room::regenerateDust(const std::shared_ptr<engine::Presenter>& presenter,
   }
   if(presenter != nullptr)
     presenter->drawLoadingScreen(_("Generating Dust Particles..."));
-  auto dustNode
-    = createParticleMesh(node->getName() + "/dust", verticesBBoxMin, verticesBBoxMax, dustMaterial, dustDensityDivisor);
+  auto dustNode = createParticleMesh(node->getName() + "/dust", dustMaterial, dustDensityDivisor);
   dustCache.emplace(dustDensityDivisor, dustNode);
   dust = dustNode;
 }
 
-std::shared_ptr<render::scene::Node>
-  Room::createParticleMesh(const std::string& label,
-                           const glm::vec3& min,
-                           const glm::vec3& max,
-                           const gslu::nn_shared<render::material::Material>& dustMaterial,
-                           uint8_t dustDensityDivisor)
+std::shared_ptr<render::scene::Node> Room::createParticleMesh(
+  const std::string& label, const gslu::nn_shared<render::material::Material>& dustMaterial, uint8_t dustDensityDivisor)
 {
   static const constexpr auto BaseGridAxisSubdivision = 12;
   const auto resolution = (cbrt(dustDensityDivisor) / BaseGridAxisSubdivision * 1_sectors).cast<float>().get();
@@ -714,17 +709,19 @@ std::shared_ptr<render::scene::Node>
   };
 
   std::vector<glm::vec3> vertices;
-  vertices.reserve(std::lround(
-    std::max(0.0f, ((max.x - min.x) / resolution) * ((max.y - min.y) / resolution) * ((max.z - min.z) / resolution))));
+  vertices.reserve(std::lround(std::max(0.0f,
+                                        ((verticesBBoxMax.x - verticesBBoxMin.x) / resolution)
+                                          * ((verticesBBoxMax.y - verticesBBoxMin.y) / resolution)
+                                          * ((verticesBBoxMax.z - verticesBBoxMin.z) / resolution))));
   std::vector<uint32_t> indices;
   indices.reserve(vertices.capacity());
   BOOST_LOG_TRIVIAL(debug) << "generating " << vertices.capacity() << " particles for " << label;
 
-  for(float x = min.x + resolution / 2; x <= max.x - resolution / 2; x += resolution)
+  for(float x = verticesBBoxMin.x + resolution / 2; x <= verticesBBoxMax.x - resolution / 2; x += resolution)
   {
-    for(float y = min.y + resolution / 2; y <= max.y - resolution / 2; y += resolution)
+    for(float y = verticesBBoxMin.y + resolution / 2; y <= verticesBBoxMax.y - resolution / 2; y += resolution)
     {
-      for(float z = min.z + resolution / 2; z <= max.z - resolution / 2; z += resolution)
+      for(float z = verticesBBoxMin.z + resolution / 2; z <= verticesBBoxMax.z - resolution / 2; z += resolution)
       {
         glm::vec3 p0 = glm::vec3{x, y, z};
         glm::vec3 offset{fastrand() * resolution, fastrand() * resolution, fastrand() * resolution};
