@@ -26,6 +26,7 @@ void GhostModel::apply(const world::World& world, const GhostFrame& frame)
 
   engine::world::RenderMeshDataCompositor compositor;
   std::vector<glm::mat4> matrices;
+  matrices.reserve(frame.bones.size());
   for(const auto& bone : frame.bones)
   {
     matrices.emplace_back(bone.matrix);

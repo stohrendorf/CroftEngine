@@ -22,6 +22,7 @@ TextureAnimator::TextureAnimator(const std::vector<uint16_t>& data)
   {
     Sequence sequence;
     const auto n = *ptr++;
+    sequence.tileIds.reserve(n + 1);
     for(size_t j = 0; j <= n; ++j)
     {
       gsl_Assert(ptr <= &data.back());
