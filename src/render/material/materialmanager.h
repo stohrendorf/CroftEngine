@@ -74,8 +74,7 @@ public:
   [[nodiscard]] gslu::nn_shared<Material> getBloomDownsample();
   [[nodiscard]] gslu::nn_shared<Material> getBloomUpsample();
 
-  void setGeometryTextures(
-    std::shared_ptr<gl::TextureHandle<gl::Texture2DArray<gl::PremultipliedSRGBA8>>> geometryTextures);
+  void setGeometryTextures(const gslu::nn_shared<gl::Texture2DArray<gl::PremultipliedSRGBA8>>& geometryTextures);
   void setFiltering(bool bilinear, const std::optional<float>& anisotropyLevel);
 
   void setCSM(const gslu::nn_shared<scene::CSM>& csm)
@@ -123,6 +122,10 @@ private:
 
   std::shared_ptr<scene::CSM> m_csm;
   const gslu::nn_shared<scene::Renderer> m_renderer;
-  std::shared_ptr<gl::TextureHandle<gl::Texture2DArray<gl::PremultipliedSRGBA8>>> m_geometryTextures;
+  std::shared_ptr<gl::TextureHandle<gl::Texture2DArray<gl::PremultipliedSRGBA8>>> m_geometryTexturesHandle;
+
+  void createSampler(const gslu::nn_shared<gl::Texture2DArray<gl::PremultipliedSRGBA8>>& geometryTextures,
+                     bool bilinear,
+                     const std::optional<float>& anisotropyLevel);
 };
 } // namespace render::material

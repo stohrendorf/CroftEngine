@@ -61,7 +61,7 @@ gslu::nn_shared<Material> MaterialManager::getSprite(SpriteMaterialMode mode, st
     ->bind(
       [this](const scene::Node* /*node*/, const scene::Mesh& /*mesh*/, gl::Uniform& uniform)
       {
-        uniform.set(gsl::not_null{m_geometryTextures});
+        uniform.set(gsl::not_null{m_geometryTexturesHandle});
       });
   m->getUniform("u_lightingMode")
     ->bind(
@@ -107,7 +107,7 @@ gslu::nn_shared<Material> MaterialManager::getDepthOnly(bool skeletal, std::func
     ->bind(
       [this](const scene::Node* /*node*/, const scene::Mesh& /*mesh*/, gl::Uniform& uniform)
       {
-        uniform.set(gsl::not_null{m_geometryTextures});
+        uniform.set(gsl::not_null{m_geometryTexturesHandle});
       });
 
   return m;
@@ -116,14 +116,14 @@ gslu::nn_shared<Material> MaterialManager::getDepthOnly(bool skeletal, std::func
 gslu::nn_shared<Material> MaterialManager::getGeometry(
   bool inWater, bool skeletal, bool roomShadowing, std::function<bool()> smooth, std::function<int32_t()> lightingMode)
 {
-  Expects(m_geometryTextures != nullptr);
+  Expects(m_geometryTexturesHandle != nullptr);
 
   auto m = gsl::make_shared<Material>(m_shaderCache->getGeometry(inWater, skeletal, roomShadowing, 0));
   m->getUniform("u_diffuseTextures")
     ->bind(
       [this](const scene::Node* /*node*/, const scene::Mesh& /*mesh*/, gl::Uniform& uniform)
       {
-        uniform.set(gsl::not_null{m_geometryTextures});
+        uniform.set(gsl::not_null{m_geometryTexturesHandle});
       });
 
   m->getUniformBlock("Transform")->bindTransformBuffer();
@@ -277,7 +277,7 @@ gslu::nn_shared<Material> MaterialManager::getUi()
   m->getUniform("u_input")->bind(
     [this](const scene::Node* /*node*/, const scene::Mesh& /*mesh*/, gl::Uniform& uniform)
     {
-      uniform.set(gsl::not_null{m_geometryTextures});
+      uniform.set(gsl::not_null{m_geometryTexturesHandle});
     });
   m->getUniformBlock("Camera")->bindCameraBuffer(m_renderer->getCamera());
   configureForScreenSpaceEffect(*m, true);
@@ -494,31 +494,17 @@ gslu::nn_shared<Material> MaterialManager::getVSMSquare()
 }
 
 void MaterialManager::setGeometryTextures(
-  std::shared_ptr<gl::TextureHandle<gl::Texture2DArray<gl::PremultipliedSRGBA8>>> geometryTextures)
+  const gslu::nn_shared<gl::Texture2DArray<gl::PremultipliedSRGBA8>>& geometryTextures)
 {
-  m_geometryTextures = std::move(geometryTextures);
+  createSampler(geometryTextures, false, std::nullopt);
 }
 
 void MaterialManager::setFiltering(bool bilinear, const std::optional<float>& anisotropyLevel)
 {
-  if(m_geometryTextures == nullptr)
+  if(m_geometryTexturesHandle == nullptr)
     return;
 
-  auto sampler = gsl::make_unique<gl::Sampler>("geometry-sampler");
-  if(bilinear)
-  {
-    sampler->set(gl::api::TextureMinFilter::LinearMipmapLinear).set(gl::api::TextureMagFilter::Linear);
-  }
-  else
-  {
-    sampler->set(gl::api::TextureMinFilter::NearestMipmapLinear).set(gl::api::TextureMagFilter::Nearest);
-  }
-
-  if(anisotropyLevel.has_value() && gl::hasAnisotropicFilteringExtension())
-    sampler->set(gl::api::SamplerParameterF::TextureMaxAnisotropy, *anisotropyLevel);
-
-  m_geometryTextures = std::make_shared<gl::TextureHandle<gl::Texture2DArray<gl::PremultipliedSRGBA8>>>(
-    m_geometryTextures->getTexture(), std::move(sampler));
+  createSampler(m_geometryTexturesHandle->getTexture(), bilinear, anisotropyLevel);
 }
 
 gslu::nn_shared<Material> MaterialManager::getFastGaussBlur(uint8_t extent, uint8_t blurDir, uint8_t blurDim)
@@ -597,5 +583,29 @@ void MaterialManager::setDeathStrength(float strength)
 {
   auto m = getDeath();
   m->getUniform("u_strength")->set(strength);
+}
+
+void MaterialManager::createSampler(
+  const gslu::nn_shared<gl::Texture2DArray<gl::PremultipliedSRGBA8>>& geometryTextures,
+  bool bilinear,
+  const std::optional<float>& anisotropyLevel)
+{
+  auto sampler = gsl::make_unique<gl::Sampler>("geometry-sampler")
+                 | set(gl::api::SamplerParameterI::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge)
+                 | set(gl::api::SamplerParameterI::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge);
+  if(bilinear)
+  {
+    sampler->set(gl::api::TextureMinFilter::LinearMipmapLinear).set(gl::api::TextureMagFilter::Linear);
+  }
+  else
+  {
+    sampler->set(gl::api::TextureMinFilter::NearestMipmapLinear).set(gl::api::TextureMagFilter::Nearest);
+  }
+
+  if(anisotropyLevel.has_value() && gl::hasAnisotropicFilteringExtension())
+    sampler->set(gl::api::SamplerParameterF::TextureMaxAnisotropy, *anisotropyLevel);
+
+  m_geometryTexturesHandle = std::make_shared<gl::TextureHandle<gl::Texture2DArray<gl::PremultipliedSRGBA8>>>(
+    geometryTextures, std::move(sampler));
 }
 } // namespace render::material

@@ -1244,16 +1244,7 @@ World::World(Engine& engine,
                                   getPresenter().drawLoadingScreen(s);
                                 });
 
-  auto sampler = gsl::make_unique<gl::Sampler>("all-textures-sampler")
-                 | set(gl::api::TextureMinFilter::NearestMipmapLinear) | set(gl::api::TextureMagFilter::Nearest)
-                 | set(gl::api::SamplerParameterI::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge)
-                 | set(gl::api::SamplerParameterI::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge);
-  if(getEngine().getEngineConfig()->renderSettings.anisotropyActive && gl::hasAnisotropicFilteringExtension())
-    sampler->set(gl::api::SamplerParameterF::TextureMaxAnisotropy,
-                 gsl::narrow<float>(getEngine().getEngineConfig()->renderSettings.anisotropyLevel));
-  m_allTexturesHandle = std::make_shared<gl::TextureHandle<gl::Texture2DArray<gl::PremultipliedSRGBA8>>>(
-    gsl::not_null{m_allTextures}, std::move(sampler));
-  getPresenter().getMaterialManager()->setGeometryTextures(m_allTexturesHandle);
+  getPresenter().getMaterialManager()->setGeometryTextures(gsl::not_null{m_allTextures});
 
   for(size_t i = 0; i < m_sprites.size(); ++i)
   {
