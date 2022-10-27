@@ -23,9 +23,7 @@ public:
 
   virtual ~MaterialParameter() = default;
 
-  virtual bool
-    bind(const scene::Node* node, const scene::Mesh& mesh, const gslu::nn_shared<ShaderProgram>& shaderProgram)
-    = 0;
+  virtual bool bind(const scene::Node* node, const scene::Mesh& mesh, ShaderProgram& shaderProgram) = 0;
 
   [[nodiscard]] const std::string& getName() const
   {

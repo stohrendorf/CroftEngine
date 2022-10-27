@@ -72,12 +72,10 @@ public:
     };
   }
 
-  bool bind(const scene::Node* node,
-            const scene::Mesh& mesh,
-            const gslu::nn_shared<ShaderProgram>& shaderProgram) override;
+  bool bind(const scene::Node* node, const scene::Mesh& mesh, ShaderProgram& shaderProgram) override;
 
 private:
-  [[nodiscard]] gl::Uniform* findUniform(const gslu::nn_shared<ShaderProgram>& shaderProgram) const;
+  [[nodiscard]] gl::Uniform* findUniform(ShaderProgram& shaderProgram) const;
 
   std::function<UniformValueSetter> m_valueSetter;
 };
@@ -120,15 +118,13 @@ public:
     m_bufferBinder = std::move(setter);
   }
 
-  bool bind(const scene::Node* node,
-            const scene::Mesh& mesh,
-            const gslu::nn_shared<ShaderProgram>& shaderProgram) override;
+  bool bind(const scene::Node* node, const scene::Mesh& mesh, ShaderProgram& shaderProgram) override;
 
   void bindTransformBuffer();
   void bindCameraBuffer(const gslu::nn_shared<scene::Camera>& camera);
 
 private:
-  [[nodiscard]] gl::UniformBlock* findUniformBlock(const gslu::nn_shared<ShaderProgram>& shaderProgram) const;
+  [[nodiscard]] gl::UniformBlock* findUniformBlock(ShaderProgram& shaderProgram) const;
 
   std::function<BufferBinder> m_bufferBinder;
 };

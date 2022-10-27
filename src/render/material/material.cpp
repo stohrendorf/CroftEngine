@@ -36,7 +36,7 @@ void Material::bind(const scene::Node* node, const scene::Mesh& mesh) const
 {
   for(const auto& param : m_uniforms)
   {
-    [[maybe_unused]] const auto success = param->bind(node, mesh, m_shaderProgram);
+    [[maybe_unused]] const auto success = param->bind(node, mesh, *m_shaderProgram);
 #ifndef NDEBUG
     if(!success)
     {
@@ -47,7 +47,7 @@ void Material::bind(const scene::Node* node, const scene::Mesh& mesh) const
 
   for(const auto& param : m_uniformBlocks)
   {
-    [[maybe_unused]] const auto success = param->bind(node, mesh, m_shaderProgram);
+    [[maybe_unused]] const auto success = param->bind(node, mesh, *m_shaderProgram);
 #ifndef NDEBUG
     if(!success)
     {
@@ -58,7 +58,7 @@ void Material::bind(const scene::Node* node, const scene::Mesh& mesh) const
 
   for(const auto& param : m_buffers)
   {
-    [[maybe_unused]] const auto success = param->bind(node, mesh, m_shaderProgram);
+    [[maybe_unused]] const auto success = param->bind(node, mesh, *m_shaderProgram);
 #ifndef NDEBUG
     if(!success)
     {

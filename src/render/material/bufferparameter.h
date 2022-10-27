@@ -62,14 +62,11 @@ public:
     m_bufferBinder = std::move(setter);
   }
 
-  bool bind(const scene::Node* node,
-            const scene::Mesh& mesh,
-            const gslu::nn_shared<ShaderProgram>& shaderProgram) override;
+  bool bind(const scene::Node* node, const scene::Mesh& mesh, ShaderProgram& shaderProgram) override;
   void bindBoneTransformBuffer(std::function<bool()> smooth);
 
 private:
-  [[nodiscard]] gl::ShaderStorageBlock*
-    findShaderStorageBlock(const gslu::nn_shared<ShaderProgram>& shaderProgram) const;
+  [[nodiscard]] gl::ShaderStorageBlock* findShaderStorageBlock(ShaderProgram& shaderProgram) const;
 
   std::function<BufferBinder> m_bufferBinder;
 };

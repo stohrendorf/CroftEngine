@@ -12,9 +12,7 @@
 
 namespace render::material
 {
-bool BufferParameter::bind(const scene::Node* node,
-                           const scene::Mesh& mesh,
-                           const gslu::nn_shared<ShaderProgram>& shaderProgram)
+bool BufferParameter::bind(const scene::Node* node, const scene::Mesh& mesh, ShaderProgram& shaderProgram)
 {
   const auto* binder = m_bufferBinder ? &m_bufferBinder : nullptr;
   if(binder == nullptr)
@@ -53,14 +51,13 @@ void BufferParameter::bindBoneTransformBuffer(std::function<bool()> smooth)
   };
 }
 
-gl::ShaderStorageBlock*
-  BufferParameter::findShaderStorageBlock(const gslu::nn_shared<ShaderProgram>& shaderProgram) const
+gl::ShaderStorageBlock* BufferParameter::findShaderStorageBlock(ShaderProgram& shaderProgram) const
 {
-  if(const auto block = shaderProgram->findShaderStorageBlock(getName()))
+  if(const auto block = shaderProgram.findShaderStorageBlock(getName()))
     return block;
 
   BOOST_LOG_TRIVIAL(warning) << "Shader storage block '" << getName() << "' not found in program '"
-                             << shaderProgram->getId() << "'";
+                             << shaderProgram.getId() << "'";
 
   return nullptr;
 }

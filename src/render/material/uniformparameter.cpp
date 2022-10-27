@@ -10,9 +10,7 @@
 
 namespace render::material
 {
-bool UniformParameter::bind(const scene::Node* node,
-                            const scene::Mesh& mesh,
-                            const gslu::nn_shared<ShaderProgram>& shaderProgram)
+bool UniformParameter::bind(const scene::Node* node, const scene::Mesh& mesh, ShaderProgram& shaderProgram)
 {
   const auto* setter = m_valueSetter ? &m_valueSetter : nullptr;
   if(setter == nullptr)
@@ -40,19 +38,17 @@ bool UniformParameter::bind(const scene::Node* node,
   return true;
 }
 
-gl::Uniform* UniformParameter::findUniform(const gslu::nn_shared<ShaderProgram>& shaderProgram) const
+gl::Uniform* UniformParameter::findUniform(ShaderProgram& shaderProgram) const
 {
-  if(const auto uniform = shaderProgram->findUniform(getName()))
+  if(const auto uniform = shaderProgram.findUniform(getName()))
     return uniform;
 
-  BOOST_LOG_TRIVIAL(warning) << "Uniform '" << getName() << "' not found in program '" << shaderProgram->getId() << "'";
+  BOOST_LOG_TRIVIAL(warning) << "Uniform '" << getName() << "' not found in program '" << shaderProgram.getId() << "'";
 
   return nullptr;
 }
 
-bool UniformBlockParameter::bind(const scene::Node* node,
-                                 const scene::Mesh& mesh,
-                                 const gslu::nn_shared<ShaderProgram>& shaderProgram)
+bool UniformBlockParameter::bind(const scene::Node* node, const scene::Mesh& mesh, ShaderProgram& shaderProgram)
 {
   const auto* binder = m_bufferBinder ? &m_bufferBinder : nullptr;
   if(binder == nullptr)
@@ -97,12 +93,12 @@ void UniformBlockParameter::bindCameraBuffer(const gslu::nn_shared<scene::Camera
   };
 }
 
-gl::UniformBlock* UniformBlockParameter::findUniformBlock(const gslu::nn_shared<ShaderProgram>& shaderProgram) const
+gl::UniformBlock* UniformBlockParameter::findUniformBlock(ShaderProgram& shaderProgram) const
 {
-  if(const auto block = shaderProgram->findUniformBlock(getName()))
+  if(const auto block = shaderProgram.findUniformBlock(getName()))
     return block;
 
-  BOOST_LOG_TRIVIAL(warning) << "Uniform block '" << getName() << "' not found in program '" << shaderProgram->getId()
+  BOOST_LOG_TRIVIAL(warning) << "Uniform block '" << getName() << "' not found in program '" << shaderProgram.getId()
                              << "'";
 
   return nullptr;
