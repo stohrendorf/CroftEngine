@@ -68,7 +68,7 @@ struct quantity
   }
 
   template<typename T = type>
-  [[nodiscard]] constexpr auto get() const noexcept(noexcept(static_cast<T>(std::declval<type>())))
+  [[nodiscard]] constexpr auto get() const noexcept(noexcept(static_cast<T>(value)))
   {
     return static_cast<T>(value);
   }
@@ -88,35 +88,35 @@ struct quantity
   }
 
   template<typename T>
-  constexpr auto& operator+=(const quantity<Unit, T>& r) noexcept(noexcept(std::declval<type&>() += r.value))
+  constexpr auto& operator+=(const quantity<Unit, T>& r) noexcept(noexcept(value += r.value))
   {
     value += r.value;
     return *this;
   }
 
   template<typename T>
-  constexpr auto& operator-=(const quantity<Unit, T>& r) noexcept(noexcept(std::declval<type&>() -= r.value))
+  constexpr auto& operator-=(const quantity<Unit, T>& r) noexcept(noexcept(value -= r.value))
   {
     value -= r.value;
     return *this;
   }
 
   template<typename T>
-  constexpr auto& operator%=(const quantity<Unit, T>& r) noexcept(noexcept(std::declval<type&>() %= r.value))
+  constexpr auto& operator%=(const quantity<Unit, T>& r) noexcept(noexcept(value %= r.value))
   {
     value %= r.value;
     return *this;
   }
 
   template<typename T>
-  constexpr auto& operator*=(const T& r) noexcept(noexcept(std::declval<type&>() *= r))
+  constexpr auto& operator*=(const T& r) noexcept(noexcept(value *= r))
   {
     value *= r;
     return *this;
   }
 
   template<typename T>
-  constexpr auto operator/=(const T& r) noexcept(noexcept(std::declval<type&>() /= r))
+  constexpr auto operator/=(const T& r) noexcept(noexcept(value /= r))
   {
     value /= r;
     return *this;
@@ -130,37 +130,37 @@ struct quantity
 
   // comparison operators
   template<typename T>
-  constexpr bool operator<(const quantity<Unit, T>& r) const noexcept(noexcept(std::declval<type>() < r.value))
+  constexpr bool operator<(const quantity<Unit, T>& r) const noexcept(noexcept(value < r.value))
   {
     return value < r.value;
   }
 
   template<typename T>
-  constexpr bool operator<=(const quantity<Unit, T>& r) const noexcept(noexcept(std::declval<type>() <= r.value))
+  constexpr bool operator<=(const quantity<Unit, T>& r) const noexcept(noexcept(value <= r.value))
   {
     return value <= r.value;
   }
 
   template<typename T>
-  constexpr bool operator==(const quantity<Unit, T>& r) const noexcept(noexcept(std::declval<type>() == r.value))
+  constexpr bool operator==(const quantity<Unit, T>& r) const noexcept(noexcept(value == r.value))
   {
     return value == r.value;
   }
 
   template<typename T>
-  constexpr bool operator>(const quantity<Unit, T>& r) const noexcept(noexcept(std::declval<type>() > r.value))
+  constexpr bool operator>(const quantity<Unit, T>& r) const noexcept(noexcept(value > r.value))
   {
     return value > r.value;
   }
 
   template<typename T>
-  constexpr bool operator>=(const quantity<Unit, T>& r) const noexcept(noexcept(std::declval<type>() >= r.value))
+  constexpr bool operator>=(const quantity<Unit, T>& r) const noexcept(noexcept(value >= r.value))
   {
     return value >= r.value;
   }
 
   template<typename T>
-  constexpr bool operator!=(const quantity<Unit, T>& r) const noexcept(noexcept(std::declval<type>() != r.value))
+  constexpr bool operator!=(const quantity<Unit, T>& r) const noexcept(noexcept(value != r.value))
   {
     return value != r.value;
   }
