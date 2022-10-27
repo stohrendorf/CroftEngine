@@ -16,26 +16,28 @@ bool BufferParameter::bind(const scene::Node* node,
                            const scene::Mesh& mesh,
                            const gslu::nn_shared<ShaderProgram>& shaderProgram)
 {
-  auto binder = mesh.findShaderStorageBlockBinder(getName());
-  if(!m_bufferBinder && binder == nullptr)
+  const auto* binder = m_bufferBinder ? &m_bufferBinder : nullptr;
+  if(binder == nullptr)
   {
-    if(node != nullptr)
-      binder = node->findShaderStorageBlockBinder(getName());
-    if(binder == nullptr)
-    {
-      // don't have an explicit binder present on material, node or mesh level, assuming it's set on shader level
-      return true;
-    }
+    binder = mesh.findShaderStorageBlockBinder(getName());
+  }
+
+  if(binder == nullptr && node != nullptr)
+  {
+    binder = node->findShaderStorageBlockBinder(getName());
+  }
+
+  if(binder == nullptr)
+  {
+    // don't have an explicit setter present on material, node or mesh level, assuming it's set on shader level
+    return true;
   }
 
   const auto block = findShaderStorageBlock(shaderProgram);
   if(block == nullptr)
     return false;
 
-  if(binder != nullptr)
-    (*binder)(node, mesh, *block);
-  else
-    m_bufferBinder(node, mesh, *block);
+  (*binder)(node, mesh, *block);
 
   return true;
 }

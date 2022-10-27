@@ -14,26 +14,28 @@ bool UniformParameter::bind(const scene::Node* node,
                             const scene::Mesh& mesh,
                             const gslu::nn_shared<ShaderProgram>& shaderProgram)
 {
-  auto setter = mesh.findUniformSetter(getName());
-  if(!m_valueSetter && setter == nullptr)
+  const auto* setter = m_valueSetter ? &m_valueSetter : nullptr;
+  if(setter == nullptr)
   {
-    if(node != nullptr)
-      setter = node->findUniformSetter(getName());
-    if(setter == nullptr)
-    {
-      // don't have an explicit setter present on material, node or mesh level, assuming it's set on shader level
-      return true;
-    }
+    setter = mesh.findUniformSetter(getName());
+  }
+
+  if(setter == nullptr && node != nullptr)
+  {
+    setter = node->findUniformSetter(getName());
+  }
+
+  if(setter == nullptr)
+  {
+    // don't have an explicit setter present on material, node or mesh level, assuming it's set on shader level
+    return true;
   }
 
   const auto uniform = findUniform(shaderProgram);
   if(uniform == nullptr)
     return false;
 
-  if(setter != nullptr)
-    (*setter)(node, mesh, *uniform);
-  else
-    m_valueSetter(node, mesh, *uniform);
+  (*setter)(node, mesh, *uniform);
 
   return true;
 }
@@ -52,26 +54,28 @@ bool UniformBlockParameter::bind(const scene::Node* node,
                                  const scene::Mesh& mesh,
                                  const gslu::nn_shared<ShaderProgram>& shaderProgram)
 {
-  auto binder = mesh.findUniformBlockBinder(getName());
-  if(!m_bufferBinder && binder == nullptr)
+  const auto* binder = m_bufferBinder ? &m_bufferBinder : nullptr;
+  if(binder == nullptr)
   {
-    if(node != nullptr)
-      binder = node->findUniformBlockBinder(getName());
-    if(binder == nullptr)
-    {
-      // don't have an explicit binder present on material, node or mesh level, assuming it's set on shader level
-      return true;
-    }
+    binder = mesh.findUniformBlockBinder(getName());
+  }
+
+  if(binder == nullptr && node != nullptr)
+  {
+    binder = node->findUniformBlockBinder(getName());
+  }
+
+  if(binder == nullptr)
+  {
+    // don't have an explicit setter present on material, node or mesh level, assuming it's set on shader level
+    return true;
   }
 
   const auto block = findUniformBlock(shaderProgram);
   if(block == nullptr)
     return false;
 
-  if(binder != nullptr)
-    (*binder)(node, mesh, *block);
-  else
-    m_bufferBinder(node, mesh, *block);
+  (*binder)(node, mesh, *block);
 
   return true;
 }
