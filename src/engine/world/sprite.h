@@ -26,6 +26,12 @@ struct Sprite
   std::shared_ptr<render::scene::Mesh> yBoundMesh;
   std::shared_ptr<render::scene::Mesh> billboardMesh;
   std::tuple<std::shared_ptr<render::scene::Mesh>, std::shared_ptr<gl::VertexBuffer<glm::mat4>>> instancedBillboardMesh;
+
+  constexpr bool operator==(const Sprite& rhs) const
+  {
+    return textureId == rhs.textureId && uv0 == rhs.uv0 && uv1 == rhs.uv1 && render0 == rhs.render0
+           && render1 == rhs.render1;
+  }
 };
 
 struct SpriteSequence

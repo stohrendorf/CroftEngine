@@ -295,7 +295,7 @@ public:
     static auto constexpr widgetLifetime = 75_frame;
     auto isSameVirginItem = [&sprite](const ui::PickupWidget& item) -> bool
     {
-      return item.getSprite().textureId == sprite.textureId && item.getDuration() == widgetLifetime;
+      return item.getSprite() == sprite && item.getDuration() == widgetLifetime;
     };
     if(auto it = std::find_if(m_pickupWidgets.begin(), m_pickupWidgets.end(), isSameVirginItem);
        it != m_pickupWidgets.end())
