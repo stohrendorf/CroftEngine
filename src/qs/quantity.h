@@ -68,7 +68,7 @@ struct quantity
   }
 
   template<typename T = type>
-  [[nodiscard]] constexpr auto get() const noexcept(noexcept(static_cast<T>(value)))
+  [[nodiscard]] constexpr auto get() const noexcept(noexcept(static_cast<T>(this->value)))
   {
     return static_cast<T>(value);
   }
@@ -88,35 +88,35 @@ struct quantity
   }
 
   template<typename T>
-  constexpr auto& operator+=(const quantity<Unit, T>& r) noexcept(noexcept(value += r.value))
+  constexpr auto& operator+=(const quantity<Unit, T>& r) noexcept(noexcept(this->value += r.value))
   {
     value += r.value;
     return *this;
   }
 
   template<typename T>
-  constexpr auto& operator-=(const quantity<Unit, T>& r) noexcept(noexcept(value -= r.value))
+  constexpr auto& operator-=(const quantity<Unit, T>& r) noexcept(noexcept(this->value -= r.value))
   {
     value -= r.value;
     return *this;
   }
 
   template<typename T>
-  constexpr auto& operator%=(const quantity<Unit, T>& r) noexcept(noexcept(value %= r.value))
+  constexpr auto& operator%=(const quantity<Unit, T>& r) noexcept(noexcept(this->value %= r.value))
   {
     value %= r.value;
     return *this;
   }
 
   template<typename T>
-  constexpr auto& operator*=(const T& r) noexcept(noexcept(value *= r))
+  constexpr auto& operator*=(const T& r) noexcept(noexcept(this->value *= r))
   {
     value *= r;
     return *this;
   }
 
   template<typename T>
-  constexpr auto operator/=(const T& r) noexcept(noexcept(value /= r))
+  constexpr auto operator/=(const T& r) noexcept(noexcept(this->value /= r))
   {
     value /= r;
     return *this;
@@ -130,37 +130,37 @@ struct quantity
 
   // comparison operators
   template<typename T>
-  constexpr bool operator<(const quantity<Unit, T>& r) const noexcept(noexcept(value < r.value))
+  constexpr bool operator<(const quantity<Unit, T>& r) const noexcept(noexcept(this->value < r.value))
   {
     return value < r.value;
   }
 
   template<typename T>
-  constexpr bool operator<=(const quantity<Unit, T>& r) const noexcept(noexcept(value <= r.value))
+  constexpr bool operator<=(const quantity<Unit, T>& r) const noexcept(noexcept(this->value <= r.value))
   {
     return value <= r.value;
   }
 
   template<typename T>
-  constexpr bool operator==(const quantity<Unit, T>& r) const noexcept(noexcept(value == r.value))
+  constexpr bool operator==(const quantity<Unit, T>& r) const noexcept(noexcept(this->value == r.value))
   {
     return value == r.value;
   }
 
   template<typename T>
-  constexpr bool operator>(const quantity<Unit, T>& r) const noexcept(noexcept(value > r.value))
+  constexpr bool operator>(const quantity<Unit, T>& r) const noexcept(noexcept(this->value > r.value))
   {
     return value > r.value;
   }
 
   template<typename T>
-  constexpr bool operator>=(const quantity<Unit, T>& r) const noexcept(noexcept(value >= r.value))
+  constexpr bool operator>=(const quantity<Unit, T>& r) const noexcept(noexcept(this->value >= r.value))
   {
     return value >= r.value;
   }
 
   template<typename T>
-  constexpr bool operator!=(const quantity<Unit, T>& r) const noexcept(noexcept(value != r.value))
+  constexpr bool operator!=(const quantity<Unit, T>& r) const noexcept(noexcept(this->value != r.value))
   {
     return value != r.value;
   }
@@ -176,7 +176,6 @@ constexpr std::enable_if_t<std::is_signed_v<Type>, quantity<Unit, Type>>
   return quantity<Unit, Type>{static_cast<Type>(-l.get())};
 }
 
-// abs
 template<typename Unit, typename Type>
 constexpr quantity<Unit, Type> abs(const quantity<Unit, Type>& v) noexcept(noexcept(v.get() >= 0 ? v : -v))
 {
