@@ -1,5 +1,7 @@
 # ![CroftEngine logo](./share/logo_32.png) CroftEngine
 
+# [Troubleshooting FAQ](https://github.com/stohrendorf/CroftEngine/wiki/FAQ)
+
 # CroftEngine is dead
 
 Please note that because every tool builder or level builder seemingly decided to completely ignore CroftEngine despite offering support, the project is now dead after about 7 years of development.
