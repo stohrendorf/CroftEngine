@@ -2,9 +2,9 @@
 
 # [Troubleshooting FAQ](https://github.com/stohrendorf/CroftEngine/wiki/FAQ)
 
-# CroftEngine is dead
+# CroftEngine is in support-only mode
 
-Please note that because every tool builder or level builder seemingly decided to completely ignore CroftEngine despite offering support, the project is now dead after about 7 years of development.
+Please note that because every tool builder or level builder seemingly decided to completely ignore CroftEngine despite offering support, the project is now in support-only mode after about 7 years of development. This means that it's not planned to do new developments.
 
 [![CroftEngine-CI](https://github.com/stohrendorf/CroftEngine/actions/workflows/repo-sync.yml/badge.svg)](https://github.com/stohrendorf/CroftEngine/actions/workflows/repo-sync.yml)
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fstohrendorf%2FCroftEngine.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fstohrendorf%2FCroftEngine?ref=badge_shield)
