@@ -2,6 +2,8 @@
 
 # [Troubleshooting FAQ](https://github.com/stohrendorf/CroftEngine/wiki/FAQ)
 
+You can also get support [on discord](https://discord.gg/FRAVaBZbY5).
+
 # CroftEngine is in support-only mode
 
 Please note that because every tool builder or level builder seemingly decided to completely ignore CroftEngine despite offering support, the project is now in support-only mode after about 7 years of development. This means that it's not planned to do new developments.
