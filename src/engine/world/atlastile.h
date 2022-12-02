@@ -26,15 +26,20 @@ struct AtlasTile
   {
     glm::vec2 xy0{std::numeric_limits<glm::float32>::max()};
     glm::vec2 xy1{std::numeric_limits<glm::float32>::min()};
+    bool allInvalid = true;
     for(const auto& uvComponent : uvCoordinates)
     {
       if(uvComponent.x == 0 && uvComponent.y == 0)
         continue;
 
+      allInvalid = false;
       xy0 = glm::min(uvComponent, xy0);
       xy1 = glm::max(uvComponent, xy1);
     }
-    return {xy0, xy1};
+    if(allInvalid)
+      return {{0.0f, 0.0f}, {0.0f, 0.0f}};
+    else
+      return {xy0, xy1};
   }
 
   [[nodiscard]] float getArea() const

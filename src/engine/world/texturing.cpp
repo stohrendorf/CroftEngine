@@ -36,52 +36,6 @@ namespace engine::world
 {
 namespace
 {
-struct UVRect
-{
-  explicit UVRect(const std::array<glm::vec2, 4>& cos)
-  {
-    xy0.x = xy0.y = 1;
-    xy1.x = xy1.y = 0;
-    for(const auto& co : cos)
-    {
-      if(co.x == 0 && co.y == 0)
-        continue;
-
-      xy0.x = std::min(xy0.x, co.x);
-      xy0.y = std::min(xy0.y, co.y);
-      xy1.x = std::max(xy1.x, co.x);
-      xy1.y = std::max(xy1.y, co.y);
-    }
-  }
-
-  UVRect(const glm::vec2& t0, const glm::vec2& t1)
-  {
-    xy0.x = std::min(t0.x, t1.x);
-    xy0.y = std::min(t0.y, t1.y);
-    xy1.x = std::max(t0.x, t1.x);
-    xy1.y = std::max(t0.y, t1.y);
-  }
-
-  bool operator==(const UVRect& rhs) const noexcept
-  {
-    return xy0 == rhs.xy0 && xy1 == rhs.xy1;
-  }
-
-  constexpr bool operator<(const UVRect& rhs) const noexcept
-  {
-    if(xy0.x != rhs.xy0.x)
-      return xy0.x < rhs.xy0.x;
-    if(xy0.y != rhs.xy1.y)
-      return xy0.y < rhs.xy0.y;
-    if(xy1.x != rhs.xy1.x)
-      return xy1.x < rhs.xy1.x;
-    return xy1.y < rhs.xy1.y;
-  }
-
-  glm::vec2 xy0{};
-  glm::vec2 xy1{};
-};
-
 void remapRange(glm::vec2& co,
                 const glm::vec2& rangeAMin,
                 const glm::vec2& rangeAMax,
