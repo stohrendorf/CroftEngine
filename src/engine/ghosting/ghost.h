@@ -22,6 +22,7 @@ struct GhostMeta
   core::Frame duration = 0_frame;
   NamedGhostFinishState finishState = GhostFinishState::Unfinished;
   std::filesystem::path level{};
+  std::string gameflow{};
 
   void serialize(const serialization::Serializer<GhostMeta>& ser);
 };

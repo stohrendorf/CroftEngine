@@ -163,6 +163,6 @@ void GhostFrame::BoneData::read(std::istream& s)
 
 void GhostMeta::serialize(const serialization::Serializer<GhostMeta>& ser)
 {
-  ser(S_NV("duration", duration), S_NV("finishState", finishState), S_NV("level", level));
+  ser(S_NV("duration", duration), S_NV("finishState", finishState), S_NV("level", level), S_NV("gameflow", gameflow));
 }
 } // namespace engine::ghosting

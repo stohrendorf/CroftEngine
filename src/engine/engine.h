@@ -179,5 +179,10 @@ public:
   {
     return m_scriptEngine;
   }
+
+  [[nodiscard]] const auto& getGameflowId() const
+  {
+    return m_gameflowId;
+  }
 };
 } // namespace engine

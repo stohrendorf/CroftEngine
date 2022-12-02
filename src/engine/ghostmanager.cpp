@@ -2,6 +2,7 @@
 
 #include "cameracontroller.h"
 #include "core/i18n.h"
+#include "engine.h"
 #include "ghosting/ghost.h"
 #include "ghosting/ghostmodel.h"
 #include "hid/inputhandler.h"
@@ -114,6 +115,7 @@ bool GhostManager::askGhostSave(Presenter& presenter, world::World& world)
     ghosting::GhostMeta ghostMeta;
     ghostMeta.duration = world.getGhostFrame();
     ghostMeta.level = world.getLevelFilename().stem();
+    ghostMeta.gameflow = world.getEngine().getGameflowId();
     if(world.levelFinished())
     {
       ghostMeta.finishState = world.getObjectManager().getLara().m_state.isDead()
