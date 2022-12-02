@@ -168,9 +168,11 @@ Translations by: Joey79100 (French), Nickotte (Italian), Lwmte (Russian), SuiKaz
 
 Do a `git submodule update --init --recursive`.
 
-CroftEngine uses [vcpkg](https://github.com/Microsoft/vcpkg); refer to its documentation for basic usage, but the only
+CroftEngine uses [vcpkg](https://github.com/Microsoft/vcpkg) **on Windows**; refer to its documentation for basic usage, but the only
 thing you need is to call cmake with
 `-DCMAKE_TOOLCHAIN_FILE=C:/devel/vcpkg/scripts/buildsystems/vcpkg.cmake` (adjust path as necessary).
+
+If you're running Linux, **you don't need vcpkg**.
 
 This is the list of the required libraries to be installed with `vcpkg install` (remember to set the target triplet as
 necessary, e.g. `vcpkg install boost:x64-windows`):
