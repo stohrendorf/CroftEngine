@@ -225,19 +225,17 @@ std::unique_ptr<MenuState> ControlsMenuState::onFrame(ui::Ui& ui, engine::world:
     else
     {
       bool validMapping = true;
-      for(const auto required : {hid::Action::Forward,
-                                 hid::Action::Backward,
-                                 hid::Action::Left,
-                                 hid::Action::Right,
-                                 hid::Action::Action,
-                                 hid::Action::Menu})
+      for(const auto& profiles : m_editing)
       {
-        bool anyAssignment = false;
-        for(const auto& profiles : m_editing)
+        for(const auto required : {hid::Action::Forward,
+                                   hid::Action::Backward,
+                                   hid::Action::Left,
+                                   hid::Action::Right,
+                                   hid::Action::Action,
+                                   hid::Action::Menu})
         {
-          anyAssignment |= !getKeys(profiles.mappings, engine::NamedAction{required}).empty();
+          validMapping &= !getKeys(profiles.mappings, engine::NamedAction{required}).empty();
         }
-        validMapping &= anyAssignment;
       }
       if(validMapping)
         m_mode = Mode::ConfirmApply;
