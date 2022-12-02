@@ -297,7 +297,7 @@ void drawBar(ui::Ui& ui,
              const gl::SRGBA8& border2,
              const std::array<gl::SRGBA8, BarColors>& barColors)
 {
-  ui.drawBox(xy0 + glm::ivec2{-1, -1}, {BarWidth + 2, BarHeight + 2}, black);
+  ui.drawBox(xy0 + glm::ivec2{-1, -1}, {BarWidth + 3, BarHeight + 2}, black);
   ui.drawHLine(xy0 + glm::ivec2{-2, BarHeight + 1}, BarWidth + 4, border1);
   ui.drawVLine(xy0 + glm::ivec2{BarWidth + 2, -2}, BarHeight + 3, border1);
   ui.drawHLine(xy0 + glm::ivec2{-2, -2}, BarWidth + 4, border2);
