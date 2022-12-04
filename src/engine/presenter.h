@@ -15,6 +15,7 @@
 #include <gsl/gsl-lite.hpp>
 #include <gslu.h>
 #include <memory>
+#include <optional>
 #include <string>
 #include <unordered_set>
 #include <vector>
@@ -178,6 +179,9 @@ public:
     return m_renderSettingsChanged;
   }
 
+  void setSplashImageTextureOverride(const std::filesystem::path& imagePath);
+  void clearSplashImageTextureOverride();
+
 private:
   const gslu::nn_shared<gl::Window> m_window;
   uint8_t m_renderResolutionDivisor = 1;
@@ -185,8 +189,10 @@ private:
 
   std::shared_ptr<audio::SoundEngine> m_soundEngine;
   const gslu::nn_shared<render::scene::Renderer> m_renderer;
-  const gslu::nn_shared<gl::TextureHandle<gl::Texture2D<gl::PremultipliedSRGBA8>>> m_splashImage;
+  const gslu::nn_shared<gl::TextureHandle<gl::Texture2D<gl::PremultipliedSRGBA8>>> m_splashImageTexture;
+  std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::PremultipliedSRGBA8>>> m_splashImageTextureOverride;
   std::shared_ptr<render::scene::Mesh> m_splashImageMesh;
+  std::shared_ptr<render::scene::Mesh> m_splashImageMeshOverride{};
   const gslu::nn_unique<gl::Font> m_trTTFFont;
   const gslu::nn_unique<gl::Font> m_debugFont;
   core::Health m_drawnHealth = core::LaraHealth;
@@ -205,5 +211,12 @@ private:
   bool m_renderSettingsChanged = false;
 
   void scaleSplashImage();
+
+  [[nodiscard]] const auto& getSplashImageMeshOrOverride() const
+  {
+    if(m_splashImageMeshOverride != nullptr)
+      return m_splashImageMeshOverride;
+    return m_splashImageMesh;
+  }
 };
 } // namespace engine

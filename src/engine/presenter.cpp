@@ -430,7 +430,7 @@ Presenter::Presenter(const std::filesystem::path& engineDataPath, const glm::ive
     , m_soundEngine{std::make_shared<audio::SoundEngine>()}
     , m_renderer{std::make_shared<render::scene::Renderer>(
         gsl::make_shared<render::scene::Camera>(DefaultFov, getRenderViewport(), DefaultNearPlane, DefaultFarPlane))}
-    , m_splashImage{gsl::make_shared<gl::TextureHandle<gl::Texture2D<gl::PremultipliedSRGBA8>>>(
+    , m_splashImageTexture{gsl::make_shared<gl::TextureHandle<gl::Texture2D<gl::PremultipliedSRGBA8>>>(
         gl::CImgWrapper{util::ensureFileExists(engineDataPath / "splash.png")}.toTexture("splash"),
         gsl::make_unique<gl::Sampler>("splash-sampler"))}
     , m_trTTFFont{std::make_unique<gl::Font>(util::ensureFileExists(engineDataPath / "trfont.ttf"))}
@@ -453,19 +453,25 @@ void Presenter::scaleSplashImage()
 {
   // scale splash image so that its aspect ratio is preserved, but the boundaries match
   const auto viewport = glm::vec2{getDisplayViewport()};
-  const auto sourceSize = glm::vec2{m_splashImage->getTexture()->size()};
+  const auto srcTexture
+    = m_splashImageTextureOverride != nullptr ? m_splashImageTextureOverride : m_splashImageTexture.get();
+  const auto sourceSize = glm::vec2{srcTexture->getTexture()->size()};
   const float splashScale = std::max(viewport.x / sourceSize.x, viewport.y / sourceSize.y);
 
   auto scaledSourceSize = sourceSize * splashScale;
   auto sourceOffset = (viewport - scaledSourceSize) / 2.0f;
-  m_splashImageMesh = render::scene::createScreenQuad(
+  auto mesh = render::scene::createScreenQuad(
     sourceOffset, scaledSourceSize, m_materialManager->getBackdrop(false), "backdrop");
-  m_splashImageMesh->bind(
-    "u_input",
-    [this](const render::scene::Node* /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
-    {
-      uniform.set(m_splashImage);
-    });
+  if(m_splashImageTextureOverride != nullptr)
+    m_splashImageMeshOverride = mesh;
+  else
+    m_splashImageMesh = mesh;
+  mesh->bind("u_input",
+             [this, srcTexture = gsl::not_null{srcTexture}](
+               const render::scene::Node* /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
+             {
+               uniform.set(srcTexture);
+             });
 }
 
 void Presenter::drawLoadingScreen(const std::string& state)
@@ -493,8 +499,8 @@ void Presenter::drawLoadingScreen(const std::string& state)
 
   m_renderer->getCamera()->setViewport(getDisplayViewport());
   render::scene::RenderContext context{render::material::RenderMode::Full, std::nullopt};
-  m_splashImageMesh->getRenderState().setViewport(getDisplayViewport());
-  m_splashImageMesh->render(nullptr, context);
+  getSplashImageMeshOrOverride()->getRenderState().setViewport(getDisplayViewport());
+  getSplashImageMeshOrOverride()->render(nullptr, context);
   m_screenOverlay->setAlphaMultiplier(0.8f);
   m_screenOverlay->render(nullptr, context);
   updateSoundEngine();
@@ -638,5 +644,19 @@ glm::ivec2 Presenter::getUiViewport() const
 void Presenter::bindBackbuffer()
 {
   m_renderPipeline->bindBackbuffer();
+}
+
+void Presenter::setSplashImageTextureOverride(const std::filesystem::path& imagePath)
+{
+  m_splashImageTextureOverride = std::make_shared<gl::TextureHandle<gl::Texture2D<gl::PremultipliedSRGBA8>>>(
+    gl::CImgWrapper{util::ensureFileExists(imagePath)}.toTexture("splash-override"),
+    gsl::make_unique<gl::Sampler>("splash-override-sampler"));
+  scaleSplashImage();
+}
+
+void Presenter::clearSplashImageTextureOverride()
+{
+  m_splashImageTextureOverride.reset();
+  m_splashImageMeshOverride.reset();
 }
 } // namespace engine

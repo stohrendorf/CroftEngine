@@ -66,6 +66,7 @@ class Level(LevelSequenceItem):
             default_weapon: WeaponType = WeaponType.Pistols,
             water_color: Tuple[float, float, float] = ...,
             water_density: float = ...,
+            alternative_splashscreen: Optional[str] = None,
     ):
         ...
 

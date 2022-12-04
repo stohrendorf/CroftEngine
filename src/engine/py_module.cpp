@@ -97,7 +97,8 @@ PYBIND11_EMBEDDED_MODULE(engine, m)
                   bool,
                   engine::WeaponType,
                   std::tuple<float, float, float>,
-                  float>(),
+                  float,
+                  std::optional<std::string>>(),
          py::kw_only{},
          py::arg("name"),
          py::arg("use_alternative_lara") = false,
@@ -107,7 +108,8 @@ PYBIND11_EMBEDDED_MODULE(engine, m)
          py::arg("allow_save") = true,
          py::arg("default_weapon") = engine::WeaponType::Pistols,
          py::arg("water_color") = engine::script::Level::DefaultWaterColor,
-         py::arg("water_density") = engine::script::Level::DefaultWaterDensity);
+         py::arg("water_density") = engine::script::Level::DefaultWaterDensity,
+         py::arg("alternative_splashscreen") = std::nullopt);
 
   py::class_<engine::script::ModifyInventory,
              engine::script::LevelSequenceItem,

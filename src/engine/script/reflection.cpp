@@ -231,6 +231,12 @@ bool Level::isLevel(const std::filesystem::path& path) const
 std::pair<RunResult, std::optional<size_t>>
   Level::run(Engine& engine, const std::shared_ptr<Player>& player, const std::shared_ptr<Player>& levelStartPlayer)
 {
+  if(m_alternativeSplashscreen.has_value()
+     && std::filesystem::is_regular_file(engine.getAssetDataPath() / *m_alternativeSplashscreen))
+    engine.getPresenter().setSplashImageTextureOverride(engine.getAssetDataPath() / *m_alternativeSplashscreen);
+  else
+    engine.getPresenter().clearSplashImageTextureOverride();
+
   engine.getPresenter().getSoundEngine()->reset();
   player->requestedWeaponType = m_defaultWeapon;
   player->selectedWeaponType = m_defaultWeapon;
@@ -239,7 +245,9 @@ std::pair<RunResult, std::optional<size_t>>
     player->laraHealth = core::LaraHealth;
 
   auto world = loadWorld(engine, player, levelStartPlayer, false);
-  return engine.run(*world, false, m_allowSave);
+  auto result = engine.run(*world, false, m_allowSave);
+  engine.getPresenter().clearSplashImageTextureOverride();
+  return result;
 }
 
 std::pair<RunResult, std::optional<size_t>> Level::runFromSave(Engine& engine,
@@ -248,11 +256,20 @@ std::pair<RunResult, std::optional<size_t>> Level::runFromSave(Engine& engine,
                                                                const std::shared_ptr<Player>& levelStartPlayer)
 {
   Expects(m_allowSave);
+
+  if(m_alternativeSplashscreen.has_value()
+     && std::filesystem::is_regular_file(engine.getAssetDataPath() / *m_alternativeSplashscreen))
+    engine.getPresenter().setSplashImageTextureOverride(engine.getAssetDataPath() / *m_alternativeSplashscreen);
+  else
+    engine.getPresenter().clearSplashImageTextureOverride();
+
   engine.getPresenter().getSoundEngine()->reset();
   player->getInventory().clear();
   auto world = loadWorld(engine, player, levelStartPlayer, true);
   world->load(slot);
-  return engine.run(*world, false, m_allowSave);
+  auto result = engine.run(*world, false, m_allowSave);
+  engine.getPresenter().clearSplashImageTextureOverride();
+  return result;
 }
 
 std::vector<std::filesystem::path> Level::getFilepathsIfInvalid(const std::filesystem::path& dataRoot) const
@@ -284,7 +301,8 @@ TitleMenu::TitleMenu(const std::string& name,
             false,
             WeaponType::None,
             DefaultWaterColor,
-            DefaultWaterDensity}
+            DefaultWaterDensity,
+            std::nullopt}
 {
 }
 

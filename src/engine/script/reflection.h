@@ -101,6 +101,7 @@ private:
   const WeaponType m_defaultWeapon;
   const glm::vec3 m_waterColor;
   const float m_waterDensity;
+  const std::optional<std::string> m_alternativeSplashscreen;
 
 protected:
   [[nodiscard]] std::unique_ptr<world::World> loadWorld(Engine& engine,
@@ -120,7 +121,8 @@ public:
                  bool allowSave,
                  WeaponType defaultWeapon,
                  std::tuple<float, float, float> waterColor,
-                 float waterDensity)
+                 float waterDensity,
+                 std::optional<std::string> alternativeSplashscreen)
       : m_name{std::move(name)}
       , m_useAlternativeLara{useAlternativeLara}
       , m_titles{std::move(titles)}
@@ -130,6 +132,7 @@ public:
       , m_defaultWeapon{defaultWeapon}
       , m_waterColor{std::get<0>(waterColor), std::get<1>(waterColor), std::get<2>(waterColor)}
       , m_waterDensity{waterDensity}
+      , m_alternativeSplashscreen{std::move(alternativeSplashscreen)}
   {
   }
 

@@ -35,6 +35,7 @@ lara_home = [
         use_alternative_lara=True,
         allow_save=False,
         default_weapon=WeaponType.None_,
+        alternative_splashscreen="DATA/GYMLOAD.jpg",
     ),
 ]
 
@@ -50,6 +51,7 @@ level_sequence = [
             "de_DE": "Die Kavernen",
         },
         ambient=TR1TrackId.Ambience1,
+        alternative_splashscreen="DATA/AZTECLOA.jpg",
     ),
     Level(
         name="DATA/LEVEL2.PHD",
@@ -68,6 +70,7 @@ level_sequence = [
                 TR1ItemId.Key1: "Silberner Schl~ussel",
             },
         },
+        alternative_splashscreen="DATA/AZTECLOA.jpg",
     ),
     Level(
         name="DATA/LEVEL3A.PHD",
@@ -84,6 +87,7 @@ level_sequence = [
                 TR1ItemId.Puzzle1: "Zahnrad",
             },
         },
+        alternative_splashscreen="DATA/AZTECLOA.jpg",
     ),
     Level(
         name="DATA/LEVEL3B.PHD",
@@ -100,6 +104,7 @@ level_sequence = [
                 TR1ItemId.ScionPiece5: "Scion",
             },
         },
+        alternative_splashscreen="DATA/AZTECLOA.jpg",
     ),
     Cutscene(
         name="DATA/CUT1.PHD",
@@ -132,6 +137,7 @@ level_sequence = [
                 TR1ItemId.ScionPiece5: "Scion",
             },
         },
+        alternative_splashscreen="DATA/GREEKLOA.jpg",
     ),
     Level(
         name="DATA/LEVEL5.PHD",
@@ -150,6 +156,7 @@ level_sequence = [
                 TR1ItemId.ScionPiece5: "Scion",
             },
         },
+        alternative_splashscreen="DATA/GREEKLOA.jpg",
     ),
     Level(
         name="DATA/LEVEL6.PHD",
@@ -168,6 +175,7 @@ level_sequence = [
                 TR1ItemId.ScionPiece5: "Scion",
             },
         },
+        alternative_splashscreen="DATA/GREEKLOA.jpg",
     ),
     Level(
         name="DATA/LEVEL7A.PHD",
@@ -190,6 +198,7 @@ level_sequence = [
                 TR1ItemId.ScionPiece5: "Scion",
             },
         },
+        alternative_splashscreen="DATA/GREEKLOA.jpg",
     ),
     Level(
         name="DATA/LEVEL7B.PHD",
@@ -212,6 +221,7 @@ level_sequence = [
                 TR1ItemId.ScionPiece5: "Scion",
             },
         },
+        alternative_splashscreen="DATA/GREEKLOA.jpg",
     ),
     Cutscene(
         name="DATA/CUT2.PHD",
@@ -239,6 +249,7 @@ level_sequence = [
                 TR1ItemId.ScionPiece5: "Scion",
             },
         },
+        alternative_splashscreen="DATA/EGYPTLOA.jpg",
     ),
     Level(
         name="DATA/LEVEL8B.PHD",
@@ -265,6 +276,7 @@ level_sequence = [
                 TR1ItemId.ScionPiece5: "Scion",
             },
         },
+        alternative_splashscreen="DATA/EGYPTLOA.jpg",
     ),
     Level(
         name="DATA/LEVEL8C.PHD",
@@ -287,6 +299,7 @@ level_sequence = [
                 TR1ItemId.ScionPiece5: "Scion",
             },
         },
+        alternative_splashscreen="DATA/EGYPTLOA.jpg",
     ),
     Video(_fmv("CANYON")),
     ModifyInventory(
@@ -324,6 +337,7 @@ level_sequence = [
             },
         },
         default_weapon=WeaponType.None_,
+        alternative_splashscreen="DATA/ATLANLOA.jpg",
     ),
     Cutscene(
         name="DATA/CUT3.PHD",
@@ -350,6 +364,7 @@ level_sequence = [
                 TR1ItemId.ScionPiece5: "Scion",
             },
         },
+        alternative_splashscreen="DATA/ATLANLOA.jpg",
     ),
     Video(_fmv("PRISON")),
     Cutscene(
@@ -373,6 +388,7 @@ level_sequence = [
                 TR1ItemId.ScionPiece5: "Scion",
             },
         },
+        alternative_splashscreen="DATA/ATLANLOA.jpg",
     ),
     Video(_fmv("END")),
     ResetSoundEngine(),
