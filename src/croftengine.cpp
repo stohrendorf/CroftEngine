@@ -55,12 +55,7 @@ void initConsole(boost::log::trivial::severity_level level)
 void initFileLogging(const std::filesystem::path& userDataDir)
 {
   logFileSink = boost::log::add_file_log(boost::log::keywords::target = userDataDir,
-#if BOOST_VERSION >= 107000
-                                         boost::log::keywords::target_file_name = "croftengine.%N.log",
-                                         boost::log::keywords::file_name = userDataDir / "croftengine.log",
-#else
-                                         boost::log::keywords::file_name = userDataDir / "croftengine.%N.log",
-#endif
+                                         boost::log::keywords::file_name = "croftengine.%N.log",
                                          boost::log::keywords::format = logFormat,
                                          boost::log::keywords::auto_flush = true,
                                          boost::log::keywords::max_files = 10);
