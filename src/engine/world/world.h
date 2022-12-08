@@ -300,7 +300,7 @@ public:
     if(auto it = std::find_if(m_pickupWidgets.begin(), m_pickupWidgets.end(), isSameVirginItem);
        it != m_pickupWidgets.end())
     {
-      it->setCount(it->getCount() + count);
+      it->setCount(count); // at this point the picked up ammo is already in the player's inventory
       return;
     }
     m_pickupWidgets.emplace_back(widgetLifetime, std::move(sprite), count);
