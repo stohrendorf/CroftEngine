@@ -1,0 +1,70 @@
+name: "CodeQL"
+
+on:
+  push:
+    branches: [ "master", "old_master" ]
+  pull_request:
+    branches: [ "master" ]
+  schedule:
+    - cron: "40 10 * * 5"
+
+jobs:
+  analyze:
+    name: Analyze
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [ python, cpp ]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - name: Install Packages (cpp)
+        if: ${{ matrix.language == 'cpp' }}
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes libboost-all-dev libglfw3-dev libpng-dev libopenal-dev libgl-dev libasound2-dev libfreetype6-dev cimg-dev libavcodec-dev libavdevice-dev libavfilter-dev libavformat-dev libavresample-dev libavutil-dev libpostproc-dev libswresample-dev libswscale-dev libutfcpp-dev cmake cmake-data cmake-extras gcc-8 g++-8 build-essential gettext qt5-default qtbase5-dev qtbase5-dev-tools qttools5-dev libarchive-dev
+
+      - name: Configure (cpp)
+        if: ${{ matrix.language == 'cpp' }}
+        run: |
+          mkdir build
+          cd build
+          cmake -DPERMISSIVE_BUILD=ON ..
+
+      - name: After Prepare (cpp)
+        if: ${{ matrix.language == 'cpp' }}
+        run: |
+          mkdir custom_cmake
+          wget --quiet -O - https://github.com/Kitware/CMake/releases/download/v3.21.2/cmake-3.21.2-linux-x86_64.tar.gz | tar --strip-components=1 -xz -C custom_cmake
+          export PATH=$(pwd)/custom_cmake/bin:${PATH} && echo "PATH=$PATH" >> $GITHUB_ENV
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v2
+        with:
+          languages: ${{ matrix.language }}
+          queries: +security-and-quality
+
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v2
+        if: ${{ matrix.language == 'python' }}
+
+      - name: Build cpp
+        if: ${{ matrix.language == 'cpp' }}
+        run: |
+          cd build
+          make -j4
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v2
+        with:
+          category: "/language:${{ matrix.language }}"
