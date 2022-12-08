@@ -3,7 +3,6 @@ name: CroftEngine-CI
 on:
   schedule:
     - cron: "0 18 * * *" # every day at 6 PM : https://crontab.guru/#0_18_*_*_*
-  workflow_dispatch:
 
 jobs:
   build:
