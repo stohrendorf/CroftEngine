@@ -150,6 +150,9 @@ void Equiv::resolve(const std::filesystem::path& root,
                     std::map<TexturePart, std::filesystem::path>& filesByPart,
                     const std::function<void(const std::string&)>& statusCallback) const
 {
+  if(m_equivalentSets.empty())
+    return;
+
   BOOST_LOG_TRIVIAL(info) << "Resolving " << m_equivalentSets.size() << " equiv sets...";
 
   auto resolved = std::count_if(m_equivalentSets.begin(),
@@ -328,7 +331,7 @@ Glidos::Glidos(std::filesystem::path baseDir, const std::function<void(const std
 
     for(const auto& entry : std::filesystem::directory_iterator{m_baseDir})
     {
-      if(!is_regular_file(entry))
+      if(!is_regular_file(entry) || entry.path().extension() != ".txt")
         continue;
 
       if(entry.path().filename() == "equiv.txt")
