@@ -8,55 +8,67 @@ You can also get support [on discord](https://discord.gg/FRAVaBZbY5).
 
 Please note that because every tool builder or level builder seemingly decided to completely ignore CroftEngine despite offering support, the project is now in support-only mode after about 7 years of development. This means that it's not planned to do new developments.
 
-[![CroftEngine-CI](https://github.com/stohrendorf/CroftEngine/actions/workflows/repo-sync.yml/badge.svg)](https://github.com/stohrendorf/CroftEngine/actions/workflows/repo-sync.yml)
+[![CroftEngine-CI](https://github.com/stohrendorf/CroftEngine/actions/workflows/ci.yml/badge.svg)](https://github.com/stohrendorf/CroftEngine/actions/workflows/ci.yml)
+[![CroftEngine-CI](https://github.com/stohrendorf/CroftEngine/actions/workflows/codeql.yml/badge.svg)](https://github.com/stohrendorf/CroftEngine/actions/workflows/codeql.yml)
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fstohrendorf%2FCroftEngine.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fstohrendorf%2FCroftEngine?ref=badge_shield)
 
 An open-source Tomb Raider 1 engine remake.
 
 ![CroftEngine logo](./share/splash.png)
 
-*Native Controller Support*
+<details>
+<summary>Features (click to expand)</summary>
+
+## Native Controller Support
+
 ![Native Controller Support](./readme-assets/controller-config.jpg)
 
-*Native Glidos Texture Pack Support*
+## Native Glidos Texture Pack Support
 ![Native Glidos Texture Pack Support](./readme-assets/glidos-pack.jpg)
 
-*Easy Setup Wizard*
+## Easy Setup Wizard
 ![Easy Setup Wizard](./readme-assets/setup-wizard.jpg)
 
-*Customisable Graphics*
+## Customisable Graphics
 ![Customisable Graphics](./readme-assets/graphics-settings.jpg)
 
-*Extensive Statistics*
+## Extensive Statistics
 ![Extensive Statistics](./readme-assets/stats.jpg)
 
-*New Immersive Water*
+## New Immersive Water
 ![New Immersive Water](./readme-assets/water.jpg)
 
-*Ghosts - Race Against Yourself!*
+## Ghosts - Race Against Yourself!
 ![Ghosts - Race Against Yourself!](./readme-assets/ghost.jpg)
+</details>
 
-> *Showcase Trailer* (Raina Audron)
->
-> [![Edison Engine Showcase Trailer](https://img.youtube.com/vi/IAA6ILvQ4Uw/0.jpg)](https://www.youtube.com/watch?v=IAA6ILvQ4Uw)
->
-> *The Lost Valley Playthrough* (Raina Audron)
->
-> [![The Lost Valley Playthrough in Edison Engine](https://img.youtube.com/vi/o8FEo1QU1QM/0.jpg)](https://www.youtube.com/watch?v=o8FEo1QU1QM)
->
-> *EdisonEngine - Tomb Raider, Enhanced! w/ developer commentary \[Beta 10\] \[PC\] \[Stream Archive\]* (Dfactor
-> Longplays)
->
-> [![EdisonEngine - Tomb Raider, Enhanced! w/ developer commentary \[Beta 10\] \[PC\] \[Stream Archive\]](https://img.youtube.com/vi/ayMPVAKTMWI/0.jpg)](https://www.youtube.com/watch?v=ayMPVAKTMWI)
+<details>
+<summary>Videos (click to expand)</summary>
 
-## Licensing
+## Tomb Raider: Croft Engine (JayStation & KittyPi3.14)
+[![Edison Engine Showcase Trailer](https://img.youtube.com/vi/7OZjvZ1CtE4/0.jpg)](https://www.youtube.com/watch?v=7OZjvZ1CtE4)
+
+## Showcase Trailer (Raina Audron)
+[![Edison Engine Showcase Trailer](https://img.youtube.com/vi/IAA6ILvQ4Uw/0.jpg)](https://www.youtube.com/watch?v=IAA6ILvQ4Uw)
+
+## The Lost Valley Playthrough (Raina Audron)
+[![The Lost Valley Playthrough in Edison Engine](https://img.youtube.com/vi/o8FEo1QU1QM/0.jpg)](https://www.youtube.com/watch?v=o8FEo1QU1QM)
+
+## EdisonEngine - Tomb Raider, Enhanced! w/ developer commentary \[Beta 10\] \[PC\] \[Stream Archive\] (Dfactor Longplays)
+[![EdisonEngine - Tomb Raider, Enhanced! w/ developer commentary \[Beta 10\] \[PC\] \[Stream Archive\]](https://img.youtube.com/vi/ayMPVAKTMWI/0.jpg)](https://www.youtube.com/watch?v=ayMPVAKTMWI)
+</details>
+
+<details>
+<summary>Licensing (click to expand)</summary>
 
 CroftEngine is an open-source engine distributed under LGPLv3 license, which means that ANY part of the source code
 must be open-source as well.
 
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fstohrendorf%2FCroftEngine.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fstohrendorf%2FCroftEngine?ref=badge_large)
+</details>
 
-## Usage
+<details>
+<summary>Usage (click to expand)</summary>
 
 **Avoid installing in the same folder as the original game.** Otherwise, weird stuff may happen. CroftEngine
 pull in the data it needs from your original game data location. After you can confirm CroftEngine works, it
@@ -104,8 +116,10 @@ Audron [here](https://drive.google.com/file/d/1iRz4Svdi_dhmlDNFYeZqyP-wfApWhDoN/
    X for rolling, Ctrl for Action, 1 for drawing pistols, 2 for shotguns, 3 for uzis and 4 for magnums. You can consume
    small medi packs by pressing 5, and large ones by pressing 6. Quicksaves and loading them can be done using F5 and
    F6. You can take screenshots by pressing F12. The menu can be opened using Esc, and videos can be skipped using Esc.
+</details>
 
-## Additional Cheats
+<details>
+<summary>Additional Cheats (click to expand)</summary>
 
 Additionally to the standard cheats (step forward, step backwards, rotate slightly more than 1.5 rotations, and jump
 forward/backward), there are two additional cheats.
@@ -114,8 +128,10 @@ forward/backward), there are two additional cheats.
    cheat will be confirmed with Lara sighing.
 2. If the final move is a right jump, every enemy's health in the level will be halved. The successful application of
    this cheat will be confirmed with a shotgun shooting sound.
+</details>
 
-## Credits
+<details>
+<summary>Credits & Noteworthy People (click to expand)</summary>
 
 The following people deserve some noteworthy credit.
 
@@ -160,8 +176,10 @@ help), jack9267 (vt loader optimization), meta2tr (testing and bugtracking), sha
 console patch) and xythobuz (additional Mac patches).
 
 Translations by: Joey79100 (French), Nickotte (Italian), Lwmte (Russian), SuiKaze Raider (Spanish).
+</summary>
 
-## Building
+<details>
+<summary>Building on Windows (click to expand)</summary>
 
 Do a `git submodule update --init --recursive`.
 
@@ -199,8 +217,10 @@ minimum supported version is Python 3.6, the Windows releases ship with Python 3
 build CroftEngine on Windows with an external Python installation, you need to add the variable `Python3_ROOT` pointing
 to the installation root, e.g. using the command line with `-DPython3_ROOT=E:\Python38` or adding a path variable in the
 ui.
+</details>
 
-## Generating Glad OpenGL bindings
+<details>
+<summary>Generating Glad OpenGL bindings (click to expand)</summary>
 
 **Warning!** The [Glad](https://glad.dav1d.de/) bindings have been manually patched to always try to load
 the `GL_ARB_bindless_texture` extension, regardless of whether `GL_EXTENSIONS` reports it or not. This is to allow
@@ -221,3 +241,4 @@ Use the following settings to generate the bindings:
     * GL_ARB_texture_filter_anisotropic
     * GL_EXT_texture_filter_anisotropic
     * GL_AMD_debug_output
+</details>
