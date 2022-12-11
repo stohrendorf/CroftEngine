@@ -479,7 +479,7 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
           {
             for(const auto& altRoom : world.getRooms())
             {
-              if(&altRoom != &room)
+              if(altRoom.alternateRoom != &room)
                 continue;
 
               setParent(gsl::not_null{ghostManager.model}, altRoom.node);
