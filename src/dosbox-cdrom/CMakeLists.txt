@@ -3,6 +3,7 @@ add_library(
         STATIC
         cdrom_image.cpp
         mscdex.cpp
+        cueparser.cpp
 )
 
 target_link_libraries(

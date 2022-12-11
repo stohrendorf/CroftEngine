@@ -18,6 +18,8 @@
 
 #include "cdrom.h"
 
+#include "cueparser.h"
+
 #include <array>
 #include <boost/log/trivial.hpp>
 #include <cctype>
@@ -30,58 +32,10 @@
 #define COOKED_SECTOR_SIZE 2048u
 #define RAW_SECTOR_SIZE 2352u
 
-#define CD_FPS 75u
-#define MSF_TO_FRAMES(M, S, F) ((M)*60u * CD_FPS + (S)*CD_FPS + (F))
-
 namespace cdrom
 {
 namespace
 {
-std::string getCueKeyword(std::istream& in)
-{
-  std::string keyword;
-  in >> keyword;
-  for(char& i : keyword)
-    i = gsl::narrow<char>(std::toupper(i));
-  return keyword;
-}
-
-bool getCueFrame(size_t& frames, std::istream& in)
-{
-  std::string msf;
-  in >> msf;
-  int min, sec, fr;
-  bool success = std::sscanf(msf.c_str(), "%d:%d:%d", &min, &sec, &fr) == 3;
-  if(!success)
-  {
-    BOOST_LOG_TRIVIAL(error) << "could not parse cue frame " << msf;
-  }
-  frames = gsl::narrow<size_t>(MSF_TO_FRAMES(min, sec, fr));
-
-  return success;
-}
-
-std::string getCueString(std::istream& in)
-{
-  const auto pos = in.tellg();
-  std::string str;
-  in >> str;
-  if(str[0] != '\"')
-    return str;
-
-  if(str[str.size() - 1] == '\"')
-  {
-    str.assign(str, 1, str.size() - 2);
-    return str;
-  }
-
-  in.seekg(pos, std::ios::beg);
-  std::array<char, MAX_FILENAME_LENGTH> buffer{};
-  in.getline(buffer.data(), buffer.size() - 1, '\"'); // skip
-  in.getline(buffer.data(), buffer.size() - 1, '\"');
-  return buffer.data();
-}
-
 bool canReadPVD(BinaryFile& file, int sectorSize, bool mode2)
 {
   std::array<uint8_t, COOKED_SECTOR_SIZE> pvd{};
@@ -258,19 +212,17 @@ bool CdImage::loadCueSheet(const std::filesystem::path& cuefile)
     return false;
   }
 
-  while(!in.eof())
+  for(std::string line; std::getline(in, line);)
   {
     // get next line
-    std::array<char, 512> buf{};
-    in.getline(buf.data(), buf.size() - 1);
     if(in.fail() && !in.eof())
       return false; // probably a binary file
-    std::istringstream line(buf.data());
 
-    auto command = getCueKeyword(line);
-
-    if(command == "TRACK")
+    if(const auto trackCmd = cue::parseTrack(line); trackCmd.has_value())
     {
+      BOOST_LOG_TRIVIAL(debug) << "Track command: index=" << trackCmd->index << ", mode2=" << trackCmd->mode2
+                               << ", sectorSize=" << trackCmd->sectorSize << ", audio=" << trackCmd->audio;
+
       if(canAddTrack)
         success = addTrack(track, shift, prestart, totalPregap, currPregap);
       else
@@ -281,97 +233,62 @@ bool CdImage::loadCueSheet(const std::filesystem::path& cuefile)
       currPregap = 0;
       prestart = 0;
 
-      line >> track.number;
-      auto type = getCueKeyword(line);
-
-      if(type == "AUDIO")
-      {
-        track.sectorSize = RAW_SECTOR_SIZE;
-        track.mode2 = false;
-      }
-      else if(type == "MODE1/2048")
-      {
-        track.sectorSize = COOKED_SECTOR_SIZE;
-        track.mode2 = false;
-      }
-      else if(type == "MODE1/2352")
-      {
-        track.sectorSize = RAW_SECTOR_SIZE;
-        track.mode2 = false;
-      }
-      else if(type == "MODE2/2336")
-      {
-        track.sectorSize = 2336;
-        track.mode2 = true;
-      }
-      else if(type == "MODE2/2352")
-      {
-        track.sectorSize = RAW_SECTOR_SIZE;
-        track.mode2 = true;
-      }
-      else
-      {
-        success = false;
-        BOOST_LOG_TRIVIAL(error) << "unhandled track type " << type;
-      }
+      track.number = trackCmd->index;
+      track.mode2 = trackCmd->mode2;
+      track.sectorSize = trackCmd->sectorSize;
 
       canAddTrack = true;
     }
-    else if(command == "INDEX")
+    else if(const auto indexCmd = cue::parseIndex(line); indexCmd.has_value())
     {
-      int index;
-      line >> index;
-      size_t frame;
-      success = getCueFrame(frame, line);
+      BOOST_LOG_TRIVIAL(debug) << "Index command: index=" << indexCmd->index << ", frame=" << indexCmd->frame;
 
-      if(index == 1)
-        track.start = frame;
-      else if(index == 0)
-        prestart = frame;
+      success = true;
+      if(indexCmd->index == 1)
+        track.start = indexCmd->frame;
+      else if(indexCmd->index == 0)
+        prestart = indexCmd->frame;
       // ignore other indices
     }
-    else if(command == "FILE")
+    else if(const auto fileCmd = cue::parseFile(line); fileCmd.has_value())
     {
+      BOOST_LOG_TRIVIAL(debug) << "File command: filename=" << fileCmd->filename << ", type=" << fileCmd->type;
+
       if(canAddTrack)
         success = addTrack(track, shift, prestart, totalPregap, currPregap);
       else
         success = true;
       canAddTrack = false;
 
-      auto filename = getCueString(line);
+      auto filename = fileCmd->filename;
       getRealFileName(filename, cuefile.parent_path());
-      auto type = getCueKeyword(line);
-
       track.file = nullptr;
-      if(type == "BINARY" || type == "MP3")
+      if(fileCmd->type == "BINARY" || fileCmd->type == "MP3")
       {
         track.file = std::make_shared<BinaryFile>(filename.c_str());
       }
       else
       {
-        BOOST_LOG_TRIVIAL(error) << "unhandled file type " << type;
+        BOOST_LOG_TRIVIAL(error) << "unhandled file type " << fileCmd->type;
       }
     }
-    else if(command == "PREGAP")
+    else if(const auto pregapCmd = cue::parsePregap(line); pregapCmd.has_value())
     {
-      success = getCueFrame(currPregap, line);
-    }
-    else if(command == "CATALOG")
-    {
-      auto mcn = getCueString(line);
+      BOOST_LOG_TRIVIAL(debug) << "Pregap command: pregap=" << *pregapCmd;
+
+      currPregap = *pregapCmd;
       success = true;
     }
-    // ignored commands
-    else if(command == "CDTEXTFILE" || command == "FLAGS" || command == "ISRC" || command == "PERFORMER"
-            || command == "POSTGAP" || command == "REM" || command == "SONGWRITER" || command == "TITLE"
-            || command.empty())
+    else if(cue::isIrrelevantCommand(line))
     {
+      BOOST_LOG_TRIVIAL(debug) << "Ignored line: " << line;
+
       success = true;
     }
     else
     {
+      BOOST_LOG_TRIVIAL(error) << "Unhandled line " << line;
       success = false;
-      BOOST_LOG_TRIVIAL(error) << "unhandled command " << command;
     }
 
     if(!success)

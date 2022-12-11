@@ -1,0 +1,31 @@
+#pragma once
+#include <optional>
+#include <string>
+
+namespace cue
+{
+struct TrackCommand
+{
+  size_t index = 0;
+  bool audio = false;
+  bool mode2 = false;
+  size_t sectorSize = 0;
+};
+struct FileCommand
+{
+  std::string filename;
+  std::string type;
+};
+struct IndexCommand
+{
+  std::size_t index = 0;
+  std::size_t frame = 0;
+};
+
+extern std::optional<TrackCommand> parseTrack(const std::string& line);
+extern std::optional<FileCommand> parseFile(const std::string& line);
+extern std::optional<size_t> parseTime(const std::string& time);
+extern std::optional<IndexCommand> parseIndex(const std::string& line);
+extern std::optional<size_t> parsePregap(const std::string& line);
+extern bool isIrrelevantCommand(const std::string& line);
+} // namespace cue
