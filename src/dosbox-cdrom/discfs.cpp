@@ -3,6 +3,7 @@
 #include "discimage.h"
 
 #include <boost/throw_exception.hpp>
+#include <cstring>
 #include <filesystem>
 #include <gsl/gsl-lite.hpp>
 #include <map>
