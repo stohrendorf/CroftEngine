@@ -4,6 +4,7 @@ add_library(
         cdrom_image.cpp
         mscdex.cpp
         cueparser.cpp
+        binaryfile.cpp
 )
 
 target_link_libraries(

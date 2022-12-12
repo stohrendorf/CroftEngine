@@ -18,6 +18,7 @@
 
 #include "cdrom.h"
 
+#include "binaryfile.h"
 #include "cueparser.h"
 
 #include <array>
@@ -43,7 +44,7 @@ bool canReadPVD(BinaryFile& file, int sectorSize, bool mode2)
     seek += 16;
   if(mode2)
     seek += 24;
-  if(!file.read(pvd.data(), seek, pvd.size() - 1))
+  if(!file.read(gsl::span{pvd.data(), pvd.size() - 1}, seek))
   {
     BOOST_LOG_TRIVIAL(error) << "failed to read " << pvd.size() - 1 << " bytes from " << seek;
     return false;
@@ -54,29 +55,7 @@ bool canReadPVD(BinaryFile& file, int sectorSize, bool mode2)
 }
 } // namespace
 
-BinaryFile::BinaryFile(const std::filesystem::path& filepath)
-    : m_file{filepath, std::ios::in | std::ios::binary}
-    , m_filepath{filepath}
-{
-  BOOST_LOG_TRIVIAL(debug) << "open " << filepath;
-  m_file.exceptions(std::ifstream::failbit | std::ifstream::badbit);
-  if(m_file.fail() || !m_file.is_open())
-    BOOST_THROW_EXCEPTION(std::runtime_error("failed to open binary file"));
-}
-
-bool BinaryFile::read(uint8_t* buffer, std::streampos seek, std::streamsize count)
-{
-  std::fill_n(buffer, count, uint8_t{0});
-  m_file.seekg(seek, std::ios::beg);
-  m_file.read((char*)buffer, count);
-  return !m_file.fail();
-}
-
-std::streamsize BinaryFile::size()
-{
-  m_file.seekg(0, std::ios::end);
-  return m_file.tellg();
-}
+CdImage::~CdImage() = default;
 
 bool CdImage::readSectors(std::vector<uint8_t>& buffer, size_t sector, size_t num)
 {
@@ -124,14 +103,14 @@ bool CdImage::readSector(const gsl::span<uint8_t>& buffer, size_t sector)
 
   const auto trackIdx = *track - 1;
 
-  size_t seek
+  std::streamoff seek
     = m_tracks[trackIdx].fileOffset + (sector - m_tracks[trackIdx].startSector) * m_tracks[trackIdx].sectorSize;
   if(m_tracks[trackIdx].sectorSize == RAW_SECTOR_SIZE && !m_tracks[trackIdx].mode2)
     seek += 16;
   if(m_tracks[trackIdx].mode2)
     seek += 24;
 
-  return m_tracks[trackIdx].file->read(buffer.data(), seek, buffer.size());
+  return m_tracks[trackIdx].file->read(buffer, seek);
 }
 
 bool CdImage::loadIsoFile(const std::filesystem::path& filename)

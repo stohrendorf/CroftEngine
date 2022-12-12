@@ -35,26 +35,11 @@ namespace cue
 struct Track;
 }
 
+class BinaryFile;
+
 namespace cdrom
 {
-class BinaryFile final
-{
-public:
-  explicit BinaryFile(const std::filesystem::path& filepath);
-  BinaryFile() = delete;
-  bool read(uint8_t* buffer, std::streampos seek, std::streamsize count);
-  std::streamsize size();
-  [[nodiscard]] const auto& getFilepath() const
-  {
-    return m_filepath;
-  }
-
-private:
-  std::ifstream m_file;
-  std::filesystem::path m_filepath;
-};
-
-class CdImage
+class CdImage final
 {
 private:
   struct Track
@@ -70,7 +55,7 @@ private:
 
 public:
   explicit CdImage(const std::filesystem::path& filename);
-  ~CdImage() = default;
+  ~CdImage();
   bool readSectors(std::vector<uint8_t>& buffer, size_t sector, size_t num);
   bool read(std::vector<uint8_t>& buffer, size_t sector, std::streamsize size);
   bool readSector(const gsl::span<uint8_t>& buffer, size_t sector);
