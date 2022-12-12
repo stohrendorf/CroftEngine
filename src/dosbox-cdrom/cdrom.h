@@ -25,22 +25,33 @@
 #include <gsl/gsl-lite.hpp>
 #include <iostream>
 #include <memory>
+#include <optional>
 #include <sstream>
 #include <string>
 #include <vector>
+
+namespace cue
+{
+struct Track;
+}
 
 namespace cdrom
 {
 class BinaryFile final
 {
 public:
-  explicit BinaryFile(const std::filesystem::path& filename);
+  explicit BinaryFile(const std::filesystem::path& filepath);
   BinaryFile() = delete;
   bool read(uint8_t* buffer, std::streampos seek, std::streamsize count);
   std::streamsize size();
+  [[nodiscard]] const auto& getFilepath() const
+  {
+    return m_filepath;
+  }
 
 private:
   std::ifstream m_file;
+  std::filesystem::path m_filepath;
 };
 
 class CdImage
@@ -49,12 +60,12 @@ private:
   struct Track
   {
     size_t number = 0;
-    size_t start = 0;
-    size_t length = 0;
-    size_t skip = 0;
+    size_t startSector = 0;
     size_t sectorSize = 0;
     bool mode2 = false;
     std::shared_ptr<BinaryFile> file{};
+    size_t totalSectors = 0;
+    size_t fileOffset = 0;
   };
 
 public:
@@ -65,11 +76,14 @@ public:
   bool readSector(const gsl::span<uint8_t>& buffer, size_t sector);
 
 private:
-  int getTrack(size_t sector);
+  std::optional<size_t> getTrack(size_t sector);
 
   bool loadIsoFile(const std::filesystem::path& filename);
   bool loadCueSheet(const std::filesystem::path& cuefile);
-  bool addTrack(Track& curr, size_t& shift, size_t prestart, size_t& totalPregap, size_t currPregap);
+  bool addTrack(const cue::Track& curr,
+                size_t& discSectorStart,
+                size_t& totalPregap,
+                const std::shared_ptr<BinaryFile>& file);
 
   std::vector<Track> m_tracks;
 };
