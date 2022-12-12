@@ -4,6 +4,8 @@
 
 #include <boost/log/trivial.hpp>
 
+namespace image
+{
 PhysicalTrackBuilder::PhysicalTrackBuilder(const std::filesystem::path& cueFilepath)
 {
   const auto tracks = cue::readCueSheet(cueFilepath);
@@ -91,3 +93,4 @@ bool PhysicalTrackBuilder::addTrack(const cue::Track& cueTrack, const std::share
   m_tracks.emplace_back(track);
   return true;
 }
+} // namespace image

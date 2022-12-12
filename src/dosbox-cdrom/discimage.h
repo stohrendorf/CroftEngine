@@ -22,17 +22,17 @@
 #include <filesystem>
 #include <vector>
 
-struct Track;
-class BinaryFile;
-
-namespace cdrom
+namespace image
 {
+class BinaryFile;
+struct Track;
+
 class DiscImage final
 {
 public:
   explicit DiscImage(const std::filesystem::path& cueFilepath);
   ~DiscImage();
-  [[nodiscard]] bool read(std::vector<uint8_t>& buffer, size_t sector, size_t size);
+  [[nodiscard]] std::vector<uint8_t> read(size_t sector, size_t size);
   [[nodiscard]] std::vector<uint8_t> readSector(size_t sector);
 
 private:
@@ -40,6 +40,6 @@ private:
 
   std::vector<Track> m_tracks;
 };
-} // namespace cdrom
+} // namespace image
 
 #endif /* __CDROM_INTERFACE__ */

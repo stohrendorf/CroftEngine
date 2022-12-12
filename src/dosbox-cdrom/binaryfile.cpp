@@ -3,6 +3,8 @@
 #include <boost/log/trivial.hpp>
 #include <boost/throw_exception.hpp>
 
+namespace image
+{
 BinaryFile::BinaryFile(const std::filesystem::path& filepath)
     : m_file{filepath, std::ios::in | std::ios::binary}
     , m_filepath{filepath}
@@ -26,3 +28,4 @@ std::streamsize BinaryFile::size()
   m_file.seekg(0, std::ios::end);
   return m_file.tellg();
 }
+} // namespace image

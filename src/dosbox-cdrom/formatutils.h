@@ -6,6 +6,8 @@
 #include <gsl/gsl-lite.hpp>
 #include <ios>
 
+namespace image
+{
 // mode 1: 12 sync bytes + 4 header bytes, then 2048 bytes of user data, then 288 bytes of validation data, total 2352 bytes
 // mode 2: 12 sync bytes + 4 header bytes, then 2336 bytes of user data, total 2352 bytes
 // mode 2 XA form 1: basically the same as mode 1, with an additional 8-byte sub-header
@@ -38,3 +40,4 @@ constexpr std::streamsize Mode2Form2UserDataSize = 2324;
   gsl_Assert(sector[18] == 0x08 || sector[18] == 0x28);
   return sector[18] == 0x08 ? Mode2Form1UserDataSize : Mode2Form2UserDataSize;
 }
+} // namespace image

@@ -12,6 +12,8 @@ namespace cue
 struct Track;
 }
 
+namespace image
+{
 struct Track
 {
   size_t startSector = 0;
@@ -43,3 +45,4 @@ private:
   size_t m_discSectorStart = 0;
   size_t m_totalPregap = 0;
 };
+} // namespace image

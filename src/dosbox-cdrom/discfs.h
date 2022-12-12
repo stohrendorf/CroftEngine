@@ -5,7 +5,7 @@
 #include <map>
 #include <vector>
 
-namespace cdrom
+namespace image
 {
 class DiscImage;
 

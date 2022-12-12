@@ -30,33 +30,33 @@
 #include <fstream>
 #include <vector>
 
-namespace cdrom
+namespace image
 {
 DiscImage::~DiscImage() = default;
 
-bool DiscImage::read(std::vector<uint8_t>& buffer, size_t sector, size_t size)
+std::vector<uint8_t> DiscImage::read(size_t sector, size_t size)
 {
-  buffer.clear();
+  std::vector<uint8_t> buffer;
   buffer.reserve(size);
 
   while(buffer.size() < size)
   {
-    auto tmp = readSector(sector);
-    if(tmp.empty())
+    auto sectorData = readSector(sector);
+    if(sectorData.empty())
     {
       BOOST_LOG_TRIVIAL(warning) << "failed to read sector " << sector;
-      return false;
+      return {};
     }
-    if(tmp.size() > size - buffer.size())
+    if(sectorData.size() > size - buffer.size())
     {
-      tmp.resize(size - buffer.size());
+      sectorData.resize(size - buffer.size());
     }
 
-    buffer.insert(buffer.end(), tmp.cbegin(), tmp.cend());
+    buffer.insert(buffer.end(), sectorData.cbegin(), sectorData.cend());
     ++sector;
   }
 
-  return true;
+  return buffer;
 }
 
 const Track* DiscImage::getTrackForSector(size_t sector)
@@ -91,4 +91,4 @@ DiscImage::DiscImage(const std::filesystem::path& cueFilepath)
     : m_tracks{PhysicalTrackBuilder{cueFilepath}.getTracks()}
 {
 }
-} // namespace cdrom
+} // namespace image

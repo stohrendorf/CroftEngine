@@ -5,6 +5,8 @@
 #include <fstream>
 #include <gsl/gsl-lite.hpp>
 
+namespace image
+{
 class BinaryFile final
 {
 public:
@@ -21,3 +23,4 @@ private:
   std::ifstream m_file;
   std::filesystem::path m_filepath;
 };
+} // namespace image

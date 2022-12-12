@@ -49,8 +49,8 @@ const int UrlsRole = Qt::UserRole + 3;
 
 void extractImage(const std::filesystem::path& cueFile, const std::filesystem::path& targetDir)
 {
-  auto img = std::make_unique<cdrom::DiscImage>(cueFile);
-  for(const auto& [path, span] : cdrom::getFiles(*img))
+  auto img = std::make_unique<image::DiscImage>(cueFile);
+  for(const auto& [path, span] : image::getFiles(*img))
   {
     gsl_Assert(!path.empty());
     const auto root = *path.begin();
@@ -60,7 +60,7 @@ void extractImage(const std::filesystem::path& cueFile, const std::filesystem::p
                    .arg(path.string().c_str(), (targetDir / path).string().c_str(), cueFile.string().c_str());
       std::error_code ec;
       std::filesystem::create_directories(targetDir / path.parent_path(), ec);
-      const auto data = cdrom::readFile(*img, span);
+      const auto data = image::readFile(*img, span);
       std::ofstream tmp{targetDir / path, std::ios::binary | std::ios::trunc};
       tmp.write((const char*)data.data(), data.size());
     }

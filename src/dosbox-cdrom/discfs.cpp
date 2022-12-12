@@ -7,7 +7,7 @@
 #include <gsl/gsl-lite.hpp>
 #include <map>
 
-namespace cdrom
+namespace image
 {
 namespace
 {
@@ -47,11 +47,11 @@ struct DirectoryRecord
 #pragma pack(pop)
 } // namespace
 
-void iterateDir(DiscImage& drive,
-                std::map<std::filesystem::path, FileSpan>& fileMap,
-                const std::filesystem::path& parentPath,
-                size_t dirSize,
-                size_t sector)
+void visitDir(DiscImage& drive,
+              std::map<std::filesystem::path, FileSpan>& fileMap,
+              const std::filesystem::path& parentPath,
+              size_t dirSize,
+              size_t sector)
 {
   while(dirSize > 0)
   {
@@ -106,7 +106,7 @@ void iterateDir(DiscImage& drive,
       if(record->fileFlags & 2u)
       {
         // directory
-        iterateDir(drive, fileMap, entryPath, record->dataLength.le, record->extentLocation.le);
+        visitDir(drive, fileMap, entryPath, record->dataLength.le, record->extentLocation.le);
       }
       else
       {
@@ -132,16 +132,16 @@ std::map<std::filesystem::path, FileSpan> getFiles(DiscImage& drive)
   const size_t dirSize = readUint32(&sectorBuffer[166]);
 
   std::map<std::filesystem::path, FileSpan> fileMap;
-  iterateDir(drive, fileMap, {}, dirSize, dirEntrySector);
+  visitDir(drive, fileMap, {}, dirSize, dirEntrySector);
 
   return fileMap;
 }
 
 std::vector<uint8_t> readFile(DiscImage& drive, const FileSpan& span)
 {
-  std::vector<uint8_t> buffer;
-  if(!drive.read(buffer, span.sector, span.size))
+  auto buffer = drive.read(span.sector, span.size);
+  if(buffer.size() != span.size)
     BOOST_THROW_EXCEPTION(std::runtime_error("could not read file"));
   return buffer;
 }
-} // namespace cdrom
+} // namespace image
