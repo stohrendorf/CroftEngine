@@ -61,8 +61,6 @@ public:
 private:
   [[nodiscard]] const Track* getTrackForSector(size_t sector);
 
-  [[nodiscard]] bool loadIsoFile(const std::filesystem::path& filename);
-  [[nodiscard]] bool loadCueSheet(const std::filesystem::path& cuefile);
   [[nodiscard]] bool addTrack(const cue::Track& curr,
                               size_t& discSectorStart,
                               size_t& totalPregap,

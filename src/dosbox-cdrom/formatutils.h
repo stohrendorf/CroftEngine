@@ -12,12 +12,9 @@
 // mode 2 XA form 2: somewhat like mode 2, with an additional 8-byte sub-header, but with 2324 bytes of user data
 // mode 2 can never occur in CUE files
 
-constexpr std::streamsize Mode1SectorSize = 2352;
 constexpr std::streamsize Mode1HeaderSize = 16;
 constexpr std::streamsize Mode1UserDataSize = 2048;
 
-constexpr std::streamsize Mode2XaSectorSize = 2352;
-constexpr std::streamsize Mode2XaHeaderlessSectorSize = 2336;
 constexpr std::streamsize Mode2XaHeaderSize = 24;
 constexpr std::streamsize Mode2Form1UserDataSize = 2048;
 constexpr std::streamsize Mode2Form2UserDataSize = 2324;
@@ -40,18 +37,4 @@ constexpr std::streamsize Mode2Form2UserDataSize = 2324;
   gsl_Assert(sector[18] != sector[22]);
   gsl_Assert(sector[18] == 0x08 || sector[18] == 0x28);
   return sector[18] == 0x08 ? Mode2Form1UserDataSize : Mode2Form2UserDataSize;
-}
-
-[[nodiscard]] inline bool containsPrimaryVolumeDescriptor(BinaryFile& file, size_t sectorSize, bool mode2xa)
-{
-  std::array<uint8_t, 2048> pvd{};
-  // sectors 0..15 are reserved sectors
-  const std::streampos seek = 16 * sectorSize + getSectorHeaderSize(sectorSize, mode2xa);
-  if(!file.read(pvd, seek))
-  {
-    BOOST_LOG_TRIVIAL(error) << "failed to read " << pvd.size() << " bytes from " << seek;
-    return false;
-  }
-  // pvd[0] = descriptor type, pvd[1..5] = standard identifier, pvd[6] = iso version
-  return (pvd[0] == 1 && strncmp((char*)(&pvd[1]), "CD001", 5) == 0 && pvd[6] == 1);
 }

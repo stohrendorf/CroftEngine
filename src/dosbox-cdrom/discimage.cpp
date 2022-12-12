@@ -16,9 +16,10 @@
  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
+#include "discimage.h"
+
 #include "binaryfile.h"
 #include "cueparser.h"
-#include "discimage.h"
 #include "formatutils.h"
 
 #include <array>
@@ -78,77 +79,10 @@ std::vector<uint8_t> DiscImage::readSector(size_t sector)
   return data;
 }
 
-bool DiscImage::loadIsoFile(const std::filesystem::path& filename)
-{
-  m_tracks.clear();
-
-  // data track
-  Track track{};
-  track.file = std::make_shared<BinaryFile>(filename);
-
-  // try to detect iso type
-  if(containsPrimaryVolumeDescriptor(*track.file, Mode1UserDataSize, false))
-  {
-    // mode 1, only user data
-    track.sectorSize = 2048;
-    track.mode2xa = false;
-  }
-  else if(containsPrimaryVolumeDescriptor(*track.file, Mode1SectorSize, false))
-  {
-    // mode 1, full CD sectors
-    track.sectorSize = Mode1SectorSize;
-    track.mode2xa = false;
-  }
-  else if(containsPrimaryVolumeDescriptor(*track.file, Mode2XaHeaderlessSectorSize, true))
-  {
-    // mode 2 xa, only user data
-    track.sectorSize = Mode2XaHeaderlessSectorSize;
-    track.mode2xa = true;
-  }
-  else if(containsPrimaryVolumeDescriptor(*track.file, Mode2XaSectorSize, true))
-  {
-    // mode 2 xa, full CD sectors
-    track.sectorSize = Mode2XaSectorSize;
-    track.mode2xa = true;
-  }
-  else
-  {
-    BOOST_LOG_TRIVIAL(error) << "failed to detect iso type";
-    return false;
-  }
-
-  track.totalSectors = track.file->size() / track.sectorSize;
-  m_tracks.push_back(track);
-
-  return true;
-}
-
-bool DiscImage::loadCueSheet(const std::filesystem::path& cuefile)
-{
-  m_tracks.clear();
-  size_t discSectorStart = 0;
-  size_t totalPregap = 0;
-
-  const auto tracks = cue::readCueSheet(cuefile);
-  std::shared_ptr<BinaryFile> file;
-  for(const auto& track : tracks)
-  {
-    if(file == nullptr || track.filepath != file->getFilepath())
-    {
-      gsl_Assert(!track.filepath.empty());
-      file = std::make_shared<BinaryFile>(track.filepath);
-    }
-    if(!addTrack(track, discSectorStart, totalPregap, file))
-      return false;
-  }
-
-  return true;
-}
-
 bool DiscImage::addTrack(const cue::Track& curr,
-                       size_t& discSectorStart,
-                       size_t& totalPregap,
-                       const std::shared_ptr<BinaryFile>& file)
+                         size_t& discSectorStart,
+                         size_t& totalPregap,
+                         const std::shared_ptr<BinaryFile>& file)
 {
   if(curr.index != m_tracks.size() + 1)
   {
@@ -225,11 +159,21 @@ bool DiscImage::addTrack(const cue::Track& curr,
 
 DiscImage::DiscImage(const std::filesystem::path& filename)
 {
-  if(loadCueSheet(filename))
-    return;
-  if(loadIsoFile(filename))
-    return;
+  m_tracks.clear();
+  size_t discSectorStart = 0;
+  size_t totalPregap = 0;
 
-  BOOST_THROW_EXCEPTION(std::runtime_error("could not load image file"));
+  const auto tracks = cue::readCueSheet(filename);
+  std::shared_ptr<BinaryFile> file;
+  for(const auto& track : tracks)
+  {
+    if(file == nullptr || track.filepath != file->getFilepath())
+    {
+      gsl_Assert(!track.filepath.empty());
+      file = std::make_shared<BinaryFile>(track.filepath);
+    }
+    if(!addTrack(track, discSectorStart, totalPregap, file))
+      BOOST_THROW_EXCEPTION(std::runtime_error("could not add track from cue sheet"));
+  }
 }
 } // namespace cdrom
