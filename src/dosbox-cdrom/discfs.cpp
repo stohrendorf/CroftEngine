@@ -54,8 +54,7 @@ void iterateDir(DiscImage& drive,
                 std::map<std::filesystem::path, FileSpan>& fileMap,
                 const std::filesystem::path& parentPath,
                 size_t dirSize,
-                size_t sector,
-                bool iso)
+                size_t sector)
 {
   while(dirSize > 0)
   {
@@ -84,21 +83,19 @@ void iterateDir(DiscImage& drive,
           }
         });
 
-      if((iso ? record->fileFlags : record->dateTime[6]) & 4)
+      if(record->fileFlags & 4u)
       {
+        // associated file
         continue;
       }
 
       gsl_Assert(offsetof(DirectoryRecord, identifierStart) + record->LEN_FI + sectorOffset < sectorData.size());
-      size_t nameLength = record->LEN_FI;
+      const size_t nameLength = record->LEN_FI;
       std::string entryName{&record->identifierStart, &record->identifierStart + record->LEN_FI};
 
       if(nameLength == 1)
       {
-        if(entryName[0] == '\0') // root directory
-          entryName = ".";
-        else if(entryName[0] == '\1') // parent directory
-          entryName = "..";
+        // this can only mean it's the root or parent directory
         continue;
       }
 
@@ -109,12 +106,14 @@ void iterateDir(DiscImage& drive,
         entryName = entryName.substr(0, separator);
 
       const auto entryPath = parentPath / entryName;
-      if((iso ? record->fileFlags : record->dateTime[6]) & 2)
+      if(record->fileFlags & 2u)
       {
-        iterateDir(drive, fileMap, entryPath, record->dataLength.le, record->extentLocation.le, iso);
+        // directory
+        iterateDir(drive, fileMap, entryPath, record->dataLength.le, record->extentLocation.le);
       }
       else
       {
+        // file
         gsl_Assert(fileMap.find(entryPath) == fileMap.end());
         fileMap[entryPath] = FileSpan{record->extentLocation.le, record->dataLength.le};
       }
@@ -128,17 +127,15 @@ std::map<std::filesystem::path, FileSpan> getFiles(DiscImage& drive)
   if(sectorBuffer.empty())
     return {};
 
-  bool iso = (std::strncmp("CD001", (const char*)&sectorBuffer[1], 5) == 0);
-  if(!iso && std::strncmp("CDROM", (const char*)&sectorBuffer[9], 5) != 0)
+  if(std::strncmp("CD001", (const char*)&sectorBuffer[1], 5) != 0)
   {
-    BOOST_THROW_EXCEPTION(std::runtime_error("not an ISO 9660 or HSF CD"));
+    BOOST_THROW_EXCEPTION(std::runtime_error("not an ISO 9660 image"));
   }
-  uint16_t offset = iso ? 156 : 180;
-  size_t dirEntrySector = readUint32(&sectorBuffer[offset + 2]);
-  size_t dirSize = readUint32(&sectorBuffer[offset + 10]);
+  const size_t dirEntrySector = readUint32(&sectorBuffer[158]);
+  const size_t dirSize = readUint32(&sectorBuffer[166]);
 
   std::map<std::filesystem::path, FileSpan> fileMap;
-  iterateDir(drive, fileMap, {}, dirSize, dirEntrySector, iso);
+  iterateDir(drive, fileMap, {}, dirSize, dirEntrySector);
 
   return fileMap;
 }

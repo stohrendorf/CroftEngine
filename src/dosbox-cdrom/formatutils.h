@@ -46,13 +46,12 @@ constexpr std::streamsize Mode2Form2UserDataSize = 2324;
 {
   std::array<uint8_t, 2048> pvd{};
   // sectors 0..15 are reserved sectors
-  const std::streamoff seek = 16 * sectorSize + getSectorHeaderSize(sectorSize, mode2xa);
+  const std::streampos seek = 16 * sectorSize + getSectorHeaderSize(sectorSize, mode2xa);
   if(!file.read(pvd, seek))
   {
     BOOST_LOG_TRIVIAL(error) << "failed to read " << pvd.size() << " bytes from " << seek;
     return false;
   }
-  // pvd[0] = descriptor type, pvd[1..5] = standard identifier, pvd[6] = iso version (+8 for High Sierra)
-  return ((pvd[0] == 1 && !strncmp((char*)(&pvd[1]), "CD001", 5) && pvd[6] == 1)
-          || (pvd[8] == 1 && !strncmp((char*)(&pvd[9]), "CDROM", 5) && pvd[14] == 1));
+  // pvd[0] = descriptor type, pvd[1..5] = standard identifier, pvd[6] = iso version
+  return (pvd[0] == 1 && strncmp((char*)(&pvd[1]), "CD001", 5) == 0 && pvd[6] == 1);
 }
