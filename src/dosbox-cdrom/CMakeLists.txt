@@ -5,6 +5,7 @@ add_library(
         discfs.cpp
         cueparser.cpp
         binaryfile.cpp
+        physicaltrackbuilder.cpp
 )
 
 target_link_libraries(

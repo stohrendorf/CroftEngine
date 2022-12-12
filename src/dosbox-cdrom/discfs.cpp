@@ -2,13 +2,10 @@
 
 #include "discimage.h"
 
-#include <array>
-#include <boost/algorithm/string/case_conv.hpp>
 #include <boost/throw_exception.hpp>
 #include <filesystem>
+#include <gsl/gsl-lite.hpp>
 #include <map>
-#include <queue>
-#include <stack>
 
 namespace cdrom
 {

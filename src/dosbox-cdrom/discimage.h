@@ -19,52 +19,24 @@
 #ifndef __CDROM_INTERFACE__
 #define __CDROM_INTERFACE__
 
-#include <cstring>
 #include <filesystem>
-#include <fstream>
-#include <gsl/gsl-lite.hpp>
-#include <iostream>
-#include <memory>
-#include <optional>
-#include <sstream>
-#include <string>
 #include <vector>
 
-namespace cue
-{
 struct Track;
-}
-
 class BinaryFile;
 
 namespace cdrom
 {
 class DiscImage final
 {
-private:
-  struct Track
-  {
-    size_t startSector = 0;
-    size_t sectorSize = 0;
-    bool mode2xa = false;
-    std::shared_ptr<BinaryFile> file{};
-    size_t totalSectors = 0;
-    size_t fileOffset = 0;
-  };
-
 public:
-  explicit DiscImage(const std::filesystem::path& filename);
+  explicit DiscImage(const std::filesystem::path& cueFilepath);
   ~DiscImage();
   [[nodiscard]] bool read(std::vector<uint8_t>& buffer, size_t sector, size_t size);
   [[nodiscard]] std::vector<uint8_t> readSector(size_t sector);
 
 private:
   [[nodiscard]] const Track* getTrackForSector(size_t sector);
-
-  [[nodiscard]] bool addTrack(const cue::Track& curr,
-                              size_t& discSectorStart,
-                              size_t& totalPregap,
-                              const std::shared_ptr<BinaryFile>& file);
 
   std::vector<Track> m_tracks;
 };
