@@ -7,14 +7,14 @@
 
 namespace cdrom
 {
+class DiscImage;
+
 struct FileSpan
 {
   size_t sector;
   std::streamsize size;
 };
 
-class CdImage;
-
-extern std::map<std::filesystem::path, FileSpan> getFiles(CdImage& drive);
-extern std::vector<uint8_t> readFile(CdImage& drive, const FileSpan& span);
+extern std::map<std::filesystem::path, FileSpan> getFiles(DiscImage& drive);
+extern std::vector<uint8_t> readFile(DiscImage& drive, const FileSpan& span);
 } // namespace cdrom

@@ -1,8 +1,8 @@
 add_library(
         dosbox-cdrom
         STATIC
-        cdrom_image.cpp
-        mscdex.cpp
+        discimage.cpp
+        discfs.cpp
         cueparser.cpp
         binaryfile.cpp
 )

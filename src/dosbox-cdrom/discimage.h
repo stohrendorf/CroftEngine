@@ -39,7 +39,7 @@ class BinaryFile;
 
 namespace cdrom
 {
-class CdImage final
+class DiscImage final
 {
 private:
   struct Track
@@ -53,20 +53,20 @@ private:
   };
 
 public:
-  explicit CdImage(const std::filesystem::path& filename);
-  ~CdImage();
-  bool read(std::vector<uint8_t>& buffer, size_t sector, size_t size);
-  std::vector<uint8_t> readSector(size_t sector);
+  explicit DiscImage(const std::filesystem::path& filename);
+  ~DiscImage();
+  [[nodiscard]] bool read(std::vector<uint8_t>& buffer, size_t sector, size_t size);
+  [[nodiscard]] std::vector<uint8_t> readSector(size_t sector);
 
 private:
   [[nodiscard]] const Track* getTrackForSector(size_t sector);
 
-  bool loadIsoFile(const std::filesystem::path& filename);
-  bool loadCueSheet(const std::filesystem::path& cuefile);
-  bool addTrack(const cue::Track& curr,
-                size_t& discSectorStart,
-                size_t& totalPregap,
-                const std::shared_ptr<BinaryFile>& file);
+  [[nodiscard]] bool loadIsoFile(const std::filesystem::path& filename);
+  [[nodiscard]] bool loadCueSheet(const std::filesystem::path& cuefile);
+  [[nodiscard]] bool addTrack(const cue::Track& curr,
+                              size_t& discSectorStart,
+                              size_t& totalPregap,
+                              const std::shared_ptr<BinaryFile>& file);
 
   std::vector<Track> m_tracks;
 };

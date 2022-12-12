@@ -2,12 +2,12 @@
 #include <ryml.hpp>
 #include <ryml_std.hpp>
 // ---
-#include "cdrom.h"
+#include "discfs.h"
+#include "discimage.h"
 #include "downloadprogress.h"
 #include "gameflow/meta.h"
 #include "languages.h"
 #include "mainwindow.h"
-#include "mscdex.h"
 #include "paths.h"
 #include "readonlyarchive.h"
 #include "serialization/serialization.h"
@@ -49,7 +49,7 @@ const int UrlsRole = Qt::UserRole + 3;
 
 void extractImage(const std::filesystem::path& cueFile, const std::filesystem::path& targetDir)
 {
-  auto img = std::make_unique<cdrom::CdImage>(cueFile);
+  auto img = std::make_unique<cdrom::DiscImage>(cueFile);
   for(const auto& [path, span] : cdrom::getFiles(*img))
   {
     gsl_Assert(!path.empty());

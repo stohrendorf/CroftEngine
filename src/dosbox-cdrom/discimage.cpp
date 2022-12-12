@@ -16,10 +16,9 @@
  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-#include "cdrom.h"
-
 #include "binaryfile.h"
 #include "cueparser.h"
+#include "discimage.h"
 #include "formatutils.h"
 
 #include <array>
@@ -31,9 +30,9 @@
 
 namespace cdrom
 {
-CdImage::~CdImage() = default;
+DiscImage::~DiscImage() = default;
 
-bool CdImage::read(std::vector<uint8_t>& buffer, size_t sector, size_t size)
+bool DiscImage::read(std::vector<uint8_t>& buffer, size_t sector, size_t size)
 {
   buffer.clear();
   buffer.reserve(size);
@@ -54,7 +53,7 @@ bool CdImage::read(std::vector<uint8_t>& buffer, size_t sector, size_t size)
   return true;
 }
 
-const CdImage::Track* CdImage::getTrackForSector(size_t sector)
+const DiscImage::Track* DiscImage::getTrackForSector(size_t sector)
 {
   for(const auto& track : m_tracks)
   {
@@ -64,7 +63,7 @@ const CdImage::Track* CdImage::getTrackForSector(size_t sector)
   return nullptr;
 }
 
-std::vector<uint8_t> CdImage::readSector(size_t sector)
+std::vector<uint8_t> DiscImage::readSector(size_t sector)
 {
   const auto track = getTrackForSector(sector);
   if(track == nullptr)
@@ -79,7 +78,7 @@ std::vector<uint8_t> CdImage::readSector(size_t sector)
   return data;
 }
 
-bool CdImage::loadIsoFile(const std::filesystem::path& filename)
+bool DiscImage::loadIsoFile(const std::filesystem::path& filename)
 {
   m_tracks.clear();
 
@@ -124,7 +123,7 @@ bool CdImage::loadIsoFile(const std::filesystem::path& filename)
   return true;
 }
 
-bool CdImage::loadCueSheet(const std::filesystem::path& cuefile)
+bool DiscImage::loadCueSheet(const std::filesystem::path& cuefile)
 {
   m_tracks.clear();
   size_t discSectorStart = 0;
@@ -146,7 +145,7 @@ bool CdImage::loadCueSheet(const std::filesystem::path& cuefile)
   return true;
 }
 
-bool CdImage::addTrack(const cue::Track& curr,
+bool DiscImage::addTrack(const cue::Track& curr,
                        size_t& discSectorStart,
                        size_t& totalPregap,
                        const std::shared_ptr<BinaryFile>& file)
@@ -224,7 +223,7 @@ bool CdImage::addTrack(const cue::Track& curr,
   return true;
 }
 
-CdImage::CdImage(const std::filesystem::path& filename)
+DiscImage::DiscImage(const std::filesystem::path& filename)
 {
   if(loadCueSheet(filename))
     return;

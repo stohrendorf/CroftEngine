@@ -1,6 +1,6 @@
-#include "mscdex.h"
+#include "discfs.h"
 
-#include "cdrom.h"
+#include "discimage.h"
 
 #include <array>
 #include <boost/algorithm/string/case_conv.hpp>
@@ -50,7 +50,7 @@ struct DirectoryRecord
 #pragma pack(pop)
 } // namespace
 
-void iterateDir(CdImage& drive,
+void iterateDir(DiscImage& drive,
                 std::map<std::filesystem::path, FileSpan>& fileMap,
                 const std::filesystem::path& parentPath,
                 size_t dirSize,
@@ -122,7 +122,7 @@ void iterateDir(CdImage& drive,
   }
 }
 
-std::map<std::filesystem::path, FileSpan> getFiles(CdImage& drive)
+std::map<std::filesystem::path, FileSpan> getFiles(DiscImage& drive)
 {
   std::vector<uint8_t> sectorBuffer = drive.readSector(16);
   if(sectorBuffer.empty())
@@ -143,7 +143,7 @@ std::map<std::filesystem::path, FileSpan> getFiles(CdImage& drive)
   return fileMap;
 }
 
-std::vector<uint8_t> readFile(CdImage& drive, const FileSpan& span)
+std::vector<uint8_t> readFile(DiscImage& drive, const FileSpan& span)
 {
   std::vector<uint8_t> buffer;
   if(!drive.read(buffer, span.sector, span.size))
