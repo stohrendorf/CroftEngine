@@ -44,7 +44,6 @@ class CdImage final
 private:
   struct Track
   {
-    size_t number = 0;
     size_t startSector = 0;
     size_t sectorSize = 0;
     bool mode2 = false;
@@ -61,7 +60,7 @@ public:
   bool readSector(const gsl::span<uint8_t>& buffer, size_t sector);
 
 private:
-  std::optional<size_t> getTrack(size_t sector);
+  std::optional<size_t> getTrackIndex(size_t sector);
 
   bool loadIsoFile(const std::filesystem::path& filename);
   bool loadCueSheet(const std::filesystem::path& cuefile);

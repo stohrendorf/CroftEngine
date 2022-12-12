@@ -85,32 +85,32 @@ bool CdImage::read(std::vector<uint8_t>& buffer, size_t sector, std::streamsize 
   return true;
 }
 
-std::optional<size_t> CdImage::getTrack(size_t sector)
+std::optional<size_t> CdImage::getTrackIndex(size_t sector)
 {
-  for(auto it = m_tracks.cbegin(), end = std::prev(m_tracks.cend()); it != end; ++it)
+  size_t i = 0;
+  for(auto it = m_tracks.cbegin(), end = std::prev(m_tracks.cend()); it != end; ++it, ++i)
   {
     if(it->startSector <= sector && sector < std::next(it)->startSector)
-      return it->number;
+      return i;
   }
   return std::nullopt;
 }
 
 bool CdImage::readSector(const gsl::span<uint8_t>& buffer, size_t sector)
 {
-  const auto track = getTrack(sector);
-  if(!track.has_value() || *track == 0)
+  const auto trackIdx = getTrackIndex(sector);
+  if(!trackIdx.has_value())
     return false;
 
-  const auto trackIdx = *track - 1;
-
-  std::streamoff seek
-    = m_tracks[trackIdx].fileOffset + (sector - m_tracks[trackIdx].startSector) * m_tracks[trackIdx].sectorSize;
-  if(m_tracks[trackIdx].sectorSize == RAW_SECTOR_SIZE && !m_tracks[trackIdx].mode2)
+  gsl_Assert(*trackIdx < m_tracks.size());
+  const auto& track = m_tracks[*trackIdx];
+  std::streamoff seek = track.fileOffset + (sector - track.startSector) * track.sectorSize;
+  if(track.sectorSize == RAW_SECTOR_SIZE && !track.mode2)
     seek += 16;
-  if(m_tracks[trackIdx].mode2)
+  if(track.mode2)
     seek += 24;
 
-  return m_tracks[trackIdx].file->read(buffer, seek);
+  return track.file->read(buffer, seek);
 }
 
 bool CdImage::loadIsoFile(const std::filesystem::path& filename)
@@ -120,7 +120,6 @@ bool CdImage::loadIsoFile(const std::filesystem::path& filename)
   // data track
   Track track{};
   track.file = std::make_shared<BinaryFile>(filename);
-  track.number = 1;
 
   // try to detect iso type
   if(canReadPVD(*track.file, COOKED_SECTOR_SIZE, false))
@@ -153,7 +152,6 @@ bool CdImage::loadIsoFile(const std::filesystem::path& filename)
   m_tracks.push_back(track);
 
   // leadout track
-  track.number = 2;
   track.startSector = track.totalSectors;
   track.totalSectors = 0;
   track.file = nullptr;
@@ -183,7 +181,7 @@ bool CdImage::loadCueSheet(const std::filesystem::path& cuefile)
 
   // add leadout track
   cue::Track track;
-  track.index = m_tracks.back().number + 1;
+  track.index = m_tracks.size() + 1;
   if(!addTrack(track, discSectorStart, totalPregap, nullptr))
     return false;
 
@@ -195,7 +193,13 @@ bool CdImage::addTrack(const cue::Track& curr,
                        size_t& totalPregap,
                        const std::shared_ptr<BinaryFile>& file)
 {
-  Track track{curr.index, curr.start, curr.sectorSize, curr.mode2, file};
+  if(curr.index != m_tracks.size() + 1)
+  {
+    BOOST_LOG_TRIVIAL(error) << "invalid track number";
+    return false;
+  }
+
+  Track track{curr.start, curr.sectorSize, curr.mode2, file};
   // frames between index 0(prestart) and 1(curr.start) must be skipped
   size_t fileOffsetSectors = 0;
   if(curr.pregapStart > 0)
@@ -219,7 +223,7 @@ bool CdImage::addTrack(const cue::Track& curr,
     track.fileOffset = fileOffsetSectors * curr.sectorSize;
     track.startSector += curr.pregap;
     totalPregap = curr.pregap;
-    BOOST_LOG_TRIVIAL(debug) << "Initial track: number=" << track.number << ", startSector=" << track.startSector
+    BOOST_LOG_TRIVIAL(debug) << "Initial track: startSector=" << track.startSector
                              << ", totalSectors=" << track.totalSectors << ", fileOffset=" << track.fileOffset
                              << ", sectorSize=" << track.sectorSize << ", mode2=" << track.mode2 << ", file="
                              << (track.file == nullptr ? "<none>" : track.file->getFilepath().string().c_str());
@@ -253,25 +257,15 @@ bool CdImage::addTrack(const cue::Track& curr,
   }
 
   // error checks
-  if(curr.index <= 1)
-  {
-    BOOST_LOG_TRIVIAL(error) << "invalid track number";
-    return false;
-  }
-  if(prev.number + 1 != curr.index)
-  {
-    BOOST_LOG_TRIVIAL(error) << "invalid track number sequence";
-    return false;
-  }
   if(track.startSector < prev.startSector + prev.totalSectors)
   {
     BOOST_LOG_TRIVIAL(error) << "overlapping tracks";
     return false;
   }
 
-  BOOST_LOG_TRIVIAL(debug) << "New track: number=" << track.number << ", startSector=" << track.startSector
-                           << ", totalSectors=" << track.totalSectors << ", fileOffset=" << track.fileOffset
-                           << ", sectorSize=" << track.sectorSize << ", mode2=" << track.mode2 << ", file="
+  BOOST_LOG_TRIVIAL(debug) << "New track: startSector=" << track.startSector << ", totalSectors=" << track.totalSectors
+                           << ", fileOffset=" << track.fileOffset << ", sectorSize=" << track.sectorSize
+                           << ", mode2=" << track.mode2 << ", file="
                            << (track.file == nullptr ? "<none>" : track.file->getFilepath().string().c_str());
 
   m_tracks.emplace_back(track);
