@@ -45,17 +45,17 @@ private:
   struct Track
   {
     size_t startSector = 0;
-    std::streamsize sectorSize = 0;
+    size_t sectorSize = 0;
     bool mode2xa = false;
     std::shared_ptr<BinaryFile> file{};
     size_t totalSectors = 0;
-    std::streamoff fileOffset = 0;
+    size_t fileOffset = 0;
   };
 
 public:
   explicit CdImage(const std::filesystem::path& filename);
   ~CdImage();
-  bool read(std::vector<uint8_t>& buffer, size_t sector, std::streamsize size);
+  bool read(std::vector<uint8_t>& buffer, size_t sector, size_t size);
   std::vector<uint8_t> readSector(size_t sector);
 
 private:

@@ -22,7 +22,7 @@ constexpr std::streamsize Mode2XaHeaderSize = 24;
 constexpr std::streamsize Mode2Form1UserDataSize = 2048;
 constexpr std::streamsize Mode2Form2UserDataSize = 2324;
 
-[[nodiscard]] inline std::streamsize getSectorHeaderSize(std::streamsize sectorSize, bool mode2xa)
+[[nodiscard]] inline std::streamsize getSectorHeaderSize(size_t sectorSize, bool mode2xa)
 {
   if(sectorSize == Mode1UserDataSize)
     return 0;
@@ -42,7 +42,7 @@ constexpr std::streamsize Mode2Form2UserDataSize = 2324;
   return sector[18] == 0x08 ? Mode2Form1UserDataSize : Mode2Form2UserDataSize;
 }
 
-[[nodiscard]] inline bool containsPrimaryVolumeDescriptor(BinaryFile& file, std::streamsize sectorSize, bool mode2xa)
+[[nodiscard]] inline bool containsPrimaryVolumeDescriptor(BinaryFile& file, size_t sectorSize, bool mode2xa)
 {
   std::array<uint8_t, 2048> pvd{};
   // sectors 0..15 are reserved sectors

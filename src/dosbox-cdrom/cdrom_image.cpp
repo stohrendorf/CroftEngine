@@ -33,7 +33,7 @@ namespace cdrom
 {
 CdImage::~CdImage() = default;
 
-bool CdImage::read(std::vector<uint8_t>& buffer, size_t sector, std::streamsize size)
+bool CdImage::read(std::vector<uint8_t>& buffer, size_t sector, size_t size)
 {
   buffer.clear();
   buffer.reserve(size);
@@ -70,7 +70,7 @@ std::vector<uint8_t> CdImage::readSector(size_t sector)
   if(track == nullptr)
     return {};
 
-  const std::streamoff sectorOffset = track->fileOffset + (sector - track->startSector) * track->sectorSize;
+  const auto sectorOffset = track->fileOffset + (sector - track->startSector) * track->sectorSize;
   std::vector<uint8_t> data;
   data.resize(Mode2XaHeaderSize);
   track->file->read(data, sectorOffset);
@@ -158,6 +158,12 @@ bool CdImage::addTrack(const cue::Track& curr,
   }
 
   Track track{curr.start, curr.sectorSize, curr.mode2xa, file};
+
+  {
+    const auto remaining = track.file->size() - track.fileOffset;
+    track.totalSectors = (remaining + track.sectorSize - 1) / track.sectorSize;
+  }
+
   size_t fileOffsetSectors = 0;
   if(curr.pregapStart > 0)
   {
@@ -186,22 +192,16 @@ bool CdImage::addTrack(const cue::Track& curr,
 
   Track& prev = m_tracks.back();
 
-  // current track consumes data from the same file as the previous
   if(prev.file == file)
   {
     track.startSector += discSectorStart;
-    prev.totalSectors = track.startSector + totalPregap - prev.startSector - fileOffsetSectors;
+    prev.totalSectors = track.startSector - prev.startSector + totalPregap - fileOffsetSectors;
     track.fileOffset += prev.fileOffset + prev.totalSectors * prev.sectorSize + fileOffsetSectors * curr.sectorSize;
     totalPregap += curr.pregap;
     track.startSector += totalPregap;
   }
   else
   {
-    const auto remaining = prev.file->size() - prev.fileOffset;
-    prev.totalSectors = remaining / prev.sectorSize;
-    if(remaining % prev.sectorSize != 0)
-      prev.totalSectors++; // padding
-
     track.startSector += prev.startSector + prev.totalSectors + curr.pregap;
     track.fileOffset = fileOffsetSectors * curr.sectorSize;
     discSectorStart += prev.startSector + prev.totalSectors;

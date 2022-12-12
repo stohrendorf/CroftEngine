@@ -13,7 +13,7 @@ struct TrackCommand
   size_t index = 0;
   bool audio = false;
   bool mode2 = false;
-  std::streamsize sectorSize = 0;
+  size_t sectorSize = 0;
 };
 struct FileCommand
 {
@@ -30,7 +30,7 @@ struct Track
   size_t index = 0;
   bool audio = false;
   bool mode2xa = false;
-  std::streamsize sectorSize = 0;
+  size_t sectorSize = 0;
   size_t start = 0;
   size_t pregapStart = 0;
   std::filesystem::path filepath{};
