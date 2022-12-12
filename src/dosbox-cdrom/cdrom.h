@@ -45,22 +45,21 @@ private:
   struct Track
   {
     size_t startSector = 0;
-    size_t sectorSize = 0;
-    bool mode2 = false;
+    std::streamsize sectorSize = 0;
+    bool mode2xa = false;
     std::shared_ptr<BinaryFile> file{};
     size_t totalSectors = 0;
-    size_t fileOffset = 0;
+    std::streamoff fileOffset = 0;
   };
 
 public:
   explicit CdImage(const std::filesystem::path& filename);
   ~CdImage();
-  bool readSectors(std::vector<uint8_t>& buffer, size_t sector, size_t num);
   bool read(std::vector<uint8_t>& buffer, size_t sector, std::streamsize size);
-  bool readSector(const gsl::span<uint8_t>& buffer, size_t sector);
+  std::vector<uint8_t> readSector(size_t sector);
 
 private:
-  std::optional<size_t> getTrackIndex(size_t sector);
+  [[nodiscard]] const Track* getTrackForSector(size_t sector);
 
   bool loadIsoFile(const std::filesystem::path& filename);
   bool loadCueSheet(const std::filesystem::path& cuefile);

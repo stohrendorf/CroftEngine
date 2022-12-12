@@ -51,8 +51,6 @@ std::optional<TrackCommand> parseTrack(const std::string& line)
     return TrackCommand{std::stoul(m[1]), false, m[2] == "2", std::stoul(m[3])};
   }
 
-  BOOST_LOG_TRIVIAL(trace) << "failed to parse TRACK command " << line;
-
   return std::nullopt;
 }
 
@@ -69,8 +67,6 @@ std::optional<FileCommand> parseFile(const std::string& line)
     return FileCommand{m[1], m[2]};
   }
 
-  BOOST_LOG_TRIVIAL(trace) << "failed to parse FILE command " << line;
-
   return std::nullopt;
 }
 
@@ -81,8 +77,6 @@ std::optional<size_t> parseTime(const std::string& time)
   {
     return (std::stoul(m[1]) * 60u + std::stoul(m[2])) * 75u + std::stoul(m[3]);
   }
-
-  BOOST_LOG_TRIVIAL(trace) << "Failed to parse time " << time;
 
   return std::nullopt;
 }
@@ -96,8 +90,6 @@ std::optional<IndexCommand> parseIndex(const std::string& line)
       return IndexCommand{std::stoul(m[1]), *frame};
   }
 
-  BOOST_LOG_TRIVIAL(trace) << "failed to parse INDEX command " << line;
-
   return std::nullopt;
 }
 
@@ -109,8 +101,6 @@ std::optional<size_t> parsePregap(const std::string& line)
     if(auto frame = parseTime(m[1]); frame.has_value())
       return frame;
   }
-
-  BOOST_LOG_TRIVIAL(trace) << "failed to parse PREGAP command " << line;
 
   return std::nullopt;
 }

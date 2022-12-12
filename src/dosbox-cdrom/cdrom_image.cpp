@@ -20,97 +20,63 @@
 
 #include "binaryfile.h"
 #include "cueparser.h"
+#include "formatutils.h"
 
 #include <array>
 #include <boost/log/trivial.hpp>
 #include <cctype>
-#include <cstdio>
 #include <filesystem>
 #include <fstream>
 #include <vector>
 
-#define COOKED_SECTOR_SIZE 2048u
-#define RAW_SECTOR_SIZE 2352u
-
 namespace cdrom
 {
-namespace
-{
-bool canReadPVD(BinaryFile& file, int sectorSize, bool mode2)
-{
-  std::array<uint8_t, COOKED_SECTOR_SIZE> pvd{};
-  int seek = 16 * sectorSize; // first vd is located at sector 16
-  if(sectorSize == RAW_SECTOR_SIZE && !mode2)
-    seek += 16;
-  if(mode2)
-    seek += 24;
-  if(!file.read(gsl::span{pvd.data(), pvd.size() - 1}, seek))
-  {
-    BOOST_LOG_TRIVIAL(error) << "failed to read " << pvd.size() - 1 << " bytes from " << seek;
-    return false;
-  }
-  // pvd[0] = descriptor type, pvd[1..5] = standard identifier, pvd[6] = iso version (+8 for High Sierra)
-  return ((pvd[0] == 1 && !strncmp((char*)(&pvd[1]), "CD001", 5) && pvd[6] == 1)
-          || (pvd[8] == 1 && !strncmp((char*)(&pvd[9]), "CDROM", 5) && pvd[14] == 1));
-}
-} // namespace
-
 CdImage::~CdImage() = default;
-
-bool CdImage::readSectors(std::vector<uint8_t>& buffer, size_t sector, size_t num)
-{
-  buffer.resize(num * COOKED_SECTOR_SIZE);
-
-  for(size_t i = 0; i < num; i++)
-  {
-    if(!readSector(gsl::span{&buffer[i * COOKED_SECTOR_SIZE], COOKED_SECTOR_SIZE}, sector + i))
-      return false;
-  }
-
-  return true;
-}
 
 bool CdImage::read(std::vector<uint8_t>& buffer, size_t sector, std::streamsize size)
 {
-  const size_t numSectors = (size + COOKED_SECTOR_SIZE - 1) / COOKED_SECTOR_SIZE;
-  buffer.resize(numSectors * COOKED_SECTOR_SIZE);
+  buffer.clear();
+  buffer.reserve(size);
 
-  for(size_t i = 0; i < numSectors; i++)
+  while(buffer.size() < size)
   {
-    if(!readSector(gsl::span{&buffer[i * COOKED_SECTOR_SIZE], COOKED_SECTOR_SIZE}, sector + i))
+    auto tmp = readSector(sector);
+    if(tmp.empty())
+    {
+      BOOST_LOG_TRIVIAL(warning) << "failed to read sector " << sector;
       return false;
+    }
+
+    std::copy_n(tmp.cbegin(), std::min(size - buffer.size(), tmp.size()), std::back_inserter(buffer));
+    ++sector;
   }
 
-  buffer.resize(size);
   return true;
 }
 
-std::optional<size_t> CdImage::getTrackIndex(size_t sector)
+const CdImage::Track* CdImage::getTrackForSector(size_t sector)
 {
-  size_t i = 0;
-  for(auto it = m_tracks.cbegin(), end = std::prev(m_tracks.cend()); it != end; ++it, ++i)
+  for(const auto& track : m_tracks)
   {
-    if(it->startSector <= sector && sector < std::next(it)->startSector)
-      return i;
+    if(track.startSector <= sector && sector < track.startSector + track.totalSectors)
+      return &track;
   }
-  return std::nullopt;
+  return nullptr;
 }
 
-bool CdImage::readSector(const gsl::span<uint8_t>& buffer, size_t sector)
+std::vector<uint8_t> CdImage::readSector(size_t sector)
 {
-  const auto trackIdx = getTrackIndex(sector);
-  if(!trackIdx.has_value())
-    return false;
+  const auto track = getTrackForSector(sector);
+  if(track == nullptr)
+    return {};
 
-  gsl_Assert(*trackIdx < m_tracks.size());
-  const auto& track = m_tracks[*trackIdx];
-  std::streamoff seek = track.fileOffset + (sector - track.startSector) * track.sectorSize;
-  if(track.sectorSize == RAW_SECTOR_SIZE && !track.mode2)
-    seek += 16;
-  if(track.mode2)
-    seek += 24;
-
-  return track.file->read(buffer, seek);
+  const std::streamoff sectorOffset = track->fileOffset + (sector - track->startSector) * track->sectorSize;
+  std::vector<uint8_t> data;
+  data.resize(Mode2XaHeaderSize);
+  track->file->read(data, sectorOffset);
+  data.resize(getSectorUserDataSize(data, track->mode2xa));
+  track->file->read(data, sectorOffset + getSectorHeaderSize(track->sectorSize, track->mode2xa));
+  return data;
 }
 
 bool CdImage::loadIsoFile(const std::filesystem::path& filename)
@@ -122,25 +88,29 @@ bool CdImage::loadIsoFile(const std::filesystem::path& filename)
   track.file = std::make_shared<BinaryFile>(filename);
 
   // try to detect iso type
-  if(canReadPVD(*track.file, COOKED_SECTOR_SIZE, false))
+  if(containsPrimaryVolumeDescriptor(*track.file, Mode1UserDataSize, false))
   {
-    track.sectorSize = COOKED_SECTOR_SIZE;
-    track.mode2 = false;
+    // mode 1, only user data
+    track.sectorSize = 2048;
+    track.mode2xa = false;
   }
-  else if(canReadPVD(*track.file, RAW_SECTOR_SIZE, false))
+  else if(containsPrimaryVolumeDescriptor(*track.file, Mode1SectorSize, false))
   {
-    track.sectorSize = RAW_SECTOR_SIZE;
-    track.mode2 = false;
+    // mode 1, full CD sectors
+    track.sectorSize = Mode1SectorSize;
+    track.mode2xa = false;
   }
-  else if(canReadPVD(*track.file, 2336, true))
+  else if(containsPrimaryVolumeDescriptor(*track.file, Mode2XaHeaderlessSectorSize, true))
   {
-    track.sectorSize = 2336;
-    track.mode2 = true;
+    // mode 2 xa, only user data
+    track.sectorSize = Mode2XaHeaderlessSectorSize;
+    track.mode2xa = true;
   }
-  else if(canReadPVD(*track.file, RAW_SECTOR_SIZE, true))
+  else if(containsPrimaryVolumeDescriptor(*track.file, Mode2XaSectorSize, true))
   {
-    track.sectorSize = RAW_SECTOR_SIZE;
-    track.mode2 = true;
+    // mode 2 xa, full CD sectors
+    track.sectorSize = Mode2XaSectorSize;
+    track.mode2xa = true;
   }
   else
   {
@@ -149,12 +119,6 @@ bool CdImage::loadIsoFile(const std::filesystem::path& filename)
   }
 
   track.totalSectors = track.file->size() / track.sectorSize;
-  m_tracks.push_back(track);
-
-  // leadout track
-  track.startSector = track.totalSectors;
-  track.totalSectors = 0;
-  track.file = nullptr;
   m_tracks.push_back(track);
 
   return true;
@@ -179,12 +143,6 @@ bool CdImage::loadCueSheet(const std::filesystem::path& cuefile)
       return false;
   }
 
-  // add leadout track
-  cue::Track track;
-  track.index = m_tracks.size() + 1;
-  if(!addTrack(track, discSectorStart, totalPregap, nullptr))
-    return false;
-
   return true;
 }
 
@@ -199,8 +157,7 @@ bool CdImage::addTrack(const cue::Track& curr,
     return false;
   }
 
-  Track track{curr.start, curr.sectorSize, curr.mode2, file};
-  // frames between index 0(prestart) and 1(curr.start) must be skipped
+  Track track{curr.start, curr.sectorSize, curr.mode2xa, file};
   size_t fileOffsetSectors = 0;
   if(curr.pregapStart > 0)
   {
@@ -215,17 +172,12 @@ bool CdImage::addTrack(const cue::Track& curr,
   // first track (track number must be 1)
   if(m_tracks.empty())
   {
-    if(curr.index != 1)
-    {
-      BOOST_LOG_TRIVIAL(error) << "invalid initial track number";
-      return false;
-    }
     track.fileOffset = fileOffsetSectors * curr.sectorSize;
     track.startSector += curr.pregap;
     totalPregap = curr.pregap;
     BOOST_LOG_TRIVIAL(debug) << "Initial track: startSector=" << track.startSector
                              << ", totalSectors=" << track.totalSectors << ", fileOffset=" << track.fileOffset
-                             << ", sectorSize=" << track.sectorSize << ", mode2=" << track.mode2 << ", file="
+                             << ", sectorSize=" << track.sectorSize << ", mode2xa=" << track.mode2xa << ", file="
                              << (track.file == nullptr ? "<none>" : track.file->getFilepath().string().c_str());
 
     m_tracks.push_back(track);
@@ -265,7 +217,7 @@ bool CdImage::addTrack(const cue::Track& curr,
 
   BOOST_LOG_TRIVIAL(debug) << "New track: startSector=" << track.startSector << ", totalSectors=" << track.totalSectors
                            << ", fileOffset=" << track.fileOffset << ", sectorSize=" << track.sectorSize
-                           << ", mode2=" << track.mode2 << ", file="
+                           << ", mode2xa=" << track.mode2xa << ", file="
                            << (track.file == nullptr ? "<none>" : track.file->getFilepath().string().c_str());
 
   m_tracks.emplace_back(track);

@@ -4,8 +4,6 @@
 
 #include <array>
 #include <boost/algorithm/string/case_conv.hpp>
-#include <boost/algorithm/string/join.hpp>
-#include <boost/log/trivial.hpp>
 #include <boost/throw_exception.hpp>
 #include <filesystem>
 #include <map>
@@ -14,7 +12,9 @@
 
 namespace cdrom
 {
-uint32_t mem_readd(const void* address)
+namespace
+{
+uint32_t readUint32(const void* address)
 {
   const auto bytes = static_cast<const uint8_t*>(address);
   uint32_t ret = bytes[0];
@@ -48,6 +48,7 @@ struct DirectoryRecord
   char identifierStart = 0;
 };
 #pragma pack(pop)
+} // namespace
 
 void iterateDir(CdImage& drive,
                 std::map<std::filesystem::path, FileSpan>& fileMap,
@@ -58,8 +59,8 @@ void iterateDir(CdImage& drive,
 {
   while(dirSize > 0)
   {
-    std::vector<uint8_t> sectorData;
-    if(!drive.readSectors(sectorData, sector, 1))
+    std::vector<uint8_t> sectorData = drive.readSector(sector);
+    if(sectorData.empty())
       return;
 
     size_t sectorOffset = 0;
@@ -123,8 +124,8 @@ void iterateDir(CdImage& drive,
 
 std::map<std::filesystem::path, FileSpan> getFiles(CdImage& drive)
 {
-  std::vector<uint8_t> sectorBuffer;
-  if(!drive.readSectors(sectorBuffer, 16, 1))
+  std::vector<uint8_t> sectorBuffer = drive.readSector(16);
+  if(sectorBuffer.empty())
     return {};
 
   bool iso = (std::strncmp("CD001", (const char*)&sectorBuffer[1], 5) == 0);
@@ -133,8 +134,8 @@ std::map<std::filesystem::path, FileSpan> getFiles(CdImage& drive)
     BOOST_THROW_EXCEPTION(std::runtime_error("not an ISO 9660 or HSF CD"));
   }
   uint16_t offset = iso ? 156 : 180;
-  size_t dirEntrySector = mem_readd(&sectorBuffer[offset + 2]);
-  size_t dirSize = mem_readd(&sectorBuffer[offset + 10]);
+  size_t dirEntrySector = readUint32(&sectorBuffer[offset + 2]);
+  size_t dirSize = readUint32(&sectorBuffer[offset + 10]);
 
   std::map<std::filesystem::path, FileSpan> fileMap;
   iterateDir(drive, fileMap, {}, dirSize, dirEntrySector, iso);
