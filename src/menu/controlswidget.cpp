@@ -71,14 +71,36 @@ constexpr const std::array<std::array<std::optional<hid::Action>, 4>, Columns> s
   },
 }};
 
+constexpr const std::array<std::array<std::optional<hid::Action>, 4>, Columns> menuActions{{
+  {
+    hid::Action::MenuUp,
+    hid::Action::MenuDown,
+    hid::Action::MenuLeft,
+    hid::Action::MenuRight,
+  },
+  {
+    hid::Action::PrevScreen,
+    hid::Action::NextScreen,
+    std::nullopt,
+    std::nullopt,
+  },
+  {
+    hid::Action::PrimaryInteraction,
+    hid::Action::SecondaryInteraction,
+    hid::Action::Return,
+    std::nullopt,
+  },
+}};
+
 static_assert(gameplayActions.size() == shortcutActions.size());
+static_assert(gameplayActions.size() == menuActions.size());
 } // namespace
 
 ControlsWidget::ControlsWidget(const engine::NamedInputMappingConfig& mappingConfig)
     : m_content{std::make_shared<ui::widgets::GridBox>()}
     , m_container{std::make_shared<ui::widgets::GroupBox>(mappingConfig.name, m_content)}
 {
-  m_content->setExtents(1, 3);
+  m_content->setExtents(1, 4);
 
   auto gridBox = gsl::make_shared<ui::widgets::GridBox>(glm::ivec2{10, ui::OutlineBorderWidth});
   gridBox->setExtents(2 * gameplayActions.size(), gameplayActions[0].size());
@@ -95,6 +117,14 @@ ControlsWidget::ControlsWidget(const engine::NamedInputMappingConfig& mappingCon
 
   groupBox = std::make_shared<ui::widgets::GroupBox>(/* translators: TR charmap encoding */ _("Shortcuts"), gridBox);
   m_content->set(0, 2, groupBox);
+
+  gridBox = gsl::make_shared<ui::widgets::GridBox>(glm::ivec2{10, ui::OutlineBorderWidth});
+  gridBox->setExtents(2 * menuActions.size(), menuActions[0].size());
+  m_controlGroups.emplace_back(gridBox);
+
+  groupBox
+    = std::make_shared<ui::widgets::GroupBox>(/* translators: TR charmap encoding */ _("Menu Navigation"), gridBox);
+  m_content->set(0, 3, groupBox);
 
   m_content->setSelected({0, 1});
 }
@@ -279,6 +309,17 @@ void ControlsWidget::updateBindings(
     }
   }
 
+  for(size_t x = 0; x < menuActions.size(); ++x)
+  {
+    const auto& column = menuActions[x];
+    for(size_t y = 0; y < column.size(); ++y)
+    {
+      const auto& action = column[y];
+      if(action.has_value())
+        set(*m_controlGroups[2], x * 2, y, *action);
+    }
+  }
+
   fitToContent();
 }
 
@@ -292,6 +333,8 @@ hid::Action ControlsWidget::getCurrentAction() const
     return gameplayActions.at(x / 2).at(y).value();
   case 1:
     return shortcutActions.at(x / 2).at(y).value();
+  case 2:
+    return menuActions.at(x / 2).at(y).value();
   default:
     BOOST_THROW_EXCEPTION(std::runtime_error("Invalid control group"));
   }

@@ -22,3 +22,12 @@ StepRight
 CheatDive
 Screenshot
 BugReport
+MenuLeft
+MenuRight
+MenuUp
+MenuDown
+PrevScreen
+NextScreen
+PrimaryInteraction
+SecondaryInteraction
+Return

@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: CroftEngine 1.11\n"
+"Project-Id-Version: CroftEngine 1.12\n"
 "Report-Msgid-Bugs-To: https://github.com/stohrendorf/CroftEngine/issues\n"
-"POT-Creation-Date: 2022-10-13 06:28+0200\n"
+"POT-Creation-Date: 2022-12-13 10:50+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -234,7 +234,7 @@ msgstr ""
 msgid "Bug Report Saved"
 msgstr ""
 
-#: engine/world/texturing.cpp:367
+#: engine/world/texturing.cpp:321
 msgid "Building textures"
 msgstr ""
 
@@ -290,7 +290,7 @@ msgid "Contrast \037l %1% \037m"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/controlswidget.cpp:247
+#: menu/controlswidget.cpp:277
 #, boost-format
 msgid "Controller Type: %1%"
 msgstr ""
@@ -347,6 +347,12 @@ msgstr ""
 #. translators: TR charmap encoding
 #: hid/names.cpp:131
 msgctxt "Keyboard|Key"
+msgid "Down"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: hid/names.cpp:364
+msgctxt "MenuAction"
 msgid "Down"
 msgstr ""
 
@@ -481,17 +487,17 @@ msgstr ""
 msgid "Game"
 msgstr ""
 
-#: engine/engineconfig.cpp:61
+#: engine/engineconfig.cpp:70
 msgctxt "Input|MappingName"
 msgid "Gamepad"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/controlswidget.cpp:89
+#: menu/controlswidget.cpp:111
 msgid "Gameplay"
 msgstr ""
 
-#: engine/world/room.cpp:690
+#: engine/world/room.cpp:691
 msgid "Generating Dust Particles..."
 msgstr ""
 
@@ -500,7 +506,7 @@ msgstr ""
 msgid "Ghost"
 msgstr ""
 
-#: loader/trx/trx.cpp:337
+#: loader/trx/trx.cpp:340
 #, boost-format
 msgid "Glidos - Loading %1%"
 msgstr ""
@@ -510,12 +516,12 @@ msgstr ""
 msgid "Glidos - Loading equiv.txt (%1%%%)"
 msgstr ""
 
-#: loader/trx/trx.cpp:162 loader/trx/trx.cpp:210
+#: loader/trx/trx.cpp:165 loader/trx/trx.cpp:213
 #, boost-format
 msgid "Glidos - Resolving maps (%1%%%)"
 msgstr ""
 
-#: loader/trx/trx.cpp:347
+#: loader/trx/trx.cpp:350
 msgid "Glidos - Resolving maps (100%)"
 msgstr ""
 
@@ -676,6 +682,12 @@ msgid "Left"
 msgstr ""
 
 #. translators: TR charmap encoding
+#: hid/names.cpp:358
+msgctxt "MenuAction"
+msgid "Left"
+msgstr ""
+
+#. translators: TR charmap encoding
 #: menu/rendersettingsmenustate.cpp:189
 msgid "Lens Distortion"
 msgstr ""
@@ -691,7 +703,7 @@ msgstr ""
 msgid "Load Game"
 msgstr ""
 
-#: engine/script/reflection.cpp:76
+#: engine/script/reflection.cpp:77
 #, boost-format
 msgid "Loading %1%"
 msgstr ""
@@ -753,6 +765,11 @@ msgid "Menu"
 msgstr ""
 
 #. translators: TR charmap encoding
+#: menu/controlswidget.cpp:126
+msgid "Menu Navigation"
+msgstr ""
+
+#. translators: TR charmap encoding
 #: menu/rendersettingsmenustate.cpp:582
 msgid "More Lights"
 msgstr ""
@@ -789,6 +806,12 @@ msgstr ""
 #. translators: TR charmap encoding
 #: menu/passportmenustate.cpp:69
 msgid "New Game"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: hid/names.cpp:368
+msgctxt "MenuAction"
+msgid "Next Tab/View"
 msgstr ""
 
 #. translators: TR charmap encoding
@@ -985,6 +1008,12 @@ msgid "Pistols"
 msgstr ""
 
 #. translators: TR charmap encoding
+#: hid/names.cpp:366
+msgctxt "MenuAction"
+msgid "Previous Tab/View"
+msgstr ""
+
+#. translators: TR charmap encoding
 #: hid/names.cpp:149
 msgctxt "Keyboard|Key"
 msgid "PrtScrn"
@@ -1063,6 +1092,12 @@ msgid "Return"
 msgstr ""
 
 #. translators: TR charmap encoding
+#: hid/names.cpp:374
+msgctxt "MenuAction"
+msgid "Return"
+msgstr ""
+
+#. translators: TR charmap encoding
 #: hid/names.cpp:342
 msgctxt "Action"
 msgid "Right"
@@ -1077,6 +1112,12 @@ msgstr ""
 #. translators: TR charmap encoding
 #: hid/names.cpp:127
 msgctxt "Keyboard|Key"
+msgid "Right"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: hid/names.cpp:360
+msgctxt "MenuAction"
 msgid "Right"
 msgstr ""
 
@@ -1116,7 +1157,7 @@ msgid "Save Game"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: engine/ghostmanager.cpp:60
+#: engine/ghostmanager.cpp:61
 msgid "Save recorded ghost?"
 msgstr ""
 
@@ -1133,8 +1174,20 @@ msgid "ScrlLk"
 msgstr ""
 
 #. translators: TR charmap encoding
+#: hid/names.cpp:372
+msgctxt "MenuAction"
+msgid "Secondary Action"
+msgstr ""
+
+#. translators: TR charmap encoding
 #: ui/detailedlevelstats.cpp:46
 msgid "Secrets"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: hid/names.cpp:370
+msgctxt "MenuAction"
+msgid "Select"
 msgstr ""
 
 #. translators: TR charmap encoding
@@ -1144,7 +1197,7 @@ msgid "Shift"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/controlswidget.cpp:96
+#: menu/controlswidget.cpp:118
 msgid "Shortcuts"
 msgstr ""
 
@@ -1282,6 +1335,12 @@ msgstr ""
 #. translators: TR charmap encoding
 #: hid/names.cpp:133
 msgctxt "Keyboard|Key"
+msgid "Up"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: hid/names.cpp:362
+msgctxt "MenuAction"
 msgid "Up"
 msgstr ""
 

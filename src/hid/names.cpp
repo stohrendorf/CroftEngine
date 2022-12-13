@@ -352,8 +352,26 @@ std::string getName(Action action)
     return /* translators: TR charmap encoding */ pgettext("Action", "Cheat Dive");
   case Action::Screenshot:
     return /* translators: TR charmap encoding */ pgettext("Action", "Screenshot");
-  case Action::BugReport: 
+  case Action::BugReport:
     return /* translators: TR charmap encoding */ pgettext("Action", "Bug Report");
+  case Action::MenuLeft:
+    return /* translators: TR charmap encoding */ pgettext("MenuAction", "Left");
+  case Action::MenuRight:
+    return /* translators: TR charmap encoding */ pgettext("MenuAction", "Right");
+  case Action::MenuUp:
+    return /* translators: TR charmap encoding */ pgettext("MenuAction", "Up");
+  case Action::MenuDown:
+    return /* translators: TR charmap encoding */ pgettext("MenuAction", "Down");
+  case Action::PrevScreen:
+    return /* translators: TR charmap encoding */ pgettext("MenuAction", "Previous Tab/View");
+  case Action::NextScreen:
+    return /* translators: TR charmap encoding */ pgettext("MenuAction", "Next Tab/View");
+  case Action::PrimaryInteraction:
+    return /* translators: TR charmap encoding */ pgettext("MenuAction", "Select");
+  case Action::SecondaryInteraction:
+    return /* translators: TR charmap encoding */ pgettext("MenuAction", "Secondary Action");
+  case Action::Return:
+    return /* translators: TR charmap encoding */ pgettext("MenuAction", "Return");
   }
   BOOST_THROW_EXCEPTION(std::domain_error("action"));
 }
