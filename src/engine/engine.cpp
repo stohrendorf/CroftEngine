@@ -467,9 +467,11 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
           if(room.physicalId != ghostManager.model->getRoomId())
             continue;
 
+          setParent(gsl::not_null{ghostManager.model}, room.node);
+
           if(room.node->isVisible())
           {
-            setParent(gsl::not_null{ghostManager.model}, room.node);
+            // valid room selected
           }
           else if(room.alternateRoom != nullptr && room.alternateRoom->node->isVisible())
           {
@@ -479,7 +481,7 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
           {
             for(const auto& altRoom : world.getRooms())
             {
-              if(altRoom.alternateRoom != &room)
+              if(altRoom.alternateRoom != &room || !altRoom.node->isVisible())
                 continue;
 
               setParent(gsl::not_null{ghostManager.model}, altRoom.node);
