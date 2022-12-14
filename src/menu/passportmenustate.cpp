@@ -48,7 +48,7 @@ std::optional<std::unique_ptr<MenuState>> PassportMenuState::showLoadGamePage(en
     m_passportText = std::make_unique<ui::Text>(title);
   }
 
-  if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Action))
+  if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::PrimaryInteraction))
   {
     return create<SavegameListMenuState>(std::move(display.m_currentState), title, world, true);
   }
@@ -81,7 +81,7 @@ std::optional<std::unique_ptr<MenuState>> PassportMenuState::showSaveGamePage(en
     m_passportText = std::make_unique<ui::Text>(title);
   }
 
-  if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Action))
+  if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::PrimaryInteraction))
   {
     if(m_saveGamePageMode == SaveGamePageMode::Save)
     {
@@ -106,7 +106,7 @@ void PassportMenuState::showExitGamePage(engine::world::World& world, MenuDispla
                                                  : /* translators: TR charmap encoding */ _("Exit Game"));
   }
 
-  if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Action))
+  if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::PrimaryInteraction))
   {
     display.result = returnToTitle ? MenuResult::ExitToTitle : MenuResult::ExitGame;
   }
@@ -207,7 +207,7 @@ std::unique_ptr<MenuState> PassportMenuState::onFrame(ui::Ui& ui, engine::world:
       ui, world.getPresenter().getTrFont(), {(ui.getSize().x - m_passportText->getWidth()) / 2, ui.getSize().y - 16});
 
   if(forcePageTurn == hid::AxisMovement::Left
-     || world.getPresenter().getInputHandler().getInputState().xMovement.justChangedTo(hid::AxisMovement::Left))
+     || world.getPresenter().getInputHandler().getInputState().menuXMovement.justChangedTo(hid::AxisMovement::Left))
   {
     if(hasSavedGames)
     {
@@ -224,19 +224,19 @@ std::unique_ptr<MenuState> PassportMenuState::onFrame(ui::Ui& ui, engine::world:
     }
   }
   else if(forcePageTurn == hid::AxisMovement::Right
-          || world.getPresenter().getInputHandler().getInputState().xMovement.justChangedTo(hid::AxisMovement::Right))
+          || world.getPresenter().getInputHandler().getInputState().menuXMovement.justChangedTo(hid::AxisMovement::Right))
   {
     nextPage(passport, world);
     return nullptr;
   }
-  else if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Menu))
+  else if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Return))
   {
     if(!m_allowExit && display.mode != InventoryMode::TitleMode)
       return nullptr;
 
     return create<ClosePassportMenuState>(passport, create<IdleRingMenuState>(false));
   }
-  else if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Action))
+  else if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::PrimaryInteraction))
   {
     return create<ClosePassportMenuState>(passport, create<IdleRingMenuState>(false));
   }

@@ -670,35 +670,36 @@ std::unique_ptr<MenuState>
   m_tabs->draw(ui, world.getPresenter());
 
   const auto& listBox = m_listBoxes[m_tabs->getSelectedTab()];
-  if(world.getPresenter().getInputHandler().getInputState().zMovement.justChangedTo(hid::AxisMovement::Forward))
+  if(world.getPresenter().getInputHandler().getInputState().menuZMovement.justChangedTo(hid::AxisMovement::Forward))
   {
     if(!listBox->prevEntry())
     {
       listBox->setSelectedEntry(listBox->getEntryCount() - 1);
     }
   }
-  else if(world.getPresenter().getInputHandler().getInputState().zMovement.justChangedTo(hid::AxisMovement::Backward))
+  else if(world.getPresenter().getInputHandler().getInputState().menuZMovement.justChangedTo(
+            hid::AxisMovement::Backward))
   {
     if(!listBox->nextEntry())
     {
       listBox->setSelectedEntry(0);
     }
   }
-  else if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::StepLeft))
+  else if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::PrevScreen))
   {
     m_tabs->prevTab();
   }
-  else if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::StepRight))
+  else if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::NextScreen))
   {
     m_tabs->nextTab();
   }
-  else if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Action))
+  else if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::PrimaryInteraction))
   {
     const auto& [getter, toggler, checkbox] = listBox->getSelected();
     toggler();
     checkbox->setChecked(getter());
   }
-  else if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Menu))
+  else if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Return))
   {
     return std::move(m_previous);
   }
@@ -706,9 +707,9 @@ std::unique_ptr<MenuState>
             std::get<2>(listBox->getSelected())->getContent());
           tmp != nullptr)
   {
-    if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Left))
+    if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::MenuLeft))
       tmp->selectPrev();
-    else if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Right))
+    else if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::MenuRight))
       tmp->selectNext();
   }
 

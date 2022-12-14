@@ -80,16 +80,16 @@ std::unique_ptr<MenuState>
   m_sfxVolume->setValue(audioSettings.sfxVolume);
 
   const auto& inputHandler = world.getEngine().getPresenter().getInputHandler();
-  if(inputHandler.hasDebouncedAction(hid::Action::Menu))
+  if(inputHandler.hasDebouncedAction(hid::Action::Return))
     return std::move(m_previous);
 
-  if(inputHandler.hasDebouncedAction(hid::Action::Forward))
+  if(inputHandler.hasDebouncedAction(hid::Action::MenuUp))
   {
     auto [_, y] = m_grid->getSelected();
     if(y > 0)
       m_grid->setSelected({0, y - 1});
   }
-  if(inputHandler.hasDebouncedAction(hid::Action::Backward))
+  if(inputHandler.hasDebouncedAction(hid::Action::MenuDown))
   {
     auto [_, y] = m_grid->getSelected();
     if(y < std::get<1>(m_grid->getExtents()) - 1)
@@ -98,9 +98,9 @@ std::unique_ptr<MenuState>
 
   auto [_, row] = m_grid->getSelected();
   float delta = 0;
-  if(inputHandler.hasDebouncedAction(hid::Action::Right))
+  if(inputHandler.hasDebouncedAction(hid::Action::MenuRight))
     delta = Stepping;
-  else if(inputHandler.hasDebouncedAction(hid::Action::Left))
+  else if(inputHandler.hasDebouncedAction(hid::Action::MenuLeft))
     delta = -Stepping;
 
   std::shared_ptr<ui::widgets::ProgressBar> selected;

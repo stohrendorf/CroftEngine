@@ -62,7 +62,7 @@ std::unique_ptr<MenuState> SelectedMenuState::onFrame(ui::Ui& ui, engine::world:
     return nullptr;
 
   const bool autoSelect = MenuDisplay::doOptions(world, currentObject);
-  if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Menu))
+  if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Return))
   {
     if(display.rings.size() > 1 || !display.allowMenuClose)
     {
@@ -74,7 +74,7 @@ std::unique_ptr<MenuState> SelectedMenuState::onFrame(ui::Ui& ui, engine::world:
         DeflateRingMenuState::Direction::Backpack, create<DoneMenuState>(MenuResult::Closed))));
     }
   }
-  else if(autoSelect || world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Action))
+  else if(autoSelect || world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::PrimaryInteraction))
   {
     display.inventoryChosen = currentObject.type;
     if(display.mode == InventoryMode::TitleMode

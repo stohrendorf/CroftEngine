@@ -213,7 +213,7 @@ std::unique_ptr<MenuState> SavegameListMenuState::onFrame(ui::Ui& ui, engine::wo
 {
   if(m_overwriteConfirmation == nullptr)
   {
-    if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::StepLeft))
+    if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::PrevScreen))
     {
       switch(m_ordering)
       {
@@ -229,7 +229,7 @@ std::unique_ptr<MenuState> SavegameListMenuState::onFrame(ui::Ui& ui, engine::wo
       }
       sortEntries();
     }
-    else if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::StepRight))
+    else if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::NextScreen))
     {
       switch(m_ordering)
       {
@@ -254,12 +254,12 @@ std::unique_ptr<MenuState> SavegameListMenuState::onFrame(ui::Ui& ui, engine::wo
   m_overwriteConfirmation->setPosition({(ui.getSize().x - m_overwriteConfirmation->getSize().x) / 2,
                                         ui.getSize().y - m_overwriteConfirmation->getSize().y - 90});
 
-  if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Left)
-     || world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Right))
+  if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::MenuLeft)
+     || world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::MenuRight))
   {
     m_overwriteConfirmation->setConfirmed(!m_overwriteConfirmation->isConfirmed());
   }
-  else if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Action))
+  else if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::PrimaryInteraction))
   {
     if(m_overwriteConfirmation->isConfirmed())
     {

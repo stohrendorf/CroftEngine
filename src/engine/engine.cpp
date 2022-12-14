@@ -160,7 +160,7 @@ bool showLevelStats(const std::shared_ptr<Presenter>& presenter, world::World& w
       continue;
     }
 
-    if(presenter->getInputHandler().hasDebouncedAction(hid::Action::Holster))
+    if(presenter->getInputHandler().hasDebouncedAction(hid::Action::SecondaryInteraction))
       detailed = !detailed;
 
     ui::Ui ui{presenter->getMaterialManager()->getUi(), world.getPalette(), presenter->getUiViewport()};

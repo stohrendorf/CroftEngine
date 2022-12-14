@@ -58,7 +58,9 @@ struct InputState
   using Axis = DebouncedValue<AxisMovement>;
 
   Axis xMovement{AxisMovement::Null};
+  Axis menuXMovement{AxisMovement::Null};
   Axis zMovement{AxisMovement::Null};
+  Axis menuZMovement{AxisMovement::Null};
   Axis stepMovement{AxisMovement::Null};
 
   std::vector<std::pair<Action, Button>> actions{
@@ -92,6 +94,16 @@ struct InputState
       xMovement = AxisMovement::Null;
   }
 
+  void setMenuXAxisMovement(const bool left, const bool right)
+  {
+    if(!left && right)
+      menuXMovement = AxisMovement::Right;
+    else if(left && !right)
+      menuXMovement = AxisMovement::Left;
+    else
+      menuXMovement = AxisMovement::Null;
+  }
+
   void setStepMovement(const bool left, const bool right)
   {
     if(!left && right)
@@ -110,6 +122,16 @@ struct InputState
       zMovement = AxisMovement::Backward;
     else
       zMovement = AxisMovement::Null;
+  }
+
+  void setMenuZAxisMovement(const bool back, const bool forward)
+  {
+    if(!back && forward)
+      menuZMovement = AxisMovement::Forward;
+    else if(back && !forward)
+      menuZMovement = AxisMovement::Backward;
+    else
+      menuZMovement = AxisMovement::Null;
   }
 };
 } // namespace hid

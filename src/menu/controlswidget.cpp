@@ -268,7 +268,8 @@ void ControlsWidget::prevColumn()
 
 void ControlsWidget::updateBindings(
   const engine::NamedInputMappingConfig& mappingConfig,
-  const std::function<std::shared_ptr<ui::widgets::Widget>(const engine::InputMappingConfig&, hid::Action)>& factory)
+  const std::function<std::shared_ptr<ui::widgets::Widget>(
+    const engine::InputMappingConfig&, const engine::InputMappingConfig&, hid::Action)>& factory)
 {
   m_container->setTitle(mappingConfig.name);
   m_content->set(0,
@@ -282,7 +283,7 @@ void ControlsWidget::updateBindings(
     label->fitToContent();
     gridBox.set(x0, y, label);
 
-    auto widget = factory(mappingConfig.mappings, action);
+    auto widget = factory(mappingConfig.gameMappings, mappingConfig.menuMappings, action);
     widget->fitToContent();
     gridBox.set(x0 + 1, y, widget);
   };
@@ -338,5 +339,10 @@ hid::Action ControlsWidget::getCurrentAction() const
   default:
     BOOST_THROW_EXCEPTION(std::runtime_error("Invalid control group"));
   }
+}
+
+bool ControlsWidget::isMenuControlsSelected() const
+{
+  return std::get<1>(m_content->getSelected()) == 3;
 }
 } // namespace menu

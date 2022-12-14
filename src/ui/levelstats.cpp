@@ -47,8 +47,8 @@ void LevelStats::draw(Ui& ui) const
   }
 
   {
-    Text text{
-      /* translators: TR charmap encoding */ _("Use %1% to show detailed stats.", getName(hid::Action::Holster))};
+    Text text{/* translators: TR charmap encoding */ _("Use %1% to show detailed stats.",
+                                                       getName(hid::Action::SecondaryInteraction))};
     text.draw(ui, m_presenter->getTrFont(), center - glm::ivec2{text.getWidth() / 2, -130});
   }
 }

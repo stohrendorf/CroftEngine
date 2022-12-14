@@ -34,14 +34,16 @@ struct NamedInputMappingConfig
 {
   std::string name;
   std::string controllerType;
-  InputMappingConfig mappings;
+  InputMappingConfig gameMappings;
+  InputMappingConfig menuMappings;
 
   void serialize(const serialization::Serializer<EngineConfig>& ser);
   static NamedInputMappingConfig create(const serialization::Serializer<EngineConfig>& ser);
 
   bool operator==(const NamedInputMappingConfig& rhs) const
   {
-    return name == rhs.name && controllerType == rhs.controllerType && mappings == rhs.mappings;
+    return name == rhs.name && controllerType == rhs.controllerType && gameMappings == rhs.gameMappings
+           && menuMappings == rhs.menuMappings;
   }
 };
 

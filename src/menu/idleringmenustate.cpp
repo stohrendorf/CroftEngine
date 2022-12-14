@@ -45,21 +45,21 @@ std::unique_ptr<MenuState> IdleRingMenuState::onFrame(ui::Ui& ui, engine::world:
     MenuDisplay::drawMenuObjectDescription(ui, world, currentObject);
   }
 
-  if(presenter.getInputHandler().getInputState().xMovement == hid::AxisMovement::Right
+  if(presenter.getInputHandler().getInputState().menuXMovement == hid::AxisMovement::Right
      && display.getCurrentRing().list.size() > 1)
   {
     world.getAudioEngine().playSoundEffect(engine::TR1SoundEffect::MenuMove, nullptr);
     return create<RotateLeftRightMenuState>(true, display.getCurrentRing(), std::move(display.m_currentState));
   }
 
-  if(presenter.getInputHandler().getInputState().xMovement == hid::AxisMovement::Left
+  if(presenter.getInputHandler().getInputState().menuXMovement == hid::AxisMovement::Left
      && display.getCurrentRing().list.size() > 1)
   {
     world.getAudioEngine().playSoundEffect(engine::TR1SoundEffect::MenuMove, nullptr);
     return create<RotateLeftRightMenuState>(false, display.getCurrentRing(), std::move(display.m_currentState));
   }
 
-  if(presenter.getInputHandler().hasDebouncedAction(hid::Action::Menu) && display.allowMenuClose)
+  if(presenter.getInputHandler().hasDebouncedAction(hid::Action::Return) && display.allowMenuClose)
   {
     world.getAudioEngine().playSoundEffect(engine::TR1SoundEffect::MenuOptionEscape, nullptr);
     display.inventoryChosen.reset();
@@ -67,7 +67,7 @@ std::unique_ptr<MenuState> IdleRingMenuState::onFrame(ui::Ui& ui, engine::world:
                                         create<DoneMenuState>(MenuResult::Closed));
   }
 
-  if(m_autoSelect || presenter.getInputHandler().hasDebouncedAction(hid::Action::Action))
+  if(m_autoSelect || presenter.getInputHandler().hasDebouncedAction(hid::Action::PrimaryInteraction))
   {
     display.passOpen = true;
 
@@ -100,13 +100,13 @@ std::unique_ptr<MenuState> IdleRingMenuState::onFrame(ui::Ui& ui, engine::world:
     return create<ApplyItemTransformMenuState>();
   }
 
-  if(presenter.getInputHandler().getInputState().zMovement.justChangedTo(hid::AxisMovement::Forward)
+  if(presenter.getInputHandler().getInputState().menuZMovement.justChangedTo(hid::AxisMovement::Forward)
      && display.currentRingIndex > 0)
   {
     return create<DeflateRingMenuState>(DeflateRingMenuState::Direction::Down,
                                         create<SwitchRingMenuState>(display.currentRingIndex - 1, false));
   }
-  else if(presenter.getInputHandler().getInputState().zMovement.justChangedTo(hid::AxisMovement::Backward)
+  else if(presenter.getInputHandler().getInputState().menuZMovement.justChangedTo(hid::AxisMovement::Backward)
           && display.currentRingIndex + 1 < display.rings.size())
   {
     return create<DeflateRingMenuState>(DeflateRingMenuState::Direction::Up,

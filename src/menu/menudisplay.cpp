@@ -253,16 +253,16 @@ bool MenuDisplay::doOptions(engine::world::World& world, MenuObject& object)
     BOOST_THROW_EXCEPTION(std::runtime_error("Gamma options are not implemented"));
     break;
   case engine::TR1ItemId::Compass:
-    if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Menu)
-       || world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Action))
+    if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Return)
+       || world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::PrimaryInteraction))
     {
       object.animDirection = 1_frame;
       object.goalFrame = object.lastMeshAnimFrame - 1_frame;
     }
     break;
   default:
-    if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Menu)
-       || world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Action))
+    if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Return)
+       || world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::PrimaryInteraction))
     {
       object.animDirection = -1_frame;
       object.goalFrame = 0_frame;

@@ -165,7 +165,9 @@ void InputHandler::update()
     for(auto& [action, button] : m_inputState.actions)
       button = false;
     m_inputState.setXAxisMovement(false, false);
+    m_inputState.setMenuXAxisMovement(false, false);
     m_inputState.setZAxisMovement(false, false);
+    m_inputState.setMenuZAxisMovement(false, false);
     m_inputState.setStepMovement(false, false);
     return;
   }
@@ -214,9 +216,28 @@ void InputHandler::update()
   }
 
   std::vector<std::pair<Action, bool>> newActionStates{};
-  newActionStates.reserve(m_mergedInputMappings.size());
+  newActionStates.reserve(m_mergedGameInputMappings.size() + m_mergedMenuInputMappings.size());
 
-  for(const auto& [input, action] : m_mergedInputMappings)
+  for(const auto& [input, action] : m_mergedGameInputMappings)
+  {
+    auto& state = util::getOrCreate(newActionStates, action.value);
+
+    if(std::holds_alternative<engine::NamedGlfwGamepadButton>(input))
+    {
+      state |= util::containsUnique(pressedButtons, std::get<engine::NamedGlfwGamepadButton>(input).value);
+    }
+    else if(std::holds_alternative<engine::NamedGlfwKey>(input))
+    {
+      state |= isKeyPressed(std::get<engine::NamedGlfwKey>(input).value);
+    }
+    else
+    {
+      const auto mapped = std::get<engine::NamedAxisDir>(input);
+      state |= util::containsUnique(pressedAxes, {mapped.first.value, mapped.second.value});
+    }
+  }
+
+  for(const auto& [input, action] : m_mergedMenuInputMappings)
   {
     auto& state = util::getOrCreate(newActionStates, action.value);
 
@@ -247,8 +268,12 @@ void InputHandler::update()
 
   m_inputState.setXAxisMovement(util::getOrCreate(m_inputState.actions, Action::Left),
                                 util::getOrCreate(m_inputState.actions, Action::Right));
+  m_inputState.setMenuXAxisMovement(util::getOrCreate(m_inputState.actions, Action::MenuLeft),
+                                    util::getOrCreate(m_inputState.actions, Action::MenuRight));
   m_inputState.setZAxisMovement(util::getOrCreate(m_inputState.actions, Action::Backward),
                                 util::getOrCreate(m_inputState.actions, Action::Forward));
+  m_inputState.setMenuZAxisMovement(util::getOrCreate(m_inputState.actions, Action::MenuDown),
+                                    util::getOrCreate(m_inputState.actions, Action::MenuUp));
   m_inputState.setStepMovement(util::getOrCreate(m_inputState.actions, Action::StepLeft),
                                util::getOrCreate(m_inputState.actions, Action::StepRight));
 }
@@ -256,13 +281,22 @@ void InputHandler::update()
 void InputHandler::setMappings(const std::vector<engine::NamedInputMappingConfig>& inputMappings)
 {
   m_inputMappings = inputMappings;
-  m_mergedInputMappings.clear();
 
+  m_mergedGameInputMappings.clear();
   for(const auto& mapping : m_inputMappings)
   {
-    for(const auto& [input, action] : mapping.mappings)
+    for(const auto& [input, action] : mapping.gameMappings)
     {
-      gsl_Assert(m_mergedInputMappings.insert({input, action}).second);
+      gsl_Assert(m_mergedGameInputMappings.insert({input, action}).second);
+    }
+  }
+
+  m_mergedMenuInputMappings.clear();
+  for(const auto& mapping : m_inputMappings)
+  {
+    for(const auto& [input, action] : mapping.menuMappings)
+    {
+      gsl_Assert(m_mergedMenuInputMappings.insert({input, action}).second);
     }
   }
 }

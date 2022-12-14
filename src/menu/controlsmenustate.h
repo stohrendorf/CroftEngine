@@ -59,7 +59,7 @@ private:
   Mode m_mode = Mode::Display;
 
   void handleDisplayInput(engine::world::World& world);
-  void handleChangeKeyInput(engine::world::World& world);
+  void handleChangeKeyInput(engine::world::World& newInput);
   void handleConfirmInput(engine::world::World& world);
   void handleErrorInput(engine::world::World& world);
 

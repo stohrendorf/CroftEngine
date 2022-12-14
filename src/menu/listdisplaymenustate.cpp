@@ -34,27 +34,28 @@ std::unique_ptr<MenuState> ListDisplayMenuState::onFrame(ui::Ui& ui, engine::wor
 {
   draw(ui, world, display);
 
-  if(world.getPresenter().getInputHandler().getInputState().zMovement.justChangedTo(hid::AxisMovement::Forward))
+  if(world.getPresenter().getInputHandler().getInputState().menuZMovement.justChangedTo(hid::AxisMovement::Forward))
   {
     m_listBox->prevEntry();
   }
-  else if(world.getPresenter().getInputHandler().getInputState().zMovement.justChangedTo(hid::AxisMovement::Backward))
+  else if(world.getPresenter().getInputHandler().getInputState().menuZMovement.justChangedTo(
+            hid::AxisMovement::Backward))
   {
     m_listBox->nextEntry();
   }
-  if(world.getPresenter().getInputHandler().getInputState().xMovement.justChangedTo(hid::AxisMovement::Left))
+  if(world.getPresenter().getInputHandler().getInputState().menuXMovement.justChangedTo(hid::AxisMovement::Left))
   {
     m_listBox->prevPage();
   }
-  else if(world.getPresenter().getInputHandler().getInputState().xMovement.justChangedTo(hid::AxisMovement::Right))
+  else if(world.getPresenter().getInputHandler().getInputState().menuXMovement.justChangedTo(hid::AxisMovement::Right))
   {
     m_listBox->nextPage();
   }
-  else if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Action))
+  else if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::PrimaryInteraction))
   {
     return onSelected(m_listBox->getSelected(), world, display);
   }
-  else if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Menu))
+  else if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Return))
   {
     return onAborted();
   }

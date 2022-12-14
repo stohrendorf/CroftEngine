@@ -54,6 +54,8 @@ std::vector<NamedInputMappingConfig> getDefaultMappings()
         {GlfwKey::E, Action::StepRight},
         {GlfwKey::F12, Action::Screenshot},
         {GlfwKey::F1, Action::BugReport},
+      },
+      {
         {GlfwKey::A, Action::MenuLeft},
         {GlfwKey::D, Action::MenuRight},
         {GlfwKey::W, Action::MenuUp},
@@ -83,6 +85,8 @@ std::vector<NamedInputMappingConfig> getDefaultMappings()
         {GlfwGamepadButton::DPadDown, Action::Backward},
         {NamedAxisDir{GlfwAxis::LeftTrigger, GlfwAxisDir::Positive}, Action::StepLeft},
         {NamedAxisDir{GlfwAxis::RightTrigger, GlfwAxisDir::Positive}, Action::StepRight},
+      },
+      {
         {GlfwGamepadButton::DPadLeft, Action::MenuLeft},
         {GlfwGamepadButton::DPadRight, Action::MenuRight},
         {GlfwGamepadButton::DPadUp, Action::MenuUp},
@@ -100,7 +104,10 @@ std::vector<NamedInputMappingConfig> getDefaultMappings()
 
 void NamedInputMappingConfig::serialize(const serialization::Serializer<EngineConfig>& ser)
 {
-  ser(S_NV("name", name), S_NV("controllerType", controllerType), S_NV("mappings", mappings));
+  ser(S_NV("name", name),
+      S_NV("controllerType", controllerType),
+      S_NV("gameMappings", gameMappings),
+      S_NV("menuMappings", menuMappings));
 }
 
 NamedInputMappingConfig NamedInputMappingConfig::create(const serialization::Serializer<EngineConfig>& ser)

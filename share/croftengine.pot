@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CroftEngine 1.12\n"
 "Report-Msgid-Bugs-To: https://github.com/stohrendorf/CroftEngine/issues\n"
-"POT-Creation-Date: 2022-12-13 10:50+0100\n"
+"POT-Creation-Date: 2022-12-14 02:09+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -170,7 +170,7 @@ msgid "Alt"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/controlsmenustate.cpp:170
+#: menu/controlsmenustate.cpp:178
 msgid "Apply changes?"
 msgstr ""
 
@@ -268,6 +268,12 @@ msgid "CapsLk"
 msgstr ""
 
 #. translators: TR charmap encoding
+#: menu/controlsmenustate.cpp:205
+#, boost-format
+msgid "Change Button Images: %1%"
+msgstr ""
+
+#. translators: TR charmap encoding
 #: hid/names.cpp:352
 msgctxt "Action"
 msgid "Cheat Dive"
@@ -290,7 +296,7 @@ msgid "Contrast \037l %1% \037m"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/controlswidget.cpp:277
+#: menu/controlswidget.cpp:278
 #, boost-format
 msgid "Controller Type: %1%"
 msgstr ""
@@ -334,12 +340,12 @@ msgid "Detail Levels"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/controlsmenustate.cpp:179
+#: menu/controlsmenustate.cpp:185
 msgid "Discard changes"
 msgstr ""
 
 #. translators: TR charcmap encoding
-#: menu/controlsmenustate.cpp:132
+#: menu/controlsmenustate.cpp:140
 msgctxt "GamepadAxis"
 msgid "Down"
 msgstr ""
@@ -398,6 +404,12 @@ msgid "Edge Outlines"
 msgstr ""
 
 #. translators: TR charmap encoding
+#: menu/controlsmenustate.cpp:200
+#, boost-format
+msgid "Edit Mapping: %1%"
+msgstr ""
+
+#. translators: TR charmap encoding
 #: menu/audiosettingsmenustate.cpp:64 menu/rendersettingsmenustate.cpp:147
 msgid "Effects"
 msgstr ""
@@ -409,11 +421,10 @@ msgid "End"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/controlsmenustate.cpp:175
-#, boost-format
+#: menu/controlsmenustate.cpp:183
 msgid ""
-"Ensure your mapping contains all\n"
-"movement directions, %1% and %2%."
+"Ensure your menu mapping\n"
+"is fully configured."
 msgstr ""
 
 #. translators: TR charmap encoding
@@ -487,7 +498,7 @@ msgstr ""
 msgid "Game"
 msgstr ""
 
-#: engine/engineconfig.cpp:70
+#: engine/engineconfig.cpp:72
 msgctxt "Input|MappingName"
 msgid "Gamepad"
 msgstr ""
@@ -670,7 +681,7 @@ msgid "Left"
 msgstr ""
 
 #. translators: TR charcmap encoding
-#: menu/controlsmenustate.cpp:125
+#: menu/controlsmenustate.cpp:133
 msgctxt "GamepadAxis"
 msgid "Left"
 msgstr ""
@@ -797,8 +808,8 @@ msgid "N"
 msgstr ""
 
 #. translators: TR charcmap encoding
-#: menu/controlsmenustate.cpp:77 menu/controlsmenustate.cpp:92
-#: menu/controlsmenustate.cpp:104
+#: menu/controlsmenustate.cpp:85 menu/controlsmenustate.cpp:100
+#: menu/controlsmenustate.cpp:112
 msgctxt "ButtonAssignment"
 msgid "N/A"
 msgstr ""
@@ -821,7 +832,7 @@ msgid "NmLk"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/controlsmenustate.cpp:172 ui/widgets/messagebox.cpp:15
+#: menu/controlsmenustate.cpp:180 ui/widgets/messagebox.cpp:15
 msgid "No"
 msgstr ""
 
@@ -832,7 +843,7 @@ msgid "O"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/controlsmenustate.cpp:178
+#: menu/controlsmenustate.cpp:184
 msgid "OK"
 msgstr ""
 
@@ -967,7 +978,7 @@ msgid "Padx"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/listdisplaymenustate.cpp:84
+#: menu/listdisplaymenustate.cpp:85
 #, boost-format
 msgctxt "PagedList"
 msgid "Page %1% of %2%"
@@ -1071,6 +1082,18 @@ msgid "RThumb"
 msgstr ""
 
 #. translators: TR charmap encoding
+#: menu/controlsmenustate.cpp:209
+#, boost-format
+msgid "Remove Mapping: Hold %1% for %2% seconds"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/controlsmenustate.cpp:215
+#, boost-format
+msgid "Reset All Mappings: Hold %1% for %2% seconds"
+msgstr ""
+
+#. translators: TR charmap encoding
 #: menu/passportmenustate.cpp:75
 msgid "Restart Level"
 msgstr ""
@@ -1087,7 +1110,7 @@ msgid "Ret"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/controlsmenustate.cpp:173
+#: menu/controlsmenustate.cpp:181
 msgid "Return"
 msgstr ""
 
@@ -1104,7 +1127,7 @@ msgid "Right"
 msgstr ""
 
 #. translators: TR charcmap encoding
-#: menu/controlsmenustate.cpp:126
+#: menu/controlsmenustate.cpp:134
 msgctxt "GamepadAxis"
 msgid "Right"
 msgstr ""
@@ -1268,6 +1291,12 @@ msgid "Super"
 msgstr ""
 
 #. translators: TR charmap encoding
+#: menu/controlsmenustate.cpp:196
+#, boost-format
+msgid "Switch Profile: %1% and %2%"
+msgstr ""
+
+#. translators: TR charmap encoding
 #: hid/names.cpp:93
 msgctxt "Keyboard|Key"
 msgid "T"
@@ -1297,37 +1326,13 @@ msgid "Time Taken"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/controlsmenustate.cpp:195
-#, boost-format
-msgid "To change a mapping, use %1%."
-msgstr ""
-
-#. translators: TR charmap encoding
-#: menu/controlsmenustate.cpp:199
-#, boost-format
-msgid "To change the controller type, use %1%."
-msgstr ""
-
-#. translators: TR charmap encoding
-#: menu/controlsmenustate.cpp:204
-#, boost-format
-msgid "To remove a mapping, hold %1% for %2% seconds."
-msgstr ""
-
-#. translators: TR charmap encoding
-#: menu/controlsmenustate.cpp:210
-#, boost-format
-msgid "To reset all mappings, hold %1% for %2% seconds."
-msgstr ""
-
-#. translators: TR charmap encoding
 #: hid/names.cpp:95
 msgctxt "Keyboard|Key"
 msgid "U"
 msgstr ""
 
 #. translators: TR charcmap encoding
-#: menu/controlsmenustate.cpp:131
+#: menu/controlsmenustate.cpp:139
 msgctxt "GamepadAxis"
 msgid "Up"
 msgstr ""
@@ -1342,12 +1347,6 @@ msgstr ""
 #: hid/names.cpp:362
 msgctxt "MenuAction"
 msgid "Up"
-msgstr ""
-
-#. translators: TR charmap encoding
-#: menu/controlsmenustate.cpp:189
-#, boost-format
-msgid "Use %1% and %2% to edit other profiles."
 msgstr ""
 
 #. translators: TR charmap encoding
@@ -1419,7 +1418,7 @@ msgid "Y"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/controlsmenustate.cpp:171 ui/widgets/messagebox.cpp:14
+#: menu/controlsmenustate.cpp:179 ui/widgets/messagebox.cpp:14
 msgid "Yes"
 msgstr ""
 

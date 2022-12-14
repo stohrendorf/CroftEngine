@@ -75,6 +75,7 @@ private:
   InputState m_inputState{};
   const gslu::nn_shared<gl::Window> m_window;
   std::vector<engine::NamedInputMappingConfig> m_inputMappings{};
-  engine::InputMappingConfig m_mergedInputMappings{};
+  engine::InputMappingConfig m_mergedGameInputMappings{};
+  engine::InputMappingConfig m_mergedMenuInputMappings{};
 };
 } // namespace hid

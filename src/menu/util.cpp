@@ -29,7 +29,7 @@ void rotateForSelection(MenuObject& object)
 
 void idleRotation(engine::world::World& world, MenuObject& object, bool force)
 {
-  if(force || world.getPresenter().getInputHandler().getInputState().xMovement == hid::AxisMovement::Null)
+  if(force || world.getPresenter().getInputHandler().getInputState().menuXMovement == hid::AxisMovement::Null)
   {
     object.rotationY += 256_au * 2;
   }

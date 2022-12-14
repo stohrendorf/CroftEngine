@@ -27,7 +27,7 @@ CompassMenuState::CompassMenuState(const std::shared_ptr<MenuRingTransform>& rin
 std::unique_ptr<MenuState> CompassMenuState::onFrame(ui::Ui& ui, engine::world::World& world, MenuDisplay& display)
 {
   const auto& inputHandler = world.getEngine().getPresenter().getInputHandler();
-  if(inputHandler.hasDebouncedAction(hid::Action::Menu))
+  if(inputHandler.hasDebouncedAction(hid::Action::Return))
   {
     auto& object = display.getCurrentRing().getSelectedObject();
     object.animDirection = -1_frame;

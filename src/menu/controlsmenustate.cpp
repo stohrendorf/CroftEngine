@@ -23,6 +23,7 @@
 #include "ui/widgets/sprite.h"
 
 #include <boost/format.hpp>
+#include <boost/log/trivial.hpp>
 #include <boost/throw_exception.hpp>
 #include <chrono>
 #include <functional>
@@ -46,10 +47,10 @@ namespace menu
 {
 namespace
 {
-constexpr auto EditAction = hid::Action::Action;
-constexpr auto ChangeControllerTypeAction = hid::Action::Holster;
-constexpr auto PrevProfileAction = hid::Action::StepLeft;
-constexpr auto NextProfileAction = hid::Action::StepRight;
+constexpr auto EditAction = hid::Action::PrimaryInteraction;
+constexpr auto ChangeControllerTypeAction = hid::Action::SecondaryInteraction;
+constexpr auto PrevProfileAction = hid::Action::PrevScreen;
+constexpr auto NextProfileAction = hid::Action::NextScreen;
 constexpr auto BlinkPeriod = std::chrono::milliseconds{500};
 
 template<typename T, typename U>
@@ -64,13 +65,20 @@ std::vector<T> getKeys(const std::map<T, U>& map, const U& needle)
   return keys;
 }
 
-std::function<std::shared_ptr<ui::widgets::Widget>(const engine::InputMappingConfig&, hid::Action)>
+std::function<std::shared_ptr<ui::widgets::Widget>(
+  const engine::InputMappingConfig&, const engine::InputMappingConfig&, hid::Action)>
   getButtonFactory(const engine::world::World& world, const std::string& controllerLayoutName)
 {
-  return [controllerLayoutName, &world](const engine::InputMappingConfig& mappingConfig,
+  return [controllerLayoutName, &world](const engine::InputMappingConfig& gameMappingConfig,
+                                        const engine::InputMappingConfig& menuMappingConfig,
                                         hid::Action action) -> std::shared_ptr<ui::widgets::Widget>
   {
-    const auto keys = getKeys(mappingConfig, engine::NamedAction{action});
+    auto gameKeys = getKeys(gameMappingConfig, engine::NamedAction{action});
+    auto menuKeys = getKeys(menuMappingConfig, engine::NamedAction{action});
+
+    auto keys = gameKeys;
+    keys.insert(keys.end(), menuKeys.cbegin(), menuKeys.cend());
+
     if(keys.empty())
     {
       return std::make_shared<ui::widgets::Label>(
@@ -172,9 +180,7 @@ ControlsMenuState::ControlsMenuState(const std::shared_ptr<MenuRingTransform>& r
                                  /* translators: TR charmap encoding */ _("No"),
                                  /* translators: TR charmap encoding */ _("Return")})}
     , m_error{std::make_shared<ui::widgets::SelectionBox>(
-        /* translators: TR charmap encoding */ _("Ensure your mapping contains all\nmovement directions, %1% and %2%.",
-                                                 hid::getName(hid::Action::Action),
-                                                 hid::getName(hid::Action::Menu)),
+        /* translators: TR charmap encoding */ _("Ensure your menu mapping\nis fully configured."),
         std::vector<std::string>{/* translators: TR charmap encoding */ _("OK"),
                                  /* translators: TR charmap encoding */ _("Discard changes")})}
 {
@@ -186,28 +192,27 @@ ControlsMenuState::ControlsMenuState(const std::shared_ptr<MenuRingTransform>& r
   m_layout->set(0,
                 1,
                 std::make_shared<ui::widgets::Label>(
-                  /* translators: TR charmap encoding */ _("Use %1% and %2% to edit other profiles.",
-                                                           hid::getName(PrevProfileAction),
-                                                           hid::getName(NextProfileAction))));
+                  /* translators: TR charmap encoding */ _(
+                    "Switch Profile: %1% and %2%", hid::getName(PrevProfileAction), hid::getName(NextProfileAction))));
   m_layout->set(0,
                 2,
                 std::make_shared<ui::widgets::Label>(
-                  /* translators: TR charmap encoding */ _("To change a mapping, use %1%.", hid::getName(EditAction))));
-  m_layout->set(0,
-                3,
-                std::make_shared<ui::widgets::Label>(
-                  /* translators: TR charmap encoding */ _("To change the controller type, use %1%.",
-                                                           hid::getName(ChangeControllerTypeAction))));
+                  /* translators: TR charmap encoding */ _("Edit Mapping: %1%", hid::getName(EditAction))));
+  m_layout->set(
+    0,
+    3,
+    std::make_shared<ui::widgets::Label>(
+      /* translators: TR charmap encoding */ _("Change Button Images: %1%", hid::getName(ChangeControllerTypeAction))));
   m_layout->set(0,
                 4,
                 std::make_shared<ui::widgets::Label>(
-                  /* translators: TR charmap encoding */ _("To remove a mapping, hold %1% for %2% seconds.",
+                  /* translators: TR charmap encoding */ _("Remove Mapping: Hold %1% for %2% seconds",
                                                            hid::getName(m_deleteKey.getKey()),
                                                            m_deleteKey.getDelay().count())));
   m_layout->set(0,
                 5,
                 std::make_shared<ui::widgets::Label>(
-                  /* translators: TR charmap encoding */ _("To reset all mappings, hold %1% for %2% seconds.",
+                  /* translators: TR charmap encoding */ _("Reset All Mappings: Hold %1% for %2% seconds",
                                                            hid::getName(m_resetKey.getKey()),
                                                            m_resetKey.getDelay().count())));
   m_confirm->fitToContent();
@@ -216,7 +221,7 @@ ControlsMenuState::ControlsMenuState(const std::shared_ptr<MenuRingTransform>& r
 
 std::unique_ptr<MenuState> ControlsMenuState::onFrame(ui::Ui& ui, engine::world::World& world, MenuDisplay& /*display*/)
 {
-  if(m_mode == Mode::Display && world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Menu))
+  if(m_mode == Mode::Display && world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Return))
   {
     if(m_editing == world.getEngine().getEngineConfig()->inputMappings)
     {
@@ -227,14 +232,17 @@ std::unique_ptr<MenuState> ControlsMenuState::onFrame(ui::Ui& ui, engine::world:
       bool validMapping = true;
       for(const auto& profiles : m_editing)
       {
-        for(const auto required : {hid::Action::Forward,
-                                   hid::Action::Backward,
-                                   hid::Action::Left,
-                                   hid::Action::Right,
-                                   hid::Action::Action,
-                                   hid::Action::Menu})
+        for(const auto required : {hid::Action::MenuLeft,
+                                   hid::Action::MenuRight,
+                                   hid::Action::MenuUp,
+                                   hid::Action::MenuDown,
+                                   hid::Action::PrevScreen,
+                                   hid::Action::NextScreen,
+                                   hid::Action::PrimaryInteraction,
+                                   hid::Action::SecondaryInteraction,
+                                   hid::Action::Return})
         {
-          validMapping &= !getKeys(profiles.mappings, engine::NamedAction{required}).empty();
+          validMapping &= !getKeys(profiles.menuMappings, engine::NamedAction{required}).empty();
         }
       }
       if(validMapping)
@@ -321,9 +329,10 @@ void ControlsMenuState::handleDisplayInput(engine::world::World& world)
   if(m_deleteKey.update(world.getPresenter().getInputHandler()))
   {
     auto& mapping = m_editing.at(m_editingIndex);
-    auto keys = getKeys(mapping.mappings, engine::NamedAction{m_controls->getCurrentAction()});
-    for(auto key : keys)
-      mapping.mappings.erase(key);
+    auto& inputMappings = m_controls->isMenuControlsSelected() ? mapping.menuMappings : mapping.gameMappings;
+    auto inputs = getKeys(inputMappings, engine::NamedAction{m_controls->getCurrentAction()});
+    for(auto input : inputs)
+      inputMappings.erase(input);
     m_controls->updateBindings(mapping, getButtonFactory(world, mapping.controllerType));
   }
 
@@ -361,19 +370,19 @@ void ControlsMenuState::handleDisplayInput(engine::world::World& world)
                                getButtonFactory(world, m_editing.at(m_editingIndex).controllerType));
   }
 
-  if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Backward))
+  if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::MenuDown))
   {
     m_controls->nextRow();
   }
-  if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Forward))
+  if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::MenuUp))
   {
     m_controls->prevRow();
   }
-  if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Right))
+  if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::MenuRight))
   {
     m_controls->nextColumn();
   }
-  if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Left))
+  if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::MenuLeft))
   {
     m_controls->prevColumn();
   }
@@ -389,60 +398,66 @@ void ControlsMenuState::handleDisplayInput(engine::world::World& world)
 
 void ControlsMenuState::handleChangeKeyInput(engine::world::World& world)
 {
-  auto setMapping = [&](const auto& button)
+  auto setInput = [&](const auto& newInput)
   {
-    // it's fine to assign the same button to the same action in different profiles;
-    // otherwise, remove the mapped button from all profiles before assigning it to the new action
-    bool hasDifferentAssignments
+    // it's fine to assign the same input to the same action in different profiles;
+    // otherwise, remove the mapped input from all profiles before assigning it to the new action
+    auto mappingGroup = m_controls->isMenuControlsSelected() ? &engine::NamedInputMappingConfig::menuMappings
+                                                             : &engine::NamedInputMappingConfig::gameMappings;
+
+    BOOST_LOG_TRIVIAL(debug) << "setInput: isMenuControlsSelected=" << m_controls->isMenuControlsSelected();
+    const bool hasDifferentBindings
       = std::any_of(m_editing.begin(),
                     m_editing.end(),
-                    [this, &button](const engine::NamedInputMappingConfig& mapping)
+                    [this, &newInput, &mappingGroup](const engine::NamedInputMappingConfig& mapping)
                     {
-                      auto it = mapping.mappings.find(button);
-                      return it != mapping.mappings.end() && it->second != m_controls->getCurrentAction();
+                      auto it = (mapping.*mappingGroup).find(newInput);
+                      return it != (mapping.*mappingGroup).end() && it->second != m_controls->getCurrentAction();
                     });
-    if(hasDifferentAssignments)
+    BOOST_LOG_TRIVIAL(debug) << "setInput: hasDifferentBindings=" << hasDifferentBindings;
+    if(hasDifferentBindings)
     {
       for(auto& mapping : m_editing)
       {
-        mapping.mappings.erase(button);
+        (mapping.*mappingGroup).erase(newInput);
       }
     }
 
     auto& mapping = m_editing.at(m_editingIndex);
-    auto keys = getKeys(mapping.mappings, engine::NamedAction{m_controls->getCurrentAction()});
-    for(auto key : keys)
-      mapping.mappings.erase(key);
-    mapping.mappings[button] = m_controls->getCurrentAction();
+    auto boundInputs = getKeys((mapping.*mappingGroup), engine::NamedAction{m_controls->getCurrentAction()});
+    for(auto boundInput : boundInputs)
+      (mapping.*mappingGroup).erase(boundInput);
+    (mapping.*mappingGroup)[newInput] = m_controls->getCurrentAction();
     m_mode = Mode::Display;
     m_controls->updateBindings(mapping, getButtonFactory(world, mapping.controllerType));
   };
 
   if(const auto newKey = world.getPresenter().getInputHandler().takeRecentlyPressedKey())
   {
-    setMapping(*newKey);
+    setInput(*newKey);
   }
   else if(const auto newButton = world.getPresenter().getInputHandler().takeRecentlyPressedButton())
   {
-    setMapping(*newButton);
+    setInput(*newButton);
   }
   else if(const auto newAxis = world.getPresenter().getInputHandler().takeRecentlyPressedAxis())
   {
-    setMapping(*newAxis);
+    setInput(*newAxis);
   }
 }
 
 void ControlsMenuState::handleConfirmInput(engine::world::World& world)
 {
-  if(world.getPresenter().getInputHandler().getInputState().zMovement.justChangedTo(hid::AxisMovement::Backward))
+  if(world.getPresenter().getInputHandler().getInputState().menuZMovement.justChangedTo(hid::AxisMovement::Backward))
   {
     m_confirm->next();
   }
-  else if(world.getPresenter().getInputHandler().getInputState().zMovement.justChangedTo(hid::AxisMovement::Forward))
+  else if(world.getPresenter().getInputHandler().getInputState().menuZMovement.justChangedTo(
+            hid::AxisMovement::Forward))
   {
     m_confirm->prev();
   }
-  else if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Action))
+  else if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::PrimaryInteraction))
   {
     switch(m_confirm->getSelected())
     {
@@ -463,15 +478,16 @@ void ControlsMenuState::handleConfirmInput(engine::world::World& world)
 
 void ControlsMenuState::handleErrorInput(engine::world::World& world)
 {
-  if(world.getPresenter().getInputHandler().getInputState().zMovement.justChangedTo(hid::AxisMovement::Backward))
+  if(world.getPresenter().getInputHandler().getInputState().menuZMovement.justChangedTo(hid::AxisMovement::Backward))
   {
     m_error->next();
   }
-  else if(world.getPresenter().getInputHandler().getInputState().zMovement.justChangedTo(hid::AxisMovement::Forward))
+  else if(world.getPresenter().getInputHandler().getInputState().menuZMovement.justChangedTo(
+            hid::AxisMovement::Forward))
   {
     m_error->prev();
   }
-  else if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Action))
+  else if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::PrimaryInteraction))
   {
     switch(m_error->getSelected())
     {

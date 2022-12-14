@@ -50,7 +50,7 @@ void Block::collide(CollisionInfo& /*collisionInfo*/)
 
   if(getWorld().getObjectManager().getLara().getCurrentAnimState() == loader::file::LaraStateId::Stop)
   {
-    if(getWorld().getPresenter().getInputHandler().getInputState().zMovement != hid::AxisMovement::Null
+    if(getWorld().getPresenter().getInputHandler().getInputState().menuZMovement != hid::AxisMovement::Null
        || getWorld().getObjectManager().getLara().getHandStatus() != HandStatus::None)
     {
       return;
@@ -109,7 +109,7 @@ void Block::collide(CollisionInfo& /*collisionInfo*/)
     return;
   }
 
-  if(getWorld().getPresenter().getInputHandler().getInputState().zMovement == hid::AxisMovement::Forward)
+  if(getWorld().getPresenter().getInputHandler().getInputState().menuZMovement == hid::AxisMovement::Forward)
   {
     if(!canPushBlock(1_sectors, axis))
     {
@@ -119,7 +119,7 @@ void Block::collide(CollisionInfo& /*collisionInfo*/)
     m_state.goal_anim_state = 2_as;
     getWorld().getObjectManager().getLara().setGoalAnimState(loader::file::LaraStateId::PushablePush);
   }
-  else if(getWorld().getPresenter().getInputHandler().getInputState().zMovement == hid::AxisMovement::Backward)
+  else if(getWorld().getPresenter().getInputHandler().getInputState().menuZMovement == hid::AxisMovement::Backward)
   {
     if(!canPullBlock(1_sectors, axis))
     {
