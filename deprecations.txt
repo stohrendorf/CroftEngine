@@ -1,0 +1,1 @@
+1.15 remove menu input binding migration

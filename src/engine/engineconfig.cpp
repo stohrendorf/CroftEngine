@@ -111,7 +111,7 @@ void NamedInputMappingConfig::serialize(const serialization::Serializer<EngineCo
         S_NVO("mappings", gameMappings),
         S_NVO("gameMappings", gameMappings));
 
-    ser(S_NVD("menuMappings", menuMappings, getDefaultMappings().at(name == "Keyboard" ? 0 : 1).menuMappings));
+    ser(S_NVD("menuMappings", menuMappings, getDefaultMappings().at(name == pgettext("Input|MappingName", "Keyboard") ? 0 : 1).menuMappings));
   }
   else
   {
