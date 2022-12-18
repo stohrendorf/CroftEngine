@@ -104,10 +104,22 @@ std::vector<NamedInputMappingConfig> getDefaultMappings()
 
 void NamedInputMappingConfig::serialize(const serialization::Serializer<EngineConfig>& ser)
 {
-  ser(S_NV("name", name),
-      S_NV("controllerType", controllerType),
-      S_NV("gameMappings", gameMappings),
-      S_NV("menuMappings", menuMappings));
+  if(ser.loading)
+  {
+    ser(S_NV("name", name),
+        S_NV("controllerType", controllerType),
+        S_NVO("mappings", gameMappings),
+        S_NVO("gameMappings", gameMappings));
+
+    ser(S_NVD("menuMappings", menuMappings, getDefaultMappings().at(name == pgettext("Input|MappingName", "Keyboard") ? 0 : 1).menuMappings));
+  }
+  else
+  {
+    ser(S_NV("name", name),
+        S_NV("controllerType", controllerType),
+        S_NV("gameMappings", gameMappings),
+        S_NV("menuMappings", menuMappings));
+  }
 }
 
 NamedInputMappingConfig NamedInputMappingConfig::create(const serialization::Serializer<EngineConfig>& ser)
