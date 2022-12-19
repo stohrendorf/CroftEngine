@@ -48,10 +48,10 @@ void DownloadProgress::finished()
 
   std::error_code ec;
   std::filesystem::create_directories(m_target.parent_path(), ec);
-  const auto dowloadedData = m_reply->readAll();
+  const auto downloadedData = m_reply->readAll();
   std::ofstream tmp{m_target, std::ios::binary | std::ios::trunc};
   gsl_Assert(tmp.is_open());
-  tmp.write(dowloadedData.data(), dowloadedData.size());
+  tmp.write(downloadedData.data(), downloadedData.size());
   emit downloaded(m_target);
   close();
 }
