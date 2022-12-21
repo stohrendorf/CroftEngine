@@ -32,10 +32,11 @@ DownloadProgress::~DownloadProgress()
   m_accessManager = nullptr;
 }
 
+// NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
 void DownloadProgress::downloadProgress(qint64 bytesReceived, qint64 bytesTotal)
 {
-  ui->progressBar->setMaximum(bytesTotal);
-  ui->progressBar->setValue(bytesReceived);
+  ui->progressBar->setMaximum(gsl::narrow<int>(bytesTotal));
+  ui->progressBar->setValue(gsl::narrow<int>(bytesReceived));
 }
 
 void DownloadProgress::finished()
