@@ -2,6 +2,7 @@
 
 #include "ui_downloadprogress.h"
 
+#include <boost/log/trivial.hpp>
 #include <fstream>
 #include <gsl/gsl-lite.hpp>
 #include <QMessageBox>
@@ -42,6 +43,7 @@ void DownloadProgress::finished()
   gsl_Assert(m_reply != nullptr);
   if(m_reply->error() != QNetworkReply::NetworkError::NoError)
   {
+    BOOST_LOG_TRIVIAL(error) << "download failed: " << m_reply->errorString().toStdString();
     close();
     return;
   }
@@ -75,6 +77,7 @@ void DownloadProgress::start()
 void DownloadProgress::errorOccurred(QNetworkReply::NetworkError /*error*/)
 {
   gsl_Assert(m_reply != nullptr);
+  BOOST_LOG_TRIVIAL(error) << "download failed: " << m_reply->errorString().toStdString();
   QMessageBox::critical(
     this, tr("Download Failed"), tr("The download failed with an error: %1").arg(m_reply->errorString()));
 }
