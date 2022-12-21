@@ -1,3 +1,7 @@
+#ifdef WIN32
+#  define WIN32_LEAN_AND_MEAN
+#endif
+
 // --- FIXME: for whatever reason, compilation fails if this isn't included before mainwindow.h
 #include <ryml.hpp>
 #include <ryml_std.hpp>
@@ -14,7 +18,7 @@
 #include "serialization/yamldocument.h"
 #include "ui_mainwindow.h"
 
-#include <boost/throw_exception.hpp>
+#include <boost/log/trivial.hpp>
 #include <QDesktopServices>
 #include <QFileDialog>
 #include <QMessageBox>
@@ -23,8 +27,6 @@
 #include <set>
 
 #ifdef WIN32
-#  define WIN32_LEAN_AND_MEAN
-
 #  ifdef _MSC_VER
 #    pragma warning(push)
 #    pragma warning(disable : 4456)
@@ -56,38 +58,42 @@ void extractImage(const std::filesystem::path& cueFile, const std::filesystem::p
     const auto root = *path.begin();
     if(root == "DATA" || root == "FMV")
     {
-      qInfo() << QString("Extracting %1 to %2 from %3")
-                   .arg(path.string().c_str(), (targetDir / path).string().c_str(), cueFile.string().c_str());
+      BOOST_LOG_TRIVIAL(info) << "Extracting " << path << " to " << (targetDir / path) << " from " << cueFile;
       std::error_code ec;
       std::filesystem::create_directories(targetDir / path.parent_path(), ec);
       const auto data = image::readFile(*img, span);
       std::ofstream tmp{targetDir / path, std::ios::binary | std::ios::trunc};
       tmp.write((const char*)data.data(), data.size());
     }
+    else
+    {
+      BOOST_LOG_TRIVIAL(info) << "Skipping root " << root;
+    }
   }
 }
 
 #ifdef WIN32
-std::optional<std::filesystem::path> readRegistryPath(HKEY hKey, const std::wstring& path, const std::wstring& key)
+std::optional<std::filesystem::path> readRegistryPath(const std::wstring& path, const std::wstring& key)
 {
   HKEY subKey;
-  if(RegOpenKeyExW(hKey, path.c_str(), 0, KEY_READ, &subKey) != 0)
+  if(RegOpenKeyExW(HKEY_LOCAL_MACHINE, path.c_str(), 0, KEY_READ, &subKey) != 0)
   {
     RegCloseKey(subKey);
     return std::nullopt;
   }
 
-  WCHAR szBuffer[512];
-  DWORD dwBufferSize = sizeof(szBuffer);
+  std::array<WCHAR, 512> szBuffer;
+  DWORD dwBufferSize = szBuffer.size();
   DWORD type = REG_NONE;
-  const auto nError = RegQueryValueExW(subKey, key.c_str(), nullptr, &type, (LPBYTE)szBuffer, &dwBufferSize);
+  const auto nError
+    = RegQueryValueExW(subKey, key.c_str(), nullptr, &type, reinterpret_cast<PBYTE>(szBuffer.data()), &dwBufferSize);
   RegCloseKey(subKey);
 
   if(nError != 0 || type != REG_SZ)
   {
     return std::nullopt;
   }
-  return std::filesystem::path{szBuffer};
+  return std::filesystem::path{szBuffer.data()};
 }
 #endif
 } // namespace
@@ -284,7 +290,7 @@ void MainWindow::onImportClicked()
       }
 
       {
-        qDebug() << "gather archive directories";
+        BOOST_LOG_TRIVIAL(debug) << "gather archive directories";
         while(archive.next())
         {
           switch(archive.getType())
@@ -296,7 +302,7 @@ void MainWindow::onImportClicked()
             archiveDirs.emplace(archive.getCurrentPathName().parent_path());
             break;
           default:
-            qWarning() << "unexpected archive entry filetype";
+            BOOST_LOG_TRIVIAL(warning) << "unexpected archive entry filetype";
             continue;
           }
         }
@@ -309,7 +315,7 @@ void MainWindow::onImportClicked()
         if(stem != "music" && stem != "audio" && stem != "fmv" && stem != "data")
           continue;
 
-        qDebug() << "candidate path" << dir.string().c_str();
+        BOOST_LOG_TRIVIAL(debug) << "candidate path " << dir;
         candidates[dir.parent_path()].emplace_back(dir);
       }
       bool foundSuspect = false;
@@ -317,7 +323,7 @@ void MainWindow::onImportClicked()
       {
         if(full.size() < 3)
           continue;
-        qDebug() << "suspect path" << base.string().c_str();
+        BOOST_LOG_TRIVIAL(debug) << "suspect path " << base;
         if(foundSuspect)
         {
           QMessageBox::critical(this, tr("Extraction Error"), tr("Could not find game data in archive."));
@@ -367,7 +373,7 @@ void MainWindow::onImportClicked()
 
         const auto dstName = dataRoot / std::filesystem::relative(archive.getCurrentPathName(), suspect);
 
-        qDebug() << "extract" << archive.getCurrentPathName().string().c_str() << "to" << dstName.string().c_str();
+        BOOST_LOG_TRIVIAL(debug) << "extract " << archive.getCurrentPathName() << " to " << dstName;
 
         std::filesystem::create_directories(dstName.parent_path());
         archive.writeCurrentTo(dstName);
@@ -385,17 +391,17 @@ std::optional<std::filesystem::path> tryGetSteamGamePath(const std::filesystem::
 {
   const auto tryGetLibraryFolders = [](const std::wstring& path) -> std::vector<std::filesystem::path>
   {
-    const auto installPath = readRegistryPath(HKEY_LOCAL_MACHINE, path, L"InstallPath");
+    const auto installPath = readRegistryPath(path, L"InstallPath");
     if(!installPath.has_value())
     {
-      qDebug() << "Steam InstallPath not found in registry";
+      BOOST_LOG_TRIVIAL(debug) << "Steam InstallPath not found in registry";
       return {};
     }
 
     const auto libraryFolderVdfPath = *installPath / "steamapps" / "libraryfolders.vdf";
     if(!std::filesystem::is_regular_file(libraryFolderVdfPath))
     {
-      qDebug() << "libraryfolders.vdf not found";
+      BOOST_LOG_TRIVIAL(debug) << "libraryfolders.vdf not found";
       return {};
     }
 
@@ -403,7 +409,7 @@ std::optional<std::filesystem::path> tryGetSteamGamePath(const std::filesystem::
     auto root = tyti::vdf::read(vdf);
     if(root.name != "libraryfolders")
     {
-      qDebug() << "Invalid libraryfolders.vdf";
+      BOOST_LOG_TRIVIAL(debug) << "Invalid libraryfolders.vdf";
       return {};
     }
 
@@ -417,18 +423,18 @@ std::optional<std::filesystem::path> tryGetSteamGamePath(const std::filesystem::
                        return c < '0' || c > '9';
                      }))
       {
-        qDebug() << "Invalid library folder entry key";
+        BOOST_LOG_TRIVIAL(debug) << "Invalid library folder entry key";
         continue;
       }
 
       if(auto it = entryContent->attribs.find("path"); it != entryContent->attribs.end())
       {
-        qDebug() << "Found library folder" << it->second.c_str();
+        BOOST_LOG_TRIVIAL(debug) << "Found library folder" << it->second;
         paths.emplace_back(it->second);
       }
       else
       {
-        qDebug() << "Incomplete libraryfolders entry content";
+        BOOST_LOG_TRIVIAL(debug) << "Incomplete libraryfolders entry content";
       }
     }
 
@@ -444,10 +450,10 @@ std::optional<std::filesystem::path> tryGetSteamGamePath(const std::filesystem::
   for(const auto& libFolder : libraryFolders)
   {
     const auto appManifestPath = libFolder / "steamapps" / "appmanifest_224960.acf";
-    qDebug() << "Check manifest:" << appManifestPath.string().c_str();
+    BOOST_LOG_TRIVIAL(debug) << "Check manifest:" << appManifestPath.string().c_str();
     if(!std::filesystem::is_regular_file(appManifestPath))
     {
-      qDebug() << "appmanifest not found:" << appManifestPath.string().c_str();
+      BOOST_LOG_TRIVIAL(debug) << "appmanifest not found:" << appManifestPath;
       continue;
     }
 
@@ -455,7 +461,7 @@ std::optional<std::filesystem::path> tryGetSteamGamePath(const std::filesystem::
     auto root = tyti::vdf::read(acf);
     if(root.name != "AppState")
     {
-      qDebug() << "Invalid appmanifest";
+      BOOST_LOG_TRIVIAL(debug) << "Invalid appmanifest";
       continue;
     }
 
@@ -464,7 +470,7 @@ std::optional<std::filesystem::path> tryGetSteamGamePath(const std::filesystem::
       const auto fullTestPath = libFolder / "steamapps" / "common" / it->second / testPath;
       if(!std::filesystem::is_regular_file(fullTestPath))
       {
-        qDebug() << "File not found:" << fullTestPath.string().c_str();
+        BOOST_LOG_TRIVIAL(debug) << "File not found:" << fullTestPath;
         continue;
       }
 
@@ -567,13 +573,14 @@ void MainWindow::copyDir(const QString& srcPath,
     const auto dstFilename = QString((targetDir / subDirName).string().c_str()) + QDir::separator() + fileName;
     if(!overwriteExisting && QFileInfo::exists(dstFilename))
     {
-      qInfo() << QString("Copy %1 to %2 skipped (already exists)").arg(srcFilename, dstFilename);
+      BOOST_LOG_TRIVIAL(info) << "Copy " << srcFilename.toStdString() << " to " << dstFilename.toStdString()
+                              << " skipped (already exists)";
       continue;
     }
 
     if(QFile::exists(dstFilename))
     {
-      qInfo() << QString("Delete %1").arg(dstFilename);
+      BOOST_LOG_TRIVIAL(info) << "Delete " << dstFilename.toStdString();
       if(!QFile::remove(dstFilename))
       {
         QMessageBox::critical(this, tr("Copy Failed"), tr("Failed to delete %1").arg(dstFilename));
@@ -581,7 +588,7 @@ void MainWindow::copyDir(const QString& srcPath,
       }
     }
 
-    qInfo() << QString("Copy %1 to %2").arg(srcFilename, dstFilename);
+    BOOST_LOG_TRIVIAL(info) << "Copy " << srcFilename.toStdString() << " to " << dstFilename.toStdString();
     if(!QFile::copy(srcFilename, dstFilename))
     {
       QMessageBox::critical(this, tr("Copy Failed"), tr("Failed to copy %1 to %2").arg(srcFilename, dstFilename));
