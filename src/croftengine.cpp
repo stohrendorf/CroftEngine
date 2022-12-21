@@ -316,7 +316,7 @@ int main(int argc, char** argv)
         processLoadRequest(runResult.second);
         break;
       case engine::RunResult::RestartLevel:
-        BOOST_ASSERT(player != nullptr);
+        BOOST_ASSERT(levelStartPlayer != nullptr);
         player = std::make_shared<engine::Player>(*levelStartPlayer);
         break;
       }
