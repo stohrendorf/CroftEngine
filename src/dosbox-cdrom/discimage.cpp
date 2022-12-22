@@ -74,16 +74,24 @@ std::vector<uint8_t> DiscImage::readSector(size_t sector)
   const auto track = getTrackForSector(sector);
   if(track == nullptr)
   {
-    BOOST_LOG_TRIVIAL(warning) << "no track found for sector " << sector;
+    BOOST_LOG_TRIVIAL(error) << "no track found for sector " << sector;
     return {};
   }
 
   const auto sectorOffset = track->fileOffset + (sector - track->startSector) * track->sectorSize;
   std::vector<uint8_t> data;
   data.resize(Mode2XaHeaderSize);
-  track->file->read(data, sectorOffset);
+  if(!track->file->read(data, sectorOffset))
+  {
+    BOOST_LOG_TRIVIAL(error) << "failed to read sector header";
+    return {};
+  }
   data.resize(getSectorUserDataSize(data, track->mode2xa));
-  track->file->read(data, sectorOffset + getSectorHeaderSize(track->sectorSize, track->mode2xa));
+  if(!track->file->read(data, sectorOffset + getSectorHeaderSize(track->sectorSize, track->mode2xa)))
+  {
+    BOOST_LOG_TRIVIAL(error) << "failed to read sector data";
+    return {};
+  }
   return data;
 }
 
