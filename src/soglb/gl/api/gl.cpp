@@ -3059,7 +3059,7 @@ void drawArraysInstancedBaseInstance(
 }
 void drawElementsInstancedBaseInstance(PrimitiveType mode,
                                        core::SizeType count,
-                                       PrimitiveType type,
+                                       DrawElementsType type,
                                        const void* indices,
                                        core::SizeType instancecount,
                                        uint32_t baseinstance)

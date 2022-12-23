@@ -2177,11 +2177,17 @@ enum class TextureCompareMode : core::EnumType
 enum class TextureEnvMode : core::EnumType
 {
   Blend = 0x0BE2,
+  Replace = 0x1E01,
 };
 
 enum class TextureEnvParameter : core::EnumType
 {
+  TextureLodBias = 0x8501,
   Src1Alpha = 0x8589,
+};
+
+enum class TextureEnvTarget : core::EnumType
+{
 };
 
 enum class TextureMagFilter : core::EnumType
@@ -3377,7 +3383,7 @@ extern void drawArraysInstancedBaseInstance(
   PrimitiveType mode, int32_t first, core::SizeType count, core::SizeType instancecount, uint32_t baseinstance);
 extern void drawElementsInstancedBaseInstance(PrimitiveType mode,
                                               core::SizeType count,
-                                              PrimitiveType type,
+                                              DrawElementsType type,
                                               const void* indices,
                                               core::SizeType instancecount,
                                               uint32_t baseinstance);
