@@ -62,7 +62,6 @@ target_link_libraries(
         Boost::headers
         Boost::log
         dosbox-cdrom
-        dosbox-cdrom
         archive
         valve-file-vdf::valve-file-vdf
         ryml
