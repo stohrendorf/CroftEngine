@@ -12,8 +12,17 @@
 namespace engine::script
 {
 ScriptEngine::ScriptEngine(const std::filesystem::path& rootPath)
-    : m_interpreter{std::make_unique<pybind11::scoped_interpreter>()}
+    : m_interpreter{nullptr}
 {
+#ifdef WIN32
+  gsl_Assert(_putenv_s("PYTHONHOME", "") == 0);
+  gsl_Assert(_putenv_s("PYTHONPATH", "") == 0);
+#else
+  gsl_Assert(setenv("PYTHONHOME", "", true) == 0);
+  gsl_Assert(setenv("PYTHONPATH", "", true) == 0);
+#endif
+
+  m_interpreter = std::make_unique<pybind11::scoped_interpreter>();
   pybind11::module::import("sys").attr("path").cast<pybind11::list>().append(
     std::filesystem::absolute(rootPath).string());
 
