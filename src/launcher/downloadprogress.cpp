@@ -49,8 +49,7 @@ void DownloadProgress::finished()
     return;
   }
 
-  std::error_code ec;
-  std::filesystem::create_directories(m_target.parent_path(), ec);
+  std::filesystem::create_directories(m_target.parent_path());
   const auto downloadedData = m_reply->readAll();
   std::ofstream tmp{m_target, std::ios::binary | std::ios::trunc};
   gsl_Assert(tmp.is_open());

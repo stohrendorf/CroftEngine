@@ -564,8 +564,7 @@ void MainWindow::copyDir(const QString& srcPath,
                          const std::string& subDirName,
                          bool overwriteExisting)
 {
-  std::error_code ec;
-  std::filesystem::create_directories(targetDir / subDirName, ec);
+  std::filesystem::create_directories(targetDir / subDirName);
 
   const auto srcSubPath = srcPath + QDir::separator() + subDirName.c_str();
   for(const auto& fileName : QDir{srcSubPath}.entryList(QDir::Files))
