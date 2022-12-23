@@ -56,18 +56,18 @@ void extractImage(const std::filesystem::path& cueFile, const std::filesystem::p
   {
     gsl_Assert(!path.empty());
     const auto root = *path.begin();
-    if(root == "DATA" || root == "FMV")
+    if(root != "DATA" && root != "FMV")
     {
-      BOOST_LOG_TRIVIAL(info) << "Extracting " << path << " to " << (targetDir / path) << " from " << cueFile;
-      std::error_code ec;
-      std::filesystem::create_directories(targetDir / path.parent_path(), ec);
-      const auto data = image::readFile(*img, span);
-      std::ofstream tmp{targetDir / path, std::ios::binary | std::ios::trunc};
-      tmp.write((const char*)data.data(), data.size());
+      BOOST_LOG_TRIVIAL(info) << "Skipping root " << root;
+      continue;
     }
     else
     {
-      BOOST_LOG_TRIVIAL(info) << "Skipping root " << root;
+      BOOST_LOG_TRIVIAL(info) << "Extracting " << path << " to " << (targetDir / path) << " from " << cueFile;
+      std::filesystem::create_directories(targetDir / path.parent_path());
+      const auto data = image::readFile(*img, span);
+      std::ofstream tmp{targetDir / path, std::ios::binary | std::ios::trunc};
+      tmp.write((const char*)data.data(), data.size());
     }
   }
 }
@@ -82,7 +82,7 @@ std::optional<std::filesystem::path> readRegistryPath(const std::wstring& path, 
     return std::nullopt;
   }
 
-  std::array<WCHAR, 512> szBuffer;
+  std::array<WCHAR, 512> szBuffer{};
   DWORD dwBufferSize = szBuffer.size();
   DWORD type = REG_NONE;
   const auto nError
@@ -104,7 +104,7 @@ MainWindow::MainWindow(QWidget* parent)
 {
   ui->setupUi(this);
 
-  QSettings settings;
+  const QSettings settings;
 
   {
     const auto language = settings.value(LanguageConfigKey, QVariant{QString{"en_GB"}}).toString();
@@ -257,12 +257,13 @@ void MainWindow::onImportClicked()
 
     QMessageBox::information(this, tr("Data Imported"), tr("Game Data has been imported."));
 
-    if(std::filesystem::is_regular_file(findUserDataDir().value() / "data" / "tr1" / "AUDIO" / "002.ogg")
-       || std::filesystem::is_regular_file(findUserDataDir().value() / "data" / "tr1" / "Music" / "Track02.flac"))
+    const auto userDataDir = findUserDataDir().value();
+    if(std::filesystem::is_regular_file(userDataDir / "data" / "tr1" / "AUDIO" / "002.ogg")
+       || std::filesystem::is_regular_file(userDataDir / "data" / "tr1" / "Music" / "Track02.flac"))
       return;
 
     auto downloader = new DownloadProgress(QUrl{"https://opentomb.earvillage.net/croftengine-audio-tr1.zip"},
-                                           findUserDataDir().value() / "data" / "tr1" / "AUDIO" / "tracks.zip",
+                                           userDataDir / "data" / "tr1" / "AUDIO" / "tracks.zip",
                                            this);
     connect(downloader, &DownloadProgress::downloaded, this, &MainWindow::extractSoundtrackZip);
     downloader->show();
