@@ -502,7 +502,7 @@ bool MainWindow::importBaseGameData()
       tr("A game data image has been found at %1. Do you want to use this image or continue manually?")
         .arg(gameDatPath->string().c_str()));
     const auto useFoundImageButton = askUseFoundImage.addButton(tr("Use Image"), QMessageBox::AcceptRole);
-    askUseFoundImage.addButton("Continue Manually", QMessageBox::RejectRole);
+    askUseFoundImage.addButton(tr("Continue Manually"), QMessageBox::RejectRole);
     askUseFoundImage.setIcon(QMessageBox::Question);
 
     askUseFoundImage.exec();

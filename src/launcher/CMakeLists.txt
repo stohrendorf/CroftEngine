@@ -15,7 +15,7 @@ set(
 
 set_property(
         SOURCE mainwindow.cpp
-        PROPERTY COMPILE_DEFINITIONS CE_VERSION="${CMAKE_PROJECT_VERSION}"
+        PROPERTY COMPILE_DEFINITIONS "CE_VERSION=\"${CMAKE_PROJECT_VERSION}\""
 )
 
 set( TS_FILES )
@@ -49,7 +49,7 @@ file( RENAME ${_lang_list_tmp} ${CMAKE_CURRENT_SOURCE_DIR}/languages.h )
 
 set_source_files_properties( ${TS_FILES} PROPERTIES OUTPUT_LOCATION "${CMAKE_SOURCE_DIR}/share/i18n" )
 qt5_create_translation( QM_FILES ${LAUNCHER_SRCS} ${TS_FILES} )
-# qt5_add_translation( QM_FILES ${TS_FILES} )
+qt5_add_translation( QM_FILES ${TS_FILES} )
 
 add_library( launcher STATIC ${LAUNCHER_SRCS} ${QM_FILES} )
 
