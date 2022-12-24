@@ -51,7 +51,7 @@ void TextureAnimator::Sequence::updateCoordinates(gl::VertexBuffer<AnimatedUV>& 
     const engine::world::AtlasTile& tile = tiles[tileIds[vref.queueOffset].get()];
 
     uvArray[vref.bufferIndex].uv
-      = glm::vec3{tile.uvCoordinates[vref.sourceIndex], tile.textureKey.tileAndFlag & loader::file::TextureIndexMask};
+      = glm::vec3{tile.uvCoordinates[vref.sourceIndex], tile.textureKey.atlasIdAndFlag & loader::file::AtlasIdMask};
     uvArray[vref.bufferIndex].quadUv12 = glm::vec4{tile.uvCoordinates[0], tile.uvCoordinates[1]};
     uvArray[vref.bufferIndex].quadUv34 = glm::vec4{tile.uvCoordinates[2], tile.uvCoordinates[3]};
   }

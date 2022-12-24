@@ -13,7 +13,6 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/log/trivial.hpp>
 #include <boost/throw_exception.hpp>
-#include <deque>
 #include <fstream>
 #include <gsl/gsl-lite.hpp>
 #include <memory>
@@ -26,12 +25,20 @@
 namespace
 {
 // NOLINTNEXTLINE(misc-no-recursion)
-std::filesystem::path readSymlink(const std::filesystem::path& root, const std::filesystem::path& ref)
+std::filesystem::path readSymlink(const std::filesystem::path& root,
+                                  const std::filesystem::path& ref,
+                                  std::filesystem::file_time_type& newestFile)
 {
   if(ref.extension() != ".txt")
+  {
+    if(std::filesystem::is_regular_file(root / ref))
+      newestFile = std::max(newestFile, std::filesystem::last_write_time(root / ref));
     return root / ref;
+  }
 
   std::ifstream txt{util::ensureFileExists(root / ref)};
+  newestFile = std::max(newestFile, std::filesystem::last_write_time(root / ref));
+
   std::string head;
   std::getline(txt, head);
   boost::algorithm::trim(head);
@@ -43,7 +50,7 @@ std::filesystem::path readSymlink(const std::filesystem::path& root, const std::
   head.erase(0, head.find(':') + 1);
   boost::algorithm::trim(head);
   boost::algorithm::replace_all(head, "\\", "/");
-  return readSymlink(root, head);
+  return readSymlink(root, head, newestFile);
 }
 } // namespace
 
@@ -66,13 +73,11 @@ Rectangle::Rectangle(const std::string& serialized)
     BOOST_THROW_EXCEPTION(std::runtime_error("Failed to parse Glidos texture coordinates"));
   }
 
-  m_x0 = boost::lexical_cast<uint32_t>(matches[1].str());
-  m_x1 = boost::lexical_cast<uint32_t>(matches[2].str());
-  m_y0 = boost::lexical_cast<uint32_t>(matches[3].str());
-  m_y1 = boost::lexical_cast<uint32_t>(matches[4].str());
+  m_xy0 = {boost::lexical_cast<int32_t>(matches[1].str()), boost::lexical_cast<int32_t>(matches[3].str())};
+  m_xy1 = {boost::lexical_cast<int32_t>(matches[2].str()), boost::lexical_cast<int32_t>(matches[4].str())};
 
-  Ensures(m_x0 < m_x1);
-  Ensures(m_y0 < m_y1);
+  Ensures(m_xy0.x < m_xy1.x);
+  Ensures(m_xy0.y < m_xy1.y);
 }
 
 TexturePart::TexturePart(const std::string& serialized)
@@ -106,13 +111,17 @@ EquivalenceSet::EquivalenceSet(std::ifstream& file)
   }
 }
 
-Equiv::Equiv(const std::filesystem::path& filename, const std::function<void(const std::string&)>& statusCallback)
+Equiv::Equiv(const std::filesystem::path& filename,
+             const std::function<void(const std::string&)>& statusCallback,
+             std::filesystem::file_time_type& newestFile)
 {
   std::ifstream file{filename};
   if(!file.is_open())
   {
     BOOST_THROW_EXCEPTION(std::runtime_error("Failed to open Glidos equiv file"));
   }
+
+  newestFile = std::max(newestFile, std::filesystem::last_write_time(filename));
 
   const auto size = std::filesystem::file_size(filename);
 
@@ -148,7 +157,8 @@ Equiv::Equiv(const std::filesystem::path& filename, const std::function<void(con
 
 void Equiv::resolve(const std::filesystem::path& root,
                     std::map<TexturePart, std::filesystem::path>& filesByPart,
-                    const std::function<void(const std::string&)>& statusCallback) const
+                    const std::function<void(const std::string&)>& statusCallback,
+                    std::filesystem::file_time_type& newestFile) const
 {
   if(m_equivalentSets.empty())
     return;
@@ -181,6 +191,8 @@ void Equiv::resolve(const std::filesystem::path& root,
           BOOST_LOG_TRIVIAL(warning) << "Ambiguous source reference in equiv set";
         }
         partFile = it->second;
+        if(std::filesystem::is_regular_file(partFile))
+          newestFile = std::max(newestFile, std::filesystem::last_write_time(partFile));
       }
     }
 
@@ -195,7 +207,7 @@ void Equiv::resolve(const std::filesystem::path& root,
     // now map the found part to all other parts, i.e. make them actually equivalent
     for(const auto& part : set.getParts())
     {
-      const auto linked = readSymlink(root, relative(partFile, root)).lexically_normal();
+      const auto linked = readSymlink(root, relative(partFile, root), newestFile).lexically_normal();
       auto& existing = filesByPart[part];
       if(!existing.empty() && existing != linked)
       {
@@ -215,8 +227,11 @@ void Equiv::resolve(const std::filesystem::path& root,
   }
 }
 
-PathMap::PathMap(const std::filesystem::path& baseTxtName, std::map<TexturePart, std::filesystem::path>& filesByPart)
+PathMap::PathMap(const std::filesystem::path& baseTxtName,
+                 std::map<TexturePart, std::filesystem::path>& filesByPart,
+                 std::filesystem::file_time_type& newestFile)
 {
+  newestFile = std::max(newestFile, std::filesystem::last_write_time(baseTxtName));
   std::ifstream txt{util::ensureFileExists(baseTxtName)};
   const auto baseTxtDir = baseTxtName.parent_path();
 
@@ -274,8 +289,6 @@ PathMap::PathMap(const std::filesystem::path& baseTxtName, std::map<TexturePart,
     }
   }
 
-  const std::filesystem::directory_iterator end{};
-
   for(const auto& texturePath : dirByTextureId)
   {
     // contains root+base
@@ -287,22 +300,22 @@ PathMap::PathMap(const std::filesystem::path& baseTxtName, std::map<TexturePart,
       continue;
     }
 
-    for(std::filesystem::directory_iterator it{fullTexturePath}; it != end; ++it)
+    for(const auto& file : std::filesystem::directory_iterator{fullTexturePath})
     {
       Rectangle r;
       try
       {
-        r = Rectangle{it->path().filename().string()};
+        r = Rectangle{file.path().filename().string()};
       }
       catch(std::runtime_error&)
       {
-        BOOST_LOG_TRIVIAL(debug) << "No texture coordinates in filename " << it->path();
+        BOOST_LOG_TRIVIAL(debug) << "No texture coordinates in filename " << file.path();
         continue;
       }
 
       try
       {
-        const auto link = readSymlink(m_root, relative(it->path(), m_root)).lexically_normal();
+        const auto link = readSymlink(m_root, relative(file.path(), m_root), newestFile).lexically_normal();
         filesByPart[TexturePart(texturePath.first, r)] = link;
       }
       catch(std::runtime_error& ex)
@@ -324,8 +337,9 @@ Glidos::Glidos(std::filesystem::path baseDir, const std::function<void(const std
 
   if(is_regular_file(m_baseDir / "equiv.txt"))
   {
+    m_newestFile = std::max(m_newestFile, std::filesystem::last_write_time(m_baseDir / "equiv.txt"));
     BOOST_LOG_TRIVIAL(debug) << "Loading equiv.txt";
-    const Equiv equiv{util::ensureFileExists(m_baseDir / "equiv.txt"), statusCallback};
+    const Equiv equiv{util::ensureFileExists(m_baseDir / "equiv.txt"), statusCallback, m_newestFile};
 
     std::vector<PathMap> maps;
 
@@ -337,15 +351,16 @@ Glidos::Glidos(std::filesystem::path baseDir, const std::function<void(const std
       if(entry.path().filename() == "equiv.txt")
         continue;
 
+      m_newestFile = std::max(m_newestFile, std::filesystem::last_write_time(entry));
       statusCallback(_("Glidos - Loading %1%", entry.path().filename().string()));
       BOOST_LOG_TRIVIAL(debug) << "Loading part map " << entry.path();
-      maps.emplace_back(entry, m_filesByPart);
+      maps.emplace_back(entry, m_filesByPart, m_newestFile);
     }
 
     BOOST_LOG_TRIVIAL(debug) << "Resolving links and equiv sets for " << maps.size() << " mappings";
     for(const auto& map : maps)
     {
-      equiv.resolve(map.getRoot(), m_filesByPart, statusCallback);
+      equiv.resolve(map.getRoot(), m_filesByPart, statusCallback, m_newestFile);
     }
     statusCallback(_("Glidos - Resolving maps (100%)"));
   }
@@ -370,6 +385,7 @@ Glidos::Glidos(std::filesystem::path baseDir, const std::function<void(const std
         try
         {
           m_filesByPart.emplace(TexturePart{textureId, Rectangle{subEntry.path().filename().string()}}, subEntry);
+          m_newestFile = std::max(m_newestFile, std::filesystem::last_write_time(subEntry));
         }
         catch(std::runtime_error&)
         {
@@ -393,5 +409,10 @@ Glidos::TileMap Glidos::getMappingsForTexture(const std::string& textureId) cons
   }
 
   return result;
+}
+
+void Glidos::insertInternalMapping(const std::string& textureId, const Rectangle& tile)
+{
+  m_filesByPart.emplace(TexturePart{textureId, tile}, std::filesystem::path{});
 }
 } // namespace loader::trx

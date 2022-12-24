@@ -92,7 +92,7 @@ RenderMeshData::RenderMeshData(const loader::file::Mesh& mesh,
       }
 
       iv.position = quad.vertices[i].from(mesh.vertices).toRenderSystem();
-      iv.uv = glm::vec3{tile.uvCoordinates[i], tile.textureKey.tileAndFlag & loader::file::TextureIndexMask};
+      iv.uv = glm::vec3{tile.uvCoordinates[i], tile.textureKey.atlasIdAndFlag & loader::file::AtlasIdMask};
       m_vertices.emplace_back(iv);
     }
 
@@ -155,7 +155,7 @@ RenderMeshData::RenderMeshData(const loader::file::Mesh& mesh,
     {
       RenderVertex iv{};
       iv.position = tri.vertices[i].from(mesh.vertices).toRenderSystem();
-      iv.uv = glm::vec3{tile.uvCoordinates[i], tile.textureKey.tileAndFlag & loader::file::TextureIndexMask};
+      iv.uv = glm::vec3{tile.uvCoordinates[i], tile.textureKey.atlasIdAndFlag & loader::file::AtlasIdMask};
       if(mesh.normals.empty())
         iv.color = glm::vec4{glm::vec3{toBrightness(tri.vertices[i].from(mesh.vertex_shades)).get()}, 1.0f};
 

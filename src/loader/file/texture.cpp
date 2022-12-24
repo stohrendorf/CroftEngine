@@ -72,11 +72,11 @@ std::unique_ptr<TextureTile> TextureTile::readTr1(io::SDLReader& reader)
 {
   auto tile = std::make_unique<TextureTile>();
   tile->textureKey.blendingMode = static_cast<BlendingMode>(reader.readU16());
-  tile->textureKey.tileAndFlag = reader.readU16();
-  if(tile->textureKey.tileAndFlag > 64)
+  tile->textureKey.atlasIdAndFlag = reader.readU16();
+  if(tile->textureKey.atlasIdAndFlag > 64)
     BOOST_LOG_TRIVIAL(warning) << "TR1 Object Texture: tileAndFlag > 64";
 
-  if((tile->textureKey.tileAndFlag & (1u << 15u)) != 0)
+  if((tile->textureKey.atlasIdAndFlag & (1u << 15u)) != 0)
     BOOST_LOG_TRIVIAL(warning) << "TR1 Object Texture: tileAndFlag is flagged";
 
   // only in TR4
@@ -95,8 +95,8 @@ std::unique_ptr<TextureTile> TextureTile::readTr4(io::SDLReader& reader)
 {
   auto tile = std::make_unique<TextureTile>();
   tile->textureKey.blendingMode = static_cast<BlendingMode>(reader.readU16());
-  tile->textureKey.tileAndFlag = reader.readU16();
-  if((tile->textureKey.tileAndFlag & 0x7FFFu) > 128)
+  tile->textureKey.atlasIdAndFlag = reader.readU16();
+  if((tile->textureKey.atlasIdAndFlag & 0x7FFFu) > 128)
     BOOST_LOG_TRIVIAL(warning) << "TR4 Object Texture: tileAndFlag > 128";
 
   tile->textureKey.flags = reader.readU16();

@@ -63,7 +63,8 @@ ControllerLayouts loadControllerButtonIcons(render::MultiTextureAtlas& atlases,
       const auto newWidth = src.width() * newHeight / src.height();
       src.resize({newWidth, newHeight});
 
-      const auto atlasLoc = atlases.put(src);
+      const auto atlasLoc
+        = atlases.isOnlyLayout() ? atlases.put(glm::ivec2{src.width(), src.height()}) : atlases.put(src);
       const glm::vec2 uvLoc
         = (glm::vec2{atlasLoc.second} + glm::vec2{0.5f, 0.5f}) / gsl::narrow_cast<float>(atlases.getSize());
       const glm::vec2 uvSize = glm::vec2{src.width(), src.height()} / gsl::narrow_cast<float>(atlases.getSize());
@@ -99,7 +100,7 @@ ControllerLayouts loadControllerButtonIcons(render::MultiTextureAtlas& atlases,
                                           sprite.uv0,
                                           sprite.uv1,
                                           material,
-                                          sprite.textureId.get_as<int32_t>(),
+                                          sprite.atlasId.get_as<int32_t>(),
                                           "controller-" + layout.name + "-" + btnName)
             .get();
 

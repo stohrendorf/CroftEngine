@@ -174,9 +174,9 @@ void TR1Level::loadFileData()
   m_reader.readVector(m_sampleIndices, m_reader.readU32());
 
   BOOST_LOG_TRIVIAL(debug) << "Converting textures";
-  m_textures.resize(texture8.size());
+  m_atlases.resize(texture8.size());
   for(size_t i = 0; i < texture8.size(); i++)
-    convertTexture(texture8[i], *m_palette, m_textures[i]);
+    convertTexture(texture8[i], *m_palette, m_atlases[i]);
 
   BOOST_LOG_TRIVIAL(debug) << "Done. File position = " << m_reader.tell();
 }

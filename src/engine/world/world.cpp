@@ -48,7 +48,9 @@
 #include "loader/file/mesh.h"
 #include "loader/file/meshes.h"
 #include "loader/file/texture.h"
+#include "loader/trx/trx.h"
 #include "mesh.h"
+#include "paths.h"
 #include "qs/qs.h"
 #include "render/material/materialmanager.h"
 #include "render/material/spritematerialmode.h"
@@ -82,6 +84,7 @@
 #include "ui/ui.h"
 #include "util/fsutil.h"
 #include "util/helpers.h"
+#include "util/md5.h"
 
 #include <algorithm>
 #include <boost/assert.hpp>
@@ -1225,7 +1228,36 @@ World::World(Engine& engine,
 
   initTextureDependentDataFromLevel(*level);
 
-  render::MultiTextureAtlas atlases{2048};
+  const auto userDataDir = findUserDataDir().value();
+  std::string texturePackId;
+  if(const auto& glidos = engine.getGlidos(); glidos != nullptr)
+  {
+    texturePackId = util::md5(glidos->getBaseDir().string().data(), glidos->getBaseDir().string().size());
+  }
+  else
+  {
+    texturePackId = "base";
+  }
+
+  const auto levelFileTime = std::filesystem::last_write_time(level->getFilename());
+  const auto cacheDir
+    = userDataDir / "texturecache" / m_engine.getGameflowId() / texturePackId / level->getFilename().filename();
+  std::filesystem::create_directories(cacheDir);
+  bool validTextureCache = std::filesystem::is_regular_file(cacheDir / "_texturesizes.yaml");
+  if(validTextureCache)
+  {
+    if(const auto& glidos = engine.getGlidos(); glidos != nullptr)
+    {
+      validTextureCache &= std::max(levelFileTime, glidos->getNewestFileTime())
+                           < std::filesystem::last_write_time(cacheDir / "_texturesizes.yaml");
+    }
+    else
+    {
+      validTextureCache &= levelFileTime < std::filesystem::last_write_time(cacheDir / "_texturesizes.yaml");
+    }
+  }
+
+  render::MultiTextureAtlas atlases{3072, validTextureCache};
   m_controllerLayouts = loadControllerButtonIcons(
     atlases,
     util::ensureFileExists(m_engine.getEngineDataPath() / "button-icons" / "buttons.yaml"),
@@ -1234,15 +1266,29 @@ World::World(Engine& engine,
                                                    {
                                                      return engine.getEngineConfig()->renderSettings.lightingMode;
                                                    }));
-  m_allTextures = buildTextures(*level,
-                                m_engine.getGlidos(),
-                                atlases,
-                                m_atlasTiles,
-                                m_sprites,
-                                [this](const std::string& s)
-                                {
-                                  getPresenter().drawLoadingScreen(s);
-                                });
+
+  {
+    auto lastDrawUpdate = std::chrono::high_resolution_clock::now();
+    static constexpr auto TimePerFrame
+      = std::chrono::duration_cast<std::chrono::high_resolution_clock::duration>(std::chrono::seconds{1})
+        / core::FrameRate.get();
+    m_allTextures = buildTextures(
+      *level,
+      m_engine.getGlidos(),
+      atlases,
+      m_atlasTiles,
+      m_sprites,
+      [this, &lastDrawUpdate](const std::string& s)
+      {
+        const auto now = std::chrono::high_resolution_clock::now();
+        if(lastDrawUpdate + TimePerFrame < now)
+        {
+          lastDrawUpdate = now;
+          getPresenter().drawLoadingScreen(s);
+        }
+      },
+      cacheDir);
+  }
 
   getPresenter().getMaterialManager()->setGeometryTextures(gsl::not_null{m_allTextures});
 
@@ -1264,7 +1310,7 @@ World::World(Engine& engine,
                                                      ? 0
                                                      : engine.getEngineConfig()->renderSettings.lightingMode;
                                           }),
-                                        sprite.textureId.get_as<int32_t>(),
+                                        sprite.atlasId.get_as<int32_t>(),
                                         "sprite-" + std::to_string(i) + "-ybound");
     sprite.billboardMesh
       = render::scene::createSpriteMesh(static_cast<float>(sprite.render0.x),
@@ -1281,7 +1327,7 @@ World::World(Engine& engine,
                                                      ? 0
                                                      : engine.getEngineConfig()->renderSettings.lightingMode;
                                           }),
-                                        sprite.textureId.get_as<int32_t>(),
+                                        sprite.atlasId.get_as<int32_t>(),
                                         "sprite-" + std::to_string(i) + "-billboard");
     sprite.instancedBillboardMesh
       = render::scene::createInstancedSpriteMesh(static_cast<float>(sprite.render0.x),
@@ -1298,7 +1344,7 @@ World::World(Engine& engine,
                                                               ? 0
                                                               : engine.getEngineConfig()->renderSettings.lightingMode;
                                                    }),
-                                                 sprite.textureId.get_as<int32_t>(),
+                                                 sprite.atlasId.get_as<int32_t>(),
                                                  "sprite-" + std::to_string(i) + "-instanced");
   }
 
@@ -1839,7 +1885,7 @@ void World::initTextureDependentDataFromLevel(const loader::file::level::Level& 
                  std::back_inserter(m_sprites),
                  [](const loader::file::Sprite& sprite)
                  {
-                   return Sprite{sprite.texture_id,
+                   return Sprite{sprite.atlas_id,
                                  sprite.uv0.toGl(),
                                  sprite.uv1.toGl(),
                                  sprite.render0,

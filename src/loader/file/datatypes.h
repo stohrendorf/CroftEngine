@@ -36,8 +36,8 @@ namespace io
 class SDLReader;
 }
 
-constexpr uint16_t TextureIndexMaskTr4 = 0x7FFF; // in some custom levels we need to use 0x7FFF flag
-constexpr uint16_t TextureIndexMask = 0x0FFF;
+constexpr uint16_t AtlasIdMaskTr4 = 0x7FFF; // in some custom levels we need to use 0x7FFF flag
+constexpr uint16_t AtlasIdMask = 0x0FFF;
 
 struct Portal
 {
@@ -346,7 +346,7 @@ struct Room
 
 struct Sprite
 {
-  core::TextureId texture_id{uint16_t(0)};
+  core::AtlasId atlas_id{uint16_t(0)};
 
   UVCoordinates uv0;
   UVCoordinates uv1;

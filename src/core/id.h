@@ -160,7 +160,7 @@ DECLARE_ID(RoomId32, uint32_t);
 DECLARE_ID(RoomGroupId, uint8_t);
 DECLARE_ID(AnimStateId, uint16_t);
 DECLARE_ID(TextureTileId, uint16_t);
-DECLARE_ID(TextureId, uint16_t);
+DECLARE_ID(AtlasId, uint16_t);
 DECLARE_ID(MeshId, uint32_t);
 DECLARE_ID(StaticMeshId, uint32_t);
 DECLARE_ID(SampleId, uint32_t);

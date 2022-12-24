@@ -42,4 +42,36 @@ inline glm::mat4 create(const TypeId<glm::mat4>&, const Serializer<TContext>& se
   load(m, ser);
   return m;
 }
+
+template<typename TContext, glm::length_t L, typename T, glm::qualifier Q>
+inline void save(glm::vec<L, T, Q>& v, const Serializer<TContext>& ser)
+{
+  ser.tag("vec");
+  ser.node |= ryml::SEQ;
+  for(glm::length_t x = 0; x < L; ++x)
+    ser.node.append_child() << v[x];
+}
+
+template<typename TContext, glm::length_t L, typename T, glm::qualifier Q>
+inline void load(glm::vec<L, T, Q>& v, const Serializer<TContext>& ser)
+{
+  ser.tag("vec");
+  Expects(ser.node.is_seq() && ser.node.num_children() == L);
+  auto it = ser.node.begin();
+  for(glm::length_t x = 0; x < L; ++x)
+  {
+    *it >> v[x];
+    ++it;
+  }
+}
+
+template<typename TContext, glm::length_t L, typename T, glm::qualifier Q>
+inline glm::vec<L, T, Q> create(const TypeId<glm::vec<L, T, Q>>&, const Serializer<TContext>& ser)
+{
+  ser.tag("vec");
+  Expects(ser.loading);
+  glm::vec<L, T, Q> v{};
+  load(v, ser);
+  return v;
+}
 } // namespace serialization

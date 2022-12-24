@@ -47,7 +47,7 @@ void TR5Level::loadFileData()
     m_reader.readBytes(comp_buffer.data(), comp_size);
 
     auto newsrc = io::SDLReader::decompress(comp_buffer, uncomp_size);
-    newsrc.readVector(m_textures, numTextiles - numMiscTextiles, &DWordTexture::read);
+    newsrc.readVector(m_atlases, numTextiles - numMiscTextiles, &DWordTexture::read);
   }
 
   uncomp_size = m_reader.readU32();
@@ -58,7 +58,7 @@ void TR5Level::loadFileData()
   std::vector<WordTexture> texture16;
   if(comp_size > 0)
   {
-    if(m_textures.empty())
+    if(m_atlases.empty())
     {
       std::vector<uint8_t> comp_buffer(comp_size);
       m_reader.readBytes(comp_buffer.data(), comp_size);
@@ -86,7 +86,7 @@ void TR5Level::loadFileData()
     m_reader.readBytes(comp_buffer.data(), comp_size);
 
     auto newsrc = io::SDLReader::decompress(comp_buffer, uncomp_size);
-    newsrc.appendVector(m_textures, numMiscTextiles, &DWordTexture::read);
+    newsrc.appendVector(m_atlases, numMiscTextiles, &DWordTexture::read);
   }
 
   m_laraType = m_reader.readU16();
@@ -234,11 +234,11 @@ void TR5Level::loadFileData()
     m_reader.readVector(m_samplesData, static_cast<size_t>(m_reader.size() - m_reader.tell()));
   }
 
-  if(!m_textures.empty())
+  if(!m_atlases.empty())
     return;
 
-  m_textures.resize(texture16.size());
+  m_atlases.resize(texture16.size());
   for(size_t i = 0; i < texture16.size(); i++)
-    convertTexture(texture16[i], m_textures[i]);
+    convertTexture(texture16[i], m_atlases[i]);
 }
 } // namespace loader::file::level

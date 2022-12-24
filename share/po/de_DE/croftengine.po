@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CroftEngine\n"
 "Report-Msgid-Bugs-To: https://github.com/stohrendorf/CroftEngine/issues\n"
-"POT-Creation-Date: 2022-12-14 02:09+0100\n"
+"POT-Creation-Date: 2023-01-19 18:46+0100\n"
 "Last-Translator: Steffen Ohrendorf\n"
 "Language-Team: none\n"
 "Language: de_DE\n"
@@ -233,9 +233,16 @@ msgstr "Fehlerbericht"
 msgid "Bug Report Saved"
 msgstr "Fehlerbericht gespeichert"
 
-#: engine/world/texturing.cpp:321
-msgid "Building textures"
-msgstr "Erstelle Texturen"
+#: engine/world/texturing.cpp:669
+msgid "Building atlases"
+msgstr "Erstelle Atlasse"
+
+#: engine/world/texturing.cpp:300 engine/world/texturing.cpp:469
+#: engine/world/texturing.cpp:715 engine/world/texturing.cpp:739
+#: engine/world/texturing.cpp:757
+#, boost-format
+msgid "Building atlases (%1%%%)"
+msgstr "Erstelle Atlasse (%1%%%)"
 
 #. translators: TR charmap encoding
 #: menu/rendersettingsmenustate.cpp:647
@@ -518,22 +525,22 @@ msgstr "Generiere Staubpartikel..."
 msgid "Ghost"
 msgstr "Geist"
 
-#: loader/trx/trx.cpp:340
+#: loader/trx/trx.cpp:355
 #, boost-format
 msgid "Glidos - Loading %1%"
 msgstr "Glidos - Lade %1%"
 
-#: loader/trx/trx.cpp:139
+#: loader/trx/trx.cpp:148
 #, boost-format
 msgid "Glidos - Loading equiv.txt (%1%%%)"
 msgstr "Glidos - Lade equiv.txt (%1%%%)"
 
-#: loader/trx/trx.cpp:165 loader/trx/trx.cpp:213
+#: loader/trx/trx.cpp:175 loader/trx/trx.cpp:225
 #, boost-format
 msgid "Glidos - Resolving maps (%1%%%)"
 msgstr "Glidos - L\303\266se Zuordnungen auf (%1%%%)"
 
-#: loader/trx/trx.cpp:350
+#: loader/trx/trx.cpp:365
 msgid "Glidos - Resolving maps (100%)"
 msgstr "Glidos - L\303\266se Zuordnungen auf (100%)"
 
@@ -637,7 +644,7 @@ msgstr "K"
 msgid "KILLS %1%"
 msgstr "Besiegte Gegner %1%"
 
-#: engine/engineconfig.cpp:31
+#: engine/engineconfig.cpp:31 engine/engineconfig.cpp:114
 msgctxt "Input|MappingName"
 msgid "Keyboard"
 msgstr "Tastatur"
@@ -720,11 +727,11 @@ msgstr "Spiel laden"
 msgid "Loading %1%"
 msgstr "Lade %1%"
 
-#: engine/engine.cpp:693
+#: engine/engine.cpp:695
 msgid "Loading Glidos texture pack"
 msgstr "Lade Glidos Textur Paket"
 
-#: engine/world/world.cpp:1111
+#: engine/world/world.cpp:1114
 msgid "Loading..."
 msgstr "Lade..."
 
@@ -1042,7 +1049,7 @@ msgstr "Q"
 msgid "Quality"
 msgstr "Qualit~at"
 
-#: engine/world/world.cpp:1135
+#: engine/world/world.cpp:1138
 msgid "Quicksave"
 msgstr "Schnellspeicherung"
 
@@ -1351,7 +1358,7 @@ msgid "Up"
 msgstr "Hoch"
 
 #. translators: TR charmap encoding
-#: ui/levelstats.cpp:51
+#: ui/levelstats.cpp:50
 #, boost-format
 msgid "Use %1% to show detailed stats."
 msgstr "%1% zur Anzeige detaillierter Statistiken."

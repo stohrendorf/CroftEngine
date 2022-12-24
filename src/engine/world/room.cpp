@@ -261,7 +261,7 @@ void Room::createSceneNode(const loader::file::Room& srcRoom,
       iv.position = quad.vertices[i].from(srcRoom.vertices).position.toRenderSystem();
       iv.color = quad.vertices[i].from(srcRoom.vertices).color;
 
-      uvCoordsData.emplace_back(tile.textureKey.tileAndFlag & loader::file::TextureIndexMask,
+      uvCoordsData.emplace_back(tile.textureKey.atlasIdAndFlag & loader::file::AtlasIdMask,
                                 tile.uvCoordinates[i],
                                 glm::vec4{tile.uvCoordinates[0], tile.uvCoordinates[1]},
                                 glm::vec4{tile.uvCoordinates[2], tile.uvCoordinates[3]});
@@ -327,7 +327,7 @@ void Room::createSceneNode(const loader::file::Room& srcRoom,
       RenderVertex iv;
       iv.position = tri.vertices[i].from(srcRoom.vertices).position.toRenderSystem();
       iv.color = tri.vertices[i].from(srcRoom.vertices).color;
-      uvCoordsData.emplace_back(tile.textureKey.tileAndFlag & loader::file::TextureIndexMask,
+      uvCoordsData.emplace_back(tile.textureKey.atlasIdAndFlag & loader::file::AtlasIdMask,
                                 tile.uvCoordinates[i],
                                 glm::vec4{tile.uvCoordinates[0], tile.uvCoordinates[1]},
                                 glm::vec4{tile.uvCoordinates[2], tile.uvCoordinates[3]});

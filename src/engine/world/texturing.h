@@ -1,5 +1,6 @@
 #pragma once
 
+#include <filesystem>
 #include <functional>
 #include <gl/pixel.h>
 #include <gl/soglb_fwd.h>
@@ -33,5 +34,6 @@ extern std::unique_ptr<gl::Texture2DArray<gl::PremultipliedSRGBA8>>
                 render::MultiTextureAtlas& atlases,
                 std::vector<AtlasTile>& atlasTiles,
                 std::vector<Sprite>& sprites,
-                const std::function<void(const std::string&)>& drawLoadingScreen);
+                const std::function<void(const std::string&)>& drawLoadingScreen,
+                const std::filesystem::path& cacheDir);
 } // namespace engine::world

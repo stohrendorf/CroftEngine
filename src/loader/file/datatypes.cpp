@@ -778,10 +778,10 @@ std::unique_ptr<Sprite> Sprite::readTr1(io::SDLReader& reader)
 {
   auto sprite = std::make_unique<Sprite>();
 
-  sprite->texture_id = reader.readU16();
-  if(sprite->texture_id.get() > 64)
+  sprite->atlas_id = reader.readU16();
+  if(sprite->atlas_id.get() > 64)
   {
-    BOOST_LOG_TRIVIAL(warning) << "TR1 Sprite Texture ID > 64";
+    BOOST_LOG_TRIVIAL(warning) << "TR1 Sprite Atlas ID > 64";
   }
 
   sprite->uv0.x = UVCoordinates::Component{gsl::narrow_cast<UVCoordinates::Component::type>(reader.readU8() * 256)};
@@ -801,10 +801,10 @@ std::unique_ptr<Sprite> Sprite::readTr1(io::SDLReader& reader)
 std::unique_ptr<Sprite> Sprite::readTr4(io::SDLReader& reader)
 {
   auto sprite = std::make_unique<Sprite>();
-  sprite->texture_id = reader.readU16();
-  if(sprite->texture_id.get() > 128)
+  sprite->atlas_id = reader.readU16();
+  if(sprite->atlas_id.get() > 128)
   {
-    BOOST_LOG_TRIVIAL(warning) << "TR4 Sprite Texture ID > 128";
+    BOOST_LOG_TRIVIAL(warning) << "TR4 Sprite Atlas ID > 128";
   }
 
   sprite->render0.x = reader.readI8() * 256;

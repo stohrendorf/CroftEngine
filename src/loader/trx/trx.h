@@ -5,6 +5,7 @@
 #include <filesystem>
 #include <fstream>
 #include <functional>
+#include <glm/vec2.hpp>
 #include <gsl/gsl-lite.hpp>
 #include <map>
 #include <set>
@@ -21,70 +22,61 @@ public:
 
   explicit Rectangle(const std::string& serialized);
 
-  explicit Rectangle(uint32_t x0, uint32_t y0, uint32_t x1, uint32_t y1)
-      : m_x0{std::min(x0, x1)}
-      , m_x1{std::max(x0, x1)}
-      , m_y0{std::min(y0, y1)}
-      , m_y1{std::max(y0, y1)}
+  explicit Rectangle(const glm::ivec2& xy0, const glm::ivec2& xy1)
+      : m_xy0{std::min(xy0.x, xy1.x), std::min(xy0.y, xy1.y)}
+      , m_xy1{std::max(xy0.x, xy1.x), std::max(xy0.y, xy1.y)}
   {
   }
 
   bool operator<(const Rectangle& rhs) const
   {
-    if(m_x0 != rhs.m_x0)
-      return m_x0 < rhs.m_x0;
-    if(m_x1 != rhs.m_x1)
-      return m_x1 < rhs.m_x1;
-    if(m_y0 != rhs.m_y0)
-      return m_y0 < rhs.m_y0;
-    return m_y1 < rhs.m_y1;
+    if(m_xy0.x != rhs.m_xy0.x)
+      return m_xy0.x < rhs.m_xy0.x;
+    if(m_xy1.x != rhs.m_xy1.x)
+      return m_xy1.x < rhs.m_xy1.x;
+    if(m_xy0.y != rhs.m_xy0.y)
+      return m_xy0.y < rhs.m_xy0.y;
+    return m_xy1.y < rhs.m_xy1.y;
   }
 
-  [[nodiscard]] uint32_t getX0() const noexcept
+  [[nodiscard]] const auto& getXY0() const noexcept
   {
-    return m_x0;
+    return m_xy0;
   }
 
-  [[nodiscard]] uint32_t getX1() const noexcept
+  [[nodiscard]] const auto& getXY1() const noexcept
   {
-    return m_x1;
+    return m_xy1;
   }
 
-  [[nodiscard]] uint32_t getY0() const noexcept
+  [[nodiscard]] auto getSize() const
   {
-    return m_y0;
-  }
-
-  [[nodiscard]] uint32_t getY1() const noexcept
-  {
-    return m_y1;
+    return m_xy1 - m_xy0;
   }
 
   [[nodiscard]] int getWidth() const
   {
-    return gsl::narrow<int>(m_x1 - m_x0);
+    return m_xy1.x - m_xy0.x;
   }
 
   [[nodiscard]] int getHeight() const
   {
-    return gsl::narrow<int>(m_y1 - m_y0);
+    return m_xy1.y - m_xy0.y;
   }
 
-  [[nodiscard]] bool contains(uint32_t x, uint32_t y) const
+  [[nodiscard]] bool contains(int x, int y) const
   {
-    return x >= m_x0 && x < m_x1 && y >= m_y0 && y < m_y1;
+    return x >= m_xy0.x && x < m_xy1.x && y >= m_xy0.y && y < m_xy1.y;
   }
 
 private:
-  uint32_t m_x0 = 0;
-  uint32_t m_x1 = 0;
-  uint32_t m_y0 = 0;
-  uint32_t m_y1 = 0;
+  glm::ivec2 m_xy0{0, 0};
+  glm::ivec2 m_xy1{0, 0};
 };
 
 inline std::ostream& operator<<(std::ostream& str, const Rectangle& r)
 {
-  return str << "(" << r.getX0() << "," << r.getY0() << ")-(" << r.getX1() << "," << r.getY1() << ")";
+  return str << "(" << r.getXY0().x << "," << r.getXY0().y << ")-(" << r.getXY1().x << "," << r.getXY1().y << ")";
 }
 
 class TexturePart
@@ -149,11 +141,14 @@ private:
 class Equiv
 {
 public:
-  explicit Equiv(const std::filesystem::path& filename, const std::function<void(const std::string&)>& statusCallback);
+  explicit Equiv(const std::filesystem::path& filename,
+                 const std::function<void(const std::string&)>& statusCallback,
+                 std::filesystem::file_time_type& newestFile);
 
   void resolve(const std::filesystem::path& root,
                std::map<TexturePart, std::filesystem::path>& filesByPart,
-               const std::function<void(const std::string&)>& statusCallback) const;
+               const std::function<void(const std::string&)>& statusCallback,
+               std::filesystem::file_time_type& newestFile) const;
 
 private:
   std::vector<EquivalenceSet> m_equivalentSets;
@@ -162,7 +157,9 @@ private:
 class PathMap
 {
 public:
-  explicit PathMap(const std::filesystem::path& baseTxtName, std::map<TexturePart, std::filesystem::path>& filesByPart);
+  explicit PathMap(const std::filesystem::path& baseTxtName,
+                   std::map<TexturePart, std::filesystem::path>& filesByPart,
+                   std::filesystem::file_time_type& newestFile);
 
   [[nodiscard]] const std::filesystem::path& getRoot() const
   {
@@ -181,8 +178,14 @@ public:
   using TileMap = std::map<Rectangle, std::filesystem::path>;
 
   [[nodiscard]] TileMap getMappingsForTexture(const std::string& textureId) const;
+  void insertInternalMapping(const std::string& textureId, const Rectangle& tile);
 
-  [[nodiscard]] const auto& getBaseDir() const noexcept
+  [[nodiscard]] const auto& getNewestFileTime() const
+  {
+    return m_newestFile;
+  }
+
+  [[nodiscard]] const auto& getBaseDir() const
   {
     return m_baseDir;
   }
@@ -190,5 +193,6 @@ public:
 private:
   std::map<TexturePart, std::filesystem::path> m_filesByPart;
   const std::filesystem::path m_baseDir;
+  std::filesystem::file_time_type m_newestFile{};
 };
 } // namespace loader::trx

@@ -48,7 +48,7 @@ public:
   virtual ~Level();
 
   const Game m_gameVersion;
-  std::vector<DWordTexture> m_textures;
+  std::vector<DWordTexture> m_atlases;
   std::unique_ptr<Palette> m_palette;
   std::vector<Room> m_rooms;
   std::vector<uint32_t> m_meshIndices;

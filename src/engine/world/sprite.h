@@ -15,7 +15,7 @@ namespace engine::world
 {
 struct Sprite
 {
-  core::TextureId textureId{uint16_t(0)};
+  core::AtlasId atlasId{uint16_t(0)};
 
   glm::vec2 uv0;
   glm::vec2 uv1;
@@ -29,7 +29,7 @@ struct Sprite
 
   constexpr bool operator==(const Sprite& rhs) const
   {
-    return textureId == rhs.textureId && uv0 == rhs.uv0 && uv1 == rhs.uv1 && render0 == rhs.render0
+    return atlasId == rhs.atlasId && uv0 == rhs.uv0 && uv1 == rhs.uv1 && render0 == rhs.render0
            && render1 == rhs.render1;
   }
 };

@@ -526,7 +526,7 @@ void Engine::makeScreenshot()
     std::filesystem::create_directories(m_userDataPath / "screenshots");
 
   auto filename = getCurrentHumanReadableTimestamp() + ".png";
-  img.savePng(m_userDataPath / "screenshots" / filename);
+  img.savePng(m_userDataPath / "screenshots" / filename, false);
 }
 
 void Engine::takeBugReport(world::World& world)
@@ -553,7 +553,7 @@ void Engine::takeBugReport(world::World& world)
   }
 
   auto img = m_presenter->takeScreenshot();
-  img.savePng(m_userDataPath / "bugreports" / dirName / "screenshot.png");
+  img.savePng(m_userDataPath / "bugreports" / dirName / "screenshot.png", false);
 
   world.save(m_userDataPath / "bugreports" / dirName / "save.yaml", false);
 }

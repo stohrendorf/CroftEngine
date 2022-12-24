@@ -176,10 +176,20 @@ const uint8_t* CImgWrapper::data() const
   return m_image->data();
 }
 
-void CImgWrapper::savePng(const std::string& filename)
+void CImgWrapper::savePng(const std::string& filename, bool premultiplied)
 {
   deinterleave();
-  m_image->save_png(filename.c_str(), 1);
+  if(!premultiplied)
+  {
+    m_image->save_png(filename.c_str(), 1);
+    return;
+  }
+
+  auto tmp = std::make_unique<cimg_library::CImg<int>>(*m_image, false);
+  tmp->get_shared_channel(0).mul(tmp->get_shared_channel(3)) /= 255;
+  tmp->get_shared_channel(1).mul(tmp->get_shared_channel(3)) /= 255;
+  tmp->get_shared_channel(2).mul(tmp->get_shared_channel(3)) /= 255;
+  tmp->save_png(filename.c_str(), 1);
 }
 
 void CImgWrapper::unshare()

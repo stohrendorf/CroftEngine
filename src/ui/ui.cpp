@@ -215,28 +215,28 @@ void Ui::draw(const engine::world::Sprite& sprite, const glm::ivec2& xy, float s
   const auto ta = sprite.uv0;
   const auto tb = sprite.uv1;
   m_vertices.emplace_back(UiVertex{{a.x, a.y},
-                                   {ta.x, ta.y, sprite.textureId.get()},
+                                   {ta.x, ta.y, sprite.atlasId.get()},
                                    glm::vec4{0},
                                    glm::vec4{0},
                                    glm::vec4{0},
                                    glm::vec4{0},
                                    gl::premultiply(glm::vec4{1, 1, 1, alpha})});
   m_vertices.emplace_back(UiVertex{{a.x, b.y},
-                                   {ta.x, tb.y, sprite.textureId.get()},
+                                   {ta.x, tb.y, sprite.atlasId.get()},
                                    glm::vec4{0},
                                    glm::vec4{0},
                                    glm::vec4{0},
                                    glm::vec4{0},
                                    gl::premultiply(glm::vec4{1, 1, 1, alpha})});
   m_vertices.emplace_back(UiVertex{{b.x, b.y},
-                                   {tb.x, tb.y, sprite.textureId.get()},
+                                   {tb.x, tb.y, sprite.atlasId.get()},
                                    glm::vec4{0},
                                    glm::vec4{0},
                                    glm::vec4{0},
                                    glm::vec4{0},
                                    gl::premultiply(glm::vec4{1, 1, 1, alpha})});
   m_vertices.emplace_back(UiVertex{{b.x, a.y},
-                                   {tb.x, ta.y, sprite.textureId.get()},
+                                   {tb.x, ta.y, sprite.atlasId.get()},
                                    glm::vec4{0},
                                    glm::vec4{0},
                                    glm::vec4{0},

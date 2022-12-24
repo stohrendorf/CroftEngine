@@ -49,7 +49,7 @@ void TR4Level::loadFileData()
       m_reader.readBytes(comp_buffer.data(), comp_size);
 
       auto newsrc = io::SDLReader::decompress(comp_buffer, uncomp_size);
-      newsrc.readVector(m_textures, numTextiles - numMiscTextiles, &DWordTexture::read);
+      newsrc.readVector(m_atlases, numTextiles - numMiscTextiles, &DWordTexture::read);
     }
 
     uncomp_size = m_reader.readU32();
@@ -59,7 +59,7 @@ void TR4Level::loadFileData()
     comp_size = m_reader.readU32();
     if(comp_size > 0)
     {
-      if(m_textures.empty())
+      if(m_atlases.empty())
       {
         std::vector<uint8_t> comp_buffer(comp_size);
         m_reader.readBytes(comp_buffer.data(), comp_size);
@@ -80,7 +80,7 @@ void TR4Level::loadFileData()
     comp_size = m_reader.readU32();
     if(comp_size > 0)
     {
-      if(!m_textures.empty())
+      if(!m_atlases.empty())
       {
         m_reader.skip(comp_size);
       }
@@ -89,16 +89,16 @@ void TR4Level::loadFileData()
         if(uncomp_size / (256 * 256 * 4) > 2)
           BOOST_LOG_TRIVIAL(warning) << "TR4 Level: number of misc textiles > 2";
 
-        if(m_textures.empty())
+        if(m_atlases.empty())
         {
-          m_textures.resize(numTextiles);
+          m_atlases.resize(numTextiles);
         }
         std::vector<uint8_t> comp_buffer(comp_size);
 
         m_reader.readBytes(comp_buffer.data(), comp_size);
 
         auto newsrc = io::SDLReader::decompress(comp_buffer, uncomp_size);
-        newsrc.appendVector(m_textures, numMiscTextiles, &DWordTexture::read);
+        newsrc.appendVector(m_atlases, numMiscTextiles, &DWordTexture::read);
       }
     }
   }
@@ -231,11 +231,11 @@ void TR4Level::loadFileData()
     m_reader.readVector(m_samplesData, static_cast<size_t>(m_reader.size() - m_reader.tell()));
   }
 
-  if(!m_textures.empty())
+  if(!m_atlases.empty())
     return;
 
-  m_textures.resize(texture16.size());
+  m_atlases.resize(texture16.size());
   for(size_t i = 0; i < texture16.size(); i++)
-    convertTexture(texture16[i], m_textures[i]);
+    convertTexture(texture16[i], m_atlases[i]);
 }
 } // namespace loader::file::level

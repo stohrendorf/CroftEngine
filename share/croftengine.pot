@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CroftEngine 1.12\n"
 "Report-Msgid-Bugs-To: https://github.com/stohrendorf/CroftEngine/issues\n"
-"POT-Creation-Date: 2022-12-14 02:09+0100\n"
+"POT-Creation-Date: 2023-01-19 18:46+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -234,8 +234,15 @@ msgstr ""
 msgid "Bug Report Saved"
 msgstr ""
 
-#: engine/world/texturing.cpp:321
-msgid "Building textures"
+#: engine/world/texturing.cpp:669
+msgid "Building atlases"
+msgstr ""
+
+#: engine/world/texturing.cpp:300 engine/world/texturing.cpp:469
+#: engine/world/texturing.cpp:715 engine/world/texturing.cpp:739
+#: engine/world/texturing.cpp:757
+#, boost-format
+msgid "Building atlases (%1%%%)"
 msgstr ""
 
 #. translators: TR charmap encoding
@@ -517,22 +524,22 @@ msgstr ""
 msgid "Ghost"
 msgstr ""
 
-#: loader/trx/trx.cpp:340
+#: loader/trx/trx.cpp:355
 #, boost-format
 msgid "Glidos - Loading %1%"
 msgstr ""
 
-#: loader/trx/trx.cpp:139
+#: loader/trx/trx.cpp:148
 #, boost-format
 msgid "Glidos - Loading equiv.txt (%1%%%)"
 msgstr ""
 
-#: loader/trx/trx.cpp:165 loader/trx/trx.cpp:213
+#: loader/trx/trx.cpp:175 loader/trx/trx.cpp:225
 #, boost-format
 msgid "Glidos - Resolving maps (%1%%%)"
 msgstr ""
 
-#: loader/trx/trx.cpp:350
+#: loader/trx/trx.cpp:365
 msgid "Glidos - Resolving maps (100%)"
 msgstr ""
 
@@ -636,7 +643,7 @@ msgstr ""
 msgid "KILLS %1%"
 msgstr ""
 
-#: engine/engineconfig.cpp:31
+#: engine/engineconfig.cpp:31 engine/engineconfig.cpp:114
 msgctxt "Input|MappingName"
 msgid "Keyboard"
 msgstr ""
@@ -719,11 +726,11 @@ msgstr ""
 msgid "Loading %1%"
 msgstr ""
 
-#: engine/engine.cpp:693
+#: engine/engine.cpp:695
 msgid "Loading Glidos texture pack"
 msgstr ""
 
-#: engine/world/world.cpp:1111
+#: engine/world/world.cpp:1114
 msgid "Loading..."
 msgstr ""
 
@@ -1041,7 +1048,7 @@ msgstr ""
 msgid "Quality"
 msgstr ""
 
-#: engine/world/world.cpp:1135
+#: engine/world/world.cpp:1138
 msgid "Quicksave"
 msgstr ""
 
@@ -1350,7 +1357,7 @@ msgid "Up"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: ui/levelstats.cpp:51
+#: ui/levelstats.cpp:50
 #, boost-format
 msgid "Use %1% to show detailed stats."
 msgstr ""

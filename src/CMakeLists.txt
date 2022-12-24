@@ -702,7 +702,7 @@ add_executable( croftengine WIN32 ${CROFTENGINE_SRCS} )
 
 set_property(
         SOURCE croftengine.cpp
-        PROPERTY COMPILE_DEFINITIONS CE_VERSION="${CMAKE_PROJECT_VERSION}"
+        PROPERTY COMPILE_DEFINITIONS "CE_VERSION=\"${CMAKE_PROJECT_VERSION}\""
 )
 
 group_files( ${CROFTENGINE_SRCS} )
@@ -722,6 +722,27 @@ if( WIN32 )
     set( WIN32_SPECIFIC_LIBS dbghelp )
 else()
     set( WIN32_SPECIFIC_LIBS )
+endif()
+
+add_library(
+        etcpak
+        STATIC
+        etcpak/processrgb.cpp
+        etcpak/blockdata.cpp
+        etcpak/tables.cpp
+        etcpak/bitmap.cpp
+        etcpak/mmap.cpp
+)
+
+target_link_libraries(
+        etcpak
+        PUBLIC
+        glm::glm
+        gsl-lite::gsl-lite
+)
+target_include_directories( etcpak PUBLIC etcpak )
+if( NOT MSVC )
+    target_compile_options( etcpak PUBLIC -msse4.1 )
 endif()
 
 target_link_libraries(
@@ -753,6 +774,7 @@ target_link_libraries(
         archive
         chillout
         ${WIN32_SPECIFIC_LIBS}
+        etcpak
 )
 
 install(

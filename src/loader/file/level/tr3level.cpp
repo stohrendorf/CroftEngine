@@ -151,8 +151,8 @@ void TR3Level::loadFileData()
     m_reader.readVector(m_samplesData, newsrc.size());
   }
 
-  m_textures.resize(texture16.size());
+  m_atlases.resize(texture16.size());
   for(size_t i = 0; i < texture16.size(); i++)
-    convertTexture(texture16[i], m_textures[i]);
+    convertTexture(texture16[i], m_atlases[i]);
 }
 } // namespace loader::file::level

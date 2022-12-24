@@ -163,9 +163,9 @@ class TextureAtlas final
   std::shared_ptr<gl::CImgWrapper> m_image;
 
 public:
-  explicit TextureAtlas(const int32_t pageSize)
+  explicit TextureAtlas(const int32_t pageSize, bool onlyLayout)
       : m_layout{0, 0, pageSize, pageSize}
-      , m_image{std::make_shared<gl::CImgWrapper>(pageSize)}
+      , m_image{onlyLayout ? nullptr : std::make_shared<gl::CImgWrapper>(pageSize)}
   {
   }
 
@@ -179,6 +179,7 @@ public:
 
   std::optional<glm::ivec2> put(gl::CImgWrapper& img)
   {
+    gsl_Assert(m_image != nullptr);
     auto dstArea = m_layout.tryInsert(img.width(), img.height());
     if(!dstArea.has_value())
       return std::nullopt;
@@ -193,8 +194,15 @@ public:
     return dstArea;
   }
 
+  std::optional<glm::ivec2> put(const glm::ivec2& size)
+  {
+    gsl_Assert(m_image == nullptr);
+    return m_layout.tryInsert(size.x, size.y);
+  }
+
   [[nodiscard]] std::shared_ptr<gl::CImgWrapper> takeImage()
   {
+    gsl_Assert(m_image != nullptr);
     return std::move(m_image);
   }
 };
@@ -203,12 +211,14 @@ class MultiTextureAtlas final
 {
   std::vector<TextureAtlas> m_atlases{};
   const int32_t m_pageSize;
+  const bool m_onlyLayout;
 
 public:
   static constexpr int BoundaryMargin = 16;
 
-  explicit MultiTextureAtlas(const int32_t pageSize)
+  explicit MultiTextureAtlas(const int32_t pageSize, bool onlyLayout)
       : m_pageSize{pageSize}
+      , m_onlyLayout{onlyLayout}
   {
   }
 
@@ -221,6 +231,7 @@ public:
 
   std::pair<size_t, glm::ivec2> put(const gl::CImgWrapper& img)
   {
+    gsl_Assert(!m_onlyLayout);
     auto extended = img;
     extended.extendBorder(BoundaryMargin);
 
@@ -228,18 +239,44 @@ public:
       if(const auto position = m_atlases[i].put(extended))
         return {i, *position + glm::ivec2{BoundaryMargin, BoundaryMargin}};
 
-    m_atlases.emplace_back(m_pageSize);
+    m_atlases.emplace_back(m_pageSize, m_onlyLayout);
     auto position = m_atlases.back().put(extended);
+    gsl_Assert(position.has_value());
+    return {m_atlases.size() - 1, position.value() + glm::ivec2{BoundaryMargin, BoundaryMargin}};
+  }
+
+  std::pair<size_t, glm::ivec2> put(const glm::ivec2& size)
+  {
+    gsl_Assert(m_onlyLayout);
+
+    for(size_t i = 0; i < m_atlases.size(); ++i)
+      if(const auto position = m_atlases[i].put(size + 2 * glm::ivec2{BoundaryMargin, BoundaryMargin}))
+        return {i, *position + glm::ivec2{BoundaryMargin, BoundaryMargin}};
+
+    m_atlases.emplace_back(m_pageSize, m_onlyLayout);
+    auto position = m_atlases.back().put(size + 2 * glm::ivec2{BoundaryMargin, BoundaryMargin});
     gsl_Assert(position.has_value());
     return {m_atlases.size() - 1, position.value() + glm::ivec2{BoundaryMargin, BoundaryMargin}};
   }
 
   std::vector<std::shared_ptr<gl::CImgWrapper>> takeImages()
   {
+    gsl_Assert(!m_onlyLayout);
+
     std::vector<std::shared_ptr<gl::CImgWrapper>> result;
     for(auto& atlas : m_atlases)
       result.emplace_back(atlas.takeImage());
     return result;
+  }
+
+  [[nodiscard]] bool isOnlyLayout() const
+  {
+    return m_onlyLayout;
+  }
+
+  [[nodiscard]] auto numAtlases() const
+  {
+    return m_atlases.size();
   }
 };
 } // namespace render
