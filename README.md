@@ -176,7 +176,7 @@ help), jack9267 (vt loader optimization), meta2tr (testing and bugtracking), sha
 console patch) and xythobuz (additional Mac patches).
 
 Translations by: Joey79100 (French), Nickotte (Italian), Lwmte (Russian), SuiKaze Raider (Spanish).
-</summary>
+</details>
 
 <details>
 <summary>Building on Windows (click to expand)</summary>
