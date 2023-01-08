@@ -1754,8 +1754,10 @@ void World::initAnimationData(const loader::file::level::Level& level)
     gsl_Assert(anim.nextAnimationIndex < m_animations.size());
     auto nextAnimation = &m_animations[anim.nextAnimationIndex];
 
-    gsl_Assert((anim.animCommandIndex + anim.animCommandCount).exclusiveIn(m_animCommands));
-    gsl_Assert((anim.transitionsIndex + anim.transitionsCount).exclusiveIn(m_transitions));
+    gsl_Assert(anim.animCommandCount == 0
+               || (anim.animCommandIndex + anim.animCommandCount).exclusiveIn(m_animCommands));
+    gsl_Assert(anim.transitionsCount == 0
+               || (anim.transitionsIndex + anim.transitionsCount).exclusiveIn(m_transitions));
     gsl::span<const Transitions> transitions;
     if(anim.transitionsCount > 0)
       transitions = gsl::span{&anim.transitionsIndex.from(m_transitions), anim.transitionsCount};
