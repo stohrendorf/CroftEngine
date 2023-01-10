@@ -131,7 +131,7 @@ int main(int argc, char** argv)
 #ifdef NDEBUG
   if(!crashReportInitSuccess)
   {
-    BOOST_LOG_TRIVIAL(warning) << "Crash report initalization failed (nowhere to write dumps)";
+    BOOST_LOG_TRIVIAL(warning) << "Crash report initialization failed (nowhere to write dumps)";
   }
 #endif
 
