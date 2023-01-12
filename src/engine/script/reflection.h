@@ -203,9 +203,11 @@ class Video : public LevelSequenceItem
 {
 private:
   std::vector<std::filesystem::path> m_paths;
+  bool m_optional;
 
 public:
-  explicit Video(const std::vector<std::string>& paths)
+  explicit Video(const std::vector<std::string>& paths, bool optional)
+      : m_optional{optional}
   {
     if(paths.empty())
       BOOST_THROW_EXCEPTION(std::invalid_argument("paths is empty"));

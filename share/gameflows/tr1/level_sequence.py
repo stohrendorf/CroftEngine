@@ -10,9 +10,9 @@ def _fmv(basename: str):
 
 
 early_boot = [
-    Video(_fmv("CORE")),
-    Video(_fmv("ESCAPE")),
-    Video(_fmv("CAFE")),
+    Video(paths=_fmv("CORE")),
+    Video(paths=_fmv("ESCAPE"), optional=True),
+    Video(paths=_fmv("CAFE")),
 ]
 
 title_menu = TitleMenu(
@@ -25,7 +25,7 @@ title_menu = TitleMenu(
 )
 
 lara_home = [
-    Video(_fmv("MANSION")),
+    Video(paths=_fmv("MANSION")),
     Level(
         name="DATA/GYM.PHD",
         titles={
@@ -40,7 +40,7 @@ lara_home = [
 ]
 
 level_sequence = [
-    Video(_fmv("SNOW")),
+    Video(paths=_fmv("SNOW")),
     ModifyInventory(
         add_inventory={TR1ItemId.Pistols: 1},
     ),
@@ -113,7 +113,7 @@ level_sequence = [
         camera_pos_z=63180,
         camera_rot=-128.0,
     ),
-    Video(_fmv("LIFT")),
+    Video(paths=_fmv("LIFT")),
     Level(
         name="DATA/LEVEL4.PHD",
         titles={
@@ -231,7 +231,7 @@ level_sequence = [
         camera_rot=90.0,
         weapon_swap=True,
     ),
-    Video(_fmv("VISION")),
+    Video(paths=_fmv("VISION")),
     Level(
         name="DATA/LEVEL8A.PHD",
         titles={
@@ -301,7 +301,7 @@ level_sequence = [
         },
         alternative_splashscreen="DATA/EGYPTLOA.jpg",
     ),
-    Video(_fmv("CANYON")),
+    Video(paths=_fmv("CANYON")),
     ModifyInventory(
         drop_inventory={
             TR1ItemId.Pistols,
@@ -345,7 +345,7 @@ level_sequence = [
         flip_rooms=True,
         camera_rot=90.0,
     ),
-    Video(_fmv("PYRAMID")),
+    Video(paths=_fmv("PYRAMID")),
     ModifyInventory(
         add_inventory={TR1ItemId.Pistols: 1},
     ),
@@ -366,7 +366,7 @@ level_sequence = [
         },
         alternative_splashscreen="DATA/ATLANLOA.jpg",
     ),
-    Video(_fmv("PRISON")),
+    Video(paths=_fmv("PRISON")),
     Cutscene(
         name="DATA/CUT4.PHD",
         track=TR1TrackId.Cutscene1,
@@ -390,7 +390,7 @@ level_sequence = [
         },
         alternative_splashscreen="DATA/ATLANLOA.jpg",
     ),
-    Video(_fmv("END")),
+    Video(paths=_fmv("END")),
     ResetSoundEngine(),
     PlayAudioSlot(slot=0, track=TR1TrackId.MidasReprise),
     *(

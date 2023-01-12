@@ -10,7 +10,7 @@ def _fmv(basename: str):
 
 
 early_boot = [
-    Video(_fmv("CAFE")),
+    Video(paths=_fmv("CAFE")),
     SplashScreen(
         path=f"DATA/eidospc.png",
         duration_seconds=3,
@@ -29,7 +29,7 @@ title_menu = TitleMenu(
 )
 
 lara_home = [
-    Video(_fmv("MANSION")),
+    Video(paths=_fmv("MANSION")),
     Level(
         name="DATA/GYM.PHD",
         titles={
@@ -51,7 +51,7 @@ lara_home = [
 ]
 
 level_sequence = [
-    Video(_fmv("SNOW")),
+    Video(paths=_fmv("SNOW")),
     ModifyInventory(
         add_inventory={TR1ItemId.Pistols: 1},
     ),
@@ -113,7 +113,7 @@ level_sequence = [
             },
         },
     ),
-    Video(_fmv("LIFT")),
+    Video(paths=_fmv("LIFT")),
     Level(
         name="DATA/LEVEL4.PHD",
         titles={
@@ -220,7 +220,7 @@ level_sequence = [
             },
         },
     ),
-    Video(_fmv("VISION")),
+    Video(paths=_fmv("VISION")),
     Level(
         name="DATA/LEVEL8A.PHD",
         titles={
@@ -287,7 +287,7 @@ level_sequence = [
             },
         },
     ),
-    Video(_fmv("CANYON")),
+    Video(paths=_fmv("CANYON")),
     ModifyInventory(
         drop_inventory={
             TR1ItemId.Pistols,
@@ -324,7 +324,7 @@ level_sequence = [
         },
         default_weapon=WeaponType.None_,
     ),
-    Video(_fmv("PYRAMID")),
+    Video(paths=_fmv("PYRAMID")),
     ModifyInventory(
         add_inventory={TR1ItemId.Pistols: 1},
     ),
@@ -348,7 +348,7 @@ level_sequence = [
         water_color=(0.9, 0.1, 0.1),
         water_density=0.3,
     ),
-    Video(_fmv("PRISON")),
+    Video(paths=_fmv("PRISON")),
     Level(
         name="DATA/LEVEL10C.PHD",
         titles={
@@ -367,7 +367,7 @@ level_sequence = [
         water_color=(0.9, 0.1, 0.1),
         water_density=0.3,
     ),
-    Video(_fmv("END")),
+    Video(paths=_fmv("END")),
     ResetSoundEngine(),
     PlayAudioSlot(slot=0, track=TR1TrackId.LaraTalk24),
     *(

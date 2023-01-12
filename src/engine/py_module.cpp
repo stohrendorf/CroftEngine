@@ -66,7 +66,7 @@ PYBIND11_EMBEDDED_MODULE(engine, m)
     m, "LevelSequenceItem", py::is_final{});
   py::class_<engine::script::Video, engine::script::LevelSequenceItem, std::shared_ptr<engine::script::Video>>(
     m, "Video", py::is_final{})
-    .def(py::init<std::vector<std::string>>());
+    .def(py::init<std::vector<std::string>, bool>(), py::kw_only{}, py::arg("paths"), py::arg("optional") = false);
 
   py::class_<engine::script::Cutscene, engine::script::LevelSequenceItem, std::shared_ptr<engine::script::Cutscene>>(
     m, "Cutscene", py::is_final{})

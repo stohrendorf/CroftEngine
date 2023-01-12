@@ -100,6 +100,11 @@ std::pair<RunResult, std::optional<size_t>> Video::run(Engine& engine,
 
 std::vector<std::filesystem::path> Video::getFilepathsIfInvalid(const std::filesystem::path& dataRoot) const
 {
+  if(m_optional)
+  {
+    return {};
+  }
+
   for(const auto& path : m_paths)
     if(std::filesystem::is_regular_file(dataRoot / path))
       return {};

@@ -10,8 +10,8 @@ def _fmv(basename: str):
 
 
 early_boot = [
-    Video(_fmv("CORE")),
-    Video(_fmv("ESCAPE")),
+    Video(paths=_fmv("CORE")),
+    Video(paths=_fmv("ESCAPE"), optional=True),
 ]
 
 title_menu = TitleMenu(
@@ -24,7 +24,7 @@ title_menu = TitleMenu(
 )
 
 lara_home = [
-    Video(_fmv("MANSION")),
+    Video(paths=_fmv("MANSION")),
     Level(
         name="DATA/GYM.PHD",
         titles={
