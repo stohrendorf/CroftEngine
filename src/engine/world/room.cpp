@@ -700,14 +700,6 @@ std::shared_ptr<render::scene::Node> Room::createParticleMesh(
   static const constexpr auto BaseGridAxisSubdivision = 12;
   const auto resolution = (cbrt(dustDensityDivisor) / BaseGridAxisSubdivision * 1_sectors).cast<float>().get();
 
-  // https://stackoverflow.com/a/3747462
-  static const auto fastrand = []()
-  {
-    static uint32_t seed = 12345;
-    seed = (214013 * seed + 2531011);
-    return static_cast<float>(seed >> 16u) / 0x8000 - 0.5f;
-  };
-
   std::vector<glm::vec3> vertices;
   vertices.reserve(std::lround(std::max(0.0f,
                                         ((verticesBBoxMax.x - verticesBBoxMin.x) / resolution)
@@ -723,10 +715,8 @@ std::shared_ptr<render::scene::Node> Room::createParticleMesh(
     {
       for(float z = verticesBBoxMin.z + resolution / 2; z <= verticesBBoxMax.z - resolution / 2; z += resolution)
       {
-        glm::vec3 p0 = glm::vec3{x, y, z};
-        glm::vec3 offset{fastrand() * resolution, fastrand() * resolution, fastrand() * resolution};
         indices.emplace_back(gsl::narrow_cast<uint32_t>(vertices.size()));
-        vertices.emplace_back(p0 + offset);
+        vertices.emplace_back(x, y, z);
       }
     }
   }
