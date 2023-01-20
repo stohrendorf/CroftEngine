@@ -705,17 +705,12 @@ std::unique_ptr<gl::Texture2DArray<gl::PremultipliedSRGBA8>>
 
   if(atlases.isOnlyLayout())
   {
-    std::vector<std::shared_ptr<Bitmap>> images;
-    images.resize(atlases.numAtlases());
-
-    std::vector<std::future<void>> loaders;
+    std::vector<std::future<std::shared_ptr<Bitmap>>> loaders;
 
     for(size_t i = 0; i < atlases.numAtlases(); ++i)
     {
-      drawLoadingScreen(_("Building atlases (%1%%%)", 75 + i * 15 / images.size()));
-
       loaders.emplace_back(std::async(std::launch::async,
-                                      [i, &cacheDir, &atlases, &images]()
+                                      [i, &cacheDir, &atlases]()
                                       {
                                         const auto cacheFile = cacheDir / (std::to_string(i) + ".pvr");
                                         BOOST_LOG_TRIVIAL(info) << "Loading cache texture " << cacheFile;
@@ -725,26 +720,16 @@ std::unique_ptr<gl::Texture2DArray<gl::PremultipliedSRGBA8>>
                                         gsl_Assert(bmp->size().x == atlases.getSize());
                                         gsl_Assert(bmp->size().y == atlases.getSize());
 
-                                        images[i] = bmp;
+                                        return bmp;
                                       }));
-    }
-
-    for(const auto& loader : loaders)
-    {
-      loader.wait();
     }
 
     for(size_t i = 0; i < atlases.numAtlases(); ++i)
     {
-      drawLoadingScreen(_("Building atlases (%1%%%)", 90 + i * 10 / images.size()));
+      drawLoadingScreen(_("Building atlases (%1%%%)", 75 + i * 25 / atlases.numAtlases()));
 
-      const auto cacheFile = cacheDir / (std::to_string(i) + ".pvr");
-      BOOST_LOG_TRIVIAL(info) << "Loading cache texture " << cacheFile;
-      const auto data = std::make_shared<BlockData>(cacheFile.string().c_str());
-      const auto bmp = data->decode();
+      const auto bmp = loaders[i].get();
 
-      gsl_Assert(bmp->size().x == atlases.getSize());
-      gsl_Assert(bmp->size().y == atlases.getSize());
       allTextures->assign(gsl::span{(gl::PremultipliedSRGBA8*)bmp->data(), (size_t)(bmp->size().x * bmp->size().y)},
                           gsl::narrow_cast<int>(i));
     }
