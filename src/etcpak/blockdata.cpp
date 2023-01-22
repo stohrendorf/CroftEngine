@@ -1,12 +1,13 @@
 #include "blockdata.hpp"
 
 #include "math.hpp"
-#include "mmap.hpp"
 #include "processrgb.hpp"
 #include "tables.hpp"
 
+#include <boost/iostreams/device/mapped_file.hpp>
 #include <cassert>
 #include <cstring>
+#include <fstream>
 
 #ifdef WIN32
 #  include <intrin.h>
@@ -27,19 +28,19 @@ namespace
 {
 constexpr const std::array<uint8_t, 8> table59T58H{{3, 6, 11, 16, 23, 32, 41, 64}};
 
-uint8_t* openForWriting(const char* fn, size_t len, const glm::ivec2& size, FILE** f)
+boost::iostreams::mapped_file_sink openForWriting(const char* fn, size_t len, const glm::ivec2& size)
 {
-  *f = fopen(fn, "wb+");
-  assert(*f);
-  fseek(*f, len - 1, SEEK_SET);
-  const char zero = 0;
-  fwrite(&zero, 1, 1, *f);
-  fseek(*f, 0, SEEK_SET);
+  {
+    std::ofstream tmp{fn, std::ios::binary | std::ios::trunc};
+    tmp.seekp(len - 1, std::ios::beg);
+    const char zero = 0;
+    tmp.write(&zero, 1);
+  }
 
+  boost::iostreams::mapped_file_sink sink{fn, len, 0};
+  gsl_Assert(sink.is_open());
   // NOLINTNEXTLINE cppcoreguidelines-pro-type-reinterpret-cast
-  auto ret = reinterpret_cast<uint8_t*>(mmap(nullptr, len, PROT_WRITE, MAP_SHARED, fileno(*f), 0));
-  // NOLINTNEXTLINE cppcoreguidelines-pro-type-reinterpret-cast
-  auto dst = reinterpret_cast<uint32_t*>(ret);
+  auto dst = reinterpret_cast<uint32_t*>(sink.data());
 
   *dst++ = 0x03525650; // version
   *dst++ = 0;          // flags
@@ -55,19 +56,17 @@ uint8_t* openForWriting(const char* fn, size_t len, const glm::ivec2& size, FILE
   *dst++ = 1;          // mipmap count
   *dst++ = 0;          // metadata size
 
-  return ret;
+  return sink;
 }
 } // namespace
 
 BlockData::BlockData(const char* fn)
-    : m_file(fopen(fn, "rb"))
+    : m_file{std::make_unique<boost::iostreams::mapped_file_sink>(fn, boost::iostreams::mapped_file_sink::max_length)}
 {
-  gsl_Assert(m_file != nullptr);
-  fseek(m_file, 0, SEEK_END);
-  m_maplen = ftell(m_file);
-  fseek(m_file, 0, SEEK_SET);
+  gsl_Assert(m_file->is_open());
+  m_maplen = m_file->size();
   // NOLINTNEXTLINE cppcoreguidelines-pro-type-reinterpret-cast
-  m_data = reinterpret_cast<uint8_t*>(mmap(nullptr, m_maplen, PROT_READ, MAP_SHARED, fileno(m_file), 0));
+  m_data = reinterpret_cast<uint8_t*>(m_file->data());
 
   // NOLINTNEXTLINE cppcoreguidelines-pro-type-reinterpret-cast
   auto data32 = reinterpret_cast<uint32_t*>(m_data);
@@ -84,19 +83,19 @@ BlockData::BlockData(const char* fn)
 BlockData::BlockData(const char* fn, const glm::ivec2& size)
     : m_size(size)
     , m_dataOffset(52)
-    , m_file{nullptr}
     , m_maplen(gsl::narrow_cast<size_t>((m_size.x / 4) * (m_size.y / 4)) * sizeof(uint64_t) * 2u)
 {
   gsl_Expects(m_size.x % 4 == 0 && m_size.y % 4 == 0);
 
   m_maplen += m_dataOffset;
-  m_data = openForWriting(fn, m_maplen, m_size, &m_file);
+  m_file = std::make_unique<boost::iostreams::mapped_file_sink>(openForWriting(fn, m_maplen, m_size));
+  // NOLINTNEXTLINE cppcoreguidelines-pro-type-reinterpret-cast
+  m_data = reinterpret_cast<uint8_t*>(m_file->data());
 }
 
 BlockData::BlockData(const glm::ivec2& size)
     : m_size(size)
     , m_dataOffset(52)
-    , m_file(nullptr)
     , m_maplen{gsl::narrow_cast<size_t>((m_size.x / 4) * (m_size.y / 4)) * sizeof(uint64_t) * 2u}
 {
   gsl_Assert(m_size.x > 0 && m_size.y > 0);
@@ -108,15 +107,8 @@ BlockData::BlockData(const glm::ivec2& size)
 
 BlockData::~BlockData()
 {
-  if(m_file)
-  {
-    munmap(m_data, m_maplen);
-    fclose(m_file);
-  }
-  else
-  {
+  if(m_file == nullptr)
     delete[] m_data;
-  }
 }
 
 void BlockData::processRgba(const uint32_t* src, uint32_t blocks, size_t offset, size_t width, bool useHeuristics)

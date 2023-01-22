@@ -731,7 +731,6 @@ add_library(
         etcpak/blockdata.cpp
         etcpak/tables.cpp
         etcpak/bitmap.cpp
-        etcpak/mmap.cpp
 )
 
 target_link_libraries(
@@ -739,6 +738,7 @@ target_link_libraries(
         PUBLIC
         glm::glm
         gsl-lite::gsl-lite
+        Boost::iostreams
 )
 target_include_directories( etcpak PUBLIC etcpak )
 if( NOT MSVC )

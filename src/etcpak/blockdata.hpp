@@ -11,6 +11,11 @@
 #include <mutex>
 #include <vector>
 
+namespace boost::iostreams
+{
+class mapped_file_sink;
+}
+
 class BlockData
 {
 public:
@@ -27,6 +32,6 @@ private:
   uint8_t* m_data;
   glm::ivec2 m_size{};
   size_t m_dataOffset = 0;
-  FILE* m_file;
   size_t m_maplen;
+  std::unique_ptr<boost::iostreams::mapped_file_sink> m_file{nullptr};
 };
