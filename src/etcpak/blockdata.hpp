@@ -16,7 +16,7 @@ class BlockData
 public:
   explicit BlockData(const char* fn);
   BlockData(const char* fn, const glm::ivec2& size);
-  BlockData(const glm::ivec2& size);
+  explicit BlockData(const glm::ivec2& size);
   ~BlockData();
 
   std::shared_ptr<Bitmap> decode();
@@ -30,5 +30,3 @@ private:
   FILE* m_file;
   size_t m_maplen;
 };
-
-using BlockDataPtr = std::shared_ptr<BlockData>;
