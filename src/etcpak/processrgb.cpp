@@ -1167,8 +1167,8 @@ etcpak_force_inline IVec16 widen(const IVec16& src)
 {
   static_assert(K >= 0 && K <= 7, "Index out of range");
 
-  constexpr int s1 = K % 4;
-  constexpr int s2 = (K / 4) * 2;
+  constexpr uint8_t s1 = K % 4u;
+  constexpr uint8_t s2 = (K / 4u) * 2u;
 
   const auto tmp = _mm_shufflelo_epi16(src.data, _MM_SHUFFLE(s1, s1, s1, s1));
   return IVec16{_mm_shuffle_epi32(tmp, _MM_SHUFFLE(s2, s2, s2, s2))};
@@ -1324,8 +1324,8 @@ etcpak_force_inline uint64_t processAlpha_ETC2(const IVec8& alphas)
     idx |= (err2.minPos().get64() >> 16) << (15 - i) * 3;
   }
 
-  uint16_t rm[8];
-  mul.storeu(reinterpret_cast<__m128i*>(rm));
+  std::array<uint16_t, sizeof(__m128i) / sizeof(uint16_t)> rm;
+  mul.storeu(reinterpret_cast<__m128i*>(rm.data()));
   const uint16_t sm = srcMid.get64();
 
   const uint64_t d = (uint64_t(sm) << 56u) | (uint64_t(rm[getMulSel(sel)]) << 52u) | (uint64_t(sel) << 48u) | idx;
@@ -1337,7 +1337,6 @@ etcpak_force_inline uint64_t processAlpha_ETC2(const IVec8& alphas)
 void compressEtc2Bgra(const uint32_t* srcBgra, uint64_t* dst, uint32_t blocks, size_t width, bool useHeuristics)
 {
   int w = 0;
-  BgraVecBlock bgra;
   while(blocks--)
   {
     auto c0 = IVec8{reinterpret_cast<const __m128i*>(srcBgra + width * 0)};
@@ -1349,6 +1348,7 @@ void compressEtc2Bgra(const uint32_t* srcBgra, uint64_t* dst, uint32_t blocks, s
 
     const auto immRgba = BgraBlockImm{{c0, c1, c2, c3}};
 
+    BgraVecBlock bgra;
     c0.storeu(reinterpret_cast<__m128i*>(bgra.data()) + 0);
     c1.storeu(reinterpret_cast<__m128i*>(bgra.data()) + 1);
     c2.storeu(reinterpret_cast<__m128i*>(bgra.data()) + 2);
