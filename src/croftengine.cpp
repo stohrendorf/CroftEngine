@@ -106,9 +106,7 @@ bool initCrashReporting()
 
 int main(int argc, char** argv)
 {
-#ifdef NDEBUG
   bool crashReportInitSuccess = initCrashReporting();
-#endif
   boost::log::add_common_attributes();
 #ifndef NDEBUG
   initConsole(boost::log::trivial::trace);
@@ -128,12 +126,10 @@ int main(int argc, char** argv)
     BOOST_LOG_TRIVIAL(warning) << "Could not determine the user data dir";
   }
 
-#ifdef NDEBUG
   if(!crashReportInitSuccess)
   {
     BOOST_LOG_TRIVIAL(warning) << "Crash report initialization failed (nowhere to write dumps)";
   }
-#endif
 
   std::string localeOverride;
   std::string gameflowId;

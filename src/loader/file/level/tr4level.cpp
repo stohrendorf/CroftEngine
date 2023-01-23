@@ -179,10 +179,8 @@ void TR4Level::loadFileData()
   }
 
   newsrc.readVector(m_cameras, newsrc.readU32(), &Camera::read);
-  //SDL_RWseek(newsrc, this->cameras.size() * 16, SEEK_CUR);
 
   newsrc.readVector(m_flybyCameras, newsrc.readU32(), &FlybyCamera::read);
-  //SDL_RWseek(newsrc, this->flyby_cameras.size() * 40, SEEK_CUR);
 
   newsrc.readVector(m_soundSources, newsrc.readU32(), &SoundSource::read);
 

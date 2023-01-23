@@ -14,7 +14,7 @@ struct MenuRingTransform
   static const constexpr core::Length CameraZPosOffset = 598_len;
   static const constexpr core::Length IdleCameraYPosOffset = -240_len;
   static const constexpr core::Length IdleCameraZPosOffset = 688_len;
-  static const constexpr core::Length CameraBackpackZPos = 3000_len; // original: 896_len;
+  static const constexpr core::Length CameraBackpackZPos = 3000_len; // original value: 896
   static const constexpr core::Angle CameraBackpackXRot = 90_deg;
   static const constexpr core::Angle CameraSwitchRingXRot = 45_deg;
   static const constexpr core::Length RingOffScreenCameraPosY = 1536_len;

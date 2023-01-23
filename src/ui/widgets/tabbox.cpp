@@ -75,8 +75,7 @@ void TabBox::update(bool /*hasFocus*/)
 {
   for(size_t i = 0; i < m_tabs.size(); i++)
   {
-    const auto& [container, content] = m_tabs[i];
-    container->update(i == m_selectedTabIndex);
+    m_tabs[i].container->update(i == m_selectedTabIndex);
   }
 }
 
@@ -103,14 +102,13 @@ void TabBox::draw(ui::Ui& ui, const engine::Presenter& presenter) const
   {
     container->draw(ui, presenter);
   }
-  const auto& [container, content] = m_tabs[m_selectedTabIndex];
-  content->fitToContent();
+  const auto& content = m_tabs[m_selectedTabIndex].content;
   content->setPosition(m_position + glm::ivec2{0, TotalVerticalMargin});
   content->draw(ui, presenter);
 }
 
 void TabBox::addTab(const gslu::nn_shared<Tab>& tab, const gslu::nn_shared<Widget>& content)
 {
-  m_tabs.emplace_back(tab, content);
+  m_tabs.emplace_back(ContainerContent{tab, content});
 }
 } //namespace ui::widgets

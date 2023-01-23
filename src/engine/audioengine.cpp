@@ -227,7 +227,6 @@ std::shared_ptr<audio::Voice> AudioEngine::playSoundEffect(const core::SoundEffe
   switch(soundEffect->getPlaybackType(loader::file::level::Engine::TR1))
   {
   case loader::file::PlaybackType::Looping:
-    // BOOST_LOG_TRIVIAL(trace) << "Play looping sound effect " << toString(id.get_as<TR1SoundEffect>());
     if(auto voices = m_soundEngine->getVoicesForBuffer(emitter, sample); !voices.empty())
     {
       gsl_Assert(voices.size() == 1);
@@ -242,7 +241,6 @@ std::shared_ptr<audio::Voice> AudioEngine::playSoundEffect(const core::SoundEffe
       return voice.get();
     }
   case loader::file::PlaybackType::Restart:
-    // BOOST_LOG_TRIVIAL(trace) << "Play restarting sound effect " << toString(id.get_as<TR1SoundEffect>());
     if(auto voices = m_soundEngine->getVoicesForBuffer(emitter, sample); !voices.empty())
     {
       gsl_Assert(voices.size() == 1);
@@ -264,7 +262,6 @@ std::shared_ptr<audio::Voice> AudioEngine::playSoundEffect(const core::SoundEffe
       return voice.get();
     }
   case loader::file::PlaybackType::Wait:
-    // BOOST_LOG_TRIVIAL(trace) << "Play single-instance sound effect " << toString(id.get_as<TR1SoundEffect>());
     if(auto voices = m_soundEngine->getVoicesForBuffer(emitter, sample); !voices.empty())
     {
       BOOST_ASSERT(voices.size() == 1);

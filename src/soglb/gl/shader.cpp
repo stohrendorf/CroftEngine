@@ -109,7 +109,7 @@ void replaceIncludes(const std::filesystem::path& filepath,
         continue;
       }
 
-      std::string includedSource = readAll(includePath);
+      const std::string includedSource = readAll(includePath);
       if(includedSource.empty())
       {
         BOOST_LOG_TRIVIAL(error) << "Compile failed for shader '" << filepath << "': failed to include'" << includePath
@@ -189,7 +189,7 @@ Shader<_Type> Shader<_Type>::create(const std::filesystem::path& sourcePath,
       "#extension GL_ARB_bindless_texture : require\n"
       "#extension GL_ARB_gpu_shader5 : require\n";
 
-  std::string definesStr = replaceDefines(defines, _Type == api::ShaderType::FragmentShader);
+  const std::string definesStr = replaceDefines(defines, _Type == api::ShaderType::FragmentShader);
   shaderSource[1] = definesStr.c_str();
 
   std::string sourceStr;

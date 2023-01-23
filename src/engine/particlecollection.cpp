@@ -55,7 +55,7 @@ void InstancedParticleCollection::render(render::scene::RenderContext& context, 
   for(const auto& particle : *this)
   {
     setParent(particle, nullptr);
-    auto [mesh, buffer] = particle->getCurrentMesh();
+    auto buffer = std::get<1>(particle->getCurrentMesh());
     if(buffer == nullptr)
       continue;
     particle->applyTransform();

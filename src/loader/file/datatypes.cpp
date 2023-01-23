@@ -328,7 +328,6 @@ std::unique_ptr<Room> Room::readTr5(io::SDLReader& reader)
   room->lightColor.g = gsl::narrow_cast<float>(reader.readU8()) / 255.0f;
   room->lightColor.r = gsl::narrow_cast<float>(reader.readU8()) / 255.0f;
   room->lightColor.a = gsl::narrow_cast<float>(reader.readU8()) / 255.0f;
-  //room->light_color.a = 1.0f;
 
   room->lights.resize(reader.readU16());
   if(room->lights.size() > 512)
@@ -517,7 +516,6 @@ std::unique_ptr<Room> Room::readTr5(io::SDLReader& reader)
   {
     uint32_t vertex_index = 0;
     room->vertices.resize(vertices_size / 28);
-    //int temp1 = room_data_size - (208 + vertices_offset + vertices_size);
     for(size_t i = 0; i < room->layers.size(); i++)
     {
       for(uint16_t j = 0; j < room->layers[i].num_vertices; j++)

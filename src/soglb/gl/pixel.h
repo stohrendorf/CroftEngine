@@ -139,8 +139,6 @@ using PremultipliedSRGBA8 = PremultipliedSRGBA<uint8_t>;
 template<typename T>
 using SRGB = Pixel<T, 3, api::PixelFormat::Rgb, SrgbSizedInternalFormat<T>, false>;
 using SRGB8 = SRGB<uint8_t>;
-// using SRGB16F = SRGB<api::core::Half>;
-// using SRGB32F = SRGB<float>;
 
 template<typename T>
 using RGB = Pixel<T, 3, api::PixelFormat::Rgb, RgbSizedInternalFormat<T>, false>;

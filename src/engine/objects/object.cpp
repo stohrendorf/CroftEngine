@@ -212,8 +212,6 @@ void Object::serialize(const serialization::Serializer<world::World>& ser)
 
   ser << [this](const serialization::Serializer<world::World>& ser)
   {
-    // FIXME ser(S_NV("renderables", serialization::FrozenVector{getNode()->getChildren()}));
-
     if(ser.loading)
     {
       setParent(gsl::not_null{getNode()}, m_state.location.room->node);

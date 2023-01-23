@@ -668,19 +668,21 @@ uint32_t compressBlockTH(const BgraBlock& bgra, Luma& l, uint32_t& compressed1, 
 
   // 2) finds the min (left+right)
   uint8_t minSumRangeIdx = 0;
-  uint16_t minSumRangeValue;
   uint16_t sum;
   static constexpr std::array<uint8_t, 15> diffBonus{{8, 4, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 4, 8}};
-  const int16_t temp = luma[15] - luma[0];
 
-  minSumRangeValue = luma[15] - luma[1] + diffBonus[0];
-  for(uint8_t i = 1; i < 14; i++)
+  uint16_t minSumRangeValue = luma[15] - luma[1] + diffBonus[0];
+
   {
-    sum = temp - luma[i + 1] + luma[i] + diffBonus[i];
-    if(minSumRangeValue > sum)
+    const int16_t temp = luma[15] - luma[0];
+    for(uint8_t i = 1; i < 14; i++)
     {
-      minSumRangeValue = sum;
-      minSumRangeIdx = i;
+      sum = temp - luma[i + 1] + luma[i] + diffBonus[i];
+      if(minSumRangeValue > sum)
+      {
+        minSumRangeValue = sum;
+        minSumRangeIdx = i;
+      }
     }
   }
 
@@ -861,7 +863,6 @@ uint32_t compressBlockTH(const BgraBlock& bgra, Luma& l, uint32_t& compressed1, 
 
   return bestErr;
 }
-//#endif
 
 etcpak_force_inline uint64_t encodeSelectors(uint64_t d,
                                              const std::array<std::array<uint32_t, 8>, 2>& terr,

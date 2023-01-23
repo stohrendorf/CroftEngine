@@ -34,7 +34,6 @@ void Wolf::update()
   static constexpr auto Attacking = 7_as;
   static constexpr auto LyingDown = 8_as;
   static constexpr auto PrepareToStrike = 9_as;
-  // static constexpr const uint16_t RunningJump = 10;
   static constexpr auto Dying = 11_as;
   static constexpr auto Biting = 12_as;
 

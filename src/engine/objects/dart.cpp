@@ -55,8 +55,8 @@ void Dart::update()
 
   kill();
 
-  const auto [success, ricochetPos]
-    = raycastLineOfSight(oldLocation, m_state.location.position, getWorld().getObjectManager());
+  const auto ricochetPos
+    = std::get<1>(raycastLineOfSight(oldLocation, m_state.location.position, getWorld().getObjectManager()));
 
   auto particle = gsl::make_shared<RicochetParticle>(ricochetPos, getWorld());
   setParent(particle, ricochetPos.room->node);

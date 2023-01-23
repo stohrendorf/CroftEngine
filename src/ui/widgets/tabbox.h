@@ -104,8 +104,14 @@ public:
   }
 
 private:
+  struct ContainerContent
+  {
+    gslu::nn_shared<Widget> container;
+    gslu::nn_shared<Widget> content;
+  };
+
   size_t m_selectedTabIndex{0};
-  std::vector<std::tuple<gslu::nn_shared<Widget>, gslu::nn_shared<Widget>>> m_tabs;
+  std::vector<ContainerContent> m_tabs;
   glm::ivec2 m_position{0, 0};
   glm::ivec2 m_size{0, 0};
 };
