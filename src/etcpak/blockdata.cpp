@@ -61,7 +61,7 @@ boost::iostreams::mapped_file_sink openForWriting(const char* fn, size_t len, co
 } // namespace
 
 BlockData::BlockData(const char* fn)
-    : m_file{std::make_unique<boost::iostreams::mapped_file_sink>(fn, boost::iostreams::mapped_file_sink::max_length)}
+    : m_file{std::make_unique<boost::iostreams::mapped_file_sink>(fn)}
 {
   gsl_Assert(m_file->is_open());
   m_maplen = m_file->size();
