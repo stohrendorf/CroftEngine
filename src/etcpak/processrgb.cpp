@@ -7,6 +7,8 @@
 #include "tables.hpp"
 
 #include <array>
+#include <glm/ext/vector_uint3_sized.hpp>
+#include <glm/vec3.hpp>
 #include <gsl/gsl-lite.hpp>
 #include <limits>
 
@@ -28,9 +30,7 @@
 
 namespace
 {
-using BgraBlock = std::array<uint8_t, 4u * 4u * 4u>;
 using BgraBlockImm = std::array<IVec8, 4u>;
-using BgrData = std::array<uint8_t, 3>;
 
 constexpr uint32_t MaxError = 1065369600; // ((38+76+14) * 255)^2
 // common T-/H-mode table
@@ -44,9 +44,60 @@ constexpr uint8_t ModeUndecided = 0;
 constexpr uint8_t ModePlanar = 0x1;
 constexpr uint8_t ModeTH = 0x2;
 
-constexpr uint32_t R = 2;
-constexpr uint32_t G = 1;
-constexpr uint32_t B = 0;
+struct BgraVec
+{
+  uint8_t b;
+  uint8_t g;
+  uint8_t r;
+  uint8_t a;
+};
+static_assert(sizeof(BgraVec) == 4);
+
+using BgraVecBlock = std::array<BgraVec, size_t(4u * 4u)>;
+static_assert(sizeof(BgraVecBlock) == size_t(4u * 4u) * sizeof(BgraVec));
+
+struct BgrVec
+{
+  uint8_t b;
+  uint8_t g;
+  uint8_t r;
+
+  [[nodiscard]] constexpr auto operator-(uint8_t rhs) const
+  {
+    return BgrVec{
+      gsl::narrow_cast<uint8_t>(std::max(0, b - rhs)),
+      gsl::narrow_cast<uint8_t>(std::max(0, g - rhs)),
+      gsl::narrow_cast<uint8_t>(std::max(0, r - rhs)),
+    };
+  }
+
+  [[nodiscard]] constexpr auto operator+(uint8_t rhs) const
+  {
+    return BgrVec{
+      gsl::narrow_cast<uint8_t>(std::min(255, b - rhs)),
+      gsl::narrow_cast<uint8_t>(std::min(255, g - rhs)),
+      gsl::narrow_cast<uint8_t>(std::min(255, r - rhs)),
+    };
+  }
+
+  [[nodiscard]] constexpr auto operator<<(uint8_t rhs) const
+  {
+    return BgrVec{
+      gsl::narrow_cast<uint8_t>(b << rhs),
+      gsl::narrow_cast<uint8_t>(g << rhs),
+      gsl::narrow_cast<uint8_t>(r << rhs),
+    };
+  }
+
+  [[nodiscard]] constexpr auto operator|(const BgrVec& rhs) const
+  {
+    return BgrVec{
+      gsl::narrow_cast<uint8_t>(b | rhs.b),
+      gsl::narrow_cast<uint8_t>(g | rhs.g),
+      gsl::narrow_cast<uint8_t>(r | rhs.r),
+    };
+  }
+};
 
 struct Luma
 {
@@ -105,29 +156,32 @@ etcpak_force_inline uint32_t indexConversion(uint32_t pixelIndices)
 }
 
 // calculates quantized colors for T or H modes
-void compressColor(const std::array<BgrData, 2>& currColorBgr, std::array<BgrData, 2>& quantColorBgr, bool t_mode)
+std::array<BgrVec, 2> compressColor(const std::array<BgrVec, 2>& currColorBgr, bool t_mode)
 {
+  std::array<BgrVec, 2> result;
   if(t_mode)
   {
-    quantColorBgr[0][R] = std::min(15 * (currColorBgr[0][R] + 8) / 255, 15);
-    quantColorBgr[0][G] = std::min(15 * (currColorBgr[0][G] + 8) / 255, 15);
-    quantColorBgr[0][B] = std::min(15 * (currColorBgr[0][B] + 8) / 255, 15);
+    result[0].r = std::min(15 * (currColorBgr[0].r + 8) / 255, 15);
+    result[0].g = std::min(15 * (currColorBgr[0].g + 8) / 255, 15);
+    result[0].b = std::min(15 * (currColorBgr[0].b + 8) / 255, 15);
   }
   else // clamped to [1,14] to get a wider range
   {
-    quantColorBgr[0][R] = std::clamp(15 * (currColorBgr[0][R] + 8) / 255, 1, 14);
-    quantColorBgr[0][G] = std::clamp(15 * (currColorBgr[0][G] + 8) / 255, 1, 14);
-    quantColorBgr[0][B] = std::clamp(15 * (currColorBgr[0][B] + 8) / 255, 1, 14);
+    result[0].r = std::clamp(15 * (currColorBgr[0].r + 8) / 255, 1, 14);
+    result[0].g = std::clamp(15 * (currColorBgr[0].g + 8) / 255, 1, 14);
+    result[0].b = std::clamp(15 * (currColorBgr[0].b + 8) / 255, 1, 14);
   }
 
   // clamped to [1,14] to get a wider range
-  quantColorBgr[1][R] = std::clamp(15 * (currColorBgr[1][R] + 8) / 255, 1, 14);
-  quantColorBgr[1][G] = std::clamp(15 * (currColorBgr[1][G] + 8) / 255, 1, 14);
-  quantColorBgr[1][B] = std::clamp(15 * (currColorBgr[1][B] + 8) / 255, 1, 14);
+  result[1].r = std::clamp(15 * (currColorBgr[1].r + 8) / 255, 1, 14);
+  result[1].g = std::clamp(15 * (currColorBgr[1].g + 8) / 255, 1, 14);
+  result[1].b = std::clamp(15 * (currColorBgr[1].b + 8) / 255, 1, 14);
+
+  return result;
 }
 
 // three decoding functions come from ETCPACK v2.74 and are slightly changed.
-etcpak_force_inline std::array<BgrData, 2> decompressColor(const std::array<BgrData, 2>& colorsBGR444)
+etcpak_force_inline std::array<BgrVec, 2> decompressColor(const std::array<BgrVec, 2>& colorsBGR444)
 {
   // The color should be retrieved as:
   //
@@ -137,23 +191,28 @@ etcpak_force_inline std::array<BgrData, 2> decompressColor(const std::array<BgrD
   //
   // Note -- this code only work for bit replication from 4 bits and up --- 3 bits needs
   // two copy operations.
-  return std::array<BgrData, 2>{{
-    {
-      gsl::narrow_cast<uint8_t>((colorsBGR444[0][B] << 4) | colorsBGR444[0][B]),
-      gsl::narrow_cast<uint8_t>((colorsBGR444[0][G] << 4) | colorsBGR444[0][G]),
-      gsl::narrow_cast<uint8_t>((colorsBGR444[0][R] << 4) | colorsBGR444[0][R]),
-    },
-    {
-      gsl::narrow_cast<uint8_t>((colorsBGR444[1][B] << 4) | colorsBGR444[1][B]),
-      gsl::narrow_cast<uint8_t>((colorsBGR444[1][G] << 4) | colorsBGR444[1][G]),
-      gsl::narrow_cast<uint8_t>((colorsBGR444[1][R] << 4) | colorsBGR444[1][R]),
-    },
+  return std::array<BgrVec, 2>{{
+    (colorsBGR444[0] << 4) | colorsBGR444[0],
+    (colorsBGR444[1] << 4) | colorsBGR444[1],
   }};
+}
+
+std::array<BgrVec, 4> calculatePaintColors58H(uint8_t d, const std::array<BgrVec, 2>& bgr)
+{
+  return {
+    // C1
+    bgr[0] + tableTH[d],
+    // C2
+    bgr[0] - tableTH[d],
+    // C3
+    bgr[1] + tableTH[d],
+    bgr[1] - tableTH[d],
+  };
 }
 
 // calculates the paint colors from the block colors
 // using a distance d and one of the H- or T-patterns.
-void calculatePaintColors59T(uint8_t d, const std::array<BgrData, 2>& bgr, std::array<BgrData, 4>& pColorsBgr)
+std::array<BgrVec, 4> calculatePaintColors59T(uint8_t d, const std::array<BgrVec, 2>& bgr)
 {
   //////////////////////////////////////////////
   //
@@ -167,43 +226,16 @@ void calculatePaintColors59T(uint8_t d, const std::array<BgrData, 2>& bgr, std::
   //
   //////////////////////////////////////////////
 
-  // C4
-  pColorsBgr[3][R] = std::max(0, bgr[1][R] - tableTH[d]);
-  pColorsBgr[3][G] = std::max(0, bgr[1][G] - tableTH[d]);
-  pColorsBgr[3][B] = std::max(0, bgr[1][B] - tableTH[d]);
-
-  // C3
-  pColorsBgr[0][R] = bgr[0][R];
-  pColorsBgr[0][G] = bgr[0][G];
-  pColorsBgr[0][B] = bgr[0][B];
-  // C2
-  pColorsBgr[1][R] = std::min(bgr[1][R] + tableTH[d], 255);
-  pColorsBgr[1][G] = std::min(bgr[1][G] + tableTH[d], 255);
-  pColorsBgr[1][B] = std::min(bgr[1][B] + tableTH[d], 255);
-  // C1
-  pColorsBgr[2][R] = bgr[1][R];
-  pColorsBgr[2][G] = bgr[1][G];
-  pColorsBgr[2][B] = bgr[1][B];
-}
-
-void calculatePaintColors58H(uint8_t d, const std::array<BgrData, 2>& bgr, std::array<BgrData, 4>& pColorsBgr)
-{
-  pColorsBgr[3][R] = std::max(0, bgr[1][R] - tableTH[d]);
-  pColorsBgr[3][G] = std::max(0, bgr[1][G] - tableTH[d]);
-  pColorsBgr[3][B] = std::max(0, bgr[1][B] - tableTH[d]);
-
-  // C1
-  pColorsBgr[0][R] = std::min(bgr[0][R] + tableTH[d], 255);
-  pColorsBgr[0][G] = std::min(bgr[0][G] + tableTH[d], 255);
-  pColorsBgr[0][B] = std::min(bgr[0][B] + tableTH[d], 255);
-  // C2
-  pColorsBgr[1][R] = std::max(0, bgr[0][R] - tableTH[d]);
-  pColorsBgr[1][G] = std::max(0, bgr[0][G] - tableTH[d]);
-  pColorsBgr[1][B] = std::max(0, bgr[0][B] - tableTH[d]);
-  // C3
-  pColorsBgr[2][R] = std::min(bgr[1][R] + tableTH[d], 255);
-  pColorsBgr[2][G] = std::min(bgr[1][G] + tableTH[d], 255);
-  pColorsBgr[2][B] = std::min(bgr[1][B] + tableTH[d], 255);
+  return {
+    // C3
+    bgr[0],
+    // C2
+    bgr[1] + tableTH[d],
+    // C1
+    bgr[1],
+    // C4
+    bgr[1] - tableTH[d],
+  };
 }
 
 using v4i = std::array<uint16_t, 4>;
@@ -375,18 +407,16 @@ etcpak_force_inline void findBestFit(std::array<std::array<uint32_t, 8>, 2>& ter
                                      std::array<std::array<uint16_t, 8>, 16>& tsel,
                                      const std::array<v4i, 8>& a,
                                      const std::array<uint32_t, 16>& id,
-                                     const BgraBlock& bgra)
+                                     const BgraVecBlock& bgra)
 {
   auto it = bgra.begin();
   for(size_t i = 0; i < 16; i++)
   {
-    auto& sel = tsel[i];
     const auto bid = id[i];
-    auto& ter = terr[bid % 2];
 
-    const uint8_t b = *it++;
-    const uint8_t g = *it++;
-    const uint8_t r = *it++;
+    const uint8_t b = it->b;
+    const uint8_t g = it->g;
+    const uint8_t r = it->r;
     ++it;
 
     const int dr = a[bid][0] - r;
@@ -418,12 +448,13 @@ etcpak_force_inline void findBestFit(std::array<std::array<uint32_t, 8>, 2>& ter
     auto squareErrorLow = squareErrorLo.lowToIVec32(squareErrorHi);
     auto squareErrorHigh = squareErrorLo.highToIVec32(squareErrorHi);
 
+    auto& ter = terr[bid % 2];
     squareErrorLow = squareErrorLow + IVec{reinterpret_cast<const __m128i*>(ter.data()) + 0};
     squareErrorLow.storeu(reinterpret_cast<__m128i*>(ter.data()) + 0);
     squareErrorHigh = squareErrorHigh + IVec{reinterpret_cast<const __m128i*>(ter.data()) + 1};
     squareErrorHigh.storeu(reinterpret_cast<__m128i*>(ter.data()) + 1);
 
-    minIndex.storeu(reinterpret_cast<__m128i*>(sel.data()));
+    minIndex.storeu(reinterpret_cast<__m128i*>(tsel[i].data()));
   }
 }
 
@@ -439,7 +470,8 @@ etcpak_force_inline uint8_t convert7(float f)
   return (i + 9 - ((i + 9) >> 8) - ((i + 6) >> 8)) >> 2;
 }
 
-etcpak_force_inline std::pair<uint64_t, uint64_t> planar(const BgraBlock& bgra, const uint8_t mode, bool useHeuristics)
+etcpak_force_inline std::pair<uint64_t, uint64_t>
+  planar(const BgraVecBlock& bgra, const uint8_t mode, bool useHeuristics)
 {
   int32_t r = 0;
   int32_t g = 0;
@@ -447,9 +479,9 @@ etcpak_force_inline std::pair<uint64_t, uint64_t> planar(const BgraBlock& bgra, 
 
   for(int i = 0; i < 16; ++i)
   {
-    b += bgra[i * 4 + 0];
-    g += bgra[i * 4 + 1];
-    r += bgra[i * 4 + 2];
+    b += bgra[i].b;
+    g += bgra[i].g;
+    r += bgra[i].r;
   }
 
   int32_t difRyz = 0;
@@ -463,9 +495,9 @@ etcpak_force_inline std::pair<uint64_t, uint64_t> planar(const BgraBlock& bgra, 
 
   for(int i = 0; i < 16; ++i)
   {
-    const int32_t difB = (gsl::narrow_cast<int>(bgra[i * 4 + 0]) << 4u) - b;
-    const int32_t difG = (gsl::narrow_cast<int>(bgra[i * 4 + 1]) << 4u) - g;
-    const int32_t difR = (gsl::narrow_cast<int>(bgra[i * 4 + 2]) << 4u) - r;
+    const int32_t difB = (gsl::narrow_cast<int>(bgra[i].b) << 4u) - b;
+    const int32_t difG = (gsl::narrow_cast<int>(bgra[i].g) << 4u) - g;
+    const int32_t difR = (gsl::narrow_cast<int>(bgra[i].r) << 4u) - r;
 
     difRyz += difR * scaling[i % 4];
     difGyz += difG * scaling[i % 4];
@@ -553,9 +585,9 @@ etcpak_force_inline std::pair<uint64_t, uint64_t> planar(const BgraBlock& bgra, 
       const int32_t cG = clampu8((gh2 * (i / 4u) + gv2 * (i % 4u) + go2) >> 2u);
       const int32_t cB = clampu8((bh2 * (i / 4u) + bv2 * (i % 4u) + bo2) >> 2u);
 
-      const int32_t difB = static_cast<int>(bgra[i * 4 + 0]) - cB;
-      const int32_t difG = static_cast<int>(bgra[i * 4 + 1]) - cG;
-      const int32_t difR = static_cast<int>(bgra[i * 4 + 2]) - cR;
+      const int32_t difB = static_cast<int>(bgra[i].b) - cB;
+      const int32_t difG = static_cast<int>(bgra[i].g) - cG;
+      const int32_t difR = static_cast<int>(bgra[i].r) - cR;
 
       const int32_t dif = difR * 38 + difG * 76 + difB * 14;
 
@@ -583,8 +615,8 @@ etcpak_force_inline std::pair<uint64_t, uint64_t> planar(const BgraBlock& bgra, 
 }
 
 uint32_t calculateErrorTH(bool tMode,
-                          const BgraBlock& bgra,
-                          const std::array<BgrData, 2>& colorsBGR444,
+                          const BgraVecBlock& bgra,
+                          const std::array<BgrVec, 2>& colorsBGR444,
                           uint8_t& dist,
                           uint32_t& pixIndices,
                           uint8_t startDist)
@@ -592,7 +624,6 @@ uint32_t calculateErrorTH(bool tMode,
   uint32_t blockErr = 0, bestBlockErr = MaxError;
 
   uint32_t pixColors;
-  std::array<BgrData, 4> possibleColors;
 
   auto colors = decompressColor(colorsBGR444);
 
@@ -605,14 +636,7 @@ uint32_t calculateErrorTH(bool tMode,
     blockErr = 0;
     pixColors = 0;
 
-    if(tMode)
-    {
-      calculatePaintColors59T(d, colors, possibleColors);
-    }
-    else
-    {
-      calculatePaintColors58H(d, colors, possibleColors);
-    }
+    const auto possibleColors{tMode ? calculatePaintColors59T(d, colors) : calculatePaintColors58H(d, colors)};
 
     for(size_t y = 0; y < 4; ++y)
     {
@@ -624,13 +648,13 @@ uint32_t calculateErrorTH(bool tMode,
         // Loop possible block colors
         for(uint8_t c = 0; c < 4; ++c)
         {
-          std::array<int, 3> diff{{
-            bgra[4 * (x * 4 + y) + B] - possibleColors[c][B],
-            bgra[4 * (x * 4 + y) + G] - possibleColors[c][G],
-            bgra[4 * (x * 4 + y) + R] - possibleColors[c][R],
-          }};
+          const glm::ivec3 diff{
+            bgra[x * 4 + y].r - possibleColors[c].r,
+            bgra[x * 4 + y].g - possibleColors[c].g,
+            bgra[x * 4 + y].b - possibleColors[c].b,
+          };
 
-          const uint32_t err = 38 * abs(diff[R]) + 76 * abs(diff[G]) + 14 * abs(diff[B]);
+          const uint32_t err = 38 * abs(diff.r) + 76 * abs(diff.g) + 14 * abs(diff.b);
           const uint32_t pixErr = err * err;
 
           // Choose best error
@@ -657,7 +681,7 @@ uint32_t calculateErrorTH(bool tMode,
 }
 
 // main T-/H-mode compression function
-uint32_t compressBlockTH(const BgraBlock& bgra, Luma& l, uint32_t& compressed1, uint32_t& compressed2, bool& tMode)
+uint32_t compressBlockTH(const BgraVecBlock& bgra, Luma& l, uint32_t& compressed1, uint32_t& compressed2, bool& tMode)
 {
   auto& luma = l.val;
 
@@ -674,7 +698,7 @@ uint32_t compressBlockTH(const BgraBlock& bgra, Luma& l, uint32_t& compressed1, 
   uint16_t minSumRangeValue = luma[15] - luma[1] + diffBonus[0];
 
   {
-    const int16_t temp = luma[15] - luma[0];
+    const auto temp = gsl::narrow_cast<int16_t>(luma[15] - luma[0]);
     for(uint8_t i = 1; i < 14; i++)
     {
       sum = temp - luma[i + 1] + luma[i] + diffBonus[i];
@@ -718,57 +742,57 @@ uint32_t compressBlockTH(const BgraBlock& bgra, Luma& l, uint32_t& compressed1, 
   std::array<uint16_t, 4> r, g, b;
   for(uint8_t i = 0; i < 4; ++i)
   {
-    const uint8_t idx = rangeIdx[i] * 4;
-    b[i] = bgra[idx];
-    g[i] = bgra[idx + 1];
-    r[i] = bgra[idx + 2];
+    const uint8_t idx = rangeIdx[i];
+    b[i] = bgra[idx].b;
+    g[i] = bgra[idx].g;
+    r[i] = bgra[idx].r;
   }
 
-  std::array<BgrData, 2> midBgr;
+  std::array<BgrVec, 2> midBgr;
   if(swap)
   {
-    midBgr[1][B] = (b[0] + b[1]) / 2;
-    midBgr[1][G] = (g[0] + g[1]) / 2;
-    midBgr[1][R] = (r[0] + r[1]) / 2;
+    midBgr[1].b = (b[0] + b[1]) / 2;
+    midBgr[1].g = (g[0] + g[1]) / 2;
+    midBgr[1].r = (r[0] + r[1]) / 2;
 
-    std::array<uint16_t, 3> sumBgr{{0, 0, 0}};
+    glm::u16vec3 sumBgr{0, 0, 0};
     for(uint8_t i = minSumRangeIdx + 1; i < 16; i++)
     {
-      const uint8_t idx = pixIdx[i] * 4;
-      sumBgr[B] += bgra[idx];
-      sumBgr[G] += bgra[idx + 1];
-      sumBgr[R] += bgra[idx + 2];
+      const auto idx = pixIdx[i];
+      sumBgr.b += bgra[idx].b;
+      sumBgr.g += bgra[idx].g;
+      sumBgr.r += bgra[idx].r;
     }
     const uint8_t temp = 15 - minSumRangeIdx;
-    midBgr[0][B] = sumBgr[B] / temp;
-    midBgr[0][G] = sumBgr[G] / temp;
-    midBgr[0][R] = sumBgr[R] / temp;
+    midBgr[0].b = sumBgr.b / temp;
+    midBgr[0].g = sumBgr.g / temp;
+    midBgr[0].r = sumBgr.r / temp;
   }
   else
   {
-    midBgr[0][B] = (b[0] + b[1]) / 2;
-    midBgr[0][G] = (g[0] + g[1]) / 2;
-    midBgr[0][R] = (r[0] + r[1]) / 2;
+    midBgr[0].b = (b[0] + b[1]) / 2;
+    midBgr[0].g = (g[0] + g[1]) / 2;
+    midBgr[0].r = (r[0] + r[1]) / 2;
     if(tMode)
     {
-      std::array<uint16_t, 3> sumBgr{{0, 0, 0}};
+      glm::u16vec3 sumBgr{0, 0, 0};
       for(uint8_t i = minSumRangeIdx + 1; i < 16; i++)
       {
-        uint8_t idx = pixIdx[i] * 4;
-        sumBgr[B] += bgra[idx];
-        sumBgr[G] += bgra[idx + 1];
-        sumBgr[R] += bgra[idx + 2];
+        const auto idx = pixIdx[i];
+        sumBgr.b += bgra[idx].b;
+        sumBgr.g += bgra[idx].g;
+        sumBgr.r += bgra[idx].r;
       }
       const uint8_t temp = 15 - minSumRangeIdx;
-      midBgr[1][B] = sumBgr[B] / temp;
-      midBgr[1][G] = sumBgr[G] / temp;
-      midBgr[1][R] = sumBgr[R] / temp;
+      midBgr[1].b = sumBgr.b / temp;
+      midBgr[1].g = sumBgr.g / temp;
+      midBgr[1].r = sumBgr.r / temp;
     }
     else
     {
-      midBgr[1][B] = (b[2] + b[3]) / 2;
-      midBgr[1][G] = (g[2] + g[3]) / 2;
-      midBgr[1][R] = (r[2] + r[3]) / 2;
+      midBgr[1].b = (b[2] + b[3]) / 2;
+      midBgr[1].g = (g[2] + g[3]) / 2;
+      midBgr[1].r = (r[2] + r[3]) / 2;
     }
   }
 
@@ -815,8 +839,7 @@ uint32_t compressBlockTH(const BgraBlock& bgra, Luma& l, uint32_t& compressed1, 
   uint32_t bestErr = MaxError;
   uint32_t bestPixIndices;
   uint8_t bestDist = 10;
-  std::array<BgrData, 2> colorsRGB444;
-  compressColor(midBgr, colorsRGB444, tMode);
+  auto colorsRGB444 = compressColor(midBgr, tMode);
   compressed1 = 0;
 
   // 6) finds the best candidate with the lowest error
@@ -827,19 +850,19 @@ uint32_t compressBlockTH(const BgraBlock& bgra, Luma& l, uint32_t& compressed1, 
   if(tMode)
   {
     // Put the compress params into the compression block
-    compressed1 |= (colorsRGB444[0][R] & 0xfu) << 23u;
-    compressed1 |= (colorsRGB444[0][G] & 0xfu) << 19u;
-    compressed1 |= (colorsRGB444[0][B]) << 15u;
-    compressed1 |= (colorsRGB444[1][R]) << 11u;
-    compressed1 |= (colorsRGB444[1][G]) << 7u;
-    compressed1 |= (colorsRGB444[1][B]) << 3u;
+    compressed1 |= (colorsRGB444[0].r & 0xfu) << 23u;
+    compressed1 |= (colorsRGB444[0].g & 0xfu) << 19u;
+    compressed1 |= (colorsRGB444[0].b) << 15u;
+    compressed1 |= (colorsRGB444[1].r) << 11u;
+    compressed1 |= (colorsRGB444[1].g) << 7u;
+    compressed1 |= (colorsRGB444[1].b) << 3u;
     compressed1 |= bestDist & 0x7u;
   }
   else
   {
     std::array<int, 2> bestRGB444ColPacked{{
-      (colorsRGB444[0][R] << 8u) + (colorsRGB444[0][G] << 4u) + colorsRGB444[0][B],
-      (colorsRGB444[1][R] << 8u) + (colorsRGB444[1][G] << 4u) + colorsRGB444[1][B],
+      (colorsRGB444[0].r << 8u) + (colorsRGB444[0].g << 4u) + colorsRGB444[0].b,
+      (colorsRGB444[1].r << 8u) + (colorsRGB444[1].g << 4u) + colorsRGB444[1].b,
     }};
     if((bestRGB444ColPacked[0] >= bestRGB444ColPacked[1]) ^ ((bestDist & 1u) == 1))
     {
@@ -849,12 +872,12 @@ uint32_t compressBlockTH(const BgraBlock& bgra, Luma& l, uint32_t& compressed1, 
     }
 
     // Put the compress params into the compression block
-    compressed1 |= (colorsRGB444[0][R] & 0xfu) << 22u;
-    compressed1 |= (colorsRGB444[0][G] & 0xfu) << 18u;
-    compressed1 |= (colorsRGB444[0][B] & 0xfu) << 14u;
-    compressed1 |= (colorsRGB444[1][R] & 0xfu) << 10u;
-    compressed1 |= (colorsRGB444[1][G] & 0xfu) << 6u;
-    compressed1 |= (colorsRGB444[1][B] & 0xfu) << 2u;
+    compressed1 |= (colorsRGB444[0].r & 0xfu) << 22u;
+    compressed1 |= (colorsRGB444[0].g & 0xfu) << 18u;
+    compressed1 |= (colorsRGB444[0].b & 0xfu) << 14u;
+    compressed1 |= (colorsRGB444[1].r & 0xfu) << 10u;
+    compressed1 |= (colorsRGB444[1].g & 0xfu) << 6u;
+    compressed1 |= (colorsRGB444[1].b & 0xfu) << 2u;
     compressed1 |= (bestDist >> 1u) & 0x3u;
   }
 
@@ -1036,11 +1059,11 @@ inline void stuff58bits(uint32_t thumbH58W1, uint32_t thumbH58W2, uint32_t& thum
   thumbHW2 = thumbH58W2;
 }
 
-etcpak_force_inline void calculateLuma(const BgraBlock& bgra, Luma& luma)
+etcpak_force_inline void calculateLuma(const BgraVecBlock& bgra, Luma& luma)
 {
   for(uint8_t i = 0; i < 16; ++i)
   {
-    luma.val[i] = (bgra[i * 4 + 2] * 76 + bgra[i * 4 + 1] * 150 + bgra[i * 4] * 28) / 254; // luma calculation
+    luma.val[i] = (bgra[i].r * 76 + bgra[i].g * 150 + bgra[i].b * 28) / 254; // luma calculation
     if(luma.min > luma.val[i])
     {
       luma.min = luma.val[i];
@@ -1082,7 +1105,7 @@ etcpak_force_inline uint8_t selectModeETC2(const Luma& luma)
   return ModeUndecided;
 }
 
-etcpak_force_inline uint64_t processBGR_ETC2(const BgraBlock& bgra, const BgraBlockImm& immRgba, bool useHeuristics)
+etcpak_force_inline uint64_t processBGR_ETC2(const BgraVecBlock& bgra, const BgraBlockImm& immRgba, bool useHeuristics)
 {
   uint64_t d = checkSolid(immRgba);
   if(d != 0)
@@ -1314,7 +1337,7 @@ etcpak_force_inline uint64_t processAlpha_ETC2(const IVec8& alphas)
 void compressEtc2Bgra(const uint32_t* srcBgra, uint64_t* dst, uint32_t blocks, size_t width, bool useHeuristics)
 {
   int w = 0;
-  BgraBlock bgra;
+  BgraVecBlock bgra;
   while(blocks--)
   {
     auto c0 = IVec8{reinterpret_cast<const __m128i*>(srcBgra + width * 0)};
