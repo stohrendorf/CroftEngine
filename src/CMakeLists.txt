@@ -739,6 +739,7 @@ target_link_libraries(
         glm::glm
         gsl-lite::gsl-lite
         Boost::iostreams
+        Boost::headers
 )
 target_include_directories( etcpak PUBLIC etcpak )
 if( NOT MSVC )

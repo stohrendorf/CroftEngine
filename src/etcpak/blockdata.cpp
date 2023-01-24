@@ -5,7 +5,6 @@
 #include "tables.hpp"
 
 #include <boost/iostreams/device/mapped_file.hpp>
-#include <cassert>
 #include <cstring>
 #include <fstream>
 
@@ -37,7 +36,7 @@ boost::iostreams::mapped_file_sink openForWriting(const char* fn, size_t len, co
     tmp.write(&zero, 1);
   }
 
-  boost::iostreams::mapped_file_sink sink{fn, len, 0};
+  boost::iostreams::mapped_file_sink sink{fn, len};
   gsl_Assert(sink.is_open());
   // NOLINTNEXTLINE cppcoreguidelines-pro-type-reinterpret-cast
   auto dst = reinterpret_cast<uint32_t*>(sink.data());

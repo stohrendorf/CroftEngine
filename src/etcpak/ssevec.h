@@ -16,9 +16,12 @@ struct IVec final
   {
   }
 
-  explicit IVec(const __m128i* unaligned)
-      : data{_mm_loadu_si128(unaligned)}
+  template<typename T>
+  explicit IVec(const T* unaligned)
+      // NOLINTNEXTLINE cppcoreguidelines-pro-type-reinterpret-cast
+      : data{_mm_loadu_si128(reinterpret_cast<const __m128i*>(unaligned))}
   {
+    static_assert(sizeof(T) == sizeof(__m128i));
   }
 
   explicit IVec(__m128i x)
@@ -52,6 +55,12 @@ struct IVec final
   [[nodiscard]] IVec operator+(const IVec& rhs) const
   {
     return IVec{_mm_add_epi32(data, rhs.data)};
+  }
+
+  IVec& operator+=(const IVec& rhs)
+  {
+    *this = *this + rhs;
+    return *this;
   }
 
   [[nodiscard]] IVec operator-(const IVec& rhs) const
@@ -138,9 +147,12 @@ struct IVec16 final
   {
   }
 
-  void storeu(__m128i* unaligned) const noexcept
+  template<typename T>
+  void storeu(T* unaligned) const noexcept
   {
-    _mm_storeu_si128(unaligned, data);
+    static_assert(sizeof(T) == sizeof(__m128i));
+    // NOLINTNEXTLINE cppcoreguidelines-pro-type-reinterpret-cast
+    _mm_storeu_si128(reinterpret_cast<__m128i*>(unaligned), data);
   }
 
   [[nodiscard]] IVec16 operator+(const IVec16& rhs) const
@@ -280,9 +292,12 @@ struct IVec8 final
   {
   }
 
-  void storeu(__m128i* unaligned) const
+  template<typename T>
+  void storeu(T* unaligned) const
   {
-    _mm_storeu_si128(unaligned, data);
+    static_assert(sizeof(T) == sizeof(__m128i));
+    // NOLINTNEXTLINE cppcoreguidelines-pro-type-reinterpret-cast
+    _mm_storeu_si128(reinterpret_cast<__m128i*>(unaligned), data);
   }
 
   [[nodiscard]] auto operator==(const IVec8& rhs) const

@@ -6,7 +6,11 @@
 #include "ssevec.h"
 #include "tables.hpp"
 
+#include <algorithm>
 #include <array>
+#include <boost/throw_exception.hpp>
+#include <cmath>
+#include <glm/common.hpp>
 #include <glm/ext/vector_uint3_sized.hpp>
 #include <glm/vec3.hpp>
 #include <gsl/gsl-lite.hpp>
@@ -14,17 +18,21 @@
 
 #ifdef _MSC_VER
 #  include <intrin.h>
+// NOLINTNEXTLINE bugprone-reserved-identifier
 #  define _bswap(x) _byteswap_ulong(x)
+// NOLINTNEXTLINE bugprone-reserved-identifier
 #  define _bswap64(x) _byteswap_uint64(x)
 #else
 #  include <x86intrin.h>
 #endif
 
 #ifndef _bswap
+// NOLINTNEXTLINE bugprone-reserved-identifier
 #  define _bswap(x) __builtin_bswap32(x)
 #endif
 
 #ifndef _bswap64
+// NOLINTNEXTLINE bugprone-reserved-identifier
 #  define _bswap64(x) __builtin_bswap64(x)
 #endif
 
@@ -58,6 +66,15 @@ static_assert(sizeof(BgraVecBlock) == size_t(4u * 4u) * sizeof(BgraVec));
 
 struct BgrVec
 {
+  [[nodiscard]] static constexpr auto fromUnchecked(const glm::ivec3& rhs)
+  {
+    return BgrVec{
+      gsl::narrow_cast<uint8_t>(rhs.r),
+      gsl::narrow_cast<uint8_t>(rhs.g),
+      gsl::narrow_cast<uint8_t>(rhs.b),
+    };
+  }
+
   uint8_t b;
   uint8_t g;
   uint8_t r;
@@ -97,12 +114,17 @@ struct BgrVec
       gsl::narrow_cast<uint8_t>(r | rhs.r),
     };
   }
+
+  [[nodiscard]] auto toGlmIVec() const
+  {
+    return glm::ivec3{r, g, b};
+  }
 };
 
 struct Luma
 {
   uint8_t max = 0, min = 255, maxIdx = 0, minIdx = 0;
-  std::array<uint8_t, 16> val;
+  std::array<uint8_t, 16> val{};
 };
 
 // slightly faster than std::sort
@@ -129,7 +151,9 @@ void insertionSort(std::array<uint8_t, 16>& arr1, std::array<uint8_t, 16>& arr2)
 etcpak_force_inline uint32_t indexConversion(uint32_t pixelIndices)
 {
   uint32_t correctIndices = 0;
+  // NOLINTNEXTLINE cppcoreguidelines-pro-type-member-init
   std::array<std::array<uint32_t, 4>, 4> LSB;
+  // NOLINTNEXTLINE cppcoreguidelines-pro-type-member-init
   std::array<std::array<uint32_t, 4>, 4> MSB;
   uint8_t shift = 0;
   for(int y = 3; y >= 0; y--)
@@ -142,10 +166,11 @@ etcpak_force_inline uint32_t indexConversion(uint32_t pixelIndices)
       shift++;
     }
   }
+
   shift = 0;
-  for(int x = 0; x < 4; x++)
+  for(size_t x = 0; x < 4; x++)
   {
-    for(int y = 0; y < 4; y++)
+    for(size_t y = 0; y < 4; y++)
     {
       correctIndices |= (LSB[x][y] << shift);
       correctIndices |= (MSB[x][y] << (16u + shift));
@@ -156,28 +181,13 @@ etcpak_force_inline uint32_t indexConversion(uint32_t pixelIndices)
 }
 
 // calculates quantized colors for T or H modes
-std::array<BgrVec, 2> compressColor(const std::array<BgrVec, 2>& currColorBgr, bool t_mode)
+std::array<BgrVec, 2> compressColor(const std::array<BgrVec, 2>& currColorBgr, bool tMode)
 {
-  std::array<BgrVec, 2> result;
-  if(t_mode)
-  {
-    result[0].r = std::min(15 * (currColorBgr[0].r + 8) / 255, 15);
-    result[0].g = std::min(15 * (currColorBgr[0].g + 8) / 255, 15);
-    result[0].b = std::min(15 * (currColorBgr[0].b + 8) / 255, 15);
-  }
-  else // clamped to [1,14] to get a wider range
-  {
-    result[0].r = std::clamp(15 * (currColorBgr[0].r + 8) / 255, 1, 14);
-    result[0].g = std::clamp(15 * (currColorBgr[0].g + 8) / 255, 1, 14);
-    result[0].b = std::clamp(15 * (currColorBgr[0].b + 8) / 255, 1, 14);
-  }
-
-  // clamped to [1,14] to get a wider range
-  result[1].r = std::clamp(15 * (currColorBgr[1].r + 8) / 255, 1, 14);
-  result[1].g = std::clamp(15 * (currColorBgr[1].g + 8) / 255, 1, 14);
-  result[1].b = std::clamp(15 * (currColorBgr[1].b + 8) / 255, 1, 14);
-
-  return result;
+  return {
+    tMode ? BgrVec::fromUnchecked(glm::min(15 * (currColorBgr[0].toGlmIVec() + 8) / 255, 15))
+          : BgrVec::fromUnchecked(glm::clamp(15 * (currColorBgr[0].toGlmIVec() + 8) / 255, 1, 14)),
+    BgrVec::fromUnchecked(glm::clamp(15 * (currColorBgr[1].toGlmIVec() + 8) / 255, 1, 14)),
+  };
 }
 
 // three decoding functions come from ETCPACK v2.74 and are slightly changed.
@@ -242,28 +252,31 @@ using v4i = std::array<uint16_t, 4>;
 
 etcpak_force_inline std::array<v4i, 8> average(const BgraBlockImm& bgra)
 {
-  auto d0 = bgra[0];
-  auto d1 = bgra[1];
-  auto d2 = bgra[2];
-  auto d3 = bgra[3];
+  const auto d0 = bgra[0];
+  const auto d1 = bgra[1];
+  const auto d2 = bgra[2];
+  const auto d3 = bgra[3];
 
-  auto sum0 = d0.lowToIVec16() + d1.lowToIVec16();
-  auto sum1 = d0.highToIVec16() + d1.highToIVec16();
-  auto sum2 = d2.lowToIVec16() + d3.lowToIVec16();
-  auto sum3 = d2.highToIVec16() + d3.highToIVec16();
+  const auto sum0 = d0.lowToIVec16() + d1.lowToIVec16();
+  const auto sum1 = d0.highToIVec16() + d1.highToIVec16();
+  const auto sum2 = d2.lowToIVec16() + d3.lowToIVec16();
+  const auto sum3 = d2.highToIVec16() + d3.highToIVec16();
 
-  auto b0 = sum0.lowToIVec32() + sum0.highToIVec32();
-  auto b1 = sum1.lowToIVec32() + sum1.highToIVec32();
-  auto b2 = sum2.lowToIVec32() + sum2.highToIVec32();
-  auto b3 = sum3.lowToIVec32() + sum3.highToIVec32();
+  const auto b0 = sum0.lowToIVec32() + sum0.highToIVec32();
+  const auto b1 = sum1.lowToIVec32() + sum1.highToIVec32();
+  const auto b2 = sum2.lowToIVec32() + sum2.highToIVec32();
+  const auto b3 = sum3.lowToIVec32() + sum3.highToIVec32();
 
-  auto a0 = (b2 + b3 + IVec{4}) >> 3;
-  auto a1 = (b0 + b1 + IVec{4}) >> 3;
-  auto a2 = (b1 + b3 + IVec{4}) >> 3;
-  auto a3 = (b0 + b2 + IVec{4}) >> 3;
+  const auto a0 = (b2 + b3 + IVec{4}) >> 3;
+  const auto a1 = (b0 + b1 + IVec{4}) >> 3;
+  const auto a2 = (b1 + b3 + IVec{4}) >> 3;
+  const auto a3 = (b0 + b2 + IVec{4}) >> 3;
 
-  std::array<v4i, 8> a;
+  // NOLINTNEXTLINE cppcoreguidelines-pro-type-member-init
+  std::array<v4i, sizeof(__m128i) * 4 / sizeof(v4i)> a;
+  // NOLINTNEXTLINE cppcoreguidelines-pro-type-reinterpret-cast
   a0.shuffled<3, 0, 1, 2>().toIVec16U(a1.shuffled<3, 0, 1, 2>()).storeu(reinterpret_cast<__m128i*>(&a[0]));
+  // NOLINTNEXTLINE cppcoreguidelines-pro-type-reinterpret-cast
   a2.shuffled<3, 0, 1, 2>().toIVec16U(a3.shuffled<3, 0, 1, 2>()).storeu(reinterpret_cast<__m128i*>(&a[2]));
   return a;
 }
@@ -285,10 +298,15 @@ etcpak_force_inline std::array<std::array<uint32_t, 4>, 4> calcErrorBlock(const 
   auto b2 = sum2.lowToIVec32() + sum2.highToIVec32();
   auto b3 = sum3.lowToIVec32() + sum3.highToIVec32();
 
+  // NOLINTNEXTLINE cppcoreguidelines-pro-type-member-init
   std::array<std::array<uint32_t, 4>, 4> err;
+  // NOLINTNEXTLINE cppcoreguidelines-pro-type-reinterpret-cast
   (b2 + b3).storeu(reinterpret_cast<__m128i*>(&err[0]));
+  // NOLINTNEXTLINE cppcoreguidelines-pro-type-reinterpret-cast
   (b0 + b1).storeu(reinterpret_cast<__m128i*>(&err[1]));
+  // NOLINTNEXTLINE cppcoreguidelines-pro-type-reinterpret-cast
   (b1 + b3).storeu(reinterpret_cast<__m128i*>(&err[2]));
+  // NOLINTNEXTLINE cppcoreguidelines-pro-type-reinterpret-cast
   (b0 + b2).storeu(reinterpret_cast<__m128i*>(&err[3]));
   return err;
 }
@@ -303,40 +321,42 @@ etcpak_force_inline uint32_t calcError(const std::array<uint32_t, 4>& block, con
   return err;
 }
 
-etcpak_force_inline void processAverages(std::array<v4i, 8>& a)
+etcpak_force_inline void processAverages(std::array<v4i, 8>& avg)
 {
   for(size_t i = 0; i < 2; i++)
   {
-    auto d = IVec16{reinterpret_cast<const __m128i*>(a[i * 2].data())};
+    // NOLINTNEXTLINE cppcoreguidelines-pro-type-reinterpret-cast
+    const auto d = IVec16{reinterpret_cast<const __m128i*>(avg[i * 2].data())};
 
-    auto t = d * IVec16{31} + IVec16{128};
+    const auto t = d * IVec16{31} + IVec16{128};
 
     auto c = (t + (t >> 8)) >> 8;
 
-    auto c1 = c.shuffled32<3, 2, 3, 2>();
-    auto diff = c - c1;
-    diff = diff.max(IVec16{-4});
-    diff = diff.min(IVec16{3});
+    const auto c1 = c.shuffled32<3, 2, 3, 2>();
+    const auto diff = (c - c1).max(IVec16{-4}).min(IVec16{3});
 
-    auto co = c1 + diff;
+    const auto co = c1 + diff;
 
     c = co.blended<0xF0>(c);
 
     auto a0 = (c << 3) | (c >> 2);
 
-    a0.storeu(reinterpret_cast<__m128i*>(a[4 + i * 2].data()));
+    // NOLINTNEXTLINE cppcoreguidelines-pro-type-reinterpret-cast
+    a0.storeu(reinterpret_cast<__m128i*>(avg[4 + i * 2].data()));
   }
 
   for(size_t i = 0; i < 2; i++)
   {
-    auto d = IVec16{reinterpret_cast<const __m128i*>(a[i * 2].data())};
+    // NOLINTNEXTLINE cppcoreguidelines-pro-type-reinterpret-cast
+    const auto d = IVec16{reinterpret_cast<const __m128i*>(avg[i * 2].data())};
 
-    auto t0 = d * IVec16{15} + IVec16{128};
-    auto t1 = (t0 + (t0 >> 8)) >> 8;
+    const auto t0 = d * IVec16{15} + IVec16{128};
+    const auto t1 = (t0 + (t0 >> 8)) >> 8;
 
-    auto t2 = t1 | (t1 << 4);
+    const auto t2 = t1 | (t1 << 4);
 
-    t2.storeu(reinterpret_cast<__m128i*>(a[i * 2].data()));
+    // NOLINTNEXTLINE cppcoreguidelines-pro-type-reinterpret-cast
+    t2.storeu(reinterpret_cast<__m128i*>(avg[i * 2].data()));
   }
 }
 
@@ -381,8 +401,10 @@ etcpak_force_inline uint32_t checkSolid(const BgraBlockImm& bgra)
   {
     return 0;
   }
+
+  // NOLINTNEXTLINE cppcoreguidelines-pro-type-member-init
   std::array<uint8_t, sizeof(__m128i)> tmp;
-  (bgra[0] & IVec8{uint8_t(0xf8)}).storeu(reinterpret_cast<__m128i*>(tmp.data()));
+  (bgra[0] & IVec8{uint8_t(0xf8)}).storeu(&tmp);
   return 0x02000000u | ((uint32_t)tmp[0] << 16u) | ((uint32_t)tmp[1] << 8u) | ((uint32_t)tmp[2]);
 }
 
@@ -403,12 +425,12 @@ etcpak_force_inline std::array<v4i, 8> prepareAverages(const BgraBlockImm& bgra,
 }
 
 // Non-reference implementation, but faster. Produces same results as the AVX2 version
-etcpak_force_inline void findBestFit(std::array<std::array<uint32_t, 8>, 2>& terr,
-                                     std::array<std::array<uint16_t, 8>, 16>& tsel,
-                                     const std::array<v4i, 8>& a,
-                                     const std::array<uint32_t, 16>& id,
-                                     const BgraVecBlock& bgra)
+etcpak_force_inline std::tuple<std::array<std::array<uint32_t, 8>, 2>, std::array<std::array<uint16_t, 8>, 16>>
+  findBestFit(const std::array<v4i, 8>& a, const std::array<uint32_t, 16>& id, const BgraVecBlock& bgra)
 {
+  // NOLINTNEXTLINE cppcoreguidelines-pro-type-member-init
+  std::array<std::array<uint16_t, 8>, 16> tsel;
+  std::array<std::array<uint32_t, 8>, 2> terr{};
   auto it = bgra.begin();
   for(size_t i = 0; i < 16; i++)
   {
@@ -425,7 +447,7 @@ etcpak_force_inline void findBestFit(std::array<std::array<uint32_t, 8>, 2>& ter
 
     // The scaling values are divided by two and rounded, to allow the differences to be in the range of signed int16
     // This produces slightly different results, but is significant faster
-    auto pixel = IVec16(dr * 38 + dg * 76 + db * 14);
+    auto pixel = IVec16{gsl::narrow_cast<int16_t>(dr * 38 + dg * 76 + db * 14)};
     auto pix = pixel.abs();
 
     // Taking the absolute value is way faster. The values are only used to sort, so the result will be the same.
@@ -449,25 +471,33 @@ etcpak_force_inline void findBestFit(std::array<std::array<uint32_t, 8>, 2>& ter
     auto squareErrorHigh = squareErrorLo.highToIVec32(squareErrorHi);
 
     auto& ter = terr[bid % 2];
-    squareErrorLow = squareErrorLow + IVec{reinterpret_cast<const __m128i*>(ter.data()) + 0};
+    static_assert(sizeof(ter) == 2 * sizeof(__m128i));
+
+    // NOLINTNEXTLINE cppcoreguidelines-pro-type-reinterpret-cast
+    squareErrorLow += IVec{reinterpret_cast<const __m128i*>(ter.data()) + 0};
+    // NOLINTNEXTLINE cppcoreguidelines-pro-type-reinterpret-cast
     squareErrorLow.storeu(reinterpret_cast<__m128i*>(ter.data()) + 0);
-    squareErrorHigh = squareErrorHigh + IVec{reinterpret_cast<const __m128i*>(ter.data()) + 1};
+    // NOLINTNEXTLINE cppcoreguidelines-pro-type-reinterpret-cast
+    squareErrorHigh += IVec{reinterpret_cast<const __m128i*>(ter.data()) + 1};
+    // NOLINTNEXTLINE cppcoreguidelines-pro-type-reinterpret-cast
     squareErrorHigh.storeu(reinterpret_cast<__m128i*>(ter.data()) + 1);
 
-    minIndex.storeu(reinterpret_cast<__m128i*>(tsel[i].data()));
+    minIndex.storeu(&tsel[i]);
   }
+
+  return {terr, tsel};
 }
 
 etcpak_force_inline uint8_t convert6(float f)
 {
-  const int i = (std::min(std::max(static_cast<int>(f), 0), 1023) - 15) >> 1;
-  return (i + 11 - ((i + 11) >> 7) - ((i + 4) >> 7)) >> 3;
+  const int i = (std::clamp(static_cast<int>(f), 0, 1023) - 15) >> 1;
+  return gsl::narrow_cast<uint8_t>((i + 11 - ((i + 11) >> 7) - ((i + 4) >> 7)) >> 3);
 }
 
 etcpak_force_inline uint8_t convert7(float f)
 {
-  const int i = (std::min(std::max(static_cast<int>(f), 0), 1023) - 15) >> 1;
-  return (i + 9 - ((i + 9) >> 8) - ((i + 6) >> 8)) >> 2;
+  const int i = (std::clamp(static_cast<int>(f), 0, 1023) - 15) >> 1;
+  return gsl::narrow_cast<uint8_t>((i + 9 - ((i + 9) >> 8) - ((i + 6) >> 8)) >> 2);
 }
 
 etcpak_force_inline std::pair<uint64_t, uint64_t>
@@ -495,9 +525,9 @@ etcpak_force_inline std::pair<uint64_t, uint64_t>
 
   for(int i = 0; i < 16; ++i)
   {
-    const int32_t difB = (gsl::narrow_cast<int>(bgra[i].b) << 4u) - b;
-    const int32_t difG = (gsl::narrow_cast<int>(bgra[i].g) << 4u) - g;
-    const int32_t difR = (gsl::narrow_cast<int>(bgra[i].r) << 4u) - r;
+    const int32_t difB = gsl::narrow_cast<int>(bgra[i].b << 4u) - b;
+    const int32_t difG = gsl::narrow_cast<int>(bgra[i].g << 4u) - g;
+    const int32_t difR = gsl::narrow_cast<int>(bgra[i].r << 4u) - r;
 
     difRyz += difR * scaling[i % 4];
     difGyz += difG * scaling[i % 4];
@@ -739,6 +769,7 @@ uint32_t compressBlockTH(const BgraVecBlock& bgra, Luma& l, uint32_t& compressed
   // 4) calculates the two base colors
   std::array<uint8_t, 4> rangeIdx{{pixIdx[0], pixIdx[minSumRangeIdx], pixIdx[minSumRangeIdx + 1], pixIdx[15]}};
 
+  // NOLINTNEXTLINE cppcoreguidelines-pro-type-member-init
   std::array<uint16_t, 4> r, g, b;
   for(uint8_t i = 0; i < 4; ++i)
   {
@@ -748,12 +779,13 @@ uint32_t compressBlockTH(const BgraVecBlock& bgra, Luma& l, uint32_t& compressed
     r[i] = bgra[idx].r;
   }
 
+  // NOLINTNEXTLINE cppcoreguidelines-pro-type-member-init
   std::array<BgrVec, 2> midBgr;
   if(swap)
   {
-    midBgr[1].b = (b[0] + b[1]) / 2;
-    midBgr[1].g = (g[0] + g[1]) / 2;
-    midBgr[1].r = (r[0] + r[1]) / 2;
+    midBgr[1].b = gsl::narrow_cast<uint8_t>((b[0] + b[1]) / 2);
+    midBgr[1].g = gsl::narrow_cast<uint8_t>((g[0] + g[1]) / 2);
+    midBgr[1].r = gsl::narrow_cast<uint8_t>((r[0] + r[1]) / 2);
 
     glm::u16vec3 sumBgr{0, 0, 0};
     for(uint8_t i = minSumRangeIdx + 1; i < 16; i++)
@@ -764,15 +796,15 @@ uint32_t compressBlockTH(const BgraVecBlock& bgra, Luma& l, uint32_t& compressed
       sumBgr.r += bgra[idx].r;
     }
     const uint8_t temp = 15 - minSumRangeIdx;
-    midBgr[0].b = sumBgr.b / temp;
-    midBgr[0].g = sumBgr.g / temp;
-    midBgr[0].r = sumBgr.r / temp;
+    midBgr[0].b = gsl::narrow_cast<uint8_t>(sumBgr.b / temp);
+    midBgr[0].g = gsl::narrow_cast<uint8_t>(sumBgr.g / temp);
+    midBgr[0].r = gsl::narrow_cast<uint8_t>(sumBgr.r / temp);
   }
   else
   {
-    midBgr[0].b = (b[0] + b[1]) / 2;
-    midBgr[0].g = (g[0] + g[1]) / 2;
-    midBgr[0].r = (r[0] + r[1]) / 2;
+    midBgr[0].b = gsl::narrow_cast<uint8_t>((b[0] + b[1]) / 2);
+    midBgr[0].g = gsl::narrow_cast<uint8_t>((g[0] + g[1]) / 2);
+    midBgr[0].r = gsl::narrow_cast<uint8_t>((r[0] + r[1]) / 2);
     if(tMode)
     {
       glm::u16vec3 sumBgr{0, 0, 0};
@@ -784,15 +816,15 @@ uint32_t compressBlockTH(const BgraVecBlock& bgra, Luma& l, uint32_t& compressed
         sumBgr.r += bgra[idx].r;
       }
       const uint8_t temp = 15 - minSumRangeIdx;
-      midBgr[1].b = sumBgr.b / temp;
-      midBgr[1].g = sumBgr.g / temp;
-      midBgr[1].r = sumBgr.r / temp;
+      midBgr[1].b = gsl::narrow_cast<uint8_t>(sumBgr.b / temp);
+      midBgr[1].g = gsl::narrow_cast<uint8_t>(sumBgr.g / temp);
+      midBgr[1].r = gsl::narrow_cast<uint8_t>(sumBgr.r / temp);
     }
     else
     {
-      midBgr[1].b = (b[2] + b[3]) / 2;
-      midBgr[1].g = (g[2] + g[3]) / 2;
-      midBgr[1].r = (r[2] + r[3]) / 2;
+      midBgr[1].b = gsl::narrow_cast<uint8_t>((b[2] + b[3]) / 2u);
+      midBgr[1].g = gsl::narrow_cast<uint8_t>((g[2] + g[3]) / 2u);
+      midBgr[1].r = gsl::narrow_cast<uint8_t>((r[2] + r[3]) / 2u);
     }
   }
 
@@ -814,7 +846,7 @@ uint32_t compressBlockTH(const BgraVecBlock& bgra, Luma& l, uint32_t& compressed
     avgDist = (b[1] - b[0] + g[1] - g[0] + r[1] - r[0] + b[3] - b[2] + g[3] - g[2] + r[3] - r[2]) / 12;
   }
 
-  uint32_t startDistCandidate;
+  uint8_t startDistCandidate;
   if(avgDist <= 16)
   {
     startDistCandidate = 0;
@@ -968,7 +1000,7 @@ inline void stuff59bits(uint32_t thumbT59W1, uint32_t thumbT59W2, uint32_t& thum
 
   // The following bit abcd bit sequences should be padded with ones: 0111, 1010, 1011, 1101, 1110, 1111
   // The following logical expression checks for the presence of any of those:
-  bit = (a & c) | (!a & b & c & d) | (a & b & !c & d);
+  bit = (a & c) | ((!a) & b & c & d) | (a & b & !c & d);
   bits = 0xf * bit;
   thumbTW1 = (thumbTW1 & ~(0x7u << 29u)) | (bits & 0x7u) << 29u;
   thumbTW1 = (thumbTW1 & ~(0x1u << 26u)) | (~bit & 0x1u) << 26u;
@@ -1049,7 +1081,7 @@ inline void stuff58bits(uint32_t thumbH58W1, uint32_t thumbH58W2, uint32_t& thum
   d = (thumbHW1 >> 16u) & 0x1u;
   // The following bit abcd bit sequences should be padded with ones: 0111, 1010, 1011, 1101, 1110, 1111
   // The following logical expression checks for the presence of any of those:
-  bit = (a & c) | (!a & b & c & d) | (a & b & !c & d);
+  bit = (a & c) | ((!a) & b & c & d) | (a & b & !c & d);
   bits = 0xf * bit;
   thumbHW1 = (thumbHW1 & ~(0x7u << 21u)) | ((bits & 0x7u) << 21u);
   thumbHW1 = (thumbHW1 & ~(0x1u << 18u)) | ((~bit & 0x1u) << 18u);
@@ -1127,10 +1159,8 @@ etcpak_force_inline uint64_t processBGR_ETC2(const BgraVecBlock& bgra, const Bgr
   const size_t idx = getLeastError(err);
   encodeAverages(d, a, idx);
 
-  std::array<std::array<uint32_t, 8>, 2> terr{};
-  std::array<std::array<uint16_t, 8>, 16> tsel;
   const auto& id = g_id[idx];
-  findBestFit(terr, tsel, a, id, bgra);
+  const auto [terr, tsel] = findBestFit(a, id, bgra);
 
   if(useHeuristics)
   {
@@ -1174,7 +1204,7 @@ etcpak_force_inline IVec16 widen(const IVec16& src)
   return IVec16{_mm_shuffle_epi32(tmp, _MM_SHUFFLE(s2, s2, s2, s2))};
 }
 
-constexpr etcpak_force_inline int getMulSel(int sel)
+constexpr etcpak_force_inline int getMulSel(size_t sel)
 {
   switch(sel)
   {
@@ -1200,8 +1230,9 @@ constexpr etcpak_force_inline int getMulSel(int sel)
   case 14:
   case 15:
     return 5;
+  default:
+    BOOST_THROW_EXCEPTION(std::domain_error("invalid selector"));
   }
-  assert(false);
 }
 
 etcpak_force_inline uint64_t processAlpha_ETC2(const IVec8& alphas)
@@ -1209,8 +1240,9 @@ etcpak_force_inline uint64_t processAlpha_ETC2(const IVec8& alphas)
   // Check solid
   if((alphas == alphas.shuffled(IVec{0})).testC(IVec{-1}))
   {
+    // NOLINTNEXTLINE cppcoreguidelines-pro-type-member-init
     std::array<uint8_t, sizeof(__m128i)> tmp;
-    alphas.storeu(reinterpret_cast<__m128i*>(tmp.data()));
+    alphas.storeu(&tmp);
     return tmp[0];
   }
 
@@ -1239,8 +1271,7 @@ etcpak_force_inline uint64_t processAlpha_ETC2(const IVec8& alphas)
   auto srcMid = min16 + srcRangeHalf;
 
   // multiplier
-  auto mul1 = srcRange.mulHi(g_alphaRange_SIMD);
-  auto mul = mul1 + IVec16{1};
+  const auto mul = srcRange.mulHi(g_alphaRange_SIMD) + IVec16{1};
 
   // wide source
   std::array<IVec16, 2> s16{{
@@ -1269,28 +1300,60 @@ etcpak_force_inline uint64_t processAlpha_ETC2(const IVec8& alphas)
 
   // wide multiplier
   std::array<IVec16, 16> rangeMul{{
-    (srcMid + widen<0>(mul) * g_alpha_SIMD[0]).toIVec8U(srcMid + widen<0>(mul) * g_alpha_SIMD[0]).lowToIVec16(),
-    (srcMid + widen<1>(mul) * g_alpha_SIMD[1]).toIVec8U(srcMid + widen<1>(mul) * g_alpha_SIMD[1]).lowToIVec16(),
-    (srcMid + widen<1>(mul) * g_alpha_SIMD[2]).toIVec8U(srcMid + widen<1>(mul) * g_alpha_SIMD[2]).lowToIVec16(),
-    (srcMid + widen<1>(mul) * g_alpha_SIMD[3]).toIVec8U(srcMid + widen<1>(mul) * g_alpha_SIMD[3]).lowToIVec16(),
-    (srcMid + widen<2>(mul) * g_alpha_SIMD[4]).toIVec8U(srcMid + widen<2>(mul) * g_alpha_SIMD[4]).lowToIVec16(),
-    (srcMid + widen<3>(mul) * g_alpha_SIMD[5]).toIVec8U(srcMid + widen<3>(mul) * g_alpha_SIMD[5]).lowToIVec16(),
-    (srcMid + widen<3>(mul) * g_alpha_SIMD[6]).toIVec8U(srcMid + widen<3>(mul) * g_alpha_SIMD[6]).lowToIVec16(),
-    (srcMid + widen<3>(mul) * g_alpha_SIMD[7]).toIVec8U(srcMid + widen<3>(mul) * g_alpha_SIMD[7]).lowToIVec16(),
-    (srcMid + widen<4>(mul) * g_alpha_SIMD[8]).toIVec8U(srcMid + widen<4>(mul) * g_alpha_SIMD[8]).lowToIVec16(),
-    (srcMid + widen<4>(mul) * g_alpha_SIMD[9]).toIVec8U(srcMid + widen<4>(mul) * g_alpha_SIMD[9]).lowToIVec16(),
-    (srcMid + widen<4>(mul) * g_alpha_SIMD[10]).toIVec8U(srcMid + widen<4>(mul) * g_alpha_SIMD[10]).lowToIVec16(),
-    (srcMid + widen<4>(mul) * g_alpha_SIMD[11]).toIVec8U(srcMid + widen<4>(mul) * g_alpha_SIMD[11]).lowToIVec16(),
-    (srcMid + widen<4>(mul) * g_alpha_SIMD[12]).toIVec8U(srcMid + widen<4>(mul) * g_alpha_SIMD[12]).lowToIVec16(),
-    (srcMid + widen<4>(mul) * g_alpha_SIMD[13]).toIVec8U(srcMid + widen<4>(mul) * g_alpha_SIMD[13]).lowToIVec16(),
-    (srcMid + widen<5>(mul) * g_alpha_SIMD[14]).toIVec8U(srcMid + widen<5>(mul) * g_alpha_SIMD[14]).lowToIVec16(),
-    (srcMid + widen<5>(mul) * g_alpha_SIMD[15]).toIVec8U(srcMid + widen<5>(mul) * g_alpha_SIMD[15]).lowToIVec16(),
+    (srcMid + widen<getMulSel(0)>(mul) * g_alpha_SIMD[0])
+      .toIVec8U(srcMid + widen<getMulSel(0)>(mul) * g_alpha_SIMD[0])
+      .lowToIVec16(),
+    (srcMid + widen<getMulSel(1)>(mul) * g_alpha_SIMD[1])
+      .toIVec8U(srcMid + widen<getMulSel(1)>(mul) * g_alpha_SIMD[1])
+      .lowToIVec16(),
+    (srcMid + widen<getMulSel(2)>(mul) * g_alpha_SIMD[2])
+      .toIVec8U(srcMid + widen<getMulSel(2)>(mul) * g_alpha_SIMD[2])
+      .lowToIVec16(),
+    (srcMid + widen<getMulSel(3)>(mul) * g_alpha_SIMD[3])
+      .toIVec8U(srcMid + widen<getMulSel(3)>(mul) * g_alpha_SIMD[3])
+      .lowToIVec16(),
+    (srcMid + widen<getMulSel(4)>(mul) * g_alpha_SIMD[4])
+      .toIVec8U(srcMid + widen<getMulSel(4)>(mul) * g_alpha_SIMD[4])
+      .lowToIVec16(),
+    (srcMid + widen<getMulSel(5)>(mul) * g_alpha_SIMD[5])
+      .toIVec8U(srcMid + widen<getMulSel(5)>(mul) * g_alpha_SIMD[5])
+      .lowToIVec16(),
+    (srcMid + widen<getMulSel(6)>(mul) * g_alpha_SIMD[6])
+      .toIVec8U(srcMid + widen<getMulSel(6)>(mul) * g_alpha_SIMD[6])
+      .lowToIVec16(),
+    (srcMid + widen<getMulSel(7)>(mul) * g_alpha_SIMD[7])
+      .toIVec8U(srcMid + widen<getMulSel(7)>(mul) * g_alpha_SIMD[7])
+      .lowToIVec16(),
+    (srcMid + widen<getMulSel(8)>(mul) * g_alpha_SIMD[8])
+      .toIVec8U(srcMid + widen<getMulSel(8)>(mul) * g_alpha_SIMD[8])
+      .lowToIVec16(),
+    (srcMid + widen<getMulSel(9)>(mul) * g_alpha_SIMD[9])
+      .toIVec8U(srcMid + widen<getMulSel(9)>(mul) * g_alpha_SIMD[9])
+      .lowToIVec16(),
+    (srcMid + widen<getMulSel(10)>(mul) * g_alpha_SIMD[10])
+      .toIVec8U(srcMid + widen<getMulSel(10)>(mul) * g_alpha_SIMD[10])
+      .lowToIVec16(),
+    (srcMid + widen<getMulSel(11)>(mul) * g_alpha_SIMD[11])
+      .toIVec8U(srcMid + widen<getMulSel(11)>(mul) * g_alpha_SIMD[11])
+      .lowToIVec16(),
+    (srcMid + widen<getMulSel(12)>(mul) * g_alpha_SIMD[12])
+      .toIVec8U(srcMid + widen<getMulSel(12)>(mul) * g_alpha_SIMD[12])
+      .lowToIVec16(),
+    (srcMid + widen<getMulSel(13)>(mul) * g_alpha_SIMD[13])
+      .toIVec8U(srcMid + widen<getMulSel(13)>(mul) * g_alpha_SIMD[13])
+      .lowToIVec16(),
+    (srcMid + widen<getMulSel(14)>(mul) * g_alpha_SIMD[14])
+      .toIVec8U(srcMid + widen<getMulSel(14)>(mul) * g_alpha_SIMD[14])
+      .lowToIVec16(),
+    (srcMid + widen<getMulSel(15)>(mul) * g_alpha_SIMD[15])
+      .toIVec8U(srcMid + widen<getMulSel(15)>(mul) * g_alpha_SIMD[15])
+      .lowToIVec16(),
   }};
 
   // find selector
   int err = std::numeric_limits<int>::max();
-  int sel;
-  for(int r = 0; r < 16; r++)
+  size_t sel = 0;
+  for(size_t r = 0; r < rangeMul.size(); r++)
   {
     auto recVal16 = rangeMul[r];
     int rangeErr = 0;
@@ -1300,7 +1363,7 @@ etcpak_force_inline uint64_t processAlpha_ETC2(const IVec8& alphas)
       auto err1 = sri - recVal16;
       auto err2 = err1 * err1;
       auto minerr = err2.minPos();
-      rangeErr += minerr.get64() & 0xFFFF;
+      rangeErr += gsl::narrow_cast<int>(minerr.get64() & 0xFFFF);
     }
 
     if(rangeErr < err)
@@ -1324,9 +1387,10 @@ etcpak_force_inline uint64_t processAlpha_ETC2(const IVec8& alphas)
     idx |= (err2.minPos().get64() >> 16) << (15 - i) * 3;
   }
 
+  // NOLINTNEXTLINE cppcoreguidelines-pro-type-member-init
   std::array<uint16_t, sizeof(__m128i) / sizeof(uint16_t)> rm;
-  mul.storeu(reinterpret_cast<__m128i*>(rm.data()));
-  const uint16_t sm = srcMid.get64();
+  mul.storeu(&rm);
+  const auto sm = gsl::narrow_cast<uint16_t>(srcMid.get64());
 
   const uint64_t d = (uint64_t(sm) << 56u) | (uint64_t(rm[getMulSel(sel)]) << 52u) | (uint64_t(sel) << 48u) | idx;
 
@@ -1339,9 +1403,13 @@ void compressEtc2Bgra(const uint32_t* srcBgra, uint64_t* dst, uint32_t blocks, s
   int w = 0;
   while(blocks--)
   {
+    // NOLINTNEXTLINE cppcoreguidelines-pro-type-reinterpret-cast
     auto c0 = IVec8{reinterpret_cast<const __m128i*>(srcBgra + width * 0)};
+    // NOLINTNEXTLINE cppcoreguidelines-pro-type-reinterpret-cast
     auto c1 = IVec8{reinterpret_cast<const __m128i*>(srcBgra + width * 1)};
+    // NOLINTNEXTLINE cppcoreguidelines-pro-type-reinterpret-cast
     auto c2 = IVec8{reinterpret_cast<const __m128i*>(srcBgra + width * 2)};
+    // NOLINTNEXTLINE cppcoreguidelines-pro-type-reinterpret-cast
     auto c3 = IVec8{reinterpret_cast<const __m128i*>(srcBgra + width * 3)};
 
     transpose(c0, c1, c2, c3);
@@ -1349,9 +1417,14 @@ void compressEtc2Bgra(const uint32_t* srcBgra, uint64_t* dst, uint32_t blocks, s
     const auto immRgba = BgraBlockImm{{c0, c1, c2, c3}};
 
     BgraVecBlock bgra;
+    static_assert(sizeof(bgra) >= sizeof(__m128i) * 4);
+    // NOLINTNEXTLINE cppcoreguidelines-pro-type-reinterpret-cast
     c0.storeu(reinterpret_cast<__m128i*>(bgra.data()) + 0);
+    // NOLINTNEXTLINE cppcoreguidelines-pro-type-reinterpret-cast
     c1.storeu(reinterpret_cast<__m128i*>(bgra.data()) + 1);
+    // NOLINTNEXTLINE cppcoreguidelines-pro-type-reinterpret-cast
     c2.storeu(reinterpret_cast<__m128i*>(bgra.data()) + 2);
+    // NOLINTNEXTLINE cppcoreguidelines-pro-type-reinterpret-cast
     c3.storeu(reinterpret_cast<__m128i*>(bgra.data()) + 3);
 
     static const auto mask0 = IVec{0x0f'0b'07'03, -1, -1, -1};
