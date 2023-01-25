@@ -88,10 +88,14 @@ struct IVec final
     _mm_storeu_si128(unaligned, data);
   }
 
-  template<uint8_t a, uint8_t b, uint8_t c, uint8_t d>
+  template<uint8_t r3, uint8_t r2, uint8_t r1, uint8_t r0>
   [[nodiscard]] IVec shuffled() const
   {
-    return IVec{_mm_shuffle_epi32(data, _MM_SHUFFLE(a, b, c, d))};
+    static_assert(r3 < 4);
+    static_assert(r2 < 4);
+    static_assert(r1 < 4);
+    static_assert(r0 < 4);
+    return IVec{_mm_shuffle_epi32(data, _MM_SHUFFLE(r3, r2, r1, r0))};
   }
 
   [[nodiscard]] auto abs() const
@@ -238,6 +242,10 @@ struct IVec16 final
   template<uint8_t a, uint8_t b, uint8_t c, uint8_t d>
   auto& shuffle32()
   {
+    static_assert(a < 4);
+    static_assert(b < 4);
+    static_assert(c < 4);
+    static_assert(d < 4);
     data = _mm_shuffle_epi32(data, _MM_SHUFFLE(a, b, c, d));
     return *this;
   }
@@ -333,6 +341,10 @@ struct IVec8 final
   template<uint8_t a, uint8_t b, uint8_t c, uint8_t d>
   auto& shuffle32()
   {
+    static_assert(a < 4);
+    static_assert(b < 4);
+    static_assert(c < 4);
+    static_assert(d < 4);
     data = _mm_shuffle_epi32(data, _MM_SHUFFLE(a, b, c, d));
     return *this;
   }

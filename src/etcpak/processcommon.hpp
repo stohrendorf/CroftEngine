@@ -4,7 +4,7 @@
 #include <cstdint>
 
 template<typename T, size_t N>
-constexpr inline size_t getLeastError(const std::array<T, N>& err)
+constexpr inline size_t getLeastErrorIndex(const std::array<T, N>& err)
 {
   size_t idx = 0;
   for(size_t i = 1; i < N; i++)
