@@ -275,6 +275,11 @@ struct IVec16 final
     return IVec16{_mm_abs_epi16(data)};
   }
 
+  [[nodiscard]] auto hAdd(const IVec16& rhs) const
+  {
+    return IVec16{_mm_hadd_epi16(data, rhs.data)};
+  }
+
   __m128i data;
 };
 

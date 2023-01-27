@@ -41,7 +41,12 @@ namespace
 {
 using BgraBlockImm = std::array<IVec8, 4u>;
 
-constexpr uint32_t MaxError = 1065369600; // ((38+76+14) * 255)^2
+constexpr uint32_t LumaWeightR = 38u;
+constexpr uint32_t LumaWeightG = 76u;
+constexpr uint32_t LumaWeightB = 14u;
+static_assert(LumaWeightR + LumaWeightG + LumaWeightB == 128);
+constexpr uint32_t MaxError = sq((LumaWeightR + LumaWeightG + LumaWeightB) * 255u);
+
 // common T-/H-mode table
 constexpr std::array<uint8_t, 8> tableTH{{3, 6, 11, 16, 23, 32, 41, 64}};
 
@@ -227,13 +232,13 @@ std::array<BgrVec, 4> calculatePaintColors59T(uint8_t d, const std::array<BgrVec
 {
   //////////////////////////////////////////////
   //
-  //		C3      C1		C4----C1---C2
-  //		|		|			  |
-  //		|		|			  |
-  //		|-------|			  |
-  //		|		|			  |
-  //		|		|			  |
-  //		C4      C2			  C3
+  //        C3      C1        C4----C1---C2
+  //        |        |              |
+  //        |        |              |
+  //        |--------|              |
+  //        |        |              |
+  //        |        |              |
+  //        C4      C2              C3
   //
   //////////////////////////////////////////////
 
@@ -249,7 +254,7 @@ std::array<BgrVec, 4> calculatePaintColors59T(uint8_t d, const std::array<BgrVec
   };
 }
 
-etcpak_force_inline std::array<glm::u16vec4, 4> getHalfAverages(const BgraBlockImm& bgra)
+etcpak_force_inline std::array<IVec16, 2> getHalfAveragesRgba(const BgraBlockImm& bgra)
 {
   const auto& y01 = bgra[0];
   const auto& y23 = bgra[1];
@@ -275,21 +280,15 @@ etcpak_force_inline std::array<glm::u16vec4, 4> getHalfAverages(const BgraBlockI
   const auto avgX03_2 = (sumY03X03_2 + sumY47X03_2 + IVec{4}) >> 3;
 
   // NOLINTNEXTLINE cppcoreguidelines-pro-type-member-init
-  std::array<glm::u16vec4, sizeof(__m128i) * 2 / sizeof(glm::u16vec4)> avg;
+  std::array<IVec16, 2> avg;
   // store average rgba values of Y
-  avgY47_2.shuffled<3, 0, 1, 2>()
-    .toIVec16U(avgY03_2.shuffled<3, 0, 1, 2>())
-    // NOLINTNEXTLINE cppcoreguidelines-pro-type-reinterpret-cast
-    .storeu(reinterpret_cast<__m128i*>(&avg[0]));
+  avg[0] = avgY47_2.shuffled<3, 0, 1, 2>().toIVec16U(avgY03_2.shuffled<3, 0, 1, 2>());
   // store average rgba values of X
-  avgX47_2.shuffled<3, 0, 1, 2>()
-    .toIVec16U(avgX03_2.shuffled<3, 0, 1, 2>())
-    // NOLINTNEXTLINE cppcoreguidelines-pro-type-reinterpret-cast
-    .storeu(reinterpret_cast<__m128i*>(&avg[2]));
+  avg[1] = avgX47_2.shuffled<3, 0, 1, 2>().toIVec16U(avgX03_2.shuffled<3, 0, 1, 2>());
   return avg;
 }
 
-etcpak_force_inline std::array<std::array<uint32_t, 4>, 4> sumHalves(const BgraBlockImm& bgra)
+etcpak_force_inline std::array<std::array<uint32_t, 4>, 4> sumHalvesBgr(const BgraBlockImm& bgra)
 {
   const auto y01 = bgra[0] & 0x00FFFFFF;
   const auto y23 = bgra[1] & 0x00FFFFFF;
@@ -322,47 +321,42 @@ etcpak_force_inline std::array<std::array<uint32_t, 4>, 4> sumHalves(const BgraB
   return err;
 }
 
-etcpak_force_inline uint32_t calcError(const std::array<uint32_t, 4>& halfSums, const glm::u16vec4& average)
+etcpak_force_inline uint32_t calcError(const std::array<uint32_t, 4>& halfSumsBgr, const glm::u16vec4& averageRgba)
 {
   uint32_t err = 0x3FFFFFFF; // Big value to prevent negative values, but small enough to prevent overflow
-  err -= halfSums[0] * average[2];
-  err -= halfSums[1] * average[1];
-  err -= halfSums[2] * average[0];
-  err += 4 * (sq(average[0]) + sq(average[1]) + sq(average[2]));
+  err -= halfSumsBgr[0] * averageRgba[2];
+  err -= halfSumsBgr[1] * averageRgba[1];
+  err -= halfSumsBgr[2] * averageRgba[0];
+  err += 4 * (sq(averageRgba[0]) + sq(averageRgba[1]) + sq(averageRgba[2]));
   return err;
 }
 
-etcpak_force_inline std::array<glm::u16vec4, 8> processAverages(const std::array<glm::u16vec4, 4>& avgPerHalf)
+etcpak_force_inline std::array<glm::u16vec4, 8> processAverages(const std::array<IVec16, 2>& avgPerHalfRgba)
 {
   std::array<glm::u16vec4, 8> result;
 
-  for(size_t i = 0; i < 2; i++)
+  // process top/bottom, then left/right
+  for(size_t i = 0; i < avgPerHalfRgba.size(); i++)
   {
     // NOLINTNEXTLINE cppcoreguidelines-pro-type-reinterpret-cast
-    const auto avg = IVec16{reinterpret_cast<const __m128i*>(&avgPerHalf[i * 2u])};
+    const auto& avg = avgPerHalfRgba[i];
 
-    const auto t = avg * IVec16{31} + IVec16{128};
+    const auto t31 = avg * IVec16{31} + IVec16{128};
+    const auto t31Normalized = (t31 + (t31 >> 8)) >> 8;
 
-    auto c = (t + (t >> 8)) >> 8;
+    const auto t31Half2 = t31Normalized.shuffled32<3, 2, 3, 2>();
+    const auto halvesDiff = (t31Normalized - t31Half2).max(IVec16{-4}).min(IVec16{3});
 
-    const auto c1 = c.shuffled32<3, 2, 3, 2>();
-    const auto diff = (c - c1).max(IVec16{-4}).min(IVec16{3});
-
-    const auto co = c1 + diff;
-
-    c = co.blended<0xF0>(c);
-
-    const auto a0 = (c << 3) | (c >> 2);
+    const auto c2 = (t31Half2 + halvesDiff).blended<0xF0>(t31Normalized);
 
     // NOLINTNEXTLINE cppcoreguidelines-pro-type-reinterpret-cast
-    a0.storeu(reinterpret_cast<__m128i*>(&result[4u + i * 2u]));
+    ((c2 << 3) | (c2 >> 2)).storeu(reinterpret_cast<__m128i*>(&result[4u + i * 2u]));
 
-    const auto t0 = avg * IVec16{15} + IVec16{128};
-    const auto t1 = (t0 + (t0 >> 8)) >> 8;
-    const auto t2 = t1 | (t1 << 4);
+    const auto t15 = avg * IVec16{15} + IVec16{128};
+    const auto t15Normalized = (t15 + (t15 >> 8)) >> 8;
 
     // NOLINTNEXTLINE cppcoreguidelines-pro-type-reinterpret-cast
-    t2.storeu(reinterpret_cast<__m128i*>(&result[i * 2]));
+    (t15Normalized | (t15Normalized << 4)).storeu(reinterpret_cast<__m128i*>(&result[i * 2]));
   }
 
   return result;
@@ -417,21 +411,21 @@ etcpak_force_inline uint32_t checkSolid(const BgraBlockImm& bgra)
 }
 
 etcpak_force_inline std::tuple<std::array<glm::u16vec4, 8>, std::array<uint32_t, 4>>
-  prepareAverages(const BgraBlockImm& bgra)
+  prepareAverages(const BgraBlockImm& immBgra)
 {
-  const auto avgPerHalf = getHalfAverages(bgra);
-  const auto processedAvg = processAverages(avgPerHalf);
+  const auto avgPerHalfRgba = getHalfAveragesRgba(immBgra);
+  const auto processedAvgRgba = processAverages(avgPerHalfRgba);
 
-  const auto halfSums = sumHalves(bgra);
+  const auto halfSumsBgr = sumHalvesBgr(immBgra);
 
   std::array<uint32_t, 4> halfErrors{};
-  for(size_t i = 0; i < 4; i++)
+  for(size_t i = 0; i < halfErrors.size(); i++)
   {
-    halfErrors[i / 2u] += calcError(halfSums[i], processedAvg[i]);
-    halfErrors[2u + i / 2u] += calcError(halfSums[i], processedAvg[i + 4]);
+    halfErrors[i / 2u] += calcError(halfSumsBgr[i], processedAvgRgba[i]);
+    halfErrors[2u + i / 2u] += calcError(halfSumsBgr[i], processedAvgRgba[i + 4]);
   }
 
-  return {processedAvg, halfErrors};
+  return {processedAvgRgba, halfErrors};
 }
 
 // Non-reference implementation, but faster. Produces same results as the AVX2 version
@@ -457,7 +451,7 @@ etcpak_force_inline std::tuple<std::array<std::array<uint32_t, 8>, 2>, std::arra
 
     // The scaling values are divided by two and rounded, to allow the differences to be in the range of signed int16
     // This produces slightly different results, but is significant faster
-    auto pixel = IVec16{gsl::narrow_cast<int16_t>(dr * 38 + dg * 76 + db * 14)};
+    auto pixel = IVec16{gsl::narrow_cast<int16_t>(dr * LumaWeightR + dg * LumaWeightG + db * LumaWeightB)};
     auto pix = pixel.abs();
 
     // Taking the absolute value is way faster. The values are only used to sort, so the result will be the same.
@@ -629,7 +623,7 @@ etcpak_force_inline std::pair<uint64_t, uint64_t>
       const int32_t difG = static_cast<int>(bgra[i].g) - cG;
       const int32_t difR = static_cast<int>(bgra[i].r) - cR;
 
-      const int32_t dif = difR * 38 + difG * 76 + difB * 14;
+      const int32_t dif = difR * LumaWeightR + difG * LumaWeightG + difB * LumaWeightB;
 
       error += dif * dif;
     }
@@ -694,7 +688,7 @@ uint32_t calculateErrorTH(bool tMode,
             bgra[x * 4 + y].b - possibleColors[c].b,
           };
 
-          const uint32_t err = 38 * abs(diff.r) + 76 * abs(diff.g) + 14 * abs(diff.b);
+          const uint32_t err = LumaWeightR * abs(diff.r) + LumaWeightG * abs(diff.g) + LumaWeightB * abs(diff.b);
           const uint32_t pixErr = err * err;
 
           // Choose best error
@@ -732,16 +726,15 @@ uint32_t compressBlockTH(const BgraVecBlock& bgra, Luma& l, uint32_t& compressed
 
   // 2) finds the min (left+right)
   uint8_t minSumRangeIdx = 0;
-  uint16_t sum;
   static constexpr std::array<uint8_t, 15> diffBonus{{8, 4, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 4, 8}};
 
   uint16_t minSumRangeValue = luma[15] - luma[1] + diffBonus[0];
 
   {
     const auto temp = gsl::narrow_cast<int16_t>(luma[15] - luma[0]);
-    for(uint8_t i = 1; i < 14; i++)
+    for(uint8_t i = 1; i < gsl::narrow_cast<uint8_t>(luma.size() - 1u); i++)
     {
-      sum = temp - luma[i + 1] + luma[i] + diffBonus[i];
+      const uint16_t sum = temp - luma[i + 1] + luma[i] + diffBonus[i];
       if(minSumRangeValue > sum)
       {
         minSumRangeValue = sum;
@@ -750,16 +743,14 @@ uint32_t compressBlockTH(const BgraVecBlock& bgra, Luma& l, uint32_t& compressed
     }
   }
 
-  sum = luma[14] - luma[0] + diffBonus[14];
-  if(minSumRangeValue > sum)
+  if(const uint16_t sum = luma[14] - luma[0] + diffBonus[14]; minSumRangeValue > sum)
   {
     minSumRangeValue = sum;
     minSumRangeIdx = 14;
   }
-  uint8_t lRange, rRange;
 
-  lRange = luma[minSumRangeIdx] - luma[0];
-  rRange = luma[15] - luma[minSumRangeIdx + 1];
+  const uint8_t lRange = luma[minSumRangeIdx] - luma[0];
+  const uint8_t rRange = luma[15] - luma[minSumRangeIdx + 1];
 
   // 3) sets a proper mode
   bool swap = false;
@@ -1101,17 +1092,29 @@ inline void stuff58bits(uint32_t thumbH58W1, uint32_t thumbH58W2, uint32_t& thum
   thumbHW2 = thumbH58W2;
 }
 
-etcpak_force_inline void calculateLuma(const BgraVecBlock& bgra, Luma& luma)
+etcpak_force_inline void calculateLuma(const BgraBlockImm& immBgra, Luma& luma)
 {
-  for(uint8_t i = 0; i < 16; ++i)
+  static const auto Multiplier
+    = IVec16{LumaWeightR, LumaWeightG, LumaWeightB, 0, LumaWeightR, LumaWeightG, LumaWeightB, 0};
+
+  std::array<IVec16, 4> sums;
+  for(size_t i = 0; i < immBgra.size(); ++i)
   {
-    luma.val[i] = (bgra[i].r * 76 + bgra[i].g * 150 + bgra[i].b * 28) / 254; // luma calculation
-    if(luma.min > luma.val[i])
+    const auto lo = immBgra[i].lowToIVec16() * Multiplier;
+    const auto hi = immBgra[i].highToIVec16() * Multiplier;
+    sums[i] = lo.hAdd(hi); // bg,ra
+  }
+
+  (sums[0].hAdd(sums[1]) >> 7).toIVec8U(sums[2].hAdd(sums[3]) >> 7).storeu(&luma.val);
+
+  for(size_t i = 0; i < luma.val.size(); ++i)
+  {
+    if(luma.val[i] < luma.min)
     {
       luma.min = luma.val[i];
       luma.minIdx = i;
     }
-    if(luma.max < luma.val[i])
+    if(luma.val[i] > luma.max)
     {
       luma.max = luma.val[i];
       luma.maxIdx = i;
@@ -1157,19 +1160,19 @@ etcpak_force_inline uint64_t processBGR_ETC2(const BgraVecBlock& bgra, const Bgr
   Luma luma;
   if(useHeuristics)
   {
-    calculateLuma(bgra, luma);
+    calculateLuma(immRgba, luma);
     mode = selectModeETC2(luma);
   }
   auto [encoded, error] = planar(bgra, mode, useHeuristics);
   if(error == 0)
     return encoded;
 
-  const auto [avg, err] = prepareAverages(immRgba);
+  const auto [avgRgba, err] = prepareAverages(immRgba);
   const size_t idx = getLeastErrorIndex(err);
-  encodeAverages(d, avg, idx);
+  encodeAverages(d, avgRgba, idx);
 
   const auto& id = g_id[idx];
-  const auto [terr, tsel] = findBestFit(avg, id, bgra);
+  const auto [terr, tsel] = findBestFit(avgRgba, id, bgra);
 
   if(useHeuristics)
   {
@@ -1256,39 +1259,39 @@ etcpak_force_inline uint64_t processAlpha_ETC2(const IVec8& alphas)
   }
 
   // Calculate min, max
-  auto s1 = alphas.shuffled32<2, 3, 0, 1>();
-  auto max1 = alphas.umax(s1);
-  auto min1 = alphas.umin(s1);
-  auto smax2 = max1.shuffled32<0, 0, 2, 2>();
-  auto smin2 = min1.shuffled32<0, 0, 2, 2>();
-  auto max2 = max1.umax(smax2);
-  auto min2 = min1.umin(smin2);
-  auto smax3 = max2.alignR<2>(max2);
-  auto smin3 = min2.alignR<2>(min2);
-  auto max3 = max2.umax(smax3);
-  auto min3 = min2.umin(smin3);
-  auto smax4 = max3.alignR<1>(max3);
-  auto smin4 = min3.alignR<1>(min3);
-  auto max = max3.umax(smax4);
-  auto min = min3.umin(smin4);
-  auto max16 = max.lowToIVec16();
-  auto min16 = min.highToIVec16();
+  const auto s1 = alphas.shuffled32<2, 3, 0, 1>();
+  const auto max1 = alphas.umax(s1);
+  const auto min1 = alphas.umin(s1);
+  const auto smax2 = max1.shuffled32<0, 0, 2, 2>();
+  const auto smin2 = min1.shuffled32<0, 0, 2, 2>();
+  const auto max2 = max1.umax(smax2);
+  const auto min2 = min1.umin(smin2);
+  const auto smax3 = max2.alignR<2>(max2);
+  const auto smin3 = min2.alignR<2>(min2);
+  const auto max3 = max2.umax(smax3);
+  const auto min3 = min2.umin(smin3);
+  const auto smax4 = max3.alignR<1>(max3);
+  const auto smin4 = min3.alignR<1>(min3);
+  const auto max = max3.umax(smax4);
+  const auto min = min3.umin(smin4);
+  const auto max16 = max.lowToIVec16();
+  const auto min16 = min.highToIVec16();
 
   // src range, mid
-  auto srcRange = max16 - min16;
-  auto srcRangeHalf = srcRange >> 1;
-  auto srcMid = min16 + srcRangeHalf;
+  const auto srcRange = max16 - min16;
+  const auto srcRangeHalf = srcRange >> 1;
+  const auto srcMid = min16 + srcRangeHalf;
 
   // multiplier
   const auto mul = srcRange.mulHi(g_alphaRange_SIMD) + IVec16{1};
 
   // wide source
-  std::array<IVec16, 2> s16{{
+  const std::array<IVec16, 2> s16{{
     alphas.lowToIVec16(),
     alphas.shuffled32<3, 2, 3, 2>().lowToIVec16(),
   }};
 
-  std::array<IVec16, 16> sr{{
+  const std::array<IVec16, 16> sr{{
     widen<0>(s16[0]),
     widen<1>(s16[0]),
     widen<2>(s16[0]),
@@ -1308,7 +1311,7 @@ etcpak_force_inline uint64_t processAlpha_ETC2(const IVec8& alphas)
   }};
 
   // wide multiplier
-  std::array<IVec16, 16> rangeMul{{
+  const std::array<IVec16, 16> rangeMul{{
     (srcMid + widen<getMulSel(0)>(mul) * g_alpha_SIMD[0])
       .toIVec8U(srcMid + widen<getMulSel(0)>(mul) * g_alpha_SIMD[0])
       .lowToIVec16(),
@@ -1364,14 +1367,14 @@ etcpak_force_inline uint64_t processAlpha_ETC2(const IVec8& alphas)
   size_t sel = 0;
   for(size_t r = 0; r < rangeMul.size(); r++)
   {
-    auto recVal16 = rangeMul[r];
+    const auto& recVal16 = rangeMul[r];
     int rangeErr = 0;
 
     for(const auto& sri : sr)
     {
-      auto err1 = sri - recVal16;
-      auto err2 = err1 * err1;
-      auto minerr = err2.minPos();
+      const auto err1 = sri - recVal16;
+      const auto err2 = err1 * err1;
+      const auto minerr = err2.minPos();
       rangeErr += gsl::narrow_cast<int>(minerr.get64() & 0xFFFF);
     }
 
@@ -1384,15 +1387,15 @@ etcpak_force_inline uint64_t processAlpha_ETC2(const IVec8& alphas)
     }
   }
 
-  auto recVal16 = rangeMul[sel];
+  const auto& recVal16 = rangeMul[sel];
 
   // find indices
   uint64_t idx = 0;
 
   for(int i = 0; i < 16; ++i)
   {
-    auto err1 = sr[i] - recVal16;
-    auto err2 = err1 * err1;
+    const auto err1 = sr[i] - recVal16;
+    const auto err2 = err1 * err1;
     idx |= (err2.minPos().get64() >> 16) << (15 - i) * 3;
   }
 
