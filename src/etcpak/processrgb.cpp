@@ -981,10 +981,7 @@ inline void stuff59bits(uint32_t thumbT59W1, uint32_t thumbT59W2, uint32_t& thum
   //     | R1' (5 bits) | dR2    | G1' (5 bits) | dG2    | B1' (5 bits) | dB2    | cw 1   | cw 2   |bt|bt|
   //      ------------------------------------------------------------------------------------------------
 
-  uint8_t R0a;
-  uint8_t bit, a, b, c, d, bits;
-
-  R0a = (thumbT59W1 >> 25u) & 0x3u;
+  const uint8_t R0a = (thumbT59W1 >> 25u) & 0x3u;
 
   // Fix middle part
   thumbTW1 = thumbT59W1 << 1u;
@@ -994,17 +991,17 @@ inline void stuff59bits(uint32_t thumbT59W1, uint32_t thumbT59W2, uint32_t& thum
   thumbTW1 = (thumbTW1 & ~0x1u) | (thumbT59W1 & 0x1u);
 
   // Make sure that red overflows:
-  a = (thumbTW1 >> 28u) & 0x1u;
-  b = (thumbTW1 >> 27u) & 0x1u;
-  c = (thumbTW1 >> 25u) & 0x1u;
-  d = (thumbTW1 >> 24u) & 0x1u;
+  const bool a = (thumbTW1 >> 28u) & 0x1u;
+  const bool b = (thumbTW1 >> 27u) & 0x1u;
+  const bool c = (thumbTW1 >> 25u) & 0x1u;
+  const bool d = (thumbTW1 >> 24u) & 0x1u;
 
   // The following bit abcd bit sequences should be padded with ones: 0111, 1010, 1011, 1101, 1110, 1111
   // The following logical expression checks for the presence of any of those:
-  bit = (a & c) | ((!a) & b & c & d) | (a & b & !c & d);
-  bits = 0xf * bit;
+  const auto bit = (a && c) || (!a && b && c && d) || (a && b && !c && d);
+  const uint8_t bits = 0xf * bit;
   thumbTW1 = (thumbTW1 & ~(0x7u << 29u)) | (bits & 0x7u) << 29u;
-  thumbTW1 = (thumbTW1 & ~(0x1u << 26u)) | (~bit & 0x1u) << 26u;
+  thumbTW1 = (thumbTW1 & ~(0x1u << 26u)) | ((!bit) << 26u);
 
   // Set diffbit
   thumbTW1 = (thumbTW1 & ~0x2u) | 0x2u;
