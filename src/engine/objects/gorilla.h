@@ -27,7 +27,7 @@ public:
 
 private:
   bool m_wantAttack = false;
-  bool m_turnedRight = false;
-  bool m_turnedLeft = false;
+  bool m_crabWalkRight = false;
+  bool m_crabWalkLeft = false;
 };
 } // namespace engine::objects

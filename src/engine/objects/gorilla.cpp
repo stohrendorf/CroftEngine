@@ -48,15 +48,15 @@ void Gorilla::update()
     {
     case 1:
       // standing
-      if(m_turnedRight)
+      if(m_crabWalkRight)
       {
         m_state.rotation.Y -= 90_deg;
-        m_turnedRight = false;
+        m_crabWalkRight = false;
       }
-      else if(m_turnedLeft)
+      else if(m_crabWalkLeft)
       {
         m_state.rotation.Y += 90_deg;
-        m_turnedLeft = false;
+        m_crabWalkLeft = false;
       }
       if(m_state.required_anim_state != 0_as)
       {
@@ -64,10 +64,12 @@ void Gorilla::update()
       }
       else if(enemyLocation.canAttackForward && enemyLocation.enemyDistance < util::square(430_len))
       {
+        // attack
         goal(4_as);
       }
       else if(m_wantAttack || !enemyLocation.canReachEnemyZone() || !enemyLocation.enemyAhead)
       {
+        // run on legs and arms
         goal(3_as);
       }
       else
@@ -75,23 +77,28 @@ void Gorilla::update()
         const auto r = util::rand15(1024);
         if(r < 160)
         {
+          // jump and wave arms
           goal(10_as);
         }
         else if(r < 320)
         {
+          // thump chest
           goal(6_as);
         }
         else if(r < 480)
         {
+          // wave arms
           goal(7_as);
         }
         else if(r < 752)
         {
+          // crab walk right
           goal(8_as);
           getCreatureInfo()->maxTurnSpeed = 0_deg / 1_frame;
         }
         else
         {
+          // crab walk left
           goal(9_as);
           getCreatureInfo()->maxTurnSpeed = 0_deg / 1_frame;
         }
@@ -100,8 +107,7 @@ void Gorilla::update()
     case 3:
       // running
       getCreatureInfo()->maxTurnSpeed = 5_deg / 1_frame;
-      if(!m_wantAttack && !m_turnedRight && !m_turnedLeft && enemyLocation.angleToEnemy > -45_deg
-         && enemyLocation.angleToEnemy < 45_deg)
+      if(!m_wantAttack && !m_crabWalkRight && !m_crabWalkLeft && abs(enemyLocation.angleToEnemy) < 45_deg)
       {
         goal(1_as);
       }
@@ -111,6 +117,7 @@ void Gorilla::update()
       }
       else if(!isEscaping())
       {
+        // random "rage" animation
         const auto r = util::rand15();
         if(r < 160)
           goal(1_as, 10_as);
@@ -130,20 +137,20 @@ void Gorilla::update()
       }
       break;
     case 8:
-      // turn left
-      if(!m_turnedLeft)
+      BOOST_ASSERT(!m_crabWalkRight);
+      if(!m_crabWalkLeft)
       {
         m_state.rotation.Y -= 90_deg;
-        m_turnedLeft = true;
+        m_crabWalkLeft = true;
       }
       goal(1_as);
       break;
     case 9:
-      // turn right
-      if(!m_turnedRight)
+      BOOST_ASSERT(!m_crabWalkLeft);
+      if(!m_crabWalkRight)
       {
         m_state.rotation.Y += 90_deg;
-        m_turnedRight = true;
+        m_crabWalkRight = true;
       }
       goal(1_as);
       break;
@@ -153,6 +160,7 @@ void Gorilla::update()
   }
   else if(m_state.current_anim_state != 5_as)
   {
+    // die
     getSkeleton()->setAnim(
       gsl::not_null{&getWorld().findAnimatedModelForType(TR1ItemId::Gorilla)->animations[7 + util::rand15(2)]});
     m_state.current_anim_state = 5_as;
@@ -163,69 +171,69 @@ void Gorilla::update()
     // climbing
     getSkeleton()->patchBone(14, core::TRRotation{0_deg, getCreatureInfo()->headRotation, 0_deg}.toMatrix());
     animateCreature(turn, 0_deg);
+    return;
   }
-  else
+
+  if(m_crabWalkRight)
   {
-    if(m_turnedRight)
-    {
-      m_state.rotation.Y -= 90_deg;
-      m_turnedRight = false;
-    }
-    else if(m_turnedLeft)
-    {
-      m_state.rotation.Y += 90_deg;
-      m_turnedLeft = false;
-    }
-    const auto old = m_state.location.position;
-    getSkeleton()->patchBone(14, core::TRRotation{0_deg, getCreatureInfo()->headRotation, 0_deg}.toMatrix());
-    animateCreature(turn, 0_deg);
-    if(old.Y - 384_len < m_state.location.position.Y)
-      return;
-
-    const auto xSectorOld = sectorOf(old.X);
-    const auto zSectorOld = sectorOf(old.Z);
-    const auto xSectorNew = sectorOf(m_state.location.position.X);
-    const auto zSectorNew = sectorOf(m_state.location.position.Z);
-    if(zSectorOld == zSectorNew)
-    {
-      if(xSectorOld == xSectorNew)
-      {
-        return;
-      }
-      if(xSectorOld >= xSectorNew)
-      {
-        m_state.rotation.Y = -90_deg;
-        m_state.location.position.X = xSectorOld * 1_sectors + 75_len;
-      }
-      else
-      {
-        m_state.rotation.Y = 90_deg;
-        m_state.location.position.X = xSectorNew * 1_sectors - 75_len;
-      }
-    }
-    else if(xSectorOld == xSectorNew)
-    {
-      if(zSectorOld >= zSectorNew)
-      {
-        m_state.rotation.Y = -180_deg;
-        m_state.location.position.Z = zSectorOld * 1_sectors + 75_len;
-      }
-      else
-      {
-        m_state.rotation.Y = 0_deg;
-        m_state.location.position.Z = zSectorNew * 1_sectors - 75_len;
-      }
-    }
-
-    m_state.location.position.Y = old.Y;
-    getSkeleton()->setAnim(gsl::not_null{&getWorld().findAnimatedModelForType(TR1ItemId::Gorilla)->animations[19]});
-    m_state.current_anim_state = 11_as;
+    m_state.rotation.Y -= 90_deg;
+    m_crabWalkRight = false;
   }
+  else if(m_crabWalkLeft)
+  {
+    m_state.rotation.Y += 90_deg;
+    m_crabWalkLeft = false;
+  }
+  const auto old = m_state.location.position;
+  getSkeleton()->patchBone(14, core::TRRotation{0_deg, getCreatureInfo()->headRotation, 0_deg}.toMatrix());
+  animateCreature(turn, 0_deg);
+  if(old.Y - 384_len < m_state.location.position.Y)
+    return;
+
+  // rotate for climbing
+  const auto xSectorOld = sectorOf(old.X);
+  const auto zSectorOld = sectorOf(old.Z);
+  const auto xSectorNew = sectorOf(m_state.location.position.X);
+  const auto zSectorNew = sectorOf(m_state.location.position.Z);
+  if(zSectorOld == zSectorNew)
+  {
+    if(xSectorOld == xSectorNew)
+    {
+      return;
+    }
+    if(xSectorOld >= xSectorNew)
+    {
+      m_state.rotation.Y = -90_deg;
+      m_state.location.position.X = xSectorOld * 1_sectors + 75_len;
+    }
+    else
+    {
+      m_state.rotation.Y = 90_deg;
+      m_state.location.position.X = xSectorNew * 1_sectors - 75_len;
+    }
+  }
+  else if(xSectorOld == xSectorNew)
+  {
+    if(zSectorOld >= zSectorNew)
+    {
+      m_state.rotation.Y = -180_deg;
+      m_state.location.position.Z = zSectorOld * 1_sectors + 75_len;
+    }
+    else
+    {
+      m_state.rotation.Y = 0_deg;
+      m_state.location.position.Z = zSectorNew * 1_sectors - 75_len;
+    }
+  }
+
+  m_state.location.position.Y = old.Y;
+  getSkeleton()->setAnim(gsl::not_null{&getWorld().findAnimatedModelForType(TR1ItemId::Gorilla)->animations[19]});
+  m_state.current_anim_state = 11_as;
 }
 
 void Gorilla::serialize(const serialization::Serializer<world::World>& ser)
 {
   AIAgent::serialize(ser);
-  ser(S_NV("wantAttack", m_wantAttack), S_NV("turnedRight", m_turnedRight), S_NV("turnedLeft", m_turnedLeft));
+  ser(S_NV("wantAttack", m_wantAttack), S_NV("turnedRight", m_crabWalkRight), S_NV("turnedLeft", m_crabWalkLeft));
 }
 } // namespace engine::objects
