@@ -121,16 +121,16 @@ private:
     switch(*axis)
     {
     case core::Axis::Deg0:
-      d.Z = (sectorOf(getLara().m_state.location.position.Z) + 1) * 1_sectors + core::DefaultCollisionRadius;
+      d.Z = snappedSector(getLara().m_state.location.position.Z) + 1_sectors + core::DefaultCollisionRadius;
       break;
     case core::Axis::Deg180:
-      d.Z = (sectorOf(getLara().m_state.location.position.Z) + 0) * 1_sectors - core::DefaultCollisionRadius;
+      d.Z = snappedSector(getLara().m_state.location.position.Z) - core::DefaultCollisionRadius;
       break;
     case core::Axis::Left90:
-      d.X = (sectorOf(getLara().m_state.location.position.X) + 0) * 1_sectors - core::DefaultCollisionRadius;
+      d.X = snappedSector(getLara().m_state.location.position.X) - core::DefaultCollisionRadius;
       break;
     case core::Axis::Right90:
-      d.X = (sectorOf(getLara().m_state.location.position.X) + 1) * 1_sectors + core::DefaultCollisionRadius;
+      d.X = snappedSector(getLara().m_state.location.position.X) + 1_sectors + core::DefaultCollisionRadius;
       break;
     default:
       BOOST_THROW_EXCEPTION(std::runtime_error("Unexpected angle value"));

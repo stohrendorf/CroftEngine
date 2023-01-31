@@ -80,7 +80,7 @@ std::pair<CollisionType, Location> clampSteps(const Location& start,
 
   auto result = start;
   // align the result to the sector boundary, adjust other axes as necessary
-  result.position.*stepAxis = sectorOf(result.position.*stepAxis) * 1_sectors;
+  result.position.*stepAxis = snappedSector(result.position.*stepAxis);
   if(dir > 0)
     result.position.*stepAxis += 1_sectors - 1_len;
 

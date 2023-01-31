@@ -98,7 +98,7 @@ constexpr Length operator"" _sectors(unsigned long long value) noexcept
 
 [[nodiscard]] constexpr auto snappedSector(const Length& l)
 {
-  return l / 1_sectors * 1_sectors;
+  return sectorOf(l) * 1_sectors;
 }
 } // namespace core
 

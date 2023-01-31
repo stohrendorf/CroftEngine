@@ -55,8 +55,8 @@ void TallBlock::update()
   world::patchHeightsForBlock(*this, -2_sectors);
   getSkeleton()->resetInterpolation();
   auto pos = m_state.location.position;
-  pos.X = sectorOf(pos.X) * 1_sectors + 1_sectors / 2;
-  pos.Z = sectorOf(pos.Z) * 1_sectors + 1_sectors / 2;
+  pos.X = snappedSector(pos.X) + 1_sectors / 2;
+  pos.Z = snappedSector(pos.Z) + 1_sectors / 2;
   m_state.location.position = pos;
 }
 

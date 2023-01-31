@@ -91,7 +91,7 @@ void Block::collide(CollisionInfo& /*collisionInfo*/)
     }
 
     getWorld().getObjectManager().getLara().m_state.location.position.*vp
-      = sectorOf(getWorld().getObjectManager().getLara().m_state.location.position.*vp) * 1_sectors + d;
+      = snappedSector(getWorld().getObjectManager().getLara().m_state.location.position.*vp) + d;
 
     getWorld().getObjectManager().getLara().setGoalAnimState(loader::file::LaraStateId::PushableGrab);
     getWorld().getObjectManager().getLara().advanceFrame();

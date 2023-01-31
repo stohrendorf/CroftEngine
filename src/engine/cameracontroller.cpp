@@ -172,14 +172,14 @@ Location clampBox(const Location& start,
     return result;
 
   // align to the closest border of the next sector
-  static const auto alignMin = [](core::Length& x)
+  static const auto alignNeg = [](core::Length& x)
   {
-    x = sectorOf(x) * 1_sectors - 1_len;
+    x = snappedSector(x) - 1_len;
     BOOST_ASSERT(toSectorLocal(x) == 1_sectors - 1_len);
   };
-  static const auto alignMax = [](core::Length& x)
+  static const auto alignPos = [](core::Length& x)
   {
-    x = (sectorOf(x) + 1) * 1_sectors;
+    x = snappedSector(x) + 1_sectors;
     BOOST_ASSERT(toSectorLocal(x) == 0_len);
   };
 
@@ -190,7 +190,7 @@ Location clampBox(const Location& start,
     return isVerticallyOutsideRoom(Location{result.room, testPos}, objectManager);
   };
 
-  alignMin(testPos.Z);
+  alignNeg(testPos.Z);
   BOOST_ASSERT(abs(testPos.Z - result.position.Z) <= 1_sectors);
   auto minZ = box->zInterval.min;
   const bool invalidMinZ = testPosInvalid();
@@ -202,7 +202,7 @@ Location clampBox(const Location& start,
   minZ += core::QuarterSectorSize;
 
   testPos = result.position;
-  alignMax(testPos.Z);
+  alignPos(testPos.Z);
   BOOST_ASSERT(abs(testPos.Z - result.position.Z) <= 1_sectors);
   auto maxZ = box->zInterval.max;
   const bool invalidMaxZ = testPosInvalid();
@@ -214,7 +214,7 @@ Location clampBox(const Location& start,
   maxZ -= core::QuarterSectorSize;
 
   testPos = result.position;
-  alignMin(testPos.X);
+  alignNeg(testPos.X);
   BOOST_ASSERT(abs(testPos.X - result.position.X) <= 1_sectors);
   auto minX = box->xInterval.min;
   const bool invalidMinX = testPosInvalid();
@@ -226,7 +226,7 @@ Location clampBox(const Location& start,
   minX += core::QuarterSectorSize;
 
   testPos = result.position;
-  alignMax(testPos.X);
+  alignPos(testPos.X);
   BOOST_ASSERT(abs(testPos.X - result.position.X) <= 1_sectors);
   auto maxX = box->xInterval.max;
   const bool invalidMaxX = testPosInvalid();
