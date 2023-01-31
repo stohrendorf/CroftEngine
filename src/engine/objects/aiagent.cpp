@@ -95,7 +95,8 @@ bool AIAgent::animateCreature(const core::Angle& collisionRotationY, const core:
   const auto& pathFinder = m_creatureInfo->pathFinder;
 
   const auto oldLocation = m_state.location;
-  const auto oldBoxFloor = m_state.getCurrentBox()->floor;
+  const auto oldBox = gsl::not_null{oldLocation.getCurrentSector()->box};
+  const auto oldBoxFloor = oldBox->floor;
   const auto zoneRef = world::Box::getZoneRef(
     getWorld().roomsAreSwapped(), m_creatureInfo->pathFinder.isFlying(), m_creatureInfo->pathFinder.step);
 
@@ -143,13 +144,13 @@ bool AIAgent::animateCreature(const core::Angle& collisionRotationY, const core:
   if(currentSector->box == nullptr || !pathFinder.canVisit(*currentSector->box)
      || currentSector->box->floor < oldBoxFloor - pathFinder.step
      || currentSector->box->floor > oldBoxFloor - pathFinder.drop
-     || m_state.getCurrentBox().get()->*zoneRef != currentSector->box->*zoneRef)
+     || oldBox.get()->*zoneRef != currentSector->box->*zoneRef)
   {
-    const auto shoveMin = [this](const core::Length& l)
+    const auto toMin = [this](const core::Length& l)
     {
       return snappedSector(l) + m_collisionRadius;
     };
-    const auto shoveMax = [this](const core::Length& l)
+    const auto toMax = [this](const core::Length& l)
     {
       return snappedSector(l) + 1_sectors - 1_len - m_collisionRadius;
     };
@@ -157,18 +158,20 @@ bool AIAgent::animateCreature(const core::Angle& collisionRotationY, const core:
     const auto oldSectorX = sectorOf(oldLocation.position.X);
     const auto newSectorX = sectorOf(m_state.location.position.X);
     if(newSectorX < oldSectorX)
-      m_state.location.position.X = shoveMin(oldLocation.position.X);
+      m_state.location.position.X = toMin(oldLocation.position.X);
     else if(newSectorX > oldSectorX)
-      m_state.location.position.X = shoveMax(oldLocation.position.X);
+      m_state.location.position.X = toMax(oldLocation.position.X);
 
     const auto oldSectorZ = sectorOf(oldLocation.position.Z);
     const auto newSectorZ = sectorOf(m_state.location.position.Z);
     if(newSectorZ < oldSectorZ)
-      m_state.location.position.Z = shoveMin(oldLocation.position.Z);
+      m_state.location.position.Z = toMin(oldLocation.position.Z);
     else if(newSectorZ > oldSectorZ)
-      m_state.location.position.Z = shoveMax(oldLocation.position.Z);
+      m_state.location.position.Z = toMax(oldLocation.position.Z);
 
     currentSector = m_state.location.moved(0_len, bbox.y.max, 0_len).updateRoom();
+
+    BOOST_LOG_TRIVIAL(warning) << "invalid position: " << oldLocation << " --> " << m_state.location;
   }
 
   gsl_Assert(currentSector->box != nullptr);
@@ -227,6 +230,9 @@ bool AIAgent::animateCreature(const core::Angle& collisionRotationY, const core:
     // allow recovery after penetrating the floor
     return pathFinder.isFlying() && testPos.Y > testBox->floor + pathFinder.fly;
   };
+
+  // FIXME this crashes if an enemy is in a sector that gets blocked when a closing door blocks that sector
+  BOOST_ASSERT(!cannotMoveTo(m_state.location.position));
 
   core::Length nextX = m_state.location.position.X;
   core::Length nextZ = m_state.location.position.Z;

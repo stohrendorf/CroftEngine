@@ -73,6 +73,11 @@ bool Location::isValid() const
   return room->isInnerPositionXZ(position);
 }
 
+const world::Sector* Location::getCurrentSector() const
+{
+  return room->getSectorByAbsolutePosition(position);
+}
+
 std::ostream& operator<<(std::ostream& stream, const Location& rhs)
 {
   return stream << "[" << rhs.room->node->getName() << " " << rhs.position << "]";

@@ -63,6 +63,8 @@ struct Location final
   }
 
   [[nodiscard]] bool isValid() const;
+
+  [[nodiscard]] const world::Sector* getCurrentSector() const;
 };
 
 extern std::ostream& operator<<(std::ostream& stream, const Location& rhs);
