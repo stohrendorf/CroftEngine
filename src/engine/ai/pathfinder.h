@@ -35,12 +35,11 @@ struct PathFinder
   //! @brief Movement limits.
   //! @warning Step and drop are negated.
   //! @{
-  //! @brief Always positive.
+  //! @brief Always positive, because of inverted Y axis.
   core::Length step = core::QuarterSectorSize;
-  //! @brief Always negative.
+  //! @brief Always negative, because of inverted Y axis.
   core::Length drop = -core::QuarterSectorSize;
-  //! @brief Always positive.
-
+  //! @brief Always positive, it's a limit.
   core::Length fly = 0_len;
   //! @}
 

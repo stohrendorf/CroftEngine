@@ -136,7 +136,6 @@ bool AIAgent::animateCreature(const core::Angle& collisionRotationY, const core:
 
   const auto oldLocation = m_state.location;
   const auto oldBox = gsl::not_null{oldLocation.getCurrentSector()->box};
-  const auto oldBoxFloor = oldBox->floor;
   const auto zoneRef = world::Box::getZoneRef(
     getWorld().roomsAreSwapped(), m_creatureInfo->pathFinder.isFlying(), m_creatureInfo->pathFinder.step);
 
@@ -181,10 +180,11 @@ bool AIAgent::animateCreature(const core::Angle& collisionRotationY, const core:
 
   // fix location in case the entity moved to an invalid location, including checks for step/drop limits.
   // keep in mind that step/drop limits are negated, so they're subtracted here instead of being added.
-  if(currentSector->box == nullptr || !pathFinder.canVisit(*currentSector->box)
-     || currentSector->box->floor < oldBoxFloor - pathFinder.step
-     || currentSector->box->floor > oldBoxFloor - pathFinder.drop
-     || oldBox.get()->*zoneRef != currentSector->box->*zoneRef)
+  const bool isInvalidPosition = currentSector->box == nullptr || !pathFinder.canVisit(*currentSector->box)
+                                 || currentSector->box->floor < oldBox->floor - pathFinder.step
+                                 || currentSector->box->floor > oldBox->floor - pathFinder.drop
+                                 || oldBox.get()->*zoneRef != currentSector->box->*zoneRef;
+  if(isInvalidPosition)
   {
     const auto toMin = [this](const core::Length& l)
     {
