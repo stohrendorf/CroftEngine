@@ -34,6 +34,46 @@
 
 namespace engine::objects
 {
+namespace
+{
+bool cannotMoveTo(const world::Room& room,
+                  const ai::PathFinder& pathFinder,
+                  const world::Box& currentBox,
+                  const core::Length& currentSectorBoxFloor,
+                  const core::Length& nextPathFloor,
+                  const core::TRVec& testPos)
+{
+  const auto testBox = Location{gsl::not_null{&room}, testPos}.updateRoom()->box;
+  if(testBox == nullptr || !pathFinder.canVisit(*testBox, currentBox.blocked, currentBox.blockable))
+  {
+    return true;
+  }
+
+  const auto dy = testBox->floor - currentSectorBoxFloor;
+
+  if(dy < -pathFinder.step || dy > -pathFinder.drop)
+  {
+    // height difference doesn't allow stepping up or dropping down
+    return true;
+  }
+
+  if(dy < -pathFinder.step && testBox->floor > nextPathFloor)
+  {
+    // height difference would allow stepping down, but the test position isn't on the same level as the wanted path
+    return true;
+  }
+
+  if(!pathFinder.isFlying())
+  {
+    return false;
+  }
+
+  // true if the entity is flying, but the test position is outside the maximum vertical flying speed that would
+  // allow recovery after penetrating the floor
+  return pathFinder.isFlying() && testPos.Y > testBox->floor + pathFinder.fly;
+}
+} // namespace
+
 core::Angle AIAgent::rotateTowardsTarget(core::RotationSpeed maxRotationSpeed)
 {
   if(m_state.speed == 0_spd || maxRotationSpeed == 0_au / 1_frame)
@@ -195,43 +235,23 @@ bool AIAgent::animateCreature(const core::Angle& collisionRotationY, const core:
   const core::TRVec testDx{m_collisionRadius, 0_len, 0_len};
   const core::TRVec testDz{0_len, 0_len, m_collisionRadius};
 
-  const auto cannotMoveTo = [this,
-                             currentBox = gsl::not_null{currentSector->box},
-                             currentSectorBoxFloor = currentSector->box->floor,
-                             nextPathFloor = nextPathFloor,
-                             &pathFinder](const core::TRVec& testPos)
+  const auto isFeasiblePosition
+    = [this, currentSector = currentSector, nextPathFloor = nextPathFloor, &pathFinder](const core::TRVec& position)
   {
-    const auto testBox = Location{m_state.location.room, testPos}.updateRoom()->box;
-    if(testBox == nullptr || !pathFinder.canVisit(*testBox, currentBox->blocked, currentBox->blockable))
-    {
-      return true;
-    }
-
-    const auto dy = testBox->floor - currentSectorBoxFloor;
-
-    if(dy < -pathFinder.step || dy > -pathFinder.drop)
-    {
-      // height difference doesn't allow stepping up or dropping down
-      return true;
-    }
-
-    if(dy < -pathFinder.step && testBox->floor > nextPathFloor)
-    {
-      // height difference would allow stepping down, but the test position isn't on the same level as the wanted path
-      return true;
-    }
-
-    if(!pathFinder.isFlying())
-    {
-      return false;
-    }
-
-    // true if the entity is flying, but the test position is outside the maximum vertical flying speed that would
-    // allow recovery after penetrating the floor
-    return pathFinder.isFlying() && testPos.Y > testBox->floor + pathFinder.fly;
+    return !cannotMoveTo(*m_state.location.room,
+                         pathFinder,
+                         *gsl::not_null{currentSector->box},
+                         currentSector->box->floor,
+                         nextPathFloor,
+                         position);
   };
 
-  BOOST_ASSERT(!cannotMoveTo(m_state.location.position));
+  BOOST_ASSERT(!cannotMoveTo(*m_state.location.room,
+                             pathFinder,
+                             *gsl::not_null{currentSector->box},
+                             currentSector->box->floor,
+                             nextPathFloor,
+                             m_state.location.position));
 
   core::Length nextX = m_state.location.position.X;
   core::Length nextZ = m_state.location.position.Z;
@@ -272,7 +292,7 @@ bool AIAgent::animateCreature(const core::Angle& collisionRotationY, const core:
 
   if(bottom.Z < collisionFreeRangeZ.min)
   {
-    const auto firstCollision = cannotMoveTo(bottom - testDz);
+    const auto firstCollision = !isFeasiblePosition(bottom - testDz);
     if(firstCollision)
     {
       nextZ = collisionFreeRangeZ.min;
@@ -280,11 +300,11 @@ bool AIAgent::animateCreature(const core::Angle& collisionRotationY, const core:
 
     if(bottom.X < collisionFreeRangeX.min)
     {
-      if(cannotMoveTo(bottom - testDx))
+      if(!isFeasiblePosition(bottom - testDx))
       {
         nextX = collisionFreeRangeX.min;
       }
-      else if(firstCollision && cannotMoveTo(bottom - testDz - testDx))
+      else if(firstCollision && !isFeasiblePosition(bottom - testDz - testDx))
       {
         // can move aligned to -X and -Z, which means the collider is in the corner
         moveAwayFromCornerSplit45(collisionFreeRangeX.min, collisionFreeRangeZ.min);
@@ -292,11 +312,11 @@ bool AIAgent::animateCreature(const core::Angle& collisionRotationY, const core:
     }
     else if(bottom.X > collisionFreeRangeX.max)
     {
-      if(cannotMoveTo(bottom + testDx))
+      if(!isFeasiblePosition(bottom + testDx))
       {
         nextX = collisionFreeRangeX.max;
       }
-      else if(firstCollision && cannotMoveTo(bottom - testDz + testDx))
+      else if(firstCollision && !isFeasiblePosition(bottom - testDz + testDx))
       {
         // can move aligned to +X and -Z, which means the collider is in the corner
         moveAwayFromCornerSplitNeg45(collisionFreeRangeX.max, collisionFreeRangeZ.min);
@@ -305,7 +325,7 @@ bool AIAgent::animateCreature(const core::Angle& collisionRotationY, const core:
   }
   else if(bottom.Z > collisionFreeRangeZ.max)
   {
-    const auto firstCollision = cannotMoveTo(bottom + testDz);
+    const auto firstCollision = !isFeasiblePosition(bottom + testDz);
     if(firstCollision)
     {
       nextZ = collisionFreeRangeZ.max;
@@ -313,11 +333,11 @@ bool AIAgent::animateCreature(const core::Angle& collisionRotationY, const core:
 
     if(bottom.X < collisionFreeRangeX.min)
     {
-      if(cannotMoveTo(bottom - testDx))
+      if(!isFeasiblePosition(bottom - testDx))
       {
         nextX = collisionFreeRangeX.min;
       }
-      else if(firstCollision && cannotMoveTo(bottom + testDz - testDx))
+      else if(firstCollision && !isFeasiblePosition(bottom + testDz - testDx))
       {
         // can move aligned to -X and +Z, which means the collider is in the corner
         moveAwayFromCornerSplitNeg45(collisionFreeRangeX.min, collisionFreeRangeZ.max);
@@ -325,11 +345,11 @@ bool AIAgent::animateCreature(const core::Angle& collisionRotationY, const core:
     }
     else if(bottom.X > collisionFreeRangeX.max)
     {
-      if(cannotMoveTo(bottom + testDx))
+      if(!isFeasiblePosition(bottom + testDx))
       {
         nextX = collisionFreeRangeX.max;
       }
-      else if(firstCollision && cannotMoveTo(bottom + testDz + testDx))
+      else if(firstCollision && !isFeasiblePosition(bottom + testDz + testDx))
       {
         // can move aligned to +X and +Z, which means the collider is in the corner
         moveAwayFromCornerSplit45(collisionFreeRangeX.max, collisionFreeRangeZ.max);
@@ -342,14 +362,14 @@ bool AIAgent::animateCreature(const core::Angle& collisionRotationY, const core:
 
     if(m_state.location.position.X < collisionFreeRangeX.min)
     {
-      if(cannotMoveTo(bottom - testDx))
+      if(!isFeasiblePosition(bottom - testDx))
       {
         nextX = collisionFreeRangeX.min;
       }
     }
     else if(m_state.location.position.X > collisionFreeRangeX.max)
     {
-      if(cannotMoveTo(bottom + testDx))
+      if(!isFeasiblePosition(bottom + testDx))
       {
         nextX = collisionFreeRangeX.max;
       }
@@ -367,7 +387,7 @@ bool AIAgent::animateCreature(const core::Angle& collisionRotationY, const core:
     m_state.rotation.Z += std::clamp(8 * tilt - m_state.rotation.Z, -3_deg, +3_deg);
   }
 
-  BOOST_ASSERT(!cannotMoveTo(m_state.location.position + core::TRVec{0_len, bbox.y.max, 0_len}));
+  BOOST_ASSERT(isFeasiblePosition(m_state.location.position + core::TRVec{0_len, bbox.y.max, 0_len}));
 
   if(anyMovingEnabledObjectInReach())
   {
