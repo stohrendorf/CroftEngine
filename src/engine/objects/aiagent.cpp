@@ -36,17 +36,17 @@ namespace engine::objects
 {
 namespace
 {
-bool cannotMoveTo(const world::Room& room,
-                  const ai::PathFinder& pathFinder,
-                  const world::Box& currentBox,
-                  const core::Length& currentSectorBoxFloor,
-                  const core::Length& nextPathFloor,
-                  const core::TRVec& testPos)
+bool canMoveTo(const world::Room& room,
+               const ai::PathFinder& pathFinder,
+               const world::Box& currentBox,
+               const core::Length& currentSectorBoxFloor,
+               const core::Length& nextPathFloor,
+               const core::TRVec& testPos)
 {
   const auto testBox = Location{gsl::not_null{&room}, testPos}.updateRoom()->box;
   if(testBox == nullptr || !pathFinder.canVisit(*testBox, currentBox.blocked, currentBox.blockable))
   {
-    return true;
+    return false;
   }
 
   const auto dy = testBox->floor - currentSectorBoxFloor;
@@ -54,23 +54,23 @@ bool cannotMoveTo(const world::Room& room,
   if(dy < -pathFinder.step || dy > -pathFinder.drop)
   {
     // height difference doesn't allow stepping up or dropping down
-    return true;
+    return false;
   }
 
   if(dy < -pathFinder.step && testBox->floor > nextPathFloor)
   {
     // height difference would allow stepping down, but the test position isn't on the same level as the wanted path
-    return true;
+    return false;
   }
 
   if(!pathFinder.isFlying())
   {
-    return false;
+    return true;
   }
 
   // true if the entity is flying, but the test position is outside the maximum vertical flying speed that would
   // allow recovery after penetrating the floor
-  return pathFinder.isFlying() && testPos.Y > testBox->floor + pathFinder.fly;
+  return testPos.Y <= testBox->floor + pathFinder.fly;
 }
 } // namespace
 
@@ -238,20 +238,15 @@ bool AIAgent::animateCreature(const core::Angle& collisionRotationY, const core:
   const auto isFeasiblePosition
     = [this, currentSector = currentSector, nextPathFloor = nextPathFloor, &pathFinder](const core::TRVec& position)
   {
-    return !cannotMoveTo(*m_state.location.room,
-                         pathFinder,
-                         *gsl::not_null{currentSector->box},
-                         currentSector->box->floor,
-                         nextPathFloor,
-                         position);
+    return canMoveTo(*m_state.location.room,
+                     pathFinder,
+                     *gsl::not_null{currentSector->box},
+                     currentSector->box->floor,
+                     nextPathFloor,
+                     position);
   };
 
-  BOOST_ASSERT(!cannotMoveTo(*m_state.location.room,
-                             pathFinder,
-                             *gsl::not_null{currentSector->box},
-                             currentSector->box->floor,
-                             nextPathFloor,
-                             m_state.location.position));
+  BOOST_ASSERT(isFeasiblePosition(m_state.location.position));
 
   core::Length nextX = m_state.location.position.X;
   core::Length nextZ = m_state.location.position.Z;
