@@ -6,6 +6,7 @@
 #include "core/magic.h"
 #include "core/units.h"
 #include "core/vec.h"
+#include "engine/audioengine.h"
 #include "engine/cameracontroller.h"
 #include "engine/collisioninfo.h"
 #include "engine/heightinfo.h"
@@ -79,11 +80,12 @@ void RollingBall::update()
       m_state.location.position.X = oldPos.X;
       m_state.location.position.Y = m_state.floor;
       m_state.location.position.Z = oldPos.Z;
+
+      getWorld().getAudioEngine().stopSoundEffect(TR1SoundEffect::RollingBall, &m_state);
     }
   }
   else if(m_state.triggerState == TriggerState::Deactivated && !m_state.updateActivationTimeout())
   {
-    m_state.triggerState = TriggerState::Deactivated;
     m_state.location.position = m_location.position;
     setCurrentRoom(m_location.room);
     getSkeleton()->setAnimation(m_state.current_anim_state,
