@@ -270,7 +270,7 @@ bool AIAgent::animateCreature(const core::Angle& collisionRotationY, const core:
     }
   };
 
-  if(m_state.location.position.Z < collisionFreeRangeZ.min)
+  if(bottom.Z < collisionFreeRangeZ.min)
   {
     const auto firstCollision = cannotMoveTo(bottom - testDz);
     if(firstCollision)
@@ -278,7 +278,7 @@ bool AIAgent::animateCreature(const core::Angle& collisionRotationY, const core:
       nextZ = collisionFreeRangeZ.min;
     }
 
-    if(m_state.location.position.X < collisionFreeRangeX.min)
+    if(bottom.X < collisionFreeRangeX.min)
     {
       if(cannotMoveTo(bottom - testDx))
       {
@@ -290,7 +290,7 @@ bool AIAgent::animateCreature(const core::Angle& collisionRotationY, const core:
         moveAwayFromCornerSplit45(collisionFreeRangeX.min, collisionFreeRangeZ.min);
       }
     }
-    else if(m_state.location.position.X > collisionFreeRangeX.max)
+    else if(bottom.X > collisionFreeRangeX.max)
     {
       if(cannotMoveTo(bottom + testDx))
       {
@@ -303,7 +303,7 @@ bool AIAgent::animateCreature(const core::Angle& collisionRotationY, const core:
       }
     }
   }
-  else if(m_state.location.position.Z > collisionFreeRangeZ.max)
+  else if(bottom.Z > collisionFreeRangeZ.max)
   {
     const auto firstCollision = cannotMoveTo(bottom + testDz);
     if(firstCollision)
@@ -311,7 +311,7 @@ bool AIAgent::animateCreature(const core::Angle& collisionRotationY, const core:
       nextZ = collisionFreeRangeZ.max;
     }
 
-    if(m_state.location.position.X < collisionFreeRangeX.min)
+    if(bottom.X < collisionFreeRangeX.min)
     {
       if(cannotMoveTo(bottom - testDx))
       {
@@ -323,7 +323,7 @@ bool AIAgent::animateCreature(const core::Angle& collisionRotationY, const core:
         moveAwayFromCornerSplitNeg45(collisionFreeRangeX.min, collisionFreeRangeZ.max);
       }
     }
-    else if(m_state.location.position.X > collisionFreeRangeX.max)
+    else if(bottom.X > collisionFreeRangeX.max)
     {
       if(cannotMoveTo(bottom + testDx))
       {
