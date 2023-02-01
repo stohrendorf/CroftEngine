@@ -170,8 +170,6 @@ bool AIAgent::animateCreature(const core::Angle& collisionRotationY, const core:
       m_state.location.position.Z = toMax(oldLocation.position.Z);
 
     currentSector = m_state.location.moved(0_len, bbox.y.max, 0_len).updateRoom();
-
-    BOOST_LOG_TRIVIAL(warning) << "invalid position: " << oldLocation << " --> " << m_state.location;
   }
 
   gsl_Assert(currentSector->box != nullptr);
@@ -197,12 +195,14 @@ bool AIAgent::animateCreature(const core::Angle& collisionRotationY, const core:
   const core::TRVec testDx{m_collisionRadius, 0_len, 0_len};
   const core::TRVec testDz{0_len, 0_len, m_collisionRadius};
 
-  const auto cannotMoveTo
-    = [this, currentSectorBoxFloor = currentSector->box->floor, nextPathFloor = nextPathFloor, &pathFinder](
-        const core::TRVec& testPos)
+  const auto cannotMoveTo = [this,
+                             currentBox = gsl::not_null{currentSector->box},
+                             currentSectorBoxFloor = currentSector->box->floor,
+                             nextPathFloor = nextPathFloor,
+                             &pathFinder](const core::TRVec& testPos)
   {
     const auto testBox = Location{m_state.location.room, testPos}.updateRoom()->box;
-    if(testBox == nullptr || !pathFinder.canVisit(*testBox))
+    if(testBox == nullptr || !pathFinder.canVisit(*testBox, currentBox->blocked, currentBox->blockable))
     {
       return true;
     }
@@ -231,7 +231,6 @@ bool AIAgent::animateCreature(const core::Angle& collisionRotationY, const core:
     return pathFinder.isFlying() && testPos.Y > testBox->floor + pathFinder.fly;
   };
 
-  // FIXME this crashes if an enemy is in a sector that gets blocked when a closing door blocks that sector
   BOOST_ASSERT(!cannotMoveTo(m_state.location.position));
 
   core::Length nextX = m_state.location.position.X;

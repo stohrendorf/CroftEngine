@@ -370,10 +370,15 @@ void PathFinder::collectBoxes(const world::World& world, const gsl::not_null<con
 
 bool PathFinder::canVisit(const world::Box& box) const noexcept
 {
+  return canVisit(box, false, false);
+}
+
+bool PathFinder::canVisit(const world::Box& box, bool ignoreBlocked, bool ignoreBlockable) const noexcept
+{
   if(cannotVisitBlocked && box.blocked)
-    return false;
+    return ignoreBlocked;
   if(cannotVisitBlockable && box.blockable)
-    return false;
+    return ignoreBlockable;
   return true;
 }
 
