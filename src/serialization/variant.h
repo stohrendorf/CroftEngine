@@ -60,8 +60,8 @@ std::variant<Ts...> tryCreate(const TypeId<std::variant<Ts...>>& tid, const Dese
 }
 } // namespace detail
 
-template<typename... Ts, typename TContext, bool Loading>
-void serialize(const std::variant<Ts...>& data, const BaseSerializer<Loading, TContext>& ser)
+template<typename... Ts, typename TContext>
+void serialize(const std::variant<Ts...>& data, const Serializer<TContext>& ser)
 {
   detail::trySerialize<0>(data, ser);
 }
