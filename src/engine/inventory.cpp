@@ -223,19 +223,19 @@ void Inventory::deserialize(const serialization::Deserializer<world::World>& ser
 
 void Ammo::serialize(const serialization::Serializer<world::World>& ser) const
 {
-  ser(S_NVO("shots", shots),
+  ser(S_NV("shots", shots),
       S_NV("hits", hits),
-      S_NVO("hitsTotal", hitsTotal),
+      S_NV("hitsTotal", hitsTotal),
       S_NV("misses", misses),
-      S_NVO("missesTotal", missesTotal));
+      S_NV("missesTotal", missesTotal));
 }
 
 void Ammo::deserialize(const serialization::Deserializer<world::World>& ser)
 {
-  ser(S_NVO("shots", shots),
+  ser(S_NVO("shots", std::ref(shots)),
       S_NV("hits", hits),
-      S_NVO("hitsTotal", hitsTotal),
+      S_NVO("hitsTotal", std::ref(hitsTotal)),
       S_NV("misses", misses),
-      S_NVO("missesTotal", missesTotal));
+      S_NVO("missesTotal", std::ref(missesTotal)));
 }
 } // namespace engine

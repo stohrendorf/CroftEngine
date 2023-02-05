@@ -9,10 +9,15 @@ namespace serialization
 template<typename T>
 struct Default
 {
-  T& value;
+  Default(const Default<T>&) = delete;
+  Default(Default<T>&&) = delete;
+  void operator=(Default<T>&&) = delete;
+  void operator=(const Default<T>&) = delete;
+
+  std::reference_wrapper<T> value;
   const T defaultValue;
-  explicit Default(T& value, const T& defaultValue)
-      : value{value}
+  explicit Default(std::reference_wrapper<T>&& value, const T& defaultValue)
+      : value{std::move(value)}
       , defaultValue{defaultValue}
   {
   }

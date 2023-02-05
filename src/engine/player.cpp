@@ -21,18 +21,18 @@ void Player::serialize(const serialization::Serializer<world::World>& ser) const
       S_NV("selectedWeaponType", selectedWeaponType),
       S_NV("requestedWeaponType", requestedWeaponType),
       S_NV("pickups", pickups),
-      S_NVO("pickupsTotal", pickupsTotal),
+      S_NV("pickupsTotal", pickupsTotal),
       S_NV("kills", kills),
-      S_NVO("killsTotal", killsTotal),
+      S_NV("killsTotal", killsTotal),
       S_NV("secrets", secrets),
-      S_NVO("secretsTotal", secretsTotal),
-      S_NVO("smallMedipacks", smallMedipacks),
-      S_NVO("smallMedipacksTotal", smallMedipacksTotal),
-      S_NVO("largeMedipacks", largeMedipacks),
-      S_NVO("largeMedipacksTotal", largeMedipacksTotal),
+      S_NV("secretsTotal", secretsTotal),
+      S_NV("smallMedipacks", smallMedipacks),
+      S_NV("smallMedipacksTotal", smallMedipacksTotal),
+      S_NV("largeMedipacks", largeMedipacks),
+      S_NV("largeMedipacksTotal", largeMedipacksTotal),
       S_NV("timeSpent", timeSpent),
-      S_NVO("timeSpentTotal", timeSpentTotal),
-      S_NVO("usedCheats", usedCheats));
+      S_NV("timeSpentTotal", timeSpentTotal),
+      S_NV("usedCheats", usedCheats));
 }
 
 void Player::deserialize(const serialization::Deserializer<world::World>& ser)
@@ -42,18 +42,18 @@ void Player::deserialize(const serialization::Deserializer<world::World>& ser)
       S_NV("selectedWeaponType", selectedWeaponType),
       S_NV("requestedWeaponType", requestedWeaponType),
       S_NV("pickups", pickups),
-      S_NVO("pickupsTotal", pickupsTotal),
+      S_NVO("pickupsTotal", std::ref(pickupsTotal)),
       S_NV("kills", kills),
-      S_NVO("killsTotal", killsTotal),
+      S_NVO("killsTotal", std::ref(killsTotal)),
       S_NV("secrets", secrets),
-      S_NVO("secretsTotal", secretsTotal),
-      S_NVO("smallMedipacks", smallMedipacks),
-      S_NVO("smallMedipacksTotal", smallMedipacksTotal),
-      S_NVO("largeMedipacks", largeMedipacks),
-      S_NVO("largeMedipacksTotal", largeMedipacksTotal),
+      S_NVO("secretsTotal", std::ref(secretsTotal)),
+      S_NVO("smallMedipacks", std::ref(smallMedipacks)),
+      S_NVO("smallMedipacksTotal", std::ref(smallMedipacksTotal)),
+      S_NVO("largeMedipacks", std::ref(largeMedipacks)),
+      S_NVO("largeMedipacksTotal", std::ref(largeMedipacksTotal)),
       S_NV("timeSpent", timeSpent),
-      S_NVO("timeSpentTotal", timeSpentTotal),
-      S_NVO("usedCheats", usedCheats));
+      S_NVO("timeSpentTotal", std::ref(timeSpentTotal)),
+      S_NVO("usedCheats", std::ref(usedCheats)));
 
   if(ser.context.getObjectManager().getLaraPtr() != nullptr)
     ser << [](const serialization::Deserializer<world::World>& ser)

@@ -15,8 +15,8 @@ struct OptionalValue final
   void operator=(const OptionalValue<T>&) = delete;
 
   std::reference_wrapper<T> value;
-  explicit OptionalValue(T& value)
-      : value{std::ref(value)}
+  explicit OptionalValue(std::reference_wrapper<T>&& value)
+      : value{std::move(value)}
   {
   }
 };

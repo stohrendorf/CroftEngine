@@ -289,15 +289,15 @@ public:
       auto ser = createMapMemberSerializer(name, false);
       if(!ser.has_value())
       {
-        data.value = data.defaultValue;
+        data.value.get() = data.defaultValue;
         return *this;
       }
-      serializeDeserialize(name, data.value, *ser);
+      serializeDeserialize(name, data.value.get(), *ser);
     }
     else
     {
       auto ser = createMapMemberSerializer(name, true);
-      serializeDeserialize(name, data.value, *ser);
+      serializeDeserialize(name, data.value.get(), *ser);
     }
     return *this;
   }
@@ -312,21 +312,12 @@ public:
     BOOST_LOG_TRIVIAL(trace) << "Serializing node " << getQualifiedKey() << "::" << name;
 #endif
 
-    if constexpr(Loading)
+    auto ser = createMapMemberSerializer(name, false);
+    if(!ser.has_value())
     {
-      auto ser = createMapMemberSerializer(name, false);
-      if(!ser.has_value())
-      {
-        return *this;
-      }
-      serializeDeserialize(name, data.value.get(), *ser);
+      return *this;
     }
-    else
-    {
-      BOOST_ASSERT(!node.is_seed());
-      auto ser = createMapMemberSerializer(name, true);
-      serializeDeserialize(name, data.value.get(), *ser);
-    }
+    serializeDeserialize(name, data.value.get(), *ser);
     return *this;
   }
 

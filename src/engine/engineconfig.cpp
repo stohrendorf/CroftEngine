@@ -112,13 +112,10 @@ void NamedInputMappingConfig::serialize(const serialization::Serializer<EngineCo
 
 void NamedInputMappingConfig::deserialize(const serialization::Deserializer<EngineConfig>& ser)
 {
-  ser(S_NV("name", name),
-      S_NV("controllerType", controllerType),
-      S_NVO("mappings", gameMappings),
-      S_NVO("gameMappings", gameMappings));
+  ser(S_NV("name", name), S_NV("controllerType", controllerType), S_NVO("gameMappings", std::ref(gameMappings)));
 
   ser(S_NVD("menuMappings",
-            menuMappings,
+            std::ref(menuMappings),
             getDefaultMappings().at(name == pgettext("Input|MappingName", "Keyboard") ? 0 : 1).menuMappings));
 }
 
@@ -145,16 +142,16 @@ void EngineConfig::serialize(const serialization::Serializer<EngineConfig>& ser)
 
 void EngineConfig::deserialize(const serialization::Deserializer<EngineConfig>& ser)
 {
-  ser(S_NVD("renderSettings", renderSettings, render::RenderSettings{}),
-      S_NVD("displaySettings", displaySettings, DisplaySettings{}),
-      S_NVD("audioSettings", audioSettings, AudioSettings{}),
-      S_NVD("inputMappings", inputMappings, getDefaultMappings()),
-      S_NVO("restoreHealth", restoreHealth),
-      S_NVO("pulseLowHealthHealthBar", pulseLowHealthHealthBar),
-      S_NVO("lowHealthMonochrome", lowHealthMonochrome),
-      S_NVO("buttBubbles", buttBubbles),
-      S_NVO("waterBedBubbles", waterBedBubbles),
-      S_NVO("animSmoothing", animSmoothing));
+  ser(S_NVD("renderSettings", std::ref(renderSettings), render::RenderSettings{}),
+      S_NVD("displaySettings", std::ref(displaySettings), DisplaySettings{}),
+      S_NVD("audioSettings", std::ref(audioSettings), AudioSettings{}),
+      S_NVD("inputMappings", std::ref(inputMappings), getDefaultMappings()),
+      S_NVO("restoreHealth", std::ref(restoreHealth)),
+      S_NVO("pulseLowHealthHealthBar", std::ref(pulseLowHealthHealthBar)),
+      S_NVO("lowHealthMonochrome", std::ref(lowHealthMonochrome)),
+      S_NVO("buttBubbles", std::ref(buttBubbles)),
+      S_NVO("waterBedBubbles", std::ref(waterBedBubbles)),
+      S_NVO("animSmoothing", std::ref(animSmoothing)));
 }
 
 EngineConfig::EngineConfig()
