@@ -182,39 +182,41 @@ void ObjectManager::update(world::World& world, bool godMode)
   applyScheduledDeletions();
 }
 
-void ObjectManager::serialize(const serialization::Serializer<world::World>& ser)
+void ObjectManager::serialize(const serialization::Serializer<world::World>& ser) const
 {
   ser(S_NV("objectCounter", m_objectCounter),
       S_NV("objects", m_objects),
-      S_NV("lara", serialization::ObjectReference{m_lara}));
+      S_NV("lara", serialization::ObjectReference{std::cref(m_lara)}));
 
-  if(ser.loading)
+  std::vector<ObjectId> activeObjectIds;
+  for(const auto& obj : m_activeObjects)
   {
-    std::vector<ObjectId> activeObjectIds;
-    ser(S_NV("activeObjects", activeObjectIds));
-    m_activeObjects.clear();
-    for(const auto id : activeObjectIds)
+    auto it = std::find_if(m_objects.begin(),
+                           m_objects.end(),
+                           [obj](const auto& i)
+                           {
+                             return i.second.get() == obj;
+                           });
+    if(it != m_objects.end())
     {
-      m_activeObjects.emplace_back(m_objects.at(id));
+      activeObjectIds.emplace_back(it->first);
     }
   }
-  else
+  ser(S_NV("activeObjects", activeObjectIds));
+}
+
+void ObjectManager::deserialize(const serialization::Deserializer<world::World>& ser)
+{
+  ser(S_NV("objectCounter", m_objectCounter),
+      S_NV("objects", m_objects),
+      S_NV("lara", serialization::ObjectReference{std::ref(m_lara)}));
+
+  std::vector<ObjectId> activeObjectIds;
+  ser(S_NV("activeObjects", activeObjectIds));
+  m_activeObjects.clear();
+  for(const auto id : activeObjectIds)
   {
-    std::vector<ObjectId> activeObjectIds;
-    for(const auto& obj : m_activeObjects)
-    {
-      auto it = std::find_if(m_objects.begin(),
-                             m_objects.end(),
-                             [obj](const auto& i)
-                             {
-                               return i.second.get() == obj;
-                             });
-      if(it != m_objects.end())
-      {
-        activeObjectIds.emplace_back(it->first);
-      }
-    }
-    ser(S_NV("activeObjects", activeObjectIds));
+    m_activeObjects.emplace_back(m_objects.at(id));
   }
 }
 

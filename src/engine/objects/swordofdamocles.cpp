@@ -81,12 +81,17 @@ void SwordOfDamocles::collide(CollisionInfo& collisionInfo)
   getWorld().getObjectManager().registerParticle(fx);
 }
 
-void SwordOfDamocles::serialize(const serialization::Serializer<world::World>& ser)
+void SwordOfDamocles::serialize(const serialization::Serializer<world::World>& ser) const
 {
   ModelObject::serialize(ser);
   ser(S_NV("rotateSpeed", m_rotateSpeed), S_NV("dropSpeedX", m_dropSpeedX), S_NV("dropSpeedZ", m_dropSpeedZ));
-  if(ser.loading)
-    getSkeleton()->getRenderState().setScissorTest(false);
+}
+
+void SwordOfDamocles::deserialize(const serialization::Deserializer<world::World>& ser)
+{
+  ModelObject::deserialize(ser);
+  ser(S_NV("rotateSpeed", m_rotateSpeed), S_NV("dropSpeedX", m_dropSpeedX), S_NV("dropSpeedZ", m_dropSpeedZ));
+  getSkeleton()->getRenderState().setScissorTest(false);
 }
 
 SwordOfDamocles::SwordOfDamocles(const gsl::not_null<world::World*>& world, const Location& location)

@@ -59,7 +59,8 @@ public:
   static constexpr size_t SegmentSplits = 8;
   static constexpr size_t ControlPoints = (1u << SegmentSplits) + 1;
 
-  void serialize(const serialization::Serializer<world::World>& ser) override;
+  void serialize(const serialization::Serializer<world::World>& ser) const override;
+  void deserialize(const serialization::Deserializer<world::World>& ser) override;
 
 private:
   static constexpr size_t ChildBolts = 5;

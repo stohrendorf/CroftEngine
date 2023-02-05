@@ -127,6 +127,7 @@ public:
     return *m_soundEngine;
   }
 
-  void serialize(const serialization::Serializer<world::World>& ser);
+  void serialize(const serialization::Serializer<world::World>& ser) const;
+  void deserialize(const serialization::Deserializer<world::World>& ser);
 };
 } // namespace engine

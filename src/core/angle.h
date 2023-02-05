@@ -181,7 +181,8 @@ public:
     return TRRotation{-X, -Y, -Z};
   }
 
-  void serialize(const serialization::Serializer<engine::world::World>& ser);
+  void serialize(const serialization::Serializer<engine::world::World>& ser) const;
+  void deserialize(const serialization::Deserializer<engine::world::World>& ser);
 };
 
 [[nodiscard]] extern glm::mat4 fromPackedAngles(const uint8_t* angleData);
@@ -193,7 +194,8 @@ struct TRRotationXY
 
   [[nodiscard]] glm::mat4 toMatrix() const;
 
-  void serialize(const serialization::Serializer<engine::world::World>& ser);
+  void serialize(const serialization::Serializer<engine::world::World>& ser) const;
+  void deserialize(const serialization::Deserializer<engine::world::World>& ser);
 };
 
 [[nodiscard]] extern TRRotationXY getVectorAngles(const Length& dx, const Length& dy, const Length& dz);

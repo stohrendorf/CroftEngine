@@ -1,3 +1,4 @@
+
 #include "gorilla.h"
 
 #include "aiagent.h"
@@ -231,9 +232,15 @@ void Gorilla::update()
   m_state.current_anim_state = 11_as;
 }
 
-void Gorilla::serialize(const serialization::Serializer<world::World>& ser)
+void Gorilla::serialize(const serialization::Serializer<world::World>& ser) const
 {
   AIAgent::serialize(ser);
+  ser(S_NV("wantAttack", m_wantAttack), S_NV("turnedRight", m_crabWalkRight), S_NV("turnedLeft", m_crabWalkLeft));
+}
+
+void Gorilla::deserialize(const serialization::Deserializer<world::World>& ser)
+{
+  AIAgent::deserialize(ser);
   ser(S_NV("wantAttack", m_wantAttack), S_NV("turnedRight", m_crabWalkRight), S_NV("turnedLeft", m_crabWalkLeft));
 }
 } // namespace engine::objects

@@ -226,42 +226,51 @@ std::vector<SkeletalModelNode::Sphere> SkeletalModelNode::getBoneCollisionSphere
   return result;
 }
 
-void SkeletalModelNode::serialize(const serialization::Serializer<world::World>& ser)
+void SkeletalModelNode::serialize(const serialization::Serializer<world::World>& ser) const
 {
   auto id = getName();
   ser(S_NV("id", id),
       S_NV("model", m_model),
       S_NV("parts", m_meshParts),
-      S_NV_VECTOR_ELEMENT("anim", ser.context.getAnimations(), m_anim),
+      S_NV_VECTOR_ELEMENT("anim", std::cref(ser.context.getAnimations()), std::cref(m_anim)),
+      S_NV("frame", m_frame),
+      S_NV("shadowCaster", m_shadowCaster));
+}
+
+void SkeletalModelNode::deserialize(const serialization::Deserializer<world::World>& ser)
+{
+  auto id = getName();
+  ser(S_NV("id", id),
+      S_NV("model", m_model),
+      S_NV("parts", m_meshParts),
+      S_NV_VECTOR_ELEMENT("anim", std::cref(ser.context.getAnimations()), std::ref(m_anim)),
       S_NV("frame", m_frame),
       S_NV("shadowCaster", m_shadowCaster));
 
-  if(ser.loading)
-    ser << [this](const serialization::Serializer<world::World>&)
-    {
-      m_forceMeshRebuild = true;
-      rebuildMesh();
-      updatePose();
-    };
+  ser << [this](const serialization::Deserializer<world::World>&)
+  {
+    m_forceMeshRebuild = true;
+    rebuildMesh();
+    updatePose();
+  };
 }
 
-void serialize(std::shared_ptr<SkeletalModelNode>& data, const serialization::Serializer<world::World>& ser)
+void serialize(const std::shared_ptr<SkeletalModelNode>& data, const serialization::Serializer<world::World>& ser)
 {
-  if(ser.loading)
-  {
-    const world::SkeletalModelType* model = nullptr;
-    bool shadowCaster;
-    ser(S_NV("model", model), S_NV("shadowCaster", shadowCaster));
-    data = std::make_shared<SkeletalModelNode>(create(serialization::TypeId<std::string>{}, ser["id"]),
-                                               gsl::not_null{&ser.context},
-                                               gsl::not_null{model},
-                                               shadowCaster);
-  }
-  else
-  {
-    Expects(data != nullptr);
-  }
+  Expects(data != nullptr);
   data->serialize(ser);
+}
+
+void deserialize(std::shared_ptr<SkeletalModelNode>& data, const serialization::Deserializer<world::World>& ser)
+{
+  const world::SkeletalModelType* model = nullptr;
+  bool shadowCaster;
+  ser(S_NV("model", model), S_NV("shadowCaster", shadowCaster));
+  data = std::make_shared<SkeletalModelNode>(create(serialization::TypeId<std::string>{}, ser["id"]),
+                                             gsl::not_null{&ser.context},
+                                             gsl::not_null{model},
+                                             shadowCaster);
+  data->deserialize(ser);
 }
 
 void SkeletalModelNode::buildMesh(const std::shared_ptr<SkeletalModelNode>& skeleton, core::AnimStateId& animState)
@@ -403,16 +412,20 @@ const gl::ShaderStorageBuffer<glm::mat4>& SkeletalModelNode::getMeshMatricesBuff
   return *m_meshMatricesBuffer;
 }
 
-void SkeletalModelNode::MeshPart::serialize(const serialization::Serializer<world::World>& ser)
+void SkeletalModelNode::MeshPart::serialize(const serialization::Serializer<world::World>& ser) const
 {
   ser(S_NV("patch", patch), S_NV("poseMatrix", poseMatrix), S_NV("mesh", mesh), S_NV("visible", visible));
 }
 
-SkeletalModelNode::MeshPart SkeletalModelNode::MeshPart::create(const serialization::Serializer<world::World>& ser)
+void SkeletalModelNode::MeshPart::deserialize(const serialization::Deserializer<world::World>& ser)
 {
-  Expects(ser.loading);
+  ser(S_NV("patch", patch), S_NV("poseMatrix", poseMatrix), S_NV("mesh", mesh), S_NV("visible", visible));
+}
+
+SkeletalModelNode::MeshPart SkeletalModelNode::MeshPart::create(const serialization::Deserializer<world::World>& ser)
+{
   MeshPart tmp{};
-  tmp.serialize(ser);
+  tmp.deserialize(ser);
   return tmp;
 }
 } // namespace engine

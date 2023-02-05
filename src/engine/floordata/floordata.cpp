@@ -10,7 +10,7 @@
 
 namespace engine::floordata
 {
-void ActivationState::serialize(const serialization::Serializer<world::World>& ser)
+void ActivationState::serialize(const serialization::Serializer<world::World>& ser) const
 {
   ser(S_NV("oneshot", m_oneshot),
       S_NV("inverted", m_inverted),
@@ -18,10 +18,18 @@ void ActivationState::serialize(const serialization::Serializer<world::World>& s
       S_NV("activationSet", m_activationSet));
 }
 
-ActivationState ActivationState::create(const serialization::Serializer<world::World>& ser)
+void ActivationState::deserialize(const serialization::Deserializer<world::World>& ser)
+{
+  ser(S_NV("oneshot", m_oneshot),
+      S_NV("inverted", m_inverted),
+      S_NV("locked", m_locked),
+      S_NV("activationSet", m_activationSet));
+}
+
+ActivationState ActivationState::create(const serialization::Deserializer<world::World>& ser)
 {
   ActivationState result{};
-  result.serialize(ser);
+  result.deserialize(ser);
   return result;
 }
 

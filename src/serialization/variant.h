@@ -8,8 +8,8 @@ namespace serialization
 {
 namespace detail
 {
-template<size_t I, typename TContext, typename... Ts>
-void trySerialize(std::variant<Ts...>& data, const Serializer<TContext>& ser)
+template<size_t I, typename TContext, bool Loading, typename... Ts>
+void trySerialize(const std::variant<Ts...>& data, const BaseSerializer<Loading, TContext>& ser)
 {
   if constexpr(I >= sizeof...(Ts))
   {
@@ -22,10 +22,10 @@ void trySerialize(std::variant<Ts...>& data, const Serializer<TContext>& ser)
     try
     {
       using Alternative = std::variant_alternative_t<I, std::variant<Ts...>>;
-      if(ser.loading)
-        access<Alternative>::callSerializeOrLoad(std::get<I>(data), ser);
+      if constexpr(Loading)
+        access<Alternative, true>::dispatch(std::get<I>(data), ser);
       else if(std::holds_alternative<Alternative>(data))
-        access<Alternative>::callSerializeOrSave(std::get<I>(data), ser);
+        access<Alternative, false>::dispatch(std::get<I>(data), ser);
       else
         trySerialize<I + 1u>(data, ser);
     }
@@ -37,9 +37,8 @@ void trySerialize(std::variant<Ts...>& data, const Serializer<TContext>& ser)
 }
 
 template<size_t I, typename TContext, typename... Ts>
-std::variant<Ts...> tryCreate(const TypeId<std::variant<Ts...>>& tid, const Serializer<TContext>& ser)
+std::variant<Ts...> tryCreate(const TypeId<std::variant<Ts...>>& tid, const Deserializer<TContext>& ser)
 {
-  Expects(ser.loading);
   if constexpr(I >= sizeof...(Ts))
   {
     (void)tid;
@@ -51,7 +50,7 @@ std::variant<Ts...> tryCreate(const TypeId<std::variant<Ts...>>& tid, const Seri
     try
     {
       using Alternative = std::variant_alternative_t<I, std::variant<Ts...>>;
-      return access<Alternative>::callCreate(ser);
+      return access<Alternative, true>::dispatch(ser);
     }
     catch(Exception&)
     {
@@ -62,13 +61,13 @@ std::variant<Ts...> tryCreate(const TypeId<std::variant<Ts...>>& tid, const Seri
 } // namespace detail
 
 template<typename... Ts, typename TContext>
-void serialize(std::variant<Ts...>& data, const Serializer<TContext>& ser)
+void serialize(const std::variant<Ts...>& data, const Serializer<TContext>& ser)
 {
   detail::trySerialize<0>(data, ser);
 }
 
 template<typename TContext, typename... Ts>
-std::variant<Ts...> create(const TypeId<std::variant<Ts...>>& tid, const Serializer<TContext>& ser)
+std::variant<Ts...> create(const TypeId<std::variant<Ts...>>& tid, const Deserializer<TContext>& ser)
 {
   return detail::tryCreate<0>(tid, ser);
 }

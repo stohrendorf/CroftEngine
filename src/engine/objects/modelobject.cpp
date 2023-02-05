@@ -349,21 +349,24 @@ void ModelObject::updateLighting()
   m_lighting.update(core::Shade{core::Shade::type{-1}}, *m_state.location.room);
 }
 
-void ModelObject::serialize(const serialization::Serializer<world::World>& ser)
+void ModelObject::serialize(const serialization::Serializer<world::World>& ser) const
 {
   Object::serialize(ser);
   ser(S_NV("skeleton", m_skeleton));
-  if(ser.loading)
-  {
-    SkeletalModelNode::buildMesh(m_skeleton, m_state.current_anim_state);
-    m_lighting.bind(*m_skeleton, ser.context);
-  }
 }
 
-std::shared_ptr<ModelObject> ModelObject::create(serialization::Serializer<world::World>& ser)
+void ModelObject::deserialize(const serialization::Deserializer<world::World>& ser)
+{
+  Object::deserialize(ser);
+  ser(S_NV("skeleton", m_skeleton));
+  SkeletalModelNode::buildMesh(m_skeleton, m_state.current_anim_state);
+  m_lighting.bind(*m_skeleton, ser.context);
+}
+
+std::shared_ptr<ModelObject> ModelObject::create(serialization::Deserializer<world::World>& ser)
 {
   auto result = std::make_shared<ModelObject>(gsl::not_null{&ser.context}, Location::create(ser["@location"]));
-  result->serialize(ser);
+  result->deserialize(ser);
   return result;
 }
 
@@ -409,20 +412,22 @@ std::shared_ptr<render::scene::Node> ModelObject::getNode() const
 }
 
 std::shared_ptr<ModelObject> create(const serialization::TypeId<std::shared_ptr<ModelObject>>&,
-                                    serialization::Serializer<world::World>& ser)
+                                    serialization::Deserializer<world::World>& ser)
 {
   return ModelObject::create(ser);
 }
 
-void NullRenderModelObject::serialize(const serialization::Serializer<world::World>& ser)
+void NullRenderModelObject::serialize(const serialization::Serializer<world::World>& ser) const
 {
   ModelObject::serialize(ser);
-  if(ser.loading)
-  {
-    getSkeleton()->setRenderable(nullptr);
-    getSkeleton()->removeAllChildren();
-    getSkeleton()->clearParts();
-  }
+}
+
+void NullRenderModelObject::deserialize(const serialization::Deserializer<world::World>& ser)
+{
+  ModelObject::deserialize(ser);
+  getSkeleton()->setRenderable(nullptr);
+  getSkeleton()->removeAllChildren();
+  getSkeleton()->clearParts();
 }
 
 NullRenderModelObject::NullRenderModelObject(const std::string& name,

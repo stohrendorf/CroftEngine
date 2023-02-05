@@ -51,7 +51,8 @@ struct SavegameMeta
   std::string filename;
   std::string title;
 
-  void serialize(const serialization::Serializer<SavegameMeta>& ser);
+  void serialize(const serialization::Serializer<SavegameMeta>& ser) const;
+  void deserialize(const serialization::Deserializer<SavegameMeta>& ser);
 };
 
 struct SavegameInfo

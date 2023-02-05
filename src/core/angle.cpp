@@ -12,7 +12,12 @@
 
 namespace core
 {
-void TRRotationXY::serialize(const serialization::Serializer<engine::world::World>& ser)
+void TRRotationXY::serialize(const serialization::Serializer<engine::world::World>& ser) const
+{
+  ser(S_NV("x", X), S_NV("y", Y));
+}
+
+void TRRotationXY::deserialize(const serialization::Deserializer<engine::world::World>& ser)
 {
   ser(S_NV("x", X), S_NV("y", Y));
 }
@@ -22,7 +27,12 @@ glm::mat4 TRRotationXY::toMatrix() const
   return glm::yawPitchRoll(-toRad(Y), toRad(X), 0.0f);
 }
 
-void TRRotation::serialize(const serialization::Serializer<engine::world::World>& ser)
+void TRRotation::serialize(const serialization::Serializer<engine::world::World>& ser) const
+{
+  ser(S_NV("x", X), S_NV("y", Y), S_NV("z", Z));
+}
+
+void TRRotation::deserialize(const serialization::Deserializer<engine::world::World>& ser)
 {
   ser(S_NV("x", X), S_NV("y", Y), S_NV("z", Z));
 }

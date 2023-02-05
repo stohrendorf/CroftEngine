@@ -50,6 +50,7 @@ struct Box
     }
   }
 
-  void serialize(const serialization::Serializer<World>& ser);
+  void serialize(const serialization::Serializer<World>& ser) const;
+  void deserialize(const serialization::Deserializer<World>& ser);
 };
 } // namespace engine::world

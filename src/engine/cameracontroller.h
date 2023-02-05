@@ -208,7 +208,8 @@ public:
 
   std::unordered_set<const world::Portal*> updateCinematic(const world::CinematicFrame& frame, bool ingame);
 
-  void serialize(const serialization::Serializer<world::World>& ser);
+  void serialize(const serialization::Serializer<world::World>& ser) const;
+  void deserialize(const serialization::Deserializer<world::World>& ser);
 
   core::Frame m_cinematicFrame = 0_frame;
   core::TRVec m_cinematicPos{0_len, 0_len, 0_len};

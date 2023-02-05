@@ -95,7 +95,8 @@ public:
   bool collidable = true;
   bool already_looked_at = false;
 
-  void serialize(const serialization::Serializer<world::World>& ser);
+  void serialize(const serialization::Serializer<world::World>& ser) const;
+  void deserialize(const serialization::Deserializer<world::World>& ser);
 
   bool updateActivationTimeout()
   {

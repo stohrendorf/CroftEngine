@@ -243,7 +243,7 @@ Engine::Engine(std::filesystem::path userDataPath,
   if(std::filesystem::is_regular_file(m_userDataPath / "config.yaml"))
   {
     serialization::YAMLDocument<true> doc{m_userDataPath / "config.yaml"};
-    doc.load("config", *m_engineConfig, *m_engineConfig);
+    doc.deserialize("config", *m_engineConfig, *m_engineConfig);
   }
 
   m_presenter = std::make_shared<Presenter>(m_engineDataPath, resolution);
@@ -261,7 +261,7 @@ Engine::Engine(std::filesystem::path userDataPath,
 Engine::~Engine()
 {
   serialization::YAMLDocument<false> doc{m_userDataPath / "config.yaml"};
-  doc.save("config", *m_engineConfig, *m_engineConfig);
+  doc.serialize("config", *m_engineConfig, *m_engineConfig);
   doc.write();
 }
 
@@ -717,7 +717,7 @@ std::optional<SavegameMeta> Engine::getSavegameMeta(const std::filesystem::path&
 
   serialization::YAMLDocument<true> doc{filepath};
   SavegameMeta meta{};
-  doc.load("meta", meta, meta);
+  doc.deserialize("meta", meta, meta);
   return meta;
 }
 
@@ -765,7 +765,12 @@ std::filesystem::path Engine::getAssetDataPath() const
   return m_userDataPath / "data" / m_scriptEngine.getGameflow().getAssetRoot();
 }
 
-void SavegameMeta::serialize(const serialization::Serializer<SavegameMeta>& ser)
+void SavegameMeta::serialize(const serialization::Serializer<SavegameMeta>& ser) const
+{
+  ser(S_NV("filename", filename), S_NV("title", title));
+}
+
+void SavegameMeta::deserialize(const serialization::Deserializer<SavegameMeta>& ser)
 {
   ser(S_NV("filename", filename), S_NV("title", title));
 }

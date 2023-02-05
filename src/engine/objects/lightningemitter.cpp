@@ -282,7 +282,7 @@ void LightningEmitter::init(world::World& world)
   }
 }
 
-void LightningEmitter::serialize(const serialization::Serializer<world::World>& ser)
+void LightningEmitter::serialize(const serialization::Serializer<world::World>& ser) const
 {
   ModelObject::serialize(ser);
   ser(S_NV("poles", m_poles),
@@ -290,16 +290,23 @@ void LightningEmitter::serialize(const serialization::Serializer<world::World>& 
       S_NV("chargeTimeout", m_chargeTimeout),
       S_NV("shooting", m_shooting),
       S_NV("mainBoltEnd", m_mainBoltEnd));
+}
 
-  if(ser.loading)
+void LightningEmitter::deserialize(const serialization::Deserializer<world::World>& ser)
+{
+  ModelObject::deserialize(ser);
+  ser(S_NV("poles", m_poles),
+      S_NV("laraHit", m_laraHit),
+      S_NV("chargeTimeout", m_chargeTimeout),
+      S_NV("shooting", m_shooting),
+      S_NV("mainBoltEnd", m_mainBoltEnd));
+
+  init(ser.context);
+  ser << [this](const serialization::Deserializer<world::World>& /*ser*/)
   {
-    init(ser.context);
-    ser << [this](const serialization::Serializer<world::World>& /*ser*/)
-    {
-      prepareRender();
-    };
+    prepareRender();
+  };
 
-    getSkeleton()->getRenderState().setScissorTest(false);
-  }
+  getSkeleton()->getRenderState().setScissorTest(false);
 }
 } // namespace engine::objects

@@ -204,46 +204,48 @@ void SoundEngine::freeSlot(size_t slot)
   m_slots.erase(slot);
 }
 
-void SoundEngine::serializeStreams(const serialization::Serializer<engine::world::World>& ser,
-                                   const std::filesystem::path& rootPath,
-                                   VoiceGroup& streamGroup)
+void SoundEngine::serializeStreams(const serialization::Serializer<engine::world::World>& ser)
 {
   std::map<size_t, std::chrono::milliseconds> positions;
   std::map<size_t, std::filesystem::path> names;
   std::map<size_t, bool> looping;
-  if(!ser.loading)
+
+  auto tmp = std::exchange(m_slots, {});
+  for(const auto& [slot, slotStream] : tmp)
   {
-    auto tmp = std::exchange(m_slots, {});
-    for(const auto& [slot, slotStream] : tmp)
+    if(auto stream = slotStream.stream.lock(); stream != nullptr && !stream->isStopped())
     {
-      if(auto stream = slotStream.stream.lock(); stream != nullptr && !stream->isStopped())
-      {
-        m_slots.emplace(slot, slotStream);
-        positions.emplace(slot, stream->getStreamPosition());
-        names.emplace(slot, slotStream.name);
-        looping.emplace(slot, stream->isLooping());
-      }
+      m_slots.emplace(slot, slotStream);
+      positions.emplace(slot, stream->getStreamPosition());
+      names.emplace(slot, slotStream.name);
+      looping.emplace(slot, stream->isLooping());
     }
-  }
-  else
-  {
-    for(const auto& [slot, slotStream] : m_slots)
-      m_device->removeStream(slotStream.stream);
-    m_slots.clear();
   }
 
   ser(S_NV("streamNames", names), S_NV("streamPositions", positions), S_NV("streamLooping", looping));
+}
 
-  if(ser.loading)
+void SoundEngine::deserializeStreams(const serialization::Deserializer<engine::world::World>& ser,
+                                     const std::filesystem::path& rootPath,
+                                     VoiceGroup& streamGroup)
+{
+  std::map<size_t, std::chrono::milliseconds> positions;
+  std::map<size_t, std::filesystem::path> names;
+  std::map<size_t, bool> looping;
+
+  for(const auto& [slot, slotStream] : m_slots)
+    m_device->removeStream(slotStream.stream);
+  m_slots.clear();
+
+  ser(S_NV("streamNames", names), S_NV("streamPositions", positions), S_NV("streamLooping", looping));
+
+  for(auto& [slot, streamName] : names)
   {
-    for(auto& [slot, streamName] : names)
-    {
-      const auto stream = createStream(rootPath / streamName, positions.at(slot));
-      stream->setLooping(looping.at(slot));
-      stream->play();
-      setSlotStream(slot, stream, streamName);
-      streamGroup.add(stream);
-    }
+    const auto stream = createStream(rootPath / streamName, positions.at(slot));
+    stream->setLooping(looping.at(slot));
+    stream->play();
+    setSlotStream(slot, stream, streamName);
+    streamGroup.add(stream);
   }
 }
 

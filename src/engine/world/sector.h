@@ -39,7 +39,8 @@ struct Sector
 
   void connect(std::vector<Room>& rooms);
 
-  void serialize(const serialization::Serializer<World>& ser);
+  void serialize(const serialization::Serializer<World>& ser) const;
+  void deserialize(const serialization::Deserializer<World>& ser);
 
 private:
   std::optional<size_t> m_roomIndexBelow;

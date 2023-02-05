@@ -52,11 +52,15 @@ void SuspendedShack::collide(CollisionInfo& collisionInfo)
   collideWithLara(collisionInfo);
 }
 
-void SuspendedShack::serialize(const serialization::Serializer<world::World>& ser)
+void SuspendedShack::serialize(const serialization::Serializer<world::World>& ser) const
 {
   ModelObject::serialize(ser);
-  if(ser.loading)
-    getSkeleton()->getRenderState().setScissorTest(false);
+}
+
+void SuspendedShack::deserialize(const serialization::Deserializer<world::World>& ser)
+{
+  ModelObject::deserialize(ser);
+  getSkeleton()->getRenderState().setScissorTest(false);
 }
 
 SuspendedShack::SuspendedShack(const std::string& name,

@@ -30,15 +30,17 @@ TrapDoorDown::TrapDoorDown(const std::string& name,
   getSkeleton()->getRenderState().setPolygonOffset(-1, -1);
 }
 
-void TrapDoorDown::serialize(const serialization::Serializer<world::World>& ser)
+void TrapDoorDown::serialize(const serialization::Serializer<world::World>& ser) const
 {
   ModelObject::serialize(ser);
-  if(ser.loading)
-  {
-    getSkeleton()->getRenderState().setScissorTest(false);
-    getSkeleton()->getRenderState().setPolygonOffsetFill(true);
-    getSkeleton()->getRenderState().setPolygonOffset(-1, -1);
-  }
+}
+
+void TrapDoorDown::deserialize(const serialization::Deserializer<world::World>& ser)
+{
+  ModelObject::deserialize(ser);
+  getSkeleton()->getRenderState().setScissorTest(false);
+  getSkeleton()->getRenderState().setPolygonOffsetFill(true);
+  getSkeleton()->getRenderState().setPolygonOffset(-1, -1);
 }
 
 void TrapDoorDown::update()

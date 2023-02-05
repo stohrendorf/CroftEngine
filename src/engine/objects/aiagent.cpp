@@ -601,12 +601,17 @@ void AIAgent::hitLara(const core::Health& strength)
   getWorld().getObjectManager().getLara().m_state.health -= strength;
 }
 
-void AIAgent::serialize(const serialization::Serializer<world::World>& ser)
+void AIAgent::serialize(const serialization::Serializer<world::World>& ser) const
 {
   ModelObject::serialize(ser);
   ser(S_NV("collisionRadius", m_collisionRadius), S_NV("creatureInfo", m_creatureInfo));
-  if(ser.loading)
-    getSkeleton()->getRenderState().setScissorTest(false);
+}
+
+void AIAgent::deserialize(const serialization::Deserializer<world::World>& ser)
+{
+  ModelObject::deserialize(ser);
+  ser(S_NV("collisionRadius", m_collisionRadius), S_NV("creatureInfo", m_creatureInfo));
+  getSkeleton()->getRenderState().setScissorTest(false);
 }
 
 void AIAgent::initCreatureInfo()

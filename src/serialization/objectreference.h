@@ -4,24 +4,32 @@
 #include "ptr.h"
 #include "serialization.h"
 
-#include <type_traits>
-
 namespace serialization
 {
 template<typename T>
 struct ObjectReference final
 {
-  static_assert(std::is_base_of_v<engine::objects::Object, T>);
-  std::shared_ptr<T>& ptr;
+  ObjectReference(const ObjectReference<T>&) = delete;
+  ObjectReference(ObjectReference<T>&&) = delete;
+  void operator=(ObjectReference<T>&&) = delete;
+  void operator=(const ObjectReference<T>&) = delete;
 
-  explicit ObjectReference(std::shared_ptr<T>& ptr)
-      : ptr{ptr}
+  static_assert(std::is_base_of_v<engine::objects::Object, T>);
+  std::reference_wrapper<std::shared_ptr<T>> ptr;
+
+  explicit ObjectReference(std::reference_wrapper<const std::shared_ptr<T>>&& ptr)
+      : ptr{const_cast<std::shared_ptr<T>&>(ptr.get())}
   {
   }
 
-  void save(const Serializer<engine::world::World>& ser) const
+  explicit ObjectReference(std::reference_wrapper<std::shared_ptr<T>>&& ptr)
+      : ptr{std::move(ptr)}
   {
-    if(ptr == nullptr)
+  }
+
+  void serialize(const Serializer<engine::world::World>& ser) const
+  {
+    if(ptr.get() == nullptr)
     {
       ser.setNull();
     }
@@ -30,7 +38,7 @@ struct ObjectReference final
       ser.tag("objectref");
       for(const auto& [objId, obj] : ser.context.getObjectManager().getObjects())
       {
-        if(obj.get() == ptr)
+        if(obj.get() == ptr.get())
         {
           engine::ObjectId tmp = objId;
           ser(S_NV("id", tmp));
@@ -43,25 +51,24 @@ struct ObjectReference final
     }
   }
 
-  void load(const Serializer<engine::world::World>& ser)
+  void deserialize(const Deserializer<engine::world::World>& ser)
   {
     if(ser.isNull())
     {
-      ptr = nullptr;
+      ptr.get() = nullptr;
     }
     else
     {
-      ser << [pptr = &ptr](const Serializer<engine::world::World>& ser)
+      ser << [ptr = ptr](const Deserializer<engine::world::World>& ser)
       {
         ser.tag("objectref");
         engine::ObjectId id = 0;
         ser(S_NV("id", id));
         auto tmp = ser.context.getObjectManager().getObjects().at(id).get();
         gsl_Assert(tmp != nullptr);
-        *pptr = std::dynamic_pointer_cast<T>(tmp);
+        ptr.get() = std::dynamic_pointer_cast<T>(tmp);
       };
     }
   }
 };
-
 } // namespace serialization

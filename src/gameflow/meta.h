@@ -13,6 +13,7 @@ struct Meta
   std::string author;
   std::vector<std::string> urls;
 
-  void serialize(const serialization::Serializer<Meta>& ser);
+  void serialize(const serialization::Serializer<Meta>& ser) const;
+  void deserialize(const serialization::Deserializer<Meta>& ser);
 };
 } // namespace gameflow

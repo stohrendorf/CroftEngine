@@ -191,9 +191,15 @@ void Pierre::update()
   }
 }
 
-void Pierre::serialize(const serialization::Serializer<world::World>& ser)
+void Pierre::serialize(const serialization::Serializer<world::World>& ser) const
 {
   AIAgent::serialize(ser);
+  ser(S_NV("fleeTime", m_fleeTime));
+}
+
+void Pierre::deserialize(const serialization::Deserializer<world::World>& ser)
+{
+  AIAgent::deserialize(ser);
   ser(S_NV("fleeTime", m_fleeTime));
 }
 } // namespace engine::objects

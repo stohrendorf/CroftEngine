@@ -24,7 +24,8 @@ struct GhostMeta
   std::filesystem::path level{};
   std::string gameflow{};
 
-  void serialize(const serialization::Serializer<GhostMeta>& ser);
+  void serialize(const serialization::Serializer<GhostMeta>& ser) const;
+  void deserialize(const serialization::Deserializer<GhostMeta>& ser);
 };
 
 struct GhostFrame

@@ -37,8 +37,9 @@ struct NamedInputMappingConfig
   InputMappingConfig gameMappings;
   InputMappingConfig menuMappings;
 
-  void serialize(const serialization::Serializer<EngineConfig>& ser);
-  static NamedInputMappingConfig create(const serialization::Serializer<EngineConfig>& ser);
+  void serialize(const serialization::Serializer<EngineConfig>& ser) const;
+  void deserialize(const serialization::Deserializer<EngineConfig>& ser);
+  static NamedInputMappingConfig create(const serialization::Deserializer<EngineConfig>& ser);
 
   bool operator==(const NamedInputMappingConfig& rhs) const
   {
@@ -62,7 +63,8 @@ struct EngineConfig
 
   explicit EngineConfig();
 
-  void serialize(const serialization::Serializer<EngineConfig>& ser);
+  void serialize(const serialization::Serializer<EngineConfig>& ser) const;
+  void deserialize(const serialization::Deserializer<EngineConfig>& ser);
 
   void resetInputMappings();
 };

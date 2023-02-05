@@ -6,18 +6,18 @@
 namespace serialization
 {
 template<typename U, typename T, typename TContext>
-void serialize(qs::quantity<U, T>& data, const Serializer<TContext>& ser)
+void serialize(const qs::quantity<U, T>& data, const Serializer<TContext>& ser)
 {
   ser.tag(U::suffix());
-  if(ser.loading)
-  {
-    T tmp{};
-    ser.node >> tmp;
-    data = qs::quantity<U, T>{tmp};
-  }
-  else
-  {
-    ser.node << data.get();
-  }
+  ser.node << data.get();
+}
+
+template<typename U, typename T, typename TContext>
+void deserialize(qs::quantity<U, T>& data, const Deserializer<TContext>& ser)
+{
+  ser.tag(U::suffix());
+  T tmp{};
+  ser.node >> tmp;
+  data = qs::quantity<U, T>{tmp};
 }
 } // namespace serialization

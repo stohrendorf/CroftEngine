@@ -161,17 +161,21 @@ void MutantEgg::collide(CollisionInfo& info)
   collideWithLara(info);
 }
 
-void MutantEgg::serialize(const serialization::Serializer<world::World>& ser)
+void MutantEgg::serialize(const serialization::Serializer<world::World>& ser) const
 {
   ModelObject::serialize(ser);
-  if(ser.loading)
-  {
-    getSkeleton()->getRenderState().setScissorTest(false);
-  }
 
-  ser << [this](const serialization::Serializer<world::World>& ser)
+  ser(S_NV("childObject", serialization::ObjectReference{std::cref(m_childObject)}));
+}
+
+void MutantEgg::deserialize(const serialization::Deserializer<world::World>& ser)
+{
+  ModelObject::deserialize(ser);
+  getSkeleton()->getRenderState().setScissorTest(false);
+
+  ser << [this](const serialization::Deserializer<world::World>& ser)
   {
-    ser(S_NV("childObject", serialization::ObjectReference{m_childObject}));
+    ser(S_NV("childObject", serialization::ObjectReference{std::ref(m_childObject)}));
   };
 }
 } // namespace engine::objects

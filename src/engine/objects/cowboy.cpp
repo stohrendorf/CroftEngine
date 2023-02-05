@@ -138,9 +138,15 @@ void Cowboy::update()
     getSkeleton()->patchBone(0, core::TRRotation{0_deg, getCreatureInfo()->headRotation, 0_deg}.toMatrix());
 }
 
-void Cowboy::serialize(const serialization::Serializer<world::World>& ser)
+void Cowboy::serialize(const serialization::Serializer<world::World>& ser) const
 {
   AIAgent::serialize(ser);
+  ser(S_NV("aimTime", m_aimTime));
+}
+
+void Cowboy::deserialize(const serialization::Deserializer<world::World>& ser)
+{
+  AIAgent::deserialize(ser);
   ser(S_NV("aimTime", m_aimTime));
 }
 } // namespace engine::objects

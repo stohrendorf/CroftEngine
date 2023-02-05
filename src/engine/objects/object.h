@@ -177,7 +177,8 @@ public:
 
   void kill();
 
-  virtual void serialize(const serialization::Serializer<world::World>& ser);
+  virtual void serialize(const serialization::Serializer<world::World>& ser) const;
+  virtual void deserialize(const serialization::Deserializer<world::World>& ser);
 
   void emitRicochet(const Location& location);
 

@@ -31,7 +31,8 @@ public:
     return m_inventory;
   }
 
-  void serialize(const serialization::Serializer<world::World>& ser);
+  void serialize(const serialization::Serializer<world::World>& ser) const;
+  void deserialize(const serialization::Deserializer<world::World>& ser);
 
   core::Health laraHealth{core::LaraHealth};
   WeaponType selectedWeaponType = WeaponType::None;

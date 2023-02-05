@@ -23,7 +23,7 @@ inline std::optional<uint32_t> ptrSave(engine::world::Box* box, const Serializer
 
 inline const engine::world::Box* ptrLoad(const TypeId<const engine::world::Box*>&,
                                          std::optional<uint32_t> idx,
-                                         const Serializer<engine::world::World>& ser)
+                                         const Deserializer<engine::world::World>& ser)
 {
   if(!idx.has_value())
     return nullptr;
@@ -32,8 +32,9 @@ inline const engine::world::Box* ptrLoad(const TypeId<const engine::world::Box*>
   return &ser.context.getBoxes().at(*idx);
 }
 
-inline engine::world::Box*
-  ptrLoad(const TypeId<engine::world::Box*>&, std::optional<uint32_t> idx, const Serializer<engine::world::World>& ser)
+inline engine::world::Box* ptrLoad(const TypeId<engine::world::Box*>&,
+                                   std::optional<uint32_t> idx,
+                                   const Deserializer<engine::world::World>& ser)
 {
   return const_cast<engine::world::Box*>(ptrLoad(TypeId<const engine::world::Box*>{}, idx, ser));
 }

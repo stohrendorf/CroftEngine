@@ -238,7 +238,8 @@ public:
   void handleCommandSequence(const floordata::FloorDataValue* floorData, bool fromHeavy);
   core::TypeId find(const SkeletalModelType* model) const;
   core::TypeId find(const Sprite* sprite) const;
-  void serialize(const serialization::Serializer<World>& ser);
+  void serialize(const serialization::Serializer<World>& ser) const;
+  void deserialize(const serialization::Deserializer<World>& ser);
   void gameLoop(bool godMode, float blackAlpha, ui::Ui& ui);
   bool cinematicLoop();
   void load(const std::optional<size_t>& slot);

@@ -72,13 +72,14 @@ CollapsibleFloor::CollapsibleFloor(const std::string& name,
   getSkeleton()->getRenderState().setScissorTest(false);
 }
 
-void CollapsibleFloor::serialize(const serialization::Serializer<world::World>& ser)
+void CollapsibleFloor::serialize(const serialization::Serializer<world::World>& ser) const
 {
   ModelObject::serialize(ser);
+}
 
-  if(ser.loading)
-  {
-    getSkeleton()->getRenderState().setScissorTest(false);
-  }
+void CollapsibleFloor::deserialize(const serialization::Deserializer<world::World>& ser)
+{
+  ModelObject::deserialize(ser);
+  getSkeleton()->getRenderState().setScissorTest(false);
 }
 } // namespace engine::objects

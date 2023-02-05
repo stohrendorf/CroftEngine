@@ -17,7 +17,7 @@ struct NamedEnum
   }
 
   template<typename TContext>
-  void load(const Serializer<TContext>& ser)
+  void deserialize(const Deserializer<TContext>& ser)
   {
     ser.tag(Converter::name());
 
@@ -37,15 +37,15 @@ struct NamedEnum
   }
 
   template<typename TContext>
-  static NamedEnum<T, Converter> create(const Serializer<TContext>& ser)
+  static NamedEnum<T, Converter> create(const Deserializer<TContext>& ser)
   {
     NamedEnum<T, Converter> result{};
-    result.load(ser);
+    result.deserialize(ser);
     return result;
   }
 
   template<typename TContext>
-  void save(const Serializer<TContext>& ser) const
+  void serialize(const Serializer<TContext>& ser) const
   {
     ser.tag(Converter::name());
     ser.node << toString(value);

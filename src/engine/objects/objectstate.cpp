@@ -91,7 +91,29 @@ void ObjectState::loadObjectInfo(const script::Gameflow& gameflow)
   health = core::Health{gameflow.getObjectInfos().at(type.get_as<TR1ItemId>())->hit_points};
 }
 
-void ObjectState::serialize(const serialization::Serializer<world::World>& ser)
+void ObjectState::serialize(const serialization::Serializer<world::World>& ser) const
+{
+  ser(S_NV("location", location),
+      S_NV("type", type),
+      S_NV("rotation", rotation),
+      S_NV("speed", speed),
+      S_NV("fallspeed", fallspeed),
+      S_NV("currentAnimState", current_anim_state),
+      S_NV("goalAnimState", goal_anim_state),
+      S_NV("requiredAnimState", required_anim_state),
+      S_NV("health", health),
+      S_NV("triggerState", triggerState),
+      S_NV("timer", timer),
+      S_NV("activationState", activationState),
+      S_NV("floor", floor),
+      S_NV("touchBits", touch_bits),
+      S_NV("falling", falling),
+      S_NV("isHit", is_hit),
+      S_NV("collidable", collidable),
+      S_NV("alreadyLookedAt", already_looked_at));
+}
+
+void ObjectState::deserialize(const serialization::Deserializer<world::World>& ser)
 {
   ser(S_NV("location", location),
       S_NV("type", type),

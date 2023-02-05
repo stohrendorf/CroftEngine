@@ -23,7 +23,8 @@ public:
   AIAGENT_DEFAULT_CONSTRUCTORS(Gorilla)
 
   void update() override;
-  void serialize(const serialization::Serializer<world::World>& ser) override;
+  void serialize(const serialization::Serializer<world::World>& ser) const override;
+  void deserialize(const serialization::Deserializer<world::World>& ser) override;
 
 private:
   bool m_wantAttack = false;

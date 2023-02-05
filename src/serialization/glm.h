@@ -8,7 +8,7 @@
 namespace serialization
 {
 template<typename TContext>
-inline void save(glm::mat4& m, const Serializer<TContext>& ser)
+inline void serialize(const glm::mat4& m, const Serializer<TContext>& ser)
 {
   ser.tag("mat4");
   ser.node |= ryml::SEQ;
@@ -18,7 +18,7 @@ inline void save(glm::mat4& m, const Serializer<TContext>& ser)
 }
 
 template<typename TContext>
-inline void load(glm::mat4& m, const Serializer<TContext>& ser)
+inline void deserialize(glm::mat4& m, const Deserializer<TContext>& ser)
 {
   ser.tag("mat4");
   Expects(ser.node.is_seq() && ser.node.num_children() == 4 * 4);
@@ -34,17 +34,16 @@ inline void load(glm::mat4& m, const Serializer<TContext>& ser)
 }
 
 template<typename TContext>
-inline glm::mat4 create(const TypeId<glm::mat4>&, const Serializer<TContext>& ser)
+inline glm::mat4 create(const TypeId<glm::mat4>&, const Deserializer<TContext>& ser)
 {
   ser.tag("mat4");
-  Expects(ser.loading);
   glm::mat4 m{};
-  load(m, ser);
+  deserialize(m, ser);
   return m;
 }
 
 template<typename TContext, glm::length_t L, typename T, glm::qualifier Q>
-inline void save(glm::vec<L, T, Q>& v, const Serializer<TContext>& ser)
+inline void serialize(const glm::vec<L, T, Q>& v, const Serializer<TContext>& ser)
 {
   ser.tag("vec");
   ser.node |= ryml::SEQ;
@@ -53,7 +52,7 @@ inline void save(glm::vec<L, T, Q>& v, const Serializer<TContext>& ser)
 }
 
 template<typename TContext, glm::length_t L, typename T, glm::qualifier Q>
-inline void load(glm::vec<L, T, Q>& v, const Serializer<TContext>& ser)
+inline void deserialize(glm::vec<L, T, Q>& v, const Deserializer<TContext>& ser)
 {
   ser.tag("vec");
   Expects(ser.node.is_seq() && ser.node.num_children() == L);
@@ -66,12 +65,11 @@ inline void load(glm::vec<L, T, Q>& v, const Serializer<TContext>& ser)
 }
 
 template<typename TContext, glm::length_t L, typename T, glm::qualifier Q>
-inline glm::vec<L, T, Q> create(const TypeId<glm::vec<L, T, Q>>&, const Serializer<TContext>& ser)
+inline glm::vec<L, T, Q> create(const TypeId<glm::vec<L, T, Q>>&, const Deserializer<TContext>& ser)
 {
   ser.tag("vec");
-  Expects(ser.loading);
   glm::vec<L, T, Q> v{};
-  load(v, ser);
+  deserialize(v, ser);
   return v;
 }
 } // namespace serialization

@@ -183,9 +183,15 @@ void Bear::update()
   animateCreature(rotationToMoveTarget, 0_deg);
 }
 
-void Bear::serialize(const serialization::Serializer<world::World>& ser)
+void Bear::serialize(const serialization::Serializer<world::World>& ser) const
 {
   AIAgent::serialize(ser);
+  ser(S_NV("hurt", m_hurt));
+}
+
+void Bear::deserialize(const serialization::Deserializer<world::World>& ser)
+{
+  AIAgent::deserialize(ser);
   ser(S_NV("hurt", m_hurt));
 }
 } // namespace engine::objects

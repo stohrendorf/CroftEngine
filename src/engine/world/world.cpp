@@ -984,7 +984,7 @@ core::TypeId World::find(const Sprite* sprite) const
   BOOST_THROW_EXCEPTION(std::runtime_error("Cannot find sprite"));
 }
 
-void World::serialize(const serialization::Serializer<World>& ser)
+void World::serialize(const serialization::Serializer<World>& ser) const
 {
   std::vector<size_t> physicalIds;
   std::transform(m_rooms.begin(),
@@ -995,48 +995,70 @@ void World::serialize(const serialization::Serializer<World>& ser)
                    return room.physicalId;
                  });
 
-  if(ser.loading)
-  {
-    getPresenter().getRenderer().getRootNode()->clear();
-    for(auto& room : m_rooms)
-    {
-      room.resetScenery();
-      setParent(gsl::not_null{room.node}, getPresenter().getRenderer().getRootNode());
-    }
-
-    ser(S_NV("roomPhysicalIds", serialization::FrozenVector{physicalIds}));
-    for(size_t i = 0; i < m_rooms.size(); ++i)
-    {
-      if(m_rooms[i].physicalId == physicalIds[i])
-        continue;
-
-      // do not use "swapWithAlternate", as that may break the "alternateRoom" member
-      std::swap(m_rooms[i], m_rooms[physicalIds[i]]);
-    }
-    for(size_t i = 0; i < m_rooms.size(); ++i)
-      gsl_Assert(physicalIds[i] == m_rooms[i].physicalId);
-  }
-
   ser(S_NV("objectManager", m_objectManager),
       S_NV("player", *m_player),
-      S_NVO("initialLevelStartPlayer", *m_levelStartPlayer),
+      S_NV("initialLevelStartPlayer", *m_levelStartPlayer),
       S_NV("mapFlipActivationStates", m_mapFlipActivationStates),
-      S_NV("cameras", serialization::FrozenVector{m_cameraSinks}),
+      S_NV("cameras", serialization::SerializingFrozenVector{m_cameraSinks}),
       S_NV("activeEffect", m_activeEffect),
       S_NV("effectTimer", m_effectTimer),
       S_NV("cameraController", *m_cameraController),
       S_NV("secretsFound", m_secretsFoundBitmask),
       S_NV("roomsAreSwapped", m_roomsAreSwapped),
       S_NV("roomPhysicalIds", physicalIds),
-      S_NV("rooms", serialization::FrozenVector{m_rooms}),
-      S_NV("boxes", serialization::FrozenVector{m_boxes}),
+      S_NV("rooms", serialization::SerializingFrozenVector{m_rooms}),
+      S_NV("boxes", serialization::SerializingFrozenVector{m_boxes}),
+      S_NV("audioEngine", *m_audioEngine),
+      S_NV("ghostFrame", m_ghostFrame));
+}
+
+void World::deserialize(const serialization::Deserializer<World>& ser)
+{
+  std::vector<size_t> physicalIds;
+  std::transform(m_rooms.begin(),
+                 m_rooms.end(),
+                 std::back_inserter(physicalIds),
+                 [](const Room& room)
+                 {
+                   return room.physicalId;
+                 });
+
+  getPresenter().getRenderer().getRootNode()->clear();
+  for(auto& room : m_rooms)
+  {
+    room.resetScenery();
+    setParent(gsl::not_null{room.node}, getPresenter().getRenderer().getRootNode());
+  }
+
+  ser(S_NV("roomPhysicalIds", serialization::DeserializingFrozenVector{physicalIds}));
+  for(size_t i = 0; i < m_rooms.size(); ++i)
+  {
+    if(m_rooms[i].physicalId == physicalIds[i])
+      continue;
+
+    // do not use "swapWithAlternate", as that may break the "alternateRoom" member
+    std::swap(m_rooms[i], m_rooms[physicalIds[i]]);
+  }
+  for(size_t i = 0; i < m_rooms.size(); ++i)
+    gsl_Assert(physicalIds[i] == m_rooms[i].physicalId);
+
+  ser(S_NV("objectManager", m_objectManager),
+      S_NV("player", *m_player),
+      S_NVO("initialLevelStartPlayer", *m_levelStartPlayer),
+      S_NV("mapFlipActivationStates", m_mapFlipActivationStates),
+      S_NV("cameras", serialization::DeserializingFrozenVector{m_cameraSinks}),
+      S_NV("activeEffect", m_activeEffect),
+      S_NV("effectTimer", m_effectTimer),
+      S_NV("cameraController", *m_cameraController),
+      S_NV("secretsFound", m_secretsFoundBitmask),
+      S_NV("roomsAreSwapped", m_roomsAreSwapped),
+      S_NV("roomPhysicalIds", physicalIds),
+      S_NV("rooms", serialization::DeserializingFrozenVector{m_rooms}),
+      S_NV("boxes", serialization::DeserializingFrozenVector{m_boxes}),
       S_NV("audioEngine", *m_audioEngine),
       S_NVO("ghostFrame", m_ghostFrame));
 
-  if(ser.loading)
-  {
-    updateStaticSoundEffects();
-  }
+  updateStaticSoundEffects();
 }
 
 void World::gameLoop(bool godMode, float blackAlpha, ui::Ui& ui)
@@ -1116,14 +1138,14 @@ void World::load(const std::optional<size_t>& slot)
   BOOST_LOG_TRIVIAL(info) << "Load " << filename;
   serialization::YAMLDocument<true> doc{filename};
   SavegameMeta meta{};
-  doc.load("meta", meta, meta);
+  doc.deserialize("meta", meta, meta);
   if(!util::preferredEqual(meta.filename, std::filesystem::relative(m_levelFilename, m_engine.getAssetDataPath())))
   {
     BOOST_LOG_TRIVIAL(error) << "Savegame mismatch. File is for " << meta.filename << ", but current level is "
                              << m_levelFilename;
     return;
   }
-  doc.load("data", *this, *this);
+  doc.deserialize("data", *this, *this);
   m_objectManager.getLara().m_state.health = m_player->laraHealth;
   m_objectManager.getLara().initWeaponAnimData();
   connectSectors();
@@ -1136,12 +1158,12 @@ void World::save(const std::filesystem::path& filename, bool isQuicksave)
   serialization::YAMLDocument<false> doc{filename};
   SavegameMeta meta{std::filesystem::relative(m_levelFilename, m_engine.getAssetDataPath()).string(),
                     isQuicksave ? _("Quicksave") : m_title};
-  doc.save("meta", meta, meta);
-  doc.save("data", *this, *this);
+  doc.serialize("meta", meta, meta);
+  doc.serialize("data", *this, *this);
   doc.write();
 
   serialization::YAMLDocument<false> metaCacheDoc{makeMetaFilepath(filename)};
-  metaCacheDoc.save("meta", meta, meta);
+  metaCacheDoc.serialize("meta", meta, meta);
   metaCacheDoc.write();
 }
 
@@ -1164,15 +1186,15 @@ std::tuple<std::optional<SavegameInfo>, std::map<size_t, SavegameInfo>> World::g
     {
       serialization::YAMLDocument<true> metaCacheDoc{metaPath};
       SavegameMeta meta{};
-      metaCacheDoc.load("meta", meta, meta);
+      metaCacheDoc.deserialize("meta", meta, meta);
       return SavegameInfo{std::move(meta), std::filesystem::last_write_time(path)};
     }
 
     serialization::YAMLDocument<true> doc{path};
     SavegameMeta meta{};
-    doc.load("meta", meta, meta);
+    doc.deserialize("meta", meta, meta);
     serialization::YAMLDocument<false> newMetaCacheDoc{metaPath};
-    newMetaCacheDoc.save("meta", meta, meta);
+    newMetaCacheDoc.serialize("meta", meta, meta);
     newMetaCacheDoc.write();
     return SavegameInfo{std::move(meta), std::filesystem::last_write_time(path)};
   };

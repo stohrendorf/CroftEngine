@@ -161,7 +161,12 @@ void GhostFrame::BoneData::read(std::istream& s)
   visible = tmp != 0;
 }
 
-void GhostMeta::serialize(const serialization::Serializer<GhostMeta>& ser)
+void GhostMeta::serialize(const serialization::Serializer<GhostMeta>& ser) const
+{
+  ser(S_NV("duration", duration), S_NV("finishState", finishState), S_NV("level", level), S_NV("gameflow", gameflow));
+}
+
+void GhostMeta::deserialize(const serialization::Deserializer<GhostMeta>& ser)
 {
   ser(S_NV("duration", duration), S_NV("finishState", finishState), S_NV("level", level), S_NV("gameflow", gameflow));
 }

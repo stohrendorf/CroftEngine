@@ -102,45 +102,60 @@ std::vector<NamedInputMappingConfig> getDefaultMappings()
 }
 } // namespace
 
-void NamedInputMappingConfig::serialize(const serialization::Serializer<EngineConfig>& ser)
+void NamedInputMappingConfig::serialize(const serialization::Serializer<EngineConfig>& ser) const
 {
-  if(ser.loading)
-  {
-    ser(S_NV("name", name),
-        S_NV("controllerType", controllerType),
-        S_NVO("mappings", gameMappings),
-        S_NVO("gameMappings", gameMappings));
-
-    ser(S_NVD("menuMappings", menuMappings, getDefaultMappings().at(name == pgettext("Input|MappingName", "Keyboard") ? 0 : 1).menuMappings));
-  }
-  else
-  {
-    ser(S_NV("name", name),
-        S_NV("controllerType", controllerType),
-        S_NV("gameMappings", gameMappings),
-        S_NV("menuMappings", menuMappings));
-  }
+  ser(S_NV("name", name),
+      S_NV("controllerType", controllerType),
+      S_NV("gameMappings", gameMappings),
+      S_NV("menuMappings", menuMappings));
 }
 
-NamedInputMappingConfig NamedInputMappingConfig::create(const serialization::Serializer<EngineConfig>& ser)
+void NamedInputMappingConfig::deserialize(const serialization::Deserializer<EngineConfig>& ser)
+{
+  // TODO CE-601 remove migration
+  ser(S_NV("name", name),
+      S_NV("controllerType", controllerType),
+      S_NVO("mappings", std::ref(gameMappings)),
+      S_NVO("gameMappings", std::ref(gameMappings)));
+
+  ser(S_NVD("menuMappings",
+            std::ref(menuMappings),
+            getDefaultMappings().at(name == pgettext("Input|MappingName", "Keyboard") ? 0 : 1).menuMappings));
+}
+
+NamedInputMappingConfig NamedInputMappingConfig::create(const serialization::Deserializer<EngineConfig>& ser)
 {
   NamedInputMappingConfig tmp{};
-  tmp.serialize(ser);
+  tmp.deserialize(ser);
   return tmp;
 }
 
-void EngineConfig::serialize(const serialization::Serializer<EngineConfig>& ser)
+void EngineConfig::serialize(const serialization::Serializer<EngineConfig>& ser) const
 {
-  ser(S_NVD("renderSettings", renderSettings, render::RenderSettings{}),
-      S_NVD("displaySettings", displaySettings, DisplaySettings{}),
-      S_NVD("audioSettings", audioSettings, AudioSettings{}),
-      S_NVD("inputMappings", inputMappings, getDefaultMappings()),
-      S_NVO("restoreHealth", restoreHealth),
-      S_NVO("pulseLowHealthHealthBar", pulseLowHealthHealthBar),
-      S_NVO("lowHealthMonochrome", lowHealthMonochrome),
-      S_NVO("buttBubbles", buttBubbles),
-      S_NVO("waterBedBubbles", waterBedBubbles),
-      S_NVO("animSmoothing", animSmoothing));
+  ser(S_NV("renderSettings", renderSettings),
+      S_NV("displaySettings", displaySettings),
+      S_NV("audioSettings", audioSettings),
+      S_NV("inputMappings", inputMappings),
+      S_NV("restoreHealth", restoreHealth),
+      S_NV("pulseLowHealthHealthBar", pulseLowHealthHealthBar),
+      S_NV("lowHealthMonochrome", lowHealthMonochrome),
+      S_NV("buttBubbles", buttBubbles),
+      S_NV("waterBedBubbles", waterBedBubbles),
+      S_NV("animSmoothing", animSmoothing));
+}
+
+void EngineConfig::deserialize(const serialization::Deserializer<EngineConfig>& ser)
+{
+  ser(S_NVD("renderSettings", std::ref(renderSettings), render::RenderSettings{}),
+      S_NVD("displaySettings", std::ref(displaySettings), DisplaySettings{}),
+      S_NVD("audioSettings", std::ref(audioSettings), AudioSettings{}),
+      S_NVD("inputMappings", std::ref(inputMappings), getDefaultMappings()),
+      S_NVO("restoreHealth", std::ref(restoreHealth)),
+      S_NVO("pulseLowHealthHealthBar", std::ref(pulseLowHealthHealthBar)),
+      S_NVO("lowHealthMonochrome", std::ref(lowHealthMonochrome)),
+      S_NVO("buttBubbles", std::ref(buttBubbles)),
+      S_NVO("waterBedBubbles", std::ref(waterBedBubbles)),
+      S_NVO("animSmoothing", std::ref(animSmoothing)));
 }
 
 EngineConfig::EngineConfig()

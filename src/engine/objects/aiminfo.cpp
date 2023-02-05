@@ -26,10 +26,20 @@
 
 namespace engine::objects
 {
-void AimInfo::serialize(const serialization::Serializer<world::World>& ser)
+void AimInfo::serialize(const serialization::Serializer<world::World>& ser) const
 {
   auto ptr = reinterpret_cast<const int16_t*>(weaponAnimData);
-  ser(S_NV_VECTOR_ELEMENT("weaponAnimData", ser.context.getPoseFrames(), ptr),
+  ser(S_NV_VECTOR_ELEMENT("weaponAnimData", std::cref(ser.context.getPoseFrames()), std::cref(ptr)),
+      S_NV("frame", frame),
+      S_NV("aiming", aiming),
+      S_NV("aimRotation", aimRotation),
+      S_NV("flashTimeout", flashTimeout));
+}
+
+void AimInfo::deserialize(const serialization::Deserializer<world::World>& ser)
+{
+  auto ptr = reinterpret_cast<const int16_t*>(weaponAnimData);
+  ser(S_NV_VECTOR_ELEMENT("weaponAnimData", std::cref(ser.context.getPoseFrames()), std::ref(ptr)),
       S_NV("frame", frame),
       S_NV("aiming", aiming),
       S_NV("aimRotation", aimRotation),

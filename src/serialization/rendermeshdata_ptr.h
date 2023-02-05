@@ -8,7 +8,7 @@
 namespace serialization
 {
 // cppcheck-suppress constParameter
-void save(const std::shared_ptr<engine::world::RenderMeshData>& mesh, const Serializer<engine::world::World>& ser)
+void serialize(const std::shared_ptr<engine::world::RenderMeshData>& mesh, const Serializer<engine::world::World>& ser)
 {
   if(mesh == nullptr)
   {
@@ -30,7 +30,7 @@ void save(const std::shared_ptr<engine::world::RenderMeshData>& mesh, const Seri
   gsl_Assert(false);
 }
 
-void load(std::shared_ptr<engine::world::RenderMeshData>& data, const Serializer<engine::world::World>& ser)
+void deserialize(std::shared_ptr<engine::world::RenderMeshData>& data, const Deserializer<engine::world::World>& ser)
 {
   if(ser.isNull())
   {
@@ -45,11 +45,10 @@ void load(std::shared_ptr<engine::world::RenderMeshData>& data, const Serializer
 }
 
 std::shared_ptr<engine::world::RenderMeshData> create(const TypeId<std::shared_ptr<engine::world::RenderMeshData>>&,
-                                                      const Serializer<engine::world::World>& ser)
+                                                      const Deserializer<engine::world::World>& ser)
 {
-  Expects(ser.loading);
   std::shared_ptr<engine::world::RenderMeshData> tmp;
-  load(tmp, ser);
+  deserialize(tmp, ser);
   return tmp;
 }
 } // namespace serialization

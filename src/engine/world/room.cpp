@@ -598,10 +598,16 @@ void Room::resetScenery()
   }
 }
 
-void Room::serialize(const serialization::Serializer<World>& ser)
+void Room::serialize(const serialization::Serializer<World>& ser) const
 {
-  ser(S_NV("sectors", serialization::FrozenVector{sectors}),
-      S_NV_VECTOR_ELEMENT("alternateRoom", ser.context.getRooms(), alternateRoom));
+  ser(S_NV("sectors", serialization::SerializingFrozenVector{sectors}),
+      S_NV_VECTOR_ELEMENT("alternateRoom", std::cref(ser.context.getRooms()), std::cref(alternateRoom)));
+}
+
+void Room::deserialize(const serialization::Deserializer<World>& ser)
+{
+  ser(S_NV("sectors", serialization::DeserializingFrozenVector{sectors}),
+      S_NV_VECTOR_ELEMENT("alternateRoom", std::cref(ser.context.getRooms()), std::ref(alternateRoom)));
 }
 
 const Sector* Room::getSectorByIndex(const int dx, const int dz) const

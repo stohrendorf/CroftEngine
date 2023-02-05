@@ -8,19 +8,19 @@
 namespace serialization
 {
 template<typename T, typename TContext>
-void save(std::deque<T>& data, const Serializer<TContext>& ser)
+void serialize(const std::deque<T>& data, const Serializer<TContext>& ser)
 {
   ser.tag("deque");
   ser.node |= ryml::SEQ;
   for(auto& element : data)
   {
     const auto tmp = ser.newChild();
-    access<T>::callSerializeOrSave(element, tmp);
+    access<T, false>::dispatch(element, tmp);
   }
 }
 
 template<typename T, typename TContext>
-void load(std::deque<T>& data, const Serializer<TContext>& ser)
+void deserialize(std::deque<T>& data, const Deserializer<TContext>& ser)
 {
   ser.tag("deque");
   Expects(ser.node.is_seq());
@@ -28,9 +28,9 @@ void load(std::deque<T>& data, const Serializer<TContext>& ser)
   std::transform(ser.node.begin(),
                  ser.node.end(),
                  std::back_inserter(data),
-                 [&ser](const ryml::NodeRef& element)
+                 [&ser](const ryml::ConstNodeRef& element)
                  {
-                   return T{access<T>::callCreate(ser.withNode(element))};
+                   return T{access<T, true>::dispatch(ser.withNode(element))};
                  });
 }
 } // namespace serialization

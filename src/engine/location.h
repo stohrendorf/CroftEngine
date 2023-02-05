@@ -30,8 +30,9 @@ struct Location final
   {
   }
 
-  void serialize(const serialization::Serializer<world::World>& ser);
-  [[nodiscard]] static Location create(const serialization::Serializer<world::World>& ser);
+  void serialize(const serialization::Serializer<world::World>& ser) const;
+  void deserialize(const serialization::Deserializer<world::World>& ser);
+  [[nodiscard]] static Location create(const serialization::Deserializer<world::World>& ser);
 
   gsl::not_null<const world::Sector*> updateRoom();
 

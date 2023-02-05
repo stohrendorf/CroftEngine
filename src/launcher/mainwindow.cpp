@@ -141,7 +141,7 @@ MainWindow::MainWindow(QWidget* parent)
 
       serialization::YAMLDocument<true> doc{it->path() / "meta.yml"};
       gameflow::Meta meta{};
-      doc.load("meta", meta, meta);
+      doc.deserialize("meta", meta, meta);
       metas.emplace_back(it->path().stem().string(), meta);
     }
 

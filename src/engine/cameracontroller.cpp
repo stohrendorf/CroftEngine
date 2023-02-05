@@ -825,15 +825,37 @@ CameraController::CameraController(const gsl::not_null<world::World*>& world,
 {
 }
 
-void CameraController::serialize(const serialization::Serializer<world::World>& ser)
+void CameraController::serialize(const serialization::Serializer<world::World>& ser) const
 {
   ser(S_NV("location", m_location),
       S_NV("lookAt", m_lookAt),
       S_NV("mode", m_mode),
       S_NV("modifier", m_modifier),
       S_NV("completelyFixed", m_isCompletelyFixed),
-      S_NV("lookAtObject", serialization::ObjectReference{m_lookAtObject}),
-      S_NV("previousLookAtObject", serialization::ObjectReference{m_previousLookAtObject}),
+      S_NV("lookAtObject", serialization::ObjectReference{std::cref(m_lookAtObject)}),
+      S_NV("previousLookAtObject", serialization::ObjectReference{std::cref(m_previousLookAtObject)}),
+      S_NV("bounce", m_bounce),
+      S_NV("distance", m_distance),
+      S_NV("eyeRotation", m_eyeRotation),
+      S_NV("rotationAroundLara", m_rotationAroundLara),
+      S_NV("smoothness", m_smoothness),
+      S_NV("fixedCameraId", m_fixedCameraId),
+      S_NV("currentFixedCameraId", m_currentFixedCameraId),
+      S_NV("camOverrideTimeout", m_camOverrideTimeout),
+      S_NV("cinematicFrame", m_cinematicFrame),
+      S_NV("cinematicPos", m_cinematicPos),
+      S_NV("cinematicRot", m_cinematicRot));
+}
+
+void CameraController::deserialize(const serialization::Deserializer<world::World>& ser)
+{
+  ser(S_NV("location", m_location),
+      S_NV("lookAt", m_lookAt),
+      S_NV("mode", m_mode),
+      S_NV("modifier", m_modifier),
+      S_NV("completelyFixed", m_isCompletelyFixed),
+      S_NV("lookAtObject", serialization::ObjectReference{std::ref(m_lookAtObject)}),
+      S_NV("previousLookAtObject", serialization::ObjectReference{std::ref(m_previousLookAtObject)}),
       S_NV("bounce", m_bounce),
       S_NV("distance", m_distance),
       S_NV("eyeRotation", m_eyeRotation),

@@ -149,9 +149,10 @@ public:
     return m_timeout;
   }
 
-  void serialize(const serialization::Serializer<world::World>& ser);
+  void serialize(const serialization::Serializer<world::World>& ser) const;
+  void deserialize(const serialization::Deserializer<world::World>& ser);
 
-  static ActivationState create(const serialization::Serializer<world::World>& ser);
+  static ActivationState create(const serialization::Deserializer<world::World>& ser);
 
 private:
   static ActivationSet extractActivationSet(const FloorDataValue& fd);

@@ -47,7 +47,8 @@ public:
 
   void patchCeiling(const core::TRVec& pos, core::Length& y) override;
 
-  void serialize(const serialization::Serializer<world::World>& ser) override;
+  void serialize(const serialization::Serializer<world::World>& ser) const override;
+  void deserialize(const serialization::Deserializer<world::World>& ser) override;
 
 private:
   bool possiblyOnTrapdoor(const core::TRVec& pos) const;

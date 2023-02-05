@@ -47,7 +47,8 @@ public:
 
   void collide(CollisionInfo& info) override;
 
-  void serialize(const serialization::Serializer<world::World>& ser) override;
+  void serialize(const serialization::Serializer<world::World>& ser) const override;
+  void deserialize(const serialization::Deserializer<world::World>& ser) override;
 
 private:
   std::shared_ptr<AIAgent> m_childObject{nullptr};

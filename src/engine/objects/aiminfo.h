@@ -68,7 +68,8 @@ struct AimInfo
 
   void updateAimAngles(const Weapon& weapon, const core::TRRotationXY& weaponTargetVector);
 
-  void serialize(const serialization::Serializer<world::World>& ser);
+  void serialize(const serialization::Serializer<world::World>& ser) const;
+  void deserialize(const serialization::Deserializer<world::World>& ser);
 
   void reset()
   {
