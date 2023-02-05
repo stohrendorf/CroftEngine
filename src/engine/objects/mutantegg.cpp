@@ -165,7 +165,7 @@ void MutantEgg::serialize(const serialization::Serializer<world::World>& ser) co
 {
   ModelObject::serialize(ser);
 
-  ser(S_NV("childObject", serialization::SerializingObjectReference{m_childObject}));
+  ser(S_NV("childObject", serialization::ObjectReference{std::cref(m_childObject)}));
 }
 
 void MutantEgg::deserialize(const serialization::Deserializer<world::World>& ser)
@@ -175,7 +175,7 @@ void MutantEgg::deserialize(const serialization::Deserializer<world::World>& ser
 
   ser << [this](const serialization::Deserializer<world::World>& ser)
   {
-    ser(S_NV("childObject", serialization::DeserializingObjectReference{m_childObject}));
+    ser(S_NV("childObject", serialization::ObjectReference{std::ref(m_childObject)}));
   };
 }
 } // namespace engine::objects

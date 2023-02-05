@@ -170,13 +170,13 @@ void ThorHammerHandle::collide(CollisionInfo& info)
 void ThorHammerHandle::serialize(const serialization::Serializer<world::World>& ser) const
 {
   ModelObject::serialize(ser);
-  ser(S_NV("block", serialization::SerializingObjectReference{m_block}));
+  ser(S_NV("block", serialization::ObjectReference{std::cref(m_block)}));
 }
 
 void ThorHammerHandle::deserialize(const serialization::Deserializer<world::World>& ser)
 {
   ModelObject::deserialize(ser);
-  ser(S_NV("block", serialization::DeserializingObjectReference{m_block}));
+  ser(S_NV("block", serialization::ObjectReference{std::ref(m_block)}));
   getSkeleton()->getRenderState().setScissorTest(false);
 }
 

@@ -1897,7 +1897,7 @@ void LaraObject::serialize(const serialization::Serializer<world::World>& ser) c
       S_NV("rightArm", rightArm),
       S_NV("weaponTargetVector", m_weaponTargetVector));
 
-  ser(S_NV("aimAt", serialization::SerializingObjectReference{aimAt}));
+  ser(S_NV("aimAt", serialization::ObjectReference{std::cref(aimAt)}));
 }
 
 void LaraObject::deserialize(const serialization::Deserializer<world::World>& ser)
@@ -1925,7 +1925,7 @@ void LaraObject::deserialize(const serialization::Deserializer<world::World>& se
 
   ser << [this](const serialization::Deserializer<world::World>& ser)
   {
-    ser(S_NV("aimAt", serialization::DeserializingObjectReference{aimAt}));
+    ser(S_NV("aimAt", serialization::ObjectReference{std::ref(aimAt)}));
   };
 
   forceSourcePosition = nullptr;

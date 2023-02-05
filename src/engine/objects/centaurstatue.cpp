@@ -89,13 +89,13 @@ void CentaurStatue::update()
 void CentaurStatue::serialize(const serialization::Serializer<world::World>& ser) const
 {
   ModelObject::serialize(ser);
-  ser(S_NV("childObject", serialization::SerializingObjectReference{m_childObject}));
+  ser(S_NV("childObject", serialization::ObjectReference{std::cref(m_childObject)}));
 }
 
 void CentaurStatue::deserialize(const serialization::Deserializer<world::World>& ser)
 {
   ModelObject::deserialize(ser);
-  ser(S_NV("childObject", serialization::DeserializingObjectReference{m_childObject}));
+  ser(S_NV("childObject", serialization::ObjectReference{std::ref(m_childObject)}));
 }
 
 void CentaurStatue::collide(CollisionInfo& info)

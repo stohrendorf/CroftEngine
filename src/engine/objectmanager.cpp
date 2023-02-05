@@ -186,7 +186,7 @@ void ObjectManager::serialize(const serialization::Serializer<world::World>& ser
 {
   ser(S_NV("objectCounter", m_objectCounter),
       S_NV("objects", m_objects),
-      S_NV("lara", serialization::SerializingObjectReference{m_lara}));
+      S_NV("lara", serialization::ObjectReference{std::cref(m_lara)}));
 
   std::vector<ObjectId> activeObjectIds;
   for(const auto& obj : m_activeObjects)
@@ -209,7 +209,7 @@ void ObjectManager::deserialize(const serialization::Deserializer<world::World>&
 {
   ser(S_NV("objectCounter", m_objectCounter),
       S_NV("objects", m_objects),
-      S_NV("lara", serialization::DeserializingObjectReference{m_lara}));
+      S_NV("lara", serialization::ObjectReference{std::ref(m_lara)}));
 
   std::vector<ObjectId> activeObjectIds;
   ser(S_NV("activeObjects", activeObjectIds));
