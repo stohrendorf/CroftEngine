@@ -5,7 +5,7 @@
 
 namespace serialization
 {
-inline core::TypeId::type ptrSave(const engine::world::SkeletalModelType* model,
+inline core::TypeId::type ptrSave(const engine::world::SkeletalModelType* const& model,
                                   const Serializer<engine::world::World>& ser)
 {
   ser.tag("skeletalmodel");
@@ -17,7 +17,7 @@ inline core::TypeId::type ptrSave(const engine::world::SkeletalModelType* model,
 
 inline const engine::world::SkeletalModelType* ptrLoad(const TypeId<const engine::world::SkeletalModelType*>&,
                                                        core::TypeId::type idx,
-                                                       const Serializer<engine::world::World>& ser)
+                                                       const Deserializer<engine::world::World>& ser)
 {
   ser.tag("skeletalmodel");
   if(idx == std::numeric_limits<core::TypeId::type>::max())

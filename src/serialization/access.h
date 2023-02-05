@@ -6,85 +6,62 @@
 
 namespace serialization
 {
-namespace
-{
+template<typename T, bool Loading>
+struct access;
+
 template<typename T>
-struct access
+struct access<T, false>
 {
   template<typename TContext, typename T2>
-  static inline auto callSerializeOrLoad(T2& data, const Serializer<TContext>& ser)
-    -> decltype(data.serialize(ser), void())
+  static inline auto dispatch(const T2& data, const Serializer<TContext>& ser) -> decltype(data.serialize(ser), void())
   {
+    static_assert(
+      std::is_same_v<std::remove_cv_t<std::remove_reference_t<T>>, std::remove_cv_t<std::remove_reference_t<T2>>>);
     return data.serialize(ser);
   }
 
   template<typename TContext, typename T2>
-  static inline auto callSerializeOrLoad(T2& data, const Serializer<TContext>& ser)
-    -> decltype(serialize(data, ser), void())
+  static inline auto dispatch(const T2& data, const Serializer<TContext>& ser) -> decltype(serialize(data, ser), void())
   {
+    static_assert(
+      std::is_same_v<std::remove_cv_t<std::remove_reference_t<T>>, std::remove_cv_t<std::remove_reference_t<T2>>>);
     return serialize(data, ser);
   }
+};
 
+template<typename T>
+struct access<T, true>
+{
   template<typename TContext, typename T2>
-  static inline auto callSerializeOrLoad(T2& data, const Serializer<TContext>& ser) -> decltype(data.load(ser), void())
+  static inline auto dispatch(T2& data, const Deserializer<TContext>& ser) -> decltype(data.deserialize(ser), void())
   {
-    return data.load(ser);
+    static_assert(
+      std::is_same_v<std::remove_cv_t<std::remove_reference_t<T>>, std::remove_cv_t<std::remove_reference_t<T2>>>);
+    return data.deserialize(ser);
   }
 
   template<typename TContext, typename T2>
-  static inline auto callSerializeOrLoad(T2& data, const Serializer<TContext>& ser) -> decltype(load(data, ser), void())
+  static inline auto dispatch(T2& data, const Deserializer<TContext>& ser) -> decltype(deserialize(data, ser), void())
   {
-    return load(data, ser);
-  }
-
-  template<typename TContext, typename T2>
-  static inline auto callSerializeOrSave(T2& data, const Serializer<TContext>& ser)
-    -> decltype(data.serialize(ser), void())
-  {
-    return data.serialize(ser);
-  }
-
-  template<typename TContext, typename T2>
-  static inline auto callSerializeOrSave(T2& data, const Serializer<TContext>& ser)
-    -> decltype(serialize(data, ser), void())
-  {
-    return serialize(data, ser);
-  }
-
-  template<typename TContext, typename T2>
-  static inline auto callSerializeOrSave(T2& data, const Serializer<TContext>& ser) -> decltype(data.save(ser), void())
-  {
-    return data.save(ser);
-  }
-
-  template<typename TContext, typename T2>
-  static inline auto callSerializeOrSave(T2& data, const Serializer<TContext>& ser) -> decltype(save(data, ser), void())
-  {
-    return save(data, ser);
-  }
-
-  template<typename TContext, typename T2>
-  static inline void callSerialize(T2& data, const Serializer<TContext>& ser)
-  {
-    if(ser.loading)
-      callSerializeOrLoad(data, ser);
-    else
-      callSerializeOrSave(data, ser);
+    static_assert(
+      std::is_same_v<std::remove_cv_t<std::remove_reference_t<T>>, std::remove_cv_t<std::remove_reference_t<T2>>>);
+    return deserialize(data, ser);
   }
 
   template<typename TContext, typename T2 = T>
-  static inline auto callCreate(const Serializer<TContext>& ser) -> decltype(T2::create(ser))
+  static inline auto dispatch(const Deserializer<TContext>& ser) -> decltype(T2::create(ser))
   {
-    Expects(ser.loading);
+    static_assert(
+      std::is_same_v<std::remove_cv_t<std::remove_reference_t<T>>, std::remove_cv_t<std::remove_reference_t<T2>>>);
     return T::create(ser);
   }
 
   template<typename TContext, typename T2 = T>
-  static inline auto callCreate(const Serializer<TContext>& ser) -> decltype(create(TypeId<T2>{}, ser))
+  static inline auto dispatch(const Deserializer<TContext>& ser) -> decltype(create(TypeId<T2>{}, ser))
   {
-    Expects(ser.loading);
+    static_assert(
+      std::is_same_v<std::remove_cv_t<std::remove_reference_t<T>>, std::remove_cv_t<std::remove_reference_t<T2>>>);
     return create(TypeId<T>{}, ser);
   }
 };
-} // namespace
 } // namespace serialization

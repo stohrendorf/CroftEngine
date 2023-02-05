@@ -127,7 +127,8 @@ public:
 
   void replaceItems(const TR1ItemId& oldId, const TR1ItemId& newId, const world::World& world);
 
-  void serialize(const serialization::Serializer<world::World>& ser);
+  void serialize(const serialization::Serializer<world::World>& ser) const;
+  void deserialize(const serialization::Deserializer<world::World>& ser);
 
   void activate(const engine::objects::Object* object);
 

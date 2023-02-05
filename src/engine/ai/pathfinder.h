@@ -54,7 +54,8 @@ struct PathFinder
 
   void setTargetBox(const gsl::not_null<const world::Box*>& box);
 
-  void serialize(const serialization::Serializer<world::World>& ser);
+  void serialize(const serialization::Serializer<world::World>& ser) const;
+  void deserialize(const serialization::Deserializer<world::World>& ser);
 
   void collectBoxes(const world::World& world, const gsl::not_null<const world::Box*>& box);
 

@@ -67,11 +67,15 @@ void SwingingBlade::collide(CollisionInfo& collisionInfo)
   trapCollideWithLara(collisionInfo);
 }
 
-void SwingingBlade::serialize(const serialization::Serializer<world::World>& ser)
+void SwingingBlade::serialize(const serialization::Serializer<world::World>& ser) const
 {
   ModelObject::serialize(ser);
-  if(ser.loading)
-    getSkeleton()->getRenderState().setScissorTest(false);
+}
+
+void SwingingBlade::deserialize(const serialization::Deserializer<world::World>& ser)
+{
+  ModelObject::deserialize(ser);
+  getSkeleton()->getRenderState().setScissorTest(false);
 }
 
 SwingingBlade::SwingingBlade(const std::string& name,

@@ -254,7 +254,7 @@ void updateMood(const objects::AIAgent& aiAgent, const EnemyLocation& enemyLocat
 }
 
 std::unique_ptr<CreatureInfo> create(const serialization::TypeId<std::unique_ptr<CreatureInfo>>&,
-                                     const serialization::Serializer<world::World>& ser)
+                                     const serialization::Deserializer<world::World>& ser)
 {
   if(ser.isNull())
     return nullptr;
@@ -264,23 +264,21 @@ std::unique_ptr<CreatureInfo> create(const serialization::TypeId<std::unique_ptr
   return result;
 }
 
-void serialize(std::unique_ptr<CreatureInfo>& data, const serialization::Serializer<world::World>& ser)
+void serialize(const std::unique_ptr<CreatureInfo>& data, const serialization::Serializer<world::World>& ser)
 {
-  if(ser.loading)
+  if(data == nullptr)
   {
-    data = create(serialization::TypeId<std::unique_ptr<CreatureInfo>>{}, ser);
+    ser.setNull();
   }
   else
   {
-    if(data == nullptr)
-    {
-      ser.setNull();
-    }
-    else
-    {
-      ser(S_NV("data", *data));
-    }
+    ser(S_NV("data", *data));
   }
+}
+
+void deserialize(std::unique_ptr<CreatureInfo>& data, const serialization::Deserializer<world::World>& ser)
+{
+  data = create(serialization::TypeId<std::unique_ptr<CreatureInfo>>{}, ser);
 }
 
 EnemyLocation::EnemyLocation(objects::AIAgent& aiAgent)
@@ -339,7 +337,17 @@ CreatureInfo::CreatureInfo(const world::World& world,
   pathFinder.collectBoxes(world, initialBox);
 }
 
-void CreatureInfo::serialize(const serialization::Serializer<world::World>& ser)
+void CreatureInfo::serialize(const serialization::Serializer<world::World>& ser) const
+{
+  ser(S_NV("headRotation", headRotation),
+      S_NV("neckRotation", neckRotation),
+      S_NV("maxTurnSpeed", maxTurnSpeed),
+      S_NV("mood", mood),
+      S_NV("pathFinder", pathFinder),
+      S_NV("target", target));
+}
+
+void CreatureInfo::deserialize(const serialization::Deserializer<world::World>& ser)
 {
   ser(S_NV("headRotation", headRotation),
       S_NV("neckRotation", neckRotation),

@@ -10,6 +10,7 @@ struct DisplaySettings
 {
   bool ghost = false;
 
-  void serialize(const serialization::Serializer<engine::EngineConfig>& ser);
+  void serialize(const serialization::Serializer<engine::EngineConfig>& ser) const;
+  void deserialize(const serialization::Deserializer<engine::EngineConfig>& ser);
 };
 } // namespace engine

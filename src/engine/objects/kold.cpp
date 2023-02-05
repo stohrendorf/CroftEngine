@@ -120,9 +120,15 @@ void Kold::update()
     getSkeleton()->patchBone(0, core::TRRotation{0_deg, getCreatureInfo()->headRotation, 0_deg}.toMatrix());
 }
 
-void Kold::serialize(const serialization::Serializer<world::World>& ser)
+void Kold::serialize(const serialization::Serializer<world::World>& ser) const
 {
   AIAgent::serialize(ser);
+  ser(S_NV("shotAtLara", m_shotAtLara));
+}
+
+void Kold::deserialize(const serialization::Deserializer<world::World>& ser)
+{
+  AIAgent::deserialize(ser);
   ser(S_NV("shotAtLara", m_shotAtLara));
 }
 } // namespace engine::objects

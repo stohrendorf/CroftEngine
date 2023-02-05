@@ -60,6 +60,7 @@ struct RenderSettings
     return highQualityShadows ? 2048 : 1024;
   }
 
-  void serialize(const serialization::Serializer<engine::EngineConfig>& ser);
+  void serialize(const serialization::Serializer<engine::EngineConfig>& ser) const;
+  void deserialize(const serialization::Deserializer<engine::EngineConfig>& ser);
 };
 } // namespace render

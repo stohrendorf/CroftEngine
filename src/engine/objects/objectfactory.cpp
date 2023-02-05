@@ -91,9 +91,8 @@ struct ObjectFactory
 
   [[nodiscard]] virtual gslu::nn_shared<Object>
     createNew(world::World& world, loader::file::Item& item, size_t id) const = 0;
-  [[nodiscard]] virtual gslu::nn_shared<Object> createFromSave(const Location& location,
-                                                               const serialization::Serializer<world::World>& ser) const
-    = 0;
+  [[nodiscard]] virtual gslu::nn_shared<Object>
+    createFromSave(const Location& location, const serialization::Deserializer<world::World>& ser) const = 0;
 };
 
 /* NOLINTNEXTLINE(altera-struct-pack-align) */
@@ -110,7 +109,8 @@ struct UnsupportedObjectFactory : public ObjectFactory
   }
 
   [[nodiscard]] [[noreturn]] gslu::nn_shared<Object>
-    createFromSave(const Location& /*location*/, const serialization::Serializer<world::World>& /*ser*/) const override
+    createFromSave(const Location& /*location*/,
+                   const serialization::Deserializer<world::World>& /*ser*/) const override
   {
     BOOST_LOG_TRIVIAL(fatal) << "Object type is not supported";
     BOOST_THROW_EXCEPTION(std::runtime_error("unsupported object type"));
@@ -135,10 +135,10 @@ struct ModelFactory : public ObjectFactory
   }
 
   [[nodiscard]] gslu::nn_shared<Object>
-    createFromSave(const Location& location, const serialization::Serializer<world::World>& ser) const override
+    createFromSave(const Location& location, const serialization::Deserializer<world::World>& ser) const override
   {
     auto object = gsl::make_shared<T>(gsl::not_null{&ser.context}, location);
-    object->serialize(ser);
+    object->deserialize(ser);
     return object;
   }
 };
@@ -161,12 +161,12 @@ struct SpriteFactory : public ObjectFactory
   }
 
   [[nodiscard]] gslu::nn_shared<Object>
-    createFromSave(const Location& location, const serialization::Serializer<world::World>& ser) const override
+    createFromSave(const Location& location, const serialization::Deserializer<world::World>& ser) const override
   {
     std::string spriteName;
     ser(S_NV("@name", spriteName));
     auto object = gsl::make_shared<T>(spriteName, gsl::not_null{&ser.context}, location);
-    object->serialize(ser);
+    object->deserialize(ser);
     return object;
   }
 };
@@ -205,10 +205,10 @@ struct WalkingMutantFactory : public ObjectFactory
   }
 
   [[nodiscard]] gslu::nn_shared<Object>
-    createFromSave(const Location& location, const serialization::Serializer<world::World>& ser) const override
+    createFromSave(const Location& location, const serialization::Deserializer<world::World>& ser) const override
   {
     auto object = gsl::make_shared<WalkingMutant>(gsl::not_null{&ser.context}, location);
-    object->serialize(ser);
+    object->deserialize(ser);
     return object;
   }
 };
@@ -226,7 +226,7 @@ struct HiddenModelFactory : public ModelFactory<StubObject>
   }
 
   [[nodiscard]] gslu::nn_shared<Object>
-    createFromSave(const Location& location, const serialization::Serializer<world::World>& ser) const override
+    createFromSave(const Location& location, const serialization::Deserializer<world::World>& ser) const override
   {
     auto object = gslu::static_pointer_cast<StubObject>(ModelFactory<StubObject>::createFromSave(location, ser));
     object->getSkeleton()->setRenderable(nullptr);
@@ -420,7 +420,7 @@ std::shared_ptr<Object> createObject(world::World& world, loader::file::Item& it
 }
 
 gslu::nn_shared<Object> create(const serialization::TypeId<gslu::nn_shared<Object>>&,
-                               const serialization::Serializer<world::World>& ser)
+                               const serialization::Deserializer<world::World>& ser)
 {
   const auto type = core::TypeId::create(ser["@type"]);
   const auto position = Location::create(ser["@location"]);
@@ -432,10 +432,16 @@ gslu::nn_shared<Object> create(const serialization::TypeId<gslu::nn_shared<Objec
 }
 } // namespace engine::objects
 
-void serialization::serialize(std::shared_ptr<engine::objects::Object>& ptr,
+void serialization::serialize(const std::shared_ptr<engine::objects::Object>& ptr,
                               const Serializer<engine::world::World>& ser)
 {
-  Expects(!ser.loading);
   Expects(ptr != nullptr);
   ptr->serialize(ser);
+}
+
+void serialization::deserialize(std::shared_ptr<engine::objects::Object>& ptr,
+                                const Deserializer<engine::world::World>& ser)
+{
+  Expects(ptr != nullptr);
+  ptr->deserialize(ser);
 }

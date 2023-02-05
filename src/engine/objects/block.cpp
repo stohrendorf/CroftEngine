@@ -350,11 +350,16 @@ bool Block::canPullBlock(const core::Length& height, const core::Axis axis) cons
 
   return !tmp.checkStaticMeshCollisions(laraLocation.position, core::LaraWalkHeight, getWorld());
 }
-void Block::serialize(const serialization::Serializer<world::World>& ser)
+
+void Block::serialize(const serialization::Serializer<world::World>& ser) const
 {
   ModelObject::serialize(ser);
-  if(ser.loading)
-    getSkeleton()->getRenderState().setScissorTest(false);
+}
+
+void Block::deserialize(const serialization::Deserializer<world::World>& ser)
+{
+  ModelObject::deserialize(ser);
+  getSkeleton()->getRenderState().setScissorTest(false);
 }
 
 Block::Block(const std::string& name,

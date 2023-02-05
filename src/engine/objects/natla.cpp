@@ -242,9 +242,15 @@ void Natla::update()
   m_state.rotation.Y += m_pitchDelta;
 }
 
-void Natla::serialize(const serialization::Serializer<world::World>& ser)
+void Natla::serialize(const serialization::Serializer<world::World>& ser) const
 {
   AIAgent::serialize(ser);
+  ser(S_NV("attemptToFly", m_attemptToFly), S_NV("flyTime", m_flyTime), S_NV("pitchDelta", m_pitchDelta));
+}
+
+void Natla::deserialize(const serialization::Deserializer<world::World>& ser)
+{
+  AIAgent::deserialize(ser);
   ser(S_NV("attemptToFly", m_attemptToFly), S_NV("flyTime", m_flyTime), S_NV("pitchDelta", m_pitchDelta));
 }
 } // namespace engine::objects

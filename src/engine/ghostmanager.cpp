@@ -131,7 +131,7 @@ bool GhostManager::askGhostSave(Presenter& presenter, world::World& world)
 
     const auto ymlFilepath = std::filesystem::path{readerPath}.replace_extension(".yml");
     serialization::YAMLDocument<false> metaDoc{ymlFilepath};
-    metaDoc.save("ghost", ghostMeta, ghostMeta);
+    metaDoc.serialize("ghost", ghostMeta, ghostMeta);
     metaDoc.write();
 
     const auto tarXzFilepath = std::filesystem::path{readerPath}.replace_extension(".tar.xz");

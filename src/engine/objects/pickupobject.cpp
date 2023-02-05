@@ -140,15 +140,20 @@ void PickupObject::collide(CollisionInfo& /*collisionInfo*/)
   }
 }
 
-void PickupObject::serialize(const serialization::Serializer<world::World>& ser)
+void PickupObject::serialize(const serialization::Serializer<world::World>& ser) const
 {
   SpriteObject::serialize(ser);
+}
+
+void PickupObject::deserialize(const serialization::Deserializer<world::World>& ser)
+{
+  SpriteObject::deserialize(ser);
   // need a double-dispatch because the node is already lazily associated with its room
-  ser << [this](const serialization::Serializer<world::World>& ser)
+  ser << [this](const serialization::Deserializer<world::World>& ser)
   {
-    ser << [this](const serialization::Serializer<world::World>& ser)
+    ser << [this](const serialization::Deserializer<world::World>& /*ser*/)
     {
-      if(ser.loading && !m_state.collidable)
+      if(!m_state.collidable)
         getNode()->clear();
     };
   };

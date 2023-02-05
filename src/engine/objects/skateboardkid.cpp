@@ -161,9 +161,15 @@ void SkateboardKid::update()
   setParent(gsl::not_null{m_skateboard}, getNode());
 }
 
-void SkateboardKid::serialize(const serialization::Serializer<world::World>& ser)
+void SkateboardKid::serialize(const serialization::Serializer<world::World>& ser) const
 {
   AIAgent::serialize(ser);
+  ser(S_NV("triedShoot", m_triedShoot), S_NV("skateboard", m_skateboard));
+}
+
+void SkateboardKid::deserialize(const serialization::Deserializer<world::World>& ser)
+{
+  AIAgent::deserialize(ser);
   ser(S_NV("triedShoot", m_triedShoot), S_NV("skateboard", m_skateboard));
 }
 } // namespace engine::objects

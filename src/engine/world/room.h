@@ -167,7 +167,8 @@ struct Room
 
   void resetScenery();
 
-  void serialize(const serialization::Serializer<World>& ser);
+  void serialize(const serialization::Serializer<World>& ser) const;
+  void deserialize(const serialization::Deserializer<World>& ser);
 
   std::vector<engine::ShaderLight> bufferLights{};
   std::shared_ptr<gl::ShaderStorageBuffer<engine::ShaderLight>> lightsBuffer{};

@@ -1874,7 +1874,7 @@ void LaraObject::burnIfAlive()
   }
 }
 
-void LaraObject::serialize(const serialization::Serializer<world::World>& ser)
+void LaraObject::serialize(const serialization::Serializer<world::World>& ser) const
 {
   ModelObject::serialize(ser);
   ser(S_NV("yRotationSpeed", m_yRotationSpeed),
@@ -1897,16 +1897,39 @@ void LaraObject::serialize(const serialization::Serializer<world::World>& ser)
       S_NV("rightArm", rightArm),
       S_NV("weaponTargetVector", m_weaponTargetVector));
 
-  ser << [this](const serialization::Serializer<world::World>& ser)
+  ser(S_NV("aimAt", serialization::SerializingObjectReference{aimAt}));
+}
+
+void LaraObject::deserialize(const serialization::Deserializer<world::World>& ser)
+{
+  ModelObject::deserialize(ser);
+  ser(S_NV("yRotationSpeed", m_yRotationSpeed),
+      S_NV("fallSpeedOverride", m_fallSpeedOverride),
+      S_NV("movementAngle", m_movementAngle),
+      S_NV("air", m_air),
+      S_NV("currentSlideAngle", m_currentSlideAngle),
+      S_NV("handStatus", m_handStatus),
+      S_NV("underwaterState", m_underwaterState),
+      S_NV("swimToDiveKeypressDuration", m_swimToDiveKeypressDuration),
+      S_NV("headRotation", m_headRotation),
+      S_NV("torsoRotation", m_torsoRotation),
+      S_NV("underwaterCurrentStrength", m_underwaterCurrentStrength),
+      S_NV("underwaterRoute", m_underwaterRoute),
+      S_NV("hitDirection", hit_direction),
+      S_NV("hitFrame", hit_frame),
+      S_NV("explosionStumblingDuration", explosionStumblingDuration),
+      // FIXME S_NVP(forceSourcePosition),
+      S_NV("leftArm", leftArm),
+      S_NV("rightArm", rightArm),
+      S_NV("weaponTargetVector", m_weaponTargetVector));
+
+  ser << [this](const serialization::Deserializer<world::World>& ser)
   {
-    ser(S_NV("aimAt", serialization::ObjectReference{aimAt}));
+    ser(S_NV("aimAt", serialization::DeserializingObjectReference{aimAt}));
   };
 
-  if(ser.loading)
-  {
-    forceSourcePosition = nullptr;
-    getSkeleton()->getRenderState().setScissorTest(false);
-  }
+  forceSourcePosition = nullptr;
+  getSkeleton()->getRenderState().setScissorTest(false);
 }
 
 LaraObject::LaraObject(const std::string& name,

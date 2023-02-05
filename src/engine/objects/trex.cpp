@@ -150,9 +150,15 @@ void TRex::update()
   m_state.collidable = true;
 }
 
-void TRex::serialize(const serialization::Serializer<world::World>& ser)
+void TRex::serialize(const serialization::Serializer<world::World>& ser) const
 {
   AIAgent::serialize(ser);
+  ser(S_NV("wantAttack", m_wantAttack));
+}
+
+void TRex::deserialize(const serialization::Deserializer<world::World>& ser)
+{
+  AIAgent::deserialize(ser);
   ser(S_NV("wantAttack", m_wantAttack));
 }
 } // namespace engine::objects

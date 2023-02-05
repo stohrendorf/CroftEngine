@@ -292,9 +292,18 @@ void FlyingMutant::update()
   animateCreature(turnRot, 0_deg);
 }
 
-void FlyingMutant::serialize(const serialization::Serializer<world::World>& ser)
+void FlyingMutant::serialize(const serialization::Serializer<world::World>& ser) const
 {
   AIAgent::serialize(ser);
+  ser(S_NV("shootBullet", m_shootBullet),
+      S_NV("throwGrenade", m_throwGrenade),
+      S_NV("flying", m_flying),
+      S_NV("lookingAround", m_lookingAround));
+}
+
+void FlyingMutant::deserialize(const serialization::Deserializer<world::World>& ser)
+{
+  AIAgent::deserialize(ser);
   ser(S_NV("shootBullet", m_shootBullet),
       S_NV("throwGrenade", m_throwGrenade),
       S_NV("flying", m_flying),
@@ -587,9 +596,15 @@ void TorsoBoss::update()
   }
 }
 
-void TorsoBoss::serialize(const serialization::Serializer<world::World>& ser)
+void TorsoBoss::serialize(const serialization::Serializer<world::World>& ser) const
 {
   AIAgent::serialize(ser);
+  ser(S_NV("hasHitLara", m_hasHitLara), S_NV("turnStartFrame", m_turnStartFrame));
+}
+
+void TorsoBoss::deserialize(const serialization::Deserializer<world::World>& ser)
+{
+  AIAgent::deserialize(ser);
   ser(S_NV("hasHitLara", m_hasHitLara), S_NV("turnStartFrame", m_turnStartFrame));
 }
 

@@ -114,18 +114,25 @@ void SpriteObject::createModel()
   }
 }
 
-void SpriteObject::serialize(const serialization::Serializer<world::World>& ser)
+void SpriteObject::serialize(const serialization::Serializer<world::World>& ser) const
 {
   Object::serialize(ser);
   auto tmp = getNode()->getName();
   ser(S_NV("@name", tmp),
-      S_NV_VECTOR_ELEMENT("sprite", ser.context.getSprites(), m_sprite),
+      S_NV_VECTOR_ELEMENT_SERIALIZE("sprite", ser.context.getSprites(), m_sprite),
       S_NV("brightness", m_brightness));
-  if(ser.loading)
-  {
-    createModel();
-    m_objectNode->setVisible(m_state.triggerState != TriggerState::Invisible);
-  }
+}
+
+void SpriteObject::deserialize(const serialization::Deserializer<world::World>& ser)
+{
+  Object::deserialize(ser);
+  auto tmp = getNode()->getName();
+  ser(S_NV("@name", tmp),
+      S_NV_VECTOR_ELEMENT_DESERIALIZE("sprite", ser.context.getSprites(), m_sprite),
+      S_NV("brightness", m_brightness));
+
+  createModel();
+  m_objectNode->setVisible(m_state.triggerState != TriggerState::Invisible);
 }
 
 void SpriteObject::replace(const TR1ItemId& itemId, const gsl::not_null<const world::Sprite*>& sprite)

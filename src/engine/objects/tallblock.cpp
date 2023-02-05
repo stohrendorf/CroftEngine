@@ -60,16 +60,20 @@ void TallBlock::update()
   m_state.location.position = pos;
 }
 
-void TallBlock::serialize(const serialization::Serializer<world::World>& ser)
+void TallBlock::serialize(const serialization::Serializer<world::World>& ser) const
 {
   world::patchHeightsForBlock(*this, 2_sectors);
   ModelObject::serialize(ser);
   world::patchHeightsForBlock(*this, -2_sectors);
-  if(ser.loading)
-  {
-    getSkeleton()->resetInterpolation();
-    getSkeleton()->getRenderState().setScissorTest(false);
-  }
+}
+
+void TallBlock::deserialize(const serialization::Deserializer<world::World>& ser)
+{
+  world::patchHeightsForBlock(*this, 2_sectors);
+  ModelObject::deserialize(ser);
+  world::patchHeightsForBlock(*this, -2_sectors);
+  getSkeleton()->resetInterpolation();
+  getSkeleton()->getRenderState().setScissorTest(false);
 }
 
 TallBlock::TallBlock(const std::string& name,

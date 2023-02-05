@@ -683,14 +683,14 @@ std::unique_ptr<gl::Texture2DArray<gl::PremultipliedSRGBA8>>
     if(atlases.isOnlyLayout() && std::filesystem::is_regular_file(cacheDir / "_texturesizes.yaml"))
     {
       serialization::YAMLDocument<true> doc{cacheDir / "_texturesizes.yaml"};
-      doc.load("sizes", level, textureSizes);
+      doc.deserialize("sizes", level, textureSizes);
     }
     layoutAtlases(
       level, *glidos, atlases, atlasTiles, sprites, doneTiles, doneSprites, textureSizes, drawLoadingScreen);
     if(!atlases.isOnlyLayout())
     {
       serialization::YAMLDocument<false> doc{cacheDir / "_texturesizes.yaml"};
-      doc.save("sizes", level, textureSizes);
+      doc.serialize("sizes", level, textureSizes);
       doc.write();
     }
   }

@@ -127,7 +127,8 @@ public:
    */
   [[nodiscard]] std::vector<Sphere> getBoneCollisionSpheres();
 
-  void serialize(const serialization::Serializer<world::World>& ser);
+  void serialize(const serialization::Serializer<world::World>& ser) const;
+  void deserialize(const serialization::Deserializer<world::World>& ser);
 
   static void buildMesh(const std::shared_ptr<SkeletalModelNode>& skeleton, core::AnimStateId& animState);
 
@@ -246,8 +247,9 @@ private:
       return visible != currentVisible || mesh != currentMesh || reflective != currentReflective;
     }
 
-    void serialize(const serialization::Serializer<world::World>& ser);
-    [[nodiscard]] static MeshPart create(const serialization::Serializer<world::World>& ser);
+    void serialize(const serialization::Serializer<world::World>& ser) const;
+    void deserialize(const serialization::Deserializer<world::World>& ser);
+    [[nodiscard]] static MeshPart create(const serialization::Deserializer<world::World>& ser);
   };
 
   const gsl::not_null<const world::World*> m_world;
@@ -264,6 +266,7 @@ private:
   bool m_shadowCaster;
 };
 
-void serialize(std::shared_ptr<SkeletalModelNode>& data, const serialization::Serializer<world::World>& ser);
+void serialize(const std::shared_ptr<SkeletalModelNode>& data, const serialization::Serializer<world::World>& ser);
+void deserialize(std::shared_ptr<SkeletalModelNode>& data, const serialization::Deserializer<world::World>& ser);
 
 } // namespace engine

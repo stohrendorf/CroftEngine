@@ -339,11 +339,18 @@ std::shared_ptr<audio::Voice> AudioEngine::playSoundEffect(const core::SoundEffe
   return voice;
 }
 
-void AudioEngine::serialize(const serialization::Serializer<world::World>& ser)
+void AudioEngine::serialize(const serialization::Serializer<world::World>& ser) const
 {
   ser(S_NV("currentTrack", m_currentTrack), S_NV("cdTrackActivationStates", m_cdTrackActivationStates));
 
-  m_soundEngine->serializeStreams(ser, m_rootPath, m_music);
+  m_soundEngine->serializeStreams(ser);
+}
+
+void AudioEngine::deserialize(const serialization::Deserializer<world::World>& ser)
+{
+  ser(S_NV("currentTrack", m_currentTrack), S_NV("cdTrackActivationStates", m_cdTrackActivationStates));
+
+  m_soundEngine->deserializeStreams(ser, m_rootPath, m_music);
 }
 
 AudioEngine::AudioEngine(world::World& world,

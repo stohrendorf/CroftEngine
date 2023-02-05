@@ -147,7 +147,7 @@ void Door::collide(CollisionInfo& collisionInfo)
 #endif
 }
 
-void Door::serialize(const serialization::Serializer<world::World>& ser)
+void Door::serialize(const serialization::Serializer<world::World>& ser) const
 {
   ModelObject::serialize(ser);
   ser(S_NV("info", m_info),
@@ -155,35 +155,42 @@ void Door::serialize(const serialization::Serializer<world::World>& ser)
       S_NV("target", m_target),
       S_NV("alternateTarget", m_alternateTarget),
       S_NV("wingsPosition", m_wingsPosition));
+}
 
-  if(ser.loading)
+void Door::deserialize(const serialization::Deserializer<world::World>& ser)
+{
+  ModelObject::deserialize(ser);
+  ser(S_NV("info", m_info),
+      S_NV("alternateInfo", m_alternateInfo),
+      S_NV("target", m_target),
+      S_NV("alternateTarget", m_alternateTarget),
+      S_NV("wingsPosition", m_wingsPosition));
+
+  getSkeleton()->getRenderState().setScissorTest(false);
+  getSkeleton()->getRenderState().setPolygonOffsetFill(true);
+  getSkeleton()->getRenderState().setPolygonOffset(-1, -1);
+
+  ser << [this](const serialization::Deserializer<world::World>& /*ser*/)
   {
-    getSkeleton()->getRenderState().setScissorTest(false);
-    getSkeleton()->getRenderState().setPolygonOffsetFill(true);
-    getSkeleton()->getRenderState().setPolygonOffset(-1, -1);
-
-    ser << [this](const serialization::Serializer<world::World>& /*ser*/)
+    m_info.wingsSector
+      = const_cast<world::Sector*>(m_state.location.room->getSectorByAbsolutePosition(m_wingsPosition));
+    if(m_state.location.room->alternateRoom != nullptr)
     {
-      m_info.wingsSector
-        = const_cast<world::Sector*>(m_state.location.room->getSectorByAbsolutePosition(m_wingsPosition));
-      if(m_state.location.room->alternateRoom != nullptr)
-      {
-        m_alternateInfo.wingsSector = const_cast<world::Sector*>(
-          m_state.location.room->alternateRoom->getSectorByAbsolutePosition(m_wingsPosition));
-      }
+      m_alternateInfo.wingsSector = const_cast<world::Sector*>(
+        m_state.location.room->alternateRoom->getSectorByAbsolutePosition(m_wingsPosition));
+    }
 
-      if(const auto wingsBoundaryRoom = m_info.originalSector.boundaryRoom; wingsBoundaryRoom != nullptr)
+    if(const auto wingsBoundaryRoom = m_info.originalSector.boundaryRoom; wingsBoundaryRoom != nullptr)
+    {
+      m_target.wingsSector
+        = const_cast<world::Sector*>(wingsBoundaryRoom->getSectorByAbsolutePosition(m_state.location.position));
+      if(wingsBoundaryRoom->alternateRoom != nullptr)
       {
-        m_target.wingsSector
-          = const_cast<world::Sector*>(wingsBoundaryRoom->getSectorByAbsolutePosition(m_state.location.position));
-        if(wingsBoundaryRoom->alternateRoom != nullptr)
-        {
-          m_alternateTarget.wingsSector = const_cast<world::Sector*>(
-            wingsBoundaryRoom->alternateRoom->getSectorByAbsolutePosition(m_state.location.position));
-        }
+        m_alternateTarget.wingsSector = const_cast<world::Sector*>(
+          wingsBoundaryRoom->alternateRoom->getSectorByAbsolutePosition(m_state.location.position));
       }
-    };
-  }
+    }
+  };
 }
 
 void Door::Info::open() // NOLINT(readability-make-member-function-const)
@@ -226,12 +233,14 @@ void Door::Info::init(const world::Room& room, const core::TRVec& position)
   }
 }
 
-void Door::Info::serialize(const serialization::Serializer<world::World>& ser)
+void Door::Info::serialize(const serialization::Serializer<world::World>& ser) const
 {
-  ser(S_NV("originalSector", originalSector), S_NV_VECTOR_ELEMENT("box", ser.context.getBoxes(), wingsBox));
-  if(ser.loading)
-  {
-    wingsSector = nullptr;
-  }
+  ser(S_NV("originalSector", originalSector), S_NV_VECTOR_ELEMENT_SERIALIZE("box", ser.context.getBoxes(), wingsBox));
+}
+
+void Door::Info::deserialize(const serialization::Deserializer<world::World>& ser)
+{
+  ser(S_NV("originalSector", originalSector), S_NV_VECTOR_ELEMENT_DESERIALIZE("box", ser.context.getBoxes(), wingsBox));
+  wingsSector = nullptr;
 }
 } // namespace engine::objects

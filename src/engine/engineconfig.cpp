@@ -102,34 +102,48 @@ std::vector<NamedInputMappingConfig> getDefaultMappings()
 }
 } // namespace
 
-void NamedInputMappingConfig::serialize(const serialization::Serializer<EngineConfig>& ser)
+void NamedInputMappingConfig::serialize(const serialization::Serializer<EngineConfig>& ser) const
 {
-  if(ser.loading)
-  {
-    ser(S_NV("name", name),
-        S_NV("controllerType", controllerType),
-        S_NVO("mappings", gameMappings),
-        S_NVO("gameMappings", gameMappings));
-
-    ser(S_NVD("menuMappings", menuMappings, getDefaultMappings().at(name == pgettext("Input|MappingName", "Keyboard") ? 0 : 1).menuMappings));
-  }
-  else
-  {
-    ser(S_NV("name", name),
-        S_NV("controllerType", controllerType),
-        S_NV("gameMappings", gameMappings),
-        S_NV("menuMappings", menuMappings));
-  }
+  ser(S_NV("name", name),
+      S_NV("controllerType", controllerType),
+      S_NV("gameMappings", gameMappings),
+      S_NV("menuMappings", menuMappings));
 }
 
-NamedInputMappingConfig NamedInputMappingConfig::create(const serialization::Serializer<EngineConfig>& ser)
+void NamedInputMappingConfig::deserialize(const serialization::Deserializer<EngineConfig>& ser)
+{
+  ser(S_NV("name", name),
+      S_NV("controllerType", controllerType),
+      S_NVO("mappings", gameMappings),
+      S_NVO("gameMappings", gameMappings));
+
+  ser(S_NVD("menuMappings",
+            menuMappings,
+            getDefaultMappings().at(name == pgettext("Input|MappingName", "Keyboard") ? 0 : 1).menuMappings));
+}
+
+NamedInputMappingConfig NamedInputMappingConfig::create(const serialization::Deserializer<EngineConfig>& ser)
 {
   NamedInputMappingConfig tmp{};
-  tmp.serialize(ser);
+  tmp.deserialize(ser);
   return tmp;
 }
 
-void EngineConfig::serialize(const serialization::Serializer<EngineConfig>& ser)
+void EngineConfig::serialize(const serialization::Serializer<EngineConfig>& ser) const
+{
+  ser(S_NV("renderSettings", renderSettings),
+      S_NV("displaySettings", displaySettings),
+      S_NV("audioSettings", audioSettings),
+      S_NV("inputMappings", inputMappings),
+      S_NV("restoreHealth", restoreHealth),
+      S_NV("pulseLowHealthHealthBar", pulseLowHealthHealthBar),
+      S_NV("lowHealthMonochrome", lowHealthMonochrome),
+      S_NV("buttBubbles", buttBubbles),
+      S_NV("waterBedBubbles", waterBedBubbles),
+      S_NV("animSmoothing", animSmoothing));
+}
+
+void EngineConfig::deserialize(const serialization::Deserializer<EngineConfig>& ser)
 {
   ser(S_NVD("renderSettings", renderSettings, render::RenderSettings{}),
       S_NVD("displaySettings", displaySettings, DisplaySettings{}),

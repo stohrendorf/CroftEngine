@@ -75,15 +75,15 @@ public:
   }
 
   template<typename T, typename TContext, bool DelayLoading = Loading>
-  auto load(const std::string& key, TContext& context) -> std::enable_if_t<DelayLoading, T>
+  auto deserialize(const std::string& key, TContext& context) -> std::enable_if_t<DelayLoading, T>
   {
     const std::string oldLocale = gsl::not_null{setlocale(LC_NUMERIC, nullptr)}.get();
     setlocale(LC_NUMERIC, "C");
 
     CustomErrorCallbacks callbacks{};
 
-    Serializer<TContext> ser{m_tree.rootref()[c4::to_csubstr(key)], context, true, nullptr};
-    auto result = access<T>::callCreate(ser);
+    Deserializer<TContext> ser{m_tree.rootref()[c4::to_csubstr(key)], context, true, nullptr};
+    auto result = access<T, true>::dispatch(ser);
     ser.processQueues();
 
     setlocale(LC_NUMERIC, oldLocale.c_str());
@@ -91,30 +91,30 @@ public:
   }
 
   template<typename T, typename TContext, bool DelayLoading = Loading>
-  auto load(const std::string& key, TContext& context, T& data) -> std::enable_if_t<DelayLoading, void>
+  auto deserialize(const std::string& key, TContext& context, T& data) -> std::enable_if_t<DelayLoading, void>
   {
     const std::string oldLocale = gsl::not_null{setlocale(LC_NUMERIC, nullptr)}.get();
     setlocale(LC_NUMERIC, "C");
 
     CustomErrorCallbacks callbacks{};
 
-    Serializer<TContext> ser{m_tree.rootref()[c4::to_csubstr(key)], context, true, nullptr};
-    access<T>::callSerializeOrLoad(data, ser);
+    Deserializer<TContext> ser{m_tree.rootref()[c4::to_csubstr(key)], context, nullptr};
+    access<T, true>::dispatch(data, ser);
     ser.processQueues();
 
     setlocale(LC_NUMERIC, oldLocale.c_str());
   }
 
   template<typename T, typename TContext, bool DelayLoading = Loading>
-  auto save(const std::string& key, TContext& context, T& data) -> std::enable_if_t<!DelayLoading, void>
+  auto serialize(const std::string& key, TContext& context, T& data) -> std::enable_if_t<!DelayLoading, void>
   {
     const std::string oldLocale = gsl::not_null{setlocale(LC_NUMERIC, nullptr)}.get();
     setlocale(LC_NUMERIC, "C");
 
     CustomErrorCallbacks callbacks{};
 
-    Serializer ser{m_tree.rootref()[m_tree.copy_to_arena(c4::to_csubstr(key))], context, false, nullptr};
-    access<T>::callSerializeOrSave(data, ser);
+    Serializer<TContext> ser{m_tree.rootref()[m_tree.copy_to_arena(c4::to_csubstr(key))], context, nullptr};
+    access<T, false>::dispatch(data, ser);
     ser.processQueues();
 
     setlocale(LC_NUMERIC, oldLocale.c_str());

@@ -8,19 +8,19 @@
 namespace serialization
 {
 template<typename T, typename TContext>
-void save(std::vector<T>& data, const Serializer<TContext>& ser)
+void serialize(const std::vector<T>& data, const Serializer<TContext>& ser)
 {
   ser.tag("vector");
   ser.node |= ryml::SEQ;
   for(auto& element : data)
   {
     const auto tmp = ser.newChild();
-    access<T>::callSerializeOrSave(element, tmp);
+    access<T, false>::dispatch(element, tmp);
   }
 }
 
 template<typename T, typename TContext>
-void load(std::vector<T>& data, const Serializer<TContext>& ser)
+void deserialize(std::vector<T>& data, const Deserializer<TContext>& ser)
 {
   ser.tag("vector");
   Expects(ser.node.is_seq());
@@ -29,40 +29,50 @@ void load(std::vector<T>& data, const Serializer<TContext>& ser)
   std::transform(ser.node.begin(),
                  ser.node.end(),
                  std::back_inserter(data),
-                 [&ser](const ryml::NodeRef& element)
+                 [&ser](const ryml::ConstNodeRef& element)
                  {
-                   return access<T>::callCreate(ser.withNode(element));
+                   return access<T, true>::dispatch(ser.withNode(element));
                  });
 }
 
 template<typename T>
-struct FrozenVector
+struct DeserializingFrozenVector
 {
   std::vector<T>& vec;
-  explicit FrozenVector(std::vector<T>& vec)
+  explicit DeserializingFrozenVector(std::vector<T>& vec)
       : vec{vec}
   {
   }
 
   template<typename TContext>
-  void load(const Serializer<TContext>& ser)
+  void deserialize(const Deserializer<TContext>& ser) const
   {
-    Expects(ser.node.num_children() == vec.size());
+    gsl_Expects(ser.node.num_children() == vec.size());
     auto it = vec.begin();
     for(const auto& element : ser.node.children())
     {
-      access<T>::callSerializeOrLoad(*it++, ser.withNode(element));
+      access<T, true>::dispatch(*it++, ser.withNode(element));
     }
+  }
+};
+
+template<typename T>
+struct SerializingFrozenVector
+{
+  const std::vector<T>& vec;
+  explicit SerializingFrozenVector(const std::vector<T>& vec)
+      : vec{vec}
+  {
   }
 
   template<typename TContext>
-  void save(const Serializer<TContext>& ser) const
+  void serialize(const Serializer<TContext>& ser) const
   {
     ser.node |= ryml::SEQ;
     for(auto& element : vec)
     {
       const auto tmp = ser.newChild();
-      access<T>::callSerializeOrSave(element, tmp);
+      access<T, false>::dispatch(element, tmp);
     }
   }
 };

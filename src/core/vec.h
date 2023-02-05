@@ -19,7 +19,8 @@ namespace core
 {
 using TRVec = GenericVec<Length>;
 
-void serialize(TRVec& v, const serialization::Serializer<engine::world::World>& ser);
+void serialize(const TRVec& v, const serialization::Serializer<engine::world::World>& ser);
+void deserialize(TRVec& v, const serialization::Deserializer<engine::world::World>& ser);
 
 [[nodiscard]] inline Length distanceTo(const TRVec& lhs, const TRVec& rhs)
 {

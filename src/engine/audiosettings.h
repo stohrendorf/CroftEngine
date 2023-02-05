@@ -12,6 +12,7 @@ struct AudioSettings
   float musicVolume = 0.8f;
   float sfxVolume = 0.8f;
 
-  void serialize(const serialization::Serializer<EngineConfig>& ser);
+  void serialize(const serialization::Serializer<EngineConfig>& ser) const;
+  void deserialize(const serialization::Deserializer<EngineConfig>& ser);
 };
 } // namespace engine

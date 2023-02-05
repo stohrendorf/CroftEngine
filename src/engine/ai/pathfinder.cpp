@@ -336,7 +336,7 @@ void PathFinder::searchPath(const world::World& world)
   }
 }
 
-void PathFinder::serialize(const serialization::Serializer<world::World>& ser)
+void PathFinder::serialize(const serialization::Serializer<world::World>& ser) const
 {
   ser(S_NV("edges", m_edges),
       S_NV("boxes", m_boxes),
@@ -348,7 +348,23 @@ void PathFinder::serialize(const serialization::Serializer<world::World>& ser)
       S_NV("step", step),
       S_NV("drop", drop),
       S_NV("fly", fly),
-      S_NV_VECTOR_ELEMENT("targetBox", ser.context.getBoxes(), m_targetBox),
+      S_NV_VECTOR_ELEMENT_SERIALIZE("targetBox", ser.context.getBoxes(), m_targetBox),
+      S_NV("target", target));
+}
+
+void PathFinder::deserialize(const serialization::Deserializer<world::World>& ser)
+{
+  ser(S_NV("edges", m_edges),
+      S_NV("boxes", m_boxes),
+      S_NV("expansions", m_expansions),
+      S_NV("distances", m_distances),
+      S_NV("reachable", m_reachable),
+      S_NV("cannotVisitBlockable", cannotVisitBlockable),
+      S_NV("cannotVisitBlocked", cannotVisitBlocked),
+      S_NV("step", step),
+      S_NV("drop", drop),
+      S_NV("fly", fly),
+      S_NV_VECTOR_ELEMENT_DESERIALIZE("targetBox", ser.context.getBoxes(), m_targetBox),
       S_NV("target", target));
 }
 

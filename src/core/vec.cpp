@@ -8,7 +8,12 @@
 
 namespace core
 {
-void serialize(TRVec& v, const serialization::Serializer<engine::world::World>& ser)
+void serialize(const TRVec& v, const serialization::Serializer<engine::world::World>& ser)
+{
+  ser(S_NV("x", v.X), S_NV("y", v.Y), S_NV("z", v.Z));
+}
+
+void deserialize(TRVec& v, const serialization::Deserializer<engine::world::World>& ser)
 {
   ser(S_NV("x", v.X), S_NV("y", v.Y), S_NV("z", v.Z));
 }

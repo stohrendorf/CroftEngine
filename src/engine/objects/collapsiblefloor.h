@@ -57,6 +57,7 @@ public:
     y = m_state.location.position.Y - 256_len;
   }
 
-  void serialize(const serialization::Serializer<world::World>& ser) override;
+  void serialize(const serialization::Serializer<world::World>& ser) const override;
+  void deserialize(const serialization::Deserializer<world::World>& ser) override;
 };
 } // namespace engine::objects

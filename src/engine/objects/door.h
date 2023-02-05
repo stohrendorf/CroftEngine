@@ -47,7 +47,8 @@ public:
 
   void collide(CollisionInfo& collisionInfo) override;
 
-  void serialize(const serialization::Serializer<world::World>& ser) override;
+  void serialize(const serialization::Serializer<world::World>& ser) const override;
+  void deserialize(const serialization::Deserializer<world::World>& ser) override;
 
 private:
   struct Info
@@ -59,7 +60,8 @@ private:
     void open();
     void close();
     void init(const world::Room& room, const core::TRVec& position);
-    void serialize(const serialization::Serializer<world::World>& ser);
+    void serialize(const serialization::Serializer<world::World>& ser) const;
+    void deserialize(const serialization::Deserializer<world::World>& ser);
   };
 
   Info m_info;

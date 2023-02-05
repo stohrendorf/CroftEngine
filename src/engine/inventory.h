@@ -48,7 +48,8 @@ struct Ammo
     return shots / shotsPerClip;
   }
 
-  void serialize(const serialization::Serializer<world::World>& ser);
+  void serialize(const serialization::Serializer<world::World>& ser) const;
+  void deserialize(const serialization::Deserializer<world::World>& ser);
 
   [[nodiscard]] auto getDisplayString() const
   {
@@ -69,7 +70,8 @@ private:
 public:
   explicit Inventory() = default;
 
-  void serialize(const serialization::Serializer<world::World>& ser);
+  void serialize(const serialization::Serializer<world::World>& ser) const;
+  void deserialize(const serialization::Deserializer<world::World>& ser);
 
   size_t put(const core::TypeId& id, world::World* world, size_t quantity = 1);
 

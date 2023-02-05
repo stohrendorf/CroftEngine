@@ -4,22 +4,20 @@
 #include "ptr.h"
 #include "serialization.h"
 
-#include <type_traits>
-
 namespace serialization
 {
 template<typename T>
-struct ObjectReference final
+struct SerializingObjectReference final
 {
   static_assert(std::is_base_of_v<engine::objects::Object, T>);
-  std::shared_ptr<T>& ptr;
+  std::shared_ptr<T> ptr;
 
-  explicit ObjectReference(std::shared_ptr<T>& ptr)
+  explicit SerializingObjectReference(const std::shared_ptr<T>& ptr)
       : ptr{ptr}
   {
   }
 
-  void save(const Serializer<engine::world::World>& ser) const
+  void serialize(const Serializer<engine::world::World>& ser) const
   {
     if(ptr == nullptr)
     {
@@ -42,8 +40,20 @@ struct ObjectReference final
       ser.setNull();
     }
   }
+};
 
-  void load(const Serializer<engine::world::World>& ser)
+template<typename T>
+struct DeserializingObjectReference final
+{
+  static_assert(std::is_base_of_v<engine::objects::Object, T>);
+  std::shared_ptr<T>& ptr;
+
+  explicit DeserializingObjectReference(std::shared_ptr<T>& ptr)
+      : ptr{ptr}
+  {
+  }
+
+  void deserialize(const Deserializer<engine::world::World>& ser)
   {
     if(ser.isNull())
     {
@@ -51,7 +61,7 @@ struct ObjectReference final
     }
     else
     {
-      ser << [pptr = &ptr](const Serializer<engine::world::World>& ser)
+      ser << [pptr = &ptr](const Deserializer<engine::world::World>& ser)
       {
         ser.tag("objectref");
         engine::ObjectId id = 0;
@@ -63,5 +73,4 @@ struct ObjectReference final
     }
   }
 };
-
 } // namespace serialization

@@ -97,7 +97,8 @@ public:
   {
   }
 
-  void serialize(const serialization::Serializer<world::World>& ser) override;
+  void serialize(const serialization::Serializer<world::World>& ser) const override;
+  void deserialize(const serialization::Deserializer<world::World>& ser) override;
 
   void replace(const TR1ItemId& itemId, const gsl::not_null<const world::Sprite*>& sprite);
 };

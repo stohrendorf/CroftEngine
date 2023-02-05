@@ -37,7 +37,7 @@ ControllerLayouts loadControllerButtonIcons(render::MultiTextureAtlas& atlases,
     std::string name{};
     std::map<std::variant<NamedGlfwGamepadButton, NamedGlfwAxis>, std::string> icons;
 
-    [[nodiscard]] static Layout create(const serialization::Serializer<int>& ser)
+    [[nodiscard]] static Layout create(const serialization::Deserializer<int>& ser)
     {
       Layout result{};
       ser(S_NV("name", result.name), S_NV("icons", result.icons));
@@ -48,7 +48,7 @@ ControllerLayouts loadControllerButtonIcons(render::MultiTextureAtlas& atlases,
   {
     int context{};
     serialization::YAMLDocument<true> doc{configFile};
-    doc.load("layouts", context, layouts);
+    doc.deserialize("layouts", context, layouts);
   }
 
   ControllerLayouts controllerLayouts;

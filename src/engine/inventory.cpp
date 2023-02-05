@@ -203,7 +203,7 @@ bool Inventory::tryTake(const TR1ItemId id, const size_t quantity)
   return true;
 }
 
-void Inventory::serialize(const serialization::Serializer<world::World>& ser)
+void Inventory::serialize(const serialization::Serializer<world::World>& ser) const
 {
   ser(S_NV("inventory", m_inventory),
       S_NV("pistolsAmmo", m_pistolsAmmo),
@@ -212,7 +212,25 @@ void Inventory::serialize(const serialization::Serializer<world::World>& ser)
       S_NV("shotgunAmmo", m_shotgunAmmo));
 }
 
-void Ammo::serialize(const serialization::Serializer<world::World>& ser)
+void Inventory::deserialize(const serialization::Deserializer<world::World>& ser)
+{
+  ser(S_NV("inventory", m_inventory),
+      S_NV("pistolsAmmo", m_pistolsAmmo),
+      S_NV("magnumsAmmo", m_magnumsAmmo),
+      S_NV("uzisAmmo", m_uzisAmmo),
+      S_NV("shotgunAmmo", m_shotgunAmmo));
+}
+
+void Ammo::serialize(const serialization::Serializer<world::World>& ser) const
+{
+  ser(S_NVO("shots", shots),
+      S_NV("hits", hits),
+      S_NVO("hitsTotal", hitsTotal),
+      S_NV("misses", misses),
+      S_NVO("missesTotal", missesTotal));
+}
+
+void Ammo::deserialize(const serialization::Deserializer<world::World>& ser)
 {
   ser(S_NVO("shots", shots),
       S_NV("hits", hits),

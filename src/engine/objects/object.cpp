@@ -202,7 +202,16 @@ bool Object::alignTransformClamped(const core::TRVec& targetPos,
   return abs(phi.X) < 1_au && abs(phi.Y) < 1_au && abs(phi.Z) < 1_au && d.X == 0_len && d.Y == 0_len && d.Z == 0_len;
 }
 
-void Object::serialize(const serialization::Serializer<world::World>& ser)
+void Object::serialize(const serialization::Serializer<world::World>& ser) const
+{
+  ser(S_NV("@type", m_state.type),
+      S_NV("@location", m_state.location),
+      S_NV("state", m_state),
+      S_NV("hasUpdateFunction", m_hasUpdateFunction),
+      S_NV("isActive", m_isActive));
+}
+
+void Object::deserialize(const serialization::Deserializer<world::World>& ser)
 {
   ser(S_NV("@type", m_state.type),
       S_NV("@location", m_state.location),
@@ -210,14 +219,11 @@ void Object::serialize(const serialization::Serializer<world::World>& ser)
       S_NV("hasUpdateFunction", m_hasUpdateFunction),
       S_NV("isActive", m_isActive));
 
-  ser << [this](const serialization::Serializer<world::World>& ser)
+  ser << [this](const serialization::Deserializer<world::World>& /*ser*/)
   {
-    if(ser.loading)
-    {
-      setParent(gsl::not_null{getNode()}, m_state.location.room->node);
+    setParent(gsl::not_null{getNode()}, m_state.location.room->node);
 
-      applyTransform();
-    }
+    applyTransform();
   };
 }
 

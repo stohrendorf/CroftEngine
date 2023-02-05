@@ -167,12 +167,17 @@ void ThorHammerHandle::collide(CollisionInfo& info)
   enemyPush(info, false, true);
 }
 
-void ThorHammerHandle::serialize(const serialization::Serializer<world::World>& ser)
+void ThorHammerHandle::serialize(const serialization::Serializer<world::World>& ser) const
 {
   ModelObject::serialize(ser);
-  ser(S_NV("block", serialization::ObjectReference{m_block}));
-  if(ser.loading)
-    getSkeleton()->getRenderState().setScissorTest(false);
+  ser(S_NV("block", serialization::SerializingObjectReference{m_block}));
+}
+
+void ThorHammerHandle::deserialize(const serialization::Deserializer<world::World>& ser)
+{
+  ModelObject::deserialize(ser);
+  ser(S_NV("block", serialization::DeserializingObjectReference{m_block}));
+  getSkeleton()->getRenderState().setScissorTest(false);
 }
 
 void ThorHammerBlock::collide(CollisionInfo& info)
@@ -189,11 +194,15 @@ void ThorHammerBlock::collide(CollisionInfo& info)
   enemyPush(info, false, true);
 }
 
-void ThorHammerBlock::serialize(const serialization::Serializer<world::World>& ser)
+void ThorHammerBlock::serialize(const serialization::Serializer<world::World>& ser) const
 {
   ModelObject::serialize(ser);
-  if(ser.loading)
-    getSkeleton()->getRenderState().setScissorTest(false);
+}
+
+void ThorHammerBlock::deserialize(const serialization::Deserializer<world::World>& ser)
+{
+  ModelObject::deserialize(ser);
+  getSkeleton()->getRenderState().setScissorTest(false);
 }
 
 ThorHammerBlock::ThorHammerBlock(const std::string& name,

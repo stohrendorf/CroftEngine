@@ -86,10 +86,16 @@ void CentaurStatue::update()
   m_childObject->playSoundEffect(TR1SoundEffect::Explosion2);
 }
 
-void CentaurStatue::serialize(const serialization::Serializer<world::World>& ser)
+void CentaurStatue::serialize(const serialization::Serializer<world::World>& ser) const
 {
   ModelObject::serialize(ser);
-  ser(S_NV("childObject", serialization::ObjectReference{m_childObject}));
+  ser(S_NV("childObject", serialization::SerializingObjectReference{m_childObject}));
+}
+
+void CentaurStatue::deserialize(const serialization::Deserializer<world::World>& ser)
+{
+  ModelObject::deserialize(ser);
+  ser(S_NV("childObject", serialization::DeserializingObjectReference{m_childObject}));
 }
 
 void CentaurStatue::collide(CollisionInfo& info)

@@ -121,9 +121,10 @@ public:
 
   void trapCollideWithLara(CollisionInfo& collisionInfo);
 
-  void serialize(const serialization::Serializer<world::World>& ser) override;
+  void serialize(const serialization::Serializer<world::World>& ser) const override;
+  void deserialize(const serialization::Deserializer<world::World>& ser) override;
 
-  static std::shared_ptr<ModelObject> create(serialization::Serializer<world::World>& ser);
+  static std::shared_ptr<ModelObject> create(serialization::Deserializer<world::World>& ser);
 
 protected:
   std::shared_ptr<SkeletalModelNode> m_skeleton;
@@ -160,9 +161,10 @@ public:
                         bool hasUpdateFunction,
                         const gsl::not_null<const world::SkeletalModelType*>& model);
 
-  void serialize(const serialization::Serializer<world::World>& ser) override;
+  void serialize(const serialization::Serializer<world::World>& ser) const override;
+  void deserialize(const serialization::Deserializer<world::World>& ser) override;
 };
 
 std::shared_ptr<ModelObject> create(const serialization::TypeId<std::shared_ptr<ModelObject>>&,
-                                    serialization::Serializer<world::World>& ser);
+                                    serialization::Deserializer<world::World>& ser);
 } // namespace engine::objects
