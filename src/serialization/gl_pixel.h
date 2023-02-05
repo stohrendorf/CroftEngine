@@ -20,7 +20,7 @@ void serialize(gl::Pixel<T, Channels, PixelFormat, SizedInternalFormat, Premulti
   for(glm::length_t i = 0; i < Channels; ++i)
   {
     const auto tmp = ser.newChild();
-    access<T>::callSerialize(data.channels[i], tmp);
+    access<T, false>::dispatch(data.channels[i], tmp);
   }
 }
 
@@ -38,7 +38,7 @@ void deserialize(gl::Pixel<T, Channels, PixelFormat, SizedInternalFormat, Premul
   Expects(ser.node.num_children() == Channels);
   for(glm::length_t i = 0; i < Channels; ++i)
   {
-    access<T>::callSerialize(data.channels[i], ser.withNode(ser.node[i]));
+    access<T, true>::dispatch(data.channels[i], ser.withNode(ser.node[i]));
   }
 }
 } // namespace serialization
