@@ -307,10 +307,6 @@ public:
   {
     ensureIsMap();
     BOOST_ASSERT(node.valid());
-    if constexpr(!Loading)
-    {
-      BOOST_ASSERT(!node.is_seed());
-    }
 
 #ifdef SERIALIZATION_TRACE
     BOOST_LOG_TRIVIAL(trace) << "Serializing node " << getQualifiedKey() << "::" << name;
@@ -323,12 +319,13 @@ public:
       {
         return *this;
       }
-      serializeDeserialize(name, data.value, *ser);
+      serializeDeserialize(name, data.value.get(), *ser);
     }
     else
     {
+      BOOST_ASSERT(!node.is_seed());
       auto ser = createMapMemberSerializer(name, true);
-      serializeDeserialize(name, data.value, *ser);
+      serializeDeserialize(name, data.value.get(), *ser);
     }
     return *this;
   }

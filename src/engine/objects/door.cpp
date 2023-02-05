@@ -235,12 +235,12 @@ void Door::Info::init(const world::Room& room, const core::TRVec& position)
 
 void Door::Info::serialize(const serialization::Serializer<world::World>& ser) const
 {
-  ser(S_NV("originalSector", originalSector), S_NV_VECTOR_ELEMENT_SERIALIZE("box", ser.context.getBoxes(), wingsBox));
+  ser(S_NV("originalSector", originalSector), S_NV_VECTOR_ELEMENT("box", ser.context.getBoxes(), wingsBox));
 }
 
 void Door::Info::deserialize(const serialization::Deserializer<world::World>& ser)
 {
-  ser(S_NV("originalSector", originalSector), S_NV_VECTOR_ELEMENT_DESERIALIZE("box", ser.context.getBoxes(), wingsBox));
+  ser(S_NV("originalSector", originalSector), S_NV_VECTOR_ELEMENT("box", ser.context.getBoxes(), wingsBox));
   wingsSector = nullptr;
 }
 } // namespace engine::objects

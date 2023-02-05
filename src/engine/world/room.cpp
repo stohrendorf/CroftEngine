@@ -601,13 +601,13 @@ void Room::resetScenery()
 void Room::serialize(const serialization::Serializer<World>& ser) const
 {
   ser(S_NV("sectors", serialization::SerializingFrozenVector{sectors}),
-      S_NV_VECTOR_ELEMENT_SERIALIZE("alternateRoom", ser.context.getRooms(), alternateRoom));
+      S_NV_VECTOR_ELEMENT("alternateRoom", ser.context.getRooms(), alternateRoom));
 }
 
 void Room::deserialize(const serialization::Deserializer<World>& ser)
 {
   ser(S_NV("sectors", serialization::DeserializingFrozenVector{sectors}),
-      S_NV_VECTOR_ELEMENT_DESERIALIZE("alternateRoom", ser.context.getRooms(), alternateRoom));
+      S_NV_VECTOR_ELEMENT("alternateRoom", ser.context.getRooms(), alternateRoom));
 }
 
 const Sector* Room::getSectorByIndex(const int dx, const int dz) const

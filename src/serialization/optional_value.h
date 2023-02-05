@@ -7,11 +7,16 @@
 namespace serialization
 {
 template<typename T>
-struct OptionalValue
+struct OptionalValue final
 {
-  T& value;
+  OptionalValue(const OptionalValue<T>&) = delete;
+  OptionalValue(OptionalValue<T>&&) = delete;
+  void operator=(OptionalValue<T>&&) = delete;
+  void operator=(const OptionalValue<T>&) = delete;
+
+  std::reference_wrapper<T> value;
   explicit OptionalValue(T& value)
-      : value{value}
+      : value{std::ref(value)}
   {
   }
 };
