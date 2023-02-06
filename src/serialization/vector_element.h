@@ -68,7 +68,7 @@ struct VectorElement final
 template<typename T>
 struct DeserializingNotNullVectorElement final
 {
-  DeserializingNotNullVectorElement(const OptionalValue<T>&) = delete;
+  DeserializingNotNullVectorElement(const DeserializingNotNullVectorElement<T>&) = delete;
   DeserializingNotNullVectorElement(DeserializingNotNullVectorElement<T>&&) = delete;
   void operator=(DeserializingNotNullVectorElement<T>&&) = delete;
   void operator=(const DeserializingNotNullVectorElement<T>&) = delete;
