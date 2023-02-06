@@ -69,6 +69,7 @@
 #include "serialization/bitset.h"
 #include "serialization/not_null.h"
 #include "serialization/optional.h"
+#include "serialization/optional_value.h"
 #include "serialization/quantity.h"
 #include "serialization/serialization.h"
 #include "serialization/vector.h"
@@ -1043,7 +1044,7 @@ void World::deserialize(const serialization::Deserializer<World>& ser)
 
   ser(S_NV("objectManager", m_objectManager),
       S_NV("player", *m_player),
-      S_NV("initialLevelStartPlayer", *m_levelStartPlayer),
+      S_NVO("initialLevelStartPlayer", *m_levelStartPlayer),
       S_NV("mapFlipActivationStates", m_mapFlipActivationStates),
       S_NV("cameras", serialization::DeserializingFrozenVector{m_cameraSinks}),
       S_NV("activeEffect", m_activeEffect),
@@ -1055,7 +1056,7 @@ void World::deserialize(const serialization::Deserializer<World>& ser)
       S_NV("rooms", serialization::DeserializingFrozenVector{m_rooms}),
       S_NV("boxes", serialization::DeserializingFrozenVector{m_boxes}),
       S_NV("audioEngine", *m_audioEngine),
-      S_NV("ghostFrame", m_ghostFrame));
+      S_NVO("ghostFrame", m_ghostFrame));
 
   updateStaticSoundEffects();
 }
