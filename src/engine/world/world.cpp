@@ -999,15 +999,15 @@ void World::serialize(const serialization::Serializer<World>& ser) const
       S_NV("player", *m_player),
       S_NV("initialLevelStartPlayer", *m_levelStartPlayer),
       S_NV("mapFlipActivationStates", m_mapFlipActivationStates),
-      S_NV("cameras", serialization::SerializingFrozenVector{m_cameraSinks}),
+      S_NV("cameras", serialization::SerializingFrozenVector{std::cref(m_cameraSinks)}),
       S_NV("activeEffect", m_activeEffect),
       S_NV("effectTimer", m_effectTimer),
       S_NV("cameraController", *m_cameraController),
       S_NV("secretsFound", m_secretsFoundBitmask),
       S_NV("roomsAreSwapped", m_roomsAreSwapped),
       S_NV("roomPhysicalIds", physicalIds),
-      S_NV("rooms", serialization::SerializingFrozenVector{m_rooms}),
-      S_NV("boxes", serialization::SerializingFrozenVector{m_boxes}),
+      S_NV("rooms", serialization::SerializingFrozenVector{std::cref(m_rooms)}),
+      S_NV("boxes", serialization::SerializingFrozenVector{std::cref(m_boxes)}),
       S_NV("audioEngine", *m_audioEngine),
       S_NV("ghostFrame", m_ghostFrame));
 }
@@ -1030,7 +1030,7 @@ void World::deserialize(const serialization::Deserializer<World>& ser)
     setParent(gsl::not_null{room.node}, getPresenter().getRenderer().getRootNode());
   }
 
-  ser(S_NV("roomPhysicalIds", serialization::DeserializingFrozenVector{physicalIds}));
+  ser(S_NV("roomPhysicalIds", serialization::DeserializingFrozenVector{std::ref(physicalIds)}));
   for(size_t i = 0; i < m_rooms.size(); ++i)
   {
     if(m_rooms[i].physicalId == physicalIds[i])
@@ -1046,15 +1046,15 @@ void World::deserialize(const serialization::Deserializer<World>& ser)
       S_NV("player", *m_player),
       S_NVO("initialLevelStartPlayer", std::ref(*m_levelStartPlayer)),
       S_NV("mapFlipActivationStates", m_mapFlipActivationStates),
-      S_NV("cameras", serialization::DeserializingFrozenVector{m_cameraSinks}),
+      S_NV("cameras", serialization::DeserializingFrozenVector{std::ref(m_cameraSinks)}),
       S_NV("activeEffect", m_activeEffect),
       S_NV("effectTimer", m_effectTimer),
       S_NV("cameraController", *m_cameraController),
       S_NV("secretsFound", m_secretsFoundBitmask),
       S_NV("roomsAreSwapped", m_roomsAreSwapped),
       S_NV("roomPhysicalIds", physicalIds),
-      S_NV("rooms", serialization::DeserializingFrozenVector{m_rooms}),
-      S_NV("boxes", serialization::DeserializingFrozenVector{m_boxes}),
+      S_NV("rooms", serialization::DeserializingFrozenVector{std::ref(m_rooms)}),
+      S_NV("boxes", serialization::DeserializingFrozenVector{std::ref(m_boxes)}),
       S_NV("audioEngine", *m_audioEngine),
       S_NVO("ghostFrame", std::ref(m_ghostFrame)));
 

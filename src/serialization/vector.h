@@ -38,17 +38,17 @@ void deserialize(std::vector<T>& data, const Deserializer<TContext>& ser)
 template<typename T>
 struct DeserializingFrozenVector
 {
-  std::vector<T>& vec;
-  explicit DeserializingFrozenVector(std::vector<T>& vec)
-      : vec{vec}
+  std::reference_wrapper<std::vector<T>> vec;
+  explicit DeserializingFrozenVector(std::reference_wrapper<std::vector<T>>&& vec)
+      : vec{std::move(vec)}
   {
   }
 
   template<typename TContext>
   void deserialize(const Deserializer<TContext>& ser) const
   {
-    gsl_Expects(ser.node.num_children() == vec.size());
-    auto it = vec.begin();
+    gsl_Expects(ser.node.num_children() == vec.get().size());
+    auto it = vec.get().begin();
     for(const auto& element : ser.node.children())
     {
       access<T, true>::dispatch(*it++, ser.withNode(element));
@@ -59,9 +59,9 @@ struct DeserializingFrozenVector
 template<typename T>
 struct SerializingFrozenVector
 {
-  const std::vector<T>& vec;
-  explicit SerializingFrozenVector(const std::vector<T>& vec)
-      : vec{vec}
+  std::reference_wrapper<const std::vector<T>> vec;
+  explicit SerializingFrozenVector(std::reference_wrapper<const std::vector<T>>&& vec)
+      : vec{std::move(vec)}
   {
   }
 
@@ -69,7 +69,7 @@ struct SerializingFrozenVector
   void serialize(const Serializer<TContext>& ser) const
   {
     ser.node |= ryml::SEQ;
-    for(auto& element : vec)
+    for(auto& element : vec.get())
     {
       const auto tmp = ser.newChild();
       access<T, false>::dispatch(element, tmp);
