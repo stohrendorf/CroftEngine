@@ -348,7 +348,7 @@ void PathFinder::serialize(const serialization::Serializer<world::World>& ser) c
       S_NV("step", step),
       S_NV("drop", drop),
       S_NV("fly", fly),
-      S_NV_VECTOR_ELEMENT("targetBox", ser.context.getBoxes(), m_targetBox),
+      S_NV_VECTOR_ELEMENT("targetBox", std::cref(ser.context.getBoxes()), std::cref(m_targetBox)),
       S_NV("target", target));
 }
 
@@ -364,7 +364,7 @@ void PathFinder::deserialize(const serialization::Deserializer<world::World>& se
       S_NV("step", step),
       S_NV("drop", drop),
       S_NV("fly", fly),
-      S_NV_VECTOR_ELEMENT("targetBox", ser.context.getBoxes(), m_targetBox),
+      S_NV_VECTOR_ELEMENT("targetBox", std::cref(ser.context.getBoxes()), std::ref(m_targetBox)),
       S_NV("target", target));
 }
 

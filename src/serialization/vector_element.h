@@ -15,24 +15,31 @@ struct VectorElement final
   void operator=(VectorElement<T>&&) = delete;
   void operator=(const VectorElement<T>&) = delete;
 
-  const std::vector<T>& vec;
-  const T*& element;
+  std::reference_wrapper<const std::vector<T>> vec;
+  std::reference_wrapper<const T*> element;
 
-  explicit VectorElement(const std::vector<T>& vec, T*& element)
-      : vec{vec}
-      , element{const_cast<const T*&>(element)}
+  explicit VectorElement(std::reference_wrapper<const std::vector<T>>&& vec, std::reference_wrapper<T*>&& element)
+      : vec{std::move(vec)}
+      , element{const_cast<const T*&>(element.get())}
   {
   }
 
-  explicit VectorElement(const std::vector<T>& vec, const T*& element)
-      : vec{vec}
-      , element{element}
+  explicit VectorElement(std::reference_wrapper<const std::vector<T>>&& vec, std::reference_wrapper<const T*>&& element)
+      : vec{std::move(vec)}
+      , element{std::move(element)}
   {
   }
 
-  explicit VectorElement(const std::vector<T>& vec, const T* const& element)
-      : vec{vec}
-      , element{const_cast<const T*&>(element)}
+  explicit VectorElement(std::reference_wrapper<const std::vector<T>>&& vec, std::reference_wrapper<T* const>&& element)
+      : vec{std::move(vec)}
+      , element{const_cast<const T*&>(element.get())}
+  {
+  }
+
+  explicit VectorElement(std::reference_wrapper<const std::vector<T>>&& vec,
+                         std::reference_wrapper<const T* const>&& element)
+      : vec{std::move(vec)}
+      , element{const_cast<const T*&>(element.get())}
   {
   }
 
@@ -41,27 +48,27 @@ struct VectorElement final
   {
     if(ser.isNull())
     {
-      element = nullptr;
+      element.get() = nullptr;
       return;
     }
 
     ser.tag("element");
     std::ptrdiff_t n = 0;
     ser.node >> n;
-    element = &vec.at(n);
+    element.get() = &vec.get().at(n);
   }
 
   template<typename TContext>
   void serialize(const Serializer<TContext>& ser) const
   {
-    if(element == nullptr)
+    if(element.get() == nullptr)
     {
       ser.setNull();
       return;
     }
 
     ser.tag("element");
-    ser.node << std::distance(const_cast<const T*>(&vec.at(0)), element);
+    ser.node << std::distance(const_cast<const T*>(&vec.get().at(0)), element.get());
   }
 };
 
@@ -73,18 +80,20 @@ struct DeserializingNotNullVectorElement final
   void operator=(DeserializingNotNullVectorElement<T>&&) = delete;
   void operator=(const DeserializingNotNullVectorElement<T>&) = delete;
 
-  std::vector<T>& vec;
-  gsl::not_null<const T*>& element;
+  std::reference_wrapper<std::vector<T>> vec;
+  std::reference_wrapper<gsl::not_null<const T*>> element;
 
-  explicit DeserializingNotNullVectorElement(std::vector<T>& vec, gsl::not_null<T*>& element)
-      : vec{vec}
-      , element{element}
+  explicit DeserializingNotNullVectorElement(std::reference_wrapper<std::vector<T>>&& vec,
+                                             std::reference_wrapper<gsl::not_null<T*>>&& element)
+      : vec{std::move(vec)}
+      , element{std::move(element)}
   {
   }
 
-  explicit DeserializingNotNullVectorElement(std::vector<T>& vec, gsl::not_null<const T*>& element)
-      : vec{vec}
-      , element{element}
+  explicit DeserializingNotNullVectorElement(std::reference_wrapper<std::vector<T>>&& vec,
+                                             std::reference_wrapper<gsl::not_null<const T*>>&& element)
+      : vec{std::move(vec)}
+      , element{std::move(element)}
   {
   }
 
@@ -95,7 +104,7 @@ struct DeserializingNotNullVectorElement final
     ser.tag("element");
     std::ptrdiff_t n = 0;
     ser.node >> n;
-    element = gsl::not_null{&vec.at(n)};
+    element.get() = gsl::not_null{&vec.get().at(n)};
   }
 };
 
@@ -107,12 +116,13 @@ struct SerializingNotNullVectorElement final
   void operator=(SerializingNotNullVectorElement<T>&&) = delete;
   void operator=(const SerializingNotNullVectorElement<T>&) = delete;
 
-  const std::vector<T>& vec;
-  const gsl::not_null<const T*>& element;
+  std::reference_wrapper<const std::vector<T>> vec;
+  std::reference_wrapper<const gsl::not_null<const T*>> element;
 
-  explicit SerializingNotNullVectorElement(const std::vector<T>& vec, const gsl::not_null<const T*>& element)
-      : vec{vec}
-      , element{element}
+  explicit SerializingNotNullVectorElement(std::reference_wrapper<const std::vector<T>>&& vec,
+                                           std::reference_wrapper<const gsl::not_null<const T*>>&& element)
+      : vec{std::move(vec)}
+      , element{std::move(element)}
   {
   }
 
@@ -120,7 +130,7 @@ struct SerializingNotNullVectorElement final
   void serialize(const Serializer<TContext>& ser) const
   {
     ser.tag("element");
-    ser.node << std::distance(const_cast<const T*>(&vec.at(0)), element.get());
+    ser.node << std::distance(const_cast<const T*>(&vec.get().at(0)), element.get().get());
   }
 };
 } // namespace serialization
@@ -134,10 +144,10 @@ struct SerializingNotNullVectorElement final
 #define S_NV_VECTOR_ELEMENT_NOT_NULL_SERIALIZE(name, vec, obj) \
   name, ::serialization::SerializingNotNullVectorElement       \
   {                                                            \
-    vec, obj                                                   \
+    std::cref(vec), std::cref(obj)                             \
   }
 #define S_NV_VECTOR_ELEMENT_NOT_NULL_DESERIALIZE(name, vec, obj) \
   name, ::serialization::DeserializingNotNullVectorElement       \
   {                                                              \
-    vec, obj                                                     \
+    std::ref(vec), std::ref(obj)                                 \
   }
