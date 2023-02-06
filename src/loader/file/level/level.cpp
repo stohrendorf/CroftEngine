@@ -51,7 +51,7 @@ void Level::readMeshData(io::SDLReader& reader)
     else
       m_meshes.emplace_back(*Mesh::readTr1(reader));
   }
-  Ensures(m_meshes.size() == uniqueOffsets.size());
+  gsl_Ensures(m_meshes.size() == uniqueOffsets.size());
 
   m_meshIndices.clear();
   std::transform(offsets.begin(),

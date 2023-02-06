@@ -41,11 +41,11 @@ bool PathFinder::calculateTarget(const world::World& world,
                                  const core::TRVec& startPos,
                                  const gsl::not_null<const world::Box*>& startBox)
 {
-  Expects(m_targetBox != nullptr);
-  Expects(m_targetBox->xInterval.contains(target.X));
-  Expects(m_targetBox->zInterval.contains(target.Z));
-  Expects(startBox->xInterval.contains(startPos.X));
-  Expects(startBox->zInterval.contains(startPos.Z));
+  gsl_Expects(m_targetBox != nullptr);
+  gsl_Expects(m_targetBox->xInterval.contains(target.X));
+  gsl_Expects(m_targetBox->zInterval.contains(target.Z));
+  gsl_Expects(startBox->xInterval.contains(startPos.X));
+  gsl_Expects(startBox->zInterval.contains(startPos.Z));
   searchPath(world);
 
   moveTarget = startPos;
@@ -432,7 +432,7 @@ void PathFinder::setTargetBox(const gsl::not_null<const world::Box*>& box)
 
 const gsl::not_null<const world::Box*>& PathFinder::getRandomBox() const
 {
-  Expects(!m_boxes.empty());
+  gsl_Expects(!m_boxes.empty());
   return m_boxes[util::rand15(m_boxes.size())];
 }
 } // namespace engine::ai

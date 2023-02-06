@@ -624,7 +624,7 @@ void AIAgent::initCreatureInfo()
 
 bool AIAgent::isInsideZoneButNotInBox(const uint32_t zoneId, const world::Box& targetBox) const
 {
-  Expects(m_creatureInfo != nullptr);
+  gsl_Expects(m_creatureInfo != nullptr);
 
   const auto zoneRef = world::Box::getZoneRef(
     getWorld().roomsAreSwapped(), m_creatureInfo->pathFinder.isFlying(), m_creatureInfo->pathFinder.step);

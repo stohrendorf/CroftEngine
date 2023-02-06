@@ -481,7 +481,7 @@ void LaraObject::advanceFrame()
 {
   const auto endOfAnim = getSkeleton()->advanceFrame(m_state);
 
-  Expects(getSkeleton()->getAnim() != nullptr);
+  gsl_Expects(getSkeleton()->getAnim() != nullptr);
   if(endOfAnim)
   {
     if(getSkeleton()->getAnim()->animCommandCount > 0)
@@ -1266,7 +1266,7 @@ void LaraObject::hitscanSingleRound(const WeaponType weaponType,
                                     const ModelObject& weaponHolder,
                                     const core::TRRotationXY& aimAngle)
 {
-  Expects(weaponType != WeaponType::None);
+  gsl_Expects(weaponType != WeaponType::None);
 
   auto& ammo = getWorld().getPlayer().getInventory().getAmmo(weaponType);
 

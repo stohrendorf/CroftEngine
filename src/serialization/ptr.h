@@ -40,7 +40,7 @@ auto create(const TypeId<T* const>&, const Deserializer<TContext>& ser) -> declt
 template<typename T, typename TContext>
 auto serialize(T* const& data, const Serializer<TContext>& ser) -> decltype(T::ptrSave(data, ser), void())
 {
-  Expects(!ser.loading);
+  gsl_Expects(!ser.loading);
   auto tmp = T::ptrSave(data, ser);
   access<decltype(tmp), false>::dispatch(tmp, ser);
 }

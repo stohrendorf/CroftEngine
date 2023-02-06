@@ -65,9 +65,9 @@ core::Acceleration SkeletalModelNode::getAcceleration() const
 
 InterpolationInfo SkeletalModelNode::getInterpolationInfo() const
 {
-  Expects(m_anim != nullptr);
+  gsl_Expects(m_anim != nullptr);
 
-  Expects(m_frame >= m_anim->firstFrame && m_frame <= m_anim->lastFrame);
+  gsl_Expects(m_frame >= m_anim->firstFrame && m_frame <= m_anim->lastFrame);
   const auto firstLocalKeyframeIndex = getLocalFrame() / m_anim->segmentLength;
 
   auto firstKeyframe = m_anim->frames->next(firstLocalKeyframeIndex);
@@ -159,7 +159,7 @@ core::BoundingBox SkeletalModelNode::getBoundingBox() const
 
 bool SkeletalModelNode::handleStateTransitions(core::AnimStateId& animState, const core::AnimStateId& goal)
 {
-  Expects(m_anim != nullptr);
+  gsl_Expects(m_anim != nullptr);
   if(m_anim->state_id == goal)
     return false;
 
@@ -215,7 +215,7 @@ bool SkeletalModelNode::advanceFrame(objects::ObjectState& state)
 std::vector<SkeletalModelNode::Sphere> SkeletalModelNode::getBoneCollisionSpheres()
 {
   updatePose();
-  Expects(m_meshParts.size() == m_model->bones.size());
+  gsl_Expects(m_meshParts.size() == m_model->bones.size());
   std::vector<Sphere> result;
   result.reserve(m_meshParts.size());
   for(size_t i = 0; i < m_meshParts.size(); ++i)
@@ -257,7 +257,7 @@ void SkeletalModelNode::deserialize(const serialization::Deserializer<world::Wor
 
 void serialize(const std::shared_ptr<SkeletalModelNode>& data, const serialization::Serializer<world::World>& ser)
 {
-  Expects(data != nullptr);
+  gsl_Expects(data != nullptr);
   data->serialize(ser);
 }
 

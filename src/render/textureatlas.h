@@ -35,10 +35,10 @@ struct alignas(64) BSPTree final
       , width{w}
       , height{h}
   {
-    Expects(x >= 0);
-    Expects(y >= 0);
-    Expects(w > 0);
-    Expects(h > 0);
+    gsl_Expects(x >= 0);
+    gsl_Expects(y >= 0);
+    gsl_Expects(w > 0);
+    gsl_Expects(h > 0);
   }
 
   BSPTree(BSPTree&& rhs) noexcept
@@ -63,7 +63,7 @@ struct alignas(64) BSPTree final
      */
   void splitX(const int32_t splitLocation)
   {
-    Expects(splitLocation < width);
+    gsl_Expects(splitLocation < width);
     left = std::make_unique<BSPTree>(x, y, splitLocation, height);
     right = std::make_unique<BSPTree>(x + splitLocation, y, width - splitLocation, height);
   }
@@ -74,16 +74,16 @@ struct alignas(64) BSPTree final
      */
   void splitY(const int32_t splitLocation)
   {
-    Expects(splitLocation < height);
-    Expects(left == nullptr && right == nullptr);
+    gsl_Expects(splitLocation < height);
+    gsl_Expects(left == nullptr && right == nullptr);
     left = std::make_unique<BSPTree>(x, y, width, splitLocation);
     right = std::make_unique<BSPTree>(x, y + splitLocation, width, height - splitLocation);
   }
 
   [[nodiscard]] bool fits(const int32_t w, const int32_t h) const noexcept
   {
-    Expects(w > 0);
-    Expects(h > 0);
+    gsl_Expects(w > 0);
+    gsl_Expects(h > 0);
     return !isFilled && w <= width && h <= height;
   }
 

@@ -153,7 +153,7 @@ void SOGLB_API amdDebugCallback(
   if(category == GL_DEBUG_CATEGORY_APPLICATION_AMD)
     return;
 
-  Expects(length >= 0);
+  gsl_Expects(length >= 0);
 
   BOOST_LOG_TRIVIAL(debug) << "AMD GLDebug #" << id << ", severity " << amdDebugSeverityToString(severity)
                            << ", category " << amdDebugCategoryToString(category) << ": "
@@ -164,7 +164,7 @@ void SOGLB_API amdDebugCallback(
 
 void gl::initializeGl(void* (*loadProc)(const char* name))
 {
-  Expects(loadProc != nullptr);
+  gsl_Expects(loadProc != nullptr);
   if(gladLoadGLLoader(loadProc) == 0)
   {
     BOOST_LOG_TRIVIAL(error) << "gladLoadGL failed";
@@ -239,7 +239,7 @@ bool gl::hasAnisotropicFilteringExtension()
 
 float gl::getMaxAnisotropyLevel()
 {
-  Expects(hasAnisotropicFilteringExtension());
+  gsl_Expects(hasAnisotropicFilteringExtension());
   float value = 0;
   GL_ASSERT(glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY, &value));
   return value;

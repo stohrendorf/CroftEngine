@@ -306,7 +306,7 @@ void Device::setListenerTransform(const glm::vec3& pos, const glm::vec3& front, 
 // NOLINTNEXTLINE(readability-make-member-function-const, readability-convert-member-functions-to-static)
 void Device::setListenerGain(float gain)
 {
-  Expects(gain >= 0);
+  gsl_Expects(gain >= 0);
   AL_ASSERT(alListenerf(AL_GAIN, gain));
 }
 

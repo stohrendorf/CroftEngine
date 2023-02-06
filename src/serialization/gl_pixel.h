@@ -34,8 +34,8 @@ void deserialize(gl::Pixel<T, Channels, PixelFormat, SizedInternalFormat, Premul
                  const Deserializer<TContext>& ser)
 {
   ser.tag("pixel");
-  Expects(ser.node.is_seq());
-  Expects(ser.node.num_children() == Channels);
+  gsl_Expects(ser.node.is_seq());
+  gsl_Expects(ser.node.num_children() == Channels);
   for(glm::length_t i = 0; i < Channels; ++i)
   {
     access<T, true>::dispatch(data.channels[i], ser.withNode(ser.node[i]));

@@ -91,7 +91,7 @@ enum class Axis
 
 [[nodiscard]] inline std::optional<Axis> axisFromAngle(const Angle& angle, const Angle& margin)
 {
-  Expects(margin >= 0_deg && margin <= 45_deg);
+  gsl_Expects(margin >= 0_deg && margin <= 45_deg);
   if(angle < +0_deg + margin && angle >= +0_deg - margin)
     return Axis::Deg0;
   if(angle < +90_deg + margin && angle >= +90_deg - margin)

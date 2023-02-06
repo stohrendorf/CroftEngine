@@ -84,7 +84,7 @@ public:
 
   const world::Sprite& getSprite() const
   {
-    Expects(m_sprite != nullptr);
+    gsl_Expects(m_sprite != nullptr);
     return *m_sprite;
   }
 

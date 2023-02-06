@@ -131,7 +131,7 @@ public:
   template<typename T>
   void bind(const Buffer<T, _Target>& buffer)
   {
-    Expects(m_binding >= 0);
+    gsl_Expects(m_binding >= 0);
     GL_ASSERT(api::bindBufferBase(_Target, m_binding, buffer.getHandle()));
   }
 
@@ -141,8 +141,8 @@ public:
       || LazyTarget == api::BufferTarget::UniformBuffer || LazyTarget == api::BufferTarget::ShaderStorageBuffer,
     void>
   {
-    Expects(start < buffer.size());
-    Expects(start + n <= buffer.size());
+    gsl_Expects(start < buffer.size());
+    gsl_Expects(start + n <= buffer.size());
     GL_ASSERT(api::bindBufferRange(_Target, m_binding, buffer.getHandle(), sizeof(T) * start, sizeof(T) * n));
   }
 
@@ -169,7 +169,7 @@ public:
   template<typename T>
   std::enable_if_t<std::is_trivial_v<T>, void> set(const T& value)
   {
-    Expects(m_program != InvalidProgram);
+    gsl_Expects(m_program != InvalidProgram);
     if(changeValue(value))
       GL_ASSERT(api::programUniform1(m_program, getLocation(), value)); // cppcheck-suppress missingReturn
   }
@@ -177,7 +177,7 @@ public:
   template<typename T>
   void set(const std::vector<T>& values)
   {
-    Expects(m_program != InvalidProgram);
+    gsl_Expects(m_program != InvalidProgram);
     if(changeValue(values))
       GL_ASSERT(
         api::programUniform1(m_program, getLocation(), gsl::narrow<api::core::SizeType>(values.size()), values.data()));
@@ -186,7 +186,7 @@ public:
   template<typename T, size_t N>
   void set(const std::array<T, N>& values)
   {
-    Expects(m_program != InvalidProgram);
+    gsl_Expects(m_program != InvalidProgram);
     if(changeValue(std::vector{values.begin(), values.end()}))
       GL_ASSERT(
         api::programUniform1(m_program, getLocation(), gsl::narrow<api::core::SizeType>(values.size()), values.data()));
@@ -214,7 +214,7 @@ public:
   template<typename _Texture>
   void set(const gslu::nn_shared<TextureHandle<_Texture>>& textureHandle)
   {
-    Expects(m_program != InvalidProgram);
+    gsl_Expects(m_program != InvalidProgram);
     if(changeValue(textureHandle->getHandle()))
       GL_ASSERT(api::programUniformHandle(m_program, getLocation(), textureHandle->getHandle()));
   }
@@ -222,7 +222,7 @@ public:
   template<typename _It> // NOLINT(bugprone-reserved-identifier)
   void setTextures(const _It& begin, const _It& end)
   {
-    Expects(m_program != InvalidProgram && m_size >= 0);
+    gsl_Expects(m_program != InvalidProgram && m_size >= 0);
 
     std::vector<uint64_t> handles;
     for(auto it = begin; it != end; ++it)
@@ -375,7 +375,7 @@ std::vector<int32_t> ProgramInterface<_Type>::getProperty(const Program& program
 {
   constexpr int32_t NumProperties = 1;
   const std::array<api::ProgramResourceProperty, NumProperties> properties{what};
-  Expects(count >= 0);
+  gsl_Expects(count >= 0);
   std::vector<int32_t> values(count, 0);
   GL_ASSERT(api::getProgramResource(
     program.getHandle(), Type, index, NumProperties, properties.data(), count, nullptr, values.data()));

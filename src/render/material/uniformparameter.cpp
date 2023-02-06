@@ -80,7 +80,7 @@ void UniformBlockParameter::bindTransformBuffer()
 {
   m_bufferBinder = [](const scene::Node* node, const scene::Mesh& /*mesh*/, gl::UniformBlock& ub)
   {
-    Expects(node != nullptr);
+    gsl_Expects(node != nullptr);
     ub.bind(node->getTransformBuffer());
   };
 }

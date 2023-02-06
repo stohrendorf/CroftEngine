@@ -77,7 +77,7 @@ private:
           : bufferIndex(bufferIdx)
           , sourceIndex(sourceIdx)
       {
-        Expects(sourceIdx >= 0 && sourceIdx < 4);
+        gsl_Expects(sourceIdx >= 0 && sourceIdx < 4);
       }
 
       bool operator<(const VertexReference& rhs) const noexcept

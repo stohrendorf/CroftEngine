@@ -13,8 +13,8 @@ namespace audio::detail
 {
 void checkALError(const gsl::czstring code, const gsl::czstring func, const int line)
 {
-  Expects(code != nullptr);
-  Expects(func != nullptr);
+  gsl_Expects(code != nullptr);
+  gsl_Expects(func != nullptr);
 
   const ALenum err = alGetError();
   if(err == AL_NO_ERROR)
@@ -50,8 +50,8 @@ void checkALError(const gsl::czstring code, const gsl::czstring func, const int 
 
 void checkALCError(ALCdevice* device, const gsl::czstring code, const gsl::czstring func, const int line)
 {
-  Expects(code != nullptr);
-  Expects(func != nullptr);
+  gsl_Expects(code != nullptr);
+  gsl_Expects(func != nullptr);
 
   const ALenum err = alcGetError(device);
   if(err == ALC_NO_ERROR)

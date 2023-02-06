@@ -362,7 +362,7 @@ public:
 
   void tag(const std::string& tag) const
   {
-    Expects(!tag.empty());
+    gsl_Expects(!tag.empty());
 
     auto normalizedTag
       = std::string{"<"}

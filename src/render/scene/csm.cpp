@@ -106,7 +106,7 @@ CSM::CSM(int32_t resolution, material::MaterialManager& materialManager)
     , m_buffer{"csm-data-ubo", gl::api::BufferUsage::DynamicDraw, m_bufferData}
 {
   static_assert(CSMBuffer::NSplits > 0);
-  Expects(resolution > 0);
+  gsl_Expects(resolution > 0);
 
   for(size_t i = 0; i < CSMBuffer::NSplits; ++i)
   {

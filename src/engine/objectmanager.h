@@ -64,13 +64,13 @@ public:
 
   objects::LaraObject& getLara()
   {
-    Expects(m_lara != nullptr);
+    gsl_Expects(m_lara != nullptr);
     return *m_lara;
   }
 
   [[nodiscard]] const auto& getLara() const
   {
-    Expects(m_lara != nullptr);
+    gsl_Expects(m_lara != nullptr);
     return *m_lara;
   }
 

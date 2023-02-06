@@ -77,7 +77,7 @@ public:
 
   void setSelected(size_t idx)
   {
-    Expects(idx < m_widgets.size());
+    gsl_Expects(idx < m_widgets.size());
     m_selected = idx;
   }
 

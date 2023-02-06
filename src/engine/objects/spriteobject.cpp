@@ -71,7 +71,7 @@ SpriteObject::SpriteObject(const std::string& name,
 
 void SpriteObject::createModel()
 {
-  Expects(m_sprite != nullptr);
+  gsl_Expects(m_sprite != nullptr);
 
   m_displayNode->setRenderable(m_billboard ? m_sprite->billboardMesh : m_sprite->yBoundMesh);
   m_displayNode->bind("u_lightAmbient",

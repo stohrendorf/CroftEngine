@@ -15,7 +15,7 @@ namespace audio
 // NOLINTNEXTLINE(readability-make-member-function-const)
 void BufferHandle::fill(const int16_t* samples, const size_t frameCount, const int channels, const int sampleRate)
 {
-  Expects(channels == 1 || channels == 2);
+  gsl_Expects(channels == 1 || channels == 2);
   m_frameCount = frameCount;
   m_sampleRate = sampleRate;
   AL_ASSERT(alBufferData(*this,
@@ -28,8 +28,8 @@ void BufferHandle::fill(const int16_t* samples, const size_t frameCount, const i
 // NOLINTNEXTLINE(readability-make-member-function-const)
 void BufferHandle::fillFromWav(const uint8_t* data)
 {
-  Expects(data[0] == 'R' && data[1] == 'I' && data[2] == 'F' && data[3] == 'F');
-  Expects(data[8] == 'W' && data[9] == 'A' && data[10] == 'V' && data[11] == 'E');
+  gsl_Expects(data[0] == 'R' && data[1] == 'I' && data[2] == 'F' && data[3] == 'F');
+  gsl_Expects(data[8] == 'W' && data[9] == 'A' && data[10] == 'V' && data[11] == 'E');
 
   // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
   uint32_t dataSize = 0;

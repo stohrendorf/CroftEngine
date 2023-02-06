@@ -175,18 +175,18 @@ public:
 
   [[nodiscard]] auto getFastGaussBlur(const uint8_t extent, uint8_t blurDim)
   {
-    Expects(extent > 0);
-    Expects(blurDim > 0);
-    Expects(blurDim <= 3);
+    gsl_Expects(extent > 0);
+    gsl_Expects(blurDim > 0);
+    gsl_Expects(blurDim <= 3);
     std::vector<std::string> defines{"BLUR_DIM " + std::to_string(blurDim)};
     return get("flat.vert", "blur_fast_gauss_" + std::to_string(extent * 2 + 1) + ".frag", defines);
   }
 
   [[nodiscard]] auto getFastBoxBlur(const uint8_t extent, uint8_t blurDim)
   {
-    Expects(extent > 0);
-    Expects(blurDim > 0);
-    Expects(blurDim <= 3);
+    gsl_Expects(extent > 0);
+    gsl_Expects(blurDim > 0);
+    gsl_Expects(blurDim <= 3);
     std::vector<std::string> defines{"BLUR_DIM " + std::to_string(blurDim)};
     return get("flat.vert", "blur_fast_box_" + std::to_string(extent * 2 + 1) + ".frag", defines);
   }

@@ -51,7 +51,7 @@ AudioStreamDecoder::AudioStreamDecoder(AVFormatContext* fmtContext, bool rplFake
                                     0,
                                     nullptr)}
 {
-  Expects(stream->context->channels == 1 || stream->context->channels == 2);
+  gsl_Expects(stream->context->channels == 1 || stream->context->channels == 2);
 
   if(swrContext == nullptr)
   {

@@ -121,7 +121,7 @@ public:
 
   [[nodiscard]] const ui::TRFont& getTrFont() const
   {
-    Expects(m_trFont != nullptr);
+    gsl_Expects(m_trFont != nullptr);
     return *m_trFont;
   }
 

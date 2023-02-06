@@ -174,7 +174,7 @@ void Ui::render()
   SOGLB_DEBUGGROUP("ui");
 
   // rebuild vao and vbo
-  Expects(m_vertices.size() % 4 == 0);
+  gsl_Expects(m_vertices.size() % 4 == 0);
 
   std::vector<uint16_t> indices;
   static const std::array<uint16_t, 6> localIndices{0, 1, 2, 0, 2, 3};

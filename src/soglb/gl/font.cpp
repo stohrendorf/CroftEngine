@@ -96,7 +96,7 @@ Font::Font(std::filesystem::path ttf)
     BOOST_LOG_TRIVIAL(fatal) << "Failed to create cache manager: " << getFreeTypeErrorMessage(error);
     BOOST_THROW_EXCEPTION(std::runtime_error("Failed to create cache manager"));
   }
-  Ensures(m_cache != nullptr);
+  gsl_Ensures(m_cache != nullptr);
 
   error = FTC_CMapCache_New(m_cache, &m_cmapCache);
   if(error != FT_Err_Ok)
@@ -104,7 +104,7 @@ Font::Font(std::filesystem::path ttf)
     BOOST_LOG_TRIVIAL(fatal) << "Failed to create cmap cache: " << getFreeTypeErrorMessage(error);
     BOOST_THROW_EXCEPTION(std::runtime_error("Failed to create cmap cache"));
   }
-  Ensures(m_cmapCache != nullptr);
+  gsl_Ensures(m_cmapCache != nullptr);
 
   error = FTC_SBitCache_New(m_cache, &m_sbitCache);
   if(error != FT_Err_Ok)
@@ -112,7 +112,7 @@ Font::Font(std::filesystem::path ttf)
     BOOST_LOG_TRIVIAL(fatal) << "Failed to create cmap cache: " << getFreeTypeErrorMessage(error);
     BOOST_THROW_EXCEPTION(std::runtime_error("Failed to create cmap cache"));
   }
-  Ensures(m_sbitCache != nullptr);
+  gsl_Ensures(m_sbitCache != nullptr);
 
   const auto face = getFace();
   const auto h = face->ascender - face->descender;
@@ -129,8 +129,8 @@ Font::~Font()
 void Font::drawText(
   Image<PremultipliedSRGBA8>& img, const gsl::czstring text, glm::ivec2 xy, const PremultipliedSRGBA8& color, int size)
 {
-  Expects(text);
-  Expects(size > 0);
+  gsl_Expects(text);
+  gsl_Expects(size > 0);
 
   size = gsl::narrow_cast<int>(gsl::narrow_cast<float>(size) * m_lineHeight);
 

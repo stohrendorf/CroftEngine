@@ -227,7 +227,7 @@ CImgWrapper& CImgWrapper::operator=(CImgWrapper&& other) noexcept
 
 void CImgWrapper::extendBorder(int margin)
 {
-  Expects(margin >= 0);
+  gsl_Expects(margin >= 0);
   unshare();
   if(!m_interleaved)
     m_image->resize(width() + 2 * margin, height() + 2 * margin, -100, -100, 0, 1, 0.5f, 0.5f, 0, 0);

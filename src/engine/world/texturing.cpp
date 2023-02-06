@@ -570,8 +570,8 @@ void materializeAtlases(const loader::file::level::Level& level,
     sprite->atlasId = replacementPos.first;
   }
 
-  Ensures(doneTiles.size() == atlasTiles.size());
-  Ensures(doneSprites.size() == sprites.size());
+  gsl_Ensures(doneTiles.size() == atlasTiles.size());
+  gsl_Ensures(doneSprites.size() == sprites.size());
 }
 
 struct DataPart

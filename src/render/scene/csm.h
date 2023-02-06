@@ -123,7 +123,7 @@ public:
 
   void setActiveSplit(size_t idx)
   {
-    Expects(idx < m_splits.size());
+    gsl_Expects(idx < m_splits.size());
     m_activeSplit = idx;
   }
 

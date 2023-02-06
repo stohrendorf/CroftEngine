@@ -28,8 +28,8 @@ StreamVoice::StreamVoice(std::unique_ptr<StreamingSourceHandle>&& streamSource,
   BOOST_LOG_TRIVIAL(trace) << "Created AL stream with buffer size " << bufferSize << " and " << bufferCount
                            << " buffers";
 
-  Expects(bufferSize > 0);
-  Expects(bufferCount >= 2);
+  gsl_Expects(bufferSize > 0);
+  gsl_Expects(bufferCount >= 2);
 
   m_stream->seek(initialPosition);
 

@@ -717,15 +717,15 @@ void World::runEffect(const size_t id, objects::Object* object)
   switch(id)
   {
   case 0:
-    Expects(object != nullptr);
+    gsl_Expects(object != nullptr);
     return turn180Effect(*object);
   case 1:
-    Expects(object != nullptr);
+    gsl_Expects(object != nullptr);
     return dinoStompEffect(*object);
   case 2:
     return laraNormalEffect();
   case 3:
-    Expects(object != nullptr);
+    gsl_Expects(object != nullptr);
     return laraBubblesEffect(*object);
   case 4:
     return finishLevelEffect();
@@ -748,7 +748,7 @@ void World::runEffect(const size_t id, objects::Object* object)
   case 13:
     return flipMapEffect();
   case 14:
-    Expects(object != nullptr);
+    gsl_Expects(object != nullptr);
     if(const auto m = dynamic_cast<objects::ModelObject*>(object))
       return drawRightWeaponEffect(*m);
     break;
@@ -1713,7 +1713,7 @@ void World::initBoxes(const loader::file::level::Level& level)
                               box.blockable,
                               getOverlaps(box.overlap_index)};
                  });
-  Ensures(m_boxes.size() == level.m_boxes.size());
+  gsl_Ensures(m_boxes.size() == level.m_boxes.size());
 
   gsl_Assert(level.m_baseZones.flyZone.size() == m_boxes.size());
   gsl_Assert(level.m_baseZones.groundZone1.size() == m_boxes.size());
@@ -1845,7 +1845,7 @@ void World::initAnimationData(const loader::file::level::Level& level)
                                 nextAnimation,
                                 transitions};
   }
-  Ensures(m_animations.size() == level.m_animations.size());
+  gsl_Ensures(m_animations.size() == level.m_animations.size());
 
   for(const auto& transitionCase : level.m_transitionCases)
   {
@@ -1859,7 +1859,7 @@ void World::initAnimationData(const loader::file::level::Level& level)
     m_transitionCases.emplace_back(
       TransitionCase{transitionCase.firstFrame, transitionCase.lastFrame, transitionCase.targetFrame, anim});
   }
-  Ensures(m_transitionCases.size() == level.m_transitionCases.size());
+  gsl_Ensures(m_transitionCases.size() == level.m_transitionCases.size());
 
   gsl_Assert(m_transitions.size() == level.m_transitions.size());
   std::transform(
@@ -1875,7 +1875,7 @@ void World::initAnimationData(const loader::file::level::Level& level)
           gsl::span{&transitions.firstTransitionCase.from(m_transitionCases), transitions.transitionCaseCount}};
       return Transitions{};
     });
-  Ensures(m_transitions.size() == level.m_transitions.size());
+  gsl_Ensures(m_transitions.size() == level.m_transitions.size());
 }
 
 void World::connectSectors()

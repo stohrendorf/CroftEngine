@@ -146,7 +146,7 @@ std::pair<bool, Location>
   const auto invariantCheck = gsl::finally(
     [&result = result]()
     {
-      Ensures(result.room->getSectorByAbsolutePosition(result.position) != nullptr);
+      gsl_Ensures(result.room->getSectorByAbsolutePosition(result.position) != nullptr);
     });
 
   if(secondCollision == CollisionType::Wall)

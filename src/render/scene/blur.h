@@ -32,9 +32,9 @@ public:
                          : materialManager.getFastBoxBlur(extent, dir, PixelT::Channels)}
       , m_downscale{downscale}
   {
-    Expects(dir == 1 || dir == 2);
-    Expects(extent > 0);
-    Expects(downscale > 0);
+    gsl_Expects(dir == 1 || dir == 2);
+    gsl_Expects(extent > 0);
+    gsl_Expects(downscale > 0);
   }
 
   void setInput(const gslu::nn_shared<TextureHandle>& src)

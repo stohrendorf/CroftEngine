@@ -14,7 +14,7 @@ namespace render
 {
 TextureAnimator::TextureAnimator(const std::vector<uint16_t>& data)
 {
-  Expects(!data.empty());
+  gsl_Expects(!data.empty());
 
   const uint16_t* ptr = data.data();
   const auto sequenceCount = *ptr++;

@@ -47,7 +47,7 @@ Framebuffer::Framebuffer(Framebuffer::Attachments attachments,
     GL_ASSERT(api::namedFramebufferReadBuffer(getHandle(), api::ColorBuffer::None));
   }
 
-  Expects(isComplete());
+  gsl_Expects(isComplete());
 }
 
 bool Framebuffer::isComplete() const
@@ -145,7 +145,7 @@ void Framebuffer::blit(const glm::ivec2& backbufferSize, gl::api::BlitFramebuffe
 
 gslu::nn_shared<Framebuffer> FrameBufferBuilder::build(const std::string_view& label)
 {
-  Expects(!m_attachments.empty());
+  gsl_Expects(!m_attachments.empty());
 
   glm::ivec2 size{-1, -1};
   for(const auto& [attachment, _] : m_attachments)

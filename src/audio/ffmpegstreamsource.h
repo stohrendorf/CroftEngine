@@ -95,7 +95,7 @@ struct FfmpegMemoryStreamSourceSubFileData
       , dataStart{start}
       , dataEnd{end}
   {
-    Expects(start <= end);
+    gsl_Expects(start <= end);
   }
 
   virtual ~FfmpegMemoryStreamSourceSubFileData() = default;

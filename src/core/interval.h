@@ -77,7 +77,7 @@ struct Interval final
 
   [[nodiscard]] constexpr auto mid() const
   {
-    Expects(isValid());
+    gsl_Expects(isValid());
     return (min + max) / 2;
   }
 

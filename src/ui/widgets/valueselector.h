@@ -45,8 +45,8 @@ public:
       , m_displayTextProvider{std::move(displayTextProvider)}
       , m_selectionChangeHandler{std::move(selectionChangeHandler)}
   {
-    Expects(m_displayTextProvider);
-    Expects(m_selectionChangeHandler);
+    gsl_Expects(m_displayTextProvider);
+    gsl_Expects(m_selectionChangeHandler);
     if(!m_values.empty())
       m_label.setText(m_displayTextProvider(m_values[0]));
   }

@@ -21,7 +21,7 @@ template<typename TContext>
 inline void deserialize(glm::mat4& m, const Deserializer<TContext>& ser)
 {
   ser.tag("mat4");
-  Expects(ser.node.is_seq() && ser.node.num_children() == 4 * 4);
+  gsl_Expects(ser.node.is_seq() && ser.node.num_children() == 4 * 4);
   auto it = ser.node.begin();
   for(int x = 0; x < 4; ++x)
   {
@@ -55,7 +55,7 @@ template<typename TContext, glm::length_t L, typename T, glm::qualifier Q>
 inline void deserialize(glm::vec<L, T, Q>& v, const Deserializer<TContext>& ser)
 {
   ser.tag("vec");
-  Expects(ser.node.is_seq() && ser.node.num_children() == L);
+  gsl_Expects(ser.node.is_seq() && ser.node.num_children() == L);
   auto it = ser.node.begin();
   for(glm::length_t x = 0; x < L; ++x)
   {

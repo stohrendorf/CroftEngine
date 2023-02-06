@@ -41,7 +41,7 @@ private:
   {
     ALuint handle;
     AL_ASSERT(allocator(1, &handle));
-    Ensures(test(handle) == AL_TRUE);
+    gsl_Ensures(test(handle) == AL_TRUE);
     return handle;
   }
 

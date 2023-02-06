@@ -34,21 +34,21 @@ Uniform& Uniform::operator=(Uniform&& rhs) noexcept
 
 void Uniform::set(const glm::mat3& value)
 {
-  Expects(m_program != InvalidProgram);
+  gsl_Expects(m_program != InvalidProgram);
   if(changeValue(value))
     GL_ASSERT(api::programUniformMatrix3(m_program, getLocation(), 1, false, glm::value_ptr(value)));
 }
 
 void Uniform::set(const glm::mat4& value)
 {
-  Expects(m_program != InvalidProgram);
+  gsl_Expects(m_program != InvalidProgram);
   if(changeValue(value))
     GL_ASSERT(api::programUniformMatrix4(m_program, getLocation(), 1, false, glm::value_ptr(value)));
 }
 
 void Uniform::set(const std::vector<glm::mat4>& values)
 {
-  Expects(m_program != InvalidProgram);
+  gsl_Expects(m_program != InvalidProgram);
   if(changeValue(values))
     GL_ASSERT(api::programUniformMatrix4(
       m_program,
@@ -61,28 +61,28 @@ void Uniform::set(const std::vector<glm::mat4>& values)
 
 void Uniform::set(const glm::vec2& value)
 {
-  Expects(m_program != InvalidProgram);
+  gsl_Expects(m_program != InvalidProgram);
   if(changeValue(value))
     GL_ASSERT(api::programUniform2(m_program, getLocation(), value.x, value.y));
 }
 
 void Uniform::set(const glm::vec3& value)
 {
-  Expects(m_program != InvalidProgram);
+  gsl_Expects(m_program != InvalidProgram);
   if(changeValue(value))
     GL_ASSERT(api::programUniform3(m_program, getLocation(), value.x, value.y, value.z));
 }
 
 void Uniform::set(const glm::vec4& value)
 {
-  Expects(m_program != InvalidProgram);
+  gsl_Expects(m_program != InvalidProgram);
   if(changeValue(value))
     GL_ASSERT(api::programUniform4(m_program, getLocation(), value.x, value.y, value.z, value.w));
 }
 
 void Uniform::set(const std::vector<glm::vec2>& values)
 {
-  Expects(m_program != InvalidProgram);
+  gsl_Expects(m_program != InvalidProgram);
   if(changeValue(values))
     GL_ASSERT(api::programUniform2(
       m_program,
@@ -94,7 +94,7 @@ void Uniform::set(const std::vector<glm::vec2>& values)
 
 void Uniform::set(const std::vector<glm::vec3>& values)
 {
-  Expects(m_program != InvalidProgram);
+  gsl_Expects(m_program != InvalidProgram);
   if(changeValue(values))
     GL_ASSERT(api::programUniform3(
       m_program,
@@ -106,7 +106,7 @@ void Uniform::set(const std::vector<glm::vec3>& values)
 
 void Uniform::set(const std::vector<glm::vec4>& values)
 {
-  Expects(m_program != InvalidProgram);
+  gsl_Expects(m_program != InvalidProgram);
   if(changeValue(values))
     GL_ASSERT(api::programUniform4(
       m_program,

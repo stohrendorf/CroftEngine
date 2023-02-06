@@ -35,7 +35,7 @@ namespace engine
 {
 void ObjectManager::createObjects(world::World& world, std::vector<loader::file::Item>& items)
 {
-  Expects(m_objectCounter == 0);
+  gsl_Expects(m_objectCounter == 0);
   m_objectCounter = gsl::narrow<ObjectId>(items.size());
 
   m_lara = nullptr;

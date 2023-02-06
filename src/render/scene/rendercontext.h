@@ -30,7 +30,7 @@ public:
 
   void bindState()
   {
-    Expects(!m_renderStates.empty());
+    gsl_Expects(!m_renderStates.empty());
     gl::RenderState::getWantedState() = m_renderStates.top();
   }
 
@@ -51,7 +51,7 @@ public:
 
   [[nodiscard]] const auto& getCurrentState() const
   {
-    Expects(!m_renderStates.empty());
+    gsl_Expects(!m_renderStates.empty());
     return m_renderStates.top();
   }
 

@@ -21,7 +21,7 @@ ClosePassportMenuState::ClosePassportMenuState(const std::shared_ptr<MenuRingTra
     : MenuState{ringTransform}
     , m_next{std::move(next)}
 {
-  Expects(passport.type == engine::TR1ItemId::PassportOpening);
+  gsl_Expects(passport.type == engine::TR1ItemId::PassportOpening);
 
   const auto localFrame = passport.goalFrame - passport.openFrame;
   auto page = localFrame / PassportMenuState::FramesPerPage;

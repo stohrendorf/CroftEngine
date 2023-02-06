@@ -435,13 +435,13 @@ gslu::nn_shared<Object> create(const serialization::TypeId<gslu::nn_shared<Objec
 void serialization::serialize(const std::shared_ptr<engine::objects::Object>& ptr,
                               const Serializer<engine::world::World>& ser)
 {
-  Expects(ptr != nullptr);
+  gsl_Expects(ptr != nullptr);
   ptr->serialize(ser);
 }
 
 void serialization::deserialize(std::shared_ptr<engine::objects::Object>& ptr,
                                 const Deserializer<engine::world::World>& ser)
 {
-  Expects(ptr != nullptr);
+  gsl_Expects(ptr != nullptr);
   ptr->deserialize(ser);
 }

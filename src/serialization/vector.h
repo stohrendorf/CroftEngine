@@ -23,7 +23,7 @@ template<typename T, typename TContext>
 void deserialize(std::vector<T>& data, const Deserializer<TContext>& ser)
 {
   ser.tag("vector");
-  Expects(ser.node.is_seq());
+  gsl_Expects(ser.node.is_seq());
   data = std::vector<T>();
   data.reserve(ser.node.num_children());
   std::transform(ser.node.begin(),

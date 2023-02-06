@@ -554,7 +554,7 @@ std::unordered_set<const world::Portal*> CameraController::update()
 
 void CameraController::handleFixedCamera()
 {
-  Expects(m_fixedCameraId >= 0);
+  gsl_Expects(m_fixedCameraId >= 0);
 
   const auto& camera = m_world->getCameraSinks().at(m_fixedCameraId);
   auto [success, goal] = raycastLineOfSight(m_lookAt, camera.position, m_world->getObjectManager());

@@ -76,8 +76,8 @@ Rectangle::Rectangle(const std::string& serialized)
   m_xy0 = {boost::lexical_cast<int32_t>(matches[1].str()), boost::lexical_cast<int32_t>(matches[3].str())};
   m_xy1 = {boost::lexical_cast<int32_t>(matches[2].str()), boost::lexical_cast<int32_t>(matches[4].str())};
 
-  Ensures(m_xy0.x < m_xy1.x);
-  Ensures(m_xy0.y < m_xy1.y);
+  gsl_Ensures(m_xy0.x < m_xy1.x);
+  gsl_Ensures(m_xy0.y < m_xy1.y);
 }
 
 TexturePart::TexturePart(const std::string& serialized)

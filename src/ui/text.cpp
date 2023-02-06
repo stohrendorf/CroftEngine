@@ -124,7 +124,7 @@ void TRFont::draw(ui::Ui& ui, size_t sprite, const glm::ivec2& xy, float scale, 
 Text::Text(const std::string& text)
     : m_layout{doLayout(text, &m_width)}
 {
-  Ensures(m_width >= 0);
+  gsl_Ensures(m_width >= 0);
 }
 
 void Text::draw(Ui& ui, const TRFont& font, const glm::ivec2& position, float scale, float alpha) const

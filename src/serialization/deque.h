@@ -23,7 +23,7 @@ template<typename T, typename TContext>
 void deserialize(std::deque<T>& data, const Deserializer<TContext>& ser)
 {
   ser.tag("deque");
-  Expects(ser.node.is_seq());
+  gsl_Expects(ser.node.is_seq());
   data = std::deque<T>();
   std::transform(ser.node.begin(),
                  ser.node.end(),

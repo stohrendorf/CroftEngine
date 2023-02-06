@@ -260,7 +260,7 @@ std::pair<RunResult, std::optional<size_t>> Level::runFromSave(Engine& engine,
                                                                const std::shared_ptr<Player>& player,
                                                                const std::shared_ptr<Player>& levelStartPlayer)
 {
-  Expects(m_allowSave);
+  gsl_Expects(m_allowSave);
 
   if(m_alternativeSplashscreen.has_value()
      && std::filesystem::is_regular_file(engine.getAssetDataPath() / *m_alternativeSplashscreen))
@@ -317,9 +317,9 @@ SplashScreen::SplashScreen(std::string path, int durationSeconds, int fadeInDura
     , m_fadeInDurationSeconds{fadeInDurationSeconds}
     , m_fadeOutDurationSeconds{fadeOutDurationSeconds}
 {
-  Expects(m_durationSeconds > 0);
-  Expects(m_fadeInDurationSeconds >= 0);
-  Expects(m_fadeOutDurationSeconds >= 0);
+  gsl_Expects(m_durationSeconds > 0);
+  gsl_Expects(m_fadeInDurationSeconds >= 0);
+  gsl_Expects(m_fadeOutDurationSeconds >= 0);
 }
 
 SplashScreen::~SplashScreen() = default;
@@ -480,7 +480,7 @@ std::vector<std::filesystem::path> Gameflow::getInvalidFilepaths(const std::file
     for(const auto& invalid : levelSequenceItem->getFilepathsIfInvalid(dataRoot))
       result.emplace_back(invalid);
   }
-  Expects(m_titleMenu != nullptr);
+  gsl_Expects(m_titleMenu != nullptr);
   for(const auto& invalid : m_titleMenu->getFilepathsIfInvalid(dataRoot))
     result.emplace_back(invalid);
   for(const auto& levelSequenceItem : m_laraHome)

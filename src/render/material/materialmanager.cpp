@@ -116,7 +116,7 @@ gslu::nn_shared<Material> MaterialManager::getDepthOnly(bool skeletal, std::func
 gslu::nn_shared<Material> MaterialManager::getGeometry(
   bool inWater, bool skeletal, bool roomShadowing, std::function<bool()> smooth, std::function<int32_t()> lightingMode)
 {
-  Expects(m_geometryTexturesHandle != nullptr);
+  gsl_Expects(m_geometryTexturesHandle != nullptr);
 
   auto m = gsl::make_shared<Material>(m_shaderCache->getGeometry(inWater, skeletal, roomShadowing, 0));
   m->getUniform("u_diffuseTextures")

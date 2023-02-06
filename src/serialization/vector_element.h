@@ -100,7 +100,7 @@ struct DeserializingNotNullVectorElement final
   template<typename TContext>
   void deserialize(const Deserializer<TContext>& ser)
   {
-    Expects(!ser.isNull());
+    gsl_Expects(!ser.isNull());
     ser.tag("element");
     std::ptrdiff_t n = 0;
     ser.node >> n;
