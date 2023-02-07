@@ -187,8 +187,6 @@ CroftEngine uses [vcpkg](https://github.com/Microsoft/vcpkg) **on Windows**; ref
 thing you need is to call cmake with
 `-DCMAKE_TOOLCHAIN_FILE=C:/devel/vcpkg/scripts/buildsystems/vcpkg.cmake` (adjust path as necessary).
 
-If you're running Linux, **you don't need vcpkg**.
-
 This is the list of the required libraries to be installed with `vcpkg install` (remember to set the target triplet as
 necessary, e.g. `vcpkg install boost:x64-windows`):
 
@@ -217,6 +215,35 @@ minimum supported version is Python 3.6, the Windows releases ship with Python 3
 build CroftEngine on Windows with an external Python installation, you need to add the variable `Python3_ROOT` pointing
 to the installation root, e.g. using the command line with `-DPython3_ROOT=E:\Python38` or adding a path variable in the
 ui.
+</details>
+
+<details>
+<summary>Building on Linux (click to expand)</summary>
+
+Do a `git submodule update --init --recursive`.
+
+CroftEngine will download and cache some 3rd party libraries which are uncommon or usually outdated on today's popular Linux distributions.
+   
+This is the list of the required libraries to be installed (these are *not* package names, but should be similar):
+
+* boost
+* glfw3
+* libpng
+* openal-soft
+* opengl
+* freetype
+* ffmpeg
+* utfcpp
+* gettext
+* libarchive
+* libjpeg-turbo
+* qt5
+* python3 >= 3.6
+
+You can have a look at the [openSUSE RPM spec](https://build.opensuse.org/package/view_file/games/croftengine/croftengine.spec) for RPM-based packages or the [CI file](https://github.com/stohrendorf/CroftEngine/blob/master/.github/workflows/ci.yml) for Debian-based packages.
+Depending on your distribution, the package names may differ.
+
+Then follow the common `cmake` steps to build, i.e. `mkdir build && cd build && cmake .. && make`.
 </details>
 
 <details>
