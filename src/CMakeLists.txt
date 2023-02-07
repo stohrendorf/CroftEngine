@@ -322,6 +322,8 @@ set( CROFTENGINE_SRCS
         loader/trx/trx.h
         loader/trx/trx.cpp
 
+        loader/py_module.cpp
+
         audio/audiostreamdecoder.h
         audio/audiostreamdecoder.cpp
         audio/bufferhandle.h

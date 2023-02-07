@@ -11,7 +11,7 @@ namespace engine::ai
 {
 namespace py = pybind11;
 
-void initAiModule(const py::module& m)
+inline void initAiModule(const py::module& m)
 {
   py::class_<CreatureInfo>(m, "CreatureInfo")
     .def_readwrite("head_rotation", &CreatureInfo::headRotation)
