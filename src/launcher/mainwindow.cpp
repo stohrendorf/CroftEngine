@@ -262,12 +262,127 @@ void MainWindow::onImportClicked()
        || std::filesystem::is_regular_file(userDataDir / "data" / "tr1" / "Music" / "Track02.flac"))
       return;
 
-    auto downloader = new DownloadProgress(QUrl{"https://opentomb.earvillage.net/croftengine-audio-tr1.zip"},
-                                           userDataDir / "data" / "tr1" / "AUDIO" / "tracks.zip",
-                                           this);
+    auto downloader = new DownloadProgress(
+      QUrl{"https://opentomb.earvillage.net/croftengine-audio-tr1.zip"}, userDataDir / "data" / "tracks.zip", this);
     connect(downloader, &DownloadProgress::downloaded, this, &MainWindow::extractSoundtrackZip);
     downloader->show();
     downloader->start();
+  }
+  else if(gameflow == "tr1demo")
+  {
+    const auto fileName
+      = QFileDialog::getOpenFileName(this, tr("Select Archive"), QString{}, tr("ZIP Archive (*.zip)"));
+    if(fileName.isEmpty())
+      return;
+
+    std::filesystem::path suspect;
+    {
+      std::set<std::filesystem::path> archiveDirs;
+
+      ReadOnlyArchive archive{fileName.toStdString()};
+      if(archive.failure())
+      {
+        QMessageBox::critical(
+          this,
+          tr("Extraction Error"),
+          tr("Could not open %1 as an archive: %2").arg(fileName, archive.getErrorString()->c_str()));
+        return;
+      }
+
+      {
+        BOOST_LOG_TRIVIAL(debug) << "gather archive directories";
+        while(archive.next())
+        {
+          switch(archive.getType())
+          {
+          case ReadOnlyArchive::EntryType::Directory:
+            archiveDirs.emplace(archive.getCurrentPathName());
+            break;
+          case ReadOnlyArchive::EntryType::File:
+            archiveDirs.emplace(archive.getCurrentPathName().parent_path());
+            break;
+          default:
+            BOOST_LOG_TRIVIAL(warning) << "unexpected archive entry filetype";
+            continue;
+          }
+        }
+      }
+
+      std::map<std::filesystem::path, std::vector<std::filesystem::path>> candidates;
+      for(const auto& dir : archiveDirs)
+      {
+        const auto stem = QString::fromUtf8(dir.stem().string().c_str()).toLower();
+        if(stem != "data")
+          continue;
+
+        BOOST_LOG_TRIVIAL(debug) << "candidate path " << dir;
+        candidates[dir.parent_path()].emplace_back(dir);
+      }
+      bool foundSuspect = false;
+      for(const auto& [base, full] : candidates)
+      {
+        BOOST_LOG_TRIVIAL(debug) << "suspect path " << base;
+        if(foundSuspect)
+        {
+          QMessageBox::critical(this, tr("Extraction Error"), tr("Could not find game data in archive."));
+          return;
+        }
+        suspect = base;
+        foundSuspect = true;
+      }
+      if(!foundSuspect)
+      {
+        QMessageBox::critical(this, tr("Extraction Error"), tr("Could not find game data in archive."));
+        return;
+      }
+    }
+    {
+      ReadOnlyArchive archive{fileName.toStdString()};
+      if(archive.failure())
+      {
+        QMessageBox::critical(this,
+                              tr("Extraction Error"),
+                              tr("Could not open %1 as an archive: %2")
+                                .arg(fileName, archive.getErrorString().value_or("Unknown error").c_str()));
+        return;
+      }
+
+      const auto dataRoot = findUserDataDir().value() / "data" / gameflow.toStdString();
+
+      while(archive.next())
+      {
+        {
+          bool valid = false;
+          for(auto p = archive.getCurrentPathName(); !p.empty(); p = p.parent_path())
+          {
+            valid |= p.parent_path() == suspect && QString::fromUtf8(p.stem().string().c_str()).toLower() == "data";
+            if(valid)
+            {
+              break;
+            }
+          }
+
+          if(!valid)
+            continue;
+        }
+
+        const auto dstName = dataRoot / std::filesystem::relative(archive.getCurrentPathName(), suspect);
+
+        BOOST_LOG_TRIVIAL(debug) << "extract " << archive.getCurrentPathName() << " to " << dstName;
+
+        std::filesystem::create_directories(dstName.parent_path());
+        archive.writeCurrentTo(dstName);
+      }
+
+      QMessageBox::information(this, tr("Data Imported"), tr("Game Data has been imported."));
+
+      auto downloader = new DownloadProgress(QUrl{"https://opentomb.earvillage.net/croftengine-audio-tr1.zip"},
+                                             findUserDataDir().value() / "data" / "tracks.zip",
+                                             this);
+      connect(downloader, &DownloadProgress::downloaded, this, &MainWindow::extractSoundtrackZip);
+      downloader->show();
+      downloader->start();
+    }
   }
   else
   {
@@ -657,26 +772,35 @@ void MainWindow::onMigrateClicked()
 
 void MainWindow::extractSoundtrackZip(std::filesystem::path target)
 {
-  ReadOnlyArchive archive{target};
-  if(archive.failure())
-  {
-    QMessageBox::critical(this,
-                          tr("Extraction Error"),
-                          tr("Could not open %1 as an archive: %2")
-                            .arg(target.string().c_str(), archive.getErrorString().value_or("Unknown error").c_str()));
-    return;
-  }
-
   std::vector<char> buffer;
   buffer.resize(8192);
 
-  const auto dataRoot = findUserDataDir().value() / "data" / "tr1" / "AUDIO";
-
-  while(archive.next())
+  for(const auto gameflow : {"tr1", "tr1demo"})
   {
-    const auto dstName = dataRoot / archive.getCurrentPathName();
-    std::filesystem::create_directories(dstName.parent_path());
-    archive.writeCurrentTo(dstName);
+    const auto gameflowRoot = findUserDataDir().value() / "data" / gameflow;
+    if(!std::filesystem::is_directory(gameflowRoot))
+    {
+      continue;
+    }
+
+    ReadOnlyArchive archive{target};
+    if(archive.failure())
+    {
+      QMessageBox::critical(
+        this,
+        tr("Extraction Error"),
+        tr("Could not open %1 as an archive: %2")
+          .arg(target.string().c_str(), archive.getErrorString().value_or("Unknown error").c_str()));
+      return;
+    }
+
+    const auto dataRoot = gameflowRoot / "AUDIO";
+    while(archive.next())
+    {
+      const auto dstName = dataRoot / archive.getCurrentPathName();
+      std::filesystem::create_directories(dstName.parent_path());
+      archive.writeCurrentTo(dstName);
+    }
   }
 
   QMessageBox::information(this, tr("Soundtrack Downloaded"), tr("The Soundtrack has been downloaded successfully."));

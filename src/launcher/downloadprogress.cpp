@@ -21,6 +21,12 @@ DownloadProgress::DownloadProgress(QUrl url, std::filesystem::path target, QWidg
   ui->url->setText(m_url.toString());
   connect(m_accessManager, &QNetworkAccessManager::finished, this, &DownloadProgress::finished);
   setWindowFlag(Qt::WindowType::Dialog);
+
+  if(std::filesystem::is_regular_file(m_target))
+  {
+    emit downloaded(m_target);
+    close();
+  }
 }
 
 DownloadProgress::~DownloadProgress()

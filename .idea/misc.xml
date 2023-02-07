@@ -4,6 +4,7 @@
   <component name="CidrRootsConfiguration">
     <sourceRoots>
       <file path="$PROJECT_DIR$/share/gameflows/tr1" />
+      <file path="$PROJECT_DIR$/share/gameflows/tr1demo" />
       <file path="$PROJECT_DIR$/share/gameflows/tr1sabatu" />
       <file path="$PROJECT_DIR$/share/gameflows/tr1ub" />
       <file path="$PROJECT_DIR$/src" />
