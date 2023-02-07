@@ -1,6 +1,7 @@
 #include "ai/py_module.h"
 
 #include "items_tr1.h"
+#include "loader/file/level/game.h"
 #include "objects/objectstate.h"
 #include "qs/quantity.h"
 #include "script/reflection.h"
@@ -70,14 +71,15 @@ PYBIND11_EMBEDDED_MODULE(engine, m)
 
   py::class_<engine::script::Cutscene, engine::script::LevelSequenceItem, std::shared_ptr<engine::script::Cutscene>>(
     m, "Cutscene", py::is_final{})
-    .def(py::init<std::string, engine::TR1TrackId, bool, bool, float>(),
+    .def(py::init<std::string, engine::TR1TrackId, bool, bool, float, loader::file::level::Game>(),
          py::kw_only{},
          py::arg("name"),
          py::arg("track"),
          py::arg("flip_rooms") = false,
          py::arg("weapon_swap") = false,
-         py::arg("camera_rot"))
-    .def(py::init<std::string, engine::TR1TrackId, bool, bool, float, int, int>(),
+         py::arg("camera_rot"),
+         py::arg("game") = loader::file::level::Game::Unknown)
+    .def(py::init<std::string, engine::TR1TrackId, bool, bool, float, int, int, loader::file::level::Game>(),
          py::kw_only{},
          py::arg("name"),
          py::arg("track"),
@@ -85,7 +87,8 @@ PYBIND11_EMBEDDED_MODULE(engine, m)
          py::arg("weapon_swap") = false,
          py::arg("camera_rot"),
          py::arg("camera_pos_x"),
-         py::arg("camera_pos_z"));
+         py::arg("camera_pos_z"),
+         py::arg("game") = loader::file::level::Game::Unknown);
 
   py::class_<engine::script::Level, engine::script::LevelSequenceItem, std::shared_ptr<engine::script::Level>>(
     m, "Level", py::is_final{})
@@ -98,7 +101,8 @@ PYBIND11_EMBEDDED_MODULE(engine, m)
                   engine::WeaponType,
                   std::tuple<float, float, float>,
                   float,
-                  std::optional<std::string>>(),
+                  std::optional<std::string>,
+                  loader::file::level::Game>(),
          py::kw_only{},
          py::arg("name"),
          py::arg("use_alternative_lara") = false,
@@ -109,7 +113,8 @@ PYBIND11_EMBEDDED_MODULE(engine, m)
          py::arg("default_weapon") = engine::WeaponType::Pistols,
          py::arg("water_color") = engine::script::Level::DefaultWaterColor,
          py::arg("water_density") = engine::script::Level::DefaultWaterDensity,
-         py::arg("alternative_splashscreen") = std::nullopt);
+         py::arg("alternative_splashscreen") = std::nullopt,
+         py::arg("game") = loader::file::level::Game::Unknown);
 
   py::class_<engine::script::ModifyInventory,
              engine::script::LevelSequenceItem,
@@ -125,13 +130,15 @@ PYBIND11_EMBEDDED_MODULE(engine, m)
                   bool,
                   std::unordered_map<std::string, std::string>,
                   std::unordered_map<std::string, std::unordered_map<engine::TR1ItemId, std::string>>,
-                  std::optional<engine::TR1TrackId>>(),
+                  std::optional<engine::TR1TrackId>,
+                  loader::file::level::Game>(),
          py::kw_only{},
          py::arg("name"),
          py::arg("use_alternative_lara") = false,
          py::arg("titles"),
          py::arg("item_titles") = py::dict{},
-         py::arg("ambient") = std::nullopt);
+         py::arg("ambient") = std::nullopt,
+         py::arg("game") = loader::file::level::Game::Unknown);
 
   py::class_<engine::script::SplashScreen,
              engine::script::LevelSequenceItem,

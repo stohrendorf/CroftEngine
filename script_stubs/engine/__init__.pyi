@@ -1,5 +1,6 @@
 from enum import Enum, auto
 from typing import Optional, Dict, Set, List, Tuple
+from loader.file.level import Game
 
 
 class ObjectInfo:
@@ -67,6 +68,7 @@ class Level(LevelSequenceItem):
             water_color: Tuple[float, float, float] = ...,
             water_density: float = ...,
             alternative_splashscreen: Optional[str] = None,
+            game: Game = Game.Unknown,
     ):
         ...
 
@@ -99,6 +101,7 @@ class Cutscene(LevelSequenceItem):
             flip_rooms: bool = False,
             camera_pos_x: Optional[int] = None,
             camera_pos_z: Optional[int] = None,
+            game: Game = Game.Unknown,
     ):
         ...
 

@@ -72,11 +72,10 @@ namespace engine::script
 namespace
 {
 std::unique_ptr<loader::file::level::Level>
-  loadLevel(Engine& engine, const std::string& localPath, const std::string& title)
+  loadLevel(Engine& engine, const std::string& localPath, const std::string& title, loader::file::level::Game game)
 {
   engine.getPresenter().drawLoadingScreen(_("Loading %1%", title));
-  auto level = loader::file::level::Level::createLoader(engine.getAssetDataPath() / localPath,
-                                                        loader::file::level::Game::Unknown);
+  auto level = loader::file::level::Level::createLoader(engine.getAssetDataPath() / localPath, game);
   level->loadFileData();
   return level;
 }
@@ -117,7 +116,7 @@ std::pair<RunResult, std::optional<size_t>>
   engine.getPresenter().getSoundEngine()->reset();
   auto world
     = std::make_unique<world::World>(engine,
-                                     loadLevel(engine, m_name, m_name),
+                                     loadLevel(engine, m_name, m_name, m_game),
                                      std::string{},
                                      m_track,
                                      false,
@@ -188,7 +187,7 @@ std::unique_ptr<world::World> Level::loadWorld(Engine& engine,
     player->getInventory().put(type.cast<TR1ItemId>(), nullptr, qty.cast<size_t>());
 
   auto world = std::make_unique<world::World>(engine,
-                                              loadLevel(engine, m_name, util::unescape(title)),
+                                              loadLevel(engine, m_name, util::unescape(title), m_game),
                                               title,
                                               m_ambient,
                                               m_useAlternativeLara,
@@ -297,7 +296,8 @@ TitleMenu::TitleMenu(const std::string& name,
                      bool useAlternativeLara,
                      const std::unordered_map<std::string, std::string>& titles,
                      const std::unordered_map<std::string, std::unordered_map<TR1ItemId, std::string>>& itemTitles,
-                     std::optional<TR1TrackId> ambient)
+                     std::optional<TR1TrackId> ambient,
+                     loader::file::level::Game game)
     : Level{name,
             useAlternativeLara,
             titles,
@@ -307,7 +307,8 @@ TitleMenu::TitleMenu(const std::string& name,
             WeaponType::None,
             DefaultWaterColor,
             DefaultWaterDensity,
-            std::nullopt}
+            std::nullopt,
+            game}
 {
 }
 

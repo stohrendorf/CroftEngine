@@ -34,6 +34,11 @@ namespace engine::world
 class World;
 }
 
+namespace loader::file::level
+{
+enum class Game;
+}
+
 namespace engine::script
 {
 struct ObjectInfo
@@ -102,6 +107,7 @@ private:
   const glm::vec3 m_waterColor;
   const float m_waterDensity;
   const std::optional<std::string> m_alternativeSplashscreen;
+  const loader::file::level::Game m_game;
 
 protected:
   [[nodiscard]] std::unique_ptr<world::World> loadWorld(Engine& engine,
@@ -122,7 +128,8 @@ public:
                  WeaponType defaultWeapon,
                  std::tuple<float, float, float> waterColor,
                  float waterDensity,
-                 std::optional<std::string> alternativeSplashscreen)
+                 std::optional<std::string> alternativeSplashscreen,
+                 loader::file::level::Game game)
       : m_name{std::move(name)}
       , m_useAlternativeLara{useAlternativeLara}
       , m_titles{std::move(titles)}
@@ -133,6 +140,7 @@ public:
       , m_waterColor{std::get<0>(waterColor), std::get<1>(waterColor), std::get<2>(waterColor)}
       , m_waterDensity{waterDensity}
       , m_alternativeSplashscreen{std::move(alternativeSplashscreen)}
+      , m_game{game}
   {
   }
 
@@ -187,7 +195,8 @@ public:
             bool useAlternativeLara,
             const std::unordered_map<std::string, std::string>& titles,
             const std::unordered_map<std::string, std::unordered_map<TR1ItemId, std::string>>& itemTitles,
-            std::optional<TR1TrackId> ambient);
+            std::optional<TR1TrackId> ambient,
+            loader::file::level::Game game);
 
   std::pair<RunResult, std::optional<size_t>> run(Engine& engine,
                                                   const std::shared_ptr<Player>& player,
@@ -239,6 +248,7 @@ private:
   const core::Angle m_cameraRot;
   const std::optional<core::Length> m_cameraPosX;
   const std::optional<core::Length> m_cameraPosZ;
+  const loader::file::level::Game m_game;
 
 public:
   explicit Cutscene(std::string name,
@@ -247,7 +257,8 @@ public:
                     bool weaponSwap,
                     float cameraRot,
                     int cameraPosX,
-                    int cameraPosZ)
+                    int cameraPosZ,
+                    loader::file::level::Game game)
       : m_name{std::move(name)}
       , m_track{track}
       , m_flipRooms{flipRooms}
@@ -255,10 +266,16 @@ public:
       , m_cameraRot{core::angleFromDegrees(cameraRot)}
       , m_cameraPosX{cameraPosX}
       , m_cameraPosZ{cameraPosZ}
+      , m_game{game}
   {
   }
 
-  explicit Cutscene(std::string name, TR1TrackId track, bool flipRooms, bool weaponSwap, float cameraRot)
+  explicit Cutscene(std::string name,
+                    TR1TrackId track,
+                    bool flipRooms,
+                    bool weaponSwap,
+                    float cameraRot,
+                    loader::file::level::Game game)
       : m_name{std::move(name)}
       , m_track{track}
       , m_flipRooms{flipRooms}
@@ -266,6 +283,7 @@ public:
       , m_cameraRot{core::angleFromDegrees(cameraRot)}
       , m_cameraPosX{std::nullopt}
       , m_cameraPosZ{std::nullopt}
+      , m_game{game}
   {
   }
 
