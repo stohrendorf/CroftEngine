@@ -149,8 +149,8 @@ std::pair<RunResult, std::optional<size_t>>
 
       auto m = std::dynamic_pointer_cast<objects::ModelObject>(object.get());
       gsl_Assert(m != nullptr);
-      m->getSkeleton()->setMeshPart(1, laraPistol->bones[1].mesh);
-      m->getSkeleton()->setMeshPart(4, laraPistol->bones[4].mesh);
+      m->getSkeleton()->setMesh(1, laraPistol->bones[1].mesh);
+      m->getSkeleton()->setMesh(4, laraPistol->bones[4].mesh);
       m->getSkeleton()->rebuildMesh();
     }
   }

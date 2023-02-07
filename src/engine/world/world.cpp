@@ -329,10 +329,10 @@ void World::useAlternativeLaraAppearance(const bool withHead)
   BOOST_ASSERT(alternate.bones.size() == m_objectManager.getLara().getSkeleton()->getBoneCount());
 
   for(size_t i = 0; i < m_objectManager.getLara().getSkeleton()->getBoneCount(); ++i)
-    m_objectManager.getLara().getSkeleton()->setMeshPart(i, alternate.bones[i].mesh);
+    m_objectManager.getLara().getSkeleton()->setMesh(i, alternate.bones[i].mesh);
 
   if(!withHead)
-    m_objectManager.getLara().getSkeleton()->setMeshPart(14, base.bones[14].mesh);
+    m_objectManager.getLara().getSkeleton()->setMesh(14, base.bones[14].mesh);
 
   m_objectManager.getLara().getSkeleton()->rebuildMesh();
 }
@@ -807,7 +807,7 @@ void World::drawRightWeaponEffect(const objects::ModelObject& object)
 {
   const auto& src = *findAnimatedModelForType(TR1ItemId::LaraPistolsAnim);
   BOOST_ASSERT(src.bones.size() == object.getSkeleton()->getBoneCount());
-  object.getSkeleton()->setMeshPart(10, src.bones[10].mesh);
+  object.getSkeleton()->setMesh(10, src.bones[10].mesh);
   object.getSkeleton()->rebuildMesh();
 }
 

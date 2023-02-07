@@ -42,7 +42,7 @@ public:
     gsl_Assert(normalLara != nullptr);
     for(size_t i = 0; i < spheres.size(); ++i)
     {
-      if(world.getObjectManager().getLara().getSkeleton()->getMeshPart(i) == normalLara->bones[i].mesh)
+      if(world.getObjectManager().getLara().getSkeleton()->getMesh(i) == normalLara->bones[i].mesh)
         continue;
 
       const auto r = spheres[i].radius;

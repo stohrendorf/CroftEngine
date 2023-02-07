@@ -136,24 +136,19 @@ public:
 
   [[nodiscard]] bool canBeCulled(const glm::mat4& viewProjection) const override;
 
-  void setMeshPart(size_t idx, const std::shared_ptr<world::RenderMeshData>& mesh)
+  void setMesh(size_t idx, const std::shared_ptr<world::RenderMeshData>& mesh)
   {
     m_meshParts.at(idx).mesh = mesh;
   }
 
-  [[nodiscard]] const auto& getMeshPart(size_t idx) const
+  [[nodiscard]] const auto& getMesh(size_t idx) const
   {
     return m_meshParts.at(idx).mesh;
   }
 
-  [[nodiscard]] const auto& getCurrentMeshPart(size_t idx) const
+  [[nodiscard]] const auto& getCurrentMesh(size_t idx) const
   {
     return m_meshParts.at(idx).currentMesh;
-  }
-
-  [[nodiscard]] const auto& getPoseMatrix(size_t idx) const
-  {
-    return m_meshParts.at(idx).poseMatrix;
   }
 
   [[nodiscard]] glm::vec3 getMeshPartTranslationWorld(size_t idx) const
@@ -167,12 +162,17 @@ public:
     return m_meshParts.size();
   }
 
-  void setMeshMatrix(size_t idx, const glm::mat4& m)
+  void setPoseMatrix(size_t idx, const glm::mat4& m)
   {
     m_meshParts.at(idx).poseMatrix = m;
   }
 
-  void setMeshReflective(size_t idx, const gl::SRGBA8& reflective)
+  [[nodiscard]] const auto& getPoseMatrix(size_t idx) const
+  {
+    return m_meshParts.at(idx).poseMatrix;
+  }
+
+  void setReflective(size_t idx, const gl::SRGBA8& reflective)
   {
     m_meshParts.at(idx).reflective = reflective;
   }

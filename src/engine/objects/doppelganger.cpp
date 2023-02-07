@@ -109,7 +109,7 @@ void Doppelganger::update()
     gsl_Assert(getSkeleton()->getBoneCount() == lara.getSkeleton()->getBoneCount());
     for(size_t i = 0; i < getSkeleton()->getBoneCount(); ++i)
     {
-      getSkeleton()->setMeshMatrix(i, lara.getSkeleton()->getPoseMatrix(i));
+      getSkeleton()->setPoseMatrix(i, lara.getSkeleton()->getPoseMatrix(i));
     }
 
     applyTransform();

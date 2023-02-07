@@ -122,7 +122,7 @@ void PickupObject::collide(CollisionInfo& /*collisionInfo*/)
         const auto& shotgunLara = *getWorld().findAnimatedModelForType(TR1ItemId::LaraShotgunAnim);
         BOOST_ASSERT(shotgunLara.bones.size() == getWorld().getObjectManager().getLara().getSkeleton()->getBoneCount());
 
-        getWorld().getObjectManager().getLara().getSkeleton()->setMeshPart(7, shotgunLara.bones[7].mesh);
+        getWorld().getObjectManager().getLara().getSkeleton()->setMesh(7, shotgunLara.bones[7].mesh);
         getWorld().getObjectManager().getLara().getSkeleton()->rebuildMesh();
       }
 
