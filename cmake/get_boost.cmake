@@ -7,7 +7,7 @@ if( MSVC )
     add_definitions( -DHAVE_SNPRINTF )
 endif()
 
-find_package( Boost COMPONENTS system log log_setup locale iostreams REQUIRED )
+find_package( Boost COMPONENTS system log log_setup locale iostreams container REQUIRED )
 
 if( UNIX )
     target_compile_definitions( Boost::log INTERFACE -DBOOST_LOG_DYN_LINK )

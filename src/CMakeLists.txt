@@ -713,7 +713,6 @@ add_subdirectory( shared )
 add_subdirectory( soglb )
 add_subdirectory( qs )
 add_subdirectory( core )
-add_subdirectory( util )
 add_subdirectory( archive )
 add_subdirectory( launcher )
 add_subdirectory( dosbox-cdrom )
@@ -753,8 +752,9 @@ target_link_libraries(
         Boost::locale
         Boost::log
         Boost::log_setup
-        Boost::disable_autolinking
+        Boost::container
         Boost::headers
+        Boost::disable_autolinking
         OpenAL::OpenAL
         ryml
         PNG::PNG

@@ -9,8 +9,8 @@
 #include "inputstate.h"
 #include "serialization/named_enum.h"
 #include "util/helpers.h"
-#include "util/smallcollections.h"
 
+#include <boost/container/flat_set.hpp>
 #include <boost/log/trivial.hpp>
 #include <boost/throw_exception.hpp>
 #include <fstream>
@@ -32,14 +32,14 @@ namespace
 
 std::recursive_mutex glfwStateMutex;
 
-std::vector<int> connectedGamepads;
-std::vector<GlfwGamepadButton> pressedButtons;
+boost::container::flat_set<int> connectedGamepads;
+boost::container::flat_set<GlfwGamepadButton> pressedButtons;
 std::optional<GlfwGamepadButton> recentPressedButton;
 
-std::vector<GlfwKey> pressedKeys;
+boost::container::flat_set<GlfwKey> pressedKeys;
 std::optional<GlfwKey> recentPressedKey;
 
-std::vector<AxisDir> pressedAxes;
+boost::container::flat_set<AxisDir> pressedAxes;
 std::optional<AxisDir> recentPressedAxis;
 
 constexpr float AxisDeadZone = 0.4f;
@@ -55,7 +55,7 @@ void keyCallback(GLFWwindow* /*window*/, int key, int /*scancode*/, int action, 
   case GLFW_PRESS:
   {
     std::lock_guard lock{glfwStateMutex};
-    util::insertUnique(pressedKeys, typed);
+    pressedKeys.emplace(typed);
     recentPressedKey = typed;
 #ifdef PRINT_KEY_INPUT
     if(const auto name = toString(typed))
@@ -68,7 +68,7 @@ void keyCallback(GLFWwindow* /*window*/, int key, int /*scancode*/, int action, 
   case GLFW_RELEASE:
   {
     std::lock_guard lock{glfwStateMutex};
-    util::eraseUnique(pressedKeys, typed);
+    pressedKeys.erase(typed);
     break;
   }
   case GLFW_REPEAT:
@@ -91,14 +91,14 @@ void joystickCallback(int jid, int event)
 
     {
       std::lock_guard lock{glfwStateMutex};
-      util::insertUnique(connectedGamepads, jid);
+      connectedGamepads.emplace(jid);
     }
     BOOST_LOG_TRIVIAL(info) << "Gamepad #" << jid << " connected: " << glfwGetGamepadName(jid);
     break;
   case GLFW_DISCONNECTED:
   {
     std::lock_guard lock{glfwStateMutex};
-    if(util::eraseUnique(connectedGamepads, jid))
+    if(connectedGamepads.erase(jid) != 0)
       BOOST_LOG_TRIVIAL(info) << "Gamepad #" << jid << " disconnected";
     break;
   }
@@ -122,7 +122,7 @@ void installHandlers(GLFWwindow* window)
 bool isKeyPressed(GlfwKey key)
 {
   std::lock_guard lock{glfwStateMutex};
-  return util::containsUnique(pressedKeys, key);
+  return pressedKeys.contains(key);
 }
 } // namespace
 
@@ -153,7 +153,7 @@ InputHandler::InputHandler(gslu::nn_shared<gl::Window> window, const std::filesy
     BOOST_LOG_TRIVIAL(info) << "Found gamepad controller #" << jid << ": " << name;
 
     std::lock_guard lock{glfwStateMutex};
-    util::insertUnique(connectedGamepads, jid);
+    connectedGamepads.emplace(jid);
   }
 }
 
@@ -192,8 +192,8 @@ void InputHandler::update()
       if(state.buttons[static_cast<int>(button)] == GLFW_RELEASE)
         continue;
 
-      util::insertUnique(pressedButtons, button);
-      if(!util::containsUnique(prevPressedButtons, button))
+      pressedButtons.emplace(button);
+      if(!prevPressedButtons.contains(button))
         recentPressedButton = button;
       break;
     }
@@ -207,24 +207,24 @@ void InputHandler::update()
       if(const auto value = state.axes[static_cast<int>(axis)]; std::abs(value) > AxisDeadZone)
       {
         const AxisDir axisDir{axis, value > 0 ? GlfwAxisDir::Positive : GlfwAxisDir::Negative};
-        util::insertUnique(pressedAxes, axisDir);
-        if(!util::containsUnique(prevPressedAxes, axisDir))
+        pressedAxes.emplace(axisDir);
+        if(!prevPressedAxes.contains(axisDir))
           recentPressedAxis = axisDir;
         break;
       }
     }
   }
 
-  std::vector<std::pair<Action, bool>> newActionStates{};
+  boost::container::flat_map<Action, bool> newActionStates{};
   newActionStates.reserve(m_mergedGameInputMappings.size() + m_mergedMenuInputMappings.size());
 
   for(const auto& [input, action] : m_mergedGameInputMappings)
   {
-    auto& state = util::getOrCreate(newActionStates, action.value);
+    auto& state = newActionStates[action.value];
 
     if(std::holds_alternative<engine::NamedGlfwGamepadButton>(input))
     {
-      state |= util::containsUnique(pressedButtons, std::get<engine::NamedGlfwGamepadButton>(input).value);
+      state |= pressedButtons.contains(std::get<engine::NamedGlfwGamepadButton>(input).value);
     }
     else if(std::holds_alternative<engine::NamedGlfwKey>(input))
     {
@@ -233,17 +233,17 @@ void InputHandler::update()
     else
     {
       const auto mapped = std::get<engine::NamedAxisDir>(input);
-      state |= util::containsUnique(pressedAxes, {mapped.first.value, mapped.second.value});
+      state |= pressedAxes.contains({mapped.first.value, mapped.second.value});
     }
   }
 
   for(const auto& [input, action] : m_mergedMenuInputMappings)
   {
-    auto& state = util::getOrCreate(newActionStates, action.value);
+    auto& state = newActionStates[action.value];
 
     if(std::holds_alternative<engine::NamedGlfwGamepadButton>(input))
     {
-      state |= util::containsUnique(pressedButtons, std::get<engine::NamedGlfwGamepadButton>(input).value);
+      state |= pressedButtons.contains(std::get<engine::NamedGlfwGamepadButton>(input).value);
     }
     else if(std::holds_alternative<engine::NamedGlfwKey>(input))
     {
@@ -252,30 +252,24 @@ void InputHandler::update()
     else
     {
       const auto mapped = std::get<engine::NamedAxisDir>(input);
-      state |= util::containsUnique(pressedAxes, {mapped.first.value, mapped.second.value});
+      state |= pressedAxes.contains({mapped.first.value, mapped.second.value});
     }
   }
 
   for(const auto& [action, state] : newActionStates)
   {
-    util::getOrCreate(m_inputState.actions, action) = state;
+    m_inputState.actions[action] = state;
   }
-  if(util::getOrCreate(m_inputState.actions, Action::Backward)
-     && util::getOrCreate(m_inputState.actions, Action::Forward))
+  if(m_inputState.actions[Action::Backward] && m_inputState.actions[Action::Forward])
   {
-    util::getOrCreate(m_inputState.actions, Action::Roll) = true;
+    m_inputState.actions[Action::Roll] = true;
   }
 
-  m_inputState.setXAxisMovement(util::getOrCreate(m_inputState.actions, Action::Left),
-                                util::getOrCreate(m_inputState.actions, Action::Right));
-  m_inputState.setMenuXAxisMovement(util::getOrCreate(m_inputState.actions, Action::MenuLeft),
-                                    util::getOrCreate(m_inputState.actions, Action::MenuRight));
-  m_inputState.setZAxisMovement(util::getOrCreate(m_inputState.actions, Action::Backward),
-                                util::getOrCreate(m_inputState.actions, Action::Forward));
-  m_inputState.setMenuZAxisMovement(util::getOrCreate(m_inputState.actions, Action::MenuDown),
-                                    util::getOrCreate(m_inputState.actions, Action::MenuUp));
-  m_inputState.setStepMovement(util::getOrCreate(m_inputState.actions, Action::StepLeft),
-                               util::getOrCreate(m_inputState.actions, Action::StepRight));
+  m_inputState.setXAxisMovement(m_inputState.actions[Action::Left], m_inputState.actions[Action::Right]);
+  m_inputState.setMenuXAxisMovement(m_inputState.actions[Action::MenuLeft], m_inputState.actions[Action::MenuRight]);
+  m_inputState.setZAxisMovement(m_inputState.actions[Action::Backward], m_inputState.actions[Action::Forward]);
+  m_inputState.setMenuZAxisMovement(m_inputState.actions[Action::MenuDown], m_inputState.actions[Action::MenuUp]);
+  m_inputState.setStepMovement(m_inputState.actions[Action::StepLeft], m_inputState.actions[Action::StepRight]);
 }
 
 void InputHandler::setMappings(const std::vector<engine::NamedInputMappingConfig>& inputMappings)
