@@ -1,5 +1,5 @@
-from engine import TR1TrackId, TR1ItemId, Video, Cutscene, Level, TitleMenu, SplashScreen, WeaponType, ModifyInventory, \
-    ResetSoundEngine, PlayAudioSlot
+from ce.engine import TR1TrackId, TR1ItemId, Video, Cutscene, Level, TitleMenu, SplashScreen, WeaponType, \
+    ModifyInventory, ResetSoundEngine, PlayAudioSlot
 
 
 def _fmv(basename: str):

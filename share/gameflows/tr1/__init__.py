@@ -1,4 +1,4 @@
-from engine import TR1ItemId, Gameflow
+from ce.engine import TR1ItemId, Gameflow
 
 from object_infos import object_infos
 from audio import tracks

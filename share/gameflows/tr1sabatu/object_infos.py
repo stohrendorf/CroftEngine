@@ -1,5 +1,5 @@
-from engine import TR1ItemId, ObjectInfo
-from core import SectorSize
+from ce.engine import TR1ItemId, ObjectInfo
+from ce.core import SectorSize
 
 # init defaults
 object_infos = {

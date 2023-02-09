@@ -1,5 +1,8 @@
 #include "scriptengine.h"
 
+#include "core/py_module.h"
+#include "engine/py_module.h"
+#include "loader/py_module.h"
 #include "reflection.h"
 #include "util.h"
 #include "util/helpers.h"
@@ -7,7 +10,21 @@
 #include <boost/log/trivial.hpp>
 #include <boost/throw_exception.hpp>
 #include <gsl/gsl-lite.hpp>
+#include <pybind11/embed.h>
 #include <pybind11/stl.h> // IWYU pragma: keep
+
+namespace
+{
+PYBIND11_EMBEDDED_MODULE(ce, m)
+{
+  auto coreMod = m.def_submodule("core", "croftengine core module");
+  core::initCoreModule(coreMod);
+  auto loaderMod = m.def_submodule("loader", "croftengine loader module");
+  loader::initLoaderModule(loaderMod);
+  auto engineMod = m.def_submodule("engine", "croftengine engine module");
+  engine::initEngineModule(engineMod);
+}
+} // namespace
 
 namespace engine::script
 {

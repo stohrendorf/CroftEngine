@@ -1,19 +1,19 @@
+#pragma once
+
 #include "magic.h"
 #include "qs/quantity.h"
 #include "units.h"
 #include "vec.h"
 
 #include <pybind11/cast.h>
-#include <pybind11/embed.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/pytypes.h>
 
-namespace py = pybind11;
-
-// NOLINTNEXTLINE(cert-err58-cpp)
-PYBIND11_EMBEDDED_MODULE(core, m)
+namespace core
 {
-  m.doc() = "croftengine core module";
+inline void initCoreModule(pybind11::module& m)
+{
+  namespace py = pybind11;
 
   py::class_<core::Length>(m, "Length")
     .def(py::init<core::Length::type>())
@@ -29,3 +29,4 @@ PYBIND11_EMBEDDED_MODULE(core, m)
   m.attr("QuarterSectorSize") = core::QuarterSectorSize.get();
   m.attr("SectorSize") = core::SectorSize.get();
 }
+} // namespace core

@@ -4,13 +4,11 @@
 
 namespace loader::file::level
 {
-namespace py = pybind11;
-
-inline void initLevelModule(py::module& m)
+inline void initLevelModule(pybind11::module& m)
 {
   m.doc() = "level loader module";
 
-  auto e = py::enum_<Game>(m, "Game");
+  auto e = pybind11::enum_<Game>(m, "Game");
 #define EXPOSE(name) e.value(#name, Game::name)
   EXPOSE(Unknown);
   EXPOSE(TR1);

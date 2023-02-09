@@ -1,5 +1,6 @@
-#include "ai/py_module.h"
+#pragma once
 
+#include "ai/py_module.h"
 #include "items_tr1.h"
 #include "loader/file/level/game.h"
 #include "objects/objectstate.h"
@@ -15,7 +16,6 @@
 #include <optional>
 #include <pybind11/attr.h>
 #include <pybind11/cast.h>
-#include <pybind11/embed.h>
 #include <pybind11/pytypes.h>
 #include <string>
 #include <type_traits>
@@ -23,12 +23,12 @@
 #include <unordered_set>
 #include <vector>
 
-namespace py = pybind11;
-
-// NOLINTNEXTLINE(cert-err58-cpp)
-PYBIND11_EMBEDDED_MODULE(engine, m)
+namespace engine
 {
-  m.doc() = "croftengine engine module";
+inline void initEngineModule(pybind11::module& m)
+{
+  namespace py = pybind11;
+
   engine::ai::initAiModule(m.def_submodule("ai"));
 
   py::class_<engine::script::TrackInfo, std::shared_ptr<engine::script::TrackInfo>>(m, "TrackInfo")
@@ -209,3 +209,4 @@ PYBIND11_EMBEDDED_MODULE(engine, m)
          py::arg("cheats"),
          py::arg("asset_root"));
 }
+} // namespace engine

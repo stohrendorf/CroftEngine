@@ -242,7 +242,7 @@ set( CROFTENGINE_SRCS
         engine/player.cpp
         engine/presenter.h
         engine/presenter.cpp
-        engine/py_module.cpp
+        engine/py_module.h
         engine/raycast.h
         engine/raycast.cpp
         engine/skeletalmodelnode.h
@@ -322,7 +322,7 @@ set( CROFTENGINE_SRCS
         loader/trx/trx.h
         loader/trx/trx.cpp
 
-        loader/py_module.cpp
+        loader/py_module.h
 
         audio/audiostreamdecoder.h
         audio/audiostreamdecoder.cpp
@@ -613,7 +613,7 @@ set( CROFTENGINE_SRCS
         core/i18n.cpp
         core/id.h
         core/magic.h
-        core/py_module.cpp
+        core/py_module.h
         core/tpl_helper.h
         core/units.h
         core/vec.h

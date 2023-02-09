@@ -1,4 +1,4 @@
-from engine import TR1TrackId, TrackInfo
+from ce.engine import TR1TrackId, TrackInfo
 
 _AMBIENT = (0, True)
 _CUTSCENE = (0, False)
