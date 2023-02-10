@@ -69,6 +69,13 @@ void DownloadProgress::start()
   if(m_reply != nullptr)
     return;
 
+  if(std::filesystem::is_regular_file(m_target))
+  {
+    emit downloaded(m_target);
+    close();
+    return;
+  }
+
   gsl_Assert(m_accessManager != nullptr);
   m_reply = m_accessManager->get(QNetworkRequest(m_url));
   connect(m_reply, &QNetworkReply::downloadProgress, this, &DownloadProgress::downloadProgress);

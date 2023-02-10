@@ -268,7 +268,7 @@ void MainWindow::onImportClicked()
     downloader->show();
     downloader->start();
   }
-  else if(gameflow == "tr1demo")
+  else if(gameflow == "tr1demo-part1" || gameflow == "tr1demo-part2")
   {
     const auto fileName
       = QFileDialog::getOpenFileName(this, tr("Select Archive"), QString{}, tr("ZIP Archive (*.zip)"));
@@ -376,9 +376,12 @@ void MainWindow::onImportClicked()
 
       QMessageBox::information(this, tr("Data Imported"), tr("Game Data has been imported."));
 
-      auto downloader = new DownloadProgress(QUrl{"https://opentomb.earvillage.net/croftengine-audio-tr1.zip"},
-                                             findUserDataDir().value() / "data" / "tracks.zip",
-                                             this);
+      const auto userDataDir = findUserDataDir().value();
+      if(std::filesystem::is_regular_file(userDataDir / "data" / gameflow.toStdString() / "AUDIO" / "002.ogg"))
+        return;
+
+      auto downloader = new DownloadProgress(
+        QUrl{"https://opentomb.earvillage.net/croftengine-audio-tr1.zip"}, userDataDir / "data" / "tracks.zip", this);
       connect(downloader, &DownloadProgress::downloaded, this, &MainWindow::extractSoundtrackZip);
       downloader->show();
       downloader->start();
@@ -775,7 +778,7 @@ void MainWindow::extractSoundtrackZip(std::filesystem::path target)
   std::vector<char> buffer;
   buffer.resize(8192);
 
-  for(const auto gameflow : {"tr1", "tr1demo"})
+  for(const auto gameflow : {"tr1", "tr1demo-part1", "tr1demo-part2"})
   {
     const auto gameflowRoot = findUserDataDir().value() / "data" / gameflow;
     if(!std::filesystem::is_directory(gameflowRoot))
