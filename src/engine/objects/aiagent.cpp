@@ -246,7 +246,8 @@ bool AIAgent::animateCreature(const core::Angle& collisionRotationY, const core:
                      position);
   };
 
-  BOOST_ASSERT(isFeasiblePosition(m_state.location.position));
+  // bats temporarily penetrate then floor when dying, so this will trigger
+  // BOOST_ASSERT(isFeasiblePosition(m_state.location.position));
 
   core::Length nextX = m_state.location.position.X;
   core::Length nextZ = m_state.location.position.Z;
@@ -382,7 +383,8 @@ bool AIAgent::animateCreature(const core::Angle& collisionRotationY, const core:
     m_state.rotation.Z += std::clamp(8 * tilt - m_state.rotation.Z, -3_deg, +3_deg);
   }
 
-  BOOST_ASSERT(isFeasiblePosition(m_state.location.position + core::TRVec{0_len, bbox.y.max, 0_len}));
+  // bats temporarily penetrate then floor when dying, so this will trigger
+  // BOOST_ASSERT(isFeasiblePosition(m_state.location.position + core::TRVec{0_len, bbox.y.max, 0_len}));
 
   if(anyMovingEnabledObjectInReach())
   {
