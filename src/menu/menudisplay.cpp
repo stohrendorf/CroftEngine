@@ -4,10 +4,12 @@
 #include "core/units.h"
 #include "engine/audioengine.h"
 #include "engine/cameracontroller.h"
+#include "engine/engine.h"
 #include "engine/inventory.h"
 #include "engine/lighting.h"
 #include "engine/player.h"
 #include "engine/presenter.h"
+#include "engine/script/reflection.h"
 #include "engine/soundeffects_tr1.h"
 #include "engine/weapontype.h"
 #include "engine/world/world.h"
@@ -580,11 +582,13 @@ MenuDisplay::MenuDisplay(InventoryMode mode,
       MenuRing::Type::Inventory, /* translators: TR charmap encoding */ _("INVENTORY"), getMainRingObjects(world)));
   }
 
-  rings.emplace_back(std::make_unique<MenuRing>(MenuRing::Type::Options,
-                                                mode == InventoryMode::DeathMode
-                                                  ? /* translators: TR charmap encoding */ _("GAME OVER")
-                                                  : /* translators: TR charmap encoding */ _("OPTION"),
-                                                getOptionRingObjects(world, mode == InventoryMode::TitleMode)));
+  rings.emplace_back(std::make_unique<MenuRing>(
+    MenuRing::Type::Options,
+    mode == InventoryMode::DeathMode ? /* translators: TR charmap encoding */ _("GAME OVER")
+                                     : /* translators: TR charmap encoding */ _("OPTION"),
+    getOptionRingObjects(world,
+                         mode == InventoryMode::TitleMode
+                           && !world.getEngine().getScriptEngine().getGameflow().getLaraHome().empty())));
 
   m_currentState->begin(world);
 
