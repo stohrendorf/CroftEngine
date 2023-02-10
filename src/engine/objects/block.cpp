@@ -56,15 +56,14 @@ void Block::collide(CollisionInfo& /*collisionInfo*/)
       return;
     }
 
-    const core::Angle y = snapRotation(axis);
-    m_state.rotation.Y = y;
+    m_state.rotation.Y = snapRotation(axis);
 
     if(!limits.canInteract(m_state, getWorld().getObjectManager().getLara().m_state))
     {
       return;
     }
 
-    getWorld().getObjectManager().getLara().m_state.rotation.Y = y;
+    getWorld().getObjectManager().getLara().m_state.rotation.Y = m_state.rotation.Y;
 
     core::Length core::TRVec::*vp;
     core::Length d;
