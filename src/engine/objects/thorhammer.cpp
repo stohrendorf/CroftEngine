@@ -124,14 +124,24 @@ void ThorHammerHandle::update()
 
     const auto oldPosX = m_state.location.position.X;
     const auto oldPosZ = m_state.location.position.Z;
-    if(m_state.rotation.Y == 0_deg)
+    switch(m_state.rotation.Y.get())
+    {
+    case(0_deg).get():
       m_state.location.position.Z += 3_sectors;
-    else if(m_state.rotation.Y == 90_deg)
+      break;
+    case(90_deg).get():
       m_state.location.position.X += 3_sectors;
-    else if(m_state.rotation.Y == 180_deg)
+      break;
+    case(180_deg).get():
       m_state.location.position.Z -= 3_sectors;
-    else if(m_state.rotation.Y == -90_deg)
+      break;
+    case(-90_deg).get():
       m_state.location.position.X -= 3_sectors;
+      break;
+    default:
+      BOOST_THROW_EXCEPTION(std::domain_error("invalid rotation"));
+    }
+
     if(!getWorld().getObjectManager().getLara().isDead())
     {
       world::patchHeightsForBlock(*this, -2_sectors);

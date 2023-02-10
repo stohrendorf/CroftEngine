@@ -724,34 +724,48 @@ void LaraObject::updateLarasWeaponsStatus()
         doHolsterUpdate = true;
       }
     }
-    else if(m_handStatus == HandStatus::Combat)
+    else
     {
-      doHolsterUpdate = true;
-    }
-    else if(m_handStatus == HandStatus::None)
-    {
-      player.selectedWeaponType = player.requestedWeaponType;
-      initWeaponAnimData();
-      doHolsterUpdate = true;
+      switch(m_handStatus)
+      {
+      case HandStatus::None:
+        player.selectedWeaponType = player.requestedWeaponType;
+        initWeaponAnimData();
+        doHolsterUpdate = true;
+        break;
+      case HandStatus::Combat:
+        doHolsterUpdate = true;
+        break;
+      case HandStatus::Grabbing:
+      case HandStatus::DrawWeapon:
+      case HandStatus::Holster:
+        break;
+      }
     }
   }
 
   if(doHolsterUpdate && player.selectedWeaponType != WeaponType::None)
   {
-    if(m_handStatus == HandStatus::None)
+    switch(m_handStatus)
     {
+    case HandStatus::None:
       rightArm.frame = 0_frame;
       leftArm.frame = 0_frame;
       m_handStatus = HandStatus::DrawWeapon;
-    }
-    else if(m_handStatus == HandStatus::Combat)
-    {
+      break;
+    case HandStatus::Combat:
       m_handStatus = HandStatus::Holster;
+      break;
+    case HandStatus::Grabbing:
+    case HandStatus::DrawWeapon:
+    case HandStatus::Holster:
+      break;
     }
   }
 
-  if(m_handStatus == HandStatus::DrawWeapon)
+  switch(m_handStatus)
   {
+  case HandStatus::DrawWeapon:
     if(player.selectedWeaponType != WeaponType::None)
     {
       if(getWorld().getCameraController().getMode() != CameraMode::Cinematic
@@ -769,15 +783,14 @@ void LaraObject::updateLarasWeaponsStatus()
         drawShotgun();
       }
     }
-  }
-  else if(m_handStatus == HandStatus::Holster)
+    break;
+  case HandStatus::Holster:
   {
-    {
-      const auto& normalLara = *getWorld().findAnimatedModelForType(TR1ItemId::Lara);
-      BOOST_ASSERT(normalLara.bones.size() == getSkeleton()->getBoneCount());
-      getSkeleton()->setMesh(BoneHead, normalLara.bones[BoneHead].mesh);
-      getSkeleton()->rebuildMesh();
-    }
+    const auto& normalLara = *getWorld().findAnimatedModelForType(TR1ItemId::Lara);
+    BOOST_ASSERT(normalLara.bones.size() == getSkeleton()->getBoneCount());
+    getSkeleton()->setMesh(BoneHead, normalLara.bones[BoneHead].mesh);
+    getSkeleton()->rebuildMesh();
+  }
 
     switch(getWorld().getPlayer().selectedWeaponType)
     {
@@ -794,14 +807,13 @@ void LaraObject::updateLarasWeaponsStatus()
     default:
       BOOST_THROW_EXCEPTION(std::domain_error("unexpected weapon type when holstering"));
     }
-  }
-  else if(m_handStatus == HandStatus::Combat)
+    break;
+  case HandStatus::Combat:
   {
-    {
-      const auto& normalLara = *getWorld().findAnimatedModelForType(TR1ItemId::Lara);
-      BOOST_ASSERT(normalLara.bones.size() == getSkeleton()->getBoneCount());
-      getSkeleton()->setMesh(BoneHead, normalLara.bones[BoneHead].mesh);
-    }
+    const auto& normalLara = *getWorld().findAnimatedModelForType(TR1ItemId::Lara);
+    BOOST_ASSERT(normalLara.bones.size() == getSkeleton()->getBoneCount());
+    getSkeleton()->setMesh(BoneHead, normalLara.bones[BoneHead].mesh);
+  }
 
     switch(getWorld().getPlayer().selectedWeaponType)
     {
@@ -877,6 +889,10 @@ void LaraObject::updateLarasWeaponsStatus()
       break;
     }
     getSkeleton()->rebuildMesh();
+    break;
+  case HandStatus::None:
+  case HandStatus::Grabbing:
+    break;
   }
 }
 
@@ -2147,23 +2163,21 @@ void LaraObject::updateCheats()
     if(m_state.fallspeed <= 0_spd)
       break;
 
-    if(getCurrentAnimState() == LaraStateId::JumpForward)
+    switch(getCurrentAnimState())
     {
+    case LaraStateId::JumpForward:
       getWorld().getPlayer().usedCheats = true;
-
       getWorld().finishLevel();
-    }
-    else if(getCurrentAnimState() == LaraStateId::JumpLeft)
-    {
+      break;
+    case LaraStateId::JumpLeft:
       getWorld().getPlayer().usedCheats = true;
 
       getWorld().getPlayer().getInventory().put(TR1ItemId::SmallMedipackSprite, &getWorld(), 5);
       getWorld().getPlayer().getInventory().put(TR1ItemId::LargeMedipackSprite, &getWorld(), 5);
 
       playSoundEffect(TR1SoundEffect::LaraSigh);
-    }
-    else if(getCurrentAnimState() == LaraStateId::JumpRight)
-    {
+      break;
+    case LaraStateId::JumpRight:
       for(const auto& [objectId, object] : getWorld().getObjectManager().getObjects())
       {
         if(auto ai = gslu::dynamic_pointer_cast<objects::AIAgent>(object); ai != nullptr && ai->m_state.health != 0_hp)
@@ -2173,9 +2187,8 @@ void LaraObject::updateCheats()
       }
 
       playSoundEffect(TR1SoundEffect::LaraShootShotgun);
-    }
-    else if(getCurrentAnimState() == LaraStateId::JumpBack)
-    {
+      break;
+    case LaraStateId::JumpBack:
       getWorld().getPlayer().usedCheats = true;
 
       getWorld().getPlayer().getInventory().put(TR1ItemId::PistolsSprite, &getWorld());
@@ -2190,8 +2203,11 @@ void LaraObject::updateCheats()
       getWorld().getPlayer().getInventory().getAmmo(WeaponType::Uzis).shots = 5000;
 
       playSoundEffect(TR1SoundEffect::LaraHolster);
+      m_cheatIdx = WaitWalkFwd;
+      break;
+    default:
+      break;
     }
-    m_cheatIdx = WaitWalkFwd;
     break;
   default:
     m_cheatIdx = WaitWalkFwd;

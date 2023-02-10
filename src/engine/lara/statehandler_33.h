@@ -28,22 +28,28 @@ public:
     {
       getWorld().getCameraController().setMode(CameraMode::FreeLook);
 
-      if(inputHandler.getInputState().xMovement == hid::AxisMovement::Left)
+      switch(inputHandler.getInputState().xMovement)
       {
+      case hid::AxisMovement::Left:
         getLara().addHeadRotationY(-core::FreeLookHeadTurnSpeed, -50_deg, 50_deg);
-      }
-      else if(inputHandler.getInputState().xMovement == hid::AxisMovement::Right)
-      {
+        break;
+      case hid::AxisMovement::Right:
         getLara().addHeadRotationY(core::FreeLookHeadTurnSpeed, -50_deg, 50_deg);
+        break;
+      case hid::AxisMovement::Null:
+        break;
       }
 
-      if(inputHandler.getInputState().zMovement == hid::AxisMovement::Forward)
+      switch(inputHandler.getInputState().zMovement)
       {
+      case hid::AxisMovement::Forward:
         getLara().addHeadRotationX(-core::FreeLookHeadTurnSpeed, -40_deg, 40_deg);
-      }
-      else if(inputHandler.getInputState().zMovement == hid::AxisMovement::Backward)
-      {
+        break;
+      case hid::AxisMovement::Negative:
         getLara().addHeadRotationX(core::FreeLookHeadTurnSpeed, -40_deg, 40_deg);
+        break;
+      case hid::AxisMovement::Null:
+        break;
       }
 
       auto torsoRot = getLara().getTorsoRotation();
@@ -60,31 +66,40 @@ public:
       getWorld().getCameraController().setMode(CameraMode::Chase);
     }
 
-    if(inputHandler.getInputState().xMovement == hid::AxisMovement::Left)
+    switch(inputHandler.getInputState().xMovement)
     {
-      getLara().m_state.rotation.Y -= core::OnWaterTurnSpeed * 1_frame;
-    }
-    else if(inputHandler.getInputState().xMovement == hid::AxisMovement::Right)
-    {
+    case hid::AxisMovement::Right:
       getLara().m_state.rotation.Y += core::OnWaterTurnSpeed * 1_frame;
+      break;
+    case hid::AxisMovement::Left:
+      getLara().m_state.rotation.Y -= core::OnWaterTurnSpeed * 1_frame;
+      break;
+    case hid::AxisMovement::Null:
+      break;
     }
 
-    if(inputHandler.getInputState().zMovement == hid::AxisMovement::Forward)
+    switch(inputHandler.getInputState().zMovement)
     {
+    case hid::AxisMovement::Forward:
       setGoalAnimState(LaraStateId::OnWaterForward);
-    }
-    else if(inputHandler.getInputState().zMovement == hid::AxisMovement::Backward)
-    {
+      break;
+    case hid::AxisMovement::Backward:
       setGoalAnimState(LaraStateId::OnWaterBackward);
+      break;
+    case hid::AxisMovement::Null:
+      break;
     }
 
-    if(inputHandler.getInputState().stepMovement == hid::AxisMovement::Left)
+    switch(inputHandler.getInputState().stepMovement)
     {
-      setGoalAnimState(LaraStateId::OnWaterLeft);
-    }
-    else if(inputHandler.getInputState().stepMovement == hid::AxisMovement::Right)
-    {
+    case hid::AxisMovement::Right:
       setGoalAnimState(LaraStateId::OnWaterRight);
+      break;
+    case hid::AxisMovement::Left:
+      setGoalAnimState(LaraStateId::OnWaterLeft);
+      break;
+    case hid::AxisMovement::Null:
+      break;
     }
 
     if(!inputHandler.hasAction(hid::Action::Jump))

@@ -108,8 +108,9 @@ void Block::collide(CollisionInfo& /*collisionInfo*/)
     return;
   }
 
-  if(getWorld().getPresenter().getInputHandler().getInputState().zMovement == hid::AxisMovement::Forward)
+  switch(getWorld().getPresenter().getInputHandler().getInputState().zMovement)
   {
+  case hid::AxisMovement::Forward:
     if(!canPushBlock(1_sectors, axis))
     {
       return;
@@ -117,9 +118,8 @@ void Block::collide(CollisionInfo& /*collisionInfo*/)
 
     m_state.goal_anim_state = 2_as;
     getWorld().getObjectManager().getLara().setGoalAnimState(loader::file::LaraStateId::PushablePush);
-  }
-  else if(getWorld().getPresenter().getInputHandler().getInputState().zMovement == hid::AxisMovement::Backward)
-  {
+    break;
+  case hid::AxisMovement::Backward:
     if(!canPullBlock(1_sectors, axis))
     {
       return;
@@ -127,9 +127,8 @@ void Block::collide(CollisionInfo& /*collisionInfo*/)
 
     m_state.goal_anim_state = 3_as;
     getWorld().getObjectManager().getLara().setGoalAnimState(loader::file::LaraStateId::PushablePull);
-  }
-  else
-  {
+    break;
+  case hid::AxisMovement::Null:
     return;
   }
 

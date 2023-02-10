@@ -86,13 +86,21 @@ bool AudioStreamDecoder::push(const AVPacket& packet)
     }
     else
     {
-      if(err == AVERROR(EAGAIN))
+      switch(err)
+      {
+      case AVERROR(EAGAIN):
         BOOST_LOG_TRIVIAL(error) << "Frames still present in audio decoder";
-      else if(err == AVERROR(ENOMEM))
+        break;
+      case AVERROR(ENOMEM):
         BOOST_LOG_TRIVIAL(error) << "Failed to add packet to audio decoder queue";
-      // NOLINTNEXTLINE(hicpp-signed-bitwise)
-      else if(err == AVERROR_EOF)
+        break;
+        // NOLINTNEXTLINE(hicpp-signed-bitwise)
+      case AVERROR_EOF:
         BOOST_LOG_TRIVIAL(error) << "Audio decoder already flushed";
+        break;
+      default:
+        break;
+      }
 
       BOOST_LOG_TRIVIAL(error) << "Failed to send packet to audio decoder: " << getAvError(err);
       BOOST_THROW_EXCEPTION(std::runtime_error("Failed to send packet to audio decoder"));

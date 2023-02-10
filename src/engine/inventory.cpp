@@ -156,29 +156,28 @@ bool Inventory::tryUse(objects::LaraObject& lara, const TR1ItemId id)
     return true;
   };
 
-  if(id == TR1ItemId::Shotgun || id == TR1ItemId::ShotgunSprite)
+  switch(id)
   {
+  case TR1ItemId::Shotgun:
+  case TR1ItemId::ShotgunSprite:
     return tryUseWeapon(TR1ItemId::Shotgun, WeaponType::Shotgun);
-  }
-  else if(id == TR1ItemId::Pistols || id == TR1ItemId::PistolsSprite)
-  {
+  case TR1ItemId::Pistols:
+  case TR1ItemId::PistolsSprite:
     return tryUseWeapon(TR1ItemId::Pistols, WeaponType::Pistols);
-  }
-  else if(id == TR1ItemId::Magnums || id == TR1ItemId::MagnumsSprite)
-  {
+  case TR1ItemId::Magnums:
+  case TR1ItemId::MagnumsSprite:
     return tryUseWeapon(TR1ItemId::Magnums, WeaponType::Magnums);
-  }
-  else if(id == TR1ItemId::Uzis || id == TR1ItemId::UzisSprite)
-  {
+  case TR1ItemId::Uzis:
+  case TR1ItemId::UzisSprite:
     return tryUseWeapon(TR1ItemId::Uzis, WeaponType::Uzis);
-  }
-  else if(id == TR1ItemId::LargeMedipack || id == TR1ItemId::LargeMedipackSprite)
-  {
+  case TR1ItemId::LargeMedipack:
+  case TR1ItemId::LargeMedipackSprite:
     return tryUseMediPack(TR1ItemId::LargeMedipack, core::LaraHealth);
-  }
-  else if(id == TR1ItemId::SmallMedipack || id == TR1ItemId::SmallMedipackSprite)
-  {
+  case TR1ItemId::SmallMedipack:
+  case TR1ItemId::SmallMedipackSprite:
     return tryUseMediPack(TR1ItemId::SmallMedipack, core::LaraHealth / 2);
+  default:
+    break;
   }
 
   return true;

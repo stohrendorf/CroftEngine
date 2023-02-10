@@ -23,13 +23,16 @@ public:
     setSwimToDiveKeypressDuration(0_frame);
 
     const auto& inputHandler = getWorld().getPresenter().getInputHandler();
-    if(inputHandler.getInputState().xMovement == hid::AxisMovement::Left)
+    switch(inputHandler.getInputState().xMovement)
     {
-      getLara().m_state.rotation.Y -= core::OnWaterMovementTurnSpeed * 1_frame;
-    }
-    else if(inputHandler.getInputState().xMovement == hid::AxisMovement::Right)
-    {
+    case hid::AxisMovement::Right:
       getLara().m_state.rotation.Y += core::OnWaterMovementTurnSpeed * 1_frame;
+      break;
+    case hid::AxisMovement::Left:
+      getLara().m_state.rotation.Y -= core::OnWaterMovementTurnSpeed * 1_frame;
+      break;
+    case hid::AxisMovement::Null:
+      break;
     }
 
     if(inputHandler.getInputState().zMovement != hid::AxisMovement::Backward)

@@ -33,13 +33,16 @@ public:
       setGoalAnimState(LaraStateId::Stop);
     }
 
-    if(inputHandler.getInputState().xMovement == hid::AxisMovement::Left)
+    switch(inputHandler.getInputState().xMovement)
     {
-      subYRotationSpeed(core::SlowTurnSpeedAcceleration, -core::SlowTurnSpeed);
-    }
-    else if(inputHandler.getInputState().xMovement == hid::AxisMovement::Right)
-    {
+    case hid::AxisMovement::Right:
       addYRotationSpeed(core::SlowTurnSpeedAcceleration, core::SlowTurnSpeed);
+      break;
+    case hid::AxisMovement::Left:
+      subYRotationSpeed(core::SlowTurnSpeedAcceleration, -core::SlowTurnSpeed);
+      break;
+    case hid::AxisMovement::Null:
+      break;
     }
   }
 

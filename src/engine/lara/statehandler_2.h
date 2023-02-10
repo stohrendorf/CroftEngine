@@ -36,22 +36,28 @@ public:
     if(inputHandler.hasAction(hid::Action::FreeLook))
     {
       getWorld().getCameraController().setMode(CameraMode::FreeLook);
-      if(inputHandler.getInputState().xMovement == hid::AxisMovement::Left)
+      switch(inputHandler.getInputState().xMovement)
       {
-        getLara().addHeadRotationY(-core::FreeLookHeadTurnSpeed, -44_deg, 44_deg);
-      }
-      else if(inputHandler.getInputState().xMovement == hid::AxisMovement::Right)
-      {
+      case hid::AxisMovement::Right:
         getLara().addHeadRotationY(core::FreeLookHeadTurnSpeed, -44_deg, 44_deg);
+        break;
+      case hid::AxisMovement::Left:
+        getLara().addHeadRotationY(-core::FreeLookHeadTurnSpeed, -44_deg, 44_deg);
+        break;
+      case hid::AxisMovement::Null:
+        break;
       }
 
-      if(inputHandler.getInputState().zMovement == hid::AxisMovement::Forward)
+      switch(inputHandler.getInputState().zMovement)
       {
+      case hid::AxisMovement::Forward:
         getLara().addHeadRotationX(-core::FreeLookHeadTurnSpeed, -42_deg, 22_deg);
-      }
-      else if(inputHandler.getInputState().zMovement == hid::AxisMovement::Backward)
-      {
+        break;
+      case hid::AxisMovement::Backward:
         getLara().addHeadRotationX(core::FreeLookHeadTurnSpeed, -42_deg, 22_deg);
+        break;
+      case hid::AxisMovement::Null:
+        break;
       }
 
       getLara().setTorsoRotation(getLara().getHeadRotation());
@@ -64,48 +70,60 @@ public:
       getWorld().getCameraController().setMode(CameraMode::Chase);
     }
 
-    if(inputHandler.getInputState().stepMovement == hid::AxisMovement::Left)
+    switch(inputHandler.getInputState().stepMovement)
     {
-      setGoalAnimState(LaraStateId::StepLeft);
-    }
-    else if(inputHandler.getInputState().stepMovement == hid::AxisMovement::Right)
-    {
+    case hid::AxisMovement::Right:
       setGoalAnimState(LaraStateId::StepRight);
+      break;
+    case hid::AxisMovement::Left:
+      setGoalAnimState(LaraStateId::StepLeft);
+      break;
+    case hid::AxisMovement::Null:
+      break;
     }
 
-    if(inputHandler.getInputState().xMovement == hid::AxisMovement::Left)
+    switch(inputHandler.getInputState().xMovement)
     {
-      setGoalAnimState(LaraStateId::TurnLeftSlow);
-    }
-    else if(inputHandler.getInputState().xMovement == hid::AxisMovement::Right)
-    {
+    case hid::AxisMovement::Right:
       setGoalAnimState(LaraStateId::TurnRightSlow);
+      break;
+    case hid::AxisMovement::Left:
+      setGoalAnimState(LaraStateId::TurnLeftSlow);
+      break;
+    case hid::AxisMovement::Null:
+      break;
     }
 
     if(inputHandler.hasAction(hid::Action::Jump))
     {
       setGoalAnimState(LaraStateId::JumpPrepare);
     }
-    else if(inputHandler.getInputState().zMovement == hid::AxisMovement::Forward)
+    else
     {
-      if(inputHandler.hasAction(hid::Action::Walk))
+      switch(inputHandler.getInputState().zMovement)
       {
-        create(LaraStateId::WalkForward, getLara())->handleInput(collisionInfo);
-      }
-      else
-      {
-        create(LaraStateId::RunForward, getLara())->handleInput(collisionInfo);
-      }
-    }
-    else if(inputHandler.getInputState().zMovement == hid::AxisMovement::Backward)
-    {
-      if(inputHandler.hasAction(hid::Action::Walk))
-      {
-        create(LaraStateId::WalkBackward, getLara())->handleInput(collisionInfo);
-      }
-      else
-      {
-        setGoalAnimState(LaraStateId::RunBack);
+      case hid::AxisMovement::Forward:
+        if(inputHandler.hasAction(hid::Action::Walk))
+        {
+          create(LaraStateId::WalkForward, getLara())->handleInput(collisionInfo);
+        }
+        else
+        {
+          create(LaraStateId::RunForward, getLara())->handleInput(collisionInfo);
+        }
+        break;
+      case hid::AxisMovement::Backward:
+        if(inputHandler.hasAction(hid::Action::Walk))
+        {
+          create(LaraStateId::WalkBackward, getLara())->handleInput(collisionInfo);
+        }
+        else
+        {
+          setGoalAnimState(LaraStateId::RunBack);
+        }
+        break;
+      case hid::AxisMovement::Null:
+        break;
       }
     }
   }
