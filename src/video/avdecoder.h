@@ -50,8 +50,6 @@ struct AVDecoder final : public audio::AbstractStreamSource
 
   std::queue<ffmpeg::AVFramePtr> imgQueue;
   mutable std::mutex imgQueueMutex;
-  std::condition_variable frameReadyCondition;
-  bool frameReady = false;
 
   std::optional<ffmpeg::AVFramePtr> takeFrame();
 
@@ -77,7 +75,14 @@ struct AVDecoder final : public audio::AbstractStreamSource
 
   [[nodiscard]] audio::Clock::duration getDuration() const override;
 
+  void play()
+  {
+    m_playStart = std::chrono::high_resolution_clock::now();
+  }
+
 private:
-  [[nodiscard]] double getVideoTs(bool lock);
+  [[nodiscard]] std::chrono::high_resolution_clock::time_point getVideoTs();
+
+  std::chrono::high_resolution_clock::time_point m_playStart{};
 };
 } // namespace video

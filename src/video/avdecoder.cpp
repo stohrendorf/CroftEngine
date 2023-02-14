@@ -62,6 +62,7 @@ AVDecoder::AVDecoder(const std::string& filename)
 
   gsl_Assert(av_new_packet(&packet, 0) == 0);
   fillQueues();
+  stopped = imgQueue.empty() && audioDecoder->empty();
 }
 
 AVDecoder::~AVDecoder()
@@ -72,8 +73,8 @@ AVDecoder::~AVDecoder()
 void AVDecoder::fillQueues()
 {
   {
-    std::unique_lock lock(imgQueueMutex);
-    if(audioDecoder->filled() || imgQueue.size() >= QueueLimit)
+    const std::unique_lock lock(imgQueueMutex);
+    if(audioDecoder->filled())
     {
       return;
     }
@@ -93,7 +94,7 @@ void AVDecoder::fillQueues()
 
     av_packet_unref(&packet);
 
-    std::unique_lock lock(imgQueueMutex);
+    const std::unique_lock lock(imgQueueMutex);
     if(audioDecoder->filled() || imgQueue.size() >= QueueLimit)
     {
       break;
@@ -109,23 +110,26 @@ void AVDecoder::fillQueues()
 std::optional<ffmpeg::AVFramePtr> AVDecoder::takeFrame()
 {
   std::unique_lock lock{imgQueueMutex};
-  while(!frameReady)
-    frameReadyCondition.wait(lock);
-  frameReady = false;
+  if(stopped)
+  {
+    return std::nullopt;
+  }
 
   std::optional<ffmpeg::AVFramePtr> img;
   if(!imgQueue.empty())
   {
-    img = std::move(imgQueue.front());
-    imgQueue.pop();
-    const auto audioTs = static_cast<double>(totalAudioFrames) / static_cast<double>(audioDecoder->getSampleRate());
-    const auto videoTs = getVideoTs(false);
-    if(audioTs < videoTs)
+    const auto delta = getVideoTs() - std::chrono::high_resolution_clock::now();
+
+    if(delta.count() > 0)
     {
+      // video frame is in the future
       lock.unlock();
-      std::this_thread::sleep_for(std::chrono::milliseconds{gsl::narrow_cast<int>((videoTs - audioTs) * 1000)});
+      std::this_thread::sleep_for(delta);
       lock.lock();
     }
+
+    img = std::move(imgQueue.front());
+    imgQueue.pop();
   }
 
   stopped = imgQueue.empty() && audioDecoder->empty();
@@ -181,7 +185,7 @@ void AVDecoder::decodeVideoPacket()
         BOOST_THROW_EXCEPTION(std::runtime_error("Filter error"));
       }
 
-      std::unique_lock lock(imgQueueMutex);
+      const std::unique_lock lock(imgQueueMutex);
       imgQueue.push(std::move(filteredFrame));
     }
   }
@@ -193,10 +197,10 @@ size_t AVDecoder::read(int16_t* buffer, size_t bufferSize, bool /*looping*/)
 {
   fillQueues();
 
-  size_t written = 0;
+  size_t written;
   {
     written = audioDecoder->read(buffer, bufferSize);
-    std::unique_lock lock{imgQueueMutex};
+    const std::unique_lock lock{imgQueueMutex};
     if(written == 0 && !imgQueue.empty())
     {
       // audio ended prematurely - pad with zero audio data until all video frames are consumed
@@ -204,16 +208,15 @@ size_t AVDecoder::read(int16_t* buffer, size_t bufferSize, bool /*looping*/)
     }
   }
 
+  if(written == 0)
+  {
+    std::fill_n(buffer, audioDecoder->getChannels() * bufferSize, int16_t{0});
+    return written;
+  }
+
   bufferSize -= written;
   buffer += audioDecoder->getChannels() * written;
   totalAudioFrames += written;
-  if(written == 0 || static_cast<double>(totalAudioFrames) / audioDecoder->getSampleRate() >= getVideoTs(true))
-  {
-    std::unique_lock lock{imgQueueMutex};
-    frameReady = true;
-    frameReadyCondition.notify_one();
-  }
-
   std::fill_n(buffer, audioDecoder->getChannels() * bufferSize, int16_t{0});
   return written;
 }
@@ -233,16 +236,12 @@ int AVDecoder::getChannels() const
   return audioDecoder->getChannels();
 }
 
-double AVDecoder::getVideoTs(bool lock)
+std::chrono::high_resolution_clock::time_point AVDecoder::getVideoTs()
 {
-  std::optional<std::unique_lock<std::mutex>> guard;
-  if(lock)
-    guard = std::unique_lock{imgQueueMutex};
+  gsl_Assert(!imgQueue.empty());
 
-  if(imgQueue.empty())
-    return std::numeric_limits<double>::max();
-
-  const auto& tb = videoStream->stream->time_base;
-  return static_cast<double>(imgQueue.front().frame->pts) * tb.num / tb.den;
+  return m_playStart
+         + ffmpeg::toDuration<std::chrono::high_resolution_clock::duration>(imgQueue.front().frame->pts,
+                                                                            videoStream->stream->time_base);
 }
 } // namespace video

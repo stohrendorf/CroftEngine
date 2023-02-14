@@ -66,7 +66,7 @@ void FilterGraph::init(const ffmpeg::Stream& stream)
   inputs->filter_ctx = output;
   inputs->pad_idx = 0;
   inputs->next = nullptr;
-  if(avfilter_graph_parse_ptr(graph, "gblur, noise=alls=10:allf=t+u", &inputs, &outputs, nullptr) < 0)
+  if(avfilter_graph_parse_ptr(graph, "noise=alls=10:allf=t+u", &inputs, &outputs, nullptr) < 0)
     BOOST_THROW_EXCEPTION(std::runtime_error("Failed to initialize filter graph"));
 
   if(avfilter_graph_config(graph, nullptr) < 0)

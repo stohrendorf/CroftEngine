@@ -40,15 +40,13 @@ void play(const std::filesystem::path& filename,
   BOOST_LOG_TRIVIAL(info) << "Playing " << filename << ", estimated duration "
                           << std::chrono::duration_cast<std::chrono::seconds>(decoderPtr->getDuration()).count()
                           << " seconds";
-  const auto decoder = decoderPtr.get();
-  gsl_Assert(decoder->filterGraph.graph->sink_links_count == 1);
-  Converter converter{decoder->filterGraph.graph->sink_links[0]};
-  decoderPtr->fillQueues();
+  gsl_Assert(decoderPtr->filterGraph.graph->sink_links_count == 1);
+  Converter converter{decoderPtr->filterGraph.graph->sink_links[0]};
 
+  const auto decoder = decoderPtr.get();
   auto stream = audioDevice.createStream(
     std::move(decoderPtr), audioDevice.getSampleRate() / 30, 4, std::chrono::milliseconds{0});
   stream->setLooping(true);
-  stream->play();
 
   const auto streamFinisher = gsl::finally(
     [&stream, &audioDevice]()
@@ -56,6 +54,8 @@ void play(const std::filesystem::path& filename,
       audioDevice.removeStream(stream.get());
     });
 
+  stream->play();
+  decoder->play();
   while(!decoder->stopped)
   {
     if(const auto f = decoder->takeFrame())
