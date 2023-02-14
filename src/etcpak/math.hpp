@@ -1,22 +1,12 @@
 #pragma once
 
+#include <algorithm>
 #include <cstdint>
 #include <gsl/gsl-lite.hpp>
 
-template<typename T>
-constexpr uint8_t clampu8(T val)
+constexpr uint8_t clampu8(int32_t val)
 {
-  if(val >= 0 && val <= 255)
-    return gsl::narrow_cast<uint8_t>(val);
-  else if(val < 0)
-    return 0;
-  else
-    return 255;
-}
-
-constexpr uint8_t clampu8(uint8_t val)
-{
-  return val;
+  return gsl::narrow_cast<uint8_t>(std::clamp(val, 0, 255));
 }
 
 template<typename T>
