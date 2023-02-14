@@ -2203,11 +2203,12 @@ void LaraObject::updateCheats()
       getWorld().getPlayer().getInventory().getAmmo(WeaponType::Uzis).shots = 5000;
 
       playSoundEffect(TR1SoundEffect::LaraHolster);
-      m_cheatIdx = WaitWalkFwd;
       break;
     default:
       break;
     }
+
+    m_cheatIdx = WaitWalkFwd;
     break;
   default:
     m_cheatIdx = WaitWalkFwd;
