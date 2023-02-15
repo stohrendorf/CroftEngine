@@ -34,6 +34,36 @@ std::string getAvError(int err)
 
   return tmp.data();
 }
+
+void handleSendPacketError(int err, AVCodecContext* ctx)
+{
+  if(err == AVERROR(EINVAL))
+  {
+    BOOST_LOG_TRIVIAL(info) << "Flushing audio decoder";
+    avcodec_flush_buffers(ctx);
+  }
+  else
+  {
+    switch(err)
+    {
+    case AVERROR(EAGAIN):
+      BOOST_LOG_TRIVIAL(error) << "Frames still present in audio decoder";
+      break;
+    case AVERROR(ENOMEM):
+      BOOST_LOG_TRIVIAL(error) << "Failed to add packet to audio decoder queue";
+      break;
+      // NOLINTNEXTLINE(hicpp-signed-bitwise)
+    case AVERROR_EOF:
+      BOOST_LOG_TRIVIAL(error) << "Audio decoder already flushed";
+      break;
+    default:
+      break;
+    }
+
+    BOOST_LOG_TRIVIAL(error) << "Failed to send packet to audio decoder: " << getAvError(err);
+    BOOST_THROW_EXCEPTION(std::runtime_error("Failed to send packet to audio decoder"));
+  }
+}
 } // namespace
 
 AudioStreamDecoder::AudioStreamDecoder(AVFormatContext* fmtContext, bool rplFakeAudioHack)
@@ -71,40 +101,15 @@ AudioStreamDecoder::~AudioStreamDecoder()
 
 bool AudioStreamDecoder::push(const AVPacket& packet)
 {
-  std::unique_lock lock{mutex};
+  const std::unique_lock lock{mutex};
 
   if(packet.stream_index != stream->index || queue.size() >= QueueLimit)
     return false;
   lastPacketPts = packet.pts;
 
-  if(const auto err = avcodec_send_packet(stream->context, &packet))
+  if(const auto err = avcodec_send_packet(stream->context, &packet); err != 0)
   {
-    if(err == AVERROR(EINVAL))
-    {
-      BOOST_LOG_TRIVIAL(info) << "Flushing audio decoder";
-      avcodec_flush_buffers(stream->context);
-    }
-    else
-    {
-      switch(err)
-      {
-      case AVERROR(EAGAIN):
-        BOOST_LOG_TRIVIAL(error) << "Frames still present in audio decoder";
-        break;
-      case AVERROR(ENOMEM):
-        BOOST_LOG_TRIVIAL(error) << "Failed to add packet to audio decoder queue";
-        break;
-        // NOLINTNEXTLINE(hicpp-signed-bitwise)
-      case AVERROR_EOF:
-        BOOST_LOG_TRIVIAL(error) << "Audio decoder already flushed";
-        break;
-      default:
-        break;
-      }
-
-      BOOST_LOG_TRIVIAL(error) << "Failed to send packet to audio decoder: " << getAvError(err);
-      BOOST_THROW_EXCEPTION(std::runtime_error("Failed to send packet to audio decoder"));
-    }
+    handleSendPacketError(err, stream->context);
   }
 
   int err;
@@ -145,7 +150,7 @@ bool AudioStreamDecoder::push(const AVPacket& packet)
 
 size_t AudioStreamDecoder::read(int16_t* buffer, size_t bufferSize)
 {
-  std::unique_lock lock{mutex};
+  const std::unique_lock lock{mutex};
 
   size_t written = 0;
   while(bufferSize != 0 && !queue.empty())
@@ -183,13 +188,13 @@ int AudioStreamDecoder::getSampleRate() const
 
 std::chrono::milliseconds AudioStreamDecoder::getPosition() const
 {
-  std::unique_lock lock{mutex};
+  const std::unique_lock lock{mutex};
   return ffmpeg::toDuration<std::chrono::milliseconds>(lastPacketPts, stream->stream->time_base);
 }
 
 void AudioStreamDecoder::seek(const std::chrono::milliseconds& position)
 {
-  std::unique_lock lock{mutex};
+  const std::unique_lock lock{mutex};
   const auto ts = ffmpeg::fromDuration(position, stream->stream->time_base);
   if(av_seek_frame(fmtContext, stream->index, ts, 0) < 0)
   {
