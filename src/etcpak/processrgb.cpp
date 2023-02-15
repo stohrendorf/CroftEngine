@@ -1051,14 +1051,13 @@ inline void stuff58bits(uint32_t thumbH58W1, uint32_t thumbH58W2, uint32_t& thum
   //     |//|part0               |// // //|part1|//|part2                                          |df|part3|
   //      --------------------------------------------------------------------------------------------------|
 
-  uint32_t part0, part1, part2, part3;
-  uint8_t bit, a, b, c, d, bits;
+  uint8_t bit;
 
   // move parts
-  part0 = (thumbH58W1 >> 19u) & 0x7fu;
-  part1 = (thumbH58W1 >> 17u) & 0x3u;
-  part2 = (thumbH58W1 >> 1u) & 0xffffu;
-  part3 = thumbH58W1 & 0x1u;
+  const auto part0 = (thumbH58W1 >> 19u) & 0x7fu;
+  const auto part1 = (thumbH58W1 >> 17u) & 0x3u;
+  const auto part2 = (thumbH58W1 >> 1u) & 0xffffu;
+  const auto part3 = thumbH58W1 & 0x1u;
   thumbHW1 = 0;
   thumbHW1 = (thumbHW1 & ~(0x7fu << 24u)) | ((part0 & 0x7fu) << 24u);
   thumbHW1 = (thumbHW1 & ~(0x3u << 19u)) | ((part1 & 0x3u) << 19u);
@@ -1070,15 +1069,12 @@ inline void stuff58bits(uint32_t thumbH58W1, uint32_t thumbH58W2, uint32_t& thum
   thumbHW1 = (thumbHW1 & ~(0x1u << 31u)) | ((~bit & 0x1u) << 31u);
 
   // Make sure that green overflows:
-  a = (thumbHW1 >> 20u) & 0x1u;
-  b = (thumbHW1 >> 19u) & 0x1u;
-  c = (thumbHW1 >> 17u) & 0x1u;
-  d = (thumbHW1 >> 16u) & 0x1u;
-  // The following bit abcd bit sequences should be padded with ones: 0111, 1010, 1011, 1101, 1110, 1111
-  // The following logical expression checks for the presence of any of those:
-  bit = (a & c) | ((!a) & b & c & d) | (a & b & !c & d);
-  bits = 0xf * bit;
-  thumbHW1 = (thumbHW1 & ~(0x7u << 21u)) | ((bits & 0x7u) << 21u);
+  // The following bit sequences should be padded with ones: 0111, 1010, 1011, 1101, 1110, 1111
+  const auto bitSequence = (thumbHW1 >> 16u) & 0xfu;
+  bit = bitSequence == 0b0111 || bitSequence == 0b1010 || bitSequence == 0b1011 || bitSequence == 0b1101
+        || bitSequence == 0b1110 || bitSequence == 0b1111;
+
+  thumbHW1 = (thumbHW1 & ~(0x7u << 21u)) | ((bit * 0x7u) << 21u);
   thumbHW1 = (thumbHW1 & ~(0x1u << 18u)) | ((~bit & 0x1u) << 18u);
 
   // Set diffbit
