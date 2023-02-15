@@ -38,7 +38,7 @@ boost::iostreams::mapped_file_sink openForWriting(const char* fn, size_t len, co
 
   boost::iostreams::mapped_file_sink sink{fn, len};
   gsl_Assert(sink.is_open());
-  // NOLINTNEXTLINE cppcoreguidelines-pro-type-reinterpret-cast
+  // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
   auto dst = reinterpret_cast<uint32_t*>(sink.data());
 
   *dst++ = 0x03525650; // version
@@ -64,10 +64,10 @@ BlockData::BlockData(const char* fn)
 {
   gsl_Assert(m_file->is_open());
   m_maplen = m_file->size();
-  // NOLINTNEXTLINE cppcoreguidelines-pro-type-reinterpret-cast
+  // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
   m_data = reinterpret_cast<uint8_t*>(m_file->data());
 
-  // NOLINTNEXTLINE cppcoreguidelines-pro-type-reinterpret-cast
+  // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
   auto data32 = reinterpret_cast<uint32_t*>(m_data);
   gsl_Assert(*data32 == 0x03525650);
   // pixelformat[0]
@@ -88,7 +88,7 @@ BlockData::BlockData(const char* fn, const glm::ivec2& size)
 
   m_maplen += m_dataOffset;
   m_file = std::make_unique<boost::iostreams::mapped_file_sink>(openForWriting(fn, m_maplen, m_size));
-  // NOLINTNEXTLINE cppcoreguidelines-pro-type-reinterpret-cast
+  // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
   m_data = reinterpret_cast<uint8_t*>(m_file->data());
 }
 
@@ -112,7 +112,7 @@ BlockData::~BlockData()
 
 void BlockData::processRgba(const uint32_t* src, uint32_t blocks, size_t offset, size_t width, bool useHeuristics)
 {
-  // NOLINTNEXTLINE cppcoreguidelines-pro-type-reinterpret-cast
+  // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
   auto dst = reinterpret_cast<uint64_t*>(m_data + m_dataOffset) + offset * 2u;
 
   compressEtc2Bgra(src, dst, blocks, width, useHeuristics);
@@ -314,7 +314,7 @@ void decodePlanarAlpha(uint64_t block, uint64_t alpha, uint32_t* dst, uint32_t w
 
 uint64_t convertByteOrder(uint64_t d)
 {
-  // NOLINTNEXTLINE cppcoreguidelines-pro-type-member-init
+  // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init)
   std::array<uint32_t, 2> word;
   memcpy(word.data(), &d, 8);
   word[0] = _bswap(word[0]);
@@ -328,7 +328,7 @@ void decodeRgbaPart(uint64_t d, uint64_t alpha, uint32_t* dst, uint32_t w)
   d = convertByteOrder(d);
   alpha = _bswap64(alpha);
 
-  // NOLINTNEXTLINE cppcoreguidelines-pro-type-member-init
+  // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init)
   std::array<uint32_t, 2> br, bg, bb;
 
   if(d & 0x2u)
@@ -475,7 +475,7 @@ std::shared_ptr<Bitmap> BlockData::decode()
 
   auto ret = std::make_shared<Bitmap>(m_size);
 
-  // NOLINTNEXTLINE cppcoreguidelines-pro-type-reinterpret-cast
+  // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
   const auto* src = reinterpret_cast<const uint64_t*>(m_data + m_dataOffset);
   uint32_t* dst = ret->data();
 

@@ -18,21 +18,21 @@
 
 #ifdef _MSC_VER
 #  include <intrin.h>
-// NOLINTNEXTLINE bugprone-reserved-identifier
+// NOLINTNEXTLINE(bugprone-reserved-identifier)
 #  define _bswap(x) _byteswap_ulong(x)
-// NOLINTNEXTLINE bugprone-reserved-identifier
+// NOLINTNEXTLINE(bugprone-reserved-identifier)
 #  define _bswap64(x) _byteswap_uint64(x)
 #else
 #  include <x86intrin.h>
 #endif
 
 #ifndef _bswap
-// NOLINTNEXTLINE bugprone-reserved-identifier
+// NOLINTNEXTLINE(bugprone-reserved-identifier)
 #  define _bswap(x) __builtin_bswap32(x)
 #endif
 
 #ifndef _bswap64
-// NOLINTNEXTLINE bugprone-reserved-identifier
+// NOLINTNEXTLINE(bugprone-reserved-identifier)
 #  define _bswap64(x) __builtin_bswap64(x)
 #endif
 
@@ -156,9 +156,9 @@ void insertionSort(std::array<uint8_t, 16>& arr1, std::array<uint8_t, 16>& arr2)
 uint32_t indexConversion(uint32_t pixelIndices)
 {
   uint32_t correctIndices = 0;
-  // NOLINTNEXTLINE cppcoreguidelines-pro-type-member-init
+  // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init)
   std::array<std::array<uint32_t, 4>, 4> LSB;
-  // NOLINTNEXTLINE cppcoreguidelines-pro-type-member-init
+  // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init)
   std::array<std::array<uint32_t, 4>, 4> MSB;
   uint8_t shift = 0;
   for(int y = 3; y >= 0; y--)
@@ -278,7 +278,7 @@ std::array<IVec16, 2> getHalfAveragesRgba(const BgraBlockImm& bgra)
   const auto avgX47_2 = (sumY03X47_2 + sumY47X47_2 + IVec{4}) >> 3;
   const auto avgX03_2 = (sumY03X03_2 + sumY47X03_2 + IVec{4}) >> 3;
 
-  // NOLINTNEXTLINE cppcoreguidelines-pro-type-member-init
+  // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init)
   std::array<IVec16, 2> avg;
   // store average rgba values of Y
   avg[0] = avgY47_2.shuffled<3, 0, 1, 2>().toIVec16U(avgY03_2.shuffled<3, 0, 1, 2>());
@@ -307,15 +307,15 @@ std::array<std::array<uint32_t, 4>, 4> sumHalvesBgr(const BgraBlockImm& bgra)
   const auto y47x47_2 = y47x47.lowToIVec32() + y47x47.highToIVec32();
 
   // store sums of halves
-  // NOLINTNEXTLINE cppcoreguidelines-pro-type-member-init
+  // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init)
   std::array<std::array<uint32_t, 4>, 4> err;
-  // NOLINTNEXTLINE cppcoreguidelines-pro-type-reinterpret-cast
+  // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
   (y47x03_2 + y47x47_2).storeu(reinterpret_cast<__m128i*>(&err[0]));
-  // NOLINTNEXTLINE cppcoreguidelines-pro-type-reinterpret-cast
+  // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
   (y03x03_2 + y03x47_2).storeu(reinterpret_cast<__m128i*>(&err[1]));
-  // NOLINTNEXTLINE cppcoreguidelines-pro-type-reinterpret-cast
+  // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
   (y03x47_2 + y47x47_2).storeu(reinterpret_cast<__m128i*>(&err[2]));
-  // NOLINTNEXTLINE cppcoreguidelines-pro-type-reinterpret-cast
+  // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
   (y03x03_2 + y47x03_2).storeu(reinterpret_cast<__m128i*>(&err[3]));
   return err;
 }
@@ -337,7 +337,7 @@ std::array<glm::u16vec4, 8> processAverages(const std::array<IVec16, 2>& avgPerH
   // process top/bottom, then left/right
   for(size_t i = 0; i < avgPerHalfRgba.size(); i++)
   {
-    // NOLINTNEXTLINE cppcoreguidelines-pro-type-reinterpret-cast
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
     const auto& avg = avgPerHalfRgba[i];
 
     const auto t31 = avg * IVec16{31} + IVec16{128};
@@ -348,13 +348,13 @@ std::array<glm::u16vec4, 8> processAverages(const std::array<IVec16, 2>& avgPerH
 
     const auto c2 = (t31Half2 + halvesDiff).blended<0xF0>(t31Normalized);
 
-    // NOLINTNEXTLINE cppcoreguidelines-pro-type-reinterpret-cast
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
     ((c2 << 3) | (c2 >> 2)).storeu(reinterpret_cast<__m128i*>(&result[4u + i * 2u]));
 
     const auto t15 = avg * IVec16{15} + IVec16{128};
     const auto t15Normalized = (t15 + (t15 >> 8)) >> 8;
 
-    // NOLINTNEXTLINE cppcoreguidelines-pro-type-reinterpret-cast
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
     (t15Normalized | (t15Normalized << 4)).storeu(reinterpret_cast<__m128i*>(&result[i * 2]));
   }
 
@@ -403,7 +403,7 @@ uint32_t checkSolid(const BgraBlockImm& bgra)
     return 0;
   }
 
-  // NOLINTNEXTLINE cppcoreguidelines-pro-type-member-init
+  // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init)
   std::array<uint8_t, sizeof(__m128i)> tmp;
   (bgra[0] & IVec8{uint8_t(0xf8)}).storeu(&tmp);
   return 0x02000000u | ((uint32_t)tmp[0] << 16u) | ((uint32_t)tmp[1] << 8u) | ((uint32_t)tmp[2]);
@@ -430,7 +430,7 @@ std::tuple<std::array<glm::u16vec4, 8>, std::array<uint32_t, 4>> prepareAverages
 std::tuple<std::array<std::array<uint32_t, 8>, 2>, std::array<std::array<uint16_t, 8>, 16>>
   findBestFit(const std::array<glm::u16vec4, 8>& avgRgb, const std::array<uint32_t, 16>& id, const BgraVecBlock& bgra)
 {
-  // NOLINTNEXTLINE cppcoreguidelines-pro-type-member-init
+  // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init)
   std::array<std::array<uint16_t, 8>, 16> tsel;
   std::array<std::array<uint32_t, 8>, 2> terr{};
   auto it = bgra.begin();
@@ -475,13 +475,13 @@ std::tuple<std::array<std::array<uint32_t, 8>, 2>, std::array<std::array<uint16_
     auto& ter = terr[bid % 2];
     static_assert(sizeof(ter) == 2 * sizeof(__m128i));
 
-    // NOLINTNEXTLINE cppcoreguidelines-pro-type-reinterpret-cast
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
     squareErrorLow += IVec{reinterpret_cast<const __m128i*>(ter.data()) + 0};
-    // NOLINTNEXTLINE cppcoreguidelines-pro-type-reinterpret-cast
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
     squareErrorLow.storeu(reinterpret_cast<__m128i*>(ter.data()) + 0);
-    // NOLINTNEXTLINE cppcoreguidelines-pro-type-reinterpret-cast
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
     squareErrorHigh += IVec{reinterpret_cast<const __m128i*>(ter.data()) + 1};
-    // NOLINTNEXTLINE cppcoreguidelines-pro-type-reinterpret-cast
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
     squareErrorHigh.storeu(reinterpret_cast<__m128i*>(ter.data()) + 1);
 
     minIndex.storeu(&tsel[i]);
@@ -767,7 +767,7 @@ uint32_t compressBlockTH(const BgraVecBlock& bgra, Luma& l, uint32_t& compressed
   // 4) calculates the two base colors
   std::array<uint8_t, 4> rangeIdx{{pixIdx[0], pixIdx[minSumRangeIdx], pixIdx[minSumRangeIdx + 1], pixIdx[15]}};
 
-  // NOLINTNEXTLINE cppcoreguidelines-pro-type-member-init
+  // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init)
   std::array<uint16_t, 4> r, g, b;
   for(uint8_t i = 0; i < 4; ++i)
   {
@@ -777,7 +777,7 @@ uint32_t compressBlockTH(const BgraVecBlock& bgra, Luma& l, uint32_t& compressed
     r[i] = bgra[idx].r;
   }
 
-  // NOLINTNEXTLINE cppcoreguidelines-pro-type-member-init
+  // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init)
   std::array<BgrVec, 2> midBgr;
   if(swap)
   {
@@ -1246,7 +1246,7 @@ uint64_t processAlpha_ETC2(const IVec8& alphas)
   // Check solid
   if((alphas == alphas.shuffled(IVec{0})).testC(IVec{-1}))
   {
-    // NOLINTNEXTLINE cppcoreguidelines-pro-type-member-init
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init)
     std::array<uint8_t, sizeof(__m128i)> tmp;
     alphas.storeu(&tmp);
     return tmp[0];
@@ -1393,7 +1393,7 @@ uint64_t processAlpha_ETC2(const IVec8& alphas)
     idx |= (err2.minPos().get64() >> 16) << (15 - i) * 3;
   }
 
-  // NOLINTNEXTLINE cppcoreguidelines-pro-type-member-init
+  // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init)
   std::array<uint16_t, sizeof(__m128i) / sizeof(uint16_t)> rm;
   mul.storeu(&rm);
   const auto sm = gsl::narrow_cast<uint16_t>(srcMid.get64());
@@ -1409,13 +1409,13 @@ void compressEtc2Bgra(const uint32_t* srcBgra, uint64_t* dst, uint32_t blocks, s
   int w = 0;
   while(blocks--)
   {
-    // NOLINTNEXTLINE cppcoreguidelines-pro-type-reinterpret-cast
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
     auto c0 = IVec8{reinterpret_cast<const __m128i*>(srcBgra + width * 0)};
-    // NOLINTNEXTLINE cppcoreguidelines-pro-type-reinterpret-cast
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
     auto c1 = IVec8{reinterpret_cast<const __m128i*>(srcBgra + width * 1)};
-    // NOLINTNEXTLINE cppcoreguidelines-pro-type-reinterpret-cast
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
     auto c2 = IVec8{reinterpret_cast<const __m128i*>(srcBgra + width * 2)};
-    // NOLINTNEXTLINE cppcoreguidelines-pro-type-reinterpret-cast
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
     auto c3 = IVec8{reinterpret_cast<const __m128i*>(srcBgra + width * 3)};
 
     transpose(c0, c1, c2, c3);
@@ -1424,13 +1424,13 @@ void compressEtc2Bgra(const uint32_t* srcBgra, uint64_t* dst, uint32_t blocks, s
 
     BgraVecBlock bgra;
     static_assert(sizeof(bgra) >= sizeof(__m128i) * 4);
-    // NOLINTNEXTLINE cppcoreguidelines-pro-type-reinterpret-cast
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
     c0.storeu(reinterpret_cast<__m128i*>(bgra.data()) + 0);
-    // NOLINTNEXTLINE cppcoreguidelines-pro-type-reinterpret-cast
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
     c1.storeu(reinterpret_cast<__m128i*>(bgra.data()) + 1);
-    // NOLINTNEXTLINE cppcoreguidelines-pro-type-reinterpret-cast
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
     c2.storeu(reinterpret_cast<__m128i*>(bgra.data()) + 2);
-    // NOLINTNEXTLINE cppcoreguidelines-pro-type-reinterpret-cast
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
     c3.storeu(reinterpret_cast<__m128i*>(bgra.data()) + 3);
 
     static const auto mask0 = IVec{0x0f'0b'07'03, -1, -1, -1};

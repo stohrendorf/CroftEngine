@@ -18,7 +18,7 @@ struct IVec final
 
   template<typename T>
   explicit IVec(const T* unaligned)
-      // NOLINTNEXTLINE cppcoreguidelines-pro-type-reinterpret-cast
+      // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
       : data{_mm_loadu_si128(reinterpret_cast<const __m128i*>(unaligned))}
   {
     static_assert(sizeof(T) == sizeof(__m128i));
@@ -155,7 +155,7 @@ struct IVec16 final
   void storeu(T* unaligned) const noexcept
   {
     static_assert(sizeof(T) == sizeof(__m128i));
-    // NOLINTNEXTLINE cppcoreguidelines-pro-type-reinterpret-cast
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
     _mm_storeu_si128(reinterpret_cast<__m128i*>(unaligned), data);
   }
 
@@ -309,7 +309,7 @@ struct IVec8 final
   void storeu(T* unaligned) const
   {
     static_assert(sizeof(T) == sizeof(__m128i));
-    // NOLINTNEXTLINE cppcoreguidelines-pro-type-reinterpret-cast
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
     _mm_storeu_si128(reinterpret_cast<__m128i*>(unaligned), data);
   }
 

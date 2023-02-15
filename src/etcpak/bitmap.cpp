@@ -21,7 +21,7 @@ Bitmap::Bitmap(const glm::ivec2& size, const gsl::span<const uint32_t>& rgba)
   // convert to the expected BGRA input from RGBA
   for(auto& px : m_data)
   {
-    // NOLINTNEXTLINE cppcoreguidelines-pro-type-reinterpret-cast
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
     const auto ptr = reinterpret_cast<uint8_t*>(&px);
     std::swap(ptr[0], ptr[2]);
   }
