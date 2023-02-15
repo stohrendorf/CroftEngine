@@ -1,7 +1,6 @@
 #pragma once
 
 #include "bitmap.hpp"
-#include "forceinline.hpp"
 
 #include <condition_variable>
 #include <cstdint>

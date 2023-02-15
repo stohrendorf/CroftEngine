@@ -1,6 +1,5 @@
 #include "processrgb.hpp"
 
-#include "forceinline.hpp"
 #include "math.hpp"
 #include "processcommon.hpp"
 #include "ssevec.h"
@@ -154,7 +153,7 @@ void insertionSort(std::array<uint8_t, 16>& arr1, std::array<uint8_t, 16>& arr2)
 //converts indices from  |a0|a1|e0|e1|i0|i1|m0|m1|b0|b1|f0|f1|j0|j1|n0|n1|c0|c1|g0|g1|k0|k1|o0|o1|d0|d1|h0|h1|l0|l1|p0|p1| previously used by T- and H-modes
 //                     into  |p0|o0|n0|m0|l0|k0|j0|i0|h0|g0|f0|e0|d0|c0|b0|a0|p1|o1|n1|m1|l1|k1|j1|i1|h1|g1|f1|e1|d1|c1|b1|a1| which should be used for all modes.
 // NO WARRANTY --- SEE STATEMENT IN TOP OF FILE (C) Ericsson AB 2005-2013. All Rights Reserved.
-etcpak_force_inline uint32_t indexConversion(uint32_t pixelIndices)
+uint32_t indexConversion(uint32_t pixelIndices)
 {
   uint32_t correctIndices = 0;
   // NOLINTNEXTLINE cppcoreguidelines-pro-type-member-init
@@ -197,7 +196,7 @@ std::array<BgrVec, 2> compressColor(const std::array<BgrVec, 2>& currColorBgr, b
 }
 
 // three decoding functions come from ETCPACK v2.74 and are slightly changed.
-etcpak_force_inline std::array<BgrVec, 2> decompressColor(const std::array<BgrVec, 2>& colorsBGR444)
+std::array<BgrVec, 2> decompressColor(const std::array<BgrVec, 2>& colorsBGR444)
 {
   // The color should be retrieved as:
   //
@@ -254,7 +253,7 @@ std::array<BgrVec, 4> calculatePaintColors59T(uint8_t d, const std::array<BgrVec
   };
 }
 
-etcpak_force_inline std::array<IVec16, 2> getHalfAveragesRgba(const BgraBlockImm& bgra)
+std::array<IVec16, 2> getHalfAveragesRgba(const BgraBlockImm& bgra)
 {
   const auto& y01 = bgra[0];
   const auto& y23 = bgra[1];
@@ -288,7 +287,7 @@ etcpak_force_inline std::array<IVec16, 2> getHalfAveragesRgba(const BgraBlockImm
   return avg;
 }
 
-etcpak_force_inline std::array<std::array<uint32_t, 4>, 4> sumHalvesBgr(const BgraBlockImm& bgra)
+std::array<std::array<uint32_t, 4>, 4> sumHalvesBgr(const BgraBlockImm& bgra)
 {
   const auto y01 = bgra[0] & 0x00FFFFFF;
   const auto y23 = bgra[1] & 0x00FFFFFF;
@@ -321,7 +320,7 @@ etcpak_force_inline std::array<std::array<uint32_t, 4>, 4> sumHalvesBgr(const Bg
   return err;
 }
 
-etcpak_force_inline uint32_t calcError(const std::array<uint32_t, 4>& halfSumsBgr, const glm::u16vec4& averageRgba)
+uint32_t calcError(const std::array<uint32_t, 4>& halfSumsBgr, const glm::u16vec4& averageRgba)
 {
   uint32_t err = 0x3FFFFFFF; // Big value to prevent negative values, but small enough to prevent overflow
   err -= halfSumsBgr[0] * averageRgba[2];
@@ -331,7 +330,7 @@ etcpak_force_inline uint32_t calcError(const std::array<uint32_t, 4>& halfSumsBg
   return err;
 }
 
-etcpak_force_inline std::array<glm::u16vec4, 8> processAverages(const std::array<IVec16, 2>& avgPerHalfRgba)
+std::array<glm::u16vec4, 8> processAverages(const std::array<IVec16, 2>& avgPerHalfRgba)
 {
   std::array<glm::u16vec4, 8> result;
 
@@ -362,7 +361,7 @@ etcpak_force_inline std::array<glm::u16vec4, 8> processAverages(const std::array
   return result;
 }
 
-etcpak_force_inline void encodeAverages(uint64_t& _d, const std::array<glm::u16vec4, 8>& avgRgb, size_t idx)
+void encodeAverages(uint64_t& _d, const std::array<glm::u16vec4, 8>& avgRgb, size_t idx)
 {
   auto d = _d | (idx << 24u);
   const size_t base = idx << 1u;
@@ -388,7 +387,7 @@ etcpak_force_inline void encodeAverages(uint64_t& _d, const std::array<glm::u16v
   _d = d;
 }
 
-etcpak_force_inline uint32_t checkSolid(const BgraBlockImm& bgra)
+uint32_t checkSolid(const BgraBlockImm& bgra)
 {
   auto d0 = bgra[0];
   auto d1 = bgra[1];
@@ -410,8 +409,7 @@ etcpak_force_inline uint32_t checkSolid(const BgraBlockImm& bgra)
   return 0x02000000u | ((uint32_t)tmp[0] << 16u) | ((uint32_t)tmp[1] << 8u) | ((uint32_t)tmp[2]);
 }
 
-etcpak_force_inline std::tuple<std::array<glm::u16vec4, 8>, std::array<uint32_t, 4>>
-  prepareAverages(const BgraBlockImm& immBgra)
+std::tuple<std::array<glm::u16vec4, 8>, std::array<uint32_t, 4>> prepareAverages(const BgraBlockImm& immBgra)
 {
   const auto avgPerHalfRgba = getHalfAveragesRgba(immBgra);
   const auto processedAvgRgba = processAverages(avgPerHalfRgba);
@@ -429,7 +427,7 @@ etcpak_force_inline std::tuple<std::array<glm::u16vec4, 8>, std::array<uint32_t,
 }
 
 // Non-reference implementation, but faster. Produces same results as the AVX2 version
-etcpak_force_inline std::tuple<std::array<std::array<uint32_t, 8>, 2>, std::array<std::array<uint16_t, 8>, 16>>
+std::tuple<std::array<std::array<uint32_t, 8>, 2>, std::array<std::array<uint16_t, 8>, 16>>
   findBestFit(const std::array<glm::u16vec4, 8>& avgRgb, const std::array<uint32_t, 16>& id, const BgraVecBlock& bgra)
 {
   // NOLINTNEXTLINE cppcoreguidelines-pro-type-member-init
@@ -492,20 +490,19 @@ etcpak_force_inline std::tuple<std::array<std::array<uint32_t, 8>, 2>, std::arra
   return {terr, tsel};
 }
 
-etcpak_force_inline uint8_t convert6(float f)
+uint8_t convert6(float f)
 {
   const int i = (std::clamp(static_cast<int>(f), 0, 1023) - 15) >> 1;
   return gsl::narrow_cast<uint8_t>((i + 11 - ((i + 11) >> 7) - ((i + 4) >> 7)) >> 3);
 }
 
-etcpak_force_inline uint8_t convert7(float f)
+uint8_t convert7(float f)
 {
   const int i = (std::clamp(static_cast<int>(f), 0, 1023) - 15) >> 1;
   return gsl::narrow_cast<uint8_t>((i + 9 - ((i + 9) >> 8) - ((i + 6) >> 8)) >> 2);
 }
 
-etcpak_force_inline std::pair<uint64_t, uint64_t>
-  planar(const BgraVecBlock& bgra, const uint8_t mode, bool useHeuristics)
+std::pair<uint64_t, uint64_t> planar(const BgraVecBlock& bgra, const uint8_t mode, bool useHeuristics)
 {
   int32_t r = 0;
   int32_t g = 0;
@@ -920,12 +917,12 @@ uint32_t compressBlockTH(const BgraVecBlock& bgra, Luma& l, uint32_t& compressed
   return bestErr;
 }
 
-etcpak_force_inline uint64_t encodeSelectors(uint64_t d,
-                                             const std::array<std::array<uint32_t, 8>, 2>& terr,
-                                             const std::array<std::array<uint16_t, 8>, 16>& tsel,
-                                             const std::array<uint32_t, 16>& id,
-                                             const uint64_t value,
-                                             const uint64_t error)
+uint64_t encodeSelectors(uint64_t d,
+                         const std::array<std::array<uint32_t, 8>, 2>& terr,
+                         const std::array<std::array<uint16_t, 8>, 16>& tsel,
+                         const std::array<uint32_t, 16>& id,
+                         const uint64_t value,
+                         const uint64_t error)
 {
   std::array<size_t, 2> tidx{{
     getLeastErrorIndex(terr[0]),
@@ -1089,7 +1086,7 @@ inline void stuff58bits(uint32_t thumbH58W1, uint32_t thumbH58W2, uint32_t& thum
   thumbHW2 = thumbH58W2;
 }
 
-etcpak_force_inline void calculateLuma(const BgraBlockImm& immBgra, Luma& luma)
+void calculateLuma(const BgraBlockImm& immBgra, Luma& luma)
 {
   static const auto Multiplier
     = IVec16{LumaWeightR, LumaWeightG, LumaWeightB, 0, LumaWeightR, LumaWeightG, LumaWeightB, 0};
@@ -1119,7 +1116,7 @@ etcpak_force_inline void calculateLuma(const BgraBlockImm& immBgra, Luma& luma)
   }
 }
 
-etcpak_force_inline uint8_t selectModeETC2(const Luma& luma)
+uint8_t selectModeETC2(const Luma& luma)
 {
   const float lumaRange = gsl::narrow_cast<float>(luma.max - luma.min) / 255.0f;
   // filters a very-low-contrast block
@@ -1147,7 +1144,7 @@ etcpak_force_inline uint8_t selectModeETC2(const Luma& luma)
   return ModeUndecided;
 }
 
-etcpak_force_inline uint64_t processBGR_ETC2(const BgraVecBlock& bgra, const BgraBlockImm& immRgba, bool useHeuristics)
+uint64_t processBGR_ETC2(const BgraVecBlock& bgra, const BgraBlockImm& immRgba, bool useHeuristics)
 {
   uint64_t d = checkSolid(immRgba);
   if(d != 0)
@@ -1202,7 +1199,7 @@ etcpak_force_inline uint64_t processBGR_ETC2(const BgraVecBlock& bgra, const Bgr
 }
 
 template<int K>
-etcpak_force_inline IVec16 widen(const IVec16& src)
+IVec16 widen(const IVec16& src)
 {
   static_assert(K >= 0 && K <= 7, "Index out of range");
 
@@ -1213,7 +1210,7 @@ etcpak_force_inline IVec16 widen(const IVec16& src)
   return IVec16{_mm_shuffle_epi32(tmp, _MM_SHUFFLE(s2, s2, s2, s2))};
 }
 
-constexpr etcpak_force_inline int getMulSel(size_t sel)
+constexpr int getMulSel(size_t sel)
 {
   switch(sel)
   {
@@ -1244,7 +1241,7 @@ constexpr etcpak_force_inline int getMulSel(size_t sel)
   }
 }
 
-etcpak_force_inline uint64_t processAlpha_ETC2(const IVec8& alphas)
+uint64_t processAlpha_ETC2(const IVec8& alphas)
 {
   // Check solid
   if((alphas == alphas.shuffled(IVec{0})).testC(IVec{-1}))

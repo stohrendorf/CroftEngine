@@ -130,7 +130,7 @@ constexpr uint8_t expand7(uint8_t value)
   return (value << 1u) | (value >> 6u);
 }
 
-etcpak_force_inline void decodeTAlpha(uint64_t block, uint64_t alpha, uint32_t* dst, uint32_t w)
+void decodeTAlpha(uint64_t block, uint64_t alpha, uint32_t* dst, uint32_t w)
 {
   const auto r0 = (block >> 24u) & 0x1Bu;
   const auto rh0 = (r0 >> 3u) & 0x3u;
@@ -187,7 +187,7 @@ etcpak_force_inline void decodeTAlpha(uint64_t block, uint64_t alpha, uint32_t* 
   }
 }
 
-etcpak_force_inline void decodeHAlpha(uint64_t block, uint64_t alpha, uint32_t* dst, uint32_t w)
+void decodeHAlpha(uint64_t block, uint64_t alpha, uint32_t* dst, uint32_t w)
 {
   const uint32_t indexes = (block >> 32u) & 0xFFFFFFFFu;
 
@@ -240,7 +240,7 @@ etcpak_force_inline void decodeHAlpha(uint64_t block, uint64_t alpha, uint32_t* 
   }
 }
 
-etcpak_force_inline void decodePlanarAlpha(uint64_t block, uint64_t alpha, uint32_t* dst, uint32_t w)
+void decodePlanarAlpha(uint64_t block, uint64_t alpha, uint32_t* dst, uint32_t w)
 {
   const auto bv = expand6((block >> (0u + 32u)) & 0x3Fu);
   const auto gv = expand7((block >> (6u + 32u)) & 0x7Fu);
@@ -312,7 +312,7 @@ etcpak_force_inline void decodePlanarAlpha(uint64_t block, uint64_t alpha, uint3
   }
 }
 
-etcpak_force_inline uint64_t convertByteOrder(uint64_t d)
+uint64_t convertByteOrder(uint64_t d)
 {
   // NOLINTNEXTLINE cppcoreguidelines-pro-type-member-init
   std::array<uint32_t, 2> word;
@@ -323,7 +323,7 @@ etcpak_force_inline uint64_t convertByteOrder(uint64_t d)
   return d;
 }
 
-etcpak_force_inline void decodeRgbaPart(uint64_t d, uint64_t alpha, uint32_t* dst, uint32_t w)
+void decodeRgbaPart(uint64_t d, uint64_t alpha, uint32_t* dst, uint32_t w)
 {
   d = convertByteOrder(d);
   alpha = _bswap64(alpha);
