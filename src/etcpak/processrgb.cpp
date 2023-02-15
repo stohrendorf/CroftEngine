@@ -1101,7 +1101,7 @@ void calculateLuma(const BgraBlockImm& immBgra, Luma& luma)
 
   (sums[0].hAdd(sums[1]) >> 7).toIVec8U(sums[2].hAdd(sums[3]) >> 7).storeu(&luma.val);
 
-  for(size_t i = 0; i < luma.val.size(); ++i)
+  for(uint8_t i = 0; i < luma.val.size(); ++i)
   {
     if(luma.val[i] < luma.min)
     {

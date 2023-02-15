@@ -36,7 +36,7 @@ boost::iostreams::mapped_file_sink openForWriting(const char* fn, size_t len, co
     tmp.write(&zero, 1);
   }
 
-  boost::iostreams::mapped_file_sink sink{fn, len};
+  const boost::iostreams::mapped_file_sink sink{fn, len};
   gsl_Assert(sink.is_open());
   // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
   auto dst = reinterpret_cast<uint32_t*>(sink.data());
@@ -122,11 +122,13 @@ namespace
 {
 constexpr uint8_t expand6(uint8_t value)
 {
+  // NOLINTNEXTLINE(hicpp-signed-bitwise)
   return (value << 2u) | (value >> 4u);
 }
 
 constexpr uint8_t expand7(uint8_t value)
 {
+  // NOLINTNEXTLINE(hicpp-signed-bitwise)
   return (value << 1u) | (value >> 6u);
 }
 
@@ -166,9 +168,13 @@ void decodeTAlpha(uint64_t block, uint64_t alpha, uint32_t* dst, uint32_t w)
   const auto c3b = clampu8(cb1 - table59T58H[codeword]);
 
   const std::array<uint32_t, 4> col_tab{{
+    // NOLINTNEXTLINE(hicpp-signed-bitwise)
     gsl::narrow_cast<uint32_t>(cr0 | (cg0 << 8u) | (cb0 << 16u)),
+    // NOLINTNEXTLINE(hicpp-signed-bitwise)
     gsl::narrow_cast<uint32_t>(c2r | (c2g << 8u) | (c2b << 16u)),
+    // NOLINTNEXTLINE(hicpp-signed-bitwise)
     gsl::narrow_cast<uint32_t>(cr1 | (cg1 << 8u) | (cb1 << 16u)),
+    // NOLINTNEXTLINE(hicpp-signed-bitwise)
     gsl::narrow_cast<uint32_t>(c3r | (c3g << 8u) | (c3b << 16u)),
   }};
 
@@ -218,12 +224,16 @@ void decodeHAlpha(uint64_t block, uint64_t alpha, uint32_t* dst, uint32_t w)
   const auto& tbl = g_alpha[(alpha >> 48u) & 0xFu];
 
   const std::array<uint32_t, 4> col_tab{{
+    // NOLINTNEXTLINE(hicpp-signed-bitwise)
     gsl::narrow_cast<uint32_t>(clampu8(r0 + table59T58H[codeword]) | (clampu8(g0 + table59T58H[codeword]) << 8u)
                                | (clampu8(b0 + table59T58H[codeword]) << 16u)),
+    // NOLINTNEXTLINE(hicpp-signed-bitwise)
     gsl::narrow_cast<uint32_t>(clampu8(r0 - table59T58H[codeword]) | (clampu8(g0 - table59T58H[codeword]) << 8u)
                                | (clampu8(b0 - table59T58H[codeword]) << 16u)),
+    // NOLINTNEXTLINE(hicpp-signed-bitwise)
     gsl::narrow_cast<uint32_t>(clampu8(r1 + table59T58H[codeword]) | (clampu8(g1 + table59T58H[codeword]) << 8u)
                                | (clampu8(b1 + table59T58H[codeword]) << 16u)),
+    // NOLINTNEXTLINE(hicpp-signed-bitwise)
     gsl::narrow_cast<uint32_t>(clampu8(r1 - table59T58H[codeword]) | (clampu8(g1 - table59T58H[codeword]) << 8u)
                                | (clampu8(b1 - table59T58H[codeword]) << 16u)),
   }};
@@ -253,12 +263,13 @@ void decodePlanarAlpha(uint64_t block, uint64_t alpha, uint32_t* dst, uint32_t w
   const auto rh1 = gsl::narrow_cast<uint8_t>(((block >> (34u - 32u)) & 0x1Fu) << 1u);
   const auto rh = expand6(rh0 | rh1);
 
-  const auto bo0 = (block >> (39u - 32u)) & 0x07u;
-  const auto bo1 = ((block >> (43u - 32u)) & 0x3u) << 3u;
-  const auto bo2 = ((block >> (48u - 32u)) & 0x1u) << 5u;
+  const uint8_t bo0 = (block >> (39u - 32u)) & 0x07u;
+  const uint8_t bo1 = ((block >> (43u - 32u)) & 0x3u) << 3u;
+  const uint8_t bo2 = ((block >> (48u - 32u)) & 0x1u) << 5u;
+  // NOLINTNEXTLINE(hicpp-signed-bitwise)
   const auto bo = expand6(bo0 | bo1 | bo2);
-  const auto go0 = (block >> (49u - 32u)) & 0x3Fu;
-  const auto go1 = ((block >> (56u - 32u)) & 0x01u) << 6u;
+  const uint8_t go0 = (block >> (49u - 32u)) & 0x3Fu;
+  const uint8_t go1 = ((block >> (56u - 32u)) & 0x01u) << 6u;
   const auto go = expand7(go0 | go1);
   const auto ro = expand6((block >> (57u - 32u)) & 0x3Fu);
 
@@ -333,9 +344,9 @@ void decodeRgbaPart(uint64_t d, uint64_t alpha, uint32_t* dst, uint32_t w)
 
   if(d & 0x2u)
   {
-    const uint32_t r0 = (d & 0xF8000000u) >> 27u;
-    const uint32_t g0 = (d & 0x00F80000u) >> 19u;
-    const uint32_t b0 = (d & 0x0000F800u) >> 11u;
+    const auto r0 = gsl::narrow_cast<uint8_t>((d & 0xF8000000u) >> 27u);
+    const auto g0 = gsl::narrow_cast<uint8_t>((d & 0x00F80000u) >> 19u);
+    const auto b0 = gsl::narrow_cast<uint8_t>((d & 0x0000F800u) >> 11u);
 
     const auto dr = (int32_t(d) << 5u) >> 29u;
     const auto dg = (int32_t(d) << 13u) >> 29u;
@@ -366,11 +377,17 @@ void decodeRgbaPart(uint64_t d, uint64_t alpha, uint32_t* dst, uint32_t w)
       return;
     }
 
+    // NOLINTNEXTLINE(hicpp-signed-bitwise)
     br[0] = (r0 << 3u) | (r0 >> 2u);
+    // NOLINTNEXTLINE(hicpp-signed-bitwise)
     br[1] = (r1 << 3u) | (r1 >> 2u);
+    // NOLINTNEXTLINE(hicpp-signed-bitwise)
     bg[0] = (g0 << 3u) | (g0 >> 2u);
+    // NOLINTNEXTLINE(hicpp-signed-bitwise)
     bg[1] = (g1 << 3u) | (g1 >> 2u);
+    // NOLINTNEXTLINE(hicpp-signed-bitwise)
     bb[0] = (b0 << 3u) | (b0 >> 2u);
+    // NOLINTNEXTLINE(hicpp-signed-bitwise)
     bb[1] = (b1 << 3u) | (b1 >> 2u);
   }
   else
@@ -428,6 +445,7 @@ void decodeRgbaPart(uint64_t d, uint64_t alpha, uint32_t* dst, uint32_t w)
           const auto rc = clampu8(r);
           const auto gc = clampu8(g);
           const auto bc = clampu8(b);
+          // NOLINTNEXTLINE(hicpp-signed-bitwise)
           dst[j * w + i] = rc | (gc << 8u) | (bc << 16u) | (a << 24u);
         }
         idx >>= 2u;
@@ -460,6 +478,7 @@ void decodeRgbaPart(uint64_t d, uint64_t alpha, uint32_t* dst, uint32_t w)
           const auto rc = clampu8(r);
           const auto gc = clampu8(g);
           const auto bc = clampu8(b);
+          // NOLINTNEXTLINE(hicpp-signed-bitwise)
           dst[j * w + i] = rc | (gc << 8u) | (bc << 16u) | (a << 24u);
         }
         idx >>= 2u;

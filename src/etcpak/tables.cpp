@@ -1,5 +1,29 @@
 #include "tables.hpp"
 
+#include <gsl/gsl-lite.hpp>
+
+namespace
+{
+const std::array<int16_t, 16> g_alphaRange{{
+  gsl::narrow_cast<int16_t>(0x100FF / (1 + g_alpha[0][7] - g_alpha[0][3])),
+  gsl::narrow_cast<int16_t>(0x100FF / (1 + g_alpha[1][7] - g_alpha[1][3])),
+  gsl::narrow_cast<int16_t>(0x100FF / (1 + g_alpha[2][7] - g_alpha[2][3])),
+  gsl::narrow_cast<int16_t>(0x100FF / (1 + g_alpha[3][7] - g_alpha[3][3])),
+  gsl::narrow_cast<int16_t>(0x100FF / (1 + g_alpha[4][7] - g_alpha[4][3])),
+  gsl::narrow_cast<int16_t>(0x100FF / (1 + g_alpha[5][7] - g_alpha[5][3])),
+  gsl::narrow_cast<int16_t>(0x100FF / (1 + g_alpha[6][7] - g_alpha[6][3])),
+  gsl::narrow_cast<int16_t>(0x100FF / (1 + g_alpha[7][7] - g_alpha[7][3])),
+  gsl::narrow_cast<int16_t>(0x100FF / (1 + g_alpha[8][7] - g_alpha[8][3])),
+  gsl::narrow_cast<int16_t>(0x100FF / (1 + g_alpha[9][7] - g_alpha[9][3])),
+  gsl::narrow_cast<int16_t>(0x100FF / (1 + g_alpha[10][7] - g_alpha[10][3])),
+  gsl::narrow_cast<int16_t>(0x100FF / (1 + g_alpha[11][7] - g_alpha[11][3])),
+  gsl::narrow_cast<int16_t>(0x100FF / (1 + g_alpha[12][7] - g_alpha[12][3])),
+  gsl::narrow_cast<int16_t>(0x100FF / (1 + g_alpha[13][7] - g_alpha[13][3])),
+  gsl::narrow_cast<int16_t>(0x100FF / (1 + g_alpha[14][7] - g_alpha[14][3])),
+  gsl::narrow_cast<int16_t>(0x100FF / (1 + g_alpha[15][7] - g_alpha[15][3])),
+}};
+}
+
 const std::array<std::array<int32_t, 4>, 8> g_table{{
   {2, 8, -2, -8},
   {5, 17, -5, -17},
@@ -28,7 +52,7 @@ const std::array<uint32_t, 64> g_flags{
    0x00000402, 0x00000402, 0x00000402, 0x00000402, 0x00000402, 0x00000402, 0x00000402, 0x0000E002,
    0x00000402, 0x00000402, 0x0000E002, 0x0000E002, 0x00000402, 0x0000E002, 0x0000E002, 0x0000E002}};
 
-const std::array<std::array<int32_t, 8>, 16> g_alpha{{
+const std::array<std::array<int16_t, 8>, 16> g_alpha{{
   {-3, -6, -9, -15, 2, 5, 8, 14},
   {-3, -7, -10, -13, 2, 6, 9, 12},
   {-2, -5, -8, -13, 1, 4, 7, 12},
@@ -45,25 +69,6 @@ const std::array<std::array<int32_t, 8>, 16> g_alpha{{
   {-1, -2, -3, -10, 0, 1, 2, 9},
   {-4, -6, -8, -9, 3, 5, 7, 8},
   {-3, -5, -7, -9, 2, 4, 6, 8},
-}};
-
-const std::array<int32_t, 16> g_alphaRange{{
-  0x100FF / (1 + g_alpha[0][7] - g_alpha[0][3]),
-  0x100FF / (1 + g_alpha[1][7] - g_alpha[1][3]),
-  0x100FF / (1 + g_alpha[2][7] - g_alpha[2][3]),
-  0x100FF / (1 + g_alpha[3][7] - g_alpha[3][3]),
-  0x100FF / (1 + g_alpha[4][7] - g_alpha[4][3]),
-  0x100FF / (1 + g_alpha[5][7] - g_alpha[5][3]),
-  0x100FF / (1 + g_alpha[6][7] - g_alpha[6][3]),
-  0x100FF / (1 + g_alpha[7][7] - g_alpha[7][3]),
-  0x100FF / (1 + g_alpha[8][7] - g_alpha[8][3]),
-  0x100FF / (1 + g_alpha[9][7] - g_alpha[9][3]),
-  0x100FF / (1 + g_alpha[10][7] - g_alpha[10][3]),
-  0x100FF / (1 + g_alpha[11][7] - g_alpha[11][3]),
-  0x100FF / (1 + g_alpha[12][7] - g_alpha[12][3]),
-  0x100FF / (1 + g_alpha[13][7] - g_alpha[13][3]),
-  0x100FF / (1 + g_alpha[14][7] - g_alpha[14][3]),
-  0x100FF / (1 + g_alpha[15][7] - g_alpha[15][3]),
 }};
 
 const std::array<IVec16, 2> g_table128_SIMD{{
