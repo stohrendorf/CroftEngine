@@ -4,6 +4,7 @@
 
 #include <cstdint>
 #include <gl/buffer.h>
+#include <gl/pixel.h>
 #include <glm/mat4x4.hpp>
 #include <string>
 
@@ -22,6 +23,7 @@ public:
   GhostModel()
       : render::scene::Node{"ghost"}
   {
+    setColor(gl::SRGB8{51, 51, 204});
   }
 
   void apply(const engine::world::World& world, const GhostFrame& frame);
@@ -37,6 +39,16 @@ public:
   [[nodiscard]] auto getRoomId() const
   {
     return m_roomId;
+  }
+
+  void setColor(const gl::SRGB8& color)
+  {
+    bind("u_color",
+         [color = glm::vec3{color.channels}
+                  / 255.0f](const render::scene::Node*, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
+         {
+           uniform.set(color);
+         });
   }
 
 private:

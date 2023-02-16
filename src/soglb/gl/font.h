@@ -34,6 +34,12 @@ public:
                 uint8_t alpha,
                 int size);
 
+  void drawText(Image<ScalarByte>& img, gsl::czstring text, glm::ivec2 xy, int size);
+  void drawText(Image<ScalarByte>& img, const std::string& text, const glm::ivec2& xy, int size);
+
+  [[nodiscard]] std::pair<glm::ivec2, glm::ivec2> measure(gsl::czstring text, int size);
+  [[nodiscard]] std::pair<glm::ivec2, glm::ivec2> measure(const std::string& text, int size);
+
   int getGlyphKernAdvance(FT_UInt left, FT_UInt right) const;
 
   FT_UInt getGlyphIndex(char32_t chr) const;

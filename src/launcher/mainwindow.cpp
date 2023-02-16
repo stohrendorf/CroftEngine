@@ -12,6 +12,7 @@
 #include "gameflow/meta.h"
 #include "languages.h"
 #include "mainwindow.h"
+#include "networkconfig.h"
 #include "paths.h"
 #include "readonlyarchive.h"
 #include "serialization/serialization.h"
@@ -19,6 +20,8 @@
 #include "ui_mainwindow.h"
 
 #include <boost/log/trivial.hpp>
+#include <boost/throw_exception.hpp>
+#include <QColorDialog>
 #include <QDesktopServices>
 #include <QFileDialog>
 #include <QMessageBox>
@@ -103,6 +106,8 @@ MainWindow::MainWindow(QWidget* parent)
     , ui(new Ui::MainWindow)
 {
   ui->setupUi(this);
+
+  connect(ui->validateConnection, &QPushButton::clicked, this, &MainWindow::onTestConnectionClicked);
 
   const QSettings settings;
 
@@ -230,11 +235,32 @@ MainWindow::MainWindow(QWidget* parent)
   ui->dataLocation->setText(QString::fromUtf8(findUserDataDir().value().string().c_str()));
   ui->engineDataLocation->setText(QString::fromLatin1(findEngineDataDir().value().string().c_str()));
 
-  QObject::connect(ui->openDataLocation, &QPushButton::clicked, this, &MainWindow::onOpenDataLocationClicked);
-  QObject::connect(ui->migrateBtn, &QPushButton::clicked, this, &MainWindow::onMigrateClicked);
-  QObject::connect(ui->resetConfig, &QPushButton::clicked, this, &MainWindow::resetConfig);
-  QObject::connect(ui->selectGlidos, &QPushButton::clicked, this, &MainWindow::onSelectGlidosClicked);
-  QObject::connect(ui->disableGlidos, &QPushButton::clicked, this, &MainWindow::onDisableGlidosClicked);
+  connect(ui->openDataLocation, &QPushButton::clicked, this, &MainWindow::onOpenDataLocationClicked);
+  connect(ui->migrateBtn, &QPushButton::clicked, this, &MainWindow::onMigrateClicked);
+  connect(ui->resetConfig, &QPushButton::clicked, this, &MainWindow::resetConfig);
+  connect(ui->selectGlidos, &QPushButton::clicked, this, &MainWindow::onSelectGlidosClicked);
+  connect(ui->disableGlidos, &QPushButton::clicked, this, &MainWindow::onDisableGlidosClicked);
+  connect(ui->btnChooseColor, &QPushButton::clicked, this, &MainWindow::onChooseColorClicked);
+
+  if(std::filesystem::is_regular_file(findUserDataDir().value() / "network.yaml"))
+  {
+    auto cfg = NetworkConfig::load();
+
+    m_ghostColor = QColor::fromRgb(cfg.color.at(0), cfg.color.at(1), cfg.color.at(2));
+    ui->serverSocket->setText(QString::fromLatin1(cfg.socket.c_str()));
+    ui->username->setText(QString::fromUtf8(cfg.username.c_str()));
+    ui->authToken->setText(QString::fromUtf8(cfg.authToken.c_str()));
+    ui->sessionId->setText(QString::fromUtf8(cfg.sessionId.c_str()));
+  }
+  else
+  {
+    m_ghostColor = QColor::fromRgb(std::rand() % 256, std::rand() % 256, std::rand() % 256);
+  }
+
+  QPalette pal;
+  pal.setColor(QPalette::Window, m_ghostColor);
+  ui->lblColor->setPalette(pal);
+  ui->lblColor->setAutoFillBackground(true);
 }
 
 MainWindow::~MainWindow()
@@ -937,6 +963,15 @@ void MainWindow::onLaunchClicked()
   m_launchRequest = std::tuple<std::string, std::string>{
     std::string{languageIdData.data(), gsl::narrow<size_t>(languageIdData.size())},
     std::string{gameflowIdData.data(), gsl::narrow<size_t>(gameflowIdData.size())}};
+
+  NetworkConfig cfg{};
+  cfg.color = {(uint8_t)m_ghostColor.red(), (uint8_t)m_ghostColor.green(), (uint8_t)m_ghostColor.blue()};
+  cfg.socket = ui->serverSocket->text().toStdString();
+  cfg.username = ui->username->text().toStdString();
+  cfg.authToken = ui->authToken->text().toStdString();
+  cfg.sessionId = ui->sessionId->text().toStdString();
+  cfg.save();
+
   close();
 }
 
@@ -967,5 +1002,57 @@ void MainWindow::onGameflowSelected(const QModelIndex& index)
 
   ui->gameflowMeta->addStretch(1);
   ui->gameflowMeta->addWidget(m_importButton);
+}
+
+void MainWindow::onChooseColorClicked()
+{
+  if(const auto newColor = QColorDialog::getColor(m_ghostColor, this, tr("Choose Your Ghost Color"));
+     newColor.isValid())
+    m_ghostColor = newColor;
+
+  QPalette pal;
+  pal.setColor(QPalette::Window, m_ghostColor);
+  ui->lblColor->setPalette(pal);
+}
+
+void MainWindow::onTestConnectionClicked()
+{
+  QUrl url{"coop://" + ui->serverSocket->text()};
+  if(!url.isValid() || url.hasFragment() || url.hasQuery() || !url.path().isEmpty() || url.port() == -1
+     || url.scheme() != "coop" || !url.userInfo().isEmpty())
+  {
+    QMessageBox::warning(this,
+                         tr("Invalid Connection Settings"),
+                         tr("Ensure you enter your server address only containing the domain name and the port, for "
+                            "example like 'example.com:12345'."));
+    return;
+  }
+
+  if(ui->username->text().isEmpty())
+  {
+    QMessageBox::warning(this, tr("Invalid Connection Settings"), tr("Please fill in your username."));
+    return;
+  }
+
+  if(!QRegExp{"[a-f0-9]{32}"}.exactMatch(ui->authToken->text()))
+  {
+    QMessageBox::warning(
+      this,
+      tr("Invalid Connection Settings"),
+      tr("Invalid auth token, make sure you copied it from the website. This is NOT your password."));
+    return;
+  }
+
+  if(!QRegExp{"[a-f0-9]{32}"}.exactMatch(ui->sessionId->text()))
+  {
+    QMessageBox::warning(
+      this, tr("Invalid Connection Settings"), tr("Invalid session ID, make sure you copied it from the website."));
+    return;
+  }
+
+  QMessageBox::information(this,
+                           tr("Valid Connection Settings"),
+                           tr("Your configuration seems valid. However, no attempt was made to check against the "
+                              "server that it will actually work."));
 }
 } // namespace launcher

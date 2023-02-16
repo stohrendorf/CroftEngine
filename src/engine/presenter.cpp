@@ -434,7 +434,7 @@ Presenter::Presenter(const std::filesystem::path& engineDataPath, const glm::ive
         gl::CImgWrapper{util::ensureFileExists(engineDataPath / "splash.png")}.toTexture("splash"),
         gsl::make_unique<gl::Sampler>("splash-sampler"))}
     , m_trTTFFont{std::make_unique<gl::Font>(util::ensureFileExists(engineDataPath / "trfont.ttf"))}
-    , m_debugFont{std::make_unique<gl::Font>(util::ensureFileExists(engineDataPath / "DroidSansMono.ttf"))}
+    , m_ghostNameFont{std::make_unique<gl::Font>(util::ensureFileExists(engineDataPath / "Roboto-Regular.ttf"))}
     , m_inputHandler{std::make_unique<hid::InputHandler>(m_window, engineDataPath / "gamecontrollerdb.txt")}
     , m_shaderCache{std::make_shared<render::material::ShaderCache>(engineDataPath / "shaders")}
     , m_materialManager{std::make_unique<render::material::MaterialManager>(m_shaderCache, m_renderer)}

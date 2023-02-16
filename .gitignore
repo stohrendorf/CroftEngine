@@ -26,6 +26,7 @@
 /screenshots
 /bugreports
 /config.yaml
+/network.yaml
 /runtime-asset-src/*.blend?*
 
 # Thank you, Windows!

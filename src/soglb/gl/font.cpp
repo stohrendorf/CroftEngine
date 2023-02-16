@@ -200,6 +200,132 @@ void Font::drawText(Image<PremultipliedSRGBA8>& img,
   drawText(img, text.c_str(), xy, premultiply(SRGBA8{red, green, blue, alpha}), size);
 }
 
+void Font::drawText(Image<ScalarByte>& img, const gsl::czstring text, glm::ivec2 xy, int size)
+{
+  Expects(text);
+  Expects(size > 0);
+
+  size = gsl::narrow_cast<int>(gsl::narrow_cast<float>(size) * m_lineHeight);
+
+  FTC_ImageTypeRec imgType;
+  imgType.face_id = this;
+  imgType.width = size;
+  imgType.height = size;
+  imgType.flags = FT_LOAD_DEFAULT | FT_LOAD_RENDER; // NOLINT(hicpp-signed-bitwise)
+
+  std::optional<char32_t> prevChar = std::nullopt;
+  std::vector<char32_t> utf32;
+  utf8::utf8to32(text, text + std::strlen(text), std::back_inserter(utf32));
+  for(const char32_t chr : utf32)
+  {
+    const auto glyphIndex = getGlyphIndex(chr);
+    if(glyphIndex == 0)
+    {
+      BOOST_LOG_TRIVIAL(warning) << "Failed to load character '" << chr << "'";
+      continue;
+    }
+
+    FTC_SBit sbit = nullptr;
+    FTC_Node node = nullptr;
+    const auto error = FTC_SBitCache_Lookup(m_sbitCache, &imgType, glyphIndex, &sbit, &node);
+    if(error != FT_Err_Ok)
+    {
+      BOOST_LOG_TRIVIAL(warning) << "Failed to load from sbit cache: " << getFreeTypeErrorMessage(error);
+      FTC_Node_Unref(node, m_cache);
+      continue;
+    }
+
+    if(sbit->buffer != nullptr)
+    {
+      for(int dy = 0, i = 0; dy < sbit->height; dy++)
+      {
+        for(int dx = 0; dx < sbit->width; dx++, i++)
+        {
+          img.set(xy + glm::ivec2{dx + sbit->left, dy - sbit->top},
+                  ScalarByte{gsl::narrow_cast<uint8_t>(sbit->buffer[i])});
+        }
+      }
+    }
+
+    if(prevChar.has_value())
+      xy.x += getGlyphKernAdvance(prevChar.value(), chr);
+
+    xy.x += sbit->xadvance;
+    xy.y += sbit->yadvance;
+
+    FTC_Node_Unref(node, m_cache);
+    prevChar = chr;
+  }
+}
+
+void Font::drawText(Image<ScalarByte>& img, const std::string& text, const glm::ivec2& xy, const int size)
+{
+  drawText(img, text.c_str(), xy, size);
+}
+
+std::pair<glm::ivec2, glm::ivec2> Font::measure(const gsl::czstring text, int size)
+{
+  Expects(text);
+  Expects(size > 0);
+
+  size = gsl::narrow_cast<int>(gsl::narrow_cast<float>(size) * m_lineHeight);
+
+  FTC_ImageTypeRec imgType;
+  imgType.face_id = this;
+  imgType.width = size;
+  imgType.height = size;
+  imgType.flags = FT_LOAD_DEFAULT | FT_LOAD_RENDER; // NOLINT(hicpp-signed-bitwise)
+
+  glm::ivec2 bottomLeft{0, 0};
+  glm::ivec2 topRight{0, 0};
+
+  glm::ivec2 xy{0, 0};
+
+  std::optional<char32_t> prevChar = std::nullopt;
+  std::vector<char32_t> utf32;
+  utf8::utf8to32(text, text + std::strlen(text), std::back_inserter(utf32));
+  for(const char32_t chr : utf32)
+  {
+    const auto glyphIndex = getGlyphIndex(chr);
+    if(glyphIndex == 0)
+    {
+      BOOST_LOG_TRIVIAL(warning) << "Failed to load character '" << chr << "'";
+      continue;
+    }
+
+    FTC_SBit sbit = nullptr;
+    FTC_Node node = nullptr;
+    const auto error = FTC_SBitCache_Lookup(m_sbitCache, &imgType, glyphIndex, &sbit, &node);
+    if(error != FT_Err_Ok)
+    {
+      BOOST_LOG_TRIVIAL(warning) << "Failed to load from sbit cache: " << getFreeTypeErrorMessage(error);
+      FTC_Node_Unref(node, m_cache);
+      continue;
+    }
+
+    bottomLeft.x = std::min(bottomLeft.x, xy.x + sbit->left);
+    bottomLeft.y = std::min(bottomLeft.y, xy.y - sbit->top);
+    topRight.x = std::max(topRight.x, xy.x + sbit->left + sbit->width);
+    topRight.y = std::max(topRight.y, xy.y + sbit->top + sbit->height);
+
+    if(prevChar.has_value())
+      xy.x += getGlyphKernAdvance(prevChar.value(), chr);
+
+    xy.x += sbit->xadvance;
+    xy.y += sbit->yadvance;
+
+    FTC_Node_Unref(node, m_cache);
+    prevChar = chr;
+  }
+
+  return {bottomLeft, topRight};
+}
+
+std::pair<glm::ivec2, glm::ivec2> Font::measure(const std::string& text, const int size)
+{
+  return measure(text.c_str(), size);
+}
+
 FT_Face Font::getFace() const
 {
   FT_Face face = nullptr;

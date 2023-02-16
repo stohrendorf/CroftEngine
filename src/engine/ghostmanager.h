@@ -1,6 +1,8 @@
 #pragma once
 
+#include <cstdint>
 #include <filesystem>
+#include <map>
 
 namespace engine::world
 {
@@ -27,6 +29,7 @@ struct GhostManager
   bool askGhostSave(Presenter& presenter, world::World& world);
 
   std::shared_ptr<ghosting::GhostModel> model;
+  std::map<uint64_t, std::shared_ptr<ghosting::GhostModel>> remoteModels;
   const std::filesystem::path readerPath;
   std::unique_ptr<ghosting::GhostDataReader> reader;
   const std::filesystem::path writerPath;
