@@ -6,16 +6,6 @@ float texel_shade(in float depth)
     return clamp(1.0 - depth * InvFarPlane, 0.0, 1.0);
 }
 
-vec3 shade_texel(in vec3 rgb, in float depth)
-{
-    return rgb * texel_shade(depth);
-}
-
-vec3 shaded_texel(in sampler2D tex, in vec2 uv, in float depth)
-{
-    return shade_texel(texture(tex, uv).rgb, depth);
-}
-
 // https://www.khronos.org/registry/OpenGL/extensions/EXT/EXT_texture_sRGB.txt
 float toSrgb(float cl)
 {

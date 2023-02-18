@@ -61,6 +61,7 @@ void main()
     out_reflective = gpi.reflective;
 
     vec4 finalColor = gpi.color;
+    finalColor.rgb *= texel_shade(-gpi.vertexPos.z);
     if (gpi.texCoord.z >= 0) {
         vec2 uv;
         if (gpi.isQuad == 0) {
@@ -77,7 +78,7 @@ void main()
         finalColor.a = texColor.a;
     }
 
-        #ifdef IN_WATER
+    #ifdef IN_WATER
     finalColor.rgb *= water_multiplier(gpi.vertexPosWorld);
     #endif
 

@@ -52,12 +52,12 @@ void main()
         #endif
     }
 
-        #ifndef DOF
-    finalColor *= texture(u_texture, uv).rgb * texel_shade(shadeDepth);
+    #ifndef DOF
+    finalColor *= texture(u_texture, uv).rgb;
     #else
     finalColor *= do_dof(uv);
     #endif
-    finalColor = mix(finalColor, vec3(1) * texel_shade(shadeDepth), whiteness);
+    finalColor = mix(finalColor, vec3(texel_shade(shadeDepth)), whiteness);
 
     #ifdef IN_WATER
     float inVolumeRay = min(geomDepth, pDepth);

@@ -26,7 +26,7 @@ vec3 do_dof(in vec2 uv)
     const float BokehBias = 0.5;//bokeh edge bias
     vec2 blur_radius = dof_texel * blur_amount + noise;
 
-    vec3 col = shaded_texel(u_texture, uv, -texture(u_geometryPosition, uv).z);
+    vec3 col = texture(u_texture, uv).rgb;
     float weight_sum = 1.0;
 
     const int Rings = 3;
@@ -43,7 +43,7 @@ vec3 do_dof(in vec2 uv)
             vec2 dxy = vec2(cos(angle), sin(angle)) * float(i);
             float weight = mix(1.0, bokehFactor, BokehBias);
             vec2 sampleUv = dxy*blur_radius + uv;
-            col = shaded_texel(u_texture, sampleUv, -texture(u_geometryPosition, sampleUv).z) * weight + col;
+            col = texture(u_texture, sampleUv).rgb * weight + col;
             weight_sum += weight;
             angle += angleDelta;
         }
