@@ -27,6 +27,9 @@ constexpr int Rand15Max = 1u << 15u;
  */
 extern int16_t rand15();
 
+/**
+ * Random value in range 0..(max-1).
+ */
 template<typename T>
 inline T rand15(T max)
 {

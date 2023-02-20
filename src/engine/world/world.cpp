@@ -2,6 +2,8 @@
 
 #include "animation.h"
 #include "atlastile.h"
+#include "audio/device.h"
+#include "audio/fadevolumecallback.h"
 #include "audio/soundengine.h"
 #include "audio/voice.h"
 #include "box.h"
@@ -470,15 +472,19 @@ void World::stairsToSlopeEffect()
   {
     m_activeEffect.reset();
   }
-  else
+  else if(m_effectTimer == 0_frame)
   {
-    if(m_effectTimer == 0_frame)
-    {
-      m_audioEngine->playSoundEffect(TR1SoundEffect::HeavyDoorSlam, nullptr);
-    }
-    auto pos = m_cameraController->getLookAt().position;
-    pos.Y += 100_spd * m_effectTimer;
-    m_audioEngine->playSoundEffect(TR1SoundEffect::FlowingAir, pos.toRenderSystem());
+    m_audioEngine->playSoundEffect(TR1SoundEffect::HeavyDoorSlam, nullptr);
+    auto voice = m_audioEngine->playSoundEffect(TR1SoundEffect::FlowingAir,
+                                                m_cameraController->getLookAt().position.toRenderSystem());
+    m_audioEngine->getSoundEngine().getDevice().registerUpdateCallback(
+      audio::FadeVolumeCallback{0.0f,
+                                std::chrono::seconds{4},
+                                gsl::not_null{voice},
+                                [this]()
+                                {
+                                  m_audioEngine->stopSoundEffect(TR1SoundEffect::FlowingAir, nullptr);
+                                }});
   }
   m_effectTimer += 1_frame;
 }
