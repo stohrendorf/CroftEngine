@@ -574,7 +574,7 @@ std::optional<std::filesystem::path> tryGetSteamGamePath(const std::filesystem::
 
       if(auto it = entryContent->attribs.find("path"); it != entryContent->attribs.end())
       {
-        BOOST_LOG_TRIVIAL(debug) << "Found library folder" << it->second;
+        BOOST_LOG_TRIVIAL(debug) << "Found library folder " << it->second;
         paths.emplace_back(it->second);
       }
       else
@@ -595,10 +595,10 @@ std::optional<std::filesystem::path> tryGetSteamGamePath(const std::filesystem::
   for(const auto& libFolder : libraryFolders)
   {
     const auto appManifestPath = libFolder / "steamapps" / "appmanifest_224960.acf";
-    BOOST_LOG_TRIVIAL(debug) << "Check manifest:" << appManifestPath.string().c_str();
+    BOOST_LOG_TRIVIAL(debug) << "Check manifest: " << appManifestPath.string().c_str();
     if(!std::filesystem::is_regular_file(appManifestPath))
     {
-      BOOST_LOG_TRIVIAL(debug) << "appmanifest not found:" << appManifestPath;
+      BOOST_LOG_TRIVIAL(debug) << "appmanifest not found: " << appManifestPath;
       continue;
     }
 
@@ -615,7 +615,7 @@ std::optional<std::filesystem::path> tryGetSteamGamePath(const std::filesystem::
       const auto fullTestPath = libFolder / "steamapps" / "common" / it->second / testPath;
       if(!std::filesystem::is_regular_file(fullTestPath))
       {
-        BOOST_LOG_TRIVIAL(debug) << "File not found:" << fullTestPath;
+        BOOST_LOG_TRIVIAL(debug) << "File not found: " << fullTestPath;
         continue;
       }
 
