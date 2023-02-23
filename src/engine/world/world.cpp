@@ -1674,6 +1674,10 @@ void World::initStaticMeshes(const loader::file::level::Level& level,
         const auto& settings = engine.getEngineConfig()->renderSettings;
         return !settings.lightingModeActive ? 0 : settings.lightingMode;
       },
+      [&engine = getEngine()]()
+      {
+        return engine.getPresenter().getRenderer().isAlphaClipRendering();
+      },
       "static-mesh");
     mesh->getRenderState().setScissorTest(false);
     const bool distinct

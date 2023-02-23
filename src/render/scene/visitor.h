@@ -1,5 +1,6 @@
 #pragma once
 
+#include <gl/renderstate.h>
 #include <gl/soglb_fwd.h>
 #include <glm/vec3.hpp>
 #include <gsl/gsl-lite.hpp>
@@ -12,12 +13,13 @@ namespace render::scene
 class RenderContext;
 class Node;
 
-class Visitor
+class Visitor final
 {
 public:
-  explicit Visitor(RenderContext& context, bool withScissors = true)
+  explicit Visitor(RenderContext& context, bool withScissors = true, bool backToFront = false)
       : m_context{context}
       , m_withScissors{withScissors}
+      , m_backToFront{backToFront}
   {
   }
 
@@ -26,9 +28,9 @@ public:
   Visitor& operator=(Visitor&&) = delete;
   Visitor& operator=(const Visitor&) = delete;
 
-  virtual ~Visitor();
+  ~Visitor();
 
-  virtual void visit(const Node& node);
+  void visit(const Node& node);
 
   RenderContext& getContext()
   {
@@ -47,6 +49,7 @@ public:
 private:
   RenderContext& m_context;
   const bool m_withScissors;
+  const bool m_backToFront;
   using RenderableInfo = std::tuple<gsl::not_null<const Node*>, gl::RenderState>;
   mutable std::vector<RenderableInfo> m_nodes;
 };

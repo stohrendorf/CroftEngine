@@ -22,10 +22,10 @@ namespace gl
 // NOLINTNEXTLINE(bugprone-reserved-identifier)
 #  define _SOGLB_CAT(x, y) _SOGLB_PASTE(x, y)
 
-#  define SOGLB_DEBUGGROUP(name)                                                \
-    [[maybe_unused]] ::gl::DebugGroup _SOGLB_CAT(_soglb_debug_group_, __LINE__) \
-    {                                                                           \
-      name                                                                      \
+#  define SOGLB_DEBUGGROUP(name)                                                      \
+    [[maybe_unused]] const ::gl::DebugGroup _SOGLB_CAT(_soglb_debug_group_, __LINE__) \
+    {                                                                                 \
+      name                                                                            \
     }
 
 class DebugGroup final

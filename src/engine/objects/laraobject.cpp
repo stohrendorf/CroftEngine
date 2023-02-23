@@ -33,6 +33,7 @@
 #include "object.h"
 #include "objectstate.h"
 #include "render/scene/mesh.h" // IWYU pragma: keep
+#include "render/scene/renderer.h"
 #include "serialization/objectreference.h"
 #include "serialization/optional.h"
 #include "serialization/quantity.h"
@@ -2019,6 +2020,10 @@ void LaraObject::initMuzzleFlashes()
     {
       const auto& settings = engine.getEngineConfig()->renderSettings;
       return !settings.lightingModeActive ? 0 : settings.lightingMode;
+    },
+    [&engine = getWorld().getEngine()]()
+    {
+      return engine.getPresenter().getRenderer().isAlphaClipRendering();
     },
     "muzzle-flash");
 

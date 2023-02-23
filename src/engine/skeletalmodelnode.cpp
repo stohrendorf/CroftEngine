@@ -10,6 +10,7 @@
 #include "presenter.h"
 #include "qs/qs.h"
 #include "render/scene/mesh.h" // IWYU pragma: keep
+#include "render/scene/renderer.h"
 #include "serialization/gl_pixel.h"
 #include "serialization/glm.h"
 #include "serialization/not_null.h"
@@ -333,6 +334,10 @@ void SkeletalModelNode::rebuildMesh()
       {
         const auto& settings = engine.getEngineConfig()->renderSettings;
         return !settings.lightingModeActive ? 0 : settings.lightingMode;
+      },
+      [&engine = m_world->getEngine()]()
+      {
+        return engine.getPresenter().getRenderer().isAlphaClipRendering();
       },
       getName()));
 }

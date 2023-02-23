@@ -232,16 +232,24 @@ void Presenter::renderWorld(const std::vector<world::Room>& rooms,
         GL_ASSERT(gl::api::finish());
     }
 
-    m_renderer->render();
-    render::scene::RenderContext context{render::material::RenderMode::Full, std::nullopt};
-    for(auto& room : rooms)
+    for(const bool alphaClip : {true, false})
     {
-      if(!room.node->isVisible())
-        continue;
+      SOGLB_DEBUGGROUP("alpha-clip-pass");
 
-      context.pushState(room.node->getRenderState());
-      room.particles.render(context, world);
-      context.popState();
+      gl::RenderState::getWantedState().setDepthWrite(alphaClip);
+      gl::RenderState::applyWantedState();
+      m_renderer->setAlphaClipRendering(alphaClip);
+      m_renderer->render(false);
+      render::scene::RenderContext context{render::material::RenderMode::Full, std::nullopt};
+      for(auto& room : rooms)
+      {
+        if(!room.node->isVisible())
+          continue;
+
+        context.pushState(room.node->getRenderState());
+        room.particles.render(context, world);
+        context.popState();
+      }
     }
 
     if constexpr(render::pass::FlushPasses)
@@ -467,7 +475,7 @@ void Presenter::scaleSplashImage()
   else
     m_splashImageMesh = mesh;
   mesh->bind("u_input",
-             [this, srcTexture = gsl::not_null{srcTexture}](
+             [srcTexture = gsl::not_null{srcTexture}](
                const render::scene::Node* /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
              {
                uniform.set(srcTexture);

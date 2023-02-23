@@ -27,10 +27,10 @@ Renderer::Renderer(gslu::nn_shared<Camera> camera)
 
 Renderer::~Renderer() = default;
 
-void Renderer::render()
+void Renderer::render(bool backToFront)
 {
   RenderContext context{material::RenderMode::Full, std::nullopt};
-  Visitor visitor{context};
+  Visitor visitor{context, true, backToFront};
   m_rootNode->accept(visitor);
   visitor.render(m_camera->getPosition());
 }

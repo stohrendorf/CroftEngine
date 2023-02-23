@@ -10,6 +10,7 @@
 #include "render/material/materialmanager.h"
 #include "render/material/rendermode.h"
 #include "render/scene/mesh.h"
+#include "render/scene/renderer.h"
 
 #include <gl/buffer.h>
 #include <gl/renderstate.h>
@@ -54,6 +55,10 @@ void GhostModel::apply(const world::World& world, const GhostFrame& frame)
       {
         const auto& settings = engine.getEngineConfig()->renderSettings;
         return !settings.lightingModeActive ? 0 : settings.lightingMode;
+      },
+      [&engine = world.getEngine()]()
+      {
+        return engine.getPresenter().getRenderer().isAlphaClipRendering();
       },
       getName());
     mesh->getMaterialGroup().set(render::material::RenderMode::Full,

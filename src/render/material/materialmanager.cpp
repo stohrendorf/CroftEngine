@@ -113,8 +113,12 @@ gslu::nn_shared<Material> MaterialManager::getDepthOnly(bool skeletal, std::func
   return m;
 }
 
-gslu::nn_shared<Material> MaterialManager::getGeometry(
-  bool inWater, bool skeletal, bool roomShadowing, std::function<bool()> smooth, std::function<int32_t()> lightingMode)
+gslu::nn_shared<Material> MaterialManager::getGeometry(bool inWater,
+                                                       bool skeletal,
+                                                       bool roomShadowing,
+                                                       std::function<bool()> smooth,
+                                                       std::function<int32_t()> lightingMode,
+                                                       std::function<bool()> alphaClip)
 {
   gsl_Expects(m_geometryTexturesHandle != nullptr);
 
@@ -151,6 +155,13 @@ gslu::nn_shared<Material> MaterialManager::getGeometry(
       [lightingMode](const scene::Node* /*node*/, const scene::Mesh& /*mesh*/, gl::Uniform& uniform)
       {
         uniform.set(lightingMode());
+      });
+
+  m->getUniform("u_alphaClip")
+    ->bind(
+      [alphaClip](const scene::Node* /*node*/, const scene::Mesh& /*mesh*/, gl::Uniform& uniform)
+      {
+        uniform.set(alphaClip() ? 1 : 0);
       });
 
   if(auto uniform = m->tryGetUniform("u_noise"))
@@ -589,6 +600,7 @@ gslu::nn_shared<Material> MaterialManager::getGhostName()
   m->getRenderState().setBlend(0, true);
   m->getRenderState().setBlendFactors(0, gl::api::BlendingFactor::One, gl::api::BlendingFactor::OneMinusSrcAlpha);
   m->getRenderState().setDepthTest(true);
+  // TODO this seems wrong, need to verify
   m->getRenderState().setDepthWrite(false);
   m->getUniformBlock("Camera")->bindCameraBuffer(m_renderer->getCamera());
   m->getUniformBlock("Transform")->bindTransformBuffer();

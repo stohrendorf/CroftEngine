@@ -131,6 +131,7 @@ public:
                                               bool shadowCaster,
                                               std::function<bool()> smooth,
                                               std::function<int32_t()> lightingMode,
+                                              std::function<bool()> alphaClip,
                                               const std::string& label);
 
   [[nodiscard]] bool empty() const

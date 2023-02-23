@@ -30,7 +30,7 @@ public:
     return std::chrono::high_resolution_clock::now() - m_constructionTime.time_since_epoch();
   }
 
-  void render();
+  void render(bool backToFront);
 
   void clear(const gl::api::core::Bitfield<gl::api::ClearBufferMask>& flags,
              const gl::SRGBA8& clearColor,
@@ -58,6 +58,16 @@ public:
 
   void resetRootNode();
 
+  [[nodiscard]] auto isAlphaClipRendering() const
+  {
+    return m_isAlphaClipRendering;
+  }
+
+  void setAlphaClipRendering(bool value)
+  {
+    m_isAlphaClipRendering = value;
+  }
+
 private:
   const std::chrono::high_resolution_clock::time_point m_constructionTime{std::chrono::high_resolution_clock::now()};
 
@@ -66,5 +76,7 @@ private:
 
   gslu::nn_shared<Node> m_rootNode;
   gslu::nn_shared<Camera> m_camera;
+
+  bool m_isAlphaClipRendering = false;
 };
 } // namespace render::scene
