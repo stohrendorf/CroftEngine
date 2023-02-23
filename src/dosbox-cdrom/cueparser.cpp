@@ -83,7 +83,7 @@ std::optional<size_t> parseTime(const std::string& time)
 
 std::optional<IndexCommand> parseIndex(const std::string& line)
 {
-  static const std::regex indexRe{R"(\s*INDEX\s+(\d+)\s+(.+?)\s*)", std::regex_constants::icase};
+  static const std::regex indexRe{R"(\s*INDEX\s+0*(\d+)\s+(.+?)\s*)", std::regex_constants::icase};
   if(std::smatch m; std::regex_match(line, m, indexRe))
   {
     if(auto frame = parseTime(m[2]); frame.has_value())
@@ -156,17 +156,14 @@ std::vector<Track> readCueSheet(const std::filesystem::path& filename)
       BOOST_LOG_TRIVIAL(debug) << "Index command: index=" << indexCmd->index << ", frame=" << indexCmd->frame;
       gsl_Assert(track.has_value());
 
-      switch(indexCmd->index)
+      if(indexCmd->index == 0)
       {
-      case 0:
         // pregap start time
         track->pregapStart = indexCmd->frame;
-        break;
-      case 1:
+      }
+      else
+      {
         track->start = indexCmd->frame;
-        break;
-      default:
-        BOOST_THROW_EXCEPTION(std::domain_error("invalid index command index"));
       }
     }
     else if(const auto fileCmd = cue::parseFile(line); fileCmd.has_value())
