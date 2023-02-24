@@ -6,6 +6,7 @@
 #include "engine/objectmanager.h"
 #include "engine/objects/laraobject.h"
 #include "engine/objects/objectstate.h"
+#include "engine/presenter.h"
 #include "engine/skeletalmodelnode.h"
 #include "engine/world/animation.h"
 #include "engine/world/skeletalmodeltype.h"
@@ -16,6 +17,7 @@
 #include "render/scene/node.h"
 #include "render/scene/renderable.h"
 #include "render/scene/rendercontext.h"
+#include "render/scene/renderer.h"
 #include "util/helpers.h"
 
 #include <boost/log/trivial.hpp>
@@ -185,6 +187,9 @@ void MenuObject::draw(const engine::world::World& world,
     node->updatePose();
 
     render::scene::RenderContext context{render::material::RenderMode::Full, std::nullopt};
+    gl::RenderState tmp;
+    tmp.setDepthWrite(world.getPresenter().getRenderer().isAlphaClipRendering());
+    context.pushState(tmp);
     node->getRenderable()->render(node.get(), context);
   }
   else
