@@ -1286,14 +1286,19 @@ World::World(Engine& engine,
   }
 
   render::MultiTextureAtlas atlases{3072, validTextureCache};
-  m_controllerLayouts = loadControllerButtonIcons(
-    atlases,
-    util::ensureFileExists(m_engine.getEngineDataPath() / "button-icons" / "buttons.yaml"),
-    getPresenter().getMaterialManager()->getSprite(render::material::SpriteMaterialMode::Billboard,
-                                                   [&engine]()
-                                                   {
-                                                     return engine.getEngineConfig()->renderSettings.lightingMode;
-                                                   }));
+  m_controllerLayouts
+    = loadControllerButtonIcons(atlases,
+                                util::ensureFileExists(m_engine.getEngineDataPath() / "button-icons" / "buttons.yaml"),
+                                getPresenter().getMaterialManager()->getSprite(
+                                  render::material::SpriteMaterialMode::Billboard,
+                                  []()
+                                  {
+                                    return 0;
+                                  },
+                                  [&renderer = engine.getPresenter().getRenderer()]()
+                                  {
+                                    return renderer.isAlphaClipRendering();
+                                  }));
 
   {
     auto lastDrawUpdate = std::chrono::high_resolution_clock::now();
@@ -1323,57 +1328,65 @@ World::World(Engine& engine,
   for(size_t i = 0; i < m_sprites.size(); ++i)
   {
     auto& sprite = m_sprites[i];
-    sprite.yBoundMesh
-      = render::scene::createSpriteMesh(static_cast<float>(sprite.render0.x),
-                                        static_cast<float>(-sprite.render0.y),
-                                        static_cast<float>(sprite.render1.x),
-                                        static_cast<float>(-sprite.render1.y),
-                                        sprite.uv0,
-                                        sprite.uv1,
-                                        getPresenter().getMaterialManager()->getSprite(
-                                          render::material::SpriteMaterialMode::YAxisBound,
-                                          [&engine]()
-                                          {
-                                            return !engine.getEngineConfig()->renderSettings.lightingModeActive
-                                                     ? 0
-                                                     : engine.getEngineConfig()->renderSettings.lightingMode;
-                                          }),
-                                        sprite.atlasId.get_as<int32_t>(),
-                                        "sprite-" + std::to_string(i) + "-ybound");
-    sprite.billboardMesh
-      = render::scene::createSpriteMesh(static_cast<float>(sprite.render0.x),
-                                        static_cast<float>(-sprite.render0.y),
-                                        static_cast<float>(sprite.render1.x),
-                                        static_cast<float>(-sprite.render1.y),
-                                        sprite.uv0,
-                                        sprite.uv1,
-                                        getPresenter().getMaterialManager()->getSprite(
-                                          render::material::SpriteMaterialMode::Billboard,
-                                          [&engine]()
-                                          {
-                                            return !engine.getEngineConfig()->renderSettings.lightingModeActive
-                                                     ? 0
-                                                     : engine.getEngineConfig()->renderSettings.lightingMode;
-                                          }),
-                                        sprite.atlasId.get_as<int32_t>(),
-                                        "sprite-" + std::to_string(i) + "-billboard");
-    sprite.instancedBillboardMesh
-      = render::scene::createInstancedSpriteMesh(static_cast<float>(sprite.render0.x),
-                                                 static_cast<float>(-sprite.render0.y),
-                                                 static_cast<float>(sprite.render1.x),
-                                                 static_cast<float>(-sprite.render1.y),
-                                                 sprite.uv0,
-                                                 sprite.uv1,
-                                                 getPresenter().getMaterialManager()->getSprite(
-                                                   render::material::SpriteMaterialMode::InstancedBillboard,
-                                                   [&engine]()
-                                                   {
-                                                     return !engine.getEngineConfig()->renderSettings.lightingModeActive
-                                                              ? 0
-                                                              : engine.getEngineConfig()->renderSettings.lightingMode;
-                                                   }),
-                                                 sprite.atlasId.get_as<int32_t>(),
-                                                 "sprite-" + std::to_string(i) + "-instanced");
+    sprite.yBoundMesh = render::scene::createSpriteMesh(static_cast<float>(sprite.render0.x),
+                                                        static_cast<float>(-sprite.render0.y),
+                                                        static_cast<float>(sprite.render1.x),
+                                                        static_cast<float>(-sprite.render1.y),
+                                                        sprite.uv0,
+                                                        sprite.uv1,
+                                                        getPresenter().getMaterialManager()->getSprite(
+                                                          render::material::SpriteMaterialMode::YAxisBound,
+                                                          [&config = engine.getEngineConfig()]()
+                                                          {
+                                                            return !config->renderSettings.lightingModeActive
+                                                                     ? 0
+                                                                     : config->renderSettings.lightingMode;
+                                                          },
+                                                          [&renderer = getEngine().getPresenter().getRenderer()]()
+                                                          {
+                                                            return renderer.isAlphaClipRendering();
+                                                          }),
+                                                        sprite.atlasId.get_as<int32_t>(),
+                                                        "sprite-" + std::to_string(i) + "-ybound");
+    sprite.billboardMesh = render::scene::createSpriteMesh(static_cast<float>(sprite.render0.x),
+                                                           static_cast<float>(-sprite.render0.y),
+                                                           static_cast<float>(sprite.render1.x),
+                                                           static_cast<float>(-sprite.render1.y),
+                                                           sprite.uv0,
+                                                           sprite.uv1,
+                                                           getPresenter().getMaterialManager()->getSprite(
+                                                             render::material::SpriteMaterialMode::Billboard,
+                                                             [&config = engine.getEngineConfig()]()
+                                                             {
+                                                               return !config->renderSettings.lightingModeActive
+                                                                        ? 0
+                                                                        : config->renderSettings.lightingMode;
+                                                             },
+                                                             [&renderer = getEngine().getPresenter().getRenderer()]()
+                                                             {
+                                                               return renderer.isAlphaClipRendering();
+                                                             }),
+                                                           sprite.atlasId.get_as<int32_t>(),
+                                                           "sprite-" + std::to_string(i) + "-billboard");
+    sprite.instancedBillboardMesh = render::scene::createInstancedSpriteMesh(
+      static_cast<float>(sprite.render0.x),
+      static_cast<float>(-sprite.render0.y),
+      static_cast<float>(sprite.render1.x),
+      static_cast<float>(-sprite.render1.y),
+      sprite.uv0,
+      sprite.uv1,
+      getPresenter().getMaterialManager()->getSprite(
+        render::material::SpriteMaterialMode::InstancedBillboard,
+        [&config = engine.getEngineConfig()]()
+        {
+          return !config->renderSettings.lightingModeActive ? 0 : config->renderSettings.lightingMode;
+        },
+        [&renderer = getEngine().getPresenter().getRenderer()]()
+        {
+          return renderer.isAlphaClipRendering();
+        }),
+      sprite.atlasId.get_as<int32_t>(),
+      "sprite-" + std::to_string(i) + "-instanced");
   }
 
   m_audioEngine->initForWorld(level->m_soundEffectProperties, level->m_soundEffects);

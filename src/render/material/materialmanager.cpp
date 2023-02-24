@@ -46,7 +46,9 @@ void configureForScreenSpaceEffect(Material& m, bool enableBlend)
 }
 } // namespace
 
-gslu::nn_shared<Material> MaterialManager::getSprite(SpriteMaterialMode mode, std::function<int32_t()> lightingMode)
+gslu::nn_shared<Material> MaterialManager::getSprite(SpriteMaterialMode mode,
+                                                     std::function<int32_t()> lightingMode,
+                                                     std::function<bool()> alphaClip)
 {
   if(auto it = m_sprite.find(mode); it != m_sprite.end())
     return it->second;
@@ -68,6 +70,12 @@ gslu::nn_shared<Material> MaterialManager::getSprite(SpriteMaterialMode mode, st
       [lightingMode](const scene::Node* /*node*/, const scene::Mesh& /*mesh*/, gl::Uniform& uniform)
       {
         uniform.set(lightingMode());
+      });
+  m->getUniform("u_alphaClip")
+    ->bind(
+      [alphaClip](const scene::Node* /*node*/, const scene::Mesh& /*mesh*/, gl::Uniform& uniform)
+      {
+        uniform.set(alphaClip() ? 1 : 0);
       });
 
   m_sprite.emplace(mode, m);

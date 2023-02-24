@@ -30,7 +30,7 @@ public:
     return std::chrono::high_resolution_clock::now() - m_constructionTime.time_since_epoch();
   }
 
-  void render(bool backToFront);
+  void render();
 
   void clear(const gl::api::core::Bitfield<gl::api::ClearBufferMask>& flags,
              const gl::SRGBA8& clearColor,

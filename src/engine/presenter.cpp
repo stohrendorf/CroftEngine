@@ -236,10 +236,8 @@ void Presenter::renderWorld(const std::vector<world::Room>& rooms,
     {
       SOGLB_DEBUGGROUP("alpha-clip-pass");
 
-      gl::RenderState::getWantedState().setDepthWrite(alphaClip);
-      gl::RenderState::applyWantedState();
       m_renderer->setAlphaClipRendering(alphaClip);
-      m_renderer->render(false);
+      m_renderer->render();
       render::scene::RenderContext context{render::material::RenderMode::Full, std::nullopt};
       for(auto& room : rooms)
       {

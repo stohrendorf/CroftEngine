@@ -27,10 +27,13 @@ Renderer::Renderer(gslu::nn_shared<Camera> camera)
 
 Renderer::~Renderer() = default;
 
-void Renderer::render(bool backToFront)
+void Renderer::render()
 {
   RenderContext context{material::RenderMode::Full, std::nullopt};
-  Visitor visitor{context, true, backToFront};
+  gl::RenderState tmp;
+  tmp.setDepthWrite(m_isAlphaClipRendering);
+  context.pushState(tmp);
+  Visitor visitor{context, true, !m_isAlphaClipRendering};
   m_rootNode->accept(visitor);
   visitor.render(m_camera->getPosition());
 }

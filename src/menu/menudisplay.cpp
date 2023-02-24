@@ -162,8 +162,6 @@ void MenuDisplay::display(ui::Ui& ui, engine::world::World& world)
 
   for(const bool alphaClip : {true, false})
   {
-    gl::RenderState::getWantedState().setDepthWrite(alphaClip);
-    gl::RenderState::applyWantedState();
     world.getPresenter().getRenderer().setAlphaClipRendering(alphaClip);
 
     core::Angle itemAngle{0_deg};
