@@ -6,7 +6,9 @@ You can also get support [on discord](https://discord.gg/FRAVaBZbY5).
 
 # CroftEngine is in support-only mode
 
-Please note that because every tool builder or level builder seemingly decided to completely ignore CroftEngine despite offering support, the project is now in support-only mode after about 7 years of development. This means that it's not planned to do new developments.
+Please note that because every tool builder or level builder seemingly decided to completely ignore CroftEngine despite
+offering support, the project is now in support-only mode after about 7 years of development. This means that it's not
+planned to do new developments.
 
 [![CroftEngine-CI](https://github.com/stohrendorf/CroftEngine/actions/workflows/ci.yml/badge.svg)](https://github.com/stohrendorf/CroftEngine/actions/workflows/ci.yml)
 [![CroftEngine-CI](https://github.com/stohrendorf/CroftEngine/actions/workflows/codeql.yml/badge.svg)](https://github.com/stohrendorf/CroftEngine/actions/workflows/codeql.yml)
@@ -24,21 +26,27 @@ An open-source Tomb Raider 1 engine remake.
 ![Native Controller Support](./readme-assets/controller-config.jpg)
 
 ## Native Glidos Texture Pack Support
+
 ![Native Glidos Texture Pack Support](./readme-assets/glidos-pack.jpg)
 
 ## Easy Setup Wizard
+
 ![Easy Setup Wizard](./readme-assets/setup-wizard.jpg)
 
 ## Customisable Graphics
+
 ![Customisable Graphics](./readme-assets/graphics-settings.jpg)
 
 ## Extensive Statistics
+
 ![Extensive Statistics](./readme-assets/stats.jpg)
 
 ## New Immersive Water
+
 ![New Immersive Water](./readme-assets/water.jpg)
 
 ## Ghosts - Race Against Yourself!
+
 ![Ghosts - Race Against Yourself!](./readme-assets/ghost.jpg)
 </details>
 
@@ -46,15 +54,19 @@ An open-source Tomb Raider 1 engine remake.
 <summary>Videos (click to expand)</summary>
 
 ## Tomb Raider: Croft Engine (JayStation & KittyPi3.14)
+
 [![Edison Engine Showcase Trailer](https://img.youtube.com/vi/7OZjvZ1CtE4/0.jpg)](https://www.youtube.com/watch?v=7OZjvZ1CtE4)
 
 ## Showcase Trailer (Raina Audron)
+
 [![Edison Engine Showcase Trailer](https://img.youtube.com/vi/IAA6ILvQ4Uw/0.jpg)](https://www.youtube.com/watch?v=IAA6ILvQ4Uw)
 
 ## The Lost Valley Playthrough (Raina Audron)
+
 [![The Lost Valley Playthrough in Edison Engine](https://img.youtube.com/vi/o8FEo1QU1QM/0.jpg)](https://www.youtube.com/watch?v=o8FEo1QU1QM)
 
 ## EdisonEngine - Tomb Raider, Enhanced! w/ developer commentary \[Beta 10\] \[PC\] \[Stream Archive\] (Dfactor Longplays)
+
 [![EdisonEngine - Tomb Raider, Enhanced! w/ developer commentary \[Beta 10\] \[PC\] \[Stream Archive\]](https://img.youtube.com/vi/ayMPVAKTMWI/0.jpg)](https://www.youtube.com/watch?v=ayMPVAKTMWI)
 </details>
 
@@ -116,6 +128,7 @@ Audron [here](https://drive.google.com/file/d/1iRz4Svdi_dhmlDNFYeZqyP-wfApWhDoN/
    X for rolling, Ctrl for Action, 1 for drawing pistols, 2 for shotguns, 3 for uzis and 4 for magnums. You can consume
    small medi packs by pressing 5, and large ones by pressing 6. Quicksaves and loading them can be done using F5 and
    F6. You can take screenshots by pressing F12. The menu can be opened using Esc, and videos can be skipped using Esc.
+
 </details>
 
 <details>
@@ -128,6 +141,75 @@ forward/backward), there are two additional cheats.
    cheat will be confirmed with Lara sighing.
 2. If the final move is a right jump, every enemy's health in the level will be halved. The successful application of
    this cheat will be confirmed with a shotgun shooting sound.
+
+</details>
+
+<details>
+<summary>Effects (click to expand)</summary>
+
+*Reference*
+![Reference](./readme-assets/effects/reference.png)
+
+*Anisotropy disabled* - look at the snow on the wall to the right
+![Anisotropy disabled](./readme-assets/effects/anisotropy-off.png)
+
+*Bilinear filtering* - blurs the textures
+![Bilinear filtering](./readme-assets/effects/bilinear-filtering.png)
+
+*Bloom* - bright areas will slightly spread their light to neighboring areas
+![Bloom](./readme-assets/effects/bloom.png)
+
+*Brightness*
+![Brightness](./readme-assets/effects/brightness.png)
+
+*Contrast*
+![Contrast](./readme-assets/effects/contrast.png)
+
+*CRT Version 1*
+![CRT Version 1](./readme-assets/effects/crt1.png)
+
+*CRT Version 2*
+![CRT Version 2](./readme-assets/effects/crt2.png)
+
+*Dust Particles disabled* - the reference has Dust Particles enabled, this is how it looks when it's turned off
+![Dust Particles](./readme-assets/effects/dust-off.png)
+
+*Partial Dynamic Lighting*
+![Partial Dynamic Lighting](./readme-assets/effects/dyn-light-partial.png)
+
+*Mostly Dynamic Lighting*
+![Mostly Dynamic Lighting](./readme-assets/effects/dyn-light-mostly.png)
+
+*Full Dynamic Lighting*
+![Full Dynamic Lighting](./readme-assets/effects/dyn-light-full.png)
+
+*Edge Outlining*
+![Edge Outlining](./readme-assets/effects/edge-outline.png)
+
+*Film Grain* - barely visible in-game
+![Film Grain](./readme-assets/effects/film-grain.png)
+
+*FXAA disabled* - anti-aliasing, this is how it looks when disabled
+![FXAA](./readme-assets/effects/fxaa-off.png)
+
+*HBAO disabled* - darkens corners, look at the snow where the floor hits a wall, this is how it looks when disabled
+![HBAO](./readme-assets/effects/hbao-off.png)
+
+*Lens Distortion*
+![Lens Distortion](./readme-assets/effects/lens-distortion.png)
+
+*Muzzle Flash Lighting*
+![Muzzle Flash Lighting](./readme-assets/effects/muzzle-flashes.png)
+
+*Render Scale half* and *UI Scale* - half render scale, UI Scale is the same, but only affects the UI
+![Render Scale](./readme-assets/effects/render-scale-half.png)
+
+*Shadow Quality disabled* - improves performance when disabled, but reduces the visual quality
+![Shadow Quality](./readme-assets/effects/shadows-low.png)
+
+*Velvia* - increases color saturation
+![Velvia](./readme-assets/effects/velvia.png)
+
 </details>
 
 <details>
@@ -183,7 +265,8 @@ Translations by: Joey79100 (French), Nickotte (Italian), Lwmte (Russian), SuiKaz
 
 Do a `git submodule update --init --recursive`.
 
-CroftEngine uses [vcpkg](https://github.com/Microsoft/vcpkg) **on Windows**; refer to its documentation for basic usage, but the only
+CroftEngine uses [vcpkg](https://github.com/Microsoft/vcpkg) **on Windows**; refer to its documentation for basic usage,
+but the only
 thing you need is to call cmake with
 `-DCMAKE_TOOLCHAIN_FILE=C:/devel/vcpkg/scripts/buildsystems/vcpkg.cmake` (adjust path as necessary).
 
@@ -222,8 +305,9 @@ ui.
 
 Do a `git submodule update --init --recursive`.
 
-CroftEngine will download and cache some 3rd party libraries which are uncommon or usually outdated on today's popular Linux distributions.
-   
+CroftEngine will download and cache some 3rd party libraries which are uncommon or usually outdated on today's popular
+Linux distributions.
+
 This is the list of the required libraries to be installed (these are *not* package names, but should be similar):
 
 * boost
@@ -240,7 +324,10 @@ This is the list of the required libraries to be installed (these are *not* pack
 * qt5
 * python3 >= 3.6
 
-You can have a look at the [openSUSE RPM spec](https://build.opensuse.org/package/view_file/games/croftengine/croftengine.spec) for RPM-based packages or the [CI file](https://github.com/stohrendorf/CroftEngine/blob/master/.github/workflows/ci.yml) for Debian-based packages.
+You can have a look at
+the [openSUSE RPM spec](https://build.opensuse.org/package/view_file/games/croftengine/croftengine.spec) for RPM-based
+packages or the [CI file](https://github.com/stohrendorf/CroftEngine/blob/master/.github/workflows/ci.yml) for
+Debian-based packages.
 Depending on your distribution, the package names may differ.
 
 Then follow the common `cmake` steps to build, i.e. `mkdir build && cd build && cmake .. && make`.
@@ -268,4 +355,5 @@ Use the following settings to generate the bindings:
     * GL_ARB_texture_filter_anisotropic
     * GL_EXT_texture_filter_anisotropic
     * GL_AMD_debug_output
+
 </details>
