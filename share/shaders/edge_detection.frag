@@ -33,7 +33,7 @@ void main()
 )
 
     gather(u_depth, texels, texel);
-    float depthG = SCHARR(x);
+    float depthG = SCHARR(x)*100.0;
     gather(u_normals, texels, texel);
     float normXG = SCHARR(x)*0.5;
     float normYG = SCHARR(y)*0.5;
