@@ -175,7 +175,7 @@ void Portal::buildMesh(const loader::file::Portal& srcPortal,
   for(size_t i = 0; i < 4; ++i)
     glVertices[i].pos = srcPortal.vertices[i].toRenderSystem() - offset;
 
-  gl::VertexLayout<Vertex> layout{{VERTEX_ATTRIBUTE_POSITION_NAME, &Vertex::pos}};
+  const gl::VertexLayout<Vertex> layout{{VERTEX_ATTRIBUTE_POSITION_NAME, &Vertex::pos}};
   auto vb = gsl::make_shared<gl::VertexBuffer<Vertex>>(layout, "portal", gl::api::BufferUsage::StaticDraw, glVertices);
 
   static const std::array<uint16_t, 6> indices{0, 1, 2, 0, 2, 3};
@@ -249,10 +249,10 @@ void Room::createSceneNode(const loader::file::Room& srcRoom,
 
     const auto& tile = world.getAtlasTiles().at(quad.tileId.get());
 
-    bool useQuadHandling = isDistortedQuad(quad.vertices[0].from(srcRoom.vertices).position.toRenderSystem(),
-                                           quad.vertices[1].from(srcRoom.vertices).position.toRenderSystem(),
-                                           quad.vertices[2].from(srcRoom.vertices).position.toRenderSystem(),
-                                           quad.vertices[3].from(srcRoom.vertices).position.toRenderSystem());
+    const bool useQuadHandling = isDistortedQuad(quad.vertices[0].from(srcRoom.vertices).position.toRenderSystem(),
+                                                 quad.vertices[1].from(srcRoom.vertices).position.toRenderSystem(),
+                                                 quad.vertices[2].from(srcRoom.vertices).position.toRenderSystem(),
+                                                 quad.vertices[3].from(srcRoom.vertices).position.toRenderSystem());
 
     const auto firstVertex = vbufData.size();
     for(int i = 0; i < 4; ++i)
@@ -292,11 +292,11 @@ void Room::createSceneNode(const loader::file::Room& srcRoom,
       vbufData.emplace_back(iv);
     }
 
-    for(int i : {0, 1, 2, 0, 2, 3})
+    for(const int i : {0, 1, 2, 0, 2, 3})
     {
       renderMesh.m_indices.emplace_back(gsl::narrow<RenderMesh::IndexType>(firstVertex + i));
     }
-    for(int i : {0, 1, 2, 3})
+    for(const int i : {0, 1, 2, 3})
     {
       textureAnimator->registerVertex(quad.tileId, i, firstVertex + i);
     }
@@ -340,11 +340,11 @@ void Room::createSceneNode(const loader::file::Room& srcRoom,
       vbufData.push_back(iv);
     }
 
-    for(int i : {0, 1, 2})
+    for(const int i : {0, 1, 2})
     {
       renderMesh.m_indices.emplace_back(gsl::narrow<RenderMesh::IndexType>(firstVertex + i));
     }
-    for(int i : {0, 1, 2})
+    for(const int i : {0, 1, 2})
     {
       textureAnimator->registerVertex(tri.tileId, i, firstVertex + i);
     }
