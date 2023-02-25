@@ -213,7 +213,6 @@ gslu::nn_shared<render::scene::Mesh>
                                    bool shadowCaster,
                                    std::function<bool()> smooth,
                                    std::function<int32_t()> lightingMode,
-                                   std::function<bool()> alphaClip,
                                    const std::string& label)
 {
   auto vb = gsl::make_shared<gl::VertexBuffer<RenderMeshData::RenderVertex>>(
@@ -228,7 +227,7 @@ gslu::nn_shared<render::scene::Mesh>
   auto indexBuffer = gsl::make_shared<gl::ElementArrayBuffer<RenderMeshData::IndexType>>(
     label, gl::api::BufferUsage::StaticDraw, m_indices);
 
-  const auto material = materialManager.getGeometry(false, skeletal, false, smooth, lightingMode, alphaClip);
+  const auto material = materialManager.getGeometry(false, skeletal, false, smooth, lightingMode);
   const auto materialCSMDepthOnly = materialManager.getCSMDepthOnly(skeletal, smooth);
   const auto materialDepthOnly = materialManager.getDepthOnly(skeletal, smooth);
 
@@ -251,6 +250,7 @@ gslu::nn_shared<render::scene::Mesh>
   }
 
   mesh->getRenderState().setDepthTest(true);
+  mesh->getRenderState().setDepthWrite(true);
   mesh->getRenderState().setDepthFunction(gl::api::DepthFunction::Less);
 
   return mesh;

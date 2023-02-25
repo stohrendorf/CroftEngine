@@ -19,7 +19,6 @@
 #include "objectstate.h"
 #include "render/scene/mesh.h" // IWYU pragma: keep
 #include "render/scene/node.h"
-#include "render/scene/renderer.h"
 
 #include <boost/log/trivial.hpp>
 #include <cstddef>
@@ -72,10 +71,6 @@ bool shatterModel(ModelObject& object, const std::bitset<32>& meshMask, const co
         [&settings = object.getWorld().getEngine().getEngineConfig()->renderSettings]()
         {
           return !settings.lightingModeActive ? 0 : settings.lightingMode;
-        },
-        [&engine = object.getWorld().getEngine()]()
-        {
-          return engine.getPresenter().getRenderer().isAlphaClipRendering();
         },
         "shatter-part:" + std::to_string(i)),
       isTorsoBoss,

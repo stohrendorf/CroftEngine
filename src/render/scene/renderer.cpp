@@ -30,10 +30,7 @@ Renderer::~Renderer() = default;
 void Renderer::render()
 {
   RenderContext context{material::RenderMode::Full, std::nullopt};
-  gl::RenderState tmp;
-  tmp.setDepthWrite(m_isAlphaClipRendering);
-  context.pushState(tmp);
-  Visitor visitor{context, true, !m_isAlphaClipRendering};
+  Visitor visitor{context};
   m_rootNode->accept(visitor);
   visitor.render(m_camera->getPosition());
 }

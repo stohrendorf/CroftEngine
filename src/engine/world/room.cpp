@@ -27,7 +27,6 @@
 #include "render/scene/mesh.h"
 #include "render/scene/names.h"
 #include "render/scene/node.h"
-#include "render/scene/renderer.h"
 #include "render/textureanimator.h"
 #include "sector.h"
 #include "serialization/serialization.h"
@@ -215,10 +214,6 @@ void Room::createSceneNode(const loader::file::Room& srcRoom,
     {
       const auto& settings = world.getEngine().getEngineConfig()->renderSettings;
       return !settings.lightingModeActive ? 0 : settings.lightingMode;
-    },
-    [&engine = world.getEngine()]()
-    {
-      return engine.getPresenter().getRenderer().isAlphaClipRendering();
     });
 
   std::vector<RenderVertex> vbufData;

@@ -46,9 +46,7 @@ void configureForScreenSpaceEffect(Material& m, bool enableBlend)
 }
 } // namespace
 
-gslu::nn_shared<Material> MaterialManager::getSprite(SpriteMaterialMode mode,
-                                                     std::function<int32_t()> lightingMode,
-                                                     std::function<bool()> alphaClip)
+gslu::nn_shared<Material> MaterialManager::getSprite(SpriteMaterialMode mode, std::function<int32_t()> lightingMode)
 {
   if(auto it = m_sprite.find(mode); it != m_sprite.end())
     return it->second;
@@ -70,12 +68,6 @@ gslu::nn_shared<Material> MaterialManager::getSprite(SpriteMaterialMode mode,
       [lightingMode](const scene::Node* /*node*/, const scene::Mesh& /*mesh*/, gl::Uniform& uniform)
       {
         uniform.set(lightingMode());
-      });
-  m->getUniform("u_alphaClip")
-    ->bind(
-      [alphaClip](const scene::Node* /*node*/, const scene::Mesh& /*mesh*/, gl::Uniform& uniform)
-      {
-        uniform.set(alphaClip() ? 1 : 0);
       });
 
   m_sprite.emplace(mode, m);
@@ -121,12 +113,8 @@ gslu::nn_shared<Material> MaterialManager::getDepthOnly(bool skeletal, std::func
   return m;
 }
 
-gslu::nn_shared<Material> MaterialManager::getGeometry(bool inWater,
-                                                       bool skeletal,
-                                                       bool roomShadowing,
-                                                       std::function<bool()> smooth,
-                                                       std::function<int32_t()> lightingMode,
-                                                       std::function<bool()> alphaClip)
+gslu::nn_shared<Material> MaterialManager::getGeometry(
+  bool inWater, bool skeletal, bool roomShadowing, std::function<bool()> smooth, std::function<int32_t()> lightingMode)
 {
   gsl_Expects(m_geometryTexturesHandle != nullptr);
 
@@ -163,13 +151,6 @@ gslu::nn_shared<Material> MaterialManager::getGeometry(bool inWater,
       [lightingMode](const scene::Node* /*node*/, const scene::Mesh& /*mesh*/, gl::Uniform& uniform)
       {
         uniform.set(lightingMode());
-      });
-
-  m->getUniform("u_alphaClip")
-    ->bind(
-      [alphaClip](const scene::Node* /*node*/, const scene::Mesh& /*mesh*/, gl::Uniform& uniform)
-      {
-        uniform.set(alphaClip() ? 1 : 0);
       });
 
   if(auto uniform = m->tryGetUniform("u_noise"))

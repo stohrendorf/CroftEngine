@@ -7,7 +7,6 @@
 #endif
 
 layout(bindless_sampler) uniform sampler2DArray u_diffuseTextures;
-layout(location=4) uniform int u_alphaClip;
 
 layout(location=0) out vec4 out_color;
 layout(location=1) out vec3 out_normal;
@@ -77,15 +76,6 @@ void main()
         }
         finalColor.rgb *= texColor.rgb;
         finalColor.a = texColor.a;
-    }
-
-    if (u_alphaClip != 0 && finalColor.a < 1.0) {
-        // only render opaque
-        discard;
-    }
-    else if (u_alphaClip == 0 && finalColor.a >= 1.0) {
-        // only render non-opaque
-        discard;
     }
 
     #ifdef IN_WATER

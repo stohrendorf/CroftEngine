@@ -24,7 +24,6 @@
 #include "render/material/materialmanager.h"
 #include "render/pass/framebuffer.h"
 #include "render/scene/camera.h"
-#include "render/scene/renderer.h"
 #include "ui/core.h"
 #include "ui/text.h"
 #include "ui/ui.h"
@@ -58,7 +57,7 @@ void MenuDisplay::drawMenuObjectDescription(ui::Ui& ui, engine::world::World& wo
 
   const auto drawAmmo = [&ui, &world](const engine::Ammo& ammo)
   {
-    const ui::Text text{ui::makeAmmoString(ammo.getDisplayString())};
+    ui::Text text{ui::makeAmmoString(ammo.getDisplayString())};
     text.draw(ui,
               world.getPresenter().getTrFont(),
               {(ui.getSize().x - text.getWidth()) / 2, ui.getSize().y - RingInfoYMargin - 2 * ui::FontHeight});
@@ -128,7 +127,7 @@ void MenuDisplay::drawMenuObjectDescription(ui::Ui& ui, engine::world::World& wo
 
   if(totalItemCount > 1)
   {
-    const ui::Text text{ui::makeAmmoString(std::to_string(totalItemCount) + suffix)};
+    ui::Text text{ui::makeAmmoString(std::to_string(totalItemCount) + suffix)};
     text.draw(ui,
               world.getPresenter().getTrFont(),
               {(ui.getSize().x - text.getWidth()) / 2, ui.getSize().y - RingInfoYMargin - 2 * ui::FontHeight});
@@ -146,6 +145,7 @@ void MenuDisplay::display(ui::Ui& ui, engine::world::World& world)
 
   world.getCameraController().getCamera()->setViewport(m_fb->getOutput()->getTexture()->size());
 
+  core::Angle itemAngle{0_deg};
   const auto& camera = world.getCameraController().getCamera();
   camera->setViewMatrix(ringTransform->getView());
   const auto resetFov = gsl::finally(
@@ -157,19 +157,11 @@ void MenuDisplay::display(ui::Ui& ui, engine::world::World& world)
 
   for(auto& menuObject : getCurrentRing().list)
   {
-    m_currentState->handleObject(ui, world, *this, menuObject);
-  }
+    MenuObject* object = &menuObject;
+    m_currentState->handleObject(ui, world, *this, *object);
 
-  for(const bool alphaClip : {true, false})
-  {
-    world.getPresenter().getRenderer().setAlphaClipRendering(alphaClip);
-
-    core::Angle itemAngle{0_deg};
-    for(auto& menuObject : getCurrentRing().list)
-    {
-      menuObject.draw(world, *ringTransform, itemAngle);
-      itemAngle += getCurrentRing().getAnglePerItem();
-    }
+    object->draw(world, *ringTransform, itemAngle);
+    itemAngle += getCurrentRing().getAnglePerItem();
   }
 
   if(auto newState = m_currentState->onFrame(ui, world, *this))
@@ -198,7 +190,7 @@ void MenuDisplay::display(ui::Ui& ui, engine::world::World& world)
 
   if(rings.size() > 1)
   {
-    const ui::Text title{getCurrentRing().title};
+    ui::Text title{getCurrentRing().title};
     title.draw(ui, world.getPresenter().getTrFont(), {(ui.getSize().x - title.getWidth()) / 2, RingInfoYMargin});
   }
 

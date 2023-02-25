@@ -232,22 +232,16 @@ void Presenter::renderWorld(const std::vector<world::Room>& rooms,
         GL_ASSERT(gl::api::finish());
     }
 
-    for(const bool alphaClip : {true, false})
+    m_renderer->render();
+    render::scene::RenderContext context{render::material::RenderMode::Full, std::nullopt};
+    for(auto& room : rooms)
     {
-      SOGLB_DEBUGGROUP("alpha-clip-pass");
+      if(!room.node->isVisible())
+        continue;
 
-      m_renderer->setAlphaClipRendering(alphaClip);
-      m_renderer->render();
-      render::scene::RenderContext context{render::material::RenderMode::Full, std::nullopt};
-      for(auto& room : rooms)
-      {
-        if(!room.node->isVisible())
-          continue;
-
-        context.pushState(room.node->getRenderState());
-        room.particles.render(context, world);
-        context.popState();
-      }
+      context.pushState(room.node->getRenderState());
+      room.particles.render(context, world);
+      context.popState();
     }
 
     if constexpr(render::pass::FlushPasses)

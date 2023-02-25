@@ -17,7 +17,6 @@
 #include "presenter.h"
 #include "render/material/spritematerialmode.h"
 #include "render/scene/mesh.h" // IWYU pragma: keep
-#include "render/scene/renderer.h"
 #include "skeletalmodelnode.h"
 #include "soundeffects_tr1.h"
 #include "world/rendermeshdata.h"
@@ -64,10 +63,6 @@ void Particle::initRenderables(world::World& world, render::material::SpriteMate
                               {
                                 const auto& settings = world.getEngine().getEngineConfig()->renderSettings;
                                 return !settings.lightingModeActive ? 0 : settings.lightingMode;
-                              },
-                              [&engine = world.getEngine()]()
-                              {
-                                return engine.getPresenter().getRenderer().isAlphaClipRendering();
                               },
                               "particle"),
                             nullptr);
