@@ -89,14 +89,24 @@ public:
     return m_vertices;
   }
 
-  [[nodiscard]] const auto& getIndices() const
+  [[nodiscard]] const auto& getOpaqueIndices() const
   {
-    return m_indices;
+    return m_opaqueIndices;
+  }
+
+  [[nodiscard]] const auto& getNonOpaqueIndices() const
+  {
+    return m_nonOpaqueIndices;
   }
 
 private:
+  void buildMesh(const loader::file::Mesh& mesh,
+                 const std::vector<engine::world::AtlasTile>& atlasTiles,
+                 const std::array<gl::SRGBA8, 256>& palette);
+
   std::vector<RenderVertex> m_vertices{};
-  std::vector<IndexType> m_indices{};
+  std::vector<IndexType> m_opaqueIndices{};
+  std::vector<IndexType> m_nonOpaqueIndices{};
 };
 
 class RenderMeshDataCompositor final
@@ -112,10 +122,15 @@ public:
       m_vertices.emplace_back(v);
     }
 
-    for(auto i : data.getIndices())
+    for(auto i : data.getOpaqueIndices())
     {
       // cppcheck-suppress useStlAlgorithm
-      m_indices.emplace_back(gsl::narrow<RenderMeshData::IndexType>(i + vertexOffset));
+      m_opaqueIndices.emplace_back(gsl::narrow<RenderMeshData::IndexType>(i + vertexOffset));
+    }
+    for(auto i : data.getNonOpaqueIndices())
+    {
+      // cppcheck-suppress useStlAlgorithm
+      m_nonOpaqueIndices.emplace_back(gsl::narrow<RenderMeshData::IndexType>(i + vertexOffset));
     }
 
     ++m_boneIndex;
@@ -135,12 +150,13 @@ public:
 
   [[nodiscard]] bool empty() const
   {
-    return m_vertices.empty() || m_indices.empty();
+    return m_vertices.empty() || (m_opaqueIndices.empty() && m_nonOpaqueIndices.empty());
   }
 
 private:
   std::vector<RenderMeshData::RenderVertex> m_vertices{};
-  std::vector<RenderMeshData::IndexType> m_indices{};
+  std::vector<RenderMeshData::IndexType> m_opaqueIndices{};
+  std::vector<RenderMeshData::IndexType> m_nonOpaqueIndices{};
   glm::int32_t m_boneIndex = 0;
 };
 } // namespace engine::world

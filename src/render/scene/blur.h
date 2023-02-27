@@ -7,6 +7,7 @@
 #include "render/material/uniformparameter.h"
 #include "rendercontext.h"
 
+#include <gl/constants.h>
 #include <gl/debuggroup.h>
 #include <gl/framebuffer.h>
 #include <gl/sampler.h>
@@ -41,11 +42,11 @@ public:
   {
     m_blurredTexture = std::make_shared<TextureHandle>(
       gsl::make_shared<gl::Texture2D<PixelT>>(src->getTexture()->size() / m_downscale, m_name + "/blurred"),
-      gsl::make_unique<gl::Sampler>(m_name + "/blurred-sampler")
+      gsl::make_unique<gl::Sampler>(m_name + "/blurred" + gl::SamplerSuffix)
         | set(gl::api::SamplerParameterI::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge)
         | set(gl::api::SamplerParameterI::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge)
         | set(gl::api::TextureMinFilter::Linear) | set(gl::api::TextureMagFilter::Linear));
-    m_mesh = createScreenQuad(m_material, m_name + "/blur");
+    m_mesh = createScreenQuad(m_material, Translucency::Opaque, m_name + "/blur");
     m_mesh->bind("u_input",
                  [src](const Node* /*node*/, const Mesh& /*mesh*/, gl::Uniform& uniform)
                  {
@@ -62,7 +63,7 @@ public:
   void render() const
   {
     SOGLB_DEBUGGROUP(m_name + "/blur-pass");
-    RenderContext context{material::RenderMode::Full, std::nullopt};
+    RenderContext context{material::RenderMode::Full, std::nullopt, Translucency::Opaque};
     m_framebuffer->bind();
     m_mesh->render(nullptr, context);
   }

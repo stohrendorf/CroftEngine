@@ -14,6 +14,7 @@
 #include <algorithm>
 #include <cstdint>
 #include <gl/buffer.h>
+#include <gl/constants.h>
 #include <gl/debuggroup.h>
 #include <gl/pixel.h>
 #include <gl/renderstate.h>
@@ -110,13 +111,13 @@ gslu::nn_shared<gl::VertexBuffer<Ui::UiVertex>> Ui::UiVertex::createVertexBuffer
     {VERTEX_ATTRIBUTE_COLOR_BOTTOM_RIGHT_NAME, &UiVertex::bottomRight},
     {VERTEX_ATTRIBUTE_COLOR_NAME, &UiVertex::color},
   };
-  return gsl::make_shared<gl::VertexBuffer<UiVertex>>(layout, "ui-vbo", usage, data);
+  return gsl::make_shared<gl::VertexBuffer<UiVertex>>(layout, "ui" + gl::VboSuffix, usage, data);
 }
 
 gslu::nn_shared<gl::ElementArrayBuffer<uint16_t>> Ui::UiVertex::createIndexBuffer(gl::api::BufferUsage usage,
                                                                                   const gsl::span<uint16_t>& data)
 {
-  return gsl::make_shared<gl::ElementArrayBuffer<uint16_t>>("ui-indices", usage, data);
+  return gsl::make_shared<gl::ElementArrayBuffer<uint16_t>>("ui" + gl::IndexBufferSuffix, usage, data);
 }
 
 Ui::Ui(std::shared_ptr<render::material::Material> material,
@@ -188,9 +189,10 @@ void Ui::render()
   const auto indexBuffer = UiVertex::createIndexBuffer(gl::api::BufferUsage::StaticDraw, indices);
   const auto vbo = UiVertex::createVertexBuffer(gl::api::BufferUsage::StaticDraw, m_vertices);
 
-  const auto vao = gsl::make_shared<gl::VertexArray<uint16_t, UiVertex>>(
-    indexBuffer, std::tuple{vbo}, std::vector{&m_material->getShaderProgram()->getHandle()}, "ui-vao");
-  auto mesh = std::make_shared<render::scene::MeshImpl<uint16_t, UiVertex>>(vao);
+  const auto vaoNonOpaque = gsl::make_shared<gl::VertexArray<uint16_t, UiVertex>>(
+    indexBuffer, std::tuple{vbo}, std::vector{&m_material->getShaderProgram()->getHandle()}, "ui" + gl::VaoSuffix);
+  auto mesh = std::make_shared<render::scene::MeshImpl<uint16_t, UiVertex>>(
+    nullptr, vaoNonOpaque, gl::api::PrimitiveType::Triangles);
   mesh->getMaterialGroup().set(render::material::RenderMode::Full, m_material);
   mesh->getRenderState().setViewport(m_size);
   mesh->getRenderState().setBlend(0, true);
@@ -202,8 +204,9 @@ void Ui::render()
   mesh->getRenderState().setDepthTest(false);
   mesh->getRenderState().setDepthWrite(false);
 
-  render::scene::RenderContext ctx{render::material::RenderMode::Full, std::nullopt};
-  mesh->render(nullptr, ctx);
+  render::scene::RenderContext context{
+    render::material::RenderMode::Full, std::nullopt, render::scene::Translucency::NonOpaque};
+  mesh->render(nullptr, context);
 
   m_vertices.clear();
 }

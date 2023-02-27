@@ -21,6 +21,7 @@
 #include <boost/assert.hpp>
 #include <cstddef>
 #include <gl/buffer.h>
+#include <gl/constants.h>
 #include <gl/pixel.h>
 #include <gl/renderstate.h>
 #include <gl/vertexarray.h>
@@ -40,16 +41,25 @@ RenderMeshData::RenderMeshData(const loader::file::Mesh& mesh,
                                const std::vector<engine::world::AtlasTile>& atlasTiles,
                                const std::array<gl::SRGBA8, 256>& palette)
 {
+  buildMesh(mesh, atlasTiles, palette);
+  if(!m_nonOpaqueIndices.empty())
+    BOOST_LOG_TRIVIAL(debug) << "non-opaque mesh found";
+}
+
+void RenderMeshData::buildMesh(const loader::file::Mesh& mesh,
+                               const std::vector<engine::world::AtlasTile>& atlasTiles,
+                               const std::array<gl::SRGBA8, 256>& palette)
+{
   for(const auto& quad : mesh.textured_rectangles)
   {
     const auto& tile = atlasTiles.at(quad.tileId.get());
 
     const auto firstVertex = m_vertices.size();
 
-    bool useQuadHandling = isDistortedQuad(quad.vertices[0].from(mesh.vertices).toRenderSystem(),
-                                           quad.vertices[1].from(mesh.vertices).toRenderSystem(),
-                                           quad.vertices[2].from(mesh.vertices).toRenderSystem(),
-                                           quad.vertices[3].from(mesh.vertices).toRenderSystem());
+    const bool useQuadHandling = isDistortedQuad(quad.vertices[0].from(mesh.vertices).toRenderSystem(),
+                                                 quad.vertices[1].from(mesh.vertices).toRenderSystem(),
+                                                 quad.vertices[2].from(mesh.vertices).toRenderSystem(),
+                                                 quad.vertices[3].from(mesh.vertices).toRenderSystem());
 
     for(int i = 0; i < 4; ++i)
     {
@@ -96,12 +106,16 @@ RenderMeshData::RenderMeshData(const loader::file::Mesh& mesh,
       m_vertices.emplace_back(iv);
     }
 
-    for(size_t i : {0, 1, 2, 0, 2, 3})
+    for(const size_t i : {0, 1, 2, 0, 2, 3})
     {
-      // cppcheck-suppress useStlAlgorithm
-      m_indices.emplace_back(gsl::narrow<IndexType>(firstVertex + i));
+      const auto idx = gsl::narrow<IndexType>(firstVertex + i);
+      if(tile.isOpaque)
+        m_opaqueIndices.emplace_back(idx);
+      else
+        m_nonOpaqueIndices.emplace_back(idx);
     }
   }
+
   for(const auto& quad : mesh.colored_rectangles)
   {
     const auto color = glm::vec4{palette.at(quad.tileId.get() & 0xffu).channels} / 255.0f;
@@ -140,10 +154,13 @@ RenderMeshData::RenderMeshData(const loader::file::Mesh& mesh,
       }
       m_vertices.emplace_back(iv);
     }
-    for(size_t i : {0, 1, 2, 0, 2, 3})
+    for(const size_t i : {0, 1, 2, 0, 2, 3})
     {
-      // cppcheck-suppress useStlAlgorithm
-      m_indices.emplace_back(gsl::narrow<IndexType>(firstVertex + i));
+      const auto idx = gsl::narrow<IndexType>(firstVertex + i);
+      if(color.a >= 1.0f)
+        m_opaqueIndices.emplace_back(idx);
+      else
+        m_nonOpaqueIndices.emplace_back(idx);
     }
   }
 
@@ -171,7 +188,11 @@ RenderMeshData::RenderMeshData(const loader::file::Mesh& mesh,
       {
         iv.normal = tri.vertices[i].from(mesh.normals).toRenderSystem();
       }
-      m_indices.emplace_back(gsl::narrow<IndexType>(m_vertices.size()));
+      const auto idx = gsl::narrow<IndexType>(m_vertices.size());
+      if(tile.isOpaque)
+        m_opaqueIndices.emplace_back(idx);
+      else
+        m_nonOpaqueIndices.emplace_back(idx);
       m_vertices.emplace_back(iv);
     }
   }
@@ -201,7 +222,11 @@ RenderMeshData::RenderMeshData(const loader::file::Mesh& mesh,
       {
         iv.normal = tri.vertices[i].from(mesh.normals).toRenderSystem();
       }
-      m_indices.emplace_back(gsl::narrow<IndexType>(m_vertices.size()));
+      const auto idx = gsl::narrow<IndexType>(m_vertices.size());
+      if(color.a >= 1.0f)
+        m_opaqueIndices.emplace_back(idx);
+      else
+        m_nonOpaqueIndices.emplace_back(idx);
       m_vertices.emplace_back(iv);
     }
   }
@@ -216,30 +241,43 @@ gslu::nn_shared<render::scene::Mesh>
                                    const std::string& label)
 {
   auto vb = gsl::make_shared<gl::VertexBuffer<RenderMeshData::RenderVertex>>(
-    RenderMeshData::RenderVertex::getLayout(), label, gl::api::BufferUsage::StaticDraw, m_vertices);
+    RenderMeshData::RenderVertex::getLayout(), label + gl::VboSuffix, gl::api::BufferUsage::StaticDraw, m_vertices);
 
 #ifndef NDEBUG
-  for(auto idx : m_indices)
+  for(auto idx : m_opaqueIndices)
+  {
+    BOOST_ASSERT(idx < m_vertices.size());
+  }
+  for(auto idx : m_nonOpaqueIndices)
   {
     BOOST_ASSERT(idx < m_vertices.size());
   }
 #endif
-  auto indexBuffer = gsl::make_shared<gl::ElementArrayBuffer<RenderMeshData::IndexType>>(
-    label, gl::api::BufferUsage::StaticDraw, m_indices);
+  auto indexBufferOpaque = gsl::make_shared<gl::ElementArrayBuffer<RenderMeshData::IndexType>>(
+    label + gl::IndexBufferSuffix, gl::api::BufferUsage::StaticDraw, m_opaqueIndices);
+  auto indexBufferNonOpaque = gsl::make_shared<gl::ElementArrayBuffer<RenderMeshData::IndexType>>(
+    label + gl::IndexBufferSuffix, gl::api::BufferUsage::StaticDraw, m_nonOpaqueIndices);
 
   const auto material = materialManager.getGeometry(false, skeletal, false, smooth, lightingMode);
   const auto materialCSMDepthOnly = materialManager.getCSMDepthOnly(skeletal, smooth);
   const auto materialDepthOnly = materialManager.getDepthOnly(skeletal, smooth);
 
-  auto va = gsl::make_shared<gl::VertexArray<RenderMeshData::IndexType, RenderMeshData::RenderVertex>>(
-    indexBuffer,
+  auto vaoOpaque = gsl::make_shared<gl::VertexArray<RenderMeshData::IndexType, RenderMeshData::RenderVertex>>(
+    indexBufferOpaque,
     vb,
     std::vector<const gl::Program*>{&material->getShaderProgram()->getHandle(),
                                     &materialDepthOnly->getShaderProgram()->getHandle(),
                                     &materialCSMDepthOnly->getShaderProgram()->getHandle()},
-    label);
+    label + "-opaque" + gl::VaoSuffix);
+  auto vaoNonOpaque = gsl::make_shared<gl::VertexArray<RenderMeshData::IndexType, RenderMeshData::RenderVertex>>(
+    indexBufferNonOpaque,
+    vb,
+    std::vector<const gl::Program*>{&material->getShaderProgram()->getHandle(),
+                                    &materialDepthOnly->getShaderProgram()->getHandle(),
+                                    &materialCSMDepthOnly->getShaderProgram()->getHandle()},
+    label + "-nonopaque" + gl::VaoSuffix);
   auto mesh = gsl::make_shared<render::scene::MeshImpl<RenderMeshData::IndexType, RenderMeshData::RenderVertex>>(
-    va, gl::api::PrimitiveType::Triangles);
+    vaoOpaque, vaoNonOpaque, gl::api::PrimitiveType::Triangles);
 
   mesh->getMaterialGroup()
     .set(render::material::RenderMode::Full, material)

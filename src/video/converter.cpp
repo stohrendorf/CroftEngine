@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <boost/throw_exception.hpp>
 #include <cstddef>
+#include <gl/constants.h>
 #include <gl/pixel.h>
 #include <gl/sampler.h>
 #include <gl/texture2d.h>
@@ -40,7 +41,7 @@ Converter::Converter(AVFilterLink* filter)
                              nullptr)}
     , textureHandle{std::make_shared<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>>(
         gsl::make_shared<gl::Texture2D<gl::SRGBA8>>(glm::ivec2{filter->w, filter->h}, "video"),
-        gsl::make_unique<gl::Sampler>("video-sampler") | set(gl::api::TextureMagFilter::Linear))}
+        gsl::make_unique<gl::Sampler>("video" + gl::SamplerSuffix) | set(gl::api::TextureMagFilter::Linear))}
 {
   if(context == nullptr)
   {

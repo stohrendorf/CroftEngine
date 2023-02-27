@@ -5,6 +5,7 @@
 #include "render/scene/rendercontext.h"
 
 #include <algorithm>
+#include <gl/constants.h>
 #include <gl/framebuffer.h>
 #include <gl/pixel.h>
 #include <gl/program.h>
@@ -26,14 +27,17 @@ class Node;
 
 namespace render::pass
 {
-Framebuffer::Framebuffer(const std::string& name, gslu::nn_shared<material::Material> material, const glm::ivec2& size)
+Framebuffer::Framebuffer(const std::string& name,
+                         gslu::nn_shared<material::Material> material,
+                         scene::Translucency translucencySelector,
+                         const glm::ivec2& size)
     : m_material{std::move(material)}
-    , m_mesh{scene::createScreenQuad(m_material, name)}
+    , m_mesh{scene::createScreenQuad(m_material, translucencySelector, name)}
     , m_depthBuffer{std::make_shared<gl::TextureDepth<float>>(size, name + "-depth")}
     , m_colorBuffer{std::make_shared<gl::Texture2D<gl::SRGBA8>>(size, name + "-color")}
     , m_colorBufferHandle{std::make_shared<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>>(
         m_colorBuffer,
-        gsl::make_unique<gl::Sampler>(name + "-color-sampler")
+        gsl::make_unique<gl::Sampler>(name + "-color" + gl::SamplerSuffix)
           | set(gl::api::SamplerParameterI::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge)
           | set(gl::api::SamplerParameterI::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge)
           | set(gl::api::TextureMinFilter::Linear) | set(gl::api::TextureMagFilter::Linear))}
@@ -41,6 +45,7 @@ Framebuffer::Framebuffer(const std::string& name, gslu::nn_shared<material::Mate
              .texture(gl::api::FramebufferAttachment::ColorAttachment0, m_colorBuffer)
              .textureNoBlend(gl::api::FramebufferAttachment::DepthAttachment, m_depthBuffer)
              .build(name + "-fb")}
+    , m_translucencySelector{translucencySelector}
 {
   m_mesh->bind("u_input",
                [this](const render::scene::Node* /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
@@ -60,7 +65,7 @@ void Framebuffer::bind()
 
 void Framebuffer::render()
 {
-  scene::RenderContext context{material::RenderMode::Full, std::nullopt};
+  scene::RenderContext context{material::RenderMode::Full, std::nullopt, m_translucencySelector};
   m_mesh->render(nullptr, context);
 }
 } // namespace render::pass

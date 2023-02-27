@@ -85,7 +85,7 @@ public:
     return m_vertexBuffers;
   }
 
-  void drawIndexBuffer(api::PrimitiveType primitiveType)
+  void drawElements(api::PrimitiveType primitiveType)
   {
     RenderState::applyWantedState();
     bind();
@@ -93,7 +93,7 @@ public:
     unbind();
   }
 
-  void drawIndexBuffer(api::PrimitiveType primitiveType, api::core::SizeType instanceCount)
+  void drawElements(api::PrimitiveType primitiveType, api::core::SizeType instanceCount)
   {
     RenderState::applyWantedState();
     bind();

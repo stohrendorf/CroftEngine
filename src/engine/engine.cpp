@@ -62,6 +62,7 @@
 #include <exception>
 #include <filesystem>
 #include <gl/cimgwrapper.h>
+#include <gl/constants.h>
 #include <gl/font.h>
 #include <gl/framebuffer.h>
 #include <gl/glad_init.h>
@@ -296,7 +297,7 @@ void updateRemoteGhosts(world::World& world, GhostManager& ghostManager, const n
       texture->generateMipmaps();
       auto nameHandle = gsl::make_shared<gl::TextureHandle<gl::Texture2D<gl::ScalarByte>>>(
         texture,
-        gsl::make_unique<gl::Sampler>("ghost-name-sampler") | set(gl::api::TextureMagFilter::Linear)
+        gsl::make_unique<gl::Sampler>("ghost-name" + gl::SamplerSuffix) | set(gl::api::TextureMagFilter::Linear)
           | set(gl::api::TextureMinFilter::Linear));
 
       auto mesh = render::scene::createSpriteMesh(-nameTextureSize.x / 2,
@@ -695,7 +696,7 @@ std::pair<RunResult, std::optional<size_t>> Engine::runTitleMenu(world::World& w
     gl::CImgWrapper{util::ensureFileExists(
                       getAssetDataPath() / std::filesystem::path{m_scriptEngine.getGameflow().getTitleMenuBackdrop()})}
       .toTexture("title"),
-    gsl::make_unique<gl::Sampler>("title-sampler"));
+    gsl::make_unique<gl::Sampler>("title" + gl::SamplerSuffix));
   const auto menu = std::make_shared<menu::MenuDisplay>(
     menu::InventoryMode::TitleMode, menu::SaveGamePageMode::NewGame, false, world, m_presenter->getRenderViewport());
   Throttler throttler;
@@ -721,8 +722,11 @@ std::pair<RunResult, std::optional<size_t>> Engine::runTitleMenu(world::World& w
 
       auto scaledSourceSize = sourceSize * splashScale;
       auto sourceOffset = (viewport - scaledSourceSize) / 2.0f;
-      backdropMesh = render::scene::createScreenQuad(
-        sourceOffset, scaledSourceSize, m_presenter->getMaterialManager()->getBackdrop(false), "backdrop");
+      backdropMesh = render::scene::createScreenQuad(sourceOffset,
+                                                     scaledSourceSize,
+                                                     m_presenter->getMaterialManager()->getBackdrop(false),
+                                                     render::scene::Translucency::Opaque,
+                                                     "backdrop");
       backdropMesh->bind(
         "u_input",
         [backdrop](const render::scene::Node* /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
@@ -739,7 +743,8 @@ std::pair<RunResult, std::optional<size_t>> Engine::runTitleMenu(world::World& w
       });
     m_presenter->bindBackbuffer();
     {
-      render::scene::RenderContext context{render::material::RenderMode::Full, std::nullopt};
+      render::scene::RenderContext context{
+        render::material::RenderMode::Full, std::nullopt, render::scene::Translucency::Opaque};
       backdropMesh->render(nullptr, context);
     }
     menu->display(ui, world);

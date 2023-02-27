@@ -10,6 +10,7 @@
 #include "render/scene/rendercontext.h"
 
 #include <algorithm>
+#include <gl/constants.h>
 #include <gl/debuggroup.h>
 #include <gl/framebuffer.h>
 #include <gl/glassert.h>
@@ -33,22 +34,23 @@ namespace render::pass
 EdgeDetectionPass::EdgeDetectionPass(material::MaterialManager& materialManager,
                                      const glm::ivec2& viewport,
                                      const GeometryPass& geometryPass)
-    : m_edgeRenderMesh{scene::createScreenQuad(materialManager.getEdgeDetection(), "edge")}
+    : m_edgeRenderMesh{scene::createScreenQuad(materialManager.getEdgeDetection(), scene::Translucency::Opaque, "edge")}
     , m_edgeBuffer{std::make_shared<gl::Texture2D<gl::ScalarByte>>(viewport, "edge")}
     , m_edgeBufferHandle{std::make_shared<gl::TextureHandle<gl::Texture2D<gl::ScalarByte>>>(
         m_edgeBuffer,
-        gsl::make_unique<gl::Sampler>("edge-sampler")
+        gsl::make_unique<gl::Sampler>("edge" + gl::SamplerSuffix)
           | set(gl::api::SamplerParameterI::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge)
           | set(gl::api::SamplerParameterI::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge)
           | set(gl::api::TextureMinFilter::Nearest) | set(gl::api::TextureMagFilter::Nearest))}
     , m_edgeFb{gl::FrameBufferBuilder()
                  .textureNoBlend(gl::api::FramebufferAttachment::ColorAttachment0, m_edgeBuffer)
                  .build("edge-fb")}
-    , m_dilationRenderMesh{scene::createScreenQuad(materialManager.getEdgeDilation(), "dilation")}
+    , m_dilationRenderMesh{scene::createScreenQuad(
+        materialManager.getEdgeDilation(), scene::Translucency::Opaque, "dilation")}
     , m_dilationBuffer{std::make_shared<gl::Texture2D<gl::ScalarByte>>(viewport, "dilation")}
     , m_dilationBufferHandle{std::make_shared<gl::TextureHandle<gl::Texture2D<gl::ScalarByte>>>(
         m_dilationBuffer,
-        gsl::make_unique<gl::Sampler>("dilation-sampler")
+        gsl::make_unique<gl::Sampler>("dilation" + gl::SamplerSuffix)
           | set(gl::api::SamplerParameterI::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge)
           | set(gl::api::SamplerParameterI::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge)
           | set(gl::api::TextureMinFilter::Nearest) | set(gl::api::TextureMagFilter::Nearest))}
@@ -90,14 +92,14 @@ void EdgeDetectionPass::render()
     SOGLB_DEBUGGROUP("edge-detection");
     m_edgeFb->bind();
 
-    scene::RenderContext context{material::RenderMode::Full, std::nullopt};
+    scene::RenderContext context{material::RenderMode::Full, std::nullopt, scene::Translucency::Opaque};
     m_edgeRenderMesh->render(nullptr, context);
   }
   {
     SOGLB_DEBUGGROUP("edge-dilation");
     m_dilationFb->bind();
 
-    scene::RenderContext context{material::RenderMode::Full, std::nullopt};
+    scene::RenderContext context{material::RenderMode::Full, std::nullopt, scene::Translucency::Opaque};
     m_dilationRenderMesh->render(nullptr, context);
   }
 

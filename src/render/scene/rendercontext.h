@@ -11,12 +11,17 @@
 
 namespace render::scene
 {
+enum class Translucency;
+
 class RenderContext final
 {
 public:
-  explicit RenderContext(material::RenderMode renderMode, const std::optional<glm::mat4>& viewProjection)
+  explicit RenderContext(material::RenderMode renderMode,
+                         const std::optional<glm::mat4>& viewProjection,
+                         Translucency translucencySelector)
       : m_renderMode{renderMode}
       , m_viewProjection{viewProjection}
+      , m_translucencySelector{translucencySelector}
   {
     m_renderStates.push(gl::RenderState::getWantedState());
   }
@@ -55,9 +60,15 @@ public:
     return m_renderStates.top();
   }
 
+  [[nodiscard]] auto getTranslucencySelector() const
+  {
+    return m_translucencySelector;
+  }
+
 private:
   std::stack<gl::RenderState> m_renderStates{};
   const material::RenderMode m_renderMode;
   const std::optional<glm::mat4> m_viewProjection;
+  const Translucency m_translucencySelector;
 };
 } // namespace render::scene

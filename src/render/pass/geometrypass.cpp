@@ -1,6 +1,7 @@
 #include "geometrypass.h"
 
 #include <algorithm>
+#include <gl/constants.h>
 #include <gl/framebuffer.h>
 #include <gl/pixel.h>
 #include <gl/renderstate.h>
@@ -16,35 +17,35 @@ GeometryPass::GeometryPass(const glm::ivec2& viewport)
     : m_depthBuffer{std::make_shared<gl::TextureDepth<float>>(viewport, "geometry-depth")}
     , m_depthBufferHandle{std::make_shared<gl::TextureHandle<gl::TextureDepth<float>>>(
         m_depthBuffer,
-        gsl::make_unique<gl::Sampler>("depth-sampler")
+        gsl::make_unique<gl::Sampler>("depth" + gl::SamplerSuffix)
           | set(gl::api::SamplerParameterI::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge)
           | set(gl::api::SamplerParameterI::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge)
           | set(gl::api::TextureMinFilter::Linear) | set(gl::api::TextureMagFilter::Linear))}
     , m_colorBuffer{std::make_shared<gl::Texture2D<gl::SRGBA8>>(viewport, "geometry-color")}
     , m_colorBufferHandle{std::make_shared<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>>(
         m_colorBuffer,
-        gsl::make_unique<gl::Sampler>("geometry-color-sampler")
+        gsl::make_unique<gl::Sampler>("geometry-color" + gl::SamplerSuffix)
           | set(gl::api::SamplerParameterI::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge)
           | set(gl::api::SamplerParameterI::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge)
           | set(gl::api::TextureMinFilter::Linear) | set(gl::api::TextureMagFilter::Linear))}
     , m_reflectiveBuffer{std::make_shared<gl::Texture2D<gl::SRGBA8>>(viewport, "geometry-reflective")}
     , m_reflectiveBufferHandle{std::make_shared<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>>(
         m_reflectiveBuffer,
-        gsl::make_unique<gl::Sampler>("geometry-reflective-sampler")
+        gsl::make_unique<gl::Sampler>("geometry-reflective" + gl::SamplerSuffix)
           | set(gl::api::SamplerParameterI::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge)
           | set(gl::api::SamplerParameterI::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge)
           | set(gl::api::TextureMinFilter::Linear) | set(gl::api::TextureMagFilter::Linear))}
     , m_positionBuffer{std::make_shared<gl::Texture2D<gl::RGB32F>>(viewport, "geometry-position")}
     , m_positionBufferHandle{std::make_shared<gl::TextureHandle<gl::Texture2D<gl::RGB32F>>>(
         m_positionBuffer,
-        gsl::make_unique<gl::Sampler>("geometry-position-sampler")
+        gsl::make_unique<gl::Sampler>("geometry-position" + gl::SamplerSuffix)
           | set(gl::api::SamplerParameterI::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge)
           | set(gl::api::SamplerParameterI::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge)
           | set(gl::api::TextureMinFilter::Nearest) | set(gl::api::TextureMagFilter::Nearest))}
     , m_normalBuffer{std::make_shared<gl::Texture2D<gl::RGB16F>>(viewport, "geometry-normal")}
     , m_normalBufferHandle{std::make_shared<gl::TextureHandle<gl::Texture2D<gl::RGB16F>>>(
         m_normalBuffer,
-        gsl::make_unique<gl::Sampler>("geometry-normal-sampler")
+        gsl::make_unique<gl::Sampler>("geometry-normal" + gl::SamplerSuffix)
           | set(gl::api::SamplerParameterI::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge)
           | set(gl::api::SamplerParameterI::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge)
           | set(gl::api::TextureMinFilter::Nearest) | set(gl::api::TextureMagFilter::Nearest))}

@@ -13,6 +13,7 @@
 #include "rendersettings.h"
 
 #include <boost/assert.hpp>
+#include <gl/constants.h>
 #include <gl/framebuffer.h>
 #include <gl/program.h>
 #include <gl/texture2d.h>
@@ -68,7 +69,10 @@ void RenderPipeline::worldCompositionPass(const std::vector<engine::world::Room>
   m_worldCompositionPass->render(inWater);
 
   {
-    render::scene::RenderContext context{render::material::RenderMode::Full, std::nullopt};
+    SOGLB_DEBUGGROUP("dust");
+
+    render::scene::RenderContext context{
+      render::material::RenderMode::Full, std::nullopt, scene::Translucency::NonOpaque};
     for(const auto& room : rooms)
     {
       if(!room.node->isVisible() || room.dust == nullptr)
@@ -141,7 +145,7 @@ void RenderPipeline::resize(material::MaterialManager& materialManager,
 
   m_backbufferTextureHandle = std::make_shared<gl::TextureHandle<gl::Texture2D<gl::SRGB8>>>(
     gsl::make_shared<gl::Texture2D<gl::SRGB8>>(m_displaySize, "backbuffer-texture"),
-    gsl::make_unique<gl::Sampler>("backbuffer-sampler"));
+    gsl::make_unique<gl::Sampler>("backbuffer" + gl::SamplerSuffix));
   m_backbuffer = gl::FrameBufferBuilder{}
                    .texture(gl::api::FramebufferAttachment::ColorAttachment0, m_backbufferTextureHandle->getTexture())
                    .build("backbuffer");

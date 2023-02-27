@@ -14,6 +14,7 @@
 #include "render/scene/rendercontext.h"
 
 #include <algorithm>
+#include <gl/constants.h>
 #include <gl/debuggroup.h>
 #include <gl/framebuffer.h>
 #include <gl/glassert.h>
@@ -44,20 +45,20 @@ WorldCompositionPass::WorldCompositionPass(material::MaterialManager& materialMa
                                            const PortalPass& portalPass)
     : m_noWaterMaterial{materialManager.getWorldComposition(false, renderSettings.dof)}
     , m_inWaterMaterial{materialManager.getWorldComposition(true, renderSettings.dof)}
-    , m_noWaterMesh{scene::createScreenQuad(m_noWaterMaterial, "composition-nowater")}
-    , m_inWaterMesh{scene::createScreenQuad(m_inWaterMaterial, "composition-water")}
-    , m_bloomMesh{scene::createScreenQuad(materialManager.getBloom(), "composition-bloom")}
+    , m_noWaterMesh{scene::createScreenQuad(m_noWaterMaterial, scene::Translucency::Opaque, "composition-nowater")}
+    , m_inWaterMesh{scene::createScreenQuad(m_inWaterMaterial, scene::Translucency::Opaque, "composition-water")}
+    , m_bloomMesh{scene::createScreenQuad(materialManager.getBloom(), scene::Translucency::Opaque, "composition-bloom")}
     , m_colorBuffer{std::make_shared<gl::Texture2D<gl::SRGB8>>(viewport, "composition-color")}
     , m_colorBufferHandle{std::make_shared<gl::TextureHandle<gl::Texture2D<gl::SRGB8>>>(
         m_colorBuffer,
-        gsl::make_unique<gl::Sampler>("composition-color-sampler")
+        gsl::make_unique<gl::Sampler>("composition-color" + gl::SamplerSuffix)
           | set(gl::api::SamplerParameterI::TextureWrapS, gl::api::TextureWrapMode::Repeat)
           | set(gl::api::SamplerParameterI::TextureWrapT, gl::api::TextureWrapMode::Repeat)
           | set(gl::api::TextureMinFilter::Linear) | set(gl::api::TextureMagFilter::Linear))}
     , m_bloomedBuffer{std::make_shared<gl::Texture2D<gl::SRGB8>>(viewport, "composition-bloomed")}
     , m_bloomedBufferHandle{std::make_shared<gl::TextureHandle<gl::Texture2D<gl::SRGB8>>>(
         m_bloomedBuffer,
-        gsl::make_unique<gl::Sampler>("composition-bloomed-sampler")
+        gsl::make_unique<gl::Sampler>("composition-bloomed" + gl::SamplerSuffix)
           | set(gl::api::SamplerParameterI::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge)
           | set(gl::api::SamplerParameterI::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge)
           | set(gl::api::TextureMinFilter::Linear) | set(gl::api::TextureMagFilter::Linear))}
@@ -174,7 +175,7 @@ void WorldCompositionPass::render(bool inWater)
   SOGLB_DEBUGGROUP("world-composition-pass");
   m_fb->bind();
 
-  scene::RenderContext context{material::RenderMode::Full, std::nullopt};
+  scene::RenderContext context{material::RenderMode::Full, std::nullopt, scene::Translucency::Opaque};
   if(inWater)
     m_inWaterMesh->render(nullptr, context);
   else

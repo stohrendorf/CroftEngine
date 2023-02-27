@@ -66,6 +66,8 @@ namespace engine::world
 {
 struct Room;
 struct StaticMesh;
+struct RoomRenderVertex;
+struct RoomRenderMesh;
 
 struct Portal
 {
@@ -182,6 +184,12 @@ struct Room
 private:
   std::shared_ptr<render::scene::Node> createParticleMesh(
     const std::string& label, const gslu::nn_shared<render::material::Material>& dustMaterial, uint8_t dustDensity);
+
+  void buildMeshData(const World& world,
+                     const loader::file::Room& srcRoom,
+                     std::vector<RoomRenderVertex>& vbufData,
+                     std::vector<render::AnimatedUV>& uvCoordsData,
+                     RoomRenderMesh& renderMesh);
 };
 
 extern void patchHeightsForBlock(const engine::objects::Object& object, const core::Length& height);

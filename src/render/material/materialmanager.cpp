@@ -13,6 +13,7 @@
 #include <boost/assert.hpp>
 #include <chrono>
 #include <cstdint>
+#include <gl/constants.h>
 #include <gl/glad_init.h>
 #include <gl/pixel.h>
 #include <gl/program.h>
@@ -237,7 +238,7 @@ MaterialManager::MaterialManager(gslu::nn_shared<ShaderCache> shaderCache, gslu:
   noiseTexture->assign(noiseData);
   m_noiseTexture = std::make_shared<gl::TextureHandle<gl::Texture2D<gl::RGB8>>>(
     noiseTexture,
-    gsl::make_unique<gl::Sampler>("noise-sampler")
+    gsl::make_unique<gl::Sampler>("noise" + gl::SamplerSuffix)
       | set(gl::api::SamplerParameterI::TextureWrapS, gl::api::TextureWrapMode::MirroredRepeat)
       | set(gl::api::SamplerParameterI::TextureWrapT, gl::api::TextureWrapMode::MirroredRepeat)
       | set(gl::api::TextureMinFilter::Linear) | set(gl::api::TextureMagFilter::Linear));
@@ -609,7 +610,7 @@ void MaterialManager::createSampler(
   bool bilinear,
   const std::optional<float>& anisotropyLevel)
 {
-  auto sampler = gsl::make_unique<gl::Sampler>("geometry-sampler")
+  auto sampler = gsl::make_unique<gl::Sampler>("geometry")
                  | set(gl::api::SamplerParameterI::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge)
                  | set(gl::api::SamplerParameterI::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge);
   if(bilinear)

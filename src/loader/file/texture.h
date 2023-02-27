@@ -160,10 +160,10 @@ struct TextureTile
   TextureKey textureKey;
 
   std::array<UVCoordinates, 4> uvCoordinates{}; // the four corners of the texture
-  uint32_t unknown1{};                          // TR4
-  uint32_t unknown2{};                          // TR4
-  uint32_t x_size{};                            // TR4
-  uint32_t y_size{};                            // TR4
+  uint32_t unknown1 = 0;                        // TR4
+  uint32_t unknown2 = 0;                        // TR4
+  uint32_t x_size = 0;                          // TR4
+  uint32_t y_size = 0;                          // TR4
 
   static std::unique_ptr<TextureTile> readTr1(io::SDLReader& reader);
 

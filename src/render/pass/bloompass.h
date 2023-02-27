@@ -35,11 +35,11 @@ public:
                                  material::MaterialManager& materialManager,
                                  const gslu::nn_shared<TextureHandle>& input)
       : m_name{name}
-      , m_mesh{scene::createScreenQuad(materialManager.getBloomDownsample(), m_name)}
+      , m_mesh{scene::createScreenQuad(materialManager.getBloomDownsample(), scene::Translucency::Opaque, m_name)}
       , m_output{std::make_shared<gl::Texture2D<TPixel>>(input->getTexture()->size() / 2, m_name + "-color")}
       , m_outputHandle{std::make_shared<gl::TextureHandle<gl::Texture2D<TPixel>>>(
           m_output,
-          gsl::make_unique<gl::Sampler>(m_name + "-color-sampler")
+          gsl::make_unique<gl::Sampler>(m_name + "-color" + gl::SamplerSuffix)
             | set(gl::api::SamplerParameterI::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge)
             | set(gl::api::SamplerParameterI::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge)
             | set(gl::api::TextureMinFilter::Linear) | set(gl::api::TextureMagFilter::Linear))}
@@ -62,7 +62,7 @@ public:
 
     m_fb->bind();
 
-    scene::RenderContext context{material::RenderMode::Full, std::nullopt};
+    scene::RenderContext context{material::RenderMode::Full, std::nullopt, scene::Translucency::Opaque};
     m_mesh->render(nullptr, context);
 
     if constexpr(FlushPasses)
@@ -127,11 +127,11 @@ public:
                                material::MaterialManager& materialManager,
                                const gslu::nn_shared<TextureHandle>& input)
       : m_name{name}
-      , m_mesh{scene::createScreenQuad(materialManager.getBloomUpsample(), m_name)}
+      , m_mesh{scene::createScreenQuad(materialManager.getBloomUpsample(), scene::Translucency::Opaque, m_name)}
       , m_output{std::make_shared<gl::Texture2D<TPixel>>(input->getTexture()->size() * 2, m_name + "-color")}
       , m_outputHandle{std::make_shared<gl::TextureHandle<gl::Texture2D<TPixel>>>(
           m_output,
-          gsl::make_unique<gl::Sampler>(m_name + "-color-sampler")
+          gsl::make_unique<gl::Sampler>(m_name + "-color" + gl::SamplerSuffix)
             | set(gl::api::SamplerParameterI::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge)
             | set(gl::api::SamplerParameterI::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge)
             | set(gl::api::TextureMinFilter::Linear) | set(gl::api::TextureMagFilter::Linear))}
@@ -154,7 +154,7 @@ public:
 
     m_fb->bind();
 
-    scene::RenderContext context{material::RenderMode::Full, std::nullopt};
+    scene::RenderContext context{material::RenderMode::Full, std::nullopt, scene::Translucency::Opaque};
     m_mesh->render(nullptr, context);
 
     if constexpr(FlushPasses)

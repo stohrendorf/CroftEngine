@@ -24,6 +24,7 @@
 #include "render/material/materialmanager.h"
 #include "render/pass/framebuffer.h"
 #include "render/scene/camera.h"
+#include "render/scene/translucency.h"
 #include "ui/core.h"
 #include "ui/text.h"
 #include "ui/ui.h"
@@ -562,7 +563,8 @@ MenuDisplay::MenuDisplay(InventoryMode mode,
     , m_upArrow{ui::getSpriteSelector(ui::ArrowUpSprite)}
     , m_downArrow{ui::getSpriteSelector(ui::ArrowDownSprite)}
     , m_material{world.getPresenter().getMaterialManager()->getFlat(false, false, false)}
-    , m_fb{gsl::make_shared<render::pass::Framebuffer>("menu", m_material, viewport)}
+    , m_fb{gsl::make_shared<render::pass::Framebuffer>(
+        "menu", m_material, render::scene::Translucency::Opaque, viewport)}
     , m_lightsBuffer{std::make_shared<gl::ShaderStorageBuffer<engine::ShaderLight>>(
         "lights-buffer",
         gl::api::BufferUsage::StaticDraw,
@@ -600,7 +602,8 @@ MenuDisplay::MenuDisplay(InventoryMode mode,
 void MenuDisplay::setViewport(const glm::ivec2& viewport)
 {
   if(m_fb->getOutput()->getTexture()->size() != viewport)
-    m_fb = gsl::make_shared<render::pass::Framebuffer>("menu", m_material, viewport);
+    m_fb
+      = gsl::make_shared<render::pass::Framebuffer>("menu", m_material, render::scene::Translucency::Opaque, viewport);
 }
 
 MenuDisplay::~MenuDisplay() = default;

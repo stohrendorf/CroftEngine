@@ -33,6 +33,7 @@
 #include <cstdint>
 #include <exception>
 #include <gl/buffer.h>
+#include <gl/constants.h>
 #include <gl/renderstate.h>
 #include <gl/vertexarray.h>
 #include <gl/vertexbuffer.h>
@@ -62,14 +63,16 @@ std::tuple<gslu::nn_shared<render::scene::Mesh>, gslu::nn_shared<gl::VertexBuffe
   for(uint16_t i = 0; i < LightningEmitter::ControlPoints; ++i)
     indices.emplace_back(i);
 
-  auto indexBuffer
-    = gsl::make_shared<gl::ElementArrayBuffer<uint16_t>>("bolt", gl::api::BufferUsage::StaticDraw, indices);
+  auto indexBuffer = gsl::make_shared<gl::ElementArrayBuffer<uint16_t>>(
+    "bolt" + gl::IndexBufferSuffix, gl::api::BufferUsage::StaticDraw, indices);
 
-  auto vb = gsl::make_shared<gl::VertexBuffer<glm::vec3>>(layout, "bolt", gl::api::BufferUsage::DynamicDraw, vertices);
+  auto vb = gsl::make_shared<gl::VertexBuffer<glm::vec3>>(
+    layout, "bolt" + gl::VboSuffix, gl::api::BufferUsage::DynamicDraw, vertices);
 
-  auto vao = gsl::make_shared<gl::VertexArray<uint16_t, glm::vec3>>(
-    indexBuffer, vb, std::vector{&material->getShaderProgram()->getHandle()}, "bolt");
-  auto mesh = gsl::make_shared<render::scene::MeshImpl<uint16_t, glm::vec3>>(vao, gl::api::PrimitiveType::LineStrip);
+  auto opaqueVao = gsl::make_shared<gl::VertexArray<uint16_t, glm::vec3>>(
+    indexBuffer, vb, std::vector{&material->getShaderProgram()->getHandle()}, "bolt" + gl::VaoSuffix);
+  auto mesh = gsl::make_shared<render::scene::MeshImpl<uint16_t, glm::vec3>>(
+    opaqueVao, nullptr, gl::api::PrimitiveType::LineStrip);
 
   mesh->getRenderState().setLineSmooth(true);
   mesh->getRenderState().setLineWidth(lineWidth);

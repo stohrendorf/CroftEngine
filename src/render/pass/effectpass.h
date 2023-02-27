@@ -5,6 +5,7 @@
 #include "render/scene/mesh.h"
 #include "render/scene/rendercontext.h"
 
+#include <gl/constants.h>
 #include <gl/debuggroup.h>
 #include <gl/framebuffer.h>
 #include <gl/sampler.h>
@@ -36,11 +37,11 @@ public:
                       const gslu::nn_shared<material::Material>& material,
                       const gslu::nn_shared<gl::TextureHandle<gl::Texture2D<TPixel>>>& input)
       : m_name{std::move(name)}
-      , m_mesh{scene::createScreenQuad(material, m_name)}
+      , m_mesh{scene::createScreenQuad(material, scene::Translucency::Opaque, m_name)}
       , m_output{std::make_shared<gl::Texture2D<TPixel>>(input->getTexture()->size(), m_name + "-color")}
       , m_outputHandle{std::make_shared<gl::TextureHandle<gl::Texture2D<TPixel>>>(
           m_output,
-          gsl::make_unique<gl::Sampler>(m_name + "-color-sampler")
+          gsl::make_unique<gl::Sampler>(m_name + "-color" + gl::SamplerSuffix)
             | set(gl::api::SamplerParameterI::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge)
             | set(gl::api::SamplerParameterI::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge)
             | set(gl::api::TextureMinFilter::Linear) | set(gl::api::TextureMagFilter::Linear))}
@@ -70,7 +71,7 @@ public:
 
     m_fb->bind();
 
-    scene::RenderContext context{material::RenderMode::Full, std::nullopt};
+    scene::RenderContext context{material::RenderMode::Full, std::nullopt, scene::Translucency::Opaque};
     m_mesh->bind("u_inWater",
                  [inWater](const scene::Node* /*node*/, const scene::Mesh& /*mesh*/, gl::Uniform& uniform)
                  {

@@ -5,8 +5,10 @@
 #include "render/material/rendermode.h"
 #include "render/scene/mesh.h"
 #include "render/scene/rendercontext.h"
+#include "render/scene/translucency.h"
 
 #include <algorithm>
+#include <gl/constants.h>
 #include <gl/debuggroup.h>
 #include <gl/framebuffer.h>
 #include <gl/glassert.h>
@@ -32,11 +34,11 @@ UIPass::UIPass(material::MaterialManager& materialManager,
                const glm::ivec2& renderViewport,
                const glm::ivec2& displayViewport)
     : m_material{materialManager.getFlat(true, false)}
-    , m_mesh{scene::createScreenQuad(m_material, "ui")}
+    , m_mesh{scene::createScreenQuad(m_material, scene::Translucency::NonOpaque, "ui")}
     , m_colorBuffer{std::make_shared<gl::Texture2D<gl::SRGBA8>>(renderViewport, "ui-color")}
     , m_colorBufferHandle{std::make_shared<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>>(
         m_colorBuffer,
-        gsl::make_unique<gl::Sampler>("ui-color-sampler")
+        gsl::make_unique<gl::Sampler>("ui-color" + gl::SamplerSuffix)
           | set(gl::api::SamplerParameterI::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge)
           | set(gl::api::SamplerParameterI::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge)
           | set(gl::api::TextureMinFilter::Nearest) | set(gl::api::TextureMagFilter::Nearest))}
@@ -71,7 +73,7 @@ void UIPass::render(float alpha)
                {
                  uniform.set(alpha);
                });
-  scene::RenderContext context{material::RenderMode::Full, std::nullopt};
+  scene::RenderContext context{material::RenderMode::Full, std::nullopt, scene::Translucency::NonOpaque};
   m_mesh->render(nullptr, context);
 
   if constexpr(FlushPasses)

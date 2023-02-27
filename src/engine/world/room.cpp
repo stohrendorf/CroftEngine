@@ -42,6 +42,7 @@
 #include <cstdint>
 #include <exception>
 #include <gl/buffer.h>
+#include <gl/constants.h>
 #include <gl/program.h>
 #include <gl/renderstate.h>
 #include <gl/vertexarray.h>
@@ -65,11 +66,9 @@
 
 namespace engine::world
 {
-namespace
-{
 #pragma pack(push, 1)
 
-struct RenderVertex
+struct RoomRenderVertex
 {
   glm::vec3 position{};
   glm::vec4 color{1.0f};
@@ -81,18 +80,18 @@ struct RenderVertex
   glm::vec3 quadVert4{};
   glm::vec4 reflective{};
 
-  static const gl::VertexLayout<RenderVertex>& getLayout()
+  static const gl::VertexLayout<RoomRenderVertex>& getLayout()
   {
-    static const gl::VertexLayout<RenderVertex> layout{
-      {VERTEX_ATTRIBUTE_POSITION_NAME, &RenderVertex::position},
-      {VERTEX_ATTRIBUTE_NORMAL_NAME, &RenderVertex::normal},
-      {VERTEX_ATTRIBUTE_COLOR_NAME, &RenderVertex::color},
-      {VERTEX_ATTRIBUTE_IS_QUAD, &RenderVertex::isQuad},
-      {VERTEX_ATTRIBUTE_QUAD_VERT1, &RenderVertex::quadVert1},
-      {VERTEX_ATTRIBUTE_QUAD_VERT2, &RenderVertex::quadVert2},
-      {VERTEX_ATTRIBUTE_QUAD_VERT3, &RenderVertex::quadVert3},
-      {VERTEX_ATTRIBUTE_QUAD_VERT4, &RenderVertex::quadVert4},
-      {VERTEX_ATTRIBUTE_REFLECTIVE_NAME, &RenderVertex::reflective},
+    static const gl::VertexLayout<RoomRenderVertex> layout{
+      {VERTEX_ATTRIBUTE_POSITION_NAME, &RoomRenderVertex::position},
+      {VERTEX_ATTRIBUTE_NORMAL_NAME, &RoomRenderVertex::normal},
+      {VERTEX_ATTRIBUTE_COLOR_NAME, &RoomRenderVertex::color},
+      {VERTEX_ATTRIBUTE_IS_QUAD, &RoomRenderVertex::isQuad},
+      {VERTEX_ATTRIBUTE_QUAD_VERT1, &RoomRenderVertex::quadVert1},
+      {VERTEX_ATTRIBUTE_QUAD_VERT2, &RoomRenderVertex::quadVert2},
+      {VERTEX_ATTRIBUTE_QUAD_VERT3, &RoomRenderVertex::quadVert3},
+      {VERTEX_ATTRIBUTE_QUAD_VERT4, &RoomRenderVertex::quadVert4},
+      {VERTEX_ATTRIBUTE_REFLECTIVE_NAME, &RoomRenderVertex::reflective},
     };
 
     return layout;
@@ -101,39 +100,55 @@ struct RenderVertex
 
 #pragma pack(pop)
 
-struct RenderMesh
+struct RoomRenderMesh
 {
   using IndexType = uint16_t;
-  std::vector<IndexType> m_indices;
+  std::vector<IndexType> m_opaqueIndices;
+  std::vector<IndexType> m_nonOpaqueIndices;
   std::shared_ptr<render::material::Material> m_materialFull;
   std::shared_ptr<render::material::Material> m_materialCSMDepthOnly;
   std::shared_ptr<render::material::Material> m_materialDepthOnly;
 
-  std::shared_ptr<render::scene::Mesh> toMesh(const gslu::nn_shared<gl::VertexBuffer<RenderVertex>>& vbuf,
+  std::shared_ptr<render::scene::Mesh> toMesh(const gslu::nn_shared<gl::VertexBuffer<RoomRenderVertex>>& vbuf,
                                               const gslu::nn_shared<gl::VertexBuffer<render::AnimatedUV>>& uvBuf,
                                               const std::string& label)
   {
 #ifndef NDEBUG
-    for(auto idx : m_indices)
+    for(auto idx : m_opaqueIndices)
+    {
+      BOOST_ASSERT(idx < vbuf->size());
+    }
+    for(auto idx : m_nonOpaqueIndices)
     {
       BOOST_ASSERT(idx < vbuf->size());
     }
 #endif
 
-    auto indexBuffer
-      = gsl::make_shared<gl::ElementArrayBuffer<IndexType>>(label, gl::api::BufferUsage::StaticDraw, m_indices);
+    auto opaqueIndexBuffer = gsl::make_shared<gl::ElementArrayBuffer<IndexType>>(
+      label + gl::IndexBufferSuffix, gl::api::BufferUsage::StaticDraw, m_opaqueIndices);
+    auto nonOpaqueIndexBuffer = gsl::make_shared<gl::ElementArrayBuffer<IndexType>>(
+      label + gl::IndexBufferSuffix, gl::api::BufferUsage::StaticDraw, m_nonOpaqueIndices);
 
     auto vBufs = std::make_tuple(vbuf, uvBuf);
 
-    auto mesh = std::make_shared<render::scene::MeshImpl<IndexType, RenderVertex, render::AnimatedUV>>(
-      gsl::make_shared<gl::VertexArray<IndexType, RenderVertex, render::AnimatedUV>>(
-        indexBuffer,
+    auto mesh = std::make_shared<render::scene::MeshImpl<IndexType, RoomRenderVertex, render::AnimatedUV>>(
+      gsl::make_shared<gl::VertexArray<IndexType, RoomRenderVertex, render::AnimatedUV>>(
+        opaqueIndexBuffer,
         vBufs,
         std::vector{&m_materialFull->getShaderProgram()->getHandle(),
                     m_materialDepthOnly == nullptr ? nullptr : &m_materialDepthOnly->getShaderProgram()->getHandle(),
                     m_materialCSMDepthOnly == nullptr ? nullptr
                                                       : &m_materialCSMDepthOnly->getShaderProgram()->getHandle()},
-        label));
+        label + "-opaque" + gl::VaoSuffix),
+      gsl::make_shared<gl::VertexArray<IndexType, RoomRenderVertex, render::AnimatedUV>>(
+        nonOpaqueIndexBuffer,
+        vBufs,
+        std::vector{&m_materialFull->getShaderProgram()->getHandle(),
+                    m_materialDepthOnly == nullptr ? nullptr : &m_materialDepthOnly->getShaderProgram()->getHandle(),
+                    m_materialCSMDepthOnly == nullptr ? nullptr
+                                                      : &m_materialCSMDepthOnly->getShaderProgram()->getHandle()},
+        label + "-nonopaque" + gl::VaoSuffix),
+      gl::api::PrimitiveType::Triangles);
     mesh->getMaterialGroup()
       .set(render::material::RenderMode::Full, m_materialFull)
       .set(render::material::RenderMode::CSMDepthOnly, m_materialCSMDepthOnly)
@@ -143,6 +158,8 @@ struct RenderMesh
   }
 };
 
+namespace
+{
 template<size_t N>
 core::TRVec getCenter(const std::array<loader::file::VertexIndex, N>& faceVertices,
                       const std::vector<loader::file::RoomVertex>& roomVertices)
@@ -176,16 +193,17 @@ void Portal::buildMesh(const loader::file::Portal& srcPortal,
     glVertices[i].pos = srcPortal.vertices[i].toRenderSystem() - offset;
 
   const gl::VertexLayout<Vertex> layout{{VERTEX_ATTRIBUTE_POSITION_NAME, &Vertex::pos}};
-  auto vb = gsl::make_shared<gl::VertexBuffer<Vertex>>(layout, "portal", gl::api::BufferUsage::StaticDraw, glVertices);
+  auto vb = gsl::make_shared<gl::VertexBuffer<Vertex>>(
+    layout, "portal" + gl::VboSuffix, gl::api::BufferUsage::StaticDraw, glVertices);
 
   static const std::array<uint16_t, 6> indices{0, 1, 2, 0, 2, 3};
 
-  auto indexBuffer
-    = gsl::make_shared<gl::ElementArrayBuffer<uint16_t>>("portal", gl::api::BufferUsage::StaticDraw, indices);
+  auto indexBuffer = gsl::make_shared<gl::ElementArrayBuffer<uint16_t>>(
+    "portal" + gl::IndexBufferSuffix, gl::api::BufferUsage::StaticDraw, indices);
 
   auto vao = gsl::make_shared<gl::VertexArray<uint16_t, Vertex>>(
-    indexBuffer, vb, std::vector{&material->getShaderProgram()->getHandle()}, "portal");
-  mesh = std::make_shared<render::scene::MeshImpl<uint16_t, Vertex>>(vao);
+    indexBuffer, vb, std::vector{&material->getShaderProgram()->getHandle()}, "portal" + gl::VaoSuffix);
+  mesh = std::make_shared<render::scene::MeshImpl<uint16_t, Vertex>>(nullptr, vao, gl::api::PrimitiveType::Triangles);
   mesh->getMaterialGroup().set(render::material::RenderMode::DepthOnly, material);
 }
 
@@ -195,7 +213,7 @@ void Room::createSceneNode(const loader::file::Room& srcRoom,
                            const std::vector<uint16_t>& textureAnimData,
                            render::material::MaterialManager& materialManager)
 {
-  RenderMesh renderMesh;
+  RoomRenderMesh renderMesh;
   renderMesh.m_materialDepthOnly = materialManager.getDepthOnly(false,
                                                                 []()
                                                                 {
@@ -216,143 +234,18 @@ void Room::createSceneNode(const loader::file::Room& srcRoom,
       return !settings.lightingModeActive ? 0 : settings.lightingMode;
     });
 
-  std::vector<RenderVertex> vbufData;
+  std::vector<RoomRenderVertex> vbufData;
   std::vector<render::AnimatedUV> uvCoordsData;
 
   textureAnimator = std::make_unique<render::TextureAnimator>(textureAnimData);
 
-  for(const loader::file::QuadFace& quad : srcRoom.rectangles)
-  {
-    // discard water surface polygons
-    const auto center = getCenter(quad.vertices, srcRoom.vertices);
-    if(const auto sector = getSectorByRelativePosition(center))
-    {
-      if(sector->roomAbove != nullptr)
-      {
-        const bool planarWithPortal = center.Y + position.Y == sector->ceilingHeight;
-        if(planarWithPortal && sector->roomAbove->isWaterRoom != isWaterRoom)
-          continue;
-        if(planarWithPortal && sector->roomAbove->alternateRoom != nullptr
-           && sector->roomAbove->alternateRoom->isWaterRoom != isWaterRoom)
-          continue;
-      }
-      if(sector->roomBelow != nullptr)
-      {
-        const bool planarWithPortal = center.Y + position.Y == sector->floorHeight;
-        if(planarWithPortal && sector->roomBelow->isWaterRoom != isWaterRoom)
-          continue;
-        if(planarWithPortal && sector->roomBelow->alternateRoom != nullptr
-           && sector->roomBelow->alternateRoom->isWaterRoom != isWaterRoom)
-          continue;
-      }
-    }
-
-    const auto& tile = world.getAtlasTiles().at(quad.tileId.get());
-
-    const bool useQuadHandling = isDistortedQuad(quad.vertices[0].from(srcRoom.vertices).position.toRenderSystem(),
-                                                 quad.vertices[1].from(srcRoom.vertices).position.toRenderSystem(),
-                                                 quad.vertices[2].from(srcRoom.vertices).position.toRenderSystem(),
-                                                 quad.vertices[3].from(srcRoom.vertices).position.toRenderSystem());
-
-    const auto firstVertex = vbufData.size();
-    for(int i = 0; i < 4; ++i)
-    {
-      RenderVertex iv;
-      iv.position = quad.vertices[i].from(srcRoom.vertices).position.toRenderSystem();
-      iv.color = quad.vertices[i].from(srcRoom.vertices).color;
-
-      uvCoordsData.emplace_back(tile.textureKey.atlasIdAndFlag & loader::file::AtlasIdMask,
-                                tile.uvCoordinates[i],
-                                glm::vec4{tile.uvCoordinates[0], tile.uvCoordinates[1]},
-                                glm::vec4{tile.uvCoordinates[2], tile.uvCoordinates[3]});
-      if(useQuadHandling)
-      {
-        iv.isQuad = 1;
-        iv.quadVert1 = quad.vertices[0].from(srcRoom.vertices).position.toRenderSystem();
-        iv.quadVert2 = quad.vertices[1].from(srcRoom.vertices).position.toRenderSystem();
-        iv.quadVert3 = quad.vertices[2].from(srcRoom.vertices).position.toRenderSystem();
-        iv.quadVert4 = quad.vertices[3].from(srcRoom.vertices).position.toRenderSystem();
-      }
-
-      if(i <= 2)
-      {
-        static const std::array<int, 3> indices{0, 1, 2};
-        iv.normal = generateNormal(quad.vertices[indices[(i + 0) % 3]].from(srcRoom.vertices).position,
-                                   quad.vertices[indices[(i + 1) % 3]].from(srcRoom.vertices).position,
-                                   quad.vertices[indices[(i + 2) % 3]].from(srcRoom.vertices).position);
-      }
-      else
-      {
-        static const std::array<int, 3> indices{0, 2, 3};
-        iv.normal = generateNormal(quad.vertices[indices[(i + 0) % 3]].from(srcRoom.vertices).position,
-                                   quad.vertices[indices[(i + 1) % 3]].from(srcRoom.vertices).position,
-                                   quad.vertices[indices[(i + 2) % 3]].from(srcRoom.vertices).position);
-      }
-
-      vbufData.emplace_back(iv);
-    }
-
-    for(const int i : {0, 1, 2, 0, 2, 3})
-    {
-      renderMesh.m_indices.emplace_back(gsl::narrow<RenderMesh::IndexType>(firstVertex + i));
-    }
-    for(const int i : {0, 1, 2, 3})
-    {
-      textureAnimator->registerVertex(quad.tileId, i, firstVertex + i);
-    }
-  }
-  for(const loader::file::Triangle& tri : srcRoom.triangles)
-  {
-    // discard water surface polygons
-    const auto center = getCenter(tri.vertices, srcRoom.vertices);
-    if(const auto sector = getSectorByRelativePosition(center))
-    {
-      if(sector->roomAbove != nullptr && sector->roomAbove->isWaterRoom != isWaterRoom)
-      {
-        if(center.Y + position.Y == sector->ceilingHeight)
-          continue;
-      }
-      if(sector->roomBelow != nullptr && sector->roomBelow->isWaterRoom != isWaterRoom)
-      {
-        if(center.Y + position.Y == sector->floorHeight)
-          continue;
-      }
-    }
-
-    const auto& tile = world.getAtlasTiles().at(tri.tileId.get());
-
-    const auto firstVertex = vbufData.size();
-    for(int i = 0; i < 3; ++i)
-    {
-      RenderVertex iv;
-      iv.position = tri.vertices[i].from(srcRoom.vertices).position.toRenderSystem();
-      iv.color = tri.vertices[i].from(srcRoom.vertices).color;
-      uvCoordsData.emplace_back(tile.textureKey.atlasIdAndFlag & loader::file::AtlasIdMask,
-                                tile.uvCoordinates[i],
-                                glm::vec4{tile.uvCoordinates[0], tile.uvCoordinates[1]},
-                                glm::vec4{tile.uvCoordinates[2], tile.uvCoordinates[3]});
-
-      static const std::array<int, 3> indices{0, 1, 2};
-      iv.normal = generateNormal(tri.vertices[indices[(i + 0) % 3]].from(srcRoom.vertices).position,
-                                 tri.vertices[indices[(i + 1) % 3]].from(srcRoom.vertices).position,
-                                 tri.vertices[indices[(i + 2) % 3]].from(srcRoom.vertices).position);
-
-      vbufData.push_back(iv);
-    }
-
-    for(const int i : {0, 1, 2})
-    {
-      renderMesh.m_indices.emplace_back(gsl::narrow<RenderMesh::IndexType>(firstVertex + i));
-    }
-    for(const int i : {0, 1, 2})
-    {
-      textureAnimator->registerVertex(tri.tileId, i, firstVertex + i);
-    }
-  }
+  buildMeshData(world, srcRoom, vbufData, uvCoordsData, renderMesh);
+  if(!renderMesh.m_nonOpaqueIndices.empty())
+    BOOST_LOG_TRIVIAL(debug) << "room " << roomId << " is non-opaque";
 
   const auto label = "Room:" + std::to_string(roomId);
-  auto vbuf = gsl::make_shared<gl::VertexBuffer<RenderVertex>>(
-    RenderVertex::getLayout(), label, gl::api::BufferUsage::StaticDraw, vbufData);
+  auto vbuf = gsl::make_shared<gl::VertexBuffer<RoomRenderVertex>>(
+    RoomRenderVertex::getLayout(), label + gl::VboSuffix, gl::api::BufferUsage::StaticDraw, vbufData);
 
   static const gl::VertexLayout<render::AnimatedUV> uvAttribs{
     {VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, gl::VertexAttribute{&render::AnimatedUV::uv}},
@@ -360,7 +253,7 @@ void Room::createSceneNode(const loader::file::Room& srcRoom,
     {VERTEX_ATTRIBUTE_QUAD_UV34, &render::AnimatedUV::quadUv34},
   };
   uvCoordsBuffer = std::make_shared<gl::VertexBuffer<render::AnimatedUV>>(
-    uvAttribs, label + "-uv", gl::api::BufferUsage::DynamicDraw, uvCoordsData);
+    uvAttribs, label + "-uv" + gl::VboSuffix, gl::api::BufferUsage::DynamicDraw, uvCoordsData);
 
   auto resMesh = renderMesh.toMesh(vbuf, gsl::not_null{uvCoordsBuffer}, label);
   resMesh->getRenderState().setCullFace(true);
@@ -731,13 +624,17 @@ std::shared_ptr<render::scene::Node> Room::createParticleMesh(
     {VERTEX_ATTRIBUTE_POSITION_NAME, gl::VertexAttribute<glm::vec3>::Single{}}};
 
   auto vbuf = gsl::make_shared<gl::VertexBuffer<glm::vec3>>(
-    layout, label + "-particles", gl::api::BufferUsage::StaticDraw, vertices);
+    layout, label + "-particles" + gl::VboSuffix, gl::api::BufferUsage::StaticDraw, vertices);
   auto indexBuffer = gsl::make_shared<gl::ElementArrayBuffer<uint32_t>>(
-    label + "-particles", gl::api::BufferUsage::StaticDraw, indices);
+    label + "-particles" + gl::IndexBufferSuffix, gl::api::BufferUsage::StaticDraw, indices);
 
   auto vao = gsl::make_shared<gl::VertexArray<uint32_t, glm::vec3>>(
-    indexBuffer, vbuf, std::vector{&dustMaterial->getShaderProgram()->getHandle()}, label + "-particles");
-  auto mesh = std::make_shared<render::scene::MeshImpl<uint32_t, glm::vec3>>(vao, gl::api::PrimitiveType::Points);
+    indexBuffer,
+    vbuf,
+    std::vector{&dustMaterial->getShaderProgram()->getHandle()},
+    label + "-particles" + gl::VaoSuffix);
+  auto mesh
+    = std::make_shared<render::scene::MeshImpl<uint32_t, glm::vec3>>(nullptr, vao, gl::api::PrimitiveType::Points);
   mesh->getMaterialGroup().set(render::material::RenderMode::Full, dustMaterial);
 
   mesh->bind("u_baseColor",
@@ -753,5 +650,150 @@ std::shared_ptr<render::scene::Node> Room::createParticleMesh(
   dustNode->setVisible(true);
 
   return dustNode;
+}
+
+void Room::buildMeshData(const World& world,
+                         const loader::file::Room& srcRoom,
+                         std::vector<RoomRenderVertex>& vbufData,
+                         std::vector<render::AnimatedUV>& uvCoordsData,
+                         RoomRenderMesh& renderMesh)
+{
+  for(const loader::file::QuadFace& quad : srcRoom.rectangles)
+  {
+    // discard water surface polygons
+    const auto center = getCenter(quad.vertices, srcRoom.vertices);
+    if(const auto sector = getSectorByRelativePosition(center); sector != nullptr)
+    {
+      if(sector->roomAbove != nullptr)
+      {
+        const bool planarWithPortal = center.Y + position.Y == sector->ceilingHeight;
+        if(planarWithPortal && sector->roomAbove->isWaterRoom != isWaterRoom)
+          continue;
+        if(planarWithPortal && sector->roomAbove->alternateRoom != nullptr
+           && sector->roomAbove->alternateRoom->isWaterRoom != isWaterRoom)
+          continue;
+      }
+      if(sector->roomBelow != nullptr)
+      {
+        const bool planarWithPortal = center.Y + position.Y == sector->floorHeight;
+        if(planarWithPortal && sector->roomBelow->isWaterRoom != isWaterRoom)
+          continue;
+        if(planarWithPortal && sector->roomBelow->alternateRoom != nullptr
+           && sector->roomBelow->alternateRoom->isWaterRoom != isWaterRoom)
+          continue;
+      }
+    }
+
+    const auto& tile = world.getAtlasTiles().at(quad.tileId.get());
+
+    const bool useQuadHandling = isDistortedQuad(quad.vertices[0].from(srcRoom.vertices).position.toRenderSystem(),
+                                                 quad.vertices[1].from(srcRoom.vertices).position.toRenderSystem(),
+                                                 quad.vertices[2].from(srcRoom.vertices).position.toRenderSystem(),
+                                                 quad.vertices[3].from(srcRoom.vertices).position.toRenderSystem());
+
+    const auto firstVertex = vbufData.size();
+    for(int i = 0; i < 4; ++i)
+    {
+      RoomRenderVertex iv;
+      iv.position = quad.vertices[i].from(srcRoom.vertices).position.toRenderSystem();
+      iv.color = quad.vertices[i].from(srcRoom.vertices).color;
+
+      uvCoordsData.emplace_back(tile.textureKey.atlasIdAndFlag & loader::file::AtlasIdMask,
+                                tile.uvCoordinates[i],
+                                glm::vec4{tile.uvCoordinates[0], tile.uvCoordinates[1]},
+                                glm::vec4{tile.uvCoordinates[2], tile.uvCoordinates[3]});
+      if(useQuadHandling)
+      {
+        iv.isQuad = 1;
+        iv.quadVert1 = quad.vertices[0].from(srcRoom.vertices).position.toRenderSystem();
+        iv.quadVert2 = quad.vertices[1].from(srcRoom.vertices).position.toRenderSystem();
+        iv.quadVert3 = quad.vertices[2].from(srcRoom.vertices).position.toRenderSystem();
+        iv.quadVert4 = quad.vertices[3].from(srcRoom.vertices).position.toRenderSystem();
+      }
+
+      if(i <= 2)
+      {
+        static const std::array<int, 3> indices{0, 1, 2};
+        iv.normal = generateNormal(quad.vertices[indices[(i + 0) % 3]].from(srcRoom.vertices).position,
+                                   quad.vertices[indices[(i + 1) % 3]].from(srcRoom.vertices).position,
+                                   quad.vertices[indices[(i + 2) % 3]].from(srcRoom.vertices).position);
+      }
+      else
+      {
+        static const std::array<int, 3> indices{0, 2, 3};
+        iv.normal = generateNormal(quad.vertices[indices[(i + 0) % 3]].from(srcRoom.vertices).position,
+                                   quad.vertices[indices[(i + 1) % 3]].from(srcRoom.vertices).position,
+                                   quad.vertices[indices[(i + 2) % 3]].from(srcRoom.vertices).position);
+      }
+
+      vbufData.emplace_back(iv);
+    }
+
+    for(const int i : {0, 1, 2, 0, 2, 3})
+    {
+      const auto idx = gsl::narrow<RoomRenderMesh::IndexType>(firstVertex + i);
+      if(tile.isOpaque)
+        renderMesh.m_opaqueIndices.emplace_back(idx);
+      else
+        renderMesh.m_nonOpaqueIndices.emplace_back(idx);
+    }
+    for(const int i : {0, 1, 2, 3})
+    {
+      textureAnimator->registerVertex(quad.tileId, i, firstVertex + i);
+    }
+  }
+
+  for(const loader::file::Triangle& tri : srcRoom.triangles)
+  {
+    // discard water surface polygons
+    const auto center = getCenter(tri.vertices, srcRoom.vertices);
+    if(const auto sector = getSectorByRelativePosition(center))
+    {
+      if(sector->roomAbove != nullptr && sector->roomAbove->isWaterRoom != isWaterRoom)
+      {
+        if(center.Y + position.Y == sector->ceilingHeight)
+          continue;
+      }
+      if(sector->roomBelow != nullptr && sector->roomBelow->isWaterRoom != isWaterRoom)
+      {
+        if(center.Y + position.Y == sector->floorHeight)
+          continue;
+      }
+    }
+
+    const auto& tile = world.getAtlasTiles().at(tri.tileId.get());
+
+    const auto firstVertex = vbufData.size();
+    for(int i = 0; i < 3; ++i)
+    {
+      RoomRenderVertex iv;
+      iv.position = tri.vertices[i].from(srcRoom.vertices).position.toRenderSystem();
+      iv.color = tri.vertices[i].from(srcRoom.vertices).color;
+      uvCoordsData.emplace_back(tile.textureKey.atlasIdAndFlag & loader::file::AtlasIdMask,
+                                tile.uvCoordinates[i],
+                                glm::vec4{tile.uvCoordinates[0], tile.uvCoordinates[1]},
+                                glm::vec4{tile.uvCoordinates[2], tile.uvCoordinates[3]});
+
+      static const std::array<int, 3> indices{0, 1, 2};
+      iv.normal = generateNormal(tri.vertices[indices[(i + 0) % 3]].from(srcRoom.vertices).position,
+                                 tri.vertices[indices[(i + 1) % 3]].from(srcRoom.vertices).position,
+                                 tri.vertices[indices[(i + 2) % 3]].from(srcRoom.vertices).position);
+
+      vbufData.push_back(iv);
+    }
+
+    for(const int i : {0, 1, 2})
+    {
+      const auto idx = gsl::narrow<RoomRenderMesh::IndexType>(firstVertex + i);
+      if(tile.isOpaque)
+        renderMesh.m_opaqueIndices.emplace_back(idx);
+      else
+        renderMesh.m_nonOpaqueIndices.emplace_back(idx);
+    }
+    for(const int i : {0, 1, 2})
+    {
+      textureAnimator->registerVertex(tri.tileId, i, firstVertex + i);
+    }
+  }
 }
 } // namespace engine::world

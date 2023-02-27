@@ -4,6 +4,7 @@
 #include "node.h"
 #include "render/material/rendermode.h"
 #include "rendercontext.h"
+#include "translucency.h"
 #include "visitor.h"
 
 #include <array>
@@ -29,10 +30,13 @@ Renderer::~Renderer() = default;
 
 void Renderer::render()
 {
-  RenderContext context{material::RenderMode::Full, std::nullopt};
-  Visitor visitor{context};
-  m_rootNode->accept(visitor);
-  visitor.render(m_camera->getPosition());
+  for(const auto translucencySelector : {Translucency::Opaque, Translucency::NonOpaque})
+  {
+    RenderContext context{material::RenderMode::Full, std::nullopt, translucencySelector};
+    Visitor visitor{context};
+    m_rootNode->accept(visitor);
+    visitor.render(m_camera->getPosition());
+  }
 }
 
 void Renderer::clear(const gl::api::core::Bitfield<gl::api::ClearBufferMask>& flags,

@@ -10,6 +10,7 @@
 #include "render/scene/rendercontext.h"
 
 #include <algorithm>
+#include <gl/constants.h>
 #include <gl/debuggroup.h>
 #include <gl/framebuffer.h>
 #include <gl/glassert.h>
@@ -35,11 +36,11 @@ HBAOPass::HBAOPass(material::MaterialManager& materialManager,
                    const glm::ivec2& viewport,
                    const GeometryPass& geometryPass)
     : m_material{materialManager.getHBAO()}
-    , m_renderMesh{scene::createScreenQuad(m_material, "hbao")}
+    , m_renderMesh{scene::createScreenQuad(m_material, scene::Translucency::Opaque, "hbao")}
     , m_aoBuffer{std::make_shared<gl::Texture2D<gl::ScalarByte>>(viewport, "hbao-ao")}
     , m_aoBufferHandle{std::make_shared<gl::TextureHandle<gl::Texture2D<gl::ScalarByte>>>(
         m_aoBuffer,
-        gsl::make_unique<gl::Sampler>("hbao-ao-sampler")
+        gsl::make_unique<gl::Sampler>("hbao-ao" + gl::SamplerSuffix)
           | set(gl::api::SamplerParameterI::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge)
           | set(gl::api::SamplerParameterI::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge)
           | set(gl::api::TextureMinFilter::Linear) | set(gl::api::TextureMagFilter::Linear))}
@@ -75,7 +76,7 @@ void HBAOPass::render()
   SOGLB_DEBUGGROUP("hbao-pass");
   m_fb->bind();
 
-  scene::RenderContext context{material::RenderMode::Full, std::nullopt};
+  scene::RenderContext context{material::RenderMode::Full, std::nullopt, scene::Translucency::Opaque};
   m_renderMesh->render(nullptr, context);
   m_blur.render();
 

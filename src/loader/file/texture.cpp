@@ -79,15 +79,8 @@ std::unique_ptr<TextureTile> TextureTile::readTr1(io::SDLReader& reader)
   if((tile->textureKey.atlasIdAndFlag & (1u << 15u)) != 0)
     BOOST_LOG_TRIVIAL(warning) << "TR1 Object Texture: tileAndFlag is flagged";
 
-  // only in TR4
-  tile->textureKey.flags = 0;
   for(auto& uv : tile->uvCoordinates)
     uv = UVCoordinates::read(reader);
-  // only in TR4
-  tile->unknown1 = 0;
-  tile->unknown2 = 0;
-  tile->x_size = 0;
-  tile->y_size = 0;
   return tile;
 }
 

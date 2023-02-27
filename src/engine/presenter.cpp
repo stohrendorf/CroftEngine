@@ -38,6 +38,7 @@
 #include <cstdint>
 #include <cstdlib>
 #include <gl/cimgwrapper.h>
+#include <gl/constants.h>
 #include <gl/debuggroup.h>
 #include <gl/font.h>
 #include <gl/framebuffer.h>
@@ -80,7 +81,8 @@ void Presenter::playVideo(const std::filesystem::path& path)
 {
   util::ensureFileExists(path);
 
-  auto mesh = render::scene::createScreenQuad(m_materialManager->getFlat(false, true, true), "video");
+  auto mesh = render::scene::createScreenQuad(
+    m_materialManager->getFlat(false, true, true), render::scene::Translucency::Opaque, "video");
 
   auto colorBuffer = gsl::make_shared<gl::Texture2D<gl::SRGB8>>(getRenderViewport(), "ui-color");
   auto fb = gl::FrameBufferBuilder()
@@ -110,7 +112,8 @@ void Presenter::playVideo(const std::filesystem::path& path)
 
                 fb->bind();
                 {
-                  render::scene::RenderContext context{render::material::RenderMode::Full, std::nullopt};
+                  render::scene::RenderContext context{
+                    render::material::RenderMode::Full, std::nullopt, render::scene::Translucency::Opaque};
                   mesh->render(nullptr, context);
                 }
                 updateSoundEngine();
@@ -143,20 +146,25 @@ void Presenter::renderWorld(const std::vector<world::Room>& rooms,
       m_csm->getActiveFramebuffer()->bind();
       gl::RenderState::getWantedState() = m_csm->getActiveFramebuffer()->getRenderState();
 
-      render::scene::RenderContext context{render::material::RenderMode::CSMDepthOnly,
-                                           m_csm->getActiveMatrix(glm::mat4{1.0f})};
-      render::scene::Visitor visitor{context, false};
-      for(const auto& room : rooms)
+      for(const auto translucencySelector :
+          {render::scene::Translucency::Opaque, render::scene::Translucency::NonOpaque})
       {
-        if(!room.node->isVisible())
-          continue;
-
-        for(const auto& child : room.node->getChildren())
+        render::scene::RenderContext context{
+          render::material::RenderMode::CSMDepthOnly, m_csm->getActiveMatrix(glm::mat4{1.0f}), translucencySelector};
+        render::scene::Visitor visitor{context, false};
+        for(const auto& room : rooms)
         {
-          visitor.visit(*child);
+          if(!room.node->isVisible())
+            continue;
+
+          for(const auto& child : room.node->getChildren())
+          {
+            visitor.visit(*child);
+          }
         }
+        visitor.render(glm::vec3{0.0f, 0.0f, std::numeric_limits<float>::lowest()});
+        break;
       }
-      visitor.render(glm::vec3{0.0f, 0.0f, std::numeric_limits<float>::lowest()});
       m_csm->beginActiveDepthSync();
     }
 
@@ -215,33 +223,42 @@ void Presenter::renderWorld(const std::vector<world::Room>& rooms,
                   return a->node->getRenderOrder() > b->node->getRenderOrder();
                 });
 
-      render::scene::RenderContext context{render::material::RenderMode::DepthOnly,
-                                           cameraController.getCamera()->getViewProjectionMatrix()};
-      for(const auto& room : renderRooms)
+      for(const auto translucencySelector :
+          {render::scene::Translucency::Opaque, render::scene::Translucency::NonOpaque})
       {
-        SOGLB_DEBUGGROUP(room->node->getName());
-        auto state = context.getCurrentState();
-        state.setScissorTest(true);
-        const auto [xy, size] = room->node->getCombinedScissors();
-        state.setScissorRegion(xy, size);
-        context.pushState(state);
-        room->node->getRenderable()->render(room->node.get(), context);
-        context.popState();
+        render::scene::RenderContext context{render::material::RenderMode::DepthOnly,
+                                             cameraController.getCamera()->getViewProjectionMatrix(),
+                                             translucencySelector};
+        for(const auto& room : renderRooms)
+        {
+          SOGLB_DEBUGGROUP(room->node->getName());
+          auto state = context.getCurrentState();
+          state.setScissorTest(true);
+          const auto [xy, size] = room->node->getCombinedScissors();
+          state.setScissorRegion(xy, size);
+          context.pushState(state);
+          room->node->getRenderable()->render(room->node.get(), context);
+          context.popState();
+        }
+        break;
       }
       if constexpr(render::pass::FlushPasses)
         GL_ASSERT(gl::api::finish());
     }
 
     m_renderer->render();
-    render::scene::RenderContext context{render::material::RenderMode::Full, std::nullopt};
-    for(auto& room : rooms)
+    for(const auto translucencySelector : {render::scene::Translucency::Opaque, render::scene::Translucency::NonOpaque})
     {
-      if(!room.node->isVisible())
-        continue;
+      render::scene::RenderContext context{render::material::RenderMode::Full, std::nullopt, translucencySelector};
+      for(auto& room : rooms)
+      {
+        if(!room.node->isVisible())
+          continue;
 
-      context.pushState(room.node->getRenderState());
-      room.particles.render(context, world);
-      context.popState();
+        context.pushState(room.node->getRenderState());
+        room.particles.render(context, world);
+        context.popState();
+      }
     }
 
     if constexpr(render::pass::FlushPasses)
@@ -252,13 +269,18 @@ void Presenter::renderWorld(const std::vector<world::Room>& rooms,
     SOGLB_DEBUGGROUP("portal-depth-pass");
     gl::RenderState::resetWantedState();
 
-    render::scene::RenderContext context{render::material::RenderMode::DepthOnly,
-                                         cameraController.getCamera()->getViewProjectionMatrix()};
-
-    context.pushState(m_renderPipeline->bindPortalFrameBuffer());
-    for(const auto& portal : waterEntryPortals)
+    for(const auto translucencySelector : {render::scene::Translucency::Opaque, render::scene::Translucency::NonOpaque})
     {
-      portal->mesh->render(nullptr, context);
+      render::scene::RenderContext context{render::material::RenderMode::DepthOnly,
+                                           cameraController.getCamera()->getViewProjectionMatrix(),
+                                           translucencySelector};
+
+      context.pushState(m_renderPipeline->bindPortalFrameBuffer());
+      for(const auto& portal : waterEntryPortals)
+      {
+        portal->mesh->render(nullptr, context);
+      }
+      context.popState();
     }
     if constexpr(render::pass::FlushPasses)
       GL_ASSERT(gl::api::finish());
@@ -432,7 +454,7 @@ Presenter::Presenter(const std::filesystem::path& engineDataPath, const glm::ive
         gsl::make_shared<render::scene::Camera>(DefaultFov, getRenderViewport(), DefaultNearPlane, DefaultFarPlane))}
     , m_splashImageTexture{gsl::make_shared<gl::TextureHandle<gl::Texture2D<gl::PremultipliedSRGBA8>>>(
         gl::CImgWrapper{util::ensureFileExists(engineDataPath / "splash.png")}.toTexture("splash"),
-        gsl::make_unique<gl::Sampler>("splash-sampler"))}
+        gsl::make_unique<gl::Sampler>("splash" + gl::SamplerSuffix))}
     , m_trTTFFont{std::make_unique<gl::Font>(util::ensureFileExists(engineDataPath / "trfont.ttf"))}
     , m_ghostNameFont{std::make_unique<gl::Font>(util::ensureFileExists(engineDataPath / "Roboto-Regular.ttf"))}
     , m_inputHandler{std::make_unique<hid::InputHandler>(m_window, engineDataPath / "gamecontrollerdb.txt")}
@@ -460,8 +482,11 @@ void Presenter::scaleSplashImage()
 
   auto scaledSourceSize = sourceSize * splashScale;
   auto sourceOffset = (viewport - scaledSourceSize) / 2.0f;
-  auto mesh = render::scene::createScreenQuad(
-    sourceOffset, scaledSourceSize, m_materialManager->getBackdrop(false), "backdrop");
+  auto mesh = render::scene::createScreenQuad(sourceOffset,
+                                              scaledSourceSize,
+                                              m_materialManager->getBackdrop(false),
+                                              render::scene::Translucency::Opaque,
+                                              "backdrop");
   if(m_splashImageTextureOverride != nullptr)
     m_splashImageMeshOverride = mesh;
   else
@@ -498,11 +523,20 @@ void Presenter::drawLoadingScreen(const std::string& state)
   m_renderPipeline->bindBackbuffer();
 
   m_renderer->getCamera()->setViewport(getDisplayViewport());
-  render::scene::RenderContext context{render::material::RenderMode::Full, std::nullopt};
+
   getSplashImageMeshOrOverride()->getRenderState().setViewport(getDisplayViewport());
-  getSplashImageMeshOrOverride()->render(nullptr, context);
+  {
+    render::scene::RenderContext context{
+      render::material::RenderMode::Full, std::nullopt, render::scene::Translucency::Opaque};
+    getSplashImageMeshOrOverride()->render(nullptr, context);
+  }
+
   m_screenOverlay->setAlphaMultiplier(0.8f);
-  m_screenOverlay->render(nullptr, context);
+  {
+    render::scene::RenderContext context{
+      render::material::RenderMode::Full, std::nullopt, render::scene::Translucency::NonOpaque};
+    m_screenOverlay->render(nullptr, context);
+  }
   updateSoundEngine();
   swapBuffers();
 }
@@ -607,7 +641,8 @@ void Presenter::renderScreenOverlay()
   gl::RenderState::resetWantedState();
   m_renderer->getCamera()->setViewport(getDisplayViewport());
   gl::RenderState::getWantedState().setViewport(getDisplayViewport());
-  render::scene::RenderContext context{render::material::RenderMode::Full, std::nullopt};
+  render::scene::RenderContext context{
+    render::material::RenderMode::Full, std::nullopt, render::scene::Translucency::NonOpaque};
   m_screenOverlay->render(nullptr, context);
 }
 
@@ -650,7 +685,7 @@ void Presenter::setSplashImageTextureOverride(const std::filesystem::path& image
 {
   m_splashImageTextureOverride = std::make_shared<gl::TextureHandle<gl::Texture2D<gl::PremultipliedSRGBA8>>>(
     gl::CImgWrapper{util::ensureFileExists(imagePath)}.toTexture("splash-override"),
-    gsl::make_unique<gl::Sampler>("splash-override-sampler"));
+    gsl::make_unique<gl::Sampler>("splash-override" + gl::SamplerSuffix));
   scaleSplashImage();
 }
 

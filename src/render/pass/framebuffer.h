@@ -16,14 +16,18 @@ class Material;
 namespace render::scene
 {
 class Mesh;
-}
+enum class Translucency;
+} // namespace render::scene
 
 namespace render::pass
 {
 class Framebuffer final
 {
 public:
-  explicit Framebuffer(const std::string& name, gslu::nn_shared<material::Material> material, const glm::ivec2& size);
+  explicit Framebuffer(const std::string& name,
+                       gslu::nn_shared<material::Material> material,
+                       scene::Translucency translucencySelector,
+                       const glm::ivec2& size);
 
   [[nodiscard]] const auto& getOutput() const
   {
@@ -51,5 +55,6 @@ private:
   gslu::nn_shared<gl::Texture2D<gl::SRGBA8>> m_colorBuffer;
   gslu::nn_shared<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>> m_colorBufferHandle;
   gslu::nn_shared<gl::Framebuffer> m_fb;
+  scene::Translucency m_translucencySelector;
 };
 } // namespace render::pass

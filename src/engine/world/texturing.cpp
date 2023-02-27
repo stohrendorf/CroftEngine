@@ -724,19 +724,30 @@ std::unique_ptr<gl::Texture2DArray<gl::PremultipliedSRGBA8>>
                                       }));
     }
 
+    std::vector<std::shared_ptr<gl::CImgWrapper>> images;
     for(size_t i = 0; i < atlases.numAtlases(); ++i)
     {
       drawLoadingScreen(_("Building atlases (%1%%%)", 75 + i * 25 / atlases.numAtlases()));
 
       const auto bmp = loaders[i].get();
+      images.emplace_back(std::make_shared<gl::CImgWrapper>(
+        reinterpret_cast<uint8_t*>(bmp->data()), bmp->size().x, bmp->size().y, false));
 
-      allTextures->assign(gsl::span{(gl::PremultipliedSRGBA8*)bmp->data(), (size_t)(bmp->size().x * bmp->size().y)},
-                          gsl::narrow_cast<int>(i));
+      allTextures->assign(
+        gsl::span{reinterpret_cast<gl::PremultipliedSRGBA8*>(bmp->data()), (size_t)(bmp->size().x * bmp->size().y)},
+        gsl::narrow_cast<int>(i));
+    }
+
+    for(auto& atlasTile : atlasTiles)
+    {
+      const auto& img = images.at(atlasTile.textureKey.atlasIdAndFlag & loader::file::AtlasIdMask);
+      atlasTile.isOpaque = img->isOpaque(atlasTile.getMinMaxUv());
     }
   }
   else
   {
     auto images = atlases.takeImages();
+
     for(size_t i = 0; i < images.size(); ++i)
     {
       drawLoadingScreen(_("Building atlases (%1%%%)", 75 + i * 25 / images.size()));
@@ -746,8 +757,12 @@ std::unique_ptr<gl::Texture2DArray<gl::PremultipliedSRGBA8>>
       compressEtc2(*images[i], cacheFile);
 
       allTextures->assign(images[i]->premultipliedPixels(), gsl::narrow_cast<int>(i));
+    }
 
-      images[i].reset();
+    for(auto& atlasTile : atlasTiles)
+    {
+      const auto& img = images.at(atlasTile.textureKey.atlasIdAndFlag & loader::file::AtlasIdMask);
+      atlasTile.isOpaque = img->isOpaque(atlasTile.getMinMaxUv());
     }
   }
 

@@ -8,6 +8,7 @@ struct AtlasTile
 {
   loader::file::TextureKey textureKey;
   std::array<glm::vec2, 4> uvCoordinates{};
+  bool isOpaque = false;
 
   bool operator==(const AtlasTile& rhs) const
   {

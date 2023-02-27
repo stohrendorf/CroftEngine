@@ -6,6 +6,7 @@
 #include "rendercontext.h"
 
 #include <boost/throw_exception.hpp>
+#include <gl/constants.h>
 #include <gl/image.h>
 #include <gl/pixel.h>
 #include <gl/program.h>
@@ -50,12 +51,12 @@ void ScreenOverlay::init(material::MaterialManager& materialManager, const glm::
   texture->assign(m_image->getData());
   m_texture = std::make_shared<gl::TextureHandle<gl::Texture2D<gl::PremultipliedSRGBA8>>>(
     texture,
-    gsl::make_unique<gl::Sampler>("screenoverlay-sampler") | set(gl::api::TextureMinFilter::Nearest)
+    gsl::make_unique<gl::Sampler>("screenoverlay" + gl::SamplerSuffix) | set(gl::api::TextureMinFilter::Nearest)
       | set(gl::api::TextureMagFilter::Nearest)
       | set(gl::api::SamplerParameterI::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge)
       | set(gl::api::SamplerParameterI::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge));
 
-  m_mesh = createScreenQuad(materialManager.getFlat(true, true), "screenoverlay");
+  m_mesh = createScreenQuad(materialManager.getFlat(true, true), Translucency::NonOpaque, "screenoverlay");
   m_mesh->bind("u_input",
                [this](const render::scene::Node* /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
                {

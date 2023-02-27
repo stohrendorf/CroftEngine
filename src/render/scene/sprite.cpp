@@ -10,6 +10,7 @@
 #include <boost/assert.hpp>
 #include <cstdint>
 #include <gl/buffer.h>
+#include <gl/constants.h>
 #include <gl/vertexarray.h>
 #include <gl/vertexbuffer.h>
 #include <gslu.h>
@@ -50,7 +51,7 @@ gslu::nn_shared<gl::VertexBuffer<SpriteVertex>> createSpriteVertexBuffer(float x
   const auto vertices = createSpriteVertices(x0, y0, x1, y1, t0, t1, textureIdx);
   return gsl::make_shared<gl::VertexBuffer<SpriteVertex>>(instanced ? SpriteVertex::getInstancedLayout()
                                                                     : SpriteVertex::getLayout(),
-                                                          label + ":vb",
+                                                          label + gl::VboSuffix,
                                                           gl::api::BufferUsage::StaticDraw,
                                                           vertices);
 }
@@ -69,12 +70,13 @@ gslu::nn_shared<Mesh> createSpriteMesh(const float x0,
   auto vb = createSpriteVertexBuffer(x0, y0, x1, y1, t0, t1, textureIdx, false, label);
   static const std::array<uint16_t, 6> indices{0, 1, 2, 0, 2, 3};
 
-  auto indexBuffer
-    = gsl::make_shared<gl::ElementArrayBuffer<uint16_t>>(label + ":idx", gl::api::BufferUsage::StaticDraw, indices);
+  auto indexBuffer = gsl::make_shared<gl::ElementArrayBuffer<uint16_t>>(
+    label + gl::IndexBufferSuffix, gl::api::BufferUsage::StaticDraw, indices);
 
-  auto vao = gsl::make_shared<gl::VertexArray<uint16_t, SpriteVertex>>(
-    indexBuffer, vb, std::vector{&materialFull->getShaderProgram()->getHandle()}, label + ":va");
-  auto mesh = gsl::make_shared<MeshImpl<uint16_t, SpriteVertex>>(vao);
+  auto nonOpaqueVao = gsl::make_shared<gl::VertexArray<uint16_t, SpriteVertex>>(
+    indexBuffer, vb, std::vector{&materialFull->getShaderProgram()->getHandle()}, label + gl::VaoSuffix);
+  auto mesh
+    = gsl::make_shared<MeshImpl<uint16_t, SpriteVertex>>(nullptr, nonOpaqueVao, gl::api::PrimitiveType::Triangles);
   mesh->getMaterialGroup().set(material::RenderMode::Full, materialFull);
   mesh->getRenderState().setScissorTest(false);
 
@@ -96,19 +98,24 @@ std::tuple<gslu::nn_shared<Mesh>, gslu::nn_shared<gl::VertexBuffer<glm::mat4>>>
 
   static const gl::VertexLayout<glm::mat4> layout{
     {VERTEX_ATTRIBUTE_MODEL_MATRIX_NAME, gl::VertexAttribute<glm::mat4>::Single{}}};
-  const auto modelMatrices = gsl::make_shared<gl::VertexBuffer<glm::mat4>>(
-    layout, label + ":matrices", gl::api::BufferUsage::StreamDraw, std::vector<glm::mat4>(4096, glm::mat4{0.0f}), 1);
+  const auto modelMatrices
+    = gsl::make_shared<gl::VertexBuffer<glm::mat4>>(layout,
+                                                    label + "-matrices" + gl::VboSuffix,
+                                                    gl::api::BufferUsage::StreamDraw,
+                                                    std::vector<glm::mat4>(4096, glm::mat4{0.0f}),
+                                                    1);
 
   static const std::array<uint16_t, 6> indices{0, 1, 2, 0, 2, 3};
-  auto indexBuffer
-    = gsl::make_shared<gl::ElementArrayBuffer<uint16_t>>(label + ":idx", gl::api::BufferUsage::StaticDraw, indices);
+  auto indexBuffer = gsl::make_shared<gl::ElementArrayBuffer<uint16_t>>(
+    label + gl::IndexBufferSuffix, gl::api::BufferUsage::StaticDraw, indices);
 
   auto vao = gsl::make_shared<gl::VertexArray<uint16_t, SpriteVertex, glm::mat4>>(
     indexBuffer,
     std::tuple{vertices, modelMatrices},
     std::vector{&materialFull->getShaderProgram()->getHandle()},
-    label + ":va");
-  auto mesh = gsl::make_shared<MeshImpl<uint16_t, SpriteVertex, glm::mat4>>(vao);
+    label + gl::VaoSuffix);
+  auto mesh
+    = gsl::make_shared<MeshImpl<uint16_t, SpriteVertex, glm::mat4>>(nullptr, vao, gl::api::PrimitiveType::Triangles);
   mesh->getMaterialGroup().set(material::RenderMode::Full, materialFull);
   mesh->getRenderState().setScissorTest(false);
 

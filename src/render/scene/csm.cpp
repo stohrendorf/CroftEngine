@@ -10,6 +10,7 @@
 
 #include <algorithm>
 #include <gl/buffer.h>
+#include <gl/constants.h>
 #include <gl/debuggroup.h>
 #include <gl/framebuffer.h>
 #include <gl/glassert.h>
@@ -41,7 +42,7 @@ namespace render::scene
 {
 void CSM::Split::init(int32_t resolution, size_t idx, material::MaterialManager& materialManager)
 {
-  auto sampler = gsl::make_unique<gl::Sampler>("csm-texture/" + std::to_string(idx) + "-sampler")
+  auto sampler = gsl::make_unique<gl::Sampler>("csm-texture/" + std::to_string(idx) + gl::SamplerSuffix)
                  | set(gl::api::TextureMinFilter::Nearest) | set(gl::api::TextureMagFilter::Nearest)
                  | set(gl::api::SamplerParameterI::TextureWrapS, gl::api::TextureWrapMode::ClampToBorder)
                  | set(gl::api::SamplerParameterI::TextureWrapT, gl::api::TextureWrapMode::ClampToBorder)
@@ -59,7 +60,7 @@ void CSM::Split::init(int32_t resolution, size_t idx, material::MaterialManager&
   squaredTextureHandle = std::make_shared<gl::TextureHandle<gl::Texture2D<gl::RG16F>>>(
     gsl::make_shared<gl::Texture2D<gl::RG16F>>(glm::ivec2{resolution, resolution},
                                                "csm-texture/" + std::to_string(idx) + "/squared"),
-    gsl::make_unique<gl::Sampler>("csm-texture/" + std::to_string(idx) + "/squared-sampler")
+    gsl::make_unique<gl::Sampler>("csm-texture/" + std::to_string(idx) + "/squared" + gl::SamplerSuffix)
       | set(gl::api::TextureMinFilter::Linear) | set(gl::api::TextureMagFilter::Linear)
       | set(gl::api::SamplerParameterI::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge)
       | set(gl::api::SamplerParameterI::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge));
@@ -70,7 +71,7 @@ void CSM::Split::init(int32_t resolution, size_t idx, material::MaterialManager&
 
   squareMaterial = materialManager.getVSMSquare();
 
-  squareMesh = createScreenQuad(squareMaterial, "csm/" + std::to_string(idx));
+  squareMesh = createScreenQuad(squareMaterial, Translucency::Opaque, "csm/" + std::to_string(idx));
   squareMesh->bind("u_shadow",
                    [this](const Node* /*node*/, const Mesh& /*mesh*/, gl::Uniform& uniform)
                    {
@@ -90,7 +91,7 @@ void CSM::Split::renderSquare()
   SOGLB_DEBUGGROUP("vsm-square-pass");
   squareFramebuffer->bind();
 
-  RenderContext context{material::RenderMode::Full, std::nullopt};
+  RenderContext context{material::RenderMode::Full, std::nullopt, Translucency::Opaque};
   squareMesh->render(nullptr, context);
 }
 

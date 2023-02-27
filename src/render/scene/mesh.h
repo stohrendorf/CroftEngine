@@ -3,6 +3,7 @@
 #include "render/material/materialgroup.h"
 #include "render/material/materialparameteroverrider.h"
 #include "renderable.h"
+#include "translucency.h"
 
 #include <gl/api/gl.hpp>
 #include <gl/soglb_fwd.h>
@@ -22,13 +23,14 @@ namespace render::scene
 {
 class RenderContext;
 class Node;
+enum class Translucency;
 
 class Mesh
     : public Renderable
     , public material::MaterialParameterOverrider
 {
 public:
-  explicit Mesh(gl::api::PrimitiveType primitiveType = gl::api::PrimitiveType::Triangles)
+  explicit Mesh(gl::api::PrimitiveType primitiveType)
       : m_primitiveType{primitiveType}
   {
   }
@@ -62,18 +64,20 @@ private:
   material::MaterialGroup m_materialGroup{};
   const gl::api::PrimitiveType m_primitiveType{};
 
-  virtual void drawIndexBuffer() = 0;
-  virtual void drawIndexBuffer(gl::api::core::SizeType instanceCount) = 0;
+  virtual void drawElements(Translucency translucencySelector) = 0;
+  virtual void drawElements(Translucency translucencySelector, gl::api::core::SizeType instanceCount) = 0;
 };
 
 template<typename IndexT, typename... VertexTs>
 class MeshImpl : public Mesh
 {
 public:
-  explicit MeshImpl(gslu::nn_shared<gl::VertexArray<IndexT, VertexTs...>> vao,
-                    gl::api::PrimitiveType primitiveType = gl::api::PrimitiveType::Triangles)
+  explicit MeshImpl(std::shared_ptr<gl::VertexArray<IndexT, VertexTs...>> vaoOpaque,
+                    std::shared_ptr<gl::VertexArray<IndexT, VertexTs...>> vaoNonOpaque,
+                    gl::api::PrimitiveType primitiveType)
       : Mesh{primitiveType}
-      , m_vao{std::move(vao)}
+      , m_vaoOpaque{std::move(vaoOpaque)}
+      , m_vaoNonOpaque{std::move(vaoNonOpaque)}
   {
   }
 
@@ -85,33 +89,58 @@ public:
   MeshImpl& operator=(const MeshImpl&) = delete;
 
 private:
-  gslu::nn_shared<gl::VertexArray<IndexT, VertexTs...>> m_vao;
+  std::shared_ptr<gl::VertexArray<IndexT, VertexTs...>> m_vaoOpaque;
+  std::shared_ptr<gl::VertexArray<IndexT, VertexTs...>> m_vaoNonOpaque;
 
-  void drawIndexBuffer() override
+  void drawElements(Translucency translucencySelector) override
   {
-    m_vao->drawIndexBuffer(getPrimitiveType());
+    switch(translucencySelector)
+    {
+    case Translucency::Opaque:
+      if(m_vaoOpaque != nullptr)
+        m_vaoOpaque->drawElements(getPrimitiveType());
+      break;
+    case Translucency::NonOpaque:
+      if(m_vaoNonOpaque != nullptr)
+        m_vaoNonOpaque->drawElements(getPrimitiveType());
+      break;
+    }
   }
 
-  void drawIndexBuffer(gl::api::core::SizeType instanceCount) override
+  void drawElements(Translucency translucencySelector, gl::api::core::SizeType instanceCount) override
   {
-    m_vao->drawIndexBuffer(getPrimitiveType(), instanceCount);
+    switch(translucencySelector)
+    {
+    case Translucency::Opaque:
+      if(m_vaoOpaque != nullptr)
+        m_vaoOpaque->drawElements(getPrimitiveType(), instanceCount);
+      break;
+    case Translucency::NonOpaque:
+      if(m_vaoNonOpaque != nullptr)
+        m_vaoNonOpaque->drawElements(getPrimitiveType(), instanceCount);
+      break;
+    }
   }
 };
 
 extern gslu::nn_shared<Mesh> createScreenQuad(const glm::vec2& xy,
                                               const glm::vec2& size,
                                               const std::shared_ptr<material::Material>& material,
+                                              Translucency spriteTranslucency,
                                               const std::string& label);
 
-inline gslu::nn_shared<Mesh>
-  createScreenQuad(const glm::vec2& size, const std::shared_ptr<material::Material>& material, const std::string& label)
+inline gslu::nn_shared<Mesh> createScreenQuad(const glm::vec2& size,
+                                              const std::shared_ptr<material::Material>& material,
+                                              Translucency spriteTranslucency,
+                                              const std::string& label)
 {
-  return createScreenQuad({0, 0}, size, material, label);
+  return createScreenQuad({0, 0}, size, material, spriteTranslucency, label);
 }
 
 inline gslu::nn_shared<Mesh> createScreenQuad(const std::shared_ptr<material::Material>& material,
+                                              Translucency spriteTranslucency,
                                               const std::string& label)
 {
-  return createScreenQuad({0, 0}, {0, 0}, material, label);
+  return createScreenQuad({0, 0}, {0, 0}, material, spriteTranslucency, label);
 }
 } // namespace render::scene

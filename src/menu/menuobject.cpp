@@ -16,6 +16,7 @@
 #include "render/scene/node.h"
 #include "render/scene/renderable.h"
 #include "render/scene/rendercontext.h"
+#include "render/scene/translucency.h"
 #include "util/helpers.h"
 
 #include <boost/log/trivial.hpp>
@@ -184,8 +185,11 @@ void MenuObject::draw(const engine::world::World& world,
 
     node->updatePose();
 
-    render::scene::RenderContext context{render::material::RenderMode::Full, std::nullopt};
-    node->getRenderable()->render(node.get(), context);
+    for(const auto translucencySelector : {render::scene::Translucency::Opaque, render::scene::Translucency::NonOpaque})
+    {
+      render::scene::RenderContext context{render::material::RenderMode::Full, std::nullopt, translucencySelector};
+      node->getRenderable()->render(node.get(), context);
+    }
   }
   else
   {

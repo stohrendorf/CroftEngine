@@ -43,6 +43,7 @@
 #include <boost/throw_exception.hpp>
 #include <chrono>
 #include <gl/cimgwrapper.h>
+#include <gl/constants.h>
 #include <gl/framebuffer.h>
 #include <gl/pixel.h>
 #include <gl/program.h>
@@ -334,7 +335,7 @@ std::pair<RunResult, std::optional<size_t>> SplashScreen::run(Engine& engine,
   glm::ivec2 size{-1, -1};
   auto image = gsl::make_shared<gl::TextureHandle<gl::Texture2D<gl::PremultipliedSRGBA8>>>(
     gl::CImgWrapper{util::ensureFileExists(engine.getAssetDataPath() / m_path)}.toTexture(m_path.string()),
-    gsl::make_unique<gl::Sampler>(m_path.string() + "-sampler"));
+    gsl::make_unique<gl::Sampler>(m_path.string() + gl::SamplerSuffix));
   std::shared_ptr<render::scene::Mesh> mesh;
 
   auto& presenter = engine.getPresenter();
@@ -353,8 +354,11 @@ std::pair<RunResult, std::optional<size_t>> SplashScreen::run(Engine& engine,
 
     auto scaledSourceSize = sourceSize * splashScale;
     auto sourceOffset = (targetSize - scaledSourceSize) / 2.0f;
-    mesh = render::scene::createScreenQuad(
-      sourceOffset, scaledSourceSize, presenter.getMaterialManager()->getBackdrop(true), m_path.string());
+    mesh = render::scene::createScreenQuad(sourceOffset,
+                                           scaledSourceSize,
+                                           presenter.getMaterialManager()->getBackdrop(true),
+                                           render::scene::Translucency::Opaque,
+                                           m_path.string());
     mesh->bind("u_input",
                [&image](const render::scene::Node* /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
                {
@@ -367,9 +371,7 @@ std::pair<RunResult, std::optional<size_t>> SplashScreen::run(Engine& engine,
                });
   };
 
-  render::scene::RenderContext context{render::material::RenderMode::Full, std::nullopt};
-
-  auto renderFrame = [&presenter, &updateSize, &mesh, &throttler, &context]() -> bool
+  auto renderFrame = [&presenter, &updateSize, &mesh, &throttler]() -> bool
   {
     if(!presenter.preFrame() || presenter.shouldClose())
       return false;
@@ -382,7 +384,11 @@ std::pair<RunResult, std::optional<size_t>> SplashScreen::run(Engine& engine,
 
     presenter.bindBackbuffer();
     mesh->getRenderState().setViewport(presenter.getDisplayViewport());
-    mesh->render(nullptr, context);
+    {
+      render::scene::RenderContext context{
+        render::material::RenderMode::Full, std::nullopt, render::scene::Translucency::Opaque};
+      mesh->render(nullptr, context);
+    }
     presenter.updateSoundEngine();
     presenter.swapBuffers();
 
