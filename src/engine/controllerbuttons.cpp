@@ -2,6 +2,7 @@
 
 #include "core/id.h"
 #include "engineconfig.h"
+#include "render/material/rendermode.h"
 #include "render/scene/sprite.h"
 #include "render/textureatlas.h"
 #include "serialization/map.h"
@@ -99,6 +100,7 @@ ControllerLayouts loadControllerButtonIcons(render::MultiTextureAtlas& atlases,
                                           static_cast<float>(-sprite.render1.y),
                                           sprite.uv0,
                                           sprite.uv1,
+                                          render::material::RenderMode::FullNonOpaque,
                                           material,
                                           sprite.atlasId.get_as<int32_t>(),
                                           "controller-" + layout.name + "-" + btnName)

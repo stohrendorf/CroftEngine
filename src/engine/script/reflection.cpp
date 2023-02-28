@@ -386,7 +386,7 @@ std::pair<RunResult, std::optional<size_t>> SplashScreen::run(Engine& engine,
     mesh->getRenderState().setViewport(presenter.getDisplayViewport());
     {
       render::scene::RenderContext context{
-        render::material::RenderMode::Full, std::nullopt, render::scene::Translucency::Opaque};
+        render::material::RenderMode::FullOpaque, std::nullopt, render::scene::Translucency::Opaque};
       mesh->render(nullptr, context);
     }
     presenter.updateSoundEngine();

@@ -32,7 +32,10 @@ void Renderer::render()
 {
   for(const auto translucencySelector : {Translucency::Opaque, Translucency::NonOpaque})
   {
-    RenderContext context{material::RenderMode::Full, std::nullopt, translucencySelector};
+    RenderContext context{translucencySelector == Translucency::Opaque ? material::RenderMode::FullOpaque
+                                                                       : material::RenderMode::FullNonOpaque,
+                          std::nullopt,
+                          translucencySelector};
     Visitor visitor{context};
     m_rootNode->accept(visitor);
     visitor.render(m_camera->getPosition());

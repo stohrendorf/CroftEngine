@@ -63,7 +63,7 @@ public:
   void render() const
   {
     SOGLB_DEBUGGROUP(m_name + "/blur-pass");
-    RenderContext context{material::RenderMode::Full, std::nullopt, Translucency::Opaque};
+    RenderContext context{material::RenderMode::FullOpaque, std::nullopt, Translucency::Opaque};
     m_framebuffer->bind();
     m_mesh->render(nullptr, context);
   }

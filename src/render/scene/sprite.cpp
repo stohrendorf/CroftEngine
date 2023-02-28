@@ -63,6 +63,7 @@ gslu::nn_shared<Mesh> createSpriteMesh(const float x0,
                                        const float y1,
                                        const glm::vec2& t0,
                                        const glm::vec2& t1,
+                                       material::RenderMode renderMode,
                                        const gslu::nn_shared<material::Material>& materialFull,
                                        const int textureIdx,
                                        const std::string& label)
@@ -77,7 +78,7 @@ gslu::nn_shared<Mesh> createSpriteMesh(const float x0,
     indexBuffer, vb, std::vector{&materialFull->getShaderProgram()->getHandle()}, label + gl::VaoSuffix);
   auto mesh
     = gsl::make_shared<MeshImpl<uint16_t, SpriteVertex>>(nullptr, nonOpaqueVao, gl::api::PrimitiveType::Triangles);
-  mesh->getMaterialGroup().set(material::RenderMode::Full, materialFull);
+  mesh->getMaterialGroup().set(renderMode, materialFull);
   mesh->getRenderState().setScissorTest(false);
 
   return mesh;
@@ -90,6 +91,7 @@ std::tuple<gslu::nn_shared<Mesh>, gslu::nn_shared<gl::VertexBuffer<glm::mat4>>>
                             const float y1,
                             const glm::vec2& t0,
                             const glm::vec2& t1,
+                            material::RenderMode renderMode,
                             const gslu::nn_shared<material::Material>& materialFull,
                             const int textureIdx,
                             const std::string& label)
@@ -116,7 +118,7 @@ std::tuple<gslu::nn_shared<Mesh>, gslu::nn_shared<gl::VertexBuffer<glm::mat4>>>
     label + gl::VaoSuffix);
   auto mesh
     = gsl::make_shared<MeshImpl<uint16_t, SpriteVertex, glm::mat4>>(nullptr, vao, gl::api::PrimitiveType::Triangles);
-  mesh->getMaterialGroup().set(material::RenderMode::Full, materialFull);
+  mesh->getMaterialGroup().set(renderMode, materialFull);
   mesh->getRenderState().setScissorTest(false);
 
   return {mesh, modelMatrices};

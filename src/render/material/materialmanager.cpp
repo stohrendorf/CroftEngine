@@ -53,7 +53,8 @@ gslu::nn_shared<Material> MaterialManager::getSprite(SpriteMaterialMode mode,
   if(auto it = m_sprite.find(mode); it != m_sprite.end())
     return it->second;
 
-  auto m = gsl::make_shared<Material>(m_shaderCache->getGeometry(false, false, true, static_cast<uint8_t>(mode)));
+  auto m
+    = gsl::make_shared<Material>(m_shaderCache->getGeometry(false, false, true, false, static_cast<uint8_t>(mode)));
   m->getRenderState().setCullFace(false);
 
   if(mode != SpriteMaterialMode::InstancedBillboard)
@@ -115,12 +116,16 @@ gslu::nn_shared<Material> MaterialManager::getDepthOnly(bool skeletal, std::func
   return m;
 }
 
-gslu::nn_shared<Material> MaterialManager::getGeometry(
-  bool inWater, bool skeletal, bool roomShadowing, std::function<bool()> smooth, std::function<int32_t()> lightingMode)
+gslu::nn_shared<Material> MaterialManager::getGeometry(bool inWater,
+                                                       bool skeletal,
+                                                       bool roomShadowing,
+                                                       bool opaque,
+                                                       std::function<bool()> smooth,
+                                                       std::function<int32_t()> lightingMode)
 {
   gsl_Expects(m_geometryTexturesHandle != nullptr);
 
-  auto m = gsl::make_shared<Material>(m_shaderCache->getGeometry(inWater, skeletal, roomShadowing, 0));
+  auto m = gsl::make_shared<Material>(m_shaderCache->getGeometry(inWater, skeletal, roomShadowing, opaque, 0));
   m->getUniform("u_diffuseTextures")
     ->bind(
       [this](const scene::Node* /*node*/, const scene::Mesh& /*mesh*/, gl::Uniform& uniform)

@@ -55,7 +55,7 @@ public:
     return get("backdrop.vert", "flat.frag", defines);
   }
 
-  [[nodiscard]] auto getGeometry(bool inWater, bool skeletal, bool roomShadowing, uint8_t spriteMode)
+  [[nodiscard]] auto getGeometry(bool inWater, bool skeletal, bool roomShadowing, bool opaque, uint8_t spriteMode)
   {
     std::vector<std::string> defines;
     if(inWater)
@@ -64,6 +64,8 @@ public:
       defines.emplace_back("SKELETAL");
     if(roomShadowing)
       defines.emplace_back("ROOM_SHADOWING");
+    if(opaque)
+      defines.emplace_back("EARLY_FRAGMENT_TEST");
     defines.emplace_back("SPRITEMODE " + std::to_string(int(spriteMode)));
     return get("geometry.vert", "geometry.frag", defines);
   }

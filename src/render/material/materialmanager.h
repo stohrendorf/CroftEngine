@@ -37,6 +37,7 @@ public:
   [[nodiscard]] gslu::nn_shared<Material> getGeometry(bool inWater,
                                                       bool skeletal,
                                                       bool roomShadowing,
+                                                      bool opaque,
                                                       std::function<bool()> smooth,
                                                       std::function<int32_t()> lightingMode);
   [[nodiscard]] gslu::nn_shared<Material> getGhost(std::function<bool()> smooth);

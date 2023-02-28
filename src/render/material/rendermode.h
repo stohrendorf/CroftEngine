@@ -4,7 +4,8 @@ namespace render::material
 {
 enum class RenderMode
 {
-  Full,
+  FullOpaque,
+  FullNonOpaque,
   CSMDepthOnly,
   DepthOnly
 };

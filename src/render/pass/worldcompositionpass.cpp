@@ -175,7 +175,7 @@ void WorldCompositionPass::render(bool inWater)
   SOGLB_DEBUGGROUP("world-composition-pass");
   m_fb->bind();
 
-  scene::RenderContext context{material::RenderMode::Full, std::nullopt, scene::Translucency::Opaque};
+  scene::RenderContext context{material::RenderMode::FullOpaque, std::nullopt, scene::Translucency::Opaque};
   if(inWater)
     m_inWaterMesh->render(nullptr, context);
   else

@@ -62,7 +62,7 @@ public:
 
     m_fb->bind();
 
-    scene::RenderContext context{material::RenderMode::Full, std::nullopt, scene::Translucency::Opaque};
+    scene::RenderContext context{material::RenderMode::FullOpaque, std::nullopt, scene::Translucency::Opaque};
     m_mesh->render(nullptr, context);
 
     if constexpr(FlushPasses)
@@ -154,7 +154,7 @@ public:
 
     m_fb->bind();
 
-    scene::RenderContext context{material::RenderMode::Full, std::nullopt, scene::Translucency::Opaque};
+    scene::RenderContext context{material::RenderMode::FullOpaque, std::nullopt, scene::Translucency::Opaque};
     m_mesh->render(nullptr, context);
 
     if constexpr(FlushPasses)

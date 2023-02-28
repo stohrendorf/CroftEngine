@@ -105,7 +105,8 @@ struct RoomRenderMesh
   using IndexType = uint16_t;
   std::vector<IndexType> m_opaqueIndices;
   std::vector<IndexType> m_nonOpaqueIndices;
-  std::shared_ptr<render::material::Material> m_materialFull;
+  std::shared_ptr<render::material::Material> m_materialFullOpaque;
+  std::shared_ptr<render::material::Material> m_materialFullNonOpaque;
   std::shared_ptr<render::material::Material> m_materialCSMDepthOnly;
   std::shared_ptr<render::material::Material> m_materialDepthOnly;
 
@@ -135,7 +136,7 @@ struct RoomRenderMesh
       gsl::make_shared<gl::VertexArray<IndexType, RoomRenderVertex, render::AnimatedUV>>(
         opaqueIndexBuffer,
         vBufs,
-        std::vector{&m_materialFull->getShaderProgram()->getHandle(),
+        std::vector{&m_materialFullOpaque->getShaderProgram()->getHandle(),
                     m_materialDepthOnly == nullptr ? nullptr : &m_materialDepthOnly->getShaderProgram()->getHandle(),
                     m_materialCSMDepthOnly == nullptr ? nullptr
                                                       : &m_materialCSMDepthOnly->getShaderProgram()->getHandle()},
@@ -143,14 +144,15 @@ struct RoomRenderMesh
       gsl::make_shared<gl::VertexArray<IndexType, RoomRenderVertex, render::AnimatedUV>>(
         nonOpaqueIndexBuffer,
         vBufs,
-        std::vector{&m_materialFull->getShaderProgram()->getHandle(),
+        std::vector{&m_materialFullNonOpaque->getShaderProgram()->getHandle(),
                     m_materialDepthOnly == nullptr ? nullptr : &m_materialDepthOnly->getShaderProgram()->getHandle(),
                     m_materialCSMDepthOnly == nullptr ? nullptr
                                                       : &m_materialCSMDepthOnly->getShaderProgram()->getHandle()},
         label + "-nonopaque" + gl::VaoSuffix),
       gl::api::PrimitiveType::Triangles);
     mesh->getMaterialGroup()
-      .set(render::material::RenderMode::Full, m_materialFull)
+      .set(render::material::RenderMode::FullOpaque, m_materialFullOpaque)
+      .set(render::material::RenderMode::FullNonOpaque, m_materialFullNonOpaque)
       .set(render::material::RenderMode::CSMDepthOnly, m_materialCSMDepthOnly)
       .set(render::material::RenderMode::DepthOnly, m_materialDepthOnly);
 
@@ -220,10 +222,25 @@ void Room::createSceneNode(const loader::file::Room& srcRoom,
                                                                   return false;
                                                                 });
   renderMesh.m_materialCSMDepthOnly = nullptr;
-  renderMesh.m_materialFull = materialManager.getGeometry(
+  renderMesh.m_materialFullOpaque = materialManager.getGeometry(
     isWaterRoom,
     false,
     true,
+    true,
+    []()
+    {
+      return false;
+    },
+    [&world]()
+    {
+      const auto& settings = world.getEngine().getEngineConfig()->renderSettings;
+      return !settings.lightingModeActive ? 0 : settings.lightingMode;
+    });
+  renderMesh.m_materialFullNonOpaque = materialManager.getGeometry(
+    isWaterRoom,
+    false,
+    true,
+    false,
     []()
     {
       return false;
@@ -635,7 +652,7 @@ std::shared_ptr<render::scene::Node> Room::createParticleMesh(
     label + "-particles" + gl::VaoSuffix);
   auto mesh
     = std::make_shared<render::scene::MeshImpl<uint32_t, glm::vec3>>(nullptr, vao, gl::api::PrimitiveType::Points);
-  mesh->getMaterialGroup().set(render::material::RenderMode::Full, dustMaterial);
+  mesh->getMaterialGroup().set(render::material::RenderMode::FullNonOpaque, dustMaterial);
 
   mesh->bind("u_baseColor",
              [color = isWaterRoom ? glm::vec3{0.146f, 0.485f, 0.216f} : glm::vec3{0.431f, 0.386f, 0.375f}](

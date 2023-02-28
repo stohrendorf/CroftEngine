@@ -73,7 +73,7 @@ void UIPass::render(float alpha)
                {
                  uniform.set(alpha);
                });
-  scene::RenderContext context{material::RenderMode::Full, std::nullopt, scene::Translucency::NonOpaque};
+  scene::RenderContext context{material::RenderMode::FullNonOpaque, std::nullopt, scene::Translucency::NonOpaque};
   m_mesh->render(nullptr, context);
 
   if constexpr(FlushPasses)

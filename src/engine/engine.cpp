@@ -306,6 +306,7 @@ void updateRemoteGhosts(world::World& world, GhostManager& ghostManager, const n
                                                   nameTextureSize.y,
                                                   {0.0f, 1.0f},
                                                   {1.0f, 0.0f},
+                                                  render::material::RenderMode::FullNonOpaque,
                                                   world.getPresenter().getMaterialManager()->getGhostName(),
                                                   0,
                                                   "ghost-name");
@@ -744,7 +745,7 @@ std::pair<RunResult, std::optional<size_t>> Engine::runTitleMenu(world::World& w
     m_presenter->bindBackbuffer();
     {
       render::scene::RenderContext context{
-        render::material::RenderMode::Full, std::nullopt, render::scene::Translucency::Opaque};
+        render::material::RenderMode::FullOpaque, std::nullopt, render::scene::Translucency::Opaque};
       backdropMesh->render(nullptr, context);
     }
     menu->display(ui, world);

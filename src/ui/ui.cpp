@@ -193,7 +193,7 @@ void Ui::render()
     indexBuffer, std::tuple{vbo}, std::vector{&m_material->getShaderProgram()->getHandle()}, "ui" + gl::VaoSuffix);
   auto mesh = std::make_shared<render::scene::MeshImpl<uint16_t, UiVertex>>(
     nullptr, vaoNonOpaque, gl::api::PrimitiveType::Triangles);
-  mesh->getMaterialGroup().set(render::material::RenderMode::Full, m_material);
+  mesh->getMaterialGroup().set(render::material::RenderMode::FullNonOpaque, m_material);
   mesh->getRenderState().setViewport(m_size);
   mesh->getRenderState().setBlend(0, true);
   mesh->getRenderState().setBlendFactors(0,
@@ -205,7 +205,7 @@ void Ui::render()
   mesh->getRenderState().setDepthWrite(false);
 
   render::scene::RenderContext context{
-    render::material::RenderMode::Full, std::nullopt, render::scene::Translucency::NonOpaque};
+    render::material::RenderMode::FullNonOpaque, std::nullopt, render::scene::Translucency::NonOpaque};
   mesh->render(nullptr, context);
 
   m_vertices.clear();

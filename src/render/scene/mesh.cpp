@@ -71,7 +71,9 @@ gslu::nn_shared<Mesh> createScreenQuad(const glm::vec2& xy,
   mesh->getRenderState().setCullFace(false);
   mesh->getRenderState().setDepthWrite(false);
   mesh->getRenderState().setDepthTest(false);
-  mesh->getMaterialGroup().set(material::RenderMode::Full, material);
+  mesh->getMaterialGroup().set(spriteTranslucency == Translucency::Opaque ? material::RenderMode::FullOpaque
+                                                                          : material::RenderMode::FullNonOpaque,
+                               material);
   return mesh;
 }
 

@@ -1,3 +1,7 @@
+#ifdef EARLY_FRAGMENT_TEST
+layout(early_fragment_tests) in;
+#endif
+
 #include "geometry_pipeline_interface.glsl"
 #include "camera_interface.glsl"
 #include "time_uniform.glsl"
@@ -71,9 +75,11 @@ void main()
             uv = barycentricUv();
         }
         vec4 texColor = texture(u_diffuseTextures, vec3(uv, gpi.texCoord.z));
+        #ifndef EARLY_FRAGMENT_TEST
         if (texColor.a == 0) {
             discard;
         }
+        #endif
         finalColor.rgb *= texColor.rgb;
         finalColor.a = texColor.a;
     }

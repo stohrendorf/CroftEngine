@@ -78,7 +78,7 @@ std::tuple<gslu::nn_shared<render::scene::Mesh>, gslu::nn_shared<gl::VertexBuffe
   mesh->getRenderState().setLineWidth(lineWidth);
   mesh->getRenderState().setScissorTest(false);
 
-  mesh->getMaterialGroup().set(render::material::RenderMode::Full, material);
+  mesh->getMaterialGroup().set(render::material::RenderMode::FullOpaque, material);
 
   return {mesh, vb};
 }

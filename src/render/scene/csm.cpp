@@ -78,7 +78,7 @@ void CSM::Split::init(int32_t resolution, size_t idx, material::MaterialManager&
                      uniform.set(gsl::not_null{depthTextureHandle});
                    });
   squareMesh->getRenderState().merge(squareFramebuffer->getRenderState());
-  squareMesh->getMaterialGroup().set(material::RenderMode::Full, squareMaterial);
+  squareMesh->getMaterialGroup().set(material::RenderMode::FullOpaque, squareMaterial);
 
   squareBlur = std::make_shared<SeparableBlur<gl::RG16F>>(
     "squareBlur-" + std::to_string(idx), materialManager, uint8_t{2}, true);
@@ -91,7 +91,7 @@ void CSM::Split::renderSquare()
   SOGLB_DEBUGGROUP("vsm-square-pass");
   squareFramebuffer->bind();
 
-  RenderContext context{material::RenderMode::Full, std::nullopt, Translucency::Opaque};
+  RenderContext context{material::RenderMode::FullOpaque, std::nullopt, Translucency::Opaque};
   squareMesh->render(nullptr, context);
 }
 

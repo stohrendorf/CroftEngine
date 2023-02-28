@@ -1330,6 +1330,7 @@ World::World(Engine& engine,
       static_cast<float>(-sprite.render1.y),
       sprite.uv0,
       sprite.uv1,
+      render::material::RenderMode::FullNonOpaque,
       getPresenter().getMaterialManager()->getSprite(render::material::SpriteMaterialMode::YAxisBound,
                                                      [config = engine.getEngineConfig()]()
                                                      {
@@ -1346,6 +1347,7 @@ World::World(Engine& engine,
       static_cast<float>(-sprite.render1.y),
       sprite.uv0,
       sprite.uv1,
+      render::material::RenderMode::FullNonOpaque,
       getPresenter().getMaterialManager()->getSprite(render::material::SpriteMaterialMode::Billboard,
                                                      [config = engine.getEngineConfig()]()
                                                      {
@@ -1362,6 +1364,7 @@ World::World(Engine& engine,
       static_cast<float>(-sprite.render1.y),
       sprite.uv0,
       sprite.uv1,
+      render::material::RenderMode::FullNonOpaque,
       getPresenter().getMaterialManager()->getSprite(render::material::SpriteMaterialMode::InstancedBillboard,
                                                      [config = engine.getEngineConfig()]()
                                                      {

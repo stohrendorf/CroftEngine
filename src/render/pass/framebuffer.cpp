@@ -65,7 +65,11 @@ void Framebuffer::bind()
 
 void Framebuffer::render()
 {
-  scene::RenderContext context{material::RenderMode::Full, std::nullopt, m_translucencySelector};
+  scene::RenderContext context{m_translucencySelector == scene::Translucency::Opaque
+                                 ? material::RenderMode::FullOpaque
+                                 : material::RenderMode::FullNonOpaque,
+                               std::nullopt,
+                               m_translucencySelector};
   m_mesh->render(nullptr, context);
 }
 } // namespace render::pass

@@ -105,7 +105,7 @@ void Presenter::playVideo(const std::filesystem::path& path)
                              uniform.set(textureHandle);
                            });
                 mesh->getMaterialGroup()
-                  .get(render::material::RenderMode::Full)
+                  .get(render::material::RenderMode::FullOpaque)
                   ->getUniformBlock("Camera")
                   ->bindCameraBuffer(m_renderer->getCamera());
                 mesh->getRenderState().setViewport(getRenderViewport());
@@ -113,7 +113,7 @@ void Presenter::playVideo(const std::filesystem::path& path)
                 fb->bind();
                 {
                   render::scene::RenderContext context{
-                    render::material::RenderMode::Full, std::nullopt, render::scene::Translucency::Opaque};
+                    render::material::RenderMode::FullOpaque, std::nullopt, render::scene::Translucency::Opaque};
                   mesh->render(nullptr, context);
                 }
                 updateSoundEngine();
@@ -249,7 +249,11 @@ void Presenter::renderWorld(const std::vector<world::Room>& rooms,
     m_renderer->render();
     for(const auto translucencySelector : {render::scene::Translucency::Opaque, render::scene::Translucency::NonOpaque})
     {
-      render::scene::RenderContext context{render::material::RenderMode::Full, std::nullopt, translucencySelector};
+      render::scene::RenderContext context{translucencySelector == render::scene::Translucency::Opaque
+                                             ? render::material::RenderMode::FullOpaque
+                                             : render::material::RenderMode::FullNonOpaque,
+                                           std::nullopt,
+                                           translucencySelector};
       for(auto& room : rooms)
       {
         if(!room.node->isVisible())
@@ -527,14 +531,14 @@ void Presenter::drawLoadingScreen(const std::string& state)
   getSplashImageMeshOrOverride()->getRenderState().setViewport(getDisplayViewport());
   {
     render::scene::RenderContext context{
-      render::material::RenderMode::Full, std::nullopt, render::scene::Translucency::Opaque};
+      render::material::RenderMode::FullOpaque, std::nullopt, render::scene::Translucency::Opaque};
     getSplashImageMeshOrOverride()->render(nullptr, context);
   }
 
   m_screenOverlay->setAlphaMultiplier(0.8f);
   {
     render::scene::RenderContext context{
-      render::material::RenderMode::Full, std::nullopt, render::scene::Translucency::NonOpaque};
+      render::material::RenderMode::FullNonOpaque, std::nullopt, render::scene::Translucency::NonOpaque};
     m_screenOverlay->render(nullptr, context);
   }
   updateSoundEngine();
@@ -642,7 +646,7 @@ void Presenter::renderScreenOverlay()
   m_renderer->getCamera()->setViewport(getDisplayViewport());
   gl::RenderState::getWantedState().setViewport(getDisplayViewport());
   render::scene::RenderContext context{
-    render::material::RenderMode::Full, std::nullopt, render::scene::Translucency::NonOpaque};
+    render::material::RenderMode::FullNonOpaque, std::nullopt, render::scene::Translucency::NonOpaque};
   m_screenOverlay->render(nullptr, context);
 }
 

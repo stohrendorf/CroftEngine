@@ -30,7 +30,8 @@ ScreenOverlay::~ScreenOverlay() = default;
 
 void ScreenOverlay::render(const Node* node, RenderContext& context)
 {
-  if(context.getRenderMode() != material::RenderMode::Full)
+  if(context.getRenderMode() != material::RenderMode::FullOpaque
+     && context.getRenderMode() != material::RenderMode::FullNonOpaque)
     return;
 
   context.pushState(getRenderState());

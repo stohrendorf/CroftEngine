@@ -13,7 +13,8 @@
 namespace render::material
 {
 class Material;
-}
+enum class RenderMode;
+} // namespace render::material
 
 namespace render::scene
 {
@@ -37,6 +38,7 @@ extern gslu::nn_shared<Mesh> createSpriteMesh(float x0,
                                               float y1,
                                               const glm::vec2& t0,
                                               const glm::vec2& t1,
+                                              material::RenderMode renderMode,
                                               const gslu::nn_shared<material::Material>& materialFull,
                                               int textureIdx,
                                               const std::string& label);
@@ -48,6 +50,7 @@ extern std::tuple<gslu::nn_shared<Mesh>, gslu::nn_shared<gl::VertexBuffer<glm::m
                             float y1,
                             const glm::vec2& t0,
                             const glm::vec2& t1,
+                            material::RenderMode renderMode,
                             const gslu::nn_shared<material::Material>& materialFull,
                             int textureIdx,
                             const std::string& label);

@@ -258,21 +258,22 @@ gslu::nn_shared<render::scene::Mesh>
   auto indexBufferNonOpaque = gsl::make_shared<gl::ElementArrayBuffer<RenderMeshData::IndexType>>(
     label + gl::IndexBufferSuffix, gl::api::BufferUsage::StaticDraw, m_nonOpaqueIndices);
 
-  const auto material = materialManager.getGeometry(false, skeletal, false, smooth, lightingMode);
+  const auto materialOpaque = materialManager.getGeometry(false, skeletal, false, true, smooth, lightingMode);
+  const auto materialNonOpaque = materialManager.getGeometry(false, skeletal, false, false, smooth, lightingMode);
   const auto materialCSMDepthOnly = materialManager.getCSMDepthOnly(skeletal, smooth);
   const auto materialDepthOnly = materialManager.getDepthOnly(skeletal, smooth);
 
   auto vaoOpaque = gsl::make_shared<gl::VertexArray<RenderMeshData::IndexType, RenderMeshData::RenderVertex>>(
     indexBufferOpaque,
     vb,
-    std::vector<const gl::Program*>{&material->getShaderProgram()->getHandle(),
+    std::vector<const gl::Program*>{&materialOpaque->getShaderProgram()->getHandle(),
                                     &materialDepthOnly->getShaderProgram()->getHandle(),
                                     &materialCSMDepthOnly->getShaderProgram()->getHandle()},
     label + "-opaque" + gl::VaoSuffix);
   auto vaoNonOpaque = gsl::make_shared<gl::VertexArray<RenderMeshData::IndexType, RenderMeshData::RenderVertex>>(
     indexBufferNonOpaque,
     vb,
-    std::vector<const gl::Program*>{&material->getShaderProgram()->getHandle(),
+    std::vector<const gl::Program*>{&materialNonOpaque->getShaderProgram()->getHandle(),
                                     &materialDepthOnly->getShaderProgram()->getHandle(),
                                     &materialCSMDepthOnly->getShaderProgram()->getHandle()},
     label + "-nonopaque" + gl::VaoSuffix);
@@ -280,7 +281,8 @@ gslu::nn_shared<render::scene::Mesh>
     vaoOpaque, vaoNonOpaque, gl::api::PrimitiveType::Triangles);
 
   mesh->getMaterialGroup()
-    .set(render::material::RenderMode::Full, material)
+    .set(render::material::RenderMode::FullOpaque, materialOpaque)
+    .set(render::material::RenderMode::FullNonOpaque, materialNonOpaque)
     .set(render::material::RenderMode::DepthOnly, materialDepthOnly);
   if(shadowCaster)
   {

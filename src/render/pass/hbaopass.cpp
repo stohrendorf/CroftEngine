@@ -76,7 +76,7 @@ void HBAOPass::render()
   SOGLB_DEBUGGROUP("hbao-pass");
   m_fb->bind();
 
-  scene::RenderContext context{material::RenderMode::Full, std::nullopt, scene::Translucency::Opaque};
+  scene::RenderContext context{material::RenderMode::FullOpaque, std::nullopt, scene::Translucency::Opaque};
   m_renderMesh->render(nullptr, context);
   m_blur.render();
 

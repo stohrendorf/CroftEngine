@@ -92,14 +92,14 @@ void EdgeDetectionPass::render()
     SOGLB_DEBUGGROUP("edge-detection");
     m_edgeFb->bind();
 
-    scene::RenderContext context{material::RenderMode::Full, std::nullopt, scene::Translucency::Opaque};
+    scene::RenderContext context{material::RenderMode::FullOpaque, std::nullopt, scene::Translucency::Opaque};
     m_edgeRenderMesh->render(nullptr, context);
   }
   {
     SOGLB_DEBUGGROUP("edge-dilation");
     m_dilationFb->bind();
 
-    scene::RenderContext context{material::RenderMode::Full, std::nullopt, scene::Translucency::Opaque};
+    scene::RenderContext context{material::RenderMode::FullOpaque, std::nullopt, scene::Translucency::Opaque};
     m_dilationRenderMesh->render(nullptr, context);
   }
 

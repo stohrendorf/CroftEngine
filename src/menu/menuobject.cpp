@@ -187,7 +187,11 @@ void MenuObject::draw(const engine::world::World& world,
 
     for(const auto translucencySelector : {render::scene::Translucency::Opaque, render::scene::Translucency::NonOpaque})
     {
-      render::scene::RenderContext context{render::material::RenderMode::Full, std::nullopt, translucencySelector};
+      render::scene::RenderContext context{translucencySelector == render::scene::Translucency::Opaque
+                                             ? render::material::RenderMode::FullOpaque
+                                             : render::material::RenderMode::FullNonOpaque,
+                                           std::nullopt,
+                                           translucencySelector};
       node->getRenderable()->render(node.get(), context);
     }
   }

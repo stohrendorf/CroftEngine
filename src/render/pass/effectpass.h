@@ -71,7 +71,7 @@ public:
 
     m_fb->bind();
 
-    scene::RenderContext context{material::RenderMode::Full, std::nullopt, scene::Translucency::Opaque};
+    scene::RenderContext context{material::RenderMode::FullOpaque, std::nullopt, scene::Translucency::Opaque};
     m_mesh->bind("u_inWater",
                  [inWater](const scene::Node* /*node*/, const scene::Mesh& /*mesh*/, gl::Uniform& uniform)
                  {

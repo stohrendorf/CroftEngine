@@ -19,8 +19,10 @@ public:
   {
     switch(mode)
     {
-    case RenderMode::Full:
-      return m_full;
+    case RenderMode::FullOpaque:
+      return m_fullOpaque;
+    case RenderMode::FullNonOpaque:
+      return m_fullNonOpaque;
     case RenderMode::CSMDepthOnly:
       return m_csmDepthOnly;
     case RenderMode::DepthOnly:
@@ -34,8 +36,11 @@ public:
   {
     switch(mode)
     {
-    case RenderMode::Full:
-      m_full = material;
+    case RenderMode::FullOpaque:
+      m_fullOpaque = material;
+      break;
+    case RenderMode::FullNonOpaque:
+      m_fullNonOpaque = material;
       break;
     case RenderMode::CSMDepthOnly:
       m_csmDepthOnly = material;
@@ -50,7 +55,8 @@ public:
   }
 
 private:
-  std::shared_ptr<Material> m_full{nullptr};
+  std::shared_ptr<Material> m_fullOpaque{nullptr};
+  std::shared_ptr<Material> m_fullNonOpaque{nullptr};
   std::shared_ptr<Material> m_csmDepthOnly{nullptr};
   std::shared_ptr<Material> m_depthOnly{nullptr};
 };

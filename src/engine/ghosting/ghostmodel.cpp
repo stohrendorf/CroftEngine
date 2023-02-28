@@ -56,7 +56,7 @@ void GhostModel::apply(const world::World& world, const GhostFrame& frame)
         return !settings.lightingModeActive ? 0 : settings.lightingMode;
       },
       getName());
-    mesh->getMaterialGroup().set(render::material::RenderMode::Full,
+    mesh->getMaterialGroup().set(render::material::RenderMode::FullOpaque,
                                  world.getPresenter().getMaterialManager()->getGhost(
                                    [&engine = world.getEngine()]()
                                    {
