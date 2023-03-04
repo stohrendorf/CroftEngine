@@ -122,7 +122,7 @@ void installHandlers(GLFWwindow* window)
 bool isKeyPressed(GlfwKey key)
 {
   std::lock_guard lock{glfwStateMutex};
-  return pressedKeys.contains(key);
+  return pressedKeys.count(key) > 0;
 }
 } // namespace
 
@@ -193,7 +193,7 @@ void InputHandler::update()
         continue;
 
       pressedButtons.emplace(button);
-      if(!prevPressedButtons.contains(button))
+      if(prevPressedButtons.count(button) == 0)
         recentPressedButton = button;
       break;
     }
@@ -208,7 +208,7 @@ void InputHandler::update()
       {
         const AxisDir axisDir{axis, value > 0 ? GlfwAxisDir::Positive : GlfwAxisDir::Negative};
         pressedAxes.emplace(axisDir);
-        if(!prevPressedAxes.contains(axisDir))
+        if(prevPressedAxes.count(axisDir) == 0)
           recentPressedAxis = axisDir;
         break;
       }
@@ -224,7 +224,7 @@ void InputHandler::update()
 
     if(std::holds_alternative<engine::NamedGlfwGamepadButton>(input))
     {
-      state |= pressedButtons.contains(std::get<engine::NamedGlfwGamepadButton>(input).value);
+      state |= pressedButtons.count(std::get<engine::NamedGlfwGamepadButton>(input).value) > 0;
     }
     else if(std::holds_alternative<engine::NamedGlfwKey>(input))
     {
@@ -233,7 +233,7 @@ void InputHandler::update()
     else
     {
       const auto mapped = std::get<engine::NamedAxisDir>(input);
-      state |= pressedAxes.contains({mapped.first.value, mapped.second.value});
+      state |= pressedAxes.count({mapped.first.value, mapped.second.value}) > 0;
     }
   }
 
@@ -243,7 +243,7 @@ void InputHandler::update()
 
     if(std::holds_alternative<engine::NamedGlfwGamepadButton>(input))
     {
-      state |= pressedButtons.contains(std::get<engine::NamedGlfwGamepadButton>(input).value);
+      state |= pressedButtons.count(std::get<engine::NamedGlfwGamepadButton>(input).value) > 0;
     }
     else if(std::holds_alternative<engine::NamedGlfwKey>(input))
     {
@@ -252,7 +252,7 @@ void InputHandler::update()
     else
     {
       const auto mapped = std::get<engine::NamedAxisDir>(input);
-      state |= pressedAxes.contains({mapped.first.value, mapped.second.value});
+      state |= pressedAxes.count({mapped.first.value, mapped.second.value}) > 0;
     }
   }
 
