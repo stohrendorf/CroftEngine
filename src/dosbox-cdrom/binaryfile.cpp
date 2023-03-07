@@ -19,7 +19,9 @@ bool BinaryFile::read(const gsl::span<uint8_t>& buffer, std::streampos seek)
 {
   std::fill(buffer.begin(), buffer.end(), uint8_t{0});
   m_file.seekg(seek, std::ios::beg);
-  if(m_file.read(reinterpret_cast<char*>(buffer.data()), buffer.size()).gcount() != buffer.size())
+  // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+  if(m_file.read(reinterpret_cast<char*>(buffer.data()), gsl::narrow<std::streamsize>(buffer.size()));
+     gsl::narrow<size_t>(m_file.gcount()) != buffer.size())
   {
     BOOST_LOG_TRIVIAL(error) << "read operation failed (partial read)";
     return false;
