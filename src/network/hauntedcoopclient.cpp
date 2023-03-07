@@ -455,8 +455,8 @@ std::string io::readPascalString(std::istream& stream)
   gsl_Assert(stream.gcount() == sizeof(length));
   std::vector<char> buffer;
   buffer.resize(length);
-  stream.read(buffer.data(), buffer.size());
-  gsl_Assert(stream.gcount() == buffer.size());
+  stream.read(buffer.data(), gsl::narrow<std::streamsize>(buffer.size()));
+  gsl_Assert(gsl::narrow<size_t>(stream.gcount()) == buffer.size());
   return std::string{buffer.data(), buffer.size()};
 }
 } // namespace network

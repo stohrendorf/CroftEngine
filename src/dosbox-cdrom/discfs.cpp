@@ -141,7 +141,7 @@ std::map<std::filesystem::path, FileSpan> getFiles(DiscImage& drive)
 std::vector<uint8_t> readFile(DiscImage& drive, const FileSpan& span)
 {
   auto buffer = drive.read(span.sector, span.size);
-  if(buffer.size() != span.size)
+  if(buffer.size() != gsl::narrow<size_t>(span.size))
     BOOST_THROW_EXCEPTION(std::runtime_error("could not read file"));
   return buffer;
 }
