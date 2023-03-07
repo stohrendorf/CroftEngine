@@ -283,9 +283,9 @@ void World::swapAllRooms()
 bool World::isValid(const loader::file::AnimFrame* frame) const
 {
   // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-  return reinterpret_cast<const short*>(frame) >= m_poseFrames.data()
+  return frame >= reinterpret_cast<const loader::file::AnimFrame*>(m_poseFrames.data())
          // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-         && reinterpret_cast<const short*>(frame) < m_poseFrames.data() + m_poseFrames.size();
+         && frame + 1 <= reinterpret_cast<const loader::file::AnimFrame*>(m_poseFrames.data() + m_poseFrames.size());
 }
 
 const std::unique_ptr<SpriteSequence>& World::findSpriteSequenceForType(const core::TypeId& type) const

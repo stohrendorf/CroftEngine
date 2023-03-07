@@ -115,7 +115,7 @@ struct HauntedCoopClient::ClientImpl
 
   [[nodiscard]] auto getStates()
   {
-    std::lock_guard guard{m_peerDatasMutex};
+    const std::lock_guard guard{m_peerDatasMutex};
     return m_peerDatas;
   }
 
@@ -125,7 +125,7 @@ struct HauntedCoopClient::ClientImpl
       return;
 
     {
-      std::lock_guard guard{m_sendMutex};
+      const std::lock_guard guard{m_sendMutex};
       m_sendBuffer.clear();
 
       data.emplace_back(m_networkConfig.color.at(0));
@@ -173,7 +173,7 @@ private:
 
     {
       BOOST_LOG_TRIVIAL(info) << "Logging in to Haunted Coop Server";
-      std::lock_guard guard{m_sendMutex};
+      const std::lock_guard guard{m_sendMutex};
       m_sendBuffer.clear();
       writeLogin(m_sendBuffer,
                  m_networkConfig.username,
@@ -234,7 +234,7 @@ private:
   void readPeerData()
   {
     {
-      std::lock_guard guard{m_peerDatasMutex};
+      const std::lock_guard guard{m_peerDatasMutex};
       m_peerDatas.insert_or_assign(m_peerId, m_recvBuffer);
     }
     processMessages();
@@ -261,7 +261,7 @@ private:
       continueWithRead(sizeof(PeerId) + sizeof(uint16_t), &ClientImpl::readFullSyncPeerIdAndDataSize);
     else
     {
-      std::lock_guard guard{m_peerDatasMutex};
+      const std::lock_guard guard{m_peerDatasMutex};
       m_peerDatas.clear();
       processMessages();
     }
@@ -282,7 +282,7 @@ private:
       continueWithRead(sizeof(PeerId) + sizeof(uint16_t), &ClientImpl::readFullSyncPeerIdAndDataSize);
     else
     {
-      std::lock_guard guard{m_peerDatasMutex};
+      const std::lock_guard guard{m_peerDatasMutex};
       m_peerDatas = std::move(m_fullSyncPeerDatas);
       processMessages();
     }
@@ -406,7 +406,7 @@ void HauntedCoopClient::updateThread()
 
 std::map<PeerId, PeerData> HauntedCoopClient::getStates() const
 {
-  std::lock_guard guard{m_statesMutex};
+  const std::lock_guard guard{m_statesMutex};
   return impl->getStates();
 }
 
@@ -445,12 +445,14 @@ void io::writePascal(std::vector<uint8_t>& msg, const std::vector<uint8_t>& s)
 
 std::string io::readPascalString(const uint8_t* msg)
 {
+  // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
   return std::string{reinterpret_cast<const char*>(&msg[1]), msg[0]};
 }
 
 std::string io::readPascalString(std::istream& stream)
 {
   uint8_t length = 0;
+  // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
   stream.read(reinterpret_cast<char*>(&length), sizeof(length));
   gsl_Assert(stream.gcount() == sizeof(length));
   std::vector<char> buffer;
