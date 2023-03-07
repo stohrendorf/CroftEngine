@@ -15,6 +15,10 @@ auto alAssertFn(F code, gsl::czstring codeStr, gsl::czstring func, int line) -> 
   const auto result = code();
 #ifndef NDEBUG
   checkALError(codeStr, func, line);
+#else
+  (void)codeStr;
+  (void)func;
+  (void)line;
 #endif
   return result;
 }
@@ -25,6 +29,11 @@ auto alcAssertFn(ALCdevice* device, F code, gsl::czstring codeStr, gsl::czstring
   const auto result = code();
 #ifndef NDEBUG
   checkALCError(device, codeStr, func, line);
+#else
+  (void)device;
+  (void)codeStr;
+  (void)func;
+  (void)line;
 #endif
   return result;
 }
