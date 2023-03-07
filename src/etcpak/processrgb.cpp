@@ -867,7 +867,7 @@ uint32_t compressBlockTH(const BgraVecBlock& bgra, Luma& l, uint32_t& compressed
   }
 
   uint32_t bestErr = MaxError;
-  uint32_t bestPixIndices;
+  uint32_t bestPixIndices = 0;
   uint8_t bestDist = 10;
   auto colorsRGB444 = compressColor(midBgr, tMode);
   compressed1 = 0;
