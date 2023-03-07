@@ -473,28 +473,28 @@ std::vector<std::filesystem::path> Gameflow::getInvalidFilepaths(const std::file
 {
   std::vector<std::filesystem::path> result;
   for(const auto& track : m_tracks)
-    for(const auto invalid : track.second->getFilepathsIfInvalid(dataRoot))
-      result.emplace_back(invalid);
+    for(auto&& invalid : track.second->getFilepathsIfInvalid(dataRoot))
+      result.emplace_back(std::move(invalid));
   for(const auto& levelSequenceItem : m_levelSequence)
   {
     gsl_Assert(levelSequenceItem != nullptr);
-    for(const auto& invalid : levelSequenceItem->getFilepathsIfInvalid(dataRoot))
-      result.emplace_back(invalid);
+    for(auto&& invalid : levelSequenceItem->getFilepathsIfInvalid(dataRoot))
+      result.emplace_back(std::move(invalid));
   }
   gsl_Expects(m_titleMenu != nullptr);
-  for(const auto& invalid : m_titleMenu->getFilepathsIfInvalid(dataRoot))
-    result.emplace_back(invalid);
+  for(auto&& invalid : m_titleMenu->getFilepathsIfInvalid(dataRoot))
+    result.emplace_back(std::move(invalid));
   for(const auto& levelSequenceItem : m_laraHome)
   {
     gsl_Assert(levelSequenceItem != nullptr);
-    for(const auto& invalid : levelSequenceItem->getFilepathsIfInvalid(dataRoot))
-      result.emplace_back(invalid);
+    for(auto&& invalid : levelSequenceItem->getFilepathsIfInvalid(dataRoot))
+      result.emplace_back(std::move(invalid));
   }
   for(const auto& levelSequenceItem : m_earlyBoot)
   {
     gsl_Assert(levelSequenceItem != nullptr);
-    for(const auto& invalid : levelSequenceItem->getFilepathsIfInvalid(dataRoot))
-      result.emplace_back(invalid);
+    for(auto&& invalid : levelSequenceItem->getFilepathsIfInvalid(dataRoot))
+      result.emplace_back(std::move(invalid));
   }
   if(!std::filesystem::is_regular_file(dataRoot / m_titleMenuBackdrop))
     result.emplace_back(m_titleMenuBackdrop);
