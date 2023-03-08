@@ -638,7 +638,7 @@ glm::ivec2 Presenter::getRenderViewport() const
 glm::ivec2 Presenter::getUiViewport() const
 {
   BOOST_ASSERT(m_uiScale > 0);
-  return getRenderViewport() / static_cast<int>(m_uiScale);
+  return m_window->getViewport() / static_cast<int>(m_uiScale);
 }
 
 void Presenter::bindBackbuffer()
