@@ -28,7 +28,8 @@ class MaterialManager final
 public:
   explicit MaterialManager(gslu::nn_shared<ShaderCache> shaderCache, gslu::nn_shared<scene::Renderer> renderer);
 
-  [[nodiscard]] gslu::nn_shared<Material> getSprite(SpriteMaterialMode mode, std::function<int32_t()> lightingMode);
+  [[nodiscard]] gslu::nn_shared<Material> getSprite(SpriteMaterialMode mode,
+                                                    const std::function<int32_t()>& lightingMode);
 
   [[nodiscard]] gslu::nn_shared<Material> getCSMDepthOnly(bool skeletal, std::function<bool()> smooth);
   [[nodiscard]] gslu::nn_shared<Material> getDepthOnly(bool skeletal, std::function<bool()> smooth);

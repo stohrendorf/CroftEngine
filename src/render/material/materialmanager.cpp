@@ -46,7 +46,8 @@ void configureForScreenSpaceEffect(Material& m, bool enableBlend)
 }
 } // namespace
 
-gslu::nn_shared<Material> MaterialManager::getSprite(SpriteMaterialMode mode, std::function<int32_t()> lightingMode)
+gslu::nn_shared<Material> MaterialManager::getSprite(SpriteMaterialMode mode,
+                                                     const std::function<int32_t()>& lightingMode)
 {
   if(auto it = m_sprite.find(mode); it != m_sprite.end())
     return it->second;

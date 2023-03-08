@@ -353,7 +353,7 @@ Engine::Engine(std::filesystem::path userDataPath,
     , m_engineDataPath{engineDataPath}
     , m_gameflowId{gameflowId}
     , m_scriptEngine{engineDataPath / "gameflows" / gameflowId}
-    , m_engineConfig{std::make_unique<EngineConfig>()}
+    , m_engineConfig{gsl::make_shared<EngineConfig>()}
 {
   {
     const auto invalid = m_scriptEngine.getGameflow().getInvalidFilepaths(getAssetDataPath());
