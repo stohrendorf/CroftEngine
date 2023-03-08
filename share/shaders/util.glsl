@@ -3,7 +3,8 @@
 
 float texel_shade(in float depth)
 {
-    return clamp(1.0 - depth * InvFarPlane, 0.0, 1.0);
+    float s = clamp(1.0 - depth * InvFarPlane, 0.0, 1.0);
+    return pow(s, 1.5);
 }
 
 // https://www.khronos.org/registry/OpenGL/extensions/EXT/EXT_texture_sRGB.txt
