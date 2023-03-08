@@ -1290,9 +1290,9 @@ World::World(Engine& engine,
     atlases,
     util::ensureFileExists(m_engine.getEngineDataPath() / "button-icons" / "buttons.yaml"),
     getPresenter().getMaterialManager()->getSprite(render::material::SpriteMaterialMode::Billboard,
-                                                   [config = engine.getEngineConfig()]()
+                                                   []()
                                                    {
-                                                     return config->renderSettings.lightingMode;
+                                                     return 0;
                                                    }));
 
   {

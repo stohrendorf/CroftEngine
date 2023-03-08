@@ -34,7 +34,7 @@ float calc_vsm_value(in int splitIdx, in vec3 projCoords)
         FETCH_CSM(2);
         FETCH_CSM(3);
     }
-        #undef FETCH_CSM
+    #undef FETCH_CSM
 
     float currentDepth = clamp(projCoords.z, 0.0, 1.0);
 
@@ -68,7 +68,7 @@ float shadow_map_multiplier()
         // ceilings are always fully lit
         return 1.0;
     }
-        #endif
+    #endif
 
     vec3 ps[CSMSplits];
     for (int splitIdx = 0; splitIdx<CSMSplits; ++splitIdx) {
@@ -98,17 +98,19 @@ float calc_light_strength(in vec3 pos, in float fadeDistance)
 vec3 calc_positional_lighting()
 {
     vec3 sum;
-    if (u_lightingMode == 0) {
+    switch (u_lightingMode) {
+        case 0:
         sum = vec3(u_lightAmbient);
-    }
-    else if (u_lightingMode == 1) {
+        break;
+        case 1:
         sum = vec3(u_lightAmbient) * 0.5;
-    }
-    else if (u_lightingMode == 2) {
+        break;
+        case 2:
         sum = vec3(u_lightAmbient) * 0.1;
-    }
-    else {
+        break;
+        default :
         sum = vec3(u_lightAmbient) * 0.03;
+        break;
     }
 
     if (gpi.vertexNormalWorld == vec3(0))
