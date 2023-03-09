@@ -64,7 +64,8 @@ void main()
     out_position = gpi.vertexPos;
     out_reflective = gpi.reflective;
 
-    vec4 finalColor = gpi.color * texel_shade(-gpi.vertexPos.z);
+    vec4 finalColor = gpi.color;
+    finalColor.rgb *= texel_shade(-gpi.vertexPos.z);
     if (gpi.texCoord.z >= 0) {
         vec2 uv;
         if (gpi.isQuad == 0) {

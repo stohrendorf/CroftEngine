@@ -715,7 +715,7 @@ std::unique_ptr<gl::Texture2DArray<gl::PremultipliedSRGBA8>>
                                         const auto cacheFile = cacheDir / (std::to_string(i) + ".pvr");
                                         BOOST_LOG_TRIVIAL(info) << "Loading cache texture " << cacheFile;
                                         const auto data = std::make_shared<BlockData>(cacheFile.string().c_str());
-                                        const auto bmp = data->decode();
+                                        auto bmp = data->decode();
 
                                         gsl_Assert(bmp->size().x == atlases.getSize());
                                         gsl_Assert(bmp->size().y == atlases.getSize());

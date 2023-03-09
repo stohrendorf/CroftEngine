@@ -324,10 +324,10 @@ bool CImgWrapper::isOpaque(const std::pair<glm::vec2, glm::vec2>& uv)
   deinterleave();
   // TODO replace with loops to exit early on a non-opaque pixel
   return m_image->get_shared_channel(3)
-           .get_crop(std::lround(uv.first.x * width()),
-                     std::lround(uv.first.y * height()),
-                     std::lround(uv.second.x * width()),
-                     std::lround(uv.second.y * height()))
+           .get_crop(std::lround(uv.first.x * (width() - 1)),
+                     std::lround(uv.first.y * (height() - 1)),
+                     std::lround(uv.second.x * (width() - 1)),
+                     std::lround(uv.second.y * (height() - 1)))
            .min()
          == 255;
 }
