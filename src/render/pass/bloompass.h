@@ -36,16 +36,16 @@ public:
                                  const gslu::nn_shared<TextureHandle>& input)
       : m_name{name}
       , m_mesh{scene::createScreenQuad(materialManager.getBloomDownsample(), scene::Translucency::Opaque, m_name)}
-      , m_output{std::make_shared<gl::Texture2D<TPixel>>(input->getTexture()->size() / 2, m_name + "-color")}
+      , m_output{std::make_shared<gl::Texture2D<TPixel>>(input->getTexture()->size() / 2, m_name + "-downsample-color")}
       , m_outputHandle{std::make_shared<gl::TextureHandle<gl::Texture2D<TPixel>>>(
           m_output,
-          gsl::make_unique<gl::Sampler>(m_name + "-color" + gl::SamplerSuffix)
+          gsl::make_unique<gl::Sampler>(m_name + "-downsample-color" + gl::SamplerSuffix)
             | set(gl::api::SamplerParameterI::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge)
             | set(gl::api::SamplerParameterI::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge)
             | set(gl::api::TextureMinFilter::Linear) | set(gl::api::TextureMagFilter::Linear))}
       , m_fb{gl::FrameBufferBuilder()
                .textureNoBlend(gl::api::FramebufferAttachment::ColorAttachment0, m_output)
-               .build(m_name + "-fb")}
+               .build(m_name + "-downsample-fb")}
   {
     m_mesh->bind("u_input",
                  [input](const scene::Node* /*node*/, const scene::Mesh& /*mesh*/, gl::Uniform& uniform)
@@ -128,16 +128,16 @@ public:
                                const gslu::nn_shared<TextureHandle>& input)
       : m_name{name}
       , m_mesh{scene::createScreenQuad(materialManager.getBloomUpsample(), scene::Translucency::Opaque, m_name)}
-      , m_output{std::make_shared<gl::Texture2D<TPixel>>(input->getTexture()->size() * 2, m_name + "-color")}
+      , m_output{std::make_shared<gl::Texture2D<TPixel>>(input->getTexture()->size() * 2, m_name + "-upsample-color")}
       , m_outputHandle{std::make_shared<gl::TextureHandle<gl::Texture2D<TPixel>>>(
           m_output,
-          gsl::make_unique<gl::Sampler>(m_name + "-color" + gl::SamplerSuffix)
+          gsl::make_unique<gl::Sampler>(m_name + "-upsample-color" + gl::SamplerSuffix)
             | set(gl::api::SamplerParameterI::TextureWrapS, gl::api::TextureWrapMode::ClampToEdge)
             | set(gl::api::SamplerParameterI::TextureWrapT, gl::api::TextureWrapMode::ClampToEdge)
             | set(gl::api::TextureMinFilter::Linear) | set(gl::api::TextureMagFilter::Linear))}
       , m_fb{gl::FrameBufferBuilder()
                .textureNoBlend(gl::api::FramebufferAttachment::ColorAttachment0, m_output)
-               .build(m_name + "-fb")}
+               .build(m_name + "-upsample-fb")}
   {
     m_mesh->bind("u_input",
                  [input](const scene::Node* /*node*/, const scene::Mesh& /*mesh*/, gl::Uniform& uniform)
