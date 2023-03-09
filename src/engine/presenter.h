@@ -77,7 +77,9 @@ public:
   static const constexpr float DefaultFov = glm::radians(60.0f);
   static const constexpr core::Frame DefaultHealthBarTimeout = core::FrameRate * 1_sec * 4 / 3;
 
-  explicit Presenter(const std::filesystem::path& engineDataPath, const glm::ivec2& resolution);
+  explicit Presenter(const std::filesystem::path& engineDataPath,
+                     const glm::ivec2& resolution,
+                     const render::RenderSettings& renderSettings);
   ~Presenter();
 
   void playVideo(const std::filesystem::path& path);

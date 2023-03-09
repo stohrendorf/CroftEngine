@@ -381,7 +381,7 @@ Engine::Engine(std::filesystem::path userDataPath,
     doc.deserialize("config", *m_engineConfig, *m_engineConfig);
   }
 
-  m_presenter = std::make_shared<Presenter>(m_engineDataPath, resolution);
+  m_presenter = std::make_shared<Presenter>(m_engineDataPath, resolution, m_engineConfig->renderSettings);
   if(gl::hasAnisotropicFilteringExtension()
      && m_engineConfig->renderSettings.anisotropyLevel > gl::getMaxAnisotropyLevel())
   {
