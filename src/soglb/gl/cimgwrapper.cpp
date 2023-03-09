@@ -322,13 +322,16 @@ std::unique_ptr<cimg_library::CImg<uint8_t>> CImgWrapper::loadPcx(const std::fil
 bool CImgWrapper::isOpaque(const std::pair<glm::vec2, glm::vec2>& uv)
 {
   deinterleave();
-  // TODO replace with loops to exit early on a non-opaque pixel
-  return m_image->get_shared_channel(3)
-           .get_crop(std::lround(uv.first.x * (width() - 1)),
-                     std::lround(uv.first.y * (height() - 1)),
-                     std::lround(uv.second.x * (width() - 1)),
-                     std::lround(uv.second.y * (height() - 1)))
-           .min()
-         == 255;
+  const auto chn = m_image->get_shared_channel(3).get_crop(std::lround(uv.first.x * (width() - 1)),
+                                                           std::lround(uv.first.y * (height() - 1)),
+                                                           std::lround(uv.second.x * (width() - 1)),
+                                                           std::lround(uv.second.y * (height() - 1)));
+  cimg_forXY(chn, x, y)
+  {
+    if(chn(x, y) < 255)
+      return false;
+  }
+
+  return true;
 }
 } // namespace gl

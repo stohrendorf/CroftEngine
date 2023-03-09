@@ -83,15 +83,6 @@ public:
                           gsl::narrow<size_t>(width()) * gsl::narrow<size_t>(height()));
   }
 
-  [[nodiscard]] gsl::span<const gl::PremultipliedSRGBA8> pixelsCastPremultiplied()
-  {
-    static_assert(sizeof(gl::PremultipliedSRGBA8) == 4);
-    interleave();
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-    return gsl::make_span(reinterpret_cast<const gl::PremultipliedSRGBA8*>(data()),
-                          gsl::narrow<size_t>(width()) * gsl::narrow<size_t>(height()));
-  }
-
   [[nodiscard]] std::vector<gl::PremultipliedSRGBA8> premultipliedPixels()
   {
     std::vector<gl::PremultipliedSRGBA8> premultiplied;
