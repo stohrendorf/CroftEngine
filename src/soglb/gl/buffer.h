@@ -169,13 +169,20 @@ public:
 
   void drawElements(api::PrimitiveType primitiveType) const
   {
-    GL_ASSERT(api::drawElements(primitiveType, gsl::narrow<api::core::SizeType>(size()), DrawElementsType<T>, nullptr));
+    if(size() > 0)
+    {
+      GL_ASSERT(
+        api::drawElements(primitiveType, gsl::narrow<api::core::SizeType>(size()), DrawElementsType<T>, nullptr));
+    }
   }
 
   void drawElements(api::PrimitiveType primitiveType, api::core::SizeType instanceCount) const
   {
-    GL_ASSERT(api::drawElementsInstanced(
-      primitiveType, gsl::narrow<api::core::SizeType>(size()), DrawElementsType<T>, nullptr, instanceCount));
+    if(size() > 0)
+    {
+      GL_ASSERT(api::drawElementsInstanced(
+        primitiveType, gsl::narrow<api::core::SizeType>(size()), DrawElementsType<T>, nullptr, instanceCount));
+    }
   }
 };
 } // namespace gl
