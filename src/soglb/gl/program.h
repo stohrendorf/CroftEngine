@@ -215,6 +215,7 @@ public:
   void set(const gslu::nn_shared<TextureHandle<_Texture>>& textureHandle)
   {
     gsl_Expects(m_program != InvalidProgram);
+    gsl_Assert(GL_ASSERT_FN(gl::api::isTextureHandleResident(textureHandle->getHandle())));
     if(changeValue(textureHandle->getHandle()))
       GL_ASSERT(api::programUniformHandle(m_program, getLocation(), textureHandle->getHandle()));
   }
@@ -228,6 +229,7 @@ public:
     for(auto it = begin; it != end; ++it)
     {
       handles.emplace_back((*it)->getHandle());
+      gsl_Assert(GL_ASSERT_FN(gl::api::isTextureHandleResident(handles.back())));
     }
 
     gsl_Assert(handles.size() == static_cast<size_t>(m_size));

@@ -25,18 +25,33 @@ public:
       , m_handle{GL_ASSERT_FN(api::getTextureSamplerHandle(m_texture->getHandle(), m_sampler->getHandle()))}
   {
     gsl_Ensures(m_handle != 0);
-    GL_ASSERT(api::makeTextureHandleResident(m_handle));
+    if(m_texture->m_textureHandleReferences[m_handle]++ == 0)
+    {
+      GL_ASSERT(api::makeTextureHandleResident(m_handle));
+    }
+    else
+    {
+      gsl_Assert(gl::api::isTextureHandleResident(m_handle));
+    }
   }
 
   ~TextureHandle()
   {
-//#define NVIDIA_NSIGHT_HACK
+    if(--m_texture->m_textureHandleReferences[m_handle] == 0)
+    {
+// #define NVIDIA_NSIGHT_HACK
 #ifdef NVIDIA_NSIGHT_HACK
-    api::makeTextureHandleNonResident(m_handle);
-    api::getError();
+      api::makeTextureHandleNonResident(m_handle);
+      api::getError();
 #else
-    GL_ASSERT(api::makeTextureHandleNonResident(m_handle));
+      GL_ASSERT(api::makeTextureHandleNonResident(m_handle));
 #endif
+      m_texture->m_textureHandleReferences.erase(m_handle);
+    }
+    else
+    {
+      gsl_Assert(gl::api::isTextureHandleResident(m_handle));
+    }
   }
 
   [[nodiscard]] auto getHandle() const
