@@ -69,7 +69,7 @@ inline constexpr api::PixelType PixelType<int32_t> = api::PixelType::Int;
 template<>
 inline constexpr api::PixelType PixelType<float> = api::PixelType::Float;
 template<>
-inline constexpr api::PixelType PixelType<api::core::Half> = api::PixelType::Float;
+inline constexpr api::PixelType PixelType<api::core::Half> = api::PixelType::HalfFloat;
 template<int N>
 inline constexpr api::PixelType PixelType<glm::vec<N, float, glm::defaultp>> = api::PixelType::Float;
 
