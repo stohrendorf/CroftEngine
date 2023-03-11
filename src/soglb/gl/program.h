@@ -58,9 +58,6 @@ public:
 protected:
   static int32_t getProperty(const Program& program, uint32_t index, api::ProgramResourceProperty what);
 
-  static std::vector<int32_t>
-    getProperty(const Program& program, uint32_t index, api::ProgramResourceProperty what, api::core::SizeType count);
-
 private:
   std::string m_name{};
 };
@@ -372,21 +369,5 @@ int32_t ProgramInterface<_Type>::getProperty(const Program& program,
                                     nullptr,
                                     values.data()));
   return values[0];
-}
-
-// NOLINTNEXTLINE(bugprone-reserved-identifier)
-template<api::ProgramInterface _Type>
-std::vector<int32_t> ProgramInterface<_Type>::getProperty(const Program& program,
-                                                          const uint32_t index,
-                                                          const api::ProgramResourceProperty what,
-                                                          const api::core::SizeType count)
-{
-  constexpr int32_t NumProperties = 1;
-  const std::array<api::ProgramResourceProperty, NumProperties> properties{what};
-  gsl_Expects(count >= 0);
-  std::vector<int32_t> values(count, 0);
-  GL_ASSERT(api::getProgramResource(
-    program.getHandle(), Type, index, NumProperties, properties.data(), count, nullptr, values.data()));
-  return values;
 }
 } // namespace gl

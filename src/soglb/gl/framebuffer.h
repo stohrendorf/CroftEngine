@@ -7,11 +7,11 @@
 #include <cstdint>
 #include <glm/fwd.hpp>
 #include <gsl/gsl-lite.hpp>
+#include <gslu.h>
 #include <memory>
 #include <string_view>
 #include <tuple>
 #include <vector>
-#include <gslu.h>
 
 namespace gl
 {
@@ -92,7 +92,7 @@ public:
             gl::api::BlitFramebufferFilter filter = gl::api::BlitFramebufferFilter::Nearest);
 };
 
-class FrameBufferBuilder
+class FrameBufferBuilder final
 {
 private:
   Framebuffer::Attachments m_attachments;

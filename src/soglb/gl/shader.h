@@ -23,8 +23,8 @@ public:
 
   Shader(const Shader&) = delete;
   Shader(Shader&&) = delete;
-  Shader& operator=(const Shader&) = delete;
-  Shader& operator=(Shader&&) = delete;
+  void operator=(const Shader&) = delete;
+  void operator=(Shader&&) = delete;
 
   ~Shader()
   {

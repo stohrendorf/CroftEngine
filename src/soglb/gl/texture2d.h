@@ -47,25 +47,6 @@ public:
     return m_size;
   }
 
-  void copyFrom(const Texture2D<_PixelT>& src)
-  {
-    GL_ASSERT(api::copyImageSubData(src.getHandle(),
-                                    src.getSubDataTarget(),
-                                    0,
-                                    0,
-                                    0,
-                                    0,
-                                    getHandle(),
-                                    getSubDataTarget(),
-                                    0,
-                                    0,
-                                    0,
-                                    0,
-                                    src.m_size.x,
-                                    src.m_size.y,
-                                    1));
-  }
-
 private:
   const glm::ivec2 m_size;
 };

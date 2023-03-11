@@ -19,10 +19,15 @@ struct MappedBuffer final
   friend class Buffer<T, _Target>;
 
 public:
+  MappedBuffer(const MappedBuffer<T, _Target>&) = delete;
+  MappedBuffer(MappedBuffer<T, _Target>&&) = delete;
+  void operator=(const MappedBuffer<T, _Target>&) = delete;
+  void operator==(MappedBuffer<T, _Target>&&) = delete;
+
   ~MappedBuffer()
   {
     if(!m_span.empty())
-      GL_ASSERT(api::unmapNamedBuffer(m_buffer.getHandle()));
+      GL_ASSERT(api::unmapNamedBuffer(m_buffer.get().getHandle()));
   }
 
   [[nodiscard]] auto size() const
@@ -53,23 +58,23 @@ public:
   void flush()
   {
     if(!m_span.empty())
-      GL_ASSERT(api::flushMappedNamedBufferRange(m_buffer.getHandle(), 0, size() * sizeof(T)));
+      GL_ASSERT(api::flushMappedNamedBufferRange(m_buffer.get().getHandle(), 0, size() * sizeof(T)));
   }
 
 private:
-  explicit MappedBuffer(Buffer<T, _Target>& buffer, T* ptr, size_t size)
+  explicit MappedBuffer(const std::reference_wrapper<Buffer<T, _Target>>& buffer, T* ptr, size_t size)
       : m_buffer{buffer}
       , m_span{ptr, size}
   {
   }
 
-  explicit MappedBuffer(Buffer<T, _Target>& buffer)
+  explicit MappedBuffer(const std::reference_wrapper<Buffer<T, _Target>>& buffer)
       : m_buffer{buffer}
       , m_span{}
   {
   }
 
-  Buffer<T, _Target>& m_buffer;
+  std::reference_wrapper<Buffer<T, _Target>> m_buffer;
   gsl::span<T> m_span;
 };
 
@@ -78,6 +83,11 @@ template<typename T, api::BufferTarget _Target>
 class Buffer : public BindableResource<api::ObjectIdentifier::Buffer>
 {
 public:
+  Buffer(const Buffer<T, _Target>&) = delete;
+  Buffer(Buffer<T, _Target>&&) = delete;
+  void operator=(const Buffer<T, _Target>&) = delete;
+  void operator==(Buffer<T, _Target>&&) = delete;
+
   static constexpr api::BufferTarget Target = _Target;
 
   explicit Buffer(const std::string_view& label, api::BufferUsage usage, const gsl::span<const T>& data)
@@ -115,15 +125,16 @@ public:
                                              = api::MapBufferAccessMask::MapReadBit)
   {
     if(m_size == 0)
-      return MappedBuffer{*this};
+      return MappedBuffer{std::ref(*this)};
 
     const void* data = GL_ASSERT_FN(api::mapNamedBufferRange(getHandle(), 0, m_size * sizeof(T), access));
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
-    return MappedBuffer{*this, static_cast<T*>(const_cast<void*>(data)), m_size};
+    return MappedBuffer{std::ref(*this), static_cast<T*>(const_cast<void*>(data)), m_size};
   }
 
   void setSubData(const gsl::span<const T>& data, const api::core::SizeType start)
   {
+    BOOST_ASSERT(start + data.size() <= m_size);
     GL_ASSERT(api::namedBufferSubData(
       getHandle(), gsl::narrow<std::intptr_t>(sizeof(T) * start), data.size_bytes(), data.data()));
   }

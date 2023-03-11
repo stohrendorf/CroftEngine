@@ -17,7 +17,9 @@ public:
   static constexpr auto Identifier = _Identifier;
 
   BindableResource(const BindableResource&) = delete;
+  BindableResource(BindableResource&&) = delete;
   void operator=(const BindableResource&) = delete;
+  void operator=(BindableResource&&) = delete;
 
   void bind() const
   {
@@ -57,24 +59,6 @@ protected:
     BOOST_ASSERT(m_handle != 0);
 
     setLabel(label);
-  }
-
-  BindableResource(BindableResource&& rhs) noexcept
-      : m_handle{std::exchange(rhs.m_handle, 0)}
-      , m_allocator{move(rhs.m_allocator)}
-      , m_binder{move(rhs.m_binder)}
-      , m_deleter{move(rhs.m_deleter)}
-  {
-  }
-
-  BindableResource& operator=(BindableResource&& rhs) noexcept
-  {
-    m_handle = rhs.m_handle;
-    m_allocator = move(rhs.m_allocator);
-    m_binder = move(rhs.m_binder);
-    m_deleter = move(rhs.m_deleter);
-    rhs.m_handle = 0;
-    return *this;
   }
 
   virtual ~BindableResource()

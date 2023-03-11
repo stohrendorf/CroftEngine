@@ -16,8 +16,8 @@ class Sampler final
 {
 public:
   Sampler(const Sampler&) = delete;
-  void operator=(const Sampler&) = delete;
   Sampler(Sampler&&) = delete;
+  void operator=(const Sampler&) = delete;
   void operator=(Sampler&&) = delete;
 
   explicit Sampler(const std::string_view& label)

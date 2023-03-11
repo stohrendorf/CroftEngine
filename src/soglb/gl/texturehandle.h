@@ -16,6 +16,11 @@ template<typename _Texture>
 class TextureHandle final
 {
 public:
+  TextureHandle(const TextureHandle<_Texture>&) = delete;
+  TextureHandle(TextureHandle<_Texture>&&) = delete;
+  void operator=(const TextureHandle<_Texture>&) = delete;
+  void operator=(TextureHandle<_Texture>&&) = delete;
+
   using Texture = _Texture;
   static_assert(std::is_base_of_v<::gl::Texture, Texture>);
 
