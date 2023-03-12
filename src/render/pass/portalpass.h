@@ -31,14 +31,14 @@ public:
     m_blur.render();
   }
 
-  [[nodiscard]] auto getPositionBuffer() const
+  [[nodiscard]] const auto& getPositionBuffer() const
   {
-    return gsl::not_null{m_positionBufferHandle};
+    return m_positionBufferHandle;
   }
 
-  [[nodiscard]] auto getNoisyTexture() const
+  [[nodiscard]] const auto& getNoisyTexture() const
   {
-    return gsl::not_null{m_perturbBufferHandle};
+    return m_perturbBufferHandle;
   }
 
   [[nodiscard]] auto getBlurredTexture() const
