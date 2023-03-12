@@ -302,23 +302,33 @@ void RenderPipeline::renderUiFrameBuffer(float alpha)
   m_uiPass->render(alpha);
 }
 
-void RenderPipeline::bindBackbuffer()
+void RenderPipeline::withBackbuffer(const std::function<void()>& doRender)
 {
+  gsl_Assert(m_backbufferSync == nullptr);
   m_backbuffer->bind();
+  doRender();
+  m_backbuffer->unbind();
+  m_backbufferSync = std::make_unique<gl::FenceSync>();
 }
 
 void RenderPipeline::renderBackbufferEffects()
 {
   gsl_Assert(m_backbuffer != nullptr);
+
   gl::RenderState::getWantedState().setViewport(m_displaySize);
   gl::RenderState::applyWantedState();
+
+  if(m_backbufferSync != nullptr)
+  {
+    m_backbufferSync->wait();
+    m_backbufferSync.reset();
+  }
   auto finalOutput = m_backbuffer;
   for(const auto& effect : m_backbufferEffects)
   {
     effect->render(false);
     finalOutput = effect->getFramebuffer();
   }
-  gl::Framebuffer::unbindAll();
   finalOutput->blit(m_displaySize);
 }
 

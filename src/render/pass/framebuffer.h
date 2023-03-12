@@ -1,5 +1,7 @@
 #pragma once
 
+#include <functional>
+#include <gl/fencesync.h>
 #include <gl/pixel.h>
 #include <gl/soglb_fwd.h>
 #include <glm/vec2.hpp>
@@ -29,6 +31,8 @@ public:
                        scene::Translucency translucencySelector,
                        const glm::ivec2& size);
 
+  void render(const std::function<void()>& doRender);
+
   [[nodiscard]] const auto& getOutput() const
   {
     return m_colorBufferHandle;
@@ -38,13 +42,6 @@ public:
   {
     return m_depthBuffer;
   }
-
-  [[nodiscard]] const auto& getFramebuffer() const
-  {
-    return m_fb;
-  }
-
-  void bind();
 
   void render();
 
@@ -56,5 +53,6 @@ private:
   gslu::nn_shared<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>> m_colorBufferHandle;
   gslu::nn_shared<gl::Framebuffer> m_fb;
   scene::Translucency m_translucencySelector;
+  std::unique_ptr<gl::FenceSync> m_sync;
 };
 } // namespace render::pass

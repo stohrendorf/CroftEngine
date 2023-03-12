@@ -742,13 +742,19 @@ std::pair<RunResult, std::optional<size_t>> Engine::runTitleMenu(world::World& w
       {
         uniform.set(backdrop);
       });
-    m_presenter->bindBackbuffer();
-    {
-      render::scene::RenderContext context{
-        render::material::RenderMode::FullOpaque, std::nullopt, render::scene::Translucency::Opaque};
-      backdropMesh->render(nullptr, context);
-    }
+
+    menu->renderObjects(ui, world);
     menu->display(ui, world);
+    m_presenter->withBackbuffer(
+      [&backdropMesh, &menu, &world]()
+      {
+        {
+          render::scene::RenderContext context{
+            render::material::RenderMode::FullOpaque, std::nullopt, render::scene::Translucency::Opaque};
+          backdropMesh->render(nullptr, context);
+          menu->renderRenderedObjects(world);
+        }
+      });
     if(m_presenter->renderSettingsChanged())
     {
       continue;
@@ -789,7 +795,7 @@ std::pair<RunResult, std::optional<size_t>> Engine::runTitleMenu(world::World& w
       if(getSavegameMeta(std::nullopt).has_value())
         return {RunResult::RequestLoad, std::nullopt};
     }
-  }
+  } // namespace engine
 }
 
 std::pair<RunResult, std::optional<size_t>>

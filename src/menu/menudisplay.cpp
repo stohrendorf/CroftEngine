@@ -139,34 +139,6 @@ void MenuDisplay::drawMenuObjectDescription(ui::Ui& ui, engine::world::World& wo
 void MenuDisplay::display(ui::Ui& ui, engine::world::World& world)
 {
   SOGLB_DEBUGGROUP("menu");
-  setViewport(world.getPresenter().getRenderViewport());
-
-  m_fb->getOutput()->getTexture()->clear({0, 0, 0, 0});
-  m_fb->getDepthBuffer()->clear(gl::ScalarDepth32F{1.0f});
-  m_fb->bind();
-
-  world.getCameraController().getCamera()->setViewport(m_fb->getOutput()->getTexture()->size());
-
-  core::Angle itemAngle{0_deg};
-  const auto& camera = world.getCameraController().getCamera();
-  camera->setViewMatrix(ringTransform->getView());
-  const auto resetFov = gsl::finally(
-    [oldFOV = camera->getFieldOfViewY(), &camera]()
-    {
-      camera->setFieldOfView(oldFOV);
-    });
-  camera->setFieldOfView(engine::Presenter::DefaultFov);
-
-  for(auto& menuObject : getCurrentRing().list)
-  {
-    MenuObject* object = &menuObject;
-    m_currentState->handleObject(ui, world, *this, *object);
-
-    object->draw(world, *ringTransform, itemAngle);
-    itemAngle += getCurrentRing().getAnglePerItem();
-  }
-
-  gl::FenceSync menuObjectsSync{};
 
   if(auto newState = m_currentState->onFrame(ui, world, *this))
   {
@@ -197,11 +169,6 @@ void MenuDisplay::display(ui::Ui& ui, engine::world::World& world)
     const ui::Text title{getCurrentRing().title};
     title.draw(ui, world.getPresenter().getTrFont(), {(ui.getSize().x - title.getWidth()) / 2, RingInfoYMargin});
   }
-
-  world.getPresenter().bindBackbuffer();
-  gl::RenderState::getWantedState().setViewport(world.getPresenter().getDisplayViewport());
-  menuObjectsSync.wait();
-  m_fb->render();
 }
 
 bool MenuDisplay::doOptions(engine::world::World& world, MenuObject& object)
@@ -587,6 +554,44 @@ void MenuDisplay::setViewport(const glm::ivec2& viewport)
   if(m_fb->getOutput()->getTexture()->size() != viewport)
     m_fb
       = gsl::make_shared<render::pass::Framebuffer>("menu", m_material, render::scene::Translucency::Opaque, viewport);
+}
+
+void MenuDisplay::renderObjects(ui::Ui& ui, engine::world::World& world)
+{
+  setViewport(world.getPresenter().getRenderViewport());
+
+  const auto& camera = world.getCameraController().getCamera();
+  camera->setViewMatrix(ringTransform->getView());
+  const auto resetFov = gsl::finally(
+    [oldFOV = camera->getFieldOfViewY(), &camera]()
+    {
+      camera->setFieldOfView(oldFOV);
+    });
+  camera->setFieldOfView(engine::Presenter::DefaultFov);
+
+  m_fb->render(
+    [this, &world, &ui]()
+    {
+      m_fb->getOutput()->getTexture()->clear({0, 0, 0, 0});
+      m_fb->getDepthBuffer()->clear(gl::ScalarDepth32F{1.0f});
+      world.getCameraController().getCamera()->setViewport(m_fb->getOutput()->getTexture()->size());
+
+      core::Angle itemAngle{0_deg};
+      for(auto& menuObject : getCurrentRing().list)
+      {
+        MenuObject* object = &menuObject;
+        m_currentState->handleObject(ui, world, *this, *object);
+
+        object->draw(world, *ringTransform, itemAngle);
+        itemAngle += getCurrentRing().getAnglePerItem();
+      }
+    });
+}
+
+void MenuDisplay::renderRenderedObjects(const engine::world::World& world)
+{
+  gl::RenderState::getWantedState().setViewport(world.getPresenter().getDisplayViewport());
+  m_fb->render();
 }
 
 MenuDisplay::~MenuDisplay() = default;

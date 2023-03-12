@@ -6,6 +6,7 @@
 
 #include <array>
 #include <filesystem>
+#include <functional>
 #include <gl/cimgwrapper.h>
 #include <gl/pixel.h>
 #include <gl/soglb_fwd.h> // IWYU pragma: keep
@@ -174,7 +175,7 @@ public:
 
   void updateSoundEngine();
 
-  void bindBackbuffer();
+  void withBackbuffer(const std::function<void()>& doRender);
 
   [[nodiscard]] bool renderSettingsChanged() const
   {

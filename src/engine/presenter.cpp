@@ -526,23 +526,26 @@ void Presenter::drawLoadingScreen(const std::string& state)
                         gl::PremultipliedSRGBA8{255, 255, 255, 255},
                         StatusLineFontSize);
 
-  m_renderPipeline->bindBackbuffer();
-
   m_renderer->getCamera()->setViewport(getDisplayViewport());
-
   getSplashImageMeshOrOverride()->getRenderState().setViewport(getDisplayViewport());
-  {
-    render::scene::RenderContext context{
-      render::material::RenderMode::FullOpaque, std::nullopt, render::scene::Translucency::Opaque};
-    getSplashImageMeshOrOverride()->render(nullptr, context);
-  }
 
-  m_screenOverlay->setAlphaMultiplier(0.8f);
-  {
-    render::scene::RenderContext context{
-      render::material::RenderMode::FullNonOpaque, std::nullopt, render::scene::Translucency::NonOpaque};
-    m_screenOverlay->render(nullptr, context);
-  }
+  m_renderPipeline->withBackbuffer(
+    [this]()
+    {
+      {
+        render::scene::RenderContext context{
+          render::material::RenderMode::FullOpaque, std::nullopt, render::scene::Translucency::Opaque};
+        getSplashImageMeshOrOverride()->render(nullptr, context);
+      }
+
+      m_screenOverlay->setAlphaMultiplier(0.8f);
+      {
+        render::scene::RenderContext context{
+          render::material::RenderMode::FullNonOpaque, std::nullopt, render::scene::Translucency::NonOpaque};
+        m_screenOverlay->render(nullptr, context);
+      }
+    });
+
   updateSoundEngine();
   swapBuffers();
 }
@@ -682,9 +685,9 @@ glm::ivec2 Presenter::getUiViewport() const
   return m_window->getViewport() / static_cast<int>(m_uiScale);
 }
 
-void Presenter::bindBackbuffer()
+void Presenter::withBackbuffer(const std::function<void()>& doRender)
 {
-  m_renderPipeline->bindBackbuffer();
+  m_renderPipeline->withBackbuffer(doRender);
 }
 
 void Presenter::setSplashImageTextureOverride(const std::filesystem::path& imagePath)

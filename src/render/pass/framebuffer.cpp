@@ -56,20 +56,30 @@ Framebuffer::Framebuffer(const std::string& name,
   m_mesh->getRenderState().setBlendFactors(0, gl::api::BlendingFactor::One, gl::api::BlendingFactor::OneMinusSrcAlpha);
 }
 
-void Framebuffer::bind()
-{
-  m_fb->bind();
-  gl::RenderState::getWantedState().merge(m_fb->getRenderState());
-  gl::RenderState::applyWantedState();
-}
-
 void Framebuffer::render()
 {
+  if(m_sync != nullptr)
+  {
+    m_sync->wait();
+    m_sync.reset();
+  }
+
   scene::RenderContext context{m_translucencySelector == scene::Translucency::Opaque
                                  ? material::RenderMode::FullOpaque
                                  : material::RenderMode::FullNonOpaque,
                                std::nullopt,
                                m_translucencySelector};
   m_mesh->render(nullptr, context);
+}
+
+void Framebuffer::render(const std::function<void()>& doRender)
+{
+  gsl_Assert(m_sync == nullptr);
+  m_fb->bind();
+  gl::RenderState::getWantedState().merge(m_fb->getRenderState());
+  gl::RenderState::applyWantedState();
+  doRender();
+  m_fb->unbind();
+  m_sync = std::make_unique<gl::FenceSync>();
 }
 } // namespace render::pass

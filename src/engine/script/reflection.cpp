@@ -382,13 +382,14 @@ std::pair<RunResult, std::optional<size_t>> SplashScreen::run(Engine& engine,
     updateSize();
     gsl_Assert(mesh != nullptr);
 
-    presenter.bindBackbuffer();
     mesh->getRenderState().setViewport(presenter.getDisplayViewport());
-    {
-      render::scene::RenderContext context{
-        render::material::RenderMode::FullOpaque, std::nullopt, render::scene::Translucency::Opaque};
-      mesh->render(nullptr, context);
-    }
+    presenter.withBackbuffer(
+      [&mesh]()
+      {
+        render::scene::RenderContext context{
+          render::material::RenderMode::FullOpaque, std::nullopt, render::scene::Translucency::Opaque};
+        mesh->render(nullptr, context);
+      });
     presenter.updateSoundEngine();
     presenter.swapBuffers();
 
@@ -404,7 +405,6 @@ std::pair<RunResult, std::optional<size_t>> SplashScreen::run(Engine& engine,
     const auto duration = gsl::narrow_cast<float>(
       std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::seconds{m_fadeInDurationSeconds}).count());
     alpha = std::clamp(1 - time / duration, 0.0f, 1.0f);
-    BOOST_LOG_TRIVIAL(debug) << "time=" << time << ", duration=" << duration << ", alpha=" << alpha;
     if(!renderFrame())
       return {RunResult::NextLevel, std::nullopt};
   }
