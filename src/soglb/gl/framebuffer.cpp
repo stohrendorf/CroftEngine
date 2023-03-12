@@ -97,20 +97,6 @@ void Framebuffer::unbindAll()
   GL_ASSERT(api::bindFramebuffer(api::FramebufferTarget::Framebuffer, 0));
 }
 
-void Framebuffer::invalidate()
-{
-  std::vector<api::FramebufferAttachment> attachments;
-  attachments.reserve(m_attachments.size());
-  std::transform(m_attachments.begin(),
-                 m_attachments.end(),
-                 std::back_inserter(attachments),
-                 [](const auto& src)
-                 {
-                   return std::get<1>(src);
-                 });
-  invalidateNamedFramebufferData(getHandle(), gsl::narrow<api::core::SizeType>(attachments.size()), attachments.data());
-}
-
 void Framebuffer::blit(const Framebuffer& target, gl::api::BlitFramebufferFilter filter)
 {
   GL_ASSERT(gl::api::blitNamedFramebuffer(getHandle(),

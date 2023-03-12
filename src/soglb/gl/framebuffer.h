@@ -70,16 +70,9 @@ public:
                        RenderState&& renderState,
                        const glm::ivec2& size);
 
-  [[nodiscard]] const Attachments& getAttachments() const
-  {
-    return m_attachments;
-  }
-
   [[nodiscard]] bool isComplete() const;
 
   static void unbindAll();
-
-  void invalidate();
 
   [[nodiscard]] const auto& getRenderState() const
   {
