@@ -9,6 +9,7 @@
 
 #include <gl/constants.h>
 #include <gl/debuggroup.h>
+#include <gl/fencesync.h>
 #include <gl/framebuffer.h>
 #include <gl/sampler.h>
 #include <gl/texturehandle.h>
@@ -64,6 +65,7 @@ public:
   {
     SOGLB_DEBUGGROUP(m_name + "/blur-pass");
     RenderContext context{material::RenderMode::FullOpaque, std::nullopt, Translucency::Opaque};
+    gl::FenceSync::sync();
     m_framebuffer->bind();
     m_mesh->render(nullptr, context);
   }

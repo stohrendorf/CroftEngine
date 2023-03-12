@@ -34,6 +34,12 @@ public:
     return GL_ASSERT_FN(api::clientWaitSync(m_sync, api::SyncObjectMask::SyncFlushCommandsBit, api::TimeoutIgnored));
   }
 
+  static void sync()
+  {
+    const FenceSync sync{};
+    sync.wait();
+  }
+
 private:
   const api::core::Sync m_sync;
 };

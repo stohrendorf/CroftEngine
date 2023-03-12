@@ -298,6 +298,7 @@ void RenderPipeline::renderUiFrameBuffer(float alpha)
 {
   BOOST_ASSERT(m_uiPass != nullptr);
   m_backbuffer->bind();
+  gl::FenceSync::sync();
   m_uiPass->render(alpha);
 }
 

@@ -36,6 +36,7 @@
 #include <boost/throw_exception.hpp>
 #include <gl/buffer.h>
 #include <gl/debuggroup.h>
+#include <gl/fencesync.h>
 #include <gl/framebuffer.h>
 #include <gl/pixel.h>
 #include <gl/renderstate.h>
@@ -58,7 +59,7 @@ void MenuDisplay::drawMenuObjectDescription(ui::Ui& ui, engine::world::World& wo
 
   const auto drawAmmo = [&ui, &world](const engine::Ammo& ammo)
   {
-    ui::Text text{ui::makeAmmoString(ammo.getDisplayString())};
+    const ui::Text text{ui::makeAmmoString(ammo.getDisplayString())};
     text.draw(ui,
               world.getPresenter().getTrFont(),
               {(ui.getSize().x - text.getWidth()) / 2, ui.getSize().y - RingInfoYMargin - 2 * ui::FontHeight});
@@ -128,7 +129,7 @@ void MenuDisplay::drawMenuObjectDescription(ui::Ui& ui, engine::world::World& wo
 
   if(totalItemCount > 1)
   {
-    ui::Text text{ui::makeAmmoString(std::to_string(totalItemCount) + suffix)};
+    const ui::Text text{ui::makeAmmoString(std::to_string(totalItemCount) + suffix)};
     text.draw(ui,
               world.getPresenter().getTrFont(),
               {(ui.getSize().x - text.getWidth()) / 2, ui.getSize().y - RingInfoYMargin - 2 * ui::FontHeight});
@@ -165,6 +166,8 @@ void MenuDisplay::display(ui::Ui& ui, engine::world::World& world)
     itemAngle += getCurrentRing().getAnglePerItem();
   }
 
+  gl::FenceSync menuObjectsSync{};
+
   if(auto newState = m_currentState->onFrame(ui, world, *this))
   {
     m_currentState = std::move(newState);
@@ -191,12 +194,13 @@ void MenuDisplay::display(ui::Ui& ui, engine::world::World& world)
 
   if(rings.size() > 1)
   {
-    ui::Text title{getCurrentRing().title};
+    const ui::Text title{getCurrentRing().title};
     title.draw(ui, world.getPresenter().getTrFont(), {(ui.getSize().x - title.getWidth()) / 2, RingInfoYMargin});
   }
 
   world.getPresenter().bindBackbuffer();
   gl::RenderState::getWantedState().setViewport(world.getPresenter().getDisplayViewport());
+  menuObjectsSync.wait();
   m_fb->render();
 }
 
@@ -207,49 +211,28 @@ bool MenuDisplay::doOptions(engine::world::World& world, MenuObject& object)
   case engine::TR1ItemId::Puzzle4:
     break;
   case engine::TR1ItemId::Key1:
-    [[fallthrough]];
   case engine::TR1ItemId::Key2:
-    [[fallthrough]];
   case engine::TR1ItemId::Key3:
-    [[fallthrough]];
   case engine::TR1ItemId::Key4:
-    [[fallthrough]];
   case engine::TR1ItemId::Item148:
-    [[fallthrough]];
   case engine::TR1ItemId::Item149:
-    [[fallthrough]];
   case engine::TR1ItemId::ScionPiece5:
-    [[fallthrough]];
   case engine::TR1ItemId::SmallMedipack:
-    [[fallthrough]];
   case engine::TR1ItemId::Explosive:
-    [[fallthrough]];
   case engine::TR1ItemId::LargeMedipack:
-    [[fallthrough]];
   case engine::TR1ItemId::Puzzle1:
-    [[fallthrough]];
   case engine::TR1ItemId::Pistols:
-    [[fallthrough]];
   case engine::TR1ItemId::Shotgun:
-    [[fallthrough]];
   case engine::TR1ItemId::Magnums:
-    [[fallthrough]];
   case engine::TR1ItemId::Uzis:
     return true;
   case engine::TR1ItemId::PistolAmmo:
-    [[fallthrough]];
   case engine::TR1ItemId::ShotgunAmmo:
-    [[fallthrough]];
   case engine::TR1ItemId::MagnumAmmo:
-    [[fallthrough]];
   case engine::TR1ItemId::UziAmmo:
-    [[fallthrough]];
   case engine::TR1ItemId::Sunglasses:
-    [[fallthrough]];
   case engine::TR1ItemId::CassettePlayer:
-    [[fallthrough]];
   case engine::TR1ItemId::DirectionKeys:
-    [[fallthrough]];
   case engine::TR1ItemId::PassportOpening:
     break;
   case engine::TR1ItemId::Flashlight:

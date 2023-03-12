@@ -197,7 +197,10 @@ public:
   void render()
   {
     for(const auto& step : m_steps)
+    {
+      gl::FenceSync::sync();
       step->render();
+    }
   }
 
   [[nodiscard]] const auto& getOutput() const
