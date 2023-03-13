@@ -68,7 +68,6 @@ public:
 
   [[nodiscard]] std::array<gslu::nn_shared<gl::TextureHandle<gl::Texture2D<gl::RG16F>>>, CSMBuffer::NSplits>
     getTextures() const;
-  [[nodiscard]] std::array<gslu::nn_shared<gl::TextureDepth<float>>, CSMBuffer::NSplits> getDepthTextures() const;
   [[nodiscard]] std::array<glm::mat4, CSMBuffer::NSplits> getMatrices(const glm::mat4& modelMatrix) const;
 
   [[nodiscard]] auto getActiveMatrix(const glm::mat4& modelMatrix) const
@@ -76,51 +75,18 @@ public:
     return m_splits.at(m_activeSplit).vpMatrix * modelMatrix;
   }
 
-  [[nodiscard]] const auto& getActiveFramebuffer() const
+  void renderToActiveDepthBuffer(const std::function<void(const gl::RenderState&, const glm::mat4&)>& doRender) const;
+  void renderSquareBuffers();
+  void renderBlurBuffers();
+  void waitBlurBuffers()
   {
-    return m_splits.at(m_activeSplit).depthFramebuffer;
-  }
-
-  void beginActiveDepthSync() const
-  {
-    m_splits.at(m_activeSplit).depthSync = std::make_unique<gl::FenceSync>();
-  }
-
-  void waitActiveDepthSync() const
-  {
-    auto& sync = m_splits.at(m_activeSplit).depthSync;
-    if(sync == nullptr)
-      return;
-
-    sync->wait();
-  }
-
-  void beginActiveSquareSync() const
-  {
-    m_splits.at(m_activeSplit).squareSync = std::make_unique<gl::FenceSync>();
-  }
-
-  void waitActiveSquareSync() const
-  {
-    auto& sync = m_splits.at(m_activeSplit).squareSync;
-    if(sync == nullptr)
-      return;
-
-    sync->wait();
-  }
-
-  void beginActiveBlurSync() const
-  {
-    m_splits.at(m_activeSplit).blurSync = std::make_unique<gl::FenceSync>();
-  }
-
-  void waitActiveBlurSync() const
-  {
-    auto& sync = m_splits.at(m_activeSplit).blurSync;
-    if(sync == nullptr)
-      return;
-
-    sync->wait();
+    for(auto& split : m_splits)
+    {
+      gsl_Assert(split.blurSync != nullptr);
+      split.blurSync->wait();
+      split.blurSync.reset();
+    }
+    GL_ASSERT(gl::api::memoryBarrier(gl::api::MemoryBarrierMask::FramebufferBarrierBit));
   }
 
   void setActiveSplit(size_t idx)
@@ -132,13 +98,6 @@ public:
   void updateCamera(const Camera& camera);
 
   gl::UniformBuffer<CSMBuffer>& getBuffer(const glm::mat4& modelMatrix);
-
-  void renderSquare();
-
-  void renderBlur()
-  {
-    m_splits.at(m_activeSplit).renderBlur();
-  }
 
   [[nodiscard]] auto getResolution() const
   {

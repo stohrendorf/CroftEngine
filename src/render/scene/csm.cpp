@@ -89,17 +89,27 @@ void CSM::Split::init(int32_t resolution, size_t idx, material::MaterialManager&
 void CSM::Split::renderSquare()
 {
   SOGLB_DEBUGGROUP("vsm-square-pass");
+  gsl_Assert(depthSync != nullptr);
+  depthSync->wait();
+  depthSync.reset();
+
   squareFramebuffer->bind();
 
   RenderContext context{material::RenderMode::FullOpaque, std::nullopt, Translucency::Opaque};
   squareMesh->render(nullptr, context);
+  squareFramebuffer->unbind();
+  squareSync = std::make_unique<gl::FenceSync>();
 }
 
 // NOLINTNEXTLINE(readability-make-member-function-const)
 void CSM::Split::renderBlur()
 {
   SOGLB_DEBUGGROUP("vsm-blur-pass");
+  gsl_Assert(squareSync != nullptr);
+  squareSync->wait();
+  squareSync.reset();
   squareBlur->render();
+  blurSync = std::make_unique<gl::FenceSync>();
 }
 
 CSM::CSM(int32_t resolution, material::MaterialManager& materialManager)
@@ -131,30 +141,12 @@ struct SplitGetter
   {
     return getBlurred(splits, std::make_index_sequence<CSMBuffer::NSplits>());
   }
-
-  template<size_t... Is>
-  static std::array<gslu::nn_shared<gl::TextureDepth<float>>, CSMBuffer::NSplits>
-    getDepth(const std::array<CSM::Split, CSMBuffer::NSplits>& splits, std::index_sequence<Is...>)
-  {
-    return {{splits[Is].depthTextureHandle->getTexture()...}};
-  }
-
-  static std::array<gslu::nn_shared<gl::TextureDepth<float>>, CSMBuffer::NSplits>
-    getDepth(const std::array<CSM::Split, CSMBuffer::NSplits>& splits)
-  {
-    return getDepth(splits, std::make_index_sequence<CSMBuffer::NSplits>());
-  }
 };
 } // namespace
 
 std::array<gslu::nn_shared<gl::TextureHandle<gl::Texture2D<gl::RG16F>>>, CSMBuffer::NSplits> CSM::getTextures() const
 {
   return SplitGetter::getBlurred(m_splits);
-}
-
-std::array<gslu::nn_shared<gl::TextureDepth<float>>, CSMBuffer::NSplits> CSM::getDepthTextures() const
-{
-  return SplitGetter::getDepth(m_splits);
 }
 
 std::array<glm::mat4, CSMBuffer::NSplits> CSM::getMatrices(const glm::mat4& modelMatrix) const
@@ -246,18 +238,47 @@ void CSM::updateCamera(const Camera& camera)
   }
 }
 
-void CSM::renderSquare()
-{
-  GL_ASSERT(gl::api::memoryBarrier(gl::api::MemoryBarrierMask::AllBarrierBits));
-
-  m_splits.at(m_activeSplit).renderSquare();
-};
-
 gl::UniformBuffer<CSMBuffer>& CSM::getBuffer(const glm::mat4& modelMatrix)
 {
   m_bufferData.lightMVP = getMatrices(modelMatrix);
   m_bufferData.lightDir = glm::vec4{m_lightDir, 0.0f};
   m_buffer.setSubData(m_bufferData, 0);
   return m_buffer;
+}
+
+void CSM::renderToActiveDepthBuffer(const std::function<void(const gl::RenderState&, const glm::mat4&)>& doRender) const
+{
+  SOGLB_DEBUGGROUP("csm-pass/" + std::to_string(m_activeSplit));
+  auto& split = m_splits.at(m_activeSplit);
+  gsl_Assert(split.depthSync == nullptr);
+  split.depthTextureHandle->getTexture()->clear(gl::ScalarDepth{1.0f});
+  split.depthFramebuffer->bind();
+  doRender(split.depthFramebuffer->getRenderState(), split.vpMatrix);
+  split.depthFramebuffer->unbind();
+  split.depthSync = std::make_unique<gl::FenceSync>();
+}
+
+void CSM::renderSquareBuffers()
+{
+  GL_ASSERT(gl::api::memoryBarrier(gl::api::MemoryBarrierMask::FramebufferBarrierBit));
+  for(size_t i = 0; i < render::scene::CSMBuffer::NSplits; ++i)
+  {
+    SOGLB_DEBUGGROUP("csm-pass-square/" + std::to_string(i));
+    setActiveSplit(i);
+
+    m_splits.at(m_activeSplit).renderSquare();
+  }
+}
+
+void CSM::renderBlurBuffers()
+{
+  GL_ASSERT(gl::api::memoryBarrier(gl::api::MemoryBarrierMask::FramebufferBarrierBit));
+  for(size_t i = 0; i < render::scene::CSMBuffer::NSplits; ++i)
+  {
+    SOGLB_DEBUGGROUP("csm-pass-blur/" + std::to_string(i));
+    setActiveSplit(i);
+
+    m_splits.at(m_activeSplit).renderBlur();
+  }
 }
 } // namespace render::scene

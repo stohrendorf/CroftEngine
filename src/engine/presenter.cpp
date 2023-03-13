@@ -136,70 +136,38 @@ void Presenter::renderWorld(const std::vector<world::Room>& rooms,
     gl::RenderState::getWantedState().setDepthClamp(true);
     m_csm->updateCamera(*m_renderer->getCamera());
 
-    for(const auto& texture : m_csm->getDepthTextures())
-      texture->clear(gl::ScalarDepth{1.0f});
     for(size_t i = 0; i < render::scene::CSMBuffer::NSplits; ++i)
     {
-      SOGLB_DEBUGGROUP("csm-pass/" + std::to_string(i));
-
       m_csm->setActiveSplit(i);
-      m_csm->getActiveFramebuffer()->bind();
-      gl::RenderState::getWantedState() = m_csm->getActiveFramebuffer()->getRenderState();
-
-      for(const auto translucencySelector :
-          {render::scene::Translucency::Opaque, render::scene::Translucency::NonOpaque})
-      {
-        render::scene::RenderContext context{
-          render::material::RenderMode::CSMDepthOnly, m_csm->getActiveMatrix(glm::mat4{1.0f}), translucencySelector};
-        render::scene::Visitor visitor{context, false};
-        for(const auto& room : rooms)
+      m_csm->renderToActiveDepthBuffer(
+        [&rooms](const gl::RenderState& fbRenderState, const glm::mat4& vpMatrix)
         {
-          if(!room.node->isVisible())
-            continue;
+          gl::RenderState::getWantedState() = fbRenderState;
 
-          for(const auto& child : room.node->getChildren())
+          for(const auto translucencySelector :
+              {render::scene::Translucency::Opaque, render::scene::Translucency::NonOpaque})
           {
-            visitor.visit(*child);
+            render::scene::RenderContext context{
+              render::material::RenderMode::CSMDepthOnly, vpMatrix, translucencySelector};
+            render::scene::Visitor visitor{context, false};
+            for(const auto& room : rooms)
+            {
+              if(!room.node->isVisible())
+                continue;
+
+              for(const auto& child : room.node->getChildren())
+              {
+                visitor.visit(*child);
+              }
+            }
+            visitor.render(glm::vec3{0.0f, 0.0f, std::numeric_limits<float>::lowest()});
           }
-        }
-        visitor.render(glm::vec3{0.0f, 0.0f, std::numeric_limits<float>::lowest()});
-        break;
-      }
-      m_csm->beginActiveDepthSync();
+        });
     }
 
-    // ensure sync commands are flushed to the command queue
-    GL_ASSERT(gl::api::flush());
-
-    for(size_t i = 0; i < render::scene::CSMBuffer::NSplits; ++i)
-    {
-      SOGLB_DEBUGGROUP("csm-pass-square/" + std::to_string(i));
-      m_csm->setActiveSplit(i);
-      m_csm->waitActiveDepthSync();
-      m_csm->renderSquare();
-      m_csm->beginActiveSquareSync();
-    }
-
-    // ensure sync commands are flushed to the command queue
-    GL_ASSERT(gl::api::flush());
-
-    for(size_t i = 0; i < render::scene::CSMBuffer::NSplits; ++i)
-    {
-      SOGLB_DEBUGGROUP("csm-pass-blur/" + std::to_string(i));
-      m_csm->setActiveSplit(i);
-      m_csm->waitActiveSquareSync();
-      m_csm->renderBlur();
-      m_csm->beginActiveBlurSync();
-    }
-
-    // ensure sync commands are flushed to the command queue
-    GL_ASSERT(gl::api::flush());
-
-    for(size_t i = 0; i < render::scene::CSMBuffer::NSplits; ++i)
-    {
-      m_csm->setActiveSplit(i);
-      m_csm->waitActiveBlurSync();
-    }
+    m_csm->renderSquareBuffers();
+    m_csm->renderBlurBuffers();
+    m_csm->waitBlurBuffers();
   }
 
   {
