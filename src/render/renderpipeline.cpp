@@ -277,10 +277,10 @@ gl::RenderState RenderPipeline::bindPortalFrameBuffer()
   return m_portalPass->bind();
 }
 
-void RenderPipeline::bindUiFrameBuffer()
+void RenderPipeline::renderUiFrameBuffer(const std::function<void()>& doRender)
 {
   BOOST_ASSERT(m_uiPass != nullptr);
-  m_uiPass->bind();
+  m_uiPass->render(doRender);
 }
 
 void RenderPipeline::bindGeometryFrameBuffer(float farPlane)

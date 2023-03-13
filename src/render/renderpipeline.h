@@ -74,7 +74,7 @@ public:
 
   void bindGeometryFrameBuffer(float farPlane);
   [[nodiscard]] gl::RenderState bindPortalFrameBuffer();
-  void bindUiFrameBuffer();
+  void renderUiFrameBuffer(const std::function<void()>& doRender);
   void renderUiFrameBuffer(float alpha);
   void worldCompositionPass(const std::vector<engine::world::Room>& rooms, bool inWater);
 

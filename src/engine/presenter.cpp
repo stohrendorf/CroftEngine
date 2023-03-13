@@ -657,9 +657,12 @@ void Presenter::renderScreenOverlay()
 
 void Presenter::renderUi(ui::Ui& ui, float alpha)
 {
-  m_renderPipeline->bindUiFrameBuffer();
-  m_renderer->getCamera()->setViewport(getUiViewport());
-  ui.render();
+  m_renderPipeline->renderUiFrameBuffer(
+    [this, &ui]()
+    {
+      m_renderer->getCamera()->setViewport(getUiViewport());
+      ui.render();
+    });
   m_renderPipeline->renderUiFrameBuffer(alpha);
 }
 
