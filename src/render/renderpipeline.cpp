@@ -47,6 +47,7 @@ RenderPipeline::RenderPipeline(material::MaterialManager& materialManager,
 void RenderPipeline::worldCompositionPass(const std::vector<engine::world::Room>& rooms, const bool inWater)
 {
   // this is important, as we need all previously rendered framebuffers to be complete
+  m_portalPass->wait();
   GL_ASSERT(gl::api::finish());
 
   BOOST_ASSERT(m_portalPass != nullptr);
@@ -271,10 +272,10 @@ void RenderPipeline::initBackbufferEffects(material::MaterialManager& materialMa
   }
 }
 
-gl::RenderState RenderPipeline::bindPortalFrameBuffer()
+void RenderPipeline::renderPortalFrameBuffer(const std::function<void(const gl::RenderState&)>& doRender)
 {
   BOOST_ASSERT(m_portalPass != nullptr);
-  return m_portalPass->bind();
+  m_portalPass->render(doRender);
 }
 
 void RenderPipeline::renderUiFrameBuffer(const std::function<void()>& doRender)

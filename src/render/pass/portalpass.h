@@ -2,6 +2,8 @@
 
 #include "render/scene/blur.h"
 
+#include <functional>
+#include <gl/fencesync.h>
 #include <gl/pixel.h>
 #include <gl/soglb_fwd.h>
 #include <gl/texture2d.h> // IWYU pragma: keep
@@ -24,7 +26,7 @@ public:
                       const gslu::nn_shared<gl::TextureDepth<float>>& depthBuffer,
                       const glm::vec2& viewport);
 
-  [[nodiscard]] gl::RenderState bind();
+  void render(const std::function<void(const gl::RenderState&)>& doRender);
 
   void renderBlur()
   {
@@ -46,6 +48,15 @@ public:
     return m_blur.getBlurredTexture();
   }
 
+  void wait()
+  {
+    if(m_sync != nullptr)
+    {
+      m_sync->wait();
+      m_sync.reset();
+    }
+  }
+
 private:
   gslu::nn_shared<gl::Texture2D<gl::Scalar32F>> m_positionBuffer;
   gslu::nn_shared<gl::TextureHandle<gl::Texture2D<gl::Scalar32F>>> m_positionBufferHandle;
@@ -53,5 +64,6 @@ private:
   gslu::nn_shared<gl::TextureHandle<gl::Texture2D<gl::RGB32F>>> m_perturbBufferHandle;
   scene::SeparableBlur<gl::RGB32F> m_blur;
   gslu::nn_shared<gl::Framebuffer> m_fb;
+  std::unique_ptr<gl::FenceSync> m_sync;
 };
 } // namespace render::pass

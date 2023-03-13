@@ -269,26 +269,28 @@ void Presenter::renderWorld(const std::vector<world::Room>& rooms,
       GL_ASSERT(gl::api::finish());
   }
 
-  {
-    SOGLB_DEBUGGROUP("portal-depth-pass");
-    gl::RenderState::resetWantedState();
-
-    for(const auto translucencySelector : {render::scene::Translucency::Opaque, render::scene::Translucency::NonOpaque})
+  m_renderPipeline->renderPortalFrameBuffer(
+    [&cameraController, &waterEntryPortals](const gl::RenderState& fbRenderState)
     {
-      render::scene::RenderContext context{render::material::RenderMode::DepthOnly,
-                                           cameraController.getCamera()->getViewProjectionMatrix(),
-                                           translucencySelector};
+      gl::RenderState::resetWantedState();
 
-      context.pushState(m_renderPipeline->bindPortalFrameBuffer());
-      for(const auto& portal : waterEntryPortals)
+      for(const auto translucencySelector :
+          {render::scene::Translucency::Opaque, render::scene::Translucency::NonOpaque})
       {
-        portal->mesh->render(nullptr, context);
+        render::scene::RenderContext context{render::material::RenderMode::DepthOnly,
+                                             cameraController.getCamera()->getViewProjectionMatrix(),
+                                             translucencySelector};
+
+        context.pushState(fbRenderState);
+        for(const auto& portal : waterEntryPortals)
+        {
+          portal->mesh->render(nullptr, context);
+        }
+        context.popState();
       }
-      context.popState();
-    }
-    if constexpr(render::pass::FlushPasses)
-      GL_ASSERT(gl::api::finish());
-  }
+      if constexpr(render::pass::FlushPasses)
+        GL_ASSERT(gl::api::finish());
+    });
 
   m_renderPipeline->worldCompositionPass(rooms, cameraController.getCurrentRoom()->isWaterRoom);
   m_screenOverlay.reset();

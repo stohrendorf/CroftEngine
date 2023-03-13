@@ -73,7 +73,7 @@ public:
                           const glm::ivec2& displayViewport);
 
   void bindGeometryFrameBuffer(float farPlane);
-  [[nodiscard]] gl::RenderState bindPortalFrameBuffer();
+  void renderPortalFrameBuffer(const std::function<void(const gl::RenderState&)>& doRender);
   void renderUiFrameBuffer(const std::function<void()>& doRender);
   void renderUiFrameBuffer(float alpha);
   void worldCompositionPass(const std::vector<engine::world::Room>& rooms, bool inWater);

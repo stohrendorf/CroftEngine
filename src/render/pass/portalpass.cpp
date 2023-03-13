@@ -48,10 +48,14 @@ PortalPass::PortalPass(material::MaterialManager& materialManager,
 }
 
 // NOLINTNEXTLINE(readability-make-member-function-const)
-gl::RenderState PortalPass::bind()
+void PortalPass::render(const std::function<void(const gl::RenderState&)>& doRender)
 {
+  SOGLB_DEBUGGROUP("portal-pass");
+  gsl_Assert(m_sync == nullptr);
   m_positionBuffer->clear(gl::Scalar32F{-std::numeric_limits<float>::infinity()});
   m_fb->bind();
-  return m_fb->getRenderState();
+  doRender(m_fb->getRenderState());
+  m_fb->unbind();
+  m_sync = std::make_unique<gl::FenceSync>();
 }
 } // namespace render::pass
