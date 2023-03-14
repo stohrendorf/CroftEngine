@@ -480,6 +480,7 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
       menu->display(ui, world);
       if(m_presenter->renderSettingsChanged())
       {
+        menu->noWait();
         continue;
       }
 

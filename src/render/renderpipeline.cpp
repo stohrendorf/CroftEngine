@@ -174,20 +174,20 @@ void RenderPipeline::initWorldEffects(material::MaterialManager& materialManager
     {
       BOOST_ASSERT(m_hbaoPass != nullptr);
       fx->bind("u_ao",
-               [texture = m_hbaoPass->getBlurredTexture()](
-                 const scene::Node* /*node*/, const scene::Mesh& /*mesh*/, gl::Uniform& uniform)
+               [hbaoPass = m_hbaoPass](const scene::Node* /*node*/, const scene::Mesh& /*mesh*/, gl::Uniform& uniform)
                {
-                 uniform.set(texture);
+                 hbaoPass->wait();
+                 uniform.set(hbaoPass->getBlurredTexture());
                });
     }
     if(m_renderSettings.edges)
     {
       BOOST_ASSERT(m_edgePass != nullptr);
       fx->bind("u_edges",
-               [texture = m_edgePass->getTexture()](
-                 const scene::Node* /*node*/, const scene::Mesh& /*mesh*/, gl::Uniform& uniform)
+               [edgePass = m_edgePass](const scene::Node* /*node*/, const scene::Mesh& /*mesh*/, gl::Uniform& uniform)
                {
-                 uniform.set(texture);
+                 edgePass->wait();
+                 uniform.set(edgePass->getTexture());
                });
     }
   }

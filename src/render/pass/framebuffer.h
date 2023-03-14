@@ -50,6 +50,11 @@ public:
 
   void render();
 
+  void noWait()
+  {
+    m_sync.reset();
+  }
+
 private:
   gslu::nn_shared<material::Material> m_material;
   gslu::nn_shared<scene::Mesh> m_mesh;
