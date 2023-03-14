@@ -46,10 +46,6 @@ RenderPipeline::RenderPipeline(material::MaterialManager& materialManager,
 
 void RenderPipeline::worldCompositionPass(const std::vector<engine::world::Room>& rooms, const bool inWater)
 {
-  // this is important, as we need all previously rendered framebuffers to be complete
-  m_portalPass->wait();
-  GL_ASSERT(gl::api::finish());
-
   BOOST_ASSERT(m_portalPass != nullptr);
   if(m_renderSettings.waterDenoise)
     m_portalPass->renderBlur();
@@ -67,7 +63,7 @@ void RenderPipeline::worldCompositionPass(const std::vector<engine::world::Room>
   }
 
   BOOST_ASSERT(m_worldCompositionPass != nullptr);
-  m_worldCompositionPass->render(inWater);
+  m_worldCompositionPass->render(inWater, m_renderSettings.waterDenoise);
 
   {
     SOGLB_DEBUGGROUP("dust");
@@ -94,6 +90,8 @@ void RenderPipeline::worldCompositionPass(const std::vector<engine::world::Room>
     }
   }
 
+  gl::FenceSync::sync();
+
   auto finalOutput = m_worldCompositionPass->getFramebuffer();
   for(const auto& effect : m_effects)
   {
@@ -103,6 +101,7 @@ void RenderPipeline::worldCompositionPass(const std::vector<engine::world::Room>
   gsl_Assert(m_backbuffer != nullptr);
   gl::RenderState::getWantedState().setViewport(m_displaySize);
   gl::RenderState::applyWantedState();
+
   finalOutput->blit(*m_backbuffer);
 }
 
@@ -137,11 +136,11 @@ void RenderPipeline::resize(material::MaterialManager& materialManager,
   m_displaySize = displayViewport;
 
   m_geometryPass = std::make_shared<pass::GeometryPass>(m_renderSize);
-  m_portalPass = std::make_shared<pass::PortalPass>(materialManager, m_geometryPass->getDepthBuffer(), m_renderSize);
-  m_hbaoPass = std::make_shared<pass::HBAOPass>(materialManager, m_renderSize / 4, *m_geometryPass);
-  m_edgePass = std::make_shared<pass::EdgeDetectionPass>(materialManager, m_renderSize, *m_geometryPass);
+  m_portalPass = std::make_shared<pass::PortalPass>(materialManager, gsl::not_null{m_geometryPass}, m_renderSize);
+  m_hbaoPass = std::make_shared<pass::HBAOPass>(materialManager, m_renderSize / 4, gsl::not_null{m_geometryPass});
+  m_edgePass = std::make_shared<pass::EdgeDetectionPass>(materialManager, m_renderSize, gsl::not_null{m_geometryPass});
   m_worldCompositionPass = std::make_shared<pass::WorldCompositionPass>(
-    materialManager, m_renderSettings, m_renderSize, *m_geometryPass, *m_portalPass);
+    materialManager, m_renderSettings, m_renderSize, gsl::not_null{m_geometryPass}, gsl::not_null{m_portalPass});
   m_uiPass = std::make_shared<pass::UIPass>(materialManager, m_uiSize, m_displaySize);
 
   m_backbufferTextureHandle = std::make_shared<gl::TextureHandle<gl::Texture2D<gl::SRGB8>>>(
@@ -293,6 +292,11 @@ void RenderPipeline::bindGeometryFrameBuffer(float farPlane)
   m_geometryPass->getDepthBuffer()->clear(gl::ScalarDepth{1.0f});
   m_geometryPass->getNormalBuffer()->getTexture()->clear(gl::RGB16F{gl::api::core::Half{}});
   m_geometryPass->bind();
+}
+
+void RenderPipeline::unbindGeometryFrameBuffer()
+{
+  m_geometryPass->unbind();
 }
 
 void RenderPipeline::renderUiFrameBuffer(float alpha)

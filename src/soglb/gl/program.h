@@ -232,12 +232,8 @@ public:
     gsl_Assert(handles.size() == static_cast<size_t>(m_size));
     if(changeValue(handles))
     {
-      auto location = getLocation();
-      for(const auto& handle : handles)
-      {
-        GL_ASSERT(api::programUniformHandle(m_program, getLocation(), handle));
-        ++location;
-      }
+      GL_ASSERT(api::programUniformHandle(
+        m_program, getLocation(), gsl::narrow_cast<api::core::SizeType>(handles.size()), handles.data()));
     }
   }
 

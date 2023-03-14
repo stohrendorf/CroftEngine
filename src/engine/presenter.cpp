@@ -208,7 +208,6 @@ void Presenter::renderWorld(const std::vector<world::Room>& rooms,
           room->node->getRenderable()->render(room->node.get(), context);
           context.popState();
         }
-        break;
       }
       if constexpr(render::pass::FlushPasses)
         GL_ASSERT(gl::api::finish());
@@ -232,6 +231,8 @@ void Presenter::renderWorld(const std::vector<world::Room>& rooms,
         context.popState();
       }
     }
+
+    m_renderPipeline->unbindGeometryFrameBuffer();
 
     if constexpr(render::pass::FlushPasses)
       GL_ASSERT(gl::api::finish());
@@ -260,6 +261,7 @@ void Presenter::renderWorld(const std::vector<world::Room>& rooms,
         GL_ASSERT(gl::api::finish());
     });
 
+  gl::FenceSync::sync();
   m_renderPipeline->worldCompositionPass(rooms, cameraController.getCurrentRoom()->isWaterRoom);
   m_screenOverlay.reset();
 }

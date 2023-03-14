@@ -19,17 +19,20 @@ class MaterialManager;
 
 namespace render::pass
 {
+class GeometryPass;
+
 class PortalPass
 {
 public:
   explicit PortalPass(material::MaterialManager& materialManager,
-                      const gslu::nn_shared<gl::TextureDepth<float>>& depthBuffer,
+                      const gslu::nn_shared<GeometryPass>& geometryPass,
                       const glm::vec2& viewport);
 
   void render(const std::function<void(const gl::RenderState&)>& doRender);
 
   void renderBlur()
   {
+    wait(false);
     m_blur.render();
   }
 
@@ -48,16 +51,24 @@ public:
     return m_blur.getBlurredTexture();
   }
 
-  void wait()
+  void wait(bool blurred)
   {
-    if(m_sync != nullptr)
+    if(!blurred)
     {
+      if(m_sync == nullptr)
+        return;
+
       m_sync->wait();
       m_sync.reset();
+      return;
     }
+
+    gsl_Assert(m_sync == nullptr);
+    m_blur.wait();
   }
 
 private:
+  gslu::nn_shared<GeometryPass> m_geometryPass;
   gslu::nn_shared<gl::Texture2D<gl::Scalar32F>> m_positionBuffer;
   gslu::nn_shared<gl::TextureHandle<gl::Texture2D<gl::Scalar32F>>> m_positionBufferHandle;
   gslu::nn_shared<gl::Texture2D<gl::RGB32F>> m_perturbBuffer;

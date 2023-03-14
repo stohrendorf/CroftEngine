@@ -40,12 +40,12 @@ public:
   explicit WorldCompositionPass(material::MaterialManager& materialManager,
                                 const RenderSettings& renderSettings,
                                 const glm::ivec2& viewport,
-                                const GeometryPass& geometryPass,
-                                const PortalPass& portalPass);
+                                const gslu::nn_shared<GeometryPass>& geometryPass,
+                                const gslu::nn_shared<PortalPass>& portalPass);
 
   void updateCamera(const gslu::nn_shared<scene::Camera>& camera);
 
-  void render(bool inWater);
+  void render(bool inWater, bool denoiseWater);
 
   [[nodiscard]] const auto& getColorBuffer() const
   {
@@ -58,6 +58,8 @@ public:
   }
 
 private:
+  gslu::nn_shared<GeometryPass> m_geometryPass;
+  gslu::nn_shared<PortalPass> m_portalPass;
   gslu::nn_shared<material::Material> m_noWaterMaterial;
   gslu::nn_shared<material::Material> m_inWaterMaterial;
 

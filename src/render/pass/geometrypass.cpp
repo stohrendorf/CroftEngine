@@ -69,4 +69,11 @@ void GeometryPass::bind()
   gl::RenderState::getWantedState().merge(m_fb->getRenderState());
   gl::RenderState::applyWantedState();
 }
+
+void GeometryPass::unbind()
+{
+  m_fb->unbind();
+  gsl_Assert(m_sync == nullptr);
+  m_sync = std::make_unique<gl::FenceSync>();
+}
 } // namespace render::pass

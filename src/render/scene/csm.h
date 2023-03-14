@@ -57,7 +57,6 @@ public:
     std::shared_ptr<material::Material> squareMaterial{};
     std::shared_ptr<Mesh> squareMesh{};
     std::shared_ptr<SeparableBlur<gl::RG16F>> squareBlur;
-    mutable std::unique_ptr<gl::FenceSync> blurSync;
 
     void init(int32_t resolution, size_t idx, material::MaterialManager& materialManager);
     void renderSquare();
@@ -78,16 +77,7 @@ public:
   void renderToActiveDepthBuffer(const std::function<void(const gl::RenderState&, const glm::mat4&)>& doRender) const;
   void renderSquareBuffers();
   void renderBlurBuffers();
-  void waitBlurBuffers()
-  {
-    for(auto& split : m_splits)
-    {
-      gsl_Assert(split.blurSync != nullptr);
-      split.blurSync->wait();
-      split.blurSync.reset();
-    }
-    GL_ASSERT(gl::api::memoryBarrier(gl::api::MemoryBarrierMask::FramebufferBarrierBit));
-  }
+  void waitBlurBuffers();
 
   void setActiveSplit(size_t idx)
   {

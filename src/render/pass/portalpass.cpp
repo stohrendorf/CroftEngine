@@ -1,5 +1,6 @@
 #include "portalpass.h"
 
+#include "geometrypass.h"
 #include "render/scene/blur.h"
 
 #include <algorithm>
@@ -23,9 +24,10 @@ class MaterialManager;
 namespace render::pass
 {
 PortalPass::PortalPass(material::MaterialManager& materialManager,
-                       const gslu::nn_shared<gl::TextureDepth<float>>& depthBuffer,
+                       const gslu::nn_shared<GeometryPass>& geometryPass,
                        const glm::vec2& viewport)
-    : m_positionBuffer{std::make_shared<gl::Texture2D<gl::Scalar32F>>(viewport, "portal-position")}
+    : m_geometryPass{geometryPass}
+    , m_positionBuffer{std::make_shared<gl::Texture2D<gl::Scalar32F>>(viewport, "portal-position")}
     , m_positionBufferHandle{std::make_shared<gl::TextureHandle<gl::Texture2D<gl::Scalar32F>>>(
         m_positionBuffer,
         gsl::make_unique<gl::Sampler>("portal-position" + gl::SamplerSuffix)
@@ -41,7 +43,7 @@ PortalPass::PortalPass(material::MaterialManager& materialManager,
     , m_fb{gl::FrameBufferBuilder()
              .textureNoBlend(gl::api::FramebufferAttachment::ColorAttachment0, m_perturbBuffer)
              .textureNoBlend(gl::api::FramebufferAttachment::ColorAttachment1, m_positionBuffer)
-             .textureNoBlend(gl::api::FramebufferAttachment::DepthAttachment, depthBuffer)
+             .textureNoBlend(gl::api::FramebufferAttachment::DepthAttachment, m_geometryPass->getDepthBuffer())
              .build("portal-fb")}
 {
   m_blur.setInput(gsl::not_null{m_perturbBufferHandle});
@@ -52,7 +54,9 @@ void PortalPass::render(const std::function<void(const gl::RenderState&)>& doRen
 {
   SOGLB_DEBUGGROUP("portal-pass");
   gsl_Assert(m_sync == nullptr);
+
   m_positionBuffer->clear(gl::Scalar32F{-std::numeric_limits<float>::infinity()});
+  m_geometryPass->wait();
   m_fb->bind();
   doRender(m_fb->getRenderState());
   m_fb->unbind();

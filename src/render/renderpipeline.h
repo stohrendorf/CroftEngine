@@ -73,6 +73,7 @@ public:
                           const glm::ivec2& displayViewport);
 
   void bindGeometryFrameBuffer(float farPlane);
+  void unbindGeometryFrameBuffer();
   void renderPortalFrameBuffer(const std::function<void(const gl::RenderState&)>& doRender);
   void renderUiFrameBuffer(const std::function<void()>& doRender);
   void renderUiFrameBuffer(float alpha);

@@ -90,11 +90,11 @@ void CSM::Split::renderSquare()
 {
   SOGLB_DEBUGGROUP("vsm-square-pass");
   gsl_Assert(depthSync != nullptr);
+  gsl_Assert(squareSync == nullptr);
   depthSync->wait();
   depthSync.reset();
 
   squareFramebuffer->bind();
-
   RenderContext context{material::RenderMode::FullOpaque, std::nullopt, Translucency::Opaque};
   squareMesh->render(nullptr, context);
   squareFramebuffer->unbind();
@@ -109,7 +109,6 @@ void CSM::Split::renderBlur()
   squareSync->wait();
   squareSync.reset();
   squareBlur->render();
-  blurSync = std::make_unique<gl::FenceSync>();
 }
 
 CSM::CSM(int32_t resolution, material::MaterialManager& materialManager)
@@ -264,21 +263,24 @@ void CSM::renderSquareBuffers()
   for(size_t i = 0; i < render::scene::CSMBuffer::NSplits; ++i)
   {
     SOGLB_DEBUGGROUP("csm-pass-square/" + std::to_string(i));
-    setActiveSplit(i);
-
-    m_splits.at(m_activeSplit).renderSquare();
+    m_splits[i].renderSquare();
   }
 }
 
 void CSM::renderBlurBuffers()
 {
-  GL_ASSERT(gl::api::memoryBarrier(gl::api::MemoryBarrierMask::FramebufferBarrierBit));
   for(size_t i = 0; i < render::scene::CSMBuffer::NSplits; ++i)
   {
     SOGLB_DEBUGGROUP("csm-pass-blur/" + std::to_string(i));
-    setActiveSplit(i);
+    m_splits[i].renderBlur();
+  }
+}
 
-    m_splits.at(m_activeSplit).renderBlur();
+void CSM::waitBlurBuffers()
+{
+  for(auto& split : m_splits)
+  {
+    split.squareBlur->wait();
   }
 }
 } // namespace render::scene

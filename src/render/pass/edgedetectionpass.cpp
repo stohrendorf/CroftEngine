@@ -33,8 +33,9 @@ namespace render::pass
 {
 EdgeDetectionPass::EdgeDetectionPass(material::MaterialManager& materialManager,
                                      const glm::ivec2& viewport,
-                                     const GeometryPass& geometryPass)
-    : m_edgeRenderMesh{scene::createScreenQuad(materialManager.getEdgeDetection(), scene::Translucency::Opaque, "edge")}
+                                     const gslu::nn_shared<GeometryPass>& geometryPass)
+    : m_geometryPass{geometryPass}
+    , m_edgeRenderMesh{scene::createScreenQuad(materialManager.getEdgeDetection(), scene::Translucency::Opaque, "edge")}
     , m_edgeBuffer{std::make_shared<gl::Texture2D<gl::ScalarByte>>(viewport, "edge")}
     , m_edgeBufferHandle{std::make_shared<gl::TextureHandle<gl::Texture2D<gl::ScalarByte>>>(
         m_edgeBuffer,
@@ -59,16 +60,16 @@ EdgeDetectionPass::EdgeDetectionPass(material::MaterialManager& materialManager,
                      .build("dilation-fb")}
 {
   m_edgeRenderMesh->bind("u_normals",
-                         [buffer = geometryPass.getNormalBuffer()](const render::scene::Node* /*node*/,
-                                                                   const render::scene::Mesh& /*mesh*/,
-                                                                   gl::Uniform& uniform)
+                         [buffer = geometryPass->getNormalBuffer()](const render::scene::Node* /*node*/,
+                                                                    const render::scene::Mesh& /*mesh*/,
+                                                                    gl::Uniform& uniform)
                          {
                            uniform.set(buffer);
                          });
   m_edgeRenderMesh->bind("u_depth",
-                         [buffer = geometryPass.getDepthBufferHandle()](const render::scene::Node* /*node*/,
-                                                                        const render::scene::Mesh& /*mesh*/,
-                                                                        gl::Uniform& uniform)
+                         [buffer = geometryPass->getDepthBufferHandle()](const render::scene::Node* /*node*/,
+                                                                         const render::scene::Mesh& /*mesh*/,
+                                                                         gl::Uniform& uniform)
                          {
                            uniform.set(buffer);
                          });
@@ -87,21 +88,28 @@ EdgeDetectionPass::EdgeDetectionPass(material::MaterialManager& materialManager,
 void EdgeDetectionPass::render()
 {
   SOGLB_DEBUGGROUP("edge-pass");
+  gsl_Assert(m_sync == nullptr);
+  m_geometryPass->wait();
 
   {
     SOGLB_DEBUGGROUP("edge-detection");
     m_edgeFb->bind();
-
     scene::RenderContext context{material::RenderMode::FullOpaque, std::nullopt, scene::Translucency::Opaque};
     m_edgeRenderMesh->render(nullptr, context);
+    m_edgeFb->unbind();
   }
+
+  gl::FenceSync::sync();
+
   {
     SOGLB_DEBUGGROUP("edge-dilation");
     m_dilationFb->bind();
-
     scene::RenderContext context{material::RenderMode::FullOpaque, std::nullopt, scene::Translucency::Opaque};
     m_dilationRenderMesh->render(nullptr, context);
+    m_dilationFb->unbind();
   }
+
+  m_sync = std::make_unique<gl::FenceSync>();
 
   if constexpr(FlushPasses)
     GL_ASSERT(gl::api::finish());

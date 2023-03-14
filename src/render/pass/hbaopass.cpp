@@ -34,8 +34,9 @@ namespace render::pass
 {
 HBAOPass::HBAOPass(material::MaterialManager& materialManager,
                    const glm::ivec2& viewport,
-                   const GeometryPass& geometryPass)
-    : m_material{materialManager.getHBAO()}
+                   const gslu::nn_shared<GeometryPass>& geometryPass)
+    : m_geometryPass{geometryPass}
+    , m_material{materialManager.getHBAO()}
     , m_renderMesh{scene::createScreenQuad(m_material, scene::Translucency::Opaque, "hbao")}
     , m_aoBuffer{std::make_shared<gl::Texture2D<gl::ScalarByte>>(viewport, "hbao-ao")}
     , m_aoBufferHandle{std::make_shared<gl::TextureHandle<gl::Texture2D<gl::ScalarByte>>>(
@@ -50,13 +51,13 @@ HBAOPass::HBAOPass(material::MaterialManager& materialManager,
              .build("hbao-fb")}
 {
   m_renderMesh->bind("u_normals",
-                     [buffer = geometryPass.getNormalBuffer()](
+                     [buffer = m_geometryPass->getNormalBuffer()](
                        const render::scene::Node* /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
                      {
                        uniform.set(buffer);
                      });
   m_renderMesh->bind("u_position",
-                     [buffer = geometryPass.getPositionBuffer()](
+                     [buffer = m_geometryPass->getPositionBuffer()](
                        const render::scene::Node* /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
                      {
                        uniform.set(buffer);
@@ -74,10 +75,14 @@ void HBAOPass::updateCamera(const gslu::nn_shared<scene::Camera>& camera)
 void HBAOPass::render()
 {
   SOGLB_DEBUGGROUP("hbao-pass");
-  m_fb->bind();
+  m_geometryPass->wait();
 
+  m_fb->bind();
   scene::RenderContext context{material::RenderMode::FullOpaque, std::nullopt, scene::Translucency::Opaque};
   m_renderMesh->render(nullptr, context);
+  m_fb->unbind();
+
+  gl::FenceSync::sync();
   m_blur.render();
 
   if constexpr(FlushPasses)
