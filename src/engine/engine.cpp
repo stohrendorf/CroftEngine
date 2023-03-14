@@ -476,11 +476,22 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
       ui::Ui ui{m_presenter->getMaterialManager()->getUi(), world.getPalette(), m_presenter->getUiViewport()};
       ui.drawBox({0, 0}, ui.getSize(), gl::SRGBA8{0, 0, 0, 224});
       m_presenter->renderUi(ui, 1);
+      menu->renderObjects(ui, world);
       menu->display(ui, world);
       if(m_presenter->renderSettingsChanged())
       {
         continue;
       }
+
+      m_presenter->withBackbuffer(
+        [&menu, &world]()
+        {
+          {
+            render::scene::RenderContext context{
+              render::material::RenderMode::FullOpaque, std::nullopt, render::scene::Translucency::Opaque};
+            menu->renderRenderedObjects(world);
+          }
+        });
 
       m_presenter->renderUi(ui, 1);
       m_presenter->swapBuffers();
