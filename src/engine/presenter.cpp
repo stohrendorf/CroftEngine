@@ -678,4 +678,9 @@ void Presenter::clearSplashImageTextureOverride()
   m_splashImageTextureOverride.reset();
   m_splashImageMeshOverride.reset();
 }
+
+void Presenter::noWaitBackBuffer()
+{
+  m_renderPipeline->noWaitBackBuffer();
+}
 } // namespace engine

@@ -104,5 +104,10 @@ public:
   }
 
   void renderBackbufferEffects();
+
+  void noWaitBackBuffer()
+  {
+    m_backbufferSync.reset();
+  }
 };
 } // namespace render

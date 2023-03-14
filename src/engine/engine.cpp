@@ -769,6 +769,7 @@ std::pair<RunResult, std::optional<size_t>> Engine::runTitleMenu(world::World& w
       });
     if(m_presenter->renderSettingsChanged())
     {
+      m_presenter->noWaitBackBuffer();
       continue;
     }
 
