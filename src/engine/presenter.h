@@ -228,5 +228,8 @@ private:
       return m_splashImageMeshOverride;
     return m_splashImageMesh;
   }
+
+  void prefillDepthBuffer(const CameraController& cameraController, const std::vector<world::Room>& rooms);
+  void renderGeometry(const engine::world::World& world, const std::vector<world::Room>& rooms);
 };
 } // namespace engine

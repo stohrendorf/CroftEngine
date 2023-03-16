@@ -16,8 +16,7 @@ class GeometryPass
 public:
   explicit GeometryPass(const glm::ivec2& viewport);
   ~GeometryPass();
-  void bind();
-  void unbind();
+  void render(const std::function<void()>& doRender);
 
   [[nodiscard]] const auto& getNormalBuffer() const
   {

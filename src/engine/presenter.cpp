@@ -171,71 +171,13 @@ void Presenter::renderWorld(const std::vector<world::Room>& rooms,
   }
 
   {
-    SOGLB_DEBUGGROUP("geometry-pass");
-    m_renderPipeline->bindGeometryFrameBuffer(cameraController.getCamera()->getFarPlane());
-
-    {
-      SOGLB_DEBUGGROUP("depth-prefill-pass");
-
-      // collect rooms and sort front-to-back
-      std::vector<const world::Room*> renderRooms;
-      for(const auto& room : rooms)
+    m_renderPipeline->renderGeometryFrameBuffer(
+      [this, &world, &cameraController, &rooms]()
       {
-        if(room.node->isVisible())
-          renderRooms.emplace_back(&room);
-      }
-      std::sort(renderRooms.begin(),
-                renderRooms.end(),
-                [](const world::Room* a, const world::Room* b)
-                {
-                  return a->node->getRenderOrder() > b->node->getRenderOrder();
-                });
-
-      for(const auto translucencySelector :
-          {render::scene::Translucency::Opaque, render::scene::Translucency::NonOpaque})
-      {
-        render::scene::RenderContext context{render::material::RenderMode::DepthOnly,
-                                             cameraController.getCamera()->getViewProjectionMatrix(),
-                                             translucencySelector};
-        for(const auto& room : renderRooms)
-        {
-          SOGLB_DEBUGGROUP(room->node->getName());
-          auto state = context.getCurrentState();
-          state.setScissorTest(true);
-          const auto [xy, size] = room->node->getCombinedScissors();
-          state.setScissorRegion(xy, size);
-          context.pushState(state);
-          room->node->getRenderable()->render(room->node.get(), context);
-          context.popState();
-        }
-      }
-      if constexpr(render::pass::FlushPasses)
-        GL_ASSERT(gl::api::finish());
-    }
-
-    m_renderer->render();
-    for(const auto translucencySelector : {render::scene::Translucency::Opaque, render::scene::Translucency::NonOpaque})
-    {
-      render::scene::RenderContext context{translucencySelector == render::scene::Translucency::Opaque
-                                             ? render::material::RenderMode::FullOpaque
-                                             : render::material::RenderMode::FullNonOpaque,
-                                           std::nullopt,
-                                           translucencySelector};
-      for(auto& room : rooms)
-      {
-        if(!room.node->isVisible())
-          continue;
-
-        context.pushState(room.node->getRenderState());
-        room.particles.render(context, world);
-        context.popState();
-      }
-    }
-
-    m_renderPipeline->unbindGeometryFrameBuffer();
-
-    if constexpr(render::pass::FlushPasses)
-      GL_ASSERT(gl::api::finish());
+        prefillDepthBuffer(cameraController, rooms);
+        renderGeometry(world, rooms);
+      },
+      cameraController.getCamera()->getFarPlane());
   }
 
   m_renderPipeline->renderPortalFrameBuffer(
@@ -257,8 +199,6 @@ void Presenter::renderWorld(const std::vector<world::Room>& rooms,
         }
         context.popState();
       }
-      if constexpr(render::pass::FlushPasses)
-        GL_ASSERT(gl::api::finish());
     });
 
   gl::FenceSync::sync();
@@ -681,5 +621,66 @@ void Presenter::clearSplashImageTextureOverride()
 void Presenter::noWaitBackBuffer()
 {
   m_renderPipeline->noWaitBackBuffer();
+}
+
+void Presenter::prefillDepthBuffer(const CameraController& cameraController, const std::vector<world::Room>& rooms)
+{
+  SOGLB_DEBUGGROUP("depth-prefill-pass");
+
+  // collect rooms and sort front-to-back
+  std::vector<const world::Room*> renderRooms;
+  for(const auto& room : rooms)
+  {
+    if(room.node->isVisible())
+      renderRooms.emplace_back(&room);
+  }
+  std::sort(renderRooms.begin(),
+            renderRooms.end(),
+            [](const world::Room* a, const world::Room* b)
+            {
+              return a->node->getRenderOrder() > b->node->getRenderOrder();
+            });
+
+  for(const auto translucencySelector : {render::scene::Translucency::Opaque, render::scene::Translucency::NonOpaque})
+  {
+    render::scene::RenderContext context{render::material::RenderMode::DepthOnly,
+                                         cameraController.getCamera()->getViewProjectionMatrix(),
+                                         translucencySelector};
+    for(const auto& room : renderRooms)
+    {
+      SOGLB_DEBUGGROUP(room->node->getName());
+      auto state = context.getCurrentState();
+      state.setScissorTest(true);
+      const auto [xy, size] = room->node->getCombinedScissors();
+      state.setScissorRegion(xy, size);
+      context.pushState(state);
+      room->node->getRenderable()->render(room->node.get(), context);
+      context.popState();
+    }
+  }
+  if constexpr(render::pass::FlushPasses)
+    GL_ASSERT(gl::api::finish());
+}
+
+void Presenter::renderGeometry(const engine::world::World& world, const std::vector<world::Room>& rooms)
+{
+  m_renderer->render();
+  for(const auto translucencySelector : {render::scene::Translucency::Opaque, render::scene::Translucency::NonOpaque})
+  {
+    render::scene::RenderContext context{translucencySelector == render::scene::Translucency::Opaque
+                                           ? render::material::RenderMode::FullOpaque
+                                           : render::material::RenderMode::FullNonOpaque,
+                                         std::nullopt,
+                                         translucencySelector};
+    for(auto& room : rooms)
+    {
+      if(!room.node->isVisible())
+        continue;
+
+      context.pushState(room.node->getRenderState());
+      room.particles.render(context, world);
+      context.popState();
+    }
+  }
 }
 } // namespace engine

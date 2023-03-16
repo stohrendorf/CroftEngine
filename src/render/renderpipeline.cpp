@@ -275,6 +275,9 @@ void RenderPipeline::renderPortalFrameBuffer(const std::function<void(const gl::
 {
   BOOST_ASSERT(m_portalPass != nullptr);
   m_portalPass->render(doRender);
+
+  if constexpr(render::pass::FlushPasses)
+    GL_ASSERT(gl::api::finish());
 }
 
 void RenderPipeline::renderUiFrameBuffer(const std::function<void()>& doRender)
@@ -283,20 +286,19 @@ void RenderPipeline::renderUiFrameBuffer(const std::function<void()>& doRender)
   m_uiPass->render(doRender);
 }
 
-void RenderPipeline::bindGeometryFrameBuffer(float farPlane)
+void RenderPipeline::renderGeometryFrameBuffer(const std::function<void()>& doRender, float farPlane)
 {
+  SOGLB_DEBUGGROUP("geometry-pass");
   BOOST_ASSERT(m_geometryPass != nullptr);
   m_geometryPass->getColorBuffer()->getTexture()->clear({0, 0, 0, 1});
   m_geometryPass->getPositionBuffer()->getTexture()->clear({0.0f, 0.0f, -farPlane});
   m_geometryPass->getReflectiveBuffer()->getTexture()->clear({0, 0, 0, 0});
   m_geometryPass->getDepthBuffer()->clear(gl::ScalarDepth{1.0f});
   m_geometryPass->getNormalBuffer()->getTexture()->clear(gl::RGB16F{gl::api::core::Half{}});
-  m_geometryPass->bind();
-}
+  m_geometryPass->render(doRender);
 
-void RenderPipeline::unbindGeometryFrameBuffer()
-{
-  m_geometryPass->unbind();
+  if constexpr(render::pass::FlushPasses)
+    GL_ASSERT(gl::api::finish());
 }
 
 void RenderPipeline::renderUiFrameBuffer(float alpha)
@@ -305,6 +307,7 @@ void RenderPipeline::renderUiFrameBuffer(float alpha)
   m_backbuffer->bind();
   gl::FenceSync::sync();
   m_uiPass->render(alpha);
+  m_backbuffer->unbind();
 }
 
 void RenderPipeline::withBackbuffer(const std::function<void()>& doRender)

@@ -62,16 +62,14 @@ GeometryPass::GeometryPass(const glm::ivec2& viewport)
 GeometryPass::~GeometryPass() = default;
 
 // NOLINTNEXTLINE(readability-make-member-function-const)
-void GeometryPass::bind()
+void GeometryPass::render(const std::function<void()>& doRender)
 {
+  gsl_Assert(m_sync == nullptr);
   m_fb->bind();
   gl::RenderState::resetWantedState();
   gl::RenderState::getWantedState().merge(m_fb->getRenderState());
   gl::RenderState::applyWantedState();
-}
-
-void GeometryPass::unbind()
-{
+  doRender();
   m_fb->unbind();
   gsl_Assert(m_sync == nullptr);
   m_sync = std::make_unique<gl::FenceSync>();
