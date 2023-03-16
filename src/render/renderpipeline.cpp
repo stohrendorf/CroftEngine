@@ -313,7 +313,6 @@ void RenderPipeline::renderUiFrameBuffer(float alpha)
 void RenderPipeline::withBackbuffer(const std::function<void()>& doRender)
 {
   gsl_Assert(m_backbufferSync == nullptr);
-  m_backbufferTextureHandle->getTexture()->clear({0, 0, 0});
   m_backbuffer->bind();
   doRender();
   m_backbuffer->unbind();
@@ -339,5 +338,10 @@ void RenderPipeline::renderBackbufferEffects()
     finalOutput = effect->getFramebuffer();
   }
   finalOutput->blit(m_displaySize);
+}
+
+void RenderPipeline::resetBackbuffer()
+{
+  m_backbufferTextureHandle->getTexture()->clear({0, 0, 0});
 }
 } // namespace render

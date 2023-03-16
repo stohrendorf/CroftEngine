@@ -136,7 +136,7 @@ void MenuDisplay::drawMenuObjectDescription(ui::Ui& ui, engine::world::World& wo
   }
 }
 
-void MenuDisplay::display(ui::Ui& ui, engine::world::World& world)
+void MenuDisplay::update(ui::Ui& ui, engine::world::World& world)
 {
   if(auto newState = m_currentState->onFrame(ui, world, *this))
   {
@@ -512,7 +512,7 @@ MenuDisplay::MenuDisplay(InventoryMode mode,
     , m_downArrow{ui::getSpriteSelector(ui::ArrowDownSprite)}
     , m_material{world.getPresenter().getMaterialManager()->getFlat(false, false, false)}
     , m_fb{gsl::make_shared<render::pass::Framebuffer>(
-        "menu", m_material, render::scene::Translucency::Opaque, viewport)}
+        "menu-objects", m_material, render::scene::Translucency::Opaque, viewport)}
     , m_lightsBuffer{std::make_shared<gl::ShaderStorageBuffer<engine::ShaderLight>>(
         "lights-buffer",
         gl::api::BufferUsage::StaticDraw,
@@ -550,8 +550,8 @@ MenuDisplay::MenuDisplay(InventoryMode mode,
 void MenuDisplay::setViewport(const glm::ivec2& viewport)
 {
   if(m_fb->getOutput()->getTexture()->size() != viewport)
-    m_fb
-      = gsl::make_shared<render::pass::Framebuffer>("menu", m_material, render::scene::Translucency::Opaque, viewport);
+    m_fb = gsl::make_shared<render::pass::Framebuffer>(
+      "menu-objects", m_material, render::scene::Translucency::Opaque, viewport);
 }
 
 void MenuDisplay::renderObjects(ui::Ui& ui, engine::world::World& world)

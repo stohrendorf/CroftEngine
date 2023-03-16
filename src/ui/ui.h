@@ -69,6 +69,11 @@ public:
     return m_size;
   }
 
+  void reset()
+  {
+    m_vertices.clear();
+  }
+
 private:
   const std::shared_ptr<render::material::Material> m_material;
   const std::array<gl::SRGBA8, 256> m_palette;

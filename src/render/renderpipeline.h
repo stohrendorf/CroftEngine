@@ -107,5 +107,7 @@ public:
   {
     m_backbufferSync.reset();
   }
+
+  void resetBackbuffer();
 };
 } // namespace render

@@ -203,12 +203,13 @@ void Ui::render()
                                          gl::api::BlendingFactor::One);
   mesh->getRenderState().setDepthTest(false);
   mesh->getRenderState().setDepthWrite(false);
+  mesh->getRenderState().setCullFace(false);
 
   render::scene::RenderContext context{
     render::material::RenderMode::FullNonOpaque, std::nullopt, render::scene::Translucency::NonOpaque};
   mesh->render(nullptr, context);
 
-  m_vertices.clear();
+  reset();
 }
 
 void Ui::draw(const engine::world::Sprite& sprite, const glm::ivec2& xy, float scale, float alpha)

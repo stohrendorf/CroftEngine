@@ -93,7 +93,7 @@ struct MenuDisplay
   std::unique_ptr<MenuState> m_currentState;
 
   void renderObjects(ui::Ui& ui, engine::world::World& world);
-  void display(ui::Ui& ui, engine::world::World& world);
+  void update(ui::Ui& ui, engine::world::World& world);
   void renderRenderedObjects(const engine::world::World& world);
   MenuResult result = MenuResult::None;
   std::optional<size_t> requestLoad;

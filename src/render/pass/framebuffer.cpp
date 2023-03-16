@@ -58,11 +58,9 @@ Framebuffer::Framebuffer(const std::string& name,
 
 void Framebuffer::render()
 {
-  if(m_sync != nullptr)
-  {
-    m_sync->wait();
-    m_sync.reset();
-  }
+  gsl_Assert(m_sync != nullptr);
+  m_sync->wait();
+  m_sync.reset();
 
   scene::RenderContext context{m_translucencySelector == scene::Translucency::Opaque
                                  ? material::RenderMode::FullOpaque
