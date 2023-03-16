@@ -544,7 +544,6 @@ bool Presenter::preFrame()
 
   m_renderer->clear(
     gl::api::ClearBufferMask::ColorBufferBit | gl::api::ClearBufferMask::DepthBufferBit, {0, 0, 0, 0}, 1);
-  m_renderPipeline->clearBackbuffer();
 
   m_renderSettingsChanged = false;
 

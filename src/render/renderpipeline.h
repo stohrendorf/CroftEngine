@@ -95,7 +95,6 @@ public:
                                                                  - m_creationTime);
   }
 
-  void clearBackbuffer();
   void withBackbuffer(const std::function<void()>& doRender);
 
   const auto& getBackbuffer() const
