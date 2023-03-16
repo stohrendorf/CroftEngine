@@ -76,9 +76,9 @@ bool initCrashReporting()
     std::filesystem::create_directory(crashdumpDir);
   }
 #ifdef WIN32
-  chillout.init(L"croftengine", crashdumpDir);
+  chillout.init(L"croftengine-" CE_VERSION, crashdumpDir);
 #else
-  chillout.init("croftengine", crashdumpDir);
+  chillout.init("croftengine-" CE_VERSION, crashdumpDir);
 #endif
   chillout.setBacktraceCallback(
     [](const char* stackTraceEntry)
