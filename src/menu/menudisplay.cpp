@@ -138,8 +138,6 @@ void MenuDisplay::drawMenuObjectDescription(ui::Ui& ui, engine::world::World& wo
 
 void MenuDisplay::display(ui::Ui& ui, engine::world::World& world)
 {
-  SOGLB_DEBUGGROUP("menu");
-
   if(auto newState = m_currentState->onFrame(ui, world, *this))
   {
     m_currentState = std::move(newState);
@@ -572,6 +570,7 @@ void MenuDisplay::renderObjects(ui::Ui& ui, engine::world::World& world)
   m_fb->render(
     [this, &world, &ui]()
     {
+      SOGLB_DEBUGGROUP("menu-objects");
       m_fb->getOutput()->getTexture()->clear({0, 0, 0, 0});
       m_fb->getDepthBuffer()->clear(gl::ScalarDepth32F{1.0f});
       world.getCameraController().getCamera()->setViewport(m_fb->getOutput()->getTexture()->size());
