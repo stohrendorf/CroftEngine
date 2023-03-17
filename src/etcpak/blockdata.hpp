@@ -18,6 +18,11 @@ class mapped_file_sink;
 class BlockData
 {
 public:
+  BlockData(const BlockData&) = delete;
+  BlockData(BlockData&&) = delete;
+  void operator=(const BlockData&) = delete;
+  void operator=(BlockData&&) = delete;
+
   explicit BlockData(const char* fn);
   BlockData(const char* fn, const glm::ivec2& size);
   explicit BlockData(const glm::ivec2& size);

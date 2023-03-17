@@ -332,7 +332,7 @@ uint32_t calcError(const std::array<uint32_t, 4>& halfSumsBgr, const glm::u16vec
 
 std::array<glm::u16vec4, 8> processAverages(const std::array<IVec16, 2>& avgPerHalfRgba)
 {
-  std::array<glm::u16vec4, 8> result;
+  std::array<glm::u16vec4, 8> result{};
 
   // process top/bottom, then left/right
   for(size_t i = 0; i < avgPerHalfRgba.size(); i++)
@@ -652,9 +652,7 @@ uint32_t calculateErrorTH(bool tMode,
                           uint32_t& pixIndices,
                           uint8_t startDist)
 {
-  uint32_t blockErr = 0, bestBlockErr = MaxError;
-
-  uint32_t pixColors;
+  uint32_t bestBlockErr = MaxError;
 
   auto colors = decompressColor(colorsBGR444);
 
@@ -664,8 +662,8 @@ uint32_t calculateErrorTH(bool tMode,
     if(d >= 2 && dist == d - 2)
       break;
 
-    blockErr = 0;
-    pixColors = 0;
+    uint32_t blockErr = 0;
+    uint32_t pixColors = 0;
 
     const auto possibleColors{tMode ? calculatePaintColors59T(d, colors) : calculatePaintColors58H(d, colors)};
 
@@ -742,7 +740,6 @@ uint32_t compressBlockTH(const BgraVecBlock& bgra, Luma& l, uint32_t& compressed
 
   if(const uint16_t sum = luma[14] - luma[0] + diffBonus[14]; minSumRangeValue > sum)
   {
-    minSumRangeValue = sum;
     minSumRangeIdx = 14;
   }
 
@@ -765,7 +762,7 @@ uint32_t compressBlockTH(const BgraVecBlock& bgra, Luma& l, uint32_t& compressed
       tMode = true;
   }
   // 4) calculates the two base colors
-  std::array<uint8_t, 4> rangeIdx{{pixIdx[0], pixIdx[minSumRangeIdx], pixIdx[minSumRangeIdx + 1], pixIdx[15]}};
+  const std::array<uint8_t, 4> rangeIdx{{pixIdx[0], pixIdx[minSumRangeIdx], pixIdx[minSumRangeIdx + 1], pixIdx[15]}};
 
   // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init)
   std::array<uint16_t, 4> r, g, b;
@@ -866,7 +863,6 @@ uint32_t compressBlockTH(const BgraVecBlock& bgra, Luma& l, uint32_t& compressed
     startDistCandidate = 4;
   }
 
-  uint32_t bestErr = MaxError;
   uint32_t bestPixIndices = 0;
   uint8_t bestDist = 10;
   auto colorsRGB444 = compressColor(midBgr, tMode);
@@ -874,7 +870,7 @@ uint32_t compressBlockTH(const BgraVecBlock& bgra, Luma& l, uint32_t& compressed
 
   // 6) finds the best candidate with the lowest error
   // Scalar ver
-  bestErr = calculateErrorTH(tMode, bgra, colorsRGB444, bestDist, bestPixIndices, startDistCandidate);
+  uint32_t bestErr = calculateErrorTH(tMode, bgra, colorsRGB444, bestDist, bestPixIndices, startDistCandidate);
 
   // 7) outputs the final T or H block
   if(tMode)
@@ -890,7 +886,7 @@ uint32_t compressBlockTH(const BgraVecBlock& bgra, Luma& l, uint32_t& compressed
   }
   else
   {
-    std::array<int, 2> bestRGB444ColPacked{{
+    const std::array<int, 2> bestRGB444ColPacked{{
       (colorsRGB444[0].r << 8u) + (colorsRGB444[0].g << 4u) + colorsRGB444[0].b,
       (colorsRGB444[1].r << 8u) + (colorsRGB444[1].g << 4u) + colorsRGB444[1].b,
     }};

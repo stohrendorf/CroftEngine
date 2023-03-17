@@ -86,8 +86,9 @@ public:
   [[nodiscard]] std::vector<gl::PremultipliedSRGBA8> premultipliedPixels()
   {
     std::vector<gl::PremultipliedSRGBA8> premultiplied;
-    premultiplied.reserve(pixels().size());
-    for(const auto& px : pixels())
+    auto pxs = pixels();
+    premultiplied.reserve(pxs.size());
+    for(const auto& px : pxs)
     {
       premultiplied.emplace_back(premultiply(px));
     }

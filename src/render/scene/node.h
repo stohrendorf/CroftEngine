@@ -116,7 +116,7 @@ public:
 
   void removeAllChildren()
   {
-    for(auto& child : m_children)
+    for(const auto& child : m_children)
       child->m_parent.reset();
     m_children.clear();
   }

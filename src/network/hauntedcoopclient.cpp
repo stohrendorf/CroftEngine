@@ -431,16 +431,14 @@ void io::writePascal(std::vector<uint8_t>& msg, const std::string& s)
 {
   msg.reserve(msg.size() + s.length());
   msg.emplace_back(static_cast<uint8_t>(s.length()));
-  for(const char c : s)
-    msg.emplace_back(c);
+  std::copy(s.begin(), s.end(), std::back_inserter(msg));
 }
 
 void io::writePascal(std::vector<uint8_t>& msg, const std::vector<uint8_t>& s)
 {
   writeLE<uint16_t>(msg, gsl::narrow<uint16_t>(s.size()));
   msg.reserve(msg.size() + s.size());
-  for(const uint8_t c : s)
-    msg.emplace_back(c);
+  std::copy(s.begin(), s.end(), std::back_inserter(msg));
 }
 
 std::string io::readPascalString(const uint8_t* msg)

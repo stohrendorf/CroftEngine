@@ -99,9 +99,9 @@ void visitDir(DiscImage& drive,
 
       // ECMA 119 7.5.1 <filename>.<extension>;<version>
       if(const auto nul = entryName.find_first_of('\0'); nul != std::string::npos)
-        entryName = entryName.substr(0, nul);
+        entryName.resize(nul);
       if(const auto separator = entryName.find_last_of(';'); separator != std::string::npos)
-        entryName = entryName.substr(0, separator);
+        entryName.resize(separator);
 
       const auto entryPath = parentPath / entryName;
       if(record->fileFlags & 2u)

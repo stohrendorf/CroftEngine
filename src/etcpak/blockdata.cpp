@@ -400,7 +400,7 @@ void decodeRgbaPart(uint64_t d, uint64_t alpha, uint32_t* dst, uint32_t w)
     bb[1] = ((d & 0x00000F00u) >> 4u) | ((d & 0x00000F00u) >> 8u);
   }
 
-  std::array<uint32_t, 2> tcw{{
+  const std::array<uint32_t, 2> tcw{{
     gsl::narrow_cast<uint32_t>((d & 0xE0u) >> 5u),
     gsl::narrow_cast<uint32_t>((d & 0x1Cu) >> 2u),
   }};

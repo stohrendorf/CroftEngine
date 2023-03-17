@@ -61,12 +61,13 @@ std::vector<uint8_t> DiscImage::read(size_t sector, size_t size)
 
 const Track* DiscImage::getTrackForSector(size_t sector)
 {
-  for(const auto& track : m_tracks)
-  {
-    if(track.startSector <= sector && sector < track.startSector + track.totalSectors)
-      return &track;
-  }
-  return nullptr;
+  auto it = std::find_if(m_tracks.begin(),
+                         m_tracks.end(),
+                         [sector](const auto& track)
+                         {
+                           return track.startSector <= sector && sector < track.startSector + track.totalSectors;
+                         });
+  return it == m_tracks.end() ? nullptr : &*it;
 }
 
 std::vector<uint8_t> DiscImage::readSector(size_t sector)
