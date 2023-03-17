@@ -21,7 +21,11 @@ namespace gl
 namespace
 {
 std::mutex focusStatesMutex;
-std::unordered_map<GLFWwindow*, bool> focusStates;
+auto& getFocusStates()
+{
+  static std::unordered_map<GLFWwindow*, bool> focusStates;
+  return focusStates;
+}
 
 void glErrorCallback(const int err, const gsl::czstring msg)
 {
@@ -30,8 +34,8 @@ void glErrorCallback(const int err, const gsl::czstring msg)
 
 void windowFocusCallback(GLFWwindow* window, int focused)
 {
-  std::lock_guard guard{focusStatesMutex};
-  focusStates[window] = focused == GLFW_TRUE;
+  const std::lock_guard guard{focusStatesMutex};
+  getFocusStates()[window] = focused == GLFW_TRUE;
 }
 } // namespace
 
@@ -196,14 +200,14 @@ Window::~Window()
 {
   glfwDestroyWindow(m_window);
 
-  std::lock_guard guard{focusStatesMutex};
-  focusStates.erase(m_window);
+  const std::lock_guard guard{focusStatesMutex};
+  getFocusStates().erase(m_window);
 }
 
 bool Window::hasFocus() const
 {
-  std::lock_guard guard{focusStatesMutex};
-  auto it = focusStates.find(m_window);
-  return it != focusStates.end() && it->second;
+  const std::lock_guard guard{focusStatesMutex};
+  auto it = getFocusStates().find(m_window);
+  return it != getFocusStates().end() && it->second;
 };
 } // namespace gl
