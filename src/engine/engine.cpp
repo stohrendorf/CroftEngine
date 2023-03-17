@@ -475,6 +475,7 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
       m_presenter->renderScreenOverlay();
       ui::Ui ui{m_presenter->getMaterialManager()->getUi(), world.getPalette(), m_presenter->getUiViewport()};
       ui.drawBox({0, 0}, ui.getSize(), gl::SRGBA8{0, 0, 0, 224});
+      m_presenter->renderUi(ui, 1);
       menu->renderObjects(ui, world);
       menu->update(ui, world);
       if(m_presenter->renderSettingsChanged())
@@ -484,7 +485,6 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
         continue;
       }
 
-      m_presenter->renderUi(ui, 1);
       m_presenter->withBackbuffer(
         [&menu, &world]()
         {
