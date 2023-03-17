@@ -169,15 +169,14 @@ void CSM::updateCamera(const Camera& camera)
 
   std::vector<float> cascadeSplits;
   cascadeSplits.emplace_back(nearClip);
-#if 0
+#if 1
   for(size_t i = 0; i < m_splits.size(); ++i)
   {
-    static constexpr float Lambda = 0.9f;
+    static constexpr float Lambda = 0.5f;
     const auto ir = static_cast<float>(i + 1) / static_cast<float>(m_splits.size());
     const float zi
       = Lambda * nearClip * std::pow(farClip / nearClip, ir) + (1.0f - Lambda) * (nearClip + ir * (farClip - nearClip));
     cascadeSplits.emplace_back(zi);
-    m_splits[i].end = -zi;
   }
 #else
   for(size_t i = 0; i < m_splits.size(); ++i)
