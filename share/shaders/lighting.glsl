@@ -70,13 +70,10 @@ float shadow_map_multiplier()
     }
     #endif
 
-    vec3 ps[CSMSplits];
     for (int splitIdx = 0; splitIdx<CSMSplits; ++splitIdx) {
-        ps[splitIdx] = gpi.vertexPosLight[splitIdx];
-    }
-    for (int splitIdx = 0; splitIdx<CSMSplits; ++splitIdx) {
-        if (all(greaterThanEqual(ps[splitIdx].xy, vec2(0))) && all(lessThanEqual(ps[splitIdx].xy, vec2(1)))) {
-            return calc_vsm_value(splitIdx, ps[splitIdx]);
+        vec3 p = gpi.vertexPosLight[splitIdx];
+        if (all(greaterThanEqual(p.xy, vec2(0))) && all(lessThanEqual(p.xy, vec2(1)))) {
+            return calc_vsm_value(splitIdx, p);
         }
     }
     return 1.0;

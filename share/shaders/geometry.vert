@@ -41,7 +41,7 @@ void main()
     else {
         gpi.color = vec4(1.0);
     }
-        #endif
+    #endif
 
     gpi.vertexNormalWorld = normalize(mat3(mm) * a_normal);
     gpi.hbaoNormal = normalize(mat3(mv) * a_normal);
@@ -54,7 +54,7 @@ void main()
         mat4 lmvp = csm.lightMVP[i];
         #endif
         vec4 tmp = lmvp * pos;
-        gpi.vertexPosLight[i] = (tmp.xyz / tmp.w) * 0.5 + 0.5;
+        gpi.vertexPosLight[i] = tmp.xyz * 0.5 + 0.5;
     }
 
     {
@@ -77,7 +77,7 @@ void main()
         gpi.quadUvs[3] = a_quadUv34.zw;
     }
 
-        #if SPRITEMODE == 3
+    #if SPRITEMODE == 3
     gpi.reflective = vec4(0.0);
     #else
     gpi.reflective = a_reflective;
