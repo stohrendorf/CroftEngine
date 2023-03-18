@@ -51,25 +51,6 @@ public:
   static constexpr auto Target = _Target;
   using Pixel = _PixelT;
 
-  [[nodiscard]] static api::CopyImageSubDataTarget getSubDataTarget()
-  {
-#define SOGLB_CONVERT_TYPE(x)                    \
-  if constexpr(api::TextureTarget::x == _Target) \
-  return api::CopyImageSubDataTarget::x
-    SOGLB_CONVERT_TYPE(Texture1d);
-    else SOGLB_CONVERT_TYPE(Texture2d);
-    else SOGLB_CONVERT_TYPE(Texture3d);
-    else SOGLB_CONVERT_TYPE(TextureCubeMap);
-    else SOGLB_CONVERT_TYPE(Texture1dArray);
-    else SOGLB_CONVERT_TYPE(Texture2dArray);
-    else SOGLB_CONVERT_TYPE(TextureRectangle);
-    else SOGLB_CONVERT_TYPE(Texture2dMultisample);
-    else SOGLB_CONVERT_TYPE(Texture2dMultisampleArray);
-    else SOGLB_CONVERT_TYPE(TextureCubeMapArray);
-    else static_assert(!std::is_same_v<_PixelT, _PixelT>, "Texture type not suitable for copy sub-data operation");
-#undef SOGLB_CONVERT_TYPE
-  }
-
   TextureImpl<_Target, _PixelT>& clear(const _PixelT& pixel, int level = 0)
   {
     GL_ASSERT(api::clearTexImage(getHandle(), level, Pixel::PixelFormat, Pixel::PixelType, &pixel));

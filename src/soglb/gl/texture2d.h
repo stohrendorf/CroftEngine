@@ -13,7 +13,6 @@ class Texture2D final : public TextureImpl<api::TextureTarget::Texture2d, _Pixel
 public:
   using typename TextureImpl<api::TextureTarget::Texture2d, _PixelT>::Pixel;
   using TextureImpl<api::TextureTarget::Texture2d, _PixelT>::getHandle;
-  using TextureImpl<api::TextureTarget::Texture2d, _PixelT>::getSubDataTarget;
 
   explicit Texture2D(const glm::ivec2& size, const std::string_view& label)
       : Texture2D<_PixelT>{size, 1, label}
