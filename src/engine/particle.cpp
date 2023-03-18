@@ -14,32 +14,34 @@
 #include "objectmanager.h"
 #include "objects/laraobject.h"
 #include "objects/objectstate.h"
+#include "particlecollection.h"
 #include "presenter.h"
+#include "qs/qs.h"
 #include "render/material/spritematerialmode.h"
+#include "render/rendersettings.h"
 #include "render/scene/mesh.h" // IWYU pragma: keep
 #include "skeletalmodelnode.h"
 #include "soundeffects_tr1.h"
+#include "util/helpers.h"
 #include "world/rendermeshdata.h"
 #include "world/room.h"
 #include "world/skeletalmodeltype.h"
 #include "world/sprite.h"
 #include "world/world.h"
 
+#include <algorithm>
 #include <boost/assert.hpp>
 #include <boost/log/trivial.hpp>
+#include <gl/pixel.h>
 #include <gl/renderstate.h>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/mat4x4.hpp>
 #include <glm/vec3.hpp>
+#include <glm/vec4.hpp>
 #include <gslu.h>
 #include <type_traits>
 #include <utility>
 #include <vector>
-
-namespace render::scene
-{
-class Renderable;
-}
 
 namespace engine
 {

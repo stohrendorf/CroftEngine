@@ -28,10 +28,14 @@
 #include "serialization/serialization.h"
 #include "util/helpers.h"
 
+#include <boost/throw_exception.hpp>
 #include <exception>
+#include <functional>
 #include <gl/renderstate.h>
 #include <iterator>
 #include <map>
+#include <stdexcept>
+#include <type_traits>
 
 namespace engine::objects
 {

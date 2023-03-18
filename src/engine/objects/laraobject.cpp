@@ -7,6 +7,7 @@
 #include "engine/audioengine.h"
 #include "engine/cameracontroller.h"
 #include "engine/engine.h"
+#include "engine/engineconfig.h"
 #include "engine/ghosting/ghost.h"
 #include "engine/heightinfo.h"
 #include "engine/inventory.h"
@@ -15,6 +16,7 @@
 #include "engine/objectmanager.h"
 #include "engine/objects/aiminfo.h"
 #include "engine/particle.h"
+#include "engine/particlecollection.h"
 #include "engine/player.h"
 #include "engine/presenter.h"
 #include "engine/raycast.h"
@@ -32,6 +34,7 @@
 #include "modelobject.h"
 #include "object.h"
 #include "objectstate.h"
+#include "render/rendersettings.h"
 #include "render/scene/mesh.h" // IWYU pragma: keep
 #include "serialization/objectreference.h"
 #include "serialization/optional.h"
@@ -41,14 +44,17 @@
 #include "weapon.h"
 
 #include <boost/assert.hpp>
+#include <boost/iterator/iterator_facade.hpp>
+#include <boost/iterator/transform_iterator.hpp>
 #include <boost/log/trivial.hpp>
 #include <boost/range/adaptor/map.hpp>
 #include <boost/throw_exception.hpp>
 #include <cstddef>
 #include <cstdlib>
 #include <exception>
-#include <gl/api/gl.hpp>
+#include <functional>
 #include <gl/buffer.h>
+#include <gl/pixel.h>
 #include <gl/program.h>
 #include <gl/renderstate.h>
 #include <glm/geometric.hpp>
@@ -58,6 +64,7 @@
 #include <iosfwd>
 #include <limits>
 #include <map>
+#include <math.h>
 #include <set>
 #include <stack>
 #include <stdexcept>

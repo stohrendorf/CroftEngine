@@ -6,7 +6,6 @@
 #include "inventory.h"
 #include "serialization/serialization_fwd.h"
 
-#include <chrono>
 #include <cstddef>
 
 namespace engine::world

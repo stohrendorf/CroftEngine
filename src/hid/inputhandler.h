@@ -6,11 +6,10 @@
 #include "inputstate.h"
 
 #include <algorithm>
+#include <boost/container/flat_map.hpp>
 #include <boost/container/vector.hpp>
 #include <filesystem>
-#include <gl/glfw.h>
 #include <gl/soglb_fwd.h>
-#include <gsl/gsl-lite.hpp>
 #include <gslu.h>
 #include <map>
 #include <optional>

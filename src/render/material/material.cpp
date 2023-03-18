@@ -7,6 +7,8 @@
 #include <algorithm>
 #include <boost/log/trivial.hpp>
 #include <gl/program.h>
+#include <gsl/gsl-lite.hpp>
+#include <gslu.h>
 #include <iosfwd>
 #include <utility>
 

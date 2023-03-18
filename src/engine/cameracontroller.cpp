@@ -30,12 +30,15 @@
 
 #include <algorithm>
 #include <boost/assert.hpp>
+#include <boost/log/trivial.hpp>
 #include <cstddef>
 #include <exception>
 #include <functional>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/mat4x4.hpp>
 #include <glm/vec3.hpp>
+#include <gslu.h>
+#include <iosfwd>
 #include <map>
 #include <type_traits>
 #include <utility>

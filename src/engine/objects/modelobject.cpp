@@ -28,6 +28,7 @@
 #include <cstdint>
 #include <exception>
 #include <glm/geometric.hpp>
+#include <gslu.h>
 #include <optional>
 #include <vector>
 

@@ -21,34 +21,34 @@ void LevelStats::draw(Ui& ui) const
   const auto center = ui.getSize() / 2;
 
   {
-    Text text{m_title};
+    const Text text{m_title};
     text.draw(ui, m_presenter->getTrFont(), center - glm::ivec2{text.getWidth() / 2, 50});
   }
 
   {
-    Text text{/* translators: TR charmap encoding */ _("KILLS %1%", m_player->kills)};
+    const Text text{/* translators: TR charmap encoding */ _("KILLS %1%", m_player->kills)};
     text.draw(ui, m_presenter->getTrFont(), center - glm::ivec2{text.getWidth() / 2, 20});
   }
 
   {
-    Text text{/* translators: TR charmap encoding */ _("PICKUPS %1%", m_player->pickups)};
+    const Text text{/* translators: TR charmap encoding */ _("PICKUPS %1%", m_player->pickups)};
     text.draw(ui, m_presenter->getTrFont(), center - glm::ivec2{text.getWidth() / 2, -10});
   }
 
   {
-    Text text{/* translators: TR charmap encoding */ _("SECRETS %1% of %2%", m_player->secrets, m_totalSecrets)};
+    const Text text{/* translators: TR charmap encoding */ _("SECRETS %1% of %2%", m_player->secrets, m_totalSecrets)};
     text.draw(ui, m_presenter->getTrFont(), center - glm::ivec2{text.getWidth() / 2, -40});
   }
 
   {
-    Text text{/* translators: TR charmap encoding */ _("TIME TAKEN %1%",
-                                                       util::toTimeStr(m_player->timeSpent / core::FrameRate))};
+    const Text text{/* translators: TR charmap encoding */ _("TIME TAKEN %1%",
+                                                             util::toTimeStr(m_player->timeSpent / core::FrameRate))};
     text.draw(ui, m_presenter->getTrFont(), center - glm::ivec2{text.getWidth() / 2, -70});
   }
 
   {
-    Text text{/* translators: TR charmap encoding */ _("Use %1% to show detailed stats.",
-                                                       getName(hid::Action::SecondaryInteraction))};
+    const Text text{/* translators: TR charmap encoding */ _("Use %1% to show detailed stats.",
+                                                             getName(hid::Action::SecondaryInteraction))};
     text.draw(ui, m_presenter->getTrFont(), center - glm::ivec2{text.getWidth() / 2, -130});
   }
 }

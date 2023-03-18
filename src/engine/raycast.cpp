@@ -14,11 +14,6 @@
 #include <gsl/gsl-lite.hpp>
 #include <tuple>
 
-namespace engine::world
-{
-struct Sector;
-}
-
 namespace engine
 {
 namespace
@@ -154,8 +149,8 @@ std::pair<bool, Location>
     return {false, result};
   }
 
-  bool success = clampY(start.position, result, objectManager) && firstCollision == CollisionType::None
-                 && secondCollision == CollisionType::None;
+  const bool success = clampY(start.position, result, objectManager) && firstCollision == CollisionType::None
+                       && secondCollision == CollisionType::None;
   // redo raycasting to properly calculate the correct room, possibly fixes EE-432
   result = abs(result.position.Z - start.position.Z) <= abs(result.position.X - start.position.X)
              ? std::get<2>(collide(&core::TRVec::Z, &core::TRVec::X))

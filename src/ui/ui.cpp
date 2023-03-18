@@ -10,6 +10,7 @@
 #include "render/scene/mesh.h"
 #include "render/scene/names.h"
 #include "render/scene/rendercontext.h"
+#include "render/scene/translucency.h"
 
 #include <algorithm>
 #include <cstdint>

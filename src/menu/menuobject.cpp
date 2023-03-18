@@ -28,6 +28,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/mat4x4.hpp>
 #include <gsl/gsl-lite.hpp>
+#include <gslu.h>
+#include <initializer_list>
 #include <optional>
 #include <utility>
 
@@ -155,7 +157,7 @@ void MenuObject::draw(const engine::world::World& world,
                       const MenuRingTransform& ringTransform,
                       const core::Angle& ringItemAngle) const
 {
-  glm::mat4 nodeMatrix
+  const glm::mat4 nodeMatrix
     = ringTransform.getModelMatrix() * core::TRRotation{0_deg, ringItemAngle, 0_deg}.toMatrix()
       * glm::translate(glm::mat4{1.0f}, core::TRVec{ringTransform.radius, 0_len, 0_len}.toRenderSystem())
       * core::TRRotation{baseRotationX, 90_deg, 0_deg}.toMatrix()

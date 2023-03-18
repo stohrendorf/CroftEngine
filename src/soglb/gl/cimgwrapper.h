@@ -3,12 +3,14 @@
 #include "pixel.h"
 #include "soglb_fwd.h"
 
+#include <algorithm>
 #include <cstddef>
 #include <cstdint>
 #include <filesystem>
 #include <glm/vec2.hpp>
 #include <gsl/gsl-lite.hpp>
 #include <gslu.h>
+#include <map>
 #include <memory>
 #include <string>
 #include <string_view>

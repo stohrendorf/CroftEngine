@@ -4,7 +4,6 @@
 #include "core/magic.h"
 #include "filterhandle.h"
 #include "handle.h"
-#include "qs/quantity.h"
 #include "utils.h"
 
 #include <AL/efx.h>
@@ -131,7 +130,7 @@ StreamingSourceHandle::~StreamingSourceHandle()
 // NOLINTNEXTLINE(readability-make-member-function-const)
 std::shared_ptr<BufferHandle> StreamingSourceHandle::unqueueBuffer()
 {
-  std::unique_lock lock{m_queueMutex};
+  const std::unique_lock lock{m_queueMutex};
 
   ALuint unqueued;
   AL_ASSERT(alSourceUnqueueBuffers(*this, 1, &unqueued));
@@ -153,18 +152,18 @@ std::shared_ptr<BufferHandle> StreamingSourceHandle::unqueueBuffer()
 // NOLINTNEXTLINE(readability-make-member-function-const)
 void StreamingSourceHandle::queueBuffer(const std::shared_ptr<BufferHandle>& buffer)
 {
-  std::unique_lock lock{m_queueMutex};
+  const std::unique_lock lock{m_queueMutex};
 
   if(!m_queuedBuffers.emplace(buffer).second)
     BOOST_THROW_EXCEPTION(std::runtime_error("Buffer enqueued more than once"));
 
-  ALuint bufferId = *buffer;
+  const ALuint bufferId = *buffer;
   AL_ASSERT(alSourceQueueBuffers(*this, 1, &bufferId));
 }
 
 bool StreamingSourceHandle::isStopped() const
 {
-  std::unique_lock lock{m_queueMutex};
+  const std::unique_lock lock{m_queueMutex};
   return m_queuedBuffers.empty() && SourceHandle::isStopped();
 }
 
@@ -182,7 +181,7 @@ void StreamingSourceHandle::stop()
 {
   SourceHandle::stop();
 
-  std::unique_lock lock{m_queueMutex};
+  const std::unique_lock lock{m_queueMutex};
   AL_ASSERT(alSourcei(*this, AL_BUFFER, AL_NONE));
   m_queuedBuffers.clear();
 }

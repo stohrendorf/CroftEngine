@@ -18,6 +18,8 @@
 #include "util/helpers.h"
 
 #include <bitset>
+#include <gl/renderstate.h>
+#include <memory>
 
 namespace engine::objects
 {

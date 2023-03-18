@@ -4,8 +4,15 @@
 #include "ui/core.h"
 #include "ui/text.h"
 #include "ui/ui.h"
+#include "widget.h"
 
+#include <algorithm>
 #include <engine/presenter.h>
+#include <gl/pixel.h>
+#include <glm/fwd.hpp>
+#include <gsl/gsl-lite.hpp>
+#include <gslu.h>
+#include <memory>
 
 namespace ui::widgets
 {

@@ -9,6 +9,7 @@
 #include <algorithm>
 #include <gsl/gsl-lite.hpp>
 #include <iosfwd>
+#include <tuple>
 
 namespace engine::world
 {

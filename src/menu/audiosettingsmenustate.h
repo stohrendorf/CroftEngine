@@ -3,7 +3,6 @@
 #include "menu/menustate.h"
 #include "selectedmenustate.h"
 
-#include <gsl/gsl-lite.hpp>
 #include <gslu.h>
 #include <memory>
 

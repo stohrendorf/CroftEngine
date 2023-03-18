@@ -74,8 +74,8 @@ std::string toString(const boost::execution_exception& excpt)
   std::stringstream ss(std::ios_base::out);
   ss << excpt.where().m_file_name;
 
-  size_t line = excpt.where().m_line_num;
-  if(line)
+  const size_t line = excpt.where().m_line_num;
+  if(line != 0)
     ss << ':' << line;
 
   const boost::unit_test::const_string& fn = excpt.where().m_function;

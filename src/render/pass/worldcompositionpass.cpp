@@ -8,14 +8,14 @@
 #include "render/material/materialmanager.h"
 #include "render/material/rendermode.h"
 #include "render/material/uniformparameter.h"
-#include "render/renderpipeline.h"
 #include "render/rendersettings.h"
 #include "render/scene/mesh.h"
 #include "render/scene/rendercontext.h"
+#include "render/scene/translucency.h"
 
-#include <algorithm>
 #include <gl/constants.h>
 #include <gl/debuggroup.h>
+#include <gl/fencesync.h>
 #include <gl/framebuffer.h>
 #include <gl/glassert.h>
 #include <gl/pixel.h>
@@ -29,7 +29,7 @@
 #include <gsl/gsl-lite.hpp>
 #include <gslu.h>
 #include <optional>
-#include <utility>
+#include <string>
 
 namespace render::scene
 {

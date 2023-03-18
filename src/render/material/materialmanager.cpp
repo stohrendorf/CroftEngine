@@ -9,7 +9,6 @@
 #include "spritematerialmode.h"
 #include "uniformparameter.h"
 
-#include <algorithm>
 #include <boost/assert.hpp>
 #include <chrono>
 #include <cstdint>
@@ -23,8 +22,10 @@
 #include <gl/texture2darray.h> // IWYU pragma: keep
 #include <gl/texturehandle.h>
 #include <glm/vec2.hpp>
+#include <gsl/gsl-lite.hpp>
 #include <gslu.h>
 #include <random>
+#include <string>
 #include <utility>
 #include <vector>
 
@@ -356,7 +357,7 @@ gslu::nn_shared<Material> MaterialManager::getCRTV1()
 
 gslu::nn_shared<Material> MaterialManager::getBrightnessContrast(int8_t brightness, int8_t contrast)
 {
-  std::tuple<int8_t, int8_t> key{brightness, contrast};
+  const std::tuple<int8_t, int8_t> key{brightness, contrast};
   if(auto it = m_brightnessContrast.find(key); it != m_brightnessContrast.end())
     return it->second;
 
@@ -414,7 +415,7 @@ gslu::nn_shared<Material> MaterialManager::getLensDistortion()
 
 gslu::nn_shared<Material> MaterialManager::getMasking(bool ao, bool edges)
 {
-  std::tuple key{ao, edges};
+  const std::tuple key{ao, edges};
   if(auto it = m_masking.find(key); it != m_masking.end())
     return it->second;
 

@@ -12,7 +12,7 @@ namespace engine::world
 struct StaticSoundEffect
 {
   const std::weak_ptr<audio::Voice> voice;
-  const bool playIfSwapped;
-  const bool playIfNotSwapped;
+  bool playIfSwapped;
+  bool playIfNotSwapped;
 };
 } // namespace engine::world

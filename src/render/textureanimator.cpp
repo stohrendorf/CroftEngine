@@ -5,7 +5,7 @@
 #include "loader/file/texture.h"
 
 #include <array>
-#include <gl/api/gl.hpp>
+#include <gl/buffer.h>
 #include <gl/vertexbuffer.h>
 #include <memory>
 #include <utility>

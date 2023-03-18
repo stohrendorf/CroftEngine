@@ -7,9 +7,9 @@
 #include "render/scene/rendercontext.h"
 #include "render/scene/translucency.h"
 
-#include <algorithm>
 #include <gl/constants.h>
 #include <gl/debuggroup.h>
+#include <gl/fencesync.h>
 #include <gl/framebuffer.h>
 #include <gl/glassert.h>
 #include <gl/pixel.h>
@@ -22,6 +22,7 @@
 #include <gsl/gsl-lite.hpp>
 #include <gslu.h>
 #include <optional>
+#include <string>
 
 namespace render::scene
 {

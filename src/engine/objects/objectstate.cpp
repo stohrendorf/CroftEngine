@@ -20,6 +20,7 @@
 #include <boost/throw_exception.hpp>
 #include <exception>
 #include <map>
+#include <memory>
 #include <stdexcept>
 
 namespace engine::objects

@@ -1,13 +1,16 @@
 #include "compassmenustate.h"
 
+#include "core/units.h"
 #include "engine/engine.h"
-#include "engine/engineconfig.h"
-#include "engine/player.h"
 #include "engine/presenter.h"
 #include "engine/world/world.h"
+#include "hid/actions.h"
 #include "hid/inputhandler.h"
 #include "menudisplay.h"
+#include "menuobject.h"
 #include "menuring.h"
+#include "qs/quantity.h"
+#include "selectedmenustate.h"
 #include "ui/detailedlevelstats.h"
 
 #include <gsl/gsl-lite.hpp>

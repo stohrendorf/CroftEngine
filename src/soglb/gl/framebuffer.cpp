@@ -1,8 +1,12 @@
 #include "framebuffer.h"
 
+#include "glassert.h"
+#include "renderstate.h"
 #include "texture.h"
 
 #include <boost/log/trivial.hpp>
+#include <glm/vec2.hpp>
+#include <gsl/gsl-lite.hpp>
 #include <gslu.h>
 #include <utility>
 

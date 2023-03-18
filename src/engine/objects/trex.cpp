@@ -25,7 +25,6 @@
 #include "util/helpers.h"
 
 #include <exception>
-#include <gl/renderstate.h>
 #include <memory>
 
 namespace engine::objects

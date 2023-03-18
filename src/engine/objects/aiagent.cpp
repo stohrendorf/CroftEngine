@@ -28,8 +28,13 @@
 #include "util/helpers.h"
 
 #include <boost/assert.hpp>
+#include <boost/iterator/iterator_facade.hpp>
+#include <boost/iterator/transform_iterator.hpp>
+#include <boost/log/trivial.hpp>
 #include <boost/range/adaptor/map.hpp>
 #include <exception>
+#include <gl/renderstate.h>
+#include <iosfwd>
 #include <map>
 
 namespace engine::objects

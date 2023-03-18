@@ -1,12 +1,8 @@
 #pragma once
 
-#include "core/angle.h"
 #include "core/units.h"
 #include "modelobject.h"
-#include "objectstate.h"
-#include "qs/qs.h"
 #include "serialization/serialization_fwd.h"
-#include "util/helpers.h"
 
 #include <gsl/gsl-lite.hpp>
 #include <string>

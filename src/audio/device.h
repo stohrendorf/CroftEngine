@@ -5,8 +5,8 @@
 #include <cstddef>
 #include <functional>
 #include <glm/vec3.hpp>
-#include <gsl/gsl-lite.hpp>
 #include <gslu.h>
+#include <map>
 #include <memory>
 #include <mutex>
 #include <set>

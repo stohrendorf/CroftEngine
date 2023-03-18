@@ -3,7 +3,12 @@
 #include "label.h"
 #include "ui/core.h"
 #include "ui/ui.h"
+#include "widget.h"
 
+#include <glm/fwd.hpp>
+#include <gsl/gsl-lite.hpp>
+#include <gslu.h>
+#include <memory>
 #include <utility>
 
 namespace ui::widgets

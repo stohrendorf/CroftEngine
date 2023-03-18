@@ -4,6 +4,7 @@
 #include "blockdata.hpp"
 #include "core/i18n.h"
 #include "core/id.h"
+#include "etcpak/bitmap.hpp"
 #include "loader/file/datatypes.h"
 #include "loader/file/level/level.h"
 #include "loader/file/texture.h"
@@ -19,10 +20,13 @@
 #include <algorithm>
 #include <array>
 #include <boost/assert.hpp>
+#include <boost/format.hpp>
 #include <boost/log/trivial.hpp>
+#include <cassert>
 #include <cstddef>
 #include <cstdint>
 #include <filesystem>
+#include <future>
 #include <gl/cimgwrapper.h>
 #include <gl/image.h>
 #include <gl/pixel.h>
@@ -30,9 +34,14 @@
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
 #include <gsl/gsl-lite.hpp>
-#include <iosfwd>
+#include <iterator>
+#include <limits>
 #include <map>
 #include <memory>
+#include <optional>
+#include <sstream>
+#include <system_error>
+#include <tuple>
 #include <type_traits>
 #include <unordered_set>
 #include <utility>
@@ -270,7 +279,7 @@ bool tryRemapTile(Tile& maximizedTile,
     }
     else
     {
-      gl::CImgWrapper tmp{path};
+      const gl::CImgWrapper tmp{path};
       const auto remapped = atlases.put(tmp);
       maximizedTile.remapped = {remapped.first, remapped.second, {tmp.width(), tmp.height()}};
       textureSizes.emplace(path, glm::ivec2{tmp.width(), tmp.height()});

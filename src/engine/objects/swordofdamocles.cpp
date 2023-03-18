@@ -1,5 +1,6 @@
 #include "swordofdamocles.h"
 
+#include "core/angle.h"
 #include "core/genericvec.h"
 #include "core/magic.h"
 #include "core/vec.h"
@@ -13,10 +14,14 @@
 #include "laraobject.h"
 #include "modelobject.h"
 #include "objectstate.h"
+#include "qs/qs.h"
 #include "serialization/quantity.h"
 #include "serialization/serialization.h"
+#include "util/helpers.h"
 
 #include <exception>
+#include <gl/renderstate.h>
+#include <memory>
 
 namespace engine::objects
 {

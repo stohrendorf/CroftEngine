@@ -4,7 +4,6 @@
 #include "ui/widgets/groupbox.h"
 
 #include <cstddef>
-#include <gsl/gsl-lite.hpp>
 #include <gslu.h>
 #include <memory>
 #include <string>

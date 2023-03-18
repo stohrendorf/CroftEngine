@@ -9,7 +9,6 @@
 #include "objectstate.h"
 #include "render/scene/node.h"
 
-#include <gslu.h>
 #include <memory>
 
 namespace engine::objects

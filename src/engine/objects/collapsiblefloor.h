@@ -8,6 +8,10 @@
 #include "objectstate.h"
 #include "qs/qs.h"
 
+#include <gsl/gsl-lite.hpp>
+#include <serialization/serialization_fwd.h>
+#include <string>
+
 namespace engine::world
 {
 class World;

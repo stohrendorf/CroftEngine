@@ -1,10 +1,8 @@
 #pragma once
 
 #include <cstdint>
-#include <future>
 #include <glm/vec2.hpp>
 #include <gsl/gsl-lite.hpp>
-#include <memory>
 #include <mutex>
 #include <tuple>
 #include <vector>

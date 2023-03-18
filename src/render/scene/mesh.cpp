@@ -8,6 +8,7 @@
 #include "rendercontext.h"
 #include "translucency.h"
 
+#include <algorithm>
 #include <array>
 #include <cstdint>
 #include <gl/buffer.h>
@@ -15,7 +16,9 @@
 #include <gl/renderstate.h>
 #include <gl/vertexarray.h>
 #include <gl/vertexbuffer.h>
+#include <gsl/gsl-lite.hpp>
 #include <gslu.h>
+#include <type_traits>
 #include <vector>
 
 namespace render::scene

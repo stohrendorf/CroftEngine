@@ -4,9 +4,7 @@
 #include <cstdint>
 #include <gl/api/gl.hpp>
 #include <gl/pixel.h>
-#include <gsl/gsl-lite.hpp>
 #include <gslu.h>
-#include <memory>
 
 namespace render::scene
 {

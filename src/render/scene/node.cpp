@@ -4,6 +4,7 @@
 #include "visitor.h"
 
 #include <gl/renderstate.h>
+#include <gslu.h>
 #include <optional>
 
 namespace render::scene

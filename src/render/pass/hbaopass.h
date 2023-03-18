@@ -2,10 +2,10 @@
 
 #include "render/scene/blur.h"
 
+#include <gl/fencesync.h>
 #include <gl/pixel.h>
 #include <gl/soglb_fwd.h>
-#include <glm/fwd.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <glm/vec2.hpp>
 #include <gslu.h>
 #include <memory>
 

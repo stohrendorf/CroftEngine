@@ -19,15 +19,11 @@
 #include "discimage.h"
 
 #include "binaryfile.h"
-#include "cueparser.h"
 #include "formatutils.h"
 #include "physicaltrackbuilder.h"
 
-#include <array>
 #include <boost/log/trivial.hpp>
-#include <cctype>
 #include <filesystem>
-#include <fstream>
 #include <vector>
 
 namespace image

@@ -1,5 +1,6 @@
 #include "lighting.h"
 
+#include "engine/objectmanager.h"
 #include "engine/objects/laraobject.h"
 #include "engine/world/room.h"
 #include "engine/world/world.h"
@@ -7,6 +8,8 @@
 
 #include <gl/api/gl.hpp>
 #include <gl/program.h>
+#include <gslu.h>
+#include <vector>
 
 namespace render::scene
 {

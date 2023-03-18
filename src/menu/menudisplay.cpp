@@ -10,6 +10,7 @@
 #include "engine/player.h"
 #include "engine/presenter.h"
 #include "engine/script/reflection.h"
+#include "engine/script/scriptengine.h"
 #include "engine/soundeffects_tr1.h"
 #include "engine/weapontype.h"
 #include "engine/world/world.h"
@@ -36,8 +37,6 @@
 #include <boost/throw_exception.hpp>
 #include <gl/buffer.h>
 #include <gl/debuggroup.h>
-#include <gl/fencesync.h>
-#include <gl/framebuffer.h>
 #include <gl/pixel.h>
 #include <gl/renderstate.h>
 #include <gl/texture2d.h>

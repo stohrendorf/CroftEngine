@@ -12,6 +12,8 @@
 #include "serialization/vector.h"
 
 #include <exception>
+#include <functional>
+#include <memory>
 #include <stdexcept>
 
 namespace engine

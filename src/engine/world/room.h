@@ -5,17 +5,19 @@
 #include "core/vec.h"
 #include "engine/lighting.h"
 #include "engine/particlecollection.h"
-#include "qs/qs.h"
 #include "sector.h"
 #include "serialization/serialization_fwd.h"
 
 #include <algorithm>
 #include <array>
 #include <cstddef>
+#include <cstdint>
 #include <gl/buffer.h>
+#include <gl/vertexbuffer.h>
 #include <glm/fwd.hpp>
 #include <gsl/gsl-lite.hpp>
 #include <gslu.h>
+#include <limits>
 #include <map>
 #include <memory>
 #include <optional>

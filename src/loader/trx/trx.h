@@ -1,12 +1,10 @@
 #pragma once
 
 #include <algorithm>
-#include <cstdint>
 #include <filesystem>
 #include <fstream>
 #include <functional>
 #include <glm/vec2.hpp>
-#include <gsl/gsl-lite.hpp>
 #include <map>
 #include <set>
 #include <string>

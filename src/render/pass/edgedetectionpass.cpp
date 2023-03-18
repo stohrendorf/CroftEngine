@@ -2,14 +2,12 @@
 
 #include "config.h"
 #include "geometrypass.h"
-#include "render/material/material.h"
 #include "render/material/materialmanager.h"
 #include "render/material/rendermode.h"
-#include "render/material/uniformparameter.h"
 #include "render/scene/mesh.h"
 #include "render/scene/rendercontext.h"
+#include "render/scene/translucency.h"
 
-#include <algorithm>
 #include <gl/constants.h>
 #include <gl/debuggroup.h>
 #include <gl/framebuffer.h>
@@ -20,9 +18,11 @@
 #include <gl/sampler.h>
 #include <gl/texture2d.h>
 #include <gl/texturehandle.h>
+#include <glm/mat4x4.hpp>
 #include <gsl/gsl-lite.hpp>
 #include <gslu.h>
 #include <optional>
+#include <string>
 
 namespace render::scene
 {

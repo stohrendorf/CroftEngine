@@ -5,12 +5,12 @@
 #include "serialization/named_enum.h"
 #include "serialization/serialization_fwd.h"
 
-#include <cstddef>
 #include <cstdint>
 #include <filesystem>
 #include <glm/mat4x4.hpp>
 #include <iosfwd>
 #include <memory>
+#include <string>
 #include <vector>
 
 namespace engine::ghosting

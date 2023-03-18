@@ -1,7 +1,6 @@
 #pragma once
 
 #include <gl/renderstate.h>
-#include <gl/soglb_fwd.h>
 #include <glm/vec3.hpp>
 #include <gsl/gsl-lite.hpp>
 #include <optional>

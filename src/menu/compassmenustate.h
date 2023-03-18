@@ -3,7 +3,6 @@
 #include "menu/menustate.h"
 #include "selectedmenustate.h"
 
-#include <gsl/gsl-lite.hpp>
 #include <gslu.h>
 #include <memory>
 
@@ -21,6 +20,7 @@ class DetailedLevelStats;
 namespace menu
 {
 struct MenuRingTransform;
+struct MenuDisplay;
 
 class CompassMenuState : public SelectedMenuState
 {

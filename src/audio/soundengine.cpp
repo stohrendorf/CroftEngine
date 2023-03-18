@@ -9,6 +9,7 @@
 #include "serialization/map.h"
 #include "serialization/path.h"
 #include "serialization/serialization.h"
+#include "streamsource.h"
 #include "streamvoice.h"
 #include "util/helpers.h"
 #include "voice.h"
@@ -17,9 +18,12 @@
 #include <AL/al.h>
 #include <algorithm>
 #include <boost/log/trivial.hpp>
+#include <exception>
 #include <glm/fwd.hpp>
+#include <gsl/gsl-lite.hpp>
 #include <gslu.h>
 #include <iterator>
+#include <type_traits>
 #include <utility>
 
 namespace audio

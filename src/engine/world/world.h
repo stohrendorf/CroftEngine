@@ -7,6 +7,7 @@
 #include "camerasink.h"
 #include "cinematicframe.h"
 #include "core/id.h"
+#include "core/magic.h"
 #include "core/units.h"
 #include "core/vec.h"
 #include "engine/controllerbuttons.h"
@@ -16,6 +17,7 @@
 #include "engine/objects/object.h"
 #include "loader/file/item.h"
 #include "mesh.h"
+#include "qs/qs.h"
 #include "room.h"
 #include "serialization/serialization_fwd.h"
 #include "sprite.h"
@@ -24,6 +26,7 @@
 #include "transition.h"
 #include "ui/pickupwidget.h"
 
+#include <algorithm>
 #include <array>
 #include <bitset>
 #include <cstddef>
@@ -38,6 +41,7 @@
 #include <memory>
 #include <optional>
 #include <string>
+#include <tuple>
 #include <unordered_map>
 #include <utility>
 #include <vector>
@@ -68,11 +72,6 @@ namespace loader::file::level
 {
 class Level;
 }
-
-namespace render
-{
-class TextureAnimator;
-} // namespace render
 
 namespace engine::objects
 {

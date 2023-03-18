@@ -17,9 +17,7 @@
 #include "render/scene/node.h"
 
 #include <bitset>
-#include <gslu.h>
 #include <memory>
-#include <type_traits>
 #include <utility>
 
 namespace engine::objects

@@ -4,6 +4,7 @@
 #include <fstream>
 #include <gsl/gsl-lite.hpp>
 #include <regex>
+#include <sstream>
 
 namespace cue
 {

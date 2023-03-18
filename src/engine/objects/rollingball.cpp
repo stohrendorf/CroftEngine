@@ -13,6 +13,7 @@
 #include "engine/objectmanager.h"
 #include "engine/particle.h"
 #include "engine/skeletalmodelnode.h"
+#include "engine/soundeffects_tr1.h"
 #include "engine/world/animation.h"
 #include "engine/world/skeletalmodeltype.h"
 #include "engine/world/world.h"
@@ -28,6 +29,7 @@
 
 #include <algorithm>
 #include <bitset>
+#include <gl/renderstate.h>
 #include <memory>
 
 namespace engine::objects

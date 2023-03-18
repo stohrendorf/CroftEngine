@@ -7,29 +7,29 @@
 #include "engine/lighting.h"
 #include "items_tr1.h"
 #include "location.h"
-#include "qs/qs.h"
 #include "render/scene/node.h"
-#include "util/helpers.h"
 
-#include <algorithm>
 #include <cstddef>
 #include <cstdint>
 #include <deque>
+#include <gl/soglb_fwd.h>
 #include <glm/fwd.hpp>
+#include <glm/mat4x4.hpp>
 #include <gsl/gsl-lite.hpp>
 #include <gslu.h>
 #include <memory>
 #include <optional>
 #include <string>
+#include <tuple>
+
+namespace render::scene
+{
+class Mesh;
+}
 
 namespace render::material
 {
 enum class SpriteMaterialMode : uint8_t;
-}
-
-namespace render::scene
-{
-class Renderable;
 }
 
 namespace engine::world

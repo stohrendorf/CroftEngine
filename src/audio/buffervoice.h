@@ -3,7 +3,6 @@
 #include "core.h"
 #include "voice.h"
 
-#include <gsl/gsl-lite.hpp>
 #include <gslu.h>
 #include <memory>
 

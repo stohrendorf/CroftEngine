@@ -9,6 +9,7 @@
 #include "objects/objectstate.h"
 #include "presenter.h"
 #include "qs/qs.h"
+#include "render/rendersettings.h"
 #include "render/scene/mesh.h" // IWYU pragma: keep
 #include "serialization/gl_pixel.h"
 #include "serialization/glm.h"
@@ -27,12 +28,18 @@
 #include "world/transition.h"
 #include "world/world.h"
 
+#include <algorithm>
 #include <boost/assert.hpp>
+#include <cstdint>
 #include <exception>
+#include <gl/buffer.h>
+#include <gl/pixel.h>
 #include <glm/common.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/vec2.hpp>
+#include <gslu.h>
 #include <initializer_list>
+#include <iterator>
 #include <stack>
 #include <utility>
 

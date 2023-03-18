@@ -3,6 +3,7 @@
 #include "core/genericvec.h"
 #include "core/id.h"
 #include "core/magic.h"
+#include "core/units.h"
 #include "core/vec.h"
 #include "engine/location.h"
 #include "engine/skeletalmodelnode.h"

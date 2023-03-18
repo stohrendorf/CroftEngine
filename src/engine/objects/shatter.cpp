@@ -17,15 +17,18 @@
 #include "engine/world/world.h"
 #include "modelobject.h"
 #include "objectstate.h"
+#include "render/rendersettings.h"
 #include "render/scene/mesh.h" // IWYU pragma: keep
 #include "render/scene/node.h"
 
 #include <boost/log/trivial.hpp>
 #include <cstddef>
 #include <cstdint>
+#include <gl/pixel.h>
 #include <gsl/gsl-lite.hpp>
 #include <gslu.h>
 #include <memory>
+#include <string>
 #include <utility>
 #include <vector>
 

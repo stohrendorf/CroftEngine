@@ -19,8 +19,10 @@
 #include "ui/widgets/label.h"
 #include "ui/widgets/listbox.h"
 #include "ui/widgets/messagebox.h"
+#include "ui/widgets/widget.h"
 #include "util/helpers.h"
 
+#include <algorithm>
 #include <boost/format.hpp>
 #include <chrono>
 #include <ctime>
@@ -31,8 +33,10 @@
 #include <iomanip>
 #include <locale>
 #include <map>
+#include <optional>
 #include <ratio>
 #include <sstream>
+#include <type_traits>
 #include <utility>
 
 namespace menu

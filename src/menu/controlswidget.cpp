@@ -14,6 +14,7 @@
 #include <boost/throw_exception.hpp>
 #include <cstddef>
 #include <glm/vec2.hpp>
+#include <gsl/gsl-lite.hpp>
 #include <gslu.h>
 #include <optional>
 #include <stdexcept>

@@ -21,6 +21,7 @@
 #include "serialization/serialization.h"
 #include "util/helpers.h"
 
+#include <boost/assert.hpp>
 #include <exception>
 #include <memory>
 

@@ -106,7 +106,7 @@ bool initCrashReporting()
 
 int main(int argc, char** argv)
 {
-  bool crashReportInitSuccess = initCrashReporting();
+  const bool crashReportInitSuccess = initCrashReporting();
   boost::log::add_common_attributes();
 #ifndef NDEBUG
   initConsole(boost::log::trivial::trace);

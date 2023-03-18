@@ -1,7 +1,9 @@
 #pragma once
 
+#include <cstddef>
 #include <cstdint>
 #include <filesystem>
+#include <iosfwd>
 #include <map>
 #include <vector>
 
@@ -17,4 +19,4 @@ struct FileSpan
 
 extern std::map<std::filesystem::path, FileSpan> getFiles(DiscImage& drive);
 extern std::vector<uint8_t> readFile(DiscImage& drive, const FileSpan& span);
-} // namespace cdrom
+} // namespace image

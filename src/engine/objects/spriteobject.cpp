@@ -3,6 +3,9 @@
 #include "core/id.h"
 #include "engine/engine.h"
 #include "engine/engineconfig.h"
+#include "engine/lighting.h"
+#include "engine/location.h"
+#include "engine/objectmanager.h"
 #include "engine/objects/laraobject.h"
 #include "engine/world/room.h"
 #include "engine/world/sprite.h"
@@ -11,6 +14,7 @@
 #include "object.h"
 #include "objectstate.h"
 #include "qs/quantity.h"
+#include "render/rendersettings.h"
 #include "render/scene/mesh.h"
 #include "serialization/quantity.h"
 #include "serialization/serialization.h"
@@ -18,17 +22,15 @@
 
 #include <algorithm>
 #include <exception>
+#include <functional>
 #include <gl/buffer.h>
 #include <gl/program.h>
 #include <glm/fwd.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/mat4x4.hpp>
 #include <glm/vec2.hpp>
-
-namespace engine
-{
-struct ShaderLight;
-}
+#include <gslu.h>
+#include <vector>
 
 namespace render::scene
 {

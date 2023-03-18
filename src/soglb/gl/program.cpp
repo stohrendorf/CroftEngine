@@ -4,6 +4,7 @@
 #include "glassert.h"
 
 #include <glm/gtc/type_ptr.hpp>
+#include <memory>
 
 namespace gl
 {

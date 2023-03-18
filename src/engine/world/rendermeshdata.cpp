@@ -19,6 +19,7 @@
 #include "render/scene/mesh.h"
 
 #include <boost/assert.hpp>
+#include <boost/log/trivial.hpp>
 #include <cstddef>
 #include <gl/buffer.h>
 #include <gl/constants.h>
@@ -29,6 +30,7 @@
 #include <glm/vec2.hpp>
 #include <gslu.h>
 #include <initializer_list>
+#include <memory>
 
 namespace gl
 {

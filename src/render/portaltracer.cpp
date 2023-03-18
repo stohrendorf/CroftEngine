@@ -9,6 +9,9 @@
 #include <algorithm>
 #include <array>
 #include <boost/assert.hpp>
+#include <boost/iterator/iterator_facade.hpp>
+#include <boost/iterator/transform_iterator.hpp>
+#include <boost/range/adaptor/argument_fwd.hpp>
 #include <boost/range/adaptor/transformed.hpp>
 #include <cstddef>
 #include <glm/fwd.hpp>
@@ -50,7 +53,7 @@ std::optional<PortalTracer::CullBox> PortalTracer::narrowCullBox(const PortalTra
     const auto projected = glm::vec2{tmp} / tmp.w;
 
     static constexpr auto Margin = 50.0f;
-    if(abs(v.z) >= Margin)
+    if(std::abs(v.z) >= Margin)
       return projected;
 
     return glm::vec2{

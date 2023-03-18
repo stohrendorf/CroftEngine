@@ -17,6 +17,7 @@
 
 #include <boost/log/trivial.hpp>
 #include <exception>
+#include <functional>
 
 namespace engine
 {

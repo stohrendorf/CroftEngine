@@ -20,7 +20,6 @@
 #include "render/scene/node.h"
 
 #include <gsl/gsl-lite.hpp>
-#include <gslu.h>
 #include <memory>
 #include <utility>
 

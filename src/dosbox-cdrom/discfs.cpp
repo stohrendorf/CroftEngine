@@ -7,6 +7,8 @@
 #include <filesystem>
 #include <gsl/gsl-lite.hpp>
 #include <map>
+#include <stdexcept>
+#include <string>
 
 namespace image
 {

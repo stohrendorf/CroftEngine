@@ -30,6 +30,7 @@
 #include <bitset>
 #include <boost/log/trivial.hpp>
 #include <exception>
+#include <functional>
 #include <map>
 
 namespace engine::objects

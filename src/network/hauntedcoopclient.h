@@ -1,15 +1,13 @@
 #pragma once
 
-#include <atomic>
+#include <cstddef>
 #include <cstdint>
-#include <gsl/gsl-lite.hpp>
+#include <iosfwd>
 #include <map>
 #include <memory>
 #include <mutex>
-#include <optional>
 #include <string>
 #include <thread>
-#include <tuple>
 #include <vector>
 
 namespace network

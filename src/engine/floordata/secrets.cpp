@@ -1,10 +1,11 @@
 #include "secrets.h"
 
 #include "floordata.h"
-#include "util/helpers.h"
+#include "types.h"
 
 #include <boost/assert.hpp>
 #include <boost/throw_exception.hpp>
+#include <stdexcept>
 
 namespace engine::floordata
 {
@@ -17,7 +18,7 @@ std::bitset<16> getSecretsMask(const FloorDataValue* floorData)
   std::bitset<16> result{};
   while(true)
   {
-    FloorDataChunk chunkHeader{*floorData++};
+    const FloorDataChunk chunkHeader{*floorData++};
 
     switch(chunkHeader.type)
     {

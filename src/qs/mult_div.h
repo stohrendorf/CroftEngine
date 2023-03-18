@@ -94,6 +94,7 @@ struct fraction_unit<std::tuple<Top...>, std::tuple<Bottom...>>
 template<typename A, typename B>
 using fraction_unit_t = typename fraction_unit<A, B>::type;
 
+// NOLINTNEXTLINE(bugprone-reserved-identifier)
 #define _QS_COMBINE_TS(T1, OP, T2) decltype(std::declval<T1>() OP std::declval<T2>())
 
 // operator *

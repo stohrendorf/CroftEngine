@@ -7,7 +7,6 @@
 #include <gl/pixel.h>
 #include <gl/soglb_fwd.h>
 #include <glm/fwd.hpp>
-#include <gsl/gsl-lite.hpp>
 #include <gslu.h>
 #include <memory>
 

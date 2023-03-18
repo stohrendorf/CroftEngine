@@ -1,13 +1,10 @@
 #pragma once
 
-#include "checkbox.h"
 #include "widget.h"
 
-#include <algorithm>
+#include <cstddef>
 #include <glm/vec2.hpp>
-#include <gsl/gsl-lite.hpp>
 #include <gslu.h>
-#include <memory>
 #include <string>
 #include <vector>
 

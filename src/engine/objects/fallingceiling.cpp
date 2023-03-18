@@ -3,6 +3,7 @@
 #include "core/id.h"
 #include "core/units.h"
 #include "core/vec.h"
+#include "engine/heightinfo.h"
 #include "engine/location.h"
 #include "engine/objectmanager.h"
 #include "engine/world/world.h"

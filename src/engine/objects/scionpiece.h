@@ -2,6 +2,7 @@
 
 #include "core/units.h"
 #include "modelobject.h"
+#include "serialization/serialization_fwd.h"
 #include "spriteobject.h"
 
 namespace engine

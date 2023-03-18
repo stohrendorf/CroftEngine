@@ -3,6 +3,7 @@
 #include <archive.h>
 #include <archive_entry.h>
 #include <fstream>
+#include <string>
 #include <vector>
 
 WriteOnlyXzArchive::WriteOnlyXzArchive(const std::filesystem::path& path)

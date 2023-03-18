@@ -5,7 +5,6 @@
 #include "core/vec.h"
 #include "qs/qs.h"
 
-#include <chrono>
 #include <cstdint>
 #include <filesystem>
 #include <glm/mat4x4.hpp>

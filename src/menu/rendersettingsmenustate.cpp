@@ -14,16 +14,16 @@
 #include "selectedmenustate.h"
 #include "ui/ui.h"
 #include "ui/widgets/checkbox.h"
-#include "ui/widgets/groupbox.h"
 #include "ui/widgets/label.h"
 #include "ui/widgets/listbox.h"
 #include "ui/widgets/tabbox.h"
 #include "ui/widgets/valueselector.h"
 #include "ui/widgets/widget.h"
 
-#include <algorithm>
 #include <boost/format.hpp>
+#include <boost/throw_exception.hpp>
 #include <cmath>
+#include <cstddef>
 #include <cstdint>
 #include <functional>
 #include <gl/glad_init.h>
@@ -31,6 +31,8 @@
 #include <glm/vec2.hpp>
 #include <gsl/gsl-lite.hpp>
 #include <gslu.h>
+#include <ios>
+#include <stdexcept>
 #include <string>
 #include <tuple>
 #include <utility>
@@ -307,7 +309,7 @@ RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingT
   }
 
   {
-    std::vector<int32_t> values{1, 2, 3};
+    const std::vector<int32_t> values{1, 2, 3};
 
     auto tmp = std::make_shared<ui::widgets::ValueSelector<int32_t>>(
       [](int32_t value)

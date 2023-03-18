@@ -1,9 +1,7 @@
 #pragma once
 
-#include "menustate.h"
 #include "selectedmenustate.h"
 
-#include <cstddef>
 #include <gslu.h>
 #include <memory>
 #include <vector>
@@ -20,12 +18,8 @@ class Ui;
 
 namespace ui::widgets
 {
-class Checkbox;
-class Tab;
 class TabBox;
-template<typename T>
-class ValueSelector;
-} // namespace ui::widgets
+}
 
 namespace engine
 {
@@ -36,6 +30,7 @@ namespace menu
 {
 struct MenuDisplay;
 struct MenuRingTransform;
+class MenuState;
 
 class RenderSettingsMenuState : public SelectedMenuState
 {

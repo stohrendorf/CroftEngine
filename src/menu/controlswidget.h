@@ -5,7 +5,6 @@
 
 #include <functional>
 #include <glm/fwd.hpp>
-#include <gsl/gsl-lite.hpp>
 #include <gslu.h>
 #include <memory>
 #include <vector>

@@ -242,6 +242,7 @@ public:
     m_atlases.emplace_back(m_pageSize, m_onlyLayout);
     auto position = m_atlases.back().put(extended);
     gsl_Assert(position.has_value());
+    // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
     return {m_atlases.size() - 1, position.value() + glm::ivec2{BoundaryMargin, BoundaryMargin}};
   }
 
@@ -256,6 +257,7 @@ public:
     m_atlases.emplace_back(m_pageSize, m_onlyLayout);
     auto position = m_atlases.back().put(size + 2 * glm::ivec2{BoundaryMargin, BoundaryMargin});
     gsl_Assert(position.has_value());
+    // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
     return {m_atlases.size() - 1, position.value() + glm::ivec2{BoundaryMargin, BoundaryMargin}};
   }
 
@@ -264,6 +266,7 @@ public:
     gsl_Assert(!m_onlyLayout);
 
     std::vector<std::shared_ptr<gl::CImgWrapper>> result;
+    result.reserve(m_atlases.size());
     for(auto& atlas : m_atlases)
       result.emplace_back(atlas.takeImage());
     return result;

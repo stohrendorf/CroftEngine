@@ -1,5 +1,9 @@
 #include "bitmap.hpp"
 
+#include <algorithm>
+#include <cstddef>
+#include <utility>
+
 Bitmap::Bitmap(const glm::ivec2& size)
     : m_linesLeft{gsl::narrow_cast<uint32_t>(size.y / 4)}
     , m_size{size}

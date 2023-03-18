@@ -5,7 +5,6 @@
 
 #include <bitset>
 #include <gl/buffer.h>
-#include <gsl/gsl-lite.hpp>
 #include <gslu.h>
 #include <memory>
 #include <string>

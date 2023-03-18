@@ -4,7 +4,6 @@
 #include <filesystem>
 #include <gsl/gsl-lite.hpp>
 #include <gslu.h>
-#include <memory>
 #include <string>
 #include <unordered_map>
 #include <utility>
@@ -180,7 +179,7 @@ public:
     gsl_Expects(extent > 0);
     gsl_Expects(blurDim > 0);
     gsl_Expects(blurDim <= 3);
-    std::vector<std::string> defines{"BLUR_DIM " + std::to_string(blurDim)};
+    const std::vector<std::string> defines{"BLUR_DIM " + std::to_string(blurDim)};
     return get("flat.vert", "blur_fast_gauss_" + std::to_string(extent * 2 + 1) + ".frag", defines);
   }
 
@@ -189,7 +188,7 @@ public:
     gsl_Expects(extent > 0);
     gsl_Expects(blurDim > 0);
     gsl_Expects(blurDim <= 3);
-    std::vector<std::string> defines{"BLUR_DIM " + std::to_string(blurDim)};
+    const std::vector<std::string> defines{"BLUR_DIM " + std::to_string(blurDim)};
     return get("flat.vert", "blur_fast_box_" + std::to_string(extent * 2 + 1) + ".frag", defines);
   }
 

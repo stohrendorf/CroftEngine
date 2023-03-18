@@ -24,6 +24,7 @@
 #include "serialization/serialization.h"
 #include "util/helpers.h"
 
+#include <cstdint>
 #include <exception>
 #include <map>
 #include <memory>

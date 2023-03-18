@@ -1,11 +1,11 @@
 #pragma once
 
+#include <functional>
 #include <gl/fencesync.h>
 #include <gl/pixel.h>
 #include <gl/soglb_fwd.h>
 #include <gl/texturedepth.h>
 #include <glm/vec2.hpp>
-#include <gsl/gsl-lite.hpp>
 #include <gslu.h>
 #include <memory>
 

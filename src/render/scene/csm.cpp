@@ -7,11 +7,13 @@
 #include "render/material/materialmanager.h"
 #include "render/material/rendermode.h"
 #include "rendercontext.h"
+#include "translucency.h"
 
 #include <algorithm>
 #include <gl/buffer.h>
 #include <gl/constants.h>
 #include <gl/debuggroup.h>
+#include <gl/fencesync.h>
 #include <gl/framebuffer.h>
 #include <gl/glassert.h>
 #include <gl/pixel.h>

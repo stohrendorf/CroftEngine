@@ -4,6 +4,7 @@
 #include "core/units.h"
 #include "engine/soundeffects_tr1.h"
 #include "engine/weapontype.h"
+#include "qs/qs.h"
 
 namespace engine::objects
 {

@@ -21,6 +21,7 @@
 #include "hid/actions.h"
 #include "hid/inputhandler.h"
 #include "loader/trx/trx.h"
+#include "location.h"
 #include "menu/menudisplay.h"
 #include "network/hauntedcoopclient.h"
 #include "objects/laraobject.h"
@@ -34,6 +35,7 @@
 #include "render/scene/node.h"
 #include "render/scene/rendercontext.h"
 #include "render/scene/sprite.h"
+#include "render/scene/translucency.h"
 #include "script/reflection.h"
 #include "script/scriptengine.h"
 #include "serialization/serialization.h"
@@ -44,11 +46,11 @@
 #include "ui/levelstats.h"
 #include "ui/text.h"
 #include "ui/ui.h"
-#include "ui/widgets/messagebox.h"
 #include "util/helpers.h"
 #include "world/world.h"
 
 #include <algorithm>
+#include <array>
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/format.hpp>
 #include <boost/locale/generator.hpp>
@@ -64,8 +66,8 @@
 #include <gl/cimgwrapper.h>
 #include <gl/constants.h>
 #include <gl/font.h>
-#include <gl/framebuffer.h>
 #include <gl/glad_init.h>
+#include <gl/image.h>
 #include <gl/pixel.h>
 #include <gl/program.h>
 #include <gl/sampler.h>
@@ -73,14 +75,14 @@
 #include <gl/texturehandle.h>
 #include <glm/common.hpp>
 #include <glm/fwd.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 #include <glm/mat4x4.hpp>
+#include <glm/vec3.hpp>
 #include <gslu.h>
-#include <iosfwd>
 #include <locale>
-#include <pybind11/eval.h>
 #include <sstream>
 #include <stdexcept>
-#include <system_error>
+#include <type_traits>
 #include <utility>
 #include <vector>
 
@@ -147,8 +149,8 @@ bool showLevelStats(const std::shared_ptr<Presenter>& presenter, world::World& w
   static constexpr const auto BlendDuration = 30_frame;
   auto currentBlendDuration = 0_frame;
 
-  ui::LevelStats stats{world.getTitle(), world.getTotalSecrets(), world.getPlayerPtr(), presenter};
-  ui::DetailedLevelStats detailedStats{world};
+  const ui::LevelStats stats{world.getTitle(), world.getTotalSecrets(), world.getPlayerPtr(), presenter};
+  const ui::DetailedLevelStats detailedStats{world};
   bool detailed = false;
 
   Throttler throttler;
@@ -327,7 +329,7 @@ void updateRemoteGhosts(world::World& world, GhostManager& ghostManager, const n
       setParent(nameNode, it->second);
     }
 
-    gsl::not_null remoteGhost{it->second};
+    const gsl::not_null remoteGhost{it->second};
     remoteGhost->apply(world, ghostFrame);
     remoteGhost->setColor(glColor);
     updateGhostRoom(world.getRooms(), remoteGhost);
@@ -858,7 +860,7 @@ std::unique_ptr<loader::trx::Glidos> Engine::loadGlidosPack() const
 
 std::optional<SavegameMeta> Engine::getSavegameMeta(const std::filesystem::path& filename) const
 {
-  std::filesystem::path filepath{getSavegameRootPath() / filename};
+  const std::filesystem::path filepath{getSavegameRootPath() / filename};
   if(!std::filesystem::is_regular_file(filepath))
     return std::nullopt;
 

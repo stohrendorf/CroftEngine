@@ -2,20 +2,19 @@
 
 #include "lighting.h"
 
-#include <gl/soglb_fwd.h>
 #include <gslu.h>
-#include <map>
 #include <memory>
+#include <utility>
 #include <vector>
 
 namespace engine::world
 {
+struct Room;
 class World;
-}
+} // namespace engine::world
 
 namespace render::scene
 {
-class Renderable;
 class RenderContext;
 } // namespace render::scene
 

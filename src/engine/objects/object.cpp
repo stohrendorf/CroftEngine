@@ -19,11 +19,10 @@
 #include "util/helpers.h"
 
 #include <algorithm>
-#include <boost/assert.hpp>
+#include <boost/log/trivial.hpp>
 #include <exception>
 #include <glm/geometric.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#include <gslu.h>
 
 namespace engine::objects
 {

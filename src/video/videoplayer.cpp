@@ -5,7 +5,6 @@
 #include "audio/streamvoice.h"
 #include "avdecoder.h"
 #include "converter.h"
-#include "ffmpeg/avframeptr.h"
 #include "filtergraph.h"
 
 #include <boost/log/trivial.hpp>
@@ -15,6 +14,8 @@
 #include <functional>
 #include <gl/pixel.h>
 #include <gsl/gsl-lite.hpp>
+#include <gslu.h>
+#include <memory>
 #include <optional>
 #include <sstream>
 #include <stdexcept>

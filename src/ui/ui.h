@@ -3,6 +3,7 @@
 #include <array>
 #include <cstddef>
 #include <cstdint>
+#include <gl/api/gl.hpp>
 #include <gl/pixel.h>
 #include <gl/soglb_fwd.h>
 #include <glm/vec2.hpp>

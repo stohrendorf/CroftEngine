@@ -10,6 +10,7 @@
 #include "world/sector.h"
 
 #include <exception>
+#include <functional>
 #include <memory>
 #include <ostream>
 #include <string>

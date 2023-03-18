@@ -19,7 +19,7 @@ std::optional<std::tuple<std::string, std::string>> showLauncher(int argc, char*
   QCoreApplication::setOrganizationDomain("earvillage.net");
   QCoreApplication::setApplicationName("CroftEngine");
 
-  QApplication app{argc, argv};
+  const QApplication app{argc, argv};
 
   QTranslator translator;
   if(!translator.load(QLocale(),

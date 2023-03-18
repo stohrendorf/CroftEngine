@@ -8,6 +8,8 @@
 #include <boost/assert.hpp>
 #include <gl/pixel.h>
 #include <glm/fwd.hpp>
+#include <gslu.h>
+#include <memory>
 
 namespace ui::widgets
 {

@@ -6,6 +6,7 @@
 #include <archive.h>
 #include <archive_entry.h>
 #include <fstream>
+#include <stdexcept>
 #include <vector>
 
 ReadOnlyArchive::ReadOnlyArchive(const std::filesystem::path& path)

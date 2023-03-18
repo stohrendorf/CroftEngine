@@ -1,19 +1,12 @@
 #pragma once
 
-#include "bitmap.hpp"
-
-#include <condition_variable>
+#include <boost/iostreams/device/mapped_file.hpp>
 #include <cstdint>
 #include <cstdio>
-#include <future>
+#include <glm/vec2.hpp>
 #include <memory>
-#include <mutex>
-#include <vector>
 
-namespace boost::iostreams
-{
-class mapped_file_sink;
-}
+class Bitmap;
 
 class BlockData
 {

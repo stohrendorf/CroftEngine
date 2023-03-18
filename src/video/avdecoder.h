@@ -7,7 +7,6 @@
 
 #include <atomic>
 #include <chrono>
-#include <condition_variable>
 #include <cstddef>
 #include <cstdint>
 #include <memory>
@@ -29,7 +28,8 @@ struct AudioStreamDecoder;
 namespace ffmpeg
 {
 struct Stream;
-}
+struct AVFramePtr;
+} // namespace ffmpeg
 
 namespace video
 {

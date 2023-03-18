@@ -3,8 +3,10 @@
 #include "core/i18n.h"
 #include "ui/util.h"
 
+#include <boost/format.hpp>
 #include <boost/log/trivial.hpp>
 #include <boost/throw_exception.hpp>
+#include <chrono>
 #include <cstdlib>
 #include <glm/gtc/type_ptr.hpp>
 #include <gsl/gsl-lite.hpp>
@@ -71,7 +73,7 @@ std::string unescape(const std::string& escaped)
 std::string escape(const std::string& unescaped)
 {
   std::string result;
-  for(uint8_t c : unescaped)
+  for(const uint8_t c : unescaped)
   {
     switch(c)
     {

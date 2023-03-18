@@ -21,6 +21,7 @@
 #include "ui/ui.h"
 #include "util.h"
 
+#include <boost/assert.hpp>
 #include <glm/vec2.hpp>
 #include <gsl/gsl-lite.hpp>
 #include <utility>
@@ -224,7 +225,8 @@ std::unique_ptr<MenuState> PassportMenuState::onFrame(ui::Ui& ui, engine::world:
     }
   }
   else if(forcePageTurn == hid::AxisMovement::Right
-          || world.getPresenter().getInputHandler().getInputState().menuXMovement.justChangedTo(hid::AxisMovement::Right))
+          || world.getPresenter().getInputHandler().getInputState().menuXMovement.justChangedTo(
+            hid::AxisMovement::Right))
   {
     nextPage(passport, world);
     return nullptr;

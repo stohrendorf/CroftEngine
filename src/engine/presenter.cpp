@@ -9,6 +9,7 @@
 #include "objectmanager.h"
 #include "objects/laraobject.h"
 #include "objects/objectstate.h"
+#include "particlecollection.h"
 #include "qs/qs.h"
 #include "render/material/material.h"
 #include "render/material/materialgroup.h"
@@ -27,6 +28,7 @@
 #include "render/scene/rendercontext.h"
 #include "render/scene/renderer.h"
 #include "render/scene/screenoverlay.h"
+#include "render/scene/translucency.h"
 #include "render/scene/visitor.h"
 #include "ui/text.h"
 #include "ui/ui.h"
@@ -35,22 +37,22 @@
 #include "world/room.h"
 
 #include <algorithm>
+#include <boost/assert.hpp>
 #include <cstdint>
 #include <cstdlib>
 #include <gl/cimgwrapper.h>
 #include <gl/constants.h>
 #include <gl/debuggroup.h>
+#include <gl/fencesync.h>
 #include <gl/font.h>
 #include <gl/framebuffer.h>
 #include <gl/glassert.h>
-#include <gl/glfw.h>
 #include <gl/image.h>
 #include <gl/pixel.h>
 #include <gl/program.h>
 #include <gl/renderstate.h>
 #include <gl/sampler.h>
 #include <gl/texture2d.h>
-#include <gl/texturedepth.h>
 #include <gl/texturehandle.h>
 #include <gl/window.h>
 #include <glm/common.hpp>
@@ -58,6 +60,7 @@
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
 #include <gslu.h>
+#include <initializer_list>
 #include <limits>
 #include <optional>
 #include <utility>

@@ -1,6 +1,8 @@
 #include "renderpipeline.h"
 
 #include "engine/world/room.h"
+#include "material/rendermode.h"
+#include "pass/config.h"
 #include "pass/edgedetectionpass.h"
 #include "pass/effectpass.h"
 #include "pass/geometrypass.h"
@@ -11,16 +13,31 @@
 #include "render/material/materialmanager.h"
 #include "render/scene/visitor.h"
 #include "rendersettings.h"
+#include "scene/node.h"
+#include "scene/rendercontext.h"
+#include "scene/translucency.h"
 
 #include <boost/assert.hpp>
+#include <boost/throw_exception.hpp>
 #include <gl/constants.h>
+#include <gl/debuggroup.h>
+#include <gl/fencesync.h>
 #include <gl/framebuffer.h>
+#include <gl/glassert.h>
+#include <gl/pixel.h>
 #include <gl/program.h>
+#include <gl/renderstate.h>
+#include <gl/sampler.h>
 #include <gl/texture2d.h>
 #include <gl/texturedepth.h>
 #include <gl/texturehandle.h>
+#include <glm/mat4x4.hpp>
 #include <glm/vec2.hpp>
+#include <glm/vec3.hpp>
 #include <gsl/gsl-lite.hpp>
+#include <gslu.h>
+#include <optional>
+#include <stdexcept>
 #include <string>
 
 namespace render::material
@@ -31,8 +48,7 @@ class Material;
 namespace render::scene
 {
 class Mesh;
-class Node;
-} // namespace render::scene
+}
 
 namespace render
 {

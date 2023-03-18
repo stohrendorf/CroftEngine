@@ -8,6 +8,8 @@
 #include "util/helpers.h"
 
 #include <cstdlib>
+#include <gslu.h>
+#include <memory>
 #include <type_traits>
 
 namespace engine

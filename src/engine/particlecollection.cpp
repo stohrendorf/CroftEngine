@@ -1,12 +1,21 @@
 #include "particlecollection.h"
 
+#include "core/units.h"
+#include "lighting.h"
+#include "location.h"
 #include "particle.h"
 #include "render/scene/mesh.h"
-#include "render/scene/names.h"
+#include "render/scene/node.h"
 #include "world/room.h"
 
+#include <algorithm>
 #include <gl/debuggroup.h>
 #include <gl/vertexbuffer.h>
+#include <glm/mat4x4.hpp>
+#include <gsl/gsl-lite.hpp>
+#include <gslu.h>
+#include <map>
+#include <tuple>
 
 namespace engine
 {

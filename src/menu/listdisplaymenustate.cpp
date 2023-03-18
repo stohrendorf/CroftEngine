@@ -8,14 +8,18 @@
 #include "hid/inputstate.h"
 #include "menustate.h"
 #include "selectedmenustate.h"
+#include "ui/core.h"
 #include "ui/ui.h"
 #include "ui/widgets/groupbox.h"
 #include "ui/widgets/label.h"
 #include "ui/widgets/listbox.h"
 
+#include <boost/format.hpp>
 #include <cstddef>
+#include <gl/pixel.h>
 #include <glm/vec2.hpp>
 #include <gsl/gsl-lite.hpp>
+#include <gslu.h>
 #include <memory>
 #include <string>
 

@@ -8,6 +8,7 @@
 #include <freetype/ftcache.h>
 #include <glm/vec2.hpp>
 #include <gsl/gsl-lite.hpp>
+#include <map>
 #include <string>
 
 namespace gl

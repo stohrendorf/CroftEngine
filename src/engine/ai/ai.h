@@ -11,6 +11,7 @@
 #include <boost/throw_exception.hpp>
 #include <cstdint>
 #include <gsl/gsl-lite.hpp>
+#include <limits>
 #include <memory>
 #include <ostream>
 #include <stdexcept>

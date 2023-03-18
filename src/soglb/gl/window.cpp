@@ -12,6 +12,7 @@
 #include <glm/fwd.hpp>
 #include <gsl/gsl-lite.hpp>
 #include <iterator>
+#include <map>
 #include <mutex>
 #include <stdexcept>
 #include <unordered_map>

@@ -19,6 +19,8 @@
 #ifndef __CDROM_INTERFACE__
 #define __CDROM_INTERFACE__
 
+#include <cstddef>
+#include <cstdint>
 #include <filesystem>
 #include <vector>
 

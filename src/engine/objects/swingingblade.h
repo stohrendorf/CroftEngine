@@ -1,6 +1,10 @@
 #pragma once
 
 #include "modelobject.h"
+#include "serialization/serialization_fwd.h"
+
+#include <gsl/gsl-lite.hpp>
+#include <string>
 
 namespace engine
 {

@@ -23,6 +23,7 @@
 #include "render/scene/node.h"
 #include "serialization/serialization.h"
 
+#include <cstddef>
 #include <exception>
 #include <memory>
 

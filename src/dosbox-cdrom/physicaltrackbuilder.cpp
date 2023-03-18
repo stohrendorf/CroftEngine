@@ -1,8 +1,13 @@
 #include "physicaltrackbuilder.h"
 
+#include "binaryfile.h"
 #include "cueparser.h"
 
 #include <boost/log/trivial.hpp>
+#include <boost/throw_exception.hpp>
+#include <gsl/gsl-lite.hpp>
+#include <stdexcept>
+#include <string>
 
 namespace image
 {

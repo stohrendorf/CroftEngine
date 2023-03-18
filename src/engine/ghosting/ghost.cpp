@@ -1,12 +1,15 @@
 #include "ghost.h"
 
+#include "ghostfinishstate.h"
 #include "serialization/path.h"
 #include "serialization/quantity.h"
 #include "serialization/serialization.h"
 
 #include <boost/assert.hpp>
+#include <exception>
 #include <fstream>
 #include <gsl/gsl-lite.hpp>
+#include <stdexcept>
 
 namespace engine::ghosting
 {
@@ -71,7 +74,7 @@ void writeMatrix(std::ostream& s, const glm::mat4& m)
 
 void GhostFrame::write(std::ostream& s) const
 {
-  uint8_t size = gsl::narrow<uint8_t>(bones.size());
+  const auto size = gsl::narrow<uint8_t>(bones.size());
   // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
   s.write(reinterpret_cast<const char*>(&size), sizeof(size));
   for(const auto& bone : bones)

@@ -6,15 +6,14 @@
 #include "render/scene/node.h"
 #include "serialization/serialization_fwd.h"
 
-#include <algorithm>
 #include <cstddef>
+#include <functional>
 #include <gl/buffer.h>
 #include <gl/pixel.h>
 #include <glm/fwd.hpp>
 #include <glm/mat4x4.hpp>
 #include <glm/vec4.hpp>
 #include <gsl/gsl-lite.hpp>
-#include <iterator>
 #include <memory>
 #include <optional>
 #include <string>

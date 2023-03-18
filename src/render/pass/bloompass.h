@@ -18,11 +18,6 @@
 #include <string>
 #include <utility>
 
-namespace render::scene
-{
-class Material;
-} // namespace render::scene
-
 namespace render::pass
 {
 template<typename TPixel>

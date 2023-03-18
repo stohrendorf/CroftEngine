@@ -3,18 +3,19 @@
 #include "geometrypass.h"
 #include "render/scene/blur.h"
 
-#include <algorithm>
 #include <gl/constants.h>
+#include <gl/debuggroup.h>
+#include <gl/fencesync.h>
 #include <gl/framebuffer.h>
 #include <gl/pixel.h>
 #include <gl/sampler.h>
 #include <gl/texture2d.h>
 #include <gl/texturedepth.h>
 #include <gl/texturehandle.h>
-#include <glm/fwd.hpp>
 #include <gslu.h>
 #include <limits>
 #include <memory>
+#include <string>
 
 namespace render::material
 {

@@ -6,6 +6,7 @@
 #include <array>
 #include <cstddef>
 #include <cstdint>
+#include <functional>
 #include <gl/buffer.h>
 #include <gl/fencesync.h>
 #include <gl/pixel.h>

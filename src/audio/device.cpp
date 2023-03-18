@@ -16,6 +16,7 @@
 #include <boost/throw_exception.hpp>
 #include <glm/fwd.hpp>
 #include <glm/geometric.hpp>
+#include <gsl/gsl-lite.hpp>
 #include <gslu.h>
 #include <stdexcept>
 #include <utility>
@@ -109,7 +110,7 @@ Device::~Device()
   m_underwaterFilter.reset();
 
   {
-    std::lock_guard lock{m_streamsLock};
+    const std::lock_guard lock{m_streamsLock};
     m_streams.clear();
   }
 
@@ -182,7 +183,7 @@ Device::Device()
 
 void Device::reset()
 {
-  std::lock_guard lock{m_streamsLock};
+  const std::lock_guard lock{m_streamsLock};
 
   m_updateCallbacks.clear();
 
@@ -206,7 +207,7 @@ void Device::update()
 {
   // remove expired streams and voices
   {
-    std::lock_guard lock{m_streamsLock};
+    const std::lock_guard lock{m_streamsLock};
     auto streams = std::move(m_streams);
     for(const auto& stream : streams)
     {
@@ -266,14 +267,14 @@ gslu::nn_shared<StreamVoice> Device::createStream(std::unique_ptr<AbstractStream
   auto stream = gsl::make_shared<StreamVoice>(
     std::make_unique<StreamingSourceHandle>(), std::move(src), bufferSize, bufferCount, initialPosition);
 
-  std::lock_guard lock{m_streamsLock};
+  const std::lock_guard lock{m_streamsLock};
   m_streams.emplace(stream);
   return stream;
 }
 
 void Device::updateStreams()
 {
-  std::lock_guard lock{m_streamsLock};
+  const std::lock_guard lock{m_streamsLock};
   for(const auto& stream : m_streams)
     stream->update();
   auto tmp = std::move(m_updateCallbacks);
@@ -290,7 +291,7 @@ void Device::removeStream(const gslu::nn_shared<StreamVoice>& stream)
 {
   stream->setLooping(false);
   stream->stop();
-  std::lock_guard lock{m_streamsLock};
+  const std::lock_guard lock{m_streamsLock};
   m_streams.erase(stream);
 }
 
@@ -312,7 +313,7 @@ void Device::setListenerGain(float gain)
 
 void Device::registerUpdateCallback(const std::function<UpdateCallback>& fn)
 {
-  std::lock_guard lock{m_streamsLock};
+  const std::lock_guard lock{m_streamsLock};
   m_updateCallbacks.emplace_back(fn, std::chrono::high_resolution_clock::now());
 }
 } // namespace audio

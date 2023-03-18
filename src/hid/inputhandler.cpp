@@ -16,7 +16,10 @@
 #include <fstream>
 #include <gl/glfw.h>
 #include <gl/window.h>
+#include <gsl/gsl-lite.hpp>
+#include <gslu.h>
 #include <iterator>
+#include <memory>
 #include <mutex>
 #include <stdexcept>
 #include <string>
@@ -54,7 +57,7 @@ void keyCallback(GLFWwindow* /*window*/, int key, int /*scancode*/, int action, 
   {
   case GLFW_PRESS:
   {
-    std::lock_guard lock{glfwStateMutex};
+    const std::lock_guard lock{glfwStateMutex};
     pressedKeys.emplace(typed);
     recentPressedKey = typed;
 #ifdef PRINT_KEY_INPUT
@@ -67,7 +70,7 @@ void keyCallback(GLFWwindow* /*window*/, int key, int /*scancode*/, int action, 
   }
   case GLFW_RELEASE:
   {
-    std::lock_guard lock{glfwStateMutex};
+    const std::lock_guard lock{glfwStateMutex};
     pressedKeys.erase(typed);
     break;
   }
@@ -90,14 +93,14 @@ void joystickCallback(int jid, int event)
     }
 
     {
-      std::lock_guard lock{glfwStateMutex};
+      const std::lock_guard lock{glfwStateMutex};
       connectedGamepads.emplace(jid);
     }
     BOOST_LOG_TRIVIAL(info) << "Gamepad #" << jid << " connected: " << glfwGetGamepadName(jid);
     break;
   case GLFW_DISCONNECTED:
   {
-    std::lock_guard lock{glfwStateMutex};
+    const std::lock_guard lock{glfwStateMutex};
     if(connectedGamepads.erase(jid) != 0)
       BOOST_LOG_TRIVIAL(info) << "Gamepad #" << jid << " disconnected";
     break;
@@ -121,7 +124,7 @@ void installHandlers(GLFWwindow* window)
 
 bool isKeyPressed(GlfwKey key)
 {
-  std::lock_guard lock{glfwStateMutex};
+  const std::lock_guard lock{glfwStateMutex};
   return pressedKeys.count(key) > 0;
 }
 } // namespace
@@ -131,7 +134,8 @@ InputHandler::InputHandler(gslu::nn_shared<gl::Window> window, const std::filesy
 {
   std::ifstream gameControllerDbFile{util::ensureFileExists(gameControllerDb), std::ios::in | std::ios::binary};
   std::noskipws(gameControllerDbFile);
-  std::string gameControllerDbData{std::istream_iterator<char>{gameControllerDbFile}, std::istream_iterator<char>{}};
+  const std::string gameControllerDbData{std::istream_iterator<char>{gameControllerDbFile},
+                                         std::istream_iterator<char>{}};
 
   gsl_Assert(glfwUpdateGamepadMappings(gameControllerDbData.c_str()) == GLFW_TRUE);
 
@@ -152,14 +156,14 @@ InputHandler::InputHandler(gslu::nn_shared<gl::Window> window, const std::filesy
 
     BOOST_LOG_TRIVIAL(info) << "Found gamepad controller #" << jid << ": " << name;
 
-    std::lock_guard lock{glfwStateMutex};
+    const std::lock_guard lock{glfwStateMutex};
     connectedGamepads.emplace(jid);
   }
 }
 
 void InputHandler::update()
 {
-  std::lock_guard lock{glfwStateMutex};
+  const std::lock_guard lock{glfwStateMutex};
   if(!m_window->hasFocus())
   {
     for(auto& [action, button] : m_inputState.actions)
@@ -304,21 +308,21 @@ bool InputHandler::hasKey(GlfwKey key) const
 // NOLINTNEXTLINE(readability-convert-member-functions-to-static)
 std::optional<GlfwKey> InputHandler::takeRecentlyPressedKey()
 {
-  std::lock_guard lock{glfwStateMutex};
+  const std::lock_guard lock{glfwStateMutex};
   return std::exchange(recentPressedKey, std::nullopt);
 }
 
 // NOLINTNEXTLINE(readability-convert-member-functions-to-static)
 std::optional<GlfwGamepadButton> InputHandler::takeRecentlyPressedButton()
 {
-  std::lock_guard lock{glfwStateMutex};
+  const std::lock_guard lock{glfwStateMutex};
   return std::exchange(recentPressedButton, std::nullopt);
 }
 
 // NOLINTNEXTLINE(readability-convert-member-functions-to-static)
 std::optional<AxisDir> InputHandler::takeRecentlyPressedAxis()
 {
-  std::lock_guard lock{glfwStateMutex};
+  const std::lock_guard lock{glfwStateMutex};
   return std::exchange(recentPressedAxis, std::nullopt);
 }
 } // namespace hid

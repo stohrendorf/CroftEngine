@@ -2,21 +2,37 @@
 
 #include "cameracontroller.h"
 #include "core/i18n.h"
+#include "core/units.h"
 #include "engine.h"
+#include "engine/ghosting/ghostfinishstate.h"
 #include "ghosting/ghost.h"
 #include "ghosting/ghostmodel.h"
+#include "hid/actions.h"
 #include "hid/inputhandler.h"
+#include "location.h"
+#include "objectmanager.h"
 #include "objects/laraobject.h"
+#include "objects/objectstate.h"
 #include "presenter.h"
+#include "qs/quantity.h"
 #include "render/material/materialmanager.h"
+#include "render/scene/node.h"
 #include "serialization/serialization.h"
 #include "serialization/yamldocument.h"
 #include "throttler.h"
+#include "ui/ui.h"
 #include "ui/widgets/messagebox.h"
+#include "world/room.h"
 #include "world/world.h"
 #include "writeonlyxzarchive.h"
 
 #include <boost/log/trivial.hpp>
+#include <glm/vec2.hpp>
+#include <gsl/gsl-lite.hpp>
+#include <gslu.h>
+#include <sstream>
+#include <string>
+#include <system_error>
 
 namespace engine
 {

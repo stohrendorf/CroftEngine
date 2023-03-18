@@ -5,11 +5,11 @@
 #include <boost/log/trivial.hpp>
 #include <boost/throw_exception.hpp>
 #include <filesystem>
+#include <gl/api/gl.hpp>
 #include <gl/program.h>
-#include <gsl/gsl-lite.hpp>
+#include <gl/soglb_fwd.h>
 #include <gslu.h>
 #include <iosfwd>
-#include <memory>
 #include <stdexcept>
 #include <string>
 #include <string_view>

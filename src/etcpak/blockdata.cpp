@@ -1,12 +1,16 @@
 #include "blockdata.hpp"
 
+#include "bitmap.hpp"
 #include "math.hpp"
 #include "processrgb.hpp"
+#include "ssevec.h"
 #include "tables.hpp"
 
+#include <array>
 #include <boost/iostreams/device/mapped_file.hpp>
 #include <cstring>
 #include <fstream>
+#include <gsl/gsl-lite.hpp>
 
 #ifdef WIN32
 #  include <intrin.h>

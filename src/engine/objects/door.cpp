@@ -18,6 +18,7 @@
 #include "serialization/vector_element.h"
 
 #include <exception>
+#include <functional>
 #include <gl/renderstate.h>
 #include <memory>
 

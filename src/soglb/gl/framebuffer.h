@@ -6,7 +6,6 @@
 
 #include <cstdint>
 #include <glm/fwd.hpp>
-#include <gsl/gsl-lite.hpp>
 #include <gslu.h>
 #include <memory>
 #include <string_view>

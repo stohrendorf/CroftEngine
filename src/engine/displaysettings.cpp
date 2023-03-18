@@ -4,6 +4,7 @@
 #include "serialization/serialization.h"
 
 #include <exception>
+#include <functional>
 
 namespace engine
 {

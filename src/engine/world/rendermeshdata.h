@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <array>
 #include <cstdint>
+#include <functional>
 #include <gl/api/gl.hpp>
 #include <gl/pixel.h>
 #include <gl/vertexbuffer.h>
@@ -14,7 +15,6 @@
 #include <glm/vec4.hpp>
 #include <gsl/gsl-lite.hpp>
 #include <gslu.h>
-#include <memory>
 #include <string>
 #include <vector>
 

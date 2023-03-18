@@ -8,6 +8,7 @@
 #include "deselectingmenustate.h"
 #include "donemenustate.h"
 #include "engine/items_tr1.h"
+#include "engine/objectmanager.h"
 #include "engine/objects/laraobject.h"
 #include "engine/presenter.h"
 #include "engine/soundeffects_tr1.h"

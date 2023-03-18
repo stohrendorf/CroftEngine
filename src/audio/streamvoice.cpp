@@ -11,6 +11,7 @@
 #include <boost/log/trivial.hpp>
 #include <boost/throw_exception.hpp>
 #include <cstdint>
+#include <gslu.h>
 #include <stdexcept>
 #include <utility>
 

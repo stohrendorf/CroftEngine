@@ -19,7 +19,9 @@
 #include <boost/throw_exception.hpp>
 #include <cstdint>
 #include <exception>
+#include <functional>
 #include <gsl/gsl-lite.hpp>
+#include <gslu.h>
 #include <memory>
 #include <stdexcept>
 #include <vector>

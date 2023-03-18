@@ -19,6 +19,7 @@
 #include <boost/assert.hpp>
 #include <cstdint>
 #include <exception>
+#include <functional>
 
 namespace engine::ai
 {

@@ -5,6 +5,7 @@
 #include "engine/items_tr1.h"
 #include "object.h"
 #include "render/scene/node.h"
+#include "serialization/serialization_fwd.h"
 
 #include <boost/throw_exception.hpp>
 #include <gsl/gsl-lite.hpp>

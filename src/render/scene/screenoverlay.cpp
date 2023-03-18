@@ -4,6 +4,7 @@
 #include "render/material/materialmanager.h"
 #include "render/material/rendermode.h"
 #include "rendercontext.h"
+#include "translucency.h"
 
 #include <boost/throw_exception.hpp>
 #include <gl/constants.h>
@@ -15,8 +16,10 @@
 #include <gl/texture2d.h>
 #include <gl/texturehandle.h>
 #include <glm/vec2.hpp>
+#include <gsl/gsl-lite.hpp>
 #include <gslu.h>
 #include <stdexcept>
+#include <string>
 
 namespace render::scene
 {

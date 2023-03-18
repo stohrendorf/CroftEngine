@@ -29,7 +29,7 @@ void Kold::update()
   core::Angle headRot = 0_deg;
   if(alive())
   {
-    ai::EnemyLocation enemyLocation{*this};
+    const ai::EnemyLocation enemyLocation{*this};
     if(enemyLocation.enemyAhead)
     {
       headRot = enemyLocation.angleToEnemy;

@@ -5,7 +5,8 @@
 namespace engine
 {
 struct Location;
-}
+struct CollisionInfo;
+} // namespace engine
 
 namespace engine::world
 {

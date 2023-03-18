@@ -29,7 +29,7 @@ Mummy::Mummy(const std::string& name,
              const gsl::not_null<const world::SkeletalModelType*>& animatedModel)
     : ModelObject{name, world, room, item, true, animatedModel, true}
 {
-  for(size_t idx : {11, 12, 13, 14})
+  for(const size_t idx : {11, 12, 13, 14})
     getSkeleton()->setVisible(idx, false);
   getSkeleton()->rebuildMesh();
 }

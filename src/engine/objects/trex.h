@@ -3,14 +3,6 @@
 #include "aiagent.h"
 #include "serialization/serialization_fwd.h"
 
-#include <gsl/gsl-lite.hpp>
-#include <string>
-
-namespace engine
-{
-struct Location;
-}
-
 namespace engine::world
 {
 class World;

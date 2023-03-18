@@ -1,11 +1,9 @@
 #pragma once
+
 #include <filesystem>
 #include <gsl/gsl-lite.hpp>
-#include <optional>
-#include <string>
 
 struct archive;
-struct archive_entry;
 
 class WriteOnlyXzArchive final
 {

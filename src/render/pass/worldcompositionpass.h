@@ -1,12 +1,9 @@
 #pragma once
 
-#include "render/pass/effectpass.h"
-#include "render/scene/blur.h"
-
+#include <cstdint>
 #include <gl/pixel.h>
 #include <gl/soglb_fwd.h>
 #include <glm/vec2.hpp>
-#include <gsl/gsl-lite.hpp>
 #include <gslu.h>
 #include <memory>
 

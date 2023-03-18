@@ -1,10 +1,9 @@
 #pragma once
 
-#include "binaryfile.h"
-
-#include <cstdint>
+#include <cstddef>
 #include <filesystem>
 #include <memory>
+#include <utility>
 #include <vector>
 
 namespace cue
@@ -14,6 +13,8 @@ struct Track;
 
 namespace image
 {
+class BinaryFile;
+
 struct Track
 {
   size_t startSector = 0;

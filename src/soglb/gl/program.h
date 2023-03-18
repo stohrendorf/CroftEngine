@@ -17,7 +17,6 @@
 #include <gsl/gsl-lite.hpp>
 #include <gslu.h>
 #include <limits>
-#include <memory>
 #include <string>
 #include <string_view>
 #include <type_traits>

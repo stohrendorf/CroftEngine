@@ -3,11 +3,11 @@
 #include "rendersettings.h"
 
 #include <chrono>
+#include <functional>
 #include <gl/fencesync.h>
 #include <gl/pixel.h>
 #include <gl/soglb_fwd.h>
 #include <glm/vec2.hpp>
-#include <gsl/gsl-lite.hpp>
 #include <gslu.h>
 #include <memory>
 #include <vector>
@@ -96,7 +96,7 @@ public:
 
   void withBackbuffer(const std::function<void()>& doRender);
 
-  const auto& getBackbuffer() const
+  [[nodiscard]] const auto& getBackbuffer() const
   {
     return m_backbuffer;
   }

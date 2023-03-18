@@ -74,7 +74,7 @@
 #include <boost/log/trivial.hpp>
 #include <boost/throw_exception.hpp>
 #include <exception>
-#include <gsl/gsl-lite.hpp>
+#include <gslu.h>
 #include <map>
 #include <stdexcept>
 #include <string>
@@ -403,7 +403,6 @@ std::shared_ptr<Object> createObject(world::World& world, loader::file::Item& it
     BOOST_ASSERT(!spriteSequence->sprites.empty());
 
     const world::Sprite& sprite = spriteSequence->sprites[0];
-    std::shared_ptr<Object> object;
 
     BOOST_LOG_TRIVIAL(warning) << "Unimplemented object type " << toString(item.type.get_as<TR1ItemId>());
     return std::make_shared<SpriteObject>(makeObjectName(item.type.get_as<TR1ItemId>(), id),

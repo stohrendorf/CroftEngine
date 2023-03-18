@@ -3,9 +3,10 @@
 #include "render/material/rendermode.h"
 #include "render/scene/mesh.h"
 #include "render/scene/rendercontext.h"
+#include "render/scene/translucency.h"
 
-#include <algorithm>
 #include <gl/constants.h>
+#include <gl/fencesync.h>
 #include <gl/framebuffer.h>
 #include <gl/pixel.h>
 #include <gl/program.h>
@@ -16,6 +17,7 @@
 #include <gl/texturehandle.h>
 #include <glm/mat4x4.hpp>
 #include <glm/vec2.hpp>
+#include <gsl/gsl-lite.hpp>
 #include <gslu.h>
 #include <optional>
 #include <utility>

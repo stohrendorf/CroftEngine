@@ -1017,7 +1017,7 @@ void MainWindow::onChooseColorClicked()
 
 void MainWindow::onTestConnectionClicked()
 {
-  QUrl url{"coop://" + ui->serverSocket->text()};
+  const QUrl url{"coop://" + ui->serverSocket->text()};
   if(!url.isValid() || url.hasFragment() || url.hasQuery() || !url.path().isEmpty() || url.port() == -1
      || url.scheme() != "coop" || !url.userInfo().isEmpty())
   {

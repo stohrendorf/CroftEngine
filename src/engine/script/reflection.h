@@ -389,9 +389,7 @@ public:
 class ResetSoundEngine : public LevelSequenceItem
 {
 public:
-  explicit ResetSoundEngine()
-  {
-  }
+  explicit ResetSoundEngine() = default;
 
   ~ResetSoundEngine() override = default;
 
@@ -426,12 +424,12 @@ public:
       : m_objectInfos{std::move(objectInfos)}
       , m_tracks{std::move(tracks)}
       , m_levelSequence{std::move(levelSequence)}
-      , m_titleMenu{titleMenu}
+      , m_titleMenu{std::move(titleMenu)}
       , m_titleMenuBackdrop{std::move(titleMenuBackdrop)}
       , m_laraHome{std::move(laraHome)}
       , m_earlyBoot{std::move(earlyBoot)}
       , m_cheats{std::move(cheats)}
-      , m_assetRoot{assetRoot}
+      , m_assetRoot{std::move(assetRoot)}
   {
   }
 

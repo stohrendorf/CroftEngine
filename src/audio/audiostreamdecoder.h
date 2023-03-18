@@ -42,13 +42,13 @@ struct AudioStreamDecoder final
 
   [[nodiscard]] bool empty() const
   {
-    std::unique_lock lock{mutex};
+    const std::unique_lock lock{mutex};
     return queue.empty();
   }
 
   [[nodiscard]] bool filled() const
   {
-    std::unique_lock lock{mutex};
+    const std::unique_lock lock{mutex};
     return queue.size() >= QueueLimit;
   }
 

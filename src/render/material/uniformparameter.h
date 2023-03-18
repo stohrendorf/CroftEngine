@@ -5,7 +5,6 @@
 #include <functional>
 #include <gl/buffer.h>
 #include <gl/program.h>
-#include <gsl/gsl-lite.hpp>
 #include <gslu.h>
 #include <iosfwd>
 #include <memory>

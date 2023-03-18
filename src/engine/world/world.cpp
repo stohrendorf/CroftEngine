@@ -19,7 +19,6 @@
 #include "engine/audioengine.h"
 #include "engine/audiosettings.h"
 #include "engine/cameracontroller.h"
-#include "engine/displaysettings.h"
 #include "engine/engine.h"
 #include "engine/engineconfig.h"
 #include "engine/floordata/floordata.h"
@@ -33,6 +32,7 @@
 #include "engine/objects/pickupobject.h"
 #include "engine/objects/tallblock.h" // IWYU pragma: keep
 #include "engine/particle.h"
+#include "engine/particlecollection.h"
 #include "engine/player.h"
 #include "engine/presenter.h"
 #include "engine/script/scriptengine.h"
@@ -55,6 +55,7 @@
 #include "paths.h"
 #include "qs/qs.h"
 #include "render/material/materialmanager.h"
+#include "render/material/rendermode.h"
 #include "render/material/spritematerialmode.h"
 #include "render/rendersettings.h"
 #include "render/scene/camera.h"
@@ -90,18 +91,20 @@
 
 #include <algorithm>
 #include <boost/assert.hpp>
+#include <boost/iterator/iterator_facade.hpp>
+#include <boost/iterator/transform_iterator.hpp>
 #include <boost/log/trivial.hpp>
 #include <boost/range/adaptor/indexed.hpp>
 #include <boost/range/adaptor/map.hpp>
 #include <boost/throw_exception.hpp>
+#include <chrono>
+#include <cmath>
 #include <cstdint>
 #include <exception>
-#include <gl/glad_init.h>
+#include <functional>
 #include <gl/pixel.h>
 #include <gl/renderstate.h>
-#include <gl/sampler.h>
 #include <gl/texture2darray.h>
-#include <gl/texturehandle.h>
 #include <glm/gtx/norm.hpp>
 #include <glm/vec2.hpp>
 #include <gslu.h>

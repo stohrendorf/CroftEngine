@@ -22,6 +22,7 @@
 #include "ui/widgets/selectionbox.h"
 #include "ui/widgets/sprite.h"
 
+#include <algorithm>
 #include <boost/format.hpp>
 #include <boost/log/trivial.hpp>
 #include <boost/throw_exception.hpp>

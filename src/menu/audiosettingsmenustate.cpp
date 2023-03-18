@@ -25,6 +25,7 @@
 #include <glm/fwd.hpp>
 #include <glm/vec2.hpp>
 #include <gsl/gsl-lite.hpp>
+#include <gslu.h>
 #include <stdexcept>
 #include <tuple>
 #include <utility>

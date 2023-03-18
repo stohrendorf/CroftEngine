@@ -8,6 +8,7 @@
 #include "core/vec.h"
 #include "engine/ai/pathfinder.h"
 #include "engine/collisioninfo.h"
+#include "engine/lighting.h"
 #include "engine/location.h"
 #include "engine/weapontype.h"
 #include "loader/file/animationid.h"
@@ -20,6 +21,7 @@
 
 #include <algorithm>
 #include <cstdint>
+#include <gl/buffer.h>
 #include <glm/fwd.hpp>
 #include <glm/mat4x4.hpp>
 #include <glm/vec3.hpp>
@@ -30,6 +32,7 @@
 #include <optional>
 #include <string>
 #include <type_traits>
+#include <vector>
 
 namespace engine::world
 {

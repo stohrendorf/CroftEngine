@@ -36,7 +36,6 @@
 #include "util/helpers.h"
 
 #include <gsl/gsl-lite.hpp>
-#include <gslu.h>
 #include <memory>
 
 namespace engine::objects

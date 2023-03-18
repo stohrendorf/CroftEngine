@@ -9,11 +9,14 @@
 #include "render/material/materialgroup.h"
 #include "render/material/materialmanager.h"
 #include "render/material/rendermode.h"
+#include "render/rendersettings.h"
 #include "render/scene/mesh.h"
 
 #include <gl/buffer.h>
+#include <gl/pixel.h>
 #include <gl/renderstate.h>
 #include <gsl/gsl-lite.hpp>
+#include <gslu.h>
 #include <memory>
 #include <vector>
 

@@ -3,6 +3,8 @@
 #include "serialization/serialization.h"
 #include "serialization/vector.h"
 
+#include <exception>
+
 namespace gameflow
 {
 void Meta::serialize(const serialization::Serializer<Meta>& ser) const

@@ -25,11 +25,6 @@ namespace engine
 struct CollisionInfo;
 }
 
-namespace engine::ai
-{
-struct PathFinder;
-}
-
 namespace engine::world
 {
 class World;

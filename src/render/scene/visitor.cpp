@@ -40,7 +40,7 @@ void Visitor::render(const std::optional<glm::vec3>& camera) const
     // logic: first order by render order, then order by distance to camera back-to-front
     std::sort(m_nodes.begin(),
               m_nodes.end(),
-              [camera](const RenderableInfo& a, const RenderableInfo& b)
+              [this, camera](const RenderableInfo& a, const RenderableInfo& b)
               {
                 if(auto aOrder = std::get<0>(a)->getRenderOrder(), bOrder = std::get<0>(b)->getRenderOrder();
                    aOrder != bOrder)
@@ -50,7 +50,7 @@ void Visitor::render(const std::optional<glm::vec3>& camera) const
 
                 auto da = glm::distance(std::get<0>(a)->getTranslationWorld(), *camera);
                 auto db = glm::distance(std::get<0>(b)->getTranslationWorld(), *camera);
-                return da > db;
+                return m_backToFront ? db > da : da > db;
               });
   }
 

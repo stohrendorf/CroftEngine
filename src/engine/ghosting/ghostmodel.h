@@ -5,12 +5,21 @@
 #include <cstdint>
 #include <gl/buffer.h>
 #include <gl/pixel.h>
+#include <gl/program.h>
 #include <glm/mat4x4.hpp>
+#include <glm/vec3.hpp>
+#include <gsl/gsl-lite.hpp>
+#include <memory>
 #include <string>
 
 namespace engine::world
 {
 class World;
+}
+
+namespace render::scene
+{
+class Mesh;
 }
 
 namespace engine::ghosting

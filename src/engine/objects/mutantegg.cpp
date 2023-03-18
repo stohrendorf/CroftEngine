@@ -30,6 +30,8 @@
 #include <cstddef>
 #include <cstdint>
 #include <exception>
+#include <functional>
+#include <gl/renderstate.h>
 #include <iosfwd>
 #include <map>
 

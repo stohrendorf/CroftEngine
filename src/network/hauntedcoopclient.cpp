@@ -3,14 +3,26 @@
 // FIXME: this is a bad include path
 #include "../launcher/networkconfig.h"
 
-#include <array>
+#include <algorithm>
+#include <atomic>
 #include <boost/algorithm/string/split.hpp>
-#include <boost/asio.hpp>
+#include <boost/asio/buffer.hpp>
+#include <boost/asio/connect.hpp>
+#include <boost/asio/io_context.hpp>
+#include <boost/asio/io_service.hpp>
+#include <boost/asio/ip/address.hpp>
+#include <boost/asio/ip/basic_resolver_results.hpp>
+#include <boost/asio/ip/tcp.hpp>
+#include <boost/asio/read.hpp>
+#include <boost/asio/socket_base.hpp>
 #include <boost/assert.hpp>
+#include <boost/cstdint.hpp>
 #include <boost/log/trivial.hpp>
+#include <exception>
 #include <gsl/gsl-lite.hpp>
+#include <istream>
+#include <iterator>
 #include <utility>
-#include <variant>
 
 namespace
 {

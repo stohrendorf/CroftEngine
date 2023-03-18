@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <gl/constants.h>
+#include <gl/fencesync.h>
 #include <gl/framebuffer.h>
 #include <gl/pixel.h>
 #include <gl/renderstate.h>
@@ -9,7 +10,8 @@
 #include <gl/texture2d.h>
 #include <gl/texturedepth.h>
 #include <gl/texturehandle.h>
-#include <gslu.h>
+#include <gsl/gsl-lite.hpp>
+#include <string>
 
 namespace render::pass
 {

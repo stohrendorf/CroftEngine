@@ -5,13 +5,12 @@
 #include "core/units.h"
 #include "items_tr1.h"
 #include "loader/file/item.h"
-#include "location.h"
 #include "objects/laraobject.h"
 #include "objects/object.h"
 #include "objects/objectfactory.h"
 #include "objects/objectstate.h"
 #include "objects/pickupobject.h"
-#include "particle.h"
+#include "particlecollection.h"
 #include "render/scene/node.h"
 #include "serialization/map.h"
 #include "serialization/not_null.h"
@@ -23,10 +22,14 @@
 #include "world/world.h"
 
 #include <algorithm>
+#include <boost/iterator/iterator_facade.hpp>
+#include <boost/iterator/transform_iterator.hpp>
 #include <boost/range/adaptor/indexed.hpp>
 #include <boost/range/adaptor/map.hpp>
 #include <boost/throw_exception.hpp>
 #include <exception>
+#include <functional>
+#include <gslu.h>
 #include <limits>
 #include <stdexcept>
 #include <type_traits>

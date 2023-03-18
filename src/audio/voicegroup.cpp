@@ -4,6 +4,8 @@
 
 #include <AL/al.h>
 #include <algorithm>
+#include <gsl/gsl-lite.hpp>
+#include <gslu.h>
 #include <iterator>
 #include <utility>
 

@@ -2,9 +2,11 @@
 
 #include "core/magic.h"
 #include "core/units.h"
+#include "qs/qs.h"
 #include "qs/quantity.h"
 
 #include <array>
+#include <cstdint>
 #include <filesystem>
 #include <functional>
 #include <gl/cimgwrapper.h>
@@ -16,7 +18,6 @@
 #include <gsl/gsl-lite.hpp>
 #include <gslu.h>
 #include <memory>
-#include <optional>
 #include <string>
 #include <unordered_set>
 #include <vector>
