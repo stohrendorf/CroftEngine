@@ -59,12 +59,13 @@ void GhostModel::apply(const world::World& world, const GhostFrame& frame)
         return !settings.lightingModeActive ? 0 : settings.lightingMode;
       },
       getName());
-    mesh->getMaterialGroup().set(render::material::RenderMode::FullOpaque,
-                                 world.getPresenter().getMaterialManager()->getGhost(
-                                   [&engine = world.getEngine()]()
-                                   {
-                                     return engine.getEngineConfig()->animSmoothing;
-                                   }));
+    const auto m = world.getPresenter().getMaterialManager()->getGhost(
+      [&engine = world.getEngine()]()
+      {
+        return engine.getEngineConfig()->animSmoothing;
+      });
+    mesh->getMaterialGroup().set(render::material::RenderMode::FullOpaque, m);
+    mesh->getMaterialGroup().set(render::material::RenderMode::FullNonOpaque, m);
     mesh->getMaterialGroup().set(render::material::RenderMode::DepthOnly, nullptr);
     mesh->getRenderState().setScissorTest(false);
     setRenderable(mesh);
