@@ -94,8 +94,8 @@ void RenderPipeline::worldCompositionPass(const std::vector<engine::world::Room>
       SOGLB_DEBUGGROUP(room.node->getName() + ":dust");
       auto state = context.getCurrentState();
       state.setScissorTest(true);
-      const auto [xy, size] = room.node->getCombinedScissors();
-      state.setScissorRegion(xy, size);
+      const auto [x, y] = room.node->getCombinedScissors();
+      state.setScissorRegion({x.min, y.min}, {x.size(), y.size()});
       context.pushState(state);
 
       render::scene::Visitor visitor{context};

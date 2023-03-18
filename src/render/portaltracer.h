@@ -1,5 +1,7 @@
 #pragma once
 
+#include "core/interval.h"
+
 #include <glm/vec2.hpp>
 #include <optional>
 #include <unordered_set>
@@ -23,12 +25,12 @@ struct PortalTracer
 {
   struct CullBox
   {
-    glm::vec2 min;
-    glm::vec2 max;
+    core::Interval<float> x;
+    core::Interval<float> y;
 
-    CullBox(const float minX, const float minY, const float maxX, const float maxY)
-        : min{minX, minY}
-        , max{maxX, maxY}
+    CullBox(const core::Interval<float>& x, const core::Interval<float>& y)
+        : x{x}
+        , y{y}
     {
     }
   };

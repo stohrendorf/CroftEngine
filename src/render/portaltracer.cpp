@@ -64,7 +64,7 @@ std::optional<PortalTracer::CullBox> PortalTracer::narrowCullBox(const PortalTra
 
   // 1. determine the screen cull box of the current portal
   // 2. intersect it with the parent's bbox
-  CullBox portalCullBox{1, 1, -1, -1};
+  CullBox portalCullBox{{1, -1}, {1, -1}};
   size_t behindCamera = 0, tooFar = 0;
   for(const auto& camSpace : portal.vertices | boost::adaptors::transformed(toView))
   {
@@ -85,14 +85,12 @@ std::optional<PortalTracer::CullBox> PortalTracer::narrowCullBox(const PortalTra
       return parentCullBox;
     }
 
-    portalCullBox.min.x = std::min(portalCullBox.min.x, screen->x);
-    portalCullBox.min.y = std::min(portalCullBox.min.y, screen->y);
-    portalCullBox.max.x = std::max(portalCullBox.max.x, screen->x);
-    portalCullBox.max.y = std::max(portalCullBox.max.y, screen->y);
+    portalCullBox.x = portalCullBox.x.union_(screen->x);
+    portalCullBox.y = portalCullBox.y.union_(screen->y);
 
     // the first vertex must set the cull box to a valid state
-    BOOST_ASSERT(portalCullBox.min.x <= portalCullBox.max.x);
-    BOOST_ASSERT(portalCullBox.min.y <= portalCullBox.max.y);
+    BOOST_ASSERT(portalCullBox.x.isValid());
+    BOOST_ASSERT(portalCullBox.y.isValid());
   }
 
   if(behindCamera == portal.vertices.size() || tooFar == portal.vertices.size())
@@ -117,42 +115,40 @@ std::optional<PortalTracer::CullBox> PortalTracer::narrowCullBox(const PortalTra
       // edge crosses the camera plane, max out the bounds
       if((prev.x < 0) && (current.x < 0))
       {
-        portalCullBox.min.x = -1;
+        portalCullBox.x.min = -1;
       }
       else if((prev.x > 0) && (current.x > 0))
       {
-        portalCullBox.max.x = 1;
+        portalCullBox.x.max = 1;
       }
       else
       {
-        portalCullBox.min.x = -1;
-        portalCullBox.max.x = 1;
+        portalCullBox.x.min = -1;
+        portalCullBox.x.max = 1;
       }
 
       if((prev.y < 0) && (current.y < 0))
       {
-        portalCullBox.min.y = -1;
+        portalCullBox.y.min = -1;
       }
       else if((prev.y > 0) && (current.y > 0))
       {
-        portalCullBox.max.y = 1;
+        portalCullBox.y.max = 1;
       }
       else
       {
-        portalCullBox.min.y = -1;
-        portalCullBox.max.y = 1;
+        portalCullBox.y.min = -1;
+        portalCullBox.y.max = 1;
       }
 
       prev = current;
     }
   }
 
-  portalCullBox.min.x = std::max(parentCullBox.min.x, portalCullBox.min.x);
-  portalCullBox.min.y = std::max(parentCullBox.min.y, portalCullBox.min.y);
-  portalCullBox.max.x = std::min(parentCullBox.max.x, portalCullBox.max.x);
-  portalCullBox.max.y = std::min(parentCullBox.max.y, portalCullBox.max.y);
+  portalCullBox.x = parentCullBox.x.intersect(portalCullBox.x);
+  portalCullBox.y = parentCullBox.y.intersect(portalCullBox.y);
 
-  if(portalCullBox.min.x + Eps >= portalCullBox.max.x || portalCullBox.min.y + Eps >= portalCullBox.max.y)
+  if(portalCullBox.x.size() <= Eps || portalCullBox.y.size() <= Eps)
   {
     return std::nullopt;
   }
@@ -182,7 +178,7 @@ bool PortalTracer::traceRoom(const engine::world::Room& room,
     {
       const auto& childRoom = portal.adjoiningRoom;
       const bool waterChanged = inWater == startFromWater && childRoom->isWaterRoom != startFromWater;
-      childRoom->node->addScissor(narrowedCullBox->min, narrowedCullBox->max - narrowedCullBox->min);
+      childRoom->node->addScissor(narrowedCullBox->x, narrowedCullBox->y);
       if(traceRoom(*childRoom,
                    *narrowedCullBox,
                    world,
@@ -207,8 +203,14 @@ std::unordered_set<const engine::world::Portal*> PortalTracer::trace(const engin
   std::vector<const engine::world::Room*> seenRooms;
   seenRooms.reserve(32);
   std::unordered_set<const engine::world::Portal*> waterSurfacePortals;
-  traceRoom(
-    startRoom, {-1, -1, 1, 1}, world, seenRooms, startRoom.isWaterRoom, waterSurfacePortals, startRoom.isWaterRoom, 1);
+  traceRoom(startRoom,
+            {{-1, 1}, {-1, 1}},
+            world,
+            seenRooms,
+            startRoom.isWaterRoom,
+            waterSurfacePortals,
+            startRoom.isWaterRoom,
+            1);
   gsl_Assert(seenRooms.empty());
   return waterSurfacePortals;
 }

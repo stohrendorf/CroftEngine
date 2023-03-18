@@ -106,6 +106,16 @@ struct Interval final
     return Interval<T>{std::max(min, rhs.min), std::min(max, rhs.max)};
   }
 
+  [[nodiscard]] constexpr auto union_(const T& rhs) const
+  {
+    return Interval<T>{std::min(min, rhs), std::max(max, rhs)};
+  }
+
+  [[nodiscard]] constexpr auto union_(const core::Interval<T>& rhs) const
+  {
+    return Interval<T>{std::min(min, rhs.min), std::max(max, rhs.max)};
+  }
+
   [[nodiscard]] constexpr auto sanitized() const
   {
     return Interval<T>{std::min(min, max), std::max(min, max)};

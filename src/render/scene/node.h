@@ -1,5 +1,6 @@
 #pragma once
 
+#include "core/interval.h"
 #include "render/material/materialparameteroverrider.h"
 
 #include <algorithm>
@@ -177,35 +178,12 @@ public:
     m_scissors.clear();
   }
 
-  void addScissor(const glm::vec2& xy, const glm::vec2& size)
+  void addScissor(const core::Interval<float>& x, const core::Interval<float>& y)
   {
-    m_scissors.emplace_back(xy, size);
+    m_scissors.emplace_back(x, y);
   }
 
-  std::tuple<glm::vec2, glm::vec2> getCombinedScissors() const
-  {
-    if(m_scissors.empty())
-    {
-      if(const auto p = m_parent.lock())
-        return p->getCombinedScissors();
-      else
-        return {{-1, -1}, {2, 2}};
-    }
-    glm::vec2 min{1, 1};
-    glm::vec2 max{-1, -1};
-    for(const auto& [xy, size] : m_scissors)
-    {
-      min = glm::min(min, xy);
-      max = glm::max(max, xy + size);
-    }
-    if(const auto p = m_parent.lock())
-    {
-      const auto [pXy, pSize] = p->getCombinedScissors();
-      min = glm::max(min, pXy);
-      max = glm::min(max, pXy + pSize);
-    }
-    return {min, max - min};
-  }
+  [[nodiscard]] std::tuple<core::Interval<float>, core::Interval<float>> getCombinedScissors() const;
 
   gl::RenderState& getRenderState()
   {
@@ -249,7 +227,7 @@ private:
   mutable Transform m_transform{};
   mutable gl::UniformBuffer<Transform> m_transformBuffer;
 
-  std::vector<std::tuple<glm::vec2, glm::vec2>> m_scissors;
+  std::vector<std::tuple<core::Interval<float>, core::Interval<float>>> m_scissors;
 
   int m_renderOrder = 0;
 

@@ -656,8 +656,8 @@ void Presenter::prefillDepthBuffer(const CameraController& cameraController, con
       SOGLB_DEBUGGROUP(room->node->getName());
       auto state = context.getCurrentState();
       state.setScissorTest(true);
-      const auto [xy, size] = room->node->getCombinedScissors();
-      state.setScissorRegion(xy, size);
+      const auto [x, y] = room->node->getCombinedScissors();
+      state.setScissorRegion({x.min, y.min}, {x.size(), y.size()});
       context.pushState(state);
       room->node->getRenderable()->render(room->node.get(), context);
       context.popState();
