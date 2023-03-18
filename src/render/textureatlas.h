@@ -13,6 +13,10 @@ namespace render
  *
  * Based on https://blackpawn.com/texts/lightmaps/default.html.
  */
+#ifdef _MSC_VER
+#  pragma warning(push)
+#  pragma warning(disable : 4324)
+#endif
 struct alignas(64) BSPTree final
 {
   std::unique_ptr<BSPTree> left;
@@ -156,6 +160,9 @@ struct alignas(64) BSPTree final
     }
   }
 };
+#ifdef _MSC_VER
+#  pragma warning(pop)
+#endif
 
 class TextureAtlas final
 {
