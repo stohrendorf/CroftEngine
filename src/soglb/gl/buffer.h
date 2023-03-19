@@ -80,7 +80,7 @@ private:
 
 // NOLINTNEXTLINE(bugprone-reserved-identifier)
 template<typename T, api::BufferTarget _Target>
-class Buffer : public BindableResource<api::ObjectIdentifier::Buffer>
+class Buffer : public Resource<api::ObjectIdentifier::Buffer>
 {
 public:
   Buffer(const Buffer<T, _Target>&) = delete;
@@ -91,26 +91,14 @@ public:
   static constexpr api::BufferTarget Target = _Target;
 
   explicit Buffer(const std::string_view& label, api::BufferUsage usage, const gsl::span<const T>& data)
-      : BindableResource{api::createBuffers,
-                         [](const uint32_t handle)
-                         {
-                           bindBuffer(Target, handle);
-                         },
-                         api::deleteBuffers,
-                         label}
+      : Resource{api::createBuffers, api::deleteBuffers, label}
       , m_size{data.size()}
   {
     GL_ASSERT(api::namedBufferData(getHandle(), data.size_bytes(), data.data(), usage));
   }
 
   explicit Buffer(const std::string_view& label, api::BufferUsage usage, size_t size)
-      : BindableResource{api::createBuffers,
-                         [](const uint32_t handle)
-                         {
-                           bindBuffer(Target, handle);
-                         },
-                         api::deleteBuffers,
-                         label}
+      : Resource{api::createBuffers, api::deleteBuffers, label}
       , m_size{size}
   {
     GL_ASSERT(api::namedBufferData(getHandle(), sizeof(T) * size, nullptr, usage));

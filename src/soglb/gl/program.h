@@ -276,24 +276,23 @@ private:
   }
 };
 
-class Program final : public BindableResource<api::ObjectIdentifier::Program>
+class Program final : public Resource<api::ObjectIdentifier::Program>
 {
 public:
   // NOLINTNEXTLINE(bugprone-reserved-identifier)
   template<api::ShaderType... _Types>
   explicit Program(const std::string_view& label, const Shader<_Types>&... shaders)
-      : BindableResource{[]([[maybe_unused]] const api::core::SizeType n, uint32_t* handle)
-                         {
-                           BOOST_ASSERT(n == 1 && handle != nullptr);
-                           *handle = api::createProgram();
-                         },
-                         api::useProgram,
-                         []([[maybe_unused]] const api::core::SizeType n, const uint32_t* handle)
-                         {
-                           BOOST_ASSERT(n == 1 && handle != nullptr);
-                           api::deleteProgram(*handle);
-                         },
-                         label}
+      : Resource{[]([[maybe_unused]] const api::core::SizeType n, uint32_t* handle)
+                 {
+                   BOOST_ASSERT(n == 1 && handle != nullptr);
+                   *handle = api::createProgram();
+                 },
+                 []([[maybe_unused]] const api::core::SizeType n, const uint32_t* handle)
+                 {
+                   BOOST_ASSERT(n == 1 && handle != nullptr);
+                   api::deleteProgram(*handle);
+                 },
+                 label}
   {
     (...,
      [this, &shaders]()
