@@ -7,7 +7,7 @@ namespace engine::lara
 class StateHandler_7 final : public StateHandler_TurnSlow
 {
 public:
-  explicit StateHandler_7(objects::LaraObject& lara)
+  explicit StateHandler_7(const gsl::not_null<objects::LaraObject*>& lara)
       : StateHandler_TurnSlow{lara, LaraStateId::TurnLeftSlow}
   {
   }

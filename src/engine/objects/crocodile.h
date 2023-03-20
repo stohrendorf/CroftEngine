@@ -25,6 +25,10 @@ public:
 
 private:
   void updateInWater();
+  void updateInWaterAlive();
+  void updateInWaterDead();
   void updateOnLand();
+  std::tuple<core::Angle, core::Angle> updateOnLandAlive();
+  void updateOnLandDead();
 };
 } // namespace engine::objects

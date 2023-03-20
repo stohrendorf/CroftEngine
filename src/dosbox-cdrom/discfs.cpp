@@ -18,9 +18,9 @@ uint32_t readUint32(const void* address)
 {
   const auto bytes = static_cast<const uint8_t*>(address);
   uint32_t ret = bytes[0];
-  ret |= bytes[1] << 8u;
-  ret |= bytes[2] << 16u;
-  ret |= bytes[3] << 24u;
+  ret |= bytes[1] << 8u;  // NOLINT(hicpp-signed-bitwise)
+  ret |= bytes[2] << 16u; // NOLINT(hicpp-signed-bitwise)
+  ret |= bytes[3] << 24u; // NOLINT(hicpp-signed-bitwise)
   return ret;
 }
 

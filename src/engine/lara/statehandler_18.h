@@ -7,7 +7,7 @@ namespace engine::lara
 class StateHandler_18 final : public StateHandler_Underwater
 {
 public:
-  explicit StateHandler_18(objects::LaraObject& lara)
+  explicit StateHandler_18(const gsl::not_null<objects::LaraObject*>& lara)
       : StateHandler_Underwater{lara, LaraStateId::UnderwaterInertia}
   {
   }

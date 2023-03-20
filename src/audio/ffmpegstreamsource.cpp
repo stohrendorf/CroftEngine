@@ -160,7 +160,7 @@ int FfmpegMemoryStreamSource::ffmpegRead(void* opaque, uint8_t* buf, int bufSize
   auto* h = static_cast<FfmpegMemoryStreamSource*>(opaque);
   const auto n = std::min(h->data.size() - h->dataPosition, gsl::narrow<size_t>(bufSize));
   if(n == 0)
-    return AVERROR_EOF;
+    return AVERROR_EOF; // NOLINT(hicpp-signed-bitwise)
 
   std::copy_n(&h->data[h->dataPosition], n, buf);
   h->dataPosition += n;
@@ -170,8 +170,8 @@ int FfmpegMemoryStreamSource::ffmpegRead(void* opaque, uint8_t* buf, int bufSize
 int64_t FfmpegMemoryStreamSource::ffmpegSeek(void* opaque, int64_t offset, int whence)
 {
   auto* h = static_cast<FfmpegMemoryStreamSource*>(opaque);
-  if((whence & AVSEEK_SIZE) != 0)
-    return h->data.size();
+  if((whence & AVSEEK_SIZE) != 0) // NOLINT(hicpp-signed-bitwise)
+    return gsl::narrow<int64_t>(h->data.size());
 
   switch(whence)
   {
@@ -222,8 +222,9 @@ int FfmpegSubStreamStreamSource::ffmpegRead(void* opaque, uint8_t* buf, int bufS
 {
   auto* h = static_cast<FfmpegSubStreamStreamSource*>(opaque);
   const auto n = std::min(h->dataEnd - h->dataStart - h->dataPosition, gsl::narrow<size_t>(bufSize));
-  h->istream->seekg(h->dataStart + h->dataPosition);
-  h->istream->read(reinterpret_cast<char*>(buf), n);
+  h->istream->seekg(gsl::narrow<std::streamoff>(h->dataStart + h->dataPosition));
+  // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+  h->istream->read(reinterpret_cast<char*>(buf), gsl::narrow<std::streamsize>(n));
   h->dataPosition += n;
   return gsl::narrow<int>(n);
 }
@@ -232,8 +233,8 @@ int64_t FfmpegSubStreamStreamSource::ffmpegSeek(void* opaque, int64_t offset, in
 {
   auto* h = static_cast<FfmpegSubStreamStreamSource*>(opaque);
   const auto size = h->dataEnd - h->dataStart;
-  if((whence & AVSEEK_SIZE) != 0)
-    return size;
+  if((whence & AVSEEK_SIZE) != 0) // NOLINT(hicpp-signed-bitwise)
+    return gsl::narrow<int64_t>(size);
 
   switch(whence)
   {

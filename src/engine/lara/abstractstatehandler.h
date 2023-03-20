@@ -35,7 +35,7 @@ namespace engine::lara
 class AbstractStateHandler
 {
 public:
-  explicit AbstractStateHandler(objects::LaraObject& lara, const LaraStateId id)
+  explicit AbstractStateHandler(const gsl::not_null<objects::LaraObject*>& lara, const LaraStateId id)
       : m_lara{lara}
       , m_id{id}
   {
@@ -52,7 +52,7 @@ public:
 
   virtual void handleInput(CollisionInfo& collisionInfo) = 0;
 
-  static std::unique_ptr<AbstractStateHandler> create(LaraStateId id, objects::LaraObject& lara);
+  static std::unique_ptr<AbstractStateHandler> create(LaraStateId id, const gsl::not_null<objects::LaraObject*>& lara);
 
   [[nodiscard]] LaraStateId getId() const noexcept
   {
@@ -60,20 +60,20 @@ public:
   }
 
 private:
-  objects::LaraObject& m_lara;
-  const LaraStateId m_id;
+  gsl::not_null<objects::LaraObject*> m_lara;
+  LaraStateId m_id;
 
   friend class StateHandler_2;
 
 protected:
   [[nodiscard]] objects::LaraObject& getLara()
   {
-    return m_lara;
+    return *m_lara;
   }
 
   [[nodiscard]] const objects::LaraObject& getLara() const
   {
-    return m_lara;
+    return *m_lara;
   }
 
   void setAir(const core::Frame& a) noexcept;

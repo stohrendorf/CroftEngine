@@ -46,14 +46,14 @@ void TextureAnimator::Sequence::updateCoordinates(gl::VertexBuffer<AnimatedUV>& 
 
   for(const VertexReference& vref : affectedVertices)
   {
-    BOOST_ASSERT(buffer.size() > 0 && vref.bufferIndex < static_cast<size_t>(buffer.size()));
+    BOOST_ASSERT(buffer.size() > 0 && vref.getBufferIndex() < static_cast<size_t>(buffer.size()));
     BOOST_ASSERT(vref.queueOffset < tileIds.size());
     const engine::world::AtlasTile& tile = tiles[tileIds[vref.queueOffset].get()];
 
-    uvArray[vref.bufferIndex].uv
-      = glm::vec3{tile.uvCoordinates[vref.sourceIndex], tile.textureKey.atlasIdAndFlag & loader::file::AtlasIdMask};
-    uvArray[vref.bufferIndex].quadUv12 = glm::vec4{tile.uvCoordinates[0], tile.uvCoordinates[1]};
-    uvArray[vref.bufferIndex].quadUv34 = glm::vec4{tile.uvCoordinates[2], tile.uvCoordinates[3]};
+    uvArray[vref.getBufferIndex()].uv = glm::vec3{tile.uvCoordinates[vref.getSourceIndex()],
+                                                  tile.textureKey.atlasIdAndFlag & loader::file::AtlasIdMask};
+    uvArray[vref.getBufferIndex()].quadUv12 = glm::vec4{tile.uvCoordinates[0], tile.uvCoordinates[1]};
+    uvArray[vref.getBufferIndex()].quadUv34 = glm::vec4{tile.uvCoordinates[2], tile.uvCoordinates[3]};
   }
 
   uvArray.flush();

@@ -8,7 +8,7 @@ namespace engine::lara
 class StateHandler_19 final : public AbstractStateHandler
 {
 public:
-  explicit StateHandler_19(objects::LaraObject& lara)
+  explicit StateHandler_19(const gsl::not_null<objects::LaraObject*>& lara)
       : AbstractStateHandler{lara, LaraStateId::Climbing}
   {
   }

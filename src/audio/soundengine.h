@@ -96,7 +96,7 @@ public:
   }
 
 private:
-  const gslu::nn_unique<Device> m_device;
+  gslu::nn_unique<Device> m_device;
   std::unordered_map<const Emitter*, std::unordered_map<size_t, std::vector<std::weak_ptr<Voice>>>> m_voices;
   const Listener* m_listener = nullptr;
 

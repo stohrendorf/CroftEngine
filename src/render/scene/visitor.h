@@ -15,7 +15,7 @@ class Node;
 class Visitor final
 {
 public:
-  explicit Visitor(RenderContext& context, bool withScissors = true, bool backToFront = false)
+  explicit Visitor(const gsl::not_null<RenderContext*>& context, bool withScissors = true, bool backToFront = false)
       : m_context{context}
       , m_withScissors{withScissors}
       , m_backToFront{backToFront}
@@ -31,9 +31,9 @@ public:
 
   void visit(const Node& node);
 
-  RenderContext& getContext()
+  [[nodiscard]] RenderContext& getContext()
   {
-    return m_context;
+    return *m_context;
   }
 
   [[nodiscard]] bool withScissors() const
@@ -46,9 +46,9 @@ public:
   void render(const std::optional<glm::vec3>& camera) const;
 
 private:
-  RenderContext& m_context;
-  const bool m_withScissors;
-  const bool m_backToFront;
+  gsl::not_null<RenderContext*> m_context;
+  bool m_withScissors;
+  bool m_backToFront;
   using RenderableInfo = std::tuple<gsl::not_null<const Node*>, gl::RenderState>;
   mutable std::vector<RenderableInfo> m_nodes;
 };

@@ -8,7 +8,7 @@ namespace engine::lara
 class StateHandler_27 final : public AbstractStateHandler
 {
 public:
-  explicit StateHandler_27(objects::LaraObject& lara)
+  explicit StateHandler_27(const gsl::not_null<objects::LaraObject*>& lara)
       : AbstractStateHandler{lara, LaraStateId::JumpRight}
   {
   }

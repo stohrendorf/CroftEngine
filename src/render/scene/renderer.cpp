@@ -38,7 +38,7 @@ void Renderer::render()
                                                                        : material::RenderMode::FullNonOpaque,
                           std::nullopt,
                           translucencySelector};
-    Visitor visitor{context};
+    Visitor visitor{gsl::not_null{&context}};
     m_rootNode->accept(visitor);
     visitor.render(m_camera->getPosition());
   }

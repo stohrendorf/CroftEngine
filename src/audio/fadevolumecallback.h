@@ -52,10 +52,10 @@ public:
   }
 
 private:
-  const float m_from;
-  const float m_to;
-  const std::chrono::high_resolution_clock::duration m_duration;
-  const std::weak_ptr<Voice> m_voice;
+  float m_from;
+  float m_to;
+  std::chrono::high_resolution_clock::duration m_duration;
+  std::weak_ptr<Voice> m_voice;
   FinalCallback m_finalCallback;
 };
 } // namespace audio

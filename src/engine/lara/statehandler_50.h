@@ -12,7 +12,7 @@ namespace engine::lara
 class StateHandler_50 final : public AbstractStateHandler
 {
 public:
-  explicit StateHandler_50(objects::LaraObject& lara)
+  explicit StateHandler_50(const gsl::not_null<objects::LaraObject*>& lara)
       : AbstractStateHandler{lara, LaraStateId::UseMidas}
   {
   }

@@ -38,7 +38,7 @@ private:
   bool m_hasQuicksave = false;
   std::vector<bool> m_hasSavegame;
   std::vector<gslu::nn_shared<SavegameEntry>> m_entries;
-  const bool m_loading;
+  bool m_loading;
   std::shared_ptr<ui::widgets::MessageBox> m_overwriteConfirmation;
   enum class Ordering
   {

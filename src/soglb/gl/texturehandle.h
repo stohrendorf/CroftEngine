@@ -70,8 +70,8 @@ public:
   }
 
 private:
-  const gslu::nn_shared<Texture> m_texture;
-  const gslu::nn_unique<Sampler> m_sampler;
-  const uint64_t m_handle;
+  gslu::nn_shared<Texture> m_texture;
+  gslu::nn_unique<Sampler> m_sampler;
+  uint64_t m_handle;
 };
 } // namespace gl

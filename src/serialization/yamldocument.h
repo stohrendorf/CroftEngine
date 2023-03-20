@@ -14,7 +14,7 @@ template<bool Loading>
 class YAMLDocument
 {
 private:
-  const std::filesystem::path m_filename;
+  std::filesystem::path m_filename;
   std::string m_buffer;
   ryml::Tree m_tree;
 
@@ -47,7 +47,7 @@ private:
     }
 
   private:
-    const ryml::Callbacks m_callbacks;
+    ryml::Callbacks m_callbacks;
   };
 
 public:
@@ -91,7 +91,8 @@ public:
   }
 
   template<typename T, typename TContext, bool DelayLoading = Loading>
-  auto deserialize(const std::string& key, TContext& context, T& data) -> std::enable_if_t<DelayLoading, void>
+  auto deserialize(const std::string& key, const gsl::not_null<TContext*>& context, T& data)
+    -> std::enable_if_t<DelayLoading, void>
   {
     const std::string oldLocale = gsl::not_null{setlocale(LC_NUMERIC, nullptr)}.get();
     setlocale(LC_NUMERIC, "C");
@@ -106,7 +107,8 @@ public:
   }
 
   template<typename T, typename TContext, bool DelayLoading = Loading>
-  auto serialize(const std::string& key, TContext& context, T& data) -> std::enable_if_t<!DelayLoading, void>
+  auto serialize(const std::string& key, const gsl::not_null<TContext*>& context, T& data)
+    -> std::enable_if_t<!DelayLoading, void>
   {
     const std::string oldLocale = gsl::not_null{setlocale(LC_NUMERIC, nullptr)}.get();
     setlocale(LC_NUMERIC, "C");

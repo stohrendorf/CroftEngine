@@ -8,7 +8,7 @@ namespace engine::lara
 class StateHandler_20 final : public StateHandler_Standing
 {
 public:
-  explicit StateHandler_20(objects::LaraObject& lara)
+  explicit StateHandler_20(const gsl::not_null<objects::LaraObject*>& lara)
       : StateHandler_Standing{lara, LaraStateId::TurnFast}
   {
   }

@@ -72,6 +72,6 @@ private:
   std::shared_ptr<BloomPass<5, gl::SRGB8>> m_bloomPass;
 
   gslu::nn_shared<gl::Framebuffer> m_fbBloom;
-  const bool m_bloom;
+  bool m_bloom;
 };
 } // namespace render::pass

@@ -304,7 +304,7 @@ void LightningEmitter::deserialize(const serialization::Deserializer<world::Worl
       S_NV("shooting", m_shooting),
       S_NV("mainBoltEnd", m_mainBoltEnd));
 
-  init(ser.context);
+  init(*ser.context);
   ser << [this](const serialization::Deserializer<world::World>& /*ser*/)
   {
     prepareRender();

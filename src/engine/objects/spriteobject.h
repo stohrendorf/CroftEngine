@@ -36,11 +36,11 @@ namespace engine::objects
 class SpriteObject : public Object
 {
 private:
-  const gslu::nn_shared<render::scene::Node> m_objectNode;
-  const gslu::nn_shared<render::scene::Node> m_displayNode;
+  gslu::nn_shared<render::scene::Node> m_objectNode;
+  gslu::nn_shared<render::scene::Node> m_displayNode;
   const world::Sprite* m_sprite = nullptr;
   core::Brightness m_brightness{0.5f};
-  const bool m_billboard;
+  bool m_billboard;
 
   void createModel();
 

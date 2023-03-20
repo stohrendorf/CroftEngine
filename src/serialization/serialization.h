@@ -77,7 +77,9 @@ private:
   using LazyWithContext = std::function<void()>;
   using LazyQueue = std::queue<LazyWithContext>;
 
-  explicit BaseSerializer(const Node& node, TContext& context, const std::shared_ptr<LazyQueue>& lazyQueue)
+  explicit BaseSerializer(const Node& node,
+                          const gsl::not_null<TContext*>& context,
+                          const std::shared_ptr<LazyQueue>& lazyQueue)
       : m_lazyQueue{lazyQueue == nullptr ? std::make_shared<LazyQueue>() : lazyQueue}
       , node{node}
       , context{context}
@@ -195,7 +197,7 @@ private:
 
 public:
   mutable Node node;
-  TContext& context;
+  gsl::not_null<TContext*> context;
 
   ~BaseSerializer()
   {

@@ -65,7 +65,7 @@ class CameraController final : public audio::Listener
 private:
   gslu::nn_shared<render::scene::Camera> m_camera;
 
-  const gsl::not_null<world::World*> m_world;
+  gsl::not_null<world::World*> m_world;
 
   //! @brief Global camera position.
   Location m_location;

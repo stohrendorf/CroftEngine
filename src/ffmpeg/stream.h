@@ -15,7 +15,7 @@ namespace ffmpeg
 {
 struct Stream final
 {
-  const int index;
+  int index;
   AVCodecContext* context = nullptr;
   AVStream* stream = nullptr;
 

@@ -67,8 +67,8 @@ public:
 
 private:
   std::stack<gl::RenderState> m_renderStates{};
-  const material::RenderMode m_renderMode;
-  const std::optional<glm::mat4> m_viewProjection;
-  const Translucency m_translucencySelector;
+  material::RenderMode m_renderMode;
+  std::optional<glm::mat4> m_viewProjection;
+  Translucency m_translucencySelector;
 };
 } // namespace render::scene

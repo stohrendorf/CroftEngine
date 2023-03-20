@@ -130,7 +130,7 @@ public:
   {
     static_assert(std::is_integral_v<T> && sizeof(T) == 1, "readBytes() only allowed for byte-compatible data");
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-    m_stream.read(reinterpret_cast<char*>(dest), n);
+    m_stream.read(reinterpret_cast<char*>(dest), gsl::narrow<std::streamsize>(n));
     if(static_cast<size_t>(m_stream.gcount()) != n)
     {
       BOOST_THROW_EXCEPTION(std::runtime_error("EOF unexpectedly reached"));

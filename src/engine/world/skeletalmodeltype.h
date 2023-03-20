@@ -10,19 +10,19 @@
 
 namespace engine::world
 {
-struct SkeletalModelType
+struct SkeletalModelType final
 {
   core::TypeId type{uint16_t(0)};
   core::ContainerIndex<uint16_t, gsl::not_null<const Mesh*>, gslu::nn_shared<render::scene::Mesh>> meshBaseIndex;
 
-  struct Bone
+  struct Bone final
   {
-    const gslu::nn_shared<RenderMeshData> mesh;
-    const core::TRVec collisionCenter;
-    const core::Length collisionSize;
-    const glm::vec3 position;
-    const bool pushMatrix;
-    const bool popMatrix;
+    gslu::nn_shared<RenderMeshData> mesh;
+    core::TRVec collisionCenter;
+    core::Length collisionSize;
+    glm::vec3 position;
+    bool pushMatrix;
+    bool popMatrix;
 
     explicit Bone(gslu::nn_shared<RenderMeshData> mesh,
                   core::TRVec collisionCenter,

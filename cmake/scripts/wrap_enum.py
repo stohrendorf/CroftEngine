@@ -74,6 +74,7 @@ def generate_impl_lines(args, enums: List[Tuple[str, str]], include_path: Path) 
     yield f"namespace {args.namespace}"
     yield "{"
 
+    yield "// NOLINTNEXTLINE(readability-function-cognitive-complexity)"
     yield f"gsl::czstring toString({args.name} val)"
     yield "{"
     yield "    switch(val)"
@@ -84,6 +85,7 @@ def generate_impl_lines(args, enums: List[Tuple[str, str]], include_path: Path) 
     yield "    }"
     yield "}"
 
+    yield "// NOLINTNEXTLINE(readability-function-cognitive-complexity)"
     yield f"{args.name} EnumUtil<{args.name}>::fromString(const std::string& value)"
     yield "{"
     for identifier, value in enums:
@@ -92,6 +94,7 @@ def generate_impl_lines(args, enums: List[Tuple[str, str]], include_path: Path) 
     yield "}"
 
     yield ""
+    yield "// NOLINTNEXTLINE(readability-function-cognitive-complexity)"
     yield f"const std::map<{args.name}, std::string>& EnumUtil<{args.name}>::all()"
     yield "{"
     yield f"    static const std::map<{args.name}, std::string> instance{{"

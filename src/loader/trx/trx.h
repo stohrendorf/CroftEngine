@@ -190,7 +190,7 @@ public:
 
 private:
   std::map<TexturePart, std::filesystem::path> m_filesByPart;
-  const std::filesystem::path m_baseDir;
+  std::filesystem::path m_baseDir;
   std::filesystem::file_time_type m_newestFile{};
 };
 } // namespace loader::trx

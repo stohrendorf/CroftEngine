@@ -98,7 +98,7 @@ void RenderPipeline::worldCompositionPass(const std::vector<engine::world::Room>
       state.setScissorRegion({x.min, y.min}, {x.size(), y.size()});
       context.pushState(state);
 
-      render::scene::Visitor visitor{context};
+      render::scene::Visitor visitor{gsl::not_null{&context}};
       room.dust->accept(visitor);
       visitor.render(std::nullopt);
 
@@ -280,10 +280,10 @@ void RenderPipeline::initBackbufferEffects(material::MaterialManager& materialMa
   if((m_renderSettings.brightnessEnabled && m_renderSettings.brightness != 0)
      || (m_renderSettings.contrastEnabled && m_renderSettings.contrast != 0))
   {
-    addEffect(
-      "brightness-contrast",
-      materialManager.getBrightnessContrast(m_renderSettings.brightnessEnabled ? m_renderSettings.brightness : 0,
-                                            m_renderSettings.contrastEnabled ? m_renderSettings.contrast : 0));
+    addEffect("brightness-contrast",
+              materialManager.getBrightnessContrast(
+                m_renderSettings.brightnessEnabled ? m_renderSettings.brightness : int8_t(0),
+                m_renderSettings.contrastEnabled ? m_renderSettings.contrast : int8_t(0)));
   }
 }
 

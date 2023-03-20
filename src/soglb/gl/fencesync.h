@@ -41,6 +41,6 @@ public:
   }
 
 private:
-  const api::core::Sync m_sync;
+  api::core::Sync m_sync;
 };
 } // namespace gl

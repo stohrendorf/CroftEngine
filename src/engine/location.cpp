@@ -19,19 +19,19 @@ namespace engine
 {
 void Location::serialize(const serialization::Serializer<world::World>& ser) const
 {
-  ser(S_NV_VECTOR_ELEMENT_NOT_NULL_SERIALIZE("room", ser.context.getRooms(), room), S_NV("position", position));
+  ser(S_NV_VECTOR_ELEMENT_NOT_NULL_SERIALIZE("room", ser.context->getRooms(), room), S_NV("position", position));
 }
 
 void Location::deserialize(const serialization::Deserializer<world::World>& ser)
 {
-  ser(S_NV_VECTOR_ELEMENT_NOT_NULL_DESERIALIZE("room", ser.context.getRooms(), room), S_NV("position", position));
+  ser(S_NV_VECTOR_ELEMENT_NOT_NULL_DESERIALIZE("room", ser.context->getRooms(), room), S_NV("position", position));
 }
 
 Location Location::create(const serialization::Deserializer<world::World>& ser)
 {
   const world::Room* room = nullptr;
   core::TRVec position{};
-  ser(S_NV_VECTOR_ELEMENT("room", std::cref(ser.context.getRooms()), std::ref(room)), S_NV("position", position));
+  ser(S_NV_VECTOR_ELEMENT("room", std::cref(ser.context->getRooms()), std::ref(room)), S_NV("position", position));
   return Location{gsl::not_null{room}, position};
 }
 

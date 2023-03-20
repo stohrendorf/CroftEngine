@@ -8,7 +8,7 @@ namespace engine::lara
 class StateHandler_46 final : public AbstractStateHandler
 {
 public:
-  explicit StateHandler_46(objects::LaraObject& lara)
+  explicit StateHandler_46(const gsl::not_null<objects::LaraObject*>& lara)
       : AbstractStateHandler{lara, LaraStateId::BoulderDeath}
   {
   }

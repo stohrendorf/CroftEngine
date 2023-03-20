@@ -114,7 +114,7 @@ public:
 
   void setExtents(size_t x, size_t y)
   {
-    m_widgets.resize(boost::extents[x][y]);
+    m_widgets.resize(boost::extents[gsl::narrow<WidgetArray::index>(x)][gsl::narrow<WidgetArray::index>(y)]);
     m_alignRight.resize(x, false);
     m_columnSizes.resize(x, 0);
     m_rowSizes.resize(y, 0);
@@ -150,7 +150,7 @@ public:
   {
     auto [sx, sy] = getExtents();
     gsl_Assert(x < sx && y < sy);
-    return m_widgets[x][y];
+    return m_widgets[gsl::narrow<WidgetArray::index>(x)][gsl::narrow<WidgetArray::index>(y)];
   }
 
   [[nodiscard]] const auto& getSelectedWidget() const

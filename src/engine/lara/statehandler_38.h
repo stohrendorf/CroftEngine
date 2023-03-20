@@ -9,7 +9,7 @@ namespace engine::lara
 class StateHandler_38 final : public StateHandler_Pushable
 {
 public:
-  explicit StateHandler_38(objects::LaraObject& lara)
+  explicit StateHandler_38(const gsl::not_null<objects::LaraObject*>& lara)
       : StateHandler_Pushable{lara, LaraStateId::PushableGrab}
   {
   }

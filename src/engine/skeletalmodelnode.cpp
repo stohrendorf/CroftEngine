@@ -239,7 +239,7 @@ void SkeletalModelNode::serialize(const serialization::Serializer<world::World>&
   ser(S_NV("id", id),
       S_NV("model", m_model),
       S_NV("parts", m_meshParts),
-      S_NV_VECTOR_ELEMENT("anim", std::cref(ser.context.getAnimations()), std::cref(m_anim)),
+      S_NV_VECTOR_ELEMENT("anim", std::cref(ser.context->getAnimations()), std::cref(m_anim)),
       S_NV("frame", m_frame),
       S_NV("shadowCaster", m_shadowCaster));
 }
@@ -250,7 +250,7 @@ void SkeletalModelNode::deserialize(const serialization::Deserializer<world::Wor
   ser(S_NV("id", id),
       S_NV("model", m_model),
       S_NV("parts", m_meshParts),
-      S_NV_VECTOR_ELEMENT("anim", std::cref(ser.context.getAnimations()), std::ref(m_anim)),
+      S_NV_VECTOR_ELEMENT("anim", std::cref(ser.context->getAnimations()), std::ref(m_anim)),
       S_NV("frame", m_frame),
       S_NV("shadowCaster", m_shadowCaster));
 
@@ -273,10 +273,8 @@ void deserialize(std::shared_ptr<SkeletalModelNode>& data, const serialization::
   const world::SkeletalModelType* model = nullptr;
   bool shadowCaster;
   ser(S_NV("model", model), S_NV("shadowCaster", shadowCaster));
-  data = std::make_shared<SkeletalModelNode>(create(serialization::TypeId<std::string>{}, ser["id"]),
-                                             gsl::not_null{&ser.context},
-                                             gsl::not_null{model},
-                                             shadowCaster);
+  data = std::make_shared<SkeletalModelNode>(
+    create(serialization::TypeId<std::string>{}, ser["id"]), ser.context, gsl::not_null{model}, shadowCaster);
   data->deserialize(ser);
 }
 

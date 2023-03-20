@@ -47,9 +47,9 @@ namespace engine
 {
 struct InterpolationInfo
 {
-  const gsl::not_null<const loader::file::AnimFrame*> firstFrame;
-  const gsl::not_null<const loader::file::AnimFrame*> secondFrame;
-  const float bias;
+  gsl::not_null<const loader::file::AnimFrame*> firstFrame;
+  gsl::not_null<const loader::file::AnimFrame*> secondFrame;
+  float bias;
 
   [[nodiscard]] const auto& getNearestFrame() const
   {
@@ -94,9 +94,9 @@ public:
 
   struct Sphere
   {
-    const glm::mat4 m;
-    const core::TRVec offset;
-    const core::Length radius;
+    glm::mat4 m;
+    core::TRVec offset;
+    core::Length radius;
 
     Sphere(const glm::mat4& m, core::TRVec offset, const core::Length& radius)
         : m{m}
@@ -251,7 +251,7 @@ private:
     [[nodiscard]] static MeshPart create(const serialization::Deserializer<world::World>& ser);
   };
 
-  const gsl::not_null<const world::World*> m_world;
+  gsl::not_null<const world::World*> m_world;
   gsl::not_null<const world::SkeletalModelType*> m_model;
   std::vector<MeshPart> m_meshParts{};
   mutable std::unique_ptr<gl::ShaderStorageBuffer<glm::mat4>> m_meshMatricesBuffer;

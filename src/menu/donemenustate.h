@@ -34,6 +34,6 @@ public:
   std::unique_ptr<MenuState> onFrame(ui::Ui& ui, engine::world::World& world, MenuDisplay& display) override;
 
 private:
-  const MenuResult m_result;
+  MenuResult m_result;
 };
 } // namespace menu

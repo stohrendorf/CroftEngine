@@ -37,38 +37,38 @@
 namespace engine
 {
 GhostManager::GhostManager(const std::filesystem::path& recordingPath, world::World& world)
-    : model{std::make_shared<ghosting::GhostModel>()}
-    , readerPath{std::filesystem::path{recordingPath}.replace_extension(".bin")}
-    , writerPath{recordingPath}
-    , writer{std::make_unique<ghosting::GhostDataWriter>(recordingPath)}
+    : m_model{std::make_shared<ghosting::GhostModel>()}
+    , m_readerPath{std::filesystem::path{recordingPath}.replace_extension(".bin")}
+    , m_writerPath{recordingPath}
+    , m_writer{std::make_unique<ghosting::GhostDataWriter>(recordingPath)}
 {
-  if(std::filesystem::is_regular_file(readerPath))
+  if(std::filesystem::is_regular_file(m_readerPath))
   {
-    reader = std::make_unique<ghosting::GhostDataReader>(readerPath);
-    if(!reader->isOpen())
-      reader.reset();
+    m_reader = std::make_unique<ghosting::GhostDataReader>(m_readerPath);
+    if(!m_reader->isOpen())
+      m_reader.reset();
   }
-  if(reader != nullptr)
+  if(m_reader != nullptr)
   {
     for(auto i = 0_frame; i < world.getGhostFrame(); i += 1_frame)
     {
-      writer->append(reader->read());
+      m_writer->append(m_reader->read());
     }
   }
   else
   {
     for(auto i = 0_frame; i < world.getGhostFrame(); i += 1_frame)
     {
-      writer->append({});
+      m_writer->append({});
     }
   }
 }
 
 GhostManager::~GhostManager()
 {
-  writer.reset();
+  m_writer.reset();
   std::error_code ec;
-  std::filesystem::remove(writerPath, ec);
+  std::filesystem::remove(m_writerPath, ec);
 }
 
 bool GhostManager::askGhostSave(Presenter& presenter, world::World& world)
@@ -120,13 +120,13 @@ bool GhostManager::askGhostSave(Presenter& presenter, world::World& world)
     if(!msgBox->isConfirmed())
       return true;
 
-    reader.reset();
-    writer.reset();
+    m_reader.reset();
+    m_writer.reset();
 
     std::error_code ec;
-    std::filesystem::remove(readerPath, ec);
+    std::filesystem::remove(m_readerPath, ec);
 
-    std::filesystem::rename(writerPath, readerPath, ec);
+    std::filesystem::rename(m_writerPath, m_readerPath, ec);
 
     ghosting::GhostMeta ghostMeta;
     ghostMeta.duration = world.getGhostFrame();
@@ -145,12 +145,12 @@ bool GhostManager::askGhostSave(Presenter& presenter, world::World& world)
                                 : ghosting::GhostFinishState::Unfinished;
     }
 
-    const auto ymlFilepath = std::filesystem::path{readerPath}.replace_extension(".yml");
+    const auto ymlFilepath = std::filesystem::path{m_readerPath}.replace_extension(".yml");
     serialization::YAMLDocument<false> metaDoc{ymlFilepath};
-    metaDoc.serialize("ghost", ghostMeta, ghostMeta);
+    metaDoc.serialize("ghost", gsl::not_null{&ghostMeta}, ghostMeta);
     metaDoc.write();
 
-    const auto tarXzFilepath = std::filesystem::path{readerPath}.replace_extension(".tar.xz");
+    const auto tarXzFilepath = std::filesystem::path{m_readerPath}.replace_extension(".tar.xz");
     BOOST_LOG_TRIVIAL(debug) << "Create archive " << tarXzFilepath;
     WriteOnlyXzArchive archive{tarXzFilepath};
 
@@ -160,7 +160,7 @@ bool GhostManager::askGhostSave(Presenter& presenter, world::World& world)
       archive.addFile(filepath, filepath.filename());
     };
 
-    addFile(readerPath);
+    addFile(m_readerPath);
     addFile(ymlFilepath);
     return true;
   }

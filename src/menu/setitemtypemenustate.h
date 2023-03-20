@@ -29,7 +29,7 @@ struct MenuRingTransform;
 class SetItemTypeMenuState : public MenuState
 {
 private:
-  const engine::TR1ItemId m_type;
+  engine::TR1ItemId m_type;
   std::unique_ptr<MenuState> m_next;
 
 public:

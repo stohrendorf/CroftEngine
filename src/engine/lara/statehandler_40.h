@@ -8,7 +8,7 @@ namespace engine::lara
 class StateHandler_40 final : public AbstractStateHandler
 {
 public:
-  explicit StateHandler_40(objects::LaraObject& lara)
+  explicit StateHandler_40(const gsl::not_null<objects::LaraObject*>& lara)
       : AbstractStateHandler{lara, LaraStateId::SwitchDown}
   {
   }

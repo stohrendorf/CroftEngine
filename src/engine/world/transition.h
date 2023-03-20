@@ -9,9 +9,9 @@ struct Animation;
 
 struct TransitionCase
 {
-  const core::Frame firstFrame;
-  const core::Frame lastFrame;
-  const core::Frame targetFrame;
+  core::Frame firstFrame;
+  core::Frame lastFrame;
+  core::Frame targetFrame;
 
   const Animation* targetAnimation = nullptr;
 };

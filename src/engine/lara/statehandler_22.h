@@ -9,7 +9,7 @@ namespace engine::lara
 class StateHandler_22 final : public StateHandler_SideStep
 {
 public:
-  explicit StateHandler_22(objects::LaraObject& lara)
+  explicit StateHandler_22(const gsl::not_null<objects::LaraObject*>& lara)
       : StateHandler_SideStep{lara, LaraStateId::StepLeft, hid::AxisMovement::Left, -90_deg}
   {
   }

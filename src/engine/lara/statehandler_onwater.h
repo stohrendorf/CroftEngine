@@ -10,7 +10,7 @@ namespace engine::lara
 class StateHandler_OnWater : public AbstractStateHandler
 {
 public:
-  explicit StateHandler_OnWater(objects::LaraObject& lara, const LaraStateId id)
+  explicit StateHandler_OnWater(const gsl::not_null<objects::LaraObject*>& lara, const LaraStateId id)
       : AbstractStateHandler{lara, id}
   {
   }

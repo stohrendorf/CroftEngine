@@ -24,10 +24,10 @@ void GridBox::draw(ui::Ui& ui, const engine::Presenter& presenter) const
   gsl_Assert(m_rowSizes.size() == m_widgets.shape()[1]);
 
   int xPos = m_position.x;
-  for(size_t x = 0; x < m_widgets.shape()[0]; ++x)
+  for(WidgetArray::index x = 0; x < m_widgets.shape()[0]; ++x)
   {
     int yPos = m_position.y;
-    for(size_t y = 0; y < m_widgets.shape()[1]; ++y)
+    for(WidgetArray::index y = 0; y < m_widgets.shape()[1]; ++y)
     {
       const auto& widget = m_widgets[x][y];
       if(widget != nullptr)
@@ -49,7 +49,7 @@ void GridBox::set(size_t x, size_t y, const std::shared_ptr<Widget>& widget)
 {
   if(x >= m_widgets.shape()[0] || y >= m_widgets.shape()[1])
     BOOST_THROW_EXCEPTION(std::out_of_range("cell coordinates out of range"));
-  m_widgets[x][y] = widget;
+  m_widgets[gsl::narrow<WidgetArray::index>(x)][gsl::narrow<WidgetArray::index>(y)] = widget;
 }
 
 void GridBox::setPosition(const glm::ivec2& position)
@@ -59,9 +59,9 @@ void GridBox::setPosition(const glm::ivec2& position)
 
 void GridBox::update(bool hasFocus)
 {
-  for(size_t x = 0; x < m_widgets.shape()[0]; ++x)
+  for(WidgetArray::index x = 0; x < m_widgets.shape()[0]; ++x)
   {
-    for(size_t y = 0; y < m_widgets.shape()[1]; ++y)
+    for(WidgetArray::index y = 0; y < m_widgets.shape()[1]; ++y)
     {
       const auto& widget = m_widgets[x][y];
       if(widget == nullptr)
@@ -88,10 +88,10 @@ void GridBox::fitToContent()
   gsl_Assert(m_alignRight.size() == m_widgets.shape()[0]);
   gsl_Assert(m_rowSizes.size() == m_widgets.shape()[1]);
 
-  for(size_t x = 0; x < m_widgets.shape()[0]; ++x)
+  for(WidgetArray::index x = 0; x < m_widgets.shape()[0]; ++x)
   {
     int maxWidth = 0;
-    for(size_t y = 0; y < m_widgets.shape()[1]; ++y)
+    for(WidgetArray::index y = 0; y < m_widgets.shape()[1]; ++y)
     {
       const auto& widget = m_widgets[x][y];
       if(widget == nullptr)
@@ -102,10 +102,10 @@ void GridBox::fitToContent()
     m_columnSizes[x] = maxWidth;
   }
 
-  for(size_t y = 0; y < m_widgets.shape()[1]; ++y)
+  for(WidgetArray::index y = 0; y < m_widgets.shape()[1]; ++y)
   {
     int maxHeight = 0;
-    for(size_t x = 0; x < m_widgets.shape()[0]; ++x)
+    for(WidgetArray::index x = 0; x < m_widgets.shape()[0]; ++x)
     {
       const auto& widget = m_widgets[x][y];
       if(widget == nullptr)

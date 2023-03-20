@@ -9,7 +9,7 @@ namespace engine::lara
 class StateHandler_14 final : public StateHandler_Standing
 {
 public:
-  explicit StateHandler_14(objects::LaraObject& lara)
+  explicit StateHandler_14(const gsl::not_null<objects::LaraObject*>& lara)
       : StateHandler_Standing{lara, LaraStateId::GrabToFall}
   {
   }

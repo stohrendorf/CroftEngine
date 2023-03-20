@@ -72,7 +72,7 @@ struct FfmpegMemoryStreamSourceScratchData
 
 struct FfmpegMemoryStreamSourceFileData
 {
-  const gsl::span<const uint8_t> data;
+  gsl::span<const uint8_t> data;
   size_t dataPosition = 0;
 
   explicit FfmpegMemoryStreamSourceFileData(const gsl::span<const uint8_t>& data)

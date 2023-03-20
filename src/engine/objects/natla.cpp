@@ -149,7 +149,7 @@ void Natla::update()
     getCreatureInfo()->pathFinder.step = 256_len;
     getCreatureInfo()->pathFinder.drop = -256_len;
     getCreatureInfo()->pathFinder.fly = 0_len;
-    ai::EnemyLocation enemyLocation{*this};
+    const ai::EnemyLocation enemyLocation{*this};
 
     if(enemyLocation.enemyAhead)
       neckRot = enemyLocation.angleToEnemy;

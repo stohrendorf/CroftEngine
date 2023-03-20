@@ -31,6 +31,6 @@ public:
   }
 
 private:
-  const std::string m_name;
+  std::string m_name;
 };
 } // namespace render::material

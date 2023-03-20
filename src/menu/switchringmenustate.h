@@ -32,7 +32,7 @@ private:
   core::Length m_radiusSpeed{};
   core::Angle m_targetCameraRotX{};
   size_t m_next;
-  const bool m_down;
+  bool m_down;
 
 public:
   explicit SwitchRingMenuState(const std::shared_ptr<MenuRingTransform>& ringTransform, size_t next, bool down);

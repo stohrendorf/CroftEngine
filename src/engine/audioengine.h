@@ -39,9 +39,9 @@ enum class TR1TrackId;
 
 class AudioEngine
 {
-  world::World& m_world;
-  const std::filesystem::path m_rootPath;
-  const gslu::nn_shared<audio::SoundEngine> m_soundEngine;
+  gsl::not_null<world::World*> m_world;
+  std::filesystem::path m_rootPath;
+  gslu::nn_shared<audio::SoundEngine> m_soundEngine;
 
   std::vector<loader::file::SoundEffectProperties> m_soundEffectProperties{};
   boost::container::flat_map<int, const loader::file::SoundEffectProperties*> m_soundEffects{};
@@ -54,7 +54,7 @@ class AudioEngine
   audio::VoiceGroup m_sfx{0.8f};
 
 public:
-  explicit AudioEngine(world::World& world,
+  explicit AudioEngine(const gsl::not_null<world::World*>& world,
                        std::filesystem::path rootPath,
                        std::shared_ptr<audio::SoundEngine> soundEngine);
 

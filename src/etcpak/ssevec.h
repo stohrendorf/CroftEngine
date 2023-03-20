@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <emmintrin.h>
+#include <gsl/gsl-lite.hpp>
 #include <immintrin.h>
 #include <smmintrin.h>
 #include <tmmintrin.h>
@@ -95,6 +96,7 @@ struct IVec final
     static_assert(r2 < 4);
     static_assert(r1 < 4);
     static_assert(r0 < 4);
+    // NOLINTNEXTLINE(hicpp-signed-bitwise)
     return IVec{_mm_shuffle_epi32(data, _MM_SHUFFLE(r3, r2, r1, r0))};
   }
 
@@ -246,6 +248,7 @@ struct IVec16 final
     static_assert(b < 4);
     static_assert(c < 4);
     static_assert(d < 4);
+    // NOLINTNEXTLINE(hicpp-signed-bitwise)
     data = _mm_shuffle_epi32(data, _MM_SHUFFLE(a, b, c, d));
     return *this;
   }
@@ -301,7 +304,7 @@ struct IVec8 final
   }
 
   explicit IVec8(uint8_t x)
-      : data{_mm_set1_epi8(x)}
+      : data{_mm_set1_epi8(gsl::narrow_cast<int8_t>(x))}
   {
   }
 
@@ -350,6 +353,7 @@ struct IVec8 final
     static_assert(b < 4);
     static_assert(c < 4);
     static_assert(d < 4);
+    // NOLINTNEXTLINE(hicpp-signed-bitwise)
     data = _mm_shuffle_epi32(data, _MM_SHUFFLE(a, b, c, d));
     return *this;
   }

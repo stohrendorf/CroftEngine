@@ -21,9 +21,9 @@ class TextureAttachment final
   friend Framebuffer;
 
 private:
-  const gslu::nn_shared<Texture> m_texture;
-  const int32_t m_level;
-  const glm::ivec2 m_size;
+  gslu::nn_shared<Texture> m_texture;
+  int32_t m_level;
+  glm::ivec2 m_size;
 
   void attach(const Framebuffer& framebuffer, api::FramebufferAttachment attachment) const;
 
@@ -61,7 +61,7 @@ public:
 private:
   Attachments m_attachments;
   RenderState m_renderState;
-  const glm::ivec2 m_size;
+  glm::ivec2 m_size;
 
 public:
   explicit Framebuffer(Attachments attachments,

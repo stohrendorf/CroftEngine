@@ -30,6 +30,6 @@ public:
   }
 
 private:
-  const glm::ivec2 m_size;
+  glm::ivec2 m_size;
 };
 } // namespace gl

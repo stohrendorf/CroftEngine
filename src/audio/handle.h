@@ -46,6 +46,6 @@ private:
   }
 
   ALuint m_handle;
-  Deleter* const m_deleter;
+  Deleter* m_deleter;
 };
 } // namespace audio

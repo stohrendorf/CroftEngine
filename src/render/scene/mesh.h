@@ -61,7 +61,7 @@ public:
 
 private:
   material::MaterialGroup m_materialGroup{};
-  const gl::api::PrimitiveType m_primitiveType{};
+  gl::api::PrimitiveType m_primitiveType{};
 
   virtual void drawElements(Translucency translucencySelector) = 0;
   virtual void drawElements(Translucency translucencySelector, gl::api::core::SizeType instanceCount) = 0;

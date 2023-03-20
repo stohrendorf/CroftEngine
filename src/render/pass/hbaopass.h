@@ -46,8 +46,8 @@ public:
   }
 
 private:
-  const gslu::nn_shared<GeometryPass> m_geometryPass;
-  const gslu::nn_shared<material::Material> m_material;
+  gslu::nn_shared<GeometryPass> m_geometryPass;
+  gslu::nn_shared<material::Material> m_material;
 
   gslu::nn_shared<scene::Mesh> m_renderMesh;
 

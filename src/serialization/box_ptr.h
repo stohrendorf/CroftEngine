@@ -13,7 +13,7 @@ inline std::optional<uint32_t> ptrSave(const engine::world::Box* box, const Seri
     return std::nullopt;
 
   ser.tag("box");
-  return gsl::narrow<uint32_t>(std::distance(&ser.context.getBoxes().at(0), box));
+  return gsl::narrow<uint32_t>(std::distance(&ser.context->getBoxes().at(0), box));
 }
 
 inline std::optional<uint32_t> ptrSave(engine::world::Box* box, const Serializer<engine::world::World>& ser)
@@ -29,7 +29,7 @@ inline const engine::world::Box* ptrLoad(const TypeId<const engine::world::Box*>
     return nullptr;
 
   ser.tag("box");
-  return &ser.context.getBoxes().at(*idx);
+  return &ser.context->getBoxes().at(*idx);
 }
 
 inline engine::world::Box* ptrLoad(const TypeId<engine::world::Box*>&,

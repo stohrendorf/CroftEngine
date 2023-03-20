@@ -108,7 +108,7 @@ public:
   }
 
 private:
-  const std::string m_name;
+  std::string m_name;
   gslu::nn_shared<scene::Mesh> m_mesh;
   gslu::nn_shared<gl::Texture2D<TPixel>> m_output;
   gslu::nn_shared<gl::TextureHandle<gl::Texture2D<TPixel>>> m_outputHandle;

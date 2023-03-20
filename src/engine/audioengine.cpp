@@ -44,7 +44,7 @@ void AudioEngine::triggerCdTrack(const script::Gameflow& gameflow,
     // 28
     // OK. Let's do some tumbling
     if(m_cdTrackActivationStates[trackId].isOneshot()
-       && m_world.getObjectManager().getLara().getCurrentAnimState() == loader::file::LaraStateId::JumpUp)
+       && m_world->getObjectManager().getLara().getCurrentAnimState() == loader::file::LaraStateId::JumpUp)
     {
       // Now press it again
       trackId = TR1TrackId::LaraTalk3;
@@ -61,14 +61,14 @@ void AudioEngine::triggerCdTrack(const script::Gameflow& gameflow,
   { // NOLINT(bugprone-branch-clone)
     // 41
     // Nice
-    if(m_world.getObjectManager().getLara().getCurrentAnimState() == loader::file::LaraStateId::Hang)
+    if(m_world->getObjectManager().getLara().getCurrentAnimState() == loader::file::LaraStateId::Hang)
       triggerNormalCdTrack(gameflow, trackId, activationRequest, triggerType);
   }
   else if(trackId == TR1TrackId::LaraTalk16)
   {
     // 42
     // Try to vault up here
-    if(m_world.getObjectManager().getLara().getCurrentAnimState() == loader::file::LaraStateId::Hang)
+    if(m_world->getObjectManager().getLara().getCurrentAnimState() == loader::file::LaraStateId::Hang)
       // I can't climb up
       triggerNormalCdTrack(gameflow, TR1TrackId::LaraTalk17, activationRequest, triggerType);
     else
@@ -83,7 +83,7 @@ void AudioEngine::triggerCdTrack(const script::Gameflow& gameflow,
   {
     // 49
     // Wuuh! Ohh! Air!
-    if(m_world.getObjectManager().getLara().getCurrentAnimState() == loader::file::LaraStateId::OnWaterStop)
+    if(m_world->getObjectManager().getLara().getCurrentAnimState() == loader::file::LaraStateId::OnWaterStop)
       triggerNormalCdTrack(gameflow, trackId, activationRequest, triggerType);
   }
   else if(trackId == TR1TrackId::LaraTalk24)
@@ -94,12 +94,12 @@ void AudioEngine::triggerCdTrack(const script::Gameflow& gameflow,
       m_cdTrack50time += 1_frame;
       if(m_cdTrack50time == core::FrameRate * 4_sec)
       {
-        m_world.finishLevel();
+        m_world->finishLevel();
         m_cdTrack50time = 0_frame;
         triggerNormalCdTrack(gameflow, trackId, activationRequest, triggerType);
       }
     }
-    else if(m_world.getObjectManager().getLara().getCurrentAnimState() == loader::file::LaraStateId::OnWaterExit)
+    else if(m_world->getObjectManager().getLara().getCurrentAnimState() == loader::file::LaraStateId::OnWaterExit)
     {
       triggerNormalCdTrack(gameflow, trackId, activationRequest, triggerType);
     }
@@ -353,7 +353,7 @@ void AudioEngine::deserialize(const serialization::Deserializer<world::World>& s
   m_soundEngine->deserializeStreams(ser, m_rootPath, m_music);
 }
 
-AudioEngine::AudioEngine(world::World& world,
+AudioEngine::AudioEngine(const gsl::not_null<world::World*>& world,
                          std::filesystem::path rootPath,
                          std::shared_ptr<audio::SoundEngine> soundEngine)
     : m_world{world}

@@ -32,9 +32,9 @@ public:
   void draw(Ui& ui) const;
 
 private:
-  const std::string m_title;
-  const size_t m_totalSecrets;
-  const std::shared_ptr<engine::Player> m_player;
-  const std::shared_ptr<engine::Presenter> m_presenter;
+  std::string m_title;
+  size_t m_totalSecrets;
+  std::shared_ptr<engine::Player> m_player;
+  std::shared_ptr<engine::Presenter> m_presenter;
 };
 } // namespace ui

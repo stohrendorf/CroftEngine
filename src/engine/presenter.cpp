@@ -152,7 +152,7 @@ void Presenter::renderWorld(const std::vector<world::Room>& rooms,
           {
             render::scene::RenderContext context{
               render::material::RenderMode::CSMDepthOnly, vpMatrix, translucencySelector};
-            render::scene::Visitor visitor{context, false};
+            render::scene::Visitor visitor{gsl::not_null{&context}, false};
             for(const auto& room : rooms)
             {
               if(!room.node->isVisible())

@@ -48,7 +48,7 @@ public:
                                             const std::string_view& label);
 
 private:
-  const uint32_t m_handle;
+  uint32_t m_handle;
 };
 
 using FragmentShader = Shader<api::ShaderType::FragmentShader>;

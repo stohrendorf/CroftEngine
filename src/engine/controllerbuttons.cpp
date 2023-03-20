@@ -51,7 +51,7 @@ ControllerLayouts loadControllerButtonIcons(render::MultiTextureAtlas& atlases,
   {
     int context{};
     serialization::YAMLDocument<true> doc{configFile};
-    doc.deserialize("layouts", context, layouts);
+    doc.deserialize("layouts", gsl::not_null{&context}, layouts);
   }
 
   ControllerLayouts controllerLayouts;

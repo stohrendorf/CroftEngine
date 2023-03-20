@@ -99,7 +99,7 @@ private:
                                                          const std::vector<std::string>& defines = {});
 
   gl::Program m_handle;
-  const std::string m_id;
+  std::string m_id;
 
   boost::container::flat_map<std::string, gl::ProgramInput> m_vertexAttributes;
   boost::container::flat_map<std::string, gl::Uniform> m_uniforms;

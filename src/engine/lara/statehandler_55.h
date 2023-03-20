@@ -8,7 +8,7 @@ namespace engine::lara
 class StateHandler_55 final : public AbstractStateHandler
 {
 public:
-  explicit StateHandler_55(objects::LaraObject& lara)
+  explicit StateHandler_55(const gsl::not_null<objects::LaraObject*>& lara)
       : AbstractStateHandler{lara, LaraStateId::OnWaterExit}
   {
   }

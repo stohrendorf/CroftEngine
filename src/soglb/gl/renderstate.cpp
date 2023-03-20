@@ -38,11 +38,15 @@ void RenderState::apply(const bool force) const
   if(RS_CHANGED(m_viewport))
   {
     updateScissorRegion = true;
+    gsl_Assert(m_viewport.has_value());
+    // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
     GL_ASSERT(api::viewport(0, 0, m_viewport->x, m_viewport->y));
     getCurrentState().m_viewport = m_viewport;
   }
   if(RS_CHANGED(m_program))
   {
+    gsl_Assert(m_program.has_value());
+    // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
     GL_ASSERT(api::useProgram(m_program.value()));
     getCurrentState().m_program = m_program;
   }
@@ -50,6 +54,8 @@ void RenderState::apply(const bool force) const
   {
     if(RS_CHANGED(m_blendEnabled[i]))
     {
+      gsl_Assert(m_blendEnabled[i].has_value());
+      // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
       if(m_blendEnabled[i].value())
         GL_ASSERT(api::enable(api::EnableCap::Blend, i));
       else
@@ -61,6 +67,8 @@ void RenderState::apply(const bool force) const
   {
     if(RS_CHANGED(m_blendFactors[i]))
     {
+      gsl_Assert(m_blendFactors[i].has_value());
+      // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
       const auto [srcRgb, srcAlpha, dstRgb, dstAlpha] = m_blendFactors[i].value();
       GL_ASSERT(api::blendFuncSeparate(i, srcRgb, dstRgb, srcAlpha, dstAlpha));
       getCurrentState().m_blendFactors[i] = m_blendFactors[i];
@@ -68,6 +76,8 @@ void RenderState::apply(const bool force) const
   }
   if(RS_CHANGED(m_cullFaceEnabled))
   {
+    gsl_Assert(m_cullFaceEnabled.has_value());
+    // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
     if(m_cullFaceEnabled.value())
       GL_ASSERT(api::enable(api::EnableCap::CullFace));
     else
@@ -76,21 +86,29 @@ void RenderState::apply(const bool force) const
   }
   if(RS_CHANGED(m_cullFaceSide))
   {
+    gsl_Assert(m_cullFaceSide.has_value());
+    // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
     GL_ASSERT(api::cullFace(m_cullFaceSide.value()));
     getCurrentState().m_cullFaceSide = m_cullFaceSide;
   }
   if(RS_CHANGED(m_frontFace))
   {
+    gsl_Assert(m_frontFace.has_value());
+    // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
     GL_ASSERT(api::frontFace(m_frontFace.value()));
     getCurrentState().m_frontFace = m_frontFace;
   }
   if(RS_CHANGED(m_lineWidth))
   {
+    gsl_Assert(m_lineWidth.has_value());
+    // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
     GL_ASSERT(api::lineWidth(m_lineWidth.value()));
     getCurrentState().m_lineWidth = m_lineWidth;
   }
   if(RS_CHANGED(m_lineSmooth))
   {
+    gsl_Assert(m_lineSmooth.has_value());
+    // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
     if(m_lineSmooth.value())
       GL_ASSERT(api::enable(api::EnableCap::LineSmooth));
     else
@@ -99,6 +117,8 @@ void RenderState::apply(const bool force) const
   }
   if(RS_CHANGED(m_depthTestEnabled))
   {
+    gsl_Assert(m_depthTestEnabled.has_value());
+    // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
     if(m_depthTestEnabled.value())
       GL_ASSERT(api::enable(api::EnableCap::DepthTest));
     else
@@ -107,11 +127,15 @@ void RenderState::apply(const bool force) const
   }
   if(RS_CHANGED(m_depthWriteEnabled))
   {
+    gsl_Assert(m_depthWriteEnabled.has_value());
+    // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
     GL_ASSERT(api::depthMask(m_depthWriteEnabled.value()));
     getCurrentState().m_depthWriteEnabled = m_depthWriteEnabled;
   }
   if(RS_CHANGED(m_depthClampEnabled))
   {
+    gsl_Assert(m_depthClampEnabled.has_value());
+    // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
     if(m_depthClampEnabled.value())
       GL_ASSERT(api::enable(api::EnableCap::DepthClamp));
     else
@@ -120,11 +144,15 @@ void RenderState::apply(const bool force) const
   }
   if(RS_CHANGED(m_depthFunction))
   {
+    gsl_Assert(m_depthFunction.has_value());
+    // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
     GL_ASSERT(api::depthFunc(m_depthFunction.value()));
     getCurrentState().m_depthFunction = m_depthFunction;
   }
   if(RS_CHANGED(m_scissorTest))
   {
+    gsl_Assert(m_scissorTest.has_value());
+    // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
     if(m_scissorTest.value())
       GL_ASSERT(api::enable(api::EnableCap::ScissorTest));
     else
@@ -149,6 +177,8 @@ void RenderState::apply(const bool force) const
   }
   if(RS_CHANGED(m_polygonOffsetFillEnabled) || RS_CHANGED(m_polygonOffset))
   {
+    gsl_Assert(m_polygonOffsetFillEnabled.has_value());
+    // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
     if(m_polygonOffsetFillEnabled.value())
     {
       gsl_Assert(m_polygonOffset.has_value());

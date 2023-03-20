@@ -49,8 +49,7 @@ public:
   }
 
 private:
-  const gslu::nn_shared<gl::Image<gl::PremultipliedSRGBA8>> m_image{
-    std::make_shared<gl::Image<gl::PremultipliedSRGBA8>>()};
+  gslu::nn_shared<gl::Image<gl::PremultipliedSRGBA8>> m_image{std::make_shared<gl::Image<gl::PremultipliedSRGBA8>>()};
   std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::PremultipliedSRGBA8>>> m_texture;
   std::shared_ptr<Mesh> m_mesh{nullptr};
   float m_alphaMultiplier{1.0f};

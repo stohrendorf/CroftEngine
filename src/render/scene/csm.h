@@ -96,9 +96,9 @@ public:
   }
 
 private:
-  const int32_t m_resolution;
-  const glm::vec3 m_lightDir{core::TRVec{0_len, 1_len, 0_len}.toRenderSystem()};
-  const glm::vec3 m_lightDirOrtho{core::TRVec{1_len, 0_len, 0_len}.toRenderSystem()};
+  int32_t m_resolution;
+  glm::vec3 m_lightDir{core::TRVec{0_len, 1_len, 0_len}.toRenderSystem()};
+  glm::vec3 m_lightDirOrtho{core::TRVec{1_len, 0_len, 0_len}.toRenderSystem()};
   std::array<Split, CSMBuffer::NSplits> m_splits;
   size_t m_activeSplit = 0;
   CSMBuffer m_bufferData;

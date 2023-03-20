@@ -8,7 +8,7 @@ namespace engine::lara
 class StateHandler_Pushable : public AbstractStateHandler
 {
 public:
-  explicit StateHandler_Pushable(objects::LaraObject& lara, const LaraStateId id)
+  explicit StateHandler_Pushable(const gsl::not_null<objects::LaraObject*>& lara, const LaraStateId id)
       : AbstractStateHandler{lara, id}
   {
   }

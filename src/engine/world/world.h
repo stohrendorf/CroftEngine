@@ -99,7 +99,7 @@ struct SkeletalModelType;
 class World final
 {
 public:
-  explicit World(Engine& engine,
+  explicit World(const gsl::not_null<Engine*>& engine,
                  std::unique_ptr<loader::file::level::Level>&& level,
                  std::string title,
                  const std::optional<TR1TrackId>& ambient,
@@ -262,12 +262,12 @@ public:
 
   [[nodiscard]] const Engine& getEngine() const
   {
-    return m_engine;
+    return *m_engine;
   }
 
   Engine& getEngine()
   {
-    return m_engine;
+    return *m_engine;
   }
 
   [[nodiscard]] const AudioEngine& getAudioEngine() const
@@ -373,8 +373,8 @@ public:
 private:
   void drawPickupWidgets(ui::Ui& ui);
 
-  Engine& m_engine;
-  const std::filesystem::path m_levelFilename;
+  gsl::not_null<Engine*> m_engine;
+  std::filesystem::path m_levelFilename;
 
   std::unique_ptr<AudioEngine> m_audioEngine;
 
@@ -419,8 +419,8 @@ private:
   core::Frame m_uvAnimTime = 0_frame;
 
   std::vector<ui::PickupWidget> m_pickupWidgets{};
-  const std::shared_ptr<Player> m_player;
-  const std::shared_ptr<Player> m_levelStartPlayer;
+  std::shared_ptr<Player> m_player;
+  std::shared_ptr<Player> m_levelStartPlayer;
 
   std::vector<int16_t> m_poseFrames;
   std::vector<int16_t> m_animCommands;

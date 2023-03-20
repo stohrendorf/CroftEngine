@@ -28,8 +28,8 @@ enum class SaveGamePageMode;
 class PassportMenuState : public MenuState
 {
 private:
-  const bool m_allowExit;
-  const SaveGamePageMode m_saveGamePageMode;
+  bool m_allowExit;
+  SaveGamePageMode m_saveGamePageMode;
   std::optional<int> m_forcePage = std::nullopt;
   std::unique_ptr<ui::Text> m_passportText;
 

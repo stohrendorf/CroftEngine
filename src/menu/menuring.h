@@ -33,7 +33,7 @@ struct MenuRing
   [[nodiscard]] auto getAnglePerItem() const
   {
     gsl_Expects(!list.empty());
-    const auto anglePerItemDeg = 360.0f / list.size();
+    const auto anglePerItemDeg = 360.0f / gsl::narrow_cast<float>(list.size());
     return core::angleFromDegrees(anglePerItemDeg);
   }
 

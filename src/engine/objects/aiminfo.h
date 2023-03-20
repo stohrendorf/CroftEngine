@@ -50,8 +50,8 @@ constexpr auto ShotgunAimToIdleAnimEnd = 126_frame;
 
 struct AimInfo
 {
-  const size_t handBoneId;
-  const size_t thighBoneId;
+  size_t handBoneId;
+  size_t thighBoneId;
 
   const loader::file::AnimFrame* weaponAnimData = nullptr;
   core::Frame frame = 0_frame;
@@ -78,5 +78,8 @@ struct AimInfo
     aimRotation.X = 0_deg;
     aimRotation.Y = 0_deg;
   }
+
+private:
+  void updateAnimShotgunAiming(LaraObject& lara);
 };
 } // namespace engine::objects

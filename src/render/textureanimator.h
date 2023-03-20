@@ -66,29 +66,42 @@ public:
 private:
   struct Sequence
   {
-    struct VertexReference
+    class VertexReference
     {
-      //! Vertex buffer index
-      const size_t bufferIndex;
-      const int sourceIndex;
+    public:
       size_t queueOffset = 0;
 
       VertexReference(const size_t bufferIdx, const int sourceIdx)
-          : bufferIndex(bufferIdx)
-          , sourceIndex(sourceIdx)
+          : m_bufferIndex{bufferIdx}
+          , m_sourceIndex{sourceIdx}
       {
         gsl_Expects(sourceIdx >= 0 && sourceIdx < 4);
       }
 
       bool operator<(const VertexReference& rhs) const noexcept
       {
-        return bufferIndex < rhs.bufferIndex;
+        return m_bufferIndex < rhs.m_bufferIndex;
       }
 
       bool operator==(const VertexReference& rhs) const noexcept
       {
-        return bufferIndex == rhs.bufferIndex;
+        return m_bufferIndex == rhs.m_bufferIndex;
       }
+
+      [[nodiscard]] auto getBufferIndex() const
+      {
+        return m_bufferIndex;
+      }
+
+      [[nodiscard]] auto getSourceIndex() const
+      {
+        return m_sourceIndex;
+      }
+
+    private:
+      //! Vertex buffer index
+      size_t m_bufferIndex;
+      int m_sourceIndex;
     };
 
     std::vector<core::TextureTileId> tileIds;

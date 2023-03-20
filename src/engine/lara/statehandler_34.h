@@ -7,7 +7,7 @@ namespace engine::lara
 class StateHandler_34 final : public StateHandler_OnWater
 {
 public:
-  explicit StateHandler_34(objects::LaraObject& lara)
+  explicit StateHandler_34(const gsl::not_null<objects::LaraObject*>& lara)
       : StateHandler_OnWater{lara, LaraStateId::OnWaterForward}
   {
   }

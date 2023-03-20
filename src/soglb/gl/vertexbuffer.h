@@ -47,10 +47,10 @@ public:
   void bindVertexAttribute(api::core::Handle vertexArray, const ProgramInput& input, uint32_t bindingIndex) const;
 
 private:
-  const api::VertexAttribType m_type;
-  const uint32_t m_relativeOffset;
-  const int32_t m_size;
-  const bool m_normalized;
+  api::VertexAttribType m_type;
+  uint32_t m_relativeOffset;
+  int32_t m_size;
+  bool m_normalized;
 };
 
 template<typename T>
@@ -101,8 +101,8 @@ public:
   }
 
 private:
-  const VertexLayout<T> m_layout;
-  const uint32_t m_divisor;
+  VertexLayout<T> m_layout;
+  uint32_t m_divisor;
 };
 
 template<typename T>

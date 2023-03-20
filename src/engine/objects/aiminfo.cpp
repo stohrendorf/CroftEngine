@@ -31,7 +31,7 @@ namespace engine::objects
 void AimInfo::serialize(const serialization::Serializer<world::World>& ser) const
 {
   auto ptr = reinterpret_cast<const int16_t*>(weaponAnimData);
-  ser(S_NV_VECTOR_ELEMENT("weaponAnimData", std::cref(ser.context.getPoseFrames()), std::cref(ptr)),
+  ser(S_NV_VECTOR_ELEMENT("weaponAnimData", std::cref(ser.context->getPoseFrames()), std::cref(ptr)),
       S_NV("frame", frame),
       S_NV("aiming", aiming),
       S_NV("aimRotation", aimRotation),
@@ -41,7 +41,7 @@ void AimInfo::serialize(const serialization::Serializer<world::World>& ser) cons
 void AimInfo::deserialize(const serialization::Deserializer<world::World>& ser)
 {
   auto ptr = reinterpret_cast<const int16_t*>(weaponAnimData);
-  ser(S_NV_VECTOR_ELEMENT("weaponAnimData", std::cref(ser.context.getPoseFrames()), std::ref(ptr)),
+  ser(S_NV_VECTOR_ELEMENT("weaponAnimData", std::cref(ser.context->getPoseFrames()), std::ref(ptr)),
       S_NV("frame", frame),
       S_NV("aiming", aiming),
       S_NV("aimRotation", aimRotation),
@@ -93,56 +93,61 @@ void AimInfo::updateAnimTwoWeapons(LaraObject& lara, const Weapon& weapon)
   }
 }
 
+void AimInfo::updateAnimShotgunAiming(LaraObject& lara)
+{
+  if(frame >= ShotgunIdle && frame <= ShotgunIdleToAimAnimEnd)
+  {
+    if(frame == ShotgunIdleToAimAnimEnd)
+    {
+      frame = ShotgunReadyToShoot;
+    }
+    else
+    {
+      frame += 1_frame;
+    }
+  }
+  else if(frame == ShotgunReadyToShoot)
+  {
+    if(lara.getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action))
+    {
+      lara.tryShootShotgun();
+      frame += 1_frame;
+    }
+  }
+  else if(frame >= ShotgunAfterShotAnimStart && frame <= ShotgunAfterShotAnimEnd)
+  {
+    if(frame == ShotgunAfterShotAnimEnd)
+    {
+      frame = ShotgunReadyToShoot;
+    }
+    else if(frame == ShotgunReload)
+    {
+      frame += 1_frame;
+      lara.playSoundEffect(TR1SoundEffect::LaraHolsterWeapons);
+    }
+    else
+    {
+      frame += 1_frame;
+    }
+  }
+  else if(frame >= ShotgunAimToIdleAnimStart && frame <= ShotgunAimToIdleAnimEnd)
+  {
+    if(frame == ShotgunAimToIdleAnimEnd)
+    {
+      frame = ShotgunIdle;
+    }
+    else
+    {
+      frame += 1_frame;
+    }
+  }
+}
+
 void AimInfo::updateAnimShotgun(LaraObject& lara)
 {
   if(aiming)
   {
-    if(frame >= ShotgunIdle && frame <= ShotgunIdleToAimAnimEnd)
-    {
-      if(frame == ShotgunIdleToAimAnimEnd)
-      {
-        frame = ShotgunReadyToShoot;
-      }
-      else
-      {
-        frame += 1_frame;
-      }
-    }
-    else if(frame == ShotgunReadyToShoot)
-    {
-      if(lara.getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action))
-      {
-        lara.tryShootShotgun();
-        frame += 1_frame;
-      }
-    }
-    else if(frame >= ShotgunAfterShotAnimStart && frame <= ShotgunAfterShotAnimEnd)
-    {
-      if(frame == ShotgunAfterShotAnimEnd)
-      {
-        frame = ShotgunReadyToShoot;
-      }
-      else if(frame == ShotgunReload)
-      {
-        frame += 1_frame;
-        lara.playSoundEffect(TR1SoundEffect::LaraHolsterWeapons);
-      }
-      else
-      {
-        frame += 1_frame;
-      }
-    }
-    else if(frame >= ShotgunAimToIdleAnimStart && frame <= ShotgunAimToIdleAnimEnd)
-    {
-      if(frame == ShotgunAimToIdleAnimEnd)
-      {
-        frame = ShotgunIdle;
-      }
-      else
-      {
-        frame += 1_frame;
-      }
-    }
+    updateAnimShotgunAiming(lara);
 
     return;
   }

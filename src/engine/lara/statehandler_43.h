@@ -8,7 +8,7 @@ namespace engine::lara
 class StateHandler_43 final : public AbstractStateHandler
 {
 public:
-  explicit StateHandler_43(objects::LaraObject& lara)
+  explicit StateHandler_43(const gsl::not_null<objects::LaraObject*>& lara)
       : AbstractStateHandler{lara, LaraStateId::InsertPuzzle}
   {
   }

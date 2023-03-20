@@ -361,12 +361,12 @@ void ModelObject::deserialize(const serialization::Deserializer<world::World>& s
   Object::deserialize(ser);
   ser(S_NV("skeleton", m_skeleton));
   SkeletalModelNode::buildMesh(m_skeleton, m_state.current_anim_state);
-  m_lighting.bind(*m_skeleton, ser.context);
+  m_lighting.bind(*m_skeleton, *ser.context);
 }
 
 std::shared_ptr<ModelObject> ModelObject::create(serialization::Deserializer<world::World>& ser)
 {
-  auto result = std::make_shared<ModelObject>(gsl::not_null{&ser.context}, Location::create(ser["@location"]));
+  auto result = std::make_shared<ModelObject>(ser.context, Location::create(ser["@location"]));
   result->deserialize(ser);
   return result;
 }

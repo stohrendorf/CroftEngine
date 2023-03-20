@@ -8,7 +8,7 @@ namespace engine::lara
 class StateHandler_23 final : public AbstractStateHandler
 {
 public:
-  explicit StateHandler_23(objects::LaraObject& lara)
+  explicit StateHandler_23(const gsl::not_null<objects::LaraObject*>& lara)
       : AbstractStateHandler{lara, LaraStateId::RollBackward}
   {
   }

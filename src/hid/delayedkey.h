@@ -50,8 +50,8 @@ public:
   }
 
 private:
-  const GlfwKey m_key;
-  const std::chrono::seconds m_delay;
+  GlfwKey m_key;
+  std::chrono::seconds m_delay;
   std::optional<std::chrono::system_clock::time_point> m_pressedSince{};
 };
 } // namespace hid

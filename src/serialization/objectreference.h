@@ -36,7 +36,7 @@ struct ObjectReference final
     else
     {
       ser.tag("objectref");
-      for(const auto& [objId, obj] : ser.context.getObjectManager().getObjects())
+      for(const auto& [objId, obj] : ser.context->getObjectManager().getObjects())
       {
         if(obj.get() == ptr.get())
         {
@@ -64,7 +64,7 @@ struct ObjectReference final
         ser.tag("objectref");
         engine::ObjectId id = 0;
         ser(S_NV("id", id));
-        auto tmp = ser.context.getObjectManager().getObjects().at(id).get();
+        auto tmp = ser.context->getObjectManager().getObjects().at(id).get();
         gsl_Assert(tmp != nullptr);
         ptr.get() = std::dynamic_pointer_cast<T>(tmp);
       };

@@ -24,7 +24,7 @@ public:
   explicit MainWindow(QWidget* parent = nullptr);
   ~MainWindow() override;
 
-  const auto& getLaunchRequest() const
+  [[nodiscard]] const auto& getLaunchRequest() const
   {
     return m_launchRequest;
   }

@@ -168,10 +168,10 @@ struct CameraParameters
 {
   explicit CameraParameters(const FloorDataValue& fd);
 
-  const core::Seconds timeout;
-  const bool oneshot;
-  const bool isLast;
-  const uint8_t smoothness;
+  core::Seconds timeout;
+  bool oneshot;
+  bool isLast;
+  uint8_t smoothness;
 };
 
 struct Command

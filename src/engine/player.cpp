@@ -57,10 +57,10 @@ void Player::deserialize(const serialization::Deserializer<world::World>& ser)
       S_NVO("timeSpentTotal", std::ref(timeSpentTotal)),
       S_NVO("usedCheats", std::ref(usedCheats)));
 
-  if(ser.context.getObjectManager().getLaraPtr() != nullptr)
+  if(ser.context->getObjectManager().getLaraPtr() != nullptr)
     ser << [](const serialization::Deserializer<world::World>& ser)
     {
-      ser.context.getObjectManager().getLara().initWeaponAnimData();
+      ser.context->getObjectManager().getLara().initWeaponAnimData();
     };
 }
 

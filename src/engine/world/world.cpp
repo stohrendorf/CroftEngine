@@ -925,7 +925,7 @@ void World::handleCommandSequence(const floordata::FloorDataValue* floorData, co
       finishLevel();
       break;
     case floordata::CommandOpcode::PlayTrack:
-      m_audioEngine->triggerCdTrack(m_engine.getScriptEngine().getGameflow(),
+      m_audioEngine->triggerCdTrack(m_engine->getScriptEngine().getGameflow(),
                                     static_cast<TR1TrackId>(command.parameter),
                                     activationRequest,
                                     chunkHeader.sequenceCondition);
@@ -935,7 +935,7 @@ void World::handleCommandSequence(const floordata::FloorDataValue* floorData, co
       if(!m_secretsFoundBitmask.test(command.parameter))
       {
         m_secretsFoundBitmask.set(command.parameter);
-        m_audioEngine->playStopCdTrack(m_engine.getScriptEngine().getGameflow(), TR1TrackId::Secret, false);
+        m_audioEngine->playStopCdTrack(m_engine->getScriptEngine().getGameflow(), TR1TrackId::Secret, false);
         ++m_player->secrets;
       }
       break;
@@ -1109,7 +1109,7 @@ void World::gameLoop(bool godMode, float blackAlpha, ui::Ui& ui)
   getPresenter().updateSoundEngine();
   getPresenter().swapBuffers();
 
-  if(m_engine.getEngineConfig()->waterBedBubbles)
+  if(m_engine->getEngineConfig()->waterBedBubbles)
   {
     for(auto& room : m_rooms)
     {
@@ -1143,18 +1143,18 @@ bool World::cinematicLoop()
 void World::load(const std::optional<size_t>& slot)
 {
   getPresenter().drawLoadingScreen(_("Loading..."));
-  const auto filename = m_engine.getSavegamePath(slot);
+  const auto filename = m_engine->getSavegamePath(slot);
   BOOST_LOG_TRIVIAL(info) << "Load " << filename;
   serialization::YAMLDocument<true> doc{filename};
   SavegameMeta meta{};
-  doc.deserialize("meta", meta, meta);
-  if(!util::preferredEqual(meta.filename, std::filesystem::relative(m_levelFilename, m_engine.getAssetDataPath())))
+  doc.deserialize("meta", gsl::not_null{&meta}, meta);
+  if(!util::preferredEqual(meta.filename, std::filesystem::relative(m_levelFilename, m_engine->getAssetDataPath())))
   {
     BOOST_LOG_TRIVIAL(error) << "Savegame mismatch. File is for " << meta.filename << ", but current level is "
                              << m_levelFilename;
     return;
   }
-  doc.deserialize("data", *this, *this);
+  doc.deserialize("data", gsl::not_null{this}, *this);
   m_objectManager.getLara().m_state.health = m_player->laraHealth;
   m_objectManager.getLara().initWeaponAnimData();
   connectSectors();
@@ -1165,20 +1165,20 @@ void World::save(const std::filesystem::path& filename, bool isQuicksave)
 {
   BOOST_LOG_TRIVIAL(info) << "Save " << filename;
   serialization::YAMLDocument<false> doc{filename};
-  SavegameMeta meta{std::filesystem::relative(m_levelFilename, m_engine.getAssetDataPath()).string(),
+  SavegameMeta meta{std::filesystem::relative(m_levelFilename, m_engine->getAssetDataPath()).string(),
                     isQuicksave ? _("Quicksave") : m_title};
-  doc.serialize("meta", meta, meta);
-  doc.serialize("data", *this, *this);
+  doc.serialize("meta", gsl::not_null{&meta}, meta);
+  doc.serialize("data", gsl::not_null{this}, *this);
   doc.write();
 
   serialization::YAMLDocument<false> metaCacheDoc{makeMetaFilepath(filename)};
-  metaCacheDoc.serialize("meta", meta, meta);
+  metaCacheDoc.serialize("meta", gsl::not_null{&meta}, meta);
   metaCacheDoc.write();
 }
 
 void World::save(const std::optional<size_t>& slot)
 {
-  const auto filename = m_engine.getSavegamePath(slot);
+  const auto filename = m_engine->getSavegamePath(slot);
   save(filename, !slot.has_value());
   getPresenter().disableScreenOverlay();
 }
@@ -1195,15 +1195,15 @@ std::tuple<std::optional<SavegameInfo>, std::map<size_t, SavegameInfo>> World::g
     {
       serialization::YAMLDocument<true> metaCacheDoc{metaPath};
       SavegameMeta meta{};
-      metaCacheDoc.deserialize("meta", meta, meta);
+      metaCacheDoc.deserialize("meta", gsl::not_null{&meta}, meta);
       return SavegameInfo{std::move(meta), std::filesystem::last_write_time(path)};
     }
 
     serialization::YAMLDocument<true> doc{path};
     SavegameMeta meta{};
-    doc.deserialize("meta", meta, meta);
+    doc.deserialize("meta", gsl::not_null{&meta}, meta);
     serialization::YAMLDocument<false> newMetaCacheDoc{metaPath};
-    newMetaCacheDoc.serialize("meta", meta, meta);
+    newMetaCacheDoc.serialize("meta", gsl::not_null{&meta}, meta);
     newMetaCacheDoc.write();
     return SavegameInfo{std::move(meta), std::filesystem::last_write_time(path)};
   };
@@ -1211,21 +1211,21 @@ std::tuple<std::optional<SavegameInfo>, std::map<size_t, SavegameInfo>> World::g
   std::map<size_t, SavegameInfo> result;
   for(size_t i = 0; i < core::SavegameSlots; ++i)
   {
-    const auto path = m_engine.getSavegamePath(i);
+    const auto path = m_engine->getSavegamePath(i);
     if(auto info = getSavegameInfo(path); info.has_value())
       result.emplace(i, *info);
   }
-  return {getSavegameInfo(m_engine.getSavegamePath(std::nullopt)), result};
+  return {getSavegameInfo(m_engine->getSavegamePath(std::nullopt)), result};
 }
 
 bool World::hasSavedGames() const
 {
-  if(std::filesystem::is_regular_file(m_engine.getSavegamePath(std::nullopt)))
+  if(std::filesystem::is_regular_file(m_engine->getSavegamePath(std::nullopt)))
     return true;
 
   for(size_t i = 0; i < core::SavegameSlots; ++i)
   {
-    const auto path = m_engine.getSavegamePath(i);
+    const auto path = m_engine->getSavegamePath(i);
     if(!std::filesystem::is_regular_file(path))
       continue;
 
@@ -1234,7 +1234,7 @@ bool World::hasSavedGames() const
   return false;
 }
 
-World::World(Engine& engine,
+World::World(const gsl::not_null<Engine*>& engine,
              std::unique_ptr<loader::file::level::Level>&& level,
              std::string title,
              const std::optional<TR1TrackId>& ambient,
@@ -1246,22 +1246,22 @@ World::World(Engine& engine,
     : m_engine{engine}
     , m_levelFilename{level->getFilename()}
     , m_audioEngine{std::make_unique<AudioEngine>(
-        *this, engine.getAssetDataPath(), engine.getPresenter().getSoundEngine())}
+        gsl::not_null{this}, engine->getAssetDataPath(), engine->getPresenter().getSoundEngine())}
     , m_title{std::move(title)}
     , m_itemTitles{std::move(itemTitles)}
     , m_player{std::move(player)}
     , m_levelStartPlayer{std::move(levelStartPlayer)}
     , m_samplesData{std::move(level->m_samplesData)}
 {
-  m_engine.registerWorld(this);
-  m_audioEngine->setMusicGain(m_engine.getEngineConfig()->audioSettings.musicVolume);
-  m_audioEngine->setSfxGain(m_engine.getEngineConfig()->audioSettings.sfxVolume);
+  m_engine->registerWorld(this);
+  m_audioEngine->setMusicGain(m_engine->getEngineConfig()->audioSettings.musicVolume);
+  m_audioEngine->setSfxGain(m_engine->getEngineConfig()->audioSettings.sfxVolume);
 
   initTextureDependentDataFromLevel(*level);
 
   const auto userDataDir = findUserDataDir().value();
   std::string texturePackId;
-  if(const auto& glidos = engine.getGlidos(); glidos != nullptr)
+  if(const auto& glidos = engine->getGlidos(); glidos != nullptr)
   {
     texturePackId = util::md5(glidos->getBaseDir().string().data(), glidos->getBaseDir().string().size());
   }
@@ -1272,12 +1272,12 @@ World::World(Engine& engine,
 
   const auto levelFileTime = std::filesystem::last_write_time(level->getFilename());
   const auto cacheDir
-    = userDataDir / "texturecache" / m_engine.getGameflowId() / texturePackId / level->getFilename().filename();
+    = userDataDir / "texturecache" / m_engine->getGameflowId() / texturePackId / level->getFilename().filename();
   std::filesystem::create_directories(cacheDir);
   bool validTextureCache = std::filesystem::is_regular_file(cacheDir / "_texturesizes.yaml");
   if(validTextureCache)
   {
-    if(const auto& glidos = engine.getGlidos(); glidos != nullptr)
+    if(const auto& glidos = engine->getGlidos(); glidos != nullptr)
     {
       validTextureCache &= std::max(levelFileTime, glidos->getNewestFileTime())
                            < std::filesystem::last_write_time(cacheDir / "_texturesizes.yaml");
@@ -1291,7 +1291,7 @@ World::World(Engine& engine,
   render::MultiTextureAtlas atlases{3072, validTextureCache};
   m_controllerLayouts = loadControllerButtonIcons(
     atlases,
-    util::ensureFileExists(m_engine.getEngineDataPath() / "button-icons" / "buttons.yaml"),
+    util::ensureFileExists(m_engine->getEngineDataPath() / "button-icons" / "buttons.yaml"),
     getPresenter().getMaterialManager()->getSprite(render::material::SpriteMaterialMode::Billboard,
                                                    []()
                                                    {
@@ -1305,7 +1305,7 @@ World::World(Engine& engine,
         / core::FrameRate.get();
     m_allTextures = buildTextures(
       *level,
-      m_engine.getGlidos(),
+      m_engine->getGlidos(),
       atlases,
       m_atlasTiles,
       m_sprites,
@@ -1335,7 +1335,7 @@ World::World(Engine& engine,
       sprite.uv1,
       render::material::RenderMode::FullNonOpaque,
       getPresenter().getMaterialManager()->getSprite(render::material::SpriteMaterialMode::YAxisBound,
-                                                     [config = engine.getEngineConfig()]()
+                                                     [config = engine->getEngineConfig()]()
                                                      {
                                                        return !config->renderSettings.lightingModeActive
                                                                 ? 0
@@ -1352,7 +1352,7 @@ World::World(Engine& engine,
       sprite.uv1,
       render::material::RenderMode::FullNonOpaque,
       getPresenter().getMaterialManager()->getSprite(render::material::SpriteMaterialMode::Billboard,
-                                                     [config = engine.getEngineConfig()]()
+                                                     [config = engine->getEngineConfig()]()
                                                      {
                                                        return !config->renderSettings.lightingModeActive
                                                                 ? 0
@@ -1369,7 +1369,7 @@ World::World(Engine& engine,
       sprite.uv1,
       render::material::RenderMode::FullNonOpaque,
       getPresenter().getMaterialManager()->getSprite(render::material::SpriteMaterialMode::InstancedBillboard,
-                                                     [config = engine.getEngineConfig()]()
+                                                     [config = engine->getEngineConfig()]()
                                                      {
                                                        return !config->renderSettings.lightingModeActive
                                                                 ? 0
@@ -1401,14 +1401,14 @@ World::World(Engine& engine,
   getPresenter().setTrFont(std::make_unique<ui::TRFont>(*m_spriteSequences.at(TR1ItemId::FontGraphics)));
   if(ambient.has_value())
   {
-    m_audioEngine->playStopCdTrack(m_engine.getScriptEngine().getGameflow(), *ambient, false);
+    m_audioEngine->playStopCdTrack(m_engine->getScriptEngine().getGameflow(), *ambient, false);
   }
   getPresenter().disableScreenOverlay();
 }
 
 World::~World()
 {
-  m_engine.unregisterWorld(gsl::not_null{this});
+  m_engine->unregisterWorld(gsl::not_null{this});
 }
 
 void World::drawPickupWidgets(ui::Ui& ui)
@@ -1424,23 +1424,23 @@ void World::drawPickupWidgets(ui::Ui& ui)
       continue;
 
     x -= std::lround(gsl::narrow_cast<float>(widget.getWidth()) * WidgetScale);
-    widget.draw(ui, x, y, m_engine.getPresenter().getTrFont(), WidgetScale);
+    widget.draw(ui, x, y, m_engine->getPresenter().getTrFont(), WidgetScale);
   }
 }
 
 const Presenter& World::getPresenter() const
 {
-  return m_engine.getPresenter();
+  return m_engine->getPresenter();
 }
 
 Presenter& World::getPresenter()
 {
-  return m_engine.getPresenter();
+  return m_engine->getPresenter();
 }
 
 std::optional<std::string> World::getItemTitle(TR1ItemId id) const
 {
-  if(auto langIt = m_itemTitles.find(m_engine.getLocaleWithoutEncoding()); langIt != m_itemTitles.end())
+  if(auto langIt = m_itemTitles.find(m_engine->getLocaleWithoutEncoding()); langIt != m_itemTitles.end())
   {
     if(auto itemIt = langIt->second.find(id); itemIt != langIt->second.end())
     {
@@ -1891,7 +1891,7 @@ void World::connectSectors()
 {
   for(auto& room : m_rooms)
   {
-    room.collectShaderLights(m_engine.getEngineConfig()->renderSettings.getLightCollectionDepth());
+    room.collectShaderLights(m_engine->getEngineConfig()->renderSettings.getLightCollectionDepth());
     for(auto& sector : room.sectors)
       sector.connect(m_rooms);
   }

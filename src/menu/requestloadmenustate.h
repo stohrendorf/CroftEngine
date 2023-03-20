@@ -37,6 +37,6 @@ public:
   std::unique_ptr<MenuState> onFrame(ui::Ui& ui, engine::world::World& world, MenuDisplay& display) override;
 
 private:
-  const std::optional<size_t> m_slot;
+  std::optional<size_t> m_slot;
 };
 } // namespace menu

@@ -45,7 +45,9 @@ void BufferHandle::fillFromWav(const uint8_t* data)
     const auto read = tmp->read(&pcm[offset], ChunkSize, false);
     if(read != ChunkSize)
     {
-      pcm.erase(std::next(pcm.begin(), offset + tmp->getChannels() * read), pcm.end());
+      pcm.erase(
+        std::next(pcm.begin(), gsl::narrow<std::vector<int16_t>::difference_type>(offset + tmp->getChannels() * read)),
+        pcm.end());
       break;
     }
   }

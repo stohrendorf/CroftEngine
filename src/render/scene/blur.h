@@ -89,12 +89,12 @@ public:
   }
 
 private:
-  const std::string m_name;
+  std::string m_name;
   std::shared_ptr<TextureHandle> m_blurredTexture;
   std::shared_ptr<Mesh> m_mesh;
-  const std::shared_ptr<material::Material> m_material;
+  std::shared_ptr<material::Material> m_material;
   std::shared_ptr<gl::Framebuffer> m_framebuffer;
-  const int m_downscale;
+  int m_downscale;
   mutable std::unique_ptr<gl::FenceSync> m_sync;
 };
 

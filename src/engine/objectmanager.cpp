@@ -262,7 +262,7 @@ void ObjectManager::activate(const engine::objects::Object* object)
   const auto it = std::find(m_activeObjects.begin(), m_activeObjects.end(), gsl::not_null{ob});
   if(it == m_activeObjects.end())
   {
-    m_activeObjects.emplace_front(gsl::not_null{ob});
+    m_activeObjects.emplace_front(ob);
   }
 }
 } // namespace engine

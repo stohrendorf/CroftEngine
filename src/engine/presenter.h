@@ -194,29 +194,29 @@ public:
   void noWaitBackBuffer();
 
 private:
-  const gslu::nn_shared<gl::Window> m_window;
+  gslu::nn_shared<gl::Window> m_window;
   uint8_t m_renderResolutionDivisor = 1;
   uint8_t m_uiScale = 1;
 
   std::shared_ptr<audio::SoundEngine> m_soundEngine;
-  const gslu::nn_shared<render::scene::Renderer> m_renderer;
-  const gslu::nn_shared<gl::TextureHandle<gl::Texture2D<gl::PremultipliedSRGBA8>>> m_splashImageTexture;
+  gslu::nn_shared<render::scene::Renderer> m_renderer;
+  gslu::nn_shared<gl::TextureHandle<gl::Texture2D<gl::PremultipliedSRGBA8>>> m_splashImageTexture;
   std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::PremultipliedSRGBA8>>> m_splashImageTextureOverride;
   std::shared_ptr<render::scene::Mesh> m_splashImageMesh;
   std::shared_ptr<render::scene::Mesh> m_splashImageMeshOverride{};
-  const gslu::nn_unique<gl::Font> m_trTTFFont;
-  const gslu::nn_unique<gl::Font> m_ghostNameFont;
+  gslu::nn_unique<gl::Font> m_trTTFFont;
+  gslu::nn_unique<gl::Font> m_ghostNameFont;
   core::Health m_drawnHealth = core::LaraHealth;
   core::Frame m_healthPulseTime = 0_frame;
   core::Frame m_healthBarTimeout = -DefaultHealthBarTimeout;
-  const gslu::nn_unique<hid::InputHandler> m_inputHandler;
+  gslu::nn_unique<hid::InputHandler> m_inputHandler;
   std::unique_ptr<ui::TRFont> m_trFont;
 
-  const gslu::nn_shared<render::material::ShaderCache> m_shaderCache;
-  const gslu::nn_unique<render::material::MaterialManager> m_materialManager;
+  gslu::nn_shared<render::material::ShaderCache> m_shaderCache;
+  gslu::nn_unique<render::material::MaterialManager> m_materialManager;
   gslu::nn_shared<render::scene::CSM> m_csm;
 
-  const gslu::nn_unique<render::RenderPipeline> m_renderPipeline;
+  gslu::nn_unique<render::RenderPipeline> m_renderPipeline;
   std::unique_ptr<render::scene::ScreenOverlay> m_screenOverlay;
 
   bool m_renderSettingsChanged = false;

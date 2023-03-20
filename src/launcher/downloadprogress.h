@@ -35,9 +35,9 @@ private slots:
 
 private:
   Ui::DownloadProgress* ui;
-  const QUrl m_url;
+  QUrl m_url;
   QNetworkAccessManager* m_accessManager;
   QNetworkReply* m_reply = nullptr;
   std::filesystem::path m_target;
 };
-} // namespace setup
+} // namespace launcher

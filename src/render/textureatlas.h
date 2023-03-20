@@ -26,10 +26,10 @@ struct alignas(64) BSPTree final
   //! @note This is a pure caching mechanism to avoid unnecessary recursion.
   bool isFilled = false;
 
-  const int32_t x = 0;
-  const int32_t y = 0;
-  const int32_t width = 0;
-  const int32_t height = 0;
+  int32_t x = 0;
+  int32_t y = 0;
+  int32_t width = 0;
+  int32_t height = 0;
 
   BSPTree() = default;
 
@@ -217,8 +217,8 @@ public:
 class MultiTextureAtlas final
 {
   std::vector<TextureAtlas> m_atlases{};
-  const int32_t m_pageSize;
-  const bool m_onlyLayout;
+  int32_t m_pageSize;
+  bool m_onlyLayout;
 
 public:
   static constexpr int BoundaryMargin = 16;

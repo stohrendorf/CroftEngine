@@ -8,7 +8,7 @@ namespace engine::lara
 class StateHandler_Standing : public AbstractStateHandler
 {
 protected:
-  explicit StateHandler_Standing(objects::LaraObject& lara, const LaraStateId id)
+  explicit StateHandler_Standing(const gsl::not_null<objects::LaraObject*>& lara, const LaraStateId id)
       : AbstractStateHandler{lara, id}
   {
   }

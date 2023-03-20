@@ -13,7 +13,7 @@ namespace engine::lara
 class StateHandler_0 final : public AbstractStateHandler
 {
 public:
-  explicit StateHandler_0(objects::LaraObject& lara)
+  explicit StateHandler_0(const gsl::not_null<objects::LaraObject*>& lara)
       : AbstractStateHandler{lara, LaraStateId::WalkForward}
   {
   }

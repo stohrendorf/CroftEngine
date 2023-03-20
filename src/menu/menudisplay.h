@@ -83,11 +83,11 @@ struct MenuDisplay
                        const glm::ivec2& viewport);
   ~MenuDisplay();
 
-  const InventoryMode mode;
+  InventoryMode mode;
   std::optional<engine::TR1ItemId> inventoryChosen{};
   bool allowMenuClose = true;
-  const SaveGamePageMode saveGamePageMode;
-  const bool allowPassportExit;
+  SaveGamePageMode saveGamePageMode;
+  bool allowPassportExit;
 
   std::shared_ptr<MenuRingTransform> ringTransform = std::make_shared<MenuRingTransform>();
   std::unique_ptr<MenuState> m_currentState;
@@ -131,7 +131,7 @@ private:
   ui::Text m_upArrow;
   ui::Text m_downArrow;
 
-  const gslu::nn_shared<render::material::Material> m_material;
+  gslu::nn_shared<render::material::Material> m_material;
   gslu::nn_shared<render::pass::Framebuffer> m_fb;
 
   gslu::nn_shared<gl::ShaderStorageBuffer<engine::ShaderLight>> m_lightsBuffer;

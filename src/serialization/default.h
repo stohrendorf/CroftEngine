@@ -15,7 +15,7 @@ struct Default
   void operator=(const Default<T>&) = delete;
 
   std::reference_wrapper<T> value;
-  const T defaultValue;
+  T defaultValue;
   explicit Default(std::reference_wrapper<T>&& value, const T& defaultValue)
       : value{std::move(value)}
       , defaultValue{defaultValue}

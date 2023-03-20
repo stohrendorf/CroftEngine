@@ -47,7 +47,7 @@ public:
 
   virtual ~Level();
 
-  const Game m_gameVersion;
+  Game m_gameVersion;
   std::vector<DWordTexture> m_atlases;
   std::unique_ptr<Palette> m_palette;
   std::vector<Room> m_rooms;
@@ -121,7 +121,7 @@ protected:
   static void convertTexture(WordTexture& tex, DWordTexture& dst);
 
 private:
-  const std::filesystem::path m_filename;
+  std::filesystem::path m_filename;
 
   static Game probeVersion(io::SDLReader& reader, const std::filesystem::path& filename);
 

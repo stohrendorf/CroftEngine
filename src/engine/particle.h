@@ -47,7 +47,7 @@ class Particle
 public:
   Location location;
   core::TRRotation angle{};
-  const core::TypeId object_number;
+  core::TypeId object_number;
   core::Speed speed = 0_spd;
   core::Speed fall_speed = 0_spd;
   int16_t negSpriteFrameId = 0;
@@ -60,7 +60,7 @@ private:
   std::deque<std::tuple<gslu::nn_shared<render::scene::Mesh>, std::shared_ptr<gl::VertexBuffer<glm::mat4>>>> m_meshes{};
   Lighting m_lighting;
   std::optional<core::Shade> m_shade{std::nullopt};
-  const bool m_withoutParent;
+  bool m_withoutParent;
 
   void initRenderables(world::World& world, render::material::SpriteMaterialMode mode);
 
@@ -151,7 +151,7 @@ public:
   core::Length circleRadius = 11_len;
 
 private:
-  const bool m_onlyInWater;
+  bool m_onlyInWater;
 };
 
 class SparkleParticle final : public Particle
@@ -201,13 +201,13 @@ public:
   bool update(world::World& world) override;
 
 private:
-  const core::Length m_damageRadius;
+  core::Length m_damageRadius;
 };
 
 class MutantAmmoParticle : public Particle
 {
 protected:
-  explicit MutantAmmoParticle(const Location& location, world::World& world, const TR1ItemId itemType);
+  explicit MutantAmmoParticle(const Location& location, world::World& world, TR1ItemId itemType);
 
   void aimLaraChest(world::World& world);
 };

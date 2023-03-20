@@ -30,7 +30,7 @@ void WriteOnlyXzArchive::addFile(const std::filesystem::path& srcPath, const std
       archive_entry_free(entry.get());
     });
   archive_entry_copy_pathname(entry, archivePath.filename().string().c_str());
-  archive_entry_set_size(entry, std::filesystem::file_size(srcPath));
+  archive_entry_set_size(entry, gsl::narrow<la_int64_t>(std::filesystem::file_size(srcPath)));
   archive_entry_set_filetype(entry, AE_IFREG);
   archive_entry_set_perm(entry, 0644);
   gsl_Assert(archive_write_header(m_archive.get(), entry) == ARCHIVE_OK);
@@ -41,7 +41,7 @@ void WriteOnlyXzArchive::addFile(const std::filesystem::path& srcPath, const std
   gsl_Assert(f.is_open());
   do
   {
-    f.read(buffer.data(), buffer.size());
+    f.read(buffer.data(), gsl::narrow<std::streamsize>(buffer.size()));
     gsl_Assert(archive_write_data(m_archive.get(), buffer.data(), f.gcount()) == f.gcount());
   } while(f.gcount() > 0);
 }

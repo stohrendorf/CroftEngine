@@ -31,9 +31,9 @@ private:
   core::Length m_initialRadius{};
   core::Angle m_initialCameraRotX{};
   core::Length m_cameraSpeedY{};
-  const core::Length m_targetPosY;
-  const core::Length m_targetPosZ;
-  const core::Angle m_targetRotX;
+  core::Length m_targetPosY;
+  core::Length m_targetPosZ;
+  core::Angle m_targetRotX;
 
 public:
   enum class Direction

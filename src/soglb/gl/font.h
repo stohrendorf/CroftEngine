@@ -51,7 +51,7 @@ private:
   mutable FTC_SBitCache m_sbitCache = nullptr;
   float m_lineHeight{0};
 
-  const std::filesystem::path m_filename;
+  std::filesystem::path m_filename;
   FT_Face getFace() const;
 };
 } // namespace gl

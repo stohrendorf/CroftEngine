@@ -8,7 +8,7 @@ namespace engine::lara
 class StateHandler_39 final : public AbstractStateHandler
 {
 public:
-  explicit StateHandler_39(objects::LaraObject& lara)
+  explicit StateHandler_39(const gsl::not_null<objects::LaraObject*>& lara)
       : AbstractStateHandler{lara, LaraStateId::PickUp}
   {
   }

@@ -21,7 +21,7 @@ struct MenuRingTransform;
 class MenuState
 {
 protected:
-  const std::shared_ptr<MenuRingTransform> m_ringTransform;
+  std::shared_ptr<MenuRingTransform> m_ringTransform;
 
 public:
   explicit MenuState(std::shared_ptr<MenuRingTransform> ringTransform)

@@ -8,7 +8,7 @@ namespace engine::lara
 class StateHandler_52 final : public AbstractStateHandler
 {
 public:
-  explicit StateHandler_52(objects::LaraObject& lara)
+  explicit StateHandler_52(const gsl::not_null<objects::LaraObject*>& lara)
       : AbstractStateHandler{lara, LaraStateId::SwandiveBegin}
   {
   }

@@ -137,7 +137,7 @@ struct ModelFactory : public ObjectFactory
   [[nodiscard]] gslu::nn_shared<Object>
     createFromSave(const Location& location, const serialization::Deserializer<world::World>& ser) const override
   {
-    auto object = gsl::make_shared<T>(gsl::not_null{&ser.context}, location);
+    auto object = gsl::make_shared<T>(ser.context, location);
     object->deserialize(ser);
     return object;
   }
@@ -165,7 +165,7 @@ struct SpriteFactory : public ObjectFactory
   {
     std::string spriteName;
     ser(S_NV("@name", spriteName));
-    auto object = gsl::make_shared<T>(spriteName, gsl::not_null{&ser.context}, location);
+    auto object = gsl::make_shared<T>(spriteName, ser.context, location);
     object->deserialize(ser);
     return object;
   }
@@ -207,7 +207,7 @@ struct WalkingMutantFactory : public ObjectFactory
   [[nodiscard]] gslu::nn_shared<Object>
     createFromSave(const Location& location, const serialization::Deserializer<world::World>& ser) const override
   {
-    auto object = gsl::make_shared<WalkingMutant>(gsl::not_null{&ser.context}, location);
+    auto object = gsl::make_shared<WalkingMutant>(ser.context, location);
     object->deserialize(ser);
     return object;
   }

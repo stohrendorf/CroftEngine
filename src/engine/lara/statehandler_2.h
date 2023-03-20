@@ -9,7 +9,7 @@ namespace engine::lara
 class StateHandler_2 final : public StateHandler_Standing
 {
 public:
-  explicit StateHandler_2(objects::LaraObject& lara)
+  explicit StateHandler_2(const gsl::not_null<objects::LaraObject*>& lara)
       : StateHandler_Standing{lara, LaraStateId::Stop}
   {
   }
@@ -105,17 +105,17 @@ public:
       case hid::AxisMovement::Forward:
         if(inputHandler.hasAction(hid::Action::Walk))
         {
-          create(LaraStateId::WalkForward, getLara())->handleInput(collisionInfo);
+          create(LaraStateId::WalkForward, m_lara)->handleInput(collisionInfo);
         }
         else
         {
-          create(LaraStateId::RunForward, getLara())->handleInput(collisionInfo);
+          create(LaraStateId::RunForward, m_lara)->handleInput(collisionInfo);
         }
         break;
       case hid::AxisMovement::Backward:
         if(inputHandler.hasAction(hid::Action::Walk))
         {
-          create(LaraStateId::WalkBackward, getLara())->handleInput(collisionInfo);
+          create(LaraStateId::WalkBackward, m_lara)->handleInput(collisionInfo);
         }
         else
         {

@@ -270,15 +270,16 @@ void updateRemoteGhosts(world::World& world, GhostManager& ghostManager, const n
 
     gsl_Assert(tmp.size() - stateDataStream.tellg() >= 3);
     std::array<uint8_t, 3> ghostColor{};
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
     stateDataStream.read(reinterpret_cast<char*>(ghostColor.data()), ghostColor.size());
     const auto glColor = gl::SRGB8(ghostColor[0], ghostColor[1], ghostColor[2]);
 
     auto ghostUsername = network::io::readPascalString(stateDataStream);
 
-    auto it = ghostManager.remoteModels.find(peerId);
-    if(it == ghostManager.remoteModels.end())
+    auto it = ghostManager.getRemoteModels().find(peerId);
+    if(it == ghostManager.getRemoteModels().end())
     {
-      it = ghostManager.remoteModels.emplace(peerId, std::make_shared<ghosting::GhostModel>()).first;
+      it = ghostManager.getRemoteModels().emplace(peerId, std::make_shared<ghosting::GhostModel>()).first;
 
       static constexpr const glm::ivec2 nameTextureSize{512, 128};
       static constexpr const int nameFontSize = 48;
@@ -302,9 +303,9 @@ void updateRemoteGhosts(world::World& world, GhostManager& ghostManager, const n
         gsl::make_unique<gl::Sampler>("ghost-name" + gl::SamplerSuffix) | set(gl::api::TextureMagFilter::Linear)
           | set(gl::api::TextureMinFilter::Linear));
 
-      auto mesh = render::scene::createSpriteMesh(-nameTextureSize.x / 2,
+      auto mesh = render::scene::createSpriteMesh(-nameTextureSize.x / 2.0f,
                                                   0,
-                                                  nameTextureSize.x / 2,
+                                                  nameTextureSize.x / 2.0f,
                                                   nameTextureSize.y,
                                                   {0.0f, 1.0f},
                                                   {1.0f, 0.0f},
@@ -336,14 +337,14 @@ void updateRemoteGhosts(world::World& world, GhostManager& ghostManager, const n
   }
 
   std::set<uint64_t> ghostsToDrop;
-  for(const auto& [id, _] : ghostManager.remoteModels)
+  for(const auto& [id, _] : ghostManager.getRemoteModels())
     ghostsToDrop.emplace(id);
   for(const auto& [id, _] : states)
     ghostsToDrop.erase(id);
   for(const auto& id : ghostsToDrop)
   {
-    setParent(gsl::not_null{ghostManager.remoteModels.at(id)}, nullptr);
-    ghostManager.remoteModels.erase(id);
+    setParent(gsl::not_null{ghostManager.getRemoteModels().at(id)}, nullptr);
+    ghostManager.getRemoteModels().erase(id);
   }
 }
 } // namespace
@@ -380,12 +381,12 @@ Engine::Engine(std::filesystem::path userDataPath,
   if(std::filesystem::is_regular_file(m_userDataPath / "config.yaml"))
   {
     serialization::YAMLDocument<true> doc{m_userDataPath / "config.yaml"};
-    doc.deserialize("config", *m_engineConfig, *m_engineConfig);
+    doc.deserialize("config", gsl::not_null{m_engineConfig.get().get()}, *m_engineConfig);
   }
 
   m_presenter = std::make_shared<Presenter>(m_engineDataPath, resolution, m_engineConfig->renderSettings);
   if(gl::hasAnisotropicFilteringExtension()
-     && m_engineConfig->renderSettings.anisotropyLevel > gl::getMaxAnisotropyLevel())
+     && m_engineConfig->renderSettings.anisotropyLevel > gsl::narrow_cast<float>(gl::getMaxAnisotropyLevel()))
   {
     m_engineConfig->renderSettings.anisotropyLevel = gsl::narrow<uint32_t>(std::llround(gl::getMaxAnisotropyLevel()));
   }
@@ -398,7 +399,7 @@ Engine::Engine(std::filesystem::path userDataPath,
 Engine::~Engine()
 {
   serialization::YAMLDocument<false> doc{m_userDataPath / "config.yaml"};
-  doc.serialize("config", *m_engineConfig, *m_engineConfig);
+  doc.serialize("config", gsl::not_null{m_engineConfig.get().get()}, *m_engineConfig);
   doc.write();
 }
 
@@ -437,7 +438,7 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
 
   while(true)
   {
-    ghostManager.model->setVisible(m_engineConfig->displaySettings.ghost);
+    ghostManager.getModel()->setVisible(m_engineConfig->displaySettings.ghost);
     updateRemoteGhosts(world, ghostManager, coop);
 
     if(m_presenter->shouldClose())
@@ -621,10 +622,10 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
         bugReportSavedDuration -= 1_frame;
       }
 
-      if(ghostManager.reader != nullptr)
+      if(ghostManager.getReader() != nullptr)
       {
-        ghostManager.model->apply(world, ghostManager.reader->read());
-        updateGhostRoom(world.getRooms(), gsl::not_null{ghostManager.model});
+        ghostManager.getModel()->apply(world, ghostManager.getReader()->read());
+        updateGhostRoom(world.getRooms(), gsl::not_null{ghostManager.getModel()});
       }
 
       world.getPlayer().timeSpent += 1_frame;
@@ -638,7 +639,7 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
       for(const auto c : stateDataStream.str())
         stateData.emplace_back(c);
       coop.sendState(stateData);
-      ghostManager.writer->append(frame);
+      ghostManager.getWriter()->append(frame);
       world.nextGhostFrame();
     }
 
@@ -819,7 +820,7 @@ std::pair<RunResult, std::optional<size_t>>
 {
   m_presenter->clear();
   applySettings();
-  return item.run(*this, player, levelStartPlayer);
+  return item.run(gsl::not_null{this}, player, levelStartPlayer);
 }
 
 std::pair<RunResult, std::optional<size_t>>
@@ -830,7 +831,7 @@ std::pair<RunResult, std::optional<size_t>>
 {
   m_presenter->clear();
   applySettings();
-  return item.runFromSave(*this, slot, player, levelStartPlayer);
+  return item.runFromSave(gsl::not_null{this}, slot, player, levelStartPlayer);
 }
 
 std::unique_ptr<loader::trx::Glidos> Engine::loadGlidosPack() const
@@ -866,7 +867,7 @@ std::optional<SavegameMeta> Engine::getSavegameMeta(const std::filesystem::path&
 
   serialization::YAMLDocument<true> doc{filepath};
   SavegameMeta meta{};
-  doc.deserialize("meta", meta, meta);
+  doc.deserialize("meta", gsl::not_null{&meta}, meta);
   return meta;
 }
 

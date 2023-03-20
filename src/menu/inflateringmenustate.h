@@ -30,7 +30,7 @@ private:
   core::Angle m_initialCameraRotX{};
   core::Length m_radiusSpeed{};
   core::Length m_cameraSpeedY{};
-  const core::Length m_targetPosZ;
+  core::Length m_targetPosZ;
 
 public:
   explicit InflateRingMenuState(const std::shared_ptr<MenuRingTransform>& ringTransform, bool fromBackpack);

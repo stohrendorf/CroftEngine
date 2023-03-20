@@ -58,7 +58,7 @@ glm::mat4 fromPackedAngles(const uint8_t* angleData)
   const auto getAngle = [value = util::readUnaligned32LE(angleData)](const uint8_t n) -> Angle
   {
     BOOST_ASSERT(n < 3);
-    return auToAngle(((value >> (10u * n)) & 0x3ffu) * 64);
+    return auToAngle(gsl::narrow_cast<int16_t>(((value >> (10u * n)) & 0x3ffu) * 64));
   };
 
   const TRRotation r{getAngle(2), getAngle(1), getAngle(0)};

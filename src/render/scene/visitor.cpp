@@ -19,18 +19,18 @@ void Visitor::visit(const Node& node)
 {
   if(!node.isVisible())
     return;
-  if(const auto& vp = m_context.getViewProjection(); vp.has_value() && node.canBeCulled(vp.value()))
+  if(const auto& vp = m_context->getViewProjection(); vp.has_value() && node.canBeCulled(vp.value()))
     return;
 
-  m_context.pushState(node.getRenderState());
+  m_context->pushState(node.getRenderState());
   node.accept(*this);
-  m_context.popState();
+  m_context->popState();
 }
 
 void Visitor::add(const gsl::not_null<const Node*>& node)
 {
   if(node->getRenderable() != nullptr)
-    m_nodes.emplace_back(node, m_context.getCurrentState());
+    m_nodes.emplace_back(node, m_context->getCurrentState());
 }
 
 void Visitor::render(const std::optional<glm::vec3>& camera) const
@@ -57,9 +57,9 @@ void Visitor::render(const std::optional<glm::vec3>& camera) const
   for(const auto& [node, state] : m_nodes)
   {
     SOGLB_DEBUGGROUP(node->getName());
-    m_context.pushState(state);
-    node->getRenderable()->render(node.get(), m_context);
-    m_context.popState();
+    m_context->pushState(state);
+    node->getRenderable()->render(node.get(), *m_context);
+    m_context->popState();
   }
 }
 

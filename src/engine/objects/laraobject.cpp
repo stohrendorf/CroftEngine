@@ -49,6 +49,7 @@
 #include <boost/log/trivial.hpp>
 #include <boost/range/adaptor/map.hpp>
 #include <boost/throw_exception.hpp>
+#include <cmath>
 #include <cstddef>
 #include <cstdlib>
 #include <exception>
@@ -64,7 +65,6 @@
 #include <iosfwd>
 #include <limits>
 #include <map>
-#include <math.h>
 #include <set>
 #include <stack>
 #include <stdexcept>
@@ -128,7 +128,7 @@ void LaraObject::handleLaraStateOnLand()
   collisionInfo.collisionRadius = core::DefaultCollisionRadius;
   collisionInfo.policies = CollisionInfo::SpazPushPolicy;
 
-  lara::AbstractStateHandler::create(getCurrentAnimState(), *this)->handleInput(collisionInfo);
+  lara::AbstractStateHandler::create(getCurrentAnimState(), gsl::not_null{this})->handleInput(collisionInfo);
 
   if(getWorld().getCameraController().getMode() != CameraMode::FreeLook)
   {
@@ -177,7 +177,7 @@ void LaraObject::handleLaraStateOnLand()
 
   testInteractions(collisionInfo);
 
-  lara::AbstractStateHandler::create(getCurrentAnimState(), *this)->postprocessFrame(collisionInfo);
+  lara::AbstractStateHandler::create(getCurrentAnimState(), gsl::not_null{this})->postprocessFrame(collisionInfo);
 
   updateFloorHeight(-core::LaraWalkHeight / 2);
 
@@ -209,7 +209,7 @@ void LaraObject::handleLaraStateDiving()
   collisionInfo.validCeilingHeightMin = core::LaraDiveHeight;
   collisionInfo.validFloorHeight = {-core::LaraDiveHeight, core::HeightLimit};
 
-  lara::AbstractStateHandler::create(getCurrentAnimState(), *this)->handleInput(collisionInfo);
+  lara::AbstractStateHandler::create(getCurrentAnimState(), gsl::not_null{this})->handleInput(collisionInfo);
 
   // "slowly" revert rotations to zero
   if(m_state.rotation.Z < -2_deg)
@@ -245,7 +245,7 @@ void LaraObject::handleLaraStateDiving()
 
   testInteractions(collisionInfo);
 
-  lara::AbstractStateHandler::create(getCurrentAnimState(), *this)->postprocessFrame(collisionInfo);
+  lara::AbstractStateHandler::create(getCurrentAnimState(), gsl::not_null{this})->postprocessFrame(collisionInfo);
 
   updateFloorHeight(0_len);
   updateLarasWeaponsStatus();
@@ -266,7 +266,7 @@ void LaraObject::handleLaraStateSwimming()
 
   getWorld().getCameraController().setRotationAroundLaraX(-22_deg);
 
-  lara::AbstractStateHandler::create(getCurrentAnimState(), *this)->handleInput(collisionInfo);
+  lara::AbstractStateHandler::create(getCurrentAnimState(), gsl::not_null{this})->handleInput(collisionInfo);
 
   // "slowly" revert rotations to zero
   if(m_state.rotation.Z < 0_deg)
@@ -300,7 +300,7 @@ void LaraObject::handleLaraStateSwimming()
 
   testInteractions(collisionInfo);
 
-  lara::AbstractStateHandler::create(getCurrentAnimState(), *this)->postprocessFrame(collisionInfo);
+  lara::AbstractStateHandler::create(getCurrentAnimState(), gsl::not_null{this})->postprocessFrame(collisionInfo);
 
   updateFloorHeight(core::DefaultCollisionRadius);
   updateLarasWeaponsStatus();
@@ -1400,12 +1400,13 @@ private:
 public:
   explicit MatrixStack()
   {
-    m_stack.push(glm::mat4{1.0f});
+    m_stack.emplace(1.0f);
   }
 
   void push()
   {
-    m_stack.push(m_stack.top());
+    const auto top = m_stack.top();
+    m_stack.emplace(top);
   }
 
   void pop()
@@ -1487,7 +1488,7 @@ class DualMatrixStack
 private:
   MatrixStack m_stack1{};
   MatrixStack m_stack2{};
-  const float m_bias;
+  float m_bias;
 
 public:
   explicit DualMatrixStack(const float bias)

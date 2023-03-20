@@ -108,7 +108,7 @@ public:
 private:
   glm::ivec2 m_position{0, 0};
   glm::ivec2 m_size{0, 0};
-  const size_t m_pageSize;
+  size_t m_pageSize;
   size_t m_selected = 0;
   std::vector<gslu::nn_shared<Widget>> m_widgets;
 };

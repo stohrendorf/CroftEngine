@@ -71,7 +71,7 @@ struct InteractionLimits
 
 class Object
 {
-  const gsl::not_null<world::World*> m_world;
+  gsl::not_null<world::World*> m_world;
 
 protected:
   Object(const gsl::not_null<world::World*>& world, const Location& location);

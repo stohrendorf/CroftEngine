@@ -88,7 +88,7 @@ public:
   void setDeathStrength(float strength);
 
 private:
-  const gslu::nn_shared<ShaderCache> m_shaderCache;
+  gslu::nn_shared<ShaderCache> m_shaderCache;
   std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::RGB8>>> m_noiseTexture;
 
   std::map<uint8_t, gslu::nn_shared<Material>> m_fxaa{};
@@ -125,7 +125,7 @@ private:
   std::shared_ptr<Material> m_ghostName{nullptr};
 
   std::shared_ptr<scene::CSM> m_csm;
-  const gslu::nn_shared<scene::Renderer> m_renderer;
+  gslu::nn_shared<scene::Renderer> m_renderer;
   std::shared_ptr<gl::TextureHandle<gl::Texture2DArray<gl::PremultipliedSRGBA8>>> m_geometryTexturesHandle;
 
   void createSampler(const gslu::nn_shared<gl::Texture2DArray<gl::PremultipliedSRGBA8>>& geometryTextures,

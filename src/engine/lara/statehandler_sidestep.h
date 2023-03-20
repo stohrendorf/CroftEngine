@@ -9,7 +9,7 @@ namespace engine::lara
 class StateHandler_SideStep : public AbstractStateHandler
 {
 public:
-  explicit StateHandler_SideStep(objects::LaraObject& lara,
+  explicit StateHandler_SideStep(const gsl::not_null<objects::LaraObject*>& lara,
                                  const LaraStateId& stateId,
                                  const hid::AxisMovement& inputAxis,
                                  const core::Angle& rotation)
@@ -78,7 +78,7 @@ public:
   }
 
 private:
-  const hid::AxisMovement m_inputAxis;
-  const core::Angle m_rotation;
+  hid::AxisMovement m_inputAxis;
+  core::Angle m_rotation;
 };
 } // namespace engine::lara

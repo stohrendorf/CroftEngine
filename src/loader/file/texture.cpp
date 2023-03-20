@@ -39,7 +39,7 @@ std::unique_ptr<ByteTexture> ByteTexture::read(io::SDLReader& reader)
   auto textile = std::make_unique<ByteTexture>();
   reader.readBytes(
     reinterpret_cast<uint8_t*>(&textile->pixels[0][0]), //NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
-    256 * 256);
+    sizeof(textile->pixels));
   return textile;
 }
 

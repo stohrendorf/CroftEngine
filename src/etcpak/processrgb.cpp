@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <array>
 #include <boost/throw_exception.hpp>
+#include <cstdlib>
 #include <emmintrin.h>
 #include <glm/common.hpp>
 #include <glm/ext/vector_uint3_sized.hpp>
@@ -17,7 +18,6 @@
 #include <gsl/gsl-lite.hpp>
 #include <limits>
 #include <stdexcept>
-#include <stdlib.h>
 #include <tuple>
 #include <utility>
 #include <xmmintrin.h>

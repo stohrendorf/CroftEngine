@@ -60,28 +60,28 @@ void Sector::connect(std::vector<Room>& rooms)
 
 void Sector::serialize(const serialization::Serializer<World>& ser) const
 {
-  ser(S_NV_VECTOR_ELEMENT("box", std::cref(ser.context.getBoxes()), std::cref(box)),
+  ser(S_NV_VECTOR_ELEMENT("box", std::cref(ser.context->getBoxes()), std::cref(box)),
       S_NV("floorHeight", floorHeight),
       S_NV("ceilingHeight", ceilingHeight),
       S_NV("roomIndexBelow", m_roomIndexBelow),
       S_NV("roomIndexAbove", m_roomIndexAbove),
-      S_NV_VECTOR_ELEMENT("boundaryRoom", std::cref(ser.context.getRooms()), std::cref(boundaryRoom)),
-      S_NV_VECTOR_ELEMENT("floorData", std::cref(ser.context.getFloorData()), std::cref(floorData)));
+      S_NV_VECTOR_ELEMENT("boundaryRoom", std::cref(ser.context->getRooms()), std::cref(boundaryRoom)),
+      S_NV_VECTOR_ELEMENT("floorData", std::cref(ser.context->getFloorData()), std::cref(floorData)));
 }
 
 void Sector::deserialize(const serialization::Deserializer<World>& ser)
 {
-  ser(S_NV_VECTOR_ELEMENT("box", std::cref(ser.context.getBoxes()), std::ref(box)),
+  ser(S_NV_VECTOR_ELEMENT("box", std::cref(ser.context->getBoxes()), std::ref(box)),
       S_NV("floorHeight", floorHeight),
       S_NV("ceilingHeight", ceilingHeight),
       S_NV("roomIndexBelow", m_roomIndexBelow),
       S_NV("roomIndexAbove", m_roomIndexAbove),
-      S_NV_VECTOR_ELEMENT("boundaryRoom", std::cref(ser.context.getRooms()), std::ref(boundaryRoom)),
-      S_NV_VECTOR_ELEMENT("floorData", std::cref(ser.context.getFloorData()), std::ref(floorData)));
+      S_NV_VECTOR_ELEMENT("boundaryRoom", std::cref(ser.context->getRooms()), std::ref(boundaryRoom)),
+      S_NV_VECTOR_ELEMENT("floorData", std::cref(ser.context->getFloorData()), std::ref(floorData)));
 
   ser << [this](const serialization::Deserializer<World>& ser)
   {
-    connect(ser.context.getRooms());
+    connect(ser.context->getRooms());
   };
 }
 } // namespace engine::world

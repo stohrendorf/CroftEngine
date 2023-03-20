@@ -32,14 +32,14 @@ NetworkConfig NetworkConfig::load()
 {
   serialization::YAMLDocument<true> doc{findUserDataDir().value() / "network.yaml"};
   NetworkConfig cfg{};
-  doc.deserialize("config", cfg, cfg);
+  doc.deserialize("config", gsl::not_null{&cfg}, cfg);
   return cfg;
 }
 
 void NetworkConfig::save()
 {
   serialization::YAMLDocument<false> doc{findUserDataDir().value() / "network.yaml"};
-  doc.serialize("config", *this, *this);
+  doc.serialize("config", gsl::not_null{this}, *this);
   doc.write();
 }
 
