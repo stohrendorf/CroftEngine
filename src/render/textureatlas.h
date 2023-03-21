@@ -250,7 +250,7 @@ public:
     auto position = m_atlases.back().put(extended);
     gsl_Assert(position.has_value());
     // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
-    return {m_atlases.size() - 1, position.value() + glm::ivec2{BoundaryMargin, BoundaryMargin}};
+    return {m_atlases.size() - 1, *position + glm::ivec2{BoundaryMargin, BoundaryMargin}};
   }
 
   std::pair<size_t, glm::ivec2> put(const glm::ivec2& size)
@@ -265,7 +265,7 @@ public:
     auto position = m_atlases.back().put(size + 2 * glm::ivec2{BoundaryMargin, BoundaryMargin});
     gsl_Assert(position.has_value());
     // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
-    return {m_atlases.size() - 1, position.value() + glm::ivec2{BoundaryMargin, BoundaryMargin}};
+    return {m_atlases.size() - 1, *position + glm::ivec2{BoundaryMargin, BoundaryMargin}};
   }
 
   std::vector<std::shared_ptr<gl::CImgWrapper>> takeImages()

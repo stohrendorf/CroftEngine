@@ -24,10 +24,10 @@ void GridBox::draw(ui::Ui& ui, const engine::Presenter& presenter) const
   gsl_Assert(m_rowSizes.size() == m_widgets.shape()[1]);
 
   int xPos = m_position.x;
-  for(WidgetArray::index x = 0; x < m_widgets.shape()[0]; ++x)
+  for(WidgetArray::size_type x = 0; x < m_widgets.shape()[0]; ++x)
   {
     int yPos = m_position.y;
-    for(WidgetArray::index y = 0; y < m_widgets.shape()[1]; ++y)
+    for(WidgetArray::size_type y = 0; y < m_widgets.shape()[1]; ++y)
     {
       const auto& widget = m_widgets[x][y];
       if(widget != nullptr)
@@ -59,9 +59,9 @@ void GridBox::setPosition(const glm::ivec2& position)
 
 void GridBox::update(bool hasFocus)
 {
-  for(WidgetArray::index x = 0; x < m_widgets.shape()[0]; ++x)
+  for(WidgetArray::size_type x = 0; x < m_widgets.shape()[0]; ++x)
   {
-    for(WidgetArray::index y = 0; y < m_widgets.shape()[1]; ++y)
+    for(WidgetArray::size_type y = 0; y < m_widgets.shape()[1]; ++y)
     {
       const auto& widget = m_widgets[x][y];
       if(widget == nullptr)
@@ -88,10 +88,10 @@ void GridBox::fitToContent()
   gsl_Assert(m_alignRight.size() == m_widgets.shape()[0]);
   gsl_Assert(m_rowSizes.size() == m_widgets.shape()[1]);
 
-  for(WidgetArray::index x = 0; x < m_widgets.shape()[0]; ++x)
+  for(WidgetArray::size_type x = 0; x < m_widgets.shape()[0]; ++x)
   {
     int maxWidth = 0;
-    for(WidgetArray::index y = 0; y < m_widgets.shape()[1]; ++y)
+    for(WidgetArray::size_type y = 0; y < m_widgets.shape()[1]; ++y)
     {
       const auto& widget = m_widgets[x][y];
       if(widget == nullptr)
@@ -102,10 +102,10 @@ void GridBox::fitToContent()
     m_columnSizes[x] = maxWidth;
   }
 
-  for(WidgetArray::index y = 0; y < m_widgets.shape()[1]; ++y)
+  for(WidgetArray::size_type y = 0; y < m_widgets.shape()[1]; ++y)
   {
     int maxHeight = 0;
-    for(WidgetArray::index x = 0; x < m_widgets.shape()[0]; ++x)
+    for(WidgetArray::size_type x = 0; x < m_widgets.shape()[0]; ++x)
     {
       const auto& widget = m_widgets[x][y];
       if(widget == nullptr)

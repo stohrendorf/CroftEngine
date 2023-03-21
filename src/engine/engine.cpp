@@ -306,7 +306,7 @@ void updateRemoteGhosts(world::World& world, GhostManager& ghostManager, const n
       auto mesh = render::scene::createSpriteMesh(-nameTextureSize.x / 2.0f,
                                                   0,
                                                   nameTextureSize.x / 2.0f,
-                                                  nameTextureSize.y,
+                                                  gsl::narrow_cast<float>(nameTextureSize.y),
                                                   {0.0f, 1.0f},
                                                   {1.0f, 0.0f},
                                                   render::material::RenderMode::FullNonOpaque,

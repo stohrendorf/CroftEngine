@@ -139,20 +139,20 @@ struct Luma
 };
 
 // slightly faster than std::sort
-void insertionSort(std::array<uint8_t, 16>& arr1, std::array<uint8_t, 16>& arr2)
+void insertionSort(std::array<uint8_t, 16>& values, std::array<uint8_t, 16>& indices)
 {
   for(uint8_t i = 1; i < 16; ++i)
   {
-    const uint8_t value = arr1[i];
+    const uint8_t value = values[i];
     uint8_t hole = i;
 
-    for(; hole > 0 && value < arr1[hole - 1]; --hole)
+    for(; hole > 0 && value < values[hole - 1]; --hole)
     {
-      arr1[hole] = arr1[hole - 1];
-      arr2[hole] = arr2[hole - 1];
+      values[hole] = values[hole - 1];
+      indices[hole] = indices[hole - 1];
     }
-    arr1[hole] = value;
-    arr2[hole] = i;
+    values[hole] = value;
+    indices[hole] = i;
   }
 }
 
@@ -913,8 +913,7 @@ uint32_t compressBlockTH(const BgraVecBlock& bgra, Luma& l, uint32_t& compressed
     compressed1 |= (bestDist >> 1u) & 0x3u;
   }
 
-  bestPixIndices = indexConversion(bestPixIndices);
-  compressed2 = (bestPixIndices & ((2u << 31u) - 1u));
+  compressed2 = indexConversion(bestPixIndices);
 
   return bestErr;
 }

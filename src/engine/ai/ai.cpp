@@ -327,7 +327,8 @@ CreatureInfo::CreatureInfo(const world::World& world,
                            const core::TypeId& type,
                            const gsl::not_null<const world::Box*>& initialBox)
 {
-  auto objectInfo = *world.getEngine().getScriptEngine().getGameflow().getObjectInfos().at(type.get_as<TR1ItemId>());
+  const auto& objectInfo
+    = *world.getEngine().getScriptEngine().getGameflow().getObjectInfos().at(type.get_as<TR1ItemId>());
   pathFinder.step = core::Length{objectInfo.step_limit};
   pathFinder.drop = core::Length{objectInfo.drop_limit};
   pathFinder.fly = core::Length{objectInfo.fly_limit};

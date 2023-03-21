@@ -742,9 +742,9 @@ std::unique_ptr<gl::Texture2DArray<gl::PremultipliedSRGBA8>>
       images.emplace_back(std::make_shared<gl::CImgWrapper>(
         reinterpret_cast<uint8_t*>(bmp->data()), bmp->size().x, bmp->size().y, false));
 
-      allTextures->assign(
-        gsl::span{reinterpret_cast<gl::PremultipliedSRGBA8*>(bmp->data()), (size_t)(bmp->size().x * bmp->size().y)},
-        gsl::narrow_cast<int>(i));
+      allTextures->assign(gsl::span{reinterpret_cast<gl::PremultipliedSRGBA8*>(bmp->data()),
+                                    gsl::narrow_cast<size_t>(bmp->size().x) * gsl::narrow_cast<size_t>(bmp->size().y)},
+                          gsl::narrow_cast<int>(i));
     }
 
     for(auto& atlasTile : atlasTiles)

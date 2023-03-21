@@ -86,7 +86,7 @@ std::optional<std::filesystem::path> readRegistryPath(const std::wstring& path, 
   }
 
   std::array<WCHAR, 512> szBuffer{};
-  DWORD dwBufferSize = szBuffer.size();
+  auto dwBufferSize = gsl::narrow<DWORD>(szBuffer.size());
   DWORD type = REG_NONE;
   const auto nError
     = RegQueryValueExW(subKey, key.c_str(), nullptr, &type, reinterpret_cast<PBYTE>(szBuffer.data()), &dwBufferSize);

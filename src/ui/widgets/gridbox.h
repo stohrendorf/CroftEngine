@@ -90,12 +90,12 @@ public:
     return false;
   }
 
-  bool prevRow()
+  bool prevRow() noexcept
   {
     return prev<1>();
   }
 
-  bool prevColumn()
+  bool prevColumn() noexcept
   {
     return prev<0>();
   }
