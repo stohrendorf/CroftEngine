@@ -4,7 +4,6 @@
 
 #include <chrono>
 #include <functional>
-#include <gl/fencesync.h>
 #include <gl/pixel.h>
 #include <gl/soglb_fwd.h>
 #include <glm/vec2.hpp>
@@ -58,7 +57,6 @@ private:
   std::shared_ptr<pass::UIPass> m_uiPass;
   std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::SRGB8>>> m_backbufferTextureHandle;
   std::shared_ptr<gl::Framebuffer> m_backbuffer;
-  std::unique_ptr<gl::FenceSync> m_backbufferSync;
 
   std::vector<gslu::nn_shared<pass::EffectPass<gl::SRGB8>>> m_effects{};
   std::vector<gslu::nn_shared<pass::EffectPass<gl::SRGB8>>> m_backbufferEffects{};
@@ -102,11 +100,6 @@ public:
   }
 
   void renderBackbufferEffects();
-
-  void noWaitBackBuffer()
-  {
-    m_backbufferSync.reset();
-  }
 
   void resetBackbuffer();
 };

@@ -121,8 +121,6 @@ struct MenuDisplay
     return m_lightsBuffer;
   }
 
-  void noWait();
-
 private:
   [[nodiscard]] std::vector<MenuObject> getOptionRingObjects(const engine::world::World& world, bool withHomePolaroid);
   [[nodiscard]] std::vector<MenuObject> getMainRingObjects(const engine::world::World& world);

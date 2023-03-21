@@ -3,7 +3,6 @@
 #include "render/scene/blur.h"
 
 #include <functional>
-#include <gl/fencesync.h>
 #include <gl/pixel.h>
 #include <gl/soglb_fwd.h>
 #include <gl/texture2d.h> // IWYU pragma: keep
@@ -32,7 +31,6 @@ public:
 
   void renderBlur()
   {
-    wait(false);
     m_blur.render();
   }
 
@@ -51,22 +49,6 @@ public:
     return m_blur.getBlurredTexture();
   }
 
-  void wait(bool blurred)
-  {
-    if(!blurred)
-    {
-      if(m_sync == nullptr)
-        return;
-
-      m_sync->wait();
-      m_sync.reset();
-      return;
-    }
-
-    gsl_Assert(m_sync == nullptr);
-    m_blur.wait();
-  }
-
 private:
   gslu::nn_shared<GeometryPass> m_geometryPass;
   gslu::nn_shared<gl::Texture2D<gl::Scalar32F>> m_positionBuffer;
@@ -75,6 +57,5 @@ private:
   gslu::nn_shared<gl::TextureHandle<gl::Texture2D<gl::RGB32F>>> m_perturbBufferHandle;
   scene::SeparableBlur<gl::RGB32F> m_blur;
   gslu::nn_shared<gl::Framebuffer> m_fb;
-  std::unique_ptr<gl::FenceSync> m_sync;
 };
 } // namespace render::pass

@@ -191,8 +191,6 @@ public:
     return *m_ghostNameFont;
   }
 
-  void noWaitBackBuffer();
-
 private:
   gslu::nn_shared<gl::Window> m_window;
   uint8_t m_renderResolutionDivisor = 1;

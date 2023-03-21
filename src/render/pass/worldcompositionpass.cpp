@@ -15,7 +15,6 @@
 
 #include <gl/constants.h>
 #include <gl/debuggroup.h>
-#include <gl/fencesync.h>
 #include <gl/framebuffer.h>
 #include <gl/glassert.h>
 #include <gl/pixel.h>
@@ -172,11 +171,9 @@ void WorldCompositionPass::updateCamera(const gslu::nn_shared<scene::Camera>& ca
 }
 
 // NOLINTNEXTLINE(readability-make-member-function-const)
-void WorldCompositionPass::render(bool inWater, bool denoiseWater)
+void WorldCompositionPass::render(bool inWater)
 {
   SOGLB_DEBUGGROUP("world-composition-pass");
-  m_geometryPass->wait();
-  m_portalPass->wait(denoiseWater);
 
   m_fb->bind();
 
@@ -190,9 +187,7 @@ void WorldCompositionPass::render(bool inWater, bool denoiseWater)
 
   if(m_bloom)
   {
-    gl::FenceSync::sync();
     m_bloomPass->render();
-    m_bloomPass->wait();
     m_fbBloom->bind();
     m_bloomMesh->render(nullptr, context);
     m_fbBloom->unbind();

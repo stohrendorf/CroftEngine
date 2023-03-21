@@ -54,13 +54,11 @@ public:
   void render()
   {
     SOGLB_DEBUGGROUP(m_name + "-downsample");
-    gsl_Assert(m_sync == nullptr);
 
     m_fb->bind();
     scene::RenderContext context{material::RenderMode::FullOpaque, std::nullopt, scene::Translucency::Opaque};
     m_mesh->render(nullptr, context);
     m_fb->unbind();
-    m_sync = std::make_unique<gl::FenceSync>();
 
     if constexpr(FlushPasses)
       GL_ASSERT(gl::api::finish());
@@ -71,22 +69,12 @@ public:
     return m_outputHandle;
   }
 
-  void wait()
-  {
-    if(m_sync == nullptr)
-      return;
-
-    m_sync->wait();
-    m_sync.reset();
-  }
-
 private:
   std::string m_name;
   gslu::nn_shared<scene::Mesh> m_mesh;
   gslu::nn_shared<gl::Texture2D<TPixel>> m_output;
   gslu::nn_shared<TextureHandle> m_outputHandle;
   gslu::nn_shared<gl::Framebuffer> m_fb;
-  std::unique_ptr<gl::FenceSync> m_sync;
 };
 
 template<uint8_t NSteps, typename TPixel>
@@ -114,8 +102,6 @@ public:
     std::shared_ptr<SingleBloomDownsample<TPixel>> prevStep;
     for(const auto& step : m_steps)
     {
-      if(prevStep != nullptr)
-        prevStep->wait();
       step->render();
       prevStep = step;
     }
@@ -124,11 +110,6 @@ public:
   [[nodiscard]] const auto& getOutput() const
   {
     return m_steps.back()->getOutput();
-  }
-
-  void wait()
-  {
-    m_steps.back()->wait();
   }
 
 private:
@@ -169,14 +150,11 @@ public:
   void render()
   {
     SOGLB_DEBUGGROUP(m_name + "-upsample");
-    gsl_Assert(m_sync == nullptr);
 
     m_fb->bind();
     scene::RenderContext context{material::RenderMode::FullOpaque, std::nullopt, scene::Translucency::Opaque};
     m_mesh->render(nullptr, context);
     m_fb->unbind();
-
-    m_sync = std::make_unique<gl::FenceSync>();
 
     if constexpr(FlushPasses)
       GL_ASSERT(gl::api::finish());
@@ -187,22 +165,12 @@ public:
     return m_outputHandle;
   }
 
-  void wait()
-  {
-    if(m_sync == nullptr)
-      return;
-
-    m_sync->wait();
-    m_sync.reset();
-  }
-
 private:
   std::string m_name;
   gslu::nn_shared<scene::Mesh> m_mesh;
   gslu::nn_shared<gl::Texture2D<TPixel>> m_output;
   gslu::nn_shared<TextureHandle> m_outputHandle;
   gslu::nn_shared<gl::Framebuffer> m_fb;
-  std::unique_ptr<gl::FenceSync> m_sync;
 };
 
 template<uint8_t NSteps, typename TPixel>
@@ -230,8 +198,6 @@ public:
     std::shared_ptr<SingleBloomUpsample<TPixel>> prevStep;
     for(const auto& step : m_steps)
     {
-      if(prevStep != nullptr)
-        prevStep->wait();
       step->render();
       prevStep = step;
     }
@@ -240,11 +206,6 @@ public:
   [[nodiscard]] const auto& getOutput() const
   {
     return m_steps.back()->getOutput();
-  }
-
-  void wait()
-  {
-    m_steps.back()->wait();
   }
 
 private:
@@ -267,20 +228,13 @@ public:
   void render()
   {
     m_downsample.render();
-    m_downsample.wait();
     m_blur.render();
-    m_blur.wait();
     m_upsample.render();
   }
 
   [[nodiscard]] const auto& getOutput() const
   {
     return m_upsample.getOutput();
-  }
-
-  void wait()
-  {
-    m_upsample.wait();
   }
 
 private:

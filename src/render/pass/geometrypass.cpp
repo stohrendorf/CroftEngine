@@ -2,7 +2,6 @@
 
 #include <algorithm>
 #include <gl/constants.h>
-#include <gl/fencesync.h>
 #include <gl/framebuffer.h>
 #include <gl/pixel.h>
 #include <gl/renderstate.h>
@@ -66,14 +65,11 @@ GeometryPass::~GeometryPass() = default;
 // NOLINTNEXTLINE(readability-make-member-function-const)
 void GeometryPass::render(const std::function<void()>& doRender)
 {
-  gsl_Assert(m_sync == nullptr);
   m_fb->bind();
   gl::RenderState::resetWantedState();
   gl::RenderState::getWantedState().merge(m_fb->getRenderState());
   gl::RenderState::applyWantedState();
   doRender();
   m_fb->unbind();
-  gsl_Assert(m_sync == nullptr);
-  m_sync = std::make_unique<gl::FenceSync>();
 }
 } // namespace render::pass

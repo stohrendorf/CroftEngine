@@ -7,7 +7,6 @@
 
 #include <gl/constants.h>
 #include <gl/debuggroup.h>
-#include <gl/fencesync.h>
 #include <gl/framebuffer.h>
 #include <gl/sampler.h>
 #include <gl/soglb_fwd.h>
@@ -69,7 +68,6 @@ public:
   void render(bool inWater)
   {
     SOGLB_DEBUGGROUP(m_name + "-pass");
-    gsl_Assert(m_sync == nullptr);
 
     m_fb->bind();
 
@@ -82,8 +80,6 @@ public:
     m_mesh->render(nullptr, context);
     m_fb->unbind();
 
-    m_sync = std::make_unique<gl::FenceSync>();
-
     if constexpr(FlushPasses)
       GL_ASSERT(gl::api::finish());
   }
@@ -95,9 +91,6 @@ public:
 
   [[nodiscard]] const auto& getFramebuffer() const
   {
-    gsl_Assert(m_sync != nullptr);
-    m_sync->wait();
-    m_sync.reset();
     return m_fb;
   }
 
@@ -113,6 +106,5 @@ private:
   gslu::nn_shared<gl::Texture2D<TPixel>> m_output;
   gslu::nn_shared<gl::TextureHandle<gl::Texture2D<TPixel>>> m_outputHandle;
   gslu::nn_shared<gl::Framebuffer> m_fb;
-  mutable std::unique_ptr<gl::FenceSync> m_sync;
 };
 } // namespace render::pass

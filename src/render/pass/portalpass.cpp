@@ -5,7 +5,6 @@
 
 #include <gl/constants.h>
 #include <gl/debuggroup.h>
-#include <gl/fencesync.h>
 #include <gl/framebuffer.h>
 #include <gl/pixel.h>
 #include <gl/sampler.h>
@@ -54,13 +53,10 @@ PortalPass::PortalPass(material::MaterialManager& materialManager,
 void PortalPass::render(const std::function<void(const gl::RenderState&)>& doRender)
 {
   SOGLB_DEBUGGROUP("portal-pass");
-  gsl_Assert(m_sync == nullptr);
 
   m_positionBuffer->clear(gl::Scalar32F{-std::numeric_limits<float>::infinity()});
-  m_geometryPass->wait();
   m_fb->bind();
   doRender(m_fb->getRenderState());
   m_fb->unbind();
-  m_sync = std::make_unique<gl::FenceSync>();
 }
 } // namespace render::pass

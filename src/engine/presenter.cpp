@@ -43,7 +43,6 @@
 #include <gl/cimgwrapper.h>
 #include <gl/constants.h>
 #include <gl/debuggroup.h>
-#include <gl/fencesync.h>
 #include <gl/font.h>
 #include <gl/framebuffer.h>
 #include <gl/glassert.h>
@@ -170,7 +169,6 @@ void Presenter::renderWorld(const std::vector<world::Room>& rooms,
 
     m_csm->renderSquareBuffers();
     m_csm->renderBlurBuffers();
-    m_csm->waitBlurBuffers();
   }
 
   {
@@ -204,7 +202,6 @@ void Presenter::renderWorld(const std::vector<world::Room>& rooms,
       }
     });
 
-  gl::FenceSync::sync();
   m_renderPipeline->worldCompositionPass(rooms, cameraController.getCurrentRoom()->isWaterRoom);
   m_screenOverlay.reset();
 }
@@ -621,11 +618,6 @@ void Presenter::clearSplashImageTextureOverride() noexcept
 {
   m_splashImageTextureOverride.reset();
   m_splashImageMeshOverride.reset();
-}
-
-void Presenter::noWaitBackBuffer()
-{
-  m_renderPipeline->noWaitBackBuffer();
 }
 
 void Presenter::prefillDepthBuffer(const CameraController& cameraController, const std::vector<world::Room>& rooms)

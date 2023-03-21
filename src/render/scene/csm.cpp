@@ -13,7 +13,6 @@
 #include <gl/buffer.h>
 #include <gl/constants.h>
 #include <gl/debuggroup.h>
-#include <gl/fencesync.h>
 #include <gl/framebuffer.h>
 #include <gl/glassert.h>
 #include <gl/pixel.h>
@@ -91,25 +90,17 @@ void CSM::Split::init(int32_t resolution, size_t idx, material::MaterialManager&
 void CSM::Split::renderSquare()
 {
   SOGLB_DEBUGGROUP("vsm-square-pass");
-  gsl_Assert(depthSync != nullptr);
-  gsl_Assert(squareSync == nullptr);
-  depthSync->wait();
-  depthSync.reset();
 
   squareFramebuffer->bind();
   RenderContext context{material::RenderMode::FullOpaque, std::nullopt, Translucency::Opaque};
   squareMesh->render(nullptr, context);
   squareFramebuffer->unbind();
-  squareSync = std::make_unique<gl::FenceSync>();
 }
 
 // NOLINTNEXTLINE(readability-make-member-function-const)
 void CSM::Split::renderBlur()
 {
   SOGLB_DEBUGGROUP("vsm-blur-pass");
-  gsl_Assert(squareSync != nullptr);
-  squareSync->wait();
-  squareSync.reset();
   squareBlur->render();
 }
 
@@ -250,17 +241,14 @@ void CSM::renderToActiveDepthBuffer(const std::function<void(const gl::RenderSta
 {
   SOGLB_DEBUGGROUP("csm-pass/" + std::to_string(m_activeSplit));
   auto& split = m_splits.at(m_activeSplit);
-  gsl_Assert(split.depthSync == nullptr);
   split.depthTextureHandle->getTexture()->clear(gl::ScalarDepth{1.0f});
   split.depthFramebuffer->bind();
   doRender(split.depthFramebuffer->getRenderState(), split.vpMatrix);
   split.depthFramebuffer->unbind();
-  split.depthSync = std::make_unique<gl::FenceSync>();
 }
 
 void CSM::renderSquareBuffers()
 {
-  GL_ASSERT(gl::api::memoryBarrier(gl::api::MemoryBarrierMask::FramebufferBarrierBit));
   for(size_t i = 0; i < render::scene::CSMBuffer::NSplits; ++i)
   {
     SOGLB_DEBUGGROUP("csm-pass-square/" + std::to_string(i));
@@ -274,14 +262,6 @@ void CSM::renderBlurBuffers()
   {
     SOGLB_DEBUGGROUP("csm-pass-blur/" + std::to_string(i));
     m_splits[i].renderBlur();
-  }
-}
-
-void CSM::waitBlurBuffers()
-{
-  for(auto& split : m_splits)
-  {
-    split.squareBlur->wait();
   }
 }
 } // namespace render::scene

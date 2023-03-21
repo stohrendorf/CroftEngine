@@ -1,7 +1,6 @@
 #pragma once
 
 #include <functional>
-#include <gl/fencesync.h>
 #include <gl/pixel.h>
 #include <gl/soglb_fwd.h>
 #include <glm/vec2.hpp>
@@ -43,6 +42,5 @@ private:
   gslu::nn_shared<gl::Texture2D<gl::SRGBA8>> m_colorBuffer;
   gslu::nn_shared<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>> m_colorBufferHandle;
   gslu::nn_shared<gl::Framebuffer> m_fb;
-  std::unique_ptr<gl::FenceSync> m_sync;
 };
 } // namespace render::pass

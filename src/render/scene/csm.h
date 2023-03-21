@@ -8,7 +8,6 @@
 #include <cstdint>
 #include <functional>
 #include <gl/buffer.h>
-#include <gl/fencesync.h>
 #include <gl/pixel.h>
 #include <gl/soglb_fwd.h>
 #include <glm/fwd.hpp>
@@ -49,11 +48,9 @@ public:
     glm::mat4 vpMatrix{1.0f};
     std::shared_ptr<gl::TextureHandle<gl::TextureDepth<float>>> depthTextureHandle;
     std::shared_ptr<gl::Framebuffer> depthFramebuffer{};
-    mutable std::unique_ptr<gl::FenceSync> depthSync;
 
     std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::RG16F>>> squaredTextureHandle;
     std::shared_ptr<gl::Framebuffer> squareFramebuffer{};
-    mutable std::unique_ptr<gl::FenceSync> squareSync;
 
     std::shared_ptr<material::Material> squareMaterial{};
     std::shared_ptr<Mesh> squareMesh{};
@@ -78,7 +75,6 @@ public:
   void renderToActiveDepthBuffer(const std::function<void(const gl::RenderState&, const glm::mat4&)>& doRender) const;
   void renderSquareBuffers();
   void renderBlurBuffers();
-  void waitBlurBuffers();
 
   void setActiveSplit(size_t idx)
   {

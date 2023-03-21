@@ -592,10 +592,5 @@ void MenuDisplay::renderRenderedObjects(const engine::world::World& world)
   m_fb->render();
 }
 
-void MenuDisplay::noWait()
-{
-  m_fb->noWait();
-}
-
 MenuDisplay::~MenuDisplay() = default;
 } // namespace menu

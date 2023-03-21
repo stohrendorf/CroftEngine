@@ -76,14 +76,12 @@ void HBAOPass::updateCamera(const gslu::nn_shared<scene::Camera>& camera)
 void HBAOPass::render()
 {
   SOGLB_DEBUGGROUP("hbao-pass");
-  m_geometryPass->wait();
 
   m_fb->bind();
   scene::RenderContext context{material::RenderMode::FullOpaque, std::nullopt, scene::Translucency::Opaque};
   m_renderMesh->render(nullptr, context);
   m_fb->unbind();
 
-  gl::FenceSync::sync();
   m_blur.render();
 
   if constexpr(FlushPasses)

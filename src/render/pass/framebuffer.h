@@ -1,7 +1,6 @@
 #pragma once
 
 #include <functional>
-#include <gl/fencesync.h>
 #include <gl/pixel.h>
 #include <gl/soglb_fwd.h>
 #include <glm/vec2.hpp>
@@ -49,11 +48,6 @@ public:
 
   void render();
 
-  void noWait()
-  {
-    m_sync.reset();
-  }
-
 private:
   gslu::nn_shared<material::Material> m_material;
   gslu::nn_shared<scene::Mesh> m_mesh;
@@ -62,6 +56,5 @@ private:
   gslu::nn_shared<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>> m_colorBufferHandle;
   gslu::nn_shared<gl::Framebuffer> m_fb;
   scene::Translucency m_translucencySelector;
-  std::unique_ptr<gl::FenceSync> m_sync;
 };
 } // namespace render::pass

@@ -2,7 +2,6 @@
 
 #include "render/scene/blur.h"
 
-#include <gl/fencesync.h>
 #include <gl/pixel.h>
 #include <gl/soglb_fwd.h>
 #include <glm/vec2.hpp>
@@ -40,11 +39,6 @@ public:
     return m_blur.getBlurredTexture();
   }
 
-  void wait()
-  {
-    m_blur.wait();
-  }
-
 private:
   gslu::nn_shared<GeometryPass> m_geometryPass;
   gslu::nn_shared<material::Material> m_material;
@@ -55,6 +49,5 @@ private:
   gslu::nn_shared<gl::TextureHandle<gl::Texture2D<gl::ScalarByte>>> m_aoBufferHandle;
   scene::SeparableBlur<gl::ScalarByte> m_blur;
   gslu::nn_shared<gl::Framebuffer> m_fb;
-  std::unique_ptr<gl::FenceSync> m_sync;
 };
 } // namespace render::pass

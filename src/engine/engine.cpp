@@ -483,7 +483,6 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
       menu->update(ui, world);
       if(m_presenter->renderSettingsChanged())
       {
-        menu->noWait();
         ui.reset();
         continue;
       }
@@ -771,7 +770,6 @@ std::pair<RunResult, std::optional<size_t>> Engine::runTitleMenu(world::World& w
       });
     if(m_presenter->renderSettingsChanged())
     {
-      m_presenter->noWaitBackBuffer();
       continue;
     }
 

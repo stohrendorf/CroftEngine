@@ -9,7 +9,6 @@
 
 #include <gl/constants.h>
 #include <gl/debuggroup.h>
-#include <gl/fencesync.h>
 #include <gl/framebuffer.h>
 #include <gl/sampler.h>
 #include <gl/texturehandle.h>
@@ -64,28 +63,16 @@ public:
   void render() const
   {
     SOGLB_DEBUGGROUP(m_name + "/blur-pass");
-    gsl_Assert(m_sync == nullptr);
 
     RenderContext context{material::RenderMode::FullOpaque, std::nullopt, Translucency::Opaque};
-    gl::FenceSync::sync();
     m_framebuffer->bind();
     m_mesh->render(nullptr, context);
     m_framebuffer->unbind();
-    m_sync = std::make_unique<gl::FenceSync>();
   }
 
   [[nodiscard]] gslu::nn_shared<TextureHandle> getBlurredTexture() const
   {
     return gsl::not_null{m_blurredTexture};
-  }
-
-  void wait()
-  {
-    if(m_sync == nullptr)
-      return;
-
-    m_sync->wait();
-    m_sync.reset();
   }
 
 private:
@@ -95,7 +82,6 @@ private:
   std::shared_ptr<material::Material> m_material;
   std::shared_ptr<gl::Framebuffer> m_framebuffer;
   int m_downscale;
-  mutable std::unique_ptr<gl::FenceSync> m_sync;
 };
 
 template<typename PixelT>
@@ -136,13 +122,7 @@ public:
   void render()
   {
     m_blur1.render();
-    m_blur1.wait();
     m_blur2.render();
-  }
-
-  void wait()
-  {
-    m_blur2.wait();
   }
 
   [[nodiscard]] auto getBlurredTexture() const

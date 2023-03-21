@@ -9,7 +9,6 @@
 
 #include <gl/constants.h>
 #include <gl/debuggroup.h>
-#include <gl/fencesync.h>
 #include <gl/framebuffer.h>
 #include <gl/glassert.h>
 #include <gl/pixel.h>
@@ -61,23 +60,15 @@ UIPass::UIPass(material::MaterialManager& materialManager,
 void UIPass::render(const std::function<void()>& doRender)
 {
   SOGLB_DEBUGGROUP("ui-pass");
-  gsl_Assert(m_sync == nullptr);
   m_colorBuffer->clear({0, 0, 0, 0});
   m_fb->bind();
   doRender();
   m_fb->unbind();
-  m_sync = std::make_unique<gl::FenceSync>();
 }
 
 // NOLINTNEXTLINE(readability-make-member-function-const)
 void UIPass::render(float alpha)
 {
-  if(m_sync != nullptr)
-  {
-    m_sync->wait();
-    m_sync.reset();
-  }
-
   m_mesh->bind("u_alphaMultiplier",
                [alpha](const render::scene::Node* /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
                {

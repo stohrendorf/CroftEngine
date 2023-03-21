@@ -1,7 +1,6 @@
 #pragma once
 
 #include <functional>
-#include <gl/fencesync.h>
 #include <gl/pixel.h>
 #include <gl/soglb_fwd.h>
 #include <gl/texturedepth.h>
@@ -48,15 +47,6 @@ public:
     return m_reflectiveBufferHandle;
   }
 
-  void wait()
-  {
-    if(m_sync == nullptr)
-      return;
-
-    m_sync->wait();
-    m_sync.reset();
-  }
-
 private:
   gslu::nn_shared<gl::TextureDepth<float>> m_depthBuffer;
   gslu::nn_shared<gl::TextureHandle<gl::TextureDepth<float>>> m_depthBufferHandle;
@@ -69,6 +59,5 @@ private:
   gslu::nn_shared<gl::Texture2D<gl::RGB16F>> m_normalBuffer;
   gslu::nn_shared<gl::TextureHandle<gl::Texture2D<gl::RGB16F>>> m_normalBufferHandle;
   gslu::nn_shared<gl::Framebuffer> m_fb;
-  std::unique_ptr<gl::FenceSync> m_sync;
 };
 } // namespace render::pass

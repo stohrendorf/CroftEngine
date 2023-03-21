@@ -42,7 +42,7 @@ public:
 
   void updateCamera(const gslu::nn_shared<scene::Camera>& camera);
 
-  void render(bool inWater, bool denoiseWater);
+  void render(bool inWater);
 
   [[nodiscard]] const auto& getColorBuffer() const
   {

@@ -21,7 +21,6 @@
 #include <boost/throw_exception.hpp>
 #include <gl/constants.h>
 #include <gl/debuggroup.h>
-#include <gl/fencesync.h>
 #include <gl/framebuffer.h>
 #include <gl/glassert.h>
 #include <gl/pixel.h>
@@ -79,7 +78,7 @@ void RenderPipeline::worldCompositionPass(const std::vector<engine::world::Room>
   }
 
   BOOST_ASSERT(m_worldCompositionPass != nullptr);
-  m_worldCompositionPass->render(inWater, m_renderSettings.waterDenoise);
+  m_worldCompositionPass->render(inWater);
 
   {
     SOGLB_DEBUGGROUP("dust");
@@ -105,8 +104,6 @@ void RenderPipeline::worldCompositionPass(const std::vector<engine::world::Room>
       context.popState();
     }
   }
-
-  gl::FenceSync::sync();
 
   auto finalOutput = m_worldCompositionPass->getFramebuffer();
   for(const auto& effect : m_effects)
@@ -192,7 +189,6 @@ void RenderPipeline::initWorldEffects(material::MaterialManager& materialManager
       fx->bind("u_ao",
                [hbaoPass = m_hbaoPass](const scene::Node* /*node*/, const scene::Mesh& /*mesh*/, gl::Uniform& uniform)
                {
-                 hbaoPass->wait();
                  uniform.set(hbaoPass->getBlurredTexture());
                });
     }
@@ -202,7 +198,6 @@ void RenderPipeline::initWorldEffects(material::MaterialManager& materialManager
       fx->bind("u_edges",
                [edgePass = m_edgePass](const scene::Node* /*node*/, const scene::Mesh& /*mesh*/, gl::Uniform& uniform)
                {
-                 edgePass->wait();
                  uniform.set(edgePass->getTexture());
                });
     }
@@ -321,18 +316,15 @@ void RenderPipeline::renderUiFrameBuffer(float alpha)
 {
   BOOST_ASSERT(m_uiPass != nullptr);
   m_backbuffer->bind();
-  gl::FenceSync::sync();
   m_uiPass->render(alpha);
   m_backbuffer->unbind();
 }
 
 void RenderPipeline::withBackbuffer(const std::function<void()>& doRender)
 {
-  gsl_Assert(m_backbufferSync == nullptr);
   m_backbuffer->bind();
   doRender();
   m_backbuffer->unbind();
-  m_backbufferSync = std::make_unique<gl::FenceSync>();
 }
 
 void RenderPipeline::renderBackbufferEffects()
@@ -342,11 +334,6 @@ void RenderPipeline::renderBackbufferEffects()
   gl::RenderState::getWantedState().setViewport(m_displaySize);
   gl::RenderState::applyWantedState();
 
-  if(m_backbufferSync != nullptr)
-  {
-    m_backbufferSync->wait();
-    m_backbufferSync.reset();
-  }
   auto finalOutput = m_backbuffer;
   for(const auto& effect : m_backbufferEffects)
   {

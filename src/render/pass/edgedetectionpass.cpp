@@ -88,8 +88,6 @@ EdgeDetectionPass::EdgeDetectionPass(material::MaterialManager& materialManager,
 void EdgeDetectionPass::render()
 {
   SOGLB_DEBUGGROUP("edge-pass");
-  gsl_Assert(m_sync == nullptr);
-  m_geometryPass->wait();
 
   {
     SOGLB_DEBUGGROUP("edge-detection");
@@ -99,8 +97,6 @@ void EdgeDetectionPass::render()
     m_edgeFb->unbind();
   }
 
-  gl::FenceSync::sync();
-
   {
     SOGLB_DEBUGGROUP("edge-dilation");
     m_dilationFb->bind();
@@ -108,8 +104,6 @@ void EdgeDetectionPass::render()
     m_dilationRenderMesh->render(nullptr, context);
     m_dilationFb->unbind();
   }
-
-  m_sync = std::make_unique<gl::FenceSync>();
 
   if constexpr(FlushPasses)
     GL_ASSERT(gl::api::finish());

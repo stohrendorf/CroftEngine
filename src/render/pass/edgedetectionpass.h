@@ -1,6 +1,5 @@
 #pragma once
 
-#include <gl/fencesync.h>
 #include <gl/pixel.h>
 #include <gl/soglb_fwd.h>
 #include <glm/vec2.hpp>
@@ -35,15 +34,6 @@ public:
     return m_dilationBufferHandle;
   }
 
-  void wait()
-  {
-    if(m_sync == nullptr)
-      return;
-
-    m_sync->wait();
-    m_sync.reset();
-  }
-
 private:
   gslu::nn_shared<GeometryPass> m_geometryPass;
   gslu::nn_shared<scene::Mesh> m_edgeRenderMesh;
@@ -55,6 +45,5 @@ private:
   gslu::nn_shared<gl::Texture2D<gl::ScalarByte>> m_dilationBuffer;
   gslu::nn_shared<gl::TextureHandle<gl::Texture2D<gl::ScalarByte>>> m_dilationBufferHandle;
   gslu::nn_shared<gl::Framebuffer> m_dilationFb;
-  std::unique_ptr<gl::FenceSync> m_sync;
 };
 } // namespace render::pass
