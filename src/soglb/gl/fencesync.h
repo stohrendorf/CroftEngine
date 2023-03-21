@@ -31,6 +31,7 @@ public:
   // NOLINTNEXTLINE(modernize-use-nodiscard)
   api::SyncStatus clientWait() const
   {
+    GL_ASSERT(api::flush());
     return GL_ASSERT_FN(api::clientWaitSync(m_sync, api::SyncObjectMask::SyncFlushCommandsBit, api::TimeoutIgnored));
   }
 
