@@ -38,12 +38,12 @@ struct Ammo
   uint32_t misses = 0;
   uint32_t missesTotal = 0;
 
-  void addClips(size_t n)
+  void addClips(size_t n) noexcept
   {
     shots += shotsPerClip * n;
   }
 
-  [[nodiscard]] size_t getClips() const
+  [[nodiscard]] size_t getClips() const noexcept
   {
     return shots / shotsPerClip;
   }
@@ -97,12 +97,12 @@ public:
            != m_inventory.end();
   }
 
-  void clear()
+  void clear() noexcept
   {
     m_inventory.clear();
   }
 
-  void drop(TR1ItemId id)
+  void drop(TR1ItemId id) noexcept
   {
     m_inventory.erase(id);
   }
@@ -134,7 +134,7 @@ public:
     return const_cast<Inventory*>(this)->getAmmo(weaponType);
   }
 
-  void fillAllAmmo()
+  void fillAllAmmo() noexcept
   {
     m_pistolsAmmo.shots = 1000;
     m_magnumsAmmo.shots = 1000;

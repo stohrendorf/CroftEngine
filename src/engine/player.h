@@ -20,12 +20,12 @@ class Player
 public:
   explicit Player() = default;
 
-  [[nodiscard]] auto& getInventory()
+  [[nodiscard]] auto& getInventory() noexcept
   {
     return m_inventory;
   }
 
-  [[nodiscard]] const auto& getInventory() const
+  [[nodiscard]] const auto& getInventory() const noexcept
   {
     return m_inventory;
   }

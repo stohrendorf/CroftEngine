@@ -32,7 +32,7 @@ namespace engine::ai
 namespace
 {
 std::optional<ai::Mood>
-  getNewViolentMood(const EnemyLocation& enemyLocation, const ai::CreatureInfo& creatureInfo, bool isHit)
+  getNewViolentMood(const EnemyLocation& enemyLocation, const ai::CreatureInfo& creatureInfo, bool isHit) noexcept
 {
   switch(creatureInfo.mood)
   {
@@ -292,7 +292,7 @@ EnemyLocation::EnemyLocation(objects::AIAgent& aiAgent)
 
   const auto aiAgentBox = aiAgent.m_state.getCurrentBox();
   zoneId = aiAgentBox.get()->*zoneRef;
-  auto& lara = aiAgent.getWorld().getObjectManager().getLara();
+  const auto& lara = aiAgent.getWorld().getObjectManager().getLara();
   const auto laraBox = lara.m_state.tryGetCurrentBox();
   enemyZoneId = laraBox == nullptr ? InvalidZone : laraBox->*zoneRef;
   if(laraBox == nullptr)

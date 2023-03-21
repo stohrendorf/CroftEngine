@@ -136,7 +136,7 @@ void Object::kill()
   deactivate();
 }
 
-bool Object::triggerPickUp()
+bool Object::triggerPickUp() noexcept
 {
   if(m_state.triggerState != TriggerState::Invisible)
   {

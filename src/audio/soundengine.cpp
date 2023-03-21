@@ -203,7 +203,7 @@ std::shared_ptr<StreamVoice> SoundEngine::tryGetStream(size_t slot)
   return nullptr;
 }
 
-void SoundEngine::freeSlot(size_t slot)
+void SoundEngine::freeSlot(size_t slot) noexcept
 {
   m_slots.erase(slot);
 }
@@ -243,7 +243,7 @@ void SoundEngine::deserializeStreams(const serialization::Deserializer<engine::w
 
   ser(S_NV("streamNames", names), S_NV("streamPositions", positions), S_NV("streamLooping", looping));
 
-  for(auto& [slot, streamName] : names)
+  for(const auto& [slot, streamName] : names)
   {
     const auto stream = createStream(rootPath / streamName, positions.at(slot));
     stream->setLooping(looping.at(slot));

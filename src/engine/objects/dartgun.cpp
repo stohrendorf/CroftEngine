@@ -43,7 +43,7 @@ void engine::objects::DartGun::update()
     return;
   }
 
-  auto axis = axisFromAngle(m_state.rotation.Y);
+  const auto axis = axisFromAngle(m_state.rotation.Y);
 
   core::TRVec d(0_len, 512_len, 0_len);
 

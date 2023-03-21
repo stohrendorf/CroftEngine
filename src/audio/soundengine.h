@@ -68,7 +68,7 @@ public:
     return *m_device;
   }
 
-  void setListener(const Listener* listener)
+  void setListener(const Listener* listener) noexcept
   {
     m_listener = listener;
   }
@@ -83,14 +83,14 @@ public:
 
   void setSlotStream(size_t slot, const gsl::shared_ptr<StreamVoice>& stream, const std::filesystem::path& path);
   [[nodiscard]] std::shared_ptr<StreamVoice> tryGetStream(size_t slot);
-  void freeSlot(size_t slot);
+  void freeSlot(size_t slot) noexcept;
   void serializeStreams(const serialization::Serializer<engine::world::World>& ser);
   void deserializeStreams(const serialization::Deserializer<engine::world::World>& ser,
                           const std::filesystem::path& rootPath,
                           VoiceGroup& streamGroup);
   [[nodiscard]] gslu::nn_shared<StreamVoice> createStream(const std::filesystem::path& path,
                                                           const std::chrono::milliseconds& initialPosition);
-  [[nodiscard]] const auto& getSlots() const
+  [[nodiscard]] const auto& getSlots() const noexcept
   {
     return m_slots;
   }

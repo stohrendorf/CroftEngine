@@ -22,7 +22,7 @@ public:
   void setGroupGainLogarithmic(ALfloat groupGain);
   void setLocalGain(ALfloat localGain);
   void setLocalGainLogarithmic(ALfloat localGain);
-  [[nodiscard]] ALfloat getLocalGain() const;
+  [[nodiscard]] ALfloat getLocalGain() const noexcept;
 
   void play();
   void rewind();
@@ -33,14 +33,14 @@ public:
   void setPitch(ALfloat pitch);
 
   void setPosition(const glm::vec3& position);
-  [[nodiscard]] const std::optional<glm::vec3>& getPosition() const;
+  [[nodiscard]] const std::optional<glm::vec3>& getPosition() const noexcept;
 
   [[nodiscard]] bool isPaused() const;
   [[nodiscard]] bool isStopped() const;
-  [[nodiscard]] bool isPositional() const;
+  [[nodiscard]] bool isPositional() const noexcept;
 
-  [[nodiscard]] bool hasSourceHandle() const;
-  [[nodiscard]] const std::unique_ptr<SourceHandle>& getSourceHandle() const;
+  [[nodiscard]] bool hasSourceHandle() const noexcept;
+  [[nodiscard]] const std::unique_ptr<SourceHandle>& getSourceHandle() const noexcept;
 
   virtual void associate(std::unique_ptr<SourceHandle>&& source);
 

@@ -20,7 +20,7 @@ public:
   void fill(const int16_t* samples, size_t frameCount, int channels, int sampleRate);
   void fillFromWav(const uint8_t* data);
 
-  [[nodiscard]] Clock::duration getDuration() const
+  [[nodiscard]] Clock::duration getDuration() const noexcept
   {
     return Clock::duration((m_sampleRate * Clock::duration::period::den)
                            / (m_frameCount * Clock::duration::period::num));

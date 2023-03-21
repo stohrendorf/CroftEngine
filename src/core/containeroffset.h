@@ -55,7 +55,7 @@ struct ContainerOffset
   template<typename T>
   void operator=(T value) const = delete;
 
-  auto& operator=(offset_type value)
+  auto& operator=(offset_type value) noexcept
   {
     offset = value;
     return *this;
@@ -103,7 +103,7 @@ struct ContainerIndex
   }
 
   template<typename T>
-  [[nodiscard]] auto exclusiveIn(const std::vector<T>& v) const
+  [[nodiscard]] auto exclusiveIn(const std::vector<T>& v) const noexcept
     -> std::enable_if_t<tpl::is_one_of_v<T, DataTypes...>, bool>
   {
     return index <= v.size();

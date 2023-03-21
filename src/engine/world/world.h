@@ -111,42 +111,42 @@ public:
 
   ~World();
 
-  [[nodiscard]] bool roomsAreSwapped() const
+  [[nodiscard]] bool roomsAreSwapped() const noexcept
   {
     return m_roomsAreSwapped;
   }
 
-  CameraController& getCameraController()
+  CameraController& getCameraController() noexcept
   {
     return *m_cameraController;
   }
 
-  [[nodiscard]] const CameraController& getCameraController() const
+  [[nodiscard]] const CameraController& getCameraController() const noexcept
   {
     return *m_cameraController;
   }
 
-  ObjectManager& getObjectManager()
+  ObjectManager& getObjectManager() noexcept
   {
     return m_objectManager;
   }
 
-  [[nodiscard]] const ObjectManager& getObjectManager() const
+  [[nodiscard]] const ObjectManager& getObjectManager() const noexcept
   {
     return m_objectManager;
   }
 
-  void finishLevel()
+  void finishLevel() noexcept
   {
     m_levelFinished = true;
   }
 
-  [[nodiscard]] bool levelFinished() const
+  [[nodiscard]] bool levelFinished() const noexcept
   {
     return m_levelFinished;
   }
 
-  void setGlobalEffect(size_t fx)
+  void setGlobalEffect(size_t fx) noexcept
   {
     m_activeEffect = fx;
     m_effectTimer = 0_frame;
@@ -195,16 +195,16 @@ public:
   }
 
   void swapAllRooms();
-  bool isValid(const loader::file::AnimFrame* frame) const;
+  bool isValid(const loader::file::AnimFrame* frame) const noexcept;
   void swapWithAlternate(Room& orig, Room& alternate);
-  [[nodiscard]] const std::vector<Box>& getBoxes() const;
-  [[nodiscard]] const std::vector<Room>& getRooms() const;
-  std::vector<Room>& getRooms();
+  [[nodiscard]] const std::vector<Box>& getBoxes() const noexcept;
+  [[nodiscard]] const std::vector<Room>& getRooms() const noexcept;
+  std::vector<Room>& getRooms() noexcept;
   [[nodiscard]] const StaticMesh* findStaticMeshById(const core::StaticMeshId& meshId) const;
   [[nodiscard]] const std::unique_ptr<SpriteSequence>& findSpriteSequenceForType(const core::TypeId& type) const;
   [[nodiscard]] const Animation& getAnimation(loader::file::AnimationId id) const;
-  [[nodiscard]] const std::vector<CinematicFrame>& getCinematicFrames() const;
-  [[nodiscard]] const std::vector<int16_t>& getAnimCommands() const;
+  [[nodiscard]] const std::vector<CinematicFrame>& getCinematicFrames() const noexcept;
+  [[nodiscard]] const std::vector<int16_t>& getAnimCommands() const noexcept;
   void update(bool godMode);
   void dinoStompEffect(objects::Object& object);
   void laraNormalEffect();
@@ -227,13 +227,13 @@ public:
   void useAlternativeLaraAppearance(bool withHead = false);
   void runEffect(size_t id, objects::Object* object);
   [[nodiscard]] const std::unique_ptr<SkeletalModelType>& findAnimatedModelForType(const core::TypeId& type) const;
-  [[nodiscard]] const std::vector<Animation>& getAnimations() const;
-  [[nodiscard]] const std::vector<int16_t>& getPoseFrames() const;
+  [[nodiscard]] const std::vector<Animation>& getAnimations() const noexcept;
+  [[nodiscard]] const std::vector<int16_t>& getPoseFrames() const noexcept;
   [[nodiscard]] gslu::nn_shared<RenderMeshData> getRenderMesh(size_t idx) const;
-  [[nodiscard]] const std::vector<Mesh>& getMeshes() const;
-  void turn180Effect(objects::Object& object);
+  [[nodiscard]] const std::vector<Mesh>& getMeshes() const noexcept;
+  void turn180Effect(objects::Object& object) noexcept;
   void drawRightWeaponEffect(const objects::ModelObject& object);
-  [[nodiscard]] const std::array<gl::SRGBA8, 256>& getPalette() const;
+  [[nodiscard]] const std::array<gl::SRGBA8, 256>& getPalette() const noexcept;
   void handleCommandSequence(const floordata::FloorDataValue* floorData, bool fromHeavy);
   core::TypeId find(const SkeletalModelType* model) const;
   core::TypeId find(const Sprite* sprite) const;
@@ -250,12 +250,12 @@ public:
   [[nodiscard]] const Presenter& getPresenter() const;
   [[nodiscard]] Presenter& getPresenter();
 
-  [[nodiscard]] auto getPierre() const
+  [[nodiscard]] auto getPierre() const noexcept
   {
     return m_pierre;
   }
 
-  void setPierre(objects::Object* pierre)
+  void setPierre(objects::Object* pierre) noexcept
   {
     m_pierre = pierre;
   }
@@ -270,22 +270,22 @@ public:
     return *m_engine;
   }
 
-  [[nodiscard]] const AudioEngine& getAudioEngine() const
+  [[nodiscard]] const AudioEngine& getAudioEngine() const noexcept
   {
     return *m_audioEngine;
   }
 
-  AudioEngine& getAudioEngine()
+  AudioEngine& getAudioEngine() noexcept
   {
     return *m_audioEngine;
   }
 
-  [[nodiscard]] const std::string& getTitle() const
+  [[nodiscard]] const std::string& getTitle() const noexcept
   {
     return m_title;
   }
 
-  [[nodiscard]] auto getTotalSecrets() const
+  [[nodiscard]] auto getTotalSecrets() const noexcept
   {
     return m_totalSecrets;
   }
@@ -320,52 +320,52 @@ public:
     return *m_player;
   }
 
-  [[nodiscard]] const auto& getPlayerPtr() const
+  [[nodiscard]] const auto& getPlayerPtr() const noexcept
   {
     return m_player;
   }
 
-  [[nodiscard]] const auto& getAtlasTiles() const
+  [[nodiscard]] const auto& getAtlasTiles() const noexcept
   {
     return m_atlasTiles;
   }
 
-  [[nodiscard]] const auto& getSprites() const
+  [[nodiscard]] const auto& getSprites() const noexcept
   {
     return m_sprites;
   }
 
-  [[nodiscard]] const auto& getFloorData() const
+  [[nodiscard]] const auto& getFloorData() const noexcept
   {
     return m_floorData;
   }
 
-  [[nodiscard]] const auto& getCameraSinks() const
+  [[nodiscard]] const auto& getCameraSinks() const noexcept
   {
     return m_cameraSinks;
   }
 
-  [[nodiscard]] const auto& getControllerLayouts() const
+  [[nodiscard]] const auto& getControllerLayouts() const noexcept
   {
     return m_controllerLayouts;
   }
 
-  [[nodiscard]] auto& getMapFlipActivationStates()
+  [[nodiscard]] auto& getMapFlipActivationStates() noexcept
   {
     return m_mapFlipActivationStates;
   }
 
-  [[nodiscard]] const auto& getLevelFilename() const
+  [[nodiscard]] const auto& getLevelFilename() const noexcept
   {
     return m_levelFilename;
   }
 
-  [[nodiscard]] const auto& getGhostFrame() const
+  [[nodiscard]] const auto& getGhostFrame() const noexcept
   {
     return m_ghostFrame;
   }
 
-  void nextGhostFrame()
+  void nextGhostFrame() noexcept
   {
     m_ghostFrame += 1_frame;
   }

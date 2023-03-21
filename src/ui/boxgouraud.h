@@ -28,7 +28,7 @@ struct BoxGouraud
     return result;
   }
 
-  [[nodiscard]] auto mirroredY() const
+  [[nodiscard]] auto mirroredY() const noexcept
   {
     return BoxGouraud{
       bottomLeft,
@@ -78,7 +78,7 @@ struct BackgroundGouraud
   }
 };
 
-inline BackgroundGouraud makeBackgroundCircle(const gl::SRGBA8& center, const gl::SRGBA8& outer)
+inline BackgroundGouraud makeBackgroundCircle(const gl::SRGBA8& center, const gl::SRGBA8& outer) noexcept
 {
   return {BoxGouraud{outer, outer, center, outer},
           BoxGouraud{outer, outer, outer, center},

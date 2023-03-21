@@ -69,7 +69,7 @@ std::unique_ptr<Animation> Animation::read(io::SDLReader& reader, const bool wit
 std::unique_ptr<SkeletalModelType> SkeletalModelType::readTr1(io::SDLReader& reader)
 {
   auto moveable = std::make_unique<SkeletalModelType>();
-  moveable->type = static_cast<core::TypeId::type>(reader.readU32());
+  moveable->type = gsl::narrow_cast<core::TypeId::type>(reader.readU32());
   moveable->nMeshes = reader.readI16();
   moveable->mesh_base_index = reader.readU16();
   moveable->bone_index = reader.readU32();

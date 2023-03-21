@@ -66,7 +66,7 @@ public:
       GL_ASSERT(gl::api::finish());
   }
 
-  [[nodiscard]] const auto& getOutput() const
+  [[nodiscard]] const auto& getOutput() const noexcept
   {
     return m_outputHandle;
   }

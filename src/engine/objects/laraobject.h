@@ -121,22 +121,22 @@ public:
 
   ~LaraObject() override;
 
-  bool isInWater() const
+  bool isInWater() const noexcept
   {
     return m_underwaterState == UnderwaterState::Swimming || m_underwaterState == UnderwaterState::Diving;
   }
 
-  bool isDiving() const
+  bool isDiving() const noexcept
   {
     return m_underwaterState == UnderwaterState::Diving;
   }
 
-  bool isOnLand() const
+  bool isOnLand() const noexcept
   {
     return m_underwaterState == UnderwaterState::OnLand;
   }
 
-  auto getAir() const
+  auto getAir() const noexcept
   {
     return m_air;
   }
@@ -145,7 +145,7 @@ public:
 
   void update() override;
 
-  void applyShift(const CollisionInfo& collisionInfo)
+  void applyShift(const CollisionInfo& collisionInfo) noexcept
   {
     m_state.location.position += collisionInfo.shift;
     collisionInfo.shift = {0_len, 0_len, 0_len};
@@ -170,7 +170,7 @@ public:
     m_movementAngle = angle;
   }
 
-  core::Angle getMovementAngle() const override
+  core::Angle getMovementAngle() const noexcept override
   {
     return m_movementAngle;
   }
@@ -185,29 +185,31 @@ public:
     m_handStatus = status;
   }
 
-  void placeOnFloor(const CollisionInfo& collisionInfo);
+  void placeOnFloor(const CollisionInfo& collisionInfo) noexcept;
 
-  void setYRotationSpeed(const core::RotationSpeed& spd)
+  void setYRotationSpeed(const core::RotationSpeed& spd) noexcept
   {
     m_yRotationSpeed = spd;
   }
 
-  auto getYRotationSpeed() const
+  auto getYRotationSpeed() const noexcept
   {
     return m_yRotationSpeed;
   }
 
-  void subYRotationSpeed(const core::RotationAcceleration& val, const core::RotationSpeed& limit = -32768_au / 1_frame)
+  void subYRotationSpeed(const core::RotationAcceleration& val,
+                         const core::RotationSpeed& limit = -32768_au / 1_frame) noexcept
   {
     m_yRotationSpeed = std::max(m_yRotationSpeed - val * 1_frame, limit);
   }
 
-  void addYRotationSpeed(const core::RotationAcceleration& val, const core::RotationSpeed& limit = 32767_au / 1_frame)
+  void addYRotationSpeed(const core::RotationAcceleration& val,
+                         const core::RotationSpeed& limit = 32767_au / 1_frame) noexcept
   {
     m_yRotationSpeed = std::min(m_yRotationSpeed + val * 1_frame, limit);
   }
 
-  void setFallSpeedOverride(const core::Speed& v)
+  void setFallSpeedOverride(const core::Speed& v) noexcept
   {
     m_fallSpeedOverride = v;
   }
@@ -286,7 +288,7 @@ public:
     return m_headRotation;
   }
 
-  void setTorsoRotation(const core::TRRotation& r)
+  void setTorsoRotation(const core::TRRotation& r) noexcept
   {
     m_torsoRotation = r;
   }
@@ -296,7 +298,7 @@ public:
     return m_torsoRotation;
   }
 
-  void resetHeadTorsoRotation()
+  void resetHeadTorsoRotation() noexcept
   {
     m_headRotation = core::TRRotation{};
     m_torsoRotation = core::TRRotation{};
@@ -407,7 +409,7 @@ private:
 
   void initMuzzleFlashes();
   void updateCheats();
-  void smoothlyRevertHeadRotation();
+  void smoothlyRevertHeadRotation() noexcept;
   void hitscanSingleRound(WeaponType weaponType,
                           const std::shared_ptr<ModelObject>& targetObject,
                           const ModelObject& weaponHolder,

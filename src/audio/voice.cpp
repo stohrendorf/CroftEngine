@@ -31,7 +31,7 @@ void Voice::setLocalGainLogarithmic(ALfloat localGain)
   setLocalGain(toLogarithmicVolumeExact(localGain));
 }
 
-ALfloat Voice::getLocalGain() const
+ALfloat Voice::getLocalGain() const noexcept
 {
   return m_localGain;
 }
@@ -105,12 +105,12 @@ bool Voice::isStopped() const
   return current > getDuration();
 }
 
-bool Voice::isPositional() const
+bool Voice::isPositional() const noexcept
 {
   return m_position.has_value();
 }
 
-bool Voice::hasSourceHandle() const
+bool Voice::hasSourceHandle() const noexcept
 {
   return m_source != nullptr;
 }
@@ -150,12 +150,12 @@ void Voice::updateGain()
     m_source->setGain(m_localGain * m_groupGain);
 }
 
-const std::optional<glm::vec3>& Voice::getPosition() const
+const std::optional<glm::vec3>& Voice::getPosition() const noexcept
 {
   return m_position;
 }
 
-const std::unique_ptr<SourceHandle>& Voice::getSourceHandle() const
+const std::unique_ptr<SourceHandle>& Voice::getSourceHandle() const noexcept
 {
   return m_source;
 }

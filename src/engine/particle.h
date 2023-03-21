@@ -67,12 +67,12 @@ private:
 protected:
   void nextFrame();
 
-  size_t getLength() const
+  size_t getLength() const noexcept
   {
     return m_meshes.size();
   }
 
-  void clearMeshes()
+  void clearMeshes() noexcept
   {
     m_meshes.clear();
   }
@@ -94,7 +94,7 @@ public:
                     bool withoutParent = false,
                     const std::shared_ptr<render::scene::Mesh>& renderable = nullptr);
 
-  void setShade(const core::Shade& shade)
+  void setShade(const core::Shade& shade) noexcept
   {
     m_shade = shade;
   }
@@ -105,7 +105,7 @@ public:
 
   void applyTransform();
 
-  [[nodiscard]] bool withoutParent() const
+  [[nodiscard]] bool withoutParent() const noexcept
   {
     return m_withoutParent;
   }

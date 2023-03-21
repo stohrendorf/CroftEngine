@@ -181,7 +181,7 @@ audio::Clock::duration AudioStreamDecoder::getDuration() const
   return ffmpeg::toDuration<audio::Clock::duration>(stream->stream->duration, stream->stream->time_base);
 }
 
-int AudioStreamDecoder::getSampleRate() const
+int AudioStreamDecoder::getSampleRate() const noexcept
 {
   return stream->context->sample_rate;
 }
@@ -203,7 +203,7 @@ void AudioStreamDecoder::seek(const std::chrono::milliseconds& position)
   queue = {};
 }
 
-int AudioStreamDecoder::getChannels() const
+int AudioStreamDecoder::getChannels() const noexcept
 {
   return stream->context->channels;
 }

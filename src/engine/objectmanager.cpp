@@ -73,7 +73,7 @@ void ObjectManager::applyScheduledDeletions()
 
     if(auto it = std::find_if(m_dynamicObjects.begin(),
                               m_dynamicObjects.end(),
-                              [del](const std::shared_ptr<objects::Object>& i)
+                              [del](const std::shared_ptr<objects::Object>& i) noexcept
                               {
                                 return i.get() == del;
                               });

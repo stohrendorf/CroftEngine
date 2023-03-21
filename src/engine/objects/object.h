@@ -110,7 +110,7 @@ public:
 
   void applyTransform();
 
-  void rotate(const core::RotationSpeed& dx, const core::RotationSpeed& dy, const core::RotationSpeed& dz)
+  void rotate(const core::RotationSpeed& dx, const core::RotationSpeed& dy, const core::RotationSpeed& dz) noexcept
   {
     m_state.rotation.X += dx * 1_frame;
     m_state.rotation.Y += dy * 1_frame;
@@ -150,11 +150,11 @@ public:
 
   std::shared_ptr<audio::Voice> playSoundEffect(const core::SoundEffectId& id);
 
-  bool triggerPickUp();
+  bool triggerPickUp() noexcept;
 
   bool triggerKey();
 
-  virtual core::Angle getMovementAngle() const
+  virtual core::Angle getMovementAngle() const noexcept
   {
     return m_state.rotation.Y;
   }

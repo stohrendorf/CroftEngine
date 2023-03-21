@@ -101,13 +101,13 @@ public:
 
   ~Engine();
 
-  [[nodiscard]] const auto& getPresenter() const
+  [[nodiscard]] const auto& getPresenter() const noexcept
   {
     BOOST_ASSERT(m_presenter != nullptr);
     return *m_presenter;
   }
 
-  [[nodiscard]] auto& getPresenter()
+  [[nodiscard]] auto& getPresenter() noexcept
   {
     BOOST_ASSERT(m_presenter != nullptr);
     return *m_presenter;
@@ -116,14 +116,14 @@ public:
   std::pair<RunResult, std::optional<size_t>> run(world::World& world, bool isCutscene, bool allowSave);
   std::pair<RunResult, std::optional<size_t>> runTitleMenu(world::World& world);
 
-  [[nodiscard]] const std::string& getLocale() const
+  [[nodiscard]] const std::string& getLocale() const noexcept
   {
     return m_locale;
   }
 
   [[nodiscard]] std::string getLocaleWithoutEncoding() const
   {
-    if(auto idx = m_locale.find('.'); idx != std::string::npos)
+    if(const auto idx = m_locale.find('.'); idx != std::string::npos)
       return m_locale.substr(0, idx);
     return m_locale;
   }
@@ -132,7 +132,7 @@ public:
   [[nodiscard]] std::filesystem::path getSavegamePath(const std::optional<size_t>& slot) const;
   [[nodiscard]] std::filesystem::path getAssetDataPath() const;
 
-  [[nodiscard]] const std::filesystem::path& getEngineDataPath() const
+  [[nodiscard]] const std::filesystem::path& getEngineDataPath() const noexcept
   {
     return m_engineDataPath;
   }
@@ -154,12 +154,12 @@ public:
   [[nodiscard]] std::optional<SavegameMeta> getSavegameMeta(const std::filesystem::path& filename) const;
   [[nodiscard]] std::optional<SavegameMeta> getSavegameMeta(const std::optional<size_t>& slot) const;
 
-  [[nodiscard]] auto& getEngineConfig()
+  [[nodiscard]] auto& getEngineConfig() noexcept
   {
     return m_engineConfig;
   }
 
-  [[nodiscard]] const auto& getEngineConfig() const
+  [[nodiscard]] const auto& getEngineConfig() const noexcept
   {
     return m_engineConfig;
   }
@@ -176,12 +176,12 @@ public:
 
   void applySettings();
 
-  [[nodiscard]] const auto& getScriptEngine() const
+  [[nodiscard]] const auto& getScriptEngine() const noexcept
   {
     return m_scriptEngine;
   }
 
-  [[nodiscard]] const auto& getGameflowId() const
+  [[nodiscard]] const auto& getGameflowId() const noexcept
   {
     return m_gameflowId;
   }

@@ -103,7 +103,7 @@ Bolt updateBolt(const glm::vec3& start, const glm::vec3& end, const std::shared_
       const auto d = glm::normalize(b - a);
       while(true)
       {
-        auto randomVec = glm::normalize(glm::vec3{util::rand15s(), util::rand15s(), util::rand15s()});
+        const auto randomVec = glm::normalize(glm::vec3{util::rand15s(), util::rand15s(), util::rand15s()});
         if(glm::abs(glm::dot(randomVec, d)) > 0.999f)
         {
           continue;
@@ -144,7 +144,7 @@ LightningEmitter::LightningEmitter(const std::string& name,
 {
   if(!animatedModel->bones.empty())
   {
-    m_poles = static_cast<size_t>(animatedModel->bones.size() - 1u);
+    m_poles = gsl::narrow_cast<size_t>(animatedModel->bones.size() - 1u);
   }
 
   init(*world);

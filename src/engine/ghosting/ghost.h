@@ -68,7 +68,7 @@ public:
 
   [[nodiscard]] GhostFrame read();
 
-  [[nodiscard]] bool isOpen() const
+  [[nodiscard]] bool isOpen() const noexcept
   {
     return m_file != nullptr;
   }

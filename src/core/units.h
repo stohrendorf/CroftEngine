@@ -19,7 +19,7 @@ QS_LITERAL_OP_LD(Length, _len)
 
 using Area = QS_COMBINE_UNITS(Length, *, Length);
 
-[[nodiscard]] inline Length sqrt(const Area& area)
+[[nodiscard]] inline Length sqrt(const Area& area) noexcept
 {
   return Length{static_cast<Length::type>(std::sqrt(area.get()))};
 }
@@ -38,7 +38,7 @@ QS_LITERAL_OP_ULL(Speed, _spd)
 using Acceleration = QS_COMBINE_UNITS(Speed, /, Frame);
 
 // NOLINTNEXTLINE(performance-unnecessary-value-param)
-[[nodiscard]] inline auto sqrt(QS_COMBINE_UNITS(Acceleration, *, Length) value)
+[[nodiscard]] inline auto sqrt(QS_COMBINE_UNITS(Acceleration, *, Length) value) noexcept
 {
   return Speed{static_cast<Speed::type>(std::sqrt(value.get()))};
 }
@@ -71,12 +71,12 @@ constexpr int32_t AngleStorageScale = 1u << 16u;
 
 [[nodiscard]] constexpr Angle operator"" _au(const unsigned long long value) noexcept
 {
-  return auToAngle(static_cast<int16_t>(value));
+  return auToAngle(gsl::narrow_cast<int16_t>(value));
 }
 
 [[nodiscard]] constexpr Angle operator"" _deg(const unsigned long long value) noexcept
 {
-  return Angle{static_cast<Angle::type>(value * FullRotation / 360 * AngleStorageScale)};
+  return Angle{gsl::narrow_cast<Angle::type>(value * FullRotation / 360 * AngleStorageScale)};
 }
 
 [[nodiscard]] constexpr Angle operator"" _deg(const long double value) noexcept

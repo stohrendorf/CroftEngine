@@ -66,7 +66,7 @@ public:
 
   std::shared_ptr<render::scene::Node> getNode() const override;
 
-  const std::shared_ptr<SkeletalModelNode>& getSkeleton() const
+  const std::shared_ptr<SkeletalModelNode>& getSkeleton() const noexcept
   {
     return m_skeleton;
   }

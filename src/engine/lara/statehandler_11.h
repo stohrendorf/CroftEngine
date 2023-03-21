@@ -47,7 +47,7 @@ public:
     return distances.floor.y != core::InvalidHeight && distances.floor.y > 0_len && distances.ceiling.y < 0_len;
   }
 
-  [[nodiscard]] bool tryHang(CollisionInfo& collisionInfo)
+  [[nodiscard]] bool tryHang(const CollisionInfo& collisionInfo)
   {
     if(collisionInfo.collisionType != CollisionInfo::AxisColl::Front
        || !getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action)

@@ -14,6 +14,6 @@ struct AVFramePtr final
 
   AVFramePtr& operator=(AVFramePtr&& rhs) noexcept;
 
-  AVFrame* release();
+  AVFrame* release() noexcept;
 };
 } // namespace ffmpeg

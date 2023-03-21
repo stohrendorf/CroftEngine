@@ -16,12 +16,12 @@
 #endif
 
 // NOLINTNEXTLINE(bugprone-reserved-identifier)
-inline const char* _(const char* message)
+inline const char* _(const char* message) noexcept
 {
   return gettext(message);
 }
 
-inline const char* N_(const char* message)
+inline const char* N_(const char* message) noexcept
 {
   return message;
 }
@@ -33,7 +33,7 @@ inline std::string _(const char* message, Args&&... args)
   return (boost::format(_(message)) % ... % std::forward<Args>(args)).str();
 }
 
-inline const char* P_(const char* singular, const char* plural, unsigned long n)
+inline const char* P_(const char* singular, const char* plural, unsigned long n) noexcept
 {
   return ngettext(singular, plural, n);
 }

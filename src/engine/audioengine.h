@@ -106,7 +106,7 @@ public:
     return m_sfx.getGain();
   }
 
-  [[nodiscard]] const auto& getCurrentTrack() const
+  [[nodiscard]] const auto& getCurrentTrack() const noexcept
   {
     return m_currentTrack;
   }

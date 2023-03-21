@@ -56,7 +56,7 @@ struct AudioStreamDecoder final
 
   size_t read(int16_t* buffer, size_t bufferSize);
 
-  [[nodiscard]] int getSampleRate() const;
+  [[nodiscard]] int getSampleRate() const noexcept;
 
   [[nodiscard]] std::chrono::milliseconds getPosition() const;
 
@@ -64,6 +64,6 @@ struct AudioStreamDecoder final
 
   [[nodiscard]] audio::Clock::duration getDuration() const;
 
-  [[nodiscard]] int getChannels() const;
+  [[nodiscard]] int getChannels() const noexcept;
 };
 } // namespace audio

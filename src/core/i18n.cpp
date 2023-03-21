@@ -11,7 +11,7 @@ void setLocale(const std::filesystem::path& poDir, const std::string& locale)
 {
   BOOST_LOG_TRIVIAL(info) << "Using locales from " << poDir;
 
-  if(auto result = setlocale(LC_MESSAGES, locale.c_str()); result != nullptr)
+  if(const auto result = setlocale(LC_MESSAGES, locale.c_str()); result != nullptr)
   {
     BOOST_LOG_TRIVIAL(trace) << "gettext setlocale result: " << result;
   }
@@ -31,7 +31,7 @@ void setLocale(const std::filesystem::path& poDir, const std::string& locale)
   gsl_Assert(setenv("LANG", locale.c_str(), true) == 0);
 #endif
 
-  if(auto result = bindtextdomain("croftengine", poDir.string().c_str()); result != nullptr)
+  if(const auto result = bindtextdomain("croftengine", poDir.string().c_str()); result != nullptr)
   {
     BOOST_LOG_TRIVIAL(trace) << "gettext bindtextdomain result: " << result;
   }
@@ -40,7 +40,7 @@ void setLocale(const std::filesystem::path& poDir, const std::string& locale)
     BOOST_LOG_TRIVIAL(warning) << "failed to bind text domain";
   }
 
-  if(auto result = bind_textdomain_codeset("croftengine", "UTF-8"); result != nullptr)
+  if(const auto result = bind_textdomain_codeset("croftengine", "UTF-8"); result != nullptr)
   {
     BOOST_LOG_TRIVIAL(trace) << "gettext bind_textdomain_codeset result: " << result;
   }
@@ -49,7 +49,7 @@ void setLocale(const std::filesystem::path& poDir, const std::string& locale)
     BOOST_LOG_TRIVIAL(warning) << "failed to set textdomain codeset";
   }
 
-  if(auto result = textdomain("croftengine"))
+  if(const auto result = textdomain("croftengine"))
   {
     BOOST_LOG_TRIVIAL(trace) << "gettext textdomain result: " << result;
   }

@@ -32,7 +32,7 @@ namespace core
   return angleFromRad(std::atan2(dx, dz));
 }
 
-[[nodiscard]] inline Angle angleFromDegrees(const float value)
+[[nodiscard]] inline Angle angleFromDegrees(const float value) noexcept
 {
   return Angle{gsl::narrow_cast<Angle::type>(std::lround(value / 360 * FullRotation * AngleStorageScale))};
 }
@@ -67,7 +67,7 @@ namespace core
   return std::cos(toRad(a));
 }
 
-[[nodiscard]] inline Angle abs(const Angle& a)
+[[nodiscard]] inline Angle abs(const Angle& a) noexcept
 {
   const auto tmp = Angle{std::abs(a.get())};
   if(tmp >= 0_deg)
@@ -104,7 +104,7 @@ enum class Axis
   return std::nullopt;
 }
 
-[[nodiscard]] inline Axis axisFromAngle(Angle angle)
+[[nodiscard]] inline Axis axisFromAngle(Angle angle) noexcept
 {
   angle += 45_deg;
   if(angle < -90_deg)
@@ -117,7 +117,7 @@ enum class Axis
     return Axis::Right90;
 }
 
-[[nodiscard]] inline Angle snapRotation(const Axis& axis)
+[[nodiscard]] inline Angle snapRotation(const Axis& axis) noexcept
 {
   switch(axis)
   {
@@ -152,7 +152,7 @@ public:
 
   TRRotation() = default;
 
-  TRRotation(const Angle& x, const Angle& y, const Angle& z)
+  TRRotation(const Angle& x, const Angle& y, const Angle& z) noexcept
       : X{x}
       , Y{y}
       , Z{z}
@@ -169,14 +169,14 @@ public:
     return {toRad(X), -toRad(Y), -toRad(Z)};
   }
 
-  [[nodiscard]] TRRotation operator-(const TRRotation& rhs) const
+  [[nodiscard]] TRRotation operator-(const TRRotation& rhs) const noexcept
   {
     return {X - rhs.X, Y - rhs.Y, Z - rhs.Z};
   }
 
   [[nodiscard]] glm::mat4 toMatrix() const;
 
-  [[nodiscard]] TRRotation operator-() const
+  [[nodiscard]] TRRotation operator-() const noexcept
   {
     return TRRotation{-X, -Y, -Z};
   }

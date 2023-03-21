@@ -5,6 +5,7 @@
 
 #include <cstdint>
 #include <functional>
+#include <gsl/gsl-lite.hpp>
 
 namespace engine
 {
@@ -35,7 +36,7 @@ struct Id
   template<typename T>
   // cppcheck-suppress noExplicitConstructor
   constexpr Id(T value) // NOLINT(google-explicit-constructor)
-      : m_value{static_cast<type>(value)}
+      : m_value{gsl::narrow_cast<type>(value)}
   {
     static_assert(sizeof...(Enums) == 0 || tpl::is_one_of_v<T, Enums...>, "Incompatible type");
   }
@@ -50,7 +51,7 @@ struct Id
   constexpr auto& operator=(T value)
   {
     static_assert(sizeof...(Enums) == 0 || tpl::is_one_of_v<T, Enums...>, "Incompatible type");
-    m_value = static_cast<type>(value);
+    m_value = gsl::narrow_cast<type>(value);
     return *this;
   }
 
@@ -180,7 +181,7 @@ DECLARE_ID_E(SoundEffectId, uint16_t, engine::TR1SoundEffect);
 
 [[nodiscard]] inline constexpr AnimStateId operator"" _as(unsigned long long value)
 {
-  return AnimStateId{static_cast<AnimStateId::type>(value)};
+  return AnimStateId{gsl::narrow_cast<AnimStateId::type>(value)};
 }
 } // namespace core
 

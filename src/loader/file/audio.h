@@ -70,7 +70,7 @@ struct SoundEffectProperties
   uint8_t sampleCountAndLoopType = 0;  // Bits 0-1: Looped flag, bits 2-5: num samples, bits 6-7: UNUSED
   uint8_t flags = 0;
 
-  [[nodiscard]] PlaybackType getPlaybackType(const level::Engine engine) const
+  [[nodiscard]] PlaybackType getPlaybackType(const level::Engine engine) const noexcept
   {
     if(engine == level::Engine::TR1)
     {
@@ -115,17 +115,17 @@ struct SoundEffectProperties
   [[nodiscard]] uint8_t getSampleCount() const;
 
   //! @brief Whether to play this sample without orientation (no panning).
-  [[nodiscard]] bool ignoreOrientation() const
+  [[nodiscard]] bool ignoreOrientation() const noexcept
   {
     return (flags & 0x10u) != 0;
   }
 
-  [[nodiscard]] bool useRandomPitch() const
+  [[nodiscard]] bool useRandomPitch() const noexcept
   {
     return (flags & 0x20u) != 0;
   }
 
-  [[nodiscard]] bool useRandomVolume() const
+  [[nodiscard]] bool useRandomVolume() const noexcept
   {
     return (flags & 0x40u) != 0;
   }

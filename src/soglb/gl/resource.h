@@ -21,7 +21,7 @@ public:
   void operator=(const Resource&) = delete;
   void operator=(Resource&&) = delete;
 
-  [[nodiscard]] auto getHandle() const
+  [[nodiscard]] auto getHandle() const noexcept
   {
     BOOST_ASSERT(m_handle != 0);
     return m_handle;

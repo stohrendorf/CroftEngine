@@ -63,7 +63,7 @@ core::Speed SkeletalModelNode::calculateFloorSpeed() const
   return scaled / gsl::narrow_cast<core::Speed::type>(1 << 16);
 }
 
-core::Acceleration SkeletalModelNode::getAcceleration() const
+core::Acceleration SkeletalModelNode::getAcceleration() const noexcept
 {
   const auto scaled = m_anim->acceleration;
   // NOLINTNEXTLINE(hicpp-signed-bitwise)
@@ -77,10 +77,10 @@ InterpolationInfo SkeletalModelNode::getInterpolationInfo() const
   gsl_Expects(m_frame >= m_anim->firstFrame && m_frame <= m_anim->lastFrame);
   const auto firstLocalKeyframeIndex = getLocalFrame() / m_anim->segmentLength;
 
-  auto firstKeyframe = m_anim->frames->next(firstLocalKeyframeIndex);
+  const auto firstKeyframe = m_anim->frames->next(firstLocalKeyframeIndex);
   gsl_Assert(m_world->isValid(firstKeyframe));
 
-  auto segmentDuration = m_anim->segmentLength;
+  const auto segmentDuration = m_anim->segmentLength;
   const auto segmentFrame = getLocalFrame() % m_anim->segmentLength;
   if(segmentFrame == 0_frame)
   {
@@ -371,7 +371,7 @@ void SkeletalModelNode::setAnim(const gsl::not_null<const world::Animation*>& an
   m_frame = frame.value_or(anim->firstFrame);
 }
 
-core::Frame SkeletalModelNode::getLocalFrame() const
+core::Frame SkeletalModelNode::getLocalFrame() const noexcept
 {
   return m_frame - m_anim->firstFrame;
 }

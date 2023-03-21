@@ -37,7 +37,7 @@ public:
 
   void update();
 
-  [[nodiscard]] const auto& getUnderwaterFilter() const
+  [[nodiscard]] const auto& getUnderwaterFilter() const noexcept
   {
     return m_underwaterFilter;
   }
@@ -53,7 +53,7 @@ public:
 
   void setListenerGain(float gain);
 
-  void setFilter(const std::shared_ptr<FilterHandle>& filter)
+  void setFilter(const std::shared_ptr<FilterHandle>& filter) noexcept
   {
     m_filter = filter;
   }
@@ -72,7 +72,7 @@ public:
 
   void registerUpdateCallback(const std::function<UpdateCallback>& fn);
 
-  [[nodiscard]] ALCint getSampleRate() const
+  [[nodiscard]] ALCint getSampleRate() const noexcept
   {
     return m_frq;
   }

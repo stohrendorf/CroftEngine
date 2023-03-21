@@ -30,27 +30,27 @@ public:
 
   bool askGhostSave(Presenter& presenter, world::World& world);
 
-  [[nodiscard]] const auto& getModel() const
+  [[nodiscard]] const auto& getModel() const noexcept
   {
     return m_model;
   }
 
-  [[nodiscard]] const auto& getRemoteModels() const
+  [[nodiscard]] const auto& getRemoteModels() const noexcept
   {
     return m_remoteModels;
   }
 
-  [[nodiscard]] auto& getRemoteModels()
+  [[nodiscard]] auto& getRemoteModels() noexcept
   {
     return m_remoteModels;
   }
 
-  [[nodiscard]] const auto& getReader() const
+  [[nodiscard]] const auto& getReader() const noexcept
   {
     return m_reader;
   }
 
-  [[nodiscard]] const auto& getWriter() const
+  [[nodiscard]] const auto& getWriter() const noexcept
   {
     return m_writer;
   }

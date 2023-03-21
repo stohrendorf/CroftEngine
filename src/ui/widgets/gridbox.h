@@ -46,12 +46,12 @@ public:
 
   void set(size_t x, size_t y, const std::shared_ptr<Widget>& widget);
 
-  [[nodiscard]] const auto& getSelected() const
+  [[nodiscard]] const auto& getSelected() const noexcept
   {
     return m_selected;
   }
 
-  void setSelected(const std::pair<size_t, size_t>& selected)
+  void setSelected(const std::pair<size_t, size_t>& selected) noexcept
   {
     m_selected = selected;
   }
@@ -79,7 +79,7 @@ public:
   }
 
   template<size_t N>
-  bool prev()
+  bool prev() noexcept
   {
     static_assert(N < 2);
     if(std::get<N>(m_selected) > 0)
@@ -141,7 +141,7 @@ public:
     recalculateTotalSize();
   }
 
-  [[nodiscard]] const auto& getColumnSizes() const
+  [[nodiscard]] const auto& getColumnSizes() const noexcept
   {
     return m_columnSizes;
   }

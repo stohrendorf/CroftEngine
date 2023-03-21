@@ -66,12 +66,12 @@ struct AimInfo
   void overrideHolsterTwoWeaponsMeshes(LaraObject& lara, WeaponType weaponType);
   void overrideDrawTwoWeaponsMeshes(LaraObject& lara, WeaponType weaponType);
 
-  void updateAimAngles(const Weapon& weapon, const core::TRRotationXY& weaponTargetVector);
+  void updateAimAngles(const Weapon& weapon, const core::TRRotationXY& weaponTargetVector) noexcept;
 
   void serialize(const serialization::Serializer<world::World>& ser) const;
   void deserialize(const serialization::Deserializer<world::World>& ser);
 
-  void reset()
+  void reset() noexcept
   {
     frame = 0_frame;
     aiming = false;

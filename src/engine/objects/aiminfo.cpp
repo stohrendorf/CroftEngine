@@ -340,8 +340,8 @@ void AimInfo::overrideHolsterTwoWeaponsMeshes(LaraObject& lara, WeaponType weapo
   BOOST_ASSERT(src.bones.size() == lara.getSkeleton()->getBoneCount());
   const auto& normalLara = *gsl::not_null{lara.getWorld().findAnimatedModelForType(TR1ItemId::Lara).get()};
   BOOST_ASSERT(normalLara.bones.size() == lara.getSkeleton()->getBoneCount());
-  lara.getSkeleton()->setMesh(handBoneId, normalLara.bones[handBoneId].mesh);
-  lara.getSkeleton()->setMesh(thighBoneId, src.bones[thighBoneId].mesh);
+  lara.getSkeleton()->setMesh(handBoneId, gsl::at(normalLara.bones, handBoneId).mesh);
+  lara.getSkeleton()->setMesh(thighBoneId, gsl::at(src.bones, thighBoneId).mesh);
   lara.getSkeleton()->rebuildMesh();
 }
 
@@ -368,11 +368,11 @@ void AimInfo::overrideDrawTwoWeaponsMeshes(LaraObject& lara, WeaponType weaponTy
   BOOST_ASSERT(src->bones.size() == lara.getSkeleton()->getBoneCount());
   const auto& normalLara = *lara.getWorld().findAnimatedModelForType(TR1ItemId::Lara);
   BOOST_ASSERT(normalLara.bones.size() == lara.getSkeleton()->getBoneCount());
-  lara.getSkeleton()->setMesh(handBoneId, src->bones[handBoneId].mesh);
-  lara.getSkeleton()->setMesh(thighBoneId, normalLara.bones[thighBoneId].mesh);
+  lara.getSkeleton()->setMesh(handBoneId, gsl::at(src->bones, handBoneId).mesh);
+  lara.getSkeleton()->setMesh(thighBoneId, gsl::at(normalLara.bones, thighBoneId).mesh);
 }
 
-void AimInfo::updateAimAngles(const Weapon& weapon, const core::TRRotationXY& weaponTargetVector)
+void AimInfo::updateAimAngles(const Weapon& weapon, const core::TRRotationXY& weaponTargetVector) noexcept
 {
   core::TRRotationXY targetRot{};
   if(aiming)

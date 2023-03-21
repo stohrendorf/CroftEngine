@@ -58,7 +58,7 @@ public:
 
   void initCreatureInfo();
 
-  [[nodiscard]] const auto& getCreatureInfo() const
+  [[nodiscard]] const auto& getCreatureInfo() const noexcept
   {
     return m_creatureInfo;
   }
@@ -86,7 +86,7 @@ protected:
 
   core::Angle rotateTowardsTarget(core::RotationSpeed maxRotationSpeed);
 
-  core::Health getHealth() const
+  core::Health getHealth() const noexcept
   {
     return m_state.health;
   }
@@ -104,71 +104,71 @@ protected:
     return !m_state.isDead();
   }
 
-  bool touched() const
+  bool touched() const noexcept
   {
     return m_state.touch_bits.any();
   }
 
-  bool touched(unsigned long bits) const
+  bool touched(unsigned long bits) const noexcept
   {
     return (m_state.touch_bits.to_ulong() & bits) != 0;
   }
 
   void hitLara(const core::Health& strength);
 
-  void require(const core::AnimStateId& require)
+  void require(const core::AnimStateId& require) noexcept
   {
     m_state.required_anim_state = require;
   }
 
-  void goal(const core::AnimStateId& goal, const std::optional<core::AnimStateId>& required = std::nullopt)
+  void goal(const core::AnimStateId& goal, const std::optional<core::AnimStateId>& required = std::nullopt) noexcept
   {
     m_state.goal_anim_state = goal;
     if(required.has_value())
       require(*required);
   }
 
-  bool isBored() const
+  bool isBored() const noexcept
   {
     return m_creatureInfo->mood == ai::Mood::Bored;
   }
 
-  void bored()
+  void bored() noexcept
   {
     m_creatureInfo->mood = ai::Mood::Bored;
   }
 
-  bool isAttacking() const
+  bool isAttacking() const noexcept
   {
     return m_creatureInfo->mood == ai::Mood::Attack;
   }
 
-  void attacking()
+  void attacking() noexcept
   {
     m_creatureInfo->mood = ai::Mood::Attack;
   }
 
-  bool isStalking() const
+  bool isStalking() const noexcept
   {
     return m_creatureInfo->mood == ai::Mood::Stalk;
   }
 
-  void stalking()
+  void stalking() noexcept
   {
     m_creatureInfo->mood = ai::Mood::Stalk;
   }
 
-  bool isEscaping() const
+  bool isEscaping() const noexcept
   {
     return m_creatureInfo->mood == ai::Mood::Escape;
   }
 
-  void escaping()
+  void escaping() noexcept
   {
     m_creatureInfo->mood = ai::Mood::Escape;
   }
 
-  void settle()
+  void settle() noexcept
   {
     m_state.location.position.Y = m_state.floor;
     m_state.falling = false;
@@ -184,7 +184,7 @@ protected:
     initCreatureInfo();
   }
 
-  void freeCreatureInfo()
+  void freeCreatureInfo() noexcept
   {
     m_creatureInfo.reset();
   }

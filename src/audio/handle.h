@@ -31,7 +31,7 @@ public:
   void operator=(Handle&&) = delete;
 
   // NOLINTNEXTLINE(google-explicit-constructor)
-  operator ALuint() const
+  operator ALuint() const noexcept
   {
     return m_handle;
   }

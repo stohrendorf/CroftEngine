@@ -33,7 +33,7 @@ public:
     }
   }
 
-  void reset()
+  void reset() noexcept
   {
     m_nextFrameTime = std::chrono::high_resolution_clock::now() + FrameDuration;
   }

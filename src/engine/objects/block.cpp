@@ -46,7 +46,7 @@ void Block::collide(CollisionInfo& /*collisionInfo*/)
                                         {-10_deg, -30_deg, -10_deg},
                                         {+10_deg, +30_deg, +10_deg}};
 
-  auto axis = axisFromAngle(getWorld().getObjectManager().getLara().m_state.rotation.Y);
+  const auto axis = axisFromAngle(getWorld().getObjectManager().getLara().m_state.rotation.Y);
 
   if(getWorld().getObjectManager().getLara().getCurrentAnimState() == loader::file::LaraStateId::Stop)
   {

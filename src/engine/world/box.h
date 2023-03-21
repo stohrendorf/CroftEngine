@@ -34,7 +34,7 @@ struct Box
   ZoneId zoneGround2 = 0;
   ZoneId zoneGround2Swapped = 0;
 
-  static const ZoneId Box::*getZoneRef(const bool swapped, bool isFlying, const core::Length& step)
+  static const ZoneId Box::*getZoneRef(const bool swapped, bool isFlying, const core::Length& step) noexcept
   {
     if(isFlying)
     {

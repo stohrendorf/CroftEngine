@@ -122,7 +122,7 @@ struct TransitionCase
 
 struct Transitions
 {
-  core::AnimStateId stateId{uint16_t(0)};
+  core::AnimStateId stateId{uint16_t{0}};
   uint16_t transitionCaseCount{}; // number of ranges (seems to always be 1..5)
   core::ContainerIndex<uint16_t, engine::world::TransitionCase> firstTransitionCase{}; // Offset into AnimDispatches[]
 
@@ -183,7 +183,7 @@ static_assert(sizeof(BoneTreeEntry) == 16, "BoneTreeEntry must be of size 16");
 
 struct SkeletalModelType
 {
-  core::TypeId type{uint16_t(0)};
+  core::TypeId type{uint16_t{0}};
   int16_t nMeshes
     = 0; // number of meshes in this object, or (in case of sprite sequences) the negative number of sprites in the sequence
   core::ContainerIndex<uint16_t,

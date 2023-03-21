@@ -129,7 +129,7 @@ std::pair<bool, Location>
                    core::Length(core::TRVec::*firstStepAxis),
                    core::Length(core::TRVec::*secondStepAxis)) -> std::tuple<CollisionType, CollisionType, Location>
   {
-    auto [firstType, firstPos] = clampSteps(start, goal, objectManager, firstStepAxis, secondStepAxis);
+    const auto [firstType, firstPos] = clampSteps(start, goal, objectManager, firstStepAxis, secondStepAxis);
     auto [secondType, secondPos] = clampSteps(start, firstPos.position, objectManager, secondStepAxis, firstStepAxis);
     BOOST_ASSERT(secondPos.room->getSectorByAbsolutePosition(secondPos.position) != nullptr);
     return {firstType, secondType, secondPos};

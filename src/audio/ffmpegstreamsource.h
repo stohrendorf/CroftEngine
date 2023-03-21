@@ -41,7 +41,7 @@ public:
   [[nodiscard]] audio::Clock::duration getDuration() const final;
 
 protected:
-  [[nodiscard]] auto getFmtContext() const
+  [[nodiscard]] auto getFmtContext() const noexcept
   {
     return m_fmtContext;
   }
@@ -75,7 +75,7 @@ struct FfmpegMemoryStreamSourceFileData
   gsl::span<const uint8_t> data;
   size_t dataPosition = 0;
 
-  explicit FfmpegMemoryStreamSourceFileData(const gsl::span<const uint8_t>& data)
+  explicit FfmpegMemoryStreamSourceFileData(const gsl::span<const uint8_t>& data) noexcept
       : data{data}
   {
   }

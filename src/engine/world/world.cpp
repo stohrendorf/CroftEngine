@@ -283,7 +283,7 @@ void World::swapAllRooms()
   updateStaticSoundEffects();
 }
 
-bool World::isValid(const loader::file::AnimFrame* frame) const
+bool World::isValid(const loader::file::AnimFrame* frame) const noexcept
 {
   // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
   return frame >= reinterpret_cast<const loader::file::AnimFrame*>(m_poseFrames.data())
@@ -310,17 +310,17 @@ const StaticMesh* World::findStaticMeshById(const core::StaticMeshId& meshId) co
   return nullptr;
 }
 
-const std::vector<Room>& World::getRooms() const
+const std::vector<Room>& World::getRooms() const noexcept
 {
   return m_rooms;
 }
 
-std::vector<Room>& World::getRooms()
+std::vector<Room>& World::getRooms() noexcept
 {
   return m_rooms;
 }
 
-const std::vector<Box>& World::getBoxes() const
+const std::vector<Box>& World::getBoxes() const noexcept
 {
   return m_boxes;
 }
@@ -666,12 +666,12 @@ const Animation& World::getAnimation(loader::file::AnimationId id) const
   return m_animations.at(static_cast<int>(id));
 }
 
-const std::vector<CinematicFrame>& World::getCinematicFrames() const
+const std::vector<CinematicFrame>& World::getCinematicFrames() const noexcept
 {
   return m_cinematicFrames;
 }
 
-const std::vector<int16_t>& World::getAnimCommands() const
+const std::vector<int16_t>& World::getAnimCommands() const noexcept
 {
   return m_animCommands;
 }
@@ -770,12 +770,12 @@ void World::runEffect(const size_t id, objects::Object* object)
   }
 }
 
-const std::vector<int16_t>& World::getPoseFrames() const
+const std::vector<int16_t>& World::getPoseFrames() const noexcept
 {
   return m_poseFrames;
 }
 
-const std::vector<Animation>& World::getAnimations() const
+const std::vector<Animation>& World::getAnimations() const noexcept
 {
   return m_animations;
 }
@@ -795,18 +795,18 @@ gslu::nn_shared<RenderMeshData> World::getRenderMesh(const size_t idx) const
   return m_meshes.at(idx).meshData;
 }
 
-const std::vector<Mesh>& World::getMeshes() const
+const std::vector<Mesh>& World::getMeshes() const noexcept
 {
   return m_meshes;
 }
 
-const std::array<gl::SRGBA8, 256>& World::getPalette() const
+const std::array<gl::SRGBA8, 256>& World::getPalette() const noexcept
 {
   return m_palette;
 }
 
 // NOLINTNEXTLINE(readability-convert-member-functions-to-static)
-void World::turn180Effect(objects::Object& object)
+void World::turn180Effect(objects::Object& object) noexcept
 {
   object.m_state.rotation.Y += 180_deg;
 }
@@ -969,7 +969,7 @@ core::TypeId World::find(const SkeletalModelType* model) const
 {
   auto it = std::find_if(m_animatedModels.begin(),
                          m_animatedModels.end(),
-                         [&model](const auto& item)
+                         [&model](const auto& item) noexcept
                          {
                            return item.second.get() == model;
                          });
@@ -1082,7 +1082,7 @@ void World::gameLoop(bool godMode, float blackAlpha, ui::Ui& ui)
     std::vector<std::shared_ptr<Particle>> particlesToErase;
     for(const auto& particle : room.particles)
     {
-      if(auto parent = particle->location.room; parent != &room)
+      if(const auto parent = particle->location.room; parent != &room)
       {
         particlesToErase.emplace_back(particle);
         particle->location.room->particles.registerParticle(particle);
@@ -1414,7 +1414,7 @@ World::~World()
 void World::drawPickupWidgets(ui::Ui& ui)
 {
   auto x = ui.getSize().x;
-  auto y = ui.getSize().y * 9 / 10;
+  const auto y = ui.getSize().y * 9 / 10;
 
   static constexpr float WidgetScale = 0.5f;
 
@@ -1502,7 +1502,7 @@ void World::initFromLevel(loader::file::level::Level& level, bool fromSave)
   std::transform(level.m_palette->colors.begin(),
                  level.m_palette->colors.end(),
                  m_palette.begin(),
-                 [](const loader::file::ByteColor& color)
+                 [](const loader::file::ByteColor& color) noexcept
                  {
                    return color.toTextureColor();
                  });
@@ -1602,7 +1602,7 @@ void World::initCinematicFrames(const loader::file::level::Level& level)
   std::transform(level.m_cinematicFrames.begin(),
                  level.m_cinematicFrames.end(),
                  std::back_inserter(m_cinematicFrames),
-                 [](const loader::file::CinematicFrame& frame)
+                 [](const loader::file::CinematicFrame& frame) noexcept
                  {
                    return CinematicFrame{frame.lookAt, frame.position, toRad(frame.fov), toRad(frame.rotZ)};
                  });

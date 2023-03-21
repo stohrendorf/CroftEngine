@@ -41,12 +41,12 @@ public:
 
   void update(world::World& world);
 
-  [[nodiscard]] auto begin() const
+  [[nodiscard]] auto begin() const noexcept
   {
     return m_particles.begin();
   }
 
-  [[nodiscard]] auto end() const
+  [[nodiscard]] auto end() const noexcept
   {
     return m_particles.end();
   }

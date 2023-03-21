@@ -24,7 +24,7 @@ struct Location final
 
   core::TRVec position;
 
-  explicit Location(gsl::not_null<const world::Room*> r, core::TRVec pos = {})
+  explicit Location(gsl::not_null<const world::Room*> r, core::TRVec pos = {}) noexcept
       : room{std::move(r)}
       , position{std::move(pos)}
   {
@@ -48,17 +48,17 @@ struct Location final
     return moved(core::TRVec{dx, dy, dz});
   }
 
-  void move(const glm::vec3& d)
+  void move(const glm::vec3& d) noexcept
   {
     move(core::TRVec{d});
   }
 
-  void move(const core::Length& dx, const core::Length& dy, const core::Length& dz)
+  void move(const core::Length& dx, const core::Length& dy, const core::Length& dz) noexcept
   {
     move(core::TRVec{dx, dy, dz});
   }
 
-  void move(const core::TRVec& d)
+  void move(const core::TRVec& d) noexcept
   {
     position += d;
   }

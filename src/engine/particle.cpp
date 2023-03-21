@@ -274,7 +274,7 @@ bool BubbleParticle::update(world::World& world)
   angle.X += 13_deg;
   angle.Y += 9_deg;
   location.position += util::pitch(circleRadius, angle.Y, -speed * 1_frame);
-  auto sector = location.updateRoom();
+  const auto sector = location.updateRoom();
   if(m_onlyInWater && !location.room->isWaterRoom)
   {
     return false;
@@ -300,7 +300,7 @@ FlameParticle::FlameParticle(const Location& location, world::World& world, bool
   if(randomize)
   {
     timePerSpriteFrame
-      = -util::rand15(static_cast<int16_t>(world.getObjectManager().getLara().getSkeleton()->getBoneCount())) - 1;
+      = -util::rand15(gsl::narrow_cast<int16_t>(world.getObjectManager().getLara().getSkeleton()->getBoneCount())) - 1;
     for(auto n = util::rand15(getLength()); n != 0; --n)
       nextFrame();
   }

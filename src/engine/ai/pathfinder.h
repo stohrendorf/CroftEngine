@@ -74,12 +74,12 @@ struct PathFinder
     return it == m_edges.end() ? nullptr : it->second.get();
   }
 
-  [[nodiscard]] const auto& getTargetBox() const
+  [[nodiscard]] const auto& getTargetBox() const noexcept
   {
     return m_targetBox;
   }
 
-  [[nodiscard]] bool isFlying() const
+  [[nodiscard]] bool isFlying() const noexcept
   {
     return fly != 0_len;
   }

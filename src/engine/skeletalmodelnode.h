@@ -51,7 +51,7 @@ struct InterpolationInfo
   gsl::not_null<const loader::file::AnimFrame*> secondFrame;
   float bias;
 
-  [[nodiscard]] const auto& getNearestFrame() const
+  [[nodiscard]] const auto& getNearestFrame() const noexcept
   {
     if(bias <= 0.5f)
     {
@@ -79,7 +79,7 @@ public:
                     core::Frame frame);
 
   [[nodiscard]] core::Speed calculateFloorSpeed() const;
-  [[nodiscard]] core::Acceleration getAcceleration() const;
+  [[nodiscard]] core::Acceleration getAcceleration() const noexcept;
 
   [[nodiscard]] core::BoundingBox getBoundingBox() const;
 
@@ -98,7 +98,7 @@ public:
     core::TRVec offset;
     core::Length radius;
 
-    Sphere(const glm::mat4& m, core::TRVec offset, const core::Length& radius)
+    Sphere(const glm::mat4& m, core::TRVec offset, const core::Length& radius) noexcept
         : m{m}
         , offset{std::move(offset)}
         , radius{radius}
@@ -156,7 +156,7 @@ public:
     return glm::vec3{m[3]};
   }
 
-  [[nodiscard]] size_t getBoneCount() const
+  [[nodiscard]] size_t getBoneCount() const noexcept
   {
     return m_meshParts.size();
   }
@@ -200,19 +200,19 @@ public:
 
   void replaceAnim(const gsl::not_null<const world::Animation*>& anim, const core::Frame& localFrame);
 
-  [[nodiscard]] const auto& getFrame() const
+  [[nodiscard]] const auto& getFrame() const noexcept
   {
     return m_frame;
   }
 
-  [[nodiscard]] core::Frame getLocalFrame() const;
+  [[nodiscard]] core::Frame getLocalFrame() const noexcept;
 
-  [[nodiscard]] const auto& getAnim() const
+  [[nodiscard]] const auto& getAnim() const noexcept
   {
     return m_anim;
   }
 
-  void resetInterpolation()
+  void resetInterpolation() noexcept
   {
     for(auto& part : m_meshParts)
     {

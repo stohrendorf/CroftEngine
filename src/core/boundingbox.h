@@ -18,7 +18,7 @@ struct BoundingBox
                        const core::Length& minY,
                        const core::Length& maxY,
                        const core::Length& minZ,
-                       const core::Length& maxZ)
+                       const core::Length& maxZ) noexcept
       : x{minX, maxX}
       , y{minY, maxY}
       , z{minZ, maxZ}
@@ -32,7 +32,7 @@ struct BoundingBox
   {
   }
 
-  explicit BoundingBox(const TRVec& min, const TRVec& max)
+  explicit BoundingBox(const TRVec& min, const TRVec& max) noexcept
       : x{min.X, max.X}
       , y{min.Y, max.Y}
       , z{min.Z, max.Z}

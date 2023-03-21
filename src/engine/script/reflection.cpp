@@ -357,8 +357,8 @@ std::pair<RunResult, std::optional<size_t>> SplashScreen::run(const gsl::not_nul
     const auto sourceSize = glm::vec2{image->getTexture()->size()};
     const float splashScale = std::min(targetSize.x / sourceSize.x, targetSize.y / sourceSize.y);
 
-    auto scaledSourceSize = sourceSize * splashScale;
-    auto sourceOffset = (targetSize - scaledSourceSize) / 2.0f;
+    const auto scaledSourceSize = sourceSize * splashScale;
+    const auto sourceOffset = (targetSize - scaledSourceSize) / 2.0f;
     mesh = render::scene::createScreenQuad(sourceOffset,
                                            scaledSourceSize,
                                            presenter.getMaterialManager()->getBackdrop(true),

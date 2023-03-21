@@ -42,7 +42,7 @@ def generate_header_lines(args, enums: List[Tuple[str, str]]) -> Iterable[str]:
     yield "};"
 
     yield ""
-    yield f"extern gsl::czstring toString({args.name} val);"
+    yield f"extern gsl::czstring toString({args.name} val) noexcept;"
 
     yield ""
     yield "template<typename T> struct EnumUtil;"
@@ -52,7 +52,7 @@ def generate_header_lines(args, enums: List[Tuple[str, str]]) -> Iterable[str]:
     yield "{"
     yield f"    static {args.name} fromString(const std::string& value);"
     yield f"    static const std::map<{args.name}, std::string>& all();"
-    yield "    static const char* name()"
+    yield "    static const char* name() noexcept"
     yield "    {"
     yield f"        return \"{args.name}\";"
     yield "    }"
@@ -75,7 +75,7 @@ def generate_impl_lines(args, enums: List[Tuple[str, str]], include_path: Path) 
     yield "{"
 
     yield "// NOLINTNEXTLINE(readability-function-cognitive-complexity)"
-    yield f"gsl::czstring toString({args.name} val)"
+    yield f"gsl::czstring toString({args.name} val) noexcept"
     yield "{"
     yield "    switch(val)"
     yield "    {"

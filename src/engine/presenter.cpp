@@ -219,7 +219,7 @@ constexpr int BarHeight = 5 * BarScale;
 gl::SRGBA8 getBarColor(float x, const std::array<gl::SRGBA8, BarColors>& barColors)
 {
   x *= BarColors;
-  auto n = static_cast<int>(glm::floor(x));
+  const auto n = static_cast<int>(glm::floor(x));
   if(n < 0)
     return barColors[0];
   else if(static_cast<size_t>(n) >= BarColors - 1)
@@ -401,8 +401,8 @@ void Presenter::scaleSplashImage()
   const auto sourceSize = glm::vec2{srcTexture->getTexture()->size()};
   const float splashScale = std::max(viewport.x / sourceSize.x, viewport.y / sourceSize.y);
 
-  auto scaledSourceSize = sourceSize * splashScale;
-  auto sourceOffset = (viewport - scaledSourceSize) / 2.0f;
+  const auto scaledSourceSize = sourceSize * splashScale;
+  const auto sourceOffset = (viewport - scaledSourceSize) / 2.0f;
   auto mesh = render::scene::createScreenQuad(sourceOffset,
                                               scaledSourceSize,
                                               m_materialManager->getBackdrop(false),
@@ -500,7 +500,7 @@ bool Presenter::shouldClose() const
   return m_window->windowShouldClose();
 }
 
-void Presenter::setTrFont(std::unique_ptr<ui::TRFont>&& font)
+void Presenter::setTrFont(std::unique_ptr<ui::TRFont>&& font) noexcept
 {
   m_trFont = std::move(font);
 }
@@ -582,7 +582,7 @@ void Presenter::renderUi(ui::Ui& ui, float alpha)
   m_renderPipeline->renderUiFrameBuffer(alpha);
 }
 
-void Presenter::disableScreenOverlay()
+void Presenter::disableScreenOverlay() noexcept
 {
   m_screenOverlay.reset();
 }
@@ -617,7 +617,7 @@ void Presenter::setSplashImageTextureOverride(const std::filesystem::path& image
   scaleSplashImage();
 }
 
-void Presenter::clearSplashImageTextureOverride()
+void Presenter::clearSplashImageTextureOverride() noexcept
 {
   m_splashImageTextureOverride.reset();
   m_splashImageMeshOverride.reset();

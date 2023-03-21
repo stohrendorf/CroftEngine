@@ -28,7 +28,7 @@ AVFramePtr& AVFramePtr::operator=(AVFramePtr&& rhs) noexcept
   return *this;
 }
 
-AVFrame* AVFramePtr::release()
+AVFrame* AVFramePtr::release() noexcept
 {
   return std::exchange(frame, nullptr);
 }

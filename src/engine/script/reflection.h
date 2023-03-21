@@ -260,7 +260,7 @@ public:
                     float cameraRot,
                     int cameraPosX,
                     int cameraPosZ,
-                    loader::file::level::Game game)
+                    loader::file::level::Game game) noexcept
       : m_name{std::move(name)}
       , m_track{track}
       , m_flipRooms{flipRooms}
@@ -277,7 +277,7 @@ public:
                     bool flipRooms,
                     bool weaponSwap,
                     float cameraRot,
-                    loader::file::level::Game game)
+                    loader::file::level::Game game) noexcept
       : m_name{std::move(name)}
       , m_track{track}
       , m_flipRooms{flipRooms}
@@ -335,7 +335,7 @@ private:
   TR1TrackId m_track;
 
 public:
-  explicit PlayAudioSlot(size_t slot, TR1TrackId track)
+  explicit PlayAudioSlot(size_t slot, TR1TrackId track) noexcept
       : m_slot{slot}
       , m_track{track}
   {
@@ -365,7 +365,7 @@ private:
   size_t m_slot;
 
 public:
-  explicit StopAudioSlot(size_t slot)
+  explicit StopAudioSlot(size_t slot) noexcept
       : m_slot{slot}
   {
   }
@@ -435,42 +435,42 @@ public:
   {
   }
 
-  [[nodiscard]] const auto& getObjectInfos() const
+  [[nodiscard]] const auto& getObjectInfos() const noexcept
   {
     return m_objectInfos;
   }
 
-  [[nodiscard]] const auto& getLevelSequence() const
+  [[nodiscard]] const auto& getLevelSequence() const noexcept
   {
     return m_levelSequence;
   }
 
-  [[nodiscard]] const auto& getEarlyBoot() const
+  [[nodiscard]] const auto& getEarlyBoot() const noexcept
   {
     return m_earlyBoot;
   }
 
-  [[nodiscard]] const auto& getTitleMenu() const
+  [[nodiscard]] const auto& getTitleMenu() const noexcept
   {
     return m_titleMenu;
   }
 
-  [[nodiscard]] const auto& getTitleMenuBackdrop() const
+  [[nodiscard]] const auto& getTitleMenuBackdrop() const noexcept
   {
     return m_titleMenuBackdrop;
   }
 
-  [[nodiscard]] const auto& getLaraHome() const
+  [[nodiscard]] const auto& getLaraHome() const noexcept
   {
     return m_laraHome;
   }
 
-  [[nodiscard]] const auto& getTracks() const
+  [[nodiscard]] const auto& getTracks() const noexcept
   {
     return m_tracks;
   }
 
-  [[nodiscard]] const auto& getAssetRoot() const
+  [[nodiscard]] const auto& getAssetRoot() const noexcept
   {
     return m_assetRoot;
   }

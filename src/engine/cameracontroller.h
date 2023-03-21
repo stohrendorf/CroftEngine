@@ -112,29 +112,29 @@ public:
     return m_world;
   }
 
-  void setRotationAroundLara(const core::Angle& x, const core::Angle& y);
+  void setRotationAroundLara(const core::Angle& x, const core::Angle& y) noexcept;
 
-  void setRotationAroundLaraX(const core::Angle& x);
+  void setRotationAroundLaraX(const core::Angle& x) noexcept;
 
-  void setRotationAroundLaraY(const core::Angle& y);
+  void setRotationAroundLaraY(const core::Angle& y) noexcept;
 
-  void setEyeRotation(const core::Angle& x, const core::Angle& y)
+  void setEyeRotation(const core::Angle& x, const core::Angle& y) noexcept
   {
     m_eyeRotation.X = x;
     m_eyeRotation.Y = y;
   }
 
-  const core::TRRotation& getEyeRotation() const
+  const core::TRRotation& getEyeRotation() const noexcept
   {
     return m_eyeRotation;
   }
 
-  void setDistance(const core::Length& d)
+  void setDistance(const core::Length& d) noexcept
   {
     m_distance = d;
   }
 
-  void setModifier(const CameraModifier k)
+  void setModifier(const CameraModifier k) noexcept
   {
     m_modifier = k;
   }
@@ -155,7 +155,7 @@ public:
 
   std::unordered_set<const world::Portal*> update();
 
-  void setMode(const CameraMode t)
+  void setMode(const CameraMode t) noexcept
   {
     m_mode = t;
   }
@@ -167,7 +167,7 @@ public:
 
   [[nodiscard]] glm::vec3 getPosition() const override;
 
-  const Location& getLookAt() const
+  const Location& getLookAt() const noexcept
   {
     return m_lookAt;
   }
@@ -176,17 +176,17 @@ public:
 
   [[nodiscard]] glm::vec3 getUpVector() const override;
 
-  const auto& getCurrentRoom() const
+  const auto& getCurrentRoom() const noexcept
   {
     return m_location.room;
   }
 
-  void setPosition(const core::TRVec& p)
+  void setPosition(const core::TRVec& p) noexcept
   {
     m_location.position = p;
   }
 
-  const Location& getTRLocation() const
+  const Location& getTRLocation() const noexcept
   {
     return m_location;
   }
@@ -196,12 +196,12 @@ public:
     m_location = location;
   }
 
-  void setBounce(const core::Length& bounce)
+  void setBounce(const core::Length& bounce) noexcept
   {
     m_bounce = bounce;
   }
 
-  const auto& getCamera() const
+  const auto& getCamera() const noexcept
   {
     return m_camera;
   }

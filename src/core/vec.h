@@ -23,7 +23,7 @@ using TRVec = GenericVec<Length>;
 void serialize(const TRVec& v, const serialization::Serializer<engine::world::World>& ser);
 void deserialize(TRVec& v, const serialization::Deserializer<engine::world::World>& ser);
 
-[[nodiscard]] inline Length distanceTo(const TRVec& lhs, const TRVec& rhs)
+[[nodiscard]] inline Length distanceTo(const TRVec& lhs, const TRVec& rhs) noexcept
 {
   const auto dx = gsl::narrow_cast<float>((lhs.X - rhs.X).get());
   const auto dy = gsl::narrow_cast<float>((lhs.Y - rhs.Y).get());
@@ -36,7 +36,7 @@ void deserialize(TRVec& v, const serialization::Deserializer<engine::world::Worl
   return std::max(std::max(abs(v.X), abs(v.Y)), abs(v.Z));
 }
 
-[[nodiscard]] inline Length length(const TRVec& v)
+[[nodiscard]] inline Length length(const TRVec& v) noexcept
 {
   return sqrt(v.X * v.X + v.Y * v.Y + v.Z * v.Z);
 }

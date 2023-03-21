@@ -14,15 +14,15 @@ public:
   explicit Bitmap(const glm::ivec2& size, const gsl::span<const uint32_t>& rgba);
   virtual ~Bitmap() = default;
 
-  [[nodiscard]] uint32_t* data()
+  [[nodiscard]] uint32_t* data() noexcept
   {
     return m_data.data();
   }
-  [[nodiscard]] const uint32_t* data() const
+  [[nodiscard]] const uint32_t* data() const noexcept
   {
     return m_data.data();
   }
-  [[nodiscard]] const glm::ivec2& size() const
+  [[nodiscard]] const glm::ivec2& size() const noexcept
   {
     return m_size;
   }

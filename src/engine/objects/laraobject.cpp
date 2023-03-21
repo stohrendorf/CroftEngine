@@ -188,7 +188,7 @@ void LaraObject::handleLaraStateOnLand()
   applyTransform();
 }
 
-void LaraObject::smoothlyRevertHeadRotation()
+void LaraObject::smoothlyRevertHeadRotation() noexcept
 {
   if(abs(m_headRotation.X) >= 8_au)
     m_headRotation.X -= m_headRotation.X / 8;
@@ -310,7 +310,7 @@ void LaraObject::handleLaraStateSwimming()
   applyTransform();
 }
 
-void LaraObject::placeOnFloor(const CollisionInfo& collisionInfo)
+void LaraObject::placeOnFloor(const CollisionInfo& collisionInfo) noexcept
 {
   m_state.location.position.Y += collisionInfo.mid.floor.y;
 }
@@ -1094,7 +1094,7 @@ void LaraObject::findTarget(const Weapon& weapon)
     if(util::square(d.X) + util::square(d.Y) + util::square(d.Z) >= util::square(weapon.targetDist))
       continue;
 
-    auto enemyPos = getUpperThirdBBoxCtr(*std::dynamic_pointer_cast<const ModelObject>(currentEnemy.get()));
+    const auto enemyPos = getUpperThirdBBoxCtr(*std::dynamic_pointer_cast<const ModelObject>(currentEnemy.get()));
     if(!raycastLineOfSight(weaponLocation, enemyPos.position, getWorld().getObjectManager()).first)
       continue;
 
@@ -1409,17 +1409,17 @@ public:
     m_stack.emplace(top);
   }
 
-  void pop()
+  void pop() noexcept
   {
     m_stack.pop();
   }
 
-  [[nodiscard]] const glm::mat4& top() const
+  [[nodiscard]] const glm::mat4& top() const noexcept
   {
     return m_stack.top();
   }
 
-  glm::mat4& top()
+  glm::mat4& top() noexcept
   {
     return m_stack.top();
   }
@@ -1998,7 +1998,8 @@ LaraObject::LaraObject(const std::string& name,
     getSkeleton()->rebuildMesh();
   }
 
-  if(auto weaponType = player.selectedWeaponType; weaponType != WeaponType::None && weaponType != WeaponType::Shotgun)
+  if(const auto weaponType = player.selectedWeaponType;
+     weaponType != WeaponType::None && weaponType != WeaponType::Shotgun)
   {
     leftArm.overrideHolsterTwoWeaponsMeshes(*this, player.selectedWeaponType);
     rightArm.overrideHolsterTwoWeaponsMeshes(*this, player.selectedWeaponType);

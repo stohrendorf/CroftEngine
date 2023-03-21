@@ -72,7 +72,7 @@ namespace
   return result;
 }
 
-[[nodiscard]] core::Length minShift(const core::Length& min, const core::Length& max)
+[[nodiscard]] core::Length minShift(const core::Length& min, const core::Length& max) noexcept
 {
   return min < max ? -min : max;
 }

@@ -194,7 +194,7 @@ void Door::deserialize(const serialization::Deserializer<world::World>& ser)
   };
 }
 
-void Door::Info::open() // NOLINT(readability-make-member-function-const)
+void Door::Info::open() noexcept // NOLINT(readability-make-member-function-const)
 {
   if(wingsSector == nullptr)
     return;
@@ -204,7 +204,7 @@ void Door::Info::open() // NOLINT(readability-make-member-function-const)
     wingsBox->blocked = false;
 }
 
-void Door::Info::close() // NOLINT(readability-make-member-function-const)
+void Door::Info::close() noexcept // NOLINT(readability-make-member-function-const)
 {
   if(wingsSector == nullptr)
     return;

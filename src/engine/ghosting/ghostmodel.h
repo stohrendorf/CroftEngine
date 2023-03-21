@@ -45,7 +45,7 @@ public:
     return *m_meshMatricesBuffer;
   }
 
-  [[nodiscard]] auto getRoomId() const
+  [[nodiscard]] auto getRoomId() const noexcept
   {
     return m_roomId;
   }

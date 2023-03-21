@@ -32,13 +32,13 @@ struct FloorDataChunk
   SequenceCondition sequenceCondition;
   FloorDataChunkType type;
 
-  static FloorDataChunkType extractType(const FloorDataValue& data)
+  static FloorDataChunkType extractType(const FloorDataValue& data) noexcept
   {
     return gsl::narrow_cast<FloorDataChunkType>(data.get() & 0xffu);
   }
 
 private:
-  static SequenceCondition extractSequenceCondition(const FloorDataValue& data)
+  static SequenceCondition extractSequenceCondition(const FloorDataValue& data) noexcept
   {
     return gsl::narrow_cast<SequenceCondition>((data.get() & 0x3f00u) >> 8u);
   }
@@ -67,7 +67,7 @@ public:
       , m_locked{(fd.get() & Locked) != 0}
       , m_activationSet{extractActivationSet(fd)}
   {
-    auto timeout = core::Seconds{static_cast<core::Seconds::type>(fd.get() & TimeoutMask)};
+    const auto timeout = core::Seconds{gsl::narrow_cast<core::Seconds::type>(fd.get() & TimeoutMask)};
     if(timeout.get() == 1)
       m_timeout = 1_frame;
     else
@@ -94,17 +94,17 @@ public:
     return m_locked;
   }
 
-  void operator^=(const ActivationSet& rhs)
+  void operator^=(const ActivationSet& rhs) noexcept
   {
     m_activationSet ^= rhs;
   }
 
-  void operator|=(const ActivationSet& rhs)
+  void operator|=(const ActivationSet& rhs) noexcept
   {
     m_activationSet |= rhs;
   }
 
-  void operator&=(const ActivationSet& rhs)
+  void operator&=(const ActivationSet& rhs) noexcept
   {
     m_activationSet &= rhs;
   }
@@ -114,17 +114,17 @@ public:
     return m_activationSet;
   }
 
-  [[nodiscard]] bool isFullyActivated() const
+  [[nodiscard]] bool isFullyActivated() const noexcept
   {
     return m_activationSet.all();
   }
 
-  void fullyActivate()
+  void fullyActivate() noexcept
   {
     m_activationSet.set();
   }
 
-  void fullyDeactivate()
+  void fullyDeactivate() noexcept
   {
     m_activationSet.reset();
   }

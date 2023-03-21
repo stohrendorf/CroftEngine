@@ -120,7 +120,7 @@ void Crocodile::updateInWaterDead()
     m_state.type = TR1ItemId::CrocodileOnLand;
     goal(7_as);
     m_state.current_anim_state = m_state.goal_anim_state;
-    auto sector = m_state.location.moved({}).updateRoom();
+    const auto sector = m_state.location.moved({}).updateRoom();
     m_state.location.position.Y
       = HeightInfo::fromFloor(sector, m_state.location.position, getWorld().getObjectManager().getObjects()).y;
     m_state.rotation.X = 0_deg;
@@ -128,7 +128,7 @@ void Crocodile::updateInWaterDead()
     loadObjectInfo(true);
   }
   ModelObject::update();
-  auto sector = m_state.location.updateRoom();
+  const auto sector = m_state.location.updateRoom();
   m_state.floor
     = HeightInfo::fromFloor(sector, m_state.location.position, getWorld().getObjectManager().getObjects()).y;
   setCurrentRoom(m_state.location.room);

@@ -54,7 +54,7 @@ public:
 
   ~Camera() = default;
 
-  void setFieldOfView(float fieldOfView)
+  void setFieldOfView(float fieldOfView) noexcept
   {
     m_fieldOfView = fieldOfView;
     m_dirty.set(CameraMatrices::DirtyFlag::Projection);
@@ -62,7 +62,7 @@ public:
     m_dirty.set(CameraMatrices::DirtyFlag::BufferData);
   }
 
-  [[nodiscard]] float getAspectRatio() const
+  [[nodiscard]] float getAspectRatio() const noexcept
   {
     return m_matrices.aspectRatio;
   }
@@ -79,22 +79,22 @@ public:
     m_dirty.set(CameraMatrices::DirtyFlag::BufferData);
   }
 
-  [[nodiscard]] float getNearPlane() const
+  [[nodiscard]] float getNearPlane() const noexcept
   {
     return m_matrices.nearPlane;
   }
 
-  [[nodiscard]] float getFarPlane() const
+  [[nodiscard]] float getFarPlane() const noexcept
   {
     return m_matrices.farPlane;
   }
 
-  [[nodiscard]] const glm::mat4& getViewMatrix() const
+  [[nodiscard]] const glm::mat4& getViewMatrix() const noexcept
   {
     return m_matrices.view;
   }
 
-  void setViewMatrix(const glm::mat4& m)
+  void setViewMatrix(const glm::mat4& m) noexcept
   {
     m_matrices.view = m;
     m_dirty.set(CameraMatrices::DirtyFlag::ViewProjection);
@@ -158,7 +158,7 @@ public:
     return getRotatedVector(glm::vec3{1, 0, 0});
   }
 
-  [[nodiscard]] auto getFieldOfViewY() const
+  [[nodiscard]] auto getFieldOfViewY() const noexcept
   {
     return m_fieldOfView;
   }

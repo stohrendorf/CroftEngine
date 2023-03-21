@@ -480,7 +480,7 @@ void materializeAtlases(const loader::file::level::Level& level,
     auto* const tile = tilesOrderedBySize[tileId];
     if(!doneTiles.emplace(tile).second)
       continue;
-    auto atlasId = tile->textureKey.atlasIdAndFlag & loader::file::AtlasIdMask;
+    const auto atlasId = tile->textureKey.atlasIdAndFlag & loader::file::AtlasIdMask;
     const auto [srcMinUv, srcMaxUv] = tile->getMinMaxUv();
     const auto srcMinPx = glm::ivec2{srcMinUv * 256.0f};
     const auto srcMaxPx = glm::ivec2{srcMaxUv * 256.0f};
@@ -603,7 +603,7 @@ public:
   }
   ~DataProvider() = default;
 
-  [[nodiscard]] uint32_t numberOfParts() const
+  [[nodiscard]] uint32_t numberOfParts() const noexcept
   {
     return ((m_bmp[0]->size().y / 4) + m_linesPerPart - 1) / m_linesPerPart;
   }
@@ -622,7 +622,7 @@ public:
     return ret;
   }
 
-  [[nodiscard]] const glm::ivec2& size() const
+  [[nodiscard]] const glm::ivec2& size() const noexcept
   {
     return m_bmp[0]->size();
   }
@@ -641,7 +641,7 @@ void compressEtc2(gl::CImgWrapper& wrapper, const std::filesystem::path& output)
 
   BOOST_LOG_TRIVIAL(debug) << "init data provider";
   DataProvider dp{wrapper};
-  auto num = dp.numberOfParts();
+  const auto num = dp.numberOfParts();
 
   BOOST_LOG_TRIVIAL(debug) << "parts: " << num;
 

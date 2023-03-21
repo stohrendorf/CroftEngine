@@ -84,17 +84,17 @@ public:
                           const std::vector<engine::world::AtlasTile>& atlasTiles,
                           const std::array<gl::SRGBA8, 256>& palette);
 
-  [[nodiscard]] const auto& getVertices() const
+  [[nodiscard]] const auto& getVertices() const noexcept
   {
     return m_vertices;
   }
 
-  [[nodiscard]] const auto& getOpaqueIndices() const
+  [[nodiscard]] const auto& getOpaqueIndices() const noexcept
   {
     return m_opaqueIndices;
   }
 
-  [[nodiscard]] const auto& getNonOpaqueIndices() const
+  [[nodiscard]] const auto& getNonOpaqueIndices() const noexcept
   {
     return m_nonOpaqueIndices;
   }
@@ -136,7 +136,7 @@ public:
     ++m_boneIndex;
   }
 
-  void appendEmpty()
+  void appendEmpty() noexcept
   {
     ++m_boneIndex;
   }
@@ -148,7 +148,7 @@ public:
                                               std::function<int32_t()> lightingMode,
                                               const std::string& label);
 
-  [[nodiscard]] bool empty() const
+  [[nodiscard]] bool empty() const noexcept
   {
     return m_vertices.empty() || (m_opaqueIndices.empty() && m_nonOpaqueIndices.empty());
   }

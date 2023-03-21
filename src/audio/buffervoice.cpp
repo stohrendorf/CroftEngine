@@ -13,7 +13,7 @@
 
 namespace audio
 {
-BufferVoice::BufferVoice(gslu::nn_shared<BufferHandle> buffer)
+BufferVoice::BufferVoice(gslu::nn_shared<BufferHandle> buffer) noexcept
     : m_buffer{std::move(buffer)}
 {
 }

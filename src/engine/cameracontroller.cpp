@@ -55,7 +55,7 @@ void freeLookClamp(core::Length& goalX,
                    const core::Length& minX,
                    const core::Length& minY,
                    const core::Length& maxX,
-                   const core::Length& maxY)
+                   const core::Length& maxY) noexcept
 {
   const auto dx = goalX - startX;
   const auto dy = goalY - startY;
@@ -294,18 +294,18 @@ CameraController::CameraController(const gsl::not_null<world::World*>& world,
   m_location.position.Z -= 100_len;
 }
 
-void CameraController::setRotationAroundLara(const core::Angle& x, const core::Angle& y)
+void CameraController::setRotationAroundLara(const core::Angle& x, const core::Angle& y) noexcept
 {
   setRotationAroundLaraX(x);
   setRotationAroundLaraY(y);
 }
 
-void CameraController::setRotationAroundLaraX(const core::Angle& x)
+void CameraController::setRotationAroundLaraX(const core::Angle& x) noexcept
 {
   m_rotationAroundLara.X = x;
 }
 
-void CameraController::setRotationAroundLaraY(const core::Angle& y)
+void CameraController::setRotationAroundLaraY(const core::Angle& y) noexcept
 {
   m_rotationAroundLara.Y = y;
 }
@@ -762,7 +762,7 @@ void CameraController::handleEnemy()
 
   m_distance = core::CombatCameraLaraDistance;
   const auto dist = util::cos(m_distance, m_rotationAroundLara.X);
-  auto eye = clampBox(
+  const auto eye = clampBox(
     m_lookAt,
     m_lookAt.position - util::pitch(dist, m_rotationAroundLara.Y, -util::sin(m_distance, m_rotationAroundLara.X)),
     [distSq = util::square(dist)](core::Length& a,

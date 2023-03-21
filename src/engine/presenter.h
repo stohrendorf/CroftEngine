@@ -91,22 +91,22 @@ public:
                    const std::unordered_set<const world::Portal*>& waterEntryPortals,
                    const engine::world::World& world);
 
-  [[nodiscard]] const auto& getSoundEngine() const
+  [[nodiscard]] const auto& getSoundEngine() const noexcept
   {
     return m_soundEngine;
   }
 
-  const auto& getMaterialManager()
+  const auto& getMaterialManager() noexcept
   {
     return m_materialManager;
   }
 
-  [[nodiscard]] const auto& getMaterialManager() const
+  [[nodiscard]] const auto& getMaterialManager() const noexcept
   {
     return m_materialManager;
   }
 
-  void initHealthBarTimeout()
+  void initHealthBarTimeout() noexcept
   {
     m_healthBarTimeout = DefaultHealthBarTimeout;
   }
@@ -148,7 +148,7 @@ public:
   bool preFrame();
   [[nodiscard]] bool shouldClose() const;
 
-  void setTrFont(std::unique_ptr<ui::TRFont>&& font);
+  void setTrFont(std::unique_ptr<ui::TRFont>&& font) noexcept;
 
   void swapBuffers();
 
@@ -172,19 +172,19 @@ public:
 
   [[nodiscard]] gl::CImgWrapper takeScreenshot() const;
 
-  void disableScreenOverlay();
+  void disableScreenOverlay() noexcept;
 
   void updateSoundEngine();
 
   void withBackbuffer(const std::function<void()>& doRender);
 
-  [[nodiscard]] bool renderSettingsChanged() const
+  [[nodiscard]] bool renderSettingsChanged() const noexcept
   {
     return m_renderSettingsChanged;
   }
 
   void setSplashImageTextureOverride(const std::filesystem::path& imagePath);
-  void clearSplashImageTextureOverride();
+  void clearSplashImageTextureOverride() noexcept;
 
   [[nodiscard]] auto& getGhostNameFont() const
   {
@@ -223,7 +223,7 @@ private:
 
   void scaleSplashImage();
 
-  [[nodiscard]] const auto& getSplashImageMeshOrOverride() const
+  [[nodiscard]] const auto& getSplashImageMeshOrOverride() const noexcept
   {
     if(m_splashImageMeshOverride != nullptr)
       return m_splashImageMeshOverride;

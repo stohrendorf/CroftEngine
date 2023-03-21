@@ -205,7 +205,7 @@ std::shared_ptr<audio::Voice> AudioEngine::playSoundEffect(const core::SoundEffe
     return nullptr;
   }
 
-  const auto soundEffect = soundEffectIt->second;
+  const auto soundEffect = gsl::not_null{soundEffectIt->second};
   if(soundEffect->chance != 0 && util::rand15() > soundEffect->chance)
     return nullptr;
 
@@ -288,7 +288,7 @@ void AudioEngine::stopSoundEffect(const core::SoundEffectId& id, const audio::Em
   if(soundEffectIt == m_soundEffects.end())
     return;
 
-  const auto soundEffect = soundEffectIt->second;
+  const auto soundEffect = gsl::not_null{soundEffectIt->second};
   const size_t first = soundEffect->sample.get();
   const size_t last = first + soundEffect->getSampleCount();
 

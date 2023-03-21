@@ -88,7 +88,7 @@ core::Angle AIAgent::rotateTowardsTarget(core::RotationSpeed maxRotationSpeed)
 
   const auto dx = m_creatureInfo->target.X - m_state.location.position.X;
   const auto dz = m_creatureInfo->target.Z - m_state.location.position.Z;
-  auto turnAngle = angleFromAtan(dx, dz) - m_state.rotation.Y;
+  const auto turnAngle = angleFromAtan(dx, dz) - m_state.rotation.Y;
   if(abs(turnAngle) > 90_deg)
   {
     // the target is behind the current object, so we need a U-turn
@@ -257,7 +257,7 @@ bool AIAgent::animateCreature(const core::Angle& collisionRotationY, const core:
   core::Length nextX = m_state.location.position.X;
   core::Length nextZ = m_state.location.position.Z;
 
-  auto moveAwayFromCornerSplit45 = [this, &nextX, &nextZ](const core::Length& x, const core::Length& z)
+  auto moveAwayFromCornerSplit45 = [this, &nextX, &nextZ](const core::Length& x, const core::Length& z) noexcept
   {
     switch(axisFromAngle(m_state.rotation.Y))
     {
@@ -274,7 +274,7 @@ bool AIAgent::animateCreature(const core::Angle& collisionRotationY, const core:
     }
   };
 
-  auto moveAwayFromCornerSplitNeg45 = [this, &nextX, &nextZ](const core::Length& x, const core::Length& z)
+  auto moveAwayFromCornerSplitNeg45 = [this, &nextX, &nextZ](const core::Length& x, const core::Length& z) noexcept
   {
     switch(axisFromAngle(m_state.rotation.Y))
     {

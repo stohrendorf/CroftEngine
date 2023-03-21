@@ -57,8 +57,8 @@ private:
     world::Sector originalSector;
     world::Box* wingsBox{nullptr};
 
-    void open();
-    void close();
+    void open() noexcept;
+    void close() noexcept;
     void init(const world::Room& room, const core::TRVec& position);
     void serialize(const serialization::Serializer<world::World>& ser) const;
     void deserialize(const serialization::Deserializer<world::World>& ser);

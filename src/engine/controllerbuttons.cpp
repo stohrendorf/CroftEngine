@@ -62,7 +62,7 @@ ControllerLayouts loadControllerButtonIcons(render::MultiTextureAtlas& atlases,
     for(const auto& [buttonOrAxis, icon] : layout.icons)
     {
       gl::CImgWrapper src{util::ensureFileExists(configFile.parent_path() / icon)};
-      const auto newHeight = ui::FontHeight * 2;
+      constexpr auto newHeight = ui::FontHeight * 2;
       const auto newWidth = src.width() * newHeight / src.height();
       src.resize({newWidth, newHeight});
 

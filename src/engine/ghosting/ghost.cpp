@@ -147,7 +147,7 @@ void GhostFrame::BoneData::write(std::ostream& s) const
   // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
   s.write(reinterpret_cast<const char*>(&meshIdx), sizeof(meshIdx));
 
-  uint8_t tmp = visible ? 1 : 0;
+  const uint8_t tmp = visible ? 1 : 0;
   // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
   s.write(reinterpret_cast<const char*>(&tmp), sizeof(tmp));
 }

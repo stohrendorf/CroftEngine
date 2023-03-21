@@ -70,7 +70,7 @@ void extractImage(const std::filesystem::path& cueFile, const std::filesystem::p
       std::filesystem::create_directories(targetDir / path.parent_path());
       const auto data = image::readFile(*img, span);
       std::ofstream tmp{targetDir / path, std::ios::binary | std::ios::trunc};
-      tmp.write((const char*)data.data(), data.size());
+      tmp.write(reinterpret_cast<const char*>(data.data()), gsl::narrow<std::streamsize>(data.size()));
     }
   }
 }
@@ -905,7 +905,7 @@ void MainWindow::setGlidosPath(const std::optional<std::string>& path)
     file.seekg(0, std::ios::beg);
 
     buffer.resize(size);
-    file.read(&buffer[0], size);
+    file.read(buffer.data(), gsl::narrow<std::streamsize>(size));
   }
 
   setlocale(LC_NUMERIC, oldLocale.c_str());

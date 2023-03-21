@@ -14,7 +14,7 @@
 #define QS_DECLARE_QUANTITY(NAME, TYPE, SUFFIX) \
   struct _##NAME##_generated_unit               \
   {                                             \
-    static gsl::czstring suffix()               \
+    static gsl::czstring suffix() noexcept      \
     {                                           \
       return SUFFIX;                            \
     }                                           \

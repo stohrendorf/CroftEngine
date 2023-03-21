@@ -35,7 +35,7 @@ HeightInfo HeightInfo::fromFloor(gsl::not_null<const world::Sector*> roomSector,
   }
 
   // process additional slant and object height patches
-  const floordata::FloorDataValue* fd = roomSector->floorData;
+  const floordata::FloorDataValue* fd = gsl::not_null{roomSector->floorData}.get();
   while(true)
   {
     const floordata::FloorDataChunk chunkHeader{*fd++};
@@ -141,7 +141,7 @@ HeightInfo HeightInfo::fromCeiling(gsl::not_null<const world::Sector*> roomSecto
 
   if(roomSector->floorData != nullptr)
   {
-    const floordata::FloorDataValue* fd = roomSector->floorData;
+    const floordata::FloorDataValue* fd = gsl::not_null{roomSector->floorData}.get();
     floordata::FloorDataChunk chunkHeader{*fd};
     ++fd;
 

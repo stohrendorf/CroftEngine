@@ -17,7 +17,7 @@ private:
   gslu::nn_shared<BufferHandle> m_buffer;
 
 public:
-  explicit BufferVoice(gslu::nn_shared<BufferHandle> buffer);
+  explicit BufferVoice(gslu::nn_shared<BufferHandle> buffer) noexcept;
 
   ~BufferVoice() override;
 

@@ -34,12 +34,12 @@ struct ByteColor
     return read(reader, true);
   }
 
-  [[nodiscard]] gl::SRGBA8 toTextureColor() const
+  [[nodiscard]] gl::SRGBA8 toTextureColor() const noexcept
   {
     return gl::SRGBA8{r, g, b, a};
   }
 
-  [[nodiscard]] gl::SRGBA8 toTextureColor(uint8_t alphaOverride) const
+  [[nodiscard]] gl::SRGBA8 toTextureColor(uint8_t alphaOverride) const noexcept
   {
     return gl::SRGBA8{r, g, b, alphaOverride};
   }

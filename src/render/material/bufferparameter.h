@@ -55,7 +55,7 @@ public:
   using BufferBinder
     = void(const scene::Node* node, const scene::Mesh& mesh, gl::ShaderStorageBlock& shaderStorageBlock);
 
-  void bind(std::function<BufferBinder>&& setter)
+  void bind(std::function<BufferBinder>&& setter) noexcept
   {
     m_bufferBinder = std::move(setter);
   }

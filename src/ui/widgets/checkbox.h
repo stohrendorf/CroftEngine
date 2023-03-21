@@ -27,7 +27,7 @@ public:
   void update(bool hasFocus) override;
   void draw(ui::Ui& ui, const engine::Presenter& presenter) const override;
 
-  void setChecked(bool checked)
+  void setChecked(bool checked) noexcept
   {
     m_checked = checked;
   }
@@ -39,7 +39,7 @@ public:
   void setSize(const glm::ivec2& size) override;
   void fitToContent() override;
 
-  [[nodiscard]] const auto& getContent() const
+  [[nodiscard]] const auto& getContent() const noexcept
   {
     return m_content;
   }

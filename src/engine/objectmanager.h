@@ -47,17 +47,17 @@ class ObjectManager
   std::shared_ptr<objects::LaraObject> m_lara = nullptr;
 
 public:
-  auto& getObjects()
+  auto& getObjects() noexcept
   {
     return m_objects;
   }
 
-  [[nodiscard]] const auto& getObjects() const
+  [[nodiscard]] const auto& getObjects() const noexcept
   {
     return m_objects;
   }
 
-  [[nodiscard]] const auto& getDynamicObjects() const
+  [[nodiscard]] const auto& getDynamicObjects() const noexcept
   {
     return m_dynamicObjects;
   }
@@ -74,7 +74,7 @@ public:
     return *m_lara;
   }
 
-  [[nodiscard]] const auto& getLaraPtr() const
+  [[nodiscard]] const auto& getLaraPtr() const noexcept
   {
     return m_lara;
   }
@@ -89,7 +89,7 @@ public:
     m_dynamicObjects.emplace(object);
   }
 
-  [[nodiscard]] auto getDynamicObjectCount() const
+  [[nodiscard]] auto getDynamicObjectCount() const noexcept
   {
     return m_dynamicObjects.size();
   }
@@ -104,7 +104,7 @@ public:
     m_particles.registerParticle(std::move(particle));
   }
 
-  [[nodiscard]] const auto& getParticles() const
+  [[nodiscard]] const auto& getParticles() const noexcept
   {
     return m_particles;
   }
@@ -119,7 +119,7 @@ public:
   std::shared_ptr<objects::Object> find(const objects::Object* object, bool includeDynamicObjects = false) const;
   void createObjects(world::World& world, std::vector<loader::file::Item>& items);
   [[nodiscard]] std::shared_ptr<objects::Object> getObject(ObjectId id) const;
-  [[nodiscard]] auto getObjectCounter() const
+  [[nodiscard]] auto getObjectCounter() const noexcept
   {
     return m_objectCounter;
   }

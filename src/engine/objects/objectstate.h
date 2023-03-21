@@ -126,7 +126,7 @@ public:
 
   void loadObjectInfo(const script::Gameflow& gameflow);
 
-  bool isDead() const
+  bool isDead() const noexcept
   {
     return health <= 0_hp;
   }
