@@ -9,11 +9,11 @@ namespace audio
 {
 Listener::~Listener()
 {
-  if(m_engine != nullptr)
-  {
-    m_engine->setListener(nullptr);
-    m_engine->m_listeners.erase(this);
-  }
+  if(m_engine == nullptr)
+    return;
+
+  m_engine->setListener(nullptr);
+  m_engine->m_listeners.erase(this);
 }
 
 Listener::Listener(const gsl::not_null<SoundEngine*>& engine)
@@ -29,9 +29,11 @@ Listener& Listener::operator=(const Listener& rhs)
 
   if(m_engine != rhs.m_engine)
   {
-    m_engine->m_listeners.erase(this);
+    if(m_engine != nullptr)
+      m_engine->m_listeners.erase(this);
     m_engine = rhs.m_engine;
-    m_engine->m_listeners.emplace(this);
+    if(m_engine != nullptr)
+      m_engine->m_listeners.emplace(this);
   }
   return *this;
 }
@@ -39,16 +41,23 @@ Listener& Listener::operator=(const Listener& rhs)
 Listener::Listener(Listener&& rhs) noexcept
     : m_engine{std::exchange(rhs.m_engine, nullptr)}
 {
+  if(m_engine == nullptr)
+    return;
+
   m_engine->m_listeners.erase(&rhs);
   m_engine->m_listeners.emplace(this);
 }
 
 Listener& Listener::operator=(Listener&& rhs) noexcept
 {
-  m_engine->m_listeners.erase(this);
-  m_engine->m_listeners.erase(&rhs);
+  if(m_engine != nullptr)
+  {
+    m_engine->m_listeners.erase(this);
+    m_engine->m_listeners.erase(&rhs);
+  }
   m_engine = std::exchange(rhs.m_engine, nullptr);
-  m_engine->m_listeners.emplace(this);
+  if(m_engine != nullptr)
+    m_engine->m_listeners.emplace(this);
   return *this;
 }
 } // namespace audio
