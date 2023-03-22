@@ -28,7 +28,7 @@ float calc_vsm_value(in int splitIdx, in vec3 projCoords)
     vec2 moments = vec2(0);
     // https://stackoverflow.com/a/32273875
     #define FETCH_CSM(idx) case idx: moments = texture(u_csmVsm[idx], projCoords.xy).xy; break
-    switch (splitIdx) {
+    switch (0) {
         FETCH_CSM(0);
         FETCH_CSM(1);
         FETCH_CSM(2);

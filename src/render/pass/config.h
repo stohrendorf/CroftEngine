@@ -2,5 +2,5 @@
 
 namespace render::pass
 {
-constexpr bool FlushPasses = true;
+constexpr bool FlushPasses = false;
 }
