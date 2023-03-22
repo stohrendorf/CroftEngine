@@ -45,7 +45,7 @@ float calc_vsm_value(in int splitIdx, in vec3 projCoords)
     bias = clamp(bias, 0.0, MaxShadowSlopeBias);
     float mD = moments.x - currentDepth;
     if (mD + bias > 0) {
-        return float(splitIdx+1)/4.0;
+        return moments.y;
     }
 
     const float ShadowBias = 0.005;
@@ -58,7 +58,7 @@ float calc_vsm_value(in int splitIdx, in vec3 projCoords)
     #ifdef ROOM_SHADOWING
     result = mix(1.0, result, -lightNormDot);
     #endif
-    return result*0.000001 + float(splitIdx+1)/4.0;
+    return result*0.000001 + moments.y;
 }
 
 float shadow_map_multiplier()
