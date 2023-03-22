@@ -28,7 +28,7 @@ float calc_vsm_value(in int splitIdx, in vec3 projCoords)
     vec2 moments = vec2(0);
     // https://stackoverflow.com/a/32273875
     #define FETCH_CSM(idx) case idx: moments = texture(u_csmVsm[idx], projCoords.xy).xy; break
-    switch (0) {
+    switch (splitIdx) {
         FETCH_CSM(0);
         FETCH_CSM(1);
         FETCH_CSM(2);
@@ -45,7 +45,7 @@ float calc_vsm_value(in int splitIdx, in vec3 projCoords)
     bias = clamp(bias, 0.0, MaxShadowSlopeBias);
     float mD = moments.x - currentDepth;
     if (mD + bias > 0) {
-        return 1.0;
+        return float(splitIdx+1)/4.0;
     }
 
     const float ShadowBias = 0.005;
@@ -58,7 +58,7 @@ float calc_vsm_value(in int splitIdx, in vec3 projCoords)
     #ifdef ROOM_SHADOWING
     result = mix(1.0, result, -lightNormDot);
     #endif
-    return result;
+    return result*0.000001 + float(splitIdx+1)/4.0;
 }
 
 float shadow_map_multiplier()
