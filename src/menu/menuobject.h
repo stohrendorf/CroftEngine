@@ -26,7 +26,7 @@ struct MenuRingTransform;
 struct MenuObject
 {
   std::string name;
-  engine::TR1ItemId type;
+  engine::TR1ItemId type{-1};
   core::Frame lastMeshAnimFrame;
   core::Frame openFrame;
   core::Angle selectedBaseRotationX;

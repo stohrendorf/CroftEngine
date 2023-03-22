@@ -27,11 +27,11 @@ namespace engine
 {
 struct Ammo
 {
-  size_t shotsPerClip;
-  size_t roundsPerShot;
-  TR1ItemId ammoType;
-  TR1ItemId weaponType;
-  char iconChar;
+  size_t shotsPerClip = 1;
+  size_t roundsPerShot = 1;
+  TR1ItemId ammoType{-1};
+  TR1ItemId weaponType{-1};
+  char iconChar = 0;
   size_t shots = 0;
   uint32_t hits = 0;
   uint32_t hitsTotal = 0;

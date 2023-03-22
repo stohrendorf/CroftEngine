@@ -801,9 +801,6 @@ void MainWindow::onMigrateClicked()
 
 void MainWindow::extractSoundtrackZip(std::filesystem::path target)
 {
-  std::vector<char> buffer;
-  buffer.resize(8192);
-
   for(const auto gameflow : {"tr1", "tr1demo-part1", "tr1demo-part2"})
   {
     const auto gameflowRoot = findUserDataDir().value() / "data" / gameflow;

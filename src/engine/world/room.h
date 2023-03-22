@@ -98,9 +98,9 @@ struct RoomStaticMesh
 
 struct Room
 {
-  size_t physicalId;
+  size_t physicalId{std::numeric_limits<size_t>::max()};
 
-  bool isWaterRoom;
+  bool isWaterRoom = false;
   core::TRVec position{};
   int sectorCountZ{};
   int sectorCountX{};

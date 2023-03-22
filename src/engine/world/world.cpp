@@ -558,15 +558,15 @@ void World::swapWithAlternate(Room& orig, Room& alternate)
     if(object->m_state.location.room != &orig)
       continue;
 
-    if(const auto tmp = std::dynamic_pointer_cast<objects::Block>(object.get()))
+    if(const auto block = std::dynamic_pointer_cast<objects::Block>(object.get()); block != nullptr)
     {
-      patchHeightsForBlock(*tmp, 1_sectors);
-      tmp->getSkeleton()->resetInterpolation();
+      patchHeightsForBlock(*block, 1_sectors);
+      block->getSkeleton()->resetInterpolation();
     }
-    else if(const auto tmp2 = std::dynamic_pointer_cast<objects::TallBlock>(object.get()))
+    else if(const auto tallBlock = std::dynamic_pointer_cast<objects::TallBlock>(object.get()); tallBlock != nullptr)
     {
-      patchHeightsForBlock(*tmp2, 2_sectors);
-      tmp->getSkeleton()->resetInterpolation();
+      patchHeightsForBlock(*tallBlock, 2_sectors);
+      tallBlock->getSkeleton()->resetInterpolation();
     }
   }
 
@@ -600,15 +600,15 @@ void World::swapWithAlternate(Room& orig, Room& alternate)
       continue;
     }
 
-    if(const auto tmp = std::dynamic_pointer_cast<objects::Block>(object.get()))
+    if(const auto block = std::dynamic_pointer_cast<objects::Block>(object.get()); block != nullptr)
     {
-      patchHeightsForBlock(*tmp, -1_sectors);
-      tmp->getSkeleton()->resetInterpolation();
+      patchHeightsForBlock(*block, -1_sectors);
+      block->getSkeleton()->resetInterpolation();
     }
-    else if(const auto tmp2 = std::dynamic_pointer_cast<objects::TallBlock>(object.get()))
+    else if(const auto tallBlock = std::dynamic_pointer_cast<objects::TallBlock>(object.get()))
     {
-      patchHeightsForBlock(*tmp2, -2_sectors);
-      tmp->getSkeleton()->resetInterpolation();
+      patchHeightsForBlock(*tallBlock, -2_sectors);
+      tallBlock->getSkeleton()->resetInterpolation();
     }
   }
 

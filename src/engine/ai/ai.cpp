@@ -124,6 +124,7 @@ void updateMood(const objects::AIAgent& aiAgent, const EnemyLocation& enemyLocat
 
   CreatureInfo& creatureInfo = *aiAgent.getCreatureInfo();
   auto newTargetBox = creatureInfo.pathFinder.getTargetBox();
+  gsl_Assert(newTargetBox != nullptr);
   if(creatureInfo.pathFinder.isUnreachable(aiAgent.m_state.getCurrentBox()))
   {
     newTargetBox = nullptr;
