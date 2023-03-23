@@ -593,12 +593,13 @@ gslu::nn_shared<Material> MaterialManager::getGhostName()
     return gsl::not_null{m_ghostName};
 
   auto m = gsl::make_shared<Material>(m_shaderCache->getGhostName());
-  m->getRenderState().setCullFace(false);
-  m->getRenderState().setBlend(0, true);
-  m->getRenderState().setBlendFactors(0, gl::api::BlendingFactor::One, gl::api::BlendingFactor::OneMinusSrcAlpha);
-  m->getRenderState().setDepthTest(true);
+  auto& renderState = m->getRenderState();
+  renderState.setCullFace(false);
+  renderState.setBlend(0, true);
+  renderState.setBlendFactors(0, gl::api::BlendingFactor::One, gl::api::BlendingFactor::OneMinusSrcAlpha);
+  renderState.setDepthTest(true);
   // TODO this seems wrong, need to verify
-  m->getRenderState().setDepthWrite(false);
+  renderState.setDepthWrite(false);
   m->getUniformBlock("Camera")->bindCameraBuffer(m_renderer->getCamera());
   m->getUniformBlock("Transform")->bindTransformBuffer();
   m_ghostName = m;

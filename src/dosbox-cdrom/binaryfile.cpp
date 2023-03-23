@@ -20,7 +20,7 @@ BinaryFile::BinaryFile(const std::filesystem::path& filepath)
     BOOST_THROW_EXCEPTION(std::runtime_error("failed to open binary file"));
 }
 
-bool BinaryFile::read(const gsl::span<uint8_t>& buffer, std::streampos seek)
+bool BinaryFile::read(const gsl::span<uint8_t>& buffer, const std::streampos& seek)
 {
   std::fill(buffer.begin(), buffer.end(), uint8_t{0});
   m_file.seekg(seek, std::ios::beg);

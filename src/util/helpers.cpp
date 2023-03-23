@@ -105,7 +105,7 @@ std::string escape(const std::string& unescaped)
       result += ui::SzLig;
       break;
     default:
-      result += (char)c;
+      result += gsl::narrow_cast<char>(c);
       break;
     }
   }

@@ -962,7 +962,9 @@ void MainWindow::onLaunchClicked()
     std::string{gameflowIdData.data(), gsl::narrow<size_t>(gameflowIdData.size())}};
 
   NetworkConfig cfg{};
-  cfg.color = {(uint8_t)m_ghostColor.red(), (uint8_t)m_ghostColor.green(), (uint8_t)m_ghostColor.blue()};
+  cfg.color = {gsl::narrow_cast<uint8_t>(m_ghostColor.red()),
+               gsl::narrow_cast<uint8_t>(m_ghostColor.green()),
+               gsl::narrow_cast<uint8_t>(m_ghostColor.blue())};
   cfg.socket = ui->serverSocket->text().toStdString();
   cfg.username = ui->username->text().toStdString();
   cfg.authToken = ui->authToken->text().toStdString();

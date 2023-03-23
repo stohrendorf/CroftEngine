@@ -328,18 +328,19 @@ const std::vector<Box>& World::getBoxes() const noexcept
 void World::useAlternativeLaraAppearance(const bool withHead)
 {
   const auto& base = *findAnimatedModelForType(TR1ItemId::Lara);
-  BOOST_ASSERT(base.bones.size() == m_objectManager.getLara().getSkeleton()->getBoneCount());
+  auto& laraSkeleton = *m_objectManager.getLara().getSkeleton();
+  BOOST_ASSERT(base.bones.size() == laraSkeleton.getBoneCount());
 
   const auto& alternate = *findAnimatedModelForType(TR1ItemId::AlternativeLara);
-  BOOST_ASSERT(alternate.bones.size() == m_objectManager.getLara().getSkeleton()->getBoneCount());
+  BOOST_ASSERT(alternate.bones.size() == laraSkeleton.getBoneCount());
 
-  for(size_t i = 0; i < m_objectManager.getLara().getSkeleton()->getBoneCount(); ++i)
-    m_objectManager.getLara().getSkeleton()->setMesh(i, alternate.bones[i].mesh);
+  for(size_t i = 0; i < laraSkeleton.getBoneCount(); ++i)
+    laraSkeleton.setMesh(i, alternate.bones[i].mesh);
 
   if(!withHead)
-    m_objectManager.getLara().getSkeleton()->setMesh(14, base.bones[14].mesh);
+    laraSkeleton.setMesh(14, base.bones[14].mesh);
 
-  m_objectManager.getLara().getSkeleton()->rebuildMesh();
+  laraSkeleton.rebuildMesh();
 }
 
 void World::dinoStompEffect(objects::Object& object)
