@@ -155,52 +155,39 @@ std::unique_ptr<MenuState> PassportMenuState::onFrame(ui::Ui& ui, engine::world:
   const bool hasSavedGames = world.hasSavedGames();
 
   const auto localFrame = passport.goalFrame - passport.openFrame;
-  auto page = localFrame / FramesPerPage;
   hid::AxisMovement forcePageTurn = hid::AxisMovement::Null;
-  if(localFrame % FramesPerPage != 0_frame)
+  if(localFrame % FramesPerPage == 0_frame)
   {
-    page = -1;
-  }
-  else if(m_forcePage.value_or(page) != page)
-  {
-    page = -1;
-    if(page < *m_forcePage)
-      forcePageTurn = hid::AxisMovement::Right;
-    else if(page > *m_forcePage)
-      forcePageTurn = hid::AxisMovement::Left;
-    else
-      m_forcePage.reset();
-  }
-
-  switch(page)
-  {
-  case LoadGamePage:
-    if(!hasSavedGames)
+    switch(localFrame / FramesPerPage)
     {
-      forcePageTurn = hid::AxisMovement::Right;
-      break;
-    }
-    if(auto tmp = showLoadGamePage(world, display))
-      return std::move(*tmp);
-    break;
-  case SaveGamePage:
-    if(m_saveGamePageMode == SaveGamePageMode::Skip)
-    {
-      if(passport.animDirection == -1_frame)
-        forcePageTurn = hid::AxisMovement::Left;
-      else
+    case LoadGamePage:
+      if(!hasSavedGames)
+      {
         forcePageTurn = hid::AxisMovement::Right;
+        break;
+      }
+      if(auto tmp = showLoadGamePage(world, display))
+        return std::move(*tmp);
+      break;
+    case SaveGamePage:
+      if(m_saveGamePageMode == SaveGamePageMode::Skip)
+      {
+        if(passport.animDirection == -1_frame)
+          forcePageTurn = hid::AxisMovement::Left;
+        else
+          forcePageTurn = hid::AxisMovement::Right;
+        break;
+      }
+      if(auto tmp = showSaveGamePage(world, display))
+        return std::move(*tmp);
+      break;
+    case ExitGamePage:
+      showExitGamePage(world, display, display.mode != InventoryMode::TitleMode);
+      break;
+    default:
+      BOOST_THROW_EXCEPTION(std::domain_error("invalid game page"));
       break;
     }
-    if(auto tmp = showSaveGamePage(world, display))
-      return std::move(*tmp);
-    break;
-  case ExitGamePage:
-    showExitGamePage(world, display, display.mode != InventoryMode::TitleMode);
-    break;
-  default:
-    gsl_Assert(page == -1);
-    break;
   }
 
   if(m_passportText != nullptr)
