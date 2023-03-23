@@ -155,9 +155,9 @@ public:
 
   std::unordered_set<const world::Portal*> update();
 
-  void setMode(const CameraMode t) noexcept
+  void setMode(const CameraMode mode) noexcept
   {
-    m_mode = t;
+    m_mode = mode;
   }
 
   CameraMode getMode() const noexcept
