@@ -101,12 +101,12 @@ public:
     return !m_stream.bad();
   }
 
-  std::streampos tell()
+  [[nodiscard]] std::streampos tell() const
   {
     return m_stream.tellg();
   }
 
-  std::streamsize size()
+  [[nodiscard]] std::streamsize size() const
   {
     const auto pos = m_stream.tellg();
     m_stream.seekg(0, std::ios::end);
@@ -203,42 +203,42 @@ public:
   }
 
   template<typename T>
-  T read()
+  [[nodiscard]] T read()
   {
     return ReadTraits<T>::read(m_stream);
   }
 
-  uint8_t readU8()
+  [[nodiscard]] uint8_t readU8()
   {
     return read<uint8_t>();
   }
 
-  int8_t readI8()
+  [[nodiscard]] int8_t readI8()
   {
     return read<int8_t>();
   }
 
-  uint16_t readU16()
+  [[nodiscard]] uint16_t readU16()
   {
     return read<uint16_t>();
   }
 
-  int16_t readI16()
+  [[nodiscard]] int16_t readI16()
   {
     return read<int16_t>();
   }
 
-  uint32_t readU32()
+  [[nodiscard]] uint32_t readU32()
   {
     return read<uint32_t>();
   }
 
-  int32_t readI32()
+  [[nodiscard]] int32_t readI32()
   {
     return read<int32_t>();
   }
 
-  float readF()
+  [[nodiscard]] float readF()
   {
     return read<float>();
   }
@@ -253,7 +253,7 @@ private:
 
   std::shared_ptr<DataStreamBuf> m_streamBuf;
 
-  std::istream m_stream;
+  mutable std::istream m_stream;
 
   template<typename T, int dataSize, bool isIntegral>
   struct SwapTraits
@@ -294,7 +294,7 @@ private:
   template<typename T>
   struct ReadTraits
   {
-    static T read(std::istream& stream)
+    [[nodiscard]] static T read(std::istream& stream)
     {
       T result;
       // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
@@ -313,7 +313,7 @@ private:
   template<typename T>
   struct ReadTraits<type_safe::integer<T>>
   {
-    static type_safe::integer<T> read(std::istream& stream)
+    [[nodiscard]] static type_safe::integer<T> read(std::istream& stream)
     {
       return type_safe::integer<T>{ReadTraits<T>::read(stream)};
     }

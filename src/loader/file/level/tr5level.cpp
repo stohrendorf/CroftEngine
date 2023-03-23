@@ -114,9 +114,9 @@ void TR5Level::loadFileData()
     BOOST_LOG_TRIVIAL(warning) << "TR5 Level: Bad value (value 7)";
 
   // LevelDataSize1
-  m_reader.readU32();
+  m_reader.skip(sizeof(uint32_t));
   // LevelDataSize2
-  m_reader.readU32();
+  m_reader.skip(sizeof(uint32_t));
 
   // Unused
   if(m_reader.readU32() != 0)

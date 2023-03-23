@@ -305,8 +305,8 @@ std::unique_ptr<Room> Room::readTr5(io::SDLReader& reader)
   if(reader.readU32() != 0xCDCDCDCD)
     BOOST_LOG_TRIVIAL(warning) << "TR5 Room: separator1 has wrong value";
 
-  /*portal_offset = */
-  reader.readI32();                                           // StartPortalOffset?   // endSDOffset
+  /*portal_offset*/
+  reader.skip(sizeof(uint32_t));                              // StartPortalOffset?   // endSDOffset
   const std::streampos sector_data_offset = reader.readU32(); // StartSDOffset
   auto temp = reader.readU32();
   if(temp != 0 && temp != 0xCDCDCDCD)
@@ -411,8 +411,8 @@ std::unique_ptr<Room> Room::readTr5(io::SDLReader& reader)
   if(reader.readU32() != 0)
     BOOST_LOG_TRIVIAL(warning) << "TR5 Room: separator14 has wrong value";
 
-  /*light_size = */
-  reader.readU32();
+  /*light_size*/
+  reader.skip(sizeof(uint32_t));
   const auto numL2 = reader.readU32();
   if(numL2 != room->lights.size())
     BOOST_THROW_EXCEPTION(std::runtime_error("TR5 Room: numLights2 != lights.size()"));
@@ -640,9 +640,9 @@ Light Light::readTr5(io::SDLReader& reader)
       */
   light.r_inner = core::Length{gsl::narrow<core::Length::type>(reader.readF())};
   light.r_outer = core::Length{gsl::narrow<core::Length::type>(reader.readF())};
-  reader.readF(); // rad_input
-  reader.readF(); // rad_output
-  reader.readF(); // range
+  reader.skip(sizeof(float)); // rad_input
+  reader.skip(sizeof(float)); // rad_output
+  reader.skip(sizeof(float)); // range
   light.dir = readCoordinatesF(reader);
   light.pos2 = readCoordinates32(reader);
   light.dir2 = readCoordinates32(reader);

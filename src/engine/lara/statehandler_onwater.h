@@ -144,9 +144,7 @@ private:
     getLara().m_state.speed = 0_spd;
     getLara().m_state.fallspeed = 0_spd;
     getLara().m_state.falling = false;
-    getLara().m_state.rotation.X = 0_deg;
-    getLara().m_state.rotation.Y = snapRotation(*axis);
-    getLara().m_state.rotation.Z = 0_deg;
+    getLara().m_state.rotation = {0_deg, snapRotation(*axis), 0_deg};
     setHandStatus(objects::HandStatus::Grabbing);
     setUnderwaterState(objects::UnderwaterState::OnLand);
   }

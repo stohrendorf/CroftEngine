@@ -18,6 +18,7 @@ void BufferHandle::fill(const int16_t* samples, const size_t frameCount, const i
   gsl_Expects(channels == 1 || channels == 2);
   m_frameCount = frameCount;
   m_sampleRate = sampleRate;
+  gsl_Assert(channels == 1 || channels == 2);
   AL_ASSERT(alBufferData(*this,
                          channels == 1 ? AL_FORMAT_MONO16 : AL_FORMAT_STEREO16,
                          samples,
