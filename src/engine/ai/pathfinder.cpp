@@ -1,6 +1,7 @@
 #include "pathfinder.h"
 
 #include "core/interval.h"
+#include "engine/script/reflection.h"
 #include "engine/world/box.h"
 #include "engine/world/world.h"
 #include "serialization/box_ptr.h"
@@ -43,11 +44,11 @@ bool PathFinder::calculateTarget(const world::World& world,
                                  const gsl::not_null<const world::Box*>& startBox)
 {
   gsl_Expects(m_targetBox != nullptr);
-  gsl_Expects(m_targetBox->xInterval.contains(target.X));
-  gsl_Expects(m_targetBox->zInterval.contains(target.Z));
+  gsl_Expects(m_targetBox->xInterval.contains(m_target.X));
+  gsl_Expects(m_targetBox->zInterval.contains(m_target.Z));
   gsl_Expects(startBox->xInterval.contains(startPos.X));
   gsl_Expects(startBox->zInterval.contains(startPos.Z));
-  searchPath(world);
+  expandNodes(world);
 
   moveTarget = startPos;
 
@@ -177,7 +178,7 @@ bool PathFinder::calculateTarget(const world::World& world,
       // NOLINTNEXTLINE(hicpp-signed-bitwise)
       if(moveDirs & (CanMoveZPos | CanMoveZNeg))
       {
-        moveTarget.Z = target.Z;
+        moveTarget.Z = m_target.Z;
       }
       else if(!detour)
       {
@@ -188,7 +189,7 @@ bool PathFinder::calculateTarget(const world::World& world,
       // NOLINTNEXTLINE(hicpp-signed-bitwise)
       if(moveDirs & (CanMoveXPos | CanMoveXNeg))
       {
-        moveTarget.X = target.X;
+        moveTarget.X = m_target.X;
       }
       else if(!detour)
       {
@@ -196,7 +197,7 @@ bool PathFinder::calculateTarget(const world::World& world,
       }
       gsl_Assert(here->xInterval.contains(moveTarget.X));
 
-      moveTarget.Y = target.Y;
+      moveTarget.Y = m_target.Y;
 
       return true;
     }
@@ -240,9 +241,9 @@ bool PathFinder::calculateTarget(const world::World& world,
   return false;
 }
 
-void PathFinder::searchPath(const world::World& world)
+void PathFinder::expandNodes(const world::World& world)
 {
-  const auto zoneRef = world::Box::getZoneRef(world.roomsAreSwapped(), isFlying(), step);
+  const auto zoneRef = world::Box::getZoneRef(world.roomsAreSwapped(), isFlying(), m_step);
 
   static constexpr uint8_t MaxExpansions = 15;
 
@@ -288,7 +289,7 @@ void PathFinder::searchPath(const world::World& world)
 
       // the "successor" here is effectively the predecessor in the final path
       if(const auto boxHeightDiff = currentBox->floor - successorBox->floor;
-         boxHeightDiff < -step || boxHeightDiff > -drop)
+         boxHeightDiff < -m_step || boxHeightDiff > -m_drop)
         continue;
 
       const auto it = m_reachable.find(successorBox);
@@ -301,38 +302,37 @@ void PathFinder::searchPath(const world::World& world)
         {
           setReachable(successorBox, false);
         }
+        continue;
       }
-      else
-      {
-        // propagate "reachable" to all connected boxes if their reachability hasn't been determined yet
-        // OR they were previously determined to be unreachable
-        if(successorInitialized && it->second)
-        {
-          // already visited and marked reachable, but path might be shorter
-          auto& successorDistance = m_distances[successorBox];
-          auto currentDistance = m_distances[currentBox] + 1;
-          if(successorDistance > currentDistance)
-          {
-            successorDistance = currentDistance;
-            m_edges.erase(currentBox);
-            m_edges.emplace(currentBox, successorBox);
-            m_expansions.emplace_back(successorBox);
-            sortPriority();
-          }
-          continue;
-        }
 
-        const auto reachable = canVisit(*successorBox);
-        if(reachable)
+      // propagate "reachable" to all connected boxes if their reachability hasn't been determined yet
+      // OR they were previously determined to be unreachable
+      if(successorInitialized && it->second)
+      {
+        // already visited and marked reachable, but path might be shorter
+        auto& successorDistance = m_distances[successorBox];
+        auto currentDistance = m_distances[currentBox] + 1;
+        if(successorDistance > currentDistance)
         {
-          BOOST_ASSERT_MSG(m_edges.count(successorBox) == 0, "cycle in pathfinder graph detected");
-          m_edges.emplace(successorBox, currentBox); // success! connect both boxes
-          m_distances[successorBox] = m_distances[currentBox] + 1;
+          successorDistance = currentDistance;
+          m_edges.erase(currentBox);
+          m_edges.emplace(currentBox, successorBox);
+          m_expansions.emplace_back(successorBox);
           sortPriority();
         }
-
-        setReachable(successorBox, reachable);
+        continue;
       }
+
+      const auto reachable = canVisit(*successorBox);
+      if(reachable)
+      {
+        BOOST_ASSERT_MSG(m_edges.count(successorBox) == 0, "cycle in pathfinder graph detected");
+        m_edges.emplace(successorBox, currentBox); // success! connect both boxes
+        m_distances[successorBox] = m_distances[currentBox] + 1;
+        sortPriority();
+      }
+
+      setReachable(successorBox, reachable);
     }
   }
 }
@@ -344,13 +344,13 @@ void PathFinder::serialize(const serialization::Serializer<world::World>& ser) c
       S_NV("expansions", m_expansions),
       S_NV("distances", m_distances),
       S_NV("reachable", m_reachable),
-      S_NV("cannotVisitBlockable", cannotVisitBlockable),
-      S_NV("cannotVisitBlocked", cannotVisitBlocked),
-      S_NV("step", step),
-      S_NV("drop", drop),
-      S_NV("fly", fly),
+      S_NV("cannotVisitBlockable", m_cannotVisitBlockable),
+      S_NV("cannotVisitBlocked", m_cannotVisitBlocked),
+      S_NV("step", m_step),
+      S_NV("drop", m_drop),
+      S_NV("fly", m_fly),
       S_NV_VECTOR_ELEMENT("targetBox", std::cref(ser.context->getBoxes()), std::cref(m_targetBox)),
-      S_NV("target", target));
+      S_NV("target", m_target));
 }
 
 void PathFinder::deserialize(const serialization::Deserializer<world::World>& ser)
@@ -360,29 +360,29 @@ void PathFinder::deserialize(const serialization::Deserializer<world::World>& se
       S_NV("expansions", m_expansions),
       S_NV("distances", m_distances),
       S_NV("reachable", m_reachable),
-      S_NV("cannotVisitBlockable", cannotVisitBlockable),
-      S_NV("cannotVisitBlocked", cannotVisitBlocked),
-      S_NV("step", step),
-      S_NV("drop", drop),
-      S_NV("fly", fly),
+      S_NV("cannotVisitBlockable", m_cannotVisitBlockable),
+      S_NV("cannotVisitBlocked", m_cannotVisitBlocked),
+      S_NV("step", m_step),
+      S_NV("drop", m_drop),
+      S_NV("fly", m_fly),
       S_NV_VECTOR_ELEMENT("targetBox", std::cref(ser.context->getBoxes()), std::ref(m_targetBox)),
-      S_NV("target", target));
+      S_NV("target", m_target));
 }
 
-void PathFinder::collectBoxes(const world::World& world, const gsl::not_null<const world::Box*>& box)
+void PathFinder::init(const world::World& world,
+                      const gsl::not_null<const world::Box*>& box,
+                      const script::ObjectInfo& objectInfo)
 {
-  const auto zoneRef1 = world::Box::getZoneRef(false, isFlying(), step);
-  const auto zoneRef2 = world::Box::getZoneRef(true, isFlying(), step);
-  const auto zoneData1 = box.get()->*zoneRef1;
-  const auto zoneData2 = box.get()->*zoneRef2;
-  m_boxes.clear();
-  for(const auto& levelBox : world.getBoxes())
-  {
-    if(levelBox.*zoneRef1 == zoneData1 || levelBox.*zoneRef2 == zoneData2)
-    {
-      m_boxes.emplace_back(&levelBox);
-    }
-  }
+  m_cannotVisitBlockable = objectInfo.cannot_visit_blockable;
+  m_cannotVisitBlocked = objectInfo.cannot_visit_blocked;
+
+  setLimits(world,
+            box,
+            core::Length{objectInfo.step_limit},
+            core::Length{objectInfo.drop_limit},
+            core::Length{objectInfo.fly_limit});
+
+  resetBoxes(world, box);
 }
 
 bool PathFinder::canVisit(const world::Box& box) const noexcept
@@ -392,9 +392,9 @@ bool PathFinder::canVisit(const world::Box& box) const noexcept
 
 bool PathFinder::canVisit(const world::Box& box, bool ignoreBlocked, bool ignoreBlockable) const noexcept
 {
-  if(cannotVisitBlocked && box.blocked)
+  if(m_cannotVisitBlocked && box.blocked)
     return ignoreBlocked;
-  if(cannotVisitBlockable && box.blockable)
+  if(m_cannotVisitBlockable && box.blockable)
     return ignoreBlockable;
   return true;
 }
@@ -402,16 +402,16 @@ bool PathFinder::canVisit(const world::Box& box, bool ignoreBlocked, bool ignore
 void PathFinder::setRandomSearchTarget(const gsl::not_null<const world::Box*>& box)
 {
   const auto xSize = box->xInterval.size() - 2 * Margin;
-  target.X = util::rand15(xSize) + box->xInterval.min + Margin;
+  m_target.X = util::rand15(xSize) + box->xInterval.min + Margin;
   const auto zSize = box->zInterval.size() - 2 * Margin;
-  target.Z = util::rand15(zSize) + box->zInterval.min + Margin;
+  m_target.Z = util::rand15(zSize) + box->zInterval.min + Margin;
   if(isFlying())
   {
-    target.Y = box->floor - 384_len;
+    m_target.Y = box->floor - 384_len;
   }
   else
   {
-    target.Y = box->floor;
+    m_target.Y = box->floor;
   }
 }
 
@@ -421,6 +421,7 @@ void PathFinder::setTargetBox(const gsl::not_null<const world::Box*>& box)
     return;
 
   m_targetBox = box;
+  setRandomSearchTarget(box);
 
   m_expansions.clear();
   m_expansions.emplace_back(m_targetBox);
@@ -435,5 +436,38 @@ const gsl::not_null<const world::Box*>& PathFinder::getRandomBox() const
 {
   gsl_Expects(!m_boxes.empty());
   return m_boxes[util::rand15(m_boxes.size())];
+}
+
+void PathFinder::resetBoxes(const world::World& world, const gsl::not_null<const world::Box*>& box)
+{
+  const auto zoneRef1 = world::Box::getZoneRef(false, isFlying(), m_step);
+  const auto zoneRef2 = world::Box::getZoneRef(true, isFlying(), m_step);
+  const auto zoneData1 = box.get()->*zoneRef1;
+  const auto zoneData2 = box.get()->*zoneRef2;
+  m_boxes.clear();
+  for(const auto& levelBox : world.getBoxes())
+  {
+    if(levelBox.*zoneRef1 == zoneData1 || levelBox.*zoneRef2 == zoneData2)
+    {
+      m_boxes.emplace_back(&levelBox);
+    }
+  }
+}
+
+void PathFinder::setLimits(const world::World& world,
+                           const gsl::not_null<const world::Box*>& box,
+                           const core::Length& step,
+                           const core::Length& drop,
+                           const core::Length& fly)
+{
+  gsl_Expects(step >= 0_len);
+  gsl_Expects(drop <= 0_len);
+  gsl_Expects(fly >= 0_len);
+  m_step = step;
+  m_drop = drop;
+  m_fly = fly;
+  m_targetBox = box;
+  setRandomSearchTarget(box);
+  resetBoxes(world, box);
 }
 } // namespace engine::ai

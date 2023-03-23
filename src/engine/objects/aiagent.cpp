@@ -56,13 +56,13 @@ bool canMoveTo(const world::Room& room,
 
   const auto dy = testBox->floor - currentSectorBoxFloor;
 
-  if(dy < -pathFinder.step || dy > -pathFinder.drop)
+  if(dy < -pathFinder.getStep() || dy > -pathFinder.getDrop())
   {
     // height difference doesn't allow stepping up or dropping down
     return false;
   }
 
-  if(dy < -pathFinder.step && testBox->floor > nextPathFloor)
+  if(dy < -pathFinder.getStep() && testBox->floor > nextPathFloor)
   {
     // height difference would allow stepping down, but the test position isn't on the same level as the wanted path
     return false;
@@ -75,7 +75,7 @@ bool canMoveTo(const world::Room& room,
 
   // true if the entity is flying, but the test position is outside the maximum vertical flying speed that would
   // allow recovery after penetrating the floor
-  return testPos.Y <= testBox->floor + pathFinder.fly;
+  return testPos.Y <= testBox->floor + pathFinder.getFly();
 }
 } // namespace
 
@@ -141,8 +141,8 @@ bool AIAgent::animateCreature(const core::Angle& collisionRotationY, const core:
 
   const auto oldLocation = m_state.location;
   const auto oldBox = gsl::not_null{oldLocation.getCurrentSector()->box};
-  const auto zoneRef = world::Box::getZoneRef(
-    getWorld().roomsAreSwapped(), m_creatureInfo->pathFinder.isFlying(), m_creatureInfo->pathFinder.step);
+  const auto zoneRef
+    = world::Box::getZoneRef(getWorld().roomsAreSwapped(), pathFinder.isFlying(), pathFinder.getStep());
 
 #ifndef NDEBUG
   const auto invariantCheck2 = gsl::finally(
@@ -186,8 +186,8 @@ bool AIAgent::animateCreature(const core::Angle& collisionRotationY, const core:
   // fix location in case the entity moved to an invalid location, including checks for step/drop limits.
   // keep in mind that step/drop limits are negated, so they're subtracted here instead of being added.
   const bool isInvalidPosition = currentSector->box == nullptr || !pathFinder.canVisit(*currentSector->box)
-                                 || currentSector->box->floor < oldBox->floor - pathFinder.step
-                                 || currentSector->box->floor > oldBox->floor - pathFinder.drop
+                                 || currentSector->box->floor < oldBox->floor - pathFinder.getStep()
+                                 || currentSector->box->floor > oldBox->floor - pathFinder.getDrop()
                                  || oldBox.get()->*zoneRef != currentSector->box->*zoneRef;
   if(isInvalidPosition)
   {
@@ -426,7 +426,8 @@ bool AIAgent::animateCreature(const core::Angle& collisionRotationY, const core:
     return true;
   }
 
-  auto moveY = std::clamp(m_creatureInfo->target.Y - m_state.location.position.Y, -pathFinder.fly, pathFinder.fly);
+  auto moveY
+    = std::clamp(m_creatureInfo->target.Y - m_state.location.position.Y, -pathFinder.getFly(), pathFinder.getFly());
 
   const auto currentFloor = HeightInfo::fromFloor(currentSector,
                                                   m_state.location.position + core::TRVec{0_len, bbox.y.max, 0_len},
@@ -442,7 +443,7 @@ bool AIAgent::animateCreature(const core::Angle& collisionRotationY, const core:
       // current and previous positions penetrate the floor, fly up from the floor
       m_state.location.position.X = oldLocation.position.X;
       m_state.location.position.Z = oldLocation.position.Z;
-      moveY = -pathFinder.fly;
+      moveY = -pathFinder.getFly();
     }
     else
     {
@@ -471,7 +472,7 @@ bool AIAgent::animateCreature(const core::Angle& collisionRotationY, const core:
         // current and previous positions penetrate the floor, fly up from the floor
         m_state.location.position.X = oldLocation.position.X;
         m_state.location.position.Z = oldLocation.position.Z;
-        moveY = pathFinder.fly;
+        moveY = pathFinder.getFly();
       }
       else
       {
@@ -634,7 +635,7 @@ bool AIAgent::isInsideZoneButNotInBox(const uint32_t zoneId, const world::Box& t
   gsl_Expects(m_creatureInfo != nullptr);
 
   const auto zoneRef = world::Box::getZoneRef(
-    getWorld().roomsAreSwapped(), m_creatureInfo->pathFinder.isFlying(), m_creatureInfo->pathFinder.step);
+    getWorld().roomsAreSwapped(), m_creatureInfo->pathFinder.isFlying(), m_creatureInfo->pathFinder.getStep());
 
   if(zoneId != targetBox.*zoneRef)
   {

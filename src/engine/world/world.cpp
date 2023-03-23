@@ -896,7 +896,7 @@ void World::handleCommandSequence(const floordata::FloorDataValue* floorData, co
         auto newTarget = sink.position;
         newTarget.X = m_boxes[sink.box_index].xInterval.clamp(newTarget.X);
         newTarget.Z = m_boxes[sink.box_index].zInterval.clamp(newTarget.Z);
-        m_objectManager.getLara().m_underwaterRoute.target = newTarget;
+        m_objectManager.getLara().m_underwaterRoute.setTarget(newTarget);
       }
       m_objectManager.getLara().m_underwaterCurrentStrength
         = 6_len * static_cast<core::Length::type>(sink.underwaterCurrentStrength);
