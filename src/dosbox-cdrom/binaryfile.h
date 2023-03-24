@@ -12,7 +12,7 @@ class BinaryFile final
 public:
   explicit BinaryFile(const std::filesystem::path& filepath);
   BinaryFile() = delete;
-  bool read(const gsl::span<uint8_t>& buffer, std::streampos seek);
+  bool read(const gsl::span<uint8_t>& buffer, const std::streampos& seek);
   std::streamsize size();
   [[nodiscard]] const auto& getFilepath() const
   {

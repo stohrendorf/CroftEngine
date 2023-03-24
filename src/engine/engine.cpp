@@ -264,7 +264,7 @@ void updateRemoteGhosts(world::World& world, GhostManager& ghostManager, const n
       continue;
 
     for(const auto v : dataVec)
-      tmp += (char)v;
+      tmp += gsl::narrow_cast<char>(v);
     std::istringstream stateDataStream{tmp, std::ios::in | std::ios::binary};
     ghostFrame.read(stateDataStream);
 

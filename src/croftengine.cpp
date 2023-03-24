@@ -70,7 +70,7 @@ bool initCrashReporting()
     return false;
   }
 
-  auto crashdumpDir = userDataDir.value() / "crashdumps";
+  auto crashdumpDir = *userDataDir / "crashdumps";
   if(!std::filesystem::is_directory(crashdumpDir))
   {
     std::filesystem::create_directory(crashdumpDir);

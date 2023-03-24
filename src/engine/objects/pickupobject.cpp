@@ -115,15 +115,16 @@ void PickupObject::collide(CollisionInfo& /*collisionInfo*/)
         getWorld().getObjectManager().getLara().setHandStatus(HandStatus::Grabbing);
       }
     }
-    else if(getWorld().getObjectManager().getLara().getSkeleton()->getFrame() == 3443_frame)
+    else if(const auto& laraSkeleton = getWorld().getObjectManager().getLara().getSkeleton();
+            laraSkeleton->getFrame() == 3443_frame)
     {
       if(m_state.type == TR1ItemId::ShotgunSprite)
       {
         const auto& shotgunLara = *getWorld().findAnimatedModelForType(TR1ItemId::LaraShotgunAnim);
-        BOOST_ASSERT(shotgunLara.bones.size() == getWorld().getObjectManager().getLara().getSkeleton()->getBoneCount());
+        BOOST_ASSERT(shotgunLara.bones.size() == laraSkeleton->getBoneCount());
 
-        getWorld().getObjectManager().getLara().getSkeleton()->setMesh(7, shotgunLara.bones[7].mesh);
-        getWorld().getObjectManager().getLara().getSkeleton()->rebuildMesh();
+        laraSkeleton->setMesh(7, shotgunLara.bones[7].mesh);
+        laraSkeleton->rebuildMesh();
       }
 
       m_state.triggerState = TriggerState::Invisible;

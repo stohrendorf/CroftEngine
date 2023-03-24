@@ -19,7 +19,7 @@ void Visitor::visit(const Node& node)
 {
   if(!node.isVisible())
     return;
-  if(const auto& vp = m_context->getViewProjection(); vp.has_value() && node.canBeCulled(vp.value()))
+  if(const auto& vp = m_context->getViewProjection(); vp.has_value() && node.canBeCulled(*vp))
     return;
 
   m_context->pushState(node.getRenderState());

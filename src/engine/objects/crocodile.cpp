@@ -82,9 +82,7 @@ void Crocodile::updateInWaterAlive()
     m_state.current_anim_state = getSkeleton()->getAnim()->state_id;
     m_state.rotation.X = 0_deg;
     m_state.location.position.Y = m_state.floor;
-    getCreatureInfo()->pathFinder.step = 256_len;
-    getCreatureInfo()->pathFinder.drop = -256_len;
-    getCreatureInfo()->pathFinder.fly = 0_len;
+    getCreatureInfo()->pathFinder.setLimits(getWorld(), m_state.getCurrentBox(), 256_len, -256_len, 0_len);
 
     loadObjectInfo(true);
   }
@@ -265,9 +263,7 @@ void Crocodile::updateOnLand()
     m_state.type = TR1ItemId::CrocodileInWater;
     if(getCreatureInfo() != nullptr)
     {
-      getCreatureInfo()->pathFinder.step = 20_sectors;
-      getCreatureInfo()->pathFinder.drop = -20_sectors;
-      getCreatureInfo()->pathFinder.fly = 16_len;
+      getCreatureInfo()->pathFinder.setLimits(getWorld(), m_state.getCurrentBox(), 20_sectors, -20_sectors, 16_len);
     }
 
     loadObjectInfo(true);

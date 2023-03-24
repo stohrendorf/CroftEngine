@@ -195,16 +195,17 @@ void Ui::render()
   auto mesh = std::make_shared<render::scene::MeshImpl<uint16_t, UiVertex>>(
     nullptr, vaoNonOpaque, gl::api::PrimitiveType::Triangles);
   mesh->getMaterialGroup().set(render::material::RenderMode::FullNonOpaque, m_material);
-  mesh->getRenderState().setViewport(m_size);
-  mesh->getRenderState().setBlend(0, true);
-  mesh->getRenderState().setBlendFactors(0,
-                                         gl::api::BlendingFactor::One,
-                                         gl::api::BlendingFactor::One,
-                                         gl::api::BlendingFactor::OneMinusSrcAlpha,
-                                         gl::api::BlendingFactor::One);
-  mesh->getRenderState().setDepthTest(false);
-  mesh->getRenderState().setDepthWrite(false);
-  mesh->getRenderState().setCullFace(false);
+  auto& meshRenderState = mesh->getRenderState();
+  meshRenderState.setViewport(m_size);
+  meshRenderState.setBlend(0, true);
+  meshRenderState.setBlendFactors(0,
+                                  gl::api::BlendingFactor::One,
+                                  gl::api::BlendingFactor::One,
+                                  gl::api::BlendingFactor::OneMinusSrcAlpha,
+                                  gl::api::BlendingFactor::One);
+  meshRenderState.setDepthTest(false);
+  meshRenderState.setDepthWrite(false);
+  meshRenderState.setCullFace(false);
 
   render::scene::RenderContext context{
     render::material::RenderMode::FullNonOpaque, std::nullopt, render::scene::Translucency::NonOpaque};

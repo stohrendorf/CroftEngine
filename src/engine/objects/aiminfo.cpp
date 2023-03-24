@@ -337,12 +337,13 @@ void AimInfo::overrideHolsterTwoWeaponsMeshes(LaraObject& lara, WeaponType weapo
   }
 
   const auto& src = *gsl::not_null{lara.getWorld().findAnimatedModelForType(srcId).get()};
-  BOOST_ASSERT(src.bones.size() == lara.getSkeleton()->getBoneCount());
+  auto& laraSkeleton = *lara.getSkeleton();
+  BOOST_ASSERT(src.bones.size() == laraSkeleton.getBoneCount());
   const auto& normalLara = *gsl::not_null{lara.getWorld().findAnimatedModelForType(TR1ItemId::Lara).get()};
-  BOOST_ASSERT(normalLara.bones.size() == lara.getSkeleton()->getBoneCount());
-  lara.getSkeleton()->setMesh(handBoneId, gsl::at(normalLara.bones, handBoneId).mesh);
-  lara.getSkeleton()->setMesh(thighBoneId, gsl::at(src.bones, thighBoneId).mesh);
-  lara.getSkeleton()->rebuildMesh();
+  BOOST_ASSERT(normalLara.bones.size() == laraSkeleton.getBoneCount());
+  laraSkeleton.setMesh(handBoneId, gsl::at(normalLara.bones, handBoneId).mesh);
+  laraSkeleton.setMesh(thighBoneId, gsl::at(src.bones, thighBoneId).mesh);
+  laraSkeleton.rebuildMesh();
 }
 
 void AimInfo::overrideDrawTwoWeaponsMeshes(LaraObject& lara, WeaponType weaponType)
@@ -365,11 +366,12 @@ void AimInfo::overrideDrawTwoWeaponsMeshes(LaraObject& lara, WeaponType weaponTy
 
   const auto& src = lara.getWorld().findAnimatedModelForType(id);
   gsl_Assert(src != nullptr);
-  BOOST_ASSERT(src->bones.size() == lara.getSkeleton()->getBoneCount());
+  auto& laraSkeleton = *lara.getSkeleton();
+  BOOST_ASSERT(src->bones.size() == laraSkeleton.getBoneCount());
   const auto& normalLara = *lara.getWorld().findAnimatedModelForType(TR1ItemId::Lara);
-  BOOST_ASSERT(normalLara.bones.size() == lara.getSkeleton()->getBoneCount());
-  lara.getSkeleton()->setMesh(handBoneId, gsl::at(src->bones, handBoneId).mesh);
-  lara.getSkeleton()->setMesh(thighBoneId, gsl::at(normalLara.bones, thighBoneId).mesh);
+  BOOST_ASSERT(normalLara.bones.size() == laraSkeleton.getBoneCount());
+  laraSkeleton.setMesh(handBoneId, gsl::at(src->bones, handBoneId).mesh);
+  laraSkeleton.setMesh(thighBoneId, gsl::at(normalLara.bones, thighBoneId).mesh);
 }
 
 void AimInfo::updateAimAngles(const Weapon& weapon, const core::TRRotationXY& weaponTargetVector) noexcept

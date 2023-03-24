@@ -328,18 +328,19 @@ const std::vector<Box>& World::getBoxes() const noexcept
 void World::useAlternativeLaraAppearance(const bool withHead)
 {
   const auto& base = *findAnimatedModelForType(TR1ItemId::Lara);
-  BOOST_ASSERT(base.bones.size() == m_objectManager.getLara().getSkeleton()->getBoneCount());
+  auto& laraSkeleton = *m_objectManager.getLara().getSkeleton();
+  BOOST_ASSERT(base.bones.size() == laraSkeleton.getBoneCount());
 
   const auto& alternate = *findAnimatedModelForType(TR1ItemId::AlternativeLara);
-  BOOST_ASSERT(alternate.bones.size() == m_objectManager.getLara().getSkeleton()->getBoneCount());
+  BOOST_ASSERT(alternate.bones.size() == laraSkeleton.getBoneCount());
 
-  for(size_t i = 0; i < m_objectManager.getLara().getSkeleton()->getBoneCount(); ++i)
-    m_objectManager.getLara().getSkeleton()->setMesh(i, alternate.bones[i].mesh);
+  for(size_t i = 0; i < laraSkeleton.getBoneCount(); ++i)
+    laraSkeleton.setMesh(i, alternate.bones[i].mesh);
 
   if(!withHead)
-    m_objectManager.getLara().getSkeleton()->setMesh(14, base.bones[14].mesh);
+    laraSkeleton.setMesh(14, base.bones[14].mesh);
 
-  m_objectManager.getLara().getSkeleton()->rebuildMesh();
+  laraSkeleton.rebuildMesh();
 }
 
 void World::dinoStompEffect(objects::Object& object)
@@ -558,15 +559,15 @@ void World::swapWithAlternate(Room& orig, Room& alternate)
     if(object->m_state.location.room != &orig)
       continue;
 
-    if(const auto tmp = std::dynamic_pointer_cast<objects::Block>(object.get()))
+    if(const auto block = std::dynamic_pointer_cast<objects::Block>(object.get()); block != nullptr)
     {
-      patchHeightsForBlock(*tmp, 1_sectors);
-      tmp->getSkeleton()->resetInterpolation();
+      patchHeightsForBlock(*block, 1_sectors);
+      block->getSkeleton()->resetInterpolation();
     }
-    else if(const auto tmp2 = std::dynamic_pointer_cast<objects::TallBlock>(object.get()))
+    else if(const auto tallBlock = std::dynamic_pointer_cast<objects::TallBlock>(object.get()); tallBlock != nullptr)
     {
-      patchHeightsForBlock(*tmp2, 2_sectors);
-      tmp->getSkeleton()->resetInterpolation();
+      patchHeightsForBlock(*tallBlock, 2_sectors);
+      tallBlock->getSkeleton()->resetInterpolation();
     }
   }
 
@@ -600,15 +601,15 @@ void World::swapWithAlternate(Room& orig, Room& alternate)
       continue;
     }
 
-    if(const auto tmp = std::dynamic_pointer_cast<objects::Block>(object.get()))
+    if(const auto block = std::dynamic_pointer_cast<objects::Block>(object.get()); block != nullptr)
     {
-      patchHeightsForBlock(*tmp, -1_sectors);
-      tmp->getSkeleton()->resetInterpolation();
+      patchHeightsForBlock(*block, -1_sectors);
+      block->getSkeleton()->resetInterpolation();
     }
-    else if(const auto tmp2 = std::dynamic_pointer_cast<objects::TallBlock>(object.get()))
+    else if(const auto tallBlock = std::dynamic_pointer_cast<objects::TallBlock>(object.get()))
     {
-      patchHeightsForBlock(*tmp2, -2_sectors);
-      tmp->getSkeleton()->resetInterpolation();
+      patchHeightsForBlock(*tallBlock, -2_sectors);
+      tallBlock->getSkeleton()->resetInterpolation();
     }
   }
 
@@ -896,7 +897,7 @@ void World::handleCommandSequence(const floordata::FloorDataValue* floorData, co
         auto newTarget = sink.position;
         newTarget.X = m_boxes[sink.box_index].xInterval.clamp(newTarget.X);
         newTarget.Z = m_boxes[sink.box_index].zInterval.clamp(newTarget.Z);
-        m_objectManager.getLara().m_underwaterRoute.target = newTarget;
+        m_objectManager.getLara().m_underwaterRoute.setTarget(newTarget);
       }
       m_objectManager.getLara().m_underwaterCurrentStrength
         = 6_len * static_cast<core::Length::type>(sink.underwaterCurrentStrength);

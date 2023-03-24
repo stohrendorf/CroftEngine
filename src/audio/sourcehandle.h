@@ -40,7 +40,7 @@ public:
   void setPitch(ALfloat pitch_value);
 };
 
-class StreamingSourceHandle : public SourceHandle
+class StreamingSourceHandle final : public SourceHandle
 {
 public:
   explicit StreamingSourceHandle()

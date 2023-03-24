@@ -323,18 +323,18 @@ void ControlsMenuState::handleDisplayInput(engine::world::World& world)
     m_editingIndex = 0;
     m_editing = world.getEngine().getEngineConfig()->inputMappings;
     world.getEngine().getPresenter().getInputHandler().setMappings(m_editing);
-    m_controls->updateBindings(m_editing.at(m_editingIndex),
-                               getButtonFactory(world, m_editing.at(m_editingIndex).controllerType));
+    auto& editing = m_editing.at(m_editingIndex);
+    m_controls->updateBindings(editing, getButtonFactory(world, editing.controllerType));
   }
 
   if(m_deleteKey.update(world.getPresenter().getInputHandler()))
   {
-    auto& mapping = m_editing.at(m_editingIndex);
-    auto& inputMappings = m_controls->isMenuControlsSelected() ? mapping.menuMappings : mapping.gameMappings;
+    auto& editing = m_editing.at(m_editingIndex);
+    auto& inputMappings = m_controls->isMenuControlsSelected() ? editing.menuMappings : editing.gameMappings;
     auto inputs = getKeys(inputMappings, engine::NamedAction{m_controls->getCurrentAction()});
     for(auto input : inputs)
       inputMappings.erase(input);
-    m_controls->updateBindings(mapping, getButtonFactory(world, mapping.controllerType));
+    m_controls->updateBindings(editing, getButtonFactory(world, editing.controllerType));
   }
 
   if(world.getPresenter().getInputHandler().hasDebouncedAction(PrevProfileAction))
@@ -343,8 +343,8 @@ void ControlsMenuState::handleDisplayInput(engine::world::World& world)
       m_editingIndex = m_editing.size() - 1;
     else
       --m_editingIndex;
-    m_controls->updateBindings(m_editing.at(m_editingIndex),
-                               getButtonFactory(world, m_editing.at(m_editingIndex).controllerType));
+    auto& editing = m_editing.at(m_editingIndex);
+    m_controls->updateBindings(editing, getButtonFactory(world, editing.controllerType));
   }
 
   if(world.getPresenter().getInputHandler().hasDebouncedAction(NextProfileAction))
@@ -353,22 +353,22 @@ void ControlsMenuState::handleDisplayInput(engine::world::World& world)
       m_editingIndex = 0;
     else
       ++m_editingIndex;
-    m_controls->updateBindings(m_editing.at(m_editingIndex),
-                               getButtonFactory(world, m_editing.at(m_editingIndex).controllerType));
+    auto& editing = m_editing.at(m_editingIndex);
+    m_controls->updateBindings(editing, getButtonFactory(world, editing.controllerType));
   }
 
   if(world.getPresenter().getInputHandler().hasDebouncedAction(ChangeControllerTypeAction))
   {
     auto& layouts = world.getControllerLayouts();
-    auto layoutIt = layouts.find(m_editing.at(m_editingIndex).controllerType);
+    auto& editing = m_editing.at(m_editingIndex);
+    auto layoutIt = layouts.find(editing.controllerType);
     gsl_Assert(layoutIt != layouts.end());
     ++layoutIt;
     if(layoutIt == layouts.end())
-      m_editing.at(m_editingIndex).controllerType = layouts.begin()->first;
+      editing.controllerType = layouts.begin()->first;
     else
-      m_editing.at(m_editingIndex).controllerType = layoutIt->first;
-    m_controls->updateBindings(m_editing.at(m_editingIndex),
-                               getButtonFactory(world, m_editing.at(m_editingIndex).controllerType));
+      editing.controllerType = layoutIt->first;
+    m_controls->updateBindings(editing, getButtonFactory(world, editing.controllerType));
   }
 
   if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::MenuDown))

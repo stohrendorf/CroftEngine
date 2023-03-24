@@ -13,14 +13,15 @@ Node::~Node()
 {
   if(auto p = m_parent.lock())
   {
-    const auto it = std::find_if(p->m_children.begin(),
-                                 p->m_children.end(),
+    auto& children = p->m_children;
+    const auto it = std::find_if(children.begin(),
+                                 children.end(),
                                  [this](const gslu::nn_shared<Node>& node)
                                  {
                                    return node.get().get() == this;
                                  });
-    if(it != p->m_children.end())
-      p->m_children.erase(it);
+    if(it != children.end())
+      children.erase(it);
   }
 
   m_parent.reset();

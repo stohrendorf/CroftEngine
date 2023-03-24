@@ -115,9 +115,9 @@ public:
     if(m_size == 0)
       return MappedBuffer{std::ref(*this)};
 
-    const void* data = GL_ASSERT_FN(api::mapNamedBufferRange(getHandle(), 0, m_size * sizeof(T), access));
+    void* data = GL_ASSERT_FN(api::mapNamedBufferRange(getHandle(), 0, m_size * sizeof(T), access));
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
-    return MappedBuffer{std::ref(*this), static_cast<T*>(const_cast<void*>(data)), m_size};
+    return MappedBuffer{std::ref(*this), static_cast<T*>(data), m_size};
   }
 
   void setSubData(const gsl::span<const T>& data, const api::core::SizeType start)

@@ -28,19 +28,21 @@ std::unique_ptr<StaticMesh> StaticMesh::read(io::SDLReader& reader)
   mesh->id = reader.readU32();
   mesh->mesh = reader.readU16();
 
-  mesh->visibility_box.x.min = core::Length{gsl::narrow_cast<core::Length::type>(reader.readI16())};
-  mesh->visibility_box.x.max = core::Length{gsl::narrow_cast<core::Length::type>(reader.readI16())};
-  mesh->visibility_box.y.min = core::Length{gsl::narrow_cast<core::Length::type>(reader.readI16())};
-  mesh->visibility_box.y.max = core::Length{gsl::narrow_cast<core::Length::type>(reader.readI16())};
-  mesh->visibility_box.z.min = core::Length{gsl::narrow_cast<core::Length::type>(reader.readI16())};
-  mesh->visibility_box.z.max = core::Length{gsl::narrow_cast<core::Length::type>(reader.readI16())};
+  auto& visBox = mesh->visibility_box;
+  visBox.x.min = core::Length{gsl::narrow_cast<core::Length::type>(reader.readI16())};
+  visBox.x.max = core::Length{gsl::narrow_cast<core::Length::type>(reader.readI16())};
+  visBox.y.min = core::Length{gsl::narrow_cast<core::Length::type>(reader.readI16())};
+  visBox.y.max = core::Length{gsl::narrow_cast<core::Length::type>(reader.readI16())};
+  visBox.z.min = core::Length{gsl::narrow_cast<core::Length::type>(reader.readI16())};
+  visBox.z.max = core::Length{gsl::narrow_cast<core::Length::type>(reader.readI16())};
 
-  mesh->collision_box.x.min = core::Length{gsl::narrow_cast<core::Length::type>(reader.readI16())};
-  mesh->collision_box.x.max = core::Length{gsl::narrow_cast<core::Length::type>(reader.readI16())};
-  mesh->collision_box.y.min = core::Length{gsl::narrow_cast<core::Length::type>(reader.readI16())};
-  mesh->collision_box.y.max = core::Length{gsl::narrow_cast<core::Length::type>(reader.readI16())};
-  mesh->collision_box.z.min = core::Length{gsl::narrow_cast<core::Length::type>(reader.readI16())};
-  mesh->collision_box.z.max = core::Length{gsl::narrow_cast<core::Length::type>(reader.readI16())};
+  auto& collBox = mesh->collision_box;
+  collBox.x.min = core::Length{gsl::narrow_cast<core::Length::type>(reader.readI16())};
+  collBox.x.max = core::Length{gsl::narrow_cast<core::Length::type>(reader.readI16())};
+  collBox.y.min = core::Length{gsl::narrow_cast<core::Length::type>(reader.readI16())};
+  collBox.y.max = core::Length{gsl::narrow_cast<core::Length::type>(reader.readI16())};
+  collBox.z.min = core::Length{gsl::narrow_cast<core::Length::type>(reader.readI16())};
+  collBox.z.max = core::Length{gsl::narrow_cast<core::Length::type>(reader.readI16())};
 
   mesh->flags = reader.readU16();
   return mesh;
@@ -97,10 +99,7 @@ std::unique_ptr<Room> Room::readTr1(io::SDLReader& reader)
   room->flags = reader.readU16();
   room->reverbInfo = ReverbType::MediumRoom;
 
-  room->lightColor.r = 1.0f;
-  room->lightColor.g = 1.0f;
-  room->lightColor.b = 1.0f;
-  room->lightColor.a = 1.0f;
+  room->lightColor = {1.0f, 1.0f, 1.0f, 1.0f};
   return room;
 }
 
@@ -156,10 +155,8 @@ std::unique_ptr<Room> Room::readTr2(io::SDLReader& reader)
     room->reverbInfo = ReverbType::MediumRoom;
   }
 
-  room->lightColor.r = gsl::narrow_cast<float>(room->ambientShade.get()) / 16384.0f;
-  room->lightColor.g = gsl::narrow_cast<float>(room->ambientShade.get()) / 16384.0f;
-  room->lightColor.b = gsl::narrow_cast<float>(room->ambientShade.get()) / 16384.0f;
-  room->lightColor.a = 1.0f;
+  auto v = gsl::narrow_cast<float>(room->ambientShade.get()) / 16384.0f;
+  room->lightColor = {v, v, v, 1.0f};
   return room;
 }
 
@@ -221,10 +218,8 @@ std::unique_ptr<Room> Room::readTr3(io::SDLReader& reader)
 
   reader.skip(1); // Alternate_group override?
 
-  room->lightColor.r = gsl::narrow_cast<float>(room->ambientShade.get()) / 65535.0f;
-  room->lightColor.g = gsl::narrow_cast<float>(room->ambientShade.get()) / 65535.0f;
-  room->lightColor.b = gsl::narrow_cast<float>(room->ambientShade.get()) / 65535.0f;
-  room->lightColor.a = 1.0f;
+  auto v = gsl::narrow_cast<float>(room->ambientShade.get()) / 65535.0f;
+  room->lightColor = {v, v, v, 1.0f};
   return room;
 }
 
@@ -279,6 +274,7 @@ std::unique_ptr<Room> Room::readTr4(io::SDLReader& reader)
 
   room->alternateGroup = reader.readU8();
 
+  // FIXME r differs from g, b and a
   room->lightColor.r = gsl::narrow_cast<float>(util::bits(static_cast<uint16_t>(room->intensity2), 0, 8)) / 255.0f;
   room->lightColor.g
     = gsl::narrow_cast<float>(util::bits(static_cast<uint16_t>(room->ambientShade.get()), 8, 8)) / 255.0f;
@@ -305,8 +301,8 @@ std::unique_ptr<Room> Room::readTr5(io::SDLReader& reader)
   if(reader.readU32() != 0xCDCDCDCD)
     BOOST_LOG_TRIVIAL(warning) << "TR5 Room: separator1 has wrong value";
 
-  /*portal_offset = */
-  reader.readI32();                                           // StartPortalOffset?   // endSDOffset
+  /*portal_offset*/
+  reader.skip(sizeof(uint32_t));                              // StartPortalOffset?   // endSDOffset
   const std::streampos sector_data_offset = reader.readU32(); // StartSDOffset
   auto temp = reader.readU32();
   if(temp != 0 && temp != 0xCDCDCDCD)
@@ -411,8 +407,8 @@ std::unique_ptr<Room> Room::readTr5(io::SDLReader& reader)
   if(reader.readU32() != 0)
     BOOST_LOG_TRIVIAL(warning) << "TR5 Room: separator14 has wrong value";
 
-  /*light_size = */
-  reader.readU32();
+  /*light_size*/
+  reader.skip(sizeof(uint32_t));
   const auto numL2 = reader.readU32();
   if(numL2 != room->lights.size())
     BOOST_THROW_EXCEPTION(std::runtime_error("TR5 Room: numLights2 != lights.size()"));
@@ -640,9 +636,9 @@ Light Light::readTr5(io::SDLReader& reader)
       */
   light.r_inner = core::Length{gsl::narrow<core::Length::type>(reader.readF())};
   light.r_outer = core::Length{gsl::narrow<core::Length::type>(reader.readF())};
-  reader.readF(); // rad_input
-  reader.readF(); // rad_output
-  reader.readF(); // range
+  reader.skip(sizeof(float)); // rad_input
+  reader.skip(sizeof(float)); // rad_output
+  reader.skip(sizeof(float)); // range
   light.dir = readCoordinatesF(reader);
   light.pos2 = readCoordinates32(reader);
   light.dir2 = readCoordinates32(reader);

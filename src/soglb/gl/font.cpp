@@ -129,7 +129,7 @@ Font::~Font()
 void Font::drawText(
   Image<PremultipliedSRGBA8>& img, const gsl::czstring text, glm::ivec2 xy, const PremultipliedSRGBA8& color, int size)
 {
-  gsl_Expects(text);
+  gsl_Expects(text != nullptr);
   gsl_Expects(size > 0);
 
   size = gsl::narrow_cast<int>(gsl::narrow_cast<float>(size) * m_lineHeight);
@@ -178,7 +178,7 @@ void Font::drawText(
     }
 
     if(prevChar.has_value())
-      xy.x += getGlyphKernAdvance(prevChar.value(), chr);
+      xy.x += getGlyphKernAdvance(*prevChar, chr);
 
     xy.x += sbit->xadvance;
     xy.y += sbit->yadvance;
@@ -202,7 +202,7 @@ void Font::drawText(Image<PremultipliedSRGBA8>& img,
 
 void Font::drawText(Image<ScalarByte>& img, const gsl::czstring text, glm::ivec2 xy, int size)
 {
-  Expects(text);
+  Expects(text != nullptr);
   Expects(size > 0);
 
   size = gsl::narrow_cast<int>(gsl::narrow_cast<float>(size) * m_lineHeight);
@@ -248,7 +248,7 @@ void Font::drawText(Image<ScalarByte>& img, const gsl::czstring text, glm::ivec2
     }
 
     if(prevChar.has_value())
-      xy.x += getGlyphKernAdvance(prevChar.value(), chr);
+      xy.x += getGlyphKernAdvance(*prevChar, chr);
 
     xy.x += sbit->xadvance;
     xy.y += sbit->yadvance;
@@ -265,7 +265,7 @@ void Font::drawText(Image<ScalarByte>& img, const std::string& text, const glm::
 
 std::pair<glm::ivec2, glm::ivec2> Font::measure(const gsl::czstring text, int size)
 {
-  Expects(text);
+  Expects(text != nullptr);
   Expects(size > 0);
 
   size = gsl::narrow_cast<int>(gsl::narrow_cast<float>(size) * m_lineHeight);
@@ -309,7 +309,7 @@ std::pair<glm::ivec2, glm::ivec2> Font::measure(const gsl::czstring text, int si
     topRight.y = std::max(topRight.y, xy.y + sbit->top + sbit->height);
 
     if(prevChar.has_value())
-      xy.x += getGlyphKernAdvance(prevChar.value(), chr);
+      xy.x += getGlyphKernAdvance(*prevChar, chr);
 
     xy.x += sbit->xadvance;
     xy.y += sbit->yadvance;

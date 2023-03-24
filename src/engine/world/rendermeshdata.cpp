@@ -77,11 +77,12 @@ void RenderMeshData::buildMesh(const loader::file::Mesh& mesh,
         iv.quadUv34 = glm::vec4{tile.uvCoordinates[2], tile.uvCoordinates[3]};
       }
 
+      const auto& quadVertex = quad.vertices[i];
       if(mesh.normals.empty())
-        iv.color = glm::vec4(glm::vec3{toBrightness(quad.vertices[i].from(mesh.vertex_shades)).get()}, 1.0f);
+        iv.color = glm::vec4(glm::vec3{toBrightness(quadVertex.from(mesh.vertex_shades)).get()}, 1.0f);
 
       if(mesh.isFlatShaded() || mesh.normals.empty()
-         || quad.vertices[i].from(mesh.normals) == core::TRVec{0_len, 0_len, 0_len})
+         || quadVertex.from(mesh.normals) == core::TRVec{0_len, 0_len, 0_len})
       {
         if(i <= 2)
         {
@@ -100,10 +101,10 @@ void RenderMeshData::buildMesh(const loader::file::Mesh& mesh,
       }
       else
       {
-        iv.normal = quad.vertices[i].from(mesh.normals).toRenderSystem();
+        iv.normal = quadVertex.from(mesh.normals).toRenderSystem();
       }
 
-      iv.position = quad.vertices[i].from(mesh.vertices).toRenderSystem();
+      iv.position = quadVertex.from(mesh.vertices).toRenderSystem();
       iv.uv = glm::vec3{tile.uvCoordinates[i], tile.textureKey.atlasIdAndFlag & loader::file::AtlasIdMask};
       m_vertices.emplace_back(iv);
     }

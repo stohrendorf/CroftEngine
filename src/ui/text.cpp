@@ -52,7 +52,6 @@ std::vector<std::tuple<glm::ivec2, uint8_t>> doLayout(const std::string& text, i
     if(isSpriteSelector)
     {
       isSpriteSelector = false;
-      sprite = chr;
       layout.emplace_back(xy, sprite);
     }
     else

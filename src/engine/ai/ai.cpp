@@ -124,6 +124,7 @@ void updateMood(const objects::AIAgent& aiAgent, const EnemyLocation& enemyLocat
 
   CreatureInfo& creatureInfo = *aiAgent.getCreatureInfo();
   auto newTargetBox = creatureInfo.pathFinder.getTargetBox();
+  gsl_Assert(newTargetBox != nullptr);
   if(creatureInfo.pathFinder.isUnreachable(aiAgent.m_state.getCurrentBox()))
   {
     newTargetBox = nullptr;
@@ -168,13 +169,19 @@ void updateMood(const objects::AIAgent& aiAgent, const EnemyLocation& enemyLocat
                            ->target_update_chance)
       break;
 
-    creatureInfo.pathFinder.target = lara.m_state.location.position;
-    newTargetBox = lara.m_state.getCurrentBox();
-    creatureInfo.pathFinder.target.X = newTargetBox->xInterval.clamp(creatureInfo.pathFinder.target.X);
-    creatureInfo.pathFinder.target.Z = newTargetBox->zInterval.clamp(creatureInfo.pathFinder.target.Z);
-    if(creatureInfo.pathFinder.isFlying() && lara.isOnLand())
-      creatureInfo.pathFinder.target.Y
-        += lara.getSkeleton()->getInterpolationInfo().getNearestFrame()->bbox.toBBox().y.min;
+    {
+      newTargetBox = lara.m_state.getCurrentBox();
+      auto pos = lara.m_state.location.position;
+      pos.X = newTargetBox->xInterval.clamp(pos.X);
+      pos.Z = newTargetBox->zInterval.clamp(pos.Z);
+      if(creatureInfo.pathFinder.isFlying() && lara.isOnLand())
+      {
+        // target the head
+        pos.Y += lara.getSkeleton()->getInterpolationInfo().getNearestFrame()->bbox.toBBox().y.min;
+      }
+
+      creatureInfo.pathFinder.setTarget(pos);
+    }
 
     break;
   case Mood::Bored:
@@ -288,7 +295,7 @@ EnemyLocation::EnemyLocation(objects::AIAgent& aiAgent)
 
   const auto zoneRef = world::Box::getZoneRef(aiAgent.getWorld().roomsAreSwapped(),
                                               aiAgent.getCreatureInfo()->pathFinder.isFlying(),
-                                              aiAgent.getCreatureInfo()->pathFinder.step);
+                                              aiAgent.getCreatureInfo()->pathFinder.getStep());
 
   const auto aiAgentBox = aiAgent.m_state.getCurrentBox();
   zoneId = aiAgentBox.get()->*zoneRef;
@@ -329,13 +336,8 @@ CreatureInfo::CreatureInfo(const world::World& world,
 {
   const auto& objectInfo
     = *world.getEngine().getScriptEngine().getGameflow().getObjectInfos().at(type.get_as<TR1ItemId>());
-  pathFinder.step = core::Length{objectInfo.step_limit};
-  pathFinder.drop = core::Length{objectInfo.drop_limit};
-  pathFinder.fly = core::Length{objectInfo.fly_limit};
-  pathFinder.cannotVisitBlockable = objectInfo.cannot_visit_blockable;
-  pathFinder.cannotVisitBlocked = objectInfo.cannot_visit_blocked;
 
-  pathFinder.collectBoxes(world, initialBox);
+  pathFinder.init(world, initialBox, objectInfo);
 }
 
 void CreatureInfo::serialize(const serialization::Serializer<world::World>& ser) const

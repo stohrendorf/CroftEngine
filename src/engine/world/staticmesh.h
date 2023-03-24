@@ -13,7 +13,7 @@ namespace engine::world
 struct StaticMesh
 {
   core::BoundingBox collisionBox;
-  bool doNotCollide;
+  bool doNotCollide = false;
 
   std::shared_ptr<render::scene::Mesh> renderMesh{nullptr};
 };

@@ -30,7 +30,6 @@ class PassportMenuState : public MenuState
 private:
   bool m_allowExit;
   SaveGamePageMode m_saveGamePageMode;
-  std::optional<int> m_forcePage = std::nullopt;
   std::unique_ptr<ui::Text> m_passportText;
 
   std::optional<std::unique_ptr<MenuState>> showLoadGamePage(engine::world::World& world, MenuDisplay& display);

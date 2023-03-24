@@ -50,8 +50,8 @@ constexpr auto ShotgunAimToIdleAnimEnd = 126_frame;
 
 struct AimInfo
 {
-  size_t handBoneId;
-  size_t thighBoneId;
+  size_t handBoneId{std::numeric_limits<size_t>::max()};
+  size_t thighBoneId{std::numeric_limits<size_t>::max()};
 
   const loader::file::AnimFrame* weaponAnimData = nullptr;
   core::Frame frame = 0_frame;

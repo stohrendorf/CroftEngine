@@ -58,9 +58,7 @@ void Natla::update()
   }
   else if(m_state.health > 200_hp)
   {
-    getCreatureInfo()->pathFinder.step = 256_len;
-    getCreatureInfo()->pathFinder.drop = -256_len;
-    getCreatureInfo()->pathFinder.fly = 0_len;
+    getCreatureInfo()->pathFinder.setLimits(getWorld(), m_state.getCurrentBox(), 256_len, -256_len, 0_len);
     ai::EnemyLocation enemyLocation{*this};
 
     const auto canShoot = abs(enemyLocation.angleToEnemy) < 30_deg && canShootAtLara(enemyLocation);
@@ -72,9 +70,7 @@ void Natla::update()
       if(!m_attemptToFly)
         ai::updateMood(*this, enemyLocation, true);
 
-      getCreatureInfo()->pathFinder.step = 20_sectors;
-      getCreatureInfo()->pathFinder.drop = -20_sectors;
-      getCreatureInfo()->pathFinder.fly = 32_len;
+      getCreatureInfo()->pathFinder.setLimits(getWorld(), m_state.getCurrentBox(), 20_sectors, -20_sectors, 32_len);
       enemyLocation = ai::EnemyLocation{*this};
     }
     else
@@ -146,9 +142,7 @@ void Natla::update()
   }
   else
   {
-    getCreatureInfo()->pathFinder.step = 256_len;
-    getCreatureInfo()->pathFinder.drop = -256_len;
-    getCreatureInfo()->pathFinder.fly = 0_len;
+    getCreatureInfo()->pathFinder.setLimits(getWorld(), m_state.getCurrentBox(), 256_len, -256_len, 0_len);
     const ai::EnemyLocation enemyLocation{*this};
 
     if(enemyLocation.enemyAhead)
