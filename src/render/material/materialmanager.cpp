@@ -151,6 +151,7 @@ gslu::nn_shared<Material> MaterialManager::getGeometry(bool inWater,
       [this](const scene::Node* /*node*/, const scene::Mesh& /*mesh*/, gl::Uniform& uniform)
       {
         BOOST_ASSERT(m_csm != nullptr);
+        GL_ASSERT(gl::api::memoryBarrier(gl::api::MemoryBarrierMask::AllBarrierBits));
         uniform.set(gsl::make_span(m_csm->getTextures()));
       });
 
