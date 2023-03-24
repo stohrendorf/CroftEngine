@@ -125,7 +125,7 @@ struct SplitGetter
   static std::array<gslu::nn_shared<gl::TextureHandle<gl::Texture2D<gl::RG16F>>>, CSMBuffer::NSplits>
     getBlurred(const std::array<CSM::Split, CSMBuffer::NSplits>& splits, std::index_sequence<Is...>)
   {
-    return {{splits[Is].squareBlur->getBlurredTexture()...}};
+    return {{gsl::not_null{splits[Is].squaredTextureHandle}...}};
   }
 
   static std::array<gslu::nn_shared<gl::TextureHandle<gl::Texture2D<gl::RG16F>>>, CSMBuffer::NSplits>
