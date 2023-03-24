@@ -58,7 +58,7 @@ float calc_vsm_value(in int splitIdx, in vec3 projCoords)
     #ifdef ROOM_SHADOWING
     result = mix(1.0, result, -lightNormDot);
     #endif
-    return result*0.000001 + moments.x;
+    return clamp(result*0.000001 + moments.x, 0.0, 1.0);
 }
 
 float shadow_map_multiplier()
