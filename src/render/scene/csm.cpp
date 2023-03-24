@@ -58,8 +58,8 @@ void CSM::Split::init(int32_t resolution, size_t idx, material::MaterialManager&
         .textureNoBlend(gl::api::FramebufferAttachment::DepthAttachment, depthTextureHandle->getTexture())
         .build("csm-split-fb/" + std::to_string(idx));
 
-  squaredTextureHandle = std::make_shared<gl::TextureHandle<gl::Texture2D<gl::RG16F>>>(
-    gsl::make_shared<gl::Texture2D<gl::RG16F>>(glm::ivec2{resolution, resolution},
+  squaredTextureHandle = std::make_shared<gl::TextureHandle<gl::Texture2D<gl::RG32F>>>(
+    gsl::make_shared<gl::Texture2D<gl::RG32F>>(glm::ivec2{resolution, resolution},
                                                "csm-texture/" + std::to_string(idx) + "/squared"),
     gsl::make_unique<gl::Sampler>("csm-texture/" + std::to_string(idx) + "/squared" + gl::SamplerSuffix)
       | set(gl::api::TextureMinFilter::Linear) | set(gl::api::TextureMagFilter::Linear)
@@ -81,7 +81,7 @@ void CSM::Split::init(int32_t resolution, size_t idx, material::MaterialManager&
   squareMesh->getRenderState().merge(squareFramebuffer->getRenderState());
   squareMesh->getMaterialGroup().set(material::RenderMode::FullOpaque, squareMaterial);
 
-  squareBlur = std::make_shared<SeparableBlur<gl::RG16F>>(
+  squareBlur = std::make_shared<SeparableBlur<gl::RG32F>>(
     "squareBlur-" + std::to_string(idx), materialManager, uint8_t{2}, true);
   squareBlur->setInput(gsl::not_null{squaredTextureHandle});
 }
@@ -122,13 +122,13 @@ namespace
 struct SplitGetter
 {
   template<size_t... Is>
-  static std::array<gslu::nn_shared<gl::TextureHandle<gl::Texture2D<gl::RG16F>>>, CSMBuffer::NSplits>
+  static std::array<gslu::nn_shared<gl::TextureHandle<gl::Texture2D<gl::RG32F>>>, CSMBuffer::NSplits>
     getBlurred(const std::array<CSM::Split, CSMBuffer::NSplits>& splits, std::index_sequence<Is...>)
   {
     return {{gsl::not_null{splits[Is].squaredTextureHandle}...}};
   }
 
-  static std::array<gslu::nn_shared<gl::TextureHandle<gl::Texture2D<gl::RG16F>>>, CSMBuffer::NSplits>
+  static std::array<gslu::nn_shared<gl::TextureHandle<gl::Texture2D<gl::RG32F>>>, CSMBuffer::NSplits>
     getBlurred(const std::array<CSM::Split, CSMBuffer::NSplits>& splits)
   {
     return getBlurred(splits, std::make_index_sequence<CSMBuffer::NSplits>());
@@ -136,7 +136,7 @@ struct SplitGetter
 };
 } // namespace
 
-std::array<gslu::nn_shared<gl::TextureHandle<gl::Texture2D<gl::RG16F>>>, CSMBuffer::NSplits> CSM::getTextures() const
+std::array<gslu::nn_shared<gl::TextureHandle<gl::Texture2D<gl::RG32F>>>, CSMBuffer::NSplits> CSM::getTextures() const
 {
   return SplitGetter::getBlurred(m_splits);
 }
