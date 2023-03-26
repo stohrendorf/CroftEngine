@@ -257,7 +257,7 @@ public:
 
   void setPierre(objects::Object* pierre) noexcept
   {
-    m_pierre = pierre;
+    m_pierre = m_objectManager.find(pierre);
   }
 
   [[nodiscard]] const Engine& getEngine() const
@@ -411,7 +411,7 @@ private:
   std::bitset<16> m_secretsFoundBitmask = 0;
 
   std::array<floordata::ActivationState, 10> m_mapFlipActivationStates;
-  objects::Object* m_pierre = nullptr;
+  std::shared_ptr<objects::Object> m_pierre = nullptr;
   std::string m_title{};
   size_t m_totalSecrets = 0;
   std::unordered_map<std::string, std::unordered_map<TR1ItemId, std::string>> m_itemTitles{};

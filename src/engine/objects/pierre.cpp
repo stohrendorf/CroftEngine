@@ -38,7 +38,7 @@ void Pierre::update()
   {
     getWorld().setPierre(this);
   }
-  else if(this != getWorld().getPierre())
+  else if(this != getWorld().getPierre().get())
   {
     if(m_state.activationState.isOneshot())
     {

@@ -71,8 +71,8 @@
 #include "serialization/array.h"
 #include "serialization/bitset.h"
 #include "serialization/not_null.h"
+#include "serialization/objectreference.h"
 #include "serialization/optional.h"
-#include "serialization/optional_value.h"
 #include "serialization/quantity.h"
 #include "serialization/serialization.h"
 #include "serialization/vector.h"
@@ -1019,7 +1019,8 @@ void World::serialize(const serialization::Serializer<World>& ser) const
       S_NV("rooms", serialization::SerializingFrozenVector{std::cref(m_rooms)}),
       S_NV("boxes", serialization::SerializingFrozenVector{std::cref(m_boxes)}),
       S_NV("audioEngine", *m_audioEngine),
-      S_NV("ghostFrame", m_ghostFrame));
+      S_NV("ghostFrame", m_ghostFrame),
+      S_NV("pierre", serialization::ObjectReference{std::cref(m_pierre)}));
 }
 
 void World::deserialize(const serialization::Deserializer<World>& ser)
@@ -1054,7 +1055,7 @@ void World::deserialize(const serialization::Deserializer<World>& ser)
 
   ser(S_NV("objectManager", m_objectManager),
       S_NV("player", *m_player),
-      S_NVO("initialLevelStartPlayer", std::ref(*m_levelStartPlayer)),
+      S_NV("initialLevelStartPlayer", *m_levelStartPlayer),
       S_NV("mapFlipActivationStates", m_mapFlipActivationStates),
       S_NV("cameras", serialization::DeserializingFrozenVector{std::ref(m_cameraSinks)}),
       S_NV("activeEffect", m_activeEffect),
@@ -1066,7 +1067,9 @@ void World::deserialize(const serialization::Deserializer<World>& ser)
       S_NV("rooms", serialization::DeserializingFrozenVector{std::ref(m_rooms)}),
       S_NV("boxes", serialization::DeserializingFrozenVector{std::ref(m_boxes)}),
       S_NV("audioEngine", *m_audioEngine),
-      S_NVO("ghostFrame", std::ref(m_ghostFrame)));
+      S_NV("ghostFrame", m_ghostFrame));
+  if(ser.node.has_child(c4::to_csubstr("pierre")))
+    ser(S_NV("pierre", serialization::ObjectReference{std::cref(m_pierre)}));
 
   updateStaticSoundEffects();
 }
