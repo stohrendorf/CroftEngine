@@ -56,10 +56,10 @@ bool PathFinder::calculateTarget(const world::World& world,
   core::Interval<core::Length> xRange{0_len, 0_len};
   core::Interval<core::Length> zRange{0_len, 0_len};
 
-  static constexpr uint8_t CanMoveXPos = 0x01u;
-  static constexpr uint8_t CanMoveXNeg = 0x02u;
-  static constexpr uint8_t CanMoveZPos = 0x04u;
-  static constexpr uint8_t CanMoveZNeg = 0x08u;
+  static constexpr uint8_t CanMoveXPos = 1u << 0u;
+  static constexpr uint8_t CanMoveXNeg = 1u << 1u;
+  static constexpr uint8_t CanMoveZPos = 1u << 2u;
+  static constexpr uint8_t CanMoveZNeg = 1u << 3u;
   // NOLINTNEXTLINE(hicpp-signed-bitwise)
   static constexpr uint8_t CanMoveAllDirs = CanMoveXPos | CanMoveXNeg | CanMoveZPos | CanMoveZNeg;
 

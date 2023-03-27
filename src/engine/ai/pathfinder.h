@@ -44,7 +44,7 @@ struct PathFinder
    * when moving straight towards it without collisions. @p startBox must contain @p startPos. @p moveTarget is an
    * output-only parameter and doesn't need to be initialised properly.
    *
-   * @return @c true if the final position can be reached, @c false otherwise.
+   * @return @c true if a valid movement target was found, @c false otherwise.
    */
   bool calculateTarget(const world::World& world,
                        core::TRVec& moveTarget,
