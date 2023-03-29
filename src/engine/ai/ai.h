@@ -69,12 +69,14 @@ struct EnemyLocation
 
   explicit EnemyLocation(objects::AIAgent& aiAgent);
 
+  [[nodiscard]] bool isInEnemyZone() const noexcept
+  {
+    return zoneId == enemyZoneId;
+  }
+
   [[nodiscard]] bool canReachEnemyZone() const noexcept
   {
-    if(zoneId == InvalidZone)
-      return false;
-
-    return !enemyUnreachable && zoneId == enemyZoneId;
+    return !enemyUnreachable && isInEnemyZone();
   }
 };
 

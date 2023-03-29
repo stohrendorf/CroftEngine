@@ -125,7 +125,8 @@ void updateMood(const objects::AIAgent& aiAgent, const EnemyLocation& enemyLocat
   CreatureInfo& creatureInfo = *aiAgent.getCreatureInfo();
   auto newTargetBox = creatureInfo.pathFinder.getTargetBox();
   gsl_Assert(newTargetBox != nullptr);
-  if(creatureInfo.pathFinder.isUnreachable(aiAgent.m_state.getCurrentBox()))
+  auto& lara = aiAgent.getWorld().getObjectManager().getLara();
+  if(creatureInfo.pathFinder.isUnreachable(lara.m_state.getCurrentBox()))
   {
     newTargetBox = nullptr;
   }
@@ -140,12 +141,16 @@ void updateMood(const objects::AIAgent& aiAgent, const EnemyLocation& enemyLocat
     newTargetBox = nullptr;
   }
   const auto originalMood = creatureInfo.mood;
-  auto& lara = aiAgent.getWorld().getObjectManager().getLara();
   if(lara.isDead())
+  {
     creatureInfo.mood = Mood::Bored;
+  }
   else if(auto newMood
-          = getNewMood(enemyLocation, creatureInfo, aiAgent.m_state.is_hit, violent, newTargetBox != nullptr))
+          = getNewMood(enemyLocation, creatureInfo, aiAgent.m_state.is_hit, violent, newTargetBox != nullptr);
+          newMood.has_value())
+  {
     creatureInfo.mood = *newMood;
+  }
 
   if(originalMood != creatureInfo.mood)
   {
