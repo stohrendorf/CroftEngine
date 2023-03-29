@@ -27,15 +27,363 @@ namespace engine::ai
 namespace
 {
 template<typename T>
-[[nodiscard]] constexpr const auto& uncheckedClamp(const T& x, const core::Interval<T>& interval)
+[[nodiscard]] constexpr const auto& uncheckedClamp(const T& value, const core::Interval<T>& interval)
 {
-  if(x < interval.min)
+  if(value < interval.min)
     return interval.min;
-  else if(x > interval.max)
+  else if(value > interval.max)
     return interval.max;
   else
-    return x;
+    return value;
 }
+
+struct MovementCalculator
+{
+  static constexpr auto Margin = 1_sectors / 2;
+
+  static constexpr uint8_t CanMoveXNeg = 1u << 0u;
+  static constexpr uint8_t CanMoveXPos = 1u << 1u;
+  static constexpr uint8_t CanMoveZNeg = 1u << 2u;
+  static constexpr uint8_t CanMoveZPos = 1u << 3u;
+  // NOLINTNEXTLINE(hicpp-signed-bitwise)
+  static constexpr uint8_t CanMoveAllDirs = CanMoveXNeg | CanMoveXPos | CanMoveZNeg | CanMoveZPos;
+
+  explicit MovementCalculator(const core::TRVec& startPos)
+      : startPos{startPos}
+      , moveTarget{startPos}
+  {
+  }
+
+  core::TRVec startPos;
+  core::TRVec moveTarget;
+  bool frozenRanges = false;
+  uint8_t moveDirs = CanMoveAllDirs;
+  core::Interval<core::Length> xRange{0_len, 0_len};
+  core::Interval<core::Length> zRange{0_len, 0_len};
+
+  bool calculate(const gsl::not_null<const world::Box*>& startBox,
+                 bool isFlying,
+                 const world::Box* goalBox,
+                 const core::TRVec& goalPos,
+                 const std::function<const world::Box*(const gsl::not_null<const world::Box*>& box)>& getNextPathBox,
+                 const std::function<bool(const world::Box& box)>& canVisit)
+  {
+    auto box = startBox;
+    BOOST_ASSERT(startBox->xInterval.contains(startPos.X));
+    BOOST_ASSERT(startBox->zInterval.contains(startPos.Z));
+    xRange = {0_len, 0_len};
+    zRange = {0_len, 0_len};
+
+    moveTarget = startPos;
+    frozenRanges = false;
+    moveDirs = CanMoveAllDirs;
+    while(true)
+    {
+      if(isFlying)
+      {
+        moveTarget.Y = std::min(moveTarget.Y, box->floor - 1_sectors);
+      }
+      else
+      {
+        moveTarget.Y = std::min(moveTarget.Y, box->floor);
+      }
+
+      if(box->xInterval.contains(startPos.X) && box->zInterval.contains(startPos.Z))
+      {
+        xRange = box->xInterval;
+        zRange = box->zInterval;
+      }
+      else
+      {
+        if(startPos.Z < box->zInterval.min)
+        {
+          if(tryMoveZPos(*box))
+            return true;
+        }
+        else if(startPos.Z > box->zInterval.max)
+        {
+          if(tryMoveZNeg(*box))
+            return true;
+        }
+
+        if(startPos.X < box->xInterval.min)
+        {
+          if(tryMoveXPos(*box))
+            return true;
+        }
+        else if(startPos.X > box->xInterval.max)
+        {
+          if(tryMoveXNeg(*box))
+            return true;
+        }
+      }
+
+      if(box == goalBox)
+      {
+        calculateFinalMove(*box, goalPos);
+
+        return true;
+      }
+
+      const auto nextBox = getNextPathBox(box);
+      if(nextBox == nullptr || !canVisit(*nextBox))
+        break;
+
+      box = gsl::not_null{nextBox};
+    }
+
+    calculateFinalIncompleteMove(*box, isFlying);
+
+    return false;
+  }
+
+  bool tryMoveZPos(const world::Box& box)
+  {
+    // Only refine the moveTarget in the movement area.
+    if((moveDirs & CanMoveZPos) && box.xInterval.contains(startPos.X))
+    {
+      // The "max" is to ensure that it won't go to -Z, as the box's Z range may contain the moveTarget Z.
+      moveTarget.Z = std::max(moveTarget.Z, box.zInterval.max - Margin);
+    }
+    else
+    {
+      // Move to the virtual wall of our currently allowed movement area. This can happen, for example, when we're
+      // in the middle of a room with stairs in a corner.
+      moveTarget.Z = zRange.max - Margin;
+    }
+
+    if(frozenRanges)
+    {
+      return true;
+    }
+
+    // Try to move to +Z, as we're outside of the box.
+    if((moveDirs & CanMoveZPos) && box.xInterval.contains(startPos.X))
+    {
+      // Scenario 1: We can move to +Z, *and* the new position will have a valid X value. This means we move as little
+      // as we can into the new box.
+
+      // We narrow down the valid X values, as the new box may form a narrower passage.
+      xRange = xRange.intersect(box.xInterval);
+
+      // Now remember our "primary" movement direction, i.e. the initial direction we moved to.
+      moveDirs = CanMoveZPos;
+    }
+    else
+    {
+      // Scenario 2: We cannot move to +Z, *or* the new position won't have a valid X value. This means we're not
+      // moving in the primary direction anymore, or our X value will become invalid, or both.
+
+      if(moveDirs == CanMoveZPos)
+      {
+        // We followed our primary direction, so we try to go further in that direction. This usually happens on stairs
+        // or slopes that are made of a line of linearly laid out boxes.
+        return false;
+      }
+      else if(moveDirs == CanMoveAllDirs)
+      {
+        // We reached the maximum possible +Z, and we have no primary direction.
+        frozenRanges = true;
+      }
+      else
+      {
+        // We didn't go in primary direction. We can call it a day.
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  bool tryMoveZNeg(const world::Box& box)
+  {
+    if((moveDirs & CanMoveZNeg) && box.xInterval.contains(startPos.X))
+    {
+      moveTarget.Z = std::min(moveTarget.Z, box.zInterval.min + Margin);
+    }
+    else
+    {
+      moveTarget.Z = zRange.min + Margin;
+    }
+
+    if(frozenRanges)
+    {
+      return true;
+    }
+
+    if((moveDirs & CanMoveZNeg) && box.xInterval.contains(startPos.X))
+    {
+      xRange = xRange.intersect(box.xInterval);
+
+      moveDirs = CanMoveZNeg;
+    }
+    else
+    {
+      if(moveDirs == CanMoveZNeg)
+      {
+        return false;
+      }
+      else if(moveDirs == CanMoveAllDirs)
+      {
+        frozenRanges = true;
+      }
+      else
+      {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  bool tryMoveXPos(const world::Box& box)
+  {
+    if((moveDirs & CanMoveXPos) && box.zInterval.contains(startPos.Z))
+    {
+      moveTarget.X = std::max(moveTarget.X, box.xInterval.max - Margin);
+    }
+    else
+    {
+      moveTarget.X = xRange.max - Margin;
+    }
+
+    if(frozenRanges)
+    {
+      return true;
+    }
+
+    if((moveDirs & CanMoveXPos) && box.zInterval.contains(startPos.Z))
+    {
+      zRange = zRange.intersect(box.zInterval);
+
+      moveDirs = CanMoveXPos;
+    }
+    else
+    {
+      if(moveDirs == CanMoveXPos)
+      {
+        return false;
+      }
+      else if(moveDirs == CanMoveAllDirs)
+      {
+        frozenRanges = true;
+      }
+      else
+      {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  bool tryMoveXNeg(const world::Box& box)
+  {
+    if((moveDirs & CanMoveXNeg) && box.zInterval.contains(startPos.Z))
+    {
+      moveTarget.X = std::min(moveTarget.X, box.xInterval.min + Margin);
+    }
+    else
+    {
+      moveTarget.X = xRange.min + Margin;
+    }
+
+    if(frozenRanges)
+    {
+      return true;
+    }
+
+    if((moveDirs & CanMoveXNeg) && box.zInterval.contains(startPos.Z))
+    {
+      zRange = zRange.intersect(box.zInterval);
+
+      moveDirs = CanMoveXNeg;
+    }
+    else
+    {
+      if(moveDirs == CanMoveXNeg)
+      {
+        return false;
+      }
+      else if(moveDirs == CanMoveAllDirs)
+      {
+        frozenRanges = true;
+      }
+      else
+      {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  /**
+   * Calculate the final movement if we can go straight to the target.
+   */
+  void calculateFinalMove(const world::Box& box, const core::TRVec& target)
+  {
+    // NOLINTNEXTLINE(hicpp-signed-bitwise)
+    if(moveDirs & (CanMoveZNeg | CanMoveZPos))
+    {
+      moveTarget.Z = target.Z;
+    }
+    else if(!frozenRanges)
+    {
+      moveTarget.Z = uncheckedClamp(moveTarget.Z, box.zInterval.narrowed(Margin));
+    }
+    gsl_Assert(box.zInterval.contains(moveTarget.Z));
+
+    // NOLINTNEXTLINE(hicpp-signed-bitwise)
+    if(moveDirs & (CanMoveXNeg | CanMoveXPos))
+    {
+      moveTarget.X = target.X;
+    }
+    else if(!frozenRanges)
+    {
+      moveTarget.X = uncheckedClamp(moveTarget.X, box.xInterval.narrowed(Margin));
+    }
+    gsl_Assert(box.xInterval.contains(moveTarget.X));
+
+    moveTarget.Y = target.Y;
+  }
+
+  /**
+   * Calculate the final movement if we cannot directly reach the target. Depending on the current state, will
+   * randomise the #moveTarget.
+   */
+  void calculateFinalIncompleteMove(const world::Box& box, bool isFlying)
+  {
+    // NOLINTNEXTLINE(hicpp-signed-bitwise)
+    if(moveDirs & (CanMoveZNeg | CanMoveZPos))
+    {
+      const auto range = box.zInterval.size() - 2 * Margin;
+      moveTarget.Z = util::rand15(range) + box.zInterval.min + Margin;
+    }
+    else if(!frozenRanges)
+    {
+      moveTarget.Z = uncheckedClamp(moveTarget.Z, box.zInterval.narrowed(Margin));
+    }
+    gsl_Assert(box.zInterval.contains(moveTarget.Z));
+
+    // NOLINTNEXTLINE(hicpp-signed-bitwise)
+    if(moveDirs & (CanMoveXNeg | CanMoveXPos))
+    {
+      const auto range = box.xInterval.size() - 2 * Margin;
+      moveTarget.X = util::rand15(range) + box.xInterval.min + Margin;
+    }
+    else if(!frozenRanges)
+    {
+      moveTarget.X = uncheckedClamp(moveTarget.X, box.xInterval.narrowed(Margin));
+    }
+    gsl_Assert(box.xInterval.contains(moveTarget.X));
+
+    if(isFlying)
+      moveTarget.Y = box.floor - 384_len;
+    else
+      moveTarget.Y = box.floor;
+  }
+};
 } // namespace
 
 bool PathFinder::calculateTarget(const world::World& world,
@@ -50,195 +398,22 @@ bool PathFinder::calculateTarget(const world::World& world,
   gsl_Expects(startBox->zInterval.contains(startPos.Z));
   expandNodes(world);
 
-  moveTarget = startPos;
-
-  auto here = startBox;
-  core::Interval<core::Length> xRange{0_len, 0_len};
-  core::Interval<core::Length> zRange{0_len, 0_len};
-
-  static constexpr uint8_t CanMoveXPos = 1u << 0u;
-  static constexpr uint8_t CanMoveXNeg = 1u << 1u;
-  static constexpr uint8_t CanMoveZPos = 1u << 2u;
-  static constexpr uint8_t CanMoveZNeg = 1u << 3u;
-  // NOLINTNEXTLINE(hicpp-signed-bitwise)
-  static constexpr uint8_t CanMoveAllDirs = CanMoveXPos | CanMoveXNeg | CanMoveZPos | CanMoveZNeg;
-
-  bool detour = false;
-
-  uint8_t moveDirs = CanMoveAllDirs;
-  while(true)
-  {
-    if(isFlying())
+  MovementCalculator calc{startPos};
+  auto result = calc.calculate(
+    startBox,
+    isFlying(),
+    m_targetBox,
+    m_target,
+    [this](auto box)
     {
-      moveTarget.Y = std::min(moveTarget.Y, here->floor - 1_sectors);
-    }
-    else
+      return getNextPathBox(box);
+    },
+    [this](auto box)
     {
-      moveTarget.Y = std::min(moveTarget.Y, here->floor);
-    }
-
-    if(here->xInterval.contains(startPos.X) && here->zInterval.contains(startPos.Z))
-    {
-      xRange = here->xInterval;
-      zRange = here->zInterval;
-    }
-    else
-    {
-      if(startPos.Z < here->zInterval.min)
-      {
-        // try to move to -Z
-        if((moveDirs & CanMoveZNeg) && here->xInterval.contains(startPos.X))
-        {
-          // can move straight to -Z while not leaving the X limits of the current box
-          moveTarget.Z = std::max(moveTarget.Z, here->zInterval.min + Margin);
-
-          if(detour)
-            return true;
-
-          xRange = xRange.intersect(here->xInterval);
-          moveDirs = CanMoveZNeg;
-        }
-        else if(detour || moveDirs != CanMoveZNeg)
-        {
-          moveTarget.Z = zRange.max - Margin;
-          if(detour || moveDirs != CanMoveAllDirs)
-            return true;
-
-          detour = true;
-        }
-      }
-      else if(startPos.Z > here->zInterval.max)
-      {
-        if((moveDirs & CanMoveZPos) && here->xInterval.contains(startPos.X))
-        {
-          moveTarget.Z = std::min(moveTarget.Z, here->zInterval.max - Margin);
-
-          if(detour)
-            return true;
-
-          xRange = xRange.intersect(here->xInterval);
-          moveDirs = CanMoveZPos;
-        }
-        else if(detour || moveDirs != CanMoveZPos)
-        {
-          moveTarget.Z = zRange.min + Margin;
-          if(detour || moveDirs != CanMoveAllDirs)
-            return true;
-
-          detour = true;
-        }
-      }
-
-      if(startPos.X < here->xInterval.min)
-      {
-        if((moveDirs & CanMoveXNeg) && here->zInterval.contains(startPos.Z))
-        {
-          moveTarget.X = std::max(moveTarget.X, here->xInterval.min + Margin);
-
-          if(detour)
-            return true;
-
-          zRange = zRange.intersect(here->zInterval);
-          moveDirs = CanMoveXNeg;
-        }
-        else if(detour || moveDirs != CanMoveXNeg)
-        {
-          moveTarget.X = xRange.max - Margin;
-          if(detour || moveDirs != CanMoveAllDirs)
-            return true;
-
-          detour = true;
-        }
-      }
-      else if(startPos.X > here->xInterval.max)
-      {
-        if((moveDirs & CanMoveXPos) && here->zInterval.contains(startPos.Z))
-        {
-          moveTarget.X = std::min(moveTarget.X, here->xInterval.max - Margin);
-
-          if(detour)
-            return true;
-
-          zRange = zRange.intersect(here->zInterval);
-          moveDirs = CanMoveXPos;
-        }
-        else if(detour || moveDirs != CanMoveXPos)
-        {
-          moveTarget.X = xRange.min + Margin;
-          if(detour || moveDirs != CanMoveAllDirs)
-            return true;
-
-          detour = true;
-        }
-      }
-    }
-
-    if(here == m_targetBox)
-    {
-      // NOLINTNEXTLINE(hicpp-signed-bitwise)
-      if(moveDirs & (CanMoveZPos | CanMoveZNeg))
-      {
-        moveTarget.Z = m_target.Z;
-      }
-      else if(!detour)
-      {
-        moveTarget.Z = uncheckedClamp(moveTarget.Z, here->zInterval.narrowed(Margin));
-      }
-      gsl_Assert(here->zInterval.contains(moveTarget.Z));
-
-      // NOLINTNEXTLINE(hicpp-signed-bitwise)
-      if(moveDirs & (CanMoveXPos | CanMoveXNeg))
-      {
-        moveTarget.X = m_target.X;
-      }
-      else if(!detour)
-      {
-        moveTarget.X = uncheckedClamp(moveTarget.X, here->xInterval.narrowed(Margin));
-      }
-      gsl_Assert(here->xInterval.contains(moveTarget.X));
-
-      moveTarget.Y = m_target.Y;
-
-      return true;
-    }
-
-    const auto nextBox = getNextPathBox(here);
-    if(nextBox == nullptr || !canVisit(*nextBox))
-      break;
-
-    here = gsl::not_null{nextBox};
-  }
-
-  // NOLINTNEXTLINE(hicpp-signed-bitwise)
-  if(moveDirs & (CanMoveZPos | CanMoveZNeg))
-  {
-    const auto range = here->zInterval.size() - 2 * Margin;
-    moveTarget.Z = util::rand15(range) + here->zInterval.min + Margin;
-  }
-  else if(!detour)
-  {
-    moveTarget.Z = uncheckedClamp(moveTarget.Z, here->zInterval.narrowed(Margin));
-  }
-  gsl_Assert(here->zInterval.contains(moveTarget.Z));
-
-  // NOLINTNEXTLINE(hicpp-signed-bitwise)
-  if(moveDirs & (CanMoveXPos | CanMoveXNeg))
-  {
-    const auto range = here->xInterval.size() - 2 * Margin;
-    moveTarget.X = util::rand15(range) + here->xInterval.min + Margin;
-  }
-  else if(!detour)
-  {
-    moveTarget.X = uncheckedClamp(moveTarget.X, here->xInterval.narrowed(Margin));
-  }
-  gsl_Assert(here->xInterval.contains(moveTarget.X));
-
-  if(isFlying())
-    moveTarget.Y = here->floor - 384_len;
-  else
-    moveTarget.Y = here->floor;
-
-  return false;
+      return canVisit(box);
+    });
+  moveTarget = calc.moveTarget;
+  return result;
 }
 
 void PathFinder::expandNodes(const world::World& world)
@@ -401,10 +576,10 @@ bool PathFinder::canVisit(const world::Box& box, bool ignoreBlocked, bool ignore
 
 void PathFinder::setRandomSearchTarget(const gsl::not_null<const world::Box*>& box)
 {
-  const auto xSize = box->xInterval.size() - 2 * Margin;
-  m_target.X = util::rand15(xSize) + box->xInterval.min + Margin;
-  const auto zSize = box->zInterval.size() - 2 * Margin;
-  m_target.Z = util::rand15(zSize) + box->zInterval.min + Margin;
+  const auto xSize = box->xInterval.size() - 2 * MovementCalculator::Margin;
+  m_target.X = util::rand15(xSize) + box->xInterval.min + MovementCalculator::Margin;
+  const auto zSize = box->zInterval.size() - 2 * MovementCalculator::Margin;
+  m_target.Z = util::rand15(zSize) + box->zInterval.min + MovementCalculator::Margin;
   if(isFlying())
   {
     m_target.Y = box->floor - 384_len;

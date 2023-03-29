@@ -28,8 +28,6 @@ namespace engine::ai
 {
 struct PathFinder
 {
-  static constexpr auto Margin = 1_sectors / 2;
-
   [[nodiscard]] bool canVisit(const world::Box& box) const noexcept;
 
   [[nodiscard]] bool canVisit(const world::Box& box, bool ignoreBlocked, bool ignoreBlockable) const noexcept;
