@@ -2,7 +2,8 @@
 
 # [Troubleshooting FAQ](https://github.com/stohrendorf/CroftEngine/wiki/FAQ)
 
-You can also get support [on discord](https://discord.gg/FRAVaBZbY5).
+If you don't find an answer for you issue, please open an issue or discussion on GitHub, or join
+[the Discord](https://discord.gg/FRAVaBZbY5). No matter where you post your issue, it will be handled.
 
 [![CroftEngine-CI](https://github.com/stohrendorf/CroftEngine/actions/workflows/ci.yml/badge.svg)](https://github.com/stohrendorf/CroftEngine/actions/workflows/ci.yml)
 [![CroftEngine-CI](https://github.com/stohrendorf/CroftEngine/actions/workflows/codeql.yml/badge.svg)](https://github.com/stohrendorf/CroftEngine/actions/workflows/codeql.yml)
