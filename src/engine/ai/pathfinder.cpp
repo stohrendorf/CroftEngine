@@ -462,8 +462,7 @@ void PathFinder::expandNodes(const world::World& world)
       if(searchZone != successorBox.get()->*zoneRef)
         continue;
 
-      // the "successor" here is effectively the predecessor in the final path
-      if(const auto boxHeightDiff = currentBox->floor - successorBox->floor;
+      if(const auto boxHeightDiff = successorBox->floor - currentBox->floor;
          boxHeightDiff < -m_step || boxHeightDiff > -m_drop)
         continue;
 
