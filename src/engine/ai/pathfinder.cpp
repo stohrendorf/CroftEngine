@@ -420,31 +420,13 @@ void PathFinder::expandNodes(const world::World& world)
 {
   const auto zoneRef = world::Box::getZoneRef(world.roomsAreSwapped(), isFlying(), m_step);
 
-  static constexpr uint8_t MaxExpansions = 15;
+  static constexpr uint8_t MaxExpansions = 50;
 
   auto setReachable = [this](const gsl::not_null<const world::Box*>& box, bool reachable)
   {
     m_reachable[box] = reachable;
     if(std::find(m_expansions.begin(), m_expansions.end(), box) == m_expansions.end())
       m_expansions.emplace_back(box);
-  };
-
-  auto sortPriority = [this]()
-  {
-    std::sort(m_expansions.begin(),
-              m_expansions.end(),
-              [this](const gsl::not_null<const world::Box*>& lhs, const gsl::not_null<const world::Box*>& rhs)
-              {
-                const auto lhsIt = m_distances.find(lhs);
-                const auto rhsIt = m_distances.find(rhs);
-
-                if(lhsIt == m_distances.end())
-                  return false;
-                if(rhsIt == m_distances.end())
-                  return true;
-
-                return lhsIt->second < rhsIt->second;
-              });
   };
 
   // this does a backwards search from the target (usually Lara) to the source (usually a baddie)
@@ -492,7 +474,6 @@ void PathFinder::expandNodes(const world::World& world)
           m_edges.erase(currentBox);
           m_edges.emplace(currentBox, successorBox);
           m_expansions.emplace_back(successorBox);
-          sortPriority();
         }
         continue;
       }
@@ -503,7 +484,6 @@ void PathFinder::expandNodes(const world::World& world)
         BOOST_ASSERT_MSG(m_edges.count(successorBox) == 0, "cycle in pathfinder graph detected");
         m_edges.emplace(successorBox, currentBox); // success! connect both boxes
         m_distances[successorBox] = m_distances[currentBox] + 1;
-        sortPriority();
       }
 
       setReachable(successorBox, reachable);
@@ -597,6 +577,15 @@ void PathFinder::setTargetBox(const gsl::not_null<const world::Box*>& box)
   m_targetBox = box;
   setRandomSearchTarget(box);
 
+  BOOST_LOG_TRIVIAL(debug) << "search reset, found target = "
+                           << std::any_of(m_edges.begin(),
+                                          m_edges.end(),
+                                          [this](const auto& edge)
+                                          {
+                                            return edge.second == m_targetBox;
+                                          })
+                           << ", reachable = " << m_reachable[gsl::not_null{m_targetBox}]
+                           << ", distance = " << m_distances[gsl::not_null{m_targetBox}];
   m_expansions.clear();
   m_expansions.emplace_back(m_targetBox);
   m_distances.clear();
@@ -637,11 +626,15 @@ void PathFinder::setLimits(const world::World& world,
   gsl_Expects(step >= 0_len);
   gsl_Expects(drop <= 0_len);
   gsl_Expects(fly >= 0_len);
-  m_step = step;
-  m_drop = drop;
-  m_fly = fly;
-  m_targetBox = box;
-  setRandomSearchTarget(box);
-  resetBoxes(world, box);
+  if(std::exchange(m_step, step) != step && std::exchange(m_drop, drop) != drop)
+  {
+    resetBoxes(world, box);
+  }
+  if(m_targetBox != box)
+  {
+    setTargetBox(box);
+    BOOST_ASSERT(std::count(m_boxes.begin(), m_boxes.end(), box) != 0);
+    setRandomSearchTarget(box);
+  }
 }
 } // namespace engine::ai
