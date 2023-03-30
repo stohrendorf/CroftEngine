@@ -182,4 +182,16 @@ BOOST_AUTO_TEST_CASE(test_bounding_box_intersects)
   BOOST_CHECK(!f.intersectsExclusive(f));
 }
 
+BOOST_AUTO_TEST_CASE(test_atan)
+{
+  BOOST_CHECK_EQUAL(core::angleFromAtan(0, 0), 0_deg);
+  BOOST_CHECK_EQUAL(core::angleFromAtan(1, 1), 45_deg);
+  BOOST_CHECK_EQUAL(core::angleFromAtan(-1, 1), -45_deg);
+  BOOST_CHECK_EQUAL(core::angleFromAtan(1, 0), 90_deg);
+  BOOST_CHECK_EQUAL(core::angleFromAtan(-1, 0), -90_deg);
+  BOOST_CHECK_EQUAL(core::angleFromAtan(1, -1), 135_deg);
+  BOOST_CHECK_EQUAL(core::angleFromAtan(-1, -1), -135_deg);
+  BOOST_CHECK_EQUAL(core::angleFromAtan(0, -1), 180_deg);
+}
+
 BOOST_AUTO_TEST_SUITE_END()
