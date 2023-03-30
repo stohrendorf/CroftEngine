@@ -64,7 +64,7 @@ bool canMoveTo(const world::Room& room,
 
   if(dy > pathFinder.getStep() && testBox->floor > nextPathFloor)
   {
-    // height difference would allow stepping down, but the test position isn't on the same level as the wanted path
+    // height difference would allow stepping down, but the test position is already below the wanted path
     return false;
   }
 
