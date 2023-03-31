@@ -74,7 +74,7 @@ namespace core
     return tmp;
 
   // abs(-180_deg) == -180_deg unfortunately
-  return Angle{std::numeric_limits<int>::max()};
+  return Angle{std::numeric_limits<Angle::type>::max()};
 }
 
 enum class Axis
