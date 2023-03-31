@@ -194,4 +194,16 @@ BOOST_AUTO_TEST_CASE(test_atan)
   BOOST_CHECK_EQUAL(core::angleFromAtan(0, -1), 180_deg);
 }
 
+BOOST_AUTO_TEST_CASE(test_atan_len)
+{
+  BOOST_CHECK_EQUAL(core::angleFromAtan(0_len, 0_len), 0_deg);
+  BOOST_CHECK_EQUAL(core::angleFromAtan(1_len, 1_len), 45_deg);
+  BOOST_CHECK_EQUAL(core::angleFromAtan(-1_len, 1_len), -45_deg);
+  BOOST_CHECK_EQUAL(core::angleFromAtan(1_len, 0_len), 90_deg);
+  BOOST_CHECK_EQUAL(core::angleFromAtan(-1_len, 0_len), -90_deg);
+  BOOST_CHECK_EQUAL(core::angleFromAtan(1_len, -1_len), 135_deg);
+  BOOST_CHECK_EQUAL(core::angleFromAtan(-1_len, -1_len), -135_deg);
+  BOOST_CHECK_EQUAL(core::angleFromAtan(0_len, -1_len), 180_deg);
+}
+
 BOOST_AUTO_TEST_SUITE_END()
