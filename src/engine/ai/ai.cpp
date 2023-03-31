@@ -177,8 +177,6 @@ void updateMood(const objects::AIAgent& aiAgent, const EnemyLocation& enemyLocat
     {
       newTargetBox = lara.m_state.getCurrentBox();
       auto pos = lara.m_state.location.position;
-      pos.X = newTargetBox->xInterval.clamp(pos.X);
-      pos.Z = newTargetBox->zInterval.clamp(pos.Z);
       if(creatureInfo.pathFinder.isFlying() && lara.isOnLand())
       {
         // target the head
