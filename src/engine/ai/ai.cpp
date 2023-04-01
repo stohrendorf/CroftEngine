@@ -328,8 +328,8 @@ EnemyLocation::EnemyLocation(objects::AIAgent& aiAgent)
   if(enemyAhead)
   {
     const auto laraY = lara.m_state.location.position.Y;
-    canAttackForward = aiAgent.m_state.location.position.Y - core::QuarterSectorSize < laraY
-                       && aiAgent.m_state.location.position.Y + core::QuarterSectorSize > laraY;
+    canAttackForward = laraY > aiAgent.m_state.location.position.Y - core::QuarterSectorSize
+                       && laraY < aiAgent.m_state.location.position.Y + core::QuarterSectorSize;
   }
 }
 

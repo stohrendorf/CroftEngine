@@ -145,12 +145,6 @@ struct MovementCalculator
       // The "max" is to ensure that it won't go to -Z, as the box's Z range may contain the moveTarget Z.
       moveTarget.Z = std::max(moveTarget.Z, box.zInterval.max - Margin);
     }
-    else
-    {
-      // Move to the virtual wall of our currently allowed movement area. This can happen, for example, when we're
-      // in the middle of a room with stairs in a corner.
-      moveTarget.Z = zRange.max - Margin;
-    }
 
     if(frozenRanges)
     {
@@ -180,7 +174,12 @@ struct MovementCalculator
         // or slopes that are made of a line of linearly laid out boxes.
         return false;
       }
-      else if(moveDirs == CanMoveAllDirs)
+
+      // Move to the virtual wall of our currently allowed movement area. This can happen, for example, when we're
+      // in the middle of a room with stairs in a corner.
+      moveTarget.Z = zRange.max - Margin;
+
+      if(moveDirs == CanMoveAllDirs)
       {
         // We reached the maximum possible +Z, and we have no primary direction.
         frozenRanges = true;
@@ -201,10 +200,6 @@ struct MovementCalculator
     {
       moveTarget.Z = std::min(moveTarget.Z, box.zInterval.min + Margin);
     }
-    else
-    {
-      moveTarget.Z = zRange.min + Margin;
-    }
 
     if(frozenRanges)
     {
@@ -223,7 +218,10 @@ struct MovementCalculator
       {
         return false;
       }
-      else if(moveDirs == CanMoveAllDirs)
+
+      moveTarget.Z = zRange.min + Margin;
+
+      if(moveDirs == CanMoveAllDirs)
       {
         frozenRanges = true;
       }
@@ -241,10 +239,6 @@ struct MovementCalculator
     if((moveDirs & CanMoveXPos) && box.zInterval.contains(startPos.Z))
     {
       moveTarget.X = std::max(moveTarget.X, box.xInterval.max - Margin);
-    }
-    else
-    {
-      moveTarget.X = xRange.max - Margin;
     }
 
     if(frozenRanges)
@@ -264,7 +258,10 @@ struct MovementCalculator
       {
         return false;
       }
-      else if(moveDirs == CanMoveAllDirs)
+
+      moveTarget.X = xRange.max - Margin;
+
+      if(moveDirs == CanMoveAllDirs)
       {
         frozenRanges = true;
       }
@@ -282,10 +279,6 @@ struct MovementCalculator
     if((moveDirs & CanMoveXNeg) && box.zInterval.contains(startPos.Z))
     {
       moveTarget.X = std::min(moveTarget.X, box.xInterval.min + Margin);
-    }
-    else
-    {
-      moveTarget.X = xRange.min + Margin;
     }
 
     if(frozenRanges)
@@ -305,7 +298,10 @@ struct MovementCalculator
       {
         return false;
       }
-      else if(moveDirs == CanMoveAllDirs)
+
+      moveTarget.X = xRange.min + Margin;
+
+      if(moveDirs == CanMoveAllDirs)
       {
         frozenRanges = true;
       }
