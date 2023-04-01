@@ -530,13 +530,12 @@ void PathFinder::init(const world::World& world,
   m_cannotVisitBlockable = objectInfo.cannot_visit_blockable;
   m_cannotVisitBlocked = objectInfo.cannot_visit_blocked;
 
+  resetBoxes(world, box);
   setLimits(world,
             box,
             core::Length{objectInfo.step_limit},
             core::Length{objectInfo.drop_limit},
             core::Length{objectInfo.fly_limit});
-
-  resetBoxes(world, box);
 }
 
 bool PathFinder::canVisit(const world::Box& box) const noexcept
@@ -626,7 +625,7 @@ void PathFinder::setLimits(const world::World& world,
   gsl_Expects(step >= 0_len);
   gsl_Expects(drop <= 0_len);
   gsl_Expects(fly >= 0_len);
-  if(std::exchange(m_step, step) != step && std::exchange(m_drop, drop) != drop)
+  if(std::exchange(m_step, step) != step && std::exchange(m_drop, drop) != drop && std::exchange(m_fly, fly) != fly)
   {
     resetBoxes(world, box);
   }
