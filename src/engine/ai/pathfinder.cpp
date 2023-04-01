@@ -625,7 +625,7 @@ void PathFinder::setLimits(const world::World& world,
   gsl_Expects(step >= 0_len);
   gsl_Expects(drop <= 0_len);
   gsl_Expects(fly >= 0_len);
-  if(std::exchange(m_step, step) != step && std::exchange(m_drop, drop) != drop && std::exchange(m_fly, fly) != fly)
+  if(std::exchange(m_step, step) != step | std::exchange(m_drop, drop) != drop | std::exchange(m_fly, fly) != fly)
   {
     resetBoxes(world, box);
   }
