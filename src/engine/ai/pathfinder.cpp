@@ -139,23 +139,18 @@ struct MovementCalculator
 
   bool tryMoveZPos(const world::Box& box)
   {
-    // Only refine the moveTarget in the movement area.
-    if((moveDirs & CanMoveZPos) && box.xInterval.contains(startPos.X))
-    {
-      // The "max" is to ensure that it won't go to -Z, as the box's Z range may contain the moveTarget Z.
-      moveTarget.Z = std::max(moveTarget.Z, box.zInterval.max - Margin);
-    }
-
-    if(frozenRanges)
-    {
-      return true;
-    }
-
     // Try to move to +Z, as we're outside of the box.
     if((moveDirs & CanMoveZPos) && box.xInterval.contains(startPos.X))
     {
       // Scenario 1: We can move to +Z, *and* the new position will have a valid X value. This means we move as little
       // as we can into the new box.
+
+      // The "max" is to ensure that it won't go to -Z, as the box's Z range may contain the moveTarget Z.
+      moveTarget.Z = std::max(moveTarget.Z, box.zInterval.max - Margin);
+      if(frozenRanges)
+      {
+        return true;
+      }
 
       // We narrow down the valid X values, as the new box may form a narrower passage.
       xRange = xRange.intersect(box.xInterval);
@@ -179,7 +174,7 @@ struct MovementCalculator
       // in the middle of a room with stairs in a corner.
       moveTarget.Z = zRange.max - Margin;
 
-      if(moveDirs == CanMoveAllDirs)
+      if(!frozenRanges && moveDirs == CanMoveAllDirs)
       {
         // We reached the maximum possible +Z, and we have no primary direction.
         frozenRanges = true;
@@ -199,15 +194,11 @@ struct MovementCalculator
     if((moveDirs & CanMoveZNeg) && box.xInterval.contains(startPos.X))
     {
       moveTarget.Z = std::min(moveTarget.Z, box.zInterval.min + Margin);
-    }
+      if(frozenRanges)
+      {
+        return true;
+      }
 
-    if(frozenRanges)
-    {
-      return true;
-    }
-
-    if((moveDirs & CanMoveZNeg) && box.xInterval.contains(startPos.X))
-    {
       xRange = xRange.intersect(box.xInterval);
 
       moveDirs = CanMoveZNeg;
@@ -221,7 +212,7 @@ struct MovementCalculator
 
       moveTarget.Z = zRange.min + Margin;
 
-      if(moveDirs == CanMoveAllDirs)
+      if(!frozenRanges && moveDirs == CanMoveAllDirs)
       {
         frozenRanges = true;
       }
@@ -239,15 +230,11 @@ struct MovementCalculator
     if((moveDirs & CanMoveXPos) && box.zInterval.contains(startPos.Z))
     {
       moveTarget.X = std::max(moveTarget.X, box.xInterval.max - Margin);
-    }
+      if(frozenRanges)
+      {
+        return true;
+      }
 
-    if(frozenRanges)
-    {
-      return true;
-    }
-
-    if((moveDirs & CanMoveXPos) && box.zInterval.contains(startPos.Z))
-    {
       zRange = zRange.intersect(box.zInterval);
 
       moveDirs = CanMoveXPos;
@@ -261,7 +248,7 @@ struct MovementCalculator
 
       moveTarget.X = xRange.max - Margin;
 
-      if(moveDirs == CanMoveAllDirs)
+      if(!frozenRanges && moveDirs == CanMoveAllDirs)
       {
         frozenRanges = true;
       }
@@ -279,15 +266,11 @@ struct MovementCalculator
     if((moveDirs & CanMoveXNeg) && box.zInterval.contains(startPos.Z))
     {
       moveTarget.X = std::min(moveTarget.X, box.xInterval.min + Margin);
-    }
+      if(frozenRanges)
+      {
+        return true;
+      }
 
-    if(frozenRanges)
-    {
-      return true;
-    }
-
-    if((moveDirs & CanMoveXNeg) && box.zInterval.contains(startPos.Z))
-    {
       zRange = zRange.intersect(box.zInterval);
 
       moveDirs = CanMoveXNeg;
@@ -301,7 +284,7 @@ struct MovementCalculator
 
       moveTarget.X = xRange.min + Margin;
 
-      if(moveDirs == CanMoveAllDirs)
+      if(!frozenRanges && moveDirs == CanMoveAllDirs)
       {
         frozenRanges = true;
       }
