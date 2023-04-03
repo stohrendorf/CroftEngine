@@ -392,13 +392,6 @@ void PathFinder::expandNodes(const world::World& world)
 
   static constexpr uint8_t MaxExpansions = 50;
 
-  auto setReachable = [this](const gsl::not_null<const world::Box*>& box, bool reachable)
-  {
-    m_reachable[box] = reachable;
-    if(std::find(m_expansions.begin(), m_expansions.end(), box) == m_expansions.end())
-      m_expansions.emplace_back(box);
-  };
-
   // this does a backwards search from the target (usually Lara) to the source (usually a baddie)
   for(uint8_t i = 0; i < MaxExpansions && !m_expansions.empty(); ++i)
   {
@@ -418,35 +411,8 @@ void PathFinder::expandNodes(const world::World& world)
          boxHeightDiff < -m_step || boxHeightDiff > -m_drop)
         continue;
 
-      const auto it = m_reachable.find(successorBox);
-      const bool successorInitialized = it != m_reachable.end();
-
-      if(!m_reachable.at(currentBox))
-      {
-        // propagate "unreachable" to all connected boxes if their reachability hasn't been determined yet
-        if(!successorInitialized)
-        {
-          setReachable(successorBox, false);
-        }
+      if(updateEdge(currentBox, successorBox))
         continue;
-      }
-
-      // propagate "reachable" to all connected boxes if their reachability hasn't been determined yet
-      // OR they were previously determined to be unreachable
-      if(successorInitialized && it->second)
-      {
-        // already visited and marked reachable, but path might be shorter
-        auto& successorDistance = m_distances[successorBox];
-        auto currentDistance = m_distances[currentBox] + 1;
-        if(successorDistance > currentDistance)
-        {
-          successorDistance = currentDistance;
-          m_edges.erase(currentBox);
-          m_edges.emplace(currentBox, successorBox);
-          m_expansions.emplace_back(successorBox);
-        }
-        continue;
-      }
 
       const auto reachable = canVisit(*successorBox);
       if(reachable)
@@ -459,6 +425,55 @@ void PathFinder::expandNodes(const world::World& world)
       setReachable(successorBox, reachable);
     }
   }
+}
+
+void PathFinder::setReachable(const gsl::not_null<const world::Box*>& box, bool reachable)
+{
+  m_reachable[box] = reachable;
+  if(std::find(m_expansions.begin(), m_expansions.end(), box) == m_expansions.end())
+    m_expansions.emplace_back(box);
+}
+
+void PathFinder::updateDistance(const gsl::not_null<const world::Box*>& currentBox,
+                                const gsl::not_null<world::Box*>& successorBox)
+{
+  auto& successorDistance = m_distances[successorBox];
+  auto currentDistance = m_distances[currentBox] + 1;
+  if(successorDistance > currentDistance)
+  {
+    successorDistance = currentDistance;
+    m_edges.erase(currentBox);
+    m_edges.emplace(currentBox, successorBox);
+    m_expansions.emplace_back(successorBox);
+  }
+}
+
+bool PathFinder::updateEdge(const gsl::not_null<const world::Box*>& currentBox,
+                            const gsl::not_null<world::Box*>& successorBox)
+{
+  const auto it = m_reachable.find(successorBox);
+  const bool successorInitialized = it != m_reachable.end();
+
+  if(!m_reachable.at(currentBox))
+  {
+    // propagate "unreachable" to all connected boxes if their reachability hasn't been determined yet
+    if(!successorInitialized)
+    {
+      setReachable(successorBox, false);
+    }
+    return true;
+  }
+
+  // propagate "reachable" to all connected boxes if their reachability hasn't been determined yet
+  // OR they were previously determined to be unreachable
+  if(successorInitialized && it->second)
+  {
+    // already visited and marked reachable, but path might be shorter
+    updateDistance(currentBox, successorBox);
+    return true;
+  }
+
+  return false;
 }
 
 void PathFinder::serialize(const serialization::Serializer<world::World>& ser) const

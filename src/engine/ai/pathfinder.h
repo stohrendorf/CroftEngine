@@ -122,6 +122,11 @@ private:
    */
   void expandNodes(const world::World& world);
 
+  void setReachable(const gsl::not_null<const world::Box*>& box, bool reachable);
+  void updateDistance(const gsl::not_null<const world::Box*>& currentBox,
+                      const gsl::not_null<world::Box*>& successorBox);
+  bool updateEdge(const gsl::not_null<const world::Box*>& currentBox, const gsl::not_null<world::Box*>& successorBox);
+
   std::vector<gsl::not_null<const world::Box*>> m_boxes;
   std::deque<gsl::not_null<const world::Box*>> m_expansions;
   std::unordered_map<gsl::not_null<const world::Box*>, bool> m_reachable;
