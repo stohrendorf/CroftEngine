@@ -93,29 +93,9 @@ struct MovementCalculator
         xRange = box->xInterval;
         zRange = box->zInterval;
       }
-      else
+      else if(tryMove(*box))
       {
-        if(startPos.Z < box->zInterval.min)
-        {
-          if(tryMoveZPos(*box))
-            return true;
-        }
-        else if(startPos.Z > box->zInterval.max)
-        {
-          if(tryMoveZNeg(*box))
-            return true;
-        }
-
-        if(startPos.X < box->xInterval.min)
-        {
-          if(tryMoveXPos(*box))
-            return true;
-        }
-        else if(startPos.X > box->xInterval.max)
-        {
-          if(tryMoveXNeg(*box))
-            return true;
-        }
+        return true;
       }
 
       if(box == goalBox)
@@ -133,6 +113,33 @@ struct MovementCalculator
     }
 
     calculateFinalIncompleteMove(*box, isFlying);
+
+    return false;
+  }
+
+  bool tryMove(const world::Box& box)
+  {
+    if(startPos.Z < box.zInterval.min)
+    {
+      if(tryMoveZPos(box))
+        return true;
+    }
+    else if(startPos.Z > box.zInterval.max)
+    {
+      if(tryMoveZNeg(box))
+        return true;
+    }
+
+    if(startPos.X < box.xInterval.min)
+    {
+      if(tryMoveXPos(box))
+        return true;
+    }
+    else if(startPos.X > box.xInterval.max)
+    {
+      if(tryMoveXNeg(box))
+        return true;
+    }
 
     return false;
   }
