@@ -76,7 +76,7 @@ void FlyingMutant::update()
     if(m_state.type != TR1ItemId::WalkingMutant2)
     {
       if(canShootAtLara(enemyLocation)
-         && (enemyLocation.zoneId != enemyLocation.enemyZoneId || enemyLocation.enemyDistance > util::square(3840_len)))
+         && (enemyLocation.zoneId != enemyLocation.laraZoneId || enemyLocation.distance > util::square(3840_len)))
       {
         if(enemyLocation.visualAngleToLara > 0_deg && enemyLocation.visualAngleToLara < 45_deg)
         {
@@ -92,7 +92,7 @@ void FlyingMutant::update()
     {
       if(m_state.current_anim_state == DoFly)
       {
-        if(m_flying && !isEscaping() && enemyLocation.zoneId == enemyLocation.enemyZoneId)
+        if(m_flying && !isEscaping() && enemyLocation.zoneId == enemyLocation.laraZoneId)
         {
           m_flying = false;
         }
@@ -104,7 +104,7 @@ void FlyingMutant::update()
         enemyLocation = ai::EnemyLocation{*this};
       }
       else if(isEscaping()
-              || (enemyLocation.zoneId != enemyLocation.enemyZoneId && !frontRight && !frontLeft
+              || (enemyLocation.zoneId != enemyLocation.laraZoneId && !frontRight && !frontLeft
                   && (!enemyLocation.laraInView || isBored())))
       {
         m_flying = true;
@@ -133,15 +133,15 @@ void FlyingMutant::update()
       m_lookingAround = false;
       if(m_flying)
         goal(DoFly);
-      else if(touched(0x678u) || (enemyLocation.canAttackLara && enemyLocation.enemyDistance < util::square(300_len)))
+      else if(touched(0x678u) || (enemyLocation.canAttackLara && enemyLocation.distance < util::square(300_len)))
         goal(DoHit200);
-      else if(enemyLocation.canAttackLara && enemyLocation.enemyDistance < util::square(600_len))
+      else if(enemyLocation.canAttackLara && enemyLocation.distance < util::square(600_len))
         goal(DoHit150);
       else if(frontRight)
         goal(DoShootBullet);
       else if(frontLeft)
         goal(DoThrowGrenade);
-      else if(isBored() || (isStalking() && enemyLocation.enemyDistance < util::square(4608_len)))
+      else if(isBored() || (isStalking() && enemyLocation.distance < util::square(4608_len)))
         goal(6_as);
       else
         goal(DoRun);
@@ -152,14 +152,14 @@ void FlyingMutant::update()
       {
         goal(DoPrepareAttack);
       }
-      else if(isBored() || (isStalking() && enemyLocation.zoneId != enemyLocation.enemyZoneId))
+      else if(isBored() || (isStalking() && enemyLocation.zoneId != enemyLocation.laraZoneId))
       {
         if(util::rand15() < 80)
         {
           goal(6_as);
         }
       }
-      else if(isStalking() && enemyLocation.enemyDistance > util::square(4608_len))
+      else if(isStalking() && enemyLocation.distance > util::square(4608_len))
       {
         goal(DoPrepareAttack);
         break;
@@ -167,17 +167,15 @@ void FlyingMutant::update()
       break;
     case DoRun.get():
       getCreatureInfo()->maxTurnSpeed = 6_deg / 1_frame;
-      if(m_flying || touched(0x678u)
-         || (enemyLocation.canAttackLara && enemyLocation.enemyDistance < util::square(600_len)))
+      if(m_flying || touched(0x678u) || (enemyLocation.canAttackLara && enemyLocation.distance < util::square(600_len)))
       {
         goal(DoPrepareAttack);
       }
-      else if(enemyLocation.laraInView && enemyLocation.enemyDistance < util::square(2560_len))
+      else if(enemyLocation.laraInView && enemyLocation.distance < util::square(2560_len))
       {
         goal(DoHit100);
       }
-      else if(frontLeft || frontRight || isBored()
-              || (isStalking() && enemyLocation.enemyDistance < util::square(4608_len)))
+      else if(frontLeft || frontRight || isBored() || (isStalking() && enemyLocation.distance < util::square(4608_len)))
       {
         goal(DoPrepareAttack);
       }
@@ -198,9 +196,9 @@ void FlyingMutant::update()
       }
       else if(isStalking())
       {
-        if(enemyLocation.enemyDistance >= util::square(4608_len))
+        if(enemyLocation.distance >= util::square(4608_len))
           goal(DoPrepareAttack);
-        else if(enemyLocation.zoneId == enemyLocation.enemyZoneId || util::rand15() < 256)
+        else if(enemyLocation.zoneId == enemyLocation.laraZoneId || util::rand15() < 256)
           goal(DoWalk);
       }
       else if(isBored() && util::rand15() < 256)
@@ -326,7 +324,7 @@ void CentaurMutant::update()
       getCreatureInfo()->neckRotation = 0_deg;
       if(m_state.required_anim_state != 0_as)
         goal(m_state.required_anim_state);
-      else if((enemyLocation.canAttackLara && enemyLocation.enemyDistance < util::square(1536_len))
+      else if((enemyLocation.canAttackLara && enemyLocation.distance < util::square(1536_len))
               || !canShootAtLara(enemyLocation))
         goal(3_as);
       else
@@ -340,7 +338,7 @@ void CentaurMutant::update()
       }
       break;
     case 3:
-      if(enemyLocation.canAttackLara && enemyLocation.enemyDistance < util::square(1536_len))
+      if(enemyLocation.canAttackLara && enemyLocation.distance < util::square(1536_len))
         goal(1_as, 6_as);
       else if(canShootAtLara(enemyLocation))
         goal(1_as, 4_as);
@@ -443,7 +441,7 @@ void TorsoBoss::update()
         goal(TurnLeft);
         break;
       }
-      if(enemyLocation.enemyDistance >= util::square(2600_len))
+      if(enemyLocation.distance >= util::square(2600_len))
       {
         goal(Approach);
       }
@@ -454,7 +452,7 @@ void TorsoBoss::update()
         else
           goal(Attack1);
       }
-      else if(enemyLocation.enemyDistance >= util::square(2250_len))
+      else if(enemyLocation.distance >= util::square(2250_len))
       {
         goal(Approach);
       }
@@ -536,7 +534,7 @@ void TorsoBoss::update()
       // TODO this is just weird, but it's just like the original... seems to be a copy-pasta error
       goal(m_state.goal_anim_state.get() + core::toAu(std::clamp(angleToTarget, -3_deg, 3_deg)));
 
-      if(abs(angleToTarget) > 45_deg || enemyLocation.enemyDistance < util::square(2600_len))
+      if(abs(angleToTarget) > 45_deg || enemyLocation.distance < util::square(2600_len))
         goal(Think);
 
       break;

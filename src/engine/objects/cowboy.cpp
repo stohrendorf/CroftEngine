@@ -67,7 +67,7 @@ void Cowboy::update()
         goal(1_as, 3_as);
       else if(canShootAtLara(enemyLocation))
         goal(1_as, 4_as);
-      else if(enemyLocation.enemyDistance > util::square(3072_len))
+      else if(enemyLocation.distance > util::square(3072_len))
         goal(1_as, 3_as);
       break;
     case 3:
@@ -77,7 +77,7 @@ void Cowboy::update()
       {
         if(canShootAtLara(enemyLocation))
           goal(1_as, 4_as);
-        else if(enemyLocation.laraInView && enemyLocation.enemyDistance < util::square(3072_len))
+        else if(enemyLocation.laraInView && enemyLocation.distance < util::square(3072_len))
           goal(1_as, 2_as);
       }
       break;
@@ -95,7 +95,7 @@ void Cowboy::update()
     case 6:
       if(m_aimTime == 0_frame)
       {
-        if(tryShootAtLara(*this, enemyLocation.enemyDistance, {1_len, 200_len, 41_len}, 5, headRot))
+        if(tryShootAtLara(*this, enemyLocation.distance, {1_len, 200_len, 41_len}, 5, headRot))
         {
           hitLara(70_hp);
         }
@@ -104,7 +104,7 @@ void Cowboy::update()
       {
         if(canShootAtLara(enemyLocation))
         {
-          if(tryShootAtLara(*this, enemyLocation.enemyDistance, {-2_len, 200_len, 40_len}, 8, headRot))
+          if(tryShootAtLara(*this, enemyLocation.distance, {-2_len, 200_len, 40_len}, 8, headRot))
           {
             hitLara(70_hp);
           }

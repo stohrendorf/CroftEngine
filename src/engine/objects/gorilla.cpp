@@ -42,7 +42,7 @@ void Gorilla::update()
     updateMood(*this, enemyLocation, false);
 
     turn = rotateTowardsTarget(getCreatureInfo()->maxTurnSpeed);
-    if(m_state.is_hit || enemyLocation.enemyDistance < util::square(2_sectors))
+    if(m_state.is_hit || enemyLocation.distance < util::square(2_sectors))
     {
       m_wantAttack = true;
     }
@@ -64,12 +64,12 @@ void Gorilla::update()
       {
         goal(m_state.required_anim_state);
       }
-      else if(enemyLocation.canAttackLara && enemyLocation.enemyDistance < util::square(430_len))
+      else if(enemyLocation.canAttackLara && enemyLocation.distance < util::square(430_len))
       {
         // attack
         goal(4_as);
       }
-      else if(m_wantAttack || !enemyLocation.canReachEnemyZone() || !enemyLocation.laraInView)
+      else if(m_wantAttack || !enemyLocation.canReachLara() || !enemyLocation.laraInView)
       {
         // run on legs and arms
         goal(3_as);

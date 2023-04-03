@@ -59,9 +59,9 @@ struct EnemyLocation
   static constexpr auto InvalidZone = std::numeric_limits<uint32_t>::max();
 
   uint32_t zoneId = 0;
-  uint32_t enemyZoneId = 0;
-  bool enemyUnreachable = false;
-  core::Area enemyDistance{0};
+  uint32_t laraZoneId = 0;
+  bool laraUnreachable = false;
+  core::Area distance{0};
   // whether we can see lara
   bool laraInView = false;
   // true if and only if we see lara, and the vertical distance is within +/- 1/4 of a sector
@@ -73,14 +73,9 @@ struct EnemyLocation
 
   explicit EnemyLocation(objects::AIAgent& aiAgent);
 
-  [[nodiscard]] bool isInEnemyZone() const noexcept
+  [[nodiscard]] bool canReachLara() const noexcept
   {
-    return zoneId == enemyZoneId;
-  }
-
-  [[nodiscard]] bool canReachEnemyZone() const noexcept
-  {
-    return !enemyUnreachable && isInEnemyZone();
+    return !laraUnreachable && zoneId == laraZoneId;
   }
 };
 

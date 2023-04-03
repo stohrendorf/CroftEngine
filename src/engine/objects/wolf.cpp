@@ -55,7 +55,7 @@ void Wolf::update()
     {
     case LyingDown.get():
       pitch = 0_deg;
-      if(isEscaping() || enemyLocation.canReachEnemyZone())
+      if(isEscaping() || enemyLocation.canReachLara())
         goal(Walking, PrepareToStrike);
       else if(util::rand15() < 32)
         goal(Walking, Running);
@@ -81,7 +81,7 @@ void Wolf::update()
       }
       if(isEscaping())
         goal(Jumping); // NOLINT(bugprone-branch-clone)
-      else if(enemyLocation.enemyDistance < util::square(345_len) && enemyLocation.canAttackLara)
+      else if(enemyLocation.distance < util::square(345_len) && enemyLocation.canAttackLara)
         goal(Biting);
       else if(isStalking())
         goal(Stalking);
@@ -96,15 +96,15 @@ void Wolf::update()
       { // NOLINT(bugprone-branch-clone)
         goal(Jumping);
       }
-      else if(enemyLocation.enemyDistance < util::square(345_len) && enemyLocation.canAttackLara)
+      else if(enemyLocation.distance < util::square(345_len) && enemyLocation.canAttackLara)
       {
         goal(Biting);
       }
-      else if(enemyLocation.enemyDistance <= util::square(3_sectors))
+      else if(enemyLocation.distance <= util::square(3_sectors))
       {
         if(isAttacking())
         {
-          if(!enemyLocation.laraInView || enemyLocation.enemyDistance > util::square(1.5f * 1_sectors)
+          if(!enemyLocation.laraInView || enemyLocation.distance > util::square(1.5f * 1_sectors)
              || abs(enemyLocation.visualLaraAngleToSelf) < 90_deg)
           {
             goal(Jumping);
@@ -128,9 +128,9 @@ void Wolf::update()
     case Jumping.get():
       getCreatureInfo()->maxTurnSpeed = 5_deg / 1_frame;
       roll = rotationToMoveTarget;
-      if(enemyLocation.laraInView && enemyLocation.enemyDistance < util::square(1.5f * 1_sectors))
+      if(enemyLocation.laraInView && enemyLocation.distance < util::square(1.5f * 1_sectors))
       {
-        if(enemyLocation.enemyDistance <= util::square(1.5f * 1_sectors) / 2
+        if(enemyLocation.distance <= util::square(1.5f * 1_sectors) / 2
            || abs(enemyLocation.visualLaraAngleToSelf) <= 90_deg)
         {
           goal(JumpAttack, 0_as);
@@ -140,7 +140,7 @@ void Wolf::update()
           goal(PrepareToStrike, Stalking);
         }
       }
-      else if(isStalking() || enemyLocation.enemyDistance >= util::square(3_sectors))
+      else if(isStalking() || enemyLocation.distance >= util::square(3_sectors))
       {
         if(isBored())
           goal(PrepareToStrike);

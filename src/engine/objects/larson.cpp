@@ -68,7 +68,7 @@ void Larson::update()
         goal(1_as, 3_as);
       else if(canShootAtLara(enemyLocation))
         goal(1_as, 4_as);
-      else if(!enemyLocation.laraInView || enemyLocation.enemyDistance > util::square(3_sectors))
+      else if(!enemyLocation.laraInView || enemyLocation.distance > util::square(3_sectors))
         goal(1_as, 3_as);
       break;
     case 3: // running
@@ -78,7 +78,7 @@ void Larson::update()
         goal(1_as, 6_as);
       else if(canShootAtLara(enemyLocation))
         goal(1_as, 4_as);
-      else if(enemyLocation.laraInView && enemyLocation.enemyDistance < util::square(3_sectors))
+      else if(enemyLocation.laraInView && enemyLocation.distance < util::square(3_sectors))
         goal(1_as, 2_as);
       break;
     case 4: // aiming
@@ -98,7 +98,7 @@ void Larson::update()
     case 7: // firing
       if(m_state.required_anim_state == 0_as)
       {
-        if(tryShootAtLara(*this, enemyLocation.enemyDistance, core::TRVec{-60_len, 170_len, 0_len}, 14, headRot))
+        if(tryShootAtLara(*this, enemyLocation.distance, core::TRVec{-60_len, 170_len, 0_len}, 14, headRot))
           hitLara(50_hp);
         require(4_as);
       }

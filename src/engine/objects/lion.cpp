@@ -47,7 +47,7 @@ void Lion::update()
       {
         if(enemyLocation.laraInView && touched(0x380066UL))
           goal(7_as);
-        else if(enemyLocation.laraInView && enemyLocation.enemyDistance < util::square(1_sectors))
+        else if(enemyLocation.laraInView && enemyLocation.distance < util::square(1_sectors))
           goal(4_as);
         else
           goal(3_as);
@@ -69,7 +69,7 @@ void Lion::update()
       getCreatureInfo()->maxTurnSpeed = 5_deg / 1_frame;
       if(isBored())
         goal(1_as); // NOLINT(bugprone-branch-clone)
-      else if(enemyLocation.laraInView && enemyLocation.enemyDistance < util::square(1_sectors))
+      else if(enemyLocation.laraInView && enemyLocation.distance < util::square(1_sectors))
         goal(1_as);
       else if(enemyLocation.laraInView && touched(0x380066UL))
         goal(1_as);

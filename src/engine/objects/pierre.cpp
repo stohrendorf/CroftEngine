@@ -72,8 +72,8 @@ void Pierre::update()
     }
     if(m_fleeTime != 0_frame)
     {
-      enemyLocation.enemyZoneId = static_cast<uint32_t>(-1);
-      enemyLocation.enemyUnreachable = true;
+      enemyLocation.laraZoneId = static_cast<uint32_t>(-1);
+      enemyLocation.laraUnreachable = true;
       m_state.is_hit = true;
     }
 
@@ -111,7 +111,7 @@ void Pierre::update()
         goal(1_as, 3_as);
       else if(canShootAtLara(enemyLocation))
         goal(1_as, 4_as);
-      else if(!enemyLocation.laraInView || enemyLocation.enemyDistance > util::square(3_sectors))
+      else if(!enemyLocation.laraInView || enemyLocation.distance > util::square(3_sectors))
         goal(1_as, 3_as);
       break;
     case 3:
@@ -121,7 +121,7 @@ void Pierre::update()
         goal(1_as, 6_as);
       else if(canShootAtLara(enemyLocation))
         goal(1_as, 4_as);
-      else if(enemyLocation.laraInView && enemyLocation.enemyDistance < util::square(3_sectors))
+      else if(enemyLocation.laraInView && enemyLocation.distance < util::square(3_sectors))
         goal(1_as, 2_as);
       break;
     case 4:
@@ -141,9 +141,9 @@ void Pierre::update()
     case 7:
       if(m_state.required_anim_state == 0_as)
       {
-        if(tryShootAtLara(*this, enemyLocation.enemyDistance, {60_len, 200_len, 0_len}, 11, headRot))
+        if(tryShootAtLara(*this, enemyLocation.distance, {60_len, 200_len, 0_len}, 11, headRot))
           hitLara(25_hp);
-        if(tryShootAtLara(*this, enemyLocation.enemyDistance, {-57_len, 200_len, 0_len}, 14, headRot))
+        if(tryShootAtLara(*this, enemyLocation.distance, {-57_len, 200_len, 0_len}, 14, headRot))
           hitLara(25_hp);
         require(4_as);
       }

@@ -42,9 +42,9 @@ void Raptor::update()
         goal(m_state.required_anim_state);
       else if(touched(0xff7c00UL))
         goal(8_as);
-      else if(enemyLocation.canAttackLara && enemyLocation.enemyDistance < util::square(680_len))
+      else if(enemyLocation.canAttackLara && enemyLocation.distance < util::square(680_len))
         goal(8_as);
-      else if(enemyLocation.canAttackLara && enemyLocation.enemyDistance < util::square(1536_len))
+      else if(enemyLocation.canAttackLara && enemyLocation.distance < util::square(1536_len))
         goal(4_as);
       else if(!isBored())
         goal(3_as);
@@ -65,7 +65,7 @@ void Raptor::update()
       {
         goal(1_as);
       }
-      else if(enemyLocation.canAttackLara && enemyLocation.enemyDistance < util::square(1536_len))
+      else if(enemyLocation.canAttackLara && enemyLocation.distance < util::square(1536_len))
       {
         if(m_state.goal_anim_state == 3_as)
         {

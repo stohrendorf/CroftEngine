@@ -144,7 +144,7 @@ void Rat::update()
       case 1:
         if(m_state.required_anim_state != 0_as)
           goal(m_state.required_anim_state);
-        else if(enemyLocation.canAttackLara && enemyLocation.enemyDistance < util::square(341_len))
+        else if(enemyLocation.canAttackLara && enemyLocation.distance < util::square(341_len))
           goal(4_as);
         else
           goal(3_as);
@@ -160,7 +160,7 @@ void Rat::update()
       case 3:
         if(enemyLocation.laraInView && touched(0x300018ful))
           goal(1_as);
-        else if(enemyLocation.canAttackLara && enemyLocation.enemyDistance < util::square(1536_len))
+        else if(enemyLocation.canAttackLara && enemyLocation.distance < util::square(1536_len))
           goal(2_as);
         else if(enemyLocation.laraInView && util::rand15() < 256)
           goal(1_as, 6_as);

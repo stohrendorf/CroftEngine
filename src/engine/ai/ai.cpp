@@ -38,17 +38,17 @@ std::optional<ai::Mood>
   {
   case Mood::Bored:
   case Mood::Stalk:
-    if(enemyLocation.canReachEnemyZone())
+    if(enemyLocation.canReachLara())
       return Mood::Attack;
     else if(isHit)
       return Mood::Escape;
     break;
   case Mood::Attack:
-    if(!enemyLocation.canReachEnemyZone())
+    if(!enemyLocation.canReachLara())
       return Mood::Bored;
     break;
   case Mood::Escape:
-    if(enemyLocation.canReachEnemyZone())
+    if(enemyLocation.canReachLara())
       return Mood::Attack;
     break;
   }
@@ -66,13 +66,13 @@ std::optional<ai::Mood> getNewNonViolentMood(const EnemyLocation& enemyLocation,
   case Mood::Bored:
     [[fallthrough]];
   case Mood::Stalk:
-    if(isHit && (util::rand15() < 2048 || !enemyLocation.canReachEnemyZone()))
+    if(isHit && (util::rand15() < 2048 || !enemyLocation.canReachLara()))
     {
       return Mood::Escape;
     }
-    else if(enemyLocation.canReachEnemyZone())
+    else if(enemyLocation.canReachLara())
     {
-      if(enemyLocation.enemyDistance >= util::square(3_sectors) && (creatureInfo.mood != Mood::Stalk || hasTargetBox))
+      if(enemyLocation.distance >= util::square(3_sectors) && (creatureInfo.mood != Mood::Stalk || hasTargetBox))
       {
         return Mood::Stalk;
       }
@@ -83,17 +83,17 @@ std::optional<ai::Mood> getNewNonViolentMood(const EnemyLocation& enemyLocation,
     }
     break;
   case Mood::Attack:
-    if(isHit && (util::rand15() < 2048 || !enemyLocation.canReachEnemyZone()))
+    if(isHit && (util::rand15() < 2048 || !enemyLocation.canReachLara()))
     {
       return Mood::Escape;
     }
-    else if(!enemyLocation.canReachEnemyZone())
+    else if(!enemyLocation.canReachLara())
     {
       return Mood::Bored;
     }
     break;
   case Mood::Escape:
-    if(enemyLocation.canReachEnemyZone() && util::rand15() < 256)
+    if(enemyLocation.canReachLara() && util::rand15() < 256)
     {
       return Mood::Stalk;
     }
@@ -137,7 +137,7 @@ void updateMood(const objects::AIAgent& aiAgent, const EnemyLocation& enemyLocat
   {
     // if we're not attacking, but we got a target, we're seeking for a box that is *not* the enemy's box, but we're too
     // close to the enemy now.
-    if(enemyLocation.canReachEnemyZone())
+    if(enemyLocation.canReachLara())
     {
       creatureInfo.mood = Mood::Bored;
     }
@@ -230,7 +230,7 @@ void updateMood(const objects::AIAgent& aiAgent, const EnemyLocation& enemyLocat
     {
       newTargetBox = box;
       creatureInfo.pathFinder.setRandomSearchTarget(box);
-      if(!enemyLocation.canReachEnemyZone())
+      if(!enemyLocation.canReachLara())
       {
         creatureInfo.mood = Mood::Bored;
       }
@@ -249,7 +249,7 @@ void updateMood(const objects::AIAgent& aiAgent, const EnemyLocation& enemyLocat
       newTargetBox = box;
       creatureInfo.pathFinder.setRandomSearchTarget(box);
     }
-    else if(enemyLocation.canReachEnemyZone() && aiAgent.m_state.isStalkBox(aiAgent.getWorld(), *box))
+    else if(enemyLocation.canReachLara() && aiAgent.m_state.isStalkBox(aiAgent.getWorld(), *box))
     {
       newTargetBox = box;
       creatureInfo.pathFinder.setRandomSearchTarget(box);
@@ -317,15 +317,15 @@ EnemyLocation::EnemyLocation(objects::AIAgent& aiAgent)
   zoneId = aiAgentBox.get()->*zoneRef;
   const auto& lara = aiAgent.getWorld().getObjectManager().getLara();
   const auto laraBox = lara.m_state.tryGetCurrentBox();
-  enemyZoneId = laraBox == nullptr ? InvalidZone : laraBox->*zoneRef;
+  laraZoneId = laraBox == nullptr ? InvalidZone : laraBox->*zoneRef;
   if(laraBox == nullptr)
   {
-    enemyUnreachable = true;
+    laraUnreachable = true;
   }
   else
   {
-    enemyUnreachable = !aiAgent.getCreatureInfo()->pathFinder.canVisit(*laraBox)
-                       || aiAgent.getCreatureInfo()->pathFinder.isUnreachable(aiAgentBox);
+    laraUnreachable = !aiAgent.getCreatureInfo()->pathFinder.canVisit(*laraBox)
+                      || aiAgent.getCreatureInfo()->pathFinder.isUnreachable(aiAgentBox);
   }
 
   const gsl::not_null objectInfo{aiAgent.getWorld().getEngine().getScriptEngine().getGameflow().getObjectInfos().at(
@@ -334,7 +334,7 @@ EnemyLocation::EnemyLocation(objects::AIAgent& aiAgent)
   const auto pivotToLara = lara.m_state.location.position
                            - (aiAgent.m_state.location.position + util::pitch(pivotLength, aiAgent.m_state.rotation.Y));
   const auto anglePivotToLara = core::angleFromAtan(pivotToLara.X, pivotToLara.Z);
-  enemyDistance = util::square(pivotToLara.X) + util::square(pivotToLara.Z);
+  distance = util::square(pivotToLara.X) + util::square(pivotToLara.Z);
   visualAngleToLara = anglePivotToLara - aiAgent.m_state.rotation.Y;
   visualLaraAngleToSelf = anglePivotToLara - 180_deg - lara.m_state.rotation.Y;
   laraInView = abs(visualAngleToLara) < 90_deg;

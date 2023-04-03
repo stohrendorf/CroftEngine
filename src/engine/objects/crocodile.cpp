@@ -165,7 +165,7 @@ std::tuple<core::Angle, core::Angle> Crocodile::updateOnLandAlive()
   switch(m_state.current_anim_state.get())
   {
   case 1:
-    if(enemyLocation.canAttackLara && enemyLocation.enemyDistance < util::square(435_len))
+    if(enemyLocation.canAttackLara && enemyLocation.distance < util::square(435_len))
     {
       goal(5_as);
       break;
@@ -176,7 +176,7 @@ std::tuple<core::Angle, core::Angle> Crocodile::updateOnLandAlive()
       goal(2_as);
       break;
     case ai::Mood::Attack:
-      if(abs(enemyLocation.visualAngleToLara) <= 90_deg || enemyLocation.enemyDistance <= util::square(3_sectors))
+      if(abs(enemyLocation.visualAngleToLara) <= 90_deg || enemyLocation.distance <= util::square(3_sectors))
         goal(2_as);
       else
         goal(4_as);
@@ -196,7 +196,7 @@ std::tuple<core::Angle, core::Angle> Crocodile::updateOnLandAlive()
       goal(3_as);
     else if(isBored())
       goal(1_as);
-    else if(isAttacking() && enemyLocation.enemyDistance > util::square(3_sectors)
+    else if(isAttacking() && enemyLocation.distance > util::square(3_sectors)
             && abs(enemyLocation.visualAngleToLara) > 90_deg)
       goal(1_as);
     break;

@@ -64,7 +64,7 @@ void Kold::update()
         goal(1_as, 3_as);
       else if(canShootAtLara(enemyLocation))
         goal(1_as, 4_as);
-      else if(enemyLocation.enemyDistance > util::square(4096_len))
+      else if(enemyLocation.distance > util::square(4096_len))
         goal(1_as, 3_as);
       break;
     case 3:
@@ -74,7 +74,7 @@ void Kold::update()
       {
         if(canShootAtLara(enemyLocation))
           goal(1_as, 4_as);
-        else if(enemyLocation.laraInView && enemyLocation.enemyDistance < util::square(4096_len))
+        else if(enemyLocation.laraInView && enemyLocation.distance < util::square(4096_len))
           goal(1_as, 2_as);
       }
       break;
@@ -92,7 +92,7 @@ void Kold::update()
     case 6:
       if(!m_shotAtLara)
       {
-        if(tryShootAtLara(*this, enemyLocation.enemyDistance / 2, {-20_len, 440_len, 20_len}, 9, headRot))
+        if(tryShootAtLara(*this, enemyLocation.distance / 2, {-20_len, 440_len, 20_len}, 9, headRot))
         {
           hitLara(150_hp);
         }

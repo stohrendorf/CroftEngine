@@ -70,7 +70,7 @@ void Bear::update()
     case GettingDown.get():
       if(getWorld().getObjectManager().getLara().isDead())
       {
-        if(enemyLocation.canAttackLara && enemyLocation.enemyDistance < util::square(768_len))
+        if(enemyLocation.canAttackLara && enemyLocation.distance < util::square(768_len))
           goal(Biting);
         else
           goal(Walking);
@@ -94,7 +94,7 @@ void Bear::update()
         goal(RoaringStanding, 0_as);
       else if(isBored() || util::rand15() < 80)
         goal(RoaringStanding, Growling);
-      else if(enemyLocation.enemyDistance > util::square(2_sectors) || util::rand15() < 1536)
+      else if(enemyLocation.distance > util::square(2_sectors) || util::rand15() < 1536)
         goal(RoaringStanding, GettingDown);
       break;
     case Running.get():
@@ -109,9 +109,9 @@ void Bear::update()
       }
       else if(enemyLocation.laraInView && m_state.required_anim_state == 0_as)
       {
-        if(!m_hurt && enemyLocation.enemyDistance < util::square(2048_len) && util::rand15() < 768)
+        if(!m_hurt && enemyLocation.distance < util::square(2048_len) && util::rand15() < 768)
           goal(GettingDown, RoaringStanding);
-        else if(enemyLocation.enemyDistance < util::square(1_sectors))
+        else if(enemyLocation.distance < util::square(1_sectors))
           goal(RunningAttack);
       }
       break;
@@ -122,7 +122,7 @@ void Bear::update()
         goal(m_state.required_anim_state);
       else if(isBored() || isEscaping())
         goal(GettingDown);
-      else if(enemyLocation.canAttackLara && enemyLocation.enemyDistance < util::square(600_len))
+      else if(enemyLocation.canAttackLara && enemyLocation.distance < util::square(600_len))
         goal(Standing);
       else
         goal(WalkingTall);

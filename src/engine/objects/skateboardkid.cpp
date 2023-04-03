@@ -91,14 +91,14 @@ void SkateboardKid::update()
     case 4:
       if(!m_triedShoot && canShootAtLara(enemyLocation))
       {
-        if(tryShootAtLara(*this, enemyLocation.enemyDistance, core::TRVec{0_len, 150_len, 34_len}, 7, headRot))
+        if(tryShootAtLara(*this, enemyLocation.distance, core::TRVec{0_len, 150_len, 34_len}, 7, headRot))
         {
           if(m_state.current_anim_state == 1_as)
             hitLara(50_hp);
           else
             hitLara(40_hp);
         }
-        if(tryShootAtLara(*this, enemyLocation.enemyDistance, core::TRVec{0_len, 150_len, 37_len}, 4, headRot))
+        if(tryShootAtLara(*this, enemyLocation.distance, core::TRVec{0_len, 150_len, 37_len}, 4, headRot))
         {
           if(m_state.current_anim_state == 1_as)
             hitLara(50_hp);
@@ -108,7 +108,7 @@ void SkateboardKid::update()
         m_triedShoot = true;
       }
 
-      if(getCreatureInfo()->mood == ai::Mood::Escape || enemyLocation.enemyDistance < util::square(1024_len))
+      if(getCreatureInfo()->mood == ai::Mood::Escape || enemyLocation.distance < util::square(1024_len))
       {
         require(2_as);
       }
@@ -121,8 +121,8 @@ void SkateboardKid::update()
       }
       else if(canShootAtLara(enemyLocation))
       {
-        if(getCreatureInfo()->mood == ai::Mood::Escape || enemyLocation.enemyDistance <= util::square(2560_len)
-           || enemyLocation.enemyDistance >= util::square(4096_len))
+        if(getCreatureInfo()->mood == ai::Mood::Escape || enemyLocation.distance <= util::square(2560_len)
+           || enemyLocation.distance >= util::square(4096_len))
         {
           goal(4_as);
         }
