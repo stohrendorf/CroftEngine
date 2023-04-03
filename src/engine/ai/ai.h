@@ -62,10 +62,14 @@ struct EnemyLocation
   uint32_t enemyZoneId = 0;
   bool enemyUnreachable = false;
   core::Area enemyDistance{0};
-  bool enemyAhead = false;
-  bool canAttackForward = false;
-  core::Angle angleToEnemy = 0_deg;
-  core::Angle enemyAngleToSelf = 0_deg;
+  // whether we can see lara
+  bool laraInView = false;
+  // true if and only if we see lara, and the vertical distance is within +/- 1/4 of a sector
+  bool canAttackLara = false;
+  // angle to lara within our view, relative to the baddie's pivot location
+  core::Angle visualAngleToLara = 0_deg;
+  // where we are within lara's view
+  core::Angle visualLaraAngleToSelf = 0_deg;
 
   explicit EnemyLocation(objects::AIAgent& aiAgent);
 

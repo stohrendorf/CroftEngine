@@ -539,7 +539,7 @@ void AIAgent::collide(CollisionInfo& collisionInfo)
 
 bool AIAgent::canShootAtLara(const ai::EnemyLocation& enemyLocation) const
 {
-  if(!enemyLocation.enemyAhead || enemyLocation.enemyDistance >= util::square(7_sectors))
+  if(!enemyLocation.laraInView || enemyLocation.enemyDistance >= util::square(7_sectors))
   {
     return false;
   }

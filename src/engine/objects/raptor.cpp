@@ -29,9 +29,9 @@ void Raptor::update()
   if(alive())
   {
     const ai::EnemyLocation enemyLocation{*this};
-    if(enemyLocation.enemyAhead)
+    if(enemyLocation.laraInView)
     {
-      animHead = enemyLocation.angleToEnemy;
+      animHead = enemyLocation.visualAngleToLara;
     }
     updateMood(*this, enemyLocation, true);
     animAngle = rotateTowardsTarget(getCreatureInfo()->maxTurnSpeed);
@@ -42,9 +42,9 @@ void Raptor::update()
         goal(m_state.required_anim_state);
       else if(touched(0xff7c00UL))
         goal(8_as);
-      else if(enemyLocation.canAttackForward && enemyLocation.enemyDistance < util::square(680_len))
+      else if(enemyLocation.canAttackLara && enemyLocation.enemyDistance < util::square(680_len))
         goal(8_as);
-      else if(enemyLocation.canAttackForward && enemyLocation.enemyDistance < util::square(1536_len))
+      else if(enemyLocation.canAttackLara && enemyLocation.enemyDistance < util::square(1536_len))
         goal(4_as);
       else if(!isBored())
         goal(3_as);
@@ -55,7 +55,7 @@ void Raptor::update()
       getCreatureInfo()->maxTurnSpeed = 1_deg / 1_frame;
       if(!isBored())
         goal(1_as);
-      else if(enemyLocation.enemyAhead && util::rand15() < 256)
+      else if(enemyLocation.laraInView && util::rand15() < 256)
         goal(1_as, 6_as);
       break;
     case 3:
@@ -65,7 +65,7 @@ void Raptor::update()
       {
         goal(1_as);
       }
-      else if(enemyLocation.canAttackForward && enemyLocation.enemyDistance < util::square(1536_len))
+      else if(enemyLocation.canAttackLara && enemyLocation.enemyDistance < util::square(1536_len))
       {
         if(m_state.goal_anim_state == 3_as)
         {
@@ -75,7 +75,7 @@ void Raptor::update()
             goal(1_as);
         }
       }
-      else if(enemyLocation.enemyAhead && !isEscaping() && util::rand15() < 256)
+      else if(enemyLocation.laraInView && !isEscaping() && util::rand15() < 256)
         goal(1_as, 6_as);
       else if(isBored())
         goal(1_as);
@@ -84,7 +84,7 @@ void Raptor::update()
       animTilt = animAngle;
       if(m_state.required_anim_state == 0_as)
       {
-        if(enemyLocation.enemyAhead)
+        if(enemyLocation.laraInView)
         {
           if(touched(0xff7c00UL))
           {
@@ -97,7 +97,7 @@ void Raptor::update()
       break;
     case 7:
       animTilt = animAngle;
-      if(m_state.required_anim_state == 0_as && enemyLocation.enemyAhead)
+      if(m_state.required_anim_state == 0_as && enemyLocation.laraInView)
       {
         if(touched(0xff7c00UL))
         {

@@ -52,7 +52,7 @@ void Bear::update()
     {
     case Walking.get():
       getCreatureInfo()->maxTurnSpeed = 2_deg / 1_frame;
-      if(getWorld().getObjectManager().getLara().isDead() && touched(0x2406cUL) && enemyLocation.enemyAhead)
+      if(getWorld().getObjectManager().getLara().isDead() && touched(0x2406cUL) && enemyLocation.laraInView)
       {
         goal(GettingDown);
       }
@@ -70,7 +70,7 @@ void Bear::update()
     case GettingDown.get():
       if(getWorld().getObjectManager().getLara().isDead())
       {
-        if(enemyLocation.canAttackForward && enemyLocation.enemyDistance < util::square(768_len))
+        if(enemyLocation.canAttackLara && enemyLocation.enemyDistance < util::square(768_len))
           goal(Biting);
         else
           goal(Walking);
@@ -88,7 +88,7 @@ void Bear::update()
     case WalkingTall.get():
       if(m_hurt)
         goal(RoaringStanding, 0_as); // NOLINT(bugprone-branch-clone)
-      else if(enemyLocation.enemyAhead && touched(0x2406cUL))
+      else if(enemyLocation.laraInView && touched(0x2406cUL))
         goal(RoaringStanding);
       else if(isEscaping())
         goal(RoaringStanding, 0_as);
@@ -107,7 +107,7 @@ void Bear::update()
       {
         goal(GettingDown);
       }
-      else if(enemyLocation.enemyAhead && m_state.required_anim_state == 0_as)
+      else if(enemyLocation.laraInView && m_state.required_anim_state == 0_as)
       {
         if(!m_hurt && enemyLocation.enemyDistance < util::square(2048_len) && util::rand15() < 768)
           goal(GettingDown, RoaringStanding);
@@ -122,7 +122,7 @@ void Bear::update()
         goal(m_state.required_anim_state);
       else if(isBored() || isEscaping())
         goal(GettingDown);
-      else if(enemyLocation.canAttackForward && enemyLocation.enemyDistance < util::square(600_len))
+      else if(enemyLocation.canAttackLara && enemyLocation.enemyDistance < util::square(600_len))
         goal(Standing);
       else
         goal(WalkingTall);
@@ -145,7 +145,7 @@ void Bear::update()
     default:
       break;
     }
-    rotateCreatureHead(enemyLocation.angleToEnemy);
+    rotateCreatureHead(enemyLocation.visualAngleToLara);
   }
   else
   {

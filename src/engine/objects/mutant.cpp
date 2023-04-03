@@ -78,11 +78,11 @@ void FlyingMutant::update()
       if(canShootAtLara(enemyLocation)
          && (enemyLocation.zoneId != enemyLocation.enemyZoneId || enemyLocation.enemyDistance > util::square(3840_len)))
       {
-        if(enemyLocation.angleToEnemy > 0_deg && enemyLocation.angleToEnemy < 45_deg)
+        if(enemyLocation.visualAngleToLara > 0_deg && enemyLocation.visualAngleToLara < 45_deg)
         {
           frontRight = true;
         }
-        else if(enemyLocation.angleToEnemy < 0_deg && enemyLocation.angleToEnemy > -45_deg)
+        else if(enemyLocation.visualAngleToLara < 0_deg && enemyLocation.visualAngleToLara > -45_deg)
         {
           frontLeft = true;
         }
@@ -105,15 +105,15 @@ void FlyingMutant::update()
       }
       else if(isEscaping()
               || (enemyLocation.zoneId != enemyLocation.enemyZoneId && !frontRight && !frontLeft
-                  && (!enemyLocation.enemyAhead || isBored())))
+                  && (!enemyLocation.laraInView || isBored())))
       {
         m_flying = true;
       }
     }
 
-    if(enemyLocation.enemyAhead)
+    if(enemyLocation.laraInView)
     {
-      headRot = enemyLocation.angleToEnemy;
+      headRot = enemyLocation.visualAngleToLara;
     }
     if(m_state.current_anim_state != DoFly)
     {
@@ -133,10 +133,9 @@ void FlyingMutant::update()
       m_lookingAround = false;
       if(m_flying)
         goal(DoFly);
-      else if(touched(0x678u)
-              || (enemyLocation.canAttackForward && enemyLocation.enemyDistance < util::square(300_len)))
+      else if(touched(0x678u) || (enemyLocation.canAttackLara && enemyLocation.enemyDistance < util::square(300_len)))
         goal(DoHit200);
-      else if(enemyLocation.canAttackForward && enemyLocation.enemyDistance < util::square(600_len))
+      else if(enemyLocation.canAttackLara && enemyLocation.enemyDistance < util::square(600_len))
         goal(DoHit150);
       else if(frontRight)
         goal(DoShootBullet);
@@ -169,11 +168,11 @@ void FlyingMutant::update()
     case DoRun.get():
       getCreatureInfo()->maxTurnSpeed = 6_deg / 1_frame;
       if(m_flying || touched(0x678u)
-         || (enemyLocation.canAttackForward && enemyLocation.enemyDistance < util::square(600_len)))
+         || (enemyLocation.canAttackLara && enemyLocation.enemyDistance < util::square(600_len)))
       {
         goal(DoPrepareAttack);
       }
-      else if(enemyLocation.enemyAhead && enemyLocation.enemyDistance < util::square(2560_len))
+      else if(enemyLocation.laraInView && enemyLocation.enemyDistance < util::square(2560_len))
       {
         goal(DoHit100);
       }
@@ -315,9 +314,9 @@ void CentaurMutant::update()
   if(getHealth() > 0_hp)
   {
     const ai::EnemyLocation enemyLocation{*this};
-    if(enemyLocation.enemyAhead)
+    if(enemyLocation.laraInView)
     {
-      headRot = enemyLocation.angleToEnemy;
+      headRot = enemyLocation.visualAngleToLara;
     }
     updateMood(*this, enemyLocation, true);
     turnRot = rotateTowardsTarget(4_deg / 1_frame);
@@ -327,7 +326,7 @@ void CentaurMutant::update()
       getCreatureInfo()->neckRotation = 0_deg;
       if(m_state.required_anim_state != 0_as)
         goal(m_state.required_anim_state);
-      else if((enemyLocation.canAttackForward && enemyLocation.enemyDistance < util::square(1536_len))
+      else if((enemyLocation.canAttackLara && enemyLocation.enemyDistance < util::square(1536_len))
               || !canShootAtLara(enemyLocation))
         goal(3_as);
       else
@@ -341,7 +340,7 @@ void CentaurMutant::update()
       }
       break;
     case 3:
-      if(enemyLocation.canAttackForward && enemyLocation.enemyDistance < util::square(1536_len))
+      if(enemyLocation.canAttackLara && enemyLocation.enemyDistance < util::square(1536_len))
         goal(1_as, 6_as);
       else if(canShootAtLara(enemyLocation))
         goal(1_as, 4_as);
@@ -411,9 +410,9 @@ void TorsoBoss::update()
   if(alive())
   {
     const ai::EnemyLocation enemyLocation{*this};
-    if(enemyLocation.enemyAhead)
+    if(enemyLocation.laraInView)
     {
-      headRot = enemyLocation.angleToEnemy;
+      headRot = enemyLocation.visualAngleToLara;
     }
     updateMood(*this, enemyLocation, true);
     const auto angleToTarget = angleFromAtan(getCreatureInfo()->target.X - m_state.location.position.X,

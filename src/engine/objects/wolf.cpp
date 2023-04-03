@@ -44,9 +44,9 @@ void Wolf::update()
   {
     const ai::EnemyLocation enemyLocation{*this};
 
-    if(enemyLocation.enemyAhead)
+    if(enemyLocation.laraInView)
     {
-      pitch = enemyLocation.angleToEnemy;
+      pitch = enemyLocation.visualAngleToLara;
     }
 
     updateMood(*this, enemyLocation, false);
@@ -81,7 +81,7 @@ void Wolf::update()
       }
       if(isEscaping())
         goal(Jumping); // NOLINT(bugprone-branch-clone)
-      else if(enemyLocation.enemyDistance < util::square(345_len) && enemyLocation.canAttackForward)
+      else if(enemyLocation.enemyDistance < util::square(345_len) && enemyLocation.canAttackLara)
         goal(Biting);
       else if(isStalking())
         goal(Stalking);
@@ -96,7 +96,7 @@ void Wolf::update()
       { // NOLINT(bugprone-branch-clone)
         goal(Jumping);
       }
-      else if(enemyLocation.enemyDistance < util::square(345_len) && enemyLocation.canAttackForward)
+      else if(enemyLocation.enemyDistance < util::square(345_len) && enemyLocation.canAttackLara)
       {
         goal(Biting);
       }
@@ -104,8 +104,8 @@ void Wolf::update()
       {
         if(isAttacking())
         {
-          if(!enemyLocation.enemyAhead || enemyLocation.enemyDistance > util::square(1.5f * 1_sectors)
-             || abs(enemyLocation.enemyAngleToSelf) < 90_deg)
+          if(!enemyLocation.laraInView || enemyLocation.enemyDistance > util::square(1.5f * 1_sectors)
+             || abs(enemyLocation.visualLaraAngleToSelf) < 90_deg)
           {
             goal(Jumping);
           }
@@ -128,10 +128,10 @@ void Wolf::update()
     case Jumping.get():
       getCreatureInfo()->maxTurnSpeed = 5_deg / 1_frame;
       roll = rotationToMoveTarget;
-      if(enemyLocation.enemyAhead && enemyLocation.enemyDistance < util::square(1.5f * 1_sectors))
+      if(enemyLocation.laraInView && enemyLocation.enemyDistance < util::square(1.5f * 1_sectors))
       {
         if(enemyLocation.enemyDistance <= util::square(1.5f * 1_sectors) / 2
-           || abs(enemyLocation.enemyAngleToSelf) <= 90_deg)
+           || abs(enemyLocation.visualLaraAngleToSelf) <= 90_deg)
         {
           goal(JumpAttack, 0_as);
         }
@@ -161,7 +161,7 @@ void Wolf::update()
       goal(Jumping);
       break;
     case Biting.get():
-      if(m_state.required_anim_state == 0_as && touched(0x774fUL) && enemyLocation.enemyAhead)
+      if(m_state.required_anim_state == 0_as && touched(0x774fUL) && enemyLocation.laraInView)
       {
         emitParticle(core::TRVec{0_len, -14_len, 174_len}, 6, &createBloodSplat);
         hitLara(100_hp);

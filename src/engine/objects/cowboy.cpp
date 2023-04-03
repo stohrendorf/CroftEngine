@@ -33,9 +33,9 @@ void Cowboy::update()
   if(alive())
   {
     const ai::EnemyLocation enemyLocation{*this};
-    if(enemyLocation.enemyAhead)
+    if(enemyLocation.laraInView)
     {
-      headRot = enemyLocation.angleToEnemy;
+      headRot = enemyLocation.visualAngleToLara;
     }
 
     updateMood(*this, enemyLocation, false);
@@ -63,7 +63,7 @@ void Cowboy::update()
       break;
     case 2:
       getCreatureInfo()->maxTurnSpeed = 3_deg / 1_frame;
-      if(getCreatureInfo()->mood == ai::Mood::Escape || !enemyLocation.enemyAhead)
+      if(getCreatureInfo()->mood == ai::Mood::Escape || !enemyLocation.laraInView)
         goal(1_as, 3_as);
       else if(canShootAtLara(enemyLocation))
         goal(1_as, 4_as);
@@ -73,11 +73,11 @@ void Cowboy::update()
     case 3:
       getCreatureInfo()->maxTurnSpeed = 6_deg / 1_frame;
       tiltRot = creatureTurn / 2;
-      if(getCreatureInfo()->mood != ai::Mood::Escape || enemyLocation.enemyAhead)
+      if(getCreatureInfo()->mood != ai::Mood::Escape || enemyLocation.laraInView)
       {
         if(canShootAtLara(enemyLocation))
           goal(1_as, 4_as);
-        else if(enemyLocation.enemyAhead && enemyLocation.enemyDistance < util::square(3072_len))
+        else if(enemyLocation.laraInView && enemyLocation.enemyDistance < util::square(3072_len))
           goal(1_as, 2_as);
       }
       break;

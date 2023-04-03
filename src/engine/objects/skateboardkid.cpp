@@ -62,9 +62,9 @@ void SkateboardKid::update()
   if(alive())
   {
     const ai::EnemyLocation enemyLocation{*this};
-    if(enemyLocation.enemyAhead)
+    if(enemyLocation.laraInView)
     {
-      headRot = enemyLocation.angleToEnemy;
+      headRot = enemyLocation.visualAngleToLara;
     }
     updateMood(*this, enemyLocation, false);
     turn = rotateTowardsTarget(4_deg / 1_frame);

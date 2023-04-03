@@ -44,9 +44,9 @@ void TRex::update()
   if(alive())
   {
     const ai::EnemyLocation enemyLocation{*this};
-    if(enemyLocation.enemyAhead)
+    if(enemyLocation.laraInView)
     {
-      creatureHead = enemyLocation.angleToEnemy;
+      creatureHead = enemyLocation.visualAngleToLara;
     }
     updateMood(*this, enemyLocation, true);
 
@@ -61,9 +61,9 @@ void TRex::update()
         lara.m_state.health -= 1_hp;
     }
 
-    m_wantAttack = !isEscaping() && !enemyLocation.enemyAhead && abs(enemyLocation.enemyAngleToSelf) < 90_deg;
+    m_wantAttack = !isEscaping() && !enemyLocation.laraInView && abs(enemyLocation.visualLaraAngleToSelf) < 90_deg;
     if(!m_wantAttack && enemyLocation.enemyDistance > util::square(1500_len)
-       && enemyLocation.enemyDistance < util::square(4_sectors) && enemyLocation.canAttackForward)
+       && enemyLocation.enemyDistance < util::square(4_sectors) && enemyLocation.canAttackLara)
     {
       m_wantAttack = true;
     }
@@ -73,7 +73,7 @@ void TRex::update()
     case Think.get():
       if(m_state.required_anim_state != 0_as)
         goal(m_state.required_anim_state);
-      else if(enemyLocation.enemyDistance < util::square(1500_len) && enemyLocation.canAttackForward)
+      else if(enemyLocation.enemyDistance < util::square(1500_len) && enemyLocation.canAttackLara)
         goal(BiteToDeath);
       else if(isBored() || m_wantAttack)
         goal(Attack);
@@ -84,16 +84,16 @@ void TRex::update()
       getCreatureInfo()->maxTurnSpeed = 2_deg / 1_frame;
       if(!isBored() || !m_wantAttack)
         goal(Think);
-      else if(enemyLocation.enemyAhead && util::rand15() < 512)
+      else if(enemyLocation.laraInView && util::rand15() < 512)
         goal(Think, 6_as);
       break;
     case RunningAttack.get():
       getCreatureInfo()->maxTurnSpeed = 4_deg / 1_frame;
-      if(enemyLocation.enemyDistance < util::square(5_sectors) && enemyLocation.canAttackForward)
+      if(enemyLocation.enemyDistance < util::square(5_sectors) && enemyLocation.canAttackLara)
         goal(Think); // NOLINT(bugprone-branch-clone)
       else if(m_wantAttack)
         goal(Think);
-      else if(!isEscaping() && enemyLocation.enemyAhead && util::rand15() < 512)
+      else if(!isEscaping() && enemyLocation.laraInView && util::rand15() < 512)
         goal(Think, 6_as);
       else if(isBored())
         goal(Think);

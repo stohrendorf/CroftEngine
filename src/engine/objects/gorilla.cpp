@@ -37,8 +37,8 @@ void Gorilla::update()
   if(alive())
   {
     const ai::EnemyLocation enemyLocation{*this};
-    if(enemyLocation.enemyAhead)
-      headRot = enemyLocation.angleToEnemy;
+    if(enemyLocation.laraInView)
+      headRot = enemyLocation.visualAngleToLara;
     updateMood(*this, enemyLocation, false);
 
     turn = rotateTowardsTarget(getCreatureInfo()->maxTurnSpeed);
@@ -64,12 +64,12 @@ void Gorilla::update()
       {
         goal(m_state.required_anim_state);
       }
-      else if(enemyLocation.canAttackForward && enemyLocation.enemyDistance < util::square(430_len))
+      else if(enemyLocation.canAttackLara && enemyLocation.enemyDistance < util::square(430_len))
       {
         // attack
         goal(4_as);
       }
-      else if(m_wantAttack || !enemyLocation.canReachEnemyZone() || !enemyLocation.enemyAhead)
+      else if(m_wantAttack || !enemyLocation.canReachEnemyZone() || !enemyLocation.laraInView)
       {
         // run on legs and arms
         goal(3_as);
@@ -109,11 +109,11 @@ void Gorilla::update()
     case 3:
       // running
       getCreatureInfo()->maxTurnSpeed = 5_deg / 1_frame;
-      if(!m_wantAttack && !m_crabWalkRight && !m_crabWalkLeft && abs(enemyLocation.angleToEnemy) < 45_deg)
+      if(!m_wantAttack && !m_crabWalkRight && !m_crabWalkLeft && abs(enemyLocation.visualAngleToLara) < 45_deg)
       {
         goal(1_as);
       }
-      else if(enemyLocation.enemyAhead && touched(0xff00))
+      else if(enemyLocation.laraInView && touched(0xff00))
       {
         goal(1_as, 4_as);
       }

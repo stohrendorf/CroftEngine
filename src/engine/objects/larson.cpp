@@ -29,9 +29,9 @@ void Larson::update()
   if(alive())
   {
     const ai::EnemyLocation enemyLocation{*this};
-    if(enemyLocation.enemyAhead)
+    if(enemyLocation.laraInView)
     {
-      headRot = enemyLocation.angleToEnemy;
+      headRot = enemyLocation.visualAngleToLara;
     }
 
     updateMood(*this, enemyLocation, false);
@@ -68,7 +68,7 @@ void Larson::update()
         goal(1_as, 3_as);
       else if(canShootAtLara(enemyLocation))
         goal(1_as, 4_as);
-      else if(!enemyLocation.enemyAhead || enemyLocation.enemyDistance > util::square(3_sectors))
+      else if(!enemyLocation.laraInView || enemyLocation.enemyDistance > util::square(3_sectors))
         goal(1_as, 3_as);
       break;
     case 3: // running
@@ -78,7 +78,7 @@ void Larson::update()
         goal(1_as, 6_as);
       else if(canShootAtLara(enemyLocation))
         goal(1_as, 4_as);
-      else if(enemyLocation.enemyAhead && enemyLocation.enemyDistance < util::square(3_sectors))
+      else if(enemyLocation.laraInView && enemyLocation.enemyDistance < util::square(3_sectors))
         goal(1_as, 2_as);
       break;
     case 4: // aiming
@@ -89,7 +89,7 @@ void Larson::update()
       else
         goal(1_as);
       break;
-    case 6: // standing
+    case 6:         // standing
       if(!isBored())
         goal(1_as); // standing/holding weapon
       else if(util::rand15() < 96)

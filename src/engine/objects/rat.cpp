@@ -35,21 +35,21 @@ void Rat::update()
     {
       const ai::EnemyLocation enemyLocation{*this};
       core::Angle headRot = 0_deg;
-      if(enemyLocation.enemyAhead)
+      if(enemyLocation.laraInView)
       {
-        headRot = enemyLocation.angleToEnemy;
+        headRot = enemyLocation.visualAngleToLara;
       }
       updateMood(*this, enemyLocation, true);
       const auto turn = rotateTowardsTarget(3_deg / 1_frame);
 
-      if(m_state.current_anim_state == 1_as && enemyLocation.enemyAhead)
+      if(m_state.current_anim_state == 1_as && enemyLocation.laraInView)
       {
         if(touched(0x300018ful))
           goal(2_as);
       }
       else if(m_state.current_anim_state == 2_as)
       {
-        if(m_state.required_anim_state == 0_as && enemyLocation.enemyAhead)
+        if(m_state.required_anim_state == 0_as && enemyLocation.laraInView)
         {
           if(touched(0x300018ful))
           {
@@ -132,9 +132,9 @@ void Rat::update()
     if(alive())
     {
       const ai::EnemyLocation enemyLocation{*this};
-      if(enemyLocation.enemyAhead)
+      if(enemyLocation.laraInView)
       {
-        headRot = enemyLocation.angleToEnemy;
+        headRot = enemyLocation.visualAngleToLara;
       }
       updateMood(*this, enemyLocation, false);
       turn = rotateTowardsTarget(6_deg / 1_frame);
@@ -144,13 +144,13 @@ void Rat::update()
       case 1:
         if(m_state.required_anim_state != 0_as)
           goal(m_state.required_anim_state);
-        else if(enemyLocation.canAttackForward && enemyLocation.enemyDistance < util::square(341_len))
+        else if(enemyLocation.canAttackLara && enemyLocation.enemyDistance < util::square(341_len))
           goal(4_as);
         else
           goal(3_as);
         break;
       case 2:
-        if(m_state.required_anim_state == 0_as && enemyLocation.enemyAhead && touched(0x300018ful))
+        if(m_state.required_anim_state == 0_as && enemyLocation.laraInView && touched(0x300018ful))
         {
           emitParticle({0_len, -11_len, 108_len}, 3, &createBloodSplat);
           hitLara(20_hp);
@@ -158,15 +158,15 @@ void Rat::update()
         }
         break;
       case 3:
-        if(enemyLocation.enemyAhead && touched(0x300018ful))
+        if(enemyLocation.laraInView && touched(0x300018ful))
           goal(1_as);
-        else if(enemyLocation.canAttackForward && enemyLocation.enemyDistance < util::square(1536_len))
+        else if(enemyLocation.canAttackLara && enemyLocation.enemyDistance < util::square(1536_len))
           goal(2_as);
-        else if(enemyLocation.enemyAhead && util::rand15() < 256)
+        else if(enemyLocation.laraInView && util::rand15() < 256)
           goal(1_as, 6_as);
         break;
       case 4:
-        if(m_state.required_anim_state == 0_as && enemyLocation.enemyAhead && touched(0x300018ful))
+        if(m_state.required_anim_state == 0_as && enemyLocation.laraInView && touched(0x300018ful))
         {
           emitParticle({0_len, -11_len, 108_len}, 3, &createBloodSplat);
           hitLara(20_hp);

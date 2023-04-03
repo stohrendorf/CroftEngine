@@ -33,15 +33,15 @@ void Crocodile::updateInWaterAlive()
 {
   core::Angle headRot = 0_deg;
   const ai::EnemyLocation enemyLocation{*this};
-  if(enemyLocation.enemyAhead)
+  if(enemyLocation.laraInView)
   {
-    headRot = enemyLocation.angleToEnemy;
+    headRot = enemyLocation.visualAngleToLara;
   }
   updateMood(*this, enemyLocation, true);
   rotateTowardsTarget(3_deg / 1_frame);
   if(m_state.current_anim_state == 1_as)
   {
-    if(enemyLocation.canAttackForward && touched())
+    if(enemyLocation.canAttackLara && touched())
       goal(2_as);
   }
   else if(m_state.current_anim_state == 2_as)
@@ -50,7 +50,7 @@ void Crocodile::updateInWaterAlive()
     {
       require(0_as);
     }
-    if(enemyLocation.canAttackForward && touched())
+    if(enemyLocation.canAttackLara && touched())
     {
       if(m_state.required_anim_state == 0_as)
       {
@@ -149,9 +149,9 @@ std::tuple<core::Angle, core::Angle> Crocodile::updateOnLandAlive()
   core::Angle turnRot = 0_deg;
   core::Angle headRot = 0_deg;
   const ai::EnemyLocation enemyLocation{*this};
-  if(enemyLocation.enemyAhead)
+  if(enemyLocation.laraInView)
   {
-    headRot = enemyLocation.angleToEnemy;
+    headRot = enemyLocation.visualAngleToLara;
   }
   updateMood(*this, enemyLocation, true);
   if(m_state.current_anim_state == 4_as)
@@ -165,7 +165,7 @@ std::tuple<core::Angle, core::Angle> Crocodile::updateOnLandAlive()
   switch(m_state.current_anim_state.get())
   {
   case 1:
-    if(enemyLocation.canAttackForward && enemyLocation.enemyDistance < util::square(435_len))
+    if(enemyLocation.canAttackLara && enemyLocation.enemyDistance < util::square(435_len))
     {
       goal(5_as);
       break;
@@ -176,7 +176,7 @@ std::tuple<core::Angle, core::Angle> Crocodile::updateOnLandAlive()
       goal(2_as);
       break;
     case ai::Mood::Attack:
-      if(abs(enemyLocation.angleToEnemy) <= 90_deg || enemyLocation.enemyDistance <= util::square(3_sectors))
+      if(abs(enemyLocation.visualAngleToLara) <= 90_deg || enemyLocation.enemyDistance <= util::square(3_sectors))
         goal(2_as);
       else
         goal(4_as);
@@ -190,18 +190,18 @@ std::tuple<core::Angle, core::Angle> Crocodile::updateOnLandAlive()
     }
     break;
   case 2:
-    if(enemyLocation.enemyAhead && touched(0x3fcUL))
+    if(enemyLocation.laraInView && touched(0x3fcUL))
       goal(1_as);
     else if(isStalking())
       goal(3_as);
     else if(isBored())
       goal(1_as);
     else if(isAttacking() && enemyLocation.enemyDistance > util::square(3_sectors)
-            && abs(enemyLocation.angleToEnemy) > 90_deg)
+            && abs(enemyLocation.visualAngleToLara) > 90_deg)
       goal(1_as);
     break;
   case 3:
-    if(enemyLocation.enemyAhead && touched(0x03fcUL))
+    if(enemyLocation.laraInView && touched(0x03fcUL))
       goal(1_as);
     else if(isAttacking() || isEscaping())
       goal(2_as);
@@ -209,7 +209,7 @@ std::tuple<core::Angle, core::Angle> Crocodile::updateOnLandAlive()
       goal(1_as);
     break;
   case 4:
-    if(abs(enemyLocation.angleToEnemy) < 90_deg)
+    if(abs(enemyLocation.visualAngleToLara) < 90_deg)
       goal(3_as);
     break;
   case 5:

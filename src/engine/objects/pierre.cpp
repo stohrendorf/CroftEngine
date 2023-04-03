@@ -66,9 +66,9 @@ void Pierre::update()
   if(alive())
   {
     ai::EnemyLocation enemyLocation{*this};
-    if(enemyLocation.enemyAhead)
+    if(enemyLocation.laraInView)
     {
-      headRot = enemyLocation.angleToEnemy;
+      headRot = enemyLocation.visualAngleToLara;
     }
     if(m_fleeTime != 0_frame)
     {
@@ -111,7 +111,7 @@ void Pierre::update()
         goal(1_as, 3_as);
       else if(canShootAtLara(enemyLocation))
         goal(1_as, 4_as);
-      else if(!enemyLocation.enemyAhead || enemyLocation.enemyDistance > util::square(3_sectors))
+      else if(!enemyLocation.laraInView || enemyLocation.enemyDistance > util::square(3_sectors))
         goal(1_as, 3_as);
       break;
     case 3:
@@ -121,7 +121,7 @@ void Pierre::update()
         goal(1_as, 6_as);
       else if(canShootAtLara(enemyLocation))
         goal(1_as, 4_as);
-      else if(enemyLocation.enemyAhead && enemyLocation.enemyDistance < util::square(3_sectors))
+      else if(enemyLocation.laraInView && enemyLocation.enemyDistance < util::square(3_sectors))
         goal(1_as, 2_as);
       break;
     case 4:

@@ -61,7 +61,7 @@ void Natla::update()
     getCreatureInfo()->pathFinder.setLimits(getWorld(), m_state.getCurrentBox(), 256_len, -256_len, 0_len);
     ai::EnemyLocation enemyLocation{*this};
 
-    const auto canShoot = abs(enemyLocation.angleToEnemy) < 30_deg && canShootAtLara(enemyLocation);
+    const auto canShoot = abs(enemyLocation.visualAngleToLara) < 30_deg && canShootAtLara(enemyLocation);
     if(m_state.current_anim_state == AimFlying && m_attemptToFly)
     {
       if(canShoot && util::rand15() < 256)
@@ -81,8 +81,8 @@ void Natla::update()
       }
     }
 
-    if(enemyLocation.enemyAhead)
-      neckRot = enemyLocation.angleToEnemy;
+    if(enemyLocation.laraInView)
+      neckRot = enemyLocation.visualAngleToLara;
 
     if(m_state.current_anim_state != AimFlying || m_attemptToFly)
       ai::updateMood(*this, enemyLocation, false);
@@ -91,7 +91,7 @@ void Natla::update()
     angle = rotateTowardsTarget(5_deg / 1_frame);
     if(m_state.current_anim_state == AimFlying)
     {
-      m_pitchDelta += std::clamp(enemyLocation.angleToEnemy, -5_deg, 5_deg);
+      m_pitchDelta += std::clamp(enemyLocation.visualAngleToLara, -5_deg, 5_deg);
       m_state.rotation.Y += m_pitchDelta;
     }
     else
@@ -145,12 +145,12 @@ void Natla::update()
     getCreatureInfo()->pathFinder.setLimits(getWorld(), m_state.getCurrentBox(), 256_len, -256_len, 0_len);
     const ai::EnemyLocation enemyLocation{*this};
 
-    if(enemyLocation.enemyAhead)
-      neckRot = enemyLocation.angleToEnemy;
+    if(enemyLocation.laraInView)
+      neckRot = enemyLocation.visualAngleToLara;
 
     ai::updateMood(*this, enemyLocation, true);
     angle = rotateTowardsTarget(6_deg / 1_frame);
-    const auto canShoot = abs(enemyLocation.angleToEnemy) < 30_deg && canShootAtLara(enemyLocation);
+    const auto canShoot = abs(enemyLocation.visualAngleToLara) < 30_deg && canShootAtLara(enemyLocation);
     m_state.rotation.Y += std::exchange(m_pitchDelta, 0_deg);
     switch(m_state.current_anim_state.get())
     {

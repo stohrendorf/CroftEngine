@@ -331,18 +331,18 @@ EnemyLocation::EnemyLocation(objects::AIAgent& aiAgent)
   const gsl::not_null objectInfo{aiAgent.getWorld().getEngine().getScriptEngine().getGameflow().getObjectInfos().at(
     aiAgent.m_state.type.get_as<TR1ItemId>())};
   const core::Length pivotLength{objectInfo->pivot_length};
-  const auto toLara = lara.m_state.location.position
-                      - (aiAgent.m_state.location.position + util::pitch(pivotLength, aiAgent.m_state.rotation.Y));
-  const auto angleToLara = core::angleFromAtan(toLara.X, toLara.Z);
-  enemyDistance = util::square(toLara.X) + util::square(toLara.Z);
-  angleToEnemy = angleToLara - aiAgent.m_state.rotation.Y;
-  enemyAngleToSelf = angleToLara - 180_deg - lara.m_state.rotation.Y;
-  enemyAhead = angleToEnemy > -90_deg && angleToEnemy < 90_deg;
-  if(enemyAhead)
+  const auto pivotToLara = lara.m_state.location.position
+                           - (aiAgent.m_state.location.position + util::pitch(pivotLength, aiAgent.m_state.rotation.Y));
+  const auto anglePivotToLara = core::angleFromAtan(pivotToLara.X, pivotToLara.Z);
+  enemyDistance = util::square(pivotToLara.X) + util::square(pivotToLara.Z);
+  visualAngleToLara = anglePivotToLara - aiAgent.m_state.rotation.Y;
+  visualLaraAngleToSelf = anglePivotToLara - 180_deg - lara.m_state.rotation.Y;
+  laraInView = abs(visualAngleToLara) < 90_deg;
+  if(laraInView)
   {
     const auto laraY = lara.m_state.location.position.Y;
-    canAttackForward = laraY > aiAgent.m_state.location.position.Y - core::QuarterSectorSize
-                       && laraY < aiAgent.m_state.location.position.Y + core::QuarterSectorSize;
+    canAttackLara = laraY > aiAgent.m_state.location.position.Y - core::QuarterSectorSize
+                    && laraY < aiAgent.m_state.location.position.Y + core::QuarterSectorSize;
   }
 }
 

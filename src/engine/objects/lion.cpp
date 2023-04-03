@@ -30,9 +30,9 @@ void Lion::update()
   if(alive())
   {
     const ai::EnemyLocation enemyLocation{*this};
-    if(enemyLocation.enemyAhead)
+    if(enemyLocation.laraInView)
     {
-      headRot = enemyLocation.angleToEnemy;
+      headRot = enemyLocation.visualAngleToLara;
     }
     updateMood(*this, enemyLocation, true);
     angle = rotateTowardsTarget(getCreatureInfo()->maxTurnSpeed);
@@ -45,9 +45,9 @@ void Lion::update()
       }
       else if(!isBored())
       {
-        if(enemyLocation.enemyAhead && touched(0x380066UL))
+        if(enemyLocation.laraInView && touched(0x380066UL))
           goal(7_as);
-        else if(enemyLocation.enemyAhead && enemyLocation.enemyDistance < util::square(1_sectors))
+        else if(enemyLocation.laraInView && enemyLocation.enemyDistance < util::square(1_sectors))
           goal(4_as);
         else
           goal(3_as);
@@ -69,9 +69,9 @@ void Lion::update()
       getCreatureInfo()->maxTurnSpeed = 5_deg / 1_frame;
       if(isBored())
         goal(1_as); // NOLINT(bugprone-branch-clone)
-      else if(enemyLocation.enemyAhead && enemyLocation.enemyDistance < util::square(1_sectors))
+      else if(enemyLocation.laraInView && enemyLocation.enemyDistance < util::square(1_sectors))
         goal(1_as);
-      else if(enemyLocation.enemyAhead && touched(0x380066UL))
+      else if(enemyLocation.laraInView && touched(0x380066UL))
         goal(1_as);
       else if(!isEscaping() && util::rand15() < 128)
         goal(1_as, 6_as);
