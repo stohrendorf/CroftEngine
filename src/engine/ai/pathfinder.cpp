@@ -137,9 +137,24 @@ struct MovementCalculator
     return false;
   }
 
+  bool finishInvalid()
+  {
+    if(!frozenRanges && moveDirs == CanMoveAllDirs)
+    {
+      // We reached the maximum possible +Z, and we have no primary direction.
+      frozenRanges = true;
+      return false;
+    }
+    else
+    {
+      // We didn't go in primary direction. We can call it a day.
+      return true;
+    }
+  }
+
   bool tryMoveZPos(const world::Box& box)
   {
-    // Try to move to +Z, as we're outside of the box.
+    // Try to move to +Z, as we're outside the box.
     if((moveDirs & CanMoveZPos) && box.xInterval.contains(startPos.X))
     {
       // Scenario 1: We can move to +Z, *and* the new position will have a valid X value. This means we move as little
@@ -170,20 +185,10 @@ struct MovementCalculator
         return false;
       }
 
-      // Move to the virtual wall of our currently allowed movement area. This can happen, for example, when we're
-      // in the middle of a room with stairs in a corner.
+      // Move to the virtual wall of our currently allowed movement area.
       moveTarget.Z = zRange.max - Margin;
 
-      if(!frozenRanges && moveDirs == CanMoveAllDirs)
-      {
-        // We reached the maximum possible +Z, and we have no primary direction.
-        frozenRanges = true;
-      }
-      else
-      {
-        // We didn't go in primary direction. We can call it a day.
-        return true;
-      }
+      return finishInvalid();
     }
 
     return false;
@@ -212,14 +217,7 @@ struct MovementCalculator
 
       moveTarget.Z = zRange.min + Margin;
 
-      if(!frozenRanges && moveDirs == CanMoveAllDirs)
-      {
-        frozenRanges = true;
-      }
-      else
-      {
-        return true;
-      }
+      return finishInvalid();
     }
 
     return false;
@@ -248,14 +246,7 @@ struct MovementCalculator
 
       moveTarget.X = xRange.max - Margin;
 
-      if(!frozenRanges && moveDirs == CanMoveAllDirs)
-      {
-        frozenRanges = true;
-      }
-      else
-      {
-        return true;
-      }
+      return finishInvalid();
     }
 
     return false;
@@ -284,14 +275,7 @@ struct MovementCalculator
 
       moveTarget.X = xRange.min + Margin;
 
-      if(!frozenRanges && moveDirs == CanMoveAllDirs)
-      {
-        frozenRanges = true;
-      }
-      else
-      {
-        return true;
-      }
+      return finishInvalid();
     }
 
     return false;
@@ -604,7 +588,8 @@ void PathFinder::setLimits(const world::World& world,
   gsl_Expects(step >= 0_len);
   gsl_Expects(drop <= 0_len);
   gsl_Expects(fly >= 0_len);
-  if(std::exchange(m_step, step) != step | std::exchange(m_drop, drop) != drop | std::exchange(m_fly, fly) != fly)
+  // NOLINTNEXTLINE(hicpp-signed-bitwise)
+  if((std::exchange(m_step, step) != step) | (std::exchange(m_drop, drop) != drop) | (std::exchange(m_fly, fly) != fly))
   {
     resetBoxes(world, box);
   }
