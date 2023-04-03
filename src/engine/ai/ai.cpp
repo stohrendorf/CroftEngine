@@ -128,12 +128,15 @@ void updateMood(const objects::AIAgent& aiAgent, const EnemyLocation& enemyLocat
   auto& lara = aiAgent.getWorld().getObjectManager().getLara();
   if(creatureInfo.pathFinder.isUnreachable(lara.m_state.getCurrentBox()))
   {
+    // can't reach lara
     newTargetBox = nullptr;
   }
 
   if(creatureInfo.mood != Mood::Attack && newTargetBox != nullptr
-     && !aiAgent.isInsideZoneButNotInBox(enemyLocation.zoneId, *creatureInfo.pathFinder.getTargetBox()))
+     && !aiAgent.isInsideZoneButNotInBox(enemyLocation.zoneId, *newTargetBox))
   {
+    // if we're not attacking, but we got a target, we're seeking for a box that is *not* the enemy's box, but we're too
+    // close to the enemy now.
     if(enemyLocation.canReachEnemyZone())
     {
       creatureInfo.mood = Mood::Bored;
@@ -165,6 +168,7 @@ void updateMood(const objects::AIAgent& aiAgent, const EnemyLocation& enemyLocat
   switch(creatureInfo.mood)
   {
   case Mood::Attack:
+    // when attacking, there's a chance we will update our own target location
     if(util::rand15() >= aiAgent.getWorld()
                            .getEngine()
                            .getScriptEngine()
@@ -189,6 +193,7 @@ void updateMood(const objects::AIAgent& aiAgent, const EnemyLocation& enemyLocat
     break;
   case Mood::Bored:
   {
+    // when bored, randomly walk around
     const auto box = creatureInfo.pathFinder.getRandomBox();
     if(!aiAgent.isInsideZoneButNotInBox(enemyLocation.zoneId, *box))
       break;
@@ -208,6 +213,7 @@ void updateMood(const objects::AIAgent& aiAgent, const EnemyLocation& enemyLocat
   }
   case Mood::Stalk:
   {
+    // when stalking, seek a location behind lara
     if(newTargetBox != nullptr && aiAgent.m_state.isStalkBox(aiAgent.getWorld(), *newTargetBox))
       break;
 
@@ -233,6 +239,7 @@ void updateMood(const objects::AIAgent& aiAgent, const EnemyLocation& enemyLocat
   }
   case Mood::Escape:
   {
+    // when escaping, seek a box behind lara which center is at least 5 sectors away
     const auto box = creatureInfo.pathFinder.getRandomBox();
     if(!aiAgent.isInsideZoneButNotInBox(enemyLocation.zoneId, *box) || newTargetBox != nullptr)
       break;
@@ -254,11 +261,17 @@ void updateMood(const objects::AIAgent& aiAgent, const EnemyLocation& enemyLocat
 
   if(creatureInfo.pathFinder.getTargetBox() == nullptr)
   {
+    // init the pathfinder's target if it's not initialised yet
     newTargetBox = aiAgent.m_state.getCurrentBox();
     creatureInfo.pathFinder.setRandomSearchTarget(aiAgent.m_state.getCurrentBox());
   }
+
   if(newTargetBox != nullptr)
+  {
+    // we want to move to a different box
     creatureInfo.pathFinder.setTargetBox(gsl::not_null{newTargetBox});
+  }
+
   creatureInfo.pathFinder.calculateTarget(
     aiAgent.getWorld(), creatureInfo.target, aiAgent.m_state.location.position, aiAgent.m_state.getCurrentBox());
 }
