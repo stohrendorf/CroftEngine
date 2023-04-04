@@ -398,111 +398,10 @@ void AIAgent::animateCreature(const core::Angle& collisionRotationY, const core:
     return;
   }
 
-  if(!pathFinder.isFlying())
-  {
-    static constexpr auto FallSpeed = 64_len;
-
-    if(m_state.location.position.Y > m_state.floor)
-    {
-      m_state.location.position.Y = m_state.floor;
-    }
-    else if(m_state.floor > m_state.location.position.Y + FallSpeed)
-    {
-      m_state.location.position.Y += FallSpeed;
-    }
-    else if(m_state.location.position.Y < m_state.floor)
-    {
-      m_state.location.position.Y = m_state.floor;
-    }
-
-    m_state.rotation.X = 0_au;
-
-    currentSector = m_state.location.updateRoom();
-    BOOST_ASSERT(m_state.location.isValid());
-    setCurrentRoom(m_state.location.room);
-    m_state.floor
-      = HeightInfo::fromFloor(currentSector, m_state.location.position, getWorld().getObjectManager().getObjects()).y;
-
-    return;
-  }
-
-  auto moveY
-    = std::clamp(m_creatureInfo->target.Y - m_state.location.position.Y, -pathFinder.getFly(), pathFinder.getFly());
-
-  const auto currentFloor = HeightInfo::fromFloor(currentSector,
-                                                  m_state.location.position + core::TRVec{0_len, bbox.y.max, 0_len},
-                                                  getWorld().getObjectManager().getObjects())
-                              .y;
-
-  if(m_state.location.position.Y + moveY > currentFloor)
-  {
-    // fly movements ended up penetrating the floor
-
-    if(m_state.location.position.Y > currentFloor)
-    {
-      // current and previous positions penetrate the floor, fly up from the floor
-      m_state.location.position.X = oldLocation.position.X;
-      m_state.location.position.Z = oldLocation.position.Z;
-      moveY = -pathFinder.getFly();
-    }
-    else
-    {
-      // transitioning between "above floor" and "penetrating floor", so place on floor
-      m_state.location.position.Y = currentFloor;
-      moveY = 0_len;
-    }
-  }
+  if(pathFinder.isFlying())
+    finalFlyingAnimation(currentSector, bbox, oldLocation);
   else
-  {
-    const auto currentCeiling
-      = HeightInfo::fromCeiling(currentSector,
-                                m_state.location.position + core::TRVec{0_len, bbox.y.max, 0_len},
-                                getWorld().getObjectManager().getObjects())
-          .y;
-
-    // TODO nah... why, core, why?
-    const auto bboxTopAdjusted = m_state.type == TR1ItemId::CrocodileInWater ? 0_len : bbox.y.min;
-
-    if(m_state.location.position.Y + bboxTopAdjusted + moveY < currentCeiling)
-    {
-      // fly movements ended up penetrating the ceiling
-
-      if(m_state.location.position.Y + bboxTopAdjusted < currentCeiling)
-      {
-        // current and previous positions penetrate the floor, fly up from the floor
-        m_state.location.position.X = oldLocation.position.X;
-        m_state.location.position.Z = oldLocation.position.Z;
-        moveY = pathFinder.getFly();
-      }
-      else
-      {
-        // transitioning between "below ceiling" and "penetrating ceiling", so place below ceiling
-        m_state.location.position.Y = currentCeiling - bboxTopAdjusted;
-        moveY = 0_len;
-      }
-    }
-  }
-
-  m_state.location.position.Y += moveY;
-  auto bboxBottomLocation = m_state.location.moved(0_len, bbox.y.max, 0_len);
-  currentSector = bboxBottomLocation.updateRoom();
-  m_state.floor
-    = HeightInfo::fromFloor(currentSector, bboxBottomLocation.position, getWorld().getObjectManager().getObjects()).y;
-
-  core::Angle yaw{0_deg};
-  if(m_state.speed != 0_spd)
-    yaw = angleFromAtan(-moveY, m_state.speed * 1_frame);
-
-  if(yaw < m_state.rotation.X - 1_deg)
-    m_state.rotation.X -= 1_deg;
-  else if(yaw > m_state.rotation.X + 1_deg)
-    m_state.rotation.X += 1_deg;
-  else
-    m_state.rotation.X = yaw;
-
-  m_state.location.updateRoom();
-  BOOST_ASSERT(m_state.location.isValid());
-  setCurrentRoom(m_state.location.room);
+    finalWalkingAnimation();
 }
 
 AIAgent::AIAgent(const std::string& name,
@@ -647,5 +546,116 @@ bool AIAgent::isInsideZoneButNotInBox(const uint32_t zoneId, const world::Box& t
 
   return !targetBox.xInterval.contains(m_state.location.position.X)
          || !targetBox.zInterval.contains(m_state.location.position.Z);
+}
+
+void AIAgent::finalWalkingAnimation()
+{
+  static constexpr auto FallSpeed = 64_len;
+
+  if(m_state.location.position.Y > m_state.floor)
+  {
+    m_state.location.position.Y = m_state.floor;
+  }
+  else if(m_state.floor > m_state.location.position.Y + FallSpeed)
+  {
+    m_state.location.position.Y += FallSpeed;
+  }
+  else if(m_state.location.position.Y < m_state.floor)
+  {
+    m_state.location.position.Y = m_state.floor;
+  }
+
+  m_state.rotation.X = 0_au;
+
+  auto currentSector = m_state.location.updateRoom();
+  BOOST_ASSERT(m_state.location.isValid());
+  setCurrentRoom(m_state.location.room);
+  m_state.floor
+    = HeightInfo::fromFloor(currentSector, m_state.location.position, getWorld().getObjectManager().getObjects()).y;
+}
+
+void AIAgent::finalFlyingAnimation(const gsl::not_null<const world::Sector*>& currentSector,
+                                   const core::BoundingBox& bbox,
+                                   const Location& oldLocation)
+{
+  const auto& pathFinder = m_creatureInfo->pathFinder;
+  auto moveY
+    = std::clamp(m_creatureInfo->target.Y - m_state.location.position.Y, -pathFinder.getFly(), pathFinder.getFly());
+
+  const auto currentFloor = HeightInfo::fromFloor(currentSector,
+                                                  m_state.location.position + core::TRVec{0_len, bbox.y.max, 0_len},
+                                                  getWorld().getObjectManager().getObjects())
+                              .y;
+
+  if(m_state.location.position.Y + moveY > currentFloor)
+  {
+    // fly movements ended up penetrating the floor
+
+    if(m_state.location.position.Y > currentFloor)
+    {
+      // current and previous positions penetrate the floor, fly up from the floor
+      m_state.location.position.X = oldLocation.position.X;
+      m_state.location.position.Z = oldLocation.position.Z;
+      moveY = -pathFinder.getFly();
+    }
+    else
+    {
+      // transitioning between "above floor" and "penetrating floor", so place on floor
+      m_state.location.position.Y = currentFloor;
+      moveY = 0_len;
+    }
+  }
+  else
+  {
+    const auto currentCeiling
+      = HeightInfo::fromCeiling(currentSector,
+                                m_state.location.position + core::TRVec{0_len, bbox.y.max, 0_len},
+                                getWorld().getObjectManager().getObjects())
+          .y;
+
+    // TODO nah... why, core, why?
+    const auto bboxTopAdjusted = m_state.type == TR1ItemId::CrocodileInWater ? 0_len : bbox.y.min;
+
+    if(m_state.location.position.Y + bboxTopAdjusted + moveY < currentCeiling)
+    {
+      // fly movements ended up penetrating the ceiling
+
+      if(m_state.location.position.Y + bboxTopAdjusted < currentCeiling)
+      {
+        // current and previous positions penetrate the floor, fly up from the floor
+        m_state.location.position.X = oldLocation.position.X;
+        m_state.location.position.Z = oldLocation.position.Z;
+        moveY = pathFinder.getFly();
+      }
+      else
+      {
+        // transitioning between "below ceiling" and "penetrating ceiling", so place below ceiling
+        m_state.location.position.Y = currentCeiling - bboxTopAdjusted;
+        moveY = 0_len;
+      }
+    }
+  }
+
+  m_state.location.position.Y += moveY;
+  auto bboxBottomLocation = m_state.location.moved(0_len, bbox.y.max, 0_len);
+  m_state.floor = HeightInfo::fromFloor(bboxBottomLocation.updateRoom(),
+                                        bboxBottomLocation.position,
+                                        getWorld().getObjectManager().getObjects())
+                    .y;
+
+  core::Angle yaw{0_deg};
+  if(m_state.speed != 0_spd)
+    yaw = angleFromAtan(-moveY, m_state.speed * 1_frame);
+
+  if(yaw < m_state.rotation.X - 1_deg)
+    m_state.rotation.X -= 1_deg;
+  else if(yaw > m_state.rotation.X + 1_deg)
+    m_state.rotation.X += 1_deg;
+  else
+    m_state.rotation.X = yaw;
+
+  m_state.location.updateRoom();
+  BOOST_ASSERT(m_state.location.isValid());
+  setCurrentRoom(m_state.location.room);
 }
 } // namespace engine::objects

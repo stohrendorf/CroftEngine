@@ -191,6 +191,10 @@ protected:
 
 private:
   bool anyMovingEnabledObjectInReach() const;
+  void finalWalkingAnimation();
+  void finalFlyingAnimation(const gsl::not_null<const world::Sector*>& currentSector,
+                            const core::BoundingBox& bbox,
+                            const Location& oldLocation);
 
   core::Length m_collisionRadius = 0_len;
 
