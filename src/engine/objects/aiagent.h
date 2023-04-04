@@ -82,7 +82,7 @@ protected:
     m_creatureInfo->rotateHead(angle);
   }
 
-  bool animateCreature(const core::Angle& collisionRotationY, const core::Angle& tilt);
+  void animateCreature(const core::Angle& collisionRotationY, const core::Angle& tilt);
 
   core::Angle rotateTowardsTarget(core::RotationSpeed maxRotationSpeed);
 

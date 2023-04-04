@@ -124,10 +124,10 @@ bool AIAgent::anyMovingEnabledObjectInReach() const
   return false;
 }
 
-bool AIAgent::animateCreature(const core::Angle& collisionRotationY, const core::Angle& tilt)
+void AIAgent::animateCreature(const core::Angle& collisionRotationY, const core::Angle& tilt)
 {
   if(m_creatureInfo == nullptr)
-    return false;
+    return;
 
   const auto invariantCheck = gsl::finally(
     [this]()
@@ -176,7 +176,7 @@ bool AIAgent::animateCreature(const core::Angle& collisionRotationY, const core:
     m_state.collidable = false;
     m_creatureInfo.reset();
     deactivate();
-    return false;
+    return;
   }
 
   const auto bbox = getSkeleton()->getBoundingBox();
@@ -395,7 +395,7 @@ bool AIAgent::animateCreature(const core::Angle& collisionRotationY, const core:
   {
     // we would end up colliding with another object
     m_state.location = oldLocation;
-    return true;
+    return;
   }
 
   if(!pathFinder.isFlying())
@@ -423,7 +423,7 @@ bool AIAgent::animateCreature(const core::Angle& collisionRotationY, const core:
     m_state.floor
       = HeightInfo::fromFloor(currentSector, m_state.location.position, getWorld().getObjectManager().getObjects()).y;
 
-    return true;
+    return;
   }
 
   auto moveY
@@ -503,8 +503,6 @@ bool AIAgent::animateCreature(const core::Angle& collisionRotationY, const core:
   m_state.location.updateRoom();
   BOOST_ASSERT(m_state.location.isValid());
   setCurrentRoom(m_state.location.room);
-
-  return true;
 }
 
 AIAgent::AIAgent(const std::string& name,
