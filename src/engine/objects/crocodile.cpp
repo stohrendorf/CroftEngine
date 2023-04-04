@@ -240,11 +240,11 @@ void Crocodile::updateOnLandDead()
 void Crocodile::updateOnLand()
 {
   BOOST_ASSERT(m_state.type == TR1ItemId::CrocodileOnLand);
-  core::Angle turnRot = 0_deg;
+  core::Angle turn = 0_deg;
   core::Angle headRot = 0_deg;
   if(alive())
   {
-    std::tie(headRot, turnRot) = updateOnLandAlive();
+    std::tie(headRot, turn) = updateOnLandAlive();
   }
   else
   {
@@ -271,7 +271,7 @@ void Crocodile::updateOnLand()
   if(getCreatureInfo() != nullptr)
   {
     getSkeleton()->patchBone(8, core::TRRotation{0_deg, getCreatureInfo()->headRotation, 0_deg}.toMatrix());
-    animateCreature(turnRot, 0_deg);
+    animateCreature(turn, 0_deg);
   }
   else
   {

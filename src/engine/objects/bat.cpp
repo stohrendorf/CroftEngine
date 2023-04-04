@@ -23,13 +23,13 @@ void Bat::update()
   static constexpr uint16_t Circling = 4;
   static constexpr uint16_t Dying = 5;
 
-  core::Angle rotationToMoveTarget = 0_deg;
+  core::Angle turn = 0_deg;
   if(alive())
   {
     const ai::EnemyLocation enemyLocation{*this};
     updateMood(*this, enemyLocation, false);
 
-    rotationToMoveTarget = rotateTowardsTarget(20_deg / 1_frame);
+    turn = rotateTowardsTarget(20_deg / 1_frame);
     switch(m_state.current_anim_state.get())
     {
     case StartingToFly:
@@ -69,6 +69,6 @@ void Bat::update()
       m_state.falling = true;
     }
   }
-  animateCreature(rotationToMoveTarget, 0_deg);
+  animateCreature(turn, 0_deg);
 }
 } // namespace engine::objects

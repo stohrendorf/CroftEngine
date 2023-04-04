@@ -23,8 +23,8 @@ void Lion::update()
 {
   activateAi();
 
-  core::Angle tiltRot = 0_deg;
-  core::Angle angle = 0_deg;
+  core::Angle roll = 0_deg;
+  core::Angle turn = 0_deg;
   core::Angle headRot = 0_deg;
 
   if(alive())
@@ -35,7 +35,7 @@ void Lion::update()
       headRot = enemyLocation.visualAngleToLara;
     }
     updateMood(*this, enemyLocation, true);
-    angle = rotateTowardsTarget(getCreatureInfo()->maxTurnSpeed);
+    turn = rotateTowardsTarget(getCreatureInfo()->maxTurnSpeed);
     switch(m_state.current_anim_state.get())
     {
     case 1:
@@ -65,7 +65,7 @@ void Lion::update()
         goal(1_as, 6_as);
       break;
     case 3:
-      tiltRot = angle;
+      roll = turn;
       getCreatureInfo()->maxTurnSpeed = 5_deg / 1_frame;
       if(isBored())
         goal(1_as); // NOLINT(bugprone-branch-clone)
@@ -119,9 +119,9 @@ void Lion::update()
     }
   }
 
-  rotateCreatureTilt(tiltRot);
+  rotateCreatureTilt(roll);
   rotateCreatureHead(headRot);
   getSkeleton()->patchBone(20, core::TRRotation{0_deg, getCreatureInfo()->headRotation, 0_deg}.toMatrix());
-  animateCreature(angle, tiltRot);
+  animateCreature(turn, roll);
 }
 } // namespace engine::objects

@@ -28,7 +28,7 @@ void Cowboy::update()
   activateAi();
 
   core::Angle tiltRot = 0_deg;
-  core::Angle creatureTurn = 0_deg;
+  core::Angle turn = 0_deg;
   core::Angle headRot = 0_deg;
   if(alive())
   {
@@ -40,7 +40,7 @@ void Cowboy::update()
 
     updateMood(*this, enemyLocation, false);
 
-    creatureTurn = rotateTowardsTarget(getCreatureInfo()->maxTurnSpeed);
+    turn = rotateTowardsTarget(getCreatureInfo()->maxTurnSpeed);
     switch(m_state.current_anim_state.get())
     {
     case 1:
@@ -72,7 +72,7 @@ void Cowboy::update()
       break;
     case 3:
       getCreatureInfo()->maxTurnSpeed = 6_deg / 1_frame;
-      tiltRot = creatureTurn / 2;
+      tiltRot = turn / 2;
       if(getCreatureInfo()->mood != ai::Mood::Escape || enemyLocation.laraInView)
       {
         if(canShootAtLara(enemyLocation))
@@ -133,7 +133,7 @@ void Cowboy::update()
   }
   rotateCreatureTilt(tiltRot);
   rotateCreatureHead(headRot);
-  animateCreature(creatureTurn, 0_deg);
+  animateCreature(turn, 0_deg);
   if(getCreatureInfo() != nullptr)
     getSkeleton()->patchBone(0, core::TRRotation{0_deg, getCreatureInfo()->headRotation, 0_deg}.toMatrix());
 }

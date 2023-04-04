@@ -38,7 +38,7 @@ void TRex::update()
 
   activateAi();
 
-  core::Angle rotationToMoveTarget;
+  core::Angle turn;
 
   core::Angle creatureHead = 0_deg;
   if(alive())
@@ -50,7 +50,7 @@ void TRex::update()
     }
     updateMood(*this, enemyLocation, true);
 
-    rotationToMoveTarget = rotateTowardsTarget(getCreatureInfo()->maxTurnSpeed);
+    turn = rotateTowardsTarget(getCreatureInfo()->maxTurnSpeed);
 
     auto& lara = getWorld().getObjectManager().getLara();
     if(touched())
@@ -145,7 +145,7 @@ void TRex::update()
   getCreatureInfo()->neckRotation = getCreatureInfo()->headRotation;
   getSkeleton()->patchBone(11, core::TRRotation{0_deg, getCreatureInfo()->headRotation, 0_deg}.toMatrix());
   getSkeleton()->patchBone(12, core::TRRotation{0_deg, getCreatureInfo()->headRotation, 0_deg}.toMatrix());
-  animateCreature(rotationToMoveTarget, 0_deg);
+  animateCreature(turn, 0_deg);
   m_state.collidable = true;
 }
 

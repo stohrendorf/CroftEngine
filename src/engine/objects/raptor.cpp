@@ -23,8 +23,8 @@ void Raptor::update()
 {
   activateAi();
 
-  core::Angle animTilt = 0_deg;
-  core::Angle animAngle = 0_deg;
+  core::Angle roll = 0_deg;
+  core::Angle turn = 0_deg;
   core::Angle animHead = 0_deg;
   if(alive())
   {
@@ -34,7 +34,7 @@ void Raptor::update()
       animHead = enemyLocation.visualAngleToLara;
     }
     updateMood(*this, enemyLocation, true);
-    animAngle = rotateTowardsTarget(getCreatureInfo()->maxTurnSpeed);
+    turn = rotateTowardsTarget(getCreatureInfo()->maxTurnSpeed);
     switch(m_state.current_anim_state.get())
     {
     case 1:
@@ -60,7 +60,7 @@ void Raptor::update()
       break;
     case 3:
       getCreatureInfo()->maxTurnSpeed = 4_deg / 1_frame;
-      animTilt = animAngle;
+      roll = turn;
       if(touched(0xff7c00UL))
       {
         goal(1_as);
@@ -81,7 +81,7 @@ void Raptor::update()
         goal(1_as);
       break;
     case 4:
-      animTilt = animAngle;
+      roll = turn;
       if(m_state.required_anim_state == 0_as)
       {
         if(enemyLocation.laraInView)
@@ -96,7 +96,7 @@ void Raptor::update()
       }
       break;
     case 7:
-      animTilt = animAngle;
+      roll = turn;
       if(m_state.required_anim_state == 0_as && enemyLocation.laraInView)
       {
         if(touched(0xff7c00UL))
@@ -108,7 +108,7 @@ void Raptor::update()
       }
       break;
     case 8:
-      animTilt = animAngle;
+      roll = turn;
       if(m_state.required_anim_state == 0_as && touched(0xff7c00UL))
       {
         emitParticle(core::TRVec{0_len, 66_len, 318_len}, 22, &createBloodSplat);
@@ -127,9 +127,9 @@ void Raptor::update()
     m_state.current_anim_state = 5_as;
   }
 
-  rotateCreatureTilt(animTilt);
+  rotateCreatureTilt(roll);
   rotateCreatureHead(animHead);
   getSkeleton()->patchBone(20, core::TRRotation{0_deg, getCreatureInfo()->headRotation, 0_deg}.toMatrix());
-  animateCreature(animAngle, animTilt);
+  animateCreature(turn, roll);
 }
 } // namespace engine::objects

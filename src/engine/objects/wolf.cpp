@@ -39,7 +39,7 @@ void Wolf::update()
 
   core::Angle pitch = 0_deg;
   core::Angle roll = 0_deg;
-  core::Angle rotationToMoveTarget = 0_deg;
+  core::Angle turn = 0_deg;
   if(alive())
   {
     const ai::EnemyLocation enemyLocation{*this};
@@ -50,7 +50,7 @@ void Wolf::update()
     }
 
     updateMood(*this, enemyLocation, false);
-    rotationToMoveTarget = rotateTowardsTarget(getCreatureInfo()->maxTurnSpeed);
+    turn = rotateTowardsTarget(getCreatureInfo()->maxTurnSpeed);
     switch(m_state.current_anim_state.get())
     {
     case LyingDown.get():
@@ -127,7 +127,7 @@ void Wolf::update()
       break;
     case Jumping.get():
       getCreatureInfo()->maxTurnSpeed = 5_deg / 1_frame;
-      roll = rotationToMoveTarget;
+      roll = turn;
       if(enemyLocation.laraInView && enemyLocation.distance < util::square(1.5f * 1_sectors))
       {
         if(enemyLocation.distance <= util::square(1.5f * 1_sectors) / 2
@@ -151,7 +151,7 @@ void Wolf::update()
       }
       break;
     case JumpAttack.get():
-      roll = rotationToMoveTarget;
+      roll = turn;
       if(m_state.required_anim_state == 0_as && touched(0x774fUL))
       {
         emitParticle(core::TRVec{0_len, -14_len, 174_len}, 6, &createBloodSplat);
@@ -183,7 +183,7 @@ void Wolf::update()
   rotateCreatureTilt(roll);
   rotateCreatureHead(pitch);
   getSkeleton()->patchBone(3, core::TRRotation{0_deg, getCreatureInfo()->headRotation, 0_deg}.toMatrix());
-  animateCreature(rotationToMoveTarget, roll);
+  animateCreature(turn, roll);
 }
 
 Wolf::Wolf(const std::string& name,

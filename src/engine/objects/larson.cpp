@@ -24,7 +24,7 @@ void Larson::update()
   activateAi();
 
   core::Angle tiltRot = 0_deg;
-  core::Angle creatureTurn = 0_deg;
+  core::Angle turn = 0_deg;
   core::Angle headRot = 0_deg;
   if(alive())
   {
@@ -36,7 +36,7 @@ void Larson::update()
 
     updateMood(*this, enemyLocation, false);
 
-    creatureTurn = rotateTowardsTarget(getCreatureInfo()->maxTurnSpeed);
+    turn = rotateTowardsTarget(getCreatureInfo()->maxTurnSpeed);
     switch(m_state.current_anim_state.get())
     {
     case 1: // standing holding weapon
@@ -73,7 +73,7 @@ void Larson::update()
       break;
     case 3: // running
       getCreatureInfo()->maxTurnSpeed = 6_deg / 1_frame;
-      tiltRot = creatureTurn / 2;
+      tiltRot = turn / 2;
       if(isBored() && util::rand15() < 96)
         goal(1_as, 6_as);
       else if(canShootAtLara(enemyLocation))
@@ -117,6 +117,6 @@ void Larson::update()
   rotateCreatureTilt(tiltRot);
   rotateCreatureHead(headRot);
   getSkeleton()->patchBone(7, core::TRRotation{0_deg, getCreatureInfo()->headRotation, 0_deg}.toMatrix());
-  animateCreature(creatureTurn, 0_deg);
+  animateCreature(turn, 0_deg);
 }
 } // namespace engine::objects

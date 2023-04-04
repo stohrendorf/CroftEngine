@@ -82,7 +82,7 @@ protected:
     m_creatureInfo->rotateHead(angle);
   }
 
-  void animateCreature(const core::Angle& collisionRotationY, const core::Angle& tilt);
+  void animateCreature(const core::Angle& moveRotationY, const core::Angle& moveRotationZ);
 
   core::Angle rotateTowardsTarget(core::RotationSpeed maxRotationSpeed);
 
@@ -195,6 +195,8 @@ private:
   void finalFlyingAnimation(const gsl::not_null<const world::Sector*>& currentSector,
                             const core::BoundingBox& bbox,
                             const Location& oldLocation);
+  [[nodiscard]] gsl::not_null<const world::Sector*>
+    fixInvalidPosition(const core::TRVec& oldPosition, const world::Box& oldBox, const core::BoundingBox& bbox);
 
   core::Length m_collisionRadius = 0_len;
 

@@ -56,7 +56,7 @@ void Pierre::update()
   activateAi();
 
   core::Angle tiltRot = 0_deg;
-  core::Angle creatureTurn = 0_deg;
+  core::Angle turn = 0_deg;
   core::Angle headRot = 0_deg;
   if(m_state.health <= 40_hp && !m_state.activationState.isOneshot())
   {
@@ -79,7 +79,7 @@ void Pierre::update()
 
     updateMood(*this, enemyLocation, false);
 
-    creatureTurn = rotateTowardsTarget(getCreatureInfo()->maxTurnSpeed);
+    turn = rotateTowardsTarget(getCreatureInfo()->maxTurnSpeed);
     switch(m_state.current_anim_state.get())
     {
     case 1:
@@ -116,7 +116,7 @@ void Pierre::update()
       break;
     case 3:
       getCreatureInfo()->maxTurnSpeed = 6_deg / 1_frame;
-      tiltRot = creatureTurn / 2;
+      tiltRot = turn / 2;
       if(isBored() && util::rand15() < 96)
         goal(1_as, 6_as);
       else if(canShootAtLara(enemyLocation))
@@ -165,7 +165,7 @@ void Pierre::update()
   rotateCreatureTilt(tiltRot);
   rotateCreatureHead(headRot);
   getSkeleton()->patchBone(7, core::TRRotation{0_deg, getCreatureInfo()->headRotation, 0_deg}.toMatrix());
-  animateCreature(creatureTurn, 0_deg);
+  animateCreature(turn, 0_deg);
   if(m_fleeTime != 0_frame)
   {
     if(raycastLineOfSight(getWorld().getCameraController().getTRLocation(),

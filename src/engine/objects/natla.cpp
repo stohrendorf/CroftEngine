@@ -49,7 +49,7 @@ void Natla::update()
   static const constexpr auto Dying = 9_as;
 
   auto tiltRot = 0_deg;
-  auto angle = 0_deg;
+  auto turn = 0_deg;
   auto neckRot = 0_deg;
   auto headRot = getCreatureInfo()->headRotation * 7 / 8;
   if(m_state.health <= 0_hp && m_state.health > core::DeadHealth)
@@ -88,7 +88,7 @@ void Natla::update()
       ai::updateMood(*this, enemyLocation, false);
 
     m_state.rotation.Y -= m_pitchDelta;
-    angle = rotateTowardsTarget(5_deg / 1_frame);
+    turn = rotateTowardsTarget(5_deg / 1_frame);
     if(m_state.current_anim_state == AimFlying)
     {
       m_pitchDelta += std::clamp(enemyLocation.visualAngleToLara, -5_deg, 5_deg);
@@ -96,7 +96,7 @@ void Natla::update()
     }
     else
     {
-      m_state.rotation.Y += std::exchange(m_pitchDelta, 0_deg) - angle;
+      m_state.rotation.Y += std::exchange(m_pitchDelta, 0_deg) - turn;
     }
 
     switch(m_state.current_anim_state.get())
@@ -149,7 +149,7 @@ void Natla::update()
       neckRot = enemyLocation.visualAngleToLara;
 
     ai::updateMood(*this, enemyLocation, true);
-    angle = rotateTowardsTarget(6_deg / 1_frame);
+    turn = rotateTowardsTarget(6_deg / 1_frame);
     const auto canShoot = abs(enemyLocation.visualAngleToLara) < 30_deg && canShootAtLara(enemyLocation);
     m_state.rotation.Y += std::exchange(m_pitchDelta, 0_deg);
     switch(m_state.current_anim_state.get())
@@ -166,7 +166,7 @@ void Natla::update()
       m_flyTime = 0_frame;
       break;
     case Running.get():
-      tiltRot = angle;
+      tiltRot = turn;
       if(m_flyTime >= 1_sec * core::FrameRate * 2 / 3)
       {
         auto particle = emitParticle(bulletEmissionPos, bulletEmissionBoneIdx, &createMutantBullet);
@@ -232,7 +232,7 @@ void Natla::update()
     getCreatureInfo()->headRotation = headRot;
   m_flyTime += 1_frame;
   m_state.rotation.Y -= m_pitchDelta;
-  animateCreature(angle, 0_deg);
+  animateCreature(turn, 0_deg);
   m_state.rotation.Y += m_pitchDelta;
 }
 

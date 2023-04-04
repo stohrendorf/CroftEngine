@@ -26,7 +26,7 @@ void Bear::update()
 {
   activateAi();
 
-  core::Angle rotationToMoveTarget;
+  core::Angle turn;
 
   static constexpr auto Walking = 0_as;
   static constexpr auto GettingDown = 1_as;
@@ -44,7 +44,7 @@ void Bear::update()
     const ai::EnemyLocation enemyLocation{*this};
     updateMood(*this, enemyLocation, true);
 
-    rotationToMoveTarget = rotateTowardsTarget(getCreatureInfo()->maxTurnSpeed);
+    turn = rotateTowardsTarget(getCreatureInfo()->maxTurnSpeed);
     if(m_state.is_hit)
       m_hurt = true;
 
@@ -149,7 +149,7 @@ void Bear::update()
   }
   else
   {
-    rotationToMoveTarget = rotateTowardsTarget(1_deg / 1_frame);
+    turn = rotateTowardsTarget(1_deg / 1_frame);
     switch(m_state.current_anim_state.get())
     {
     case Walking.get():
@@ -180,7 +180,7 @@ void Bear::update()
     rotateCreatureHead(0_deg);
   }
   getSkeleton()->patchBone(14, core::TRRotation{0_deg, getCreatureInfo()->headRotation, 0_deg}.toMatrix());
-  animateCreature(rotationToMoveTarget, 0_deg);
+  animateCreature(turn, 0_deg);
 }
 
 void Bear::serialize(const serialization::Serializer<world::World>& ser) const

@@ -73,8 +73,8 @@ bool canMoveTo(const world::Room& room,
     return true;
   }
 
-  // true if the entity is flying, but the test position is outside the maximum vertical flying speed that would
-  // allow recovery after penetrating the floor
+  // true if and only if the entity is flying, and the test position is inside the maximum vertical flying speed that
+  // would allow recovery after penetrating the floor
   return testPos.Y <= testBox->floor + pathFinder.getFly();
 }
 } // namespace
@@ -124,7 +124,7 @@ bool AIAgent::anyMovingEnabledObjectInReach() const
   return false;
 }
 
-void AIAgent::animateCreature(const core::Angle& collisionRotationY, const core::Angle& tilt)
+void AIAgent::animateCreature(const core::Angle& moveRotationY, const core::Angle& moveRotationZ)
 {
   if(m_creatureInfo == nullptr)
     return;
@@ -141,8 +141,6 @@ void AIAgent::animateCreature(const core::Angle& collisionRotationY, const core:
 
   const auto oldLocation = m_state.location;
   const auto oldBox = gsl::not_null{oldLocation.getCurrentSector()->box};
-  const auto zoneRef
-    = world::Box::getZoneRef(getWorld().roomsAreSwapped(), pathFinder.isFlying(), pathFinder.getStep());
 
 #ifndef NDEBUG
   const auto invariantCheck2 = gsl::finally(
@@ -181,41 +179,7 @@ void AIAgent::animateCreature(const core::Angle& collisionRotationY, const core:
 
   const auto bbox = getSkeleton()->getBoundingBox();
 
-  auto currentSector = m_state.location.moved(0_len, bbox.y.max, 0_len).updateRoom();
-
-  // fix location in case the entity moved to an invalid location, including checks for step/drop limits.
-  // keep in mind that step/drop limits are negated, so they're subtracted here instead of being added.
-  const bool isInvalidPosition = currentSector->box == nullptr || !pathFinder.canVisit(*currentSector->box)
-                                 || currentSector->box->floor < oldBox->floor - pathFinder.getStep()
-                                 || currentSector->box->floor > oldBox->floor - pathFinder.getDrop()
-                                 || oldBox.get()->*zoneRef != currentSector->box->*zoneRef;
-  if(isInvalidPosition)
-  {
-    const auto toMin = [this](const core::Length& l)
-    {
-      return snappedSector(l) + m_collisionRadius;
-    };
-    const auto toMax = [this](const core::Length& l)
-    {
-      return snappedSector(l) + 1_sectors - 1_len - m_collisionRadius;
-    };
-
-    const auto oldSectorX = sectorOf(oldLocation.position.X);
-    const auto newSectorX = sectorOf(m_state.location.position.X);
-    if(newSectorX < oldSectorX)
-      m_state.location.position.X = toMin(oldLocation.position.X);
-    else if(newSectorX > oldSectorX)
-      m_state.location.position.X = toMax(oldLocation.position.X);
-
-    const auto oldSectorZ = sectorOf(oldLocation.position.Z);
-    const auto newSectorZ = sectorOf(m_state.location.position.Z);
-    if(newSectorZ < oldSectorZ)
-      m_state.location.position.Z = toMin(oldLocation.position.Z);
-    else if(newSectorZ > oldSectorZ)
-      m_state.location.position.Z = toMax(oldLocation.position.Z);
-
-    currentSector = m_state.location.moved(0_len, bbox.y.max, 0_len).updateRoom();
-  }
+  auto currentSector = fixInvalidPosition(oldLocation.position, *oldBox, bbox);
 
   gsl_Assert(currentSector->box != nullptr);
 
@@ -229,22 +193,25 @@ void AIAgent::animateCreature(const core::Angle& collisionRotationY, const core:
     nextPathFloor = currentSector->box->floor;
   }
 
+  // the range in the current sector where we can move freely without colliding with its boundaries
   const auto collisionFreeRangeX
     = snappedSector(m_state.location.position.X) + core::Interval{0_len, 1_sectors - 1_len}.narrowed(m_collisionRadius);
   gsl_Assert(collisionFreeRangeX.isValid());
   const auto collisionFreeRangeZ
     = snappedSector(m_state.location.position.Z) + core::Interval{0_len, 1_sectors - 1_len}.narrowed(m_collisionRadius);
   gsl_Assert(collisionFreeRangeZ.isValid());
+
   const auto bottom = m_state.location.position + core::TRVec{0_len, bbox.y.max, 0_len};
+
   // relative bounding box collision test coordinates
-  const core::TRVec testDx{m_collisionRadius, 0_len, 0_len};
-  const core::TRVec testDz{0_len, 0_len, m_collisionRadius};
+  const core::TRVec collisionRadiusX{m_collisionRadius, 0_len, 0_len};
+  const core::TRVec collisionRadiusZ{0_len, 0_len, m_collisionRadius};
 
   const auto isFeasiblePosition
-    = [this, currentSector = currentSector, nextPathFloor = nextPathFloor, &pathFinder](const core::TRVec& position)
+    = [this, currentSector = currentSector, nextPathFloor = nextPathFloor](const core::TRVec& position)
   {
     return canMoveTo(*m_state.location.room,
-                     pathFinder,
+                     m_creatureInfo->pathFinder,
                      *gsl::not_null{currentSector->box},
                      currentSector->box->floor,
                      nextPathFloor,
@@ -293,66 +260,66 @@ void AIAgent::animateCreature(const core::Angle& collisionRotationY, const core:
 
   if(bottom.Z < collisionFreeRangeZ.min)
   {
-    const auto firstCollision = !isFeasiblePosition(bottom - testDz);
-    if(firstCollision)
+    const auto collidesNegZ = !isFeasiblePosition(bottom - collisionRadiusZ);
+    if(collidesNegZ)
     {
       nextZ = collisionFreeRangeZ.min;
     }
 
     if(bottom.X < collisionFreeRangeX.min)
     {
-      if(!isFeasiblePosition(bottom - testDx))
+      if(!isFeasiblePosition(bottom - collisionRadiusX))
       {
         nextX = collisionFreeRangeX.min;
       }
-      else if(firstCollision && !isFeasiblePosition(bottom - testDz - testDx))
+      else if(collidesNegZ && !isFeasiblePosition(bottom - collisionRadiusZ - collisionRadiusX))
       {
-        // can move aligned to -X and -Z, which means the collider is in the corner
+        // cannot move to -X and -Z, which means the collider is in the corner
         moveAwayFromCornerSplit45(collisionFreeRangeX.min, collisionFreeRangeZ.min);
       }
     }
     else if(bottom.X > collisionFreeRangeX.max)
     {
-      if(!isFeasiblePosition(bottom + testDx))
+      if(!isFeasiblePosition(bottom + collisionRadiusX))
       {
         nextX = collisionFreeRangeX.max;
       }
-      else if(firstCollision && !isFeasiblePosition(bottom - testDz + testDx))
+      else if(collidesNegZ && !isFeasiblePosition(bottom - collisionRadiusZ + collisionRadiusX))
       {
-        // can move aligned to +X and -Z, which means the collider is in the corner
+        // cannot move to +X and -Z, which means the collider is in the corner
         moveAwayFromCornerSplitNeg45(collisionFreeRangeX.max, collisionFreeRangeZ.min);
       }
     }
   }
   else if(bottom.Z > collisionFreeRangeZ.max)
   {
-    const auto firstCollision = !isFeasiblePosition(bottom + testDz);
-    if(firstCollision)
+    const auto collidesPosZ = !isFeasiblePosition(bottom + collisionRadiusZ);
+    if(collidesPosZ)
     {
       nextZ = collisionFreeRangeZ.max;
     }
 
     if(bottom.X < collisionFreeRangeX.min)
     {
-      if(!isFeasiblePosition(bottom - testDx))
+      if(!isFeasiblePosition(bottom - collisionRadiusX))
       {
         nextX = collisionFreeRangeX.min;
       }
-      else if(firstCollision && !isFeasiblePosition(bottom + testDz - testDx))
+      else if(collidesPosZ && !isFeasiblePosition(bottom + collisionRadiusZ - collisionRadiusX))
       {
-        // can move aligned to -X and +Z, which means the collider is in the corner
+        // cannot move to -X and +Z, which means the collider is in the corner
         moveAwayFromCornerSplitNeg45(collisionFreeRangeX.min, collisionFreeRangeZ.max);
       }
     }
     else if(bottom.X > collisionFreeRangeX.max)
     {
-      if(!isFeasiblePosition(bottom + testDx))
+      if(!isFeasiblePosition(bottom + collisionRadiusX))
       {
         nextX = collisionFreeRangeX.max;
       }
-      else if(firstCollision && !isFeasiblePosition(bottom + testDz + testDx))
+      else if(collidesPosZ && !isFeasiblePosition(bottom + collisionRadiusZ + collisionRadiusX))
       {
-        // can move aligned to +X and +Z, which means the collider is in the corner
+        // cannot move to +X and +Z, which means the collider is in the corner
         moveAwayFromCornerSplit45(collisionFreeRangeX.max, collisionFreeRangeZ.max);
       }
     }
@@ -363,14 +330,14 @@ void AIAgent::animateCreature(const core::Angle& collisionRotationY, const core:
 
     if(m_state.location.position.X < collisionFreeRangeX.min)
     {
-      if(!isFeasiblePosition(bottom - testDx))
+      if(!isFeasiblePosition(bottom - collisionRadiusX))
       {
         nextX = collisionFreeRangeX.min;
       }
     }
     else if(m_state.location.position.X > collisionFreeRangeX.max)
     {
-      if(!isFeasiblePosition(bottom + testDx))
+      if(!isFeasiblePosition(bottom + collisionRadiusX))
       {
         nextX = collisionFreeRangeX.max;
       }
@@ -384,11 +351,11 @@ void AIAgent::animateCreature(const core::Angle& collisionRotationY, const core:
 
     currentSector = m_state.location.moved(0_len, bbox.y.max, 0_len).updateRoom();
 
-    m_state.rotation.Y += collisionRotationY;
-    m_state.rotation.Z += std::clamp(8 * tilt - m_state.rotation.Z, -3_deg, +3_deg);
+    m_state.rotation.Y += moveRotationY;
+    m_state.rotation.Z += std::clamp(8 * moveRotationZ - m_state.rotation.Z, -3_deg, +3_deg);
   }
 
-  // bats temporarily penetrate then floor when dying, so this will trigger
+  // bats temporarily penetrate the floor when dying, so this will trigger
   // BOOST_ASSERT(isFeasiblePosition(m_state.location.position + core::TRVec{0_len, bbox.y.max, 0_len}));
 
   if(anyMovingEnabledObjectInReach())
@@ -622,7 +589,7 @@ void AIAgent::finalFlyingAnimation(const gsl::not_null<const world::Sector*>& cu
 
       if(m_state.location.position.Y + bboxTopAdjusted < currentCeiling)
       {
-        // current and previous positions penetrate the floor, fly up from the floor
+        // current and previous positions penetrate the ceiling, fly down from the ceiling
         m_state.location.position.X = oldLocation.position.X;
         m_state.location.position.Z = oldLocation.position.Z;
         moveY = pathFinder.getFly();
@@ -630,7 +597,7 @@ void AIAgent::finalFlyingAnimation(const gsl::not_null<const world::Sector*>& cu
       else
       {
         // transitioning between "below ceiling" and "penetrating ceiling", so place below ceiling
-        m_state.location.position.Y = currentCeiling - bboxTopAdjusted;
+        m_state.location.position.Y = currentCeiling + bboxTopAdjusted;
         moveY = 0_len;
       }
     }
@@ -657,5 +624,51 @@ void AIAgent::finalFlyingAnimation(const gsl::not_null<const world::Sector*>& cu
   m_state.location.updateRoom();
   BOOST_ASSERT(m_state.location.isValid());
   setCurrentRoom(m_state.location.room);
+}
+
+gsl::not_null<const world::Sector*>
+  AIAgent::fixInvalidPosition(const core::TRVec& oldPosition, const world::Box& oldBox, const core::BoundingBox& bbox)
+{
+  auto currentSector = m_state.location.moved(0_len, bbox.y.max, 0_len).updateRoom();
+
+  const auto& pathFinder = m_creatureInfo->pathFinder;
+  const auto zoneRef
+    = world::Box::getZoneRef(getWorld().roomsAreSwapped(), pathFinder.isFlying(), pathFinder.getStep());
+
+  // fix location in case the entity moved to an invalid location, including checks for step/drop limits.
+  // keep in mind that step/drop limits are negated, so they're subtracted here instead of being added.
+  const bool isInvalidPosition = currentSector->box == nullptr || !pathFinder.canVisit(*currentSector->box)
+                                 || currentSector->box->floor < oldBox.floor - pathFinder.getStep()
+                                 || currentSector->box->floor > oldBox.floor - pathFinder.getDrop()
+                                 || oldBox.*zoneRef != currentSector->box->*zoneRef;
+  if(isInvalidPosition)
+  {
+    const auto toMin = [this](const core::Length& l)
+    {
+      return snappedSector(l) + m_collisionRadius;
+    };
+    const auto toMax = [this](const core::Length& l)
+    {
+      return snappedSector(l) + 1_sectors - 1_len - m_collisionRadius;
+    };
+
+    const auto oldSectorX = sectorOf(oldPosition.X);
+    const auto newSectorX = sectorOf(m_state.location.position.X);
+    if(newSectorX < oldSectorX)
+      m_state.location.position.X = toMin(oldPosition.X);
+    else if(newSectorX > oldSectorX)
+      m_state.location.position.X = toMax(oldPosition.X);
+
+    const auto oldSectorZ = sectorOf(oldPosition.Z);
+    const auto newSectorZ = sectorOf(m_state.location.position.Z);
+    if(newSectorZ < oldSectorZ)
+      m_state.location.position.Z = toMin(oldPosition.Z);
+    else if(newSectorZ > oldSectorZ)
+      m_state.location.position.Z = toMax(oldPosition.Z);
+
+    currentSector = m_state.location.moved(0_len, bbox.y.max, 0_len).updateRoom();
+  }
+
+  return currentSector;
 }
 } // namespace engine::objects

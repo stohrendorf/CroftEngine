@@ -43,10 +43,14 @@ void FlyingMutant::update()
 {
   activateAi();
 
+  static constexpr auto CloseRange = 5_sectors - 1_sectors / 2;
+  static constexpr auto AttackRange = 600_len;
+
   static constexpr auto DoPrepareAttack = 1_as;
   static constexpr auto DoWalk = 2_as;
   static constexpr auto DoRun = 3_as;
   static constexpr auto DoHit150 = 4_as;
+  static constexpr auto DoPlan = 6_as;
   static constexpr auto DoHit100 = 7_as;
   static constexpr auto DoHit200 = 8_as;
   static constexpr auto DoShootBullet = 9_as;
@@ -54,7 +58,7 @@ void FlyingMutant::update()
   static constexpr auto DoAttack = 11_as;
   static constexpr auto DoFly = 13_as;
 
-  core::Angle turnRot = 0_deg;
+  core::Angle turn = 0_deg;
   core::Angle headRot = 0_deg;
   if(!alive())
   {
@@ -124,7 +128,7 @@ void FlyingMutant::update()
       updateMood(*this, enemyLocation, true);
     }
 
-    turnRot = rotateTowardsTarget(getCreatureInfo()->maxTurnSpeed);
+    turn = rotateTowardsTarget(getCreatureInfo()->maxTurnSpeed);
     switch(m_state.current_anim_state.get())
     {
     case DoPrepareAttack.get():
@@ -133,16 +137,17 @@ void FlyingMutant::update()
       m_lookingAround = false;
       if(m_flying)
         goal(DoFly);
-      else if(touched(0x678u) || (enemyLocation.canAttackLara && enemyLocation.distance < util::square(300_len)))
+      else if(touched(0x678u)
+              || (enemyLocation.canAttackLara && enemyLocation.distance < util::square(AttackRange / 2)))
         goal(DoHit200);
-      else if(enemyLocation.canAttackLara && enemyLocation.distance < util::square(600_len))
+      else if(enemyLocation.canAttackLara && enemyLocation.distance < util::square(AttackRange))
         goal(DoHit150);
       else if(frontRight)
         goal(DoShootBullet);
       else if(frontLeft)
         goal(DoThrowGrenade);
-      else if(isBored() || (isStalking() && enemyLocation.distance < util::square(4608_len)))
-        goal(6_as);
+      else if(isBored() || (isStalking() && enemyLocation.distance < util::square(CloseRange)))
+        goal(DoPlan);
       else
         goal(DoRun);
       break;
@@ -156,10 +161,10 @@ void FlyingMutant::update()
       {
         if(util::rand15() < 80)
         {
-          goal(6_as);
+          goal(DoPlan);
         }
       }
-      else if(isStalking() && enemyLocation.distance > util::square(4608_len))
+      else if(isStalking() && enemyLocation.distance > util::square(CloseRange))
       {
         goal(DoPrepareAttack);
         break;
@@ -167,15 +172,17 @@ void FlyingMutant::update()
       break;
     case DoRun.get():
       getCreatureInfo()->maxTurnSpeed = 6_deg / 1_frame;
-      if(m_flying || touched(0x678u) || (enemyLocation.canAttackLara && enemyLocation.distance < util::square(600_len)))
+      if(m_flying || touched(0x678u)
+         || (enemyLocation.canAttackLara && enemyLocation.distance < util::square(AttackRange)))
       {
         goal(DoPrepareAttack);
       }
-      else if(enemyLocation.laraInView && enemyLocation.distance < util::square(2560_len))
+      else if(enemyLocation.laraInView && enemyLocation.distance < util::square(5_sectors / 2))
       {
         goal(DoHit100);
       }
-      else if(frontLeft || frontRight || isBored() || (isStalking() && enemyLocation.distance < util::square(4608_len)))
+      else if(frontLeft || frontRight || isBored()
+              || (isStalking() && enemyLocation.distance < util::square(CloseRange)))
       {
         goal(DoPrepareAttack);
       }
@@ -188,7 +195,7 @@ void FlyingMutant::update()
         require(DoPrepareAttack);
       }
       break;
-    case 6:
+    case DoPlan.get():
       headRot = 0_deg;
       if(frontRight || frontLeft || m_flying)
       {
@@ -196,7 +203,7 @@ void FlyingMutant::update()
       }
       else if(isStalking())
       {
-        if(enemyLocation.distance >= util::square(4608_len))
+        if(enemyLocation.distance >= util::square(CloseRange))
           goal(DoPrepareAttack);
         else if(enemyLocation.zoneId == enemyLocation.laraZoneId || util::rand15() < 256)
           goal(DoWalk);
@@ -282,7 +289,7 @@ void FlyingMutant::update()
     getSkeleton()->patchBone(1, core::TRRotation{0_deg, getCreatureInfo()->headRotation, 0_deg}.toMatrix());
   if(getSkeleton()->getBoneCount() >= 3)
     getSkeleton()->patchBone(2, core::TRRotation{0_deg, getCreatureInfo()->neckRotation, 0_deg}.toMatrix());
-  animateCreature(turnRot, 0_deg);
+  animateCreature(turn, 0_deg);
 }
 
 void FlyingMutant::serialize(const serialization::Serializer<world::World>& ser) const
@@ -307,7 +314,7 @@ void CentaurMutant::update()
 {
   activateAi();
 
-  core::Angle turnRot = 0_deg;
+  core::Angle turn = 0_deg;
   core::Angle headRot = 0_deg;
   if(getHealth() > 0_hp)
   {
@@ -317,7 +324,7 @@ void CentaurMutant::update()
       headRot = enemyLocation.visualAngleToLara;
     }
     updateMood(*this, enemyLocation, true);
-    turnRot = rotateTowardsTarget(4_deg / 1_frame);
+    turn = rotateTowardsTarget(4_deg / 1_frame);
     switch(m_state.current_anim_state.get())
     {
     case 1:
@@ -378,7 +385,7 @@ void CentaurMutant::update()
   rotateCreatureHead(headRot);
   getSkeleton()->patchBone(
     11, core::TRRotation{getCreatureInfo()->neckRotation, getCreatureInfo()->headRotation, 0_deg}.toMatrix());
-  animateCreature(turnRot, 0_deg);
+  animateCreature(turn, 0_deg);
   if(m_state.triggerState == TriggerState::Deactivated)
   {
     playSoundEffect(TR1SoundEffect::Mummy);
