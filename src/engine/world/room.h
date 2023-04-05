@@ -181,17 +181,19 @@ struct Room
   void regenerateDust(const std::shared_ptr<engine::Presenter>& presenter,
                       const gslu::nn_shared<render::material::Material>& dustMaterial,
                       bool isDustEnabled,
-                      uint8_t dustResolutionDivisor);
+                      uint8_t dustDensityDivisor);
 
 private:
-  std::shared_ptr<render::scene::Node> createParticleMesh(
-    const std::string& label, const gslu::nn_shared<render::material::Material>& dustMaterial, uint8_t dustDensity);
+  std::shared_ptr<render::scene::Node>
+    createParticleMesh(const std::string& label,
+                       const gslu::nn_shared<render::material::Material>& dustMaterial,
+                       uint8_t dustDensity) const;
 
   void buildMeshData(const World& world,
                      const loader::file::Room& srcRoom,
                      std::vector<RoomRenderVertex>& vbufData,
                      std::vector<render::AnimatedUV>& uvCoordsData,
-                     RoomRenderMesh& renderMesh);
+                     RoomRenderMesh& renderMesh) const;
 };
 
 extern void patchHeightsForBlock(const engine::objects::Object& object, const core::Length& height);

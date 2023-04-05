@@ -610,8 +610,10 @@ void Room::regenerateDust(const std::shared_ptr<engine::Presenter>& presenter,
   dust = dustNode;
 }
 
-std::shared_ptr<render::scene::Node> Room::createParticleMesh(
-  const std::string& label, const gslu::nn_shared<render::material::Material>& dustMaterial, uint8_t dustDensityDivisor)
+std::shared_ptr<render::scene::Node>
+  Room::createParticleMesh(const std::string& label,
+                           const gslu::nn_shared<render::material::Material>& dustMaterial,
+                           uint8_t dustDensityDivisor) const
 {
   static const constexpr auto BaseGridAxisSubdivision = 12;
   const auto resolution = (cbrt(dustDensityDivisor) / BaseGridAxisSubdivision * 1_sectors).cast<float>().get();
@@ -673,7 +675,7 @@ void Room::buildMeshData(const World& world,
                          const loader::file::Room& srcRoom,
                          std::vector<RoomRenderVertex>& vbufData,
                          std::vector<render::AnimatedUV>& uvCoordsData,
-                         RoomRenderMesh& renderMesh)
+                         RoomRenderMesh& renderMesh) const
 {
   for(const loader::file::QuadFace& quad : srcRoom.rectangles)
   {
