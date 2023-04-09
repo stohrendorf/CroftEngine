@@ -85,16 +85,23 @@ public:
                           gsl::narrow<size_t>(width()) * gsl::narrow<size_t>(height()));
   }
 
-  [[nodiscard]] std::vector<gl::PremultipliedSRGBA8> premultipliedPixels()
+  [[nodiscard]] gsl::span<const gl::PremultipliedSRGBA8> asPremultipliedPixels()
   {
-    std::vector<gl::PremultipliedSRGBA8> premultiplied;
+    static_assert(sizeof(gl::PremultipliedSRGBA8) == 4);
+    interleave();
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+    return gsl::make_span(reinterpret_cast<const gl::PremultipliedSRGBA8*>(data()),
+                          gsl::narrow<size_t>(width()) * gsl::narrow<size_t>(height()));
+  }
+
+  void premultiplyPixels()
+  {
     auto pxs = pixels();
-    premultiplied.reserve(pxs.size());
-    for(const auto& px : pxs)
+    for(auto& px : gsl::make_span(const_cast<gl::SRGBA8*>(reinterpret_cast<const gl::SRGBA8*>(data())),
+                                  gsl::narrow<size_t>(width()) * gsl::narrow<size_t>(height())))
     {
-      premultiplied.emplace_back(premultiply(px));
+      px.channels = premultiply(px).channels;
     }
-    return premultiplied;
   }
 
   void savePng(const std::string& filename, bool premultiply);

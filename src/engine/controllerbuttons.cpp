@@ -65,6 +65,7 @@ ControllerLayouts loadControllerButtonIcons(render::MultiTextureAtlas& atlases,
       constexpr auto newHeight = ui::FontHeight * 2;
       const auto newWidth = src.width() * newHeight / src.height();
       src.resize({newWidth, newHeight});
+      src.premultiplyPixels();
 
       const auto atlasLoc
         = atlases.isOnlyLayout() ? atlases.put(glm::ivec2{src.width(), src.height()}) : atlases.put(src);

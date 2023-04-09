@@ -278,12 +278,16 @@ bool tryRemapTile(Tile& maximizedTile,
         true);
       replacementImg.crop(
         maximizedTile.position.x, maximizedTile.position.y, maximizedTile.getXY1().x - 1, maximizedTile.getXY1().y - 1);
+      if(!maximizedTile.opaque)
+        replacementImg.premultiplyPixels();
       const auto remapped = atlases.put(replacementImg);
       maximizedTile.remapped = {remapped.first, remapped.second, maximizedTile.size};
     }
     else
     {
-      const gl::CImgWrapper tmp{path};
+      gl::CImgWrapper tmp{path};
+      if(!maximizedTile.opaque)
+        tmp.premultiplyPixels();
       const auto remapped = atlases.put(tmp);
       maximizedTile.remapped = {remapped.first, remapped.second, {tmp.width(), tmp.height()}};
       textureSizes.emplace(path, glm::ivec2{tmp.width(), tmp.height()});
@@ -506,6 +510,8 @@ void materializeAtlases(const loader::file::level::Level& level,
           256,
           true);
         replacementImg.crop(srcMinPx.x, srcMinPx.y, srcMaxPx.x, srcMaxPx.y);
+        if(!tile->isOpaque())
+          replacementImg.premultiplyPixels();
         replacementPos = atlases.put(replacementImg);
       }
       else
@@ -566,6 +572,7 @@ void materializeAtlases(const loader::file::level::Level& level,
           256,
           true);
         replacementImg->crop(minMaxPx.first.x, minMaxPx.first.y, minMaxPx.second.x, minMaxPx.second.y);
+        replacementImg->premultiplyPixels();
         replacementPos = atlases.put(*replacementImg);
       }
       replaced.emplace(srcTile, replacementPos);
@@ -763,7 +770,7 @@ std::unique_ptr<gl::Texture2DArray<gl::PremultipliedSRGBA8>>
       BOOST_LOG_TRIVIAL(info) << "Saving cache texture " << cacheFile;
       compressEtc2(*images[i], cacheFile);
 
-      allTextures->assign(images[i]->premultipliedPixels(), gsl::narrow_cast<int>(i));
+      allTextures->assign(images[i]->asPremultipliedPixels(), gsl::narrow_cast<int>(i));
     }
   }
 

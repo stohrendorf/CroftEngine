@@ -246,7 +246,7 @@ void CImgWrapper::fromScreenshot()
 gslu::nn_shared<gl::Texture2D<gl::PremultipliedSRGBA8>> CImgWrapper::toTexture(const std::string_view& label)
 {
   auto result = gsl::make_shared<gl::Texture2D<gl::PremultipliedSRGBA8>>(glm::ivec2{width(), height()}, label);
-  result->assign(premultipliedPixels());
+  result->assign(asPremultipliedPixels());
   return result;
 }
 
