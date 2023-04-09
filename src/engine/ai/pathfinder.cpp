@@ -561,15 +561,6 @@ void PathFinder::setTargetBox(const gsl::not_null<const world::Box*>& box)
   m_targetBox = box;
   setRandomSearchTarget(box);
 
-  BOOST_LOG_TRIVIAL(debug) << "search reset, found target = "
-                           << std::any_of(m_edges.begin(),
-                                          m_edges.end(),
-                                          [this](const auto& edge)
-                                          {
-                                            return edge.second == m_targetBox;
-                                          })
-                           << ", reachable = " << m_reachable[gsl::not_null{m_targetBox}]
-                           << ", distance = " << m_distances[gsl::not_null{m_targetBox}];
   m_expansions.clear();
   m_expansions.emplace_back(m_targetBox);
   m_distances.clear();
