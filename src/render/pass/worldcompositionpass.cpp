@@ -46,7 +46,7 @@ WorldCompositionPass::WorldCompositionPass(material::MaterialManager& materialMa
     , m_portalPass{portalPass}
     , m_noWaterMaterial{materialManager.getWorldComposition(false, renderSettings.dof)}
     , m_inWaterMaterial{materialManager.getWorldComposition(true, renderSettings.dof)}
-    , m_noWaterMesh{scene::createScreenQuad(m_noWaterMaterial, scene::Translucency::Opaque, "composition-nowater")}
+    , m_noWaterMesh{scene::createScreenQuad(m_noWaterMaterial, scene::Translucency::Opaque, "composition-no-water")}
     , m_inWaterMesh{scene::createScreenQuad(m_inWaterMaterial, scene::Translucency::Opaque, "composition-water")}
     , m_bloomMesh{scene::createScreenQuad(materialManager.getBloom(), scene::Translucency::Opaque, "composition-bloom")}
     , m_colorBuffer{std::make_shared<gl::Texture2D<gl::SRGB8>>(viewport, "composition-color")}

@@ -627,10 +627,13 @@ std::shared_ptr<render::scene::Node>
   indices.reserve(vertices.capacity());
   BOOST_LOG_TRIVIAL(debug) << "generating " << vertices.capacity() << " particles for " << label;
 
+  // NOLINTNEXTLINE(cert-flp30-c)
   for(float x = verticesBBoxMin.x + resolution / 2; x <= verticesBBoxMax.x - resolution / 2; x += resolution)
   {
+    // NOLINTNEXTLINE(cert-flp30-c)
     for(float y = verticesBBoxMin.y + resolution / 2; y <= verticesBBoxMax.y - resolution / 2; y += resolution)
     {
+      // NOLINTNEXTLINE(cert-flp30-c)
       for(float z = verticesBBoxMin.z + resolution / 2; z <= verticesBBoxMax.z - resolution / 2; z += resolution)
       {
         indices.emplace_back(gsl::narrow_cast<uint32_t>(vertices.size()));

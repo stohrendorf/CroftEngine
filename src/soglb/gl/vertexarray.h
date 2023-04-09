@@ -75,16 +75,6 @@ public:
     }
   }
 
-  [[nodiscard]] const auto& getIndexBuffer() const
-  {
-    return m_indexBuffer;
-  }
-
-  [[nodiscard]] const auto& getVertexBuffers() const
-  {
-    return m_vertexBuffers;
-  }
-
   void drawElements(api::PrimitiveType primitiveType)
   {
     RenderState::applyWantedState();

@@ -318,7 +318,7 @@ void Presenter::drawBars(ui::Ui& ui,
                   + (HealthPulseDurationSlow - HealthPulseDurationFast).cast<float>() * (1 - pulseStrength))
                    .cast<int>());
     m_healthPulseTime = (m_healthPulseTime + 1_frame) % pulseInterval;
-    float currentPulseEffectStrength = 0;
+    float currentPulseEffectStrength;
     if(m_healthPulseTime <= pulseInterval / 2)
       currentPulseEffectStrength = m_healthPulseTime.cast<float>() / (pulseInterval.cast<float>() / 2);
     else

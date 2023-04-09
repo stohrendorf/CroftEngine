@@ -58,7 +58,7 @@ template<api::ShaderType _Type>
 class Shader;
 class Texture;
 // NOLINTNEXTLINE(bugprone-reserved-identifier)
-template<typename _Texture>
+template<typename TTexture>
 class TextureHandle;
 // NOLINTNEXTLINE(bugprone-reserved-identifier)
 template<api::TextureTarget _Target, typename PixelT>

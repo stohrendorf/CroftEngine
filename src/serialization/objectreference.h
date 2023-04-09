@@ -11,6 +11,7 @@ struct ObjectReference final
 {
   ObjectReference(const ObjectReference<T>&) = delete;
   ObjectReference(ObjectReference<T>&&) = delete;
+  ~ObjectReference() = default;
   void operator=(ObjectReference<T>&&) = delete;
   void operator=(const ObjectReference<T>&) = delete;
 

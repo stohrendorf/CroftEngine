@@ -196,7 +196,7 @@ BloodSplatterParticle::BloodSplatterParticle(const Location& location,
                                              const core::Speed& speed_,
                                              const core::Angle& angle_,
                                              world::World& world)
-    : Particle{"bloodsplat", TR1ItemId::Blood, location, world, render::material::SpriteMaterialMode::Billboard}
+    : Particle{"blood-splat", TR1ItemId::Blood, location, world, render::material::SpriteMaterialMode::Billboard}
 {
   speed = speed_;
   angle.Y = angle_;
@@ -363,7 +363,7 @@ bool FlameParticle::update(world::World& world)
     // this flame is attached to lara
     const auto itemSpheres = lara.getSkeleton()->getBoneCollisionSpheres();
     location.position = core::TRVec{
-      itemSpheres.at(-timePerSpriteFrame - 1)
+      itemSpheres.at(gsl::narrow_cast<int>(-timePerSpriteFrame) - 1)
         .relative(core::TRVec{0_len, timePerSpriteFrame == -1 ? -100_len : 0_len, 0_len}.toRenderSystem())};
 
     if(const auto waterHeight = world::getWaterSurfaceHeight(location);
@@ -628,7 +628,8 @@ bool SparkleParticle::update(world::World&)
 }
 
 MuzzleFlashParticle::MuzzleFlashParticle(const Location& location, world::World& world, const core::Angle& yAngle)
-    : Particle{"muzzleflash", TR1ItemId::MuzzleFlash, location, world, render::material::SpriteMaterialMode::YAxisBound}
+    : Particle{
+      "muzzle-flash", TR1ItemId::MuzzleFlash, location, world, render::material::SpriteMaterialMode::YAxisBound}
 {
   angle.Y = yAngle;
   timePerSpriteFrame = 3;

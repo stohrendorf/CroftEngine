@@ -28,11 +28,12 @@ auto glAssertFn(F code, const gsl::czstring codeStr) -> decltype(code())
 } // namespace detail
 } // namespace gl
 
-#define GL_ASSERT(gl_code)        \
-  do                              \
-  {                               \
-    gl_code;                      \
-    ::gl::checkGlError(#gl_code); \
+#define GL_ASSERT(gl_code)                               \
+  /* NOLINTNEXTLINE(cppcoreguidelines-avoid-do-while) */ \
+  do                                                     \
+  {                                                      \
+    gl_code;                                             \
+    ::gl::checkGlError(#gl_code);                        \
   } while(false)
 
 #define GL_ASSERT_FN(code)  \

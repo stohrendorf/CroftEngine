@@ -176,9 +176,9 @@ size_t AudioStreamDecoder::read(int16_t* buffer, size_t bufferSize)
   return written;
 }
 
-audio::Clock::duration AudioStreamDecoder::getDuration() const
+Clock::duration AudioStreamDecoder::getDuration() const
 {
-  return ffmpeg::toDuration<audio::Clock::duration>(stream->stream->duration, stream->stream->time_base);
+  return ffmpeg::toDuration<Clock::duration>(stream->stream->duration, stream->stream->time_base);
 }
 
 int AudioStreamDecoder::getSampleRate() const noexcept

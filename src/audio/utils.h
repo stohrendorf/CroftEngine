@@ -48,16 +48,6 @@ auto alcAssertFn(ALCdevice* device, F code, gsl::czstring codeStr, gsl::czstring
     #code,                     \
     BOOST_CURRENT_FUNCTION,    \
     __LINE__)
-#define ALC_ASSERT_FN(device, code) \
-  ::audio::detail::alcAssertFn(     \
-    device,                         \
-    [&]()                           \
-    {                               \
-      return code;                  \
-    },                              \
-    #code,                          \
-    BOOST_CURRENT_FUNCTION,         \
-    __LINE__)
 
 #ifndef NDEBUG
 #  define AL_ASSERT(code)                                                     \

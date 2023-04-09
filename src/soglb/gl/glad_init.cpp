@@ -187,11 +187,11 @@ void gl::initializeGl(void* (*loadProc)(const char* name))
                           // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
                           << reinterpret_cast<const char*>(GL_ASSERT_FN(api::getString(api::StringName::Renderer)));
   {
-    int32_t numExts = 0;
-    GL_ASSERT(api::getInteger(api::GetPName::NumExtensions, &numExts));
-    BOOST_LOG_TRIVIAL(info) << "OpenGL extensions: " << numExts;
-    gsl_Assert(numExts >= 0);
-    for(int32_t i = 0; i < numExts; ++i)
+    int32_t numExtensions = 0;
+    GL_ASSERT(api::getInteger(api::GetPName::NumExtensions, &numExtensions));
+    BOOST_LOG_TRIVIAL(info) << "OpenGL extensions: " << numExtensions;
+    gsl_Assert(numExtensions >= 0);
+    for(int32_t i = 0; i < numExtensions; ++i)
     {
       BOOST_LOG_TRIVIAL(info) << " - "
                               // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)

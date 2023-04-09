@@ -38,10 +38,10 @@ const char* FAILURE_CTX = "Failure has occurred in a following context:";
 const boost::unit_test::test_unit_type UNIT_TEST_CASE = boost::unit_test::TUT_CASE;
 
 // Formatter implementation
-std::string toString(const boost::unit_test::const_string& bstr)
+std::string toString(const boost::unit_test::const_string& bStr)
 {
   std::stringstream ss(std::ios_base::out);
-  ss << bstr;
+  ss << bStr;
   return ss.str();
 }
 

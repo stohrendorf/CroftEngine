@@ -207,8 +207,8 @@ public:
   void set(const glm::vec4& value);
 
   // NOLINTNEXTLINE(bugprone-reserved-identifier)
-  template<typename _Texture>
-  void set(const gslu::nn_shared<TextureHandle<_Texture>>& textureHandle)
+  template<typename TTexture>
+  void set(const gslu::nn_shared<TextureHandle<TTexture>>& textureHandle)
   {
     gsl_Expects(m_program != InvalidProgram);
     gsl_Assert(GL_ASSERT_FN(gl::api::isTextureHandleResident(textureHandle->getHandle())));
@@ -237,8 +237,8 @@ public:
   }
 
   // NOLINTNEXTLINE(bugprone-reserved-identifier)
-  template<typename _Texture>
-  void set(const gsl::span<const gslu::nn_shared<TextureHandle<_Texture>>>& textureHandles)
+  template<typename TTexture>
+  void set(const gsl::span<const gslu::nn_shared<TextureHandle<TTexture>>>& textureHandles)
   {
     setTextures(textureHandles.begin(), textureHandles.end());
   }

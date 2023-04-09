@@ -12,16 +12,16 @@
 namespace gl
 {
 // NOLINTNEXTLINE(bugprone-reserved-identifier)
-template<typename _Texture>
+template<typename TTexture>
 class TextureHandle final
 {
 public:
-  TextureHandle(const TextureHandle<_Texture>&) = delete;
-  TextureHandle(TextureHandle<_Texture>&&) = delete;
-  void operator=(const TextureHandle<_Texture>&) = delete;
-  void operator=(TextureHandle<_Texture>&&) = delete;
+  TextureHandle(const TextureHandle<TTexture>&) = delete;
+  TextureHandle(TextureHandle<TTexture>&&) = delete;
+  void operator=(const TextureHandle<TTexture>&) = delete;
+  void operator=(TextureHandle<TTexture>&&) = delete;
 
-  using Texture = _Texture;
+  using Texture = TTexture;
   static_assert(std::is_base_of_v<::gl::Texture, Texture>);
 
   explicit TextureHandle(gslu::nn_shared<Texture> texture, gslu::nn_unique<Sampler>&& sampler)

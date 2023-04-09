@@ -139,7 +139,7 @@ void TR2Level::loadFileData()
   // In TR2, samples are stored in separate file called MAIN.SFX.
   // If there is no such files, no samples are loaded.
 
-  io::SDLReader newsrc(m_sfxPath);
+  const io::SDLReader newsrc(m_sfxPath);
   if(!newsrc.isOpen())
   {
     BOOST_LOG_TRIVIAL(warning) << "TR2 Level: failed to open '" << m_sfxPath << "', no samples loaded.";

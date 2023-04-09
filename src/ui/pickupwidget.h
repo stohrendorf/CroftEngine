@@ -59,11 +59,6 @@ public:
     m_count = val;
   }
 
-  [[nodiscard]] auto getCount() const
-  {
-    return m_count;
-  }
-
 private:
   core::Frame m_duration;
   mutable engine::world::Sprite m_sprite;

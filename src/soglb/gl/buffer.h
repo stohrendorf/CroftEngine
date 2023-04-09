@@ -13,16 +13,16 @@ template<typename T, api::BufferTarget Target>
 class Buffer;
 
 // NOLINTNEXTLINE(bugprone-reserved-identifier)
-template<typename T, api::BufferTarget _Target>
-struct MappedBuffer final
+template<typename T, api::BufferTarget Target>
+class MappedBuffer final
 {
-  friend class Buffer<T, _Target>;
+  friend class Buffer<T, Target>;
 
 public:
-  MappedBuffer(const MappedBuffer<T, _Target>&) = delete;
-  MappedBuffer(MappedBuffer<T, _Target>&&) = delete;
-  void operator=(const MappedBuffer<T, _Target>&) = delete;
-  void operator==(MappedBuffer<T, _Target>&&) = delete;
+  MappedBuffer(const MappedBuffer<T, Target>&) = delete;
+  MappedBuffer(MappedBuffer<T, Target>&&) = delete;
+  void operator=(const MappedBuffer<T, Target>&) = delete;
+  void operator==(MappedBuffer<T, Target>&&) = delete;
 
   ~MappedBuffer()
   {
@@ -62,19 +62,19 @@ public:
   }
 
 private:
-  explicit MappedBuffer(const std::reference_wrapper<Buffer<T, _Target>>& buffer, T* ptr, size_t size)
+  explicit MappedBuffer(const std::reference_wrapper<Buffer<T, Target>>& buffer, T* ptr, size_t size)
       : m_buffer{buffer}
       , m_span{ptr, size}
   {
   }
 
-  explicit MappedBuffer(const std::reference_wrapper<Buffer<T, _Target>>& buffer)
+  explicit MappedBuffer(const std::reference_wrapper<Buffer<T, Target>>& buffer)
       : m_buffer{buffer}
       , m_span{}
   {
   }
 
-  std::reference_wrapper<Buffer<T, _Target>> m_buffer;
+  std::reference_wrapper<Buffer<T, Target>> m_buffer;
   gsl::span<T> m_span;
 };
 

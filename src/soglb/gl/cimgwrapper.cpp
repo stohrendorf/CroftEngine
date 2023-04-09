@@ -185,7 +185,7 @@ void CImgWrapper::savePng(const std::string& filename, bool premultiplied)
     return;
   }
 
-  auto tmp = std::make_unique<cimg_library::CImg<int>>(*m_image, false);
+  const auto tmp = std::make_unique<cimg_library::CImg<int>>(*m_image, false);
   tmp->get_shared_channel(0).mul(tmp->get_shared_channel(3)) /= 255;
   tmp->get_shared_channel(1).mul(tmp->get_shared_channel(3)) /= 255;
   tmp->get_shared_channel(2).mul(tmp->get_shared_channel(3)) /= 255;

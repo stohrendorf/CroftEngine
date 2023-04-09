@@ -26,10 +26,11 @@ void UnderwaterSwitch::collide(CollisionInfo& /*collisionInfo*/)
   if(m_state.triggerState != TriggerState::Inactive)
     return;
 
-  if(!getWorld().getObjectManager().getLara().isDiving())
+  auto& lara = getWorld().getObjectManager().getLara();
+  if(!lara.isDiving())
     return;
 
-  if(getWorld().getObjectManager().getLara().getCurrentAnimState() != loader::file::LaraStateId::UnderwaterStop)
+  if(lara.getCurrentAnimState() != loader::file::LaraStateId::UnderwaterStop)
     return;
 
   static const InteractionLimits limits{
@@ -37,24 +38,25 @@ void UnderwaterSwitch::collide(CollisionInfo& /*collisionInfo*/)
     {-80_deg, -80_deg, -80_deg},
     {+80_deg, +80_deg, +80_deg}};
 
-  if(!limits.canInteract(m_state, getWorld().getObjectManager().getLara().m_state))
+  if(!limits.canInteract(m_state, lara.m_state))
     return;
 
   if(m_state.current_anim_state != 0_as && m_state.current_anim_state != 1_as)
     return;
 
   static const core::GenericVec<core::Speed> alignSpeed{0_spd, 0_spd, 108_spd};
-  if(!getWorld().getObjectManager().getLara().alignTransform(alignSpeed, *this))
+  if(!lara.alignTransform(alignSpeed, *this))
     return;
 
-  getWorld().getObjectManager().getLara().m_state.fallspeed = 0_spd;
+  lara.m_state.fallspeed = 0_spd;
+  // NOLINTNEXTLINE(cppcoreguidelines-avoid-do-while)
   do
   {
-    getWorld().getObjectManager().getLara().setGoalAnimState(loader::file::LaraStateId::SwitchDown);
-    getWorld().getObjectManager().getLara().advanceFrame();
-  } while(getWorld().getObjectManager().getLara().getCurrentAnimState() != loader::file::LaraStateId::SwitchDown);
-  getWorld().getObjectManager().getLara().setGoalAnimState(loader::file::LaraStateId::UnderwaterStop);
-  getWorld().getObjectManager().getLara().setHandStatus(HandStatus::Grabbing);
+    lara.setGoalAnimState(loader::file::LaraStateId::SwitchDown);
+    lara.advanceFrame();
+  } while(lara.getCurrentAnimState() != loader::file::LaraStateId::SwitchDown);
+  lara.setGoalAnimState(loader::file::LaraStateId::UnderwaterStop);
+  lara.setHandStatus(HandStatus::Grabbing);
   m_state.triggerState = TriggerState::Active;
 
   if(m_state.current_anim_state == 1_as)
