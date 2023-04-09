@@ -318,20 +318,4 @@ std::unique_ptr<cimg_library::CImg<uint8_t>> CImgWrapper::loadPcx(const std::fil
   img->permute_axes("yzcx");
   return img;
 }
-
-bool CImgWrapper::isOpaque(const std::pair<glm::vec2, glm::vec2>& uv)
-{
-  deinterleave();
-  const auto chn = m_image->get_shared_channel(3).get_crop(std::lround(uv.first.x * (width() - 1)),
-                                                           std::lround(uv.first.y * (height() - 1)),
-                                                           std::lround(uv.second.x * (width() - 1)),
-                                                           std::lround(uv.second.y * (height() - 1)));
-  cimg_forXY(chn, x, y)
-  {
-    if(chn(x, y) < 255)
-      return false;
-  }
-
-  return true;
-}
 } // namespace gl

@@ -754,7 +754,7 @@ void Room::buildMeshData(const World& world,
     for(const int i : {0, 1, 2, 0, 2, 3})
     {
       const auto idx = gsl::narrow<RoomRenderMesh::IndexType>(firstVertex + i);
-      if(tile.isOpaque)
+      if(tile.isOpaque())
         renderMesh.m_opaqueIndices.emplace_back(idx);
       else
         renderMesh.m_nonOpaqueIndices.emplace_back(idx);
@@ -807,7 +807,7 @@ void Room::buildMeshData(const World& world,
     for(const int i : {0, 1, 2})
     {
       const auto idx = gsl::narrow<RoomRenderMesh::IndexType>(firstVertex + i);
-      if(tile.isOpaque)
+      if(tile.isOpaque())
         renderMesh.m_opaqueIndices.emplace_back(idx);
       else
         renderMesh.m_nonOpaqueIndices.emplace_back(idx);

@@ -112,8 +112,6 @@ public:
 
   gslu::nn_shared<gl::Texture2D<gl::PremultipliedSRGBA8>> toTexture(const std::string_view& label);
 
-  [[nodiscard]] bool isOpaque(const std::pair<glm::vec2, glm::vec2>& uv);
-
 private:
   void unshare();
   static std::unique_ptr<cimg_library::CImg<uint8_t>> loadPcx(const std::filesystem::path& filename);

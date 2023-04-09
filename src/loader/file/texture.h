@@ -123,19 +123,24 @@ struct TextureKey
   // as the maximum of the individual color values.
   uint16_t atlasIdAndFlag = 0; // index into textile list
 
-  uint16_t flags = 0; // TR4
+  uint16_t flags = 0;          // TR4
 
   DECLARE_ID(ColorId, int);
   ColorId colorId{-1};
 
   bool operator==(const TextureKey& rhs) const
   {
-    return atlasIdAndFlag == rhs.atlasIdAndFlag && flags == rhs.flags && blendingMode == rhs.blendingMode
+    return blendingMode == rhs.blendingMode && atlasIdAndFlag == rhs.atlasIdAndFlag && flags == rhs.flags
            && colorId == rhs.colorId;
   }
 
   bool operator<(const TextureKey& rhs) const
   {
+    if(blendingMode != rhs.blendingMode)
+    {
+      return blendingMode < rhs.blendingMode;
+    }
+
     if(atlasIdAndFlag != rhs.atlasIdAndFlag)
     {
       return atlasIdAndFlag < rhs.atlasIdAndFlag;
@@ -144,11 +149,6 @@ struct TextureKey
     if(flags != rhs.flags)
     {
       return flags < rhs.flags;
-    }
-
-    if(blendingMode != rhs.blendingMode)
-    {
-      return blendingMode < rhs.blendingMode;
     }
 
     return colorId.get() < rhs.colorId.get();

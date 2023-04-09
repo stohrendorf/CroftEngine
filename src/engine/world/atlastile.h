@@ -8,7 +8,11 @@ struct AtlasTile
 {
   loader::file::TextureKey textureKey;
   std::array<glm::vec2, 4> uvCoordinates{};
-  bool isOpaque = false;
+
+  [[nodiscard]] bool isOpaque() const noexcept
+  {
+    return textureKey.blendingMode == loader::file::BlendingMode::Solid;
+  }
 
   bool operator==(const AtlasTile& rhs) const
   {

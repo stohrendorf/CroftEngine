@@ -112,7 +112,7 @@ void RenderMeshData::buildMesh(const loader::file::Mesh& mesh,
     for(const size_t i : {0, 1, 2, 0, 2, 3})
     {
       const auto idx = gsl::narrow<IndexType>(firstVertex + i);
-      if(tile.isOpaque)
+      if(tile.isOpaque())
         m_opaqueIndices.emplace_back(idx);
       else
         m_nonOpaqueIndices.emplace_back(idx);
@@ -192,7 +192,7 @@ void RenderMeshData::buildMesh(const loader::file::Mesh& mesh,
         iv.normal = tri.vertices[i].from(mesh.normals).toRenderSystem();
       }
       const auto idx = gsl::narrow<IndexType>(m_vertices.size());
-      if(tile.isOpaque)
+      if(tile.isOpaque())
         m_opaqueIndices.emplace_back(idx);
       else
         m_nonOpaqueIndices.emplace_back(idx);

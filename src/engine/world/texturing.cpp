@@ -746,12 +746,6 @@ std::unique_ptr<gl::Texture2DArray<gl::PremultipliedSRGBA8>>
                                     gsl::narrow_cast<size_t>(bmp->size().x) * gsl::narrow_cast<size_t>(bmp->size().y)},
                           gsl::narrow_cast<int>(i));
     }
-
-    for(auto& atlasTile : atlasTiles)
-    {
-      const auto& img = images.at(atlasTile.textureKey.atlasIdAndFlag & loader::file::AtlasIdMask);
-      atlasTile.isOpaque = img->isOpaque(atlasTile.getMinMaxUv());
-    }
   }
   else
   {
@@ -766,12 +760,6 @@ std::unique_ptr<gl::Texture2DArray<gl::PremultipliedSRGBA8>>
       compressEtc2(*images[i], cacheFile);
 
       allTextures->assign(images[i]->premultipliedPixels(), gsl::narrow_cast<int>(i));
-    }
-
-    for(auto& atlasTile : atlasTiles)
-    {
-      const auto& img = images.at(atlasTile.textureKey.atlasIdAndFlag & loader::file::AtlasIdMask);
-      atlasTile.isOpaque = img->isOpaque(atlasTile.getMinMaxUv());
     }
   }
 
