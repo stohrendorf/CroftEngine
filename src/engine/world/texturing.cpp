@@ -100,13 +100,15 @@ struct Tile
 {
   glm::ivec2 position;
   glm::ivec2 size;
+  bool opaque;
 
   // texture page, position, and size (in pixels)
   std::optional<std::tuple<size_t, glm::ivec2, glm::ivec2>> remapped{};
 
-  explicit Tile(const glm::ivec2& position, const glm::ivec2& size)
+  explicit Tile(const glm::ivec2& position, const glm::ivec2& size, bool opaque)
       : position{size.x >= 0 ? position.x : position.x + size.x, size.y >= 0 ? position.y : position.y + size.y}
       , size{glm::abs(size)}
+      , opaque{opaque}
   {
   }
 
@@ -127,8 +129,8 @@ struct Tile
 
   [[nodiscard]] constexpr bool contains(const Tile& other) const
   {
-    return position.x <= other.position.x && position.y <= other.position.y && getRight() >= other.getRight()
-           && getBottom() >= other.getBottom();
+    return opaque == other.opaque && position.x <= other.position.x && position.y <= other.position.y
+           && getRight() >= other.getRight() && getBottom() >= other.getBottom();
   }
 
   [[nodiscard]] std::pair<glm::vec2, glm::vec2> getRemappedPos(const glm::ivec2& srcPos,
@@ -177,7 +179,8 @@ std::vector<std::vector<Tile>> getMaximizedAtlasesTiles(const loader::file::leve
 
     auto& atlasTiles = atlasesTiles.at(objTex.textureKey.atlasIdAndFlag & loader::file::AtlasIdMask);
     atlasTiles.emplace_back(glm::ivec2{std::lround(minU * 256.0f), std::lround(minV * 256.0f)},
-                            glm::ivec2{std::lround((maxU - minU) * 256.0f), std::lround((maxV - minV) * 256.0f)});
+                            glm::ivec2{std::lround((maxU - minU) * 256.0f), std::lround((maxV - minV) * 256.0f)},
+                            objTex.isOpaque());
   }
 
   for(const auto& sprTex : level.m_sprites)
@@ -191,7 +194,8 @@ std::vector<std::vector<Tile>> getMaximizedAtlasesTiles(const loader::file::leve
 
     auto& atlasTiles = atlasesTiles.at(sprTex.atlas_id.get());
     atlasTiles.emplace_back(glm::ivec2{std::lround(minU * 256.0f), std::lround(minV * 256.0f)},
-                            glm::ivec2{std::lround((maxU - minU) * 256.0f), std::lround((maxV - minV) * 256.0f)});
+                            glm::ivec2{std::lround((maxU - minU) * 256.0f), std::lround((maxV - minV) * 256.0f)},
+                            false);
   }
 
   // remove every tile that's contained within another one
@@ -352,7 +356,7 @@ void layoutAtlases(const loader::file::level::Level& level,
       const auto [minUv, maxUv] = srcTile.getMinMaxUv();
       const auto pos = glm::ivec2{std::lround(minUv.x * 256.0f), std::lround(minUv.y * 256.0f)};
       const auto size = glm::ivec2{std::lround(maxUv.x * 256.0f), std::lround(maxUv.y * 256.0f)} - pos;
-      const auto needleTile = Tile{pos, size};
+      const auto needleTile = Tile{pos, size, srcTile.isOpaque()};
 
       const Tile* matchingTile = nullptr;
       for(const auto& maximizedTile : maximizedAtlasTiles)
@@ -388,7 +392,7 @@ void layoutAtlases(const loader::file::level::Level& level,
       const auto a = glm::ivec2{std::lround(sprite.uv0.x * 256.0f), std::lround(sprite.uv0.y * 256.0f)};
       const auto b = glm::ivec2{std::lround(sprite.uv1.x * 256.0f), std::lround(sprite.uv1.y * 256.0f)};
 
-      const auto needleTile = Tile{a, b - a};
+      const auto needleTile = Tile{a, b - a, false};
 
       const Tile* matchingTile = nullptr;
       for(const auto& maximizedTile : maximizedAtlasTiles)

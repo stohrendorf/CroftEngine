@@ -165,6 +165,11 @@ struct TextureTile
   uint32_t x_size = 0;                          // TR4
   uint32_t y_size = 0;                          // TR4
 
+  [[nodiscard]] bool isOpaque() const noexcept
+  {
+    return textureKey.blendingMode == BlendingMode::Solid;
+  }
+
   static std::unique_ptr<TextureTile> readTr1(io::SDLReader& reader);
 
   static std::unique_ptr<TextureTile> readTr4(io::SDLReader& reader);
