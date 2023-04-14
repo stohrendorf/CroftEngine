@@ -413,6 +413,7 @@ void PathFinder::expandNodes(const world::World& world)
          boxHeightDiff < -m_step || boxHeightDiff > -m_drop)
         continue;
 
+      // update predecessor reachability and distance
       if(updateEdge(currentBox, predecessorBox))
         continue;
 
@@ -470,11 +471,9 @@ bool PathFinder::updateEdge(const gsl::not_null<const world::Box*>& currentBox,
     return true;
   }
 
-  // propagate "reachable" to all connected boxes if their reachability hasn't been determined yet
-  // OR they were previously determined to be unreachable
   if(predecessorInitialized && it->second)
   {
-    // already visited and marked reachable, but path might be shorter
+    // predecessor was already determined to be reachable, but path might be shorter
     updateDistance(currentBox, predecessorBox);
     return true;
   }
