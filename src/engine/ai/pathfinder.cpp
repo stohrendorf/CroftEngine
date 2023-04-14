@@ -392,37 +392,40 @@ void PathFinder::expandNodes(const world::World& world)
 
   static constexpr uint8_t MaxExpansions = 50;
 
-  // this does a backwards search from the target (usually Lara) to the source (usually a baddie)
   for(uint8_t i = 0; i < MaxExpansions && !m_expansions.empty(); ++i)
   {
+    // this does a backwards search from the target (usually Lara) to the source (usually a baddie), as the expansions
+    // are initialised with the target when reset.
+
     const auto currentBox = m_expansions.front();
     m_expansions.pop_front();
     const auto searchZone = currentBox.get()->*zoneRef;
 
-    for(const auto& successorBox : currentBox->overlaps)
+    for(const auto& predecessorBox : currentBox->overlaps)
     {
-      if(successorBox == currentBox)
+      if(predecessorBox == currentBox)
         continue;
 
-      if(searchZone != successorBox.get()->*zoneRef)
+      if(searchZone != predecessorBox.get()->*zoneRef)
         continue;
 
-      if(const auto boxHeightDiff = currentBox->floor - successorBox->floor;
+      if(const auto boxHeightDiff = currentBox->floor - predecessorBox->floor;
          boxHeightDiff < -m_step || boxHeightDiff > -m_drop)
         continue;
 
-      if(updateEdge(currentBox, successorBox))
+      if(updateEdge(currentBox, predecessorBox))
         continue;
 
-      const auto reachable = canVisit(*successorBox);
+      const auto reachable = canVisit(*predecessorBox);
       if(reachable)
       {
-        BOOST_ASSERT_MSG(m_edges.count(successorBox) == 0, "cycle in pathfinder graph detected");
-        m_edges.emplace(successorBox, currentBox); // success! connect both boxes
-        m_distances[successorBox] = m_distances[currentBox] + 1;
+        // success! connect both boxes
+        BOOST_ASSERT_MSG(m_edges.find(predecessorBox) == m_edges.end(), "cycle in pathfinder graph detected");
+        m_edges.emplace(predecessorBox, currentBox);
+        m_distances[predecessorBox] = m_distances[currentBox] + 1;
       }
 
-      setReachable(successorBox, reachable);
+      setReachable(predecessorBox, reachable);
     }
   }
 }
@@ -435,41 +438,44 @@ void PathFinder::setReachable(const gsl::not_null<const world::Box*>& box, bool 
 }
 
 void PathFinder::updateDistance(const gsl::not_null<const world::Box*>& currentBox,
-                                const gsl::not_null<world::Box*>& successorBox)
+                                const gsl::not_null<world::Box*>& predecessorBox)
 {
-  auto& successorDistance = m_distances[successorBox];
-  auto currentDistance = m_distances[currentBox] + 1;
-  if(successorDistance > currentDistance)
-  {
-    successorDistance = currentDistance;
-    m_edges.erase(currentBox);
-    m_edges.emplace(currentBox, successorBox);
-    m_expansions.emplace_back(successorBox);
-  }
+  BOOST_ASSERT(m_distances.find(predecessorBox) != m_distances.end());
+  BOOST_ASSERT(m_distances.find(currentBox) != m_distances.end());
+
+  auto& currentPredecessorDistance = m_distances[predecessorBox];
+  auto newPredecessorDistance = m_distances[currentBox] + 1;
+  if(currentPredecessorDistance <= newPredecessorDistance)
+    return;
+
+  currentPredecessorDistance = newPredecessorDistance;
+  m_edges.erase(currentBox);
+  m_edges.emplace(currentBox, predecessorBox);
+  m_expansions.emplace_back(predecessorBox);
 }
 
 bool PathFinder::updateEdge(const gsl::not_null<const world::Box*>& currentBox,
-                            const gsl::not_null<world::Box*>& successorBox)
+                            const gsl::not_null<world::Box*>& predecessorBox)
 {
-  const auto it = m_reachable.find(successorBox);
-  const bool successorInitialized = it != m_reachable.end();
+  const auto it = m_reachable.find(predecessorBox);
+  const bool predecessorInitialized = it != m_reachable.end();
 
   if(!m_reachable.at(currentBox))
   {
     // propagate "unreachable" to all connected boxes if their reachability hasn't been determined yet
-    if(!successorInitialized)
+    if(!predecessorInitialized)
     {
-      setReachable(successorBox, false);
+      setReachable(predecessorBox, false);
     }
     return true;
   }
 
   // propagate "reachable" to all connected boxes if their reachability hasn't been determined yet
   // OR they were previously determined to be unreachable
-  if(successorInitialized && it->second)
+  if(predecessorInitialized && it->second)
   {
     // already visited and marked reachable, but path might be shorter
-    updateDistance(currentBox, successorBox);
+    updateDistance(currentBox, predecessorBox);
     return true;
   }
 
