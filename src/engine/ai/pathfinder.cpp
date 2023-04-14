@@ -439,7 +439,7 @@ void PathFinder::setReachable(const gsl::not_null<const world::Box*>& box, bool 
 }
 
 void PathFinder::updateDistance(const gsl::not_null<const world::Box*>& currentBox,
-                                const gsl::not_null<world::Box*>& predecessorBox)
+                                const gsl::not_null<const world::Box*>& predecessorBox)
 {
   BOOST_ASSERT(m_distances.find(predecessorBox) != m_distances.end());
   BOOST_ASSERT(m_distances.find(currentBox) != m_distances.end());
@@ -456,7 +456,7 @@ void PathFinder::updateDistance(const gsl::not_null<const world::Box*>& currentB
 }
 
 bool PathFinder::updateEdge(const gsl::not_null<const world::Box*>& currentBox,
-                            const gsl::not_null<world::Box*>& predecessorBox)
+                            const gsl::not_null<const world::Box*>& predecessorBox)
 {
   const auto it = m_reachable.find(predecessorBox);
   const bool predecessorInitialized = it != m_reachable.end();

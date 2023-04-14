@@ -124,8 +124,9 @@ private:
 
   void setReachable(const gsl::not_null<const world::Box*>& box, bool reachable);
   void updateDistance(const gsl::not_null<const world::Box*>& currentBox,
-                      const gsl::not_null<world::Box*>& predecessorBox);
-  bool updateEdge(const gsl::not_null<const world::Box*>& currentBox, const gsl::not_null<world::Box*>& predecessorBox);
+                      const gsl::not_null<const world::Box*>& predecessorBox);
+  bool updateEdge(const gsl::not_null<const world::Box*>& currentBox,
+                  const gsl::not_null<const world::Box*>& predecessorBox);
 
   std::vector<gsl::not_null<const world::Box*>> m_boxes;
   std::deque<gsl::not_null<const world::Box*>> m_expansions;
