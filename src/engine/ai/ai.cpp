@@ -135,8 +135,8 @@ void updateMood(const objects::AIAgent& aiAgent, const EnemyLocation& enemyLocat
   if(creatureInfo.mood != Mood::Attack && newTargetBox != nullptr
      && !aiAgent.isInsideZoneButNotInBox(enemyLocation.zoneId, *newTargetBox))
   {
-    // if we're not attacking, but we got a target, we're seeking for a box that is *not* the enemy's box, but we're too
-    // close to the enemy now.
+    // if we're not attacking, but we got a valid target, we're seeking for a box that is *not* the enemy's box, but
+    // we're too close to lara now or not in her zone.
     if(enemyLocation.canReachLara())
     {
       creatureInfo.mood = Mood::Bored;
@@ -162,6 +162,7 @@ void updateMood(const objects::AIAgent& aiAgent, const EnemyLocation& enemyLocat
       gsl_Assert(creatureInfo.pathFinder.getTargetBox() != nullptr);
       creatureInfo.pathFinder.setRandomSearchTarget(gsl::not_null{creatureInfo.pathFinder.getTargetBox()});
     }
+    // if we changed the mood, search for a new target, as the current one might have become invalid for the new mood
     newTargetBox = nullptr;
   }
 
@@ -200,12 +201,14 @@ void updateMood(const objects::AIAgent& aiAgent, const EnemyLocation& enemyLocat
 
     if(aiAgent.m_state.isStalkBox(aiAgent.getWorld(), *box))
     {
+      // we can stalk lara with the random box we selected
       newTargetBox = box;
       creatureInfo.pathFinder.setRandomSearchTarget(box);
       creatureInfo.mood = Mood::Stalk;
     }
     else if(newTargetBox == nullptr)
     {
+      // our random box is not valid for stalking, but we have no valid target, so we use it anyways
       newTargetBox = box;
       creatureInfo.pathFinder.setRandomSearchTarget(box);
     }
@@ -213,25 +216,31 @@ void updateMood(const objects::AIAgent& aiAgent, const EnemyLocation& enemyLocat
   }
   case Mood::Stalk:
   {
-    // when stalking, seek a location behind lara
+    // when stalking, seek a location behind lara, but only if we don't have a valid stalking box yet
     if(newTargetBox != nullptr && aiAgent.m_state.isStalkBox(aiAgent.getWorld(), *newTargetBox))
       break;
 
     const auto box = creatureInfo.pathFinder.getRandomBox();
     if(!aiAgent.isInsideZoneButNotInBox(enemyLocation.zoneId, *box))
+    {
+      // either the randomly selected box is not in lara's zone, or it's too close to lara
       break;
+    }
 
     if(aiAgent.m_state.isStalkBox(aiAgent.getWorld(), *box))
     {
+      // we have selected a valid stalking box, use it
       newTargetBox = box;
       creatureInfo.pathFinder.setRandomSearchTarget(box);
     }
     else if(newTargetBox == nullptr)
     {
+      // we didn't have a valid box before, so use it anyways
       newTargetBox = box;
       creatureInfo.pathFinder.setRandomSearchTarget(box);
       if(!enemyLocation.canReachLara())
       {
+        // but if we can't reach lara, we don't attempt to stalk her
         creatureInfo.mood = Mood::Bored;
       }
     }
@@ -239,18 +248,22 @@ void updateMood(const objects::AIAgent& aiAgent, const EnemyLocation& enemyLocat
   }
   case Mood::Escape:
   {
-    // when escaping, seek a box behind lara which center is at least 5 sectors away
     const auto box = creatureInfo.pathFinder.getRandomBox();
-    if(!aiAgent.isInsideZoneButNotInBox(enemyLocation.zoneId, *box) || newTargetBox != nullptr)
+    if(newTargetBox != nullptr || !aiAgent.isInsideZoneButNotInBox(enemyLocation.zoneId, *box))
+    {
+      // we already have a valid target, or the randomly select box is either too close to lara, or outside her zone
       break;
+    }
 
     if(aiAgent.m_state.isEscapeBox(aiAgent.getWorld(), *box))
     {
+      // we found a box behind lara where its center is at least 5 sectors away
       newTargetBox = box;
       creatureInfo.pathFinder.setRandomSearchTarget(box);
     }
     else if(enemyLocation.canReachLara() && aiAgent.m_state.isStalkBox(aiAgent.getWorld(), *box))
     {
+      // or we selected a box that allows us to stalk lara again
       newTargetBox = box;
       creatureInfo.pathFinder.setRandomSearchTarget(box);
       creatureInfo.mood = Mood::Stalk;
@@ -268,7 +281,7 @@ void updateMood(const objects::AIAgent& aiAgent, const EnemyLocation& enemyLocat
 
   if(newTargetBox != nullptr)
   {
-    // we want to move to a different box
+    // we found a new target
     creatureInfo.pathFinder.setTargetBox(gsl::not_null{newTargetBox});
   }
 

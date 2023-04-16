@@ -407,11 +407,16 @@ void PathFinder::expandNodes(const world::World& world)
         continue;
 
       if(searchZone != predecessorBox.get()->*zoneRef)
+      {
+        setReachable(predecessorBox, false);
         continue;
+      }
 
-      if(const auto boxHeightDiff = currentBox->floor - predecessorBox->floor;
-         boxHeightDiff < -m_step || boxHeightDiff > -m_drop)
+      if(const auto dy = currentBox->floor - predecessorBox->floor; dy < -m_step || dy > -m_drop)
+      {
+        setReachable(predecessorBox, false);
         continue;
+      }
 
       // update predecessor reachability and distance
       if(updateEdge(currentBox, predecessorBox))
@@ -433,8 +438,8 @@ void PathFinder::expandNodes(const world::World& world)
 
 void PathFinder::setReachable(const gsl::not_null<const world::Box*>& box, bool reachable)
 {
-  m_reachable[box] = reachable;
-  if(std::find(m_expansions.begin(), m_expansions.end(), box) == m_expansions.end())
+  m_reachable[box] |= reachable;
+  if(reachable && std::find(m_expansions.begin(), m_expansions.end(), box) == m_expansions.end())
     m_expansions.emplace_back(box);
 }
 
@@ -458,20 +463,14 @@ void PathFinder::updateDistance(const gsl::not_null<const world::Box*>& currentB
 bool PathFinder::updateEdge(const gsl::not_null<const world::Box*>& currentBox,
                             const gsl::not_null<const world::Box*>& predecessorBox)
 {
-  const auto it = m_reachable.find(predecessorBox);
-  const bool predecessorInitialized = it != m_reachable.end();
-
   if(!m_reachable.at(currentBox))
   {
     // propagate "unreachable" to all connected boxes if their reachability hasn't been determined yet
-    if(!predecessorInitialized)
-    {
-      setReachable(predecessorBox, false);
-    }
+    setReachable(predecessorBox, false);
     return true;
   }
 
-  if(predecessorInitialized && it->second)
+  if(const auto it = m_reachable.find(predecessorBox); it != m_reachable.end() && it->second)
   {
     // predecessor was already determined to be reachable, but path might be shorter
     updateDistance(currentBox, predecessorBox);
