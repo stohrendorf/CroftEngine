@@ -73,7 +73,7 @@ void FlyingMutant::update()
   }
   else
   {
-    getCreatureInfo()->pathFinder.setLimits(getWorld(), m_state.getCurrentBox(), 256_len, -256_len, 0_len);
+    getCreatureInfo()->pathFinder.setLimits(getWorld(), 256_len, -256_len, 0_len);
     ai::EnemyLocation enemyLocation{*this};
     bool frontLeft = false;
     bool frontRight = false;
@@ -104,7 +104,7 @@ void FlyingMutant::update()
         {
           updateMood(*this, enemyLocation, true);
         }
-        getCreatureInfo()->pathFinder.setLimits(getWorld(), m_state.getCurrentBox(), 30_sectors, -30_sectors, 32_len);
+        getCreatureInfo()->pathFinder.setLimits(getWorld(), 30_sectors, -30_sectors, 32_len);
         enemyLocation = ai::EnemyLocation{*this};
       }
       else if(isEscaping()

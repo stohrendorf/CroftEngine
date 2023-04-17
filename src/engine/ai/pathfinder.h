@@ -60,6 +60,11 @@ struct PathFinder
   void
     init(const world::World& world, const gsl::not_null<const world::Box*>& box, const script::ObjectInfo& objectInfo);
 
+  void setLimits(const world::World& world, const core::Length& step, const core::Length& drop, const core::Length& fly)
+  {
+    setLimits(world, gsl::not_null{m_targetBox}, step, drop, fly);
+  }
+
   void setLimits(const world::World& world,
                  const gsl::not_null<const world::Box*>& box,
                  const core::Length& step,
