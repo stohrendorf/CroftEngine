@@ -13,6 +13,7 @@
 #include <boost/log/utility/setup/console.hpp>
 #include <boost/log/utility/setup/file.hpp>
 #include <chillout.h>
+#include <cpuid.h>
 #include <csignal>
 #include <cstdlib>
 #include <cstring>
