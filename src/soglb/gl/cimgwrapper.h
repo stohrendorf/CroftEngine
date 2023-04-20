@@ -96,7 +96,7 @@ public:
 
   void premultiplyPixels()
   {
-    auto pxs = pixels();
+    interleave();
     for(auto& px : gsl::make_span(const_cast<gl::SRGBA8*>(reinterpret_cast<const gl::SRGBA8*>(data())),
                                   gsl::narrow<size_t>(width()) * gsl::narrow<size_t>(height())))
     {
