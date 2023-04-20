@@ -700,16 +700,17 @@ std::unique_ptr<gl::Texture2DArray<gl::PremultipliedSRGBA8>>
   if(glidos != nullptr)
   {
     std::map<std::filesystem::path, glm::ivec2> textureSizes;
-    if(atlases.isOnlyLayout() && std::filesystem::is_regular_file(cacheDir / "_texturesizes.yaml"))
+    const auto textureSizesPath = getTextureSizesYamlPath(cacheDir);
+    if(atlases.isOnlyLayout() && std::filesystem::is_regular_file(textureSizesPath))
     {
-      serialization::YAMLDocument<true> doc{cacheDir / "_texturesizes.yaml"};
+      serialization::YAMLDocument<true> doc{textureSizesPath};
       doc.deserialize("sizes", gsl::not_null{&level}, textureSizes);
     }
     layoutAtlases(
       level, *glidos, atlases, atlasTiles, sprites, doneTiles, doneSprites, textureSizes, drawLoadingScreen);
     if(!atlases.isOnlyLayout())
     {
-      serialization::YAMLDocument<false> doc{cacheDir / "_texturesizes.yaml"};
+      serialization::YAMLDocument<false> doc{textureSizesPath};
       doc.serialize("sizes", gsl::not_null{&level}, textureSizes);
       doc.write();
     }

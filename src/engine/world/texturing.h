@@ -36,4 +36,14 @@ extern std::unique_ptr<gl::Texture2DArray<gl::PremultipliedSRGBA8>>
                 std::vector<Sprite>& sprites,
                 const std::function<void(const std::string&)>& drawLoadingScreen,
                 const std::filesystem::path& cacheDir);
+
+inline std::filesystem::path getTextureSizesYamlPath(const std::filesystem::path& cacheDir)
+{
+  return cacheDir / "_texturesizes.yaml";
+}
+
+inline std::filesystem::path getTextureCacheVersionFilePath(const std::filesystem::path& cacheDir)
+{
+  return cacheDir / "_cache_v2.txt";
+}
 } // namespace engine::world

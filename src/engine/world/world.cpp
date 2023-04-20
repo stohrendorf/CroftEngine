@@ -101,6 +101,7 @@
 #include <cmath>
 #include <cstdint>
 #include <exception>
+#include <filesystem>
 #include <functional>
 #include <gl/pixel.h>
 #include <gl/renderstate.h>
@@ -1277,20 +1278,30 @@ World::World(const gsl::not_null<Engine*>& engine,
   const auto levelFileTime = std::filesystem::last_write_time(level->getFilename());
   const auto cacheDir
     = userDataDir / "texturecache" / m_engine->getGameflowId() / texturePackId / level->getFilename().filename();
-  std::filesystem::create_directories(cacheDir);
-  bool validTextureCache = std::filesystem::is_regular_file(cacheDir / "_texturesizes.yaml");
+  const auto textureSizesPath = getTextureSizesYamlPath(cacheDir);
+  bool validTextureCache = std::filesystem::is_regular_file(textureSizesPath);
+  if(!std::filesystem::is_regular_file(getTextureCacheVersionFilePath(cacheDir)))
+  {
+    BOOST_LOG_TRIVIAL(debug) << "Removing invalid/outdated cache directory " << cacheDir;
+    const auto deleted = std::filesystem::remove_all(cacheDir);
+    BOOST_LOG_TRIVIAL(debug) << "Deleted " << deleted << " files and directories";
+    validTextureCache = false;
+  }
+
   if(validTextureCache)
   {
     if(const auto& glidos = engine->getGlidos(); glidos != nullptr)
     {
-      validTextureCache &= std::max(levelFileTime, glidos->getNewestFileTime())
-                           < std::filesystem::last_write_time(cacheDir / "_texturesizes.yaml");
+      validTextureCache
+        &= std::max(levelFileTime, glidos->getNewestFileTime()) < std::filesystem::last_write_time(textureSizesPath);
     }
     else
     {
-      validTextureCache &= levelFileTime < std::filesystem::last_write_time(cacheDir / "_texturesizes.yaml");
+      validTextureCache &= levelFileTime < std::filesystem::last_write_time(textureSizesPath);
     }
   }
+
+  std::filesystem::create_directories(cacheDir);
 
   render::MultiTextureAtlas atlases{3072, validTextureCache};
   m_controllerLayouts = loadControllerButtonIcons(
@@ -1324,6 +1335,8 @@ World::World(const gsl::not_null<Engine*>& engine,
       },
       cacheDir);
   }
+
+  std::ofstream{getTextureCacheVersionFilePath(cacheDir), std::ios::trunc};
 
   getPresenter().getMaterialManager()->setGeometryTextures(gsl::not_null{m_allTextures});
 
