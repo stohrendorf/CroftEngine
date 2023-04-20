@@ -780,6 +780,7 @@ target_link_libraries(
         chillout
         ${WIN32_SPECIFIC_LIBS}
         etcpak
+        cpu_features
 )
 
 install(

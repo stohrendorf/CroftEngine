@@ -1,3 +1,4 @@
+#include "cpuinfo_x86.h"
 #include "engine/engine.h"
 #include "engine/player.h"
 #include "engine/script/reflection.h"
@@ -13,7 +14,6 @@
 #include <boost/log/utility/setup/console.hpp>
 #include <boost/log/utility/setup/file.hpp>
 #include <chillout.h>
-#include <cpuid.h>
 #include <csignal>
 #include <cstdlib>
 #include <cstring>
@@ -24,6 +24,7 @@
 #include <map>
 #include <memory>
 #include <optional>
+#include <sstream>
 #include <string>
 #include <vector>
 
@@ -106,67 +107,30 @@ bool initCrashReporting()
 
 void dumpCpuInfo()
 {
-  {
-    std::array<int, 4> cpuIdData{};
-    __cpuid(cpuIdData.data(), 0);
+  const auto info = cpu_features::GetX86Info();
+  BOOST_LOG_TRIVIAL(info) << "CPU vendor: " << info.vendor;
+  BOOST_LOG_TRIVIAL(info) << "CPU brand: " << info.brand_string;
 
-    const auto nIds = cpuIdData[0];
-
-    std::vector<std::array<int, 4>> data;
-    for(int i = 0; i <= nIds; ++i)
-    {
-      __cpuidex(cpuIdData.data(), i, 0);
-      data.push_back(cpuIdData);
-    }
-
-    std::array<char, 0x20> vendor{};
-    *reinterpret_cast<int*>(vendor.data()) = data[0][1];
-    *reinterpret_cast<int*>(vendor.data() + 4) = data[0][3];
-    *reinterpret_cast<int*>(vendor.data() + 8) = data[0][2];
-    BOOST_LOG_TRIVIAL(info) << "CPU vendor: " << vendor.data();
-
-    if(nIds >= 1)
-    {
-      BOOST_LOG_TRIVIAL(info) << "CPU flags ECX (f1): 0x" << std::hex << data[1][2] << std::dec;
-      BOOST_LOG_TRIVIAL(info) << "CPU flags EDX (f1): 0x" << std::hex << data[1][3] << std::dec;
-    }
-
-    if(nIds >= 7)
-    {
-      BOOST_LOG_TRIVIAL(info) << "CPU flags EBX (f7): 0x" << std::hex << data[7][1] << std::dec;
-      BOOST_LOG_TRIVIAL(info) << "CPU flags ECX (f7): 0x" << std::hex << data[7][2] << std::dec;
-    }
+  std::stringstream flags;
+#define APPEND_FLAG(name)  \
+  if(info.features.name)   \
+  {                        \
+    flags << #name << ' '; \
   }
 
-  {
-    std::array<int, 4> cpuIdData{};
-    __cpuid(cpuIdData.data(), 0x80000000);
-    const auto nExIds = cpuIdData[0];
+  APPEND_FLAG(sse);
+  APPEND_FLAG(sse2);
+  APPEND_FLAG(sse3);
+  APPEND_FLAG(ssse3);
+  APPEND_FLAG(sse4_1);
+  APPEND_FLAG(sse4_2);
+  APPEND_FLAG(sse4a);
+  APPEND_FLAG(avx);
+  APPEND_FLAG(avx2);
 
-    std::array<char, 0x40> brand{};
-    std::vector<std::array<int, 4>> extData;
+#undef APPEND_FLAG
 
-    for(int i = 0x80000000; i <= nExIds; ++i)
-    {
-      __cpuidex(cpuIdData.data(), i, 0);
-      extData.push_back(cpuIdData);
-    }
-
-    if(nExIds >= 0x80000001)
-    {
-      BOOST_LOG_TRIVIAL(info) << "CPU flags ECX (f81): 0x" << std::hex << extData[1][2] << std::dec;
-      BOOST_LOG_TRIVIAL(info) << "CPU flags EDX (f81): 0x" << std::hex << extData[1][3] << std::dec;
-    }
-
-    if(nExIds >= 0x80000004)
-    {
-      memcpy(brand.data(), extData[2].data(), sizeof(cpuIdData));
-      memcpy(brand.data() + 16, extData[3].data(), sizeof(cpuIdData));
-      memcpy(brand.data() + 32, extData[4].data(), sizeof(cpuIdData));
-
-      BOOST_LOG_TRIVIAL(info) << "CPU brand: " << brand.data();
-    }
-  }
+  BOOST_LOG_TRIVIAL(info) << "CPU features: " << flags.str();
 }
 } // namespace
 

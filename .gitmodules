@@ -10,3 +10,6 @@
 [submodule "3rdparty/chillout"]
 	path = 3rdparty/chillout
 	url = https://gitlab.com/ribtoks/chillout.git
+[submodule "3rdparty/cpu_features"]
+	path = 3rdparty/cpu_features
+	url = https://github.com/google/cpu_features.git
