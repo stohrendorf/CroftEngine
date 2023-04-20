@@ -15,6 +15,7 @@
 #include <chillout.h>
 #include <csignal>
 #include <cstdlib>
+#include <cstring>
 #include <exception>
 #include <filesystem>
 #include <gsl/gsl-lite.hpp>
@@ -102,6 +103,70 @@ bool initCrashReporting()
   return true;
 }
 
+void dumpCpuInfo()
+{
+  {
+    std::array<int, 4> cpuIdData{};
+    __cpuid(cpuIdData.data(), 0);
+
+    const auto nIds = cpuIdData[0];
+
+    std::vector<std::array<int, 4>> data;
+    for(int i = 0; i <= nIds; ++i)
+    {
+      __cpuidex(cpuIdData.data(), i, 0);
+      data.push_back(cpuIdData);
+    }
+
+    std::array<char, 0x20> vendor{};
+    *reinterpret_cast<int*>(vendor.data()) = data[0][1];
+    *reinterpret_cast<int*>(vendor.data() + 4) = data[0][3];
+    *reinterpret_cast<int*>(vendor.data() + 8) = data[0][2];
+    BOOST_LOG_TRIVIAL(info) << "CPU vendor: " << vendor.data();
+
+    if(nIds >= 1)
+    {
+      BOOST_LOG_TRIVIAL(info) << "CPU flags ECX (f1): 0x" << std::hex << data[1][2] << std::dec;
+      BOOST_LOG_TRIVIAL(info) << "CPU flags EDX (f1): 0x" << std::hex << data[1][3] << std::dec;
+    }
+
+    if(nIds >= 7)
+    {
+      BOOST_LOG_TRIVIAL(info) << "CPU flags EBX (f7): 0x" << std::hex << data[7][1] << std::dec;
+      BOOST_LOG_TRIVIAL(info) << "CPU flags ECX (f7): 0x" << std::hex << data[7][2] << std::dec;
+    }
+  }
+
+  {
+    std::array<int, 4> cpuIdData{};
+    __cpuid(cpuIdData.data(), 0x80000000);
+    const auto nExIds = cpuIdData[0];
+
+    std::array<char, 0x40> brand{};
+    std::vector<std::array<int, 4>> extData;
+
+    for(int i = 0x80000000; i <= nExIds; ++i)
+    {
+      __cpuidex(cpuIdData.data(), i, 0);
+      extData.push_back(cpuIdData);
+    }
+
+    if(nExIds >= 0x80000001)
+    {
+      BOOST_LOG_TRIVIAL(info) << "CPU flags ECX (f81): 0x" << std::hex << extData[1][2] << std::dec;
+      BOOST_LOG_TRIVIAL(info) << "CPU flags EDX (f81): 0x" << std::hex << extData[1][3] << std::dec;
+    }
+
+    if(nExIds >= 0x80000004)
+    {
+      memcpy(brand.data(), extData[2].data(), sizeof(cpuIdData));
+      memcpy(brand.data() + 16, extData[3].data(), sizeof(cpuIdData));
+      memcpy(brand.data() + 32, extData[4].data(), sizeof(cpuIdData));
+
+      BOOST_LOG_TRIVIAL(info) << "CPU brand: " << brand.data();
+    }
+  }
+}
 } // namespace
 
 int main(int argc, char** argv)
@@ -150,6 +215,8 @@ int main(int argc, char** argv)
   }
 
   BOOST_LOG_TRIVIAL(info) << "Running CroftEngine " << CE_VERSION;
+
+  dumpCpuInfo();
 
   engine::Engine engine{findUserDataDir().value(), findEngineDataDir().value(), localeOverride, gameflowId};
   size_t levelSequenceIndex = 0;
