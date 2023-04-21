@@ -13,6 +13,7 @@
     <mapping directory="$PROJECT_DIR$/3rdparty/ValveFileVDF" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/3rdparty/chillout" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/3rdparty/chillout/vendors/gtest" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/3rdparty/cpu_features" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/3rdparty/rapidyaml" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/3rdparty/rapidyaml/ext/c4core" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/3rdparty/rapidyaml/ext/c4core/cmake" vcs="Git" />
