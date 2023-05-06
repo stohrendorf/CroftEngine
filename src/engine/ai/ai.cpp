@@ -126,7 +126,8 @@ void updateMood(const objects::AIAgent& aiAgent, const EnemyLocation& enemyLocat
   auto newTargetBox = creatureInfo.pathFinder.getTargetBox();
   gsl_Assert(newTargetBox != nullptr);
   auto& lara = aiAgent.getWorld().getObjectManager().getLara();
-  if(creatureInfo.pathFinder.isUnreachable(lara.m_state.getCurrentBox()))
+  if(const auto box = lara.m_state.tryGetCurrentBox();
+     box == nullptr || creatureInfo.pathFinder.isUnreachable(gsl::not_null{box}))
   {
     // can't reach lara
     newTargetBox = nullptr;
@@ -180,7 +181,7 @@ void updateMood(const objects::AIAgent& aiAgent, const EnemyLocation& enemyLocat
       break;
 
     {
-      newTargetBox = lara.m_state.getCurrentBox();
+      newTargetBox = lara.m_state.tryGetCurrentBox();
       auto pos = lara.m_state.location.position;
       if(creatureInfo.pathFinder.isFlying() && lara.isOnLand())
       {

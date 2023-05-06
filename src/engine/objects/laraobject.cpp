@@ -645,7 +645,9 @@ void LaraObject::handleUnderwaterCurrent(CollisionInfo& collisionInfo)
     return;
 
   core::TRVec targetPos;
-  if(!m_underwaterRoute.calculateTarget(getWorld(), targetPos, m_state.location.position, m_state.getCurrentBox()))
+  if(const auto box = m_state.tryGetCurrentBox();
+     box == nullptr
+     || !m_underwaterRoute.calculateTarget(getWorld(), targetPos, m_state.location.position, gsl::not_null{box}))
     return;
 
   targetPos -= m_state.location.position;
