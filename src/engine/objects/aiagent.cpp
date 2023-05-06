@@ -132,9 +132,10 @@ void AIAgent::animateCreature(const core::Angle& moveRotationY, const core::Angl
   const auto invariantCheck = gsl::finally(
     [this]()
     {
+      gsl_Assert(m_state.location.isValid());
+
       const auto sector = m_state.getCurrentSector();
       gsl_Assert(sector != nullptr && sector->box != nullptr);
-      BOOST_ASSERT(m_state.location.isValid());
     });
 
   const auto& pathFinder = m_creatureInfo->pathFinder;
@@ -350,9 +351,16 @@ void AIAgent::animateCreature(const core::Angle& moveRotationY, const core::Angl
     m_state.location.position.Z = nextZ;
 
     currentSector = m_state.location.moved(0_len, bbox.y.max, 0_len).updateRoom();
+    if(currentSector->box == nullptr)
+    {
+      m_state.location = oldLocation;
+    }
+    else
+    {
+      m_state.rotation.Z += std::clamp(8 * moveRotationZ - m_state.rotation.Z, -3_deg, +3_deg);
+    }
 
     m_state.rotation.Y += moveRotationY;
-    m_state.rotation.Z += std::clamp(8 * moveRotationZ - m_state.rotation.Z, -3_deg, +3_deg);
   }
 
   // bats temporarily penetrate the floor when dying, so this will trigger

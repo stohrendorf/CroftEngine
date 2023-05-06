@@ -317,7 +317,7 @@ void deserialize(std::unique_ptr<CreatureInfo>& data, const serialization::Deser
   data = create(serialization::TypeId<std::unique_ptr<CreatureInfo>>{}, ser);
 }
 
-EnemyLocation::EnemyLocation(objects::AIAgent& aiAgent)
+EnemyLocation::EnemyLocation(const objects::AIAgent& aiAgent)
 {
   if(aiAgent.getCreatureInfo() == nullptr)
     return;

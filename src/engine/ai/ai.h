@@ -71,7 +71,7 @@ struct EnemyLocation
   // where we are within lara's view
   core::Angle visualLaraAngleToSelf = 0_deg;
 
-  explicit EnemyLocation(objects::AIAgent& aiAgent);
+  explicit EnemyLocation(const objects::AIAgent& aiAgent);
 
   [[nodiscard]] bool canReachLara() const noexcept
   {
