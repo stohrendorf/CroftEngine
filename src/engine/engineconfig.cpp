@@ -114,15 +114,10 @@ void NamedInputMappingConfig::serialize(const serialization::Serializer<EngineCo
 
 void NamedInputMappingConfig::deserialize(const serialization::Deserializer<EngineConfig>& ser)
 {
-  // TODO CE-601 remove migration
   ser(S_NV("name", name),
       S_NV("controllerType", controllerType),
-      S_NVO("mappings", std::ref(gameMappings)),
-      S_NVO("gameMappings", std::ref(gameMappings)));
-
-  ser(S_NVD("menuMappings",
-            std::ref(menuMappings),
-            getDefaultMappings().at(name == pgettext("Input|MappingName", "Keyboard") ? 0 : 1).menuMappings));
+      S_NV("gameMappings", gameMappings),
+      S_NV("menuMappings", menuMappings));
 }
 
 NamedInputMappingConfig NamedInputMappingConfig::create(const serialization::Deserializer<EngineConfig>& ser)
