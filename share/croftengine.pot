@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CroftEngine 2.1\n"
 "Report-Msgid-Bugs-To: https://github.com/stohrendorf/CroftEngine/issues\n"
-"POT-Creation-Date: 2023-05-28 17:59+0200\n"
+"POT-Creation-Date: 2023-05-28 23:30+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -55,7 +55,7 @@ msgid "%1$02d:%2$02d"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/savegamelistmenustate.cpp:129
+#: menu/savegamelistmenustate.cpp:149
 #, boost-format
 msgctxt "SavegameTitle"
 msgid "%1% - %2%"
@@ -80,7 +80,7 @@ msgid "%1%:%2$02d:%3$02d"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/savegamelistmenustate.cpp:127
+#: menu/savegamelistmenustate.cpp:131
 msgctxt "SavegameTime"
 msgid "%d %B %Y %X"
 msgstr ""
@@ -110,14 +110,14 @@ msgid "-"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/savegamelistmenustate.cpp:163
+#: menu/savegamelistmenustate.cpp:183
 #, boost-format
 msgctxt "SavegameTitle"
 msgid "- EMPTY SLOT %1%"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/savegamelistmenustate.cpp:147
+#: menu/savegamelistmenustate.cpp:167
 msgctxt "SavegameTitle"
 msgid "- NO QUICKSAVE"
 msgstr ""
@@ -865,7 +865,7 @@ msgid "Other"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/savegamelistmenustate.cpp:226
+#: menu/savegamelistmenustate.cpp:246
 #, boost-format
 msgid "Overwrite slot %1%?"
 msgstr ""
@@ -1048,7 +1048,9 @@ msgstr ""
 msgid "Quality"
 msgstr ""
 
-#: engine/world/world.cpp:1177
+#. translators: TR charmap encoding
+#: menu/savegamelistmenustate.cpp:147
+msgctxt "SavegameTitle"
 msgid "Quicksave"
 msgstr ""
 
