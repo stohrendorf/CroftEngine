@@ -54,7 +54,7 @@ struct EngineConfig
   DisplaySettings displaySettings{};
   AudioSettings audioSettings{};
   std::vector<NamedInputMappingConfig> inputMappings{};
-  bool restoreHealth = false;
+  bool restoreHealth = true;
   bool pulseLowHealthHealthBar = true;
   bool lowHealthMonochrome = true;
   bool buttBubbles = false;
