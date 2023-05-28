@@ -713,7 +713,7 @@ void Engine::takeBugReport(world::World& world)
   auto img = m_presenter->takeScreenshot();
   img.savePng(m_userDataPath / "bugreports" / dirName / "screenshot.png", false);
 
-  world.save(m_userDataPath / "bugreports" / dirName / "save.yaml", false);
+  world.save(m_userDataPath / "bugreports" / dirName / "save.yaml");
 }
 
 std::pair<RunResult, std::optional<size_t>> Engine::runTitleMenu(world::World& world)
@@ -940,11 +940,11 @@ void Engine::onGameSavedOrLoaded()
 
 void SavegameMeta::serialize(const serialization::Serializer<SavegameMeta>& ser) const
 {
-  ser(S_NV("filename", filename), S_NV("title", title));
+  ser(S_NV("filename", filename));
 }
 
 void SavegameMeta::deserialize(const serialization::Deserializer<SavegameMeta>& ser)
 {
-  ser(S_NV("filename", filename), S_NV("title", title));
+  ser(S_NV("filename", filename));
 }
 } // namespace engine

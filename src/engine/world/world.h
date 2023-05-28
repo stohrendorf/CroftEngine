@@ -243,7 +243,7 @@ public:
   bool cinematicLoop();
   void load(const std::optional<size_t>& slot);
   void save(const std::optional<size_t>& slot);
-  void save(const std::filesystem::path& filename, bool isQuicksave);
+  void save(const std::filesystem::path& filename);
   [[nodiscard]] std::tuple<std::optional<SavegameInfo>, std::map<size_t, SavegameInfo>> getSavedGames() const;
   [[nodiscard]] bool hasSavedGames() const;
 

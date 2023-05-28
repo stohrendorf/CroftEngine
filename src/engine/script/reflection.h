@@ -158,6 +158,12 @@ public:
 
   [[nodiscard]] std::vector<std::filesystem::path>
     getFilepathsIfInvalid(const std::filesystem::path& dataRoot) const override;
+
+  [[nodiscard]] std::filesystem::path getFilepath() const;
+  [[nodiscard]] const auto& getTitles() const noexcept
+  {
+    return m_titles;
+  }
 };
 
 class ModifyInventory : public LevelSequenceItem
@@ -480,6 +486,9 @@ public:
   [[nodiscard]] pybind11::dict getCheatInventory() const;
 
   [[nodiscard]] std::vector<std::filesystem::path> getInvalidFilepaths(const std::filesystem::path& dataRoot) const;
+
+  [[nodiscard]] std::map<std::filesystem::path, std::unordered_map<std::string, std::string>>
+    getLevelFilepathsTitles() const;
 
 private:
   std::map<TR1ItemId, std::shared_ptr<ObjectInfo>> m_objectInfos;

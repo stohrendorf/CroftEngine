@@ -7,6 +7,7 @@
 #include "donemenustate.h"
 #include "engine/engine.h"
 #include "engine/presenter.h"
+#include "engine/script/reflection.h"
 #include "engine/world/world.h"
 #include "hid/actions.h"
 #include "hid/inputhandler.h"
@@ -114,7 +115,10 @@ SavegameListMenuState::SavegameListMenuState(const std::shared_ptr<MenuRingTrans
     , m_previous{std::move(previous)}
     , m_loading{loading}
 {
-  auto addSavegameEntry = [this, &world](const std::optional<size_t>& slot, const engine::SavegameInfo& info)
+  const auto levelFilepathsTitles = world.getEngine().getScriptEngine().getGameflow().getLevelFilepathsTitles();
+
+  auto addSavegameEntry
+    = [this, &world, &levelFilepathsTitles](const std::optional<size_t>& slot, const engine::SavegameInfo& info)
   {
     const auto timePoint
       = std::chrono::system_clock::to_time_t(std::chrono::time_point_cast<std::chrono::system_clock::duration>(
@@ -126,8 +130,24 @@ SavegameListMenuState::SavegameListMenuState(const std::shared_ptr<MenuRingTrans
     timeStr << std::put_time(localTime,
                              /* translators: TR charmap encoding */ pgettext("SavegameTime", "%d %B %Y %X"));
 
+    std::string levelTitle;
+    if(slot.has_value())
+    {
+      const auto& titles = levelFilepathsTitles.at(info.meta.filename);
+      auto titleIt = titles.find(world.getEngine().getLocaleWithoutEncoding());
+      if(titleIt == titles.end())
+      {
+        titleIt = titles.find("en_GB");
+      }
+      gsl_Assert(titleIt != titles.end());
+      levelTitle = titleIt->second;
+    }
+    else
+    {
+      levelTitle = /* translators: TR charmap encoding */ pgettext("SavegameTitle", "Quicksave");
+    }
     const auto title = (boost::format(/* translators: TR charmap encoding */ pgettext("SavegameTitle", "%1% - %2%"))
-                        % timeStr.str() % info.meta.title)
+                        % timeStr.str() % levelTitle)
                          .str();
     const auto entry = gsl::make_shared<SavegameEntry>(slot, title, info.saveTime);
     append(entry);

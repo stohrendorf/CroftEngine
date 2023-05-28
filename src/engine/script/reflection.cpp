@@ -288,6 +288,11 @@ std::vector<std::filesystem::path> Level::getFilepathsIfInvalid(const std::files
   return {std::filesystem::path{m_name}};
 }
 
+std::filesystem::path Level::getFilepath() const
+{
+  return std::filesystem::path{m_name};
+}
+
 std::pair<RunResult, std::optional<size_t>> TitleMenu::run(const gsl::not_null<Engine*>& engine,
                                                            const std::shared_ptr<Player>& player,
                                                            const std::shared_ptr<Player>& levelStartPlayer)
@@ -509,6 +514,19 @@ std::vector<std::filesystem::path> Gameflow::getInvalidFilepaths(const std::file
   }
   if(!std::filesystem::is_regular_file(dataRoot / m_titleMenuBackdrop))
     result.emplace_back(m_titleMenuBackdrop);
+  return result;
+}
+
+std::map<std::filesystem::path, std::unordered_map<std::string, std::string>> Gameflow::getLevelFilepathsTitles() const
+{
+  std::map<std::filesystem::path, std::unordered_map<std::string, std::string>> result;
+  for(const auto& item : m_levelSequence)
+  {
+    if(const auto level = std::dynamic_pointer_cast<Level>(item); level != nullptr)
+    {
+      result.emplace(level->getFilepath(), level->getTitles());
+    }
+  }
   return result;
 }
 
