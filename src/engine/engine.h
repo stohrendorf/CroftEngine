@@ -89,7 +89,6 @@ private:
   std::unique_ptr<loader::trx::Glidos> m_glidos;
   [[nodiscard]] std::unique_ptr<loader::trx::Glidos> loadGlidosPack() const;
 
-  void makeScreenshot();
   void takeBugReport(world::World& world);
 
 public:

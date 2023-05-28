@@ -144,7 +144,37 @@ void drawBugReportMessage(ui::Ui& ui, const ui::TRFont& trFont)
   text.draw(ui, trFont, pos);
 }
 
-bool showLevelStats(const std::shared_ptr<Presenter>& presenter, world::World& world)
+std::string getCurrentHumanReadableTimestamp()
+{
+  auto time = std::time(nullptr);
+#ifdef WIN32
+  struct tm localTimeData
+  {
+  };
+  gsl_Assert(localtime_s(&localTimeData, &time) == 0);
+  auto localTime = &localTimeData;
+#else
+  // NOLINTNEXTLINE(concurrency-mt-unsafe)
+  auto localTime = std::localtime(&time);
+#endif
+  return (boost::format("%04d-%02d-%02d %02d-%02d-%02d") % (localTime->tm_year + 1900) % (localTime->tm_mon + 1)
+          % localTime->tm_mday % localTime->tm_hour % localTime->tm_min % localTime->tm_sec)
+    .str();
+}
+
+void makeScreenshot(const Presenter& presenter, const std::filesystem::path& userDataPath)
+{
+  auto img = presenter.takeScreenshot();
+  if(!std::filesystem::is_directory(userDataPath / "screenshots"))
+    std::filesystem::create_directories(userDataPath / "screenshots");
+
+  auto filename = getCurrentHumanReadableTimestamp() + ".png";
+  img.savePng(userDataPath / "screenshots" / filename, false);
+}
+
+bool showLevelStats(const std::shared_ptr<Presenter>& presenter,
+                    world::World& world,
+                    const std::filesystem::path& userDataPath)
 {
   static constexpr const auto BlendDuration = 30_frame;
   auto currentBlendDuration = 0_frame;
@@ -192,29 +222,17 @@ bool showLevelStats(const std::shared_ptr<Presenter>& presenter, world::World& w
     presenter->updateSoundEngine();
     presenter->swapBuffers();
 
+    if(presenter->getInputHandler().hasDebouncedAction(hid::Action::Screenshot))
+    {
+      makeScreenshot(*presenter, userDataPath);
+      throttler.reset();
+    }
+
     if(presenter->getInputHandler().hasDebouncedAction(hid::Action::Action))
       break;
   }
 
   return true;
-}
-
-std::string getCurrentHumanReadableTimestamp()
-{
-  auto time = std::time(nullptr);
-#ifdef WIN32
-  struct tm localTimeData
-  {
-  };
-  gsl_Assert(localtime_s(&localTimeData, &time) == 0);
-  auto localTime = &localTimeData;
-#else
-  // NOLINTNEXTLINE(concurrency-mt-unsafe)
-  auto localTime = std::localtime(&time);
-#endif
-  return (boost::format("%04d-%02d-%02d %02d-%02d-%02d") % (localTime->tm_year + 1900) % (localTime->tm_mon + 1)
-          % localTime->tm_mday % localTime->tm_hour % localTime->tm_min % localTime->tm_sec)
-    .str();
 }
 
 void updateGhostRoom(const std::vector<world::Room>& rooms,
@@ -450,7 +468,7 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
     {
       if(!isCutscene && allowSave)
       {
-        if(!showLevelStats(m_presenter, world))
+        if(!showLevelStats(m_presenter, world, m_userDataPath))
           return {RunResult::ExitApp, std::nullopt};
 
         if(m_engineConfig->displaySettings.ghost && !ghostManager.askGhostSave(*m_presenter, world))
@@ -644,7 +662,7 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
 
     if(m_presenter->getInputHandler().hasDebouncedAction(hid::Action::Screenshot))
     {
-      makeScreenshot();
+      makeScreenshot(*m_presenter, m_userDataPath);
       throttler.reset();
     }
 
@@ -655,16 +673,6 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
       throttler.reset();
     }
   }
-}
-
-void Engine::makeScreenshot()
-{
-  auto img = m_presenter->takeScreenshot();
-  if(!std::filesystem::is_directory(m_userDataPath / "screenshots"))
-    std::filesystem::create_directories(m_userDataPath / "screenshots");
-
-  auto filename = getCurrentHumanReadableTimestamp() + ".png";
-  img.savePng(m_userDataPath / "screenshots" / filename, false);
 }
 
 void Engine::takeBugReport(world::World& world)
@@ -801,7 +809,7 @@ std::pair<RunResult, std::optional<size_t>> Engine::runTitleMenu(world::World& w
 
     if(m_presenter->getInputHandler().hasDebouncedAction(hid::Action::Screenshot))
     {
-      makeScreenshot();
+      makeScreenshot(*m_presenter, m_userDataPath);
     }
     else if(m_presenter->getInputHandler().hasDebouncedAction(hid::Action::Load))
     {
