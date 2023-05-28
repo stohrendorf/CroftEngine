@@ -682,6 +682,17 @@ RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingT
       });
     tmp->selectValue(engine.getEngineConfig()->saveReminderMinutes);
   }
+  listBox->addSetting(
+    /* translators: TR charmap encoding */ _("Select First Free or Oldest Slot"),
+    [&engine]()
+    {
+      return engine.getEngineConfig()->selectFirstFreeOrOldestSlot;
+    },
+    [&engine]()
+    {
+      auto& b = engine.getEngineConfig()->selectFirstFreeOrOldestSlot;
+      b = !b;
+    });
 }
 
 std::unique_ptr<MenuState>

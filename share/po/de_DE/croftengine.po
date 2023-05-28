@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CroftEngine\n"
 "Report-Msgid-Bugs-To: https://github.com/stohrendorf/CroftEngine/issues\n"
-"POT-Creation-Date: 2023-05-28 17:29+0200\n"
+"POT-Creation-Date: 2023-05-28 17:59+0200\n"
 "Last-Translator: Steffen Ohrendorf\n"
 "Language-Team: none\n"
 "Language: de_DE\n"
@@ -108,7 +108,7 @@ msgid "-"
 msgstr "-"
 
 #. translators: TR charmap encoding
-#: menu/savegamelistmenustate.cpp:171
+#: menu/savegamelistmenustate.cpp:163
 #, boost-format
 msgctxt "SavegameTitle"
 msgid "- EMPTY SLOT %1%"
@@ -726,7 +726,7 @@ msgstr "Spiel laden"
 msgid "Loading %1%"
 msgstr "Lade %1%"
 
-#: engine/engine.cpp:866
+#: engine/engine.cpp:863
 msgid "Loading Glidos texture pack"
 msgstr "Lade Glidos Textur Paket"
 
@@ -865,7 +865,7 @@ msgid "Other"
 msgstr "Anderes"
 
 #. translators: TR charmap encoding
-#: menu/savegamelistmenustate.cpp:194
+#: menu/savegamelistmenustate.cpp:226
 #, boost-format
 msgid "Overwrite slot %1%?"
 msgstr "Slot %1% ~uberschreiben?"
@@ -1048,7 +1048,7 @@ msgstr "Q"
 msgid "Quality"
 msgstr "Qualit~at"
 
-#: engine/world/world.cpp:1175
+#: engine/world/world.cpp:1177
 msgid "Quicksave"
 msgstr "Schnellspeicherung"
 
@@ -1227,6 +1227,11 @@ msgstr "Geheimnisse"
 msgctxt "MenuAction"
 msgid "Select"
 msgstr "W~ahlen"
+
+#. translators: TR charmap encoding
+#: menu/rendersettingsmenustate.cpp:686
+msgid "Select First Free or Oldest Slot"
+msgstr "Ersten freien oder ~altesten Slot w~ahlen"
 
 #. translators: TR charmap encoding
 #: hid/names.cpp:235

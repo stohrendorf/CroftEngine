@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CroftEngine 2.1\n"
 "Report-Msgid-Bugs-To: https://github.com/stohrendorf/CroftEngine/issues\n"
-"POT-Creation-Date: 2023-05-28 17:29+0200\n"
+"POT-Creation-Date: 2023-05-28 17:59+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -110,7 +110,7 @@ msgid "-"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/savegamelistmenustate.cpp:171
+#: menu/savegamelistmenustate.cpp:163
 #, boost-format
 msgctxt "SavegameTitle"
 msgid "- EMPTY SLOT %1%"
@@ -726,7 +726,7 @@ msgstr ""
 msgid "Loading %1%"
 msgstr ""
 
-#: engine/engine.cpp:866
+#: engine/engine.cpp:863
 msgid "Loading Glidos texture pack"
 msgstr ""
 
@@ -865,7 +865,7 @@ msgid "Other"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/savegamelistmenustate.cpp:194
+#: menu/savegamelistmenustate.cpp:226
 #, boost-format
 msgid "Overwrite slot %1%?"
 msgstr ""
@@ -1048,7 +1048,7 @@ msgstr ""
 msgid "Quality"
 msgstr ""
 
-#: engine/world/world.cpp:1175
+#: engine/world/world.cpp:1177
 msgid "Quicksave"
 msgstr ""
 
@@ -1226,6 +1226,11 @@ msgstr ""
 #: hid/names.cpp:370
 msgctxt "MenuAction"
 msgid "Select"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/rendersettingsmenustate.cpp:686
+msgid "Select First Free or Oldest Slot"
 msgstr ""
 
 #. translators: TR charmap encoding

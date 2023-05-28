@@ -149,18 +149,10 @@ SavegameListMenuState::SavegameListMenuState(const std::shared_ptr<MenuRingTrans
     m_entries.emplace_back(entry);
   }
 
-  std::filesystem::file_time_type mostRecentTime = std::filesystem::file_time_type::min();
-  size_t mostRecentSlot = 1;
   for(size_t slot = 0; slot < core::SavegameSlots; ++slot)
   {
     if(auto it = savedGames.find(slot); it != savedGames.end())
     {
-      if(it->second.saveTime > mostRecentTime)
-      {
-        mostRecentTime = it->second.saveTime;
-        mostRecentSlot = slot + 1;
-      }
-
       addSavegameEntry(slot, it->second);
       m_hasSavegame.emplace_back(true);
     }
@@ -176,7 +168,47 @@ SavegameListMenuState::SavegameListMenuState(const std::shared_ptr<MenuRingTrans
     }
   }
 
-  getListBox()->setSelected(mostRecentSlot);
+  if(!world.getEngine().getEngineConfig()->selectFirstFreeOrOldestSlot)
+  {
+    std::filesystem::file_time_type mostRecentTime = std::filesystem::file_time_type::min();
+    size_t mostRecentSlot = 1;
+    for(size_t slot = 0; slot < core::SavegameSlots; ++slot)
+    {
+      if(auto it = savedGames.find(slot); it != savedGames.end())
+      {
+        if(it->second.saveTime > mostRecentTime)
+        {
+          mostRecentTime = it->second.saveTime;
+          mostRecentSlot = slot + 1;
+        }
+      }
+    }
+
+    getListBox()->setSelected(mostRecentSlot);
+  }
+  else
+  {
+    std::filesystem::file_time_type oldestTime = std::filesystem::file_time_type::max();
+    size_t oldestSlot = 1;
+    for(size_t slot = 0; slot < core::SavegameSlots; ++slot)
+    {
+      if(auto it = savedGames.find(slot); it != savedGames.end())
+      {
+        if(it->second.saveTime < oldestTime)
+        {
+          oldestTime = it->second.saveTime;
+          oldestSlot = slot + 1;
+        }
+      }
+      else
+      {
+        oldestSlot = slot + 1;
+        break;
+      }
+    }
+
+    getListBox()->setSelected(oldestSlot);
+  }
 }
 
 std::unique_ptr<MenuState>

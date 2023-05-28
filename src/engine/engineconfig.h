@@ -62,6 +62,7 @@ struct EngineConfig
   bool animSmoothing = true;
   bool saveReminderEnabled = false;
   uint8_t saveReminderMinutes = 15;
+  bool selectFirstFreeOrOldestSlot = false;
 
   explicit EngineConfig();
 
