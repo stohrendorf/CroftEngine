@@ -144,6 +144,13 @@ void drawBugReportMessage(ui::Ui& ui, const ui::TRFont& trFont)
   text.draw(ui, trFont, pos);
 }
 
+void drawSaveReminder(ui::Ui& ui, const ui::TRFont& trFont)
+{
+  auto text = ui::Text{/* translators: TR charmap encoding */ _("Save Game")};
+  const auto pos = glm::ivec2{(ui.getSize().x - text.getWidth()) / 2, ui::FontHeight};
+  text.draw(ui, trFont, pos);
+}
+
 std::string getCurrentHumanReadableTimestamp()
 {
   auto time = std::time(nullptr);
@@ -639,6 +646,11 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
         bugReportSavedDuration -= 1_frame;
       }
 
+      if(allowSave && m_engineConfig->saveReminderEnabled && std::chrono::steady_clock::now() >= m_saveReminderSince)
+      {
+        drawSaveReminder(ui, getPresenter().getTrFont());
+      }
+
       if(ghostManager.getReader() != nullptr)
       {
         ghostManager.getModel()->apply(world, ghostManager.getReader()->read());
@@ -919,6 +931,11 @@ std::filesystem::path Engine::getSavegamePath(const std::optional<size_t>& slot)
 std::filesystem::path Engine::getAssetDataPath() const
 {
   return m_userDataPath / "data" / m_scriptEngine.getGameflow().getAssetRoot();
+}
+
+void Engine::onGameSavedOrLoaded()
+{
+  m_saveReminderSince = std::chrono::steady_clock::now() + std::chrono::minutes{m_engineConfig->saveReminderMinutes};
 }
 
 void SavegameMeta::serialize(const serialization::Serializer<SavegameMeta>& ser) const

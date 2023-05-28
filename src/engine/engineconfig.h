@@ -60,6 +60,8 @@ struct EngineConfig
   bool buttBubbles = false;
   bool waterBedBubbles = true;
   bool animSmoothing = true;
+  bool saveReminderEnabled = false;
+  uint8_t saveReminderMinutes = 15;
 
   explicit EngineConfig();
 

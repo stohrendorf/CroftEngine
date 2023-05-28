@@ -1165,6 +1165,8 @@ void World::load(const std::optional<size_t>& slot)
   m_objectManager.getLara().initWeaponAnimData();
   connectSectors();
   getPresenter().disableScreenOverlay();
+
+  m_engine->onGameSavedOrLoaded();
 }
 
 void World::save(const std::filesystem::path& filename, bool isQuicksave)
@@ -1180,6 +1182,8 @@ void World::save(const std::filesystem::path& filename, bool isQuicksave)
   serialization::YAMLDocument<false> metaCacheDoc{makeMetaFilepath(filename)};
   metaCacheDoc.serialize("meta", gsl::not_null{&meta}, meta);
   metaCacheDoc.write();
+
+  m_engine->onGameSavedOrLoaded();
 }
 
 void World::save(const std::optional<size_t>& slot)
@@ -1422,6 +1426,8 @@ World::World(const gsl::not_null<Engine*>& engine,
     m_audioEngine->playStopCdTrack(m_engine->getScriptEngine().getGameflow(), *ambient, false);
   }
   getPresenter().disableScreenOverlay();
+
+  m_engine->onGameSavedOrLoaded();
 }
 
 World::~World()
@@ -1548,6 +1554,7 @@ void World::initFromLevel(loader::file::level::Level& level, bool fromSave)
 
   countSecrets();
 }
+
 void World::initStaticSoundEffects(const loader::file::level::Level& level)
 {
   m_positionalEmitters.clear();

@@ -138,7 +138,9 @@ void EngineConfig::serialize(const serialization::Serializer<EngineConfig>& ser)
       S_NV("lowHealthMonochrome", lowHealthMonochrome),
       S_NV("buttBubbles", buttBubbles),
       S_NV("waterBedBubbles", waterBedBubbles),
-      S_NV("animSmoothing", animSmoothing));
+      S_NV("animSmoothing", animSmoothing),
+      S_NV("saveReminderEnabled", saveReminderEnabled),
+      S_NV("saveReminderMinutes", saveReminderMinutes));
 }
 
 void EngineConfig::deserialize(const serialization::Deserializer<EngineConfig>& ser)
@@ -152,7 +154,9 @@ void EngineConfig::deserialize(const serialization::Deserializer<EngineConfig>& 
       S_NVO("lowHealthMonochrome", std::ref(lowHealthMonochrome)),
       S_NVO("buttBubbles", std::ref(buttBubbles)),
       S_NVO("waterBedBubbles", std::ref(waterBedBubbles)),
-      S_NVO("animSmoothing", std::ref(animSmoothing)));
+      S_NVO("animSmoothing", std::ref(animSmoothing)),
+      S_NVO("saveReminderEnabled", std::ref(saveReminderEnabled)),
+      S_NVO("saveReminderMinutes", std::ref(saveReminderMinutes)));
 }
 
 EngineConfig::EngineConfig()

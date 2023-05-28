@@ -4,6 +4,7 @@
 #include "serialization/serialization_fwd.h"
 
 #include <boost/assert.hpp>
+#include <chrono>
 #include <cstddef>
 #include <filesystem>
 #include <glm/vec2.hpp>
@@ -83,6 +84,7 @@ private:
   gslu::nn_shared<EngineConfig> m_engineConfig;
   std::shared_ptr<Presenter> m_presenter;
   std::set<gsl::not_null<world::World*>> m_worlds;
+  std::chrono::steady_clock::time_point m_saveReminderSince{};
 
   std::string m_locale;
 
@@ -184,5 +186,7 @@ public:
   {
     return m_gameflowId;
   }
+
+  void onGameSavedOrLoaded();
 };
 } // namespace engine

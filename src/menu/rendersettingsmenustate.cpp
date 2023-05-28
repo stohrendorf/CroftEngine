@@ -656,6 +656,32 @@ RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingT
       auto& b = engine.getEngineConfig()->buttBubbles;
       b = !b;
     });
+  {
+    auto tmp = std::make_shared<ui::widgets::ValueSelector<uint8_t>>(
+      [](uint8_t value)
+      {
+        return /* translators: TR charmap encoding */ P_("Save Reminder after \x1f\x6c %1% \x1f\x6d Minute",
+                                                         "Save Reminder after \x1f\x6c %1% \x1f\x6d Minutes",
+                                                         value,
+                                                         static_cast<uint32_t>(value));
+      },
+      [&engine](uint8_t value)
+      {
+        engine.getEngineConfig()->saveReminderMinutes = value;
+      },
+      std::vector<uint8_t>{1, 2, 3, 4, 5, 10, 15, 20, 25, 30, 45, 60});
+    listBox->addSetting(
+      gslu::nn_shared<ui::widgets::Widget>{tmp},
+      [&engine]()
+      {
+        return engine.getEngineConfig()->saveReminderEnabled;
+      },
+      [&engine]()
+      {
+        toggle(engine, engine.getEngineConfig()->saveReminderEnabled);
+      });
+    tmp->selectValue(engine.getEngineConfig()->saveReminderMinutes);
+  }
 }
 
 std::unique_ptr<MenuState>
