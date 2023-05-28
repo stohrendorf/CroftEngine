@@ -63,6 +63,8 @@ struct EngineConfig
   bool saveReminderEnabled = false;
   uint8_t saveReminderMinutes = 15;
   bool selectFirstFreeOrOldestSlot = false;
+  bool delaySaveEnabled = false;
+  uint8_t delaySaveDurationSeconds = 3;
 
   explicit EngineConfig();
 

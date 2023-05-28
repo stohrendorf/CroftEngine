@@ -244,6 +244,7 @@ std::unique_ptr<MenuState>
     {
       m_overwriteConfirmation = std::make_shared<ui::widgets::MessageBox>(
         /* translators: TR charmap encoding */ _("Overwrite slot %1%?", *slot + 1));
+      m_confirmOverwritePressedSince = std::chrono::steady_clock::now();
       return nullptr;
     }
     world.save(slot);
@@ -315,20 +316,33 @@ std::unique_ptr<MenuState> SavegameListMenuState::onFrame(ui::Ui& ui, engine::wo
   {
     m_overwriteConfirmation->setConfirmed(!m_overwriteConfirmation->isConfirmed());
   }
-  else if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::PrimaryInteraction))
+  else if(world.getPresenter().getInputHandler().hasAction(hid::Action::PrimaryInteraction))
   {
-    if(m_overwriteConfirmation->isConfirmed())
+    const auto justConfirmed
+      = world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::PrimaryInteraction);
+    if(justConfirmed && !m_overwriteConfirmation->isConfirmed())
+    {
+      m_overwriteConfirmation.reset();
+      return nullptr;
+    }
+
+    const auto overwriteConfirmed
+      = world.getEngine().getEngineConfig()->delaySaveEnabled
+          ? m_confirmOverwritePressedSince
+              <= std::chrono::steady_clock::now()
+                   - std::chrono::seconds{world.getEngine().getEngineConfig()->delaySaveDurationSeconds}
+          : justConfirmed;
+    if(overwriteConfirmed)
     {
       world.save(m_entries.at(getListBox()->getSelected())->getSlot().value());
       return create<ClosePassportMenuState>(display.getCurrentRing().getSelectedObject(),
                                             create<DeflateRingMenuState>(DeflateRingMenuState::Direction::Backpack,
                                                                          create<DoneMenuState>(MenuResult::Closed)));
     }
-    else
-    {
-      m_overwriteConfirmation.reset();
-      return nullptr;
-    }
+  }
+  else
+  {
+    m_confirmOverwritePressedSince = std::chrono::steady_clock::now();
   }
 
   m_overwriteConfirmation->update(true);

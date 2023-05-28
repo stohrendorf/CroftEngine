@@ -141,7 +141,9 @@ void EngineConfig::serialize(const serialization::Serializer<EngineConfig>& ser)
       S_NV("animSmoothing", animSmoothing),
       S_NV("saveReminderEnabled", saveReminderEnabled),
       S_NV("saveReminderMinutes", saveReminderMinutes),
-      S_NV("selectFirstFreeOrOldestSlot", selectFirstFreeOrOldestSlot));
+      S_NV("selectFirstFreeOrOldestSlot", selectFirstFreeOrOldestSlot),
+      S_NV("delaySaveEnabled", delaySaveEnabled),
+      S_NV("delaySaveDurationSeconds", delaySaveDurationSeconds));
 }
 
 void EngineConfig::deserialize(const serialization::Deserializer<EngineConfig>& ser)
@@ -158,7 +160,9 @@ void EngineConfig::deserialize(const serialization::Deserializer<EngineConfig>& 
       S_NVO("animSmoothing", std::ref(animSmoothing)),
       S_NVO("saveReminderEnabled", std::ref(saveReminderEnabled)),
       S_NVO("saveReminderMinutes", std::ref(saveReminderMinutes)),
-      S_NVO("selectFirstFreeOrOldestSlot", std::ref(selectFirstFreeOrOldestSlot)));
+      S_NVO("selectFirstFreeOrOldestSlot", std::ref(selectFirstFreeOrOldestSlot)),
+      S_NVO("delaySaveEnabled", std::ref(delaySaveEnabled)),
+      S_NVO("delaySaveDurationSeconds", std::ref(delaySaveDurationSeconds)));
 }
 
 EngineConfig::EngineConfig()

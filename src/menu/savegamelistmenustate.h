@@ -3,6 +3,7 @@
 #include "listdisplaymenustate.h"
 #include "menustate.h"
 
+#include <chrono>
 #include <cstddef>
 #include <gslu.h>
 #include <memory>
@@ -47,6 +48,7 @@ private:
     DateDesc
   };
   Ordering m_ordering = Ordering::Slot;
+  std::chrono::steady_clock::time_point m_confirmOverwritePressedSince{};
 
   void sortEntries();
 

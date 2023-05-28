@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CroftEngine\n"
 "Report-Msgid-Bugs-To: https://github.com/stohrendorf/CroftEngine/issues\n"
-"POT-Creation-Date: 2023-05-28 23:30+0200\n"
+"POT-Creation-Date: 2023-05-29 00:12+0200\n"
 "Last-Translator: Steffen Ohrendorf\n"
 "Language-Team: none\n"
 "Language: de_DE\n"
@@ -328,6 +328,14 @@ msgstr "D"
 msgctxt "Keyboard|Key"
 msgid "Del"
 msgstr "Entf"
+
+#. translators: TR charmap encoding
+#: menu/rendersettingsmenustate.cpp:700
+#, boost-format
+msgid "Delay Save for \037l %1% \037m Second"
+msgid_plural "Delay Save for \037l %1% \037m Second"
+msgstr[0] "Speichern verz~ogern um \037l %1% \037m Sekunde"
+msgstr[1] "Speichern verz~ogern um \037l %1% \037m Sekunden"
 
 #. translators: TR charmap encoding
 #: menu/rendersettingsmenustate.cpp:405
