@@ -78,7 +78,7 @@ InterpolationInfo SkeletalModelNode::getInterpolationInfo() const
   const auto firstLocalKeyframeIndex = getLocalFrame() / m_anim->segmentLength;
 
   const auto firstKeyframe = m_anim->frames->next(firstLocalKeyframeIndex);
-  gsl_Assert(m_world->isValid(firstKeyframe));
+  gsl_Assert(m_world->getWorldGeometry().isValid(firstKeyframe));
 
   const auto segmentDuration = m_anim->segmentLength;
   const auto segmentFrame = getLocalFrame() % m_anim->segmentLength;
@@ -91,7 +91,7 @@ InterpolationInfo SkeletalModelNode::getInterpolationInfo() const
   BOOST_ASSERT(bias >= 0 && bias <= 1);
 
   const auto secondKeyframe = firstKeyframe->next();
-  gsl_Assert(m_world->isValid(secondKeyframe));
+  gsl_Assert(m_world->getWorldGeometry().isValid(secondKeyframe));
   return InterpolationInfo{firstKeyframe, secondKeyframe, bias};
 }
 
@@ -239,7 +239,7 @@ void SkeletalModelNode::serialize(const serialization::Serializer<world::World>&
   ser(S_NV("id", id),
       S_NV("model", m_model),
       S_NV("parts", m_meshParts),
-      S_NV_VECTOR_ELEMENT("anim", std::cref(ser.context->getAnimations()), std::cref(m_anim)),
+      S_NV_VECTOR_ELEMENT("anim", std::cref(ser.context->getWorldGeometry().getAnimations()), std::cref(m_anim)),
       S_NV("frame", m_frame),
       S_NV("shadowCaster", m_shadowCaster));
 }
@@ -250,7 +250,7 @@ void SkeletalModelNode::deserialize(const serialization::Deserializer<world::Wor
   ser(S_NV("id", id),
       S_NV("model", m_model),
       S_NV("parts", m_meshParts),
-      S_NV_VECTOR_ELEMENT("anim", std::cref(ser.context->getAnimations()), std::ref(m_anim)),
+      S_NV_VECTOR_ELEMENT("anim", std::cref(ser.context->getWorldGeometry().getAnimations()), std::ref(m_anim)),
       S_NV("frame", m_frame),
       S_NV("shadowCaster", m_shadowCaster));
 

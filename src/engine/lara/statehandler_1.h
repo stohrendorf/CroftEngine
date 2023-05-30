@@ -26,7 +26,8 @@ public:
     const auto& inputHandler = getWorld().getPresenter().getInputHandler();
     if(inputHandler.hasAction(hid::Action::Roll))
     {
-      setAnimation(AnimationId::ROLL_BEGIN, getWorld().getAnimation(AnimationId::ROLL_BEGIN).firstFrame + 2_frame);
+      setAnimation(AnimationId::ROLL_BEGIN,
+                   getWorld().getWorldGeometry().getAnimation(AnimationId::ROLL_BEGIN).firstFrame + 2_frame);
       setGoalAnimState(LaraStateId::Stop);
       setCurrentAnimState(LaraStateId::RollForward);
       return;

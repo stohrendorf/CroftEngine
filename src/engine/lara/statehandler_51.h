@@ -18,7 +18,7 @@ public:
   {
     getLara().m_state.falling = false;
     collisionInfo.policies &= ~CollisionInfo::SpazPushPolicy;
-    const auto& alternateLara = getWorld().findAnimatedModelForType(TR1ItemId::AlternativeLara);
+    const auto& alternateLara = getWorld().getWorldGeometry().findAnimatedModelForType(TR1ItemId::AlternativeLara);
     if(alternateLara == nullptr)
       return;
 

@@ -122,8 +122,8 @@ void Raptor::update()
   }
   else if(m_state.current_anim_state != 5_as)
   {
-    getSkeleton()->setAnim(
-      gsl::not_null{&getWorld().findAnimatedModelForType(TR1ItemId::Raptor)->animations[9 + util::rand15(2)]});
+    getSkeleton()->setAnim(gsl::not_null{
+      &getWorld().getWorldGeometry().findAnimatedModelForType(TR1ItemId::Raptor)->animations[9 + util::rand15(2)]});
     m_state.current_anim_state = 5_as;
   }
 

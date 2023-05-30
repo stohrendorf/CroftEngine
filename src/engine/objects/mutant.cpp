@@ -379,7 +379,7 @@ void CentaurMutant::update()
   {
     m_state.current_anim_state = 5_as;
     getSkeleton()->setAnim(
-      gsl::not_null{&getWorld().findAnimatedModelForType(TR1ItemId::CentaurMutant)->animations[8]});
+      gsl::not_null{&getWorld().getWorldGeometry().findAnimatedModelForType(TR1ItemId::CentaurMutant)->animations[8]});
   }
 
   rotateCreatureHead(headRot);
@@ -521,8 +521,8 @@ void TorsoBoss::update()
       {
         goal(LaraKilled);
         auto& lara = getWorld().getObjectManager().getLara();
-        lara.getSkeleton()->setAnim(
-          gsl::not_null{&getWorld().findAnimatedModelForType(TR1ItemId::AlternativeLara)->animations[0]});
+        lara.getSkeleton()->setAnim(gsl::not_null{
+          &getWorld().getWorldGeometry().findAnimatedModelForType(TR1ItemId::AlternativeLara)->animations[0]});
         lara.setGoalAnimState(loader::file::LaraStateId::BoulderDeath);
         lara.setCurrentAnimState(loader::file::LaraStateId::BoulderDeath);
         lara.setCurrentRoom(m_state.location.room);
@@ -561,7 +561,8 @@ void TorsoBoss::update()
   {
     if(m_state.current_anim_state != BossKilled)
     {
-      getSkeleton()->setAnim(gsl::not_null{&getWorld().findAnimatedModelForType(TR1ItemId::TorsoBoss)->animations[13]});
+      getSkeleton()->setAnim(
+        gsl::not_null{&getWorld().getWorldGeometry().findAnimatedModelForType(TR1ItemId::TorsoBoss)->animations[13]});
       m_state.current_anim_state = BossKilled;
     }
   }

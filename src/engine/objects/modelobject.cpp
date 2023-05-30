@@ -61,7 +61,7 @@ void ModelObject::update()
     const auto* cmd = anim->animCommandCount == 0 ? nullptr : anim->animCommands;
     for(uint16_t i = 0; i < anim->animCommandCount; ++i)
     {
-      BOOST_ASSERT(cmd <= &getWorld().getAnimCommands().back());
+      BOOST_ASSERT(cmd <= &getWorld().getWorldGeometry().getAnimCommands().back());
       const auto opcode = static_cast<AnimCommandOpcode>(*cmd);
       ++cmd;
       switch(opcode)
@@ -102,7 +102,7 @@ void ModelObject::update()
   const auto* cmd = anim->animCommandCount == 0 ? nullptr : anim->animCommands;
   for(uint16_t i = 0; i < anim->animCommandCount; ++i)
   {
-    BOOST_ASSERT(cmd != nullptr && cmd <= &getWorld().getAnimCommands().back());
+    BOOST_ASSERT(cmd != nullptr && cmd <= &getWorld().getWorldGeometry().getAnimCommands().back());
     const auto opcode = static_cast<AnimCommandOpcode>(*cmd);
     ++cmd;
     switch(opcode)

@@ -36,7 +36,7 @@ void GhostModel::apply(const world::World& world, const GhostFrame& frame)
     if(!bone.visible)
       compositor.appendEmpty();
     else
-      compositor.append(*world.getMeshes().at(bone.meshIdx).meshData, gl::SRGBA8{0, 0, 0, 0});
+      compositor.append(*world.getWorldGeometry().getMeshes().at(bone.meshIdx).meshData, gl::SRGBA8{0, 0, 0, 0});
   }
 
   if(compositor.empty())

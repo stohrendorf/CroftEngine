@@ -131,7 +131,7 @@ void MenuObject::updateMeshRenderMask()
 void MenuObject::initModel(const engine::world::World& world,
                            const gslu::nn_shared<gl::ShaderStorageBuffer<engine::ShaderLight>>& lights)
 {
-  const auto& obj = world.findAnimatedModelForType(type);
+  const auto& obj = world.getWorldGeometry().findAnimatedModelForType(type);
   gsl_Assert(obj != nullptr);
   node = std::make_shared<engine::SkeletalModelNode>(
     "menu-object", gsl::not_null{&world}, gsl::not_null{obj.get()}, false);
@@ -164,12 +164,12 @@ void MenuObject::draw(const engine::world::World& world,
       * glm::translate(glm::mat4{1.0f}, core::TRVec{0_len, 0_len, positionZ}.toRenderSystem())
       * core::TRRotation{rotationX, rotationY, 0_deg}.toMatrix();
 
-  if(const auto& spriteSequence = world.findSpriteSequenceForType(type))
+  if(const auto& spriteSequence = world.getWorldGeometry().findSpriteSequenceForType(type))
   {
     BOOST_LOG_TRIVIAL(warning) << "Menu Sprite: " << toString(type);
     // TODO drawSprite
   }
-  else if(const auto& obj = world.findAnimatedModelForType(type))
+  else if(const auto& obj = world.getWorldGeometry().findAnimatedModelForType(type))
   {
     node->setLocalMatrix(nodeMatrix);
     core::AnimStateId animState{0_as};

@@ -121,7 +121,7 @@ void SpriteObject::serialize(const serialization::Serializer<world::World>& ser)
   Object::serialize(ser);
   auto tmp = getNode()->getName();
   ser(S_NV("@name", tmp),
-      S_NV_VECTOR_ELEMENT("sprite", std::cref(ser.context->getSprites()), std::ref(m_sprite)),
+      S_NV_VECTOR_ELEMENT("sprite", std::cref(ser.context->getWorldGeometry().getSprites()), std::ref(m_sprite)),
       S_NV("brightness", m_brightness));
 }
 
@@ -130,7 +130,7 @@ void SpriteObject::deserialize(const serialization::Deserializer<world::World>& 
   Object::deserialize(ser);
   auto tmp = getNode()->getName();
   ser(S_NV("@name", tmp),
-      S_NV_VECTOR_ELEMENT("sprite", std::cref(ser.context->getSprites()), std::ref(m_sprite)),
+      S_NV_VECTOR_ELEMENT("sprite", std::cref(ser.context->getWorldGeometry().getSprites()), std::ref(m_sprite)),
       S_NV("brightness", m_brightness));
 
   createModel();

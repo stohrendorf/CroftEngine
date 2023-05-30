@@ -117,8 +117,9 @@ Location getUpperThirdBBoxCtr(const ModelObject& object)
 
 void LaraObject::setAnimation(AnimationId anim, const std::optional<core::Frame>& firstFrame)
 {
-  getSkeleton()->setAnimation(
-    m_state.current_anim_state, gsl::not_null{&getWorld().getAnimation(anim)}, firstFrame.value_or(0_frame));
+  getSkeleton()->setAnimation(m_state.current_anim_state,
+                              gsl::not_null{&getWorld().getWorldGeometry().getAnimation(anim)},
+                              firstFrame.value_or(0_frame));
 }
 
 void LaraObject::handleLaraStateOnLand()
@@ -496,7 +497,7 @@ void LaraObject::advanceFrame()
       const auto* cmd = getSkeleton()->getAnim()->animCommands;
       for(uint16_t i = 0; i < getSkeleton()->getAnim()->animCommandCount; ++i)
       {
-        gsl_Assert(cmd < &getWorld().getAnimCommands().back());
+        gsl_Assert(cmd < &getWorld().getWorldGeometry().getAnimCommands().back());
         const auto opcode = static_cast<AnimCommandOpcode>(*cmd);
         ++cmd;
         switch(opcode)
@@ -546,7 +547,7 @@ void LaraObject::advanceFrame()
     const auto* cmd = getSkeleton()->getAnim()->animCommands;
     for(uint16_t i = 0; i < getSkeleton()->getAnim()->animCommandCount; ++i)
     {
-      gsl_Assert(cmd < &getWorld().getAnimCommands().back());
+      gsl_Assert(cmd < &getWorld().getWorldGeometry().getAnimCommands().back());
       const auto opcode = static_cast<AnimCommandOpcode>(*cmd);
       ++cmd;
       switch(opcode)
@@ -795,7 +796,7 @@ void LaraObject::updateLarasWeaponsStatus()
     break;
   case HandStatus::Holster:
   {
-    const auto& normalLara = *getWorld().findAnimatedModelForType(TR1ItemId::Lara);
+    const auto& normalLara = *getWorld().getWorldGeometry().findAnimatedModelForType(TR1ItemId::Lara);
     BOOST_ASSERT(normalLara.bones.size() == getSkeleton()->getBoneCount());
     getSkeleton()->setMesh(BoneHead, normalLara.bones[BoneHead].mesh);
     getSkeleton()->rebuildMesh();
@@ -819,7 +820,7 @@ void LaraObject::updateLarasWeaponsStatus()
     break;
   case HandStatus::Combat:
   {
-    const auto& normalLara = *getWorld().findAnimatedModelForType(TR1ItemId::Lara);
+    const auto& normalLara = *getWorld().getWorldGeometry().findAnimatedModelForType(TR1ItemId::Lara);
     BOOST_ASSERT(normalLara.bones.size() == getSkeleton()->getBoneCount());
     getSkeleton()->setMesh(BoneHead, normalLara.bones[BoneHead].mesh);
   }
@@ -831,7 +832,7 @@ void LaraObject::updateLarasWeaponsStatus()
       {
         if(getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action))
         {
-          const auto& uziLara = *getWorld().findAnimatedModelForType(TR1ItemId::LaraUzisAnim);
+          const auto& uziLara = *getWorld().getWorldGeometry().findAnimatedModelForType(TR1ItemId::LaraUzisAnim);
           BOOST_ASSERT(uziLara.bones.size() == getSkeleton()->getBoneCount());
           getSkeleton()->setMesh(BoneHead, uziLara.bones[BoneHead].mesh);
         }
@@ -848,7 +849,7 @@ void LaraObject::updateLarasWeaponsStatus()
       {
         if(getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action))
         {
-          const auto& uziLara = *getWorld().findAnimatedModelForType(TR1ItemId::LaraUzisAnim);
+          const auto& uziLara = *getWorld().getWorldGeometry().findAnimatedModelForType(TR1ItemId::LaraUzisAnim);
           BOOST_ASSERT(uziLara.bones.size() == getSkeleton()->getBoneCount());
           getSkeleton()->setMesh(BoneHead, uziLara.bones[BoneHead].mesh);
         }
@@ -865,7 +866,7 @@ void LaraObject::updateLarasWeaponsStatus()
       {
         if(getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action))
         {
-          const auto& uziLara = *getWorld().findAnimatedModelForType(TR1ItemId::LaraUzisAnim);
+          const auto& uziLara = *getWorld().getWorldGeometry().findAnimatedModelForType(TR1ItemId::LaraUzisAnim);
           BOOST_ASSERT(uziLara.bones.size() == getSkeleton()->getBoneCount());
           getSkeleton()->setMesh(BoneHead, uziLara.bones[BoneHead].mesh);
         }
@@ -882,7 +883,7 @@ void LaraObject::updateLarasWeaponsStatus()
       {
         if(getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action))
         {
-          const auto& uziLara = *getWorld().findAnimatedModelForType(TR1ItemId::LaraUzisAnim);
+          const auto& uziLara = *getWorld().getWorldGeometry().findAnimatedModelForType(TR1ItemId::LaraUzisAnim);
           BOOST_ASSERT(uziLara.bones.size() == getSkeleton()->getBoneCount());
           getSkeleton()->setMesh(BoneHead, uziLara.bones[BoneHead].mesh);
         }
@@ -1012,7 +1013,8 @@ void LaraObject::initWeaponAnimData()
   switch(getWorld().getPlayer().selectedWeaponType)
   {
   case WeaponType::None:
-    leftArm.weaponAnimData = rightArm.weaponAnimData = getWorld().findAnimatedModelForType(TR1ItemId::Lara)->frames;
+    leftArm.weaponAnimData = rightArm.weaponAnimData
+      = getWorld().getWorldGeometry().findAnimatedModelForType(TR1ItemId::Lara)->frames;
     break;
   case WeaponType::Pistols:
     [[fallthrough]];
@@ -1020,7 +1022,7 @@ void LaraObject::initWeaponAnimData()
     [[fallthrough]];
   case WeaponType::Uzis:
     leftArm.weaponAnimData = rightArm.weaponAnimData
-      = getWorld().findAnimatedModelForType(TR1ItemId::LaraPistolsAnim)->frames;
+      = getWorld().getWorldGeometry().findAnimatedModelForType(TR1ItemId::LaraPistolsAnim)->frames;
     if(m_handStatus != HandStatus::None && m_handStatus != HandStatus::Grabbing)
     {
       leftArm.overrideDrawTwoWeaponsMeshes(*this, getWorld().getPlayer().selectedWeaponType);
@@ -1030,7 +1032,7 @@ void LaraObject::initWeaponAnimData()
     break;
   case WeaponType::Shotgun:
     leftArm.weaponAnimData = rightArm.weaponAnimData
-      = getWorld().findAnimatedModelForType(TR1ItemId::LaraShotgunAnim)->frames;
+      = getWorld().getWorldGeometry().findAnimatedModelForType(TR1ItemId::LaraShotgunAnim)->frames;
     if(m_handStatus != HandStatus::None && m_handStatus != HandStatus::Grabbing)
     {
       overrideLaraMeshesDrawShotgun();
@@ -1128,7 +1130,7 @@ void LaraObject::initAimInfoTwoWeapons()
   m_headRotation.X = 0_deg;
   aimAt = nullptr;
 
-  rightArm.weaponAnimData = getWorld().findAnimatedModelForType(TR1ItemId::LaraPistolsAnim)->frames;
+  rightArm.weaponAnimData = getWorld().getWorldGeometry().findAnimatedModelForType(TR1ItemId::LaraPistolsAnim)->frames;
   leftArm.weaponAnimData = rightArm.weaponAnimData;
 }
 
@@ -1144,15 +1146,15 @@ void LaraObject::initAimInfoShotgun()
   m_headRotation.X = 0_deg;
   aimAt = nullptr;
 
-  rightArm.weaponAnimData = getWorld().findAnimatedModelForType(TR1ItemId::LaraShotgunAnim)->frames;
+  rightArm.weaponAnimData = getWorld().getWorldGeometry().findAnimatedModelForType(TR1ItemId::LaraShotgunAnim)->frames;
   leftArm.weaponAnimData = rightArm.weaponAnimData;
 }
 
 void LaraObject::overrideLaraMeshesDrawShotgun()
 {
-  const auto& src = *getWorld().findAnimatedModelForType(TR1ItemId::LaraShotgunAnim);
+  const auto& src = *getWorld().getWorldGeometry().findAnimatedModelForType(TR1ItemId::LaraShotgunAnim);
   BOOST_ASSERT(src.bones.size() == getSkeleton()->getBoneCount());
-  const auto& normalLara = *getWorld().findAnimatedModelForType(TR1ItemId::Lara);
+  const auto& normalLara = *getWorld().getWorldGeometry().findAnimatedModelForType(TR1ItemId::Lara);
   BOOST_ASSERT(normalLara.bones.size() == getSkeleton()->getBoneCount());
   getSkeleton()->setMesh(BoneTorso, normalLara.bones[BoneTorso].mesh);
   getSkeleton()->setMesh(BoneHandL, src.bones[BoneHandL].mesh);
@@ -1162,9 +1164,9 @@ void LaraObject::overrideLaraMeshesDrawShotgun()
 
 void LaraObject::overrideLaraMeshesHolsterShotgun()
 {
-  const auto& src = *getWorld().findAnimatedModelForType(TR1ItemId::LaraShotgunAnim);
+  const auto& src = *getWorld().getWorldGeometry().findAnimatedModelForType(TR1ItemId::LaraShotgunAnim);
   BOOST_ASSERT(src.bones.size() == getSkeleton()->getBoneCount());
-  const auto& normalLara = *getWorld().findAnimatedModelForType(TR1ItemId::Lara);
+  const auto& normalLara = *getWorld().getWorldGeometry().findAnimatedModelForType(TR1ItemId::Lara);
   BOOST_ASSERT(normalLara.bones.size() == getSkeleton()->getBoneCount());
   getSkeleton()->setMesh(BoneTorso, src.bones[BoneTorso].mesh);
   getSkeleton()->setMesh(BoneHandL, normalLara.bones[BoneHandL].mesh);
@@ -1594,7 +1596,7 @@ void LaraObject::drawRoutine()
     return;
   }
 
-  const auto& objInfo = *getWorld().findAnimatedModelForType(m_state.type);
+  const auto& objInfo = *getWorld().getWorldGeometry().findAnimatedModelForType(m_state.type);
   const loader::file::AnimFrame* frame;
   if(!hit_direction.has_value())
   {
@@ -1605,16 +1607,16 @@ void LaraObject::drawRoutine()
     switch(*hit_direction)
     {
     case core::Axis::PosX:
-      frame = getWorld().getAnimation(AnimationId::AH_LEFT).frames;
+      frame = getWorld().getWorldGeometry().getAnimation(AnimationId::AH_LEFT).frames;
       break;
     case core::Axis::NegZ:
-      frame = getWorld().getAnimation(AnimationId::AH_BACKWARD).frames;
+      frame = getWorld().getWorldGeometry().getAnimation(AnimationId::AH_BACKWARD).frames;
       break;
     case core::Axis::NegX:
-      frame = getWorld().getAnimation(AnimationId::AH_RIGHT).frames;
+      frame = getWorld().getWorldGeometry().getAnimation(AnimationId::AH_RIGHT).frames;
       break;
     default:
-      frame = getWorld().getAnimation(AnimationId::AH_FORWARD).frames;
+      frame = getWorld().getWorldGeometry().getAnimation(AnimationId::AH_FORWARD).frames;
       break;
     }
     frame = frame->next(hit_frame.get());
@@ -1717,7 +1719,7 @@ void LaraObject::drawRoutine()
 
 void LaraObject::drawRoutineInterpolated(const InterpolationInfo& interpolationInfo)
 {
-  const auto& objInfo = *getWorld().findAnimatedModelForType(m_state.type);
+  const auto& objInfo = *getWorld().getWorldGeometry().findAnimatedModelForType(m_state.type);
 
   DualMatrixStack matrixStack{interpolationInfo.bias};
 
@@ -1992,7 +1994,7 @@ LaraObject::LaraObject(const std::string& name,
   auto& player = world->getPlayer();
   if(player.getInventory().count(TR1ItemId::Shotgun) > 0)
   {
-    const auto& src = *getWorld().findAnimatedModelForType(TR1ItemId::LaraShotgunAnim);
+    const auto& src = *getWorld().getWorldGeometry().findAnimatedModelForType(TR1ItemId::LaraShotgunAnim);
     BOOST_ASSERT(src.bones.size() == getSkeleton()->getBoneCount());
     getSkeleton()->setMesh(BoneTorso, src.bones[BoneTorso].mesh);
     getSkeleton()->rebuildMesh();
@@ -2010,7 +2012,7 @@ LaraObject::LaraObject(const std::string& name,
 
 void LaraObject::initMuzzleFlashes()
 {
-  const auto& muzzleFlashModel = getWorld().findAnimatedModelForType(TR1ItemId::MuzzleFlash);
+  const auto& muzzleFlashModel = getWorld().getWorldGeometry().findAnimatedModelForType(TR1ItemId::MuzzleFlash);
   if(muzzleFlashModel == nullptr)
     return;
 
@@ -2067,7 +2069,7 @@ ghosting::GhostFrame LaraObject::getGhostFrame() const
   {
     const auto& mesh = getSkeleton()->getCurrentMesh(i);
     uint32_t idx = 0;
-    for(const auto& existing : getWorld().getMeshes())
+    for(const auto& existing : getWorld().getWorldGeometry().getMeshes())
     {
       if(existing.meshData == mesh)
       {

@@ -76,8 +76,8 @@ void Crocodile::updateInWaterAlive()
   else
   {
     m_state.type = TR1ItemId::CrocodileOnLand;
-    getSkeleton()->setAnim(
-      gsl::not_null{&getWorld().findAnimatedModelForType(TR1ItemId::CrocodileOnLand)->animations[0]});
+    getSkeleton()->setAnim(gsl::not_null{
+      &getWorld().getWorldGeometry().findAnimatedModelForType(TR1ItemId::CrocodileOnLand)->animations[0]});
     goal(getSkeleton()->getAnim()->state_id);
     m_state.current_anim_state = getSkeleton()->getAnim()->state_id;
     m_state.rotation.X = 0_deg;
@@ -94,8 +94,8 @@ void Crocodile::updateInWaterDead()
 {
   if(m_state.current_anim_state != 3_as)
   {
-    getSkeleton()->setAnim(
-      gsl::not_null{&getWorld().findAnimatedModelForType(TR1ItemId::CrocodileInWater)->animations[4]});
+    getSkeleton()->setAnim(gsl::not_null{
+      &getWorld().getWorldGeometry().findAnimatedModelForType(TR1ItemId::CrocodileInWater)->animations[4]});
     m_state.current_anim_state = 3_as;
     m_state.health = core::DeadHealth;
   }
@@ -113,8 +113,8 @@ void Crocodile::updateInWaterDead()
   }
   else
   {
-    getSkeleton()->setAnim(
-      gsl::not_null{&getWorld().findAnimatedModelForType(TR1ItemId::CrocodileOnLand)->animations[11]});
+    getSkeleton()->setAnim(gsl::not_null{
+      &getWorld().getWorldGeometry().findAnimatedModelForType(TR1ItemId::CrocodileOnLand)->animations[11]});
     m_state.type = TR1ItemId::CrocodileOnLand;
     goal(7_as);
     m_state.current_anim_state = m_state.goal_anim_state;
@@ -233,7 +233,7 @@ void Crocodile::updateOnLandDead()
     return;
 
   getSkeleton()->setAnim(
-    gsl::not_null{&getWorld().findAnimatedModelForType(TR1ItemId::CrocodileOnLand)->animations[11]});
+    gsl::not_null{&getWorld().getWorldGeometry().findAnimatedModelForType(TR1ItemId::CrocodileOnLand)->animations[11]});
   m_state.current_anim_state = 7_as;
 }
 
@@ -256,8 +256,8 @@ void Crocodile::updateOnLand()
   }
   if(m_state.location.room->isWaterRoom)
   {
-    getSkeleton()->setAnim(
-      gsl::not_null{&getWorld().findAnimatedModelForType(TR1ItemId::CrocodileInWater)->animations[0]});
+    getSkeleton()->setAnim(gsl::not_null{
+      &getWorld().getWorldGeometry().findAnimatedModelForType(TR1ItemId::CrocodileInWater)->animations[0]});
     goal(getSkeleton()->getAnim()->state_id);
     m_state.current_anim_state = getSkeleton()->getAnim()->state_id;
     m_state.type = TR1ItemId::CrocodileInWater;

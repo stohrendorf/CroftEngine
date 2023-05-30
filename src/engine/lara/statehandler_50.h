@@ -38,7 +38,7 @@ public:
   {
     const auto spheres = world.getObjectManager().getLara().getSkeleton()->getBoneCollisionSpheres();
 
-    const auto& normalLara = world.findAnimatedModelForType(TR1ItemId::Lara);
+    const auto& normalLara = world.getWorldGeometry().findAnimatedModelForType(TR1ItemId::Lara);
     gsl_Assert(normalLara != nullptr);
     for(size_t i = 0; i < spheres.size(); ++i)
     {

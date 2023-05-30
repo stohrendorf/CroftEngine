@@ -275,7 +275,7 @@ std::vector<MenuObject> MenuDisplay::getOptionRingObjects(const engine::world::W
                                objects.end(),
                                [&world](const MenuObject& obj)
                                {
-                                 return world.findAnimatedModelForType(obj.type) == nullptr;
+                                 return world.getWorldGeometry().findAnimatedModelForType(obj.type) == nullptr;
                                }),
                 objects.end());
   for(auto& object : objects)
@@ -414,7 +414,7 @@ std::vector<MenuObject> MenuDisplay::getMainRingObjects(const engine::world::Wor
                                objects.end(),
                                [&world](const MenuObject& obj)
                                {
-                                 return world.findAnimatedModelForType(obj.type) == nullptr;
+                                 return world.getWorldGeometry().findAnimatedModelForType(obj.type) == nullptr;
                                }),
                 objects.end());
   for(auto& object : objects)
@@ -488,7 +488,7 @@ std::vector<MenuObject> MenuDisplay::getKeysRingObjects(const engine::world::Wor
                                objects.end(),
                                [&world](const MenuObject& obj)
                                {
-                                 return world.findAnimatedModelForType(obj.type) == nullptr;
+                                 return world.getWorldGeometry().findAnimatedModelForType(obj.type) == nullptr;
                                }),
                 objects.end());
   for(auto& object : objects)

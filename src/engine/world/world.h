@@ -25,6 +25,7 @@
 #include "staticsoundeffect.h"
 #include "transition.h"
 #include "ui/pickupwidget.h"
+#include "worldgeometry.h"
 
 #include <algorithm>
 #include <array>
@@ -159,7 +160,7 @@ public:
                                          const core::TRVec& position,
                                          const uint16_t activationState)
   {
-    const auto& model = findAnimatedModelForType(type);
+    const auto& model = m_worldGeometry.findAnimatedModelForType(type);
     if(model == nullptr)
       return nullptr;
 
@@ -195,16 +196,11 @@ public:
   }
 
   void swapAllRooms();
-  bool isValid(const loader::file::AnimFrame* frame) const noexcept;
   void swapWithAlternate(Room& orig, Room& alternate);
   [[nodiscard]] const std::vector<Box>& getBoxes() const noexcept;
   [[nodiscard]] const std::vector<Room>& getRooms() const noexcept;
   std::vector<Room>& getRooms() noexcept;
-  [[nodiscard]] const StaticMesh* findStaticMeshById(const core::StaticMeshId& meshId) const;
-  [[nodiscard]] const std::unique_ptr<SpriteSequence>& findSpriteSequenceForType(const core::TypeId& type) const;
-  [[nodiscard]] const Animation& getAnimation(loader::file::AnimationId id) const;
   [[nodiscard]] const std::vector<CinematicFrame>& getCinematicFrames() const noexcept;
-  [[nodiscard]] const std::vector<int16_t>& getAnimCommands() const noexcept;
   void update(bool godMode);
   void dinoStompEffect(objects::Object& object);
   void laraNormalEffect();
@@ -226,17 +222,10 @@ public:
     createPickup(const core::TypeId& type, const gsl::not_null<const Room*>& room, const core::TRVec& position);
   void useAlternativeLaraAppearance(bool withHead = false);
   void runEffect(size_t id, objects::Object* object);
-  [[nodiscard]] const std::unique_ptr<SkeletalModelType>& findAnimatedModelForType(const core::TypeId& type) const;
-  [[nodiscard]] const std::vector<Animation>& getAnimations() const noexcept;
-  [[nodiscard]] const std::vector<int16_t>& getPoseFrames() const noexcept;
-  [[nodiscard]] gslu::nn_shared<RenderMeshData> getRenderMesh(size_t idx) const;
-  [[nodiscard]] const std::vector<Mesh>& getMeshes() const noexcept;
   void turn180Effect(objects::Object& object) noexcept;
   void drawRightWeaponEffect(const objects::ModelObject& object);
   [[nodiscard]] const std::array<gl::SRGBA8, 256>& getPalette() const noexcept;
   void handleCommandSequence(const floordata::FloorDataValue* floorData, bool fromHeavy);
-  core::TypeId find(const SkeletalModelType* model) const;
-  core::TypeId find(const Sprite* sprite) const;
   void serialize(const serialization::Serializer<World>& ser) const;
   void deserialize(const serialization::Deserializer<World>& ser);
   void gameLoop(bool godMode, float blackAlpha, ui::Ui& ui);
@@ -325,14 +314,9 @@ public:
     return m_player;
   }
 
-  [[nodiscard]] const auto& getAtlasTiles() const noexcept
+  [[nodiscard]] const auto& getWorldGeometry() const noexcept
   {
-    return m_atlasTiles;
-  }
-
-  [[nodiscard]] const auto& getSprites() const noexcept
-  {
-    return m_sprites;
+    return m_worldGeometry;
   }
 
   [[nodiscard]] const auto& getFloorData() const noexcept
@@ -422,23 +406,12 @@ private:
   std::shared_ptr<Player> m_player;
   std::shared_ptr<Player> m_levelStartPlayer;
 
-  std::vector<int16_t> m_poseFrames;
-  std::vector<int16_t> m_animCommands;
-  std::vector<int32_t> m_boneTrees;
   engine::floordata::FloorData m_floorData;
   std::array<gl::SRGBA8, 256> m_palette;
   std::vector<uint8_t> m_samplesData;
+  WorldGeometry m_worldGeometry{};
 
-  std::vector<Animation> m_animations;
-  std::vector<Transitions> m_transitions;
-  std::vector<TransitionCase> m_transitionCases;
   std::vector<Box> m_boxes;
-  std::unordered_map<core::StaticMeshId, StaticMesh> m_staticMeshes;
-  std::vector<Mesh> m_meshes;
-  std::map<core::TypeId, std::unique_ptr<SkeletalModelType>> m_animatedModels;
-  std::vector<Sprite> m_sprites;
-  std::map<core::TypeId, std::unique_ptr<SpriteSequence>> m_spriteSequences;
-  std::vector<AtlasTile> m_atlasTiles;
   std::vector<Room> m_rooms;
   std::vector<CinematicFrame> m_cinematicFrames;
   std::vector<CameraSink> m_cameraSinks;
@@ -452,17 +425,11 @@ private:
   static constexpr auto DeathStrengthFadeDeltaPerFrame = 1_frame / DeathStrengthFadeDuration.cast<float>();
   float m_currentDeathStrength = 0;
 
-  void initTextureDependentDataFromLevel(const loader::file::level::Level& level);
   void initFromLevel(loader::file::level::Level& level, bool fromSave);
   void connectSectors();
   void updateStaticSoundEffects();
 
-  void initAnimationData(const loader::file::level::Level& level);
-  void initMeshes(const loader::file::level::Level& level);
-  std::vector<gsl::not_null<const Mesh*>> initAnimatedModels(const loader::file::level::Level& level);
   void initBoxes(const loader::file::level::Level& level);
-  void initStaticMeshes(const loader::file::level::Level& level,
-                        const std::vector<gsl::not_null<const Mesh*>>& meshesDirect);
   void initRooms(const loader::file::level::Level& level);
   void initCinematicFrames(const loader::file::level::Level& level);
   void initCameras(const loader::file::level::Level& level);

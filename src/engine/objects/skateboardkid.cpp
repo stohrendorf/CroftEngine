@@ -33,7 +33,10 @@ namespace engine::objects
 SkateboardKid::SkateboardKid(const gsl::not_null<world::World*>& world, const Location& location)
     : AIAgent{world, location}
     , m_skateboard{std::make_shared<SkeletalModelNode>(
-        "skateboard", world, gsl::not_null{world->findAnimatedModelForType(TR1ItemId::Skateboard).get()}, true)}
+        "skateboard",
+        world,
+        gsl::not_null{world->getWorldGeometry().findAnimatedModelForType(TR1ItemId::Skateboard).get()},
+        true)}
 {
 }
 
@@ -44,7 +47,10 @@ SkateboardKid::SkateboardKid(const std::string& name,
                              const gsl::not_null<const world::SkeletalModelType*>& animatedModel)
     : AIAgent{name, world, room, item, animatedModel}
     , m_skateboard{std::make_shared<SkeletalModelNode>(
-        "skateboard", world, gsl::not_null{world->findAnimatedModelForType(TR1ItemId::Skateboard).get()}, true)}
+        "skateboard",
+        world,
+        gsl::not_null{world->getWorldGeometry().findAnimatedModelForType(TR1ItemId::Skateboard).get()},
+        true)}
 {
   m_state.current_anim_state = 2_as;
   SkeletalModelNode::buildMesh(m_skateboard, m_state.current_anim_state);
@@ -143,7 +149,7 @@ void SkateboardKid::update()
   else if(m_state.current_anim_state != 5_as)
   {
     getSkeleton()->setAnim(
-      gsl::not_null{&getWorld().findAnimatedModelForType(TR1ItemId::SkateboardKid)->animations[13]});
+      gsl::not_null{&getWorld().getWorldGeometry().findAnimatedModelForType(TR1ItemId::SkateboardKid)->animations[13]});
     m_state.current_anim_state = 5_as;
     getWorld().createPickup(TR1ItemId::UzisSprite, m_state.location.room, m_state.location.position);
   }
@@ -152,9 +158,11 @@ void SkateboardKid::update()
   getSkeleton()->patchBone(0, core::TRRotation{0_deg, getCreatureInfo()->headRotation, 0_deg}.toMatrix());
   animateCreature(turn, 0_deg);
 
-  const auto animIdx = std::distance(getWorld().findAnimatedModelForType(TR1ItemId::SkateboardKid)->animations,
-                                     getSkeleton()->getAnim());
-  const auto& skateboardAnim = getWorld().findAnimatedModelForType(TR1ItemId::Skateboard)->animations[animIdx];
+  const auto animIdx
+    = std::distance(getWorld().getWorldGeometry().findAnimatedModelForType(TR1ItemId::SkateboardKid)->animations,
+                    getSkeleton()->getAnim());
+  const auto& skateboardAnim
+    = getWorld().getWorldGeometry().findAnimatedModelForType(TR1ItemId::Skateboard)->animations[animIdx];
   const auto animFrame = skateboardAnim.firstFrame + getSkeleton()->getLocalFrame();
   m_skateboard->setAnim(gsl::not_null{&skateboardAnim}, std::min(skateboardAnim.lastFrame, animFrame));
   m_skateboard->updatePose();

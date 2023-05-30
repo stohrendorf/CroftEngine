@@ -61,8 +61,8 @@ void ScionPiece::collide(CollisionInfo& /*collisionInfo*/)
        && lara.getCurrentAnimState() == loader::file::LaraStateId::Stop)
     {
       lara.alignForInteraction({0_len, 640_len, -310_len}, m_state);
-      lara.getSkeleton()->setAnim(
-        gsl::not_null{&getWorld().findAnimatedModelForType(TR1ItemId::AlternativeLara)->animations[0]});
+      lara.getSkeleton()->setAnim(gsl::not_null{
+        &getWorld().getWorldGeometry().findAnimatedModelForType(TR1ItemId::AlternativeLara)->animations[0]});
       lara.setCurrentAnimState(loader::file::LaraStateId::PickUp);
       lara.setGoalAnimState(loader::file::LaraStateId::PickUp);
       lara.setHandStatus(HandStatus::Grabbing);
@@ -160,7 +160,7 @@ void ScionPiece4::collide(CollisionInfo& /*info*/)
 
   lara.alignTransform(alignSpeed, *this);
   lara.getSkeleton()->setAnim(
-    gsl::not_null{&getWorld().findAnimatedModelForType(TR1ItemId::AlternativeLara)->animations[0]});
+    gsl::not_null{&getWorld().getWorldGeometry().findAnimatedModelForType(TR1ItemId::AlternativeLara)->animations[0]});
   lara.setCurrentAnimState(loader::file::LaraStateId::PickUp);
   lara.setGoalAnimState(loader::file::LaraStateId::PickUp);
   lara.setHandStatus(HandStatus::Grabbing);

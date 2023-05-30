@@ -60,7 +60,7 @@ ThorHammerHandle::ThorHammerHandle(const std::string& name,
     world,
     room,
     item,
-    gsl::not_null{world->findAnimatedModelForType(TR1ItemId::ThorHammerBlock).get()});
+    gsl::not_null{world->getWorldGeometry().findAnimatedModelForType(TR1ItemId::ThorHammerBlock).get()});
   getWorld().getObjectManager().registerObject(gsl::not_null{m_block});
   m_block->activate();
   m_block->m_state.triggerState = TriggerState::Active;
@@ -162,10 +162,12 @@ void ThorHammerHandle::update()
   ModelObject::update();
 
   // sync anim
-  const auto animIdx = std::distance(&getWorld().findAnimatedModelForType(TR1ItemId::ThorHammerHandle)->animations[0],
-                                     getSkeleton()->getAnim());
+  const auto animIdx
+    = std::distance(&getWorld().getWorldGeometry().findAnimatedModelForType(TR1ItemId::ThorHammerHandle)->animations[0],
+                    getSkeleton()->getAnim());
   m_block->getSkeleton()->replaceAnim(
-    gsl::not_null{&getWorld().findAnimatedModelForType(TR1ItemId::ThorHammerBlock)->animations[animIdx]},
+    gsl::not_null{
+      &getWorld().getWorldGeometry().findAnimatedModelForType(TR1ItemId::ThorHammerBlock)->animations[animIdx]},
     getSkeleton()->getLocalFrame());
   m_block->m_state.current_anim_state = m_state.current_anim_state;
 }

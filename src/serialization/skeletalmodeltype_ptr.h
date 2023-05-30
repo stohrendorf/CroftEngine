@@ -12,7 +12,7 @@ inline core::TypeId::type ptrSave(const engine::world::SkeletalModelType* const&
   if(model == nullptr)
     return std::numeric_limits<core::TypeId::type>::max();
 
-  return ser.context->find(model).get();
+  return ser.context->getWorldGeometry().find(model).get();
 }
 
 inline const engine::world::SkeletalModelType* ptrLoad(const TypeId<const engine::world::SkeletalModelType*>&,
@@ -23,6 +23,6 @@ inline const engine::world::SkeletalModelType* ptrLoad(const TypeId<const engine
   if(idx == std::numeric_limits<core::TypeId::type>::max())
     return nullptr;
 
-  return ser.context->findAnimatedModelForType(core::TypeId{idx}).get();
+  return ser.context->getWorldGeometry().findAnimatedModelForType(core::TypeId{idx}).get();
 }
 } // namespace serialization

@@ -47,7 +47,7 @@ namespace engine
 {
 void Particle::initRenderables(world::World& world, render::material::SpriteMaterialMode mode)
 {
-  if(const auto& modelType = world.findAnimatedModelForType(object_number))
+  if(const auto& modelType = world.getWorldGeometry().findAnimatedModelForType(object_number))
   {
     for(const auto& bone : modelType->bones)
     {
@@ -70,7 +70,7 @@ void Particle::initRenderables(world::World& world, render::material::SpriteMate
                             nullptr);
     }
   }
-  else if(const auto& spriteSequence = world.findSpriteSequenceForType(object_number))
+  else if(const auto& spriteSequence = world.getWorldGeometry().findSpriteSequenceForType(object_number))
   {
     for(const world::Sprite& spr : spriteSequence->sprites)
     {
@@ -214,7 +214,8 @@ bool BloodSplatterParticle::update(world::World& world)
 
   timePerSpriteFrame = 0;
   nextFrame();
-  if(gsl::narrow<size_t>(-negSpriteFrameId) >= world.findSpriteSequenceForType(object_number)->sprites.size())
+  if(gsl::narrow<size_t>(-negSpriteFrameId)
+     >= world.getWorldGeometry().findSpriteSequenceForType(object_number)->sprites.size())
     return false;
 
   applyTransform();
@@ -225,7 +226,8 @@ bool SplashParticle::update(world::World& world)
 {
   nextFrame();
 
-  if(gsl::narrow<size_t>(-negSpriteFrameId) >= world.findSpriteSequenceForType(object_number)->sprites.size())
+  if(gsl::narrow<size_t>(-negSpriteFrameId)
+     >= world.getWorldGeometry().findSpriteSequenceForType(object_number)->sprites.size())
   {
     return false;
   }
@@ -309,7 +311,8 @@ FlameParticle::FlameParticle(const Location& location, world::World& world, bool
 bool FlameParticle::update(world::World& world)
 {
   nextFrame();
-  if(gsl::narrow<size_t>(-negSpriteFrameId) >= world.findSpriteSequenceForType(object_number)->sprites.size())
+  if(gsl::narrow<size_t>(-negSpriteFrameId)
+     >= world.getWorldGeometry().findSpriteSequenceForType(object_number)->sprites.size())
     negSpriteFrameId = 0;
 
   objects::LaraObject& lara = world.getObjectManager().getLara();

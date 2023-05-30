@@ -596,7 +596,7 @@ void AbstractStateHandler::commonEdgeHangHandling(CollisionInfo& collisionInfo)
   if(!getWorld().getPresenter().getInputHandler().hasAction(hid::Action::Action) || m_lara->m_state.health <= 0_hp)
   {
     setAnimation(AnimationId::TRY_HANG_VERTICAL,
-                 getWorld().getAnimation(AnimationId::TRY_HANG_VERTICAL).firstFrame + 9_frame);
+                 getWorld().getWorldGeometry().getAnimation(AnimationId::TRY_HANG_VERTICAL).firstFrame + 9_frame);
     setGoalAnimState(LaraStateId::JumpUp);
     setCurrentAnimState(LaraStateId::JumpUp);
     setHandStatus(objects::HandStatus::None);
@@ -620,7 +620,8 @@ void AbstractStateHandler::commonEdgeHangHandling(CollisionInfo& collisionInfo)
       return;
     }
 
-    setAnimation(AnimationId::HANG_IDLE, getWorld().getAnimation(AnimationId::HANG_IDLE).firstFrame + 21_frame);
+    setAnimation(AnimationId::HANG_IDLE,
+                 getWorld().getWorldGeometry().getAnimation(AnimationId::HANG_IDLE).firstFrame + 21_frame);
     setGoalAnimState(LaraStateId::Hang);
     setCurrentAnimState(LaraStateId::Hang);
     return;
@@ -741,7 +742,8 @@ void AbstractStateHandler::checkJumpWallSmash(CollisionInfo& collisionInfo)
   case CollisionInfo::AxisColl::FrontTop:
     m_lara->m_state.speed /= 4;
     setMovementAngle(getMovementAngle() - 180_deg);
-    setAnimation(AnimationId::SMASH_JUMP, getWorld().getAnimation(AnimationId::SMASH_JUMP).firstFrame + 1_frame);
+    setAnimation(AnimationId::SMASH_JUMP,
+                 getWorld().getWorldGeometry().getAnimation(AnimationId::SMASH_JUMP).firstFrame + 1_frame);
     setGoalAnimState(LaraStateId::FreeFall);
     setCurrentAnimState(LaraStateId::FreeFall);
     if(m_lara->m_state.fallspeed <= 0_spd)

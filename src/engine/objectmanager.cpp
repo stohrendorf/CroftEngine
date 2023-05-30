@@ -231,7 +231,7 @@ void ObjectManager::replaceItems(const TR1ItemId& oldId, const TR1ItemId& newId,
       continue;
 
     const gsl::not_null pickup{std::dynamic_pointer_cast<objects::PickupObject>(obj.get())};
-    const auto& spriteSequence = world.findSpriteSequenceForType(newId);
+    const auto& spriteSequence = world.getWorldGeometry().findSpriteSequenceForType(newId);
     gsl_Assert(spriteSequence != nullptr && !spriteSequence->sprites.empty());
     pickup->replace(newId, gsl::not_null{&spriteSequence->sprites[0]});
   }

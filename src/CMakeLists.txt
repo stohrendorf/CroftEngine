@@ -263,6 +263,8 @@ set( CROFTENGINE_SRCS
         engine/world/sector.cpp
         engine/world/world.h
         engine/world/world.cpp
+        engine/world/worldgeometry.h
+        engine/world/worldgeometry.cpp
         engine/world/texturing.h
         engine/world/texturing.cpp
 

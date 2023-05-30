@@ -43,7 +43,7 @@ bool shatterModel(ModelObject& object, const std::bitset<32>& meshMask, const co
     = object.m_state.type == TR1ItemId::WalkingMutant1 || object.m_state.type == TR1ItemId::WalkingMutant2
         ? TR1ItemId::FlyingMutant
         : object.m_state.type;
-  const auto& modelType = object.getWorld().findAnimatedModelForType(modelSourceType);
+  const auto& modelType = object.getWorld().getWorldGeometry().findAnimatedModelForType(modelSourceType);
   gsl_Assert(modelType != nullptr);
   gsl_Assert(modelType->bones.size() == object.getSkeleton()->getBoneCount());
   BOOST_LOG_TRIVIAL(trace) << "Shatter model: " << modelType->bones.size() << " meshes";

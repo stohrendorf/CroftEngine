@@ -36,7 +36,7 @@ Doppelganger::Doppelganger(const std::string& name,
                            const gsl::not_null<const world::SkeletalModelType*>& animatedModel)
     : ModelObject{name, world, room, item, true, animatedModel, true}
 {
-  const auto& laraModel = world->findAnimatedModelForType(TR1ItemId::Lara);
+  const auto& laraModel = world->getWorldGeometry().findAnimatedModelForType(TR1ItemId::Lara);
   getSkeleton()->setAnimation(
     m_state.current_anim_state, gsl::not_null{&laraModel->animations[0]}, laraModel->animations->firstFrame);
 }
@@ -72,9 +72,10 @@ void Doppelganger::update()
     {
       m_killed = true;
 
-      getSkeleton()->setAnimation(m_state.current_anim_state,
-                                  gsl::not_null{&getWorld().getAnimation(loader::file::AnimationId::SMASH_JUMP)},
-                                  getWorld().getAnimation(loader::file::AnimationId::SMASH_JUMP).firstFrame + 1_frame);
+      getSkeleton()->setAnimation(
+        m_state.current_anim_state,
+        gsl::not_null{&getWorld().getWorldGeometry().getAnimation(loader::file::AnimationId::SMASH_JUMP)},
+        getWorld().getWorldGeometry().getAnimation(loader::file::AnimationId::SMASH_JUMP).firstFrame + 1_frame);
       m_state.goal_anim_state = loader::file::LaraStateId::FreeFall;
       m_state.current_anim_state = loader::file::LaraStateId::FreeFall;
       m_state.fallspeed = 0_spd;

@@ -7,6 +7,7 @@
 
 #include <gsl/gsl-lite.hpp>
 #include <gslu.h>
+#include <optional>
 
 namespace engine::world
 {

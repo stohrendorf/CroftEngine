@@ -52,51 +52,53 @@ MutantEgg::MutantEgg(const std::string& name,
   {
   case 1:
     item.type = TR1ItemId::WalkingMutant1;
-    if(world->findAnimatedModelForType(TR1ItemId::FlyingMutant) != nullptr)
+    if(world->getWorldGeometry().findAnimatedModelForType(TR1ItemId::FlyingMutant) != nullptr)
       m_childObject = std::make_shared<WalkingMutant>(
         makeObjectName(item.type.get_as<TR1ItemId>(), 999999),
         world,
         room,
         item,
-        gsl::not_null{world->findAnimatedModelForType(TR1ItemId::FlyingMutant).get()});
+        gsl::not_null{world->getWorldGeometry().findAnimatedModelForType(TR1ItemId::FlyingMutant).get()});
     break;
   case 2:
     item.type = TR1ItemId::CentaurMutant;
-    if(world->findAnimatedModelForType(item.type) != nullptr)
-      m_childObject = std::make_shared<CentaurMutant>(makeObjectName(item.type.get_as<TR1ItemId>(), 999999),
-                                                      world,
-                                                      room,
-                                                      item,
-                                                      gsl::not_null{world->findAnimatedModelForType(item.type).get()});
+    if(world->getWorldGeometry().findAnimatedModelForType(item.type) != nullptr)
+      m_childObject = std::make_shared<CentaurMutant>(
+        makeObjectName(item.type.get_as<TR1ItemId>(), 999999),
+        world,
+        room,
+        item,
+        gsl::not_null{world->getWorldGeometry().findAnimatedModelForType(item.type).get()});
     break;
   case 4:
     item.type = TR1ItemId::TorsoBoss;
-    if(world->findAnimatedModelForType(item.type) != nullptr)
-      m_childObject = std::make_shared<TorsoBoss>(makeObjectName(item.type.get_as<TR1ItemId>(), 999999),
-                                                  world,
-                                                  room,
-                                                  item,
-                                                  gsl::not_null{world->findAnimatedModelForType(item.type).get()});
+    if(world->getWorldGeometry().findAnimatedModelForType(item.type) != nullptr)
+      m_childObject = std::make_shared<TorsoBoss>(
+        makeObjectName(item.type.get_as<TR1ItemId>(), 999999),
+        world,
+        room,
+        item,
+        gsl::not_null{world->getWorldGeometry().findAnimatedModelForType(item.type).get()});
     break;
   case 8:
     item.type = TR1ItemId::WalkingMutant2;
-    if(world->findAnimatedModelForType(TR1ItemId::FlyingMutant) != nullptr)
+    if(world->getWorldGeometry().findAnimatedModelForType(TR1ItemId::FlyingMutant) != nullptr)
       m_childObject = std::make_shared<WalkingMutant>(
         makeObjectName(item.type.get_as<TR1ItemId>(), 999999),
         world,
         room,
         item,
-        gsl::not_null{world->findAnimatedModelForType(TR1ItemId::FlyingMutant).get()});
+        gsl::not_null{world->getWorldGeometry().findAnimatedModelForType(TR1ItemId::FlyingMutant).get()});
     break;
   default:
     item.type = TR1ItemId::FlyingMutant;
-    if(world->findAnimatedModelForType(TR1ItemId::FlyingMutant) != nullptr)
-      m_childObject
-        = std::make_shared<FlyingMutant>(makeObjectName(item.type.get_as<TR1ItemId>(), 999999),
-                                         world,
-                                         room,
-                                         item,
-                                         gsl::not_null{world->findAnimatedModelForType(TR1ItemId::FlyingMutant).get()});
+    if(world->getWorldGeometry().findAnimatedModelForType(TR1ItemId::FlyingMutant) != nullptr)
+      m_childObject = std::make_shared<FlyingMutant>(
+        makeObjectName(item.type.get_as<TR1ItemId>(), 999999),
+        world,
+        room,
+        item,
+        gsl::not_null{world->getWorldGeometry().findAnimatedModelForType(TR1ItemId::FlyingMutant).get()});
     break;
   }
 

@@ -143,7 +143,7 @@ std::pair<RunResult, std::optional<size_t>> Cutscene::run(const gsl::not_null<En
 
   if(m_weaponSwap)
   {
-    const auto& laraPistol = world->findAnimatedModelForType(TR1ItemId::LaraPistolsAnim);
+    const auto& laraPistol = world->getWorldGeometry().findAnimatedModelForType(TR1ItemId::LaraPistolsAnim);
     gsl_Assert(laraPistol != nullptr);
     for(const auto& object : world->getObjectManager().getObjects() | boost::adaptors::map_values)
     {

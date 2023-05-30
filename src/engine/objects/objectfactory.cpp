@@ -125,7 +125,7 @@ struct ModelFactory : public ObjectFactory
     createNew(world::World& world, loader::file::Item& item, size_t id) const override
   {
     const auto room = gsl::not_null{&world.getRooms().at(item.room.get())};
-    const auto& model = world.findAnimatedModelForType(item.type);
+    const auto& model = world.getWorldGeometry().findAnimatedModelForType(item.type);
     gsl_Assert(model != nullptr);
     auto object = gsl::make_shared<T>(
       makeObjectName(item.type.get_as<TR1ItemId>(), id), gsl::not_null{&world}, room, item, gsl::not_null{model.get()});
@@ -152,7 +152,7 @@ struct SpriteFactory : public ObjectFactory
   {
     const auto room = gsl::not_null{&world.getRooms().at(item.room.get())};
 
-    const auto& spriteSequence = world.findSpriteSequenceForType(item.type);
+    const auto& spriteSequence = world.getWorldGeometry().findSpriteSequenceForType(item.type);
     gsl_Assert(spriteSequence != nullptr && !spriteSequence->sprites.empty());
 
     const world::Sprite& sprite = spriteSequence->sprites[0];
@@ -195,7 +195,7 @@ struct WalkingMutantFactory : public ObjectFactory
     createNew(world::World& world, loader::file::Item& item, size_t id) const override
   {
     const auto room = gsl::not_null{&world.getRooms().at(item.room.get())};
-    const auto& model = world.findAnimatedModelForType(TR1ItemId::FlyingMutant);
+    const auto& model = world.getWorldGeometry().findAnimatedModelForType(TR1ItemId::FlyingMutant);
     gsl_Assert(model != nullptr);
     auto object = gsl::make_shared<WalkingMutant>(
       makeObjectName(item.type.get_as<TR1ItemId>(), id), gsl::not_null{&world}, room, item, gsl::not_null{model.get()});
@@ -385,7 +385,7 @@ std::shared_ptr<Object> createObject(world::World& world, loader::file::Item& it
 
   const auto room = gsl::not_null{&world.getRooms().at(item.room.get())};
 
-  if(const auto& model = world.findAnimatedModelForType(item.type))
+  if(const auto& model = world.getWorldGeometry().findAnimatedModelForType(item.type))
   {
     auto object = std::make_shared<StubObject>(
       makeObjectName(item.type.get_as<TR1ItemId>(), id), gsl::not_null{&world}, room, item, gsl::not_null{model.get()});
@@ -398,7 +398,7 @@ std::shared_ptr<Object> createObject(world::World& world, loader::file::Item& it
     return object;
   }
 
-  if(const auto& spriteSequence = world.findSpriteSequenceForType(item.type))
+  if(const auto& spriteSequence = world.getWorldGeometry().findSpriteSequenceForType(item.type))
   {
     BOOST_ASSERT(!spriteSequence->sprites.empty());
 

@@ -120,7 +120,7 @@ void PickupObject::collide(CollisionInfo& /*collisionInfo*/)
     {
       if(m_state.type == TR1ItemId::ShotgunSprite)
       {
-        const auto& shotgunLara = *getWorld().findAnimatedModelForType(TR1ItemId::LaraShotgunAnim);
+        const auto& shotgunLara = *getWorld().getWorldGeometry().findAnimatedModelForType(TR1ItemId::LaraShotgunAnim);
         BOOST_ASSERT(shotgunLara.bones.size() == laraSkeleton->getBoneCount());
 
         laraSkeleton->setMesh(7, shotgunLara.bones[7].mesh);

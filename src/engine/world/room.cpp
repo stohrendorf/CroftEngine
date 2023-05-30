@@ -358,7 +358,7 @@ void Room::createSceneNode(const loader::file::Room& srcRoom,
   {
     BOOST_ASSERT(spriteInstance.vertex.get() < srcRoom.vertices.size());
 
-    const auto& sprite = world.getSprites().at(spriteInstance.id.get());
+    const auto& sprite = world.getWorldGeometry().getSprites().at(spriteInstance.id.get());
 
     auto spriteNode = std::make_shared<render::scene::Node>("sprite");
     spriteNode->setRenderable(sprite.yBoundMesh);
@@ -706,7 +706,7 @@ void Room::buildMeshData(const World& world,
       }
     }
 
-    const auto& tile = world.getAtlasTiles().at(quad.tileId.get());
+    const auto& tile = world.getWorldGeometry().getAtlasTiles().at(quad.tileId.get());
 
     const bool useQuadHandling = isDistortedQuad(quad.vertices[0].from(srcRoom.vertices).position.toRenderSystem(),
                                                  quad.vertices[1].from(srcRoom.vertices).position.toRenderSystem(),
@@ -783,7 +783,7 @@ void Room::buildMeshData(const World& world,
       }
     }
 
-    const auto& tile = world.getAtlasTiles().at(tri.tileId.get());
+    const auto& tile = world.getWorldGeometry().getAtlasTiles().at(tri.tileId.get());
 
     const auto firstVertex = vbufData.size();
     for(int i = 0; i < 3; ++i)

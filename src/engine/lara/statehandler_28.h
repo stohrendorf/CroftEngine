@@ -89,7 +89,8 @@ public:
       return false;
     }
 
-    setAnimation(AnimationId::HANG_IDLE, getWorld().getAnimation(AnimationId::HANG_IDLE).firstFrame + 12_frame);
+    setAnimation(AnimationId::HANG_IDLE,
+                 getWorld().getWorldGeometry().getAnimation(AnimationId::HANG_IDLE).firstFrame + 12_frame);
     setGoalAnimState(LaraStateId::Hang);
     setCurrentAnimState(LaraStateId::Hang);
 
