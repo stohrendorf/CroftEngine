@@ -279,11 +279,11 @@ const std::vector<Box>& World::getBoxes() const noexcept
 
 void World::useAlternativeLaraAppearance(const bool withHead)
 {
-  const auto& base = *m_worldGeometry.findAnimatedModelForType(TR1ItemId::Lara);
+  const auto& base = *m_worldGeometry->findAnimatedModelForType(TR1ItemId::Lara);
   auto& laraSkeleton = *m_objectManager.getLara().getSkeleton();
   BOOST_ASSERT(base.bones.size() == laraSkeleton.getBoneCount());
 
-  const auto& alternate = *m_worldGeometry.findAnimatedModelForType(TR1ItemId::AlternativeLara);
+  const auto& alternate = *m_worldGeometry->findAnimatedModelForType(TR1ItemId::AlternativeLara);
   BOOST_ASSERT(alternate.bones.size() == laraSkeleton.getBoneCount());
 
   for(size_t i = 0; i < laraSkeleton.getBoneCount(); ++i)
@@ -313,7 +313,7 @@ void World::laraNormalEffect()
   m_objectManager.getLara().setCurrentAnimState(loader::file::LaraStateId::Stop);
   m_objectManager.getLara().setRequiredAnimState(loader::file::LaraStateId::Unknown12);
   m_objectManager.getLara().getSkeleton()->setAnim(
-    gsl::not_null{&m_worldGeometry.getAnimation(loader::file::AnimationId::STAY_SOLID)});
+    gsl::not_null{&m_worldGeometry->getAnimation(loader::file::AnimationId::STAY_SOLID)});
   m_cameraController->setMode(CameraMode::Chase);
   getPresenter().getRenderer().getCamera()->setFieldOfView(Presenter::DefaultFov);
 }
@@ -590,7 +590,7 @@ gslu::nn_shared<objects::PickupObject>
   item.shade = core::Shade{core::Shade::type{0}};
   item.activationState = 0;
 
-  const auto& spriteSequence = m_worldGeometry.findSpriteSequenceForType(type);
+  const auto& spriteSequence = m_worldGeometry->findSpriteSequenceForType(type);
   gsl_Assert(spriteSequence != nullptr && !spriteSequence->sprites.empty());
   const Sprite& sprite = spriteSequence->sprites[0];
 
@@ -646,7 +646,7 @@ void World::update(const bool godMode)
   {
     for(const auto& room : m_rooms)
     {
-      room.textureAnimator->updateCoordinates(*room.uvCoordsBuffer, m_worldGeometry.getAtlasTiles());
+      room.textureAnimator->updateCoordinates(*room.uvCoordsBuffer, m_worldGeometry->getAtlasTiles());
     }
     m_uvAnimTime -= UVAnimTime;
   }
@@ -723,7 +723,7 @@ void World::turn180Effect(objects::Object& object) noexcept
 // NOLINTNEXTLINE(readability-make-member-function-const)
 void World::drawRightWeaponEffect(const objects::ModelObject& object)
 {
-  const auto& src = *m_worldGeometry.findAnimatedModelForType(TR1ItemId::LaraPistolsAnim);
+  const auto& src = *m_worldGeometry->findAnimatedModelForType(TR1ItemId::LaraPistolsAnim);
   BOOST_ASSERT(src.bones.size() == object.getSkeleton()->getBoneCount());
   object.getSkeleton()->setMesh(10, src.bones[10].mesh);
   object.getSkeleton()->rebuildMesh();
@@ -979,7 +979,7 @@ void World::gameLoop(bool godMode, float blackAlpha, ui::Ui& ui)
 
   doGlobalEffect();
   getPresenter().drawBars(
-    ui, m_worldGeometry.getPalette(), getObjectManager(), getEngine().getEngineConfig()->pulseLowHealthHealthBar);
+    ui, m_worldGeometry->getPalette(), getObjectManager(), getEngine().getEngineConfig()->pulseLowHealthHealthBar);
 
   drawPickupWidgets(ui);
   if(const auto lara = getObjectManager().getLaraPtr())
@@ -1017,7 +1017,8 @@ bool World::cinematicLoop()
     = m_cameraController->updateCinematic(m_cinematicFrames.at(m_cameraController->m_cinematicFrame.get()), false);
   doGlobalEffect();
 
-  ui::Ui ui{getPresenter().getMaterialManager()->getUi(), m_worldGeometry.getPalette(), getPresenter().getUiViewport()};
+  ui::Ui ui{
+    getPresenter().getMaterialManager()->getUi(), m_worldGeometry->getPalette(), getPresenter().getUiViewport()};
   getPresenter().renderWorld(getRooms(), getCameraController(), waterEntryPortals, *this);
   getPresenter().renderScreenOverlay();
   getPresenter().renderUi(ui, 1);
@@ -1131,7 +1132,9 @@ World::World(const gsl::not_null<Engine*>& engine,
              std::unordered_map<std::string, std::unordered_map<TR1ItemId, std::string>> itemTitles,
              std::shared_ptr<Player> player,
              std::shared_ptr<Player> levelStartPlayer,
-             bool fromSave)
+             bool fromSave,
+             std::shared_ptr<WorldGeometry>&& worldGeometry,
+             const std::filesystem::path& worldGeometryCacheKey)
     : m_engine{engine}
     , m_levelFilename{level->getFilename()}
     , m_audioEngine{std::make_unique<AudioEngine>(
@@ -1141,8 +1144,10 @@ World::World(const gsl::not_null<Engine*>& engine,
     , m_player{std::move(player)}
     , m_levelStartPlayer{std::move(levelStartPlayer)}
     , m_samplesData{std::move(level->m_samplesData)}
-    , m_worldGeometry{*m_engine, *level}
+    , m_worldGeometry{worldGeometry != nullptr ? std::move(worldGeometry)
+                                               : gsl::make_shared<WorldGeometry>(*m_engine, *level)}
 {
+  m_engine->setWorldGeometryCache(worldGeometryCacheKey, m_worldGeometry);
   m_engine->registerWorld(this);
   m_audioEngine->setMusicGain(m_engine->getEngineConfig()->audioSettings.musicVolume);
   m_audioEngine->setSfxGain(m_engine->getEngineConfig()->audioSettings.sfxVolume);
@@ -1167,7 +1172,7 @@ World::World(const gsl::not_null<Engine*>& engine,
 
   getPresenter().getSoundEngine()->setListener(m_cameraController.get());
   getPresenter().setTrFont(
-    std::make_unique<ui::TRFont>(*m_worldGeometry.getSpriteSequences().at(TR1ItemId::FontGraphics)));
+    std::make_unique<ui::TRFont>(*m_worldGeometry->getSpriteSequences().at(TR1ItemId::FontGraphics)));
   if(ambient.has_value())
   {
     m_audioEngine->playStopCdTrack(m_engine->getScriptEngine().getGameflow(), *ambient, false);
@@ -1396,7 +1401,7 @@ void World::initRooms(const loader::file::level::Level& level)
                    });
     for(const auto& rsm : srcRoom.staticMeshes)
     {
-      if(const auto mesh = m_worldGeometry.findStaticMeshById(rsm.meshId); mesh != nullptr)
+      if(const auto mesh = m_worldGeometry->findStaticMeshById(rsm.meshId); mesh != nullptr)
       {
         m_rooms[i].staticMeshes.emplace_back(
           RoomStaticMesh{rsm.position, rsm.rotation, rsm.shade, gsl::not_null{mesh}});

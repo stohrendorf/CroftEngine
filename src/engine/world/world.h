@@ -97,7 +97,9 @@ public:
                  std::unordered_map<std::string, std::unordered_map<TR1ItemId, std::string>> itemTitles,
                  std::shared_ptr<Player> player,
                  std::shared_ptr<Player> levelStartPlayer,
-                 bool fromSave);
+                 bool fromSave,
+                 std::shared_ptr<WorldGeometry>&& worldGeometry,
+                 const std::filesystem::path& worldGeometryCacheKey);
 
   ~World();
 
@@ -149,7 +151,7 @@ public:
                                          const core::TRVec& position,
                                          const uint16_t activationState)
   {
-    const auto& model = m_worldGeometry.findAnimatedModelForType(type);
+    const auto& model = m_worldGeometry->findAnimatedModelForType(type);
     if(model == nullptr)
       return nullptr;
 
@@ -304,12 +306,12 @@ public:
 
   [[nodiscard]] const auto& getWorldGeometry() const noexcept
   {
-    return m_worldGeometry;
+    return *m_worldGeometry;
   }
 
   [[nodiscard]] auto& getWorldGeometry() noexcept
   {
-    return m_worldGeometry;
+    return *m_worldGeometry;
   }
 
   [[nodiscard]] const auto& getFloorData() const noexcept
@@ -395,7 +397,7 @@ private:
 
   engine::floordata::FloorData m_floorData;
   std::vector<uint8_t> m_samplesData;
-  WorldGeometry m_worldGeometry;
+  gslu::nn_shared<WorldGeometry> m_worldGeometry;
 
   std::vector<Box> m_boxes;
   std::vector<Room> m_rooms;

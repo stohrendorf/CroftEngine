@@ -216,6 +216,8 @@ void Room::createSceneNode(const loader::file::Room& srcRoom,
                            const std::vector<uint16_t>& textureAnimData,
                            render::material::MaterialManager& materialManager)
 {
+  textureAnimator = std::make_unique<render::TextureAnimator>(textureAnimData);
+
   node = std::make_shared<render::scene::Node>("Room:" + std::to_string(roomId));
   if(const auto mesh = world.getWorldGeometry().tryGetRoomMesh(roomId); mesh != nullptr)
   {
@@ -227,6 +229,7 @@ void Room::createSceneNode(const loader::file::Room& srcRoom,
     world.getWorldGeometry().setRoomMesh(roomId, newMesh);
     node->setRenderable(newMesh);
   }
+
   node->bind("u_lightAmbient",
              [](const render::scene::Node* /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
              {
@@ -812,8 +815,6 @@ gslu::nn_shared<render::scene::Mesh> Room::buildMesh(const loader::file::Room& s
 
   std::vector<RoomRenderVertex> vbufData;
   std::vector<render::AnimatedUV> uvCoordsData;
-
-  textureAnimator = std::make_unique<render::TextureAnimator>(textureAnimData);
 
   buildMeshData(worldGeometry, srcRoom, vbufData, uvCoordsData, renderMesh);
   if(!renderMesh.m_nonOpaqueIndices.empty())

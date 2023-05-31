@@ -2,6 +2,7 @@
 
 #include "script/scriptengine.h"
 #include "serialization/serialization_fwd.h"
+#include "world/worldgeometry.h"
 
 #include <boost/assert.hpp>
 #include <chrono>
@@ -75,23 +76,6 @@ inline std::filesystem::path makeMetaFilepath(const std::filesystem::path& path)
 
 class Engine
 {
-private:
-  std::filesystem::path m_userDataPath;
-  std::filesystem::path m_engineDataPath;
-  std::string m_gameflowId;
-  script::ScriptEngine m_scriptEngine;
-  gslu::nn_shared<EngineConfig> m_engineConfig;
-  std::shared_ptr<Presenter> m_presenter;
-  std::set<gsl::not_null<world::World*>> m_worlds;
-  std::chrono::steady_clock::time_point m_saveReminderSince{};
-
-  std::string m_locale;
-
-  std::unique_ptr<loader::trx::Glidos> m_glidos;
-  [[nodiscard]] std::unique_ptr<loader::trx::Glidos> loadGlidosPack() const;
-
-  void takeBugReport(world::World& world);
-
 public:
   explicit Engine(std::filesystem::path userDataPath,
                   const std::filesystem::path& engineDataPath,
@@ -187,5 +171,42 @@ public:
   }
 
   void onGameSavedOrLoaded();
+
+  [[nodiscard]] std::shared_ptr<world::WorldGeometry>
+    getWorldGeometryCacheOrReset(const std::filesystem::path& levelPath)
+  {
+    if(m_worldGeometryCache.first != levelPath)
+    {
+      m_worldGeometryCache.second.reset();
+      return nullptr;
+    }
+
+    return m_worldGeometryCache.second;
+  }
+
+  void setWorldGeometryCache(const std::filesystem::path& key,
+                             const gslu::nn_shared<world::WorldGeometry>& worldGeometry)
+  {
+    m_worldGeometryCache = {key, worldGeometry};
+  }
+
+private:
+  void takeBugReport(world::World& world);
+
+  std::filesystem::path m_userDataPath;
+  std::filesystem::path m_engineDataPath;
+  std::string m_gameflowId;
+  script::ScriptEngine m_scriptEngine;
+  gslu::nn_shared<EngineConfig> m_engineConfig;
+  std::shared_ptr<Presenter> m_presenter;
+  std::set<gsl::not_null<world::World*>> m_worlds;
+  std::chrono::steady_clock::time_point m_saveReminderSince{};
+
+  std::string m_locale;
+
+  std::unique_ptr<loader::trx::Glidos> m_glidos;
+  [[nodiscard]] std::unique_ptr<loader::trx::Glidos> loadGlidosPack() const;
+
+  std::pair<std::filesystem::path, std::shared_ptr<world::WorldGeometry>> m_worldGeometryCache;
 };
 } // namespace engine

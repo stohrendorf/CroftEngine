@@ -127,7 +127,9 @@ std::pair<RunResult, std::optional<size_t>> Cutscene::run(const gsl::not_null<En
                                      std::unordered_map<std::string, std::unordered_map<TR1ItemId, std::string>>{},
                                      player,
                                      levelStartPlayer,
-                                     false);
+                                     false,
+                                     nullptr,
+                                     std::filesystem::path{});
 
   world->getCameraController().setEyeRotation(0_deg, m_cameraRot);
   auto pos = world->getCameraController().getTRLocation().position;
@@ -198,7 +200,9 @@ std::unique_ptr<world::World> Level::loadWorld(const gsl::not_null<Engine*>& eng
                                               m_itemTitles,
                                               player,
                                               levelStartPlayer,
-                                              fromSave);
+                                              fromSave,
+                                              engine->getWorldGeometryCacheOrReset(m_name),
+                                              m_name);
 
   auto replace = [&world, &player](TR1ItemId meshType, TR1ItemId spriteType, TR1ItemId replacement)
   {
