@@ -5,6 +5,7 @@
 #include "core/id.h"
 #include "engine/controllerbuttons.h"
 #include "mesh.h"
+#include "render/scene/mesh.h"
 #include "sprite.h"
 #include "staticmesh.h"
 #include "transition.h"
@@ -101,6 +102,19 @@ public:
     return m_palette;
   }
 
+  [[nodiscard]] std::shared_ptr<render::scene::Mesh> tryGetRoomMesh(const size_t roomId) const
+  {
+    if(const auto it = m_roomMeshes.find(roomId); it != m_roomMeshes.end())
+      return it->second.get();
+
+    return nullptr;
+  }
+
+  void setRoomMesh(const size_t roomId, const gslu::nn_shared<render::scene::Mesh>& mesh)
+  {
+    gsl_Assert(m_roomMeshes.try_emplace(roomId, mesh).second);
+  }
+
 private:
   void initAnimationData(const loader::file::level::Level& level);
   void initMeshes(const loader::file::level::Level& level);
@@ -130,5 +144,7 @@ private:
 
   ControllerLayouts m_controllerLayouts;
   std::shared_ptr<gl::Texture2DArray<gl::PremultipliedSRGBA8>> m_allTextures;
+
+  std::map<size_t, gslu::nn_shared<render::scene::Mesh>> m_roomMeshes;
 };
 } // namespace engine::world

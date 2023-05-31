@@ -27,7 +27,8 @@
 namespace engine::world
 {
 class World;
-}
+class WorldGeometry;
+} // namespace engine::world
 
 namespace render
 {
@@ -60,6 +61,7 @@ struct Room;
 
 namespace engine
 {
+class Engine;
 struct Location;
 class Presenter;
 } // namespace engine
@@ -189,11 +191,17 @@ private:
                        const gslu::nn_shared<render::material::Material>& dustMaterial,
                        uint8_t dustDensity) const;
 
-  void buildMeshData(const World& world,
+  void buildMeshData(const WorldGeometry& worldGeometry,
                      const loader::file::Room& srcRoom,
                      std::vector<RoomRenderVertex>& vbufData,
                      std::vector<render::AnimatedUV>& uvCoordsData,
                      RoomRenderMesh& renderMesh) const;
+
+  [[nodiscard]] gslu::nn_shared<render::scene::Mesh> buildMesh(const loader::file::Room& srcRoom,
+                                                               const size_t roomId,
+                                                               const Engine& engine,
+                                                               const WorldGeometry& worldGeometry,
+                                                               const std::vector<uint16_t>& textureAnimData);
 };
 
 extern void patchHeightsForBlock(const engine::objects::Object& object, const core::Length& height);

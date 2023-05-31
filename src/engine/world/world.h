@@ -307,6 +307,11 @@ public:
     return m_worldGeometry;
   }
 
+  [[nodiscard]] auto& getWorldGeometry() noexcept
+  {
+    return m_worldGeometry;
+  }
+
   [[nodiscard]] const auto& getFloorData() const noexcept
   {
     return m_floorData;

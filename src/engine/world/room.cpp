@@ -54,6 +54,7 @@
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
+#include <gsl/gsl-lite.hpp>
 #include <gslu.h>
 #include <initializer_list>
 #include <iosfwd>
@@ -110,7 +111,7 @@ struct RoomRenderMesh
   std::shared_ptr<render::material::Material> m_materialCSMDepthOnly;
   std::shared_ptr<render::material::Material> m_materialDepthOnly;
 
-  std::shared_ptr<render::scene::Mesh> toMesh(const gslu::nn_shared<gl::VertexBuffer<RoomRenderVertex>>& vbuf,
+  gslu::nn_shared<render::scene::Mesh> toMesh(const gslu::nn_shared<gl::VertexBuffer<RoomRenderVertex>>& vbuf,
                                               const gslu::nn_shared<gl::VertexBuffer<render::AnimatedUV>>& uvBuf,
                                               const std::string& label)
   {
@@ -132,7 +133,7 @@ struct RoomRenderMesh
 
     auto vBufs = std::make_tuple(vbuf, uvBuf);
 
-    auto mesh = std::make_shared<render::scene::MeshImpl<IndexType, RoomRenderVertex, render::AnimatedUV>>(
+    auto mesh = gsl::make_shared<render::scene::MeshImpl<IndexType, RoomRenderVertex, render::AnimatedUV>>(
       gsl::make_shared<gl::VertexArray<IndexType, RoomRenderVertex, render::AnimatedUV>>(
         opaqueIndexBuffer,
         vBufs,
@@ -215,69 +216,17 @@ void Room::createSceneNode(const loader::file::Room& srcRoom,
                            const std::vector<uint16_t>& textureAnimData,
                            render::material::MaterialManager& materialManager)
 {
-  RoomRenderMesh renderMesh;
-  renderMesh.m_materialDepthOnly = materialManager.getDepthOnly(false,
-                                                                []()
-                                                                {
-                                                                  return false;
-                                                                });
-  renderMesh.m_materialCSMDepthOnly = nullptr;
-  renderMesh.m_materialFullOpaque = materialManager.getGeometry(
-    isWaterRoom,
-    false,
-    true,
-    true,
-    []()
-    {
-      return false;
-    },
-    [&world]()
-    {
-      const auto& settings = world.getEngine().getEngineConfig()->renderSettings;
-      return !settings.lightingModeActive ? 0 : settings.lightingMode;
-    });
-  renderMesh.m_materialFullNonOpaque = materialManager.getGeometry(
-    isWaterRoom,
-    false,
-    true,
-    false,
-    []()
-    {
-      return false;
-    },
-    [&world]()
-    {
-      const auto& settings = world.getEngine().getEngineConfig()->renderSettings;
-      return !settings.lightingModeActive ? 0 : settings.lightingMode;
-    });
-
-  std::vector<RoomRenderVertex> vbufData;
-  std::vector<render::AnimatedUV> uvCoordsData;
-
-  textureAnimator = std::make_unique<render::TextureAnimator>(textureAnimData);
-
-  buildMeshData(world, srcRoom, vbufData, uvCoordsData, renderMesh);
-  if(!renderMesh.m_nonOpaqueIndices.empty())
-    BOOST_LOG_TRIVIAL(debug) << "room " << roomId << " is non-opaque";
-
-  const auto label = "Room:" + std::to_string(roomId);
-  auto vbuf = gsl::make_shared<gl::VertexBuffer<RoomRenderVertex>>(
-    RoomRenderVertex::getLayout(), label + gl::VboSuffix, gl::api::BufferUsage::StaticDraw, vbufData);
-
-  static const gl::VertexLayout<render::AnimatedUV> uvAttribs{
-    {VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, gl::VertexAttribute{&render::AnimatedUV::uv}},
-    {VERTEX_ATTRIBUTE_QUAD_UV12, &render::AnimatedUV::quadUv12},
-    {VERTEX_ATTRIBUTE_QUAD_UV34, &render::AnimatedUV::quadUv34},
-  };
-  uvCoordsBuffer = std::make_shared<gl::VertexBuffer<render::AnimatedUV>>(
-    uvAttribs, label + "-uv" + gl::VboSuffix, gl::api::BufferUsage::DynamicDraw, uvCoordsData);
-
-  auto resMesh = renderMesh.toMesh(vbuf, gsl::not_null{uvCoordsBuffer}, label);
-  resMesh->getRenderState().setCullFace(true);
-  resMesh->getRenderState().setCullFaceSide(gl::api::TriangleFace::Back);
-
   node = std::make_shared<render::scene::Node>("Room:" + std::to_string(roomId));
-  node->setRenderable(resMesh);
+  if(const auto mesh = world.getWorldGeometry().tryGetRoomMesh(roomId); mesh != nullptr)
+  {
+    node->setRenderable(mesh);
+  }
+  else
+  {
+    const auto newMesh = buildMesh(srcRoom, roomId, world.getEngine(), world.getWorldGeometry(), textureAnimData);
+    world.getWorldGeometry().setRoomMesh(roomId, newMesh);
+    node->setRenderable(newMesh);
+  }
   node->bind("u_lightAmbient",
              [](const render::scene::Node* /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
              {
@@ -674,7 +623,7 @@ std::shared_ptr<render::scene::Node>
   return dustNode;
 }
 
-void Room::buildMeshData(const World& world,
+void Room::buildMeshData(const WorldGeometry& worldGeometry,
                          const loader::file::Room& srcRoom,
                          std::vector<RoomRenderVertex>& vbufData,
                          std::vector<render::AnimatedUV>& uvCoordsData,
@@ -706,7 +655,7 @@ void Room::buildMeshData(const World& world,
       }
     }
 
-    const auto& tile = world.getWorldGeometry().getAtlasTiles().at(quad.tileId.get());
+    const auto& tile = worldGeometry.getAtlasTiles().at(quad.tileId.get());
 
     const bool useQuadHandling = isDistortedQuad(quad.vertices[0].from(srcRoom.vertices).position.toRenderSystem(),
                                                  quad.vertices[1].from(srcRoom.vertices).position.toRenderSystem(),
@@ -783,7 +732,7 @@ void Room::buildMeshData(const World& world,
       }
     }
 
-    const auto& tile = world.getWorldGeometry().getAtlasTiles().at(tri.tileId.get());
+    const auto& tile = worldGeometry.getAtlasTiles().at(tri.tileId.get());
 
     const auto firstVertex = vbufData.size();
     for(int i = 0; i < 3; ++i)
@@ -817,5 +766,75 @@ void Room::buildMeshData(const World& world,
       textureAnimator->registerVertex(tri.tileId, i, firstVertex + i);
     }
   }
+}
+
+gslu::nn_shared<render::scene::Mesh> Room::buildMesh(const loader::file::Room& srcRoom,
+                                                     const size_t roomId,
+                                                     const Engine& engine,
+                                                     const WorldGeometry& worldGeometry,
+                                                     const std::vector<uint16_t>& textureAnimData)
+{
+  RoomRenderMesh renderMesh;
+  renderMesh.m_materialDepthOnly = engine.getPresenter().getMaterialManager()->getDepthOnly(false,
+                                                                                            []()
+                                                                                            {
+                                                                                              return false;
+                                                                                            });
+  renderMesh.m_materialCSMDepthOnly = nullptr;
+  renderMesh.m_materialFullOpaque = engine.getPresenter().getMaterialManager()->getGeometry(
+    isWaterRoom,
+    false,
+    true,
+    true,
+    []()
+    {
+      return false;
+    },
+    [config = engine.getEngineConfig()]()
+    {
+      const auto& settings = config->renderSettings;
+      return !settings.lightingModeActive ? 0 : settings.lightingMode;
+    });
+  renderMesh.m_materialFullNonOpaque = engine.getPresenter().getMaterialManager()->getGeometry(
+    isWaterRoom,
+    false,
+    true,
+    false,
+    []()
+    {
+      return false;
+    },
+    [config = engine.getEngineConfig()]()
+    {
+      const auto& settings = config->renderSettings;
+      return !settings.lightingModeActive ? 0 : settings.lightingMode;
+    });
+
+  std::vector<RoomRenderVertex> vbufData;
+  std::vector<render::AnimatedUV> uvCoordsData;
+
+  textureAnimator = std::make_unique<render::TextureAnimator>(textureAnimData);
+
+  buildMeshData(worldGeometry, srcRoom, vbufData, uvCoordsData, renderMesh);
+  if(!renderMesh.m_nonOpaqueIndices.empty())
+    BOOST_LOG_TRIVIAL(debug) << "room " << roomId << " is non-opaque";
+
+  const auto label = "Room:" + std::to_string(roomId);
+  auto vbuf = gsl::make_shared<gl::VertexBuffer<RoomRenderVertex>>(
+    RoomRenderVertex::getLayout(), label + gl::VboSuffix, gl::api::BufferUsage::StaticDraw, vbufData);
+
+  static const gl::VertexLayout<render::AnimatedUV> uvAttribs{
+    {VERTEX_ATTRIBUTE_TEXCOORD_PREFIX_NAME, gl::VertexAttribute{&render::AnimatedUV::uv}},
+    {VERTEX_ATTRIBUTE_QUAD_UV12, &render::AnimatedUV::quadUv12},
+    {VERTEX_ATTRIBUTE_QUAD_UV34, &render::AnimatedUV::quadUv34},
+  };
+  uvCoordsBuffer = std::make_shared<gl::VertexBuffer<render::AnimatedUV>>(
+    uvAttribs, label + "-uv" + gl::VboSuffix, gl::api::BufferUsage::DynamicDraw, uvCoordsData);
+
+  auto resMesh = renderMesh.toMesh(vbuf, gsl::not_null{uvCoordsBuffer}, label);
+  resMesh->getRenderState().setCullFace(true);
+  resMesh->getRenderState().setCullFaceSide(gl::api::TriangleFace::Back);
+
+  return resMesh;
 }
 } // namespace engine::world
