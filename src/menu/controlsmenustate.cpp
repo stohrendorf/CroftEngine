@@ -94,7 +94,7 @@ std::function<std::shared_ptr<ui::widgets::Widget>(
     else if(std::holds_alternative<engine::NamedGlfwGamepadButton>(keys[0]))
     {
       gsl_Assert(!controllerLayoutName.empty());
-      const auto& buttonMap = world.getControllerLayouts().at(controllerLayoutName);
+      const auto& buttonMap = world.getWorldGeometry().getControllerLayouts().at(controllerLayoutName);
       const auto it = buttonMap.find(std::get<engine::NamedGlfwGamepadButton>(keys[0]).value);
       if(it == buttonMap.end())
         return std::make_shared<ui::widgets::Label>(
@@ -105,7 +105,7 @@ std::function<std::shared_ptr<ui::widgets::Widget>(
     else if(std::holds_alternative<engine::NamedAxisDir>(keys[0]))
     {
       gsl_Assert(!controllerLayoutName.empty());
-      const auto& buttonMap = world.getControllerLayouts().at(controllerLayoutName);
+      const auto& buttonMap = world.getWorldGeometry().getControllerLayouts().at(controllerLayoutName);
       const auto ref = std::get<engine::NamedAxisDir>(keys[0]);
       const auto it = buttonMap.find(ref.first.value);
       if(it == buttonMap.end())
@@ -359,7 +359,7 @@ void ControlsMenuState::handleDisplayInput(engine::world::World& world)
 
   if(world.getPresenter().getInputHandler().hasDebouncedAction(ChangeControllerTypeAction))
   {
-    auto& layouts = world.getControllerLayouts();
+    auto& layouts = world.getWorldGeometry().getControllerLayouts();
     auto& editing = m_editing.at(m_editingIndex);
     auto layoutIt = layouts.find(editing.controllerType);
     gsl_Assert(layoutIt != layouts.end());

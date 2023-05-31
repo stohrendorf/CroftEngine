@@ -1,7 +1,5 @@
 #pragma once
 
-#include "animation.h"
-#include "atlastile.h"
 #include "audio/emitter.h"
 #include "box.h"
 #include "camerasink.h"
@@ -10,20 +8,16 @@
 #include "core/magic.h"
 #include "core/units.h"
 #include "core/vec.h"
-#include "engine/controllerbuttons.h"
 #include "engine/floordata/types.h"
 #include "engine/items_tr1.h"
 #include "engine/objectmanager.h"
 #include "engine/objects/object.h"
 #include "loader/file/item.h"
-#include "mesh.h"
 #include "qs/qs.h"
 #include "room.h"
 #include "serialization/serialization_fwd.h"
 #include "sprite.h"
-#include "staticmesh.h"
 #include "staticsoundeffect.h"
-#include "transition.h"
 #include "ui/pickupwidget.h"
 #include "worldgeometry.h"
 
@@ -34,8 +28,7 @@
 #include <cstdint>
 #include <filesystem>
 #include <gl/pixel.h>
-#include <gl/soglb_fwd.h>
-#include <glm/vec3.hpp>
+#include <glm/fwd.hpp>
 #include <gsl/gsl-lite.hpp>
 #include <gslu.h>
 #include <map>
@@ -66,8 +59,7 @@ class Ui;
 namespace loader::file
 {
 enum class AnimationId : uint16_t;
-struct AnimFrame;
-} // namespace loader::file
+}
 
 namespace loader::file::level
 {
@@ -94,9 +86,6 @@ struct Location;
 
 namespace engine::world
 {
-class RenderMeshData;
-struct SkeletalModelType;
-
 class World final
 {
 public:
@@ -224,7 +213,6 @@ public:
   void runEffect(size_t id, objects::Object* object);
   void turn180Effect(objects::Object& object) noexcept;
   void drawRightWeaponEffect(const objects::ModelObject& object);
-  [[nodiscard]] const std::array<gl::SRGBA8, 256>& getPalette() const noexcept;
   void handleCommandSequence(const floordata::FloorDataValue* floorData, bool fromHeavy);
   void serialize(const serialization::Serializer<World>& ser) const;
   void deserialize(const serialization::Deserializer<World>& ser);
@@ -329,11 +317,6 @@ public:
     return m_cameraSinks;
   }
 
-  [[nodiscard]] const auto& getControllerLayouts() const noexcept
-  {
-    return m_controllerLayouts;
-  }
-
   [[nodiscard]] auto& getMapFlipActivationStates() noexcept
   {
     return m_mapFlipActivationStates;
@@ -399,7 +382,6 @@ private:
   std::string m_title{};
   size_t m_totalSecrets = 0;
   std::unordered_map<std::string, std::unordered_map<TR1ItemId, std::string>> m_itemTitles{};
-  std::shared_ptr<gl::Texture2DArray<gl::PremultipliedSRGBA8>> m_allTextures;
   core::Frame m_uvAnimTime = 0_frame;
 
   std::vector<ui::PickupWidget> m_pickupWidgets{};
@@ -407,17 +389,14 @@ private:
   std::shared_ptr<Player> m_levelStartPlayer;
 
   engine::floordata::FloorData m_floorData;
-  std::array<gl::SRGBA8, 256> m_palette;
   std::vector<uint8_t> m_samplesData;
-  WorldGeometry m_worldGeometry{};
+  WorldGeometry m_worldGeometry;
 
   std::vector<Box> m_boxes;
   std::vector<Room> m_rooms;
   std::vector<CinematicFrame> m_cinematicFrames;
   std::vector<CameraSink> m_cameraSinks;
   std::vector<StaticSoundEffect> m_staticSoundEffects;
-
-  ControllerLayouts m_controllerLayouts;
 
   core::Frame m_ghostFrame = 0_frame;
 

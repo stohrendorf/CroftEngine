@@ -2,29 +2,57 @@
 
 #include "animation.h"
 #include "atlastile.h"
+#include "core/containeroffset.h"
+#include "core/magic.h"
+#include "core/units.h"
 #include "engine/engine.h"
 #include "engine/engineconfig.h"
 #include "engine/presenter.h"
+#include "loader/file/animation.h"
 #include "loader/file/datatypes.h"
 #include "loader/file/level/level.h"
 #include "loader/file/mesh.h"
+#include "loader/file/meshes.h"
 #include "loader/file/texture.h"
+#include "loader/trx/trx.h"
 #include "mesh.h"
+#include "paths.h"
+#include "qs/quantity.h"
+#include "render/material/materialmanager.h"
+#include "render/material/rendermode.h"
+#include "render/material/spritematerialmode.h"
 #include "render/rendersettings.h"
 #include "render/scene/mesh.h"
+#include "render/scene/sprite.h"
+#include "render/textureatlas.h"
 #include "rendermeshdata.h"
 #include "skeletalmodeltype.h"
 #include "sprite.h"
+#include "staticmesh.h"
+#include "texturing.h"
 #include "transition.h"
+#include "util/helpers.h"
+#include "util/md5.h"
 
 #include <algorithm>
+#include <boost/assert.hpp>
 #include <boost/log/trivial.hpp>
 #include <boost/throw_exception.hpp>
+#include <chrono>
+#include <filesystem>
+#include <fstream>
 #include <gl/pixel.h>
+#include <gl/renderstate.h>
+#include <gl/texture2darray.h>
+#include <glm/vec2.hpp>
 #include <gsl/gsl-lite.hpp>
 #include <gslu.h>
 #include <iterator>
+#include <optional>
+#include <sstream>
 #include <stdexcept>
+#include <string>
+#include <tuple>
 #include <utility>
 
 namespace engine::world
@@ -91,16 +119,16 @@ core::TypeId WorldGeometry::find(const Sprite* sprite) const
   BOOST_THROW_EXCEPTION(std::runtime_error("Cannot find sprite"));
 }
 
-void WorldGeometry::initMeshes(const loader::file::level::Level& level, const std::array<gl::SRGBA8, 256>& palette)
+void WorldGeometry::initMeshes(const loader::file::level::Level& level)
 {
   std::transform(level.m_meshes.begin(),
                  level.m_meshes.end(),
                  std::back_inserter(m_meshes),
-                 [this, &palette](const loader::file::Mesh& mesh)
+                 [this](const loader::file::Mesh& mesh)
                  {
                    return Mesh{mesh.collision_center,
                                mesh.collision_radius,
-                               gsl::make_shared<RenderMeshData>(mesh, m_atlasTiles, palette)};
+                               gsl::make_shared<RenderMeshData>(mesh, m_atlasTiles, m_palette)};
                  });
 }
 
@@ -324,19 +352,166 @@ void WorldGeometry::initAnimationData(const loader::file::level::Level& level)
   gsl_Ensures(m_transitions.size() == level.m_transitions.size());
 }
 
-void WorldGeometry::init(loader::file::level::Level& level,
-                         const std::array<gl::SRGBA8, 256>& palette,
-                         const Engine& engine)
+void WorldGeometry::initTextures(Engine& engine, const loader::file::level::Level& level)
 {
-  m_poseFrames = std::move(level.m_poseFrames);
-  m_animCommands = std::move(level.m_animCommands);
-  m_boneTrees = std::move(level.m_boneTrees);
+  const auto userDataDir = findUserDataDir().value();
+  std::string texturePackId;
+  if(const auto& glidos = engine.getGlidos(); glidos != nullptr)
+  {
+    texturePackId = util::md5(glidos->getBaseDir().string().data(), glidos->getBaseDir().string().size());
+  }
+  else
+  {
+    texturePackId = "base";
+  }
+
+  const auto levelFileTime = std::filesystem::last_write_time(level.getFilename());
+  const auto cacheDir
+    = userDataDir / "texturecache" / engine.getGameflowId() / texturePackId / level.getFilename().filename();
+  const auto textureSizesPath = getTextureSizesYamlPath(cacheDir);
+  bool validTextureCache = std::filesystem::is_regular_file(textureSizesPath);
+  if(!std::filesystem::is_regular_file(getTextureCacheVersionFilePath(cacheDir)))
+  {
+    BOOST_LOG_TRIVIAL(debug) << "Removing invalid/outdated cache directory " << cacheDir;
+    const auto deleted = std::filesystem::remove_all(cacheDir);
+    BOOST_LOG_TRIVIAL(debug) << "Deleted " << deleted << " files and directories";
+    validTextureCache = false;
+  }
+
+  if(validTextureCache)
+  {
+    if(const auto& glidos = engine.getGlidos(); glidos != nullptr)
+    {
+      validTextureCache
+        &= std::max(levelFileTime, glidos->getNewestFileTime()) < std::filesystem::last_write_time(textureSizesPath);
+    }
+    else
+    {
+      validTextureCache &= levelFileTime < std::filesystem::last_write_time(textureSizesPath);
+    }
+  }
+
+  std::filesystem::create_directories(cacheDir);
+
+  render::MultiTextureAtlas atlases{3072, validTextureCache};
+  m_controllerLayouts = loadControllerButtonIcons(
+    atlases,
+    util::ensureFileExists(engine.getEngineDataPath() / "button-icons" / "buttons.yaml"),
+    engine.getPresenter().getMaterialManager()->getSprite(render::material::SpriteMaterialMode::Billboard,
+                                                          []()
+                                                          {
+                                                            return 0;
+                                                          }));
+
+  {
+    auto lastDrawUpdate = std::chrono::high_resolution_clock::now();
+    static constexpr auto TimePerFrame
+      = std::chrono::duration_cast<std::chrono::high_resolution_clock::duration>(std::chrono::seconds{1})
+        / core::FrameRate.get();
+    m_allTextures = buildTextures(
+      level,
+      engine.getGlidos(),
+      atlases,
+      m_atlasTiles,
+      m_sprites,
+      [&lastDrawUpdate, &engine](const std::string& s)
+      {
+        const auto now = std::chrono::high_resolution_clock::now();
+        if(lastDrawUpdate + TimePerFrame < now)
+        {
+          lastDrawUpdate = now;
+          engine.getPresenter().drawLoadingScreen(s);
+        }
+      },
+      cacheDir);
+  }
+  engine.getPresenter().getMaterialManager()->setGeometryTextures(gsl::not_null{m_allTextures});
+
+  // NOLINTNEXTLINE(bugprone-unused-raii)
+  std::ofstream{getTextureCacheVersionFilePath(cacheDir), std::ios::trunc};
+}
+
+void WorldGeometry::initSpriteMeshes(const Engine& engine)
+{
+  for(size_t i = 0; i < m_sprites.size(); ++i)
+  {
+    auto& sprite = m_sprites[i];
+    sprite.yBoundMesh = render::scene::createSpriteMesh(
+      static_cast<float>(sprite.render0.x),
+      static_cast<float>(-sprite.render0.y),
+      static_cast<float>(sprite.render1.x),
+      static_cast<float>(-sprite.render1.y),
+      sprite.uv0,
+      sprite.uv1,
+      render::material::RenderMode::FullNonOpaque,
+      engine.getPresenter().getMaterialManager()->getSprite(render::material::SpriteMaterialMode::YAxisBound,
+                                                            [config = engine.getEngineConfig()]()
+                                                            {
+                                                              return !config->renderSettings.lightingModeActive
+                                                                       ? 0
+                                                                       : config->renderSettings.lightingMode;
+                                                            }),
+      sprite.atlasId.get_as<int32_t>(),
+      "sprite-" + std::to_string(i) + "-ybound");
+    sprite.billboardMesh = render::scene::createSpriteMesh(
+      static_cast<float>(sprite.render0.x),
+      static_cast<float>(-sprite.render0.y),
+      static_cast<float>(sprite.render1.x),
+      static_cast<float>(-sprite.render1.y),
+      sprite.uv0,
+      sprite.uv1,
+      render::material::RenderMode::FullNonOpaque,
+      engine.getPresenter().getMaterialManager()->getSprite(render::material::SpriteMaterialMode::Billboard,
+                                                            [config = engine.getEngineConfig()]()
+                                                            {
+                                                              return !config->renderSettings.lightingModeActive
+                                                                       ? 0
+                                                                       : config->renderSettings.lightingMode;
+                                                            }),
+      sprite.atlasId.get_as<int32_t>(),
+      "sprite-" + std::to_string(i) + "-billboard");
+    sprite.instancedBillboardMesh = render::scene::createInstancedSpriteMesh(
+      static_cast<float>(sprite.render0.x),
+      static_cast<float>(-sprite.render0.y),
+      static_cast<float>(sprite.render1.x),
+      static_cast<float>(-sprite.render1.y),
+      sprite.uv0,
+      sprite.uv1,
+      render::material::RenderMode::FullNonOpaque,
+      engine.getPresenter().getMaterialManager()->getSprite(render::material::SpriteMaterialMode::InstancedBillboard,
+                                                            [config = engine.getEngineConfig()]()
+                                                            {
+                                                              return !config->renderSettings.lightingModeActive
+                                                                       ? 0
+                                                                       : config->renderSettings.lightingMode;
+                                                            }),
+      sprite.atlasId.get_as<int32_t>(),
+      "sprite-" + std::to_string(i) + "-instanced");
+  }
+}
+
+WorldGeometry::WorldGeometry(Engine& engine, const loader::file::level::Level& level)
+    : m_poseFrames(std::move(level.m_poseFrames))
+    , m_boneTrees(std::move(level.m_boneTrees))
+    , m_animCommands(std::move(level.m_animCommands))
+{
+  initTextureDependentDataFromLevel(level);
+  initTextures(engine, level);
+  initSpriteMeshes(engine);
+
+  std::transform(level.m_palette->colors.begin(),
+                 level.m_palette->colors.end(),
+                 m_palette.begin(),
+                 [](const loader::file::ByteColor& color) noexcept
+                 {
+                   return color.toTextureColor();
+                 });
+
   initAnimationData(level);
-  initMeshes(level, palette);
+  initMeshes(level);
   const auto meshesDirect = initAnimatedModels(level);
   initStaticMeshes(level, meshesDirect, engine);
 }
 
-WorldGeometry::WorldGeometry() = default;
 WorldGeometry::~WorldGeometry() = default;
 } // namespace engine::world

@@ -99,7 +99,8 @@ bool GhostManager::askGhostSave(Presenter& presenter, world::World& world)
       msgBox->setConfirmed(!msgBox->isConfirmed());
     }
 
-    ui::Ui ui{presenter.getMaterialManager()->getUi(), world.getPalette(), presenter.getUiViewport()};
+    ui::Ui ui{
+      presenter.getMaterialManager()->getUi(), world.getWorldGeometry().getPalette(), presenter.getUiViewport()};
 
     msgBox->setPosition({(ui.getSize().x - msgBox->getSize().x) / 2, (ui.getSize().y - msgBox->getSize().y) / 2});
     msgBox->update(true);

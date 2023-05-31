@@ -207,7 +207,8 @@ bool showLevelStats(const std::shared_ptr<Presenter>& presenter,
     if(presenter->getInputHandler().hasDebouncedAction(hid::Action::SecondaryInteraction))
       detailed = !detailed;
 
-    ui::Ui ui{presenter->getMaterialManager()->getUi(), world.getPalette(), presenter->getUiViewport()};
+    ui::Ui ui{
+      presenter->getMaterialManager()->getUi(), world.getWorldGeometry().getPalette(), presenter->getUiViewport()};
     ui.drawBox({0, 0}, ui.getSize(), gl::SRGBA8{0, 0, 0, 224});
     if(detailed)
       detailedStats.draw(ui, *presenter, false);
@@ -501,7 +502,9 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
       }
       m_presenter->updateSoundEngine();
       m_presenter->renderScreenOverlay();
-      ui::Ui ui{m_presenter->getMaterialManager()->getUi(), world.getPalette(), m_presenter->getUiViewport()};
+      ui::Ui ui{m_presenter->getMaterialManager()->getUi(),
+                world.getWorldGeometry().getPalette(),
+                m_presenter->getUiViewport()};
       ui.drawBox({0, 0}, ui.getSize(), gl::SRGBA8{0, 0, 0, 224});
       m_presenter->renderUi(ui, 1);
       menu->renderObjects(ui, world);
@@ -637,7 +640,9 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
         blackAlpha = 1 - runtime.cast<float>() / BlendInDuration.cast<float>();
       }
 
-      ui::Ui ui{m_presenter->getMaterialManager()->getUi(), world.getPalette(), m_presenter->getUiViewport()};
+      ui::Ui ui{m_presenter->getMaterialManager()->getUi(),
+                world.getWorldGeometry().getPalette(),
+                m_presenter->getUiViewport()};
 
       drawAmmoWidget(ui, getPresenter().getTrFont(), world, ammoDisplayDuration);
       if(bugReportSavedDuration != 0_frame)
@@ -746,7 +751,8 @@ std::pair<RunResult, std::optional<size_t>> Engine::runTitleMenu(world::World& w
     if(!m_presenter->preFrame())
       continue;
 
-    ui::Ui ui{m_presenter->getMaterialManager()->getUi(), world.getPalette(), m_presenter->getUiViewport()};
+    ui::Ui ui{
+      m_presenter->getMaterialManager()->getUi(), world.getWorldGeometry().getPalette(), m_presenter->getUiViewport()};
 
     std::shared_ptr<render::scene::Mesh> backdropMesh;
     {

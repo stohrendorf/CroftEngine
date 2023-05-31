@@ -1,7 +1,5 @@
 #include "world.h"
 
-#include "animation.h"
-#include "atlastile.h"
 #include "audio/device.h"
 #include "audio/fadevolumecallback.h"
 #include "audio/soundengine.h"
@@ -10,7 +8,6 @@
 #include "camerasink.h"
 #include "cinematicframe.h"
 #include "core/angle.h"
-#include "core/containeroffset.h"
 #include "core/genericvec.h"
 #include "core/i18n.h"
 #include "core/interval.h"
@@ -40,37 +37,24 @@
 #include "engine/soundeffects_tr1.h"
 #include "engine/tracks_tr1.h"
 #include "gsl/gsl-lite.hpp"
-#include "loader/file/animation.h"
 #include "loader/file/animationid.h"
 #include "loader/file/audio.h"
 #include "loader/file/color.h"
 #include "loader/file/datatypes.h"
 #include "loader/file/larastateid.h"
 #include "loader/file/level/level.h"
-#include "loader/file/mesh.h"
 #include "loader/file/meshes.h"
-#include "loader/file/texture.h"
-#include "loader/trx/trx.h"
-#include "mesh.h"
-#include "paths.h"
 #include "qs/qs.h"
 #include "render/material/materialmanager.h"
-#include "render/material/rendermode.h"
-#include "render/material/spritematerialmode.h"
 #include "render/rendersettings.h"
 #include "render/scene/camera.h"
-#include "render/scene/mesh.h"
 #include "render/scene/node.h"
 #include "render/scene/renderer.h"
-#include "render/scene/sprite.h"
 #include "render/textureanimator.h"
-#include "render/textureatlas.h"
-#include "rendermeshdata.h"
 #include "room.h"
 #include "sector.h"
 #include "serialization/array.h"
 #include "serialization/bitset.h"
-#include "serialization/not_null.h"
 #include "serialization/objectreference.h"
 #include "serialization/optional.h"
 #include "serialization/quantity.h"
@@ -79,15 +63,12 @@
 #include "serialization/yamldocument.h"
 #include "skeletalmodeltype.h"
 #include "sprite.h"
-#include "staticmesh.h"
 #include "staticsoundeffect.h"
-#include "texturing.h"
-#include "transition.h"
 #include "ui/text.h"
 #include "ui/ui.h"
 #include "util/fsutil.h"
 #include "util/helpers.h"
-#include "util/md5.h"
+#include "worldgeometry.h"
 
 #include <algorithm>
 #include <boost/assert.hpp>
@@ -96,7 +77,6 @@
 #include <boost/log/trivial.hpp>
 #include <boost/range/adaptor/indexed.hpp>
 #include <boost/range/adaptor/map.hpp>
-#include <boost/throw_exception.hpp>
 #include <chrono>
 #include <cmath>
 #include <cstdint>
@@ -104,15 +84,13 @@
 #include <filesystem>
 #include <functional>
 #include <gl/pixel.h>
-#include <gl/renderstate.h>
-#include <gl/texture2darray.h>
 #include <glm/gtx/norm.hpp>
 #include <glm/vec2.hpp>
+#include <glm/vec3.hpp>
 #include <gslu.h>
 #include <iterator>
 #include <set>
 #include <sstream>
-#include <stdexcept>
 #include <type_traits>
 #include <utility>
 
@@ -736,11 +714,6 @@ void World::runEffect(const size_t id, objects::Object* object)
   }
 }
 
-const std::array<gl::SRGBA8, 256>& World::getPalette() const noexcept
-{
-  return m_palette;
-}
-
 // NOLINTNEXTLINE(readability-convert-member-functions-to-static)
 void World::turn180Effect(objects::Object& object) noexcept
 {
@@ -1005,7 +978,8 @@ void World::gameLoop(bool godMode, float blackAlpha, ui::Ui& ui)
   }
 
   doGlobalEffect();
-  getPresenter().drawBars(ui, m_palette, getObjectManager(), getEngine().getEngineConfig()->pulseLowHealthHealthBar);
+  getPresenter().drawBars(
+    ui, m_worldGeometry.getPalette(), getObjectManager(), getEngine().getEngineConfig()->pulseLowHealthHealthBar);
 
   drawPickupWidgets(ui);
   if(const auto lara = getObjectManager().getLaraPtr())
@@ -1043,7 +1017,7 @@ bool World::cinematicLoop()
     = m_cameraController->updateCinematic(m_cinematicFrames.at(m_cameraController->m_cinematicFrame.get()), false);
   doGlobalEffect();
 
-  ui::Ui ui{getPresenter().getMaterialManager()->getUi(), getPalette(), getPresenter().getUiViewport()};
+  ui::Ui ui{getPresenter().getMaterialManager()->getUi(), m_worldGeometry.getPalette(), getPresenter().getUiViewport()};
   getPresenter().renderWorld(getRooms(), getCameraController(), waterEntryPortals, *this);
   getPresenter().renderScreenOverlay();
   getPresenter().renderUi(ui, 1);
@@ -1167,144 +1141,11 @@ World::World(const gsl::not_null<Engine*>& engine,
     , m_player{std::move(player)}
     , m_levelStartPlayer{std::move(levelStartPlayer)}
     , m_samplesData{std::move(level->m_samplesData)}
+    , m_worldGeometry{*m_engine, *level}
 {
   m_engine->registerWorld(this);
   m_audioEngine->setMusicGain(m_engine->getEngineConfig()->audioSettings.musicVolume);
   m_audioEngine->setSfxGain(m_engine->getEngineConfig()->audioSettings.sfxVolume);
-
-  m_worldGeometry.initTextureDependentDataFromLevel(*level);
-
-  const auto userDataDir = findUserDataDir().value();
-  std::string texturePackId;
-  if(const auto& glidos = engine->getGlidos(); glidos != nullptr)
-  {
-    texturePackId = util::md5(glidos->getBaseDir().string().data(), glidos->getBaseDir().string().size());
-  }
-  else
-  {
-    texturePackId = "base";
-  }
-
-  const auto levelFileTime = std::filesystem::last_write_time(level->getFilename());
-  const auto cacheDir
-    = userDataDir / "texturecache" / m_engine->getGameflowId() / texturePackId / level->getFilename().filename();
-  const auto textureSizesPath = getTextureSizesYamlPath(cacheDir);
-  bool validTextureCache = std::filesystem::is_regular_file(textureSizesPath);
-  if(!std::filesystem::is_regular_file(getTextureCacheVersionFilePath(cacheDir)))
-  {
-    BOOST_LOG_TRIVIAL(debug) << "Removing invalid/outdated cache directory " << cacheDir;
-    const auto deleted = std::filesystem::remove_all(cacheDir);
-    BOOST_LOG_TRIVIAL(debug) << "Deleted " << deleted << " files and directories";
-    validTextureCache = false;
-  }
-
-  if(validTextureCache)
-  {
-    if(const auto& glidos = engine->getGlidos(); glidos != nullptr)
-    {
-      validTextureCache
-        &= std::max(levelFileTime, glidos->getNewestFileTime()) < std::filesystem::last_write_time(textureSizesPath);
-    }
-    else
-    {
-      validTextureCache &= levelFileTime < std::filesystem::last_write_time(textureSizesPath);
-    }
-  }
-
-  std::filesystem::create_directories(cacheDir);
-
-  render::MultiTextureAtlas atlases{3072, validTextureCache};
-  m_controllerLayouts = loadControllerButtonIcons(
-    atlases,
-    util::ensureFileExists(m_engine->getEngineDataPath() / "button-icons" / "buttons.yaml"),
-    getPresenter().getMaterialManager()->getSprite(render::material::SpriteMaterialMode::Billboard,
-                                                   []()
-                                                   {
-                                                     return 0;
-                                                   }));
-
-  {
-    auto lastDrawUpdate = std::chrono::high_resolution_clock::now();
-    static constexpr auto TimePerFrame
-      = std::chrono::duration_cast<std::chrono::high_resolution_clock::duration>(std::chrono::seconds{1})
-        / core::FrameRate.get();
-    m_allTextures = buildTextures(
-      *level,
-      m_engine->getGlidos(),
-      atlases,
-      m_worldGeometry.getAtlasTiles(),
-      m_worldGeometry.getSprites(),
-      [this, &lastDrawUpdate](const std::string& s)
-      {
-        const auto now = std::chrono::high_resolution_clock::now();
-        if(lastDrawUpdate + TimePerFrame < now)
-        {
-          lastDrawUpdate = now;
-          getPresenter().drawLoadingScreen(s);
-        }
-      },
-      cacheDir);
-  }
-
-  std::ofstream{getTextureCacheVersionFilePath(cacheDir), std::ios::trunc};
-
-  getPresenter().getMaterialManager()->setGeometryTextures(gsl::not_null{m_allTextures});
-
-  for(size_t i = 0; i < m_worldGeometry.getSprites().size(); ++i)
-  {
-    auto& sprite = m_worldGeometry.getSprites()[i];
-    sprite.yBoundMesh = render::scene::createSpriteMesh(
-      static_cast<float>(sprite.render0.x),
-      static_cast<float>(-sprite.render0.y),
-      static_cast<float>(sprite.render1.x),
-      static_cast<float>(-sprite.render1.y),
-      sprite.uv0,
-      sprite.uv1,
-      render::material::RenderMode::FullNonOpaque,
-      getPresenter().getMaterialManager()->getSprite(render::material::SpriteMaterialMode::YAxisBound,
-                                                     [config = engine->getEngineConfig()]()
-                                                     {
-                                                       return !config->renderSettings.lightingModeActive
-                                                                ? 0
-                                                                : config->renderSettings.lightingMode;
-                                                     }),
-      sprite.atlasId.get_as<int32_t>(),
-      "sprite-" + std::to_string(i) + "-ybound");
-    sprite.billboardMesh = render::scene::createSpriteMesh(
-      static_cast<float>(sprite.render0.x),
-      static_cast<float>(-sprite.render0.y),
-      static_cast<float>(sprite.render1.x),
-      static_cast<float>(-sprite.render1.y),
-      sprite.uv0,
-      sprite.uv1,
-      render::material::RenderMode::FullNonOpaque,
-      getPresenter().getMaterialManager()->getSprite(render::material::SpriteMaterialMode::Billboard,
-                                                     [config = engine->getEngineConfig()]()
-                                                     {
-                                                       return !config->renderSettings.lightingModeActive
-                                                                ? 0
-                                                                : config->renderSettings.lightingMode;
-                                                     }),
-      sprite.atlasId.get_as<int32_t>(),
-      "sprite-" + std::to_string(i) + "-billboard");
-    sprite.instancedBillboardMesh = render::scene::createInstancedSpriteMesh(
-      static_cast<float>(sprite.render0.x),
-      static_cast<float>(-sprite.render0.y),
-      static_cast<float>(sprite.render1.x),
-      static_cast<float>(-sprite.render1.y),
-      sprite.uv0,
-      sprite.uv1,
-      render::material::RenderMode::FullNonOpaque,
-      getPresenter().getMaterialManager()->getSprite(render::material::SpriteMaterialMode::InstancedBillboard,
-                                                     [config = engine->getEngineConfig()]()
-                                                     {
-                                                       return !config->renderSettings.lightingModeActive
-                                                                ? 0
-                                                                : config->renderSettings.lightingMode;
-                                                     }),
-      sprite.atlasId.get_as<int32_t>(),
-      "sprite-" + std::to_string(i) + "-instanced");
-  }
 
   m_audioEngine->initForWorld(level->m_soundEffectProperties, level->m_soundEffects);
 
@@ -1426,15 +1267,7 @@ void World::initFromLevel(loader::file::level::Level& level, bool fromSave)
   BOOST_LOG_TRIVIAL(info) << "Post-processing data structures for " << m_levelFilename.stem();
 
   m_floorData = std::move(level.m_floorData);
-  std::transform(level.m_palette->colors.begin(),
-                 level.m_palette->colors.end(),
-                 m_palette.begin(),
-                 [](const loader::file::ByteColor& color) noexcept
-                 {
-                   return color.toTextureColor();
-                 });
 
-  m_worldGeometry.init(level, m_palette, *m_engine);
   initBoxes(level);
   initRooms(level);
   initCinematicFrames(level);
