@@ -1414,7 +1414,7 @@ void World::initRooms(const loader::file::level::Level& level)
     m_rooms[i].alternateRoom = srcRoom.alternateRoom.get() >= 0 ? &m_rooms.at(srcRoom.alternateRoom.get()) : nullptr;
 
     m_rooms[i].createSceneNode(
-      level.m_rooms.at(i), i, *this, level.m_animatedTextures, *getPresenter().getMaterialManager());
+      level.m_rooms.at(i), *this, level.m_animatedTextures, *getPresenter().getMaterialManager());
     setParent(gsl::not_null{m_rooms[i].node}, getPresenter().getRenderer().getRootNode());
   }
 }

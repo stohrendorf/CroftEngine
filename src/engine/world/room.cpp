@@ -211,13 +211,12 @@ void Portal::buildMesh(const loader::file::Portal& srcPortal,
 }
 
 void Room::createSceneNode(const loader::file::Room& srcRoom,
-                           const size_t roomId,
                            World& world,
                            const std::vector<uint16_t>& textureAnimData,
                            render::material::MaterialManager& materialManager)
 {
-  node = std::make_shared<render::scene::Node>("Room:" + std::to_string(roomId));
-  if(const auto meshAndAnimator = world.getWorldGeometry().tryGetRoomMeshAndAnimator(roomId);
+  node = std::make_shared<render::scene::Node>("Room:" + std::to_string(physicalId));
+  if(const auto meshAndAnimator = world.getWorldGeometry().tryGetRoomMeshAndAnimator(physicalId);
      meshAndAnimator.has_value())
   {
     textureAnimator = meshAndAnimator->second;
@@ -226,10 +225,10 @@ void Room::createSceneNode(const loader::file::Room& srcRoom,
   else
   {
     textureAnimator = std::make_shared<render::TextureAnimator>(textureAnimData);
-    const auto mesh = buildMesh(srcRoom, roomId, world.getEngine(), world.getWorldGeometry());
+    const auto mesh = buildMesh(srcRoom, world.getEngine(), world.getWorldGeometry());
     node->setRenderable(mesh);
 
-    world.getWorldGeometry().setRoomMesh(roomId, mesh, gsl::not_null{textureAnimator});
+    world.getWorldGeometry().setRoomMesh(physicalId, mesh, gsl::not_null{textureAnimator});
   }
 
   node->bind("u_lightAmbient",
@@ -773,10 +772,8 @@ void Room::buildMeshData(const WorldGeometry& worldGeometry,
   }
 }
 
-gslu::nn_shared<render::scene::Mesh> Room::buildMesh(const loader::file::Room& srcRoom,
-                                                     const size_t roomId,
-                                                     const Engine& engine,
-                                                     const WorldGeometry& worldGeometry)
+gslu::nn_shared<render::scene::Mesh>
+  Room::buildMesh(const loader::file::Room& srcRoom, const Engine& engine, const WorldGeometry& worldGeometry)
 {
   RoomRenderMesh renderMesh;
   renderMesh.m_materialDepthOnly = engine.getPresenter().getMaterialManager()->getDepthOnly(false,
@@ -819,9 +816,9 @@ gslu::nn_shared<render::scene::Mesh> Room::buildMesh(const loader::file::Room& s
 
   buildMeshData(worldGeometry, srcRoom, vbufData, uvCoordsData, renderMesh);
   if(!renderMesh.m_nonOpaqueIndices.empty())
-    BOOST_LOG_TRIVIAL(debug) << "room " << roomId << " is non-opaque";
+    BOOST_LOG_TRIVIAL(debug) << "room " << physicalId << " is non-opaque";
 
-  const auto label = "Room:" + std::to_string(roomId);
+  const auto label = "Room:" + std::to_string(physicalId);
   auto vbuf = gsl::make_shared<gl::VertexBuffer<RoomRenderVertex>>(
     RoomRenderVertex::getLayout(), label + gl::VboSuffix, gl::api::BufferUsage::StaticDraw, vbufData);
 

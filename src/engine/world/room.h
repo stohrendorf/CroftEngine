@@ -127,7 +127,6 @@ struct Room
   std::shared_ptr<gl::VertexBuffer<render::AnimatedUV>> uvCoordsBuffer{};
 
   void createSceneNode(const loader::file::Room& srcRoom,
-                       size_t roomId,
                        World& world,
                        const std::vector<uint16_t>& textureAnimData,
                        render::material::MaterialManager& materialManager);
@@ -197,10 +196,8 @@ private:
                      std::vector<render::AnimatedUV>& uvCoordsData,
                      RoomRenderMesh& renderMesh) const;
 
-  [[nodiscard]] gslu::nn_shared<render::scene::Mesh> buildMesh(const loader::file::Room& srcRoom,
-                                                               const size_t roomId,
-                                                               const Engine& engine,
-                                                               const WorldGeometry& worldGeometry);
+  [[nodiscard]] gslu::nn_shared<render::scene::Mesh>
+    buildMesh(const loader::file::Room& srcRoom, const Engine& engine, const WorldGeometry& worldGeometry);
 };
 
 extern void patchHeightsForBlock(const engine::objects::Object& object, const core::Length& height);
