@@ -121,6 +121,25 @@ public:
     gsl_Assert(m_roomMeshes.try_emplace(roomId, mesh, animator).second);
   }
 
+  [[nodiscard]] std::shared_ptr<render::scene::Mesh> tryGetDustMesh(const size_t roomId, const uint8_t dustLevel) const
+  {
+    auto roomIt = m_dustCache.find(roomId);
+    if(roomIt == m_dustCache.end())
+      return nullptr;
+
+    auto dustIt = roomIt->second.find(dustLevel);
+    if(dustIt == roomIt->second.end())
+      return nullptr;
+
+    return dustIt->second;
+  }
+
+  void setDustCache(const size_t roomId, const uint8_t dustLevel, const gslu::nn_shared<render::scene::Mesh>& mesh)
+  {
+    auto dustCache = m_dustCache.try_emplace(roomId);
+    gsl_Assert(dustCache.first->second.try_emplace(dustLevel, mesh).second);
+  }
+
 private:
   void initAnimationData(const loader::file::level::Level& level);
   void initMeshes(const loader::file::level::Level& level);
@@ -152,5 +171,6 @@ private:
   std::shared_ptr<gl::Texture2DArray<gl::PremultipliedSRGBA8>> m_allTextures;
 
   std::map<size_t, RoomAndAnimator> m_roomMeshes;
+  std::map<size_t, std::map<uint8_t, gslu::nn_shared<render::scene::Mesh>>> m_dustCache;
 };
 } // namespace engine::world

@@ -118,7 +118,6 @@ struct Room
   std::shared_ptr<render::scene::Node> node = nullptr;
   std::vector<gslu::nn_shared<render::scene::Node>> sceneryNodes{};
 
-  std::map<uint8_t, std::shared_ptr<render::scene::Node>> dustCache{};
   glm::vec3 verticesBBoxMin{std::numeric_limits<float>::max()};
   glm::vec3 verticesBBoxMax{std::numeric_limits<float>::lowest()};
   std::shared_ptr<render::scene::Node> dust = nullptr;
@@ -180,24 +179,21 @@ struct Room
 
   void collectShaderLights(size_t depth);
   void regenerateDust(const std::shared_ptr<engine::Presenter>& presenter,
+                      WorldGeometry& worldGeometry,
                       const gslu::nn_shared<render::material::Material>& dustMaterial,
                       bool isDustEnabled,
                       uint8_t dustDensityDivisor);
 
 private:
-  std::shared_ptr<render::scene::Node>
-    createParticleMesh(const std::string& label,
-                       const gslu::nn_shared<render::material::Material>& dustMaterial,
-                       uint8_t dustDensity) const;
-
-  void buildMeshData(const WorldGeometry& worldGeometry,
+  void buildMeshData(const engine::Presenter* presenter,
+                     WorldGeometry& worldGeometry,
                      const loader::file::Room& srcRoom,
                      std::vector<RoomRenderVertex>& vbufData,
                      std::vector<render::AnimatedUV>& uvCoordsData,
                      RoomRenderMesh& renderMesh) const;
 
   [[nodiscard]] gslu::nn_shared<render::scene::Mesh>
-    buildMesh(const loader::file::Room& srcRoom, const Engine& engine, const WorldGeometry& worldGeometry);
+    buildMesh(const loader::file::Room& srcRoom, const Engine& engine, WorldGeometry& worldGeometry);
 };
 
 extern void patchHeightsForBlock(const engine::objects::Object& object, const core::Length& height);

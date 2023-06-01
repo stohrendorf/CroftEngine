@@ -388,6 +388,7 @@ void Room::createSceneNode(const loader::file::Room& srcRoom,
   }
 
   regenerateDust(nullptr,
+                 world.getWorldGeometry(),
                  materialManager.getDustParticle(),
                  world.getEngine().getEngineConfig()->renderSettings.dustActive,
                  world.getEngine().getEngineConfig()->renderSettings.dustDensity);
@@ -541,6 +542,7 @@ void Room::collectShaderLights(size_t depth)
 }
 
 void Room::regenerateDust(const std::shared_ptr<engine::Presenter>& presenter,
+                          WorldGeometry& worldGeometry,
                           const gslu::nn_shared<render::material::Material>& dustMaterial,
                           bool isDustEnabled,
                           uint8_t dustDensityDivisor)
@@ -551,83 +553,77 @@ void Room::regenerateDust(const std::shared_ptr<engine::Presenter>& presenter,
     return;
   }
 
-  if(const auto it = dustCache.find(dustDensityDivisor); it != dustCache.end())
+  const auto label = node->getName() + "/dust";
+
+  auto dustMesh = worldGeometry.tryGetDustMesh(physicalId, dustDensityDivisor);
+
+  if(dustMesh == nullptr)
   {
-    dust = it->second;
-    return;
-  }
-  if(presenter != nullptr)
-    presenter->drawLoadingScreen(_("Generating Dust Particles..."));
-  auto dustNode = createParticleMesh(node->getName() + "/dust", dustMaterial, dustDensityDivisor);
-  dustCache.emplace(dustDensityDivisor, dustNode);
-  dust = dustNode;
-}
+    if(presenter != nullptr)
+      presenter->drawLoadingScreen(_("Generating Dust Particles..."));
 
-std::shared_ptr<render::scene::Node>
-  Room::createParticleMesh(const std::string& label,
-                           const gslu::nn_shared<render::material::Material>& dustMaterial,
-                           uint8_t dustDensityDivisor) const
-{
-  static const constexpr auto BaseGridAxisSubdivision = 12;
-  const auto resolution = (cbrt(dustDensityDivisor) / BaseGridAxisSubdivision * 1_sectors).cast<float>().get();
+    static const constexpr auto BaseGridAxisSubdivision = 12;
+    const auto resolution = (cbrt(dustDensityDivisor) / BaseGridAxisSubdivision * 1_sectors).cast<float>().get();
 
-  std::vector<glm::vec3> vertices;
-  vertices.reserve(std::lround(std::max(0.0f,
-                                        ((verticesBBoxMax.x - verticesBBoxMin.x) / resolution)
-                                          * ((verticesBBoxMax.y - verticesBBoxMin.y) / resolution)
-                                          * ((verticesBBoxMax.z - verticesBBoxMin.z) / resolution))));
-  std::vector<uint32_t> indices;
-  indices.reserve(vertices.capacity());
-  BOOST_LOG_TRIVIAL(debug) << "generating " << vertices.capacity() << " particles for " << label;
+    std::vector<glm::vec3> vertices;
+    vertices.reserve(std::lround(std::max(0.0f,
+                                          ((verticesBBoxMax.x - verticesBBoxMin.x) / resolution)
+                                            * ((verticesBBoxMax.y - verticesBBoxMin.y) / resolution)
+                                            * ((verticesBBoxMax.z - verticesBBoxMin.z) / resolution))));
+    std::vector<uint32_t> indices;
+    indices.reserve(vertices.capacity());
+    BOOST_LOG_TRIVIAL(debug) << "generating " << vertices.capacity() << " particles for " << label;
 
-  // NOLINTNEXTLINE(cert-flp30-c)
-  for(float x = verticesBBoxMin.x + resolution / 2; x <= verticesBBoxMax.x - resolution / 2; x += resolution)
-  {
     // NOLINTNEXTLINE(cert-flp30-c)
-    for(float y = verticesBBoxMin.y + resolution / 2; y <= verticesBBoxMax.y - resolution / 2; y += resolution)
+    for(float x = verticesBBoxMin.x + resolution / 2; x <= verticesBBoxMax.x - resolution / 2; x += resolution)
     {
       // NOLINTNEXTLINE(cert-flp30-c)
-      for(float z = verticesBBoxMin.z + resolution / 2; z <= verticesBBoxMax.z - resolution / 2; z += resolution)
+      for(float y = verticesBBoxMin.y + resolution / 2; y <= verticesBBoxMax.y - resolution / 2; y += resolution)
       {
-        indices.emplace_back(gsl::narrow_cast<uint32_t>(vertices.size()));
-        vertices.emplace_back(x, y, z);
+        // NOLINTNEXTLINE(cert-flp30-c)
+        for(float z = verticesBBoxMin.z + resolution / 2; z <= verticesBBoxMax.z - resolution / 2; z += resolution)
+        {
+          indices.emplace_back(gsl::narrow_cast<uint32_t>(vertices.size()));
+          vertices.emplace_back(x, y, z);
+        }
       }
     }
+
+    static const gl::VertexLayout<glm::vec3> layout{
+      {VERTEX_ATTRIBUTE_POSITION_NAME, gl::VertexAttribute<glm::vec3>::Single{}}};
+
+    auto vbuf = gsl::make_shared<gl::VertexBuffer<glm::vec3>>(
+      layout, label + "-particles" + gl::VboSuffix, gl::api::BufferUsage::StaticDraw, vertices);
+    auto indexBuffer = gsl::make_shared<gl::ElementArrayBuffer<uint32_t>>(
+      label + "-particles" + gl::IndexBufferSuffix, gl::api::BufferUsage::StaticDraw, indices);
+
+    auto vao = gsl::make_shared<gl::VertexArray<uint32_t, glm::vec3>>(
+      indexBuffer,
+      vbuf,
+      std::vector{&dustMaterial->getShaderProgram()->getHandle()},
+      label + "-particles" + gl::VaoSuffix);
+    dustMesh
+      = std::make_shared<render::scene::MeshImpl<uint32_t, glm::vec3>>(nullptr, vao, gl::api::PrimitiveType::Points);
+    dustMesh->getMaterialGroup().set(render::material::RenderMode::FullNonOpaque, dustMaterial);
+
+    dustMesh->bind("u_baseColor",
+                   [color = isWaterRoom ? glm::vec3{0.146f, 0.485f, 0.216f} : glm::vec3{0.431f, 0.386f, 0.375f}](
+                     const render::scene::Node* /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
+                   {
+                     uniform.set(color);
+                   });
+
+    worldGeometry.setDustCache(physicalId, dustDensityDivisor, gsl::not_null{dustMesh});
   }
 
-  static const gl::VertexLayout<glm::vec3> layout{
-    {VERTEX_ATTRIBUTE_POSITION_NAME, gl::VertexAttribute<glm::vec3>::Single{}}};
-
-  auto vbuf = gsl::make_shared<gl::VertexBuffer<glm::vec3>>(
-    layout, label + "-particles" + gl::VboSuffix, gl::api::BufferUsage::StaticDraw, vertices);
-  auto indexBuffer = gsl::make_shared<gl::ElementArrayBuffer<uint32_t>>(
-    label + "-particles" + gl::IndexBufferSuffix, gl::api::BufferUsage::StaticDraw, indices);
-
-  auto vao = gsl::make_shared<gl::VertexArray<uint32_t, glm::vec3>>(
-    indexBuffer,
-    vbuf,
-    std::vector{&dustMaterial->getShaderProgram()->getHandle()},
-    label + "-particles" + gl::VaoSuffix);
-  auto mesh
-    = std::make_shared<render::scene::MeshImpl<uint32_t, glm::vec3>>(nullptr, vao, gl::api::PrimitiveType::Points);
-  mesh->getMaterialGroup().set(render::material::RenderMode::FullNonOpaque, dustMaterial);
-
-  mesh->bind("u_baseColor",
-             [color = isWaterRoom ? glm::vec3{0.146f, 0.485f, 0.216f} : glm::vec3{0.431f, 0.386f, 0.375f}](
-               const render::scene::Node* /*node*/, const render::scene::Mesh& /*mesh*/, gl::Uniform& uniform)
-             {
-               uniform.set(color);
-             });
-
-  auto dustNode = std::make_shared<render::scene::Node>(label + "-particles");
-  dustNode->setLocalMatrix(translate(glm::mat4{1.0f}, position.toRenderSystem()));
-  dustNode->setRenderable(mesh);
-  dustNode->setVisible(true);
-
-  return dustNode;
+  dust = std::make_shared<render::scene::Node>(label + "-particles");
+  dust->setLocalMatrix(translate(glm::mat4{1.0f}, position.toRenderSystem()));
+  dust->setRenderable(dustMesh);
+  dust->setVisible(true);
 }
 
-void Room::buildMeshData(const WorldGeometry& worldGeometry,
+void Room::buildMeshData(const engine::Presenter* presenter,
+                         WorldGeometry& worldGeometry,
                          const loader::file::Room& srcRoom,
                          std::vector<RoomRenderVertex>& vbufData,
                          std::vector<render::AnimatedUV>& uvCoordsData,
@@ -773,7 +769,7 @@ void Room::buildMeshData(const WorldGeometry& worldGeometry,
 }
 
 gslu::nn_shared<render::scene::Mesh>
-  Room::buildMesh(const loader::file::Room& srcRoom, const Engine& engine, const WorldGeometry& worldGeometry)
+  Room::buildMesh(const loader::file::Room& srcRoom, const Engine& engine, WorldGeometry& worldGeometry)
 {
   RoomRenderMesh renderMesh;
   renderMesh.m_materialDepthOnly = engine.getPresenter().getMaterialManager()->getDepthOnly(false,
@@ -814,7 +810,7 @@ gslu::nn_shared<render::scene::Mesh>
   std::vector<RoomRenderVertex> vbufData;
   std::vector<render::AnimatedUV> uvCoordsData;
 
-  buildMeshData(worldGeometry, srcRoom, vbufData, uvCoordsData, renderMesh);
+  buildMeshData(&engine.getPresenter(), worldGeometry, srcRoom, vbufData, uvCoordsData, renderMesh);
   if(!renderMesh.m_nonOpaqueIndices.empty())
     BOOST_LOG_TRIVIAL(debug) << "room " << physicalId << " is non-opaque";
 
