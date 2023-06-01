@@ -6,6 +6,7 @@
 #include "engine/controllerbuttons.h"
 #include "mesh.h"
 #include "render/scene/mesh.h"
+#include "render/textureanimator.h"
 #include "sprite.h"
 #include "staticmesh.h"
 #include "transition.h"
@@ -18,6 +19,7 @@
 #include <gslu.h>
 #include <map>
 #include <memory>
+#include <optional>
 #include <unordered_map>
 #include <vector>
 
@@ -45,6 +47,8 @@ class RenderMeshData;
 class WorldGeometry final
 {
 public:
+  using RoomAndAnimator = std::pair<gslu::nn_shared<render::scene::Mesh>, gslu::nn_shared<render::TextureAnimator>>;
+
   explicit WorldGeometry(Engine& engine, const loader::file::level::Level& level);
   ~WorldGeometry();
 
@@ -102,17 +106,19 @@ public:
     return m_palette;
   }
 
-  [[nodiscard]] std::shared_ptr<render::scene::Mesh> tryGetRoomMesh(const size_t roomId) const
+  [[nodiscard]] std::optional<RoomAndAnimator> tryGetRoomMeshAndAnimator(const size_t roomId) const
   {
     if(const auto it = m_roomMeshes.find(roomId); it != m_roomMeshes.end())
-      return it->second.get();
+      return it->second;
 
-    return nullptr;
+    return std::nullopt;
   }
 
-  void setRoomMesh(const size_t roomId, const gslu::nn_shared<render::scene::Mesh>& mesh)
+  void setRoomMesh(const size_t roomId,
+                   const gslu::nn_shared<render::scene::Mesh>& mesh,
+                   const gslu::nn_shared<render::TextureAnimator>& animator)
   {
-    gsl_Assert(m_roomMeshes.try_emplace(roomId, mesh).second);
+    gsl_Assert(m_roomMeshes.try_emplace(roomId, mesh, animator).second);
   }
 
 private:
@@ -145,6 +151,6 @@ private:
   ControllerLayouts m_controllerLayouts;
   std::shared_ptr<gl::Texture2DArray<gl::PremultipliedSRGBA8>> m_allTextures;
 
-  std::map<size_t, gslu::nn_shared<render::scene::Mesh>> m_roomMeshes;
+  std::map<size_t, RoomAndAnimator> m_roomMeshes;
 };
 } // namespace engine::world

@@ -123,7 +123,7 @@ struct Room
   glm::vec3 verticesBBoxMax{std::numeric_limits<float>::lowest()};
   std::shared_ptr<render::scene::Node> dust = nullptr;
   mutable engine::InstancedParticleCollection particles{};
-  std::unique_ptr<render::TextureAnimator> textureAnimator{};
+  std::shared_ptr<render::TextureAnimator> textureAnimator{};
   std::shared_ptr<gl::VertexBuffer<render::AnimatedUV>> uvCoordsBuffer{};
 
   void createSceneNode(const loader::file::Room& srcRoom,
@@ -200,8 +200,7 @@ private:
   [[nodiscard]] gslu::nn_shared<render::scene::Mesh> buildMesh(const loader::file::Room& srcRoom,
                                                                const size_t roomId,
                                                                const Engine& engine,
-                                                               const WorldGeometry& worldGeometry,
-                                                               const std::vector<uint16_t>& textureAnimData);
+                                                               const WorldGeometry& worldGeometry);
 };
 
 extern void patchHeightsForBlock(const engine::objects::Object& object, const core::Length& height);

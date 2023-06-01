@@ -216,18 +216,20 @@ void Room::createSceneNode(const loader::file::Room& srcRoom,
                            const std::vector<uint16_t>& textureAnimData,
                            render::material::MaterialManager& materialManager)
 {
-  textureAnimator = std::make_unique<render::TextureAnimator>(textureAnimData);
-
   node = std::make_shared<render::scene::Node>("Room:" + std::to_string(roomId));
-  if(const auto mesh = world.getWorldGeometry().tryGetRoomMesh(roomId); mesh != nullptr)
+  if(const auto meshAndAnimator = world.getWorldGeometry().tryGetRoomMeshAndAnimator(roomId);
+     meshAndAnimator.has_value())
   {
-    node->setRenderable(mesh);
+    textureAnimator = meshAndAnimator->second;
+    node->setRenderable(meshAndAnimator->first);
   }
   else
   {
-    const auto newMesh = buildMesh(srcRoom, roomId, world.getEngine(), world.getWorldGeometry(), textureAnimData);
-    world.getWorldGeometry().setRoomMesh(roomId, newMesh);
-    node->setRenderable(newMesh);
+    textureAnimator = std::make_shared<render::TextureAnimator>(textureAnimData);
+    const auto mesh = buildMesh(srcRoom, roomId, world.getEngine(), world.getWorldGeometry());
+    node->setRenderable(mesh);
+
+    world.getWorldGeometry().setRoomMesh(roomId, mesh, gsl::not_null{textureAnimator});
   }
 
   node->bind("u_lightAmbient",
@@ -774,8 +776,7 @@ void Room::buildMeshData(const WorldGeometry& worldGeometry,
 gslu::nn_shared<render::scene::Mesh> Room::buildMesh(const loader::file::Room& srcRoom,
                                                      const size_t roomId,
                                                      const Engine& engine,
-                                                     const WorldGeometry& worldGeometry,
-                                                     const std::vector<uint16_t>& textureAnimData)
+                                                     const WorldGeometry& worldGeometry)
 {
   RoomRenderMesh renderMesh;
   renderMesh.m_materialDepthOnly = engine.getPresenter().getMaterialManager()->getDepthOnly(false,
