@@ -387,7 +387,7 @@ void Room::createSceneNode(const loader::file::Room& srcRoom,
     verticesBBoxMax = glm::max(verticesBBoxMax, vv);
   }
 
-  regenerateDust(nullptr,
+  regenerateDust(world.getPresenter(),
                  world.getWorldGeometry(),
                  materialManager.getDustParticle(),
                  world.getEngine().getEngineConfig()->renderSettings.dustActive,
@@ -541,7 +541,7 @@ void Room::collectShaderLights(size_t depth)
     "lights-buffer", gl::api::BufferUsage::StaticDraw, bufferLights);
 }
 
-void Room::regenerateDust(const std::shared_ptr<engine::Presenter>& presenter,
+void Room::regenerateDust(engine::Presenter& presenter,
                           WorldGeometry& worldGeometry,
                           const gslu::nn_shared<render::material::Material>& dustMaterial,
                           bool isDustEnabled,
@@ -559,8 +559,7 @@ void Room::regenerateDust(const std::shared_ptr<engine::Presenter>& presenter,
 
   if(dustMesh == nullptr)
   {
-    if(presenter != nullptr)
-      presenter->drawLoadingScreen(_("Generating Dust Particles..."));
+    presenter.drawLoadingScreen(_("Generating Dust Particles..."));
 
     static const constexpr auto BaseGridAxisSubdivision = 12;
     const auto resolution = (cbrt(dustDensityDivisor) / BaseGridAxisSubdivision * 1_sectors).cast<float>().get();
@@ -622,7 +621,7 @@ void Room::regenerateDust(const std::shared_ptr<engine::Presenter>& presenter,
   dust->setVisible(true);
 }
 
-void Room::buildMeshData(const engine::Presenter* presenter,
+void Room::buildMeshData(const engine::Presenter& presenter,
                          WorldGeometry& worldGeometry,
                          const loader::file::Room& srcRoom,
                          std::vector<RoomRenderVertex>& vbufData,
@@ -810,7 +809,7 @@ gslu::nn_shared<render::scene::Mesh>
   std::vector<RoomRenderVertex> vbufData;
   std::vector<render::AnimatedUV> uvCoordsData;
 
-  buildMeshData(&engine.getPresenter(), worldGeometry, srcRoom, vbufData, uvCoordsData, renderMesh);
+  buildMeshData(engine.getPresenter(), worldGeometry, srcRoom, vbufData, uvCoordsData, renderMesh);
   if(!renderMesh.m_nonOpaqueIndices.empty())
     BOOST_LOG_TRIVIAL(debug) << "room " << physicalId << " is non-opaque";
 

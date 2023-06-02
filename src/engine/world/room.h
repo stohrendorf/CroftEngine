@@ -178,14 +178,14 @@ struct Room
   std::shared_ptr<gl::ShaderStorageBuffer<engine::ShaderLight>> lightsBuffer{};
 
   void collectShaderLights(size_t depth);
-  void regenerateDust(const std::shared_ptr<engine::Presenter>& presenter,
+  void regenerateDust(engine::Presenter& presenter,
                       WorldGeometry& worldGeometry,
                       const gslu::nn_shared<render::material::Material>& dustMaterial,
                       bool isDustEnabled,
                       uint8_t dustDensityDivisor);
 
 private:
-  void buildMeshData(const engine::Presenter* presenter,
+  void buildMeshData(const engine::Presenter& presenter,
                      WorldGeometry& worldGeometry,
                      const loader::file::Room& srcRoom,
                      std::vector<RoomRenderVertex>& vbufData,
