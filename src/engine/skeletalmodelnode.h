@@ -186,7 +186,8 @@ public:
     return m_meshParts.at(idx).visible;
   }
 
-  [[nodiscard]] const gl::ShaderStorageBuffer<glm::mat4>& getMeshMatricesBuffer(std::function<bool()> smooth) const;
+  [[nodiscard]] const gl::ShaderStorageBuffer<glm::mat4>&
+    getMeshMatricesBuffer(const std::function<bool()>& smooth) const;
 
   void clearParts()
   {

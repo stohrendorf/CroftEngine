@@ -176,10 +176,10 @@ const uint8_t* CImgWrapper::data() const
   return m_image->data();
 }
 
-void CImgWrapper::savePng(const std::string& filename, bool premultiplied)
+void CImgWrapper::savePng(const std::string& filename, bool premultiply)
 {
   deinterleave();
-  if(!premultiplied)
+  if(!premultiply)
   {
     m_image->save_png(filename.c_str(), 1);
     return;

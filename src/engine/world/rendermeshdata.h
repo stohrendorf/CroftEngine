@@ -140,8 +140,8 @@ public:
   gslu::nn_shared<render::scene::Mesh> toMesh(render::material::MaterialManager& materialManager,
                                               bool skeletal,
                                               bool shadowCaster,
-                                              std::function<bool()> smooth,
-                                              std::function<int32_t()> lightingMode,
+                                              const std::function<bool()>& smooth,
+                                              const std::function<int32_t()>& lightingMode,
                                               const std::string& label);
 
   [[nodiscard]] bool empty() const noexcept

@@ -621,8 +621,7 @@ void Room::regenerateDust(engine::Presenter& presenter,
   dust->setVisible(true);
 }
 
-void Room::buildMeshData(const engine::Presenter& presenter,
-                         WorldGeometry& worldGeometry,
+void Room::buildMeshData(WorldGeometry& worldGeometry,
                          const loader::file::Room& srcRoom,
                          std::vector<RoomRenderVertex>& vbufData,
                          std::vector<render::AnimatedUV>& uvCoordsData,
@@ -809,7 +808,7 @@ gslu::nn_shared<render::scene::Mesh>
   std::vector<RoomRenderVertex> vbufData;
   std::vector<render::AnimatedUV> uvCoordsData;
 
-  buildMeshData(engine.getPresenter(), worldGeometry, srcRoom, vbufData, uvCoordsData, renderMesh);
+  buildMeshData(worldGeometry, srcRoom, vbufData, uvCoordsData, renderMesh);
   if(!renderMesh.m_nonOpaqueIndices.empty())
     BOOST_LOG_TRIVIAL(debug) << "room " << physicalId << " is non-opaque";
 

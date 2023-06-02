@@ -30,6 +30,7 @@ namespace engine::objects
 {
 void AimInfo::serialize(const serialization::Serializer<world::World>& ser) const
 {
+  // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
   auto ptr = reinterpret_cast<const int16_t*>(weaponAnimData);
   ser(S_NV_VECTOR_ELEMENT("weaponAnimData", std::cref(ser.context->getWorldGeometry().getPoseFrames()), std::cref(ptr)),
       S_NV("frame", frame),
@@ -40,12 +41,14 @@ void AimInfo::serialize(const serialization::Serializer<world::World>& ser) cons
 
 void AimInfo::deserialize(const serialization::Deserializer<world::World>& ser)
 {
+  // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
   auto ptr = reinterpret_cast<const int16_t*>(weaponAnimData);
   ser(S_NV_VECTOR_ELEMENT("weaponAnimData", std::cref(ser.context->getWorldGeometry().getPoseFrames()), std::ref(ptr)),
       S_NV("frame", frame),
       S_NV("aiming", aiming),
       S_NV("aimRotation", aimRotation),
       S_NV("flashTimeout", flashTimeout));
+  // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
   weaponAnimData = reinterpret_cast<const loader::file::AnimFrame*>(ptr);
 }
 
@@ -318,6 +321,7 @@ void AimInfo::holsterShotgun(LaraObject& lara)
   }
 }
 
+// NOLINTNEXTLINE(readability-make-member-function-const)
 void AimInfo::overrideHolsterTwoWeaponsMeshes(LaraObject& lara, WeaponType weaponType)
 {
   TR1ItemId srcId;
@@ -347,6 +351,7 @@ void AimInfo::overrideHolsterTwoWeaponsMeshes(LaraObject& lara, WeaponType weapo
   laraSkeleton.rebuildMesh();
 }
 
+// NOLINTNEXTLINE(readability-make-member-function-const)
 void AimInfo::overrideDrawTwoWeaponsMeshes(LaraObject& lara, WeaponType weaponType)
 {
   TR1ItemId id;

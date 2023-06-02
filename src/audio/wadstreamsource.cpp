@@ -20,7 +20,7 @@ namespace audio
 // in CDAUDIO.WAD file. Name length specifies maximum string size for trackname.
 constexpr size_t WADStride = 268;
 constexpr size_t WADNameLength = 260;
-constexpr size_t WADCount = 130;
+// constexpr size_t WADCount = 130;
 
 std::unique_ptr<FfmpegSubStreamStreamSource> createWadStream(const std::filesystem::path& filename,
                                                              const size_t trackIndex)

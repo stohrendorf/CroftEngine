@@ -185,8 +185,7 @@ struct Room
                       uint8_t dustDensityDivisor);
 
 private:
-  void buildMeshData(const engine::Presenter& presenter,
-                     WorldGeometry& worldGeometry,
+  void buildMeshData(WorldGeometry& worldGeometry,
                      const loader::file::Room& srcRoom,
                      std::vector<RoomRenderVertex>& vbufData,
                      std::vector<render::AnimatedUV>& uvCoordsData,

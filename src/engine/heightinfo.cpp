@@ -65,6 +65,7 @@ HeightInfo HeightInfo::fromFloor(gsl::not_null<const world::Sector*> roomSector,
         }
         else if(zSlant < 0) // lower edge at +Z
         {
+          // NOLINTNEXTLINE(performance-unnecessary-copy-initialization)
           const auto dist = localZ;
           hi.y -= dist * zSlant * core::QuarterSectorSize / core::SectorSize;
         }
@@ -76,6 +77,7 @@ HeightInfo HeightInfo::fromFloor(gsl::not_null<const world::Sector*> roomSector,
         }
         else if(xSlant < 0) // lower edge at +X
         {
+          // NOLINTNEXTLINE(performance-unnecessary-copy-initialization)
           const auto dist = localX;
           hi.y -= dist * xSlant * core::QuarterSectorSize / core::SectorSize;
         }
@@ -171,12 +173,14 @@ HeightInfo HeightInfo::fromCeiling(gsl::not_null<const world::Sector*> roomSecto
         }
         else if(zSlant < 0) // lower edge at +Z
         {
+          // NOLINTNEXTLINE(performance-unnecessary-copy-initialization)
           const auto dist = localZ;
           hi.y += dist * zSlant * core::QuarterSectorSize / core::SectorSize;
         }
 
         if(xSlant > 0) // lower edge at -X
         {
+          // NOLINTNEXTLINE(performance-unnecessary-copy-initialization)
           const auto dist = localX;
           hi.y -= dist * xSlant * core::QuarterSectorSize / core::SectorSize;
         }

@@ -254,6 +254,7 @@ MainWindow::MainWindow(QWidget* parent)
   }
   else
   {
+    // NOLINTNEXTLINE(cert-msc50-cpp)
     m_ghostColor = QColor::fromRgb(std::rand() % 256, std::rand() % 256, std::rand() % 256);
   }
 
@@ -979,17 +980,22 @@ void MainWindow::onGameflowSelected(const QModelIndex& index)
   while(!ui->gameflowMeta->isEmpty())
   {
     const auto child = ui->gameflowMeta->takeAt(0);
+    // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
     delete child->widget();
+    // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
     delete child;
   }
 
+  // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
   m_importButton = new QPushButton(tr("Import Data"), this);
   QObject::connect(m_importButton, &QPushButton::clicked, this, &MainWindow::onImportClicked);
 
+  // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
   ui->gameflowMeta->addWidget(new QLabel(tr("By %1").arg(m_gameflows.data(index, AuthorRole).toString())));
   ui->gameflowMeta->setStretch(0, 0);
   for(const auto& url : m_gameflows.data(index, UrlsRole).toStringList())
   {
+    // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
     auto lbl = new QLabel();
     lbl->setText(QString("<a href=\"%1\">%1</a>").arg(url));
     lbl->setTextInteractionFlags(Qt::LinksAccessibleByMouse | Qt::LinksAccessibleByKeyboard);

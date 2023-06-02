@@ -135,7 +135,7 @@ inline void II(uint32_t& a,
 //////////////////////////////
 
 // decodes input (unsigned char) into output (uint32_t). Assumes len is a multiple of 4.
-void decode(uint32_t output[], const uint8_t input[], const size_t len)
+void decode(uint32_t* output, const uint8_t* input, const size_t len)
 {
   for(size_t i = 0, j = 0; j < len; i++, j += 4)
   {
@@ -148,7 +148,7 @@ void decode(uint32_t output[], const uint8_t input[], const size_t len)
 
 // encodes input (uint32_t) into output (unsigned char). Assumes len is
 // a multiple of 4.
-void encode(uint8_t output[], const uint32_t input[], const size_t len)
+void encode(uint8_t* output, const uint32_t* input, const size_t len)
 {
   for(size_t i = 0, j = 0; j < len; i++, j += 4)
   {
@@ -292,7 +292,7 @@ struct State
 
   // MD5 block update operation. Continues an MD5 message-digest
   // operation, processing another message block
-  void update(const uint8_t input[], const size_t length)
+  void update(const uint8_t* input, const size_t length)
   {
     // compute number of bytes mod 64
     size_t index = count[0] / 8 % Blocksize;

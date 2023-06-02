@@ -54,7 +54,7 @@ class AudioEngine
   audio::VoiceGroup m_sfx{0.8f};
 
 public:
-  explicit AudioEngine(const gsl::not_null<world::World*>& world,
+  explicit AudioEngine(gsl::not_null<world::World*> world,
                        std::filesystem::path rootPath,
                        std::shared_ptr<audio::SoundEngine> soundEngine);
 

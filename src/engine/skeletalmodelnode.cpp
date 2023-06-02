@@ -381,7 +381,8 @@ void SkeletalModelNode::replaceAnim(const gsl::not_null<const world::Animation*>
   setAnim(anim, anim->firstFrame + localFrame);
 }
 
-const gl::ShaderStorageBuffer<glm::mat4>& SkeletalModelNode::getMeshMatricesBuffer(std::function<bool()> smooth) const
+const gl::ShaderStorageBuffer<glm::mat4>&
+  SkeletalModelNode::getMeshMatricesBuffer(const std::function<bool()>& smooth) const
 {
   if(smooth())
   {

@@ -39,7 +39,7 @@ struct DirectoryRecord
   uint8_t extendedAttributeLength = 0;
   BothByteOrders extentLocation{};
   BothByteOrders dataLength{};
-  uint8_t dateTime[7]{};
+  std::array<uint8_t, 7> dateTime{};
   uint8_t fileFlags = 0;
   uint8_t fileUnitSize = 0;
   uint8_t interleaveGapSize = 0;
@@ -50,6 +50,7 @@ struct DirectoryRecord
 #pragma pack(pop)
 } // namespace
 
+// NOLINTNEXTLINE(misc-no-recursion)
 void visitDir(DiscImage& drive,
               std::map<std::filesystem::path, FileSpan>& fileMap,
               const std::filesystem::path& parentPath,
@@ -66,7 +67,8 @@ void visitDir(DiscImage& drive,
     while(dirSize > 0)
     {
       gsl_Assert(sectorData.size() - sectorOffset > sizeof(DirectoryRecord));
-      const auto record = (const DirectoryRecord*)&sectorData.at(sectorOffset);
+      // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+      const auto record = reinterpret_cast<const DirectoryRecord*>(&sectorData.at(sectorOffset));
       if(record->LEN_DR == 0)
       {
         return;
@@ -127,7 +129,8 @@ std::map<std::filesystem::path, FileSpan> getFiles(DiscImage& drive)
   if(sectorBuffer.empty())
     return {};
 
-  if(std::strncmp("CD001", (const char*)&sectorBuffer[1], 5) != 0)
+  // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+  if(std::strncmp("CD001", reinterpret_cast<const char*>(&sectorBuffer[1]), 5) != 0)
   {
     BOOST_THROW_EXCEPTION(std::runtime_error("not an ISO 9660 image"));
   }

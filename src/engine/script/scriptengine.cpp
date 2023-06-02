@@ -15,6 +15,7 @@
 
 namespace
 {
+// NOLINTNEXTLINE(cert-err58-cpp)
 PYBIND11_EMBEDDED_MODULE(ce, m)
 {
   auto coreMod = m.def_submodule("core", "croftengine core module");

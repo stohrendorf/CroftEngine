@@ -491,9 +491,9 @@ void WorldGeometry::initSpriteMeshes(const Engine& engine)
 }
 
 WorldGeometry::WorldGeometry(Engine& engine, const loader::file::level::Level& level)
-    : m_poseFrames(std::move(level.m_poseFrames))
-    , m_boneTrees(std::move(level.m_boneTrees))
-    , m_animCommands(std::move(level.m_animCommands))
+    : m_poseFrames{level.m_poseFrames}
+    , m_boneTrees{level.m_boneTrees}
+    , m_animCommands{level.m_animCommands}
 {
   initTextureDependentDataFromLevel(level);
   initTextures(engine, level);

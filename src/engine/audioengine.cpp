@@ -353,10 +353,10 @@ void AudioEngine::deserialize(const serialization::Deserializer<world::World>& s
   m_soundEngine->deserializeStreams(ser, m_rootPath, m_music);
 }
 
-AudioEngine::AudioEngine(const gsl::not_null<world::World*>& world,
+AudioEngine::AudioEngine(gsl::not_null<world::World*> world,
                          std::filesystem::path rootPath,
                          std::shared_ptr<audio::SoundEngine> soundEngine)
-    : m_world{world}
+    : m_world{std::move(world)}
     , m_rootPath{std::move(rootPath)}
     , m_soundEngine{std::move(soundEngine)}
 {

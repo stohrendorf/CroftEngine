@@ -134,6 +134,7 @@ void dumpCpuInfo()
 }
 } // namespace
 
+// NOLINTNEXTLINE(bugprone-exception-escape)
 int main(int argc, char** argv)
 {
   const bool crashReportInitSuccess = initCrashReporting();

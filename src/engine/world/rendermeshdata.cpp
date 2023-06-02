@@ -230,8 +230,8 @@ gslu::nn_shared<render::scene::Mesh>
   RenderMeshDataCompositor::toMesh(render::material::MaterialManager& materialManager,
                                    bool skeletal,
                                    bool shadowCaster,
-                                   std::function<bool()> smooth,
-                                   std::function<int32_t()> lightingMode,
+                                   const std::function<bool()>& smooth,
+                                   const std::function<int32_t()>& lightingMode,
                                    const std::string& label)
 {
   auto vb = gsl::make_shared<gl::VertexBuffer<RenderMeshData::RenderVertex>>(
