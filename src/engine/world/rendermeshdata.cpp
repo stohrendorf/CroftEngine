@@ -43,15 +43,6 @@ RenderMeshData::RenderMeshData(const loader::file::Mesh& mesh,
                                const std::vector<engine::world::AtlasTile>& atlasTiles,
                                const std::array<gl::SRGBA8, 256>& palette)
 {
-  buildMesh(mesh, atlasTiles, palette);
-  if(!m_nonOpaqueIndices.empty())
-    BOOST_LOG_TRIVIAL(debug) << "non-opaque mesh found";
-}
-
-void RenderMeshData::buildMesh(const loader::file::Mesh& mesh,
-                               const std::vector<engine::world::AtlasTile>& atlasTiles,
-                               const std::array<gl::SRGBA8, 256>& palette)
-{
   for(const auto& quad : mesh.textured_rectangles)
   {
     const auto& tile = atlasTiles.at(quad.tileId.get());

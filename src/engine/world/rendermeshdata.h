@@ -100,10 +100,6 @@ public:
   }
 
 private:
-  void buildMesh(const loader::file::Mesh& mesh,
-                 const std::vector<engine::world::AtlasTile>& atlasTiles,
-                 const std::array<gl::SRGBA8, 256>& palette);
-
   std::vector<RenderVertex> m_vertices{};
   std::vector<IndexType> m_opaqueIndices{};
   std::vector<IndexType> m_nonOpaqueIndices{};
