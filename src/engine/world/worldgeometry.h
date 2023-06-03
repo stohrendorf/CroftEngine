@@ -47,7 +47,9 @@ class RenderMeshData;
 class WorldGeometry final
 {
 public:
-  using RoomAndAnimator = std::pair<gslu::nn_shared<render::scene::Mesh>, gslu::nn_shared<render::TextureAnimator>>;
+  using RoomAndAnimatorAndUvBuffer = std::tuple<gslu::nn_shared<render::scene::Mesh>,
+                                                gslu::nn_shared<render::TextureAnimator>,
+                                                gslu::nn_shared<gl::VertexBuffer<render::AnimatedUV>>>;
 
   explicit WorldGeometry(Engine& engine, const loader::file::level::Level& level);
   ~WorldGeometry();
@@ -106,7 +108,8 @@ public:
     return m_palette;
   }
 
-  [[nodiscard]] std::optional<RoomAndAnimator> tryGetRoomMeshAndAnimator(const size_t roomId) const
+  [[nodiscard]] std::optional<RoomAndAnimatorAndUvBuffer>
+    tryGetRoomMeshAndAnimatorAndUvBuffer(const size_t roomId) const
   {
     if(const auto it = m_roomMeshes.find(roomId); it != m_roomMeshes.end())
       return it->second;
@@ -116,9 +119,10 @@ public:
 
   void setRoomMesh(const size_t roomId,
                    const gslu::nn_shared<render::scene::Mesh>& mesh,
-                   const gslu::nn_shared<render::TextureAnimator>& animator)
+                   const gslu::nn_shared<render::TextureAnimator>& animator,
+                   const gslu::nn_shared<gl::VertexBuffer<render::AnimatedUV>>& uvBuffer)
   {
-    gsl_Assert(m_roomMeshes.try_emplace(roomId, mesh, animator).second);
+    gsl_Assert(m_roomMeshes.try_emplace(roomId, mesh, animator, uvBuffer).second);
   }
 
   [[nodiscard]] std::shared_ptr<render::scene::Mesh> tryGetDustMesh(const size_t roomId, const uint8_t dustLevel) const
@@ -170,7 +174,7 @@ private:
   ControllerLayouts m_controllerLayouts;
   std::shared_ptr<gl::Texture2DArray<gl::PremultipliedSRGBA8>> m_allTextures;
 
-  std::map<size_t, RoomAndAnimator> m_roomMeshes;
+  std::map<size_t, RoomAndAnimatorAndUvBuffer> m_roomMeshes;
   std::map<size_t, std::map<uint8_t, gslu::nn_shared<render::scene::Mesh>>> m_dustCache;
 };
 } // namespace engine::world

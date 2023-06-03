@@ -216,11 +216,12 @@ void Room::createSceneNode(const loader::file::Room& srcRoom,
                            render::material::MaterialManager& materialManager)
 {
   node = std::make_shared<render::scene::Node>("Room:" + std::to_string(physicalId));
-  if(const auto meshAndAnimator = world.getWorldGeometry().tryGetRoomMeshAndAnimator(physicalId);
-     meshAndAnimator.has_value())
+  if(const auto meshAndAnimatorAndUvBuffer = world.getWorldGeometry().tryGetRoomMeshAndAnimatorAndUvBuffer(physicalId);
+     meshAndAnimatorAndUvBuffer.has_value())
   {
-    textureAnimator = meshAndAnimator->second;
-    node->setRenderable(meshAndAnimator->first);
+    textureAnimator = std::get<1>(*meshAndAnimatorAndUvBuffer);
+    node->setRenderable(std::get<0>(*meshAndAnimatorAndUvBuffer));
+    uvCoordsBuffer = std::get<2>(*meshAndAnimatorAndUvBuffer);
   }
   else
   {
@@ -228,7 +229,8 @@ void Room::createSceneNode(const loader::file::Room& srcRoom,
     const auto mesh = buildMesh(srcRoom, world.getEngine(), world.getWorldGeometry());
     node->setRenderable(mesh);
 
-    world.getWorldGeometry().setRoomMesh(physicalId, mesh, gsl::not_null{textureAnimator});
+    world.getWorldGeometry().setRoomMesh(
+      physicalId, mesh, gsl::not_null{textureAnimator}, gsl::not_null{uvCoordsBuffer});
   }
 
   node->bind("u_lightAmbient",
