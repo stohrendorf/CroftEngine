@@ -122,6 +122,8 @@ struct HauntedCoopClient::ClientImpl
 
   void close()
   {
+    m_ioContext.stop();
+    m_ioService.stop();
     m_socket.close();
   }
 
