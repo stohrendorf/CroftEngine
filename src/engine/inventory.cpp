@@ -42,18 +42,21 @@ size_t Inventory::put(const core::TypeId& id, world::World* world, const size_t 
     addWeapon(m_shotgunAmmo);
     if(world != nullptr)
       world->getObjectManager().replaceItems(TR1ItemId::ShotgunSprite, TR1ItemId::ShotgunAmmoSprite, *world);
+    m_shotgunAmmo.addClips(quantity);
     return m_shotgunAmmo.shots;
   case TR1ItemId::MagnumsSprite:
   case TR1ItemId::Magnums:
     addWeapon(m_magnumsAmmo);
     if(world != nullptr)
       world->getObjectManager().replaceItems(TR1ItemId::MagnumsSprite, TR1ItemId::MagnumAmmoSprite, *world);
+    m_magnumsAmmo.addClips(quantity);
     return m_magnumsAmmo.shots;
   case TR1ItemId::UzisSprite:
   case TR1ItemId::Uzis:
     addWeapon(m_uzisAmmo);
     if(world != nullptr)
       world->getObjectManager().replaceItems(TR1ItemId::UzisSprite, TR1ItemId::UziAmmoSprite, *world);
+    m_uzisAmmo.addClips(quantity);
     return m_uzisAmmo.shots;
   case TR1ItemId::ShotgunAmmoSprite:
   case TR1ItemId::ShotgunAmmo:
