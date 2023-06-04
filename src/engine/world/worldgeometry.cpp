@@ -296,8 +296,14 @@ void WorldGeometry::initAnimationData(const loader::file::level::Level& level)
     gsl_Assert(anim.nextAnimationIndex < m_animations.size());
     auto nextAnimation = &m_animations[anim.nextAnimationIndex];
 
-    gsl_Assert(anim.animCommandCount == 0
-               || (anim.animCommandIndex + anim.animCommandCount).exclusiveIn(m_animCommands));
+    const auto validAnimCommands
+      = anim.animCommandCount == 0 || (anim.animCommandIndex + anim.animCommandCount).exclusiveIn(m_animCommands);
+    if(!validAnimCommands)
+    {
+      BOOST_LOG_TRIVIAL(warning) << "Invalid anim commands. Offset " << anim.animCommandIndex.index << ",  size "
+                                 << anim.animCommandCount << ", available " << m_animCommands.size();
+    }
+
     gsl_Assert(anim.transitionsCount == 0
                || (anim.transitionsIndex + anim.transitionsCount).exclusiveIn(m_transitions));
     gsl::span<const Transitions> transitions;
@@ -314,8 +320,10 @@ void WorldGeometry::initAnimationData(const loader::file::level::Level& level)
                                 anim.firstFrame,
                                 anim.lastFrame,
                                 anim.nextFrame,
-                                anim.animCommandCount,
-                                anim.animCommandCount == 0 ? nullptr : &anim.animCommandIndex.from(m_animCommands),
+                                validAnimCommands ? anim.animCommandCount : uint16_t{0},
+                                validAnimCommands
+                                  ? (anim.animCommandCount == 0 ? nullptr : &anim.animCommandIndex.from(m_animCommands))
+                                  : nullptr,
                                 nextAnimation,
                                 transitions};
   }

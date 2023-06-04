@@ -33,7 +33,7 @@ TextureAnimator::TextureAnimator(const std::vector<uint16_t>& data)
     m_sequences.emplace_back(std::move(sequence));
   }
 
-  BOOST_ASSERT(ptr == &data.back() + 1);
+  BOOST_ASSERT(ptr <= &data.back() + 1);
 }
 
 void TextureAnimator::Sequence::updateCoordinates(gl::VertexBuffer<AnimatedUV>& buffer,
