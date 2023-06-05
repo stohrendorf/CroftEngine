@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>672</width>
+    <width>800</width>
     <height>234</height>
    </rect>
   </property>
@@ -235,6 +235,50 @@
         </item>
        </layout>
       </widget>
+       <widget class="QWidget" name="tabCrash">
+         <attribute name="title">
+           <string>Crash Reporting</string>
+         </attribute>
+         <layout class="QVBoxLayout" name="verticalLayout_3">
+           <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="1,1" >
+               <item>
+                 <widget class="QTableView" name="crashdumps"/>
+               </item>
+               <item>
+                 <layout class="QVBoxLayout" name="crashdumpInfo">
+                   <item>
+                     <widget class="QLabel" name="txtAboutCrashDumps">
+                       <property name="text">
+                         <string>
+                           These files can help find the cause of the crash. 
+                           Please open an issue at 
+                           https://www.github.com/storhendorf/croftengine/issues
+                           and attach the crashdump file with the matching date and time.
+                         </string>
+                       </property>
+                     </widget>
+                   </item>
+                   <item>
+                     <widget class="QPushButton" name="btnCleanUp">
+                       <property name="text">
+                         <string>Clean Up</string>
+                       </property>
+                     </widget>
+                   </item>
+                   <item>
+                     <widget class="QPushButton" name="btnOpenCrashFolder">
+                       <property name="text">
+                         <string>Open Crashdumps Folder</string>
+                       </property>
+                     </widget>
+                   </item>
+                 </layout>
+               </item>
+             </layout>
+           </item>
+         </layout>
+       </widget>
      </widget>
     </item>
    </layout>

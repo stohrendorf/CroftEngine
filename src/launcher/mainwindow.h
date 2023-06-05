@@ -42,6 +42,9 @@ private slots:
   void onChooseColorClicked();
   void onTestConnectionClicked();
 
+  void onCleanUpClicked();
+  void onOpenCrashdumpsClicked();
+
 private:
   Ui::MainWindow* ui;
   bool importBaseGameData();
@@ -51,11 +54,13 @@ private:
                bool overwriteExisting);
 
   void setGlidosPath(const std::optional<std::string>& path);
+  void populateCrashdumpsList();
 
   QStandardItemModel m_languages{};
   QStandardItemModel m_gameflows{};
   std::optional<std::tuple<std::string, std::string>> m_launchRequest = std::nullopt;
   QPushButton* m_importButton = nullptr;
   QColor m_ghostColor;
+  QStandardItemModel m_crashdumps{};
 };
 } // namespace launcher

@@ -21,6 +21,7 @@
 
 #include <boost/log/trivial.hpp>
 #include <boost/throw_exception.hpp>
+#include <chrono>
 #include <QColorDialog>
 #include <QDesktopServices>
 #include <QFileDialog>
@@ -41,6 +42,8 @@
 
 #  include <windows.h>
 #endif
+
+using namespace std::chrono_literals;
 
 namespace launcher
 {
@@ -262,6 +265,11 @@ MainWindow::MainWindow(QWidget* parent)
   pal.setColor(QPalette::Window, m_ghostColor);
   ui->lblColor->setPalette(pal);
   ui->lblColor->setAutoFillBackground(true);
+
+  connect(ui->btnCleanUp, &QPushButton::clicked, this, &MainWindow::onCleanUpClicked);
+  connect(ui->btnOpenCrashFolder, &QPushButton::clicked, this, &MainWindow::onOpenCrashdumpsClicked);
+  ui->crashdumps->setModel(&m_crashdumps);
+  populateCrashdumpsList();
 }
 
 MainWindow::~MainWindow()
@@ -1060,4 +1068,47 @@ void MainWindow::onTestConnectionClicked()
                            tr("Your configuration seems valid. However, no attempt was made to check against the "
                               "server that it will actually work."));
 }
+
+void MainWindow::populateCrashdumpsList()
+{
+  auto userDataDir = findUserDataDir();
+  if(!userDataDir.has_value())
+    return;
+
+  auto dumpDir = userDataDir.value() / "crashdumps" / CE_GIT_TAG;
+
+  for(const auto& file : std::filesystem::directory_iterator::directory_iterator(dumpDir))
+  {
+    QList<QStandardItem*> item;
+    item.append(new QStandardItem(QString::fromLatin1(file.path().filename().string().c_str())));
+    // https://developercommunity.visualstudio.com/t/stdfilesystemfile-time-type-does-not-allow-easy-co/251213
+    time_t lastWriteTime
+      = std::chrono::duration_cast<std::chrono::seconds>(file.last_write_time().time_since_epoch() - 11644473600s)
+          .count();
+    item.append(new QStandardItem(QString::fromLatin1(ctime(&lastWriteTime))));
+    m_crashdumps.appendRow(item);
+  }
+
+  if(m_crashdumps.rowCount() > 0)
+  {
+    ui->tabWidget->setCurrentIndex(3);
+  }
+
+  m_crashdumps.setHorizontalHeaderLabels({"Filename", "Date"});
+  ui->crashdumps->resizeColumnsToContents();
+}
+
+void MainWindow::onCleanUpClicked()
+{
+  QMessageBox msgbox;
+  msgbox.setText("This is not implemented yet");
+  msgbox.addButton(QMessageBox::Ok);
+  msgbox.exec();
+}
+
+void MainWindow::onOpenCrashdumpsClicked()
+{
+  QDesktopServices::openUrl("file:///" + QString::fromUtf8( (findUserDataDir().value() / "crashdumps" / CE_GIT_TAG).string().c_str()));
+}
+
 } // namespace launcher
