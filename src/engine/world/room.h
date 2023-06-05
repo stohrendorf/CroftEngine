@@ -72,6 +72,7 @@ struct Room;
 struct StaticMesh;
 struct RoomRenderVertex;
 struct RoomRenderMesh;
+class RoomGeometry;
 
 struct Portal
 {
@@ -122,8 +123,7 @@ struct Room
   glm::vec3 verticesBBoxMax{std::numeric_limits<float>::lowest()};
   std::shared_ptr<render::scene::Node> dust = nullptr;
   mutable engine::InstancedParticleCollection particles{};
-  std::shared_ptr<render::TextureAnimator> textureAnimator{};
-  std::shared_ptr<gl::VertexBuffer<render::AnimatedUV>> uvCoordsBuffer{};
+  std::shared_ptr<RoomGeometry> roomGeometry{};
 
   void createSceneNode(const loader::file::Room& srcRoom,
                        World& world,
@@ -179,7 +179,6 @@ struct Room
 
   void collectShaderLights(size_t depth);
   void regenerateDust(engine::Presenter& presenter,
-                      WorldGeometry& worldGeometry,
                       const gslu::nn_shared<render::material::Material>& dustMaterial,
                       bool isDustEnabled,
                       uint8_t dustDensityDivisor);
@@ -189,10 +188,14 @@ private:
                      const loader::file::Room& srcRoom,
                      std::vector<RoomRenderVertex>& vbufData,
                      std::vector<render::AnimatedUV>& uvCoordsData,
-                     RoomRenderMesh& renderMesh) const;
+                     RoomRenderMesh& renderMesh,
+                     render::TextureAnimator& textureAnimator) const;
 
-  [[nodiscard]] gslu::nn_shared<render::scene::Mesh>
-    buildMesh(const loader::file::Room& srcRoom, const Engine& engine, WorldGeometry& worldGeometry);
+  [[nodiscard]] std::pair<gslu::nn_shared<render::scene::Mesh>, gslu::nn_shared<gl::VertexBuffer<render::AnimatedUV>>>
+    buildMesh(const loader::file::Room& srcRoom,
+              const Engine& engine,
+              WorldGeometry& worldGeometry,
+              render::TextureAnimator& textureAnimator);
 };
 
 extern void patchHeightsForBlock(const engine::objects::Object& object, const core::Length& height);

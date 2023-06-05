@@ -911,7 +911,6 @@ void Engine::applySettings()
     {
       room.collectShaderLights(m_engineConfig->renderSettings.getLightCollectionDepth());
       room.regenerateDust(*m_presenter,
-                          world->getWorldGeometry(),
                           m_presenter->getMaterialManager()->getDustParticle(),
                           m_engineConfig->renderSettings.dustActive,
                           m_engineConfig->renderSettings.dustDensity);

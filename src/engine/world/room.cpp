@@ -60,6 +60,7 @@
 #include <iosfwd>
 #include <iterator>
 #include <limits>
+#include <memory>
 #include <set>
 #include <string>
 #include <tuple>
@@ -216,21 +217,21 @@ void Room::createSceneNode(const loader::file::Room& srcRoom,
                            render::material::MaterialManager& materialManager)
 {
   node = std::make_shared<render::scene::Node>("Room:" + std::to_string(physicalId));
-  if(const auto meshAndAnimatorAndUvBuffer = world.getWorldGeometry().tryGetRoomMeshAndAnimatorAndUvBuffer(physicalId);
-     meshAndAnimatorAndUvBuffer.has_value())
+  roomGeometry = world.getWorldGeometry().tryGetRoomGeometry(physicalId);
+  if(roomGeometry != nullptr)
   {
-    textureAnimator = std::get<1>(*meshAndAnimatorAndUvBuffer);
-    node->setRenderable(std::get<0>(*meshAndAnimatorAndUvBuffer));
-    uvCoordsBuffer = std::get<2>(*meshAndAnimatorAndUvBuffer);
+    node->setRenderable(roomGeometry->getGeometry());
   }
   else
   {
-    textureAnimator = std::make_shared<render::TextureAnimator>(textureAnimData);
-    const auto mesh = buildMesh(srcRoom, world.getEngine(), world.getWorldGeometry());
+    auto textureAnimator = gsl::make_shared<render::TextureAnimator>(textureAnimData);
+
+    const auto [mesh, uvBuffer] = buildMesh(srcRoom, world.getEngine(), world.getWorldGeometry(), *textureAnimator);
     node->setRenderable(mesh);
 
-    world.getWorldGeometry().setRoomMesh(
-      physicalId, mesh, gsl::not_null{textureAnimator}, gsl::not_null{uvCoordsBuffer});
+    roomGeometry = std::make_shared<RoomGeometry>(mesh, textureAnimator, uvBuffer);
+
+    world.getWorldGeometry().setRoomGeometry(physicalId, gsl::not_null{roomGeometry});
   }
 
   node->bind("u_lightAmbient",
@@ -390,7 +391,6 @@ void Room::createSceneNode(const loader::file::Room& srcRoom,
   }
 
   regenerateDust(world.getPresenter(),
-                 world.getWorldGeometry(),
                  materialManager.getDustParticle(),
                  world.getEngine().getEngineConfig()->renderSettings.dustActive,
                  world.getEngine().getEngineConfig()->renderSettings.dustDensity);
@@ -544,7 +544,6 @@ void Room::collectShaderLights(size_t depth)
 }
 
 void Room::regenerateDust(engine::Presenter& presenter,
-                          WorldGeometry& worldGeometry,
                           const gslu::nn_shared<render::material::Material>& dustMaterial,
                           bool isDustEnabled,
                           uint8_t dustDensityDivisor)
@@ -557,7 +556,7 @@ void Room::regenerateDust(engine::Presenter& presenter,
 
   const auto label = node->getName() + "/dust";
 
-  auto dustMesh = worldGeometry.tryGetDustMesh(physicalId, dustDensityDivisor);
+  auto dustMesh = roomGeometry->tryGetDustMesh(dustDensityDivisor);
 
   if(dustMesh == nullptr)
   {
@@ -614,7 +613,7 @@ void Room::regenerateDust(engine::Presenter& presenter,
                      uniform.set(color);
                    });
 
-    worldGeometry.setDustCache(physicalId, dustDensityDivisor, gsl::not_null{dustMesh});
+    roomGeometry->setDustCache(dustDensityDivisor, gsl::not_null{dustMesh});
   }
 
   dust = std::make_shared<render::scene::Node>(label + "-particles");
@@ -627,7 +626,8 @@ void Room::buildMeshData(WorldGeometry& worldGeometry,
                          const loader::file::Room& srcRoom,
                          std::vector<RoomRenderVertex>& vbufData,
                          std::vector<render::AnimatedUV>& uvCoordsData,
-                         RoomRenderMesh& renderMesh) const
+                         RoomRenderMesh& renderMesh,
+                         render::TextureAnimator& textureAnimator) const
 {
   for(const loader::file::QuadFace& quad : srcRoom.rectangles)
   {
@@ -710,7 +710,7 @@ void Room::buildMeshData(WorldGeometry& worldGeometry,
     }
     for(const int i : {0, 1, 2, 3})
     {
-      textureAnimator->registerVertex(quad.tileId, i, firstVertex + i);
+      textureAnimator.registerVertex(quad.tileId, i, firstVertex + i);
     }
   }
 
@@ -763,13 +763,16 @@ void Room::buildMeshData(WorldGeometry& worldGeometry,
     }
     for(const int i : {0, 1, 2})
     {
-      textureAnimator->registerVertex(tri.tileId, i, firstVertex + i);
+      textureAnimator.registerVertex(tri.tileId, i, firstVertex + i);
     }
   }
 }
 
-gslu::nn_shared<render::scene::Mesh>
-  Room::buildMesh(const loader::file::Room& srcRoom, const Engine& engine, WorldGeometry& worldGeometry)
+std::pair<gslu::nn_shared<render::scene::Mesh>, gslu::nn_shared<gl::VertexBuffer<render::AnimatedUV>>>
+  Room::buildMesh(const loader::file::Room& srcRoom,
+                  const Engine& engine,
+                  WorldGeometry& worldGeometry,
+                  render::TextureAnimator& textureAnimator)
 {
   RoomRenderMesh renderMesh;
   renderMesh.m_materialDepthOnly = engine.getPresenter().getMaterialManager()->getDepthOnly(false,
@@ -810,7 +813,7 @@ gslu::nn_shared<render::scene::Mesh>
   std::vector<RoomRenderVertex> vbufData;
   std::vector<render::AnimatedUV> uvCoordsData;
 
-  buildMeshData(worldGeometry, srcRoom, vbufData, uvCoordsData, renderMesh);
+  buildMeshData(worldGeometry, srcRoom, vbufData, uvCoordsData, renderMesh, textureAnimator);
   if(!renderMesh.m_nonOpaqueIndices.empty())
     BOOST_LOG_TRIVIAL(debug) << "room " << physicalId << " is non-opaque";
 
@@ -823,13 +826,13 @@ gslu::nn_shared<render::scene::Mesh>
     {VERTEX_ATTRIBUTE_QUAD_UV12, &render::AnimatedUV::quadUv12},
     {VERTEX_ATTRIBUTE_QUAD_UV34, &render::AnimatedUV::quadUv34},
   };
-  uvCoordsBuffer = std::make_shared<gl::VertexBuffer<render::AnimatedUV>>(
+  auto uvCoordsBuffer = gsl::make_shared<gl::VertexBuffer<render::AnimatedUV>>(
     uvAttribs, label + "-uv" + gl::VboSuffix, gl::api::BufferUsage::DynamicDraw, uvCoordsData);
 
-  auto resMesh = renderMesh.toMesh(vbuf, gsl::not_null{uvCoordsBuffer}, label);
+  auto resMesh = renderMesh.toMesh(vbuf, uvCoordsBuffer, label);
   resMesh->getRenderState().setCullFace(true);
   resMesh->getRenderState().setCullFaceSide(gl::api::TriangleFace::Back);
 
-  return resMesh;
+  return {resMesh, uvCoordsBuffer};
 }
 } // namespace engine::world

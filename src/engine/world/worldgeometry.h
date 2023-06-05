@@ -44,13 +44,51 @@ namespace engine::world
 struct SkeletalModelType;
 class RenderMeshData;
 
+class RoomGeometry final
+{
+public:
+  explicit RoomGeometry(const gslu::nn_shared<render::scene::Mesh>& geometry,
+                        const gslu::nn_shared<render::TextureAnimator>& textureAnimator,
+                        const gslu::nn_shared<gl::VertexBuffer<render::AnimatedUV>>& uvBuffer)
+      : m_geometry{geometry}
+      , m_textureAnimator{textureAnimator}
+      , m_uvBuffer{uvBuffer}
+  {
+  }
+
+  [[nodiscard]] const auto& getGeometry() const noexcept
+  {
+    return m_geometry;
+  }
+
+  [[nodiscard]] std::shared_ptr<render::scene::Mesh> tryGetDustMesh(uint8_t i) const
+  {
+    if(const auto it = m_dustCache.find(i); it != m_dustCache.end())
+      return it->second;
+
+    return nullptr;
+  }
+
+  void setDustCache(uint8_t i, const gslu::nn_shared<render::scene::Mesh>& mesh)
+  {
+    gsl_Assert(m_dustCache.try_emplace(i, mesh).second);
+  }
+
+  void animateUv(const std::vector<AtlasTile>& atlasTiles)
+  {
+    m_textureAnimator->updateCoordinates(*m_uvBuffer, atlasTiles);
+  }
+
+private:
+  gslu::nn_shared<render::scene::Mesh> m_geometry;
+  gslu::nn_shared<render::TextureAnimator> m_textureAnimator;
+  gslu::nn_shared<gl::VertexBuffer<render::AnimatedUV>> m_uvBuffer;
+  std::map<uint8_t, gslu::nn_shared<render::scene::Mesh>> m_dustCache{};
+};
+
 class WorldGeometry final
 {
 public:
-  using RoomAndAnimatorAndUvBuffer = std::tuple<gslu::nn_shared<render::scene::Mesh>,
-                                                gslu::nn_shared<render::TextureAnimator>,
-                                                gslu::nn_shared<gl::VertexBuffer<render::AnimatedUV>>>;
-
   explicit WorldGeometry(Engine& engine, const loader::file::level::Level& level);
   ~WorldGeometry();
 
@@ -108,40 +146,17 @@ public:
     return m_palette;
   }
 
-  [[nodiscard]] std::optional<RoomAndAnimatorAndUvBuffer>
-    tryGetRoomMeshAndAnimatorAndUvBuffer(const size_t roomId) const
+  [[nodiscard]] std::shared_ptr<RoomGeometry> tryGetRoomGeometry(const size_t roomId) const
   {
-    if(const auto it = m_roomMeshes.find(roomId); it != m_roomMeshes.end())
+    if(const auto it = m_roomGeometries.find(roomId); it != m_roomGeometries.end())
       return it->second;
 
-    return std::nullopt;
+    return nullptr;
   }
 
-  void setRoomMesh(const size_t roomId,
-                   const gslu::nn_shared<render::scene::Mesh>& mesh,
-                   const gslu::nn_shared<render::TextureAnimator>& animator,
-                   const gslu::nn_shared<gl::VertexBuffer<render::AnimatedUV>>& uvBuffer)
+  void setRoomGeometry(const size_t roomId, const gslu::nn_shared<RoomGeometry>& roomGeometry)
   {
-    gsl_Assert(m_roomMeshes.try_emplace(roomId, mesh, animator, uvBuffer).second);
-  }
-
-  [[nodiscard]] std::shared_ptr<render::scene::Mesh> tryGetDustMesh(const size_t roomId, const uint8_t dustLevel) const
-  {
-    auto roomIt = m_dustCache.find(roomId);
-    if(roomIt == m_dustCache.end())
-      return nullptr;
-
-    auto dustIt = roomIt->second.find(dustLevel);
-    if(dustIt == roomIt->second.end())
-      return nullptr;
-
-    return dustIt->second;
-  }
-
-  void setDustCache(const size_t roomId, const uint8_t dustLevel, const gslu::nn_shared<render::scene::Mesh>& mesh)
-  {
-    auto dustCache = m_dustCache.try_emplace(roomId);
-    gsl_Assert(dustCache.first->second.try_emplace(dustLevel, mesh).second);
+    gsl_Assert(m_roomGeometries.try_emplace(roomId, roomGeometry).second);
   }
 
 private:
@@ -174,7 +189,6 @@ private:
   ControllerLayouts m_controllerLayouts;
   std::shared_ptr<gl::Texture2DArray<gl::PremultipliedSRGBA8>> m_allTextures;
 
-  std::map<size_t, RoomAndAnimatorAndUvBuffer> m_roomMeshes;
-  std::map<size_t, std::map<uint8_t, gslu::nn_shared<render::scene::Mesh>>> m_dustCache;
+  std::map<size_t, gslu::nn_shared<RoomGeometry>> m_roomGeometries;
 };
 } // namespace engine::world

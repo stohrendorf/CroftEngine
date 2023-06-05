@@ -646,7 +646,7 @@ void World::update(const bool godMode)
   {
     for(const auto& room : m_rooms)
     {
-      room.textureAnimator->updateCoordinates(*room.uvCoordsBuffer, m_worldGeometry->getAtlasTiles());
+      room.roomGeometry->animateUv(m_worldGeometry->getAtlasTiles());
     }
     m_uvAnimTime -= UVAnimTime;
   }
