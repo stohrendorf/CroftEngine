@@ -73,7 +73,7 @@ bool initCrashReporting()
     return false;
   }
 
-  auto crashdumpDir = *userDataDir / "crashdumps";
+  auto crashdumpDir = *userDataDir / "crashdumps" / CE_GIT_TAG;
   if(!std::filesystem::is_directory(crashdumpDir))
   {
     std::filesystem::create_directory(crashdumpDir);

@@ -703,10 +703,10 @@ configure_gettext(
 )
 
 add_executable( croftengine WIN32 ${CROFTENGINE_SRCS} )
-
+execute_process(COMMAND git describe --tags OUTPUT_VARIABLE CE_GIT_TAG OUTPUT_STRIP_TRAILING_WHITESPACE)
 set_property(
         SOURCE croftengine.cpp
-        PROPERTY COMPILE_DEFINITIONS "CE_VERSION=\"${CMAKE_PROJECT_VERSION}\""
+        PROPERTY COMPILE_DEFINITIONS "CE_VERSION=\"${CMAKE_PROJECT_VERSION}\";CE_GIT_TAG=\"${CE_GIT_TAG}\""
 )
 
 group_files( ${CROFTENGINE_SRCS} )
