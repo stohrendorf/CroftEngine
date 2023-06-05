@@ -1076,8 +1076,8 @@ void MainWindow::populateCrashdumpsList()
     return;
 
   auto dumpDir = userDataDir.value() / "crashdumps" / CE_GIT_TAG;
-
-  for(const auto& file : std::filesystem::directory_iterator::directory_iterator(dumpDir))
+  if (!std::filesystem::exists(dumpDir)) return;
+  for(const auto& file : std::filesystem::directory_iterator(dumpDir))
   {
     QList<QStandardItem*> item;
     item.append(new QStandardItem(QString::fromLatin1(file.path().filename().string().c_str())));

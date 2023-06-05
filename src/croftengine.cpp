@@ -73,6 +73,11 @@ bool initCrashReporting()
     return false;
   }
 
+  // this is required for GCC on linux 
+  if(!std::filesystem::is_directory(*userDataDir / "crashdumps")) {
+     std::filesystem::create_directory(*userDataDir / "crashdumps"); 
+  }
+
   auto crashdumpDir = *userDataDir / "crashdumps" / CE_GIT_TAG;
   if(!std::filesystem::is_directory(crashdumpDir))
   {
