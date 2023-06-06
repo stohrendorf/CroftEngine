@@ -738,12 +738,9 @@ void World::handleCommandSequence(const floordata::FloorDataValue* floorData, co
 
   if(chunkHeader.type == floordata::FloorDataChunkType::Death)
   {
-    if(!fromHeavy)
+    if(!fromHeavy && m_objectManager.getLara().m_state.location.position.Y == m_objectManager.getLara().m_state.floor)
     {
-      if(m_objectManager.getLara().m_state.location.position.Y == m_objectManager.getLara().m_state.floor)
-      {
-        m_objectManager.getLara().burnIfAlive();
-      }
+      m_objectManager.getLara().burnIfAlive();
     }
 
     if(chunkHeader.isLast)
