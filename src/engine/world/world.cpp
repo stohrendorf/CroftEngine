@@ -166,11 +166,11 @@ bool flipMapCommand(floordata::ActivationState& state,
   return false;
 }
 
-bool evaluateCondition(floordata::SequenceCondition condition,
-                       const floordata::ActivationState& request,
-                       const ObjectManager& objectManager,
-                       const floordata::FloorDataValue*& floorData,
-                       bool& switchIsOn)
+bool evaluateLaraCondition(floordata::SequenceCondition condition,
+                           const floordata::ActivationState& request,
+                           const ObjectManager& objectManager,
+                           const floordata::FloorDataValue*& floorData,
+                           bool& switchIsOn)
 {
   switch(condition)
   {
@@ -763,7 +763,7 @@ void World::handleCommandSequence(const floordata::FloorDataValue* floorData, co
   }
   else
   {
-    if(!evaluateCondition(chunkHeader.sequenceCondition, activationRequest, m_objectManager, floorData, switchIsOn))
+    if(!evaluateLaraCondition(chunkHeader.sequenceCondition, activationRequest, m_objectManager, floorData, switchIsOn))
       return;
   }
 
