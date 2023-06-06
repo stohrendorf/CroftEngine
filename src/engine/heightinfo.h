@@ -49,12 +49,21 @@ struct HeightInfo
   HeightInfo() = default;
 };
 
+struct RelativeHeightInfo
+{
+  core::Length dy = 0_len;
+  SlantClass slantClass = SlantClass::None;
+  const floordata::FloorDataValue* lastCommandSequenceOrDeath = nullptr;
+
+  RelativeHeightInfo() = default;
+};
+
 struct VerticalDistances
 {
   //! Floor distance relative to the object
-  HeightInfo floor;
+  RelativeHeightInfo floor;
   //! Ceiling distance relative to the object's top
-  HeightInfo ceiling;
+  RelativeHeightInfo ceiling;
 
   void init(const gsl::not_null<const world::Sector*>& roomSector,
             const core::TRVec& position,
@@ -62,13 +71,19 @@ struct VerticalDistances
             const core::Length& objectY,
             const core::Length& objectHeight)
   {
-    floor = HeightInfo::fromFloor(roomSector, position, objects);
-    if(floor.y != core::InvalidHeight)
-      floor.y -= objectY;
+    const auto floorInfo = HeightInfo::fromFloor(roomSector, position, objects);
+    floor.dy = floorInfo.y;
+    floor.slantClass = floorInfo.slantClass;
+    floor.lastCommandSequenceOrDeath = floorInfo.lastCommandSequenceOrDeath;
+    if(floor.dy != core::InvalidHeight)
+      floor.dy -= objectY;
 
-    ceiling = HeightInfo::fromCeiling(roomSector, position, objects);
-    if(ceiling.y != core::InvalidHeight)
-      ceiling.y -= objectY - objectHeight;
+    const auto ceilingInfo = HeightInfo::fromCeiling(roomSector, position, objects);
+    ceiling.dy = ceilingInfo.y;
+    ceiling.slantClass = ceilingInfo.slantClass;
+    ceiling.lastCommandSequenceOrDeath = ceilingInfo.lastCommandSequenceOrDeath;
+    if(ceiling.dy != core::InvalidHeight)
+      ceiling.dy -= objectY - objectHeight;
   }
 };
 } // namespace engine

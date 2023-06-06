@@ -32,7 +32,7 @@ public:
       return;
     }
 
-    if(collisionInfo.mid.floor.y <= core::DefaultCollisionRadius)
+    if(collisionInfo.mid.floor.dy <= core::DefaultCollisionRadius)
     {
       if(!tryStartSlide(collisionInfo))
       {

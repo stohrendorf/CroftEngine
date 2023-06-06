@@ -64,11 +64,11 @@ void Doppelganger::update()
       = HeightInfo::fromFloor(sector, m_state.location.position, getWorld().getObjectManager().getObjects()).y;
 
     const auto laraSector = lara.m_state.location.moved({}).updateRoom();
-    const auto laraHeight
+    const auto laraFloor
       = HeightInfo::fromFloor(laraSector, lara.m_state.location.position, getWorld().getObjectManager().getObjects()).y;
     getSkeleton()->setAnim(gsl::not_null{lara.getSkeleton()->getAnim()}, lara.getSkeleton()->getFrame());
 
-    if(laraHeight + 1_sectors <= m_state.floor && !lara.m_state.falling)
+    if(laraFloor + 1_sectors <= m_state.floor && !lara.m_state.falling)
     {
       m_killed = true;
 
@@ -98,9 +98,10 @@ void Doppelganger::update()
 
     m_state.location.position.Y = m_state.floor;
     const auto sector2 = m_state.location.moved({}).updateRoom();
-    const auto hi2
-      = HeightInfo::fromFloor(sector2, m_state.location.position, getWorld().getObjectManager().getObjects());
-    getWorld().handleCommandSequence(hi2.lastCommandSequenceOrDeath, true);
+    getWorld().handleCommandSequence(
+      HeightInfo::fromFloor(sector2, m_state.location.position, getWorld().getObjectManager().getObjects())
+        .lastCommandSequenceOrDeath,
+      true);
     m_state.fallspeed = 0_spd;
     m_state.falling = false;
     m_state.goal_anim_state = loader::file::LaraStateId::Death;

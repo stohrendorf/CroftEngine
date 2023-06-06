@@ -344,7 +344,7 @@ bool AbstractStateHandler::tryClimb(const CollisionInfo& collisionInfo)
     return false;
   }
 
-  const auto floorGradient = abs(collisionInfo.frontLeft.floor.y - collisionInfo.frontRight.floor.y);
+  const auto floorGradient = abs(collisionInfo.frontLeft.floor.dy - collisionInfo.frontRight.floor.dy);
   if(floorGradient >= core::MaxGrabbableGradient)
   {
     return false;
@@ -356,12 +356,12 @@ bool AbstractStateHandler::tryClimb(const CollisionInfo& collisionInfo)
     return false;
   }
 
-  const auto climbHeight = collisionInfo.front.floor.y;
+  const auto climbHeight = collisionInfo.front.floor.dy;
   if(climbHeight >= -core::ClimbLimit2ClickMax && climbHeight <= -core::ClimbLimit2ClickMin)
   {
-    if(climbHeight < collisionInfo.front.ceiling.y
-       || collisionInfo.frontLeft.floor.y < collisionInfo.frontLeft.ceiling.y
-       || collisionInfo.frontRight.floor.y < collisionInfo.frontRight.ceiling.y)
+    if(climbHeight < collisionInfo.front.ceiling.dy
+       || collisionInfo.frontLeft.floor.dy < collisionInfo.frontLeft.ceiling.dy
+       || collisionInfo.frontRight.floor.dy < collisionInfo.frontRight.ceiling.dy)
     {
       return false;
     }
@@ -374,9 +374,9 @@ bool AbstractStateHandler::tryClimb(const CollisionInfo& collisionInfo)
   }
   else if(climbHeight >= -core::ClimbLimit3ClickMax && climbHeight <= -core::ClimbLimit2ClickMax)
   {
-    if(collisionInfo.front.floor.y < collisionInfo.front.ceiling.y
-       || collisionInfo.frontLeft.floor.y < collisionInfo.frontLeft.ceiling.y
-       || collisionInfo.frontRight.floor.y < collisionInfo.frontRight.ceiling.y)
+    if(collisionInfo.front.floor.dy < collisionInfo.front.ceiling.dy
+       || collisionInfo.frontLeft.floor.dy < collisionInfo.frontLeft.ceiling.dy
+       || collisionInfo.frontRight.floor.dy < collisionInfo.frontRight.ceiling.dy)
     {
       return false;
     }
@@ -500,7 +500,7 @@ void AbstractStateHandler::commonJumpHandling(CollisionInfo& collisionInfo)
   collisionInfo.facingAngle = getMovementAngle();
   collisionInfo.initHeightInfo(m_lara->m_state.location.position, getWorld(), core::LaraWalkHeight);
   checkJumpWallSmash(collisionInfo);
-  if(m_lara->m_state.fallspeed <= 0_spd || collisionInfo.mid.floor.y > 0_len)
+  if(m_lara->m_state.fallspeed <= 0_spd || collisionInfo.mid.floor.dy > 0_len)
   {
     return;
   }
@@ -532,7 +532,7 @@ void AbstractStateHandler::commonSlideHandling(CollisionInfo& collisionInfo)
   }
 
   checkWallCollision(collisionInfo);
-  if(collisionInfo.mid.floor.y <= 200_len)
+  if(collisionInfo.mid.floor.dy <= 200_len)
   {
     tryStartSlide(collisionInfo);
     placeOnFloor(collisionInfo);
@@ -568,7 +568,7 @@ void AbstractStateHandler::commonEdgeHangHandling(CollisionInfo& collisionInfo)
   collisionInfo.validCeilingHeightMin = 0_len;
   collisionInfo.facingAngle = getMovementAngle();
   collisionInfo.initHeightInfo(m_lara->m_state.location.position, getWorld(), core::LaraWalkHeight);
-  const bool tooSteepToGrab = collisionInfo.front.floor.y < 200_len;
+  const bool tooCloseToFloor = collisionInfo.front.floor.dy < 200_len;
   m_lara->m_state.fallspeed = 0_spd;
   m_lara->m_state.falling = false;
   setMovementAngle(m_lara->m_state.rotation.Y);
@@ -600,8 +600,8 @@ void AbstractStateHandler::commonEdgeHangHandling(CollisionInfo& collisionInfo)
     setGoalAnimState(LaraStateId::JumpUp);
     setCurrentAnimState(LaraStateId::JumpUp);
     setHandStatus(objects::HandStatus::None);
-    const auto hangDistance = collisionInfo.front.floor.y - getLara().getBoundingBox().y.min + 2_len;
-    const core::TRVec& pos
+    const auto hangDistance = collisionInfo.front.floor.dy - getLara().getBoundingBox().y.min + 2_len;
+    const core::TRVec pos
       = m_lara->m_state.location.position + core::TRVec(collisionInfo.shift.X, hangDistance, collisionInfo.shift.Z);
     m_lara->m_state.location.position = pos;
     m_lara->m_state.speed = 2_spd;
@@ -610,9 +610,9 @@ void AbstractStateHandler::commonEdgeHangHandling(CollisionInfo& collisionInfo)
     return;
   }
 
-  const auto gradient = abs(collisionInfo.frontLeft.floor.y - collisionInfo.frontRight.floor.y);
-  if(gradient >= core::MaxGrabbableGradient || collisionInfo.mid.ceiling.y >= 0_len
-     || collisionInfo.collisionType != CollisionInfo::AxisColl::Front || tooSteepToGrab)
+  const auto gradient = abs(collisionInfo.frontLeft.floor.dy - collisionInfo.frontRight.floor.dy);
+  if(gradient >= core::MaxGrabbableGradient || collisionInfo.mid.ceiling.dy >= 0_len
+     || collisionInfo.collisionType != CollisionInfo::AxisColl::Front || tooCloseToFloor)
   {
     m_lara->m_state.location.position = collisionInfo.initialPosition;
     if(getCurrentAnimState() != LaraStateId::ShimmyLeft && getCurrentAnimState() != LaraStateId::ShimmyRight)
@@ -639,7 +639,7 @@ void AbstractStateHandler::commonEdgeHangHandling(CollisionInfo& collisionInfo)
     break;
   }
 
-  const auto spaceToReach = collisionInfo.front.floor.y - getLara().getBoundingBox().y.min;
+  const auto spaceToReach = collisionInfo.front.floor.dy - getLara().getBoundingBox().y.min;
   if(spaceToReach >= -core::QuarterSectorSize && spaceToReach <= core::QuarterSectorSize)
   {
     m_lara->m_state.location.position.Y += spaceToReach;
@@ -720,7 +720,7 @@ void AbstractStateHandler::jumpAgainstWall(CollisionInfo& collisionInfo)
   case CollisionInfo::AxisColl::Jammed:
     m_lara->m_state.location.move(util::pitch(core::DefaultCollisionRadius, m_lara->m_state.rotation.Y));
     m_lara->m_state.speed = 0_spd;
-    collisionInfo.mid.floor.y = 0_len;
+    collisionInfo.mid.floor.dy = 0_len;
     if(m_lara->m_state.fallspeed < 0_spd)
     {
       m_lara->m_state.fallspeed = 16_spd;
@@ -760,7 +760,7 @@ void AbstractStateHandler::checkJumpWallSmash(CollisionInfo& collisionInfo)
   case CollisionInfo::AxisColl::Jammed:
     m_lara->m_state.location.move(util::pitch(core::DefaultCollisionRadius, collisionInfo.facingAngle));
     m_lara->m_state.speed = 0_spd;
-    collisionInfo.mid.floor.y = 0_len;
+    collisionInfo.mid.floor.dy = 0_len;
     if(m_lara->m_state.fallspeed <= 0_spd)
     {
       m_lara->m_state.fallspeed = 16_spd;

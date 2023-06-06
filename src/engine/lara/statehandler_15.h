@@ -76,7 +76,7 @@ public:
     getLara().m_state.fallspeed = 0_spd;
     getLara().m_state.falling = false;
 
-    if(collisionInfo.mid.ceiling.y <= -core::DefaultCollisionRadius)
+    if(collisionInfo.mid.ceiling.dy <= -core::DefaultCollisionRadius)
     {
       return;
     }

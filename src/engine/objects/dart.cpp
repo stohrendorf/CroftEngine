@@ -44,9 +44,8 @@ void Dart::update()
   const auto sector = m_state.location.updateRoom();
   setCurrentRoom(m_state.location.room);
 
-  const HeightInfo h
-    = HeightInfo::fromFloor(sector, m_state.location.position, getWorld().getObjectManager().getObjects());
-  m_state.floor = h.y;
+  m_state.floor
+    = HeightInfo::fromFloor(sector, m_state.location.position, getWorld().getObjectManager().getObjects()).y;
 
   if(m_state.location.position.Y < m_state.floor)
     return;

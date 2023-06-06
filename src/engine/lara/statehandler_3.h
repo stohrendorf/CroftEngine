@@ -64,7 +64,7 @@ public:
 
     checkJumpWallSmash(collisionInfo);
 
-    if(collisionInfo.mid.floor.y > 0_len || getLara().m_state.fallspeed <= 0_spd)
+    if(collisionInfo.mid.floor.dy > 0_len || getLara().m_state.fallspeed <= 0_spd)
     {
       return;
     }

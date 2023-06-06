@@ -50,7 +50,7 @@ public:
       return;
     }
 
-    if(collisionInfo.mid.floor.y > 200_len)
+    if(collisionInfo.mid.floor.dy > 200_len)
     {
       setAnimation(AnimationId::FREE_FALL_BACK);
       setGoalAnimState(LaraStateId::FallBackward);

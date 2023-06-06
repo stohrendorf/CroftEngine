@@ -159,21 +159,23 @@ void CollisionInfo::initHeightInfo(const core::TRVec& laraPos, const world::Worl
     vd.init(sector, testLocation.position, world.getObjectManager().getObjects(), laraPosY, height);
 
     if(policyFlags.is_set(PolicyFlags::SlopesAreWalls) && vd.floor.slantClass == SlantClass::Steep
-       && vd.floor.y < 0_len)
+       && vd.floor.dy < 0_len)
     {
-      vd.floor.y = -32767_len; // This is not a typo, it is really -32767
+      // This is not a typo, it is really -32767. It must be different from core::InvalidHeight to not mix it up with
+      // walls.
+      vd.floor.dy = -32767_len;
     }
-    else if(vd.floor.y > 0_len)
+    else if(vd.floor.dy > 0_len)
     {
       if((policyFlags.is_set(PolicyFlags::SlopesArePits) && vd.floor.slantClass == SlantClass::Steep))
       {
-        vd.floor.y = 1_sectors / 2;
+        vd.floor.dy = 1_sectors / 2;
       }
       else if(policyFlags.is_set(PolicyFlags::LavaIsPit) && vd.floor.lastCommandSequenceOrDeath != nullptr
               && floordata::FloorDataChunk::extractType(*vd.floor.lastCommandSequenceOrDeath)
                    == floordata::FloorDataChunkType::Death)
       {
-        vd.floor.y = 1_sectors / 2;
+        vd.floor.dy = 1_sectors / 2;
       }
     }
   };
@@ -185,27 +187,27 @@ void CollisionInfo::initHeightInfo(const core::TRVec& laraPos, const world::Worl
 
   checkStaticMeshCollisions(laraPos, height, world);
 
-  if(mid.floor.y == core::InvalidHeight)
+  if(mid.floor.dy == core::InvalidHeight)
   {
     collisionType = AxisColl::Front;
     shift = initialPosition - laraPos;
     return;
   }
 
-  if(mid.floor.y - mid.ceiling.y <= 0_len)
+  if(mid.floor.dy - mid.ceiling.dy <= 0_len)
   {
     collisionType = AxisColl::Jammed;
     shift = initialPosition - laraPos;
     return;
   }
 
-  if(mid.ceiling.y >= 0_len)
+  if(mid.ceiling.dy >= 0_len)
   {
     collisionType = AxisColl::Top;
-    shift.Y = mid.ceiling.y;
+    shift.Y = mid.ceiling.dy;
   }
 
-  if(!validFloorHeight.contains(front.floor.y) || front.ceiling.y > validCeilingHeightMin)
+  if(!validFloorHeight.contains(front.floor.dy) || front.ceiling.dy > validCeilingHeightMin)
   {
     collisionType = AxisColl::Front;
     switch(facingAxis)
@@ -226,14 +228,14 @@ void CollisionInfo::initHeightInfo(const core::TRVec& laraPos, const world::Worl
     return;
   }
 
-  if(front.ceiling.y >= validCeilingHeightMin)
+  if(front.ceiling.dy >= validCeilingHeightMin)
   {
     collisionType = AxisColl::FrontTop;
     shift = initialPosition - laraPos;
     return;
   }
 
-  if(!validFloorHeight.contains(frontLeft.floor.y))
+  if(!validFloorHeight.contains(frontLeft.floor.dy))
   {
     collisionType = AxisColl::FrontLeft;
     switch(facingAxis)
@@ -252,7 +254,7 @@ void CollisionInfo::initHeightInfo(const core::TRVec& laraPos, const world::Worl
     return;
   }
 
-  if(!validFloorHeight.contains(frontRight.floor.y))
+  if(!validFloorHeight.contains(frontRight.floor.dy))
   {
     collisionType = AxisColl::FrontRight;
     switch(facingAxis)

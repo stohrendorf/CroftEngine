@@ -27,7 +27,7 @@ public:
     laraState.fallspeed = 0_spd;
     laraState.falling = false;
 
-    if(collisionInfo.mid.floor.y <= core::DefaultCollisionRadius)
+    if(collisionInfo.mid.floor.dy <= core::DefaultCollisionRadius)
     {
       if(!tryStartSlide(collisionInfo))
       {

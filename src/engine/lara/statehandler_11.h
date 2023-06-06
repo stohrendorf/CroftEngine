@@ -44,7 +44,7 @@ public:
     const auto sector = location.updateRoom();
     VerticalDistances distances;
     distances.init(sector, location.position, getWorld().getObjectManager().getObjects(), location.position.Y, 400_len);
-    return distances.floor.y != core::InvalidHeight && distances.floor.y > 0_len && distances.ceiling.y < 0_len;
+    return distances.floor.dy != core::InvalidHeight && distances.floor.dy > 0_len && distances.ceiling.dy < 0_len;
   }
 
   [[nodiscard]] bool tryHang(const CollisionInfo& collisionInfo)
@@ -56,18 +56,18 @@ public:
       return false;
     }
 
-    if(abs(collisionInfo.frontLeft.floor.y - collisionInfo.frontRight.floor.y) >= core::MaxGrabbableGradient)
+    if(abs(collisionInfo.frontLeft.floor.dy - collisionInfo.frontRight.floor.dy) >= core::MaxGrabbableGradient)
     {
       return false;
     }
 
-    if(collisionInfo.front.ceiling.y > 0_len || collisionInfo.mid.ceiling.y > -core::ClimbLimit2ClickMin
-       || collisionInfo.mid.floor.y < 200_len)
+    if(collisionInfo.front.ceiling.dy > 0_len || collisionInfo.mid.ceiling.dy > -core::ClimbLimit2ClickMin
+       || collisionInfo.mid.floor.dy < 200_len)
     {
       return false;
     }
 
-    const auto spaceToReach = collisionInfo.front.floor.y - getLara().getBoundingBox().y.min;
+    const auto spaceToReach = collisionInfo.front.floor.dy - getLara().getBoundingBox().y.min;
     if(spaceToReach < 0_len && spaceToReach + getLara().m_state.fallspeed * 1_frame < 0_len)
     {
       return false;
@@ -119,7 +119,7 @@ public:
     }
 
     jumpAgainstWall(collisionInfo);
-    if(getLara().m_state.fallspeed <= 0_spd || collisionInfo.mid.floor.y > 0_len)
+    if(getLara().m_state.fallspeed <= 0_spd || collisionInfo.mid.floor.dy > 0_len)
     {
       return;
     }

@@ -66,7 +66,7 @@ public:
       setAnimation(AnimationId::STAY_SOLID);
     }
 
-    if(collisionInfo.mid.floor.y > core::QuarterSectorSize && collisionInfo.mid.floor.y < core::ClimbLimit2ClickMin)
+    if(collisionInfo.mid.floor.dy > core::QuarterSectorSize && collisionInfo.mid.floor.dy < core::ClimbLimit2ClickMin)
     {
       if(getLara().getSkeleton()->getFrame() < 964_frame || getLara().getSkeleton()->getFrame() > 993_frame)
       {

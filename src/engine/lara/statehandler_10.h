@@ -45,10 +45,10 @@ public:
       return;
     }
 
-    const auto frontHeight = collisionInfo.front.floor.y;
-    const auto frontSpace = frontHeight - collisionInfo.front.ceiling.y;
-    const auto frontLeftSpace = collisionInfo.frontLeft.floor.y - collisionInfo.frontLeft.ceiling.y;
-    const auto frontRightSpace = collisionInfo.frontRight.floor.y - collisionInfo.frontRight.ceiling.y;
+    const auto frontHeight = collisionInfo.front.floor.dy;
+    const auto frontSpace = frontHeight - collisionInfo.front.ceiling.dy;
+    const auto frontLeftSpace = collisionInfo.frontLeft.floor.dy - collisionInfo.frontLeft.ceiling.dy;
+    const auto frontRightSpace = collisionInfo.frontRight.floor.dy - collisionInfo.frontRight.ceiling.dy;
     if(frontHeight <= -850_len || frontHeight >= -650_len || frontSpace < 0_len || frontLeftSpace < 0_len
        || frontRightSpace < 0_len || collisionInfo.hasStaticMeshCollision)
     {

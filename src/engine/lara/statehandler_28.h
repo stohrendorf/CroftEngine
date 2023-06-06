@@ -36,7 +36,7 @@ public:
     }
 
     jumpAgainstWall(collisionInfo);
-    if(getLara().m_state.fallspeed <= 0_spd || collisionInfo.mid.floor.y > 0_len)
+    if(getLara().m_state.fallspeed <= 0_spd || collisionInfo.mid.floor.dy > 0_len)
     {
       return;
     }
@@ -63,17 +63,17 @@ public:
       return false;
     }
 
-    if(abs(collisionInfo.frontLeft.floor.y - collisionInfo.frontRight.floor.y) >= core::MaxGrabbableGradient)
+    if(abs(collisionInfo.frontLeft.floor.dy - collisionInfo.frontRight.floor.dy) >= core::MaxGrabbableGradient)
     {
       return false;
     }
 
-    if(collisionInfo.front.ceiling.y > 0_len || collisionInfo.mid.ceiling.y > -core::ClimbLimit2ClickMin)
+    if(collisionInfo.front.ceiling.dy > 0_len || collisionInfo.mid.ceiling.dy > -core::ClimbLimit2ClickMin)
     {
       return false;
     }
 
-    const auto spaceToReach = collisionInfo.front.floor.y - getLara().getBoundingBox().y.min;
+    const auto spaceToReach = collisionInfo.front.floor.dy - getLara().getBoundingBox().y.min;
     if(spaceToReach < 0_len && spaceToReach + getLara().m_state.fallspeed * 1_frame < 0_len)
     {
       return false;
@@ -94,7 +94,7 @@ public:
     setGoalAnimState(LaraStateId::Hang);
     setCurrentAnimState(LaraStateId::Hang);
 
-    getLara().m_state.location.position.Y += collisionInfo.front.floor.y - getLara().getBoundingBox().y.min;
+    getLara().m_state.location.position.Y += collisionInfo.front.floor.dy - getLara().getBoundingBox().y.min;
     applyShift(collisionInfo);
     getLara().m_state.speed = 0_spd;
     getLara().m_state.rotation.Y = *alignedRotation;

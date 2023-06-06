@@ -117,9 +117,10 @@ void ScionPiece3::update()
     m_state.health = core::DeadHealth;
 
     const auto sector = m_state.location.moved({}).updateRoom();
-    const auto hi
-      = HeightInfo::fromFloor(sector, m_state.location.position, getWorld().getObjectManager().getObjects());
-    getWorld().handleCommandSequence(hi.lastCommandSequenceOrDeath, true);
+    getWorld().handleCommandSequence(
+      HeightInfo::fromFloor(sector, m_state.location.position, getWorld().getObjectManager().getObjects())
+        .lastCommandSequenceOrDeath,
+      true);
   }
 
   if(m_deadTime % 10_frame == 0_frame)

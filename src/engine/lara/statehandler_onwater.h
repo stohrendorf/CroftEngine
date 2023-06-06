@@ -23,7 +23,7 @@ protected:
                                  getWorld(),
                                  core::LaraSwimHeight);
     applyShift(collisionInfo);
-    if(collisionInfo.mid.floor.y < 0_len)
+    if(collisionInfo.mid.floor.dy < 0_len)
     {
       getLara().m_state.fallspeed = 0_spd;
       getLara().m_state.location.position = collisionInfo.initialPosition;
@@ -83,28 +83,28 @@ private:
       return;
     }
 
-    const auto gradient = abs(collisionInfo.frontLeft.floor.y - collisionInfo.frontRight.floor.y);
+    const auto gradient = abs(collisionInfo.frontLeft.floor.dy - collisionInfo.frontRight.floor.dy);
     if(gradient >= core::MaxGrabbableGradient)
     {
       return;
     }
 
-    if(collisionInfo.front.ceiling.y > 0_len)
+    if(collisionInfo.front.ceiling.dy > 0_len)
     {
       return;
     }
 
-    if(collisionInfo.mid.ceiling.y > -core::ClimbLimit2ClickMin)
+    if(collisionInfo.mid.ceiling.dy > -core::ClimbLimit2ClickMin)
     {
       return;
     }
 
-    if(collisionInfo.front.floor.y + core::LaraSwimHeight <= 2 * -core::QuarterSectorSize)
+    if(collisionInfo.front.floor.dy + core::LaraSwimHeight <= 2 * -core::QuarterSectorSize)
     {
       return;
     }
 
-    if(collisionInfo.front.floor.y + core::LaraSwimHeight > core::DefaultCollisionRadius)
+    if(collisionInfo.front.floor.dy + core::LaraSwimHeight > core::DefaultCollisionRadius)
     {
       return;
     }
@@ -115,7 +115,7 @@ private:
       return;
     }
 
-    getLara().m_state.location.move(core::TRVec(0_len, 695_len + collisionInfo.front.floor.y, 0_len));
+    getLara().m_state.location.move(core::TRVec(0_len, 695_len + collisionInfo.front.floor.dy, 0_len));
     getLara().updateFloorHeight(-381_len);
     core::TRVec d = getLara().m_state.location.position;
     switch(*axis)

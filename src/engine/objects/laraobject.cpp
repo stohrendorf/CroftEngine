@@ -313,7 +313,7 @@ void LaraObject::handleLaraStateSwimming()
 
 void LaraObject::placeOnFloor(const CollisionInfo& collisionInfo) noexcept
 {
-  m_state.location.position.Y += collisionInfo.mid.floor.y;
+  m_state.location.position.Y += collisionInfo.mid.floor.dy;
 }
 
 LaraObject::~LaraObject() = default;
@@ -588,9 +588,10 @@ void LaraObject::updateFloorHeight(const core::Length& dy)
   location.position.Y += dy;
   const auto sector = location.updateRoom();
   setCurrentRoom(m_state.location.room);
-  const HeightInfo hi = HeightInfo::fromFloor(
-    sector, m_state.location.position - core::TRVec{0_len, dy, 0_len}, getWorld().getObjectManager().getObjects());
-  m_state.floor = hi.y;
+  m_state.floor = HeightInfo::fromFloor(sector,
+                                        m_state.location.position - core::TRVec{0_len, dy, 0_len},
+                                        getWorld().getObjectManager().getObjects())
+                    .y;
   setCurrentRoom(location.room);
 }
 
@@ -687,9 +688,9 @@ void LaraObject::handleUnderwaterCurrent(CollisionInfo& collisionInfo)
     break;
   }
 
-  if(collisionInfo.mid.floor.y < 0_len)
+  if(collisionInfo.mid.floor.dy < 0_len)
   {
-    m_state.location.position.Y += collisionInfo.mid.floor.y;
+    m_state.location.position.Y += collisionInfo.mid.floor.dy;
     m_state.rotation.X += 2_deg;
   }
   applyShift(collisionInfo);

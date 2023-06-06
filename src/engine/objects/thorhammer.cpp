@@ -122,9 +122,10 @@ void ThorHammerHandle::update()
   case Settle.get():
   {
     const auto sector = m_state.location.moved({}).updateRoom();
-    const auto hi
-      = HeightInfo::fromFloor(sector, m_state.location.position, getWorld().getObjectManager().getObjects());
-    getWorld().handleCommandSequence(hi.lastCommandSequenceOrDeath, true);
+    getWorld().handleCommandSequence(
+      HeightInfo::fromFloor(sector, m_state.location.position, getWorld().getObjectManager().getObjects())
+        .lastCommandSequenceOrDeath,
+      true);
 
     const auto oldPosX = m_state.location.position.X;
     const auto oldPosZ = m_state.location.position.Z;
