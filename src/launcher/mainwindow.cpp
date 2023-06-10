@@ -51,6 +51,7 @@ const char* const GameflowConfigKey = "launcher-gameflow";
 const int IdRole = Qt::UserRole + 1;
 const int AuthorRole = Qt::UserRole + 2;
 const int UrlsRole = Qt::UserRole + 3;
+const int DownloadSoundtrackRole = Qt::UserRole + 4;
 
 void extractImage(const std::filesystem::path& cueFile, const std::filesystem::path& targetDir)
 {
@@ -157,6 +158,7 @@ MainWindow::MainWindow(QWidget* parent)
       auto item = new QStandardItem{QString::fromLatin1(gameflowMeta.title.c_str())};
       item->setData(QVariant{QString::fromLatin1(gameflowId.c_str())}, IdRole);
       item->setData(QVariant{QString::fromLatin1(gameflowMeta.author.c_str())}, AuthorRole);
+      item->setData(QVariant{gameflowMeta.downloadSoundtrack}, DownloadSoundtrackRole);
       item->setEditable(false);
 
       QStringList urls;
@@ -277,6 +279,21 @@ void MainWindow::onOpenDataLocationClicked()
 void MainWindow::onImportClicked()
 {
   const auto gameflow = ui->gameflows->currentIndex().data(IdRole).toString();
+
+  const auto downloadSoundtrackIfNecessary = [this](const std::string& gameflowId)
+  {
+    const auto downloadSoundtrack = ui->gameflows->currentIndex().data(DownloadSoundtrackRole).toBool();
+    const auto userDataDir = findUserDataDir().value();
+    if(downloadSoundtrack && !std::filesystem::is_regular_file(userDataDir / "data" / gameflowId / "AUDIO" / "002.ogg"))
+    {
+      auto downloader = new DownloadProgress(
+        QUrl{"https://opentomb.earvillage.net/croftengine-audio-tr1.zip"}, userDataDir / "data" / "tracks.zip", this);
+      connect(downloader, &DownloadProgress::downloaded, this, &MainWindow::extractSoundtrackZip);
+      downloader->show();
+      downloader->start();
+    }
+  };
+
   if(gameflow == "tr1" || gameflow == "tr1ub")
   {
     if(!importBaseGameData())
@@ -284,16 +301,7 @@ void MainWindow::onImportClicked()
 
     QMessageBox::information(this, tr("Data Imported"), tr("Game Data has been imported."));
 
-    const auto userDataDir = findUserDataDir().value();
-    if(std::filesystem::is_regular_file(userDataDir / "data" / "tr1" / "AUDIO" / "002.ogg")
-       || std::filesystem::is_regular_file(userDataDir / "data" / "tr1" / "Music" / "Track02.flac"))
-      return;
-
-    auto downloader = new DownloadProgress(
-      QUrl{"https://opentomb.earvillage.net/croftengine-audio-tr1.zip"}, userDataDir / "data" / "tracks.zip", this);
-    connect(downloader, &DownloadProgress::downloaded, this, &MainWindow::extractSoundtrackZip);
-    downloader->show();
-    downloader->start();
+    downloadSoundtrackIfNecessary("tr1");
   }
   else if(gameflow == "tr1demo-part1" || gameflow == "tr1demo-part2")
   {
@@ -403,15 +411,7 @@ void MainWindow::onImportClicked()
 
       QMessageBox::information(this, tr("Data Imported"), tr("Game Data has been imported."));
 
-      const auto userDataDir = findUserDataDir().value();
-      if(std::filesystem::is_regular_file(userDataDir / "data" / gameflow.toStdString() / "AUDIO" / "002.ogg"))
-        return;
-
-      auto downloader = new DownloadProgress(
-        QUrl{"https://opentomb.earvillage.net/croftengine-audio-tr1.zip"}, userDataDir / "data" / "tracks.zip", this);
-      connect(downloader, &DownloadProgress::downloaded, this, &MainWindow::extractSoundtrackZip);
-      downloader->show();
-      downloader->start();
+      downloadSoundtrackIfNecessary(gameflow.toStdString());
     }
   }
   else
@@ -524,8 +524,10 @@ void MainWindow::onImportClicked()
         std::filesystem::create_directories(dstName.parent_path());
         archive.writeCurrentTo(dstName);
       }
-
+ 
       QMessageBox::information(this, tr("Data Imported"), tr("Game Data has been imported."));
+
+      downloadSoundtrackIfNecessary(gameflow.toStdString());
     }
   }
 }

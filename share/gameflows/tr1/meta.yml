@@ -1,6 +1,7 @@
 meta:
   title: "Tomb Raider 1"
   author: "Core Design"
+  downloadSoundtrack: true
   urls:
     - "https://www.gog.com/en/game/tomb_raider_123"
     - "https://store.steampowered.com/app/224960/Tomb_Raider_I/"
