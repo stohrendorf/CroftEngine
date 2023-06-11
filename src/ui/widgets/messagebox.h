@@ -3,8 +3,10 @@
 #include "widget.h"
 
 #include <glm/vec2.hpp>
+#include <gslu.h>
 #include <memory>
 #include <string>
+#include <vector>
 
 namespace ui
 {
@@ -38,6 +40,11 @@ public:
     return m_confirmed;
   }
 
+  void toggleConfirmed()
+  {
+    m_confirmed = !m_confirmed;
+  }
+
   void setPosition(const glm::ivec2& position) override;
 
   [[nodiscard]] glm::ivec2 getPosition() const override;
@@ -48,7 +55,7 @@ public:
 private:
   glm::ivec2 m_position{0, 0};
   bool m_confirmed = false;
-  std::shared_ptr<Label> m_question;
+  std::vector<gslu::nn_shared<Label>> m_questions;
   std::shared_ptr<Label> m_yes;
   std::shared_ptr<Label> m_no;
 };

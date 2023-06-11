@@ -46,6 +46,7 @@
 #include "ui/levelstats.h"
 #include "ui/text.h"
 #include "ui/ui.h"
+#include "util/datetime.h"
 #include "util/helpers.h"
 #include "world/world.h"
 
@@ -151,31 +152,13 @@ void drawSaveReminder(ui::Ui& ui, const ui::TRFont& trFont)
   text.draw(ui, trFont, pos);
 }
 
-std::string getCurrentHumanReadableTimestamp()
-{
-  auto time = std::time(nullptr);
-  struct tm localTimeData
-  {
-  };
-#ifdef WIN32
-  gsl_Assert(localtime_s(&localTimeData, &time) == 0);
-  auto localTime = &localTimeData;
-#else
-  auto localTime = localtime_r(&time, &localTimeData);
-  gsl_Assert(localTime != nullptr);
-#endif
-  return (boost::format("%04d-%02d-%02d %02d-%02d-%02d") % (localTime->tm_year + 1900) % (localTime->tm_mon + 1)
-          % localTime->tm_mday % localTime->tm_hour % localTime->tm_min % localTime->tm_sec)
-    .str();
-}
-
 void makeScreenshot(const Presenter& presenter, const std::filesystem::path& userDataPath)
 {
   auto img = presenter.takeScreenshot();
   if(!std::filesystem::is_directory(userDataPath / "screenshots"))
     std::filesystem::create_directories(userDataPath / "screenshots");
 
-  auto filename = getCurrentHumanReadableTimestamp() + ".png";
+  auto filename = util::getCurrentHumanReadableTimestamp() + ".png";
   img.savePng(userDataPath / "screenshots" / filename, false);
 }
 
@@ -699,7 +682,7 @@ void Engine::takeBugReport(world::World& world)
     std::filesystem::create_directory(m_userDataPath / "bugreports");
   }
 
-  const auto dirName = getCurrentHumanReadableTimestamp();
+  const auto dirName = util::getCurrentHumanReadableTimestamp();
   if(!std::filesystem::is_directory(m_userDataPath / "bugreports" / dirName))
   {
     std::filesystem::create_directory(m_userDataPath / "bugreports" / dirName);

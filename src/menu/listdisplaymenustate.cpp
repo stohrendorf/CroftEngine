@@ -104,4 +104,9 @@ void ListDisplayMenuState::clear()
 {
   m_listBox->clear();
 }
+
+void ListDisplayMenuState::setSelected(size_t idx)
+{
+  m_listBox->setSelected(idx);
+}
 } // namespace menu

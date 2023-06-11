@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CroftEngine 2.1\n"
 "Report-Msgid-Bugs-To: https://github.com/stohrendorf/CroftEngine/issues\n"
-"POT-Creation-Date: 2023-05-29 00:12+0200\n"
+"POT-Creation-Date: 2023-06-23 05:28+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -55,7 +55,7 @@ msgid "%1$02d:%2$02d"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/savegamelistmenustate.cpp:149
+#: menu/savegamelistmenustate.cpp:631
 #, boost-format
 msgctxt "SavegameTitle"
 msgid "%1% - %2%"
@@ -80,7 +80,7 @@ msgid "%1%:%2$02d:%3$02d"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/savegamelistmenustate.cpp:131
+#: util/datetime.h:57
 msgctxt "SavegameTime"
 msgid "%d %B %Y %X"
 msgstr ""
@@ -110,14 +110,14 @@ msgid "-"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/savegamelistmenustate.cpp:183
+#: menu/savegamelistmenustate.cpp:665
 #, boost-format
 msgctxt "SavegameTitle"
 msgid "- EMPTY SLOT %1%"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/savegamelistmenustate.cpp:167
+#: menu/savegamelistmenustate.cpp:647
 msgctxt "SavegameTitle"
 msgid "- NO QUICKSAVE"
 msgstr ""
@@ -231,7 +231,7 @@ msgid "Bug Report"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: engine/engine.cpp:142
+#: engine/engine.cpp:143
 msgid "Bug Report Saved"
 msgstr ""
 
@@ -269,6 +269,11 @@ msgid "CURRENT"
 msgstr ""
 
 #. translators: TR charmap encoding
+#: menu/savegamelistmenustate.cpp:176
+msgid "Cancel"
+msgstr ""
+
+#. translators: TR charmap encoding
 #: hid/names.cpp:143
 msgctxt "Keyboard|Key"
 msgid "CapsLk"
@@ -289,6 +294,102 @@ msgstr ""
 #. translators: TR charmap encoding; in the sense of "cheats are used"
 #: ui/detailedlevelstats.cpp:164
 msgid "Cheats Used"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/savegamelistmenustate.cpp:73
+msgid "Clean Up Saves"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/savegamelistmenustate.cpp:155
+msgid "Clear All Other Level Slots"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/savegamelistmenustate.cpp:706
+#, boost-format
+msgid ""
+"Clear All Other Level Slots?\n"
+"\n"
+"This will erase all of your level data\n"
+"for %1%, except for Slot %2%."
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/savegamelistmenustate.cpp:151
+msgid "Clear All Other Slots"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/savegamelistmenustate.cpp:697
+#, boost-format
+msgid ""
+"Clear All Other Slots?\n"
+"\n"
+"This will erase all of your data,\n"
+"except for Slot %1%."
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/savegamelistmenustate.cpp:160
+msgid "Clear All Slots, Keep Most Recent Level Slots, and Compact"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/savegamelistmenustate.cpp:720
+msgid ""
+"Clear Historic Slots?\n"
+"\n"
+"This will erase all of your saves for each\n"
+"level, except for the most recent ones, and\n"
+"move all slots to the start of the list."
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/savegamelistmenustate.cpp:714
+msgid ""
+"Clear Historic Slots?\n"
+"\n"
+"This will erase all of your saves for each\n"
+"level, except for the most recent ones."
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/savegamelistmenustate.cpp:143
+msgid "Clear Selected Slot"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/savegamelistmenustate.cpp:147
+#, boost-format
+msgid "Clear Slots Before %1%"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/savegamelistmenustate.cpp:691
+#, boost-format
+msgid "Clear Slots Before %1%?"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/savegamelistmenustate.cpp:684
+#, boost-format
+msgid "Clear slot %1%?"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/savegamelistmenustate.cpp:164
+msgid "Compact"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/savegamelistmenustate.cpp:727
+msgid ""
+"Compact All Slots?\n"
+"\n"
+"This will move all slots\n"
+"to the start of the list."
 msgstr ""
 
 #. translators: TR charmap encoding
@@ -455,12 +556,12 @@ msgid "Esc"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/passportmenustate.cpp:107
+#: menu/passportmenustate.cpp:108
 msgid "Exit Game"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/passportmenustate.cpp:106
+#: menu/passportmenustate.cpp:107
 msgid "Exit to Title"
 msgstr ""
 
@@ -523,7 +624,7 @@ msgstr ""
 msgid "Gameplay"
 msgstr ""
 
-#: engine/world/room.cpp:607
+#: engine/world/room.cpp:563
 msgid "Generating Dust Particles..."
 msgstr ""
 
@@ -559,6 +660,11 @@ msgstr ""
 #. translators: TR charmap encoding
 #: menu/menudisplay.cpp:381
 msgid "Grenade"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/savegamelistmenustate.cpp:172
+msgid "Group by Level, Order by Date, and Compact"
 msgstr ""
 
 #. translators: TR charmap encoding, gamepad
@@ -725,7 +831,7 @@ msgid "Load"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/passportmenustate.cpp:45
+#: menu/passportmenustate.cpp:46
 msgid "Load Game"
 msgstr ""
 
@@ -734,11 +840,11 @@ msgstr ""
 msgid "Loading %1%"
 msgstr ""
 
-#: engine/engine.cpp:863
+#: engine/engine.cpp:852
 msgid "Loading Glidos texture pack"
 msgstr ""
 
-#: engine/world/world.cpp:1151
+#: engine/world/world.cpp:1034
 msgid "Loading..."
 msgstr ""
 
@@ -830,7 +936,7 @@ msgid "N/A"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/passportmenustate.cpp:70
+#: menu/passportmenustate.cpp:71
 msgid "New Game"
 msgstr ""
 
@@ -847,7 +953,7 @@ msgid "NmLk"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/controlsmenustate.cpp:181 ui/widgets/messagebox.cpp:15
+#: menu/controlsmenustate.cpp:181 ui/widgets/messagebox.cpp:47
 msgid "No"
 msgstr ""
 
@@ -868,12 +974,37 @@ msgid "OPTION"
 msgstr ""
 
 #. translators: TR charmap encoding
+#: menu/savegamelistmenustate.cpp:168
+msgid "Order by Date and Compact"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/savegamelistmenustate.cpp:733
+msgid ""
+"Order by Date and Compact All Slots?\n"
+"\n"
+"This will order your saves\n"
+"by date and move all slots\n"
+"to the start of the list."
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/savegamelistmenustate.cpp:739
+msgid ""
+"Order by Level and Date and Compact All Slots?\n"
+"\n"
+"This will order your saves by level,\n"
+"then by date, and move all slots\n"
+"to the start of the list."
+msgstr ""
+
+#. translators: TR charmap encoding
 #: menu/rendersettingsmenustate.cpp:544
 msgid "Other"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/savegamelistmenustate.cpp:246
+#: menu/savegamelistmenustate.cpp:297
 #, boost-format
 msgid "Overwrite slot %1%?"
 msgstr ""
@@ -1057,7 +1188,7 @@ msgid "Quality"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/savegamelistmenustate.cpp:147
+#: menu/savegamelistmenustate.cpp:629
 msgctxt "SavegameTitle"
 msgid "Quicksave"
 msgstr ""
@@ -1111,7 +1242,7 @@ msgid "Reset All Mappings: Hold %1% for %2% seconds"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/passportmenustate.cpp:76
+#: menu/passportmenustate.cpp:77
 msgid "Restart Level"
 msgstr ""
 
@@ -1192,7 +1323,7 @@ msgid "Save"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: engine/engine.cpp:149 menu/passportmenustate.cpp:73
+#: engine/engine.cpp:150 menu/passportmenustate.cpp:74
 msgid "Save Game"
 msgstr ""
 
@@ -1448,7 +1579,7 @@ msgid "Y"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/controlsmenustate.cpp:180 ui/widgets/messagebox.cpp:14
+#: menu/controlsmenustate.cpp:180 ui/widgets/messagebox.cpp:46
 msgid "Yes"
 msgstr ""
 
