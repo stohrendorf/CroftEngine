@@ -178,6 +178,7 @@ void WorldCompositionPass::render(bool inWater)
   m_fb->bind();
 
   scene::RenderContext context{material::RenderMode::FullOpaque, std::nullopt, scene::Translucency::Opaque};
+  GL_ASSERT(gl::api::textureBarrier());
   if(inWater)
     m_inWaterMesh->render(nullptr, context);
   else

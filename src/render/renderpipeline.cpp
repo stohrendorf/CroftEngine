@@ -19,6 +19,7 @@
 
 #include <boost/assert.hpp>
 #include <boost/throw_exception.hpp>
+#include <gl/api/gl.hpp>
 #include <gl/constants.h>
 #include <gl/debuggroup.h>
 #include <gl/framebuffer.h>
@@ -316,6 +317,7 @@ void RenderPipeline::renderUiFrameBuffer(float alpha)
 {
   BOOST_ASSERT(m_uiPass != nullptr);
   m_backbuffer->bind();
+  GL_ASSERT(gl::api::textureBarrier());
   m_uiPass->render(alpha);
   m_backbuffer->unbind();
 }
@@ -323,6 +325,7 @@ void RenderPipeline::renderUiFrameBuffer(float alpha)
 void RenderPipeline::withBackbuffer(const std::function<void()>& doRender)
 {
   m_backbuffer->bind();
+  GL_ASSERT(gl::api::textureBarrier());
   doRender();
   m_backbuffer->unbind();
 }

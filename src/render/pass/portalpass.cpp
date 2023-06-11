@@ -56,6 +56,7 @@ void PortalPass::render(const std::function<void(const gl::RenderState&)>& doRen
 
   m_positionBuffer->clear(gl::Scalar32F{-std::numeric_limits<float>::infinity()});
   m_fb->bind();
+  GL_ASSERT(gl::api::textureBarrier());
   doRender(m_fb->getRenderState());
   m_fb->unbind();
 }
