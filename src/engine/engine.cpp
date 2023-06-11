@@ -154,15 +154,15 @@ void drawSaveReminder(ui::Ui& ui, const ui::TRFont& trFont)
 std::string getCurrentHumanReadableTimestamp()
 {
   auto time = std::time(nullptr);
-#ifdef WIN32
   struct tm localTimeData
   {
   };
+#ifdef WIN32
   gsl_Assert(localtime_s(&localTimeData, &time) == 0);
   auto localTime = &localTimeData;
 #else
-  // NOLINTNEXTLINE(concurrency-mt-unsafe)
-  auto localTime = std::localtime(&time);
+  auto localTime = localtime_r(&time, &localTimeData);
+  gsl_Assert(localTime != nullptr);
 #endif
   return (boost::format("%04d-%02d-%02d %02d-%02d-%02d") % (localTime->tm_year + 1900) % (localTime->tm_mon + 1)
           % localTime->tm_mday % localTime->tm_hour % localTime->tm_min % localTime->tm_sec)

@@ -123,8 +123,14 @@ SavegameListMenuState::SavegameListMenuState(const std::shared_ptr<MenuRingTrans
     const auto timePoint
       = std::chrono::system_clock::to_time_t(std::chrono::time_point_cast<std::chrono::system_clock::duration>(
         info.saveTime - std::filesystem::file_time_type::clock::now() + std::chrono::system_clock::now()));
-    const auto localTime = localtime(&timePoint);
-    gsl_Assert(localTime != nullptr);
+    struct tm localTime
+    {
+    };
+#ifdef WIN32
+    gsl_Assert(localtime_s(&localTime, &timePoint) == 0);
+#else
+    gsl_Assert(localtime_r(&timePoint, &localTime) != nullptr);
+#endif
     std::stringstream timeStr;
     try
     {
@@ -134,7 +140,7 @@ SavegameListMenuState::SavegameListMenuState(const std::shared_ptr<MenuRingTrans
     {
       timeStr.imbue(std::locale{});
     }
-    timeStr << std::put_time(localTime,
+    timeStr << std::put_time(&localTime,
                              /* translators: TR charmap encoding */ pgettext("SavegameTime", "%d %B %Y %X"));
 
     std::string levelTitle;
