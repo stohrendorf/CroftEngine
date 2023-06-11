@@ -96,7 +96,7 @@ bool GhostManager::askGhostSave(Presenter& presenter, world::World& world)
     if(presenter.getInputHandler().hasDebouncedAction(hid::Action::MenuLeft)
        || presenter.getInputHandler().hasDebouncedAction(hid::Action::MenuRight))
     {
-      msgBox->setConfirmed(!msgBox->isConfirmed());
+      msgBox->toggleConfirmed();
     }
 
     ui::Ui ui{

@@ -649,6 +649,7 @@ set( CROFTENGINE_SRCS
         menu/requestloadmenustate.cpp
         menu/resetitemtransformmenustate.cpp
         menu/rotateleftrightmenustate.cpp
+        menu/savegamecleanup.cpp
         menu/savegamelistmenustate.cpp
         menu/selectedmenustate.cpp
         menu/setitemtypemenustate.cpp

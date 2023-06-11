@@ -1,5 +1,6 @@
 #pragma once
 
+#include <boost/log/trivial.hpp>
 #include <boost/predef/os.h>
 #include <filesystem>
 
@@ -18,5 +19,11 @@ inline bool preferredEqual(std::filesystem::path a, std::filesystem::path b)
 #else
   return a.make_preferred() == b.make_preferred();
 #endif
+}
+
+inline void rename(const std::filesystem::path& srcPath, const std::filesystem::path& dstPath)
+{
+  BOOST_LOG_TRIVIAL(info) << "Rename " << srcPath << " to " << dstPath;
+  std::filesystem::rename(srcPath, dstPath);
 }
 } // namespace util

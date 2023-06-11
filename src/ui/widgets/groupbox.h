@@ -40,6 +40,11 @@ public:
 
   void setTitle(const std::string& title);
 
+  [[nodiscard]] const auto& getWidget() const noexcept
+  {
+    return m_widget;
+  }
+
 private:
   glm::ivec2 m_position{0, 0};
   glm::ivec2 m_size{0, 0};

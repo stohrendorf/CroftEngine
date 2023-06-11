@@ -6,6 +6,7 @@
 #include <chrono>
 #include <cstddef>
 #include <gslu.h>
+#include <map>
 #include <memory>
 #include <string>
 #include <vector>
@@ -25,6 +26,11 @@ namespace ui::widgets
 class MessageBox;
 }
 
+namespace engine
+{
+struct SavegameInfo;
+}
+
 namespace menu
 {
 struct MenuDisplay;
@@ -41,6 +47,7 @@ private:
   std::vector<gslu::nn_shared<SavegameEntry>> m_entries;
   bool m_loading;
   std::shared_ptr<ui::widgets::MessageBox> m_overwriteConfirmation;
+  std::shared_ptr<ui::widgets::MessageBox> m_cleanupConfirmation;
   enum class Ordering
   {
     Slot,
@@ -50,7 +57,23 @@ private:
   Ordering m_ordering = Ordering::Slot;
   std::chrono::steady_clock::time_point m_confirmOverwritePressedSince{};
 
+  class CleanupWidget;
+  std::shared_ptr<CleanupWidget> m_cleanupWidget;
+  std::map<size_t, engine::SavegameInfo> m_savegameInfos;
+
   void sortEntries();
+  [[nodiscard]] std::unique_ptr<MenuState>
+    onDefaultFrame(ui::Ui& ui, engine::world::World& world, MenuDisplay& display);
+  [[nodiscard]] std::unique_ptr<MenuState>
+    onConfirmOverwriteFrame(ui::Ui& ui, engine::world::World& world, MenuDisplay& display);
+  [[nodiscard]] std::unique_ptr<MenuState>
+    onCleanupFrame(ui::Ui& ui, engine::world::World& world, MenuDisplay& display);
+  void selectMostRecentSlot();
+  void selectFirstFreeOrOldestSlot();
+
+  void updateSavegameInfos(const engine::world::World& world);
+  void initCleanupConfirmation();
+  void cleanupSaves(const engine::world::World& world);
 
 public:
   explicit SavegameListMenuState(const std::shared_ptr<MenuRingTransform>& slot,

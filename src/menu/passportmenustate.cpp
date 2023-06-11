@@ -4,6 +4,7 @@
 #include "core/i18n.h"
 #include "donemenustate.h"
 #include "engine/audioengine.h"
+#include "engine/engine.h"
 #include "engine/items_tr1.h"
 #include "engine/presenter.h"
 #include "engine/soundeffects_tr1.h"

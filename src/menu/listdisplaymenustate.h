@@ -53,6 +53,8 @@ public:
     return m_listBox;
   }
 
+  void setSelected(size_t idx);
+
   void draw(ui::Ui& ui, engine::world::World& world, MenuDisplay& display);
 };
 } // namespace menu
