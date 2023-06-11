@@ -70,13 +70,17 @@ float shadow_map_multiplier()
     }
     #endif
 
-    for (int splitIdx = 0; splitIdx<CSMSplits; ++splitIdx) {
-        vec3 p = gpi.vertexPosLight[splitIdx];
+    int splitIdx;
+    vec3 p;
+    float result = 1.0;
+
+    for (splitIdx = CSMSplits-1; splitIdx>=0; --splitIdx) {
+        p = gpi.vertexPosLight[splitIdx];
         if (all(greaterThanEqual(p.xy, vec2(0))) && all(lessThanEqual(p.xy, vec2(1)))) {
-            return calc_vsm_value(splitIdx, p);
+            result = calc_vsm_value(splitIdx, p);
         }
     }
-    return 1.0;
+    return result;
 }
 
 float calc_light_strength(in vec3 pos, in float fadeDistance)
@@ -115,12 +119,13 @@ vec3 calc_positional_lighting()
         return sum;
     }
 
-    for (int i=0; i<lights.length(); ++i)
+    int i;
+    for (i=0; i<lights.length(); ++i)
     {
         sum += vec3(calc_light_strength(lights[i].position.xyz, lights[i].fadeDistance)) * toLinear(lights[i].color.xyz);
     }
 
-    for (int i=0; i<dynLights.length(); ++i)
+    for (i=0; i<dynLights.length(); ++i)
     {
         sum += vec3(calc_light_strength(dynLights[i].position.xyz, dynLights[i].fadeDistance)) * toLinear(dynLights[i].color.xyz);
     }

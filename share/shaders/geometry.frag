@@ -24,16 +24,19 @@ vec4 barycentric(in vec4 wwww)
     vec2 v = (gl_FragCoord.xy / camera.viewport.xy) * 2 - 1;
     vec2 s[4];
     vec4 r;
-    for (int i=0; i<4; ++i) {
+    int i;
+    for (i=0; i<4; ++i) {
         s[i] = gpi.quadVerts[i].xy - v;
         r[i] = length(s[i]) * sign(wwww[i]);
     }
 
     vec4 A;
     vec4 D;
-    for (int i=0; i<4; ++i) {
-        vec2 s1 = s[i];
-        vec2 s2 = s[(i+1)%4];
+    vec2 s1;
+    vec2 s2;
+    for (i=0; i<4; ++i) {
+        s1 = s[i];
+        s2 = s[(i+1)%4];
         A[i] = cross(vec3(s1, 0), vec3(s2, 0)).z;
         D[i] = dot(s1, s2);
     }
@@ -46,13 +49,14 @@ vec2 barycentricUv()
 {
     // section 3.1
     vec4 wwww;
-    for (int i=0; i<4; ++i) {
+    int i;
+    for (i=0; i<4; ++i) {
         wwww[i] = gpi.quadVerts[i].z;
     }
     vec4 f = barycentric(wwww)/wwww;
     f /= dot(f, vec4(1));
     vec2 uv = vec2(0);
-    for (int i=0; i<4; ++i) {
+    for (i=0; i<4; ++i) {
         uv += f[i] * gpi.quadUvs[i].xy;
     }
     return uv;
