@@ -126,7 +126,14 @@ SavegameListMenuState::SavegameListMenuState(const std::shared_ptr<MenuRingTrans
     const auto localTime = localtime(&timePoint);
     gsl_Assert(localTime != nullptr);
     std::stringstream timeStr;
-    timeStr.imbue(std::locale(world.getEngine().getLocale()));
+    try
+    {
+      timeStr.imbue(std::locale{world.getEngine().getLocale()});
+    }
+    catch(...)
+    {
+      timeStr.imbue(std::locale{});
+    }
     timeStr << std::put_time(localTime,
                              /* translators: TR charmap encoding */ pgettext("SavegameTime", "%d %B %Y %X"));
 
