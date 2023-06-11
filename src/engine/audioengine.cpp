@@ -313,7 +313,8 @@ void AudioEngine::setUnderwater(bool underwater)
     {
       m_soundEngine->getDevice().setFilter(m_soundEngine->getDevice().getUnderwaterFilter());
       m_underwaterAmbience = playSoundEffect(TR1SoundEffect::UnderwaterAmbience, nullptr);
-      m_underwaterAmbience->setLooping(true);
+      if(m_underwaterAmbience != nullptr)
+        m_underwaterAmbience->setLooping(true);
     }
   }
   else if(m_underwaterAmbience != nullptr)
