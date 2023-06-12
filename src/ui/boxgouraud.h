@@ -52,17 +52,11 @@ struct BackgroundGouraud
   }
 };
 
-inline BackgroundGouraud makeBackgroundCircle(const gl::SRGBA8& center, const gl::SRGBA8& outer) noexcept
-{
-  return {BoxGouraud{outer, outer, center, outer},
-          BoxGouraud{outer, outer, outer, center},
-          BoxGouraud{center, outer, outer, outer},
-          BoxGouraud{outer, center, outer, outer}};
-}
-
-inline BackgroundGouraud makeBackgroundCircle(const gl::SRGB8& color, uint8_t innerAlpha, uint8_t outerAlpha)
-{
-  return makeBackgroundCircle(gl::SRGBA8{color.channels[0], color.channels[1], color.channels[2], innerAlpha},
-                              gl::SRGBA8{color.channels[0], color.channels[1], color.channels[2], outerAlpha});
-}
+constexpr gl::SRGBA8 UiBackdropCenterColor{0, 128, 0, 192};
+constexpr gl::SRGBA8 UiBackdropOuterColor{0, 0, 0, 192};
+constexpr BackgroundGouraud UiBackdrop{
+  BoxGouraud{UiBackdropOuterColor, UiBackdropOuterColor, UiBackdropCenterColor, UiBackdropOuterColor},
+  BoxGouraud{UiBackdropOuterColor, UiBackdropOuterColor, UiBackdropOuterColor, UiBackdropCenterColor},
+  BoxGouraud{UiBackdropCenterColor, UiBackdropOuterColor, UiBackdropOuterColor, UiBackdropOuterColor},
+  BoxGouraud{UiBackdropOuterColor, UiBackdropCenterColor, UiBackdropOuterColor, UiBackdropOuterColor}};
 } // namespace ui

@@ -100,8 +100,7 @@ void TabBox::draw(ui::Ui& ui, const engine::Presenter& presenter) const
     const auto bgPos = m_position - glm::ivec2{OutlineBorderWidth, FontHeight / 2 - 1};
     const auto bgSize = m_size + glm::ivec2{TitleOffset, TotalVerticalMargin};
 
-    const auto g = makeBackgroundCircle(gl::SRGBA8{0, 128, 0, 192}, gl::SRGBA8{0, 0, 0, 192});
-    g.draw(ui, bgPos, bgSize);
+    UiBackdrop.draw(ui, bgPos, bgSize);
 
     ui.drawOutlineBox(bgPos, bgSize);
   }
