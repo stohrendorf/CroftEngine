@@ -13,21 +13,6 @@ struct BoxGouraud
   gl::SRGBA8 bottomRight;
   gl::SRGBA8 bottomLeft;
 
-  [[nodiscard]] auto withAlpha(uint8_t alpha) const
-  {
-    const auto multiplyAlpha = [alpha](uint8_t& value)
-    {
-      value = value * alpha / 255;
-    };
-
-    auto result = *this;
-    multiplyAlpha(result.topLeft.channels[3]);
-    multiplyAlpha(result.topRight.channels[3]);
-    multiplyAlpha(result.bottomRight.channels[3]);
-    multiplyAlpha(result.bottomLeft.channels[3]);
-    return result;
-  }
-
   [[nodiscard]] auto mirroredY() const noexcept
   {
     return BoxGouraud{
@@ -46,16 +31,6 @@ struct BackgroundGouraud
   BoxGouraud bottomRight;
   BoxGouraud bottomLeft;
 
-  [[nodiscard]] auto withAlpha(uint8_t alpha) const
-  {
-    return BackgroundGouraud{
-      topLeft.withAlpha(alpha),
-      topRight.withAlpha(alpha),
-      bottomRight.withAlpha(alpha),
-      bottomLeft.withAlpha(alpha),
-    };
-  }
-
   [[nodiscard]] auto mirroredY() const
   {
     return BackgroundGouraud{
@@ -66,15 +41,14 @@ struct BackgroundGouraud
     };
   }
 
-  void draw(Ui& ui, const glm::ivec2& pos, const glm::ivec2& size, uint8_t alpha = 255) const
+  void draw(Ui& ui, const glm::ivec2& pos, const glm::ivec2& size) const
   {
     const auto half = size / 2;
     const auto half2 = size - half;
-    const auto g = withAlpha(alpha);
-    ui.drawBox(pos, half, g.topLeft);
-    ui.drawBox(pos + glm::ivec2{half.x, 0}, {half2.x, half.y}, g.topRight);
-    ui.drawBox(pos + half, {half.x, half2.y}, g.bottomRight);
-    ui.drawBox(pos + glm::ivec2{0, half.y}, {half2.x, half2.y}, g.bottomLeft);
+    ui.drawBox(pos, half, topLeft);
+    ui.drawBox(pos + glm::ivec2{half.x, 0}, {half2.x, half.y}, topRight);
+    ui.drawBox(pos + half, {half.x, half2.y}, bottomRight);
+    ui.drawBox(pos + glm::ivec2{0, half.y}, {half2.x, half2.y}, bottomLeft);
   }
 };
 
