@@ -113,6 +113,10 @@ void activateCommand(objects::Object& object,
     object.m_state.activationState &= ~activationRequest.getActivationSet();
   else
     object.m_state.activationState |= activationRequest.getActivationSet();
+  BOOST_LOG_TRIVIAL(trace) << "Object "
+                           << (object.getNode() == nullptr ? toString(object.m_state.type.get_as<TR1ItemId>())
+                                                           : object.getNode()->getName())
+                           << " activation changed to " << object.m_state.activationState.getActivationSet();
 
   if(!object.m_state.activationState.isFullyActivated())
     return;
@@ -149,6 +153,7 @@ bool flipMapCommand(floordata::ActivationState& state,
   {
     state |= request.getActivationSet();
   }
+  BOOST_LOG_TRIVIAL(trace) << "Flip map activation state changed to " << state.getActivationSet();
 
   if(state.isFullyActivated())
   {

@@ -129,6 +129,8 @@ void AudioEngine::triggerNormalCdTrack(const script::Gameflow& gameflow,
     trackState &= ~activationRequest.getActivationSet();
   else
     trackState |= activationRequest.getActivationSet();
+  BOOST_LOG_TRIVIAL(trace) << "Track activation #" << static_cast<int>(trackId) << " changed to "
+                           << trackState.getActivationSet();
 
   if(!trackState.isFullyActivated())
   {
