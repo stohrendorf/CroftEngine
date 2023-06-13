@@ -47,7 +47,7 @@ void SelectionBox::draw(ui::Ui& ui, const engine::Presenter& presenter) const
 {
   const auto bgPos = m_position - glm::ivec2{ui::FontHeight, 2 * ui::FontHeight};
   const auto bgSize = m_size + glm::ivec2{2 * ui::FontHeight, 2 * ui::FontHeight};
-  ui.drawBox(bgPos, bgSize, gl::SRGBA8{0, 0, 0, 224});
+  ui.drawBox(bgPos, bgSize, gl::SRGBA8{0, 0, 0, DefaultBackgroundAlpha});
   ui.drawOutlineBox(bgPos, bgSize, 255);
   m_container->draw(ui, presenter);
 }

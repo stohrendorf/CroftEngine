@@ -31,7 +31,7 @@ void MessageBox::draw(ui::Ui& ui, const engine::Presenter& presenter) const
   m_yes->setPosition({answersX, answersY});
   m_no->setPosition({answersX + m_yes->getSize().x + ui::FontHeight, answersY});
 
-  ui.drawBox(m_position, getSize(), gl::SRGBA8{0, 0, 0, 224});
+  ui.drawBox(m_position, getSize(), gl::SRGBA8{0, 0, 0, DefaultBackgroundAlpha});
   ui.drawOutlineBox(m_position, getSize());
   m_question->draw(ui, presenter);
   m_yes->draw(ui, presenter);

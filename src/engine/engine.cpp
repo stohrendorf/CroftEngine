@@ -209,7 +209,7 @@ bool showLevelStats(const std::shared_ptr<Presenter>& presenter,
 
     ui::Ui ui{
       presenter->getMaterialManager()->getUi(), world.getWorldGeometry().getPalette(), presenter->getUiViewport()};
-    ui.drawBox({0, 0}, ui.getSize(), gl::SRGBA8{0, 0, 0, 224});
+    ui.drawBox({0, 0}, ui.getSize(), gl::SRGBA8{0, 0, 0, ui::DefaultBackgroundAlpha});
     if(detailed)
       detailedStats.draw(ui, *presenter, false);
     else
@@ -505,7 +505,7 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
       ui::Ui ui{m_presenter->getMaterialManager()->getUi(),
                 world.getWorldGeometry().getPalette(),
                 m_presenter->getUiViewport()};
-      ui.drawBox({0, 0}, ui.getSize(), gl::SRGBA8{0, 0, 0, 224});
+      ui.drawBox({0, 0}, ui.getSize(), gl::SRGBA8{0, 0, 0, ui::DefaultBackgroundAlpha});
       m_presenter->renderUi(ui, 1);
       menu->renderObjects(ui, world);
       menu->update(ui, world);

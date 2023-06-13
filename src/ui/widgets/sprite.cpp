@@ -24,7 +24,7 @@ void Sprite::draw(ui::Ui& ui, const engine::Presenter& /*presenter*/) const
   {
     const auto bgPos = m_position - glm::ivec2{OutlineBorderWidth * 3 / 2, FontHeight};
     const auto bgSize = m_size + glm::ivec2{2 * OutlineBorderWidth, 0};
-    ui.drawBox(bgPos, bgSize, gl::SRGBA8{0, 0, 0, 224 * m_selectionAlpha / 255});
+    ui.drawBox(bgPos, bgSize, gl::SRGBA8{0, 0, 0, DefaultBackgroundAlpha * m_selectionAlpha / 255});
     ui.drawOutlineBox(bgPos, bgSize, m_selectionAlpha);
   }
   ui.draw(m_sprite, m_position);

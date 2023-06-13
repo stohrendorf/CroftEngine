@@ -34,8 +34,8 @@ void ListBox::draw(ui::Ui& ui, const engine::Presenter& presenter) const
   gsl_Assert(first < last);
 
   static const auto outerCorner = gl::SRGBA8{0, 0, 0, 0};
-  static const auto center = gl::SRGBA8{128, 64, 64, 128};
-  static const auto innerCorner = gl::SRGBA8{128, 64, 0, 128};
+  static const auto center = gl::SRGBA8{128, 64, 64, DefaultBackgroundAlpha};
+  static const auto innerCorner = gl::SRGBA8{128, 64, 0, DefaultBackgroundAlpha};
   static const auto innerCenter = gl::SRGBA8{255, 255, 255, 255};
   static const auto scrollIndicatorBottom = ui::BackgroundGouraud{
     ui::BoxGouraud{

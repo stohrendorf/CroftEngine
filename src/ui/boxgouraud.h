@@ -1,5 +1,6 @@
 #pragma once
 
+#include "core.h"
 #include "ui.h"
 
 #include <gl/pixel.h>
@@ -52,8 +53,8 @@ struct BackgroundGouraud
   }
 };
 
-constexpr gl::SRGBA8 UiBackdropCenterColor{0, 128, 0, 192};
-constexpr gl::SRGBA8 UiBackdropOuterColor{0, 0, 0, 192};
+constexpr gl::SRGBA8 UiBackdropCenterColor{0, 128, 0, DefaultBackgroundAlpha};
+constexpr gl::SRGBA8 UiBackdropOuterColor{0, 0, 0, DefaultBackgroundAlpha};
 constexpr BackgroundGouraud UiBackdrop{
   BoxGouraud{UiBackdropOuterColor, UiBackdropOuterColor, UiBackdropCenterColor, UiBackdropOuterColor},
   BoxGouraud{UiBackdropOuterColor, UiBackdropOuterColor, UiBackdropOuterColor, UiBackdropCenterColor},
