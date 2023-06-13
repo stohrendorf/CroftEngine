@@ -11,8 +11,9 @@ template<typename T,
          gl::api::PixelFormat PixelFormat,
          gl::api::SizedInternalFormat SizedInternalFormat,
          bool Premultiplied,
+         size_t Alignment,
          typename TContext>
-void serialize(gl::Pixel<T, Channels, PixelFormat, SizedInternalFormat, Premultiplied>& data,
+void serialize(gl::Pixel<T, Channels, PixelFormat, SizedInternalFormat, Premultiplied, Alignment>& data,
                const Serializer<TContext>& ser)
 {
   ser.tag("pixel");
@@ -29,8 +30,9 @@ template<typename T,
          gl::api::PixelFormat PixelFormat,
          gl::api::SizedInternalFormat SizedInternalFormat,
          bool Premultiplied,
+         size_t Alignment,
          typename TContext>
-void deserialize(gl::Pixel<T, Channels, PixelFormat, SizedInternalFormat, Premultiplied>& data,
+void deserialize(gl::Pixel<T, Channels, PixelFormat, SizedInternalFormat, Premultiplied, Alignment>& data,
                  const Deserializer<TContext>& ser)
 {
   ser.tag("pixel");

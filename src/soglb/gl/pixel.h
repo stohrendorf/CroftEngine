@@ -15,15 +15,18 @@ template<typename T,
          // NOLINTNEXTLINE(bugprone-reserved-identifier)
          api::SizedInternalFormat _SizedInternalFormat,
          // NOLINTNEXTLINE(bugprone-reserved-identifier)
-         bool _Premultiplied>
-struct Pixel
+         bool _Premultiplied,
+         size_t Alignment>
+struct alignas(Alignment) Pixel
 {
+  static_assert(sizeof(T) * _Channels >= Alignment, "Mismatched alignment");
+
   static_assert(std::is_integral_v<T> || std::is_floating_point_v<T> || std::is_same_v<T, api::core::Half>,
                 "Pixel may only have channels of integral types");
 
   static_assert(_Channels > 0, "Pixel must contain at least one channel");
 
-  using Self = Pixel<T, _Channels, _PixelFormat, _SizedInternalFormat, _Premultiplied>;
+  using Self = Pixel<T, _Channels, _PixelFormat, _SizedInternalFormat, _Premultiplied, Alignment>;
 
   using Type = T;
 
@@ -92,13 +95,14 @@ template<typename T,
          // NOLINTNEXTLINE(bugprone-reserved-identifier)
          api::SizedInternalFormat _SizedInternalFormat,
          // NOLINTNEXTLINE(bugprone-reserved-identifier)
-         bool _Premultiplied>
-auto imix(const Pixel<T, _Channels, _PixelFormat, _SizedInternalFormat, _Premultiplied>& lhs,
-          const Pixel<T, _Channels, _PixelFormat, _SizedInternalFormat, _Premultiplied>& rhs,
+         bool _Premultiplied,
+         size_t Alignment>
+auto imix(const Pixel<T, _Channels, _PixelFormat, _SizedInternalFormat, _Premultiplied, Alignment>& lhs,
+          const Pixel<T, _Channels, _PixelFormat, _SizedInternalFormat, _Premultiplied, Alignment>& rhs,
           U bias,
           U biasMax = std::numeric_limits<U>::max())
   -> std::enable_if_t<std::is_unsigned_v<T> == std::is_unsigned_v<U>, // lgtm [cpp/comparison-of-identical-expressions]
-                      Pixel<T, _Channels, _PixelFormat, _SizedInternalFormat, _Premultiplied>>
+                      Pixel<T, _Channels, _PixelFormat, _SizedInternalFormat, _Premultiplied, Alignment>>
 {
   if(bias >= biasMax)
     return rhs;
@@ -120,41 +124,42 @@ template<typename T,
          // NOLINTNEXTLINE(bugprone-reserved-identifier)
          api::SizedInternalFormat _SizedInternalFormat,
          // NOLINTNEXTLINE(bugprone-reserved-identifier)
-         bool _Premultiplied>
-Pixel<T, 4, _PixelFormat, _SizedInternalFormat, _Premultiplied>
-  mixAlpha(const Pixel<T, 4, _PixelFormat, _SizedInternalFormat, _Premultiplied>& lhs,
-           const Pixel<T, 4, _PixelFormat, _SizedInternalFormat, _Premultiplied>& rhs)
+         bool _Premultiplied,
+         size_t Alignment>
+Pixel<T, 4, _PixelFormat, _SizedInternalFormat, _Premultiplied, Alignment>
+  mixAlpha(const Pixel<T, 4, _PixelFormat, _SizedInternalFormat, _Premultiplied, Alignment>& lhs,
+           const Pixel<T, 4, _PixelFormat, _SizedInternalFormat, _Premultiplied, Alignment>& rhs)
 {
   return imix(lhs, rhs, rhs.channels[3]);
 }
 
 template<typename T>
-using SRGBA = Pixel<T, 4, api::PixelFormat::Rgba, SrgbaSizedInternalFormat<T>, false>;
+using SRGBA = Pixel<T, 4, api::PixelFormat::Rgba, SrgbaSizedInternalFormat<T>, false, 4>;
 using SRGBA8 = SRGBA<uint8_t>;
 
 template<typename T>
-using PremultipliedSRGBA = Pixel<T, 4, api::PixelFormat::Rgba, SrgbaSizedInternalFormat<T>, true>;
+using PremultipliedSRGBA = Pixel<T, 4, api::PixelFormat::Rgba, SrgbaSizedInternalFormat<T>, true, 4>;
 using PremultipliedSRGBA8 = PremultipliedSRGBA<uint8_t>;
 
 template<typename T>
-using SRGB = Pixel<T, 3, api::PixelFormat::Rgb, SrgbSizedInternalFormat<T>, false>;
+using SRGB = Pixel<T, 3, api::PixelFormat::Rgb, SrgbSizedInternalFormat<T>, false, sizeof(T)>;
 using SRGB8 = SRGB<uint8_t>;
 
 template<typename T>
-using RGB = Pixel<T, 3, api::PixelFormat::Rgb, RgbSizedInternalFormat<T>, false>;
+using RGB = Pixel<T, 3, api::PixelFormat::Rgb, RgbSizedInternalFormat<T>, false, sizeof(T)>;
 using RGB8 = RGB<uint8_t>;
 using RGB16F = RGB<api::core::Half>;
 using RGB32 = RGB<int32_t>;
 using RGB32F = RGB<float>;
 
 template<typename T>
-using RG = Pixel<T, 2, api::PixelFormat::Rg, RgSizedInternalFormat<T>, false>;
+using RG = Pixel<T, 2, api::PixelFormat::Rg, RgSizedInternalFormat<T>, false, sizeof(T)>;
 using RG8 = RG<uint8_t>;
 using RG16F = RG<api::core::Half>;
 using RG32F = RG<float>;
 
 template<typename T>
-using Scalar = Pixel<T, 1, api::PixelFormat::Red, RSizedInternalFormat<T>, false>;
+using Scalar = Pixel<T, 1, api::PixelFormat::Red, RSizedInternalFormat<T>, false, sizeof(T)>;
 using ScalarByte = Scalar<uint8_t>;
 using Scalar32F = Scalar<float>;
 using Scalar16F = Scalar<api::core::Half>;

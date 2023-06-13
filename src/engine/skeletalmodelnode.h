@@ -237,10 +237,10 @@ private:
     mutable std::optional<glm::mat4> poseMatrixSmooth;
     std::shared_ptr<world::RenderMeshData> mesh{nullptr};
     std::shared_ptr<world::RenderMeshData> currentMesh{nullptr};
-    bool visible = true;
-    bool currentVisible = true;
     gl::SRGBA8 reflective{0, 0, 0, 0};
     gl::SRGBA8 currentReflective{0, 0, 0, 0};
+    bool visible = true;
+    bool currentVisible = true;
 
     [[nodiscard]] bool meshChanged() const
     {
