@@ -53,7 +53,11 @@ void Label::draw(ui::Ui& ui, const engine::Presenter& presenter) const
   {
     const auto bgPos = m_position - glm::ivec2{OutlineBorderWidth, FontHeight - OutlineBorderWidth / 2};
     const auto bgSize = m_size + glm::ivec2{2 * OutlineBorderWidth, 0};
-    ui.drawBox(bgPos, bgSize, gl::SRGBA8{0, 0, 0, DefaultBackgroundAlpha * m_selectionAlpha / 255});
+    ui.drawBox(
+      bgPos,
+      bgSize,
+      gl::SRGBA8{
+        0, 0, 0, static_cast<uint8_t>(static_cast<uint16_t>(DefaultBackgroundAlpha) * m_selectionAlpha / 255)});
     ui.drawOutlineBox(bgPos, bgSize, m_selectionAlpha);
   }
 

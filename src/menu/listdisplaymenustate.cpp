@@ -96,7 +96,7 @@ void ListDisplayMenuState::draw(ui::Ui& ui, engine::world::World& world, MenuDis
   pageLabel.setSize({s.x, ui::FontHeight});
   ui.drawBox(pageLabel.getPosition() - glm::ivec2{0, ui::FontHeight},
              pageLabel.getSize() + glm::ivec2{0, 4},
-             gl::SRGBA8{0, 0, 0, 192});
+             gl::SRGBA8{0, 0, 0, ui::DefaultBackgroundAlpha});
   pageLabel.draw(ui, world.getPresenter());
 }
 
