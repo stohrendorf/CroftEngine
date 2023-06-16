@@ -93,8 +93,8 @@ bool GhostManager::askGhostSave(Presenter& presenter, world::World& world)
       continue;
     }
 
-    if(presenter.getInputHandler().hasDebouncedAction(hid::Action::Left)
-       || presenter.getInputHandler().hasDebouncedAction(hid::Action::Right))
+    if(presenter.getInputHandler().hasDebouncedAction(hid::Action::MenuLeft)
+       || presenter.getInputHandler().hasDebouncedAction(hid::Action::MenuRight))
     {
       msgBox->setConfirmed(!msgBox->isConfirmed());
     }
