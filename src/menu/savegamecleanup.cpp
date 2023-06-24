@@ -168,8 +168,8 @@ void deleteSavesPerLevelExceptNewest(const engine::Engine& engine,
     if(savegameInfo.saveTime < newestLevelTs.timeStamp)
     {
       std::error_code ec;
-      const auto savegamePath = engine.getSavegamePath(newestLevelTs.slot);
-      BOOST_LOG_TRIVIAL(info) << "Deleting slot " << newestLevelTs.slot;
+      const auto savegamePath = engine.getSavegamePath(slot);
+      BOOST_LOG_TRIVIAL(info) << "Deleting slot " << slot;
       std::filesystem::remove(savegamePath, ec);
       std::filesystem::remove(engine::makeMetaFilepath(savegamePath), ec);
     }
