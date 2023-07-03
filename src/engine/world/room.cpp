@@ -313,6 +313,10 @@ void Room::createSceneNode(const loader::file::Room& srcRoom,
   for(const loader::file::SpriteInstance& spriteInstance : srcRoom.sprites)
   {
     BOOST_ASSERT(spriteInstance.vertex.get() < srcRoom.vertices.size());
+    if(spriteInstance.id.get() >= world.getWorldGeometry().getSprites().size())
+    {
+      continue;
+    }
 
     const auto& sprite = world.getWorldGeometry().getSprites().at(spriteInstance.id.get());
 
