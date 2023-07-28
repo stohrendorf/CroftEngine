@@ -31,6 +31,7 @@
 #include <boost/format.hpp>
 #include <boost/log/trivial.hpp>
 #include <chrono>
+#include <cstring>
 #include <ctime>
 #include <filesystem>
 #include <glm/vec2.hpp>
@@ -45,7 +46,6 @@
 #include <system_error>
 #include <type_traits>
 #include <utility>
-
 namespace menu
 {
 enum class CleanupAction
@@ -615,18 +615,29 @@ void SavegameListMenuState::updateSavegameInfos(const engine::world::World& worl
     std::string levelTitle;
     if(slot.has_value())
     {
-      const auto& titles = levelFilepathsTitles.at(info.meta.filename);
-      auto titleIt = titles.find(world.getEngine().getLocaleWithoutEncoding());
-      if(titleIt == titles.end())
-      {
-        titleIt = titles.find("en_GB");
-      }
-      gsl_Assert(titleIt != titles.end());
-      levelTitle = titleIt->second;
+      auto metaFilenameUpcasePi = info.meta.filename;
+
+          std::transform(metaFilenameUpcasePi.cbegin(),
+                     metaFilenameUpcasePi.cend(),
+                     metaFilenameUpcasePi.begin(),
+                     [](unsigned char c)
+                     {
+                       return std::toupper(c);
+                     });
+      metaFilenameUpcasePi = std::filesystem::path(metaFilenameUpcasePi).generic_string();
+
+          const auto& titles = levelFilepathsTitles.at(metaFilenameUpcasePi);
+          auto titleIt = titles.find(world.getEngine().getLocaleWithoutEncoding());
+          if(titleIt == titles.end())
+          {
+            titleIt = titles.find("en_GB");
+          }
+          gsl_Assert(titleIt != titles.end());
+          levelTitle = titleIt->second;
     }
     else
     {
-      levelTitle = /* translators: TR charmap encoding */ pgettext("SavegameTitle", "Quicksave");
+          levelTitle = /* translators: TR charmap encoding */ pgettext("SavegameTitle", "Quicksave");
     }
     const auto title = (boost::format(/* translators: TR charmap encoding */ pgettext("SavegameTitle", "%1% - %2%"))
                         % timeStr % levelTitle)
