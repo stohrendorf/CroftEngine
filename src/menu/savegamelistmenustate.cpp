@@ -615,13 +615,19 @@ void SavegameListMenuState::updateSavegameInfos(const engine::world::World& worl
     std::string levelTitle;
     if(slot.has_value())
     {
-      const auto& titles = levelFilepathsTitles.at(info.meta.filename);
-      auto titleIt = titles.find(world.getEngine().getLocaleWithoutEncoding());
-      if(titleIt == titles.end())
+      const auto titlesIt = std::find_if(levelFilepathsTitles.cbegin(),
+                                         levelFilepathsTitles.cend(),
+                                         [&info](const auto& entry)
+                                         {
+                                           return util::preferredEqual(entry.first, info.meta.filename);
+                                         });
+      gsl_Assert(titlesIt != levelFilepathsTitles.cend());
+      auto titleIt = titlesIt->second.find(world.getEngine().getLocaleWithoutEncoding());
+      if(titleIt == titlesIt->second.end())
       {
-        titleIt = titles.find("en_GB");
+        titleIt = titlesIt->second.find("en_GB");
       }
-      gsl_Assert(titleIt != titles.end());
+      gsl_Assert(titleIt != titlesIt->second.end());
       levelTitle = titleIt->second;
     }
     else
