@@ -2,6 +2,7 @@
 
 #include "type_safe/integer.hpp"
 
+#include <cstdint>
 #include <vector>
 
 namespace engine::floordata
