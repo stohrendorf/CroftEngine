@@ -697,8 +697,8 @@ RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingT
     auto tmp = std::make_shared<ui::widgets::ValueSelector<uint8_t>>(
       [](uint8_t value)
       {
-        return /* translators: TR charmap encoding */ P_("Delay Save for \x1f\x6c %1% \x1f\x6d Second",
-                                                         "Delay Save for \x1f\x6c %1% \x1f\x6d Second",
+        return /* translators: TR charmap encoding */ P_("Delay Overwrite for \x1f\x6c %1% \x1f\x6d Second",
+                                                         "Delay Overwrite for \x1f\x6c %1% \x1f\x6d Seconds",
                                                          value,
                                                          static_cast<uint32_t>(value));
       },

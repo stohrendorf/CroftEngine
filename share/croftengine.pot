@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: CroftEngine 2.1\n"
+"Project-Id-Version: CroftEngine 2.2.1\n"
 "Report-Msgid-Bugs-To: https://github.com/stohrendorf/CroftEngine/issues\n"
-"POT-Creation-Date: 2023-06-23 05:28+0200\n"
+"POT-Creation-Date: 2023-08-29 19:28+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -55,7 +55,7 @@ msgid "%1$02d:%2$02d"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/savegamelistmenustate.cpp:631
+#: menu/savegamelistmenustate.cpp:637
 #, boost-format
 msgctxt "SavegameTitle"
 msgid "%1% - %2%"
@@ -110,14 +110,14 @@ msgid "-"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/savegamelistmenustate.cpp:665
+#: menu/savegamelistmenustate.cpp:671
 #, boost-format
 msgctxt "SavegameTitle"
 msgid "- EMPTY SLOT %1%"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/savegamelistmenustate.cpp:647
+#: menu/savegamelistmenustate.cpp:653
 msgctxt "SavegameTitle"
 msgid "- NO QUICKSAVE"
 msgstr ""
@@ -307,7 +307,7 @@ msgid "Clear All Other Level Slots"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/savegamelistmenustate.cpp:706
+#: menu/savegamelistmenustate.cpp:712
 #, boost-format
 msgid ""
 "Clear All Other Level Slots?\n"
@@ -322,7 +322,7 @@ msgid "Clear All Other Slots"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/savegamelistmenustate.cpp:697
+#: menu/savegamelistmenustate.cpp:703
 #, boost-format
 msgid ""
 "Clear All Other Slots?\n"
@@ -337,7 +337,7 @@ msgid "Clear All Slots, Keep Most Recent Level Slots, and Compact"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/savegamelistmenustate.cpp:720
+#: menu/savegamelistmenustate.cpp:726
 msgid ""
 "Clear Historic Slots?\n"
 "\n"
@@ -347,7 +347,7 @@ msgid ""
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/savegamelistmenustate.cpp:714
+#: menu/savegamelistmenustate.cpp:720
 msgid ""
 "Clear Historic Slots?\n"
 "\n"
@@ -367,13 +367,13 @@ msgid "Clear Slots Before %1%"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/savegamelistmenustate.cpp:691
+#: menu/savegamelistmenustate.cpp:697
 #, boost-format
 msgid "Clear Slots Before %1%?"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/savegamelistmenustate.cpp:684
+#: menu/savegamelistmenustate.cpp:690
 #, boost-format
 msgid "Clear slot %1%?"
 msgstr ""
@@ -384,7 +384,7 @@ msgid "Compact"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/savegamelistmenustate.cpp:727
+#: menu/savegamelistmenustate.cpp:733
 msgid ""
 "Compact All Slots?\n"
 "\n"
@@ -435,8 +435,8 @@ msgstr ""
 #. translators: TR charmap encoding
 #: menu/rendersettingsmenustate.cpp:700
 #, boost-format
-msgid "Delay Save for \037l %1% \037m Second"
-msgid_plural "Delay Save for \037l %1% \037m Second"
+msgid "Delay Overwrite for \037l %1% \037m Second"
+msgid_plural "Delay Overwrite for \037l %1% \037m Seconds"
 msgstr[0] ""
 msgstr[1] ""
 
@@ -624,7 +624,7 @@ msgstr ""
 msgid "Gameplay"
 msgstr ""
 
-#: engine/world/room.cpp:563
+#: engine/world/room.cpp:567
 msgid "Generating Dust Particles..."
 msgstr ""
 
@@ -979,7 +979,7 @@ msgid "Order by Date and Compact"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/savegamelistmenustate.cpp:733
+#: menu/savegamelistmenustate.cpp:739
 msgid ""
 "Order by Date and Compact All Slots?\n"
 "\n"
@@ -989,7 +989,7 @@ msgid ""
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/savegamelistmenustate.cpp:739
+#: menu/savegamelistmenustate.cpp:745
 msgid ""
 "Order by Level and Date and Compact All Slots?\n"
 "\n"
@@ -1188,7 +1188,7 @@ msgid "Quality"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/savegamelistmenustate.cpp:629
+#: menu/savegamelistmenustate.cpp:635
 msgctxt "SavegameTitle"
 msgid "Quicksave"
 msgstr ""
