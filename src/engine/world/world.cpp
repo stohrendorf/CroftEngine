@@ -949,10 +949,8 @@ void World::deserialize(const serialization::Deserializer<World>& ser)
       S_NV("rooms", serialization::DeserializingFrozenVector{std::ref(m_rooms)}),
       S_NV("boxes", serialization::DeserializingFrozenVector{std::ref(m_boxes)}),
       S_NV("audioEngine", *m_audioEngine),
-      S_NV("ghostFrame", m_ghostFrame));
-  // TODO CE-625
-  if(ser.node.has_child(c4::to_csubstr("pierre")))
-    ser(S_NV("pierre", serialization::ObjectReference{std::cref(m_pierre)}));
+      S_NV("ghostFrame", m_ghostFrame),
+      S_NV("pierre", serialization::ObjectReference{std::cref(m_pierre)}));
 
   updateStaticSoundEffects();
 }
