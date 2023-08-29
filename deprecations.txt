@@ -1,1 +1,0 @@
-CE-625 2.3 remove optional "pierre" loading from savegame
