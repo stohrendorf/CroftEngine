@@ -2,7 +2,10 @@
 #include "geometry_pipeline_interface.glsl"
 #include "util.glsl"
 
-layout(bindless_sampler) uniform sampler2D u_csmVsm[CSMSplits];
+layout(std140, binding=5) uniform CSMVSM {
+    uvec2 textures[CSMSplits];
+} csmVsm;
+
 layout(location=10) uniform float u_lightAmbient;
 
 struct Light {
@@ -27,7 +30,7 @@ float calc_vsm_value(in int splitIdx, in vec3 projCoords)
 {
     vec2 moments = vec2(0);
     // https://stackoverflow.com/a/32273875
-    #define FETCH_CSM(idx) case idx: moments = texture(u_csmVsm[idx], projCoords.xy).xy; break
+    #define FETCH_CSM(idx) case idx: moments = texture(sampler2D(csmVsm.textures[idx]), projCoords.xy).xy; break
     switch (splitIdx) {
         FETCH_CSM(0);
         FETCH_CSM(1);

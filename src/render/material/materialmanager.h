@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <functional>
+#include <gl/buffer.h>
 #include <gl/pixel.h>
 #include <gl/soglb_fwd.h>
 #include <gslu.h>
@@ -25,6 +26,7 @@ enum class SpriteMaterialMode : uint8_t;
 class MaterialManager final
 {
 public:
+  struct CsmHandleContainer;
   explicit MaterialManager(gslu::nn_shared<ShaderCache> shaderCache, gslu::nn_shared<scene::Renderer> renderer);
 
   [[nodiscard]] gslu::nn_shared<Material> getSprite(SpriteMaterialMode mode,
@@ -35,7 +37,7 @@ public:
 
   [[nodiscard]] gslu::nn_shared<Material> getGeometry(bool inWater,
                                                       bool skeletal,
-                                                      bool roomShadowing,
+                                                      bool uniformBlock,
                                                       bool opaque,
                                                       std::function<bool()> smooth,
                                                       std::function<int32_t()> lightingMode);
@@ -127,6 +129,7 @@ private:
   std::shared_ptr<scene::CSM> m_csm;
   gslu::nn_shared<scene::Renderer> m_renderer;
   std::shared_ptr<gl::TextureHandle<gl::Texture2DArray<gl::PremultipliedSRGBA8>>> m_geometryTexturesHandle;
+  std::shared_ptr<gl::UniformBuffer<CsmHandleContainer>> m_csmBuffer;
 
   void createSampler(const gslu::nn_shared<gl::Texture2DArray<gl::PremultipliedSRGBA8>>& geometryTextures,
                      bool bilinear,

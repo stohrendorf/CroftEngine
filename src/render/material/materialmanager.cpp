@@ -48,6 +48,11 @@ void configureForScreenSpaceEffect(Material& m, bool enableBlend)
 }
 } // namespace
 
+struct MaterialManager::CsmHandleContainer
+{
+  std::array<glm::uvec4, render::scene::CSMBuffer::NSplits> handles;
+};
+
 gslu::nn_shared<Material> MaterialManager::getSprite(SpriteMaterialMode mode,
                                                      const std::function<int32_t()>& lightingMode)
 {
@@ -146,13 +151,20 @@ gslu::nn_shared<Material> MaterialManager::getGeometry(bool inWater,
       ub.bind(m_csm->getBuffer(node->getModelMatrix()));
     });
 
-  m->getUniform("u_csmVsm[0]")
-    ->bind(
-      [this](const scene::Node* /*node*/, const scene::Mesh& /*mesh*/, gl::Uniform& uniform)
-      {
-        BOOST_ASSERT(m_csm != nullptr);
-        uniform.set(gsl::make_span(m_csm->getTextures()));
-      });
+  m->getUniformBlock("CSMVSM")->bind(
+    [this](const render::scene::Node*, const render::scene::Mesh& /*mesh*/, gl::UniformBlock& uniformBlock)
+    {
+      BOOST_ASSERT(m_csm != nullptr);
+      if(m_csmBuffer == nullptr)
+        m_csmBuffer = std::make_shared<gl::UniformBuffer<CsmHandleContainer>>(
+          "csm-handles", gl::api::BufferUsage::StaticDraw, sizeof(CsmHandleContainer));
+      CsmHandleContainer data;
+      auto textures = m_csm->getTextures();
+      for(size_t i = 0; i < render::scene::CSMBuffer::NSplits; ++i)
+        *reinterpret_cast<uint64_t*>(&data.handles[i]) = textures[i]->getHandle();
+      m_csmBuffer->setSubData(data, 0);
+      uniformBlock.bind(*m_csmBuffer);
+    });
 
   m->getUniform("u_lightingMode")
     ->bind(
