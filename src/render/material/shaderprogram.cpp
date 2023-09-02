@@ -11,6 +11,9 @@ ShaderProgram::~ShaderProgram() = default;
 
 void ShaderProgram::bind() const
 {
+  GL_ASSERT(gl::api::memoryBarrier(gl::api::MemoryBarrierMask::BufferUpdateBarrierBit
+                                   | gl::api::MemoryBarrierMask::ShaderStorageBarrierBit
+                                   | gl::api::MemoryBarrierMask::UniformBarrierBit));
   gl::RenderState::getWantedState().setProgram(m_handle.getHandle());
 }
 

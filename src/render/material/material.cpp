@@ -69,9 +69,6 @@ void Material::bind(const scene::Node* node, const scene::Mesh& mesh) const
 #endif
   }
 
-  GL_ASSERT(gl::api::memoryBarrier(gl::api::MemoryBarrierMask::BufferUpdateBarrierBit
-                                   | gl::api::MemoryBarrierMask::ShaderStorageBarrierBit
-                                   | gl::api::MemoryBarrierMask::UniformBarrierBit));
   m_shaderProgram->bind();
 }
 
