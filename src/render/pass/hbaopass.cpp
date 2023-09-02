@@ -79,7 +79,6 @@ void HBAOPass::render()
 
   m_fb->bind();
   scene::RenderContext context{material::RenderMode::FullOpaque, std::nullopt, scene::Translucency::Opaque};
-  GL_ASSERT(gl::api::textureBarrier());
   m_renderMesh->render(nullptr, context);
   m_fb->unbind();
 

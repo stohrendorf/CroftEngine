@@ -93,7 +93,6 @@ void EdgeDetectionPass::render()
     SOGLB_DEBUGGROUP("edge-detection");
     m_edgeFb->bind();
     scene::RenderContext context{material::RenderMode::FullOpaque, std::nullopt, scene::Translucency::Opaque};
-    GL_ASSERT(gl::api::textureBarrier());
     m_edgeRenderMesh->render(nullptr, context);
     m_edgeFb->unbind();
   }
@@ -102,7 +101,6 @@ void EdgeDetectionPass::render()
     SOGLB_DEBUGGROUP("edge-dilation");
     m_dilationFb->bind();
     scene::RenderContext context{material::RenderMode::FullOpaque, std::nullopt, scene::Translucency::Opaque};
-    GL_ASSERT(gl::api::textureBarrier());
     m_dilationRenderMesh->render(nullptr, context);
     m_dilationFb->unbind();
   }

@@ -71,8 +71,6 @@ public:
 
   [[nodiscard]] bool isComplete() const;
 
-  static void unbindAll();
-
   [[nodiscard]] const auto& getRenderState() const
   {
     return m_renderState;

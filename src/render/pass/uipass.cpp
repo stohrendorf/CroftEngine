@@ -75,7 +75,6 @@ void UIPass::render(float alpha)
                  uniform.set(alpha);
                });
   scene::RenderContext context{material::RenderMode::FullNonOpaque, std::nullopt, scene::Translucency::NonOpaque};
-  GL_ASSERT(gl::api::textureBarrier());
   m_mesh->render(nullptr, context);
 
   if constexpr(FlushPasses)

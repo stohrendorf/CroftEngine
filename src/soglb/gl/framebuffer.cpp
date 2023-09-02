@@ -24,7 +24,8 @@ Framebuffer::Framebuffer(Framebuffer::Attachments attachments,
     : BindableResource{api::createFramebuffers,
                        [](const uint32_t handle)
                        {
-                         bindFramebuffer(api::FramebufferTarget::DrawFramebuffer, handle);
+                         GL_ASSERT(memoryBarrier(api::MemoryBarrierMask::FramebufferBarrierBit));
+                         GL_ASSERT(bindFramebuffer(api::FramebufferTarget::DrawFramebuffer, handle));
                        },
                        api::deleteFramebuffers,
                        label}
@@ -94,11 +95,6 @@ bool Framebuffer::isComplete() const
 #endif
 
   return result == api::FramebufferStatus::FramebufferComplete;
-}
-
-void Framebuffer::unbindAll()
-{
-  GL_ASSERT(api::bindFramebuffer(api::FramebufferTarget::Framebuffer, 0));
 }
 
 void Framebuffer::blit(const Framebuffer& target, gl::api::BlitFramebufferFilter filter)

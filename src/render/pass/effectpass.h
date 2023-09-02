@@ -77,7 +77,6 @@ public:
                  {
                    uniform.set(inWater ? 1.0f : 0.0f);
                  });
-    GL_ASSERT(gl::api::textureBarrier());
     m_mesh->render(nullptr, context);
     m_fb->unbind();
 

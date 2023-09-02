@@ -66,7 +66,6 @@ public:
 
     RenderContext context{material::RenderMode::FullOpaque, std::nullopt, Translucency::Opaque};
     m_framebuffer->bind();
-    GL_ASSERT(gl::api::textureBarrier());
     m_mesh->render(nullptr, context);
     m_framebuffer->unbind();
   }
