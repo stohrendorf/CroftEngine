@@ -17,6 +17,7 @@
 #include "ui/widgets/label.h"
 #include "ui/widgets/listbox.h"
 #include "ui/widgets/tabbox.h"
+#include "ui/widgets/textbox.h"
 #include "ui/widgets/valueselector.h"
 #include "ui/widgets/widget.h"
 
@@ -39,6 +40,8 @@
 
 namespace menu
 {
+constexpr int MaxDescriptionWidth = 500;
+
 class RenderSettingsMenuState::CheckListBox : public ui::widgets::Widget
 {
 private:
@@ -111,6 +114,11 @@ public:
     return m_checkboxes.at(m_listBox->getSelected());
   }
 
+  [[nodiscard]] auto getSelectedIndex() const
+  {
+    return m_listBox->getSelected();
+  }
+
   [[nodiscard]] size_t getEntryCount() const
   {
     return m_listBox->getWidgets().size();
@@ -151,6 +159,7 @@ RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingT
   auto listBox = gsl::make_shared<CheckListBox>();
   m_listBoxes.emplace_back(listBox);
   m_tabs->addTab(tab, listBox);
+  m_descriptions.emplace_back();
 
   {
     auto tmp = std::make_shared<ui::widgets::ValueSelector<uint8_t>>(
@@ -175,6 +184,10 @@ RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingT
         toggle(engine, engine.getEngineConfig()->renderSettings.crtActive);
       });
     tmp->selectValue(engine.getEngineConfig()->renderSettings.crtVersion);
+    m_descriptions.back().emplace_back(std::make_shared<ui::widgets::TextBox>(
+      /* translators: TR charmap encoding */ _(
+        "Enables an old TV effect. You can choose between two different effect versions."),
+      MaxDescriptionWidth));
   }
 
   listBox->addSetting(
@@ -187,6 +200,11 @@ RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingT
     {
       toggle(engine, engine.getEngineConfig()->renderSettings.dof);
     });
+  m_descriptions.back().emplace_back(std::make_shared<ui::widgets::TextBox>(
+    /* translators: TR charmap encoding */ _(
+      "Slightly blurs objects that are out of focus. The focus point is the center of the screen.\n\n"
+      "PERFORMANCE: May have slight performance effects on lower-end graphics cards."),
+    MaxDescriptionWidth));
   listBox->addSetting(
     /* translators: TR charmap encoding */ _("Lens Distortion"),
     [&engine]()
@@ -197,6 +215,11 @@ RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingT
     {
       toggle(engine, engine.getEngineConfig()->renderSettings.lensDistortion);
     });
+  m_descriptions.back().emplace_back(std::make_shared<ui::widgets::TextBox>(
+    /* translators: TR charmap encoding */ _(
+      "Adds a slight distortion of the graphics to simulate cameras like, for example, a Go Pro."),
+    MaxDescriptionWidth));
+
   listBox->addSetting(
     /* translators: TR charmap encoding */ _("Film Grain"),
     [&engine]()
@@ -207,6 +230,9 @@ RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingT
     {
       toggle(engine, engine.getEngineConfig()->renderSettings.filmGrain);
     });
+  m_descriptions.back().emplace_back(std::make_shared<ui::widgets::TextBox>(
+    /* translators: TR charmap encoding */ _("Adds a slight noise effect to simulate analog film."),
+    MaxDescriptionWidth));
   listBox->addSetting(
     /* translators: TR charmap encoding */ _("Velvia"),
     [&engine]()
@@ -217,6 +243,9 @@ RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingT
     {
       toggle(engine, engine.getEngineConfig()->renderSettings.velvia);
     });
+  m_descriptions.back().emplace_back(std::make_shared<ui::widgets::TextBox>(
+    /* translators: TR charmap encoding */ _("Adds a 'Fujifilm Velvia' effect to enhance colour saturation."),
+    MaxDescriptionWidth));
   listBox->addSetting(
     /* translators: TR charmap encoding */ _("Bloom"),
     [&engine]()
@@ -227,6 +256,10 @@ RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingT
     {
       toggle(engine, engine.getEngineConfig()->renderSettings.bloom);
     });
+  m_descriptions.back().emplace_back(std::make_shared<ui::widgets::TextBox>(
+    /* translators: TR charmap encoding */ _(
+      "Bright areas on screen will add a glow to surrounding areas, simulating real-world cameras."),
+    MaxDescriptionWidth));
   listBox->addSetting(
     /* translators: TR charmap encoding */ _("Edge Outlines"),
     [&engine]()
@@ -237,6 +270,8 @@ RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingT
     {
       toggle(engine, engine.getEngineConfig()->renderSettings.edges);
     });
+  m_descriptions.back().emplace_back(std::make_shared<ui::widgets::TextBox>(
+    /* translators: TR charmap encoding */ _("Adds Borderland-like black lines to edges."), MaxDescriptionWidth));
   listBox->addSetting(
     /* translators: TR charmap encoding */ _("Muzzle Flash Lighting"),
     [&engine]()
@@ -247,6 +282,9 @@ RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingT
     {
       toggle(engine, engine.getEngineConfig()->renderSettings.muzzleFlashLight);
     });
+  m_descriptions.back().emplace_back(std::make_shared<ui::widgets::TextBox>(
+    /* translators: TR charmap encoding */ _("Firing your weapons will cast light on your environment."),
+    MaxDescriptionWidth));
 
   {
     std::vector<int8_t> values;
@@ -276,6 +314,9 @@ RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingT
         toggle(engine, engine.getEngineConfig()->renderSettings.brightnessEnabled);
       });
     tmp->selectValue(engine.getEngineConfig()->renderSettings.brightness);
+    m_descriptions.back().emplace_back(std::make_shared<ui::widgets::TextBox>(
+      /* translators: TR charmap encoding */ _("Configure your preferred overall brightness of the game."),
+      MaxDescriptionWidth));
   }
 
   {
@@ -306,6 +347,9 @@ RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingT
         toggle(engine, engine.getEngineConfig()->renderSettings.contrastEnabled);
       });
     tmp->selectValue(engine.getEngineConfig()->renderSettings.contrast);
+    m_descriptions.back().emplace_back(std::make_shared<ui::widgets::TextBox>(
+      /* translators: TR charmap encoding */ _("Configured your preferred overall contrast of the game."),
+      MaxDescriptionWidth));
   }
 
   {
@@ -348,11 +392,17 @@ RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingT
         toggle(engine, engine.getEngineConfig()->renderSettings.lightingModeActive);
       });
     tmp->selectValue(engine.getEngineConfig()->renderSettings.lightingMode);
+    m_descriptions.back().emplace_back(std::make_shared<ui::widgets::TextBox>(
+      /* translators: TR charmap encoding */ _(
+        "Changes the lighting of the level between the static lighting baked into the level data, or dynamic lighting "
+        "calculated only from the light sources placed in the levels."),
+      MaxDescriptionWidth));
   }
 
   listBox = gsl::make_shared<CheckListBox>();
   m_listBoxes.emplace_back(listBox);
   tab = gsl::make_shared<ui::widgets::Tab>(/* translators: TR charmap encoding */ _("Quality"));
+  m_descriptions.emplace_back();
 
   m_tabs->addTab(tab, listBox);
 
@@ -366,6 +416,9 @@ RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingT
     {
       toggle(engine, engine.getEngineConfig()->renderSettings.bilinearFiltering);
     });
+  m_descriptions.back().emplace_back(std::make_shared<ui::widgets::TextBox>(
+    /* translators: TR charmap encoding */ _("Change between pixelated textures and washed out textures."),
+    MaxDescriptionWidth));
   if(gl::hasAnisotropicFilteringExtension())
   {
     const auto maxLevel = gsl::narrow<uint32_t>(std::lround(gl::getMaxAnisotropyLevel()));
@@ -400,6 +453,9 @@ RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingT
           toggle(engine, engine.getEngineConfig()->renderSettings.anisotropyActive);
         });
     }
+    m_descriptions.back().emplace_back(std::make_shared<ui::widgets::TextBox>(
+      /* translators: TR charmap encoding */ _("Improves texture rendering of slanted geometry."),
+      MaxDescriptionWidth));
   }
   listBox->addSetting(
     /* translators: TR charmap encoding */ _("Denoise Water Surface"),
@@ -411,6 +467,8 @@ RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingT
     {
       toggle(engine, engine.getEngineConfig()->renderSettings.waterDenoise);
     });
+  m_descriptions.back().emplace_back(std::make_shared<ui::widgets::TextBox>(
+    /* translators: TR charmap encoding */ _("Reduces the choppiness of the water surface."), MaxDescriptionWidth));
   listBox->addSetting(
     /* translators: TR charmap encoding */ _("HBAO"),
     [&engine]()
@@ -421,6 +479,11 @@ RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingT
     {
       toggle(engine, engine.getEngineConfig()->renderSettings.hbao);
     });
+  m_descriptions.back().emplace_back(std::make_shared<ui::widgets::TextBox>(
+    /* translators: TR charmap encoding */ _(
+      "Adds shadows to crevices.\n\n"
+      "PERFORMANCE: Has a mild effect on performance. Disable if you experience constant low framerate."),
+    MaxDescriptionWidth));
 
   {
     auto tmp = std::make_shared<ui::widgets::ValueSelector<uint8_t>>(
@@ -463,6 +526,11 @@ RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingT
         toggle(engine, engine.getEngineConfig()->renderSettings.fxaaActive);
       });
     tmp->selectValue(engine.getEngineConfig()->renderSettings.fxaaPreset);
+    m_descriptions.back().emplace_back(std::make_shared<ui::widgets::TextBox>(
+      /* translators: TR charmap encoding */ _(
+        "Smoothes out rendering edges.\n\n"
+        "PERFORMANCE: Has a mild effect on performance. Disable if you experience constant low framerates."),
+      MaxDescriptionWidth));
   }
 
   listBox->addSetting(
@@ -475,6 +543,11 @@ RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingT
     {
       toggle(engine, engine.getEngineConfig()->renderSettings.highQualityShadows);
     });
+  m_descriptions.back().emplace_back(std::make_shared<ui::widgets::TextBox>(
+    /* translators: TR charmap encoding */ _(
+      "Switch between high and low resolution shadow maps.\n\n"
+      "PERFORMANCE: Has a mild effect on performance. Disable if you experience constant low framerates."),
+    MaxDescriptionWidth));
 
   {
     auto tmp = std::make_shared<ui::widgets::ValueSelector<uint8_t>>(
@@ -501,6 +574,10 @@ RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingT
       });
     tmp->selectValue(engine.getEngineConfig()->renderSettings.renderResolutionDivisor);
   }
+  m_descriptions.back().emplace_back(std::make_shared<ui::widgets::TextBox>(
+    /* translators: TR charmap encoding */ _("Reduces render scale to lower resolutions.\n\n"
+                                             "PERFORMANCE: Can greatly improve performance."),
+    MaxDescriptionWidth));
 
   {
     auto tmp = std::make_shared<ui::widgets::ValueSelector<uint8_t>>(
@@ -527,6 +604,8 @@ RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingT
       });
     tmp->selectValue(engine.getEngineConfig()->renderSettings.uiScaleMultiplier);
   }
+  m_descriptions.back().emplace_back(std::make_shared<ui::widgets::TextBox>(
+    /* translators: TR charmap encoding */ _("Scales the UI text."), MaxDescriptionWidth));
 
   listBox->addSetting(
     /* translators: TR charmap encoding */ _("Smoother Animations"),
@@ -538,11 +617,14 @@ RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingT
     {
       toggle(engine, engine.getEngineConfig()->animSmoothing);
     });
+  m_descriptions.back().emplace_back(std::make_shared<ui::widgets::TextBox>(
+    /* translators: TR charmap encoding */ _("Smoothes out some choppy model animations."), MaxDescriptionWidth));
 
   listBox = gsl::make_shared<CheckListBox>();
   m_listBoxes.emplace_back(listBox);
   tab = gsl::make_shared<ui::widgets::Tab>(/* translators: TR charmap encoding */ _("Other"));
   m_tabs->addTab(tab, listBox);
+  m_descriptions.emplace_back();
 
   listBox->addSetting(
     /* translators: TR charmap encoding */ _("Fullscreen"),
@@ -554,6 +636,8 @@ RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingT
     {
       toggle(engine, engine.getEngineConfig()->renderSettings.fullscreen);
     });
+  m_descriptions.back().emplace_back(std::make_shared<ui::widgets::TextBox>(
+    /* translators: TR charmap encoding */ _("Enables windowed fullscreen."), MaxDescriptionWidth));
 
   {
     auto tmp = std::make_shared<ui::widgets::ValueSelector<uint8_t>>(
@@ -578,6 +662,11 @@ RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingT
         toggle(engine, engine.getEngineConfig()->renderSettings.dustActive);
       });
     tmp->selectValue(engine.getEngineConfig()->renderSettings.dustDensity);
+    m_descriptions.back().emplace_back(std::make_shared<ui::widgets::TextBox>(
+      /* translators: TR charmap encoding */ _(
+        "Adds small dust particles to all levels.\n\n"
+        "PERFORMANCE: Has a big effect on performance. Disable if you experience low framerates in large, open areas."),
+      MaxDescriptionWidth));
   }
 
   listBox->addSetting(
@@ -590,6 +679,11 @@ RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingT
     {
       toggle(engine, engine.getEngineConfig()->renderSettings.moreLights);
     });
+  m_descriptions.back().emplace_back(std::make_shared<ui::widgets::TextBox>(
+    /* translators: TR charmap encoding */ _("Makes lighting changes between areas of levels smoother.\n\n"
+                                             "This adds lights of neighbouring areas to the lighting calculation. "
+                                             "Disable if the game becomes too bright for you."),
+    MaxDescriptionWidth));
   listBox->addSetting(
     /* translators: TR charmap encoding */ _("Ghost"),
     [&engine]()
@@ -601,6 +695,9 @@ RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingT
       auto& b = engine.getEngineConfig()->displaySettings.ghost;
       b = !b;
     });
+  m_descriptions.back().emplace_back(std::make_shared<ui::widgets::TextBox>(
+    /* translators: TR charmap encoding */ _("Enables recording and playback of your local ghost."),
+    MaxDescriptionWidth));
   listBox->addSetting(
     /* translators: TR charmap encoding */ _("Restore Health on Level Start"),
     [&engine]()
@@ -612,6 +709,10 @@ RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingT
       auto& b = engine.getEngineConfig()->restoreHealth;
       b = !b;
     });
+  m_descriptions.back().emplace_back(std::make_shared<ui::widgets::TextBox>(
+    /* translators: TR charmap encoding */ _("Enable to restore your health on each level start. When disabled, your"
+                                             " health won't get filled up after each level."),
+    MaxDescriptionWidth));
   listBox->addSetting(
     /* translators: TR charmap encoding */ _("Low Health: Pulse Health Bar"),
     [&engine]()
@@ -623,6 +724,10 @@ RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingT
       auto& b = engine.getEngineConfig()->pulseLowHealthHealthBar;
       b = !b;
     });
+  m_descriptions.back().emplace_back(std::make_shared<ui::widgets::TextBox>(
+    /* translators: TR charmap encoding */ _(
+      "Enable to make the health bar pulse on low health. The lower your health, the faster it will pulse."),
+    MaxDescriptionWidth));
   listBox->addSetting(
     /* translators: TR charmap encoding */ _("Low Health: Reduce Color"),
     [&engine]()
@@ -634,6 +739,10 @@ RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingT
       auto& b = engine.getEngineConfig()->lowHealthMonochrome;
       b = !b;
     });
+  m_descriptions.back().emplace_back(std::make_shared<ui::widgets::TextBox>(
+    /* translators: TR charmap encoding */ _("Enable to make the screen go black and white the lower your health is. "
+                                             "This effect will only start to take effect on very low health."),
+    MaxDescriptionWidth));
   listBox->addSetting(
     /* translators: TR charmap encoding */ _("Water Bed Bubbles"),
     [&engine]()
@@ -645,6 +754,8 @@ RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingT
       auto& b = engine.getEngineConfig()->waterBedBubbles;
       b = !b;
     });
+  m_descriptions.back().emplace_back(std::make_shared<ui::widgets::TextBox>(
+    /* translators: TR charmap encoding */ _("Adds small bubbles to all water."), MaxDescriptionWidth));
   listBox->addSetting(
     /* translators: TR charmap encoding */ _("Butt Bubbles"),
     [&engine]()
@@ -656,6 +767,8 @@ RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingT
       auto& b = engine.getEngineConfig()->buttBubbles;
       b = !b;
     });
+  m_descriptions.back().emplace_back(std::make_shared<ui::widgets::TextBox>(
+    /* translators: TR charmap encoding */ _("Give Lara a bubbly personality."), MaxDescriptionWidth));
   {
     auto tmp = std::make_shared<ui::widgets::ValueSelector<uint8_t>>(
       [](uint8_t value)
@@ -681,6 +794,9 @@ RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingT
         toggle(engine, engine.getEngineConfig()->saveReminderEnabled);
       });
     tmp->selectValue(engine.getEngineConfig()->saveReminderMinutes);
+    m_descriptions.back().emplace_back(std::make_shared<ui::widgets::TextBox>(
+      /* translators: TR charmap encoding */ _("Adds a regular save reminder to the top of the screen."),
+      MaxDescriptionWidth));
   }
   listBox->addSetting(
     /* translators: TR charmap encoding */ _("Select First Free or Oldest Slot"),
@@ -693,6 +809,11 @@ RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingT
       auto& b = engine.getEngineConfig()->selectFirstFreeOrOldestSlot;
       b = !b;
     });
+  m_descriptions.back().emplace_back(std::make_shared<ui::widgets::TextBox>(
+    /* translators: TR charmap encoding */ _(
+      "When saving manually, automatically select the first free slot. If no more free slots are available, it will "
+      "select the oldest save to be overwritten."),
+    MaxDescriptionWidth));
   {
     auto tmp = std::make_shared<ui::widgets::ValueSelector<uint8_t>>(
       [](uint8_t value)
@@ -718,6 +839,19 @@ RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingT
         toggle(engine, engine.getEngineConfig()->delaySaveEnabled);
       });
     tmp->selectValue(engine.getEngineConfig()->delaySaveDurationSeconds);
+    m_descriptions.back().emplace_back(std::make_shared<ui::widgets::TextBox>(
+      /* translators: TR charmap encoding */ _("When manually overwriting a game, you will need to confirm 'Yes' for "
+                                               "some time to avoid accidental overwrites."),
+      MaxDescriptionWidth));
+  }
+
+  for(const auto& descriptions : m_descriptions)
+  {
+    for(const auto& description : descriptions)
+    {
+      description->fitToContent();
+      description->setSize({MaxDescriptionWidth, description->getSize().y});
+    }
   }
 }
 
@@ -735,6 +869,15 @@ std::unique_ptr<MenuState>
   m_tabs->draw(ui, world.getPresenter());
 
   const auto& listBox = m_listBoxes[m_tabs->getSelectedTab()];
+
+  {
+    const auto& descriptions = m_descriptions.at(m_tabs->getSelectedTab());
+    const auto& description = descriptions.at(listBox->getSelectedIndex());
+    description->setPosition({(ui.getSize().x - MaxDescriptionWidth) / 2,
+                              listBox->getPosition().y - description->getSize().y - 3 * ui::FontHeight});
+    description->draw(ui, world.getPresenter());
+  }
+
   if(world.getPresenter().getInputHandler().getInputState().menuZMovement.justChangedTo(hid::AxisMovement::Forward))
   {
     if(!listBox->prevEntry())

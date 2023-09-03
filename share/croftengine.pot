@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CroftEngine 2.2.1\n"
 "Report-Msgid-Bugs-To: https://github.com/stohrendorf/CroftEngine/issues\n"
-"POT-Creation-Date: 2023-09-03 13:18+0200\n"
+"POT-Creation-Date: 2023-09-03 15:07+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -19,31 +19,31 @@ msgstr ""
 "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:332
+#: menu/rendersettingsmenustate.cpp:376
 #, boost-format
 msgid "\037l %1% \037m Dynamic Lighting"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:562
+#: menu/rendersettingsmenustate.cpp:646
 #, boost-format
 msgid "\037l %1% \037m Percent Dust Particles"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:382
+#: menu/rendersettingsmenustate.cpp:435
 #, boost-format
 msgid "\037l %1%x \037m Anisotropic Filtering"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:509
+#: menu/rendersettingsmenustate.cpp:586
 #, boost-format
 msgid "\037l %1%x \037m UI Scale"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:483
+#: menu/rendersettingsmenustate.cpp:556
 #, boost-format
 msgid "\037l 1/%1% \037m Render Scale"
 msgstr ""
@@ -165,6 +165,56 @@ msgid "Action"
 msgstr ""
 
 #. translators: TR charmap encoding
+#: menu/rendersettingsmenustate.cpp:274
+msgid "Adds Borderland-like black lines to edges."
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/rendersettingsmenustate.cpp:247
+msgid "Adds a 'Fujifilm Velvia' effect to enhance colour saturation."
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/rendersettingsmenustate.cpp:798
+msgid "Adds a regular save reminder to the top of the screen."
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/rendersettingsmenustate.cpp:220
+msgid ""
+"Adds a slight distortion of the graphics to simulate cameras like, for "
+"example, a Go Pro."
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/rendersettingsmenustate.cpp:234
+msgid "Adds a slight noise effect to simulate analog film."
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/rendersettingsmenustate.cpp:484
+msgid ""
+"Adds shadows to crevices.\n"
+"\n"
+"PERFORMANCE: Has a mild effect on performance. Disable if you experience "
+"constant low framerate."
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/rendersettingsmenustate.cpp:758
+msgid "Adds small bubbles to all water."
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/rendersettingsmenustate.cpp:667
+msgid ""
+"Adds small dust particles to all levels.\n"
+"\n"
+"PERFORMANCE: Has a big effect on performance. Disable if you experience low "
+"framerates in large, open areas."
+msgstr ""
+
+#. translators: TR charmap encoding
 #: hid/names.cpp:239
 msgctxt "Keyboard|Key"
 msgid "Alt"
@@ -199,7 +249,7 @@ msgid "Back"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:360
+#: menu/rendersettingsmenustate.cpp:410
 msgid "Bilinear Filtering"
 msgstr ""
 
@@ -210,7 +260,7 @@ msgid "Bksp"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:221
+#: menu/rendersettingsmenustate.cpp:250
 msgid "Bloom"
 msgstr ""
 
@@ -219,7 +269,14 @@ msgid "Booting"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:259
+#: menu/rendersettingsmenustate.cpp:261
+msgid ""
+"Bright areas on screen will add a glow to surrounding areas, simulating real-"
+"world cameras."
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/rendersettingsmenustate.cpp:297
 #, boost-format
 msgid "Brightness \037l %1% \037m"
 msgstr ""
@@ -246,7 +303,7 @@ msgid "Building atlases (%1%%%)"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:649
+#: menu/rendersettingsmenustate.cpp:760
 msgid "Butt Bubbles"
 msgstr ""
 
@@ -257,7 +314,7 @@ msgid "C"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:159
+#: menu/rendersettingsmenustate.cpp:168
 #, boost-format
 msgid "CRT Version \037l %1% \037m"
 msgstr ""
@@ -283,6 +340,19 @@ msgstr ""
 #: menu/controlsmenustate.cpp:206
 #, boost-format
 msgid "Change Button Images: %1%"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/rendersettingsmenustate.cpp:420
+msgid "Change between pixelated textures and washed out textures."
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/rendersettingsmenustate.cpp:397
+msgid ""
+"Changes the lighting of the level between the static lighting baked into the "
+"level data, or dynamic lighting calculated only from the light sources "
+"placed in the levels."
 msgstr ""
 
 #. translators: TR charmap encoding
@@ -394,7 +464,17 @@ msgid "Compass"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:289
+#: menu/rendersettingsmenustate.cpp:318
+msgid "Configure your preferred overall brightness of the game."
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/rendersettingsmenustate.cpp:351
+msgid "Configured your preferred overall contrast of the game."
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/rendersettingsmenustate.cpp:330
 #, boost-format
 msgid "Contrast \037l %1% \037m"
 msgstr ""
@@ -429,7 +509,7 @@ msgid "Del"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:700
+#: menu/rendersettingsmenustate.cpp:821
 #, boost-format
 msgid "Delay Overwrite for \037l %1% \037m Second"
 msgid_plural "Delay Overwrite for \037l %1% \037m Seconds"
@@ -437,12 +517,12 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:405
+#: menu/rendersettingsmenustate.cpp:461
 msgid "Denoise Water Surface"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:181
+#: menu/rendersettingsmenustate.cpp:194
 msgid "Depth-of-Field"
 msgstr ""
 
@@ -511,7 +591,7 @@ msgid "E"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:231
+#: menu/rendersettingsmenustate.cpp:264
 msgid "Edge Outlines"
 msgstr ""
 
@@ -522,8 +602,46 @@ msgid "Edit Mapping: %1%"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/audiosettingsmenustate.cpp:65 menu/rendersettingsmenustate.cpp:149
+#: menu/audiosettingsmenustate.cpp:65 menu/rendersettingsmenustate.cpp:157
 msgid "Effects"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/rendersettingsmenustate.cpp:729
+msgid ""
+"Enable to make the health bar pulse on low health. The lower your health, "
+"the faster it will pulse."
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/rendersettingsmenustate.cpp:743
+msgid ""
+"Enable to make the screen go black and white the lower your health is. This "
+"effect will only start to take effect on very low health."
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/rendersettingsmenustate.cpp:713
+msgid ""
+"Enable to restore your health on each level start. When disabled, your "
+"health won't get filled up after each level."
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/rendersettingsmenustate.cpp:189
+msgid ""
+"Enables an old TV effect. You can choose between two different effect "
+"versions."
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/rendersettingsmenustate.cpp:699
+msgid "Enables recording and playback of your local ghost."
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/rendersettingsmenustate.cpp:640
+msgid "Enables windowed fullscreen."
 msgstr ""
 
 #. translators: TR charmap encoding
@@ -559,7 +677,7 @@ msgstr ""
 msgid "Exit to Title"
 msgstr ""
 
-#: menu/rendersettingsmenustate.cpp:442
+#: menu/rendersettingsmenustate.cpp:505
 msgctxt "FXAA"
 msgid "Extreme"
 msgstr ""
@@ -571,24 +689,29 @@ msgid "F"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:447
+#: menu/rendersettingsmenustate.cpp:510
 #, boost-format
 msgid "FXAA \037l %1% \037m"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:201
+#: menu/rendersettingsmenustate.cpp:224
 msgid "Film Grain"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:327
+#: menu/rendersettingsmenustate.cpp:286
+msgid "Firing your weapons will cast light on your environment."
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/rendersettingsmenustate.cpp:371
 msgctxt "lighting"
 msgid "Full"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:548
+#: menu/rendersettingsmenustate.cpp:630
 msgid "Fullscreen"
 msgstr ""
 
@@ -623,8 +746,13 @@ msgid "Generating Dust Particles..."
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:594
+#: menu/rendersettingsmenustate.cpp:688
 msgid "Ghost"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/rendersettingsmenustate.cpp:771
+msgid "Give Lara a bubbly personality."
 msgstr ""
 
 #: loader/trx/trx.cpp:359
@@ -679,17 +807,17 @@ msgid "H"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:415
+#: menu/rendersettingsmenustate.cpp:473
 msgid "HBAO"
 msgstr ""
 
-#: menu/rendersettingsmenustate.cpp:439
+#: menu/rendersettingsmenustate.cpp:502
 msgctxt "FXAA"
 msgid "High"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:469
+#: menu/rendersettingsmenustate.cpp:537
 msgid "High Quality Shadows"
 msgstr ""
 
@@ -713,6 +841,11 @@ msgstr ""
 #. translators: TR charmap encoding
 #: menu/menudisplay.cpp:523
 msgid "ITEMS"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/rendersettingsmenustate.cpp:457
+msgid "Improves texture rendering of slanted geometry."
 msgstr ""
 
 #. translators: TR charmap encoding
@@ -814,7 +947,7 @@ msgid "Left"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:191
+#: menu/rendersettingsmenustate.cpp:209
 msgid "Lens Distortion"
 msgstr ""
 
@@ -848,18 +981,18 @@ msgctxt "Action"
 msgid "Look"
 msgstr ""
 
-#: menu/rendersettingsmenustate.cpp:433
+#: menu/rendersettingsmenustate.cpp:496
 msgctxt "FXAA"
 msgid "Low"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:616
+#: menu/rendersettingsmenustate.cpp:717
 msgid "Low Health: Pulse Health Bar"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:627
+#: menu/rendersettingsmenustate.cpp:732
 msgid "Low Health: Reduce Color"
 msgstr ""
 
@@ -879,7 +1012,16 @@ msgstr ""
 msgid "Magnums"
 msgstr ""
 
-#: menu/rendersettingsmenustate.cpp:436
+#. translators: TR charmap encoding
+#: menu/rendersettingsmenustate.cpp:683
+msgid ""
+"Makes lighting changes between areas of levels smoother.\n"
+"\n"
+"This adds lights of neighbouring areas to the lighting calculation. Disable "
+"if the game becomes too bright for you."
+msgstr ""
+
+#: menu/rendersettingsmenustate.cpp:499
 msgctxt "FXAA"
 msgid "Medium"
 msgstr ""
@@ -896,12 +1038,12 @@ msgid "Menu Navigation"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:584
+#: menu/rendersettingsmenustate.cpp:673
 msgid "More Lights"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:324
+#: menu/rendersettingsmenustate.cpp:368
 msgctxt "lighting"
 msgid "Mostly"
 msgstr ""
@@ -912,7 +1054,7 @@ msgid "Music"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:241
+#: menu/rendersettingsmenustate.cpp:276
 msgid "Muzzle Flash Lighting"
 msgstr ""
 
@@ -992,7 +1134,7 @@ msgid ""
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:544
+#: menu/rendersettingsmenustate.cpp:625
 msgid "Other"
 msgstr ""
 
@@ -1124,7 +1266,7 @@ msgid "Page %1% of %2%"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:321
+#: menu/rendersettingsmenustate.cpp:365
 msgctxt "lighting"
 msgid "Partially"
 msgstr ""
@@ -1176,7 +1318,7 @@ msgid "Q"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:355
+#: menu/rendersettingsmenustate.cpp:404
 msgid "Quality"
 msgstr ""
 
@@ -1223,6 +1365,19 @@ msgid "RThumb"
 msgstr ""
 
 #. translators: TR charmap encoding
+#: menu/rendersettingsmenustate.cpp:578
+msgid ""
+"Reduces render scale to lower resolutions.\n"
+"\n"
+"PERFORMANCE: Can greatly improve performance."
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/rendersettingsmenustate.cpp:471
+msgid "Reduces the choppiness of the water surface."
+msgstr ""
+
+#. translators: TR charmap encoding
 #: menu/controlsmenustate.cpp:210
 #, boost-format
 msgid "Remove Mapping: Hold %1% for %2% seconds"
@@ -1240,7 +1395,7 @@ msgid "Restart Level"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:605
+#: menu/rendersettingsmenustate.cpp:702
 msgid "Restore Health on Level Start"
 msgstr ""
 
@@ -1321,7 +1476,7 @@ msgid "Save Game"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:663
+#: menu/rendersettingsmenustate.cpp:776
 #, boost-format
 msgid "Save Reminder after \037l %1% \037m Minute"
 msgid_plural "Save Reminder after \037l %1% \037m Minutes"
@@ -1331,6 +1486,11 @@ msgstr[1] ""
 #. translators: TR charmap encoding
 #: engine/ghostmanager.cpp:77
 msgid "Save recorded ghost?"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/rendersettingsmenustate.cpp:608
+msgid "Scales the UI text."
 msgstr ""
 
 #. translators: TR charmap encoding
@@ -1363,7 +1523,7 @@ msgid "Select"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:686
+#: menu/rendersettingsmenustate.cpp:802
 msgid "Select First Free or Oldest Slot"
 msgstr ""
 
@@ -1389,6 +1549,15 @@ msgid "Shotgun Cells"
 msgstr ""
 
 #. translators: TR charmap encoding
+#: menu/rendersettingsmenustate.cpp:205
+msgid ""
+"Slightly blurs objects that are out of focus. The focus point is the center "
+"of the screen.\n"
+"\n"
+"PERFORMANCE: May have slight performance effects on lower-end graphics cards."
+msgstr ""
+
+#. translators: TR charmap encoding
 #: menu/menudisplay.cpp:403
 msgid "Small Medi Pack"
 msgstr ""
@@ -1405,8 +1574,22 @@ msgid "Small Medipack"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:532
+#: menu/rendersettingsmenustate.cpp:611
 msgid "Smoother Animations"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/rendersettingsmenustate.cpp:531
+msgid ""
+"Smoothes out rendering edges.\n"
+"\n"
+"PERFORMANCE: Has a mild effect on performance. Disable if you experience "
+"constant low framerates."
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/rendersettingsmenustate.cpp:621
+msgid "Smoothes out some choppy model animations."
 msgstr ""
 
 #. translators: TR charmap encoding
@@ -1448,6 +1631,15 @@ msgstr ""
 #: menu/controlsmenustate.cpp:197
 #, boost-format
 msgid "Switch Profile: %1% and %2%"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/rendersettingsmenustate.cpp:548
+msgid ""
+"Switch between high and low resolution shadow maps.\n"
+"\n"
+"PERFORMANCE: Has a mild effect on performance. Disable if you experience "
+"constant low framerates."
 msgstr ""
 
 #. translators: TR charmap encoding
@@ -1526,7 +1718,7 @@ msgid "V"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:211
+#: menu/rendersettingsmenustate.cpp:237
 msgid "Velvia"
 msgstr ""
 
@@ -1543,8 +1735,22 @@ msgid "Walk"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:638
+#: menu/rendersettingsmenustate.cpp:747
 msgid "Water Bed Bubbles"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/rendersettingsmenustate.cpp:843
+msgid ""
+"When manually overwriting a game, you will need to confirm 'Yes' for some "
+"time to avoid accidental overwrites."
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/rendersettingsmenustate.cpp:814
+msgid ""
+"When saving manually, automatically select the first free slot. If no more "
+"free slots are available, it will select the oldest save to be overwritten."
 msgstr ""
 
 #. translators: TR charmap encoding

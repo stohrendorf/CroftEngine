@@ -598,6 +598,7 @@ set( CROFTENGINE_SRCS
         ui/widgets/selectionbox.cpp
         ui/widgets/sprite.cpp
         ui/widgets/tabbox.cpp
+        ui/widgets/textbox.cpp
 
         video/avdecoder.h
         video/avdecoder.cpp
@@ -655,7 +656,7 @@ set( CROFTENGINE_SRCS
         menu/setitemtypemenustate.cpp
         menu/switchringmenustate.cpp
         menu/util.cpp
-        )
+)
 
 if( MSVC )
     list( APPEND CROFTENGINE_SRCS croftengine.rc )
