@@ -5,6 +5,7 @@
 #include "util.h"
 
 #include <array>
+#include <boost/algorithm/string/trim.hpp>
 #include <gl/pixel.h>
 #include <utility>
 
@@ -139,5 +140,73 @@ void drawBox(const Text& text, Ui& ui, const glm::ivec2& pos, int padding, const
   ui.drawBox(pos + glm::ivec2{-padding, padding},
              glm::ivec2{text.getWidth() * scale + 2 * padding, -FontHeight * scale - 2 * padding - 2},
              color);
+}
+
+std::vector<std::string> breakLines(const std::string& text, int maxWidth)
+{
+  std::vector<std::string> words;
+  size_t start = 0;
+  while(start != std::string::npos)
+  {
+    const auto last = text.find_first_of("\n ", start);
+    if(last == std::string::npos)
+    {
+      words.emplace_back(text.substr(start));
+      break;
+    }
+    if(last != start)
+      words.emplace_back(text.substr(start, last - start));
+    words.emplace_back(text.substr(last, 1));
+    start = last + 1;
+  }
+
+  std::vector<std::string> lines;
+  std::string candidate;
+  bool hadImplicitLineBreak = false;
+  for(const auto& word : words)
+  {
+    if(word == "\n")
+    {
+      // forced newline; trim trailing spaces
+      if(!hadImplicitLineBreak)
+        lines.emplace_back(boost::algorithm::trim_right_copy(candidate));
+      candidate.clear();
+      hadImplicitLineBreak = false;
+      continue;
+    }
+    else if(word == " ")
+    {
+      // skip spaces at start of line
+      if(!candidate.empty())
+        candidate += ' ';
+      hadImplicitLineBreak = false;
+      continue;
+    }
+
+    auto nextCandidate = candidate + word;
+
+    int width = 0;
+    doLayout(nextCandidate, &width);
+    if(width <= maxWidth)
+    {
+      candidate = std::move(nextCandidate);
+      hadImplicitLineBreak = false;
+    }
+    else
+    {
+      // line would exceed max length, add previous
+      lines.emplace_back(boost::algorithm::trim_right_copy(candidate));
+      candidate = word;
+      hadImplicitLineBreak = true;
+    }
+  }
+
+  candidate = boost::algorithm::trim_right_copy(candidate);
+  if(!candidate.empty())
+  {
+    lines.emplace_back(std::move(candidate));
+  }
+
+  return lines;
 }
 } // namespace ui

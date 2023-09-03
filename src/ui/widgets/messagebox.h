@@ -26,6 +26,7 @@ class MessageBox : public Widget
 {
 public:
   explicit MessageBox(const std::string& label);
+  explicit MessageBox(const std::vector<std::string>& labels);
   ~MessageBox() override;
   void update(bool hasFocus) override;
   void draw(ui::Ui& ui, const engine::Presenter& presenter) const override;

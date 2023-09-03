@@ -29,6 +29,9 @@ public:
   explicit SelectionBox(const std::string& message,
                         const std::vector<std::string>& options,
                         size_t initialSelection = 0);
+  explicit SelectionBox(const std::vector<std::string>& message,
+                        const std::vector<std::string>& options,
+                        size_t initialSelection = 0);
   ~SelectionBox() override;
   void update(bool hasFocus) override;
   void draw(ui::Ui& ui, const engine::Presenter& presenter) const override;

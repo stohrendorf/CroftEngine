@@ -41,6 +41,34 @@ SelectionBox::SelectionBox(const std::string& message, const std::vector<std::st
     m_container->set(0, i + m_messageLines.size(), m_options[i]);
 }
 
+SelectionBox::SelectionBox(const std::vector<std::string>& message,
+                           const std::vector<std::string>& options,
+                           size_t initialSelection)
+    : m_container{std::make_shared<GridBox>()}
+    , m_selected{initialSelection}
+{
+  std::transform(message.begin(),
+                 message.end(),
+                 std::back_inserter(m_messageLines),
+                 [](const std::string& line)
+                 {
+                   return std::make_shared<Label>(line, Label::Alignment::Center);
+                 });
+  std::transform(options.begin(),
+                 options.end(),
+                 std::back_inserter(m_options),
+                 [](const std::string& label)
+                 {
+                   return std::make_shared<Label>(label, Label::Alignment::Center);
+                 });
+
+  m_container->setExtents(1, m_messageLines.size() + m_options.size());
+  for(size_t i = 0; i < m_messageLines.size(); ++i)
+    m_container->set(0, i, m_messageLines[i]);
+  for(size_t i = 0; i < m_options.size(); ++i)
+    m_container->set(0, i + m_messageLines.size(), m_options[i]);
+}
+
 SelectionBox::~SelectionBox() = default;
 
 void SelectionBox::draw(ui::Ui& ui, const engine::Presenter& presenter) const

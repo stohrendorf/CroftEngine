@@ -181,7 +181,7 @@ ControlsMenuState::ControlsMenuState(const std::shared_ptr<MenuRingTransform>& r
                                  /* translators: TR charmap encoding */ _("No"),
                                  /* translators: TR charmap encoding */ _("Return")})}
     , m_error{std::make_shared<ui::widgets::SelectionBox>(
-        /* translators: TR charmap encoding */ _("Ensure your menu mapping\nis fully configured."),
+        ui::breakLines(/* translators: TR charmap encoding */ _("Ensure your menu mapping is fully configured."), 500),
         std::vector<std::string>{/* translators: TR charmap encoding */ _("OK"),
                                  /* translators: TR charmap encoding */ _("Discard changes")})}
 {

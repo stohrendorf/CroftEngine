@@ -680,6 +680,8 @@ void SavegameListMenuState::updateSavegameInfos(const engine::world::World& worl
 
 void SavegameListMenuState::initCleanupConfirmation()
 {
+  static constexpr int MaxTextWidth = 500;
+
   const auto slot = m_entries.at(getListBox()->getSelected())->getSlot();
   const auto levelTitle = m_entries.at(getListBox()->getSelected())->getLevelTitle();
   switch(m_cleanupWidget->getSelectedAction())
@@ -699,53 +701,58 @@ void SavegameListMenuState::initCleanupConfirmation()
   }
   case CleanupAction::AllOther:
     gsl_Assert(slot.has_value());
-    m_cleanupConfirmation = std::make_shared<ui::widgets::MessageBox>(
+    m_cleanupConfirmation = std::make_shared<ui::widgets::MessageBox>(ui::breakLines(
       /* translators: TR charmap encoding */ _("Clear All Other Slots?\n\n"
-                                               "This will erase all of your data,\n"
-                                               "except for Slot %1%.",
-                                               *slot + 1));
+                                               "This will erase all of your data, except for Slot %1%.",
+                                               *slot + 1),
+      MaxTextWidth));
     break;
   case CleanupAction::AllOtherForLevel:
     gsl_Assert(slot.has_value());
     gsl_Assert(!levelTitle.empty());
     m_cleanupConfirmation = std::make_shared<ui::widgets::MessageBox>(
-      /* translators: TR charmap encoding */ _("Clear All Other Level Slots?\n\n"
-                                               "This will erase all of your level data\n"
-                                               "for %1%, except for Slot %2%.",
-                                               levelTitle,
-                                               *slot + 1));
+      ui::breakLines(/* translators: TR charmap encoding */ _("Clear All Other Level Slots?\n\n"
+                                                              "This will erase all of your level data"
+                                                              " for %1%, except for Slot %2%.",
+                                                              levelTitle,
+                                                              *slot + 1),
+                     MaxTextWidth));
     break;
   case CleanupAction::AllExceptNewestPerLevel:
     m_cleanupConfirmation = std::make_shared<ui::widgets::MessageBox>(
-      /* translators: TR charmap encoding */ _("Clear Historic Slots?\n\n"
-                                               "This will erase all of your saves for each\n"
-                                               "level, except for the most recent ones."));
+      ui::breakLines(/* translators: TR charmap encoding */ _("Clear Historic Slots?\n\n"
+                                                              "This will erase all of your saves for each"
+                                                              " level, except for the most recent ones."),
+                     MaxTextWidth));
     break;
   case CleanupAction::AllExceptNewestPerLevelAndCompact:
     m_cleanupConfirmation = std::make_shared<ui::widgets::MessageBox>(
-      /* translators: TR charmap encoding */ _("Clear Historic Slots?\n\n"
-                                               "This will erase all of your saves for each\n"
-                                               "level, except for the most recent ones, and\n"
-                                               "move all slots to the start of the list."));
+      ui::breakLines(/* translators: TR charmap encoding */ _("Clear Historic Slots?\n\n"
+                                                              "This will erase all of your saves for each"
+                                                              " level, except for the most recent ones, and"
+                                                              " move all slots to the start of the list."),
+                     MaxTextWidth));
     break;
   case CleanupAction::Compact:
     m_cleanupConfirmation = std::make_shared<ui::widgets::MessageBox>(
-      /* translators: TR charmap encoding */ _("Compact All Slots?\n\n"
-                                               "This will move all slots\n"
-                                               "to the start of the list."));
+      ui::breakLines(/* translators: TR charmap encoding */ _("Compact All Slots?\n\n"
+                                                              "This will move all slots to the start of the list."),
+                     MaxTextWidth));
     break;
   case CleanupAction::OrderByDateAndCompact:
-    m_cleanupConfirmation = std::make_shared<ui::widgets::MessageBox>(
+    m_cleanupConfirmation = std::make_shared<ui::widgets::MessageBox>(ui::breakLines(
       /* translators: TR charmap encoding */ _("Order by Date and Compact All Slots?\n\n"
-                                               "This will order your saves\n"
-                                               "by date and move all slots\nto the start of the list."));
+                                               "This will order your saves"
+                                               " by date and move all slots to the start of the list."),
+      MaxTextWidth));
     break;
   case CleanupAction::OrderByDateLevelAndCompact:
     m_cleanupConfirmation = std::make_shared<ui::widgets::MessageBox>(
-      /* translators: TR charmap encoding */ _("Order by Level and Date and Compact All Slots?\n\n"
-                                               "This will order your saves by level,\n"
-                                               "then by date, and move all slots\n"
-                                               "to the start of the list."));
+      ui::breakLines(/* translators: TR charmap encoding */ _("Order by Level and Date and Compact All Slots?\n\n"
+                                                              "This will order your saves by level,"
+                                                              " then by date, and move all slots"
+                                                              " to the start of the list."),
+                     MaxTextWidth));
     break;
   case CleanupAction::Cancel:
     m_cleanupWidget.reset();

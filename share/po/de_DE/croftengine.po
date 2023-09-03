@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CroftEngine\n"
 "Report-Msgid-Bugs-To: https://github.com/stohrendorf/CroftEngine/issues\n"
-"POT-Creation-Date: 2023-08-29 19:28+0200\n"
+"POT-Creation-Date: 2023-09-03 13:18+0200\n"
 "Last-Translator: Steffen Ohrendorf\n"
 "Language-Team: none\n"
 "Language: de_DE\n"
@@ -305,18 +305,16 @@ msgid "Clear All Other Level Slots"
 msgstr "Alle anderen Slots l~oschen"
 
 #. translators: TR charmap encoding
-#: menu/savegamelistmenustate.cpp:712
+#: menu/savegamelistmenustate.cpp:714
 #, boost-format
 msgid ""
 "Clear All Other Level Slots?\n"
 "\n"
-"This will erase all of your level data\n"
-"for %1%, except for Slot %2%."
+"This will erase all of your level data for %1%, except for Slot %2%."
 msgstr ""
 "Alle anderen Slots l~oschen?\n"
 "\n"
-"Das wird alle Level Slots f~ur\n"
-"%1% l~oschen, ausgenommen Slot %2%."
+"Das wird alle Level Slots f~ur %1% l~oschen, ausgenommen Slot %2%."
 
 #. translators: TR charmap encoding
 #: menu/savegamelistmenustate.cpp:151
@@ -324,18 +322,16 @@ msgid "Clear All Other Slots"
 msgstr "Alle anderen Slots l~oschen?"
 
 #. translators: TR charmap encoding
-#: menu/savegamelistmenustate.cpp:703
+#: menu/savegamelistmenustate.cpp:705
 #, boost-format
 msgid ""
 "Clear All Other Slots?\n"
 "\n"
-"This will erase all of your data,\n"
-"except for Slot %1%."
+"This will erase all of your data, except for Slot %1%."
 msgstr ""
 "Alle anderen Slots l~oschen?\n"
 "\n"
-"Das wird alle Slots l~oschen,\n"
-"ausgenommen Slot %1%."
+"Das wird alle Slots l~oschen, ausgenommen Slot %1%."
 
 #. translators: TR charmap encoding
 #: menu/savegamelistmenustate.cpp:160
@@ -344,32 +340,28 @@ msgstr ""
 "Alle Slots l~oschen, die neuesten Level Slots behalten, und zusammenfassen?"
 
 #. translators: TR charmap encoding
-#: menu/savegamelistmenustate.cpp:726
+#: menu/savegamelistmenustate.cpp:730
 msgid ""
 "Clear Historic Slots?\n"
 "\n"
-"This will erase all of your saves for each\n"
-"level, except for the most recent ones, and\n"
-"move all slots to the start of the list."
+"This will erase all of your saves for each level, except for the most recent "
+"ones, and move all slots to the start of the list."
 msgstr ""
 "Alte Slots l~oschen?\n"
 "\n"
-"Das wird alle Speicherungen f~ur jedes Level\n"
-"l~oschen, ausgenommen der neuesten Speicherungen,\n"
-"und alle Slots an den Anfang der Liste verschieben."
+"Das wird alle Speicherungen f~ur jedes Level l~oschen, ausgenommen der neuesten Speicherungen, und alle Slots an den Anfang der Liste verschieben."
 
 #. translators: TR charmap encoding
-#: menu/savegamelistmenustate.cpp:720
+#: menu/savegamelistmenustate.cpp:723
 msgid ""
 "Clear Historic Slots?\n"
 "\n"
-"This will erase all of your saves for each\n"
-"level, except for the most recent ones."
+"This will erase all of your saves for each level, except for the most recent "
+"ones."
 msgstr ""
 "Alte Slots l~oschen?\n"
 "\n"
-"Das wird alle Speicherungen f~ur jedes Level\n"
-"l~oschen, ausgenommen der neuesten Speicherungen."
+"Das wird alle Speicherungen f~ur jedes Level l~oschen, ausgenommen der neuesten Speicherungen."
 
 #. translators: TR charmap encoding
 #: menu/savegamelistmenustate.cpp:143
@@ -383,13 +375,13 @@ msgid "Clear Slots Before %1%"
 msgstr "Slots vor %1% l~oschen"
 
 #. translators: TR charmap encoding
-#: menu/savegamelistmenustate.cpp:697
+#: menu/savegamelistmenustate.cpp:699
 #, boost-format
 msgid "Clear Slots Before %1%?"
 msgstr "Slots vor %1% l~oschen?"
 
 #. translators: TR charmap encoding
-#: menu/savegamelistmenustate.cpp:690
+#: menu/savegamelistmenustate.cpp:692
 #, boost-format
 msgid "Clear slot %1%?"
 msgstr "Slot %1% l~oschen?"
@@ -400,17 +392,15 @@ msgid "Compact"
 msgstr "Zusammenfassen"
 
 #. translators: TR charmap encoding
-#: menu/savegamelistmenustate.cpp:733
+#: menu/savegamelistmenustate.cpp:738
 msgid ""
 "Compact All Slots?\n"
 "\n"
-"This will move all slots\n"
-"to the start of the list."
+"This will move all slots to the start of the list."
 msgstr ""
 "Alle Slots zusammenfassen?\n"
 "\n"
-"Das wird alle Slots zum\n"
-"Anfang der Liste verschieben."
+"Das wird alle Slots zum Anfang der Liste verschieben."
 
 #. translators: TR charmap encoding
 #: menu/menudisplay.cpp:289
@@ -454,7 +444,7 @@ msgstr "Entf"
 
 #. translators: TR charmap encoding
 #: menu/rendersettingsmenustate.cpp:700
-#, fuzzy, boost-format
+#, boost-format
 msgid "Delay Overwrite for \037l %1% \037m Second"
 msgid_plural "Delay Overwrite for \037l %1% \037m Seconds"
 msgstr[0] "~Uberschreiben verz~ogern um \037l %1% \037m Sekunde"
@@ -558,12 +548,8 @@ msgstr "Ende"
 
 #. translators: TR charmap encoding
 #: menu/controlsmenustate.cpp:184
-msgid ""
-"Ensure your menu mapping\n"
-"is fully configured."
-msgstr ""
-"Stelle sicher, dass die Men~u-Zuordnung\n"
-"vollst~andig konfiguriert ist."
+msgid "Ensure your menu mapping is fully configured."
+msgstr "Stelle sicher, dass die Men~u-Zuordnung vollst~andig konfiguriert ist."
 
 #. translators: TR charmap encoding
 #: hid/names.cpp:53
@@ -866,7 +852,7 @@ msgstr "Lade %1%"
 msgid "Loading Glidos texture pack"
 msgstr "Lade Glidos Textur Paket"
 
-#: engine/world/world.cpp:1034
+#: engine/world/world.cpp:1032
 msgid "Loading..."
 msgstr "Lade..."
 
@@ -975,7 +961,8 @@ msgid "NmLk"
 msgstr "Num"
 
 #. translators: TR charmap encoding
-#: menu/controlsmenustate.cpp:181 ui/widgets/messagebox.cpp:47
+#: menu/controlsmenustate.cpp:181 ui/widgets/messagebox.cpp:64
+#: ui/widgets/messagebox.cpp:73
 msgid "No"
 msgstr "Nein"
 
@@ -1001,34 +988,28 @@ msgid "Order by Date and Compact"
 msgstr "Nach Datum sortieren und zusammenfassen"
 
 #. translators: TR charmap encoding
-#: menu/savegamelistmenustate.cpp:739
+#: menu/savegamelistmenustate.cpp:744
 msgid ""
 "Order by Date and Compact All Slots?\n"
 "\n"
-"This will order your saves\n"
-"by date and move all slots\n"
-"to the start of the list."
+"This will order your saves by date and move all slots to the start of the "
+"list."
 msgstr ""
 "Nach Datum sortieren und zusammenfassen?\n"
 "\n"
-"Das wird die Sicherungen nach Datum\n"
-"sortieren und alle Sicherungen\n"
-"an den Anfang verschieben."
+"Das wird die Sicherungen nach Datum sortieren und alle Sicherungen an den Anfang verschieben."
 
 #. translators: TR charmap encoding
-#: menu/savegamelistmenustate.cpp:745
+#: menu/savegamelistmenustate.cpp:751
 msgid ""
 "Order by Level and Date and Compact All Slots?\n"
 "\n"
-"This will order your saves by level,\n"
-"then by date, and move all slots\n"
-"to the start of the list."
+"This will order your saves by level, then by date, and move all slots to the "
+"start of the list."
 msgstr ""
 "Nach Datum sortieren, nach Level gruppieren, und zusammenfassen?\n"
 "\n"
-"Das wird die Sicherungen nach Level sortieren,\n"
-"dann nach Datum, und alle Sicherungen\n"
-"an den Anfang der Liste verschieben."
+"Das wird die Sicherungen nach Level sortieren, dann nach Datum, und alle Sicherungen an den Anfang der Liste verschieben."
 
 #. translators: TR charmap encoding
 #: menu/rendersettingsmenustate.cpp:544
@@ -1611,7 +1592,8 @@ msgid "Y"
 msgstr "Z"
 
 #. translators: TR charmap encoding
-#: menu/controlsmenustate.cpp:180 ui/widgets/messagebox.cpp:46
+#: menu/controlsmenustate.cpp:180 ui/widgets/messagebox.cpp:63
+#: ui/widgets/messagebox.cpp:72
 msgid "Yes"
 msgstr "Ja"
 

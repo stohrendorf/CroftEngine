@@ -49,4 +49,5 @@ private:
 
 extern void
   drawBox(const Text& text, Ui& ui, const glm::ivec2& pos, int padding, const gl::SRGBA8& color, float scale = 1);
+[[nodiscard]] extern std::vector<std::string> breakLines(const std::string& text, int maxWidth);
 } // namespace ui

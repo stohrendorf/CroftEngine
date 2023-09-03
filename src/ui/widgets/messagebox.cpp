@@ -39,10 +39,36 @@ namespace
   }
   return labels;
 }
+
+[[nodiscard]] std::vector<gslu::nn_shared<Label>> linesToLabels(const std::vector<std::string>& lines)
+{
+  std::vector<gslu::nn_shared<Label>> labels;
+  std::transform(lines.begin(),
+                 lines.end(),
+                 std::back_inserter(labels),
+                 [](const std::string& line)
+                 {
+                   return gsl::make_shared<Label>(line);
+                 });
+  for(const auto& label : labels)
+  {
+    label->fitToContent();
+  }
+  return labels;
+}
 } // namespace
 
 MessageBox::MessageBox(const std::string& label)
     : m_questions{stringToLabels(label)}
+    , m_yes{std::make_shared<Label>(/* translators: TR charmap encoding */ _("Yes"))}
+    , m_no{std::make_shared<Label>(/* translators: TR charmap encoding */ _("No"))}
+{
+  m_yes->fitToContent();
+  m_no->fitToContent();
+}
+
+MessageBox::MessageBox(const std::vector<std::string>& labels)
+    : m_questions{linesToLabels(labels)}
     , m_yes{std::make_shared<Label>(/* translators: TR charmap encoding */ _("Yes"))}
     , m_no{std::make_shared<Label>(/* translators: TR charmap encoding */ _("No"))}
 {
