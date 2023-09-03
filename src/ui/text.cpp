@@ -168,7 +168,7 @@ std::vector<std::string> breakLines(const std::string& text, int maxWidth)
     if(word == "\n")
     {
       // forced newline; trim trailing spaces
-      if(!hadImplicitLineBreak)
+      if(!hadImplicitLineBreak || !candidate.empty())
         lines.emplace_back(boost::algorithm::trim_right_copy(candidate));
       candidate.clear();
       hadImplicitLineBreak = false;
