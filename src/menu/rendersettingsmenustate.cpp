@@ -348,7 +348,7 @@ RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingT
       });
     tmp->selectValue(engine.getEngineConfig()->renderSettings.contrast);
     m_descriptions.back().emplace_back(std::make_shared<ui::widgets::TextBox>(
-      /* translators: TR charmap encoding */ _("Configured your preferred overall contrast of the game."),
+      /* translators: TR charmap encoding */ _("Configure your preferred overall contrast of the game."),
       MaxDescriptionWidth));
   }
 
@@ -482,7 +482,7 @@ RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingT
   m_descriptions.back().emplace_back(std::make_shared<ui::widgets::TextBox>(
     /* translators: TR charmap encoding */ _(
       "Adds shadows to crevices.\n\n"
-      "PERFORMANCE: Has a mild effect on performance. Disable if you experience constant low framerate."),
+      "PERFORMANCE: Has a mild effect on performance. Disable if you experience constant low framerates."),
     MaxDescriptionWidth));
 
   {

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CroftEngine 2.2.1\n"
 "Report-Msgid-Bugs-To: https://github.com/stohrendorf/CroftEngine/issues\n"
-"POT-Creation-Date: 2023-09-03 15:07+0200\n"
+"POT-Creation-Date: 2023-09-03 19:40+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -197,7 +197,7 @@ msgid ""
 "Adds shadows to crevices.\n"
 "\n"
 "PERFORMANCE: Has a mild effect on performance. Disable if you experience "
-"constant low framerate."
+"constant low framerates."
 msgstr ""
 
 #. translators: TR charmap encoding
@@ -470,7 +470,7 @@ msgstr ""
 
 #. translators: TR charmap encoding
 #: menu/rendersettingsmenustate.cpp:351
-msgid "Configured your preferred overall contrast of the game."
+msgid "Configure your preferred overall contrast of the game."
 msgstr ""
 
 #. translators: TR charmap encoding
