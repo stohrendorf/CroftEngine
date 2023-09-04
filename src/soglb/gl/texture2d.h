@@ -13,9 +13,13 @@ class Texture2D final : public TextureImpl<api::TextureTarget::Texture2d, _Pixel
 public:
   using typename TextureImpl<api::TextureTarget::Texture2d, _PixelT>::Pixel;
   using TextureImpl<api::TextureTarget::Texture2d, _PixelT>::getHandle;
+  using TextureImpl<api::TextureTarget::Texture2d, _PixelT>::clear;
 
   explicit Texture2D(const glm::ivec2& size, const std::string_view& label)
-      : Texture2D<_PixelT>{size, 1, label}
+      : Texture2D<_PixelT>
+  {
+    size, 1, label
+  }
   {
   }
 
@@ -27,6 +31,8 @@ public:
     BOOST_ASSERT(size.x > 0);
     BOOST_ASSERT(size.y > 0);
     GL_ASSERT(api::textureStorage2D(getHandle(), levels, Pixel::SizedInternalFormat, size.x, size.y));
+    for(int i = 0; i < levels; ++i)
+      clear(Pixel{}, i);
   }
 
   Texture2D<_PixelT>& assign(const gsl::span<const _PixelT>& data, int level = 0)

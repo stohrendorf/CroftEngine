@@ -97,36 +97,37 @@ bool Framebuffer::isComplete() const
   return result == api::FramebufferStatus::FramebufferComplete;
 }
 
-void Framebuffer::blit(const Framebuffer& target, gl::api::BlitFramebufferFilter filter)
+void Framebuffer::blit(const Framebuffer& target, api::BlitFramebufferFilter filter)
 {
-  GL_ASSERT(gl::api::blitNamedFramebuffer(getHandle(),
-                                          target.getHandle(),
-                                          0,
-                                          0,
-                                          m_size.x - 1,
-                                          m_size.y - 1,
-                                          0,
-                                          0,
-                                          target.m_size.x - 1,
-                                          target.m_size.y - 1,
-                                          gl::api::ClearBufferMask::ColorBufferBit,
-                                          filter));
+  GL_ASSERT(api::memoryBarrier(api::MemoryBarrierMask::FramebufferBarrierBit));
+  GL_ASSERT(api::blitNamedFramebuffer(getHandle(),
+                                      target.getHandle(),
+                                      0,
+                                      0,
+                                      m_size.x - 1,
+                                      m_size.y - 1,
+                                      0,
+                                      0,
+                                      target.m_size.x - 1,
+                                      target.m_size.y - 1,
+                                      api::ClearBufferMask::ColorBufferBit,
+                                      filter));
 }
 
-void Framebuffer::blit(const glm::ivec2& backbufferSize, gl::api::BlitFramebufferFilter filter)
+void Framebuffer::blit(const glm::ivec2& backbufferSize, api::BlitFramebufferFilter filter)
 {
-  GL_ASSERT(gl::api::blitNamedFramebuffer(getHandle(),
-                                          0,
-                                          0,
-                                          0,
-                                          m_size.x - 1,
-                                          m_size.y - 1,
-                                          0,
-                                          0,
-                                          backbufferSize.x - 1,
-                                          backbufferSize.y - 1,
-                                          gl::api::ClearBufferMask::ColorBufferBit,
-                                          filter));
+  GL_ASSERT(api::blitNamedFramebuffer(getHandle(),
+                                      0,
+                                      0,
+                                      0,
+                                      m_size.x - 1,
+                                      m_size.y - 1,
+                                      0,
+                                      0,
+                                      backbufferSize.x - 1,
+                                      backbufferSize.y - 1,
+                                      api::ClearBufferMask::ColorBufferBit,
+                                      filter));
 }
 
 gslu::nn_shared<Framebuffer> FrameBufferBuilder::build(const std::string_view& label)

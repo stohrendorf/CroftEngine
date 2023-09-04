@@ -112,6 +112,8 @@ void Presenter::playVideo(const std::filesystem::path& path)
                   ->bindCameraBuffer(m_renderer->getCamera());
                 mesh->getRenderState().setViewport(getRenderViewport());
 
+                GL_ASSERT(gl::api::memoryBarrier(gl::api::MemoryBarrierMask::UniformBarrierBit
+                                                 | gl::api::MemoryBarrierMask::TextureUpdateBarrierBit));
                 fb->bind();
                 {
                   render::scene::RenderContext context{

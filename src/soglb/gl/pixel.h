@@ -40,7 +40,7 @@ struct alignas(Alignment) Pixel
   Vec channels;
 
   explicit constexpr Pixel() noexcept
-      : Pixel{Type(0)}
+      : Pixel{Type{}}
   {
   }
 

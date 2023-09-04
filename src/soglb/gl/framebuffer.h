@@ -76,10 +76,9 @@ public:
     return m_renderState;
   }
 
-  void blit(const Framebuffer& target, gl::api::BlitFramebufferFilter filter = gl::api::BlitFramebufferFilter::Nearest);
+  void blit(const Framebuffer& target, api::BlitFramebufferFilter filter = api::BlitFramebufferFilter::Nearest);
 
-  void blit(const glm::ivec2& backbufferSize,
-            gl::api::BlitFramebufferFilter filter = gl::api::BlitFramebufferFilter::Nearest);
+  void blit(const glm::ivec2& backbufferSize, api::BlitFramebufferFilter filter = api::BlitFramebufferFilter::Nearest);
 };
 
 class FrameBufferBuilder final
