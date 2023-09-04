@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CroftEngine 2.2.1\n"
 "Report-Msgid-Bugs-To: https://github.com/stohrendorf/CroftEngine/issues\n"
-"POT-Creation-Date: 2023-09-03 19:40+0200\n"
+"POT-Creation-Date: 2023-09-04 07:56+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1740,10 +1740,10 @@ msgid "Water Bed Bubbles"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/rendersettingsmenustate.cpp:843
+#: menu/rendersettingsmenustate.cpp:844
 msgid ""
-"When manually overwriting a game, you will need to confirm 'Yes' for some "
-"time to avoid accidental overwrites."
+"When manually overwriting a save slot, you will need to confirm 'Yes' for "
+"some time to avoid accidental overwrites."
 msgstr ""
 
 #. translators: TR charmap encoding

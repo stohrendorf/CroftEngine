@@ -840,8 +840,9 @@ RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingT
       });
     tmp->selectValue(engine.getEngineConfig()->delaySaveDurationSeconds);
     m_descriptions.back().emplace_back(std::make_shared<ui::widgets::TextBox>(
-      /* translators: TR charmap encoding */ _("When manually overwriting a game, you will need to confirm 'Yes' for "
-                                               "some time to avoid accidental overwrites."),
+      /* translators: TR charmap encoding */ _(
+        "When manually overwriting a save slot, you will need to confirm 'Yes' for "
+        "some time to avoid accidental overwrites."),
       MaxDescriptionWidth));
   }
 
