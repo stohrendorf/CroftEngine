@@ -12,11 +12,12 @@
 namespace ui::widgets
 {
 TextBox::TextBox(const std::string& text, int maxWidth, TextBox::Alignment alignment)
-    : m_lines{}
-    , m_size{0, ui::FontHeight}
+    : m_text{}
+    , m_lines{}
+    , m_size{maxWidth, ui::FontHeight}
     , m_alignment{alignment}
 {
-  setText(text, maxWidth);
+  setText(text);
 }
 
 TextBox::~TextBox() = default;
@@ -39,6 +40,9 @@ void TextBox::setPosition(const glm::ivec2& position)
 void TextBox::setSize(const glm::ivec2& size)
 {
   m_size = size;
+  // re-flow the text
+  auto text = std::move(m_text);
+  setText(text);
 }
 
 void TextBox::update(bool /*hasFocus*/)
@@ -52,7 +56,7 @@ void TextBox::draw(ui::Ui& ui, const engine::Presenter& presenter) const
   ui.drawBox(bgPos, bgSize, gl::SRGBA8{0, 0, 0, DefaultBackgroundAlpha});
   ui.drawOutlineBox(bgPos, bgSize, 255);
 
-  int y = 0;
+  int y = ui::FontHeight / 2;
   for(const auto& line : m_lines)
   {
     auto x = 0;
@@ -68,7 +72,7 @@ void TextBox::draw(ui::Ui& ui, const engine::Presenter& presenter) const
       break;
     }
 
-    line->draw(ui, presenter.getTrFont(), {m_position.x + x, m_position.y + y});
+    line->draw(ui, presenter.getTrFont(), {m_position.x + x + ui::FontHeight / 2, m_position.y + y});
     y += ui::FontHeight;
   }
 }
@@ -81,13 +85,16 @@ void TextBox::fitToContent()
     maxWidth = std::max(line->getWidth(), maxWidth);
   }
 
-  m_size = {maxWidth, ui::FontHeight * m_lines.size()};
+  m_size = {maxWidth + ui::FontHeight, ui::FontHeight * m_lines.size() + ui::FontHeight};
 }
 
-void TextBox::setText(const std::string& text, int maxWidth)
+void TextBox::setText(const std::string& text)
 {
+  if(std::exchange(m_text, text) == text)
+    return;
+
   m_lines.clear();
-  for(const auto& line : breakLines(text, maxWidth))
+  for(const auto& line : breakLines(text, m_size.x - ui::FontHeight))
   {
     m_lines.emplace_back(std::make_unique<ui::Text>(line));
   }

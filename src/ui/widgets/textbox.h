@@ -42,9 +42,10 @@ public:
   void draw(ui::Ui& ui, const engine::Presenter& presenter) const override;
   void fitToContent() override;
 
-  void setText(const std::string& text, int maxWidth);
+  void setText(const std::string& text);
 
 private:
+  std::string m_text;
   std::vector<std::unique_ptr<ui::Text>> m_lines;
   glm::ivec2 m_position{0, 0};
   glm::ivec2 m_size;
