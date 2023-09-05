@@ -167,7 +167,7 @@ msgstr "Aktion"
 #. translators: TR charmap encoding
 #: menu/rendersettingsmenustate.cpp:274
 msgid "Adds Borderland-like black lines to edges."
-msgstr "F~ugt Borderlands-~ahnliche Linien zu Kanten kinzu."
+msgstr "F~ugt Borderlands-~ahnliche Linien zu Kanten hinzu."
 
 #. translators: TR charmap encoding
 #: menu/rendersettingsmenustate.cpp:247
@@ -372,7 +372,7 @@ msgid ""
 "level data, or dynamic lighting calculated only from the light sources "
 "placed in the levels."
 msgstr ""
-"~Andert die Beleuchtung des Levels zwischen statischer Beleuchtung, welche "
+"Wechselt die Beleuchtung des Levels zwischen statischer Beleuchtung, welche "
 "in die Leveldaten eingebettet sind, oder dynamischer Beleuchtung, welche nur "
 "von den Lichtquellen ermittelt wird, die im Level enthalten sind."
 
@@ -678,7 +678,7 @@ msgid ""
 "Enables an old TV effect. You can choose between two different effect "
 "versions."
 msgstr ""
-"Aktivieren einen alten TV Effekt. Es stehen zwei verschiedene Versionen zur "
+"Aktiviert einen alten TV Effekt. Es stehen zwei verschiedene Versionen zur "
 "Auswahl."
 
 #. translators: TR charmap encoding
@@ -1432,7 +1432,7 @@ msgid ""
 msgstr ""
 "Reduziert die Grafikskalierung.\n"
 "\n"
-"LEISTUNG: Kann die Leistung erheblich verbessern."
+"LEISTUNG: Kann die Grafikleistung erheblich verbessern."
 
 #. translators: TR charmap encoding
 #: menu/rendersettingsmenustate.cpp:471
@@ -1621,7 +1621,7 @@ msgstr ""
 "L~asst Objekte au=erhalb des Fokuses leicht verschwimmen. Der Fokuspunkt ist "
 "der Mittelpunkt des Bildschirms.\n"
 "\n"
-"LEISTUNG: Kann eine mittlere Auswirkung auf die Leistung auf schw~acheren "
+"LEISTUNG: Kann eine mittlere Auswirkung auf die Grafikleistung auf schw~acheren "
 "Grafikkarten haben."
 
 #. translators: TR charmap encoding
@@ -1655,7 +1655,7 @@ msgid ""
 msgstr ""
 "Gl~attet Kanten in der Darstellung.\n"
 "\n"
-"LEISTUNG: Hat eine mittlere Auswirkung auf die Leistung. Bei anhaltend "
+"LEISTUNG: Hat eine mittlere Auswirkung auf die Grafikleistung. Bei anhaltend "
 "geringer Bildrate deaktivieren."
 
 #. translators: TR charmap encoding
@@ -1714,7 +1714,7 @@ msgid ""
 msgstr ""
 "Wechselt zwischen Schattenberechnungen mit hoher und niedriger Genauigkeit.\n"
 "\n"
-"LEISTUNG: Hat eine mittlere Auswirkung auf die Leistung. Bei anhaltend "
+"LEISTUNG: Hat eine mittlere Auswirkung auf die Grafikleistung. Bei anhaltend "
 "geringer Bildrate deaktivieren."
 
 #. translators: TR charmap encoding
@@ -1820,8 +1820,8 @@ msgid ""
 "When manually overwriting a save slot, you will need to confirm 'Yes' for "
 "some time to avoid accidental overwrites."
 msgstr ""
-"Beim manuellen ~Uberschreiben eines Slots muss 'Ja' f~ur eine gewisse Zeit "
-"best~atigt werden, um ungewolltes ~Uberschreiben zu verhindern."
+"Wenn ein Slot manuell ~uberschrieben wird, muss 'Ja' f~ur eine gewisse Zeit "
+"best~atigt werden, um nicht ungewollt zu ~uberschreiben."
 
 #. translators: TR charmap encoding
 #: menu/rendersettingsmenustate.cpp:814
@@ -1831,7 +1831,7 @@ msgid ""
 msgstr ""
 "Beim manuellen Speichern automatisch den ersten freien Slot ausw~ahlen. "
 "Falls kein freier Slot mehr verf~ugbar ist, wird dies die ~alteste "
-"Speicherung zum ~Uberschreiben w~ahlen."
+"Speicherung w~ahlen, um ~uberschrieben zu werden."
 
 #. translators: TR charmap encoding
 #: hid/names.cpp:247
