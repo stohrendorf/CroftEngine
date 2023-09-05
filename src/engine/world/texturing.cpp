@@ -201,6 +201,12 @@ std::vector<std::vector<Tile>> getMaximizedAtlasesTiles(const loader::file::leve
   // remove every tile that's contained within another one
   for(auto& atlasTiles : atlasesTiles)
   {
+    if(atlasTiles.empty())
+    {
+      // avoid "endless" loop when subtracting 1 from size below
+      continue;
+    }
+
     for(size_t i = 0; i < atlasTiles.size() - 1; ++i)
     {
       bool iRemoved = false;
