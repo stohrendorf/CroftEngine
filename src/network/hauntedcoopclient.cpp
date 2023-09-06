@@ -80,7 +80,7 @@ struct HauntedCoopClient::ClientImpl
     if(!m_networkConfig.isValid())
       return;
 
-    Expects(m_networkConfig.color.size() == 3);
+    gsl_Expects(m_networkConfig.color.size() == 3);
 
     std::vector<std::string> socketParts;
     boost::algorithm::split(socketParts,
@@ -124,7 +124,11 @@ struct HauntedCoopClient::ClientImpl
   {
     m_ioContext.stop();
     m_ioService.stop();
-    m_socket.close();
+    if(m_socket.is_open())
+    {
+      m_socket.shutdown(boost::asio::socket_base::shutdown_type::shutdown_both);
+      m_socket.close();
+    }
   }
 
   [[nodiscard]] auto getStates()
