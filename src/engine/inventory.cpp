@@ -111,8 +111,8 @@ size_t Inventory::put(const core::TypeId& id, world::World* world, const size_t 
     return m_inventory[TR1ItemId::Item149] += quantity;
   case TR1ItemId::ScionPiece1:
   case TR1ItemId::ScionPiece2:
-  case TR1ItemId::ScionPiece5:
-    return m_inventory[TR1ItemId::ScionPiece5] += quantity;
+  case TR1ItemId::ScionPieceCounter:
+    return m_inventory[TR1ItemId::ScionPieceCounter] += quantity;
   default:
     BOOST_LOG_TRIVIAL(warning) << "Cannot add object " << toString(id.get_as<TR1ItemId>()) << " to inventory";
     return 0;

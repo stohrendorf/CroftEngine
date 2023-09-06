@@ -84,7 +84,7 @@ void MenuDisplay::drawMenuObjectDescription(ui::Ui& ui, engine::world::World& wo
   case engine::TR1ItemId::Key4Sprite:
   case engine::TR1ItemId::Item148:
   case engine::TR1ItemId::Item149:
-  case engine::TR1ItemId::ScionPiece5:
+  case engine::TR1ItemId::ScionPieceCounter:
   case engine::TR1ItemId::LeadBar:
   case engine::TR1ItemId::LeadBarSprite:
     break;
@@ -180,7 +180,7 @@ bool MenuDisplay::doOptions(engine::world::World& world, MenuObject& object)
   case engine::TR1ItemId::Key4:
   case engine::TR1ItemId::Item148:
   case engine::TR1ItemId::Item149:
-  case engine::TR1ItemId::ScionPiece5:
+  case engine::TR1ItemId::ScionPieceCounter:
   case engine::TR1ItemId::SmallMedipack:
   case engine::TR1ItemId::Explosive:
   case engine::TR1ItemId::LargeMedipack:
@@ -478,10 +478,10 @@ std::vector<MenuObject> MenuDisplay::getKeysRingObjects(const engine::world::Wor
     objects.emplace_back(
       MenuObject{"Pickup", engine::TR1ItemId::Item148, 1_frame, 0_frame, 40_deg, -24_deg, 0_deg, 256_len});
   }
-  if(world.getPlayer().getInventory().count(engine::TR1ItemId::ScionPiece5) > 0)
+  if(world.getPlayer().getInventory().count(engine::TR1ItemId::ScionPieceCounter) > 0)
   {
     objects.emplace_back(
-      MenuObject{"Scion", engine::TR1ItemId::ScionPiece5, 1_frame, 0_frame, 40_deg, -24_deg, 0_deg, 256_len});
+      MenuObject{"Scion", engine::TR1ItemId::ScionPieceCounter, 1_frame, 0_frame, 40_deg, -24_deg, 0_deg, 256_len});
   }
 
   objects.erase(std::remove_if(objects.begin(),

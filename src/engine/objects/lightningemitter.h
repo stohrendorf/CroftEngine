@@ -69,6 +69,7 @@ private:
 
   size_t m_poles = 0;
   bool m_laraHit = false;
+  // TODO this should be core::Frame
   int m_chargeTimeout = 1;
   bool m_shooting = false;
   core::TRVec m_mainBoltEnd{};
