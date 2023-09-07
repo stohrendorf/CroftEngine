@@ -216,26 +216,6 @@ public:
       GL_ASSERT(api::programUniformHandle(m_program, getLocation(), textureHandle->getHandle()));
   }
 
-  template<typename _It> // NOLINT(bugprone-reserved-identifier)
-  void setTextures(const _It& begin, const _It& end)
-  {
-    gsl_Expects(m_program != InvalidProgram && m_size >= 0);
-
-    std::vector<uint64_t> handles;
-    for(auto it = begin; it != end; ++it)
-    {
-      handles.emplace_back((*it)->getHandle());
-      gsl_Assert(GL_ASSERT_FN(gl::api::isTextureHandleResident(handles.back())));
-    }
-
-    gsl_Assert(handles.size() == static_cast<size_t>(m_size));
-    if(changeValue(handles))
-    {
-      GL_ASSERT(api::programUniformHandle(
-        m_program, getLocation(), gsl::narrow_cast<api::core::SizeType>(handles.size()), handles.data()));
-    }
-  }
-
   // NOLINTNEXTLINE(bugprone-reserved-identifier)
   template<typename TTexture>
   void set(const gsl::span<const gslu::nn_shared<TextureHandle<TTexture>>>& textureHandles)
