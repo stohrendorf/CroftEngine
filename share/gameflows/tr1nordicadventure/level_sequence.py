@@ -83,10 +83,10 @@ level_sequence = [
         ambient=TR1TrackId.Ambience1,
         item_titles={
             "en_GB": {
-                TR1ItemId.ScionPiece5: "Scion",
+                TR1ItemId.ScionPieceCounter: "Scion",
             },
             "de_DE": {
-                TR1ItemId.ScionPiece5: "Scion",
+                TR1ItemId.ScionPieceCounter: "Scion",
             },
         },
         alternative_splashscreen="DATA/AZTECLOA.jpg",

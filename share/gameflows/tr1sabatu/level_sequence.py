@@ -106,10 +106,10 @@ level_sequence = [
         ambient=TR1TrackId.Ambience1,
         item_titles={
             "en_GB": {
-                TR1ItemId.ScionPiece5: "Scion",
+                TR1ItemId.ScionPieceCounter: "Scion",
             },
             "de_DE": {
-                TR1ItemId.ScionPiece5: "Scion",
+                TR1ItemId.ScionPieceCounter: "Scion",
             },
         },
     ),
@@ -127,14 +127,14 @@ level_sequence = [
                 TR1ItemId.Key2: "Atlas Key",
                 TR1ItemId.Key3: "Damocles Key",
                 TR1ItemId.Key4: "Thor Key",
-                TR1ItemId.ScionPiece5: "Scion",
+                TR1ItemId.ScionPieceCounter: "Scion",
             },
             "de_DE": {
                 TR1ItemId.Key1: "Schl~ussel des Neptun",
                 TR1ItemId.Key2: "Schl~ussel des Atlas",
                 TR1ItemId.Key3: "Schl~ussel des Damokles",
                 TR1ItemId.Key4: "Schl~ussel des Thor",
-                TR1ItemId.ScionPiece5: "Scion",
+                TR1ItemId.ScionPieceCounter: "Scion",
             },
         },
     ),
@@ -149,12 +149,12 @@ level_sequence = [
             "en_GB": {
                 TR1ItemId.Key1: "Flow Machine Key",
                 TR1ItemId.Puzzle1: "Machine Cog",
-                TR1ItemId.ScionPiece5: "Scion",
+                TR1ItemId.ScionPieceCounter: "Scion",
             },
             "de_DE": {
                 TR1ItemId.Key1: "Str~omungsmaschine Schl~ussel",
                 TR1ItemId.Puzzle1: "Zahnrad",
-                TR1ItemId.ScionPiece5: "Scion",
+                TR1ItemId.ScionPieceCounter: "Scion",
             },
         },
     ),
@@ -168,11 +168,11 @@ level_sequence = [
         item_titles={
             "en_GB": {
                 TR1ItemId.Puzzle1: "Gold Bar",
-                TR1ItemId.ScionPiece5: "Scion",
+                TR1ItemId.ScionPieceCounter: "Scion",
             },
             "de_DE": {
                 TR1ItemId.Puzzle1: "Goldbarren",
-                TR1ItemId.ScionPiece5: "Scion",
+                TR1ItemId.ScionPieceCounter: "Scion",
             },
         },
     ),
@@ -188,13 +188,13 @@ level_sequence = [
                 TR1ItemId.Key1: "Gold Key",
                 TR1ItemId.Key2: "Silver Key",
                 TR1ItemId.Key3: "Rusty Key",
-                TR1ItemId.ScionPiece5: "Scion",
+                TR1ItemId.ScionPieceCounter: "Scion",
             },
             "de_DE": {
                 TR1ItemId.Key1: "Goldener Schl~ussel",
                 TR1ItemId.Key2: "Silberner Schl~ussel",
                 TR1ItemId.Key3: "Rostiger Schl~ussel",
-                TR1ItemId.ScionPiece5: "Scion",
+                TR1ItemId.ScionPieceCounter: "Scion",
             },
         },
     ),
@@ -210,13 +210,13 @@ level_sequence = [
                 TR1ItemId.Key1: "Gold Key",
                 TR1ItemId.Key2: "Rusty Key",
                 TR1ItemId.Key3: "Rusty Key",
-                TR1ItemId.ScionPiece5: "Scion",
+                TR1ItemId.ScionPieceCounter: "Scion",
             },
             "de_DE": {
                 TR1ItemId.Key1: "Goldener Schl~ussel",
                 TR1ItemId.Key2: "Rostiger Schl~ussel",
                 TR1ItemId.Key3: "Rostiger Schl~ussel",
-                TR1ItemId.ScionPiece5: "Scion",
+                TR1ItemId.ScionPieceCounter: "Scion",
             },
         },
     ),
@@ -231,11 +231,11 @@ level_sequence = [
         item_titles={
             "en_GB": {
                 TR1ItemId.Key1: "Sapphire Key",
-                TR1ItemId.ScionPiece5: "Scion",
+                TR1ItemId.ScionPieceCounter: "Scion",
             },
             "de_DE": {
                 TR1ItemId.Key1: "Saphir-Schl~ussel",
-                TR1ItemId.ScionPiece5: "Scion",
+                TR1ItemId.ScionPieceCounter: "Scion",
             },
         },
     ),
@@ -253,7 +253,7 @@ level_sequence = [
                 TR1ItemId.Puzzle3: "Seal of Anubis",
                 TR1ItemId.Puzzle4: "Ankh",
                 TR1ItemId.Key1: "Sapphire Key",
-                TR1ItemId.ScionPiece5: "Scion",
+                TR1ItemId.ScionPieceCounter: "Scion",
             },
             "de_DE": {
                 TR1ItemId.Puzzle1: "Auge des Horus",
@@ -261,7 +261,7 @@ level_sequence = [
                 TR1ItemId.Puzzle3: "Siegel des Anubis",
                 TR1ItemId.Puzzle4: "Ankh-Kreuz",
                 TR1ItemId.Key1: "Saphir-Schl~ussel",
-                TR1ItemId.ScionPiece5: "Scion",
+                TR1ItemId.ScionPieceCounter: "Scion",
             },
         },
     ),
@@ -277,13 +277,13 @@ level_sequence = [
                 TR1ItemId.Puzzle1: "Ankh",
                 TR1ItemId.Puzzle2: "Scarab",
                 TR1ItemId.Key1: "Gold Key",
-                TR1ItemId.ScionPiece5: "Scion",
+                TR1ItemId.ScionPieceCounter: "Scion",
             },
             "de_DE": {
                 TR1ItemId.Puzzle1: "Ankh-Kreuz",
                 TR1ItemId.Puzzle2: "Scarab~aus",
                 TR1ItemId.Key1: "Goldener Schl~ussel",
-                TR1ItemId.ScionPiece5: "Scion",
+                TR1ItemId.ScionPieceCounter: "Scion",
             },
         },
     ),
@@ -298,7 +298,7 @@ level_sequence = [
             TR1ItemId.ScionPiece2,
             TR1ItemId.ScionPiece3,
             TR1ItemId.ScionPiece4,
-            TR1ItemId.ScionPiece5,
+            TR1ItemId.ScionPieceCounter,
         },
     ),
     Level(
@@ -313,13 +313,13 @@ level_sequence = [
                 TR1ItemId.Puzzle1: "Fuse",
                 TR1ItemId.Puzzle2: "Pyramid Key",
                 TR1ItemId.Key1: "Rusty Key",
-                TR1ItemId.ScionPiece5: "Scion",
+                TR1ItemId.ScionPieceCounter: "Scion",
             },
             "de_DE": {
                 TR1ItemId.Puzzle1: "Sicherung",
                 TR1ItemId.Puzzle2: "Schl~ussel der Pyramide",
                 TR1ItemId.Key1: "Rostiger Schl~ussel",
-                TR1ItemId.ScionPiece5: "Scion",
+                TR1ItemId.ScionPieceCounter: "Scion",
             },
         },
         default_weapon=WeaponType.None_,
@@ -338,11 +338,11 @@ level_sequence = [
         item_titles={
             "en_GB": {
                 TR1ItemId.Puzzle2: "Pyramid Key",
-                TR1ItemId.ScionPiece5: "Scion",
+                TR1ItemId.ScionPieceCounter: "Scion",
             },
             "de_DE": {
                 TR1ItemId.Puzzle2: "Schl~ussel der Pyramide",
-                TR1ItemId.ScionPiece5: "Scion",
+                TR1ItemId.ScionPieceCounter: "Scion",
             },
         },
         water_color=(0.9, 0.1, 0.1),
@@ -358,10 +358,10 @@ level_sequence = [
         ambient=TR1TrackId.Ambience4,
         item_titles={
             "en_GB": {
-                TR1ItemId.ScionPiece5: "Scion",
+                TR1ItemId.ScionPieceCounter: "Scion",
             },
             "de_DE": {
-                TR1ItemId.ScionPiece5: "Scion",
+                TR1ItemId.ScionPieceCounter: "Scion",
             },
         },
         water_color=(0.9, 0.1, 0.1),
