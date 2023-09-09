@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QMainWindow>
+#include <QNetworkReply>
 #include <QPushButton>
 #include <QStandardItemModel>
 // https://bugreports.qt.io/browse/QTBUG-73263
@@ -41,6 +42,7 @@ private slots:
   void onGameflowSelected(const QModelIndex& index);
   void onChooseColorClicked();
   void onTestConnectionClicked();
+  void downloadedReleasesJson(QNetworkReply* reply);
 
 private:
   Ui::MainWindow* ui;
@@ -57,5 +59,6 @@ private:
   std::optional<std::tuple<std::string, std::string>> m_launchRequest = std::nullopt;
   QPushButton* m_importButton = nullptr;
   QColor m_ghostColor;
+  QNetworkAccessManager m_releasesNetworkAccessManager;
 };
 } // namespace launcher

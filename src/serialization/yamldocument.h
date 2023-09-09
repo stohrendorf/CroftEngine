@@ -7,6 +7,7 @@
 #include <gsl/gsl-lite.hpp>
 #include <ryml.hpp>
 #include <type_traits>
+#include <utility>
 
 namespace serialization
 {
@@ -74,6 +75,16 @@ public:
     }
   }
 
+  template<bool Lazy = Loading>
+  explicit YAMLDocument(std::string data, std::enable_if_t<Lazy, bool> _ = true)
+      : m_filename{}
+      , m_buffer{std::move(data)}
+  {
+    static_assert(Lazy);
+
+    m_tree = ryml::parse_in_arena(c4::to_csubstr(m_buffer));
+  }
+
   template<typename T, typename TContext, bool DelayLoading = Loading>
   auto deserialize(const std::string& key, TContext& context) -> std::enable_if_t<DelayLoading, T>
   {
@@ -134,6 +145,12 @@ public:
   auto operator[](const std::string& key) -> std::enable_if_t<DelayLoading, ryml::NodeRef>
   {
     return m_tree.rootref()[c4::to_csubstr(key)];
+  }
+
+  template<bool DelayLoading = Loading>
+  auto getRoot() -> std::enable_if_t<DelayLoading, ryml::NodeRef>
+  {
+    return m_tree.rootref();
   }
 };
 } // namespace serialization

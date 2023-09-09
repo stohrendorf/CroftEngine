@@ -15,11 +15,6 @@ set(
         networkconfig.cpp
 )
 
-set_property(
-        SOURCE mainwindow.cpp
-        PROPERTY COMPILE_DEFINITIONS "CE_VERSION=\"${CMAKE_PROJECT_VERSION}\""
-)
-
 set( TS_FILES )
 file( STRINGS ../languages.txt _languages )
 set( _lang_list_tmp ${CMAKE_BINARY_DIR}/lang-list.tmp )

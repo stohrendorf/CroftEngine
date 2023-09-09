@@ -706,10 +706,13 @@ configure_gettext(
 
 add_executable( croftengine WIN32 ${CROFTENGINE_SRCS} )
 
-set_property(
-        SOURCE croftengine.cpp
-        PROPERTY COMPILE_DEFINITIONS "CE_VERSION=\"${CMAKE_PROJECT_VERSION}\""
-)
+add_definitions( -D "CE_VERSION=\\\"${CMAKE_PROJECT_VERSION}\\\"" )
+
+if(( NOT DEFINED CE_GITHUB_API_KEY ) OR CE_GITHUB_API_KEY STREQUAL "" )
+    message( WARNING "CE_GITHUB_API_KEY is missing, release updates won't be checked" )
+else()
+    add_definitions( -D "CE_GITHUB_API_KEY=\\\"${CE_GITHUB_API_KEY}\\\"" )
+endif()
 
 group_files( ${CROFTENGINE_SRCS} )
 set( CHILLOUT_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/3rdparty/chillout/src/chillout )

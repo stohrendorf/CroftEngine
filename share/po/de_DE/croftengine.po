@@ -1621,8 +1621,8 @@ msgstr ""
 "L~asst Objekte au=erhalb des Fokuses leicht verschwimmen. Der Fokuspunkt ist "
 "der Mittelpunkt des Bildschirms.\n"
 "\n"
-"LEISTUNG: Kann eine mittlere Auswirkung auf die Grafikleistung auf schw~acheren "
-"Grafikkarten haben."
+"LEISTUNG: Kann eine mittlere Auswirkung auf die Grafikleistung auf "
+"schw~acheren Grafikkarten haben."
 
 #. translators: TR charmap encoding
 #: menu/menudisplay.cpp:403

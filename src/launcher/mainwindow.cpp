@@ -25,8 +25,8 @@
 #include <QDesktopServices>
 #include <QFileDialog>
 #include <QMessageBox>
+#include <QNetworkRequest>
 #include <QSettings>
-#include <QUrl>
 #include <set>
 
 #ifdef WIN32
@@ -48,6 +48,7 @@ namespace
 {
 const char* const LanguageConfigKey = "launcher-language";
 const char* const GameflowConfigKey = "launcher-gameflow";
+const char* const LastUpdateCheck = "launcher-updatecheck";
 const int IdRole = Qt::UserRole + 1;
 const int AuthorRole = Qt::UserRole + 2;
 const int UrlsRole = Qt::UserRole + 3;
@@ -108,9 +109,11 @@ MainWindow::MainWindow(QWidget* parent)
 {
   ui->setupUi(this);
 
+  ui->lblUpdateNotification->hide();
+
   connect(ui->validateConnection, &QPushButton::clicked, this, &MainWindow::onTestConnectionClicked);
 
-  const QSettings settings;
+  QSettings settings;
 
   {
     const auto language = settings.value(LanguageConfigKey, QVariant{QString{"en_GB"}}).toString();
@@ -184,6 +187,27 @@ MainWindow::MainWindow(QWidget* parent)
       }
     }
   }
+
+#ifdef CE_GITHUB_API_KEY
+  if(settings.value(LastUpdateCheck).toDate() <= QDate::currentDate().addDays(-7))
+  {
+    BOOST_LOG_TRIVIAL(info) << "Not checking for updates, last check was less than a week ago";
+  }
+  else
+  {
+    BOOST_LOG_TRIVIAL(debug) << "Checking for updates...";
+    settings.setValue(LastUpdateCheck, QVariant{QDate::currentDate()});
+    connect(
+      &m_releasesNetworkAccessManager, &QNetworkAccessManager::finished, this, &MainWindow::downloadedReleasesJson);
+
+    QNetworkRequest request{QUrl{"https://api.github.com/repos/stohrendorf/CroftEngine/releases"}};
+    request.setRawHeader(QByteArray::fromStdString("Accept"), QByteArray::fromStdString("application/vnd.github+json"));
+    request.setRawHeader(QByteArray::fromStdString("X-GitHub-Api-Version"), QByteArray::fromStdString("2022-11-28"));
+    request.setRawHeader(QByteArray::fromStdString("Authorization"),
+                         QByteArray::fromStdString(std::string{"Bearer "} + CE_GITHUB_API_KEY));
+    m_releasesNetworkAccessManager.get(request);
+  }
+#endif
 
   connect(ui->btnLaunch, &QPushButton::clicked, this, &MainWindow::onLaunchClicked);
 
@@ -524,7 +548,7 @@ void MainWindow::onImportClicked()
         std::filesystem::create_directories(dstName.parent_path());
         archive.writeCurrentTo(dstName);
       }
- 
+
       QMessageBox::information(this, tr("Data Imported"), tr("Game Data has been imported."));
 
       downloadSoundtrackIfNecessary(gameflow.toStdString());
@@ -1061,5 +1085,78 @@ void MainWindow::onTestConnectionClicked()
                            tr("Valid Connection Settings"),
                            tr("Your configuration seems valid. However, no attempt was made to check against the "
                               "server that it will actually work."));
+}
+
+void MainWindow::downloadedReleasesJson(QNetworkReply* reply)
+{
+  if(reply == nullptr)
+  {
+    BOOST_LOG_TRIVIAL(error) << "Failed to download releases json (nullptr)";
+    return;
+  }
+
+  if(reply->error() != QNetworkReply::NetworkError::NoError)
+  {
+    BOOST_LOG_TRIVIAL(error) << "Failed to download releases json: " << reply->errorString().toStdString();
+    return;
+  }
+
+  auto releasesData = reply->readAll();
+  reply->deleteLater();
+
+  serialization::YAMLDocument<true> doc{releasesData.toStdString()};
+  for(const auto& release : doc.getRoot().children())
+  {
+    auto preview = release.find_child(c4::csubstr("prerelease"));
+    if(!preview.valid() || !(preview.type() & ryml::VAL))
+    {
+      BOOST_LOG_TRIVIAL(warning) << "Could not get preview from release";
+      continue;
+    }
+
+    bool isPreview = true;
+    preview >> isPreview;
+    if(isPreview)
+    {
+      BOOST_LOG_TRIVIAL(info) << "Skipping preview release";
+      continue;
+    }
+
+    auto draft = release.find_child(c4::csubstr("draft"));
+    if(!draft.valid() || !(preview.type() & ryml::VAL))
+    {
+      BOOST_LOG_TRIVIAL(warning) << "Could not get draft from release";
+      continue;
+    }
+
+    bool isDraft = true;
+    preview >> isDraft;
+    if(isDraft)
+    {
+      BOOST_LOG_TRIVIAL(info) << "Skipping draft release";
+      continue;
+    }
+
+    auto tagName = release.find_child(c4::csubstr("tag_name"));
+    if(!tagName.valid() || !(preview.type() & ryml::VAL))
+    {
+      BOOST_LOG_TRIVIAL(warning) << "Could not get tag_name from release";
+      continue;
+    }
+
+    std::string tag{};
+    tagName >> tag;
+    BOOST_LOG_TRIVIAL(info) << "Found version: " << tag;
+    if(tag == std::string{"v"} + CE_VERSION)
+      break;
+
+    ui->lblUpdateNotification->show();
+    ui->lblUpdateNotification->setText(
+      tr("New version available: <a href=\"https://github.com/stohrendorf/CroftEngine/releases/tag/%1\">%1</a> (you "
+         "are running version <a href=\"https://github.com/stohrendorf/CroftEngine/releases/tag/v%2\">v%2</a>)")
+        .arg(tag.c_str())
+        .arg(CE_VERSION));
+    break;
+  }
 }
 } // namespace launcher
