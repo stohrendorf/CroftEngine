@@ -28,7 +28,7 @@ struct Interval final
     return *this;
   }
 
-  [[nodiscard]] constexpr bool operator==(const Interval<T>& rhs)
+  [[nodiscard]] constexpr bool operator==(const Interval<T>& rhs) const
   {
     return min == rhs.min && max == rhs.max;
   }
