@@ -65,6 +65,7 @@ private:
 
   virtual void drawElements(Translucency translucencySelector) = 0;
   virtual void drawElements(Translucency translucencySelector, gl::api::core::SizeType instanceCount) = 0;
+  [[nodiscard]] virtual bool empty(Translucency translucencySelector) const = 0;
 };
 
 template<typename IndexT, typename... VertexTs>
@@ -119,6 +120,19 @@ private:
         m_vaoNonOpaque->drawElements(getPrimitiveType(), instanceCount);
       break;
     }
+  }
+
+  bool empty(Translucency translucencySelector) const override
+  {
+    switch(translucencySelector)
+    {
+    case Translucency::Opaque:
+      return m_vaoOpaque == nullptr || m_vaoOpaque->empty();
+    case Translucency::NonOpaque:
+      return m_vaoNonOpaque == nullptr || m_vaoNonOpaque->empty();
+    }
+
+    return true;
   }
 };
 

@@ -37,6 +37,7 @@ public:
 
   void render(const Node* node, RenderContext& context) final;
   void render(const Node* node, RenderContext& context, gl::api::core::SizeType instanceCount) override;
+  [[nodiscard]] bool empty(Translucency translucencySelector) const override;
 
   [[nodiscard]] const auto& getImage() const
   {

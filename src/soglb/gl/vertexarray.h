@@ -91,6 +91,11 @@ public:
     unbind();
   }
 
+  [[nodiscard]] bool empty() const
+  {
+    return m_indexBuffer->empty();
+  }
+
 private:
   IndexBufferPtr m_indexBuffer;
   VertexBuffers m_vertexBuffers;

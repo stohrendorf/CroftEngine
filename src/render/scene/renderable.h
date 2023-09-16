@@ -6,6 +6,7 @@ namespace render::scene
 {
 class RenderContext;
 class Node;
+enum class Translucency;
 
 class Renderable
 {
@@ -20,6 +21,7 @@ public:
 
   virtual void render(const Node* node, RenderContext& context) = 0;
   virtual void render(const Node* node, RenderContext& context, gl::api::core::SizeType instanceCount) = 0;
+  [[nodiscard]] virtual bool empty(Translucency translucencySelector) const = 0;
 
   gl::RenderState& getRenderState()
   {

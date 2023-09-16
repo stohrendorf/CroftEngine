@@ -80,4 +80,9 @@ void ScreenOverlay::render(const Node* /*node*/, RenderContext& /*context*/, gl:
 {
   BOOST_THROW_EXCEPTION(std::runtime_error("Cannot render instanced ScreenOverlay"));
 }
+
+bool ScreenOverlay::empty(Translucency /*translucencySelector*/) const
+{
+  return false;
+}
 } // namespace render::scene

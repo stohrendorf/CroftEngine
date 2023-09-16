@@ -56,6 +56,9 @@ void Visitor::render(const std::optional<glm::vec3>& camera) const
 
   for(const auto& [node, state] : m_nodes)
   {
+    if(node->getRenderable()->empty(m_context->getTranslucencySelector()))
+      continue;
+
     SOGLB_DEBUGGROUP(node->getName());
     m_context->pushState(state);
     node->getRenderable()->render(node.get(), *m_context);
