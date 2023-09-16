@@ -65,7 +65,6 @@ private:
 
   virtual void drawElements(Translucency translucencySelector) = 0;
   virtual void drawElements(Translucency translucencySelector, gl::api::core::SizeType instanceCount) = 0;
-  [[nodiscard]] virtual bool empty(Translucency translucencySelector) const = 0;
 };
 
 template<typename IndexT, typename... VertexTs>
@@ -122,7 +121,7 @@ private:
     }
   }
 
-  bool empty(Translucency translucencySelector) const override
+  [[nodiscard]] bool empty(Translucency translucencySelector) const override
   {
     switch(translucencySelector)
     {

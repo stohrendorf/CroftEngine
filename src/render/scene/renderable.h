@@ -1,12 +1,13 @@
 #pragma once
 
+#include "translucency.h"
+
 #include <gl/renderstate.h>
 
 namespace render::scene
 {
 class RenderContext;
 class Node;
-enum class Translucency;
 
 class Renderable
 {
@@ -26,6 +27,11 @@ public:
   gl::RenderState& getRenderState()
   {
     return m_renderState;
+  }
+
+  [[nodiscard]] bool empty() const
+  {
+    return empty(Translucency::NonOpaque) && empty(Translucency::Opaque);
   }
 
 private:

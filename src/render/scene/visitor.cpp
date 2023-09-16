@@ -19,6 +19,11 @@ void Visitor::visit(const Node& node)
 {
   if(!node.isVisible())
     return;
+
+  if((node.getRenderable() == nullptr || node.getRenderable()->empty(m_context->getTranslucencySelector()))
+     && node.getChildren().empty())
+    return;
+
   if(const auto& vp = m_context->getViewProjection(); vp.has_value() && node.canBeCulled(*vp))
     return;
 

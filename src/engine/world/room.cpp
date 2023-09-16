@@ -267,7 +267,7 @@ void Room::createSceneNode(const loader::file::Room& srcRoom,
 
   for(const RoomStaticMesh& sm : staticMeshes)
   {
-    if(sm.staticMesh->renderMesh == nullptr)
+    if(sm.staticMesh->renderMesh == nullptr || sm.staticMesh->renderMesh->empty())
       continue;
 
     auto subNode = std::make_shared<render::scene::Node>("staticMesh");
