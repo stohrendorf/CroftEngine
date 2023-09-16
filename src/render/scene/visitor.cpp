@@ -19,6 +19,11 @@ void Visitor::visit(const Node& node)
 {
   if(!node.isVisible())
     return;
+
+  if((node.getRenderable() == nullptr || node.getRenderable()->empty(m_context->getTranslucencySelector()))
+     && node.getChildren().empty())
+    return;
+
   if(const auto& vp = m_context->getViewProjection(); vp.has_value() && node.canBeCulled(*vp))
     return;
 
@@ -56,6 +61,9 @@ void Visitor::render(const std::optional<glm::vec3>& camera) const
 
   for(const auto& [node, state] : m_nodes)
   {
+    if(node->getRenderable()->empty(m_context->getTranslucencySelector()))
+      continue;
+
     SOGLB_DEBUGGROUP(node->getName());
     m_context->pushState(state);
     node->getRenderable()->render(node.get(), *m_context);

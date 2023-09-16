@@ -1970,7 +1970,7 @@ LaraObject::LaraObject(const std::string& name,
     , flashLightsBuffer{
         std::make_shared<gl::ShaderStorageBuffer<ShaderLight>>("dynamic-lights", gl::api::BufferUsage::DynamicDraw, 2)}
 {
-  m_underwaterRoute.setLimits(getWorld(), m_state.getCurrentBox(), 20_sectors, -20_sectors, core::QuarterSectorSize);
+  m_underwaterRoute.setLimits(getWorld(), m_state.tryGetCurrentBox(), 20_sectors, -20_sectors, core::QuarterSectorSize);
 
   m_state.health = core::LaraHealth;
   m_state.collidable = true;

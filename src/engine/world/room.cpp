@@ -267,10 +267,13 @@ void Room::createSceneNode(const loader::file::Room& srcRoom,
 
   for(const RoomStaticMesh& sm : staticMeshes)
   {
-    if(sm.staticMesh->renderMesh == nullptr)
+    if(sm.staticMesh->renderMesh == nullptr || sm.staticMesh->renderMesh->empty())
       continue;
 
-    auto subNode = std::make_shared<render::scene::Node>("staticMesh");
+    auto subNode = std::make_shared<render::scene::Node>(
+      node->getName()
+      // NOLINTNEXTLINE(*-pro-type-reinterpret-cast)
+      + ":static-mesh:" + std::to_string(reinterpret_cast<std::uintptr_t>(sm.staticMesh->renderMesh.get())));
     subNode->setRenderable(sm.staticMesh->renderMesh);
     subNode->getRenderState().setScissorTest(false);
     subNode->setLocalMatrix(translate(glm::mat4{1.0f}, (sm.position - position).toRenderSystem())

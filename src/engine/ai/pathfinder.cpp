@@ -597,7 +597,7 @@ void PathFinder::resetBoxes(const world::World& world, const gsl::not_null<const
 }
 
 void PathFinder::setLimits(const world::World& world,
-                           const gsl::not_null<const world::Box*>& box,
+                           const world::Box* box,
                            const core::Length& step,
                            const core::Length& drop,
                            const core::Length& fly)
@@ -605,16 +605,19 @@ void PathFinder::setLimits(const world::World& world,
   gsl_Expects(step >= 0_len);
   gsl_Expects(drop <= 0_len);
   gsl_Expects(fly >= 0_len);
+  if(box == nullptr)
+    return;
+
   // NOLINTNEXTLINE(hicpp-signed-bitwise)
   if((std::exchange(m_step, step) != step) | (std::exchange(m_drop, drop) != drop) | (std::exchange(m_fly, fly) != fly))
   {
-    resetBoxes(world, box);
+    resetBoxes(world, gsl::not_null{box});
   }
   if(m_targetBox != box)
   {
-    setTargetBox(box);
+    setTargetBox(gsl::not_null{box});
     BOOST_ASSERT(std::count(m_boxes.begin(), m_boxes.end(), box) != 0);
-    setRandomSearchTarget(box);
+    setRandomSearchTarget(gsl::not_null{box});
   }
 }
 } // namespace engine::ai

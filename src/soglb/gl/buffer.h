@@ -137,6 +137,11 @@ public:
     return m_size;
   }
 
+  [[nodiscard]] auto empty() const noexcept
+  {
+    return m_size == 0;
+  }
+
 private:
   size_t m_size;
 };
@@ -155,20 +160,27 @@ class ElementArrayBuffer final : public Buffer<T, api::BufferTarget::ElementArra
 {
 public:
   using Buffer<T, api::BufferTarget::ElementArrayBuffer>::size;
+  using Buffer<T, api::BufferTarget::ElementArrayBuffer>::empty;
 
   explicit ElementArrayBuffer(const std::string_view& label, api::BufferUsage usage, const gsl::span<const T>& data)
-      : Buffer<T, api::BufferTarget::ElementArrayBuffer>{label, usage, data}
+      : Buffer<T, api::BufferTarget::ElementArrayBuffer>
+  {
+    label, usage, data
+  }
   {
   }
 
   explicit ElementArrayBuffer(const std::string_view& label, api::BufferUsage usage, const T& data)
-      : Buffer<T, api::BufferTarget::ElementArrayBuffer>{label, usage, data}
+      : Buffer<T, api::BufferTarget::ElementArrayBuffer>
+  {
+    label, usage, data
+  }
   {
   }
 
   void drawElements(api::PrimitiveType primitiveType) const
   {
-    if(size() > 0)
+    if(!empty())
     {
       GL_ASSERT(
         api::drawElements(primitiveType, gsl::narrow<api::core::SizeType>(size()), DrawElementsType<T>, nullptr));
@@ -177,7 +189,7 @@ public:
 
   void drawElements(api::PrimitiveType primitiveType, api::core::SizeType instanceCount) const
   {
-    if(size() > 0)
+    if(!empty())
     {
       GL_ASSERT(api::drawElementsInstanced(
         primitiveType, gsl::narrow<api::core::SizeType>(size()), DrawElementsType<T>, nullptr, instanceCount));

@@ -647,6 +647,11 @@ void Presenter::prefillDepthBuffer(const CameraController& cameraController, con
                                          translucencySelector};
     for(const auto& room : renderRooms)
     {
+      if(room->node->getRenderable()->empty(translucencySelector))
+      {
+        continue;
+      }
+
       SOGLB_DEBUGGROUP(room->node->getName());
       auto state = context.getCurrentState();
       state.setScissorTest(true);

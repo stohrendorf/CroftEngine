@@ -66,7 +66,7 @@ struct PathFinder
   }
 
   void setLimits(const world::World& world,
-                 const gsl::not_null<const world::Box*>& box,
+                 const world::Box* box,
                  const core::Length& step,
                  const core::Length& drop,
                  const core::Length& fly);

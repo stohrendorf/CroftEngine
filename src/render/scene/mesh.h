@@ -120,6 +120,19 @@ private:
       break;
     }
   }
+
+  [[nodiscard]] bool empty(Translucency translucencySelector) const override
+  {
+    switch(translucencySelector)
+    {
+    case Translucency::Opaque:
+      return m_vaoOpaque == nullptr || m_vaoOpaque->empty();
+    case Translucency::NonOpaque:
+      return m_vaoNonOpaque == nullptr || m_vaoNonOpaque->empty();
+    }
+
+    return true;
+  }
 };
 
 extern gslu::nn_shared<Mesh> createScreenQuad(const glm::vec2& xy,
