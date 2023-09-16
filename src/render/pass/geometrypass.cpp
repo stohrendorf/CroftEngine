@@ -70,6 +70,6 @@ void GeometryPass::render(const std::function<void()>& doRender)
   gl::RenderState::getWantedState().merge(m_fb->getRenderState());
   gl::RenderState::applyWantedState();
   doRender();
-  m_fb->unbind();
+  //m_fb->unbind();
 }
 } // namespace render::pass
