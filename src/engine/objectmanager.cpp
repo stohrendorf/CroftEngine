@@ -47,6 +47,11 @@ void ObjectManager::createObjects(world::World& world, std::vector<loader::file:
     auto object = objects::createObject(world, idItem.value(), idItem.index());
     if(idItem.value().type == TR1ItemId::Lara)
     {
+      if(m_lara != nullptr)
+      {
+        m_lara->deactivate();
+        m_lara->getNode()->setVisible(false);
+      }
       m_lara = std::dynamic_pointer_cast<objects::LaraObject>(object);
       gsl_Assert(m_lara != nullptr);
     }
