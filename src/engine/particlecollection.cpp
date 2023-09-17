@@ -56,7 +56,9 @@ void ParticleCollection::update(world::World& world)
 
 ParticleCollection::~ParticleCollection() = default;
 
-void InstancedParticleCollection::render(render::scene::RenderContext& context, const world::World& world) const
+void InstancedParticleCollection::render(const std::string& roomName,
+                                         render::scene::RenderContext& context,
+                                         const world::World& world) const
 {
   if(empty())
     return;

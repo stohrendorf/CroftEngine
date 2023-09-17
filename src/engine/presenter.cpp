@@ -682,7 +682,7 @@ void Presenter::renderGeometry(const engine::world::World& world, const std::vec
         continue;
 
       context.pushState(room.node->getRenderState());
-      room.particles.render(context, world);
+      room.particles.render(room.node->getName(), context, world);
       context.popState();
     }
   }
