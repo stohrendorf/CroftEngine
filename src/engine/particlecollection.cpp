@@ -58,7 +58,10 @@ ParticleCollection::~ParticleCollection() = default;
 
 void InstancedParticleCollection::render(render::scene::RenderContext& context, const world::World& world) const
 {
-  SOGLB_DEBUGGROUP("bubble instances");
+  if(empty())
+    return;
+
+  SOGLB_DEBUGGROUP(roomName + ":bubble-instances");
   std::map<std::shared_ptr<gl::VertexBuffer<glm::mat4>>, std::tuple<std::vector<glm::mat4>, gslu::nn_shared<Particle>>>
     buffersData;
   for(const auto& particle : *this)

@@ -51,6 +51,11 @@ public:
     return m_particles.end();
   }
 
+  [[nodiscard]] bool empty() const
+  {
+    return m_particles.empty();
+  }
+
 private:
   std::vector<gslu::nn_shared<Particle>> m_particles;
 };
