@@ -76,7 +76,7 @@ public:
   }
 
   template<bool Lazy = Loading>
-  explicit YAMLDocument(std::string data, std::enable_if_t<Lazy, bool> _ = true)
+  explicit YAMLDocument(std::string data, std::enable_if_t<Lazy, bool> = true)
       : m_filename{}
       , m_buffer{std::move(data)}
   {
