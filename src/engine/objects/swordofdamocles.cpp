@@ -54,7 +54,7 @@ void SwordOfDamocles::update()
   {
     m_state.rotation.Y += m_rotateSpeed * 1_frame;
     const auto d = getWorld().getObjectManager().getLara().m_state.location.position - m_state.location.position;
-    if(abs(d.X) <= 1536_len && abs(d.Z) <= 1536_len && d.Y > 0_len && d.Y < 3 * 1_sectors)
+    if(abs(d.X) <= 1536_len && abs(d.Z) <= 1536_len && d.Y > 0_len && d.Y < 3_sectors)
     {
       m_dropSpeedX = d.X / 32_frame;
       m_dropSpeedZ = d.Z / 32_frame;

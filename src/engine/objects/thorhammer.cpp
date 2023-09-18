@@ -101,7 +101,7 @@ void ThorHammerHandle::update()
   case Falling.get():
     if(getSkeleton()->getLocalFrame() > 30_frame)
     {
-      const auto pos = m_state.location.position + util::pitch(3 * 1_sectors, m_state.rotation.Y);
+      const auto pos = m_state.location.position + util::pitch(3_sectors, m_state.rotation.Y);
 
       if(auto& lara = getWorld().getObjectManager().getLara(); !lara.isDead())
       {
