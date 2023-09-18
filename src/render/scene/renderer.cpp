@@ -38,9 +38,17 @@ void Renderer::render()
                                                                        : material::RenderMode::FullNonOpaque,
                           std::nullopt,
                           translucencySelector};
+    {
+      gl::RenderState tmp{};
+      tmp.setDepthWrite(translucencySelector == render::scene::Translucency::Opaque);
+      context.pushState(tmp);
+    }
+
     Visitor visitor{gsl::not_null{&context}};
     m_rootNode->accept(visitor);
     visitor.render(m_camera->getPosition());
+
+    context.popState();
   }
 }
 
