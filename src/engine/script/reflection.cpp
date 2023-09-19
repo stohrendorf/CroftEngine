@@ -467,11 +467,16 @@ std::pair<RunResult, std::optional<size_t>> ModifyInventory::run(const gsl::not_
                                                                  const std::shared_ptr<Player>& player,
                                                                  const std::shared_ptr<Player>& /*levelStartPlayer*/)
 {
+  apply(player);
+  return {RunResult::NextLevel, std::nullopt};
+}
+
+void ModifyInventory::apply(const std::shared_ptr<Player>& player)
+{
   for(const auto& [type, qty] : m_addInventory)
     player->getInventory().put(type, nullptr, qty);
   for(const auto& type : m_dropInventory)
     player->getInventory().drop(type);
-  return {RunResult::NextLevel, std::nullopt};
 }
 
 bool Gameflow::isGodMode() const

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CroftEngine\n"
 "Report-Msgid-Bugs-To: https://github.com/stohrendorf/CroftEngine/issues\n"
-"POT-Creation-Date: 2023-09-04 07:56+0200\n"
+"POT-Creation-Date: 2023-09-19 23:17+0200\n"
 "Last-Translator: Steffen Ohrendorf\n"
 "Language-Team: none\n"
 "Language: de_DE\n"
@@ -280,7 +280,7 @@ msgstr "R~ucktaste"
 msgid "Bloom"
 msgstr "Sanftes Leuchten"
 
-#: engine/presenter.cpp:387
+#: engine/presenter.cpp:389
 msgid "Booting"
 msgstr "Starte"
 
@@ -310,12 +310,12 @@ msgstr "Fehlerbericht"
 msgid "Bug Report Saved"
 msgstr "Fehlerbericht gespeichert"
 
-#: engine/world/texturing.cpp:689
+#: engine/world/texturing.cpp:695
 msgid "Building atlases"
 msgstr "Erstelle Atlasse"
 
-#: engine/world/texturing.cpp:317 engine/world/texturing.cpp:486
-#: engine/world/texturing.cpp:751 engine/world/texturing.cpp:768
+#: engine/world/texturing.cpp:323 engine/world/texturing.cpp:492
+#: engine/world/texturing.cpp:757 engine/world/texturing.cpp:774
 #, boost-format
 msgid "Building atlases (%1%%%)"
 msgstr "Erstelle Atlasse (%1%%%)"
@@ -715,12 +715,12 @@ msgid "Esc"
 msgstr "Esc"
 
 #. translators: TR charmap encoding
-#: menu/passportmenustate.cpp:108
+#: menu/passportmenustate.cpp:113
 msgid "Exit Game"
 msgstr "Spiel beenden"
 
 #. translators: TR charmap encoding
-#: menu/passportmenustate.cpp:107
+#: menu/passportmenustate.cpp:112
 msgid "Exit to Title"
 msgstr "Zur~uck zum Hauptmen~u"
 
@@ -788,7 +788,7 @@ msgstr "Gamepad"
 msgid "Gameplay"
 msgstr "Spiel"
 
-#: engine/world/room.cpp:567
+#: engine/world/room.cpp:570
 msgid "Generating Dust Particles..."
 msgstr "Generiere Staubpartikel..."
 
@@ -1005,7 +1005,7 @@ msgid "Load"
 msgstr "Spiel laden"
 
 #. translators: TR charmap encoding
-#: menu/passportmenustate.cpp:46
+#: menu/passportmenustate.cpp:47
 msgid "Load Game"
 msgstr "Spiel laden"
 
@@ -1014,7 +1014,7 @@ msgstr "Spiel laden"
 msgid "Loading %1%"
 msgstr "Lade %1%"
 
-#: engine/engine.cpp:852
+#: engine/engine.cpp:856
 msgid "Loading Glidos texture pack"
 msgstr "Lade Glidos Textur Paket"
 
@@ -1123,7 +1123,8 @@ msgid "N/A"
 msgstr "N/V"
 
 #. translators: TR charmap encoding
-#: menu/passportmenustate.cpp:71
+#: menu/newgamemenustate.cpp:15 menu/newgamemenustate.cpp:25
+#: menu/passportmenustate.cpp:72
 msgid "New Game"
 msgstr "Spiel starten"
 
@@ -1318,7 +1319,7 @@ msgid "Padx"
 msgstr "Numx"
 
 #. translators: TR charmap encoding
-#: menu/listdisplaymenustate.cpp:89
+#: menu/listdisplaymenustate.cpp:92
 #, boost-format
 msgctxt "PagedList"
 msgid "Page %1% of %2%"
@@ -1452,7 +1453,7 @@ msgid "Reset All Mappings: Hold %1% for %2% seconds"
 msgstr "Zur~ucksetzen aller Zuordnungen: %1% f~ur %2% Sekunden halten"
 
 #. translators: TR charmap encoding
-#: menu/passportmenustate.cpp:77
+#: menu/passportmenustate.cpp:78
 msgid "Restart Level"
 msgstr "Level neu starten"
 
@@ -1533,7 +1534,7 @@ msgid "Save"
 msgstr "Spiel sichern"
 
 #. translators: TR charmap encoding
-#: engine/engine.cpp:150 menu/passportmenustate.cpp:74
+#: engine/engine.cpp:150 menu/passportmenustate.cpp:75
 msgid "Save Game"
 msgstr "Spiel sichern"
 
@@ -1588,6 +1589,11 @@ msgstr "W~ahlen"
 #: menu/rendersettingsmenustate.cpp:802
 msgid "Select First Free or Oldest Slot"
 msgstr "Ersten freien oder ~altesten Slot w~ahlen"
+
+#. translators: TR charmap encoding
+#: menu/newgamemenustate.cpp:26 menu/selectlevelmenustate.cpp:20
+msgid "Select Level"
+msgstr "Level w~ahlen"
 
 #. translators: TR charmap encoding
 #: hid/names.cpp:235

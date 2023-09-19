@@ -45,6 +45,7 @@ enum class RunResult
   LaraHomeLevel,
   ExitApp,
   RequestLoad,
+  RequestLevel,
   RestartLevel
 };
 

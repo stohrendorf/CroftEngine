@@ -551,6 +551,8 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
           }
           return {RunResult::RequestLoad, menu->requestLoad};
         }
+      case menu::MenuResult::RequestLevel:
+        return {RunResult::RequestLevel, menu->requestLevelSequenceIndex};
       }
 
       if(m_presenter->getInputHandler().hasDebouncedAction(hid::Action::Load))
@@ -806,6 +808,8 @@ std::pair<RunResult, std::optional<size_t>> Engine::runTitleMenu(world::World& w
       {
         return {RunResult::RequestLoad, menu->requestLoad};
       }
+    case menu::MenuResult::RequestLevel:
+      return {RunResult::RequestLevel, menu->requestLevelSequenceIndex};
     }
 
     if(m_presenter->getInputHandler().hasDebouncedAction(hid::Action::Screenshot))

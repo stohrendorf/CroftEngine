@@ -294,6 +294,29 @@ int main(int argc, char** argv)
         break;
       case engine::RunResult::RestartLevel:
         BOOST_THROW_EXCEPTION(std::runtime_error("level restart request while running title menu"));
+      case engine::RunResult::RequestLevel:
+      {
+        gsl_Assert(runResult.second.has_value());
+
+        levelSequenceIndex = 0;
+        mode = Mode::Game;
+        levelStartPlayer.reset();
+        player = std::make_shared<engine::Player>();
+
+        for(const auto& item : engine.getScriptEngine().getGameflow().getLevelSequence())
+        {
+          if(levelSequenceIndex >= *runResult.second)
+            break;
+          ++levelSequenceIndex;
+
+          auto modInv = std::dynamic_pointer_cast<engine::script::ModifyInventory>(item);
+          if(modInv == nullptr)
+            continue;
+
+          modInv->apply(player);
+        }
+      }
+      break;
       }
       break;
     case Mode::Gym:
@@ -315,6 +338,8 @@ int main(int argc, char** argv)
         break;
       case engine::RunResult::RestartLevel:
         BOOST_THROW_EXCEPTION(std::runtime_error("level restart request while running title menu"));
+      case engine::RunResult::RequestLevel:
+        BOOST_THROW_EXCEPTION(std::runtime_error("level selection request while running title menu"));
       }
       break;
     case Mode::Game:
@@ -348,6 +373,8 @@ int main(int argc, char** argv)
         BOOST_ASSERT(levelStartPlayer != nullptr);
         player = std::make_shared<engine::Player>(*levelStartPlayer);
         break;
+      case engine::RunResult::RequestLevel:
+        BOOST_THROW_EXCEPTION(std::runtime_error("level selection request while in game"));
       }
       break;
     }

@@ -76,7 +76,7 @@ private:
   void cleanupSaves(const engine::world::World& world);
 
 public:
-  explicit SavegameListMenuState(const std::shared_ptr<MenuRingTransform>& slot,
+  explicit SavegameListMenuState(const std::shared_ptr<MenuRingTransform>& ringTransform,
                                  std::unique_ptr<MenuState> previous,
                                  const std::string& heading,
                                  const engine::world::World& world,

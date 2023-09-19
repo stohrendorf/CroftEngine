@@ -180,6 +180,8 @@ public:
   {
   }
 
+  void apply(const std::shared_ptr<Player>& player);
+
   std::pair<RunResult, std::optional<size_t>> run(const gsl::not_null<Engine*>& engine,
                                                   const std::shared_ptr<Player>& player,
                                                   const std::shared_ptr<Player>& levelStartPlayer) override;

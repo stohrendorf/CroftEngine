@@ -645,14 +645,17 @@ set( CROFTENGINE_SRCS
         menu/idleringmenustate.cpp
         menu/inflateringmenustate.cpp
         menu/listdisplaymenustate.cpp
+        menu/newgamemenustate.cpp
         menu/passportmenustate.cpp
         menu/rendersettingsmenustate.cpp
+        menu/requestlevelmenustate.cpp
         menu/requestloadmenustate.cpp
         menu/resetitemtransformmenustate.cpp
         menu/rotateleftrightmenustate.cpp
         menu/savegamecleanup.cpp
         menu/savegamelistmenustate.cpp
         menu/selectedmenustate.cpp
+        menu/selectlevelmenustate.cpp
         menu/setitemtypemenustate.cpp
         menu/switchringmenustate.cpp
         menu/util.cpp

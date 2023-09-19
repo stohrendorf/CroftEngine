@@ -63,7 +63,8 @@ enum class MenuResult
   NewGame,
   RestartLevel,
   LaraHome,
-  RequestLoad
+  RequestLoad,
+  RequestLevel
 };
 
 enum class SaveGamePageMode
@@ -97,6 +98,7 @@ struct MenuDisplay
   void renderRenderedObjects(const engine::world::World& world);
   MenuResult result = MenuResult::None;
   std::optional<size_t> requestLoad;
+  size_t requestLevelSequenceIndex = 0;
 
   std::vector<gslu::nn_unique<MenuRing>> rings;
   size_t currentRingIndex = 0;

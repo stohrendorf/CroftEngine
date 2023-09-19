@@ -17,6 +17,7 @@
 #include "menu/menustate.h"
 #include "menudisplay.h"
 #include "menuring.h"
+#include "newgamemenustate.h"
 #include "qs/qs.h"
 #include "savegamelistmenustate.h"
 #include "ui/ui.h"
@@ -85,14 +86,18 @@ std::optional<std::unique_ptr<MenuState>> PassportMenuState::showSaveGamePage(en
 
   if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::PrimaryInteraction))
   {
-    if(m_saveGamePageMode == SaveGamePageMode::Save)
+    switch(m_saveGamePageMode)
     {
+    case SaveGamePageMode::Skip:
+      break;
+    case SaveGamePageMode::NewGame:
+      return create<NewGameMenuState>(std::move(display.m_currentState));
+    case SaveGamePageMode::Save:
       return create<SavegameListMenuState>(std::move(display.m_currentState), title, world, false);
-    }
-    else
-    {
-      return create<DoneMenuState>(m_saveGamePageMode == SaveGamePageMode::NewGame ? MenuResult::NewGame
-                                                                                   : MenuResult::RestartLevel);
+    case SaveGamePageMode::Restart:
+      return create<DoneMenuState>(MenuResult::RestartLevel);
+    default:
+      BOOST_THROW_EXCEPTION(std::runtime_error("invalid passport state"));
     }
   }
 
