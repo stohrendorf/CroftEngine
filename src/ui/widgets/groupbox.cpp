@@ -32,23 +32,21 @@ GroupBox::~GroupBox() = default;
 
 void GroupBox::draw(ui::Ui& ui, const engine::Presenter& presenter) const
 {
-  {
-    const auto bgPos = m_position - glm::ivec2{OutlineBorderWidth, FontHeight / 2 - 1};
-    const auto bgSize = m_size - glm::ivec2{-2 * OutlineBorderWidth, ui::FontHeight / 2 + 2 * ui::OutlineBorderWidth};
+  const auto bgPos = m_position - glm::ivec2{OutlineBorderWidth, FontHeight / 2 - 1};
+  const auto bgSize = m_size - glm::ivec2{-2 * OutlineBorderWidth, ui::FontHeight / 2 + 2 * ui::OutlineBorderWidth};
 
-    UiBackdrop.draw(ui, bgPos, bgSize);
-
-    ui.drawOutlineBox(bgPos, bgSize);
-  }
+  UiBackdrop.draw(ui, bgPos, bgSize);
 
   m_widget->setPosition(m_position + glm::ivec2{InnerMargin, WidgetOffsetTop});
   m_widget->setSize({m_size.x - 2 * InnerMargin, m_size.y - TotalVerticalMargin});
   m_widget->draw(ui, presenter);
 
-  const auto bgPos = m_position - glm::ivec2{OutlineBorderWidth - TitleOffset, FontHeight - 1};
-  const auto bgSize = glm::ivec2{m_title->getWidth() + 2 * OutlineBorderWidth, ui::FontHeight};
-  ui.drawBox(bgPos, bgSize, gl::SRGBA8{0, 0, 0, 255});
   ui.drawOutlineBox(bgPos, bgSize);
+
+  const auto bgPosTitle = m_position - glm::ivec2{OutlineBorderWidth - TitleOffset, FontHeight - 1};
+  const auto bgSizeTitle = glm::ivec2{m_title->getWidth() + 2 * OutlineBorderWidth, ui::FontHeight};
+  ui.drawBox(bgPosTitle, bgSizeTitle, gl::SRGBA8{0, 0, 0, 255});
+  ui.drawOutlineBox(bgPosTitle, bgSizeTitle);
   m_title->draw(ui, presenter.getTrFont(), m_position + glm::ivec2{TitleOffset, 0});
 }
 
