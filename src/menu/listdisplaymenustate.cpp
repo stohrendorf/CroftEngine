@@ -85,6 +85,9 @@ void ListDisplayMenuState::draw(ui::Ui& ui, engine::world::World& world, MenuDis
   m_groupBox.update(true);
   m_groupBox.draw(ui, world.getPresenter());
 
+  if(m_listBox->getTotalPages() <= 1)
+    return;
+
   ui::widgets::Label pageLabel{pgettext("PagedList",
                                         /* translators: TR charmap encoding */ "Page %1% of %2%",
                                         m_listBox->getCurrentPage() + 1,
