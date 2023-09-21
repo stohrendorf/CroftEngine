@@ -65,7 +65,7 @@ void Crocodile::updateInWaterAlive()
     }
   }
   rotateCreatureHead(headRot);
-  if(auto waterSurfaceHeight = getWaterSurfaceHeight())
+  if(auto waterSurfaceHeight = getWaterSurfaceHeight(); waterSurfaceHeight.has_value())
   {
     *waterSurfaceHeight += core::QuarterSectorSize;
     if(*waterSurfaceHeight > m_state.location.position.Y)
@@ -99,11 +99,11 @@ void Crocodile::updateInWaterDead()
     m_state.current_anim_state = 3_as;
     m_state.health = core::DeadHealth;
   }
-  if(const auto waterSurfaceHeight = getWaterSurfaceHeight())
+  if(const auto waterSurfaceHeight = getWaterSurfaceHeight(); waterSurfaceHeight.has_value())
   {
     if(*waterSurfaceHeight + 32_len < m_state.location.position.Y)
     {
-      m_state.location.position.Y = m_state.location.position.Y - 32_len;
+      m_state.location.position.Y -= 32_len;
     }
     else if(*waterSurfaceHeight > m_state.location.position.Y)
     {
@@ -235,6 +235,7 @@ void Crocodile::updateOnLandDead()
   getSkeleton()->setAnim(
     gsl::not_null{&getWorld().getWorldGeometry().findAnimatedModelForType(TR1ItemId::CrocodileOnLand)->animations[11]});
   m_state.current_anim_state = 7_as;
+  m_state.health = core::DeadHealth;
 }
 
 void Crocodile::updateOnLand()
