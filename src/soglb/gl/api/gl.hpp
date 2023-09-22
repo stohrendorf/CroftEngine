@@ -414,9 +414,13 @@ enum class ColorBuffer : core::EnumType
 enum class ColorPointerType : core::EnumType
 {
   Byte = 0x1400,
+  Float = 0x1406,
+  Int = 0x1404,
+  Short = 0x1402,
   UnsignedByte = 0x1401,
   UnsignedInt = 0x1405,
   UnsignedShort = 0x1403,
+  Double = 0x140A,
 };
 
 enum class CombinerBiasNV : core::EnumType
@@ -1586,6 +1590,10 @@ enum class PathFontStyle : core::EnumType
 {
   None = 0,
 };
+constexpr core::Bitfield<PathFontStyle> operator|(PathFontStyle left, PathFontStyle right)
+{
+  return core::Bitfield<PathFontStyle>(left) | right;
+}
 
 enum class PathGenMode : core::EnumType
 {
