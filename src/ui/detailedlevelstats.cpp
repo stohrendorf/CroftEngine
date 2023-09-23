@@ -118,7 +118,7 @@ DetailedLevelStats::DetailedLevelStats(const engine::world::World& world)
   auto addAmmoStats = [this, &inv](const char* weaponName, engine::WeaponType weaponType, size_t& y0)
   {
     const auto& ammo = inv.getAmmo(weaponType);
-    if(inv.count(ammo.weaponType) == 0 && ammo.shots != 0 && ammo.hits == 0 && ammo.hitsTotal == 0 && ammo.misses == 0
+    if(inv.count(ammo.weaponType) == 0 && ammo.shots == 0 && ammo.hits == 0 && ammo.hitsTotal == 0 && ammo.misses == 0
        && ammo.missesTotal == 0)
     {
       return;
