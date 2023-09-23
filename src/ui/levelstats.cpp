@@ -18,38 +18,28 @@ namespace ui
 {
 void LevelStats::draw(Ui& ui) const
 {
+  static constexpr auto HeightPerLine = 30;
+  static constexpr auto Top = 50;
+
   const auto center = ui.getSize() / 2;
 
+  int line = 0;
+  auto drawLine = [&](const std::string& msg)
   {
-    const Text text{m_title};
-    text.draw(ui, m_presenter->getTrFont(), center - glm::ivec2{text.getWidth() / 2, 50});
-  }
+    const Text text{msg};
+    text.draw(ui, m_presenter->getTrFont(), center - glm::ivec2{text.getWidth() / 2, Top - line * HeightPerLine});
+    ++line;
+  };
 
-  {
-    const Text text{/* translators: TR charmap encoding */ _("KILLS %1%", m_player->kills)};
-    text.draw(ui, m_presenter->getTrFont(), center - glm::ivec2{text.getWidth() / 2, 20});
-  }
+  drawLine(m_title);
+  drawLine(/* translators: TR charmap encoding */ _("KILLS %1%", m_player->kills));
+  drawLine(/* translators: TR charmap encoding */ _("PICKUPS %1%", m_player->pickups));
+  drawLine(/* translators: TR charmap encoding */ _("SECRETS %1% of %2%", m_player->secrets, m_totalSecrets));
+  drawLine(
+    /* translators: TR charmap encoding */ _("TIME TAKEN %1%", util::toTimeStr(m_player->timeSpent / core::FrameRate)));
 
-  {
-    const Text text{/* translators: TR charmap encoding */ _("PICKUPS %1%", m_player->pickups)};
-    text.draw(ui, m_presenter->getTrFont(), center - glm::ivec2{text.getWidth() / 2, -10});
-  }
-
-  {
-    const Text text{/* translators: TR charmap encoding */ _("SECRETS %1% of %2%", m_player->secrets, m_totalSecrets)};
-    text.draw(ui, m_presenter->getTrFont(), center - glm::ivec2{text.getWidth() / 2, -40});
-  }
-
-  {
-    const Text text{/* translators: TR charmap encoding */ _("TIME TAKEN %1%",
-                                                             util::toTimeStr(m_player->timeSpent / core::FrameRate))};
-    text.draw(ui, m_presenter->getTrFont(), center - glm::ivec2{text.getWidth() / 2, -70});
-  }
-
-  {
-    const Text text{/* translators: TR charmap encoding */ _("Use %1% to show detailed stats.",
-                                                             getName(hid::Action::SecondaryInteraction))};
-    text.draw(ui, m_presenter->getTrFont(), center - glm::ivec2{text.getWidth() / 2, -130});
-  }
+  ++line;
+  drawLine(/* translators: TR charmap encoding */ _("Use %1% to show detailed stats.",
+                                                    getName(hid::Action::SecondaryInteraction)));
 }
 } // namespace ui
