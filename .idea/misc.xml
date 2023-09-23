@@ -3,6 +3,7 @@
   <component name="CMakeWorkspace" PROJECT_DIR="$PROJECT_DIR$" />
   <component name="CidrRootsConfiguration">
     <sourceRoots>
+      <file path="$PROJECT_DIR$/share/gameflows/cearena" />
       <file path="$PROJECT_DIR$/share/gameflows/tr1" />
       <file path="$PROJECT_DIR$/share/gameflows/tr1demo-part1" />
       <file path="$PROJECT_DIR$/share/gameflows/tr1demo-part2" />
