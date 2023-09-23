@@ -2,6 +2,8 @@
 
 #include "units.h"
 
+#include <chrono>
+
 namespace core
 {
 constexpr auto SectorSize = 1024_len;
@@ -40,6 +42,8 @@ static_assert(DamageFallSpeedThreshold < DeadlyFallSpeedThreshold, "Constants wr
 constexpr auto MaxGrabbableGradient = 60_len;
 
 constexpr auto FrameRate = 30_frame / 1_sec;
+constexpr auto TimePerFrame
+  = std::chrono::duration_cast<std::chrono::high_resolution_clock::duration>(std::chrono::seconds{1}) / FrameRate.get();
 
 constexpr auto LaraAir = FrameRate * 60_sec;
 constexpr auto LaraHealth = 1000_hp;

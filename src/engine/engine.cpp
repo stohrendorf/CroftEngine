@@ -102,8 +102,8 @@ void drawAmmoWidget(ui::Ui& ui, const ui::TRFont& trFont, const world::World& wo
   }
   else
   {
-    static constexpr auto StaticDuration = (core::FrameRate * 1_sec * 2 / 3).cast<core::Frame>();
-    static constexpr auto TransitionDuration = (core::FrameRate * 1_sec / 2).cast<core::Frame>();
+    static constexpr auto StaticDuration = core::FrameRate * 1_sec * 2 / 3;
+    static constexpr auto TransitionDuration = core::FrameRate * 1_sec / 2;
 
     ammoDisplayDuration = std::min(ammoDisplayDuration + 1_frame, StaticDuration + TransitionDuration);
 
@@ -429,7 +429,7 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
   core::Frame laraDeadTime = 0_frame;
 
   core::Frame runtime = 0_frame;
-  static constexpr auto BlendInDuration = (core::FrameRate * 2_sec).cast<core::Frame>();
+  static constexpr auto BlendInDuration = core::FrameRate * 2_sec;
   core::Frame ammoDisplayDuration = 0_frame;
   core::Frame bugReportSavedDuration = 0_frame;
 
@@ -855,14 +855,11 @@ std::unique_ptr<loader::trx::Glidos> Engine::loadGlidosPack() const
 
   m_presenter->drawLoadingScreen(_("Loading Glidos texture pack"));
   auto lastUpdate = std::chrono::high_resolution_clock::now();
-  static constexpr auto TimePerFrame
-    = std::chrono::duration_cast<std::chrono::high_resolution_clock::duration>(std::chrono::seconds{1})
-      / core::FrameRate.get();
   return std::make_unique<loader::trx::Glidos>(m_engineConfig->renderSettings.glidosPack.value(),
                                                [this, &lastUpdate](const std::string& s)
                                                {
                                                  const auto now = std::chrono::high_resolution_clock::now();
-                                                 if(lastUpdate + TimePerFrame < now)
+                                                 if(lastUpdate + core::TimePerFrame < now)
                                                  {
                                                    lastUpdate = now;
                                                    m_presenter->drawLoadingScreen(s);

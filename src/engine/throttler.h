@@ -40,8 +40,7 @@ public:
 
 private:
   using TimeType = std::chrono::microseconds;
-  static constexpr TimeType FrameDuration
-    = std::chrono::duration_cast<TimeType>(std::chrono::seconds(1)) / core::FrameRate.get();
+  static constexpr TimeType FrameDuration = std::chrono::duration_cast<TimeType>(core::TimePerFrame);
 
   std::chrono::high_resolution_clock::time_point m_nextFrameTime{};
 };

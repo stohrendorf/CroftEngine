@@ -413,9 +413,6 @@ void WorldGeometry::initTextures(Engine& engine, const loader::file::level::Leve
 
   {
     auto lastDrawUpdate = std::chrono::high_resolution_clock::now();
-    static constexpr auto TimePerFrame
-      = std::chrono::duration_cast<std::chrono::high_resolution_clock::duration>(std::chrono::seconds{1})
-        / core::FrameRate.get();
     m_allTextures = buildTextures(
       level,
       engine.getGlidos(),
@@ -425,7 +422,7 @@ void WorldGeometry::initTextures(Engine& engine, const loader::file::level::Leve
       [&lastDrawUpdate, &engine](const std::string& s)
       {
         const auto now = std::chrono::high_resolution_clock::now();
-        if(lastDrawUpdate + TimePerFrame < now)
+        if(lastDrawUpdate + core::TimePerFrame < now)
         {
           lastDrawUpdate = now;
           engine.getPresenter().drawLoadingScreen(s);
