@@ -17,9 +17,7 @@ NewGameMenuState::NewGameMenuState(const std::shared_ptr<MenuRingTransform>& rin
 {
   auto appendLabel = [this](const std::string& title)
   {
-    auto tmp = gsl::make_shared<ui::widgets::Label>(title, ui::widgets::Label::Alignment::Center);
-    tmp->fitToContent();
-    append(tmp);
+    append(gsl::make_shared<ui::widgets::Label>(title, ui::widgets::Label::Alignment::Center));
   };
 
   appendLabel(/* translators: TR charmap encoding */ _("New Game"));

@@ -175,8 +175,6 @@ private:
     m_list->append(gsl::make_shared<ui::widgets::Label>(
       /* translators: TR charmap encoding */ _("Cancel")));
 
-    for(const auto& w : m_list->getWidgets())
-      w->fitToContent();
     m_list->fitToContent();
   }
 
@@ -198,7 +196,6 @@ public:
       , m_time{time}
       , m_levelTitle{levelTitle}
   {
-    m_label.fitToContent();
   }
 
   [[nodiscard]] glm::ivec2 getPosition() const override

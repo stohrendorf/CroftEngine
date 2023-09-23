@@ -16,6 +16,7 @@ Label::Label(const std::string& text, Label::Alignment alignment)
     , m_size{0, ui::FontHeight}
     , m_alignment{alignment}
 {
+  fitToContent();
 }
 
 Label::~Label() = default;

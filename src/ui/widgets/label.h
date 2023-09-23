@@ -20,7 +20,7 @@ class Text;
 
 namespace ui::widgets
 {
-class Label : public Widget
+class Label final : public Widget
 {
 public:
   enum class Alignment

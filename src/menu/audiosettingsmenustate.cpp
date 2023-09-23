@@ -52,19 +52,13 @@ AudioSettingsMenuState::AudioSettingsMenuState(const std::shared_ptr<MenuRingTra
   m_grid->setExtents(2, 3);
   m_grid->setSelected({0, 0});
 
-  auto label = std::make_shared<ui::widgets::Label>(/* translators: TR charmap encoding */ _("Global"));
-  label->fitToContent();
-  m_grid->set(0, 0, std::move(label));
+  m_grid->set(0, 0, std::make_shared<ui::widgets::Label>(/* translators: TR charmap encoding */ _("Global")));
   m_grid->set(1, 0, m_globalVolume);
 
-  label = std::make_shared<ui::widgets::Label>(/* translators: TR charmap encoding */ _("Music"));
-  label->fitToContent();
-  m_grid->set(0, 1, label);
+  m_grid->set(0, 1, std::make_shared<ui::widgets::Label>(/* translators: TR charmap encoding */ _("Music")));
   m_grid->set(1, 1, m_musicVolume);
 
-  label = std::make_shared<ui::widgets::Label>(/* translators: TR charmap encoding */ _("Effects"));
-  label->fitToContent();
-  m_grid->set(0, 2, label);
+  m_grid->set(0, 2, std::make_shared<ui::widgets::Label>(/* translators: TR charmap encoding */ _("Effects")));
   m_grid->set(1, 2, m_sfxVolume);
 
   m_grid->fitToContent();

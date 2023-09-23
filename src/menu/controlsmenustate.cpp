@@ -151,9 +151,7 @@ std::function<std::shared_ptr<ui::widgets::Widget>(
       auto s = std::make_shared<ui::widgets::Sprite>(it->second);
       s->fitToContent();
       grid->set(0, 0, s);
-      auto l = std::make_shared<ui::widgets::Label>(axisName);
-      l->fitToContent();
-      grid->set(1, 0, l);
+      grid->set(1, 0, std::make_shared<ui::widgets::Label>(axisName));
       grid->fitToContent();
       return grid;
     }

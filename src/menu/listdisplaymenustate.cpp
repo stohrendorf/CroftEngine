@@ -93,7 +93,6 @@ void ListDisplayMenuState::draw(ui::Ui& ui, engine::world::World& world, MenuDis
                                         m_listBox->getCurrentPage() + 1,
                                         m_listBox->getTotalPages()),
                                ui::widgets::Label::Alignment::Center};
-  pageLabel.fitToContent();
   const auto s = m_groupBox.getSize();
   pageLabel.setPosition(m_groupBox.getPosition() + glm::ivec2{0, s.y});
   pageLabel.setSize({s.x, ui::FontHeight});

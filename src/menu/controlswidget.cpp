@@ -280,9 +280,8 @@ void ControlsWidget::updateBindings(
 
   auto set = [&mappingConfig, &factory](ui::widgets::GridBox& gridBox, size_t x0, size_t y, hid::Action action)
   {
-    auto label = std::make_shared<ui::widgets::Label>(hid::getName(action), ui::widgets::Label::Alignment::Right);
-    label->fitToContent();
-    gridBox.set(x0, y, label);
+    gridBox.set(
+      x0, y, std::make_shared<ui::widgets::Label>(hid::getName(action), ui::widgets::Label::Alignment::Right));
 
     auto widget = factory(mappingConfig.gameMappings, mappingConfig.menuMappings, action);
     widget->fitToContent();

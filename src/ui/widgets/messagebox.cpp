@@ -33,10 +33,6 @@ namespace
                  {
                    return gsl::make_shared<Label>(line);
                  });
-  for(const auto& label : labels)
-  {
-    label->fitToContent();
-  }
   return labels;
 }
 
@@ -50,10 +46,6 @@ namespace
                  {
                    return gsl::make_shared<Label>(line);
                  });
-  for(const auto& label : labels)
-  {
-    label->fitToContent();
-  }
   return labels;
 }
 } // namespace
@@ -63,8 +55,6 @@ MessageBox::MessageBox(const std::string& label)
     , m_yes{std::make_shared<Label>(/* translators: TR charmap encoding */ _("Yes"))}
     , m_no{std::make_shared<Label>(/* translators: TR charmap encoding */ _("No"))}
 {
-  m_yes->fitToContent();
-  m_no->fitToContent();
 }
 
 MessageBox::MessageBox(const std::vector<std::string>& labels)
@@ -72,8 +62,6 @@ MessageBox::MessageBox(const std::vector<std::string>& labels)
     , m_yes{std::make_shared<Label>(/* translators: TR charmap encoding */ _("Yes"))}
     , m_no{std::make_shared<Label>(/* translators: TR charmap encoding */ _("No"))}
 {
-  m_yes->fitToContent();
-  m_no->fitToContent();
 }
 
 MessageBox::~MessageBox() = default;

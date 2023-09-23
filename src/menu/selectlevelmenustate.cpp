@@ -22,9 +22,7 @@ SelectLevelMenuState::SelectLevelMenuState(const std::shared_ptr<MenuRingTransfo
 {
   auto appendLabel = [this](const std::string& title)
   {
-    auto tmp = gsl::make_shared<ui::widgets::Label>(title, ui::widgets::Label::Alignment::Center);
-    tmp->fitToContent();
-    append(tmp);
+    append(gsl::make_shared<ui::widgets::Label>(title, ui::widgets::Label::Alignment::Center));
   };
 
   for(const auto& item :
