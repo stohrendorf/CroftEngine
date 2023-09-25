@@ -20,6 +20,7 @@
 #include "engine/engineconfig.h"
 #include "engine/floordata/floordata.h"
 #include "engine/floordata/secrets.h"
+#include "engine/gameplayrules.h"
 #include "engine/location.h"
 #include "engine/objects/aiagent.h"
 #include "engine/objects/block.h" // IWYU pragma: keep
@@ -1042,6 +1043,22 @@ void World::load(const std::optional<size_t>& slot)
     return;
   }
   doc.deserialize("data", gsl::not_null{this}, *this);
+
+  {
+    // TODO CE-647
+    auto rulesNode = doc.getRoot()["gameplayRules"];
+    if(rulesNode.is_seed() || !rulesNode.valid() || rulesNode.type() == ryml::NOTYPE)
+    {
+      m_engine->setGameplayRules(GameplayRules{});
+    }
+    else
+    {
+      GameplayRules rules{};
+      doc.deserialize("gameplayRules", gsl::not_null{this}, rules);
+      m_engine->setGameplayRules(rules);
+    }
+  }
+
   m_objectManager.getLara().m_state.health = m_player->laraHealth;
   m_objectManager.getLara().initWeaponAnimData();
   connectSectors();
@@ -1057,6 +1074,7 @@ void World::save(const std::filesystem::path& filename)
   SavegameMeta meta{std::filesystem::relative(m_levelFilename, m_engine->getAssetDataPath()).string()};
   doc.serialize("meta", gsl::not_null{&meta}, meta);
   doc.serialize("data", gsl::not_null{this}, *this);
+  doc.serialize("gameplayRules", gsl::not_null{this}, m_engine->getGameplayRules());
   doc.write();
 
   serialization::YAMLDocument<false> metaCacheDoc{makeMetaFilepath(filename)};

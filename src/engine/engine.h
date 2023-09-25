@@ -1,5 +1,6 @@
 #pragma once
 
+#include "gameplayrules.h"
 #include "script/scriptengine.h"
 #include "serialization/serialization_fwd.h"
 #include "world/worldgeometry.h"
@@ -191,6 +192,16 @@ public:
     m_worldGeometryCache = {key, worldGeometry};
   }
 
+  [[nodiscard]] const auto& getGameplayRules() const
+  {
+    return m_gameplayRules;
+  }
+
+  void setGameplayRules(const GameplayRules& rules)
+  {
+    m_gameplayRules = rules;
+  }
+
 private:
   void takeBugReport(world::World& world);
 
@@ -202,6 +213,7 @@ private:
   std::shared_ptr<Presenter> m_presenter;
   std::set<gsl::not_null<world::World*>> m_worlds;
   std::chrono::steady_clock::time_point m_saveReminderSince{};
+  GameplayRules m_gameplayRules{};
 
   std::string m_locale;
 

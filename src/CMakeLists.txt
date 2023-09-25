@@ -222,6 +222,8 @@ set( CROFTENGINE_SRCS
         engine/engine.cpp
         engine/engineconfig.h
         engine/engineconfig.cpp
+        engine/gameplayrules.h
+        engine/gameplayrules.cpp
         engine/ghostmanager.h
         engine/ghostmanager.cpp
         engine/heightinfo.h
