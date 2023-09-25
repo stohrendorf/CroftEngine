@@ -29,6 +29,20 @@
 
 namespace engine::objects
 {
+namespace
+{
+constexpr auto InWaterPrepareAttack = 1_as;
+constexpr auto InWaterBite = 2_as;
+constexpr auto InWaterDead = 3_as;
+
+constexpr auto OnLandThink = 1_as;
+constexpr auto OnLandPrepareAttack = 2_as;
+constexpr auto OnLandRunForward = 3_as;
+constexpr auto OnLandTurnRight = 4_as;
+constexpr auto OnLandBite = 5_as;
+constexpr auto OnLandDead = 7_as;
+} // namespace
+
 void Crocodile::updateInWaterAlive()
 {
   core::Angle headRot = 0_deg;
@@ -39,12 +53,12 @@ void Crocodile::updateInWaterAlive()
   }
   updateMood(*this, enemyLocation, true);
   rotateTowardsTarget(3_deg / 1_frame);
-  if(m_state.current_anim_state == 1_as)
+  if(m_state.current_anim_state == InWaterPrepareAttack)
   {
     if(enemyLocation.canAttackLara && touched())
-      goal(2_as);
+      goal(InWaterBite);
   }
-  else if(m_state.current_anim_state == 2_as)
+  else if(m_state.current_anim_state == InWaterBite)
   {
     if(getSkeleton()->getLocalFrame() == 0_frame)
     {
@@ -56,12 +70,12 @@ void Crocodile::updateInWaterAlive()
       {
         emitParticle({5_len, -21_len, 467_len}, 9, &createBloodSplat);
         hitLara(100_hp);
-        require(1_as);
+        require(InWaterPrepareAttack);
       }
     }
     else
     {
-      goal(1_as);
+      goal(InWaterPrepareAttack);
     }
   }
   rotateCreatureHead(headRot);
@@ -92,11 +106,11 @@ void Crocodile::updateInWaterAlive()
 
 void Crocodile::updateInWaterDead()
 {
-  if(m_state.current_anim_state != 3_as)
+  if(m_state.current_anim_state != InWaterDead)
   {
     getSkeleton()->setAnim(gsl::not_null{
       &getWorld().getWorldGeometry().findAnimatedModelForType(TR1ItemId::CrocodileInWater)->animations[4]});
-    m_state.current_anim_state = 3_as;
+    m_state.current_anim_state = InWaterDead;
     m_state.health = core::DeadHealth;
   }
   if(const auto waterSurfaceHeight = getWaterSurfaceHeight(); waterSurfaceHeight.has_value())
@@ -116,7 +130,7 @@ void Crocodile::updateInWaterDead()
     getSkeleton()->setAnim(gsl::not_null{
       &getWorld().getWorldGeometry().findAnimatedModelForType(TR1ItemId::CrocodileOnLand)->animations[11]});
     m_state.type = TR1ItemId::CrocodileOnLand;
-    goal(7_as);
+    goal(OnLandDead);
     m_state.current_anim_state = m_state.goal_anim_state;
     const auto sector = m_state.location.moved({}).updateRoom();
     m_state.location.position.Y
@@ -154,7 +168,7 @@ std::tuple<core::Angle, core::Angle> Crocodile::updateOnLandAlive()
     headRot = enemyLocation.visualAngleToLara;
   }
   updateMood(*this, enemyLocation, true);
-  if(m_state.current_anim_state == 4_as)
+  if(m_state.current_anim_state == OnLandTurnRight)
   {
     m_state.rotation.Y += 6_deg;
   }
@@ -164,60 +178,60 @@ std::tuple<core::Angle, core::Angle> Crocodile::updateOnLandAlive()
   }
   switch(m_state.current_anim_state.get())
   {
-  case 1:
+  case OnLandThink.get():
     if(enemyLocation.canAttackLara && enemyLocation.distance < util::square(435_len))
     {
-      goal(5_as);
+      goal(OnLandBite);
       break;
     }
     switch(getCreatureInfo()->mood)
     {
     case ai::Mood::Escape:
-      goal(2_as);
+      goal(OnLandPrepareAttack);
       break;
     case ai::Mood::Attack:
       if(abs(enemyLocation.visualAngleToLara) <= 90_deg || enemyLocation.distance <= util::square(3_sectors))
-        goal(2_as);
+        goal(OnLandPrepareAttack);
       else
-        goal(4_as);
+        goal(OnLandTurnRight);
       break;
     case ai::Mood::Stalk:
-      goal(3_as);
+      goal(OnLandRunForward);
       break;
     default:
       // silence compiler
       break;
     }
     break;
-  case 2:
+  case OnLandPrepareAttack.get():
     if(enemyLocation.laraInView && touched(0x3fcUL))
-      goal(1_as);
+      goal(OnLandThink);
     else if(isStalking())
-      goal(3_as);
+      goal(OnLandRunForward);
     else if(isBored())
-      goal(1_as);
+      goal(OnLandThink);
     else if(isAttacking() && enemyLocation.distance > util::square(3_sectors)
             && abs(enemyLocation.visualAngleToLara) > 90_deg)
-      goal(1_as);
+      goal(OnLandThink);
     break;
-  case 3:
+  case OnLandRunForward.get():
     if(enemyLocation.laraInView && touched(0x03fcUL))
-      goal(1_as);
+      goal(OnLandThink);
     else if(isAttacking() || isEscaping())
-      goal(2_as);
+      goal(OnLandPrepareAttack);
     else if(isBored())
-      goal(1_as);
+      goal(OnLandThink);
     break;
-  case 4:
+  case OnLandTurnRight.get():
     if(abs(enemyLocation.visualAngleToLara) < 90_deg)
-      goal(3_as);
+      goal(OnLandRunForward);
     break;
-  case 5:
+  case OnLandBite.get():
     if(m_state.required_anim_state == 0_as)
     {
       emitParticle({5_len, -21_len, 467_len}, 9, &createBloodSplat);
       hitLara(100_hp);
-      require(1_as);
+      require(OnLandThink);
     }
     break;
   default:
@@ -229,12 +243,12 @@ std::tuple<core::Angle, core::Angle> Crocodile::updateOnLandAlive()
 
 void Crocodile::updateOnLandDead()
 {
-  if(m_state.current_anim_state == 7_as)
+  if(m_state.current_anim_state == OnLandDead)
     return;
 
   getSkeleton()->setAnim(
     gsl::not_null{&getWorld().getWorldGeometry().findAnimatedModelForType(TR1ItemId::CrocodileOnLand)->animations[11]});
-  m_state.current_anim_state = 7_as;
+  m_state.current_anim_state = OnLandDead;
   m_state.health = core::DeadHealth;
 }
 
