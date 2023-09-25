@@ -6,8 +6,10 @@
 #include "deflateringmenustate.h"
 #include "donemenustate.h"
 #include "engine/engine.h"
+#include "engine/objects/laraobject.h"
 #include "engine/presenter.h"
 #include "engine/script/reflection.h"
+#include "engine/soundeffects_tr1.h"
 #include "engine/world/world.h"
 #include "hid/actions.h"
 #include "hid/inputhandler.h"
@@ -279,6 +281,12 @@ SavegameListMenuState::SavegameListMenuState(const std::shared_ptr<MenuRingTrans
 std::unique_ptr<MenuState>
   SavegameListMenuState::onSelected(size_t selectedIdx, engine::world::World& world, MenuDisplay& display)
 {
+  if(m_loading && world.getEngine().getGameplayRules().noMeds)
+  {
+    world.getObjectManager().getLara().playSoundEffect(engine::TR1SoundEffect::LaraNo);
+    return false;
+  }
+
   const auto slot = m_entries.at(selectedIdx)->getSlot();
   if(!m_loading)
   {

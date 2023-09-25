@@ -3,6 +3,7 @@
 #include "core/magic.h"
 #include "core/units.h"
 #include "engine/objectmanager.h"
+#include "gameplayrules.h"
 #include "items_tr1.h"
 #include "objects/laraobject.h"
 #include "objects/objectstate.h"
@@ -119,12 +120,18 @@ size_t Inventory::put(const core::TypeId& id, world::World* world, const size_t 
   }
 }
 
-bool Inventory::tryUse(objects::LaraObject& lara, const TR1ItemId id)
+bool Inventory::tryUse(objects::LaraObject& lara, const TR1ItemId id, const GameplayRules& gameplayRules)
 {
-  auto tryUseWeapon = [this, &lara](TR1ItemId weapon, WeaponType weaponType) -> bool
+  auto tryUseWeapon = [this, &lara, &gameplayRules](TR1ItemId weapon, WeaponType weaponType) -> bool
   {
     if(count(weapon) == 0)
       return false;
+
+    if(gameplayRules.pistolsOnly && weaponType != WeaponType::Pistols)
+    {
+      lara.playSoundEffect(TR1SoundEffect::LaraNo);
+      return false;
+    }
 
     auto& player = lara.getWorld().getPlayer();
     player.requestedWeaponType = weaponType;
@@ -144,10 +151,16 @@ bool Inventory::tryUse(objects::LaraObject& lara, const TR1ItemId id)
     return true;
   };
 
-  auto tryUseMediPack = [this, &lara](TR1ItemId mediPack, const core::Health& health) -> bool
+  auto tryUseMediPack = [this, &lara, &gameplayRules](TR1ItemId mediPack, const core::Health& health) -> bool
   {
     if(count(mediPack) == 0)
       return false;
+
+    if(gameplayRules.noMeds)
+    {
+      lara.playSoundEffect(TR1SoundEffect::LaraNo);
+      return false;
+    }
 
     if(lara.isDead() || lara.m_state.health >= core::LaraHealth)
     {

@@ -16,7 +16,7 @@
 namespace engine::world
 {
 class World;
-}
+} // namespace engine::world
 
 namespace engine::objects
 {
@@ -25,6 +25,8 @@ class LaraObject;
 
 namespace engine
 {
+struct GameplayRules;
+
 struct Ammo
 {
   size_t shotsPerClip = 1;
@@ -107,7 +109,7 @@ public:
     m_inventory.erase(id);
   }
 
-  bool tryUse(objects::LaraObject& lara, TR1ItemId id);
+  bool tryUse(objects::LaraObject& lara, TR1ItemId id, const GameplayRules& gameplayRules);
 
   [[nodiscard]] Ammo& getAmmo(WeaponType weaponType)
   {

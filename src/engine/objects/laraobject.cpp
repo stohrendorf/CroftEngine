@@ -323,21 +323,23 @@ void LaraObject::update()
   updateCheats();
 
   if(getWorld().getPresenter().getInputHandler().hasDebouncedAction(hid::Action::DrawPistols))
-    getWorld().getPlayer().getInventory().tryUse(*this, TR1ItemId::Pistols);
+    getWorld().getPlayer().getInventory().tryUse(*this, TR1ItemId::Pistols, getWorld().getEngine().getGameplayRules());
   else if(getWorld().getPresenter().getInputHandler().hasDebouncedAction(hid::Action::DrawShotgun))
-    getWorld().getPlayer().getInventory().tryUse(*this, TR1ItemId::Shotgun);
+    getWorld().getPlayer().getInventory().tryUse(*this, TR1ItemId::Shotgun, getWorld().getEngine().getGameplayRules());
   else if(getWorld().getPresenter().getInputHandler().hasDebouncedAction(hid::Action::DrawUzis))
-    getWorld().getPlayer().getInventory().tryUse(*this, TR1ItemId::Uzis);
+    getWorld().getPlayer().getInventory().tryUse(*this, TR1ItemId::Uzis, getWorld().getEngine().getGameplayRules());
   else if(getWorld().getPresenter().getInputHandler().hasDebouncedAction(hid::Action::DrawMagnums))
-    getWorld().getPlayer().getInventory().tryUse(*this, TR1ItemId::Magnums);
+    getWorld().getPlayer().getInventory().tryUse(*this, TR1ItemId::Magnums, getWorld().getEngine().getGameplayRules());
   else if(getWorld().getPresenter().getInputHandler().hasDebouncedAction(hid::Action::ConsumeSmallMedipack))
   {
-    if(getWorld().getPlayer().getInventory().tryUse(*this, TR1ItemId::SmallMedipack))
+    if(getWorld().getPlayer().getInventory().tryUse(
+         *this, TR1ItemId::SmallMedipack, getWorld().getEngine().getGameplayRules()))
       ++getWorld().getPlayer().smallMedipacks;
   }
   else if(getWorld().getPresenter().getInputHandler().hasDebouncedAction(hid::Action::ConsumeLargeMedipack))
   {
-    if(getWorld().getPlayer().getInventory().tryUse(*this, TR1ItemId::LargeMedipack))
+    if(getWorld().getPlayer().getInventory().tryUse(
+         *this, TR1ItemId::LargeMedipack, getWorld().getEngine().getGameplayRules()))
       ++getWorld().getPlayer().largeMedipacks;
   }
 
@@ -2178,10 +2180,24 @@ void LaraObject::updateCheats()
     switch(getCurrentAnimState())
     {
     case LaraStateId::JumpForward:
+      if(getWorld().getEngine().getGameplayRules().noCheats)
+      {
+        playSoundEffect(TR1SoundEffect::LaraNo);
+        m_cheatIdx = WaitWalkFwd;
+        return;
+      }
+
       getWorld().getPlayer().usedCheats = true;
       getWorld().finishLevel();
       break;
     case LaraStateId::JumpLeft:
+      if(getWorld().getEngine().getGameplayRules().noCheats)
+      {
+        playSoundEffect(TR1SoundEffect::LaraNo);
+        m_cheatIdx = WaitWalkFwd;
+        return;
+      }
+
       getWorld().getPlayer().usedCheats = true;
 
       getWorld().getPlayer().getInventory().put(TR1ItemId::SmallMedipackSprite, &getWorld(), 5);
@@ -2190,6 +2206,13 @@ void LaraObject::updateCheats()
       playSoundEffect(TR1SoundEffect::LaraSigh);
       break;
     case LaraStateId::JumpRight:
+      if(getWorld().getEngine().getGameplayRules().noCheats)
+      {
+        playSoundEffect(TR1SoundEffect::LaraNo);
+        m_cheatIdx = WaitWalkFwd;
+        return;
+      }
+
       for(const auto& [objectId, object] : getWorld().getObjectManager().getObjects())
       {
         if(auto ai = gslu::dynamic_pointer_cast<objects::AIAgent>(object); ai != nullptr && ai->m_state.health > 0_hp)
@@ -2201,6 +2224,13 @@ void LaraObject::updateCheats()
       playSoundEffect(TR1SoundEffect::LaraShootShotgun);
       break;
     case LaraStateId::JumpBack:
+      if(getWorld().getEngine().getGameplayRules().noCheats)
+      {
+        playSoundEffect(TR1SoundEffect::LaraNo);
+        m_cheatIdx = WaitWalkFwd;
+        return;
+      }
+
       getWorld().getPlayer().usedCheats = true;
 
       getWorld().getPlayer().getInventory().put(TR1ItemId::PistolsSprite, &getWorld());
