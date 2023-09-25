@@ -2192,7 +2192,7 @@ void LaraObject::updateCheats()
     case LaraStateId::JumpRight:
       for(const auto& [objectId, object] : getWorld().getObjectManager().getObjects())
       {
-        if(auto ai = gslu::dynamic_pointer_cast<objects::AIAgent>(object); ai != nullptr && ai->m_state.health != 0_hp)
+        if(auto ai = gslu::dynamic_pointer_cast<objects::AIAgent>(object); ai != nullptr && ai->m_state.health > 0_hp)
         {
           ai->m_state.health = std::max(1_hp, ai->m_state.health / 2);
         }
