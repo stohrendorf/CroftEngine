@@ -3,6 +3,7 @@
 #include "closepassportmenustate.h"
 #include "core/i18n.h"
 #include "donemenustate.h"
+#include "gameplayrulesmenustate.h"
 #include "menudisplay.h"
 #include "menuring.h"
 #include "selectlevelmenustate.h"
@@ -12,7 +13,7 @@ namespace menu
 {
 NewGameMenuState::NewGameMenuState(const std::shared_ptr<MenuRingTransform>& ringTransform,
                                    std::unique_ptr<MenuState> previous)
-    : ListDisplayMenuState{ringTransform, /* translators: TR charmap encoding */ _("New Game"), 2}
+    : ListDisplayMenuState{ringTransform, /* translators: TR charmap encoding */ _("New Game"), 3}
     , m_previous{std::move(previous)}
 {
   auto appendLabel = [this](const std::string& title)
@@ -22,6 +23,7 @@ NewGameMenuState::NewGameMenuState(const std::shared_ptr<MenuRingTransform>& rin
 
   appendLabel(/* translators: TR charmap encoding */ _("New Game"));
   appendLabel(/* translators: TR charmap encoding */ _("Select Level"));
+  appendLabel(/* translators: TR charmap encoding */ _("Gameplay Rules"));
 }
 
 std::unique_ptr<MenuState> NewGameMenuState::onSelected(size_t idx, engine::world::World& world, MenuDisplay& display)
@@ -35,6 +37,9 @@ std::unique_ptr<MenuState> NewGameMenuState::onSelected(size_t idx, engine::worl
   case 1:
     // select level
     return create<SelectLevelMenuState>(std::move(display.m_currentState), world);
+  case 2:
+    // custom rules
+    return create<GameplayRulesMenuState>(std::move(display.m_currentState));
   default:
     BOOST_THROW_EXCEPTION(std::out_of_range("invalid menu selection"));
   }

@@ -645,6 +645,7 @@ set( CROFTENGINE_SRCS
         menu/deselectingmenustate.cpp
         menu/donemenustate.cpp
         menu/finishitemanimationmenustate.cpp
+        menu/gameplayrulesmenustate.cpp
         menu/idleringmenustate.cpp
         menu/inflateringmenustate.cpp
         menu/listdisplaymenustate.cpp
