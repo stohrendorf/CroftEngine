@@ -121,6 +121,7 @@ std::unique_ptr<MenuState>
     {(ui.getSize().x - m_container->getSize().x) / 2, ui.getSize().y - m_container->getSize().y - 90});
   m_container->update(true);
   m_container->draw(ui, world.getPresenter());
+  world.getEngine().setGameplayRules(m_rules);
 
   {
     const auto& description = m_descriptions.at(m_listBox->getSelectedIndex());

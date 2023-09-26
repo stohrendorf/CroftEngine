@@ -522,6 +522,7 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
           if(m_engineConfig->displaySettings.ghost && !ghostManager.askGhostSave(*m_presenter, world))
             return {RunResult::ExitApp, std::nullopt};
         }
+        m_gameplayRules = {};
         return {RunResult::TitleLevel, std::nullopt};
       case menu::MenuResult::ExitGame:
         if(allowSave)
