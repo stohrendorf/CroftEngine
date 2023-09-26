@@ -20,6 +20,7 @@ namespace ui::widgets
 {
 class TabBox;
 class TextBox;
+class CheckListBox;
 } // namespace ui::widgets
 
 namespace engine
@@ -36,8 +37,7 @@ class MenuState;
 class RenderSettingsMenuState : public SelectedMenuState
 {
 private:
-  class CheckListBox;
-  std::vector<std::shared_ptr<CheckListBox>> m_listBoxes{};
+  std::vector<std::shared_ptr<ui::widgets::CheckListBox>> m_listBoxes{};
   std::vector<std::vector<std::shared_ptr<ui::widgets::TextBox>>> m_descriptions{};
   std::unique_ptr<MenuState> m_previous;
   gslu::nn_unique<ui::widgets::TabBox> m_tabs;

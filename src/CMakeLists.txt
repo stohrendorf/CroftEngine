@@ -591,6 +591,7 @@ set( CROFTENGINE_SRCS
         ui/ui.cpp
 
         ui/widgets/checkbox.cpp
+        ui/widgets/checklistbox.cpp
         ui/widgets/gridbox.cpp
         ui/widgets/groupbox.cpp
         ui/widgets/label.cpp

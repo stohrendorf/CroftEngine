@@ -14,6 +14,7 @@
 #include "selectedmenustate.h"
 #include "ui/ui.h"
 #include "ui/widgets/checkbox.h"
+#include "ui/widgets/checklistbox.h"
 #include "ui/widgets/label.h"
 #include "ui/widgets/listbox.h"
 #include "ui/widgets/tabbox.h"
@@ -42,104 +43,6 @@ namespace menu
 {
 constexpr int MaxDescriptionWidth = 500;
 
-class RenderSettingsMenuState::CheckListBox : public ui::widgets::Widget
-{
-private:
-  gslu::nn_shared<ui::widgets::ListBox> m_listBox;
-  std::vector<std::tuple<std::function<bool()>, std::function<void()>, std::shared_ptr<ui::widgets::Checkbox>>>
-    m_checkboxes;
-
-public:
-  explicit CheckListBox()
-      : m_listBox{std::make_shared<ui::widgets::ListBox>()}
-  {
-  }
-
-  [[nodiscard]] glm::ivec2 getPosition() const override
-  {
-    return m_listBox->getPosition();
-  }
-
-  [[nodiscard]] glm::ivec2 getSize() const override
-  {
-    return m_listBox->getSize();
-  }
-  void setPosition(const glm::ivec2& position) override
-  {
-    m_listBox->setPosition(position);
-  }
-
-  void setSize(const glm::ivec2& size) override
-  {
-    m_listBox->setSize(size);
-  }
-
-  void update(bool hasFocus) override
-  {
-    m_listBox->update(hasFocus);
-  }
-
-  void fitToContent() override
-  {
-    for(const auto& [getter, toggler, checkbox] : m_checkboxes)
-      checkbox->fitToContent();
-
-    m_listBox->fitToContent();
-  }
-
-  void draw(ui::Ui& ui, const engine::Presenter& presenter) const override
-  {
-    m_listBox->draw(ui, presenter);
-  }
-
-  auto addSetting(const gslu::nn_shared<ui::widgets::Widget>& content,
-                  std::function<bool()>&& getter,
-                  std::function<void()>&& toggler)
-  {
-    auto checkbox = gsl::make_shared<ui::widgets::Checkbox>(content);
-    checkbox->setChecked(getter());
-    checkbox->fitToContent();
-    m_listBox->append(checkbox);
-    m_checkboxes.emplace_back(std::move(getter), std::move(toggler), checkbox);
-    return checkbox;
-  }
-
-  auto addSetting(const std::string& label, std::function<bool()>&& getter, std::function<void()>&& toggler)
-  {
-    return addSetting(gsl::make_shared<ui::widgets::Label>(label), std::move(getter), std::move(toggler));
-  }
-
-  [[nodiscard]] const auto& getSelected() const
-  {
-    return m_checkboxes.at(m_listBox->getSelected());
-  }
-
-  [[nodiscard]] auto getSelectedIndex() const
-  {
-    return m_listBox->getSelected();
-  }
-
-  [[nodiscard]] size_t getEntryCount() const
-  {
-    return m_listBox->getWidgets().size();
-  }
-
-  void setSelectedEntry(size_t selected)
-  {
-    m_listBox->setSelected(selected);
-  }
-
-  bool nextEntry()
-  {
-    return m_listBox->nextEntry();
-  }
-
-  bool prevEntry()
-  {
-    return m_listBox->prevEntry();
-  }
-};
-
 RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingTransform>& ringTransform,
                                                  std::unique_ptr<MenuState> previous,
                                                  engine::Engine& engine)
@@ -156,7 +59,7 @@ RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingT
 
   auto tab = gsl::make_shared<ui::widgets::Tab>(/* translators: TR charmap encoding */ _("Effects"));
 
-  auto listBox = gsl::make_shared<CheckListBox>();
+  auto listBox = gsl::make_shared<ui::widgets::CheckListBox>();
   m_listBoxes.emplace_back(listBox);
   m_tabs->addTab(tab, listBox);
   m_descriptions.emplace_back();
@@ -399,7 +302,7 @@ RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingT
       MaxDescriptionWidth));
   }
 
-  listBox = gsl::make_shared<CheckListBox>();
+  listBox = gsl::make_shared<ui::widgets::CheckListBox>();
   m_listBoxes.emplace_back(listBox);
   tab = gsl::make_shared<ui::widgets::Tab>(/* translators: TR charmap encoding */ _("Quality"));
   m_descriptions.emplace_back();
@@ -620,7 +523,7 @@ RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingT
   m_descriptions.back().emplace_back(std::make_shared<ui::widgets::TextBox>(
     /* translators: TR charmap encoding */ _("Smoothes out some choppy model animations."), MaxDescriptionWidth));
 
-  listBox = gsl::make_shared<CheckListBox>();
+  listBox = gsl::make_shared<ui::widgets::CheckListBox>();
   m_listBoxes.emplace_back(listBox);
   tab = gsl::make_shared<ui::widgets::Tab>(/* translators: TR charmap encoding */ _("Other"));
   m_tabs->addTab(tab, listBox);
