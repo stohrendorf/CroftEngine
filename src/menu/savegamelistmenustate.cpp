@@ -284,7 +284,7 @@ std::unique_ptr<MenuState>
   if(m_loading && world.getEngine().getGameplayRules().noMeds)
   {
     world.getObjectManager().getLara().playSoundEffect(engine::TR1SoundEffect::LaraNo);
-    return false;
+    return nullptr;
   }
 
   const auto slot = m_entries.at(selectedIdx)->getSlot();
