@@ -46,7 +46,8 @@ private:
 
 public:
   explicit GameplayRulesMenuState(const std::shared_ptr<MenuRingTransform>& ringTransform,
-                                  std::unique_ptr<MenuState> previous);
+                                  std::unique_ptr<MenuState> previous,
+                                  const engine::GameplayRules& rules);
 
   std::unique_ptr<MenuState> onFrame(ui::Ui& ui, engine::world::World& world, MenuDisplay& display) override;
   ~GameplayRulesMenuState() override;

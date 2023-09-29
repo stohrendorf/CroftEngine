@@ -3,6 +3,8 @@
 #include "closepassportmenustate.h"
 #include "core/i18n.h"
 #include "donemenustate.h"
+#include "engine/engine.h"
+#include "engine/world/world.h"
 #include "gameplayrulesmenustate.h"
 #include "menudisplay.h"
 #include "menuring.h"
@@ -39,7 +41,7 @@ std::unique_ptr<MenuState> NewGameMenuState::onSelected(size_t idx, engine::worl
     return create<SelectLevelMenuState>(std::move(display.m_currentState), world);
   case 2:
     // custom rules
-    return create<GameplayRulesMenuState>(std::move(display.m_currentState));
+    return create<GameplayRulesMenuState>(std::move(display.m_currentState), world.getEngine().getGameplayRules());
   default:
     BOOST_THROW_EXCEPTION(std::out_of_range("invalid menu selection"));
   }

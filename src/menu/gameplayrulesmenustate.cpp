@@ -43,9 +43,11 @@ namespace menu
 constexpr int MaxDescriptionWidth = 500;
 
 GameplayRulesMenuState::GameplayRulesMenuState(const std::shared_ptr<MenuRingTransform>& ringTransform,
-                                               std::unique_ptr<MenuState> previous)
+                                               std::unique_ptr<MenuState> previous,
+                                               const engine::GameplayRules& rules)
     : SelectedMenuState{ringTransform}
     , m_previous{std::move(previous)}
+    , m_rules{rules}
 
 {
   auto listBox = gsl::make_shared<ui::widgets::CheckListBox>();
