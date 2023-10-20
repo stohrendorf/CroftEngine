@@ -190,7 +190,8 @@ MainWindow::MainWindow(QWidget* parent)
   }
 
 #ifdef CE_GITHUB_API_KEY
-  if(settings.value(LastUpdateCheck, QDate::currentDate().addDays(-999)).toDate() >= QDate::currentDate().addDays(-7))
+  if(const auto value = settings.value(LastUpdateCheck);
+     value.isValid() && value.toDate() >= QDate::currentDate().addDays(-7))
   {
     BOOST_LOG_TRIVIAL(info) << "Not checking for updates, last check was less than a week ago";
   }
