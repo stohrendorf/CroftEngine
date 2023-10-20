@@ -53,6 +53,7 @@ private:
                bool overwriteExisting);
 
   void setGlidosPath(const std::optional<std::string>& path);
+  void updateUpdateBar();
 
   QStandardItemModel m_languages{};
   QStandardItemModel m_gameflows{};

@@ -49,6 +49,7 @@ namespace
 const char* const LanguageConfigKey = "launcher-language";
 const char* const GameflowConfigKey = "launcher-gameflow";
 const char* const LastUpdateCheck = "launcher-updatecheck";
+const char* const LastCheckedVersion = "launcher-updateversion";
 const int IdRole = Qt::UserRole + 1;
 const int AuthorRole = Qt::UserRole + 2;
 const int UrlsRole = Qt::UserRole + 3;
@@ -109,7 +110,7 @@ MainWindow::MainWindow(QWidget* parent)
 {
   ui->setupUi(this);
 
-  ui->lblUpdateNotification->hide();
+  updateUpdateBar();
 
   connect(ui->validateConnection, &QPushButton::clicked, this, &MainWindow::onTestConnectionClicked);
 
@@ -1150,13 +1151,28 @@ void MainWindow::downloadedReleasesJson(QNetworkReply* reply)
     if(tag == std::string{"v"} + CE_VERSION)
       break;
 
-    ui->lblUpdateNotification->show();
-    ui->lblUpdateNotification->setText(
-      tr("New version available: <a href=\"https://github.com/stohrendorf/CroftEngine/releases/tag/%1\">%1</a> (you "
-         "are running version <a href=\"https://github.com/stohrendorf/CroftEngine/releases/tag/v%2\">v%2</a>)")
-        .arg(tag.c_str())
-        .arg(CE_VERSION));
+    QSettings settings;
+    settings.setValue(LastCheckedVersion, tag.c_str());
+    updateUpdateBar();
     break;
   }
+}
+
+void MainWindow::updateUpdateBar()
+{
+  QSettings settings;
+  auto version = settings.value(LastCheckedVersion);
+  if(!version.isValid() || version.toString() == "v" CE_VERSION)
+  {
+    ui->lblUpdateNotification->hide();
+    BOOST_LOG_TRIVIAL(info) << "No update check done yet, or no update available";
+    return;
+  }
+
+  ui->lblUpdateNotification->show();
+  ui->lblUpdateNotification->setText(
+    tr("New version available: <a href=\"https://github.com/stohrendorf/CroftEngine/releases/tag/%1\">%1</a> (you "
+       "are running version <a href=\"https://github.com/stohrendorf/CroftEngine/releases/tag/v%2\">v%2</a>)")
+      .arg(version.toString(), CE_VERSION));
 }
 } // namespace launcher
