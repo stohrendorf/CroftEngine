@@ -96,6 +96,7 @@ struct ObjectFactory
 };
 
 /* NOLINTNEXTLINE(altera-struct-pack-align) */
+template<TR1ItemId ItemId>
 struct UnsupportedObjectFactory : public ObjectFactory
 {
   ~UnsupportedObjectFactory() override = default;
@@ -105,7 +106,7 @@ struct UnsupportedObjectFactory : public ObjectFactory
   {
     BOOST_LOG_TRIVIAL(fatal) << "Object type " << toString(item.type.get_as<engine::TR1ItemId>())
                              << " is not supported";
-    BOOST_THROW_EXCEPTION(std::runtime_error("unsupported object type"));
+    BOOST_THROW_EXCEPTION(std::runtime_error(std::string{"unsupported object type "} + toString(ItemId)));
   }
 
   [[nodiscard]] [[noreturn]] gslu::nn_shared<Object>
@@ -113,7 +114,7 @@ struct UnsupportedObjectFactory : public ObjectFactory
                    const serialization::Deserializer<world::World>& /*ser*/) const override
   {
     BOOST_LOG_TRIVIAL(fatal) << "Object type is not supported";
-    BOOST_THROW_EXCEPTION(std::runtime_error("unsupported object type"));
+    BOOST_THROW_EXCEPTION(std::runtime_error(std::string{"unsupported object type "} + toString(ItemId)));
   }
 };
 
@@ -183,9 +184,9 @@ struct SpriteFactory : public ObjectFactory
     TR1ItemId::_PAREN_WRAPPER(ENUM), std::make_shared<SpriteFactory<_PAREN_WRAPPER(CLASS)>>() \
   }
 
-#define UNSUPPORTED_FACTORY(ENUM)                                                 \
-  {                                                                               \
-    TR1ItemId::_PAREN_WRAPPER(ENUM), std::make_shared<UnsupportedObjectFactory>() \
+#define UNSUPPORTED_FACTORY(ENUM)                                                                                  \
+  {                                                                                                                \
+    TR1ItemId::_PAREN_WRAPPER(ENUM), std::make_shared<UnsupportedObjectFactory<TR1ItemId::_PAREN_WRAPPER(ENUM)>>() \
   }
 
 /* NOLINTNEXTLINE(altera-struct-pack-align) */
@@ -363,6 +364,7 @@ const auto& getFactories()
     UNSUPPORTED_FACTORY(DinoWarrior),
     UNSUPPORTED_FACTORY(Fish),
     UNSUPPORTED_FACTORY(Skateboard),
+    {TR1ItemId::Flashlight, std::make_unique<HiddenModelFactory>()},
   };
   return factories;
 }
