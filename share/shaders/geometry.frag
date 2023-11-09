@@ -71,6 +71,7 @@ void main()
     vec4 finalColor = gpi.color;
     finalColor.rgb *= texel_shade(-gpi.vertexPos.z);
     if (gpi.texCoord.z >= 0) {
+        // in this case, we have a texture, and aren't colored solid
         vec2 uv;
         if (gpi.isQuad == 0) {
             uv = gpi.texCoord.xy;
