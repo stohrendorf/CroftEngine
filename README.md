@@ -1,6 +1,6 @@
 # ![CroftEngine logo](./share/logo_32.png) CroftEngine
 
-# [Troubleshooting FAQ](https://github.com/stohrendorf/CroftEngine/wiki/FAQ)
+# [Installation Guide](https://github.com/stohrendorf/CroftEngine/wiki/Installation-Guide) and [Troubleshooting FAQ](https://github.com/stohrendorf/CroftEngine/wiki/FAQ)
 
 If you don't find an answer for your issue, please open an issue or discussion on GitHub, or join
 [the Discord](https://discord.gg/FRAVaBZbY5). No matter where you post your issue, it will be handled.
