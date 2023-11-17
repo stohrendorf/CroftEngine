@@ -865,6 +865,10 @@ void MainWindow::resetConfig()
 {
   const auto configPath = findUserDataDir().value() / "config.yaml";
   QFile::remove(configPath.string().c_str());
+  QMessageBox::information(this,
+                           tr("Clear Config"),
+                           tr("The configuration is cleared. If you still have problems, make sure you have imported "
+                              "the game data and that you're not running on an Intel GPU."));
 }
 
 void MainWindow::onSelectGlidosClicked()
