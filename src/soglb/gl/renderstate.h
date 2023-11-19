@@ -133,8 +133,10 @@ public:
     m_polygonOffset = {factor, units};
   }
 
+  static void reset();
+
 private:
-  void apply(bool force = false) const;
+  void apply() const;
 
   // States
   std::optional<glm::ivec2> m_viewport{};

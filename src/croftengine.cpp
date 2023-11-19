@@ -132,58 +132,9 @@ void dumpCpuInfo()
 
   BOOST_LOG_TRIVIAL(info) << "CPU features: " << flags.str();
 }
-} // namespace
 
-// NOLINTNEXTLINE(bugprone-exception-escape)
-int main(int argc, char** argv)
+void runGame(const std::string& localeOverride, const std::string& gameflowId)
 {
-  const bool crashReportInitSuccess = initCrashReporting();
-  boost::log::add_common_attributes();
-#ifndef NDEBUG
-  initConsole(boost::log::trivial::trace);
-#endif
-
-  bool fileLogAdded = false;
-  if(const auto userDataDir = findUserDataDir(); userDataDir.has_value())
-  {
-    initFileLogging(*userDataDir);
-    fileLogAdded = true;
-  }
-  else
-  {
-#ifdef NDEBUG
-    initConsole(boost::log::trivial::info);
-#endif
-    BOOST_LOG_TRIVIAL(warning) << "Could not determine the user data dir";
-  }
-
-  if(!crashReportInitSuccess)
-  {
-    BOOST_LOG_TRIVIAL(warning) << "Crash report initialization failed (nowhere to write dumps)";
-  }
-
-  std::string localeOverride;
-  std::string gameflowId;
-  {
-    const auto launcherResult = launcher::showLauncher(argc, argv);
-    if(!launcherResult.has_value())
-    {
-      return EXIT_SUCCESS;
-    }
-
-    localeOverride = std::get<0>(*launcherResult);
-    gameflowId = std::get<1>(*launcherResult);
-  }
-
-  if(!fileLogAdded)
-  {
-    initFileLogging(findUserDataDir().value());
-  }
-
-  BOOST_LOG_TRIVIAL(info) << "Running CroftEngine " << CE_VERSION;
-
-  dumpCpuInfo();
-
   engine::Engine engine{findUserDataDir().value(), findEngineDataDir().value(), localeOverride, gameflowId};
   size_t levelSequenceIndex = 0;
   enum class Mode
@@ -269,15 +220,15 @@ int main(int argc, char** argv)
     switch(mode)
     {
     case Mode::Boot:
-      if(runResult.first == engine::RunResult::ExitApp)
-        return EXIT_SUCCESS;
+      if(runResult.first == engine::RunResult::ExitGame)
+        return;
       mode = Mode::Title;
       break;
     case Mode::Title:
       switch(runResult.first)
       {
-      case engine::RunResult::ExitApp:
-        return EXIT_SUCCESS;
+      case engine::RunResult::ExitGame:
+        return;
       case engine::RunResult::NextLevel:
         levelSequenceIndex = 0;
         mode = Mode::Game;
@@ -322,8 +273,8 @@ int main(int argc, char** argv)
     case Mode::Gym:
       switch(runResult.first)
       {
-      case engine::RunResult::ExitApp:
-        return EXIT_SUCCESS;
+      case engine::RunResult::ExitGame:
+        return;
       case engine::RunResult::NextLevel:
         mode = Mode::Title;
         break;
@@ -345,8 +296,8 @@ int main(int argc, char** argv)
     case Mode::Game:
       switch(runResult.first)
       {
-      case engine::RunResult::ExitApp:
-        return EXIT_SUCCESS;
+      case engine::RunResult::ExitGame:
+        return;
       case engine::RunResult::NextLevel:
         ++levelSequenceIndex;
         if(levelSequenceIndex >= gameflow.getLevelSequence().size())
@@ -378,5 +329,62 @@ int main(int argc, char** argv)
       }
       break;
     }
+  }
+}
+} // namespace
+
+// NOLINTNEXTLINE(bugprone-exception-escape)
+int main(int argc, char** argv)
+{
+  const bool crashReportInitSuccess = initCrashReporting();
+  boost::log::add_common_attributes();
+#ifndef NDEBUG
+  initConsole(boost::log::trivial::trace);
+#endif
+
+  bool fileLogAdded = false;
+  if(const auto userDataDir = findUserDataDir(); userDataDir.has_value())
+  {
+    initFileLogging(*userDataDir);
+    fileLogAdded = true;
+  }
+  else
+  {
+#ifdef NDEBUG
+    initConsole(boost::log::trivial::info);
+#endif
+    BOOST_LOG_TRIVIAL(warning) << "Could not determine the user data dir";
+  }
+
+  if(!crashReportInitSuccess)
+  {
+    BOOST_LOG_TRIVIAL(warning) << "Crash report initialization failed (nowhere to write dumps)";
+  }
+
+  while(true)
+  {
+    std::string localeOverride;
+    std::string gameflowId;
+    {
+      const auto launcherResult = launcher::showLauncher(argc, argv);
+      if(!launcherResult.has_value())
+      {
+        return EXIT_SUCCESS;
+      }
+
+      localeOverride = std::get<0>(*launcherResult);
+      gameflowId = std::get<1>(*launcherResult);
+    }
+
+    if(!fileLogAdded)
+    {
+      initFileLogging(findUserDataDir().value());
+    }
+
+    BOOST_LOG_TRIVIAL(info) << "Running CroftEngine " << CE_VERSION;
+
+    dumpCpuInfo();
+
+    runGame(localeOverride, gameflowId);
   }
 }

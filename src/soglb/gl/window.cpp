@@ -38,11 +38,8 @@ void windowFocusCallback(GLFWwindow* window, int focused)
   const std::lock_guard guard{focusStatesMutex};
   getFocusStates()[window] = focused == GLFW_TRUE;
 }
-} // namespace
 
-Window::Window(const std::vector<std::filesystem::path>& logoPaths, const glm::ivec2& windowSize)
-    : m_windowPos{0, 0}
-    , m_windowSize{windowSize}
+void initGlfw()
 {
   glfwSetErrorCallback(&glErrorCallback);
 
@@ -51,8 +48,20 @@ Window::Window(const std::vector<std::filesystem::path>& logoPaths, const glm::i
     BOOST_LOG_TRIVIAL(fatal) << "Failed to initialize GLFW";
     BOOST_THROW_EXCEPTION(std::runtime_error("Failed to initialize GLFW"));
   }
+}
 
-  atexit(&glfwTerminate);
+void terminateGlfw()
+{
+  glfwSetErrorCallback(nullptr);
+  glfwTerminate();
+}
+} // namespace
+
+Window::Window(const std::vector<std::filesystem::path>& logoPaths, const glm::ivec2& windowSize)
+    : m_windowPos{0, 0}
+    , m_windowSize{windowSize}
+{
+  initGlfw();
 
   glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_TRUE);
   glfwWindowHint(GLFW_DEPTH_BITS, 32);
@@ -199,7 +208,10 @@ void Window::setWindowed()
 
 Window::~Window()
 {
+  glfwSetWindowFocusCallback(m_window, nullptr);
   glfwDestroyWindow(m_window);
+
+  terminateGlfw();
 
   const std::lock_guard guard{focusStatesMutex};
   getFocusStates().erase(m_window);

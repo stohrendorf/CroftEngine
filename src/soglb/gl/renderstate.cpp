@@ -10,13 +10,14 @@
 namespace gl
 {
 // NOLINTNEXTLINE(misc-no-recursion)
-inline RenderState& getCurrentState()
+inline RenderState& getCurrentState(bool reset = false)
 {
   static RenderState currentState{};
   static bool initialized = false;
 
-  if(!initialized)
+  if(!initialized || reset)
   {
+    currentState = RenderState{};
     auto oldWanted = RenderState::getWantedState();
     RenderState::resetWantedState();
     initialized = true;
@@ -27,13 +28,13 @@ inline RenderState& getCurrentState()
 }
 
 // NOLINTNEXTLINE(misc-no-recursion)
-void RenderState::apply(const bool force) const
+void RenderState::apply() const
 {
   // Update any state if...
   //   - it is forced
   //   - or it is explicitly set and different than the current state
   // NOLINTNEXTLINE(bugprone-macro-parentheses)
-#define RS_CHANGED(m) (force || (m.has_value() && m != getCurrentState().m))
+#define RS_CHANGED(m) (m.has_value() && m != getCurrentState().m)
   bool updateScissorRegion = false;
   if(RS_CHANGED(m_viewport))
   {
@@ -263,5 +264,11 @@ RenderState RenderState::getDefaults()
     defaults.setPolygonOffset(0, 0);
   }
   return defaults;
+}
+
+void RenderState::reset()
+{
+  resetWantedState();
+  getCurrentState(true);
 }
 } // namespace gl

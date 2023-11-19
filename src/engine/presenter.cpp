@@ -384,6 +384,8 @@ Presenter::Presenter(const std::filesystem::path& engineDataPath,
     , m_renderPipeline{std::make_unique<render::RenderPipeline>(
         *m_materialManager, getRenderViewport(), getUiViewport(), getDisplayViewport())}
 {
+  gl::RenderState::reset();
+
   m_materialManager->setCSM(gsl::not_null{m_csm});
   scaleSplashImage();
   drawLoadingScreen(_("Booting"));

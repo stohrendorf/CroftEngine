@@ -110,16 +110,25 @@ void joystickCallback(int jid, int event)
   }
 }
 
-void installHandlers(GLFWwindow* window)
+void installJoystickHandler()
 {
   static bool installed = false;
 
   if(installed)
     return;
 
-  glfwSetKeyCallback(window, &keyCallback);
   glfwSetJoystickCallback(joystickCallback);
   installed = true;
+}
+
+void installKeyHandler(GLFWwindow* window)
+{
+  glfwSetKeyCallback(window, &keyCallback);
+}
+
+void uninstallKeyHandler(GLFWwindow* window)
+{
+  glfwSetKeyCallback(window, nullptr);
 }
 
 bool isKeyPressed(GlfwKey key)
@@ -139,7 +148,8 @@ InputHandler::InputHandler(gslu::nn_shared<gl::Window> window, const std::filesy
 
   gsl_Assert(glfwUpdateGamepadMappings(gameControllerDbData.c_str()) == GLFW_TRUE);
 
-  installHandlers(m_window->getWindow());
+  installJoystickHandler();
+  installKeyHandler(m_window->getWindow());
 
   for(auto jid = GLFW_JOYSTICK_1; jid <= GLFW_JOYSTICK_LAST; ++jid)
   {
@@ -159,6 +169,11 @@ InputHandler::InputHandler(gslu::nn_shared<gl::Window> window, const std::filesy
     const std::lock_guard lock{glfwStateMutex};
     connectedGamepads.emplace(jid);
   }
+}
+
+InputHandler::~InputHandler()
+{
+  uninstallKeyHandler(m_window->getWindow());
 }
 
 void InputHandler::update()

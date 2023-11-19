@@ -44,7 +44,7 @@ enum class RunResult
   NextLevel,
   TitleLevel,
   LaraHomeLevel,
-  ExitApp,
+  ExitGame,
   RequestLoad,
   RequestLevel,
   RestartLevel

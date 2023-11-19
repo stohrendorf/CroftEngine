@@ -24,6 +24,7 @@ class InputHandler final
 {
 public:
   explicit InputHandler(gslu::nn_shared<gl::Window> window, const std::filesystem::path& gameControllerDb);
+  ~InputHandler();
   void setMappings(const std::vector<engine::NamedInputMappingConfig>& inputMappings);
 
   void update();

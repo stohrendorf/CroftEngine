@@ -452,7 +452,7 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
 
     if(m_presenter->shouldClose())
     {
-      return {RunResult::ExitApp, std::nullopt};
+      return {RunResult::ExitGame, std::nullopt};
     }
 
     if(world.levelFinished())
@@ -460,10 +460,10 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
       if(!isCutscene && allowSave)
       {
         if(!showLevelStats(m_presenter, world, m_userDataPath))
-          return {RunResult::ExitApp, std::nullopt};
+          return {RunResult::ExitGame, std::nullopt};
 
         if(m_engineConfig->displaySettings.ghost && !ghostManager.askGhostSave(*m_presenter, world))
-          return {RunResult::ExitApp, std::nullopt};
+          return {RunResult::ExitGame, std::nullopt};
       }
 
       return {RunResult::NextLevel, std::nullopt};
@@ -520,7 +520,7 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
         if(allowSave)
         {
           if(m_engineConfig->displaySettings.ghost && !ghostManager.askGhostSave(*m_presenter, world))
-            return {RunResult::ExitApp, std::nullopt};
+            return {RunResult::ExitGame, std::nullopt};
         }
         m_gameplayRules = {};
         return {RunResult::TitleLevel, std::nullopt};
@@ -528,14 +528,14 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
         if(allowSave)
         {
           if(m_engineConfig->displaySettings.ghost && !ghostManager.askGhostSave(*m_presenter, world))
-            return {RunResult::ExitApp, std::nullopt};
+            return {RunResult::ExitGame, std::nullopt};
         }
-        return {RunResult::ExitApp, std::nullopt};
+        return {RunResult::ExitGame, std::nullopt};
       case menu::MenuResult::NewGame:
         if(allowSave)
         {
           if(m_engineConfig->displaySettings.ghost && !ghostManager.askGhostSave(*m_presenter, world))
-            return {RunResult::ExitApp, std::nullopt};
+            return {RunResult::ExitGame, std::nullopt};
         }
         return {RunResult::NextLevel, std::nullopt};
       case menu::MenuResult::RestartLevel:
@@ -548,7 +548,7 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
           if(allowSave)
           {
             if(m_engineConfig->displaySettings.ghost && !ghostManager.askGhostSave(*m_presenter, world))
-              return {RunResult::ExitApp, std::nullopt};
+              return {RunResult::ExitGame, std::nullopt};
           }
           return {RunResult::RequestLoad, menu->requestLoad};
         }
@@ -743,7 +743,7 @@ std::pair<RunResult, std::optional<size_t>> Engine::runTitleMenu(world::World& w
   {
     if(m_presenter->shouldClose())
     {
-      return {RunResult::ExitApp, std::nullopt};
+      return {RunResult::ExitGame, std::nullopt};
     }
 
     throttler.wait();
@@ -807,11 +807,11 @@ std::pair<RunResult, std::optional<size_t>> Engine::runTitleMenu(world::World& w
     case menu::MenuResult::None:
       break;
     case menu::MenuResult::Closed:
-      return {RunResult::ExitApp, std::nullopt};
+      return {RunResult::ExitGame, std::nullopt};
     case menu::MenuResult::ExitToTitle:
       return {RunResult::TitleLevel, std::nullopt};
     case menu::MenuResult::ExitGame:
-      return {RunResult::ExitApp, std::nullopt};
+      return {RunResult::ExitGame, std::nullopt};
     case menu::MenuResult::NewGame:
       return {RunResult::NextLevel, std::nullopt};
     case menu::MenuResult::LaraHome:
