@@ -71,6 +71,6 @@ struct EngineConfig
   void serialize(const serialization::Serializer<EngineConfig>& ser) const;
   void deserialize(const serialization::Deserializer<EngineConfig>& ser);
 
-  void resetInputMappings();
+  void resetInputMappings(bool modern);
 };
 } // namespace engine

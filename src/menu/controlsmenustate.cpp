@@ -171,7 +171,8 @@ ControlsMenuState::ControlsMenuState(const std::shared_ptr<MenuRingTransform>& r
     , m_editing{world.getPresenter().getInputHandler().getMappings()}
     , m_layout{std::make_shared<ui::widgets::GridBox>()}
     , m_controls{std::make_shared<ControlsWidget>(m_editing.at(0))}
-    , m_resetKey{hid::GlfwKey::Backspace, 5}
+    , m_resetModernKey{hid::GlfwKey::Backspace, 5}
+    , m_resetClassicKey{hid::GlfwKey::C, 5}
     , m_deleteKey{hid::GlfwKey::Delete, 2}
     , m_confirm{std::make_shared<ui::widgets::SelectionBox>(
         /* translators: TR charmap encoding */ _("Apply changes?"),
@@ -185,7 +186,7 @@ ControlsMenuState::ControlsMenuState(const std::shared_ptr<MenuRingTransform>& r
 {
   m_controls->updateBindings(m_editing.at(0), getButtonFactory(world, m_editing.at(0).controllerType));
 
-  m_layout->setExtents(1, 6);
+  m_layout->setExtents(1, 7);
 
   m_layout->set(0, 0, m_controls);
   m_layout->set(0,
@@ -211,9 +212,15 @@ ControlsMenuState::ControlsMenuState(const std::shared_ptr<MenuRingTransform>& r
   m_layout->set(0,
                 5,
                 std::make_shared<ui::widgets::Label>(
-                  /* translators: TR charmap encoding */ _("Reset All Mappings: Hold %1% for %2% seconds",
-                                                           hid::getName(m_resetKey.getKey()),
-                                                           m_resetKey.getDelay().count())));
+                  /* translators: TR charmap encoding */ _("Reset All Mappings to Modern: Hold %1% for %2% seconds",
+                                                           hid::getName(m_resetModernKey.getKey()),
+                                                           m_resetModernKey.getDelay().count())));
+  m_layout->set(0,
+                6,
+                std::make_shared<ui::widgets::Label>(
+                  /* translators: TR charmap encoding */ _("Reset All Mappings to Classic: Hold %1% for %2% seconds",
+                                                           hid::getName(m_resetClassicKey.getKey()),
+                                                           m_resetClassicKey.getDelay().count())));
   m_confirm->fitToContent();
   m_error->fitToContent();
 }
@@ -315,9 +322,19 @@ std::unique_ptr<MenuState> ControlsMenuState::onFrame(ui::Ui& ui, engine::world:
 
 void ControlsMenuState::handleDisplayInput(engine::world::World& world)
 {
-  if(m_resetKey.update(world.getPresenter().getInputHandler()))
+  if(m_resetModernKey.update(world.getPresenter().getInputHandler()))
   {
-    world.getEngine().getEngineConfig()->resetInputMappings();
+    world.getEngine().getEngineConfig()->resetInputMappings(true);
+    m_editingIndex = 0;
+    m_editing = world.getEngine().getEngineConfig()->inputMappings;
+    world.getEngine().getPresenter().getInputHandler().setMappings(m_editing);
+    auto& editing = m_editing.at(m_editingIndex);
+    m_controls->updateBindings(editing, getButtonFactory(world, editing.controllerType));
+  }
+
+  if(m_resetClassicKey.update(world.getPresenter().getInputHandler()))
+  {
+    world.getEngine().getEngineConfig()->resetInputMappings(false);
     m_editingIndex = 0;
     m_editing = world.getEngine().getEngineConfig()->inputMappings;
     world.getEngine().getPresenter().getInputHandler().setMappings(m_editing);

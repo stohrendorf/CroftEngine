@@ -50,7 +50,8 @@ private:
   std::shared_ptr<ui::widgets::GridBox> m_layout{};
   std::shared_ptr<ControlsWidget> m_controls{};
 
-  hid::DelayedKey m_resetKey;
+  hid::DelayedKey m_resetModernKey;
+  hid::DelayedKey m_resetClassicKey;
   hid::DelayedKey m_deleteKey;
 
   std::shared_ptr<ui::widgets::SelectionBox> m_confirm{};

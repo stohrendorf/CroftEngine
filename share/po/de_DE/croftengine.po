@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CroftEngine\n"
 "Report-Msgid-Bugs-To: https://github.com/stohrendorf/CroftEngine/issues\n"
-"POT-Creation-Date: 2023-11-19 06:26+0100\n"
+"POT-Creation-Date: 2023-11-19 06:55+0100\n"
 "Last-Translator: Steffen Ohrendorf\n"
 "Language-Team: none\n"
 "Language: de_DE\n"
@@ -237,7 +237,7 @@ msgid "Alt"
 msgstr "Alt"
 
 #. translators: TR charmap encoding
-#: menu/controlsmenustate.cpp:177
+#: menu/controlsmenustate.cpp:178
 msgid "Apply changes?"
 msgstr "Zuordnung anwenden?"
 
@@ -355,7 +355,7 @@ msgid "CapsLk"
 msgstr "Feststelltaste"
 
 #. translators: TR charmap encoding
-#: menu/controlsmenustate.cpp:204
+#: menu/controlsmenustate.cpp:205
 #, boost-format
 msgid "Change Button Images: %1%"
 msgstr "Tastenbilder ~andern: %1%"
@@ -576,7 +576,7 @@ msgid "Disables all cheats."
 msgstr "Deaktiviert alle Cheats."
 
 #. translators: TR charmap encoding
-#: menu/controlsmenustate.cpp:184
+#: menu/controlsmenustate.cpp:185
 msgid "Discard changes"
 msgstr "Anpassungen verwerfen"
 
@@ -640,7 +640,7 @@ msgid "Edge Outlines"
 msgstr "Kantenumrisse"
 
 #. translators: TR charmap encoding
-#: menu/controlsmenustate.cpp:199
+#: menu/controlsmenustate.cpp:200
 #, boost-format
 msgid "Edit Mapping: %1%"
 msgstr "Zuordnung bearbeiten: %1%"
@@ -703,7 +703,7 @@ msgid "End"
 msgstr "Ende"
 
 #. translators: TR charmap encoding
-#: menu/controlsmenustate.cpp:182
+#: menu/controlsmenustate.cpp:183
 msgid "Ensure your menu mapping is fully configured."
 msgstr "Stelle sicher, dass die Men~u-Zuordnung vollst~andig konfiguriert ist."
 
@@ -783,7 +783,7 @@ msgstr "Ende des Spiels"
 msgid "Game"
 msgstr "Spiel"
 
-#: engine/engineconfig.cpp:74
+#: engine/engineconfig.cpp:74 engine/engineconfig.cpp:151
 msgctxt "Input|MappingName"
 msgid "Gamepad"
 msgstr "Gamepad"
@@ -941,7 +941,7 @@ msgstr "K"
 msgid "KILLS %1%"
 msgstr "Besiegte Gegner %1%"
 
-#: engine/engineconfig.cpp:33
+#: engine/engineconfig.cpp:33 engine/engineconfig.cpp:110
 msgctxt "Input|MappingName"
 msgid "Keyboard"
 msgstr "Tastatur"
@@ -1151,7 +1151,7 @@ msgid "NmLk"
 msgstr "Num"
 
 #. translators: TR charmap encoding
-#: menu/controlsmenustate.cpp:179 ui/widgets/messagebox.cpp:56
+#: menu/controlsmenustate.cpp:180 ui/widgets/messagebox.cpp:56
 #: ui/widgets/messagebox.cpp:63
 msgid "No"
 msgstr "Nein"
@@ -1163,7 +1163,6 @@ msgstr "Keine Cheats"
 
 #. translators: TR charmap encoding
 #: menu/gameplayrulesmenustate.cpp:58
-#, fuzzy
 msgid "No Loads"
 msgstr "Kein Laden"
 
@@ -1179,7 +1178,7 @@ msgid "O"
 msgstr "O"
 
 #. translators: TR charmap encoding
-#: menu/controlsmenustate.cpp:183
+#: menu/controlsmenustate.cpp:184
 msgid "OK"
 msgstr "OK"
 
@@ -1387,9 +1386,8 @@ msgstr "Pistolen"
 
 #. translators: TR charmap encoding
 #: menu/gameplayrulesmenustate.cpp:84
-#, fuzzy
 msgid "Pistols Only"
-msgstr "Pistolen"
+msgstr "Nur Pistolen"
 
 #. translators: TR charmap encoding
 #: hid/names.cpp:366
@@ -1473,16 +1471,22 @@ msgid "Reduces the choppiness of the water surface."
 msgstr "Reduziert the Rauheit der Wasseroberfl~ache."
 
 #. translators: TR charmap encoding
-#: menu/controlsmenustate.cpp:208
+#: menu/controlsmenustate.cpp:209
 #, boost-format
 msgid "Remove Mapping: Hold %1% for %2% seconds"
 msgstr "Zurdnung entfernen: %1% f~ur %2% Sekunden halten"
 
 #. translators: TR charmap encoding
-#: menu/controlsmenustate.cpp:214
+#: menu/controlsmenustate.cpp:221
 #, boost-format
-msgid "Reset All Mappings: Hold %1% for %2% seconds"
-msgstr "Zur~ucksetzen aller Zuordnungen: %1% f~ur %2% Sekunden halten"
+msgid "Reset All Mappings to Classic: Hold %1% for %2% seconds"
+msgstr "Zur~ucksetzen aller Zuordnungen - klassisch: %1% f~ur %2% Sekunden halten"
+
+#. translators: TR charmap encoding
+#: menu/controlsmenustate.cpp:215
+#, boost-format
+msgid "Reset All Mappings to Modern: Hold %1% for %2% seconds"
+msgstr "Zur~ucksetzen aller Zuordnungen - modern: %1% f~ur %2% Sekunden halten"
 
 #. translators: TR charmap encoding
 #: menu/passportmenustate.cpp:78
@@ -1501,7 +1505,7 @@ msgid "Ret"
 msgstr "Eingabe"
 
 #. translators: TR charmap encoding
-#: menu/controlsmenustate.cpp:180
+#: menu/controlsmenustate.cpp:181
 msgid "Return"
 msgstr "Zur~uck"
 
@@ -1752,7 +1756,7 @@ msgid "Super"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/controlsmenustate.cpp:195
+#: menu/controlsmenustate.cpp:196
 #, boost-format
 msgid "Switch Profile: %1% and %2%"
 msgstr "Profil wechseln: %1% und %2%"
@@ -1911,7 +1915,7 @@ msgid "Y"
 msgstr "Z"
 
 #. translators: TR charmap encoding
-#: menu/controlsmenustate.cpp:178 ui/widgets/messagebox.cpp:55
+#: menu/controlsmenustate.cpp:179 ui/widgets/messagebox.cpp:55
 #: ui/widgets/messagebox.cpp:62
 msgid "Yes"
 msgstr "Ja"
