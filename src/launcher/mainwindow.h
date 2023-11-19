@@ -55,6 +55,13 @@ private:
   void setGlidosPath(const std::optional<std::string>& path);
   void updateUpdateBar();
 
+  std::optional<std::filesystem::path> findSuspectArchiveDataRoot(const QString& archiveFilePath);
+  void extractArchive(const QString& archiveFilePath,
+                      const std::filesystem::path& archiveDataRoot,
+                      const std::string& gameflowId);
+  void downloadSoundtrackIfNecessary(const std::string& gameflowId);
+  ;
+
   QStandardItemModel m_languages{};
   QStandardItemModel m_gameflows{};
   std::optional<std::tuple<std::string, std::string>> m_launchRequest = std::nullopt;
