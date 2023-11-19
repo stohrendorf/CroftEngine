@@ -9,6 +9,7 @@
 #include "hid/actions.h"
 #include "hid/inputhandler.h"
 #include "hid/inputstate.h"
+#include "launcher/networkconfig.h"
 #include "menustate.h"
 #include "render/rendersettings.h"
 #include "selectedmenustate.h"
@@ -601,6 +602,22 @@ RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingT
   m_descriptions.back().emplace_back(std::make_shared<ui::widgets::TextBox>(
     /* translators: TR charmap encoding */ _("Enables recording and playback of your local ghost."),
     MaxDescriptionWidth));
+  if(launcher::NetworkConfig::load().isValid())
+  {
+    listBox->addSetting(
+      /* translators: TR charmap encoding */ _("Show Players' Names"),
+      [&engine]()
+      {
+        return engine.getEngineConfig()->displaySettings.showCoopNames;
+      },
+      [&engine]()
+      {
+        auto& b = engine.getEngineConfig()->displaySettings.showCoopNames;
+        b = !b;
+      });
+    m_descriptions.back().emplace_back(std::make_shared<ui::widgets::TextBox>(
+      /* translators: TR charmap encoding */ _("Shows other player names when enabled."), MaxDescriptionWidth));
+  }
   listBox->addSetting(
     /* translators: TR charmap encoding */ _("Restore Health on Level Start"),
     [&engine]()

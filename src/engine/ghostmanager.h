@@ -55,6 +55,8 @@ public:
     return m_writer;
   }
 
+  void setChildrenVisibility(bool visible);
+
 private:
   std::shared_ptr<ghosting::GhostModel> m_model;
   std::map<uint64_t, std::shared_ptr<ghosting::GhostModel>> m_remoteModels;

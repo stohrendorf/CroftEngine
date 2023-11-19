@@ -449,6 +449,7 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
   {
     ghostManager.getModel()->setVisible(m_engineConfig->displaySettings.ghost);
     updateRemoteGhosts(world, ghostManager, coop);
+    ghostManager.setChildrenVisibility(m_engineConfig->displaySettings.showCoopNames);
 
     if(m_presenter->shouldClose())
     {

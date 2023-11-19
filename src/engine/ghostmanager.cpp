@@ -166,4 +166,18 @@ bool GhostManager::askGhostSave(Presenter& presenter, world::World& world)
     return true;
   }
 }
+
+void GhostManager::setChildrenVisibility(bool visible)
+{
+  for(const auto& [peerId, model] : m_remoteModels)
+  {
+    if(model == nullptr)
+      continue;
+
+    for(const auto& child : model->getChildren())
+    {
+      child->setVisible(visible);
+    }
+  }
+}
 } // namespace engine
