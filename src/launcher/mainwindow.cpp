@@ -279,6 +279,7 @@ MainWindow::MainWindow(QWidget* parent)
     ui->username->setText(QString::fromUtf8(cfg.username.c_str()));
     ui->authToken->setText(QString::fromUtf8(cfg.authToken.c_str()));
     ui->sessionId->setText(QString::fromUtf8(cfg.sessionId.c_str()));
+    ui->cbOnline->setChecked(cfg.online);
   }
   else
   {
@@ -773,6 +774,7 @@ void MainWindow::onLaunchClicked()
   cfg.username = ui->username->text().toStdString();
   cfg.authToken = ui->authToken->text().toStdString();
   cfg.sessionId = ui->sessionId->text().toStdString();
+  cfg.online = ui->cbOnline->isChecked();
   cfg.save();
 
   close();

@@ -1,6 +1,7 @@
 #include "networkconfig.h"
 
 #include "paths.h"
+#include "serialization/optional_value.h"
 #include "serialization/serialization.h"
 #include "serialization/vector.h"
 #include "serialization/yamldocument.h"
@@ -16,7 +17,8 @@ void NetworkConfig::serialize(const serialization::Serializer<NetworkConfig>& se
       S_NV("username", username),
       S_NV("authToken", authToken),
       S_NV("sessionId", sessionId),
-      S_NV("color", color));
+      S_NV("color", color),
+      S_NV("online", online));
 }
 
 void NetworkConfig::deserialize(const serialization::Deserializer<NetworkConfig>& ser)
@@ -25,7 +27,8 @@ void NetworkConfig::deserialize(const serialization::Deserializer<NetworkConfig>
       S_NV("username", username),
       S_NV("authToken", authToken),
       S_NV("sessionId", sessionId),
-      S_NV("color", color));
+      S_NV("color", color),
+      S_NVO("online", std::ref(online)));
 }
 
 NetworkConfig NetworkConfig::load()

@@ -16,6 +16,7 @@ struct NetworkConfig
   std::string authToken;
   std::string sessionId;
   std::vector<uint8_t> color;
+  bool online = false;
 
   void serialize(const serialization::Serializer<NetworkConfig>& ser) const;
   void deserialize(const serialization::Deserializer<NetworkConfig>& ser);

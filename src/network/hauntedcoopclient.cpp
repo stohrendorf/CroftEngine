@@ -78,7 +78,16 @@ struct HauntedCoopClient::ClientImpl
     BOOST_LOG_TRIVIAL(info) << "initializing client";
 
     if(!m_networkConfig.isValid())
+    {
+      BOOST_LOG_TRIVIAL(info) << "invalid network configuration";
       return;
+    }
+
+    if(!m_networkConfig.online)
+    {
+      BOOST_LOG_TRIVIAL(debug) << "offline mode";
+      return;
+    }
 
     gsl_Expects(m_networkConfig.color.size() == 3);
 
