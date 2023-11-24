@@ -7,9 +7,9 @@
 #include "modelobject.h"
 #include "objectstate.h"
 #include "qs/qs.h"
+#include "serialization/serialization_fwd.h"
 
 #include <gsl/gsl-lite.hpp>
-#include <serialization/serialization_fwd.h>
 #include <string>
 
 namespace engine::world
