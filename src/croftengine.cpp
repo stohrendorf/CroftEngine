@@ -133,9 +133,14 @@ void dumpCpuInfo()
   BOOST_LOG_TRIVIAL(info) << "CPU features: " << flags.str();
 }
 
-void runGame(const std::string& localeOverride, const std::string& gameflowId)
+void runGame(const std::string& localeOverride, const std::string& gameflowId, bool borderlessFullscreen)
 {
-  engine::Engine engine{findUserDataDir().value(), findEngineDataDir().value(), localeOverride, gameflowId};
+  engine::Engine engine{findUserDataDir().value(),
+                        findEngineDataDir().value(),
+                        localeOverride,
+                        gameflowId,
+                        {1280, 800},
+                        borderlessFullscreen};
   size_t levelSequenceIndex = 0;
   enum class Mode
   {
@@ -365,6 +370,7 @@ int main(int argc, char** argv)
   {
     std::string localeOverride;
     std::string gameflowId;
+    bool borderlessFullscreen;
     {
       const auto launcherResult = launcher::showLauncher(argc, argv);
       if(!launcherResult.has_value())
@@ -374,6 +380,7 @@ int main(int argc, char** argv)
 
       localeOverride = std::get<0>(*launcherResult);
       gameflowId = std::get<1>(*launcherResult);
+      borderlessFullscreen = std::get<2>(*launcherResult);
     }
 
     if(!fileLogAdded)
@@ -385,6 +392,6 @@ int main(int argc, char** argv)
 
     dumpCpuInfo();
 
-    runGame(localeOverride, gameflowId);
+    runGame(localeOverride, gameflowId, borderlessFullscreen);
   }
 }

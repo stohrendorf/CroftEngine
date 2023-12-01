@@ -57,7 +57,9 @@ void terminateGlfw()
 }
 } // namespace
 
-Window::Window(const std::vector<std::filesystem::path>& logoPaths, const glm::ivec2& windowSize)
+Window::Window(const std::vector<std::filesystem::path>& logoPaths,
+               const glm::ivec2& windowSize,
+               bool borderlessFullscreen)
     : m_windowPos{0, 0}
     , m_windowSize{windowSize}
 {
@@ -72,6 +74,12 @@ Window::Window(const std::vector<std::filesystem::path>& logoPaths, const glm::i
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
+  if(borderlessFullscreen)
+  {
+    glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
+    glfwWindowHint(GLFW_CURSOR_DISABLED, GLFW_FALSE);
+  }
+
 #ifdef SOGLB_DEBUGGING
   glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
 #else
@@ -131,7 +139,10 @@ Window::Window(const std::vector<std::filesystem::path>& logoPaths, const glm::i
   updateWindowSize();
 
 #ifdef NDEBUG
-  glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+  if(!fullscreenBorderless)
+  {
+    glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+  }
 #endif
   glfwSwapInterval(1);
 }
@@ -222,5 +233,5 @@ bool Window::hasFocus() const
   const std::lock_guard guard{focusStatesMutex};
   auto it = getFocusStates().find(m_window);
   return it != getFocusStates().end() && it->second;
-};
+}
 } // namespace gl

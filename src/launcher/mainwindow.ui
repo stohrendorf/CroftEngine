@@ -1,296 +1,304 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>MainWindow</class>
- <widget class="QMainWindow" name="MainWindow">
-  <property name="geometry">
-   <rect>
-    <x>0</x>
-    <y>0</y>
-    <width>672</width>
-    <height>295</height>
-   </rect>
-  </property>
-  <property name="windowTitle">
-   <string>CroftEngine</string>
-  </property>
-  <property name="locale">
-   <locale language="English" country="UnitedKingdom"/>
-  </property>
-  <widget class="QWidget" name="centralWidget">
-   <layout class="QGridLayout" name="gridLayout">
-    <item row="0" column="1">
-     <widget class="QTabWidget" name="tabWidget">
-      <property name="currentIndex">
-       <number>0</number>
-      </property>
-      <widget class="QWidget" name="tabLaunch">
-       <attribute name="title">
-        <string>Game</string>
-       </attribute>
-       <layout class="QVBoxLayout" name="verticalLayout_2">
-        <item>
-         <widget class="QLabel" name="lblUpdateNotification">
-          <property name="enabled">
-           <bool>true</bool>
-          </property>
-          <property name="styleSheet">
-           <string notr="true">QLabel{border-radius: 0.333em; background: rgb(170, 255,
+    <class>MainWindow</class>
+    <widget class="QMainWindow" name="MainWindow">
+        <property name="geometry">
+            <rect>
+                <x>0</x>
+                <y>0</y>
+                <width>672</width>
+                <height>295</height>
+            </rect>
+        </property>
+        <property name="windowTitle">
+            <string>CroftEngine</string>
+        </property>
+        <property name="locale">
+            <locale language="English" country="UnitedKingdom"/>
+        </property>
+        <widget class="QWidget" name="centralWidget">
+            <layout class="QGridLayout" name="gridLayout">
+                <item row="0" column="1">
+                    <widget class="QTabWidget" name="tabWidget">
+                        <property name="currentIndex">
+                            <number>0</number>
+                        </property>
+                        <widget class="QWidget" name="tabLaunch">
+                            <attribute name="title">
+                                <string>Game</string>
+                            </attribute>
+                            <layout class="QVBoxLayout" name="verticalLayout_2">
+                                <item>
+                                    <widget class="QLabel" name="lblUpdateNotification">
+                                        <property name="enabled">
+                                            <bool>true</bool>
+                                        </property>
+                                        <property name="styleSheet">
+                                            <string notr="true">QLabel{border-radius: 0.333em; background: rgb(170, 255,
                                                 127); background-clip: padding;
                                                 border: 1px solid black; padding: 0.333em;}
                                             </string>
-          </property>
-          <property name="frameShape">
-           <enum>QFrame::NoFrame</enum>
-          </property>
-          <property name="frameShadow">
-           <enum>QFrame::Plain</enum>
-          </property>
-          <property name="text">
-           <string>TextLabel</string>
-          </property>
-          <property name="openExternalLinks">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="1,1">
-          <item>
-           <widget class="QListView" name="gameflows"/>
-          </item>
-          <item>
-           <layout class="QVBoxLayout" name="gameflowMeta"/>
-          </item>
-         </layout>
-        </item>
-        <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_3">
-          <item>
-           <widget class="QPushButton" name="btnLaunch">
+                                        </property>
+                                        <property name="frameShape">
+                                            <enum>QFrame::NoFrame</enum>
+                                        </property>
+                                        <property name="frameShadow">
+                                            <enum>QFrame::Plain</enum>
+                                        </property>
+                                        <property name="text">
+                                            <string>TextLabel</string>
+                                        </property>
+                                        <property name="openExternalLinks">
+                                            <bool>true</bool>
+                                        </property>
+                                    </widget>
+                                </item>
+                                <item>
+                                    <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="1,1">
+                                        <item>
+                                            <widget class="QListView" name="gameflows"/>
+                                        </item>
+                                        <item>
+                                            <layout class="QVBoxLayout" name="gameflowMeta"/>
+                                        </item>
+                                    </layout>
+                                </item>
+                                <item>
+                                    <layout class="QHBoxLayout" name="horizontalLayout_3">
+                                        <item>
+                                            <widget class="QPushButton" name="btnLaunch">
+                                                <property name="text">
+                                                    <string>Launch</string>
+                                                </property>
+                                            </widget>
+                                        </item>
+                                        <item>
+                                            <widget class="QComboBox" name="languages"/>
+                                        </item>
+                                    </layout>
+                                </item>
+                                <item>
+                                    <widget class="QCheckBox" name="cbOnline">
+                                        <property name="text">
+                                            <string>Online</string>
+                                        </property>
+                                    </widget>
+                                </item>
+                                <item>
+                                    <widget class="QCheckBox" name="cbBorderlessFullscreen">
+                                        <property name="text">
+                                            <string>Borderless Fullscreen (for streaming, with cursor and task bar)
+                                            </string>
+                                        </property>
+                                    </widget>
+                                </item>
+                            </layout>
+                        </widget>
+                        <widget class="QWidget" name="tabConfig">
+                            <attribute name="title">
+                                <string>Configuration</string>
+                            </attribute>
+                            <layout class="QVBoxLayout" name="verticalLayout">
+                                <item>
+                                    <layout class="QGridLayout" name="gridLayout_2" columnstretch="0,1">
+                                        <item row="0" column="1">
+                                            <widget class="QLabel" name="engineVersion">
+                                                <property name="text">
+                                                    <string/>
+                                                </property>
+                                            </widget>
+                                        </item>
+                                        <item row="2" column="0">
+                                            <widget class="QLabel" name="label_7">
+                                                <property name="text">
+                                                    <string>Engine Data Location</string>
+                                                </property>
+                                            </widget>
+                                        </item>
+                                        <item row="0" column="0">
+                                            <widget class="QLabel" name="label_6">
+                                                <property name="text">
+                                                    <string>Engine Version</string>
+                                                </property>
+                                            </widget>
+                                        </item>
+                                        <item row="1" column="1">
+                                            <widget class="QLabel" name="dataLocation">
+                                                <property name="text">
+                                                    <string/>
+                                                </property>
+                                            </widget>
+                                        </item>
+                                        <item row="1" column="0">
+                                            <widget class="QLabel" name="label_5">
+                                                <property name="text">
+                                                    <string>Data Location</string>
+                                                </property>
+                                            </widget>
+                                        </item>
+                                        <item row="2" column="1">
+                                            <widget class="QLabel" name="engineDataLocation">
+                                                <property name="text">
+                                                    <string/>
+                                                </property>
+                                            </widget>
+                                        </item>
+                                    </layout>
+                                </item>
+                                <item>
+                                    <widget class="QPushButton" name="migrateBtn">
+                                        <property name="text">
+                                            <string>Migrate from other installation</string>
+                                        </property>
+                                    </widget>
+                                </item>
+                                <item>
+                                    <widget class="QPushButton" name="openDataLocation">
+                                        <property name="text">
+                                            <string>Show Data Location</string>
+                                        </property>
+                                    </widget>
+                                </item>
+                                <item>
+                                    <widget class="QPushButton" name="resetConfig">
+                                        <property name="text">
+                                            <string>Clear config</string>
+                                        </property>
+                                    </widget>
+                                </item>
+                                <item>
+                                    <layout class="QHBoxLayout" name="horizontalLayout">
+                                        <item>
+                                            <widget class="QPushButton" name="selectGlidos">
+                                                <property name="text">
+                                                    <string>Select Glidos Texture Pack</string>
+                                                </property>
+                                            </widget>
+                                        </item>
+                                        <item>
+                                            <widget class="QPushButton" name="disableGlidos">
+                                                <property name="text">
+                                                    <string>Disable Glidos Texture Pack</string>
+                                                </property>
+                                            </widget>
+                                        </item>
+                                    </layout>
+                                </item>
+                                <item>
+                                    <spacer name="verticalSpacer_2">
+                                        <property name="orientation">
+                                            <enum>Qt::Vertical</enum>
+                                        </property>
+                                        <property name="sizeHint" stdset="0">
+                                            <size>
+                                                <width>20</width>
+                                                <height>40</height>
+                                            </size>
+                                        </property>
+                                    </spacer>
+                                </item>
+                            </layout>
+                        </widget>
+                        <widget class="QWidget" name="tabCoop">
+                            <attribute name="title">
+                                <string>Coop</string>
+                            </attribute>
+                            <layout class="QVBoxLayout" name="verticalLayout_3">
+                                <item>
+                                    <layout class="QFormLayout" name="formLayout">
+                                        <item row="0" column="0">
+                                            <widget class="QPushButton" name="btnChooseColor">
+                                                <property name="text">
+                                                    <string>Choose Your Ghost Color</string>
+                                                </property>
+                                            </widget>
+                                        </item>
+                                        <item row="0" column="1">
+                                            <widget class="QLabel" name="lblColor">
+                                                <property name="text">
+                                                    <string/>
+                                                </property>
+                                            </widget>
+                                        </item>
+                                        <item row="1" column="0">
+                                            <widget class="QLabel" name="label">
+                                                <property name="text">
+                                                    <string>Server</string>
+                                                </property>
+                                            </widget>
+                                        </item>
+                                        <item row="1" column="1">
+                                            <widget class="QLineEdit" name="serverSocket">
+                                                <property name="placeholderText">
+                                                    <string>example.com:12345</string>
+                                                </property>
+                                            </widget>
+                                        </item>
+                                        <item row="2" column="0">
+                                            <widget class="QLabel" name="label_2">
+                                                <property name="text">
+                                                    <string>Username</string>
+                                                </property>
+                                            </widget>
+                                        </item>
+                                        <item row="2" column="1">
+                                            <widget class="QLineEdit" name="username"/>
+                                        </item>
+                                        <item row="3" column="0">
+                                            <widget class="QLabel" name="label_3">
+                                                <property name="text">
+                                                    <string>Auth token</string>
+                                                </property>
+                                            </widget>
+                                        </item>
+                                        <item row="3" column="1">
+                                            <widget class="QLineEdit" name="authToken"/>
+                                        </item>
+                                        <item row="4" column="0">
+                                            <widget class="QLabel" name="label_4">
+                                                <property name="text">
+                                                    <string>Session ID</string>
+                                                </property>
+                                            </widget>
+                                        </item>
+                                        <item row="4" column="1">
+                                            <widget class="QLineEdit" name="sessionId"/>
+                                        </item>
+                                        <item row="5" column="1">
+                                            <widget class="QPushButton" name="validateConnection">
+                                                <property name="text">
+                                                    <string>Validate</string>
+                                                </property>
+                                            </widget>
+                                        </item>
+                                    </layout>
+                                </item>
+                                <item>
+                                    <spacer name="verticalSpacer">
+                                        <property name="orientation">
+                                            <enum>Qt::Vertical</enum>
+                                        </property>
+                                        <property name="sizeHint" stdset="0">
+                                            <size>
+                                                <width>20</width>
+                                                <height>40</height>
+                                            </size>
+                                        </property>
+                                    </spacer>
+                                </item>
+                            </layout>
+                        </widget>
+                    </widget>
+                </item>
+            </layout>
+        </widget>
+        <action name="actionExit">
             <property name="text">
-             <string>Launch</string>
+                <string>E&amp;xit</string>
             </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QComboBox" name="languages"/>
-          </item>
-         </layout>
-        </item>
-        <item>
-         <widget class="QCheckBox" name="cbOnline">
-          <property name="text">
-           <string>Online</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-      <widget class="QWidget" name="tabConfig">
-       <attribute name="title">
-        <string>Configuration</string>
-       </attribute>
-       <layout class="QVBoxLayout" name="verticalLayout">
-        <item>
-         <layout class="QGridLayout" name="gridLayout_2" columnstretch="0,1">
-          <item row="0" column="1">
-           <widget class="QLabel" name="engineVersion">
-            <property name="text">
-             <string/>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="0">
-           <widget class="QLabel" name="label_7">
-            <property name="text">
-             <string>Engine Data Location</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="0">
-           <widget class="QLabel" name="label_6">
-            <property name="text">
-             <string>Engine Version</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="1">
-           <widget class="QLabel" name="dataLocation">
-            <property name="text">
-             <string/>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="label_5">
-            <property name="text">
-             <string>Data Location</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="1">
-           <widget class="QLabel" name="engineDataLocation">
-            <property name="text">
-             <string/>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </item>
-        <item>
-         <widget class="QPushButton" name="migrateBtn">
-          <property name="text">
-           <string>Migrate from other installation</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="openDataLocation">
-          <property name="text">
-           <string>Show Data Location</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="resetConfig">
-          <property name="text">
-           <string>Clear config</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <layout class="QHBoxLayout" name="horizontalLayout">
-          <item>
-           <widget class="QPushButton" name="selectGlidos">
-            <property name="text">
-             <string>Select Glidos Texture Pack</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="disableGlidos">
-            <property name="text">
-             <string>Disable Glidos Texture Pack</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </item>
-        <item>
-         <spacer name="verticalSpacer_2">
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>20</width>
-            <height>40</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-       </layout>
-      </widget>
-      <widget class="QWidget" name="tabCoop">
-       <attribute name="title">
-        <string>Coop</string>
-       </attribute>
-       <layout class="QVBoxLayout" name="verticalLayout_3">
-        <item>
-         <layout class="QFormLayout" name="formLayout">
-          <item row="0" column="0">
-           <widget class="QPushButton" name="btnChooseColor">
-            <property name="text">
-             <string>Choose Your Ghost Color</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1">
-           <widget class="QLabel" name="lblColor">
-            <property name="text">
-             <string/>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="label">
-            <property name="text">
-             <string>Server</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="1">
-           <widget class="QLineEdit" name="serverSocket">
-            <property name="placeholderText">
-             <string>example.com:12345</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="0">
-           <widget class="QLabel" name="label_2">
-            <property name="text">
-             <string>Username</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="1">
-           <widget class="QLineEdit" name="username"/>
-          </item>
-          <item row="3" column="0">
-           <widget class="QLabel" name="label_3">
-            <property name="text">
-             <string>Auth token</string>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="1">
-           <widget class="QLineEdit" name="authToken"/>
-          </item>
-          <item row="4" column="0">
-           <widget class="QLabel" name="label_4">
-            <property name="text">
-             <string>Session ID</string>
-            </property>
-           </widget>
-          </item>
-          <item row="4" column="1">
-           <widget class="QLineEdit" name="sessionId"/>
-          </item>
-          <item row="5" column="1">
-           <widget class="QPushButton" name="validateConnection">
-            <property name="text">
-             <string>Validate</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </item>
-        <item>
-         <spacer name="verticalSpacer">
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>20</width>
-            <height>40</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-       </layout>
-      </widget>
-     </widget>
-    </item>
-   </layout>
-  </widget>
-  <action name="actionExit">
-   <property name="text">
-    <string>E&amp;xit</string>
-   </property>
-  </action>
- </widget>
- <layoutdefault spacing="6" margin="11"/>
- <resources/>
- <connections/>
+        </action>
+    </widget>
+    <layoutdefault spacing="6" margin="11"/>
+    <resources/>
+    <connections/>
 </ui>

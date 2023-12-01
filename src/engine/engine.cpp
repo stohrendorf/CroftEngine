@@ -362,7 +362,8 @@ Engine::Engine(std::filesystem::path userDataPath,
                const std::filesystem::path& engineDataPath,
                const std::optional<std::string>& localOverride,
                const std::string& gameflowId,
-               const glm::ivec2& resolution)
+               const glm::ivec2& resolution,
+               const bool borderlessFullscreen)
     : m_userDataPath{std::move(userDataPath)}
     , m_engineDataPath{engineDataPath}
     , m_gameflowId{gameflowId}
@@ -393,7 +394,8 @@ Engine::Engine(std::filesystem::path userDataPath,
     doc.deserialize("config", gsl::not_null{m_engineConfig.get().get()}, *m_engineConfig);
   }
 
-  m_presenter = std::make_shared<Presenter>(m_engineDataPath, resolution, m_engineConfig->renderSettings);
+  m_presenter
+    = std::make_shared<Presenter>(m_engineDataPath, resolution, m_engineConfig->renderSettings, borderlessFullscreen);
   if(gl::hasAnisotropicFilteringExtension()
      && m_engineConfig->renderSettings.anisotropyLevel > gsl::narrow_cast<float>(gl::getMaxAnisotropyLevel()))
   {

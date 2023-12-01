@@ -83,7 +83,8 @@ public:
                   const std::filesystem::path& engineDataPath,
                   const std::optional<std::string>& localOverride,
                   const std::string& gameflowId,
-                  const glm::ivec2& resolution = {1280, 800});
+                  const glm::ivec2& resolution,
+                  bool borderlessFullscreen);
 
   ~Engine();
 
