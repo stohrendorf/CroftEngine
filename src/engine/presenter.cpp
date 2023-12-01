@@ -367,8 +367,10 @@ std::vector<std::filesystem::path> getIconPaths(const std::filesystem::path& bas
 
 Presenter::Presenter(const std::filesystem::path& engineDataPath,
                      const glm::ivec2& resolution,
-                     const render::RenderSettings& renderSettings)
-    : m_window{std::make_shared<gl::Window>(getIconPaths(engineDataPath, {24, 32, 64, 128, 256, 512}), resolution)}
+                     const render::RenderSettings& renderSettings,
+                     const bool isFullscreenBorderless)
+    : m_window{std::make_shared<gl::Window>(
+      getIconPaths(engineDataPath, {24, 32, 64, 128, 256, 512}), resolution, isFullscreenBorderless)}
     , m_soundEngine{std::make_shared<audio::SoundEngine>()}
     , m_renderer{std::make_shared<render::scene::Renderer>(
         gsl::make_shared<render::scene::Camera>(DefaultFov, getRenderViewport(), DefaultNearPlane, DefaultFarPlane))}

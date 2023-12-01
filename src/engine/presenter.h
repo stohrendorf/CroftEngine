@@ -81,7 +81,8 @@ public:
 
   explicit Presenter(const std::filesystem::path& engineDataPath,
                      const glm::ivec2& resolution,
-                     const render::RenderSettings& renderSettings);
+                     const render::RenderSettings& renderSettings,
+                     const bool isFullscreenBorderless = false);
   ~Presenter();
 
   void playVideo(const std::filesystem::path& path);

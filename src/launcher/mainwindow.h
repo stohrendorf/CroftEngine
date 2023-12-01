@@ -64,7 +64,7 @@ private:
 
   QStandardItemModel m_languages{};
   QStandardItemModel m_gameflows{};
-  std::optional<std::tuple<std::string, std::string>> m_launchRequest = std::nullopt;
+  std::optional<std::tuple<std::string, std::string,bool>> m_launchRequest = std::nullopt;
   QPushButton* m_importButton = nullptr;
   QColor m_ghostColor;
   QNetworkAccessManager m_releasesNetworkAccessManager;

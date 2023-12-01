@@ -84,6 +84,13 @@
           </property>
          </widget>
         </item>
+         <item>
+           <widget class="QCheckBox" name="cbFullscreenBorderless">
+             <property name="text">
+               <string>Fullscreen Borderless (for streaming)</string>
+             </property>
+           </widget>
+         </item>
        </layout>
       </widget>
       <widget class="QWidget" name="tabConfig">

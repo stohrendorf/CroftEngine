@@ -22,12 +22,12 @@
         <translation>CroftEngine</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="150"/>
+        <location filename="mainwindow.ui" line="157"/>
         <source>Show Data Location</source>
         <translation>Spieldaten zeigen</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="157"/>
+        <location filename="mainwindow.ui" line="164"/>
         <source>Clear config</source>
         <translation>Konfiguration zurücksetzen</translation>
     </message>
@@ -52,78 +52,83 @@
         <translation>Online</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="91"/>
+        <location filename="mainwindow.ui" line="90"/>
+        <source>Fullscreen Borderless (for streaming)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="mainwindow.ui" line="98"/>
         <source>Configuration</source>
         <translation>Konfiguration</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="106"/>
+        <location filename="mainwindow.ui" line="113"/>
         <source>Engine Data Location</source>
         <translation>Engine Datenordner</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="113"/>
+        <location filename="mainwindow.ui" line="120"/>
         <source>Engine Version</source>
         <translation>Engine Version</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="127"/>
+        <location filename="mainwindow.ui" line="134"/>
         <source>Data Location</source>
         <translation>Datenordner</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="143"/>
+        <location filename="mainwindow.ui" line="150"/>
         <source>Migrate from other installation</source>
         <translation>Von anderer Installation migrieren</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="166"/>
+        <location filename="mainwindow.ui" line="173"/>
         <source>Select Glidos Texture Pack</source>
         <translation>Glidos Textur Paket wählen</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="173"/>
+        <location filename="mainwindow.ui" line="180"/>
         <source>Disable Glidos Texture Pack</source>
         <translation>Glidos Textur Paket deaktivieren</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="196"/>
+        <location filename="mainwindow.ui" line="203"/>
         <source>Coop</source>
         <translation>Coop</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="204"/>
+        <location filename="mainwindow.ui" line="211"/>
         <source>Choose Your Ghost Color</source>
         <oldsource>Choose Color</oldsource>
         <translation>Geistfarbe wählen</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="218"/>
+        <location filename="mainwindow.ui" line="225"/>
         <source>Server</source>
         <translation>Server</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="225"/>
+        <location filename="mainwindow.ui" line="232"/>
         <source>example.com:12345</source>
         <translation>example.com:12345</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="232"/>
+        <location filename="mainwindow.ui" line="239"/>
         <source>Username</source>
         <translation>Benutzername</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="242"/>
+        <location filename="mainwindow.ui" line="249"/>
         <source>Auth token</source>
         <translation>Auth token</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="252"/>
+        <location filename="mainwindow.ui" line="259"/>
         <source>Session ID</source>
         <translation>Session ID</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="262"/>
+        <location filename="mainwindow.ui" line="269"/>
         <source>Validate</source>
         <translation>Prüfen</translation>
     </message>
@@ -132,7 +137,7 @@
         <translation type="vanished">Verbindung prüfen</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="289"/>
+        <location filename="mainwindow.ui" line="296"/>
         <source>E&amp;xit</source>
         <translation>&amp;Beenden</translation>
     </message>
@@ -189,13 +194,13 @@
     </message>
     <message>
         <location filename="mainwindow.cpp" line="315"/>
-        <location filename="mainwindow.cpp" line="1076"/>
+        <location filename="mainwindow.cpp" line="1078"/>
         <source>Data Imported</source>
         <translation>Daten importiert</translation>
     </message>
     <message>
         <location filename="mainwindow.cpp" line="315"/>
-        <location filename="mainwindow.cpp" line="1076"/>
+        <location filename="mainwindow.cpp" line="1078"/>
         <source>Game Data has been imported.</source>
         <translation>Spieldaten wurden importiert.</translation>
     </message>
@@ -210,8 +215,8 @@
         <translation>ZIP Archiv (*.zip)</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="1020"/>
-        <location filename="mainwindow.cpp" line="1028"/>
+        <location filename="mainwindow.cpp" line="1022"/>
+        <location filename="mainwindow.cpp" line="1030"/>
         <source>Could not find game data in archive.</source>
         <translation>Konnte Spieldaten nicht in Archiv finden.</translation>
     </message>
@@ -261,45 +266,45 @@
         <translation>Bitte wählen Sie, welchen Typ von Textur Paket Sie aktivieren möchten. Wenn das Textur Paket eine equiv.txt Datei enthält, wählen Sie die erste Option. Wenn Ihr Textur Paket eine Reihe von Ordnern enthält, bestehend aus 32 Zahlen und Buchstaben, wählen Sie die zweite Option.</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="835"/>
-        <location filename="mainwindow.cpp" line="843"/>
-        <location filename="mainwindow.cpp" line="851"/>
-        <location filename="mainwindow.cpp" line="859"/>
+        <location filename="mainwindow.cpp" line="837"/>
+        <location filename="mainwindow.cpp" line="845"/>
+        <location filename="mainwindow.cpp" line="853"/>
+        <location filename="mainwindow.cpp" line="861"/>
         <source>Invalid Connection Settings</source>
         <translation>Ungültige Verbindungseinstellungen</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="836"/>
+        <location filename="mainwindow.cpp" line="838"/>
         <source>Ensure you enter your server address only containing the domain name and the port, for example like &apos;example.com:12345&apos;.</source>
         <translation>Stellen Sie sicher, dass die Server-Adresse nur die Domain und den Port enthält, zum Beispiel &apos;example.com:12345&apos;.</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="843"/>
+        <location filename="mainwindow.cpp" line="845"/>
         <source>Please fill in your username.</source>
         <translation>Bitte füllen Sie Ihren Benutzernamen aus.</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="852"/>
+        <location filename="mainwindow.cpp" line="854"/>
         <source>Invalid auth token, make sure you copied it from the website. This is NOT your password.</source>
         <translation>Ungültiges Auth Token, stellen Sie sicher, dass sie dieses von der Webseite kopiert haben. Dies ist NICHT Ihr Passwort.</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="859"/>
+        <location filename="mainwindow.cpp" line="861"/>
         <source>Invalid session ID, make sure you copied it from the website.</source>
         <translation>Ungültige Session ID, stellen Sie sicher, dass Sie diese von der Webseite kopiert haben.</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="864"/>
+        <location filename="mainwindow.cpp" line="866"/>
         <source>Valid Connection Settings</source>
         <translation>Gültige Verbindungseinstellungen</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="865"/>
+        <location filename="mainwindow.cpp" line="867"/>
         <source>Your configuration seems valid. However, no attempt was made to check against the server that it will actually work.</source>
         <translation>Ihre Verbindungseinstellungen scheinen gültig zu sein. Dennoch wurde kein Versuch unternommen, ob diese wirklich funktionieren.</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="952"/>
+        <location filename="mainwindow.cpp" line="954"/>
         <source>New version available: &lt;a href=&quot;https://github.com/stohrendorf/CroftEngine/releases/tag/%1&quot;&gt;%1&lt;/a&gt; (you are running version &lt;a href=&quot;https://github.com/stohrendorf/CroftEngine/releases/tag/v%2&quot;&gt;v%2&lt;/a&gt;)</source>
         <translation>Neue Version verfügbar: &lt;a href=&quot;https://github.com/stohrendorf/CroftEngine/releases/tag/%1&quot;&gt;%1&lt;/a&gt; (aktuell wird Version &lt;a href=&quot;https://github.com/stohrendorf/CroftEngine/releases/tag/v%2&quot;&gt;v%2&lt;/a&gt; ausgeführt)</translation>
     </message>
@@ -384,17 +389,17 @@
     </message>
     <message>
         <location filename="mainwindow.cpp" line="618"/>
-        <location filename="mainwindow.cpp" line="964"/>
-        <location filename="mainwindow.cpp" line="1020"/>
-        <location filename="mainwindow.cpp" line="1028"/>
-        <location filename="mainwindow.cpp" line="1043"/>
+        <location filename="mainwindow.cpp" line="966"/>
+        <location filename="mainwindow.cpp" line="1022"/>
+        <location filename="mainwindow.cpp" line="1030"/>
+        <location filename="mainwindow.cpp" line="1045"/>
         <source>Extraction Error</source>
         <translation>Extraktionsfehler</translation>
     </message>
     <message>
         <location filename="mainwindow.cpp" line="619"/>
-        <location filename="mainwindow.cpp" line="965"/>
-        <location filename="mainwindow.cpp" line="1044"/>
+        <location filename="mainwindow.cpp" line="967"/>
+        <location filename="mainwindow.cpp" line="1046"/>
         <source>Could not open %1 as an archive: %2</source>
         <translation>Konnte %1 nicht als Archiv öffnen: %2</translation>
     </message>
@@ -479,17 +484,17 @@
         <translation>Ihre Konfigurationsdatei ist ungültig. Setzen Sie Ihre Konfiguration zurück.</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="795"/>
+        <location filename="mainwindow.cpp" line="797"/>
         <source>Import Data</source>
         <translation>Daten importieren</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="799"/>
+        <location filename="mainwindow.cpp" line="801"/>
         <source>By %1</source>
         <translation>Von %1</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="819"/>
+        <location filename="mainwindow.cpp" line="821"/>
         <source>Choose Your Ghost Color</source>
         <translation>Geistfarbe wählen</translation>
     </message>

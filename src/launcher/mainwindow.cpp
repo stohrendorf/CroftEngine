@@ -762,9 +762,11 @@ void MainWindow::onLaunchClicked()
   settings.setValue(GameflowConfigKey, QVariant{gameflowId});
   const auto languageIdData = languageId.toUtf8();
   const auto gameflowIdData = gameflowId.toUtf8();
-  m_launchRequest = std::tuple<std::string, std::string>{
+  const bool isFullscreenBorderless = ui->cbFullscreenBorderless->checkState();
+  m_launchRequest = std::tuple<std::string, std::string,bool>{
     std::string{languageIdData.data(), gsl::narrow<size_t>(languageIdData.size())},
-    std::string{gameflowIdData.data(), gsl::narrow<size_t>(gameflowIdData.size())}};
+    std::string{gameflowIdData.data(), gsl::narrow<size_t>(gameflowIdData.size())},
+    isFullscreenBorderless};
 
   NetworkConfig cfg{};
   cfg.color = {gsl::narrow_cast<uint8_t>(m_ghostColor.red()),

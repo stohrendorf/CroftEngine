@@ -6,5 +6,5 @@
 
 namespace launcher
 {
-[[nodiscard]] extern std::optional<std::tuple<std::string, std::string>> showLauncher(int argc, char** argv);
+[[nodiscard]] extern std::optional<std::tuple<std::string, std::string,bool>> showLauncher(int argc, char** argv);
 }

@@ -10,7 +10,7 @@
 
 namespace launcher
 {
-std::optional<std::tuple<std::string, std::string>> showLauncher(int argc, char** argv)
+std::optional<std::tuple<std::string, std::string,bool>> showLauncher(int argc, char** argv)
 {
 #ifdef WIN32
   gsl_Assert(_putenv(("QT_PLUGIN_PATH=" + std::filesystem::current_path().string() + "/plugins").c_str()) == 0);

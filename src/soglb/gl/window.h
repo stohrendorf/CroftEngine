@@ -12,7 +12,7 @@ namespace gl
 class Window final
 {
 public:
-  explicit Window(const std::vector<std::filesystem::path>& logoPaths, const glm::ivec2& windowSize = {1280, 800});
+  explicit Window(const std::vector<std::filesystem::path>& logoPaths, const glm::ivec2& windowSize = {1280, 800}, bool fullscreenBorderless = false);
   ~Window();
 
   void updateWindowSize();
@@ -60,5 +60,6 @@ private:
   glm::ivec2 m_windowSize{0};
   glm::ivec2 m_viewport{0};
   bool m_isFullscreen = false;
+  bool m_fullScreenBorderless = false; 
 };
 } // namespace gl
