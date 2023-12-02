@@ -139,7 +139,7 @@ Window::Window(const std::vector<std::filesystem::path>& logoPaths,
   updateWindowSize();
 
 #ifdef NDEBUG
-  if(!fullscreenBorderless)
+  if(!borderlessFullscreen)
   {
     glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
   }
