@@ -1045,18 +1045,9 @@ void World::load(const std::optional<size_t>& slot)
   doc.deserialize("data", gsl::not_null{this}, *this);
 
   {
-    // TODO CE-647
-    auto rulesNode = doc.getRoot()["gameplayRules"];
-    if(rulesNode.is_seed() || !rulesNode.valid() || rulesNode.type() == ryml::NOTYPE)
-    {
-      m_engine->setGameplayRules(GameplayRules{});
-    }
-    else
-    {
-      GameplayRules rules{};
-      doc.deserialize("gameplayRules", gsl::not_null{this}, rules);
-      m_engine->setGameplayRules(rules);
-    }
+    GameplayRules rules{};
+    doc.deserialize("gameplayRules", gsl::not_null{this}, rules);
+    m_engine->setGameplayRules(rules);
   }
 
   m_objectManager.getLara().m_state.health = m_player->laraHealth;
