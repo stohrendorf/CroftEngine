@@ -555,6 +555,7 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
           }
           return {RunResult::RequestLoad, menu->requestLoad};
         }
+        break;
       case menu::MenuResult::RequestLevel:
         return {RunResult::RequestLevel, menu->requestLevelSequenceIndex};
       }
@@ -826,6 +827,7 @@ std::pair<RunResult, std::optional<size_t>> Engine::runTitleMenu(world::World& w
       {
         return {RunResult::RequestLoad, menu->requestLoad};
       }
+      break;
     case menu::MenuResult::RequestLevel:
       return {RunResult::RequestLevel, menu->requestLevelSequenceIndex};
     }
