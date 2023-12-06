@@ -484,7 +484,7 @@ bool MainWindow::importBaseGameData()
   }
 
   const auto imageOrTombExe = QFileDialog::getOpenFileName(
-    this, tr("Select Tomb Raider 1 Data"), QString{}, tr("Game Data Files (tomb.exe tombati.exe GAME.DAT)"));
+    this, tr("Select Tomb Raider 1 Data"), QString{}, tr("Game Data Files (tomb.exe TOMB.EXE tombati.exe GAME.DAT)"));
   if(imageOrTombExe.isEmpty())
     return false;
 
