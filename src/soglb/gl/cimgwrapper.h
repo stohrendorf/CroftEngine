@@ -76,33 +76,11 @@ public:
 
   [[nodiscard]] const uint8_t* data() const;
 
-  [[nodiscard]] gsl::span<const gl::SRGBA8> pixels()
-  {
-    static_assert(sizeof(gl::SRGBA8) == 4);
-    interleave();
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-    return gsl::make_span(reinterpret_cast<const gl::SRGBA8*>(data()),
-                          gsl::narrow<size_t>(width()) * gsl::narrow<size_t>(height()));
-  }
+  [[nodiscard]] gsl::span<const gl::SRGBA8> pixels();
 
-  [[nodiscard]] gsl::span<const gl::PremultipliedSRGBA8> asPremultipliedPixels()
-  {
-    static_assert(sizeof(gl::PremultipliedSRGBA8) == 4);
-    interleave();
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-    return gsl::make_span(reinterpret_cast<const gl::PremultipliedSRGBA8*>(data()),
-                          gsl::narrow<size_t>(width()) * gsl::narrow<size_t>(height()));
-  }
+  [[nodiscard]] gsl::span<const gl::PremultipliedSRGBA8> asPremultipliedPixels();
 
-  void premultiplyPixels()
-  {
-    interleave();
-    for(auto& px : gsl::make_span(const_cast<gl::SRGBA8*>(reinterpret_cast<const gl::SRGBA8*>(data())),
-                                  gsl::narrow<size_t>(width()) * gsl::narrow<size_t>(height())))
-    {
-      px.channels = premultiply(px).channels;
-    }
-  }
+  void premultiplyPixels();
 
   void savePng(const std::string& filename, bool premultiply);
 

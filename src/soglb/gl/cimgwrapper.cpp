@@ -250,6 +250,34 @@ gslu::nn_shared<gl::Texture2D<gl::PremultipliedSRGBA8>> CImgWrapper::toTexture(c
   return result;
 }
 
+void CImgWrapper::premultiplyPixels()
+{
+  interleave();
+  for(auto& px : gsl::make_span(const_cast<gl::SRGBA8*>(reinterpret_cast<const gl::SRGBA8*>(data())),
+                                gsl::narrow<size_t>(width()) * gsl::narrow<size_t>(height())))
+  {
+    px.channels = premultiply(px).channels;
+  }
+}
+
+gsl::span<const gl::SRGBA8> CImgWrapper::pixels()
+{
+  static_assert(sizeof(gl::SRGBA8) == 4);
+  interleave();
+  // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+  return gsl::make_span(reinterpret_cast<const gl::SRGBA8*>(data()),
+                        gsl::narrow<size_t>(width()) * gsl::narrow<size_t>(height()));
+}
+
+gsl::span<const gl::PremultipliedSRGBA8> CImgWrapper::asPremultipliedPixels()
+{
+  static_assert(sizeof(gl::PremultipliedSRGBA8) == 4);
+  interleave();
+  // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+  return gsl::make_span(reinterpret_cast<const gl::PremultipliedSRGBA8*>(data()),
+                        gsl::narrow<size_t>(width()) * gsl::narrow<size_t>(height()));
+}
+
 std::unique_ptr<cimg_library::CImg<uint8_t>> CImgWrapper::loadPcx(const std::filesystem::path& filename)
 {
   std::ifstream stream{filename, std::ios::in | std::ios::binary};
