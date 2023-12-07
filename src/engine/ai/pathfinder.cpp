@@ -608,7 +608,7 @@ void PathFinder::setLimits(const world::World& world,
   if(box == nullptr)
     return;
 
-  // NOLINTNEXTLINE(hicpp-signed-bitwise)
+  // NOLINTNEXTLINE(hicpp-signed-bitwise, bitwise-instead-of-logical)
   if((std::exchange(m_step, step) != step) | (std::exchange(m_drop, drop) != drop) | (std::exchange(m_fly, fly) != fly))
   {
     resetBoxes(world, gsl::not_null{box});
