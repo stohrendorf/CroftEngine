@@ -3,6 +3,8 @@
 #include "buffervoice.h"
 #include "device.h"
 #include "emitter.h"
+#include "engine/engine.h"
+#include "engine/world/world.h"
 #include "ffmpegstreamsource.h"
 #include "listener.h"
 #include "serialization/chrono.h"
@@ -187,10 +189,10 @@ void SoundEngine::setListenerGain(float gain)
 
 void SoundEngine::setSlotStream(size_t slot,
                                 const gsl::shared_ptr<StreamVoice>& stream,
-                                const std::filesystem::path& path)
+                                const std::filesystem::path& absolutePath)
 {
   m_slots.erase(slot);
-  m_slots.emplace(slot, SlotStream{stream, path});
+  m_slots.emplace(slot, SlotStream{stream, absolutePath});
 }
 
 std::shared_ptr<StreamVoice> SoundEngine::tryGetStream(size_t slot)
@@ -221,7 +223,8 @@ void SoundEngine::serializeStreams(const serialization::Serializer<engine::world
     {
       m_slots.emplace(slot, slotStream);
       positions.emplace(slot, stream->getStreamPosition());
-      names.emplace(slot, slotStream.name);
+      names.emplace(slot,
+                    std::filesystem::relative(slotStream.absolutePath, ser.context->getEngine().getAssetDataPath()));
       looping.emplace(slot, stream->isLooping());
     }
   }
@@ -243,12 +246,12 @@ void SoundEngine::deserializeStreams(const serialization::Deserializer<engine::w
 
   ser(S_NV("streamNames", names), S_NV("streamPositions", positions), S_NV("streamLooping", looping));
 
-  for(const auto& [slot, streamName] : names)
+  for(const auto& [slot, streamPath] : names)
   {
-    const auto stream = createStream(rootPath / streamName, positions.at(slot));
+    const auto stream = createStream(rootPath / streamPath, positions.at(slot));
     stream->setLooping(looping.at(slot));
     stream->play();
-    setSlotStream(slot, stream, streamName);
+    setSlotStream(slot, stream, ser.context->getEngine().getAssetDataPath() / streamPath);
     streamGroup.add(stream);
   }
 }

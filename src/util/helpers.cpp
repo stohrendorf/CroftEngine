@@ -115,7 +115,7 @@ std::string escape(const std::string& unescaped)
 
 std::filesystem::path ensureFileExists(const std::filesystem::path& path)
 {
-  if(!std::filesystem::is_regular_file(path))
+  if(path.empty() || !std::filesystem::is_regular_file(path))
   {
     BOOST_LOG_TRIVIAL(fatal) << "Could not find required file " << path;
     BOOST_THROW_EXCEPTION(std::runtime_error("required file not found"));

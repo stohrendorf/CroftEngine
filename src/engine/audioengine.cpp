@@ -193,7 +193,7 @@ void AudioEngine::playStopCdTrack(const script::Gameflow& gameflow, const TR1Tra
 gslu::nn_shared<audio::StreamVoice> AudioEngine::createStream(const std::filesystem::path& path,
                                                               const std::chrono::milliseconds& initialPosition)
 {
-  auto stream = m_soundEngine->createStream(m_rootPath / path, initialPosition);
+  auto stream = m_soundEngine->createStream(path, initialPosition);
   m_music.add(stream);
   return stream;
 }

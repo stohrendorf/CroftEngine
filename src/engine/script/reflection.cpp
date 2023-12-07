@@ -82,6 +82,43 @@ std::unique_ptr<loader::file::level::Level> loadLevel(const gsl::not_null<Engine
   level->loadFileData();
   return level;
 }
+
+[[nodiscard]] std::filesystem::path findCaseInsensitive(const std::filesystem::path& base,
+                                                        const std::filesystem::path& segment)
+{
+  if(std::filesystem::exists(base / segment))
+    return base / segment;
+  for(auto it = std::filesystem::directory_iterator{base}; it != std::filesystem::directory_iterator{}; ++it)
+  {
+    if(_stricmp(segment.string().c_str(), it->path().filename().string().c_str()) == 0)
+    {
+      return base / it->path().filename();
+    }
+  }
+
+  return {};
+}
+
+[[nodiscard]] std::filesystem::path findCaseInsensitivePath(const std::filesystem::path& base,
+                                                            const std::filesystem::path& subPath)
+{
+  if(std::filesystem::exists(base / subPath))
+    return base / subPath;
+
+  std::filesystem::path realSubPath{};
+  for(const auto& segment : subPath)
+  {
+    auto realSegment = findCaseInsensitive(base / realSubPath, segment);
+    if(realSegment.empty())
+    {
+      return {};
+    }
+
+    realSubPath /= realSegment;
+  }
+
+  return realSubPath;
+}
 } // namespace
 
 std::pair<RunResult, std::optional<size_t>> Video::run(const gsl::not_null<Engine*>& engine,
@@ -91,7 +128,7 @@ std::pair<RunResult, std::optional<size_t>> Video::run(const gsl::not_null<Engin
   engine->getPresenter().getSoundEngine()->reset();
   for(const auto& path : m_paths)
   {
-    if(auto asset = engine->getAssetDataPath() / path; std::filesystem::is_regular_file(asset))
+    if(auto asset = findCaseInsensitivePath(engine->getAssetDataPath(), path); std::filesystem::is_regular_file(asset))
     {
       engine->getPresenter().playVideo(engine->getAssetDataPath() / asset);
       break;
@@ -108,7 +145,7 @@ std::vector<std::filesystem::path> Video::getFilepathsIfInvalid(const std::files
   }
 
   for(const auto& path : m_paths)
-    if(std::filesystem::is_regular_file(dataRoot / path))
+    if(std::filesystem::is_regular_file(findCaseInsensitivePath(dataRoot, path)))
       return {};
   return m_paths;
 }
@@ -165,7 +202,7 @@ std::pair<RunResult, std::optional<size_t>> Cutscene::run(const gsl::not_null<En
 
 std::vector<std::filesystem::path> Cutscene::getFilepathsIfInvalid(const std::filesystem::path& dataRoot) const
 {
-  if(std::filesystem::is_regular_file(dataRoot / m_name))
+  if(std::filesystem::is_regular_file(findCaseInsensitivePath(dataRoot, m_name)))
     return {};
   return {std::filesystem::path{m_name}};
 }
@@ -245,8 +282,10 @@ std::pair<RunResult, std::optional<size_t>> Level::run(const gsl::not_null<Engin
                                                        const std::shared_ptr<Player>& levelStartPlayer)
 {
   if(m_alternativeSplashscreen.has_value()
-     && std::filesystem::is_regular_file(engine->getAssetDataPath() / *m_alternativeSplashscreen))
-    engine->getPresenter().setSplashImageTextureOverride(engine->getAssetDataPath() / *m_alternativeSplashscreen);
+     && std::filesystem::is_regular_file(
+       findCaseInsensitivePath(engine->getAssetDataPath(), *m_alternativeSplashscreen)))
+    engine->getPresenter().setSplashImageTextureOverride(
+      findCaseInsensitivePath(engine->getAssetDataPath(), *m_alternativeSplashscreen));
   else
     engine->getPresenter().clearSplashImageTextureOverride();
 
@@ -271,7 +310,8 @@ std::pair<RunResult, std::optional<size_t>> Level::runFromSave(const gsl::not_nu
   gsl_Expects(m_allowSave);
 
   if(m_alternativeSplashscreen.has_value()
-     && std::filesystem::is_regular_file(engine->getAssetDataPath() / *m_alternativeSplashscreen))
+     && std::filesystem::is_regular_file(
+       findCaseInsensitivePath(engine->getAssetDataPath(), *m_alternativeSplashscreen)))
     engine->getPresenter().setSplashImageTextureOverride(engine->getAssetDataPath() / *m_alternativeSplashscreen);
   else
     engine->getPresenter().clearSplashImageTextureOverride();
@@ -287,7 +327,7 @@ std::pair<RunResult, std::optional<size_t>> Level::runFromSave(const gsl::not_nu
 
 std::vector<std::filesystem::path> Level::getFilepathsIfInvalid(const std::filesystem::path& dataRoot) const
 {
-  if(std::filesystem::is_regular_file(dataRoot / m_name))
+  if(std::filesystem::is_regular_file(findCaseInsensitivePath(dataRoot, m_name)))
     return {};
   return {std::filesystem::path{m_name}};
 }
@@ -348,7 +388,8 @@ std::pair<RunResult, std::optional<size_t>> SplashScreen::run(const gsl::not_nul
 
   glm::ivec2 size{-1, -1};
   auto image = gsl::make_shared<gl::TextureHandle<gl::Texture2D<gl::PremultipliedSRGBA8>>>(
-    gl::CImgWrapper{util::ensureFileExists(engine->getAssetDataPath() / m_path)}.toTexture(m_path.string()),
+    gl::CImgWrapper{util::ensureFileExists(findCaseInsensitivePath(engine->getAssetDataPath(), m_path))}.toTexture(
+      m_path.string()),
     gsl::make_unique<gl::Sampler>(m_path.string() + gl::SamplerSuffix));
   std::shared_ptr<render::scene::Mesh> mesh;
 
@@ -449,7 +490,7 @@ std::pair<RunResult, std::optional<size_t>> SplashScreen::run(const gsl::not_nul
 
 std::vector<std::filesystem::path> SplashScreen::getFilepathsIfInvalid(const std::filesystem::path& dataRoot) const
 {
-  if(std::filesystem::is_regular_file(dataRoot / m_path))
+  if(std::filesystem::is_regular_file(findCaseInsensitivePath(dataRoot, m_path)))
     return {};
   return {std::filesystem::path{m_path}};
 }
@@ -543,7 +584,7 @@ std::vector<std::filesystem::path> TrackInfo::getFilepathsIfInvalid(const std::f
 {
   for(const auto& path : paths)
   {
-    if(std::filesystem::is_regular_file(dataRoot / path))
+    if(std::filesystem::is_regular_file(findCaseInsensitivePath(dataRoot, path)))
       return {};
   }
 
@@ -554,8 +595,8 @@ std::filesystem::path TrackInfo::getFirstValidAlternative(const std::filesystem:
 {
   for(const auto& path : paths)
   {
-    if(std::filesystem::is_regular_file(dataRoot / path))
-      return path;
+    if(std::filesystem::is_regular_file(findCaseInsensitivePath(dataRoot, path)))
+      return findCaseInsensitivePath(dataRoot, path);
   }
 
   BOOST_THROW_EXCEPTION(std::runtime_error("no valid alternative found"));
@@ -568,11 +609,10 @@ std::pair<RunResult, std::optional<size_t>> PlayAudioSlot::run(const gsl::not_nu
   const gsl::not_null trackInfo{engine->getScriptEngine().getGameflow().getTracks().at(m_track)};
   engine->getPresenter().getSoundEngine()->freeSlot(m_slot);
   const auto stream = engine->getPresenter().getSoundEngine()->createStream(
-    engine->getAssetDataPath() / trackInfo->getFirstValidAlternative(engine->getAssetDataPath()),
-    std::chrono::milliseconds{0});
+    trackInfo->getFirstValidAlternative(engine->getAssetDataPath()), std::chrono::milliseconds{0});
   stream->setLooping(trackInfo->looping);
   engine->getPresenter().getSoundEngine()->setSlotStream(
-    m_slot, stream, engine->getAssetDataPath() / trackInfo->getFirstValidAlternative(engine->getAssetDataPath()));
+    m_slot, stream, trackInfo->getFirstValidAlternative(engine->getAssetDataPath()));
   stream->play();
   return {RunResult::NextLevel, std::nullopt};
 }

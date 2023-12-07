@@ -33,7 +33,7 @@ class VoiceGroup;
 struct SlotStream
 {
   std::weak_ptr<StreamVoice> stream{};
-  std::filesystem::path name;
+  std::filesystem::path absolutePath;
 };
 
 class SoundEngine final
@@ -81,7 +81,8 @@ public:
 
   void reset();
 
-  void setSlotStream(size_t slot, const gsl::shared_ptr<StreamVoice>& stream, const std::filesystem::path& path);
+  void
+    setSlotStream(size_t slot, const gsl::shared_ptr<StreamVoice>& stream, const std::filesystem::path& absolutePath);
   [[nodiscard]] std::shared_ptr<StreamVoice> tryGetStream(size_t slot);
   void freeSlot(size_t slot) noexcept;
   void serializeStreams(const serialization::Serializer<engine::world::World>& ser);
