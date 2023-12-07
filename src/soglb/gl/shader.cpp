@@ -56,7 +56,6 @@ void replaceIncludes(const std::filesystem::path& filepath,
 
   // Replace the #include "foo.bar" with the sourced file contents of "filepath/foo.bar"
   size_t headPos = 0;
-  size_t line = 1;
   while(headPos < source.length())
   {
     const auto lastPos = headPos;
@@ -78,7 +77,6 @@ void replaceIncludes(const std::filesystem::path& filepath,
       {
         const auto part = source.substr(lastPos, headPos - lastPos);
         out.append(part);
-        line += std::count(part.begin(), part.end(), '\n');
       }
 
       // find the start quote "
