@@ -42,6 +42,7 @@
 #include <boost/range/adaptor/map.hpp>
 #include <boost/throw_exception.hpp>
 #include <chrono>
+#include <cstring>
 #include <gl/cimgwrapper.h>
 #include <gl/constants.h>
 #include <gl/framebuffer.h>
@@ -90,10 +91,16 @@ std::unique_ptr<loader::file::level::Level> loadLevel(const gsl::not_null<Engine
     return base / segment;
   for(auto it = std::filesystem::directory_iterator{base}; it != std::filesystem::directory_iterator{}; ++it)
   {
+#ifndef WIN32
+#  define _stricmp strcasecmp
+#endif
     if(_stricmp(segment.string().c_str(), it->path().filename().string().c_str()) == 0)
     {
       return base / it->path().filename();
     }
+#ifdef WIN32
+#  undef _stricmp
+#endif
   }
 
   return {};
