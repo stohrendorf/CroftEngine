@@ -22,12 +22,12 @@
         <translation>CroftEngine</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="157"/>
+        <location filename="mainwindow.ui" line="158"/>
         <source>Show Data Location</source>
         <translation>Spieldaten zeigen</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="164"/>
+        <location filename="mainwindow.ui" line="165"/>
         <source>Clear config</source>
         <translation>Konfiguration zurücksetzen</translation>
     </message>
@@ -53,83 +53,84 @@
     </message>
     <message>
         <location filename="mainwindow.ui" line="90"/>
-        <source>Borderless Fullscreen (for streaming, with cursor and task bar)</source>
-        <oldsource>Fullscreen Borderless (for streaming)</oldsource>
+        <source>Borderless Fullscreen (for streaming, with cursor and task bar)
+                                            </source>
+        <oldsource>Borderless Fullscreen (for streaming, with cursor and task bar)</oldsource>
         <translation>Rahmenloses Vollbild (für Streaming, mit Mauszeiger und Taskleiste)</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="98"/>
+        <location filename="mainwindow.ui" line="99"/>
         <source>Configuration</source>
         <translation>Konfiguration</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="113"/>
+        <location filename="mainwindow.ui" line="114"/>
         <source>Engine Data Location</source>
         <translation>Engine Datenordner</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="120"/>
+        <location filename="mainwindow.ui" line="121"/>
         <source>Engine Version</source>
         <translation>Engine Version</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="134"/>
+        <location filename="mainwindow.ui" line="135"/>
         <source>Data Location</source>
         <translation>Datenordner</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="150"/>
+        <location filename="mainwindow.ui" line="151"/>
         <source>Migrate from other installation</source>
         <translation>Von anderer Installation migrieren</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="173"/>
+        <location filename="mainwindow.ui" line="174"/>
         <source>Select Glidos Texture Pack</source>
         <translation>Glidos Textur Paket wählen</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="180"/>
+        <location filename="mainwindow.ui" line="181"/>
         <source>Disable Glidos Texture Pack</source>
         <translation>Glidos Textur Paket deaktivieren</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="203"/>
+        <location filename="mainwindow.ui" line="204"/>
         <source>Coop</source>
         <translation>Coop</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="211"/>
+        <location filename="mainwindow.ui" line="212"/>
         <source>Choose Your Ghost Color</source>
         <oldsource>Choose Color</oldsource>
         <translation>Geistfarbe wählen</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="225"/>
+        <location filename="mainwindow.ui" line="226"/>
         <source>Server</source>
         <translation>Server</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="232"/>
+        <location filename="mainwindow.ui" line="233"/>
         <source>example.com:12345</source>
         <translation>example.com:12345</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="239"/>
+        <location filename="mainwindow.ui" line="240"/>
         <source>Username</source>
         <translation>Benutzername</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="249"/>
+        <location filename="mainwindow.ui" line="250"/>
         <source>Auth token</source>
         <translation>Auth token</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="259"/>
+        <location filename="mainwindow.ui" line="260"/>
         <source>Session ID</source>
         <translation>Session ID</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="269"/>
+        <location filename="mainwindow.ui" line="270"/>
         <source>Validate</source>
         <translation>Prüfen</translation>
     </message>
@@ -138,7 +139,7 @@
         <translation type="vanished">Verbindung prüfen</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="296"/>
+        <location filename="mainwindow.ui" line="297"/>
         <source>E&amp;xit</source>
         <translation>&amp;Beenden</translation>
     </message>
