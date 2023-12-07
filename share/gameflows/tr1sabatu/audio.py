@@ -9,7 +9,7 @@ _EFFECT = (2, False)
 def _track(track_id: TR1TrackId, ogg: int, *args):
     return {
         track_id: TrackInfo([
-            f"Music/Track{int(track_id):>02}.flac",
+            f"music/Track{int(track_id):>02}.flac",
             f"AUDIO/{ogg:>03}.ogg",
         ], *args),
     }
