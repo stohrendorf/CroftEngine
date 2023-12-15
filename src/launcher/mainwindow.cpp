@@ -307,7 +307,7 @@ void MainWindow::onImportClicked()
 {
   const auto gameflow = ui->gameflows->currentIndex().data(IdRole).toString();
 
-  if(gameflow == "tr1" || gameflow == "tr1ub")
+  if(gameflow == "tr1")
   {
     if(!importBaseGameData())
       return;
@@ -602,7 +602,7 @@ void MainWindow::onMigrateClicked()
 
 void MainWindow::extractSoundtrackZip(std::filesystem::path target)
 {
-  for(const auto gameflow : {"tr1", "tr1demo-part1", "tr1demo-part2"})
+  for(const auto gameflow : {"tr1", "tr1demo-part1", "tr1demo-part2", "tr1ub"})
   {
     const auto gameflowRoot = findUserDataDir().value() / "data" / gameflow;
     if(!std::filesystem::is_directory(gameflowRoot))

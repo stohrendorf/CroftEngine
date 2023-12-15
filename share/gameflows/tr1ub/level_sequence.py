@@ -23,19 +23,7 @@ title_menu = TitleMenu(
     ambient=TR1TrackId.MainTheme,
 )
 
-lara_home = [
-    Video(paths=_fmv("MANSION")),
-    Level(
-        name="DATA/GYM.PHD",
-        titles={
-            "en_GB": "Lara's home",
-            "de_DE": "Laras Haus",
-        },
-        use_alternative_lara=True,
-        allow_save=False,
-        default_weapon=WeaponType.None_,
-    ),
-]
+lara_home = []
 
 level_sequence = [
     ModifyInventory(

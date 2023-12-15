@@ -2,4 +2,5 @@ meta:
   title: "Tomb Raider 1 - Unfinished Business"
   author: "Core Design"
   downloadSoundtrack: true
-  urls: [ ]
+  urls:
+    - "https://www.moddb.com/downloads/tomb-raider-unfinished-business"
