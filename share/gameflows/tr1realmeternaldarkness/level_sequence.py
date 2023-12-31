@@ -1,5 +1,5 @@
-from ce.engine import TR1TrackId, TR1ItemId, Video, Cutscene, Level, TitleMenu, SplashScreen, WeaponType, \
-    ModifyInventory, ResetSoundEngine, PlayAudioSlot
+from ce.engine import TR1TrackId, TR1ItemId, Video, Level, TitleMenu, SplashScreen, WeaponType, ModifyInventory, \
+    ResetSoundEngine, PlayAudioSlot
 
 
 def _fmv(basename: str):
@@ -62,6 +62,16 @@ level_sequence = [
     ),
     ModifyInventory(
         add_inventory={TR1ItemId.Pistols: 1},
+        drop_inventory={
+            TR1ItemId.Puzzle1,
+            TR1ItemId.Puzzle2,
+            TR1ItemId.Puzzle3,
+            TR1ItemId.Puzzle4,
+            TR1ItemId.Key1,
+            TR1ItemId.Key2,
+            TR1ItemId.Key3,
+            TR1ItemId.Key4,
+        },
     ),
     Level(
         name="data/Underground.phd",
@@ -87,6 +97,18 @@ level_sequence = [
             },
         },
         water_color=(0.45, 1.0, 1.0),
+    ),
+    ModifyInventory(
+        drop_inventory={
+            TR1ItemId.Puzzle1,
+            TR1ItemId.Puzzle2,
+            TR1ItemId.Puzzle3,
+            TR1ItemId.Puzzle4,
+            TR1ItemId.Key1,
+            TR1ItemId.Key2,
+            TR1ItemId.Key3,
+            TR1ItemId.Key4,
+        },
     ),
     Video(paths=_fmv("FMV3")),
     Level(
@@ -118,6 +140,18 @@ level_sequence = [
         },
         water_color=(0.4, 0.4, 0.4),
     ),
+    ModifyInventory(
+        drop_inventory={
+            TR1ItemId.Puzzle1,
+            TR1ItemId.Puzzle2,
+            TR1ItemId.Puzzle3,
+            TR1ItemId.Puzzle4,
+            TR1ItemId.Key1,
+            TR1ItemId.Key2,
+            TR1ItemId.Key3,
+            TR1ItemId.Key4,
+        },
+    ),
     Level(
         name="data/chambers.phd",
         titles={
@@ -144,6 +178,18 @@ level_sequence = [
             },
         },
         water_color=(0.4, 0.4, 0.4),
+    ),
+    ModifyInventory(
+        drop_inventory={
+            TR1ItemId.Puzzle1,
+            TR1ItemId.Puzzle2,
+            TR1ItemId.Puzzle3,
+            TR1ItemId.Puzzle4,
+            TR1ItemId.Key1,
+            TR1ItemId.Key2,
+            TR1ItemId.Key3,
+            TR1ItemId.Key4,
+        },
     ),
     Level(
         name="data/Palace.phd",
