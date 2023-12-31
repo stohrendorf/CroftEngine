@@ -53,8 +53,7 @@
     </message>
     <message>
         <location filename="mainwindow.ui" line="90"/>
-        <source>Borderless Fullscreen (for streaming, with cursor and task bar)
-                                            </source>
+        <source>Borderless Fullscreen (for streaming, with cursor and task bar)</source>
         <oldsource>Borderless Fullscreen (for streaming, with cursor and task bar)</oldsource>
         <translation>Rahmenloses Vollbild (für Streaming, mit Mauszeiger und Taskleiste)</translation>
     </message>
@@ -217,6 +216,11 @@
         <translation>ZIP Archiv (*.zip)</translation>
     </message>
     <message>
+        <location filename="mainwindow.cpp" line="487"/>
+        <source>Game Data Files (tomb.exe TOMB.EXE tombati.exe GAME.DAT)</source>
+        <translation>Spieldatendateien (tomb.exe TOMB.EXE tombati.exe GAME.DAT)</translation>
+    </message>
+    <message>
         <location filename="mainwindow.cpp" line="1021"/>
         <location filename="mainwindow.cpp" line="1029"/>
         <source>Could not find game data in archive.</source>
@@ -327,9 +331,8 @@
         <translation>Tomb Raider 1 Daten wählen</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="487"/>
         <source>Game Data Files (tomb.exe tombati.exe GAME.DAT)</source>
-        <translation>Spieldatendateien (tomb.exe tombati.exe GAME.DAT)</translation>
+        <translation type="vanished">Spieldatendateien (tomb.exe tombati.exe GAME.DAT)</translation>
     </message>
     <message>
         <location filename="mainwindow.cpp" line="531"/>
