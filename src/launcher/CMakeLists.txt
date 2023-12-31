@@ -16,7 +16,7 @@ set(
 )
 
 set( TS_FILES )
-file( STRINGS ../languages.txt _languages )
+file( STRINGS ../languages.txt _languages ENCODING UTF-8 )
 set( _lang_list_tmp ${CMAKE_BINARY_DIR}/lang-list.tmp )
 file( APPEND "${_lang_list_tmp}" "#pragma once\n" )
 file( APPEND "${_lang_list_tmp}" "#include <vector>\n" )

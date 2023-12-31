@@ -81,7 +81,7 @@ if( UNIX )
     )
 endif()
 
-file( STRINGS src/languages.txt _languages )
+file( STRINGS src/languages.txt _languages ENCODING UTF-8 )
 foreach( _language IN LISTS _languages )
     if( NOT _language MATCHES ".+ .+" )
         continue()

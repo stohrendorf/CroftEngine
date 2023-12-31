@@ -1,2 +1,3 @@
 en_GB English
 de_DE Deutsch
+fr_FR Français

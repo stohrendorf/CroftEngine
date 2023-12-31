@@ -20,6 +20,7 @@ title_menu = TitleMenu(
     titles={
         "en_GB": "Tomb Raider",
         "de_DE": "Tomb Raider",
+        "fr_FR": "Tomb Raider",
     },
     ambient=TR1TrackId.MainTheme,
 )
@@ -31,6 +32,7 @@ lara_home = [
         titles={
             "en_GB": "Lara's home",
             "de_DE": "Laras Haus",
+            "fr_FR": "La Demeure de Lara",
         },
         use_alternative_lara=True,
         allow_save=False,
@@ -49,6 +51,7 @@ level_sequence = [
         titles={
             "en_GB": "Caves",
             "de_DE": "Die Kavernen",
+            "fr_FR": "Les Cavernes",
         },
         ambient=TR1TrackId.Ambience1,
         alternative_splashscreen="DATA/AZTECLOA.jpg",
@@ -58,6 +61,7 @@ level_sequence = [
         titles={
             "en_GB": "City of Vilcabamba",
             "de_DE": "Die Stadt Vilcabamba",
+            "fr_FR": "La Cit)e de Vilcabamba",
         },
         ambient=TR1TrackId.Ambience1,
         item_titles={
@@ -69,6 +73,10 @@ level_sequence = [
                 TR1ItemId.Puzzle1: "Goldener G~otze",
                 TR1ItemId.Key1: "Silberner Schl~ussel",
             },
+            "fr_FR": {
+                TR1ItemId.Puzzle1: "Id(ole d'or",
+                TR1ItemId.Key1: "Cl)e d'argent",
+            },
         },
         alternative_splashscreen="DATA/AZTECLOA.jpg",
     ),
@@ -77,6 +85,7 @@ level_sequence = [
         titles={
             "en_GB": "Lost Valley",
             "de_DE": "Das Verlorene Tal",
+            "fr_FR": "La Vall)ee Perdue",
         },
         ambient=TR1TrackId.Ambience1,
         item_titles={
@@ -86,6 +95,9 @@ level_sequence = [
             "de_DE": {
                 TR1ItemId.Puzzle1: "Zahnrad",
             },
+            "fr_FR": {
+                TR1ItemId.Puzzle1: "Pi$ece de machine",
+            },
         },
         alternative_splashscreen="DATA/AZTECLOA.jpg",
     ),
@@ -94,6 +106,7 @@ level_sequence = [
         titles={
             "en_GB": "Tomb of Qualopec",
             "de_DE": "Das Grab von Qualopec",
+            "fr_FR": "La Tombe de Qualopec",
         },
         ambient=TR1TrackId.Ambience1,
         item_titles={
@@ -101,6 +114,9 @@ level_sequence = [
                 TR1ItemId.ScionPieceCounter: "Scion",
             },
             "de_DE": {
+                TR1ItemId.ScionPieceCounter: "Scion",
+            },
+            "fr_FR": {
                 TR1ItemId.ScionPieceCounter: "Scion",
             },
         },
@@ -119,6 +135,7 @@ level_sequence = [
         titles={
             "en_GB": "St. Francis' Folly",
             "de_DE": "St. Francis' Folly",
+            "fr_FR": "Le Monument St Francis",
         },
         ambient=TR1TrackId.Ambience3,
         item_titles={
@@ -136,6 +153,13 @@ level_sequence = [
                 TR1ItemId.Key4: "Schl~ussel des Thor",
                 TR1ItemId.ScionPieceCounter: "Scion",
             },
+            "fr_FR": {
+                TR1ItemId.Key1: "Cl)e de Neptune",
+                TR1ItemId.Key2: "Cl)e d'Atlas",
+                TR1ItemId.Key3: "Cl)e de Damocl$es",
+                TR1ItemId.Key4: "Cl)e de Thor",
+                TR1ItemId.ScionPieceCounter: "Scion",
+            },
         },
         alternative_splashscreen="DATA/GREEKLOA.jpg",
     ),
@@ -144,6 +168,7 @@ level_sequence = [
         titles={
             "en_GB": "Colosseum",
             "de_DE": "Das Kolosseum",
+            "fr_FR": "Le Colosseum",
         },
         ambient=TR1TrackId.Ambience3,
         item_titles={
@@ -155,6 +180,10 @@ level_sequence = [
                 TR1ItemId.Key1: "Rostiger Schl~ussel",
                 TR1ItemId.ScionPieceCounter: "Scion",
             },
+            "fr_FR": {
+                TR1ItemId.Key1: "Cl)e rouill)ee",
+                TR1ItemId.ScionPieceCounter: "Scion",
+            },
         },
         alternative_splashscreen="DATA/GREEKLOA.jpg",
     ),
@@ -163,6 +192,7 @@ level_sequence = [
         titles={
             "en_GB": "Palace Midas",
             "de_DE": "Der Palast des Midas",
+            "fr_FR": "Le Palais de Midas",
         },
         ambient=TR1TrackId.Ambience3,
         item_titles={
@@ -174,6 +204,10 @@ level_sequence = [
                 TR1ItemId.Puzzle1: "Goldbarren",
                 TR1ItemId.ScionPieceCounter: "Scion",
             },
+            "fr_FR": {
+                TR1ItemId.Puzzle1: "Lingot d'or",
+                TR1ItemId.ScionPieceCounter: "Scion",
+            },
         },
         alternative_splashscreen="DATA/GREEKLOA.jpg",
     ),
@@ -182,6 +216,7 @@ level_sequence = [
         titles={
             "en_GB": "The Cistern",
             "de_DE": "Die Zisterne",
+            "fr_FR": "La Citerne",
         },
         ambient=TR1TrackId.Ambience2,
         item_titles={
@@ -197,6 +232,12 @@ level_sequence = [
                 TR1ItemId.Key3: "Rostiger Schl~ussel",
                 TR1ItemId.ScionPieceCounter: "Scion",
             },
+            "fr_FR": {
+                TR1ItemId.Key1: "Cl)e en or",
+                TR1ItemId.Key2: "Cl)e d'argent",
+                TR1ItemId.Key3: "Cl)e rouill)ee",
+                TR1ItemId.ScionPieceCounter: "Scion",
+            },
         },
         alternative_splashscreen="DATA/GREEKLOA.jpg",
     ),
@@ -205,6 +246,7 @@ level_sequence = [
         titles={
             "en_GB": "Tomb of Tihocan",
             "de_DE": "Das Grab des Tihocan",
+            "fr_FR": "La Tombe de Tihocan",
         },
         ambient=TR1TrackId.Ambience2,
         item_titles={
@@ -218,6 +260,12 @@ level_sequence = [
                 TR1ItemId.Key1: "Goldener Schl~ussel",
                 TR1ItemId.Key2: "Rostiger Schl~ussel",
                 TR1ItemId.Key3: "Rostiger Schl~ussel",
+                TR1ItemId.ScionPieceCounter: "Scion",
+            },
+            "fr_FR": {
+                TR1ItemId.Key1: "Cl)e en or",
+                TR1ItemId.Key2: "Cl)e rouill)ee",
+                TR1ItemId.Key3: "Cl)e rouill)ee",
                 TR1ItemId.ScionPieceCounter: "Scion",
             },
         },
@@ -237,6 +285,7 @@ level_sequence = [
         titles={
             "en_GB": "City of Khamoon",
             "de_DE": "Die Stadt Khamoon",
+            "fr_FR": "La Cit)e de Khamoon",
         },
         ambient=TR1TrackId.Ambience3,
         item_titles={
@@ -248,6 +297,10 @@ level_sequence = [
                 TR1ItemId.Key1: "Saphir-Schl~ussel",
                 TR1ItemId.ScionPieceCounter: "Scion",
             },
+            "fr_FR": {
+                TR1ItemId.Key1: "Cl)e de saphir",
+                TR1ItemId.ScionPieceCounter: "Scion",
+            },
         },
         alternative_splashscreen="DATA/EGYPTLOA.jpg",
     ),
@@ -256,6 +309,7 @@ level_sequence = [
         titles={
             "en_GB": "Obelisk of Khamoon",
             "de_DE": "Der Obelisk von Khamoon",
+            "fr_FR": "L'Ob)elisque de Khamoon",
         },
         ambient=TR1TrackId.Ambience3,
         item_titles={
@@ -275,6 +329,14 @@ level_sequence = [
                 TR1ItemId.Key1: "Saphir-Schl~ussel",
                 TR1ItemId.ScionPieceCounter: "Scion",
             },
+            "fr_FR": {
+                TR1ItemId.Puzzle1: "Oeil d'Horus",
+                TR1ItemId.Puzzle2: "Scarab)ee",
+                TR1ItemId.Puzzle3: "Sceau d'Anubis",
+                TR1ItemId.Puzzle4: "Ankh",
+                TR1ItemId.Key1: "Cl)e de saphir",
+                TR1ItemId.ScionPieceCounter: "Scion",
+            },
         },
         alternative_splashscreen="DATA/EGYPTLOA.jpg",
     ),
@@ -283,6 +345,7 @@ level_sequence = [
         titles={
             "en_GB": "Sanctuary of the Scion",
             "de_DE": "Das Heiligtum des Scion",
+            "fr_FR": "Le Sanctuaire du Scion",
         },
         ambient=TR1TrackId.Ambience3,
         item_titles={
@@ -296,6 +359,12 @@ level_sequence = [
                 TR1ItemId.Puzzle1: "Ankh-Kreuz",
                 TR1ItemId.Puzzle2: "Scarab~aus",
                 TR1ItemId.Key1: "Goldener Schl~ussel",
+                TR1ItemId.ScionPieceCounter: "Scion",
+            },
+            "fr_FR": {
+                TR1ItemId.Puzzle1: "Ankh",
+                TR1ItemId.Puzzle2: "Scarab)ee",
+                TR1ItemId.Key1: "Cl)e en or",
                 TR1ItemId.ScionPieceCounter: "Scion",
             },
         },
@@ -320,6 +389,7 @@ level_sequence = [
         titles={
             "en_GB": "Natla's Mines",
             "de_DE": "Natlas Katakomben",
+            "fr_FR": "Les Mines de Natla",
         },
         ambient=TR1TrackId.Ambience2,
         item_titles={
@@ -333,6 +403,12 @@ level_sequence = [
                 TR1ItemId.Puzzle1: "Sicherung",
                 TR1ItemId.Puzzle2: "Schl~ussel der Pyramide",
                 TR1ItemId.Key1: "Goldener Schl~ussel",
+                TR1ItemId.ScionPieceCounter: "Scion",
+            },
+            "fr_FR": {
+                TR1ItemId.Puzzle1: "Fusible",
+                TR1ItemId.Puzzle2: "Cl)e de la pyramide",
+                TR1ItemId.Key1: "Cl)e en or",
                 TR1ItemId.ScionPieceCounter: "Scion",
             },
         },
@@ -354,6 +430,7 @@ level_sequence = [
         titles={
             "en_GB": "Atlantis",
             "de_DE": "Atlantis",
+            "fr_FR": "L'Atlantide",
         },
         ambient=TR1TrackId.Ambience4,
         item_titles={
@@ -361,6 +438,9 @@ level_sequence = [
                 TR1ItemId.ScionPieceCounter: "Scion",
             },
             "de_DE": {
+                TR1ItemId.ScionPieceCounter: "Scion",
+            },
+            "fr_FR": {
                 TR1ItemId.ScionPieceCounter: "Scion",
             },
         },
@@ -378,6 +458,7 @@ level_sequence = [
         titles={
             "en_GB": "The Great Pyramid",
             "de_DE": "Die Gro=e Pyramide",
+            "fr_FR": "La Grande Pyramide",
         },
         ambient=TR1TrackId.Ambience4,
         item_titles={
@@ -385,6 +466,9 @@ level_sequence = [
                 TR1ItemId.ScionPieceCounter: "Scion",
             },
             "de_DE": {
+                TR1ItemId.ScionPieceCounter: "Scion",
+            },
+            "fr_FR": {
                 TR1ItemId.ScionPieceCounter: "Scion",
             },
         },

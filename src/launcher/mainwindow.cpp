@@ -125,7 +125,7 @@ MainWindow::MainWindow(QWidget* parent)
     int i = 0;
     for(const auto& [languageId, languageName] : getSupportedLanguages())
     {
-      auto item = new QStandardItem{QString::fromLatin1(languageName.c_str())};
+      auto item = new QStandardItem{QString::fromUtf8(languageName.c_str())};
       item->setData(QVariant{QString::fromLatin1(languageId.c_str())}, IdRole);
       m_languages.setItem(i, item);
 

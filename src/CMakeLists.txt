@@ -679,7 +679,7 @@ file(
 
 set( CE_ADDITIONAL_LANGUAGES )
 
-file( STRINGS languages.txt _languages )
+file( STRINGS languages.txt _languages ENCODING UTF-8 )
 foreach( _language IN LISTS _languages )
     if( NOT _language MATCHES ".+ .+" )
         continue()

@@ -19,11 +19,25 @@ title_menu = TitleMenu(
     titles={
         "en_GB": "Tomb Raider - Unfinished Business",
         "de_DE": "Tomb Raider - Unfinished Business",
+        "fr_FR": "Tomb Raider - Unfinished Business",
     },
     ambient=TR1TrackId.MainTheme,
 )
 
-lara_home = []
+lara_home = [
+    Video(paths=_fmv("MANSION")),
+    Level(
+        name="DATA/GYM.PHD",
+        titles={
+            "en_GB": "Lara's home",
+            "de_DE": "Laras Haus",
+            "fr_FR": "La Demeure de Lara",
+        },
+        use_alternative_lara=True,
+        allow_save=False,
+        default_weapon=WeaponType.None_,
+    ),
+]
 
 level_sequence = [
     ModifyInventory(
@@ -34,6 +48,7 @@ level_sequence = [
         titles={
             "en_GB": "Return to Egypt",
             "de_DE": "R~uckkehr nach ~Agypten",
+            "fr_FR": "Retour en )Egypte",
         },
         ambient=TR1TrackId.Ambience0,
         item_titles={
@@ -43,6 +58,9 @@ level_sequence = [
             "de_DE": {
                 TR1ItemId.Key1: "Saphir-Schl~ussel",
             },
+            "fr_FR": {
+                TR1ItemId.Key1: "Cl)e de Saphir",
+            },
         },
     ),
     Level(
@@ -50,6 +68,7 @@ level_sequence = [
         titles={
             "en_GB": "Temple of the Cat",
             "de_DE": "Tempel der Katze",
+            "fr_FR": "Le Temple du Chat",
         },
         ambient=TR1TrackId.Ambience0,
         item_titles={
@@ -59,6 +78,9 @@ level_sequence = [
             "de_DE": {
                 TR1ItemId.Key1: "Verzierter Schl~ussel",
             },
+            "fr_FR": {
+                TR1ItemId.Key1: "Cl)e Orn)ee",
+            },
         },
     ),
     Level(
@@ -66,6 +88,7 @@ level_sequence = [
         titles={
             "en_GB": "Atlantean Stronghold",
             "de_DE": "Atlantische Festung",
+            "fr_FR": "La Forteresse Atlante",
         },
         ambient=TR1TrackId.Ambience2,
     ),
@@ -74,6 +97,7 @@ level_sequence = [
         titles={
             "en_GB": "The Hive",
             "de_DE": "Der Bienenstock",
+            "fr_FR": "La Ruche",
         },
         ambient=TR1TrackId.Ambience2,
     ),
