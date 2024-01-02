@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CroftEngine\n"
 "Report-Msgid-Bugs-To: https://github.com/stohrendorf/CroftEngine/issues\n"
-"POT-Creation-Date: 2023-11-19 06:55+0100\n"
+"POT-Creation-Date: 2024-01-02 17:30+0100\n"
 "Last-Translator: Steffen Ohrendorf\n"
 "Language-Team: none\n"
 "Language: de_DE\n"
@@ -280,7 +280,7 @@ msgstr "R~ucktaste"
 msgid "Bloom"
 msgstr "Sanftes Leuchten"
 
-#: engine/presenter.cpp:391
+#: engine/presenter.cpp:393
 msgid "Booting"
 msgstr "Starte"
 
@@ -1019,12 +1019,12 @@ msgstr "Spiel laden"
 msgid "Load Game"
 msgstr "Spiel laden"
 
-#: engine/script/reflection.cpp:80
+#: engine/script/reflection.cpp:81
 #, boost-format
 msgid "Loading %1%"
 msgstr "Lade %1%"
 
-#: engine/engine.cpp:872
+#: engine/engine.cpp:876
 msgid "Loading Glidos texture pack"
 msgstr "Lade Glidos Textur Paket"
 
@@ -1480,7 +1480,8 @@ msgstr "Zurdnung entfernen: %1% f~ur %2% Sekunden halten"
 #: menu/controlsmenustate.cpp:221
 #, boost-format
 msgid "Reset All Mappings to Classic: Hold %1% for %2% seconds"
-msgstr "Zur~ucksetzen aller Zuordnungen - klassisch: %1% f~ur %2% Sekunden halten"
+msgstr ""
+"Zur~ucksetzen aller Zuordnungen - klassisch: %1% f~ur %2% Sekunden halten"
 
 #. translators: TR charmap encoding
 #: menu/controlsmenustate.cpp:215
