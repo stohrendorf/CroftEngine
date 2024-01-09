@@ -121,7 +121,10 @@ void Door::update()
     }
   }
 
+  const auto oldLocation = m_state.location;
   ModelObject::update();
+  m_state.location = oldLocation;
+  setCurrentRoom(m_state.location.room);
 }
 
 void Door::collide(CollisionInfo& collisionInfo)
