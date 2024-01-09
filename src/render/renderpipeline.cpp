@@ -84,6 +84,7 @@ void RenderPipeline::worldCompositionPass(const std::vector<engine::world::Room>
   {
     SOGLB_DEBUGGROUP("dust");
 
+    m_worldCompositionPass->getFramebuffer()->bind();
     render::scene::RenderContext context{
       render::material::RenderMode::FullNonOpaque, std::nullopt, scene::Translucency::NonOpaque};
     for(const auto& room : rooms)
@@ -104,6 +105,7 @@ void RenderPipeline::worldCompositionPass(const std::vector<engine::world::Room>
 
       context.popState();
     }
+    m_worldCompositionPass->getFramebuffer()->unbind();
   }
 
   auto finalOutput = m_worldCompositionPass->getFramebuffer();
