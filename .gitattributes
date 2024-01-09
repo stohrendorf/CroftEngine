@@ -1,5 +1,3 @@
-* text=auto
-
-*.po text=LF
-*.pot text=LF
-*.ts text=LF
+*.po eol=lf
+*.pot eol=lf
+*.ts eol=lf
