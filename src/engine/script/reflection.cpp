@@ -233,9 +233,6 @@ std::unique_ptr<world::World> Level::loadWorld(const gsl::not_null<Engine*>& eng
 
   const auto title = titleIt == m_titles.end() ? "NO TRANSLATION - " + m_name : titleIt->second;
 
-  for(const auto& [type, qty] : engine->getScriptEngine().getGameflow().getCheatInventory())
-    player->getInventory().put(type.cast<TR1ItemId>(), nullptr, qty.cast<size_t>());
-
   auto world = std::make_unique<world::World>(engine,
                                               loadLevel(engine, m_name, util::unescape(title), m_game),
                                               title,
@@ -250,7 +247,7 @@ std::unique_ptr<world::World> Level::loadWorld(const gsl::not_null<Engine*>& eng
 
   auto replace = [&world, &player](TR1ItemId meshType, TR1ItemId spriteType, TR1ItemId replacement)
   {
-    if(player->getInventory().count(meshType) > 0 || player->getInventory().count(spriteType))
+    if(player->getInventory().count(meshType) > 0 || player->getInventory().count(spriteType) > 0)
     {
       world->getObjectManager().replaceItems(spriteType, replacement, *world);
     }
@@ -535,11 +532,6 @@ bool Gameflow::isGodMode() const
 bool Gameflow::hasAllAmmoCheat() const
 {
   return get<bool>(m_cheats, "allAmmoCheat").value_or(false);
-}
-
-pybind11::dict Gameflow::getCheatInventory() const
-{
-  return get<pybind11::dict>(m_cheats, "inventory").value_or(pybind11::dict{});
 }
 
 std::vector<std::filesystem::path> Gameflow::getInvalidFilepaths(const std::filesystem::path& dataRoot) const

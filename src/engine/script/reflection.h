@@ -485,7 +485,6 @@ public:
 
   [[nodiscard]] bool isGodMode() const;
   [[nodiscard]] bool hasAllAmmoCheat() const;
-  [[nodiscard]] pybind11::dict getCheatInventory() const;
 
   [[nodiscard]] std::vector<std::filesystem::path> getInvalidFilepaths(const std::filesystem::path& dataRoot) const;
 
