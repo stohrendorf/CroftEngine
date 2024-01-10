@@ -87,8 +87,7 @@
                                 <item>
                                     <widget class="QCheckBox" name="cbBorderlessFullscreen">
                                         <property name="text">
-                                            <string>Borderless Fullscreen (for streaming, with cursor and task bar)
-                                            </string>
+                                            <string>Borderless Fullscreen (for streaming, with cursor and task bar)</string>
                                         </property>
                                     </widget>
                                 </item>

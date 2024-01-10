@@ -2,6 +2,8 @@
   <code_scheme name="Project" version="173">
     <option name="DO_NOT_FORMAT">
       <list>
+        <fileSet type="globPattern" pattern="*.ts" />
+        <fileSet type="globPattern" pattern="*.ui" />
         <fileSet type="globPattern" pattern="*.yaml" />
         <fileSet type="globPattern" pattern="3rdparty/**" />
       </list>

@@ -22,12 +22,12 @@
         <translation>CroftEngine</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="158"/>
+        <location filename="mainwindow.ui" line="157"/>
         <source>Show Data Location</source>
         <translation>Spieldaten zeigen</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="165"/>
+        <location filename="mainwindow.ui" line="164"/>
         <source>Clear config</source>
         <translation>Konfiguration zurücksetzen</translation>
     </message>
@@ -58,83 +58,83 @@
         <translation>Rahmenloses Vollbild (für Streaming, mit Mauszeiger und Taskleiste)</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="99"/>
+        <location filename="mainwindow.ui" line="98"/>
         <source>Configuration</source>
         <translation>Konfiguration</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="114"/>
+        <location filename="mainwindow.ui" line="113"/>
         <source>Engine Data Location</source>
         <translation>Engine Datenordner</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="121"/>
+        <location filename="mainwindow.ui" line="120"/>
         <source>Engine Version</source>
         <translation>Engine Version</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="135"/>
+        <location filename="mainwindow.ui" line="134"/>
         <source>Data Location</source>
         <translation>Datenordner</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="151"/>
+        <location filename="mainwindow.ui" line="150"/>
         <source>Migrate from other installation</source>
         <translation>Von anderer Installation migrieren</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="174"/>
+        <location filename="mainwindow.ui" line="173"/>
         <source>Select Glidos Texture Pack</source>
         <translation>Glidos Textur Paket wählen</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="181"/>
+        <location filename="mainwindow.ui" line="180"/>
         <source>Disable Glidos Texture Pack</source>
         <translation>Glidos Textur Paket deaktivieren</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="204"/>
+        <location filename="mainwindow.ui" line="203"/>
         <source>Coop</source>
         <translation>Coop</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="212"/>
+        <location filename="mainwindow.ui" line="211"/>
         <source>Choose Your Ghost Color</source>
         <oldsource>Choose Color</oldsource>
         <translation>Geistfarbe wählen</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="226"/>
+        <location filename="mainwindow.ui" line="225"/>
         <source>Server</source>
         <translation>Server</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="233"/>
+        <location filename="mainwindow.ui" line="232"/>
         <source>example.com:12345</source>
         <translation>example.com:12345</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="240"/>
+        <location filename="mainwindow.ui" line="239"/>
         <source>Username</source>
         <translation>Benutzername</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="250"/>
+        <location filename="mainwindow.ui" line="249"/>
         <source>Auth token</source>
         <translation>Auth token</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="260"/>
+        <location filename="mainwindow.ui" line="259"/>
         <source>Session ID</source>
         <translation>Session ID</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="270"/>
+        <location filename="mainwindow.ui" line="269"/>
         <source>Validate</source>
         <translation>Prüfen</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="297"/>
+        <location filename="mainwindow.ui" line="296"/>
         <source>E&amp;xit</source>
         <translation>&amp;Beenden</translation>
     </message>
