@@ -114,7 +114,7 @@ void drawAmmoWidget(ui::Ui& ui, const ui::TRFont& trFont, const world::World& wo
       const auto margin = ui::FontHeight / 2 + glm::mix(ui::FontHeight, 0, bias);
       const auto targetPos
         = glm::ivec2{ui.getSize().x - ui::FontHeight - 1 - margin - text.getWidth(), ui::FontHeight * 2 + margin};
-      const auto center = (ui.getSize() - glm::ivec2{text.getWidth(), ui::FontHeight}) / 2;
+      const auto center = glm::ivec2{(ui.getSize().x - text.getWidth()) / 2, ui.getSize().y * 30 / 100};
       const auto pos = glm::mix(center, targetPos, bias);
       drawBox(text, ui, pos, margin, gl::SRGBA8{0, 0, 0, glm::mix(128, 224, bias)});
       text.draw(ui, trFont, pos, 1, glm::mix(0.75f, 1.0f, bias));
