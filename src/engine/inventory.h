@@ -31,7 +31,6 @@ struct Ammo
 {
   size_t shotsPerClip = 1;
   size_t roundsPerShot = 1;
-  TR1ItemId ammoType{-1};
   TR1ItemId weaponType{-1};
   char iconChar = 0;
   size_t shots = 0;
@@ -64,10 +63,10 @@ class Inventory
 private:
   std::map<TR1ItemId, size_t> m_inventory;
 
-  Ammo m_pistolsAmmo{1, 1, TR1ItemId::Lara, TR1ItemId::Pistols, '\0'};
-  Ammo m_magnumsAmmo{50, 1, TR1ItemId::MagnumAmmo, TR1ItemId::Magnums, 'B'};
-  Ammo m_uzisAmmo{100, 1, TR1ItemId::UziAmmo, TR1ItemId::Uzis, 'C'};
-  Ammo m_shotgunAmmo{2, 6, TR1ItemId::ShotgunAmmo, TR1ItemId::Shotgun, 'A'};
+  Ammo m_pistolsAmmo{1, 1, TR1ItemId::Lara, '\0'};
+  Ammo m_magnumsAmmo{50, 1, TR1ItemId::MagnumAmmo, 'B'};
+  Ammo m_uzisAmmo{100, 1, TR1ItemId::UziAmmo, 'C'};
+  Ammo m_shotgunAmmo{2, 6, TR1ItemId::ShotgunAmmo, 'A'};
 
 public:
   explicit Inventory() = default;
