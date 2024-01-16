@@ -149,6 +149,12 @@ void AudioEngine::triggerNormalCdTrack(const script::Gameflow& gameflow,
 
 void AudioEngine::playStopCdTrack(const script::Gameflow& gameflow, const TR1TrackId trackId, bool stop)
 {
+  if(gameflow.getTracks().count(trackId) == 0)
+  {
+    BOOST_LOG_TRIVIAL(warning) << "Track " << toString(trackId) << " is not defined in the gameflow";
+    return;
+  }
+
   const gsl::not_null trackInfo{gameflow.getTracks().at(trackId)};
 
   m_currentTrack.reset();
