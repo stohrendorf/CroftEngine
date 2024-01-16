@@ -88,12 +88,12 @@ float shadow_map_multiplier()
 
 float calc_light_strength(in vec3 pos, in float fadeDistance)
 {
-    vec3 d = gpi.vertexPosWorld - pos;
-    float ld = length(d);
-    float r = ld / fadeDistance;
+    vec3 dir = gpi.vertexPosWorld - pos;
+    float distance = length(dir);
+    float r = distance / fadeDistance;
     float result = 1.0 / (r*r + 1.0);
     #if SPRITEMODE == 0
-    return result * clamp(-dot(d/ld, gpi.vertexNormalWorld), 0.0, 1.0);
+    return result * clamp(-dot(dir/distance, gpi.vertexNormalWorld), 0.0, 1.0);
     #else
     return result;
     #endif
