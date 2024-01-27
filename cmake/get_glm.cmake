@@ -2,7 +2,7 @@ if( TARGET glm::glm )
     return()
 endif()
 
-set( _glm_version 0.9.9.8 )
+set( _glm_version 1.0.0 )
 
 include( ./dl_unpack )
 
@@ -14,3 +14,4 @@ dl_unpack(
 
 add_library( glm::glm INTERFACE IMPORTED )
 target_include_directories( glm::glm SYSTEM BEFORE INTERFACE "${EXTERNAL_SRC_ROOT}/glm-${_glm_version}" )
+target_compile_definitions( glm::glm INTERFACE -DGLM_ENABLE_EXPERIMENTAL )
