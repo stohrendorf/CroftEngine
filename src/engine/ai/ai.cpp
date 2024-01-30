@@ -182,14 +182,15 @@ void updateMood(const objects::AIAgent& aiAgent, const EnemyLocation& enemyLocat
 
     {
       newTargetBox = lara.m_state.tryGetCurrentBox();
-      auto pos = lara.m_state.location.position;
+      auto laraLoc = lara.m_state.location;
       if(creatureInfo.pathFinder.isFlying() && lara.isOnLand())
       {
         // target the head
-        pos.Y += lara.getSkeleton()->getInterpolationInfo().getNearestFrame()->bbox.toBBox().y.min;
+        laraLoc.position.Y += lara.getSkeleton()->getInterpolationInfo().getNearestFrame()->bbox.toBBox().y.min;
       }
 
-      creatureInfo.pathFinder.setTarget(pos);
+      laraLoc.updateRoom();
+      creatureInfo.pathFinder.setTarget(laraLoc.position);
     }
 
     break;
