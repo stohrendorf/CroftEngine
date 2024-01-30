@@ -311,8 +311,11 @@ FlameParticle::FlameParticle(const Location& location, world::World& world, bool
 bool FlameParticle::update(world::World& world)
 {
   nextFrame();
-  if(gsl::narrow<size_t>(-negSpriteFrameId)
-     >= world.getWorldGeometry().findSpriteSequenceForType(object_number)->sprites.size())
+  const auto& spriteSequence = world.getWorldGeometry().findSpriteSequenceForType(object_number);
+  if(spriteSequence == nullptr)
+    return false;
+
+  if(gsl::narrow<size_t>(-negSpriteFrameId) >= spriteSequence->sprites.size())
     negSpriteFrameId = 0;
 
   objects::LaraObject& lara = world.getObjectManager().getLara();
@@ -632,7 +635,7 @@ bool SparkleParticle::update(world::World&)
 
 MuzzleFlashParticle::MuzzleFlashParticle(const Location& location, world::World& world, const core::Angle& yAngle)
     : Particle{
-      "muzzle-flash", TR1ItemId::MuzzleFlash, location, world, render::material::SpriteMaterialMode::YAxisBound}
+        "muzzle-flash", TR1ItemId::MuzzleFlash, location, world, render::material::SpriteMaterialMode::YAxisBound}
 {
   angle.Y = yAngle;
   timePerSpriteFrame = 3;
