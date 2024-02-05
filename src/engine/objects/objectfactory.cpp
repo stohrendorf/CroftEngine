@@ -364,7 +364,7 @@ const auto& getFactories()
     UNSUPPORTED_FACTORY(DinoWarrior),
     UNSUPPORTED_FACTORY(Fish),
     UNSUPPORTED_FACTORY(Skateboard),
-    {TR1ItemId::Flashlight, std::make_unique<HiddenModelFactory>()},
+    MODEL_FACTORY(Flashlight, StubObject),
   };
   return factories;
 }
