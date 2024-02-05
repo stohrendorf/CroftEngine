@@ -3,6 +3,11 @@
 // FIXME: this is a bad include path
 #include "../launcher/networkconfig.h"
 
+#ifdef WIN32
+// workaround to populate the correct windows version to boost asio
+#  include <sdkddkver.h>
+#endif
+
 #include <algorithm>
 #include <atomic>
 #include <boost/algorithm/string/split.hpp>
