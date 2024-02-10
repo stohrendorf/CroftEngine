@@ -421,22 +421,9 @@ void ControlsMenuState::handleChangeKeyInput(engine::world::World& world)
     auto mappingGroup = m_controls->isMenuControlsSelected() ? &engine::NamedInputMappingConfig::menuMappings
                                                              : &engine::NamedInputMappingConfig::gameMappings;
 
-    BOOST_LOG_TRIVIAL(debug) << "setInput: isMenuControlsSelected=" << m_controls->isMenuControlsSelected();
-    const bool hasDifferentBindings
-      = std::any_of(m_editing.begin(),
-                    m_editing.end(),
-                    [this, &newInput, &mappingGroup](const engine::NamedInputMappingConfig& mapping)
-                    {
-                      auto it = (mapping.*mappingGroup).find(newInput);
-                      return it != (mapping.*mappingGroup).end() && it->second != m_controls->getCurrentAction();
-                    });
-    BOOST_LOG_TRIVIAL(debug) << "setInput: hasDifferentBindings=" << hasDifferentBindings;
-    if(hasDifferentBindings)
+    for(auto& mapping : m_editing)
     {
-      for(auto& mapping : m_editing)
-      {
-        (mapping.*mappingGroup).erase(newInput);
-      }
+      (mapping.*mappingGroup).erase(newInput);
     }
 
     auto& mapping = m_editing.at(m_editingIndex);
