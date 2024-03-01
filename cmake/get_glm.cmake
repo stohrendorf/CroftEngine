@@ -2,7 +2,7 @@ if( TARGET glm::glm )
     return()
 endif()
 
-set( _glm_version 1.0.0 )
+set( _glm_version 1.0.1 )
 
 include( ./dl_unpack )
 
