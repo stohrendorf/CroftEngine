@@ -370,14 +370,14 @@ Presenter::Presenter(const std::filesystem::path& engineDataPath,
                      const render::RenderSettings& renderSettings,
                      const bool borderlessFullscreen)
     : m_window{std::make_shared<gl::Window>(
-      getIconPaths(engineDataPath, {24, 32, 64, 128, 256, 512}), resolution, borderlessFullscreen)}
+        getIconPaths(engineDataPath, {24, 32, 64, 128, 256, 512}), resolution, borderlessFullscreen)}
     , m_soundEngine{std::make_shared<audio::SoundEngine>()}
     , m_renderer{std::make_shared<render::scene::Renderer>(
         gsl::make_shared<render::scene::Camera>(DefaultFov, getRenderViewport(), DefaultNearPlane, DefaultFarPlane))}
     , m_splashImageTexture{gsl::make_shared<gl::TextureHandle<gl::Texture2D<gl::PremultipliedSRGBA8>>>(
         gl::CImgWrapper{util::ensureFileExists(engineDataPath / "splash.png")}.toTexture("splash"),
         gsl::make_unique<gl::Sampler>("splash" + gl::SamplerSuffix))}
-    , m_trTTFFont{std::make_unique<gl::Font>(util::ensureFileExists(engineDataPath / "trfont.ttf"))}
+    , m_trTTFFont{std::make_unique<gl::Font>(util::ensureFileExists(engineDataPath / "SteinAntik-Bold.ttf"))}
     , m_ghostNameFont{std::make_unique<gl::Font>(util::ensureFileExists(engineDataPath / "Roboto-Regular.ttf"))}
     , m_inputHandler{std::make_unique<hid::InputHandler>(m_window, engineDataPath / "gamecontrollerdb.txt")}
     , m_shaderCache{std::make_shared<render::material::ShaderCache>(engineDataPath / "shaders")}

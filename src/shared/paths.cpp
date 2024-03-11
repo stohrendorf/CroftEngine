@@ -67,7 +67,7 @@ std::optional<std::filesystem::path> findEngineDataDir()
   static const auto isEngineDataDir = [](const std::filesystem::path& path)
   {
     BOOST_LOG_TRIVIAL(info) << "Check engine data dir: " << path;
-    return std::filesystem::is_regular_file(path / "trfont.ttf");
+    return std::filesystem::is_regular_file(path / "SteinAntik-Bold.ttf");
   };
 
   if(auto cwd = getExpectedLocalEngineDataDir(); isEngineDataDir(cwd))
