@@ -30,7 +30,7 @@ std::vector<NamedInputMappingConfig> getDefaultModernMappings()
 {
   return {
     {
-      pgettext("Input|MappingName", "Keyboard"),
+      pgettext("Input|MappingName", /* translators: TR charmap encoding */ "Keyboard"),
       "PS",
       {
         {GlfwKey::LeftShift, Action::Walk},
@@ -71,7 +71,7 @@ std::vector<NamedInputMappingConfig> getDefaultModernMappings()
       },
     },
     {
-      pgettext("Input|MappingName", "Gamepad"),
+      pgettext("Input|MappingName", /* translators: TR charmap encoding */ "Gamepad"),
       "PS",
       {
         {GlfwGamepadButton::RightBumper, Action::Walk},
@@ -107,7 +107,7 @@ std::vector<NamedInputMappingConfig> getDefaultClassicMappings()
 {
   return {
     {
-      pgettext("Input|MappingName", "Keyboard"),
+      pgettext("Input|MappingName", /* translators: TR charmap encoding */ "Keyboard"),
       "PS",
       {
         {GlfwKey::LeftShift, Action::Walk},
@@ -148,7 +148,7 @@ std::vector<NamedInputMappingConfig> getDefaultClassicMappings()
       },
     },
     {
-      pgettext("Input|MappingName", "Gamepad"),
+      pgettext("Input|MappingName", /* translators: TR charmap encoding */ "Gamepad"),
       "PS",
       {
         {GlfwGamepadButton::RightBumper, Action::Walk},
