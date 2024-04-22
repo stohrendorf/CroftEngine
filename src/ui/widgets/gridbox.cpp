@@ -29,7 +29,7 @@ void GridBox::draw(ui::Ui& ui, const engine::Presenter& presenter) const
     int yPos = m_position.y;
     for(WidgetArray::size_type y = 0; y < m_widgets.shape()[1]; ++y)
     {
-      const auto& widget = m_widgets[x][y];
+      const auto widget = m_widgets[x][y];
       if(widget != nullptr)
       {
         int alignment = 0;
@@ -63,7 +63,7 @@ void GridBox::update(bool hasFocus)
   {
     for(WidgetArray::size_type y = 0; y < m_widgets.shape()[1]; ++y)
     {
-      const auto& widget = m_widgets[x][y];
+      const auto widget = m_widgets[x][y];
       if(widget == nullptr)
         continue;
 
@@ -93,7 +93,7 @@ void GridBox::fitToContent()
     int maxWidth = 0;
     for(WidgetArray::size_type y = 0; y < m_widgets.shape()[1]; ++y)
     {
-      const auto& widget = m_widgets[x][y];
+      const auto widget = m_widgets[x][y];
       if(widget == nullptr)
         continue;
 
@@ -107,7 +107,7 @@ void GridBox::fitToContent()
     int maxHeight = 0;
     for(WidgetArray::size_type x = 0; x < m_widgets.shape()[0]; ++x)
     {
-      const auto& widget = m_widgets[x][y];
+      const auto widget = m_widgets[x][y];
       if(widget == nullptr)
         continue;
 

@@ -84,14 +84,15 @@ struct ContainerIndex
   explicit ContainerIndex(T) = delete;
 
   template<typename T>
-  [[nodiscard]] constexpr auto from(std::vector<T>& v) const -> std::enable_if_t<tpl::is_one_of_v<T, DataTypes...>, T&>
+  [[nodiscard]] constexpr auto
+    from(std::vector<T>& v) const -> std::enable_if_t<tpl::is_one_of_v<T, DataTypes...>, decltype(v.at(index))>
   {
     return v.at(index);
   }
 
   template<typename T>
-  [[nodiscard]] constexpr auto from(const std::vector<T>& v) const
-    -> std::enable_if_t<tpl::is_one_of_v<T, DataTypes...>, const T&>
+  [[nodiscard]] constexpr auto
+    from(const std::vector<T>& v) const -> std::enable_if_t<tpl::is_one_of_v<T, DataTypes...>, decltype(v.at(index))>
   {
     return v.at(index);
   }
@@ -103,8 +104,8 @@ struct ContainerIndex
   }
 
   template<typename T>
-  [[nodiscard]] auto exclusiveIn(const std::vector<T>& v) const noexcept
-    -> std::enable_if_t<tpl::is_one_of_v<T, DataTypes...>, bool>
+  [[nodiscard]] auto
+    exclusiveIn(const std::vector<T>& v) const noexcept -> std::enable_if_t<tpl::is_one_of_v<T, DataTypes...>, bool>
   {
     return index <= v.size();
   }
