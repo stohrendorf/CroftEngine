@@ -4,7 +4,7 @@ endif()
 
 include( ./dl_unpack )
 
-set( _pybind11_version "2.11.1" )
+set( _pybind11_version "2.12.0" )
 dl_unpack(
         URL https://github.com/pybind/pybind11/archive/v${_pybind11_version}.tar.gz
         FILENAME pybind11-v${_pybind11_version}.tar.gz
