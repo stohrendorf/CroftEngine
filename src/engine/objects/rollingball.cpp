@@ -34,15 +34,20 @@
 
 namespace engine::objects
 {
+namespace {
+constexpr auto Stopped = 0_as;
+constexpr auto Rolling = 1_as;
+}
+
 void RollingBall::update()
 {
   if(m_state.triggerState == TriggerState::Active)
   {
     if(m_state.location.position.Y >= m_state.floor)
     {
-      if(m_state.current_anim_state == 0_as)
+      if(m_state.current_anim_state == Stopped)
       {
-        m_state.goal_anim_state = 1_as;
+        m_state.goal_anim_state = Rolling;
       }
     }
     else
@@ -95,7 +100,7 @@ void RollingBall::update()
       gsl::not_null{&getWorld().getWorldGeometry().findAnimatedModelForType(m_state.type)->animations[0]},
       0_frame);
     m_state.goal_anim_state = m_state.current_anim_state;
-    m_state.required_anim_state = 0_as;
+    m_state.required_anim_state = Stopped;
     deactivate();
   }
 
