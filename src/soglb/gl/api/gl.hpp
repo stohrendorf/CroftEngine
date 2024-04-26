@@ -2325,7 +2325,6 @@ enum class TextureUnit : core::EnumType
 
 enum class TextureWrapMode : core::EnumType
 {
-  LinearMipmapLinear = 0x2703,
   Repeat = 0x2901,
   ClampToEdge = 0x812F,
   ClampToBorder = 0x812D,
