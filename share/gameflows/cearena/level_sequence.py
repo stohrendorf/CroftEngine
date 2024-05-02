@@ -28,7 +28,7 @@ level_sequence = [
             "en_GB": "Fall Raider Easy",
             "de_DE": "Fall Raider einfach",
         },
-        ambient=TR1TrackId.Ambience1,
+        ambient=TR1TrackId.Ambience4,
         default_weapon=WeaponType.None_,
     ),
     Level(
@@ -47,7 +47,7 @@ level_sequence = [
                 TR1ItemId.Puzzle1: "Goldener G~otze",
             },
         },
-        ambient=TR1TrackId.Ambience1,
+        ambient=TR1TrackId.Ambience4,
         default_weapon=WeaponType.None_,
     ),
     Level(
@@ -151,7 +151,7 @@ level_sequence = [
                 TR1ItemId.Key3: "Rostiger Schl~ussel",
             },
         },
-        ambient=TR1TrackId.LaraTalk29,
+        ambient=TR1TrackId.Ambience2,
         default_weapon=WeaponType.None_,
     ),
     SplashScreen(
