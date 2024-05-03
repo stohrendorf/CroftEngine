@@ -1517,4 +1517,9 @@ void World::updateStaticSoundEffects()
     }
   }
 }
+
+void World::hitLara(const core::Health& damage)
+{
+  m_objectManager.getLara().m_state.hitLara(damage, m_engine->getGameplayRules().noHits);
+}
 } // namespace engine::world

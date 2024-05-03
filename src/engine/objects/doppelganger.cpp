@@ -47,7 +47,7 @@ void Doppelganger::update()
 
   if(m_state.health < core::LaraHealth)
   {
-    lara.m_state.health -= 10 * (core::LaraHealth - m_state.health);
+    getWorld().hitLara(10 * (core::LaraHealth - m_state.health));
     m_state.health = core::LaraHealth;
   }
 

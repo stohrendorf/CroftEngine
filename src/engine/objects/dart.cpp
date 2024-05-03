@@ -31,8 +31,7 @@ void Dart::update()
 {
   if(m_state.touch_bits != 0)
   {
-    getWorld().getObjectManager().getLara().m_state.health -= 50_hp;
-    getWorld().getObjectManager().getLara().m_state.is_hit = true;
+    getWorld().hitLara(50_hp);
 
     auto fx = createBloodSplat(getWorld(), m_state.location, m_state.speed, m_state.rotation.Y);
     getWorld().getObjectManager().registerParticle(fx);

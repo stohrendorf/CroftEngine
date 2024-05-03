@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: CroftEngine 2.4.0\n"
+"Project-Id-Version: CroftEngine 2.5.0\n"
 "Report-Msgid-Bugs-To: https://github.com/stohrendorf/CroftEngine/issues\n"
-"POT-Creation-Date: 2024-03-11 06:08+0100\n"
+"POT-Creation-Date: 2024-05-03 05:14+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -218,6 +218,11 @@ msgstr ""
 #: hid/names.cpp:239
 msgctxt "Keyboard|Key"
 msgid "Alt"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/gameplayrulesmenustate.cpp:125
+msgid "Any enemy or trap hit is an instant kill, except spikes."
 msgstr ""
 
 #. translators: TR charmap encoding
@@ -532,7 +537,7 @@ msgid "Detail Levels"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/gameplayrulesmenustate.cpp:107
+#: menu/gameplayrulesmenustate.cpp:111
 msgid "Disables all cheats."
 msgstr ""
 
@@ -1112,17 +1117,22 @@ msgid "No"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/gameplayrulesmenustate.cpp:97
+#: menu/gameplayrulesmenustate.cpp:101
 msgid "No Cheats"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/gameplayrulesmenustate.cpp:58
+#: menu/gameplayrulesmenustate.cpp:115
+msgid "No Hits"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/gameplayrulesmenustate.cpp:59
 msgid "No Loads"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/gameplayrulesmenustate.cpp:71
+#: menu/gameplayrulesmenustate.cpp:73
 msgid "No Meds"
 msgstr ""
 
@@ -1332,7 +1342,7 @@ msgid "Pistols"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/gameplayrulesmenustate.cpp:84
+#: menu/gameplayrulesmenustate.cpp:87
 msgid "Pistols Only"
 msgstr ""
 
@@ -1847,17 +1857,17 @@ msgid "Yes"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/gameplayrulesmenustate.cpp:94
+#: menu/gameplayrulesmenustate.cpp:97
 msgid "You can only use the pistols, no other weapons."
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/gameplayrulesmenustate.cpp:68
+#: menu/gameplayrulesmenustate.cpp:69
 msgid "You cannot load any savegame."
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/gameplayrulesmenustate.cpp:81
+#: menu/gameplayrulesmenustate.cpp:83
 msgid "You cannot use and medi pack."
 msgstr ""
 

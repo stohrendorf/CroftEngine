@@ -42,8 +42,7 @@ void SwingingBlade::update()
 
   if(m_state.current_anim_state == 2_as && m_state.touch_bits.any())
   {
-    getWorld().getObjectManager().getLara().m_state.is_hit = true;
-    getWorld().getObjectManager().getLara().m_state.health -= 100_hp;
+    getWorld().hitLara(100_hp);
 
     const core::TRVec splatPos{
       getWorld().getObjectManager().getLara().m_state.location.position.X + util::rand15s(128_len),

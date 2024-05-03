@@ -475,10 +475,9 @@ void AIAgent::loadObjectInfo(bool withoutGameState)
     m_state.loadObjectInfo(getWorld().getEngine().getScriptEngine().getGameflow());
 }
 
-void AIAgent::hitLara(const core::Health& strength)
+void AIAgent::hitLara(const core::Health& damage)
 {
-  getWorld().getObjectManager().getLara().m_state.is_hit = true;
-  getWorld().getObjectManager().getLara().m_state.health -= strength;
+  getWorld().hitLara(damage);
 }
 
 void AIAgent::serialize(const serialization::Serializer<world::World>& ser) const

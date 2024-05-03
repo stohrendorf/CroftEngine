@@ -15,6 +15,7 @@ struct GameplayRules
   bool noLoads = false;
   bool noMeds = false;
   bool noCheats = false;
+  bool noHits = false;
 
   void serialize(const serialization::Serializer<world::World>& ser) const;
   void deserialize(const serialization::Deserializer<world::World>& ser);

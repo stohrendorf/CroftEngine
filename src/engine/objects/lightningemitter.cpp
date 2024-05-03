@@ -196,8 +196,7 @@ void LightningEmitter::update()
     m_mainBoltEnd
       = core::TRVec{glm::vec3((-m_state.rotation).toMatrix() * glm::vec4(m_mainBoltEnd.toRenderSystem(), 1.0f))};
 
-    getWorld().getObjectManager().getLara().m_state.health -= 400_hp;
-    getWorld().getObjectManager().getLara().m_state.is_hit = true;
+    getWorld().hitLara(400_hp);
 
     m_laraHit = true;
   }

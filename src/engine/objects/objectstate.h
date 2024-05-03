@@ -133,5 +133,7 @@ public:
 
   gsl::not_null<const world::Box*> getCurrentBox() const;
   const world::Box* tryGetCurrentBox() const;
+
+  void hitLara(const core::Health& damage, bool noHits);
 };
 } // namespace engine::objects

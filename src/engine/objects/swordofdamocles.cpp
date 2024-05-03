@@ -76,7 +76,7 @@ void SwordOfDamocles::collide(CollisionInfo& collisionInfo)
   if(!m_state.falling)
     return;
 
-  getWorld().getObjectManager().getLara().m_state.health -= 100_hp;
+  getWorld().hitLara(100_hp);
   const auto tmp = getWorld().getObjectManager().getLara().m_state.location.position
                    + core::TRVec{util::rand15s(128_len), -util::rand15(745_len), util::rand15s(128_len)};
   auto fx = createBloodSplat(getWorld(),

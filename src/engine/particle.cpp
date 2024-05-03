@@ -334,10 +334,9 @@ bool FlameParticle::update(world::World& world)
     if(lara.isNearInexact(location.position, 600_len))
     {
       // lara is close enough to be hurt by heat
-      auto& laraState = lara.m_state;
-      laraState.health -= 3_hp;
-      laraState.is_hit = true;
+      world.hitLara(3_hp);
 
+      auto& laraState = lara.m_state;
       const auto distSq = util::square(laraState.location.position.X - location.position.X)
                           + util::square(laraState.location.position.Z - location.position.Z);
       if(distSq < util::square(300_len))
@@ -376,8 +375,7 @@ bool FlameParticle::update(world::World& world)
        !waterHeight.has_value() || *waterHeight >= location.position.Y)
     {
       world.getAudioEngine().playSoundEffect(TR1SoundEffect::Burning, this);
-      lara.m_state.health -= 3_hp;
-      lara.m_state.is_hit = true;
+      world.hitLara(3_hp);
     }
     else
     {
@@ -424,7 +422,7 @@ bool MeshShrapnelParticle::update(world::World& world)
     if(m_damageRadius <= 0_len)
       return false;
 
-    lara.m_state.health -= m_damageRadius * 1_hp / 1_len;
+    world.hitLara(m_damageRadius * 1_hp / 1_len);
     explode = true;
 
     lara.forceSourcePosition = &location.position;
@@ -506,14 +504,13 @@ bool MutantBulletParticle::update(world::World& world)
   }
   else if(world.getObjectManager().getLara().isNearInexact(location.position, 200_len))
   {
+    world.hitLara(30_hp);
     auto& laraState = world.getObjectManager().getLara().m_state;
-    laraState.health -= 30_hp;
     auto particle = gsl::make_shared<BloodSplatterParticle>(location, speed, angle.Y, world);
     if(!withoutParent())
       setParent(particle, location.room->node);
     world.getObjectManager().registerParticle(particle);
     world.getAudioEngine().playSoundEffect(TR1SoundEffect::BulletHitsLara, particle.get().get());
-    laraState.is_hit = true;
     angle.Y = laraState.rotation.Y;
     speed = laraState.speed;
     timePerSpriteFrame = 0;
@@ -545,16 +542,14 @@ bool MutantGrenadeParticle::update(world::World& world)
     const auto d = util::square(dd.X) + util::square(dd.Y) + util::square(dd.Z);
     if(d < util::square(1024_len))
     {
-      world.getObjectManager().getLara().m_state.health
-        -= 100_hp * (util::square(1_sectors) - d) / util::square(1_sectors);
-      world.getObjectManager().getLara().m_state.is_hit = true;
+      world.hitLara(100_hp * (util::square(1_sectors) - d) / util::square(1_sectors));
     }
 
     return false;
   }
   else if(world.getObjectManager().getLara().isNearInexact(location.position, 200_len))
   {
-    world.getObjectManager().getLara().m_state.health -= 100_hp;
+    world.hitLara(100_hp);
     auto particle = gsl::make_shared<ExplosionParticle>(location, world, fall_speed, angle);
     if(!withoutParent())
       setParent(particle, location.room->node);
@@ -568,7 +563,6 @@ bool MutantGrenadeParticle::update(world::World& world)
       world.getObjectManager().getLara().explosionStumblingDuration = 5_frame;
     }
 
-    world.getObjectManager().getLara().m_state.is_hit = true;
     angle.Y = world.getObjectManager().getLara().m_state.rotation.Y;
     speed = world.getObjectManager().getLara().m_state.speed;
     timePerSpriteFrame = 0;
@@ -606,8 +600,7 @@ bool LavaParticle::update(world::World& world)
 
   if(world.getObjectManager().getLara().isNearInexact(location.position, 200_len))
   {
-    world.getObjectManager().getLara().m_state.health -= 10_hp;
-    world.getObjectManager().getLara().m_state.is_hit = true;
+    world.hitLara(10_hp);
     return false;
   }
 

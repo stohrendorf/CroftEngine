@@ -344,6 +344,8 @@ public:
     m_ghostFrame += 1_frame;
   }
 
+  void hitLara(const core::Health& damage);
+
 private:
   void drawPickupWidgets(ui::Ui& ui);
 

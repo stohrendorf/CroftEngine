@@ -114,7 +114,7 @@ protected:
     return (m_state.touch_bits.to_ulong() & bits) != 0;
   }
 
-  void hitLara(const core::Health& strength);
+  void hitLara(const core::Health& damage);
 
   void require(const core::AnimStateId& require) noexcept
   {

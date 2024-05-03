@@ -55,7 +55,8 @@ GameplayRulesMenuState::GameplayRulesMenuState(const std::shared_ptr<MenuRingTra
   m_container = gsl::make_unique<ui::widgets::GroupBox>(/* translators: TR charmap encoding */ _("Rules"), listBox);
 
   listBox->addSetting(
-    /* translators: TR charmap encoding */ _("No Loads"),
+    /* translators: TR charmap encoding */
+    _("No Loads"),
     [this]()
     {
       return m_rules.noLoads;
@@ -68,7 +69,8 @@ GameplayRulesMenuState::GameplayRulesMenuState(const std::shared_ptr<MenuRingTra
     /* translators: TR charmap encoding */ _("You cannot load any savegame."), MaxDescriptionWidth));
 
   listBox->addSetting(
-    /* translators: TR charmap encoding */ _("No Meds"),
+    /* translators: TR charmap encoding */
+    _("No Meds"),
     [this]()
     {
       return m_rules.noMeds;
@@ -81,7 +83,8 @@ GameplayRulesMenuState::GameplayRulesMenuState(const std::shared_ptr<MenuRingTra
     /* translators: TR charmap encoding */ _("You cannot use and medi pack."), MaxDescriptionWidth));
 
   listBox->addSetting(
-    /* translators: TR charmap encoding */ _("Pistols Only"),
+    /* translators: TR charmap encoding */
+    _("Pistols Only"),
     [this]()
     {
       return m_rules.pistolsOnly;
@@ -94,7 +97,8 @@ GameplayRulesMenuState::GameplayRulesMenuState(const std::shared_ptr<MenuRingTra
     /* translators: TR charmap encoding */ _("You can only use the pistols, no other weapons."), MaxDescriptionWidth));
 
   listBox->addSetting(
-    /* translators: TR charmap encoding */ _("No Cheats"),
+    /* translators: TR charmap encoding */
+    _("No Cheats"),
     [this]()
     {
       return m_rules.noCheats;
@@ -105,6 +109,21 @@ GameplayRulesMenuState::GameplayRulesMenuState(const std::shared_ptr<MenuRingTra
     });
   m_descriptions.emplace_back(std::make_shared<ui::widgets::TextBox>(
     /* translators: TR charmap encoding */ _("Disables all cheats."), MaxDescriptionWidth));
+
+  listBox->addSetting(
+    /* translators: TR charmap encoding */
+    _("No Hits"),
+    [this]()
+    {
+      return m_rules.noHits;
+    },
+    [this]()
+    {
+      m_rules.noHits = !m_rules.noHits;
+    });
+  m_descriptions.emplace_back(std::make_shared<ui::widgets::TextBox>(
+    /* translators: TR charmap encoding */ _("Any enemy or trap hit is an instant kill, except spikes."),
+    MaxDescriptionWidth));
 
   listBox->fitToContent();
   m_container->fitToContent();

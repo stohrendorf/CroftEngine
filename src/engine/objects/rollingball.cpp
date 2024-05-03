@@ -34,10 +34,11 @@
 
 namespace engine::objects
 {
-namespace {
+namespace
+{
 constexpr auto Stopped = 0_as;
 constexpr auto Rolling = 1_as;
-}
+} // namespace
 
 void RollingBall::update()
 {
@@ -165,7 +166,7 @@ void RollingBall::collide(CollisionInfo& collisionInfo)
   {
     enemyPush(collisionInfo, collisionInfo.policies.is_set(CollisionInfo::PolicyFlags::EnableSpaz), true);
   }
-  lara.m_state.health -= 100_hp;
+  getWorld().hitLara(100_hp);
   const auto x = lara.m_state.location.position.X - m_state.location.position.X;
   const auto y
     = lara.m_state.location.position.Y - 350_len - (m_state.location.position.Y - 2 * core::QuarterSectorSize);

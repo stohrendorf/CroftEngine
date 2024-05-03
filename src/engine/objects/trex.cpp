@@ -52,13 +52,12 @@ void TRex::update()
 
     turn = rotateTowardsTarget(getCreatureInfo()->maxTurnSpeed);
 
-    auto& lara = getWorld().getObjectManager().getLara();
     if(touched())
     {
       if(m_state.current_anim_state == RunningAttack)
-        lara.m_state.health -= 10_hp;
+        getWorld().hitLara(10_hp);
       else
-        lara.m_state.health -= 1_hp;
+        getWorld().hitLara(1_hp);
     }
 
     m_wantAttack = !isEscaping() && !enemyLocation.laraInView && abs(enemyLocation.visualLaraAngleToSelf) < 90_deg;
@@ -103,6 +102,7 @@ void TRex::update()
       {
         goal(8_as);
 
+        auto& lara = getWorld().getObjectManager().getLara();
         lara.m_state.falling = false;
 
         lara.setCurrentRoom(m_state.location.room);

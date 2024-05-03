@@ -151,4 +151,18 @@ const world::Box* ObjectState::tryGetCurrentBox() const
   const gsl::not_null sector{getCurrentSector()};
   return sector->box;
 }
+
+void ObjectState::hitLara(const core::Health& damage, bool noHits)
+{
+  BOOST_ASSERT(damage >= 0_hp);
+  if(damage > 0_hp && noHits)
+  {
+    health = core::DeadHealth;
+  }
+  else
+  {
+    health -= damage;
+  }
+  is_hit = true;
+}
 } // namespace engine::objects
