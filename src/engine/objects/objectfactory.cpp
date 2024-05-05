@@ -360,6 +360,7 @@ const auto& getFactories()
     SPRITE_FACTORY(LargeMedipackSprite, PickupObject),
     SPRITE_FACTORY(ScionPiece2, PickupObject),
     SPRITE_FACTORY(LeadBarSprite, PickupObject),
+    {TR1ItemId::Sunglasses, std::make_unique<HiddenModelFactory>()},
     UNSUPPORTED_FACTORY(DinoWarrior),
     UNSUPPORTED_FACTORY(Fish),
     UNSUPPORTED_FACTORY(Skateboard),
