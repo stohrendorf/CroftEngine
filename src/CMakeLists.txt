@@ -453,6 +453,7 @@ set( CROFTENGINE_SRCS
         engine/objects/pierre.h
         engine/objects/puzzlehole.cpp
         engine/objects/puzzlehole.h
+        engine/objects/py_module.h
         engine/objects/raptor.cpp
         engine/objects/raptor.h
         engine/objects/rat.cpp

@@ -4,6 +4,7 @@
 #include "core/magic.h"
 #include "core/units.h"
 #include "engine/items_tr1.h"
+#include "engine/objects/object.h"
 #include "engine/tracks_tr1.h"
 #include "qs/quantity.h"
 
@@ -13,6 +14,7 @@
 #include <map>
 #include <memory>
 #include <optional>
+#include <pybind11/pybind11.h>
 #include <pybind11/pytypes.h>
 #include <stdexcept>
 #include <string>
@@ -53,6 +55,20 @@ struct ObjectInfo
   core::Length::type fly_limit = 0;
   bool cannot_visit_blocked = true;
   bool cannot_visit_blockable = false;
+
+  virtual ~ObjectInfo() = default;
+
+  virtual void customize(const std::shared_ptr<objects::Object>& /*object*/)
+  {
+  }
+};
+
+struct PyObjectInfo : public ObjectInfo
+{
+  void customize(const std::shared_ptr<objects::Object>& object) override
+  {
+    PYBIND11_OVERRIDE(void, engine::script::ObjectInfo, customize, object);
+  }
 };
 
 struct TrackInfo

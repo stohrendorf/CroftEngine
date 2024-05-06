@@ -1,6 +1,8 @@
 from enum import Enum, auto
 from typing import Optional, Dict, Set, List, Tuple
 from loader.file.level import Game
+from ce.core import Vec
+from ce.objects import Object
 
 
 class ObjectInfo:
@@ -18,6 +20,9 @@ class ObjectInfo:
     fly_limit: int
     cannot_visit_blocked: bool
     cannot_visit_blockable: bool
+
+    def customize(self, entity: Object):
+        ...
 
 
 class ActivationState(Enum):
@@ -145,4 +150,10 @@ class Gameflow:
             cheats: dict,
             asset_root: str,
     ):
+        ...
+
+
+class Location:
+    @property
+    def position(self) -> Vec:
         ...

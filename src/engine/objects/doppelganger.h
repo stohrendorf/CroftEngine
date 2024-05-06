@@ -44,7 +44,16 @@ public:
   void serialize(const serialization::Serializer<world::World>& ser) const override;
   void deserialize(const serialization::Deserializer<world::World>& ser) override;
 
+  void setCenter(const core::Length& x, const core::Length z)
+  {
+    m_centerX = x;
+    m_centerZ = z;
+  }
+
 private:
   bool m_killed = false;
+  // defaults for TR1 bacon lara
+  core::Length m_centerX = 72_sectors;
+  core::Length m_centerZ = 120_sectors;
 };
 } // namespace engine::objects
