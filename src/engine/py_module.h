@@ -4,6 +4,7 @@
 #include "items_tr1.h"
 #include "loader/file/level/game.h"
 #include "objects/objectstate.h"
+#include "objects/py_module.h"
 #include "qs/quantity.h"
 #include "script/reflection.h"
 #include "soundeffects_tr1.h"
@@ -49,7 +50,7 @@ inline void initEngineModule(pybind11::module& m)
 #undef EXPOSE_ENUM_MEMBER
   }
 
-  py::class_<script::ObjectInfo, std::shared_ptr<script::ObjectInfo>>(m, "ObjectInfo")
+  py::class_<script::ObjectInfo, script::PyObjectInfo, std::shared_ptr<script::ObjectInfo>>(m, "ObjectInfo")
     .def(py::init<>())
     .def_readwrite("ai_agent", &script::ObjectInfo::ai_agent)
     .def_readwrite("radius", &script::ObjectInfo::radius)
@@ -200,5 +201,8 @@ inline void initEngineModule(pybind11::module& m)
          py::arg("early_boot"),
          py::arg("cheats"),
          py::arg("asset_root"));
+
+  auto objectsMod = m.def_submodule("objects", "croftengine objects module");
+  objects::initObjectsModule(objectsMod);
 }
 } // namespace engine

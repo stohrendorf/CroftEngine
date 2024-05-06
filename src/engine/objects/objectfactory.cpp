@@ -18,8 +18,10 @@
 #include "door.h"
 #include "doppelganger.h"
 #include "earthquake.h"
+#include "engine/engine.h"
 #include "engine/items_tr1.h"
 #include "engine/location.h"
+#include "engine/script/reflection.h"
 #include "engine/skeletalmodelnode.h"
 #include "engine/world/room.h"
 #include "engine/world/sprite.h"
@@ -130,6 +132,14 @@ struct ModelFactory : public ObjectFactory
     auto object = gsl::make_shared<T>(
       makeObjectName(item.type.get_as<TR1ItemId>(), id), gsl::not_null{&world}, room, item, gsl::not_null{model.get()});
     addChild(gsl::not_null{room->node}, gsl::not_null{object->getNode()});
+
+    world.getEngine()
+      .getScriptEngine()
+      .getGameflow()
+      .getObjectInfos()
+      .at(item.type.get_as<TR1ItemId>())
+      ->customize(object);
+
     object->applyTransform();
     return object;
   }
@@ -156,8 +166,17 @@ struct SpriteFactory : public ObjectFactory
     gsl_Assert(spriteSequence != nullptr && !spriteSequence->sprites.empty());
 
     const world::Sprite& sprite = spriteSequence->sprites[0];
-    return gsl::make_shared<T>(
+    auto object = gsl::make_shared<T>(
       makeObjectName(item.type.get_as<TR1ItemId>(), id), gsl::not_null{&world}, room, item, gsl::not_null{&sprite});
+
+    world.getEngine()
+      .getScriptEngine()
+      .getGameflow()
+      .getObjectInfos()
+      .at(item.type.get_as<TR1ItemId>())
+      ->customize(object);
+
+    return object;
   }
 
   [[nodiscard]] gslu::nn_shared<Object>
@@ -200,6 +219,14 @@ struct WalkingMutantFactory : public ObjectFactory
     auto object = gsl::make_shared<WalkingMutant>(
       makeObjectName(item.type.get_as<TR1ItemId>(), id), gsl::not_null{&world}, room, item, gsl::not_null{model.get()});
     addChild(gsl::not_null{room->node}, gsl::not_null{object->getNode()});
+
+    world.getEngine()
+      .getScriptEngine()
+      .getGameflow()
+      .getObjectInfos()
+      .at(item.type.get_as<TR1ItemId>())
+      ->customize(object);
+
     object->applyTransform();
     return object;
   }
@@ -222,6 +249,14 @@ struct HiddenModelFactory : public ModelFactory<StubObject>
     auto object = gslu::static_pointer_cast<StubObject>(ModelFactory<StubObject>::createNew(world, item, id));
     object->getSkeleton()->setRenderable(nullptr);
     object->getSkeleton()->clearParts();
+
+    world.getEngine()
+      .getScriptEngine()
+      .getGameflow()
+      .getObjectInfos()
+      .at(item.type.get_as<TR1ItemId>())
+      ->customize(object);
+
     return object;
   }
 

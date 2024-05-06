@@ -26,6 +26,8 @@
 #include <cstddef>
 #include <exception>
 #include <memory>
+#include <serialization/optional_value.h>
+#include <serialization/quantity.h>
 
 namespace engine::objects
 {
@@ -55,7 +57,7 @@ void Doppelganger::update()
   {
     m_state.location = lara.m_state.location;
     m_state.location.position = core::TRVec{
-      72_sectors - m_state.location.position.X, m_state.location.position.Y, 120_sectors - m_state.location.position.Z};
+      m_centerX - m_state.location.position.X, m_state.location.position.Y, m_centerZ - m_state.location.position.Z};
     m_state.rotation = lara.m_state.rotation - core::TRRotation{0_deg, 180_deg, 0_deg};
 
     const auto sector = m_state.location.updateRoom();
@@ -122,12 +124,13 @@ void Doppelganger::update()
 void Doppelganger::serialize(const serialization::Serializer<world::World>& ser) const
 {
   ModelObject::serialize(ser);
-  ser(S_NV("killed", m_killed));
+  ser(S_NV("killed", m_killed), S_NV("centerX", m_centerX), S_NV("centerZ", m_centerZ));
 }
 
 void Doppelganger::deserialize(const serialization::Deserializer<world::World>& ser)
 {
   ModelObject::deserialize(ser);
-  ser(S_NV("killed", m_killed));
+  // TODO CE-675
+  ser(S_NV("killed", m_killed), S_NVO("centerX", std::ref(m_centerX)), S_NVO("centerZ", std::ref(m_centerZ)));
 }
 } // namespace engine::objects
