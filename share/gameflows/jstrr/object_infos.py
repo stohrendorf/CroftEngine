@@ -1,5 +1,6 @@
 from ce.engine import TR1ItemId, ObjectInfo
-from ce.core import SectorSize
+from ce.core import SectorSize, Length
+from ce.engine.objects import Object
 
 # init defaults
 object_infos = {
@@ -10,7 +11,16 @@ object_infos = {
 ob = object_infos[TR1ItemId.Lara]
 ob.hit_points = 1000
 
-ob = object_infos[TR1ItemId.Doppelganger]
+
+class Doppelganger(ObjectInfo):
+    def __init__(self):
+        super().__init__()
+
+    def customize(self, ob: Object):
+        ob.set_center(Length(108 * SectorSize), Length(100 * SectorSize))
+
+
+object_infos[TR1ItemId.Doppelganger] = ob = Doppelganger()
 ob.hit_points = 1000
 
 ob = object_infos[TR1ItemId.Wolf]
@@ -201,6 +211,3 @@ ob = object_infos[TR1ItemId.Fish]
 ob.step_limit = 20 * SectorSize
 ob.drop_limit = -20 * SectorSize
 ob.fly_limit = 16
-
-ob = object_infos[TR1ItemId.Sunglasses]
-ob.hit_points = 1

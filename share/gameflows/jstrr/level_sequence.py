@@ -140,21 +140,21 @@ level_sequence = [
             "de_DE": "Natla Technologien",
             "fr_FR": "Natla Technologies",
         },
-        ambient=TR1TrackId.Ambience1,
-	    item_titles={
-    	"en_GB": {
-        	TR1ItemId.Key1: "Elevator Key",
-        	TR1ItemId.Puzzle2: "Access Pass"
-    	},
-    	"de_DE": {
-        	TR1ItemId.Key1: "Aufzugsschlüssel",
-        	TR1ItemId.Puzzle2: "Zugangspass"
-    	},
-    	"fr_FR": {
-        	TR1ItemId.Key1: "Clé dascenseur",
-        	TR1ItemId.Puzzle2: "Laissez-passer daccès"
-    		}
-	},
+        ambient=TR1TrackId.Ambience3,
+        item_titles={
+            "en_GB": {
+                TR1ItemId.Key1: "Elevator Key",
+                TR1ItemId.Puzzle2: "Access Pass"
+            },
+            "de_DE": {
+                TR1ItemId.Key1: "Aufzugsschlüssel",
+                TR1ItemId.Puzzle2: "Zugangspass"
+            },
+            "fr_FR": {
+                TR1ItemId.Key1: "Clé dascenseur",
+                TR1ItemId.Puzzle2: "Laissez-passer daccès"
+            }
+        },
         alternative_splashscreen="DATA/AZTECLOA.jpg",
     ),
     Video(paths=_fmv("LIFT")),
@@ -165,7 +165,7 @@ level_sequence = [
             "de_DE": "St. Francis' Folly",
             "fr_FR": "Le Monument St Francis",
         },
-        ambient=TR1TrackId.Ambience3,
+        ambient=TR1TrackId.Ambience1,
         item_titles={
             "en_GB": {
                 TR1ItemId.Key1: "Hades Key",
@@ -198,7 +198,7 @@ level_sequence = [
             "de_DE": "Das Kolosseum",
             "fr_FR": "Le Colosseum",
         },
-        ambient=TR1TrackId.Ambience3,
+        ambient=TR1TrackId.Ambience1,
         item_titles={
             "en_GB": {
                 TR1ItemId.Key1: "Tartarus Key",
@@ -222,7 +222,7 @@ level_sequence = [
             "de_DE": "Palce der Könige",
             "fr_FR": "Palais des Rois",
         },
-        ambient=TR1TrackId.Ambience3,
+        ambient=TR1TrackId.Ambience1,
         item_titles={
             "en_GB": {
                 TR1ItemId.Puzzle1: "Gold Bar",
@@ -285,7 +285,7 @@ level_sequence = [
             "de_DE": "Die verlorene Stadt",
             "fr_FR": "La Cité Perdue",
         },
-        ambient=TR1TrackId.Ambience2,
+        ambient=TR1TrackId.Ambience1,
         item_titles={
             "en_GB": {
                 TR1ItemId.Key1: "Sapphire Key",
@@ -309,7 +309,7 @@ level_sequence = [
             "de_DE": "Der Obelisk von Khamoon",
             "fr_FR": "L'Ob)elisque de Khamoonn",
         },
-        ambient=TR1TrackId.Ambience3,
+        ambient=TR1TrackId.Ambience1,
         alternative_splashscreen="DATA/EGYPTLOA.jpg",
         item_titles={
             "en_GB": {
@@ -345,7 +345,7 @@ level_sequence = [
             "de_DE": "Das Heiligtum des Scion",
             "fr_FR": "Le Sanctuaire du Scion",
         },
-        ambient=TR1TrackId.Ambience3,
+        ambient=TR1TrackId.Ambience1,
         item_titles={
             "en_GB": {
                 TR1ItemId.Puzzle1: "Eye of Horus",
@@ -373,9 +373,11 @@ level_sequence = [
             },
         },
         alternative_splashscreen="DATA/EGYPTLOA.jpg",
+        water_color=(0.7, 0.1, 0.7),
+        water_density=0.3
     ),
     Video(paths=_fmv("CANYON")),
-        ModifyInventory(
+    ModifyInventory(
         drop_inventory={
             TR1ItemId.Pistols,
             TR1ItemId.Magnums,
@@ -395,7 +397,7 @@ level_sequence = [
             "de_DE": "Natlas Katakomben",
             "fr_FR": "Les Mines de Natla",
         },
-        ambient=TR1TrackId.Ambience3,
+        ambient=TR1TrackId.Ambience2,
         item_titles={
             "en_GB": {
                 TR1ItemId.Puzzle1: "Fuse",
@@ -426,9 +428,9 @@ level_sequence = [
         camera_rot=90.0,
     ),
     Video(paths=_fmv("PYRAMID")),
-        	ModifyInventory(
-        	add_inventory={TR1ItemId.Pistols: 1},
-    	),
+    ModifyInventory(
+        add_inventory={TR1ItemId.Pistols: 1},
+    ),
     Level(
         name="data\\Atlantis.phd",
         titles={
@@ -436,7 +438,7 @@ level_sequence = [
             "de_DE": "Atlantis",
             "fr_FR": "L'Atlantide",
         },
-        ambient=TR1TrackId.Ambience2,
+        ambient=TR1TrackId.Ambience4,
         item_titles={
             "en_GB": {
                 TR1ItemId.Puzzle2: "Pyramid Key",
@@ -452,6 +454,8 @@ level_sequence = [
             },
         },
         alternative_splashscreen="DATA/ATLANLOA.jpg",
+        water_color=(0.9, 0.1, 0.1),
+        water_density=0.3,
     ),
     Video(paths=_fmv("PRISON")),
     Cutscene(
@@ -483,13 +487,15 @@ level_sequence = [
             },
         },
         alternative_splashscreen="DATA/ATLANLOA.jpg",
+        water_color=(0.9, 0.1, 0.1),
+        water_density=0.3,
     ),
     Video(paths=_fmv("END")),
     ResetSoundEngine(),
     PlayAudioSlot(slot=0, track=TR1TrackId.MidasReprise),
     *(
         SplashScreen(
-            path=f"DATA/{name}.PCX",
+            path=f"DATA/{name}.png",
             duration_seconds=40 // 4 - 4,
             fade_in_duration_seconds=2,
             fade_out_duration_seconds=2,
