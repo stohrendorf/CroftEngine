@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <gl/pixel.h>
 #include <gsl/gsl-lite.hpp>
+#include <numeric>
 
 namespace ui::widgets
 {
@@ -79,11 +80,13 @@ void TextBox::draw(ui::Ui& ui, const engine::Presenter& presenter) const
 
 void TextBox::fitToContent()
 {
-  int maxWidth = 0;
-  for(const auto& line : m_lines)
-  {
-    maxWidth = std::max(line->getWidth(), maxWidth);
-  }
+  auto maxWidth = std::accumulate(m_lines.begin(),
+                                  m_lines.end(),
+                                  0,
+                                  [](int width, auto& line)
+                                  {
+                                    return std::max(line->getWidth(), width);
+                                  });
 
   m_size = {maxWidth + ui::FontHeight, ui::FontHeight * m_lines.size() + ui::FontHeight};
 }
@@ -93,10 +96,14 @@ void TextBox::setText(const std::string& text)
   if(std::exchange(m_text, text) == text)
     return;
 
+  auto broken = breakLines(text, m_size.x - ui::FontHeight);
   m_lines.clear();
-  for(const auto& line : breakLines(text, m_size.x - ui::FontHeight))
-  {
-    m_lines.emplace_back(std::make_unique<ui::Text>(line));
-  }
+  std::transform(broken.begin(),
+                 broken.end(),
+                 std::back_inserter(m_lines),
+                 [](const auto& line)
+                 {
+                   return std::make_unique<ui::Text>(line);
+                 });
 }
 } // namespace ui::widgets

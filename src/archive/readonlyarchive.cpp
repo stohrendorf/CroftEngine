@@ -94,7 +94,6 @@ ReadOnlyArchive::EntryType ReadOnlyArchive::getType()
     return EntryType::Directory;
   case AE_IFREG:
     return EntryType::File;
-    break;
   default:
     return EntryType::Other;
   }

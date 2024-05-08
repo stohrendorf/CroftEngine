@@ -328,7 +328,7 @@ void ControlsMenuState::handleDisplayInput(engine::world::World& world)
     m_editingIndex = 0;
     m_editing = world.getEngine().getEngineConfig()->inputMappings;
     world.getEngine().getPresenter().getInputHandler().setMappings(m_editing);
-    auto& editing = m_editing.at(m_editingIndex);
+    const auto& editing = m_editing.at(m_editingIndex);
     m_controls->updateBindings(editing, getButtonFactory(world, editing.controllerType));
   }
 
@@ -338,7 +338,7 @@ void ControlsMenuState::handleDisplayInput(engine::world::World& world)
     m_editingIndex = 0;
     m_editing = world.getEngine().getEngineConfig()->inputMappings;
     world.getEngine().getPresenter().getInputHandler().setMappings(m_editing);
-    auto& editing = m_editing.at(m_editingIndex);
+    const auto& editing = m_editing.at(m_editingIndex);
     m_controls->updateBindings(editing, getButtonFactory(world, editing.controllerType));
   }
 
@@ -358,7 +358,7 @@ void ControlsMenuState::handleDisplayInput(engine::world::World& world)
       m_editingIndex = m_editing.size() - 1;
     else
       --m_editingIndex;
-    auto& editing = m_editing.at(m_editingIndex);
+    const auto& editing = m_editing.at(m_editingIndex);
     m_controls->updateBindings(editing, getButtonFactory(world, editing.controllerType));
   }
 
@@ -368,7 +368,7 @@ void ControlsMenuState::handleDisplayInput(engine::world::World& world)
       m_editingIndex = 0;
     else
       ++m_editingIndex;
-    auto& editing = m_editing.at(m_editingIndex);
+    const auto& editing = m_editing.at(m_editingIndex);
     m_controls->updateBindings(editing, getButtonFactory(world, editing.controllerType));
   }
 

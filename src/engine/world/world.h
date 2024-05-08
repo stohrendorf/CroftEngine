@@ -234,7 +234,7 @@ public:
     return m_pierre;
   }
 
-  void setPierre(objects::Object* pierre) noexcept
+  void setPierre(const objects::Object* pierre) noexcept
   {
     m_pierre = m_objectManager.find(pierre);
   }

@@ -223,7 +223,7 @@ void Level::convertTexture(ByteTexture& tex, Palette& pal, DWordTexture& dst)
   dst.md5 = util::md5(&tex.pixels[0][0], gsl::narrow_cast<size_t>(256u * 256u));
 }
 
-void Level::convertTexture(WordTexture& tex, DWordTexture& dst)
+void Level::convertTexture(const WordTexture& tex, DWordTexture& dst)
 {
   for(int y = 0; y < 256; y++)
   {

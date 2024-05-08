@@ -47,9 +47,9 @@ void initConsole(boost::log::trivial::severity_level level)
 
   // https://stackoverflow.com/a/57241985
   FILE* fDummy;
-  freopen_s(&fDummy, "CONIN$", "r", stdin);
-  freopen_s(&fDummy, "CONOUT$", "w", stderr);
-  freopen_s(&fDummy, "CONOUT$", "w", stdout);
+  (void)freopen_s(&fDummy, "CONIN$", "r", stdin);
+  (void)freopen_s(&fDummy, "CONOUT$", "w", stderr);
+  (void)freopen_s(&fDummy, "CONOUT$", "w", stdout);
 #endif
   boost::log::add_console_log(std::cout, boost::log::keywords::format = logFormat)
     ->set_filter(boost::log::trivial::severity >= level);
@@ -192,7 +192,7 @@ void runGame(const std::string& localeOverride, const std::string& gameflowId, b
       gsl_Assert(!doLoad);
       player = std::make_shared<engine::Player>();
       for(const auto& item : gameflow.getLaraHome())
-        runResult = engine.runLevelSequenceItem(*item, player, levelStartPlayer);
+        runResult = engine.runLevelSequenceItem(*item, player, levelStartPlayer); // cppcheck-suppress useStlAlgorithm
       break;
     case Mode::Game:
       if(doLoad)

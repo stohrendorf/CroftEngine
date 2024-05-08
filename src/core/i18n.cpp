@@ -11,7 +11,7 @@ void setLocale(const std::filesystem::path& poDir, const std::string& locale)
 {
   BOOST_LOG_TRIVIAL(info) << "Using locales from " << poDir;
 
-  if(const auto result = setlocale(LC_MESSAGES, locale.c_str()); result != nullptr)
+  if(const auto* const result = setlocale(LC_MESSAGES, locale.c_str()); result != nullptr)
   {
     BOOST_LOG_TRIVIAL(trace) << "gettext setlocale result: " << result;
   }

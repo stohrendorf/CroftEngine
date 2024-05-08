@@ -114,7 +114,7 @@ public:
     m_container->update(hasFocus);
   }
 
-  void fitToContent() override
+  void fitToContent() final
   {
     m_container->fitToContent();
   }

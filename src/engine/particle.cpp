@@ -318,7 +318,7 @@ bool FlameParticle::update(world::World& world)
   if(gsl::narrow<size_t>(-negSpriteFrameId) >= spriteSequence->sprites.size())
     negSpriteFrameId = 0;
 
-  objects::LaraObject& lara = world.getObjectManager().getLara();
+  const auto& lara = world.getObjectManager().getLara();
   if(timePerSpriteFrame >= 0)
   {
     // not attached to lara
@@ -336,7 +336,7 @@ bool FlameParticle::update(world::World& world)
       // lara is close enough to be hurt by heat
       world.hitLara(3_hp);
 
-      auto& laraState = lara.m_state;
+      const auto& laraState = lara.m_state;
       const auto distSq = util::square(laraState.location.position.X - location.position.X)
                           + util::square(laraState.location.position.Z - location.position.Z);
       if(distSq < util::square(300_len))
@@ -505,7 +505,7 @@ bool MutantBulletParticle::update(world::World& world)
   else if(world.getObjectManager().getLara().isNearInexact(location.position, 200_len))
   {
     world.hitLara(30_hp);
-    auto& laraState = world.getObjectManager().getLara().m_state;
+    const auto& laraState = world.getObjectManager().getLara().m_state;
     auto particle = gsl::make_shared<BloodSplatterParticle>(location, speed, angle.Y, world);
     if(!withoutParent())
       setParent(particle, location.room->node);

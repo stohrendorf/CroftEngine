@@ -74,7 +74,7 @@ std::vector<std::tuple<glm::ivec2, uint8_t>> doLayout(const std::string& text, i
       else if(chr <= 15)
         sprite = chr + 91;
       else
-        sprite = charToSprite.at(chr - 32);
+        sprite = charToSprite.at(chr - 32); // cppcheck-suppress invalidFunctionArg
 
       layout.emplace_back(xy, sprite);
 

@@ -144,7 +144,7 @@ std::shared_ptr<BufferHandle> StreamingSourceHandle::unqueueBuffer()
 
   if(it == m_queuedBuffers.end())
     BOOST_THROW_EXCEPTION(std::runtime_error("Unqueued buffer not in queue"));
-  auto result = *it;
+  auto result = *it; // cppcheck-suppress derefInvalidIteratorRedundantCheck
   m_queuedBuffers.erase(it);
   return result;
 }

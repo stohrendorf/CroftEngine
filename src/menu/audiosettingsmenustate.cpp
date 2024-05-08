@@ -80,18 +80,18 @@ std::unique_ptr<MenuState>
 
   if(inputHandler.hasDebouncedAction(hid::Action::MenuUp))
   {
-    auto [_, y] = m_grid->getSelected();
+    auto [ignored, y] = m_grid->getSelected();
     if(y > 0)
       m_grid->setSelected({0, y - 1});
   }
   if(inputHandler.hasDebouncedAction(hid::Action::MenuDown))
   {
-    auto [_, y] = m_grid->getSelected();
+    auto [ignored, y] = m_grid->getSelected();
     if(y < std::get<1>(m_grid->getExtents()) - 1)
       m_grid->setSelected({0, y + 1});
   }
 
-  auto [_, row] = m_grid->getSelected();
+  auto [ignored, row] = m_grid->getSelected();
   float delta = 0;
   if(inputHandler.hasDebouncedAction(hid::Action::MenuRight))
     delta = Stepping;

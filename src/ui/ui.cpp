@@ -183,8 +183,13 @@ void Ui::render()
   indices.reserve(m_vertices.size() / 4 * localIndices.size());
   for(size_t i = 0; i < m_vertices.size(); i += 4)
   {
-    for(auto localIndex : localIndices)
-      indices.emplace_back(gsl::narrow_cast<uint16_t>(i + localIndex));
+    std::transform(localIndices.begin(),
+                   localIndices.end(),
+                   std::back_inserter(indices),
+                   [&i](auto localIndex)
+                   {
+                     return gsl::narrow_cast<uint16_t>(i + localIndex);
+                   });
   }
 
   const auto indexBuffer = UiVertex::createIndexBuffer(gl::api::BufferUsage::StaticDraw, indices);

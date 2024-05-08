@@ -118,7 +118,7 @@ protected:
 
   static void convertTexture(ByteTexture& tex, Palette& pal, DWordTexture& dst);
 
-  static void convertTexture(WordTexture& tex, DWordTexture& dst);
+  static void convertTexture(const WordTexture& tex, DWordTexture& dst);
 
 private:
   std::filesystem::path m_filename;

@@ -79,8 +79,12 @@ std::unique_ptr<TextureTile> TextureTile::readTr1(io::SDLReader& reader)
   if((tile->textureKey.atlasIdAndFlag & (1u << 15u)) != 0)
     BOOST_LOG_TRIVIAL(warning) << "TR1 Object Texture: tileAndFlag is flagged";
 
-  for(auto& uv : tile->uvCoordinates)
-    uv = UVCoordinates::read(reader);
+  std::generate(tile->uvCoordinates.begin(),
+                tile->uvCoordinates.end(),
+                [&reader]()
+                {
+                  return UVCoordinates::read(reader);
+                });
   return tile;
 }
 
@@ -93,8 +97,12 @@ std::unique_ptr<TextureTile> TextureTile::readTr4(io::SDLReader& reader)
     BOOST_LOG_TRIVIAL(warning) << "TR4 Object Texture: tileAndFlag > 128";
 
   tile->textureKey.flags = reader.readU16();
-  for(auto& uv : tile->uvCoordinates)
-    uv = UVCoordinates::read(reader);
+  std::generate(tile->uvCoordinates.begin(),
+                tile->uvCoordinates.end(),
+                [&reader]()
+                {
+                  return UVCoordinates::read(reader);
+                });
   tile->unknown1 = reader.readU32();
   tile->unknown2 = reader.readU32();
   tile->x_size = reader.readU32();

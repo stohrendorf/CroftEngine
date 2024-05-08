@@ -201,7 +201,6 @@ bool MenuDisplay::doOptions(engine::world::World& world, MenuObject& object)
     break;
   case engine::TR1ItemId::Flashlight:
     BOOST_THROW_EXCEPTION(std::runtime_error("Gamma options are not implemented"));
-    break;
   case engine::TR1ItemId::Compass:
     if(world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::Return)
        || world.getPresenter().getInputHandler().hasDebouncedAction(hid::Action::PrimaryInteraction))

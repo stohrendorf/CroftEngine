@@ -357,10 +357,13 @@ std::vector<std::filesystem::path> getIconPaths(const std::filesystem::path& bas
 {
   std::vector<std::filesystem::path> result;
   result.reserve(sizes.size());
-  for(const auto size : sizes)
-  {
-    result.emplace_back(util::ensureFileExists(base / ("logo_" + std::to_string(size) + ".png")));
-  }
+  std::transform(sizes.begin(),
+                 sizes.end(),
+                 std::back_inserter(result),
+                 [&base](const auto& size)
+                 {
+                   return util::ensureFileExists(base / ("logo_" + std::to_string(size) + ".png"));
+                 });
   return result;
 }
 } // namespace

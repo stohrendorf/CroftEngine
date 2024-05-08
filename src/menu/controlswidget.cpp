@@ -145,11 +145,13 @@ void ControlsWidget::fitToContent()
 
   for(size_t x = 0; x < Columns * 2; ++x)
   {
-    int maxWidth = 0;
-    for(const auto& gridBox : m_controlGroups)
-    {
-      maxWidth = std::max(gridBox->getColumnSizes().at(x), maxWidth);
-    }
+    int maxWidth = std::accumulate(m_controlGroups.begin(),
+                                   m_controlGroups.end(),
+                                   0,
+                                   [&x](int maxWidth, auto& gridBox)
+                                   {
+                                     return std::max(gridBox->getColumnSizes().at(x), maxWidth);
+                                   });
     for(const auto& gridBox : m_controlGroups)
     {
       gridBox->setColumnSize(x, maxWidth);
@@ -246,7 +248,7 @@ void ControlsWidget::nextColumn()
   do
   {
     const auto& currentGridBox = getCurrentGridBox();
-    if(!currentGridBox->nextColumn() || !currentGridBox->nextColumn())
+    if(!currentGridBox->nextColumn() || !currentGridBox->nextColumn()) // cppcheck-suppress duplicateExpression
     {
       getCurrentGridBox()->setSelected({1, std::get<1>(currentGridBox->getSelected())});
     }
@@ -259,7 +261,7 @@ void ControlsWidget::prevColumn()
   do
   {
     const auto& currentGridBox = getCurrentGridBox();
-    if(!currentGridBox->prevColumn() || !currentGridBox->prevColumn())
+    if(!currentGridBox->prevColumn() || !currentGridBox->prevColumn()) // cppcheck-suppress duplicateExpression
     {
       getCurrentGridBox()->setSelected(
         {std::get<0>(currentGridBox->getExtents()) - 1, std::get<1>(currentGridBox->getSelected())});

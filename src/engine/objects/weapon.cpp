@@ -68,6 +68,6 @@ const Weapon& Weapon::get(WeaponType weaponType)
   auto it = weapons.find(weaponType);
   if(it == weapons.end())
     BOOST_THROW_EXCEPTION(std::domain_error("invalid weapon type"));
-  return it->second;
+  return it->second; // cppcheck-suppress derefInvalidIteratorRedundantCheck
 }
 } // namespace engine::objects

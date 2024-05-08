@@ -209,10 +209,13 @@ void WorldGeometry::initStaticMeshes(const loader::file::level::Level& level,
 std::vector<gsl::not_null<const Mesh*>> WorldGeometry::initAnimatedModels(const loader::file::level::Level& level)
 {
   std::vector<gsl::not_null<const Mesh*>> meshesDirect;
-  for(auto idx : level.m_meshIndices)
-  {
-    meshesDirect.emplace_back(&m_meshes.at(idx));
-  }
+  std::transform(level.m_meshIndices.begin(),
+                 level.m_meshIndices.end(),
+                 std::back_inserter(meshesDirect),
+                 [this](auto& idx)
+                 {
+                   return gsl::not_null{&m_meshes.at(idx)};
+                 });
 
   for(const auto& [modelId, model] : level.m_animatedModels)
   {

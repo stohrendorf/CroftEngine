@@ -38,7 +38,7 @@ public:
 
   explicit ValueSelector(DisplayTextProvider&& displayTextProvider,
                          SelectionChangeHandler&& selectionChangeHandler,
-                         std::vector<T> values,
+                         std::vector<T> values, // cppcheck-suppress passedByValue
                          Label::Alignment alignment = Label::Alignment::Left)
       : m_label{{}, alignment}
       , m_values{std::move(values)}

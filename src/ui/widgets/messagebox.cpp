@@ -11,6 +11,7 @@
 #include <gl/pixel.h>
 #include <gslu.h>
 #include <iterator>
+#include <numeric>
 
 namespace ui::widgets
 {
@@ -109,11 +110,13 @@ glm::ivec2 MessageBox::getPosition() const
 
 glm::ivec2 MessageBox::getSize() const
 {
-  int width = 0;
-  for(const auto& q : m_questions)
-  {
-    width = std::max(width, q->getSize().x);
-  }
+  auto width = std::accumulate(m_questions.begin(),
+                               m_questions.end(),
+                               0,
+                               [](int width, auto& q)
+                               {
+                                 return std::max(width, q->getSize().x);
+                               });
   return {width + 2 * ui::FontHeight, (3 + m_questions.size()) * ui::FontHeight};
 }
 

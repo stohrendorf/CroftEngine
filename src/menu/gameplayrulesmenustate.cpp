@@ -51,8 +51,10 @@ GameplayRulesMenuState::GameplayRulesMenuState(const std::shared_ptr<MenuRingTra
 
 {
   auto listBox = gsl::make_shared<ui::widgets::CheckListBox>();
-  m_listBox = listBox;
-  m_container = gsl::make_unique<ui::widgets::GroupBox>(/* translators: TR charmap encoding */ _("Rules"), listBox);
+  m_listBox = listBox;                                   // cppcheck-suppress useInitializationList
+  m_container = gsl::make_unique<ui::widgets::GroupBox>( // cppcheck-suppress useInitializationList
+    /* translators: TR charmap encoding */ _("Rules"),
+    listBox);
 
   listBox->addSetting(
     /* translators: TR charmap encoding */

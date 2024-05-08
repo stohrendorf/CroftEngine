@@ -274,8 +274,13 @@ public:
 
     std::vector<std::shared_ptr<gl::CImgWrapper>> result;
     result.reserve(m_atlases.size());
-    for(auto& atlas : m_atlases)
-      result.emplace_back(atlas.takeImage());
+    std::transform(m_atlases.begin(),
+                   m_atlases.end(),
+                   std::back_inserter(result),
+                   [](auto& atlas)
+                   {
+                     return atlas.takeImage();
+                   });
     return result;
   }
 

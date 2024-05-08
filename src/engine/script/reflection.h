@@ -247,8 +247,7 @@ public:
     if(paths.empty())
       BOOST_THROW_EXCEPTION(std::invalid_argument("paths is empty"));
 
-    for(const auto& path : paths)
-      m_paths.emplace_back(path);
+    std::copy(paths.begin(), paths.end(), std::back_inserter(m_paths));
   }
 
   std::pair<RunResult, std::optional<size_t>> run(const gsl::not_null<Engine*>& engine,

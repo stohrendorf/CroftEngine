@@ -11,7 +11,7 @@ struct NamedEnum
   T value;
 
   // NOLINTNEXTLINE(google-explicit-constructor)
-  NamedEnum(T value = T{})
+  NamedEnum(T value = T{}) // cppcheck-suppress noExplicitConstructor
       : value{value}
   {
   }

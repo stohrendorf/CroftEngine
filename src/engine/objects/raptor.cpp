@@ -52,7 +52,7 @@ void Raptor::update()
         goal(2_as);
       break;
     case 2:
-      getCreatureInfo()->maxTurnSpeed = 1_deg / 1_frame;
+      getCreatureInfo()->maxTurnSpeed = 1_deg / 1_frame; // cppcheck-suppress duplicateExpression
       if(!isBored())
         goal(1_as);
       else if(enemyLocation.laraInView && util::rand15() < 256)

@@ -263,7 +263,7 @@ void decodePlanarAlpha(uint64_t block, uint64_t alpha, uint32_t* dst, uint32_t w
   const auto bh = expand6((block >> (19u + 32u)) & 0x3Fu);
   const auto gh = expand7((block >> (25u + 32u)) & 0x7Fu);
 
-  const auto rh0 = gsl::narrow_cast<uint8_t>((block >> (32u - 32u)) & 0x01u);
+  const auto rh0 = gsl::narrow_cast<uint8_t>((block >> (32u - 32u)) & 0x01u); // cppcheck-suppress duplicateExpression
   const auto rh1 = gsl::narrow_cast<uint8_t>(((block >> (34u - 32u)) & 0x1Fu) << 1u);
   const auto rh = expand6(rh0 | rh1);
 
