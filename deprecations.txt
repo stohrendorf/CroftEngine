@@ -1,1 +1,2 @@
 CE-675 2.8 Remove doppelganger save migration
+CE-676 2.8 Remove static sound playback migration

@@ -58,6 +58,7 @@
 #include "serialization/bitset.h"
 #include "serialization/objectreference.h"
 #include "serialization/optional.h"
+#include "serialization/optional_value.h"
 #include "serialization/quantity.h"
 #include "serialization/serialization.h"
 #include "serialization/vector.h"
@@ -888,6 +889,16 @@ void World::serialize(const serialization::Serializer<World>& ser) const
                    return room.physicalId;
                  });
 
+  std::vector<size_t> playingSoundEffects;
+  for(const auto& [i, sfx] : m_staticSoundEffects | boost::adaptors::indexed())
+  {
+    const auto voice = sfx.voice.lock();
+    if(voice == nullptr || voice->isPaused() || voice->isStopped())
+      continue;
+
+    playingSoundEffects.emplace_back(i);
+  }
+
   ser(S_NV("objectManager", m_objectManager),
       S_NV("player", *m_player),
       S_NV("initialLevelStartPlayer", *m_levelStartPlayer),
@@ -903,7 +914,8 @@ void World::serialize(const serialization::Serializer<World>& ser) const
       S_NV("boxes", serialization::SerializingFrozenVector{std::cref(m_boxes)}),
       S_NV("audioEngine", *m_audioEngine),
       S_NV("ghostFrame", m_ghostFrame),
-      S_NV("pierre", serialization::ObjectReference{std::cref(m_pierre)}));
+      S_NV("pierre", serialization::ObjectReference{std::cref(m_pierre)}),
+      S_NV("playingSoundEffects", playingSoundEffects));
 }
 
 void World::deserialize(const serialization::Deserializer<World>& ser)
@@ -936,6 +948,7 @@ void World::deserialize(const serialization::Deserializer<World>& ser)
   for(size_t i = 0; i < m_rooms.size(); ++i)
     gsl_Assert(physicalIds[i] == m_rooms[i].physicalId);
 
+  std::vector<size_t> playingSoundEffects;
   ser(S_NV("objectManager", m_objectManager),
       S_NV("player", *m_player),
       S_NV("initialLevelStartPlayer", *m_levelStartPlayer),
@@ -951,8 +964,21 @@ void World::deserialize(const serialization::Deserializer<World>& ser)
       S_NV("boxes", serialization::DeserializingFrozenVector{std::ref(m_boxes)}),
       S_NV("audioEngine", *m_audioEngine),
       S_NV("ghostFrame", m_ghostFrame),
-      S_NV("pierre", serialization::ObjectReference{std::cref(m_pierre)}));
+      S_NV("pierre", serialization::ObjectReference{std::cref(m_pierre)}),
+      S_NVO("playingSoundEffects", std::ref(playingSoundEffects)));
 
+  for(const auto index : playingSoundEffects)
+  {
+    const auto voice = m_staticSoundEffects.at(index).voice.lock();
+    if(voice == nullptr)
+      continue;
+
+    voice->setLooping(true);
+    voice->play();
+  }
+
+  // still necessary, as the allocated voices may differ from when the game was saved
+  // TODO CE-676
   updateStaticSoundEffects();
 }
 
