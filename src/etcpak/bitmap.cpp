@@ -10,6 +10,7 @@ Bitmap::Bitmap(const glm::ivec2& size)
 {
   gsl_Assert(size.x > 0 && size.y > 0);
   m_data.resize(gsl::narrow_cast<size_t>(size.x) * gsl::narrow_cast<size_t>(size.y));
+  // NOLINTNEXLINE(cppcoreguidelines-prefer-member-initializer)
   m_block = m_data.data();
 }
 

@@ -5,6 +5,7 @@
 namespace
 {
 const std::array<int16_t, 16> g_alphaRange{{
+  // FIXME g_alpha might be uninitialized here
   gsl::narrow_cast<int16_t>(0x100FF / (1 + g_alpha[0][7] - g_alpha[0][3])),
   gsl::narrow_cast<int16_t>(0x100FF / (1 + g_alpha[1][7] - g_alpha[1][3])),
   gsl::narrow_cast<int16_t>(0x100FF / (1 + g_alpha[2][7] - g_alpha[2][3])),
