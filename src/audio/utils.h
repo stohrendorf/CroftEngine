@@ -51,26 +51,30 @@ auto alcAssertFn(ALCdevice* device, F code, gsl::czstring codeStr, gsl::czstring
 
 #ifndef NDEBUG
 #  define AL_ASSERT(code)                                                     \
+    /* NOLINTNEXTLINE(*-avoid-do-while) */                                    \
     do                                                                        \
     {                                                                         \
       code;                                                                   \
       ::audio::detail::checkALError(#code, BOOST_CURRENT_FUNCTION, __LINE__); \
     } while(false)
 #  define ALC_ASSERT(device, code)                                                     \
+    /* NOLINTNEXTLINE(*-avoid-do-while) */                                             \
     do                                                                                 \
     {                                                                                  \
       code;                                                                            \
       ::audio::detail::checkALCError(device, #code, BOOST_CURRENT_FUNCTION, __LINE__); \
     } while(false)
 #else
-#  define AL_ASSERT(code) \
-    do                    \
-    {                     \
-      code;               \
+#  define AL_ASSERT(code)                  \
+    /* NOLINTNEXTLINE(*-avoid-do-while) */ \
+    do                                     \
+    {                                      \
+      code;                                \
     } while(false)
-#  define ALC_ASSERT(device, code) \
-    do                             \
-    {                              \
-      code;                        \
+#  define ALC_ASSERT(device, code)         \
+    /* NOLINTNEXTLINE(*-avoid-do-while) */ \
+    do                                     \
+    {                                      \
+      code;                                \
     } while(false)
 #endif
