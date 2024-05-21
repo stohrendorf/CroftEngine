@@ -88,4 +88,4 @@ Checks: >
   google-default-arguments,
   google-explicit-constructor,
   google-runtime-operator
-HeaderFilterRegex: '.*(?!rapidyaml|c4core)[\/]src[\/].*'
+HeaderFilterRegex: '.*(?!3rdparty).*'
