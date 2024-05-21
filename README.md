@@ -2,6 +2,12 @@
 
 # [Installation Guide](https://github.com/stohrendorf/CroftEngine/wiki/Installation-Guide) and [Troubleshooting FAQ](https://github.com/stohrendorf/CroftEngine/wiki/FAQ)
 
+To play online with others and see their ghosts live, visit https://haunted.earvillage.net/ and register. Please note
+that coop play is purely visual as of right now. If you have any idea for improvements about coop play, please don't be
+afraid to open an issue or a discussion here or join our [Discord](https://discord.gg/FRAVaBZbY5) server. If you don't
+want to register an account, and if you're somewhat technically inclined, you can run a server on your own -
+see [here](https://github.com/stohrendorf/haunted-coop) for the server code.
+
 If you don't find an answer for your issue, please open an issue or discussion on GitHub, or join
 [the Discord](https://discord.gg/FRAVaBZbY5). No matter where you post your issue, it will be handled.
 
