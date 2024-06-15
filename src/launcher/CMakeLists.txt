@@ -1,6 +1,5 @@
 include( get_qt )
 include( get_boost )
-include( get_valvefilevdf )
 
 set(
         LAUNCHER_SRCS
@@ -60,7 +59,7 @@ target_link_libraries(
         Boost::log
         dosbox-cdrom
         archive
-        valve-file-vdf::valve-file-vdf
+        ValveFileVDF
         ryml
         gameflow
         archive

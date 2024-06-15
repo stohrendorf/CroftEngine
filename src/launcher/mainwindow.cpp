@@ -191,8 +191,8 @@ MainWindow::MainWindow(QWidget* parent)
   }
 
 #ifdef CE_GITHUB_API_KEY
-  if(const auto value = settings.value(LastUpdateCheck);
-     value.isValid() && value.toDate() >= QDate::currentDate().addDays(-7))
+  if(const auto lastCheck = settings.value(LastUpdateCheck);
+     lastCheck.isValid() && lastCheck.toDate().addDays(7) >= QDate::currentDate())
   {
     BOOST_LOG_TRIVIAL(info) << "Not checking for updates, last check was less than a week ago";
   }
@@ -1119,7 +1119,7 @@ void MainWindow::downloadedReleasesJson(QNetworkReply* reply)
   for(const auto& release : doc.getRoot().children())
   {
     auto preview = release.find_child(c4::csubstr("prerelease"));
-    if(!preview.valid() || !(preview.type() & ryml::VAL))
+    if(!preview.readable() || !(preview.type() & ryml::VAL))
     {
       BOOST_LOG_TRIVIAL(warning) << "Could not get preview from release";
       continue;
@@ -1134,7 +1134,7 @@ void MainWindow::downloadedReleasesJson(QNetworkReply* reply)
     }
 
     auto draft = release.find_child(c4::csubstr("draft"));
-    if(!draft.valid() || !(preview.type() & ryml::VAL))
+    if(!draft.readable() || !(preview.type() & ryml::VAL))
     {
       BOOST_LOG_TRIVIAL(warning) << "Could not get draft from release";
       continue;
@@ -1149,7 +1149,7 @@ void MainWindow::downloadedReleasesJson(QNetworkReply* reply)
     }
 
     auto tagName = release.find_child(c4::csubstr("tag_name"));
-    if(!tagName.valid() || !(preview.type() & ryml::VAL))
+    if(!tagName.readable() || !(preview.type() & ryml::VAL))
     {
       BOOST_LOG_TRIVIAL(warning) << "Could not get tag_name from release";
       continue;

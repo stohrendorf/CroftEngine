@@ -57,15 +57,15 @@ public:
   {
     if constexpr(Loading)
     {
-      std::ifstream file{filename, std::ios::in};
+      std::ifstream file{filename, std::ios::in | std::ios::binary};
       gsl_Assert(file.is_open());
       file.seekg(0, std::ios::end);
-      const auto size = static_cast<std::size_t>(file.tellg());
+      const auto size = static_cast<std::streamsize>(file.tellg());
       file.seekg(0, std::ios::beg);
 
       m_buffer.resize(size);
-      file.read(&m_buffer[0], size);
-      m_tree = ryml::parse_in_arena(c4::to_csubstr(filename.string()), c4::to_csubstr(m_buffer));
+      file.read(m_buffer.data(), size);
+      m_tree = ryml::parse_in_arena(c4::to_csubstr(m_buffer));
     }
     else
     {
@@ -77,8 +77,7 @@ public:
 
   template<bool Lazy = Loading>
   explicit YAMLDocument(std::string data, std::enable_if_t<Lazy, bool> = true)
-      : m_filename{}
-      , m_buffer{std::move(data)}
+      : m_buffer{std::move(data)}
   {
     static_assert(Lazy);
 
@@ -102,8 +101,9 @@ public:
   }
 
   template<typename T, typename TContext, bool DelayLoading = Loading>
-  auto deserialize(const std::string& key, const gsl::not_null<TContext*>& context, T& data)
-    -> std::enable_if_t<DelayLoading, void>
+  auto deserialize(const std::string& key,
+                   const gsl::not_null<TContext*>& context,
+                   T& data) -> std::enable_if_t<DelayLoading, void>
   {
     const std::string oldLocale = gsl::not_null{setlocale(LC_NUMERIC, nullptr)}.get();
     setlocale(LC_NUMERIC, "C");
@@ -118,8 +118,9 @@ public:
   }
 
   template<typename T, typename TContext, bool DelayLoading = Loading>
-  auto serialize(const std::string& key, const gsl::not_null<TContext*>& context, T& data)
-    -> std::enable_if_t<!DelayLoading, void>
+  auto serialize(const std::string& key,
+                 const gsl::not_null<TContext*>& context,
+                 T& data) -> std::enable_if_t<!DelayLoading, void>
   {
     const std::string oldLocale = gsl::not_null{setlocale(LC_NUMERIC, nullptr)}.get();
     setlocale(LC_NUMERIC, "C");

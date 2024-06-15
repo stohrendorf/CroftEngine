@@ -29,7 +29,7 @@ void deserialize(std::map<T, U>& data, const Deserializer<TContext>& ser)
   {
     gsl_Assert(element.is_map());
     gsl_Assert(element.num_children() == 2);
-    gsl_Assert(element["key"].valid() && element["value"].valid());
+    gsl_Assert(element["key"].readable() && element["value"].readable());
 
     data.emplace(access<T, true>::dispatch(ser.withNode(element["key"])),
                  access<U, true>::dispatch(ser.withNode(element["value"])));

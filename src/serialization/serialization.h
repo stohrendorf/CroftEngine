@@ -145,7 +145,7 @@ private:
       isSeed = childNode.is_seed();
     }
 
-    const bool exists = !isSeed && childNode.valid() && childNode.type() != ryml::NOTYPE;
+    const bool exists = !isSeed && childNode.readable() && childNode.type() != ryml::NOTYPE;
     if constexpr(Loading)
     {
       if(!exists)
@@ -256,7 +256,7 @@ public:
   const BaseSerializer<Loading, TContext>& operator()(const std::string_view& name, T&& data) const
   {
     ensureIsMap();
-    BOOST_ASSERT(node.valid());
+    BOOST_ASSERT(node.readable());
     if constexpr(!Loading)
     {
       BOOST_ASSERT(!node.is_seed());
@@ -276,7 +276,7 @@ public:
   const BaseSerializer<Loading, TContext>& operator()(const std::string_view& name, Default<T>&& data) const
   {
     ensureIsMap();
-    BOOST_ASSERT(node.valid());
+    BOOST_ASSERT(node.readable());
     if constexpr(!Loading)
     {
       BOOST_ASSERT(!node.is_seed());
@@ -308,7 +308,7 @@ public:
   const BaseSerializer<Loading, TContext>& operator()(const std::string_view& name, OptionalValue<T>&& data) const
   {
     ensureIsMap();
-    BOOST_ASSERT(node.valid());
+    BOOST_ASSERT(node.readable());
 
 #ifdef SERIALIZATION_TRACE
     BOOST_LOG_TRIVIAL(trace) << "Serializing node " << getQualifiedKey() << "::" << name;
@@ -334,7 +334,7 @@ public:
     auto existing = node[c4::to_csubstr(name)];
     if constexpr(!Loading)
     {
-      if(existing.is_seed() || !existing.valid() || existing.type() == ryml::NOTYPE)
+      if(existing.is_seed() || !existing.readable() || existing.type() == ryml::NOTYPE)
       {
         auto ser = newChild();
         ser.node.set_key(node.tree()->copy_to_arena(c4::to_csubstr(name)));

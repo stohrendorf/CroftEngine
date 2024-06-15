@@ -4,7 +4,7 @@ endif()
 
 include( ./dl_unpack )
 
-set( _cimg_version "v.3.3.5" )
+set( _cimg_version "v.3.4.0" )
 dl_unpack(
         URL https://github.com/GreycLab/CImg/archive/${_cimg_version}.tar.gz
         FILENAME CImg-${_cimg_version}.tar.gz
