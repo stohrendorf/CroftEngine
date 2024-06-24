@@ -34,7 +34,7 @@ struct MenuDisplay;
 struct MenuRingTransform;
 class MenuState;
 
-class RenderSettingsMenuState : public SelectedMenuState
+class SettingsMenuState : public SelectedMenuState
 {
 private:
   std::vector<std::shared_ptr<ui::widgets::CheckListBox>> m_listBoxes{};
@@ -43,11 +43,11 @@ private:
   gslu::nn_unique<ui::widgets::TabBox> m_tabs;
 
 public:
-  explicit RenderSettingsMenuState(const std::shared_ptr<MenuRingTransform>& ringTransform,
-                                   std::unique_ptr<MenuState> previous,
-                                   engine::Engine& engine);
+  explicit SettingsMenuState(const std::shared_ptr<MenuRingTransform>& ringTransform,
+                             std::unique_ptr<MenuState> previous,
+                             engine::Engine& engine);
 
   std::unique_ptr<MenuState> onFrame(ui::Ui& ui, engine::world::World& world, MenuDisplay& display) override;
-  ~RenderSettingsMenuState() override;
+  ~SettingsMenuState() override;
 };
 } // namespace menu

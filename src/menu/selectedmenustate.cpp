@@ -22,8 +22,8 @@
 #include "menustate.h"
 #include "passportmenustate.h"
 #include "qs/quantity.h"
-#include "rendersettingsmenustate.h"
 #include "resetitemtransformmenustate.h"
+#include "settingsmenustate.h"
 #include "ui/text.h"
 #include "ui/ui.h"
 #include "util.h"
@@ -42,7 +42,7 @@ std::unique_ptr<MenuState> SelectedMenuState::onFrame(ui::Ui& ui, engine::world:
   case engine::TR1ItemId::PassportClosed:
     return create<PassportMenuState>(display.allowPassportExit, display.saveGamePageMode);
   case engine::TR1ItemId::Sunglasses:
-    return create<RenderSettingsMenuState>(
+    return create<SettingsMenuState>(
       create<FinishItemAnimationMenuState>(create<ResetItemTransformMenuState>(create<DeselectingMenuState>())),
       world.getEngine());
   case engine::TR1ItemId::DirectionKeys:

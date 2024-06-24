@@ -1,4 +1,4 @@
-#include "rendersettingsmenustate.h"
+#include "settingsmenustate.h"
 
 #include "core/i18n.h"
 #include "engine/displaysettings.h"
@@ -44,9 +44,9 @@ namespace menu
 {
 constexpr int MaxDescriptionWidth = 500;
 
-RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingTransform>& ringTransform,
-                                                 std::unique_ptr<MenuState> previous,
-                                                 engine::Engine& engine)
+SettingsMenuState::SettingsMenuState(const std::shared_ptr<MenuRingTransform>& ringTransform,
+                                     std::unique_ptr<MenuState> previous,
+                                     engine::Engine& engine)
     : SelectedMenuState{ringTransform}
     , m_previous{std::move(previous)}
     , m_tabs{gsl::make_unique<ui::widgets::TabBox>()}
@@ -798,8 +798,7 @@ RenderSettingsMenuState::RenderSettingsMenuState(const std::shared_ptr<MenuRingT
   }
 }
 
-std::unique_ptr<MenuState>
-  RenderSettingsMenuState::onFrame(ui::Ui& ui, engine::world::World& world, MenuDisplay& /*display*/)
+std::unique_ptr<MenuState> SettingsMenuState::onFrame(ui::Ui& ui, engine::world::World& world, MenuDisplay& /*display*/)
 {
   m_tabs->fitToContent();
   m_tabs->setPosition({(ui.getSize().x - m_tabs->getSize().x) / 2, ui.getSize().y - m_tabs->getSize().y - 90});
@@ -866,5 +865,5 @@ std::unique_ptr<MenuState>
 
   return nullptr;
 }
-RenderSettingsMenuState::~RenderSettingsMenuState() = default;
+SettingsMenuState::~SettingsMenuState() = default;
 } // namespace menu

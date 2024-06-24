@@ -652,7 +652,6 @@ set( CROFTENGINE_SRCS
         menu/listdisplaymenustate.cpp
         menu/newgamemenustate.cpp
         menu/passportmenustate.cpp
-        menu/rendersettingsmenustate.cpp
         menu/requestlevelmenustate.cpp
         menu/requestloadmenustate.cpp
         menu/resetitemtransformmenustate.cpp
@@ -662,6 +661,7 @@ set( CROFTENGINE_SRCS
         menu/selectedmenustate.cpp
         menu/selectlevelmenustate.cpp
         menu/setitemtypemenustate.cpp
+        menu/settingsmenustate.cpp
         menu/switchringmenustate.cpp
         menu/util.cpp
 )
