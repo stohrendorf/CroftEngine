@@ -220,7 +220,9 @@ void EngineConfig::serialize(const serialization::Serializer<EngineConfig>& ser)
       S_NV("saveReminderMinutes", saveReminderMinutes),
       S_NV("selectFirstFreeOrOldestSlot", selectFirstFreeOrOldestSlot),
       S_NV("delaySaveEnabled", delaySaveEnabled),
-      S_NV("delaySaveDurationSeconds", delaySaveDurationSeconds));
+      S_NV("delaySaveDurationSeconds", delaySaveDurationSeconds),
+      S_NV("mediPackPreservationEnabled", mediPackPreservationEnabled),
+      S_NV("mediPackPreservation", mediPackPreservation));
 }
 
 void EngineConfig::deserialize(const serialization::Deserializer<EngineConfig>& ser)
@@ -239,7 +241,9 @@ void EngineConfig::deserialize(const serialization::Deserializer<EngineConfig>& 
       S_NVO("saveReminderMinutes", std::ref(saveReminderMinutes)),
       S_NVO("selectFirstFreeOrOldestSlot", std::ref(selectFirstFreeOrOldestSlot)),
       S_NVO("delaySaveEnabled", std::ref(delaySaveEnabled)),
-      S_NVO("delaySaveDurationSeconds", std::ref(delaySaveDurationSeconds)));
+      S_NVO("delaySaveDurationSeconds", std::ref(delaySaveDurationSeconds)),
+      S_NVO("mediPackPreservationEnabled", std::ref(mediPackPreservationEnabled)),
+      S_NVO("mediPackPreservation", std::ref(mediPackPreservation)));
 }
 
 EngineConfig::EngineConfig()

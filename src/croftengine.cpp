@@ -91,10 +91,11 @@ bool initCrashReporting()
   chillout.setCrashCallback(
     [&chillout]()
     {
-      BOOST_LOG_TRIVIAL(fatal) << "Croft engine has crashed, writing minidump";
+      BOOST_LOG_TRIVIAL(fatal) << "Croft engine has crashed";
       chillout.backtrace();
 #ifdef WIN32
-      chillout.createCrashDump();
+      BOOST_LOG_TRIVIAL(fatal) << "Writing crashdump";
+      chillout.createCrashDump(Debug::CrashDumpSize::CrashDumpFull);
 #endif
       if(logFileSink != nullptr)
       {

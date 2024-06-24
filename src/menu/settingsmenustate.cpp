@@ -787,6 +787,34 @@ SettingsMenuState::SettingsMenuState(const std::shared_ptr<MenuRingTransform>& r
         "some time to avoid accidental overwrites."),
       MaxDescriptionWidth));
   }
+  {
+    auto tmp = std::make_shared<ui::widgets::ValueSelector<uint8_t>>(
+      [](uint8_t value)
+      {
+        return /* translators: TR charmap encoding */ _("Preserve \x1f\x6c %1% Percent \x1f\x6d of Medi Packs",
+                                                        static_cast<uint32_t>(value));
+      },
+      [&engine](uint8_t value)
+      {
+        engine.getEngineConfig()->mediPackPreservation = value;
+      },
+      std::vector<uint8_t>{10, 20, 30, 40, 50, 60, 70, 80, 90});
+    listBox->addSetting(
+      gslu::nn_shared<ui::widgets::Widget>{tmp},
+      [&engine]()
+      {
+        return engine.getEngineConfig()->mediPackPreservationEnabled;
+      },
+      [&engine]()
+      {
+        toggle(engine, engine.getEngineConfig()->mediPackPreservationEnabled);
+      });
+    tmp->selectValue(engine.getEngineConfig()->mediPackPreservation);
+    m_descriptions.back().emplace_back(std::make_shared<ui::widgets::TextBox>(
+      /* translators: TR charmap encoding */ _(
+        "When using Medi Packs, this setting prevents you from using them if you're practically wasting them."),
+      MaxDescriptionWidth));
+  }
 
   for(const auto& descriptions : m_descriptions)
   {

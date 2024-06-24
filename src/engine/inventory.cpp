@@ -2,9 +2,11 @@
 
 #include "core/magic.h"
 #include "core/units.h"
-#include "engine/objectmanager.h"
+#include "engine.h"
+#include "engineconfig.h"
 #include "gameplayrules.h"
 #include "items_tr1.h"
+#include "objectmanager.h"
 #include "objects/laraobject.h"
 #include "objects/objectstate.h"
 #include "player.h"
@@ -151,7 +153,7 @@ bool Inventory::tryUse(objects::LaraObject& lara, const TR1ItemId id, const Game
     return true;
   };
 
-  auto tryUseMediPack = [this, &lara, &gameplayRules](TR1ItemId mediPack, const core::Health& health) -> bool
+  auto tryUseMediPack = [this, &lara, &gameplayRules](TR1ItemId mediPack, const core::Health& healing) -> bool
   {
     if(count(mediPack) == 0)
       return false;
@@ -164,10 +166,25 @@ bool Inventory::tryUse(objects::LaraObject& lara, const TR1ItemId id, const Game
 
     if(lara.isDead() || lara.m_state.health >= core::LaraHealth)
     {
+      if(lara.getWorld().getEngine().getEngineConfig()->mediPackPreservationEnabled)
+      {
+        lara.playSoundEffect(TR1SoundEffect::LaraNo);
+      }
+
       return false;
     }
 
-    lara.m_state.health = std::min(lara.m_state.health + health, core::LaraHealth);
+    if(lara.getWorld().getEngine().getEngineConfig()->mediPackPreservationEnabled)
+    {
+      const auto healthToRecover = core::LaraHealth - lara.m_state.health;
+      if(healthToRecover < healing * lara.getWorld().getEngine().getEngineConfig()->mediPackPreservation / 100)
+      {
+        lara.playSoundEffect(TR1SoundEffect::LaraNo);
+        return false;
+      }
+    }
+
+    lara.m_state.health = std::min(lara.m_state.health + healing, core::LaraHealth);
     tryTake(mediPack);
     lara.playSoundEffect(TR1SoundEffect::LaraSigh);
     return true;

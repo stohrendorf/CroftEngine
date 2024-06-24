@@ -65,6 +65,8 @@ struct EngineConfig
   bool selectFirstFreeOrOldestSlot = false;
   bool delaySaveEnabled = false;
   uint8_t delaySaveDurationSeconds = 3;
+  bool mediPackPreservationEnabled = false;
+  uint8_t mediPackPreservation = 50;
 
   explicit EngineConfig();
 
