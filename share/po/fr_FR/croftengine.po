@@ -1406,7 +1406,7 @@ msgstr "Pistolets uniquement"
 #: menu/settingsmenustate.cpp:794
 #, boost-format
 msgid "Preserve \037l %1% \037m Percent of Medi Packs"
-msgstr "Pr)eserver \037l %1% \037m Pourcentage des grandes trousses de soins"
+msgstr "Pr)eserver \037l %1% \037m pourcents des grandes trousses de soins"
 
 #. translators: TR charmap encoding
 #: hid/names.cpp:366
