@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CroftEngine\n"
 "Report-Msgid-Bugs-To: https://github.com/stohrendorf/CroftEngine/issues\n"
-"POT-Creation-Date: 2024-06-24 19:01+0200\n"
+"POT-Creation-Date: 2024-06-25 06:59+0200\n"
 "Last-Translator: Steffen Ohrendorf\n"
 "Language-Team: none\n"
 "Language: fr_FR\n"
@@ -1403,6 +1403,12 @@ msgid "Pistols Only"
 msgstr "Pistolets uniquement"
 
 #. translators: TR charmap encoding
+#: menu/settingsmenustate.cpp:794
+#, boost-format
+msgid "Preserve \037l %1% \037m Percent of Medi Packs"
+msgstr "Pr)eserver \037l %1% \037m Pourcentage des grandes trousses de soins"
+
+#. translators: TR charmap encoding
 #: hid/names.cpp:366
 msgctxt "MenuAction"
 msgid "Previous Tab/View"
@@ -1904,6 +1910,15 @@ msgstr ""
 "Pour une sauvegarde manuelle, s)electionne automatiquement le premier "
 "emplacement libre. S'il n'y en a plus, cela va s)electionner la sauvegarde "
 "la plus ancienne pour la remplacer."
+
+#. translators: TR charmap encoding
+#: menu/settingsmenustate.cpp:815
+msgid ""
+"When using Medi Packs, this setting prevents you from using them if you're "
+"practically wasting them."
+msgstr ""
+"Lors de l'utilisation des grandes trousses de soins, ceci vous emp(eche de "
+"les g(acher pour un faible usage."
 
 #. translators: TR charmap encoding
 #: hid/names.cpp:247

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CroftEngine\n"
 "Report-Msgid-Bugs-To: https://github.com/stohrendorf/CroftEngine/issues\n"
-"POT-Creation-Date: 2024-06-24 19:54+0200\n"
+"POT-Creation-Date: 2024-06-25 06:59+0200\n"
 "Last-Translator: Steffen Ohrendorf\n"
 "Language-Team: none\n"
 "Language: de_DE\n"
@@ -1410,7 +1410,7 @@ msgstr "Nur Pistolen"
 #. translators: TR charmap encoding
 #: menu/settingsmenustate.cpp:794
 #, boost-format
-msgid "Preserve \037l %1% Percent \037m of Medi Packs"
+msgid "Preserve \037l %1% \037m Percent of Medi Packs"
 msgstr "\037l %1% \037m Prozent der Medi-Packs sparen"
 
 #. translators: TR charmap encoding
@@ -1920,7 +1920,9 @@ msgstr ""
 msgid ""
 "When using Medi Packs, this setting prevents you from using them if you're "
 "practically wasting them."
-msgstr "Wenn Medi-Packs benutzt werden wird diese Einstellung verhindern sie zu nutzen wenn sie praktisch verschwendet werden."
+msgstr ""
+"Wenn Medi-Packs benutzt werden wird diese Einstellung verhindern sie zu "
+"nutzen wenn sie praktisch verschwendet werden."
 
 #. translators: TR charmap encoding
 #: hid/names.cpp:247

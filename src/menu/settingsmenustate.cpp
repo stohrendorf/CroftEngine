@@ -791,7 +791,7 @@ SettingsMenuState::SettingsMenuState(const std::shared_ptr<MenuRingTransform>& r
     auto tmp = std::make_shared<ui::widgets::ValueSelector<uint8_t>>(
       [](uint8_t value)
       {
-        return /* translators: TR charmap encoding */ _("Preserve \x1f\x6c %1% Percent \x1f\x6d of Medi Packs",
+        return /* translators: TR charmap encoding */ _("Preserve \x1f\x6c %1% \x1f\x6d Percent of Medi Packs",
                                                         static_cast<uint32_t>(value));
       },
       [&engine](uint8_t value)
