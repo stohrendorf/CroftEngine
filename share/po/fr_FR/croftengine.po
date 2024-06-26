@@ -28,7 +28,7 @@ msgstr "\037l %1% \037m )Eclairage dynamique"
 #: menu/settingsmenustate.cpp:563
 #, boost-format
 msgid "\037l %1% \037m Percent Dust Particles"
-msgstr "\037l %1% \037m Pourcentage de particules de poussi$ere"
+msgstr "\037l %1% \037m pourcents de particules de poussi$ere"
 
 #. translators: TR charmap encoding
 #: menu/settingsmenustate.cpp:347
