@@ -1,9 +1,10 @@
 #pragma once
 
-#include "access.h"
+#include "serialization/serialization.h"
 
 #include <array>
-#include <ryml.hpp>
+#include <cstddef>
+#include <gsl/gsl-lite.hpp>
 
 namespace serialization
 {

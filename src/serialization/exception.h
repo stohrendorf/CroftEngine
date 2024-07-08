@@ -1,7 +1,6 @@
 #pragma once
 
 #include <boost/throw_exception.hpp>
-#include <gsl/gsl-lite.hpp>
 #include <stdexcept>
 #include <string>
 

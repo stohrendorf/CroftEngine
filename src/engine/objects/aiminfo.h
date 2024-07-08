@@ -6,6 +6,7 @@
 #include "serialization/serialization_fwd.h"
 
 #include <cstddef>
+#include <limits>
 
 namespace loader::file
 {

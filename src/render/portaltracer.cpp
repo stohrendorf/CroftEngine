@@ -9,19 +9,20 @@
 #include <algorithm>
 #include <array>
 #include <boost/assert.hpp>
-#include <boost/iterator/iterator_facade.hpp>
-#include <boost/iterator/transform_iterator.hpp>
 #include <boost/range/adaptor/argument_fwd.hpp>
 #include <boost/range/adaptor/transformed.hpp>
+#include <cmath>
 #include <cstddef>
 #include <glm/fwd.hpp>
 #include <glm/geometric.hpp>
-#include <glm/mat4x4.hpp>
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
 #include <gsl/gsl-lite.hpp>
 #include <limits>
 #include <memory>
+#include <optional>
+#include <unordered_set>
+#include <vector>
 
 namespace render
 {

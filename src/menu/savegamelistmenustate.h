@@ -5,6 +5,7 @@
 
 #include <chrono>
 #include <cstddef>
+#include <cstdint>
 #include <gslu.h>
 #include <map>
 #include <memory>
@@ -48,14 +49,14 @@ private:
   bool m_loading;
   std::shared_ptr<ui::widgets::MessageBox> m_overwriteConfirmation;
   std::shared_ptr<ui::widgets::MessageBox> m_cleanupConfirmation;
-  enum class Ordering
+  enum class Ordering : uint8_t
   {
     Slot,
     DateAsc,
     DateDesc
   };
   Ordering m_ordering = Ordering::Slot;
-  std::chrono::steady_clock::time_point m_confirmOverwritePressedSince{};
+  std::chrono::steady_clock::time_point m_confirmOverwritePressedSince;
 
   class CleanupWidget;
   std::shared_ptr<CleanupWidget> m_cleanupWidget;

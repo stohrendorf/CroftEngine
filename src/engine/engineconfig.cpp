@@ -3,6 +3,12 @@
 #include "core/i18n.h"
 #include "engine/audiosettings.h"
 #include "engine/displaysettings.h"
+#include "hid/actions.h"
+#include "hid/glfw_axes.h"
+#include "hid/glfw_axis_dirs.h"
+#include "hid/glfw_gamepad_buttons.h"
+#include "hid/glfw_keys.h"
+#include "render/rendersettings.h"
 #include "serialization/default.h"
 #include "serialization/map.h"
 #include "serialization/optional_value.h"
@@ -11,10 +17,8 @@
 #include "serialization/variant.h"
 #include "serialization/vector.h"
 
-#include <exception>
 #include <functional>
-#include <memory>
-#include <stdexcept>
+#include <vector>
 
 namespace engine
 {

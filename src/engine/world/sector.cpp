@@ -3,6 +3,7 @@
 #include "core/containeroffset.h"
 #include "core/id.h"
 #include "engine/floordata/floordata.h"
+#include "engine/floordata/types.h"
 #include "loader/file/datatypes.h"
 #include "serialization/optional.h"
 #include "serialization/quantity.h"
@@ -11,6 +12,9 @@
 #include "world.h"
 
 #include <exception>
+#include <functional>
+#include <optional>
+#include <vector>
 
 namespace engine::world
 {

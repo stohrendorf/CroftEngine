@@ -20,17 +20,19 @@
 #include <algorithm>
 #include <array>
 #include <boost/assert.hpp>
-#include <boost/format.hpp>
 #include <boost/log/trivial.hpp>
 #include <cassert>
+#include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <filesystem>
+#include <functional>
 #include <future>
 #include <gl/cimgwrapper.h>
 #include <gl/image.h>
 #include <gl/pixel.h>
 #include <gl/texture2darray.h>
+#include <glm/common.hpp>
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
 #include <gsl/gsl-lite.hpp>
@@ -39,8 +41,7 @@
 #include <map>
 #include <memory>
 #include <optional>
-#include <sstream>
-#include <system_error>
+#include <string>
 #include <tuple>
 #include <type_traits>
 #include <unordered_set>
@@ -103,7 +104,7 @@ struct Tile
   bool opaque;
 
   // texture page, position, and size (in pixels)
-  std::optional<std::tuple<size_t, glm::ivec2, glm::ivec2>> remapped{};
+  std::optional<std::tuple<size_t, glm::ivec2, glm::ivec2>> remapped;
 
   explicit Tile(const glm::ivec2& position, const glm::ivec2& size, bool opaque)
       : position{size.x >= 0 ? position.x : position.x + size.x, size.y >= 0 ? position.y : position.y + size.y}
@@ -137,7 +138,9 @@ struct Tile
                                                                const glm::ivec2& srcSize) const
   {
     const auto remapScale = getRemapScale();
-    const auto remappedPos = glm::vec2{std::get<1>(*remapped)} + glm::vec2{srcPos - position} * remapScale;
+    gsl_Assert(remapped.has_value());
+    // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
+    const auto remappedPos = glm::vec2{std::get<1>(remapped.value())} + glm::vec2{srcPos - position} * remapScale;
     const auto remappedSize = glm::vec2{srcSize} * remapScale - glm::vec2{1, 1};
 
     return {remappedPos, remappedPos + remappedSize};
@@ -146,7 +149,8 @@ struct Tile
   [[nodiscard]] glm::vec2 getRemapScale() const
   {
     gsl_Assert(remapped.has_value());
-    return glm::vec2{std::get<2>(*remapped)} / glm::vec2{size};
+    // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
+    return glm::vec2{std::get<2>(remapped.value())} / glm::vec2{size};
   }
 };
 
@@ -381,7 +385,8 @@ void layoutAtlases(const loader::file::level::Level& level,
       }
 
       gsl_Assert(matchingTile != nullptr);
-      const auto page = std::get<0>(*matchingTile->remapped);
+      // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
+      const auto page = std::get<0>(matchingTile->remapped.value());
       const auto [remappedPos1, remappedPos2] = matchingTile->getRemappedPos(pos, size);
       const auto remappedPos1Uv = glm::vec2{remappedPos1} / static_cast<float>(atlases.getSize() - 1);
       const auto remappedPos2Uv = glm::vec2{remappedPos2} / static_cast<float>(atlases.getSize() - 1);
@@ -418,7 +423,8 @@ void layoutAtlases(const loader::file::level::Level& level,
       }
 
       gsl_Assert(matchingTile != nullptr);
-      const auto page = std::get<0>(*matchingTile->remapped);
+      // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
+      const auto page = std::get<0>(matchingTile->remapped.value());
       const auto [remappedPos1, remappedPos2] = matchingTile->getRemappedPos(a, b - a);
       const auto remappedPos1Uv = glm::vec2{remappedPos1} / static_cast<float>(atlases.getSize() - 1);
       const auto remappedPos2Uv = glm::vec2{remappedPos2} / static_cast<float>(atlases.getSize() - 1);
@@ -613,10 +619,10 @@ class DataProvider
 public:
   explicit DataProvider(gl::CImgWrapper& img)
       : m_bmp{std::make_shared<Bitmap>(
-        glm::ivec2{img.width(), img.height()},
-        gsl::span{reinterpret_cast<const uint32_t*>(img.pixels().data()), img.pixels().size()})}
+          glm::ivec2{img.width(), img.height()},
+          gsl::span{reinterpret_cast<const uint32_t*>(img.pixels().data()), img.pixels().size()})}
+      , m_current{m_bmp[0]}
   {
-    m_current = m_bmp[0];
   }
   ~DataProvider() = default;
 

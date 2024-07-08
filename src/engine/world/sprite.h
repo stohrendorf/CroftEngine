@@ -2,9 +2,13 @@
 
 #include "core/id.h"
 
+#include <cstdint>
 #include <gl/soglb_fwd.h>
-#include <glm/glm.hpp>
+#include <glm/mat4x4.hpp>
+#include <glm/vec2.hpp>
 #include <gsl/gsl-lite.hpp>
+#include <memory>
+#include <tuple>
 
 namespace render::scene
 {
@@ -37,6 +41,6 @@ struct Sprite
 struct SpriteSequence
 {
   core::TypeId type{uint16_t(0)};
-  gsl::span<const Sprite> sprites{};
+  gsl::span<const Sprite> sprites;
 };
 } // namespace engine::world

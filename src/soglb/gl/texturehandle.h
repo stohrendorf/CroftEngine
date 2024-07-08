@@ -5,9 +5,10 @@
 #include "sampler.h"
 #include "texture.h"
 
+#include <cstdint>
+#include <gsl/gsl-lite.hpp>
 #include <gslu.h>
 #include <type_traits>
-#include <utility>
 
 namespace gl
 {

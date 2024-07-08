@@ -15,6 +15,7 @@ struct Interval final
   Interval(const Interval<T>&) = default;
   Interval(Interval<T>&&) noexcept = default;
 
+  // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
   Interval(const T& min, const T& max) noexcept
       : min{min}
       , max{max}

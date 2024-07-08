@@ -2,6 +2,10 @@
 
 #include "texture.h"
 
+#include <boost/assert.hpp>
+#include <gl/glassert.h>
+#include <glm/vec3.hpp>
+#include <gsl/gsl-lite.hpp>
 #include <string_view>
 
 namespace gl
@@ -26,6 +30,7 @@ public:
     GL_ASSERT(api::textureStorage3D(getHandle(), levels, Pixel::SizedInternalFormat, size.x, size.y, size.z));
   }
 
+  // NOLINTNEXTLINE(*-easily-swappable-parameters)
   Texture2DArray<_PixelT>& assign(const gsl::span<const _PixelT>& data, int z, int level = 0)
   {
     BOOST_ASSERT(z >= 0 && z < m_size.z);

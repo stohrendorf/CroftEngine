@@ -8,15 +8,16 @@
 #include <boost/assert.hpp>
 #include <chrono>
 #include <cstddef>
+#include <cstdint>
 #include <filesystem>
 #include <glm/vec2.hpp>
 #include <gsl/gsl-lite.hpp>
 #include <gslu.h>
-#include <map>
 #include <memory>
 #include <optional>
 #include <set>
 #include <string>
+#include <utility>
 
 namespace loader::trx
 {
@@ -39,7 +40,7 @@ class Player;
 class Presenter;
 struct EngineConfig;
 
-enum class RunResult
+enum class RunResult : uint8_t
 {
   NextLevel,
   TitleLevel,
@@ -61,7 +62,7 @@ struct SavegameMeta
 struct SavegameInfo
 {
   SavegameMeta meta{};
-  std::filesystem::file_time_type saveTime{};
+  std::filesystem::file_time_type saveTime;
 };
 
 inline std::string makeSavegameFilename(size_t n)
@@ -213,7 +214,7 @@ private:
   gslu::nn_shared<EngineConfig> m_engineConfig;
   std::shared_ptr<Presenter> m_presenter;
   std::set<gsl::not_null<world::World*>> m_worlds;
-  std::chrono::steady_clock::time_point m_saveReminderSince{};
+  std::chrono::steady_clock::time_point m_saveReminderSince;
   GameplayRules m_gameplayRules{};
 
   std::string m_locale;

@@ -2,8 +2,12 @@
 
 #include "pixel.h"
 
+#include <algorithm>
 #include <boost/throw_exception.hpp>
+#include <cstddef>
+#include <cstring>
 #include <glm/gtc/type_ptr.hpp>
+#include <glm/vec2.hpp>
 #include <gsl/gsl-lite.hpp>
 #include <vector>
 

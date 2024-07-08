@@ -2,6 +2,7 @@
 
 #include "translucency.h"
 
+#include <gl/api/soglb_core.hpp>
 #include <gl/renderstate.h>
 
 namespace render::scene

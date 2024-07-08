@@ -1,9 +1,10 @@
 #pragma once
 
-#include "access.h"
+#include "access.h" // IWYU pragma: keep
+#include "serialization.h"
 
 #include <deque>
-#include <ryml.hpp>
+#include <gsl/gsl-lite.hpp>
 
 namespace serialization
 {

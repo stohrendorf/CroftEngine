@@ -11,6 +11,7 @@
 #include "menuring.h"
 #include "util.h"
 
+#include <memory>
 #include <optional>
 
 namespace menu

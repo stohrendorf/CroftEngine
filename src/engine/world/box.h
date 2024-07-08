@@ -25,7 +25,7 @@ struct Box
   mutable bool blocked = true;
   bool blockable = true;
 
-  std::vector<gsl::not_null<Box*>> overlaps{};
+  std::vector<gsl::not_null<Box*>> overlaps;
 
   ZoneId zoneFly = 0;
   ZoneId zoneFlySwapped = 0;

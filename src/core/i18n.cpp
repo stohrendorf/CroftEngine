@@ -1,9 +1,11 @@
 #include "i18n.h"
 
 #include <boost/log/trivial.hpp>
-#include <cstdlib>
+#include <clocale>
+#include <filesystem>
 #include <gsl/gsl-lite.hpp>
-#include <sstream>
+#include <libintl.h>
+#include <string>
 
 namespace core
 {

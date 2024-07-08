@@ -3,6 +3,7 @@
 #include "api/gl.hpp" // IWYU pragma: export
 #include "glassert.h"
 
+#include <cstdint>
 #include <gsl/gsl-lite.hpp>
 #include <string_view>
 

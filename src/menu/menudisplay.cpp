@@ -6,6 +6,7 @@
 #include "engine/cameracontroller.h"
 #include "engine/engine.h"
 #include "engine/inventory.h"
+#include "engine/items_tr1.h"
 #include "engine/lighting.h"
 #include "engine/player.h"
 #include "engine/presenter.h"
@@ -33,8 +34,8 @@
 #include "util.h"
 
 #include <algorithm>
-#include <bitset>
 #include <boost/throw_exception.hpp>
+#include <cstddef>
 #include <gl/buffer.h>
 #include <gl/debuggroup.h>
 #include <gl/pixel.h>
@@ -44,10 +45,13 @@
 #include <gl/texturehandle.h>
 #include <glm/vec2.hpp>
 #include <glm/vec4.hpp>
+#include <gsl/gsl-lite.hpp>
 #include <gslu.h>
+#include <memory>
 #include <stdexcept>
 #include <string>
 #include <utility>
+#include <vector>
 
 namespace menu
 {

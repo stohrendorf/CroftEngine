@@ -3,6 +3,7 @@
 #include "serialization_fwd.h"
 
 #include <bitset>
+#include <cstddef>
 
 namespace serialization
 {

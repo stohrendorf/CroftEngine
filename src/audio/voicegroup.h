@@ -13,7 +13,7 @@ class VoiceGroup final
 {
 private:
   ALfloat m_gain;
-  std::vector<std::weak_ptr<Voice>> m_voices{};
+  std::vector<std::weak_ptr<Voice>> m_voices;
 
 public:
   explicit VoiceGroup(ALfloat gain = 1.0f)

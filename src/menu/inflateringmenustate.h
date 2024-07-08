@@ -27,9 +27,9 @@ class InflateRingMenuState : public MenuState
 private:
   static constexpr core::Frame Duration = 24_frame / 2;
   core::Frame m_duration{Duration};
-  core::Angle m_initialCameraRotX{};
-  core::Length m_radiusSpeed{};
-  core::Length m_cameraSpeedY{};
+  core::Angle m_initialCameraRotX;
+  core::Length m_radiusSpeed;
+  core::Length m_cameraSpeedY;
   core::Length m_targetPosZ;
 
 public:

@@ -1,7 +1,7 @@
 #pragma once
 
-#include <gsl/gsl-lite.hpp>
-#include <gslu.h>
+#include <string>
+#include <utility>
 
 namespace render::scene
 {

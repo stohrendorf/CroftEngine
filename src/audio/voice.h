@@ -49,14 +49,14 @@ public:
   [[nodiscard]] virtual Clock::duration getDuration() const = 0;
 
 private:
-  std::optional<std::chrono::high_resolution_clock::time_point> m_playStartTime{};
+  std::optional<std::chrono::high_resolution_clock::time_point> m_playStartTime;
   ALfloat m_groupGain = 1.0f;
   ALfloat m_localGain = 1.0f;
   ALfloat m_pitch = 1.0f;
-  std::optional<bool> m_paused{};
+  std::optional<bool> m_paused;
   bool m_looping = false;
   bool m_startedPlaying = false;
-  std::optional<glm::vec3> m_position{};
+  std::optional<glm::vec3> m_position;
   std::unique_ptr<SourceHandle> m_source;
 
   void updateGain();

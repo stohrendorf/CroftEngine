@@ -58,14 +58,14 @@ struct GhostFrame;
 
 namespace engine::objects
 {
-enum class UnderwaterState
+enum class UnderwaterState : uint8_t
 {
   OnLand,
   Diving,
   Swimming
 };
 
-enum class HandStatus
+enum class HandStatus : uint8_t
 {
   None,
   Grabbing,
@@ -397,8 +397,8 @@ public:
 
   [[nodiscard]] ghosting::GhostFrame getGhostFrame() const;
 
-  std::vector<ShaderLight> flashLightsBufferData{};
-  std::shared_ptr<gl::ShaderStorageBuffer<ShaderLight>> flashLightsBuffer{};
+  std::vector<ShaderLight> flashLightsBufferData;
+  std::shared_ptr<gl::ShaderStorageBuffer<ShaderLight>> flashLightsBuffer;
 
   void updateMuzzleFlashLightPosStrength();
 

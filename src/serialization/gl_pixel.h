@@ -2,7 +2,11 @@
 
 #include "serialization.h"
 
+#include <cstddef>
+#include <gl/api/gl.hpp>
 #include <gl/pixel.h>
+#include <glm/glm_fwd.hpp>
+#include <gsl/gsl-lite.hpp>
 
 namespace serialization
 {

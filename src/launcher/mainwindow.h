@@ -17,11 +17,14 @@ class MainWindow;
 
 namespace launcher
 {
+// NOLINTNEXTLINE(*-include-cleaner)
 class MainWindow : public QMainWindow
 {
+  // NOLINTNEXTLINE(*-include-cleaner)
   Q_OBJECT
 
 public:
+  // NOLINTNEXTLINE(*-include-cleaner)
   explicit MainWindow(QWidget* parent = nullptr);
   ~MainWindow() override;
 
@@ -30,23 +33,27 @@ public:
     return m_launchRequest;
   }
 
+  // NOLINTNEXTLINE(*-include-cleaner)
 private slots:
   void onOpenDataLocationClicked();
   void onMigrateClicked();
   void onImportClicked();
   void onSelectGlidosClicked();
   void onDisableGlidosClicked();
-  void extractSoundtrackZip(std::filesystem::path target);
+  void extractSoundtrackZip(const std::filesystem::path& target);
   void resetConfig();
   void onLaunchClicked();
+  // NOLINTNEXTLINE(*-include-cleaner)
   void onGameflowSelected(const QModelIndex& index);
   void onChooseColorClicked();
   void onTestConnectionClicked();
+  // NOLINTNEXTLINE(*-include-cleaner)
   void downloadedReleasesJson(QNetworkReply* reply);
 
 private:
   Ui::MainWindow* ui;
   bool importBaseGameData();
+  // NOLINTNEXTLINE(*-include-cleaner)
   void copyDir(const QString& srcPath,
                const std::filesystem::path& targetDir,
                const std::string& subDirName,
@@ -55,18 +62,15 @@ private:
   void setGlidosPath(const std::optional<std::string>& path);
   void updateUpdateBar();
 
-  std::optional<std::filesystem::path> findSuspectArchiveDataRoot(const QString& archiveFilePath);
-  void extractArchive(const QString& archiveFilePath,
-                      const std::filesystem::path& archiveDataRoot,
-                      const std::string& gameflowId);
-  void downloadSoundtrackIfNecessary(const std::string& gameflowId);
-  ;
-
-  QStandardItemModel m_languages{};
-  QStandardItemModel m_gameflows{};
+  // NOLINTNEXTLINE(*-include-cleaner)
+  QStandardItemModel m_languages;
+  QStandardItemModel m_gameflows;
   std::optional<std::tuple<std::string, std::string, bool>> m_launchRequest = std::nullopt;
+  // NOLINTNEXTLINE(*-include-cleaner)
   QPushButton* m_importButton = nullptr;
+  // NOLINTNEXTLINE(*-include-cleaner)
   QColor m_ghostColor;
+  // NOLINTNEXTLINE(*-include-cleaner)
   QNetworkAccessManager m_releasesNetworkAccessManager;
 };
 } // namespace launcher

@@ -1,8 +1,13 @@
 #include "object.h"
 
+#include "core/angle.h"
+#include "core/id.h"
+#include "core/units.h"
+#include "core/vec.h"
 #include "engine/audioengine.h"
 #include "engine/engine.h"
 #include "engine/floordata/floordata.h"
+#include "engine/items_tr1.h"
 #include "engine/objectmanager.h"
 #include "engine/particle.h"
 #include "engine/presenter.h"
@@ -20,9 +25,14 @@
 
 #include <algorithm>
 #include <boost/log/trivial.hpp>
-#include <exception>
+#include <cstddef>
 #include <glm/geometric.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/vec3.hpp>
+#include <gsl/gsl-lite.hpp>
+#include <memory>
+#include <optional>
+#include <string>
 
 namespace engine::objects
 {
@@ -46,6 +56,7 @@ Object::Object(const gsl::not_null<world::World*>& world,
                const bool hasUpdateFunction)
     : Object{world, Location{room, item.position}}
 {
+  // NOLINTNEXTLINE(cppcoreguidelines-prefer-member-initializer)
   m_hasUpdateFunction = hasUpdateFunction;
   m_state.type = item.type;
 

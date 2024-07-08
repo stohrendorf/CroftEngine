@@ -2,7 +2,6 @@
 
 #include "color.h"
 #include "core/containeroffset.h"
-#include "core/genericvec.h"
 #include "core/id.h"
 #include "core/magic.h"
 #include "core/units.h"
@@ -10,7 +9,6 @@
 #include "engine/floordata/types.h"
 #include "meshes.h"
 #include "primitives.h"
-#include "qs/quantity.h"
 #include "texture.h"
 
 #include <array>
@@ -180,7 +178,7 @@ struct Layer
 struct RoomVertex
 {
   core::TRVec position; // where this vertex lies (relative to tr2_room_info::x/z)
-  core::Shade shade{};
+  core::Shade shade;
 
   uint16_t attributes = 0; // A set of flags for special rendering effects [absent from TR1 data files]
   // 0x8000 something to do with water surface
@@ -254,24 +252,24 @@ struct Room
   static constexpr uint16_t TR_ROOM_FLAG_DAMAGE = 0x0800; ///< @FIXME: Is it really damage (D)?
   static constexpr uint16_t TR_ROOM_FLAG_POISON = 0x1000; ///< @FIXME: Is it really poison (P)?
 
-  core::TRVec position{};
+  core::TRVec position;
   core::Length lowestHeight = 0_len;
   core::Length greatestHeight = 0_len;
-  std::vector<Layer> layers{};
-  std::vector<RoomVertex> vertices{};
-  std::vector<QuadFace> rectangles{};
-  std::vector<Triangle> triangles{};
-  std::vector<SpriteInstance> sprites{};
-  std::vector<Portal> portals{};
+  std::vector<Layer> layers;
+  std::vector<RoomVertex> vertices;
+  std::vector<QuadFace> rectangles;
+  std::vector<Triangle> triangles;
+  std::vector<SpriteInstance> sprites;
+  std::vector<Portal> portals;
 
-  uint16_t sectorCountZ{};       // "width" of sector list
-  uint16_t sectorCountX{};       // "height" of sector list
-  std::vector<Sector> sectors{}; // [NumXsectors * NumZsectors] list of sectors in this room
-  core::Shade ambientShade{};
-  int16_t intensity2{};        // Almost always the same value as AmbientIntensity1 [absent from TR1 data files]
-  int16_t lightMode{};         // (present only in TR2: 0 is normal, 1 is flickering(?), 2 and 3 are uncertain)
-  std::vector<Light> lights{}; // [NumLights] list of point lights
-  std::vector<RoomStaticMesh> staticMeshes{};   // [NumStaticMeshes]list of static meshes
+  uint16_t sectorCountZ{};     // "width" of sector list
+  uint16_t sectorCountX{};     // "height" of sector list
+  std::vector<Sector> sectors; // [NumXsectors * NumZsectors] list of sectors in this room
+  core::Shade ambientShade;
+  int16_t intensity2{};      // Almost always the same value as AmbientIntensity1 [absent from TR1 data files]
+  int16_t lightMode{};       // (present only in TR2: 0 is normal, 1 is flickering(?), 2 and 3 are uncertain)
+  std::vector<Light> lights; // [NumLights] list of point lights
+  std::vector<RoomStaticMesh> staticMeshes;     // [NumStaticMeshes]list of static meshes
   core::RoomIdI16 alternateRoom{int16_t(-1)};   // number of the room that this room can alternate
   core::RoomGroupId alternateGroup{uint8_t(0)}; // number of group which is used to switch alternate rooms
   // with (e.g. empty/filled with water is implemented as an empty room that alternates with a full room)
@@ -396,14 +394,14 @@ struct Zones
 {
   void read(size_t boxCount, io::SDLReader& reader);
 
-  ZoneData groundZone1{};
-  ZoneData groundZone2{};
-  ZoneData flyZone{};
+  ZoneData groundZone1;
+  ZoneData groundZone2;
+  ZoneData flyZone;
 };
 
 struct Camera
 {
-  core::TRVec position{};
+  core::TRVec position;
 
   union
   {
@@ -466,7 +464,7 @@ struct CinematicFrame
 
 struct LightMap
 {
-  std::array<uint8_t, 32u * 256u> map;
+  std::array<uint8_t, size_t{32u} * 256u> map;
 
   /// \brief reads the lightmap.
   static std::unique_ptr<LightMap> read(io::SDLReader& reader);

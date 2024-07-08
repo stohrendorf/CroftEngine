@@ -14,7 +14,6 @@
 #include "engine/particle.h"
 #include "engine/skeletalmodelnode.h"
 #include "engine/soundeffects_tr1.h"
-#include "engine/world/animation.h"
 #include "engine/world/skeletalmodeltype.h"
 #include "engine/world/world.h"
 #include "laraobject.h"
@@ -30,7 +29,9 @@
 #include <algorithm>
 #include <bitset>
 #include <gl/renderstate.h>
+#include <gsl/gsl-lite.hpp>
 #include <memory>
+#include <string>
 
 namespace engine::objects
 {

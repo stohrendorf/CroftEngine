@@ -2,6 +2,7 @@
 
 #include "actions.h"
 #include "axisdir.h"
+#include "engine/engineconfig.h"
 #include "glfw_axes.h"
 #include "glfw_axis_dirs.h"
 #include "glfw_gamepad_buttons.h"
@@ -10,22 +11,27 @@
 #include "serialization/named_enum.h"
 #include "util/helpers.h"
 
+#include <boost/container/flat_map.hpp>
 #include <boost/container/flat_set.hpp>
 #include <boost/log/trivial.hpp>
 #include <boost/throw_exception.hpp>
+#include <cstdlib>
+#include <filesystem>
 #include <fstream>
 #include <gl/glfw.h>
 #include <gl/window.h>
 #include <gsl/gsl-lite.hpp>
 #include <gslu.h>
+#include <ios>
 #include <iterator>
 #include <memory>
 #include <mutex>
+#include <optional>
 #include <stdexcept>
 #include <string>
-#include <type_traits>
 #include <utility>
 #include <variant>
+#include <vector>
 
 namespace hid
 {

@@ -123,6 +123,7 @@ target_link_libraries(
         Boost::log
         ryml
         gsl-lite::gsl-lite
+        glm::glm
 )
 
 add_library(

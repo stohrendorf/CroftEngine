@@ -1,15 +1,19 @@
 #include "ghost.h"
 
-#include "ghostfinishstate.h"
 #include "serialization/path.h"
 #include "serialization/quantity.h"
 #include "serialization/serialization.h"
 
 #include <boost/assert.hpp>
-#include <exception>
+#include <cstdint>
+#include <filesystem>
 #include <fstream>
+#include <glm/mat4x4.hpp>
 #include <gsl/gsl-lite.hpp>
-#include <stdexcept>
+#include <iosfwd>
+#include <istream>
+#include <memory>
+#include <ostream>
 
 namespace engine::ghosting
 {

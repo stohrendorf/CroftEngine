@@ -5,10 +5,14 @@
 #include "loader/file/texture.h"
 
 #include <array>
+#include <boost/assert.hpp>
+#include <cstddef>
+#include <cstdint>
 #include <gl/buffer.h>
 #include <gl/vertexbuffer.h>
-#include <memory>
+#include <gsl/gsl-lite.hpp>
 #include <utility>
+#include <vector>
 
 namespace render
 {

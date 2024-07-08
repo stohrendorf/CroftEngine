@@ -1,9 +1,14 @@
 #pragma once
 
 #include "abstractstatehandler.h"
+#include "core/magic.h"
+#include "core/units.h"
 #include "engine/collisioninfo.h"
+#include "engine/heightinfo.h"
 #include "hid/inputstate.h"
 #include "util/helpers.h"
+
+#include <gsl/gsl-lite.hpp>
 
 namespace engine::lara
 {

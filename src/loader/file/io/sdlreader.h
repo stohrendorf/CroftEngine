@@ -6,20 +6,26 @@
 #  pragma warning(push)
 #  pragma warning(disable : 4702)
 #endif
+
 #include <boost/iostreams/device/array.hpp>
 #include <boost/iostreams/device/file.hpp>
-#include <boost/iostreams/filtering_stream.hpp>
+#include <boost/iostreams/filtering_streambuf.hpp>
+
 #ifdef _MSC_VER
 #  pragma warning(pop)
 #endif
+
 #include <boost/throw_exception.hpp>
+#include <cstddef>
 #include <cstdint>
 #include <filesystem>
+#include <iosfwd>
 #include <iostream>
 #include <memory>
 #include <stdexcept>
 #include <utility>
 #include <vector>
+#include <zconf.h>
 #include <zlib.h>
 
 namespace qs
@@ -58,7 +64,7 @@ public:
 
   explicit SDLReader(const std::filesystem::path& filename)
       : m_file{std::make_unique<boost::iostreams::file>(
-        filename.string(), std::ios::in | std::ios::binary, std::ios::in | std::ios::binary)}
+          filename.string(), std::ios::in | std::ios::binary, std::ios::in | std::ios::binary)}
       , m_streamBuf{std::make_shared<DataStreamBuf>(*m_file)}
       , m_stream{m_streamBuf.get()}
   {

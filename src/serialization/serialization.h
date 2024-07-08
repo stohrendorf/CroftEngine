@@ -4,11 +4,10 @@
 #include "exception.h"         // IWYU pragma: export
 #include "serialization_fwd.h" // IWYU pragma: export
 
-#include <boost/algorithm/string/replace.hpp>
+#include <boost/algorithm/string/replace.hpp> // IWYU pragma: keep
 #include <boost/assert.hpp>
 #include <boost/log/trivial.hpp>
 #include <cstdint>
-#include <exception>
 #include <functional>
 #include <gsl/gsl-lite.hpp>
 #include <iterator>
@@ -20,8 +19,6 @@
 #include <string>
 #include <string_view>
 #include <type_traits>
-#include <typeinfo>
-#include <utility>
 
 // #define SERIALIZATION_TRACE
 
@@ -169,7 +166,7 @@ private:
   }
 
   template<typename T>
-  void serializeDeserialize(const std::string_view& name, T&& data, BaseSerializer<Loading, TContext>& ser) const
+  void serializeDeserialize(const std::string_view& name, T& data, BaseSerializer<Loading, TContext>& ser) const
   {
     try
     {

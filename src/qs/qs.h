@@ -4,7 +4,6 @@
 #include "quantity.h" // IWYU pragma: export
 #include "stream.h"   // IWYU pragma: export
 
-#include <cstdint>
 #include <gsl/gsl-lite.hpp>
 #include <type_traits>
 
@@ -36,7 +35,7 @@
 namespace qs::detail
 {
 template<typename T>
-inline constexpr auto quantity_declval() -> std::enable_if_t<::qs::is_quantity_v<T>, T>;
+constexpr auto quantity_declval() -> std::enable_if_t<::qs::is_quantity_v<T>, T>;
 }
 
 #define QS_COMBINE_UNITS(L, OP, R)                                \

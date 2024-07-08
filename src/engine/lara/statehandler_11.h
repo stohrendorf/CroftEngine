@@ -1,7 +1,15 @@
 #pragma once
 
 #include "abstractstatehandler.h"
+#include "core/angle.h"
+#include "core/magic.h"
+#include "core/units.h"
+#include "core/vec.h"
 #include "engine/collisioninfo.h"
+#include "engine/heightinfo.h"
+#include "qs/quantity.h"
+
+#include <gsl/gsl-lite.hpp>
 
 namespace engine::lara
 {

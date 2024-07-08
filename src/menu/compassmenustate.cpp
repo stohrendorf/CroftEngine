@@ -14,6 +14,7 @@
 #include "ui/detailedlevelstats.h"
 
 #include <gsl/gsl-lite.hpp>
+#include <memory>
 #include <utility>
 
 namespace menu

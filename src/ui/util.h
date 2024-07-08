@@ -1,7 +1,5 @@
 #pragma once
 
-#include <glm/fwd.hpp>
-#include <memory>
 #include <string>
 
 namespace ui

@@ -1,8 +1,12 @@
 #pragma once
 
+#include "engine/objects/object.h"
 #include "engine/world/world.h"
-#include "ptr.h"
 #include "serialization.h"
+
+#include <functional>
+#include <gsl/gsl-lite.hpp>
+#include <memory>
 
 namespace serialization
 {
@@ -18,7 +22,7 @@ struct ObjectReference final
   static_assert(std::is_base_of_v<engine::objects::Object, T>);
   std::reference_wrapper<std::shared_ptr<T>> ptr;
 
-  explicit ObjectReference(std::reference_wrapper<const std::shared_ptr<T>>&& ptr)
+  explicit ObjectReference(const std::reference_wrapper<const std::shared_ptr<T>>& ptr)
       : ptr{const_cast<std::shared_ptr<T>&>(ptr.get())}
   {
   }

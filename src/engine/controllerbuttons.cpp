@@ -2,6 +2,8 @@
 
 #include "core/id.h"
 #include "engineconfig.h"
+#include "hid/glfw_axes.h"
+#include "hid/glfw_gamepad_buttons.h"
 #include "render/material/rendermode.h"
 #include "render/scene/sprite.h"
 #include "render/textureatlas.h"
@@ -18,15 +20,17 @@
 #include <boost/log/trivial.hpp>
 #include <boost/throw_exception.hpp>
 #include <cstdint>
-#include <exception>
+#include <filesystem>
 #include <gl/cimgwrapper.h>
 #include <glm/vec2.hpp>
 #include <gsl/gsl-lite.hpp>
 #include <gslu.h>
-#include <iosfwd>
+#include <map>
 #include <memory>
 #include <stdexcept>
+#include <string>
 #include <utility>
+#include <variant>
 #include <vector>
 
 namespace engine
@@ -37,7 +41,7 @@ ControllerLayouts loadControllerButtonIcons(render::MultiTextureAtlas& atlases,
 {
   struct Layout
   {
-    std::string name{};
+    std::string name;
     std::map<std::variant<NamedGlfwGamepadButton, NamedGlfwAxis>, std::string> icons;
 
     [[nodiscard]] static Layout create(const serialization::Deserializer<int>& ser)

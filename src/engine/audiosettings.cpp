@@ -3,7 +3,6 @@
 #include "serialization/default.h"
 #include "serialization/serialization.h"
 
-#include <exception>
 #include <functional>
 
 namespace engine

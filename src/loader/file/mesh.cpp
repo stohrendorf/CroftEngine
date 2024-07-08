@@ -7,6 +7,7 @@
 
 #include <cstddef>
 #include <gsl/gsl-lite.hpp>
+#include <memory>
 
 namespace loader::file
 {

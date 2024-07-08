@@ -3,7 +3,12 @@
 #include "typetraits.h"
 
 #include <algorithm>
+#include <cstddef>
+#include <cstdint>
 #include <glm/glm.hpp>
+#include <glm/vec4.hpp>
+#include <limits>
+#include <type_traits>
 
 namespace gl
 {
@@ -99,7 +104,7 @@ template<typename T,
          size_t Alignment>
 auto imix(const Pixel<T, _Channels, _PixelFormat, _SizedInternalFormat, _Premultiplied, Alignment>& lhs,
           const Pixel<T, _Channels, _PixelFormat, _SizedInternalFormat, _Premultiplied, Alignment>& rhs,
-          U bias,
+          U bias, // NOLINT(*-easily-swappable-parameters)
           U biasMax = std::numeric_limits<U>::max())
   -> std::enable_if_t<std::is_unsigned_v<T> == std::is_unsigned_v<U>, // lgtm [cpp/comparison-of-identical-expressions]
                       Pixel<T, _Channels, _PixelFormat, _SizedInternalFormat, _Premultiplied, Alignment>>

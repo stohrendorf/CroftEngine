@@ -28,9 +28,7 @@
 #include "ui/ui.h"
 #include "util.h"
 
-#include <glm/vec2.hpp>
-#include <optional>
-#include <vector>
+#include <memory>
 
 namespace menu
 {

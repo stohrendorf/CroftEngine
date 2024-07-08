@@ -11,8 +11,8 @@
 #include <filesystem>
 #include <gl/soglb_fwd.h>
 #include <gslu.h>
-#include <map>
 #include <optional>
+#include <utility>
 #include <vector>
 
 namespace hid
@@ -73,8 +73,8 @@ public:
 private:
   InputState m_inputState{};
   gslu::nn_shared<gl::Window> m_window;
-  std::vector<engine::NamedInputMappingConfig> m_inputMappings{};
-  engine::InputMappingConfig m_mergedGameInputMappings{};
-  engine::InputMappingConfig m_mergedMenuInputMappings{};
+  std::vector<engine::NamedInputMappingConfig> m_inputMappings;
+  engine::InputMappingConfig m_mergedGameInputMappings;
+  engine::InputMappingConfig m_mergedMenuInputMappings;
 };
 } // namespace hid

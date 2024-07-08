@@ -5,7 +5,9 @@
 
 #include <boost/throw_exception.hpp>
 #include <gsl/gsl-lite.hpp>
+#include <limits>
 #include <stdexcept>
+#include <type_traits>
 #include <vector>
 
 namespace core

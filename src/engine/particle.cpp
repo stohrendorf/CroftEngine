@@ -1,10 +1,12 @@
 #include "particle.h"
 
 #include "audioengine.h"
+#include "core/angle.h"
 #include "core/boundingbox.h"
 #include "core/genericvec.h"
 #include "core/interval.h"
 #include "core/magic.h"
+#include "core/units.h"
 #include "core/vec.h"
 #include "engine.h"
 #include "engineconfig.h"
@@ -20,6 +22,7 @@
 #include "render/material/spritematerialmode.h"
 #include "render/rendersettings.h"
 #include "render/scene/mesh.h" // IWYU pragma: keep
+#include "render/scene/node.h"
 #include "skeletalmodelnode.h"
 #include "soundeffects_tr1.h"
 #include "util/helpers.h"
@@ -32,14 +35,19 @@
 #include <algorithm>
 #include <boost/assert.hpp>
 #include <boost/log/trivial.hpp>
+#include <cstddef>
+#include <cstdint>
 #include <gl/pixel.h>
 #include <gl/renderstate.h>
+#include <gl/vertexbuffer.h>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/mat4x4.hpp>
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
+#include <gsl/gsl-lite.hpp>
 #include <gslu.h>
-#include <type_traits>
+#include <memory>
+#include <tuple>
 #include <utility>
 #include <vector>
 
@@ -244,7 +252,7 @@ SplashParticle::SplashParticle(const Location& location, world::World& world, co
   if(!waterfall)
   {
     speed = util::rand15(128_spd);
-    angle.Y = core::auToAngle(2 * util::rand15s());
+    angle.Y = core::auToAngle(int16_t{2} * util::rand15s());
   }
   else
   {
@@ -302,7 +310,8 @@ FlameParticle::FlameParticle(const Location& location, world::World& world, bool
   if(randomize)
   {
     timePerSpriteFrame
-      = -util::rand15(gsl::narrow_cast<int16_t>(world.getObjectManager().getLara().getSkeleton()->getBoneCount())) - 1;
+      = -util::rand15(gsl::narrow_cast<int16_t>(world.getObjectManager().getLara().getSkeleton()->getBoneCount()))
+        - int16_t{1};
     for(auto n = util::rand15(getLength()); n != 0; --n)
       nextFrame();
   }

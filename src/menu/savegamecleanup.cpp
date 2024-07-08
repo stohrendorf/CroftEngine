@@ -5,10 +5,14 @@
 
 #include <algorithm>
 #include <boost/log/trivial.hpp>
+#include <cstddef>
 #include <filesystem>
+#include <functional>
 #include <iterator>
 #include <map>
+#include <optional>
 #include <system_error>
+#include <vector>
 
 namespace
 {

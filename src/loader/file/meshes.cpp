@@ -1,13 +1,14 @@
 #include "meshes.h"
 
 #include "color.h"
+#include "core/units.h"
 #include "io/sdlreader.h"
 #include "io/util.h"
 #include "qs/quantity.h"
 #include "util/helpers.h"
 
+#include <cstdint>
 #include <gsl/gsl-lite.hpp>
-#include <type_traits>
 
 namespace loader::file
 {
@@ -40,7 +41,7 @@ RoomStaticMesh RoomStaticMesh::readTr2(io::SDLReader& reader)
   if(room_static_mesh.shade.get() >= 0)
     room_static_mesh.shade = core::Shade{gsl::narrow<core::Shade::type>((8191 - room_static_mesh.shade.get()) * 4)};
   if(room_static_mesh.intensity2 >= 0)
-    room_static_mesh.intensity2 = (8191 - room_static_mesh.intensity2) * 4;
+    room_static_mesh.intensity2 = (int16_t{8191} - room_static_mesh.intensity2) * int16_t{4};
 
   room_static_mesh.tint.b = room_static_mesh.tint.g = room_static_mesh.tint.r
     = gsl::narrow_cast<float>(room_static_mesh.intensity2) / 16384.0f;

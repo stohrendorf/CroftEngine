@@ -4,8 +4,11 @@
 #include "program.h"
 #include "soglb_fwd.h" // IWYU pragma: export
 
+#include <cstdint>
+#include <gl/glassert.h>
 #include <gsl/gsl-lite.hpp>
 #include <map>
+#include <string>
 #include <string_view>
 
 namespace gl

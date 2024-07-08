@@ -5,7 +5,6 @@
 #include <gl/soglb_fwd.h>
 #include <glm/vec2.hpp>
 #include <gslu.h>
-#include <memory>
 
 namespace render::material
 {

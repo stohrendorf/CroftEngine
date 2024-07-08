@@ -1,18 +1,20 @@
 #include "laraobject.h"
 
 #include "aiagent.h"
-#include "core/boundingbox.h"
+#include "core/angle.h"
 #include "core/genericvec.h"
-#include "core/interval.h"
+#include "core/magic.h"
+#include "core/units.h"
+#include "core/vec.h"
 #include "engine/audioengine.h"
 #include "engine/cameracontroller.h"
 #include "engine/engine.h"
-#include "engine/engineconfig.h"
 #include "engine/ghosting/ghost.h"
 #include "engine/heightinfo.h"
 #include "engine/inventory.h"
 #include "engine/items_tr1.h"
 #include "engine/lara/abstractstatehandler.h"
+#include "engine/lighting.h"
 #include "engine/objectmanager.h"
 #include "engine/objects/aiminfo.h"
 #include "engine/particle.h"
@@ -22,8 +24,8 @@
 #include "engine/raycast.h"
 #include "engine/skeletalmodelnode.h"
 #include "engine/soundeffects_tr1.h"
+#include "engine/weapontype.h"
 #include "engine/world/animation.h"
-#include "engine/world/mesh.h"
 #include "engine/world/rendermeshdata.h"
 #include "engine/world/room.h"
 #include "engine/world/skeletalmodeltype.h"
@@ -34,8 +36,9 @@
 #include "modelobject.h"
 #include "object.h"
 #include "objectstate.h"
+#include "qs/quantity.h"
 #include "render/rendersettings.h"
-#include "render/scene/mesh.h" // IWYU pragma: keep
+#include "render/scene/node.h"
 #include "serialization/objectreference.h"
 #include "serialization/optional.h"
 #include "serialization/quantity.h"
@@ -43,32 +46,32 @@
 #include "util/helpers.h"
 #include "weapon.h"
 
+#include <algorithm>
 #include <boost/assert.hpp>
-#include <boost/iterator/iterator_facade.hpp>
-#include <boost/iterator/transform_iterator.hpp>
 #include <boost/log/trivial.hpp>
 #include <boost/range/adaptor/map.hpp>
 #include <boost/throw_exception.hpp>
 #include <cmath>
 #include <cstddef>
+#include <cstdint>
 #include <cstdlib>
-#include <exception>
 #include <functional>
+#include <gl/api/gl.hpp>
 #include <gl/buffer.h>
-#include <gl/pixel.h>
 #include <gl/program.h>
-#include <gl/renderstate.h>
 #include <glm/geometric.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/vec3.hpp>
+#include <gsl/gsl-lite.hpp>
 #include <gslu.h>
 #include <initializer_list>
-#include <iosfwd>
 #include <limits>
-#include <map>
+#include <memory>
+#include <optional>
 #include <set>
 #include <stack>
 #include <stdexcept>
-#include <type_traits>
+#include <string>
 #include <utility>
 #include <vector>
 
@@ -808,9 +811,7 @@ void LaraObject::updateLarasWeaponsStatus()
     switch(getWorld().getPlayer().selectedWeaponType)
     {
     case WeaponType::Pistols:
-      [[fallthrough]];
     case WeaponType::Magnums:
-      [[fallthrough]];
     case WeaponType::Uzis:
       holsterTwoWeapons(getWorld().getPlayer().selectedWeaponType);
       break;
@@ -1020,9 +1021,7 @@ void LaraObject::initWeaponAnimData()
       = getWorld().getWorldGeometry().findAnimatedModelForType(TR1ItemId::Lara)->frames;
     break;
   case WeaponType::Pistols:
-    [[fallthrough]];
   case WeaponType::Magnums:
-    [[fallthrough]];
   case WeaponType::Uzis:
     leftArm.weaponAnimData = rightArm.weaponAnimData
       = getWorld().getWorldGeometry().findAnimatedModelForType(TR1ItemId::LaraPistolsAnim)->frames;
@@ -1493,8 +1492,8 @@ public:
 class DualMatrixStack
 {
 private:
-  MatrixStack m_stack1{};
-  MatrixStack m_stack2{};
+  MatrixStack m_stack1;
+  MatrixStack m_stack2;
   float m_bias;
 
 public:

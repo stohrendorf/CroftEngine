@@ -7,15 +7,15 @@
 
 #include <algorithm>
 #include <gl/pixel.h>
-#include <gsl/gsl-lite.hpp>
+#include <iterator>
 #include <numeric>
+#include <string>
+#include <utility>
 
 namespace ui::widgets
 {
 TextBox::TextBox(const std::string& text, int maxWidth, TextBox::Alignment alignment)
-    : m_text{}
-    , m_lines{}
-    , m_size{maxWidth, ui::FontHeight}
+    : m_size{maxWidth, ui::FontHeight}
     , m_alignment{alignment}
 {
   setText(text);

@@ -1,6 +1,7 @@
 #include "controlswidget.h"
 
 #include "core/i18n.h"
+#include "engine/engineconfig.h"
 #include "hid/actions.h"
 #include "hid/names.h"
 #include "ui/core.h"
@@ -10,12 +11,14 @@
 
 #include <algorithm>
 #include <array>
-#include <boost/format.hpp>
 #include <boost/throw_exception.hpp>
 #include <cstddef>
+#include <functional>
 #include <glm/vec2.hpp>
 #include <gsl/gsl-lite.hpp>
 #include <gslu.h>
+#include <memory>
+#include <numeric>
 #include <optional>
 #include <stdexcept>
 #include <tuple>
@@ -145,13 +148,13 @@ void ControlsWidget::fitToContent()
 
   for(size_t x = 0; x < Columns * 2; ++x)
   {
-    int maxWidth = std::accumulate(m_controlGroups.begin(),
-                                   m_controlGroups.end(),
-                                   0,
-                                   [&x](int maxWidth, auto& gridBox)
-                                   {
-                                     return std::max(gridBox->getColumnSizes().at(x), maxWidth);
-                                   });
+    const auto maxWidth = std::accumulate(m_controlGroups.begin(),
+                                          m_controlGroups.end(),
+                                          0,
+                                          [&x](int maxWidth, auto& gridBox)
+                                          {
+                                            return std::max(gridBox->getColumnSizes().at(x), maxWidth);
+                                          });
     for(const auto& gridBox : m_controlGroups)
     {
       gridBox->setColumnSize(x, maxWidth);

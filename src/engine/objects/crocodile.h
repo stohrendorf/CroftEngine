@@ -1,6 +1,9 @@
 #pragma once
 
 #include "aiagent.h"
+#include "core/units.h"
+
+#include <tuple>
 
 namespace engine::world
 {

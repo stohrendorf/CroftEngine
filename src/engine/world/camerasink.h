@@ -11,7 +11,7 @@ class World;
 
 struct CameraSink
 {
-  core::TRVec position{};
+  core::TRVec position;
 
   union
   {

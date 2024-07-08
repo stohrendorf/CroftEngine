@@ -22,17 +22,18 @@
 #include "world/world.h"
 
 #include <algorithm>
-#include <boost/iterator/iterator_facade.hpp>
-#include <boost/iterator/transform_iterator.hpp>
 #include <boost/range/adaptor/indexed.hpp>
 #include <boost/range/adaptor/map.hpp>
 #include <boost/throw_exception.hpp>
-#include <exception>
+#include <cstdint>
 #include <functional>
+#include <gsl/gsl-lite.hpp>
 #include <gslu.h>
 #include <limits>
+#include <memory>
 #include <stdexcept>
-#include <type_traits>
+#include <utility>
+#include <vector>
 
 namespace engine
 {
@@ -228,6 +229,7 @@ void ObjectManager::deserialize(const serialization::Deserializer<world::World>&
   }
 }
 
+// NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
 void ObjectManager::replaceItems(const TR1ItemId& oldId, const TR1ItemId& newId, const world::World& world)
 {
   for(const auto& [_, obj] : m_objects)
@@ -238,7 +240,7 @@ void ObjectManager::replaceItems(const TR1ItemId& oldId, const TR1ItemId& newId,
     const gsl::not_null pickup{std::dynamic_pointer_cast<objects::PickupObject>(obj.get())};
     const auto& spriteSequence = world.getWorldGeometry().findSpriteSequenceForType(newId);
     gsl_Assert(spriteSequence != nullptr && !spriteSequence->sprites.empty());
-    pickup->replace(newId, gsl::not_null{&spriteSequence->sprites[0]});
+    pickup->replace(newId, gsl::not_null{spriteSequence->sprites.data()});
   }
 }
 

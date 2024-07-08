@@ -3,6 +3,8 @@
 #include "serialization/optional_value.h"
 #include "serialization/serialization.h"
 
+#include <functional>
+
 namespace engine
 {
 void GameplayRules::serialize(const serialization::Serializer<world::World>& ser) const

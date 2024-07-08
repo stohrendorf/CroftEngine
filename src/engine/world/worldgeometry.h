@@ -16,10 +16,10 @@
 #include <cstdint>
 #include <gl/pixel.h>
 #include <gl/soglb_fwd.h>
+#include <gsl/gsl-lite.hpp>
 #include <gslu.h>
 #include <map>
 #include <memory>
-#include <optional>
 #include <unordered_map>
 #include <vector>
 
@@ -83,7 +83,7 @@ private:
   gslu::nn_shared<render::scene::Mesh> m_geometry;
   gslu::nn_shared<render::TextureAnimator> m_textureAnimator;
   gslu::nn_shared<gl::VertexBuffer<render::AnimatedUV>> m_uvBuffer;
-  std::map<uint8_t, gslu::nn_shared<render::scene::Mesh>> m_dustCache{};
+  std::map<uint8_t, gslu::nn_shared<render::scene::Mesh>> m_dustCache;
 };
 
 class WorldGeometry final

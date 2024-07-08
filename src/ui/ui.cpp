@@ -13,6 +13,8 @@
 #include "render/scene/translucency.h"
 
 #include <algorithm>
+#include <array>
+#include <cstddef>
 #include <cstdint>
 #include <gl/buffer.h>
 #include <gl/constants.h>
@@ -23,11 +25,16 @@
 #include <gl/vertexbuffer.h>
 #include <glm/common.hpp>
 #include <glm/mat4x4.hpp>
+#include <glm/vec2.hpp>
 #include <gsl/gsl-lite.hpp>
 #include <gslu.h>
+#include <iterator>
+#include <memory>
 #include <optional>
 #include <string>
+#include <tuple>
 #include <utility>
+#include <vector>
 
 namespace ui
 {
@@ -91,12 +98,12 @@ void createQuad(std::vector<Ui::UiVertex>& vertices, const glm::vec2& a, const g
 
 void createHLine(std::vector<Ui::UiVertex>& vertices, const glm::vec2& a, int length, const gl::SRGBA8& color)
 {
-  return createQuad(vertices, a, glm::vec2{length, 1}, color);
+  createQuad(vertices, a, glm::vec2{length, 1}, color);
 }
 
 void createVLine(std::vector<Ui::UiVertex>& vertices, const glm::vec2& a, int length, const gl::SRGBA8& color)
 {
-  return createQuad(vertices, a, glm::vec2{1, length}, color);
+  createQuad(vertices, a, glm::vec2{1, length}, color);
 }
 } // namespace
 

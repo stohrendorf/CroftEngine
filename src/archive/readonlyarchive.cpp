@@ -1,11 +1,14 @@
 #include "readonlyarchive.h"
 
-#include <boost/log/trivial.hpp>
-#include <boost/throw_exception.hpp>
-// --- boost must be included before these, otherwise linking on (at least) windows fails
 #include <archive.h>
 #include <archive_entry.h>
+#include <boost/log/trivial.hpp>
+#include <boost/throw_exception.hpp>
+#include <filesystem>
 #include <fstream>
+#include <gsl/gsl-lite.hpp>
+#include <iosfwd>
+#include <optional>
 #include <stdexcept>
 #include <vector>
 

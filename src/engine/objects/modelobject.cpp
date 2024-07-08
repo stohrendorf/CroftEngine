@@ -2,8 +2,10 @@
 
 #include "core/angle.h"
 #include "core/genericvec.h"
+#include "core/id.h"
 #include "core/interval.h"
 #include "core/magic.h"
+#include "core/units.h"
 #include "core/vec.h"
 #include "engine/collisioninfo.h"
 #include "engine/location.h"
@@ -25,11 +27,14 @@
 #include <algorithm>
 #include <bitset>
 #include <boost/assert.hpp>
+#include <cstddef>
 #include <cstdint>
-#include <exception>
 #include <glm/geometric.hpp>
+#include <gsl/gsl-lite.hpp>
 #include <gslu.h>
+#include <memory>
 #include <optional>
+#include <string>
 #include <vector>
 
 namespace engine::objects

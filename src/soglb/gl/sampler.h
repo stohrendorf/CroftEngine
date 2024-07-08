@@ -4,11 +4,12 @@
 #include "detail/argsholder.h"
 #include "glassert.h"
 
+#include <cstdint>
 #include <glm/gtc/type_ptr.hpp>
+#include <glm/vec4.hpp>
+#include <gsl/gsl-lite.hpp>
 #include <gslu.h>
 #include <string_view>
-#include <tuple>
-#include <utility>
 
 namespace gl
 {

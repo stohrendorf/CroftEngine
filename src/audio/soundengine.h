@@ -7,6 +7,7 @@
 #include <cstddef>
 #include <filesystem>
 #include <glm/vec3.hpp>
+#include <gsl/gsl-lite.hpp>
 #include <gslu.h>
 #include <map>
 #include <memory>
@@ -32,7 +33,7 @@ class VoiceGroup;
 
 struct SlotStream
 {
-  std::weak_ptr<StreamVoice> stream{};
+  std::weak_ptr<StreamVoice> stream;
   std::filesystem::path absolutePath;
 };
 

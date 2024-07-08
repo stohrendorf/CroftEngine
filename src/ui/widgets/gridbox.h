@@ -3,7 +3,6 @@
 #include "ui/core.h"
 #include "widget.h"
 
-#include <algorithm>
 #ifdef _MSC_VER
 #  pragma warning(push)
 #  pragma warning(disable : 4458)
@@ -20,9 +19,9 @@
 #include <cstddef>
 #include <glm/vec2.hpp>
 #include <gsl/gsl-lite.hpp>
-#include <map>
 #include <memory>
 #include <tuple>
+#include <utility>
 #include <vector>
 
 namespace engine
@@ -170,11 +169,11 @@ private:
   glm::ivec2 m_position{0, 0};
   glm::ivec2 m_size{0, 0};
   using WidgetArray = boost::multi_array<std::shared_ptr<Widget>, 2>;
-  WidgetArray m_widgets{};
+  WidgetArray m_widgets;
   std::tuple<size_t, size_t> m_selected{0, 0};
   glm::ivec2 m_separation;
-  std::vector<bool> m_alignRight{};
-  std::vector<int> m_columnSizes{};
-  std::vector<int> m_rowSizes{};
+  std::vector<bool> m_alignRight;
+  std::vector<int> m_columnSizes;
+  std::vector<int> m_rowSizes;
 };
 } // namespace ui::widgets

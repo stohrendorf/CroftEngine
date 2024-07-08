@@ -5,8 +5,9 @@
 #include "types.h"
 #include "util/helpers.h"
 
-#include <exception>
-#include <type_traits>
+#include <cstdint>
+#include <gsl/gsl-lite.hpp>
+#include <optional>
 
 namespace engine::floordata
 {

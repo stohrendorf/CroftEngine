@@ -1,5 +1,8 @@
 #pragma once
 
+#include "core/magic.h"
+#include "core/units.h"
+#include "core/vec.h"
 #include "modelobject.h"
 
 namespace engine::objects

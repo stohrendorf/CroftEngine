@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdint>
 #include <gl/vertexbuffer.h>
 #include <glm/mat4x4.hpp>
 #include <glm/vec2.hpp>
@@ -12,7 +13,7 @@
 namespace render::material
 {
 class Material;
-enum class RenderMode;
+enum class RenderMode : uint8_t;
 } // namespace render::material
 
 namespace render::scene

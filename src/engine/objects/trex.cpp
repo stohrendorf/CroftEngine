@@ -14,7 +14,6 @@
 #include "engine/player.h"
 #include "engine/skeletalmodelnode.h"
 #include "engine/weapontype.h"
-#include "engine/world/animation.h"
 #include "engine/world/skeletalmodeltype.h"
 #include "engine/world/world.h"
 #include "laraobject.h"
@@ -24,7 +23,7 @@
 #include "serialization/serialization.h"
 #include "util/helpers.h"
 
-#include <exception>
+#include <gsl/gsl-lite.hpp>
 #include <memory>
 
 namespace engine::objects

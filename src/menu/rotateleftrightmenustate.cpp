@@ -1,15 +1,16 @@
 #include "rotateleftrightmenustate.h"
 
+#include "core/units.h"
 #include "menudisplay.h"
 #include "menuring.h"
 #include "menuringtransform.h"
 #include "menustate.h"
 #include "util.h"
 
+#include <cstddef>
 #include <limits>
-#include <type_traits>
+#include <memory>
 #include <utility>
-#include <vector>
 
 namespace menu
 {

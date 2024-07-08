@@ -2,9 +2,12 @@
 
 #include "core.h"
 #include "core/units.h"
-#include "loader/file/datatypes.h"
 #include "text.h"
 #include "ui/ui.h"
+
+#include <cstddef>
+#include <string>
+#include <utility>
 
 namespace ui
 {

@@ -17,8 +17,10 @@
 #include <algorithm>
 #include <bitset>
 #include <cstddef>
+#include <gsl/gsl-lite.hpp>
 #include <initializer_list>
 #include <memory>
+#include <string>
 
 namespace engine::objects
 {

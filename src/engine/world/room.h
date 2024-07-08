@@ -18,10 +18,9 @@
 #include <gsl/gsl-lite.hpp>
 #include <gslu.h>
 #include <limits>
-#include <map>
 #include <memory>
 #include <optional>
-#include <string>
+#include <utility>
 #include <vector>
 
 namespace engine::world
@@ -104,26 +103,26 @@ struct Room
   size_t physicalId{std::numeric_limits<size_t>::max()};
 
   bool isWaterRoom = false;
-  core::TRVec position{};
+  core::TRVec position;
   int sectorCountZ{};
   int sectorCountX{};
-  core::Shade ambientShade{};
+  core::Shade ambientShade;
 
-  std::vector<Light> lights{};
-  std::vector<Portal> portals{};
-  std::vector<Sector> sectors{};
-  std::vector<RoomStaticMesh> staticMeshes{};
+  std::vector<Light> lights;
+  std::vector<Portal> portals;
+  std::vector<Sector> sectors;
+  std::vector<RoomStaticMesh> staticMeshes;
 
   Room* alternateRoom{nullptr};
 
   std::shared_ptr<render::scene::Node> node = nullptr;
-  std::vector<gslu::nn_shared<render::scene::Node>> sceneryNodes{};
+  std::vector<gslu::nn_shared<render::scene::Node>> sceneryNodes;
 
   glm::vec3 verticesBBoxMin{std::numeric_limits<float>::max()};
   glm::vec3 verticesBBoxMax{std::numeric_limits<float>::lowest()};
   std::shared_ptr<render::scene::Node> dust = nullptr;
   mutable engine::InstancedParticleCollection particles{};
-  std::shared_ptr<RoomGeometry> roomGeometry{};
+  std::shared_ptr<RoomGeometry> roomGeometry;
 
   void createSceneNode(const loader::file::Room& srcRoom,
                        World& world,
@@ -174,8 +173,8 @@ struct Room
   void serialize(const serialization::Serializer<World>& ser) const;
   void deserialize(const serialization::Deserializer<World>& ser);
 
-  std::vector<engine::ShaderLight> bufferLights{};
-  std::shared_ptr<gl::ShaderStorageBuffer<engine::ShaderLight>> lightsBuffer{};
+  std::vector<engine::ShaderLight> bufferLights;
+  std::shared_ptr<gl::ShaderStorageBuffer<engine::ShaderLight>> lightsBuffer;
 
   void collectShaderLights(size_t depth);
   void regenerateDust(engine::Presenter& presenter,

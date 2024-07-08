@@ -139,25 +139,25 @@ private:
   void apply() const;
 
   // States
-  std::optional<glm::ivec2> m_viewport{};
-  std::optional<uint32_t> m_program{};
-  std::optional<bool> m_cullFaceEnabled{};
-  std::optional<bool> m_depthTestEnabled{};
-  std::optional<bool> m_depthWriteEnabled{};
-  std::optional<bool> m_depthClampEnabled{};
-  std::optional<api::DepthFunction> m_depthFunction{};
+  std::optional<glm::ivec2> m_viewport;
+  std::optional<uint32_t> m_program;
+  std::optional<bool> m_cullFaceEnabled;
+  std::optional<bool> m_depthTestEnabled;
+  std::optional<bool> m_depthWriteEnabled;
+  std::optional<bool> m_depthClampEnabled;
+  std::optional<api::DepthFunction> m_depthFunction;
   std::array<std::optional<bool>, IndexedCaps> m_blendEnabled{};
   std::array<
     std::optional<std::tuple<api::BlendingFactor, api::BlendingFactor, api::BlendingFactor, api::BlendingFactor>>,
     IndexedCaps>
     m_blendFactors{};
-  std::optional<api::TriangleFace> m_cullFaceSide{};
-  std::optional<api::FrontFaceDirection> m_frontFace{};
-  std::optional<float> m_lineWidth{};
-  std::optional<bool> m_lineSmooth{};
-  std::optional<bool> m_scissorTest{};
-  std::optional<std::tuple<glm::vec2, glm::vec2>> m_scissorRegion{};
-  std::optional<bool> m_polygonOffsetFillEnabled{};
-  std::optional<std::tuple<float, float>> m_polygonOffset{};
+  std::optional<api::TriangleFace> m_cullFaceSide;
+  std::optional<api::FrontFaceDirection> m_frontFace;
+  std::optional<float> m_lineWidth;
+  std::optional<bool> m_lineSmooth;
+  std::optional<bool> m_scissorTest;
+  std::optional<std::tuple<glm::vec2, glm::vec2>> m_scissorRegion;
+  std::optional<bool> m_polygonOffsetFillEnabled;
+  std::optional<std::tuple<float, float>> m_polygonOffset;
 };
 } // namespace gl

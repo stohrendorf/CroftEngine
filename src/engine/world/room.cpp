@@ -7,6 +7,9 @@
 #include "core/genericvec.h"
 #include "core/i18n.h"
 #include "core/id.h"
+#include "core/magic.h"
+#include "core/units.h"
+#include "core/vec.h"
 #include "engine/engine.h"
 #include "engine/engineconfig.h"
 #include "engine/lighting.h"
@@ -37,10 +40,14 @@
 #include "util.h"
 #include "world.h"
 
+#include <algorithm>
+#include <array>
 #include <boost/assert.hpp>
 #include <boost/log/trivial.hpp>
+#include <cmath>
+#include <cstddef>
 #include <cstdint>
-#include <exception>
+#include <functional>
 #include <gl/buffer.h>
 #include <gl/constants.h>
 #include <gl/program.h>
@@ -48,23 +55,24 @@
 #include <gl/vertexarray.h>
 #include <gl/vertexbuffer.h>
 #include <glm/common.hpp>
+#include <glm/fwd.hpp>
 #include <glm/geometric.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/mat4x4.hpp>
-#include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
 #include <gsl/gsl-lite.hpp>
 #include <gslu.h>
 #include <initializer_list>
-#include <iosfwd>
 #include <iterator>
 #include <limits>
 #include <memory>
+#include <optional>
 #include <set>
 #include <string>
 #include <tuple>
 #include <utility>
+#include <vector>
 
 namespace engine::world
 {

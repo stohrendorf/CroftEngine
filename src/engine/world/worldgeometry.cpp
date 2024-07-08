@@ -3,12 +3,15 @@
 #include "animation.h"
 #include "atlastile.h"
 #include "core/containeroffset.h"
+#include "core/id.h"
 #include "core/magic.h"
 #include "core/units.h"
+#include "engine/controllerbuttons.h"
 #include "engine/engine.h"
 #include "engine/engineconfig.h"
 #include "engine/presenter.h"
 #include "loader/file/animation.h"
+#include "loader/file/color.h"
 #include "loader/file/datatypes.h"
 #include "loader/file/level/level.h"
 #include "loader/file/mesh.h"
@@ -39,6 +42,8 @@
 #include <boost/log/trivial.hpp>
 #include <boost/throw_exception.hpp>
 #include <chrono>
+#include <cstddef>
+#include <cstdint>
 #include <filesystem>
 #include <fstream>
 #include <gl/pixel.h>
@@ -47,13 +52,15 @@
 #include <glm/vec2.hpp>
 #include <gsl/gsl-lite.hpp>
 #include <gslu.h>
+#include <ios>
 #include <iterator>
+#include <memory>
 #include <optional>
-#include <sstream>
 #include <stdexcept>
 #include <string>
 #include <tuple>
 #include <utility>
+#include <vector>
 
 namespace engine::world
 {

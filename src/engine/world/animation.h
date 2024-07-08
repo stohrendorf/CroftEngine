@@ -2,7 +2,9 @@
 
 #include "core/id.h"
 #include "core/units.h"
-#include "qs/quantity.h"
+
+#include <cstdint>
+#include <gsl/gsl-lite.hpp>
 
 namespace loader::file
 {
@@ -20,8 +22,8 @@ struct Animation
   core::Frame segmentLength = 0_frame;
   core::AnimStateId state_id = 0_as;
 
-  core::Speed speed{};
-  core::Acceleration acceleration{};
+  core::Speed speed;
+  core::Acceleration acceleration;
 
   core::Frame firstFrame = 0_frame;
   core::Frame lastFrame = 0_frame;
@@ -31,6 +33,6 @@ struct Animation
   const int16_t* animCommands = nullptr;
 
   const Animation* nextAnimation = nullptr;
-  gsl::span<const Transitions> transitions{};
+  gsl::span<const Transitions> transitions;
 };
 } // namespace engine::world

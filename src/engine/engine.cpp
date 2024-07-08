@@ -40,6 +40,7 @@
 #include "script/scriptengine.h"
 #include "serialization/serialization.h"
 #include "serialization/yamldocument.h"
+#include "soundeffects_tr1.h"
 #include "throttler.h"
 #include "ui/core.h"
 #include "ui/detailedlevelstats.h"
@@ -53,7 +54,6 @@
 #include <algorithm>
 #include <array>
 #include <boost/algorithm/string/predicate.hpp>
-#include <boost/format.hpp>
 #include <boost/locale/generator.hpp>
 #include <boost/locale/info.hpp>
 #include <boost/log/trivial.hpp>
@@ -62,7 +62,6 @@
 #include <cmath>
 #include <cstdint>
 #include <ctime>
-#include <exception>
 #include <filesystem>
 #include <gl/cimgwrapper.h>
 #include <gl/constants.h>
@@ -79,11 +78,15 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/mat4x4.hpp>
 #include <glm/vec3.hpp>
+#include <gsl/gsl-lite.hpp>
 #include <gslu.h>
+#include <ios>
 #include <locale>
+#include <memory>
+#include <optional>
+#include <set>
 #include <sstream>
 #include <stdexcept>
-#include <type_traits>
 #include <utility>
 #include <vector>
 
@@ -397,7 +400,7 @@ Engine::Engine(std::filesystem::path userDataPath,
   m_presenter
     = std::make_shared<Presenter>(m_engineDataPath, resolution, m_engineConfig->renderSettings, borderlessFullscreen);
   if(gl::hasAnisotropicFilteringExtension()
-     && m_engineConfig->renderSettings.anisotropyLevel > gsl::narrow_cast<float>(gl::getMaxAnisotropyLevel()))
+     && gsl::narrow_cast<float>(m_engineConfig->renderSettings.anisotropyLevel) > gl::getMaxAnisotropyLevel())
   {
     m_engineConfig->renderSettings.anisotropyLevel = gsl::narrow<uint32_t>(std::llround(gl::getMaxAnisotropyLevel()));
   }
@@ -870,11 +873,13 @@ std::unique_ptr<loader::trx::Glidos> Engine::loadGlidosPack() const
   if(!m_engineConfig->renderSettings.glidosPack.has_value())
     return nullptr;
 
+  // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
   if(!std::filesystem::is_directory(m_engineConfig->renderSettings.glidosPack.value()))
     return nullptr;
 
   m_presenter->drawLoadingScreen(_("Loading Glidos texture pack"));
   auto lastUpdate = std::chrono::high_resolution_clock::now();
+  // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
   return std::make_unique<loader::trx::Glidos>(m_engineConfig->renderSettings.glidosPack.value(),
                                                [this, &lastUpdate](const std::string& s)
                                                {

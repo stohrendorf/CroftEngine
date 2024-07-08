@@ -2,13 +2,17 @@
 
 #include "discimage.h"
 
+#include <array>
 #include <boost/throw_exception.hpp>
+#include <cstddef>
+#include <cstdint>
 #include <cstring>
 #include <filesystem>
 #include <gsl/gsl-lite.hpp>
 #include <map>
 #include <stdexcept>
 #include <string>
+#include <vector>
 
 namespace image
 {

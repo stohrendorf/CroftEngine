@@ -17,9 +17,9 @@ struct RangeXY
 struct Weapon
 {
   WeaponType type = WeaponType::None;
-  RangeXY lockAngles{};
-  RangeXY leftAngles{};
-  RangeXY rightAngles{};
+  RangeXY lockAngles;
+  RangeXY leftAngles;
+  RangeXY rightAngles;
   core::RotationSpeed aimSpeed = 0_deg / 1_frame;
   core::Angle shotInaccuracy = 0_deg;
   core::Length weaponHeight = 0_len;

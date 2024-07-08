@@ -1,7 +1,13 @@
 #pragma once
 
+#include <cstdint>
 #include <gl/buffer.h>
-#include <glm/gtc/matrix_transform.hpp>
+#include <glm/ext/matrix_clip_space.hpp>
+#include <glm/mat4x4.hpp>
+#include <glm/matrix.hpp>
+#include <glm/vec2.hpp>
+#include <glm/vec3.hpp>
+#include <glm/vec4.hpp>
 #include <type_safe/flag_set.hpp>
 
 namespace render::scene
@@ -10,7 +16,7 @@ class Node;
 
 struct CameraMatrices
 {
-  enum class DirtyFlag
+  enum class DirtyFlag : uint8_t
   {
     BufferData,
     Projection,
@@ -34,6 +40,7 @@ class Camera final
   friend class Node;
 
 public:
+  // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
   Camera(float fieldOfView, const glm::vec2& viewport, float nearPlane, float farPlane)
       : m_fieldOfView{fieldOfView}
       , m_matricesBuffer{"camera-matrices-ubo", gl::api::BufferUsage::DynamicDraw, m_matrices}

@@ -5,10 +5,13 @@
 #include "texture.h"
 
 #include <boost/log/trivial.hpp>
+#include <cstdint>
 #include <glm/vec2.hpp>
 #include <gsl/gsl-lite.hpp>
 #include <gslu.h>
+#include <string_view>
 #include <utility>
+#include <vector>
 
 namespace gl
 {

@@ -1,9 +1,16 @@
 #pragma once
 
 #include "abstractstatehandler.h"
+#include "core/angle.h"
+#include "core/magic.h"
+#include "core/units.h"
 #include "engine/collisioninfo.h"
 #include "engine/objects/laraobject.h"
-#include "hid/inputstate.h"
+#include "qs/quantity.h"
+
+#include <boost/throw_exception.hpp>
+#include <gsl/gsl-lite.hpp>
+#include <stdexcept>
 
 namespace engine::lara
 {

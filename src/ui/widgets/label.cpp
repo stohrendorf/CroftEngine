@@ -6,8 +6,11 @@
 #include "ui/ui.h"
 
 #include <algorithm>
+#include <cstdint>
 #include <gl/pixel.h>
 #include <gsl/gsl-lite.hpp>
+#include <memory>
+#include <string>
 
 namespace ui::widgets
 {

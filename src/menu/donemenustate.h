@@ -2,6 +2,7 @@
 
 #include "menustate.h"
 
+#include <cstdint>
 #include <memory>
 
 namespace engine::world
@@ -16,7 +17,7 @@ class Ui;
 
 namespace menu
 {
-enum class MenuResult;
+enum class MenuResult : uint8_t;
 struct MenuDisplay;
 struct MenuObject;
 struct MenuRingTransform;

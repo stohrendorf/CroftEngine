@@ -1,8 +1,10 @@
 #pragma once
 
+#include <cstdint>
+
 namespace engine
 {
-enum class WeaponType
+enum class WeaponType : uint8_t
 {
   None,
   Pistols,

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdint>
 #include <filesystem>
 #include <gsl/gsl-lite.hpp>
 #include <optional>
@@ -11,7 +12,7 @@ struct archive_entry;
 class ReadOnlyArchive final
 {
 public:
-  enum class EntryType
+  enum class EntryType : uint8_t
   {
     File,
     Directory,

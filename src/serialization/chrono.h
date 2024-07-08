@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ratio.h"
+#include "ratio.h" // IWYU pragma: keep
 #include "serialization_fwd.h"
 
 #include <chrono>

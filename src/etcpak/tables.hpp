@@ -5,15 +5,23 @@
 #include <array>
 #include <cstdint>
 
-extern const std::array<std::array<int32_t, 4>, 8> g_table;
+[[nodiscard]]
+extern const std::array<std::array<int32_t, 4>, 8>& getTable();
 
-extern const std::array<std::array<uint32_t, 16>, 4> g_id;
+[[nodiscard]]
+extern const std::array<std::array<uint32_t, 16>, 4>& getId();
 
-extern const std::array<uint32_t, 64> g_flags;
+[[nodiscard]]
+extern const std::array<uint32_t, 64>& getFlags();
 
-extern const std::array<std::array<int16_t, 8>, 16> g_alpha;
+[[nodiscard]]
+extern const std::array<std::array<int16_t, 8>, 16>& getAlpha();
 
-extern const std::array<IVec16, 2> g_table128_SIMD;
+[[nodiscard]]
+extern const std::array<IVec16, 2>& getTable128_SIMD();
 
-extern const std::array<IVec16, 16> g_alpha_SIMD;
-extern const IVec16 g_alphaRange_SIMD;
+[[nodiscard]]
+extern const std::array<IVec16, 16>& getAlpha_SIMD();
+
+[[nodiscard]]
+extern const IVec16& getAlphaRange_SIMD();

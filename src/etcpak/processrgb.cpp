@@ -8,6 +8,8 @@
 #include <algorithm>
 #include <array>
 #include <boost/throw_exception.hpp>
+#include <cmath>
+#include <cstdint>
 #include <cstdlib>
 #include <emmintrin.h>
 #include <glm/common.hpp>
@@ -460,8 +462,8 @@ std::tuple<std::array<std::array<uint32_t, 8>, 2>, std::array<std::array<uint16_
 
     // Taking the absolute value is way faster. The values are only used to sort, so the result will be the same.
     // Since the selector table is symmetrical, we need to calculate the difference only for half of the entries.
-    auto error0 = (pix - g_table128_SIMD[0]).abs();
-    auto error1 = (pix - g_table128_SIMD[1]).abs();
+    auto error0 = (pix - getTable128_SIMD()[0]).abs();
+    auto error1 = (pix - getTable128_SIMD()[1]).abs();
 
     auto index = (error1 < error0) & IVec16{1};
     auto minError = error0.min(error1);
@@ -643,7 +645,7 @@ std::pair<uint64_t, uint64_t> planar(const BgraVecBlock& bgra, const uint8_t mod
 
   const auto idx = (coR & 0x20u) | ((coG & 0x20u) >> 1u) | ((coB & 0x1Eu) >> 1u);
 
-  lo |= g_flags[idx];
+  lo |= getFlags()[idx];
 
   uint64_t result = static_cast<uint32_t>(_bswap(lo));
   result |= static_cast<uint64_t>(static_cast<uint32_t>(_bswap(hi))) << 32u;
@@ -1162,7 +1164,7 @@ uint64_t processBGR_ETC2(const BgraVecBlock& bgra, const BgraBlockImm& immRgba, 
   const size_t idx = getLeastErrorIndex(err);
   encodeAverages(d, avgRgba, idx);
 
-  const auto& id = g_id[idx];
+  const auto& id = getId()[idx];
   const auto [terr, tsel] = findBestFit(avgRgba, id, bgra);
 
   if(useHeuristics)
@@ -1274,7 +1276,7 @@ uint64_t processAlpha_ETC2(const IVec8& alphas)
   const auto srcMid = min16 + srcRangeHalf;
 
   // multiplier
-  const auto mul = srcRange.mulHi(g_alphaRange_SIMD) + IVec16{1};
+  const auto mul = srcRange.mulHi(getAlphaRange_SIMD()) + IVec16{1};
 
   // wide source
   const std::array<IVec16, 2> s16{{
@@ -1303,53 +1305,53 @@ uint64_t processAlpha_ETC2(const IVec8& alphas)
 
   // wide multiplier
   const std::array<IVec16, 16> rangeMul{{
-    (srcMid + widen<getMulSel(0)>(mul) * g_alpha_SIMD[0])
-      .toIVec8U(srcMid + widen<getMulSel(0)>(mul) * g_alpha_SIMD[0])
+    (srcMid + widen<getMulSel(0)>(mul) * getAlpha_SIMD()[0])
+      .toIVec8U(srcMid + widen<getMulSel(0)>(mul) * getAlpha_SIMD()[0])
       .lowToIVec16(),
-    (srcMid + widen<getMulSel(1)>(mul) * g_alpha_SIMD[1])
-      .toIVec8U(srcMid + widen<getMulSel(1)>(mul) * g_alpha_SIMD[1])
+    (srcMid + widen<getMulSel(1)>(mul) * getAlpha_SIMD()[1])
+      .toIVec8U(srcMid + widen<getMulSel(1)>(mul) * getAlpha_SIMD()[1])
       .lowToIVec16(),
-    (srcMid + widen<getMulSel(2)>(mul) * g_alpha_SIMD[2])
-      .toIVec8U(srcMid + widen<getMulSel(2)>(mul) * g_alpha_SIMD[2])
+    (srcMid + widen<getMulSel(2)>(mul) * getAlpha_SIMD()[2])
+      .toIVec8U(srcMid + widen<getMulSel(2)>(mul) * getAlpha_SIMD()[2])
       .lowToIVec16(),
-    (srcMid + widen<getMulSel(3)>(mul) * g_alpha_SIMD[3])
-      .toIVec8U(srcMid + widen<getMulSel(3)>(mul) * g_alpha_SIMD[3])
+    (srcMid + widen<getMulSel(3)>(mul) * getAlpha_SIMD()[3])
+      .toIVec8U(srcMid + widen<getMulSel(3)>(mul) * getAlpha_SIMD()[3])
       .lowToIVec16(),
-    (srcMid + widen<getMulSel(4)>(mul) * g_alpha_SIMD[4])
-      .toIVec8U(srcMid + widen<getMulSel(4)>(mul) * g_alpha_SIMD[4])
+    (srcMid + widen<getMulSel(4)>(mul) * getAlpha_SIMD()[4])
+      .toIVec8U(srcMid + widen<getMulSel(4)>(mul) * getAlpha_SIMD()[4])
       .lowToIVec16(),
-    (srcMid + widen<getMulSel(5)>(mul) * g_alpha_SIMD[5])
-      .toIVec8U(srcMid + widen<getMulSel(5)>(mul) * g_alpha_SIMD[5])
+    (srcMid + widen<getMulSel(5)>(mul) * getAlpha_SIMD()[5])
+      .toIVec8U(srcMid + widen<getMulSel(5)>(mul) * getAlpha_SIMD()[5])
       .lowToIVec16(),
-    (srcMid + widen<getMulSel(6)>(mul) * g_alpha_SIMD[6])
-      .toIVec8U(srcMid + widen<getMulSel(6)>(mul) * g_alpha_SIMD[6])
+    (srcMid + widen<getMulSel(6)>(mul) * getAlpha_SIMD()[6])
+      .toIVec8U(srcMid + widen<getMulSel(6)>(mul) * getAlpha_SIMD()[6])
       .lowToIVec16(),
-    (srcMid + widen<getMulSel(7)>(mul) * g_alpha_SIMD[7])
-      .toIVec8U(srcMid + widen<getMulSel(7)>(mul) * g_alpha_SIMD[7])
+    (srcMid + widen<getMulSel(7)>(mul) * getAlpha_SIMD()[7])
+      .toIVec8U(srcMid + widen<getMulSel(7)>(mul) * getAlpha_SIMD()[7])
       .lowToIVec16(),
-    (srcMid + widen<getMulSel(8)>(mul) * g_alpha_SIMD[8])
-      .toIVec8U(srcMid + widen<getMulSel(8)>(mul) * g_alpha_SIMD[8])
+    (srcMid + widen<getMulSel(8)>(mul) * getAlpha_SIMD()[8])
+      .toIVec8U(srcMid + widen<getMulSel(8)>(mul) * getAlpha_SIMD()[8])
       .lowToIVec16(),
-    (srcMid + widen<getMulSel(9)>(mul) * g_alpha_SIMD[9])
-      .toIVec8U(srcMid + widen<getMulSel(9)>(mul) * g_alpha_SIMD[9])
+    (srcMid + widen<getMulSel(9)>(mul) * getAlpha_SIMD()[9])
+      .toIVec8U(srcMid + widen<getMulSel(9)>(mul) * getAlpha_SIMD()[9])
       .lowToIVec16(),
-    (srcMid + widen<getMulSel(10)>(mul) * g_alpha_SIMD[10])
-      .toIVec8U(srcMid + widen<getMulSel(10)>(mul) * g_alpha_SIMD[10])
+    (srcMid + widen<getMulSel(10)>(mul) * getAlpha_SIMD()[10])
+      .toIVec8U(srcMid + widen<getMulSel(10)>(mul) * getAlpha_SIMD()[10])
       .lowToIVec16(),
-    (srcMid + widen<getMulSel(11)>(mul) * g_alpha_SIMD[11])
-      .toIVec8U(srcMid + widen<getMulSel(11)>(mul) * g_alpha_SIMD[11])
+    (srcMid + widen<getMulSel(11)>(mul) * getAlpha_SIMD()[11])
+      .toIVec8U(srcMid + widen<getMulSel(11)>(mul) * getAlpha_SIMD()[11])
       .lowToIVec16(),
-    (srcMid + widen<getMulSel(12)>(mul) * g_alpha_SIMD[12])
-      .toIVec8U(srcMid + widen<getMulSel(12)>(mul) * g_alpha_SIMD[12])
+    (srcMid + widen<getMulSel(12)>(mul) * getAlpha_SIMD()[12])
+      .toIVec8U(srcMid + widen<getMulSel(12)>(mul) * getAlpha_SIMD()[12])
       .lowToIVec16(),
-    (srcMid + widen<getMulSel(13)>(mul) * g_alpha_SIMD[13])
-      .toIVec8U(srcMid + widen<getMulSel(13)>(mul) * g_alpha_SIMD[13])
+    (srcMid + widen<getMulSel(13)>(mul) * getAlpha_SIMD()[13])
+      .toIVec8U(srcMid + widen<getMulSel(13)>(mul) * getAlpha_SIMD()[13])
       .lowToIVec16(),
-    (srcMid + widen<getMulSel(14)>(mul) * g_alpha_SIMD[14])
-      .toIVec8U(srcMid + widen<getMulSel(14)>(mul) * g_alpha_SIMD[14])
+    (srcMid + widen<getMulSel(14)>(mul) * getAlpha_SIMD()[14])
+      .toIVec8U(srcMid + widen<getMulSel(14)>(mul) * getAlpha_SIMD()[14])
       .lowToIVec16(),
-    (srcMid + widen<getMulSel(15)>(mul) * g_alpha_SIMD[15])
-      .toIVec8U(srcMid + widen<getMulSel(15)>(mul) * g_alpha_SIMD[15])
+    (srcMid + widen<getMulSel(15)>(mul) * getAlpha_SIMD()[15])
+      .toIVec8U(srcMid + widen<getMulSel(15)>(mul) * getAlpha_SIMD()[15])
       .lowToIVec16(),
   }};
 
@@ -1366,7 +1368,7 @@ uint64_t processAlpha_ETC2(const IVec8& alphas)
       const auto err1 = sri - recVal16;
       const auto err2 = err1 * err1;
       const auto minerr = err2.minPos();
-      rangeErr += gsl::narrow_cast<int>(minerr.get64() & 0xFFFF);
+      rangeErr += gsl::narrow_cast<int>(minerr.get64() & 0xFFFFu);
     }
 
     if(rangeErr < err)

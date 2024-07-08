@@ -3,7 +3,10 @@
 #include "bindableresource.h" // IWYU pragma: export
 
 #include <boost/container/flat_map.hpp>
-#include <glm/gtc/type_ptr.hpp>
+#include <cstdint>
+#include <gl/glassert.h>
+#include <gl/resource.h>
+#include <gsl/gsl-lite.hpp>
 #include <string_view>
 #include <utility>
 

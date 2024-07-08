@@ -1,17 +1,16 @@
 #include "gameplayrulesmenustate.h"
 
 #include "core/i18n.h"
-#include "engine/displaysettings.h"
 #include "engine/engine.h"
-#include "engine/engineconfig.h"
+#include "engine/gameplayrules.h"
 #include "engine/presenter.h"
 #include "engine/world/world.h"
 #include "hid/actions.h"
 #include "hid/inputhandler.h"
 #include "hid/inputstate.h"
 #include "menustate.h"
-#include "render/rendersettings.h"
 #include "selectedmenustate.h"
+#include "ui/core.h"
 #include "ui/ui.h"
 #include "ui/widgets/checkbox.h"
 #include "ui/widgets/checklistbox.h"
@@ -21,19 +20,10 @@
 #include "ui/widgets/textbox.h"
 #include "ui/widgets/widget.h"
 
-#include <boost/format.hpp>
-#include <boost/throw_exception.hpp>
-#include <cmath>
-#include <cstddef>
-#include <cstdint>
 #include <functional>
-#include <gl/glad_init.h>
 #include <glm/fwd.hpp>
-#include <glm/vec2.hpp>
 #include <gsl/gsl-lite.hpp>
-#include <gslu.h>
-#include <ios>
-#include <stdexcept>
+#include <memory>
 #include <string>
 #include <tuple>
 #include <utility>

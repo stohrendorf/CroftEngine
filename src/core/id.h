@@ -3,6 +3,7 @@
 #include "serialization/serialization_fwd.h"
 #include "tpl_helper.h"
 
+#include <cstddef>
 #include <cstdint>
 #include <functional>
 #include <gsl/gsl-lite.hpp>
@@ -179,7 +180,7 @@ DECLARE_ID(ItemId, uint16_t);
 DECLARE_ID_E(TypeId, uint16_t, engine::TR1ItemId);
 DECLARE_ID_E(SoundEffectId, uint16_t, engine::TR1SoundEffect);
 
-[[nodiscard]] inline constexpr AnimStateId operator"" _as(unsigned long long value)
+[[nodiscard]] constexpr AnimStateId operator"" _as(unsigned long long value)
 {
   return AnimStateId{gsl::narrow_cast<AnimStateId::type>(value)};
 }

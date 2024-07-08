@@ -3,7 +3,6 @@
 #include "engine/gameplayrules.h"
 #include "selectedmenustate.h"
 
-#include <gslu.h>
 #include <memory>
 #include <vector>
 
@@ -38,8 +37,8 @@ class MenuState;
 class GameplayRulesMenuState : public SelectedMenuState
 {
 private:
-  std::shared_ptr<ui::widgets::CheckListBox> m_listBox{};
-  std::vector<std::shared_ptr<ui::widgets::TextBox>> m_descriptions{};
+  std::shared_ptr<ui::widgets::CheckListBox> m_listBox;
+  std::vector<std::shared_ptr<ui::widgets::TextBox>> m_descriptions;
   std::unique_ptr<MenuState> m_previous;
   std::unique_ptr<ui::widgets::GroupBox> m_container;
   engine::GameplayRules m_rules;

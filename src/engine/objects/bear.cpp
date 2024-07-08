@@ -17,7 +17,6 @@
 #include "serialization/serialization.h"
 #include "util/helpers.h"
 
-#include <exception>
 #include <memory>
 
 namespace engine::objects

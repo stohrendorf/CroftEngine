@@ -2,19 +2,17 @@
 
 #include "core/angle.h"
 #include "core/boundingbox.h"
-#include "core/interval.h"
+#include "core/id.h"
+#include "core/units.h"
 #include "engine/engine.h"
 #include "engine/engineconfig.h"
 #include "loader/file/animation.h"
 #include "objects/objectstate.h"
 #include "presenter.h"
 #include "qs/qs.h"
-#include "render/rendersettings.h"
 #include "render/scene/mesh.h" // IWYU pragma: keep
-#include "serialization/gl_pixel.h"
 #include "serialization/glm.h"
 #include "serialization/not_null.h"
-#include "serialization/ptr.h"
 #include "serialization/quantity.h"
 #include "serialization/rendermeshdata_ptr.h"
 #include "serialization/serialization.h"
@@ -30,18 +28,23 @@
 
 #include <algorithm>
 #include <boost/assert.hpp>
+#include <cstddef>
 #include <cstdint>
-#include <exception>
+#include <functional>
 #include <gl/buffer.h>
 #include <gl/pixel.h>
 #include <glm/common.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/mat4x4.hpp>
 #include <glm/vec2.hpp>
-#include <gslu.h>
-#include <initializer_list>
+#include <gsl/gsl-lite.hpp>
 #include <iterator>
+#include <memory>
+#include <optional>
 #include <stack>
+#include <string>
 #include <utility>
+#include <vector>
 
 namespace engine
 {
@@ -115,12 +118,12 @@ void SkeletalModelNode::updatePose(const InterpolationInfo& framePair)
   const auto angleDataFirst = framePair.firstFrame->getAngleData();
   std::stack<glm::mat4> transformsFirst;
   transformsFirst.push(glm::translate(glm::mat4{1.0f}, framePair.firstFrame->pos.toGl())
-                       * core::fromPackedAngles(&angleDataFirst[0]) * m_meshParts[0].patch);
+                       * core::fromPackedAngles(angleDataFirst.data()) * m_meshParts[0].patch);
 
   const auto angleDataSecond = framePair.secondFrame->getAngleData();
   std::stack<glm::mat4> transformsSecond;
   transformsSecond.push(translate(glm::mat4{1.0f}, framePair.secondFrame->pos.toGl())
-                        * core::fromPackedAngles(&angleDataSecond[0]) * m_meshParts[0].patch);
+                        * core::fromPackedAngles(angleDataSecond.data()) * m_meshParts[0].patch);
 
   m_meshParts[0].poseMatrix = util::mix(transformsFirst.top(), transformsSecond.top(), framePair.bias);
 

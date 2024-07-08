@@ -15,7 +15,7 @@ class ShaderProgram;
 
 class ShaderCache final
 {
-  std::unordered_map<std::string, gslu::nn_shared<ShaderProgram>> m_programs{};
+  std::unordered_map<std::string, gslu::nn_shared<ShaderProgram>> m_programs;
 
   std::filesystem::path m_root;
 

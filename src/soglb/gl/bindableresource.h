@@ -5,6 +5,7 @@
 #include "resource.h"
 
 #include <boost/assert.hpp>
+#include <cstdint>
 #include <functional>
 #include <string_view>
 

@@ -47,6 +47,7 @@ struct DWordTexture final
   void toImage() const;
 };
 
+// NOLINTNEXTLINE(*-enum-size)
 enum class BlendingMode : uint16_t
 {
   Solid,
@@ -123,7 +124,7 @@ struct TextureKey
   // as the maximum of the individual color values.
   uint16_t atlasIdAndFlag = 0; // index into textile list
 
-  uint16_t flags = 0;          // TR4
+  uint16_t flags = 0; // TR4
 
   DECLARE_ID(ColorId, int);
   ColorId colorId{-1};

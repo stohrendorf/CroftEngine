@@ -2,6 +2,7 @@
 
 #include "core/containeroffset.h"
 #include "core/id.h"
+#include "core/units.h"
 #include "core/vec.h"
 #include "engine/engine.h"
 #include "engine/engineconfig.h"
@@ -21,6 +22,7 @@
 #include "render/scene/mesh.h" // IWYU pragma: keep
 #include "render/scene/node.h"
 
+#include <bitset>
 #include <boost/log/trivial.hpp>
 #include <cstddef>
 #include <cstdint>

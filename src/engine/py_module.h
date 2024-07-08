@@ -5,21 +5,22 @@
 #include "loader/file/level/game.h"
 #include "objects/objectstate.h"
 #include "objects/py_module.h"
-#include "qs/quantity.h"
 #include "script/reflection.h"
 #include "soundeffects_tr1.h"
 #include "tracks_tr1.h"
 #include "weapontype.h"
 
 #include <cstddef>
+#include <cstdint>
 #include <map>
 #include <memory>
 #include <optional>
 #include <pybind11/attr.h>
 #include <pybind11/cast.h>
+#include <pybind11/pybind11.h>
 #include <pybind11/pytypes.h>
 #include <string>
-#include <type_traits>
+#include <tuple>
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>

@@ -4,6 +4,7 @@
 #include "ui.h"
 
 #include <gl/pixel.h>
+#include <glm/vec2.hpp>
 
 namespace ui
 {
@@ -42,6 +43,7 @@ struct BackgroundGouraud
     };
   }
 
+  // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
   void draw(Ui& ui, const glm::ivec2& pos, const glm::ivec2& size) const
   {
     const auto half = size / 2;

@@ -5,19 +5,36 @@
 #include "audio/device.h"
 #include "audio/fadevolumecallback.h"
 #include "audio/soundengine.h"
-#include "audio/streamsource.h"
 #include "audio/streamvoice.h"
-#include "audio/wadstreamsource.h"
+#include "core/id.h"
+#include "core/magic.h"
+#include "core/units.h"
+#include "floordata/types.h"
+#include "loader/file/audio.h"
+#include "loader/file/larastateid.h"
+#include "loader/file/level/game.h"
 #include "objects/laraobject.h"
 #include "script/reflection.h"
 #include "serialization/map.h"
 #include "serialization/optional.h"
 #include "serialization/serialization.h"
+#include "soundeffects_tr1.h"
 #include "tracks_tr1.h"
 #include "util/helpers.h"
 #include "world/world.h"
 
-#include <boost/format.hpp>
+#include <algorithm>
+#include <boost/assert.hpp>
+#include <boost/log/trivial.hpp>
+#include <chrono>
+#include <cstddef>
+#include <cstdint>
+#include <filesystem>
+#include <glm/vec3.hpp>
+#include <gsl/gsl-lite.hpp>
+#include <memory>
+#include <utility>
+#include <vector>
 
 namespace engine
 {
@@ -217,7 +234,7 @@ std::shared_ptr<audio::Voice> AudioEngine::playSoundEffect(const core::SoundEffe
   if(soundEffect->chance != 0 && util::rand15() > soundEffect->chance)
     return nullptr;
 
-  size_t sample = soundEffect->sample.get();
+  auto sample = soundEffect->sample.get();
   if(soundEffect->getSampleCount() > 1)
     sample += util::rand15(soundEffect->getSampleCount());
 

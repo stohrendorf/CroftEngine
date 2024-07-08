@@ -13,6 +13,7 @@
 
 extern "C"
 {
+#include <libavcodec/packet.h>
 #include <libavformat/avformat.h>
 #include <libswresample/swresample.h>
 }

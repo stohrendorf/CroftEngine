@@ -4,6 +4,8 @@
 #include "audiosettings.h"
 #include "cameracontroller.h"
 #include "core/i18n.h"
+#include "core/magic.h"
+#include "core/units.h"
 #include "hid/actions.h"
 #include "hid/inputhandler.h"
 #include "objectmanager.h"
@@ -37,9 +39,12 @@
 #include "world/room.h"
 
 #include <algorithm>
+#include <array>
 #include <boost/assert.hpp>
 #include <cstdint>
 #include <cstdlib>
+#include <filesystem>
+#include <functional>
 #include <gl/cimgwrapper.h>
 #include <gl/constants.h>
 #include <gl/debuggroup.h>
@@ -56,13 +61,18 @@
 #include <gl/window.h>
 #include <glm/common.hpp>
 #include <glm/mat4x4.hpp>
+#include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
-#include <glm/vec4.hpp>
+#include <gsl/gsl-lite.hpp>
 #include <gslu.h>
 #include <initializer_list>
+#include <iterator>
 #include <limits>
+#include <memory>
 #include <optional>
+#include <unordered_set>
 #include <utility>
+#include <vector>
 
 namespace
 {
@@ -75,6 +85,50 @@ constexpr auto HealthPulseDurationSlow = 3_sec * core::FrameRate;
 constexpr auto HealthPulseDurationFast = 1_sec * core::FrameRate / 2;
 constexpr auto HealthPulseMinHealth = core::LaraHealth / 5;
 constexpr auto HealthPulseMaxHealth = core::LaraHealth / 2;
+
+void prefillDepthBuffer(const engine::CameraController& cameraController, const std::vector<engine::world::Room>& rooms)
+{
+  SOGLB_DEBUGGROUP("depth-prefill-pass");
+
+  // collect rooms and sort front-to-back
+  std::vector<const engine::world::Room*> renderRooms;
+  for(const auto& room : rooms)
+  {
+    if(room.node->isVisible())
+      renderRooms.emplace_back(&room);
+  }
+  std::sort(renderRooms.begin(),
+            renderRooms.end(),
+            [](const engine::world::Room* a, const engine::world::Room* b)
+            {
+              return a->node->getRenderOrder() > b->node->getRenderOrder();
+            });
+
+  for(const auto translucencySelector : {render::scene::Translucency::Opaque, render::scene::Translucency::NonOpaque})
+  {
+    render::scene::RenderContext context{render::material::RenderMode::DepthOnly,
+                                         cameraController.getCamera()->getViewProjectionMatrix(),
+                                         translucencySelector};
+    for(const auto& room : renderRooms)
+    {
+      if(room->node->getRenderable()->empty(translucencySelector))
+      {
+        continue;
+      }
+
+      SOGLB_DEBUGGROUP(room->node->getName());
+      auto state = context.getCurrentState();
+      state.setScissorTest(true);
+      const auto [x, y] = room->node->getCombinedScissors();
+      state.setScissorRegion({x.min, y.min}, {x.size(), y.size()});
+      context.pushState(state);
+      room->node->getRenderable()->render(room->node.get(), context);
+      context.popState();
+    }
+  }
+  if constexpr(render::pass::FlushPasses)
+    GL_ASSERT(gl::api::finish());
+}
 } // namespace
 
 namespace engine
@@ -232,6 +286,7 @@ gl::SRGBA8 getBarColor(float x, const std::array<gl::SRGBA8, BarColors>& barColo
 void drawBar(ui::Ui& ui,
              const glm::ivec2& xy0,
              const int p,
+             // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
              const gl::SRGBA8& black,
              const gl::SRGBA8& border1,
              const gl::SRGBA8& border2,
@@ -627,50 +682,6 @@ void Presenter::clearSplashImageTextureOverride() noexcept
 {
   m_splashImageTextureOverride.reset();
   m_splashImageMeshOverride.reset();
-}
-
-void Presenter::prefillDepthBuffer(const CameraController& cameraController, const std::vector<world::Room>& rooms)
-{
-  SOGLB_DEBUGGROUP("depth-prefill-pass");
-
-  // collect rooms and sort front-to-back
-  std::vector<const world::Room*> renderRooms;
-  for(const auto& room : rooms)
-  {
-    if(room.node->isVisible())
-      renderRooms.emplace_back(&room);
-  }
-  std::sort(renderRooms.begin(),
-            renderRooms.end(),
-            [](const world::Room* a, const world::Room* b)
-            {
-              return a->node->getRenderOrder() > b->node->getRenderOrder();
-            });
-
-  for(const auto translucencySelector : {render::scene::Translucency::Opaque, render::scene::Translucency::NonOpaque})
-  {
-    render::scene::RenderContext context{render::material::RenderMode::DepthOnly,
-                                         cameraController.getCamera()->getViewProjectionMatrix(),
-                                         translucencySelector};
-    for(const auto& room : renderRooms)
-    {
-      if(room->node->getRenderable()->empty(translucencySelector))
-      {
-        continue;
-      }
-
-      SOGLB_DEBUGGROUP(room->node->getName());
-      auto state = context.getCurrentState();
-      state.setScissorTest(true);
-      const auto [x, y] = room->node->getCombinedScissors();
-      state.setScissorRegion({x.min, y.min}, {x.size(), y.size()});
-      context.pushState(state);
-      room->node->getRenderable()->render(room->node.get(), context);
-      context.popState();
-    }
-  }
-  if constexpr(render::pass::FlushPasses)
-    GL_ASSERT(gl::api::finish());
 }
 
 void Presenter::renderGeometry(const engine::world::World& world, const std::vector<world::Room>& rooms)

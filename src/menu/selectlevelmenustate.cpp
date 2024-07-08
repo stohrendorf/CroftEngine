@@ -5,12 +5,17 @@
 #include "engine/engine.h"
 #include "engine/script/reflection.h"
 #include "engine/world/world.h"
+#include "listdisplaymenustate.h"
 #include "menudisplay.h"
 #include "menuring.h"
 #include "requestlevelmenustate.h"
 #include "ui/widgets/label.h"
 
 #include <boost/range/adaptor/indexed.hpp>
+#include <cstddef>
+#include <gsl/gsl-lite.hpp>
+#include <memory>
+#include <utility>
 
 namespace menu
 {

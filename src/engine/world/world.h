@@ -27,7 +27,6 @@
 #include <cstddef>
 #include <cstdint>
 #include <filesystem>
-#include <gl/pixel.h>
 #include <glm/fwd.hpp>
 #include <gsl/gsl-lite.hpp>
 #include <gslu.h>
@@ -357,8 +356,8 @@ private:
   std::unique_ptr<CameraController> m_cameraController;
 
   core::Frame m_effectTimer = 0_frame;
-  std::optional<size_t> m_activeEffect{};
-  std::shared_ptr<audio::Voice> m_globalSoundEffect{};
+  std::optional<size_t> m_activeEffect;
+  std::shared_ptr<audio::Voice> m_globalSoundEffect;
 
   bool m_roomsAreSwapped = false;
 
@@ -388,12 +387,12 @@ private:
 
   std::array<floordata::ActivationState, 10> m_mapFlipActivationStates;
   std::shared_ptr<objects::Object> m_pierre = nullptr;
-  std::string m_title{};
+  std::string m_title;
   size_t m_totalSecrets = 0;
-  std::unordered_map<std::string, std::unordered_map<TR1ItemId, std::string>> m_itemTitles{};
+  std::unordered_map<std::string, std::unordered_map<TR1ItemId, std::string>> m_itemTitles;
   core::Frame m_uvAnimTime = 0_frame;
 
-  std::vector<ui::PickupWidget> m_pickupWidgets{};
+  std::vector<ui::PickupWidget> m_pickupWidgets;
   std::shared_ptr<Player> m_player;
   std::shared_ptr<Player> m_levelStartPlayer;
 

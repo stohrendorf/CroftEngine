@@ -9,7 +9,7 @@
 #include <gl/program.h>
 #include <gsl/gsl-lite.hpp>
 #include <gslu.h>
-#include <iosfwd>
+#include <memory>
 #include <utility>
 
 namespace render::material

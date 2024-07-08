@@ -2,6 +2,8 @@
 
 #include "listdisplaymenustate.h"
 
+#include <cstddef>
+#include <memory>
 #include <vector>
 
 namespace menu
@@ -18,6 +20,6 @@ public:
 
 private:
   std::unique_ptr<MenuState> m_previous;
-  std::vector<size_t> m_indices{};
+  std::vector<size_t> m_indices;
 };
 } // namespace menu

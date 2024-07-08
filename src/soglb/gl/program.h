@@ -2,6 +2,7 @@
 
 #include "buffer.h"
 #include "glassert.h"
+#include "resource.h"
 #include "soglb_fwd.h"
 
 #include <array>
@@ -20,7 +21,6 @@
 #include <string>
 #include <string_view>
 #include <type_traits>
-#include <utility>
 #include <variant>
 #include <vector>
 
@@ -38,10 +38,7 @@ public:
   explicit ProgramInterface(const Program& program, uint32_t index);
   virtual ~ProgramInterface() = default;
 
-  ProgramInterface(ProgramInterface<_Type>&& rhs) noexcept
-      : m_name{std::move(rhs.m_name)}
-  {
-  }
+  ProgramInterface(const ProgramInterface<_Type>& rhs) noexcept = default;
 
   ProgramInterface<_Type>& operator=(ProgramInterface<_Type>&& rhs) noexcept
   {
@@ -58,7 +55,7 @@ protected:
   static int32_t getProperty(const Program& program, uint32_t index, api::ProgramResourceProperty what);
 
 private:
-  std::string m_name{};
+  std::string m_name;
 };
 
 // NOLINTNEXTLINE(bugprone-reserved-identifier)
@@ -72,11 +69,7 @@ public:
   {
   }
 
-  LocatableProgramInterface(LocatableProgramInterface<_Type>&& rhs) noexcept
-      : ProgramInterface<_Type>{std::move(rhs)}
-      , m_location{std::exchange(rhs.m_location, -1)}
-  {
-  }
+  LocatableProgramInterface(const LocatableProgramInterface<_Type>& rhs) noexcept = default;
 
   LocatableProgramInterface<_Type>& operator=(LocatableProgramInterface<_Type>&& rhs) noexcept
   {
@@ -132,10 +125,12 @@ public:
   }
 
   template<typename T, api::BufferTarget LazyTarget = _Target>
-  auto bindRange(const Buffer<T, _Target>& buffer, size_t start, size_t n) -> std::enable_if_t<
-    LazyTarget == api::BufferTarget::AtomicCounterBuffer || LazyTarget == api::BufferTarget::TransformFeedbackBuffer
-      || LazyTarget == api::BufferTarget::UniformBuffer || LazyTarget == api::BufferTarget::ShaderStorageBuffer,
-    void>
+  // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
+  auto bindRange(const Buffer<T, _Target>& buffer, size_t start, size_t n)
+    -> std::enable_if_t<
+      LazyTarget == api::BufferTarget::AtomicCounterBuffer || LazyTarget == api::BufferTarget::TransformFeedbackBuffer
+        || LazyTarget == api::BufferTarget::UniformBuffer || LazyTarget == api::BufferTarget::ShaderStorageBuffer,
+      void>
   {
     gsl_Expects(start < buffer.size());
     gsl_Expects(start + n <= buffer.size());
@@ -159,7 +154,7 @@ class Uniform final : public LocatableProgramInterface<api::ProgramInterface::Un
 {
 public:
   explicit Uniform(const Program& program, uint32_t index);
-  Uniform(Uniform&& rhs) noexcept;
+  Uniform(const Uniform& rhs) noexcept;
   Uniform& operator=(Uniform&& rhs) noexcept;
 
   template<typename T>

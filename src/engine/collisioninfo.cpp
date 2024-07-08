@@ -1,9 +1,12 @@
 #include "collisioninfo.h"
 
+#include "core/angle.h"
 #include "core/boundingbox.h"
 #include "core/genericvec.h"
 #include "core/interval.h"
 #include "core/magic.h"
+#include "core/units.h"
+#include "core/vec.h"
 #include "engine/floordata/floordata.h"
 #include "engine/floordata/types.h"
 #include "engine/heightinfo.h"
@@ -21,8 +24,8 @@
 
 #include <cstdint>
 #include <gsl/gsl-lite.hpp>
+#include <set>
 #include <tuple>
-#include <vector>
 
 namespace engine
 {

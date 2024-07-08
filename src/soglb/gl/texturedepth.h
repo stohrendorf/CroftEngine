@@ -1,7 +1,8 @@
 #pragma once
 
-#include "texture.h"
-
+#include <boost/assert.hpp>
+#include <gl/glassert.h>
+#include <glm/vec2.hpp>
 #include <string_view>
 
 namespace gl

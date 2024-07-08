@@ -1,19 +1,30 @@
 #include "ffmpegstreamsource.h"
 
 #include "audiostreamdecoder.h"
+#include "core.h"
 
 #include <algorithm>
 #include <boost/log/trivial.hpp>
 #include <boost/throw_exception.hpp>
+#include <cstdint>
 #include <cstdio>
+#include <filesystem>
 #include <gsl/gsl-lite.hpp>
+#include <ios>
+#include <istream>
+#include <memory>
 #include <stdexcept>
 #include <string>
+#include <utility>
 #include <vector>
 
 extern "C"
 {
+#include <libavcodec/packet.h>
 #include <libavformat/avformat.h>
+#include <libavformat/avio.h>
+#include <libavutil/error.h>
+#include <libavutil/mem.h>
 }
 
 namespace audio
@@ -167,6 +178,7 @@ int FfmpegMemoryStreamSource::ffmpegRead(void* opaque, uint8_t* buf, int bufSize
   return gsl::narrow<int>(n);
 }
 
+// NOLINTNEXTLINE(*-easily-swappable-parameters)
 int64_t FfmpegMemoryStreamSource::ffmpegSeek(void* opaque, int64_t offset, int whence)
 {
   auto* h = static_cast<FfmpegMemoryStreamSource*>(opaque);
@@ -229,6 +241,7 @@ int FfmpegSubStreamStreamSource::ffmpegRead(void* opaque, uint8_t* buf, int bufS
   return gsl::narrow<int>(n);
 }
 
+// NOLINTNEXTLINE(*-easily-swappable-parameters)
 int64_t FfmpegSubStreamStreamSource::ffmpegSeek(void* opaque, int64_t offset, int whence)
 {
   auto* h = static_cast<FfmpegSubStreamStreamSource*>(opaque);

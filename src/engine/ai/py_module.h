@@ -1,8 +1,6 @@
 #pragma once
 
 #include "ai.h"
-#include "core/units.h"
-#include "core/vec.h"
 
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h> // IWYU pragma: keep

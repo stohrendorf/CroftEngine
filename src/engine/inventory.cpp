@@ -1,5 +1,6 @@
 #include "inventory.h"
 
+#include "core/id.h"
 #include "core/magic.h"
 #include "core/units.h"
 #include "engine.h"
@@ -18,8 +19,9 @@
 #include "weapontype.h"
 #include "world/world.h"
 
+#include <algorithm>
 #include <boost/log/trivial.hpp>
-#include <exception>
+#include <cstddef>
 #include <functional>
 
 namespace engine

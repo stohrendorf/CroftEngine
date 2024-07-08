@@ -21,8 +21,8 @@ struct GhostMeta
 {
   core::Frame duration = 0_frame;
   NamedGhostFinishState finishState = GhostFinishState::Unfinished;
-  std::filesystem::path level{};
-  std::string gameflow{};
+  std::filesystem::path level;
+  std::string gameflow;
 
   void serialize(const serialization::Serializer<GhostMeta>& ser) const;
   void deserialize(const serialization::Deserializer<GhostMeta>& ser);
@@ -42,7 +42,7 @@ struct GhostFrame
 
   uint16_t roomId = 0;
   glm::mat4 modelMatrix{1.0f};
-  std::vector<BoneData> bones{};
+  std::vector<BoneData> bones;
 
   void write(std::ostream& s) const;
   void read(std::istream& s);

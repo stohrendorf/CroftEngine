@@ -75,9 +75,11 @@
 #include <boost/assert.hpp>
 #include <boost/log/trivial.hpp>
 #include <boost/throw_exception.hpp>
-#include <exception>
+#include <cstddef>
+#include <gsl/gsl-lite.hpp>
 #include <gslu.h>
 #include <map>
+#include <memory>
 #include <stdexcept>
 #include <string>
 #include <vector>

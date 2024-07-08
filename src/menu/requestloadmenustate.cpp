@@ -2,7 +2,7 @@
 
 #include "menudisplay.h"
 
-#include <optional>
+#include <memory>
 
 namespace menu
 {

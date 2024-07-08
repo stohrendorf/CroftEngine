@@ -20,7 +20,7 @@ struct Track
   size_t startSector = 0;
   size_t sectorSize = 0;
   bool mode2xa = false;
-  std::shared_ptr<BinaryFile> file{};
+  std::shared_ptr<BinaryFile> file;
   size_t totalSectors = 0;
   size_t fileOffset = 0;
 

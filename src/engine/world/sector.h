@@ -6,7 +6,6 @@
 #include "serialization/serialization_fwd.h"
 
 #include <cstddef>
-#include <functional>
 #include <optional>
 #include <vector>
 

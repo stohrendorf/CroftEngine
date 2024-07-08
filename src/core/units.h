@@ -4,6 +4,7 @@
 
 #include <cmath>
 #include <cstdint>
+#include <gsl/gsl-lite.hpp>
 
 namespace core
 {
@@ -47,12 +48,12 @@ QS_DECLARE_QUANTITY(Shade, int16_t, "shade");
 QS_DECLARE_QUANTITY(Intensity, int16_t, "intensity");
 QS_DECLARE_QUANTITY(Brightness, float, "brightness");
 
-[[nodiscard]] inline constexpr Brightness toBrightness(const Shade& shade)
+[[nodiscard]] constexpr Brightness toBrightness(const Shade& shade)
 {
   return Brightness{2.0f - shade.get<float>() / 4096.0f};
 }
 
-[[nodiscard]] inline constexpr Brightness toBrightness(const Intensity& intensity)
+[[nodiscard]] constexpr Brightness toBrightness(const Intensity& intensity)
 {
   return Brightness{intensity.get<float>() / 4096.0f};
 }

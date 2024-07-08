@@ -1,6 +1,9 @@
 #include "pathfinder.h"
 
 #include "core/interval.h"
+#include "core/magic.h"
+#include "core/units.h"
+#include "core/vec.h"
 #include "engine/script/reflection.h"
 #include "engine/world/box.h"
 #include "engine/world/world.h"
@@ -19,8 +22,9 @@
 #include <algorithm>
 #include <boost/assert.hpp>
 #include <cstdint>
-#include <exception>
 #include <functional>
+#include <gsl/gsl-lite.hpp>
+#include <utility>
 
 namespace engine::ai
 {

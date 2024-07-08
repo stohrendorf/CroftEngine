@@ -2,6 +2,9 @@
 
 #include "listdisplaymenustate.h"
 
+#include <cstddef>
+#include <memory>
+
 namespace menu
 {
 class NewGameMenuState : public ListDisplayMenuState

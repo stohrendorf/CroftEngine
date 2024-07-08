@@ -4,6 +4,7 @@
 #include "ui/ui.h"
 
 #include <algorithm>
+#include <cstdint>
 #include <gl/pixel.h>
 #include <glm/common.hpp>
 #include <gsl/gsl-lite.hpp>

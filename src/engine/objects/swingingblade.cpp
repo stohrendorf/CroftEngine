@@ -19,7 +19,9 @@
 
 #include <bitset>
 #include <gl/renderstate.h>
+#include <gsl/gsl-lite.hpp>
 #include <memory>
+#include <string>
 
 namespace engine::objects
 {

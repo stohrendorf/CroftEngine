@@ -2,6 +2,13 @@
 
 #include "loader/file/texture.h"
 
+#include <array>
+#include <glm/common.hpp>
+#include <glm/fwd.hpp>
+#include <glm/vec2.hpp>
+#include <limits>
+#include <utility>
+
 namespace engine::world
 {
 struct AtlasTile

@@ -5,6 +5,7 @@
 #include "core/genericvec.h"
 #include "core/interval.h"
 #include "core/magic.h"
+#include "core/units.h"
 #include "engine/engine.h"
 #include "engine/items_tr1.h"
 #include "engine/location.h"
@@ -23,8 +24,9 @@
 #include "serialization/serialization.h"
 #include "util/helpers.h"
 
-#include <exception>
+#include <gsl/gsl-lite.hpp>
 #include <map>
+#include <memory>
 #include <optional>
 
 namespace engine::ai

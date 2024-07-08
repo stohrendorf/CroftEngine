@@ -2,12 +2,13 @@
 
 #include "core/angle.h"
 #include "core/id.h"
+#include "core/units.h"
 #include "core/vec.h"
+#include "engine/items_tr1.h"
 #include "engine/objectmanager.h"
 #include "engine/objects/laraobject.h"
 #include "engine/objects/objectstate.h"
 #include "engine/skeletalmodelnode.h"
-#include "engine/world/animation.h"
 #include "engine/world/skeletalmodeltype.h"
 #include "engine/world/world.h"
 #include "menuringtransform.h"
@@ -30,6 +31,7 @@
 #include <gsl/gsl-lite.hpp>
 #include <gslu.h>
 #include <initializer_list>
+#include <memory>
 #include <optional>
 #include <utility>
 

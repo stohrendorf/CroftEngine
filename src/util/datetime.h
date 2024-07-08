@@ -3,8 +3,11 @@
 #include "core/i18n.h"
 
 #include <boost/format.hpp>
+#include <chrono>
 #include <ctime>
+#include <filesystem>
 #include <gsl/gsl-lite.hpp>
+#include <iomanip>
 #include <sstream>
 #include <string>
 

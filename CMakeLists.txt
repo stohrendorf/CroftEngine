@@ -63,11 +63,16 @@ include( get_openal )
 include( get_utf8cpp )
 include( get_gettext )
 
+set( _tidy_tmp ${CMAKE_CXX_CLANG_TIDY} )
+set( CMAKE_CXX_CLANG_TIDY "" )
+set( ${_c4_uprefix}LINT_CLANG_TIDY OFF )
 add_subdirectory( 3rdparty/rapidyaml EXCLUDE_FROM_ALL )
 add_subdirectory( 3rdparty/type_safe EXCLUDE_FROM_ALL )
 add_subdirectory( 3rdparty/chillout EXCLUDE_FROM_ALL )
 add_subdirectory( 3rdparty/cpu_features EXCLUDE_FROM_ALL )
 add_subdirectory( 3rdparty/ValveFileVDF EXCLUDE_FROM_ALL )
+set( CMAKE_CXX_CLANG_TIDY ${_tidy_tmp} )
+
 add_subdirectory( src )
 
 if( UNIX )

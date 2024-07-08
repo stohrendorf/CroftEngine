@@ -6,8 +6,15 @@
 
 #include <array>
 #include <boost/algorithm/string/trim.hpp>
+#include <cstddef>
+#include <cstdint>
 #include <gl/pixel.h>
+#include <glm/vec2.hpp>
+#include <gsl/gsl-lite.hpp>
+#include <string>
+#include <tuple>
 #include <utility>
+#include <vector>
 
 namespace ui
 {

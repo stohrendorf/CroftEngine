@@ -2,6 +2,7 @@
 
 #include "serialization.h"
 
+#include <functional>
 #include <gsl/gsl-lite.hpp>
 #include <vector>
 
@@ -18,7 +19,7 @@ struct VectorElement final
   std::reference_wrapper<const std::vector<T>> vec;
   std::reference_wrapper<const T*> element;
 
-  explicit VectorElement(std::reference_wrapper<const std::vector<T>>&& vec, std::reference_wrapper<T*>&& element)
+  explicit VectorElement(std::reference_wrapper<const std::vector<T>>&& vec, const std::reference_wrapper<T*>& element)
       : vec{std::move(vec)}
       , element{const_cast<const T*&>(element.get())}
   {
@@ -30,14 +31,15 @@ struct VectorElement final
   {
   }
 
-  explicit VectorElement(std::reference_wrapper<const std::vector<T>>&& vec, std::reference_wrapper<T* const>&& element)
+  explicit VectorElement(std::reference_wrapper<const std::vector<T>>&& vec,
+                         const std::reference_wrapper<T* const>& element)
       : vec{std::move(vec)}
       , element{const_cast<const T*&>(element.get())}
   {
   }
 
   explicit VectorElement(std::reference_wrapper<const std::vector<T>>&& vec,
-                         std::reference_wrapper<const T* const>&& element)
+                         const std::reference_wrapper<const T* const>& element)
       : vec{std::move(vec)}
       , element{const_cast<const T*&>(element.get())}
   {

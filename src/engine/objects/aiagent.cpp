@@ -1,9 +1,13 @@
 #include "aiagent.h"
 
+#include "core/angle.h"
 #include "core/boundingbox.h"
 #include "core/genericvec.h"
 #include "core/interval.h"
 #include "core/magic.h"
+#include "core/units.h"
+#include "core/vec.h"
+#include "engine/ai/ai.h"
 #include "engine/ai/pathfinder.h"
 #include "engine/collisioninfo.h"
 #include "engine/engine.h"
@@ -23,19 +27,22 @@
 #include "laraobject.h"
 #include "modelobject.h"
 #include "object.h"
+#include "qs/quantity.h"
 #include "serialization/quantity.h"
 #include "serialization/serialization.h"
 #include "util/helpers.h"
 
+#include <algorithm>
 #include <boost/assert.hpp>
-#include <boost/iterator/iterator_facade.hpp>
-#include <boost/iterator/transform_iterator.hpp>
 #include <boost/log/trivial.hpp>
 #include <boost/range/adaptor/map.hpp>
-#include <exception>
+#include <cstddef>
+#include <cstdint>
 #include <gl/renderstate.h>
-#include <iosfwd>
+#include <gsl/gsl-lite.hpp>
 #include <map>
+#include <memory>
+#include <string>
 
 namespace engine::objects
 {

@@ -1,11 +1,15 @@
 #include "node.h"
 
+#include "core/interval.h"
 #include "rendercontext.h"
 #include "visitor.h"
 
+#include <algorithm>
 #include <gl/renderstate.h>
+#include <gsl/gsl-lite.hpp>
 #include <gslu.h>
 #include <optional>
+#include <tuple>
 
 namespace render::scene
 {

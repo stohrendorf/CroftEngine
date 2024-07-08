@@ -1,11 +1,16 @@
+#ifdef __clang__
+#  pragma clang diagnostic push
+#  pragma ide diagnostic ignored "misc-include-cleaner"
+#endif
+
 #ifdef WIN32
 #  define WIN32_LEAN_AND_MEAN
 #endif
 
-// --- FIXME: for whatever reason, compilation fails if this isn't included before mainwindow.h
 #include <ryml.hpp>
 #include <ryml_std.hpp>
-// ---
+// FIXME ryml must be included before Qt, because it rolls its own macro definition of "emit"
+
 #include "discfs.h"
 #include "discimage.h"
 #include "downloadprogress.h"
@@ -21,7 +26,9 @@
 
 #include <boost/algorithm/string/case_conv.hpp>
 #include <boost/log/trivial.hpp>
-#include <boost/throw_exception.hpp>
+#include <filesystem>
+#include <gsl/gsl-lite.hpp>
+#include <memory>
 #include <QColorDialog>
 #include <QDesktopServices>
 #include <QFileDialog>
@@ -29,6 +36,7 @@
 #include <QNetworkRequest>
 #include <QSettings>
 #include <set>
+#include <vector>
 
 #ifdef WIN32
 #  ifdef _MSC_VER
@@ -49,7 +57,9 @@ namespace
 {
 const char* const LanguageConfigKey = "launcher-language";
 const char* const GameflowConfigKey = "launcher-gameflow";
+#ifdef CE_GITHUB_API_KEY
 const char* const LastUpdateCheck = "launcher-updatecheck";
+#endif
 const char* const LastCheckedVersion = "launcher-updateversion";
 const int IdRole = Qt::UserRole + 1;
 const int AuthorRole = Qt::UserRole + 2;
@@ -136,6 +146,8 @@ MainWindow::MainWindow(QWidget* parent)
     m_languages.sort(0);
   }
 
+  const auto engineDataDir = findEngineDataDir();
+  gsl_Assert(engineDataDir.has_value());
   {
     connect(ui->gameflows, &QListView::clicked, this, &MainWindow::onGameflowSelected);
 
@@ -145,7 +157,8 @@ MainWindow::MainWindow(QWidget* parent)
 
     std::vector<std::tuple<std::string, gameflow::Meta>> metas;
     const std::filesystem::directory_iterator end{};
-    for(std::filesystem::directory_iterator it{findEngineDataDir().value() / "gameflows"}; it != end; ++it)
+    // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
+    for(std::filesystem::directory_iterator it{engineDataDir.value() / "gameflows"}; it != end; ++it)
     {
       if(!std::filesystem::is_regular_file(it->path() / "meta.yml"))
         continue;
@@ -261,8 +274,11 @@ MainWindow::MainWindow(QWidget* parent)
   }
 
   ui->engineVersion->setText(QString::fromLatin1(CE_VERSION));
-  ui->dataLocation->setText(QString::fromUtf8(findUserDataDir().value().string().c_str()));
-  ui->engineDataLocation->setText(QString::fromLatin1(findEngineDataDir().value().string().c_str()));
+  const auto userDataDir = findUserDataDir();
+  // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
+  ui->dataLocation->setText(QString::fromUtf8(userDataDir.value().string().c_str()));
+  // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
+  ui->engineDataLocation->setText(QString::fromLatin1(engineDataDir.value().string().c_str()));
 
   connect(ui->openDataLocation, &QPushButton::clicked, this, &MainWindow::onOpenDataLocationClicked);
   connect(ui->migrateBtn, &QPushButton::clicked, this, &MainWindow::onMigrateClicked);
@@ -271,7 +287,8 @@ MainWindow::MainWindow(QWidget* parent)
   connect(ui->disableGlidos, &QPushButton::clicked, this, &MainWindow::onDisableGlidosClicked);
   connect(ui->btnChooseColor, &QPushButton::clicked, this, &MainWindow::onChooseColorClicked);
 
-  if(std::filesystem::is_regular_file(findUserDataDir().value() / "network.yaml"))
+  // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
+  if(std::filesystem::is_regular_file(userDataDir.value() / "network.yaml"))
   {
     auto cfg = NetworkConfig::load();
 
@@ -284,7 +301,7 @@ MainWindow::MainWindow(QWidget* parent)
   }
   else
   {
-    // NOLINTNEXTLINE(cert-msc50-cpp)
+    // NOLINTNEXTLINE(cert-msc50-cpp, *-mt-unsafe)
     m_ghostColor = QColor::fromRgb(std::rand() % 256, std::rand() % 256, std::rand() % 256);
   }
 
@@ -299,8 +316,10 @@ MainWindow::~MainWindow()
   delete ui;
 }
 
+// NOLINTNEXTLINE(*-convert-member-functions-to-static)
 void MainWindow::onOpenDataLocationClicked()
 {
+  // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
   QDesktopServices::openUrl("file:///" + QString::fromUtf8(findUserDataDir().value().string().c_str()));
 }
 
@@ -311,6 +330,7 @@ void MainWindow::onImportClicked()
   const auto downloadSoundtrackIfNecessary = [this](const std::string& gameflowId)
   {
     const auto downloadSoundtrack = ui->gameflows->currentIndex().data(DownloadSoundtrackRole).toBool();
+    // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
     const auto userDataDir = findUserDataDir().value();
     if(downloadSoundtrack && !std::filesystem::is_regular_file(userDataDir / "data" / gameflowId / "AUDIO" / "002.ogg"))
     {
@@ -410,6 +430,7 @@ void MainWindow::onImportClicked()
         return;
       }
 
+      // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
       const auto dataRoot = findUserDataDir().value() / "data" / gameflow.toStdString();
 
       while(archive.next())
@@ -523,6 +544,7 @@ void MainWindow::onImportClicked()
         return;
       }
 
+      // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
       const auto dataRoot = findUserDataDir().value() / "data" / gameflow.toStdString();
 
       while(archive.next())
@@ -668,6 +690,8 @@ bool MainWindow::importBaseGameData()
   tombAtiExePath = tryGetSteamGamePath("tombati.exe");
 #endif
 
+  const auto userDataDir = findUserDataDir();
+  gsl_Assert(userDataDir.has_value());
   if(gameDatPath.has_value())
   {
     QMessageBox askUseFoundImage;
@@ -683,7 +707,8 @@ bool MainWindow::importBaseGameData()
     askUseFoundImage.exec();
     if(askUseFoundImage.clickedButton() == useFoundImageButton)
     {
-      extractImage(*gameDatPath, findUserDataDir().value() / "data" / "tr1");
+      // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
+      extractImage(*gameDatPath, userDataDir.value() / "data" / "tr1");
       return true;
     }
   }
@@ -703,7 +728,8 @@ bool MainWindow::importBaseGameData()
     askUseFoundExe.exec();
     if(askUseFoundExe.clickedButton() == useFoundExeButton)
     {
-      const auto targetDir = findUserDataDir().value() / "data" / "tr1";
+      // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
+      const auto targetDir = userDataDir.value() / "data" / "tr1";
       const auto srcPath = QFileInfo{QString::fromUtf8(tombAtiExePath->string().c_str())}.path();
       for(const auto& subDirName : DirsToCopy)
       {
@@ -721,11 +747,13 @@ bool MainWindow::importBaseGameData()
   const auto srcPath = QFileInfo{imageOrTombExe}.path();
   if(QFileInfo{imageOrTombExe}.fileName().toLower() == "game.dat")
   {
-    extractImage(imageOrTombExe.toStdString(), findUserDataDir().value() / "data" / "tr1");
+    // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
+    extractImage(imageOrTombExe.toStdString(), userDataDir.value() / "data" / "tr1");
   }
   else
   {
-    const auto targetDir = findUserDataDir().value() / "data" / "tr1";
+    // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
+    const auto targetDir = userDataDir.value() / "data" / "tr1";
     for(const auto& subDirName : DirsToCopy)
     {
       copyDir(srcPath, targetDir, subDirName, true);
@@ -810,6 +838,8 @@ void MainWindow::onMigrateClicked()
     return;
   }
 
+  gsl_Assert(findUserDataDir().has_value());
+  // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
   const auto userDataDir = findUserDataDir().value();
   for(const auto& subDir : {"saves", "ghosts", "screenshots"})
     copyDir(QFileInfo{fileName}.path(), userDataDir, subDir, overwrite);
@@ -831,10 +861,11 @@ void MainWindow::onMigrateClicked()
   QMessageBox::information(this, tr("Data Migrated"), tr("Your old data has been migrated."));
 }
 
-void MainWindow::extractSoundtrackZip(std::filesystem::path target)
+void MainWindow::extractSoundtrackZip(const std::filesystem::path& target)
 {
   for(const auto gameflow : {"tr1", "tr1demo-part1", "tr1demo-part2", "tr1ub"})
   {
+    // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
     const auto gameflowRoot = findUserDataDir().value() / "data" / gameflow;
     if(!std::filesystem::is_directory(gameflowRoot))
     {
@@ -866,6 +897,7 @@ void MainWindow::extractSoundtrackZip(std::filesystem::path target)
 
 void MainWindow::resetConfig()
 {
+  // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
   const auto configPath = findUserDataDir().value() / "config.yaml";
   QFile::remove(configPath.string().c_str());
   QMessageBox::information(this,
@@ -925,12 +957,14 @@ void MainWindow::onSelectGlidosClicked()
 void MainWindow::setGlidosPath(const std::optional<std::string>& path)
 {
   const auto userDataPath = findUserDataDir();
+  gsl_Assert(userDataPath.has_value());
 
   std::string oldLocale = gsl::not_null{setlocale(LC_NUMERIC, nullptr)}.get();
   setlocale(LC_NUMERIC, "C");
 
   std::string buffer;
   {
+    // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
     std::ifstream file{*userDataPath / "config.yaml", std::ios::in};
     gsl_Assert(file.is_open());
     file.seekg(0, std::ios::end);
@@ -943,6 +977,7 @@ void MainWindow::setGlidosPath(const std::optional<std::string>& path)
 
   setlocale(LC_NUMERIC, oldLocale.c_str());
 
+  // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
   auto tree = ryml::parse_in_arena(c4::to_csubstr((*userDataPath / "config.yaml").string()), c4::to_csubstr(buffer));
   auto root = tree.rootref();
   if(!root["config"].is_map() || !root["config"]["renderSettings"].is_map())
@@ -971,6 +1006,7 @@ void MainWindow::setGlidosPath(const std::optional<std::string>& path)
   setlocale(LC_NUMERIC, "C");
 
   {
+    // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
     std::ofstream file{*userDataPath / "config.yaml", std::ios::out | std::ios::trunc};
     gsl_Assert(file.is_open());
     file << tree.rootref();
@@ -1170,7 +1206,7 @@ void MainWindow::downloadedReleasesJson(QNetworkReply* reply)
 
 void MainWindow::updateUpdateBar()
 {
-  QSettings settings;
+  const QSettings settings;
   auto version = settings.value(LastCheckedVersion);
   if(!version.isValid() || version.toString() == "v" CE_VERSION)
   {
@@ -1186,3 +1222,7 @@ void MainWindow::updateUpdateBar()
       .arg(version.toString(), CE_VERSION));
 }
 } // namespace launcher
+
+#ifdef __clang__
+#  pragma clang diagnostic pop
+#endif

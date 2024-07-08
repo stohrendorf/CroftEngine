@@ -1,8 +1,6 @@
 #pragma once
 
-#include "access.h"
-
-#include <ryml.hpp>
+#include <functional>
 
 namespace serialization
 {

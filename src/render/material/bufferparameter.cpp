@@ -7,8 +7,8 @@
 #include "shaderprogram.h"
 
 #include <boost/log/trivial.hpp>
+#include <functional>
 #include <gl/program.h>
-#include <iosfwd>
 
 namespace render::material
 {
@@ -40,7 +40,7 @@ bool BufferParameter::bind(const scene::Node* node, const scene::Mesh& mesh, Sha
   return true;
 }
 
-void BufferParameter::bindBoneTransformBuffer(std::function<bool()> smooth)
+void BufferParameter::bindBoneTransformBuffer(const std::function<bool()>& smooth)
 {
   m_bufferBinder = [smooth](const scene::Node* node, const scene::Mesh& /*mesh*/, gl::ShaderStorageBlock& ssb)
   {

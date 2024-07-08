@@ -5,6 +5,7 @@
 #include "core/genericvec.h"
 #include "core/interval.h"
 #include "core/magic.h"
+#include "core/units.h"
 #include "core/vec.h"
 #include "engine/audioengine.h"
 #include "engine/collisioninfo.h"
@@ -19,6 +20,7 @@
 #include "engine/world/world.h"
 #include "hid/actions.h"
 #include "hid/inputhandler.h"
+#include "loader/file/larastateid.h"
 #include "qs/qs.h"
 #include "statehandler_0.h"
 #include "statehandler_1.h"
@@ -82,8 +84,10 @@
 #include <boost/log/trivial.hpp>
 #include <boost/throw_exception.hpp>
 #include <cstdlib>
+#include <gsl/gsl-lite.hpp>
+#include <memory>
+#include <optional>
 #include <stdexcept>
-#include <type_traits>
 
 namespace engine::lara
 {

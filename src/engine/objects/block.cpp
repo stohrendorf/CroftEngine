@@ -1,8 +1,10 @@
 #include "block.h"
 
+#include "core/angle.h"
 #include "core/boundingbox.h"
 #include "core/id.h"
 #include "core/magic.h"
+#include "core/units.h"
 #include "core/vec.h"
 #include "engine/collisioninfo.h"
 #include "engine/floordata/floordata.h"
@@ -28,8 +30,10 @@
 
 #include <boost/throw_exception.hpp>
 #include <gl/renderstate.h>
+#include <gsl/gsl-lite.hpp>
 #include <memory>
 #include <stdexcept>
+#include <string>
 
 namespace engine::objects
 {

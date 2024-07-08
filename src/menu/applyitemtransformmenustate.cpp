@@ -1,11 +1,14 @@
 #include "applyitemtransformmenustate.h"
 
+#include "core/units.h"
 #include "menu/menuobject.h"
 #include "menudisplay.h"
 #include "menuring.h"
 #include "qs/qs.h"
 #include "selectedmenustate.h"
 #include "util.h"
+
+#include <memory>
 
 namespace menu
 {

@@ -53,6 +53,6 @@ public:
   void accumulateStats();
 
 private:
-  Inventory m_inventory{};
+  Inventory m_inventory;
 };
 } // namespace engine

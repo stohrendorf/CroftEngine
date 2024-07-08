@@ -1,6 +1,7 @@
 #include "avdecoder.h"
 
 #include "audio/audiostreamdecoder.h"
+#include "audio/core.h"
 #include "ffmpeg/avframeptr.h"
 #include "ffmpeg/stream.h"
 #include "ffmpeg/util.h"
@@ -10,9 +11,15 @@
 #include <boost/log/trivial.hpp>
 #include <boost/throw_exception.hpp>
 #include <cerrno>
+#include <chrono>
+#include <cstddef>
+#include <cstdint>
 #include <gsl/gsl-lite.hpp>
-#include <iosfwd>
+#include <memory>
+#include <mutex>
+#include <optional>
 #include <stdexcept>
+#include <string>
 #include <thread>
 #include <utility>
 #include <vector>
@@ -20,9 +27,12 @@
 extern "C"
 {
 #include <libavcodec/avcodec.h>
+#include <libavcodec/packet.h>
 #include <libavfilter/buffersink.h>
 #include <libavfilter/buffersrc.h>
 #include <libavformat/avformat.h>
+#include <libavutil/avutil.h>
+#include <libavutil/error.h>
 }
 
 namespace video

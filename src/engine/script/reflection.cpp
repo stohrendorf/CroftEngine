@@ -5,6 +5,8 @@
 #include "core/genericvec.h"
 #include "core/i18n.h"
 #include "core/id.h"
+#include "core/magic.h"
+#include "core/units.h"
 #include "engine/cameracontroller.h"
 #include "engine/engine.h"
 #include "engine/engineconfig.h"
@@ -37,31 +39,30 @@
 #include "util/helpers.h"
 
 #include <algorithm>
-#include <boost/format.hpp>
 #include <boost/log/trivial.hpp>
 #include <boost/range/adaptor/map.hpp>
 #include <boost/throw_exception.hpp>
 #include <chrono>
 #include <cstring>
+#include <filesystem>
 #include <gl/cimgwrapper.h>
 #include <gl/constants.h>
-#include <gl/framebuffer.h>
 #include <gl/pixel.h>
 #include <gl/program.h>
 #include <gl/sampler.h>
 #include <gl/texture2d.h>
 #include <gl/texturehandle.h>
-#include <glm/mat4x4.hpp>
 #include <glm/vec2.hpp>
 #include <gsl/gsl-lite.hpp>
-#include <gslu.h>
-#include <iosfwd>
 #include <map>
-#include <pybind11/cast.h>
+#include <memory>
+#include <optional>
 #include <pybind11/pytypes.h>
 #include <pybind11/stl.h> // IWYU pragma: keep
 #include <stdexcept>
-#include <type_traits>
+#include <string>
+#include <unordered_map>
+#include <utility>
 #include <vector>
 
 namespace render::scene
@@ -74,6 +75,7 @@ namespace engine::script
 namespace
 {
 std::unique_ptr<loader::file::level::Level> loadLevel(const gsl::not_null<Engine*>& engine,
+                                                      // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
                                                       const std::string& localPath,
                                                       const std::string& title,
                                                       loader::file::level::Game game)
@@ -92,6 +94,7 @@ std::unique_ptr<loader::file::level::Level> loadLevel(const gsl::not_null<Engine
   for(auto it = std::filesystem::directory_iterator{base}; it != std::filesystem::directory_iterator{}; ++it)
   {
 #ifndef WIN32
+    // NOLINTNEXLINE(bugprone-reserved-identifier)
 #  define _stricmp strcasecmp
 #endif
     if(_stricmp(segment.string().c_str(), it->path().filename().string().c_str()) == 0)
@@ -371,6 +374,7 @@ TitleMenu::TitleMenu(const std::string& name,
 {
 }
 
+// NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
 SplashScreen::SplashScreen(std::string path, int durationSeconds, int fadeInDurationSeconds, int fadeOutDurationSeconds)
     : m_path{std::move(path)}
     , m_durationSeconds{durationSeconds}

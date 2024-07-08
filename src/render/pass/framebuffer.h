@@ -1,11 +1,11 @@
 #pragma once
 
+#include <cstdint>
 #include <functional>
 #include <gl/pixel.h>
 #include <gl/soglb_fwd.h>
 #include <glm/vec2.hpp>
 #include <gslu.h>
-#include <memory>
 #include <string>
 
 namespace render::material
@@ -16,7 +16,7 @@ class Material;
 namespace render::scene
 {
 class Mesh;
-enum class Translucency;
+enum class Translucency : uint8_t;
 } // namespace render::scene
 
 namespace render::pass

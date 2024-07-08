@@ -1,10 +1,16 @@
 #pragma once
 
+#include <algorithm>
+#include <cstddef>
 #include <cstdint>
 #include <gl/cimgwrapper.h>
+#include <glm/vec2.hpp>
 #include <gsl/gsl-lite.hpp>
+#include <iterator>
 #include <memory>
 #include <optional>
+#include <utility>
+#include <vector>
 
 namespace render
 {
@@ -33,6 +39,7 @@ struct alignas(64) BSPTree final
 
   BSPTree() = default;
 
+  // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
   BSPTree(const int32_t x, const int32_t y, const int32_t w, const int32_t h)
       : x{x}
       , y{y}
@@ -216,7 +223,7 @@ public:
 
 class MultiTextureAtlas final
 {
-  std::vector<TextureAtlas> m_atlases{};
+  std::vector<TextureAtlas> m_atlases;
   int32_t m_pageSize;
   bool m_onlyLayout;
 

@@ -1,7 +1,11 @@
 #include "serialization.h"
 
-#include <iosfwd>
 #include <stdexcept>
+#include <string>
+
+#ifndef NDEBUG
+#  include <boost/log/trivial.hpp>
+#endif
 
 namespace serialization
 {

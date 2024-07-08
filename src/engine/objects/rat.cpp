@@ -19,6 +19,7 @@
 #include "util/helpers.h"
 
 #include <boost/assert.hpp>
+#include <gsl/gsl-lite.hpp>
 #include <memory>
 #include <optional>
 #include <utility>

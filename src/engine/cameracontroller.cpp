@@ -1,8 +1,13 @@
 #include "cameracontroller.h"
 
+#include "audio/listener.h"
+#include "core/angle.h"
 #include "core/boundingbox.h"
 #include "core/genericvec.h"
 #include "core/interval.h"
+#include "core/magic.h"
+#include "core/units.h"
+#include "core/vec.h"
 #include "engine/floordata/floordata.h"
 #include "engine/floordata/types.h"
 #include "engine/heightinfo.h"
@@ -32,15 +37,14 @@
 #include <boost/assert.hpp>
 #include <boost/log/trivial.hpp>
 #include <cstddef>
-#include <exception>
+#include <cstdint>
 #include <functional>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/mat4x4.hpp>
 #include <glm/vec3.hpp>
+#include <gsl/gsl-lite.hpp>
 #include <gslu.h>
-#include <iosfwd>
-#include <map>
-#include <type_traits>
+#include <unordered_set>
 #include <utility>
 #include <vector>
 
@@ -294,6 +298,7 @@ CameraController::CameraController(const gsl::not_null<world::World*>& world,
   m_location.position.Z -= 100_len;
 }
 
+// NOLINTNEXTLINE(*-easily-swappable-parameters)
 void CameraController::setRotationAroundLara(const core::Angle& x, const core::Angle& y) noexcept
 {
   setRotationAroundLaraX(x);
@@ -351,7 +356,7 @@ void CameraController::handleCommandSequence(const floordata::FloorDataValue* cm
   if(m_mode == CameraMode::HeavyFixedPosition)
     return;
 
-  enum class Type
+  enum class Type : uint8_t
   {
     Invalid,
     FixedCamChange,
@@ -823,8 +828,8 @@ CameraController::CameraController(const gsl::not_null<world::World*>& world,
     : Listener{gsl::not_null{world->getPresenter().getSoundEngine().get()}}
     , m_camera{std::move(camera)}
     , m_world{world}
-    , m_location{gsl::not_null{&world->getRooms()[0]}}
-    , m_lookAt{gsl::not_null{&world->getRooms()[0]}}
+    , m_location{gsl::not_null{world->getRooms().data()}}
+    , m_lookAt{gsl::not_null{world->getRooms().data()}}
 {
 }
 

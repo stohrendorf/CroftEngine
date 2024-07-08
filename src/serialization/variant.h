@@ -2,6 +2,7 @@
 
 #include "serialization.h"
 
+#include <cstddef>
 #include <variant>
 
 namespace serialization

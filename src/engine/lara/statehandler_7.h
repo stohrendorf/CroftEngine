@@ -1,6 +1,12 @@
 #pragma once
 
+#include "abstractstatehandler.h"
+#include "core/magic.h"
+#include "engine/collisioninfo.h"
+#include "engine/objects/laraobject.h"
 #include "statehandler_turnslow.h"
+
+#include <gsl/gsl-lite.hpp>
 
 namespace engine::lara
 {

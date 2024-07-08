@@ -2,7 +2,10 @@
 
 #include <archive.h>
 #include <archive_entry.h>
+#include <filesystem>
 #include <fstream>
+#include <gsl/gsl-lite.hpp>
+#include <ios>
 #include <string>
 #include <vector>
 
@@ -39,9 +42,9 @@ void WriteOnlyXzArchive::addFile(const std::filesystem::path& srcPath, const std
   buffer.resize(1024);
   std::ifstream f{srcPath, std::ios::in | std::ios::binary};
   gsl_Assert(f.is_open());
-  do
+  while(f.read(buffer.data(), gsl::narrow<std::streamsize>(buffer.size())).gcount() > 0)
   {
-    f.read(buffer.data(), gsl::narrow<std::streamsize>(buffer.size()));
+    ;
     gsl_Assert(archive_write_data(m_archive.get(), buffer.data(), f.gcount()) == f.gcount());
-  } while(f.gcount() > 0);
+  }
 }

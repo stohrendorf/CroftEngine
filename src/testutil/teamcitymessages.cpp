@@ -51,7 +51,7 @@ public:
   {
     std::string result;
 
-    for(char c : s)
+    for(const char c : s)
     {
       switch(c)
       {

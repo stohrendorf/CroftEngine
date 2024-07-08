@@ -17,6 +17,11 @@
 
 extern "C"
 {
+#include <libavcodec/packet.h>
+}
+
+extern "C"
+{
 #include <libavformat/avformat.h>
 }
 
@@ -83,6 +88,6 @@ struct AVDecoder final : public audio::AbstractStreamSource
 private:
   [[nodiscard]] std::chrono::high_resolution_clock::time_point getVideoTs();
 
-  std::chrono::high_resolution_clock::time_point m_playStart{};
+  std::chrono::high_resolution_clock::time_point m_playStart;
 };
 } // namespace video

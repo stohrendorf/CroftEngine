@@ -15,7 +15,11 @@
 #include <gsl/gsl-lite.hpp>
 #include <gslu.h>
 #include <map>
+#include <memory>
+#include <string>
 #include <tuple>
+#include <utility>
+#include <vector>
 
 namespace engine
 {

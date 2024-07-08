@@ -3,6 +3,10 @@
 #include "bindableresource.h" // IWYU pragma: export
 #include "typetraits.h"
 
+#include <cstddef>
+#include <functional>
+#include <gl/glassert.h>
+#include <gl/resource.h>
 #include <gsl/gsl-lite.hpp>
 #include <string_view>
 
@@ -163,18 +167,12 @@ public:
   using Buffer<T, api::BufferTarget::ElementArrayBuffer>::empty;
 
   explicit ElementArrayBuffer(const std::string_view& label, api::BufferUsage usage, const gsl::span<const T>& data)
-      : Buffer<T, api::BufferTarget::ElementArrayBuffer>
-  {
-    label, usage, data
-  }
+      : Buffer<T, api::BufferTarget::ElementArrayBuffer>{label, usage, data}
   {
   }
 
   explicit ElementArrayBuffer(const std::string_view& label, api::BufferUsage usage, const T& data)
-      : Buffer<T, api::BufferTarget::ElementArrayBuffer>
-  {
-    label, usage, data
-  }
+      : Buffer<T, api::BufferTarget::ElementArrayBuffer>{label, usage, data}
   {
   }
 

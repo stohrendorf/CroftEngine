@@ -23,9 +23,8 @@
 #include "ui/ui.h"
 #include "util.h"
 
-#include <glm/vec2.hpp>
+#include <memory>
 #include <optional>
-#include <string>
 #include <utility>
 #include <vector>
 

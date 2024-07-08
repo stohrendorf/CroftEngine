@@ -2,8 +2,6 @@
 
 #include "serialization_fwd.h"
 
-#include <gsl/gsl-lite.hpp>
-
 namespace serialization
 {
 template<typename T, bool Loading>
@@ -13,7 +11,7 @@ template<typename T>
 struct access<T, false>
 {
   template<typename TContext, typename T2>
-  static inline auto dispatch(const T2& data, const Serializer<TContext>& ser) -> decltype(data.serialize(ser), void())
+  static auto dispatch(const T2& data, const Serializer<TContext>& ser) -> decltype(data.serialize(ser), void())
   {
     static_assert(
       std::is_same_v<std::remove_cv_t<std::remove_reference_t<T>>, std::remove_cv_t<std::remove_reference_t<T2>>>);
@@ -21,7 +19,7 @@ struct access<T, false>
   }
 
   template<typename TContext, typename T2>
-  static inline auto dispatch(const T2& data, const Serializer<TContext>& ser) -> decltype(serialize(data, ser), void())
+  static auto dispatch(const T2& data, const Serializer<TContext>& ser) -> decltype(serialize(data, ser), void())
   {
     static_assert(
       std::is_same_v<std::remove_cv_t<std::remove_reference_t<T>>, std::remove_cv_t<std::remove_reference_t<T2>>>);
@@ -33,7 +31,7 @@ template<typename T>
 struct access<T, true>
 {
   template<typename TContext, typename T2>
-  static inline auto dispatch(T2& data, const Deserializer<TContext>& ser) -> decltype(data.deserialize(ser), void())
+  static auto dispatch(T2& data, const Deserializer<TContext>& ser) -> decltype(data.deserialize(ser), void())
   {
     static_assert(
       std::is_same_v<std::remove_cv_t<std::remove_reference_t<T>>, std::remove_cv_t<std::remove_reference_t<T2>>>);
@@ -41,7 +39,7 @@ struct access<T, true>
   }
 
   template<typename TContext, typename T2>
-  static inline auto dispatch(T2& data, const Deserializer<TContext>& ser) -> decltype(deserialize(data, ser), void())
+  static auto dispatch(T2& data, const Deserializer<TContext>& ser) -> decltype(deserialize(data, ser), void())
   {
     static_assert(
       std::is_same_v<std::remove_cv_t<std::remove_reference_t<T>>, std::remove_cv_t<std::remove_reference_t<T2>>>);
@@ -49,7 +47,7 @@ struct access<T, true>
   }
 
   template<typename TContext, typename T2 = T>
-  static inline auto dispatch(const Deserializer<TContext>& ser) -> decltype(T2::create(ser))
+  static auto dispatch(const Deserializer<TContext>& ser) -> decltype(T2::create(ser))
   {
     static_assert(
       std::is_same_v<std::remove_cv_t<std::remove_reference_t<T>>, std::remove_cv_t<std::remove_reference_t<T2>>>);
@@ -57,7 +55,7 @@ struct access<T, true>
   }
 
   template<typename TContext, typename T2 = T>
-  static inline auto dispatch(const Deserializer<TContext>& ser) -> decltype(create(TypeId<T2>{}, ser))
+  static auto dispatch(const Deserializer<TContext>& ser) -> decltype(create(TypeId<T2>{}, ser))
   {
     static_assert(
       std::is_same_v<std::remove_cv_t<std::remove_reference_t<T>>, std::remove_cv_t<std::remove_reference_t<T2>>>);

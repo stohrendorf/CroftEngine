@@ -32,7 +32,7 @@ public:
 protected:
   explicit Bitmap(uint32_t lines);
 
-  std::vector<uint32_t> m_data{};
+  std::vector<uint32_t> m_data;
   uint32_t* m_block = nullptr;
   uint32_t m_linesLeft;
   glm::ivec2 m_size{};

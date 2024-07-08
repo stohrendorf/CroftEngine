@@ -2,6 +2,11 @@
 
 #include <algorithm>
 #include <cstddef>
+#include <cstdint>
+#include <glm/vec2.hpp>
+#include <gsl/gsl-lite.hpp>
+#include <mutex>
+#include <tuple>
 #include <utility>
 
 Bitmap::Bitmap(const glm::ivec2& size)
@@ -10,7 +15,7 @@ Bitmap::Bitmap(const glm::ivec2& size)
 {
   gsl_Assert(size.x > 0 && size.y > 0);
   m_data.resize(gsl::narrow_cast<size_t>(size.x) * gsl::narrow_cast<size_t>(size.y));
-  // NOLINTNEXLINE(cppcoreguidelines-prefer-member-initializer)
+  // NOLINTNEXTLINE(cppcoreguidelines-prefer-member-initializer)
   m_block = m_data.data();
 }
 
@@ -30,6 +35,7 @@ Bitmap::Bitmap(const glm::ivec2& size, const gsl::span<const uint32_t>& rgba)
     const auto ptr = reinterpret_cast<uint8_t*>(&px);
     std::swap(ptr[0], ptr[2]);
   }
+  // NOLINTNEXTLINE(cppcoreguidelines-prefer-member-initializer)
   m_block = m_data.data();
 }
 

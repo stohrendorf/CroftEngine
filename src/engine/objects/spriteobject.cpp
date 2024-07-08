@@ -1,6 +1,7 @@
 #include "spriteobject.h"
 
 #include "core/id.h"
+#include "core/units.h"
 #include "engine/engine.h"
 #include "engine/engineconfig.h"
 #include "engine/lighting.h"
@@ -16,20 +17,21 @@
 #include "qs/quantity.h"
 #include "render/rendersettings.h"
 #include "render/scene/mesh.h"
+#include "render/scene/node.h"
 #include "serialization/quantity.h"
 #include "serialization/serialization.h"
 #include "serialization/vector_element.h"
 
-#include <algorithm>
-#include <exception>
 #include <functional>
 #include <gl/buffer.h>
 #include <gl/program.h>
 #include <glm/fwd.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/mat4x4.hpp>
-#include <glm/vec2.hpp>
+#include <gsl/gsl-lite.hpp>
 #include <gslu.h>
+#include <memory>
+#include <string>
 #include <vector>
 
 namespace render::scene

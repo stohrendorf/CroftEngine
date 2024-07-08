@@ -27,10 +27,9 @@
 #include "writeonlyxzarchive.h"
 
 #include <boost/log/trivial.hpp>
-#include <glm/vec2.hpp>
+#include <filesystem>
 #include <gsl/gsl-lite.hpp>
-#include <gslu.h>
-#include <sstream>
+#include <memory>
 #include <string>
 #include <system_error>
 

@@ -1,6 +1,7 @@
 #include "levelstats.h"
 
 #include "core/i18n.h"
+#include "core/magic.h"
 #include "engine/player.h"
 #include "engine/presenter.h"
 #include "hid/actions.h"
@@ -9,10 +10,8 @@
 #include "ui/ui.h"
 #include "util/helpers.h"
 
-#include <boost/format.hpp>
-#include <chrono>
-#include <gl/pixel.h>
 #include <glm/vec2.hpp>
+#include <string>
 
 namespace ui
 {

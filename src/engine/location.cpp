@@ -1,6 +1,7 @@
 #include "location.h"
 
 #include "core/magic.h"
+#include "core/vec.h"
 #include "engine/world/world.h"
 #include "qs/qs.h"
 #include "render/scene/node.h"
@@ -9,11 +10,10 @@
 #include "world/room.h"
 #include "world/sector.h"
 
-#include <exception>
 #include <functional>
+#include <gsl/gsl-lite.hpp>
 #include <memory>
 #include <ostream>
-#include <string>
 
 namespace engine
 {

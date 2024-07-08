@@ -1,17 +1,22 @@
 #include "helpers.h"
 
+#include "core/angle.h"
 #include "core/i18n.h"
+#include "core/units.h"
+#include "core/vec.h"
 #include "ui/util.h"
 
-#include <boost/format.hpp>
 #include <boost/log/trivial.hpp>
 #include <boost/throw_exception.hpp>
 #include <chrono>
+#include <cstdint>
 #include <cstdlib>
+#include <filesystem>
 #include <glm/gtc/type_ptr.hpp>
+#include <glm/mat4x4.hpp>
 #include <gsl/gsl-lite.hpp>
-#include <sstream>
 #include <stdexcept>
+#include <string>
 
 namespace util
 {

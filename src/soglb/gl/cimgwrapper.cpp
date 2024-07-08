@@ -1,5 +1,13 @@
 #include "cimgwrapper.h"
 
+#include <array>
+#include <cstddef>
+#include <cstdint>
+#include <glm/vec2.hpp>
+#include <iosfwd>
+#include <memory>
+#include <string>
+
 #ifdef _X
 #  undef _X
 #endif
@@ -31,14 +39,14 @@ struct PcxHeader
   uint16_t maxY;
   uint16_t dpiX;
   uint16_t dpiY;
-  RGB8 colorMap[16];
+  std::array<RGB8, 16> colorMap;
   uint8_t _reserved;
   uint8_t planes;
   uint16_t bytesPerLine;
   uint16_t paletteType;
   uint16_t width;
   uint16_t height;
-  uint8_t _pad[54];
+  std::array<uint8_t, 54> _pad;
 };
 static_assert(sizeof(PcxHeader) == 128);
 } // namespace
@@ -299,8 +307,8 @@ std::unique_ptr<cimg_library::CImg<uint8_t>> CImgWrapper::loadPcx(const std::fil
   auto px = reinterpret_cast<SRGBA8*>(img->data());
   gsl_Assert(px != nullptr);
 
-  using Color = uint8_t[3];
-  using Palette = Color[256];
+  using Color = std::array<uint8_t, 3>;
+  using Palette = std::array<Color, 256>;
   static_assert(sizeof(Palette) == 3 * 256);
   Palette palette;
   stream.seekg(-static_cast<std::ifstream::pos_type>(sizeof(Palette)), std::ios::end);

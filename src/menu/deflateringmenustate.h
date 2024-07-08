@@ -4,6 +4,7 @@
 #include "menustate.h"
 #include "qs/qs.h"
 
+#include <cstdint>
 #include <memory>
 
 namespace engine::world
@@ -28,15 +29,15 @@ private:
   static constexpr core::Frame Duration = 32_frame / 2;
   core::Frame m_duration{Duration};
   std::unique_ptr<MenuState> m_next;
-  core::Length m_initialRadius{};
-  core::Angle m_initialCameraRotX{};
-  core::Length m_cameraSpeedY{};
+  core::Length m_initialRadius;
+  core::Angle m_initialCameraRotX;
+  core::Length m_cameraSpeedY;
   core::Length m_targetPosY;
   core::Length m_targetPosZ;
   core::Angle m_targetRotX;
 
 public:
-  enum class Direction
+  enum class Direction : uint8_t
   {
     Up,
     Down,

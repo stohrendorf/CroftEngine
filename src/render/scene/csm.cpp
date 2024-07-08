@@ -10,11 +10,15 @@
 #include "translucency.h"
 
 #include <algorithm>
+#include <array>
+#include <cmath>
+#include <cstddef>
+#include <cstdint>
+#include <functional>
 #include <gl/buffer.h>
 #include <gl/constants.h>
 #include <gl/debuggroup.h>
 #include <gl/framebuffer.h>
-#include <gl/glassert.h>
 #include <gl/pixel.h>
 #include <gl/program.h>
 #include <gl/renderstate.h>
@@ -25,10 +29,13 @@
 #include <glm/common.hpp>
 #include <glm/ext/matrix_clip_space.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/mat4x4.hpp>
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
+#include <gsl/gsl-lite.hpp>
 #include <gslu.h>
 #include <limits>
+#include <memory>
 #include <optional>
 #include <string>
 #include <utility>

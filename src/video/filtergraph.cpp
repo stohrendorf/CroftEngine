@@ -12,6 +12,7 @@ extern "C"
 {
 #include <libavfilter/avfilter.h>
 #include <libavformat/avformat.h>
+#include <libavutil/mem.h>
 }
 
 namespace video

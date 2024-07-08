@@ -2,6 +2,7 @@
 
 #include "closepassportmenustate.h"
 #include "core/i18n.h"
+#include "core/units.h"
 #include "donemenustate.h"
 #include "engine/audioengine.h"
 #include "engine/engine.h"
@@ -20,12 +21,15 @@
 #include "newgamemenustate.h"
 #include "qs/qs.h"
 #include "savegamelistmenustate.h"
+#include "ui/text.h"
 #include "ui/ui.h"
 #include "util.h"
 
 #include <boost/assert.hpp>
-#include <glm/vec2.hpp>
-#include <gsl/gsl-lite.hpp>
+#include <boost/throw_exception.hpp>
+#include <memory>
+#include <optional>
+#include <stdexcept>
 #include <utility>
 
 namespace menu
@@ -192,7 +196,6 @@ std::unique_ptr<MenuState> PassportMenuState::onFrame(ui::Ui& ui, engine::world:
       break;
     default:
       BOOST_THROW_EXCEPTION(std::domain_error("invalid game page"));
-      break;
     }
   }
 

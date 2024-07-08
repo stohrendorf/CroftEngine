@@ -11,8 +11,10 @@
 #include "world/room.h"
 
 #include <boost/assert.hpp>
+#include <cstdint>
 #include <gsl/gsl-lite.hpp>
 #include <tuple>
+#include <utility>
 
 namespace engine
 {
@@ -48,7 +50,7 @@ bool clampY(const core::TRVec& start, Location& goal, const ObjectManager& objec
   return true;
 }
 
-enum class CollisionType
+enum class CollisionType : uint8_t
 {
   Vertical, // resulting position collides with ceiling or floor
   Wall,     // resulting position is valid but did not reach the goal

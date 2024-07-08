@@ -14,7 +14,6 @@
 #include "engine/presenter.h"
 #include "engine/skeletalmodelnode.h"
 #include "engine/weapontype.h"
-#include "engine/world/animation.h"
 #include "engine/world/skeletalmodeltype.h"
 #include "engine/world/world.h"
 #include "hid/actions.h"
@@ -25,6 +24,7 @@
 #include "objectstate.h"
 #include "qs/qs.h"
 
+#include <gsl/gsl-lite.hpp>
 #include <memory>
 
 namespace engine::objects

@@ -2,6 +2,7 @@
 
 #include "serialization_fwd.h"
 
+#include <cstdint>
 #include <gsl/gsl-lite.hpp>
 #include <ratio>
 

@@ -8,6 +8,7 @@
 
 #include <boost/throw_exception.hpp>
 #include <stdexcept>
+#include <string>
 
 namespace hid
 {

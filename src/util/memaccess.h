@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstddef>
 #include <cstdint>
 #include <gsl/gsl-lite.hpp>
 
@@ -13,7 +14,14 @@ constexpr T readUnalignedLE(const uint8_t* data)
   T result{0};
   for(size_t i = 0; i < sizeof(T); ++i)
   {
+#ifdef __clang__
+#  pragma clang diagnostic push
+#  pragma ide diagnostic ignored "NullDereference"
+#endif
     result |= static_cast<T>(data[i]) << (8u * i);
+#ifdef __clang__
+#  pragma clang diagnostic pop
+#endif
   }
   return result;
 }

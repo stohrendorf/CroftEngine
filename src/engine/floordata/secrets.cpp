@@ -3,6 +3,7 @@
 #include "floordata.h"
 #include "types.h"
 
+#include <bitset>
 #include <boost/assert.hpp>
 #include <boost/throw_exception.hpp>
 #include <stdexcept>

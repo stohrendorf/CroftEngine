@@ -1,7 +1,8 @@
 #pragma once
 
 #include "core/boundingbox.h"
-#include "core/id.h"
+
+#include <memory>
 
 namespace render::scene
 {

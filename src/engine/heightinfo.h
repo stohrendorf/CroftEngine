@@ -23,7 +23,7 @@ class Object;
 
 namespace engine
 {
-enum class SlantClass
+enum class SlantClass : uint8_t
 {
   None,
   Max512,

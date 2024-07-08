@@ -2,16 +2,20 @@
 
 #include "core/angle.h"
 #include "core/units.h"
-#include "core/vec.h"
 #include "menuobject.h"
 
-#include <memory>
+#include <cstddef>
+#include <cstdint>
+#include <gsl/gsl-lite.hpp>
+#include <string>
+#include <utility>
+#include <vector>
 
 namespace menu
 {
 struct MenuRing
 {
-  enum class Type
+  enum class Type : uint8_t
   {
     Inventory,
     Options,

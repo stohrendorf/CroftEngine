@@ -14,7 +14,6 @@
 #include <gsl/gsl-lite.hpp>
 #include <iterator>
 #include <map>
-#include <memory>
 #include <set>
 #include <vector>
 

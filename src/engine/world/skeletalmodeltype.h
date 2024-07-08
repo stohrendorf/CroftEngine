@@ -2,12 +2,19 @@
 
 #include "core/containeroffset.h"
 #include "core/id.h"
+#include "core/units.h"
+#include "core/vec.h"
 #include "loader/file/animation.h"
 #include "rendermeshdata.h"
 
+#include <boost/assert.hpp>
+#include <cstdint>
+#include <glm/vec3.hpp>
 #include <gsl/gsl-lite.hpp>
 #include <gslu.h>
 #include <optional>
+#include <utility>
+#include <vector>
 
 namespace engine::world
 {

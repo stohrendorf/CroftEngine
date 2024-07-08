@@ -24,7 +24,7 @@ namespace ui::widgets
 class TextBox : public Widget
 {
 public:
-  enum class Alignment
+  enum class Alignment : uint8_t
   {
     Left,
     Center,

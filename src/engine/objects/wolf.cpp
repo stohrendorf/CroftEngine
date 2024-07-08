@@ -9,7 +9,6 @@
 #include "engine/ai/ai.h"
 #include "engine/particle.h"
 #include "engine/skeletalmodelnode.h"
-#include "engine/world/animation.h"
 #include "engine/world/skeletalmodeltype.h"
 #include "engine/world/world.h"
 #include "objectstate.h"
@@ -17,7 +16,9 @@
 #include "util/helpers.h"
 
 #include <boost/assert.hpp>
+#include <gsl/gsl-lite.hpp>
 #include <memory>
+#include <string>
 #include <utility>
 
 namespace engine::objects

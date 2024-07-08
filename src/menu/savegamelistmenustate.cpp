@@ -19,6 +19,7 @@
 #include "menustate.h"
 #include "requestloadmenustate.h"
 #include "savegamecleanup.h"
+#include "ui/text.h"
 #include "ui/ui.h"
 #include "ui/widgets/groupbox.h"
 #include "ui/widgets/label.h"
@@ -31,26 +32,25 @@
 
 #include <algorithm>
 #include <boost/format.hpp>
-#include <boost/log/trivial.hpp>
+#include <boost/throw_exception.hpp>
 #include <chrono>
+#include <cstdint>
 #include <ctime>
 #include <filesystem>
 #include <glm/vec2.hpp>
 #include <gsl/gsl-lite.hpp>
 #include <gslu.h>
-#include <iomanip>
-#include <locale>
 #include <map>
+#include <memory>
 #include <optional>
-#include <ratio>
-#include <sstream>
-#include <system_error>
-#include <type_traits>
+#include <stdexcept>
+#include <string>
 #include <utility>
+#include <vector>
 
 namespace menu
 {
-enum class CleanupAction
+enum class CleanupAction : uint8_t
 {
   Current,
   BeforeDate,
@@ -191,12 +191,12 @@ class SavegameListMenuState::SavegameEntry final : public ui::widgets::Widget
 public:
   explicit SavegameEntry(const std::optional<size_t>& slot,
                          const std::string& label,
-                         const std::string& levelTitle,
+                         std::string levelTitle,
                          const std::optional<std::filesystem::file_time_type>& time)
       : m_slot{slot}
       , m_label{util::escape(label)}
       , m_time{time}
-      , m_levelTitle{levelTitle}
+      , m_levelTitle{std::move(levelTitle)}
   {
   }
 

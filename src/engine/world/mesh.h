@@ -3,7 +3,6 @@
 #include "core/units.h"
 #include "core/vec.h"
 
-#include <gsl/gsl-lite.hpp>
 #include <gslu.h>
 
 namespace engine::world

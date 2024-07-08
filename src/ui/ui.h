@@ -79,6 +79,6 @@ private:
   std::shared_ptr<render::material::Material> m_material;
   std::array<gl::SRGBA8, 256> m_palette;
   glm::ivec2 m_size;
-  std::vector<UiVertex> m_vertices{};
+  std::vector<UiVertex> m_vertices;
 };
 } // namespace ui

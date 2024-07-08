@@ -3,6 +3,9 @@
 #include "core/id.h"
 #include "core/units.h"
 
+#include <cstdint>
+#include <gsl/gsl-lite.hpp>
+
 namespace engine::world
 {
 struct Animation;
@@ -19,6 +22,6 @@ struct TransitionCase
 struct Transitions
 {
   core::AnimStateId stateId{uint16_t(0)};
-  gsl::span<const TransitionCase> transitionCases{};
+  gsl::span<const TransitionCase> transitionCases;
 };
 } // namespace engine::world

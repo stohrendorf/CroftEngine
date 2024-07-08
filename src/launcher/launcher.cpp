@@ -3,10 +3,14 @@
 #include "mainwindow.h"
 #include "paths.h"
 
+#include <filesystem>
 #include <gsl/gsl-lite.hpp>
+#include <optional>
 #include <QApplication>
 #include <QDebug>
 #include <QTranslator>
+#include <string>
+#include <tuple>
 
 namespace launcher
 {
@@ -22,11 +26,15 @@ std::optional<std::tuple<std::string, std::string, bool>> showLauncher(int argc,
 
   const QApplication app{argc, argv};
 
+  const auto engineDataDir = findEngineDataDir();
+  gsl_Assert(engineDataDir.has_value());
+
   QTranslator translator;
   if(!translator.load(QLocale(),
                       QLatin1String("croftengine"),
                       QLatin1String("_"),
-                      QString::fromLatin1((findEngineDataDir().value() / "i18n").string().c_str()),
+                      // NOLINTNEXTLINE(*-unchecked-optional-access)
+                      QString::fromLatin1((engineDataDir.value() / "i18n").string().c_str()),
                       QLatin1String(".qm")))
   {
     qWarning() << "failed to load translations for" << QLocale() << "/" << QLocale().name();

@@ -5,13 +5,13 @@
 #include "renderable.h"
 #include "translucency.h"
 
+#include <cstdint>
 #include <gl/api/gl.hpp>
 #include <gl/soglb_fwd.h>
 #include <glm/vec2.hpp>
 #include <gslu.h>
 #include <memory>
 #include <string>
-#include <utility>
 
 namespace render::material
 {
@@ -22,7 +22,7 @@ namespace render::scene
 {
 class RenderContext;
 class Node;
-enum class Translucency;
+enum class Translucency : uint8_t;
 
 class Mesh
     : public Renderable
@@ -60,7 +60,7 @@ public:
   }
 
 private:
-  material::MaterialGroup m_materialGroup{};
+  material::MaterialGroup m_materialGroup;
   gl::api::PrimitiveType m_primitiveType{};
 
   virtual void drawElements(Translucency translucencySelector) = 0;

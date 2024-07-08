@@ -3,9 +3,9 @@
 #include "api/gl.hpp"
 #include "glassert.h"
 
+#include <cstdint>
 #include <glm/common.hpp>
 #include <gsl/gsl-lite.hpp>
-#include <utility>
 
 namespace gl
 {

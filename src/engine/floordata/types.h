@@ -41,7 +41,7 @@ enum class FloorDataChunkType : uint8_t
 //! @ingroup native
 //! @see FloorDataChunkType::Always
 //! @see CommandOpcode
-enum class SequenceCondition
+enum class SequenceCondition : uint8_t
 {
   LaraIsHere = 0x00,           //!< If Lara is in sector, run (any case).
   LaraOnGround = 0x01,         //!< If Lara is in sector, run (land case).
@@ -66,7 +66,7 @@ enum class SequenceCondition
 //! @ingroup native
 //! @see FloorDataChunkType::Always
 //! @see SequenceCondition
-enum class CommandOpcode
+enum class CommandOpcode : uint8_t
 {
   Activate = 0x00,
   SwitchCamera = 0x01,

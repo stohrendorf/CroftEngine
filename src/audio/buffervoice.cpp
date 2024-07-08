@@ -9,6 +9,7 @@
 #include <AL/al.h>
 #include <gsl/gsl-lite.hpp>
 #include <gslu.h>
+#include <memory>
 #include <utility>
 
 namespace audio

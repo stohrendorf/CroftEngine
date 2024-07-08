@@ -9,9 +9,13 @@
 #include "spritematerialmode.h"
 #include "uniformparameter.h"
 
+#include <array>
 #include <boost/assert.hpp>
 #include <chrono>
+#include <cstddef>
 #include <cstdint>
+#include <functional>
+#include <gl/buffer.h>
 #include <gl/constants.h>
 #include <gl/glad_init.h>
 #include <gl/pixel.h>
@@ -22,10 +26,14 @@
 #include <gl/texture2darray.h> // IWYU pragma: keep
 #include <gl/texturehandle.h>
 #include <glm/vec2.hpp>
+#include <glm/vec4.hpp>
 #include <gsl/gsl-lite.hpp>
 #include <gslu.h>
+#include <memory>
+#include <optional>
 #include <random>
 #include <string>
+#include <tuple>
 #include <utility>
 #include <vector>
 
@@ -83,7 +91,7 @@ gslu::nn_shared<Material> MaterialManager::getSprite(SpriteMaterialMode mode,
   return m;
 }
 
-gslu::nn_shared<Material> MaterialManager::getCSMDepthOnly(bool skeletal, std::function<bool()> smooth)
+gslu::nn_shared<Material> MaterialManager::getCSMDepthOnly(bool skeletal, const std::function<bool()>& smooth)
 {
   auto m = gsl::make_shared<Material>(m_shaderCache->getCSMDepthOnly(skeletal));
   m->getUniform("u_mvp")->bind(
@@ -103,7 +111,7 @@ gslu::nn_shared<Material> MaterialManager::getCSMDepthOnly(bool skeletal, std::f
   return m;
 }
 
-gslu::nn_shared<Material> MaterialManager::getDepthOnly(bool skeletal, std::function<bool()> smooth)
+gslu::nn_shared<Material> MaterialManager::getDepthOnly(bool skeletal, const std::function<bool()>& smooth)
 {
   auto m = gsl::make_shared<Material>(m_shaderCache->getDepthOnly(skeletal));
   m->getRenderState().setDepthTest(true);
@@ -126,8 +134,8 @@ gslu::nn_shared<Material> MaterialManager::getGeometry(bool inWater,
                                                        bool skeletal,
                                                        bool roomShadowing,
                                                        bool opaque,
-                                                       std::function<bool()> smooth,
-                                                       std::function<int32_t()> lightingMode)
+                                                       const std::function<bool()>& smooth,
+                                                       const std::function<int32_t()>& lightingMode)
 {
   gsl_Expects(m_geometryTexturesHandle != nullptr);
 
@@ -158,7 +166,7 @@ gslu::nn_shared<Material> MaterialManager::getGeometry(bool inWater,
       if(m_csmBuffer == nullptr)
         m_csmBuffer = std::make_shared<gl::UniformBuffer<CsmHandleContainer>>(
           "csm-handles", gl::api::BufferUsage::StaticDraw, sizeof(CsmHandleContainer));
-      CsmHandleContainer data;
+      CsmHandleContainer data{};
       auto textures = m_csm->getTextures();
       for(size_t i = 0; i < render::scene::CSMBuffer::NSplits; ++i)
         *reinterpret_cast<uint64_t*>(&data.handles[i]) = textures[i]->getHandle();
@@ -189,7 +197,7 @@ gslu::nn_shared<Material> MaterialManager::getGeometry(bool inWater,
   return m;
 }
 
-gslu::nn_shared<Material> MaterialManager::getGhost(std::function<bool()> smooth)
+gslu::nn_shared<Material> MaterialManager::getGhost(const std::function<bool()>& smooth)
 {
   if(m_ghost != nullptr)
     return gsl::not_null{m_ghost};
@@ -241,7 +249,7 @@ MaterialManager::MaterialManager(gslu::nn_shared<ShaderCache> shaderCache, gslu:
     : m_shaderCache{std::move(shaderCache)}
     , m_renderer{std::move(renderer)}
 {
-  static constexpr int NoiseTextureSize = 128;
+  static constexpr size_t NoiseTextureSize = 128;
   std::vector<gl::RGB8> noiseData;
   noiseData.resize(NoiseTextureSize * NoiseTextureSize);
   std::default_random_engine generator{}; // NOLINT(cert-msc32-c, cert-msc51-cpp)

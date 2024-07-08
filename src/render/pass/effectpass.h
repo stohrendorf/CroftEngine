@@ -1,6 +1,5 @@
 #pragma once
 
-#include "config.h"
 #include "render/renderpipeline.h"
 #include "render/scene/mesh.h"
 #include "render/scene/rendercontext.h"
@@ -8,13 +7,12 @@
 #include <gl/constants.h>
 #include <gl/debuggroup.h>
 #include <gl/framebuffer.h>
+#include <gl/glassert.h>
 #include <gl/sampler.h>
 #include <gl/soglb_fwd.h>
 #include <gsl/gsl-lite.hpp>
 #include <gslu.h>
-#include <memory>
 #include <string>
-#include <utility>
 
 namespace render::material
 {

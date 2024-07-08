@@ -18,19 +18,23 @@
 #include "render/material/shaderprogram.h"
 #include "render/scene/mesh.h"
 
+#include <array>
 #include <boost/assert.hpp>
-#include <boost/log/trivial.hpp>
 #include <cstddef>
+#include <cstdint>
+#include <functional>
 #include <gl/buffer.h>
 #include <gl/constants.h>
 #include <gl/pixel.h>
 #include <gl/renderstate.h>
 #include <gl/vertexarray.h>
 #include <gl/vertexbuffer.h>
-#include <glm/vec2.hpp>
+#include <gsl/gsl-lite.hpp>
 #include <gslu.h>
 #include <initializer_list>
 #include <memory>
+#include <string>
+#include <vector>
 
 namespace gl
 {

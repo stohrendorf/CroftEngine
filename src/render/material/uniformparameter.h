@@ -2,11 +2,11 @@
 
 #include "materialparameter.h"
 
+#include <cstddef>
 #include <functional>
 #include <gl/buffer.h>
 #include <gl/program.h>
 #include <gslu.h>
-#include <iosfwd>
 #include <memory>
 #include <string>
 #include <utility>

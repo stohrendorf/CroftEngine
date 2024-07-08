@@ -1,7 +1,10 @@
 #pragma once
 
 #include "abstractstatehandler.h"
+#include "core/units.h"
 #include "engine/collisioninfo.h"
+
+#include <gsl/gsl-lite.hpp>
 
 namespace engine::lara
 {

@@ -1,5 +1,6 @@
 #include "deflateringmenustate.h"
 
+#include "core/units.h"
 #include "core/vec.h"
 #include "menudisplay.h"
 #include "menuring.h"
@@ -7,6 +8,7 @@
 #include "menustate.h"
 #include "util.h"
 
+#include <memory>
 #include <utility>
 
 namespace menu

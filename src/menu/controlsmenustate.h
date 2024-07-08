@@ -6,6 +6,7 @@
 #include "selectedmenustate.h"
 
 #include <cstddef>
+#include <cstdint>
 #include <memory>
 #include <vector>
 
@@ -34,7 +35,7 @@ struct MenuRingTransform;
 class ControlsMenuState : public SelectedMenuState
 {
 private:
-  enum class Mode
+  enum class Mode : uint8_t
   {
     Display,
     ChangeKey,
@@ -47,15 +48,15 @@ private:
   std::unique_ptr<MenuState> m_previous;
   size_t m_editingIndex = 0;
   std::vector<engine::NamedInputMappingConfig> m_editing;
-  std::shared_ptr<ui::widgets::GridBox> m_layout{};
-  std::shared_ptr<ControlsWidget> m_controls{};
+  std::shared_ptr<ui::widgets::GridBox> m_layout;
+  std::shared_ptr<ControlsWidget> m_controls;
 
   hid::DelayedKey m_resetModernKey;
   hid::DelayedKey m_resetClassicKey;
   hid::DelayedKey m_deleteKey;
 
-  std::shared_ptr<ui::widgets::SelectionBox> m_confirm{};
-  std::shared_ptr<ui::widgets::SelectionBox> m_error{};
+  std::shared_ptr<ui::widgets::SelectionBox> m_confirm;
+  std::shared_ptr<ui::widgets::SelectionBox> m_error;
 
   Mode m_mode = Mode::Display;
 

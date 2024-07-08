@@ -1,8 +1,10 @@
 #include "objectstate.h"
 
+#include "core/angle.h"
 #include "core/genericvec.h"
 #include "core/interval.h"
 #include "core/magic.h"
+#include "core/units.h"
 #include "core/vec.h"
 #include "engine/items_tr1.h"
 #include "engine/objectmanager.h"
@@ -17,10 +19,10 @@
 #include "serialization/quantity.h"
 #include "serialization/serialization.h"
 
+#include <boost/assert.hpp>
 #include <boost/throw_exception.hpp>
-#include <exception>
+#include <gsl/gsl-lite.hpp>
 #include <map>
-#include <memory>
 #include <stdexcept>
 
 namespace engine::objects

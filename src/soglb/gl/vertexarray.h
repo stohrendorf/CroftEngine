@@ -1,9 +1,11 @@
 #pragma once
 
 #include "bindableresource.h" // IWYU pragma: export
-#include "renderstate.h"
 #include "soglb_fwd.h"
 
+#include <cstddef>
+#include <gl/glassert.h>
+#include <gsl/gsl-lite.hpp>
 #include <gslu.h>
 #include <string_view>
 #include <tuple>

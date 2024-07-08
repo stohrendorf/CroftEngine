@@ -2,6 +2,7 @@
 
 #include "soundengine.h"
 
+#include <gsl/gsl-lite.hpp>
 #include <unordered_set>
 #include <utility>
 

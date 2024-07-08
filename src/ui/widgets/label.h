@@ -23,7 +23,7 @@ namespace ui::widgets
 class Label final : public Widget
 {
 public:
-  enum class Alignment
+  enum class Alignment : uint8_t
   {
     Left,
     Center,

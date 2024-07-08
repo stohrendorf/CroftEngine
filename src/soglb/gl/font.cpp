@@ -1,17 +1,24 @@
 #include "font.h"
 
+#include "freetype/freetype.h"
+#include "freetype/ftcache.h"
+#include "freetype/ftimage.h"
+#include "freetype/fttypes.h"
 #include "image.h"
 
 #include <algorithm>
 #include <boost/log/trivial.hpp>
 #include <boost/throw_exception.hpp>
+#include <cmath>
+#include <cstdint>
 #include <cstdlib>
 #include <cstring>
+#include <filesystem>
 #include <gl/pixel.h>
+#include <glm/vec2.hpp>
 #include <gsl/gsl-lite.hpp>
 #include <iterator>
 #include <optional>
-#include <sstream>
 #include <stdexcept>
 #include <utf8.h> // IWYU pragma: keep
 #include <utility>

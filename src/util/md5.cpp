@@ -34,28 +34,33 @@ documentation and/or software.
 
 #include <algorithm>
 #include <array>
+#include <cstdint>
 #include <cstdio>
 #include <gsl/gsl-lite.hpp>
+#include <string>
 
 constexpr size_t Blocksize = 64;
 
 // Constants for MD5Transform routine.
-#define S11 7
-#define S12 12
-#define S13 17
-#define S14 22
-#define S21 5
-#define S22 9
-#define S23 14
-#define S24 20
-#define S31 4
-#define S32 11
-#define S33 16
-#define S34 23
-#define S41 6
-#define S42 10
-#define S43 15
-#define S44 21
+enum : uint8_t
+{
+  S11 = 7,
+  S12 = 12,
+  S13 = 17,
+  S14 = 22,
+  S21 = 5,
+  S22 = 9,
+  S23 = 14,
+  S24 = 20,
+  S31 = 4,
+  S32 = 11,
+  S33 = 16,
+  S34 = 23,
+  S41 = 6,
+  S42 = 10,
+  S43 = 15,
+  S44 = 21,
+};
 
 ///////////////////////////////////////////////
 
@@ -298,7 +303,9 @@ struct State
     size_t index = count[0] / 8 % Blocksize;
 
     // Update number of bits
-    if((count[0] += gsl::narrow_cast<uint32_t>(length << 3u)) < gsl::narrow_cast<uint32_t>(length << 3u))
+    const auto nBits = gsl::narrow_cast<uint32_t>(length << 3u);
+    count[0] += nBits;
+    if(count[0] < nBits)
     {
       ++count[1];
     }

@@ -2,8 +2,14 @@
 
 #include "widget.h"
 
+#include <cstddef>
 #include <functional>
+#include <glm/vec2.hpp>
 #include <gslu.h>
+#include <memory>
+#include <string>
+#include <tuple>
+#include <vector>
 
 namespace ui::widgets
 {

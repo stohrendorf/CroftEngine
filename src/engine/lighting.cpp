@@ -1,13 +1,14 @@
 #include "lighting.h"
 
+#include "core/units.h"
 #include "engine/objectmanager.h"
 #include "engine/objects/laraobject.h"
 #include "engine/world/room.h"
 #include "engine/world/world.h"
 #include "render/scene/node.h"
 
-#include <gl/api/gl.hpp>
 #include <gl/program.h>
+#include <gsl/gsl-lite.hpp>
 #include <gslu.h>
 #include <vector>
 

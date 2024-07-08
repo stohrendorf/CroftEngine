@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <boost/throw_exception.hpp>
 #include <cstddef>
+#include <cstdint>
 #include <gl/constants.h>
 #include <gl/pixel.h>
 #include <gl/sampler.h>
@@ -14,13 +15,14 @@
 #include <gsl/gsl-lite.hpp>
 #include <memory>
 #include <stdexcept>
-#include <string>
 #include <vector>
 
 extern "C"
 {
 #include <libavfilter/avfilter.h>
 #include <libavutil/imgutils.h>
+#include <libavutil/mem.h>
+#include <libavutil/pixfmt.h>
 #include <libswscale/swscale.h>
 }
 

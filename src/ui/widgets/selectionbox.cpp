@@ -8,8 +8,12 @@
 #include <algorithm>
 #include <boost/algorithm/string/classification.hpp>
 #include <boost/algorithm/string/split.hpp>
+#include <cstddef>
 #include <gl/pixel.h>
 #include <iterator>
+#include <memory>
+#include <string>
+#include <vector>
 
 namespace ui::widgets
 {

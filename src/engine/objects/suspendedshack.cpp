@@ -11,7 +11,6 @@
 #include <array>
 #include <gl/renderstate.h>
 #include <gsl/gsl-lite.hpp>
-#include <memory>
 #include <string>
 
 // IWYU pragma: no_forward_declare serialization::Serializer

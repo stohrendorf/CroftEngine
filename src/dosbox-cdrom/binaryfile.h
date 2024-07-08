@@ -4,6 +4,8 @@
 #include <filesystem>
 #include <fstream>
 #include <gsl/gsl-lite.hpp>
+#include <ios>
+#include <iosfwd>
 
 namespace image
 {

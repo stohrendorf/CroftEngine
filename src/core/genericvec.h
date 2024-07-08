@@ -1,7 +1,6 @@
 #pragma once
 
-#include "magic.h"
-#include "units.h"
+#include "qs/quantity.h"
 
 #include <glm/vec3.hpp>
 #include <gsl/gsl-lite.hpp>
@@ -54,6 +53,7 @@ struct GenericVec
   constexpr GenericVec(const GenericVec<T>&) noexcept = default;
   constexpr GenericVec(GenericVec<T>&&) noexcept = default;
 
+  // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
   constexpr GenericVec(const T& x, const T& y, const T& z) noexcept
       : X{x}
       , Y{y}
@@ -85,7 +85,7 @@ struct GenericVec
   }
 
   template<typename U, typename V>
-  [[nodiscard]] constexpr auto operator*(const U& n) const noexcept(noexcept(X* n))
+  [[nodiscard]] constexpr auto operator*(const U& n) const noexcept(noexcept(X * n))
   {
     return GenericVec<decltype(X * n)>{X * n, Y * n, Z * n};
   }
@@ -110,14 +110,13 @@ struct GenericVec
 };
 
 template<typename T, typename U, typename V>
-[[nodiscard]] inline constexpr auto operator*(const GenericVec<T>& v,
-                                              const qs::quantity<U, V>& n) noexcept(noexcept(v.X* n))
+[[nodiscard]] constexpr auto operator*(const GenericVec<T>& v, const qs::quantity<U, V>& n) noexcept(noexcept(v.X * n))
 {
   return GenericVec<decltype(v.X * n)>{v.X * n, v.Y * n, v.Z * n};
 }
 
 template<typename T>
-inline constexpr bool operator==(const GenericVec<T>& lhs, const GenericVec<T>& rhs) noexcept(noexcept(lhs.X == rhs.X))
+constexpr bool operator==(const GenericVec<T>& lhs, const GenericVec<T>& rhs) noexcept(noexcept(lhs.X == rhs.X))
 {
   return lhs.X == rhs.X && lhs.Y == rhs.Y && lhs.Z == rhs.Z;
 }

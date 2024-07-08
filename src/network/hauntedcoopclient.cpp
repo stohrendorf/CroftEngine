@@ -2,6 +2,10 @@
 
 // FIXME: this is a bad include path
 #include "../launcher/networkconfig.h"
+#include "boost/system/detail/error_code.hpp"
+
+#include <ios>
+#include <map>
 
 #ifdef WIN32
 // workaround to populate the correct windows version to boost asio
@@ -16,18 +20,23 @@
 #include <boost/asio/io_context.hpp>
 #include <boost/asio/io_service.hpp>
 #include <boost/asio/ip/address.hpp>
-#include <boost/asio/ip/basic_resolver_results.hpp>
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/asio/read.hpp>
 #include <boost/asio/socket_base.hpp>
 #include <boost/assert.hpp>
 #include <boost/cstdint.hpp>
 #include <boost/log/trivial.hpp>
+#include <cstddef>
+#include <cstdint>
 #include <exception>
 #include <gsl/gsl-lite.hpp>
 #include <istream>
 #include <iterator>
+#include <memory>
+#include <mutex>
+#include <string>
 #include <utility>
+#include <vector>
 
 namespace
 {
@@ -381,10 +390,10 @@ private:
   PeerId m_peerId = 0;
 
   uint16_t m_fullSyncStatesCount = 0;
-  std::map<PeerId, PeerData> m_fullSyncPeerDatas{};
+  std::map<PeerId, PeerData> m_fullSyncPeerDatas;
 
   std::mutex m_peerDatasMutex;
-  std::map<PeerId, PeerData> m_peerDatas{};
+  std::map<PeerId, PeerData> m_peerDatas;
 
   uint16_t m_fullSyncCounter = 0;
 

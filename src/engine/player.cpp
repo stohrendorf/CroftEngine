@@ -1,14 +1,15 @@
 #include "player.h"
 
-#include "engine/objectmanager.h"
+#include "core/units.h"
 #include "inventory.h"
+#include "objectmanager.h"
 #include "objects/laraobject.h"
 #include "serialization/optional_value.h"
 #include "serialization/quantity.h"
 #include "serialization/serialization.h"
+#include "weapontype.h"
 #include "world/world.h"
 
-#include <exception>
 #include <functional>
 #include <initializer_list>
 #include <memory>

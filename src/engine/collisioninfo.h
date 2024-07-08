@@ -21,7 +21,7 @@ namespace engine
 {
 struct CollisionInfo
 {
-  enum class AxisColl
+  enum class AxisColl : uint8_t
   {
     None,
     Front,
@@ -32,7 +32,7 @@ struct CollisionInfo
     Jammed //!< Not enough space between floor and ceiling
   };
 
-  enum class PolicyFlags
+  enum class PolicyFlags : uint8_t
   {
     SlopesAreWalls,
     SlopesArePits,

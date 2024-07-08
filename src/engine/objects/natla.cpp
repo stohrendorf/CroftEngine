@@ -4,6 +4,7 @@
 #include "core/angle.h"
 #include "core/id.h"
 #include "core/magic.h"
+#include "core/units.h"
 #include "core/vec.h"
 #include "engine/ai/ai.h"
 #include "engine/ai/pathfinder.h"
@@ -24,7 +25,6 @@
 
 #include <algorithm>
 #include <cstddef>
-#include <exception>
 #include <gsl/gsl-lite.hpp>
 #include <memory>
 #include <utility>

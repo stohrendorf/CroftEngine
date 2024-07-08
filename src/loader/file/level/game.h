@@ -1,8 +1,10 @@
 #pragma once
 
+#include <cstdint>
+
 namespace loader::file::level
 {
-enum class Game
+enum class Game : uint8_t
 {
   TR1,
   TR1Demo,
@@ -18,7 +20,7 @@ enum class Game
   Unknown
 };
 
-enum class Engine
+enum class Engine : uint8_t
 {
   TR1,
   TR2,

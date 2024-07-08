@@ -8,9 +8,13 @@
 
 #include <array>
 #include <boost/iostreams/device/mapped_file.hpp>
+#include <cstdint>
 #include <cstring>
 #include <fstream>
+#include <glm/vec2.hpp>
 #include <gsl/gsl-lite.hpp>
+#include <ios>
+#include <memory>
 
 #ifdef WIN32
 #  include <intrin.h>
@@ -114,6 +118,7 @@ BlockData::~BlockData()
     delete[] m_data;
 }
 
+// NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
 void BlockData::processRgba(const uint32_t* src, uint32_t blocks, size_t offset, size_t width, bool useHeuristics)
 {
   // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
@@ -136,6 +141,7 @@ constexpr uint8_t expand7(uint8_t value)
   return (value << 1u) | (value >> 6u);
 }
 
+// NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
 void decodeTAlpha(uint64_t block, uint64_t alpha, uint32_t* dst, uint32_t w)
 {
   const auto r0 = (block >> 24u) & 0x1Bu;
@@ -182,7 +188,7 @@ void decodeTAlpha(uint64_t block, uint64_t alpha, uint32_t* dst, uint32_t w)
     gsl::narrow_cast<uint32_t>(c3r | (c3g << 8u) | (c3b << 16u)),
   }};
 
-  const auto& tbl = g_alpha[(alpha >> 48u) & 0xFu];
+  const auto& tbl = getAlpha()[(alpha >> 48u) & 0xFu];
   const uint32_t indexes = (block >> 32u) & 0xFFFFFFFFu;
   for(uint8_t j = 0; j < 4; j++)
   {
@@ -197,6 +203,7 @@ void decodeTAlpha(uint64_t block, uint64_t alpha, uint32_t* dst, uint32_t w)
   }
 }
 
+// NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
 void decodeHAlpha(uint64_t block, uint64_t alpha, uint32_t* dst, uint32_t w)
 {
   const uint32_t indexes = (block >> 32u) & 0xFFFFFFFFu;
@@ -225,7 +232,7 @@ void decodeHAlpha(uint64_t block, uint64_t alpha, uint32_t* dst, uint32_t w)
 
   const int32_t base = gsl::narrow_cast<uint8_t>(alpha >> 56u);
   const int32_t mul = gsl::narrow_cast<uint8_t>((alpha >> 52u) & 0xFu);
-  const auto& tbl = g_alpha[(alpha >> 48u) & 0xFu];
+  const auto& tbl = getAlpha()[(alpha >> 48u) & 0xFu];
 
   const std::array<uint32_t, 4> col_tab{{
     // NOLINTNEXTLINE(hicpp-signed-bitwise)
@@ -254,6 +261,7 @@ void decodeHAlpha(uint64_t block, uint64_t alpha, uint32_t* dst, uint32_t w)
   }
 }
 
+// NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
 void decodePlanarAlpha(uint64_t block, uint64_t alpha, uint32_t* dst, uint32_t w)
 {
   const auto bv = expand6((block >> (0u + 32u)) & 0x3Fu);
@@ -279,7 +287,7 @@ void decodePlanarAlpha(uint64_t block, uint64_t alpha, uint32_t* dst, uint32_t w
 
   const auto base = gsl::narrow_cast<int32_t>(alpha >> 56u);
   const auto mul = gsl::narrow_cast<int32_t>((alpha >> 52u) & 0xFu);
-  const auto& tbl = g_alpha[(alpha >> 48u) & 0xFu];
+  const auto& tbl = getAlpha()[(alpha >> 48u) & 0xFu];
 
   auto chco = IVec16{
     gsl::narrow_cast<int16_t>(rh - ro),
@@ -426,7 +434,7 @@ void decodeRgbaPart(uint64_t d, uint64_t alpha, uint32_t* dst, uint32_t w)
 
   const int32_t base = gsl::narrow_cast<uint8_t>(alpha >> 56u);
   const int32_t mul = gsl::narrow_cast<uint8_t>((alpha >> 52u) & 0xFu);
-  const auto& atbl = g_alpha[(alpha >> 48u) & 0xFu];
+  const auto& atbl = getAlpha()[(alpha >> 48u) & 0xFu];
 
   if(d & 0x1u)
   {
@@ -434,7 +442,7 @@ void decodeRgbaPart(uint64_t d, uint64_t alpha, uint32_t* dst, uint32_t w)
     {
       for(uint8_t j = 0; j < 4; j++)
       {
-        const auto mod = g_table[tcw[j / 2u]][idx & 0x3u];
+        const auto mod = getTable()[tcw[j / 2u]][idx & 0x3u];
         const auto r = br[j / 2u] + mod;
         const auto g = bg[j / 2u] + mod;
         const auto b = bb[j / 2u] + mod;
@@ -460,7 +468,7 @@ void decodeRgbaPart(uint64_t d, uint64_t alpha, uint32_t* dst, uint32_t w)
   {
     for(uint8_t i = 0; i < 4; i++)
     {
-      const auto& tbl = g_table[tcw[i / 2u]];
+      const auto& tbl = getTable()[tcw[i / 2u]];
       const auto cr = br[i / 2u];
       const auto cg = bg[i / 2u];
       const auto cb = bb[i / 2u];

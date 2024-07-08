@@ -5,6 +5,10 @@
 #include "volume.h"
 
 #include <AL/al.h>
+#include <chrono>
+#include <glm/vec3.hpp>
+#include <memory>
+#include <optional>
 #include <utility>
 
 namespace audio

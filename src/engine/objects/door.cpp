@@ -17,10 +17,11 @@
 #include "serialization/serialization.h"
 #include "serialization/vector_element.h"
 
-#include <exception>
 #include <functional>
 #include <gl/renderstate.h>
+#include <gsl/gsl-lite.hpp>
 #include <memory>
+#include <string>
 
 namespace engine::objects
 {
@@ -34,6 +35,7 @@ Door::Door(const std::string& name,
     : ModelObject{name, world, room, item, true, animatedModel, false}
 {
 #ifndef NO_DOOR_BLOCK
+  // NOLINTNEXTLINE(*-prefer-member-initializer)
   m_wingsPosition = m_state.location.position;
   switch(axisFromAngle(m_state.rotation.Y))
   {

@@ -15,9 +15,8 @@
 #include <cstdint>
 #include <map>
 #include <memory>
-#include <sstream>
 #include <stdexcept>
-#include <string>
+#include <utility>
 #include <vector>
 
 namespace loader::file::level
@@ -141,7 +140,7 @@ void TR3Level::loadFileData()
   // In TR3, samples are stored in separate file called MAIN.SFX.
   // If there is no such files, no samples are loaded.
 
-  io::SDLReader newsrc(m_sfxPath);
+  const io::SDLReader newsrc{m_sfxPath};
   if(!newsrc.isOpen())
   {
     BOOST_LOG_TRIVIAL(warning) << "TR3 Level: failed to open '" << m_sfxPath << "', no samples loaded.";

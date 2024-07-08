@@ -6,6 +6,7 @@
 #include <functional>
 #include <glm/vec2.hpp>
 #include <map>
+#include <ostream>
 #include <set>
 #include <string>
 #include <utility>
@@ -108,7 +109,7 @@ public:
 
 private:
   std::string m_textureId;
-  Rectangle m_rect{};
+  Rectangle m_rect;
 };
 
 class EquivalenceSet
@@ -191,6 +192,6 @@ public:
 private:
   std::map<TexturePart, std::filesystem::path> m_filesByPart;
   std::filesystem::path m_baseDir;
-  std::filesystem::file_time_type m_newestFile{};
+  std::filesystem::file_time_type m_newestFile;
 };
 } // namespace loader::trx

@@ -1,10 +1,15 @@
 #include "cueparser.h"
 
 #include <boost/log/trivial.hpp>
+#include <cstddef>
+#include <filesystem>
 #include <fstream>
 #include <gsl/gsl-lite.hpp>
+#include <iosfwd>
+#include <optional>
 #include <regex>
-#include <sstream>
+#include <string>
+#include <vector>
 
 namespace cue
 {

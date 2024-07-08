@@ -1,5 +1,6 @@
 #include "audiostreamdecoder.h"
 
+#include "core.h"
 #include "ffmpeg/avframeptr.h"
 #include "ffmpeg/stream.h"
 #include "ffmpeg/util.h"
@@ -8,17 +9,27 @@
 #include <boost/log/trivial.hpp>
 #include <boost/throw_exception.hpp>
 #include <cerrno>
+#include <chrono>
+#include <cstddef>
+#include <cstdint>
 #include <gsl/gsl-lite.hpp>
-#include <iosfwd>
 #include <iterator>
+#include <memory>
+#include <mutex>
 #include <stdexcept>
 #include <string>
 #include <utility>
+#include <vector>
 
 extern "C"
 {
 #include <libavcodec/avcodec.h>
+#include <libavcodec/packet.h>
 #include <libavformat/avformat.h>
+#include <libavutil/avutil.h>
+#include <libavutil/channel_layout.h>
+#include <libavutil/error.h>
+#include <libavutil/samplefmt.h>
 #include <libswresample/swresample.h>
 }
 
@@ -69,19 +80,21 @@ void handleSendPacketError(int err, AVCodecContext* ctx)
 AudioStreamDecoder::AudioStreamDecoder(AVFormatContext* fmtContext, bool rplFakeAudioHack)
     : fmtContext{fmtContext}
     , stream{std::make_unique<ffmpeg::Stream>(fmtContext, AVMEDIA_TYPE_AUDIO, rplFakeAudioHack)}
-    , swrContext{swr_alloc_set_opts(nullptr,
-                                    // NOLINTNEXTLINE(hicpp-signed-bitwise)
-                                    stream->context->channels == 1 ? AV_CH_LAYOUT_MONO : AV_CH_LAYOUT_STEREO,
-                                    AV_SAMPLE_FMT_S16,
-                                    stream->context->sample_rate,
-                                    // NOLINTNEXTLINE(hicpp-signed-bitwise)
-                                    stream->context->channels == 1 ? AV_CH_LAYOUT_MONO : AV_CH_LAYOUT_STEREO,
-                                    stream->context->sample_fmt,
-                                    stream->context->sample_rate,
-                                    0,
-                                    nullptr)}
 {
-  gsl_Expects(stream->context->channels == 1 || stream->context->channels == 2);
+  gsl_Expects(stream->context->ch_layout.nb_channels == 1 || stream->context->ch_layout.nb_channels == 2);
+
+  auto channelLayout = stream->context->ch_layout.nb_channels == 1 ? AVChannelLayout AV_CHANNEL_LAYOUT_MONO
+                                                                   : AVChannelLayout AV_CHANNEL_LAYOUT_STEREO;
+  gsl_Assert(swr_alloc_set_opts2(&swrContext,
+                                 &channelLayout,
+                                 AV_SAMPLE_FMT_S16,
+                                 stream->context->sample_rate,
+                                 &channelLayout,
+                                 stream->context->sample_fmt,
+                                 stream->context->sample_rate,
+                                 0,
+                                 nullptr)
+             == 0);
 
   if(swrContext == nullptr)
   {
@@ -205,6 +218,6 @@ void AudioStreamDecoder::seek(const std::chrono::milliseconds& position)
 
 int AudioStreamDecoder::getChannels() const noexcept
 {
-  return stream->context->channels;
+  return stream->context->ch_layout.nb_channels;
 }
 } // namespace audio

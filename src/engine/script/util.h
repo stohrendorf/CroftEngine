@@ -1,7 +1,6 @@
 #pragma once
 
 #include <optional>
-#include <pybind11/cast.h>
 #include <pybind11/pytypes.h>
 
 namespace engine::script

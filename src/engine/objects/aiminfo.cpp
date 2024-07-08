@@ -1,10 +1,13 @@
 #include "aiminfo.h"
 
+#include "core/angle.h"
+#include "core/units.h"
 #include "engine/items_tr1.h"
 #include "engine/objects/objectstate.h"
 #include "engine/presenter.h"
 #include "engine/skeletalmodelnode.h"
 #include "engine/soundeffects_tr1.h"
+#include "engine/weapontype.h"
 #include "engine/world/skeletalmodeltype.h"
 #include "engine/world/world.h"
 #include "hid/actions.h"
@@ -18,10 +21,8 @@
 #include <boost/assert.hpp>
 #include <boost/throw_exception.hpp>
 #include <cstdint>
-#include <exception>
 #include <functional>
 #include <gsl/gsl-lite.hpp>
-#include <gslu.h>
 #include <memory>
 #include <stdexcept>
 #include <vector>

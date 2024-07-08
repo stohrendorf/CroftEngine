@@ -14,7 +14,9 @@
 
 extern "C"
 {
+#include <libavcodec/packet.h>
 #include <libavformat/avformat.h>
+#include <libavutil/mem.h>
 }
 
 namespace audio

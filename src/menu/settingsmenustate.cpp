@@ -13,6 +13,7 @@
 #include "menustate.h"
 #include "render/rendersettings.h"
 #include "selectedmenustate.h"
+#include "ui/core.h"
 #include "ui/ui.h"
 #include "ui/widgets/checkbox.h"
 #include "ui/widgets/checklistbox.h"
@@ -23,7 +24,7 @@
 #include "ui/widgets/valueselector.h"
 #include "ui/widgets/widget.h"
 
-#include <boost/format.hpp>
+#include <boost/format/group.hpp>
 #include <boost/throw_exception.hpp>
 #include <cmath>
 #include <cstddef>
@@ -31,14 +32,15 @@
 #include <functional>
 #include <gl/glad_init.h>
 #include <glm/fwd.hpp>
-#include <glm/vec2.hpp>
 #include <gsl/gsl-lite.hpp>
 #include <gslu.h>
 #include <ios>
+#include <memory>
 #include <stdexcept>
 #include <string>
 #include <tuple>
 #include <utility>
+#include <vector>
 
 namespace menu
 {

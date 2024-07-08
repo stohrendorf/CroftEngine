@@ -63,6 +63,6 @@ public:
 
 private:
   mutable std::mutex m_queueMutex{};
-  std::unordered_set<std::shared_ptr<BufferHandle>> m_queuedBuffers{};
+  std::unordered_set<std::shared_ptr<BufferHandle>> m_queuedBuffers;
 };
 } // namespace audio

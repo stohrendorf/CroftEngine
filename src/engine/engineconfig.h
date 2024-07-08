@@ -11,9 +11,10 @@
 #include "serialization/named_enum.h"
 #include "serialization/serialization_fwd.h"
 
-#include <algorithm>
+#include <cstdint>
 #include <map>
 #include <string>
+#include <utility>
 #include <variant>
 #include <vector>
 
@@ -53,7 +54,7 @@ struct EngineConfig
   render::RenderSettings renderSettings{};
   DisplaySettings displaySettings{};
   AudioSettings audioSettings{};
-  std::vector<NamedInputMappingConfig> inputMappings{};
+  std::vector<NamedInputMappingConfig> inputMappings;
   bool restoreHealth = true;
   bool pulseLowHealthHealthBar = true;
   bool lowHealthMonochrome = true;

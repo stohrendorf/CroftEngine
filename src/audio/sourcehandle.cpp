@@ -10,7 +10,8 @@
 #include <algorithm>
 #include <boost/throw_exception.hpp>
 #include <glm/fwd.hpp>
-#include <map>
+#include <memory>
+#include <mutex>
 #include <stdexcept>
 #include <thread>
 

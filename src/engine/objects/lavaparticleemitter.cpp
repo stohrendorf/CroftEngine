@@ -9,7 +9,7 @@
 #include "objectstate.h"
 #include "render/scene/node.h"
 
-#include <memory>
+#include <gsl/gsl-lite.hpp>
 
 namespace engine::objects
 {

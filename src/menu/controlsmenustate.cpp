@@ -3,12 +3,12 @@
 #include "controlswidget.h"
 #include "core/i18n.h"
 #include "engine/engine.h"
+#include "engine/engineconfig.h"
 #include "engine/presenter.h"
 #include "engine/world/world.h"
 #include "hid/actions.h"
 #include "hid/glfw_axes.h"
 #include "hid/glfw_axis_dirs.h"
-#include "hid/glfw_gamepad_buttons.h"
 #include "hid/glfw_keys.h"
 #include "hid/inputhandler.h"
 #include "hid/inputstate.h"
@@ -16,15 +16,13 @@
 #include "menu/selectedmenustate.h"
 #include "menustate.h"
 #include "serialization/named_enum.h"
+#include "ui/text.h"
 #include "ui/ui.h"
 #include "ui/widgets/gridbox.h"
 #include "ui/widgets/label.h"
 #include "ui/widgets/selectionbox.h"
 #include "ui/widgets/sprite.h"
 
-#include <algorithm>
-#include <boost/format.hpp>
-#include <boost/log/trivial.hpp>
 #include <boost/throw_exception.hpp>
 #include <chrono>
 #include <functional>
@@ -32,12 +30,13 @@
 #include <gsl/gsl-lite.hpp>
 #include <initializer_list>
 #include <map>
+#include <memory>
 #include <optional>
 #include <stdexcept>
 #include <string>
-#include <type_traits>
 #include <utility>
 #include <variant>
+#include <vector>
 
 namespace ui::widgets
 {

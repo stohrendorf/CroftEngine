@@ -6,6 +6,7 @@
 #include <AL/alc.h>
 #include <AL/efx.h>
 #include <boost/assert.hpp>
+#include <gsl/gsl-lite.hpp>
 
 #ifndef AL_ALEXT_PROTOTYPES
 

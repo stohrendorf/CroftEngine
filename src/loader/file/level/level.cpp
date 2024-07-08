@@ -2,6 +2,8 @@
 
 #include "game.h"
 #include "loader/file/color.h"
+#include "loader/file/mesh.h"
+#include "loader/file/texture.h"
 #include "tr1level.h"
 #include "tr2level.h"
 #include "tr3level.h"
@@ -14,14 +16,18 @@
 #include <array>
 #include <boost/algorithm/string/case_conv.hpp>
 #include <boost/throw_exception.hpp>
+#include <cstddef>
 #include <cstdint>
 #include <filesystem>
 #include <gsl/gsl-lite.hpp>
-#include <iosfwd>
+#include <ios>
 #include <iterator>
+#include <memory>
 #include <set>
 #include <stdexcept>
 #include <string>
+#include <utility>
+#include <vector>
 
 namespace loader::file::level
 {

@@ -12,7 +12,6 @@
 #include "engine/location.h"
 #include "engine/objectmanager.h"
 #include "engine/skeletalmodelnode.h"
-#include "engine/world/animation.h"
 #include "engine/world/room.h"
 #include "engine/world/skeletalmodeltype.h"
 #include "engine/world/world.h"
@@ -29,13 +28,12 @@
 #include "util/helpers.h"
 
 #include <boost/throw_exception.hpp>
-#include <exception>
 #include <functional>
-#include <gl/renderstate.h>
+#include <gsl/gsl-lite.hpp>
 #include <iterator>
-#include <map>
+#include <memory>
 #include <stdexcept>
-#include <type_traits>
+#include <string>
 
 namespace engine::objects
 {

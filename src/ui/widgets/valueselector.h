@@ -3,11 +3,11 @@
 #include "label.h"
 #include "widget.h"
 
-#include <algorithm>
+#include <cstddef>
 #include <functional>
 #include <glm/vec2.hpp>
 #include <gsl/gsl-lite.hpp>
-#include <utility>
+#include <string>
 #include <vector>
 
 namespace engine
@@ -38,7 +38,7 @@ public:
 
   explicit ValueSelector(DisplayTextProvider&& displayTextProvider,
                          SelectionChangeHandler&& selectionChangeHandler,
-                         std::vector<T> values, // cppcheck-suppress passedByValue
+                         std::vector<T> values,
                          Label::Alignment alignment = Label::Alignment::Left)
       : m_label{{}, alignment}
       , m_values{std::move(values)}

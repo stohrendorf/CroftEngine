@@ -14,11 +14,16 @@
 #include <array>
 #include <boost/log/trivial.hpp>
 #include <boost/throw_exception.hpp>
-#include <glm/fwd.hpp>
-#include <glm/geometric.hpp>
+#include <chrono>
+#include <cstddef>
+#include <functional>
+#include <glm/glm.hpp>
 #include <gsl/gsl-lite.hpp>
 #include <gslu.h>
+#include <memory>
+#include <mutex>
 #include <stdexcept>
+#include <thread>
 #include <utility>
 
 #ifdef WIN32

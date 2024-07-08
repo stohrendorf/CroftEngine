@@ -8,9 +8,7 @@
 #include <boost/throw_exception.hpp>
 #include <gl/buffer.h>
 #include <gl/renderstate.h>
-#include <glm/common.hpp>
 #include <glm/mat4x4.hpp>
-#include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
 #include <gsl/gsl-lite.hpp>
 #include <gslu.h>
@@ -216,7 +214,7 @@ private:
 
   std::string m_name;
   List m_children;
-  std::weak_ptr<Node> m_parent{};
+  std::weak_ptr<Node> m_parent;
   bool m_visible = true;
   std::shared_ptr<Renderable> m_renderable = nullptr;
   glm::mat4 m_localMatrix{1.0f};

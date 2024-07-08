@@ -3,28 +3,27 @@
 #include "core/i18n.h"
 #include "util/helpers.h"
 
+#include <algorithm>
 #include <boost/algorithm/string/classification.hpp>
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/algorithm/string/split.hpp>
 #include <boost/algorithm/string/trim.hpp>
-#include <boost/cstdint.hpp>
-#include <boost/format.hpp>
-#include <boost/iterator/iterator_traits.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/log/trivial.hpp>
 #include <boost/throw_exception.hpp>
 #include <chrono>
 #include <cstdint>
-#include <deque>
+#include <filesystem>
 #include <fstream>
+#include <functional>
 #include <gsl/gsl-lite.hpp>
-#include <memory>
+#include <map>
 #include <regex>
-#include <sstream>
 #include <stdexcept>
-#include <type_traits>
+#include <string>
 #include <utility>
+#include <vector>
 
 namespace
 {

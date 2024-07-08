@@ -3,6 +3,7 @@
 #include "io/sdlreader.h"
 
 #include <algorithm>
+#include <memory>
 
 namespace loader::file
 {

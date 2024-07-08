@@ -124,7 +124,7 @@ struct Transitions
 {
   core::AnimStateId stateId{uint16_t{0}};
   uint16_t transitionCaseCount{}; // number of ranges (seems to always be 1..5)
-  core::ContainerIndex<uint16_t, engine::world::TransitionCase> firstTransitionCase{}; // Offset into AnimDispatches[]
+  core::ContainerIndex<uint16_t, engine::world::TransitionCase> firstTransitionCase; // Offset into AnimDispatches[]
 
   /// \brief reads an animation state change.
   static std::unique_ptr<Transitions> read(io::SDLReader& reader);
@@ -134,15 +134,15 @@ struct Animation
 {
   core::ContainerOffset<uint32_t, int16_t> poseDataOffset; // byte offset into Frames[] (divide by 2 for Frames[i])
 
-  core::Frame segmentLength = 0_frame; // Slowdown factor of this animation
-  uint8_t poseDataSize{};              // number of bit16's in Frames[] used by this animation
+  core::Frame segmentLength = 0_frame;     // Slowdown factor of this animation
+  [[maybe_unused]] uint8_t poseDataSize{}; // number of bit16's in Frames[] used by this animation
   core::AnimStateId state_id = 0_as;
 
-  core::Speed speed{};
-  core::Acceleration acceleration{};
+  core::Speed speed;
+  core::Acceleration acceleration;
 
-  core::Speed lateralSpeed{};               // new in TR4 -->
-  core::Acceleration lateralAcceleration{}; // lateral speed and acceleration.
+  [[maybe_unused]] core::Speed lateralSpeed;               // new in TR4 -->
+  [[maybe_unused]] core::Acceleration lateralAcceleration; // lateral speed and acceleration.
 
   core::Frame firstFrame = 0_frame; // first frame in this animation
   core::Frame lastFrame = 0_frame;  // last frame in this animation (numframes = (End - Start) + 1)
@@ -150,9 +150,9 @@ struct Animation
   core::Frame nextFrame = 0_frame;
 
   uint16_t transitionsCount{};
-  core::ContainerIndex<uint16_t, engine::world::Transitions> transitionsIndex{}; // offset into StateChanges[]
-  uint16_t animCommandCount{};                                                   // How many of them to use.
-  core::ContainerIndex<uint16_t, int16_t> animCommandIndex{};                    // offset into AnimCommand[]
+  core::ContainerIndex<uint16_t, engine::world::Transitions> transitionsIndex; // offset into StateChanges[]
+  uint16_t animCommandCount{};                                                 // How many of them to use.
+  core::ContainerIndex<uint16_t, int16_t> animCommandIndex;                    // offset into AnimCommand[]
 
   static std::unique_ptr<Animation> readTr1(io::SDLReader& reader);
   static std::unique_ptr<Animation> readTr4(io::SDLReader& reader);
@@ -194,7 +194,7 @@ struct SkeletalModelType
   core::ContainerOffset<uint32_t, int16_t> pose_data_offset; // byte offset into Frames[] (divide by 2 for Frames[i])
   core::ContainerIndex<uint16_t, engine::world::Animation> animation_index; // offset into Animations[]
 
-  gsl::span<const BoneTreeEntry> boneTree{};
+  gsl::span<const BoneTreeEntry> boneTree;
 
   static std::unique_ptr<SkeletalModelType> readTr1(io::SDLReader& reader);
   static std::unique_ptr<SkeletalModelType> readTr5(io::SDLReader& reader);

@@ -1,6 +1,9 @@
 #pragma once
 
 #include "access.h"
+#include "serialization.h"
+
+#include <gsl/gsl-lite.hpp>
 
 namespace serialization
 {

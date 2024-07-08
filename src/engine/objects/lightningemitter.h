@@ -72,7 +72,7 @@ private:
   // TODO this should be core::Frame
   int m_chargeTimeout = 1;
   bool m_shooting = false;
-  core::TRVec m_mainBoltEnd{};
+  core::TRVec m_mainBoltEnd;
 
   struct ChildBolt
   {

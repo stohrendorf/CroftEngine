@@ -6,29 +6,29 @@
 #include "launcher/launcher.h"
 #include "paths.h"
 
-#include <boost/exception/diagnostic_information.hpp>
-#include <boost/log/core.hpp>
-#include <boost/log/expressions.hpp>
+#include <boost/assert.hpp>
 #include <boost/log/trivial.hpp>
 #include <boost/log/utility/setup/common_attributes.hpp>
 #include <boost/log/utility/setup/console.hpp>
 #include <boost/log/utility/setup/file.hpp>
+#include <boost/throw_exception.hpp>
 #include <chillout.h>
-#include <csignal>
+#include <cstdint>
 #include <cstdlib>
 #include <cstring>
-#include <exception>
 #include <filesystem>
 #include <gsl/gsl-lite.hpp>
 #include <iostream>
-#include <map>
 #include <memory>
 #include <optional>
 #include <sstream>
+#include <stdexcept>
 #include <string>
+#include <utility>
 #include <vector>
 
 #ifdef WIN32
+#  include <cstdio>
 #  include <windows.h>
 #endif
 
@@ -143,7 +143,7 @@ void runGame(const std::string& localeOverride, const std::string& gameflowId, b
                         {1280, 800},
                         borderlessFullscreen};
   size_t levelSequenceIndex = 0;
-  enum class Mode
+  enum class Mode : uint8_t
   {
     Boot,
     Title,
@@ -282,8 +282,6 @@ void runGame(const std::string& localeOverride, const std::string& gameflowId, b
       case engine::RunResult::ExitGame:
         return;
       case engine::RunResult::NextLevel:
-        mode = Mode::Title;
-        break;
       case engine::RunResult::TitleLevel:
         mode = Mode::Title;
         break;

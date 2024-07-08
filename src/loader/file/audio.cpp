@@ -4,6 +4,9 @@
 #include "io/util.h"
 #include "util/helpers.h"
 
+#include <cstdint>
+#include <memory>
+
 namespace loader::file
 {
 std::unique_ptr<SoundSource> SoundSource::read(io::SDLReader& reader)

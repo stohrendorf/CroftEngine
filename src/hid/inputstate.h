@@ -3,10 +3,11 @@
 #include "actions.h"
 
 #include <boost/container/flat_map.hpp>
+#include <cstdint>
 
 namespace hid
 {
-enum class AxisMovement
+enum class AxisMovement : uint8_t
 {
   Positive,
   Right = Positive,

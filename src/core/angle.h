@@ -13,7 +13,6 @@
 #include <gsl/gsl-lite.hpp>
 #include <limits>
 #include <optional>
-#include <type_traits>
 
 namespace engine::world
 {
@@ -77,7 +76,7 @@ namespace core
   return Angle{std::numeric_limits<Angle::type>::max()};
 }
 
-enum class Axis
+enum class Axis : uint8_t
 {
   Deg0,
   PosZ = Deg0,
@@ -152,6 +151,7 @@ public:
 
   TRRotation() = default;
 
+  // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
   TRRotation(const Angle& x, const Angle& y, const Angle& z) noexcept
       : X{x}
       , Y{y}

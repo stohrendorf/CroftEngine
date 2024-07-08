@@ -1,5 +1,6 @@
 #include "resetitemtransformmenustate.h"
 
+#include "core/units.h"
 #include "engine/audioengine.h"
 #include "engine/soundeffects_tr1.h"
 #include "engine/world/world.h"
@@ -8,6 +9,9 @@
 #include "menuring.h"
 #include "menustate.h"
 #include "util.h"
+
+#include <memory>
+#include <utility>
 
 namespace menu
 {

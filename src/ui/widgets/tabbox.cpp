@@ -7,16 +7,17 @@
 #include "widget.h"
 
 #include <algorithm>
+#include <cstddef>
 #include <engine/presenter.h>
 #include <gl/pixel.h>
 #include <glm/fwd.hpp>
 #include <gsl/gsl-lite.hpp>
 #include <gslu.h>
 #include <memory>
+#include <string>
 
 namespace ui::widgets
 {
-
 constexpr int TitleOffset = 10;
 constexpr int InnerMargin = 10;
 constexpr int WidgetOffsetTop = ui::FontHeight / 2 + InnerMargin + ui::OutlineBorderWidth;

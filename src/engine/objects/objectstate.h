@@ -35,7 +35,7 @@ class Gameflow;
 
 namespace engine::objects
 {
-enum class TriggerState
+enum class TriggerState : uint8_t
 {
   Inactive,
   Active,

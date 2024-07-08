@@ -254,7 +254,7 @@ private:
 
   gsl::not_null<const world::World*> m_world;
   gsl::not_null<const world::SkeletalModelType*> m_model;
-  std::vector<MeshPart> m_meshParts{};
+  std::vector<MeshPart> m_meshParts;
   mutable std::unique_ptr<gl::ShaderStorageBuffer<glm::mat4>> m_meshMatricesBuffer;
   bool m_forceMeshRebuild = false;
 

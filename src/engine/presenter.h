@@ -202,7 +202,7 @@ private:
   gslu::nn_shared<gl::TextureHandle<gl::Texture2D<gl::PremultipliedSRGBA8>>> m_splashImageTexture;
   std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::PremultipliedSRGBA8>>> m_splashImageTextureOverride;
   std::shared_ptr<render::scene::Mesh> m_splashImageMesh;
-  std::shared_ptr<render::scene::Mesh> m_splashImageMeshOverride{};
+  std::shared_ptr<render::scene::Mesh> m_splashImageMeshOverride;
   gslu::nn_unique<gl::Font> m_trTTFFont;
   gslu::nn_unique<gl::Font> m_ghostNameFont;
   core::Health m_drawnHealth = core::LaraHealth;
@@ -229,7 +229,6 @@ private:
     return m_splashImageMesh;
   }
 
-  void prefillDepthBuffer(const CameraController& cameraController, const std::vector<world::Room>& rooms);
   void renderGeometry(const engine::world::World& world, const std::vector<world::Room>& rooms);
 };
 } // namespace engine

@@ -14,7 +14,6 @@
 #include "engine/location.h"
 #include "engine/raycast.h"
 #include "engine/skeletalmodelnode.h"
-#include "engine/world/animation.h"
 #include "engine/world/skeletalmodeltype.h"
 #include "engine/world/world.h"
 #include "object.h"
@@ -25,8 +24,7 @@
 #include "util/helpers.h"
 
 #include <cstdint>
-#include <exception>
-#include <map>
+#include <gsl/gsl-lite.hpp>
 #include <memory>
 #include <optional>
 

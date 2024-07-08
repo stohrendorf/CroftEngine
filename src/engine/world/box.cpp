@@ -2,8 +2,6 @@
 
 #include "serialization/serialization.h"
 
-#include <exception>
-
 namespace engine::world
 {
 void Box::serialize(const serialization::Serializer<World>& ser) const

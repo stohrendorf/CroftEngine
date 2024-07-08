@@ -47,13 +47,13 @@ public:
   {
     glm::mat4 vpMatrix{1.0f};
     std::shared_ptr<gl::TextureHandle<gl::TextureDepth<float>>> depthTextureHandle;
-    std::shared_ptr<gl::Framebuffer> depthFramebuffer{};
+    std::shared_ptr<gl::Framebuffer> depthFramebuffer;
 
     std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::RG16F>>> squaredTextureHandle;
-    std::shared_ptr<gl::Framebuffer> squareFramebuffer{};
+    std::shared_ptr<gl::Framebuffer> squareFramebuffer;
 
-    std::shared_ptr<material::Material> squareMaterial{};
-    std::shared_ptr<Mesh> squareMesh{};
+    std::shared_ptr<material::Material> squareMaterial;
+    std::shared_ptr<Mesh> squareMesh;
     std::shared_ptr<SeparableBlur<gl::RG16F>> squareBlur;
 
     void init(int32_t resolution, size_t idx, material::MaterialManager& materialManager);

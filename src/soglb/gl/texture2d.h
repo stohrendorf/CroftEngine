@@ -2,6 +2,10 @@
 
 #include "texture.h"
 
+#include <boost/assert.hpp>
+#include <gl/glassert.h>
+#include <glm/vec2.hpp>
+#include <gsl/gsl-lite.hpp>
 #include <string_view>
 
 namespace gl
@@ -16,10 +20,7 @@ public:
   using TextureImpl<api::TextureTarget::Texture2d, _PixelT>::clear;
 
   explicit Texture2D(const glm::ivec2& size, const std::string_view& label)
-      : Texture2D<_PixelT>
-  {
-    size, 1, label
-  }
+      : Texture2D<_PixelT>{size, 1, label}
   {
   }
 

@@ -4,6 +4,7 @@
 #include "menustate.h"
 #include "ui/text.h"
 
+#include <cstdint>
 #include <memory>
 #include <optional>
 
@@ -19,11 +20,11 @@ class Ui;
 
 namespace menu
 {
-enum class InventoryMode;
+enum class InventoryMode : uint8_t;
 struct MenuDisplay;
 struct MenuObject;
 struct MenuRingTransform;
-enum class SaveGamePageMode;
+enum class SaveGamePageMode : uint8_t;
 
 class PassportMenuState : public MenuState
 {

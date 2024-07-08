@@ -3,7 +3,6 @@
 #include "serialization/quantity.h"
 #include "serialization/serialization.h"
 
-#include <exception>
 #include <ostream>
 
 namespace core

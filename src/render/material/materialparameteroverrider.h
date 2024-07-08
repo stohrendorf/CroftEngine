@@ -4,6 +4,8 @@
 #include "uniformparameter.h"
 
 #include <boost/container/flat_map.hpp>
+#include <functional>
+#include <string>
 
 namespace render::material
 {

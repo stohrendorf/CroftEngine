@@ -2,11 +2,16 @@
 
 #include "widget.h"
 
+#include <algorithm>
 #include <boost/throw_exception.hpp>
+#include <cstddef>
 #include <functional>
 #include <glm/fwd.hpp>
+#include <gsl/gsl-lite.hpp>
+#include <memory>
 #include <numeric>
 #include <stdexcept>
+#include <tuple>
 
 namespace ui::widgets
 {

@@ -58,8 +58,8 @@ private:
   std::shared_ptr<gl::TextureHandle<gl::Texture2D<gl::SRGB8>>> m_backbufferTextureHandle;
   std::shared_ptr<gl::Framebuffer> m_backbuffer;
 
-  std::vector<gslu::nn_shared<pass::EffectPass<gl::SRGB8>>> m_effects{};
-  std::vector<gslu::nn_shared<pass::EffectPass<gl::SRGB8>>> m_backbufferEffects{};
+  std::vector<gslu::nn_shared<pass::EffectPass<gl::SRGB8>>> m_effects;
+  std::vector<gslu::nn_shared<pass::EffectPass<gl::SRGB8>>> m_backbufferEffects;
 
   void initBackbufferEffects(material::MaterialManager& materialManager);
   void initWorldEffects(material::MaterialManager& materialManager);

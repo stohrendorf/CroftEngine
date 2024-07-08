@@ -3,6 +3,8 @@
 #include "color.h"
 #include "core/boundingbox.h"
 #include "core/interval.h"
+#include "core/magic.h"
+#include "core/units.h"
 #include "io/sdlreader.h"
 #include "io/util.h"
 #include "meshes.h"
@@ -15,10 +17,13 @@
 #include <boost/assert.hpp>
 #include <boost/log/trivial.hpp>
 #include <boost/throw_exception.hpp>
+#include <cstddef>
+#include <cstdint>
 #include <gsl/gsl-lite.hpp>
+#include <ios>
 #include <iosfwd>
+#include <memory>
 #include <stdexcept>
-#include <type_traits>
 
 namespace loader::file
 {
@@ -290,8 +295,8 @@ std::unique_ptr<Room> Room::readTr5(io::SDLReader& reader)
     BOOST_LOG_TRIVIAL(warning) << "TR5 Room: 'XELA' not found";
 
   const std::streamsize room_data_size = reader.readU32();
-  const std::streampos position = reader.tell();
-  const std::streampos endPos = position + room_data_size;
+  const auto position = reader.tell();
+  const auto endPos = position + room_data_size;
 
   auto room = std::make_unique<Room>();
   room->ambientShade = core::Shade{core::Shade::type{32767}};

@@ -100,7 +100,7 @@ using fraction_unit_t = typename fraction_unit<A, B>::type;
 // operator *
 
 template<typename Unit, typename Type1, typename Type2>
-constexpr auto operator*(const Type1& l, const quantity<Unit, Type2>& r) noexcept(noexcept(l* r.get()))
+constexpr auto operator*(const Type1& l, const quantity<Unit, Type2>& r) noexcept(noexcept(l * r.get()))
 {
   return quantity<Unit, _QS_COMBINE_TS(Type1, *, Type2)>{l * r.get()};
 }

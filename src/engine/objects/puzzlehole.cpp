@@ -27,8 +27,10 @@
 #include "render/scene/node.h"
 
 #include <boost/throw_exception.hpp>
+#include <gsl/gsl-lite.hpp>
 #include <memory>
 #include <stdexcept>
+#include <string>
 
 namespace engine::objects
 {

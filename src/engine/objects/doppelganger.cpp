@@ -21,13 +21,15 @@
 #include "objectstate.h"
 #include "qs/qs.h"
 #include "render/scene/node.h"
+#include "serialization/quantity.h"
 #include "serialization/serialization.h"
 
 #include <cstddef>
-#include <exception>
+#include <functional>
+#include <gsl/gsl-lite.hpp>
 #include <memory>
 #include <serialization/optional_value.h>
-#include <serialization/quantity.h>
+#include <string>
 
 namespace engine::objects
 {

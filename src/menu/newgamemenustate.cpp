@@ -6,10 +6,18 @@
 #include "engine/engine.h"
 #include "engine/world/world.h"
 #include "gameplayrulesmenustate.h"
+#include "gsl/gsl-lite.hpp"
+#include "listdisplaymenustate.h"
 #include "menudisplay.h"
 #include "menuring.h"
 #include "selectlevelmenustate.h"
 #include "ui/widgets/label.h"
+
+#include <boost/throw_exception.hpp>
+#include <cstddef>
+#include <memory>
+#include <stdexcept>
+#include <utility>
 
 namespace menu
 {

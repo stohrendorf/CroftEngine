@@ -52,6 +52,6 @@ public:
 private:
   GlfwKey m_key;
   std::chrono::seconds m_delay;
-  std::optional<std::chrono::system_clock::time_point> m_pressedSince{};
+  std::optional<std::chrono::system_clock::time_point> m_pressedSince;
 };
 } // namespace hid

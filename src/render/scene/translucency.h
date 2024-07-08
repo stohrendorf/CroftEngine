@@ -1,8 +1,10 @@
 #pragma once
 
+#include <cstdint>
+
 namespace render::scene
 {
-enum class Translucency
+enum class Translucency : uint8_t
 {
   Opaque,
   NonOpaque

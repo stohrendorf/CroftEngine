@@ -1,13 +1,13 @@
 #include "cutsceneactors.h"
 
-#include "core/angle.h"
 #include "core/units.h"
-#include "core/vec.h"
 #include "engine/cameracontroller.h"
-#include "engine/location.h"
 #include "engine/world/world.h"
 #include "modelobject.h"
 #include "objectstate.h"
+
+#include <gsl/gsl-lite.hpp>
+#include <string>
 
 namespace engine::objects
 {

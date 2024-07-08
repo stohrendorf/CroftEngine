@@ -3,7 +3,6 @@
 #include "core.h"
 #include "core/i18n.h"
 #include "core/magic.h"
-#include "core/units.h"
 #include "engine/inventory.h"
 #include "engine/player.h"
 #include "engine/weapontype.h"
@@ -15,14 +14,10 @@
 #include "widgets/groupbox.h"
 #include "widgets/label.h"
 
-#include <boost/format.hpp>
 #include <cstddef>
 #include <glm/vec2.hpp>
-#include <gsl/gsl-lite.hpp>
-#include <gslu.h>
 #include <memory>
 #include <string>
-#include <utility>
 
 namespace ui
 {

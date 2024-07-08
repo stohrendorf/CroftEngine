@@ -11,8 +11,6 @@
 #include <gl/glassert.h>
 #include <gl/pixel.h>
 #include <gl/renderstate.h>
-#include <glm/mat4x4.hpp>
-#include <glm/vec3.hpp>
 #include <gsl/gsl-lite.hpp>
 #include <gslu.h>
 #include <initializer_list>

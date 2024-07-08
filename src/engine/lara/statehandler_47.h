@@ -1,6 +1,14 @@
 #pragma once
 
+#include "abstractstatehandler.h"
+#include "core/magic.h"
+#include "core/units.h"
+#include "engine/collisioninfo.h"
+#include "engine/objects/laraobject.h"
 #include "statehandler_onwater.h"
+
+#include <algorithm>
+#include <gsl/gsl-lite.hpp>
 
 namespace engine::lara
 {

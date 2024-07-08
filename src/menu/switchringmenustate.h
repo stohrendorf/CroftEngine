@@ -29,8 +29,8 @@ private:
   static constexpr core::Frame Duration = 24_frame / 2;
 
   core::Frame m_duration{Duration};
-  core::Length m_radiusSpeed{};
-  core::Angle m_targetCameraRotX{};
+  core::Length m_radiusSpeed;
+  core::Angle m_targetCameraRotX;
   size_t m_next;
   bool m_down;
 

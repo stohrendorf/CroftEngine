@@ -2,11 +2,9 @@
 
 #include "render/scene/names.h"
 
-#include <algorithm>
 #include <array>
 #include <cstdint>
 #include <functional>
-#include <gl/api/gl.hpp>
 #include <gl/pixel.h>
 #include <gl/vertexbuffer.h>
 #include <glm/ext/scalar_int_sized.hpp>
@@ -100,9 +98,9 @@ public:
   }
 
 private:
-  std::vector<RenderVertex> m_vertices{};
-  std::vector<IndexType> m_opaqueIndices{};
-  std::vector<IndexType> m_nonOpaqueIndices{};
+  std::vector<RenderVertex> m_vertices;
+  std::vector<IndexType> m_opaqueIndices;
+  std::vector<IndexType> m_nonOpaqueIndices;
 };
 
 class RenderMeshDataCompositor final
@@ -150,9 +148,9 @@ public:
   }
 
 private:
-  std::vector<RenderMeshData::RenderVertex> m_vertices{};
-  std::vector<RenderMeshData::IndexType> m_opaqueIndices{};
-  std::vector<RenderMeshData::IndexType> m_nonOpaqueIndices{};
+  std::vector<RenderMeshData::RenderVertex> m_vertices;
+  std::vector<RenderMeshData::IndexType> m_opaqueIndices;
+  std::vector<RenderMeshData::IndexType> m_nonOpaqueIndices;
   glm::int32_t m_boneIndex = 0;
 };
 } // namespace engine::world

@@ -1,9 +1,9 @@
 #pragma once
 
-#include "access.h"
+#include "access.h" // IWYU pragma: keep
+#include "serialization.h"
 
 #include <filesystem>
-#include <ryml.hpp>
 
 namespace serialization
 {

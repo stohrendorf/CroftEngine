@@ -1,6 +1,7 @@
 #pragma once
 
 #include <gl/renderstate.h>
+#include <gsl/gsl-lite.hpp>
 #include <gslu.h>
 #include <memory>
 #include <string>
@@ -68,6 +69,6 @@ private:
   mutable std::vector<gslu::nn_shared<UniformBlockParameter>> m_uniformBlocks;
   mutable std::vector<gslu::nn_shared<BufferParameter>> m_buffers;
 
-  gl::RenderState m_renderState{};
+  gl::RenderState m_renderState;
 };
 } // namespace render::material

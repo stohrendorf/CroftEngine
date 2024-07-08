@@ -10,6 +10,7 @@ extern void checkALError(gsl::czstring code, gsl::czstring func, int line);
 extern void checkALCError(ALCdevice* device, gsl::czstring code, gsl::czstring func, int line);
 
 template<typename F>
+// NOLINTNEXTLINE(*-easily-swappable-parameters)
 auto alAssertFn(F code, gsl::czstring codeStr, gsl::czstring func, int line) -> decltype(code())
 {
   const auto result = code();
@@ -24,6 +25,7 @@ auto alAssertFn(F code, gsl::czstring codeStr, gsl::czstring func, int line) -> 
 }
 
 template<typename F>
+// NOLINTNEXTLINE(*-easily-swappable-parameters)
 auto alcAssertFn(ALCdevice* device, F code, gsl::czstring codeStr, gsl::czstring func, int line) -> decltype(code())
 {
   const auto result = code();

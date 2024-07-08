@@ -4,9 +4,12 @@
 #include <boost/log/trivial.hpp>
 #include <boost/throw_exception.hpp>
 #include <cstddef>
-#include <sstream>
+#include <cstdint>
+#include <filesystem>
+#include <gsl/gsl-lite.hpp>
+#include <ios>
+#include <iosfwd>
 #include <stdexcept>
-#include <string>
 
 namespace image
 {

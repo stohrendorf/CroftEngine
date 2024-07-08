@@ -1,9 +1,13 @@
 #pragma once
 
+#include "engine/world/box.h"
 #include "engine/world/world.h"
-#include "optional.h"
-#include "ptr.h"
 #include "serialization.h"
+
+#include <cstdint>
+#include <gsl/gsl-lite.hpp>
+#include <iterator>
+#include <optional>
 
 namespace serialization
 {

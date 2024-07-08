@@ -1,17 +1,17 @@
 #pragma once
 
-#include "node.h"
 #include "render/material/rendermode.h"
 
+#include <cstdint>
 #include <gl/renderstate.h>
-#include <glm/glm.hpp>
+#include <glm/mat4x4.hpp>
 #include <gsl/gsl-lite.hpp>
 #include <optional>
 #include <stack>
 
 namespace render::scene
 {
-enum class Translucency;
+enum class Translucency : uint8_t;
 
 class RenderContext final
 {
@@ -66,7 +66,7 @@ public:
   }
 
 private:
-  std::stack<gl::RenderState> m_renderStates{};
+  std::stack<gl::RenderState> m_renderStates;
   material::RenderMode m_renderMode;
   std::optional<glm::mat4> m_viewProjection;
   Translucency m_translucencySelector;

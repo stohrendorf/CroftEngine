@@ -8,9 +8,14 @@
 #include "engine/tracks_tr1.h"
 #include "qs/quantity.h"
 
+#include <algorithm>
 #include <boost/throw_exception.hpp>
 #include <cstddef>
+#include <cstdint>
 #include <filesystem>
+#include <glm/vec3.hpp>
+#include <gsl/gsl-lite.hpp>
+#include <iterator>
 #include <map>
 #include <memory>
 #include <optional>
@@ -18,6 +23,7 @@
 #include <pybind11/pytypes.h>
 #include <stdexcept>
 #include <string>
+#include <tuple>
 #include <unordered_map>
 #include <unordered_set>
 #include <utility>
@@ -25,8 +31,8 @@
 
 namespace engine
 {
-enum class RunResult;
-enum class WeaponType;
+enum class RunResult : uint8_t;
+enum class WeaponType : uint8_t;
 class Engine;
 class Player;
 } // namespace engine
@@ -38,7 +44,7 @@ class World;
 
 namespace loader::file::level
 {
-enum class Game;
+enum class Game : uint8_t;
 }
 
 namespace engine::script
@@ -67,6 +73,7 @@ struct PyObjectInfo : public ObjectInfo
 {
   void customize(const std::shared_ptr<objects::Object>& object) override
   {
+    // NOLINTNEXTLINE(*)
     PYBIND11_OVERRIDE(void, engine::script::ObjectInfo, customize, object);
   }
 };

@@ -11,6 +11,7 @@
 #include "setitemtypemenustate.h"
 
 #include <gsl/gsl-lite.hpp>
+#include <memory>
 #include <utility>
 
 namespace menu

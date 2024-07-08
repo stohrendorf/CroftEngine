@@ -7,10 +7,10 @@
 #include <algorithm>
 #include <gl/debuggroup.h>
 #include <glm/geometric.hpp>
+#include <glm/vec3.hpp>
+#include <gsl/gsl-lite.hpp>
 #include <memory>
 #include <optional>
-#include <string>
-#include <type_traits>
 #include <utility>
 
 namespace render::scene

@@ -3,8 +3,10 @@
 #include "ui_downloadprogress.h"
 
 #include <boost/log/trivial.hpp>
+#include <filesystem>
 #include <fstream>
 #include <gsl/gsl-lite.hpp>
+#include <ios>
 #include <QMessageBox>
 #include <utility>
 

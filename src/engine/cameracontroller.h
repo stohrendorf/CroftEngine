@@ -33,7 +33,7 @@ namespace engine
 {
 namespace floordata
 {
-enum class SequenceCondition;
+enum class SequenceCondition : uint8_t;
 struct CameraParameters;
 } // namespace floordata
 
@@ -42,7 +42,7 @@ namespace objects
 class Object;
 }
 
-enum class CameraMode
+enum class CameraMode : uint8_t
 {
   Chase,
   FixedPosition,
@@ -52,7 +52,7 @@ enum class CameraMode
   HeavyFixedPosition //!< like FixedPosition, but disables camera command sequence handling
 };
 
-enum class CameraModifier
+enum class CameraModifier : uint8_t
 {
   None,
   FollowCenter,
@@ -213,7 +213,7 @@ public:
 
   core::Frame m_cinematicFrame = 0_frame;
   core::TRVec m_cinematicPos{0_len, 0_len, 0_len};
-  core::TRRotation m_cinematicRot{};
+  core::TRRotation m_cinematicRot;
 
 private:
   std::unordered_set<const world::Portal*> tracePortals();

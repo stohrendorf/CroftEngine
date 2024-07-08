@@ -5,7 +5,10 @@
 
 #include <boost/log/trivial.hpp>
 #include <boost/throw_exception.hpp>
+#include <cstddef>
+#include <filesystem>
 #include <gsl/gsl-lite.hpp>
+#include <memory>
 #include <stdexcept>
 #include <string>
 

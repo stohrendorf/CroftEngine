@@ -1,11 +1,9 @@
 #pragma once
 
 #include <boost/format.hpp>
-#include <clocale>
 #include <cstring>
 #include <filesystem>
 #include <string>
-#include <utility>
 
 #ifdef _MSC_VER
 #  define fprintf
@@ -39,11 +37,13 @@ inline const char* P_(const char* singular, const char* plural, unsigned long n)
 }
 
 template<typename... Args>
+// NOLINTNEXTLINE(*-easily-swappable-parameters)
 inline std::string P_(const char* singular, const char* plural, unsigned long n, Args&&... args)
 {
   return (boost::format(P_(singular, plural, n)) % ... % std::forward<Args>(args)).str();
 }
 
+// NOLINTNEXTLINE(*-easily-swappable-parameters)
 inline const char* dcpgettext(const char* domain, const char* msg_ctxt, const char* msgid, int category)
 {
   auto msg_ctxt_id = std::string{msg_ctxt} + '\004' + msgid;
@@ -69,13 +69,20 @@ inline const char* pgettext(const char* msg_ctxt, const char* msgid)
 }
 
 template<typename... Args>
+// NOLINTNEXTLINE(*-easily-swappable-parameters)
 inline std::string pgettext(const char* msg_ctxt, const char* msgid, Args&&... args)
 {
   return (boost::format(pgettext(msg_ctxt, msgid)) % ... % std::forward<Args>(args)).str();
 }
 
 inline const char* dcnpgettext(
-  const char* domain, const char* msg_ctxt, const char* msgid, const char* msgid_plural, unsigned long n, int category)
+  // NOLINTNEXTLINE(*-easily-swappable-parameters)
+  const char* domain,
+  const char* msg_ctxt,
+  const char* msgid,
+  const char* msgid_plural,
+  unsigned long n,
+  int category)
 {
   const auto msg_ctxt_id = std::string{msg_ctxt} + '\004' + msgid;
   const auto translation = dcngettext(domain, msg_ctxt_id.c_str(), msgid_plural, n, category);

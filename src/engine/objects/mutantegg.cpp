@@ -29,11 +29,10 @@
 #include <boost/log/trivial.hpp>
 #include <cstddef>
 #include <cstdint>
-#include <exception>
 #include <functional>
-#include <gl/renderstate.h>
-#include <iosfwd>
-#include <map>
+#include <gsl/gsl-lite.hpp>
+#include <memory>
+#include <string>
 
 // IWYU pragma: no_forward_declare serialization::Serializer
 

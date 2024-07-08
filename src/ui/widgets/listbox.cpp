@@ -6,8 +6,10 @@
 
 #include <algorithm>
 #include <boost/assert.hpp>
+#include <cstddef>
 #include <gl/pixel.h>
 #include <glm/fwd.hpp>
+#include <gsl/gsl-lite.hpp>
 #include <gslu.h>
 #include <memory>
 

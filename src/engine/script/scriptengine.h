@@ -2,12 +2,7 @@
 
 #include <filesystem>
 #include <memory>
-#include <optional>
-#include <pybind11/cast.h>
 #include <pybind11/embed.h>
-#include <pybind11/pybind11.h>
-#include <pybind11/pytypes.h>
-#include <string>
 
 namespace engine::script
 {

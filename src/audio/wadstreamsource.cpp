@@ -5,12 +5,14 @@
 #include <array>
 #include <boost/log/trivial.hpp>
 #include <boost/throw_exception.hpp>
+#include <cstddef>
 #include <cstdint>
+#include <filesystem>
 #include <fstream>
 #include <gsl/gsl-lite.hpp>
-#include <sstream>
+#include <iosfwd>
+#include <memory>
 #include <stdexcept>
-#include <string>
 #include <utility>
 
 namespace audio

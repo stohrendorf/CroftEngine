@@ -1,13 +1,15 @@
 #pragma once
 
-#include "serialization_fwd.h"
+#include "access.h" // IWYU pragma: keep
+#include "serialization.h"
 
+#include <clocale>
 #include <filesystem>
 #include <fstream>
 #include <gsl/gsl-lite.hpp>
 #include <ryml.hpp>
+#include <string>
 #include <type_traits>
-#include <utility>
 
 namespace serialization
 {

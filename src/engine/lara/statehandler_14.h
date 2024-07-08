@@ -4,6 +4,8 @@
 #include "engine/collisioninfo.h"
 #include "statehandler_standing.h"
 
+#include <gsl/gsl-lite.hpp>
+
 namespace engine::lara
 {
 class StateHandler_14 final : public StateHandler_Standing

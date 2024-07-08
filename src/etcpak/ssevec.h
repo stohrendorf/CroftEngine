@@ -1,11 +1,12 @@
 #pragma once
 
+#include <cstddef>
 #include <cstdint>
 #include <emmintrin.h>
 #include <gsl/gsl-lite.hpp>
-#include <immintrin.h>
 #include <smmintrin.h>
 #include <tmmintrin.h>
+#include <xmmintrin.h>
 
 struct IVec8;
 struct IVec16;

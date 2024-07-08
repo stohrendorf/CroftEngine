@@ -5,6 +5,9 @@
 #include "menuring.h"
 #include "menustate.h"
 
+#include <memory>
+#include <utility>
+
 namespace menu
 {
 std::unique_ptr<MenuState>

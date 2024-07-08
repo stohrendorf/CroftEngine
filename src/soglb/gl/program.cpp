@@ -3,8 +3,17 @@
 #include "bindableresource.h"
 #include "glassert.h"
 
+#include <cstdint>
 #include <glm/gtc/type_ptr.hpp>
-#include <memory>
+#include <glm/mat3x3.hpp>
+#include <glm/mat4x4.hpp>
+#include <glm/vec2.hpp>
+#include <glm/vec3.hpp>
+#include <glm/vec4.hpp>
+#include <gsl/gsl-lite.hpp>
+#include <string>
+#include <utility>
+#include <vector>
 
 namespace gl
 {
@@ -16,13 +25,7 @@ Uniform::Uniform(const Program& program, const uint32_t index)
   gsl_Ensures(m_size >= 0);
 }
 
-Uniform::Uniform(Uniform&& rhs) noexcept
-    : LocatableProgramInterface{std::move(rhs)}
-    , m_size{std::exchange(rhs.m_size, -1)}
-    , m_program{std::exchange(rhs.m_program, InvalidProgram)}
-    , m_value{std::exchange(rhs.m_value, {})}
-{
-}
+Uniform::Uniform(const Uniform& rhs) noexcept = default;
 
 Uniform& Uniform::operator=(Uniform&& rhs) noexcept
 {

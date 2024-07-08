@@ -15,6 +15,7 @@
 #include <gl/buffer.h>
 #include <gl/pixel.h>
 #include <gl/renderstate.h>
+#include <glm/mat4x4.hpp>
 #include <gsl/gsl-lite.hpp>
 #include <gslu.h>
 #include <memory>

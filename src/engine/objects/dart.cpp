@@ -17,6 +17,7 @@
 #include "render/scene/node.h"
 
 #include <bitset>
+#include <gsl/gsl-lite.hpp>
 #include <memory>
 #include <utility>
 

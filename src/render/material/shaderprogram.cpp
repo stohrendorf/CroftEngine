@@ -1,6 +1,8 @@
 #include "shaderprogram.h"
 
 #include <boost/log/trivial.hpp>
+#include <gl/api/gl.hpp>
+#include <gl/glassert.h>
 #include <gl/program.h>
 #include <gl/renderstate.h>
 #include <utility>

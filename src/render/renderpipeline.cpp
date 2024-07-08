@@ -19,6 +19,8 @@
 
 #include <boost/assert.hpp>
 #include <boost/throw_exception.hpp>
+#include <cstdint>
+#include <functional>
 #include <gl/api/gl.hpp>
 #include <gl/constants.h>
 #include <gl/debuggroup.h>
@@ -31,14 +33,14 @@
 #include <gl/texture2d.h>
 #include <gl/texturedepth.h>
 #include <gl/texturehandle.h>
-#include <glm/mat4x4.hpp>
 #include <glm/vec2.hpp>
-#include <glm/vec3.hpp>
 #include <gsl/gsl-lite.hpp>
 #include <gslu.h>
+#include <memory>
 #include <optional>
 #include <stdexcept>
 #include <string>
+#include <vector>
 
 namespace render::material
 {

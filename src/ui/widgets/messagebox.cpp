@@ -2,16 +2,19 @@
 
 #include "boost/algorithm/string/split.hpp"
 #include "core/i18n.h"
-#include "gsl/gsl-lite.hpp"
 #include "label.h"
 #include "ui/core.h"
 #include "ui/ui.h"
 
 #include <algorithm>
 #include <gl/pixel.h>
+#include <gsl/gsl-lite.hpp>
 #include <gslu.h>
 #include <iterator>
+#include <memory>
 #include <numeric>
+#include <string>
+#include <vector>
 
 namespace ui::widgets
 {

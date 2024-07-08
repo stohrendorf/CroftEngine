@@ -2,7 +2,6 @@
 
 #include "api/gl.hpp" // IWYU pragma: export
 
-#include <cstdint>
 #include <glm/fwd.hpp>
 
 #if GLM_VERSION < 98 && !defined(__cppcheck__)

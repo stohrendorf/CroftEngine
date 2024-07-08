@@ -1,10 +1,11 @@
 #include "weapon.h"
 
 #include "core/magic.h"
+#include "core/units.h"
+#include "engine/soundeffects_tr1.h"
+#include "engine/weapontype.h"
 
-#include <algorithm>
 #include <boost/throw_exception.hpp>
-#include <map>
 #include <stdexcept>
 #include <unordered_map>
 

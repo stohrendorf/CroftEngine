@@ -29,7 +29,7 @@ struct Box;
 
 namespace engine::ai
 {
-enum class Mood
+enum class Mood : uint8_t
 {
   Bored,
   Attack,

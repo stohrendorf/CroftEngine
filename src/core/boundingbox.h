@@ -1,5 +1,6 @@
 #pragma once
 
+#include "core/units.h"
 #include "interval.h"
 #include "vec.h"
 
@@ -14,8 +15,10 @@ struct BoundingBox
   explicit BoundingBox() = default;
 
   explicit BoundingBox(const core::Length& minX,
+                       // NOLINTNEXTLINE(*-easily-swappable-parameters)
                        const core::Length& maxX,
                        const core::Length& minY,
+                       // NOLINTNEXTLINE(*-easily-swappable-parameters)
                        const core::Length& maxY,
                        const core::Length& minZ,
                        const core::Length& maxZ) noexcept

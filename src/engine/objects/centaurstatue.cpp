@@ -29,9 +29,10 @@
 
 #include <bitset>
 #include <boost/log/trivial.hpp>
-#include <exception>
 #include <functional>
-#include <map>
+#include <gsl/gsl-lite.hpp>
+#include <memory>
+#include <string>
 
 namespace engine::objects
 {

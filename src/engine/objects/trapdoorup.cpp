@@ -3,6 +3,7 @@
 #include "core/angle.h"
 #include "core/id.h"
 #include "core/magic.h"
+#include "core/units.h"
 #include "core/vec.h"
 #include "engine/location.h"
 #include "engine/skeletalmodelnode.h"
@@ -13,8 +14,10 @@
 
 #include <boost/assert.hpp>
 #include <gl/renderstate.h>
+#include <gsl/gsl-lite.hpp>
 #include <memory>
 #include <optional>
+#include <string>
 
 namespace engine::objects
 {

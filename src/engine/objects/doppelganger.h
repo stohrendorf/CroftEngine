@@ -1,5 +1,7 @@
 #pragma once
 
+#include "core/magic.h"
+#include "core/units.h"
 #include "modelobject.h"
 #include "serialization/serialization_fwd.h"
 
@@ -44,7 +46,7 @@ public:
   void serialize(const serialization::Serializer<world::World>& ser) const override;
   void deserialize(const serialization::Deserializer<world::World>& ser) override;
 
-  void setCenter(const core::Length& x, const core::Length z)
+  void setCenter(const core::Length& x, const core::Length& z)
   {
     m_centerX = x;
     m_centerZ = z;

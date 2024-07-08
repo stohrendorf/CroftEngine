@@ -4,6 +4,7 @@
 #include "core/angle.h"
 #include "core/id.h"
 #include "core/magic.h"
+#include "core/units.h"
 #include "core/vec.h"
 #include "engine/ai/ai.h"
 #include "engine/ai/pathfinder.h"
@@ -17,7 +18,6 @@
 #include "engine/skeletalmodelnode.h"
 #include "engine/soundeffects_tr1.h"
 #include "engine/weapontype.h"
-#include "engine/world/animation.h"
 #include "engine/world/skeletalmodeltype.h"
 #include "engine/world/world.h"
 #include "laraobject.h"
@@ -33,8 +33,9 @@
 #include <algorithm>
 #include <bitset>
 #include <cstddef>
-#include <exception>
+#include <gsl/gsl-lite.hpp>
 #include <memory>
+#include <string>
 #include <utility>
 
 namespace engine::objects

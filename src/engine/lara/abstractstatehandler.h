@@ -5,14 +5,15 @@
 #include "loader/file/larastateid.h"
 #include "qs/quantity.h"
 
+#include <cstdint>
 #include <memory>
 #include <optional>
 #include <type_traits>
 
 namespace engine
 {
-enum class CameraMode;
-enum class CameraModifier;
+enum class CameraMode : uint8_t;
+enum class CameraModifier : uint8_t;
 using LaraStateId = loader::file::LaraStateId;
 using AnimationId = loader::file::AnimationId;
 struct CollisionInfo;
@@ -21,8 +22,8 @@ struct CollisionInfo;
 namespace engine::objects
 {
 class LaraObject;
-enum class HandStatus;
-enum class UnderwaterState;
+enum class HandStatus : uint8_t;
+enum class UnderwaterState : uint8_t;
 } // namespace engine::objects
 
 namespace engine::world

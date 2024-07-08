@@ -8,13 +8,13 @@
 #include "engine/ai/ai.h"
 #include "engine/items_tr1.h"
 #include "engine/skeletalmodelnode.h"
-#include "engine/world/animation.h"
 #include "engine/world/skeletalmodeltype.h"
 #include "engine/world/world.h"
 #include "objectstate.h"
 #include "qs/qs.h"
 #include "util/helpers.h"
 
+#include <gsl/gsl-lite.hpp>
 #include <memory>
 
 namespace engine::objects
@@ -89,7 +89,7 @@ void Larson::update()
       else
         goal(1_as);
       break;
-    case 6:         // standing
+    case 6: // standing
       if(!isBored())
         goal(1_as); // standing/holding weapon
       else if(util::rand15() < 96)

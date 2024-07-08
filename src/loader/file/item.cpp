@@ -1,7 +1,10 @@
 #include "item.h"
 
+#include "core/units.h"
 #include "io/sdlreader.h"
 #include "io/util.h"
+
+#include <memory>
 
 namespace loader::file
 {

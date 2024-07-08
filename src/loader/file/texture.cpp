@@ -4,8 +4,10 @@
 
 #include <algorithm>
 #include <boost/log/trivial.hpp>
+#include <cstdint>
 #include <gl/image.h>
 #include <gl/pixel.h>
+#include <memory>
 
 namespace loader::file
 {

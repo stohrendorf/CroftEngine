@@ -1,6 +1,5 @@
 #include "tr4level.h"
 
-#include "core/id.h"
 #include "loader/file/animation.h"
 #include "loader/file/audio.h"
 #include "loader/file/datatypes.h"
@@ -12,10 +11,10 @@
 #include <boost/throw_exception.hpp>
 #include <cstddef>
 #include <cstdint>
-#include <iosfwd>
 #include <map>
 #include <memory>
 #include <stdexcept>
+#include <utility>
 #include <vector>
 
 namespace loader::file::level

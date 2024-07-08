@@ -160,7 +160,7 @@ private:
   bool m_oneshot = false;
   bool m_inverted = false;
   bool m_locked = false;
-  ActivationSet m_activationSet{};
+  ActivationSet m_activationSet;
   core::Frame m_timeout = 0_frame;
 };
 

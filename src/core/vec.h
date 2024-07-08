@@ -7,6 +7,7 @@
 #include "units.h"
 
 #include <algorithm>
+#include <cmath>
 #include <gsl/gsl-lite.hpp>
 #include <iosfwd>
 #include <tuple>

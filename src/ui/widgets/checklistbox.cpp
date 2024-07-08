@@ -3,10 +3,18 @@
 #include "checkbox.h"
 #include "label.h"
 #include "listbox.h"
+#include "widget.h"
+
+#include <cstddef>
+#include <functional>
+#include <glm/vec2.hpp>
+#include <gsl/gsl-lite.hpp>
+#include <memory>
+#include <string>
+#include <utility>
 
 namespace ui::widgets
 {
-
 CheckListBox::CheckListBox()
     : m_listBox{std::make_shared<ListBox>()}
 {

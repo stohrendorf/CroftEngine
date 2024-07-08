@@ -4,8 +4,7 @@
 #include <cstdlib>
 #include <filesystem>
 #include <gsl/gsl-lite.hpp>
-#include <sstream>
-#include <string>
+#include <optional>
 
 std::filesystem::path getExpectedSysUserDataDir()
 {

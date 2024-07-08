@@ -10,8 +10,10 @@
 #include "core/angle.h"
 #include "core/genericvec.h"
 #include "core/i18n.h"
+#include "core/id.h"
 #include "core/interval.h"
 #include "core/magic.h"
+#include "core/units.h"
 #include "engine/ai/pathfinder.h"
 #include "engine/audioengine.h"
 #include "engine/audiosettings.h"
@@ -20,12 +22,15 @@
 #include "engine/engineconfig.h"
 #include "engine/floordata/floordata.h"
 #include "engine/floordata/secrets.h"
+#include "engine/floordata/types.h"
 #include "engine/gameplayrules.h"
+#include "engine/items_tr1.h"
 #include "engine/location.h"
 #include "engine/objects/aiagent.h"
 #include "engine/objects/block.h" // IWYU pragma: keep
 #include "engine/objects/laraobject.h"
 #include "engine/objects/modelobject.h"
+#include "engine/objects/object.h"
 #include "engine/objects/objectstate.h"
 #include "engine/objects/pickupobject.h"
 #include "engine/objects/tallblock.h" // IWYU pragma: keep
@@ -37,10 +42,8 @@
 #include "engine/skeletalmodelnode.h"
 #include "engine/soundeffects_tr1.h"
 #include "engine/tracks_tr1.h"
-#include "gsl/gsl-lite.hpp"
 #include "loader/file/animationid.h"
 #include "loader/file/audio.h"
-#include "loader/file/color.h"
 #include "loader/file/datatypes.h"
 #include "loader/file/larastateid.h"
 #include "loader/file/level/level.h"
@@ -51,7 +54,6 @@
 #include "render/scene/camera.h"
 #include "render/scene/node.h"
 #include "render/scene/renderer.h"
-#include "render/textureanimator.h"
 #include "room.h"
 #include "sector.h"
 #include "serialization/array.h"
@@ -65,6 +67,7 @@
 #include "skeletalmodeltype.h"
 #include "sprite.h"
 #include "staticsoundeffect.h"
+#include "ui/pickupwidget.h"
 #include "ui/text.h"
 #include "ui/ui.h"
 #include "util/fsutil.h"
@@ -72,28 +75,31 @@
 #include "worldgeometry.h"
 
 #include <algorithm>
+#include <bitset>
 #include <boost/assert.hpp>
-#include <boost/iterator/iterator_facade.hpp>
-#include <boost/iterator/transform_iterator.hpp>
 #include <boost/log/trivial.hpp>
 #include <boost/range/adaptor/indexed.hpp>
 #include <boost/range/adaptor/map.hpp>
 #include <chrono>
 #include <cmath>
+#include <cstddef>
 #include <cstdint>
-#include <exception>
 #include <filesystem>
 #include <functional>
 #include <gl/pixel.h>
+#include <glm/common.hpp>
 #include <glm/gtx/norm.hpp>
-#include <glm/vec2.hpp>
-#include <glm/vec3.hpp>
+#include <gsl/gsl-lite.hpp>
 #include <gslu.h>
 #include <iterator>
-#include <set>
-#include <sstream>
+#include <map>
+#include <memory>
+#include <optional>
+#include <tuple>
 #include <type_traits>
+#include <unordered_map>
 #include <utility>
+#include <vector>
 
 namespace engine::world
 {
@@ -1500,12 +1506,7 @@ void World::updateStaticSoundEffects()
     if(voice == nullptr)
       continue;
 
-    if(m_roomsAreSwapped && soundEffect.playIfSwapped)
-    {
-      voice->play();
-      voice->setLooping(true);
-    }
-    else if(!m_roomsAreSwapped && soundEffect.playIfNotSwapped)
+    if((m_roomsAreSwapped && soundEffect.playIfSwapped) || (!m_roomsAreSwapped && soundEffect.playIfNotSwapped))
     {
       voice->play();
       voice->setLooping(true);

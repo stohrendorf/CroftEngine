@@ -22,7 +22,10 @@
 #include "formatutils.h"
 #include "physicaltrackbuilder.h"
 
+#include <algorithm>
 #include <boost/log/trivial.hpp>
+#include <cstddef>
+#include <cstdint>
 #include <filesystem>
 #include <vector>
 
@@ -30,6 +33,7 @@ namespace image
 {
 DiscImage::~DiscImage() = default;
 
+// NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
 std::vector<uint8_t> DiscImage::read(size_t sector, size_t size)
 {
   std::vector<uint8_t> buffer;

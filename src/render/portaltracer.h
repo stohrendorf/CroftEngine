@@ -2,7 +2,6 @@
 
 #include "core/interval.h"
 
-#include <glm/vec2.hpp>
 #include <optional>
 #include <unordered_set>
 #include <vector>
@@ -28,6 +27,7 @@ struct PortalTracer
     core::Interval<float> x;
     core::Interval<float> y;
 
+    // NOLINTNEXTLINE(*-easily-swappable-parameters)
     CullBox(const core::Interval<float>& x, const core::Interval<float>& y)
         : x{x}
         , y{y}

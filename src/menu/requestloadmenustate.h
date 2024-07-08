@@ -3,6 +3,7 @@
 #include "menustate.h"
 
 #include <cstddef>
+#include <cstdint>
 #include <memory>
 #include <optional>
 
@@ -18,7 +19,7 @@ class Ui;
 
 namespace menu
 {
-enum class MenuResult;
+enum class MenuResult : uint8_t;
 struct MenuDisplay;
 struct MenuObject;
 struct MenuRingTransform;

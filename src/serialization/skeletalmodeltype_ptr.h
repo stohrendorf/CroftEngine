@@ -1,7 +1,12 @@
 #pragma once
 
+#include "core/id.h"
 #include "engine/world/world.h"
-#include "ptr.h"
+#include "engine/world/worldgeometry.h"
+#include "ptr.h" // IWYU pragma: keep
+#include "serialization.h"
+
+#include <limits>
 
 namespace serialization
 {

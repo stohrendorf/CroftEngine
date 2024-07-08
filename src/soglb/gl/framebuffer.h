@@ -7,7 +7,6 @@
 #include <cstdint>
 #include <glm/fwd.hpp>
 #include <gslu.h>
-#include <memory>
 #include <string_view>
 #include <tuple>
 #include <vector>
@@ -85,7 +84,7 @@ class FrameBufferBuilder final
 {
 private:
   Framebuffer::Attachments m_attachments;
-  RenderState m_renderState{};
+  RenderState m_renderState;
 
 public:
   gslu::nn_shared<Framebuffer> build(const std::string_view& label);

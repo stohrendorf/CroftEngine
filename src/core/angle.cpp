@@ -6,9 +6,10 @@
 #include "util/memaccess.h"
 
 #include <boost/assert.hpp>
-#include <exception>
+#include <cstdint>
 #include <glm/gtx/euler_angles.hpp>
 #include <glm/mat4x4.hpp>
+#include <gsl/gsl-lite.hpp>
 
 namespace core
 {

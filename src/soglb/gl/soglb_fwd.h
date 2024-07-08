@@ -2,6 +2,7 @@
 
 #include "api/soglb_core.hpp" // IWYU pragma: export
 
+#include <cstddef>
 #include <glm/fwd.hpp>
 
 namespace gl::api

@@ -8,13 +8,13 @@
 #include "engine/items_tr1.h"
 #include "engine/particle.h"
 #include "engine/skeletalmodelnode.h"
-#include "engine/world/animation.h"
 #include "engine/world/skeletalmodeltype.h"
 #include "engine/world/world.h"
 #include "objectstate.h"
 #include "qs/qs.h"
 #include "util/helpers.h"
 
+#include <gsl/gsl-lite.hpp>
 #include <memory>
 
 namespace engine::objects

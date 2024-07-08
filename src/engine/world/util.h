@@ -2,6 +2,8 @@
 
 #include "core/vec.h"
 
+#include <glm/vec3.hpp>
+
 namespace engine::world
 {
 inline glm::vec3 generateNormal(const glm::vec3& o, const glm::vec3& a, const glm::vec3& b)

@@ -24,9 +24,11 @@
 #include "util/helpers.h"
 
 #include <algorithm>
-#include <exception>
+#include <gsl/gsl-lite.hpp>
 #include <iterator>
+#include <memory>
 #include <optional>
+#include <string>
 
 namespace engine::objects
 {

@@ -1,11 +1,16 @@
 #pragma once
 
 #include "abstractstatehandler.h"
+#include "core/magic.h"
+#include "core/vec.h"
 #include "engine/collisioninfo.h"
+#include "engine/location.h"
 #include "engine/particle.h"
 #include "engine/world/skeletalmodeltype.h"
 
-#include <gslu.h>
+#include <cstddef>
+#include <gsl/gsl-lite.hpp>
+#include <memory>
 
 namespace engine::lara
 {

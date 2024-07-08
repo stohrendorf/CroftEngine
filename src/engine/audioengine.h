@@ -2,16 +2,23 @@
 
 #include "audio/voicegroup.h"
 #include "core/id.h"
+#include "core/units.h"
 #include "floordata/floordata.h"
+#include "floordata/types.h"
 #include "loader/file/audio.h"
-#include "soundeffects_tr1.h"
+#include "serialization/serialization_fwd.h"
 
 #include <boost/container/flat_map.hpp>
+#include <chrono>
+#include <cstdint>
 #include <filesystem>
+#include <glm/vec3.hpp>
+#include <gsl/gsl-lite.hpp>
 #include <gslu.h>
 #include <map>
+#include <memory>
 #include <optional>
-#include <utility>
+#include <vector>
 
 namespace engine::world
 {
@@ -43,8 +50,8 @@ class AudioEngine
   std::filesystem::path m_rootPath;
   gslu::nn_shared<audio::SoundEngine> m_soundEngine;
 
-  std::vector<loader::file::SoundEffectProperties> m_soundEffectProperties{};
-  boost::container::flat_map<int, const loader::file::SoundEffectProperties*> m_soundEffects{};
+  std::vector<loader::file::SoundEffectProperties> m_soundEffectProperties;
+  boost::container::flat_map<int, const loader::file::SoundEffectProperties*> m_soundEffects;
   std::map<TR1TrackId, engine::floordata::ActivationState> m_cdTrackActivationStates;
   core::Frame m_cdTrack50time = 0_frame;
   std::shared_ptr<audio::Voice> m_underwaterAmbience;
@@ -94,16 +101,6 @@ public:
   void setSfxGain(float gain)
   {
     m_sfx.setGain(gain);
-  }
-
-  [[nodiscard]] auto getMusicGain() const
-  {
-    return m_music.getGain();
-  }
-
-  [[nodiscard]] auto getSfxGain() const
-  {
-    return m_sfx.getGain();
   }
 
   [[nodiscard]] const auto& getCurrentTrack() const noexcept

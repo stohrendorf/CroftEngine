@@ -1,5 +1,6 @@
 #include "switchringmenustate.h"
 
+#include "core/units.h"
 #include "core/vec.h"
 #include "inflateringmenustate.h"
 #include "menudisplay.h"
@@ -7,6 +8,9 @@
 #include "menuringtransform.h"
 #include "menustate.h"
 #include "util.h"
+
+#include <cstddef>
+#include <memory>
 
 namespace menu
 {

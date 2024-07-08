@@ -1,5 +1,7 @@
 #include "collapsiblefloor.h"
 
+#include "core/id.h"
+#include "core/units.h"
 #include "engine/heightinfo.h"
 #include "engine/objectmanager.h"
 #include "engine/skeletalmodelnode.h"
@@ -10,7 +12,9 @@
 #include "serialization/serialization.h"
 
 #include <gl/renderstate.h>
+#include <gsl/gsl-lite.hpp>
 #include <memory>
+#include <string>
 
 namespace engine::objects
 {

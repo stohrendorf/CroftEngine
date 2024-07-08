@@ -7,6 +7,8 @@
 #include "serialization/yamldocument.h"
 
 #include <algorithm>
+#include <functional>
+#include <gsl/gsl-lite.hpp>
 #include <regex>
 
 namespace launcher

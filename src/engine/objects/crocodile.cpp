@@ -26,6 +26,7 @@
 #include <gsl/gsl-lite.hpp>
 #include <memory>
 #include <optional>
+#include <tuple>
 
 namespace engine::objects
 {

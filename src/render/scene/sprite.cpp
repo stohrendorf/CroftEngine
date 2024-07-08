@@ -7,7 +7,6 @@
 #include "render/material/rendermode.h"
 #include "render/material/shaderprogram.h"
 
-#include <algorithm>
 #include <array>
 #include <boost/assert.hpp>
 #include <cstdint>
@@ -16,9 +15,13 @@
 #include <gl/renderstate.h>
 #include <gl/vertexarray.h>
 #include <gl/vertexbuffer.h>
+#include <glm/mat4x4.hpp>
+#include <glm/vec2.hpp>
 #include <gsl/gsl-lite.hpp>
 #include <gslu.h>
 #include <memory>
+#include <string>
+#include <tuple>
 #include <vector>
 
 namespace render::scene

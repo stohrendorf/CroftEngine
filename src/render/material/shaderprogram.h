@@ -1,19 +1,13 @@
 #pragma once
 
 #include <boost/container/flat_map.hpp>
-#include <boost/container/vector.hpp>
 #include <boost/log/trivial.hpp>
 #include <boost/throw_exception.hpp>
-#include <filesystem>
 #include <gl/api/gl.hpp>
 #include <gl/program.h>
 #include <gl/soglb_fwd.h>
-#include <gslu.h>
-#include <iosfwd>
-#include <stdexcept>
 #include <string>
 #include <string_view>
-#include <vector>
 
 namespace render::material
 {
@@ -89,15 +83,6 @@ public:
   }
 
 private:
-  static gslu::nn_shared<ShaderProgram> createFromSource(const std::string& programId,
-                                                         const std::string& vshId,
-                                                         const std::filesystem::path& vshPath,
-                                                         const std::string& vshSource,
-                                                         const std::string& fshId,
-                                                         const std::filesystem::path& fshPath,
-                                                         const std::string& fshSource,
-                                                         const std::vector<std::string>& defines = {});
-
   gl::Program m_handle;
   std::string m_id;
 

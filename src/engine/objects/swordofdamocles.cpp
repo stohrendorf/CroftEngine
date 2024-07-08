@@ -3,6 +3,7 @@
 #include "core/angle.h"
 #include "core/genericvec.h"
 #include "core/magic.h"
+#include "core/units.h"
 #include "core/vec.h"
 #include "engine/collisioninfo.h"
 #include "engine/location.h"
@@ -19,9 +20,10 @@
 #include "serialization/serialization.h"
 #include "util/helpers.h"
 
-#include <exception>
 #include <gl/renderstate.h>
+#include <gsl/gsl-lite.hpp>
 #include <memory>
+#include <string>
 
 namespace engine::objects
 {

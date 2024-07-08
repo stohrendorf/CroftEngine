@@ -5,6 +5,7 @@
 #include "ui/text.h"
 
 #include <cstddef>
+#include <cstdint>
 #include <gl/buffer.h>
 #include <glm/vec2.hpp>
 #include <gsl/gsl-lite.hpp>
@@ -40,7 +41,7 @@ class Framebuffer;
 
 namespace menu
 {
-enum class InventoryMode
+enum class InventoryMode : uint8_t
 {
   /// adds "items" and "inventory" rings
   GameMode,
@@ -54,7 +55,7 @@ struct MenuObject;
 struct MenuRing;
 class MenuState;
 
-enum class MenuResult
+enum class MenuResult : uint8_t
 {
   None,
   Closed,
@@ -67,7 +68,7 @@ enum class MenuResult
   RequestLevel
 };
 
-enum class SaveGamePageMode
+enum class SaveGamePageMode : uint8_t
 {
   Skip,
   NewGame,
@@ -85,7 +86,7 @@ struct MenuDisplay
   ~MenuDisplay();
 
   InventoryMode mode;
-  std::optional<engine::TR1ItemId> inventoryChosen{};
+  std::optional<engine::TR1ItemId> inventoryChosen;
   bool allowMenuClose = true;
   SaveGamePageMode saveGamePageMode;
   bool allowPassportExit;

@@ -1,8 +1,7 @@
 #pragma once
 
-#include "binaryfile.h"
-
-#include <boost/log/trivial.hpp>
+#include <cstddef>
+#include <cstdint>
 #include <gsl/gsl-lite.hpp>
 #include <ios>
 

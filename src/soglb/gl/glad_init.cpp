@@ -9,7 +9,6 @@
 #include <cstdint>
 #include <cstdlib>
 #include <gsl/gsl-lite.hpp>
-#include <iosfwd>
 #include <stdexcept>
 #include <string_view>
 

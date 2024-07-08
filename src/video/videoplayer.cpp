@@ -1,7 +1,6 @@
 #include "videoplayer.h"
 
 #include "audio/device.h"
-#include "audio/streamsource.h"
 #include "audio/streamvoice.h"
 #include "avdecoder.h"
 #include "converter.h"
@@ -13,13 +12,12 @@
 #include <filesystem>
 #include <functional>
 #include <gl/pixel.h>
+#include <gl/soglb_fwd.h>
 #include <gsl/gsl-lite.hpp>
 #include <gslu.h>
 #include <memory>
 #include <optional>
-#include <sstream>
 #include <stdexcept>
-#include <string>
 #include <utility>
 
 extern "C"

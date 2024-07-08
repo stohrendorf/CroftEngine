@@ -3,7 +3,6 @@
 #include "core/magic.h"
 
 #include <chrono>
-#include <numeric>
 #include <thread>
 
 namespace engine
@@ -42,6 +41,6 @@ private:
   using TimeType = std::chrono::microseconds;
   static constexpr TimeType FrameDuration = std::chrono::duration_cast<TimeType>(core::TimePerFrame);
 
-  std::chrono::high_resolution_clock::time_point m_nextFrameTime{};
+  std::chrono::high_resolution_clock::time_point m_nextFrameTime;
 };
 } // namespace engine

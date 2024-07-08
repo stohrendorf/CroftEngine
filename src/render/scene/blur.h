@@ -3,16 +3,19 @@
 #include "mesh.h"
 #include "render/material/material.h"
 #include "render/material/materialmanager.h"
-#include "render/material/shaderprogram.h"
 #include "render/material/uniformparameter.h"
-#include "rendercontext.h"
+#include "render/scene/rendercontext.h"
 
+#include <cstdint>
 #include <gl/constants.h>
 #include <gl/debuggroup.h>
 #include <gl/framebuffer.h>
-#include <gl/sampler.h>
+#include <gl/soglb_fwd.h>
 #include <gl/texturehandle.h>
+#include <gsl/gsl-lite.hpp>
 #include <gslu.h>
+#include <memory>
+#include <string>
 
 namespace render::scene
 {
@@ -24,6 +27,7 @@ public:
 
   explicit SingleBlur(std::string name,
                       material::MaterialManager& materialManager,
+                      // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
                       uint8_t dir,
                       uint8_t extent,
                       bool gauss,

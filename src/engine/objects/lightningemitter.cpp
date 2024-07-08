@@ -29,20 +29,24 @@
 #include "util/helpers.h"
 
 #include <algorithm>
+#include <array>
 #include <boost/assert.hpp>
+#include <cstddef>
 #include <cstdint>
-#include <exception>
 #include <gl/buffer.h>
 #include <gl/constants.h>
 #include <gl/renderstate.h>
 #include <gl/vertexarray.h>
 #include <gl/vertexbuffer.h>
+#include <glm/common.hpp>
 #include <glm/geometric.hpp>
-#include <glm/mat4x4.hpp>
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
+#include <gsl/gsl-lite.hpp>
 #include <gslu.h>
+#include <memory>
 #include <optional>
+#include <string>
 #include <tuple>
 #include <utility>
 #include <vector>
@@ -251,8 +255,8 @@ void LightningEmitter::prepareRender()
     return;
 
   const auto nearestFrame = getSkeleton()->getInterpolationInfo().getNearestFrame();
-  const auto segmentStart
-    = glm::vec3(core::fromPackedAngles(&nearestFrame->getAngleData()[0]) * glm::vec4(nearestFrame->pos.toGl(), 1.0f));
+  const auto segmentStart = glm::vec3(core::fromPackedAngles(nearestFrame->getAngleData().data())
+                                      * glm::vec4(nearestFrame->pos.toGl(), 1.0f));
 
   const Bolt mainBolt = updateBolt(segmentStart, m_mainBoltEnd.toRenderSystem(), m_mainVb);
 

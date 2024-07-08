@@ -1,9 +1,12 @@
 #include "animation.h"
 
+#include "core/units.h"
 #include "io/sdlreader.h"
 #include "qs/quantity.h"
 
 #include <boost/log/trivial.hpp>
+#include <gsl/gsl-lite.hpp>
+#include <memory>
 
 namespace loader::file
 {

@@ -4,6 +4,7 @@
 #include "utils.h"
 
 #include <AL/al.h>
+#include <cstdint>
 #include <cstring>
 #include <gsl/gsl-lite.hpp>
 #include <iterator>

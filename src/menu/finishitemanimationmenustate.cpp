@@ -8,6 +8,9 @@
 #include "menustate.h"
 #include "util.h"
 
+#include <memory>
+#include <utility>
+
 namespace menu
 {
 std::unique_ptr<MenuState>
