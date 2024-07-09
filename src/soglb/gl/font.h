@@ -5,7 +5,7 @@
 
 #include <cstdint>
 #include <filesystem>
-#include <freetype/freetype.h>
+#include <ft2build.h>
 #include <glm/vec2.hpp>
 #include <gsl/gsl-lite.hpp>
 #include <string>
@@ -13,6 +13,7 @@
 
 #include FT_TYPES_H
 #include FT_CACHE_H
+#include FT_FREETYPE_H
 
 namespace gl
 {

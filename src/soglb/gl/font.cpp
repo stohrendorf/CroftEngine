@@ -10,7 +10,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <filesystem>
-#include <freetype/freetype.h>
+#include <ft2build.h>
 #include <gl/pixel.h>
 #include <glm/vec2.hpp>
 #include <gsl/gsl-lite.hpp>
@@ -21,6 +21,7 @@
 #include <utility>
 #include <vector>
 
+#include FT_FREETYPE_H
 #include FT_CACHE_H
 #include FT_TYPES_H
 
