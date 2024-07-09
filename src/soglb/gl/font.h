@@ -1,17 +1,18 @@
 #pragma once
 
-#include "freetype/freetype.h"
-#include "freetype/fttypes.h"
 #include "pixel.h"
 #include "soglb_fwd.h"
 
 #include <cstdint>
 #include <filesystem>
-#include <freetype/ftcache.h>
+#include <freetype/freetype.h>
 #include <glm/vec2.hpp>
 #include <gsl/gsl-lite.hpp>
 #include <string>
 #include <utility>
+
+#include FT_TYPES_H
+#include FT_CACHE_H
 
 namespace gl
 {

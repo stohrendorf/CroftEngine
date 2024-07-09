@@ -1,9 +1,5 @@
 #include "font.h"
 
-#include "freetype/freetype.h"
-#include "freetype/ftcache.h"
-#include "freetype/ftimage.h"
-#include "freetype/fttypes.h"
 #include "image.h"
 
 #include <algorithm>
@@ -14,6 +10,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <filesystem>
+#include <freetype/freetype.h>
 #include <gl/pixel.h>
 #include <glm/vec2.hpp>
 #include <gsl/gsl-lite.hpp>
@@ -23,6 +20,9 @@
 #include <utf8.h> // IWYU pragma: keep
 #include <utility>
 #include <vector>
+
+#include FT_CACHE_H
+#include FT_TYPES_H
 
 namespace gl
 {
@@ -41,7 +41,7 @@ gsl::czstring getFreeTypeErrorMessage(const FT_Error err)
   {
 #define FT_ERROR_END_LIST }
 
-#include <freetype/fterrors.h>
+#include FT_ERRORS_H
   return "(Unknown error)";
 }
 
