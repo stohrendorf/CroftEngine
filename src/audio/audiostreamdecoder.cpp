@@ -24,7 +24,6 @@
 extern "C"
 {
 #include <libavcodec/avcodec.h>
-#include <libavcodec/packet.h>
 #include <libavformat/avformat.h>
 #include <libavutil/avutil.h>
 #include <libavutil/channel_layout.h>
