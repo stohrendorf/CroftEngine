@@ -1,12 +1,12 @@
 #include "messagebox.h"
 
-#include "boost/algorithm/string/split.hpp"
 #include "core/i18n.h"
 #include "label.h"
 #include "ui/core.h"
 #include "ui/ui.h"
 
 #include <algorithm>
+#include <boost/algorithm/string/split.hpp>
 #include <gl/pixel.h>
 #include <gsl/gsl-lite.hpp>
 #include <gslu.h>

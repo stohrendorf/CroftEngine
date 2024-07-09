@@ -2,8 +2,8 @@
 
 // FIXME: this is a bad include path
 #include "../launcher/networkconfig.h"
-#include "boost/system/detail/error_code.hpp"
 
+#include <boost/system/error_code.hpp>
 #include <ios>
 #include <map>
 
