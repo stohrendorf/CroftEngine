@@ -156,7 +156,7 @@ class Uniform final : public LocatableProgramInterface<api::ProgramInterface::Un
 {
 public:
   explicit Uniform(const Program& program, uint32_t index);
-  Uniform(const Uniform& rhs) noexcept;
+  Uniform(const Uniform& rhs);
   Uniform& operator=(Uniform&& rhs) noexcept;
 
   template<typename T>
