@@ -69,7 +69,7 @@ public:
   {
   }
 
-  LocatableProgramInterface(const LocatableProgramInterface<_Type>& rhs) noexcept = default;
+  LocatableProgramInterface(const LocatableProgramInterface<_Type>& rhs) = default;
 
   LocatableProgramInterface<_Type>& operator=(LocatableProgramInterface<_Type>&& rhs) noexcept
   {
