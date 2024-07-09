@@ -28,7 +28,7 @@ Uniform::Uniform(const Program& program, const uint32_t index)
   m_size = size;
 }
 
-Uniform::Uniform(const Uniform& rhs) noexcept = default;
+Uniform::Uniform(const Uniform& rhs) = default;
 
 Uniform& Uniform::operator=(Uniform&& rhs) noexcept
 {
