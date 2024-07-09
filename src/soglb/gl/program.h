@@ -18,6 +18,7 @@
 #include <gsl/gsl-lite.hpp>
 #include <gslu.h>
 #include <limits>
+#include <optional>
 #include <string>
 #include <string_view>
 #include <type_traits>
@@ -73,18 +74,18 @@ public:
 
   LocatableProgramInterface<_Type>& operator=(LocatableProgramInterface<_Type>&& rhs) noexcept
   {
-    m_location = std::exchange(rhs.m_location, -1);
+    m_location = std::exchange(rhs.m_location, std::nullopt);
     ProgramInterface<_Type>::operator=(std::move(rhs));
     return *this;
   }
 
-  [[nodiscard]] auto getLocation() const noexcept
+  [[nodiscard]] const auto& getLocation() const noexcept
   {
     return m_location;
   }
 
 private:
-  int32_t m_location;
+  std::optional<int32_t> m_location;
 };
 
 using ProgramInput = LocatableProgramInterface<api::ProgramInterface::ProgramInput>;
@@ -101,27 +102,27 @@ public:
       : ProgramInterface<_Type>{program, index}
       , m_binding{ProgramInterface<_Type>::getProperty(program, index, api::ProgramResourceProperty::BufferBinding)}
   {
-    gsl_Ensures(m_binding >= 0);
+    gsl_Ensures(m_binding.has_value());
   }
 
   ProgramBlock(ProgramBlock<_Type, _Target>&& rhs) noexcept
       : ProgramInterface<_Type>{std::move(rhs)}
-      , m_binding{std::exchange(rhs.m_binding, -1)}
+      , m_binding{std::exchange(rhs.m_binding, std::nullopt)}
   {
   }
 
   ProgramBlock<_Type, _Target>& operator=(ProgramBlock<_Type, _Target>&& rhs) noexcept
   {
     ProgramInterface<_Type>::operator=(std::move(rhs));
-    m_binding = std::exchange(rhs.m_binding, -1);
+    m_binding = std::exchange(rhs.m_binding, std::nullopt);
     return *this;
   }
 
   template<typename T>
   void bind(const Buffer<T, _Target>& buffer)
   {
-    gsl_Expects(m_binding >= 0);
-    GL_ASSERT(api::bindBufferBase(_Target, m_binding, buffer.getHandle()));
+    gsl_Assert(m_binding.has_value());
+    GL_ASSERT(api::bindBufferBase(_Target, *m_binding, buffer.getHandle()));
   }
 
   template<typename T, api::BufferTarget LazyTarget = _Target>
@@ -134,16 +135,17 @@ public:
   {
     gsl_Expects(start < buffer.size());
     gsl_Expects(start + n <= buffer.size());
-    GL_ASSERT(api::bindBufferRange(_Target, m_binding, buffer.getHandle(), sizeof(T) * start, sizeof(T) * n));
+    gsl_Assert(m_binding.has_value());
+    GL_ASSERT(api::bindBufferRange(_Target, *m_binding, buffer.getHandle(), sizeof(T) * start, sizeof(T) * n));
   }
 
-  [[nodiscard]] auto getBinding() const noexcept
+  [[nodiscard]] const auto& getBinding() const noexcept
   {
     return m_binding;
   }
 
 private:
-  int32_t m_binding;
+  std::optional<int32_t> m_binding;
 };
 
 using ShaderStorageBlock
@@ -160,27 +162,28 @@ public:
   template<typename T>
   std::enable_if_t<std::is_trivial_v<T>, void> set(const T& value)
   {
-    gsl_Expects(m_program != InvalidProgram);
+    gsl_Expects(m_program.has_value());
+    gsl_Expects(getLocation().has_value());
     if(changeValue(value))
-      GL_ASSERT(api::programUniform1(m_program, getLocation(), value)); // cppcheck-suppress missingReturn
+      GL_ASSERT(api::programUniform1(*m_program, *getLocation(), value)); // cppcheck-suppress missingReturn
   }
 
   template<typename T>
   void set(const std::vector<T>& values)
   {
-    gsl_Expects(m_program != InvalidProgram);
+    gsl_Expects(m_program.has_value());
     if(changeValue(values))
-      GL_ASSERT(
-        api::programUniform1(m_program, getLocation(), gsl::narrow<api::core::SizeType>(values.size()), values.data()));
+      GL_ASSERT(api::programUniform1(
+        *m_program, getLocation(), gsl::narrow<api::core::SizeType>(values.size()), values.data()));
   }
 
   template<typename T, size_t N>
   void set(const std::array<T, N>& values)
   {
-    gsl_Expects(m_program != InvalidProgram);
+    gsl_Expects(m_program.has_value());
     if(changeValue(std::vector{values.begin(), values.end()}))
-      GL_ASSERT(
-        api::programUniform1(m_program, getLocation(), gsl::narrow<api::core::SizeType>(values.size()), values.data()));
+      GL_ASSERT(api::programUniform1(
+        *m_program, getLocation(), gsl::narrow<api::core::SizeType>(values.size()), values.data()));
   }
 
   void set(const glm::mat3& value);
@@ -205,10 +208,13 @@ public:
   template<typename TTexture>
   void set(const gslu::nn_shared<TextureHandle<TTexture>>& textureHandle)
   {
-    gsl_Expects(m_program != InvalidProgram);
+    if(!changeValue(textureHandle->getHandle()))
+      return;
+
+    gsl_Assert(m_program.has_value());
+    gsl_Assert(getLocation().has_value());
     gsl_Assert(GL_ASSERT_FN(gl::api::isTextureHandleResident(textureHandle->getHandle())));
-    if(changeValue(textureHandle->getHandle()))
-      GL_ASSERT(api::programUniformHandle(m_program, getLocation(), textureHandle->getHandle()));
+    GL_ASSERT(api::programUniformHandle(*m_program, *getLocation(), textureHandle->getHandle()));
   }
 
   // NOLINTNEXTLINE(bugprone-reserved-identifier)
@@ -219,10 +225,8 @@ public:
   }
 
 private:
-  static constexpr uint32_t InvalidProgram = std::numeric_limits<uint32_t>::max();
-
-  int32_t m_size = -1;
-  uint32_t m_program;
+  std::optional<int32_t> m_size;
+  std::optional<uint32_t> m_program;
 
   std::variant<std::vector<glm::int32_t>,
                std::vector<glm::float32_t>,

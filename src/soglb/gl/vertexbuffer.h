@@ -115,14 +115,15 @@ void VertexAttribute<T>::bindVertexAttribute(const api::core::Handle vertexArray
 {
   for(int32_t dataOffset = 0, locationOffset = 0; dataOffset < m_size; dataOffset += 4, ++locationOffset)
   {
-    GL_ASSERT(api::enableVertexArrayAttrib(vertexArray, input.getLocation() + locationOffset));
+    gsl_Assert(input.getLocation().has_value());
+    GL_ASSERT(api::enableVertexArrayAttrib(vertexArray, *input.getLocation() + locationOffset));
     GL_ASSERT(api::vertexArrayAttribFormat(vertexArray,
-                                           input.getLocation() + locationOffset,
+                                           *input.getLocation() + locationOffset,
                                            std::min(m_size - dataOffset, 4),
                                            m_type,
                                            m_normalized,
                                            m_relativeOffset + sizeof(float) * dataOffset));
-    GL_ASSERT(api::vertexArrayAttribBinding(vertexArray, input.getLocation() + locationOffset, bindingIndex));
+    GL_ASSERT(api::vertexArrayAttribBinding(vertexArray, *input.getLocation() + locationOffset, bindingIndex));
   }
 }
 } // namespace gl

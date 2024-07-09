@@ -11,6 +11,7 @@
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
 #include <gsl/gsl-lite.hpp>
+#include <optional>
 #include <string>
 #include <utility>
 #include <vector>
@@ -21,8 +22,10 @@ Uniform::Uniform(const Program& program, const uint32_t index)
     : LocatableProgramInterface{program, index}
     , m_program{program.getHandle()}
 {
-  GL_ASSERT(api::getActiveUniforms(program.getHandle(), 1, &index, api::UniformPName::UniformSize, &m_size));
-  gsl_Ensures(m_size >= 0);
+  int32_t size = -1;
+  GL_ASSERT(api::getActiveUniforms(program.getHandle(), 1, &index, api::UniformPName::UniformSize, &size));
+  gsl_Assert(size >= 0);
+  m_size = size;
 }
 
 Uniform::Uniform(const Uniform& rhs) noexcept = default;
@@ -30,7 +33,7 @@ Uniform::Uniform(const Uniform& rhs) noexcept = default;
 Uniform& Uniform::operator=(Uniform&& rhs) noexcept
 {
   m_size = std::exchange(rhs.m_size, -1);
-  m_program = std::exchange(rhs.m_program, InvalidProgram);
+  m_program = std::exchange(rhs.m_program, std::nullopt);
   m_value = std::exchange(rhs.m_value, {});
   LocatableProgramInterface::operator=(std::move(rhs));
   return *this;
@@ -38,86 +41,126 @@ Uniform& Uniform::operator=(Uniform&& rhs) noexcept
 
 void Uniform::set(const glm::mat3& value)
 {
-  gsl_Expects(m_program != InvalidProgram);
-  if(changeValue(value))
-    GL_ASSERT(api::programUniformMatrix3(m_program, getLocation(), 1, false, glm::value_ptr(value)));
+  if(!changeValue(value))
+    return;
+
+  gsl_Expects(m_program.has_value());
+  gsl_Expects(getLocation().has_value());
+  // NOLINTNEXTLINE(*-unchecked-optional-access)
+  GL_ASSERT(api::programUniformMatrix3(*m_program, *getLocation(), 1, false, glm::value_ptr(value)));
 }
 
 void Uniform::set(const glm::mat4& value)
 {
-  gsl_Expects(m_program != InvalidProgram);
-  if(changeValue(value))
-    GL_ASSERT(api::programUniformMatrix4(m_program, getLocation(), 1, false, glm::value_ptr(value)));
+  if(!changeValue(value))
+    return;
+
+  gsl_Expects(m_program.has_value());
+  gsl_Expects(getLocation().has_value());
+  // NOLINTNEXTLINE(*-unchecked-optional-access)
+  GL_ASSERT(api::programUniformMatrix4(*m_program, *getLocation(), 1, false, glm::value_ptr(value)));
 }
 
 void Uniform::set(const std::vector<glm::mat4>& values)
 {
-  gsl_Expects(m_program != InvalidProgram);
-  if(changeValue(values))
-    GL_ASSERT(api::programUniformMatrix4(
-      m_program,
-      getLocation(),
-      gsl::narrow<api::core::SizeType>(values.size()),
-      false,
-      reinterpret_cast<const float*>(values.data()) // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
-      ));
+  if(!changeValue(values))
+    return;
+
+  gsl_Expects(m_program.has_value());
+  gsl_Expects(getLocation().has_value());
+  GL_ASSERT(api::programUniformMatrix4(
+    // NOLINTNEXTLINE(*-unchecked-optional-access)
+    *m_program,
+    // NOLINTNEXTLINE(*-unchecked-optional-access)
+    *getLocation(),
+    gsl::narrow<api::core::SizeType>(values.size()),
+    false,
+    reinterpret_cast<const float*>(values.data()) // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
+    ));
 }
 
 void Uniform::set(const glm::vec2& value)
 {
-  gsl_Expects(m_program != InvalidProgram);
-  if(changeValue(value))
-    GL_ASSERT(api::programUniform2(m_program, getLocation(), value.x, value.y));
+  if(!changeValue(value))
+    return;
+
+  gsl_Expects(m_program.has_value());
+  gsl_Expects(getLocation().has_value());
+  // NOLINTNEXTLINE(*-unchecked-optional-access)
+  GL_ASSERT(api::programUniform2(*m_program, *getLocation(), value.x, value.y));
 }
 
 void Uniform::set(const glm::vec3& value)
 {
-  gsl_Expects(m_program != InvalidProgram);
-  if(changeValue(value))
-    GL_ASSERT(api::programUniform3(m_program, getLocation(), value.x, value.y, value.z));
+  if(!changeValue(value))
+    return;
+
+  gsl_Expects(m_program.has_value());
+  gsl_Expects(getLocation().has_value());
+  // NOLINTNEXTLINE(*-unchecked-optional-access)
+  GL_ASSERT(api::programUniform3(*m_program, *getLocation(), value.x, value.y, value.z));
 }
 
 void Uniform::set(const glm::vec4& value)
 {
-  gsl_Expects(m_program != InvalidProgram);
-  if(changeValue(value))
-    GL_ASSERT(api::programUniform4(m_program, getLocation(), value.x, value.y, value.z, value.w));
+  if(!changeValue(value))
+    return;
+
+  gsl_Expects(m_program.has_value());
+  gsl_Expects(getLocation().has_value());
+  // NOLINTNEXTLINE(*-unchecked-optional-access)
+  GL_ASSERT(api::programUniform4(*m_program, *getLocation(), value.x, value.y, value.z, value.w));
 }
 
 void Uniform::set(const std::vector<glm::vec2>& values)
 {
-  gsl_Expects(m_program != InvalidProgram);
-  if(changeValue(values))
-    GL_ASSERT(api::programUniform2(
-      m_program,
-      getLocation(),
-      gsl::narrow<api::core::SizeType>(values.size()),
-      reinterpret_cast<const float*>(values.data()) // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
-      ));
+  if(!changeValue(values))
+    return;
+
+  gsl_Expects(m_program.has_value());
+  gsl_Expects(getLocation().has_value());
+  GL_ASSERT(api::programUniform2(
+    // NOLINTNEXTLINE(*-unchecked-optional-access)
+    *m_program,
+    // NOLINTNEXTLINE(*-unchecked-optional-access)
+    *getLocation(),
+    gsl::narrow<api::core::SizeType>(values.size()),
+    reinterpret_cast<const float*>(values.data()) // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
+    ));
 }
 
 void Uniform::set(const std::vector<glm::vec3>& values)
 {
-  gsl_Expects(m_program != InvalidProgram);
-  if(changeValue(values))
-    GL_ASSERT(api::programUniform3(
-      m_program,
-      getLocation(),
-      gsl::narrow<api::core::SizeType>(values.size()),
-      reinterpret_cast<const float*>(values.data()) // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
-      ));
+  if(!changeValue(values))
+    return;
+
+  gsl_Expects(m_program.has_value());
+  gsl_Expects(getLocation().has_value());
+  GL_ASSERT(api::programUniform3(
+    // NOLINTNEXTLINE(*-unchecked-optional-access)
+    *m_program,
+    // NOLINTNEXTLINE(*-unchecked-optional-access)
+    *getLocation(),
+    gsl::narrow<api::core::SizeType>(values.size()),
+    reinterpret_cast<const float*>(values.data()) // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
+    ));
 }
 
 void Uniform::set(const std::vector<glm::vec4>& values)
 {
-  gsl_Expects(m_program != InvalidProgram);
-  if(changeValue(values))
-    GL_ASSERT(api::programUniform4(
-      m_program,
-      getLocation(),
-      gsl::narrow<api::core::SizeType>(values.size()),
-      reinterpret_cast<const float*>(values.data()) // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
-      ));
+  if(!changeValue(values))
+    return;
+
+  gsl_Expects(m_program.has_value());
+  gsl_Expects(getLocation().has_value());
+  GL_ASSERT(api::programUniform4(
+    // NOLINTNEXTLINE(*-unchecked-optional-access)
+    *m_program,
+    // NOLINTNEXTLINE(*-unchecked-optional-access)
+    *getLocation(),
+    gsl::narrow<api::core::SizeType>(values.size()),
+    reinterpret_cast<const float*>(values.data()) // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
+    ));
 }
 
 bool Program::getLinkStatus() const
