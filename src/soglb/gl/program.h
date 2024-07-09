@@ -39,7 +39,7 @@ public:
   explicit ProgramInterface(const Program& program, uint32_t index);
   virtual ~ProgramInterface() = default;
 
-  ProgramInterface(const ProgramInterface<_Type>& rhs) noexcept = default;
+  ProgramInterface(const ProgramInterface<_Type>& rhs) = default;
 
   ProgramInterface<_Type>& operator=(ProgramInterface<_Type>&& rhs) noexcept
   {
