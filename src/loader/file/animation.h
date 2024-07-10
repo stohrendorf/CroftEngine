@@ -134,15 +134,15 @@ struct Animation
 {
   core::ContainerOffset<uint32_t, int16_t> poseDataOffset; // byte offset into Frames[] (divide by 2 for Frames[i])
 
-  core::Frame segmentLength = 0_frame;     // Slowdown factor of this animation
-  [[maybe_unused]] uint8_t poseDataSize{}; // number of bit16's in Frames[] used by this animation
+  core::Frame segmentLength = 0_frame; // Slowdown factor of this animation
+  uint8_t poseDataSize{};              // number of bit16's in Frames[] used by this animation
   core::AnimStateId state_id = 0_as;
 
   core::Speed speed;
   core::Acceleration acceleration;
 
-  [[maybe_unused]] core::Speed lateralSpeed;               // new in TR4 -->
-  [[maybe_unused]] core::Acceleration lateralAcceleration; // lateral speed and acceleration.
+  core::Speed lateralSpeed;               // new in TR4 -->
+  core::Acceleration lateralAcceleration; // lateral speed and acceleration.
 
   core::Frame firstFrame = 0_frame; // first frame in this animation
   core::Frame lastFrame = 0_frame;  // last frame in this animation (numframes = (End - Start) + 1)
