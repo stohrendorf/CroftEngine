@@ -29,6 +29,7 @@ extern "C"
 #include <libavutil/channel_layout.h>
 #include <libavutil/error.h>
 #include <libavutil/samplefmt.h>
+#include <libavutil/version.h>
 #include <libswresample/swresample.h>
 }
 
@@ -79,7 +80,7 @@ void handleSendPacketError(int err, AVCodecContext* ctx)
 AudioStreamDecoder::AudioStreamDecoder(AVFormatContext* fmtContext, bool rplFakeAudioHack)
     : fmtContext{fmtContext}
     , stream{std::make_unique<ffmpeg::Stream>(fmtContext, AVMEDIA_TYPE_AUDIO, rplFakeAudioHack)}
-#if !defined(FF_API_OLD_CHANNEL_LAYOUT) || FF_API_OLD_CHANNEL_LAYOUT
+#if LIBAVUTIL_VERSION_MAJOR < 58
     , swrContext{swr_alloc_set_opts(nullptr,
                                     // NOLINTNEXTLINE(hicpp-signed-bitwise)
                                     stream->context->channels == 1 ? AV_CH_LAYOUT_MONO : AV_CH_LAYOUT_STEREO,
@@ -93,7 +94,7 @@ AudioStreamDecoder::AudioStreamDecoder(AVFormatContext* fmtContext, bool rplFake
                                     nullptr)}
 #endif
 {
-#if defined(FF_API_OLD_CHANNEL_LAYOUT) && !FF_API_OLD_CHANNEL_LAYOUT
+#if LIBAVUTIL_VERSION_MAJOR >= 58
   gsl_Expects(stream->context->ch_layout.nb_channels == 1 || stream->context->ch_layout.nb_channels == 2);
 
   auto channelLayout = stream->context->ch_layout.nb_channels == 1 ? AVChannelLayout AV_CHANNEL_LAYOUT_MONO
