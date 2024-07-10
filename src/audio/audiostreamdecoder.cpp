@@ -79,7 +79,21 @@ void handleSendPacketError(int err, AVCodecContext* ctx)
 AudioStreamDecoder::AudioStreamDecoder(AVFormatContext* fmtContext, bool rplFakeAudioHack)
     : fmtContext{fmtContext}
     , stream{std::make_unique<ffmpeg::Stream>(fmtContext, AVMEDIA_TYPE_AUDIO, rplFakeAudioHack)}
+#if !defined(FF_API_OLD_CHANNEL_LAYOUT) || FF_API_OLD_CHANNEL_LAYOUT
+    , swrContext{swr_alloc_set_opts(nullptr,
+                                    // NOLINTNEXTLINE(hicpp-signed-bitwise)
+                                    stream->context->channels == 1 ? AV_CH_LAYOUT_MONO : AV_CH_LAYOUT_STEREO,
+                                    AV_SAMPLE_FMT_S16,
+                                    stream->context->sample_rate,
+                                    // NOLINTNEXTLINE(hicpp-signed-bitwise)
+                                    stream->context->channels == 1 ? AV_CH_LAYOUT_MONO : AV_CH_LAYOUT_STEREO,
+                                    stream->context->sample_fmt,
+                                    stream->context->sample_rate,
+                                    0,
+                                    nullptr)}
+#endif
 {
+#if defined(FF_API_OLD_CHANNEL_LAYOUT) && !FF_API_OLD_CHANNEL_LAYOUT
   gsl_Expects(stream->context->ch_layout.nb_channels == 1 || stream->context->ch_layout.nb_channels == 2);
 
   auto channelLayout = stream->context->ch_layout.nb_channels == 1 ? AVChannelLayout AV_CHANNEL_LAYOUT_MONO
@@ -94,6 +108,9 @@ AudioStreamDecoder::AudioStreamDecoder(AVFormatContext* fmtContext, bool rplFake
                                  0,
                                  nullptr)
              == 0);
+#else
+  gsl_Expects(stream->context->channels == 1 || stream->context->channels == 2);
+#endif
 
   if(swrContext == nullptr)
   {
@@ -217,6 +234,10 @@ void AudioStreamDecoder::seek(const std::chrono::milliseconds& position)
 
 int AudioStreamDecoder::getChannels() const noexcept
 {
+#if defined(FF_API_OLD_CHANNEL_LAYOUT) && !FF_API_OLD_CHANNEL_LAYOUT
   return stream->context->ch_layout.nb_channels;
+#else
+  return stream->context->channels;
+#endif
 }
 } // namespace audio
