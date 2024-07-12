@@ -165,7 +165,7 @@ gslu::nn_shared<Material> MaterialManager::getGeometry(bool inWater,
       BOOST_ASSERT(m_csm != nullptr);
       if(m_csmBuffer == nullptr)
         m_csmBuffer = std::make_shared<gl::UniformBuffer<CsmHandleContainer>>(
-          "csm-handles", gl::api::BufferUsage::StaticDraw, sizeof(CsmHandleContainer));
+          "csm-handles", gl::api::BufferUsage::StreamDraw, sizeof(CsmHandleContainer));
       CsmHandleContainer data{};
       auto textures = m_csm->getTextures();
       for(size_t i = 0; i < render::scene::CSMBuffer::NSplits; ++i)

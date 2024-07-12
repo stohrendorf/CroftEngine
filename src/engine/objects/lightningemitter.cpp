@@ -68,10 +68,10 @@ std::tuple<gslu::nn_shared<render::scene::Mesh>, gslu::nn_shared<gl::VertexBuffe
     indices.emplace_back(i);
 
   auto indexBuffer = gsl::make_shared<gl::ElementArrayBuffer<uint16_t>>(
-    "bolt" + gl::IndexBufferSuffix, gl::api::BufferUsage::StaticDraw, indices);
+    "bolt" + gl::IndexBufferSuffix, gl::api::BufferUsage::StreamDraw, indices);
 
   auto vb = gsl::make_shared<gl::VertexBuffer<glm::vec3>>(
-    layout, "bolt" + gl::VboSuffix, gl::api::BufferUsage::DynamicDraw, vertices);
+    layout, "bolt" + gl::VboSuffix, gl::api::BufferUsage::StreamDraw, vertices);
 
   auto opaqueVao = gsl::make_shared<gl::VertexArray<uint16_t, glm::vec3>>(
     indexBuffer, vb, std::vector{&material->getShaderProgram()->getHandle()}, "bolt" + gl::VaoSuffix);
