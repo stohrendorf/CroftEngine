@@ -26,7 +26,7 @@ enum class SpriteMaterialMode : uint8_t;
 class MaterialManager final
 {
 public:
-  struct CsmHandleContainer;
+  struct alignas(sizeof(uint64_t)) CsmHandleContainer;
   explicit MaterialManager(gslu::nn_shared<ShaderCache> shaderCache, gslu::nn_shared<scene::Renderer> renderer);
 
   [[nodiscard]] gslu::nn_shared<Material> getSprite(SpriteMaterialMode mode,

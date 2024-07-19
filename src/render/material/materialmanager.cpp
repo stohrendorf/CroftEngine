@@ -56,7 +56,7 @@ void configureForScreenSpaceEffect(Material& m, bool enableBlend)
 }
 } // namespace
 
-struct MaterialManager::CsmHandleContainer
+struct alignas(sizeof(uint64_t)) MaterialManager::CsmHandleContainer
 {
   std::array<glm::uvec4, render::scene::CSMBuffer::NSplits> handles;
 };

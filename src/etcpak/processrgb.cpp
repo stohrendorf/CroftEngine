@@ -316,16 +316,26 @@ std::array<std::array<uint32_t, 4>, 4> sumHalvesBgr(const BgraBlockImm& bgra)
 
   // store sums of halves
   // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init)
-  std::array<std::array<uint32_t, 4>, 4> err;
+  std::array<__m128i, 4> err;
   // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-  (y47x03_2 + y47x47_2).storeu(reinterpret_cast<__m128i*>(&err[0]));
+  (y47x03_2 + y47x47_2).storeu(&err[0]);
   // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-  (y03x03_2 + y03x47_2).storeu(reinterpret_cast<__m128i*>(&err[1]));
+  (y03x03_2 + y03x47_2).storeu(&err[1]);
   // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-  (y03x47_2 + y47x47_2).storeu(reinterpret_cast<__m128i*>(&err[2]));
+  (y03x47_2 + y47x47_2).storeu(&err[2]);
   // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-  (y03x03_2 + y47x03_2).storeu(reinterpret_cast<__m128i*>(&err[3]));
-  return err;
+  (y03x03_2 + y47x03_2).storeu(&err[3]);
+
+  std::array<std::array<uint32_t, 4>, 4> result{};
+  std::transform(err.begin(),
+                 err.end(),
+                 result.begin(),
+                 [](const __m128i& x)
+                 {
+                   return *reinterpret_cast<const std::array<uint32_t, 4>*>(&x);
+                 });
+
+  return result;
 }
 
 uint32_t calcError(const std::array<uint32_t, 4>& halfSumsBgr, const glm::u16vec4& averageRgba)

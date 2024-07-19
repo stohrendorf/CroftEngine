@@ -235,7 +235,7 @@ void AudioStreamDecoder::seek(const std::chrono::milliseconds& position)
 
 int AudioStreamDecoder::getChannels() const noexcept
 {
-#if defined(FF_API_OLD_CHANNEL_LAYOUT) && !FF_API_OLD_CHANNEL_LAYOUT
+#if LIBAVUTIL_VERSION_MAJOR >= 58
   return stream->context->ch_layout.nb_channels;
 #else
   return stream->context->channels;
