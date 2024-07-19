@@ -16,6 +16,6 @@ namespace video
 extern void
   play(const std::filesystem::path& filename,
        audio::Device& audioDevice,
-       const std::function<bool(const gslu::nn_shared<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>>& textureHandle)>&
+       const std::function<bool(const gslu::nn_shared<gl::TextureHandle<gl::Texture2D<gl::SRGB8>>>& textureHandle)>&
          onFrame);
 }

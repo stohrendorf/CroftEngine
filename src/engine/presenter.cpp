@@ -147,7 +147,7 @@ void Presenter::playVideo(const std::filesystem::path& path)
 
   video::play(path,
               m_soundEngine->getDevice(),
-              [&](const gslu::nn_shared<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>>& textureHandle)
+              [&](const gslu::nn_shared<gl::TextureHandle<gl::Texture2D<gl::SRGB8>>>& textureHandle)
               {
                 if(!preFrame())
                   return true;

@@ -28,22 +28,22 @@ extern "C"
 
 namespace video
 {
-constexpr auto OutputPixFmt = AV_PIX_FMT_RGBA;
+constexpr auto OutputPixFmt = AV_PIX_FMT_RGB24;
 
-Converter::Converter(AVFilterLink* filter)
-    : filter{filter}
-    , context{sws_getContext(filter->w,
-                             filter->h,
-                             static_cast<AVPixelFormat>(filter->format),
-                             filter->w,
-                             filter->h,
+Converter::Converter(const glm::ivec2& size, AVPixelFormat srcFormat)
+    : size{size}
+    , context{sws_getContext(size.x,
+                             size.y,
+                             srcFormat,
+                             size.x,
+                             size.y,
                              OutputPixFmt,
-                             SWS_FAST_BILINEAR,
+                             SWS_POINT | SWS_FULL_CHR_H_INT | SWS_ACCURATE_RND,
                              nullptr,
                              nullptr,
                              nullptr)}
-    , textureHandle{std::make_shared<gl::TextureHandle<gl::Texture2D<gl::SRGBA8>>>(
-        gsl::make_shared<gl::Texture2D<gl::SRGBA8>>(glm::ivec2{filter->w, filter->h}, "video"),
+    , textureHandle{std::make_shared<gl::TextureHandle<gl::Texture2D<gl::SRGB8>>>(
+        gsl::make_shared<gl::Texture2D<gl::SRGB8>>(glm::ivec2{size.x, size.y}, "video"),
         gsl::make_unique<gl::Sampler>("video" + gl::SamplerSuffix) | set(gl::api::TextureMagFilter::Linear))}
 {
   if(context == nullptr)
@@ -60,26 +60,31 @@ Converter::~Converter()
 
 void Converter::update(const ffmpeg::AVFramePtr& videoFrame)
 {
-  gsl_Expects(videoFrame.frame->width == filter->w && videoFrame.frame->height == filter->h);
-  gsl_Expects((textureHandle->getTexture()->size() == glm::ivec2{filter->w, filter->h}));
+  gsl_Expects(videoFrame.frame->width == size.x && videoFrame.frame->height == size.y);
+  gsl_Expects((textureHandle->getTexture()->size() == glm::ivec2{size.x, size.y}));
   av_freep(dstVideoData.data());
-  if(av_image_alloc(dstVideoData.data(), dstVideoLinesize.data(), filter->w, filter->h, OutputPixFmt, 1) < 0)
+  if(av_image_alloc(dstVideoData.data(), dstVideoLinesize.data(), size.x, size.y, OutputPixFmt, 1) < 0)
   {
     BOOST_THROW_EXCEPTION(std::runtime_error("Could not allocate raw video buffer"));
   }
-  sws_scale(context,
-            static_cast<const uint8_t* const*>(videoFrame.frame->data),
-            videoFrame.frame->linesize,
-            0,
-            videoFrame.frame->height,
-            dstVideoData.data(),
-            dstVideoLinesize.data());
 
-  std::vector<gl::SRGBA8> dstData;
-  dstData.resize(gsl::narrow_cast<size_t>(filter->w * filter->h), {0, 0, 0, 255});
+  gsl_Assert(sws_scale(context,
+                       static_cast<const uint8_t* const*>(videoFrame.frame->data),
+                       videoFrame.frame->linesize,
+                       0,
+                       videoFrame.frame->height,
+                       dstVideoData.data(),
+                       dstVideoLinesize.data())
+             == size.y);
+
+  std::vector<gl::SRGB8> dstData;
+  dstData.resize(gsl::narrow_cast<size_t>(size.x * size.y), {0, 0, 0});
+
+  // TODO this should get fixed
+  gsl_Assert(dstVideoLinesize[0] == size.x * 3);
 
   // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-  std::copy_n(reinterpret_cast<gl::SRGBA8*>(dstVideoData[0]), filter->w * filter->h, dstData.data());
+  std::copy_n(reinterpret_cast<gl::SRGB8*>(dstVideoData[0]), size.x * size.y, dstData.data());
 
   textureHandle->getTexture()->assign(dstData);
 }
