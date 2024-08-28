@@ -5,7 +5,6 @@
 #include "primitives.h"
 
 #include <cstdint>
-#include <memory>
 #include <vector>
 
 namespace loader::file
@@ -21,8 +20,8 @@ struct Mesh
   static constexpr uint16_t DrawAlways = 0x0002;
 
   uint16_t flags;
-  core::TRVec collision_center;
-  core::Length collision_radius;
+  core::TRVec collision_center{0_len, 0_len, 0_len};
+  core::Length collision_radius = 0_len;
   std::vector<core::TRVec> vertices;      //[NumVertices]; // list of vertices (relative coordinates)
   std::vector<core::TRVec> normals;       //[NumNormals]; // list of normals (if NumNormals is positive)
   std::vector<core::Shade> vertex_shades; //[-NumNormals]; // list of light values (if NumNormals is negative), 0..8191
@@ -42,7 +41,7 @@ struct Mesh
     * The read num_normals value is positive when normals are available and negative when light
     * values are available. The values get set appropriately.
     */
-  static std::unique_ptr<Mesh> readTr1(io::SDLReader& reader);
-  static std::unique_ptr<Mesh> readTr4(io::SDLReader& reader);
+  static Mesh readTr1(io::SDLReader& reader);
+  static Mesh readTr4(io::SDLReader& reader);
 };
 } // namespace loader::file

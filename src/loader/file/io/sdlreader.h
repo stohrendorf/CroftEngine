@@ -169,7 +169,8 @@ public:
     elements.reserve(elements.size() + count);
     for(size_t i = 0; i < count; ++i)
     {
-      elements.emplace_back(*producer(*this, args...));
+      auto tmp = producer(*this, args...);
+      elements.emplace_back(*tmp);
     }
   }
 

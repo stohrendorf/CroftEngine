@@ -53,9 +53,9 @@ void Level::readMeshData(io::SDLReader& reader)
     reader.seek(basePos + std::streamoff(offset));
 
     if(gameToEngine(m_gameVersion) >= Engine::TR4)
-      m_meshes.emplace_back(*Mesh::readTr4(reader));
+      m_meshes.emplace_back(Mesh::readTr4(reader));
     else
-      m_meshes.emplace_back(*Mesh::readTr1(reader));
+      m_meshes.emplace_back(Mesh::readTr1(reader));
   }
   gsl_Ensures(m_meshes.size() == uniqueOffsets.size());
 

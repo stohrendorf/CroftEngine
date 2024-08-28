@@ -48,9 +48,9 @@ namespace
 {
 using BgraBlockImm = std::array<IVec8, 4u>;
 
-constexpr uint32_t LumaWeightR = 38u;
-constexpr uint32_t LumaWeightG = 76u;
-constexpr uint32_t LumaWeightB = 14u;
+constexpr uint8_t LumaWeightR = 38u;
+constexpr uint8_t LumaWeightG = 76u;
+constexpr uint8_t LumaWeightB = 14u;
 static_assert(LumaWeightR + LumaWeightG + LumaWeightB == 128);
 constexpr uint32_t MaxError = sq((LumaWeightR + LumaWeightG + LumaWeightB) * 255u);
 
@@ -634,11 +634,11 @@ std::pair<uint64_t, uint64_t> planar(const BgraVecBlock& bgra, const uint8_t mod
       const int32_t cG = clampu8((gh2 * (i / 4u) + gv2 * (i % 4u) + go2) >> 2u);
       const int32_t cB = clampu8((bh2 * (i / 4u) + bv2 * (i % 4u) + bo2) >> 2u);
 
-      const int32_t difB = static_cast<int>(bgra[i].b) - cB;
-      const int32_t difG = static_cast<int>(bgra[i].g) - cG;
-      const int32_t difR = static_cast<int>(bgra[i].r) - cR;
+      const int32_t diffB = static_cast<int>(bgra[i].b) - cB;
+      const int32_t diffG = static_cast<int>(bgra[i].g) - cG;
+      const int32_t diffR = static_cast<int>(bgra[i].r) - cR;
 
-      const int32_t dif = difR * LumaWeightR + difG * LumaWeightG + difB * LumaWeightB;
+      const int32_t dif = diffR * LumaWeightR + diffG * LumaWeightG + diffB * LumaWeightB;
 
       error += dif * dif;
     }
@@ -1110,7 +1110,7 @@ void calculateLuma(const BgraBlockImm& immBgra, Luma& luma)
 
   (sums[0].hAdd(sums[1]) >> 7).toIVec8U(sums[2].hAdd(sums[3]) >> 7).storeu(&luma.val);
 
-  for(uint8_t i = 0; i < luma.val.size(); ++i)
+  for(uint8_t i = 0; i < static_cast<uint8_t>(luma.val.size()); ++i)
   {
     if(luma.val[i] < luma.min)
     {

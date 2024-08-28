@@ -1,4 +1,4 @@
-from ce.engine import TR1TrackId, TR1ItemId, Video, Level, TitleMenu, WeaponType, ModifyInventory, ResetSoundEngine, \
+from ce.engine import TR1TrackId, TR1ItemId, Video, Level, TitleMenu, ModifyInventory, ResetSoundEngine, \
     SplashScreen
 
 early_boot = [
