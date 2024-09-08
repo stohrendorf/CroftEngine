@@ -66,7 +66,24 @@ I/O and performance latencies for texture caching when using texture packs.
 
 This contains everything to abstract the OpenGL API. It contains, for example, functionality to bind a shader parameter
 to a callback function, which allows setting the parameter dynamically when meshes are drawn. It also contains the whole
-render pipeline, with all the framebuffers needed for all the effects.
+render pipeline, with all the framebuffers needed for all the effects. It is an even more abstract wrapper
+around [`soglb`](#soglb).
+
+### Rendering
+
+Scenes are built as trees of nodes. Each node has an optional "Renderable," which provides the visual of this node. Each
+node can be hidden; this property is recursive. The nodes' transforms are relative to their parents and are calculated
+on-demand. Each node contains a "render state" which contains only the necessary changes to the OpenGL state, overriding
+only the specified settings of their parent's node. Each "Renderable" may also provide a render state.
+
+Rendering the scene tree is done using a visitor pattern. The visitor maintains a stack of render states that are
+applied to the OpenGL state when rendering a visual.
+
+Each rendering step is done within a framebuffer. These framebuffers are usually from render passes, for example bloom
+or HBAO.
+
+When rendering, the engine performs an initial "depth prefill" pass, pre-rendering the rooms without its entities into
+the depth buffer, to avoid rendering visuals with expensive fragment shaders.
 
 ## qs
 
@@ -103,7 +120,9 @@ installations.
 
 ## loader
 
-Contains everything to read game data files and Glidos texture packs.
+Contains everything to read game data files and Glidos texture packs. This module only provides the raw game data and
+does not do any processing necessary to render any entity. The conversion from raw data to anything useful to the engine
+is done within the [`engine`](#engine) module.
 
 ## ui
 
@@ -114,7 +133,59 @@ functionality to break long strings of text into lines.
 ## soglb
 
 These are the "Structured OpenGL Bindings." Essentially, these are type-safe wrappers around the OpenGL API, including
-classes supporting the C++ RAII concept.
+classes supporting the C++ RAII concept. This module is designed to provide a convenient, type- and context-safe API.
 
 Additionally, it also contains a `Text` class handling modern fonts and rendering them into images. This is an outlier
 for the purpose of this module, however.
+
+## engine
+
+This is the heart of CE, and it contains several submodules itself.
+
+TODO describe how the engine generally works
+
+### ai
+
+This submodule contains general AI stuff like behaviour handling and pathfinding.
+
+The pathfinding code is one of the most convoluted areas in this engine, as the original code wasn't in the best shape.
+Additionally, the original code had several major issues with out-of-bounds accesses, which led to necessary changes
+that made the code even worse and behave differently. There are still bugs in the pathfinding code after all these
+years - if you can find and fix them, you're a god.
+
+### floordata
+
+Contains everything for triggers and floor data logic. The "floor data" are sector-based instructions. For example, when
+you're walking over a bridge, there is an instruction to activate that bridge, otherwise you would fall through. Another
+example are boundary rooms - when reaching the edge of a room, an instruction will be triggered that changes the
+entity's parent room.
+
+### ghosting
+
+This submodule is responsible to read and write ghost data, as well as providing a scene node for the ghost
+(see the [`render`](#render) module).
+
+### lara
+
+Lara is basically a state machine. Every animation Lara plays has a set state. This submodule provides the states'
+behaviour. For example, the "Jump Back" state handler sets the desired state to "Free Fall" if the vertical velocity
+exceeds a certain threshold. When Lara's animation is played, the animation frames can provide some state transition
+information, allowing to switch to a different animation, given a certain frame range. This will implicitly switch to a
+different animation state handler.
+
+### objects
+
+Contains everything that defines the game entities.
+
+### script
+
+Contains the whole script engine. This loads the game-flow scripts and provide reflection for interacting with the
+scripts.
+
+### world
+
+Provides the massaged data necessary to run everything, including some optimizations for easier data access and
+converted game data (see [`loader`](#loader)).
+
+Currently, [`worldgeometry`](./src/engine/world/worldgeometry.h) is responsible for converting the raw game data into
+something useful.
