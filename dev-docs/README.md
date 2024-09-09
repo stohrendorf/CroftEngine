@@ -15,7 +15,7 @@ The engine has several submodules, mostly separated within the `src` folder:
   import the main game data.
 * The `engine` module contains the heart, and is the most complex one. It connects
   nearly all the other modules and makes the game work.
-* The `etcpak` module contains the texture compression code for caching texture
+* The [`etcpak`](#etcpak) module contains the texture compression code for caching texture
   pack data.
 * The `ffmpeg` module contains everything to decode audio and video data.
 * The `gameflow` module is a small module to handle gameflow metadata.
@@ -27,10 +27,10 @@ The engine has several submodules, mostly separated within the `src` folder:
   inventory. It is implemented as a state machine.
 * The `network` module contains all the stuff needed to play online with others.
   It contains authorization and state synchronization.
-* The `qs` module contains everything regarding the quantity system, which is used
+* The [`qs`](#qs) module contains everything regarding the quantity system, which is used
   to protect against using the wrong values on compile-time. It brought up several
   issues in the past after implementing this. Devils be in there.
-* The `render` submodule is an abstraction of the OpenGL wrapper `soglb` to make
+* The [`render`](#render) submodule is an abstraction of the OpenGL wrapper `soglb` to make
   it easier to draw anything on the screen.
 * The `serialization` module is for serializing and deserializing data from and to
   YAML. It is designed to be a plug-in thing, so that only the implementations need
@@ -38,11 +38,11 @@ The engine has several submodules, mostly separated within the `src` folder:
   too.
 * The `shared` submodule contains some generally helpful stuff. It's not within
   `core`, as it's containing stuff more specific to certain use-cases.
-* `soglb` contains the `Structured OpenGL Bindings` (so it's not my initials here).
+* [`soglb`](#soglb) contains the `Structured OpenGL Bindings` (so it's not my initials here).
   This is a type-safe wrapper around the OpenGL API.
 * The `testutil` module contains some stuff to better integrate into CI pipelines.
   It's not relevant to anything in general, and you shouldn't worry about it.
-* The `ui` submodule is the UI framework, containing stuff like text boxes, lists,
+* The [`ui`](#ui) submodule is the UI framework, containing stuff like text boxes, lists,
   message boxes, etc., anything that defines the UI.
 * The `util` submodule contains some stuff even less common than the `shared` module,
   even while it's used across some other modules
@@ -140,9 +140,28 @@ for the purpose of this module, however.
 
 ## engine
 
-This is the heart of CE, and it contains several submodules itself.
+This is the heart of CE, and it contains several submodules itself. The `Engine` class is a container for anything
+needed game-flow-wise to run a level.
 
-TODO describe how the engine generally works
+The engine is generally built to allow loading multiple levels (or "worlds") at the same time, or even multiple
+gameflows. While that led to a cleaner architecture, it is not used at all, but could be used to preload a level once
+the prior level ends during the stats screen.
+
+First, the engine initializes the script engine for the chosen game-flow. Then, the engine sets up a `Presenter`, which
+basically is a container around everything a user can sense - audio and video currently, but may also include gamepad
+rumble effects in the future once it's implemented in GLFW (blocked
+by [issue #57](https://github.com/glfw/glfw/issues/57) and [pull 1687](https://github.com/glfw/glfw/pull/1678)). The
+presenter also handles the [`hid`](#hid) and OpenGL window using [`soglb`](#soglb).
+
+Once the `Presenter` is initialized, the user's chosen render settings are applied, their input config is applied, and (
+optionally) the configured Glidos texture pack is loaded. Loading the Glidos texture pack does not involve loading the
+textures yet, it is just loading the general layout information, as the materialized textures are cached using
+[`etcpak`](#etcpak).
+
+Once the engine is initialized, the control returns to the main file.
+
+The engine also maintains a cache for the world geometry, so that re-loading the same level is sped up significantly.
+The cache is reset on level change.
 
 ### ai
 
@@ -160,6 +179,9 @@ you're walking over a bridge, there is an instruction to activate that bridge, o
 example are boundary rooms - when reaching the edge of a room, an instruction will be triggered that changes the
 entity's parent room.
 
+It also contains a function to get a floordata's secret mask, which is used to count the secrets in a level without
+relying on external information (this leads to a single discrepancy with the original TR1 levels).
+
 ### ghosting
 
 This submodule is responsible to read and write ghost data, as well as providing a scene node for the ghost
@@ -175,17 +197,32 @@ different animation state handler.
 
 ### objects
 
-Contains everything that defines the game entities.
+Contains everything that defines the game entities. The enemies' behaviours are defined here, as well as objects'
+behaviours. The `update()` function is called each frame for every active object. There are usually custom serialization
+overrides for entities that have specific state variables (see also [`serialization`](#serialization)), and also custom
+`collide()` overrides to handle collisions with Lara (like the hand of Midas or switches). Some entities like bridges
+are also able to change the effective ceiling or floor height when they're activated through [`floordata`](#floordata).
 
 ### script
 
-Contains the whole script engine. This loads the game-flow scripts and provide reflection for interacting with the
+Contains the whole script engine. This loads the game-flow scripts and provides reflection for interacting with the
 scripts.
+
+Game-flow scripts provide the following data:
+
+* entity descriptors like smartness, behaviour stereotype, health, etc.
+* soundtrack mappings from internal identifiers to files and some audio configurations, like fade-in time or the
+  slot/channel the audio files should be allocated to (see [`audio`](#audio))
+* the level sequence
+* meta-information about the game like authors and the title
 
 ### world
 
 Provides the massaged data necessary to run everything, including some optimizations for easier data access and
 converted game data (see [`loader`](#loader)).
 
-Currently, [`worldgeometry`](./src/engine/world/worldgeometry.h) is responsible for converting the raw game data into
-something useful.
+Currently, [`worldgeometry`](../src/engine/world/worldgeometry.h) is responsible for converting the raw game data into
+something useful. It holds animation data, meshes, massaged [`floordata`](#floordata), rooms, audio data, etc.
+
+This module is also responsible to re-map textures into the large texture atlases used by the engine, as well as
+applying Glidos texture packs if configured. Materialized textures are cached using [`etcpak`](#etcpak).
