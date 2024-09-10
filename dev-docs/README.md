@@ -1,6 +1,41 @@
 # Architecture
 
-## Overview
+## A bit of history and design principles
+
+CE has its roots in [OpenTomb](https://github.com/TeslaRus/OpenTomb), as I was once looking for a modern alternative to
+the original engine without DosBox, allowing me to play Tomb Raider on a modern system while taking advantage of modern
+hardware. I was inexperienced back then, so we had some arguments over my contributions, which I am not proud of, and
+thus I'm not going into detail here. Anyway, this fork started around 2015, and has grown since, so let's discuss the
+design principles.
+
+In general, the engine is built to make use of modern technology that's generally available for the past 5-ish years for
+gamers, while still maintaining the original feel and aesthetics. The engine is also designed to be accessible and
+customizable, so that everyone can adjust it for them to enjoy it the most, without being rocket science. Unfortunately,
+this also means that it's not "the original" - especially since the code is written to be safe, which in turn means
+there were some unavoidable changes in some algorithms, especially AI path finding and camera code (and both still have
+bugs I wasn't able to resolve after years).
+
+I have watched hours and hours of streams and YouTube videos to understand what other people find enjoyable, and what
+could be expanded on, which led to some well-received features like edge outlines. I wanted this to feel like a true
+remaster, not just like "let's ship the hi-res textures and models we used during development." I know some people
+disagree on this, but that's fine. The goal is to make this a fun, enjoyable engine, which is easily adjustable to make
+it enjoyable *for you* (side note, butt bubbles were implemented after having a fun stream over a beer).
+
+In conclusion...
+
+* make it type-safe, modern C++
+* make it fun (even while your own definition of fun may differ from others)
+* don't make it realistic (it's a game, and fun must be the priority, not a simulation of life)
+* don't be afraid of crazy ideas like butt bubbles (you can still remove it later if it proves to be too crazy)
+* just fun!
+
+## Build process
+
+When building, the CMake configuration will create wrappers for some enums that allow easy de-/serialization and
+conversion. For example, [tracks_tr1.txt](../src/tracks_tr1.txt) will be converted into an enum class, as well as some
+utility functions that allow conversion from and to strings, as well as enumerating all enum members.
+
+The build configuration also downloads external dependencies, such as CImg, glm, and others.
 
 The engine has several submodules, mostly separated within the `src` folder:
 
@@ -48,57 +83,6 @@ The engine has several submodules, mostly separated within the `src` folder:
   even while it's used across some other modules
 * The `video` module contains all the stuff to display the FMVs.
 
-## Build process
-
-When building, the CMake configuration will create wrappers for some enums that allow easy de-/serialization and
-conversion. For example, [tracks_tr1.txt](./src/tracks_tr1.txt) will be converted into an enum class, as well as some
-utility functions that allow conversion from and to strings, as well as enumerating all enum members.
-
-The build configuration also downloads external dependencies, such as CImg, glm, and others.
-
-## etcpak
-
-This is basically a copy of https://github.com/wolfpld/etcpak, but with some modifications to reduce code complexity,
-increase type safety, and easier integration for texture compression and decompression. Its main purpose is to reduce
-I/O and performance latencies for texture caching when using texture packs.
-
-## render
-
-This contains everything to abstract the OpenGL API. It contains, for example, functionality to bind a shader parameter
-to a callback function, which allows setting the parameter dynamically when meshes are drawn. It also contains the whole
-render pipeline, with all the framebuffers needed for all the effects. It is an even more abstract wrapper
-around [`soglb`](#soglb).
-
-### Rendering
-
-Scenes are built as trees of nodes. Each node has an optional "Renderable," which provides the visual of this node. Each
-node can be hidden; this property is recursive. The nodes' transforms are relative to their parents and are calculated
-on-demand. Each node contains a "render state" which contains only the necessary changes to the OpenGL state, overriding
-only the specified settings of their parent's node. Each "Renderable" may also provide a render state.
-
-Rendering the scene tree is done using a visitor pattern. The visitor maintains a stack of render states that are
-applied to the OpenGL state when rendering a visual.
-
-Each rendering step is done within a framebuffer. These framebuffers are usually from render passes, for example bloom
-or HBAO.
-
-When rendering, the engine performs an initial "depth prefill" pass, pre-rendering the rooms without its entities into
-the depth buffer, to avoid rendering visuals with expensive fragment shaders.
-
-## qs
-
-This is the "Quantity System." It allows to create a type-safe unit system, where the compiler will fail if you try, for
-example, pass a velocity to a function that expects an acceleration. It will automatically change units when you combine
-different quantities, for example, it will change to unit to "acceleration" if you divide a velocity by a time unit. It
-is _not_ designed to be something that can handle every combination of units or quantities, but it is more than
-sufficient for the task.
-
-## hid
-
-The "Human Input Device" module is responsible to handle everything the user inputs for the game. It can translate
-joystick movement to axis directions and merge multiple input configurations where several different inputs may lead to
-the same action.
-
 ## audio
 
 The "audio" module handles anything regarding audio effects. It controls:
@@ -113,30 +97,15 @@ Regarding audio streams, the engine allocates channels to audio streams, where e
 stream. This allows switching ambient streams without overlapping, because they're using the same channel, while still
 playing interception audio like cinematic music at the same time in a different channel.
 
+## core
+
+Contains i18n support, generally used types like angles, vectors, type-safe IDs, intervals and so on, but it also
+contains the magic values like the sector size, climb limits, or the frame rate in [`magic.h`](../src/core/magic.h).
+
 ## dosbox-cdrom
 
 This module contains functionality to access CUE/DAT images necessary to import game data from GOG or Steam
 installations.
-
-## loader
-
-Contains everything to read game data files and Glidos texture packs. This module only provides the raw game data and
-does not do any processing necessary to render any entity. The conversion from raw data to anything useful to the engine
-is done within the [`engine`](#engine) module.
-
-## ui
-
-This is the UI widget module used for the inventory. It is designed to automatically accommodate the contents of the
-widgets so that the developer does not need to care about sizing or positioning too much. It also contains some
-functionality to break long strings of text into lines.
-
-## soglb
-
-These are the "Structured OpenGL Bindings." Essentially, these are type-safe wrappers around the OpenGL API, including
-classes supporting the C++ RAII concept. This module is designed to provide a convenient, type- and context-safe API.
-
-Additionally, it also contains a `Text` class handling modern fonts and rendering them into images. This is an outlier
-for the purpose of this module, however.
 
 ## engine
 
@@ -226,3 +195,147 @@ something useful. It holds animation data, meshes, massaged [`floordata`](#floor
 
 This module is also responsible to re-map textures into the large texture atlases used by the engine, as well as
 applying Glidos texture packs if configured. Materialized textures are cached using [`etcpak`](#etcpak).
+
+#### Re-texturing
+
+This happens in [`texturing.cpp`](../src/engine/world/texturing.cpp). The texturing class also maintains a texture size
+cache file which heavily speeds up loading cached textures because only the layout process needs to be done, and loading
+a cached texture does not involve loading individual, costly texture files.
+
+The individual textures of the original texture atlases are determined by iterating over every primitive and get their
+bounding boxes. This step also removes spurious "inner boxes" (boxes that are contained within other boxes).
+
+After the layout is done (which only needs the bounding boxes of the original textures, and the sizes of the new
+textures), the new layout is applied to the appropriate UV coordinates so they point to the changed texture coordinates.
+If no cached texture exists yet, the texture atlases are materialized, which also includes expanding the edges to avoid
+color and alpha bleeding when scaling down for mip-maps.
+
+If no Glidos texture pack is configured, this process only re-arranges the original texture atlases into larger ones.
+
+The final texture atlases are finally stored in a `gl::Texture2DArray<gl::PremultipliedSRGBA8>` resource.
+
+#### Level data conversion
+
+Level data is converted into engine digestible data in `World::initFromLevel`. Before conversion, a few simple
+pre-flight checks are done to identify problematic data - this is useful to identify broken or problematic custom levels
+which are usually produced by Tomb Editor. Fixing the level data in these levels programmatically is basically
+impossible without risking to break working levels.
+
+After the pre-flight checks are done, the conversion starts. Conversion usually includes replacing indices with direct
+pointers or separating individual flags or values from bit fields (partially done by the raw loader already). Also, the
+scene tree is set up here (see [`render`](#render)).
+
+## etcpak
+
+This is basically a copy of https://github.com/wolfpld/etcpak, but with some modifications to reduce code complexity,
+increase type safety, and easier integration for texture compression and decompression. Its main purpose is to reduce
+I/O and performance latencies for texture caching when using texture packs.
+
+## hid
+
+The "Human Input Device" module is responsible to handle everything the user inputs for the game. It can translate
+joystick movement to axis directions and merge multiple input configurations where several different inputs may lead to
+the same action.
+
+## loader
+
+Contains everything to read game data files and Glidos texture packs. This module only provides the raw game data and
+does not do any processing necessary to render any entity. The conversion from raw data to anything useful to the engine
+is done within the [`engine`](#engine) module.
+
+## menu
+
+The menu module contains the inventory code. It resembles the original code to some extent as that it is still a state
+machine. However, here it is built around different class instances for different states. It makes heavy use of the
+[`ui`](#ui) module.
+
+## network
+
+Contains code to connect, authenticate, and communicate
+with [haunted-coop](https://github.com/stohrendorf/haunted-coop).
+
+## qs
+
+This is the "Quantity System." It allows to create a type-safe unit system, where the compiler will fail if you try, for
+example, pass a velocity to a function that expects an acceleration. It will automatically change units when you combine
+different quantities, for example, it will change to unit to "acceleration" if you divide a velocity by a time unit. It
+is _not_ designed to be something that can handle every combination of units or quantities, but it is more than
+sufficient for the task.
+
+## render
+
+This contains everything to abstract the OpenGL API. It contains, for example, functionality to bind a shader parameter
+to a callback function, which allows setting the parameter dynamically when meshes are drawn. It also contains the whole
+render pipeline, with all the framebuffers needed for all the effects. It is an even more abstract wrapper
+around [`soglb`](#soglb).
+
+### Rendering
+
+Scenes are built as trees of nodes. Each node has an optional "Renderable," which provides the visual of this node. Each
+node can be hidden; this property is recursive. The nodes' transforms are relative to their parents and are calculated
+on-demand. Each node contains a "render state" which contains only the necessary changes to the OpenGL state, overriding
+only the specified settings of their parent's node. Each "Renderable" may also provide a render state.
+
+Rendering the scene tree is done using a visitor pattern. The visitor maintains a stack of render states that are
+applied to the OpenGL state when rendering a visual.
+
+Each rendering step is done within a framebuffer. These framebuffers are usually from render passes, for example bloom
+or HBAO.
+
+When rendering, the engine performs an initial "depth prefill" pass, pre-rendering the rooms without its entities into
+the depth buffer, to avoid rendering visuals with expensive fragment shaders.
+
+## serialization
+
+Probably even more complicated than the [`qs`](#qs) module. This module provides a de-/serialization interface for YAML
+files. It is designed as a plugin architecture, so that header files don't need to be polluted with specific
+serializers, like `std::map`s or `std::filesystem::path`. It also helps with compile time.
+
+In general, a serialization of something involves a `dispatch` call, which looks for freestanding de-/serialization and
+factory methods suitable for the job, or methods contained within classes with the same names. Within these methods, the
+serializer is then recursively called back-and-forth.
+
+## soglb
+
+These are the "Structured OpenGL Bindings." Essentially, these are type-safe wrappers around the OpenGL API, including
+classes supporting the C++ RAII concept. This module is designed to provide a convenient, type- and context-safe API.
+
+Additionally, it also contains a `Text` class handling modern fonts and rendering them into images. This is an outlier
+for the purpose of this module, however.
+
+## ui
+
+This is the UI widget module used for the inventory. It is designed to automatically accommodate the contents of the
+widgets so that the developer does not need to care about sizing or positioning too much. It also contains some
+functionality to break long strings of text into lines.
+
+## video
+
+Contains the code responsible to play videos and make them look less ugly after upscaling.
+
+## Code flow overview
+
+Generally, it works like this (simplified, read docs above for missing details):
+
+```mermaid
+flowchart TD
+    main((main)) --> launcher
+    launcher --> quit(((quit)))
+    bootstrap["run bootstrap sequence\n(Eidos logo FMV etc.)"]
+    menu["main menu"]
+    menu --> launcher
+    menu --> nextlevel
+    launcher --> load_gameflow["load gameflow script"]
+
+    subgraph gameflow loop
+        nextlevel["select level from save\nor first level sequence item"]
+        nextlevel --> load["load level data\nand texture pack"] --> loadsave["load savegame\n(optional)"]
+        loadsave --> level["run level"] --> nextlevel
+        level --> inventory --> level
+        level --> menu
+        inventory --> menu
+        menu --> configuration --> menu
+    end
+
+    load_gameflow --> bootstrap --> nextlevel
+```
