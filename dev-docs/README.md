@@ -319,15 +319,15 @@ Generally, it works like this (simplified, read docs above for missing details):
 flowchart TD
     main((main)) --> launcher
     launcher --> quit(((quit)))
-    bootstrap["run bootstrap sequence\n(Eidos logo FMV etc.)"]
+    bootstrap["run bootstrap sequence<br>(Eidos logo FMV etc.)"]
     menu["main menu"]
     menu --> launcher
     menu --> nextlevel
-    launcher --> load_gameflow["load gameflow script"]
+    launcher --> load_gameflow["load gameflow script"] --> bootstrap
 
     subgraph gameflow loop
-        nextlevel["select level from save\nor first level sequence item"]
-        nextlevel --> load["load level data\nand texture pack"] --> loadsave["load savegame\n(optional)"]
+        nextlevel["select level from save<br>or first level sequence item"]
+        nextlevel --> load["load level data<br>and texture pack"] --> loadsave["load savegame<br>(optional)"]
         loadsave --> level["run level"] --> nextlevel
         level --> inventory --> level
         level --> menu
@@ -335,5 +335,5 @@ flowchart TD
         menu --> configuration --> menu
     end
 
-    load_gameflow --> bootstrap --> nextlevel
+    bootstrap --> nextlevel
 ```
