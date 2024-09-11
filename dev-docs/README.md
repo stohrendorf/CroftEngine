@@ -344,12 +344,12 @@ flowchart TD
 
 ## Audio engine
 
-The audio engine manages all in-game sounds, including audio streams, positional audion, entity-bound positional audio,
+The audio engine manages all in-game sounds, including audio streams, positional audio, entity-bound positional audio,
 and non-positional audio (e.g. when Lara is talking). It also hosts the sound engine from the [`audio`](#audio) module,
 which is the abstraction of the underlying OpenAL API.
 
 When loading a level, all level audio (except streams) is stored here. It handles "audio effects," which are descriptors
-of that contain multiple sounds, sound playback chance, pitch range for random pitch, etc. The game engine only requests
+that contain multiple sounds, sound playback chance, pitch range for random pitch, etc. The game engine only requests
 audio effects or streams from the audio engine.
 
 The audio engine also handles which sounds are played at the same time, since there's only a limited amount of audible
