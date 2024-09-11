@@ -336,7 +336,6 @@ flowchart TD
         level --> inventory --> level
         level --> menu
         inventory --> menu
-        menu --> configuration --> menu
     end
 
     bootstrap --> nextlevel
