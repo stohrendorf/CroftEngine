@@ -4,9 +4,7 @@
 
 CE has its roots in [OpenTomb](https://github.com/TeslaRus/OpenTomb), as I was once looking for a modern alternative to
 the original engine without DosBox, allowing me to play Tomb Raider on a modern system while taking advantage of modern
-hardware. I was inexperienced back then, so we had some arguments over my contributions, which I am not proud of, and
-thus I'm not going into detail here. Anyway, this fork started around 2015, and has grown since, so let's discuss the
-design principles.
+hardware. This fork started around 2015, and has grown since, so let's discuss the design principles.
 
 In general, the engine is built to make use of modern technology that's generally available for the past 5-ish years for
 gamers, while still maintaining the original feel and aesthetics. The engine is also designed to be accessible and
