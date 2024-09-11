@@ -99,6 +99,7 @@ playing interception audio like cinematic music at the same time in a different 
 
 Contains i18n support, generally used types like angles, vectors, type-safe IDs, intervals and so on, but it also
 contains the magic values like the sector size, climb limits, or the frame rate in [`magic.h`](../src/core/magic.h).
+Heavily relies on the [`qs`](#qs) module.
 
 ## dosbox-cdrom
 
@@ -307,6 +308,9 @@ This is the UI widget module used for the inventory. It is designed to automatic
 widgets so that the developer does not need to care about sizing or positioning too much. It also contains some
 functionality to break long strings of text into lines.
 
+When drawing the UI, the draw commands (lines, rects, etc.) are collected in the `Ui` class so all commands can be
+rendered using a single draw call.
+
 ## video
 
 Contains the code responsible to play videos and make them look less ugly after upscaling.
@@ -337,3 +341,17 @@ flowchart TD
 
     bootstrap --> nextlevel
 ```
+
+## Audio engine
+
+The audio engine manages all in-game sounds, including audio streams, positional audion, entity-bound positional audio,
+and non-positional audio (e.g. when Lara is talking). It also hosts the sound engine from the [`audio`](#audio) module,
+which is the abstraction of the underlying OpenAL API.
+
+When loading a level, all level audio (except streams) is stored here. It handles "audio effects," which are descriptors
+of that contain multiple sounds, sound playback chance, pitch range for random pitch, etc. The game engine only requests
+audio effects or streams from the audio engine.
+
+The audio engine also handles which sounds are played at the same time, since there's only a limited amount of audible
+"voices." Depending on the distance between the listener and the sound, the audio engine may stop too distant sounds and
+re-allocate the freed voice to another sound that's closer.
