@@ -227,7 +227,7 @@ classDiagram
     World --o StaticSoundEffect
     World --o CinematicFrame
     World --o CameraSink
-    Box ..> Star Box
+    Box ..> "0..*" Box
     SkeletalModelType ..> AnimFrame
     SkeletalModelType ..> Animation
     Sector ..> Box
@@ -252,7 +252,7 @@ classDiagram
     WorldGeometry --o AtlasTile
     WorldGeometry --o Animation
     WorldGeometry --o Texture2DArray
-    WorldGeometry --* Star RoomGeometry
+    WorldGeometry --* "0..*" RoomGeometry
 ```
 
 #### Re-texturing
