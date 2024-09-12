@@ -354,3 +354,30 @@ audio effects or streams from the audio engine.
 The audio engine also handles which sounds are played at the same time, since there's only a limited amount of audible
 "voices." Depending on the distance between the listener and the sound, the audio engine may stop too distant sounds and
 re-allocate the freed voice to another sound that's closer.
+
+```mermaid
+classDiagram
+    AudioEngine --* SoundEngine
+    AudioEngine --o VoiceGroup
+    AudioEngine --o BufferHandle
+    AudioEngine ..> SoundEffectProperties
+    SoundEngine --* Device
+    SoundEngine ..> Voice
+    SoundEngine --o SlotStream
+    VoiceGroup ..> Voice
+    SlotStream ..> StreamVoice
+    StreamVoice ..> Voice
+    StreamVoice ..> StreamingSourceHandle
+    StreamVoice --* AbstractStreamSource
+    StreamVoice --o BufferHandle
+    BufferVoice --|> Voice
+    BufferVoice --* BufferHandle
+    Voice --* SourceHandle
+    Device --o Voice
+    StreamingSourceHandle --o BufferHandle
+    AbstractStreamSource <|-- BasicFfmpegStreamSource
+    BasicFfmpegStreamSource --* AudioStreamDecoder
+    BasicFfmpegStreamSource <|-- FfmpegMemoryStreamSource
+    BasicFfmpegStreamSource <|-- FfmpegStreamSource
+    BasicFfmpegStreamSource <|-- FfmpegSubStreamStreamSource
+```
