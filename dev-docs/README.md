@@ -195,6 +195,66 @@ something useful. It holds animation data, meshes, massaged [`floordata`](#floor
 This module is also responsible to re-map textures into the large texture atlases used by the engine, as well as
 applying Glidos texture packs if configured. Materialized textures are cached using [`etcpak`](#etcpak).
 
+```mermaid
+classDiagram
+    RoomGeometry --o Mesh
+    RoomGeometry --o TextureAnimator
+    RoomGeometry ..> AnimatedUV
+    WorldGeometry ..> StaticMesh
+    WorldGeometry ..> Mesh
+    WorldGeometry ..> SkeletalModelType
+    WorldGeometry --o Sprite
+    WorldGeometry --o SpriteSequence
+    WorldGeometry --o AtlasTile
+    WorldGeometry --o Animation
+    WorldGeometry ..> Texture2DArray
+    WorldGeometry --o RoomGeometry
+    RoomGeometry ..> Mesh
+    RoomGeometry ..> TextureAnimator
+    RoomGeometry ..> AnimatedUV
+    RoomGeometry ..> Mesh
+    World ..> Engine
+    World --* AudioEngine
+    World --* CameraController
+    World --> Voice
+    World --* ObjectManager
+    World --o PositionalEmitter
+    World --o PickupWidget
+    World ..> Player
+    World --* FloorData
+    World --o Box
+    World --o Room
+    World --o StaticSoundEffect
+    World --o CinematicFrame
+    World --o CameraSink
+    Box ..> Star Box
+    SkeletalModelType ..> AnimFrame
+    SkeletalModelType ..> Animation
+    Sector ..> Box
+    Sector ..> Room
+    Room ..> Portal
+    Portal ..> Room
+    Portal ..> Mesh
+    Room --o Light
+    Room --o Portal
+    Room --o Sector
+    Room --o RoomStaticMesh
+    Room ..> Room
+    Room --* InstancedParticleCollection
+    Room --* RoomGeometry
+    PositionalEmitter --|> Emitter
+    World --* WorldGeometry
+    WorldGeometry --o StaticMesh
+    WorldGeometry --o Mesh
+    WorldGeometry --o SkeletalModelType
+    WorldGeometry --o Sprite
+    WorldGeometry --o SpriteSequence
+    WorldGeometry --o AtlasTile
+    WorldGeometry --o Animation
+    WorldGeometry --o Texture2DArray
+    WorldGeometry --* Star RoomGeometry
+```
+
 #### Re-texturing
 
 This happens in [`texturing.cpp`](../src/engine/world/texturing.cpp). The texturing class also maintains a texture size
