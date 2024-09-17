@@ -85,3 +85,4 @@ jobs:
           name: sarif-results
           path: sarif-results
           retention-days: 2
+          overwrite: true
