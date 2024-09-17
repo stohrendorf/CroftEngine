@@ -87,7 +87,7 @@ std::unique_ptr<MenuState> IdleRingMenuState::onFrame(ui::Ui& ui, engine::world:
     case engine::TR1ItemId::Shotgun:
     case engine::TR1ItemId::Magnums:
     case engine::TR1ItemId::Uzis:
-      world.getAudioEngine().playSoundEffect(engine::TR1SoundEffect::MenuOptionSelect2, nullptr);
+      world.getAudioEngine().playSoundEffect(engine::TR1SoundEffect::MenuOptionSelectWeapon, nullptr);
       break;
     default:
       world.getAudioEngine().playSoundEffect(engine::TR1SoundEffect::MenuOptionPopup, nullptr);
