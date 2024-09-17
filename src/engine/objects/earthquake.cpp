@@ -19,7 +19,7 @@ void Earthquake::update()
   if(util::rand15() < 256)
   {
     getWorld().getCameraController().setBounce(-150_len);
-    getWorld().getAudioEngine().playSoundEffect(TR1SoundEffect::RollingBall, nullptr);
+    getWorld().getAudioEngine().playSoundEffect(TR1SoundEffect::Boulder, nullptr);
   }
   else if(util::rand15() < 1024)
   {

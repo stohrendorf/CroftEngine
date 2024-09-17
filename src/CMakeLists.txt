@@ -388,6 +388,8 @@ set( CROFTENGINE_SRCS
         engine/objects/bear.h
         engine/objects/block.cpp
         engine/objects/block.h
+        engine/objects/boulder.cpp
+        engine/objects/boulder.h
         engine/objects/bridgeflat.h
         engine/objects/centaurstatue.cpp
         engine/objects/centaurstatue.h
@@ -459,8 +461,6 @@ set( CROFTENGINE_SRCS
         engine/objects/raptor.h
         engine/objects/rat.cpp
         engine/objects/rat.h
-        engine/objects/rollingball.cpp
-        engine/objects/rollingball.h
         engine/objects/scionpiece.cpp
         engine/objects/scionpiece.h
         engine/objects/shatter.cpp

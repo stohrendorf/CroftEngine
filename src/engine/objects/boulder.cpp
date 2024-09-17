@@ -1,4 +1,4 @@
-#include "rollingball.h"
+#include "boulder.h"
 
 #include "core/angle.h"
 #include "core/genericvec.h"
@@ -41,7 +41,7 @@ constexpr auto Stopped = 0_as;
 constexpr auto Rolling = 1_as;
 } // namespace
 
-void RollingBall::update()
+void Boulder::update()
 {
   if(m_state.triggerState == TriggerState::Active)
   {
@@ -90,7 +90,7 @@ void RollingBall::update()
       m_state.location.position.Y = m_state.floor;
       m_state.location.position.Z = oldPos.Z;
 
-      getWorld().getAudioEngine().stopSoundEffect(TR1SoundEffect::RollingBall, &m_state);
+      getWorld().getAudioEngine().stopSoundEffect(TR1SoundEffect::Boulder, &m_state);
     }
   }
   else if(m_state.triggerState == TriggerState::Deactivated && !m_state.updateActivationTimeout())
@@ -109,7 +109,7 @@ void RollingBall::update()
   applyTransform();
 }
 
-void RollingBall::collide(CollisionInfo& collisionInfo)
+void Boulder::collide(CollisionInfo& collisionInfo)
 {
   auto& lara = getWorld().getObjectManager().getLara();
 
@@ -185,23 +185,23 @@ void RollingBall::collide(CollisionInfo& collisionInfo)
   getWorld().getObjectManager().registerParticle(fx);
 }
 
-RollingBall::RollingBall(const std::string& name,
-                         const gsl::not_null<world::World*>& world,
-                         const gsl::not_null<const world::Room*>& room,
-                         const loader::file::Item& item,
-                         const gsl::not_null<const world::SkeletalModelType*>& animatedModel)
+Boulder::Boulder(const std::string& name,
+                 const gsl::not_null<world::World*>& world,
+                 const gsl::not_null<const world::Room*>& room,
+                 const loader::file::Item& item,
+                 const gsl::not_null<const world::SkeletalModelType*>& animatedModel)
     : ModelObject{name, world, room, item, true, animatedModel, true}
     , m_location{room, item.position}
 {
   getSkeleton()->getRenderState().setScissorTest(false);
 }
 
-void RollingBall::serialize(const serialization::Serializer<world::World>& ser) const
+void Boulder::serialize(const serialization::Serializer<world::World>& ser) const
 {
   ModelObject::serialize(ser);
 }
 
-void RollingBall::deserialize(const serialization::Deserializer<world::World>& ser)
+void Boulder::deserialize(const serialization::Deserializer<world::World>& ser)
 {
   ModelObject::deserialize(ser);
 

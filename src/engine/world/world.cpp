@@ -368,7 +368,7 @@ void World::earthquakeEffect()
     m_cameraController->setBounce(-250_len);
     break;
   case 3:
-    m_audioEngine->playSoundEffect(TR1SoundEffect::RollingBall, nullptr);
+    m_audioEngine->playSoundEffect(TR1SoundEffect::Boulder, nullptr);
     break;
   case 35:
     m_audioEngine->playSoundEffect(TR1SoundEffect::Explosion, nullptr);

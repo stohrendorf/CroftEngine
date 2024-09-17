@@ -6,6 +6,7 @@
 #include "bat.h"
 #include "bear.h"
 #include "block.h"
+#include "boulder.h"
 #include "bridgeflat.h"
 #include "centaurstatue.h"
 #include "collapsiblefloor.h"
@@ -50,7 +51,6 @@
 #include "raptor.h"
 #include "rat.h"
 #include "render/scene/node.h"
-#include "rollingball.h"
 #include "scionpiece.h"
 #include "serialization/serialization.h"
 #include "skateboardkid.h"
@@ -194,20 +194,13 @@ struct SpriteFactory : public ObjectFactory
 
 #define _PAREN_WRAPPER(ARG) ARG
 
-#define MODEL_FACTORY(ENUM, CLASS)                                                           \
-  {                                                                                          \
-    TR1ItemId::_PAREN_WRAPPER(ENUM), std::make_shared<ModelFactory<_PAREN_WRAPPER(CLASS)>>() \
-  }
+#define MODEL_FACTORY(ENUM, CLASS) \
+  {TR1ItemId::_PAREN_WRAPPER(ENUM), std::make_shared<ModelFactory<_PAREN_WRAPPER(CLASS)>>()}
 
-#define SPRITE_FACTORY(ENUM, CLASS)                                                           \
-  {                                                                                           \
-    TR1ItemId::_PAREN_WRAPPER(ENUM), std::make_shared<SpriteFactory<_PAREN_WRAPPER(CLASS)>>() \
-  }
+#define SPRITE_FACTORY(ENUM, CLASS) \
+  {TR1ItemId::_PAREN_WRAPPER(ENUM), std::make_shared<SpriteFactory<_PAREN_WRAPPER(CLASS)>>()}
 
-#define UNSUPPORTED_FACTORY(ENUM)                                                 \
-  {                                                                               \
-    TR1ItemId::_PAREN_WRAPPER(ENUM), std::make_shared<UnsupportedObjectFactory>() \
-  }
+#define UNSUPPORTED_FACTORY(ENUM) {TR1ItemId::_PAREN_WRAPPER(ENUM), std::make_shared<UnsupportedObjectFactory>()}
 
 /* NOLINTNEXTLINE(altera-struct-pack-align) */
 struct WalkingMutantFactory : public ObjectFactory
@@ -280,7 +273,7 @@ const auto& getFactories()
     MODEL_FACTORY(Bear, Bear),
     MODEL_FACTORY(FallingBlock, CollapsibleFloor),
     MODEL_FACTORY(SwingingBlade, SwingingBlade),
-    MODEL_FACTORY(RollingBall, RollingBall),
+    MODEL_FACTORY(Boulder, Boulder),
     MODEL_FACTORY(Dart, Dart),
     MODEL_FACTORY(Bat, Bat),
     MODEL_FACTORY(DartEmitter, DartGun),
