@@ -364,14 +364,14 @@ void World::earthquakeEffect()
   switch(m_effectTimer.get())
   {
   case 0:
-    m_audioEngine->playSoundEffect(TR1SoundEffect::Explosion1, nullptr);
+    m_audioEngine->playSoundEffect(TR1SoundEffect::Explosion, nullptr);
     m_cameraController->setBounce(-250_len);
     break;
   case 3:
     m_audioEngine->playSoundEffect(TR1SoundEffect::RollingBall, nullptr);
     break;
   case 35:
-    m_audioEngine->playSoundEffect(TR1SoundEffect::Explosion1, nullptr);
+    m_audioEngine->playSoundEffect(TR1SoundEffect::Explosion, nullptr);
     break;
   case 20:
   case 50:
