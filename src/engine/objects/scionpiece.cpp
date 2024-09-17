@@ -131,7 +131,7 @@ void ScionPiece3::update()
       Location{m_state.location.room, pos}, getWorld(), 0_spd, core::TRRotation{});
     setParent(particle, m_state.location.room->node);
     getWorld().getObjectManager().registerParticle(particle);
-    getWorld().getAudioEngine().playSoundEffect(TR1SoundEffect::Explosion2, gsl::not_null{particle.get().get()});
+    getWorld().getAudioEngine().playSoundEffect(TR1SoundEffect::ShrapnelExplosion, gsl::not_null{particle.get().get()});
 
     getWorld().getCameraController().setBounce(-200_len);
   }

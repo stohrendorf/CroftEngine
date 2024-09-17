@@ -85,7 +85,7 @@ void CentaurStatue::update()
   m_childObject->m_state.touch_bits = 0;
   m_childObject->activate();
   m_childObject->m_state.triggerState = TriggerState::Active;
-  m_childObject->playSoundEffect(TR1SoundEffect::Explosion2);
+  m_childObject->playSoundEffect(TR1SoundEffect::ShrapnelExplosion);
 }
 
 void CentaurStatue::serialize(const serialization::Serializer<world::World>& ser) const

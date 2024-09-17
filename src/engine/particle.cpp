@@ -449,7 +449,7 @@ bool MeshShrapnelParticle::update(world::World& world)
   if(!withoutParent())
     setParent(particle, location.room->node);
   world.getObjectManager().registerParticle(particle);
-  world.getAudioEngine().playSoundEffect(TR1SoundEffect::Explosion2, particle.get().get());
+  world.getAudioEngine().playSoundEffect(TR1SoundEffect::ShrapnelExplosion, particle.get().get());
   return false;
 }
 
@@ -545,7 +545,7 @@ bool MutantGrenadeParticle::update(world::World& world)
     if(!withoutParent())
       setParent(particle, location.room->node);
     world.getObjectManager().registerParticle(particle);
-    world.getAudioEngine().playSoundEffect(TR1SoundEffect::Explosion2, particle.get().get());
+    world.getAudioEngine().playSoundEffect(TR1SoundEffect::ShrapnelExplosion, particle.get().get());
 
     const auto dd = location.position - world.getObjectManager().getLara().m_state.location.position;
     const auto d = util::square(dd.X) + util::square(dd.Y) + util::square(dd.Z);
@@ -563,7 +563,7 @@ bool MutantGrenadeParticle::update(world::World& world)
     if(!withoutParent())
       setParent(particle, location.room->node);
     world.getObjectManager().registerParticle(particle);
-    world.getAudioEngine().playSoundEffect(TR1SoundEffect::Explosion2, particle.get().get());
+    world.getAudioEngine().playSoundEffect(TR1SoundEffect::ShrapnelExplosion, particle.get().get());
 
     if(!world.getObjectManager().getLara().isDead())
     {
