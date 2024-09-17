@@ -196,11 +196,6 @@ Boulder::Boulder(const std::string& name,
   getSkeleton()->getRenderState().setScissorTest(false);
 }
 
-void Boulder::serialize(const serialization::Serializer<world::World>& ser) const
-{
-  ModelObject::serialize(ser);
-}
-
 void Boulder::deserialize(const serialization::Deserializer<world::World>& ser)
 {
   ModelObject::deserialize(ser);
