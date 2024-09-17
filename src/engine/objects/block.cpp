@@ -69,7 +69,7 @@ void Block::collide(CollisionInfo& /*collisionInfo*/)
 
     getWorld().getObjectManager().getLara().m_state.rotation.Y = m_state.rotation.Y;
 
-    core::Length core::TRVec::*vp;
+    core::Length core::TRVec::* vp;
     core::Length d;
     switch(axis)
     {
@@ -172,7 +172,7 @@ void Block::update()
     m_state.falling = false;
     m_state.triggerState = TriggerState::Deactivated;
     getWorld().dinoStompEffect(*this);
-    playSoundEffect(TR1SoundEffect::TRexFootstep);
+    playSoundEffect(TR1SoundEffect::BigFloorImpact);
     applyTransform(); // needed for properly placing geometry on floor
   }
 

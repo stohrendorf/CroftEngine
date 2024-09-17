@@ -376,7 +376,7 @@ void World::earthquakeEffect()
   case 20:
   case 50:
   case 70:
-    m_audioEngine->playSoundEffect(TR1SoundEffect::TRexFootstep, nullptr);
+    m_audioEngine->playSoundEffect(TR1SoundEffect::BigFloorImpact, nullptr);
     break;
   default:
     // silence compiler

@@ -24,7 +24,7 @@ void Earthquake::update()
   else if(util::rand15() < 1024)
   {
     getWorld().getCameraController().setBounce(50_len);
-    getWorld().getAudioEngine().playSoundEffect(TR1SoundEffect::TRexFootstep, nullptr);
+    getWorld().getAudioEngine().playSoundEffect(TR1SoundEffect::BigFloorImpact, nullptr);
   }
 }
 } // namespace engine::objects
