@@ -75,7 +75,7 @@ std::unique_ptr<MenuState> IdleRingMenuState::onFrame(ui::Ui& ui, engine::world:
     switch(currentObject.type)
     {
     case engine::TR1ItemId::Compass:
-      world.getAudioEngine().playSoundEffect(engine::TR1SoundEffect::MenuOptionSelect1, nullptr);
+      world.getAudioEngine().playSoundEffect(engine::TR1SoundEffect::MenuOptionSelectCompass, nullptr);
       break;
     case engine::TR1ItemId::LarasHomePolaroid:
       world.getAudioEngine().playSoundEffect(engine::TR1SoundEffect::MenuHome, nullptr);
