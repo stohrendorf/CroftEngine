@@ -224,7 +224,7 @@ public:
   }
 
   template<typename T>
-  void lazy(T* instance, void (T::*member)(const BaseSerializer<Loading, TContext>&)) const
+  void lazy(T* instance, void (T::* member)(const BaseSerializer<Loading, TContext>&)) const
   {
     lazy(LazyCallback<Loading, TContext>{instance, member});
   }
@@ -364,7 +364,7 @@ public:
     gsl_Expects(!tag.empty());
 
     auto normalizedTag
-      = std::string{"<"}
+      = std::string{"!<"}
         + boost::algorithm::replace_all_copy(boost::algorithm::replace_all_copy(tag, ">", "&gt;"), " ", "%20") + ">";
     if constexpr(Loading)
     {
