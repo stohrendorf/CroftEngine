@@ -23,7 +23,7 @@ extern "C"
 
 namespace audio
 {
-struct AudioStreamDecoder;
+class AudioStreamDecoder;
 }
 
 namespace ffmpeg

@@ -96,7 +96,7 @@ void AVDecoder::fillQueues()
     {
       decodeVideoPacket();
     }
-    else if(packet.stream_index == audioDecoder->stream->index)
+    else if(packet.stream_index == audioDecoder->getStream()->index)
     {
       audioDecoder->push(packet);
     }

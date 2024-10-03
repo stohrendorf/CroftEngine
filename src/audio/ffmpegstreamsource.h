@@ -21,7 +21,7 @@ extern "C"
 
 namespace audio
 {
-struct AudioStreamDecoder;
+class AudioStreamDecoder;
 
 class BasicFfmpegStreamSource : public audio::AbstractStreamSource
 {

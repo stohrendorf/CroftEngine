@@ -25,32 +25,22 @@ struct Stream;
 
 namespace audio
 {
-struct AudioStreamDecoder final
+class AudioStreamDecoder final
 {
-  static constexpr size_t QueueLimit = 60;
-
-  mutable std::mutex mutex;
-
-  AVFormatContext* fmtContext = nullptr;
-  ffmpeg::AVFramePtr audioFrame;
-  std::unique_ptr<ffmpeg::Stream> stream;
-  SwrContext* swrContext = nullptr;
-  std::queue<std::vector<int16_t>> queue;
-  int64_t lastPacketPts = 0;
-
+public:
   explicit AudioStreamDecoder(AVFormatContext* fmtContext, bool rplFakeAudioHack);
   ~AudioStreamDecoder();
 
   [[nodiscard]] bool empty() const
   {
-    const std::unique_lock lock{mutex};
-    return queue.empty();
+    const std::unique_lock lock{m_mutex};
+    return m_queue.empty();
   }
 
   [[nodiscard]] bool filled() const
   {
-    const std::unique_lock lock{mutex};
-    return queue.size() >= QueueLimit;
+    const std::unique_lock lock{m_mutex};
+    return m_queue.size() >= QueueLimit;
   }
 
   bool push(const AVPacket& packet);
@@ -66,5 +56,22 @@ struct AudioStreamDecoder final
   [[nodiscard]] audio::Clock::duration getDuration() const;
 
   [[nodiscard]] int getChannels() const noexcept;
+
+  [[nodiscard]] const auto& getStream() const
+  {
+    return m_stream;
+  }
+
+private:
+  static constexpr size_t QueueLimit = 60;
+
+  mutable std::mutex m_mutex;
+
+  AVFormatContext* m_fmtContext = nullptr;
+  ffmpeg::AVFramePtr m_audioFrame;
+  std::unique_ptr<ffmpeg::Stream> m_stream;
+  SwrContext* m_swrContext = nullptr;
+  std::queue<std::vector<int16_t>> m_queue;
+  int64_t m_lastPacketPts = 0;
 };
 } // namespace audio
