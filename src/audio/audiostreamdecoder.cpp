@@ -81,17 +81,17 @@ AudioStreamDecoder::AudioStreamDecoder(AVFormatContext* fmtContext, bool rplFake
     : m_fmtContext{fmtContext}
     , m_stream{std::make_unique<ffmpeg::Stream>(fmtContext, AVMEDIA_TYPE_AUDIO, rplFakeAudioHack)}
 #if LIBAVUTIL_VERSION_MAJOR < 58
-    , swrContext{swr_alloc_set_opts(nullptr,
-                                    // NOLINTNEXTLINE(hicpp-signed-bitwise)
-                                    m_stream->context->channels == 1 ? AV_CH_LAYOUT_MONO : AV_CH_LAYOUT_STEREO,
-                                    AV_SAMPLE_FMT_S16,
-                                    m_stream->context->sample_rate,
-                                    // NOLINTNEXTLINE(hicpp-signed-bitwise)
-                                    m_stream->context->channels == 1 ? AV_CH_LAYOUT_MONO : AV_CH_LAYOUT_STEREO,
-                                    m_stream->context->sample_fmt,
-                                    m_stream->context->sample_rate,
-                                    0,
-                                    nullptr)}
+    , m_swrContext{swr_alloc_set_opts(nullptr,
+                                      // NOLINTNEXTLINE(hicpp-signed-bitwise)
+                                      m_stream->context->channels == 1 ? AV_CH_LAYOUT_MONO : AV_CH_LAYOUT_STEREO,
+                                      AV_SAMPLE_FMT_S16,
+                                      m_stream->context->sample_rate,
+                                      // NOLINTNEXTLINE(hicpp-signed-bitwise)
+                                      m_stream->context->channels == 1 ? AV_CH_LAYOUT_MONO : AV_CH_LAYOUT_STEREO,
+                                      m_stream->context->sample_fmt,
+                                      m_stream->context->sample_rate,
+                                      0,
+                                      nullptr)}
 #endif
 {
 #if LIBAVUTIL_VERSION_MAJOR >= 58
