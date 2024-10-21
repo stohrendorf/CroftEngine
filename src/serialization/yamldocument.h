@@ -3,6 +3,7 @@
 #include "access.h" // IWYU pragma: keep
 #include "serialization.h"
 
+#include <boost/log/trivial.hpp>
 #include <clocale>
 #include <filesystem>
 #include <fstream>
@@ -57,6 +58,7 @@ public:
   explicit YAMLDocument(const std::filesystem::path& filename)
       : m_filename{filename}
   {
+    BOOST_LOG_TRIVIAL(info) << "Opening " << filename << ", Loading=" << Loading;
     if constexpr(Loading)
     {
       std::ifstream file{filename, std::ios::in | std::ios::binary};
