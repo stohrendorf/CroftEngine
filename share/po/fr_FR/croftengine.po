@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CroftEngine\n"
 "Report-Msgid-Bugs-To: https://github.com/stohrendorf/CroftEngine/issues\n"
-"POT-Creation-Date: 2024-06-25 06:59+0200\n"
+"POT-Creation-Date: 2024-10-31 20:23+0100\n"
 "Last-Translator: Steffen Ohrendorf\n"
 "Language-Team: none\n"
 "Language: fr_FR\n"
@@ -19,37 +19,37 @@ msgstr ""
 "X-Source-Language: C\n"
 
 #. translators: TR charmap encoding
-#: menu/settingsmenustate.cpp:287
+#: menu/settingsmenustate.cpp:289
 #, boost-format
 msgid "\037l %1% \037m Dynamic Lighting"
 msgstr "\037l %1% \037m )Eclairage dynamique"
 
 #. translators: TR charmap encoding
-#: menu/settingsmenustate.cpp:563
+#: menu/settingsmenustate.cpp:565
 #, boost-format
 msgid "\037l %1% \037m Percent Dust Particles"
 msgstr "\037l %1% \037m pourcents de particules de poussi$ere"
 
 #. translators: TR charmap encoding
-#: menu/settingsmenustate.cpp:347
+#: menu/settingsmenustate.cpp:349
 #, boost-format
 msgid "\037l %1%x \037m Anisotropic Filtering"
 msgstr "\037l %1%x \037m Filtrage anisotropique"
 
 #. translators: TR charmap encoding
-#: menu/settingsmenustate.cpp:501
+#: menu/settingsmenustate.cpp:503
 #, boost-format
 msgid "\037l %1%x \037m UI Scale"
 msgstr "\037l %1%x \037m )Echelle de l'interface"
 
 #. translators: TR charmap encoding
-#: menu/settingsmenustate.cpp:471
+#: menu/settingsmenustate.cpp:473
 #, boost-format
 msgid "\037l 1/%1% \037m Render Scale"
 msgstr "\037l 1/%1% \037m )Echelle de rendu"
 
 #. translators: TR charmap encoding
-#: util/helpers.cpp:195
+#: util/helpers.cpp:200
 #, c-format, boost-format
 msgid "%1$02d:%2$02d"
 msgstr "%1$02d:%2$02d"
@@ -62,49 +62,49 @@ msgid "%1% - %2%"
 msgstr "%1% - %2%"
 
 #. translators: TR charmap encoding
-#: ui/detailedlevelstats.cpp:95
+#: ui/detailedlevelstats.cpp:90
 #, boost-format
 msgid "%1% Hits"
 msgstr "%1% Tirs r)eussis"
 
 #. translators: TR charmap encoding
-#: ui/detailedlevelstats.cpp:101
+#: ui/detailedlevelstats.cpp:96
 #, boost-format
 msgid "%1% Misses"
 msgstr "%1% Tirs rat)es"
 
 #. translators: TR charmap encoding
-#: util/helpers.cpp:186
+#: util/helpers.cpp:191
 #, boost-format
 msgid "%1%:%2$02d:%3$02d"
 msgstr "%1%:%2$02d:%3$02d"
 
 #. translators: TR charmap encoding
-#: util/datetime.h:57
+#: util/datetime.h:60
 msgctxt "SavegameTime"
 msgid "%d %B %Y %X"
 msgstr "%d. %B %Y %X"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:21
+#: hid/names.cpp:22
 msgctxt "Keyboard|Key"
 msgid "'"
 msgstr "$u"
 
 #. translators: TR charmap encoding (grave accent)
-#: hid/names.cpp:113
+#: hid/names.cpp:114
 msgctxt "Keyboard|Key"
 msgid "( "
 msgstr "Carr)e"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:23
+#: hid/names.cpp:24
 msgctxt "Keyboard|Key"
 msgid ","
 msgstr ";"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:25
+#: hid/names.cpp:26
 msgctxt "Keyboard|Key"
 msgid "-"
 msgstr "ParentDrt"
@@ -123,65 +123,65 @@ msgid "- NO QUICKSAVE"
 msgstr "- PAS DE SAUVEGARDE RAPIDE"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:27
+#: hid/names.cpp:28
 msgctxt "Keyboard|Key"
 msgid "."
 msgstr ":"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:29
+#: hid/names.cpp:30
 msgctxt "Keyboard|Key"
 msgid "/"
 msgstr "!"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:51
+#: hid/names.cpp:52
 msgctxt "Keyboard|Key"
 msgid ";"
 msgstr "M"
 
 #. translators: TR charmap encoding (square bracket left)
-#: hid/names.cpp:107
+#: hid/names.cpp:108
 msgctxt "Keyboard|Key"
 msgid "<"
 msgstr "( "
 
 #. translators: TR charmap encoding (square bracket right)
-#: hid/names.cpp:111
+#: hid/names.cpp:112
 msgctxt "Keyboard|Key"
 msgid ">"
 msgstr "Dollar"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:55
+#: hid/names.cpp:56
 msgctxt "Keyboard|Key"
 msgid "A"
 msgstr "Q"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:316
+#: hid/names.cpp:317
 msgctxt "Action"
 msgid "Action"
 msgstr "Action"
 
 #. translators: TR charmap encoding
-#: menu/settingsmenustate.cpp:184
+#: menu/settingsmenustate.cpp:186
 msgid "Adds Borderland-like black lines to edges."
 msgstr "Ajoute un liser)e noir comme dans Borderlands."
 
 #. translators: TR charmap encoding
-#: menu/settingsmenustate.cpp:155
+#: menu/settingsmenustate.cpp:157
 msgid "Adds a 'Fujifilm Velvia' effect to enhance colour saturation."
 msgstr ""
 "Ajoute un effet 'Fujifilm Velvia' pour rehausser la saturation des couleurs."
 
 #. translators: TR charmap encoding
-#: menu/settingsmenustate.cpp:739
+#: menu/settingsmenustate.cpp:741
 msgid "Adds a regular save reminder to the top of the screen."
 msgstr "Ajoute r)eguli$erement un rappel de sauvegarde en haut de l')ecran."
 
 #. translators: TR charmap encoding
-#: menu/settingsmenustate.cpp:126
+#: menu/settingsmenustate.cpp:128
 msgid ""
 "Adds a slight distortion of the graphics to simulate cameras like, for "
 "example, a Go Pro."
@@ -190,12 +190,12 @@ msgstr ""
 "exemple, une Go Pro."
 
 #. translators: TR charmap encoding
-#: menu/settingsmenustate.cpp:141
+#: menu/settingsmenustate.cpp:143
 msgid "Adds a slight noise effect to simulate analog film."
 msgstr "Ajoute un l)eger effet de bruit pour simuler une pellicule analogique."
 
 #. translators: TR charmap encoding
-#: menu/settingsmenustate.cpp:398
+#: menu/settingsmenustate.cpp:400
 msgid ""
 "Adds shadows to crevices.\n"
 "\n"
@@ -208,12 +208,12 @@ msgstr ""
 "vous constatez un framerate constamment faible."
 
 #. translators: TR charmap encoding
-#: menu/settingsmenustate.cpp:698
+#: menu/settingsmenustate.cpp:700
 msgid "Adds small bubbles to all water."
 msgstr "Ajoute de petites bulles dans toutes les eaux."
 
 #. translators: TR charmap encoding
-#: menu/settingsmenustate.cpp:584
+#: menu/settingsmenustate.cpp:586
 msgid ""
 "Adds small dust particles to all levels.\n"
 "\n"
@@ -226,66 +226,66 @@ msgstr ""
 "constatez un faible framerate dans les grands espaces ouverts."
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:239
+#: hid/names.cpp:240
 msgctxt "Keyboard|Key"
 msgid "Alt"
 msgstr "Alt"
 
 #. translators: TR charmap encoding
-#: menu/gameplayrulesmenustate.cpp:127
+#: menu/gameplayrulesmenustate.cpp:117
 msgid "Any enemy or trap hit is an instant kill, except spikes."
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/controlsmenustate.cpp:178
+#: menu/controlsmenustate.cpp:177
 msgid "Apply changes?"
 msgstr "Appliquer les changements ?"
 
 #. translators: TR charmap encoding
-#: menu/audiosettingsmenustate.cpp:40
+#: menu/audiosettingsmenustate.cpp:41
 msgid "Audio Settings"
 msgstr "R)eglages audio"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:57
+#: hid/names.cpp:58
 msgctxt "Keyboard|Key"
 msgid "B"
 msgstr "B"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:346
+#: hid/names.cpp:347
 msgctxt "Action"
 msgid "Back"
 msgstr "Arri$ere"
 
 #. translators: TR charmap encoding, gamepad
-#: hid/names.cpp:280
+#: hid/names.cpp:281
 msgctxt "Gamepad|Button"
 msgid "Back"
 msgstr "Arri$ere"
 
 #. translators: TR charmap encoding
-#: menu/settingsmenustate.cpp:322
+#: menu/settingsmenustate.cpp:324
 msgid "Bilinear Filtering"
 msgstr "Filtrage Bilin)eaire"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:121
+#: hid/names.cpp:122
 msgctxt "Keyboard|Key"
 msgid "Bksp"
 msgstr "RetArr"
 
 #. translators: TR charmap encoding
-#: menu/settingsmenustate.cpp:159
+#: menu/settingsmenustate.cpp:161
 msgid "Bloom"
 msgstr "Bloom"
 
-#: engine/presenter.cpp:396
+#: engine/presenter.cpp:451
 msgid "Booting"
 msgstr "D\303\251marrage"
 
 #. translators: TR charmap encoding
-#: menu/settingsmenustate.cpp:170
+#: menu/settingsmenustate.cpp:172
 msgid ""
 "Bright areas on screen will add a glow to surrounding areas, simulating real-"
 "world cameras."
@@ -294,51 +294,51 @@ msgstr ""
 "environnement, pour simuler une vraie cam)era."
 
 #. translators: TR charmap encoding
-#: menu/settingsmenustate.cpp:208
+#: menu/settingsmenustate.cpp:210
 #, boost-format
 msgid "Brightness \037l %1% \037m"
 msgstr "Luminosit)e \037l %1% \037m"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:356
+#: hid/names.cpp:357
 msgctxt "Action"
 msgid "Bug Report"
 msgstr "Rapport de bug"
 
 #. translators: TR charmap encoding
-#: engine/engine.cpp:143
+#: engine/engine.cpp:146
 msgid "Bug Report Saved"
 msgstr "Rapport de bug enregistr)e"
 
-#: engine/world/texturing.cpp:695
+#: engine/world/texturing.cpp:701
 msgid "Building atlases"
 msgstr "Construction des atlas"
 
-#: engine/world/texturing.cpp:323 engine/world/texturing.cpp:492
-#: engine/world/texturing.cpp:757 engine/world/texturing.cpp:774
+#: engine/world/texturing.cpp:327 engine/world/texturing.cpp:498
+#: engine/world/texturing.cpp:763 engine/world/texturing.cpp:780
 #, boost-format
 msgid "Building atlases (%1%%%)"
 msgstr "Construction des atlas (%1%%%)"
 
 #. translators: TR charmap encoding
-#: menu/settingsmenustate.cpp:701
+#: menu/settingsmenustate.cpp:703
 msgid "Butt Bubbles"
 msgstr "Bulles aux fesses"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:59
+#: hid/names.cpp:60
 msgctxt "Keyboard|Key"
 msgid "C"
 msgstr "C"
 
 #. translators: TR charmap encoding
-#: menu/settingsmenustate.cpp:72
+#: menu/settingsmenustate.cpp:74
 #, boost-format
 msgid "CRT Version \037l %1% \037m"
 msgstr "CRT Version \037l %1% \037m"
 
 #. translators: TR charmap encoding
-#: ui/detailedlevelstats.cpp:40
+#: ui/detailedlevelstats.cpp:35
 msgctxt "gamestats"
 msgid "CURRENT"
 msgstr "EN COURS"
@@ -349,24 +349,24 @@ msgid "Cancel"
 msgstr "Annuler"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:143
+#: hid/names.cpp:144
 msgctxt "Keyboard|Key"
 msgid "CapsLk"
 msgstr "VerrMaj"
 
 #. translators: TR charmap encoding
-#: menu/controlsmenustate.cpp:205
+#: menu/controlsmenustate.cpp:204
 #, boost-format
 msgid "Change Button Images: %1%"
 msgstr "Changer l'image des boutons : %1%"
 
 #. translators: TR charmap encoding
-#: menu/settingsmenustate.cpp:332
+#: menu/settingsmenustate.cpp:334
 msgid "Change between pixelated textures and washed out textures."
 msgstr "Change entre des textures pixelis)ees ou d)elav)ees."
 
 #. translators: TR charmap encoding
-#: menu/settingsmenustate.cpp:308
+#: menu/settingsmenustate.cpp:310
 msgid ""
 "Changes the lighting of the level between the static lighting baked into the "
 "level data, or dynamic lighting calculated only from the light sources "
@@ -377,13 +377,13 @@ msgstr ""
 "depuis les sources lumineuses."
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:352
+#: hid/names.cpp:353
 msgctxt "Action"
 msgid "Cheat Dive"
 msgstr "Plongeon de triche"
 
 #. translators: TR charmap encoding; in the sense of "cheats are used"
-#: ui/detailedlevelstats.cpp:121
+#: ui/detailedlevelstats.cpp:116
 msgid "Cheats Used"
 msgstr "Avec triche"
 
@@ -500,57 +500,57 @@ msgstr ""
 "Cela va d)eplacer tous les emplacements au d)ebut de la liste."
 
 #. translators: TR charmap encoding
-#: menu/menudisplay.cpp:288
+#: menu/menudisplay.cpp:292
 msgid "Compass"
 msgstr "Boussole"
 
 #. translators: TR charmap encoding
-#: menu/settingsmenustate.cpp:229
+#: menu/settingsmenustate.cpp:231
 msgid "Configure your preferred overall brightness of the game."
 msgstr "Configurer votre luminosit)e globale pr)ef)er)ee dans le jeu."
 
 #. translators: TR charmap encoding
-#: menu/settingsmenustate.cpp:262
+#: menu/settingsmenustate.cpp:264
 msgid "Configure your preferred overall contrast of the game."
 msgstr "Configurer votre contraste global pr)ef)er)ee dans le jeu."
 
 #. translators: TR charmap encoding
-#: menu/settingsmenustate.cpp:241
+#: menu/settingsmenustate.cpp:243
 #, boost-format
 msgid "Contrast \037l %1% \037m"
 msgstr "Contraste \037l %1% \037m"
 
 #. translators: TR charmap encoding
-#: menu/controlswidget.cpp:281
+#: menu/controlswidget.cpp:284
 #, boost-format
 msgid "Controller Type: %1%"
 msgstr "Type de contr(oles : %1%"
 
 #. translators: TR charmap encoding
-#: menu/menudisplay.cpp:237
+#: menu/menudisplay.cpp:241
 msgid "Controls"
 msgstr "Contr(oles"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:237
+#: hid/names.cpp:238
 msgctxt "Keyboard|Key"
 msgid "Ctrl"
 msgstr "Ctrl"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:61
+#: hid/names.cpp:62
 msgctxt "Keyboard|Key"
 msgid "D"
 msgstr "D"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:125
+#: hid/names.cpp:126
 msgctxt "Keyboard|Key"
 msgid "Del"
 msgstr "Suppr"
 
 #. translators: TR charmap encoding
-#: menu/settingsmenustate.cpp:763
+#: menu/settingsmenustate.cpp:765
 #, boost-format
 msgid "Delay Overwrite for \037l %1% \037m Second"
 msgid_plural "Delay Overwrite for \037l %1% \037m Seconds"
@@ -558,102 +558,102 @@ msgstr[0] "Retarder le remplacement pendant \037m %1% \037m seconde"
 msgstr[1] "Retarder le remplacement pendant \037m %1% \037m secondes"
 
 #. translators: TR charmap encoding
-#: menu/settingsmenustate.cpp:374
+#: menu/settingsmenustate.cpp:376
 msgid "Denoise Water Surface"
 msgstr "D)ebruiter la surface de l'eau"
 
 #. translators: TR charmap encoding
-#: menu/settingsmenustate.cpp:99
+#: menu/settingsmenustate.cpp:101
 msgid "Depth-of-Field"
 msgstr "Profondeur de champ"
 
 #. translators: TR charmap encoding
-#: menu/menudisplay.cpp:253
+#: menu/menudisplay.cpp:257
 msgid "Detail Levels"
 msgstr "Niveaux de d)etails"
 
 #. translators: TR charmap encoding
-#: menu/gameplayrulesmenustate.cpp:113
+#: menu/gameplayrulesmenustate.cpp:103
 msgid "Disables all cheats."
 msgstr "D)esactiver toutes les triches."
 
 #. translators: TR charmap encoding
-#: menu/controlsmenustate.cpp:185
+#: menu/controlsmenustate.cpp:184
 msgid "Discard changes"
 msgstr "Annuler les changements"
 
 #. translators: TR charcmap encoding
-#: menu/controlsmenustate.cpp:141
+#: menu/controlsmenustate.cpp:140
 msgctxt "GamepadAxis"
 msgid "Down"
 msgstr "Bas"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:131
+#: hid/names.cpp:132
 msgctxt "Keyboard|Key"
 msgid "Down"
 msgstr "Bas"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:364
+#: hid/names.cpp:365
 msgctxt "MenuAction"
 msgid "Down"
 msgstr "Bas"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:330
+#: hid/names.cpp:331
 msgctxt "Action"
 msgid "Draw Magnums"
 msgstr "D)egainer les Magnums"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:324
+#: hid/names.cpp:325
 msgctxt "Action"
 msgid "Draw Pistols"
 msgstr "D)egainer les pistolets"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:326
+#: hid/names.cpp:327
 msgctxt "Action"
 msgid "Draw Shotgun"
 msgstr "D)egainer le fusil"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:328
+#: hid/names.cpp:329
 msgctxt "Action"
 msgid "Draw Uzis"
 msgstr "D)egainer les Uzis"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:320
+#: hid/names.cpp:321
 msgctxt "Action"
 msgid "Draw Weapon"
 msgstr "D)egainer"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:63
+#: hid/names.cpp:64
 msgctxt "Keyboard|Key"
 msgid "E"
 msgstr "E"
 
 #. translators: TR charmap encoding
-#: menu/settingsmenustate.cpp:174
+#: menu/settingsmenustate.cpp:176
 msgid "Edge Outlines"
 msgstr "Tracer les contours"
 
 #. translators: TR charmap encoding
-#: menu/controlsmenustate.cpp:200
+#: menu/controlsmenustate.cpp:199
 #, boost-format
 msgid "Edit Mapping: %1%"
 msgstr "Changer l'affectation : %1%"
 
 #. translators: TR charmap encoding
-#: menu/audiosettingsmenustate.cpp:61 menu/settingsmenustate.cpp:61
+#: menu/audiosettingsmenustate.cpp:62 menu/settingsmenustate.cpp:63
 msgid "Effects"
 msgstr "Effets"
 
 #. translators: TR charmap encoding
-#: menu/settingsmenustate.cpp:667
+#: menu/settingsmenustate.cpp:669
 msgid ""
 "Enable to make the health bar pulse on low health. The lower your health, "
 "the faster it will pulse."
@@ -662,7 +662,7 @@ msgstr ""
 "est faible, plus la pulsation sera forte."
 
 #. translators: TR charmap encoding
-#: menu/settingsmenustate.cpp:682
+#: menu/settingsmenustate.cpp:684
 msgid ""
 "Enable to make the screen go black and white the lower your health is. This "
 "effect will only start to take effect on very low health."
@@ -671,7 +671,7 @@ msgstr ""
 "Cet effet ne commence que lorsque la sant)e est tr$es faible."
 
 #. translators: TR charmap encoding
-#: menu/settingsmenustate.cpp:650
+#: menu/settingsmenustate.cpp:652
 msgid ""
 "Enable to restore your health on each level start. When disabled, your "
 "health won't get filled up after each level."
@@ -680,7 +680,7 @@ msgstr ""
 "d)esactiv)e, votre sant)e ne sera pas remplie apr$es chaque niveau."
 
 #. translators: TR charmap encoding
-#: menu/settingsmenustate.cpp:93
+#: menu/settingsmenustate.cpp:95
 msgid ""
 "Enables an old TV effect. You can choose between two different effect "
 "versions."
@@ -689,159 +689,159 @@ msgstr ""
 "effets."
 
 #. translators: TR charmap encoding
-#: menu/settingsmenustate.cpp:618
+#: menu/settingsmenustate.cpp:620
 msgid "Enables recording and playback of your local ghost."
 msgstr "Active l'enregistrement et la lecture de votre fant(ome local."
 
 #. translators: TR charmap encoding
-#: menu/settingsmenustate.cpp:557
+#: menu/settingsmenustate.cpp:559
 msgid "Enables windowed fullscreen."
 msgstr "Active le plein )ecran sans bordures."
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:141
+#: hid/names.cpp:142
 msgctxt "Keyboard|Key"
 msgid "End"
 msgstr "Fin"
 
 #. translators: TR charmap encoding
-#: menu/controlsmenustate.cpp:183
+#: menu/controlsmenustate.cpp:182
 msgid "Ensure your menu mapping is fully configured."
 msgstr "V)erifiez que le menu des contr(oles est compl$etement configur)e."
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:53
+#: hid/names.cpp:54
 msgctxt "Keyboard|Key"
 msgid "Equal"
 msgstr ")Egale"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:115
+#: hid/names.cpp:116
 msgctxt "Keyboard|Key"
 msgid "Esc"
 msgstr ")Echap"
 
 #. translators: TR charmap encoding
-#: menu/passportmenustate.cpp:113
+#: menu/passportmenustate.cpp:117
 msgid "Exit Game"
 msgstr "Sortir du jeu"
 
 #. translators: TR charmap encoding
-#: menu/passportmenustate.cpp:112
+#: menu/passportmenustate.cpp:116
 msgid "Exit to Title"
 msgstr "Sortir vers le titre"
 
 #. translators: TR charmap encoding
-#: menu/settingsmenustate.cpp:419
+#: menu/settingsmenustate.cpp:421
 msgctxt "FXAA"
 msgid "Extreme"
 msgstr "Extr(eme"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:65
+#: hid/names.cpp:66
 msgctxt "Keyboard|Key"
 msgid "F"
 msgstr "F"
 
 #. translators: TR charmap encoding
-#: menu/settingsmenustate.cpp:424
+#: menu/settingsmenustate.cpp:426
 #, boost-format
 msgid "FXAA \037l %1% \037m"
 msgstr "FXAA \037l %1% \037m"
 
 #. translators: TR charmap encoding
-#: menu/settingsmenustate.cpp:131
+#: menu/settingsmenustate.cpp:133
 msgid "Film Grain"
 msgstr "Grain de pellicule"
 
 #. translators: TR charmap encoding
-#: menu/settingsmenustate.cpp:197
+#: menu/settingsmenustate.cpp:199
 msgid "Firing your weapons will cast light on your environment."
 msgstr "Tirer avec vos armes illuminera votre environnement."
 
 #. translators: TR charmap encoding
-#: menu/settingsmenustate.cpp:282
+#: menu/settingsmenustate.cpp:284
 msgctxt "lighting"
 msgid "Full"
 msgstr "Tout"
 
 #. translators: TR charmap encoding
-#: menu/settingsmenustate.cpp:547
+#: menu/settingsmenustate.cpp:549
 msgid "Fullscreen"
 msgstr "Plein )ecran"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:67
+#: hid/names.cpp:68
 msgctxt "Keyboard|Key"
 msgid "G"
 msgstr "G"
 
 #. translators: TR charmap encoding
-#: menu/menudisplay.cpp:535
+#: menu/menudisplay.cpp:539
 msgid "GAME OVER"
 msgstr "GAME OVER"
 
 #. translators: TR charmap encoding
-#: menu/menudisplay.cpp:227
+#: menu/menudisplay.cpp:231
 msgid "Game"
 msgstr "Jeu"
 
 #. translators: TR charmap encoding
-#: engine/engineconfig.cpp:74 engine/engineconfig.cpp:151
+#: engine/engineconfig.cpp:78 engine/engineconfig.cpp:155
 msgctxt "Input|MappingName"
 msgid "Gamepad"
 msgstr "Contr(oleur"
 
 #. translators: TR charmap encoding
-#: menu/controlswidget.cpp:112
+#: menu/controlswidget.cpp:115
 msgid "Gameplay"
 msgstr "Gameplay"
 
 #. translators: TR charmap encoding
-#: menu/newgamemenustate.cpp:28
+#: menu/newgamemenustate.cpp:36
 msgid "Gameplay Rules"
 msgstr "R$egles de gameplay"
 
-#: engine/world/room.cpp:570
+#: engine/world/room.cpp:578
 msgid "Generating Dust Particles..."
 msgstr "G\303\251n\303\251ration des particules de poussi\303\250re..."
 
 #. translators: TR charmap encoding
-#: menu/settingsmenustate.cpp:607
+#: menu/settingsmenustate.cpp:609
 msgid "Ghost"
 msgstr "Fant(ome"
 
 #. translators: TR charmap encoding
-#: menu/settingsmenustate.cpp:712
+#: menu/settingsmenustate.cpp:714
 msgid "Give Lara a bubbly personality."
 msgstr "Donne $a Lara une personnalit)e p)etillante."
 
-#: loader/trx/trx.cpp:359
+#: loader/trx/trx.cpp:358
 #, boost-format
 msgid "Glidos - Loading %1%"
 msgstr "Glidos - Chargement %1%"
 
-#: loader/trx/trx.cpp:152
+#: loader/trx/trx.cpp:151
 #, boost-format
 msgid "Glidos - Loading equiv.txt (%1%%%)"
 msgstr "Glidos - Chargement de equiv.txt (%1%%%)"
 
-#: loader/trx/trx.cpp:179 loader/trx/trx.cpp:229
+#: loader/trx/trx.cpp:178 loader/trx/trx.cpp:228
 #, boost-format
 msgid "Glidos - Resolving maps (%1%%%)"
 msgstr "Glidos - R\303\251solution des maps (%1%%%)"
 
-#: loader/trx/trx.cpp:369
+#: loader/trx/trx.cpp:368
 msgid "Glidos - Resolving maps (100%)"
 msgstr "Glidos - R\303\251solution des maps (100%)"
 
 #. translators: TR charmap encoding
-#: menu/audiosettingsmenustate.cpp:55
+#: menu/audiosettingsmenustate.cpp:56
 msgid "Global"
 msgstr "Global"
 
 #. translators: TR charmap encoding
-#: menu/menudisplay.cpp:380
+#: menu/menudisplay.cpp:384
 msgid "Grenade"
 msgstr "Grenade"
 
@@ -851,233 +851,233 @@ msgid "Group by Level, Order by Date, and Compact"
 msgstr "Grouper par niveau, Ordonner par date, et compacter"
 
 #. translators: TR charmap encoding, gamepad
-#: hid/names.cpp:286
+#: hid/names.cpp:287
 msgctxt "Gamepad|Button"
 msgid "Guide"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/menudisplay.cpp:263
+#: menu/menudisplay.cpp:267
 msgid "Gym"
 msgstr "La Demeure de Lara"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:69
+#: hid/names.cpp:70
 msgctxt "Keyboard|Key"
 msgid "H"
 msgstr "H"
 
 #. translators: TR charmap encoding
-#: menu/settingsmenustate.cpp:387
+#: menu/settingsmenustate.cpp:389
 msgid "HBAO"
 msgstr "HBAO"
 
 #. translators: TR charmap encoding
-#: menu/settingsmenustate.cpp:416
+#: menu/settingsmenustate.cpp:418
 msgctxt "FXAA"
 msgid "High"
 msgstr "Haut"
 
 #. translators: TR charmap encoding
-#: menu/settingsmenustate.cpp:452
+#: menu/settingsmenustate.cpp:454
 msgid "High Quality Shadows"
 msgstr "Ombres de haute qualit)e"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:139
+#: hid/names.cpp:140
 msgctxt "Keyboard|Key"
 msgid "Home"
 msgstr "D)ebut"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:71
+#: hid/names.cpp:72
 msgctxt "Keyboard|Key"
 msgid "I"
 msgstr "I"
 
 #. translators: TR charmap encoding
-#: menu/menudisplay.cpp:530
+#: menu/menudisplay.cpp:534
 msgid "INVENTORY"
 msgstr "INVENTAIRE"
 
 #. translators: TR charmap encoding
-#: menu/menudisplay.cpp:522
+#: menu/menudisplay.cpp:526
 msgid "ITEMS"
 msgstr "OBJETS"
 
 #. translators: TR charmap encoding
-#: menu/settingsmenustate.cpp:369
+#: menu/settingsmenustate.cpp:371
 msgid "Improves texture rendering of slanted geometry."
 msgstr "Am)eliore le rendu des textures sur la g)eom)etrie inclin)ee."
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:123
+#: hid/names.cpp:124
 msgctxt "Keyboard|Key"
 msgid "Ins"
 msgstr "Inser"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:322
+#: hid/names.cpp:323
 msgctxt "Action"
 msgid "Inventory"
 msgstr "Inventaire"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:73
+#: hid/names.cpp:74
 msgctxt "Keyboard|Key"
 msgid "J"
 msgstr "J"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:310
+#: hid/names.cpp:311
 msgctxt "Action"
 msgid "Jump"
 msgstr "Saut"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:75
+#: hid/names.cpp:76
 msgctxt "Keyboard|Key"
 msgid "K"
 msgstr "K"
 
 #. translators: TR charmap encoding
-#: ui/levelstats.cpp:35
+#: ui/levelstats.cpp:34
 #, boost-format
 msgid "KILLS %1%"
 msgstr "ENNEMIS TU)ES %1%"
 
 #. translators: TR charmap encoding
-#: engine/engineconfig.cpp:33 engine/engineconfig.cpp:110
+#: engine/engineconfig.cpp:37 engine/engineconfig.cpp:114
 msgctxt "Input|MappingName"
 msgid "Keyboard"
 msgstr "Clavier"
 
 #. translators: TR charmap encoding
-#: ui/detailedlevelstats.cpp:55
+#: ui/detailedlevelstats.cpp:50
 msgid "Kills"
 msgstr "Ennemis tu)es"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:77
+#: hid/names.cpp:78
 msgctxt "Keyboard|Key"
 msgid "L"
 msgstr "L"
 
 #. translators: TR charmap encoding, gamepad
-#: hid/names.cpp:297
+#: hid/names.cpp:298
 msgctxt "Gamepad|Button"
 msgid "LThumb"
 msgstr "LStick"
 
 #. translators: TR charmap encoding
-#: menu/menudisplay.cpp:391
+#: menu/menudisplay.cpp:395
 msgid "Large Medi Pack"
 msgstr "Grande trousse de soins"
 
 #. translators: TR charmap encoding
-#: ui/detailedlevelstats.cpp:66
+#: ui/detailedlevelstats.cpp:61
 msgid "Large Medi Packs"
 msgstr "Grandes trousses de soins"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:334
+#: hid/names.cpp:335
 msgctxt "Action"
 msgid "Large Medipack"
 msgstr "Grande trousse de soins"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:340
+#: hid/names.cpp:341
 msgctxt "Action"
 msgid "Left"
 msgstr "Gauche"
 
 #. translators: TR charcmap encoding
-#: menu/controlsmenustate.cpp:134
+#: menu/controlsmenustate.cpp:133
 msgctxt "GamepadAxis"
 msgid "Left"
 msgstr "Gauche"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:129
+#: hid/names.cpp:130
 msgctxt "Keyboard|Key"
 msgid "Left"
 msgstr "Gauche"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:358
+#: hid/names.cpp:359
 msgctxt "MenuAction"
 msgid "Left"
 msgstr "Gauche"
 
 #. translators: TR charmap encoding
-#: menu/settingsmenustate.cpp:115
+#: menu/settingsmenustate.cpp:117
 msgid "Lens Distortion"
 msgstr "Distorsion de l'objectif"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:338
+#: hid/names.cpp:339
 msgctxt "Action"
 msgid "Load"
 msgstr "Charger"
 
 #. translators: TR charmap encoding
-#: menu/passportmenustate.cpp:47
+#: menu/passportmenustate.cpp:51
 msgid "Load Game"
 msgstr "Charger un jeu"
 
-#: engine/script/reflection.cpp:81
+#: engine/script/reflection.cpp:83
 #, boost-format
 msgid "Loading %1%"
 msgstr "Chargement %1%"
 
-#: engine/engine.cpp:876
+#: engine/engine.cpp:880
 msgid "Loading Glidos texture pack"
 msgstr "Chargement du pack de textures Glidos"
 
-#: engine/world/world.cpp:1033
+#: engine/world/world.cpp:1039
 msgid "Loading..."
 msgstr "Chargement..."
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:318
+#: hid/names.cpp:319
 msgctxt "Action"
 msgid "Look"
 msgstr "Regarder"
 
 #. translators: TR charmap encoding
-#: menu/settingsmenustate.cpp:410
+#: menu/settingsmenustate.cpp:412
 msgctxt "FXAA"
 msgid "Low"
 msgstr "Bas"
 
 #. translators: TR charmap encoding
-#: menu/settingsmenustate.cpp:655
+#: menu/settingsmenustate.cpp:657
 msgid "Low Health: Pulse Health Bar"
 msgstr "Sant)e basse : pulser la barre de sant)e"
 
 #. translators: TR charmap encoding
-#: menu/settingsmenustate.cpp:671
+#: menu/settingsmenustate.cpp:673
 msgid "Low Health: Reduce Color"
 msgstr "Sant)e basse : r)eduire les couleurs"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:79
+#: hid/names.cpp:80
 msgctxt "Keyboard|Key"
 msgid "M"
 msgstr ","
 
 #. translators: TR charmap encoding
-#: menu/menudisplay.cpp:346
+#: menu/menudisplay.cpp:350
 msgid "Magnum Clips"
 msgstr "Munitions de Magnum"
 
 #. translators: TR charmap encoding
-#: menu/menudisplay.cpp:335 ui/detailedlevelstats.cpp:112
+#: menu/menudisplay.cpp:339 ui/detailedlevelstats.cpp:107
 msgid "Magnums"
 msgstr "Magnums"
 
 #. translators: TR charmap encoding
-#: menu/settingsmenustate.cpp:601
+#: menu/settingsmenustate.cpp:603
 msgid ""
 "Makes lighting changes between areas of levels smoother.\n"
 "\n"
@@ -1090,113 +1090,113 @@ msgstr ""
 "D)esactivez-le si le jeu devient trop lumineux pour vous."
 
 #. translators: TR charmap encoding
-#: menu/settingsmenustate.cpp:413
+#: menu/settingsmenustate.cpp:415
 msgctxt "FXAA"
 msgid "Medium"
 msgstr "Moyen"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:257
+#: hid/names.cpp:258
 msgctxt "Keyboard|Key"
 msgid "Menu"
 msgstr "Menu"
 
 #. translators: TR charmap encoding
-#: menu/controlswidget.cpp:127
+#: menu/controlswidget.cpp:130
 msgid "Menu Navigation"
 msgstr "Navigation dans les menus"
 
 #. translators: TR charmap encoding
-#: menu/settingsmenustate.cpp:591
+#: menu/settingsmenustate.cpp:593
 msgid "More Lights"
 msgstr "Plus de lumi$eres"
 
 #. translators: TR charmap encoding
-#: menu/settingsmenustate.cpp:279
+#: menu/settingsmenustate.cpp:281
 msgctxt "lighting"
 msgid "Mostly"
 msgstr "La plupart"
 
 #. translators: TR charmap encoding
-#: menu/audiosettingsmenustate.cpp:58
+#: menu/audiosettingsmenustate.cpp:59
 msgid "Music"
 msgstr "Musique"
 
 #. translators: TR charmap encoding
-#: menu/settingsmenustate.cpp:187
+#: menu/settingsmenustate.cpp:189
 msgid "Muzzle Flash Lighting"
 msgstr ")Eclairage par l')eclair de feu"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:81
+#: hid/names.cpp:82
 msgctxt "Keyboard|Key"
 msgid "N"
 msgstr "N"
 
 #. translators: TR charcmap encoding
-#: menu/controlsmenustate.cpp:86 menu/controlsmenustate.cpp:101
-#: menu/controlsmenustate.cpp:113
+#: menu/controlsmenustate.cpp:85 menu/controlsmenustate.cpp:100
+#: menu/controlsmenustate.cpp:112
 msgctxt "ButtonAssignment"
 msgid "N/A"
 msgstr "N/A"
 
 #. translators: TR charmap encoding
-#: menu/newgamemenustate.cpp:18 menu/newgamemenustate.cpp:26
-#: menu/passportmenustate.cpp:72
+#: menu/newgamemenustate.cpp:26 menu/newgamemenustate.cpp:34
+#: menu/passportmenustate.cpp:76
 msgid "New Game"
 msgstr "Nouveau jeu"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:368
+#: hid/names.cpp:369
 msgctxt "MenuAction"
 msgid "Next Tab/View"
 msgstr "Onglet/Vue suivante"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:147
+#: hid/names.cpp:148
 msgctxt "Keyboard|Key"
 msgid "NmLk"
 msgstr "VerrNum"
 
 #. translators: TR charmap encoding
-#: menu/controlsmenustate.cpp:180 ui/widgets/messagebox.cpp:57
-#: ui/widgets/messagebox.cpp:64
+#: menu/controlsmenustate.cpp:179 ui/widgets/messagebox.cpp:60
+#: ui/widgets/messagebox.cpp:67
 msgid "No"
 msgstr "Non"
 
 #. translators: TR charmap encoding
-#: menu/gameplayrulesmenustate.cpp:103
+#: menu/gameplayrulesmenustate.cpp:93
 msgid "No Cheats"
 msgstr "Pas de triches"
 
 #. translators: TR charmap encoding
-#: menu/gameplayrulesmenustate.cpp:117
+#: menu/gameplayrulesmenustate.cpp:107
 msgid "No Hits"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/gameplayrulesmenustate.cpp:61
+#: menu/gameplayrulesmenustate.cpp:51
 msgid "No Loads"
 msgstr "Pas de chargements"
 
 #. translators: TR charmap encoding
-#: menu/gameplayrulesmenustate.cpp:75
+#: menu/gameplayrulesmenustate.cpp:65
 msgid "No Meds"
 msgstr "Pas de soins"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:83
+#: hid/names.cpp:84
 msgctxt "Keyboard|Key"
 msgid "O"
 msgstr "O"
 
 #. translators: TR charmap encoding
-#: menu/controlsmenustate.cpp:184
+#: menu/controlsmenustate.cpp:183
 msgid "OK"
 msgstr "OK"
 
 #. translators: TR charmap encoding
-#: menu/menudisplay.cpp:536
+#: menu/menudisplay.cpp:540
 msgid "OPTION"
 msgstr "OPTIONS"
 
@@ -1232,7 +1232,7 @@ msgstr ""
 "tous les emplacements vers le d)ebut de la liste."
 
 #. translators: TR charmap encoding
-#: menu/settingsmenustate.cpp:541
+#: menu/settingsmenustate.cpp:543
 msgid "Other"
 msgstr "Autres"
 
@@ -1243,191 +1243,191 @@ msgid "Overwrite slot %1%?"
 msgstr "Remplacer l'emplacement %1% ?"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:85
+#: hid/names.cpp:86
 msgctxt "Keyboard|Key"
 msgid "P"
 msgstr "P"
 
 #. translators: TR charmap encoding
-#: ui/levelstats.cpp:36
+#: ui/levelstats.cpp:35
 #, boost-format
 msgid "PICKUPS %1%"
 msgstr "OBJETS RAMASS)ES %1%"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:231
+#: hid/names.cpp:232
 msgctxt "Keyboard|Key"
 msgid "Pad+"
 msgstr "Num+"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:229
+#: hid/names.cpp:230
 msgctxt "Keyboard|Key"
 msgid "Pad-"
 msgstr "Num-"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:223
+#: hid/names.cpp:224
 msgctxt "Keyboard|Key"
 msgid "Pad."
 msgstr "Num."
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:225
+#: hid/names.cpp:226
 msgctxt "Keyboard|Key"
 msgid "Pad/"
 msgstr "Num/"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:203
+#: hid/names.cpp:204
 msgctxt "Keyboard|Key"
 msgid "Pad0"
 msgstr "Num0"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:205
+#: hid/names.cpp:206
 msgctxt "Keyboard|Key"
 msgid "Pad1"
 msgstr "Num1"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:207
+#: hid/names.cpp:208
 msgctxt "Keyboard|Key"
 msgid "Pad2"
 msgstr "Num2"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:209
+#: hid/names.cpp:210
 msgctxt "Keyboard|Key"
 msgid "Pad3"
 msgstr "Num3"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:211
+#: hid/names.cpp:212
 msgctxt "Keyboard|Key"
 msgid "Pad4"
 msgstr "Num4"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:213
+#: hid/names.cpp:214
 msgctxt "Keyboard|Key"
 msgid "Pad5"
 msgstr "Num5"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:215
+#: hid/names.cpp:216
 msgctxt "Keyboard|Key"
 msgid "Pad6"
 msgstr "Num6"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:217
+#: hid/names.cpp:218
 msgctxt "Keyboard|Key"
 msgid "Pad7"
 msgstr "Num7"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:219
+#: hid/names.cpp:220
 msgctxt "Keyboard|Key"
 msgid "Pad8"
 msgstr "Num8"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:221
+#: hid/names.cpp:222
 msgctxt "Keyboard|Key"
 msgid "Pad9"
 msgstr "Num9"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:233
+#: hid/names.cpp:234
 msgctxt "Keyboard|Key"
 msgid "PadEnter"
 msgstr "NumEnt"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:251
+#: hid/names.cpp:252
 msgctxt "Keyboard|Key"
 msgid "PadEq"
 msgstr "NumEg"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:227
+#: hid/names.cpp:228
 msgctxt "Keyboard|Key"
 msgid "Padx"
 msgstr "Numx"
 
 #. translators: TR charmap encoding
-#: menu/listdisplaymenustate.cpp:92
+#: menu/listdisplaymenustate.cpp:91
 #, boost-format
 msgctxt "PagedList"
 msgid "Page %1% of %2%"
 msgstr "Page %1% sur %2%"
 
 #. translators: TR charmap encoding
-#: menu/settingsmenustate.cpp:276
+#: menu/settingsmenustate.cpp:278
 msgctxt "lighting"
 msgid "Partially"
 msgstr "Partiellement"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:151
+#: hid/names.cpp:152
 msgctxt "Keyboard|Key"
 msgid "Pause"
 msgstr "Pause"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:137
+#: hid/names.cpp:138
 msgctxt "Keyboard|Key"
 msgid "PgDn"
 msgstr "PageBas"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:135
+#: hid/names.cpp:136
 msgctxt "Keyboard|Key"
 msgid "PgUp"
 msgstr "PageHaut"
 
 #. translators: TR charmap encoding
-#: ui/detailedlevelstats.cpp:45
+#: ui/detailedlevelstats.cpp:40
 msgid "Pickups"
 msgstr "Objets"
 
 #. translators: TR charmap encoding
-#: menu/menudisplay.cpp:301 ui/detailedlevelstats.cpp:110
+#: menu/menudisplay.cpp:305 ui/detailedlevelstats.cpp:105
 msgid "Pistols"
 msgstr "Pistolets"
 
 #. translators: TR charmap encoding
-#: menu/gameplayrulesmenustate.cpp:89
+#: menu/gameplayrulesmenustate.cpp:79
 msgid "Pistols Only"
 msgstr "Pistolets uniquement"
 
 #. translators: TR charmap encoding
-#: menu/settingsmenustate.cpp:794
+#: menu/settingsmenustate.cpp:796
 #, boost-format
 msgid "Preserve \037l %1% \037m Percent of Medi Packs"
 msgstr "Pr)eserver \037l %1% \037m pourcents des grandes trousses de soins"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:366
+#: hid/names.cpp:367
 msgctxt "MenuAction"
 msgid "Previous Tab/View"
 msgstr "Onglet/Vue pr)ec)edente"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:149
+#: hid/names.cpp:150
 msgctxt "Keyboard|Key"
 msgid "PrtScrn"
 msgstr "Impr)Ecran"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:87
+#: hid/names.cpp:88
 msgctxt "Keyboard|Key"
 msgid "Q"
 msgstr "A"
 
 #. translators: TR charmap encoding
-#: menu/settingsmenustate.cpp:315
+#: menu/settingsmenustate.cpp:317
 msgid "Quality"
 msgstr "Qualit)e"
 
@@ -1438,43 +1438,43 @@ msgid "Quicksave"
 msgstr "Sauvegarde rapide"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:89
+#: hid/names.cpp:90
 msgctxt "Keyboard|Key"
 msgid "R"
 msgstr "R"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:245
+#: hid/names.cpp:246
 msgctxt "Keyboard|Key"
 msgid "RAlt"
 msgstr "AltDroit"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:243
+#: hid/names.cpp:244
 msgctxt "Keyboard|Key"
 msgid "RCtrl"
 msgstr "CtrlDroit"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:241
+#: hid/names.cpp:242
 msgctxt "Keyboard|Key"
 msgid "RShift"
 msgstr "MajDroit"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:255
+#: hid/names.cpp:256
 msgctxt "Keyboard|Key"
 msgid "RSuper"
 msgstr ""
 
 #. translators: TR charmap encoding, gamepad
-#: hid/names.cpp:300
+#: hid/names.cpp:301
 msgctxt "Gamepad|Button"
 msgid "RThumb"
 msgstr "RStick"
 
 #. translators: TR charmap encoding
-#: menu/settingsmenustate.cpp:493
+#: menu/settingsmenustate.cpp:495
 msgid ""
 "Reduces render scale to lower resolutions.\n"
 "\n"
@@ -1485,123 +1485,123 @@ msgstr ""
 "PERFORMANCES : Peut grandement am)eliorer les performances."
 
 #. translators: TR charmap encoding
-#: menu/settingsmenustate.cpp:384
+#: menu/settingsmenustate.cpp:386
 msgid "Reduces the choppiness of the water surface."
 msgstr "R)eduit les in)egalit)es de la surface de l'eau."
 
 #. translators: TR charmap encoding
-#: menu/controlsmenustate.cpp:209
+#: menu/controlsmenustate.cpp:208
 #, boost-format
 msgid "Remove Mapping: Hold %1% for %2% seconds"
 msgstr "Supprimer l'affectation : tenir %1% pendant %2% secondes"
 
 #. translators: TR charmap encoding
-#: menu/controlsmenustate.cpp:221
+#: menu/controlsmenustate.cpp:220
 #, boost-format
 msgid "Reset All Mappings to Classic: Hold %1% for %2% seconds"
 msgstr ""
 "R)etablir tous les contr(oles classiques : tenir %1% pendant %2% secondes"
 
 #. translators: TR charmap encoding
-#: menu/controlsmenustate.cpp:215
+#: menu/controlsmenustate.cpp:214
 #, boost-format
 msgid "Reset All Mappings to Modern: Hold %1% for %2% seconds"
 msgstr ""
 "R)etablir tous les contr(oles modernes : tenir %1% pendant %2% secondes"
 
 #. translators: TR charmap encoding
-#: menu/passportmenustate.cpp:78
+#: menu/passportmenustate.cpp:82
 msgid "Restart Level"
 msgstr "Red)emarrer le niveau"
 
 #. translators: TR charmap encoding
-#: menu/settingsmenustate.cpp:639
+#: menu/settingsmenustate.cpp:641
 msgid "Restore Health on Level Start"
 msgstr "Restaurer la sant)e au d)ebut d'un niveau"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:117
+#: hid/names.cpp:118
 msgctxt "Keyboard|Key"
 msgid "Ret"
 msgstr "Entr)ee"
 
 #. translators: TR charmap encoding
-#: menu/controlsmenustate.cpp:181
+#: menu/controlsmenustate.cpp:180
 msgid "Return"
 msgstr "Retour"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:374
+#: hid/names.cpp:375
 msgctxt "MenuAction"
 msgid "Return"
 msgstr "Retour"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:342
+#: hid/names.cpp:343
 msgctxt "Action"
 msgid "Right"
 msgstr "Droit"
 
 #. translators: TR charcmap encoding
-#: menu/controlsmenustate.cpp:135
+#: menu/controlsmenustate.cpp:134
 msgctxt "GamepadAxis"
 msgid "Right"
 msgstr "Droit"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:127
+#: hid/names.cpp:128
 msgctxt "Keyboard|Key"
 msgid "Right"
 msgstr "Droit"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:360
+#: hid/names.cpp:361
 msgctxt "MenuAction"
 msgid "Right"
 msgstr "Droit"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:314
+#: hid/names.cpp:315
 msgctxt "Action"
 msgid "Roll"
 msgstr "Roulade"
 
 #. translators: TR charmap encoding
-#: menu/gameplayrulesmenustate.cpp:56
+#: menu/gameplayrulesmenustate.cpp:46
 msgid "Rules"
 msgstr "R$egles"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:344
+#: hid/names.cpp:345
 msgctxt "Action"
 msgid "Run"
 msgstr "Courir"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:91
+#: hid/names.cpp:92
 msgctxt "Keyboard|Key"
 msgid "S"
 msgstr "S"
 
 #. translators: TR charmap encoding
-#: ui/levelstats.cpp:37
+#: ui/levelstats.cpp:36
 #, boost-format
 msgid "SECRETS %1% of %2%"
 msgstr "SECRETS %1% sur %2%"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:336
+#: hid/names.cpp:337
 msgctxt "Action"
 msgid "Save"
 msgstr "Sauvegarder"
 
 #. translators: TR charmap encoding
-#: engine/engine.cpp:150 menu/passportmenustate.cpp:75
+#: engine/engine.cpp:153 menu/passportmenustate.cpp:79
 msgid "Save Game"
 msgstr "Sauvegarder un jeu"
 
 #. translators: TR charmap encoding
-#: menu/settingsmenustate.cpp:717
+#: menu/settingsmenustate.cpp:719
 #, boost-format
 msgid "Save Reminder after \037l %1% \037m Minute"
 msgid_plural "Save Reminder after \037l %1% \037m Minutes"
@@ -1609,87 +1609,87 @@ msgstr[0] "Rappel de sauvegarde apr$es \037l %1% \037m minute"
 msgstr[1] "Rappel de sauvegarde apr$es \037l %1% \037m minutes"
 
 #. translators: TR charmap encoding
-#: engine/ghostmanager.cpp:77
+#: engine/ghostmanager.cpp:76
 msgid "Save recorded ghost?"
 msgstr "Sauvegarder le fan(ome enregistr)e ?"
 
 #. translators: TR charmap encoding
-#: menu/settingsmenustate.cpp:523
+#: menu/settingsmenustate.cpp:525
 msgid "Scales the UI text."
 msgstr "Met le texte de l'interface $a l')echelle."
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:354
+#: hid/names.cpp:355
 msgctxt "Action"
 msgid "Screenshot"
 msgstr "Capture d')ecran"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:145
+#: hid/names.cpp:146
 msgctxt "Keyboard|Key"
 msgid "ScrlLk"
 msgstr "Arr(etD)efil"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:372
+#: hid/names.cpp:373
 msgctxt "MenuAction"
 msgid "Secondary Action"
 msgstr "Action secondaire"
 
 #. translators: TR charmap encoding
-#: ui/detailedlevelstats.cpp:50
+#: ui/detailedlevelstats.cpp:45
 msgid "Secrets"
 msgstr "Secrets"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:370
+#: hid/names.cpp:371
 msgctxt "MenuAction"
 msgid "Select"
 msgstr "S)electionner"
 
 #. translators: TR charmap encoding
-#: menu/settingsmenustate.cpp:744
+#: menu/settingsmenustate.cpp:746
 msgid "Select First Free or Oldest Slot"
 msgstr "S)electionner le premier emplacement libre ou le plus vieux"
 
 #. translators: TR charmap encoding
-#: menu/newgamemenustate.cpp:27 menu/selectlevelmenustate.cpp:20
+#: menu/newgamemenustate.cpp:35 menu/selectlevelmenustate.cpp:25
 msgid "Select Level"
 msgstr "S)electionner le niveau"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:235
+#: hid/names.cpp:236
 msgctxt "Keyboard|Key"
 msgid "Shift"
 msgstr "Maj"
 
 #. translators: TR charmap encoding
-#: menu/controlswidget.cpp:119
+#: menu/controlswidget.cpp:122
 msgid "Shortcuts"
 msgstr "Raccourcis"
 
 #. translators: TR charmap encoding
-#: menu/menudisplay.cpp:312 ui/detailedlevelstats.cpp:111
+#: menu/menudisplay.cpp:316 ui/detailedlevelstats.cpp:106
 msgid "Shotgun"
 msgstr "Fusil"
 
 #. translators: TR charmap encoding
-#: menu/menudisplay.cpp:323
+#: menu/menudisplay.cpp:327
 msgid "Shotgun Cells"
 msgstr "Cartouches de fusil"
 
 #. translators: TR charmap encoding
-#: menu/settingsmenustate.cpp:624
+#: menu/settingsmenustate.cpp:626
 msgid "Show Players' Names"
 msgstr "Afficher le nom des joueurs"
 
 #. translators: TR charmap encoding
-#: menu/settingsmenustate.cpp:635
+#: menu/settingsmenustate.cpp:637
 msgid "Shows other player names when enabled."
 msgstr "Affiche le nom des autres joueurs si activ)e."
 
 #. translators: TR charmap encoding
-#: menu/settingsmenustate.cpp:110
+#: menu/settingsmenustate.cpp:112
 msgid ""
 "Slightly blurs objects that are out of focus. The focus point is the center "
 "of the screen.\n"
@@ -1702,28 +1702,28 @@ msgstr ""
 "cartes graphiques d'entr)ee de gamme."
 
 #. translators: TR charmap encoding
-#: menu/menudisplay.cpp:402
+#: menu/menudisplay.cpp:406
 msgid "Small Medi Pack"
 msgstr "Petite trousse de soin"
 
 #. translators: TR charmap encoding
-#: ui/detailedlevelstats.cpp:60
+#: ui/detailedlevelstats.cpp:55
 msgid "Small Medi Packs"
 msgstr "Petites trousses de soin"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:332
+#: hid/names.cpp:333
 msgctxt "Action"
 msgid "Small Medipack"
 msgstr "Petite trousse de soin"
 
 #. translators: TR charmap encoding
-#: menu/settingsmenustate.cpp:527
+#: menu/settingsmenustate.cpp:529
 msgid "Smoother Animations"
 msgstr "Animations plus douces"
 
 #. translators: TR charmap encoding
-#: menu/settingsmenustate.cpp:445
+#: menu/settingsmenustate.cpp:447
 msgid ""
 "Smoothes out rendering edges.\n"
 "\n"
@@ -1736,53 +1736,53 @@ msgstr ""
 "vous constatez un framerate constamment faible."
 
 #. translators: TR charmap encoding
-#: menu/settingsmenustate.cpp:537
+#: menu/settingsmenustate.cpp:539
 msgid "Smoothes out some choppy model animations."
 msgstr "Adoucit quelques annimations de mod$ele in)egales."
 
 #. translators: TR charmap encoding
-#: menu/menudisplay.cpp:245
+#: menu/menudisplay.cpp:249
 msgid "Sound"
 msgstr "Audio"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:19
+#: hid/names.cpp:20
 msgctxt "Keyboard|Key"
 msgid "Space"
 msgstr "Espace"
 
 #. translators: TR charmap encoding, gamepad
-#: hid/names.cpp:283
+#: hid/names.cpp:284
 msgctxt "Gamepad|Button"
 msgid "Start"
 msgstr "Start"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:348
+#: hid/names.cpp:349
 msgctxt "Action"
 msgid "Step Left"
 msgstr "Pas $a gauche"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:350
+#: hid/names.cpp:351
 msgctxt "Action"
 msgid "Step Right"
 msgstr "Pas $a droite"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:253
+#: hid/names.cpp:254
 msgctxt "Keyboard|Key"
 msgid "Super"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: menu/controlsmenustate.cpp:196
+#: menu/controlsmenustate.cpp:195
 #, boost-format
 msgid "Switch Profile: %1% and %2%"
 msgstr ")Echanger les profils : %1% et %2%"
 
 #. translators: TR charmap encoding
-#: menu/settingsmenustate.cpp:463
+#: menu/settingsmenustate.cpp:465
 msgid ""
 "Switch between high and low resolution shadow maps.\n"
 "\n"
@@ -1795,104 +1795,104 @@ msgstr ""
 "vous constatez un framerate constamment faible."
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:93
+#: hid/names.cpp:94
 msgctxt "Keyboard|Key"
 msgid "T"
 msgstr "T"
 
 #. translators: TR charmap encoding
-#: ui/levelstats.cpp:39
+#: ui/levelstats.cpp:38
 #, boost-format
 msgid "TIME TAKEN %1%"
 msgstr "DUR)EE %1%"
 
 #. translators: TR charmap encoding
-#: ui/detailedlevelstats.cpp:43
+#: ui/detailedlevelstats.cpp:38
 msgctxt "gamestats"
 msgid "TOTAL"
 msgstr "TOTAL"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:119
+#: hid/names.cpp:120
 msgctxt "Keyboard|Key"
 msgid "Tab"
 msgstr "Tab"
 
 #. translators: TR charmap encoding
-#: ui/detailedlevelstats.cpp:72
+#: ui/detailedlevelstats.cpp:67
 msgid "Time Taken"
 msgstr "Dur)ee"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:95
+#: hid/names.cpp:96
 msgctxt "Keyboard|Key"
 msgid "U"
 msgstr "U"
 
 #. translators: TR charcmap encoding
-#: menu/controlsmenustate.cpp:140
+#: menu/controlsmenustate.cpp:139
 msgctxt "GamepadAxis"
 msgid "Up"
 msgstr "Haut"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:133
+#: hid/names.cpp:134
 msgctxt "Keyboard|Key"
 msgid "Up"
 msgstr "Haut"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:362
+#: hid/names.cpp:363
 msgctxt "MenuAction"
 msgid "Up"
 msgstr "Haut"
 
 #. translators: TR charmap encoding
-#: ui/levelstats.cpp:42
+#: ui/levelstats.cpp:41
 #, boost-format
 msgid "Use %1% to show detailed stats."
 msgstr "Utiliser %1% pour voir les statistiques d)etaill)ees."
 
 #. translators: TR charmap encoding
-#: menu/menudisplay.cpp:369
+#: menu/menudisplay.cpp:373
 msgid "Uzi Clips"
 msgstr "Munitions d'Uzi"
 
 #. translators: TR charmap encoding
-#: menu/menudisplay.cpp:358 ui/detailedlevelstats.cpp:113
+#: menu/menudisplay.cpp:362 ui/detailedlevelstats.cpp:108
 msgid "Uzis"
 msgstr "Uzis"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:97
+#: hid/names.cpp:98
 msgctxt "Keyboard|Key"
 msgid "V"
 msgstr "V"
 
 #. translators: TR charmap encoding
-#: menu/settingsmenustate.cpp:145
+#: menu/settingsmenustate.cpp:147
 msgid "Velvia"
 msgstr "Velvia"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:99
+#: hid/names.cpp:100
 msgctxt "Keyboard|Key"
 msgid "W"
 msgstr "Z"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:312
+#: hid/names.cpp:313
 msgctxt "Action"
 msgid "Walk"
 msgstr "Marcher"
 
 #. translators: TR charmap encoding
-#: menu/settingsmenustate.cpp:687
+#: menu/settingsmenustate.cpp:689
 msgid "Water Bed Bubbles"
 msgstr "Bulles de Water Bed"
 
 #. translators: TR charmap encoding
-#: menu/settingsmenustate.cpp:786
+#: menu/settingsmenustate.cpp:788
 msgid ""
 "When manually overwriting a save slot, you will need to confirm 'Yes' for "
 "some time to avoid accidental overwrites."
@@ -1902,7 +1902,7 @@ msgstr ""
 "accidentels."
 
 #. translators: TR charmap encoding
-#: menu/settingsmenustate.cpp:756
+#: menu/settingsmenustate.cpp:758
 msgid ""
 "When saving manually, automatically select the first free slot. If no more "
 "free slots are available, it will select the oldest save to be overwritten."
@@ -1912,7 +1912,7 @@ msgstr ""
 "la plus ancienne pour la remplacer."
 
 #. translators: TR charmap encoding
-#: menu/settingsmenustate.cpp:815
+#: menu/settingsmenustate.cpp:817
 msgid ""
 "When using Medi Packs, this setting prevents you from using them if you're "
 "practically wasting them."
@@ -1921,63 +1921,63 @@ msgstr ""
 "les g(acher pour un faible usage."
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:247
+#: hid/names.cpp:248
 msgctxt "Keyboard|Key"
 msgid "World1"
 msgstr ""
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:249
+#: hid/names.cpp:250
 msgctxt "Keyboard|Key"
 msgid "World2"
 msgstr "Inf"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:101
+#: hid/names.cpp:102
 msgctxt "Keyboard|Key"
 msgid "X"
 msgstr "X"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:103
+#: hid/names.cpp:104
 msgctxt "Keyboard|Key"
 msgid "Y"
 msgstr "Y"
 
 #. translators: TR charmap encoding
-#: menu/controlsmenustate.cpp:179 ui/widgets/messagebox.cpp:56
-#: ui/widgets/messagebox.cpp:63
+#: menu/controlsmenustate.cpp:178 ui/widgets/messagebox.cpp:59
+#: ui/widgets/messagebox.cpp:66
 msgid "Yes"
 msgstr "Oui"
 
 #. translators: TR charmap encoding
-#: menu/gameplayrulesmenustate.cpp:99
+#: menu/gameplayrulesmenustate.cpp:89
 msgid "You can only use the pistols, no other weapons."
 msgstr "Vous pouvez uniquement utiliser les pistolets, pas d'autres armes."
 
 #. translators: TR charmap encoding
-#: menu/gameplayrulesmenustate.cpp:71
+#: menu/gameplayrulesmenustate.cpp:61
 msgid "You cannot load any savegame."
 msgstr "Vous ne pouvez charger aucune sauvegarde."
 
 #. translators: TR charmap encoding
-#: menu/gameplayrulesmenustate.cpp:85
+#: menu/gameplayrulesmenustate.cpp:75
 msgid "You cannot use and medi pack."
 msgstr "Vous ne pouvez utiliser aucune trousse de soin."
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:105
+#: hid/names.cpp:106
 msgctxt "Keyboard|Key"
 msgid "Z"
 msgstr "W"
 
 #. translators: TR charmap encoding
-#: hid/names.cpp:109
+#: hid/names.cpp:110
 msgctxt "Keyboard|Key"
 msgid "\\"
 msgstr "x"
 
 #. translators: insert the locale here, this is an internal check if valid translations exist
-#: core/i18n.cpp:62
+#: core/i18n.cpp:64
 msgid "translation-test-message"
 msgstr "fr_FR"
