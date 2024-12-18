@@ -369,21 +369,21 @@ void decodeRgbaPart(uint64_t d, uint64_t alpha, uint32_t* dst, uint32_t w)
     const int32_t b1 = int32_t(b0) + db;
 
     // T mode
-    if((r1 < 0) || (r1 > 31))
+    if(r1 < 0 || r1 > 31)
     {
       decodeTAlpha(d, alpha, dst, w);
       return;
     }
 
     // H mode
-    if((g1 < 0) || (g1 > 31))
+    if(g1 < 0 || g1 > 31)
     {
       decodeHAlpha(d, alpha, dst, w);
       return;
     }
 
     // P mode
-    if((b1 < 0) || (b1 > 31))
+    if(b1 < 0 || b1 > 31)
     {
       decodePlanarAlpha(d, alpha, dst, w);
       return;
