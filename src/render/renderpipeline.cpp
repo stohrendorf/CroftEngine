@@ -277,6 +277,11 @@ void RenderPipeline::initBackbufferEffects(material::MaterialManager& materialMa
     }
   }
 
+  if(m_renderSettings.filmNoirActive)
+  {
+    addEffect("film-noir", materialManager.getFilmNoir());
+  }
+
   if((m_renderSettings.brightnessEnabled && m_renderSettings.brightness != 0)
      || (m_renderSettings.contrastEnabled && m_renderSettings.contrast != 0))
   {

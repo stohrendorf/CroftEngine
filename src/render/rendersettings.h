@@ -49,6 +49,7 @@ struct RenderSettings
   int32_t lightingMode = 1;
   std::optional<std::string> glidosPack = std::nullopt;
   bool muzzleFlashLight = true;
+  bool filmNoirActive = false;
 
   [[nodiscard]] size_t getLightCollectionDepth() const
   {

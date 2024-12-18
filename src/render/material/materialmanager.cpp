@@ -476,6 +476,24 @@ gslu::nn_shared<Material> MaterialManager::getBloom()
   return m;
 }
 
+gslu::nn_shared<Material> MaterialManager::getFilmNoir()
+{
+  if(m_filmNoir != nullptr)
+    return gsl::not_null{m_filmNoir};
+
+  auto m = gsl::make_shared<Material>(m_shaderCache->getFilmNoir());
+  m->getUniform("u_noise")->set(gsl::not_null{m_noiseTexture});
+  m->getUniform("u_time")->bind(
+    [renderer = m_renderer](const scene::Node*, const scene::Mesh& /*mesh*/, gl::Uniform& uniform)
+    {
+      const auto now = std::chrono::time_point_cast<std::chrono::milliseconds>(renderer->getGameTime());
+      uniform.set(gsl::narrow_cast<float>(now.time_since_epoch().count()));
+    });
+  configureForScreenSpaceEffect(*m, false);
+  m_filmNoir = m;
+  return m;
+}
+
 gslu::nn_shared<Material> MaterialManager::getHBAO()
 {
   if(m_hbao != nullptr)

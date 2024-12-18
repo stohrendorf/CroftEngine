@@ -41,7 +41,8 @@ void RenderSettings::serialize(const serialization::Serializer<engine::EngineCon
       S_NV("muzzleFlashLight", muzzleFlashLight),
       S_NV("lightingMode", lightingMode),
       S_NV("lightingModeActive", lightingModeActive),
-      S_NV("glidosPack", glidosPack));
+      S_NV("glidosPack", glidosPack),
+      S_NV("filmNoirActive", filmNoirActive));
 }
 
 void RenderSettings::deserialize(const serialization::Deserializer<engine::EngineConfig>& ser)
@@ -77,6 +78,7 @@ void RenderSettings::deserialize(const serialization::Deserializer<engine::Engin
       S_NVO("muzzleFlashLight", std::ref(muzzleFlashLight)),
       S_NVO("lightingMode", std::ref(lightingMode)),
       S_NVO("lightingModeActive", std::ref(lightingModeActive)),
-      S_NVO("glidosPack", std::ref(glidosPack)));
+      S_NVO("glidosPack", std::ref(glidosPack)),
+      S_NVO("filmNoirActive", std::ref(filmNoirActive)));
 }
 } // namespace render
