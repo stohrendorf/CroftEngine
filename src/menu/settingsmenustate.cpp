@@ -312,6 +312,20 @@ SettingsMenuState::SettingsMenuState(const std::shared_ptr<MenuRingTransform>& r
       MaxDescriptionWidth));
   }
 
+  listBox->addSetting(
+    /* translators: TR charmap encoding */
+    _("Film Noir"),
+    [&engine]()
+    {
+      return engine.getEngineConfig()->renderSettings.filmNoirActive;
+    },
+    [&engine]()
+    {
+      toggle(engine, engine.getEngineConfig()->renderSettings.filmNoirActive);
+    });
+  m_descriptions.back().emplace_back(std::make_shared<ui::widgets::TextBox>(
+    /* translators: TR charmap encoding */ _("An old film effect."), MaxDescriptionWidth));
+
   listBox = gsl::make_shared<ui::widgets::CheckListBox>();
   m_listBoxes.emplace_back(listBox);
   tab = gsl::make_shared<ui::widgets::Tab>(/* translators: TR charmap encoding */ _("Quality"));

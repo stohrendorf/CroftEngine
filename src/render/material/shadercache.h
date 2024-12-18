@@ -174,6 +174,11 @@ public:
     return get("flat.vert", "fx_bloom.frag");
   }
 
+  [[nodiscard]] auto getFilmNoir()
+  {
+    return get("flat.vert", "fx_old_film.frag");
+  }
+
   [[nodiscard]] auto getFastGaussBlur(const uint8_t extent, uint8_t blurDim)
   {
     gsl_Expects(extent > 0);
