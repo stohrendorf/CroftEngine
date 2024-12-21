@@ -23,18 +23,18 @@ float easeIn(in float t0, in float t1, in float t)
     return 2.0 * smoothstep(t0, 2.0 * t1 - t0, t);
 }
 
-float filmDirt(vec2 pp, float time)
+float filmDirt(in vec2 pp, in float time)
 {
-    const float aaRad = 0.1;
-    vec2 nseLookup2 = pp + vec2(0.5, 0.9) + time * 100.0;
-    vec3 nse2 = (snoise3(0.1 * nseLookup2.yxy) + snoise3(0.01 * nseLookup2.xyx) + snoise3(0.004 * nseLookup2.xyy + vec3(0.4))) * 0.25 + 0.75;
+    vec2 nseLookup2 = pp + vec2(0.5, 0.9) * time;
+    vec3 nse2 = gauss_noise(0.03 * nseLookup2) * 0.5 + 0.5;
 
     const float thresh = 0.6;
+    const float aaRad = 0.1;
     float mul1 = smoothstep(thresh-aaRad, thresh+aaRad, nse2.x);
     float mul2 = smoothstep(thresh-aaRad, thresh+aaRad, nse2.y);
     float mul3 = smoothstep(thresh-aaRad, thresh+aaRad, nse2.z);
 
-    float seed = snoise(time * vec2(0.35, 1.0)) * 0.25 + 0.75;
+    float seed = gauss_noise(time * vec2(0.35, 1.0)).x * 0.3 + 0.7;
 
     float result = clamp(0.0, 1.0, seed + 0.7) + 0.3 * smoothstep(0.0, SEQUENCE_LENGTH, time) + 0.06 * easeIn(19.2, 19.4, time);
 
@@ -66,10 +66,10 @@ float jumpCut(in float seqTime)
 
 vec2 moveImage(in vec2 uv, in float time)
 {
-    return uv + 0.002 * vec2(
+    return 0.002 * vec2(
     cos(time * 3.0) * sin(time * 12.0 + 0.25),
     sin(time * 1.0 + 0.5) * cos(time * 15.0 + 0.25)
-    );
+    ) + uv;
 }
 
 void main()
@@ -80,7 +80,7 @@ void main()
     vec2 res = textureSize(u_input, 0).xy;
     qq.x *= res.x / res.y;
 
-    float time = float(int(mod(u_time, SEQUENCE_LENGTH) * FPS)) / FPS;
+    float time = float(int(mod(u_time/1000.0, SEQUENCE_LENGTH) * FPS)) / FPS;
 
     vec4 dirt = vec4(filmDirt(qq, time + jumpCut(time)));
     vec4 image = texture(u_input, moveImage(uv, time));
