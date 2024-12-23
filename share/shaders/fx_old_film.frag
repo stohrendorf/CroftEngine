@@ -30,9 +30,7 @@ float filmDirt(in vec2 pp, in float time)
 
     const float thresh = 0.6;
     const float aaRad = 0.1;
-    float mul1 = smoothstep(thresh-aaRad, thresh+aaRad, nse2.x);
-    float mul2 = smoothstep(thresh-aaRad, thresh+aaRad, nse2.y);
-    float mul3 = smoothstep(thresh-aaRad, thresh+aaRad, nse2.z);
+    vec3 mul = smoothstep(vec3(thresh-aaRad), vec3(thresh+aaRad), nse2);
 
     float seed = gauss_noise(time * vec2(0.35, 1.0)).x * 0.3 + 0.7;
 
@@ -40,13 +38,13 @@ float filmDirt(in vec2 pp, in float time)
 
     const float band = 0.05;
     if (0.3 < seed && seed < 0.3 + band) {
-        return mul1 * result;
+        return mul.x * result;
     }
     else if (0.6 < seed && seed < 0.6 + band) {
-        return mul2 * result;
+        return mul.y * result;
     }
     else if (0.9 < seed && seed < 0.9 + band) {
-        return mul3 * result;
+        return mul.z * result;
     }
     else {
         return result;
