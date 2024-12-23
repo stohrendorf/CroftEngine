@@ -482,7 +482,6 @@ gslu::nn_shared<Material> MaterialManager::getFilmNoir()
     return gsl::not_null{m_filmNoir};
 
   auto m = gsl::make_shared<Material>(m_shaderCache->getFilmNoir());
-  m->getUniform("u_noise")->set(gsl::not_null{m_noiseTexture});
   m->getUniform("u_time")->bind(
     [renderer = m_renderer](const scene::Node*, const scene::Mesh& /*mesh*/, gl::Uniform& uniform)
     {

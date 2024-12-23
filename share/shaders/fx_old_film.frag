@@ -4,7 +4,6 @@
 #include "fx_input.glsl"
 #include "util.glsl"
 #include "time_uniform.glsl"
-#include "noise.glsl"
 
 const float SEQUENCE_LENGTH = 24.0;
 const float FPS = 12.0;
@@ -25,30 +24,7 @@ float easeIn(in float t0, in float t1, in float t)
 
 float filmDirt(in vec2 pp, in float time)
 {
-    vec2 nseLookup2 = pp + vec2(0.5, 0.9) * time;
-    vec3 nse2 = gauss_noise(0.03 * nseLookup2) * 0.5 + 0.5;
-
-    const float thresh = 0.6;
-    const float aaRad = 0.1;
-    vec3 mul = smoothstep(vec3(thresh-aaRad), vec3(thresh+aaRad), nse2);
-
-    float seed = gauss_noise(time * vec2(0.35, 1.0)).x * 0.3 + 0.7;
-
-    float result = clamp(0.0, 1.0, seed + 0.7) + 0.3 * smoothstep(0.0, SEQUENCE_LENGTH, time) + 0.06 * easeIn(19.2, 19.4, time);
-
-    const float band = 0.05;
-    if (0.3 < seed && seed < 0.3 + band) {
-        return mul.x * result;
-    }
-    else if (0.6 < seed && seed < 0.6 + band) {
-        return mul.y * result;
-    }
-    else if (0.9 < seed && seed < 0.9 + band) {
-        return mul.z * result;
-    }
-    else {
-        return result;
-    }
+    return clamp(0.8 + 0.3 * smoothstep(0.0, SEQUENCE_LENGTH, time) + 0.06 * easeIn(19.2, 19.4, time), 0.0, 1.0);
 }
 
 float jumpCut(in float seqTime)
@@ -64,7 +40,7 @@ float jumpCut(in float seqTime)
 
 vec2 moveImage(in vec2 uv, in float time)
 {
-    return 0.002 * vec2(
+    return 0.001 * vec2(
     cos(time * 3.0) * sin(time * 12.0 + 0.25),
     sin(time * 1.0 + 0.5) * cos(time * 15.0 + 0.25)
     ) + uv;
