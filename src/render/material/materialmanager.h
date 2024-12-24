@@ -79,6 +79,7 @@ public:
   [[nodiscard]] gslu::nn_shared<Material> getFastBoxBlur(uint8_t extent, uint8_t blurDir, uint8_t blurDim);
   [[nodiscard]] gslu::nn_shared<Material> getBloomDownsample();
   [[nodiscard]] gslu::nn_shared<Material> getBloomUpsample();
+  [[nodiscard]] gslu::nn_shared<Material> getBW();
 
   void setGeometryTextures(const gslu::nn_shared<gl::Texture2DArray<gl::PremultipliedSRGBA8>>& geometryTextures);
   void setFiltering(bool bilinear, const std::optional<float>& anisotropyLevel);

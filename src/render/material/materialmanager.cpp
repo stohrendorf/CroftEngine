@@ -409,6 +409,12 @@ gslu::nn_shared<Material> MaterialManager::getDeath()
   return m;
 }
 
+gslu::nn_shared<Material> MaterialManager::getBW() {
+  auto m = gsl::make_shared<Material>(m_shaderCache->getBW());
+  configureForScreenSpaceEffect(*m,false);
+  return m;
+}
+
 gslu::nn_shared<Material> MaterialManager::getFilmGrain()
 {
   if(m_filmGrain != nullptr)

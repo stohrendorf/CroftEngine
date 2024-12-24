@@ -248,6 +248,13 @@ void RenderPipeline::initWorldEffects(material::MaterialManager& materialManager
   {
     addEffect("filmGrain", materialManager.getFilmGrain());
   }
+  
+  // apply to world, but not the UI
+  if(m_renderSettings.filmNoirActive)
+  {
+    addEffect("film-noir", materialManager.getFilmNoir());
+  }
+
 }
 void RenderPipeline::initBackbufferEffects(material::MaterialManager& materialManager)
 {
@@ -277,10 +284,7 @@ void RenderPipeline::initBackbufferEffects(material::MaterialManager& materialMa
     }
   }
 
-  if(m_renderSettings.filmNoirActive)
-  {
-    addEffect("film-noir", materialManager.getFilmNoir());
-  }
+  
 
   if((m_renderSettings.brightnessEnabled && m_renderSettings.brightness != 0)
      || (m_renderSettings.contrastEnabled && m_renderSettings.contrast != 0))
@@ -290,6 +294,13 @@ void RenderPipeline::initBackbufferEffects(material::MaterialManager& materialMa
                 m_renderSettings.brightnessEnabled ? m_renderSettings.brightness : int8_t(0),
                 m_renderSettings.contrastEnabled ? m_renderSettings.contrast : int8_t(0)));
   }
+
+/* apply the black & white effect to make the health bar black & white without effecting brightness*/
+  if(m_renderSettings.filmNoirActive)
+  {
+    addEffect("bw", materialManager.getBW());
+  }
+
 }
 
 void RenderPipeline::renderPortalFrameBuffer(const std::function<void(const gl::RenderState&)>& doRender)

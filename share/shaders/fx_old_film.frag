@@ -60,5 +60,5 @@ void main()
     vec4 image = texture(u_input, moveImage(uv, time));
     vec4 vig = vignette(uv, time);
 
-    out_color = vec3(luminanceRgb(image * dirt * vig));
+    out_color = vec3(image * dirt * vig);
 }

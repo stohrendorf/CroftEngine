@@ -219,7 +219,7 @@ private:
   std::unique_ptr<render::scene::ScreenOverlay> m_screenOverlay;
 
   bool m_renderSettingsChanged = false;
-
+  bool m_isFilmNoir = false; 
   void scaleSplashImage();
 
   [[nodiscard]] const auto& getSplashImageMeshOrOverride() const noexcept
