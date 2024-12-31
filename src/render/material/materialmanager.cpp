@@ -409,9 +409,14 @@ gslu::nn_shared<Material> MaterialManager::getDeath()
   return m;
 }
 
-gslu::nn_shared<Material> MaterialManager::getBW() {
+gslu::nn_shared<Material> MaterialManager::getBW()
+{
+  if(m_bw != nullptr)
+    return gsl::not_null{m_bw};
+
   auto m = gsl::make_shared<Material>(m_shaderCache->getBW());
-  configureForScreenSpaceEffect(*m,false);
+  configureForScreenSpaceEffect(*m, false);
+  m_bw = m;
   return m;
 }
 

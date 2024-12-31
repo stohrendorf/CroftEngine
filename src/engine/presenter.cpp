@@ -310,8 +310,7 @@ void Presenter::drawBars(ui::Ui& ui,
                          const std::array<gl::SRGBA8, 256>& palette,
                          const ObjectManager& objectManager,
                          bool pulse)
-{ 
-  
+{
   if(objectManager.getLara().isInWater())
   {
     drawBar(ui,
@@ -321,11 +320,11 @@ void Presenter::drawBars(ui::Ui& ui,
             palette[17],
             palette[19],
             {
-             m_isFilmNoir ?  palette[41] : palette[32],
+              m_isFilmNoir ? palette[41] : palette[32],
               m_isFilmNoir ? palette[41] : palette[41],
-              m_isFilmNoir ? palette[41] : palette[32] ,
+              m_isFilmNoir ? palette[41] : palette[32],
               m_isFilmNoir ? palette[41] : palette[19],
-              m_isFilmNoir ? palette[41] : palette[21], 
+              m_isFilmNoir ? palette[41] : palette[21],
             });
   }
 
@@ -402,7 +401,7 @@ void Presenter::drawBars(ui::Ui& ui,
             withAlpha(m_isFilmNoir ? palette[41] : palette[8], alpha),
             withAlpha(m_isFilmNoir ? palette[41] : palette[11], alpha),
             withAlpha(m_isFilmNoir ? palette[41] : palette[8], alpha),
-            withAlpha(m_isFilmNoir ? palette[41] : palette[6] , alpha),
+            withAlpha(m_isFilmNoir ? palette[41] : palette[6], alpha),
             withAlpha(m_isFilmNoir ? palette[41] : palette[24], alpha),
           });
 }

@@ -2,7 +2,6 @@
 
 #include "flat_pipeline_interface.glsl"
 #include "fx_input.glsl"
-#include "util.glsl"
 #include "time_uniform.glsl"
 
 const float SEQUENCE_LENGTH = 24.0;

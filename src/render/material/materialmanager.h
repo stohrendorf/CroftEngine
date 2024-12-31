@@ -68,6 +68,7 @@ public:
   [[nodiscard]] gslu::nn_shared<Material> getReflective();
   [[nodiscard]] gslu::nn_shared<Material> getBloom();
   [[nodiscard]] gslu::nn_shared<Material> getFilmNoir();
+  [[nodiscard]] gslu::nn_shared<Material> getBW();
 
   [[nodiscard]] gslu::nn_shared<Material> getFlat(bool withAlpha, bool invertY = false, bool withAspectRatio = false);
   [[nodiscard]] gslu::nn_shared<Material> getBackdrop(bool withAlphaMultiplier);
@@ -79,7 +80,6 @@ public:
   [[nodiscard]] gslu::nn_shared<Material> getFastBoxBlur(uint8_t extent, uint8_t blurDir, uint8_t blurDim);
   [[nodiscard]] gslu::nn_shared<Material> getBloomDownsample();
   [[nodiscard]] gslu::nn_shared<Material> getBloomUpsample();
-  [[nodiscard]] gslu::nn_shared<Material> getBW();
 
   void setGeometryTextures(const gslu::nn_shared<gl::Texture2DArray<gl::PremultipliedSRGBA8>>& geometryTextures);
   void setFiltering(bool bilinear, const std::optional<float>& anisotropyLevel);
@@ -108,6 +108,7 @@ private:
   std::shared_ptr<Material> m_reflective{nullptr};
   std::shared_ptr<Material> m_bloom{nullptr};
   std::shared_ptr<Material> m_filmNoir{nullptr};
+  std::shared_ptr<Material> m_bw{nullptr};
 
   std::map<SpriteMaterialMode, gslu::nn_shared<Material>> m_sprite;
   std::shared_ptr<Material> m_ghost{nullptr};

@@ -179,7 +179,8 @@ public:
     return get("flat.vert", "fx_old_film.frag");
   }
 
-  [[nodiscard]] auto getBW() {
+  [[nodiscard]] auto getBW()
+  {
     return get("flat.vert", "fx_bw_ui.frag");
   }
 
