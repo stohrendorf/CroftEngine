@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CroftEngine\n"
 "Report-Msgid-Bugs-To: https://github.com/stohrendorf/CroftEngine/issues\n"
-"POT-Creation-Date: 2024-12-23 16:03+0100\n"
+"POT-Creation-Date: 2025-01-28 20:55+0100\n"
 "Last-Translator: Steffen Ohrendorf\n"
 "Language-Team: none\n"
 "Language: fr_FR\n"
@@ -758,12 +758,6 @@ msgstr "FXAA \037l %1% \037m"
 #: menu/settingsmenustate.cpp:133
 msgid "Film Grain"
 msgstr "Grain de pellicule"
-
-#. translators: TR charmap encoding
-#: menu/settingsmenustate.cpp:317
-#, fuzzy
-msgid "Film Noir"
-msgstr "Film noir"
 
 #. translators: TR charmap encoding
 #: menu/settingsmenustate.cpp:199
@@ -1884,6 +1878,11 @@ msgstr "V"
 #: menu/settingsmenustate.cpp:147
 msgid "Velvia"
 msgstr "Velvia"
+
+#. translators: TR charmap encoding
+#: menu/settingsmenustate.cpp:317
+msgid "Vintage Cinema"
+msgstr "Cin)ema Retro"
 
 #. translators: TR charmap encoding
 #: hid/names.cpp:100

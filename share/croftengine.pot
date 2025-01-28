@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CroftEngine 2.5.0\n"
 "Report-Msgid-Bugs-To: https://github.com/stohrendorf/CroftEngine/issues\n"
-"POT-Creation-Date: 2024-12-23 16:03+0100\n"
+"POT-Creation-Date: 2025-01-28 20:55+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -713,11 +713,6 @@ msgstr ""
 #. translators: TR charmap encoding
 #: menu/settingsmenustate.cpp:133
 msgid "Film Grain"
-msgstr ""
-
-#. translators: TR charmap encoding
-#: menu/settingsmenustate.cpp:317
-msgid "Film Noir"
 msgstr ""
 
 #. translators: TR charmap encoding
@@ -1809,6 +1804,11 @@ msgstr ""
 #. translators: TR charmap encoding
 #: menu/settingsmenustate.cpp:147
 msgid "Velvia"
+msgstr ""
+
+#. translators: TR charmap encoding
+#: menu/settingsmenustate.cpp:317
+msgid "Vintage Cinema"
 msgstr ""
 
 #. translators: TR charmap encoding

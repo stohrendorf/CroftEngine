@@ -314,7 +314,7 @@ SettingsMenuState::SettingsMenuState(const std::shared_ptr<MenuRingTransform>& r
 
   listBox->addSetting(
     /* translators: TR charmap encoding */
-    _("Film Noir"),
+    _("Vintage Cinema"),
     [&engine]()
     {
       return engine.getEngineConfig()->renderSettings.filmNoirActive;
