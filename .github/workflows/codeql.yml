@@ -34,7 +34,7 @@ jobs:
         run: |
           mkdir build
           cd build
-          cmake -DPERMISSIVE_BUILD=ON ..
+          cmake -DPERMISSIVE_BUILD=ON -DCMAKE_POLICY_VERSION_MINIMUM=3.5 ..
 
       - name: After Prepare (cpp)
         if: ${{ matrix.language == 'cpp' }}
