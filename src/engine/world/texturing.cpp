@@ -730,7 +730,7 @@ std::unique_ptr<gl::Texture2DArray<gl::PremultipliedSRGBA8>>
 
   materializeAtlases(level, atlases, atlasTiles, sprites, doneTiles, doneSprites, drawLoadingScreen);
 
-  const int textureLevels = static_cast<int>(std::log2(atlases.getSize()) + 1) / 2;
+  const int textureLevels = static_cast<int>(std::log2(atlases.getSize())) + 1;
   auto allTextures = std::make_unique<gl::Texture2DArray<gl::PremultipliedSRGBA8>>(
     glm::ivec3{atlases.getSize(), atlases.getSize(), gsl::narrow<int>(atlases.numAtlases())},
     "all-textures",
